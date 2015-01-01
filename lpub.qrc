@@ -81,8 +81,6 @@
         <file>lc_lib/resources/leocad.icns</file>
         <file>lc_lib/resources/leocad.ico</file>
         <file>lc_lib/resources/leocad_document.icns</file>
-        <file>lc_lib/resources/leocad_pt.qm</file>
-        <file>lc_lib/resources/leocad_pt.ts</file>
         <file>lc_lib/resources/library.zip</file>
         <file>lc_lib/resources/piece_show_earlier.png</file>
         <file>lc_lib/resources/piece_show_later.png</file>
@@ -96,9 +94,7 @@
         <file>lc_lib/resources/view_split_vertical.png</file>
         <file>lc_lib/resources/view_zoomextents.png</file>
         <file>lpub.icns</file>
-        <file>lpub.ico</file>
-        <file>lpub.rc</file>
-        <file>lpub.res</file>
         <file>pli.mpd</file>
+        <file>LPub.ico</file>
     </qresource>
 </RCC>

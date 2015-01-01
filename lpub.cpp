@@ -34,11 +34,6 @@
 #include "metaitem.h"
 #include "ranges_element.h"
 
-//** 3D
-#include "lc_mainwindow.h"
-#include "project.h"
-//**
-
 #include <iostream>
 #define DEBUG
 #ifndef DEBUG
@@ -435,7 +430,6 @@ Gui::Gui()
     editWindow      = new EditWindow();
 //**3D
     lcqWindow       = new lcQMainWindow;
-
 //**
 
     KpageScene    = new QGraphicsScene(this);
@@ -491,7 +485,7 @@ Gui::Gui()
 #endif
     setCurrentFile("");
     // Jaco: This sets the initial size of the main window
-    resize(800,600);
+    resize(1000,600);
 
     gui = this;
 
@@ -984,9 +978,6 @@ void Gui::createStatusBar()
     statusBar()->showMessage(tr("Ready"));
 }
 
-#include "lc_qglwidget.h"
-#include "lc_profile.h"
-
 void Gui::createDockWindows()
 {
 //**3D
@@ -1013,7 +1004,6 @@ void Gui::createDockWindows()
 
     tabifyDockWidget(modelDockWindow, fileEditDockWindow);
     modelDockWindow->raise();
-
 }
 
 void Gui::readSettings()

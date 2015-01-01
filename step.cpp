@@ -188,16 +188,14 @@ int Step::createCsi(
           .arg(csiName())
           .arg(orient)
           .arg(".ldr");
+  renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate);
 
   if ( ! csi.exists() || outOfDate) {
 
     int        rc;
 
     // render the partially assembled model
-
     rc = renderer->renderCsi(addLine,csiParts, pngName, meta);
-
-         renderer->render3DCsi(fileNamekey, addLine, csiParts, meta);
 
     if (rc < 0) {
       return rc;

@@ -25,10 +25,10 @@
 #include "lc_global.h"
 #include "lc_application.h"
 #include "lc_qmainwindow.h"
-#include "lc_mainwindow.h"
 #include "lc_qupdatedialog.h"
-#include "project.h"
+#include "lc_mainwindow.h"
 #include "view.h"
+#include "project.h"
 #include <QApplication>
 //**
 

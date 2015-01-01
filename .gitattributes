@@ -1,4 +1,6 @@
 * text=auto !eol
+/LPub.icns -text
+/LPub.ico -text
 /assemglobals.cpp -text
 /backgrounddialog.cpp -text
 /backgrounddialog.h -text
@@ -56,24 +58,16 @@ images/redraw.png -text
 images/save.png -text
 images/zoomin.png -text
 images/zoomout.png -text
-lc_lib/src/3rdparty/zlib/zconf.h -text
-lc_lib/src/3rdparty/zlib/zdll.lib -text
-lc_lib/src/3rdparty/zlib/zlib.def -text
-lc_lib/src/3rdparty/zlib/zlib.h -text
-lc_lib/src/3rdparty/zlib/zlib1.dll -text
 /ldrawfiles.cpp -text
 /ldrawfiles.h -text
 /license.gpl3 -text
 /lpub.cpp -text
 /lpub.h -text
-/lpub.icns -text
 /lpub.ico -text
-/lpub.pro.user -text
 /lpub.qrc -text
 /lpub.rc -text
 /lpub.res -text
 /lpub410.pro -text
-/lpub410.pro.user -text
 /lpub_preferences.cpp -text
 /lpub_preferences.h -text
 /main.cpp -text

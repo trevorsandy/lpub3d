@@ -23,11 +23,6 @@ win32 {
     CONFIG += debug_and_release
     LIBS += -ladvapi32 -lshell32
 }
-CONFIG(debug, debug|release) {
-        DESTDIR = build/debug
-} else {
-        DESTDIR = build/release
-}
 
 isEmpty(QMAKE_LRELEASE) {
         win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\\lrelease.exe
@@ -52,6 +47,11 @@ unix:!macx {
         TARGET = LPub410
 }
 
+CONFIG(debug, debug|release) {
+        DESTDIR = build/debug
+} else {
+        DESTDIR = build/release
+}
 OBJECTS_DIR = $$DESTDIR/.obj
 MOC_DIR = $$DESTDIR/.moc
 RCC_DIR = $$DESTDIR/.qrc
