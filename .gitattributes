@@ -286,7 +286,6 @@ lc_lib/tools/utils/zpipe.c -text
 /license.gpl3 -text
 /lpub.cpp -text
 /lpub.h -text
-/lpub.ico -text
 /lpub.qrc -text
 /lpub.rc -text
 /lpub.res -text
