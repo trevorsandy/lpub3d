@@ -173,7 +173,7 @@ int Step::createCsi(
   QFile csi(pngName);
 
   bool outOfDate = false;
-  
+
   if (csi.exists()) {
     QDateTime lastModified = QFileInfo(pngName).lastModified();
     QStringList stack = submodelStack();
@@ -183,10 +183,17 @@ int Step::createCsi(
     }
   }
 
-  QString fileNamekey = QString("%1_%2_%3_%4")
-          .arg(sn)
+  RotStepData rotStepData = meta.rotStep.value();
+  QString rotStep = QString("%1_%2_%3_%4")
+                                .arg(rotStepData.type)      //REL or ABS
+                                .arg(rotStepData.rots[0])
+                                .arg(rotStepData.rots[1])
+                                .arg(rotStepData.rots[2]);
+
+  QString fileNamekey = QString("%1_%2%3%4")
           .arg(csiName())
-          .arg(orient)
+          .arg(sn)
+          .arg(orient+"_"+rotStep)
           .arg(".ldr");
   renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate);
 
