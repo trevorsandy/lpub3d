@@ -12,11 +12,11 @@ class lcQModelListDialog : public QDialog
 	Q_OBJECT
 
 public:
-    lcQModelListDialog(QWidget* Parent, QList<QPair<QString, lcModel*> >& Models);
+	lcQModelListDialog(QWidget* Parent, QList<QPair<QString, lcModel*> >& Models);
 	~lcQModelListDialog();
 
 	int mActiveModel;
-    QList<QPair<QString, lcModel*> >& mModels;
+	QList<QPair<QString, lcModel*> >& mModels;
 
 public slots:
 	void accept();

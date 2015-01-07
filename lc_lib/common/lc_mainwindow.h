@@ -112,8 +112,6 @@ public:
 		return mViews;
 	}
 
-    bool LoadCsi(const QString &csiFileName);
-
 	void AddView(View* View);
 	void RemoveView(View* View);
 	void SetActiveView(View* ActiveView);

@@ -125,6 +125,9 @@ lc_lib/common/tr.cpp -text
 lc_lib/common/tr.h -text
 lc_lib/common/view.cpp -text
 lc_lib/common/view.h -text
+lc_lib/docs/COPYING.txt -text
+lc_lib/docs/CREDITS.txt -text
+lc_lib/qt/Info.plist -text
 lc_lib/qt/lc_config.h -text
 lc_lib/qt/lc_qaboutdialog.cpp -text
 lc_lib/qt/lc_qaboutdialog.h -text

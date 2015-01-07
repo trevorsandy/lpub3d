@@ -197,8 +197,8 @@ public:
 	lcVector4 mRotation;
 
 protected:
-    lcArray<lcObjectKey<lcVector3> > mPositionKeys;
-    lcArray<lcObjectKey<lcVector4> > mRotationKeys;
+	lcArray<lcObjectKey<lcVector3> > mPositionKeys;
+	lcArray<lcObjectKey<lcVector4> > mRotationKeys;
 
 	// Atributes
 	lcGroup* mGroup;

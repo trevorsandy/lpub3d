@@ -870,31 +870,3 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 	}
 }
-
-bool lcMainWindow::LoadCsi(const QString& csiFileName)
-{
-    QString CsiFile = csiFileName;
-
-    if (CsiFile.isEmpty())
-    {
-        return false;
-    }
-
-    Project* NewCsi = new Project();
-
-    if (NewCsi->Load(CsiFile))
-    {
-        g_App->SetProject(NewCsi);
-
-        UpdateAllViews();
-
-        return true;
-
-    }
-
-    QMessageBox::information(mHandle, tr("LPub 3D"), tr("Error loading '%1'.").arg(CsiFile));
-
-    delete NewCsi;
-
-    return false;
-}

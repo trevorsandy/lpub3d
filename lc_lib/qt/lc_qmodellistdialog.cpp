@@ -7,7 +7,7 @@ lcQModelListDialog::lcQModelListDialog(QWidget* Parent, QList<QPair<QString, lcM
 {
 	ui->setupUi(this);
 
-    for (QList<QPair<QString, lcModel*> >::iterator it = Models.begin(); it != Models.end(); it++)
+	for (QList<QPair<QString, lcModel*> >::iterator it = Models.begin(); it != Models.end(); it++)
 	{
 		QListWidgetItem* Item = new QListWidgetItem(it->first);
 		Item->setData(Qt::UserRole, qVariantFromValue<uintptr_t>((uintptr_t)it->second));

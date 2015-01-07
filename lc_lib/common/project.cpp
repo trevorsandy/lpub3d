@@ -23,6 +23,7 @@ Project::Project()
 {
 	mModified = false;
 	mActiveModel = new lcModel(tr("Model #1"));
+	mActiveModel->CreatePieceInfo();
 	mActiveModel->SetSaved();
 	mModels.Add(mActiveModel);
 }
@@ -123,6 +124,7 @@ void Project::CreateNewModel()
 	{
 		mModified = true;
 		lcModel* Model = new lcModel(Name);
+		Model->CreatePieceInfo();
 		Model->SetSaved();
 		mModels.Add(Model);
 		SetActiveModel(mModels.GetSize() - 1);
@@ -132,7 +134,7 @@ void Project::CreateNewModel()
 
 void Project::ShowModelListDialog()
 {
-    QList<QPair<QString, lcModel*> > Models;
+	QList<QPair<QString, lcModel*> > Models;
 	Models.reserve(mModels.GetSize());
 
 	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
@@ -148,13 +150,14 @@ void Project::ShowModelListDialog()
 
 	lcArray<lcModel*> NewModels;
 
-    for (QList<QPair<QString, lcModel*> >::iterator it = Models.begin(); it != Models.end(); it++)
+	for (QList<QPair<QString, lcModel*> >::iterator it = Models.begin(); it != Models.end(); it++)
 	{
 		lcModel* Model = it->second;
 
 		if (!Model)
 		{
 			Model = new lcModel(it->first);
+			Model->CreatePieceInfo();
 			Model->SetSaved();
 			mModified = true;
 		}
@@ -199,13 +202,15 @@ bool Project::Load(const QString& FileName)
 
 	if (Extension == QLatin1String("dat") || Extension == QLatin1String("ldr") || Extension == QLatin1String("mpd"))
 	{
-		QTextStream Stream(&File);
+		QByteArray FileData = File.readAll();
+		QBuffer Buffer(&FileData);
+		Buffer.open(QIODevice::ReadOnly);
 
-		while (!Stream.atEnd())
+		while (!Buffer.atEnd())
 		{
 			lcModel* Model = new lcModel(QString());
 			mModels.Add(Model);
-			Model->LoadLDraw(Stream);
+			Model->LoadLDraw(Buffer);
 			Model->SetSaved();
 		}
 	}

@@ -309,9 +309,9 @@ public:
 	TiledRender* m_pTR;
 
 protected:
-    lcArray<lcObjectKey<lcVector3> > mPositionKeys;
-    lcArray<lcObjectKey<lcVector3> > mTargetPositionKeys;
-    lcArray<lcObjectKey<lcVector3> > mUpVectorKeys;
+	lcArray<lcObjectKey<lcVector3> > mPositionKeys;
+	lcArray<lcObjectKey<lcVector3> > mTargetPositionKeys;
+	lcArray<lcObjectKey<lcVector3> > mUpVectorKeys;
 
 	void Initialize();
 
