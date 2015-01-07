@@ -53,6 +53,7 @@ class Render
                           RotStepMeta &rotStep,
                     const QStringList &parts,
                           QString     &ldrName);
+    int render3DCsi(QStringList &, QStringList &);
 };
 
 extern Render *renderer;
