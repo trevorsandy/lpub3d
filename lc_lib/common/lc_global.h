@@ -8,7 +8,7 @@
 #define LC_VERSION_MINOR 80
 #define LC_VERSION_PATCH 4
 #define LC_VERSION_TEXT "0.80.4"
-#define LC_VERSION_BUILD "1710"
+#define LC_VERSION_BUILD "1714"
 
 // Forward declarations.
 class lcModel;

@@ -172,6 +172,8 @@ public:
 	int mColorIndex;
 	lcSearchOptions mSearchOptions;
 
+    bool LoadCsi(const QString &csiFileName);
+
 protected:
 	View* mActiveView;
 	lcArray<View*> mViews;

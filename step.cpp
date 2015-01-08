@@ -48,6 +48,15 @@
 #include "paths.h"
 #include "ldrawfiles.h"
 
+#include <iostream>
+#define DEBUG
+#ifndef DEBUG
+#define PRINT(x)
+#else
+#define PRINT(x) \
+    std::cout << "- " << x << std::endl; //without expression
+#endif
+
 /*********************************************************************
  *
  * Create a new step and remember the meta-command state at the time
@@ -70,18 +79,18 @@ Step::Step(
   
   submodelLevel = meta.submodelStack.size();
 
-  stepNumber.number = num;                                  // record step number
+  stepNumber.number = num;                                     // record step number
 
-  relativeType            = StepType;
+  relativeType               = StepType;
   csiPlacement.relativeType  = CsiType;
-  stepNumber.relativeType = StepNumberType;
+  stepNumber.relativeType    = StepNumberType;
   csiItem = NULL;
 
   if (calledOut) {
     csiPlacement.margin     = meta.LPub.callout.csi.margin;    // assembly meta's
     csiPlacement.placement  = meta.LPub.callout.csi.placement;
-    pli.margin             = meta.LPub.callout.pli.margin;    // PLI info
-    pli.placement          = meta.LPub.callout.pli.placement;
+    pli.margin              = meta.LPub.callout.pli.margin;    // PLI info
+    pli.placement           = meta.LPub.callout.pli.placement;
     stepNumber.placement    = meta.LPub.callout.stepNum.placement;
     stepNumber.font         = meta.LPub.callout.stepNum.font.valueFoo();
     stepNumber.color        = meta.LPub.callout.stepNum.color.value();
@@ -90,8 +99,8 @@ Step::Step(
   } else if (multiStep) {
     csiPlacement.margin     = meta.LPub.multiStep.csi.margin;  // assembly meta's
     csiPlacement.placement  = meta.LPub.multiStep.csi.placement;
-    pli.margin             = meta.LPub.multiStep.pli.margin;
-    pli.placement          = meta.LPub.multiStep.pli.placement;
+    pli.margin              = meta.LPub.multiStep.pli.margin;
+    pli.placement           = meta.LPub.multiStep.pli.placement;
     stepNumber.placement    = meta.LPub.multiStep.stepNum.placement;
     stepNumber.font         = meta.LPub.multiStep.stepNum.font.valueFoo();
     stepNumber.color        = meta.LPub.multiStep.stepNum.color.value();
@@ -101,8 +110,8 @@ Step::Step(
     csiPlacement.margin     = meta.LPub.assem.margin;         // assembly meta's
     csiPlacement.placement  = meta.LPub.assem.placement;
     placement               = meta.LPub.assem.placement;
-    pli.margin             = meta.LPub.assem.margin;
-    pli.placement          = meta.LPub.pli.placement;
+    pli.margin              = meta.LPub.assem.margin;
+    pli.placement           = meta.LPub.pli.placement;
     stepNumber.font         = meta.LPub.stepNumber.font.valueFoo();
     stepNumber.color        = meta.LPub.stepNumber.color.value();
     stepNumber.margin       = meta.LPub.stepNumber.margin;
@@ -146,7 +155,8 @@ int Step::createCsi(
   QString const     &addLine,
   QStringList const &csiParts,  // the partially assembles model
   QPixmap           *pixmap,
-  Meta              &meta)
+  Meta              &meta,
+  bool              &do3DCsi)
 {
   qreal       modelScale = meta.LPub.assem.modelScale.value();
   int         sn = stepNumber.number;
@@ -161,6 +171,7 @@ int Step::createCsi(
       orient += "_" + tokens[i];
     }
   }
+
   QString key = QString("%1_%2_%3_%4_%5_%6")
                         .arg(csiName()+orient)
                         .arg(sn)
@@ -168,8 +179,10 @@ int Step::createCsi(
                         .arg(resolution())
                         .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                         .arg(modelScale);
+
   pngName = QDir::currentPath() + "/" +
                   Paths::assemDir + "/" + key + ".png";
+
   QFile csi(pngName);
 
   bool outOfDate = false;
@@ -183,19 +196,21 @@ int Step::createCsi(
     }
   }
 
-  RotStepData rotStepData = meta.rotStep.value();
-  QString rotStep = QString("%1_%2_%3_%4")
-                                .arg(rotStepData.type)      //REL or ABS
-                                .arg(rotStepData.rots[0])
-                                .arg(rotStepData.rots[1])
-                                .arg(rotStepData.rots[2]);
-
-  QString fileNamekey = QString("%1_%2%3%4")
-          .arg(csiName())
-          .arg(sn)
-          .arg(orient+"_"+rotStep)
-          .arg(".ldr");
-  renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate);
+  //**3D
+    RotStepData rotStepData = meta.rotStep.value();
+    QString rotStep = QString("%1_%2_%3_%4")
+                                  .arg(rotStepData.type)      //REL or ABS
+                                  .arg(rotStepData.rots[0])
+                                  .arg(rotStepData.rots[1])
+                                  .arg(rotStepData.rots[2]);
+    QString fileNamekey = QString("%1_%2%3%4")
+            .arg(csiName())
+            .arg(sn)
+            .arg(orient+"_"+rotStep)
+            .arg(".ldr");
+    if (do3DCsi)
+        renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate);
+  //**
 
   if ( ! csi.exists() || outOfDate) {
 
@@ -218,6 +233,60 @@ int Step::createCsi(
   return 0;
 }
 
+//**3D
+int Step::create3DCsi(
+        QString     const &addLine,
+        QStringList const &csiParts,
+        Meta              &meta)
+{
+    qreal   modelScale = meta.LPub.assem.modelScale.value();
+    int             sn = stepNumber.number;
+    // 1 color x y z a b c d e f g h i foo.dat
+    // 0 1     2 3 4 5 6 7 8 9 0 1 2 3 4
+    QStringList tokens;
+    split(addLine,tokens);
+    QString orient;
+    if (tokens.size() == 15) {
+      for (int i = 5; i < 14; i++) {
+        orient += "_" + tokens[i];
+      }
+    }
+    QString key = QString("%1_%2_%3_%4_%5_%6")
+                          .arg(csiName()+orient)
+                          .arg(sn)
+                          .arg(meta.LPub.page.size.valuePixels(0))
+                          .arg(resolution())
+                          .arg(resolutionType() == DPI ? "DPI" : "DPCM")
+                          .arg(modelScale);
+    pngName = QDir::currentPath() + "/" +
+                    Paths::assemDir + "/" + key + ".png";
+    QFile csi(pngName);
+    bool outOfDate = false;
+    if (csi.exists()) {
+      QDateTime lastModified = QFileInfo(pngName).lastModified();
+      QStringList stack = submodelStack();
+      stack << parent->modelName();
+      if ( ! isOlder(stack,lastModified)) {
+        outOfDate = true;
+      }
+    }
+    RotStepData rotStepData = meta.rotStep.value();
+    QString rotStep = QString("%1_%2_%3_%4")
+            .arg(rotStepData.type)      //REL or ABS
+            .arg(rotStepData.rots[0])
+            .arg(rotStepData.rots[1])
+            .arg(rotStepData.rots[2]);
+    QString fileNamekey = QString("%1_%2%3%4")
+            .arg(csiName())
+            .arg(sn)
+            .arg(orient+"_"+rotStep)
+            .arg(".ldr");
+    renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate);
+    PRINT("RENDER: fileNameKey: " << fileNamekey.toStdString() << "\n csiParts count: " <<
+          csiParts.size() << " csi.exists: " << (csi.exists() ? "Yes" : "No") << "\n outOfDate: " <<
+          (outOfDate ? "Yes" : "No"))
+}
+//**
 
 /*
  * LPub is able to pack steps together into multi-step pages or callouts.

@@ -71,7 +71,7 @@ class AbstractRangeElement : public Placement {
     Boundary boundary();
 
     QString path();
-	  QString csiName();
+    QString csiName();
     QStringList submodelStack();
     bool    onlyChild();
 };

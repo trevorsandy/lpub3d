@@ -80,11 +80,17 @@ class Step : public AbstractRangeElement
     Range *range();
 
     int  createCsi(
-           QString const     &addLine,
-           QStringList const &csiParts,
-           QPixmap          *pixmap,
-           Meta             &meta);
-    
+           QString      const &addLine,
+           QStringList  const &csiParts,
+           QPixmap            *pixmap,
+           Meta               &meta,
+           bool               &do3DCsi);
+
+    int  create3DCsi(
+           QString       const &addLine,
+           QStringList   const &csiParts,
+           Meta                &meta);
+
     int  sizeit(int  rows[],
                 int  cols[],
                 int  rowsMargin[][2],

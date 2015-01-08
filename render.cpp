@@ -900,22 +900,24 @@ int Render::render3DCsi(
             int counter = 0;
             for (int index = 0; index < csiParts.size(); index++) {
                 QString csiLine = csiParts[index];
+                //PRINT("START cisParts " << nameKeys.toStdString() << " Line: " << csiLine.toStdString());
                 split(csiLine, argv);
                 if (argv.size() == 15 && argv[0] == "1") {
                     // process subfiles in csiParts
                     QString type = argv[argv.size()-1];
                     isSubModel = type.contains(subModel);
-                    //PRINT("Type: " << type.toStdString() << " isSubModel? " << (isSubModel ? "Yes" : "No"));
                     if (isSubModel) {
                         counter++;
                         // capture all subfiles (full string) to be processed when finished
                         for(QStringList::iterator it = csiSubModels.begin(); it != csiSubModels.end(); ++it)
                         {
-                            if (*it == type)
-                                alreadyInserted = true;
+                            *it == type ? alreadyInserted = true : alreadyInserted = false;
                         }
-                        if (!alreadyInserted)
+                        if (! alreadyInserted){
                             csiSubModels << type.toLower();
+                            alreadyInserted = false;
+                            //PRINT("INSERT csiSubModels : " << type.toStdString());
+                        }
                     }
                 }
                 if (isSubModel)
@@ -926,14 +928,14 @@ int Render::render3DCsi(
                 csiLine = argv.join(" ");
                 csi3DParts << csiLine;
             } //end for
-            //extract submodels and process any lower level submodels
+            //process extracted submodels
             if (csiSubModels.size() > 0)
                 render3DCsi(csiSubModels, csiSubModelParts);
-            /* Set the CSI 3D ldr rotation */
+            /* Set the CSI 3D ldr rotation on top-level content */
             if ((rc = rotateParts(addLine, meta.rotStep, csi3DParts, csi3DName)) < 0) {
                 return rc;
             }
-            //add subModel content to csi3D file
+            //add sub model content to csi3D file
             if (! csiSubModelParts.empty())
             {
                 //append subModel content to csi3D file
@@ -956,7 +958,7 @@ int Render::render3DCsi(
         }
     }
     //load CSI 3D file into viewer
-    PRINT("Loading 3D File: " << csi3DName.toStdString());
+    //PRINT("END Load 3D File: " << csi3DName.toStdString());
     QFile csi3DFile(csi3DName);
     if (csi3DFile.exists()){
         //gMainWindow->LoadCsi(csi3DFile.fileName());
@@ -970,22 +972,24 @@ int Render::render3DCsi(QStringList &subModels,
                   QStringList &subModelParts)
 {
     QRegExp     subModel("\\.((ldr|LDR)|(mpd|MPD))$");
-    QStringList csiSubModelParts = subModelParts;
-    QStringList csiSubModels = subModels;
+    QStringList csiSubModels        = subModels;
+    QStringList csiSubModelParts    = subModelParts;
     QStringList newSubModels;
     QStringList argv;
-    bool        isSubModel = false;
-    bool        alreadyInserted = false;
+    bool        isSubModel          = false;
+    bool        alreadyInserted     = false;
 
     if (csiSubModels.size() > 0) {
         //read in all detected sub model file content
-        for (int index1 = 0; index1 < csiSubModels.size(); index1++) {
+        for (int index = 0; index < csiSubModels.size(); index++) {
             QString ldrName(QDir::currentPath() + "/" +
                             Paths::tmpDir + "/" +
-                            csiSubModels[index1]);
+                            csiSubModels[index]);
+            //PRINT("989--------");
+            //PRINT("00 PROCESSING SubModel: " << csiSubModels[index].toStdString());
             //initialize the working submodel file - define header.
-            csiSubModelParts.append("0 NOFILE\n0 FILE " + csiSubModels[index1] + "\n"
-                                    "0 !LEOCAD MODEL NAME " + csiSubModels[index1] + "\n"
+            csiSubModelParts.append("0 NOFILE\n0 FILE " + csiSubModels[index] + "\n"
+                                    "0 !LEOCAD MODEL NAME " + csiSubModels[index] + "\n"
                                     "0 !LEOCAD MODEL BACKGROUND GRADIENT 0 0 0.74902 1 1 1\n"
                                     "0 !LEOCAD MODEL BACKGROUND COLOR 1 1 1");
             //access the actual submodel file
@@ -1008,18 +1012,18 @@ int Render::render3DCsi(QStringList &subModels,
                     // process subfiles in csiParts
                     QString type = argv[argv.size()-1];
                     isSubModel = type.contains(subModel);
-                    //PRINT("Type: " << type.toStdString() << " isSubModel? " << (isSubModel ? "Yes" : "No"));
+                    //PRINT("00 Type: " << type.toStdString() << " isSubModel? " << (isSubModel ? "Yes" : "No"));
                     if (isSubModel) {
                         counter++;
                         // capture all subfiles (full string) to be processed when finished
                         for(QStringList::iterator it = newSubModels.begin(); it != newSubModels.end(); ++it)
                         {
-                            if (*it == type)
-                                alreadyInserted = true;
+                            *it == type ? alreadyInserted = true : alreadyInserted = false;
                         }
                         if (! alreadyInserted){
                             newSubModels << type;
-                            PRINT("NewSubModel: " << type.toStdString());
+                            alreadyInserted = false;
+                            //PRINT("00 INSERT NewSubModel: " << type.toStdString());
                         }
                     }
                 }
@@ -1032,10 +1036,12 @@ int Render::render3DCsi(QStringList &subModels,
                 csiSubModelParts << csiLine;
             }
         }
-        //PRINT("csiSubModelParts count =: " << csiSubModelParts.count());
         if (newSubModels.size() > 0){
             render3DCsi(newSubModels, csiSubModelParts);
-            PRINT("RECURSE on SubModel(Size): " << newSubModels.size());
+            //PRINT STUFF
+            for (int index = 0; index < newSubModels.size(); index++) {
+                //PRINT("00 RECURSE on NewSubModel: " << newSubModels[index].toStdString());
+            }
         }
         //end for
         csiSubModelParts.append("0 NOFILE");
