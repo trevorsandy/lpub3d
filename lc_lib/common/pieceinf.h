@@ -54,6 +54,16 @@ public:
 		return mRefCount;
 	}
 
+	bool IsLoaded() const
+	{
+		return mRefCount != 0;
+	}
+
+	bool IsTemporary() const
+	{
+		return (mFlags & (LC_PIECE_PLACEHOLDER | LC_PIECE_MODEL)) != 0;
+	}
+
 	void SetZipFile(int ZipFileType, int ZipFileIndex)
 	{
 		mZipFileType = ZipFileType;
@@ -96,6 +106,7 @@ public:
 
 	void CreatePlaceholder(const char* Name);
 
+	void SetPlaceholder();
 	void SetModel(lcModel* Model);
 	bool IncludesModel(const lcModel* Model) const;
 	bool MinIntersectDist(const lcMatrix44& WorldMatrix, const lcVector3& WorldStart, const lcVector3& WorldEnd, float& MinDistance) const;

@@ -58,6 +58,7 @@ class Step : public AbstractRangeElement
     bool              pliPerStep;
     PlacementMeta     placement;
     QString           pngName;
+    QString           csi3DName;
 
     Step(
       Where                 &topOfStep,
@@ -85,12 +86,7 @@ class Step : public AbstractRangeElement
            QPixmap            *pixmap,
            Meta               &meta,
            bool               &do3DCsi);
-
-    int  create3DCsi(
-           QString       const &addLine,
-           QStringList   const &csiParts,
-           Meta                &meta);
-
+    int Render3DCsi(QString &csi3DName);
     int  sizeit(int  rows[],
                 int  cols[],
                 int  rowsMargin[][2],

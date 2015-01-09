@@ -876,7 +876,8 @@ int Render::render3DCsi(
   const QStringList &csiParts,
         Meta        &meta,
         bool        csiExists,
-        bool        outOfDate)
+        bool        outOfDate,
+        bool        do3DCsi)
 {
     QStringList csiSubModels;
     QStringList csiSubModelParts;
@@ -912,25 +913,28 @@ int Render::render3DCsi(
                         for(QStringList::iterator it = csiSubModels.begin(); it != csiSubModels.end(); ++it)
                         {
                             *it == type ? alreadyInserted = true : alreadyInserted = false;
+                            //PRINT("CHECK INSERT: Type: " << type.toStdString() << " Inserted: " << (alreadyInserted?"Yes":"No"));
                         }
                         if (! alreadyInserted){
-                            csiSubModels << type.toLower();
+                            csiSubModels << type;
                             alreadyInserted = false;
                             //PRINT("INSERT csiSubModels : " << type.toStdString());
                         }
                     }
                 }
-                if (isSubModel)
-                {
-                    csiLine = "0 !LEOCAD PIECE NAME " + argv[argv.size()-1] + " #" + QString("%1").arg(counter);
-                    csi3DParts << csiLine;
-                }
+//                if (isSubModel)
+//                {
+//                    csiLine = "0 !LEOCAD PIECE NAME " + argv[argv.size()-1] + " #" + QString("%1").arg(counter);
+//                    csi3DParts << csiLine;
+//                }
                 csiLine = argv.join(" ");
                 csi3DParts << csiLine;
             } //end for
             //process extracted submodels
             if (csiSubModels.size() > 0)
                 render3DCsi(csiSubModels, csiSubModelParts);
+            else
+                csi3DParts.append("0 NOFILE");
             /* Set the CSI 3D ldr rotation on top-level content */
             if ((rc = rotateParts(addLine, meta.rotStep, csi3DParts, csi3DName)) < 0) {
                 return rc;
@@ -957,13 +961,16 @@ int Render::render3DCsi(
             }
         }
     }
+
+    if ((rc = render3DCsi(csi3DName)) < 0)
+        return rc;
     //load CSI 3D file into viewer
     //PRINT("END Load 3D File: " << csi3DName.toStdString());
-    QFile csi3DFile(csi3DName);
-    if (csi3DFile.exists()){
-        //gMainWindow->LoadCsi(csi3DFile.fileName());
-        return 0;
-    } else {return -1;}
+//    QFile csi3DFile(csi3DName);
+//    if (csi3DFile.exists() && do3DCsi){
+//        gMainWindow->OpenProject(csi3DFile.fileName());
+//        return 0;
+//    } else {return -1;}
 
     return 0;
 }
@@ -985,8 +992,8 @@ int Render::render3DCsi(QStringList &subModels,
             QString ldrName(QDir::currentPath() + "/" +
                             Paths::tmpDir + "/" +
                             csiSubModels[index]);
-            //PRINT("989--------");
-            //PRINT("00 PROCESSING SubModel: " << csiSubModels[index].toStdString());
+//            PRINT("989--------");
+//            PRINT("00 PROCESSING SubModel: " << csiSubModels[index].toStdString());
             //initialize the working submodel file - define header.
             csiSubModelParts.append("0 NOFILE\n0 FILE " + csiSubModels[index] + "\n"
                                     "0 !LEOCAD MODEL NAME " + csiSubModels[index] + "\n"
@@ -1012,7 +1019,7 @@ int Render::render3DCsi(QStringList &subModels,
                     // process subfiles in csiParts
                     QString type = argv[argv.size()-1];
                     isSubModel = type.contains(subModel);
-                    //PRINT("00 Type: " << type.toStdString() << " isSubModel? " << (isSubModel ? "Yes" : "No"));
+//                    PRINT("00 Type: " << type.toStdString() << " isSubModel? " << (isSubModel ? "Yes" : "No"));
                     if (isSubModel) {
                         counter++;
                         // capture all subfiles (full string) to be processed when finished
@@ -1023,15 +1030,15 @@ int Render::render3DCsi(QStringList &subModels,
                         if (! alreadyInserted){
                             newSubModels << type;
                             alreadyInserted = false;
-                            //PRINT("00 INSERT NewSubModel: " << type.toStdString());
+//                            PRINT("00 INSERT NewSubModel: " << type.toStdString());
                         }
                     }
                 }
-                if (isSubModel)
-                {
-                    csiLine = "0 !LEOCAD PIECE NAME " + argv[argv.size()-1] + " #" + QString("%1").arg(counter);
-                    csiSubModelParts << csiLine;
-                }
+//                if (isSubModel)
+//                {
+//                    csiLine = "0 !LEOCAD PIECE NAME " + argv[argv.size()-1] + " #" + QString("%1").arg(counter);
+//                    csiSubModelParts << csiLine;
+//                }
                 csiLine = argv.join(" ");
                 csiSubModelParts << csiLine;
             }
@@ -1040,12 +1047,25 @@ int Render::render3DCsi(QStringList &subModels,
             render3DCsi(newSubModels, csiSubModelParts);
             //PRINT STUFF
             for (int index = 0; index < newSubModels.size(); index++) {
-                //PRINT("00 RECURSE on NewSubModel: " << newSubModels[index].toStdString());
-            }
+//                PRINT("00 RECURSE on NewSubModel: " << newSubModels[index].toStdString());
+            } //END PRINT STUFF
         }
         //end for
         csiSubModelParts.append("0 NOFILE");
         subModelParts = csiSubModelParts;
     }
+    return 0;
+}
+
+int Render::render3DCsi(QString &csi3DName)
+{
+    //load CSI 3D file into viewer
+    PRINT("END LOAD 3D FILE: " << csi3DName.toStdString());
+    QFile csi3DFile(csi3DName);
+    if (csi3DFile.exists()){
+        gMainWindow->OpenProject(csi3DFile.fileName());
+        return 0;
+    } else {return -1;}
+
     return 0;
 }

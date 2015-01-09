@@ -35,13 +35,14 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
   ui.ldrawPath->setText(    ldrawPath);
   ui.pliName->setText(      Preferences::pliFile);
   ui.pliBox->setChecked(    Preferences::pliFile != "");
+  //ui.fadeStepBox->setChecked(    Preferences::preferFadeStep != "");
   ui.ldglitePath->setText(  Preferences::ldgliteExe);
-	ui.ldgliteBox->setChecked(Preferences::ldgliteExe != "");
-	ui.l3pPath->setText(  Preferences::l3pExe);
-	ui.povrayPath->setText(Preferences::povrayExe);
-	ui.l3pBox->setChecked(Preferences::l3pExe != "" && Preferences::povrayExe != "");
-	ui.lgeoPath->setText(Preferences::lgeoPath);
-	ui.lgeoBox->setChecked(Preferences::lgeoPath != "");
+  ui.ldgliteBox->setChecked(Preferences::ldgliteExe != "");
+  ui.l3pPath->setText(      Preferences::l3pExe);
+  ui.povrayPath->setText(   Preferences::povrayExe);
+  ui.l3pBox->setChecked(    Preferences::l3pExe != "" && Preferences::povrayExe != "");
+  ui.lgeoPath->setText(     Preferences::lgeoPath);
+  ui.lgeoBox->setChecked(   Preferences::lgeoPath != "");
   ui.ldviewPath->setText(   Preferences::ldviewExe);
   ui.ldviewBox->setChecked( Preferences::ldviewExe != "");
   

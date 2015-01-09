@@ -34,6 +34,9 @@ lcMainWindow::lcMainWindow()
 
 lcMainWindow::~lcMainWindow()
 {
+	delete mPreviewWidget;
+	mPreviewWidget = NULL;
+
 	for (int FileIdx = 0; FileIdx < LC_MAX_RECENT_FILES; FileIdx++)
 		lcSetProfileString((LC_PROFILE_KEY)(LC_PROFILE_RECENT_FILE1 + FileIdx), mRecentFiles[FileIdx]);
 
@@ -869,32 +872,4 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_NUM_COMMANDS:
 		break;
 	}
-}
-
-bool lcMainWindow::LoadCsi(const QString& csiFileName)
-{
-    QString CsiFile = csiFileName;
-
-    if (CsiFile.isEmpty())
-    {
-        return false;
-    }
-
-    Project* NewCsi = new Project();
-
-    if (NewCsi->Load(CsiFile))
-    {
-        g_App->SetProject(NewCsi);
-
-        UpdateAllViews();
-
-        return true;
-
-    }
-
-    QMessageBox::information(mHandle, tr("LPub 3D"), tr("Error loading '%1'.").arg(CsiFile));
-
-    delete NewCsi;
-
-    return false;
 }

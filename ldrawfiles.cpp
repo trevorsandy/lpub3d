@@ -44,7 +44,6 @@
 #endif
     //std::cout << #x << ":\t" << x << std::endl; //with expression
 
-QHash<QString, int> LDrawFile::_fadePositions;
 int                 LDrawFile::_emptyInt;
 
 LDrawSubFile::LDrawSubFile(
@@ -64,7 +63,7 @@ LDrawSubFile::LDrawSubFile(
   _changedSinceLastWrite = true;
   _unofficialPart = unofficialPart;
   _generated = generated;
-  _level = 0;
+  _fadePosition = 0;
 }
 
 void LDrawFile::empty()
@@ -138,13 +137,16 @@ QString LDrawFile::topLevelFile()
 
 /* return the name and last stored position value */
 
-const int &LDrawFile::fadePositions(QString value)
+int LDrawFile::getFadePosition(const QString &mcFileName)
 {
-  if (_fadePositions.contains(value.toLower())) {
-    return _fadePositions[value.toLower()];
-  } else {
-    return _emptyInt;
+  QString fileName = mcFileName.toLower();
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+  if (i != _subFiles.end()) {
+    PRINT("146-------");
+    PRINT("147 FADE POS GET: " << i.value()._fadePosition);
+    return i.value()._fadePosition;
   }
+  return 0;
 }
 
 /* return the number of steps within the file */
@@ -236,9 +238,9 @@ void LDrawFile::setContents(const QString     &mcFileName,
   }
 }
 
-// not used
-void LDrawFile::setFileLevel(const QString     &mcFileName,
-                 const int &level)
+
+void LDrawFile::setFadePosition(const QString     &mcFileName,
+                 const int &fadePosition)
 {
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
@@ -246,8 +248,9 @@ void LDrawFile::setFileLevel(const QString     &mcFileName,
   if (i != _subFiles.end()) {
     i.value()._modified = true;
     //i.value()._datetime = QDateTime::currentDateTime();
-    i.value()._level = level;
+    i.value()._fadePosition = fadePosition;
     i.value()._changedSinceLastWrite = true;
+    PRINT("253 FADE POS SET: " << i.value()._fadePosition);
   }
 }
 
@@ -543,18 +546,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
       insert(mpdName,contents,datetime,unofficialPart);
     }
 
-    /* Process File Levels */
-    int level = 0;
-
-    QString levelFileName = topLevelFile().toLower();
-    PRINT("551 LEVEL - Top Level File: " << levelFileName.toStdString());
-    QMap<QString, LDrawSubFile>::iterator it = _subFiles.find(levelFileName);
-    if (it != _subFiles.end()){
-        it->_level = level;
-        QStringList contents = LDrawFile::contents(levelFileName);
-        subFileLevels(contents, level);
-    }
-
     _mpd = true;
 }
 
@@ -608,43 +599,6 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
         }
       }
       _mpd = false;
-    }
-}
-
-/* write the level of each subfile in the MPD file
- * Levels are used to properly determine the
- * start position for writing step fade files
- * during the initial MPD file load.
- */
-
-void LDrawFile::subFileLevels(QStringList &contents, int &level){
-    QRegExp subFile("^\\s*1\\s(.+)\\s(.+)\\.((ldr|LDR)|(mpd|MPD))$");
-    int sfLevel = level;
-
-    for (int i = 0; i < contents.size(); i++) {
-        QString line = contents.at(i);
-        QString subFileName;
-        QStringList tokens;
-        split(line,tokens);
-
-        bool isSubFile = line.contains(subFile);
-        if (isSubFile){
-
-            subFileName = tokens[tokens.size()-1].toLower();
-
-            QMap<QString, LDrawSubFile>::iterator it = _subFiles.find(subFileName);
-
-            if (it != _subFiles.end()){
-                int sfLevel2;
-                it->_level = sfLevel;
-                QStringList contents2;
-                contents2 = LDrawFile::contents(subFileName);
-                sfLevel2 = sfLevel + 1;
-
-                PRINT("640 LEVEL - Process SubFile " << subFileName.toStdString() << " at Level (" << sfLevel2 << ") with Content2 Count(" << contents2.count() << ")");
-                subFileLevels(contents2, sfLevel2);
-            }
-        }
     }
 }
 

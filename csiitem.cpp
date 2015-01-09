@@ -38,6 +38,16 @@
 #include "metaitem.h"
 #include "commonmenus.h"
 
+
+#include <iostream>
+#define DEBUG
+#ifndef DEBUG
+#define PRINT(x)
+#else
+#define PRINT(x) \
+    std::cout << "- " << x << std::endl; //without expression
+#endif
+
 CsiItem::CsiItem(
   Step          *_step,
   Meta          *_meta,
@@ -325,6 +335,7 @@ void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   //placeGrabbers();
   position = pos();
   gui->showLine(step->topOfStep());
+  step->Render3DCsi(step->csi3DName);
 }
 
 void CsiItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)

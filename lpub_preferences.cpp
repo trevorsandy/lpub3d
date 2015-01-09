@@ -300,6 +300,18 @@ void Preferences::unitsPreferences()
   }
 }
 
+//void Preferences::fadestepPreferences()
+//{
+//  QSettings settings(LPUB,SETTINGS);
+//  if ( ! settings.contains("FadeStep")) {
+//    QVariant value(false);
+//    preferFadeStep = false;
+//    settings.setValue("FadeStep",value);
+//  } else {
+//    preferFadeStep = settings.value("FadeStep").toBool();
+//  }
+//}
+
 bool Preferences::getPreferences()
 {
   PreferencesDialog *dialog = new PreferencesDialog();

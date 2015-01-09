@@ -154,6 +154,12 @@ lcModel::lcModel(const QString& Name)
 
 lcModel::~lcModel()
 {
+	if (mPieceInfo)
+	{
+		mPieceInfo->SetPlaceholder();
+		mPieceInfo->Release();
+	}
+
 	DeleteModel();
 	DeleteHistory();
 }
@@ -205,6 +211,7 @@ void lcModel::CreatePieceInfo()
 {
 	QString PartID = mProperties.mName.toUpper();
 	mPieceInfo = lcGetPiecesLibrary()->FindPiece(PartID.toLatin1().constData(), true);
+	mPieceInfo->AddRef();
 	mPieceInfo->SetModel(this);
 }
 
@@ -472,6 +479,7 @@ void lcModel::LoadLDraw(QIODevice& Device)
 		}
 	}
 
+	mCurrentStep = CurrentStep;
 	CalculateStep(mCurrentStep);
 	UpdateBackgroundTexture();
 

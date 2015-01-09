@@ -407,9 +407,11 @@ public:
   int             lastStepPageNum;
 
   /**Fade Step variables**/
+
   int             fadeSubLevelPos;  // Capture position in csiParts where fade color will start
   int             fadeTopLevelPos;  // Capture position in csiParts where subModel fade file(s) must start
   bool            isTopLevel;       // Used to determine which fade level position variable to use
+
   FadeStepMeta    fade;             // propagate fade color and fade bool
 
   QList<Where>  topOfPages;

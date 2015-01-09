@@ -33,7 +33,7 @@ class PreferencesDialog : public QDialog
 	QString const ldgliteExe();
 	QString const ldviewExe();
 	QString const preferredRenderer();
-  bool    const centimeters();
+    bool    const centimeters();
 	
   private slots:
   void on_browseLDraw_clicked();

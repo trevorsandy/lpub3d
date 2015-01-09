@@ -1624,7 +1624,7 @@ void NumberMeta::init(
 FadeStepMeta::FadeStepMeta() : BranchMeta()
 {
   fadeColor.setValue("Very_Light_Bluish_Gray"); // default color code: 151
-  fadeStep.setValue(false);                      // default status: disabled
+  fadeStep.setValue(true);                      // default status: disabled
 }
 
 void FadeStepMeta::init(

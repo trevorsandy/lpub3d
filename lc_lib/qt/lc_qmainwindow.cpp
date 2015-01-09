@@ -77,7 +77,7 @@ lcQMainWindow::lcQMainWindow(QWidget *parent)
 
 	QSettings settings;
 	settings.beginGroup("MainWindow");
-	resize(QSize(800, 600));
+    resize(QSize(300, 300));
 	move(QPoint(200, 200));
 	restoreGeometry(settings.value("Geometry").toByteArray());
 	restoreState(settings.value("State").toByteArray());
@@ -212,14 +212,14 @@ void lcQMainWindow::createActions()
 
 void lcQMainWindow::createMenus()
 {
-	QMenu* transformMenu = new QMenu(tr("Transform"));
+    QMenu* transformMenu = new QMenu(tr("Transform"), this);
 	transformMenu->addAction(actions[LC_EDIT_TRANSFORM_RELATIVE_TRANSLATION]);
 	transformMenu->addAction(actions[LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION]);
 	transformMenu->addAction(actions[LC_EDIT_TRANSFORM_RELATIVE_ROTATION]);
 	transformMenu->addAction(actions[LC_EDIT_TRANSFORM_ABSOLUTE_ROTATION]);
 	actions[LC_EDIT_TRANSFORM]->setMenu(transformMenu);
 
-	menuCamera = new QMenu(tr("C&ameras"));
+    menuCamera = new QMenu(tr("C&ameras"), this);
 	menuCamera->addAction(actions[LC_VIEW_CAMERA_NONE]);
 
 	for (int actionIdx = LC_VIEW_CAMERA_FIRST; actionIdx <= LC_VIEW_CAMERA_LAST; actionIdx++)
@@ -350,7 +350,7 @@ void lcQMainWindow::createMenus()
 
 void lcQMainWindow::createToolBars()
 {
-	QMenu* lockMenu = new QMenu(tr("Lock Menu"));
+    QMenu* lockMenu = new QMenu(tr("Lock Menu"), this);
 	lockMenu->addAction(actions[LC_EDIT_LOCK_X]);
 	lockMenu->addAction(actions[LC_EDIT_LOCK_Y]);
 	lockMenu->addAction(actions[LC_EDIT_LOCK_Z]);
@@ -361,15 +361,15 @@ void lcQMainWindow::createToolBars()
 	lockAction->setIcon(QIcon(":/lc_lib/resources/edit_lock.png"));
 	lockAction->setMenu(lockMenu);
 
-	QMenu* snapXYMenu = new QMenu(tr("Snap XY"));
+    QMenu* snapXYMenu = new QMenu(tr("Snap XY"), this);
 	for (int actionIdx = LC_EDIT_SNAP_MOVE_XY0; actionIdx <= LC_EDIT_SNAP_MOVE_XY9; actionIdx++)
 		snapXYMenu->addAction(actions[actionIdx]);
 
-	QMenu* snapZMenu = new QMenu(tr("Snap Z"));
+    QMenu* snapZMenu = new QMenu(tr("Snap Z"), this);
 	for (int actionIdx = LC_EDIT_SNAP_MOVE_Z0; actionIdx <= LC_EDIT_SNAP_MOVE_Z9; actionIdx++)
 		snapZMenu->addAction(actions[actionIdx]);
 
-	QMenu* snapMenu = new QMenu(tr("Snap Menu"));
+    QMenu* snapMenu = new QMenu(tr("Snap Menu"), this);
 	snapMenu->addMenu(snapXYMenu);
 	snapMenu->addMenu(snapZMenu);
 
@@ -378,7 +378,7 @@ void lcQMainWindow::createToolBars()
 	moveAction->setIcon(QIcon(":/lc_lib/resources/edit_snap_move.png"));
 	moveAction->setMenu(snapMenu);
 
-	QMenu* snapAngleMenu = new QMenu(tr("Snap Angle Menu"));
+    QMenu* snapAngleMenu = new QMenu(tr("Snap Angle Menu"), this);
 	for (int actionIdx = LC_EDIT_SNAP_ANGLE0; actionIdx <= LC_EDIT_SNAP_ANGLE9; actionIdx++)
 		snapAngleMenu->addAction(actions[actionIdx]);
 
@@ -401,7 +401,7 @@ void lcQMainWindow::createToolBars()
 	standardToolBar->addAction(actions[LC_EDIT_COPY]);
 	standardToolBar->addAction(actions[LC_EDIT_PASTE]);
 	standardToolBar->addSeparator();
-//	standardToolBar->addAction(actions[LC_EDIT_SNAP_RELATIVE]); todo
+//	standardToolBar->addAction(actions[LC_EDIT_SNAP_RELATIVE]); todo ///
 	standardToolBar->addAction(lockAction);
 	standardToolBar->addAction(moveAction);
 	standardToolBar->addAction(angleAction);
@@ -425,7 +425,7 @@ void lcQMainWindow::createToolBars()
 	transformZ->setMaximumWidth(75);
 	transformLayout->addWidget(transformZ);
 	transformLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
-	standardToolBar->addWidget(transformWidget);
+//	standardToolBar->addWidget(transformWidget);
 	connect(transformX, SIGNAL(returnPressed()), actions[LC_EDIT_TRANSFORM], SIGNAL(triggered()));
 	connect(transformY, SIGNAL(returnPressed()), actions[LC_EDIT_TRANSFORM], SIGNAL(triggered()));
 	connect(transformZ, SIGNAL(returnPressed()), actions[LC_EDIT_TRANSFORM], SIGNAL(triggered()));
@@ -450,20 +450,20 @@ void lcQMainWindow::createToolBars()
 	toolsToolBar->addAction(actions[LC_EDIT_ACTION_ROLL]);
 	toolsToolBar->addAction(actions[LC_EDIT_ACTION_ZOOM_REGION]);
 
-	timeToolBar = addToolBar(tr("Time"));
-	timeToolBar->setObjectName("TimeToolbar");
-	timeToolBar->addAction(actions[LC_VIEW_TIME_FIRST]);
-	timeToolBar->addAction(actions[LC_VIEW_TIME_PREVIOUS]);
-	timeToolBar->addAction(actions[LC_VIEW_TIME_NEXT]);
-	timeToolBar->addAction(actions[LC_VIEW_TIME_LAST]);
-	timeToolBar->addAction(actions[LC_PIECE_SHOW_EARLIER]);
-	timeToolBar->addAction(actions[LC_PIECE_SHOW_LATER]);
-	timeToolBar->addAction(actions[LC_VIEW_TIME_ADD_KEYS]);
+    timeToolBar = addToolBar(tr("Time"));
+//  timeToolBar->setObjectName("TimeToolbar");
+//	timeToolBar->addAction(actions[LC_VIEW_TIME_FIRST]);
+//	timeToolBar->addAction(actions[LC_VIEW_TIME_PREVIOUS]);
+//	timeToolBar->addAction(actions[LC_VIEW_TIME_NEXT]);
+//	timeToolBar->addAction(actions[LC_VIEW_TIME_LAST]);
+//	timeToolBar->addAction(actions[LC_PIECE_SHOW_EARLIER]);
+//	timeToolBar->addAction(actions[LC_PIECE_SHOW_LATER]);
+//	timeToolBar->addAction(actions[LC_VIEW_TIME_ADD_KEYS]);
 	// TODO: add missing menu items
 
 	partsToolBar = new QDockWidget(tr("Parts"), this);
-	partsToolBar->setObjectName("PartsToolbar");
-	partsToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+//	partsToolBar->setObjectName("PartsToolbar");
+//	partsToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	QWidget *partsContents = new QWidget();
 	QGridLayout *partsLayout = new QGridLayout(partsContents);
 	partsLayout->setSpacing(6);
@@ -488,7 +488,7 @@ void lcQMainWindow::createToolBars()
 
 	piecePreview = new lcQGLWidget(previewFrame, NULL, new PiecePreview(), false);
 	piecePreview->preferredSize = QSize(200, 100);
-	previewLayout->addWidget(piecePreview, 0, 0, 1, 1);
+//	previewLayout->addWidget(piecePreview, 0, 0, 1, 1);
 
 	QSizePolicy treePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	treePolicy.setVerticalStretch(1);
@@ -501,7 +501,8 @@ void lcQMainWindow::createToolBars()
 	connect(partSearch, SIGNAL(returnPressed()), this, SLOT(partSearchReturn()));
 	connect(partSearch, SIGNAL(textChanged(QString)), this, SLOT(partSearchChanged(QString)));
 
-	QCompleter *completer = new QCompleter(new lcQPartsListModel(), this);
+    QCompleter *completer = new QCompleter(this);
+    completer->setModel(new lcQPartsListModel(completer));
 	completer->setCaseSensitivity(Qt::CaseInsensitive);
 	partSearch->setCompleter(completer);
 
@@ -513,25 +514,25 @@ void lcQMainWindow::createToolBars()
 	colorLayout->setContentsMargins(0, 0, 0, 0);
 
 	colorList = new lcQColorList(partsSplitter);
-	colorLayout->addWidget(colorList);
+//	colorLayout->addWidget(colorList);
 	connect(colorList, SIGNAL(colorChanged(int)), this, SLOT(colorChanged(int)));
 
-	partsLayout->addWidget(partsSplitter, 0, 0, 1, 1);
+//	partsLayout->addWidget(partsSplitter, 0, 0, 1, 1);
 
-	partsToolBar->setWidget(partsContents);
-	addDockWidget(Qt::RightDockWidgetArea, partsToolBar);
+//	partsToolBar->setWidget(partsContents);
+//	addDockWidget(Qt::RightDockWidgetArea, partsToolBar);
 
 	propertiesToolBar = new QDockWidget(tr("Properties"), this);
-	propertiesToolBar->setObjectName("PropertiesToolbar");
-	propertiesToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+//	propertiesToolBar->setObjectName("PropertiesToolbar");
+//	propertiesToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-	propertiesWidget = new lcQPropertiesTree(propertiesToolBar);
+    propertiesWidget = new lcQPropertiesTree(propertiesToolBar);
 
-	propertiesToolBar->setWidget(propertiesWidget);
-	addDockWidget(Qt::RightDockWidgetArea, propertiesToolBar);
+//	propertiesToolBar->setWidget(propertiesWidget);
+//	addDockWidget(Qt::RightDockWidgetArea, propertiesToolBar);
 
-	tabifyDockWidget(partsToolBar, propertiesToolBar);
-	partsToolBar->raise();
+//	tabifyDockWidget(partsToolBar, propertiesToolBar);
+//	partsToolBar->raise();
 }
 
 void lcQMainWindow::createStatusBar()

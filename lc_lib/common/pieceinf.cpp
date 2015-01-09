@@ -16,8 +16,8 @@ PieceInfo::PieceInfo()
 	mZipFileType = LC_NUM_ZIPFILES;
 	mZipFileIndex = -1;
 	mFlags = 0;
-	mMesh = NULL;
 	mRefCount = 0;
+	mMesh = NULL;
 	mModel = NULL;
 }
 
@@ -30,16 +30,29 @@ PieceInfo::~PieceInfo()
 QString PieceInfo::GetSaveID() const
 {
 	if (mFlags & LC_PIECE_MODEL)
-		return mModel->GetProperties().mName;
+		return QString::fromLatin1(m_strName);
 
 	return QString::fromLatin1(m_strName) + QLatin1String(".DAT");
 }
 
+void PieceInfo::SetPlaceholder()
+{
+	m_fDimensions[0] = 10.0f;
+	m_fDimensions[1] = 10.0f;
+	m_fDimensions[2] = 4.0f;
+	m_fDimensions[3] = -10.0f;
+	m_fDimensions[4] = -10.0f;
+	m_fDimensions[5] = -24.0f;
+
+	mFlags = LC_PIECE_PLACEHOLDER | LC_PIECE_HAS_DEFAULT | LC_PIECE_HAS_LINES;
+	mModel = NULL;
+
+	delete mMesh;
+	mMesh = NULL;
+}
+
 void PieceInfo::SetModel(lcModel* Model)
 {
-	m_strName[0] = 0;
-	m_strDescription[0] = 0;
-
 	mFlags = LC_PIECE_MODEL;
 	mModel = Model;
 
@@ -67,25 +80,15 @@ void PieceInfo::CreatePlaceholder(const char* Name)
 	strncpy(m_strDescription, Name, sizeof(m_strDescription));
 	m_strDescription[sizeof(m_strDescription)-1] = 0;
 
-	mFlags = LC_PIECE_PLACEHOLDER;
+	SetPlaceholder();
 }
 
 void PieceInfo::Load()
 {
-	if (mFlags & LC_PIECE_PLACEHOLDER)
-	{
-		mMesh = new lcMesh();
-		mMesh->CreateBox();
-
+	if (mFlags & LC_PIECE_MODEL)
+		return;
+	else if (mFlags & LC_PIECE_PLACEHOLDER)
 		mFlags |= LC_PIECE_HAS_DEFAULT | LC_PIECE_HAS_LINES;
-
-		m_fDimensions[0] = 10.0f;
-		m_fDimensions[1] = 10.0f;
-		m_fDimensions[2] = 4.0f;
-		m_fDimensions[3] = -10.0f;
-		m_fDimensions[4] = -10.0f;
-		m_fDimensions[5] = -24.0f;
-	}
 	else
 		lcGetPiecesLibrary()->LoadPiece(this);
 }
@@ -105,6 +108,8 @@ void PieceInfo::Unload()
 		delete mMesh;
 		mMesh = NULL;
 	}
+
+	mModel = NULL;
 }
 
 bool PieceInfo::MinIntersectDist(const lcMatrix44& WorldMatrix, const lcVector3& WorldStart, const lcVector3& WorldEnd, float& MinDistance) const
@@ -122,6 +127,9 @@ bool PieceInfo::MinIntersectDist(const lcMatrix44& WorldMatrix, const lcVector3&
 	float Distance;
 	if (!lcBoundingBoxRayIntersectDistance(Min, Max, Start, End, &Distance, NULL) || (Distance >= MinDistance))
 		return false;
+
+	if (mFlags & LC_PIECE_PLACEHOLDER)
+		return true;
 
 	lcVector3 Intersection;
 
@@ -181,6 +189,9 @@ bool PieceInfo::BoxTest(const lcMatrix44& WorldMatrix, const lcVector4 WorldPlan
 	if (OutcodesAND != 0)
 		return false;
 
+	if (mFlags & LC_PIECE_PLACEHOLDER)
+		return OutcodesOR == 0;
+
 	return OutcodesOR == 0 || mMesh->IntersectsPlanes(LocalPlanes);
 }
 
@@ -231,7 +242,7 @@ void PieceInfo::AddRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, i
 	lcRenderMesh RenderMesh;
 
 	RenderMesh.WorldMatrix = WorldMatrix;
-	RenderMesh.Mesh = mMesh;
+	RenderMesh.Mesh = (mFlags & LC_PIECE_PLACEHOLDER) ? gPlaceholderMesh : mMesh;
 	RenderMesh.ColorIndex = ColorIndex;
 	RenderMesh.Focused = Focused;
 	RenderMesh.Selected = Selected;
@@ -256,7 +267,7 @@ void PieceInfo::AddRenderMeshes(const lcMatrix44& ViewMatrix, const lcMatrix44& 
 	lcRenderMesh RenderMesh;
 
 	RenderMesh.WorldMatrix = WorldMatrix;
-	RenderMesh.Mesh = mMesh;
+	RenderMesh.Mesh = (mFlags & LC_PIECE_PLACEHOLDER) ? gPlaceholderMesh : mMesh;
 	RenderMesh.ColorIndex = ColorIndex;
 	RenderMesh.Focused = Focused;
 	RenderMesh.Selected = Selected;

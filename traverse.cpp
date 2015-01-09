@@ -858,9 +858,8 @@ int Gui::drawPage(
             do3DCsi = true;
             (void) step->createCsi(
               isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-              /********HOLD************************************/
+              /********DO FADE STEP*****************************/
               saveCsiParts = fadeStep(csiParts, stepNum, current),
-              /************************************************/
               &step->csiPixmap,
               steps->meta,
               do3DCsi);
@@ -924,7 +923,7 @@ int Gui::drawPage(
               bool endOfSubmodel = numSteps == 0 || stepNum >= numSteps;
               int  instances = ldrawFile.instances(current.modelName,isMirrored);
 
-              PRINT("924--------");
+              PRINT("926--------");
               PRINT("5.1 DrawPage CreateCsi (Step)!");
               PRINT("5.2      Model Name: " << current.modelName.toStdString());
               PRINT("5.3            Step: " << stepNum << " of " << numSteps);
@@ -932,27 +931,29 @@ int Gui::drawPage(
               PRINT("5.5   csiPart Count: " << csiParts.count());
               PRINT("5.6       Instances: " << instances);
               PRINT("5.7      Multi Step: " << (multiStep ? "Yes" : "No") << " Called Out: " << (calledOut ? "Yes" : "No"));
-              PRINT("5.8 PARTS: ");
+//              PRINT("5.8 PARTS: ");
               for (int i = 0; i < csiParts.size(); i++) {
                   QString csiLine = csiParts.at(i);
                   QStringList argv;
                   split(csiLine,argv);
-                  PRINT("    No. "<< i+1 << ": " <<argv[argv.size()-1].toStdString());
+//                  PRINT("    No. "<< i+1 << ": " <<argv[argv.size()-1].toStdString());
               }
-              /***DEBUG***/
+              /***DEBUG END***/
 
               /********CREATE 3D CSI***************************/
-              Meta tmpMeta = curMeta;
-              Where walk = current;
+              // walk ahead to check if we are at the end of a page before rendering 3D image
+              Meta  tmpMeta     = curMeta;
+              Where walk        = current;
+              bool  singleEntry = true;
               for (++walk; walk < numLines; ++walk) {
+                  singleEntry = false;
                   QStringList tokens;
                   QString scanLine = ldrawFile.readLine(walk.modelName,walk.lineNumber);
-                  PRINT("SCANLINE: " << scanLine.toStdString());
                   split(scanLine,tokens);
                   if (multiStep || calledOut) {
                       if (tokens.size() > 0 && tokens[0] == "0") {
                           Rc rc = tmpMeta.parse(scanLine,walk,false);
-                          PRINT ("RC: " << rc << " StepGroupEnd: " << StepGroupEndRc << " CalledOutEndRc: " << CalloutEndRc);
+                          //PRINT ("RC: " << rc << " StepGroupEnd: " << StepGroupEndRc << " CalledOutEndRc: " << CalloutEndRc);
                           if (rc == StepGroupEndRc || rc == CalloutEndRc) {
                               do3DCsi = true;
                               break;
@@ -966,19 +967,20 @@ int Gui::drawPage(
                       break;
                   }
               }
-              /************************************************/
-              PRINT("Do3DCsi: " << (do3DCsi ? "Yes" : "No"));
+              if (singleEntry)
+                  do3DCsi = true;
+//              PRINT("Do3DCsi: " << (do3DCsi ? "Yes" : "No"));
               int rc = step->createCsi(
                           isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                          /************************************************/
+                          /********DO FADE STEP****************************/
                           saveCsiParts = fadeStep(csiParts, stepNum, current),
-                          /************************************************/
                           &step->csiPixmap,
                           steps->meta,
                           do3DCsi);
               if (rc) {
                 return rc;
               }
+            /************************************************/
             } else {
               if (pliPerStep) {
                 pliParts.clear();
@@ -1005,10 +1007,6 @@ int Gui::drawPage(
               int  numSteps = ldrawFile.numSteps(current.modelName);
               bool endOfSubmodel = numSteps == 0 || stepNum >= numSteps;
               int  instances = ldrawFile.instances(current.modelName, isMirrored);
-
-//              PRINT("980--------");
-//              PRINT("6.1 DrawPage (Simple Step)!");
-//              PRINT("6.2       Step: " << stepNum << " of " << numSteps);
 
               addGraphicsPageItems(steps,coverPage,endOfSubmodel,instances,view,scene,printing);
               stepPageNum += ! coverPage;
@@ -1986,16 +1984,16 @@ void Gui::writeToTmp()
         }
         content = ldrawFile.contents(fileName);
         if (ldrawFile.changedSinceLastWrite(fileName)) {
-            PRINT("1901 WriteToTemp (Normal): " << fileName.toStdString() << ", file order index: " << i);
+            PRINT("1987 WriteToTemp (Normal): " << fileName.toStdString() << ", file order index: " << i);
             writeToTmp(fileName,content);
             content = fadeStep(ldrawFile.contents(fileName));
-            PRINT("1901 WriteToTemp   (Fade): " << fadeFileName.toStdString() << " using Color: " << LDrawColor::ldColorCode(fade.fadeColor.value()).toStdString() <<", file order index: " << i);
+            PRINT("1990 WriteToTemp   (Fade): " << fadeFileName.toStdString() << " using Color: " << LDrawColor::ldColorCode(fade.fadeColor.value()).toStdString() <<", file order index: " << i);
             writeToTmp(fadeFileName,content);
         }
      } else {
         content = ldrawFile.contents(fileName);
         if (ldrawFile.changedSinceLastWrite(fileName)) {
-            PRINT("1901 WriteToTemp (Normal): " << fileName.toStdString() << ", file order index: " << i);
+            PRINT("1996 WriteToTemp (Normal): " << fileName.toStdString() << ", file order index: " << i);
             writeToTmp(fileName,content);
         }
     }
@@ -2077,28 +2075,28 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
     QStringList fadeCsiParts;
     QStringList argv;
 
-    int  numSteps = ldrawFile.numSteps(current.modelName);
-    bool endOfSubmodel = numSteps == 0 || stepNum >= numSteps;
+    int  fadePosition   = ldrawFile.getFadePosition(current.modelName);
+    int  numSteps       = ldrawFile.numSteps(current.modelName);
+    bool endOfSubmodel  = numSteps == 0 || stepNum >= numSteps;
 
-//    PRINT("2047-------");
-//    PRINT("7.0 FADE - Execute FadeStep!");
-//    PRINT("7.1 FADE - Step No: " << stepNum << " of " << numSteps << " in " << current.modelName.toStdString() << ", Part Count: " << csiParts.size());
+//    PRINT("2082-------");
+    PRINT("7.0 FADE STEP - EXECUTE!");
+    PRINT("7.1 FADE STEP No: " << stepNum << " of " << numSteps << " in " << current.modelName.toStdString() << ", Part Count: " << csiParts.size() << ", minus fade position: " << fadePosition);
     if (csiParts.size() > 0 && stepNum > 1 && doFadeStep) {
 
-//        PRINT("7.2 FADE - End of SubModel " << current.modelName.toStdString() << ": " << (endOfSubmodel? "Yes":"No"));
+        PRINT("7.2 FADE - End of SubModel " << current.modelName.toStdString() << ": " << (endOfSubmodel? "Yes":"No"));
         for (int index = 0; index < csiParts.size(); index++) {
 
             QString csiLine = csiParts[index];
-//            PRINT("7.3 FADE - Processing csiParts line(" << index+1 << " of " << csiParts.size() << "): " << csiLine.toStdString());
-//            PRINT("7.4 FADE - Line(" << index+1 << ") if it is <= " << (isTopLevel ? "fadeTopLevelPos(" : "fadeSubLevelPos(") << (isTopLevel ? fadeTopLevelPos : fadeSubLevelPos) << ")")
-            if ((index + 1) <= (isTopLevel?fadeTopLevelPos:fadeSubLevelPos)) {
-
+            PRINT("7.3 FADE - Processing csiParts line(" << index+1 << " of " << csiParts.size() << "): " << csiLine.toStdString());
+            if ((index + 1) <= fadePosition) {
+            PRINT("7.4 FADE - LINE(" << index+1 << ") as it is <= (" << fadePosition << ")");
                 split(csiLine, argv);
 
                 if (argv.size() == 15 && argv[0] == "1") {
                     argv[1] = fadeColor;
 
-                    // process subfiles in csiParts
+                    // process subfile names in csiParts
                     QString type  = argv[argv.size()-1];
                     if (ldrawFile.isSubmodel(type)) {
                         /* change file name */
@@ -2116,7 +2114,7 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
                         } else if (mpd) {
                             fadeFileName = fadeFileName.replace(".mpd","-fade.mpd");
                         }
-//                        PRINT("7.5 FADE - CSI Replace SubFile: " << type.toStdString() << " with FadeFile: " << fadeFileName.toStdString());
+                        PRINT("7.5 FADE - CSI Replace SubFile: " << type.toStdString() << " with FadeFile: " << fadeFileName.toStdString());
                         argv[argv.size()-1] = fadeFileName;
                     }
 
@@ -2132,20 +2130,14 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
 
             fadeCsiParts  << csiLine;
         }
-
-        endOfSubmodel ?
-                    (isTopLevel ? fadeTopLevelPos = 0 : fadeSubLevelPos = 0) :
-                    (isTopLevel ? fadeTopLevelPos = csiParts.size() : fadeSubLevelPos = csiParts.size());
-//        PRINT("7.6 FADE - Position update: " << (isTopLevel ? "fadeTopLevelPos(" : "fadeSubLevelPos(") << (isTopLevel ? fadeTopLevelPos : fadeSubLevelPos) << ")");
+        PRINT("7.6 FADE POS UPDATE: " << fadeCsiParts.size());
+        ldrawFile.setFadePosition(current.modelName,fadeCsiParts.size());
 
     } else {
 
         fadeCsiParts  << csiParts;
-//        endOfSubmodel ?
-//                    (isTopLevel ? fadeTopLevelPos = 0 : fadeSubLevelPos = 0) :
-//                    (isTopLevel ? fadeTopLevelPos = csiParts.size() : fadeSubLevelPos = csiParts.size());
-//        PRINT("7.6 FADE - Position update: " << (isTopLevel ? "fadeTopLevelPos(" : "fadeSubLevelPos(") << (isTopLevel ? fadeTopLevelPos : fadeSubLevelPos) << ")");
-
+        PRINT("7.6 FADE POS 1st UPDATE: " << fadeCsiParts.size());
+        ldrawFile.setFadePosition(current.modelName,fadeCsiParts.size());
     }
 
     return fadeCsiParts;

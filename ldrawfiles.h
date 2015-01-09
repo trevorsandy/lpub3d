@@ -54,7 +54,7 @@ class LDrawSubFile {
     bool        _changedSinceLastWrite;
     bool        _unofficialPart;
     bool        _generated;
-    int         _level;
+    int         _fadePosition;
 
     LDrawSubFile()
     {
@@ -77,7 +77,6 @@ class LDrawFile {
     QStringList                 _emptyList;
     QString                     _emptyString;
     bool                        _mpd;
-    static QHash<QString, int>  _fadePositions;
     static int                  _emptyInt;
   public:
     LDrawFile();
@@ -86,7 +85,6 @@ class LDrawFile {
       _subFiles.empty();
     }
     QStringList                  _subFileOrder;
-    static const int &fadePositions(QString value);
 
     bool saveFile(const QString &fileName);
     bool saveMPDFile(const QString &filename);
@@ -104,8 +102,9 @@ class LDrawFile {
     QStringList contents(const QString &fileName);
     void setContents(const QString     &fileName, 
                      const QStringList &contents);
-    void setFileLevel(const QString    &mcFileName,
-                             const int &level);
+    void setFadePosition(const QString    &mcFileName,
+                             const int &fadePosition);
+    int getFadePosition(const QString &mcFileName);
     void subFileLevels(QStringList &contents, int &level);
     void loadFile(const QString    &fileName);
     void loadMPDFile(const QString &fileName, QDateTime &datetime);

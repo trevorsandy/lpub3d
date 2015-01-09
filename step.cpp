@@ -208,8 +208,9 @@ int Step::createCsi(
             .arg(sn)
             .arg(orient+"_"+rotStep)
             .arg(".ldr");
-    if (do3DCsi)
-        renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate);
+    csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + fileNamekey;
+        renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate, do3DCsi);
+    //PRINT("RENDERING: " << fileNamekey.toStdString() << " Exists: " << (csi.exists()?"Yes":"No") << " Out of Date: " << (outOfDate?"Yes":"No"));
   //**
 
   if ( ! csi.exists() || outOfDate) {
@@ -233,60 +234,11 @@ int Step::createCsi(
   return 0;
 }
 
-//**3D
-int Step::create3DCsi(
-        QString     const &addLine,
-        QStringList const &csiParts,
-        Meta              &meta)
+int Step::Render3DCsi(QString &csi3DName)
 {
-    qreal   modelScale = meta.LPub.assem.modelScale.value();
-    int             sn = stepNumber.number;
-    // 1 color x y z a b c d e f g h i foo.dat
-    // 0 1     2 3 4 5 6 7 8 9 0 1 2 3 4
-    QStringList tokens;
-    split(addLine,tokens);
-    QString orient;
-    if (tokens.size() == 15) {
-      for (int i = 5; i < 14; i++) {
-        orient += "_" + tokens[i];
-      }
-    }
-    QString key = QString("%1_%2_%3_%4_%5_%6")
-                          .arg(csiName()+orient)
-                          .arg(sn)
-                          .arg(meta.LPub.page.size.valuePixels(0))
-                          .arg(resolution())
-                          .arg(resolutionType() == DPI ? "DPI" : "DPCM")
-                          .arg(modelScale);
-    pngName = QDir::currentPath() + "/" +
-                    Paths::assemDir + "/" + key + ".png";
-    QFile csi(pngName);
-    bool outOfDate = false;
-    if (csi.exists()) {
-      QDateTime lastModified = QFileInfo(pngName).lastModified();
-      QStringList stack = submodelStack();
-      stack << parent->modelName();
-      if ( ! isOlder(stack,lastModified)) {
-        outOfDate = true;
-      }
-    }
-    RotStepData rotStepData = meta.rotStep.value();
-    QString rotStep = QString("%1_%2_%3_%4")
-            .arg(rotStepData.type)      //REL or ABS
-            .arg(rotStepData.rots[0])
-            .arg(rotStepData.rots[1])
-            .arg(rotStepData.rots[2]);
-    QString fileNamekey = QString("%1_%2%3%4")
-            .arg(csiName())
-            .arg(sn)
-            .arg(orient+"_"+rotStep)
-            .arg(".ldr");
-    renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate);
-    PRINT("RENDER: fileNameKey: " << fileNamekey.toStdString() << "\n csiParts count: " <<
-          csiParts.size() << " csi.exists: " << (csi.exists() ? "Yes" : "No") << "\n outOfDate: " <<
-          (outOfDate ? "Yes" : "No"))
+    int rc = renderer->render3DCsi(csi3DName);
+    return rc;
 }
-//**
 
 /*
  * LPub is able to pack steps together into multi-step pages or callouts.

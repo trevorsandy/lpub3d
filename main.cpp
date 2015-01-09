@@ -29,6 +29,7 @@
 #include "lc_mainwindow.h"
 #include "view.h"
 #include "project.h"
+#include "lc_colors.h"
 #include <QApplication>
 //**
 
@@ -114,8 +115,12 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     QCoreApplication::setOrganizationName("LPub Software");
-    QCoreApplication::setApplicationName("LPub");
+    QCoreApplication::setApplicationName("LPub410");
     QCoreApplication::setApplicationVersion(LP_VERSION_TEXT);
+
+    QTranslator Translator;
+    Translator.load(QString("leocad_") + QLocale::system().name().section('_', 0, 0) + ".qm", ":/lc_lib/resources");
+    app.installTranslator(&Translator);
 
     Preferences::ldrawPreferences(false);
     Preferences::unitsPreferences();
@@ -136,11 +141,11 @@ int main(int argc, char *argv[])
     QDir bundlePath = QDir(QCoreApplication::applicationDirPath());
     bundlePath.cdUp();
     bundlePath.cdUp();
-    bundlePath = QDir::cleanPath(bundlePath.absolutePath() + "/Contents/Resources/");
+    bundlePath = QDir::cleanPath(bundlePath.absolutePath() + "/Contents/lc_lib/Resources/");
     QByteArray pathArray = bundlePath.absolutePath().toLocal8Bit();
     const char* libPath = pathArray.data();
 #else
-    const char* libPath = LC_INSTALL_PREFIX "/share/lpub/";
+    const char* libPath = LC_INSTALL_PREFIX "/share/lpub410/";
 #endif
 #ifdef LC_LDRAW_LIBRARY_PATH
     const char* LDrawPath = LC_LDRAW_LIBRARY_PATH;
@@ -159,18 +164,23 @@ int main(int argc, char *argv[])
 
     QDir dir;
     dir.mkpath(cachePath);
+    gMainWindow = new lcMainWindow();
 
     if (!g_App->Initialize(argc, argv, libPath, LDrawPath, cachePath.toLocal8Bit().data()))
         return 1;
 
-    gMainWindow = new lcMainWindow();
     Gui     LPubApp;
     gMainWindow->mHandle = LPubApp.lcqWindow;
     lcGetActiveModel()->UpdateInterface();
+    gMainWindow->SetColorIndex(lcGetColorIndex(4));
     gMainWindow->UpdateRecentFiles();
 
     LPubApp.show();
     LPubApp.sizeit();
+
+#if !LC_DISABLE_UPDATE_CHECK
+    lcDoInitialUpdateCheck();
+#endif
 
     int execReturn = app.exec();
 

@@ -42,8 +42,9 @@ class Render
 	static void          setRenderer(QString const &name);
     virtual int renderCsi(const QString &, const QStringList &, const QString &, Meta &) = 0;
     virtual int renderPli(                 const QString &,     const QString &, Meta &, bool bom) = 0;
-    int render3DCsi(const QString &, const QString &, const QStringList &,  Meta &, bool cisExists, bool outOfDate);
-  static int rotateParts(const QString     &addLine,
+    int render3DCsi(const QString &, const QString &, const QStringList &,  Meta &, bool cisExists, bool outOfDate, bool do3DCsi);
+    int render3DCsi(QString &);
+    static int rotateParts(const QString     &addLine,
                          RotStepMeta &rotStep,
                          QStringList &parts,
                          bool         defaultRot = true);

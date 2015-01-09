@@ -65,7 +65,8 @@ lcApplication::lcApplication()
 
 lcApplication::~lcApplication()
 {
-	delete mLibrary;
+    delete mProject;
+    delete mLibrary;
 }
 
 void lcApplication::SetProject(Project* Project)
@@ -77,6 +78,7 @@ void lcApplication::SetProject(Project* Project)
 	for (int ViewIdx = 0; ViewIdx < Views.GetSize(); ViewIdx++)
 		Views[ViewIdx]->SetModel(lcGetActiveModel());
 
+	lcGetPiecesLibrary()->RemoveTemporaryPieces();
 	lcGetActiveModel()->UpdateInterface();
 	gMainWindow->UpdateAllViews();
 }

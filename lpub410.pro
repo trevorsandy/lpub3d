@@ -22,6 +22,20 @@ win32 {
     CONFIG += windows
     CONFIG += debug_and_release
     LIBS += -ladvapi32 -lshell32
+} else {
+        LIBS += -lz
+        QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
+}
+
+lessThan(QT_MAJOR_VERSION, 5) {
+        unix {
+                GCC_VERSION = $$system(g++ -dumpversion)
+                greaterThan(GCC_VERSION, 4.6) {
+                        QMAKE_CXXFLAGS += -std=c++11
+                } else {
+                        QMAKE_CXXFLAGS += -std=c++0x
+                }
+        }
 }
 
 isEmpty(QMAKE_LRELEASE) {
@@ -85,9 +99,9 @@ unix:!macx {
 
         DEFINES += LC_INSTALL_PREFIX=\\\"$$INSTALL_PREFIX\\\"
 
-#	!isEmpty(DISABLE_UPDATE_CHECK) {
-#		DEFINES += LC_DISABLE_UPDATE_CHECK=$$DISABLE_UPDATE_CHECK
-#	}
+        !isEmpty(DISABLE_UPDATE_CHECK) {
+                DEFINES += LC_DISABLE_UPDATE_CHECK=$$DISABLE_UPDATE_CHECK
+        }
 
         !isEmpty(LDRAW_LIBRARY_PATH) {
                 DEFINES += LC_LDRAW_LIBRARY_PATH=\\\"$$LDRAW_LIBRARY_PATH\\\"
@@ -97,6 +111,14 @@ unix:!macx {
 macx {
 
     ICON = LPub.icns
+    QMAKE_INFO_PLIST = qt/Info.plist
+
+    document_icon.files += $$_PRO_FILE_PWD_/resources/leocad_document.icns
+    document_icon.path = Contents/Resources
+    library.files += $$_PRO_FILE_PWD_/library.bin
+    library.path = Contents/Resources
+
+    QMAKE_BUNDLE_DATA += document_icon library
 }
 # Input
 HEADERS += \

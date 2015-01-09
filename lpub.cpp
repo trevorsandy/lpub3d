@@ -981,7 +981,6 @@ void Gui::createStatusBar()
 void Gui::createDockWindows()
 {
 //**3D
-
     modelDockWindow = new QDockWidget(tr("LPub 3D View"), this);
     modelDockWindow->setObjectName("ModelDockWindow");
     modelDockWindow->setAllowedAreas(
