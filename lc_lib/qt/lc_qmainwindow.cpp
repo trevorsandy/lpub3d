@@ -346,6 +346,28 @@ void lcQMainWindow::createMenus()
 #endif
 	menuHelp->addSeparator();
 	menuHelp->addAction(actions[LC_HELP_ABOUT]);
+
+    /*** management - menus ***/
+    menuBar()->removeAction(menuFile->menuAction());
+    menuBar()->removeAction(menuPiece->menuAction());
+    /*** management - menu actions ***/
+    menuEdit->removeAction(actions[LC_EDIT_CUT]);
+    menuEdit->removeAction(actions[LC_EDIT_COPY]);
+    menuEdit->removeAction(actions[LC_EDIT_PASTE]);
+    menuEdit->removeAction(actions[LC_EDIT_FIND]);
+    menuEdit->removeAction(actions[LC_EDIT_FIND_NEXT]);
+    menuEdit->removeAction(actions[LC_EDIT_FIND_PREVIOUS]);
+    menuToolBars->removeAction(partsToolBar->toggleViewAction());
+    menuToolBars->removeAction(propertiesToolBar->toggleViewAction());
+    menuToolBars->removeAction(timeToolBar->toggleViewAction());
+    menuView->removeAction(actions[LC_VIEW_FULLSCREEN]);
+    menuModel->removeAction(actions[LC_MODEL_NEW]);
+    menuHelp->removeAction(actions[LC_HELP_HOMEPAGE]);
+    menuHelp->removeAction(actions[LC_HELP_EMAIL]);
+#if !LC_DISABLE_UPDATE_CHECK
+    menuHelp->removeAction(actions[LC_HELP_UPDATES]);
+#endif
+    /*** management - end ***/
 }
 
 void lcQMainWindow::createToolBars()
@@ -425,7 +447,7 @@ void lcQMainWindow::createToolBars()
 	transformZ->setMaximumWidth(75);
 	transformLayout->addWidget(transformZ);
 	transformLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
-//	standardToolBar->addWidget(transformWidget);
+    standardToolBar->addWidget(transformWidget);
 	connect(transformX, SIGNAL(returnPressed()), actions[LC_EDIT_TRANSFORM], SIGNAL(triggered()));
 	connect(transformY, SIGNAL(returnPressed()), actions[LC_EDIT_TRANSFORM], SIGNAL(triggered()));
 	connect(transformZ, SIGNAL(returnPressed()), actions[LC_EDIT_TRANSFORM], SIGNAL(triggered()));
@@ -451,19 +473,19 @@ void lcQMainWindow::createToolBars()
 	toolsToolBar->addAction(actions[LC_EDIT_ACTION_ZOOM_REGION]);
 
     timeToolBar = addToolBar(tr("Time"));
-//  timeToolBar->setObjectName("TimeToolbar");
-//	timeToolBar->addAction(actions[LC_VIEW_TIME_FIRST]);
-//	timeToolBar->addAction(actions[LC_VIEW_TIME_PREVIOUS]);
-//	timeToolBar->addAction(actions[LC_VIEW_TIME_NEXT]);
-//	timeToolBar->addAction(actions[LC_VIEW_TIME_LAST]);
-//	timeToolBar->addAction(actions[LC_PIECE_SHOW_EARLIER]);
-//	timeToolBar->addAction(actions[LC_PIECE_SHOW_LATER]);
-//	timeToolBar->addAction(actions[LC_VIEW_TIME_ADD_KEYS]);
+    timeToolBar->setObjectName("TimeToolbar");
+    timeToolBar->addAction(actions[LC_VIEW_TIME_FIRST]);
+    timeToolBar->addAction(actions[LC_VIEW_TIME_PREVIOUS]);
+    timeToolBar->addAction(actions[LC_VIEW_TIME_NEXT]);
+    timeToolBar->addAction(actions[LC_VIEW_TIME_LAST]);
+    timeToolBar->addAction(actions[LC_PIECE_SHOW_EARLIER]);
+    timeToolBar->addAction(actions[LC_PIECE_SHOW_LATER]);
+    timeToolBar->addAction(actions[LC_VIEW_TIME_ADD_KEYS]);
 	// TODO: add missing menu items
 
 	partsToolBar = new QDockWidget(tr("Parts"), this);
-//	partsToolBar->setObjectName("PartsToolbar");
-//	partsToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    partsToolBar->setObjectName("PartsToolbar");
+    partsToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	QWidget *partsContents = new QWidget();
 	QGridLayout *partsLayout = new QGridLayout(partsContents);
 	partsLayout->setSpacing(6);
@@ -488,7 +510,7 @@ void lcQMainWindow::createToolBars()
 
 	piecePreview = new lcQGLWidget(previewFrame, NULL, new PiecePreview(), false);
 	piecePreview->preferredSize = QSize(200, 100);
-//	previewLayout->addWidget(piecePreview, 0, 0, 1, 1);
+    previewLayout->addWidget(piecePreview, 0, 0, 1, 1);
 
 	QSizePolicy treePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	treePolicy.setVerticalStretch(1);
@@ -514,25 +536,55 @@ void lcQMainWindow::createToolBars()
 	colorLayout->setContentsMargins(0, 0, 0, 0);
 
 	colorList = new lcQColorList(partsSplitter);
-//	colorLayout->addWidget(colorList);
+    colorLayout->addWidget(colorList);
 	connect(colorList, SIGNAL(colorChanged(int)), this, SLOT(colorChanged(int)));
 
-//	partsLayout->addWidget(partsSplitter, 0, 0, 1, 1);
+    partsLayout->addWidget(partsSplitter, 0, 0, 1, 1);
 
-//	partsToolBar->setWidget(partsContents);
-//	addDockWidget(Qt::RightDockWidgetArea, partsToolBar);
+    partsToolBar->setWidget(partsContents);
+    addDockWidget(Qt::RightDockWidgetArea, partsToolBar);
 
 	propertiesToolBar = new QDockWidget(tr("Properties"), this);
-//	propertiesToolBar->setObjectName("PropertiesToolbar");
-//	propertiesToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    propertiesToolBar->setObjectName("PropertiesToolbar");
+    propertiesToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
     propertiesWidget = new lcQPropertiesTree(propertiesToolBar);
 
-//	propertiesToolBar->setWidget(propertiesWidget);
-//	addDockWidget(Qt::RightDockWidgetArea, propertiesToolBar);
+    propertiesToolBar->setWidget(propertiesWidget);
+    addDockWidget(Qt::RightDockWidgetArea, propertiesToolBar);
 
-//	tabifyDockWidget(partsToolBar, propertiesToolBar);
-//	partsToolBar->raise();
+    tabifyDockWidget(partsToolBar, propertiesToolBar);
+    partsToolBar->raise();
+
+    /*** management - toolbars ***/
+    timeToolBar->setVisible(false);
+    partsToolBar->setVisible(false);
+    propertiesToolBar->setVisible(false);
+    //standardToolBar->setVisible(false);
+
+    /*** management - toolbar actions ***/
+    standardToolBar->removeAction(actions[LC_FILE_PRINT]);
+    standardToolBar->removeAction(actions[LC_FILE_PRINT_PREVIEW]);
+    standardToolBar->removeAction(actions[LC_EDIT_CUT]);
+    standardToolBar->removeAction(actions[LC_EDIT_COPY]);
+    standardToolBar->removeAction(actions[LC_EDIT_PASTE]);
+    standardToolBar->removeAction(lockAction);
+    standardToolBar->removeAction(moveAction);
+    standardToolBar->removeAction(angleAction);
+    standardToolBar->removeAction(actions[LC_EDIT_TRANSFORM]);
+
+    QAction* widgetAction = standardToolBar->addWidget(transformWidget);
+    widgetAction->setVisible(false);
+
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_INSERT]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_LIGHT]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_SPOTLIGHT]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_CAMERA]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_MOVE]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_ROTATE]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_DELETE]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_PAINT]);
+    /*** management - end ***/
 }
 
 void lcQMainWindow::createStatusBar()
@@ -579,6 +631,12 @@ QMenu *lcQMainWindow::createPopupMenu()
 	menuToolBars->addAction(standardToolBar->toggleViewAction());
 	menuToolBars->addAction(toolsToolBar->toggleViewAction());
 	menuToolBars->addAction(timeToolBar->toggleViewAction());
+    /*** management - popupMenu ***/
+    menuToolBars->removeAction(partsToolBar->toggleViewAction());
+    menuToolBars->removeAction(propertiesToolBar->toggleViewAction());
+    menuToolBars->removeAction(partsToolBar->toggleViewAction());
+    menuToolBars->removeAction(timeToolBar->toggleViewAction());
+    /*** management - end ***/
 
 	return menuToolBars;
 }

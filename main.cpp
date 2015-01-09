@@ -47,6 +47,8 @@
 
 #include <tchar.h>
 
+QAction *actions[LC_NUM_COMMANDS];
+
 static TCHAR minidumpPath[_MAX_PATH];
 
 static LONG WINAPI lcSehHandler(PEXCEPTION_POINTERS exceptionPointers)

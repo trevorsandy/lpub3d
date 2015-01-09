@@ -49,6 +49,17 @@ void lcGLWidget::ShowPopupMenu()
 	for (int actionIdx = LC_EDIT_ACTION_FIRST; actionIdx <= LC_EDIT_ACTION_LAST; actionIdx++)
 		tools->addAction(actions[actionIdx]);
 
+    /*** management - popupMenu ***/
+    tools->removeAction(actions[LC_EDIT_ACTION_INSERT]);
+    tools->removeAction(actions[LC_EDIT_ACTION_LIGHT]);
+    tools->removeAction(actions[LC_EDIT_ACTION_SPOTLIGHT]);
+    tools->removeAction(actions[LC_EDIT_ACTION_CAMERA]);
+    tools->removeAction(actions[LC_EDIT_ACTION_MOVE]);
+    tools->removeAction(actions[LC_EDIT_ACTION_ROTATE]);
+    tools->removeAction(actions[LC_EDIT_ACTION_DELETE]);
+    tools->removeAction(actions[LC_EDIT_ACTION_PAINT]);
+    /*** management - end ***/
+
 	QMenu *cameras = new QMenu("Cameras");
 	popup->addMenu(cameras);
 	cameras->addAction(actions[LC_VIEW_CAMERA_NONE]);
