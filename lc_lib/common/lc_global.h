@@ -8,7 +8,7 @@
 #define LC_VERSION_MINOR 80
 #define LC_VERSION_PATCH 4
 #define LC_VERSION_TEXT "0.80.4"
-#define LC_VERSION_BUILD "1720"
+#define LC_VERSION_BUILD "1721"
 
 // Forward declarations.
 class lcModel;
@@ -24,6 +24,7 @@ struct lcModelPartsEntry;
 class lcVector2;
 class lcVector3;
 class lcVector4;
+class lcMatrix33;
 class lcMatrix44;
 
 class lcContext;
