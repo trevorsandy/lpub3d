@@ -83,6 +83,8 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   box->setLayout(boxGrid);
 
   child = new CheckBoxGui("Enable",&fadeStepMeta->fadeStep,NULL);
+  child->setDisabled(true); //disabled - property set from properties form
+
   data->children.append(child);
   boxGrid->addWidget(child,1,0,1,2);
 

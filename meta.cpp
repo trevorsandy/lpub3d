@@ -37,6 +37,16 @@
 #include <QStringList>
 #include "meta.h"
 #include "lpub.h"
+#include "lpub_preferences.h"
+
+#include <iostream>
+#define DEBUG
+#ifndef DEBUG
+#define PRINT(x)
+#else
+#define PRINT(x) \
+    std::cout << "- " << x << std::endl; //without expression
+#endif
 
 /* The token map translates known keywords to values 
  * used by LPub to identify things like placement and such
@@ -1623,8 +1633,8 @@ void NumberMeta::init(
 
 FadeStepMeta::FadeStepMeta() : BranchMeta()
 {
-  fadeColor.setValue("Very_Light_Bluish_Gray"); // default color code: 151
-  fadeStep.setValue(true);                      // default status: disabled
+  fadeColor.setValue(Preferences::fadeStepColor); // inherited from properties
+  fadeStep.setValue(Preferences::enableFadeStep); // inherited from properties
 }
 
 void FadeStepMeta::init(

@@ -424,6 +424,7 @@ Gui::Gui()
     Preferences::renderPreferences();
 	Preferences::lgeoPreferences();
     Preferences::pliPreferences();
+    Preferences::fadestepPreferences();
 
     displayPageNum  = 1;
 
@@ -981,7 +982,7 @@ void Gui::createStatusBar()
 void Gui::createDockWindows()
 {
 //**3D
-    modelDockWindow = new QDockWidget(tr("LPub 3D View"), this);
+    modelDockWindow = new QDockWidget(tr("LPub 3D Viewer"), this);
     modelDockWindow->setObjectName("ModelDockWindow");
     modelDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
@@ -991,7 +992,7 @@ void Gui::createDockWindows()
     viewMenu->addAction(modelDockWindow->toggleViewAction());
 //**
 
-    fileEditDockWindow = new QDockWidget(tr("LDraw File"), this);
+    fileEditDockWindow = new QDockWidget(tr("LDraw File Editor"), this);
     fileEditDockWindow->setObjectName("LDrawFileDockWindow");
     fileEditDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |

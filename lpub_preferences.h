@@ -50,8 +50,9 @@ class Preferences
     static QString preferredRenderer;
     static QString pliFile;
     static QString lpubPath;
+    static QString fadeStepColor;
     static bool    preferCentimeters;
-    static bool    preferFadeStep;
+    static bool    enableFadeStep;
 
     virtual ~Preferences() {}
 };

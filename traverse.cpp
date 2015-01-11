@@ -29,7 +29,6 @@
  * make up the LPub program.
  *
  ***************************************************************************/
-#include <iostream>
 #include <QtGui>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
@@ -44,6 +43,7 @@
 #include "step.h"
 #include "paths.h"
 
+#include <iostream>
 #define DEBUG
 #ifndef DEBUG
 #define PRINT(x)
@@ -431,9 +431,6 @@ int Gui::drawPage(
           QStringList csiParts2;
 
           QHash<QString, QStringList> calloutBfx;
-
-          // Indicate to use alternate fade content position variable 'fadeSubLevelPos'
-          fadeTopLevelPos = false;
 
           int rc;
           rc = drawPage(
@@ -1233,9 +1230,6 @@ int Gui::findPage(
                 PRINT("4.3       Step: " << saveStepNumber );
                 PRINT("4.4 Part Count: " << saveCsiParts.count());
 
-                // Indicate to use alternate fade content position 'fadeSubLevelPos'
-                isTopLevel = false;
-
                 (void) drawPage(view,
                                 scene,
                                 &page,
@@ -1301,9 +1295,6 @@ int Gui::findPage(
                   PRINT("4.4 IsMirrored: " << (isMirrored ? "Yes" : "No"));
                   PRINT("4.5       Step: " << saveStepNumber );
                   PRINT("4.6 Part Count: " << saveCsiParts.count());
-
-                  // Indicate to use alternate fade content position 'fadeTopLevelPos'
-                  isTopLevel = true;
 
                   (void) drawPage(view,
                                   scene,
@@ -1448,9 +1439,6 @@ int Gui::findPage(
         PRINT("4.4 IsMirrored: " << (isMirrored ? "Yes" : "No"));
         PRINT("4.5       Step: " << saveStepNumber );
         PRINT("4.6 Part Count: " << saveCsiParts.count());
-
-        // Indicate to use alternate fade content position 'fadeTopLevelPos'
-        isTopLevel = true;
 
       page.meta = saveMeta;
       QStringList pliParts;
@@ -1959,13 +1947,13 @@ void Gui::writeToTmp(
 
 void Gui::writeToTmp()
 {
-
+  fadeMeta = new FadeStepMeta();
   QStringList content;
 
   for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
     QString fileName = ldrawFile._subFileOrder[i].toLower();
 
-    if (fade.fadeStep.value()) {
+    if (fadeMeta->fadeStep.value()) {
         /*********** Add FadeStep temp files****************/
         /* change file name */
         QRegExp rgxLDR("\\.(ldr)$");
@@ -1987,7 +1975,7 @@ void Gui::writeToTmp()
             PRINT("1987 WriteToTemp (Normal): " << fileName.toStdString() << ", file order index: " << i);
             writeToTmp(fileName,content);
             content = fadeStep(ldrawFile.contents(fileName));
-            PRINT("1990 WriteToTemp   (Fade): " << fadeFileName.toStdString() << " using Color: " << LDrawColor::ldColorCode(fade.fadeColor.value()).toStdString() <<", file order index: " << i);
+            PRINT("1990 WriteToTemp   (Fade): " << fadeFileName.toStdString() << " using Color: " << LDrawColor::ldColorCode(fadeMeta->fadeColor.value()).toStdString() <<", file order index: " << i);
             writeToTmp(fadeFileName,content);
         }
      } else {
@@ -2007,9 +1995,10 @@ void Gui::writeToTmp()
  */
 QStringList Gui::fadeStep(const QStringList &contents) {
 
-    //QString fadeColor("151");
-    QString fadeColor = LDrawColor::ldColorCode(fade.fadeColor.value());
-    bool doFadeStep = fade.fadeStep.value();
+    fadeMeta = new FadeStepMeta();
+    bool doFadeStep = fadeMeta->fadeStep.value();
+    QString fadeColor = LDrawColor::ldColorCode(fadeMeta->fadeColor.value());
+
     QStringList fadeContents;
     QStringList argv;
 
@@ -2069,9 +2058,10 @@ QStringList Gui::fadeStep(const QStringList &contents) {
 
 QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) {
 
-    //QString fadeColor("151");
-    QString fadeColor = LDrawColor::ldColorCode(fade.fadeColor.value());
-    bool doFadeStep = fade.fadeStep.value();
+    fadeMeta = new FadeStepMeta();
+    bool doFadeStep = fadeMeta->fadeStep.value();
+    QString fadeColor = LDrawColor::ldColorCode(fadeMeta->fadeColor.value());
+
     QStringList fadeCsiParts;
     QStringList argv;
 

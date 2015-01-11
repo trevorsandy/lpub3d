@@ -693,6 +693,8 @@ FadeStepGui::FadeStepGui(
   colorCombo = new QComboBox(parent);
   colorCombo->addItems(LDrawColor::names());
   colorCombo->setCurrentIndex(int(colorCombo->findText(meta->fadeColor.value())));
+  if (! Preferences::enableFadeStep)
+      colorCombo->setDisabled(true);
   connect(colorCombo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(  colorChange(         QString const &)));
   grid->addWidget(colorCombo, 0, 2);
@@ -706,9 +708,9 @@ void FadeStepGui::colorChange(QString const &colorName)
   QColor qcolor = LDrawColor::color(meta->fadeColor.value());
   QColor newColor = LDrawColor::color(colorName);
   if (qcolor != newColor) {
+    meta->fadeColor.setValue(LDrawColor::name(newColor.name()));
     colorExample->setPalette(QPalette(newColor));
     colorExample->setAutoFillBackground(true);
-    meta->fadeColor.setValue(LDrawColor::name(newColor.name()));
     colorModified = true;
   }
 }

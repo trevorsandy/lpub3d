@@ -328,3 +328,5 @@ void Gui::fileChanged(const QString &path)
     drawPage(KpageView,KpageScene,false);
   }
 }
+
+

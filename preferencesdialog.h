@@ -18,6 +18,8 @@
 
 #include "ui_preferences.h"
 
+#include "meta.h"
+
 class PreferencesDialog : public QDialog
 {
   Q_OBJECT
@@ -32,21 +34,25 @@ class PreferencesDialog : public QDialog
 	QString const povrayExe();
 	QString const ldgliteExe();
 	QString const ldviewExe();
+    QString const fadeStepColor();
 	QString const preferredRenderer();
     bool    const centimeters();
-	
+    bool    const enableFadeStep();
+
   private slots:
-  void on_browseLDraw_clicked();
+    void on_browseLDraw_clicked();
 	void on_browseLGEO_clicked();
 	void on_browsePli_clicked();
 	void on_browseL3P_clicked();
 	void on_browsePOVRAY_clicked();
 	void on_browseLDView_clicked();
 	void on_browseLDGLite_clicked();
+    void colorChange(QString const &colorName);
 		
   private:
     QWidget *parent;
     Ui::PreferencesDialog ui;
+    FadeStepMeta    fadeStepMeta;             // propagate fade color and fade bool
 };
 
 #endif

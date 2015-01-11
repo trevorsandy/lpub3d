@@ -30,7 +30,6 @@
 #include "resolution.h"
 //**3D
 #include "lc_global.h"
-//#include "view.h"
 //**
 
 #define DEBUG
@@ -52,7 +51,10 @@ QString Preferences::l3pExe;
 QString Preferences::povrayExe;
 QString Preferences::pliFile;
 QString Preferences::preferredRenderer;
+QString Preferences::fadeStepColor;
 bool    Preferences::preferCentimeters = false;
+bool    Preferences::enableFadeStep = false;
+
 
 Preferences::Preferences()
 {
@@ -300,17 +302,21 @@ void Preferences::unitsPreferences()
   }
 }
 
-//void Preferences::fadestepPreferences()
-//{
-//  QSettings settings(LPUB,SETTINGS);
-//  if ( ! settings.contains("FadeStep")) {
-//    QVariant value(false);
-//    preferFadeStep = false;
-//    settings.setValue("FadeStep",value);
-//  } else {
-//    preferFadeStep = settings.value("FadeStep").toBool();
-//  }
-//}
+void Preferences::fadestepPreferences()
+{
+  QSettings settings(LPUB,SETTINGS);
+  if ( ! settings.contains("EnableFadeStep")) {
+    QVariant value(false);
+    enableFadeStep = false;
+    settings.setValue("EnableFadeStep",value);
+    fadeStepColor = "Very_Light_Bluish_Gray";
+    settings.setValue("FadeStepColor",value);
+  } else {
+    enableFadeStep = settings.value("EnableFadeStep").toBool();
+    fadeStepColor = settings.value("FadeStepColor").toString();
+  }
+
+}
 
 bool Preferences::getPreferences()
 {
@@ -393,10 +399,23 @@ bool Preferences::getPreferences()
     preferCentimeters = dialog->centimeters();
     settings.setValue("Centimeters",preferCentimeters);
     defaultResolutionType(preferCentimeters);
+
+    enableFadeStep = dialog->enableFadeStep();
+    settings.setValue("EnableFadeStep", enableFadeStep);
+    if (enableFadeStep && (fadeStepColor != dialog->fadeStepColor()))
+    {
+        fadeStepColor = dialog->fadeStepColor();
+        if (fadeStepColor == "") {
+            settings.remove("FadeStepColor");
+        }else {
+            settings.setValue("FadeStepColor", fadeStepColor);
+        }
+    }
     return true;
   } else {
     return false;
   }
+
 }
 
 void Preferences::getRequireds()

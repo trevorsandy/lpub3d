@@ -22,6 +22,18 @@
 #include "preferencesdialog.h"
 #include "lpub_preferences.h"
 
+#include "color.h"
+#include "meta.h"
+#include "lpub.h"
+
+#define DEBUG
+#ifndef DEBUG
+#define PRINT(x)
+#else
+#define PRINT(x) \
+    std::cout << "- " << x << std::endl; //without expression
+#endif
+
 PreferencesDialog::PreferencesDialog(QWidget     *_parent)
 {
   ui.setupUi(this);
@@ -35,7 +47,6 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
   ui.ldrawPath->setText(    ldrawPath);
   ui.pliName->setText(      Preferences::pliFile);
   ui.pliBox->setChecked(    Preferences::pliFile != "");
-  //ui.fadeStepBox->setChecked(    Preferences::preferFadeStep != "");
   ui.ldglitePath->setText(  Preferences::ldgliteExe);
   ui.ldgliteBox->setChecked(Preferences::ldgliteExe != "");
   ui.l3pPath->setText(      Preferences::l3pExe);
@@ -45,6 +56,7 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
   ui.lgeoBox->setChecked(   Preferences::lgeoPath != "");
   ui.ldviewPath->setText(   Preferences::ldviewExe);
   ui.ldviewBox->setChecked( Preferences::ldviewExe != "");
+  ui.fadeStepBox->setChecked(Preferences::enableFadeStep);
   
   ui.preferredRenderer->setMaxCount(0);
 	ui.preferredRenderer->setMaxCount(3);
@@ -58,8 +70,6 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
 		ui.preferredRenderer->addItem("L3P");
 	}
 	
-	
-  
   fileInfo.setFile(Preferences::ldgliteExe);
   int ldgliteIndex = ui.preferredRenderer->count();
   bool ldgliteExists = fileInfo.exists();
@@ -87,9 +97,32 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
   } else {
     ui.preferredRenderer->setEnabled(false);
   }
+
+  //fade step start
+  ui.fadeStepColorLabel->setPalette(QPalette(LDrawColor::color(Preferences::fadeStepColor)));
+  ui.fadeStepColorLabel->setAutoFillBackground(true);
+  ui.fadeStepColorsCombo->addItems(LDrawColor::names());
+  ui.fadeStepColorsCombo->setCurrentIndex(int(ui.fadeStepColorsCombo->findText(Preferences::fadeStepColor)));
+  fadeStepMeta.fadeColor.setValue(LDrawColor::name(Preferences::fadeStepColor));
+  connect(ui.fadeStepColorsCombo,SIGNAL(currentIndexChanged(QString const &)),
+          this, SLOT(colorChange(                    QString const &)));
+  //fade step end
+
   bool centimeters = Preferences::preferCentimeters;
   ui.Centimeters->setChecked( centimeters );
   ui.Inches->setChecked( ! centimeters );
+}
+
+void PreferencesDialog::colorChange(QString const &colorName)
+{
+  QColor qcolor = LDrawColor::color(Preferences::fadeStepColor);
+  QColor newColor = LDrawColor::color(colorName);
+  bool notMatch = (qcolor != newColor);
+  if (notMatch) {
+    fadeStepMeta.fadeColor.setValue(LDrawColor::name(newColor.name()));
+    ui.fadeStepColorLabel->setPalette(QPalette(newColor));
+    ui.fadeStepColorLabel->setAutoFillBackground(true);
+  }
 }
 
 void PreferencesDialog::on_browseLDraw_clicked()
@@ -320,4 +353,16 @@ QString const PreferencesDialog::preferredRenderer()
 bool const PreferencesDialog::centimeters()
 {
   return ui.Centimeters->isChecked();
+}
+
+bool const PreferencesDialog::enableFadeStep()
+{
+  return ui.fadeStepBox->isChecked();
+}
+QString const PreferencesDialog::fadeStepColor()
+{
+    if (ui.fadeStepColorsCombo->isEnabled()) {
+      return ui.fadeStepColorsCombo->currentText();
+    }
+    return "";
 }

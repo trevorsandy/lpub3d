@@ -349,14 +349,12 @@ void lcQMainWindow::createMenus()
 
     /*** management - menus ***/
     menuBar()->removeAction(menuFile->menuAction());
+    menuBar()->removeAction(menuEdit->menuAction());
     menuBar()->removeAction(menuPiece->menuAction());
     /*** management - menu actions ***/
-    menuEdit->removeAction(actions[LC_EDIT_CUT]);
-    menuEdit->removeAction(actions[LC_EDIT_COPY]);
-    menuEdit->removeAction(actions[LC_EDIT_PASTE]);
-    menuEdit->removeAction(actions[LC_EDIT_FIND]);
-    menuEdit->removeAction(actions[LC_EDIT_FIND_NEXT]);
-    menuEdit->removeAction(actions[LC_EDIT_FIND_PREVIOUS]);
+    menuStep->removeAction(actions[LC_VIEW_TIME_INSERT]);
+    menuStep->removeAction(actions[LC_VIEW_TIME_DELETE]);
+    //menuToolBars->removeAction(standardToolBar->toggleViewAction());
     menuToolBars->removeAction(partsToolBar->toggleViewAction());
     menuToolBars->removeAction(propertiesToolBar->toggleViewAction());
     menuToolBars->removeAction(timeToolBar->toggleViewAction());
@@ -565,6 +563,8 @@ void lcQMainWindow::createToolBars()
     /*** management - toolbar actions ***/
     standardToolBar->removeAction(actions[LC_FILE_PRINT]);
     standardToolBar->removeAction(actions[LC_FILE_PRINT_PREVIEW]);
+    standardToolBar->removeAction(actions[LC_EDIT_UNDO]);
+    standardToolBar->removeAction(actions[LC_EDIT_REDO]);
     standardToolBar->removeAction(actions[LC_EDIT_CUT]);
     standardToolBar->removeAction(actions[LC_EDIT_COPY]);
     standardToolBar->removeAction(actions[LC_EDIT_PASTE]);
@@ -584,6 +584,20 @@ void lcQMainWindow::createToolBars()
     toolsToolBar->removeAction(actions[LC_EDIT_ACTION_ROTATE]);
     toolsToolBar->removeAction(actions[LC_EDIT_ACTION_DELETE]);
     toolsToolBar->removeAction(actions[LC_EDIT_ACTION_PAINT]);
+
+    // remove unneeded separators
+    foreach(QAction* action, standardToolBar->actions())
+    {
+        if (action->isSeparator())
+            standardToolBar->removeAction(action);
+    }
+    foreach(QAction* action, toolsToolBar->actions())
+    {
+        if (action->isSeparator()) {
+            toolsToolBar->removeAction(action);
+            break;      //remove first separator only
+        }
+    }
     /*** management - end ***/
 }
 
@@ -631,7 +645,9 @@ QMenu *lcQMainWindow::createPopupMenu()
 	menuToolBars->addAction(standardToolBar->toggleViewAction());
 	menuToolBars->addAction(toolsToolBar->toggleViewAction());
 	menuToolBars->addAction(timeToolBar->toggleViewAction());
+
     /*** management - popupMenu ***/
+    //menuToolBars->addAction(standardToolBar->toggleViewAction());
     menuToolBars->removeAction(partsToolBar->toggleViewAction());
     menuToolBars->removeAction(propertiesToolBar->toggleViewAction());
     menuToolBars->removeAction(partsToolBar->toggleViewAction());
