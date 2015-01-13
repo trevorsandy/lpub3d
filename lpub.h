@@ -569,8 +569,6 @@ private:
                                    // being edited
 #endif
 
-  // lcqWindow was here...
-
   LDrawColor      ldrawColors;     // provides maps from ldraw color to RGB
   PartsList       partsList;       // this is an internal version of PARTS.LST
 

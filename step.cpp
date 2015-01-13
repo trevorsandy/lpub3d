@@ -48,15 +48,6 @@
 #include "paths.h"
 #include "ldrawfiles.h"
 
-#include <iostream>
-#define DEBUG
-#ifndef DEBUG
-#define PRINT(x)
-#else
-#define PRINT(x) \
-    std::cout << "- " << x << std::endl; //without expression
-#endif
-
 /*********************************************************************
  *
  * Create a new step and remember the meta-command state at the time
@@ -210,7 +201,7 @@ int Step::createCsi(
             .arg(".ldr");
     csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + fileNamekey;
         renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate, do3DCsi);
-    //PRINT("RENDERING: " << fileNamekey.toStdString() << " Exists: " << (csi.exists()?"Yes":"No") << " Out of Date: " << (outOfDate?"Yes":"No"));
+    //qDebug() << "RENDERING: " << fileNamekey.toStdString() << " Exists: " << (csi.exists()?"Yes":"No") << " Out of Date: " << (outOfDate?"Yes":"No");
   //**
 
   if ( ! csi.exists() || outOfDate) {

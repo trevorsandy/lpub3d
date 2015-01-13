@@ -26,14 +26,6 @@
 #include "meta.h"
 #include "lpub.h"
 
-#define DEBUG
-#ifndef DEBUG
-#define PRINT(x)
-#else
-#define PRINT(x) \
-    std::cout << "- " << x << std::endl; //without expression
-#endif
-
 PreferencesDialog::PreferencesDialog(QWidget     *_parent)
 {
   ui.setupUi(this);
@@ -111,6 +103,10 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
   bool centimeters = Preferences::preferCentimeters;
   ui.Centimeters->setChecked( centimeters );
   ui.Inches->setChecked( ! centimeters );
+
+  bool titleAnnotation = Preferences::preferTitleAnnotation;
+  ui.titleAnnotation->setChecked( titleAnnotation );
+  ui.freeformAnnotation->setChecked(! titleAnnotation);
 }
 
 void PreferencesDialog::colorChange(QString const &colorName)
@@ -355,10 +351,16 @@ bool const PreferencesDialog::centimeters()
   return ui.Centimeters->isChecked();
 }
 
+bool const PreferencesDialog::pliAnnotation()
+{
+  return ui.titleAnnotation->isChecked();
+}
+
 bool const PreferencesDialog::enableFadeStep()
 {
   return ui.fadeStepBox->isChecked();
 }
+
 QString const PreferencesDialog::fadeStepColor()
 {
     if (ui.fadeStepColorsCombo->isEnabled()) {

@@ -50,6 +50,7 @@
 #include "lpub_preferences.h"
 #include "ranges_element.h"
 #include "range_element.h"
+#include "annotations.h"
 
 QCache<QString,QString> Pli::orientation;
     
@@ -167,7 +168,7 @@ void Pli::clear()
 }
 
 QHash<int, QString>     annotationString;
-QList<QString>          titles;
+QList<QString>          titleAnnotations;
 
 bool Pli::initAnnotationString()
 {
@@ -201,31 +202,8 @@ bool Pli::initAnnotationString()
     annotationString[32+14]= "TY";  // yellow
     annotationString[32+22]= "TPpl";// purple
     annotationString[32+25]= "TO";  // orange
-    titles << "^Technic Axle\\s+(\\d+)\\s*.*$";
-    titles << "^Technic Axle Flexible\\s+(\\d+)\\s*$";
-    titles << "^Technic Beam\\s+(\\d+)\\s*$";
-    titles << "^Electric Cable RCX\\s+([0-9].*)$";
 
-    // additions by Danny
-    titles << "^Electric Mindstorms NXT Cable\\s+([0-9].*)$";
-    titles << "^Electric Mindstorms EV3 Cable\\s+([0-9].*)$";
-
-     // VEX parts annotations added by Danny on 14 April 2014
-    titles <<"^VEX Beam  1 x\\s+(\\d+)\\s*$";
-    titles <<"^VEX Beam  2 x\\s+(\\d+)\\s*$";
-    titles <<"^VEX Pin Standoff\\s+([0-9]*\\.?[0-9]*)\\sM$";
-
-    //titles <<"^VEX Beam .*(?=Bent).*(?=(\\d\\d))(\\d+)";
-    //titles <<"^VEX Beam .*(?=Bent).*(?=(\\d\\d))(?!90)(\\d+)";
-    //titles <<"^VEX Beam.*(?:Double Bent).*(?!90)(\\d\\d)$";
-    //titles <<"^VEX Beam .*(?=Bent).*(?!90)(\\d\\d)";
-    titles <<"^VEX Beam(?:\\s)(?:(?!Double Bent).)*(?!90)(\\d\\d)$";
-
-    titles <<"^VEX Plate  4 x\\s+(\\d+)\\s*$";
-    titles << "^VEX Axle\\s+(\\d+)\\s*.*$";
-    titles << "^VEX-2 Smart Cable\\s+([0-9].*)$";
-    titles <<"^VEX-2 Rubber Belt\\s+([0-9].*)Diameter";
-
+    titleAnnotations = Annotations::getTitleAnnotations();
   }
   return true;
 }
@@ -234,25 +212,32 @@ void Pli::getAnnotate(
   QString &type,
   QString &annotateStr)
 {
-  annotateStr.clear();
-  if (titles.size() == 0) {
-    return;
-  }
 
+  annotateStr.clear();
   annotateStr = PartsList::title(type.toLower());
 
-  // pick up LSynth lengths
-
-  QString title;
-  for (int i = 0; i < titles.size(); i++) {
-    title = titles[i];
-    QRegExp rx(title);
-    if (annotateStr.contains(rx)) {
-      annotateStr = rx.cap(1);
+  // pick up annotations
+  if(Preferences::preferTitleAnnotation){
+      if (titleAnnotations.size() == 0) {
+        return;
+      }
+      QString annotation,sClean;
+      for (int i = 0; i < titleAnnotations.size(); i++) {
+          annotation = titleAnnotations[i];
+          QRegExp rx(annotation);
+          if (annotateStr.contains(rx)) {
+              sClean = rx.cap(1);
+              sClean.remove(QRegExp("\\s"));
+              annotateStr = sClean;
+              qDebug() << "FINAL TITLE ANNOT: " << annotateStr;
+              return;
+          }
+      }
+  } else {
+      annotateStr = Annotations::freeformAnnotation(type.toLower());
+      qDebug() << "TYPE: " << type << " FINAL FREE ANNOT: " << annotateStr ;
       return;
-    }
   }
-
   annotateStr.clear();
   return;
 }

@@ -94,7 +94,9 @@
         <file>lc_lib/resources/view_split_vertical.png</file>
         <file>lc_lib/resources/view_zoomextents.png</file>
         <file>lpub.icns</file>
-        <file>pli.mpd</file>
         <file>LPub.ico</file>
+        <file>extras/pli.mpd</file>
+        <file>extras/customAnnotations.lst</file>
+        <file>extras/titleAnnotations.lst</file>
     </qresource>
 </RCC>

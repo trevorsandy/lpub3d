@@ -1,0 +1,103 @@
+﻿#Follow this format to define annotations derived from part title
+#Follow this format to define annotations derived from part title
+#The format is category followed by regex string (to extract to annotation from the part title)
+#For efficiency put most used parts first.
+
+Technic:        ^Technic Axle\s+(\d+\.\d)\s*.*$
+Technic:	^Technic Axle Flexible\s+(\d+)\s*$
+Technic:	^Technic Angle Connector\s+\(*(#*\d*\s*x*\s*\d*)\s*\w*\)*\s*.*$
+Technic:	^Technic Arm\s+(\d+\s+(x|X)\s+\d+)\s*.*$
+Technic:	^Technic Beam*\s+(\d+\.*\d*\s*(x*|X*)\s*\d*\.*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Technic:	^Technic Brick\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Technic:	^Technic Chain Tread\s+(\d+)$
+Technic:	^Technic Connector\s*\w*\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Technic:	^Technic Cross Block\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Technic:	^Technic Excavator Bucket\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)\s*\d*)\s*.*$
+Technic:	^Technic Flex-System\s*\w*\s+(\d+L).*$
+Technic:	^Technic Gear\s*\w*\s*(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Technic:	^Technic\s+\w*\s*Link\s*(\d+L*\s*(x*|X*)\s*\d*)\s*.*$
+Technic:	^Technic Motor Pull Back\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*)\s*.*$
+Technic:	^Technic Panel\s*\w*\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*)$
+Technic:	^Technic Panel Fairing\s*\w*\s+(#+\d+)\s*.*$
+Technic:	^Technic Panel Flat Sheet\s*(\d+\s*(x*|X*)\s*\d*)\s*.*$
+Technic:	^Technic Plate\s*(\d+\s*(x*|X*)\s*\d*)\s*.*$
+Technic:	^Technic Pneumatic\s*\w*\s+(\d+\.*\d*\s*(x*|X*)\s*\d*\s*\d*L*\s*(x*|X*)\s*\d*\.*\d*L*)\s*.*$
+Technic:	^Technic Rotor\s+(\d+\s*B)\w*\s*(\d*L*\s*D*)\s*.*$
+Technic:	^Technic Shock Absorber\s+(\d+\.*\d*L*)\s*.*$
+Technic:	^Technic Sprocket Wheel\s+(\d+\.*\d*)\s*.*$
+Technic:	^Technic Suspension Arm\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Technic:	^Technic Universal Joint\s+(\d+\.*\d*L*)\s*.*$
+
+Antenna: 	^Antenna\s+(\dH)\s*.*$
+Arch: 		^Arch\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Bar: 		^Bar\s+(\d+\.*\d*L*\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*)\s*.*$
+Barrel: 	^Barrel\s+(\d+\.*\d*\s*(x*|X*)\s*\d*\.*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Baseplate:	^Baseplate\s+(\d+\s*(x*|X*)\s*\d*+\s*)\s*.*$
+Belt:		^Rubber Belt Round\s+(\d+\s*\/+\s*\d*\.*\d*)\s*.*$
+Boat:		^Boat\s*\w*\s*\w*\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Bone:		^Bone\s+(\dL)$
+Bracket:	^Bracket\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)-*\s*\d*\/*\.*\d*\s*(x*|X*)\s*\d*)\s*.*$
+Brick:		^Brick\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Brick:		^Mursten Brick\s+(\d+\s+(x|X)\s+\d+)\s*.*$
+Brick:		^Quatro Brick\s+(\d+\s+(x|X)\s+\d+)\s*.*$
+Bucket:		^Bucket\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)\s*\d*)\s*.*$
+Car:		^Car\s*\w*\s+(\d+\s+(x|X)\s+\d+\.*\d*\s*(x*|X*)\s*\d*\/*\.*\d*)\s*.*$
+Claw:		^Claw\s+(\dL)$
+Cockpit:	^Cockpit\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Cocoon:		^Cocoon\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Cone:		^Cocoon\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Container:	^Container\s*\w*\s+(\d+\.*\d*\s+(x|X)\s+\d+\.*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Cylinder:	^Cylinder\s*\w*\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Dish:		^Dish\s+(\d+\s+(x|X)\s+\d+)\s*.*$
+Door:		^Door\s*\w*\s+(\d+\s+(x|X)\s+\d+\.*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Electric:	^Electric\s*9V\s*\w*\s*\w*\s*(\d*\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Electric:	^Electric\s*4\.5V\s*\w*\s*\w*\s*(\d*\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Electric:	^Electric\s*\w*\s*(\d*\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Electric:	^Electric Light & Sound\s*\w*\s*(\d*\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Electric:	^Electric Light Prism\s*(\d*\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Electric:	^Electric Mindstorms EV3 Cable\s+([0-9].*)$
+Electric:	^Electric Mindstorms NXT Cable\s+([0-9].*)$
+Electric:	^Electric Plate\s+(\d*\s*(x*|X*)\s*\d*)\s*.*$
+Flag:		^Flag\s+(\d+\s+(x|X)\s+\d+)\s*.*$
+Gate:		^Gate\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Glass:		^Glass for Window\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Hinge:		^Hinge\s+(\d+\s+(x|X)\s+\d+)\s*.*$
+Hinge:		^Hinge Car Roof\s+(\d+\s+(x|X)\s+\d+)\s*.*$
+Hinge:		^Hinge Panel\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Hinge:		^Hinge\s*\w*\s+(\d+\s+(x|X)\s*\d*\.*\d*)\s*.*$
+Homemaker:	^Homemaker\s*\w*\s*\w*\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Hose:		^Hose\s*\w*\s*\w*\s+(\d+\.*\d*L*\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*)\s*.*$
+Minifig:	^Minifig Flame\s+(\d\s*L)\s*.*$
+MInifig:	^Minifig Surf Board\s+(\d+\s+(x|X)\s*\d*\.*\d*)\s*.*$
+Motor:		^Motor\s*\w*-*\s*\w*\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Misc:		^Mursten\s*\w*\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Misc:		^Rack Winder\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Misc:		^Roadsign Clip-on\s+(\d+\.*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Misc:		^Rock\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Misc:		^Tap\s+(\d+\s+(x|X)\s+\d+)\s*.*$
+Panel:		^Panel\s*\w*\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Plate:		^Plate\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Propellor:	^Propellor\s+(\d\s+B)\w+\s+(\d+\.*\d*\s+D)\s*.*$
+Roof:		^Roof\s*\w*\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Slope:		^Slope Brick\s+(\d*\/*\d*\s*\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Slope:		^Slope Brick Curved\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Tail:		^Tail\s*\w*\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Tile:		^Tile\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Train:		^Train\s*\w*\s+(\d+V*\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Turntable:	^Turntable\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Wheel:		^Tyre\s+(\d+\.*\d*\/*d*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Wedge:		^Wedge\s*\w*\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Wheel:		^Wheel\s*\w*\s+(\d+\.*\d*\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Winch:		^Winch\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*)\s*.*$
+Window:		^Window\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*)\s*.*$
+Windscreen:	^Windscreen\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*)\s*.*$
+Wing:		^Wing\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)-*\s*\d*\/*\.*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+
+VEX:		^VEX Beam  1 x\s+(\d+)\s*$
+VEX:		^VEX Beam  2 x\s+(\d+)\s*$
+VEX:		^VEX Pin Standoff\s+([0-9]*\.?[0-9]*)\sM$
+VEX:		^VEX Beam(?:\s)(?:(?!Double Bent).)*(?!90)(\d\d)$
+VEX:		^VEX Plate  4 x\s+(\d+)\s*$
+VEX:		^VEX Axle\s+(\d+)\s*.*$
+VEX:		^VEX-2 Smart Cable\s+([0-9].*)$
+#VEX:		^VEX-2 Rubber Belt\s+([0-9].*)Diameter

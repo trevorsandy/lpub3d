@@ -51,7 +51,7 @@ PartsList::PartsList()
     }
     QTextStream in(&file);
     QString line;
-    QRegExp rx("^([\\d\\w\\.]+)\\s+~*\\b(.*)\\b\\s+$");
+    QRegExp rx("^([\\d\\w\\.]+)\\s+~*\\b(.*)\\b\\s*$");
     while ( ! in.atEnd()) {
       line = in.readLine(0);
       if (line.contains(rx)) {
@@ -71,6 +71,7 @@ PartsList::PartsList()
                     "/Helpers/" << "/Custom/" << "/Development/";
   }
 }
+
 bool PartsList::isKnownPart(QString &part)
 {
   if (list.contains(part.toLower())) {

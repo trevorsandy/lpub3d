@@ -34,15 +34,6 @@
 #include "metaitem.h"
 #include "ranges_element.h"
 
-#include <iostream>
-#define DEBUG
-#ifndef DEBUG
-#define PRINT(x)
-#else
-#define PRINT(x) \
-    std::cout << "- " << x << std::endl; //without expression
-#endif
-
 Gui *gui;
 
 void clearPliCache()
@@ -424,6 +415,7 @@ Gui::Gui()
     Preferences::renderPreferences();
 	Preferences::lgeoPreferences();
     Preferences::pliPreferences();
+    Preferences::annotationPreferences();
     Preferences::fadestepPreferences();
 
     displayPageNum  = 1;
@@ -1008,9 +1000,9 @@ void Gui::createDockWindows()
 
 void Gui::readSettings()
 {
-    QSettings settings(LPUB, "LEGO Building Instruction Tool");
+    QSettings settings(LPUB, SETTINGS);
     QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
-    QSize size = settings.value("size", QSize(400, 400)).toSize();
+    QSize size = settings.value("size", QSize(600, 400)).toSize();
     resize(size);
     move(pos);
 }

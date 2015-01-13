@@ -48,6 +48,7 @@
 #include "where.h"
 #include "name.h"
 #include "resize.h"
+#include "annotations.h"
 
 class Pli;
 
@@ -131,6 +132,7 @@ class Pli : public Placement {
 
     QHash<QString, PliPart*> parts;
     QList<QString>           sortedKeys;
+    Annotations              annotations;     // this is an internal list of title and custom part annotations
 
   public:
     PlacementType      parentRelativeType;
@@ -190,13 +192,13 @@ class Pli : public Placement {
 
     int  sizePli(Meta *, PlacementType, bool perStep);
     int  sizePli(ConstrainData::PliConstrain, unsigned height);
-	  int  sortPli();
+    int  sortPli();
     int  resizePli(Meta *, ConstrainData &constrainData);
     int  placePli(QList<QString> &, int,int,bool,bool,int&,int&,int&);
     void positionChildren(int height, qreal scaleX, qreal scaleY);
     int  addPli (int, QGraphicsItem *);
     
-	  void placeCols(QList<QString> &);
+    void placeCols(QList<QString> &);
     bool initAnnotationString();
     void getAnnotate(QString &, QString &);
     void partClass(QString &, QString &);

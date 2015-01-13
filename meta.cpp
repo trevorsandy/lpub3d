@@ -39,15 +39,6 @@
 #include "lpub.h"
 #include "lpub_preferences.h"
 
-#include <iostream>
-#define DEBUG
-#ifndef DEBUG
-#define PRINT(x)
-#else
-#define PRINT(x) \
-    std::cout << "- " << x << std::endl; //without expression
-#endif
-
 /* The token map translates known keywords to values 
  * used by LPub to identify things like placement and such
  */

@@ -37,6 +37,7 @@ class Preferences
     static void renderPreferences();
     static void pliPreferences();
     static void unitsPreferences();
+    static void annotationPreferences();
     static void fadestepPreferences();
     static void getRequireds();
     static bool getPreferences();
@@ -52,6 +53,7 @@ class Preferences
     static QString lpubPath;
     static QString fadeStepColor;
     static bool    preferCentimeters;
+    static bool    preferTitleAnnotation;
     static bool    enableFadeStep;
 
     virtual ~Preferences() {}

@@ -28,17 +28,10 @@
 #include "preferencesdialog.h"
 #include "name.h"
 #include "resolution.h"
+#include "pli.h"
 //**3D
 #include "lc_global.h"
 //**
-
-#define DEBUG
-#ifndef DEBUG
-#define PRINT(x)
-#else
-#define PRINT(x) \
-    std::cout << "- " << x << std::endl; //without expression
-#endif
 
 Preferences preferences;
 
@@ -52,6 +45,7 @@ QString Preferences::povrayExe;
 QString Preferences::pliFile;
 QString Preferences::preferredRenderer;
 QString Preferences::fadeStepColor;
+bool    Preferences::preferTitleAnnotation = false;
 bool    Preferences::preferCentimeters = false;
 bool    Preferences::enableFadeStep = false;
 
@@ -294,28 +288,40 @@ void Preferences::unitsPreferences()
 {
   QSettings settings(LPUB,SETTINGS);
   if ( ! settings.contains("Centimeters")) {
-    QVariant value(false);
+    QVariant uValue(false);
     preferCentimeters = false;
-    settings.setValue("Centimeters",value);
+    settings.setValue("Centimeters",uValue);
   } else {
     preferCentimeters = settings.value("Centimeters").toBool();
   }
+}
+
+void Preferences::annotationPreferences()
+{
+    QSettings settings(LPUB,SETTINGS);
+    if(! settings.contains("TitleAnnotation")) {
+        QVariant aValue(false);
+        preferTitleAnnotation = false;
+        settings.setValue("TitleAnnotation", aValue);
+    } else {
+        preferTitleAnnotation = settings.value("TitleAnnotation").toBool();
+    }
 }
 
 void Preferences::fadestepPreferences()
 {
   QSettings settings(LPUB,SETTINGS);
   if ( ! settings.contains("EnableFadeStep")) {
-    QVariant value(false);
+    QVariant eValue(false);
     enableFadeStep = false;
-    settings.setValue("EnableFadeStep",value);
+    settings.setValue("EnableFadeStep",eValue);
+    QVariant cValue("Very_Light_Bluish_Gray");
     fadeStepColor = "Very_Light_Bluish_Gray";
-    settings.setValue("FadeStepColor",value);
+    settings.setValue("FadeStepColor",cValue);
   } else {
     enableFadeStep = settings.value("EnableFadeStep").toBool();
     fadeStepColor = settings.value("FadeStepColor").toString();
   }
-
 }
 
 bool Preferences::getPreferences()
@@ -400,8 +406,11 @@ bool Preferences::getPreferences()
     settings.setValue("Centimeters",preferCentimeters);
     defaultResolutionType(preferCentimeters);
 
+    preferTitleAnnotation = dialog->pliAnnotation();
+    settings.setValue("TitleAnnotation",preferTitleAnnotation);
+
     enableFadeStep = dialog->enableFadeStep();
-    settings.setValue("EnableFadeStep", enableFadeStep);
+    settings.setValue("TitleAnnotation", enableFadeStep);
     if (enableFadeStep && (fadeStepColor != dialog->fadeStepColor()))
     {
         fadeStepColor = dialog->fadeStepColor();

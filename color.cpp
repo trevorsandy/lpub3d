@@ -24,14 +24,6 @@
 #include <QRegExp>
 #include "lpub_preferences.h"
 
-#define DEBUG
-#ifndef DEBUG
-#define PRINT(x)
-#else
-#define PRINT(x) \
-    std::cout << "- " << x << std::endl; //without expression
-#endif
-
 QHash<QString, QColor>  LDrawColor::name2color;
 QHash<QString, QString> LDrawColor::color2name;
 QHash<QString, QString> LDrawColor::ldname2ldcolor;
@@ -139,7 +131,7 @@ QString LDrawColor::ldColorCode(QString ldrawName)
     QString key(ldrawName.toLower());
     if (ldname2ldcolor.contains(key)) {
       return ldname2ldcolor[key];
-      PRINT("LDRAW COLORS colorName(key): " << key.toStdString() << " , code(value): " << ldname2ldcolor[key].toStdString());
+      qDebug() << "LDRAW COLORS colorName(key): " << key << " , code(value): " << ldname2ldcolor[key];
     } else {
       return "-1";
     }

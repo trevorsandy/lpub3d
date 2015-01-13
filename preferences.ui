@@ -25,19 +25,6 @@
        <string>General</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_5">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_8">
-         <property name="text">
-          <string>Default author name:</string>
-         </property>
-         <property name="buddy">
-          <cstring>authorName</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="authorName"/>
-       </item>
        <item row="1" column="0" colspan="2">
         <widget class="QGroupBox" name="ldrawBox">
          <property name="toolTip">
@@ -212,48 +199,48 @@
          </layout>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="QGroupBox" name="projectsFolderBox">
-         <property name="toolTip">
-          <string>This directory contains the LDraw parts directory</string>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Default author name:</string>
          </property>
+         <property name="buddy">
+          <cstring>authorName</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="authorName"/>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QGroupBox" name="annotationBox">
          <property name="title">
-          <string>Default Projects Folder</string>
+          <string>PLI annotation source</string>
          </property>
          <property name="checkable">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="checked">
           <bool>false</bool>
          </property>
          <layout class="QHBoxLayout" name="_2">
           <item>
-           <widget class="QLabel" name="label_9">
-            <property name="text">
-             <string>Path</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="projectsFolder">
-            <property name="minimumSize">
-             <size>
-              <width>200</width>
-              <height>0</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="browseProjectsFolder">
+           <widget class="QRadioButton" name="titleAnnotation">
             <property name="toolTip">
-             <string>Use directory dialog to find LDraw directory</string>
-            </property>
-            <property name="whatsThis">
-             <string>This lets you find the LDraw directory</string>
+             <string>PLI annotations sourced from part description - see root/extras/titleannotations.lst</string>
             </property>
             <property name="text">
-             <string>Browse...</string>
+             <string>Part description</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="freeformAnnotation">
+            <property name="toolTip">
+             <string>PLI annotations are freeform - see root/extras/freeformAnnotations.lst</string>
+            </property>
+            <property name="text">
+             <string>Free form</string>
             </property>
            </widget>
           </item>

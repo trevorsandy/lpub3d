@@ -38,16 +38,6 @@
 #include "metaitem.h"
 #include "commonmenus.h"
 
-
-#include <iostream>
-#define DEBUG
-#ifndef DEBUG
-#define PRINT(x)
-#else
-#define PRINT(x) \
-    std::cout << "- " << x << std::endl; //without expression
-#endif
-
 CsiItem::CsiItem(
   Step          *_step,
   Meta          *_meta,

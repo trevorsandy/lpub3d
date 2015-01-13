@@ -1,6 +1,8 @@
 * text=auto !eol
 /LPub.icns -text
 /LPub.ico -text
+/annotations.cpp -text
+/annotations.h -text
 /assemglobals.cpp -text
 /backgrounddialog.cpp -text
 /backgrounddialog.h -text
@@ -27,6 +29,9 @@
 /dividerdialog.h -text
 /editwindow.cpp -text
 /editwindow.h -text
+extras/customAnnotations.lst -text
+extras/pli.mpd -text
+extras/titleannotations.lst -text
 /fadestepglobals.cpp -text
 /formatpage.cpp -text
 /globals.h -text
@@ -323,7 +328,6 @@ lc_lib/tools/utils/zpipe.c -text
 /placementdialog.h -text
 /pli.cpp -text
 /pli.h -text
-/pli.mpd -text
 /pliconstraindialog.cpp -text
 /pliconstraindialog.h -text
 /pliglobals.cpp -text

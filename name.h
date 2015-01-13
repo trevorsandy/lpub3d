@@ -17,10 +17,11 @@
 
 #ifndef NAME_H
 #define NAME_H
-#define LPUB "LPub"
+#define LPUB "LPub Software"
 class Gui;
 
 extern Gui *gui;
 
-#define SETTINGS "LDraw Building Instruction Tool"
+//#define SETTINGS "LDraw Building Instruction Tool"
+#define SETTINGS "LPub410"
 #endif

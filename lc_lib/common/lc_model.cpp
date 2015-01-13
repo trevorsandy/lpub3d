@@ -2050,9 +2050,8 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Update)
 //		NewLocalToWorldMatrix[1].Normalize();
 //		NewLocalToWorldMatrix[2].Normalize();
 
-		qDebug() << lcCross(NewLocalToWorldMatrix[0], NewLocalToWorldMatrix[1]).Length() << lcCross(NewLocalToWorldMatrix[2], NewLocalToWorldMatrix[1]).Length() << lcCross(NewLocalToWorldMatrix[0], NewLocalToWorldMatrix[2]).Length();
-
-		qDebug() << NewLocalToWorldMatrix[0].Length() << NewLocalToWorldMatrix[1].Length() << NewLocalToWorldMatrix[2].Length();
+//		qDebug() << lcCross(NewLocalToWorldMatrix[0], NewLocalToWorldMatrix[1]).Length() << lcCross(NewLocalToWorldMatrix[2], NewLocalToWorldMatrix[1]).Length() << lcCross(NewLocalToWorldMatrix[0], NewLocalToWorldMatrix[2]).Length();
+//		qDebug() << NewLocalToWorldMatrix[0].Length() << NewLocalToWorldMatrix[1].Length() << NewLocalToWorldMatrix[2].Length();
 
 		Piece->SetPosition(Center + Distance, mCurrentStep, gMainWindow->GetAddKeys());
 		Piece->SetRotation(NewLocalToWorldMatrix, mCurrentStep, gMainWindow->GetAddKeys());

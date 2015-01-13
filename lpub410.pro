@@ -181,6 +181,7 @@ HEADERS += \
     lc_lib/qt/lc_qcolorlist.h \
     lc_lib/qt/lc_qfinddialog.h \
     lc_lib/qt/lc_qmodellistdialog.h \
+    annotations.h \
     backgrounddialog.h \
     backgrounditem.h \
     borderdialog.h \
@@ -288,6 +289,7 @@ SOURCES += \
     lc_lib/qt/lc_qcolorlist.cpp \
     lc_lib/qt/lc_qfinddialog.cpp \
     lc_lib/qt/lc_qmodellistdialog.cpp \
+    annotations.cpp \
     assemglobals.cpp \
     backgrounddialog.cpp \
     backgrounditem.cpp \

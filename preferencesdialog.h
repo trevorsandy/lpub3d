@@ -37,6 +37,7 @@ class PreferencesDialog : public QDialog
     QString const fadeStepColor();
 	QString const preferredRenderer();
     bool    const centimeters();
+    bool    const pliAnnotation();
     bool    const enableFadeStep();
 
   private slots:
