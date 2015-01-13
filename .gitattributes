@@ -31,6 +31,7 @@
 /editwindow.h -text
 extras/customAnnotations.lst -text
 extras/pli.mpd -text
+extras/titleAnnotations.lst -text
 extras/titleannotations.lst -text
 /fadestepglobals.cpp -text
 /formatpage.cpp -text
