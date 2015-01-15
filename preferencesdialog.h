@@ -19,6 +19,8 @@
 #include "ui_preferences.h"
 
 #include "meta.h"
+#include "lc_qpreferencesdialog.h"
+#include "ui_lc_qpreferencesdialog.h"
 
 class PreferencesDialog : public QDialog
 {
@@ -36,9 +38,16 @@ class PreferencesDialog : public QDialog
 	QString const ldviewExe();
     QString const fadeStepColor();
 	QString const preferredRenderer();
-    bool    const centimeters();
-    bool    const pliAnnotation();
-    bool    const enableFadeStep();
+    QString const defaultAuthor();
+    QString const defaultURL();
+    QString const defaultEmail();
+    QString const documentLogoFile();
+    QString const publishDescription();
+    bool          printCopyright();
+    bool          centimeters();
+    bool          pliAnnotation();
+    bool          enableFadeStep();
+    bool          enableDocumentLogo();
 
   private slots:
     void on_browseLDraw_clicked();
@@ -48,12 +57,14 @@ class PreferencesDialog : public QDialog
 	void on_browsePOVRAY_clicked();
 	void on_browseLDView_clicked();
 	void on_browseLDGLite_clicked();
+    void on_browsePublishLogo_clicked();
     void colorChange(QString const &colorName);
 		
   private:
     QWidget *parent;
     Ui::PreferencesDialog ui;
     FadeStepMeta    fadeStepMeta;             // propagate fade color and fade bool
+
 };
 
 #endif

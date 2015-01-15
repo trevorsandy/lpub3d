@@ -56,6 +56,7 @@ class Step : public AbstractRangeElement
     bool              showStepNumber;
     int               submodelLevel;
     bool              pliPerStep;
+    static bool       isCsiDataModified;
     PlacementMeta     placement;
     QString           pngName;
     QString           csi3DName;

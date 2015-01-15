@@ -30,7 +30,6 @@ lcPiece::lcPiece(PieceInfo* pPieceInfo)
 	mColorCode = 16;
 	mStepShow = 1;
 	mStepHide = LC_STEP_MAX;
-	memset(m_strName, 0, sizeof(m_strName));
 	mGroup = NULL;
 
 	if (mPieceInfo != NULL)
@@ -53,35 +52,6 @@ void lcPiece::SaveLDraw(QTextStream& Stream) const
 	if (mStepHide != LC_STEP_MAX)
 		Stream << QLatin1String("0 !LEOCAD PIECE STEP_HIDE ") << mStepHide << LineEnding;
 
-	if (m_strName[0])
-	{
-		int Length = strlen(mPieceInfo->m_strDescription);
-		bool Save = true;
-
-		if (!strncmp(m_strName, mPieceInfo->m_strDescription, Length))
-		{
-			const char* Name = m_strName + Length;
-
-			if (*Name++ == ' ' && *Name++ == '#')
-			{
-				for (;;)
-				{
-					if (!isdigit(*Name++))
-						break;
-
-					if (*Name == 0)
-					{
-						Save = false;
-						break;
-					}
-				}
-			}
-		}
-
-		if (Save)
-			Stream << QLatin1String("0 !LEOCAD PIECE NAME ") << m_strName << LineEnding;
-	}
-
 	if (IsHidden())
 		Stream << QLatin1String("0 !LEOCAD PIECE HIDDEN") << LineEnding;
 
@@ -93,15 +63,13 @@ void lcPiece::SaveLDraw(QTextStream& Stream) const
 
 	Stream << "1 " << mColorCode << ' ';
 
-	QLocale Locale = QLocale::c();
-	QString Number;
-
 	const float* Matrix = mModelWorld;
 	float Numbers[12] = { Matrix[12], -Matrix[14], Matrix[13], Matrix[0], -Matrix[8], Matrix[4], -Matrix[2], Matrix[10], -Matrix[6], Matrix[1], -Matrix[9], Matrix[5] };
 	for (int NumberIdx = 0; NumberIdx < 12; NumberIdx++)
 	{
-		Number = Locale.toString(Numbers[NumberIdx], 'f', 6);
+		QString Number = QString::number(Numbers[NumberIdx], 'f', 6);
 		int Dot = Number.indexOf('.');
+
 		if (Dot != -1)
 		{
 			while (Number.endsWith('0'))
@@ -126,13 +94,6 @@ bool lcPiece::ParseLDrawLine(QTextStream& Stream)
 
 		if (Token == QLatin1String("STEP_HIDE"))
 			Stream >> mStepHide;
-		else if (Token == QLatin1String("NAME"))
-		{
-			QString Name = Stream.readAll().trimmed();
-			QByteArray NameUtf = Name.toUtf8(); // todo: replace with qstring
-			strncpy(m_strName, NameUtf.constData(), sizeof(m_strName));
-			m_strName[sizeof(m_strName) - 1] = 0;
-		}
 		else if (Token == QLatin1String("HIDDEN"))
 			SetHidden(true);
 		else if (Token == QLatin1String("POSITION_KEY"))
@@ -328,7 +289,7 @@ bool lcPiece::FileLoad(lcFile& file)
 	  if (Hidden & 1)
 		  mState |= LC_PIECE_HIDDEN;
       file.ReadU8(&ch, 1);
-      file.ReadBuffer(m_strName, ch);
+	  file.Seek(ch, SEEK_CUR);
     }
     else
     {
@@ -336,7 +297,7 @@ bool lcPiece::FileLoad(lcFile& file)
       file.ReadS32(&hide, 1);
       if (hide != 0)
         mState |= LC_PIECE_HIDDEN;
-      file.ReadBuffer(m_strName, 81);
+	  file.Seek(81, SEEK_CUR);
     }
 
     // 7 (0.64)
@@ -375,43 +336,6 @@ void lcPiece::Initialize(const lcMatrix44& WorldMatrix, lcStep Step)
 	ChangeKey(mRotationKeys, lcMatrix33(WorldMatrix), 1, true);
 
 	UpdatePosition(Step);
-}
-
-void lcPiece::CreateName(const lcArray<lcPiece*>& Pieces)
-{
-	if (m_strName[0])
-	{
-		bool Found = false;
-
-		for (int PieceIdx = 0; PieceIdx < Pieces.GetSize(); PieceIdx++)
-		{
-			if (!strcmp(Pieces[PieceIdx]->m_strName, m_strName))
-			{
-				Found = true;
-				break;
-			}
-		}
-
-		if (!Found)
-			return;
-	}
-
-	const char* Prefix = mPieceInfo->m_strDescription;
-	int Length = strlen(Prefix);
-	int i, max = 0;
-
-	for (int PieceIdx = 0; PieceIdx < Pieces.GetSize(); PieceIdx++)
-	{
-		lcPiece* Piece = Pieces[PieceIdx];
-
-		if (strncmp(Piece->m_strName, Prefix, Length) == 0)
-			if (sscanf(Piece->m_strName + Length, " #%d", &i) == 1)
-				if (i > max)
-					max = i;
-	}
-
-	snprintf(m_strName, sizeof(m_strName), "%s #%.2d", Prefix, max + 1);
-	m_strName[sizeof(m_strName) - 1] = 0;
 }
 
 void lcPiece::InsertTime(lcStep Start, lcStep Time)
@@ -557,6 +481,11 @@ void lcPiece::Move(lcStep Step, bool AddKey, const lcVector3& Distance)
 	ChangeKey(mPositionKeys, Position, Step, AddKey);
 
 	mModelWorld.SetTranslation(Position);
+}
+
+const char* lcPiece::GetName() const
+{
+	return mPieceInfo->m_strDescription;
 }
 
 bool lcPiece::IsVisible(lcStep Step)

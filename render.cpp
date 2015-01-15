@@ -922,13 +922,8 @@ int Render::render3DCsi(
                         }
                     }
                 }
-//                if (isSubModel)
-//                {
-//                    csiLine = "0 !LEOCAD PIECE NAME " + argv[argv.size()-1] + " #" + QString("%1").arg(counter);
-//                    csi3DParts << csiLine;
-//                }
                 csiLine = argv.join(" ");
-                csi3DParts << csiLine;
+                csi3DParts << csiLine.toUpper();
             } //end for
             //process extracted submodels
             if (csiSubModels.size() > 0)
@@ -964,13 +959,6 @@ int Render::render3DCsi(
 
     if ((rc = render3DCsi(csi3DName)) < 0)
         return rc;
-    //load CSI 3D file into viewer
-    //PRINT("END Load 3D File: " << csi3DName.toStdString());
-//    QFile csi3DFile(csi3DName);
-//    if (csi3DFile.exists() && do3DCsi){
-//        gMainWindow->OpenProject(csi3DFile.fileName());
-//        return 0;
-//    } else {return -1;}
 
     return 0;
 }
@@ -992,8 +980,6 @@ int Render::render3DCsi(QStringList &subModels,
             QString ldrName(QDir::currentPath() + "/" +
                             Paths::tmpDir + "/" +
                             csiSubModels[index]);
-//            PRINT("989--------");
-//            PRINT("00 PROCESSING SubModel: " << csiSubModels[index].toStdString());
             //initialize the working submodel file - define header.
             csiSubModelParts.append("0 NOFILE\n0 FILE " + csiSubModels[index] + "\n"
                                     "0 !LEOCAD MODEL NAME " + csiSubModels[index] + "\n"
@@ -1034,13 +1020,8 @@ int Render::render3DCsi(QStringList &subModels,
                         }
                     }
                 }
-//                if (isSubModel)
-//                {
-//                    csiLine = "0 !LEOCAD PIECE NAME " + argv[argv.size()-1] + " #" + QString("%1").arg(counter);
-//                    csiSubModelParts << csiLine;
-//                }
                 csiLine = argv.join(" ");
-                csiSubModelParts << csiLine;
+                csiSubModelParts << csiLine.toUpper();
             }
         }
         if (newSubModels.size() > 0){

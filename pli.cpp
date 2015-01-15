@@ -229,13 +229,14 @@ void Pli::getAnnotate(
               sClean = rx.cap(1);
               sClean.remove(QRegExp("\\s"));
               annotateStr = sClean;
-              qDebug() << "FINAL TITLE ANNOT: " << annotateStr;
+              if (annotateStr.contains("Electric Mindstorms NXT Cable"))
+                  qDebug() << "FINAL TITLE ANNOT: " << annotateStr;
               return;
           }
       }
   } else {
       annotateStr = Annotations::freeformAnnotation(type.toLower());
-      qDebug() << "TYPE: " << type << " FINAL FREE ANNOT: " << annotateStr ;
+      //qDebug() << "TYPE: " << type << " FINAL FREE ANNOT: " << annotateStr ;
       return;
   }
   annotateStr.clear();

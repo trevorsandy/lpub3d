@@ -48,6 +48,8 @@
 #include "paths.h"
 #include "ldrawfiles.h"
 
+bool Step::isCsiDataModified(true);  //detect preference dialog updates updates
+
 /*********************************************************************
  *
  * Create a new step and remember the meta-command state at the time
@@ -182,11 +184,10 @@ int Step::createCsi(
     QDateTime lastModified = QFileInfo(pngName).lastModified();
     QStringList stack = submodelStack();
     stack << parent->modelName();
-    if ( ! isOlder(stack,lastModified)) {
+    if ( ! isOlder(stack,lastModified) || isCsiDataModified) {
       outOfDate = true;
     }
   }
-
   //**3D
     RotStepData rotStepData = meta.rotStep.value();
     QString rotStep = QString("%1_%2_%3_%4")

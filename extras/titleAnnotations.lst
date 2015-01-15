@@ -1,11 +1,8 @@
 ﻿#Follow this format to define annotations derived from part title
-#Follow this format to define annotations derived from part title
 #The format is category followed by regex string (to extract to annotation from the part title)
 #For efficiency put most used parts first.
-#Revision:
-#13-01-15 Initial version
 
-Technic:        ^Technic Axle\s+(\d+\.\d)\s*.*$
+Technic:    ^Technic Axle\s+(\d+\.\d)\s*.*$
 Technic:	^Technic Axle Flexible\s+(\d+)\s*$
 Technic:	^Technic Angle Connector\s+\(*(#*\d*\s*x*\s*\d*)\s*\w*\)*\s*.*$
 Technic:	^Technic Arm\s+(\d+\s+(x|X)\s+\d+)\s*.*$
@@ -54,12 +51,15 @@ Dish:		^Dish\s+(\d+\s+(x|X)\s+\d+)\s*.*$
 Door:		^Door\s*\w*\s+(\d+\s+(x|X)\s+\d+\.*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
 Electric:	^Electric\s*9V\s*\w*\s*\w*\s*(\d*\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
 Electric:	^Electric\s*4\.5V\s*\w*\s*\w*\s*(\d*\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
-Electric:	^Electric\s*\w*\s*(\d*\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Electric:   ^Electric Brick\s*(\d*\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Electric:   ^Electric Lightbrick\s*(\d*\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
+Electric:	^Electric Sound Brick\s*(\d*\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
 Electric:	^Electric Light & Sound\s*\w*\s*(\d*\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
 Electric:	^Electric Light Prism\s*(\d*\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
 Electric:	^Electric Mindstorms EV3 Cable\s+([0-9].*)$
 Electric:	^Electric Mindstorms NXT Cable\s+([0-9].*)$
 Electric:	^Electric Plate\s+(\d*\s*(x*|X*)\s*\d*)\s*.*$
+Electric:	^Electric Train Light Prism\s*(\d*\s*(x*|X*)\s*\d*)\s*.*$
 Flag:		^Flag\s+(\d+\s+(x|X)\s+\d+)\s*.*$
 Gate:		^Gate\s+(\d+\s*(x*|X*)\s*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$
 Glass:		^Glass for Window\s+(\d+\s+(x|X)\s+\d+\s*(x*|X*)\s*\d*\.*\d*)\s*.*$

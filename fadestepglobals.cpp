@@ -27,6 +27,15 @@
 #include "metagui.h"
 #include "metaitem.h"
 
+#include "lpub_preferences.h"
+#include "step.h"
+
+/**********************************************************************
+ *
+ * FadeStep
+ *
+ *********************************************************************/
+
 class GlobalFadeStepPrivate
 {
 public:
@@ -55,12 +64,14 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   Meta &meta)
 {
   data = new GlobalFadeStepPrivate(topLevelFile,meta);
-
-  QGridLayout *grid;
-  QGridLayout *boxGrid;
-  QGroupBox   *box;
+  FadeStepMeta *fadeStepMeta = &data->meta.LPub.fadeStep;
 
   setWindowTitle(tr("Fade Step Globals Setup"));
+
+  QGridLayout   *grid;
+  QGridLayout   *boxGrid;
+  QGroupBox     *box;
+  MetaGui       *child;
 
   grid = new QGridLayout(this);
   setLayout(grid);
@@ -68,12 +79,9 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   box = new QGroupBox("Select Fade Color",this);
   grid->addWidget(box,0,0);
   boxGrid = new QGridLayout(this);
+  box->setLayout(boxGrid);
 
-  MetaGui *child;
-
-  FadeStepMeta *fadeStepMeta = &data->meta.LPub.fadeStep;
-
-  child = new FadeStepGui("Color",fadeStepMeta,box);
+  child = new FadeStepGui("Color",fadeStepMeta,NULL);
   data->children.append(child);
   boxGrid->addWidget(child,0,0,1,2);
 
@@ -82,9 +90,8 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   boxGrid = new QGridLayout(this);
   box->setLayout(boxGrid);
 
-  child = new CheckBoxGui("Enable",&fadeStepMeta->fadeStep,NULL);
+  child = new CheckBoxGui("Enabled",&fadeStepMeta->fadeStep,NULL);
   child->setDisabled(true); //disabled - property set from properties form
-
   data->children.append(child);
   boxGrid->addWidget(child,1,0,1,2);
 
@@ -97,6 +104,8 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   connect(buttonBox,SIGNAL(rejected()),SLOT(cancel()));
 
   grid->addWidget(buttonBox);
+
+  resize(375,200);
 
   setModal(true);
 }
@@ -119,9 +128,15 @@ void GlobalFadeStepDialog::accept()
   foreach(child,data->children) {
     child->apply(data->topLevelFile);
   }
+
   mi.endMacro();
+
+  if (Preferences::enableFadeStep)
+      Step::isCsiDataModified = true;
+
   QDialog::accept();
 }
+
 void GlobalFadeStepDialog::cancel()
 {
   QDialog::reject();

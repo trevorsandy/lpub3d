@@ -30,8 +30,8 @@ void Gui::open()
   if (maybeSave()) {
     QSettings settings(LPUB,SETTINGS);
     QString modelDir;
-    if (settings.contains("modelDir")) {
-      modelDir = settings.value("modelDir").toString();
+    if (settings.contains("ModelDir")) {
+      modelDir = settings.value("ModelDir").toString();
     } else {
       modelDir = Preferences::ldrawPath + "/MODELS";
     }
@@ -45,7 +45,7 @@ void Gui::open()
     QFileInfo info(fileName);
 
     if (!fileName.isEmpty()) {
-      settings.setValue("modelDir",info.path());
+      settings.setValue("ModelDir",info.path());
       openFile(fileName);
       displayPage();
       enableActions();
@@ -256,8 +256,8 @@ void Gui::openFile(QString &fileName)
 void Gui::updateRecentFileActions()
 {
   QSettings settings(LPUB,SETTINGS);
-  if (settings.contains("recentFileList")) {
-    QStringList files = settings.value("recentFileList").toStringList();
+  if (settings.contains("RecentFileList")) {
+    QStringList files = settings.value("RecentFileList").toStringList();
 
     int numRecentFiles = qMin(files.size(), (int)MaxRecentFiles);
 
@@ -272,7 +272,7 @@ void Gui::updateRecentFileActions()
         --numRecentFiles;
       }
     }
-    settings.setValue("recentFileList", files);
+    settings.setValue("RecentFileList", files);
 
     for (int i = 0; i < numRecentFiles; i++) {
       QFileInfo fileInfo(files[i]);
@@ -303,14 +303,14 @@ void Gui::setCurrentFile(const QString &fileName)
 
   if (fileName.size() > 0) {
     QSettings settings(LPUB, SETTINGS);
-    QStringList files = settings.value("recentFileList").toStringList();
+    QStringList files = settings.value("RecentFileList").toStringList();
     files.removeAll("");
     files.removeAll(fileName);
     files.prepend(fileName);
     while (files.size() > MaxRecentFiles) {
       files.removeLast();
     }
-    settings.setValue("recentFileList", files);
+    settings.setValue("RecentFileList", files);
   }
   updateRecentFileActions();
 }

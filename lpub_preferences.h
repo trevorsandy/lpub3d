@@ -39,8 +39,10 @@ class Preferences
     static void unitsPreferences();
     static void annotationPreferences();
     static void fadestepPreferences();
+    static void publishingPreferences();
     static void getRequireds();
     static bool getPreferences();
+    static void viewerPreferences();
 
     static QString ldrawPath;
     static QString lgeoPath;
@@ -52,6 +54,15 @@ class Preferences
     static QString pliFile;
     static QString lpubPath;
     static QString fadeStepColor;
+    static QString titleAnnotationsFile;
+    static QString freeformAnnotationsFile;
+    static QString defaultAuthor;
+    static QString defaultURL;
+    static QString defaultEmail;
+    static QString documentLogoFile;
+    static QString publishDescription;
+    static bool    enableDocumentLogo;
+    static bool    printCopyright;
     static bool    preferCentimeters;
     static bool    preferTitleAnnotation;
     static bool    enableFadeStep;

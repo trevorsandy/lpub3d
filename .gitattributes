@@ -29,7 +29,6 @@
 /dividerdialog.h -text
 /editwindow.cpp -text
 /editwindow.h -text
-extras/customAnnotations.lst -text
 extras/freeformAnnotations.lst -text
 extras/pli.mpd -text
 extras/titleAnnotations.lst -text

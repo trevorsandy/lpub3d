@@ -263,10 +263,10 @@ private:
   FadeStepMeta  *meta;
 
   bool        colorModified;
-
   QLabel      *colorLabel;
+  QComboBox   *colorCombo;
   QLabel      *colorExample;
-  QPushButton *colorButton;
+  //QPushButton *colorButton;
 
 public slots:
   void colorChange(QString const &colorName);

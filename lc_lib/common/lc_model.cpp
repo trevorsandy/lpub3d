@@ -147,6 +147,7 @@ lcModel::lcModel(const QString& Name)
 	mProperties.mName = Name;
 	mProperties.LoadDefaults();
 
+	mActive = false;
 	mCurrentStep = 1;
 	mBackgroundTexture = NULL;
 	mPieceInfo = NULL;
@@ -364,9 +365,6 @@ void lcModel::LoadLDraw(QIODevice& Device)
 
 			if (Token == QLatin1String("MODEL"))
 			{
-//				if (!strcmp(Tokens[3], "CURRENT_STEP") && Tokens[4])
-//					mCurrentStep = atoi(Tokens[4]);
-
 				mProperties.ParseLDrawLine(LineStream);
 			}
 			else if (Token == QLatin1String("PIECE"))
@@ -449,7 +447,6 @@ void lcModel::LoadLDraw(QIODevice& Device)
 				Piece->SetPieceInfo(Info);
 				Piece->Initialize(Transform, CurrentStep);
 				Piece->SetColorCode(ColorCode);
-				Piece->CreateName(mPieces);
 				mPieces.Add(Piece);
 				Piece = NULL;
 				continue;
@@ -465,7 +462,6 @@ void lcModel::LoadLDraw(QIODevice& Device)
 				Piece->SetPieceInfo(Info);
 				Piece->Initialize(Transform, CurrentStep);
 				Piece->SetColorCode(ColorCode);
-				Piece->CreateName(mPieces);
 				mPieces.Add(Piece);
 				Piece = NULL;
 				continue;
@@ -539,19 +535,6 @@ bool lcModel::LoadBinary(lcFile* file)
 		{
 			lcPiece* pPiece = new lcPiece(NULL);
 			pPiece->FileLoad(*file);
-
-			for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-			{
-				if (strcmp(mPieces[PieceIdx]->GetName(), pPiece->GetName()) == 0)
-				{
-					pPiece->CreateName(mPieces);
-					break;
-				}
-			}
-
-			if (strlen(pPiece->GetName()) == 0)
-				pPiece->CreateName(mPieces);
-
 			mPieces.Add(pPiece);
 		}
 		else
@@ -576,7 +559,6 @@ bool lcModel::LoadBinary(lcFile* file)
 
 			pPiece->Initialize(WorldMatrix, step);
 			pPiece->SetColorCode(lcGetColorCodeFromOriginalColor(color));
-			pPiece->CreateName(mPieces);
 			mPieces.Add(pPiece);
 
 //			pPiece->SetGroup((lcGroup*)group);
@@ -782,7 +764,6 @@ void lcModel::Merge(lcModel* Other)
 	for (int PieceIdx = 0; PieceIdx < Other->mPieces.GetSize(); PieceIdx++)
 	{
 		lcPiece* Piece = Other->mPieces[PieceIdx];
-		Piece->CreateName(mPieces);
 		mPieces.Add(Piece);
 	}
 
@@ -1022,6 +1003,43 @@ void lcModel::DrawBackground(lcContext* Context)
 	glDepthMask(GL_TRUE);
 }
 
+void lcModel::SaveStepImages(const QString& BaseName, int Width, int Height, lcStep Start, lcStep End)
+{
+	gMainWindow->mPreviewWidget->MakeCurrent();
+	lcContext* Context = gMainWindow->mPreviewWidget->mContext;
+
+	if (!Context->BeginRenderToTexture(Width, Height))
+	{
+		gMainWindow->DoMessageBox("Error creating images.", LC_MB_ICONERROR | LC_MB_OK);
+		return;
+	}
+
+	lcStep CurrentStep = mCurrentStep;
+
+	View View(this);
+	View.SetCamera(gMainWindow->GetActiveView()->mCamera, false);
+	View.mWidth = Width;
+	View.mHeight = Height;
+	View.SetContext(Context);
+
+	for (lcStep Step = Start; Step <= End; Step++)
+	{
+		SetCurrentStep(Step);
+		View.OnDraw();
+
+		QString FileName = BaseName.arg(Step, 2, 10, QLatin1Char('0'));
+		if (!Context->SaveRenderToTextureImage(FileName, Width, Height))
+			break;
+	}
+
+	Context->EndRenderToTexture();
+
+	SetCurrentStep(CurrentStep);
+
+	if (!mActive)
+		CalculateStep(LC_STEP_MAX);
+}
+
 void lcModel::UpdateBackgroundTexture()
 {
 	lcReleaseTexture(mBackgroundTexture);
@@ -1166,6 +1184,8 @@ void lcModel::SetActive(bool Active)
 		strncpy(mPieceInfo->m_strDescription, mProperties.mName.toLatin1().constData(), sizeof(mPieceInfo->m_strDescription));
 		mPieceInfo->m_strDescription[sizeof(mPieceInfo->m_strDescription) - 1] = 0;
 	}
+
+	mActive = Active;
 }
 
 void lcModel::CalculateStep(lcStep Step)
@@ -1758,7 +1778,6 @@ void lcModel::AddPiece()
 	lcPiece* Piece = new lcPiece(CurPiece);
 	Piece->Initialize(WorldMatrix, mCurrentStep);
 	Piece->SetColorIndex(gMainWindow->mColorIndex);
-	Piece->CreateName(mPieces);
 	mPieces.Add(Piece);
 	ClearSelectionAndSetFocus(Piece, LC_PIECE_SECTION_POSITION);
 
@@ -2044,14 +2063,6 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Update)
 		}
 
 		NewLocalToWorldMatrix.Orthonormalize();
-
-
-//		NewLocalToWorldMatrix[0].Normalize();
-//		NewLocalToWorldMatrix[1].Normalize();
-//		NewLocalToWorldMatrix[2].Normalize();
-
-//		qDebug() << lcCross(NewLocalToWorldMatrix[0], NewLocalToWorldMatrix[1]).Length() << lcCross(NewLocalToWorldMatrix[2], NewLocalToWorldMatrix[1]).Length() << lcCross(NewLocalToWorldMatrix[0], NewLocalToWorldMatrix[2]).Length();
-//		qDebug() << NewLocalToWorldMatrix[0].Length() << NewLocalToWorldMatrix[1].Length() << NewLocalToWorldMatrix[2].Length();
 
 		Piece->SetPosition(Center + Distance, mCurrentStep, gMainWindow->GetAddKeys());
 		Piece->SetRotation(NewLocalToWorldMatrix, mCurrentStep, gMainWindow->GetAddKeys());
@@ -2615,6 +2626,36 @@ void lcModel::GetPartsList(int DefaultColorIndex, lcArray<lcPartsListEntry>& Par
 	}
 }
 
+void lcModel::GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcArray<lcPartsListEntry>& PartsList) const
+{
+	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	{
+		lcPiece* Piece = mPieces[PieceIdx];
+
+		if (Piece->GetStepShow() != Step)
+			continue;
+
+		int ColorIndex = Piece->mColorIndex;
+
+		if (ColorIndex == gDefaultColor)
+			ColorIndex = DefaultColorIndex;
+
+		int UsedIdx;
+
+		for (UsedIdx = 0; UsedIdx < PartsList.GetSize(); UsedIdx++)
+		{
+			if (PartsList[UsedIdx].Info != Piece->mPieceInfo || PartsList[UsedIdx].ColorIndex != ColorIndex)
+				continue;
+
+			PartsList[UsedIdx].Count++;
+			break;
+		}
+
+		if (UsedIdx == PartsList.GetSize())
+			Piece->mPieceInfo->GetPartsList(ColorIndex, PartsList);
+	}
+}
+
 void lcModel::GetModelParts(const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcArray<lcModelPartsEntry>& ModelParts) const
 {
 	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
@@ -3063,7 +3104,6 @@ void lcModel::InsertPieceToolClicked(const lcMatrix44& WorldMatrix)
 	Piece->Initialize(WorldMatrix, mCurrentStep);
 	Piece->SetColorIndex(gMainWindow->mColorIndex);
 	Piece->UpdatePosition(mCurrentStep);
-	Piece->CreateName(mPieces);
 	mPieces.Add(Piece);
 
 	ClearSelectionAndSetFocus(Piece, LC_PIECE_SECTION_POSITION);
@@ -3426,7 +3466,6 @@ void lcModel::ShowArrayDialog()
 	for (int PieceIdx = 0; PieceIdx < NewPieces.GetSize(); PieceIdx++)
 	{
 		lcPiece* Piece = (lcPiece*)NewPieces[PieceIdx];
-		Piece->CreateName(mPieces);
 		Piece->UpdatePosition(mCurrentStep);
 		mPieces.Add(Piece);
 	}
@@ -3454,7 +3493,6 @@ void lcModel::ShowMinifigDialog()
 
 		Piece->Initialize(Minifig.Matrices[PartIdx], mCurrentStep);
 		Piece->SetColorIndex(Minifig.Colors[PartIdx]);
-		Piece->CreateName(mPieces);
 		Piece->SetGroup(Group);
 		mPieces.Add(Piece);
 		Piece->UpdatePosition(mCurrentStep);

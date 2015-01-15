@@ -121,11 +121,14 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationVersion(LP_VERSION_TEXT);
 
     QTranslator Translator;
-    Translator.load(QString("leocad_") + QLocale::system().name().section('_', 0, 0) + ".qm", ":/lc_lib/resources");
+    Translator.load(QString("lpub_") + QLocale::system().name().section('_', 0, 0) + ".qm", ":/lc_lib/resources");
     app.installTranslator(&Translator);
 
     Preferences::ldrawPreferences(false);
     Preferences::unitsPreferences();
+    Preferences::annotationPreferences();
+    Preferences::viewerPreferences();
+
     defaultResolutionType(Preferences::preferCentimeters);
     setResolution(150);  // DPI
 

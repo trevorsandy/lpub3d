@@ -385,6 +385,8 @@ class AbstractStepsElement;
 class LGraphicsView;
 class PageBackgroundItem;
 
+class GlobalFadeStep;
+
 enum traverseRc { HitEndOfPage = 1 };
 
 enum FitMode { FitNone, FitWidth, FitVisible };
@@ -540,6 +542,7 @@ public slots:
 
   void clearPLICache();
   void clearCSICache();
+  void clearCSI3DCache();
 
   void statusBarMsg(QString msg);
 
@@ -562,6 +565,8 @@ private:
   QString         curFile;         // the file name for MPD, or top level file
   QString         curSubFile;      // whats being displayed in the edit window
   EditWindow     *editWindow;      // the sub file editable by the user
+
+  GlobalFadeStep *data;
 
 #ifdef WATCHER
   QFileSystemWatcher watcher;      // watch the file system for external
@@ -627,17 +632,13 @@ private:
   void writeToTmp();
 
   QStringList fadeStep(
-    const QStringList &);      // fade all parts in subfile
+     const QStringList &,
+     const QString &color);      // fade all parts in subfile
 
   QStringList fadeStep(
-    QStringList  &csiParts,
-    int          &stepNum,
-    Where        &current);      // fade parts in a step that are not current
-  /**3D Stuff**/
-  void Load3DCsi(
-    int           &stepNum,
-    QString       &modelName,
-    QString const &addLine);                   // load csi content into the 3D Viewer
+     QStringList  &csiParts,
+     int          &stepNum,
+     Where        &current);      // fade parts in a step that are not current
 
 private slots:
     void open();
@@ -804,6 +805,7 @@ private:
   QLineEdit*setPageLineEdit;
   QAction  *clearPLICacheAct;
   QAction  *clearCSICacheAct;
+  QAction  *clearCSI3DCacheAct;
 
   // config menu
 
@@ -873,6 +875,23 @@ enum zValues {
   CalloutBackgroundZValue = 50,
   CalloutAssemZValue = 55,
   CalloutInstanceZValue = 60,
+};
+
+class GlobalFadeStep
+{
+private:
+    LDrawFile   ldrawFile;       // contains MPD or all files used in model
+public:
+    Meta        meta;
+    QString     topLevelFile;
+    GlobalFadeStep()
+    {
+        meta = gui->page.meta;
+
+        topLevelFile = ldrawFile.topLevelFile();
+        MetaItem mi; // examine all the globals and then return
+        mi.sortedGlobalWhere(meta,topLevelFile,"ZZZZZZZ");
+    }
 };
 
 #endif

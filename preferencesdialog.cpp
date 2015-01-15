@@ -36,20 +36,27 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
     ldrawPath = ".";
   }
   
-  ui.ldrawPath->setText(    ldrawPath);
-  ui.pliName->setText(      Preferences::pliFile);
-  ui.pliBox->setChecked(    Preferences::pliFile != "");
-  ui.ldglitePath->setText(  Preferences::ldgliteExe);
-  ui.ldgliteBox->setChecked(Preferences::ldgliteExe != "");
-  ui.l3pPath->setText(      Preferences::l3pExe);
-  ui.povrayPath->setText(   Preferences::povrayExe);
-  ui.l3pBox->setChecked(    Preferences::l3pExe != "" && Preferences::povrayExe != "");
-  ui.lgeoPath->setText(     Preferences::lgeoPath);
-  ui.lgeoBox->setChecked(   Preferences::lgeoPath != "");
-  ui.ldviewPath->setText(   Preferences::ldviewExe);
-  ui.ldviewBox->setChecked( Preferences::ldviewExe != "");
-  ui.fadeStepBox->setChecked(Preferences::enableFadeStep);
-  
+  ui.ldrawPath->setText(                ldrawPath);
+  ui.pliName->setText(                  Preferences::pliFile);
+  ui.pliBox->setChecked(                Preferences::pliFile != "");
+  ui.ldglitePath->setText(              Preferences::ldgliteExe);
+  ui.ldgliteBox->setChecked(            Preferences::ldgliteExe != "");
+  ui.l3pPath->setText(                  Preferences::l3pExe);
+  ui.povrayPath->setText(               Preferences::povrayExe);
+  ui.l3pBox->setChecked(                Preferences::l3pExe != "" && Preferences::povrayExe != "");
+  ui.lgeoPath->setText(                 Preferences::lgeoPath);
+  ui.lgeoBox->setChecked(               Preferences::lgeoPath != "");
+  ui.ldviewPath->setText(               Preferences::ldviewExe);
+  ui.ldviewBox->setChecked(             Preferences::ldviewExe != "");
+  ui.fadeStepBox->setChecked(           Preferences::enableFadeStep);
+  ui.publishLogoBox->setChecked(        Preferences::enableDocumentLogo);
+  ui.publishLogoBox->setChecked(        Preferences::documentLogoFile !="");
+  ui.authorName_Edit->setText(          Preferences::defaultAuthor);
+  ui.publishCopyright_Chk->setChecked(  Preferences::printCopyright);
+  ui.publishURL_Edit->setText(          Preferences::defaultURL);
+  ui.publishEmail_Edit->setText(        Preferences::defaultEmail);
+  ui.publishDescriptionEdit->setText(   Preferences::publishDescription);
+
   ui.preferredRenderer->setMaxCount(0);
 	ui.preferredRenderer->setMaxCount(3);
 	
@@ -286,6 +293,29 @@ void PreferencesDialog::on_browsePOVRAY_clicked()
 	}
 }
 
+void PreferencesDialog::on_browsePublishLogo_clicked()
+{
+  QFileDialog dialog(parent);
+
+  dialog.setWindowTitle(tr("Select Document Logo"));
+  dialog.setFileMode(QFileDialog::ExistingFile);
+
+#ifdef __APPLE__
+  //dialog.setFilter("Logo (*.png,)");
+#else
+  dialog.setFilter("Logo (*.png)");
+#endif
+  if (dialog.exec()) {
+    QStringList selectedFiles = dialog.selectedFiles();
+
+    if (selectedFiles.size() == 1) {
+      ui.browsePublishLogo->setText(selectedFiles[0]);
+      QFileInfo  fileInfo(selectedFiles[0]);
+      ui.publishLogoBox->setChecked(fileInfo.exists());
+    }
+  }
+}
+
 QString const PreferencesDialog::ldrawPath()
 {
   return ui.ldrawPath->displayText();
@@ -346,25 +376,62 @@ QString const PreferencesDialog::preferredRenderer()
   return "";
 }
 
-bool const PreferencesDialog::centimeters()
-{
-  return ui.Centimeters->isChecked();
-}
-
-bool const PreferencesDialog::pliAnnotation()
-{
-  return ui.titleAnnotation->isChecked();
-}
-
-bool const PreferencesDialog::enableFadeStep()
-{
-  return ui.fadeStepBox->isChecked();
-}
-
 QString const PreferencesDialog::fadeStepColor()
 {
     if (ui.fadeStepColorsCombo->isEnabled()) {
       return ui.fadeStepColorsCombo->currentText();
     }
     return "";
+}
+
+QString const PreferencesDialog::documentLogoFile()
+{
+    if (ui.publishLogoBox->isChecked()){
+        return ui.publishLogoPath->displayText();
+    }
+    return "";
+}
+
+bool PreferencesDialog::centimeters()
+{
+  return ui.Centimeters->isChecked();
+}
+
+bool PreferencesDialog::pliAnnotation()
+{
+  return ui.titleAnnotation->isChecked();
+}
+
+bool  PreferencesDialog::enableFadeStep()
+{
+  return ui.fadeStepBox->isChecked();
+}
+bool PreferencesDialog::enableDocumentLogo()
+{
+  return ui.publishLogoBox->isChecked();
+}
+
+bool  PreferencesDialog::printCopyright()
+{
+  return ui.publishCopyright_Chk->isChecked();
+}
+
+QString const PreferencesDialog::defaultURL()
+{
+  return ui.publishURL_Edit->displayText();
+}
+
+QString const PreferencesDialog::defaultEmail()
+{
+  return ui.publishEmail_Edit->displayText();
+}
+
+QString const PreferencesDialog::defaultAuthor()
+{
+  return ui.authorName_Edit->displayText();
+}
+
+QString const PreferencesDialog::publishDescription()
+{
+  return ui.publishDescriptionEdit->toPlainText();
 }

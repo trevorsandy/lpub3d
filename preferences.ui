@@ -18,7 +18,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -123,6 +123,9 @@
        </item>
        <item row="4" column="0" colspan="2">
         <widget class="QGroupBox" name="fadeStepBox">
+         <property name="toolTip">
+          <string>This setting allows you to fade previous build step parts </string>
+         </property>
          <property name="title">
           <string>Enable Fade Steps</string>
          </property>
@@ -201,19 +204,25 @@
        </item>
        <item row="0" column="0">
         <widget class="QLabel" name="label_8">
+         <property name="toolTip">
+          <string>Sets the default Author on published documents</string>
+         </property>
          <property name="text">
           <string>Default author name:</string>
          </property>
          <property name="buddy">
-          <cstring>authorName</cstring>
+          <cstring>authorName_Edit</cstring>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QLineEdit" name="authorName"/>
+        <widget class="QLineEdit" name="authorName_Edit"/>
        </item>
        <item row="3" column="0" colspan="2">
         <widget class="QGroupBox" name="annotationBox">
+         <property name="toolTip">
+          <string>Annotation source content options</string>
+         </property>
          <property name="title">
           <string>PLI annotation source</string>
          </property>
@@ -227,7 +236,7 @@
           <item>
            <widget class="QRadioButton" name="titleAnnotation">
             <property name="toolTip">
-             <string>PLI annotations sourced from part description - see root/extras/titleannotations.lst</string>
+             <string>Sourced from parts.lst descriptions - see root/extras/titleannotations.lst</string>
             </property>
             <property name="text">
              <string>Part description</string>
@@ -237,7 +246,7 @@
           <item>
            <widget class="QRadioButton" name="freeformAnnotation">
             <property name="toolTip">
-             <string>PLI annotations are freeform - see root/extras/freeformAnnotations.lst</string>
+             <string>Freeform annotations - see root/extras/freeformAnnotations.lst</string>
             </property>
             <property name="text">
              <string>Free form</string>
@@ -487,7 +496,7 @@
         <bool>false</bool>
        </property>
       </widget>
-      <widget class="QGroupBox" name="publishLogoBox_3">
+      <widget class="QGroupBox" name="publishLogoBox">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -554,7 +563,10 @@
         <string>Publish Description</string>
        </property>
       </widget>
-      <widget class="QCheckBox" name="publishTOC">
+      <widget class="QCheckBox" name="publishTOC_Chk">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>30</x>
@@ -580,10 +592,10 @@
         <string>Default URL:</string>
        </property>
        <property name="buddy">
-        <cstring>authorName</cstring>
+        <cstring>authorName_Edit</cstring>
        </property>
       </widget>
-      <widget class="QLineEdit" name="publishURL">
+      <widget class="QLineEdit" name="publishURL_Edit">
        <property name="geometry">
         <rect>
          <x>100</x>
@@ -606,10 +618,10 @@
         <string>Default Email:</string>
        </property>
        <property name="buddy">
-        <cstring>authorName</cstring>
+        <cstring>authorName_Edit</cstring>
        </property>
       </widget>
-      <widget class="QLineEdit" name="publishURL_2">
+      <widget class="QLineEdit" name="publishEmail_Edit">
        <property name="geometry">
         <rect>
          <x>100</x>
@@ -619,7 +631,7 @@
         </rect>
        </property>
       </widget>
-      <widget class="QCheckBox" name="publishCopyright">
+      <widget class="QCheckBox" name="publishCopyright_Chk">
        <property name="geometry">
         <rect>
          <x>270</x>
@@ -634,13 +646,13 @@
       </widget>
       <zorder>publishDescriptionBox</zorder>
       <zorder>publishDescriptionEdit</zorder>
-      <zorder>publishLogoBox_3</zorder>
-      <zorder>publishTOC</zorder>
+      <zorder>publishLogoBox</zorder>
+      <zorder>publishTOC_Chk</zorder>
       <zorder>label_15</zorder>
-      <zorder>publishURL</zorder>
+      <zorder>publishURL_Edit</zorder>
       <zorder>label_17</zorder>
-      <zorder>publishURL_2</zorder>
-      <zorder>publishCopyright</zorder>
+      <zorder>publishEmail_Edit</zorder>
+      <zorder>publishCopyright_Chk</zorder>
      </widget>
     </widget>
    </item>

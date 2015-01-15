@@ -667,39 +667,44 @@ void NumberGui::apply(
  **********************************************************************/
 
 FadeStepGui::FadeStepGui(
-  QString const &heading,
-  FadeStepMeta *_meta,
-  QGroupBox  *parent)
+        QString const &heading,
+        FadeStepMeta *_meta,
+        QGroupBox  *parent)
 {
 
-  meta = _meta;
-  QComboBox *colorCombo;
-  QGridLayout *grid;
+    meta = _meta;
 
-  grid = new QGridLayout(parent);
+    QGridLayout *grid;
 
-  if (parent) {
-    parent->setLayout(grid);
-  }
+    grid = new QGridLayout(parent);
 
-  colorLabel = new QLabel(heading,parent);
-  grid->addWidget(colorLabel,0,0);
+    colorLabel = new QLabel(heading,parent);
 
-  colorExample = new QLabel(parent);
-  colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-  colorExample->setPalette(QPalette(LDrawColor::color(meta->fadeColor.value())));
-  colorExample->setAutoFillBackground(true);
-  grid->addWidget(colorExample,0,1);
-  colorCombo = new QComboBox(parent);
-  colorCombo->addItems(LDrawColor::names());
-  colorCombo->setCurrentIndex(int(colorCombo->findText(meta->fadeColor.value())));
-  if (! Preferences::enableFadeStep)
-      colorCombo->setDisabled(true);
-  connect(colorCombo,SIGNAL(currentIndexChanged(QString const &)),
-          this, SLOT(  colorChange(         QString const &)));
-  grid->addWidget(colorCombo, 0, 2);
+    grid->addWidget(colorLabel,0,0);
 
-  colorModified = false;
+    colorExample = new QLabel(parent);
+    colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+    colorExample->setPalette(QPalette(LDrawColor::color(meta->fadeColor.value())));
+    colorExample->setAutoFillBackground(true);
+
+    grid->addWidget(colorExample,0,1);
+
+    colorCombo = new QComboBox(parent);
+    colorCombo->addItems(LDrawColor::names());
+    colorCombo->setCurrentIndex(int(colorCombo->findText(meta->fadeColor.value())));
+    if (! Preferences::enableFadeStep)
+        colorCombo->setDisabled(true);
+    connect(colorCombo,SIGNAL(currentIndexChanged(QString const &)),
+            this, SLOT(  colorChange(         QString const &)));
+    colorModified = false;
+
+    grid->addWidget(colorCombo,0,2);
+
+    if (parent) {
+        parent->setLayout(grid);
+    } else {
+        setLayout(grid);
+    }
 }
 
 

@@ -5,10 +5,10 @@
 
 // Version number.
 #define LC_VERSION_MAJOR 0
-#define LC_VERSION_MINOR 80
-#define LC_VERSION_PATCH 4
-#define LC_VERSION_TEXT "0.80.4"
-#define LC_VERSION_BUILD "1721"
+#define LC_VERSION_MINOR 81
+#define LC_VERSION_PATCH 0
+#define LC_VERSION_TEXT "0.81.0"
+#define LC_VERSION_BUILD "1729"
 
 // Forward declarations.
 class lcModel;

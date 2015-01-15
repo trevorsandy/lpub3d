@@ -1721,61 +1721,58 @@ void Gui::attitudeAdjustment()
 
 void Gui::countPages()
 {
-  if (maxPages < 1) {
-    writeToTmp();
-    statusBarMsg("Counting");
-    Where       current(ldrawFile.topLevelFile(),0);
-    int savedDpn   = displayPageNum;
-    displayPageNum = 1 << 31;
-    firstStepPageNum = -1;
-    lastStepPageNum = -1;
-    maxPages       = 1;
-    Meta meta;
-    QString empty;
-    stepPageNum = 1;
-    findPage(KpageView,KpageScene,maxPages,empty,current,false,meta,false);
-    topOfPages.append(current);
-    maxPages--;
+    if (maxPages < 1) {
+        statusBarMsg("Counting");
+        Where       current(ldrawFile.topLevelFile(),0);
+        int savedDpn   = displayPageNum;
+        displayPageNum = 1 << 31;
+        Meta meta;
+        writeToTmp();
+        firstStepPageNum = -1;
+        lastStepPageNum = -1;
+        maxPages       = 1;
+        QString empty;
+        stepPageNum = 1;
+        findPage(KpageView,KpageScene,maxPages,empty,current,false,meta,false);
+        topOfPages.append(current);
+        maxPages--;
 
-    if (displayPageNum > maxPages) {
-      displayPageNum = maxPages;
-    } else {
-      displayPageNum = savedDpn;
+        if (displayPageNum > maxPages) {
+            displayPageNum = maxPages;
+        } else {
+            displayPageNum = savedDpn;
+        }
+        QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+        setPageLineEdit->setText(string);
+        statusBarMsg("");
     }
-    QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
-    setPageLineEdit->setText(string);
-    statusBarMsg("");
-  }
 }         
 
 void Gui::drawPage(
-  LGraphicsView  *view,
-  QGraphicsScene *scene,
-  bool            printing)
+        LGraphicsView  *view,
+        QGraphicsScene *scene,
+        bool            printing)
 {
 
-  QApplication::setOverrideCursor(Qt::WaitCursor);
-  
-  ldrawFile.unrendered();
-  ldrawFile.countInstances();
-  writeToTmp();
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    Where       current(ldrawFile.topLevelFile(),0);
+    ldrawFile.unrendered();
+    ldrawFile.countInstances();
+    maxPages = 1;
+    stepPageNum = 1;
+    Meta    meta;
+    writeToTmp();
+    QString empty;
+    firstStepPageNum = -1;
+    lastStepPageNum = -1;
+    findPage(view,scene,maxPages,empty,current,false,meta,printing);
+    topOfPages.append(current);
+    maxPages--;
 
-  Where       current(ldrawFile.topLevelFile(),0);
-  maxPages = 1;
-  stepPageNum = 1;
-  
-  QString empty;
-  Meta    meta;
-  firstStepPageNum = -1;
-  lastStepPageNum = -1;
-  findPage(view,scene,maxPages,empty,current,false,meta,printing);
-  topOfPages.append(current);
-  maxPages--;
+    QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+    setPageLineEdit->setText(string);
 
-  QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
-  setPageLineEdit->setText(string);
-
-  QApplication::restoreOverrideCursor();
+    QApplication::restoreOverrideCursor();
 }
 
 void Gui::skipHeader(Where &current)
@@ -1947,13 +1944,21 @@ void Gui::writeToTmp(
 
 void Gui::writeToTmp()
 {
-  fadeMeta = new FadeStepMeta();
-  QStringList content;
+    data = new GlobalFadeStep();
+    FadeStepMeta *fadeStepMeta = &data->meta.LPub.fadeStep;
+    bool doFadeStep = fadeStepMeta->fadeStep.value();
+    QString fadeColor = LDrawColor::ldColorCode(fadeStepMeta->fadeColor.value());
 
-  for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
-    QString fileName = ldrawFile._subFileOrder[i].toLower();
+    qDebug() << "DO FADE?: " << doFadeStep;
+    qDebug() << "DO FADE COLOR?:" << fadeColor;
+    qDebug() << "DO FADE COLOR NAME?:" << fadeStepMeta->fadeColor.value();
 
-    if (fadeMeta->fadeStep.value()) {
+    QStringList content;
+
+    for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
+        QString fileName = ldrawFile._subFileOrder[i].toLower();
+
+    if (doFadeStep) {
         /*********** Add FadeStep temp files****************/
         /* change file name */
         QRegExp rgxLDR("\\.(ldr)$");
@@ -1974,8 +1979,8 @@ void Gui::writeToTmp()
         if (ldrawFile.changedSinceLastWrite(fileName)) {
             PRINT("1987 WriteToTemp (Normal): " << fileName.toStdString() << ", file order index: " << i);
             writeToTmp(fileName,content);
-            content = fadeStep(ldrawFile.contents(fileName));
-            PRINT("1990 WriteToTemp   (Fade): " << fadeFileName.toStdString() << " using Color: " << LDrawColor::ldColorCode(fadeMeta->fadeColor.value()).toStdString() <<", file order index: " << i);
+            content = fadeStep(ldrawFile.contents(fileName),fadeColor);
+            PRINT("1990 WriteToTemp   (Fade): " << fadeFileName.toStdString() << " using Color: " << fadeColor.toStdString() <<", file order index: " << i);
             writeToTmp(fadeFileName,content);
         }
      } else {
@@ -1993,16 +1998,13 @@ void Gui::writeToTmp()
 /*
  * Process csiParts list - fade all non-current step-parts.
  */
-QStringList Gui::fadeStep(const QStringList &contents) {
-
-    fadeMeta = new FadeStepMeta();
-    bool doFadeStep = fadeMeta->fadeStep.value();
-    QString fadeColor = LDrawColor::ldColorCode(fadeMeta->fadeColor.value());
-
+QStringList Gui::fadeStep(const QStringList &contents, const QString &color)
+{
+    QString fadeColor = color;
     QStringList fadeContents;
     QStringList argv;
 
-    if (contents.size() > 0 && doFadeStep) {
+    if (contents.size() > 0) {
 
         for (int index = 0; index < contents.size(); index++) {
 
@@ -2058,23 +2060,22 @@ QStringList Gui::fadeStep(const QStringList &contents) {
 
 QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) {
 
-    fadeMeta = new FadeStepMeta();
-    bool doFadeStep = fadeMeta->fadeStep.value();
-    QString fadeColor = LDrawColor::ldColorCode(fadeMeta->fadeColor.value());
+    data = new GlobalFadeStep();
+    FadeStepMeta *fadeStepMeta = &data->meta.LPub.fadeStep;
+    bool doFadeStep = fadeStepMeta->fadeStep.value();
+    QString fadeColor = LDrawColor::ldColorCode(fadeStepMeta->fadeColor.value());
+    int  fadePosition   = ldrawFile.getFadePosition(current.modelName);
+    int  numSteps       = ldrawFile.numSteps(current.modelName);
 
     QStringList fadeCsiParts;
     QStringList argv;
-
-    int  fadePosition   = ldrawFile.getFadePosition(current.modelName);
-    int  numSteps       = ldrawFile.numSteps(current.modelName);
-    bool endOfSubmodel  = numSteps == 0 || stepNum >= numSteps;
 
 //    PRINT("2082-------");
     PRINT("7.0 FADE STEP - EXECUTE!");
     PRINT("7.1 FADE STEP No: " << stepNum << " of " << numSteps << " in " << current.modelName.toStdString() << ", Part Count: " << csiParts.size() << ", minus fade position: " << fadePosition);
     if (csiParts.size() > 0 && stepNum > 1 && doFadeStep) {
 
-        PRINT("7.2 FADE - End of SubModel " << current.modelName.toStdString() << ": " << (endOfSubmodel? "Yes":"No"));
+        qDebug() << "7.2 FADE - Color " << fadeColor;
         for (int index = 0; index < csiParts.size(); index++) {
 
             QString csiLine = csiParts[index];
@@ -2126,7 +2127,7 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
     } else {
 
         fadeCsiParts  << csiParts;
-        PRINT("7.6 FADE POS 1st UPDATE: " << fadeCsiParts.size());
+        PRINT("7.6 FADE POS 1st UPDATE/NOFADE: " << fadeCsiParts.size());
         ldrawFile.setFadePosition(current.modelName,fadeCsiParts.size());
     }
 

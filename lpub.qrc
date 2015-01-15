@@ -96,7 +96,7 @@
         <file>lpub.icns</file>
         <file>LPub.ico</file>
         <file>extras/pli.mpd</file>
-        <file>extras/customAnnotations.lst</file>
         <file>extras/titleAnnotations.lst</file>
+        <file>extras/freeformAnnotations.lst</file>
     </qresource>
 </RCC>

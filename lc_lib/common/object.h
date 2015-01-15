@@ -107,7 +107,7 @@ public:
 
 protected:
 	template<typename T>
-    void SaveKeysLDraw(QTextStream& Stream, const lcArray<lcObjectKey<T> >& Keys, const char* KeyName) const
+	void SaveKeysLDraw(QTextStream& Stream, const lcArray<lcObjectKey<T> >& Keys, const char* KeyName) const
 	{
 		const int Count = sizeof(T) / sizeof(float);
 		for (int KeyIdx = 0; KeyIdx < Keys.GetSize(); KeyIdx++)
@@ -121,7 +121,7 @@ protected:
 	}
 
 	template<typename T>
-    void LoadKeysLDraw(QTextStream& Stream, lcArray<lcObjectKey<T> >& Keys)
+	void LoadKeysLDraw(QTextStream& Stream, lcArray<lcObjectKey<T> >& Keys)
 	{
 		QString Token;
 		Stream >> Token;
@@ -139,7 +139,7 @@ protected:
 	}
 
 	template<typename T>
-    const T& CalculateKey(const lcArray<lcObjectKey<T> >& Keys, lcStep Step)
+	const T& CalculateKey(const lcArray<lcObjectKey<T> >& Keys, lcStep Step)
 	{
 		lcObjectKey<T>* PreviousKey = &Keys[0];
 
@@ -155,7 +155,7 @@ protected:
 	}
 
 	template<typename T>
-    void ChangeKey(lcArray<lcObjectKey<T> >& Keys, const T& Value, lcStep Step, bool AddKey)
+	void ChangeKey(lcArray<lcObjectKey<T> >& Keys, const T& Value, lcStep Step, bool AddKey)
 	{
 		lcObjectKey<T>* Key;
 
@@ -201,7 +201,7 @@ protected:
 	}
 
 	template<typename T>
-    void InsertTime(lcArray<lcObjectKey<T> >& Keys, lcStep Start, lcStep Time)
+	void InsertTime(lcArray<lcObjectKey<T> >& Keys, lcStep Start, lcStep Time)
 	{
 		bool EndKey = false;
 
@@ -230,7 +230,7 @@ protected:
 	}
 
 	template<typename T>
-    void RemoveTime(lcArray<lcObjectKey<T> >& Keys, lcStep Start, lcStep Time)
+	void RemoveTime(lcArray<lcObjectKey<T> >& Keys, lcStep Start, lcStep Time)
 	{
 		for (int KeyIdx = 0; KeyIdx < Keys.GetSize(); KeyIdx++)
 		{

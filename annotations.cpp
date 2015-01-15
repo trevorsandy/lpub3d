@@ -13,11 +13,11 @@ QHash<QString, QString> Annotations::freeformAnnotations;
 Annotations::Annotations()
 {
     if (titleAnnotations.size() == 0) {
-        QString annotations = Preferences::lpubPath+"/extras/titleAnnotations.lst";
+        QString annotations = Preferences::titleAnnotationsFile;
         QFile file(annotations);
         if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
             QMessageBox::warning(NULL,QMessageBox::tr("LPub"),
-                                 QMessageBox::tr("failed to open %1:\n%2")
+                                 QMessageBox::tr("failed to open Title Annotations file: %1:\n%2")
                                  .arg(annotations)
                                  .arg(file.errorString()));
             return;
@@ -31,15 +31,14 @@ Annotations::Annotations()
                 titleAnnotations << annotation;
             }
         }
-        qDebug() << "TITLE ANNO OUT COUNT: " << titleAnnotations.size();
     }
 
     if (freeformAnnotations.size() == 0) {
-        QString annotations = Preferences::lpubPath+"/extras/freeformAnnotations.lst";
+        QString annotations = Preferences::freeformAnnotationsFile;
         QFile file(annotations);
         if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
             QMessageBox::warning(NULL,QMessageBox::tr("LPub"),
-                                 QMessageBox::tr("failed to open %1:\n%2")
+                                 QMessageBox::tr("failed to open Freeform Annotations file: %1:\n%2")
                                  .arg(annotations)
                                  .arg(file.errorString()));
             return;
@@ -54,7 +53,6 @@ Annotations::Annotations()
                 freeformAnnotations[parttype.toLower()] = annotation;
             }
         }
-        qDebug() << "CUSTOM ANNO OUT COUNT: " << freeformAnnotations.size();
     }
 }
 

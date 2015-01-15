@@ -34,6 +34,8 @@
 #include "metaitem.h"
 #include "ranges_element.h"
 
+#include "step.h"
+
 Gui *gui;
 
 void clearPliCache()
@@ -122,6 +124,7 @@ void Gui::displayPage()
     page.coverPage = false;
     drawPage(KpageView,KpageScene,false);
     enableActions2();
+    Step::isCsiDataModified = false; //reset
   }
 }
 
@@ -339,6 +342,21 @@ void Gui::clearCSICache()
   }
 }
 
+void Gui::clearCSI3DCache()
+{
+  QString dirName = QDir::currentPath() + "/" + Paths::viewerDir;
+  QDir dir(dirName);
+
+  dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+
+  QFileInfoList list = dir.entryInfoList();
+  for (int i = 0; i < list.size(); i++) {
+    QFileInfo fileInfo = list.at(i);
+    QFile     file(dirName + "/" + fileInfo.fileName());
+    file.remove();
+  }
+}
+
 /***************************************************************************
  * These are infrequently used functions for basic environment 
  * configuration stuff
@@ -386,18 +404,19 @@ void Gui::fadeStepSetup()
 
 void Gui::preferences()
 {
-  if (Preferences::getPreferences()) {
-    Meta meta;
-    
-    page.meta = meta;
-    QString renderer = Render::getRenderer();
-    Render::setRenderer(Preferences::preferredRenderer);
-    if (Render::getRenderer() != renderer) {
-      gui->clearCSICache();
-      gui->clearPLICache();
+    if (Preferences::getPreferences()) {
+        Step::isCsiDataModified = true;
+        Meta meta;
+        page.meta = meta;
+        QString renderer = Render::getRenderer();
+        Render::setRenderer(Preferences::preferredRenderer);
+        if (Render::getRenderer() != renderer) {
+            gui->clearCSICache();
+            gui->clearPLICache();
+        }
+        if (curFile != "")
+            displayPage();
     }
-    displayPage();
-  }
 }
 
 
@@ -415,8 +434,8 @@ Gui::Gui()
     Preferences::renderPreferences();
 	Preferences::lgeoPreferences();
     Preferences::pliPreferences();
-    Preferences::annotationPreferences();
     Preferences::fadestepPreferences();
+    Preferences::publishingPreferences();
 
     displayPageNum  = 1;
 
@@ -756,6 +775,10 @@ void Gui::createActions()
     clearCSICacheAct->setStatusTip(tr("Erase the assembly image cache"));
     connect(clearCSICacheAct, SIGNAL(triggered()), this, SLOT(clearCSICache()));
 
+    clearCSI3DCacheAct = new QAction(tr("Clear 3D Viewer Image Cache"), this);
+    clearCSI3DCacheAct->setStatusTip(tr("Erase the 3D viewer image cache"));
+    connect(clearCSI3DCacheAct, SIGNAL(triggered()), this, SLOT(clearCSI3DCache()));
+
     // Config menu
 
     pageSetupAct = new QAction(tr("Page Setup"), this);
@@ -910,6 +933,7 @@ void Gui::createMenus()
     toolsMenu->addSeparator();
     toolsMenu->addAction(clearPLICacheAct);
     toolsMenu->addAction(clearCSICacheAct);
+    toolsMenu->addAction(clearCSI3DCacheAct);
 
     configMenu = menuBar()->addMenu(tr("&Configuration"));
     configMenu->addAction(pageSetupAct);
