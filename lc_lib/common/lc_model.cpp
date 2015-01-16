@@ -13,6 +13,8 @@
 #include "preview.h"
 #include "minifig.h"
 
+#include "lpub.h"
+
 void lcModelProperties::LoadDefaults()
 {
 	mAuthor = lcGetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME);
@@ -3253,6 +3255,7 @@ void lcModel::UpdateZoomTool(lcCamera* Camera, float Mouse)
 {
 	Camera->Zoom(Mouse - mMouseToolDistance.x, mCurrentStep, gMainWindow->GetAddKeys());
 	mMouseToolDistance.x = Mouse;
+    gui->UpdateRotationStatus(Camera);
 	gMainWindow->UpdateAllViews();
 }
 
@@ -3261,6 +3264,7 @@ void lcModel::UpdatePanTool(lcCamera* Camera, float MouseX, float MouseY)
 	Camera->Pan(MouseX - mMouseToolDistance.x, MouseY - mMouseToolDistance.y, mCurrentStep, gMainWindow->GetAddKeys());
 	mMouseToolDistance.x = MouseX;
 	mMouseToolDistance.y = MouseY;
+    gui->UpdateRotationStatus(Camera);
 	gMainWindow->UpdateAllViews();
 }
 
@@ -3271,6 +3275,7 @@ void lcModel::UpdateOrbitTool(lcCamera* Camera, float MouseX, float MouseY)
 	Camera->Orbit(MouseX - mMouseToolDistance.x, MouseY - mMouseToolDistance.y, Center, mCurrentStep, gMainWindow->GetAddKeys());
 	mMouseToolDistance.x = MouseX;
 	mMouseToolDistance.y = MouseY;
+    gui->UpdateRotationStatus(Camera);
 	gMainWindow->UpdateAllViews();
 }
 
@@ -3309,6 +3314,7 @@ void lcModel::LookAt(lcCamera* Camera)
 	Camera->Center(Center, mCurrentStep, gMainWindow->GetAddKeys());
 
 	gMainWindow->UpdateFocusObject(GetFocusObject());
+    gui->UpdateRotationStatus(Camera);
 	gMainWindow->UpdateAllViews();
 
 	if (!Camera->IsSimple())
@@ -3339,6 +3345,7 @@ void lcModel::ZoomExtents(lcCamera* Camera, float Aspect)
 	Camera->ZoomExtents(Aspect, Center, Points, 8, mCurrentStep, gMainWindow->GetAddKeys());
 
 	gMainWindow->UpdateFocusObject(GetFocusObject());
+    gui->UpdateRotationStatus(Camera);
 	gMainWindow->UpdateAllViews();
 
 	if (!Camera->IsSimple())
@@ -3349,6 +3356,7 @@ void lcModel::Zoom(lcCamera* Camera, float Amount)
 {
 	Camera->Zoom(Amount, mCurrentStep, gMainWindow->GetAddKeys());
 	gMainWindow->UpdateFocusObject(GetFocusObject());
+    gui->UpdateRotationStatus(Camera);
 	gMainWindow->UpdateAllViews();
 
 	if (!Camera->IsSimple())

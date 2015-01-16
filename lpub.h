@@ -354,7 +354,10 @@
 
 //** 3D
 #include "lc_qmainwindow.h"
+#include "lc_math.h"
+#include "camera.h"
 //**
+
 
 class QString;
 class QSplitter;
@@ -491,7 +494,9 @@ public:
     return KpageView;
   }
   //**3D
-    lcQMainWindow  *lcqWindow;       // LCad 3D model window
+  lcQMainWindow  *lcqWindow;       // LCad 3D model window
+
+  void UpdateRotationStatus(lcCamera* Camera);
   //**
 public slots:
 
@@ -835,6 +840,10 @@ private:
 
   enum { MaxRecentFiles = 8 };
   QAction *recentFilesActs[MaxRecentFiles];
+
+  // capture camera rotation from LeoCad module
+protected:
+  lcVector3 mModelRotation;
 };
 
 extern Gui *gui;

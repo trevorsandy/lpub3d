@@ -901,7 +901,6 @@ int Render::render3DCsi(
             int counter = 0;
             for (int index = 0; index < csiParts.size(); index++) {
                 QString csiLine = csiParts[index];
-                //PRINT("START cisParts " << nameKeys.toStdString() << " Line: " << csiLine.toStdString());
                 split(csiLine, argv);
                 if (argv.size() == 15 && argv[0] == "1") {
                     // process subfiles in csiParts
@@ -913,12 +912,10 @@ int Render::render3DCsi(
                         for(QStringList::iterator it = csiSubModels.begin(); it != csiSubModels.end(); ++it)
                         {
                             *it == type ? alreadyInserted = true : alreadyInserted = false;
-                            //PRINT("CHECK INSERT: Type: " << type.toStdString() << " Inserted: " << (alreadyInserted?"Yes":"No"));
                         }
                         if (! alreadyInserted){
                             csiSubModels << type;
                             alreadyInserted = false;
-                            //PRINT("INSERT csiSubModels : " << type.toStdString());
                         }
                     }
                 }
@@ -1005,7 +1002,6 @@ int Render::render3DCsi(QStringList &subModels,
                     // process subfiles in csiParts
                     QString type = argv[argv.size()-1];
                     isSubModel = type.contains(subModel);
-//                    PRINT("00 Type: " << type.toStdString() << " isSubModel? " << (isSubModel ? "Yes" : "No"));
                     if (isSubModel) {
                         counter++;
                         // capture all subfiles (full string) to be processed when finished
@@ -1016,7 +1012,6 @@ int Render::render3DCsi(QStringList &subModels,
                         if (! alreadyInserted){
                             newSubModels << type;
                             alreadyInserted = false;
-//                            PRINT("00 INSERT NewSubModel: " << type.toStdString());
                         }
                     }
                 }
@@ -1026,10 +1021,6 @@ int Render::render3DCsi(QStringList &subModels,
         }
         if (newSubModels.size() > 0){
             render3DCsi(newSubModels, csiSubModelParts);
-            //PRINT STUFF
-            for (int index = 0; index < newSubModels.size(); index++) {
-//                PRINT("00 RECURSE on NewSubModel: " << newSubModels[index].toStdString());
-            } //END PRINT STUFF
         }
         //end for
         csiSubModelParts.append("0 NOFILE");
@@ -1041,7 +1032,7 @@ int Render::render3DCsi(QStringList &subModels,
 int Render::render3DCsi(QString &csi3DName)
 {
     //load CSI 3D file into viewer
-    PRINT("END LOAD 3D FILE: " << csi3DName.toStdString());
+    PRINT("LOAD 3D FILE: " << csi3DName.toStdString());
     QFile csi3DFile(csi3DName);
     if (csi3DFile.exists()){
         gMainWindow->OpenProject(csi3DFile.fileName());

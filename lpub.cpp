@@ -35,6 +35,9 @@
 #include "ranges_element.h"
 
 #include "step.h"
+//** 3D
+#include "camera.h"
+//**
 
 Gui *gui;
 
@@ -277,6 +280,15 @@ void Gui::zoomOut(
 {
   fitMode = FitNone;
   view->scale(1.0/1.1,1.0/1.1);
+}
+
+void Gui::UpdateRotationStatus(lcCamera* Camera)
+{
+    mModelRotation = Camera->mPosition;
+
+    QString rotLabel("Step Rotation X: %1 Y: %2 Z: %3");
+    rotLabel = rotLabel.arg(QString::number(mModelRotation[0], 'f', 2), QString::number(mModelRotation[1], 'f', 2), QString::number(mModelRotation[2], 'f', 2));
+    gui->statusBarMsg(rotLabel);
 }
 
 void Gui::statusBarMsg(QString msg)
