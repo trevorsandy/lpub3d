@@ -112,6 +112,12 @@ void Gui::addBom()
   mi.insertBOM();
 }
 
+void Gui::assignRotStep(QString &value)
+{
+  MetaItem mi;
+  mi.assignRotStep(value);
+}
+
 void Gui::removeLPubFormatting()
 {
   MetaItem mi;

@@ -13,9 +13,10 @@ lcMainWindow::lcMainWindow()
 	mActiveView = NULL;
 	mPreviewWidget = NULL;
 	mTransformType = LC_TRANSFORM_RELATIVE_TRANSLATION;
+    mRotateStepType = LC_ROTATESTEP_RELATIVE_ROTATION;
 
 	mColorIndex = lcGetColorIndex(4);
-	mTool = LC_TOOL_SELECT;
+    mTool = LC_TOOL_ROTATESTEP;
 	mAddKeys = false;
 	mMoveXYSnapIndex = 4;
 	mMoveZSnapIndex = 3;
@@ -862,6 +863,15 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_EDIT_ACTION_ROLL:
 		SetTool(LC_TOOL_ROLL);
 		break;
+
+    case LC_EDIT_ACTION_ROTATESTEP:
+        lcGetActiveModel()->RotateStepSelectedObjects(GetRotateStepType(), GetRotateStepAmount()); //TODO can probably drop 2nd variable
+        break;
+
+    case LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION:
+    case LC_EDIT_ROTATESTEP_RELATIVE_ROTATION:
+        SetRotateStepType((lcRotateStepType)(CommandId - LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION));
+        break;
 
 	case LC_EDIT_CANCEL:
 		mActiveView->CancelTrackingOrClearSelection();

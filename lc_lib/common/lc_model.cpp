@@ -2187,6 +2187,24 @@ void lcModel::TransformSelectedObjects(lcTransformType TransformType, const lcVe
 	}
 }
 
+void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep)   //TODO can probably drop 2nd variable
+{
+    lcVector3 Center = GetFocusOrSelectionCenter();
+    lcVector3 Offset = RotateStep - Center;
+    switch (RotateStepType)
+    {
+    case LC_ROTATESTEP_ABSOLUTE_ROTATION:
+        // TODO reset camera to absolute position and then rotate on model...
+        break;
+    case LC_ROTATESTEP_RELATIVE_ROTATION:
+        // TODO rotate camera on model as it was passed in...
+        break;
+    }
+    gMainWindow->UpdateAllViews();
+    SaveCheckpoint("StepRotating");
+    gMainWindow->UpdateFocusObject(GetFocusObject());
+}
+
 void lcModel::SetObjectProperty(lcObject* Object, lcObjectPropertyType ObjectPropertyType, const void* Value)
 {
 	QString CheckPointString;
@@ -3110,6 +3128,8 @@ void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 
 	case LC_TOOL_ZOOM_REGION:
 		break;
+    case LC_TOOL_ROTATESTEP:
+        break;
 	}
 }
 
@@ -3535,6 +3555,7 @@ void lcModel::UpdateInterface()
 
 	gMainWindow->UpdateFocusObject(GetFocusObject());
 	gMainWindow->SetTransformType(gMainWindow->GetTransformType());
+    gMainWindow->SetRotateStepType(gMainWindow->GetRotateStepType());
 	gMainWindow->UpdateLockSnap();
 	gMainWindow->UpdateSnap();
 	gMainWindow->UpdateCameraMenu();

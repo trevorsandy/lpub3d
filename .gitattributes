@@ -238,6 +238,8 @@ lc_lib/resources/edit_cut.png -text
 lc_lib/resources/edit_lock.png -text
 lc_lib/resources/edit_paste.png -text
 lc_lib/resources/edit_redo.png -text
+lc_lib/resources/edit_rotatestep_absolute_rotation.png -text
+lc_lib/resources/edit_rotatestep_relative_rotation.png -text
 lc_lib/resources/edit_snap_angle.png -text
 lc_lib/resources/edit_snap_move.png -text
 lc_lib/resources/edit_transform_absolute_rotation.png -text

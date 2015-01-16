@@ -304,6 +304,7 @@ public:
   Rc   scanForwardStepGroup(Where &here);
 
   void scanPastGlobal(Where &);
+  void assignRotStep(QString &value);
 
   Rc   scanBackward(Where &here, int mask, bool &partsAdded);
   Rc   scanBackward(Where &here, int mask);

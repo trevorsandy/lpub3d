@@ -98,5 +98,7 @@
         <file>extras/pli.mpd</file>
         <file>extras/titleAnnotations.lst</file>
         <file>extras/freeformAnnotations.lst</file>
+        <file>lc_lib/resources/edit_rotatestep_absolute_rotation.png</file>
+        <file>lc_lib/resources/edit_rotatestep_relative_rotation.png</file>
     </qresource>
 </RCC>

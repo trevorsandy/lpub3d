@@ -44,12 +44,20 @@ void lcGLWidget::ShowPopupMenu()
 
 	QMenu *popup = new QMenu(Widget);
 
-	QMenu *tools = new QMenu("Tools");
+    QMenu *tools = new QMenu("Tools");
 	popup->addMenu(tools);
-	for (int actionIdx = LC_EDIT_ACTION_FIRST; actionIdx <= LC_EDIT_ACTION_LAST; actionIdx++)
-		tools->addAction(actions[actionIdx]);
+    for (int actionIdx = LC_EDIT_ACTION_FIRST; actionIdx <= LC_EDIT_ACTION_LAST; actionIdx++)
+        tools->addAction(actions[actionIdx]);
+
+    QMenu* rotateStepMenu = new QMenu("Step Rotation");
+    rotateStepMenu->addAction(actions[LC_EDIT_ROTATESTEP_RELATIVE_ROTATION]);
+    rotateStepMenu->addAction(actions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION]);
+    actions[LC_EDIT_ACTION_ROTATESTEP]->setMenu(rotateStepMenu);
+    tools->addSeparator();
+    tools->addAction(actions[LC_EDIT_ACTION_ROTATESTEP]);
 
     /*** management - popupMenu ***/
+    tools->removeAction(actions[LC_EDIT_ACTION_SELECT]);
     tools->removeAction(actions[LC_EDIT_ACTION_INSERT]);
     tools->removeAction(actions[LC_EDIT_ACTION_LIGHT]);
     tools->removeAction(actions[LC_EDIT_ACTION_SPOTLIGHT]);
@@ -60,7 +68,7 @@ void lcGLWidget::ShowPopupMenu()
     tools->removeAction(actions[LC_EDIT_ACTION_PAINT]);
     /*** management - end ***/
 
-	QMenu *cameras = new QMenu("Cameras");
+    QMenu *cameras = new QMenu("Cameras");
 	popup->addMenu(cameras);
 	cameras->addAction(actions[LC_VIEW_CAMERA_NONE]);
 
@@ -92,7 +100,7 @@ void lcGLWidget::SetCursor(LC_CURSOR_TYPE CursorType)
 
 	const lcCursorInfo Cursors[LC_CURSOR_COUNT] =
 	{
-		{  0,  0, "" },                                   // LC_CURSOR_DEFAULT
+        {  0,  0, "" },                                          // LC_CURSOR_DEFAULT
 		{  8,  3, ":/lc_lib/resources/cursor_insert" },          // LC_CURSOR_BRICK
 		{ 15, 15, ":/lc_lib/resources/cursor_light" },           // LC_CURSOR_LIGHT
 		{  7, 10, ":/lc_lib/resources/cursor_spotlight" },       // LC_CURSOR_SPOTLIGHT
@@ -110,6 +118,7 @@ void lcGLWidget::SetCursor(LC_CURSOR_TYPE CursorType)
 		{ 15, 15, ":/lc_lib/resources/cursor_pan" },             // LC_CURSOR_PAN
 		{ 15, 15, ":/lc_lib/resources/cursor_roll" },            // LC_CURSOR_ROLL
 		{ 15, 15, ":/lc_lib/resources/cursor_rotate_view" },     // LC_CURSOR_ROTATE_VIEW
+        //{  0,  0, "" },
 	};
 
 	QGLWidget* widget = (QGLWidget*)mWidget;

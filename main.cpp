@@ -548,6 +548,16 @@ void lcMainWindow::SetTransformType(lcTransformType TransformType)
         window->updateTransformType(TransformType);
 }
 
+void lcMainWindow::SetRotateStepType(lcRotateStepType RotateStepType)
+{
+    lcQMainWindow* window = (lcQMainWindow*)mHandle;
+
+    mRotateStepType = RotateStepType;
+
+    if (window)
+        window->updateRotateStepType(RotateStepType);
+}
+
 void lcMainWindow::UpdateCameraMenu()
 {
     lcQMainWindow* window = (lcQMainWindow*)mHandle;
@@ -626,6 +636,16 @@ lcVector3 lcMainWindow::GetTransformAmount()
 
     if (window)
         return window->getTransformAmount();
+
+    return lcVector3(0.0f, 0.0f, 0.0f);
+}
+
+lcVector3 lcMainWindow::GetRotateStepAmount()   //TODO can probably drop
+{
+    lcQMainWindow* window = (lcQMainWindow*)mHandle;
+
+    if (window)
+        return window->getRotateStepAmount();
 
     return lcVector3(0.0f, 0.0f, 0.0f);
 }

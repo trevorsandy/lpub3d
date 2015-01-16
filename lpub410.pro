@@ -229,7 +229,6 @@ HEADERS += \
     scaledialog.h \
     step.h \
     textitem.h \
-#    threedwindow.h \
     where.h
 SOURCES += \
     lc_lib/common/view.cpp \
@@ -344,7 +343,6 @@ SOURCES += \
     scaledialog.cpp \
     step.cpp \
     textitem.cpp \
-#    threedwindow.cpp \
     traverse.cpp \
     undoredo.cpp
 FORMS += \

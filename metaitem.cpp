@@ -1455,6 +1455,14 @@ void MetaItem::deleteBOM()
   }
 }
 
+void MetaItem::assignRotStep(QString &value)
+{
+    QString meta = value;
+    Where topOfStep = gui->topOfPages[gui->displayPageNum];     // TODO add code to update Rotation Step
+    scanPastGlobal(topOfStep);
+    insertMeta(topOfStep,meta);
+}
+
 /***************************************************************************/
 
 void MetaItem::scanPastGlobal(

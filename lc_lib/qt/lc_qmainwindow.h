@@ -40,6 +40,7 @@ public:
 	void updateSnap();
 	void updateUndoRedo(const QString& UndoText, const QString& RedoText);
 	void updateTransformType(int newType);
+    void updateRotateStepType(int newType);
 	void updateCameraMenu();
 	void updateCurrentCamera(int cameraIndex);
 	void updatePerspective(View* view);
@@ -51,6 +52,7 @@ public:
 	void updateShortcuts();
 
 	lcVector3 getTransformAmount();
+    lcVector3 getRotateStepAmount();
 
 	QAction *actions[LC_NUM_COMMANDS];
 

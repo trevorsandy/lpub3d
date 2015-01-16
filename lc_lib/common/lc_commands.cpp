@@ -606,6 +606,27 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Status", "Zoom into a region of the screen"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
+    // LC_EDIT_ACTION_ROTATESTEP
+    {
+        "Edit.Tool.RotateStep",
+        QT_TRANSLATE_NOOP("Menu", "Insert Step Rotation"),
+        QT_TRANSLATE_NOOP("Status", "Apply camera rotation to selected step"),
+        QT_TRANSLATE_NOOP("Shortcut", "")
+    },
+    // LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION
+    {
+        "Edit.RotateStepAbsoluteRotation",
+        QT_TRANSLATE_NOOP("Menu", "Set Absolute Rotation"),
+        QT_TRANSLATE_NOOP("Status", "Switch to absolute rotation mode when applying step rotation"),
+        QT_TRANSLATE_NOOP("Shortcut", "")
+    },
+    // LC_EDIT_ROTATESTEP_RELATIVE_ROTATION
+    {
+        "Edit.RotateStepRelativeRotation",
+        QT_TRANSLATE_NOOP("Menu", "Set Relative Rotation"),
+        QT_TRANSLATE_NOOP("Status", "Switch to relative rotation mode when applying step rotation"),
+        QT_TRANSLATE_NOOP("Shortcut", "")
+    },
 	// LC_EDIT_CANCEL
 	{
 		"Edit.Cancel",

@@ -553,6 +553,8 @@ public slots:
 
   void fileChanged(const QString &path);
 
+  void assignRotStep(QString &value);
+
 signals:       
 
     /* tell the editor to display this file */

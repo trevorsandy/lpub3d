@@ -176,7 +176,8 @@ LC_CURSOR_TYPE View::GetCursor() const
 		LC_CURSOR_ROTATEY,     // LC_TRACKTOOL_ORBIT_Y
 		LC_CURSOR_ROTATE_VIEW, // LC_TRACKTOOL_ORBIT_XY
 		LC_CURSOR_ROLL,        // LC_TRACKTOOL_ROLL
-		LC_CURSOR_ZOOM_REGION  // LC_TRACKTOOL_ZOOM_REGION
+        LC_CURSOR_ZOOM_REGION, // LC_TRACKTOOL_ZOOM_REGION
+        LC_CURSOR_ROTATESTEP   // LC_TRACKTOOL_NONE
 	};
 
 	return CursorFromTrackTool[mTrackTool];
@@ -1379,7 +1380,8 @@ lcTool View::GetCurrentTool() const
 		LC_TOOL_ROTATE_VIEW, // LC_TRACKTOOL_ORBIT_Y
 		LC_TOOL_ROTATE_VIEW, // LC_TRACKTOOL_ORBIT_XY
 		LC_TOOL_ROLL,        // LC_TRACKTOOL_ROLL
-		LC_TOOL_ZOOM_REGION  // LC_TRACKTOOL_ZOOM_REGION
+        LC_TOOL_ZOOM_REGION, // LC_TRACKTOOL_ZOOM_REGION
+        LC_TOOL_ROTATESTEP   // LC_TRACKTOOL_NONE
 	};
 
 	return ToolFromTrackTool[mTrackTool];
@@ -1751,6 +1753,9 @@ void View::UpdateTrackTool()
 	case LC_TOOL_ZOOM_REGION:
 		NewTrackTool = LC_TRACKTOOL_ZOOM_REGION;
 		break;
+    case LC_TOOL_ROTATESTEP:
+        NewTrackTool = LC_TRACKTOOL_ROTATESTEP;
+        break;
 	}
 
 	switch (mDragState)
@@ -1862,6 +1867,8 @@ void View::StartTracking(lcTrackButton TrackButton)
 
 	case LC_TOOL_ZOOM_REGION:
 		break;
+    case LC_TOOL_ROTATESTEP:
+        break;
 	}
 
 	OnUpdateCursor();
@@ -1930,6 +1937,8 @@ void View::StopTracking(bool Accept)
 			mModel->ZoomRegionToolClicked(mCamera, Points, fabsf(RatioX), fabsf(RatioY));
 		}
 		break;
+    case LC_TOOL_ROTATESTEP:
+        break;
 	}
 
 	mTrackButton = LC_TRACKBUTTON_NONE;
@@ -2052,6 +2061,8 @@ void View::OnLeftButtonDown()
 	case LC_TRACKTOOL_ZOOM_REGION:
 		StartTracking(LC_TRACKBUTTON_LEFT);
 		break;
+    case LC_TRACKTOOL_ROTATESTEP:
+        break;
 	}
 }
 
@@ -2160,6 +2171,8 @@ void View::OnRightButtonDown()
 	case LC_TRACKTOOL_ROLL:
 	case LC_TRACKTOOL_ZOOM_REGION:
 		break;
+    case LC_TRACKTOOL_ROTATESTEP:
+        break;
 	}
 }
 
@@ -2405,6 +2418,8 @@ void View::OnMouseMove()
 	case LC_TRACKTOOL_ZOOM_REGION:
 		Redraw();
 		break;
+    case LC_TRACKTOOL_ROTATESTEP:
+        break;
 	}
 }
 
