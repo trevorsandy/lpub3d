@@ -13,10 +13,9 @@ lcMainWindow::lcMainWindow()
 	mActiveView = NULL;
 	mPreviewWidget = NULL;
 	mTransformType = LC_TRANSFORM_RELATIVE_TRANSLATION;
-    mRotateStepType = LC_ROTATESTEP_RELATIVE_ROTATION;
 
 	mColorIndex = lcGetColorIndex(4);
-    mTool = LC_TOOL_ROTATESTEP;
+	mTool = LC_TOOL_SELECT;
 	mAddKeys = false;
 	mMoveXYSnapIndex = 4;
 	mMoveZSnapIndex = 3;
@@ -24,6 +23,7 @@ lcMainWindow::lcMainWindow()
 	mLockX = false;
 	mLockY = false;
 	mLockZ = false;
+	mRelativeTransform = true;
 
 	memset(&mSearchOptions, 0, sizeof(mSearchOptions));
 
@@ -104,6 +104,8 @@ void lcMainWindow::SetColorIndex(int ColorIndex)
 
 	if (mPreviewWidget)
 		mPreviewWidget->Redraw();
+
+	UpdateColor();
 }
 
 void lcMainWindow::SetMoveXYSnapIndex(int Index)
@@ -140,6 +142,13 @@ void lcMainWindow::SetLockZ(bool LockZ)
 {
 	mLockZ = LockZ;
 	UpdateLockSnap();
+}
+
+void lcMainWindow::SetRelativeTransform(bool RelativeTransform)
+{
+	mRelativeTransform = RelativeTransform;
+	UpdateLockSnap();
+	UpdateAllViews();
 }
 
 void lcMainWindow::AddRecentFile(const QString& FileName)
@@ -473,16 +482,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_VIEW_PROJECTION_ORTHO:
 		mActiveView->SetProjection(true);
 		break;
-/*
-	case LC_VIEW_PROJECTION_FOCUS:
-		{
-			lcVector3 FocusVector;
-			GetSelectionCenter(FocusVector);
-			mActiveView->mCamera->SetFocalPoint(FocusVector, mCurrentStep, GetAddKeys());
-			UpdateAllViews();
-		}
-		break;
-*/
+
 	case LC_PIECE_INSERT:
 		lcGetActiveModel()->AddPiece();
 		break;
@@ -492,51 +492,51 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_PIECE_MOVE_PLUSX:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(lcMax(GetMoveXYSnap(), 0.01f), 0.0f, 0.0f)), true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(lcMax(GetMoveXYSnap(), 0.01f), 0.0f, 0.0f)), true, true);
 		break;
 
 	case LC_PIECE_MOVE_MINUSX:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(-lcMax(GetMoveXYSnap(), 0.01f), 0.0f, 0.0f)), true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(-lcMax(GetMoveXYSnap(), 0.01f), 0.0f, 0.0f)), true, true);
 		break;
 
 	case LC_PIECE_MOVE_PLUSY:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, lcMax(GetMoveXYSnap(), 0.01f), 0.0f)), true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, lcMax(GetMoveXYSnap(), 0.01f), 0.0f)), true, true);
 		break;
 
 	case LC_PIECE_MOVE_MINUSY:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, -lcMax(GetMoveXYSnap(), 0.01f), 0.0f)), true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, -lcMax(GetMoveXYSnap(), 0.01f), 0.0f)), true, true);
 		break;
 
 	case LC_PIECE_MOVE_PLUSZ:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, lcMax(GetMoveZSnap(), 0.01f))), true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, lcMax(GetMoveZSnap(), 0.01f))), true, true);
 		break;
 
 	case LC_PIECE_MOVE_MINUSZ:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, -lcMax(GetMoveZSnap(), 0.01f))), true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, -lcMax(GetMoveZSnap(), 0.01f))), true, true);
 		break;
 
 	case LC_PIECE_ROTATE_PLUSX:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(lcMax(GetAngleSnap(), 1.0f), 0.0f, 0.0f)), true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(lcMax(GetAngleSnap(), 1.0f), 0.0f, 0.0f)), true, true);
 		break;
 
 	case LC_PIECE_ROTATE_MINUSX:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(-lcVector3(lcMax(GetAngleSnap(), 1.0f), 0.0f, 0.0f)), true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(-lcVector3(lcMax(GetAngleSnap(), 1.0f), 0.0f, 0.0f)), true, true);
 		break;
 
 	case LC_PIECE_ROTATE_PLUSY:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, lcMax(GetAngleSnap(), 1.0f), 0.0f)), true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, lcMax(GetAngleSnap(), 1.0f), 0.0f)), true, true);
 		break;
 
 	case LC_PIECE_ROTATE_MINUSY:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, -lcMax(GetAngleSnap(), 1.0f), 0.0f)), true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, -lcMax(GetAngleSnap(), 1.0f), 0.0f)), true, true);
 		break;
 
 	case LC_PIECE_ROTATE_PLUSZ:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, lcMax(GetAngleSnap(), 1.0f))), true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, lcMax(GetAngleSnap(), 1.0f))), true, true);
 		break;
 
 	case LC_PIECE_ROTATE_MINUSZ:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, -lcMax(GetAngleSnap(), 1.0f))), true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, -lcMax(GetAngleSnap(), 1.0f))), true, true);
 		break;
 
 	case LC_PIECE_MINIFIG_WIZARD:
@@ -736,8 +736,8 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		SetAddKeys(!GetAddKeys());
 		break;
 
-	case LC_EDIT_SNAP_RELATIVE:
-		lcGetPreferences().SetForceGlobalTransforms(!lcGetPreferences().mForceGlobalTransforms);
+	case LC_EDIT_TRANSFORM_RELATIVE:
+		SetRelativeTransform(!GetRelativeTransform());
 		break;
 
 	case LC_EDIT_LOCK_X:
@@ -863,15 +863,6 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_EDIT_ACTION_ROLL:
 		SetTool(LC_TOOL_ROLL);
 		break;
-
-    case LC_EDIT_ACTION_ROTATESTEP:
-        lcGetActiveModel()->RotateStepSelectedObjects(GetRotateStepType(), GetRotateStepAmount()); //TODO can probably drop 2nd variable
-        break;
-
-    case LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION:
-    case LC_EDIT_ROTATESTEP_RELATIVE_ROTATION:
-        SetRotateStepType((lcRotateStepType)(CommandId - LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION));
-        break;
 
 	case LC_EDIT_CANCEL:
 		mActiveView->CancelTrackingOrClearSelection();

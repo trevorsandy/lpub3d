@@ -85,11 +85,11 @@ static LONG WINAPI lcSehHandler(PEXCEPTION_POINTERS exceptionPointers)
     if (writeDump)
     {
         TCHAR message[_MAX_PATH + 256];
-        lstrcpy(message, TEXT("LPub just crashed. Crash information was saved to the file: \n'"));
+        lstrcpy(message, TEXT("LPubV just crashed. Crash information was saved to the file: \n'"));
         lstrcat(message, minidumpPath);
         lstrcat(message, TEXT("'\n Please send it to the developers for debugging."));
 
-        MessageBox(NULL, message, TEXT("LPub"), MB_OK);
+        MessageBox(NULL, message, TEXT("LPubV"), MB_OK);
     }
 
     return EXCEPTION_EXECUTE_HANDLER;
@@ -99,7 +99,7 @@ static void lcSehInit()
 {
     if (SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA | CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, minidumpPath) == S_OK)
     {
-        lstrcat(minidumpPath, TEXT("\\LPub Software\\LPub410\\dump\\"));
+        lstrcat(minidumpPath, TEXT("\\LPub Software\\LPubV\\dump\\"));
         _tmkdir(minidumpPath);
         lstrcat(minidumpPath, TEXT("minidump.dmp"));
     }
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     QCoreApplication::setOrganizationName("LPub Software");
-    QCoreApplication::setApplicationName("LPub410");
+    QCoreApplication::setApplicationName("LPubV");
     QCoreApplication::setApplicationVersion(LP_VERSION_TEXT);
 
     QTranslator Translator;
@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
     QByteArray pathArray = bundlePath.absolutePath().toLocal8Bit();
     const char* libPath = pathArray.data();
 #else
-    const char* libPath = LC_INSTALL_PREFIX "/share/lpub410/";
+    const char* libPath = LC_INSTALL_PREFIX "/share/lpubv/";
 #endif
 #ifdef LC_LDRAW_LIBRARY_PATH
     const char* LDrawPath = LC_LDRAW_LIBRARY_PATH;
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
     const char* LDrawPath = NULL;
 #endif
 
-//    QMessageBox::information(NULL,QMessageBox::tr("LPub"),QMessageBox::tr("Startup"));
+//    QMessageBox::information(NULL,QMessageBox::tr("LPubV"),QMessageBox::tr("Startup"));
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
@@ -530,6 +530,13 @@ void lcMainWindow::UpdateSnap()
         window->updateSnap();
 }
 
+void lcMainWindow::UpdateColor()
+{
+    lcQMainWindow* window = (lcQMainWindow*)mHandle;
+
+    if (window)
+        window->updateColor();
+}
 void lcMainWindow::UpdateUndoRedo(const QString& UndoText, const QString& RedoText)
 {
     lcQMainWindow* window = (lcQMainWindow*)mHandle;

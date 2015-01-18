@@ -159,7 +159,7 @@ int Render::rotateParts(
   QFile file(ldrName);
   if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
     QMessageBox::warning(NULL,
-                         QMessageBox::tr("LPub"),
+                         QMessageBox::tr("LPubV"),
                          QMessageBox::tr("Cannot open file %1 for writing:\n%2")
                          .arg(ldrName) .arg(file.errorString()));
     return -1;

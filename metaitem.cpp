@@ -1455,14 +1455,6 @@ void MetaItem::deleteBOM()
   }
 }
 
-void MetaItem::assignRotStep(QString &value)
-{
-    QString meta = value;
-    Where topOfStep = gui->topOfPages[gui->displayPageNum];     // TODO add code to update Rotation Step
-    scanPastGlobal(topOfStep);
-    insertMeta(topOfStep,meta);
-}
-
 /***************************************************************************/
 
 void MetaItem::scanPastGlobal(
@@ -2441,4 +2433,36 @@ void MetaItem::removeLPubFormatting()
     }
   }
   endMacro();
+}
+
+void MetaItem::assignRotStep(QString &value)
+{
+    QString meta = value;
+
+    Where topOfStep;
+    bool multiStep = false;
+
+    Steps *steps = dynamic_cast<Steps *>(&gui->page);
+    if (steps && steps->list.size() > 0) {
+        if (steps->list.size() > 1) {
+            multiStep = true;
+        } else {
+            Range *range = dynamic_cast<Range *>(steps->list[0]);
+            if (range && range->list.size() > 1) {
+                multiStep = true;
+            }
+        }
+    }
+
+    if (multiStep) {
+        //topOfStep = steps->bottomOfSteps();
+        topOfStep = steps->topOfSteps();
+    } else {
+        topOfStep = gui->topOfPages[gui->displayPageNum-1];
+        scanPastGlobal(topOfStep);
+    }
+    appendMeta(topOfStep,meta);
+
+    qDebug() << "STEPS NAME: " << steps->csiName();
+    qDebug() << "STEPS MODEL NAME: " << steps->modelName();
 }

@@ -124,7 +124,7 @@ void Gui::saveAs()
     openFile(fileName);
     displayPage();
   } else {
-    QMessageBox::warning(NULL,QMessageBox::tr("LPub"),
+    QMessageBox::warning(NULL,QMessageBox::tr("LPubV"),
                               QMessageBox::tr("Invalid LDraw suffix %1.  File not saved.")
                                 .arg(suffix));
 

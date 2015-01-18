@@ -23,12 +23,6 @@ enum lcTransformType
 	LC_TRANSFORM_RELATIVE_ROTATION
 };
 
-enum lcRotateStepType
-{
-    LC_ROTATESTEP_ABSOLUTE_ROTATION,
-    LC_ROTATESTEP_RELATIVE_ROTATION
-};
-
 enum lcBackgroundType
 {
 	LC_BACKGROUND_SOLID,
@@ -97,8 +91,7 @@ enum lcTool
 	LC_TOOL_PAN,
 	LC_TOOL_ROTATE_VIEW,
 	LC_TOOL_ROLL,
-    LC_TOOL_ZOOM_REGION,
-    LC_TOOL_ROTATESTEP
+	LC_TOOL_ZOOM_REGION
 };
 
 struct lcModelHistoryEntry
@@ -134,6 +127,7 @@ public:
 
 	bool IncludesModel(const lcModel* Model) const;
 	void CreatePieceInfo();
+	void UpdatePieceInfo(lcArray<lcModel*>& UpdatedModels);
 
 	PieceInfo* GetPieceInfo() const
 	{
@@ -237,11 +231,11 @@ public:
 	bool AnyPiecesSelected() const;
 	bool AnyObjectsSelected() const;
 	bool GetPieceFocusOrSelectionCenter(lcVector3& Center) const;
+	bool GetFocusOrSelectionCenter(lcVector3& Center) const;
 	lcVector3 GetFocusOrSelectionCenter() const;
 	bool GetFocusPosition(lcVector3& Position) const;
 	lcObject* GetFocusObject() const;
 	bool GetSelectionCenter(lcVector3& Center) const;
-	void SubModelUpdateBoundingBox();
 	bool GetPiecesBoundingBox(float BoundingBox[6]) const;
 	void GetPartsList(int DefaultColorIndex, lcArray<lcPartsListEntry>& PartsList) const;
 	void GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcArray<lcPartsListEntry>& PartsList) const;
@@ -296,15 +290,14 @@ public:
 	void ZoomExtents(lcCamera* Camera, float Aspect);
 	void Zoom(lcCamera* Camera, float Amount);
 
-	void MoveSelectedObjects(const lcVector3& Distance, bool Update)
+	void MoveSelectedObjects(const lcVector3& Distance, bool Relative, bool Update)
 	{
-		MoveSelectedObjects(Distance, Distance, Update);
+		MoveSelectedObjects(Distance, Distance, Relative, Update);
 	}
 
-	void MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector3& ObjectDistance, bool Update);
-	void RotateSelectedPieces(const lcVector3& Angles, bool Update);
+	void MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector3& ObjectDistance, bool Relative, bool Update);
+	void RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool Update);
 	void TransformSelectedObjects(lcTransformType TransformType, const lcVector3& Transform);
-    void RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep);
 	void SetObjectProperty(lcObject* Object, lcObjectPropertyType ObjectPropertyType, const void* Value);
 
 	void ShowPropertiesDialog();

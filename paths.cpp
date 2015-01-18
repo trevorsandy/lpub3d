@@ -48,7 +48,7 @@ Paths paths;
 
 
 
-QString Paths::lpubDir   = "LPub";
+QString Paths::lpubDir   = "LPubV";
 
 QString Paths::tmpDir    = "LPub/tmp";
 

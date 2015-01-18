@@ -64,6 +64,7 @@
         <file>lc_lib/resources/edit_redo.png</file>
         <file>lc_lib/resources/edit_snap_angle.png</file>
         <file>lc_lib/resources/edit_snap_move.png</file>
+		<file>lc_lib/resources/edit_transform_relative.png</file>
         <file>lc_lib/resources/edit_transform_absolute_rotation.png</file>
         <file>lc_lib/resources/edit_transform_absolute_translation.png</file>
         <file>lc_lib/resources/edit_transform_relative_rotation.png</file>

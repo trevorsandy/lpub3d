@@ -841,7 +841,7 @@ int Pli::sortPli()
       }
 
       if (createPartImage(key,part->type,part->color,pixmap)) {
-        QMessageBox::warning(NULL,QMessageBox::tr("LPub"),
+        QMessageBox::warning(NULL,QMessageBox::tr("LPubV"),
         QMessageBox::tr("Failed to load %1")
         .arg(imageName));
         return -1;

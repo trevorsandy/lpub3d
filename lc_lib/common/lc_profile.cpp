@@ -47,7 +47,6 @@ lcProfileEntry::lcProfileEntry(const char* Section, const char* Key)
 
 lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 {
-	lcProfileEntry("Settings", "ForceGlobalTransforms", false),                      // LC_PROFILE_FORCE_GLOBAL_TRANSFORMS
 	lcProfileEntry("Settings", "FixedAxes", false),                                  // LC_PROFILE_FIXED_AXES
 	lcProfileEntry("Settings", "LineWidth", 1.0f),                                   // LC_PROFILE_LINE_WIDTH
 	lcProfileEntry("Settings", "LightingMode", LC_LIGHTING_FLAT),                    // LC_PROFILE_LIGHTING_MODE
@@ -62,7 +61,7 @@ lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 
 	lcProfileEntry("Settings", "CheckUpdates", 1),                                   // LC_PROFILE_CHECK_UPDATES
 	lcProfileEntry("Settings", "ProjectsPath", ""),                                  // LC_PROFILE_PROJECTS_PATH
-	lcProfileEntry("Settings", "PartsLibrary", ""),                                  // LC_PROFILE_PARTS_LIBRARY
+    lcProfileEntry("Settings", "PartsLibrary", "C:\\Users\\Trevor\\LDraw"),                                  // LC_PROFILE_PARTS_LIBRARY
 	lcProfileEntry("Settings", "Shortcuts"),                                         // LC_PROFILE_SHORTCUTS
 	lcProfileEntry("Settings", "Categories"),                                        // LC_PROFILE_CATEGORIES
 	lcProfileEntry("Settings", "RecentFile1", ""),                                   // LC_PROFILE_RECENT_FILE1

@@ -37,11 +37,6 @@ public:
 		return mTransformType;
 	}
 
-    lcRotateStepType GetRotateStepType() const
-    {
-        return mRotateStepType;
-    }
-
 	bool GetAddKeys() const
 	{
 		return mAddKeys;
@@ -107,6 +102,11 @@ public:
 		return mLockZ;
 	}
 
+	bool GetRelativeTransform() const
+	{
+		return mRelativeTransform;
+	}
+
 	View* GetActiveView() const
 	{
 		return mActiveView;
@@ -125,7 +125,6 @@ public:
 
 	void SetTool(lcTool Tool);
 	void SetTransformType(lcTransformType TransformType);
-    void SetRotateStepType(lcRotateStepType RotateStepType);
 	void SetColorIndex(int ColorIndex);
 	void SetMoveXYSnapIndex(int Index);
 	void SetMoveZSnapIndex(int Index);
@@ -133,6 +132,7 @@ public:
 	void SetLockX(bool LockX);
 	void SetLockY(bool LockY);
 	void SetLockZ(bool LockZ);
+	void SetRelativeTransform(bool RelativeTransform);
 
 	void Close();
 	void NewProject();
@@ -161,6 +161,7 @@ public:
 	void SetAddKeys(bool AddKeys);
 	void UpdateLockSnap();
 	void UpdateSnap();
+	void UpdateColor();
 	void UpdateUndoRedo(const QString& UndoText, const QString& RedoText);
 	void UpdateCurrentCamera(int CameraIndex);
 	void UpdatePerspective();
@@ -173,7 +174,6 @@ public:
 	void UpdateShortcuts();
 
 	lcVector3 GetTransformAmount();
-    lcVector3 GetRotateStepAmount();
 
 	QString mRecentFiles[LC_MAX_RECENT_FILES];
 	PiecePreview* mPreviewWidget;
@@ -187,13 +187,13 @@ protected:
 	bool mAddKeys;
 	lcTool mTool;
 	lcTransformType mTransformType;
-    lcRotateStepType mRotateStepType;
 	int mMoveXYSnapIndex;
 	int mMoveZSnapIndex;
 	int mAngleSnapIndex;
 	bool mLockX;
 	bool mLockY;
 	bool mLockZ;
+	bool mRelativeTransform;
 };
 
 extern class lcMainWindow* gMainWindow;

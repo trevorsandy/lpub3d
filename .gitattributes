@@ -244,6 +244,7 @@ lc_lib/resources/edit_snap_angle.png -text
 lc_lib/resources/edit_snap_move.png -text
 lc_lib/resources/edit_transform_absolute_rotation.png -text
 lc_lib/resources/edit_transform_absolute_translation.png -text
+lc_lib/resources/edit_transform_relative.png -text
 lc_lib/resources/edit_transform_relative_rotation.png -text
 lc_lib/resources/edit_transform_relative_translation.png -text
 lc_lib/resources/edit_undo.png -text

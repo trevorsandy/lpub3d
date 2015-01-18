@@ -30,7 +30,6 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 	ui->lgeoPath->setText(options->LGEOPath);
 	ui->mouseSensitivity->setValue(options->Preferences.mMouseSensitivity);
 	ui->checkForUpdates->setCurrentIndex(options->CheckForUpdates);
-	ui->noRelativeSnap->setChecked(options->Preferences.mForceGlobalTransforms);
 	ui->fixedDirectionKeys->setChecked((options->Preferences.mFixedAxes) != 0);
 
 	ui->antiAliasing->setChecked(options->AASamples != 1);
@@ -68,27 +67,6 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 
 	new lcQTreeWidgetColumnStretcher(ui->commandList, 0);
 	commandChanged(NULL);
-
-    /*** management - preferences dialog ***/
-    ui->authorName->setDisabled(true);
-    ui->projectsFolder->setDisabled(true);
-    ui->projectsFolderBrowse->setDisabled(true);
-    ui->partsLibrary->setDisabled(true);
-    ui->partsLibraryBrowse->setDisabled(true);
-    ui->povrayExecutable->setDisabled(true);
-    ui->povrayExecutableBrowse->setDisabled(true);
-    ui->lgeoPath->setDisabled(true);
-    ui->lgeoPathBrowse->setDisabled(true);
-    ui->checkForUpdates->hide();
-    ui->label_10->hide();                   //label check for updates
-    ui->noRelativeSnap->hide();
-    ui->fixedDirectionKeys->hide();
-    ui->enableLighting->hide();
-    ui->tabCategories->setDisabled(true);
-    ui->tabKeyboard->setDisabled(true);
-    ui->tabWidget->removeTab(2);            //hide tabCategories
-    ui->tabWidget->removeTab(2);            //hide tabKeyboard
-    /*** management - end ***/
 }
 
 lcQPreferencesDialog::~lcQPreferencesDialog()
@@ -112,7 +90,6 @@ void lcQPreferencesDialog::accept()
 	strcpy(options->LGEOPath, ui->lgeoPath->text().toLocal8Bit().data());
 	options->Preferences.mMouseSensitivity = ui->mouseSensitivity->value();
 	options->CheckForUpdates = ui->checkForUpdates->currentIndex();
-	options->Preferences.mForceGlobalTransforms = ui->noRelativeSnap->isChecked();
 	options->Preferences.mFixedAxes = ui->fixedDirectionKeys->isChecked();
 
 	if (!ui->antiAliasing->isChecked())

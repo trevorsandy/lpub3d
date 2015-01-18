@@ -256,11 +256,11 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Status", "Allows movement and rotation in all directions"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
-	// LC_EDIT_SNAP_RELATIVE
+	// LC_EDIT_TRANSFORM_RELATIVE
 	{
-		"Edit.SnapRelative",
-		QT_TRANSLATE_NOOP("Menu", "Relative Snap"),
-		QT_TRANSLATE_NOOP("Status", "Enable relative movement and rotation"),
+		"Edit.TransformRelative",
+		QT_TRANSLATE_NOOP("Menu", "Relative Transforms"),
+		QT_TRANSLATE_NOOP("Status", "Move and rotate objects relative to the one that currently has focus"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_EDIT_SNAP_MOVE_XY0
@@ -606,27 +606,6 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Status", "Zoom into a region of the screen"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
-    // LC_EDIT_ACTION_ROTATESTEP
-    {
-        "Edit.Tool.RotateStep",
-        QT_TRANSLATE_NOOP("Menu", "Insert Step Rotation"),
-        QT_TRANSLATE_NOOP("Status", "Apply camera rotation to selected step"),
-        QT_TRANSLATE_NOOP("Shortcut", "")
-    },
-    // LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION
-    {
-        "Edit.RotateStepAbsoluteRotation",
-        QT_TRANSLATE_NOOP("Menu", "Set Absolute Rotation"),
-        QT_TRANSLATE_NOOP("Status", "Switch to absolute rotation mode when applying step rotation"),
-        QT_TRANSLATE_NOOP("Shortcut", "")
-    },
-    // LC_EDIT_ROTATESTEP_RELATIVE_ROTATION
-    {
-        "Edit.RotateStepRelativeRotation",
-        QT_TRANSLATE_NOOP("Menu", "Set Relative Rotation"),
-        QT_TRANSLATE_NOOP("Status", "Switch to relative rotation mode when applying step rotation"),
-        QT_TRANSLATE_NOOP("Shortcut", "")
-    },
 	// LC_EDIT_CANCEL
 	{
 		"Edit.Cancel",
@@ -940,13 +919,6 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		"View.Projection.Orthographic",
 		QT_TRANSLATE_NOOP("Menu", "&Orthographic"),
 		QT_TRANSLATE_NOOP("Status", "Set the current camera to use an orthographic projection"),
-		QT_TRANSLATE_NOOP("Shortcut", "")
-	},
-	// LC_VIEW_PROJECTION_FOCUS
-	{
-		"View.Projection.Focus",
-		QT_TRANSLATE_NOOP("Menu", "&Focus"),
-		QT_TRANSLATE_NOOP("Status", "Focus projection on selected piece"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_PIECE_INSERT

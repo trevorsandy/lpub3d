@@ -1031,7 +1031,7 @@ int Gui::drawPage(
         case RangeErrorRc:
           showLine(current);
           QMessageBox::critical(NULL,
-                               QMessageBox::tr("LPub"),
+                               QMessageBox::tr("LPubV"),
                                QMessageBox::tr("Parameter(s) out of range: %1:%2\n%3")
                                .arg(current.modelName) 
                                .arg(current.lineNumber) 
@@ -1044,7 +1044,7 @@ int Gui::drawPage(
     } else if (line != "") {
       showLine(current);
       QMessageBox::critical(NULL,
-                            QMessageBox::tr("LPub"),
+                            QMessageBox::tr("LPubV"),
                             QMessageBox::tr("Invalid LDraw Line Type: %1:%2\n  %3")
                             .arg(current.modelName) 
                             .arg(current.lineNumber) 
@@ -1879,7 +1879,7 @@ void Gui::writeToTmp(
   QString fname = QDir::currentPath() + "/" + Paths::tmpDir + "/" + fileName;
   QFile file(fname);
   if ( ! file.open(QFile::WriteOnly|QFile::Text)) {
-    QMessageBox::warning(NULL,QMessageBox::tr("LPub"),
+    QMessageBox::warning(NULL,QMessageBox::tr("LPubV"),
     QMessageBox::tr("Failed to open %1 for writing: %2")
       .arg(fname) .arg(file.errorString()));
   } else {

@@ -446,15 +446,18 @@ void lcCamera::Move(lcStep Step, bool AddKey, const lcVector3& Distance)
 
 void lcCamera::UpdatePosition(lcStep Step)
 {
-	mPosition = CalculateKey(mPositionKeys, Step);
-	mTargetPosition = CalculateKey(mTargetPositionKeys, Step);
-	mUpVector = CalculateKey(mUpVectorKeys, Step);
+    if (! IsSimple())
+    {
+        mPosition = CalculateKey(mPositionKeys, Step);
+        mTargetPosition = CalculateKey(mTargetPositionKeys, Step);
+        mUpVector = CalculateKey(mUpVectorKeys, Step);
+    }
 
-	lcVector3 FrontVector(mPosition - mTargetPosition);
-	lcVector3 SideVector = lcCross(FrontVector, mUpVector);
-	mUpVector = lcNormalize(lcCross(SideVector, FrontVector));
+    lcVector3 FrontVector(mPosition - mTargetPosition);
+    lcVector3 SideVector = lcCross(FrontVector, mUpVector);
+    mUpVector = lcNormalize(lcCross(SideVector, FrontVector));
 
-	mWorldView = lcMatrix44LookAt(mPosition, mTargetPosition, mUpVector);
+    mWorldView = lcMatrix44LookAt(mPosition, mTargetPosition, mUpVector);
 }
 
 void lcCamera::CopyPosition(const lcCamera* camera)

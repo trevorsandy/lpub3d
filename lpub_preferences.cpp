@@ -271,7 +271,7 @@ void Preferences::pliPreferences()
     settings.remove("PliControl");
   }
 
-  //QMessageBox::warning(NULL,"LPub",lpubPath,QMessageBox::Cancel);
+  //QMessageBox::warning(NULL,"LPubV",lpubPath,QMessageBox::Cancel);
   
 #ifdef __APPLE__
 
@@ -424,7 +424,7 @@ void Preferences::publishingPreferences()
       settings.remove("DocumentLogoFile");
     }
 
-    //QMessageBox::warning(NULL,"LPub",lpubPath,QMessageBox::Cancel);
+    //QMessageBox::warning(NULL,"LPubV",lpubPath,QMessageBox::Cancel);
 
 #ifdef __APPLE__
 
