@@ -446,8 +446,8 @@ void Preferences::publishingPreferences()
 
 void Preferences::viewerPreferences()
 {
-    int never = 0;
     QSettings settings(LPUB,SETTINGS);
+
     if (settings.contains("DefaultAuthor"))
         lcSetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME, settings.value("DefaultAuthor").toString());
     if (settings.contains("ModelDir"))
@@ -458,8 +458,6 @@ void Preferences::viewerPreferences()
         lcSetProfileString(LC_PROFILE_POVRAY_PATH, settings.value("POVRAY").toString());
     if (settings.contains("LGEO"))
         lcSetProfileString(LC_PROFILE_POVRAY_LGEO_PATH, settings.value("LGEO").toString());
-
-        lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, never);
 }
 
 bool Preferences::getPreferences()

@@ -22,6 +22,8 @@
 #include "lc_mainwindow.h"
 #include "lc_profile.h"
 
+#include "lpub.h"
+
 lcQMainWindow::lcQMainWindow(QWidget *parent)
 	: QMainWindow(parent)
 {
@@ -76,7 +78,7 @@ lcQMainWindow::lcQMainWindow(QWidget *parent)
 	}
 
 	QSettings settings;
-	settings.beginGroup("MainWindow");
+    settings.beginGroup("Windows");
 	resize(QSize(800, 600));
 	move(QPoint(200, 200));
 	restoreGeometry(settings.value("Geometry").toByteArray());
@@ -208,6 +210,13 @@ void lcQMainWindow::createActions()
 		menuGroup->addAction(actions[actionIdx]);
 	}
 
+    QActionGroup *actionRotateStepTypeGroup = new QActionGroup(this);
+    for (int actionIdx = LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION; actionIdx <= LC_EDIT_ROTATESTEP_RELATIVE_ROTATION; actionIdx++)
+    {
+        actions[actionIdx]->setCheckable(true);
+        actionRotateStepTypeGroup->addAction(actions[actionIdx]);
+    }
+
 	updateShortcuts();
 }
 
@@ -219,6 +228,11 @@ void lcQMainWindow::createMenus()
 	transformMenu->addAction(actions[LC_EDIT_TRANSFORM_RELATIVE_ROTATION]);
 	transformMenu->addAction(actions[LC_EDIT_TRANSFORM_ABSOLUTE_ROTATION]);
 	actions[LC_EDIT_TRANSFORM]->setMenu(transformMenu);
+
+    QMenu* rotateStepMenu = new QMenu(tr("Step Rotation"), this);
+    rotateStepMenu->addAction(actions[LC_EDIT_ROTATESTEP_RELATIVE_ROTATION]);
+    rotateStepMenu->addAction(actions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION]);
+    actions[LC_EDIT_ACTION_ROTATESTEP]->setMenu(rotateStepMenu);
 
     menuCamera = new QMenu(tr("C&ameras"), this);
 	menuCamera->addAction(actions[LC_VIEW_CAMERA_NONE]);
@@ -347,6 +361,26 @@ void lcQMainWindow::createMenus()
 #endif
 	menuHelp->addSeparator();
 	menuHelp->addAction(actions[LC_HELP_ABOUT]);
+
+    /*** management - menus ***/
+    menuBar()->removeAction(menuFile->menuAction());
+    menuBar()->removeAction(menuEdit->menuAction());
+    menuBar()->removeAction(menuPiece->menuAction());
+    /*** management - menu actions ***/
+    menuStep->removeAction(actions[LC_VIEW_TIME_INSERT]);
+    menuStep->removeAction(actions[LC_VIEW_TIME_DELETE]);
+    menuToolBars->removeAction(standardToolBar->toggleViewAction());
+    menuToolBars->removeAction(partsToolBar->toggleViewAction());
+    menuToolBars->removeAction(propertiesToolBar->toggleViewAction());
+    menuToolBars->removeAction(timeToolBar->toggleViewAction());
+    menuView->removeAction(actions[LC_VIEW_FULLSCREEN]);
+    menuModel->removeAction(actions[LC_MODEL_NEW]);
+    menuHelp->removeAction(actions[LC_HELP_HOMEPAGE]);
+    menuHelp->removeAction(actions[LC_HELP_EMAIL]);
+#if !LC_DISABLE_UPDATE_CHECK
+    menuHelp->removeAction(actions[LC_HELP_UPDATES]);
+#endif
+    /*** management - end ***/
 }
 
 void lcQMainWindow::createToolBars()
@@ -408,10 +442,11 @@ void lcQMainWindow::createToolBars()
 	standardToolBar->addAction(angleAction);
 	standardToolBar->addSeparator();
 	standardToolBar->addAction(actions[LC_EDIT_TRANSFORM]);
+
 	((QToolButton*)standardToolBar->widgetForAction(lockAction))->setPopupMode(QToolButton::InstantPopup);
 	((QToolButton*)standardToolBar->widgetForAction(moveAction))->setPopupMode(QToolButton::InstantPopup);
 	((QToolButton*)standardToolBar->widgetForAction(angleAction))->setPopupMode(QToolButton::InstantPopup);
-	((QToolButton*)standardToolBar->widgetForAction(actions[LC_EDIT_TRANSFORM]))->setPopupMode(QToolButton::InstantPopup);
+    ((QToolButton*)standardToolBar->widgetForAction(actions[LC_EDIT_TRANSFORM]))->setPopupMode(QToolButton::InstantPopup);
 
 	QHBoxLayout *transformLayout = new QHBoxLayout;
 	QWidget *transformWidget = new QWidget();
@@ -439,15 +474,17 @@ void lcQMainWindow::createToolBars()
 	toolsToolBar->addAction(actions[LC_EDIT_ACTION_SPOTLIGHT]);
 	toolsToolBar->addAction(actions[LC_EDIT_ACTION_CAMERA]);
 	toolsToolBar->addSeparator();
-	toolsToolBar->addAction(actions[LC_EDIT_ACTION_SELECT]);
+    toolsToolBar->addAction(actions[LC_EDIT_ACTION_ROTATESTEP]);
+    //((QToolButton*)toolsToolBar->widgetForAction(actions[LC_EDIT_ACTION_ROTATESTEP]))->setPopupMode(QToolButton::InstantPopup);
+    toolsToolBar->addAction(actions[LC_EDIT_ACTION_SELECT]);
 	toolsToolBar->addAction(actions[LC_EDIT_ACTION_MOVE]);
 	toolsToolBar->addAction(actions[LC_EDIT_ACTION_ROTATE]);
 	toolsToolBar->addAction(actions[LC_EDIT_ACTION_DELETE]);
 	toolsToolBar->addAction(actions[LC_EDIT_ACTION_PAINT]);
 	toolsToolBar->addSeparator();
+    toolsToolBar->addAction(actions[LC_EDIT_ACTION_ROTATE_VIEW]);
 	toolsToolBar->addAction(actions[LC_EDIT_ACTION_ZOOM]);
 	toolsToolBar->addAction(actions[LC_EDIT_ACTION_PAN]);
-	toolsToolBar->addAction(actions[LC_EDIT_ACTION_ROTATE_VIEW]);
 	toolsToolBar->addAction(actions[LC_EDIT_ACTION_ROLL]);
 	toolsToolBar->addAction(actions[LC_EDIT_ACTION_ZOOM_REGION]);
 
@@ -534,6 +571,54 @@ void lcQMainWindow::createToolBars()
 
 	tabifyDockWidget(partsToolBar, propertiesToolBar);
 	partsToolBar->raise();
+
+    /*** management - toolbars ***/
+    timeToolBar->setVisible(false);
+    partsToolBar->setVisible(false);
+    propertiesToolBar->setVisible(false);
+    standardToolBar->setVisible(false);
+
+    /*** management - toolbar actions ***/
+    standardToolBar->removeAction(actions[LC_FILE_PRINT]);
+    standardToolBar->removeAction(actions[LC_FILE_PRINT_PREVIEW]);
+    standardToolBar->removeAction(actions[LC_EDIT_UNDO]);
+    standardToolBar->removeAction(actions[LC_EDIT_REDO]);
+    standardToolBar->removeAction(actions[LC_EDIT_CUT]);
+    standardToolBar->removeAction(actions[LC_EDIT_COPY]);
+    standardToolBar->removeAction(actions[LC_EDIT_PASTE]);
+    standardToolBar->removeAction(lockAction);
+    standardToolBar->removeAction(moveAction);
+    standardToolBar->removeAction(angleAction);
+    standardToolBar->removeAction(actions[LC_EDIT_TRANSFORM]);
+
+    QAction* widgetAction = standardToolBar->addWidget(transformWidget);
+    widgetAction->setVisible(false);
+
+    // remove unneeded separators
+    foreach(QAction* action, standardToolBar->actions())
+    {
+        if (action->isSeparator())
+            standardToolBar->removeAction(action);
+    }
+
+    //toolsToolBar->removeAction(actions[LC_EDIT_ACTION_SELECT]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_INSERT]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_LIGHT]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_SPOTLIGHT]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_CAMERA]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_MOVE]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_ROTATE]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_DELETE]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_PAINT]);
+
+    foreach(QAction* action, toolsToolBar->actions())
+    {
+        if (action->isSeparator()) {
+            toolsToolBar->removeAction(action);
+            break;      //remove first separator only
+        }
+    }
+    /*** management - end ***/
 }
 
 void lcQMainWindow::createStatusBar()
@@ -561,7 +646,7 @@ void lcQMainWindow::closeEvent(QCloseEvent *event)
 		event->accept();
 
 		QSettings settings;
-		settings.beginGroup("MainWindow");
+        settings.beginGroup("Windows");
 		settings.setValue("Geometry", saveGeometry());
 		settings.setValue("State", saveState());
 		settings.endGroup();
@@ -580,6 +665,14 @@ QMenu *lcQMainWindow::createPopupMenu()
 	menuToolBars->addAction(standardToolBar->toggleViewAction());
 	menuToolBars->addAction(toolsToolBar->toggleViewAction());
 	menuToolBars->addAction(timeToolBar->toggleViewAction());
+
+    /*** management - popupMenu ***/
+    menuToolBars->removeAction(standardToolBar->toggleViewAction());
+    menuToolBars->removeAction(partsToolBar->toggleViewAction());
+    menuToolBars->removeAction(propertiesToolBar->toggleViewAction());
+    menuToolBars->removeAction(partsToolBar->toggleViewAction());
+    menuToolBars->removeAction(timeToolBar->toggleViewAction());
+    /*** management - end ***/
 
 	return menuToolBars;
 }
@@ -1227,6 +1320,20 @@ void lcQMainWindow::updateTransformType(int newType)
 	actions[LC_EDIT_TRANSFORM]->setIcon(QIcon(iconNames[newType]));
 }
 
+
+void lcQMainWindow::updateRotateStepType(int newType)
+{
+    const char* iconNames[] =
+    {
+        ":/lc_lib/resources/edit_rotatestep_absolute_rotation.png",
+        ":/lc_lib/resources/edit_rotatestep_relative_rotation.png"
+    };
+
+    LC_ASSERT(newType >= 0 && newType <= 1);
+    actions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION + newType]->setChecked(true);
+    actions[LC_EDIT_ACTION_ROTATESTEP]->setIcon(QIcon(iconNames[newType]));
+}
+
 void lcQMainWindow::updateCameraMenu()
 {
 	const lcArray<lcCamera*>& cameras = lcGetActiveModel()->GetCameras();
@@ -1345,3 +1452,5 @@ lcVector3 lcQMainWindow::getTransformAmount()
 
 	return transform;
 }
+
+

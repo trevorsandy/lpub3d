@@ -53,7 +53,6 @@ public:
 	void updateShortcuts();
 
 	lcVector3 getTransformAmount();
-    lcVector3 getRotateStepAmount();
 
 	QAction *actions[LC_NUM_COMMANDS];
 

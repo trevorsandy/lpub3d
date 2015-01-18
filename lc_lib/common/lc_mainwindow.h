@@ -37,6 +37,11 @@ public:
 		return mTransformType;
 	}
 
+    lcRotateStepType GetRotateStepType() const
+    {
+        return mRotateStepType;
+    }
+
 	bool GetAddKeys() const
 	{
 		return mAddKeys;
@@ -125,6 +130,7 @@ public:
 
 	void SetTool(lcTool Tool);
 	void SetTransformType(lcTransformType TransformType);
+    void SetRotateStepType(lcRotateStepType RotateStepType);
 	void SetColorIndex(int ColorIndex);
 	void SetMoveXYSnapIndex(int Index);
 	void SetMoveZSnapIndex(int Index);
@@ -174,6 +180,7 @@ public:
 	void UpdateShortcuts();
 
 	lcVector3 GetTransformAmount();
+    lcVector3 GetRotateStepAmount();
 
 	QString mRecentFiles[LC_MAX_RECENT_FILES];
 	PiecePreview* mPreviewWidget;
@@ -187,6 +194,7 @@ protected:
 	bool mAddKeys;
 	lcTool mTool;
 	lcTransformType mTransformType;
+    lcRotateStepType mRotateStepType;
 	int mMoveXYSnapIndex;
 	int mMoveZSnapIndex;
 	int mAngleSnapIndex;

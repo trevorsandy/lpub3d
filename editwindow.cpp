@@ -88,6 +88,7 @@ void EditWindow::createActions()
 void EditWindow::createToolBars()
 {
     editToolBar = addToolBar(tr("Edit"));
+    editToolBar->setObjectName("EditToolbar");
     editToolBar->addAction(cutAct);
     editToolBar->addAction(copyAct);
     editToolBar->addAction(pasteAct);

@@ -19,7 +19,7 @@ View::View(lcModel* Model)
 
 	mDragState = LC_DRAGSTATE_NONE;
 	mTrackButton = LC_TRACKBUTTON_NONE;
-	mTrackTool = LC_TRACKTOOL_NONE;
+    mTrackTool = LC_TRACKTOOL_NONE;
 
 	View* ActiveView = gMainWindow->GetActiveView();
 	if (ActiveView)
@@ -176,7 +176,8 @@ LC_CURSOR_TYPE View::GetCursor() const
 		LC_CURSOR_ROTATEY,     // LC_TRACKTOOL_ORBIT_Y
 		LC_CURSOR_ROTATE_VIEW, // LC_TRACKTOOL_ORBIT_XY
 		LC_CURSOR_ROLL,        // LC_TRACKTOOL_ROLL
-		LC_CURSOR_ZOOM_REGION  // LC_TRACKTOOL_ZOOM_REGION
+        LC_CURSOR_ZOOM_REGION, // LC_TRACKTOOL_ZOOM_REGION
+        LC_CURSOR_SELECT       // LC_TRACKTOOL_NONE
 	};
 
 	return CursorFromTrackTool[mTrackTool];
@@ -1379,7 +1380,8 @@ lcTool View::GetCurrentTool() const
 		LC_TOOL_ROTATE_VIEW, // LC_TRACKTOOL_ORBIT_Y
 		LC_TOOL_ROTATE_VIEW, // LC_TRACKTOOL_ORBIT_XY
 		LC_TOOL_ROLL,        // LC_TRACKTOOL_ROLL
-		LC_TOOL_ZOOM_REGION  // LC_TRACKTOOL_ZOOM_REGION
+        LC_TOOL_ZOOM_REGION,  // LC_TRACKTOOL_ZOOM_REGION
+        LC_TOOL_ROTATESTEP    // LC_TRACKTOOL_NONE
 	};
 
 	return ToolFromTrackTool[mTrackTool];
@@ -1445,6 +1447,7 @@ void View::UpdateTrackTool()
 
 	switch (CurrentTool)
 	{
+    case LC_TOOL_ROTATESTEP:
 	case LC_TOOL_INSERT:
 		NewTrackTool = LC_TRACKTOOL_INSERT;
 		break;
@@ -1868,8 +1871,9 @@ void View::StartTracking(lcTrackButton TrackButton)
 		mModel->BeginMouseTool();
 		break;
 
-	case LC_TOOL_ZOOM_REGION:
-		break;
+	case LC_TOOL_ZOOM_REGION:  
+    case LC_TOOL_ROTATESTEP:
+        break;
 	}
 
 	OnUpdateCursor();
@@ -1938,6 +1942,9 @@ void View::StopTracking(bool Accept)
 			mModel->ZoomRegionToolClicked(mCamera, Points, fabsf(RatioX), fabsf(RatioY));
 		}
 		break;
+
+    case LC_TOOL_ROTATESTEP:
+        break;
 	}
 
 	mTrackButton = LC_TRACKBUTTON_NONE;
@@ -2060,6 +2067,8 @@ void View::OnLeftButtonDown()
 	case LC_TRACKTOOL_ZOOM_REGION:
 		StartTracking(LC_TRACKBUTTON_LEFT);
 		break;
+    case LC_TRACKTOOL_ROTATESTEP:
+        break;
 	}
 }
 
@@ -2166,6 +2175,7 @@ void View::OnRightButtonDown()
 	case LC_TRACKTOOL_ORBIT_Y:
 	case LC_TRACKTOOL_ORBIT_XY:
 	case LC_TRACKTOOL_ROLL:
+    case LC_TRACKTOOL_ROTATESTEP:
 	case LC_TRACKTOOL_ZOOM_REGION:
 		break;
 	}
@@ -2412,7 +2422,9 @@ void View::OnMouseMove()
 
 	case LC_TRACKTOOL_ZOOM_REGION:
 		Redraw();
-		break;
+        break;
+    case LC_TRACKTOOL_ROTATESTEP:
+        break;
 	}
 }
 

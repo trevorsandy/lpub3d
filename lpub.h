@@ -497,6 +497,11 @@ public:
   lcQMainWindow  *lcqWindow;       // LCad 3D model window
 
   void UpdateRotationStatus(lcCamera* Camera);
+
+  lcVector3 GetRotationStatus()
+  {
+      return mModelStepRotation;
+  }
   //**
 public slots:
 
@@ -845,7 +850,7 @@ private:
 
   // capture camera rotation from LeoCad module
 protected:
-  lcVector3 mModelRotation;
+  lcVector3 mModelStepRotation;
 };
 
 extern Gui *gui;

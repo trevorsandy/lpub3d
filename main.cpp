@@ -647,12 +647,5 @@ lcVector3 lcMainWindow::GetTransformAmount()
     return lcVector3(0.0f, 0.0f, 0.0f);
 }
 
-lcVector3 lcMainWindow::GetRotateStepAmount()   //TODO can probably drop
-{
-    lcQMainWindow* window = (lcQMainWindow*)mHandle;
 
-    if (window)
-        return window->getRotateStepAmount();
 
-    return lcVector3(0.0f, 0.0f, 0.0f);
-}

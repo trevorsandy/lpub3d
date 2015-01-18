@@ -115,7 +115,9 @@ void Gui::addBom()
 void Gui::assignRotStep(QString &value)
 {
   MetaItem mi;
-  mi.assignRotStep(value);
+
+  if (curFile != "")
+      mi.assignRotStep(value);
 }
 
 void Gui::removeLPubFormatting()
@@ -290,10 +292,12 @@ void Gui::zoomOut(
 
 void Gui::UpdateRotationStatus(lcCamera* Camera)
 {
-    mModelRotation = Camera->mPosition;
+    mModelStepRotation = Camera->mPosition;
 
     QString rotLabel("Step Rotation X: %1 Y: %2 Z: %3");
-    rotLabel = rotLabel.arg(QString::number(mModelRotation[0], 'f', 2), QString::number(mModelRotation[1], 'f', 2), QString::number(mModelRotation[2], 'f', 2));
+    rotLabel = rotLabel.arg(QString::number(mModelStepRotation[0], 'f', 2),
+                            QString::number(mModelStepRotation[1], 'f', 2),
+                            QString::number(mModelStepRotation[2], 'f', 2));
     gui->statusBarMsg(rotLabel);
 }
 
@@ -542,7 +546,15 @@ void Gui::closeEvent(QCloseEvent *event)
   writeSettings();
 
   if (maybeSave()) {
+
     event->accept();
+
+    QSettings settings;
+    settings.beginGroup("Windows");
+    settings.setValue("Geometry", saveGeometry());
+    settings.setValue("State", saveState());
+    settings.endGroup();
+
   } else {
     event->ignore();
   }
@@ -981,15 +993,18 @@ void Gui::createMenus()
 void Gui::createToolBars()
 {
     fileToolBar = addToolBar(tr("File"));
+    fileToolBar->setObjectName("FileToolbar");
     fileToolBar->addAction(openAct);
     fileToolBar->addAction(saveAct);
     fileToolBar->addAction(printToFileAct);
 
     editToolBar = addToolBar(tr("Edit"));
+    editToolBar->setObjectName("EditToolbar");
     editToolBar->addAction(undoAct);
     editToolBar->addAction(redoAct);
 
     navigationToolBar = addToolBar(tr("Navigation"));
+    navigationToolBar->setObjectName("NavigationToolbar");
     navigationToolBar->addAction(firstPageAct);
     navigationToolBar->addAction(previousPageAct);
     navigationToolBar->addWidget(setPageLineEdit);
@@ -997,9 +1012,11 @@ void Gui::createToolBars()
     navigationToolBar->addAction(lastPageAct);
 
     mpdToolBar = addToolBar(tr("MPD"));
+    mpdToolBar->setObjectName("MPDToolbar");
     mpdToolBar->addWidget(mpdCombo);
 
     zoomToolBar = addToolBar(tr("Zoom"));
+    zoomToolBar->setObjectName("ZoomToolbar");
     zoomToolBar->addAction(fitVisibleAct);
     zoomToolBar->addAction(fitWidthAct);
 // Jaco add actual size icon. Was missing.
@@ -1043,10 +1060,13 @@ void Gui::createDockWindows()
 void Gui::readSettings()
 {
     QSettings settings(LPUB, SETTINGS);
+    settings.beginGroup("Windows");
     QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
     QSize size = settings.value("size", QSize(600, 400)).toSize();
     resize(size);
     move(pos);
+    restoreState(settings.value("State").toByteArray());
+    settings.endGroup();
 }
 
 void Gui::writeSettings()

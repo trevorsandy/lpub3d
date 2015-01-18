@@ -333,7 +333,7 @@ int L3P::renderCsi(
 			QString str;
 			str.append(status);
 			QMessageBox::warning(NULL,
-								 QMessageBox::tr("LPubV"),
+                                 QMessageBox::tr("LPubV"),
 								 QMessageBox::tr("L3P failed with code %1\n%2").arg(l3p.exitCode()) .arg(str));
 			return -1;
 		}
@@ -381,7 +381,7 @@ int L3P::renderCsi(
 			QString str;
 			str.append(status);
 			QMessageBox::warning(NULL,
-								 QMessageBox::tr("LPubV"),
+                                 QMessageBox::tr("LPubV"),
 								 QMessageBox::tr("POV-RAY failed with code %1\n%2").arg(povray.exitCode()) .arg(str));
 			return -1;
 		}
@@ -456,7 +456,7 @@ int L3P::renderPli(const QString &ldrName,
 			QString str;
 			str.append(status);
 			QMessageBox::warning(NULL,
-								 QMessageBox::tr("LPubV"),
+                                 QMessageBox::tr("LPubV"),
 								 QMessageBox::tr("L3P failed\n%1") .arg(str));
 			return -1;
 		}
@@ -504,7 +504,7 @@ int L3P::renderPli(const QString &ldrName,
 			QString str;
 			str.append(status);
 			QMessageBox::warning(NULL,
-								 QMessageBox::tr("LPubV"),
+                                 QMessageBox::tr("LPubV"),
 								 QMessageBox::tr("POV-RAY failed\n%1") .arg(str));
 			return -1;
 		}

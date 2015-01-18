@@ -67,6 +67,25 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 
 	new lcQTreeWidgetColumnStretcher(ui->commandList, 0);
 	commandChanged(NULL);
+
+    /*** management - preferences dialog ***/
+    ui->authorName->setDisabled(true);
+    ui->projectsFolder->setDisabled(true);
+    ui->projectsFolderBrowse->setDisabled(true);
+    ui->partsLibrary->setDisabled(true);
+    ui->partsLibraryBrowse->setDisabled(true);
+    ui->povrayExecutable->setDisabled(true);
+    ui->povrayExecutableBrowse->setDisabled(true);
+    ui->lgeoPath->setDisabled(true);
+    ui->lgeoPathBrowse->setDisabled(true);
+    ui->checkForUpdates->hide();
+    ui->label_10->hide();                   //label check for updates
+    ui->fixedDirectionKeys->hide();
+    ui->enableLighting->hide();
+
+    ui->tabWidget->removeTab(2);            //hide tabCategories
+    ui->tabWidget->removeTab(2);            //hide tabKeyboard
+    /*** management - end ***/
 }
 
 lcQPreferencesDialog::~lcQPreferencesDialog()

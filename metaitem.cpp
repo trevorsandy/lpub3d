@@ -2445,10 +2445,12 @@ void MetaItem::assignRotStep(QString &value)
     Steps *steps = dynamic_cast<Steps *>(&gui->page);
     if (steps && steps->list.size() > 0) {
         if (steps->list.size() > 1) {
+            qDebug() << "MULTISTEP LIST: " << steps->list.size();
             multiStep = true;
         } else {
             Range *range = dynamic_cast<Range *>(steps->list[0]);
             if (range && range->list.size() > 1) {
+                qDebug() << "RANGE LIST: " << range->list.size();
                 multiStep = true;
             }
         }
@@ -2461,8 +2463,10 @@ void MetaItem::assignRotStep(QString &value)
         topOfStep = gui->topOfPages[gui->displayPageNum-1];
         scanPastGlobal(topOfStep);
     }
+
     appendMeta(topOfStep,meta);
 
     qDebug() << "STEPS NAME: " << steps->csiName();
     qDebug() << "STEPS MODEL NAME: " << steps->modelName();
+    qDebug() << "STEPS ROTATION: " << meta;
 }

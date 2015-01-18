@@ -23,5 +23,5 @@ class Gui;
 extern Gui *gui;
 
 //#define SETTINGS "LDraw Building Instruction Tool"
-#define SETTINGS "LPub410"
+#define SETTINGS "LPubV"
 #endif

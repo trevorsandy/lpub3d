@@ -195,10 +195,10 @@ int Step::createCsi(
                                   .arg(rotStepData.rots[0])
                                   .arg(rotStepData.rots[1])
                                   .arg(rotStepData.rots[2]);
-    QString fileNamekey = QString("%1_%2%3%4")
+    QString fileNamekey = QString("%1+%2+%3%4")
             .arg(csiName())
             .arg(sn)
-            .arg(orient+"_"+rotStep)
+            .arg(rotStep+orient)
             .arg(".ldr");
     csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + fileNamekey;
         renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate, do3DCsi);
