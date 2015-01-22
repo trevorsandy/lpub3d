@@ -118,11 +118,12 @@ void lcGLWidget::SetCursor(LC_CURSOR_TYPE CursorType)
 		{ 15, 15, ":/lc_lib/resources/cursor_pan" },             // LC_CURSOR_PAN
 		{ 15, 15, ":/lc_lib/resources/cursor_roll" },            // LC_CURSOR_ROLL
 		{ 15, 15, ":/lc_lib/resources/cursor_rotate_view" },     // LC_CURSOR_ROTATE_VIEW
+        {  0,  0, "" },
 	};
 
 	QGLWidget* widget = (QGLWidget*)mWidget;
 
-	if (CursorType != LC_CURSOR_DEFAULT && CursorType < LC_CURSOR_COUNT)
+    if (CursorType != LC_CURSOR_DEFAULT && CursorType < LC_CURSOR_COUNT - 1)
 	{
 		const lcCursorInfo& Cursor = Cursors[CursorType];
 		widget->setCursor(QCursor(QPixmap(Cursor.Name), Cursor.x, Cursor.y));

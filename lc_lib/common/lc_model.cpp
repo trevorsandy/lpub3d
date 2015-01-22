@@ -2162,6 +2162,14 @@ void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const l
     lcVector3 rotateStep = Offset;
     QString   rotationType;
 
+    int secondPos      = 1;
+    QString stepNumber = "-1";
+    QString model      = mProperties.mName;       //(lc_Model version)
+    model.replace(QRegExp("\\+")," ");
+    QStringList argv = model.split(QRegExp("\\s"));
+    if (argv.size() == 3)
+        stepNumber = argv[secondPos];
+
     switch (RotateStepType)
     {
     case LC_ROTATESTEP_ABSOLUTE_ROTATION:
@@ -2174,17 +2182,18 @@ void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const l
         break;
     }
 
-    QString rotationValue("0 ROTSTEP %1 %2 %3 %4");
-    rotationValue = rotationValue.arg(QString::number(rotateStep[0], 'f', 2),
+    QString rotationValue("%1 %2 %3 %4 %5");
+    rotationValue = rotationValue.arg(stepNumber,
+                                      QString::number(rotateStep[0], 'f', 2),
                                       QString::number(rotateStep[1], 'f', 2),
                                       QString::number(rotateStep[2], 'f', 2),
                                       rotationType);
 
-    qDebug() << "2.ROTATION STEP VALUE  : " << rotationValue;
-
     gui->assignRotStep(rotationValue);
 
-    //gMainWindow->UpdateAllViews();
+    gMainWindow->UpdateAllViews();
+    //SaveCheckpoint("StepRotating");
+    //gMainWindow->UpdateFocusObject(GetFocusObject());
 }
 
 void lcModel::SetObjectProperty(lcObject* Object, lcObjectPropertyType ObjectPropertyType, const void* Value)
@@ -3040,7 +3049,6 @@ void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 
 	switch (Tool)
 	{
-    case LC_TOOL_ROTATESTEP:
 	case LC_TOOL_INSERT:
 	case LC_TOOL_LIGHT:
 		break;
@@ -3090,6 +3098,7 @@ void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 		break;
 
 	case LC_TOOL_ZOOM_REGION:
+    case LC_TOOL_ROTATESTEP:
 		break;
 	}
 }
@@ -3307,8 +3316,8 @@ void lcModel::LookAt(lcCamera* Camera)
 
 	Camera->Center(Center, mCurrentStep, gMainWindow->GetAddKeys());
 
-    gui->UpdateRotationStatus(Camera);
 	gMainWindow->UpdateFocusObject(GetFocusObject());
+    gui->UpdateRotationStatus(Camera);
 	gMainWindow->UpdateAllViews();
 
 	if (!Camera->IsSimple())
@@ -3338,8 +3347,8 @@ void lcModel::ZoomExtents(lcCamera* Camera, float Aspect)
 
 	Camera->ZoomExtents(Aspect, Center, Points, 8, mCurrentStep, gMainWindow->GetAddKeys());
 
-    gui->UpdateRotationStatus(Camera);
 	gMainWindow->UpdateFocusObject(GetFocusObject());
+    gui->UpdateRotationStatus(Camera);
 	gMainWindow->UpdateAllViews();
 
 	if (!Camera->IsSimple())
@@ -3350,8 +3359,8 @@ void lcModel::Zoom(lcCamera* Camera, float Amount)
 {
 	Camera->Zoom(Amount, mCurrentStep, gMainWindow->GetAddKeys());
 
-    gui->UpdateRotationStatus(Camera);
 	gMainWindow->UpdateFocusObject(GetFocusObject());
+    gui->UpdateRotationStatus(Camera);
 	gMainWindow->UpdateAllViews();
 
 	if (!Camera->IsSimple())
@@ -3528,21 +3537,21 @@ void lcModel::UpdateInterface()
 	UpdateSelection();
 }
 
-lcVector3 lcModel::GetRotateStepAmount()
-{
-    lcVector3    rotateStep(0.0f, 0.0f, 0.0f);
-    QString      model = mProperties.mName;
-    QStringList  argv;
-    int          step(0);
+//lcVector3 lcModel::GetRotateStepAmount()        //supplemental
+//{
+//    lcVector3    rotateStep(0.0f, 0.0f, 0.0f);
+//    QString      model = mProperties.mName;
+//    QStringList  argv;
+//    int          step(0);
 
-    qDebug() << "MODEL NAME: " << model;
-    rotateStep = gui->GetRotationStatus();
+//    qDebug() << "MODEL NAME: " << model;
+//    rotateStep = gui->GetRotationStatus();
 
-    // DEBUG ONLY
-    QString rotDisplay("0 ROTSTEP %1 %2 %3");
-    rotDisplay = rotDisplay.arg(QString::number(rotateStep[0], 'f', 2), QString::number(rotateStep[1], 'f', 2), QString::number(rotateStep[2], 'f', 2));
-    qDebug() << "1.ROTATION STEP CAPTURE: " << rotDisplay;
-    // END DEBUG
+//    // DEBUG ONLY
+//    QString rotDisplay("0 ROTSTEP %1 %2 %3");
+//    rotDisplay = rotDisplay.arg(QString::number(rotateStep[0], 'f', 2), QString::number(rotateStep[1], 'f', 2), QString::number(rotateStep[2], 'f', 2));
+//    qDebug() << "1.ROTATION STEP CAPTURE: " << rotDisplay;
+//    // END DEBUG
 
-    return rotateStep;
-}
+//    return rotateStep;
+//}

@@ -29,6 +29,7 @@
 /dividerdialog.h -text
 /editwindow.cpp -text
 /editwindow.h -text
+extras/LPubV-Config-Notes.txt -text
 extras/freeformAnnotations.lst -text
 extras/pli.mpd -text
 extras/titleAnnotations.lst -text

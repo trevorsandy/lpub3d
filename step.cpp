@@ -145,14 +145,15 @@ Range *Step::range()
  */
 
 int Step::createCsi(
-  QString const     &addLine,
-  QStringList const &csiParts,  // the partially assembles model
+  QString     const &addLine,
+  QStringList const &csiParts, // the partially assembles model
+  int         const &rangeSize,
   QPixmap           *pixmap,
-  Meta              &meta,
-  bool              &do3DCsi)
+  Meta              &meta)
 {
   qreal       modelScale = meta.LPub.assem.modelScale.value();
   int         sn = stepNumber.number;
+  int         rs = rangeSize;
   
   // 1 color x y z a b c d e f g h i foo.dat
   // 0 1     2 3 4 5 6 7 8 9 0 1 2 3 4
@@ -189,20 +190,22 @@ int Step::createCsi(
     }
   }
   //**3D
-    RotStepData rotStepData = meta.rotStep.value();
-    QString rotStep = QString("%1_%2_%3_%4")
-                                  .arg(rotStepData.type)      //REL or ABS
-                                  .arg(rotStepData.rots[0])
-                                  .arg(rotStepData.rots[1])
-                                  .arg(rotStepData.rots[2]);
-    QString fileNamekey = QString("%1+%2+%3%4")
-            .arg(csiName())
-            .arg(sn)
-            .arg(rotStep+orient)
-            .arg(".ldr");
-    csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + fileNamekey;
-        renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate, do3DCsi);
-    //qDebug() << "RENDERING: " << fileNamekey.toStdString() << " Exists: " << (csi.exists()?"Yes":"No") << " Out of Date: " << (outOfDate?"Yes":"No");
+  RotStepData rotStepData = meta.rotStep.value();
+  QString rotStep = QString("%1_%2_%3_%4")
+          .arg(rotStepData.type)      //REL or ABS
+          .arg(rotStepData.rots[0])
+          .arg(rotStepData.rots[1])
+          .arg(rotStepData.rots[2]);
+  QString fileNamekey = QString("%1+%2+%3%4")
+          .arg(csiName()+"_"+QString::number(sn))
+          .arg(rs)
+//          .arg(csiName())
+//          .arg(sn)
+          .arg(rotStep+orient)
+          .arg(".ldr");
+  csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + fileNamekey;
+  renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate);
+  //qDebug() << "RENDERING: " << fileNamekey.toStdString() << " Exists: " << (csi.exists()?"Yes":"No") << " Out of Date: " << (outOfDate?"Yes":"No");
   //**
 
   if ( ! csi.exists() || outOfDate) {

@@ -1454,3 +1454,18 @@ lcVector3 lcQMainWindow::getTransformAmount()
 }
 
 
+lcVector3 lcQMainWindow::getRotateStepAmount()
+{
+    lcVector3    rotateStep(0.0f, 90.0f, -40.0f);
+    //QString      model =  lcGetActiveModel()->GetName(); //(lc_qmainwindow version)
+
+    //**rotateStep = gui->GetRotationStatus();
+
+    // DEBUG ONLY
+    QString rotDisplay("%1 %2 %3");
+    rotDisplay = rotDisplay.arg(QString::number(rotateStep[0], 'f', 2), QString::number(rotateStep[1], 'f', 2), QString::number(rotateStep[2], 'f', 2));
+    qDebug() << "1.ROTATION STEP CAPTURE: " << rotDisplay;
+    // END DEBUG
+
+    return rotateStep;
+}

@@ -876,8 +876,7 @@ int Render::render3DCsi(
   const QStringList &csiParts,
         Meta        &meta,
         bool        csiExists,
-        bool        outOfDate,
-        bool        do3DCsi)
+        bool        outOfDate)
 {
     QStringList csiSubModels;
     QStringList csiSubModelParts;
@@ -1032,7 +1031,7 @@ int Render::render3DCsi(QStringList &subModels,
 int Render::render3DCsi(QString &csi3DName)
 {
     //load CSI 3D file into viewer
-    PRINT("LOAD 3D FILE: " << csi3DName.toStdString());
+    PRINT("PRESENT 3D FILE: " << csi3DName.toStdString());
     QFile csi3DFile(csi3DName);
     if (csi3DFile.exists()){
         gMainWindow->OpenProject(csi3DFile.fileName());

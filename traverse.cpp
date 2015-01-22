@@ -260,8 +260,6 @@ int Gui::drawPage(
   int         numLines = ldrawFile.size(current.modelName);
   bool        firstStep   = true;
   bool        noStep      = false;
-
-  bool        do3DCsi     = false;
   
   steps->isMirrored = isMirrored;
   steps->setTopOfSteps(current);
@@ -852,14 +850,13 @@ int Gui::drawPage(
                               multiStep);
               range->append(step);
             }
-            do3DCsi = true;
             (void) step->createCsi(
               isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
               /********DO FADE STEP*****************************/
               saveCsiParts = fadeStep(csiParts, stepNum, current),
+              range->list.size(),
               &step->csiPixmap,
-              steps->meta,
-              do3DCsi);
+              steps->meta);
             partsAdded = true; // OK, so this is a lie, but it works
           }
           if (partsAdded && ! noStep) {
@@ -936,48 +933,16 @@ int Gui::drawPage(
 //                  PRINT("    No. "<< i+1 << ": " <<argv[argv.size()-1].toStdString());
               }
               /***DEBUG END***/
-
-              /********CREATE 3D CSI***************************/
-              // walk ahead to check if we are at the end of a page before rendering 3D image
-              Meta  tmpMeta     = curMeta;
-              Where walk        = current;
-              bool  singleEntry = true;
-              for (++walk; walk < numLines; ++walk) {
-                  singleEntry = false;
-                  QStringList tokens;
-                  QString scanLine = ldrawFile.readLine(walk.modelName,walk.lineNumber);
-                  split(scanLine,tokens);
-                  if (multiStep || calledOut) {
-                      if (tokens.size() > 0 && tokens[0] == "0") {
-                          Rc rc = tmpMeta.parse(scanLine,walk,false);
-                          //PRINT ("RC: " << rc << " StepGroupEnd: " << StepGroupEndRc << " CalledOutEndRc: " << CalloutEndRc);
-                          if (rc == StepGroupEndRc || rc == CalloutEndRc) {
-                              do3DCsi = true;
-                              break;
-                          }
-                      } else if (tokens.size() > 0 && tokens[0] == "1") {
-                          break;
-                      }
-
-                  } else {
-                      do3DCsi = true;
-                      break;
-                  }
-              }
-              if (singleEntry)
-                  do3DCsi = true;
-//              PRINT("Do3DCsi: " << (do3DCsi ? "Yes" : "No"));
               int rc = step->createCsi(
                           isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
                           /********DO FADE STEP****************************/
                           saveCsiParts = fadeStep(csiParts, stepNum, current),
+                          range->list.size(),
                           &step->csiPixmap,
-                          steps->meta,
-                          do3DCsi);
+                          steps->meta);
               if (rc) {
                 return rc;
               }
-            /************************************************/
             } else {
               if (pliPerStep) {
                 pliParts.clear();
@@ -1946,12 +1911,8 @@ void Gui::writeToTmp()
 {
     data = new GlobalFadeStep();
     FadeStepMeta *fadeStepMeta = &data->meta.LPub.fadeStep;
-    bool doFadeStep = fadeStepMeta->fadeStep.value();
-    QString fadeColor = LDrawColor::ldColorCode(fadeStepMeta->fadeColor.value());
-
-    qDebug() << "DO FADE?: " << doFadeStep;
-    qDebug() << "DO FADE COLOR?:" << fadeColor;
-    qDebug() << "DO FADE COLOR NAME?:" << fadeStepMeta->fadeColor.value();
+    bool doFadeStep     = fadeStepMeta->fadeStep.value();
+    QString fadeColor   = LDrawColor::ldColorCode(fadeStepMeta->fadeColor.value());
 
     QStringList content;
 
@@ -2062,15 +2023,14 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
 
     data = new GlobalFadeStep();
     FadeStepMeta *fadeStepMeta = &data->meta.LPub.fadeStep;
-    bool doFadeStep = fadeStepMeta->fadeStep.value();
-    QString fadeColor = LDrawColor::ldColorCode(fadeStepMeta->fadeColor.value());
+    bool doFadeStep     = fadeStepMeta->fadeStep.value();
+    QString fadeColor   = LDrawColor::ldColorCode(fadeStepMeta->fadeColor.value());
     int  fadePosition   = ldrawFile.getFadePosition(current.modelName);
     int  numSteps       = ldrawFile.numSteps(current.modelName);
 
     QStringList fadeCsiParts;
     QStringList argv;
 
-//    PRINT("2082-------");
     PRINT("7.0 FADE STEP - EXECUTE!");
     PRINT("7.1 FADE STEP No: " << stepNum << " of " << numSteps << " in " << current.modelName.toStdString() << ", Part Count: " << csiParts.size() << ", minus fade position: " << fadePosition);
     if (csiParts.size() > 0 && stepNum > 1 && doFadeStep) {

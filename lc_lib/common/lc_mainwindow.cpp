@@ -16,7 +16,7 @@ lcMainWindow::lcMainWindow()
     mRotateStepType = LC_ROTATESTEP_RELATIVE_ROTATION;
 
 	mColorIndex = lcGetColorIndex(4);
-    mTool = LC_TOOL_SELECT;
+    mTool = LC_TOOL_ROTATESTEP;
 	mAddKeys = false;
 	mMoveXYSnapIndex = 4;
 	mMoveZSnapIndex = 3;
@@ -866,7 +866,9 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
     case LC_EDIT_ACTION_ROTATESTEP:
-        lcGetActiveModel()->RotateStepSelectedObjects(GetRotateStepType(), lcGetActiveModel()->GetRotateStepAmount());
+        SetTool(LC_TOOL_ROTATESTEP);
+        //lcGetActiveModel()->RotateStepSelectedObjects(GetRotateStepType(), lcGetActiveModel()->GetRotateStepAmount()); //supplemental
+        lcGetActiveModel()->RotateStepSelectedObjects(GetRotateStepType(), GetRotateStepAmount());
         break;
 
     case LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION:

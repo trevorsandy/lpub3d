@@ -171,6 +171,11 @@ public:
 		mProperties.mName = Name;
 	}
 
+    const QString GetName() const
+    {
+        return mProperties.mName;
+    }
+
 	lcStep GetLastStep() const;
 
 	lcStep GetCurrentStep() const
@@ -314,7 +319,7 @@ public:
 	void ShowMinifigDialog();
 	void UpdateInterface();
 
-    lcVector3 GetRotateStepAmount();
+//    lcVector3 GetRotateStepAmount();        //supplemental
 
 protected:
 	void DeleteModel();

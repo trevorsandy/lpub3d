@@ -54,6 +54,8 @@
 #include "paths.h"
 #include "render.h"
 
+#include "csiitem.h"
+
 void MetaItem::setGlobalMeta(
   QString  &topLevelFile,
   LeafMeta *leaf)
@@ -1498,6 +1500,7 @@ Rc  MetaItem::scanForward(
       
   for ( ; here < numLines; here++) {
     QString line = gui->readLine(here);
+
     QStringList tokens;
 
     split(line,tokens);
@@ -1509,7 +1512,6 @@ Rc  MetaItem::scanForward(
       partsAdded = true;
     } else {
       Rc rc = tmpMeta.parse(line,here);
-      
       if (rc == InsertRc && ((mask >> rc) & 1)) {
         // return rc;
       } else if (rc == StepRc || rc == RotStepRc) {
@@ -2437,36 +2439,61 @@ void MetaItem::removeLPubFormatting()
 
 void MetaItem::assignRotStep(QString &value)
 {
-    QString meta = value;
+    Where here;
+    int firstPos        = 0;
+    QString prefix      = "0 ROTSTEP ";
+    bool multiStep      = false;
+    bool rotStep        = false;
+    bool ok;
 
-    Where topOfStep;
-    bool multiStep = false;
+    QStringList argv = value.split(QRegExp("\\s"));
+    int rangeItem = argv[firstPos].toInt(&ok);
+    QString meta("%1 %2 %3 %4 %5");
+    meta = meta.arg(prefix,argv[1],argv[2],argv[3],argv[4]);
 
     Steps *steps = dynamic_cast<Steps *>(&gui->page);
     if (steps && steps->list.size() > 0) {
         if (steps->list.size() > 1) {
-            qDebug() << "MULTISTEP LIST: " << steps->list.size();
             multiStep = true;
         } else {
             Range *range = dynamic_cast<Range *>(steps->list[0]);
             if (range && range->list.size() > 1) {
-                qDebug() << "RANGE LIST: " << range->list.size();
                 multiStep = true;
             }
         }
     }
 
-    if (multiStep) {
-        //topOfStep = steps->bottomOfSteps();
-        topOfStep = steps->topOfSteps();
+    if (multiStep && ok) {
+        here = steps->topOfSteps();
+        scanPastGlobal(here);
+        int position = 0;
+        Meta content;
+        Rc rc;
+
+        while (position != rangeItem)
+        {
+            rc = scanForward(here,StepMask|StepGroupMask);
+            here++;position++;
+            if (rc == StepRc || rc == RotStepRc){
+                rotStep = false;
+                QString line = gui->readLine(here);
+                Rc rc1 = content.parse(line,here);
+                qDebug() << "RC1* : " << rc1 << " LINE* : " << line;
+                if (rc1 == RotStepRc){
+                    rotStep = true;
+                }
+            }
+        }
+
     } else {
-        topOfStep = gui->topOfPages[gui->displayPageNum-1];
-        scanPastGlobal(topOfStep);
+        here = gui->topOfPages[gui->displayPageNum-1];
+        scanPastGlobal(here);
     }
-
-    appendMeta(topOfStep,meta);
-
-    qDebug() << "STEPS NAME: " << steps->csiName();
-    qDebug() << "STEPS MODEL NAME: " << steps->modelName();
-    qDebug() << "STEPS ROTATION: " << meta;
+    if (rotStep){
+       qDebug() << "01 REPLACE LINE: " << here.lineNumber;
+       replaceMeta(here,meta);
+    } else {
+        qDebug() << "01 INSERT LINE HERE: " << here.lineNumber;
+        insertMeta(here,meta);
+    }
 }

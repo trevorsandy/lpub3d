@@ -1,0 +1,176 @@
+FILES TO MODIFY FOR COMPILE:
+replace '>>' with '> >' <T>> <lcVector3>> <lcMatrix33>> <lcVector4>> <float>> <QString, lcModel*>>
+-MAN:object.h <T>>
+-MAN:camera.h <lcVector3>>
+-MAN:piece.h  <lcVector3>>, <lcMatrix33>>, <lcVector4>>
+-MAN:light.h  <lcVector3>>, <lcVector4>>, <float>>
+-MAN:lc_qmodellistdialog.h/cpp <QString, lcModel*>>
+-MAN:project.cpp <QString, lcModel*>>
+-MAN:leocadXXX.pro rem (#) incremental switch, 
+-MAN:leocad.pro	-change file name and remark line 13 'QMAKE_CXXFLAGS_WARN_ON += -wd4100' and line 16 'QMAKE_LFLAGS += /INCREMENTAL' 
+-MAN:lc_profile.cpp	-update line 57 'lcProfileEntry("Settings", "PartsLibrary", "C:\\Users\\Trevor\\LDraw"),'
+-OPT:qtmain.cpp -update line 134 change app version to match build number
+
+FILE TO REMOVE:
+-MAN:qt\qtmain.cpp
+
+FILES TO PRESERVE CONTENT:
+-MAN:common\lc_global.h			
+-MAN:common\lc_mainwindow.cpp		(ROTSTEP)
+-MAN:common\lc_commands.h/cpp 		(ROTSTEP)
+-MAN:common\lc_model.h/cpp			(ROTSTEP)
+-MAN:common\view.cpp				(ROTSTEP)
+-MAN:qt\lc_qmainwindow.cpp
+-MAN:qt\lc_qaboutdialog.cpp
+-MAN:qt\lc_qpreferencedialog.cpp
+-MAN:qt\lc_qglwidget				(ROTSTEP)
+
+NECESSARY UPDATES
+-MAN:find and replace all ':/resources/' occurences with new path ':/lc_lib/resources/'
+-OPT:move content (lc_baseWindow, main etc...) from qtmain.cpp to main.cpp (lpub version)
+-OPT:rebuild .pro file (new paths)
+-OPT:rebuild qrc file using new
+-OPT:add lcQMainWindow declarations to lpub.h/cpp
+-OPT:update createDocWindow function with lcQMainWindow handle 
+
+SPECIFIC FILE UPDATES:
+-MAN:-MAN:common\lc_global.h 
+	#define LC_VERSION_MAJOR 0
+	#define LC_VERSION_MINOR 81
+	#define LC_VERSION_PATCH 0
+	#define LC_VERSION_TEXT "0.81.0"
+	#define LC_VERSION_BUILD "17??"
+	
+-MAN:common\lc_model.cpp add #include "lpub.h" and gui->UpdateRotationStatus(Camera);  to the following functions
+	-lcModel::LookAt
+	-lcModel::UpdateOrbitTool
+	-lcModel::UpdatePanTool
+	-lcModel::UpdateZoomTool
+	-lcModel::Zoom
+	-lcModel::ZoomExtents
+	-lcModel::ZoomRegionToolClicked
+	
+-MAN:qt\lc_qmainwindow.cpp
+createMenus()
+    /*** management - menus ***/
+    menuBar()->removeAction(menuFile->menuAction());
+    menuBar()->removeAction(menuEdit->menuAction());
+    menuBar()->removeAction(menuPiece->menuAction());
+    /*** management - menu actions ***/
+    menuStep->removeAction(actions[LC_VIEW_TIME_INSERT]);
+    menuStep->removeAction(actions[LC_VIEW_TIME_DELETE]);
+    //menuToolBars->removeAction(standardToolBar->toggleViewAction());	
+    menuToolBars->removeAction(partsToolBar->toggleViewAction());
+    menuToolBars->removeAction(propertiesToolBar->toggleViewAction());
+    menuToolBars->removeAction(timeToolBar->toggleViewAction());
+    menuView->removeAction(actions[LC_VIEW_FULLSCREEN]);
+    menuModel->removeAction(actions[LC_MODEL_NEW]);
+    menuHelp->removeAction(actions[LC_HELP_HOMEPAGE]);
+    menuHelp->removeAction(actions[LC_HELP_EMAIL]);
+#if !LC_DISABLE_UPDATE_CHECK
+    menuHelp->removeAction(actions[LC_HELP_UPDATES]);
+#endif
+    /*** management - end ***/	
+
+createToolBars()
+    /*** management - toolbars ***/
+    timeToolBar->setVisible(false);
+    partsToolBar->setVisible(false);
+    propertiesToolBar->setVisible(false);
+    //standardToolBar->setVisible(false);
+
+    /*** management - toolbar actions ***/
+    standardToolBar->removeAction(actions[LC_FILE_PRINT]);
+    standardToolBar->removeAction(actions[LC_FILE_PRINT_PREVIEW]);
+    standardToolBar->removeAction(actions[LC_EDIT_UNDO]);
+    standardToolBar->removeAction(actions[LC_EDIT_REDO]);
+    standardToolBar->removeAction(actions[LC_EDIT_CUT]);
+    standardToolBar->removeAction(actions[LC_EDIT_COPY]);
+    standardToolBar->removeAction(actions[LC_EDIT_PASTE]);
+    standardToolBar->removeAction(lockAction);
+    standardToolBar->removeAction(moveAction);
+    standardToolBar->removeAction(angleAction);
+    standardToolBar->removeAction(actions[LC_EDIT_TRANSFORM]);
+
+    QAction* widgetAction = standardToolBar->addWidget(transformWidget);
+    widgetAction->setVisible(false);
+
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_INSERT]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_LIGHT]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_SPOTLIGHT]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_CAMERA]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_MOVE]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_ROTATE]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_DELETE]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_PAINT]);
+
+    // remove unneeded separators
+    foreach(QAction* action, standardToolBar->actions())
+    {
+        if (action->isSeparator())
+            standardToolBar->removeAction(action);
+    }
+    foreach(QAction* action, toolsToolBar->actions())
+    {
+        if (action->isSeparator()) {
+            toolsToolBar->removeAction(action);
+            break;      //remove first separator only
+        }
+    }
+    /*** management - end ***/
+
+createPopupMenu()
+    /*** management - popupMenu ***/
+	//menuToolBars->removeAction(standardToolBar->toggleViewAction());
+    menuToolBars->removeAction(partsToolBar->toggleViewAction());
+    menuToolBars->removeAction(propertiesToolBar->toggleViewAction());
+    menuToolBars->removeAction(partsToolBar->toggleViewAction());
+    menuToolBars->removeAction(timeToolBar->toggleViewAction());
+    /*** management - end ***/
+
+-MAN:qt\lc_qglwidget
+ShowPopupMenu()
+    /*** management - popupMenu ***/
+    tools->removeAction(actions[LC_EDIT_ACTION_INSERT]);
+    tools->removeAction(actions[LC_EDIT_ACTION_LIGHT]);
+    tools->removeAction(actions[LC_EDIT_ACTION_SPOTLIGHT]);
+    tools->removeAction(actions[LC_EDIT_ACTION_CAMERA]);
+    tools->removeAction(actions[LC_EDIT_ACTION_MOVE]);
+    tools->removeAction(actions[LC_EDIT_ACTION_ROTATE]);
+    tools->removeAction(actions[LC_EDIT_ACTION_DELETE]);
+    tools->removeAction(actions[LC_EDIT_ACTION_PAINT]);	
+    /*** management - end ***/
+
+-MAN:qt\lc_qpreferencedialog
+lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data)
+    /*** management - preferences dialog ***/
+    ui->authorName->setDisabled(true);
+    ui->projectsFolder->setDisabled(true);
+    ui->projectsFolderBrowse->setDisabled(true);
+    ui->partsLibrary->setDisabled(true);
+    ui->partsLibraryBrowse->setDisabled(true);
+    ui->povrayExecutable->setDisabled(true);
+    ui->povrayExecutableBrowse->setDisabled(true);
+    ui->lgeoPath->setDisabled(true);
+    ui->lgeoPathBrowse->setDisabled(true);
+    ui->checkForUpdates->hide();
+    ui->label_10->hide();                   //label check for updates
+    ui->noRelativeSnap->hide();
+    ui->fixedDirectionKeys->hide();
+    ui->enableLighting->hide();
+    ui->tabCategories->setDisabled(true);
+    ui->tabKeyboard->setDisabled(true);
+    ui->tabWidget->removeTab(2);            //hide tabCategories
+    ui->tabWidget->removeTab(2);            //hide tabKeyboard
+    /*** management - end ***/
+	
+-MAN:qt\lc_qaboutdialog.cpp 'ui->version->setText(tr("LeoCAD Version %1 - Build %2").arg(QString::fromLatin1(LC_VERSION_TEXT))
+                                                           .arg(QString::fromLatin1(LC_VERSION_BUILD)));'
+														   
+-OPT:lpub.h/cpp
+-OPT:main.cpp
+-OPT:render.h/cpp
+-OPT:leocad.pro	
+
+
+

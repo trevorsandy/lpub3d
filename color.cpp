@@ -131,7 +131,6 @@ QString LDrawColor::ldColorCode(QString ldrawName)
     QString key(ldrawName.toLower());
     if (ldname2ldcolor.contains(key)) {
       return ldname2ldcolor[key];
-      qDebug() << "LDRAW COLORS colorName(key): " << key << " , code(value): " << ldname2ldcolor[key];
     } else {
       return "-1";
     }
