@@ -2439,20 +2439,23 @@ void MetaItem::removeLPubFormatting()
 
 void MetaItem::assignRotStep(QString &value)
 {
+    Meta content;
     Where here;
-    int firstPos        = 0;
-    QString prefix      = "0 ROTSTEP ";
-    bool multiStep      = false;
-    bool rotStep        = false;
+    QString modelName;
+    int firstPos                = 0;
+    QString prefix              = "0 ROTSTEP ";
+    bool multiStep              = false;
+    bool rotStep                = false;
     bool ok;
 
     QStringList argv = value.split(QRegExp("\\s"));
-    int rangeItem = argv[firstPos].toInt(&ok);
+    int lineNumber = argv[firstPos].toInt(&ok);
     QString meta("%1 %2 %3 %4 %5");
     meta = meta.arg(prefix,argv[1],argv[2],argv[3],argv[4]);
 
     Steps *steps = dynamic_cast<Steps *>(&gui->page);
     if (steps && steps->list.size() > 0) {
+        modelName = steps->modelName();
         if (steps->list.size() > 1) {
             multiStep = true;
         } else {
@@ -2464,31 +2467,38 @@ void MetaItem::assignRotStep(QString &value)
     }
 
     if (multiStep && ok) {
-        here = steps->topOfSteps();
-        scanPastGlobal(here);
-        int position = 0;
-        Meta content;
-        Rc rc;
 
-        while (position != rangeItem)
-        {
-            rc = scanForward(here,StepMask|StepGroupMask);
-            here++;position++;
-            if (rc == StepRc || rc == RotStepRc){
-                rotStep = false;
-                QString line = gui->readLine(here);
-                Rc rc1 = content.parse(line,here);
-                qDebug() << "RC1* : " << rc1 << " LINE* : " << line;
-                if (rc1 == RotStepRc){
-                    rotStep = true;
-                }
+        here = Where(modelName,lineNumber);
+        QString line = gui->readLine(here);
+        Rc rc = content.parse(line,here);
+
+        if (rc == StepRc){
+            rotStep = false;
+            here++;
+            QString line = gui->readLine(here);
+            Rc rc1 = content.parse(line,here);
+
+            if (rc1 == RotStepRc){
+                rotStep = true;
             }
         }
 
     } else {
+
         here = gui->topOfPages[gui->displayPageNum-1];
+        qDebug() << "SINGLE STEP HERE START: " << here.lineNumber;
         scanPastGlobal(here);
+        rotStep = false;
+        here++;
+        QString line = gui->readLine(here);
+        Rc rc1 = content.parse(line,here);
+        qDebug() << "RC1*: " << rc1 << " ROTSTEP LINE*: " << line;
+
+        if (rc1 == RotStepRc){
+            rotStep = true;
+        }
     }
+
     if (rotStep){
        qDebug() << "01 REPLACE LINE: " << here.lineNumber;
        replaceMeta(here,meta);
@@ -2496,4 +2506,5 @@ void MetaItem::assignRotStep(QString &value)
         qDebug() << "01 INSERT LINE HERE: " << here.lineNumber;
         insertMeta(here,meta);
     }
+    // dont' forget to cleanup createCsi 'rangeSize'
 }

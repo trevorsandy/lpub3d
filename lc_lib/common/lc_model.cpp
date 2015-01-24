@@ -2163,12 +2163,12 @@ void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const l
     QString   rotationType;
 
     int secondPos      = 1;
-    QString stepNumber = "-1";
+    QString lineNumber = "-1";
     QString model      = mProperties.mName;       //(lc_Model version)
     model.replace(QRegExp("\\+")," ");
     QStringList argv = model.split(QRegExp("\\s"));
     if (argv.size() == 3)
-        stepNumber = argv[secondPos];
+        lineNumber = argv[secondPos];
 
     switch (RotateStepType)
     {
@@ -2183,7 +2183,7 @@ void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const l
     }
 
     QString rotationValue("%1 %2 %3 %4 %5");
-    rotationValue = rotationValue.arg(stepNumber,
+    rotationValue = rotationValue.arg(lineNumber,
                                       QString::number(rotateStep[0], 'f', 2),
                                       QString::number(rotateStep[1], 'f', 2),
                                       QString::number(rotateStep[2], 'f', 2),

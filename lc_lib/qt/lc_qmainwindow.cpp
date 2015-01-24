@@ -601,7 +601,7 @@ void lcQMainWindow::createToolBars()
             standardToolBar->removeAction(action);
     }
 
-    //toolsToolBar->removeAction(actions[LC_EDIT_ACTION_SELECT]);
+    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_SELECT]);
     toolsToolBar->removeAction(actions[LC_EDIT_ACTION_INSERT]);
     toolsToolBar->removeAction(actions[LC_EDIT_ACTION_LIGHT]);
     toolsToolBar->removeAction(actions[LC_EDIT_ACTION_SPOTLIGHT]);

@@ -153,7 +153,6 @@ int Step::createCsi(
 {
   qreal       modelScale = meta.LPub.assem.modelScale.value();
   int         sn = stepNumber.number;
-  int         rs = rangeSize;
   
   // 1 color x y z a b c d e f g h i foo.dat
   // 0 1     2 3 4 5 6 7 8 9 0 1 2 3 4
@@ -190,6 +189,8 @@ int Step::createCsi(
     }
   }
   //**3D
+  int  rs = rangeSize;
+  int  ln = top.lineNumber;
   RotStepData rotStepData = meta.rotStep.value();
   QString rotStep = QString("%1_%2_%3_%4")
           .arg(rotStepData.type)      //REL or ABS
@@ -198,7 +199,7 @@ int Step::createCsi(
           .arg(rotStepData.rots[2]);
   QString fileNamekey = QString("%1+%2+%3%4")
           .arg(csiName()+"_"+QString::number(sn))
-          .arg(rs)
+          .arg(ln)
 //          .arg(csiName())
 //          .arg(sn)
           .arg(rotStep+orient)

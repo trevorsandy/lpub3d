@@ -1,15 +1,14 @@
 FILES TO MODIFY FOR COMPILE:
-replace '>>' with '> >' <T>> <lcVector3>> <lcMatrix33>> <lcVector4>> <float>> <QString, lcModel*>>
+replace '>>' with '> >' for: <T>> <lcVector3>> <lcMatrix33>> <lcVector4>> <float>> <QString, lcModel*>>
 -MAN:object.h <T>>
 -MAN:camera.h <lcVector3>>
 -MAN:piece.h  <lcVector3>>, <lcMatrix33>>, <lcVector4>>
 -MAN:light.h  <lcVector3>>, <lcVector4>>, <float>>
 -MAN:lc_qmodellistdialog.h/cpp <QString, lcModel*>>
 -MAN:project.cpp <QString, lcModel*>>
--MAN:leocadXXX.pro rem (#) incremental switch, 
--MAN:leocad.pro	-change file name and remark line 13 'QMAKE_CXXFLAGS_WARN_ON += -wd4100' and line 16 'QMAKE_LFLAGS += /INCREMENTAL' 
--MAN:lc_profile.cpp	-update line 57 'lcProfileEntry("Settings", "PartsLibrary", "C:\\Users\\Trevor\\LDraw"),'
--OPT:qtmain.cpp -update line 134 change app version to match build number
+-MAN:leocad.pro	-change file name to 'leocad????.pro' and remark (#) lines 13 QMAKE_CXXFLAGS_WARN_ON and 16 QMAKE_LFLAGS += /INCREMENTAL' 
+-MAN:lc_profile.cpp	-update line 64 'lcProfileEntry("Settings", "PartsLibrary", "C:\\Users\\Trevor\\LDraw"),'
+-OPT:qtmain.cpp -update line 134 change ? 'setApplicationName("LeoCAD-???")' to match build number.
 
 FILE TO REMOVE:
 -MAN:qt\qtmain.cpp
