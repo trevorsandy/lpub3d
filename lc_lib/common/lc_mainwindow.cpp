@@ -380,7 +380,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_FILE_EXPORT_WAVEFRONT:
-		lcGetActiveProject()->ExportWavefront();
+        lcGetActiveProject()->ExportWavefront(QString());
 		break;
 
 	case LC_FILE_PRINT_PREVIEW:

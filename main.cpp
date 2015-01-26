@@ -107,7 +107,6 @@ static void lcSehInit()
     SetUnhandledExceptionFilter(lcSehHandler);
 }
 
-
 #endif
 
 int main(int argc, char *argv[])
@@ -152,6 +151,7 @@ int main(int argc, char *argv[])
 #else
     const char* libPath = LC_INSTALL_PREFIX "/share/lpubv/";
 #endif
+
 #ifdef LC_LDRAW_LIBRARY_PATH
     const char* LDrawPath = LC_LDRAW_LIBRARY_PATH;
 #else
@@ -169,13 +169,12 @@ int main(int argc, char *argv[])
 
     QDir dir;
     dir.mkpath(cachePath);
-    gMainWindow = new lcMainWindow();
 
     if (!g_App->Initialize(argc, argv, libPath, LDrawPath, cachePath.toLocal8Bit().data()))
         return 1;
 
     Gui     LPubApp;
-    gMainWindow->mHandle = LPubApp.lcqWindow;
+
     lcGetActiveModel()->UpdateInterface();
     gMainWindow->SetColorIndex(lcGetColorIndex(4));
     gMainWindow->UpdateRecentFiles();
@@ -193,6 +192,8 @@ int main(int argc, char *argv[])
     gMainWindow = NULL;
     delete g_App;
     g_App = NULL;
+
+//    delete MainWindow;
 
     return execReturn;
 }
@@ -286,7 +287,6 @@ bool lcBaseWindow::DoDialog(LC_DIALOG_TYPE Type, void* Data)
     case LC_DIALOG_EXPORT_3DSTUDIO:
     case LC_DIALOG_EXPORT_BRICKLINK:
     case LC_DIALOG_EXPORT_CSV:
-    case LC_DIALOG_EXPORT_WAVEFRONT:
         {
             char* FileName = (char*)Data;
             QString result;
@@ -303,10 +303,6 @@ bool lcBaseWindow::DoDialog(LC_DIALOG_TYPE Type, void* Data)
 
             case LC_DIALOG_EXPORT_CSV:
                 result = QFileDialog::getSaveFileName(parent, tr("Export CSV"), FileName, tr("CSV Files (*.csv);;All Files (*.*)"));
-                break;
-
-            case LC_DIALOG_EXPORT_WAVEFRONT:
-                result = QFileDialog::getSaveFileName(parent, tr("Export Wavefront"), FileName, tr("Wavefront Files (*.obj);;All Files (*.*)"));
                 break;
 
             default:
@@ -537,6 +533,7 @@ void lcMainWindow::UpdateColor()
     if (window)
         window->updateColor();
 }
+
 void lcMainWindow::UpdateUndoRedo(const QString& UndoText, const QString& RedoText)
 {
     lcQMainWindow* window = (lcQMainWindow*)mHandle;
@@ -656,6 +653,3 @@ lcVector3 lcMainWindow::GetRotateStepAmount()
 
     return lcVector3(0.0f, 0.0f, 0.0f);
 }
-
-
-

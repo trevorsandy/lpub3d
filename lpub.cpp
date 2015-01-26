@@ -37,6 +37,7 @@
 #include "step.h"
 //** 3D
 #include "camera.h"
+#include "lc_mainwindow.h"
 //**
 
 Gui *gui;
@@ -463,7 +464,8 @@ Gui::Gui()
 
     editWindow      = new EditWindow();
 //**3D
-    lcqWindow       = new lcQMainWindow;
+    lcQWindow       = (lcQMainWindow*)gMainWindow->mHandle;
+    lcQWindow->LibraryLoaded();
 //**
 
     KpageScene    = new QGraphicsScene(this);
@@ -539,6 +541,7 @@ Gui::~Gui()
     delete KpageScene;
     delete KpageView;
     delete editWindow;
+    delete lcQWindow;
 }
 
 void Gui::closeEvent(QCloseEvent *event)
@@ -1038,7 +1041,7 @@ void Gui::createDockWindows()
     modelDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
                 Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    modelDockWindow->setWidget(lcqWindow);
+    modelDockWindow->setWidget(lcQWindow);
     addDockWidget(Qt::RightDockWidgetArea, modelDockWindow);
     viewMenu->addAction(modelDockWindow->toggleViewAction());
 //**

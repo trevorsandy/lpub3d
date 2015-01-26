@@ -21,9 +21,9 @@
 
 enum LC_MOUSE_TRACK
 {
-	LC_TRACK_NONE,
-	LC_TRACK_LEFT,
-	LC_TRACK_RIGHT
+    LC_TRACK_NONE,
+    LC_TRACK_LEFT,
+    LC_TRACK_RIGHT
 };
 
 class PieceInfo;
@@ -33,60 +33,60 @@ class Image;
 class Project
 {
 public:
-	Project();
-	~Project();
+    Project();
+    ~Project();
 
-	const lcArray<lcModel*>& GetModels() const
-	{
-		return mModels;
-	}
+    const lcArray<lcModel*>& GetModels() const
+    {
+        return mModels;
+    }
 
-	lcModel* GetActiveModel() const
-	{
-		return mActiveModel;
-	}
+    lcModel* GetActiveModel() const
+    {
+        return mActiveModel;
+    }
 
-	bool IsModified() const;
-	QString GetTitle() const;
+    bool IsModified() const;
+    QString GetTitle() const;
 
-	QString GetFileName() const
-	{
-		return mFileName;
-	}
+    QString GetFileName() const
+    {
+        return mFileName;
+    }
 
-	void SetActiveModel(int ModelIndex);
-	bool IsModelNameValid(const QString& Name) const;
+    void SetActiveModel(int ModelIndex);
+    bool IsModelNameValid(const QString& Name) const;
 
-	void CreateNewModel();
-	void ShowModelListDialog();
-	bool Load(const QString& FileName);
-	bool Save(const QString& FileName);
-	void Merge(Project* Other);
+    void CreateNewModel();
+    void ShowModelListDialog();
+    bool Load(const QString& FileName);
+    bool Save(const QString& FileName);
+    void Merge(Project* Other);
 
-	void SaveImage();
-	void Export3DStudio();
-	void ExportBrickLink();
-	void ExportCSV();
-	void ExportHTML();
-	void ExportPOVRay();
-	void ExportWavefront();
+    void SaveImage();
+    void Export3DStudio();
+    void ExportBrickLink();
+    void ExportCSV();
+    void ExportHTML();
+    void ExportPOVRay();
+    void ExportWavefront(const QString& FileName);
 
 protected:
-	void GetModelParts(lcArray<lcModelPartsEntry>& ModelParts);
-	void CreateHTMLPieceList(QTextStream& Stream, lcModel* Model, lcStep Step, bool Images, const QString& ImageExtension);
+    void GetModelParts(lcArray<lcModelPartsEntry>& ModelParts);
+    void CreateHTMLPieceList(QTextStream& Stream, lcModel* Model, lcStep Step, bool Images, const QString& ImageExtension);
 
-	bool mModified;
-	QString mFileName;
+    bool mModified;
+    QString mFileName;
 
-	lcArray<lcModel*> mModels;
-	lcModel* mActiveModel;
+    lcArray<lcModel*> mModels;
+    lcModel* mActiveModel;
 
-	Q_DECLARE_TR_FUNCTIONS(Project);
+    Q_DECLARE_TR_FUNCTIONS(Project);
 };
 
 inline lcModel* lcGetActiveModel()
 {
-	return lcGetActiveProject()->GetActiveModel();
+    return lcGetActiveProject()->GetActiveModel();
 }
 
 #endif // _PROJECT_H_

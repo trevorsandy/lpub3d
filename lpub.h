@@ -494,7 +494,7 @@ public:
     return KpageView;
   }
   //**3D
-  lcQMainWindow  *lcqWindow;       // LCad 3D model window
+  lcQMainWindow*  lcQWindow;       // LCad 3D model window
 
   void UpdateRotationStatus(lcCamera* Camera);
 
