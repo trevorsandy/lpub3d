@@ -84,7 +84,6 @@ class Step : public AbstractRangeElement
     int  createCsi(
            QString      const &addLine,
            QStringList  const &csiParts,
-           int          const &rangeSize,
            QPixmap            *pixmap,
            Meta               &meta);
     int Render3DCsi(QString &csi3DName);

@@ -144,10 +144,8 @@ Range *Step::range()
  * given a set of parts, generate a CSI
  */
 
-int Step::createCsi(
-  QString     const &addLine,
-  QStringList const &csiParts, // the partially assembles model
-  int         const &rangeSize,
+int Step::createCsi(QString     const &addLine,
+  QStringList const &csiParts,
   QPixmap           *pixmap,
   Meta              &meta)
 {
@@ -189,7 +187,6 @@ int Step::createCsi(
     }
   }
   //**3D
-  int  rs = rangeSize;
   int  ln = top.lineNumber;
   RotStepData rotStepData = meta.rotStep.value();
   QString rotStep = QString("%1_%2_%3_%4")
@@ -200,8 +197,6 @@ int Step::createCsi(
   QString fileNamekey = QString("%1+%2+%3%4")
           .arg(csiName()+"_"+QString::number(sn))
           .arg(ln)
-//          .arg(csiName())
-//          .arg(sn)
           .arg(rotStep+orient)
           .arg(".ldr");
   csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + fileNamekey;

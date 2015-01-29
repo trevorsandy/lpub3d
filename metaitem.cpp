@@ -2437,7 +2437,7 @@ void MetaItem::removeLPubFormatting()
   endMacro();
 }
 
-void MetaItem::assignRotStep(QString &value)
+void MetaItem::writeRotateStep(QString &value)
 {
     Meta content;
     Where here;
@@ -2466,11 +2466,21 @@ void MetaItem::assignRotStep(QString &value)
         }
     }
 
-    if (multiStep && ok) {
+    if (ok && multiStep) {
+
+        Rc rc;
 
         here = Where(modelName,lineNumber);
+        if (here.lineNumber == 0) {
+            rc = scanForward(here,StepGroupBeginMask);
+        }
         QString line = gui->readLine(here);
-        Rc rc = content.parse(line,here);
+        rc = content.parse(line,here);
+
+        qDebug() << "-MODEL NAME       :       " << modelName;
+        qDebug() << "-INPUT LINE NUMBER:       " << lineNumber;
+        qDebug() << "-HERE LINE NUMBER:        " << here.lineNumber;
+        qDebug() << "-RC*: " << rc << "    -STEP LINE*: " << line;
 
         if (rc == StepRc){
             rotStep = false;
@@ -2478,33 +2488,50 @@ void MetaItem::assignRotStep(QString &value)
             QString line = gui->readLine(here);
             Rc rc1 = content.parse(line,here);
 
+            qDebug() << "-HERE LINE NUMBER:       " << here.lineNumber;
+            qDebug() << "-RC1*: " << rc1 << "   -STEP LINE*: " << line;
+
             if (rc1 == RotStepRc){
                 rotStep = true;
             }
         }
 
-    } else {
+    } else if (ok) {  //CLEAN UP - REMOVE bottomOfPage
 
-        here = gui->topOfPages[gui->displayPageNum-1];
-        qDebug() << "SINGLE STEP HERE START: " << here.lineNumber;
-        scanPastGlobal(here);
-        rotStep = false;
-        here++;
-        QString line = gui->readLine(here);
-        Rc rc1 = content.parse(line,here);
-        qDebug() << "RC1*: " << rc1 << " ROTSTEP LINE*: " << line;
-
-        if (rc1 == RotStepRc){
+        qDebug() << "-MODEL NAME      :       " << modelName;
+        Where bottomOfPage = gui->topOfPages[gui->displayPageNum];
+        qDebug() << "-BOT-OF-PAGE LINE:       " << bottomOfPage.lineNumber;
+        Rc rc = scanBackward(bottomOfPage,StepMask);
+        here = bottomOfPage;
+        qDebug() << "-SCAN LINE NUMBER:       " << bottomOfPage.lineNumber;
+        qDebug() << "-RC*: " << rc << "   -STEP MASK*: " << StepRc;
+        if (rc == StepRc) {
+            rotStep = false;
+            here = bottomOfPage + 1;
+            QString line = gui->readLine(here);
+            Rc rc1 = content.parse(line,here);
+            qDebug() << "-HERE LINE NUMBER:       " << here.lineNumber;
+            qDebug() << "-RC1*: " << rc1 << "   -STEP LINE*: " << line;
+            if (rc1 == RotStepRc){
+                rotStep = true;
+            } else {
+                here = here - 1;
+            }
+        } else if (rc == RotStepRc) {
             rotStep = true;
         }
     }
 
-    if (rotStep){
-       qDebug() << "01 REPLACE LINE: " << here.lineNumber;
-       replaceMeta(here,meta);
-    } else {
-        qDebug() << "01 INSERT LINE HERE: " << here.lineNumber;
+    if (! rotStep && ! multiStep){
+        qDebug() << "3.INSERT SINGLE HERE LINE: " << here.lineNumber;
+        appendMeta(here,meta);
+    }
+    if (multiStep && ! rotStep){
+        qDebug() << "3.INSERT MULTI HERE LINE:  " << here.lineNumber;
         insertMeta(here,meta);
     }
-    // dont' forget to cleanup createCsi 'rangeSize'
+    if (rotStep){
+        qDebug() << "3.REPLACE ROTATE STP LINE: " << here.lineNumber;
+        replaceMeta(here,meta);
+    }
 }

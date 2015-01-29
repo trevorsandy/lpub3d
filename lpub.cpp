@@ -113,14 +113,6 @@ void Gui::addBom()
   mi.insertBOM();
 }
 
-void Gui::assignRotStep(QString &value)
-{
-  MetaItem mi;
-
-  if (curFile != "")
-      mi.assignRotStep(value);
-}
-
 void Gui::removeLPubFormatting()
 {
   MetaItem mi;
@@ -463,10 +455,6 @@ Gui::Gui()
     displayPageNum  = 1;
 
     editWindow      = new EditWindow();
-//**3D
-    lcQWindow       = (lcQMainWindow*)gMainWindow->mHandle;
-    lcQWindow->LibraryLoaded();
-//**
 
     KpageScene    = new QGraphicsScene(this);
     KpageScene->setBackgroundBrush(Qt::lightGray);
@@ -541,7 +529,6 @@ Gui::~Gui()
     delete KpageScene;
     delete KpageView;
     delete editWindow;
-    delete lcQWindow;
 }
 
 void Gui::closeEvent(QCloseEvent *event)
@@ -1041,7 +1028,7 @@ void Gui::createDockWindows()
     modelDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
                 Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    modelDockWindow->setWidget(lcQWindow);
+    modelDockWindow->setWidget(gMainWindow);
     addDockWidget(Qt::RightDockWidgetArea, modelDockWindow);
     viewMenu->addAction(modelDockWindow->toggleViewAction());
 //**

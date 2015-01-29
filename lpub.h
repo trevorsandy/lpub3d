@@ -353,7 +353,6 @@
 #include "where.h"
 
 //** 3D
-#include "lc_qmainwindow.h"
 #include "lc_math.h"
 #include "camera.h"
 //**
@@ -370,9 +369,6 @@ class QUndoStack;
 class QUndoCommand;
 
 class EditWindow;
-//**3D
-class lcQMainWindow;
-//**
 
 class Meta;
 class Pli;
@@ -414,9 +410,9 @@ public:
   /**Fade Step variables**/
   FadeStepMeta    *fadeMeta;             // propagate fade color and fade bool
 
-  QList<Where>  topOfPages;
+  QList<Where>    topOfPages;
   
-  FitMode       fitMode;              // how to fit the scene into the view
+  FitMode         fitMode;              // how to fit the scene into the view
 
   Where &topOfPage();
   Where &bottomOfPage();
@@ -494,13 +490,16 @@ public:
     return KpageView;
   }
   //**3D
-  lcQMainWindow*  lcQWindow;       // LCad 3D model window
-
   void UpdateRotationStatus(lcCamera* Camera);
 
   lcVector3 GetRotationStatus()
   {
       return mModelStepRotation;
+  }
+
+  QString getCurFile()
+  {
+      return curFile;
   }
   //**
 public slots:
@@ -557,8 +556,6 @@ public slots:
   void statusBarMsg(QString msg);
 
   void fileChanged(const QString &path);
-
-  void assignRotStep(QString &value);
 
 signals:       
 

@@ -15,6 +15,7 @@
 #include "minifig.h"
 
 #include "lpub.h"
+#include "metaitem.h"
 
 void lcModelProperties::LoadDefaults()
 {
@@ -2200,11 +2201,12 @@ void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const l
                                       QString::number(rotateStep[2], 'f', 2),
                                       rotationType);
 
-    gui->assignRotStep(rotationValue);
+    MetaItem mi;
+
+    if (gui->getCurFile() != "")
+        mi.writeRotateStep(rotationValue);
 
     gMainWindow->UpdateAllViews();
-    //SaveCheckpoint("StepRotating");
-    //gMainWindow->UpdateFocusObject(GetFocusObject());
 }
 
 void lcModel::SetObjectProperty(lcObject* Object, lcObjectPropertyType ObjectPropertyType, const void* Value)
@@ -3562,21 +3564,3 @@ void lcModel::UpdateInterface()
     UpdateSelection();
 }
 
-//lcVector3 lcModel::GetRotateStepAmount()        //supplemental
-//{
-//    lcVector3    rotateStep(0.0f, 0.0f, 0.0f);
-//    QString      model = mProperties.mName;
-//    QStringList  argv;
-//    int          step(0);
-
-//    qDebug() << "MODEL NAME: " << model;
-//    rotateStep = gui->GetRotationStatus();
-
-//    // DEBUG ONLY
-//    QString rotDisplay("0 ROTSTEP %1 %2 %3");
-//    rotDisplay = rotDisplay.arg(QString::number(rotateStep[0], 'f', 2), QString::number(rotateStep[1], 'f', 2), QString::number(rotateStep[2], 'f', 2));
-//    qDebug() << "1.ROTATION STEP CAPTURE: " << rotDisplay;
-//    // END DEBUG
-
-//    return rotateStep;
-//}

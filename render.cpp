@@ -45,16 +45,6 @@
 #include "lc_mainwindow.h"
 //**
 
-#include <iostream>
-#define DEBUG
-#ifndef DEBUG
-#define PRINT(x)
-#else
-#define PRINT(x) \
-    std::cout << "- " << x << std::endl; //without expression
-#endif
-
-
 #ifndef __APPLE__
 #include <windows.h>
 #endif
@@ -919,7 +909,7 @@ int Render::render3DCsi(
                     }
                 }
                 csiLine = argv.join(" ");
-                csi3DParts << csiLine.toUpper();
+                csi3DParts << csiLine;
             } //end for
             //process extracted submodels
             if (csiSubModels.size() > 0)
@@ -1015,7 +1005,7 @@ int Render::render3DCsi(QStringList &subModels,
                     }
                 }
                 csiLine = argv.join(" ");
-                csiSubModelParts << csiLine.toUpper();
+                csiSubModelParts << csiLine;
             }
         }
         if (newSubModels.size() > 0){
@@ -1031,7 +1021,7 @@ int Render::render3DCsi(QStringList &subModels,
 int Render::render3DCsi(QString &csi3DName)
 {
     //load CSI 3D file into viewer
-    PRINT("PRESENT 3D FILE: " << csi3DName.toStdString());
+    //qDegug() << "PRESENT 3D FILE: " << csi3DName.toStdString();
     QFile csi3DFile(csi3DName);
     if (csi3DFile.exists()){
         gMainWindow->OpenProject(csi3DFile.fileName());

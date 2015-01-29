@@ -167,8 +167,6 @@ lc_lib/qt/lc_qimage.cpp -text
 lc_lib/qt/lc_qimagedialog.cpp -text
 lc_lib/qt/lc_qimagedialog.h -text
 lc_lib/qt/lc_qimagedialog.ui -text
-lc_lib/qt/lc_qmainwindow.cpp -text
-lc_lib/qt/lc_qmainwindow.h -text
 lc_lib/qt/lc_qminifigdialog.cpp -text
 lc_lib/qt/lc_qminifigdialog.h -text
 lc_lib/qt/lc_qminifigdialog.ui -text

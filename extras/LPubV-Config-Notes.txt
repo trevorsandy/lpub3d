@@ -1,14 +1,14 @@
 FILES TO MODIFY FOR COMPILE:
-replace '>>' with '> >' for: <T>> <lcVector3>> <lcMatrix33>> <lcVector4>> <float>> <QString, lcModel*>>
--MAN:object.h <T>>
--MAN:camera.h <lcVector3>>
--MAN:piece.h  <lcVector3>>, <lcMatrix33>>, <lcVector4>>
--MAN:light.h  <lcVector3>>, <lcVector4>>, <float>>
--MAN:lc_qmodellistdialog.h/cpp <QString, lcModel*>>
--MAN:project.cpp <QString, lcModel*>>
--MAN:leocad.pro	-change file name to 'leocad????.pro' and remark (#) lines 13 QMAKE_CXXFLAGS_WARN_ON and 16 QMAKE_LFLAGS += /INCREMENTAL' 
--MAN:lc_profile.cpp	-update line 64 'lcProfileEntry("Settings", "PartsLibrary", "C:\\Users\\Trevor\\LDraw"),'
--OPT:qtmain.cpp -update line 134 change ? 'setApplicationName("LeoCAD-???")' to match build number.
+-MAN:leocad.pro	-change file name to 'leocad????.pro' and remark (#) lines 13 QMAKE_CXXFLAGS_WARN_ON and 16 QMAKE_LFLAGS += /INCREMENTAL'
+-MAN:common\lc_profile.cpp	-update line 64 'lcProfileEntry("Settings", "PartsLibrary", "C:\\Users\\Trevor\\LDraw"),'
+-OPT:qt\qtmain.cpp -update line 134 change ? 'setApplicationName("LeoCAD-???")' to match build number.
+REPLACE '>>' with '> >' FOR: <T>> <lcVector3>> <lcMatrix33>> <lcVector4>> <float>> <QString, lcModel*>>
+	-MAN:object.h <T>>
+	-MAN:camera.h <lcVector3>>
+	-MAN:piece.h  <lcVector3>>, <lcMatrix33>>, <lcVector4>>
+	-MAN:light.h  <lcVector3>>, <lcVector4>>, <float>>
+	-MAN:lc_qmodellistdialog.h/cpp <QString, lcModel*>>
+	-MAN:project.cpp <QString, lcModel*>> 
 
 FILE TO REMOVE:
 -MAN:qt\qtmain.cpp
@@ -52,67 +52,70 @@ SPECIFIC FILE UPDATES:
 -MAN:qt\lc_qmainwindow.cpp
 createMenus()
     /*** management - menus ***/
-    menuBar()->removeAction(menuFile->menuAction());
-    menuBar()->removeAction(menuEdit->menuAction());
-    menuBar()->removeAction(menuPiece->menuAction());
+    menuBar()->removeAction(FileMenu->menuAction());
+    menuBar()->removeAction(EditMenu->menuAction());
+    menuBar()->removeAction(PieceMenu->menuAction());
     /*** management - menu actions ***/
-    menuStep->removeAction(actions[LC_VIEW_TIME_INSERT]);
-    menuStep->removeAction(actions[LC_VIEW_TIME_DELETE]);
-    //menuToolBars->removeAction(standardToolBar->toggleViewAction());	
-    menuToolBars->removeAction(partsToolBar->toggleViewAction());
-    menuToolBars->removeAction(propertiesToolBar->toggleViewAction());
-    menuToolBars->removeAction(timeToolBar->toggleViewAction());
-    menuView->removeAction(actions[LC_VIEW_FULLSCREEN]);
-    menuModel->removeAction(actions[LC_MODEL_NEW]);
-    menuHelp->removeAction(actions[LC_HELP_HOMEPAGE]);
-    menuHelp->removeAction(actions[LC_HELP_EMAIL]);
+    StepMenu->removeAction(mActions[LC_VIEW_TIME_INSERT]);
+    StepMenu->removeAction(mActions[LC_VIEW_TIME_DELETE]);
+    ToolBarsMenu->removeAction(mStandardToolBar->toggleViewAction());
+    ToolBarsMenu->removeAction(mPartsToolBar->toggleViewAction());
+    ToolBarsMenu->removeAction(mPropertiesToolBar->toggleViewAction());
+    ToolBarsMenu->removeAction(mTimeToolBar->toggleViewAction());
+    ViewMenu->removeAction(mActions[LC_VIEW_FULLSCREEN]);
+    ModelMenu->removeAction(mActions[LC_MODEL_NEW]);
+    HelpMenu->removeAction(mActions[LC_HELP_HOMEPAGE]);
+    HelpMenu->removeAction(mActions[LC_HELP_EMAIL]);
 #if !LC_DISABLE_UPDATE_CHECK
-    menuHelp->removeAction(actions[LC_HELP_UPDATES]);
+    HelpMenu->removeAction(mActions[LC_HELP_UPDATES]);
 #endif
-    /*** management - end ***/	
+    /*** management - end ***/    
+}
 
 createToolBars()
     /*** management - toolbars ***/
-    timeToolBar->setVisible(false);
-    partsToolBar->setVisible(false);
-    propertiesToolBar->setVisible(false);
-    //standardToolBar->setVisible(false);
+    mTimeToolBar->setVisible(false);
+    mPartsToolBar->setVisible(false);
+    mPropertiesToolBar->setVisible(false);
+    mStandardToolBar->setVisible(false);
 
     /*** management - toolbar actions ***/
-    standardToolBar->removeAction(actions[LC_FILE_PRINT]);
-    standardToolBar->removeAction(actions[LC_FILE_PRINT_PREVIEW]);
-    standardToolBar->removeAction(actions[LC_EDIT_UNDO]);
-    standardToolBar->removeAction(actions[LC_EDIT_REDO]);
-    standardToolBar->removeAction(actions[LC_EDIT_CUT]);
-    standardToolBar->removeAction(actions[LC_EDIT_COPY]);
-    standardToolBar->removeAction(actions[LC_EDIT_PASTE]);
-    standardToolBar->removeAction(lockAction);
-    standardToolBar->removeAction(moveAction);
-    standardToolBar->removeAction(angleAction);
-    standardToolBar->removeAction(actions[LC_EDIT_TRANSFORM]);
+    mStandardToolBar->removeAction(mActions[LC_FILE_PRINT]);
+    mStandardToolBar->removeAction(mActions[LC_FILE_PRINT_PREVIEW]);
+    mStandardToolBar->removeAction(mActions[LC_EDIT_UNDO]);
+    mStandardToolBar->removeAction(mActions[LC_EDIT_REDO]);
+    mStandardToolBar->removeAction(mActions[LC_EDIT_CUT]);
+    mStandardToolBar->removeAction(mActions[LC_EDIT_COPY]);
+    mStandardToolBar->removeAction(mActions[LC_EDIT_PASTE]);
+    mStandardToolBar->removeAction(LockAction);
+    mStandardToolBar->removeAction(MoveAction);
+    mStandardToolBar->removeAction(AngleAction);
+    mStandardToolBar->removeAction(mActions[LC_EDIT_TRANSFORM]);
 
-    QAction* widgetAction = standardToolBar->addWidget(transformWidget);
-    widgetAction->setVisible(false);
-
-    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_INSERT]);
-    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_LIGHT]);
-    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_SPOTLIGHT]);
-    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_CAMERA]);
-    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_MOVE]);
-    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_ROTATE]);
-    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_DELETE]);
-    toolsToolBar->removeAction(actions[LC_EDIT_ACTION_PAINT]);
+    QAction* WidgetAction = mStandardToolBar->addWidget(TransformWidget);
+    WidgetAction->setVisible(false);
 
     // remove unneeded separators
-    foreach(QAction* action, standardToolBar->actions())
+    foreach(QAction* tbAction, mStandardToolBar->actions())
     {
-        if (action->isSeparator())
-            standardToolBar->removeAction(action);
+        if (tbAction->isSeparator())
+            mStandardToolBar->removeAction(tbAction);
     }
-    foreach(QAction* action, toolsToolBar->actions())
+
+    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_SELECT]);
+    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_INSERT]);
+    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_LIGHT]);
+    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
+    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_CAMERA]);
+    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_MOVE]);
+    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_ROTATE]);
+    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_DELETE]);
+    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_PAINT]);
+
+    foreach(QAction* tbAction, mToolsToolBar->actions())
     {
-        if (action->isSeparator()) {
-            toolsToolBar->removeAction(action);
+        if (tbAction->isSeparator()) {
+            mToolsToolBar->removeAction(tbAction);
             break;      //remove first separator only
         }
     }
@@ -120,11 +123,11 @@ createToolBars()
 
 createPopupMenu()
     /*** management - popupMenu ***/
-	//menuToolBars->removeAction(standardToolBar->toggleViewAction());
-    menuToolBars->removeAction(partsToolBar->toggleViewAction());
-    menuToolBars->removeAction(propertiesToolBar->toggleViewAction());
-    menuToolBars->removeAction(partsToolBar->toggleViewAction());
-    menuToolBars->removeAction(timeToolBar->toggleViewAction());
+    Menu->removeAction(mStandardToolBar->toggleViewAction());
+    Menu->removeAction(mPartsToolBar->toggleViewAction());
+    Menu->removeAction(mPropertiesToolBar->toggleViewAction());
+    Menu->removeAction(mPartsToolBar->toggleViewAction());
+    Menu->removeAction(mTimeToolBar->toggleViewAction());
     /*** management - end ***/
 
 -MAN:qt\lc_qglwidget
@@ -170,6 +173,5 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data)
 -OPT:main.cpp
 -OPT:render.h/cpp
 -OPT:leocad.pro	
-
 
 

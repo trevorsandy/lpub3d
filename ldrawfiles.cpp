@@ -34,16 +34,6 @@
 #include "name.h"
 #include "paths.h"
 
-#include <iostream>
-#define DEBUG
-#ifndef DEBUG
-#define PRINT(x)
-#else
-#define PRINT(x) \
-    std::cout << "- " << x << std::endl; //without expression
-#endif
-    //std::cout << #x << ":\t" << x << std::endl; //with expression
-
 int                 LDrawFile::_emptyInt;
 
 LDrawSubFile::LDrawSubFile(
@@ -142,8 +132,6 @@ int LDrawFile::getFadePosition(const QString &mcFileName)
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
   if (i != _subFiles.end()) {
-    PRINT("146-------");
-    PRINT("147 FADE POS GET: " << i.value()._fadePosition);
     return i.value()._fadePosition;
   }
   return 0;
@@ -186,7 +174,7 @@ bool LDrawFile::isSubmodel(const QString &file)
   QString fileName = file.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
   if (i != _subFiles.end()) {
-    return ! i.value()._unofficialPart && ! i.value()._generated;
+      return ! i.value()._unofficialPart && ! i.value()._generated;
   }
   return false;
 }
@@ -250,7 +238,6 @@ void LDrawFile::setFadePosition(const QString     &mcFileName,
     //i.value()._datetime = QDateTime::currentDateTime();
     i.value()._fadePosition = fadePosition;
     i.value()._changedSinceLastWrite = true;
-    PRINT("253 FADE POS SET: " << i.value()._fadePosition);
   }
 }
 
@@ -482,7 +469,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
       stageContents << sLine;
       counter++;
     }
-    PRINT("485 FINISHED MPD READ with " << stageContents.count() << " records read");
 
     for (int i = 0; i < stageContents.size(); i++) {
       QString line = stageContents.at(i);
@@ -495,7 +481,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
       if (isMainFile) {
           isSubModel = line.contains(sofRE);
           isMainFile = false;
-          PRINT("498 One-time subModel Read: " << sofRE.cap(1).toStdString());
       } else {
           isSubModel = line.contains(subFile);
       }
@@ -516,9 +501,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
               if (sof || eof) {
 
                   if (mpdName.toLower() == subModel.toLower() && ! alreadyInserted) {
-                      PRINT( "520 INSERT subModel: " << subModel.toStdString() <<
-                                   ", mpdName: " << mpdName.toStdString() <<
-                                   ", Content Count: " << contents.count());
 
                       insert(mpdName,contents,datetime,unofficialPart);
                       unofficialPart = false;

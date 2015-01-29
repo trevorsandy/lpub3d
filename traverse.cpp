@@ -34,6 +34,7 @@
 #include <QGraphicsScene>
 #include <QString>
 #include <QFileInfo>
+#include "lpub_preferences.h"
 #include "lpub.h"
 #include "ranges.h"
 #include "callout.h"
@@ -42,16 +43,6 @@
 #include "reserve.h"
 #include "step.h"
 #include "paths.h"
-
-#include <iostream>
-#define DEBUG
-#ifndef DEBUG
-#define PRINT(x)
-#else
-#define PRINT(x) \
-    std::cout << "- " << x << std::endl; //without expression
-#endif
-    //std::cout << #x << ":\t" << x << std::endl; //with expression
 
 /*********************************************
  *
@@ -854,7 +845,6 @@ int Gui::drawPage(
               isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
               /********DO FADE STEP*****************************/
               saveCsiParts = fadeStep(csiParts, stepNum, current),
-              range->list.size(),
               &step->csiPixmap,
               steps->meta);
             partsAdded = true; // OK, so this is a lie, but it works
@@ -912,32 +902,10 @@ int Gui::drawPage(
 
               statusBar()->showMessage("Processing " + current.modelName);
 
-              /***DEBUG***/
-              int  numSteps = ldrawFile.numSteps(current.modelName);
-              bool endOfSubmodel = numSteps == 0 || stepNum >= numSteps;
-              int  instances = ldrawFile.instances(current.modelName,isMirrored);
-
-              PRINT("926--------");
-              PRINT("5.1 DrawPage CreateCsi (Step)!");
-              PRINT("5.2      Model Name: " << current.modelName.toStdString());
-              PRINT("5.3            Step: " << stepNum << " of " << numSteps);
-              PRINT("5.4 End of SubModel: " << (endOfSubmodel ? "Yes" : "No"));
-              PRINT("5.5   csiPart Count: " << csiParts.count());
-              PRINT("5.6       Instances: " << instances);
-              PRINT("5.7      Multi Step: " << (multiStep ? "Yes" : "No") << " Called Out: " << (calledOut ? "Yes" : "No"));
-//              PRINT("5.8 PARTS: ");
-              for (int i = 0; i < csiParts.size(); i++) {
-                  QString csiLine = csiParts.at(i);
-                  QStringList argv;
-                  split(csiLine,argv);
-//                  PRINT("    No. "<< i+1 << ": " <<argv[argv.size()-1].toStdString());
-              }
-              /***DEBUG END***/
               int rc = step->createCsi(
                           isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
                           /********DO FADE STEP****************************/
                           saveCsiParts = fadeStep(csiParts, stepNum, current),
-                          range->list.size(),
                           &step->csiPixmap,
                           steps->meta);
               if (rc) {
@@ -1186,15 +1154,6 @@ int Gui::findPage(
 
                 QStringList pliParts;
 
-                /***DEBUG***/
-                bool contains   = ldrawFile.isSubmodel(current.modelName);
-                PRINT("1204-------");
-                PRINT("4.1 Findpage drawPage (StepGroupEnd) Model - " << current.modelName.toStdString());
-                PRINT("4.1 IsSubModel: " << (contains ? "Yes" : "No"));
-                PRINT("4.2 IsMirrored: " << (isMirrored ? "Yes" : "No"));
-                PRINT("4.3       Step: " << saveStepNumber );
-                PRINT("4.4 Part Count: " << saveCsiParts.count());
-
                 (void) drawPage(view,
                                 scene,
                                 &page,
@@ -1250,16 +1209,6 @@ int Gui::findPage(
                   page.meta.rotStep = saveRotStep;
                   page.meta.rotStep = meta.rotStep;
                   QStringList pliParts;
-
-                  /***DEBUG***/
-                  bool contains   = ldrawFile.isSubmodel(current.modelName);
-                  PRINT("1273-------");
-                  PRINT("4.1 Findpage DrawPage (Step) Model - " << current.modelName.toStdString());
-                  PRINT("4.2 Model Name: " << current.modelName.toStdString());
-                  PRINT("4.3 IsSubModel: " << (contains ? "Yes" : "No"));
-                  PRINT("4.4 IsMirrored: " << (isMirrored ? "Yes" : "No"));
-                  PRINT("4.5       Step: " << saveStepNumber );
-                  PRINT("4.6 Part Count: " << saveCsiParts.count());
 
                   (void) drawPage(view,
                                   scene,
@@ -1394,16 +1343,6 @@ int Gui::findPage(
 
   if (partsAdded && ! noStep) {
     if (pageNum == displayPageNum) {
-
-        /***DEBUG***/
-        bool contains   = ldrawFile.isSubmodel(current.modelName);
-        PRINT("1419-------");
-        PRINT("4.1 Findpage DrawPage Stand Alone (Page Break) Model - " << current.modelName.toStdString());
-        PRINT("4.2 Model Name: " << current.modelName.toStdString());
-        PRINT("4.3 IsSubModel: " << (contains ? "Yes" : "No"));
-        PRINT("4.4 IsMirrored: " << (isMirrored ? "Yes" : "No"));
-        PRINT("4.5       Step: " << saveStepNumber );
-        PRINT("4.6 Part Count: " << saveCsiParts.count());
 
       page.meta = saveMeta;
       QStringList pliParts;
@@ -1919,41 +1858,34 @@ void Gui::writeToTmp()
     for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
         QString fileName = ldrawFile._subFileOrder[i].toLower();
 
-    if (doFadeStep) {
+    if (doFadeStep || Preferences::enableFadeStep) {
         /*********** Add FadeStep temp files****************/
         /* change file name */
         QRegExp rgxLDR("\\.(ldr)$");
-        QRegExp rgxDAT("\\.(dat)$");
         QRegExp rgxMPD("\\.(mpd)$");
         QString fadeFileName = fileName;
         bool ldr = fadeFileName.contains(rgxLDR);
-        bool dat = fadeFileName.contains(rgxDAT);
         bool mpd = fadeFileName.contains(rgxMPD);
         if (ldr) {
             fadeFileName = fadeFileName.replace(".ldr","-fade.ldr");
-        } else if (dat) {
-            fadeFileName = fadeFileName.replace(".dat","-fade.dat");
         } else if (mpd) {
             fadeFileName = fadeFileName.replace(".mpd","-fade.mpd");
         }
         content = ldrawFile.contents(fileName);
         if (ldrawFile.changedSinceLastWrite(fileName)) {
-            PRINT("1987 WriteToTemp (Normal): " << fileName.toStdString() << ", file order index: " << i);
+            //qDebug() << "1881 WriteToTemp (NoFade): " << fileName << ", file order index: " << i;
             writeToTmp(fileName,content);
-            content = fadeStep(ldrawFile.contents(fileName),fadeColor);
-            PRINT("1990 WriteToTemp   (Fade): " << fadeFileName.toStdString() << " using Color: " << fadeColor.toStdString() <<", file order index: " << i);
+            //qDebug() << "1884 WriteToTemp   (Fade): " << fadeFileName << " using Color: " << fadeColor <<", file order index: " << i;
+            content = fadeStep(content,fadeColor);
             writeToTmp(fadeFileName,content);
         }
      } else {
         content = ldrawFile.contents(fileName);
         if (ldrawFile.changedSinceLastWrite(fileName)) {
-            PRINT("1996 WriteToTemp (Normal): " << fileName.toStdString() << ", file order index: " << i);
             writeToTmp(fileName,content);
         }
     }
-
   }
-
 }
 
 /*
@@ -1979,23 +1911,17 @@ QStringList Gui::fadeStep(const QStringList &contents, const QString &color)
                 // process subfiles in csiParts
                 QString type  = argv[argv.size()-1];
                 if (ldrawFile.isSubmodel(type)) {
-
                     /* change file name */
                     QRegExp rgxLDR("\\.(ldr)$");
-                    QRegExp rgxDAT("\\.(dat)$");
                     QRegExp rgxMPD("\\.(mpd)$");
                     QString fadeFileName = type;
                     bool ldr = fadeFileName.contains(rgxLDR);
-                    bool dat = fadeFileName.contains(rgxDAT);
                     bool mpd = fadeFileName.contains(rgxMPD);
                     if (ldr) {
                         fadeFileName = fadeFileName.replace(".ldr","-fade.ldr");
-                    } else if (dat) {
-                        fadeFileName = fadeFileName.replace(".dat","-fade.dat");
                     } else if (mpd) {
                         fadeFileName = fadeFileName.replace(".mpd","-fade.mpd");
                     }
-
                     argv[argv.size()-1] = fadeFileName;
                 }
 
@@ -2026,22 +1952,18 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
     bool doFadeStep     = fadeStepMeta->fadeStep.value();
     QString fadeColor   = LDrawColor::ldColorCode(fadeStepMeta->fadeColor.value());
     int  fadePosition   = ldrawFile.getFadePosition(current.modelName);
-    int  numSteps       = ldrawFile.numSteps(current.modelName);
 
     QStringList fadeCsiParts;
     QStringList argv;
 
-    PRINT("7.0 FADE STEP - EXECUTE!");
-    PRINT("7.1 FADE STEP No: " << stepNum << " of " << numSteps << " in " << current.modelName.toStdString() << ", Part Count: " << csiParts.size() << ", minus fade position: " << fadePosition);
-    if (csiParts.size() > 0 && stepNum > 1 && doFadeStep) {
+    if (csiParts.size() > 0 && stepNum > 1 && (doFadeStep || Preferences::enableFadeStep)) {
 
-        qDebug() << "7.2 FADE - Color " << fadeColor;
         for (int index = 0; index < csiParts.size(); index++) {
 
             QString csiLine = csiParts[index];
-            PRINT("7.3 FADE - Processing csiParts line(" << index+1 << " of " << csiParts.size() << "): " << csiLine.toStdString());
+
             if ((index + 1) <= fadePosition) {
-            PRINT("7.4 FADE - LINE(" << index+1 << ") as it is <= (" << fadePosition << ")");
+
                 split(csiLine, argv);
 
                 if (argv.size() == 15 && argv[0] == "1") {
@@ -2051,21 +1973,16 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
                     QString type  = argv[argv.size()-1];
                     if (ldrawFile.isSubmodel(type)) {
                         /* change file name */
-                        QRegExp rgxLDR("\\.(ldr)$");                //FIX THIS - DONt need all this code
-                        QRegExp rgxDAT("\\.(dat)$");
+                        QRegExp rgxLDR("\\.(ldr)$");                //CONSIDER OPTIMIZING THIS
                         QRegExp rgxMPD("\\.(mpd)$");
                         QString fadeFileName = type;
                         bool ldr = fadeFileName.contains(rgxLDR);
-                        bool dat = fadeFileName.contains(rgxDAT);
                         bool mpd = fadeFileName.contains(rgxMPD);
                         if (ldr) {
                             fadeFileName = fadeFileName.replace(".ldr","-fade.ldr");
-                        } else if (dat) {
-                            fadeFileName = fadeFileName.replace(".dat","-fade.dat");
                         } else if (mpd) {
                             fadeFileName = fadeFileName.replace(".mpd","-fade.mpd");
                         }
-                        PRINT("7.5 FADE - CSI Replace SubFile: " << type.toStdString() << " with FadeFile: " << fadeFileName.toStdString());
                         argv[argv.size()-1] = fadeFileName;
                     }
 
@@ -2081,13 +1998,13 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
 
             fadeCsiParts  << csiLine;
         }
-        PRINT("7.6 FADE POS UPDATE: " << fadeCsiParts.size());
+
         ldrawFile.setFadePosition(current.modelName,fadeCsiParts.size());
 
     } else {
 
         fadeCsiParts  << csiParts;
-        PRINT("7.6 FADE POS 1st UPDATE/NOFADE: " << fadeCsiParts.size());
+
         ldrawFile.setFadePosition(current.modelName,fadeCsiParts.size());
     }
 
