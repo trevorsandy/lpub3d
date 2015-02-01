@@ -489,12 +489,17 @@ public:
   {
     return KpageView;
   }
-  //**3D
-  void UpdateRotationStatus(lcCamera* Camera);
+  //**3D  
+  void UpdateStepRotation(lcVector3 StepRotation);
 
-  lcVector3 GetRotationStatus()
+  lcVector3 GetStepRotationStatus()
   {
       return mModelStepRotation;
+  }
+
+  lcVector3 SetStepRotationLine(lcVector3 StepRotationLine)
+  {
+     mStepRotationLine = StepRotationLine;
   }
 
   QString getCurFile()
@@ -848,6 +853,7 @@ private:
   // capture camera rotation from LeoCad module
 protected:
   lcVector3 mModelStepRotation;
+  lcVector3 mStepRotationLine;
 };
 
 extern Gui *gui;

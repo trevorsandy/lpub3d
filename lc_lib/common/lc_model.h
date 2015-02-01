@@ -311,15 +311,14 @@ public:
 	void RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool Update);
 	void TransformSelectedObjects(lcTransformType TransformType, const lcVector3& Transform);
     void RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep);
-	void SetObjectProperty(lcObject* Object, lcObjectPropertyType ObjectPropertyType, const void* Value);
+    void ParseRotationLine(QTextStream& LineStream);
+    void SetObjectProperty(lcObject* Object, lcObjectPropertyType ObjectPropertyType, const void* Value);
 
 	void ShowPropertiesDialog();
 	void ShowSelectByNameDialog();
 	void ShowArrayDialog();
 	void ShowMinifigDialog();
 	void UpdateInterface();
-
-//    lcVector3 GetRotateStepAmount();        //supplemental
 
 protected:
 	void DeleteModel();

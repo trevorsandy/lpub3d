@@ -326,7 +326,6 @@ void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   position = pos();
   gui->showLine(step->topOfStep());
   step->Render3DCsi(step->csi3DName);
-  qDebug() << "1.MOUSE DOWN - LINE: " << step->topOfStep().lineNumber;
 }
 
 void CsiItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)

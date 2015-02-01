@@ -1410,10 +1410,9 @@ void lcMainWindow::SetRotateStepType(lcRotateStepType RotateStepType)
 
 lcVector3 lcMainWindow::GetRotateStepAmount()
 {
-    lcVector3    rotateStep(0.0f, 90.0f, -40.0f);
-    //QString      model =  lcGetActiveModel()->GetName(); //(lc_qmainwindow version)
+    lcVector3    rotateStep(0.0f, 0.0f, 0.0f);
 
-    //**rotateStep = gui->GetRotationStatus();
+    rotateStep = gui->GetStepRotationStatus();
 
     // DEBUG ONLY
     QString rotDisplay("%1 %2 %3");

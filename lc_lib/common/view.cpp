@@ -12,6 +12,8 @@
 #include "piece.h"
 #include "pieceinf.h"
 
+#include "lpub.h"
+
 View::View(lcModel* Model)
 {
 	mModel = Model;
@@ -2407,17 +2409,86 @@ void View::OnMouseMove()
 		mModel->UpdatePanTool(mCamera, 2.0f * MouseSensitivity * (mInputState.x - mMouseDownX), 2.0f * MouseSensitivity * (mInputState.y - mMouseDownY));
 		break;
 
-	case LC_TRACKTOOL_ORBIT_X:
-		mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.0f);
-		break;
+//    case LC_TRACKTOOL_ORBIT_X:
+//        mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.0f);
+//        break;
 
-	case LC_TRACKTOOL_ORBIT_Y:
-		mModel->UpdateOrbitTool(mCamera, 0.0f, 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
-		break;
+//    case LC_TRACKTOOL_ORBIT_Y:
+//        mModel->UpdateOrbitTool(mCamera, 0.0f, 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
+//        break;
 
-	case LC_TRACKTOOL_ORBIT_XY:
-		mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
-		break;
+
+    case LC_TRACKTOOL_ORBIT_X:
+    case LC_TRACKTOOL_ORBIT_Y:
+        {
+
+            lcVector3 ScreenX = lcNormalize(lcCross(mCamera->mTargetPosition - mCamera->mPosition, mCamera->mUpVector));
+            lcVector3 ScreenY = mCamera->mUpVector;
+            lcVector3 Dir1;
+
+            switch (mTrackTool)
+            {
+            case LC_TRACKTOOL_ORBIT_X:
+                mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.0f);
+                Dir1 = lcVector3(1, 0, 0);
+                break;
+
+            case LC_TRACKTOOL_ORBIT_Y:
+                mModel->UpdateOrbitTool(mCamera, 0.0f, 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
+                Dir1 = lcVector3(0, 1, 0);
+                break;
+
+            default:
+                break;
+            }
+
+            lcVector3 MoveX, MoveY;
+
+            float dx1 = lcDot(ScreenX, Dir1);
+            float dy1 = lcDot(ScreenY, Dir1);
+
+            if (fabsf(dx1) > fabsf(dy1))
+            {
+                if (dx1 >= 0.0f)
+                    MoveX = Dir1;
+                else
+                    MoveX = -Dir1;
+
+                MoveY = lcVector3(0, 0, 0);
+            }
+            else
+            {
+                MoveX = lcVector3(0, 0, 0);
+
+                if (dy1 > 0.0f)
+                    MoveY = Dir1;
+                else
+                    MoveY = -Dir1;
+            }
+
+            MoveX *= 36.0f * (float)(mInputState.x - mMouseDownX) * MouseSensitivity;
+            MoveY *= 36.0f * (float)(mInputState.y - mMouseDownY) * MouseSensitivity;
+
+            gui->UpdateStepRotation(MoveX + MoveY);
+        }
+        break;
+
+	case LC_TRACKTOOL_ORBIT_XY:       
+        {
+
+            mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
+
+            lcVector3 ScreenZ = lcNormalize(mCamera->mTargetPosition - mCamera->mPosition);
+            lcVector3 ScreenX = lcCross(ScreenZ, mCamera->mUpVector);
+            lcVector3 ScreenY = mCamera->mUpVector;
+
+            lcVector3 MoveX = 36.0f * (float)(mInputState.x - mMouseDownX) * MouseSensitivity * ScreenX;
+            lcVector3 MoveY = 36.0f * (float)(mInputState.y - mMouseDownY) * MouseSensitivity * ScreenY;
+
+            gui->UpdateStepRotation(MoveX + MoveY);
+
+        }
+        break;
 
 	case LC_TRACKTOOL_ROLL:
 		mModel->UpdateRollTool(mCamera, 2.0f * MouseSensitivity * (mInputState.x - mMouseDownX) * LC_DTOR);

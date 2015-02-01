@@ -283,11 +283,11 @@ void Gui::zoomOut(
   view->scale(1.0/1.1,1.0/1.1);
 }
 
-void Gui::UpdateRotationStatus(lcCamera* Camera)
+void Gui::UpdateStepRotation(lcVector3 StepRotation)
 {
-    mModelStepRotation = Camera->mPosition;
+    mModelStepRotation = (mStepRotationLine + StepRotation);
 
-    QString rotLabel("Step Rotation X: %1 Y: %2 Z: %3");
+    QString rotLabel("Step Rotation %1 %2 %3");
     rotLabel = rotLabel.arg(QString::number(mModelStepRotation[0], 'f', 2),
                             QString::number(mModelStepRotation[1], 'f', 2),
                             QString::number(mModelStepRotation[2], 'f', 2));

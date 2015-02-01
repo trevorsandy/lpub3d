@@ -381,7 +381,11 @@ void lcModel::LoadLDraw(QIODevice& Device)
         {
             LineStream >> Token;
 
-            if (Token == QLatin1String("FILE"))
+            if (Token == QLatin1String("//"))
+            {
+                ParseRotationLine(LineStream);
+            }
+            else if (Token == QLatin1String("FILE"))
             {
                 if (!mProperties.mName.isEmpty())
                 {
@@ -2186,11 +2190,9 @@ void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const l
     {
     case LC_ROTATESTEP_ABSOLUTE_ROTATION:
         rotationType = "ABS";
-        // TODO reset camera to absolute position and then rotate on model...
         break;
     case LC_ROTATESTEP_RELATIVE_ROTATION:
         rotationType = "REL";
-        // TODO rotate camera on model as it was passed in...
         break;
     }
 
@@ -2203,10 +2205,37 @@ void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const l
 
     MetaItem mi;
 
-    if (gui->getCurFile() != "")
+    if (gui->getCurFile() != "") {
         mi.writeRotateStep(rotationValue);
+    }
 
     gMainWindow->UpdateAllViews();
+}
+
+void lcModel::ParseRotationLine(QTextStream& LineStream)
+{
+    while (!LineStream.atEnd())
+    {
+        lcVector3 setToZero(0.0f, 0.0f, 0.0f);
+        lcVector3 stepRotation;
+        QString Token;
+        LineStream >> Token;
+
+        if (Token == QLatin1String("ROTSTEP"))
+            continue;
+
+        LineStream >> Token;
+
+        if(Token == QLatin1String("REL"))
+            gMainWindow->SetRotateStepType(LC_ROTATESTEP_RELATIVE_ROTATION);
+        else if(Token == QLatin1String("ABS"))
+            gMainWindow->SetRotateStepType(LC_ROTATESTEP_ABSOLUTE_ROTATION);
+
+        LineStream >> stepRotation[0] >> stepRotation[1] >> stepRotation[2];
+        qDebug() << "STEP: " << mCurrentStep << " ROTATION: " << stepRotation[0] << " " << stepRotation[1] << " " << stepRotation[2];
+        gui->SetStepRotationLine(stepRotation);
+        gui->UpdateStepRotation(setToZero);
+    }
 }
 
 void lcModel::SetObjectProperty(lcObject* Object, lcObjectPropertyType ObjectPropertyType, const void* Value)
@@ -3285,7 +3314,6 @@ void lcModel::UpdateZoomTool(lcCamera* Camera, float Mouse)
 {
     Camera->Zoom(Mouse - mMouseToolDistance.x, mCurrentStep, gMainWindow->GetAddKeys());
     mMouseToolDistance.x = Mouse;
-    gui->UpdateRotationStatus(Camera);
     gMainWindow->UpdateAllViews();
 }
 
@@ -3294,7 +3322,6 @@ void lcModel::UpdatePanTool(lcCamera* Camera, float MouseX, float MouseY)
     Camera->Pan(MouseX - mMouseToolDistance.x, MouseY - mMouseToolDistance.y, mCurrentStep, gMainWindow->GetAddKeys());
     mMouseToolDistance.x = MouseX;
     mMouseToolDistance.y = MouseY;
-    gui->UpdateRotationStatus(Camera);
     gMainWindow->UpdateAllViews();
 }
 
@@ -3305,7 +3332,6 @@ void lcModel::UpdateOrbitTool(lcCamera* Camera, float MouseX, float MouseY)
     Camera->Orbit(MouseX - mMouseToolDistance.x, MouseY - mMouseToolDistance.y, Center, mCurrentStep, gMainWindow->GetAddKeys());
     mMouseToolDistance.x = MouseX;
     mMouseToolDistance.y = MouseY;
-    gui->UpdateRotationStatus(Camera);
     gMainWindow->UpdateAllViews();
 }
 
@@ -3319,7 +3345,6 @@ void lcModel::UpdateRollTool(lcCamera* Camera, float Mouse)
 void lcModel::ZoomRegionToolClicked(lcCamera* Camera, const lcVector3* Points, float RatioX, float RatioY)
 {
     Camera->ZoomRegion(Points, RatioX, RatioY, mCurrentStep, gMainWindow->GetAddKeys());
-    gui->UpdateRotationStatus(Camera);
     gMainWindow->UpdateFocusObject(GetFocusObject());
     gMainWindow->UpdateAllViews();
 
@@ -3344,7 +3369,6 @@ void lcModel::LookAt(lcCamera* Camera)
     Camera->Center(Center, mCurrentStep, gMainWindow->GetAddKeys());
 
     gMainWindow->UpdateFocusObject(GetFocusObject());
-    gui->UpdateRotationStatus(Camera);
     gMainWindow->UpdateAllViews();
 
     if (!Camera->IsSimple())
@@ -3375,7 +3399,6 @@ void lcModel::ZoomExtents(lcCamera* Camera, float Aspect)
     Camera->ZoomExtents(Aspect, Center, Points, 8, mCurrentStep, gMainWindow->GetAddKeys());
 
     gMainWindow->UpdateFocusObject(GetFocusObject());
-    gui->UpdateRotationStatus(Camera);
     gMainWindow->UpdateAllViews();
 
     if (!Camera->IsSimple())
@@ -3387,7 +3410,6 @@ void lcModel::Zoom(lcCamera* Camera, float Amount)
     Camera->Zoom(Amount, mCurrentStep, gMainWindow->GetAddKeys());
 
     gMainWindow->UpdateFocusObject(GetFocusObject());
-    gui->UpdateRotationStatus(Camera);
     gMainWindow->UpdateAllViews();
 
     if (!Camera->IsSimple())
