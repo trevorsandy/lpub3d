@@ -103,7 +103,7 @@ void lcModelProperties::ParseLDrawLine(QTextStream& Stream)
     Stream >> Token;
 
     if (Token == QLatin1String("NAME"))
-        Stream >> mName;
+        mName = Stream.readAll().trimmed();             //build 1760 - fix loading mpd with spaces in model name.
     else if (Token == QLatin1String("AUTHOR"))
         Stream >> mAuthor;
     else if (Token == QLatin1String("DESCRIPTION"))
@@ -2221,20 +2221,23 @@ void lcModel::ParseRotationLine(QTextStream& LineStream)
         QString Token;
         LineStream >> Token;
 
-        if (Token == QLatin1String("ROTSTEP"))
+        if (Token == QLatin1String("ROTSTEP")) {
+
+            LineStream >> Token;
+
+            if(Token == QLatin1String("REL"))
+                gMainWindow->SetRotateStepType(LC_ROTATESTEP_RELATIVE_ROTATION);
+            else if(Token == QLatin1String("ABS"))
+                gMainWindow->SetRotateStepType(LC_ROTATESTEP_ABSOLUTE_ROTATION);
+
+            LineStream >> stepRotation[0] >> stepRotation[1] >> stepRotation[2];
+            gui->SetStepRotationLine(stepRotation);
+            gui->UpdateStepRotation(setToZero);
+            //debug only...
+            //qDebug() << "STEP: " << mCurrentStep << " ROTATION: " << stepRotation[0] << " " << stepRotation[1] << " " << stepRotation[2];
+            //debug end
             continue;
-
-        LineStream >> Token;
-
-        if(Token == QLatin1String("REL"))
-            gMainWindow->SetRotateStepType(LC_ROTATESTEP_RELATIVE_ROTATION);
-        else if(Token == QLatin1String("ABS"))
-            gMainWindow->SetRotateStepType(LC_ROTATESTEP_ABSOLUTE_ROTATION);
-
-        LineStream >> stepRotation[0] >> stepRotation[1] >> stepRotation[2];
-        qDebug() << "STEP: " << mCurrentStep << " ROTATION: " << stepRotation[0] << " " << stepRotation[1] << " " << stepRotation[2];
-        gui->SetStepRotationLine(stepRotation);
-        gui->UpdateStepRotation(setToZero);
+        }
     }
 }
 

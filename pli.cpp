@@ -227,7 +227,7 @@ void Pli::getAnnotate(
           QRegExp rx(annotation);
           if (annotateStr.contains(rx)) {
               sClean = rx.cap(1);
-              sClean.remove(QRegExp("\\s"));
+              sClean.remove(QRegExp("\\s"));            //remove spaces
               annotateStr = sClean;
               return;
           }

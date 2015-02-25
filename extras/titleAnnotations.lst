@@ -2,8 +2,8 @@
 #The format is category followed by regex string (to extract to annotation from the part title)
 #For efficiency put most used parts first.
 
-Technic:    ^Technic Axle\s+(\d+\.\d)\s*.*$
-Technic:	^Technic Axle Flexible\s+(\d+)\s*$
+Technic:    ^Technic Axle\s+(\d+\.*\d*)\s*.*$
+Technic:	^Technic Axle Flexible\s+(\d+)\s*.*$
 Technic:	^Technic Angle Connector\s+\(*(#*\d*\s*x*\s*\d*)\s*\w*\)*\s*.*$
 Technic:	^Technic Arm\s+(\d+\s+(x|X)\s+\d+)\s*.*$
 Technic:	^Technic Beam*\s+(\d+\.*\d*\s*(x*|X*)\s*\d*\.*\d*\s*(x*|X*)\s*\d*\.*\d*)\s*.*$

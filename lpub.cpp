@@ -627,7 +627,7 @@ void Gui::createActions()
     saveAct->setEnabled(false);
     connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
 
-    saveAsAct = new QAction(tr("Save &As..."), this);
+    saveAsAct = new QAction(QIcon(":/images/saveas.png"),tr("Save &As..."), this);
     saveAsAct->setStatusTip(tr("Save the document under a new name"));
     saveAsAct->setEnabled(false);
     connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
@@ -1023,7 +1023,7 @@ void Gui::createStatusBar()
 void Gui::createDockWindows()
 {
 //**3D
-    modelDockWindow = new QDockWidget(tr("LPub 3D Viewer"), this);
+    modelDockWindow = new QDockWidget(tr("3D Viewer - by LeoCAD"), this);
     modelDockWindow->setObjectName("ModelDockWindow");
     modelDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |

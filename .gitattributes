@@ -62,6 +62,7 @@ images/prev.png -text
 images/print.png -text
 images/redraw.png -text
 images/save.png -text
+images/saveas.png -text
 images/zoomin.png -text
 images/zoomout.png -text
 lc_lib/common/camera.cpp -text
