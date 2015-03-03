@@ -35,8 +35,14 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
   if (ldrawPath == "") {
     ldrawPath = ".";
   }
+
+  QString leocadLibPath = Preferences::leocadLibPath;
+  if (leocadLibPath == " ") {
+      leocadLibPath = ".";
+  }
   
   ui.ldrawPath->setText(                ldrawPath);
+  ui.leocadLibPath->setText(            leocadLibPath);
   ui.pliName->setText(                  Preferences::pliFile);
   ui.pliBox->setChecked(                Preferences::pliFile != "");
   ui.ldglitePath->setText(              Preferences::ldgliteExe);
@@ -131,6 +137,13 @@ void PreferencesDialog::colorChange(QString const &colorName)
 void PreferencesDialog::on_browseLDraw_clicked()
 {
   Preferences::ldrawPreferences(true);
+  ui.ldrawPath->setText(Preferences::ldrawPath);
+}
+
+void PreferencesDialog::on_browseLeoCADLibrary_clicked()
+{
+  Preferences::leocadLibPreferences(true);
+  ui.leocadLibPath->setText(Preferences::leocadLibPath);
 }
 
 void PreferencesDialog::on_browseLGEO_clicked()
@@ -301,7 +314,7 @@ void PreferencesDialog::on_browsePublishLogo_clicked()
   dialog.setFileMode(QFileDialog::ExistingFile);
 
 #ifdef __APPLE__
-  //dialog.setFilter("Logo (*.png,)");
+  //dialog.setFilter("Logo (*.png)");
 #else
   dialog.setFilter("Logo (*.png)");
 #endif
@@ -319,6 +332,11 @@ void PreferencesDialog::on_browsePublishLogo_clicked()
 QString const PreferencesDialog::ldrawPath()
 {
   return ui.ldrawPath->displayText();
+}
+
+QString const PreferencesDialog::leocadLibPath()
+{
+  return ui.leocadLibPath->displayText();
 }
 
 QString const PreferencesDialog::lgeoPath()

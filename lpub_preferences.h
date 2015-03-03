@@ -33,6 +33,7 @@ class Preferences
     Preferences();
     static void lpubPreferences();
     static void ldrawPreferences(bool);
+    static void leocadLibPreferences(bool);
 	static void lgeoPreferences();
     static void renderPreferences();
     static void pliPreferences();
@@ -45,6 +46,7 @@ class Preferences
     static void viewerPreferences();
 
     static QString ldrawPath;
+    static QString leocadLibPath;
     static QString lgeoPath;
     static QString ldgliteExe;
     static QString ldviewExe;

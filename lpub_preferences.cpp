@@ -36,6 +36,7 @@
 Preferences preferences;
 
 QString Preferences::ldrawPath = " ";
+QString Preferences::leocadLibPath = " ";
 QString Preferences::lgeoPath;
 QString Preferences::lpubPath = ".";
 QString Preferences::ldgliteExe;
@@ -115,6 +116,50 @@ void Preferences::ldrawPreferences(bool force)
   } else {
     exit(-1);
   }  
+}
+
+void Preferences::leocadLibPreferences(bool force)
+{
+  QFileInfo fileInfo;
+  QSettings settings(LPUB,SETTINGS);
+  QString const LeocadLibKey("LeoCadLib");
+
+  if (settings.contains(LeocadLibKey)) {
+    leocadLibPath = settings.value(LeocadLibKey).toString();
+  }
+
+  if (leocadLibPath != "" && ! force) {
+
+    fileInfo.setFile(leocadLibPath);
+    bool leocadLibExists = fileInfo.exists();
+
+    if (leocadLibExists) {
+      return;
+    }
+  }
+
+  leocadLibPath = "c:/LDraw/Complete.zip";
+
+  QDir guesses;
+  guesses.setPath(leocadLibPath);
+  if ( ! guesses.exists()) {
+    leocadLibPath = "c:/Program Files/LDraw/Complete.zip";
+    guesses.setPath(leocadLibPath);
+    if ( ! guesses.exists()) {
+      leocadLibPath = QFileDialog::getOpenFileName(NULL,
+                      QFileDialog::tr("Locate LeoCad Library Archive"),
+                      "/",
+                      QFileDialog::tr("Archive (*.zip *.bin)"));
+    }
+  }
+
+  fileInfo.setFile(leocadLibPath);
+
+  if (fileInfo.exists()) {
+    settings.setValue(LeocadLibKey,leocadLibPath);
+  } else {
+    exit(-1);
+  }
 }
 
 void Preferences::lgeoPreferences()
@@ -452,8 +497,8 @@ void Preferences::viewerPreferences()
         lcSetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME, settings.value("DefaultAuthor").toString());
     if (settings.contains("ModelDir"))
         lcSetProfileString(LC_PROFILE_PROJECTS_PATH, settings.value("ModelDir").toString());
-    if (settings.contains("LDrawDir"))
-        lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, settings.value("LDrawDir").toString());
+    if (settings.contains("LeoCadLib"))
+        lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, settings.value("LeoCadLib").toString());
     if (settings.contains("POVRAY"))
         lcSetProfileString(LC_PROFILE_POVRAY_PATH, settings.value("POVRAY").toString());
     if (settings.contains("LGEO"))
@@ -475,7 +520,16 @@ bool Preferences::getPreferences()
         settings.setValue("LDrawDir",ldrawPath);
       }
     }
-	  
+
+    if (leocadLibPath != dialog->leocadLibPath()) {
+      leocadLibPath = dialog->leocadLibPath();
+      if (leocadLibPath == "") {
+        settings.remove("LeoCadLib");
+      } else {
+        settings.setValue("LeoCadLib",leocadLibPath);
+      }
+    }
+
     if (pliFile != dialog->pliFile()) {
       pliFile = dialog->pliFile();
       if (pliFile == "") {

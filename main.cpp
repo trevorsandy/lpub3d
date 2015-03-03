@@ -121,6 +121,7 @@ int main(int argc, char *argv[])
     app.installTranslator(&Translator);
 
     Preferences::ldrawPreferences(false);
+    Preferences::leocadLibPreferences(false);
     Preferences::unitsPreferences();
     Preferences::annotationPreferences();
     Preferences::viewerPreferences();

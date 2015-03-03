@@ -30,6 +30,7 @@ class PreferencesDialog : public QDialog
     PreferencesDialog(QWidget *parent = 0);
 	
 	QString const ldrawPath();
+    QString const leocadLibPath();
 	QString const lgeoPath();
 	QString const pliFile();
 	QString const l3pExe();
@@ -51,6 +52,7 @@ class PreferencesDialog : public QDialog
 
   private slots:
     void on_browseLDraw_clicked();
+    void on_browseLeoCADLibrary_clicked();
 	void on_browseLGEO_clicked();
 	void on_browsePli_clicked();
 	void on_browseL3P_clicked();

@@ -67,8 +67,8 @@ PartsList::PartsList()
   if (partialPaths.size() == 0) {
     partialPaths << "/parts/" << "/parts/s/" << "/p/" << "/p/48/" <<
                     "/Unofficial/parts/" << "/Unofficial/p/" <<
-                    "/Unofficial/LSynth/" <<
-                    "/Helpers/" << "/Custom/" << "/Development/";
+                    "/Unofficial/LSynth/" << "/Unofficial/helper/" <<
+                    "/Helpers/" << "/Development/";
   }
 }
 

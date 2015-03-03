@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>555</height>
+    <height>607</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,245 +18,340 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
        <string>General</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_5">
-       <item row="1" column="0" colspan="2">
-        <widget class="QGroupBox" name="ldrawBox">
-         <property name="toolTip">
-          <string>This directory contains the LDraw parts directory</string>
-         </property>
-         <property name="title">
-          <string>LDraw Root Directory</string>
-         </property>
-         <property name="checkable">
-          <bool>false</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <layout class="QHBoxLayout">
-          <item>
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Path</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="ldrawPath">
-            <property name="minimumSize">
-             <size>
-              <width>200</width>
-              <height>0</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="browseLDraw">
-            <property name="toolTip">
-             <string>Use directory dialog to find LDraw directory</string>
-            </property>
-            <property name="whatsThis">
-             <string>This lets you find the LDraw directory</string>
-            </property>
-            <property name="text">
-             <string>Browse...</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QGroupBox" name="pliBox">
-         <property name="toolTip">
-          <string>This file controls Part List parts orientation and size</string>
-         </property>
-         <property name="title">
-          <string>Use PLI orientation/size control file</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <layout class="QHBoxLayout">
-          <item>
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Name</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="pliName">
-            <property name="minimumSize">
-             <size>
-              <width>200</width>
-              <height>0</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="browsePli">
-            <property name="toolTip">
-             <string>Use directory dialog to find the PLI file</string>
-            </property>
-            <property name="whatsThis">
-             <string>Use directory dialog to find the PLI file</string>
-            </property>
-            <property name="text">
-             <string>Browse...</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="4" column="0" colspan="2">
-        <widget class="QGroupBox" name="fadeStepBox">
-         <property name="toolTip">
-          <string>This setting allows you to fade previous build step parts </string>
-         </property>
-         <property name="title">
-          <string>Enable Fade Steps</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <widget class="QLabel" name="label_10">
-          <property name="geometry">
-           <rect>
-            <x>29</x>
-            <y>16</y>
-            <width>111</width>
-            <height>28</height>
-           </rect>
+      <widget class="QGroupBox" name="ldrawBox">
+       <property name="geometry">
+        <rect>
+         <x>11</x>
+         <y>45</y>
+         <width>451</width>
+         <height>68</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>This directory contains the LDraw parts directory</string>
+       </property>
+       <property name="title">
+        <string>LDraw Root Directory</string>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <layout class="QHBoxLayout">
+        <item>
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Path</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="ldrawPath">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>0</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="browseLDraw">
+          <property name="toolTip">
+           <string>Use directory dialog to find LDraw directory</string>
+          </property>
+          <property name="whatsThis">
+           <string>This lets you find the LDraw directory</string>
           </property>
           <property name="text">
-           <string>Default fade color</string>
+           <string>Browse...</string>
           </property>
          </widget>
-         <widget class="QComboBox" name="fadeStepColorsCombo">
-          <property name="geometry">
-           <rect>
-            <x>150</x>
-            <y>44</y>
-            <width>281</width>
-            <height>21</height>
-           </rect>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QGroupBox" name="pliBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>213</y>
+         <width>451</width>
+         <height>68</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>This file controls Part List parts orientation and size</string>
+       </property>
+       <property name="title">
+        <string>Use PLI orientation/size control file</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <layout class="QHBoxLayout">
+        <item>
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Name</string>
           </property>
          </widget>
-         <widget class="QLabel" name="fadeStepColorLabel">
-          <property name="geometry">
-           <rect>
-            <x>30</x>
-            <y>45</y>
-            <width>111</width>
-            <height>21</height>
-           </rect>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="pliName">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>0</height>
+           </size>
           </property>
-          <property name="frameShape">
-           <enum>QFrame::Panel</enum>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="browsePli">
+          <property name="toolTip">
+           <string>Use directory dialog to find the PLI file</string>
           </property>
-          <property name="frameShadow">
-           <enum>QFrame::Sunken</enum>
+          <property name="whatsThis">
+           <string>Use directory dialog to find the PLI file</string>
           </property>
           <property name="text">
-           <string/>
+           <string>Browse...</string>
           </property>
          </widget>
-        </widget>
-       </item>
-       <item row="5" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox">
-         <property name="title">
-          <string>Default Units</string>
-         </property>
-         <layout class="QHBoxLayout">
-          <item>
-           <widget class="QRadioButton" name="Centimeters">
-            <property name="text">
-             <string>Centimeters</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="Inches">
-            <property name="text">
-             <string>Inches</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_8">
-         <property name="toolTip">
-          <string>Sets the default Author on published documents</string>
-         </property>
-         <property name="text">
-          <string>Default author name:</string>
-         </property>
-         <property name="buddy">
-          <cstring>authorName_Edit</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="authorName_Edit"/>
-       </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="QGroupBox" name="annotationBox">
-         <property name="toolTip">
-          <string>Annotation source content options</string>
-         </property>
-         <property name="title">
-          <string>PLI annotation source</string>
-         </property>
-         <property name="checkable">
-          <bool>false</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <layout class="QHBoxLayout" name="_2">
-          <item>
-           <widget class="QRadioButton" name="titleAnnotation">
-            <property name="toolTip">
-             <string>Sourced from parts.lst descriptions - see root/extras/titleannotations.lst</string>
-            </property>
-            <property name="text">
-             <string>Part description</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="freeformAnnotation">
-            <property name="toolTip">
-             <string>Freeform annotations - see root/extras/freeformAnnotations.lst</string>
-            </property>
-            <property name="text">
-             <string>Free form</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-      </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QGroupBox" name="fadeStepBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>363</y>
+         <width>450</width>
+         <height>77</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>This setting allows you to fade previous build step parts </string>
+       </property>
+       <property name="title">
+        <string>Enable Fade Steps</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <widget class="QLabel" name="label_10">
+        <property name="geometry">
+         <rect>
+          <x>29</x>
+          <y>20</y>
+          <width>111</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Default fade color</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="fadeStepColorsCombo">
+        <property name="geometry">
+         <rect>
+          <x>150</x>
+          <y>44</y>
+          <width>281</width>
+          <height>21</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="fadeStepColorLabel">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>45</y>
+          <width>111</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Panel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QGroupBox" name="groupBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>450</y>
+         <width>451</width>
+         <height>60</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Default Units</string>
+       </property>
+       <layout class="QHBoxLayout">
+        <item>
+         <widget class="QRadioButton" name="Centimeters">
+          <property name="text">
+           <string>Centimeters</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="Inches">
+          <property name="text">
+           <string>Inches</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QLabel" name="label_8">
+       <property name="geometry">
+        <rect>
+         <x>11</x>
+         <y>13</y>
+         <width>122</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Sets the default Author on published documents</string>
+       </property>
+       <property name="text">
+        <string>Default author name:</string>
+       </property>
+       <property name="buddy">
+        <cstring>authorName_Edit</cstring>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="authorName_Edit">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>13</y>
+         <width>321</width>
+         <height>22</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QGroupBox" name="annotationBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>291</y>
+         <width>451</width>
+         <height>60</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Annotation source content options</string>
+       </property>
+       <property name="title">
+        <string>PLI annotation source</string>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <layout class="QHBoxLayout" name="_2">
+        <item>
+         <widget class="QRadioButton" name="titleAnnotation">
+          <property name="toolTip">
+           <string>Sourced from parts.lst descriptions - see root/extras/titleannotations.lst</string>
+          </property>
+          <property name="text">
+           <string>Part description</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="freeformAnnotation">
+          <property name="toolTip">
+           <string>Freeform annotations - see root/extras/freeformAnnotations.lst</string>
+          </property>
+          <property name="text">
+           <string>Free form</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QGroupBox" name="viewerBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>124</y>
+         <width>450</width>
+         <height>76</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>This directory contains the 3D Viewer library archive (zip) path</string>
+       </property>
+       <property name="title">
+        <string>3D Viewer (LeoCAD) Library Archive</string>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <layout class="QHBoxLayout" name="_6">
+        <item>
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>Path</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="leocadLibPath">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>0</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="browseLeoCADLibrary">
+          <property name="toolTip">
+           <string>Use directory dialog to find 3D viewer library directory</string>
+          </property>
+          <property name="whatsThis">
+           <string>This lets you find the 3D Viewer library directory</string>
+          </property>
+          <property name="text">
+           <string>Browse...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
      <widget class="QWidget" name="tabRendering">
       <attribute name="title">
