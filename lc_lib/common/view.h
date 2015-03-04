@@ -81,6 +81,7 @@ public:
 	void LookAt();
 	void ZoomExtents();
 
+	void ClearCameras();
 	void RemoveCamera();
 	void SetCamera(lcCamera* Camera, bool ForceCopy);
 	void SetCameraIndex(int Index);
@@ -96,6 +97,7 @@ public:
 
 	lcModel* mModel;
 	lcCamera* mCamera;
+	QMap<lcModel*, lcCamera*> mCameras;
 
 	lcVector3 ProjectPoint(const lcVector3& Point) const
 	{
@@ -130,6 +132,7 @@ protected:
 	void StartTracking(lcTrackButton TrackButton);
 	void StopTracking(bool Accept);
 
+	lcScene mScene;
 	lcDragState mDragState;
 	lcTrackButton mTrackButton;
 	lcTrackTool mTrackTool;

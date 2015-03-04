@@ -135,11 +135,9 @@ lc_lib/common/view.h -text
 lc_lib/docs/COPYING.txt -text
 lc_lib/docs/CREDITS.txt -text
 lc_lib/qt/Info.plist -text
-lc_lib/qt/lc_config.h -text
 lc_lib/qt/lc_qaboutdialog.cpp -text
 lc_lib/qt/lc_qaboutdialog.h -text
 lc_lib/qt/lc_qaboutdialog.ui -text
-lc_lib/qt/lc_qapplication.cpp -text
 lc_lib/qt/lc_qarraydialog.cpp -text
 lc_lib/qt/lc_qarraydialog.h -text
 lc_lib/qt/lc_qarraydialog.ui -text
@@ -164,7 +162,6 @@ lc_lib/qt/lc_qgroupdialog.ui -text
 lc_lib/qt/lc_qhtmldialog.cpp -text
 lc_lib/qt/lc_qhtmldialog.h -text
 lc_lib/qt/lc_qhtmldialog.ui -text
-lc_lib/qt/lc_qimage.cpp -text
 lc_lib/qt/lc_qimagedialog.cpp -text
 lc_lib/qt/lc_qimagedialog.h -text
 lc_lib/qt/lc_qimagedialog.ui -text
@@ -182,7 +179,6 @@ lc_lib/qt/lc_qpovraydialog.ui -text
 lc_lib/qt/lc_qpreferencesdialog.cpp -text
 lc_lib/qt/lc_qpreferencesdialog.h -text
 lc_lib/qt/lc_qpreferencesdialog.ui -text
-lc_lib/qt/lc_qprofile.cpp -text
 lc_lib/qt/lc_qpropertiesdialog.cpp -text
 lc_lib/qt/lc_qpropertiesdialog.h -text
 lc_lib/qt/lc_qpropertiesdialog.ui -text

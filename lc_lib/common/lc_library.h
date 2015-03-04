@@ -68,12 +68,12 @@ public:
 			delete mSections[SectionIdx];
 	}
 
-	void AddLine(int LineType, lcuint32 ColorCode, lcVector3* Vertices);
-	void AddTexturedLine(int LineType, lcuint32 ColorCode, const lcLibraryTextureMap& Map, lcVector3* Vertices);
+	void AddLine(int LineType, lcuint32 ColorCode, const lcVector3* Vertices);
+	void AddTexturedLine(int LineType, lcuint32 ColorCode, const lcLibraryTextureMap& Map, const lcVector3* Vertices);
 	void AddMeshData(const lcLibraryMeshData& Data, const lcMatrix44& Transform, lcuint32 CurrentColorCode, lcLibraryTextureMap* TextureMap);
 	void AddMeshDataNoDuplicateCheck(const lcLibraryMeshData& Data, const lcMatrix44& Transform, lcuint32 CurrentColorCode, lcLibraryTextureMap* TextureMap);
-	void TestQuad(lcVector3* Vertices);
-	void ResequenceQuad(lcVector3* Vertices, int a, int b, int c, int d);
+	void TestQuad(int* QuadIndices, const lcVector3* Vertices);
+	void ResequenceQuad(int* QuadIndices, int a, int b, int c, int d);
 
 	lcArray<lcLibraryMeshSection*> mSections;
 	lcArray<lcVertex> mVertices;
@@ -119,8 +119,9 @@ public:
 	bool Load(const char* LibraryPath, const char* CachePath);
 	void Unload();
 	void RemoveTemporaryPieces();
+	void RemovePiece(PieceInfo* Info);
 
-	PieceInfo* FindPiece(const char* PieceName, bool CreatePlaceholder);
+	PieceInfo* FindPiece(const char* PieceName, Project* Project, bool CreatePlaceholder);
 	bool LoadPiece(PieceInfo* Info);
 	bool LoadBuiltinPieces();
 
@@ -136,11 +137,19 @@ public:
 	void GetCategoryEntries(const String& CategoryKeywords, bool GroupPieces, lcArray<PieceInfo*>& SinglePieces, lcArray<PieceInfo*>& GroupedPieces);
 	void GetPatternedPieces(PieceInfo* Parent, lcArray<PieceInfo*>& Pieces) const;
 
+	bool IsPrimitive(const char* Name) const
+	{
+		return FindPrimitiveIndex(Name) != -1;
+	}
+
 	void SetOfficialPieces()
 	{
 		if (mZipFiles[LC_ZIPFILE_OFFICIAL])
 			mNumOfficialPieces = mPieces.GetSize();
 	}
+
+	bool ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransform, lcuint32 CurrentColorCode, lcArray<lcLibraryTextureMap>& TextureStack, lcLibraryMeshData& MeshData);
+	void CreateMesh(PieceInfo* Info, lcLibraryMeshData& MeshData);
 
 	lcArray<PieceInfo*> mPieces;
 	lcArray<lcLibraryPrimitive*> mPrimitives;
@@ -160,9 +169,8 @@ protected:
 	bool LoadCachePiece(PieceInfo* Info);
 	void SaveCacheFile();
 
-	int FindPrimitiveIndex(const char* Name);
+	int FindPrimitiveIndex(const char* Name) const;
 	bool LoadPrimitive(int PrimitiveIndex);
-	bool ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransform, lcuint32 CurrentColorCode, lcArray<lcLibraryTextureMap>& TextureStack, lcLibraryMeshData& MeshData);
 
 	char mCacheFileName[LC_MAXPATH];
 	lcuint64 mCacheFileModifiedTime;

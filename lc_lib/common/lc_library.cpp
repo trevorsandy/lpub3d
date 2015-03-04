@@ -8,6 +8,7 @@
 #include "lc_category.h"
 #include "lc_application.h"
 #include "lc_mainwindow.h"
+#include "project.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <ctype.h>
@@ -77,11 +78,26 @@ void lcPiecesLibrary::RemoveTemporaryPieces()
 	}
 }
 
-PieceInfo* lcPiecesLibrary::FindPiece(const char* PieceName, bool CreatePlaceholder)
+void lcPiecesLibrary::RemovePiece(PieceInfo* Info)
+{
+	mPieces.Remove(Info);
+	delete Info;
+}
+
+PieceInfo* lcPiecesLibrary::FindPiece(const char* PieceName, Project* Project, bool CreatePlaceholder)
 {
 	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-		if (!strcmp(PieceName, mPieces[PieceIdx]->m_strName))
-			return mPieces[PieceIdx];
+	{
+		PieceInfo* Info = mPieces[PieceIdx];
+
+		if (strcmp(PieceName, Info->m_strName))
+			continue;
+
+		if (Project && Info->IsModel() && Project->GetModels().FindIndex(Info->GetModel()) == -1)
+			continue;
+
+		return Info;
+	}
 
 	if (CreatePlaceholder)
 	{
@@ -242,7 +258,7 @@ bool lcPiecesLibrary::OpenArchive(lcFile* File, const char* FileName, lcZipFileT
 
 			if (memcmp(Name, "S/", 2))
 			{
-				PieceInfo* Info = FindPiece(Name, false);
+				PieceInfo* Info = FindPiece(Name, NULL, false);
 
 				if (!Info)
 				{
@@ -790,7 +806,6 @@ void lcPiecesLibrary::SaveCacheFile()
 		CacheFile.AddFile(Info->m_strName, PieceFile);
 
 		Info->mFlags |= LC_PIECE_CACHED;
-		Info->Release();
 	}
 
 	IndexFile.Seek(0, SEEK_SET);
@@ -878,6 +893,16 @@ bool lcPiecesLibrary::LoadPiece(PieceInfo* Info)
 			return false;
 	}
 
+	CreateMesh(Info, MeshData);
+
+	if (mZipFiles[LC_ZIPFILE_OFFICIAL])
+		mSaveCache = true;
+
+	return true;
+}
+
+void lcPiecesLibrary::CreateMesh(PieceInfo* Info, lcLibraryMeshData& MeshData)
+{
 	lcMesh* Mesh = new lcMesh();
 
 	int NumIndices = 0;
@@ -996,12 +1021,6 @@ bool lcPiecesLibrary::LoadPiece(PieceInfo* Info)
 
 	Mesh->UpdateBuffers();
 	Info->SetMesh(Mesh);
-	Info->AddRef();
-
-	if (mZipFiles[LC_ZIPFILE_OFFICIAL])
-		mSaveCache = true;
-
-	return true;
 }
 
 bool lcPiecesLibrary::LoadTexture(lcTexture* Texture)
@@ -1035,7 +1054,7 @@ bool lcPiecesLibrary::LoadTexture(lcTexture* Texture)
 	return true;
 }
 
-int lcPiecesLibrary::FindPrimitiveIndex(const char* Name)
+int lcPiecesLibrary::FindPrimitiveIndex(const char* Name) const
 {
 	for (int PrimitiveIndex = 0; PrimitiveIndex < mPrimitives.GetSize(); PrimitiveIndex++)
 		if (!strcmp(mPrimitives[PrimitiveIndex]->mName, Name))
@@ -1430,19 +1449,15 @@ bool lcPiecesLibrary::ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransf
 	return true;
 }
 
-void lcLibraryMeshData::ResequenceQuad(lcVector3* Vertices, int a, int b, int c, int d)
+void lcLibraryMeshData::ResequenceQuad(int* Indices, int a, int b, int c, int d)
 {
-	lcVector3 TempVertices[4];
-
-	memcpy(TempVertices, Vertices, sizeof(TempVertices));
-
-	Vertices[0] = TempVertices[a];
-	Vertices[1] = TempVertices[b];
-	Vertices[2] = TempVertices[c];
-	Vertices[3] = TempVertices[d];
+	Indices[0] = a;
+	Indices[1] = b;
+	Indices[2] = c;
+	Indices[3] = d;
 }
 
-void lcLibraryMeshData::TestQuad(lcVector3* Vertices)
+void lcLibraryMeshData::TestQuad(int* QuadIndices, const lcVector3* Vertices)
 {
 	lcVector3 v01 = Vertices[1] - Vertices[0];
 	lcVector3 v02 = Vertices[2] - Vertices[0];
@@ -1460,20 +1475,20 @@ void lcLibraryMeshData::TestQuad(lcVector3* Vertices)
 	if (lcDot(lcCross(v12, v01), lcCross(v01, v13)) > 0.0f)
 	{
 		if (-lcDot(lcCross(v02, v12), lcCross(v12, v23)) > 0.0f)
-			ResequenceQuad(Vertices, 1, 2, 3, 0);
+			ResequenceQuad(QuadIndices, 1, 2, 3, 0);
 		else
-			ResequenceQuad(Vertices, 0, 3, 1, 2);
+			ResequenceQuad(QuadIndices, 0, 3, 1, 2);
 	}
 	else
 	{
 		if (-lcDot(lcCross(v02, v12), lcCross(v12, v23)) > 0.0f)
-			ResequenceQuad(Vertices, 0, 1, 3, 2);
+			ResequenceQuad(QuadIndices, 0, 1, 3, 2);
 		else
-			ResequenceQuad(Vertices, 1, 2, 3, 0);
+			ResequenceQuad(QuadIndices, 1, 2, 3, 0);
 	}
 }
 
-void lcLibraryMeshData::AddLine(int LineType, lcuint32 ColorCode, lcVector3* Vertices)
+void lcLibraryMeshData::AddLine(int LineType, lcuint32 ColorCode, const lcVector3* Vertices)
 {
 	lcLibraryMeshSection* Section = NULL;
 	int SectionIdx;
@@ -1494,14 +1509,16 @@ void lcLibraryMeshData::AddLine(int LineType, lcuint32 ColorCode, lcVector3* Ver
 		mSections.Add(Section);
 	}
 
+	int QuadIndices[4] = { 0, 1, 2, 3 };
+
 	if (LineType == 4)
-		TestQuad(Vertices);
+		TestQuad(QuadIndices, Vertices);
 
 	int Indices[4] = { -1, -1, -1, -1 };
 
 	for (int IndexIdx = 0; IndexIdx < LineType; IndexIdx++)
 	{
-		const lcVector3& Position = Vertices[IndexIdx];
+		const lcVector3& Position = Vertices[QuadIndices[IndexIdx]];
 
 		for (int VertexIdx = mVertices.GetSize() - 1; VertexIdx >= 0; VertexIdx--)
 		{
@@ -1550,7 +1567,7 @@ void lcLibraryMeshData::AddLine(int LineType, lcuint32 ColorCode, lcVector3* Ver
 	}
 }
 
-void lcLibraryMeshData::AddTexturedLine(int LineType, lcuint32 ColorCode, const lcLibraryTextureMap& Map, lcVector3* Vertices)
+void lcLibraryMeshData::AddTexturedLine(int LineType, lcuint32 ColorCode, const lcLibraryTextureMap& Map, const lcVector3* Vertices)
 {
 	lcLibraryMeshSection* Section = NULL;
 	int SectionIdx;
@@ -1571,14 +1588,16 @@ void lcLibraryMeshData::AddTexturedLine(int LineType, lcuint32 ColorCode, const 
 		mSections.Add(Section);
 	}
 
+	int QuadIndices[4] = { 0, 1, 2, 3 };
+
 	if (LineType == 4)
-		TestQuad(Vertices);
+		TestQuad(QuadIndices, Vertices);
 
 	int Indices[4] = { -1, -1, -1, -1 };
 
 	for (int IndexIdx = 0; IndexIdx < LineType; IndexIdx++)
 	{
-		const lcVector3& Position = Vertices[IndexIdx];
+		const lcVector3& Position = Vertices[QuadIndices[IndexIdx]];
 		lcVector2 TexCoord(lcDot3(lcVector3(Position.x, Position.y, Position.z), Map.Params[0]) + Map.Params[0].w,
 						   lcDot3(lcVector3(Position.x, Position.y, Position.z), Map.Params[1]) + Map.Params[1].w);
 
@@ -1889,6 +1908,9 @@ void lcLibraryMeshData::AddMeshDataNoDuplicateCheck(const lcLibraryMeshData& Dat
 
 bool lcPiecesLibrary::PieceInCategory(PieceInfo* Info, const String& CategoryKeywords) const
 {
+	if (Info->IsTemporary())
+		return false;
+
 	String PieceName;
 	if (Info->m_strDescription[0] == '~' || Info->m_strDescription[0] == '_')
 		PieceName = Info->m_strDescription + 1;
@@ -1935,7 +1957,7 @@ void lcPiecesLibrary::GetCategoryEntries(const String& CategoryKeywords, bool Gr
 			strcpy(ParentName, Info->m_strName);
 			*strchr(ParentName, 'P') = '\0';
 
-			Parent = FindPiece(ParentName, false);
+			Parent = FindPiece(ParentName, NULL, false);
 
 			if (Parent)
 			{
@@ -2076,9 +2098,7 @@ bool lcPiecesLibrary::LoadBuiltinPieces()
 	}
 
 	lcLoadDefaultColors();
-
 	lcLoadDefaultCategories(true);
-	gMainWindow->UpdateCategories();
 
 	return true;
 }

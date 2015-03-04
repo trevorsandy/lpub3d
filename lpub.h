@@ -500,6 +500,8 @@ public:
   lcVector3 SetStepRotationLine(lcVector3 StepRotationLine)
   {
      mStepRotationLine = StepRotationLine;
+
+     return mStepRotationLine;
   }
 
   QString getCurFile()

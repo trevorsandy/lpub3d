@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "lc_file.h"
-#include "str.h"
 
 // =============================================================================
 // lcFile
@@ -15,21 +14,6 @@ lcFile::lcFile()
 
 lcFile::~lcFile()
 {
-}
-
-void lcFile::ReadString(String& Value)
-{
-	lcuint32 Length;
-	ReadU32(&Length, 1);
-	ReadBuffer(Value.GetBuffer(Length + 1), Length);
-	((char*)Value)[Length] = 0;
-}
-
-void lcFile::WriteString(const String& Value)
-{
-	lcuint32 Length = Value.GetLength();
-	WriteU32(Length);
-	WriteBuffer((const char*)Value, Length);
 }
 
 // =============================================================================
@@ -262,6 +246,11 @@ size_t lcDiskFile::ReadBuffer(void* pBuf, long Bytes)
 size_t lcDiskFile::WriteBuffer(const void* pBuf, long Bytes)
 {
 	return fwrite(pBuf, 1, Bytes, mFile);
+}
+
+bool lcDiskFile::Open(const QString& FileName, const char* Mode)
+{
+	return Open(FileName.toLatin1().constData(), Mode); // todo: qstring
 }
 
 bool lcDiskFile::Open(const char* FileName, const char* Mode)

@@ -32,9 +32,6 @@ public:
 		WriteBuffer(Buffer, strlen(Buffer));
 	}
 
-	void ReadString(String& Value);
-	void WriteString(const String& Value);
-
 	virtual size_t ReadBuffer(void* Buffer, long Bytes) = 0;
 	virtual size_t WriteBuffer(const void* Buffer, long Bytes) = 0;
 	virtual void CopyFrom(lcMemFile& Source) = 0;
@@ -283,7 +280,7 @@ protected:
 
 		NumRead = ReadBuffer(Buffer, Count * 2) / 2;
 
-#ifdef LC_BIG_ENDIAN
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
 		lcuint8 Temp[2];
 		lcuint8* Bytes = (lcuint8*)Buffer;
 
@@ -306,7 +303,7 @@ protected:
 
 		NumRead = ReadBuffer(Buffer, Count * 4) / 4;
 
-#ifdef LC_BIG_ENDIAN
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
 		lcuint8 Temp[4];
 		lcuint8* Bytes = (lcuint8*)Buffer;
 
@@ -333,7 +330,7 @@ protected:
 
 		NumRead = ReadBuffer(Buffer, Count * 8) / 8;
 
-#ifdef LC_BIG_ENDIAN
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
 		lcuint8 Temp[8];
 		lcuint8* Bytes = (lcuint8*)Buffer;
 
@@ -369,7 +366,7 @@ protected:
 
 	size_t Write16(const void* Buffer, size_t Count)
 	{
-#ifdef LC_BIG_ENDIAN
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
 		size_t BytesWritten = 0;
 		lcuint8 Temp[2];
 		lcuint8* Bytes = (lcuint8*)Buffer;
@@ -390,7 +387,7 @@ protected:
 
 	size_t Write32(const void* Buffer, size_t Count)
 	{
-#ifdef LC_BIG_ENDIAN
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
 		size_t BytesWritten = 0;
 		lcuint8 Temp[4];
 		lcuint8* Bytes = (lcuint8*)Buffer;
@@ -413,7 +410,7 @@ protected:
 
 	size_t Write64(const void* Buffer, size_t Count)
 	{
-#ifdef LC_BIG_ENDIAN
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
 		size_t BytesWritten = 0;
 		lcuint8 Temp[8];
 		lcuint8* Bytes = (lcuint8*)Buffer;
@@ -489,6 +486,7 @@ public:
 	void CopyFrom(lcMemFile& Source);
 
 	bool Open(const char* FileName, const char* Mode);
+	bool Open(const QString& FileName, const char* Mode);
 
 	FILE* mFile;
 };

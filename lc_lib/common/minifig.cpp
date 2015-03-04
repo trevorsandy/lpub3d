@@ -904,7 +904,7 @@ void MinifigWizard::OnInitialUpdate()
 	{
 		mMinifig->Colors[i] = lcGetColorIndex(ColorCodes[i]);
 
-		PieceInfo* Info = lcGetPiecesLibrary()->FindPiece(Pieces[i], false);
+		PieceInfo* Info = lcGetPiecesLibrary()->FindPiece(Pieces[i], NULL, false);
 		if (Info)
 		{
 			mMinifig->Parts[i] = Info;
@@ -1014,7 +1014,7 @@ void MinifigWizard::ParseSettings(lcFile& Settings)
 					*Ext = 0;
 			}
 
-			PieceInfo* Info = lcGetPiecesLibrary()->FindPiece(NameStart, false);
+			PieceInfo* Info = lcGetPiecesLibrary()->FindPiece(NameStart, NULL, false);
 			if (!Info && *NameStart)
 				continue;
 
@@ -1055,6 +1055,8 @@ void MinifigWizard::ParseSettings(lcFile& Settings)
 
 void MinifigWizard::OnDraw()
 {
+	mContext->SetDefaultState();
+
 	float Aspect = (float)mWidth/(float)mHeight;
 	mContext->SetViewport(0, 0, mWidth, mHeight);
 
@@ -1138,18 +1140,19 @@ void MinifigWizard::OnDraw()
 
 	Calculate();
 
-	lcArray<lcRenderMesh> OpaqueMeshes(LC_MFW_NUMITEMS);
-	lcArray<lcRenderMesh> TranslucentMeshes;
+	lcScene Scene;
+	Scene.Begin(ViewMatrix);
 
 	for (int PieceIdx = 0; PieceIdx < LC_MFW_NUMITEMS; PieceIdx++)
 		if (mMinifig->Parts[PieceIdx])
-			mMinifig->Parts[PieceIdx]->AddRenderMeshes(ViewMatrix, mMinifig->Matrices[PieceIdx], mMinifig->Colors[PieceIdx], false, false, OpaqueMeshes, TranslucentMeshes);
+			mMinifig->Parts[PieceIdx]->AddRenderMeshes(Scene, mMinifig->Matrices[PieceIdx], mMinifig->Colors[PieceIdx], false, false);
 
-	OpaqueMeshes.Sort(lcOpaqueRenderMeshCompare);
-	mContext->DrawOpaqueMeshes(ViewMatrix, OpaqueMeshes);
+	Scene.End();
 
-	TranslucentMeshes.Sort(lcTranslucentRenderMeshCompare);
-	mContext->DrawTranslucentMeshes(ViewMatrix, TranslucentMeshes);
+	mContext->DrawOpaqueMeshes(ViewMatrix, Scene.mOpaqueMeshes);
+	mContext->DrawTranslucentMeshes(ViewMatrix, Scene.mTranslucentMeshes);
+
+	mContext->UnbindMesh(); // context remove
 }
 
 void MinifigWizard::OnLeftButtonDown()
@@ -1404,6 +1407,8 @@ int MinifigWizard::GetSelectionIndex(int Type) const
 
 void MinifigWizard::SetSelectionIndex(int Type, int Index)
 {
+	MakeCurrent();
+
 	if (mMinifig->Parts[Type])
 		mMinifig->Parts[Type]->Release();
 

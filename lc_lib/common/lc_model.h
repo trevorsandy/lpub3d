@@ -3,7 +3,6 @@
 
 #include "lc_file.h"
 #include "lc_math.h"
-#include "str.h"
 #include "object.h"
 
 #define LC_SEL_NO_PIECES     0x01 // No pieces in model
@@ -61,7 +60,7 @@ public:
 		return true;
 	}
 
-	void SaveLDraw(QTextStream& Stream) const;
+	void SaveLDraw(QTextStream& Stream, bool MPD) const;
 	void ParseLDrawLine(QTextStream& Stream);
 
 	QString mName;
@@ -133,7 +132,7 @@ public:
 	}
 
 	bool IncludesModel(const lcModel* Model) const;
-	void CreatePieceInfo();
+	void CreatePieceInfo(Project* Project);
 	void UpdatePieceInfo(lcArray<lcModel*>& UpdatedModels);
 
 	PieceInfo* GetPieceInfo() const
@@ -171,10 +170,10 @@ public:
 		mProperties.mName = Name;
 	}
 
-    const QString GetName() const
-    {
-        return mProperties.mName;
-    }
+	const QStringList& GetMeshLines() const
+	{
+		return mMeshLines;
+	}
 
 	lcStep GetLastStep() const;
 
@@ -213,8 +212,8 @@ public:
 	void RemoveFocusPieceFromGroup();
 	void ShowEditGroupsDialog();
 
-	void SaveLDraw(QTextStream& Stream, bool SelectedOnly) const;
-	void LoadLDraw(QIODevice& Device);
+	void SaveLDraw(QTextStream& Stream, bool MPD, bool SelectedOnly) const;
+	void LoadLDraw(QIODevice& Device, Project* Project);
 	bool LoadBinary(lcFile* File);
 	void Merge(lcModel* Other);
 
@@ -245,6 +244,7 @@ public:
 	bool GetPieceFocusOrSelectionCenter(lcVector3& Center) const;
 	bool GetFocusOrSelectionCenter(lcVector3& Center) const;
 	lcVector3 GetFocusOrSelectionCenter() const;
+	lcVector3 GetSelectionOrModelCenter() const;
 	bool GetFocusPosition(lcVector3& Position) const;
 	lcObject* GetFocusObject() const;
 	bool GetSelectionCenter(lcVector3& Center) const;
@@ -294,10 +294,10 @@ public:
 	void EraserToolClicked(lcObject* Object);
 	void PaintToolClicked(lcObject* Object);
 	void UpdateZoomTool(lcCamera* Camera, float Mouse);
-	void UpdatePanTool(lcCamera* Camera, float MouseX, float MouseY);
+	void UpdatePanTool(lcCamera* Camera, const lcVector3& Distance);
 	void UpdateOrbitTool(lcCamera* Camera, float MouseX, float MouseY);
 	void UpdateRollTool(lcCamera* Camera, float Mouse);
-	void ZoomRegionToolClicked(lcCamera* Camera, const lcVector3* Points, float RatioX, float RatioY);
+	void ZoomRegionToolClicked(lcCamera* Camera, float AspectRatio, const lcVector3& Position, const lcVector3& TargetPosition, const lcVector3* Corners);
 	void LookAt(lcCamera* Camera);
 	void ZoomExtents(lcCamera* Camera, float Aspect);
 	void Zoom(lcCamera* Camera, float Amount);
@@ -312,7 +312,7 @@ public:
 	void TransformSelectedObjects(lcTransformType TransformType, const lcVector3& Transform);
     void RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep);
     void ParseRotationLine(QTextStream& LineStream);
-    void SetObjectProperty(lcObject* Object, lcObjectPropertyType ObjectPropertyType, const void* Value);
+	void SetObjectProperty(lcObject* Object, lcObjectPropertyType ObjectPropertyType, const void* Value);
 
 	void ShowPropertiesDialog();
 	void ShowSelectByNameDialog();
@@ -347,6 +347,7 @@ protected:
 	lcArray<lcCamera*> mCameras;
 	lcArray<lcLight*> mLights;
 	lcArray<lcGroup*> mGroups;
+	QStringList mMeshLines;
 
 	lcModelHistoryEntry* mSavedHistory;
 	lcArray<lcModelHistoryEntry*> mUndoHistory;

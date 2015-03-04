@@ -6,6 +6,7 @@
 #include "system.h"
 #include "lc_application.h"
 #include "lc_mainwindow.h"
+#include "lc_library.h"
 
 PiecePreview::PiecePreview()
 {
@@ -60,15 +61,14 @@ void PiecePreview::OnDraw()
 	mContext->SetProjectionMatrix(ProjectionMatrix);
 
 	lcScene Scene;
-	Scene.ViewMatrix = ViewMatrix;
+	Scene.Begin(ViewMatrix);
 
 	m_PieceInfo->AddRenderMeshes(Scene, lcMatrix44Identity(), gMainWindow->mColorIndex, false, false);
 
-	Scene.OpaqueMeshes.Sort(lcOpaqueRenderMeshCompare);
-	Scene.TranslucentMeshes.Sort(lcTranslucentRenderMeshCompare);
+	Scene.End();
 
-	mContext->DrawOpaqueMeshes(ViewMatrix, Scene.OpaqueMeshes);
-	mContext->DrawTranslucentMeshes(ViewMatrix, Scene.TranslucentMeshes);
+	mContext->DrawOpaqueMeshes(ViewMatrix, Scene.mOpaqueMeshes);
+	mContext->DrawTranslucentMeshes(ViewMatrix, Scene.mTranslucentMeshes);
 
 	mContext->UnbindMesh(); // context remove
 }
@@ -87,6 +87,18 @@ void PiecePreview::SetCurrentPiece(PieceInfo *pInfo)
 		m_PieceInfo->AddRef();
 		Redraw();
 	}
+}
+
+void PiecePreview::SetDefaultPiece()
+{
+	lcPiecesLibrary* Library = lcGetPiecesLibrary();
+	PieceInfo* Info = Library->FindPiece("3005", NULL, false);
+
+	if (!Info)
+		Info = Library->mPieces[0];
+
+	if (Info)
+		SetCurrentPiece(Info);
 }
 
 void PiecePreview::OnLeftButtonDown()

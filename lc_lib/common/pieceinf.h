@@ -39,29 +39,30 @@ public:
 		mMesh = Mesh;
 	}
 
-	int AddRef()
+	void AddRef()
 	{
 		mRefCount++;
 
 		if (mRefCount == 1)
 			Load();
-
-		return mRefCount;
 	}
 
-	int Release()
+	void Release()
 	{
 		mRefCount--;
 
 		if (!mRefCount)
 			Unload();
-
-		return mRefCount;
 	}
 
 	bool IsLoaded() const
 	{
 		return mRefCount != 0;
+	}
+
+	bool IsModel() const
+	{
+		return (mFlags & LC_PIECE_MODEL) != 0;
 	}
 
 	bool IsTemporary() const
@@ -106,13 +107,13 @@ public:
 	}
 
 	void ZoomExtents(const lcMatrix44& ProjectionMatrix, lcMatrix44& ViewMatrix, float* EyePos = NULL) const;
+	void AddRenderMesh(lcScene& Scene);
 	void AddRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int ColorIndex, bool Focused, bool Selected);
-	void AddRenderMeshes(const lcMatrix44& ViewMatrix, const lcMatrix44& WorldMatrix, int ColorIndex, bool Focused, bool Selected, lcArray<lcRenderMesh>& OpaqueMeshes, lcArray<lcRenderMesh>& TranslucentMeshes);
 
 	void CreatePlaceholder(const char* Name);
 
 	void SetPlaceholder();
-	void SetModel(lcModel* Model);
+	void SetModel(lcModel* Model, bool UpdateMesh);
 	bool IncludesModel(const lcModel* Model) const;
 	bool MinIntersectDist(const lcMatrix44& WorldMatrix, const lcVector3& WorldStart, const lcVector3& WorldEnd, float& MinDistance) const;
 	bool BoxTest(const lcMatrix44& WorldMatrix, const lcVector4 Planes[6]) const;
