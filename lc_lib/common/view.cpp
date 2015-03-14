@@ -2239,6 +2239,10 @@ void View::OnMouseMove()
 
 	const float MouseSensitivity = 1.0f / (21.0f - lcGetPreferences().mMouseSensitivity);
 
+//    lcVector3 Rotation = lcMatrix44ToEulerAngles(mCamera->mWorldView);
+//    Rotation *= LC_RTOD;
+//    Rotation *= LC_DTOR;
+
 	switch (mTrackTool)
 	{
 	case LC_TRACKTOOL_NONE:
@@ -2468,14 +2472,6 @@ void View::OnMouseMove()
 		}
 		break;
 
-//	case LC_TRACKTOOL_ORBIT_X:
-//		mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.0f);
-//		break;
-
-//	case LC_TRACKTOOL_ORBIT_Y:
-//		mModel->UpdateOrbitTool(mCamera, 0.0f, 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
-//		break;
-
     case LC_TRACKTOOL_ORBIT_X:
     case LC_TRACKTOOL_ORBIT_Y:
         {
@@ -2531,7 +2527,7 @@ void View::OnMouseMove()
         }
         break;
 
-	case LC_TRACKTOOL_ORBIT_XY:       
+    case LC_TRACKTOOL_ORBIT_XY:
         {
 
             mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
@@ -2544,8 +2540,8 @@ void View::OnMouseMove()
             lcVector3 MoveY = 36.0f * (float)(mInputState.y - mMouseDownY) * MouseSensitivity * ScreenY;
 
             gui->UpdateStepRotation(MoveX + MoveY);
-		}
-		break;
+        }
+        break;
 
 	case LC_TRACKTOOL_ROLL:
 		mModel->UpdateRollTool(mCamera, 2.0f * MouseSensitivity * (mInputState.x - mMouseDownX) * LC_DTOR);

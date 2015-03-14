@@ -1130,6 +1130,8 @@ void lcMainWindow::ResetCameras()
 		mViews[ViewIdx]->SetDefaultCamera();
 
 	lcGetActiveModel()->DeleteAllCameras();
+
+    gui->UpdateStepRotation(lcVector3(0.0f, 0.0f, 0.0f));
 }
 
 void lcMainWindow::AddView(View* View)
