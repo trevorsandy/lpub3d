@@ -351,6 +351,7 @@
 #include "ranges.h"
 #include "ldrawfiles.h"
 #include "where.h"
+#include "FadeStepColorParts.h"
 
 //** 3D
 #include "lc_math.h"
@@ -583,6 +584,7 @@ private:
   EditWindow     *editWindow;      // the sub file editable by the user
 
   GlobalFadeStep *data;
+  FadeStepColorParts    fadeStepColorParts; //internal list of color parts to be processed for fade step.
 
 #ifdef WATCHER
   QFileSystemWatcher watcher;      // watch the file system for external
@@ -655,6 +657,14 @@ private:
      QStringList  &csiParts,
      int          &stepNum,
      Where        &current);      // fade parts in a step that are not current
+
+  void createFadePart(            // convert static color files
+    QString   &type);             // replace color code with fade color
+
+  void writeToFade(                // copy to fade dir
+    const QString     &fileName,
+    const QStringList &contents);
+
 
 private slots:
     void open();

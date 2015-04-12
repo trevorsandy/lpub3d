@@ -30,51 +30,36 @@
 
 ****************************************************************************/
 
-
-
 #include <QtGui>
-
 #include <QSettings>
-
 #include <QDir>
-
-
-
 #include "paths.h"
-
-
+#include "lpub_preferences.h"
 
 Paths paths;
 
-
-
 QString Paths::lpubDir   = "LPub";
-
 QString Paths::tmpDir    = "LPub/tmp";
-
 QString Paths::assemDir  = "LPub/assem";
-
 QString Paths::partsDir  = "LPub/parts";
-
 QString Paths::viewerDir = "LPub/viewer";
 
+QString Paths::fadeDir;
+QString Paths::fadeSDir;
 
 
 void Paths::mkdirs()
 
 {
-
   QDir dir;
-
   dir.mkdir(lpubDir);
-
   dir.mkdir(tmpDir);
-
   dir.mkdir(assemDir);
-
   dir.mkdir(partsDir);
-
   dir.mkdir(viewerDir);
-
+  fadeDir   = Preferences::ldrawPath + "/Unofficial/parts/fade";
+  dir.mkdir(fadeDir);
+  fadeSDir  = Preferences::ldrawPath + "/Unofficial/parts/fade/s";
+  dir.mkdir(fadeSDir);
 }
 

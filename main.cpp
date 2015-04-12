@@ -124,6 +124,7 @@ int main(int argc, char *argv[])
     Preferences::leocadLibPreferences(false);
     Preferences::unitsPreferences();
     Preferences::annotationPreferences();
+    Preferences::fadestepPreferences();
     Preferences::viewerPreferences();
 
     defaultResolutionType(Preferences::preferCentimeters);

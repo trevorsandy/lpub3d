@@ -56,6 +56,7 @@ class Preferences
     static QString pliFile;
     static QString lpubPath;
     static QString fadeStepColor;
+    static QString fadeStepColorPartsFile;
     static QString titleAnnotationsFile;
     static QString freeformAnnotationsFile;
     static QString defaultAuthor;

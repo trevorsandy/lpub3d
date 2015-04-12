@@ -30,10 +30,15 @@
 /editwindow.cpp -text
 /editwindow.h -text
 extras/LPubV-Config-Notes.txt -text
+extras/fadeStepColorParts.lst -text
 extras/freeformAnnotations.lst -text
 extras/pli.mpd -text
 extras/titleAnnotations.lst -text
+/fadestepcolorparts.cpp -text
+/fadestepcolorparts.h -text
 /fadestepglobals.cpp -text
+/fileutils.cpp -text
+/fileutils.h -text
 /formatpage.cpp -text
 /globals.h -text
 /glwidget.cpp -text

@@ -24,6 +24,7 @@
 #include "lpub_preferences.h"
 #include "editwindow.h"
 #include "paths.h"
+#include "fileutils.h"
 
 void Gui::open()
 {  
@@ -226,6 +227,7 @@ void Gui::openFile(QString &fileName)
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
   Paths::mkdirs();
+  //FileUtils::removeFiles(Paths::fadeDir);
   ldrawFile.loadFile(fileName);
   attitudeAdjustment();
   mpdCombo->setMaxCount(0);

@@ -449,7 +449,6 @@ Gui::Gui()
     Preferences::renderPreferences();
 	Preferences::lgeoPreferences();
     Preferences::pliPreferences();
-    Preferences::fadestepPreferences();
     Preferences::publishingPreferences();
 
     displayPageNum  = 1;

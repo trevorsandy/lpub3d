@@ -48,6 +48,7 @@ QString Preferences::titleAnnotationsFile;
 QString Preferences::freeformAnnotationsFile;
 QString Preferences::preferredRenderer;
 QString Preferences::fadeStepColor = "Very_Light_Bluish_Gray";
+QString Preferences::fadeStepColorPartsFile;
 QString Preferences::defaultAuthor;
 QString Preferences::defaultURL;
 QString Preferences::defaultEmail;
@@ -413,6 +414,30 @@ void Preferences::fadestepPreferences()
     enableFadeStep = settings.value("EnableFadeStep").toBool();
     fadeStepColor = settings.value("FadeStepColor").toString();
   }
+
+  fadeStepColorPartsFile = settings.value("FadeStepColorPartsFile").toString();
+  QFileInfo fadeStepColorFileInfo(fadeStepColorPartsFile);
+  if (fadeStepColorFileInfo.exists()) {
+    //return;
+  } else {
+    settings.remove("FadeStepColorPartsFile");
+  }
+#ifdef __APPLE__
+
+ fadeStepColorPartsFile    = "./fadeStepColorParts.lst";
+
+#else
+  fadeStepColorPartsFile    = QDir::toNativeSeparators("./extras/fadeStepColorParts.lst");
+
+#endif
+ QFileInfo popFadeStepColorFileInfo(fadeStepColorPartsFile);
+ popFadeStepColorFileInfo.setFile(fadeStepColorPartsFile);
+ if (popFadeStepColorFileInfo.exists()) {
+     settings.setValue("FadeStepColorPartsFile",fadeStepColorPartsFile);
+ } else {
+     //fadeStepColorPartsFile = "";
+ }
+
 }
 
 void Preferences::publishingPreferences()

@@ -1797,6 +1797,16 @@ void Gui::writeToTmp(
       split(line,tokens);
       if (tokens.size()) {
         if (tokens[0] != "0") {
+
+          // check if colored part and fade if yes
+          QString type  = tokens[tokens.size()-1];
+          if (FadeStepColorParts::isStaticColorPart(type)){
+              QString fadeFileName = type;
+              fadeFileName = "fade\\" + fadeFileName.replace(".dat","-fade.dat");
+              tokens[tokens.size()-1] = fadeFileName;
+              createFadePart(type);
+              line = tokens.join(" ");
+          }
           csiParts << line;
         } else {
           Meta meta;
@@ -1971,6 +1981,13 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
 
                     // process subfile names in csiParts
                     QString type  = argv[argv.size()-1];
+                    if (FadeStepColorParts::isStaticColorPart(type)){
+                        QString fadeFileName = type;
+                        fadeFileName = "fade\\" + fadeFileName.replace(".dat","-fade.dat");
+                        argv[argv.size()-1] = fadeFileName;
+                        createFadePart(type);
+                    }
+
                     if (ldrawFile.isSubmodel(type)) {
                         /* change file name */
                         QRegExp rgxLDR("\\.(ldr)$");                //CONSIDER OPTIMIZING THIS
@@ -2011,3 +2028,98 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
     return fadeCsiParts;
 }
 
+void Gui::createFadePart(QString &type) {
+    data = new GlobalFadeStep();
+    FadeStepMeta *fadeStepMeta = &data->meta.LPub.fadeStep;
+    QString fadeColor   = LDrawColor::ldColorCode(fadeStepMeta->fadeColor.value());
+     //qDebug() << "TYPE: " << type << "  FADE PART: " << fadeFileName;
+
+     QString filePath = Preferences::ldrawPath + "/";
+     QString fadeFilePath = Paths::fadeDir + "/";
+
+     QString officialPartFile = filePath + "/parts/" + type;
+     QString unofficialPartFile = filePath + "Unofficial/parts/" + type;
+     QString fadePartFile = fadeFilePath + type.replace(".dat","-fade.dat");
+
+     QFile ofile(officialPartFile);
+     QFile ufile(unofficialPartFile);
+     QFileInfo fadeStepColorFileInfo(fadePartFile);
+
+     QStringList contents;
+     QStringList fadePartContent;
+     QString fileErrorString;
+
+     if (fadeStepColorFileInfo.exists()) {
+       return;
+     } else {
+         if (ofile.open(QFile::ReadOnly | QFile::Text)){
+             QTextStream in(&ofile);
+             while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                contents << sLine;
+             }
+
+         } else if (ufile.open(QFile::ReadOnly | QFile::Text)) {
+            fileErrorString = ofile.errorString();
+            QTextStream in(&ufile);
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                contents << sLine;
+            }
+         } else {
+             fileErrorString = fileErrorString + "\n" + ufile.errorString();
+             QMessageBox::warning(NULL,QMessageBox::tr("LPubV"),
+                                  QMessageBox::tr("failed to open colorPart file at:\n%1 or\n:%2:\n%3")
+                                  .arg(officialPartFile)
+                                  .arg(unofficialPartFile)
+                                  .arg(fileErrorString));
+                     return;
+         }
+     }
+
+     for (int i = 0; i < contents.size(); i++){
+         QString line = contents[i];
+         QStringList tokens;
+
+         split(line,tokens);
+         if (tokens.size() == 15 && tokens[0] == "1") {
+             tokens[1] = fadeColor;
+             QString type2  = tokens[tokens.size()-1];
+             if (FadeStepColorParts::isStaticColorPart(type2)){
+                 QString fadeFileName = type2;
+                 fadeFileName = "fade\\" + fadeFileName.replace(".dat","-fade.dat");
+                 tokens[tokens.size()-1] = fadeFileName;
+                 createFadePart(type2);
+             }
+         } else if ((tokens.size() == 8  && tokens[0] == "2") ||
+                    (tokens.size() == 11 && tokens[0] == "3") ||
+                    (tokens.size() == 14 && tokens[0] == "4") ||
+                    (tokens.size() == 14 && tokens[0] == "5")) {
+              tokens[1] = fadeColor;
+         }
+
+         line = tokens.join(" ");
+         fadePartContent << line;
+     }
+
+     writeToFade(fadePartFile, fadePartContent);
+}
+
+
+void Gui::writeToFade(
+    const QString &fileName,
+    const QStringList &contents) {
+
+    QFile file(fileName);
+    if ( ! file.open(QFile::WriteOnly|QFile::Text)) {
+      QMessageBox::warning(NULL,QMessageBox::tr("LPubV"),
+      QMessageBox::tr("Failed to open %1 for writing: %2")
+        .arg(fileName) .arg(file.errorString()));
+    } else {
+      QTextStream out(&file);
+      for (int i = 0; i < contents.size(); i++) {
+        out << contents[i] << endl;
+      }
+      file.close();
+    }
+}

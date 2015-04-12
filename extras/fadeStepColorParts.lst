@@ -1,0 +1,45 @@
+#Parts on this list will be copied to .\Ldraw\Parts\Fade\ and modified
+#Colour codes will be replaced with code 16 for modified files
+#Modified file names will be appended with '-fade', for example, ...\Fade\99499-fade.dat
+#Part identifiers with spaces will not be properly recoginzed.
+
+# Part Identifier	   Part Description (For reference only )
+
+#Test
+3795.dat
+s\48933s01.dat			~Wedge  4 x  4 Triple with Stud Notches without Faces and Lines
+48933ps1.dat			Wedge 4 x  4 Triple with Stud Notches & Grey Mechanical Pattern
+
+
+#Official Parts
+58124c01.dat			Electric Power Functions Connector with PF Buttom
+58120.dat				Electric Power Functions Medium Motor
+58119.dat				Electric Power Functions 9V Battery Box
+99498.dat				Electric Power Functions Servo Motor
+99499.dat				Electric Power Functions Large Motor
+10130c01.dat			Electric Power Functions Servo Motor Case
+10089c01.dat			Electric Power Functions Large Motor Case
+
+#Unofficial Parts
+sbrick.dat				Electric Power Functions SBrick Bluetooth Receiver
+
+#Custom Parts
+42039s-antenna_2592+4593-1.dat
+42039S-front-shock-1.dat
+42039s-front-shock-76537-1.dat
+42039S-pflights1.dat
+42039S-pflights-1.dat
+42039S-pflights2.dat
+42039S-pflights-2.dat
+42039S-pflights-3-lpub.dat
+42039S-pflights-4-lpub.dat
+42039S-pflights-junction-1.dat
+42039S-pflights-junction-2.dat
+42039S-powerfuncextwire-1.dat
+42039S-powerfuncextwire-2.dat
+42039S-powerfuncmotorl-1.dat
+42039S-powerfuncmotorm-1.dat
+42039S-powerfuncmotorm-2.dat
+42039S-powerfuncmotorservo-1.dat
+42039s-rear-shock-76537-1.dat
+62501c01tds01			Electric Power Functions Connector with PF Buttom	
