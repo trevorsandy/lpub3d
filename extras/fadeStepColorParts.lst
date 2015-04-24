@@ -1,11 +1,12 @@
+#On this list, enter the static colored part (or their components) to enable fade
 #Parts on this list will be copied to .\Ldraw\Parts\Fade\ and modified
-#Colour codes will be replaced with code 16 for modified files
-#Modified file names will be appended with '-fade', for example, ...\Fade\99499-fade.dat
+#Colour codes will be replaced with selected fade color code
+#Copied files will be appended with '-fade', for example, ...\Fade\99499-fade.dat
 #Part identifiers with spaces will not be properly recoginzed.
 
-# Part Identifier	   Part Description (For reference only )
+# Part Identifier	   Part Description (For reference only - not used by fade step logic)
 
-#Test
+#Test parts
 3795.dat
 s\48933s01.dat			~Wedge  4 x  4 Triple with Stud Notches without Faces and Lines
 48933ps1.dat			Wedge 4 x  4 Triple with Stud Notches & Grey Mechanical Pattern
@@ -24,22 +25,23 @@ s\48933s01.dat			~Wedge  4 x  4 Triple with Stud Notches without Faces and Lines
 sbrick.dat				Electric Power Functions SBrick Bluetooth Receiver
 
 #Custom Parts
-42039s-antenna_2592+4593-1.dat
-42039S-front-shock-1.dat
-42039s-front-shock-76537-1.dat
-42039S-pflights1.dat
-42039S-pflights-1.dat
-42039S-pflights2.dat
-42039S-pflights-2.dat
-42039S-pflights-3-lpub.dat
-42039S-pflights-4-lpub.dat
-42039S-pflights-junction-1.dat
-42039S-pflights-junction-2.dat
-42039S-powerfuncextwire-1.dat
-42039S-powerfuncextwire-2.dat
-42039S-powerfuncmotorl-1.dat
-42039S-powerfuncmotorm-1.dat
-42039S-powerfuncmotorm-2.dat
-42039S-powerfuncmotorservo-1.dat
-42039s-rear-shock-76537-1.dat
-62501c01tds01			Electric Power Functions Connector with PF Buttom	
+42039s-antenna_2592+4593-1.dat		24 Hour Race Car Antenna
+42039S-front-shock-1.dat			24 Hour Race Car Front Shock Adjusted Spring
+42039s-front-shock-76537-1.dat		24 Hour Race Car Front Shock Adjustable Spring
+42039S-pflights1.dat				24 Hour Race Car Front Light Assembly
+42039S-pflights-1.dat				24 Hour Race Car Front Light Component 1
+42039S-pflights2.dat				24 Hour Race Car Rear Light Assembly
+42039S-pflights-2.dat				24 Hour Race Car Front Light Component 2
+42039S-pflights-3-lpub.dat			24 Hour Race Car Rear Light Component 1
+42039S-pflights-4-lpub.dat			24 Hour Race Car Rear Light Component 2
+42039S-pflights-junction-1.dat		24 Hour Race Car Front Light Junction
+42039S-pflights-junction-2.dat		24 Hour Race Car Rear Light Junction
+42039S-powerfuncextwire-1.dat		24 Hour Race Car Electric Power Functions Extension Wire 1 
+42039S-powerfuncextwire-2.dat		24 Hour Race Car Electric Power Functions Extension Wire 1 
+42039S-powerfuncmotorl-1.dat		24 Hour Race Car Electric Power Functions Large Motor
+42039S-powerfuncmotorm-1.dat		24 Hour Race Car Electric Power Functions Medium Motor 1
+42039S-powerfuncmotorm-2.dat		24 Hour Race Car Electric Power Functions Medium Motor 2
+42039S-powerfuncmotorservo-1.dat	24 Hour Race Car Electric Power Functions Servo Motor
+42039s-rear-shock-76537-1.dat		24 Hour Race Car Rear Shock Adjustable Spring 
+
+62501c01tds01.dat					Electric Power Functions Connector with PF Buttom	

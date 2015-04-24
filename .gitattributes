@@ -32,6 +32,7 @@
 extras/LPubV-Config-Notes.txt -text
 extras/fadeStepColorParts.lst -text
 extras/freeformAnnotations.lst -text
+extras/lcLDrawArchive.bat -text
 extras/pli.mpd -text
 extras/titleAnnotations.lst -text
 /fadestepcolorparts.cpp -text

@@ -1,5 +1,8 @@
-﻿#Follow this format to define freeform annotations
-#The format part number followed free form description (some special characters may not be supported) 
+﻿#Enter free form part annotations on this list
+#Follow this format to define freeform annotations
+#The format is part ID followed free-form annotation (some special characters may not be supported) 
+
+#ID			Annotation
 3024.dat	1x1
 4073.dat	1x1
 3614.dat	1x1
@@ -66,3 +69,4 @@
 3026.dat	6x24
 6063.dat	10x10
 2401.dat	10x10
+#...

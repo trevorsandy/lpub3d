@@ -1,7 +1,9 @@
-﻿#Follow this format to define annotations derived from part title
-#The format is category followed by regex string (to extract to annotation from the part title)
+﻿#Enter part category and annotation Regex on this list
+#Follow this format to define annotations derived from part title (LDraw Parts.lst)
+#The format is category followed by regex string (to extract annotation from the part title)
 #For efficiency put most used parts first.
 
+#Category	Regex (to identify and extract annotation)
 Technic:    ^Technic Axle\s+(\d+\.*\d*)\s*.*$
 Technic:	^Technic Axle Flexible\s+(\d+)\s*.*$
 Technic:	^Technic Angle Connector\s+\(*(#*\d*\s*x*\s*\d*)\s*\w*\)*\s*.*$
