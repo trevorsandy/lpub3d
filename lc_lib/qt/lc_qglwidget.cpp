@@ -11,7 +11,7 @@
 #include "lc_texture.h"
 #include "lc_mesh.h"
 
-static int gWidgetCount;
+static int gWidgetCount; 
 
 void lcGLWidget::MakeCurrent()
 {
@@ -40,6 +40,7 @@ void lcGLWidget::ShowPopupMenu()
 	QAction **actions = gMainWindow->mActions;
 
 	QMenu *popup = new QMenu(Widget);
+
 	QMenu *tools = new QMenu("Tools");
 	popup->addMenu(tools);
 	for (int actionIdx = LC_EDIT_ACTION_FIRST; actionIdx <= LC_EDIT_ACTION_LAST; actionIdx++)

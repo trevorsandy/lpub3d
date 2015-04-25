@@ -32,6 +32,7 @@ lcPiece::lcPiece(PieceInfo* pPieceInfo)
 	mStepShow = 1;
 	mStepHide = LC_STEP_MAX;
 	mGroup = NULL;
+	mFileLine = -1;
 
 	if (mPieceInfo != NULL)
 		mPieceInfo->AddRef();
@@ -458,8 +459,10 @@ void lcPiece::DrawInterface(lcContext* Context, const lcMatrix44& ViewMatrix) co
 	else
 		lcSetColorSelected();
 
-	glVertexPointer(3, GL_FLOAT, 0, Verts);
-	glDrawArrays(GL_LINES, 0, 48);
+	Context->SetVertexBufferPointer(Verts);
+	Context->SetVertexFormat(0, 3, 0, 0);
+
+	Context->DrawPrimitives(GL_LINES, 0, 48);
 }
 
 void lcPiece::Move(lcStep Step, bool AddKey, const lcVector3& Distance)

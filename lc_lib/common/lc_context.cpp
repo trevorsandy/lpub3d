@@ -59,6 +59,9 @@ lcContext::lcContext()
 	mIndexBufferPointer = NULL;
 	mVertexBufferOffset = (char*)~0;
 
+	mTexCoordEnabled = false;
+	mColorEnabled = false;
+
 	mTexture = NULL;
 	mLineWidth = 1.0f;
 	mMatrixMode = GL_MODELVIEW;
@@ -86,6 +89,8 @@ void lcContext::SetDefaultState()
 	glPolygonOffset(0.5f, 0.1f);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 
 	if (GL_HasVertexBufferObject())
 	{
@@ -95,6 +100,9 @@ void lcContext::SetDefaultState()
 
 	glVertexPointer(3, GL_FLOAT, 0, NULL);
 	glTexCoordPointer(2, GL_FLOAT, 0, NULL);
+	glColorPointer(4, GL_FLOAT, 0, NULL);
+	mTexCoordEnabled = false;
+	mColorEnabled = false;
 
 	mVertexBufferObject = 0;
 	mIndexBufferObject = 0;
@@ -102,7 +110,6 @@ void lcContext::SetDefaultState()
 	mIndexBufferPointer = NULL;
 	mVertexBufferOffset = (char*)~0;
 
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisable(GL_TEXTURE_2D);
 	mTexture = NULL;
 
@@ -293,6 +300,101 @@ bool lcContext::SaveRenderToTextureImage(const QString& FileName, int Width, int
 	return Result;
 }
 
+void lcContext::ClearVertexBuffer()
+{
+	mVertexBufferPointer = NULL;
+	mVertexBufferOffset = (char*)~0;
+
+	if (mVertexBufferObject)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+		mVertexBufferObject = 0;
+	}
+
+	if (mTexCoordEnabled)
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	if (mColorEnabled)
+		glDisableClientState(GL_COLOR_ARRAY);
+}
+
+void lcContext::SetVertexBuffer(const lcVertexBuffer* VertexBuffer)
+{
+	if (GL_HasVertexBufferObject())
+	{
+		GLuint VertexBufferObject = VertexBuffer->mBuffer;
+		mVertexBufferPointer = NULL;
+
+		if (VertexBufferObject != mVertexBufferObject)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER_ARB, VertexBufferObject);
+			mVertexBufferObject = VertexBufferObject;
+			mVertexBufferOffset = (char*)~0;
+		}
+	}
+	else
+	{
+		mVertexBufferPointer = (char*)VertexBuffer->mData;
+		mVertexBufferOffset = (char*)~0;
+	}
+}
+
+void lcContext::SetVertexBufferPointer(const void* VertexBuffer)
+{
+	if (GL_HasVertexBufferObject() && mVertexBufferObject)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+		mVertexBufferObject = 0;
+	}
+
+	mVertexBufferPointer = (char*)VertexBuffer;
+	mVertexBufferOffset = (char*)~0;
+}
+
+void lcContext::SetVertexFormat(int BufferOffset, int PositionSize, int TexCoordSize, int ColorSize)
+{
+	int VertexSize = (PositionSize + TexCoordSize + ColorSize) * sizeof(float);
+	char* VertexBufferPointer = mVertexBufferPointer + BufferOffset;
+
+	if (mVertexBufferOffset != VertexBufferPointer)
+	{
+		glVertexPointer(PositionSize, GL_FLOAT, VertexSize, VertexBufferPointer);
+		mVertexBufferOffset = VertexBufferPointer;
+	}
+
+	if (TexCoordSize)
+	{
+		glTexCoordPointer(TexCoordSize, GL_FLOAT, VertexSize, VertexBufferPointer + PositionSize * sizeof(float));
+
+		if (!mTexCoordEnabled)
+		{
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			mTexCoordEnabled = true;
+		}
+	}
+	else if (mTexCoordEnabled)
+	{
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		mTexCoordEnabled = false;
+	}
+
+	if (ColorSize)
+	{
+		glColorPointer(ColorSize, GL_FLOAT, VertexSize, VertexBufferPointer + (PositionSize + TexCoordSize) * sizeof(float));
+
+		if (!mColorEnabled)
+		{
+			glEnableClientState(GL_COLOR_ARRAY);
+			mColorEnabled = true;
+		}
+	}
+	else if (mColorEnabled)
+	{
+		glDisableClientState(GL_COLOR_ARRAY);
+		mColorEnabled = false;
+	}
+}
+
 void lcContext::BindMesh(lcMesh* Mesh)
 {
 	if (GL_HasVertexBufferObject())
@@ -347,6 +449,11 @@ void lcContext::UnbindMesh()
 	glTexCoordPointer(2, GL_FLOAT, 0, NULL);
 }
 
+void lcContext::DrawPrimitives(GLenum Mode, GLint First, GLsizei Count)
+{
+	glDrawArrays(Mode, First, Count);
+}
+
 void lcContext::DrawMeshSection(lcMesh* Mesh, lcMeshSection* Section)
 {
 	char* BufferOffset = mVertexBufferPointer;
@@ -399,6 +506,8 @@ void lcContext::DrawMeshSection(lcMesh* Mesh, lcMeshSection* Section)
 
 void lcContext::DrawOpaqueMeshes(const lcMatrix44& ViewMatrix, const lcArray<lcRenderMesh>& OpaqueMeshes)
 {
+	bool DrawLines = lcGetPreferences().mDrawEdgeLines;
+
 	for (int MeshIdx = 0; MeshIdx < OpaqueMeshes.GetSize(); MeshIdx++)
 	{
 		lcRenderMesh& RenderMesh = OpaqueMeshes[MeshIdx];
@@ -439,10 +548,15 @@ void lcContext::DrawOpaqueMeshes(const lcMatrix44& ViewMatrix, const lcArray<lcR
 					lcSetColorFocused();
 				else if (RenderMesh.Selected)
 					lcSetColorSelected();
-				else if (ColorIndex == gEdgeColor)
-					lcSetEdgeColor(RenderMesh.ColorIndex);
+				else if (DrawLines)
+				{
+					if (ColorIndex == gEdgeColor)
+						lcSetEdgeColor(RenderMesh.ColorIndex);
+					else
+						lcSetColor(ColorIndex);
+				}
 				else
-					lcSetColor(ColorIndex);
+					continue;
 			}
 
 			DrawMeshSection(Mesh, Section);

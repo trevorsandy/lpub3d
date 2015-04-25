@@ -2,7 +2,7 @@
 #include "lc_commands.h"
 #include "system.h"
 
-lcCommand gCommands[LC_NUM_COMMANDS] =
+lcCommand gCommands[LC_NUM_COMMANDS] = 
 {
 	// LC_FILE_NEW
 	{
@@ -263,6 +263,13 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Status", "Move and rotate objects relative to the one that currently has focus"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
+	// LC_EDIT_SNAP_MOVE_TOGGLE
+	{
+		"Edit.Snap.Toggle",
+		QT_TRANSLATE_NOOP("Menu", "Move Snap Enabled"),
+		QT_TRANSLATE_NOOP("Status", "Toggle snap axes"),
+		QT_TRANSLATE_NOOP("Shortcut", "")
+	},
 	// LC_EDIT_SNAP_MOVE_XY0
 	{
 		"Edit.SnapMove.XY0",
@@ -402,6 +409,13 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Menu", "8 Bricks"),
 		QT_TRANSLATE_NOOP("Status", "Snap movement along the Z axis to 8 bricks"),
 		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+Shift+9")
+	},
+	// LC_EDIT_SNAP_ANGLE_TOGGLE
+	{
+		"Edit.SnapAngle.Toggle",
+		QT_TRANSLATE_NOOP("Menu", "Rotation Snap Enabled"),
+		QT_TRANSLATE_NOOP("Status", "Snap rotations to fixed intervals"),
+		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_EDIT_SNAP_ANGLE0
 	{
@@ -1103,6 +1117,13 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Status", "Hide objects that are not selected"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
+	// LC_PIECE_UNHIDE_SELECTED
+	{
+		"Piece.UnhideSelected",
+		QT_TRANSLATE_NOOP("Menu", "&Unhide Selected"),
+		QT_TRANSLATE_NOOP("Status", "Show hidden objects that are selected"),
+		QT_TRANSLATE_NOOP("Shortcut", "")
+	},
 	// LC_PIECE_UNHIDE_ALL
 	{
 		"Piece.UnhideAll",
@@ -1136,6 +1157,13 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		"Model.Properties",
 		QT_TRANSLATE_NOOP("Menu", "Prope&rties..."),
 		QT_TRANSLATE_NOOP("Status", "Display the properties of the current model"),
+		QT_TRANSLATE_NOOP("Shortcut", "")
+	},
+	// LC_MODEL_EDIT_FOCUS
+	{
+		"Model.SwitchToFocus",
+		QT_TRANSLATE_NOOP("Menu", "Switch to Model"),
+		QT_TRANSLATE_NOOP("Status", "Switch to the model corresponding to the piece with focus"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_MODEL_LIST

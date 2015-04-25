@@ -6,6 +6,7 @@
 #include "view.h"
 #include "system.h"
 #include "tr.h"
+#include "lc_mesh.h"
 #include "texfont.h"
 #include "lc_texture.h"
 #include "preview.h"
@@ -13,10 +14,13 @@
 #include "pieceinf.h"
 
 #include "lpub.h"
+
 View::View(lcModel* Model)
 {
 	mModel = Model;
 	mCamera = NULL;
+	mGridBuffer = NULL;
+	memset(mGridSettings, 0, sizeof(mGridSettings));
 
 	mDragState = LC_DRAGSTATE_NONE;
 	mTrackButton = LC_TRACKBUTTON_NONE;
@@ -31,6 +35,8 @@ View::View(lcModel* Model)
 
 View::~View()
 {
+	delete mGridBuffer;
+
 	if (gMainWindow)
 		gMainWindow->RemoveView(this);
 
@@ -426,6 +432,8 @@ void View::OnDraw()
 		glEnable(GL_FOG);
 	}
 
+	mContext->SetLineWidth(Preferences.mLineWidth);
+
 	const lcMatrix44& ViewMatrix = mCamera->mWorldView;
 	mContext->DrawOpaqueMeshes(ViewMatrix, mScene.mOpaqueMeshes);
 	mContext->DrawTranslucentMeshes(ViewMatrix, mScene.mTranslucentMeshes);
@@ -446,7 +454,7 @@ void View::OnDraw()
 	{
 		mContext->DrawInterfaceObjects(ViewMatrix, mScene.mInterfaceObjects);
 
-		mContext->SetLineWidth(Preferences.mLineWidth); // context remove
+		mContext->SetLineWidth(1.0f);
 
 		if (Preferences.mDrawGridStuds || Preferences.mDrawGridLines)
 			DrawGrid();
@@ -473,18 +481,147 @@ void View::OnDraw()
 
 void View::DrawSelectMoveOverlay()
 {
-	const float OverlayScale = GetOverlayScale();
+	float Verts[(51 + 138 + 10) * 3];
+	float* CurVert = Verts;
+
+	const float OverlayMovePlaneSize = 0.5f;
+	const float OverlayMoveArrowSize = 1.5f;
+	const float OverlayMoveArrowCapSize = 0.9f;
+	const float OverlayMoveArrowCapRadius = 0.1f;
+	const float OverlayMoveArrowBodySize = 1.2f;
+	const float OverlayMoveArrowBodyRadius = 0.05f;
+	const float OverlayRotateArrowStart = 1.0f;
+	const float OverlayRotateArrowEnd = 1.5f;
+	const float OverlayRotateArrowCenter = 1.2f;
+
+	*CurVert++ = OverlayMoveArrowSize; *CurVert++ = 0.0f; *CurVert++ = 0.0f;
+
+	for (int EdgeIdx = 0; EdgeIdx < 8; EdgeIdx++)
+	{
+		*CurVert++ = OverlayMoveArrowCapSize;
+		*CurVert++ = cosf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius;
+		*CurVert++ = sinf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius;
+	}
+
+	*CurVert++ = 0.0f; *CurVert++ = -OverlayMoveArrowBodyRadius; *CurVert++ = 0.0f;
+	*CurVert++ = 0.0f; *CurVert++ = OverlayMoveArrowBodyRadius; *CurVert++ = 0.0f;
+	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = -OverlayMoveArrowBodyRadius;
+	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = OverlayMoveArrowBodyRadius;
+	*CurVert++ = OverlayMoveArrowBodySize; *CurVert++ = -OverlayMoveArrowBodyRadius; *CurVert++ = 0.0f;
+	*CurVert++ = OverlayMoveArrowBodySize; *CurVert++ = OverlayMoveArrowBodyRadius; *CurVert++ = 0.0f;
+	*CurVert++ = OverlayMoveArrowBodySize; *CurVert++ = 0.0f; *CurVert++ = -OverlayMoveArrowBodyRadius;
+	*CurVert++ = OverlayMoveArrowBodySize; *CurVert++ = 0.0f; *CurVert++ = OverlayMoveArrowBodyRadius;
+
+	for (int VertIdx = 0; VertIdx < 17; VertIdx++)
+	{
+		*CurVert = *(CurVert - 50); CurVert++;
+		*CurVert = *(CurVert - 52); CurVert++;
+		*CurVert = *(CurVert - 51); CurVert++;
+	}
+
+	for (int VertIdx = 0; VertIdx < 17; VertIdx++)
+	{
+		*CurVert = *(CurVert - 100); CurVert++;
+		*CurVert = *(CurVert - 102); CurVert++;
+		*CurVert = *(CurVert - 104); CurVert++;
+	}
+
+	*CurVert++ = 0.0f; *CurVert++ = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius; *CurVert++ = OverlayRotateArrowStart;
+
+	for (int EdgeIdx = 0; EdgeIdx < 8; EdgeIdx++)
+	{
+		*CurVert++ = cosf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius;
+		*CurVert++ = sinf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius + OverlayRotateArrowEnd - OverlayMoveArrowCapRadius;
+		*CurVert++ = OverlayRotateArrowCenter;
+	}
+
+	*CurVert++ = 0.0f; *CurVert++ = OverlayRotateArrowStart; *CurVert++ = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius;
+
+	for (int EdgeIdx = 0; EdgeIdx < 8; EdgeIdx++)
+	{
+		*CurVert++ = cosf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius;
+		*CurVert++ = OverlayRotateArrowCenter;
+		*CurVert++ = sinf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius + OverlayRotateArrowEnd - OverlayMoveArrowCapRadius;
+	}
+
+	for (int EdgeIdx = 0; EdgeIdx < 7; EdgeIdx++)
+	{
+		const float Radius1 = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius - OverlayRotateArrowCenter - OverlayMoveArrowBodyRadius;
+		const float Radius2 = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius - OverlayRotateArrowCenter + OverlayMoveArrowBodyRadius;
+		float x = cosf(LC_2PI / 4 * EdgeIdx / 6);
+		float y = sinf(LC_2PI / 4 * EdgeIdx / 6);
+
+		*CurVert++ = 0.0f;
+		*CurVert++ = OverlayRotateArrowCenter + x * Radius1;
+		*CurVert++ = OverlayRotateArrowCenter + y * Radius1;
+		*CurVert++ = 0.0f;
+		*CurVert++ = OverlayRotateArrowCenter + x * Radius2;
+		*CurVert++ = OverlayRotateArrowCenter + y * Radius2;
+	}
+
+	for (int EdgeIdx = 0; EdgeIdx < 7; EdgeIdx++)
+	{
+		const float Radius = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius - OverlayRotateArrowCenter;
+		float x = cosf(LC_2PI / 4 * EdgeIdx / 6);
+		float y = sinf(LC_2PI / 4 * EdgeIdx / 6);
+
+		*CurVert++ = -OverlayMoveArrowBodyRadius;
+		*CurVert++ = OverlayRotateArrowCenter + x * Radius;
+		*CurVert++ = OverlayRotateArrowCenter + y * Radius;
+		*CurVert++ = OverlayMoveArrowBodyRadius;
+		*CurVert++ = OverlayRotateArrowCenter + x * Radius;
+		*CurVert++ = OverlayRotateArrowCenter + y * Radius;
+	}
+
+	for (int VertIdx = 0; VertIdx < 46; VertIdx++)
+	{
+		*CurVert = *(CurVert - 137); CurVert++;
+		*CurVert = *(CurVert - 139); CurVert++;
+		*CurVert = *(CurVert - 138); CurVert++;
+	}
+
+	for (int VertIdx = 0; VertIdx < 46; VertIdx++)
+	{
+		*CurVert = *(CurVert - 274); CurVert++;
+		*CurVert = *(CurVert - 276); CurVert++;
+		*CurVert = *(CurVert - 278); CurVert++;
+	}
+
+	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = 0.0f;
+	*CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f;
+	*CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize; *CurVert++ = OverlayMovePlaneSize;
+	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize;
+	*CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f; *CurVert++ = 0.0f;
+	*CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize;
+	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize;
+	*CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f;
+	*CurVert++ = OverlayMovePlaneSize; *CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f;
+	*CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f; *CurVert++ = 0.0f;
+
+	const GLushort Indices[108 + 360 + 12] =
+	{
+		0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6, 0, 6, 7, 0, 7, 8, 0, 8, 1,
+		9, 10, 14, 14, 13, 9, 11, 12, 15, 15, 16, 12,
+		17, 18, 19, 17, 19, 20, 17, 20, 21, 17, 21, 22, 17, 22, 23, 17, 23, 24, 17, 24, 25, 17, 25, 18,
+		26, 27, 31, 31, 30, 26, 28, 29, 32, 32, 33, 29,
+		34, 35, 36, 34, 36, 37, 34, 37, 38, 34, 38, 39, 34, 39, 40, 34, 40, 41, 34, 41, 42, 34, 42, 35,
+		43, 44, 48, 48, 47, 43, 45, 46, 49, 49, 50, 46,
+		51, 52, 53, 51, 53, 54, 51, 54, 55, 51, 55, 56, 51, 56, 57, 51, 57, 58, 51, 58, 59, 51, 59, 52,
+		60, 61, 62, 60, 62, 63, 60, 63, 64, 60, 64, 65, 60, 65, 66, 60, 66, 67, 60, 67, 68, 60, 68, 61,
+		69, 70, 71, 71, 72, 70, 71, 72, 73, 73, 74, 72, 73, 74, 75, 75, 76, 74, 75, 76, 77, 77, 78, 76, 77, 78, 79, 79, 80, 78, 79, 80, 81, 81, 82, 80,
+		83, 84, 85, 85, 86, 84, 85, 86, 87, 87, 88, 86, 87, 88, 89, 89, 90, 88, 89, 90, 91, 91, 92, 90, 91, 92, 93, 93, 94, 92, 93, 94, 95, 95, 96, 94,
+		97, 98, 99, 97, 99, 100, 97, 100, 101, 97, 101, 102, 97, 102, 103, 97, 103, 104, 97, 104, 105, 97, 105, 98,
+		106, 107, 108, 106, 108, 109, 106, 109, 110, 106, 110, 111, 106, 111, 112, 106, 112, 113, 106, 113, 114, 106, 114, 107,
+		115, 116, 117, 117, 118, 116, 117, 118, 119, 119, 120, 118, 119, 120, 121, 121, 122, 120, 121, 122, 123, 123, 124, 122, 123, 124, 125, 125, 126, 124, 125, 126, 127, 127, 128, 126,
+		129, 130, 131, 131, 132, 130, 131, 132, 133, 133, 134, 132, 133, 134, 135, 135, 136, 134, 135, 136, 137, 137, 138, 136, 137, 138, 139, 139, 140, 138, 139, 140, 141, 141, 142, 140,
+		143, 144, 145, 143, 145, 146, 143, 146, 147, 143, 147, 148, 143, 148, 149, 143, 149, 150, 143, 150, 151, 143, 151, 144,
+		152, 153, 154, 152, 154, 155, 152, 155, 156, 152, 156, 157, 152, 157, 158, 152, 158, 159, 152, 159, 160, 152, 160, 153,
+		161, 162, 163, 163, 164, 162, 163, 164, 165, 165, 166, 164, 165, 166, 167, 167, 168, 166, 167, 168, 169, 169, 170, 168, 169, 170, 171, 171, 172, 170, 171, 172, 173, 173, 174, 172,
+		175, 176, 177, 177, 178, 176, 177, 178, 179, 179, 180, 178, 179, 180, 181, 181, 182, 180, 181, 182, 183, 183, 184, 182, 183, 184, 185, 185, 186, 184, 185, 186, 187, 187, 188, 186,
+		189, 190, 191, 192, 189, 193, 194, 195, 189, 196, 197, 198
+	};
+
 	const lcMatrix44& ViewMatrix = mCamera->mWorldView;
-
-	const float OverlayMovePlaneSize = 0.5f * OverlayScale;
-	const float OverlayMoveArrowSize = 1.5f * OverlayScale;
-	const float OverlayMoveArrowCapSize = 0.9f * OverlayScale;
-	const float OverlayMoveArrowCapRadius = 0.1f * OverlayScale;
-	const float OverlayMoveArrowBodyRadius = 0.05f * OverlayScale;
-	const float OverlayRotateArrowStart = 1.0f * OverlayScale;
-	const float OverlayRotateArrowEnd = 1.5f * OverlayScale;
-	const float OverlayRotateArrowCenter = 1.2f * OverlayScale;
-
 	mContext->SetProjectionMatrix(GetProjectionMatrix());
 
 	glDisable(GL_DEPTH_TEST);
@@ -493,171 +630,90 @@ void View::DrawSelectMoveOverlay()
 	lcVector3 OverlayCenter = mModel->GetFocusOrSelectionCenter();
 	bool AnyPiecesSelected = mModel->AnyPiecesSelected();
 
-	// Draw the arrows.
-	for (int i = 0; i < 3; i++)
+	lcMatrix44 WorldViewMatrix = lcMul(lcMatrix44Translation(OverlayCenter), ViewMatrix);
+	WorldViewMatrix = lcMul(RelativeRotation, WorldViewMatrix);
+
+	const float OverlayScale = GetOverlayScale();
+	WorldViewMatrix = lcMul(lcMatrix44Scale(lcVector3(OverlayScale, OverlayScale, OverlayScale)), WorldViewMatrix);
+
+	mContext->SetWorldViewMatrix(WorldViewMatrix);
+
+	mContext->SetVertexBufferPointer(Verts);
+	mContext->SetVertexFormat(0, 3, 0, 0);
+
+	if (mTrackButton == LC_TRACKBUTTON_NONE || (mTrackTool >= LC_TRACKTOOL_MOVE_X && mTrackTool <= LC_TRACKTOOL_MOVE_XYZ))
 	{
-		switch (i)
+		if ((mTrackTool == LC_TRACKTOOL_MOVE_X) || (mTrackTool == LC_TRACKTOOL_MOVE_XY) || (mTrackTool == LC_TRACKTOOL_MOVE_XZ))
 		{
-		case 0:
-			if ((mTrackTool == LC_TRACKTOOL_MOVE_X) || (mTrackTool == LC_TRACKTOOL_MOVE_XY) || (mTrackTool == LC_TRACKTOOL_MOVE_XZ))
-				glColor4f(0.8f, 0.8f, 0.0f, 1.0f);
-			else if (mTrackButton == LC_TRACKBUTTON_NONE)
-				glColor4f(0.8f, 0.0f, 0.0f, 1.0f);
-			else
-				continue;
-			break;
-		case 1:
-			if ((mTrackTool == LC_TRACKTOOL_MOVE_Y) || (mTrackTool == LC_TRACKTOOL_MOVE_XY) || (mTrackTool == LC_TRACKTOOL_MOVE_YZ))
-				glColor4f(0.8f, 0.8f, 0.0f, 1.0f);
-			else if (mTrackButton == LC_TRACKBUTTON_NONE)
-				glColor4f(0.0f, 0.8f, 0.0f, 1.0f);
-			else
-				continue;
-			break;
-		case 2:
-			if ((mTrackTool == LC_TRACKTOOL_MOVE_Z) || (mTrackTool == LC_TRACKTOOL_MOVE_XZ) || (mTrackTool == LC_TRACKTOOL_MOVE_YZ))
-				glColor4f(0.8f, 0.8f, 0.0f, 1.0f);
-			else if (mTrackButton == LC_TRACKBUTTON_NONE)
-				glColor4f(0.0f, 0.0f, 0.8f, 1.0f);
-			else
-				continue;
-			break;
+			glColor4f(0.8f, 0.8f, 0.0f, 1.0f);
+			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, Indices);
+		}
+		else if (mTrackButton == LC_TRACKBUTTON_NONE)
+		{
+			glColor4f(0.8f, 0.0f, 0.0f, 1.0f);
+			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, Indices);
 		}
 
-		lcMatrix44 WorldViewMatrix = lcMul(lcMatrix44Translation(OverlayCenter), ViewMatrix);
-		WorldViewMatrix = lcMul(RelativeRotation, WorldViewMatrix);
-
-		if (i == 1)
-			WorldViewMatrix = lcMul(lcMatrix44(lcVector4(0, 1, 0, 0), lcVector4(1, 0, 0, 0), lcVector4(0, 0, 1, 0), lcVector4(0, 0, 0, 1)), WorldViewMatrix);
-		else if (i == 2)
-			WorldViewMatrix = lcMul(lcMatrix44(lcVector4(0, 0, 1, 0), lcVector4(0, 1, 0, 0), lcVector4(1, 0, 0, 0), lcVector4(0, 0, 0, 1)), WorldViewMatrix);
-
-		mContext->SetWorldViewMatrix(WorldViewMatrix);
-
-		// Translation arrows.
-		if (mTrackButton == LC_TRACKBUTTON_NONE || (mTrackTool >= LC_TRACKTOOL_MOVE_X && mTrackTool <= LC_TRACKTOOL_MOVE_XYZ))
+		if ((mTrackTool == LC_TRACKTOOL_MOVE_Y) || (mTrackTool == LC_TRACKTOOL_MOVE_XY) || (mTrackTool == LC_TRACKTOOL_MOVE_YZ))
 		{
-			lcVector3 Verts[11];
-
-			Verts[0] = lcVector3(0.0f, 0.0f, 0.0f);
-			Verts[1] = lcVector3(OverlayMoveArrowSize, 0.0f, 0.0f);
-
-			for (int j = 0; j < 9; j++)
-			{
-				float y = cosf(LC_2PI * j / 8) * OverlayMoveArrowCapRadius;
-				float z = sinf(LC_2PI * j / 8) * OverlayMoveArrowCapRadius;
-				Verts[j + 2] = lcVector3(OverlayMoveArrowCapSize, y, z);
-			}
-
-			glVertexPointer(3, GL_FLOAT, 0, Verts);
-			glDrawArrays(GL_LINES, 0, 2);
-			glDrawArrays(GL_TRIANGLE_FAN, 1, 10);
+			glColor4f(0.8f, 0.8f, 0.0f, 1.0f);
+			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, Indices + 36);
+		}
+		else if (mTrackButton == LC_TRACKBUTTON_NONE)
+		{
+			glColor4f(0.0f, 0.8f, 0.0f, 1.0f);
+			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, Indices + 36);
 		}
 
-		// Rotation arrows.
-		if (gMainWindow->GetTool() == LC_TOOL_SELECT && mTrackButton == LC_TRACKBUTTON_NONE && AnyPiecesSelected)
+		if ((mTrackTool == LC_TRACKTOOL_MOVE_Z) || (mTrackTool == LC_TRACKTOOL_MOVE_XZ) || (mTrackTool == LC_TRACKTOOL_MOVE_YZ))
 		{
-			switch (i)
-			{
-			case 0:
-				if (mTrackTool == LC_TRACKTOOL_ROTATE_X)
-					glColor4f(0.8f, 0.8f, 0.0f, 1.0f);
-				else
-					glColor4f(0.8f, 0.0f, 0.0f, 1.0f);
-				break;
-			case 1:
-				if (mTrackTool == LC_TRACKTOOL_ROTATE_Y)
-					glColor4f(0.8f, 0.8f, 0.0f, 1.0f);
-				else
-					glColor4f(0.0f, 0.8f, 0.0f, 1.0f);
-				break;
-			case 2:
-				if (mTrackTool == LC_TRACKTOOL_ROTATE_Z)
-					glColor4f(0.8f, 0.8f, 0.0f, 1.0f);
-				else
-					glColor4f(0.0f, 0.0f, 0.8f, 1.0f);
-				break;
-			}
-
-			lcVector3 Verts[18];
-			glVertexPointer(3, GL_FLOAT, 0, Verts);
-
-			for (int j = 0; j < 9; j++)
-			{
-				const float Radius1 = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius - OverlayRotateArrowCenter - OverlayMoveArrowBodyRadius;
-				const float Radius2 = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius - OverlayRotateArrowCenter + OverlayMoveArrowBodyRadius;
-				float x = cosf(LC_2PI / 4 * j / 8);
-				float y = sinf(LC_2PI / 4 * j / 8);
-
-				Verts[j * 2 + 0] = lcVector3(0.0f, OverlayRotateArrowCenter + x * Radius1, OverlayRotateArrowCenter + y * Radius1);
-				Verts[j * 2 + 1] = lcVector3(0.0f, OverlayRotateArrowCenter + x * Radius2, OverlayRotateArrowCenter + y * Radius2);
-			}
-
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, 18);
-
-			for (int j = 0; j < 9; j++)
-			{
-				const float Radius = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius - OverlayRotateArrowCenter;
-				float x = cosf(LC_2PI / 4 * j / 8);
-				float y = sinf(LC_2PI / 4 * j / 8);
-
-				Verts[j * 2 + 0] = lcVector3(-OverlayMoveArrowBodyRadius, OverlayRotateArrowCenter + x * Radius, OverlayRotateArrowCenter + y * Radius);
-				Verts[j * 2 + 1] = lcVector3( OverlayMoveArrowBodyRadius, OverlayRotateArrowCenter + x * Radius, OverlayRotateArrowCenter + y * Radius);
-			}
-
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, 18);
-
-			Verts[0] = lcVector3(0.0f, OverlayRotateArrowEnd - OverlayMoveArrowCapRadius, OverlayRotateArrowStart);
-
-			for (int j = 0; j < 9; j++)
-			{
-				float x = cosf(LC_2PI * j / 8) * OverlayMoveArrowCapRadius;
-				float y = sinf(LC_2PI * j / 8) * OverlayMoveArrowCapRadius;
-				Verts[j + 1] = lcVector3(x, OverlayRotateArrowEnd - OverlayMoveArrowCapRadius + y, OverlayRotateArrowCenter);
-			}
-
-			glDrawArrays(GL_TRIANGLE_FAN, 0, 10);
-
-			Verts[0] = lcVector3(0.0f, OverlayRotateArrowStart, OverlayRotateArrowEnd - OverlayMoveArrowCapRadius);
-
-			for (int j = 0; j < 9; j++)
-			{
-				float x = cosf(LC_2PI * j / 8) * OverlayMoveArrowCapRadius;
-				float y = sinf(LC_2PI * j / 8) * OverlayMoveArrowCapRadius;
-				Verts[j + 1] = lcVector3(x, OverlayRotateArrowCenter, OverlayRotateArrowEnd - OverlayMoveArrowCapRadius + y);
-			}
-
-			glDrawArrays(GL_TRIANGLE_FAN, 0, 10);
+			glColor4f(0.8f, 0.8f, 0.0f, 1.0f);
+			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, Indices + 72);
+		}
+		else if (mTrackButton == LC_TRACKBUTTON_NONE)
+		{
+			glColor4f(0.0f, 0.0f, 0.8f, 1.0f);
+			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, Indices + 72);
 		}
 	}
 
-	// Draw a quad if we're moving on a plane.
+	if (gMainWindow->GetTool() == LC_TOOL_SELECT && mTrackButton == LC_TRACKBUTTON_NONE && AnyPiecesSelected)
+	{
+		if (mTrackTool == LC_TRACKTOOL_ROTATE_X)
+			glColor4f(0.8f, 0.8f, 0.0f, 1.0f);
+		else
+			glColor4f(0.8f, 0.0f, 0.0f, 1.0f);
+
+		glDrawElements(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, Indices + 108);
+
+		if (mTrackTool == LC_TRACKTOOL_ROTATE_Y)
+			glColor4f(0.8f, 0.8f, 0.0f, 1.0f);
+		else
+			glColor4f(0.0f, 0.8f, 0.0f, 1.0f);
+
+		glDrawElements(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, Indices + 108 + 120);
+
+		if (mTrackTool == LC_TRACKTOOL_ROTATE_Z)
+			glColor4f(0.8f, 0.8f, 0.0f, 1.0f);
+		else
+			glColor4f(0.0f, 0.0f, 0.8f, 1.0f);
+
+		glDrawElements(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, Indices + 108 + 240);
+	}
+
 	if ((mTrackTool == LC_TRACKTOOL_MOVE_XY) || (mTrackTool == LC_TRACKTOOL_MOVE_XZ) || (mTrackTool == LC_TRACKTOOL_MOVE_YZ))
 	{
-		lcMatrix44 WorldViewMatrix = lcMul(lcMatrix44Translation(OverlayCenter), ViewMatrix);
-		WorldViewMatrix = lcMul(RelativeRotation, WorldViewMatrix);
-
-		if (mTrackTool == LC_TRACKTOOL_MOVE_XZ)
-			WorldViewMatrix = lcMul(lcMatrix44RotationZ(-LC_PI / 2), WorldViewMatrix);
-		else if (mTrackTool == LC_TRACKTOOL_MOVE_XY)
-			WorldViewMatrix = lcMul(lcMatrix44RotationY(LC_PI / 2), WorldViewMatrix);
-
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 
 		glColor4f(0.8f, 0.8f, 0.0f, 0.3f);
-		mContext->SetWorldViewMatrix(WorldViewMatrix);
 
-		float Verts[4][3] =
-		{
-			{ 0.0f, 0.0f, 0.0f },
-			{ 0.0f, OverlayMovePlaneSize, 0.0f },
-			{ 0.0f, OverlayMovePlaneSize, OverlayMovePlaneSize },
-			{ 0.0f, 0.0f, OverlayMovePlaneSize }
-		};
-
-		glVertexPointer(3, GL_FLOAT, 0, Verts);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+		if (mTrackTool == LC_TRACKTOOL_MOVE_XY)
+			glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, Indices + 108 + 360 + 8);
+		else if (mTrackTool == LC_TRACKTOOL_MOVE_XZ)
+			glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, Indices + 108 + 360 + 4);
+		else if (mTrackTool == LC_TRACKTOOL_MOVE_YZ)
+			glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, Indices + 108 + 360);
 
 		glDisable(GL_BLEND);
 	}
@@ -1026,16 +1082,19 @@ void View::DrawSelectZoomRegionOverlay()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 
-	glVertexPointer(2, GL_FLOAT, 0, Verts);
+	mContext->SetVertexBufferPointer(Verts);
+	mContext->SetVertexFormat(0, 2, 0, 0);
 
 	glColor4f(0.25f, 0.25f, 1.0f, 1.0f);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 10);
+	mContext->DrawPrimitives(GL_TRIANGLE_STRIP, 0, 10);
 
 	glColor4f(0.25f, 0.25f, 1.0f, 0.25f);
-	glDrawArrays(GL_TRIANGLE_STRIP, 10, 4);
+	mContext->DrawPrimitives(GL_TRIANGLE_STRIP, 10, 4);
 
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
+
+	mContext->ClearVertexBuffer(); // context remove
 }
 
 void View::DrawRotateViewOverlay()
@@ -1053,8 +1112,8 @@ void View::DrawRotateViewOverlay()
 	glDisable(GL_DEPTH_TEST);
 	glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 
-	// Draw circle.
-	float verts[32][2];
+	float Verts[32 * 16 * 2];
+	float* CurVert = Verts;
 
 	float r = lcMin(w, h) * 0.35f;
 	float cx = x + w / 2.0f;
@@ -1062,43 +1121,45 @@ void View::DrawRotateViewOverlay()
 
 	for (int i = 0; i < 32; i++)
 	{
-		verts[i][0] = cosf((float)i / 32.0f * (2.0f * LC_PI)) * r + cx;
-		verts[i][1] = sinf((float)i / 32.0f * (2.0f * LC_PI)) * r + cy;
+		*CurVert++ = cosf((float)i / 32.0f * (2.0f * LC_PI)) * r + cx;
+		*CurVert++ = sinf((float)i / 32.0f * (2.0f * LC_PI)) * r + cy;
 	}
-
-	glVertexPointer(2, GL_FLOAT, 0, verts);
-	glDrawArrays(GL_LINE_LOOP, 0, 32);
 
 	const float OverlayCameraSquareSize = lcMax(8.0f, (w+h)/200);
 
-	// Draw squares.
-	float Squares[16][2] =
+	*CurVert++ = cx + OverlayCameraSquareSize; *CurVert++ = cy + r + OverlayCameraSquareSize;
+	*CurVert++ = cx - OverlayCameraSquareSize; *CurVert++ = cy + r + OverlayCameraSquareSize;
+	*CurVert++ = cx - OverlayCameraSquareSize; *CurVert++ = cy + r - OverlayCameraSquareSize;
+	*CurVert++ = cx + OverlayCameraSquareSize; *CurVert++ = cy + r - OverlayCameraSquareSize;
+	*CurVert++ = cx + OverlayCameraSquareSize; *CurVert++ = cy - r + OverlayCameraSquareSize;
+	*CurVert++ = cx - OverlayCameraSquareSize; *CurVert++ = cy - r + OverlayCameraSquareSize;
+	*CurVert++ = cx - OverlayCameraSquareSize; *CurVert++ = cy - r - OverlayCameraSquareSize;
+	*CurVert++ = cx + OverlayCameraSquareSize; *CurVert++ = cy - r - OverlayCameraSquareSize;
+	*CurVert++ = cx + r + OverlayCameraSquareSize; *CurVert++ = cy + OverlayCameraSquareSize;
+	*CurVert++ = cx + r - OverlayCameraSquareSize; *CurVert++ = cy + OverlayCameraSquareSize;
+	*CurVert++ = cx + r - OverlayCameraSquareSize; *CurVert++ = cy - OverlayCameraSquareSize;
+	*CurVert++ = cx + r + OverlayCameraSquareSize; *CurVert++ = cy - OverlayCameraSquareSize;
+	*CurVert++ = cx - r + OverlayCameraSquareSize; *CurVert++ = cy + OverlayCameraSquareSize;
+	*CurVert++ = cx - r - OverlayCameraSquareSize; *CurVert++ = cy + OverlayCameraSquareSize;
+	*CurVert++ = cx - r - OverlayCameraSquareSize; *CurVert++ = cy - OverlayCameraSquareSize;
+	*CurVert++ = cx - r + OverlayCameraSquareSize; *CurVert++ = cy - OverlayCameraSquareSize;
+
+	mContext->SetVertexBufferPointer(Verts);
+	mContext->SetVertexFormat(0, 2, 0, 0);
+
+	GLushort Indices[64 + 32] = 
 	{
-		{ cx + OverlayCameraSquareSize, cy + r + OverlayCameraSquareSize },
-		{ cx - OverlayCameraSquareSize, cy + r + OverlayCameraSquareSize },
-		{ cx - OverlayCameraSquareSize, cy + r - OverlayCameraSquareSize },
-		{ cx + OverlayCameraSquareSize, cy + r - OverlayCameraSquareSize },
-		{ cx + OverlayCameraSquareSize, cy - r + OverlayCameraSquareSize },
-		{ cx - OverlayCameraSquareSize, cy - r + OverlayCameraSquareSize },
-		{ cx - OverlayCameraSquareSize, cy - r - OverlayCameraSquareSize },
-		{ cx + OverlayCameraSquareSize, cy - r - OverlayCameraSquareSize },
-		{ cx + r + OverlayCameraSquareSize, cy + OverlayCameraSquareSize },
-		{ cx + r - OverlayCameraSquareSize, cy + OverlayCameraSquareSize },
-		{ cx + r - OverlayCameraSquareSize, cy - OverlayCameraSquareSize },
-		{ cx + r + OverlayCameraSquareSize, cy - OverlayCameraSquareSize },
-		{ cx - r + OverlayCameraSquareSize, cy + OverlayCameraSquareSize },
-		{ cx - r - OverlayCameraSquareSize, cy + OverlayCameraSquareSize },
-		{ cx - r - OverlayCameraSquareSize, cy - OverlayCameraSquareSize },
-		{ cx - r + OverlayCameraSquareSize, cy - OverlayCameraSquareSize }
+		0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16,
+		17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31, 0,
+		32, 33, 33, 34, 34, 35, 35, 32, 36, 37, 37, 38, 38, 39, 39, 36,
+		40, 41, 41, 42, 42, 43, 43, 40, 44, 45, 45, 46, 46, 47, 47, 44
 	};
 
-	glVertexPointer(2, GL_FLOAT, 0, Squares);
-	glDrawArrays(GL_LINE_LOOP, 0, 4);
-	glDrawArrays(GL_LINE_LOOP, 4, 4);
-	glDrawArrays(GL_LINE_LOOP, 8, 4);
-	glDrawArrays(GL_LINE_LOOP, 12, 4);
+	glDrawElements(GL_LINES, 96, GL_UNSIGNED_SHORT, Indices);
 
 	glEnable(GL_DEPTH_TEST);
+
+	mContext->ClearVertexBuffer(); // context remove
 }
 
 void View::DrawGrid()
@@ -1169,43 +1230,99 @@ void View::DrawGrid()
 		MaxY = 2;
 	}
 
+	if (!mGridBuffer || MinX != mGridSettings[0] || MinY != mGridSettings[1] || MaxX != mGridSettings[2] || MaxY != mGridSettings[3] ||
+	    Spacing != mGridSettings[4] || (Preferences.mDrawGridStuds ? 1 : 0) != mGridSettings[5] || (Preferences.mDrawGridLines ? 1 : 0) != mGridSettings[6])
+	{
+		int BufferSize = 0;
+
+		if (Preferences.mDrawGridStuds)
+			BufferSize += 4 * 5;
+
+		if (Preferences.mDrawGridLines)
+			BufferSize += 2 * (MaxX - MinX + MaxY - MinY + 2) * 3;
+
+		if (!mGridBuffer)
+			mGridBuffer = new lcVertexBuffer();
+
+		mGridBuffer->SetSize(BufferSize * sizeof(float));
+		float* CurVert = (float*)mGridBuffer->mData;
+
+		if (Preferences.mDrawGridStuds)
+		{
+			float Left = MinX * 20.0f * Spacing;
+			float Right = MaxX * 20.0f * Spacing;
+			float Top = MinY * 20.0f * Spacing;
+			float Bottom = MaxY * 20.0f * Spacing;
+			float Z = 0;
+			float U = (MaxX - MinX) * Spacing;
+			float V = (MaxY - MinY) * Spacing;
+
+			*CurVert++ = Left;
+			*CurVert++ = Top;
+			*CurVert++ = Z;
+			*CurVert++ = 0.0f;
+			*CurVert++ = V;
+
+			*CurVert++ = Left;
+			*CurVert++ = Bottom;
+			*CurVert++ = Z;
+			*CurVert++ = 0.0f;
+			*CurVert++ = 0.0f;
+
+			*CurVert++ = Right;
+			*CurVert++ = Bottom;
+			*CurVert++ = Z;
+			*CurVert++ = U;
+			*CurVert++ = 0.0f;
+
+			*CurVert++ = Right;
+			*CurVert++ = Top;
+			*CurVert++ = Z;
+			*CurVert++ = U;
+			*CurVert++ = V;
+		}
+
+		if (Preferences.mDrawGridLines)
+		{
+			float LineSpacing = Spacing * 20.0f;
+
+			for (int Step = MinX; Step < MaxX + 1; Step++)
+			{
+				*CurVert++ = Step * LineSpacing;
+				*CurVert++ = MinY * LineSpacing;
+				*CurVert++ = 0.0f;
+				*CurVert++ = Step * LineSpacing;
+				*CurVert++ = MaxY * LineSpacing;
+				*CurVert++ = 0.0f;
+			}
+
+			for (int Step = MinY; Step < MaxY + 1; Step++)
+			{
+				*CurVert++ = MinX * LineSpacing;
+				*CurVert++ = Step * LineSpacing;
+				*CurVert++ = 0.0f;
+				*CurVert++ = MaxX * LineSpacing;
+				*CurVert++ = Step * LineSpacing;
+				*CurVert++ = 0.0f;
+			}
+		}
+
+		mGridSettings[0] = MinX;
+		mGridSettings[1] = MinY;
+		mGridSettings[2] = MaxX;
+		mGridSettings[3] = MaxY;
+		mGridSettings[4] = Spacing;
+		mGridSettings[5] = (Preferences.mDrawGridStuds ? 1 : 0);
+		mGridSettings[6] = (Preferences.mDrawGridLines ? 1 : 0);
+
+		mGridBuffer->UpdateBuffer();
+	}
+
+	int BufferOffset = 0;
+	mContext->SetVertexBuffer(mGridBuffer);
+
 	if (Preferences.mDrawGridStuds)
 	{
-		float Left = MinX * 20.0f * Spacing;
-		float Right = MaxX * 20.0f * Spacing;
-		float Top = MinY * 20.0f * Spacing;
-		float Bottom = MaxY * 20.0f * Spacing;
-		float Z = 0;
-		float U = (MaxX - MinX) * Spacing;
-		float V = (MaxY - MinY) * Spacing;
-
-		float Verts[4 * 5];
-		float* CurVert = Verts;
-
-		*CurVert++ = Left;
-		*CurVert++ = Top;
-		*CurVert++ = Z;
-		*CurVert++ = 0.0f;
-		*CurVert++ = V;
-
-		*CurVert++ = Left;
-		*CurVert++ = Bottom;
-		*CurVert++ = Z;
-		*CurVert++ = 0.0f;
-		*CurVert++ = 0.0f;
-
-		*CurVert++ = Right;
-		*CurVert++ = Bottom;
-		*CurVert++ = Z;
-		*CurVert++ = U;
-		*CurVert++ = 0.0f;
-
-		*CurVert++ = Right;
-		*CurVert++ = Top;
-		*CurVert++ = Z;
-		*CurVert++ = U;
-		*CurVert++ = V;
-
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		glBindTexture(GL_TEXTURE_2D, gGridTexture->mTexture);
 		glEnable(GL_TEXTURE_2D);
@@ -1214,16 +1331,13 @@ void View::DrawGrid()
 
 		glColor4fv(lcVector4FromColor(Preferences.mGridStudColor));
 
-		glVertexPointer(3, GL_FLOAT, 5 * sizeof(float), Verts);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(2, GL_FLOAT, 5 * sizeof(float), Verts + 3);
-
-		glDrawArrays(GL_QUADS, 0, 4);
-
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		mContext->SetVertexFormat(0, 3, 2, 0);
+		mContext->DrawPrimitives(GL_QUADS, 0, 4);
 
 		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_BLEND);
+
+		BufferOffset = 4 * 5 * sizeof(float);
 	}
 
 	if (Preferences.mDrawGridLines)
@@ -1232,94 +1346,82 @@ void View::DrawGrid()
 		glColor4fv(lcVector4FromColor(Preferences.mGridLineColor));
 
 		int NumVerts = 2 * (MaxX - MinX + MaxY - MinY + 2);
-		float* Verts = (float*)malloc(NumVerts * sizeof(float[3]));
-		float* Vert = Verts;
-		float LineSpacing = Spacing * 20.0f;
 
-		for (int Step = MinX; Step < MaxX + 1; Step++)
-		{
-			*Vert++ = Step * LineSpacing;
-			*Vert++ = MinY * LineSpacing;
-			*Vert++ = 0.0f;
-			*Vert++ = Step * LineSpacing;
-			*Vert++ = MaxY * LineSpacing;
-			*Vert++ = 0.0f;
-		}
-
-		for (int Step = MinY; Step < MaxY + 1; Step++)
-		{
-			*Vert++ = MinX * LineSpacing;
-			*Vert++ = Step * LineSpacing;
-			*Vert++ = 0.0f;
-			*Vert++ = MaxX * LineSpacing;
-			*Vert++ = Step * LineSpacing;
-			*Vert++ = 0.0f;
-		}
-
-		glVertexPointer(3, GL_FLOAT, 0, Verts);
-		glDrawArrays(GL_LINES, 0, NumVerts);
-		free(Verts);
+		mContext->SetVertexFormat(BufferOffset, 3, 0, 0);
+		mContext->DrawPrimitives(GL_LINES, 0, NumVerts);
 	}
+
+	mContext->ClearVertexBuffer(); // context remove
 }
 
 void View::DrawAxes()
 {
 //	glClear(GL_DEPTH_BUFFER_BIT);
 
-	lcMatrix44 Mats[3];
-	Mats[0] = mCamera->mWorldView;
-	Mats[0].SetTranslation(lcVector3(0, 0, 0));
-	Mats[1] = lcMul(lcMatrix44(lcVector4(0, 1, 0, 0), lcVector4(1, 0, 0, 0), lcVector4(0, 0, 1, 0), lcVector4(0, 0, 0, 1)), Mats[0]);
-	Mats[2] = lcMul(lcMatrix44(lcVector4(0, 0, 1, 0), lcVector4(0, 1, 0, 0), lcVector4(1, 0, 0, 0), lcVector4(0, 0, 0, 1)), Mats[0]);
-
-	lcVector3 pts[3] =
+	const float Verts[28 * 3] =
 	{
-		lcMul30(lcVector3(20, 0, 0), Mats[0]),
-		lcMul30(lcVector3(0, 20, 0), Mats[0]),
-		lcMul30(lcVector3(0, 0, 20), Mats[0]),
+		 0.00f,  0.00f,  0.00f, 20.00f,  0.00f,  0.00f, 12.00f,  3.00f,  0.00f, 12.00f,  2.12f,  2.12f,
+		12.00f,  0.00f,  3.00f, 12.00f, -2.12f,  2.12f, 12.00f, -3.00f,  0.00f, 12.00f, -2.12f, -2.12f,
+		12.00f,  0.00f, -3.00f, 12.00f,  2.12f, -2.12f,  0.00f, 20.00f,  0.00f,  3.00f, 12.00f,  0.00f,
+		 2.12f, 12.00f,  2.12f,  0.00f, 12.00f,  3.00f, -2.12f, 12.00f,  2.12f, -3.00f, 12.00f,  0.00f,
+		-2.12f, 12.00f, -2.12f,  0.00f, 12.00f, -3.00f,  2.12f, 12.00f, -2.12f,  0.00f,  0.00f, 20.00f,
+		 0.00f,  3.00f, 12.00f,  2.12f,  2.12f, 12.00f,  3.00f,  0.00f, 12.00f,  2.12f, -2.12f, 12.00f,
+		 0.00f, -3.00f, 12.00f, -2.12f, -2.12f, 12.00f, -3.00f,  0.00f, 12.00f, -2.12f,  2.12f, 12.00f,
 	};
 
-	const lcVector4 Colors[3] =
+	GLushort LineIndices[6] = { 0, 1, 0, 10, 0, 19 };
+
+	GLushort TriIndices[72] = 
 	{
-		lcVector4(0.8f, 0.0f, 0.0f, 1.0f),
-		lcVector4(0.0f, 0.8f, 0.0f, 1.0f),
-		lcVector4(0.0f, 0.0f, 0.8f, 1.0f)
+		 1,  2,  3,  1,  3,  4,  1,  4,  5,  1,  5,  6,  1,  6,  7,  1,  7,  8,  1,  8,  9,  1,  9,  2,
+		10, 11, 12, 10, 12, 13, 10, 13, 14, 10, 14, 15, 10, 15, 16, 10, 16, 17, 10, 17, 18, 10, 18, 11,
+		19, 20, 21, 19, 21, 22, 19, 22, 23, 19, 23, 24, 19, 24, 25, 19, 25, 26, 19, 26, 27, 19, 27, 20
 	};
+
+	lcMatrix44 TranslationMatrix = lcMatrix44Translation(lcVector3(25.375f, 25.375f, 0.0f));
+	lcMatrix44 WorldViewMatrix = mCamera->mWorldView;
+	WorldViewMatrix.SetTranslation(lcVector3(0, 0, 0));
 
 	mContext->SetProjectionMatrix(lcMatrix44Ortho(0, mWidth, 0, mHeight, -50, 50));
-	mContext->SetWorldViewMatrix(lcMatrix44Translation(lcVector3(25.375f, 25.375f, 0.0f)));
+	mContext->SetWorldViewMatrix(lcMul(WorldViewMatrix, TranslationMatrix));
 
-	// Draw the arrows.
-	lcVector3 Verts[11];
-	Verts[0] = lcVector3(0.0f, 0.0f, 0.0f);
+	mContext->SetVertexBufferPointer(Verts);
+	mContext->SetVertexFormat(0, 3, 0, 0);
 
-	glVertexPointer(3, GL_FLOAT, 0, Verts);
+	glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+	glDrawElements(GL_LINES, 6, GL_UNSIGNED_SHORT, LineIndices);
+	glColor4f(0.8f, 0.0f, 0.0f, 1.0f),
+	glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_SHORT, TriIndices);
+	glColor4f(0.0f, 0.8f, 0.0f, 1.0f);
+	glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_SHORT, TriIndices + 24);
+	glColor4f(0.0f, 0.0f, 0.8f, 1.0f);
+	glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_SHORT, TriIndices + 48);
 
-	for (int i = 0; i < 3; i++)
-	{
-		glColor4fv(Colors[i]);
-		Verts[1] = pts[i];
-
-		for (int j = 0; j < 9; j++)
-			Verts[j+2] = lcMul30(lcVector3(12.0f, cosf(LC_2PI * j / 8) * 3.0f, sinf(LC_2PI * j / 8) * 3.0f), Mats[i]);
-
-		glDrawArrays(GL_LINES, 0, 2);
-		glDrawArrays(GL_TRIANGLE_FAN, 1, 10);
-	}
-
+	mContext->SetWorldViewMatrix(TranslationMatrix);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	gTexFont.MakeCurrent();
 	glEnable(GL_TEXTURE_2D);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 
+	float TextBuffer[4 * 5 * 3];
+	lcVector3 PosX = lcMul30(lcVector3(25.0f, 0.0f, 0.0f), WorldViewMatrix);
+	gTexFont.GetGlyphQuad(PosX.x, PosX.y, PosX.z, 'X', TextBuffer);
+	lcVector3 PosY = lcMul30(lcVector3(0.0f, 25.0f, 0.0f), WorldViewMatrix);
+	gTexFont.GetGlyphQuad(PosY.x, PosY.y, PosY.z, 'Y', TextBuffer + 5 * 4);
+	lcVector3 PosZ = lcMul30(lcVector3(0.0f, 0.0f, 25.0f), WorldViewMatrix);
+	gTexFont.GetGlyphQuad(PosZ.x, PosZ.y, PosZ.z, 'Z', TextBuffer + 5 * 4 * 2);
+
+	mContext->SetVertexBufferPointer(TextBuffer);
+	mContext->SetVertexFormat(0, 3, 2, 0);
+
 	glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
-	gTexFont.PrintText(pts[0][0], pts[0][1], 40.0f, "X");
-	gTexFont.PrintText(pts[1][0], pts[1][1], 40.0f, "Y");
-	gTexFont.PrintText(pts[2][0], pts[2][1], 40.0f, "Z");
+	mContext->DrawPrimitives(GL_QUADS, 0, 4 * 3);
 
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
+
+	mContext->ClearVertexBuffer(); // context remove
 }
 
 void View::DrawViewport()
@@ -1336,9 +1438,12 @@ void View::DrawViewport()
 		glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
 		float Verts[8] = { 0.0f, 0.0f, mWidth - 1.0f, 0.0f, mWidth - 1.0f, mHeight - 1.0f, 0.0f, mHeight - 1.0f };
 
-		glVertexPointer(2, GL_FLOAT, 0, Verts);
-		glDrawArrays(GL_LINE_LOOP, 0, 4);
+		mContext->SetVertexBufferPointer(Verts);
+		mContext->SetVertexFormat(0, 2, 0, 0);
+		mContext->DrawPrimitives(GL_LINE_LOOP, 0, 4);
 	}
+
+	mContext->ClearVertexBuffer(); // context remove
 
 	const char* CameraName = mCamera->GetName();
 
@@ -1546,7 +1651,7 @@ void View::UpdateTrackTool()
 					ClosestIntersectionDistance = IntersectionDistance;
 				}
 
-				if (CurrentTool == LC_TOOL_SELECT && Proj1 > OverlayRotateArrowStart && Proj1 < OverlayRotateArrowEnd && Proj2 > OverlayRotateArrowStart && Proj2 < OverlayRotateArrowEnd)
+				if (CurrentTool == LC_TOOL_SELECT && Proj1 > OverlayRotateArrowStart && Proj1 < OverlayRotateArrowEnd && Proj2 > OverlayRotateArrowStart && Proj2 < OverlayRotateArrowEnd && mModel->AnyPiecesSelected())
 				{
 					lcTrackTool PlaneModes[] = { LC_TRACKTOOL_ROTATE_X, LC_TRACKTOOL_ROTATE_Y, LC_TRACKTOOL_ROTATE_Z };
 
@@ -1929,7 +2034,7 @@ void View::StopTracking(bool Accept)
 			if (mInputState.Control)
 				mModel->AddToSelection(Objects);
 			else
-				mModel->SetSelection(Objects);
+				mModel->SetSelectionAndFocus(Objects, NULL, 0);
 		}
 		break;
 
@@ -2472,6 +2577,18 @@ void View::OnMouseMove()
 		}
 		break;
 
+/*	** start rotstep update **
+	case LC_TRACKTOOL_ORBIT_X:
+		mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.0f);
+		break;
+	case LC_TRACKTOOL_ORBIT_Y:
+		mModel->UpdateOrbitTool(mCamera, 0.0f, 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
+		break;
+
+	case LC_TRACKTOOL_ORBIT_XY:
+		mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
+		break;
+*/
     case LC_TRACKTOOL_ORBIT_X:
     case LC_TRACKTOOL_ORBIT_Y:
         {
@@ -2553,7 +2670,7 @@ void View::OnMouseMove()
     case LC_TRACKTOOL_ROTATESTEP:
         break;
 	}
-}
+} // ** end rotstep update **
 
 void View::OnMouseWheel(float Direction)
 {

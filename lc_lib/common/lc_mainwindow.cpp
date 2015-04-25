@@ -2,6 +2,7 @@
 #include "lc_mainwindow.h"
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
+#include "lc_timelinewidget.h"
 #include "lc_qglwidget.h"
 #include "lc_qpartstree.h"
 #include "lc_qcolorlist.h"
@@ -33,6 +34,8 @@ lcMainWindow::lcMainWindow()
 	mColorIndex = lcGetColorIndex(4);
     mTool = LC_TOOL_ROTATESTEP;
 	mAddKeys = false;
+	mMoveSnapEnabled = true;
+	mAngleSnapEnabled = true;
 	mMoveXYSnapIndex = 4;
 	mMoveZSnapIndex = 3;
 	mAngleSnapIndex = 5;
@@ -160,6 +163,8 @@ void lcMainWindow::CreateActions()
 	mActions[LC_EDIT_LOCK_Y]->setCheckable(true);
 	mActions[LC_EDIT_LOCK_Z]->setCheckable(true);
 	mActions[LC_EDIT_TRANSFORM_RELATIVE]->setCheckable(true);
+	mActions[LC_EDIT_SNAP_MOVE_TOGGLE]->setCheckable(true);
+	mActions[LC_EDIT_SNAP_ANGLE_TOGGLE]->setCheckable(true);
 	mActions[LC_VIEW_CAMERA_NONE]->setCheckable(true);
 	mActions[LC_VIEW_TIME_ADD_KEYS]->setCheckable(true);
 
@@ -331,6 +336,7 @@ void lcMainWindow::CreateMenus()
 	QMenu* ToolBarsMenu = ViewMenu->addMenu(tr("T&oolbars"));
 	ToolBarsMenu->addAction(mPartsToolBar->toggleViewAction());
 	ToolBarsMenu->addAction(mPropertiesToolBar->toggleViewAction());
+	ToolBarsMenu->addAction(mTimelineToolBar->toggleViewAction());
 	ToolBarsMenu->addSeparator();
 	ToolBarsMenu->addAction(mStandardToolBar->toggleViewAction());
 	ToolBarsMenu->addAction(mToolsToolBar->toggleViewAction());
@@ -382,6 +388,7 @@ void lcMainWindow::CreateMenus()
     ToolBarsMenu->removeAction(mStandardToolBar->toggleViewAction());
     ToolBarsMenu->removeAction(mPartsToolBar->toggleViewAction());
     ToolBarsMenu->removeAction(mPropertiesToolBar->toggleViewAction());
+	ToolBarsMenu->removeAction(mTimelineToolBar->toggleViewAction());
     ToolBarsMenu->removeAction(mTimeToolBar->toggleViewAction());
     ViewMenu->removeAction(mActions[LC_VIEW_FULLSCREEN]);
     ModelMenu->removeAction(mActions[LC_MODEL_NEW]);
@@ -416,19 +423,23 @@ void lcMainWindow::CreateToolBars()
 		SnapZMenu->addAction(mActions[actionIdx]);
 
 	QMenu* SnapMenu = new QMenu(tr("Snap Menu"), this);
+	SnapMenu->addAction(mActions[LC_EDIT_SNAP_MOVE_TOGGLE]);
+	SnapMenu->addSeparator();
 	SnapMenu->addMenu(SnapXYMenu);
 	SnapMenu->addMenu(SnapZMenu);
 
-	QAction* MoveAction = new QAction(tr("Snap Move"), this);
+	QAction* MoveAction = new QAction(tr("Movement Snap"), this);
 	MoveAction->setStatusTip(tr("Snap translations to fixed intervals"));
 	MoveAction->setIcon(QIcon(":/lc_lib/resources/edit_snap_move.png"));
 	MoveAction->setMenu(SnapMenu);
 
 	QMenu* SnapAngleMenu = new QMenu(tr("Snap Angle Menu"), this);
+	SnapAngleMenu->addAction(mActions[LC_EDIT_SNAP_ANGLE_TOGGLE]);
+	SnapAngleMenu->addSeparator();
 	for (int actionIdx = LC_EDIT_SNAP_ANGLE0; actionIdx <= LC_EDIT_SNAP_ANGLE9; actionIdx++)
 		SnapAngleMenu->addAction(mActions[actionIdx]);
 
-	QAction* AngleAction = new QAction(tr("Snap Rotate"), this);
+	QAction* AngleAction = new QAction(tr("Rotation Snap"), this);
 	AngleAction->setStatusTip(tr("Snap rotations to fixed intervals"));
 	AngleAction->setIcon(QIcon(":/lc_lib/resources/edit_snap_angle.png"));
 	AngleAction->setMenu(SnapAngleMenu);
@@ -578,7 +589,17 @@ void lcMainWindow::CreateToolBars()
 	mPropertiesToolBar->setWidget(mPropertiesWidget);
 	addDockWidget(Qt::RightDockWidgetArea, mPropertiesToolBar);
 
+	mTimelineToolBar = new QDockWidget(tr("Timeline"), this);
+	mTimelineToolBar->setObjectName("TimelineToolbar");
+	mTimelineToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+	mTimelineToolBar->setAcceptDrops(true);
+
+	mTimelineWidget = new lcTimelineWidget(mTimelineToolBar);
+
+	mTimelineToolBar->setWidget(mTimelineWidget);
+	addDockWidget(Qt::RightDockWidgetArea, mTimelineToolBar);
 	tabifyDockWidget(mPartsToolBar, mPropertiesToolBar);
+	tabifyDockWidget(mPropertiesToolBar, mTimelineToolBar);
 	mPartsToolBar->raise();
 
     /*** management - toolbars ***/
@@ -586,6 +607,7 @@ void lcMainWindow::CreateToolBars()
     mPartsToolBar->setVisible(false);
     mPropertiesToolBar->setVisible(false);
     mStandardToolBar->setVisible(false);
+    mTimelineToolBar->setVisible(false);
 
     /*** management - toolbar actions ***/
     mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_SELECT]);
@@ -648,6 +670,7 @@ QMenu* lcMainWindow::createPopupMenu()
 
 	Menu->addAction(mPartsToolBar->toggleViewAction());
 	Menu->addAction(mPropertiesToolBar->toggleViewAction());
+	Menu->addAction(mTimelineToolBar->toggleViewAction());
 	Menu->addSeparator();
 	Menu->addAction(mStandardToolBar->toggleViewAction());
 	Menu->addAction(mToolsToolBar->toggleViewAction());
@@ -657,10 +680,10 @@ QMenu* lcMainWindow::createPopupMenu()
     Menu->removeAction(mStandardToolBar->toggleViewAction());
     Menu->removeAction(mPartsToolBar->toggleViewAction());
     Menu->removeAction(mPropertiesToolBar->toggleViewAction());
+	Menu->removeAction(mTimelineToolBar->toggleViewAction());
     Menu->removeAction(mPartsToolBar->toggleViewAction());
     Menu->removeAction(mTimeToolBar->toggleViewAction());
     /*** management - end ***/
-
 	return Menu;
 }
 
@@ -831,7 +854,7 @@ void lcMainWindow::Print(QPrinter* Printer)
 				if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error)
 				{
 					free(Buffer);
-					Model->SetCurrentStep(PreviousTime);
+					Model->SetTemporaryStep(PreviousTime);
 					Context->EndRenderToTexture();
 					return;
 				}
@@ -845,7 +868,7 @@ void lcMainWindow::Print(QPrinter* Printer)
 						if (CurrentStep > Model->GetLastStep())
 							break;
 
-						Model->SetCurrentStep(CurrentStep);
+						Model->SetTemporaryStep(CurrentStep);
 
 						if (StepWidth > TileWidth || StepHeight > TileHeight)
 						{
@@ -1001,7 +1024,7 @@ void lcMainWindow::Print(QPrinter* Printer)
 
 	free(Buffer);
 
-	Model->SetCurrentStep(PreviousTime);
+	Model->SetTemporaryStep(PreviousTime);
 
 	Context->EndRenderToTexture();
 }
@@ -1192,6 +1215,18 @@ void lcMainWindow::SetColorIndex(int ColorIndex)
 		mPreviewWidget->Redraw();
 
 	UpdateColor();
+}
+
+void lcMainWindow::SetMoveSnapEnabled(bool Enabled)
+{
+	mMoveSnapEnabled = Enabled;
+	UpdateSnap();
+}
+
+void lcMainWindow::SetAngleSnapEnabled(bool Enabled)
+{
+	mAngleSnapEnabled = Enabled;
+	UpdateSnap();
 }
 
 void lcMainWindow::SetMoveXYSnapIndex(int Index)
@@ -1462,6 +1497,7 @@ void lcMainWindow::UpdateFocusObject(lcObject* Focus)
 
 void lcMainWindow::UpdateSelectedObjects(int Flags, int SelectedCount, lcObject* Focus)
 {
+	mTimelineWidget->UpdateSelection();
 	mActions[LC_EDIT_CUT]->setEnabled(Flags & LC_SEL_SELECTED);
 	mActions[LC_EDIT_COPY]->setEnabled(Flags & LC_SEL_SELECTED);
 	mActions[LC_EDIT_FIND]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
@@ -1474,9 +1510,10 @@ void lcMainWindow::UpdateSelectedObjects(int Flags, int SelectedCount, lcObject*
 
 	mActions[LC_PIECE_DELETE]->setEnabled(Flags & LC_SEL_SELECTED);
 	mActions[LC_PIECE_ARRAY]->setEnabled(Flags & LC_SEL_PIECE);
-	mActions[LC_PIECE_HIDE_SELECTED]->setEnabled(Flags & LC_SEL_PIECE);
-	mActions[LC_PIECE_UNHIDE_ALL]->setEnabled(Flags & LC_SEL_HIDDEN);
+	mActions[LC_PIECE_HIDE_SELECTED]->setEnabled(Flags & LC_SEL_VISIBLE_SELECTED);
 	mActions[LC_PIECE_HIDE_UNSELECTED]->setEnabled(Flags & LC_SEL_UNSELECTED);
+	mActions[LC_PIECE_UNHIDE_SELECTED]->setEnabled(Flags & LC_SEL_HIDDEN_SELECTED);
+	mActions[LC_PIECE_UNHIDE_ALL]->setEnabled(Flags & LC_SEL_HIDDEN);
 	mActions[LC_PIECE_GROUP]->setEnabled(Flags & LC_SEL_CAN_GROUP);
 	mActions[LC_PIECE_UNGROUP]->setEnabled(Flags & LC_SEL_GROUPED);
 	mActions[LC_PIECE_GROUP_ADD]->setEnabled((Flags & (LC_SEL_GROUPED | LC_SEL_FOCUS_GROUPED)) == LC_SEL_GROUPED);
@@ -1512,6 +1549,11 @@ void lcMainWindow::UpdateSelectedObjects(int Flags, int SelectedCount, lcObject*
 	}
 
 	mStatusBarLabel->setText(Message);
+}
+
+void lcMainWindow::UpdateTimeline(bool Clear)
+{
+	mTimelineWidget->Update(Clear);
 }
 
 void lcMainWindow::UpdatePaste(bool Enabled)
@@ -1556,11 +1598,13 @@ void lcMainWindow::UpdateLockSnap()
 
 void lcMainWindow::UpdateSnap()
 {
-	mActions[LC_EDIT_SNAP_MOVE_XY0 + GetMoveXYSnapIndex()]->setChecked(true);
-	mActions[LC_EDIT_SNAP_MOVE_Z0 + GetMoveZSnapIndex()]->setChecked(true);
-	mActions[LC_EDIT_SNAP_ANGLE0 + GetAngleSnapIndex()]->setChecked(true);
+	mActions[LC_EDIT_SNAP_MOVE_TOGGLE]->setChecked(mMoveSnapEnabled);
+	mActions[LC_EDIT_SNAP_ANGLE_TOGGLE]->setChecked(mAngleSnapEnabled);
+	mActions[LC_EDIT_SNAP_MOVE_XY0 + mMoveXYSnapIndex]->setChecked(true);
+	mActions[LC_EDIT_SNAP_MOVE_Z0 + mMoveZSnapIndex]->setChecked(true);
+	mActions[LC_EDIT_SNAP_ANGLE0 + mAngleSnapIndex]->setChecked(true);
 
-	mStatusSnapLabel->setText(QString(tr(" M: %1 %2 R: %3 ")).arg(GetMoveXYSnapText(), GetMoveZSnapText(), QString::number(GetAngleSnap())));
+	mStatusSnapLabel->setText(QString(tr(" M: %1 %2 R: %3 ")).arg(GetMoveXYSnapText(), GetMoveZSnapText(), GetAngleSnapText()));
 }
 
 void lcMainWindow::UpdateColor()
@@ -1741,8 +1785,6 @@ bool lcMainWindow::OpenProject(const QString& FileName)
 
 	if (NewProject->Load(LoadFileName))
 	{
-		NewProject->SetActiveModel(0);
-
 		g_App->SetProject(NewProject);
 		AddRecentFile(LoadFileName);
 
@@ -1862,6 +1904,22 @@ bool lcMainWindow::SaveProjectIfModified()
 	return true;
 }
 
+void lcMainWindow::SetModelFromFocus()
+{
+	lcObject* FocusObject = lcGetActiveModel()->GetFocusObject();
+
+	if (!FocusObject || !FocusObject->IsPiece())
+		return;
+
+	lcModel* Model = ((lcPiece*)FocusObject)->mPieceInfo->GetModel();
+
+	if (Model)
+	{
+		Project* Project = lcGetActiveProject();
+		Project->SetActiveModel(Project->GetModels().FindIndex(Model));
+	}
+}
+
 void lcMainWindow::HandleCommand(lcCommandId CommandId)
 {
 	switch (CommandId)
@@ -1891,7 +1949,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_FILE_EXPORT_3DS:
-		lcGetActiveProject()->Export3DStudio();
+		lcGetActiveProject()->Export3DStudio(QString());
 		break;
 
 	case LC_FILE_EXPORT_HTML:
@@ -2024,51 +2082,51 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_PIECE_MOVE_PLUSX:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(lcMax(GetMoveXYSnap(), 0.01f), 0.0f, 0.0f)), true, true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(lcMax(GetMoveXYSnap(), 0.1f), 0.0f, 0.0f)), true, true, true);
 		break;
 
 	case LC_PIECE_MOVE_MINUSX:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(-lcMax(GetMoveXYSnap(), 0.01f), 0.0f, 0.0f)), true, true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(-lcMax(GetMoveXYSnap(), 0.1f), 0.0f, 0.0f)), true, true, true);
 		break;
 
 	case LC_PIECE_MOVE_PLUSY:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, lcMax(GetMoveXYSnap(), 0.01f), 0.0f)), true, true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, lcMax(GetMoveXYSnap(), 0.1f), 0.0f)), true, true, true);
 		break;
 
 	case LC_PIECE_MOVE_MINUSY:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, -lcMax(GetMoveXYSnap(), 0.01f), 0.0f)), true, true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, -lcMax(GetMoveXYSnap(), 0.1f), 0.0f)), true, true, true);
 		break;
 
 	case LC_PIECE_MOVE_PLUSZ:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, lcMax(GetMoveZSnap(), 0.01f))), true, true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, lcMax(GetMoveZSnap(), 0.1f))), true, true, true);
 		break;
 
 	case LC_PIECE_MOVE_MINUSZ:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, -lcMax(GetMoveZSnap(), 0.01f))), true, true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, -lcMax(GetMoveZSnap(), 0.1f))), true, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_PLUSX:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(lcMax(GetAngleSnap(), 1.0f), 0.0f, 0.0f)), true, true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(lcMax(GetAngleSnap(), 1.0f), 0.0f, 0.0f)), true, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_MINUSX:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(-lcVector3(lcMax(GetAngleSnap(), 1.0f), 0.0f, 0.0f)), true, true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(-lcVector3(lcMax(GetAngleSnap(), 1.0f), 0.0f, 0.0f)), true, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_PLUSY:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, lcMax(GetAngleSnap(), 1.0f), 0.0f)), true, true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, lcMax(GetAngleSnap(), 1.0f), 0.0f)), true, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_MINUSY:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, -lcMax(GetAngleSnap(), 1.0f), 0.0f)), true, true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, -lcMax(GetAngleSnap(), 1.0f), 0.0f)), true, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_PLUSZ:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, lcMax(GetAngleSnap(), 1.0f))), true, true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, lcMax(GetAngleSnap(), 1.0f))), true, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_MINUSZ:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, -lcMax(GetAngleSnap(), 1.0f))), true, true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, -lcMax(GetAngleSnap(), 1.0f))), true, true, true);
 		break;
 
 	case LC_PIECE_MINIFIG_WIZARD:
@@ -2105,6 +2163,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_PIECE_HIDE_UNSELECTED:
 		lcGetActiveModel()->HideUnselectedPieces();
+		break;
+
+	case LC_PIECE_UNHIDE_SELECTED:
+		lcGetActiveModel()->UnhideSelectedPieces();
 		break;
 
 	case LC_PIECE_UNHIDE_ALL:
@@ -2156,11 +2218,11 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_VIEW_TIME_INSERT:
-		lcGetActiveModel()->InsertStep();
+		lcGetActiveModel()->InsertStep(lcGetActiveModel()->GetCurrentStep());
 		break;
 
 	case LC_VIEW_TIME_DELETE:
-		lcGetActiveModel()->RemoveStep();
+		lcGetActiveModel()->RemoveStep(lcGetActiveModel()->GetCurrentStep());
 		break;
 
 	case LC_VIEW_VIEWPOINT_FRONT:
@@ -2224,6 +2286,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_MODEL_PROPERTIES:
 		lcGetActiveModel()->ShowPropertiesDialog();
+		break;
+
+	case LC_MODEL_EDIT_FOCUS:
+		SetModelFromFocus();
 		break;
 
 	case LC_MODEL_LIST:
@@ -2290,6 +2356,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		SetLockZ(false);
 		break;
 
+	case LC_EDIT_SNAP_MOVE_TOGGLE:
+		SetMoveSnapEnabled(!mMoveSnapEnabled);
+		break;
+
 	case LC_EDIT_SNAP_MOVE_XY0:
 	case LC_EDIT_SNAP_MOVE_XY1:
 	case LC_EDIT_SNAP_MOVE_XY2:
@@ -2314,6 +2384,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_EDIT_SNAP_MOVE_Z8:
 	case LC_EDIT_SNAP_MOVE_Z9:
 		SetMoveZSnapIndex(CommandId - LC_EDIT_SNAP_MOVE_Z0);
+		break;
+
+	case LC_EDIT_SNAP_ANGLE_TOGGLE:
+		SetAngleSnapEnabled(!mAngleSnapEnabled);
 		break;
 
 	case LC_EDIT_SNAP_ANGLE0:

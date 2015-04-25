@@ -7,7 +7,7 @@
 #include <QGLWidget>
 #include <QtGui>
 #include <QPrinter>
-
+ 
 // Old defines and declarations.
 #define LC_MAXPATH 1024
 
@@ -37,10 +37,10 @@ int stricmp(const char* str1, const char* str2);
 
 // Version number.
 #define LC_VERSION_MAJOR 0
-#define LC_VERSION_MINOR 81
-#define LC_VERSION_PATCH 0
-#define LC_VERSION_TEXT "0.81.0"
-#define LC_VERSION_BUILD "1792"
+#define LC_VERSION_MINOR 82
+#define LC_VERSION_PATCH 1
+#define LC_VERSION_TEXT "0.82.1"
+#define LC_VERSION_BUILD "1832"
 
 // Forward declarations.
 class Project;
@@ -61,6 +61,8 @@ class lcMatrix33;
 class lcMatrix44;
 
 class lcContext;
+class lcVertexBuffer;
+class lcIndexBuffer;
 class lcMesh;
 struct lcMeshSection;
 struct lcRenderMesh;

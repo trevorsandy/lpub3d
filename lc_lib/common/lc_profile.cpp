@@ -5,7 +5,7 @@
 #include "lc_model.h"
 #include "project.h"
 #include "system.h"
-
+ 
 lcProfileEntry::lcProfileEntry(const char* Section, const char* Key, int DefaultValue)
 {
 	mType = LC_PROFILE_ENTRY_INT;
@@ -110,6 +110,21 @@ void lcRemoveProfileKey(LC_PROFILE_KEY Key)
 	QSettings Settings;
 
 	Settings.remove(QString("%1/%2").arg(Entry.mSection, Entry.mKey));
+}
+
+int lcGetDefaultProfileInt(LC_PROFILE_KEY Key)
+{
+	return gProfileEntries[Key].mDefault.IntValue;
+}
+
+float lcGetDefaultProfileFloat(LC_PROFILE_KEY Key)
+{
+	return gProfileEntries[Key].mDefault.FloatValue;
+}
+
+QString lcGetDefaultProfileString(LC_PROFILE_KEY Key)
+{
+	return QString::fromLatin1(gProfileEntries[Key].mDefault.StringValue);
 }
 
 int lcGetProfileInt(LC_PROFILE_KEY Key)

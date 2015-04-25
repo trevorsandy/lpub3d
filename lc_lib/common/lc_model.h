@@ -1,18 +1,20 @@
 #ifndef _LC_MODEL_H_
 #define _LC_MODEL_H_
-
+ 
 #include "lc_file.h"
 #include "lc_math.h"
 #include "object.h"
 
-#define LC_SEL_NO_PIECES     0x01 // No pieces in model
-#define LC_SEL_PIECE         0x02 // At last 1 piece selected
-#define LC_SEL_SELECTED      0x04 // At last 1 object selected
-#define LC_SEL_UNSELECTED    0x08 // At least 1 piece unselected
-#define LC_SEL_HIDDEN        0x10 // At least one piece hidden
-#define LC_SEL_GROUPED       0x20 // At least one piece selected is grouped
-#define LC_SEL_FOCUS_GROUPED 0x40 // Focused piece is grouped
-#define LC_SEL_CAN_GROUP     0x80 // Can make a new group
+#define LC_SEL_NO_PIECES         0x001 // No pieces in model
+#define LC_SEL_PIECE             0x002 // At last 1 piece selected
+#define LC_SEL_SELECTED          0x004 // At last 1 object selected
+#define LC_SEL_UNSELECTED        0x008 // At least 1 piece unselected
+#define LC_SEL_HIDDEN            0x010 // At least one piece hidden
+#define LC_SEL_HIDDEN_SELECTED   0x020 // At least one piece selected is hidden
+#define LC_SEL_VISIBLE_SELECTED  0x040 // At least one piece selected is not hidden
+#define LC_SEL_GROUPED           0x080 // At least one piece selected is grouped
+#define LC_SEL_FOCUS_GROUPED     0x100 // Focused piece is grouped
+#define LC_SEL_CAN_GROUP         0x200 // Can make a new group
 
 enum lcTransformType
 {
@@ -27,13 +29,11 @@ enum lcRotateStepType
     LC_ROTATESTEP_ABSOLUTE_ROTATION,
     LC_ROTATESTEP_RELATIVE_ROTATION
 };
-
 enum lcBackgroundType
 {
 	LC_BACKGROUND_SOLID,
 	LC_BACKGROUND_GRADIENT,
-	LC_BACKGROUND_IMAGE,
-	LC_NUM_BACKGROUND_TYPES
+	LC_BACKGROUND_IMAGE
 };
 
 class lcModelProperties
@@ -97,7 +97,7 @@ enum lcTool
 	LC_TOOL_ROTATE_VIEW,
 	LC_TOOL_ROLL,
     LC_TOOL_ZOOM_REGION,
-    LC_TOOL_ROTATESTEP,
+    LC_TOOL_ROTATESTEP
 };
 
 struct lcModelHistoryEntry
@@ -170,9 +170,9 @@ public:
 		mProperties.mName = Name;
 	}
 
-	const QStringList& GetMeshLines() const
+	const QStringList& GetFileLines() const
 	{
-		return mMeshLines;
+		return mFileLines;
 	}
 
 	lcStep GetLastStep() const;
@@ -184,7 +184,8 @@ public:
 
 	void SetActive(bool Active);
 	void CalculateStep(lcStep Step);
-	void SetCurrentStep(lcStep Step)
+	void SetCurrentStep(lcStep Step);
+	void SetTemporaryStep(lcStep Step)
 	{
 		mCurrentStep = Step;
 		CalculateStep(Step);
@@ -194,14 +195,15 @@ public:
 	void ShowLastStep();
 	void ShowPreviousStep();
 	void ShowNextStep();
-	void InsertStep();
-	void RemoveStep();
+	void InsertStep(lcStep Step);
+	void RemoveStep(lcStep Step);
 
 	void AddPiece();
 	void DeleteAllCameras();
 	void DeleteSelectedObjects();
 	void ShowSelectedPiecesEarlier();
 	void ShowSelectedPiecesLater();
+	void SetPieceSteps(const QList<QPair<lcPiece*, lcStep> >& PieceSteps);
 
 	lcGroup* AddGroup(const char* Prefix, lcGroup* Parent);
 	lcGroup* GetGroup(const char* Name, bool CreateIfMissing);
@@ -257,13 +259,14 @@ public:
 	void ClearSelection(bool UpdateInterface);
 	void ClearSelectionAndSetFocus(lcObject* Object, lcuint32 Section);
 	void ClearSelectionAndSetFocus(const lcObjectSection& ObjectSection);
-	void SetSelection(const lcArray<lcObject*>& Objects);
+	void SetSelectionAndFocus(const lcArray<lcObject*>& Selection, lcObject* Focus, lcuint32 Section);
 	void AddToSelection(const lcArray<lcObject*>& Objects);
 	void SelectAllPieces();
 	void InvertSelection();
 
 	void HideSelectedPieces();
 	void HideUnselectedPieces();
+	void UnhideSelectedPieces();
 	void UnhideAllPieces();
 
 	void FindPiece(bool FindFirst, bool SearchForward);
@@ -302,13 +305,13 @@ public:
 	void ZoomExtents(lcCamera* Camera, float Aspect);
 	void Zoom(lcCamera* Camera, float Amount);
 
-	void MoveSelectedObjects(const lcVector3& Distance, bool Relative, bool Update)
+	void MoveSelectedObjects(const lcVector3& Distance, bool Relative, bool Update, bool Checkpoint)
 	{
-		MoveSelectedObjects(Distance, Distance, Relative, Update);
+		MoveSelectedObjects(Distance, Distance, Relative, Update, Checkpoint);
 	}
 
-	void MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector3& ObjectDistance, bool Relative, bool Update);
-	void RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool Update);
+	void MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector3& ObjectDistance, bool Relative, bool Update, bool Checkpoint);
+	void RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool Update, bool Checkpoint);
 	void TransformSelectedObjects(lcTransformType TransformType, const lcVector3& Transform);
     void RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep);
     void ParseRotationLine(QTextStream& LineStream);
@@ -335,6 +338,8 @@ protected:
 	void UpdateSelection() const;
 	void SelectGroup(lcGroup* TopGroup, bool Select);
 
+	void AddPiece(lcPiece* Piece);
+
 	lcModelProperties mProperties;
 	PieceInfo* mPieceInfo;
 
@@ -347,7 +352,7 @@ protected:
 	lcArray<lcCamera*> mCameras;
 	lcArray<lcLight*> mLights;
 	lcArray<lcGroup*> mGroups;
-	QStringList mMeshLines;
+	QStringList mFileLines;
 
 	lcModelHistoryEntry* mSavedHistory;
 	lcArray<lcModelHistoryEntry*> mUndoHistory;

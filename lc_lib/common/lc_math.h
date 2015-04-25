@@ -16,7 +16,7 @@
 #define LC_RGBA_BLUE(rgba)  ((lcuint8)(((rgba) >> 16) & 0xff))
 #define LC_RGBA_ALPHA(rgba) ((lcuint8)(((rgba) >> 24) & 0xff))
 #define LC_FLOATRGB(f) LC_RGB(f[0]*255, f[1]*255, f[2]*255)
-
+ 
 template <typename T, typename U>
 inline T lcMin(const T& a, const U& b)
 {
@@ -358,6 +358,11 @@ inline lcVector3& operator/=(lcVector3& a, float b)
 inline bool operator==(const lcVector3& a, const lcVector3& b)
 {
 	return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+
+inline bool operator!=(const lcVector3& a, const lcVector3& b)
+{
+	return a.x != b.x || a.y != b.y || a.z != b.z;
 }
 
 inline void lcVector3::Normalize()
@@ -795,6 +800,18 @@ inline lcMatrix44 lcMatrix44RotationZ(const float Radians)
 	m.r[0] = lcVector4(   c,    s, 0.0f, 0.0f);
 	m.r[1] = lcVector4(  -s,    c, 0.0f, 0.0f);
 	m.r[2] = lcVector4(0.0f, 0.0f, 1.0f, 0.0f);
+	m.r[3] = lcVector4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	return m;
+}
+
+inline lcMatrix44 lcMatrix44Scale(const lcVector3& Scale)
+{
+	lcMatrix44 m;
+
+	m.r[0] = lcVector4(Scale.x, 0.0f, 0.0f, 0.0f);
+	m.r[1] = lcVector4(0.0f, Scale.y, 0.0f, 0.0f);
+	m.r[2] = lcVector4(0.0f, 0.0f, Scale.z, 0.0f);
 	m.r[3] = lcVector4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	return m;
