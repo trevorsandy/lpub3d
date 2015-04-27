@@ -320,11 +320,13 @@ void Preferences::pliPreferences()
   //QMessageBox::warning(NULL,"LPubV",lpubPath,QMessageBox::Cancel);
   
 #ifdef __APPLE__
-
+  //30-11-14 Incorrect path string
+  // pliFile = "/pli.mpd";
   pliFile = "./pli.mpd";
   
 #else
-    
+  //30-11-14 Incorrect path string
+  //pliFile = "/extras/pli.mpd";
   pliFile = "./extras/pli.mpd";
 
 #endif

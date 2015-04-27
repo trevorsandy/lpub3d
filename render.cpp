@@ -70,6 +70,7 @@ QString fixupDirname(const QString &dirNameIn) {
 	long     length = 0;
     TCHAR*   buffer = NULL;
 //  30/11/2014 Generating "invalid conversion from const ushort to const wchar" compile error:
+//  LPCWSTR dirNameWin = dirNameIn.utf16();
     LPCWSTR dirNameWin = (const wchar_t*)dirNameIn.utf16();
 // First obtain the size needed by passing NULL and 0.
 

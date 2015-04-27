@@ -174,7 +174,6 @@ int main(int argc, char *argv[])
 
     Gui     LPubApp;
 
-    //lcGetActiveModel()->UpdateInterface();
     gMainWindow->SetColorIndex(lcGetColorIndex(4));
     gMainWindow->UpdateRecentFiles();
 

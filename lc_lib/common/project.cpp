@@ -18,7 +18,7 @@
 #include "lc_profile.h"
 #include "preview.h"
 #include "lc_qmodellistdialog.h"
- 
+
 Project::Project()
 {
 	mModified = false;
@@ -140,7 +140,7 @@ void Project::CreateNewModel()
 
 void Project::ShowModelListDialog()
 {
-	QList<QPair<QString, lcModel*> > Models;
+    QList<QPair<QString, lcModel*> > Models;
 	Models.reserve(mModels.GetSize());
 
 	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
@@ -156,7 +156,7 @@ void Project::ShowModelListDialog()
 
 	lcArray<lcModel*> NewModels;
 
-	for (QList<QPair<QString, lcModel*> >::iterator it = Models.begin(); it != Models.end(); it++)
+    for (QList<QPair<QString, lcModel*> >::iterator it = Models.begin(); it != Models.end(); it++)
 	{
 		lcModel* Model = it->second;
 
@@ -734,7 +734,7 @@ void Project::Export3DStudio(const QString& FileName)
 
 		File.WriteU16(Mesh->mNumVertices);
 
-		float* Verts = (float*)Mesh->mVertexBuffer.mData;
+		float* Verts = (float*)Mesh->mVertexData;
 		const lcMatrix44& ModelWorld = ModelParts[PartIdx].WorldMatrix;
 
 		for (int VertexIdx = 0; VertexIdx < Mesh->mNumVertices; VertexIdx++)
@@ -785,7 +785,7 @@ void Project::Export3DStudio(const QString& FileName)
 			if (Section->PrimitiveType != GL_TRIANGLES)
 				continue;
 
-			lcuint16* Indices = (lcuint16*)Mesh->mIndexBuffer.mData + Section->IndexOffset / sizeof(lcuint16);
+			lcuint16* Indices = (lcuint16*)Mesh->mIndexData + Section->IndexOffset / sizeof(lcuint16);
 
 			for (int IndexIdx = 0; IndexIdx < Section->NumIndices; IndexIdx += 3)
 			{
@@ -1657,7 +1657,7 @@ void Project::ExportWavefront(const QString& FileName)
 			continue;
 
 		const lcMatrix44& ModelWorld = ModelParts[PartIdx].WorldMatrix;
-		float* Verts = (float*)Mesh->mVertexBuffer.mData;
+		float* Verts = (float*)Mesh->mVertexData;
 
 		for (int i = 0; i < Mesh->mNumVertices * 3; i += 3)
 		{

@@ -372,6 +372,13 @@ void Gui::clearCSI3DCache()
   }
 }
 
+void Gui::clearAllCache()
+{
+    clearPLICache();
+    clearCSICache();
+    clearCSI3DCache();
+}
+
 /***************************************************************************
  * These are infrequently used functions for basic environment 
  * configuration stuff
@@ -798,6 +805,10 @@ void Gui::createActions()
     clearCSI3DCacheAct->setStatusTip(tr("Erase the 3D viewer image cache"));
     connect(clearCSI3DCacheAct, SIGNAL(triggered()), this, SLOT(clearCSI3DCache()));
 
+    clearAllCacheAct = new QAction(tr("Clear All Caches"), this);
+    clearAllCacheAct->setStatusTip(tr("Erase all caches"));
+    connect(clearAllCacheAct, SIGNAL(triggered()), this, SLOT(clearAllCache()));
+
     // Config menu
 
     pageSetupAct = new QAction(tr("Page Setup"), this);
@@ -953,6 +964,7 @@ void Gui::createMenus()
     toolsMenu->addAction(clearPLICacheAct);
     toolsMenu->addAction(clearCSICacheAct);
     toolsMenu->addAction(clearCSI3DCacheAct);
+    toolsMenu->addAction(clearAllCacheAct);
 
     configMenu = menuBar()->addMenu(tr("&Configuration"));
     configMenu->addAction(pageSetupAct);

@@ -560,6 +560,7 @@ public slots:
   void clearPLICache();
   void clearCSICache();
   void clearCSI3DCache();
+  void clearAllCache();
 
   void statusBarMsg(QString msg);
 
@@ -832,6 +833,7 @@ private:
   QAction  *clearPLICacheAct;
   QAction  *clearCSICacheAct;
   QAction  *clearCSI3DCacheAct;
+  QAction  *clearAllCacheAct;
 
   // config menu
 

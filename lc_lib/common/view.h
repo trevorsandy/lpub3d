@@ -58,6 +58,9 @@ public:
 	View(lcModel* Model);
 	virtual ~View();
 
+	static void CreateResources(lcContext* Context);
+	static void DestroyResources(lcContext* Context);
+
 	void SetModel(lcModel* Model);
 
 	void OnDraw();
@@ -118,6 +121,8 @@ public:
 	}
 
 protected:
+	static void CreateSelectMoveOverlayMesh(lcContext* Context);
+
 	void DrawSelectMoveOverlay();
 	void DrawRotateOverlay();
 	void DrawSelectZoomRegionOverlay();
@@ -139,8 +144,11 @@ protected:
 	int mMouseDownX;
 	int mMouseDownY;
 
-	lcVertexBuffer* mGridBuffer;
+	lcVertexBuffer mGridBuffer;
 	int mGridSettings[7];
+
+	static lcVertexBuffer mRotateMoveVertexBuffer;
+	static lcIndexBuffer mRotateMoveIndexBuffer;
 };
 
 #endif // _VIEW_H_

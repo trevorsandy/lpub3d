@@ -74,8 +74,8 @@ void lcApplication::SetProject(Project* Project)
 
 	Project->SetActiveModel(0);
 	lcGetPiecesLibrary()->RemoveTemporaryPieces();
-	lcGetActiveModel()->UpdateInterface();
-	gMainWindow->UpdateAllViews();
+    //lcGetActiveModel()->UpdateInterface();
+    //gMainWindow->UpdateAllViews();
 }
 
 void lcApplication::SetClipboard(const QByteArray& Clipboard)

@@ -15,11 +15,14 @@
 
 #include "lpub.h"
 
+lcVertexBuffer View::mRotateMoveVertexBuffer;
+lcIndexBuffer View::mRotateMoveIndexBuffer;
+
 View::View(lcModel* Model)
 {
 	mModel = Model;
 	mCamera = NULL;
-	mGridBuffer = NULL;
+	mGridBuffer = LC_INVALID_VERTEX_BUFFER;
 	memset(mGridSettings, 0, sizeof(mGridSettings));
 
 	mDragState = LC_DRAGSTATE_NONE;
@@ -35,7 +38,7 @@ View::View(lcModel* Model)
 
 View::~View()
 {
-	delete mGridBuffer;
+	mContext->DestroyVertexBuffer(mGridBuffer);
 
 	if (gMainWindow)
 		gMainWindow->RemoveView(this);
@@ -43,6 +46,169 @@ View::~View()
 	foreach (lcCamera* Camera, mCameras)
 		if (Camera && Camera->IsSimple())
 			delete Camera;
+}
+
+void View::CreateResources(lcContext* Context)
+{
+	gGridTexture = new lcTexture;
+	gGridTexture->CreateGridTexture();
+
+	CreateSelectMoveOverlayMesh(Context);
+}
+
+void View::CreateSelectMoveOverlayMesh(lcContext* Context)
+{
+	float Verts[(51 + 138 + 10) * 3];
+	float* CurVert = Verts;
+
+	const float OverlayMovePlaneSize = 0.5f;
+	const float OverlayMoveArrowSize = 1.5f;
+	const float OverlayMoveArrowCapSize = 0.9f;
+	const float OverlayMoveArrowCapRadius = 0.1f;
+	const float OverlayMoveArrowBodySize = 1.2f;
+	const float OverlayMoveArrowBodyRadius = 0.05f;
+	const float OverlayRotateArrowStart = 1.0f;
+	const float OverlayRotateArrowEnd = 1.5f;
+	const float OverlayRotateArrowCenter = 1.2f;
+
+	*CurVert++ = OverlayMoveArrowSize; *CurVert++ = 0.0f; *CurVert++ = 0.0f;
+
+	for (int EdgeIdx = 0; EdgeIdx < 8; EdgeIdx++)
+	{
+		*CurVert++ = OverlayMoveArrowCapSize;
+		*CurVert++ = cosf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius;
+		*CurVert++ = sinf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius;
+	}
+
+	*CurVert++ = 0.0f; *CurVert++ = -OverlayMoveArrowBodyRadius; *CurVert++ = 0.0f;
+	*CurVert++ = 0.0f; *CurVert++ = OverlayMoveArrowBodyRadius; *CurVert++ = 0.0f;
+	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = -OverlayMoveArrowBodyRadius;
+	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = OverlayMoveArrowBodyRadius;
+	*CurVert++ = OverlayMoveArrowBodySize; *CurVert++ = -OverlayMoveArrowBodyRadius; *CurVert++ = 0.0f;
+	*CurVert++ = OverlayMoveArrowBodySize; *CurVert++ = OverlayMoveArrowBodyRadius; *CurVert++ = 0.0f;
+	*CurVert++ = OverlayMoveArrowBodySize; *CurVert++ = 0.0f; *CurVert++ = -OverlayMoveArrowBodyRadius;
+	*CurVert++ = OverlayMoveArrowBodySize; *CurVert++ = 0.0f; *CurVert++ = OverlayMoveArrowBodyRadius;
+
+	for (int VertIdx = 0; VertIdx < 17; VertIdx++)
+	{
+		*CurVert = *(CurVert - 50); CurVert++;
+		*CurVert = *(CurVert - 52); CurVert++;
+		*CurVert = *(CurVert - 51); CurVert++;
+	}
+
+	for (int VertIdx = 0; VertIdx < 17; VertIdx++)
+	{
+		*CurVert = *(CurVert - 100); CurVert++;
+		*CurVert = *(CurVert - 102); CurVert++;
+		*CurVert = *(CurVert - 104); CurVert++;
+	}
+
+	*CurVert++ = 0.0f; *CurVert++ = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius; *CurVert++ = OverlayRotateArrowStart;
+
+	for (int EdgeIdx = 0; EdgeIdx < 8; EdgeIdx++)
+	{
+		*CurVert++ = cosf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius;
+		*CurVert++ = sinf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius + OverlayRotateArrowEnd - OverlayMoveArrowCapRadius;
+		*CurVert++ = OverlayRotateArrowCenter;
+	}
+
+	*CurVert++ = 0.0f; *CurVert++ = OverlayRotateArrowStart; *CurVert++ = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius;
+
+	for (int EdgeIdx = 0; EdgeIdx < 8; EdgeIdx++)
+	{
+		*CurVert++ = cosf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius;
+		*CurVert++ = OverlayRotateArrowCenter;
+		*CurVert++ = sinf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius + OverlayRotateArrowEnd - OverlayMoveArrowCapRadius;
+	}
+
+	for (int EdgeIdx = 0; EdgeIdx < 7; EdgeIdx++)
+	{
+		const float Radius1 = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius - OverlayRotateArrowCenter - OverlayMoveArrowBodyRadius;
+		const float Radius2 = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius - OverlayRotateArrowCenter + OverlayMoveArrowBodyRadius;
+		float x = cosf(LC_2PI / 4 * EdgeIdx / 6);
+		float y = sinf(LC_2PI / 4 * EdgeIdx / 6);
+
+		*CurVert++ = 0.0f;
+		*CurVert++ = OverlayRotateArrowCenter + x * Radius1;
+		*CurVert++ = OverlayRotateArrowCenter + y * Radius1;
+		*CurVert++ = 0.0f;
+		*CurVert++ = OverlayRotateArrowCenter + x * Radius2;
+		*CurVert++ = OverlayRotateArrowCenter + y * Radius2;
+	}
+
+	for (int EdgeIdx = 0; EdgeIdx < 7; EdgeIdx++)
+	{
+		const float Radius = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius - OverlayRotateArrowCenter;
+		float x = cosf(LC_2PI / 4 * EdgeIdx / 6);
+		float y = sinf(LC_2PI / 4 * EdgeIdx / 6);
+
+		*CurVert++ = -OverlayMoveArrowBodyRadius;
+		*CurVert++ = OverlayRotateArrowCenter + x * Radius;
+		*CurVert++ = OverlayRotateArrowCenter + y * Radius;
+		*CurVert++ = OverlayMoveArrowBodyRadius;
+		*CurVert++ = OverlayRotateArrowCenter + x * Radius;
+		*CurVert++ = OverlayRotateArrowCenter + y * Radius;
+	}
+
+	for (int VertIdx = 0; VertIdx < 46; VertIdx++)
+	{
+		*CurVert = *(CurVert - 137); CurVert++;
+		*CurVert = *(CurVert - 139); CurVert++;
+		*CurVert = *(CurVert - 138); CurVert++;
+	}
+
+	for (int VertIdx = 0; VertIdx < 46; VertIdx++)
+	{
+		*CurVert = *(CurVert - 274); CurVert++;
+		*CurVert = *(CurVert - 276); CurVert++;
+		*CurVert = *(CurVert - 278); CurVert++;
+	}
+
+	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = 0.0f;
+	*CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f;
+	*CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize; *CurVert++ = OverlayMovePlaneSize;
+	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize;
+	*CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f; *CurVert++ = 0.0f;
+	*CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize;
+	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize;
+	*CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f;
+	*CurVert++ = OverlayMovePlaneSize; *CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f;
+	*CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f; *CurVert++ = 0.0f;
+
+	const GLushort Indices[108 + 360 + 12] =
+	{
+		0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6, 0, 6, 7, 0, 7, 8, 0, 8, 1,
+		9, 10, 14, 14, 13, 9, 11, 12, 15, 15, 16, 12,
+		17, 18, 19, 17, 19, 20, 17, 20, 21, 17, 21, 22, 17, 22, 23, 17, 23, 24, 17, 24, 25, 17, 25, 18,
+		26, 27, 31, 31, 30, 26, 28, 29, 32, 32, 33, 29,
+		34, 35, 36, 34, 36, 37, 34, 37, 38, 34, 38, 39, 34, 39, 40, 34, 40, 41, 34, 41, 42, 34, 42, 35,
+		43, 44, 48, 48, 47, 43, 45, 46, 49, 49, 50, 46,
+		51, 52, 53, 51, 53, 54, 51, 54, 55, 51, 55, 56, 51, 56, 57, 51, 57, 58, 51, 58, 59, 51, 59, 52,
+		60, 61, 62, 60, 62, 63, 60, 63, 64, 60, 64, 65, 60, 65, 66, 60, 66, 67, 60, 67, 68, 60, 68, 61,
+		69, 70, 71, 71, 72, 70, 71, 72, 73, 73, 74, 72, 73, 74, 75, 75, 76, 74, 75, 76, 77, 77, 78, 76, 77, 78, 79, 79, 80, 78, 79, 80, 81, 81, 82, 80,
+		83, 84, 85, 85, 86, 84, 85, 86, 87, 87, 88, 86, 87, 88, 89, 89, 90, 88, 89, 90, 91, 91, 92, 90, 91, 92, 93, 93, 94, 92, 93, 94, 95, 95, 96, 94,
+		97, 98, 99, 97, 99, 100, 97, 100, 101, 97, 101, 102, 97, 102, 103, 97, 103, 104, 97, 104, 105, 97, 105, 98,
+		106, 107, 108, 106, 108, 109, 106, 109, 110, 106, 110, 111, 106, 111, 112, 106, 112, 113, 106, 113, 114, 106, 114, 107,
+		115, 116, 117, 117, 118, 116, 117, 118, 119, 119, 120, 118, 119, 120, 121, 121, 122, 120, 121, 122, 123, 123, 124, 122, 123, 124, 125, 125, 126, 124, 125, 126, 127, 127, 128, 126,
+		129, 130, 131, 131, 132, 130, 131, 132, 133, 133, 134, 132, 133, 134, 135, 135, 136, 134, 135, 136, 137, 137, 138, 136, 137, 138, 139, 139, 140, 138, 139, 140, 141, 141, 142, 140,
+		143, 144, 145, 143, 145, 146, 143, 146, 147, 143, 147, 148, 143, 148, 149, 143, 149, 150, 143, 150, 151, 143, 151, 144,
+		152, 153, 154, 152, 154, 155, 152, 155, 156, 152, 156, 157, 152, 157, 158, 152, 158, 159, 152, 159, 160, 152, 160, 153,
+		161, 162, 163, 163, 164, 162, 163, 164, 165, 165, 166, 164, 165, 166, 167, 167, 168, 166, 167, 168, 169, 169, 170, 168, 169, 170, 171, 171, 172, 170, 171, 172, 173, 173, 174, 172,
+		175, 176, 177, 177, 178, 176, 177, 178, 179, 179, 180, 178, 179, 180, 181, 181, 182, 180, 181, 182, 183, 183, 184, 182, 183, 184, 185, 185, 186, 184, 185, 186, 187, 187, 188, 186,
+		189, 190, 191, 192, 189, 193, 194, 195, 189, 196, 197, 198
+	};
+
+	mRotateMoveVertexBuffer = Context->CreateVertexBuffer(sizeof(Verts), Verts);
+	mRotateMoveIndexBuffer = Context->CreateIndexBuffer(sizeof(Indices), Indices);
+}
+
+void View::DestroyResources(lcContext* Context)
+{
+	delete gGridTexture;
+	gGridTexture = NULL;
+
+	Context->DestroyVertexBuffer(mRotateMoveVertexBuffer);
+	Context->DestroyIndexBuffer(mRotateMoveIndexBuffer);
 }
 
 void View::SetModel(lcModel* Model)
@@ -481,145 +647,6 @@ void View::OnDraw()
 
 void View::DrawSelectMoveOverlay()
 {
-	float Verts[(51 + 138 + 10) * 3];
-	float* CurVert = Verts;
-
-	const float OverlayMovePlaneSize = 0.5f;
-	const float OverlayMoveArrowSize = 1.5f;
-	const float OverlayMoveArrowCapSize = 0.9f;
-	const float OverlayMoveArrowCapRadius = 0.1f;
-	const float OverlayMoveArrowBodySize = 1.2f;
-	const float OverlayMoveArrowBodyRadius = 0.05f;
-	const float OverlayRotateArrowStart = 1.0f;
-	const float OverlayRotateArrowEnd = 1.5f;
-	const float OverlayRotateArrowCenter = 1.2f;
-
-	*CurVert++ = OverlayMoveArrowSize; *CurVert++ = 0.0f; *CurVert++ = 0.0f;
-
-	for (int EdgeIdx = 0; EdgeIdx < 8; EdgeIdx++)
-	{
-		*CurVert++ = OverlayMoveArrowCapSize;
-		*CurVert++ = cosf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius;
-		*CurVert++ = sinf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius;
-	}
-
-	*CurVert++ = 0.0f; *CurVert++ = -OverlayMoveArrowBodyRadius; *CurVert++ = 0.0f;
-	*CurVert++ = 0.0f; *CurVert++ = OverlayMoveArrowBodyRadius; *CurVert++ = 0.0f;
-	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = -OverlayMoveArrowBodyRadius;
-	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = OverlayMoveArrowBodyRadius;
-	*CurVert++ = OverlayMoveArrowBodySize; *CurVert++ = -OverlayMoveArrowBodyRadius; *CurVert++ = 0.0f;
-	*CurVert++ = OverlayMoveArrowBodySize; *CurVert++ = OverlayMoveArrowBodyRadius; *CurVert++ = 0.0f;
-	*CurVert++ = OverlayMoveArrowBodySize; *CurVert++ = 0.0f; *CurVert++ = -OverlayMoveArrowBodyRadius;
-	*CurVert++ = OverlayMoveArrowBodySize; *CurVert++ = 0.0f; *CurVert++ = OverlayMoveArrowBodyRadius;
-
-	for (int VertIdx = 0; VertIdx < 17; VertIdx++)
-	{
-		*CurVert = *(CurVert - 50); CurVert++;
-		*CurVert = *(CurVert - 52); CurVert++;
-		*CurVert = *(CurVert - 51); CurVert++;
-	}
-
-	for (int VertIdx = 0; VertIdx < 17; VertIdx++)
-	{
-		*CurVert = *(CurVert - 100); CurVert++;
-		*CurVert = *(CurVert - 102); CurVert++;
-		*CurVert = *(CurVert - 104); CurVert++;
-	}
-
-	*CurVert++ = 0.0f; *CurVert++ = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius; *CurVert++ = OverlayRotateArrowStart;
-
-	for (int EdgeIdx = 0; EdgeIdx < 8; EdgeIdx++)
-	{
-		*CurVert++ = cosf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius;
-		*CurVert++ = sinf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius + OverlayRotateArrowEnd - OverlayMoveArrowCapRadius;
-		*CurVert++ = OverlayRotateArrowCenter;
-	}
-
-	*CurVert++ = 0.0f; *CurVert++ = OverlayRotateArrowStart; *CurVert++ = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius;
-
-	for (int EdgeIdx = 0; EdgeIdx < 8; EdgeIdx++)
-	{
-		*CurVert++ = cosf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius;
-		*CurVert++ = OverlayRotateArrowCenter;
-		*CurVert++ = sinf(LC_2PI * EdgeIdx / 8) * OverlayMoveArrowCapRadius + OverlayRotateArrowEnd - OverlayMoveArrowCapRadius;
-	}
-
-	for (int EdgeIdx = 0; EdgeIdx < 7; EdgeIdx++)
-	{
-		const float Radius1 = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius - OverlayRotateArrowCenter - OverlayMoveArrowBodyRadius;
-		const float Radius2 = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius - OverlayRotateArrowCenter + OverlayMoveArrowBodyRadius;
-		float x = cosf(LC_2PI / 4 * EdgeIdx / 6);
-		float y = sinf(LC_2PI / 4 * EdgeIdx / 6);
-
-		*CurVert++ = 0.0f;
-		*CurVert++ = OverlayRotateArrowCenter + x * Radius1;
-		*CurVert++ = OverlayRotateArrowCenter + y * Radius1;
-		*CurVert++ = 0.0f;
-		*CurVert++ = OverlayRotateArrowCenter + x * Radius2;
-		*CurVert++ = OverlayRotateArrowCenter + y * Radius2;
-	}
-
-	for (int EdgeIdx = 0; EdgeIdx < 7; EdgeIdx++)
-	{
-		const float Radius = OverlayRotateArrowEnd - OverlayMoveArrowCapRadius - OverlayRotateArrowCenter;
-		float x = cosf(LC_2PI / 4 * EdgeIdx / 6);
-		float y = sinf(LC_2PI / 4 * EdgeIdx / 6);
-
-		*CurVert++ = -OverlayMoveArrowBodyRadius;
-		*CurVert++ = OverlayRotateArrowCenter + x * Radius;
-		*CurVert++ = OverlayRotateArrowCenter + y * Radius;
-		*CurVert++ = OverlayMoveArrowBodyRadius;
-		*CurVert++ = OverlayRotateArrowCenter + x * Radius;
-		*CurVert++ = OverlayRotateArrowCenter + y * Radius;
-	}
-
-	for (int VertIdx = 0; VertIdx < 46; VertIdx++)
-	{
-		*CurVert = *(CurVert - 137); CurVert++;
-		*CurVert = *(CurVert - 139); CurVert++;
-		*CurVert = *(CurVert - 138); CurVert++;
-	}
-
-	for (int VertIdx = 0; VertIdx < 46; VertIdx++)
-	{
-		*CurVert = *(CurVert - 274); CurVert++;
-		*CurVert = *(CurVert - 276); CurVert++;
-		*CurVert = *(CurVert - 278); CurVert++;
-	}
-
-	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = 0.0f;
-	*CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f;
-	*CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize; *CurVert++ = OverlayMovePlaneSize;
-	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize;
-	*CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f; *CurVert++ = 0.0f;
-	*CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize;
-	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize;
-	*CurVert++ = 0.0f; *CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f;
-	*CurVert++ = OverlayMovePlaneSize; *CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f;
-	*CurVert++ = OverlayMovePlaneSize; *CurVert++ = 0.0f; *CurVert++ = 0.0f;
-
-	const GLushort Indices[108 + 360 + 12] =
-	{
-		0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6, 0, 6, 7, 0, 7, 8, 0, 8, 1,
-		9, 10, 14, 14, 13, 9, 11, 12, 15, 15, 16, 12,
-		17, 18, 19, 17, 19, 20, 17, 20, 21, 17, 21, 22, 17, 22, 23, 17, 23, 24, 17, 24, 25, 17, 25, 18,
-		26, 27, 31, 31, 30, 26, 28, 29, 32, 32, 33, 29,
-		34, 35, 36, 34, 36, 37, 34, 37, 38, 34, 38, 39, 34, 39, 40, 34, 40, 41, 34, 41, 42, 34, 42, 35,
-		43, 44, 48, 48, 47, 43, 45, 46, 49, 49, 50, 46,
-		51, 52, 53, 51, 53, 54, 51, 54, 55, 51, 55, 56, 51, 56, 57, 51, 57, 58, 51, 58, 59, 51, 59, 52,
-		60, 61, 62, 60, 62, 63, 60, 63, 64, 60, 64, 65, 60, 65, 66, 60, 66, 67, 60, 67, 68, 60, 68, 61,
-		69, 70, 71, 71, 72, 70, 71, 72, 73, 73, 74, 72, 73, 74, 75, 75, 76, 74, 75, 76, 77, 77, 78, 76, 77, 78, 79, 79, 80, 78, 79, 80, 81, 81, 82, 80,
-		83, 84, 85, 85, 86, 84, 85, 86, 87, 87, 88, 86, 87, 88, 89, 89, 90, 88, 89, 90, 91, 91, 92, 90, 91, 92, 93, 93, 94, 92, 93, 94, 95, 95, 96, 94,
-		97, 98, 99, 97, 99, 100, 97, 100, 101, 97, 101, 102, 97, 102, 103, 97, 103, 104, 97, 104, 105, 97, 105, 98,
-		106, 107, 108, 106, 108, 109, 106, 109, 110, 106, 110, 111, 106, 111, 112, 106, 112, 113, 106, 113, 114, 106, 114, 107,
-		115, 116, 117, 117, 118, 116, 117, 118, 119, 119, 120, 118, 119, 120, 121, 121, 122, 120, 121, 122, 123, 123, 124, 122, 123, 124, 125, 125, 126, 124, 125, 126, 127, 127, 128, 126,
-		129, 130, 131, 131, 132, 130, 131, 132, 133, 133, 134, 132, 133, 134, 135, 135, 136, 134, 135, 136, 137, 137, 138, 136, 137, 138, 139, 139, 140, 138, 139, 140, 141, 141, 142, 140,
-		143, 144, 145, 143, 145, 146, 143, 146, 147, 143, 147, 148, 143, 148, 149, 143, 149, 150, 143, 150, 151, 143, 151, 144,
-		152, 153, 154, 152, 154, 155, 152, 155, 156, 152, 156, 157, 152, 157, 158, 152, 158, 159, 152, 159, 160, 152, 160, 153,
-		161, 162, 163, 163, 164, 162, 163, 164, 165, 165, 166, 164, 165, 166, 167, 167, 168, 166, 167, 168, 169, 169, 170, 168, 169, 170, 171, 171, 172, 170, 171, 172, 173, 173, 174, 172,
-		175, 176, 177, 177, 178, 176, 177, 178, 179, 179, 180, 178, 179, 180, 181, 181, 182, 180, 181, 182, 183, 183, 184, 182, 183, 184, 185, 185, 186, 184, 185, 186, 187, 187, 188, 186,
-		189, 190, 191, 192, 189, 193, 194, 195, 189, 196, 197, 198
-	};
 
 	const lcMatrix44& ViewMatrix = mCamera->mWorldView;
 	mContext->SetProjectionMatrix(GetProjectionMatrix());
@@ -638,7 +665,8 @@ void View::DrawSelectMoveOverlay()
 
 	mContext->SetWorldViewMatrix(WorldViewMatrix);
 
-	mContext->SetVertexBufferPointer(Verts);
+	mContext->SetIndexBuffer(mRotateMoveIndexBuffer);
+	mContext->SetVertexBuffer(mRotateMoveVertexBuffer);
 	mContext->SetVertexFormat(0, 3, 0, 0);
 
 	if (mTrackButton == LC_TRACKBUTTON_NONE || (mTrackTool >= LC_TRACKTOOL_MOVE_X && mTrackTool <= LC_TRACKTOOL_MOVE_XYZ))
@@ -646,34 +674,34 @@ void View::DrawSelectMoveOverlay()
 		if ((mTrackTool == LC_TRACKTOOL_MOVE_X) || (mTrackTool == LC_TRACKTOOL_MOVE_XY) || (mTrackTool == LC_TRACKTOOL_MOVE_XZ))
 		{
 			glColor4f(0.8f, 0.8f, 0.0f, 1.0f);
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, Indices);
+			mContext->DrawIndexedPrimitives(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
 		}
 		else if (mTrackButton == LC_TRACKBUTTON_NONE)
 		{
 			glColor4f(0.8f, 0.0f, 0.0f, 1.0f);
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, Indices);
+			mContext->DrawIndexedPrimitives(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
 		}
 
 		if ((mTrackTool == LC_TRACKTOOL_MOVE_Y) || (mTrackTool == LC_TRACKTOOL_MOVE_XY) || (mTrackTool == LC_TRACKTOOL_MOVE_YZ))
 		{
 			glColor4f(0.8f, 0.8f, 0.0f, 1.0f);
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, Indices + 36);
+			mContext->DrawIndexedPrimitives(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 36 * 2);
 		}
 		else if (mTrackButton == LC_TRACKBUTTON_NONE)
 		{
 			glColor4f(0.0f, 0.8f, 0.0f, 1.0f);
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, Indices + 36);
+			mContext->DrawIndexedPrimitives(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 36 * 2);
 		}
 
 		if ((mTrackTool == LC_TRACKTOOL_MOVE_Z) || (mTrackTool == LC_TRACKTOOL_MOVE_XZ) || (mTrackTool == LC_TRACKTOOL_MOVE_YZ))
 		{
 			glColor4f(0.8f, 0.8f, 0.0f, 1.0f);
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, Indices + 72);
+			mContext->DrawIndexedPrimitives(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 72 * 2);
 		}
 		else if (mTrackButton == LC_TRACKBUTTON_NONE)
 		{
 			glColor4f(0.0f, 0.0f, 0.8f, 1.0f);
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, Indices + 72);
+			mContext->DrawIndexedPrimitives(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 72 * 2);
 		}
 	}
 
@@ -684,21 +712,21 @@ void View::DrawSelectMoveOverlay()
 		else
 			glColor4f(0.8f, 0.0f, 0.0f, 1.0f);
 
-		glDrawElements(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, Indices + 108);
+		mContext->DrawIndexedPrimitives(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, 108 * 2);
 
 		if (mTrackTool == LC_TRACKTOOL_ROTATE_Y)
 			glColor4f(0.8f, 0.8f, 0.0f, 1.0f);
 		else
 			glColor4f(0.0f, 0.8f, 0.0f, 1.0f);
 
-		glDrawElements(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, Indices + 108 + 120);
+		mContext->DrawIndexedPrimitives(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, (108 + 120) * 2);
 
 		if (mTrackTool == LC_TRACKTOOL_ROTATE_Z)
 			glColor4f(0.8f, 0.8f, 0.0f, 1.0f);
 		else
 			glColor4f(0.0f, 0.0f, 0.8f, 1.0f);
 
-		glDrawElements(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, Indices + 108 + 240);
+		mContext->DrawIndexedPrimitives(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, (108 + 240) * 2);
 	}
 
 	if ((mTrackTool == LC_TRACKTOOL_MOVE_XY) || (mTrackTool == LC_TRACKTOOL_MOVE_XZ) || (mTrackTool == LC_TRACKTOOL_MOVE_YZ))
@@ -709,16 +737,18 @@ void View::DrawSelectMoveOverlay()
 		glColor4f(0.8f, 0.8f, 0.0f, 0.3f);
 
 		if (mTrackTool == LC_TRACKTOOL_MOVE_XY)
-			glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, Indices + 108 + 360 + 8);
+			mContext->DrawIndexedPrimitives(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, (108 + 360 + 8) * 2);
 		else if (mTrackTool == LC_TRACKTOOL_MOVE_XZ)
-			glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, Indices + 108 + 360 + 4);
+			mContext->DrawIndexedPrimitives(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, (108 + 360 + 4) * 2);
 		else if (mTrackTool == LC_TRACKTOOL_MOVE_YZ)
-			glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, Indices + 108 + 360);
+			mContext->DrawIndexedPrimitives(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, (108 + 360) * 2);
 
 		glDisable(GL_BLEND);
 	}
 
 	glEnable(GL_DEPTH_TEST);
+
+	mContext->ClearIndexBuffer(); // context remove
 }
 
 void View::DrawRotateOverlay()
@@ -1054,9 +1084,9 @@ void View::DrawSelectZoomRegionOverlay()
 	}
 
 	Left = lcMax(Left, 0.0f);
-	Right = lcMin(Right, mWidth - 1);
+	Right = lcMin(Right, mWidth - 1.0f);
 	Bottom = lcMax(Bottom, 0.0f);
-	Top = lcMin(Top, mHeight - 1);
+	Top = lcMin(Top, mHeight - 1.0f);
 
 	float BorderX = lcMin(2.0f, Right - Left);
 	float BorderY = lcMin(2.0f, Top - Bottom);
@@ -1125,7 +1155,7 @@ void View::DrawRotateViewOverlay()
 		*CurVert++ = sinf((float)i / 32.0f * (2.0f * LC_PI)) * r + cy;
 	}
 
-	const float OverlayCameraSquareSize = lcMax(8.0f, (w+h)/200);
+	const float OverlayCameraSquareSize = lcMax(8.0f, (w + h) / 200.0f);
 
 	*CurVert++ = cx + OverlayCameraSquareSize; *CurVert++ = cy + r + OverlayCameraSquareSize;
 	*CurVert++ = cx - OverlayCameraSquareSize; *CurVert++ = cy + r + OverlayCameraSquareSize;
@@ -1230,22 +1260,19 @@ void View::DrawGrid()
 		MaxY = 2;
 	}
 
-	if (!mGridBuffer || MinX != mGridSettings[0] || MinY != mGridSettings[1] || MaxX != mGridSettings[2] || MaxY != mGridSettings[3] ||
+	if (mGridBuffer == LC_INVALID_VERTEX_BUFFER || MinX != mGridSettings[0] || MinY != mGridSettings[1] || MaxX != mGridSettings[2] || MaxY != mGridSettings[3] ||
 	    Spacing != mGridSettings[4] || (Preferences.mDrawGridStuds ? 1 : 0) != mGridSettings[5] || (Preferences.mDrawGridLines ? 1 : 0) != mGridSettings[6])
 	{
-		int BufferSize = 0;
+		int VertexBufferSize = 0;
 
 		if (Preferences.mDrawGridStuds)
-			BufferSize += 4 * 5;
+			VertexBufferSize += 4 * 5 * sizeof(float);
 
 		if (Preferences.mDrawGridLines)
-			BufferSize += 2 * (MaxX - MinX + MaxY - MinY + 2) * 3;
+			VertexBufferSize += 2 * (MaxX - MinX + MaxY - MinY + 2) * 3 * sizeof(float);
 
-		if (!mGridBuffer)
-			mGridBuffer = new lcVertexBuffer();
-
-		mGridBuffer->SetSize(BufferSize * sizeof(float));
-		float* CurVert = (float*)mGridBuffer->mData;
+		float* Verts = (float*)malloc(VertexBufferSize);
+		float* CurVert = Verts;
 
 		if (Preferences.mDrawGridStuds)
 		{
@@ -1315,7 +1342,9 @@ void View::DrawGrid()
 		mGridSettings[5] = (Preferences.mDrawGridStuds ? 1 : 0);
 		mGridSettings[6] = (Preferences.mDrawGridLines ? 1 : 0);
 
-		mGridBuffer->UpdateBuffer();
+		mContext->DestroyVertexBuffer(mGridBuffer);
+		mGridBuffer = mContext->CreateVertexBuffer(VertexBufferSize, Verts);
+		free(Verts);
 	}
 
 	int BufferOffset = 0;
@@ -1860,7 +1889,7 @@ void View::UpdateTrackTool()
 			float d = sqrtf((float)((cx - x) * (cx - x) + (cy - y) * (cy - y)));
 			float r = lcMin(vw, vh) * 0.35f;
 
-			const float SquareSize = lcMax(8.0f, (vw + vh) / 200);
+			const float SquareSize = lcMax(8.0f, (vw + vh) / 200.0f);
 
 			if ((d < r + SquareSize) && (d > r - SquareSize))
 			{
