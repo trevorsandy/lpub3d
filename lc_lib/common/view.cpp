@@ -2373,9 +2373,15 @@ void View::OnMouseMove()
 
 	const float MouseSensitivity = 1.0f / (21.0f - lcGetPreferences().mMouseSensitivity);
 
-//    lcVector3 Rotation = lcMatrix44ToEulerAngles(mCamera->mWorldView);
-//    Rotation *= LC_RTOD;
-//    Rotation *= LC_DTOR;
+/*    rotstep update 2
+    lcVector3 stepRotation = lcMatrix44ToEulerAngles(mCamera->mWorldView);
+    stepRotation *= LC_RTOD;
+    stepRotation *= LC_DTOR; */
+
+    lcVector3 rotAngles = lcMatrix44ToEulerAngles(mCamera->mWorldView) * LC_RTOD;
+    // convert vertex from LeoCAD to LPub(LDraw) format
+    // switch y and z axis
+    lcVector3 stepRotation(rotAngles[0], rotAngles[2], rotAngles[1]);
 
 	switch (mTrackTool)
 	{
@@ -2606,7 +2612,7 @@ void View::OnMouseMove()
 		}
 		break;
 
-/*	** start rotstep update **
+/*	** start original code  **
 	case LC_TRACKTOOL_ORBIT_X:
 		mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.0f);
 		break;
@@ -2617,7 +2623,9 @@ void View::OnMouseMove()
 	case LC_TRACKTOOL_ORBIT_XY:
 		mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
 		break;
-*/
+/  ** end original code     **
+/  ** start rotestep update 1 **
+
     case LC_TRACKTOOL_ORBIT_X:
     case LC_TRACKTOOL_ORBIT_Y:
         {
@@ -2688,6 +2696,23 @@ void View::OnMouseMove()
             gui->UpdateStepRotation(MoveX + MoveY);
         }
         break;
+  ** end rotstep update 1 */
+
+/*	** start rotstep update 2 **/
+    case LC_TRACKTOOL_ORBIT_X:
+        mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.0f);
+        gui->UpdateStepRotation(stepRotation);
+        break;
+    case LC_TRACKTOOL_ORBIT_Y:
+        mModel->UpdateOrbitTool(mCamera, 0.0f, 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
+        gui->UpdateStepRotation(stepRotation);
+        break;
+
+    case LC_TRACKTOOL_ORBIT_XY:
+        mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
+        gui->UpdateStepRotation(stepRotation);
+        break;
+/*  ** end  rotstep update 2 */
 
 	case LC_TRACKTOOL_ROLL:
 		mModel->UpdateRollTool(mCamera, 2.0f * MouseSensitivity * (mInputState.x - mMouseDownX) * LC_DTOR);
@@ -2699,7 +2724,7 @@ void View::OnMouseMove()
     case LC_TRACKTOOL_ROTATESTEP:
         break;
 	}
-} // ** end rotstep update **
+}
 
 void View::OnMouseWheel(float Direction)
 {

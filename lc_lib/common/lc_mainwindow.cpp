@@ -1327,7 +1327,9 @@ lcVector3 lcMainWindow::GetRotateStepAmount()
 
     // DEBUG ONLY
     QString rotDisplay("%1 %2 %3");
-    rotDisplay = rotDisplay.arg(QString::number(rotateStep[0], 'f', 2), QString::number(rotateStep[1], 'f', 2), QString::number(rotateStep[2], 'f', 2));
+    rotDisplay = rotDisplay.arg(QString::number(rotateStep[0], 'f', 2),
+                                QString::number(rotateStep[1], 'f', 2),
+                                QString::number(rotateStep[2], 'f', 2));
     qDebug() << "2.ROTATION STEP CAPTURE: " << rotDisplay;
     // END DEBUG
 

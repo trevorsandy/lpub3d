@@ -100,6 +100,7 @@ public:
 
 	lcModel* mModel;
 	lcCamera* mCamera;
+
 	QMap<lcModel*, lcCamera*> mCameras;
 
 	lcVector3 ProjectPoint(const lcVector3& Point) const
