@@ -86,7 +86,9 @@ class Step : public AbstractRangeElement
            QStringList  const &csiParts,
            QPixmap            *pixmap,
            Meta               &meta);
+
     int Render3DCsi(QString &csi3DName);
+
     int  sizeit(int  rows[],
                 int  cols[],
                 int  rowsMargin[][2],

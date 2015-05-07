@@ -53,6 +53,7 @@
 #include "dividerdialog.h"
 #include "paths.h"
 #include "render.h"
+#include "version.h"
 
 #include "csiitem.h"
 
@@ -790,7 +791,7 @@ void MetaItem::setMetaTopOf(
     replaceMeta(meta->here(),line);
   } else {
     if (askLocal) {
-      local = LocalDialog::getLocal(LPUB, "Change only this step?",gui);
+      local = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Change only this step?",gui);
     }
     QString line = meta->format(local,global);
 
@@ -841,7 +842,7 @@ void MetaItem::setMetaBottomOf(
     replaceMeta(meta->here(),line);
   } else {
     if (askLocal) {
-      local = LocalDialog::getLocal(LPUB, "Change only this step?",gui);
+      local = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Change only this step?",gui);
     }
     QString line = meta->format(local, global);
 
@@ -1500,7 +1501,6 @@ Rc  MetaItem::scanForward(
       
   for ( ; here < numLines; here++) {
     QString line = gui->readLine(here);
-
     QStringList tokens;
 
     split(line,tokens);
@@ -1512,6 +1512,7 @@ Rc  MetaItem::scanForward(
       partsAdded = true;
     } else {
       Rc rc = tmpMeta.parse(line,here);
+      
       if (rc == InsertRc && ((mask >> rc) & 1)) {
         // return rc;
       } else if (rc == StepRc || rc == RotStepRc) {
@@ -1545,12 +1546,9 @@ Rc MetaItem::scanBackward(
   
   partsAdded = false;
 
-
-
   for ( ; here >= 0; here--) {
 
     QString line = gui->readLine(here);
-
     QStringList tokens;
 
     if (isHeader(line)) {
@@ -2174,7 +2172,7 @@ int MetaItem::monoColorSubmodel(
   QFile outFile(outFileName);
   if ( ! outFile.open(QFile::WriteOnly | QFile::Text)) {
     QMessageBox::warning(NULL, 
-      QMessageBox::tr(LPUB),
+      QMessageBox::tr(VER_PRODUCTNAME_STR),
       QMessageBox::tr("MonoColorSubmodel cannot write file %1:\n%2.")
       .arg(outFileName)
       .arg(outFile.errorString()));
@@ -2246,7 +2244,7 @@ QPointF MetaItem::defaultPointerTip(
   QFile inFile(monoName);
   if ( ! inFile.open(QFile::ReadOnly | QFile::Text)) {
     QMessageBox::warning(NULL,
-      QMessageBox::tr(LPUB),
+      QMessageBox::tr(VER_PRODUCTNAME_STR),
       QMessageBox::tr("defaultPointerTip cannot read file %1:\n%2.")
       .arg(monoName)
       .arg(inFile.errorString()));

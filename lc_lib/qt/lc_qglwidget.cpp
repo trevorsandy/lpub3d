@@ -46,21 +46,30 @@ void lcGLWidget::ShowPopupMenu()
 	for (int actionIdx = LC_EDIT_ACTION_FIRST; actionIdx <= LC_EDIT_ACTION_LAST; actionIdx++)
 		tools->addAction(actions[actionIdx]);
     
-	QMenu* rotateStepMenu = new QMenu("Step Rotation");
-    rotateStepMenu->addAction(actions[LC_EDIT_ROTATESTEP_RELATIVE_ROTATION]);
-    rotateStepMenu->addAction(actions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION]);
-    actions[LC_EDIT_ACTION_ROTATESTEP]->setMenu(rotateStepMenu);
-    tools->addSeparator();
-    tools->addAction(actions[LC_EDIT_ACTION_ROTATESTEP]);
+//    QMenu *rotateStepMenu = new QMenu("Step Rotation");
+//    rotateStepMenu->addAction(actions[LC_EDIT_ROTATESTEP_RELATIVE_ROTATION]);
+//    rotateStepMenu->addAction(actions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION]);
+//    actions[LC_EDIT_ACTION_ROTATESTEP]->setMenu(rotateStepMenu);
+
+//    QMenu *SnapAngleMenu = new QMenu("Snap Angle Menu");
+//    for (int actionIdx = LC_EDIT_SNAP_ANGLE0; actionIdx <= LC_EDIT_SNAP_ANGLE9; actionIdx++)
+//        SnapAngleMenu->addAction(actions[actionIdx]);
+//    actions[LC_EDIT_SNAP_ANGLE_TOGGLE]->setMenu(SnapAngleMenu);
+
+//    tools->addSeparator();
+//    tools->addAction(actions[LC_EDIT_SNAP_ANGLE_TOGGLE]);
 
     /*** management - popupMenu ***/
-    tools->removeAction(actions[LC_EDIT_ACTION_SELECT]);
+    //tools->removeAction(actions[LC_EDIT_ACTION_SELECT]);
+    tools->removeAction(actions[LC_EDIT_ACTION_ROTATESTEP]);
     tools->removeAction(actions[LC_EDIT_ACTION_INSERT]);
     tools->removeAction(actions[LC_EDIT_ACTION_LIGHT]);
     tools->removeAction(actions[LC_EDIT_ACTION_SPOTLIGHT]);
     tools->removeAction(actions[LC_EDIT_ACTION_CAMERA]);
     tools->removeAction(actions[LC_EDIT_ACTION_MOVE]);
-    tools->removeAction(actions[LC_EDIT_ACTION_ROTATE]);
+    tools->removeAction(actions[LC_EDIT_ACTION_ZOOM]);
+    tools->removeAction(actions[LC_EDIT_ACTION_ROLL]);
+    //tools->removeAction(actions[LC_EDIT_ACTION_ROTATE]);
     tools->removeAction(actions[LC_EDIT_ACTION_DELETE]);
     tools->removeAction(actions[LC_EDIT_ACTION_PAINT]);
     /*** management - end ***/
@@ -68,12 +77,14 @@ void lcGLWidget::ShowPopupMenu()
 	QMenu *cameras = new QMenu("Cameras");
 	popup->addMenu(cameras);
 	cameras->addAction(actions[LC_VIEW_CAMERA_NONE]);
-
 	for (int actionIdx = LC_VIEW_CAMERA_FIRST; actionIdx <= LC_VIEW_CAMERA_LAST; actionIdx++)
 		cameras->addAction(actions[actionIdx]);
-
 	cameras->addSeparator();
 	cameras->addAction(actions[LC_VIEW_CAMERA_RESET]);
+
+    popup->addSeparator();
+    popup->addAction(actions[LC_EDIT_UNDO]);
+    popup->addAction(actions[LC_EDIT_REDO]);
 
 	popup->addSeparator();
 	popup->addAction(actions[LC_VIEW_SPLIT_HORIZONTAL]);

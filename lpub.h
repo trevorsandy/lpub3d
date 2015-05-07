@@ -352,12 +352,13 @@
 #include "ldrawfiles.h"
 #include "where.h"
 #include "FadeStepColorParts.h"
+#include "aboutdialog.h"
+#include "updatedialog.h"
+#include "version.h"
 
 //** 3D
 #include "lc_math.h"
-#include "camera.h"
 //**
-
 
 class QString;
 class QSplitter;
@@ -381,11 +382,10 @@ class ContentChangesCommand;
 
 class PlacementNum;
 class AbstractStepsElement;
+class GlobalFadeStep;
 
 class LGraphicsView;
 class PageBackgroundItem;
-
-class GlobalFadeStep;
 
 enum traverseRc { HitEndOfPage = 1 };
 
@@ -407,11 +407,12 @@ public:
   int             saveStepPageNum;
   int             firstStepPageNum;
   int             lastStepPageNum;
+  QList<Where>    topOfPages;
 
+  void            *noData;
   /**Fade Step variables**/
   FadeStepMeta    *fadeMeta;             // propagate fade color and fade bool
 
-  QList<Where>    topOfPages;
   
   FitMode         fitMode;              // how to fit the scene into the view
 
@@ -491,18 +492,44 @@ public:
     return KpageView;
   }
   //**3D  
-  void UpdateStepRotation(lcVector3 StepRotation);
+  void UpdateStepRotation();
 
-  lcVector3 GetStepRotationStatus()
+  lcVector3 GetStepRotationStatus() const
   {
       return mModelStepRotation;
   }
 
-  lcVector3 SetStepRotationLine(lcVector3 StepRotationLine)
+  lcVector3 GetExistingRotStep() const
   {
-     mStepRotationLine = StepRotationLine;
+      return mExistingRotStep;
+  }
 
-     return mStepRotationLine;
+  void ResetStepRotation()
+  {
+      mRotStepAngleX = mExistingRotStep[0];
+      mRotStepAngleY = mExistingRotStep[1];
+      mRotStepAngleZ = mExistingRotStep[2];
+      UpdateStepRotation();
+  }
+
+  void SetExistingRotStep(lcVector3 rotStep)
+  {
+      mExistingRotStep = rotStep;
+  }
+
+  void SetRotStepAngleX(float AngleX)
+  {
+      mRotStepAngleX = AngleX;
+  }
+
+  void SetRotStepAngleY(float AngleY)
+  {
+      mRotStepAngleY = AngleY;
+  }
+
+  void SetRotStepAngleZ(float AngleZ)
+  {
+      mRotStepAngleZ = AngleZ;
   }
 
   QString getCurFile()
@@ -510,6 +537,8 @@ public:
       return curFile;
   }
   //**
+
+
 public slots:
 
   /* The undoStack needs access to these */
@@ -627,7 +656,7 @@ private:
     bool           printing,
     bool           bfxStore2,
     QStringList   &bfxParts,
-    bool           calledOut = false);  
+    bool           calledOut = false);
 
   void attitudeAdjustment(); // reformat the LDraw file to fix LPub backward compatibility issues 
     
@@ -650,6 +679,10 @@ private:
   void writeToTmp(const QString &fileName, const QStringList &);
   void writeToTmp();
 
+  void writeToFade(               // copy to fade dir
+    const QString     &fileName,
+    const QStringList &contents);
+
   QStringList fadeStep(
      const QStringList &,
      const QString &color);      // fade all parts in subfile
@@ -662,18 +695,14 @@ private:
   void createFadePart(            // convert static color files
     QString   &type);             // replace color code with fade color
 
-  void writeToFade(                // copy to fade dir
-    const QString     &fileName,
-    const QStringList &contents);
-
-
 private slots:
     void open();
     void save();
     void saveAs();
 
     void openRecentFile();
-    void about();
+    bool aboutDialog();
+    bool updateDialog();
 
     // Begin Jaco's code
 
@@ -738,9 +767,9 @@ private slots:
     bool maybeSave();
     bool saveFile(const QString &fileName);
     void closeFile();
-    void updateRecentFileActions();
-
+    void updateRecentFileActions();        
 public:
+
     void sizeit()
     {
       QList<int> list;
@@ -766,11 +795,10 @@ private:
   void readSettings();
   void writeSettings();
 
+  QDockWidget       *fileEditDockWindow; 
 //** 3D
   QDockWidget       *modelDockWindow;
 //**
-  QDockWidget       *fileEditDockWindow; 
-
 
   QMenu    *fileMenu;
   QMenu    *recentFileMenu;
@@ -785,7 +813,6 @@ private:
   QToolBar *zoomToolBar;
   QToolBar *navigationToolBar;
   QToolBar *mpdToolBar;
-
   QComboBox *mpdCombo;
 
   // file
@@ -844,7 +871,7 @@ private:
   QAction *calloutSetupAct;
   QAction *multiStepSetupAct;
   QAction *projectSetupAct;
-  QAction *fadeStepSetupAct;    //added by T.Sandy 12/2014
+  QAction *fadeStepSetupAct;    
 
   QAction *preferencesAct;
 
@@ -864,14 +891,18 @@ private:
   enum { MaxRecentFiles = 8 };
   QAction *recentFilesActs[MaxRecentFiles];
 
+  QAction *updateApp;
+
   // capture camera rotation from LeoCad module
 protected:
+  lcVector3 mExistingRotStep;
   lcVector3 mModelStepRotation;
-  lcVector3 mStepRotationLine;
+  float mRotStepAngleX;
+  float mRotStepAngleY;
+  float mRotStepAngleZ;
 };
 
 extern Gui *gui;
-
 
 class LGraphicsView : public QGraphicsView
 {
@@ -882,7 +913,7 @@ public:
     pageBackgroundItem = NULL;
   }
   PageBackgroundItem *pageBackgroundItem;
-// **
+
 protected:
     
   void resizeEvent(QResizeEvent * /* unused */)

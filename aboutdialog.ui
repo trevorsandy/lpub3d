@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>lcQAboutDialog</class>
- <widget class="QDialog" name="lcQAboutDialog">
+ <class>AboutDialog</class>
+ <widget class="QDialog" name="AboutDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>About LeoCAD</string>
+   <string>About LPubV</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -24,7 +24,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="../../lpub.qrc">:/lc_lib/resources/icon64.png</pixmap>
+          <pixmap resource="lpub.qrc">:/images/LPub64.ico</pixmap>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -39,14 +39,14 @@
          <item>
           <widget class="QLabel" name="version">
            <property name="text">
-            <string>LeoCAD Version 0.00.0</string>
+            <string>LPubV Version 0.00</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_4">
+          <widget class="QLabel" name="description">
            <property name="text">
-            <string>LeoCAD is a free application that can be used to create virtual LEGO models.</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;LPubV&lt;/span&gt; is a free application that can be used to create digital build instructions for virtual LEGO models.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -54,9 +54,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="url">
            <property name="text">
-            <string>&lt;a href=&quot;http://www.leocad.org&quot;&gt;http://www.leocad.org&lt;/a&gt;</string>
+            <string>&lt;a href=&quot;trevorsandy.net/lpubv&quot;&gt;trevorsandy.net/lpubv&lt;/a&gt;</string>
            </property>
            <property name="openExternalLinks">
             <bool>true</bool>
@@ -70,7 +70,7 @@
      <item>
       <widget class="QGroupBox" name="groupBox">
        <property name="title">
-        <string>System Information</string>
+        <string>Application Information</string>
        </property>
        <property name="flat">
         <bool>false</bool>
@@ -114,13 +114,13 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../lpub.qrc"/>
+  <include location="lpub.qrc"/>
  </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>lcQAboutDialog</receiver>
+   <receiver>AboutDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -136,7 +136,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>lcQAboutDialog</receiver>
+   <receiver>AboutDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

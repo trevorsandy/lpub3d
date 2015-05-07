@@ -16,15 +16,16 @@
 
 #include <QApplication>
 
+#include "version.h"
 #include "lpub_preferences.h"
 #include "lpub.h"
 #include "resolution.h"
+#include "updatedialog.h"
 #include <QMessageBox>
 
 //**3D
 #include "lc_global.h"
 #include "lc_application.h"
-#include "lc_qupdatedialog.h"
 #include "lc_mainwindow.h"
 #include "project.h"
 #include "lc_colors.h"
@@ -112,17 +113,18 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
-    QCoreApplication::setOrganizationName("LPub Software");
-    QCoreApplication::setApplicationName("LPubV");
-    QCoreApplication::setApplicationVersion(LP_VERSION_TEXT);
+    QCoreApplication::setOrganizationName(VER_COMPANYNAME_STR);
+    QCoreApplication::setApplicationName(VER_PRODUCTNAME_STR);
+    QCoreApplication::setApplicationVersion(VER_TEXT);
 
     QTranslator Translator;
     Translator.load(QString("lpub_") + QLocale::system().name().section('_', 0, 0) + ".qm", ":/lc_lib/resources");
     app.installTranslator(&Translator);
 
+    Preferences::lpubPreferences();
     Preferences::ldrawPreferences(false);
-    Preferences::leocadLibPreferences(false);
     Preferences::unitsPreferences();
+    Preferences::leocadLibPreferences(false);
     Preferences::annotationPreferences();
     Preferences::fadestepPreferences();
     Preferences::viewerPreferences();
@@ -172,16 +174,16 @@ int main(int argc, char *argv[])
     if (!g_App->Initialize(argc, argv, libPath, LDrawPath, cachePath.toLocal8Bit().data()))
         return 1;
 
-    Gui     LPubApp;
+    Gui     LPubVApp;
 
     gMainWindow->SetColorIndex(lcGetColorIndex(4));
     gMainWindow->UpdateRecentFiles();
 
-    LPubApp.show();
-    LPubApp.sizeit();
+    LPubVApp.show();
+    LPubVApp.sizeit();
 
-#if !LC_DISABLE_UPDATE_CHECK
-    lcDoInitialUpdateCheck();
+#if !DISABLE_UPDATE_CHECK
+    DoInitialUpdateCheck();
 #endif
 
     int execReturn = app.exec();

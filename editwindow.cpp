@@ -49,7 +49,7 @@ EditWindow::EditWindow()
 
     setCentralWidget(_textEdit);
 
-    resize(800,600);
+    resize(QSize(400, 300));
 }
 
 void EditWindow::createActions()
@@ -183,4 +183,3 @@ void EditWindow::redraw()
 // Adjusts the size of the widget to fit its contents.
   adjustSize(); //Does not work.
 }
-

@@ -24,15 +24,15 @@
 #include "lpub_preferences.h"
 #include "editwindow.h"
 #include "paths.h"
-#include "fileutils.h"
+#include "version.h"
 
 void Gui::open()
 {  
   if (maybeSave()) {
-    QSettings settings(LPUB,SETTINGS);
+    QSettings Settings;
     QString modelDir;
-    if (settings.contains("ModelDir")) {
-      modelDir = settings.value("ModelDir").toString();
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,"ProjectsPath"))) {
+      modelDir = Settings.value(QString("%1/%2").arg(SETTINGS,"ProjectsPath")).toString();
     } else {
       modelDir = Preferences::ldrawPath + "/MODELS";
     }
@@ -46,7 +46,7 @@ void Gui::open()
     QFileInfo info(fileName);
 
     if (!fileName.isEmpty()) {
-      settings.setValue("ModelDir",info.path());
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,"ProjectsPath"),info.path());
       openFile(fileName);
       displayPage();
       enableActions();
@@ -150,7 +150,7 @@ bool Gui::maybeSave()
 {
   if ( ! undoStack->isClean() ) {
     QMessageBox::StandardButton ret;
-    ret = QMessageBox::warning(this, tr(LPUB),
+    ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
             tr("The document has been modified.\n"
                 "Do you want to save your changes?"),
             QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
@@ -171,7 +171,7 @@ bool Gui::saveFile(const QString &fileName)
   setCurrentFile(fileName);
   undoStack->setClean();
   if (rc) {
-    //statusBar()->showMessage(tr("File saved"), 2000);
+    statusBar()->showMessage(tr("File saved"), 2000);
   }
   return rc;
 }
@@ -227,7 +227,6 @@ void Gui::openFile(QString &fileName)
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
   Paths::mkdirs();
-  //FileUtils::removeFiles(Paths::fadeDir);
   ldrawFile.loadFile(fileName);
   attitudeAdjustment();
   mpdCombo->setMaxCount(0);
@@ -257,9 +256,9 @@ void Gui::openFile(QString &fileName)
 
 void Gui::updateRecentFileActions()
 {
-  QSettings settings(LPUB,SETTINGS);
-  if (settings.contains("RecentFileList")) {
-    QStringList files = settings.value("RecentFileList").toStringList();
+  QSettings Settings;
+  if (Settings.contains(QString("%1/%2").arg(SETTINGS,"LPRecentFileList"))) {
+    QStringList files = Settings.value(QString("%1/%2").arg(SETTINGS,"LPRecentFileList")).toStringList();
 
     int numRecentFiles = qMin(files.size(), (int)MaxRecentFiles);
 
@@ -274,7 +273,7 @@ void Gui::updateRecentFileActions()
         --numRecentFiles;
       }
     }
-    settings.setValue("RecentFileList", files);
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,"LPRecentFileList"), files);
 
     for (int i = 0; i < numRecentFiles; i++) {
       QFileInfo fileInfo(files[i]);
@@ -301,18 +300,18 @@ void Gui::setCurrentFile(const QString &fileName)
     shownName = fileInfo.fileName();
   }
   
-  setWindowTitle(tr("%1[*] - %2").arg(shownName).arg(tr(LPUB)));
+  setWindowTitle(tr("%1[*] - %2").arg(shownName).arg(tr(VER_PRODUCTNAME_STR)));
 
   if (fileName.size() > 0) {
-    QSettings settings(LPUB, SETTINGS);
-    QStringList files = settings.value("RecentFileList").toStringList();
+    QSettings Settings;
+    QStringList files = Settings.value(QString("%1/%2").arg(SETTINGS,"LPRecentFileList")).toStringList();
     files.removeAll("");
     files.removeAll(fileName);
     files.prepend(fileName);
     while (files.size() > MaxRecentFiles) {
       files.removeLast();
     }
-    settings.setValue("RecentFileList", files);
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,"LPRecentFileList"), files);
   }
   updateRecentFileActions();
 }
@@ -321,7 +320,7 @@ void Gui::fileChanged(const QString &path)
 {
   QString msg = QString(tr("The file \"%1\" contents have changed.  Reload?"))
                         .arg(path);
-  int ret = QMessageBox::warning(this,tr(LPUB),msg,
+  int ret = QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),msg,
               QMessageBox::Apply | QMessageBox::No,
               QMessageBox::Apply);
   if (ret == QMessageBox::Apply) {
@@ -330,5 +329,3 @@ void Gui::fileChanged(const QString &path)
     drawPage(KpageView,KpageScene,false);
   }
 }
-
-

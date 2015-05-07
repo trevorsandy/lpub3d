@@ -435,7 +435,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
             if (Token == QLatin1String("//"))
             {
-                ParseRotationLine(LineStream);
+                ParseExsitingRotStepLine(LineStream);
             }
 
 			else if (Token == QLatin1String("FILE"))
@@ -2285,6 +2285,7 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool 
 		if (Checkpoint)
 			SaveCheckpoint("Rotating");
 		gMainWindow->UpdateFocusObject(GetFocusObject());
+
 	}
 }
 
@@ -2312,10 +2313,7 @@ void lcModel::TransformSelectedObjects(lcTransformType TransformType, const lcVe
 
 void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep)   //TODO can probably drop 2nd variable
 {
-    lcVector3 Center = GetFocusOrSelectionCenter();
-    lcVector3 Offset = RotateStep - Center;
-
-    lcVector3 rotateStep = Offset;
+    lcVector3 rotateStep = RotateStep;
     QString   rotationType;
 
     int secondPos      = 1;
@@ -2338,26 +2336,28 @@ void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const l
 
     QString rotationValue("%1 %2 %3 %4 %5");
     rotationValue = rotationValue.arg(lineNumber,
-                                      QString::number(rotateStep[0], 'f', 2),
-                                      QString::number(rotateStep[1], 'f', 2),
-                                      QString::number(rotateStep[2], 'f', 2),
-                                      rotationType);
+                  QString::number(rotateStep[0], 'f', 2),
+                  QString::number(rotateStep[1], 'f', 2),
+                  QString::number(rotateStep[2], 'f', 2),
+                  rotationType);
 
     MetaItem mi;
 
     if (gui->getCurFile() != "") {
         mi.writeRotateStep(rotationValue);
+        gui->SetExistingRotStep(rotateStep);
+        gui->UpdateStepRotation();
+        //gui->save(); //private - consider adding public function
     }
 
     gMainWindow->UpdateAllViews();
 }
 
-void lcModel::ParseRotationLine(QTextStream& LineStream)
-{
+void lcModel::ParseExsitingRotStepLine(QTextStream& LineStream)
+{   
     while (!LineStream.atEnd())
     {
-        lcVector3 setToZero(0.0f, 0.0f, 0.0f);
-        lcVector3 stepRotation;
+        lcVector3 rotStep;
         QString Token;
         LineStream >> Token;
 
@@ -2370,11 +2370,12 @@ void lcModel::ParseRotationLine(QTextStream& LineStream)
             else if(Token == QLatin1String("ABS"))
                 gMainWindow->SetRotateStepType(LC_ROTATESTEP_ABSOLUTE_ROTATION);
 
-            LineStream >> stepRotation[0] >> stepRotation[1] >> stepRotation[2];
-            gui->SetStepRotationLine(stepRotation);
-            gui->UpdateStepRotation(setToZero);
+            LineStream >> rotStep[0] >> rotStep[1] >> rotStep[2];
+
+            gui->SetExistingRotStep(rotStep);
+
             //debug only...
-            //qDebug() << "STEP: " << mCurrentStep << " ROTATION: " << stepRotation[0] << " " << stepRotation[1] << " " << stepRotation[2];
+            //qDebug() << "STEP: " << mCurrentStep << " ROTATION: " << rotStep[0] << " " << rotStep[1] << " " << rotStep[2];
             //debug end
             continue;
         }
@@ -2914,7 +2915,7 @@ void lcModel::UpdateSelection() const
 				SelectedCount++;
 
 				if (Piece->IsFocused())
-					Focus = Piece;
+                    Focus = Piece;
 
 				if (Piece->IsHidden())
 					Flags |= LC_SEL_HIDDEN | LC_SEL_HIDDEN_SELECTED;
@@ -3116,7 +3117,7 @@ void lcModel::SelectAllPieces()
 		lcPiece* Piece = mPieces[PieceIdx];
 
 		if (Piece->IsVisible(mCurrentStep))
-			Piece->SetSelected(true);
+            Piece->SetSelected(true);
 	}
 
 	UpdateSelection();

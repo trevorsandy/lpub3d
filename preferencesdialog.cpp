@@ -55,8 +55,8 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
   ui.ldviewPath->setText(               Preferences::ldviewExe);
   ui.ldviewBox->setChecked(             Preferences::ldviewExe != "");
   ui.fadeStepBox->setChecked(           Preferences::enableFadeStep);
-  ui.publishLogoBox->setChecked(        Preferences::enableDocumentLogo);
-  ui.publishLogoBox->setChecked(        Preferences::documentLogoFile !="");
+  ui.publishLogoBox->setChecked(        Preferences::documentLogoFile != "");
+  ui.publishLogoPath->setText(          Preferences::documentLogoFile);
   ui.authorName_Edit->setText(          Preferences::defaultAuthor);
   ui.publishCopyright_Chk->setChecked(  Preferences::printCopyright);
   ui.publishURL_Edit->setText(          Preferences::defaultURL);
@@ -114,12 +114,27 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
   //fade step end
 
   bool centimeters = Preferences::preferCentimeters;
-  ui.Centimeters->setChecked( centimeters );
-  ui.Inches->setChecked( ! centimeters );
+  ui.Centimeters->setChecked(centimeters);
+  ui.Inches->setChecked(! centimeters);
 
   bool titleAnnotation = Preferences::preferTitleAnnotation;
-  ui.titleAnnotation->setChecked( titleAnnotation );
-  ui.freeformAnnotation->setChecked(! titleAnnotation);
+  bool freeformAnnotation = Preferences::preferFreeformAnnotation;
+  bool titleAndFreeformAnnotation = Preferences::titleAndFreeformAnnotation;
+
+  if (titleAnnotation) {
+      ui.titleAnnotation->setChecked(titleAnnotation );
+      ui.freeformAnnotation->setChecked(! titleAnnotation);
+      ui.titleAndFreeformAnnotation->setChecked(! titleAnnotation);
+  } else if (freeformAnnotation){
+      ui.titleAnnotation->setChecked(freeformAnnotation );
+      ui.freeformAnnotation->setChecked(! freeformAnnotation);
+      ui.titleAndFreeformAnnotation->setChecked(! freeformAnnotation);
+  } else {
+      ui.titleAnnotation->setChecked(titleAndFreeformAnnotation );
+      ui.freeformAnnotation->setChecked(! titleAndFreeformAnnotation);
+      ui.titleAndFreeformAnnotation->setChecked(! titleAndFreeformAnnotation);
+  }
+
 }
 
 void PreferencesDialog::colorChange(QString const &colorName)
@@ -151,6 +166,7 @@ void PreferencesDialog::on_browseLGEO_clicked()
 	QFileDialog dialog(parent);
 	dialog.setFileMode(QFileDialog::Directory);
 	dialog.setWindowTitle(tr("Locate LGEO Directory"));
+    dialog.setDirectory(Preferences::ldrawPath);
 	dialog.setOptions(QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 	
 	if (dialog.exec()) {
@@ -171,8 +187,11 @@ void PreferencesDialog::on_browsePli_clicked()
   dialog.setWindowTitle(tr("Locate Parts List orientation/size file"));
   dialog.setFileMode(QFileDialog::ExistingFile);
 
+#ifdef __APPLE__
+  //dialog.setFilter("LDraw (*.mpd,*.dat,*.ldr)");
+#else
   dialog.setFilter("LDraw (*.mpd,*.dat,*.ldr)");
-
+#endif
   if (dialog.exec()) {
     QStringList selectedFiles = dialog.selectedFiles();
     
@@ -270,7 +289,7 @@ void PreferencesDialog::on_browseL3P_clicked()
 				}
 				ui.preferredRenderer->setEnabled(true);
 			}
-			ui.l3pBox->setChecked(fileInfo.exists() && povrayInfo.exists());
+            ui.l3pBox->setChecked(fileInfo.exists() || povrayInfo.exists());
 		}
 	}
 }
@@ -301,7 +320,7 @@ void PreferencesDialog::on_browsePOVRAY_clicked()
 				}
 				ui.preferredRenderer->setEnabled(true);
 			}
-			ui.l3pBox->setChecked(fileInfo.exists() && l3pInfo.exists());
+            ui.l3pBox->setChecked(fileInfo.exists() || l3pInfo.exists());
 		}
 	}
 }
@@ -322,7 +341,7 @@ void PreferencesDialog::on_browsePublishLogo_clicked()
     QStringList selectedFiles = dialog.selectedFiles();
 
     if (selectedFiles.size() == 1) {
-      ui.browsePublishLogo->setText(selectedFiles[0]);
+      ui.publishLogoPath->setText(selectedFiles[0]);
       QFileInfo  fileInfo(selectedFiles[0]);
       ui.publishLogoBox->setChecked(fileInfo.exists());
     }
@@ -415,15 +434,26 @@ bool PreferencesDialog::centimeters()
   return ui.Centimeters->isChecked();
 }
 
-bool PreferencesDialog::pliAnnotation()
+bool PreferencesDialog::titleAnnotation()
 {
   return ui.titleAnnotation->isChecked();
+}
+
+bool PreferencesDialog::freeformAnnotation()
+{
+  return ui.freeformAnnotation->isChecked();
+}
+
+bool PreferencesDialog::titleAndFreeformAnnotation()
+{
+  return ui.titleAndFreeformAnnotation->isChecked();
 }
 
 bool  PreferencesDialog::enableFadeStep()
 {
   return ui.fadeStepBox->isChecked();
 }
+
 bool PreferencesDialog::enableDocumentLogo()
 {
   return ui.publishLogoBox->isChecked();

@@ -62,6 +62,7 @@ GlobalAssemDialog::GlobalAssemDialog(
   QGridLayout *grid;
   QGridLayout *boxGrid;
   QGroupBox   *box;
+  QString	   string;
 
   setWindowTitle(tr("Assembly Globals Setup"));
 

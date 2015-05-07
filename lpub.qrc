@@ -1,5 +1,11 @@
 <RCC>
     <qresource prefix="/">
+        <file>lpub.icns</file>
+        <file>LPub.ico</file>
+        <file>extras/pli.mpd</file>
+        <file>extras/titleAnnotations.lst</file>
+        <file>extras/freeformAnnotations.lst</file>
+        <file>extras/fadeStepColorParts.lst</file>
         <file>images/actual.png</file>
         <file>images/copy.png</file>
         <file>images/cut.png</file>
@@ -21,6 +27,7 @@
         <file>images/print.png</file>
         <file>images/redraw.png</file>
         <file>images/save.png</file>
+        <file>images/saveas.png</file>
         <file>images/zoomin.png</file>
         <file>images/zoomout.png</file>
         <file>lc_lib/resources/action_camera.png</file>
@@ -94,14 +101,8 @@
         <file>lc_lib/resources/view_split_horizontal.png</file>
         <file>lc_lib/resources/view_split_vertical.png</file>
         <file>lc_lib/resources/view_zoomextents.png</file>
-        <file>lpub.icns</file>
-        <file>LPub.ico</file>
-        <file>extras/pli.mpd</file>
-        <file>extras/titleAnnotations.lst</file>
-        <file>extras/freeformAnnotations.lst</file>
         <file>lc_lib/resources/edit_rotatestep_absolute_rotation.png</file>
         <file>lc_lib/resources/edit_rotatestep_relative_rotation.png</file>
-        <file>images/saveas.png</file>
-        <file>extras/fadeStepColorParts.lst</file>
+        <file>images/LPub64.ico</file>
     </qresource>
 </RCC>

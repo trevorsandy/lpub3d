@@ -275,28 +275,54 @@
        <property name="checked">
         <bool>false</bool>
        </property>
-       <layout class="QHBoxLayout" name="_2">
-        <item>
-         <widget class="QRadioButton" name="titleAnnotation">
-          <property name="toolTip">
-           <string>Sourced from parts.lst descriptions - see root/extras/titleannotations.lst</string>
-          </property>
-          <property name="text">
-           <string>Part description</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="freeformAnnotation">
-          <property name="toolTip">
-           <string>Freeform annotations - see root/extras/freeformAnnotations.lst</string>
-          </property>
-          <property name="text">
-           <string>Free form</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QRadioButton" name="titleAnnotation">
+        <property name="geometry">
+         <rect>
+          <x>12</x>
+          <y>28</y>
+          <width>151</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Sourced from parts.lst descriptions - see root/extras/titleannotations.lst</string>
+        </property>
+        <property name="text">
+         <string>Part title description</string>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="freeformAnnotation">
+        <property name="geometry">
+         <rect>
+          <x>170</x>
+          <y>29</y>
+          <width>84</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Freeform annotations - see root/extras/freeformAnnotations.lst</string>
+        </property>
+        <property name="text">
+         <string>Free form</string>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="titleAndFreeformAnnotation">
+        <property name="geometry">
+         <rect>
+          <x>270</x>
+          <y>30</y>
+          <width>171</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Use both part descriptions and free form annotations - see annotations list files</string>
+        </property>
+        <property name="text">
+         <string>Part title and Free form</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QGroupBox" name="viewerBox">
        <property name="geometry">
@@ -601,7 +627,7 @@
         </rect>
        </property>
        <property name="toolTip">
-        <string>This directory contains the LDraw parts directory</string>
+        <string>This directory contains the document logo</string>
        </property>
        <property name="title">
         <string>Title Page Logo</string>
@@ -633,10 +659,10 @@
         <item>
          <widget class="QPushButton" name="browsePublishLogo">
           <property name="toolTip">
-           <string>Use directory dialog to find LDraw directory</string>
+           <string>Use dialog to select logo file</string>
           </property>
           <property name="whatsThis">
-           <string>This lets you find the LDraw directory</string>
+           <string>This lets you select your logo file</string>
           </property>
           <property name="text">
            <string>Browse...</string>

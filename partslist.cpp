@@ -71,7 +71,6 @@ PartsList::PartsList()
                     "/Helpers/" << "/Development/";
   }
 }
-
 bool PartsList::isKnownPart(QString &part)
 {
   if (list.contains(part.toLower())) {

@@ -22,7 +22,6 @@ View::View(lcModel* Model)
 {
 	mModel = Model;
 	mCamera = NULL;
-	mGridBuffer = LC_INVALID_VERTEX_BUFFER;
 	memset(mGridSettings, 0, sizeof(mGridSettings));
 
 	mDragState = LC_DRAGSTATE_NONE;
@@ -635,11 +634,11 @@ void View::OnDraw()
 		else if (GetCurrentTool() == LC_TOOL_MOVE && mTrackButton != LC_TRACKBUTTON_NONE)
 			DrawSelectMoveOverlay();
 		else if ((Tool == LC_TOOL_ROTATE || (Tool == LC_TOOL_SELECT && mTrackButton != LC_TRACKBUTTON_NONE && mTrackTool >= LC_TRACKTOOL_ROTATE_X && mTrackTool <= LC_TRACKTOOL_ROTATE_XYZ)) && mModel->AnyPiecesSelected())
-			DrawRotateOverlay();
+        {   DrawRotateOverlay(); GetRotateStepAngles();}
 		else if ((mTrackTool == LC_TRACKTOOL_SELECT || mTrackTool == LC_TRACKTOOL_ZOOM_REGION) && mTrackButton == LC_TRACKBUTTON_LEFT)
 			DrawSelectZoomRegionOverlay();
 		else if (Tool == LC_TOOL_ROTATE_VIEW && mTrackButton == LC_TRACKBUTTON_NONE)
-			DrawRotateViewOverlay();
+            DrawRotateViewOverlay();
 
 		DrawViewport();
 	}
@@ -850,9 +849,9 @@ void View::DrawRotateOverlay()
 				}
 
 				i++;
-				if (Step > 0)
+                if (Step > 0)
 					Angle -= Step;
-				else
+                else
 					Angle += Step;
 
 			} while (Angle >= 0.0f);
@@ -1260,10 +1259,10 @@ void View::DrawGrid()
 		MaxY = 2;
 	}
 
-	if (mGridBuffer == LC_INVALID_VERTEX_BUFFER || MinX != mGridSettings[0] || MinY != mGridSettings[1] || MaxX != mGridSettings[2] || MaxY != mGridSettings[3] ||
-	    Spacing != mGridSettings[4] || (Preferences.mDrawGridStuds ? 1 : 0) != mGridSettings[5] || (Preferences.mDrawGridLines ? 1 : 0) != mGridSettings[6])
-	{
-		int VertexBufferSize = 0;
+    if (!mGridBuffer.IsValid() || MinX != mGridSettings[0] || MinY != mGridSettings[1] || MaxX != mGridSettings[2] || MaxY != mGridSettings[3] ||
+        Spacing != mGridSettings[4] || (Preferences.mDrawGridStuds ? 1 : 0) != mGridSettings[5] || (Preferences.mDrawGridLines ? 1 : 0) != mGridSettings[6])
+    {
+        int VertexBufferSize = 0;
 
 		if (Preferences.mDrawGridStuds)
 			VertexBufferSize += 4 * 5 * sizeof(float);
@@ -1279,7 +1278,7 @@ void View::DrawGrid()
 			float Left = MinX * 20.0f * Spacing;
 			float Right = MaxX * 20.0f * Spacing;
 			float Top = MinY * 20.0f * Spacing;
-			float Bottom = MaxY * 20.0f * Spacing;
+            float Bottom = MaxY * 20.0f * Spacing;
 			float Z = 0;
 			float U = (MaxX - MinX) * Spacing;
 			float V = (MaxY - MinY) * Spacing;
@@ -2373,16 +2372,6 @@ void View::OnMouseMove()
 
 	const float MouseSensitivity = 1.0f / (21.0f - lcGetPreferences().mMouseSensitivity);
 
-/*    rotstep update 2
-    lcVector3 stepRotation = lcMatrix44ToEulerAngles(mCamera->mWorldView);
-    stepRotation *= LC_RTOD;
-    stepRotation *= LC_DTOR; */
-
-    lcVector3 rotAngles = lcMatrix44ToEulerAngles(mCamera->mWorldView) * LC_RTOD;
-    // convert vertex from LeoCAD to LPub(LDraw) format
-    // switch y and z axis
-    lcVector3 stepRotation(rotAngles[0], rotAngles[2], rotAngles[1]);
-
 	switch (mTrackTool)
 	{
 	case LC_TRACKTOOL_NONE:
@@ -2548,7 +2537,7 @@ void View::OnMouseMove()
 			MoveX *= 36.0f * (float)(mInputState.x - mMouseDownX) * MouseSensitivity;
 			MoveY *= 36.0f * (float)(mInputState.y - mMouseDownY) * MouseSensitivity;
 
-			mModel->UpdateRotateTool(MoveX + MoveY);
+            mModel->UpdateRotateTool(MoveX + MoveY);
 		}
 		break;
 
@@ -2612,7 +2601,6 @@ void View::OnMouseMove()
 		}
 		break;
 
-/*	** start original code  **
 	case LC_TRACKTOOL_ORBIT_X:
 		mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.0f);
 		break;
@@ -2623,96 +2611,6 @@ void View::OnMouseMove()
 	case LC_TRACKTOOL_ORBIT_XY:
 		mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
 		break;
-/  ** end original code     **
-/  ** start rotestep update 1 **
-
-    case LC_TRACKTOOL_ORBIT_X:
-    case LC_TRACKTOOL_ORBIT_Y:
-        {
-
-            lcVector3 ScreenX = lcNormalize(lcCross(mCamera->mTargetPosition - mCamera->mPosition, mCamera->mUpVector));
-            lcVector3 ScreenY = mCamera->mUpVector;
-            lcVector3 Dir1;
-
-            switch (mTrackTool)
-            {
-            case LC_TRACKTOOL_ORBIT_X:
-                mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.0f);
-                Dir1 = lcVector3(1, 0, 0);
-                break;
-
-            case LC_TRACKTOOL_ORBIT_Y:
-                mModel->UpdateOrbitTool(mCamera, 0.0f, 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
-                Dir1 = lcVector3(0, 1, 0);
-                break;
-
-            default:
-                break;
-            }
-
-            lcVector3 MoveX, MoveY;
-
-            float dx1 = lcDot(ScreenX, Dir1);
-            float dy1 = lcDot(ScreenY, Dir1);
-
-            if (fabsf(dx1) > fabsf(dy1))
-            {
-                if (dx1 >= 0.0f)
-                    MoveX = Dir1;
-                else
-                    MoveX = -Dir1;
-
-                MoveY = lcVector3(0, 0, 0);
-            }
-            else
-            {
-                MoveX = lcVector3(0, 0, 0);
-
-                if (dy1 > 0.0f)
-                    MoveY = Dir1;
-                else
-                    MoveY = -Dir1;
-            }
-
-            MoveX *= 36.0f * (float)(mInputState.x - mMouseDownX) * MouseSensitivity;
-            MoveY *= 36.0f * (float)(mInputState.y - mMouseDownY) * MouseSensitivity;
-
-            gui->UpdateStepRotation(MoveX + MoveY);
-        }
-        break;
-
-    case LC_TRACKTOOL_ORBIT_XY:
-        {
-
-            mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
-
-            lcVector3 ScreenZ = lcNormalize(mCamera->mTargetPosition - mCamera->mPosition);
-            lcVector3 ScreenX = lcCross(ScreenZ, mCamera->mUpVector);
-            lcVector3 ScreenY = mCamera->mUpVector;
-
-            lcVector3 MoveX = 36.0f * (float)(mInputState.x - mMouseDownX) * MouseSensitivity * ScreenX;
-            lcVector3 MoveY = 36.0f * (float)(mInputState.y - mMouseDownY) * MouseSensitivity * ScreenY;
-
-            gui->UpdateStepRotation(MoveX + MoveY);
-        }
-        break;
-  ** end rotstep update 1 */
-
-/*	** start rotstep update 2 **/
-    case LC_TRACKTOOL_ORBIT_X:
-        mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.0f);
-        gui->UpdateStepRotation(stepRotation);
-        break;
-    case LC_TRACKTOOL_ORBIT_Y:
-        mModel->UpdateOrbitTool(mCamera, 0.0f, 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
-        gui->UpdateStepRotation(stepRotation);
-        break;
-
-    case LC_TRACKTOOL_ORBIT_XY:
-        mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
-        gui->UpdateStepRotation(stepRotation);
-        break;
-/*  ** end  rotstep update 2 */
 
 	case LC_TRACKTOOL_ROLL:
 		mModel->UpdateRollTool(mCamera, 2.0f * MouseSensitivity * (mInputState.x - mMouseDownX) * LC_DTOR);
@@ -2729,4 +2627,42 @@ void View::OnMouseMove()
 void View::OnMouseWheel(float Direction)
 {
 	mModel->Zoom(mCamera, (int)((mInputState.Control ? 100 : 10) * Direction));
+}
+
+void View::GetRotateStepAngles()
+{
+    lcVector3 MouseToolDistance = mModel->SnapRotation(mModel->GetMouseToolDistance());
+
+    if (mTrackButton != LC_TRACKBUTTON_NONE)
+    {
+        float Angle;
+        lcVector3 ExistingRotStep = gui->GetExistingRotStep();
+
+        switch (mTrackTool)
+        {
+        case LC_TRACKTOOL_ROTATE_X:
+            Angle = MouseToolDistance[0] + ExistingRotStep[0];
+            gui->SetRotStepAngleX(Angle);
+            qDebug() << "Rotate X: " << Angle;
+            break;
+        case LC_TRACKTOOL_ROTATE_Y:
+            //Switch leoCAD Y and Z coordinates to match LDraw
+            Angle = MouseToolDistance[1] + ExistingRotStep[2];
+            gui->SetRotStepAngleZ(Angle);
+            qDebug() << "Rotate Y(Z): " << Angle;
+            break;
+        case LC_TRACKTOOL_ROTATE_Z:
+            //LDraw Y axis is vertical, with negative value in the up direction
+            Angle = MouseToolDistance[2] + -ExistingRotStep[1];
+            gui->SetRotStepAngleY(-Angle);
+            qDebug() << "Rotate Z(Y) -Angle: " << Angle << " Neg Angle: " << -Angle;
+            break;
+        default:
+            Angle = 0.0f;
+            break;
+        };
+
+        gui->UpdateStepRotation();
+    }
+
 }

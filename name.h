@@ -17,11 +17,15 @@
 
 #ifndef NAME_H
 #define NAME_H
-#define LPUB "LPub Software"
+
 class Gui;
 
 extern Gui *gui;
 
-//#define SETTINGS "LDraw Building Instruction Tool"
-#define SETTINGS "LPubV"
+// registry sections
+#define DEFAULTS "Defaults"
+#define POVRAY   "POVRay"
+#define SETTINGS "Settings"
+#define WINDOW   "MainWindow"
+
 #endif

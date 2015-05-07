@@ -99,7 +99,7 @@ lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("HTML", "PartsWidth", 128),                                       // LC_PROFILE_HTML_PARTS_WIDTH
 	lcProfileEntry("HTML", "PartsHeight", 128),                                      // LC_PROFILE_HTML_PARTS_HEIGHT
 
-	lcProfileEntry("POVRay", "Path", ""),                                            // LC_PROFILE_POVRAY_PATH
+    lcProfileEntry("POVRay", "POVRayPath", ""),                                      // LC_PROFILE_POVRAY_PATH
 	lcProfileEntry("POVRay", "LGEOPath", ""),                                        // LC_PROFILE_POVRAY_LGEO_PATH
 	lcProfileEntry("POVRay", "Render", 1),                                           // LC_PROFILE_POVRAY_RENDER
 };

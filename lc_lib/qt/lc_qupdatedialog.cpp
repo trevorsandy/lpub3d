@@ -12,8 +12,8 @@ void lcDoInitialUpdateCheck()
 	if (updateFrequency == 0)
 		return;
 
-	QSettings settings;
-	QDateTime checkTime = settings.value("Updates/LastCheck", QDateTime()).toDateTime();
+	QSettings Settings;
+	QDateTime checkTime = Settings.value("Updates/LastCheck", QDateTime()).toDateTime();
 
 	if (!checkTime.isNull())
 	{
@@ -59,8 +59,8 @@ lcQUpdateDialog::~lcQUpdateDialog()
 
 void lcQUpdateDialog::accept()
 {
-	QSettings settings;
-	settings.setValue("Updates/IgnoreVersion", versionData);
+	QSettings Settings;
+	Settings.setValue("Updates/IgnoreVersion", versionData);
 
 	QDialog::accept();
 }
@@ -95,8 +95,8 @@ void lcQUpdateDialog::replyFinished(QNetworkReply *reply)
 		versionData = reply->readAll();
 		const char *update = versionData;
 
-		QSettings settings;
-		QByteArray ignoreUpdate = settings.value("Updates/IgnoreVersion", QByteArray()).toByteArray();
+		QSettings Settings;
+		QByteArray ignoreUpdate = Settings.value("Updates/IgnoreVersion", QByteArray()).toByteArray();
 
 		if (initialUpdate && ignoreUpdate == versionData)
 		{
@@ -147,7 +147,7 @@ void lcQUpdateDialog::replyFinished(QNetworkReply *reply)
 		else
 			ui->status->setText(tr("Error parsing update information."));
 
-		settings.setValue("Updates/LastCheck", QDateTime::currentDateTimeUtc());
+		Settings.setValue("Updates/LastCheck", QDateTime::currentDateTimeUtc());
 
 		updateReply = NULL;
 		reply->deleteLater();

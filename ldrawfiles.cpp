@@ -31,7 +31,7 @@
 #include <QFile>
 #include <QList>
 #include <QRegExp>
-#include "name.h"
+#include "version.h"
 #include "paths.h"
 
 int                 LDrawFile::_emptyInt;
@@ -226,7 +226,6 @@ void LDrawFile::setContents(const QString     &mcFileName,
   }
 }
 
-
 void LDrawFile::setFadePosition(const QString     &mcFileName,
                  const int &fadePosition)
 {
@@ -386,7 +385,7 @@ void LDrawFile::loadFile(const QString &fileName)
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(NULL, 
-                             QMessageBox::tr(LPUB),
+                             QMessageBox::tr(VER_PRODUCTNAME_STR),
                              QMessageBox::tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -440,7 +439,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(NULL, 
-                             QMessageBox::tr(LPUB),
+                             QMessageBox::tr(VER_PRODUCTNAME_STR),
                              QMessageBox::tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -527,10 +526,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     if ( ! mpdName.isEmpty() && ! contents.isEmpty()) {
       insert(mpdName,contents,datetime,unofficialPart);
     }
-
     _mpd = true;
 }
-
 
 void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 {
@@ -541,7 +538,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
       QFile file(fullName);
       if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(NULL, 
-                             QMessageBox::tr(LPUB),
+                             QMessageBox::tr(VER_PRODUCTNAME_STR),
                              QMessageBox::tr("Cannot read file %1:\n%2.")
                              .arg(fullName)
                              .arg(file.errorString()));
@@ -583,7 +580,6 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
       _mpd = false;
     }
 }
-
 
 bool LDrawFile::saveFile(const QString &fileName)
 {
@@ -741,13 +737,12 @@ void LDrawFile::countInstances()
   countInstances(topLevelFile(),false);
 }
 
-
 bool LDrawFile::saveMPDFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
         QMessageBox::warning(NULL, 
-                             QMessageBox::tr(LPUB),
+                             QMessageBox::tr(VER_PRODUCTNAME_STR),
                              QMessageBox::tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -789,7 +784,7 @@ bool LDrawFile::saveLDRFile(const QString &fileName)
         if (f.value()._modified) {
           if (!file.open(QFile::WriteOnly | QFile::Text)) {
             QMessageBox::warning(NULL, 
-              QMessageBox::tr(LPUB),
+              QMessageBox::tr(VER_PRODUCTNAME_STR),
               QMessageBox::tr("Cannot write file %1:\n%2.")
               .arg(writeFileName)
               .arg(file.errorString()));
@@ -805,9 +800,6 @@ bool LDrawFile::saveLDRFile(const QString &fileName)
     }
     return true;
 }
-
-
-
 int split(const QString &line, QStringList &argv)
 {
   QString     chopped = line;

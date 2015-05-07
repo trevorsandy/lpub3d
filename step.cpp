@@ -48,7 +48,7 @@
 #include "paths.h"
 #include "ldrawfiles.h"
 
-bool Step::isCsiDataModified(true);  //detect preference dialog updates updates
+bool Step::isCsiDataModified(true);  //detect preference dialog updates
 
 /*********************************************************************
  *
@@ -72,7 +72,7 @@ Step::Step(
   
   submodelLevel = meta.submodelStack.size();
 
-  stepNumber.number = num;                                     // record step number
+  stepNumber.number = num;                                  // record step number
 
   relativeType               = StepType;
   csiPlacement.relativeType  = CsiType;
@@ -144,8 +144,9 @@ Range *Step::range()
  * given a set of parts, generate a CSI
  */
 
-int Step::createCsi(QString     const &addLine,
-  QStringList const &csiParts,
+int Step::createCsi(
+  QString     const &addLine,
+  QStringList const &csiParts,  // the partially assembles model
   QPixmap           *pixmap,
   Meta              &meta)
 {
@@ -162,7 +163,6 @@ int Step::createCsi(QString     const &addLine,
       orient += "_" + tokens[i];
     }
   }
-
   QString key = QString("%1_%2_%3_%4_%5_%6")
                         .arg(csiName()+orient)
                         .arg(sn)
@@ -177,7 +177,7 @@ int Step::createCsi(QString     const &addLine,
   QFile csi(pngName);
 
   bool outOfDate = false;
-
+  
   if (csi.exists()) {
     QDateTime lastModified = QFileInfo(pngName).lastModified();
     QStringList stack = submodelStack();
@@ -209,6 +209,7 @@ int Step::createCsi(QString     const &addLine,
     int        rc;
 
     // render the partially assembled model
+
     rc = renderer->renderCsi(addLine,csiParts, pngName, meta);
 
     if (rc < 0) {
@@ -218,9 +219,6 @@ int Step::createCsi(QString     const &addLine,
   pixmap->load(pngName);
   csiPlacement.size[0] = pixmap->width();
   csiPlacement.size[1] = pixmap->height();
-
-  // reset the variable so next execution starts as first step.
-  //g_firstStep = true;
 
   return 0;
 }

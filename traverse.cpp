@@ -29,6 +29,7 @@
  * make up the LPub program.
  *
  ***************************************************************************/
+ 
 #include <QtGui>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
@@ -367,6 +368,7 @@ int Gui::drawPage(
       /* if it is a sub-model, then process it */
 
       if (ldrawFile.isSubmodel(type) && callout && ! noStep) {
+
         CalloutBeginMeta::CalloutMode mode = callout->meta.LPub.callout.begin.value();
 
         /* we are a callout, so gather all the steps within the callout */
@@ -841,6 +843,7 @@ int Gui::drawPage(
                               multiStep);
               range->append(step);
             }
+
             (void) step->createCsi(
               isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
               /********DO FADE STEP*****************************/
@@ -903,11 +906,12 @@ int Gui::drawPage(
               statusBar()->showMessage("Processing " + current.modelName);
 
               int rc = step->createCsi(
-                          isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                          /********DO FADE STEP****************************/
-                          saveCsiParts = fadeStep(csiParts, stepNum, current),
-                          &step->csiPixmap,
-                          steps->meta);
+                  isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
+                  /********DO FADE STEP****************************/
+                  saveCsiParts = fadeStep(csiParts, stepNum, current),
+                  &step->csiPixmap,
+                  steps->meta);
+
               if (rc) {
                 return rc;
               }
@@ -931,6 +935,7 @@ int Gui::drawPage(
               /*
                * Simple step
                */
+
               steps->placement = steps->meta.LPub.assem.placement;
               showLine(topOfStep);
 
@@ -958,7 +963,6 @@ int Gui::drawPage(
             inserts.clear();
           }
           steps->setBottomOfSteps(current);
-
           noStep = false;
         break;
         case RangeErrorRc:
@@ -1028,7 +1032,7 @@ int Gui::findPage(
   Where       stepGroupCurrent;
   int         saveStepNumber = 1;
               saveStepPageNum = stepPageNum;
-
+              
   Meta        saveMeta = meta;
 
   QHash<QString, QStringList> bfx;
@@ -1090,7 +1094,9 @@ int Gui::findPage(
                     
           if (contains && (!callout || (callout && mode != CalloutBeginMeta::Unassembled) )) {
               if ( ! rendered && (! bfxStore2 || ! bfxParts.contains(token[1]+type))) {
+
               isMirrored = ldrawFile.mirrored(token);
+
               // can't be a callout
               SubmodelStack tos(current.modelName,current.lineNumber,stepNumber);
               meta.submodelStack << tos;
@@ -1153,7 +1159,7 @@ int Gui::findPage(
                 page.meta.rotStep = saveRotStep;
 
                 QStringList pliParts;
-
+                
                 (void) drawPage(view,
                                 scene,
                                 &page,
@@ -1209,7 +1215,7 @@ int Gui::findPage(
                   page.meta.rotStep = saveRotStep;
                   page.meta.rotStep = meta.rotStep;
                   QStringList pliParts;
-
+                                    
                   (void) drawPage(view,
                                   scene,
                                   &page,
@@ -1625,58 +1631,62 @@ void Gui::attitudeAdjustment()
 
 void Gui::countPages()
 {
-    if (maxPages < 1) {
-        statusBarMsg("Counting");
-        Where       current(ldrawFile.topLevelFile(),0);
-        int savedDpn   = displayPageNum;
-        displayPageNum = 1 << 31;
-        Meta meta;
-        writeToTmp();
-        firstStepPageNum = -1;
-        lastStepPageNum = -1;
-        maxPages       = 1;
-        QString empty;
-        stepPageNum = 1;
-        findPage(KpageView,KpageScene,maxPages,empty,current,false,meta,false);
-        topOfPages.append(current);
-        maxPages--;
-
-        if (displayPageNum > maxPages) {
-            displayPageNum = maxPages;
-        } else {
-            displayPageNum = savedDpn;
-        }
-        QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
-        setPageLineEdit->setText(string);
-        statusBarMsg("");
-    }
-}         
-
-void Gui::drawPage(
-        LGraphicsView  *view,
-        QGraphicsScene *scene,
-        bool            printing)
-{
-
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    Where       current(ldrawFile.topLevelFile(),0);
-    ldrawFile.unrendered();
-    ldrawFile.countInstances();
-    maxPages = 1;
-    stepPageNum = 1;
-    Meta    meta;
-    writeToTmp();
-    QString empty;
+  if (maxPages < 1) {
+    //writeToTmp() moved from here
+    statusBarMsg("Counting");
+    Where current(ldrawFile.topLevelFile(),0);
+    int savedDpn     = displayPageNum;
+    displayPageNum   = 1 << 31;
+    writeToTmp();    
     firstStepPageNum = -1;
-    lastStepPageNum = -1;
-    findPage(view,scene,maxPages,empty,current,false,meta,printing);
+    lastStepPageNum  = -1;
+    maxPages         = 1;
+    Meta meta;
+    QString empty;
+    stepPageNum = 1;
+    findPage(KpageView,KpageScene,maxPages,empty,current,false,meta,false);
     topOfPages.append(current);
     maxPages--;
 
+    if (displayPageNum > maxPages) {
+      displayPageNum = maxPages;
+    } else {
+      displayPageNum = savedDpn;
+    }
     QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
     setPageLineEdit->setText(string);
+    statusBarMsg("");
+  }
+}         
 
-    QApplication::restoreOverrideCursor();
+void Gui::drawPage(
+  LGraphicsView  *view,
+  QGraphicsScene *scene,
+  bool            printing)
+{
+
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+  
+  ldrawFile.unrendered();
+  ldrawFile.countInstances();
+  //writToTemp() moved from here
+  Where       current(ldrawFile.topLevelFile(),0);
+  maxPages = 1;
+  stepPageNum = 1;
+  
+  QString empty;
+  Meta    meta;
+  writeToTmp();
+  firstStepPageNum = -1;
+  lastStepPageNum = -1;
+  findPage(view,scene,maxPages,empty,current,false,meta,printing);
+  topOfPages.append(current);
+  maxPages--;
+
+  QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+  setPageLineEdit->setText(string);
+
+  QApplication::restoreOverrideCursor();
 }
 
 void Gui::skipHeader(Where &current)
@@ -1724,7 +1734,7 @@ void Gui::include(Meta &meta)
       QFile file(fileName);
       if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(NULL, 
-                             QMessageBox::tr(LPUB),
+                             QMessageBox::tr(VER_PRODUCTNAME_STR),
                              QMessageBox::tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -1883,9 +1893,9 @@ void Gui::writeToTmp()
         }
         content = ldrawFile.contents(fileName);
         if (ldrawFile.changedSinceLastWrite(fileName)) {
-            //qDebug() << "1881 WriteToTemp (NoFade): " << fileName << ", file order index: " << i;
+            //qDebug() << "WriteToTemp (NoFade): " << fileName << ", file order index: " << i;
             writeToTmp(fileName,content);
-            //qDebug() << "1884 WriteToTemp   (Fade): " << fadeFileName << " using Color: " << fadeColor <<", file order index: " << i;
+            //qDebug() << "WriteToTemp   (Fade): " << fadeFileName << " using Color: " << fadeColor <<", file order index: " << i;
             content = fadeStep(content,fadeColor);
             writeToTmp(fadeFileName,content);
         }
@@ -1899,7 +1909,7 @@ void Gui::writeToTmp()
 }
 
 /*
- * Process csiParts list - fade all non-current step-parts.
+ * Fade writeToTmp content.
  */
 QStringList Gui::fadeStep(const QStringList &contents, const QString &color)
 {
@@ -1908,18 +1918,13 @@ QStringList Gui::fadeStep(const QStringList &contents, const QString &color)
     QStringList argv;
 
     if (contents.size() > 0) {
-
         for (int index = 0; index < contents.size(); index++) {
-
             QString contentLine = contents[index];
-
             split(contentLine, argv);
-
             if (argv.size() == 15 && argv[0] == "1") {
                 argv[1] = fadeColor;
-
                 // process subfiles in csiParts
-                QString type  = argv[argv.size()-1];
+                QString type = argv[argv.size()-1];
                 if (ldrawFile.isSubmodel(type)) {
                     /* change file name */
                     QRegExp rgxLDR("\\.(ldr)$");
@@ -1934,27 +1939,24 @@ QStringList Gui::fadeStep(const QStringList &contents, const QString &color)
                     }
                     argv[argv.size()-1] = fadeFileName;
                 }
-
             } else if ((argv.size() == 8  && argv[0] == "2") ||
                        (argv.size() == 11 && argv[0] == "3") ||
                        (argv.size() == 14 && argv[0] == "4") ||
                        (argv.size() == 14 && argv[0] == "5")) {
                 argv[1] = fadeColor;
             }
-
             contentLine = argv.join(" ");
             fadeContents  << contentLine;
         }
-
     } else {
-
         fadeContents  << contents;
-
     }
     return fadeContents;
 }
 
-
+/*
+ * Process csiParts list - fade all non-current step-parts.
+ */
 QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) {
 
     data = new GlobalFadeStep();
@@ -1967,18 +1969,12 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
     QStringList argv;
 
     if (csiParts.size() > 0 && stepNum > 1 && (doFadeStep || Preferences::enableFadeStep)) {
-
         for (int index = 0; index < csiParts.size(); index++) {
-
             QString csiLine = csiParts[index];
-
             if ((index + 1) <= fadePosition) {
-
                 split(csiLine, argv);
-
                 if (argv.size() == 15 && argv[0] == "1") {
                     argv[1] = fadeColor;
-
                     // process subfile names in csiParts
                     QString type  = argv[argv.size()-1];
                     if (FadeStepColorParts::isStaticColorPart(type)){
@@ -1987,7 +1983,6 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
                         argv[argv.size()-1] = fadeFileName;
                         createFadePart(type);
                     }
-
                     if (ldrawFile.isSubmodel(type)) {
                         /* change file name */
                         QRegExp rgxLDR("\\.(ldr)$");                //CONSIDER OPTIMIZING THIS
@@ -2002,32 +1997,27 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
                         }
                         argv[argv.size()-1] = fadeFileName;
                     }
-
                 } else if ((argv.size() == 8  && argv[0] == "2") ||
                            (argv.size() == 11 && argv[0] == "3") ||
                            (argv.size() == 14 && argv[0] == "4") ||
                            (argv.size() == 14 && argv[0] == "5")) {
                     argv[1] = fadeColor;
                 }
-
                 csiLine = argv.join(" ");
             }
-
             fadeCsiParts  << csiLine;
         }
-
         ldrawFile.setFadePosition(current.modelName,fadeCsiParts.size());
-
     } else {
-
         fadeCsiParts  << csiParts;
-
         ldrawFile.setFadePosition(current.modelName,fadeCsiParts.size());
     }
-
     return fadeCsiParts;
 }
 
+/*
+ * Create fade version of static colour part files.
+ */
 void Gui::createFadePart(QString &type) {
     data = new GlobalFadeStep();
     FadeStepMeta *fadeStepMeta = &data->meta.LPub.fadeStep;
@@ -2105,7 +2095,9 @@ void Gui::createFadePart(QString &type) {
      writeToFade(fadePartFile, fadePartContent);
 }
 
-
+/*
+ * Write faded part files to fade directory.
+ */
 void Gui::writeToFade(
     const QString &fileName,
     const QStringList &contents) {

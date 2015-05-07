@@ -132,6 +132,7 @@ protected:
 	void DrawAxes();
 	void DrawViewport();
 
+    void GetRotateStepAngles();
 	void UpdateTrackTool();
 	lcTool GetCurrentTool() const;
 	float GetOverlayScale() const;

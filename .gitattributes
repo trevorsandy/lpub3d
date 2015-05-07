@@ -1,6 +1,9 @@
 * text=auto !eol
 /LPub.icns -text
 /LPub.ico -text
+/aboutdialog.cpp -text
+/aboutdialog.h -text
+/aboutdialog.ui -text
 /annotations.cpp -text
 /annotations.h -text
 /assemglobals.cpp -text
@@ -10,6 +13,7 @@
 /backgrounditem.h -text
 /borderdialog.cpp -text
 /borderdialog.h -text
+/build.h -text
 /callout.cpp -text
 /callout.h -text
 /calloutbackgrounditem.cpp -text
@@ -38,8 +42,6 @@ extras/titleAnnotations.lst -text
 /fadestepcolorparts.cpp -text
 /fadestepcolorparts.h -text
 /fadestepglobals.cpp -text
-/fileutils.cpp -text
-/fileutils.h -text
 /formatpage.cpp -text
 /globals.h -text
 /glwidget.cpp -text
@@ -111,6 +113,8 @@ lc_lib/common/lc_shortcuts.cpp -text
 lc_lib/common/lc_shortcuts.h -text
 lc_lib/common/lc_texture.cpp -text
 lc_lib/common/lc_texture.h -text
+lc_lib/common/lc_timelinewidget.cpp -text
+lc_lib/common/lc_timelinewidget.h -text
 lc_lib/common/lc_zipfile.cpp -text
 lc_lib/common/lc_zipfile.h -text
 lc_lib/common/light.cpp -text
@@ -200,7 +204,6 @@ lc_lib/qt/lc_qutils.cpp -text
 lc_lib/qt/lc_qutils.h -text
 lc_lib/qt/leocad.rc -text
 lc_lib/qt/system.cpp -text
-lc_lib/resources/Thumbs.db -text
 lc_lib/resources/action_camera.png -text
 lc_lib/resources/action_delete.png -text
 lc_lib/resources/action_insert.png -text
@@ -302,7 +305,6 @@ lc_lib/tools/utils/zpipe.c -text
 /lpub.qrc -text
 /lpub.rc -text
 /lpub.res -text
-/lpub410.pro -text
 /lpub_preferences.cpp -text
 /lpub_preferences.h -text
 /main.cpp -text
@@ -372,4 +374,8 @@ lc_lib/tools/utils/zpipe.c -text
 /textitem.h -text
 /traverse.cpp -text
 /undoredo.cpp -text
+/updatedialog.cpp -text
+/updatedialog.h -text
+/updatedialog.ui -text
+/version.h -text
 /where.h -text

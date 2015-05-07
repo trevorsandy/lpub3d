@@ -50,7 +50,7 @@
 #include "lpub_preferences.h"
 #include "ranges_element.h"
 #include "range_element.h"
-#include "annotations.h"
+#include "version.h"
 
 QCache<QString,QString> Pli::orientation;
     
@@ -209,35 +209,43 @@ bool Pli::initAnnotationString()
 }
 
 void Pli::getAnnotate(
-  QString &type,
-  QString &annotateStr)
+     QString &type,
+     QString &annotateStr)
 {
+    annotateStr.clear();
+    annotateStr = PartsList::title(type.toLower());
 
-  annotateStr.clear();
-  annotateStr = PartsList::title(type.toLower());
+    bool title = Preferences::preferTitleAnnotation;
+    bool freeform = Preferences::preferFreeformAnnotation;
+    bool titleAndFreeform = Preferences::titleAndFreeformAnnotation;
 
-  // pick up annotations
-  if(Preferences::preferTitleAnnotation){
-      if (titleAnnotations.size() == 0) {
+    // pick up annotations
+    if(title || titleAndFreeform){
+        if (titleAnnotations.size() == 0 && !titleAndFreeform)
+            return;
+        if (titleAnnotations.size() > 0) {
+            QString annotation,sClean;
+            for (int i = 0; i < titleAnnotations.size(); i++) {
+                annotation = titleAnnotations[i];
+                QRegExp rx(annotation);
+                if (annotateStr.contains(rx)) {
+                    sClean = rx.cap(1);
+                    sClean.remove(QRegExp("\\s"));            //remove spaces
+                    annotateStr = sClean;
+                    return;
+                }
+            }
+        }
+        if (titleAndFreeform) {
+            annotateStr = Annotations::freeformAnnotation(type.toLower());
+            return;
+        }
+    } else if (freeform) {
+        annotateStr = Annotations::freeformAnnotation(type.toLower());
         return;
-      }
-      QString annotation,sClean;
-      for (int i = 0; i < titleAnnotations.size(); i++) {
-          annotation = titleAnnotations[i];
-          QRegExp rx(annotation);
-          if (annotateStr.contains(rx)) {
-              sClean = rx.cap(1);
-              sClean.remove(QRegExp("\\s"));            //remove spaces
-              annotateStr = sClean;
-              return;
-          }
-      }
-  } else {
-      annotateStr = Annotations::freeformAnnotation(type.toLower());
-      return;
-  }
-  annotateStr.clear();
-  return;
+    }
+    annotateStr.clear();
+    return;
 }
 
 QString Pli::orient(QString &color, QString type)
@@ -335,7 +343,7 @@ int Pli::createPartImage(
     part.setFileName(ldrName);
   
     if ( ! part.open(QIODevice::WriteOnly)) {
-      QMessageBox::critical(NULL,QMessageBox::tr(LPUB),
+      QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
                          QMessageBox::tr("Cannot open file for writing %1:\n%2.")
                          .arg(ldrName)
                          .arg(part.errorString()));
@@ -351,7 +359,7 @@ int Pli::createPartImage(
     int rc = renderer->renderPli(ldrName,imageName,*meta, bom);
   
     if (rc != 0) {
-      QMessageBox::warning(NULL,QMessageBox::tr(LPUB),
+      QMessageBox::warning(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
                          QMessageBox::tr("Render failed for %1 %2\n")
                          .arg(imageName)
                          .arg(Paths::tmpDir+"/part.dat"));

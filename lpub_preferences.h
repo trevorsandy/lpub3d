@@ -16,14 +16,6 @@
 #ifndef LPUB_PREFERENCES_H
 #define LPUB_PREFERENCES_H
 
-// Version number.
-#define LP_VERSION_MAJOR 4
-#define LP_VERSION_MINOR 10
-#define LP_VERSION_PATCH 0
-#define LP_VERSION_TEXT "4.10.0"
-#define LP_VERSION_EMAIL "mailto:trevor.sandy@gmail.com?subject=LPub"
-
-
 class QString;
 
 class Preferences
@@ -34,6 +26,7 @@ class Preferences
     static void lpubPreferences();
     static void ldrawPreferences(bool);
     static void leocadLibPreferences(bool);
+    static void viewerPreferences();
 	static void lgeoPreferences();
     static void renderPreferences();
     static void pliPreferences();
@@ -43,7 +36,6 @@ class Preferences
     static void publishingPreferences();
     static void getRequireds();
     static bool getPreferences();
-    static void viewerPreferences();
 
     static QString ldrawPath;
     static QString leocadLibPath;
@@ -68,6 +60,8 @@ class Preferences
     static bool    printCopyright;
     static bool    preferCentimeters;
     static bool    preferTitleAnnotation;
+    static bool    preferFreeformAnnotation;
+    static bool    titleAndFreeformAnnotation;
     static bool    enableFadeStep;
 
     virtual ~Preferences() {}

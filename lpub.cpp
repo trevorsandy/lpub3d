@@ -25,7 +25,7 @@
 
 #include "lpub.h"
 #include "editwindow.h"
-#include "name.h"
+#include "version.h"
 #include "paths.h"
 #include "globals.h"
 #include "resolution.h"
@@ -37,6 +37,7 @@
 #include "step.h"
 //** 3D
 #include "camera.h"
+#include "piece.h"
 #include "lc_mainwindow.h"
 //**
 
@@ -283,9 +284,9 @@ void Gui::zoomOut(
   view->scale(1.0/1.1,1.0/1.1);
 }
 
-void Gui::UpdateStepRotation(lcVector3 StepRotation)
+void Gui::UpdateStepRotation()
 {
-    mModelStepRotation = (mStepRotationLine + StepRotation);
+    mModelStepRotation = lcVector3(mRotStepAngleX,mRotStepAngleY,mRotStepAngleZ);
 
     QString rotLabel("Step Rotation %1 %2 %3");
     rotLabel = rotLabel.arg(QString::number(mModelStepRotation[0], 'f', 2),
@@ -426,21 +427,19 @@ void Gui::fadeStepSetup()
 
 void Gui::preferences()
 {
-    if (Preferences::getPreferences()) {
+  if (Preferences::getPreferences()) {
+    Meta meta;
         Step::isCsiDataModified = true;
-        Meta meta;
-        page.meta = meta;
-        QString renderer = Render::getRenderer();
-        Render::setRenderer(Preferences::preferredRenderer);
-        if (Render::getRenderer() != renderer) {
-            gui->clearCSICache();
-            gui->clearPLICache();
-        }
-        if (curFile != "")
-            displayPage();
+    page.meta = meta;
+    QString renderer = Render::getRenderer();
+    Render::setRenderer(Preferences::preferredRenderer);
+    if (Render::getRenderer() != renderer) {
+      gui->clearCSICache();
+      gui->clearPLICache();
     }
+    displayPage();
+  }
 }
-
 
 
 /*******************************************************************************
@@ -452,16 +451,14 @@ void Gui::preferences()
 
 Gui::Gui()
 {
-    Preferences::lpubPreferences();
     Preferences::renderPreferences();
 	Preferences::lgeoPreferences();
     Preferences::pliPreferences();
     Preferences::publishingPreferences();
 
-    displayPageNum  = 1;
+    displayPageNum = 1;
 
-    editWindow      = new EditWindow();
-
+    editWindow    = new EditWindow();
     KpageScene    = new QGraphicsScene(this);
     KpageScene->setBackgroundBrush(Qt::lightGray);
     KpageView     = new LGraphicsView(KpageScene);
@@ -480,10 +477,14 @@ Gui::Gui()
     connect(mpdCombo,SIGNAL(activated(int)),
             this,    SLOT(mpdComboChanged(int)));
 
+    mExistingRotStep = lcVector3(0.0f, 0.0f, 0.0f);
+    mModelStepRotation = lcVector3(0.0f, 0.0f, 0.0f);
+
     createActions();
     createMenus();
     createToolBars();
     createStatusBar();
+
     createDockWindows();
 
     readSettings();
@@ -515,7 +516,7 @@ Gui::Gui()
 #endif
     setCurrentFile("");
     // Jaco: This sets the initial size of the main window
-    resize(1000,600);
+    resize(QSize(1000, 600));
 
     gui = this;
 
@@ -537,39 +538,35 @@ Gui::~Gui()
     delete editWindow;
 }
 
+
 void Gui::closeEvent(QCloseEvent *event)
 {
   writeSettings();
 
   if (maybeSave()) {
-
     event->accept();
 
-    QSettings settings;
-    settings.beginGroup("Windows");
-    settings.setValue("Geometry", saveGeometry());
-    settings.setValue("State", saveState());
-    settings.endGroup();
+    QSettings Settings;
+    Settings.beginGroup(WINDOW);
+    Settings.setValue("Geometry", saveGeometry());
+    Settings.setValue("State", saveState());
+    Settings.endGroup();
 
   } else {
     event->ignore();
   }
 }
 
-void Gui::about()
+bool Gui::aboutDialog()
 {
-   QMessageBox::about(this, tr("About LPub"),
-            tr("<b>LPub %1</b> is a proud member of the LDraw "
-               "family of tools.  LPub is a WYSIWYG tool for creating "
-               "LEGO(c) style building instructions. "
-               "LPub4 source code and application can be found on "
-               "www.sourceforge.net/projects/lpub4/files.<br>"
-               "Copyright 2000-2011 Kevin Clague "
-               "kevin.clague@gmail.com<br>"
-               "2014 - Daniele Benedettelli<br>"
-               "2015 - Trevor SANDY "
-               "<A HREF=\"%2\">trevor.sandy@gmail.com</A>"
-               ).arg(QString::fromLatin1(LP_VERSION_TEXT),QString::fromLatin1(LP_VERSION_EMAIL)));
+    AboutDialog Dialog(this, NULL);
+    return Dialog.exec() == QDialog::Accepted;
+}
+
+bool Gui::updateDialog()
+{
+    UpdateDialog Dialog(this, NULL);
+    return Dialog.exec() == QDialog::Accepted;
 }
 
 // Begin Jaco's code
@@ -605,7 +602,7 @@ void Gui::meta()
   QFile file(fileName);
   if (!file.open(QFile::WriteOnly | QFile::Text)) {
     QMessageBox::warning(NULL,
-    QMessageBox::tr(LPUB),
+    QMessageBox::tr(VER_PRODUCTNAME_STR),
     QMessageBox::tr("Cannot write file %1:\n%2.")
     .arg(fileName)
     .arg(file.errorString()));
@@ -859,7 +856,7 @@ void Gui::createActions()
 
     aboutAct = new QAction(tr("&About"), this);
     aboutAct->setStatusTip(tr("Show the application's About box"));
-    connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
+    connect(aboutAct, SIGNAL(triggered()), this, SLOT(aboutDialog()));
 
     // Begin Jaco's code
 
@@ -872,6 +869,10 @@ void Gui::createActions()
     metaAct = new QAction(tr("&Save LPub Metacommands to File"), this);
     metaAct->setStatusTip(tr("Save a list of the known LPub meta commands to a file"));
     connect(metaAct, SIGNAL(triggered()), this, SLOT(meta()));
+
+    updateApp = new QAction(tr("Check for &Updates..."), this);
+    updateApp->setStatusTip(tr("Check if a newer LPubV version is available for download"));
+    connect(updateApp, SIGNAL(triggered()), this, SLOT(updateDialog()));
 }
 
 void Gui::enableActions()
@@ -980,6 +981,7 @@ void Gui::createMenus()
     configMenu->addAction(preferencesAct);
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
+
     helpMenu->addAction(aboutAct);
 
     // Begin Jaco's code
@@ -989,6 +991,10 @@ void Gui::createMenus()
     // End Jaco's code
 
     helpMenu->addAction(metaAct);
+
+#if !DISABLE_UPDATE_CHECK
+    helpMenu->addAction(updateApp);
+#endif
 }
 
 void Gui::createToolBars()
@@ -1033,6 +1039,14 @@ void Gui::createStatusBar()
 
 void Gui::createDockWindows()
 {
+    fileEditDockWindow = new QDockWidget(tr("LDraw File Editor"), this);
+    fileEditDockWindow->setObjectName("LDrawFileDockWindow");
+    fileEditDockWindow->setAllowedAreas(
+                Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
+                Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    fileEditDockWindow->setWidget(editWindow);
+    addDockWidget(Qt::RightDockWidgetArea, fileEditDockWindow);
+    viewMenu->addAction(fileEditDockWindow->toggleViewAction());
 //**3D
     modelDockWindow = new QDockWidget(tr("3D Viewer - by LeoCAD"), this);
     modelDockWindow->setObjectName("ModelDockWindow");
@@ -1043,39 +1057,28 @@ void Gui::createDockWindows()
     addDockWidget(Qt::RightDockWidgetArea, modelDockWindow);
     viewMenu->addAction(modelDockWindow->toggleViewAction());
 //**
-
-    fileEditDockWindow = new QDockWidget(tr("LDraw File Editor"), this);
-    fileEditDockWindow->setObjectName("LDrawFileDockWindow");
-    fileEditDockWindow->setAllowedAreas(
-                Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
-                Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    fileEditDockWindow->setWidget(editWindow);
-    addDockWidget(Qt::RightDockWidgetArea, fileEditDockWindow);
-    viewMenu->addAction(fileEditDockWindow->toggleViewAction());
-
-
     tabifyDockWidget(modelDockWindow, fileEditDockWindow);
     modelDockWindow->raise();
 }
 
 void Gui::readSettings()
 {
-    QSettings settings(LPUB, SETTINGS);
-    settings.beginGroup("Windows");
-    QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
-    QSize size = settings.value("size", QSize(600, 400)).toSize();
+    QSettings Settings;
+    Settings.beginGroup(WINDOW);
+    restoreState(Settings.value("State").toByteArray());
+    restoreGeometry(Settings.value("Geometry").toByteArray());
+    QSize size = Settings.value("size", QSize(800, 600)).toSize();
+    QPoint pos = Settings.value("pos", QPoint(200, 200)).toPoint();
     resize(size);
     move(pos);
-    restoreState(settings.value("State").toByteArray());
-    settings.endGroup();
+    Settings.endGroup();
 }
 
 void Gui::writeSettings()
 {
-    QSettings settings(LPUB, SETTINGS);
-    settings.setValue("pos", pos());
-    settings.setValue("size", size());
+    QSettings Settings;
+    Settings.beginGroup(WINDOW);
+    Settings.setValue("pos", pos());
+    Settings.setValue("size", size());
+    Settings.endGroup();
 }
-
-
-

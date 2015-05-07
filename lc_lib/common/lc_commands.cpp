@@ -567,8 +567,8 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	// LC_EDIT_ACTION_ROTATE
 	{
 		"Edit.Tool.Rotate",
-		QT_TRANSLATE_NOOP("Menu", "Rotate"),
-		QT_TRANSLATE_NOOP("Status", "Rotate selected pieces"),
+        QT_TRANSLATE_NOOP("Menu", "Rotate Step"),
+        QT_TRANSLATE_NOOP("Status", "Rotate selection"),
 		QT_TRANSLATE_NOOP("Shortcut", "Shift+R")
 	},
 	// LC_EDIT_ACTION_DELETE
@@ -602,8 +602,8 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	// LC_EDIT_ACTION_ROTATE_VIEW
 	{
 		"Edit.Tool.RotateView",
-		QT_TRANSLATE_NOOP("Menu", "Rotate View"),
-		QT_TRANSLATE_NOOP("Status", "Rotate the current view"),
+        QT_TRANSLATE_NOOP("Menu", "Rotate Camera View"),
+        QT_TRANSLATE_NOOP("Status", "Rotate the current camera view"),
 		QT_TRANSLATE_NOOP("Shortcut", "Shift+T")
 	},
 	// LC_EDIT_ACTION_ROLL
@@ -623,8 +623,8 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
     // LC_EDIT_ACTION_ROTATESTEP
     {
         "Edit.Tool.RotateStep",
-        QT_TRANSLATE_NOOP("Menu", "Insert Step Rotation"),
-        QT_TRANSLATE_NOOP("Status", "Apply camera rotation to selected step"),
+        QT_TRANSLATE_NOOP("Menu", "Insert ROTSTEP"),
+        QT_TRANSLATE_NOOP("Status", "Insert or update LPub ROTSTEP meta"),
         QT_TRANSLATE_NOOP("Shortcut", "")
     },
     // LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION

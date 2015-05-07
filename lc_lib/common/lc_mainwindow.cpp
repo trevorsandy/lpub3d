@@ -32,13 +32,14 @@ lcMainWindow::lcMainWindow()
     mRotateStepType = LC_ROTATESTEP_RELATIVE_ROTATION;
 
 	mColorIndex = lcGetColorIndex(4);
-    mTool = LC_TOOL_ROTATESTEP;
+    //mTool = LC_TOOL_ROTATESTEP;
+    mTool = LC_TOOL_SELECT;
 	mAddKeys = false;
 	mMoveSnapEnabled = true;
 	mAngleSnapEnabled = true;
 	mMoveXYSnapIndex = 4;
 	mMoveZSnapIndex = 3;
-	mAngleSnapIndex = 5;
+    mAngleSnapIndex = 4;
 	mLockX = false;
 	mLockY = false;
 	mLockZ = false;
@@ -94,13 +95,14 @@ void lcMainWindow::CreateWidgets()
 	mPreviewWidget = Preview;
 	mPreviewWidget->SetDefaultPiece();
 
-	QSettings Settings;
-	Settings.beginGroup("MainWindow");
-	resize(QSize(800, 600));
-	move(QPoint(200, 200));
-	restoreGeometry(Settings.value("Geometry").toByteArray());
-	restoreState(Settings.value("State").toByteArray());
-	Settings.endGroup();
+//    QSettings Settings;
+//    Settings.beginGroup(WINDOW);
+      resize(QSize(400, 300));
+//    move(QPoint(200, 200));
+//    restoreGeometry(Settings.value("Geometry").toByteArray());
+//    restoreState(Settings.value("State").toByteArray());
+//    Settings.endGroup();
+
 }
 
 void lcMainWindow::CreateActions()
@@ -257,6 +259,17 @@ void lcMainWindow::CreateMenus()
 
 	CameraMenu->addSeparator();
 	CameraMenu->addAction(mActions[LC_VIEW_CAMERA_RESET]);
+
+    QMenu* FileMenuShort = menuBar()->addMenu(tr("&File"));
+    FileMenuShort->addAction(mActions[LC_FILE_SAVEAS]);
+    FileMenuShort->addAction(mActions[LC_FILE_SAVE_IMAGE]);
+    QMenu* ExportMenuShort = FileMenuShort->addMenu(tr("&Export"));
+    ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_3DS]);
+    ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_BRICKLINK]);
+    ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_CSV]);
+    ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_HTML]);
+    ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_POVRAY]);
+    ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_WAVEFRONT]);
 
 	QMenu* FileMenu = menuBar()->addMenu(tr("&File"));
 	FileMenu->addAction(mActions[LC_FILE_NEW]);
@@ -490,12 +503,15 @@ void lcMainWindow::CreateToolBars()
 	mToolsToolBar = addToolBar(tr("Tools"));
 	mToolsToolBar->setObjectName("ToolsToolbar");
 	insertToolBarBreak(mToolsToolBar);
+    mToolsToolBar->addAction(mActions[LC_EDIT_UNDO]);
+    mToolsToolBar->addAction(mActions[LC_EDIT_REDO]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_INSERT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_LIGHT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
 	mToolsToolBar->addSeparator();
     mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATESTEP]);
+    mToolsToolBar->addAction(AngleAction);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SELECT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_MOVE]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATE]);
@@ -507,6 +523,7 @@ void lcMainWindow::CreateToolBars()
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROLL]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ZOOM_REGION]);
+    ((QToolButton*)mToolsToolBar->widgetForAction(AngleAction))->setPopupMode(QToolButton::InstantPopup);
 
 	mTimeToolBar = addToolBar(tr("Time"));
 	mTimeToolBar->setObjectName("TimeToolbar");
@@ -610,13 +627,13 @@ void lcMainWindow::CreateToolBars()
     mTimelineToolBar->setVisible(false);
 
     /*** management - toolbar actions ***/
-    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_SELECT]);
     mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_INSERT]);
     mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_LIGHT]);
     mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
     mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_CAMERA]);
     mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_MOVE]);
-    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_ROTATE]);
+    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_ZOOM]);
+    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_ROLL]);
     mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_DELETE]);
     mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_PAINT]);
 
@@ -654,11 +671,11 @@ void lcMainWindow::closeEvent(QCloseEvent *event)
 	{
 		event->accept();
 
-		QSettings settings;
-		settings.beginGroup("Windows");
-		settings.setValue("Geometry", saveGeometry());
-		settings.setValue("State", saveState());
-		settings.endGroup();
+//        QSettings Settings;
+//        Settings.beginGroup(WINDOW);
+//        Settings.setValue("Geometry", saveGeometry());
+//        Settings.setValue("State", saveState());
+//        Settings.endGroup();
 	}
 	else
 		event->ignore();
@@ -1153,8 +1170,6 @@ void lcMainWindow::ResetCameras()
 		mViews[ViewIdx]->SetDefaultCamera();
 
 	lcGetActiveModel()->DeleteAllCameras();
-
-    gui->UpdateStepRotation(lcVector3(0.0f, 0.0f, 0.0f));
 }
 
 void lcMainWindow::AddView(View* View)
@@ -1495,6 +1510,7 @@ void lcMainWindow::UpdateFocusObject(lcObject* Focus)
 	QString Label("X: %1 Y: %2 Z: %3");
 	Label = Label.arg(QString::number(Position[0], 'f', 2), QString::number(Position[1], 'f', 2), QString::number(Position[2], 'f', 2));
 	mStatusPositionLabel->setText(Label);
+
 }
 
 void lcMainWindow::UpdateSelectedObjects(int Flags, int SelectedCount, lcObject* Focus)
@@ -1765,8 +1781,8 @@ void lcMainWindow::NewProject()
 
 bool lcMainWindow::OpenProject(const QString& FileName)
 {
-	if (!SaveProjectIfModified())
-		return false;
+    if (!SaveProjectIfModified())
+        return false;
 
 	QString LoadFileName = FileName;
 
@@ -1800,6 +1816,7 @@ bool lcMainWindow::OpenProject(const QString& FileName)
 			View->ZoomExtents();
 		}
 
+        gui->ResetStepRotation();
 		UpdateAllViews();
 
 		return true;
@@ -1887,6 +1904,11 @@ bool lcMainWindow::SaveProjectIfModified()
 	Project* Project = lcGetActiveProject();
 	if (!Project->IsModified())
 		return true;
+
+    // REMOVE THIS TO ENABLE SAVE-IF-MODIFIED //
+    if (Project->IsModified())                //
+        return true;                          //
+    // END REMOVE///////////////////////////////
 
 	switch (QMessageBox::question(this, tr("Save Project"), tr("Save changes to '%1'?").arg(Project->GetTitle()), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel))
 	{
@@ -2442,6 +2464,8 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_EDIT_ACTION_ROTATE:
 		SetTool(LC_TOOL_ROTATE);
+        gui->ResetStepRotation();
+        lcGetActiveModel()->SelectAllPieces();
 		break;
 
 	case LC_EDIT_ACTION_DELETE:
@@ -2465,7 +2489,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_EDIT_ACTION_ROTATE_VIEW:
-		SetTool(LC_TOOL_ROTATE_VIEW);
+        SetTool(LC_TOOL_ROTATE_VIEW);
 		break;
 
 	case LC_EDIT_ACTION_ROLL:
