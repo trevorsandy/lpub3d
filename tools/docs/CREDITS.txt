@@ -1,0 +1,30 @@
+The following people have contributed to the components used in LPubV:
+
+LPub
+Author, Original Design:
+Kevin Clague <kevin.clague@gmail.com>
+LPubV Refresh Author and Design:
+Trevor Sandy <trevor.sandy@gmail.com>
+
+Contributors (in alphabetical order):
+Daniele Benedettelli
+
+LeoCAD
+Author, Original Design:
+Leonardo Zide <leozide@gmail.com>
+
+LeoCAD 3D Viewer Author and Design:
+Trevor Sandy <trevor.sandy@gmail.com>
+
+Contributions (in alphabetical order):
+Christian Höltje <docwhat@gerf.org>
+David Paleino <dapal@debian.org>
+Hubert Figuiere <hub@figuiere.net>
+Joerg Scheurich <rusmufti@helpdesk.bera.rus.uni-stuttgart.de>
+Nicolas Guilbert <nicolas@ange.dk>
+Nicolas Schodet <nico-leocad@ni.fr.eu.org>
+Pat Mahoney <pat7@gmx.net>
+Petter Reinholdtsen <pere@hungry.com>
+Renaud Breard <renaud@islande.net>
+Rodney Rushing <leocad.reg@yenandjen.com>
+Torbjörn Söderstedt <torbjrn@gmail.com>

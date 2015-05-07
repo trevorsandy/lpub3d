@@ -136,7 +136,7 @@ void UpdateDialog::replyFinished(QNetworkReply *reply)
 
 			if (updateAvailable)
 			{
-                status += QString(tr("<p>Visit <a href=\"%1\">%2</a> to download.</p>")).arg(QString::fromLatin1(VER_UPDATE_URL), QString::fromLatin1(VER_UPDATE_URL));
+                status += QString(tr("<p>Visit <a href=\"%1\">%1</a> to download.</p>")).arg(QString::fromLatin1(VER_UPDATE_URL));
 			}
 
 			ui->status->setText(status);

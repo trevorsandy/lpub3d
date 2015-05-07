@@ -48,6 +48,7 @@ extras/titleAnnotations.lst -text
 /glwidget.h -text
 /highlighter.cpp -text
 /highlighter.h -text
+images/LPub64.ico -text
 images/Thumbs.db -text
 images/actual.png -text
 images/copy.png -text
@@ -307,6 +308,7 @@ lc_lib/tools/utils/zpipe.c -text
 /lpub.res -text
 /lpub_preferences.cpp -text
 /lpub_preferences.h -text
+/lpubv.pro -text
 /main.cpp -text
 /meta.cpp -text
 /meta.h -text
@@ -372,6 +374,21 @@ lc_lib/tools/utils/zpipe.c -text
 /step.h -text
 /textitem.cpp -text
 /textitem.h -text
+tools/Win-setup/LPubV.evb -text
+tools/Win-setup/LPubV.nsi -text
+tools/Win-setup/PackLPubV.bat -text
+tools/Win-setup/build_inc.bat -text
+tools/Win-setup/setup.ico -text
+tools/docs/COPYING.txt -text
+tools/docs/CREDITS.txt -text
+tools/docs/README.txt -text
+tools/icon/LPub128.png -text
+tools/icon/LPub16.png -text
+tools/icon/LPub256.png -text
+tools/icon/LPub32.png -text
+tools/icon/LPub48.png -text
+tools/icon/LPub512.png -text
+tools/icon/LPub64.png -text
 /traverse.cpp -text
 /undoredo.cpp -text
 /updatedialog.cpp -text
