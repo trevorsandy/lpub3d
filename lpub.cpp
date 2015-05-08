@@ -52,6 +52,16 @@ void clearCsiCache()
   gui->clearCSICache();
 }
 
+void clearCsi3dCache()
+{
+    gui->clearCSI3DCache();
+}
+
+void clearAllCache()
+{
+    gui->clearALLCache();
+}
+
 /****************************************************************************
  * 
  * The Gui constructor and destructor are at the bottom of the file with
@@ -161,6 +171,7 @@ void Gui::clearAndRedrawPage()
 {
   clearCSICache();
   clearPLICache();
+  clearALLCache();
   displayPage();
 }
 
@@ -372,7 +383,7 @@ void Gui::clearCSI3DCache()
   }
 }
 
-void Gui::clearAllCache()
+void Gui::clearALLCache()
 {
     clearPLICache();
     clearCSICache();
@@ -435,6 +446,7 @@ void Gui::preferences()
     if (Render::getRenderer() != renderer) {
       gui->clearCSICache();
       gui->clearPLICache();
+      gui->clearCSI3DCache();
     }
     displayPage();
   }
@@ -801,9 +813,9 @@ void Gui::createActions()
     clearCSI3DCacheAct->setStatusTip(tr("Erase the 3D viewer image cache"));
     connect(clearCSI3DCacheAct, SIGNAL(triggered()), this, SLOT(clearCSI3DCache()));
 
-    clearAllCacheAct = new QAction(tr("Clear All Caches"), this);
-    clearAllCacheAct->setStatusTip(tr("Erase all caches"));
-    connect(clearAllCacheAct, SIGNAL(triggered()), this, SLOT(clearAllCache()));
+    clearALLCacheAct = new QAction(tr("Clear All Caches"), this);
+    clearALLCacheAct->setStatusTip(tr("Erase all caches"));
+    connect(clearALLCacheAct, SIGNAL(triggered()), this, SLOT(clearALLCache()));
 
     // Config menu
 
@@ -964,7 +976,7 @@ void Gui::createMenus()
     toolsMenu->addAction(clearPLICacheAct);
     toolsMenu->addAction(clearCSICacheAct);
     toolsMenu->addAction(clearCSI3DCacheAct);
-    toolsMenu->addAction(clearAllCacheAct);
+    toolsMenu->addAction(clearALLCacheAct);
 
     configMenu = menuBar()->addMenu(tr("&Configuration"));
     configMenu->addAction(pageSetupAct);

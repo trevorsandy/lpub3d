@@ -393,6 +393,9 @@ enum FitMode { FitNone, FitWidth, FitVisible };
 
 void clearPliCache();
 void clearCsiCache();
+void clearCsi3dCache();
+void clearAllCache();
+
 
 class Gui : public QMainWindow
 {
@@ -589,7 +592,7 @@ public slots:
   void clearPLICache();
   void clearCSICache();
   void clearCSI3DCache();
-  void clearAllCache();
+  void clearALLCache();
 
   void statusBarMsg(QString msg);
 
@@ -857,10 +860,12 @@ private:
   QAction  *nextPageAct;
   QAction  *previousPageAct;
   QLineEdit*setPageLineEdit;
+
+  // manage Caches
   QAction  *clearPLICacheAct;
   QAction  *clearCSICacheAct;
   QAction  *clearCSI3DCacheAct;
-  QAction  *clearAllCacheAct;
+  QAction  *clearALLCacheAct;
 
   // config menu
 
