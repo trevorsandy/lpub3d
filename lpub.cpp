@@ -25,7 +25,6 @@
 
 #include "lpub.h"
 #include "editwindow.h"
-#include "version.h"
 #include "paths.h"
 #include "globals.h"
 #include "resolution.h"
@@ -871,7 +870,7 @@ void Gui::createActions()
     connect(metaAct, SIGNAL(triggered()), this, SLOT(meta()));
 
     updateApp = new QAction(tr("Check for &Updates..."), this);
-    updateApp->setStatusTip(tr("Check if a newer LPubV version is available for download"));
+    updateApp->setStatusTip(tr("Check if a newer LPub3D version is available for download"));
     connect(updateApp, SIGNAL(triggered()), this, SLOT(updateDialog()));
 }
 

@@ -1,12 +1,10 @@
-;LPubV Setup Script
+;LPub Setup Script
 ;Updated by Trevor Sandy
 
 ;--------------------------------
 ;Include Modern UI
 
-  !include "MUI.nsh"
-  !include "LogicLib.nsh"
-  !include "nsDialogs.nsh"
+  !include "MUI2.nsh"
 
 ;--------------------------------
 ;General
@@ -15,10 +13,16 @@
   !include "AppVersion.nsh"
   
   ;Installer name
-  Name "LPubV-Setup, Version ${FileVersion}"
+  Name "${ProductName}, Version ${Version}, Revision ${RevisionNumber}"
 
+  ; Changes the caption, default beeing 'Setup'
+  Caption "${ProductName}"
+  
+  ; Rebrand bottom textrow
+  BrandingText "${Company} Installer"
+  
   ;The file to write
-  OutFile "LPubV-${FileVersion}-Setup.exe"
+  OutFile "..\release\${ProductName}-${Version}-${RevisionNumber}.exe"
 
   ; Show install details
   ShowInstDetails show
@@ -26,10 +30,10 @@
   SetCompressor /SOLID lzma
   
   ;Default installation folder
-  InstallDir "$PROGRAMFILES\LPubV"
+  InstallDir "$PROGRAMFILES\${ProductName}"
   
   ;Get installation folder from registry if available
-  InstallDirRegKey HKCU "Software\LPub Software\LPubV" "InstallPath"
+  InstallDirRegKey HKCU "Software\${Company}\${ProductName}" "InstallPath"
 
   Icon "setup.ico"
 
@@ -42,16 +46,16 @@
   !define MUI_ABORTWARNING
 
  ;--------------------------------
- ;BUILDiables
+ ;Variables
 
-  BUILD StartMenuFolder
-  BUILD Dialog
-  BUILD /global LDrawDirPath
-  BUILD /global LeoCADLibFile
-  BUILD /global BrowseLDraw
-  BUILD /global BrowseLeoCAD
-  BUILD /global LDrawText
-  BUILD /global LeoCADText
+  var StartMenuFolder
+  var Dialog
+  var /global LDrawDirPath
+  var /global LeoCADLibFile
+  var /global BrowseLDraw
+  var /global BrowseLeoCAD
+  var /global LDrawText
+  var /global LeoCADText
   
 ;--------------------------------
 ;Pages
@@ -65,11 +69,18 @@
   
   ;Start Menu Folder Page Configuration
   !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU" 
-  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\LPub Software\LPubV\Settings" 
+  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\${Company}\${ProductName}\Settings" 
   !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "StartMenuFolder"
   !insertmacro MUI_PAGE_STARTMENU Application $StartMenuFolder
   
   !insertmacro MUI_PAGE_INSTFILES
+  
+  ;These indented statements modify settings for MUI_PAGE_FINISH
+    !define MUI_FINISHPAGE_NOAUTOCLOSE	
+	!define MUI_FINISHPAGE_SHOWREADME "${ProductName}"
+	!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
+	!define MUI_FINISHPAGE_SHOWREADME_TEXT "Install Desktop Icon"
+	!define MUI_FINISHPAGE_SHOWREADME_FUNCTION desktopIcon
   !insertmacro MUI_PAGE_FINISH
   
   ;Uninstall pages
@@ -86,13 +97,13 @@
 ;--------------------------------
 ;Installer Sections
 
-Section "LPubV (required)" SecLPubV
+Section "${ProductName} (required)" SecMain${ProductName}
 
   ;install directory
   SetOutPath "$INSTDIR"
   
   ;Executable and readme
-  File "..\release\LPubV.exe"
+  File "..\release\${ProductName}.exe"
   File "..\docs\ReadMe.txt"
   
   ;extras contents
@@ -111,17 +122,17 @@ Section "LPubV (required)" SecLPubV
   SetOutPath "$INSTDIR"
   
   ;Store installation folder
-  WriteRegStr HKCU "Software\LPub Software\LPubV" "InstallPath" $INSTDIR
+  WriteRegStr HKCU "Software\${Company}\${ProductName}" "InstallPath" $INSTDIR
   
   ;Create uninstaller
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\LPubV" "DisplayIcon" '"$INSTDIR\LPubV.exe"'  
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\LPubV" "DisplayName" "LPub V"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\LPubV" "DisplayVersion" ${FileVersion}
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\LPubV" "Publisher" "Trevor Sandy"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\LPubV" "UninstallString" '"$INSTDIR\Uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\LPubV" "EstimatedSize" 11000
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\LPubV" "NoModify" 1
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\LPubV" "NoRepair" 1
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "DisplayIcon" '"$INSTDIR\${ProductName}.exe"'  
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "DisplayName" "${ProductName}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "DisplayVersion" ${Version}
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "Publisher" "${Publisher}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "UninstallString" '"$INSTDIR\Uninstall.exe"'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "EstimatedSize" 11000
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "NoModify" 1
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "NoRepair" 1
   WriteUninstaller "$INSTDIR\Uninstall.exe"
 
   
@@ -129,7 +140,7 @@ Section "LPubV (required)" SecLPubV
   
     ;Create shortcuts
     CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
-	CreateShortCut "$SMPROGRAMS\$StartMenuFolder\LPubV.lnk" "$INSTDIR\LPubV.exe"
+	CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${ProductName}.lnk" "$INSTDIR\${ProductName}.exe"
     CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
 	
   !insertmacro MUI_STARTMENU_WRITE_END
@@ -207,7 +218,7 @@ ${IfNot} ${FileExists} "$LDrawDirPath\*.*"
     Abort
 ${Else}
     ; Update the registry wiht the LeoCad Library path.
-	WriteRegStr HKCU "Software\LPub Software\LPubV\Settings" "LDrawDir" $LDrawDirPath
+	WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "LDrawDir" $LDrawDirPath
 ${EndIf}
 
 ;Validate the LeoCAD Library path
@@ -216,9 +227,16 @@ ${IfNot} ${FileExists} $LeoCADLibFile
     Abort
 ${Else}
     ; Update the registry wiht the LeoCad Library path.
-    WriteRegStr HKCU "Software\LPub Software\LPubV\Settings" "PartsLibrary" $LeoCADLibFile
+    WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "PartsLibrary" $LeoCADLibFile
 ${EndIf}
 
+FunctionEnd
+
+Function desktopIcon
+
+    SetShellVarContext current
+    CreateShortCut "$DESKTOP\${ProductName}.lnk" "$INSTDIR\${ProductName}.exe"
+	
 FunctionEnd
 
 ;--------------------------------
@@ -228,7 +246,7 @@ Section "Uninstall"
 
 ; Remove files
   Delete "$INSTDIR\Uninstall.exe"
-  Delete "$INSTDIR\LPubV.exe"
+  Delete "$INSTDIR\${ProductName}.exe"
   Delete "$INSTDIR\readme.txt"
   Delete "$INSTDIR\docs\Credits.txt"
   Delete "$INSTDIR\docs\Copying.txt"
@@ -241,8 +259,10 @@ Section "Uninstall"
   !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
     
 ; Remove shortcuts
-  Delete "$SMPROGRAMS\$StartMenuFolder\LPubV.lnk"
+  Delete "$SMPROGRAMS\$StartMenuFolder\${ProductName}.lnk"
   Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk"
+  SetShellVarContext current
+  Delete "$DESKTOP\${ProductName}.lnk"
 
 ; Remove directories used
   RMDir "$SMPROGRAMS\$StartMenuFolder"
@@ -251,11 +271,11 @@ Section "Uninstall"
   RMDir "$INSTDIR"
   
 ; Remove registry keys
-  DeleteRegKey HKLM "Software\LPub Software\LPubV\Settings\LDrawDir"
-  DeleteRegKey HKLM "Software\LPub Software\LPubV\Settings\PartsLibrary"
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\LPubV"
-  DeleteRegKey /ifempty HKCU "Software\LPub Software\LPubV\Settings"
-  DeleteRegKey /ifempty HKCU "Software\LPub Software\LPubV"
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\LDrawDir"
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\PartsLibrary"
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}"
+  DeleteRegKey /ifempty HKCU "Software\${Company}\${ProductName}\Settings"
+  DeleteRegKey /ifempty HKCU "Software\${Company}\${ProductName}"
 
   IfFileExists "$INSTDIR" 0 NoErrorMsg
     MessageBox MB_OK "Note: $INSTDIR could not be removed!" IDOK 0 ; skipped if file doesn't exist

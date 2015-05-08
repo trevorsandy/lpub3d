@@ -407,9 +407,9 @@ void lcMainWindow::CreateMenus()
     ModelMenu->removeAction(mActions[LC_MODEL_NEW]);
     HelpMenu->removeAction(mActions[LC_HELP_HOMEPAGE]);
     HelpMenu->removeAction(mActions[LC_HELP_EMAIL]);
-#if !LC_DISABLE_UPDATE_CHECK
-    HelpMenu->removeAction(mActions[LC_HELP_UPDATES]);
-#endif
+//#if !LC_DISABLE_UPDATE_CHECK
+//    HelpMenu->removeAction(mActions[LC_HELP_UPDATES]);
+//#endif
     /*** management - end ***/
 
 }

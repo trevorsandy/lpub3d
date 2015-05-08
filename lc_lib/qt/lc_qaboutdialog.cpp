@@ -11,8 +11,8 @@ lcQAboutDialog::lcQAboutDialog(QWidget *parent, void *data) :
 {
 	ui->setupUi(this);
 
-    ui->version->setText(tr("LeoCAD Version %1 - Build %2").arg(QString::fromLatin1(LC_VERSION_TEXT))
-                                                           .arg(QString::fromLatin1(LC_VERSION_BUILD)));
+    ui->version->setText(tr("LeoCAD Version %1 - Rev %2").arg(QString::fromLatin1(LC_VERSION_TEXT))
+                                                         .arg(QString::fromLatin1(LC_VERSION_BUILD)));
 
 	gMainWindow->mPreviewWidget->MakeCurrent();
 

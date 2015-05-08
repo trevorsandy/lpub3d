@@ -11,23 +11,38 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
 	ui->setupUi(this);
 
     ui->version->setTextFormat(Qt::RichText);
-    ui->version->setText(tr("<b>%1</b> Version <b>%2</b> - Build %3").arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
-                                                                     .arg(QString::fromLatin1(VER_TEXT))
-                                                                     .arg(QString::number(VER_BUILD)));
+    ui->version->setText(tr("<b>%1</b> Version <b>%2</b> Rev %3 Build %4").arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
+                                                                          .arg(QString::fromLatin1(VER_TEXT))
+                                                                          .arg(QString::fromLatin1(VER_REVISION))
+                                                                          .arg(QString::fromLatin1(VER_BUILD)));
+    ui->description->setTextFormat(Qt::RichText);
+    ui->description->setText(tr("<p><b>%1</b> is a free application that can be used <br>"
+                                "to create digital build instructions for "
+                                "virtual LEGO(c) models.</p>").arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+    ui->url->setTextFormat(Qt::RichText);
+    ui->url->setText(tr("<a href=\"%1\">sourceforge.net/lpub3d</a>").arg(QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
 
     QString VersionFormat = tr("OpenGL Version %1<br>%2 - %3<br><br>");
-	QString Version = VersionFormat.arg(QString((const char*)glGetString(GL_VERSION)), QString((const char*)glGetString(GL_RENDERER)), QString((const char*)glGetString(GL_VENDOR)));
-    QString AboutFormat = tr("<b>LPubV</b> is a WYSIWYG tool for creating<br>"
+    QString Version = VersionFormat.arg(QString((const char*)glGetString(GL_VERSION)),
+                                        QString((const char*)glGetString(GL_RENDERER)),
+                                        QString((const char*)glGetString(GL_VENDOR)));
+    QString AboutFormat = tr("<b>%1</b> is a WYSIWYG tool for creating<br>"
                              "LEGO(c) style building instructions.<br>"
-                             "LPubV is a significant update and refresh of LPub.<br>"
-                             "Original LPub source code and application can be found on<br>"
-                             "www.sourceforge.net/projects/lpub4/files.<br>"
-                             "Copyright 2000-2011 Kevin Clague<br>"
+                             "%1 is a significant update and refresh of LPub.<br>"
+                             "%1 source code and application can be found on<br>"
+                             "%2/files.<br>"
+                             "Copyright (c) 2000-2011 Kevin Clague<br>"
+                             "%3<br>"
+                             "%4<br>"
                              "kevin.clague@gmail.com<br>"
                              "2014 - Daniele Benedettelli<br>"
-                             "2015 - Trevor SANDY "
-                             "<A HREF=\"%1\">trevor.sandy@gmail.com</A>");
-    QString About = AboutFormat.arg(QString::fromLatin1(VER_PUBLISHER_EMAIL));
+                             "2015 - %4 <a href=\"%5\">%6</a>");
+    QString About = AboutFormat.arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
+                               .arg(QString::fromLatin1(VER_UPDATE_URL))
+                               .arg(QString::fromLatin1(VER_LEGALCOPYRIGHT_STR))
+                               .arg(QString::fromLatin1(VER_PUBLISHER_STR))
+                               .arg(QString::fromLatin1(VER_PUBLISHER_SUPPORT_EMAIL))
+                               .arg(QString::fromLatin1(VER_PUBLISHER_EMAIL));
 
     ui->info->setTextFormat(Qt::RichText);
     ui->info->setOpenExternalLinks(true);

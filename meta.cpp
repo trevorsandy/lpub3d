@@ -238,7 +238,7 @@ Rc IntMeta::parse(QStringList &argv, int index,Where &here)
 
   if (reportErrors) {
     QMessageBox::warning(NULL,
-      QMessageBox::tr("LPubV"),
+      QMessageBox::tr("LPub3D"),
       QMessageBox::tr("Expected a whole number but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
   }
 
@@ -284,7 +284,7 @@ Rc FloatMeta::parse(QStringList &argv, int index,Where &here)
   }
   if (reportErrors) {
     QMessageBox::warning(NULL,
-      QMessageBox::tr("LPubV"),
+      QMessageBox::tr("LPub3D"),
       QMessageBox::tr("Expected a floating point number but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
   }
 
@@ -364,7 +364,7 @@ Rc FloatPairMeta::parse(QStringList &argv, int index,Where &here)
 
   if (reportErrors) {
     QMessageBox::warning(NULL,
-      QMessageBox::tr("LPubV"),
+      QMessageBox::tr("LPub3D"),
       QMessageBox::tr("Expected two floating point numbers but got \"%1\" \"%2\" %3") .arg(argv[index]) .arg(argv[index+1]) .arg(argv.join(" ")));
   }
 
@@ -403,7 +403,7 @@ Rc StringMeta::parse(QStringList &argv, int index,Where &here)
 
   if (reportErrors) {
     QMessageBox::warning(NULL,
-      QMessageBox::tr("LPubV"),
+      QMessageBox::tr("LPub3D"),
       QMessageBox::tr("Expected a string after \"%1\"") .arg(argv.join(" ")));
   }
 
@@ -470,7 +470,7 @@ Rc BoolMeta::parse(QStringList &argv, int index,Where &here)
   
   if (reportErrors) {
     QMessageBox::warning(NULL,
-      QMessageBox::tr("LPubV"),
+      QMessageBox::tr("LPub3D"),
       QMessageBox::tr("Expected TRUE or FALSE \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
   }
 
@@ -818,7 +818,7 @@ Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
       
     if (reportErrors) {
       QMessageBox::warning(NULL,
-        QMessageBox::tr("LPubV"),
+        QMessageBox::tr("LPub3D"),
         QMessageBox::tr("Malformed background \"%1\"") .arg(argv.join(" ")));
     }
 
@@ -1058,7 +1058,7 @@ Rc PointerMeta::parse(QStringList &argv, int index,Where &here)
 
     if (reportErrors) {
       QMessageBox::warning(NULL,
-        QMessageBox::tr("LPubV"),
+        QMessageBox::tr("LPub3D"),
         QMessageBox::tr("Malformed callout arrow \"%1\"") .arg(argv.join(" ")));
     }
     return FailureRc;
@@ -1222,7 +1222,7 @@ Rc AllocMeta::parse(QStringList &argv, int index, Where &here)
   }
   if (reportErrors) {
     QMessageBox::warning(NULL,
-      QMessageBox::tr("LPubV"),
+      QMessageBox::tr("LPub3D"),
       QMessageBox::tr("Expected HORIZONTAL or VERTICAL got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
   }
   return FailureRc;
@@ -1269,7 +1269,7 @@ Rc SepMeta::parse(QStringList &argv, int index,Where &here)
   }
   if (reportErrors) {
     QMessageBox::warning(NULL,
-      QMessageBox::tr("LPubV"),
+      QMessageBox::tr("LPub3D"),
       QMessageBox::tr("Malformed separator \"%1\"") .arg(argv.join(" ")));
   }
   return FailureRc;
@@ -1381,7 +1381,7 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
   } else {
     if (reportErrors) {
       QMessageBox::warning(NULL,
-        QMessageBox::tr("LPubV"),
+        QMessageBox::tr("LPub3D"),
         QMessageBox::tr("Malformed Insert metacommand \"%1\"") .arg(argv.join(" ")));
     }
     return FailureRc;
@@ -1767,7 +1767,7 @@ Rc RotStepMeta::parse(QStringList &argv, int index,Where &here)
   }
   if (reportErrors) {
     QMessageBox::warning(NULL,
-      QMessageBox::tr("LPubV"),
+      QMessageBox::tr("LPub3D"),
       QMessageBox::tr("Malformed rotation step \"%1\"") .arg(argv.join(" ")));
   }
   return FailureRc;
@@ -1804,7 +1804,7 @@ Rc BuffExchgMeta::parse(QStringList &argv, int index,Where &here)
   }
   if (reportErrors) {
     QMessageBox::warning(NULL,
-      QMessageBox::tr("LPubV"),
+      QMessageBox::tr("LPub3D"),
       QMessageBox::tr("Malformed buffer exchange \"%1\"") .arg(argv.join(" ")));
   }
   return FailureRc;
@@ -2235,7 +2235,7 @@ Rc NoStepMeta::parse(QStringList &argv, int index,Where & /* here */ )
 
     if (reportErrors) {
       QMessageBox::warning(NULL,
-        QMessageBox::tr("LPubV"),
+        QMessageBox::tr("LPub3D"),
         QMessageBox::tr("Unexpected token \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
     }
 
@@ -2412,7 +2412,7 @@ Rc Meta::parse(
 
     if (rc == FailureRc) {
       if (reportErrors) {
-        QMessageBox::warning(NULL,QMessageBox::tr("LPubV"),
+        QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
                                 QMessageBox::tr("Parse failed %1:%2\n%3")
                                 .arg(here.modelName) .arg(here.lineNumber) .arg(line));
       }

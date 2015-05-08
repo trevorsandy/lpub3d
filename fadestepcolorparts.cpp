@@ -15,7 +15,7 @@ FadeStepColorParts::FadeStepColorParts()
         QString colorPartsFile = Preferences::fadeStepColorPartsFile;
         QFile file(colorPartsFile);
         if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-            QMessageBox::warning(NULL,QMessageBox::tr("LPubV"),
+            QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
                                  QMessageBox::tr("failed to open fadeStepColorParts.lst file: %1:\n%2")
                                  .arg(colorPartsFile)
                                  .arg(file.errorString()));

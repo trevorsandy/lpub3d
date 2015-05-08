@@ -2,9 +2,6 @@
 #include "ui_updatedialog.h"
 #include "version.h"
 
-//#include "lc_application.h"
-
-
 void DoInitialUpdateCheck()
 {
 

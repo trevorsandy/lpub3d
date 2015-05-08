@@ -53,7 +53,6 @@
 #include "dividerdialog.h"
 #include "paths.h"
 #include "render.h"
-#include "version.h"
 
 #include "csiitem.h"
 

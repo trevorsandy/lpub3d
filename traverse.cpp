@@ -968,7 +968,7 @@ int Gui::drawPage(
         case RangeErrorRc:
           showLine(current);
           QMessageBox::critical(NULL,
-                               QMessageBox::tr("LPubV"),
+                               QMessageBox::tr("LPub3D"),
                                QMessageBox::tr("Parameter(s) out of range: %1:%2\n%3")
                                .arg(current.modelName) 
                                .arg(current.lineNumber) 
@@ -981,7 +981,7 @@ int Gui::drawPage(
     } else if (line != "") {
       showLine(current);
       QMessageBox::critical(NULL,
-                            QMessageBox::tr("LPubV"),
+                            QMessageBox::tr("LPub3D"),
                             QMessageBox::tr("Invalid LDraw Line Type: %1:%2\n  %3")
                             .arg(current.modelName) 
                             .arg(current.lineNumber) 
@@ -1793,7 +1793,7 @@ void Gui::writeToTmp(
   QString fname = QDir::currentPath() + "/" + Paths::tmpDir + "/" + fileName;
   QFile file(fname);
   if ( ! file.open(QFile::WriteOnly|QFile::Text)) {
-    QMessageBox::warning(NULL,QMessageBox::tr("LPubV"),
+    QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
     QMessageBox::tr("Failed to open %1 for writing: %2")
       .arg(fname) .arg(file.errorString()));
   } else {
@@ -2058,7 +2058,7 @@ void Gui::createFadePart(QString &type) {
             }
          } else {
              fileErrorString = fileErrorString + "\n" + ufile.errorString();
-             QMessageBox::warning(NULL,QMessageBox::tr("LPubV"),
+             QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
                                   QMessageBox::tr("failed to open colorPart file at:\n%1 or\n:%2:\n%3")
                                   .arg(officialPartFile)
                                   .arg(unofficialPartFile)
@@ -2104,7 +2104,7 @@ void Gui::writeToFade(
 
     QFile file(fileName);
     if ( ! file.open(QFile::WriteOnly|QFile::Text)) {
-      QMessageBox::warning(NULL,QMessageBox::tr("LPubV"),
+      QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
       QMessageBox::tr("Failed to open %1 for writing: %2")
         .arg(fileName) .arg(file.errorString()));
     } else {

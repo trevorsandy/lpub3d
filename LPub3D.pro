@@ -64,7 +64,7 @@ QMAKE_EXTRA_COMPILERS += lrelease
 unix:!macx {
         TARGET = lpubv
 } else {
-        TARGET = LPubV
+        TARGET = LPub3D
 }
 
 CONFIG(debug, debug|release) {

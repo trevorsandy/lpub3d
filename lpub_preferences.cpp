@@ -73,7 +73,7 @@ void Preferences::lpubPreferences()
   if (cwd.dirName() == "MacOS") {
       cwd.cdUp(); //MacOS
       cwd.cdUp(); //Contents
-      cwd.cdUp(); //LPubV.app
+      cwd.cdUp(); //LPub3D.app
   }
       lpubPath = cwd.absolutePath();
 }
@@ -320,7 +320,7 @@ void Preferences::pliPreferences()
     Settings.remove(QString("%1/%2").arg(SETTINGS,"PliControl"));
   }
 
-  //QMessageBox::warning(NULL,"LPubV",lpubPath,QMessageBox::Cancel);
+  //QMessageBox::warning(NULL,"LPub3D",lpubPath,QMessageBox::Cancel);
   
 #ifdef __APPLE__
 

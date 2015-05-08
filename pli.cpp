@@ -50,7 +50,6 @@
 #include "lpub_preferences.h"
 #include "ranges_element.h"
 #include "range_element.h"
-#include "version.h"
 
 QCache<QString,QString> Pli::orientation;
     
@@ -846,7 +845,7 @@ int Pli::sortPli()
       }
 
       if (createPartImage(key,part->type,part->color,pixmap)) {
-        QMessageBox::warning(NULL,QMessageBox::tr("LPubV"),
+        QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
         QMessageBox::tr("Failed to load %1")
         .arg(imageName));
         return -1;

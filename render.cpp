@@ -325,7 +325,7 @@ int L3P::renderCsi(
 			QString str;
 			str.append(status);
 			QMessageBox::warning(NULL,
-                                 QMessageBox::tr("LPubV"),
+                                 QMessageBox::tr("LPub3D"),
 								 QMessageBox::tr("L3P failed with code %1\n%2").arg(l3p.exitCode()) .arg(str));
 			return -1;
 		}
@@ -373,7 +373,7 @@ int L3P::renderCsi(
 			QString str;
 			str.append(status);
 			QMessageBox::warning(NULL,
-                                 QMessageBox::tr("LPubV"),
+                                 QMessageBox::tr("LPub3D"),
 								 QMessageBox::tr("POV-RAY failed with code %1\n%2").arg(povray.exitCode()) .arg(str));
 			return -1;
 		}
@@ -448,7 +448,7 @@ int L3P::renderPli(const QString &ldrName,
 			QString str;
 			str.append(status);
 			QMessageBox::warning(NULL,
-                                 QMessageBox::tr("LPubV"),
+                                 QMessageBox::tr("LPub3D"),
 								 QMessageBox::tr("L3P failed\n%1") .arg(str));
 			return -1;
 		}
@@ -496,7 +496,7 @@ int L3P::renderPli(const QString &ldrName,
 			QString str;
 			str.append(status);
 			QMessageBox::warning(NULL,
-                                 QMessageBox::tr("LPubV"),
+                                 QMessageBox::tr("LPub3D"),
 								 QMessageBox::tr("POV-RAY failed\n%1") .arg(str));
 			return -1;
 		}
@@ -595,7 +595,7 @@ int LDGLite::renderCsi(
       QString str;
       str.append(status);
       QMessageBox::warning(NULL,
-                           QMessageBox::tr("LPubV"),
+                           QMessageBox::tr("LPub3D"),
                            QMessageBox::tr("LDGlite failed\n%1") .arg(str));
       return -1;
     }
@@ -666,7 +666,7 @@ int LDGLite::renderPli(
       QString str;
       str.append(status);
       QMessageBox::warning(NULL,
-                           QMessageBox::tr("LPubV"),
+                           QMessageBox::tr("LPub3D"),
                            QMessageBox::tr("LDGlite failed\n%1") .arg(str));
       return -1;
     }
@@ -775,7 +775,7 @@ int LDView::renderCsi(
       QString str;
       str.append(status);
       QMessageBox::warning(NULL,
-                           QMessageBox::tr("LPubV"),
+                           QMessageBox::tr("LPub3D"),
                            QMessageBox::tr("LDView failed\n%1") .arg(str));
       return -1;
     }
@@ -848,7 +848,7 @@ int LDView::renderPli(
       QString str;
       str.append(status);
       QMessageBox::warning(NULL,
-                           QMessageBox::tr("LPubV"),
+                           QMessageBox::tr("LPub3D"),
                            QMessageBox::tr("LDView failed\n%1") .arg(str));
       return -1;
     }
@@ -930,7 +930,7 @@ int Render::render3DCsi(
                 QFile csi3DFile(csi3DName);
                 if ( ! csi3DFile.open(QFile::Append | QFile::Text)) {
                     QMessageBox::warning(NULL,
-                                         QMessageBox::tr("LPubV"),
+                                         QMessageBox::tr("LPub3D"),
                                          QMessageBox::tr("Cannot open subModel file %1 for writing:\n%2")
                                          .arg(csi3DName)
                                          .arg(csi3DFile.errorString()));

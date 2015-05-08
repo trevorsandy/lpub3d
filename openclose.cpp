@@ -24,7 +24,6 @@
 #include "lpub_preferences.h"
 #include "editwindow.h"
 #include "paths.h"
-#include "version.h"
 
 void Gui::open()
 {  
@@ -125,7 +124,7 @@ void Gui::saveAs()
     openFile(fileName);
     displayPage();
   } else {
-    QMessageBox::warning(NULL,QMessageBox::tr("LPubV"),
+    QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
                               QMessageBox::tr("Invalid LDraw suffix %1.  File not saved.")
                                 .arg(suffix));
 

@@ -43,7 +43,7 @@ PartsList::PartsList()
     QString partsname = Preferences::ldrawPath+"/parts.lst";
     QFile file(partsname);
     if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-      QMessageBox::warning(NULL,QMessageBox::tr("LPubV"),
+      QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
                                 QMessageBox::tr("failed to open %1:\n%2")
                                 .arg(partsname)
                                 .arg(file.errorString()));

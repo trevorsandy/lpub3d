@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>About LPubV</string>
+   <string>About LPub3D</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -39,14 +39,14 @@
          <item>
           <widget class="QLabel" name="version">
            <property name="text">
-            <string>LPubV Version 0.00</string>
+            <string>LPub3D Version 0.00</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QLabel" name="description">
            <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;LPubV&lt;/span&gt; is a free application that can be used to create digital build instructions for virtual LEGO models.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Description 00</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -56,7 +56,7 @@
          <item>
           <widget class="QLabel" name="url">
            <property name="text">
-            <string>&lt;a href=&quot;trevorsandy.net/lpubv&quot;&gt;trevorsandy.net/lpubv&lt;/a&gt;</string>
+            <string>URL</string>
            </property>
            <property name="openExternalLinks">
             <bool>true</bool>

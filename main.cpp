@@ -16,7 +16,6 @@
 
 #include <QApplication>
 
-#include "version.h"
 #include "lpub_preferences.h"
 #include "lpub.h"
 #include "resolution.h"
@@ -83,11 +82,11 @@ static LONG WINAPI lcSehHandler(PEXCEPTION_POINTERS exceptionPointers)
     if (writeDump)
     {
         TCHAR message[_MAX_PATH + 256];
-        lstrcpy(message, TEXT("LPubV just crashed. Crash information was saved to the file: \n'"));
+        lstrcpy(message, TEXT("LPub3D just crashed. Crash information was saved to the file: \n'"));
         lstrcat(message, minidumpPath);
         lstrcat(message, TEXT("'\n Please send it to the developers for debugging."));
 
-        MessageBox(NULL, message, TEXT("LPubV"), MB_OK);
+        MessageBox(NULL, message, TEXT("LPub3D"), MB_OK);
     }
 
     return EXCEPTION_EXECUTE_HANDLER;
@@ -97,7 +96,7 @@ static void lcSehInit()
 {
     if (SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA | CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, minidumpPath) == S_OK)
     {
-        lstrcat(minidumpPath, TEXT("\\LPub Software\\LPubV\\dump\\"));
+        lstrcat(minidumpPath, TEXT("\\LPub Software\\LPub3D\\dump\\"));
         _tmkdir(minidumpPath);
         lstrcat(minidumpPath, TEXT("minidump.dmp"));
     }
@@ -150,7 +149,7 @@ int main(int argc, char *argv[])
     QByteArray pathArray = bundlePath.absolutePath().toLocal8Bit();
     const char* libPath = pathArray.data();
 #else
-    const char* libPath = LC_INSTALL_PREFIX "/share/lpubv/";
+    const char* libPath = LC_INSTALL_PREFIX "/share/lpub3d/";
 #endif
 
 #ifdef LC_LDRAW_LIBRARY_PATH
@@ -159,7 +158,7 @@ int main(int argc, char *argv[])
     const char* LDrawPath = NULL;
 #endif
 
-//    QMessageBox::information(NULL,QMessageBox::tr("LPubV"),QMessageBox::tr("Startup"));
+//    QMessageBox::information(NULL,QMessageBox::tr("LPub3D"),QMessageBox::tr("Startup"));
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
@@ -174,13 +173,13 @@ int main(int argc, char *argv[])
     if (!g_App->Initialize(argc, argv, libPath, LDrawPath, cachePath.toLocal8Bit().data()))
         return 1;
 
-    Gui     LPubVApp;
+    Gui     LPub3DApp;
 
     gMainWindow->SetColorIndex(lcGetColorIndex(4));
     gMainWindow->UpdateRecentFiles();
 
-    LPubVApp.show();
-    LPubVApp.sizeit();
+    LPub3DApp.show();
+    LPub3DApp.sizeit();
 
 #if !DISABLE_UPDATE_CHECK
     DoInitialUpdateCheck();

@@ -1,6 +1,7 @@
 * text=auto !eol
 /LPub.icns -text
 /LPub.ico -text
+/LPub3D.pro -text
 /aboutdialog.cpp -text
 /aboutdialog.h -text
 /aboutdialog.ui -text
@@ -308,7 +309,6 @@ lc_lib/tools/utils/zpipe.c -text
 /lpub.res -text
 /lpub_preferences.cpp -text
 /lpub_preferences.h -text
-/lpubv.pro -text
 /main.cpp -text
 /meta.cpp -text
 /meta.h -text
@@ -374,9 +374,9 @@ lc_lib/tools/utils/zpipe.c -text
 /step.h -text
 /textitem.cpp -text
 /textitem.h -text
-tools/Win-setup/LPubV.evb -text
-tools/Win-setup/LPubV.nsi -text
-tools/Win-setup/PackLPubV.bat -text
+tools/Win-setup/01[!!-~]PackLPub3D.bat -text
+tools/Win-setup/02[!!-~]LPub3D.nsi -text
+tools/Win-setup/LPub3D.evb -text
 tools/Win-setup/build_inc.bat -text
 tools/Win-setup/setup.ico -text
 tools/docs/COPYING.txt -text
