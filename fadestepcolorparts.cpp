@@ -22,7 +22,7 @@ FadeStepColorParts::FadeStepColorParts()
             return;
         }
         QTextStream in(&file);
-        QRegExp rx("^\\b([\\d\\w\\-\\_\\\\\.]+)\\b\\s*~*\\b(.*)\\b\\s*$");
+        QRegExp rx("^\\b([\\d\\w\\-\\_\\\\.]+)\\b\\s*~*\\b(.*)\\b\\s*$");
                 while ( ! in.atEnd()) {
             QString sLine = in.readLine(0);
             if (sLine.contains(rx)) {

@@ -2493,7 +2493,7 @@ void View::OnMouseMove()
 		{
 			lcVector3 ScreenX = lcNormalize(lcCross(mCamera->mTargetPosition - mCamera->mPosition, mCamera->mUpVector));
 			lcVector3 ScreenY = mCamera->mUpVector;
-			lcVector3 Dir1;
+            lcVector3 Dir1 = lcVector3(0, 0, 0);
 
 			switch (mTrackTool)
 			{
