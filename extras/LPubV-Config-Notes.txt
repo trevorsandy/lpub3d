@@ -21,12 +21,15 @@ FILES TO MODIFY FOR RUN:
 FILES TO PRESERVE DEV CONTENT:
 -MAN:01. common\lc_commands.h/cpp 		(ROTSTEP)
 -MAN:02. common\lc_global.h			
+-MAN:03  common\lc_glwidget.h			(ROTSTEP)
 -MAN:03. common\lc_mainwindow.h/cpp		(ROTSTEP)
+-MAN:04. common\lc_math.h/cpp			(ROTSTEP)
 -MAN:04. common\lc_model.h/cpp			(ROTSTEP)
 -MAN:05. common\lc_profile.cpp
 -MAN:06. common\view.h/cpp				(ROTSTEP)
 -MAN:01. qt\lc_qaboutdialog.cpp
 -MAN:03. qt\lc_qpreferencedialog.cpp
+
 -MAN:04. qt\lc_qglwidget				(ROTSTEP)
 
 DEV INSTANCE UPDATES
@@ -328,7 +331,7 @@ SPECIFIC FILE UPDATES:
 		//    Rotation *= LC_RTOD;
 		//    Rotation *= LC_DTOR;
 		
-	-View::OnMouseMove(line 2579)
+	-View::OnMouseMove(line 2579) THIS HAS CHANGED!!!!
 		/*	** start rotstep update **
 			case LC_TRACKTOOL_ORBIT_X:
 				mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.0f);

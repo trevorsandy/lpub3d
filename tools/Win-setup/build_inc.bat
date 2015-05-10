@@ -1,5 +1,5 @@
 @ECHO on
-Title Get SVN build number from head
+Title Configure Application Version Perimeters for NSIS Deployment
 SETLOCAL
 @break off
 @color 0a

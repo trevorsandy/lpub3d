@@ -1,6 +1,7 @@
 #include "lc_global.h"
 #include "lc_qglwidget.h"
 #include "lc_glwidget.h"
+#include "lc_glextensions.h"
 #include "project.h"
 #include "lc_library.h"
 #include "lc_application.h"
@@ -27,12 +28,6 @@ void lcGLWidget::Redraw()
 	Widget->mUpdateTimer.start(0);
 }
 
-void* lcGLWidget::GetExtensionAddress(const char* FunctionName)
-{
-	QGLWidget* Widget = (QGLWidget*)mWidget;
-
-	return (void*)Widget->context()->getProcAddress(FunctionName);
-}
 
 void lcGLWidget::ShowPopupMenu()
 {
@@ -155,19 +150,19 @@ lcQGLWidget::lcQGLWidget(QWidget *parent, lcQGLWidget *share, lcGLWidget *owner,
 	connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(updateGL()));
 
 	widget->MakeCurrent();
-	GL_InitializeSharedExtensions(widget);
-	widget->OnInitialUpdate();
 
 	// TODO: Find a better place for the grid texture and font
 	gTexFont.Load();
 	if (!gWidgetCount)
 	{
+		lcInitializeGLExtensions(context());
 		View::CreateResources(widget->mContext);
 
 		gPlaceholderMesh = new lcMesh;
 		gPlaceholderMesh->CreateBox();
 	}
 	gWidgetCount++;
+	widget->OnInitialUpdate();
 
 	preferredSize = QSize(0, 0);
 	setMouseTracking(true);

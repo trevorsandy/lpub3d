@@ -58,7 +58,6 @@ public:
 			delete mContext;
 	}
 
-	void* GetExtensionAddress(const char* FunctionName);
 	void ShowPopupMenu();
 
 	void SetContext(lcContext* Context)

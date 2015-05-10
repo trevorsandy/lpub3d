@@ -5,7 +5,6 @@
 #include "lc_library.h"
 #include "lc_profile.h"
 #include "system.h"
-#include "opengl.h"
 #include "project.h"
 #include "image.h"
 #include "lc_mainwindow.h"
@@ -74,8 +73,6 @@ void lcApplication::SetProject(Project* Project)
 
 	Project->SetActiveModel(0);
 	lcGetPiecesLibrary()->RemoveTemporaryPieces();
-    //lcGetActiveModel()->UpdateInterface();
-    //gMainWindow->UpdateAllViews();
 }
 
 void lcApplication::SetClipboard(const QByteArray& Clipboard)

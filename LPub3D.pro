@@ -137,7 +137,6 @@ HEADERS += \
     lc_lib/common/preview.h \
     lc_lib/common/pieceinf.h \
     lc_lib/common/piece.h \
-    lc_lib/common/opengl.h \
     lc_lib/common/object.h \
     lc_lib/common/minifig.h \
     lc_lib/common/light.h \
@@ -149,6 +148,8 @@ HEADERS += \
     lc_lib/common/lc_commands.h \
     lc_lib/common/lc_context.h \
     lc_lib/common/lc_file.h \
+    lc_lib/common/lc_glext.h \
+    lc_lib/common/lc_glextensions.h \
     lc_lib/common/lc_global.h \
     lc_lib/common/lc_glwidget.h \
     lc_lib/common/lc_library.h \
@@ -249,7 +250,6 @@ SOURCES += \
     lc_lib/common/preview.cpp \
     lc_lib/common/pieceinf.cpp \
     lc_lib/common/piece.cpp \
-    lc_lib/common/opengl.cpp \
     lc_lib/common/object.cpp \
     lc_lib/common/minifig.cpp \
     lc_lib/common/light.cpp \
@@ -259,6 +259,7 @@ SOURCES += \
     lc_lib/common/lc_commands.cpp \
     lc_lib/common/lc_context.cpp \
     lc_lib/common/lc_file.cpp \
+    lc_lib/common/lc_glextensions.cpp \
     lc_lib/common/lc_library.cpp \
     lc_lib/common/lc_mainwindow.cpp \
     lc_lib/common/lc_mesh.cpp \

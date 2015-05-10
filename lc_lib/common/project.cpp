@@ -2,7 +2,6 @@
 #include "lc_math.h"
 #include "lc_mesh.h"
 #include <locale.h>
-#include "opengl.h"
 #include "pieceinf.h"
 #include "lc_texture.h"
 #include "piece.h"
@@ -140,7 +139,7 @@ void Project::CreateNewModel()
 
 void Project::ShowModelListDialog()
 {
-    QList<QPair<QString, lcModel*> > Models;
+	QList<QPair<QString, lcModel*>> Models;
 	Models.reserve(mModels.GetSize());
 
 	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
@@ -156,7 +155,7 @@ void Project::ShowModelListDialog()
 
 	lcArray<lcModel*> NewModels;
 
-    for (QList<QPair<QString, lcModel*> >::iterator it = Models.begin(); it != Models.end(); it++)
+	for (QList<QPair<QString, lcModel*>>::iterator it = Models.begin(); it != Models.end(); it++)
 	{
 		lcModel* Model = it->second;
 
