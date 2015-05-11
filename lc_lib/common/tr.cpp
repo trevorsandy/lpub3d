@@ -4,7 +4,7 @@
 
 #include "lc_global.h"
 #include <math.h>
-#include "opengl.h"
+//#include "opengl.h"
 #include "tr.h"
 
 //////////////////////////////////////////////////////////////////////

@@ -1093,3 +1093,5 @@ void Gui::writeSettings()
     Settings.setValue("size", size());
     Settings.endGroup();
 }
+
+

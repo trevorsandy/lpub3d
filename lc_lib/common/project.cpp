@@ -139,7 +139,7 @@ void Project::CreateNewModel()
 
 void Project::ShowModelListDialog()
 {
-	QList<QPair<QString, lcModel*>> Models;
+    QList<QPair<QString, lcModel*> > Models;
 	Models.reserve(mModels.GetSize());
 
 	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
@@ -155,7 +155,7 @@ void Project::ShowModelListDialog()
 
 	lcArray<lcModel*> NewModels;
 
-	for (QList<QPair<QString, lcModel*>>::iterator it = Models.begin(); it != Models.end(); it++)
+    for (QList<QPair<QString, lcModel*> >::iterator it = Models.begin(); it != Models.end(); it++)
 	{
 		lcModel* Model = it->second;
 

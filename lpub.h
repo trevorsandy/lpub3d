@@ -358,6 +358,9 @@
 
 //** 3D
 #include "lc_math.h"
+
+#include "lc_zipfile.h"
+#include "lc_file.h"
 //**
 
 class QString;
@@ -679,7 +682,7 @@ private:
     QString     &addLine,
     QStringList &csiParts);
 
-  void writeToTmp(const QString &fileName, const QStringList &);
+  void writeToTmp(const QString &fileName, const QStringList &, bool doFadeStep);
   void writeToTmp();
 
   void writeToFade(               // copy to fade dir
@@ -801,6 +804,8 @@ private:
   QDockWidget       *fileEditDockWindow; 
 //** 3D
   QDockWidget       *modelDockWindow;
+
+  bool buildTestZip();
 //**
 
   QMenu    *fileMenu;
