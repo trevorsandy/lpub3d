@@ -359,9 +359,18 @@
 //** 3D
 #include "lc_math.h"
 
-#include "lc_zipfile.h"
-#include "lc_file.h"
+#include <QFile>
+#include "lc_library.h"
+//#include "lc_zipfile.h"
+//#include "lc_file.h"
+
+#include "quazip.h"
+#include "quazipfile.h"
+#include "JlCompress.h"
 //**
+
+
+
 
 class QString;
 class QSplitter;
@@ -419,7 +428,18 @@ public:
   /**Fade Step variables**/
   FadeStepMeta    *fadeMeta;             // propagate fade color and fade bool
 
-  
+  /* ZIP TEST */
+  void zipTest();
+  void CompressDir(QString ZipFile, QString Directory);
+  void DecompressDir(QString ZipFile, QString Directory);
+  void CompressFiles(QString ZipFile, QStringList Files);
+  void DecompressFiles(QString ZipFile, QStringList Files, QString Directory);
+  void ListContents(QString ZipFile);
+
+  static bool Archive(const QString &filePath, const QDir &dir, const QString &comment);
+  static bool Extract(const QString &filePath, const QString &extDirPath, const QString &singleFileName);
+  static void RecurseAddDir(const QDir &dir, QStringList &list);
+
   FitMode         fitMode;              // how to fit the scene into the view
 
   Where &topOfPage();

@@ -540,6 +540,7 @@ Gui::Gui()
 
     Preferences::getRequireds();
     Render::setRenderer(Preferences::preferredRenderer);
+
 }
 
 Gui::~Gui()
@@ -576,8 +577,11 @@ bool Gui::aboutDialog()
 
 bool Gui::updateDialog()
 {
-    UpdateDialog Dialog(this, NULL);
-    return Dialog.exec() == QDialog::Accepted;
+
+    zipTest();
+    QMessageBox::information(this, tr("LPub3D"), tr("Launched ZipTest ! - see application output window."));
+    //UpdateDialog Dialog(this, NULL);
+    //return Dialog.exec() == QDialog::Accepted;
 }
 
 // Begin Jaco's code
@@ -1094,4 +1098,301 @@ void Gui::writeSettings()
     Settings.endGroup();
 }
 
+/******TEST********TESTG***********/
+//void Gui::zipTest()
+//{
+    /*** test zip file content ** */
+//    QString ZipFile1 = "PE.zip";
+//    QString ZipFile2 = "CompressedDir.zip";
+//    QString ZipFile3 = "Single.zip";
+//    QString OriginalDir1 = "testZipDir/";
+//    QString NewDir1 = "NewDir1";
+//    QString NewDir2 = "NewDir2";
+//    QString SingleFile = OriginalDir1 + "4.dat";
 
+//    QString ZipFile4 = "ldrawunf.zip";
+//    QString OriginalDir2 = "fade/";
+
+//    //Archive files
+//    Archive(ZipFile4, OriginalDir2,"AddFadeParts");
+
+//    //Compress a directory
+//    CompressDir(ZipFile2, OriginalDir1);
+
+//    //List the contents of a zip file
+//    ListContents(ZipFile1);
+
+//    //Compress a single File
+//    CompressFiles(ZipFile3, QStringList() << SingleFile);
+
+//    //Decompress an archive to a directory
+//    DecompressDir(ZipFile1, NewDir1);
+
+//    //Decompress a single file
+//    DecompressFiles(ZipFile1, QStringList() << "procexp.exe", NewDir2);
+// }
+
+void Gui::CompressDir(QString ZipFile, QString Directory)
+{
+    if (JlCompress::compressDir(ZipFile, Directory))
+    {
+        qDebug() << "Created: " << ZipFile;
+    }
+}
+
+void Gui::CompressFiles(QString ZipFile, QStringList Files)
+{
+    if(JlCompress::compressFiles(ZipFile, Files))
+    {
+        qDebug() << "Created: " << ZipFile;
+    }
+    else
+    {
+        qDebug() << "Could Not Create Zip File: " << ZipFile;
+    }
+}
+
+void Gui::ListContents(QString ZipFile)
+{
+    QFile File(ZipFile);
+    if (!File.exists())
+    {
+        qDebug() << "Zip file not found!";
+        return;
+    }
+
+    QStringList list = JlCompress::getFileList(ZipFile);
+
+    foreach (QString item, list)
+    {
+        qDebug() << item;
+    }
+}
+
+void Gui::DecompressDir(QString ZipFile, QString Directory)
+{
+    QStringList list = JlCompress::extractDir(ZipFile, Directory);
+
+    foreach(QString item, list)
+    {
+       qDebug() << item;
+    }
+}
+
+void Gui::DecompressFiles(QString ZipFile, QStringList Files, QString Directory)
+{
+    QStringList list = JlCompress::extractFiles(ZipFile, Files, Directory);
+
+    foreach(QString item, list)
+    {
+        qDebug() << "Extracted: " << item;
+    }
+}
+
+void Gui::zipTest(){
+    QString ZipFile4 = "ldrawunf.zip";
+    QString OriginalDir2 = "fade/";
+
+    Archive(ZipFile4, OriginalDir2,"AddFadeParts");
+}
+
+bool Gui::Archive(const QString &filePath, const QDir &dir, const QString &comment = QString("")) {
+
+    QuaZip zip(filePath);
+    zip.setFileNameCodec("IBM866");
+
+    if (!zip.open(QuaZip::mdAdd)) {
+        qDebug() <<  QString("testCreate(): zip.open(): %1").arg(zip.getZipError());
+        return false;
+    }
+
+    if (!dir.exists()) {
+        qDebug() << QString("dir.exists(%1)=FALSE").arg(dir.absolutePath());
+        return false;
+    }
+
+    QFile inFile;
+
+    // We get the list of directory files and folders recursively
+    QStringList list;
+    RecurseAddDir(dir, list);
+
+    qDebug() << "--Input Directory File List: ";
+    foreach (QString item, list)
+    {
+        qDebug() << item;
+    }
+
+    // Create an array of objects consisting of QFileInfo
+    QFileInfoList files;
+    foreach (QString fileName, list) files << QFileInfo(fileName);
+
+    QuaZipFile outFile(&zip);
+
+    char c;
+    foreach(QFileInfo fileInfo, files) {
+
+        if (!fileInfo.isFile())
+            continue;
+
+        // If the file is in a subdirectory, then add the name of the subdirectory to filenames
+        // For example: fileInfo.filePath() = "D:\Work\Sources\SAGO\svn\sago\Release\tmp_DOCSWIN\Folder\123.opn"
+        // then after removing the  portion of the line will be equal to fileNameWithSubFolders "Folder\123.opn", etc.
+           QString fileNameWithRelativePath = fileInfo.filePath().remove(0, dir.absolutePath().length() + 1);
+
+        //QString fileNameWithRelativePath = fileInfo.filePath();
+
+        qDebug() << "Absolute Dir Path: " << dir.absolutePath();
+        qDebug() << "File Path: " << fileInfo.filePath();
+        qDebug() << "Adjusted file name: " << fileNameWithRelativePath;
+
+        inFile.setFileName(fileInfo.filePath());
+
+        if (!inFile.open(QIODevice::ReadOnly)) {
+            qDebug() <<  QString("testCreate(): inFile.open(): %1").arg(inFile.errorString().toLocal8Bit().constData());
+            return false;
+        }
+
+        if (!outFile.open(QIODevice::WriteOnly, QuaZipNewInfo(fileNameWithRelativePath, fileInfo.filePath()))) {
+            qDebug() << QString("testCreate(): outFile.open(): %1").arg(outFile.getZipError());
+            return false;
+        }
+
+        while (inFile.getChar(&c) && outFile.putChar(c));
+
+        if (outFile.getZipError() != UNZ_OK) {
+            qDebug() << QString("testCreate(): outFile.putChar(): %1").arg(outFile.getZipError());
+            return false;
+        }
+
+        outFile.close();
+
+        if (outFile.getZipError() != UNZ_OK) {
+            qDebug() << QString("testCreate(): outFile.close(): %1").arg(outFile.getZipError());
+            return false;
+        }
+
+        inFile.close();
+    }
+
+    // + comment
+    if (!comment.isEmpty())
+        zip.setComment(comment);
+
+    zip.close();
+
+    if (zip.getZipError() != 0) {
+        qDebug() << QString("testCreate(): zip.close(): %1").arg(zip.getZipError());
+        return false;
+    }
+
+    return true;
+}
+
+bool Gui::Extract(const QString & filePath, const QString & extDirPath, const QString & singleFileName = QString("")) {
+
+    QuaZip zip(filePath);
+
+    if (!zip.open(QuaZip::mdUnzip)) {
+        qWarning("testRead(): zip.open(): %d", zip.getZipError());
+        return false;
+    }
+
+    zip.setFileNameCodec("IBM866");
+
+    qWarning("%d entries\n", zip.getEntriesCount());
+    qWarning("Global comment: %s\n", zip.getComment().toLocal8Bit().constData());
+
+    QuaZipFileInfo info;
+
+    QuaZipFile file(&zip);
+
+    QFile out;
+    QString name;
+    char c;
+    for (bool more = zip.goToFirstFile(); more; more = zip.goToNextFile()) {
+
+        if (!zip.getCurrentFileInfo(&info)) {
+            qWarning("testRead(): getCurrentFileInfo(): %d\n", zip.getZipError());
+            return false;
+        }
+
+        if (!singleFileName.isEmpty())
+            if (!info.name.contains(singleFileName))
+                continue;
+
+        if (!file.open(QIODevice::ReadOnly)) {
+            qWarning("testRead(): file.open(): %d", file.getZipError());
+            return false;
+        }
+
+        name = QString("%1/%2").arg(extDirPath).arg(file.getActualFileName());
+
+        if (file.getZipError() != UNZ_OK) {
+            qWarning("testRead(): file.getFileName(): %d", file.getZipError());
+            return false;
+        }
+
+        //out.setFileName("out/" + name);
+        out.setFileName(name);
+
+        // this will fail if "name" contains subdirectories, but we don't mind that
+        out.open(QIODevice::WriteOnly);
+        // Slow like hell (on GNU/Linux at least), but it is not my fault.
+        // Not ZIP/UNZIP package's fault either.
+        // The slowest thing here is out.putChar(c).
+        while (file.getChar(&c)) out.putChar(c);
+
+        out.close();
+
+        if (file.getZipError() != UNZ_OK) {
+            qWarning("testRead(): file.getFileName(): %d", file.getZipError());
+            return false;
+        }
+
+        if (!file.atEnd()) {
+            qWarning("testRead(): read all but not EOF");
+            return false;
+        }
+
+        file.close();
+
+        if (file.getZipError() != UNZ_OK) {
+            qWarning("testRead(): file.close(): %d", file.getZipError());
+            return false;
+        }
+    }
+
+    zip.close();
+
+    if (zip.getZipError() != UNZ_OK) {
+        qWarning("testRead(): zip.close(): %d", zip.getZipError());
+        return false;
+    }
+
+    return true;
+}
+
+/* Recursively searches for all files in the \ a, and adds to the list of \ b */
+void Gui::RecurseAddDir(const QDir &dir, QStringList &list) {
+
+    QStringList qsl = dir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
+
+    foreach (QString file, qsl) {
+
+        // QFileInfo finfo(QString("%1/%2").arg(dir.path()).arg(file));
+        QFileInfo finfo(QString("%1/%2").arg(dir.absolutePath()).arg(file));
+
+        if (finfo.isSymLink())
+            return;
+
+        if (finfo.isDir()) {
+
+            QDir subDir(finfo.filePath());
+
+            RecurseAddDir(subDir, list);
+
+        } else
+            list << QDir::toNativeSeparators(finfo.filePath());
+    }
+}
