@@ -692,6 +692,8 @@ private:
   void writeToTmp(const QString &fileName, const QStringList &, bool doFadeStep);
   void writeToTmp();
 
+  void processFadeColorParts();   // scan LDraw file for static colored parts and create fade copy
+
   void writeToFade(               // copy to fade dir
     const QString     &fileName,
     const QStringList &contents);
@@ -720,7 +722,7 @@ private:
   static bool RecurseZipArchive(
           QStringList &zipDirFileList,
           QString &zipDirPath,
-    const QString &filePath,
+    const QString &zipFile,
     const QDir &dir);
 
   void zipTest();

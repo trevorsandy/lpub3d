@@ -383,7 +383,7 @@ void lcPiecesLibrary::ReadArchiveDescriptions(const char* OfficialFileName, cons
             //qDebug() << QString("Identified Piece ID: %1, Index %2").arg(Info->GetSaveID()).arg(PieceInfoIndex);
             QString PieceID = Info->GetSaveID();
 
-            if (PieceID.startsWith(Prefix.toUpper())) {
+            if (PieceID.startsWith(Prefix.toUpper())) { //Do not process project model placeholder part
 
                 continue;
 

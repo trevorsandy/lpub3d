@@ -1236,9 +1236,10 @@ bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &commen
     return true;
 }
 
-bool Gui::RecurseZipArchive(QStringList & zipDirFileList, QString &zipDirPath, const QString & filePath, const QDir & dir) {
+/* Recursively searches files in the archive for a given directory \ a, and adds to the list of \ b */
+bool Gui::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDirPath, const QString &zipFile, const QDir &dir) {
 
-    QuaZip zip(filePath);
+    QuaZip zip(zipFile);
     QuaZip *ptrZip = &zip;
 
     if (!zip.open(QuaZip::mdUnzip)) {
@@ -1248,23 +1249,20 @@ bool Gui::RecurseZipArchive(QStringList & zipDirFileList, QString &zipDirPath, c
 
     zip.setFileNameCodec("IBM866");
 
-    qWarning("%d entries\n", zip.getEntriesCount());
-    qWarning("Global comment: %s\n", zip.getComment().toLocal8Bit().constData());
+//    qWarning("%d entries\n", zip.getEntriesCount());
+//    qWarning("Global comment: %s\n", zip.getComment().toLocal8Bit().constData());
 
     QuaZipDir zipDir(ptrZip,zipDirPath);
 
     if (zipDir.exists()) {
 
-        //QString adjustedPath = dir.absolutePath().left(dir.absolutePath().length() - QString("parts/fade/").length());
-
         zipDir.cd(zipDirPath);
 
-        qDebug() << "ZIP DIR FOUND! " << zipDir.dirName();
-        qWarning("%d zipDir entries\n", zipDir.count());
+//        qDebug() << "Zip directory found! " << zipDir.dirName();
+//        qWarning("%d zipDir entries\n", zipDir.count());
 
         QStringList qsl = zipDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files, QDir::SortByMask);
 
-        qDebug() << " ";
         foreach (QString zipFile, qsl) {
 
                 QFileInfo zipFileInfo(QString("%1/%2").arg(dir.absolutePath()).arg(zipFile));
@@ -1277,15 +1275,12 @@ bool Gui::RecurseZipArchive(QStringList & zipDirFileList, QString &zipDirPath, c
                     QString subDirPath = QString("%1%2").arg(zipDirPath).arg(zipFile);
                     QDir subDir(zipFileInfo.filePath());
 
-                    qDebug() << "\nSub Directory Relative Path: " << subDirPath;
-                    qDebug() << "Sub Directory Relative Path: " << subDir.absolutePath();
-
-                    RecurseZipArchive(zipDirFileList, subDirPath, filePath, subDir);
+                    RecurseZipArchive(zipDirFileList, subDirPath, zipFile, subDir);
 
                 } else
                     zipDirFileList << zipFileInfo.filePath();
 
-                qDebug() << "Zip File Name: " << zipFileInfo.filePath();
+                //qDebug() << "Zip File Name: " << zipFileInfo.filePath();
             }
         }
 
@@ -1299,7 +1294,7 @@ bool Gui::RecurseZipArchive(QStringList & zipDirFileList, QString &zipDirPath, c
     return true;
 }
 
-/* Recursively searches for all files in the \ a, and adds to the list of \ b */
+/* Recursively searches for all files on the disk \ a, and adds to the list of \ b */
 void Gui::RecurseAddDir(const QDir &dir, QStringList &list) {
 
     QStringList qsl = dir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);

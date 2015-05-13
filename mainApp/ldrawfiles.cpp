@@ -402,8 +402,6 @@ void LDrawFile::loadFile(const QString &fileName)
 
     QTextStream in(&file);
 
-    QStringList contents;
-    QString     mpdName;
     QRegExp sof("^\\s*0\\s+FILE\\s+(.*)$");
     QRegExp part("^\\s*1\\s+.*$");
 
