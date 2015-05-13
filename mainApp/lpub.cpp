@@ -1306,6 +1306,8 @@ bool Gui::Extract(const QString & filePath, const QString & extDirPath, const QS
 
 bool Gui::ZipFileExist(const QString &filePath, const QString &zipDirPath, const QString &singleFileName){
 
+<<<<<<< .mine
+=======
     QuaZip zip(filePath);
     zip.setFileNameCodec("IBM866");
 
@@ -1314,15 +1316,26 @@ bool Gui::ZipFileExist(const QString &filePath, const QString &zipDirPath, const
         return false;
     }
 
+>>>>>>> .r119
     QuaZip *ptrZip = &zip;
 
+<<<<<<< .mine
+    if (zipDir.exists())
+        qDebug() << "Directory Exists: " << zipDirPath;
+
+=======
     QuaZipDir zipDir(ptrZip,zipDirPath);
 
+>>>>>>> .r119
     if (!zipDir.exists(singleFileName)){
         qDebug() << QString("ZipFileExist(): zipDir.exists() = FALSE: %1").arg(singleFileName);
         return false;
+    } else {
+        qDebug() << "Indeed - ZipFile Exists: " << singleFileName;
     }
 
+<<<<<<< .mine
+=======
     zip.close();
 
     if (zip.getZipError() != UNZ_OK) {
@@ -1330,6 +1343,7 @@ bool Gui::ZipFileExist(const QString &filePath, const QString &zipDirPath, const
         return false;
     }
 
+>>>>>>> .r119
     return true;
 }
 

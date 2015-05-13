@@ -242,7 +242,6 @@ mainApp/backgrounditem.cpp -text
 mainApp/backgrounditem.h -text
 mainApp/borderdialog.cpp -text
 mainApp/borderdialog.h -text
-mainApp/build.h -text
 mainApp/callout.cpp -text
 mainApp/callout.h -text
 mainApp/calloutbackgrounditem.cpp -text
