@@ -723,7 +723,7 @@ private:
     QStringList &list);
 
   static bool ZipFileExist(
-    const QString &filePath,
+          QuaZip *zipArchive,
     const QString &zipDirPath,
     const QString &singleFileName);
 
@@ -832,8 +832,6 @@ private:
   QDockWidget       *fileEditDockWindow; 
 //** 3D
   QDockWidget       *modelDockWindow;
-
-  bool buildTestZip();
 //**
 
   QMenu    *fileMenu;
