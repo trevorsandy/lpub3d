@@ -718,10 +718,10 @@ private:
     QStringList &list);
 
   static bool RecurseZipArchive(
-          QStringList &list,
+          QStringList &zipDirFileList,
+          QString &zipDirPath,
     const QString &filePath,
-    const QDir &dir,
-    const QString &singleFileName);
+    const QDir &dir);
 
   void zipTest();
 

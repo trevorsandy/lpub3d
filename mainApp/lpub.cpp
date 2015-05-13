@@ -1130,8 +1130,9 @@ bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &commen
     }
 
     // We get the list of zip file already in the archive.
+    QString zipDirPath = "parts/fade/";
     QStringList zipFileList;
-    RecurseZipArchive(zipFileList, zipFile, dir, "");
+    RecurseZipArchive(zipFileList, zipDirPath, zipFile, dir);
 
     //Create an array of objects consistin of QFileInfo
     QFileInfoList zipFiles;
@@ -1162,13 +1163,13 @@ bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &commen
     QFile inFile;
     QuaZipFile outFile(&zip);
 
-    bool alreadyArchived = false;
     char c;
     foreach(QFileInfo fileInfo, files) {
         //qDebug() << "Disk File Name: " << fileInfo.absoluteFilePath();
         if (!fileInfo.isFile())
             continue;
 
+        bool alreadyArchived = false;
         foreach (QFileInfo zipFileInfo, zipFiles) {
 
             if (fileInfo == zipFileInfo) {
@@ -1199,7 +1200,6 @@ bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &commen
             return false;
         }
 
-        //
         if (!outFile.open(QIODevice::WriteOnly, QuaZipNewInfo(fileNameWithCompletePath, fileInfo.filePath()))) {
             qDebug() << QString("Archive(): outFile.open(): %1").arg(outFile.getZipError());
             return false;
@@ -1217,7 +1217,7 @@ bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &commen
         if (outFile.getZipError() != UNZ_OK) {
             qDebug() << QString("Archive(): outFile.close(): %1").arg(outFile.getZipError());
             return false;
-        } //
+        }
 
         inFile.close();
     }
@@ -1236,9 +1236,10 @@ bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &commen
     return true;
 }
 
-bool Gui::RecurseZipArchive(QStringList &list, const QString & filePath, const QDir & dir, const QString & singleFileName = QString("")) {
+bool Gui::RecurseZipArchive(QStringList & zipDirFileList, QString &zipDirPath, const QString & filePath, const QDir & dir) {
 
     QuaZip zip(filePath);
+    QuaZip *ptrZip = &zip;
 
     if (!zip.open(QuaZip::mdUnzip)) {
         qWarning("Extract(): zip.open(): %d", zip.getZipError());
@@ -1250,36 +1251,43 @@ bool Gui::RecurseZipArchive(QStringList &list, const QString & filePath, const Q
     qWarning("%d entries\n", zip.getEntriesCount());
     qWarning("Global comment: %s\n", zip.getComment().toLocal8Bit().constData());
 
-    QuaZipFileInfo info;
+    QuaZipDir zipDir(ptrZip,zipDirPath);
 
-    QuaZipFile file(&zip);
+    if (zipDir.exists()) {
 
-    QString name;
+        //QString adjustedPath = dir.absolutePath().left(dir.absolutePath().length() - QString("parts/fade/").length());
 
-    QString adjustedPath = dir.absolutePath().left(dir.absolutePath().length() - QString("/parts/fade").length());
+        zipDir.cd(zipDirPath);
 
-    qDebug() << " ";
-    for (bool more = zip.goToFirstFile(); more; more = zip.goToNextFile()) {
+        qDebug() << "ZIP DIR FOUND! " << zipDir.dirName();
+        qWarning("%d zipDir entries\n", zipDir.count());
 
-        if (!zip.getCurrentFileInfo(&info)) {
-            qWarning("Extract(): getCurrentFileInfo(): %d\n", zip.getZipError());
-            return false;
+        QStringList qsl = zipDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files, QDir::SortByMask);
+
+        qDebug() << " ";
+        foreach (QString zipFile, qsl) {
+
+                QFileInfo zipFileInfo(QString("%1/%2").arg(dir.absolutePath()).arg(zipFile));
+
+                if (zipFileInfo.isSymLink())
+                    return false;
+
+                if(zipFileInfo.isDir()){
+
+                    QString subDirPath = QString("%1%2").arg(zipDirPath).arg(zipFile);
+                    QDir subDir(zipFileInfo.filePath());
+
+                    qDebug() << "\nSub Directory Relative Path: " << subDirPath;
+                    qDebug() << "Sub Directory Relative Path: " << subDir.absolutePath();
+
+                    RecurseZipArchive(zipDirFileList, subDirPath, filePath, subDir);
+
+                } else
+                    zipDirFileList << zipFileInfo.filePath();
+
+                qDebug() << "Zip File Name: " << zipFileInfo.filePath();
+            }
         }
-
-        if (!singleFileName.isEmpty())
-            if (!info.name.contains(singleFileName))
-                continue;
-
-        name = QString("%1/%2").arg(adjustedPath).arg(file.getActualFileName());
-
-        if (file.getZipError() != UNZ_OK) {
-            qWarning("Extract(): file.getFileName(): %d", file.getZipError());
-            return false;
-        }
-
-        list << name;
-        qDebug() << "Zip File Name: " << name;
-    }
 
     zip.close();
 
