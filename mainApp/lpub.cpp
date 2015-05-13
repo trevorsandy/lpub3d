@@ -1179,9 +1179,8 @@ bool Gui::Archive(const QString &filePath, const QDir &dir, const QString &comme
 
         //
         QString dirPath = "parts/fade/";
-        QuaZip *ptrZip = &zip;
 
-        if (!ZipFileExist(ptrZip, dirPath, fileNameWithRelativePath)) {
+        if (!ZipFileExist(filePath, dirPath, fileNameWithRelativePath)) {
             qDebug() << QString("Archive(): zipFileExist(): = FALSE");
         }
 
@@ -1305,24 +1304,29 @@ bool Gui::Extract(const QString & filePath, const QString & extDirPath, const QS
     return true;
 }
 
-bool Gui::ZipFileExist(QuaZip *zipArchive, const QString &zipDirPath, const QString &singleFileName){
+bool Gui::ZipFileExist(const QString &filePath, const QString &zipDirPath, const QString &singleFileName){
 
-    if (!zipArchive->open(QuaZip::mdUnzip)){
-        qWarning("Extract(): zipArchive->open(): %d", zipArchive->getZipError());
+    QuaZip zip(filePath);
+    zip.setFileNameCodec("IBM866");
+
+    if (!zip.open(QuaZip::mdUnzip)){
+        qWarning("Extract(): zipArchive->open(): %d", zip.getZipError());
         return false;
     }
 
-    QuaZipDir zipDir(zipArchive,zipDirPath);
+    QuaZip *ptrZip = &zip;
+
+    QuaZipDir zipDir(ptrZip,zipDirPath);
 
     if (!zipDir.exists(singleFileName)){
         qDebug() << QString("ZipFileExist(): zipDir.exists() = FALSE: %1").arg(singleFileName);
         return false;
     }
 
-    zipArchive->close();
+    zip.close();
 
-    if (zipArchive->getZipError() != UNZ_OK) {
-        qWarning("Extract(): zip.close(): %d", zipArchive->getZipError());
+    if (zip.getZipError() != UNZ_OK) {
+        qWarning("Extract(): zip.close(): %d", zip.getZipError());
         return false;
     }
 

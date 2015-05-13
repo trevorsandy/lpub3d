@@ -723,7 +723,7 @@ private:
     QStringList &list);
 
   static bool ZipFileExist(
-          QuaZip *zipArchive,
+    const QString &filePath,
     const QString &zipDirPath,
     const QString &singleFileName);
 
