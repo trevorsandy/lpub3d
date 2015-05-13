@@ -146,10 +146,10 @@ bool lcPiecesLibrary::Load(const char* LibraryPath, const char* CachePath)
 
 		OpenArchive(UnofficialFileName, LC_ZIPFILE_UNOFFICIAL);
 
-        qDebug() << QString("Call ReadArchiveDescriptions\n LibraryPath: %1\n UnofficialFileName %2\n CachePath: %3")
-                    .arg(LibraryPath)
-                    .arg(UnofficialFileName)
-                    .arg(CachePath);
+//        qDebug() << QString("Call ReadArchiveDescriptions\n LibraryPath: %1\n UnofficialFileName %2\n CachePath: %3")
+//                    .arg(LibraryPath)
+//                    .arg(UnofficialFileName)
+//                    .arg(CachePath);
 
 		ReadArchiveDescriptions(LibraryPath, UnofficialFileName, CachePath);
 	}

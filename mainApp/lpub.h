@@ -709,22 +709,18 @@ private:
     QString   &type);             // replace color code with fade color
 
   static bool Archive(
-    const QString &filePath,
+    const QString &zipFile,
     const QDir &dir,
     const QString &comment);
-
-  static bool Extract(
-    const QString &filePath,
-    const QString &extDirPath,
-    const QString &singleFileName);
 
   static void RecurseAddDir(
     const QDir &dir,
     QStringList &list);
 
-  static bool ZipFileExist(
-          QuaZip *zipArchive,
-    const QString &zipDirPath,
+  static bool RecurseZipArchive(
+          QStringList &list,
+    const QString &filePath,
+    const QDir &dir,
     const QString &singleFileName);
 
   void zipTest();
