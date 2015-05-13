@@ -36,7 +36,7 @@
 Preferences preferences;
 
 QString Preferences::ldrawPath = " ";
-QString Preferences::leocadLibPath = " ";
+QString Preferences::leocadLibFile = " ";
 QString Preferences::lgeoPath;
 QString Preferences::lpubPath = ".";
 QString Preferences::ldgliteExe;
@@ -129,12 +129,12 @@ void Preferences::leocadLibPreferences(bool force)
   QString const LeocadLibKey("PartsLibrary");
 
   if (Settings.contains(QString("%1/%2").arg(SETTINGS,LeocadLibKey))) {
-    leocadLibPath = Settings.value(QString("%1/%2").arg(SETTINGS,LeocadLibKey)).toString();
+    leocadLibFile = Settings.value(QString("%1/%2").arg(SETTINGS,LeocadLibKey)).toString();
   }
 
-  if (leocadLibPath != "" && ! force) {
+  if (leocadLibFile != "" && ! force) {
 
-    fileInfo.setFile(leocadLibPath);
+    fileInfo.setFile(leocadLibFile);
     bool leocadLibExists = fileInfo.exists();
 
     if (leocadLibExists) {
@@ -142,25 +142,25 @@ void Preferences::leocadLibPreferences(bool force)
     }
   }
 
-  leocadLibPath = "c:\\LDraw\\Complete.zip";
+  leocadLibFile = "c:\\LDraw\\Complete.zip";
 
   QDir guesses;
-  guesses.setPath(leocadLibPath);
+  guesses.setPath(leocadLibFile);
   if ( ! guesses.exists()) {
-    leocadLibPath = "c:\\Program Files\\LDraw\\Complete.zip";
-    guesses.setPath(leocadLibPath);
+    leocadLibFile = "c:\\Program Files\\LDraw\\Complete.zip";
+    guesses.setPath(leocadLibFile);
     if ( ! guesses.exists()) {
-      leocadLibPath = QFileDialog::getOpenFileName(NULL,
+      leocadLibFile = QFileDialog::getOpenFileName(NULL,
                       QFileDialog::tr("Locate LeoCad Library Archive"),
                       ldrawPath,
                       QFileDialog::tr("Archive (*.zip *.bin)"));
     }
   }
 
-  fileInfo.setFile(leocadLibPath);
+  fileInfo.setFile(leocadLibFile);
 
   if (fileInfo.exists()) {
-    Settings.setValue(QString("%1/%2").arg(SETTINGS,LeocadLibKey),leocadLibPath);
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,LeocadLibKey),leocadLibFile);
   } else {
     exit(-1);
   }
@@ -555,12 +555,12 @@ bool Preferences::getPreferences()
       }
     }
 
-    if (leocadLibPath != dialog->leocadLibPath()) {
-      leocadLibPath = dialog->leocadLibPath();
-      if (leocadLibPath == "") {
+    if (leocadLibFile != dialog->leocadLibFile()) {
+      leocadLibFile = dialog->leocadLibFile();
+      if (leocadLibFile == "") {
         Settings.remove(QString("%1/%2").arg(SETTINGS,"PartsLibrary"));
       } else {
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"PartsLibrary"),leocadLibPath);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"PartsLibrary"),leocadLibFile);
       }
     }
 

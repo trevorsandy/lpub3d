@@ -38,7 +38,7 @@ class Preferences
     static bool getPreferences();
 
     static QString ldrawPath;
-    static QString leocadLibPath;
+    static QString leocadLibFile;
     static QString lgeoPath;
     static QString ldgliteExe;
     static QString ldviewExe;

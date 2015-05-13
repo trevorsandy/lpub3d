@@ -1818,6 +1818,7 @@ void Gui::writeToTmp(const QString &fileName,
 
                     /* Process the designated colour file the create faded version */
                     createFadePart(type);
+                    qDebug() << "  -Faded Color Parts Requested: " << type;
                     line = tokens.join(" ");
                 }
             }
@@ -1916,8 +1917,21 @@ void Gui::writeToTmp()
             }
         }
     }
-    // THIS IS WHERE WE ARCHIVE THE CREATED FADE COLOR PARTS AND
-    // CALL LEOCAD TO RELOAD THE UNOFFICIAL LIBRARY
+
+    // Append fade parts to unofficial library for LeoCAD's consumption
+    QFileInfo libFileInfo(Preferences::leocadLibFile);
+    QString archiveFile = QString("%1/%2").arg(libFileInfo.dir().path()).arg("ldrawunf.zip");
+    QString fadePartsDir = QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts/fade/");
+
+    if (!Archive(archiveFile, fadePartsDir,"append fade parts"))
+    {
+        QMessageBox::warning(NULL,tr("LPub3D"), tr("Failed archive fade parts."));
+    }
+
+    // Reload unofficial library into memory
+    if (!g_App->mLibrary->ReloadUnoffLib()){
+        QMessageBox::warning(NULL,tr("LPub3D"), tr("Failed reload fade parts into memory."));
+    }
 }
 
 /*

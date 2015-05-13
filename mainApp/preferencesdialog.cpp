@@ -36,13 +36,13 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
     ldrawPath = ".";
   }
 
-  QString leocadLibPath = Preferences::leocadLibPath;
-  if (leocadLibPath == " ") {
-      leocadLibPath = ".";
+  QString leocadLibFile = Preferences::leocadLibFile;
+  if (leocadLibFile == " ") {
+      leocadLibFile = ".";
   }
   
   ui.ldrawPath->setText(                ldrawPath);
-  ui.leocadLibPath->setText(            leocadLibPath);
+  ui.leocadLibFile->setText(            leocadLibFile);
   ui.pliName->setText(                  Preferences::pliFile);
   ui.pliBox->setChecked(                Preferences::pliFile != "");
   ui.ldglitePath->setText(              Preferences::ldgliteExe);
@@ -158,7 +158,7 @@ void PreferencesDialog::on_browseLDraw_clicked()
 void PreferencesDialog::on_browseLeoCADLibrary_clicked()
 {
   Preferences::leocadLibPreferences(true);
-  ui.leocadLibPath->setText(Preferences::leocadLibPath);
+  ui.leocadLibFile->setText(Preferences::leocadLibFile);
 }
 
 void PreferencesDialog::on_browseLGEO_clicked()
@@ -353,9 +353,9 @@ QString const PreferencesDialog::ldrawPath()
   return ui.ldrawPath->displayText();
 }
 
-QString const PreferencesDialog::leocadLibPath()
+QString const PreferencesDialog::leocadLibFile()
 {
-  return ui.leocadLibPath->displayText();
+  return ui.leocadLibFile->displayText();
 }
 
 QString const PreferencesDialog::lgeoPath()

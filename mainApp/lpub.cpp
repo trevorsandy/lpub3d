@@ -580,6 +580,7 @@ bool Gui::updateDialog()
 
     zipTest();
     QMessageBox::information(this, tr("LPub3D"), tr("Launched ZipTest ! - see application output window."));
+    return true;
     //UpdateDialog Dialog(this, NULL);
     //return Dialog.exec() == QDialog::Accepted;
 }
@@ -1099,111 +1100,40 @@ void Gui::writeSettings()
 }
 
 /******TEST********TESTG***********/
-//void Gui::zipTest()
-//{
-    /*** test zip file content ** */
-//    QString ZipFile1 = "PE.zip";
-//    QString ZipFile2 = "CompressedDir.zip";
-//    QString ZipFile3 = "Single.zip";
-//    QString OriginalDir1 = "testZipDir/";
-//    QString NewDir1 = "NewDir1";
-//    QString NewDir2 = "NewDir2";
-//    QString SingleFile = OriginalDir1 + "4.dat";
-
-//    QString ZipFile4 = "ldrawunf.zip";
-//    QString OriginalDir2 = "fade/";
-
-//    //Archive files
-//    Archive(ZipFile4, OriginalDir2,"AddFadeParts");
-
-//    //Compress a directory
-//    CompressDir(ZipFile2, OriginalDir1);
-
-//    //List the contents of a zip file
-//    ListContents(ZipFile1);
-
-//    //Compress a single File
-//    CompressFiles(ZipFile3, QStringList() << SingleFile);
-
-//    //Decompress an archive to a directory
-//    DecompressDir(ZipFile1, NewDir1);
-
-//    //Decompress a single file
-//    DecompressFiles(ZipFile1, QStringList() << "procexp.exe", NewDir2);
-// }
-
-void Gui::CompressDir(QString ZipFile, QString Directory)
-{
-    if (JlCompress::compressDir(ZipFile, Directory))
-    {
-        qDebug() << "Created: " << ZipFile;
-    }
-}
-
-void Gui::CompressFiles(QString ZipFile, QStringList Files)
-{
-    if(JlCompress::compressFiles(ZipFile, Files))
-    {
-        qDebug() << "Created: " << ZipFile;
-    }
-    else
-    {
-        qDebug() << "Could Not Create Zip File: " << ZipFile;
-    }
-}
-
-void Gui::ListContents(QString ZipFile)
-{
-    QFile File(ZipFile);
-    if (!File.exists())
-    {
-        qDebug() << "Zip file not found!";
-        return;
-    }
-
-    QStringList list = JlCompress::getFileList(ZipFile);
-
-    foreach (QString item, list)
-    {
-        qDebug() << item;
-    }
-}
-
-void Gui::DecompressDir(QString ZipFile, QString Directory)
-{
-    QStringList list = JlCompress::extractDir(ZipFile, Directory);
-
-    foreach(QString item, list)
-    {
-       qDebug() << item;
-    }
-}
-
-void Gui::DecompressFiles(QString ZipFile, QStringList Files, QString Directory)
-{
-    QStringList list = JlCompress::extractFiles(ZipFile, Files, Directory);
-
-    foreach(QString item, list)
-    {
-        qDebug() << "Extracted: " << item;
-    }
-}
 
 void Gui::zipTest(){
-    QString ZipFile4 = "ldrawunf.zip";
-    QString OriginalDir2 = "fade/";
+    // Append fade parts to unofficial library for LeoCAD's consumption
+    QFileInfo libFileInfo(Preferences::leocadLibFile);
+    QString ArchiveFile = QString("%1/%2").arg(libFileInfo.dir().path()).arg("ldrawunf.zip");
+    QString FadePartsDir = QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts/fade/");
 
-    Archive(ZipFile4, OriginalDir2,"AddFadeParts");
+    qDebug() << QString("ArchiveFile: %1\n FadePartsDir: %2").arg(ArchiveFile).arg(FadePartsDir);
+    Archive(ArchiveFile, FadePartsDir,"append fade parts");
+
+    // Reload unofficial library into memory
+//    if (!g_App->mLibrary->ReloadUnoffLib()){
+//        QMessageBox::warning(NULL,tr("LPub3D"), tr("Failed reload fade parts into memory."));
+//    }
 }
+/******TEST********TESTG***********/
 
 bool Gui::Archive(const QString &filePath, const QDir &dir, const QString &comment = QString("")) {
 
     QuaZip zip(filePath);
     zip.setFileNameCodec("IBM866");
 
-    if (!zip.open(QuaZip::mdAdd)) {
-        qDebug() <<  QString("testCreate(): zip.open(): %1").arg(zip.getZipError());
-        return false;
+    QFileInfo fileInfo(filePath);
+
+    if (fileInfo.exists()){
+        if (!zip.open(QuaZip::mdAdd)) {
+            qDebug() <<  QString("Archive(): zip.open(): %1").arg(zip.getZipError());
+            return false;
+        }
+    } else {
+        if (!zip.open(QuaZip::mdCreate)) {
+            qDebug() <<  QString("Archive(): zip.open(): %1").arg(zip.getZipError());
+            return false;
+        }
     }
 
     if (!dir.exists()) {
@@ -1217,12 +1147,6 @@ bool Gui::Archive(const QString &filePath, const QDir &dir, const QString &comme
     QStringList list;
     RecurseAddDir(dir, list);
 
-    qDebug() << "--Input Directory File List: ";
-    foreach (QString item, list)
-    {
-        qDebug() << item;
-    }
-
     // Create an array of objects consisting of QFileInfo
     QFileInfoList files;
     foreach (QString fileName, list) files << QFileInfo(fileName);
@@ -1235,42 +1159,50 @@ bool Gui::Archive(const QString &filePath, const QDir &dir, const QString &comme
         if (!fileInfo.isFile())
             continue;
 
-        // If the file is in a subdirectory, then add the name of the subdirectory to filenames
-        // For example: fileInfo.filePath() = "D:\Work\Sources\SAGO\svn\sago\Release\tmp_DOCSWIN\Folder\123.opn"
-        // then after removing the  portion of the line will be equal to fileNameWithSubFolders "Folder\123.opn", etc.
-           QString fileNameWithRelativePath = fileInfo.filePath().remove(0, dir.absolutePath().length() + 1);
+      /* If the file is in a subdirectory, then add the name of the subdirectory to filenames
+         For example: fileInfo.filePath() = "D:\Work\Sources\SAGO\svn\sago\Release\tmp_DOCSWIN\Folder\123.opn"
+         then after removing the absolute path portion of the line will produce the fileNameWithSubFolders "Folder\123.opn", etc.
+         For example: QString fileNameWithRelativePath = fileInfo.filePath().remove(0, dir.absolutePath().length() + 1);
+         But for this application, we want to capture the root (fade) and the root's parent (parts) directory to archive
+         in the correct directory, so we append the string "parts/fade" to the relative file name path. */
+        QString fileNameWithRelativePath = fileInfo.filePath().remove(0, dir.absolutePath().length() + 1);
+        QString fileNameWithCompletePath = QString("%1/%2").arg("parts/fade").arg(fileNameWithRelativePath);
 
-        //QString fileNameWithRelativePath = fileInfo.filePath();
-
-        qDebug() << "Absolute Dir Path: " << dir.absolutePath();
-        qDebug() << "File Path: " << fileInfo.filePath();
-        qDebug() << "Adjusted file name: " << fileNameWithRelativePath;
+        qDebug() << QString("File Name with Relative Path: %1").arg(fileNameWithCompletePath);
 
         inFile.setFileName(fileInfo.filePath());
 
         if (!inFile.open(QIODevice::ReadOnly)) {
-            qDebug() <<  QString("testCreate(): inFile.open(): %1").arg(inFile.errorString().toLocal8Bit().constData());
+            qDebug() <<  QString("Archive(): inFile.open(): %1").arg(inFile.errorString().toLocal8Bit().constData());
             return false;
         }
 
-        if (!outFile.open(QIODevice::WriteOnly, QuaZipNewInfo(fileNameWithRelativePath, fileInfo.filePath()))) {
-            qDebug() << QString("testCreate(): outFile.open(): %1").arg(outFile.getZipError());
+        //
+        QString dirPath = "parts/fade/";
+        QuaZip *ptrZip = &zip;
+
+        if (!ZipFileExist(ptrZip, dirPath, fileNameWithRelativePath)) {
+            qDebug() << QString("Archive(): zipFileExist(): = FALSE");
+        }
+
+        if (!outFile.open(QIODevice::WriteOnly, QuaZipNewInfo(fileNameWithCompletePath, fileInfo.filePath()))) {
+            qDebug() << QString("Archive(): outFile.open(): %1").arg(outFile.getZipError());
             return false;
         }
 
         while (inFile.getChar(&c) && outFile.putChar(c));
 
         if (outFile.getZipError() != UNZ_OK) {
-            qDebug() << QString("testCreate(): outFile.putChar(): %1").arg(outFile.getZipError());
+            qDebug() << QString("Archive(): outFile.putChar(): %1").arg(outFile.getZipError());
             return false;
         }
 
         outFile.close();
 
         if (outFile.getZipError() != UNZ_OK) {
-            qDebug() << QString("testCreate(): outFile.close(): %1").arg(outFile.getZipError());
+            qDebug() << QString("Archive(): outFile.close(): %1").arg(outFile.getZipError());
             return false;
-        }
+        } //
 
         inFile.close();
     }
@@ -1282,7 +1214,7 @@ bool Gui::Archive(const QString &filePath, const QDir &dir, const QString &comme
     zip.close();
 
     if (zip.getZipError() != 0) {
-        qDebug() << QString("testCreate(): zip.close(): %1").arg(zip.getZipError());
+        qDebug() << QString("Archive(): zip.close(): %1").arg(zip.getZipError());
         return false;
     }
 
@@ -1294,7 +1226,7 @@ bool Gui::Extract(const QString & filePath, const QString & extDirPath, const QS
     QuaZip zip(filePath);
 
     if (!zip.open(QuaZip::mdUnzip)) {
-        qWarning("testRead(): zip.open(): %d", zip.getZipError());
+        qWarning("Extract(): zip.open(): %d", zip.getZipError());
         return false;
     }
 
@@ -1313,7 +1245,7 @@ bool Gui::Extract(const QString & filePath, const QString & extDirPath, const QS
     for (bool more = zip.goToFirstFile(); more; more = zip.goToNextFile()) {
 
         if (!zip.getCurrentFileInfo(&info)) {
-            qWarning("testRead(): getCurrentFileInfo(): %d\n", zip.getZipError());
+            qWarning("Extract(): getCurrentFileInfo(): %d\n", zip.getZipError());
             return false;
         }
 
@@ -1322,14 +1254,14 @@ bool Gui::Extract(const QString & filePath, const QString & extDirPath, const QS
                 continue;
 
         if (!file.open(QIODevice::ReadOnly)) {
-            qWarning("testRead(): file.open(): %d", file.getZipError());
+            qWarning("Extract(): file.open(): %d", file.getZipError());
             return false;
         }
 
         name = QString("%1/%2").arg(extDirPath).arg(file.getActualFileName());
 
         if (file.getZipError() != UNZ_OK) {
-            qWarning("testRead(): file.getFileName(): %d", file.getZipError());
+            qWarning("Extract(): file.getFileName(): %d", file.getZipError());
             return false;
         }
 
@@ -1346,19 +1278,19 @@ bool Gui::Extract(const QString & filePath, const QString & extDirPath, const QS
         out.close();
 
         if (file.getZipError() != UNZ_OK) {
-            qWarning("testRead(): file.getFileName(): %d", file.getZipError());
+            qWarning("Extract(): file.getFileName(): %d", file.getZipError());
             return false;
         }
 
         if (!file.atEnd()) {
-            qWarning("testRead(): read all but not EOF");
+            qWarning("Extract(): read all but not EOF");
             return false;
         }
 
         file.close();
 
         if (file.getZipError() != UNZ_OK) {
-            qWarning("testRead(): file.close(): %d", file.getZipError());
+            qWarning("Extract(): file.close(): %d", file.getZipError());
             return false;
         }
     }
@@ -1366,7 +1298,31 @@ bool Gui::Extract(const QString & filePath, const QString & extDirPath, const QS
     zip.close();
 
     if (zip.getZipError() != UNZ_OK) {
-        qWarning("testRead(): zip.close(): %d", zip.getZipError());
+        qWarning("Extract(): zip.close(): %d", zip.getZipError());
+        return false;
+    }
+
+    return true;
+}
+
+bool Gui::ZipFileExist(QuaZip *zipArchive, const QString &zipDirPath, const QString &singleFileName){
+
+    if (!zipArchive->open(QuaZip::mdUnzip)){
+        qWarning("Extract(): zipArchive->open(): %d", zipArchive->getZipError());
+        return false;
+    }
+
+    QuaZipDir zipDir(zipArchive,zipDirPath);
+
+    if (!zipDir.exists(singleFileName)){
+        qDebug() << QString("ZipFileExist(): zipDir.exists() = FALSE: %1").arg(singleFileName);
+        return false;
+    }
+
+    zipArchive->close();
+
+    if (zipArchive->getZipError() != UNZ_OK) {
+        qWarning("Extract(): zip.close(): %d", zipArchive->getZipError());
         return false;
     }
 
@@ -1380,7 +1336,6 @@ void Gui::RecurseAddDir(const QDir &dir, QStringList &list) {
 
     foreach (QString file, qsl) {
 
-        // QFileInfo finfo(QString("%1/%2").arg(dir.path()).arg(file));
         QFileInfo finfo(QString("%1/%2").arg(dir.absolutePath()).arg(file));
 
         if (finfo.isSymLink())

@@ -118,6 +118,7 @@ public:
 	~lcPiecesLibrary();
 
 	bool Load(const char* LibraryPath, const char* CachePath);
+    bool ReloadUnoffLib();
 	void Unload();
 	void RemoveTemporaryPieces();
 	void RemovePiece(PieceInfo* Info);

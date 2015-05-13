@@ -146,6 +146,11 @@ bool lcPiecesLibrary::Load(const char* LibraryPath, const char* CachePath)
 
 		OpenArchive(UnofficialFileName, LC_ZIPFILE_UNOFFICIAL);
 
+        qDebug() << QString("Call ReadArchiveDescriptions\n LibraryPath: %1\n UnofficialFileName %2\n CachePath: %3")
+                    .arg(LibraryPath)
+                    .arg(UnofficialFileName)
+                    .arg(CachePath);
+
 		ReadArchiveDescriptions(LibraryPath, UnofficialFileName, CachePath);
 	}
 	else
@@ -319,6 +324,7 @@ void lcPiecesLibrary::ReadArchiveDescriptions(const char* OfficialFileName, cons
 
 	if (stat(OfficialFileName, &OfficialStat) == 0)
 	{
+
 		lcuint64 CheckSum[4] =
 		{
 			(lcuint64)OfficialStat.st_size, (lcuint64)OfficialStat.st_mtime, 0, 0
@@ -369,28 +375,39 @@ void lcPiecesLibrary::ReadArchiveDescriptions(const char* OfficialFileName, cons
 
 		mSaveCache = true;
 
+        const QString Prefix = "Model #";
+
 		for (int PieceInfoIndex = 0; PieceInfoIndex < mPieces.GetSize(); PieceInfoIndex++)
 		{
 			PieceInfo* Info = mPieces[PieceInfoIndex];
+            //qDebug() << QString("Identified Piece ID: %1, Index %2").arg(Info->GetSaveID()).arg(PieceInfoIndex);
+            QString PieceID = Info->GetSaveID();
 
-			mZipFiles[Info->mZipFileType]->ExtractFile(Info->mZipFileIndex, PieceFile, 256);
-			PieceFile.Seek(0, SEEK_END);
-			PieceFile.WriteU8(0);
+            if (PieceID.startsWith(Prefix.toUpper())) {
 
-			char* Src = (char*)PieceFile.mBuffer + 2;
-			char* Dst = Info->m_strDescription;
+                continue;
 
-			for (;;)
-			{
-				if (*Src != '\r' && *Src != '\n' && *Src && Dst - Info->m_strDescription < (int)sizeof(Info->m_strDescription) - 1)
-				{
-					*Dst++ = *Src++;
-					continue;
-				}
+            } else {
 
-				*Dst = 0;
-				break;
-			}
+                //qDebug() << "   Processing Piece ID: " << Info->GetSaveID();
+                mZipFiles[Info->mZipFileType]->ExtractFile(Info->mZipFileIndex, PieceFile, 256);
+                PieceFile.Seek(0, SEEK_END);
+                PieceFile.WriteU8(0);
+                char* Src = (char*)PieceFile.mBuffer + 2;
+                char* Dst = Info->m_strDescription;
+                for (;;)
+                {
+                    if (*Src != '\r' && *Src != '\n' && *Src && Dst - Info->m_strDescription < (int)sizeof(Info->m_strDescription) - 1)
+                    {
+
+                        *Dst++ = *Src++;
+                        continue;
+                    }
+
+                    *Dst = 0;
+                    break;
+                }
+            }
 		}
 	}
 }
@@ -2161,4 +2178,30 @@ bool lcPiecesLibrary::LoadBuiltinPieces()
 	lcLoadDefaultCategories(true);
 
 	return true;
+}
+
+bool lcPiecesLibrary::ReloadUnoffLib()
+{
+    QFileInfo cacheFileInfo(mCacheFileName);
+    char CacheFileDir[LC_MAXPATH];
+    strcpy(CacheFileDir, cacheFileInfo.dir().path().toLatin1().constData());
+
+    SaveCacheFile();
+
+    //unload unofficial library content
+    delete mZipFiles[LC_ZIPFILE_UNOFFICIAL];
+    mZipFiles[LC_ZIPFILE_UNOFFICIAL] = NULL;
+
+    //load unofficial library content
+    if (OpenArchive(mUnofficialFileName, LC_ZIPFILE_UNOFFICIAL)){
+
+        ReadArchiveDescriptions(mLibraryFileName, mUnofficialFileName, CacheFileDir);
+
+    } else
+        return false;
+
+    //load categories
+    lcLoadDefaultCategories();
+
+    return true;
 }

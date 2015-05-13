@@ -30,7 +30,7 @@ class PreferencesDialog : public QDialog
     PreferencesDialog(QWidget *parent = 0);
 	
 	QString const ldrawPath();
-    QString const leocadLibPath();
+    QString const leocadLibFile();
 	QString const lgeoPath();
 	QString const pliFile();
 	QString const l3pExe();

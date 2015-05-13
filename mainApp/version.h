@@ -16,7 +16,7 @@
 #define VER_PRODUCTVERSION_STR      "1.0.0\0"
 
 #define VER_COMPANYNAME_STR         "LPub Software"
-#define VER_FILEDESCRIPTION_STR     "An LDraw Building Instruction Editor"
+#define VER_FILEDESCRIPTION_STR     "LPub3D - An LDraw Building Instruction Editor"
 #define VER_INTERNALNAME_STR        "LegacyOne"
 #define VER_LEGALCOPYRIGHT_STR      "Copyright (c) 2015 Trevor Sandy"
 #define VER_LEGALTRADEMARKS1_STR    "All Rights Reserved"
