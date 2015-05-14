@@ -445,9 +445,12 @@ void Gui::preferences()
     Render::setRenderer(Preferences::preferredRenderer);
     if (Render::getRenderer() != renderer) {
       gui->clearCSICache();
-      gui->clearPLICache();
+      //gui->clearPLICache();
       gui->clearCSI3DCache();
     }
+    if (Preferences::enableFadeStep)
+        processFadeColorParts();
+
     displayPage();
   }
 }
