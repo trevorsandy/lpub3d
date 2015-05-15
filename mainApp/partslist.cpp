@@ -44,7 +44,7 @@ PartsList::PartsList()
     QFile file(partsname);
     if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
       QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
-                                QMessageBox::tr("failed to open %1:\n%2")
+                                QMessageBox::tr("Failed to open %1:\n%2")
                                 .arg(partsname)
                                 .arg(file.errorString()));
       return;

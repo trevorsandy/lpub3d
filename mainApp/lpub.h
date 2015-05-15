@@ -689,7 +689,9 @@ private:
     QString     &addLine,
     QStringList &csiParts);
 
-  void writeToTmp(const QString &fileName, const QStringList &, bool doFadeStep);
+  void writeToTmp(
+    const QString &fileName,
+    const QStringList &);
   void writeToTmp();
 
   void processFadeColorParts();   // scan LDraw file for static colored parts and create fade copy
@@ -698,7 +700,7 @@ private:
     const QString     &fileName,
     const QStringList &contents);
 
-  QStringList fadeStep(
+  QStringList fadeSubFile(
      const QStringList &,
      const QString &color);      // fade all parts in subfile
 
@@ -724,8 +726,6 @@ private:
           QString &zipDirPath,
     const QString &zipFile,
     const QDir &dir);
-
-  void zipTest();
 
 private slots:
     void open();

@@ -17,7 +17,7 @@ Annotations::Annotations()
         QFile file(annotations);
         if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
             QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
-                                 QMessageBox::tr("failed to open Title Annotations file: %1:\n%2")
+                                 QMessageBox::tr("Failed to open Title Annotations file: %1:\n%2")
                                  .arg(annotations)
                                  .arg(file.errorString()));
             return;
@@ -38,7 +38,7 @@ Annotations::Annotations()
         QFile file(annotations);
         if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
             QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
-                                 QMessageBox::tr("failed to open Freeform Annotations file: %1:\n%2")
+                                 QMessageBox::tr("Failed to open Freeform Annotations file: %1:\n%2")
                                  .arg(annotations)
                                  .arg(file.errorString()));
             return;

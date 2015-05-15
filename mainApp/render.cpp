@@ -314,7 +314,7 @@ int L3P::renderCsi(
 	QProcess l3p;
 	QStringList env = QProcess::systemEnvironment();
 	l3p.setEnvironment(env);
-	l3p.setWorkingDirectory(QDir::currentPath()+"/"+Paths::tmpDir);
+    l3p.setWorkingDirectory(QDir::currentPath() +"/"+Paths::tmpDir);
 	l3p.setStandardErrorFile(QDir::currentPath() + "/stderr");
 	l3p.setStandardOutputFile(QDir::currentPath() + "/stdout");
 	qDebug() << qPrintable(Preferences::l3pExe + " " + arguments.join(" ")) << "\n";

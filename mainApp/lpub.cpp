@@ -580,12 +580,8 @@ bool Gui::aboutDialog()
 
 bool Gui::updateDialog()
 {
-
-    zipTest();
-    QMessageBox::information(this, tr("LPub3D"), tr("Launched ZipTest ! - see application output window."));
-    return true;
-    //UpdateDialog Dialog(this, NULL);
-    //return Dialog.exec() == QDialog::Accepted;
+    UpdateDialog Dialog(this, NULL);
+    return Dialog.exec() == QDialog::Accepted;
 }
 
 // Begin Jaco's code
@@ -1102,24 +1098,10 @@ void Gui::writeSettings()
     Settings.endGroup();
 }
 
-/******TEST********TESTG***********/
-
-void Gui::zipTest(){
-    // Append fade parts to unofficial library for LeoCAD's consumption
-    QFileInfo libFileInfo(Preferences::leocadLibFile);
-    QString ArchiveFile = QString("%1/%2").arg(libFileInfo.dir().path()).arg("ldrawunf.zip");
-    QString FadePartsDir = QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts/fade/");
-
-    qDebug() << QString("ArchiveFile: %1\n FadePartsDir: %2").arg(ArchiveFile).arg(FadePartsDir);
-    Archive(ArchiveFile, FadePartsDir,"append fade parts");
-
-    // Reload unofficial library into memory
-//    if (!g_App->mLibrary->ReloadUnoffLib()){
-//        QMessageBox::warning(NULL,tr("LPub3D"), tr("Failed reload fade parts into memory."));
-//    }
-}
-/******TEST********TESTG***********/
-
+/*
+ * Insert static coloured fade parts into unofficial ldraw library
+ *
+ */
 bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &comment = QString("")) {
 
     // Initialize the zip file
@@ -1132,14 +1114,29 @@ bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &commen
         return false;
     }
 
-    // We get the list of zip file already in the archive.
-    QString zipDirPath = "parts/fade/";
-    QStringList zipFileList;
-    RecurseZipArchive(zipFileList, zipDirPath, zipFile, dir);
-
-    //Create an array of objects consistin of QFileInfo
+    // Check if the zip file exist; if yes, set to add content, and if no create
+    QFileInfo zipFileInfo(zipFile);
     QFileInfoList zipFiles;
-    foreach (QString zipFile, zipFileList) zipFiles << QFileInfo(zipFile);
+    if (zipFileInfo.exists()){
+        if (!zip.open(QuaZip::mdAdd)) {
+            qDebug() <<  QString("Archive(): zip.open(): %1").arg(zip.getZipError());
+            return false;
+        }
+
+        // We get the list of files already in the archive.
+        QString zipDirPath = "parts/fade/";
+        QStringList zipFileList;
+        RecurseZipArchive(zipFileList, zipDirPath, zipFile, dir);
+
+        //Create an array of archive file objects consisting of QFileInfo
+        foreach (QString zipFile, zipFileList) zipFiles << QFileInfo(zipFile);
+
+    } else {
+        if (!zip.open(QuaZip::mdCreate)) {
+            qDebug() <<  QString("Archive(): zip.open(): %1").arg(zip.getZipError());
+            return false;
+        }
+    }
 
     // We get the list of directory files and folders recursively
     QStringList dirFileList;
@@ -1149,26 +1146,12 @@ bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &commen
     QFileInfoList files;
     foreach (QString fileName, dirFileList) files << QFileInfo(fileName);
 
-    // Check if the zip file exist; if yes, set to add content, and if no create
-    QFileInfo fileInfo(zipFile);
-    if (fileInfo.exists()){
-        if (!zip.open(QuaZip::mdAdd)) {
-            qDebug() <<  QString("Archive(): zip.open(): %1").arg(zip.getZipError());
-            return false;
-        }
-    } else {
-        if (!zip.open(QuaZip::mdCreate)) {
-            qDebug() <<  QString("Archive(): zip.open(): %1").arg(zip.getZipError());
-            return false;
-        }
-    }
-
     QFile inFile;
     QuaZipFile outFile(&zip);
 
     char c;
     foreach(QFileInfo fileInfo, files) {
-        //qDebug() << "Disk File Name: " << fileInfo.absoluteFilePath();
+        //qDebug() << "Disk File Name: " << fileInfo.absoluteFilePath(); //TEST
         if (!fileInfo.isFile())
             continue;
 
@@ -1177,7 +1160,7 @@ bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &commen
 
             if (fileInfo == zipFileInfo) {
                 alreadyArchived = true;
-                qDebug() << "FileMatch - Skipping !! " << fileInfo.absoluteFilePath();
+                qDebug() << "FileMatch - Skipping !! " << fileInfo.absoluteFilePath(); //TEST
             }
         }
 
@@ -1194,7 +1177,7 @@ bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &commen
         QString fileNameWithCompletePath = QString("%1/%2").arg("parts/fade").arg(fileNameWithRelativePath);
 
         //qDebug() << QString("File Name with Relative Path: %1").arg(fileNameWithCompletePath);
-        qDebug() << "Processing Disk File Name: " << fileInfo.absoluteFilePath();
+        //qDebug() << "Processing Disk File Name: " << fileInfo.absoluteFilePath();
 
         inFile.setFileName(fileInfo.filePath());
 
@@ -1261,7 +1244,6 @@ bool Gui::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDirPath, co
 
         zipDir.cd(zipDirPath);
 
-//        qDebug() << "Zip directory found! " << zipDir.dirName();
 //        qWarning("%d zipDir entries\n", zipDir.count());
 
         QStringList qsl = zipDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files, QDir::SortByMask);
@@ -1283,7 +1265,7 @@ bool Gui::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDirPath, co
                 } else
                     zipDirFileList << zipFileInfo.filePath();
 
-                //qDebug() << "Zip File Name: " << zipFileInfo.filePath();
+                qDebug() << "Zip File Name: " << zipFileInfo.filePath(); //TEST
             }
         }
 

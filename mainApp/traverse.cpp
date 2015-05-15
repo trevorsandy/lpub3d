@@ -1787,8 +1787,7 @@ Where &Gui::bottomOfPage()
  */
 
 void Gui::writeToTmp(const QString &fileName,
-  const QStringList &contents,
-  bool doFadeStep)
+                     const QStringList &contents)
 {
   QString fname = QDir::currentPath() + "/" + Paths::tmpDir + "/" + fileName;
   QFile file(fname);
@@ -1807,17 +1806,6 @@ void Gui::writeToTmp(const QString &fileName,
       split(line,tokens);
       if (tokens.size()) {
         if (tokens[0] != "0") {
-
-            // update static colored parts
-            if (doFadeStep) {
-                QString type  = tokens[tokens.size()-1];
-                if (FadeStepColorParts::isStaticColorPart(type)){
-                    QString fadeFileName = type;
-                    fadeFileName = "fade\\" + fadeFileName.replace(".dat","-fade.dat");
-                    tokens[tokens.size()-1] = fadeFileName;
-                }
-            }
-
           csiParts << line;
         } else {
           Meta meta;
@@ -1896,19 +1884,19 @@ void Gui::writeToTmp()
             if (ldrawFile.changedSinceLastWrite(fileName)) {
                 //qDebug() << "From WriteToTemp (NoSubModelFade): " << fileName << ", file order index: " << i;
 
-                writeToTmp(fileName,content,doFadeStep);
-                //qDebug() << "From WriteToTemp   (Fade): " << fadeFileName << " using Color: " << fadeColor <<", file order index: " << i;
+                writeToTmp(fileName,content);
+                //qDebug() << "From WriteToTemp (Fade): " << fadeFileName << " using Color: " << fadeColor <<", file order index: " << i;
 
-                content = fadeStep(content,fadeColor);
+                content = fadeSubFile(content,fadeColor);
 
                 /* Faded version of submodels - used for main page fade display */
-                writeToTmp(fadeFileName,content,doFadeStep);
+                writeToTmp(fadeFileName,content);
             }
         } else {
 
             content = ldrawFile.contents(fileName);
             if (ldrawFile.changedSinceLastWrite(fileName)) {
-                writeToTmp(fileName,content,doFadeStep);
+                writeToTmp(fileName,content);
             }
         }
     }
@@ -1917,7 +1905,7 @@ void Gui::writeToTmp()
 /*
  * Fade writeToTmp content - make fade copies of submodel files.
  */
-QStringList Gui::fadeStep(const QStringList &contents, const QString &color)
+QStringList Gui::fadeSubFile(const QStringList &contents, const QString &color)
 {
     QString edgeColor = "24";  // Internal Common Material Color (edge)
     QString fadeColor = color;
@@ -1929,25 +1917,31 @@ QStringList Gui::fadeStep(const QStringList &contents, const QString &color)
             QString contentLine = contents[index];
             split(contentLine, argv);
             if (argv.size() == 15 && argv[0] == "1") {
-                argv[1] != edgeColor ? fadeColor : edgeColor;
-                // process subfiles in csiParts
-                QString fadeFileName = argv[argv.size()-1];
-                if (ldrawFile.isSubmodel(fadeFileName)) {
-                    /* change file name */
+                // set fade colour
+                if (argv[1] != edgeColor){
+                    argv[1] = fadeColor;}
+                // process static colored parts
+                QString fileName = argv[argv.size()-1];
+                if (FadeStepColorParts::isStaticColorPart(fileName)){
+                    fileName = QDir::toNativeSeparators("fade/" + fileName.replace(".dat","-fade.dat"));
+                }
+                // process subfile naming
+                if (ldrawFile.isSubmodel(fileName)) {
                     QRegExp rgxLDR("\\.(ldr)$");
                     QRegExp rgxMPD("\\.(mpd)$");
-                    if (fadeFileName.contains(rgxLDR)) {
-                        fadeFileName = fadeFileName.replace(".ldr","-fade.ldr");
-                    } else if (fadeFileName.contains(rgxMPD)) {
-                        fadeFileName = fadeFileName.replace(".mpd","-fade.mpd");
+                    if (fileName.contains(rgxLDR)) {
+                        fileName = fileName.replace(".ldr","-fade.ldr");
+                    } else if (fileName.contains(rgxMPD)) {
+                        fileName = fileName.replace(".mpd","-fade.mpd");
                     }
-                    argv[argv.size()-1] = fadeFileName;
                 }
+                argv[argv.size()-1] = fileName;
             } else if ((argv.size() == 8  && argv[0] == "2") ||
                        (argv.size() == 11 && argv[0] == "3") ||
                        (argv.size() == 14 && argv[0] == "4") ||
                        (argv.size() == 14 && argv[0] == "5")) {
-                argv[1] != edgeColor ? fadeColor : edgeColor;
+                if (argv[1] != edgeColor){
+                    argv[1] = fadeColor;}
             }
             contentLine = argv.join(" ");
             fadeContents  << contentLine;
@@ -1969,7 +1963,6 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
     QString fadeColor   = LDrawColor::ldColorCode(fadeStepMeta->fadeColor.value());
     QString edgeColor   = "24";  // Internal Common Material Color (edge)
     int  fadePosition   = ldrawFile.getFadePosition(current.modelName);
-
     QStringList fadeCsiParts;
     QStringList argv;
 
@@ -1979,46 +1972,41 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
             if ((index + 1) <= fadePosition) {
                 split(csiLine, argv);
                 if (argv.size() == 15 && argv[0] == "1") {
-                    argv[1] != edgeColor ? fadeColor : edgeColor;
-                    // process subfile names in csiParts
-                    QString fadeFileName  = argv[argv.size()-1];
+                    // update fade colour
+                    if (argv[1] != edgeColor){
+                        argv[1] = fadeColor;}
+                    // process color parts naming
+                    QString fileName = argv[argv.size()-1];
 
-                    if (FadeStepColorParts::isStaticColorPart(fadeFileName)){
-                        fadeFileName = "fade\\" + fadeFileName.replace(".dat","-fade.dat");
-                        argv[argv.size()-1] = fadeFileName;
-
-                        // While we do need to identify and rename the faded colored parts in the
-                        // csi file bing processed. Wedon't need to createFadePart again because
-                        // this should have already been done during writeToTemp()
-                        // createFadePart(type);
+                    if (FadeStepColorParts::isStaticColorPart(fileName)){
+                        fileName = QDir::toNativeSeparators("fade/" + fileName.replace(".dat","-fade.dat"));
                     }
-
-                    if (ldrawFile.isSubmodel(fadeFileName)) {
-                        /* change file name */
+                    // process subfile naming
+                    if (ldrawFile.isSubmodel(fileName)) {
                         QRegExp rgxLDR("\\.(ldr)$");
                         QRegExp rgxMPD("\\.(mpd)$");
-                        if (fadeFileName.contains(rgxLDR)) {
-                            fadeFileName = fadeFileName.replace(".ldr","-fade.ldr");
-                        } else if (fadeFileName.contains(rgxMPD)) {
-                            fadeFileName = fadeFileName.replace(".mpd","-fade.mpd");
-                        }
-                        argv[argv.size()-1] = fadeFileName;
+                        if (fileName.contains(rgxLDR)) {
+                            fileName = fileName.replace(".ldr","-fade.ldr");
+                        } else if (fileName.contains(rgxMPD)) {
+                            fileName = fileName.replace(".mpd","-fade.mpd");
+                        }                        
                     }
+                    argv[argv.size()-1] = fileName;
                 } else if ((argv.size() == 8  && argv[0] == "2") ||
                            (argv.size() == 11 && argv[0] == "3") ||
                            (argv.size() == 14 && argv[0] == "4") ||
                            (argv.size() == 14 && argv[0] == "5")) {
-                    argv[1] != edgeColor ? fadeColor : edgeColor;
+                    if (argv[1] != edgeColor){
+                        argv[1] = fadeColor;}
                 }
                 csiLine = argv.join(" ");
             }
             fadeCsiParts  << csiLine;
         }
-        ldrawFile.setFadePosition(current.modelName,fadeCsiParts.size());
     } else {
         fadeCsiParts  << csiParts;
-        ldrawFile.setFadePosition(current.modelName,fadeCsiParts.size());
     }
+    ldrawFile.setFadePosition(current.modelName,fadeCsiParts.size());
     return fadeCsiParts;
 }
 
@@ -2035,39 +2023,34 @@ void Gui::processFadeColorParts()
 
     if (doFadeStep) {
         for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
-            QString fileName = ldrawFile._subFileOrder[i].toLower();
-            contents = ldrawFile.contents(fileName);
+            QString subFileName = ldrawFile._subFileOrder[i].toLower();
+            contents = ldrawFile.contents(subFileName);
+            //qDebug() << "Color Parts processing subfile: " << subFileName; //TEST
             // Create fade parts
             for (int i = 0; i < contents.size(); i++) {
                 QString line = contents[i];
                 QStringList tokens;
                 split(line,tokens);
-                if (tokens.size()) {
-                    if (tokens[0] != "0") {
-                        // check if colored part and create fade version if yes
-                        QString type  = tokens[tokens.size()-1];
-                        if (FadeStepColorParts::isStaticColorPart(type)){
-                            /* Process the designated colour file the create faded version */
-                            createFadePart(type);
-                            qDebug() << "  -Faded Color Parts Requested: " << type;
-                        }
+                if (tokens.size() == 15 && tokens[0] == "1") {
+                    // check if colored part and create fade version if yes
+                    QString fileName  = tokens[tokens.size()-1];
+                    if (FadeStepColorParts::isStaticColorPart(fileName)){
+                        createFadePart(fileName);
                     }
                 }
             }
         }
         // Append fade parts to unofficial library for LeoCAD's consumption
         QFileInfo libFileInfo(Preferences::leocadLibFile);
-        QString archiveFile = QString("%1/%2").arg(libFileInfo.dir().path()).arg("ldrawunf.zip");
-        QString fadePartsDir = QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts/fade/");
+        QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.dir().path()).arg("ldrawunf.zip"));
+        QString fadePartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts/fade/"));
 
         if (!Archive(archiveFile, fadePartsDir, "append fade parts"))
-        {
             QMessageBox::warning(NULL,tr("LPub3D"), tr("Failed archive fade parts."));
-        }
 
         // Reload unofficial library parts into memory
         if (!g_App->mLibrary->ReloadUnoffLib()){
-            QMessageBox::warning(NULL,tr("LPub3D"), tr("Failed reload fade parts into memory."));
+            QMessageBox::warning(NULL,tr("LPub3D"), tr("Failed to reload unofficial parts into memory."));
         }
     }
 }
@@ -2081,12 +2064,14 @@ void Gui::createFadePart(QString &type) {
      QString materialColor  ="16";  // Internal Common Material Colour (main)
      QString edgeColor      ="24";  // Internal Common Material Color (edge)
 
-     QString filePath = Preferences::ldrawPath + "/";
-     QString fadeFilePath = Paths::fadeDir + "/";
+     QString filePath = Preferences::ldrawPath;
+     QString fadeFilePath = Paths::fadeDir;
 
-     QString officialPartFile = filePath + "/parts/" + type;
-     QString unofficialPartFile = filePath + "Unofficial/parts/" + type;
-     QString fadePartFile = fadeFilePath + type.replace(".dat","-fade.dat");
+     QString officialPartFile = QDir::toNativeSeparators(filePath + "/parts/" + type);
+     QString unofficialPartFile = QDir::toNativeSeparators(filePath + "/Unofficial/parts/" + type);
+     QString fadePartFile = QDir::toNativeSeparators(fadeFilePath + "/" + type.replace(".dat","-fade.dat"));
+
+     qDebug() << "Creating Color Part For: " << fadePartFile;     //TEST
 
      QFile ofile(officialPartFile);
      QFile ufile(unofficialPartFile);
@@ -2116,11 +2101,11 @@ void Gui::createFadePart(QString &type) {
          } else {
              fileErrorString = fileErrorString + "\n" + ufile.errorString();
              QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
-                                  QMessageBox::tr("failed to open colorPart file at:\n%1 or\n:%2:\n%3")
-                                  .arg(officialPartFile)
-                                  .arg(unofficialPartFile)
-                                  .arg(fileErrorString));
-                     return;
+                  QMessageBox::tr("Failed to open colorPart file at:\n%1 or\n:%2:\n%3")
+                  .arg(officialPartFile)
+                  .arg(unofficialPartFile)
+                  .arg(fileErrorString));
+             return;
          }
      }
 
@@ -2130,26 +2115,25 @@ void Gui::createFadePart(QString &type) {
 
          split(line,tokens);
          if (tokens.size() == 15 && tokens[0] == "1") {
-             tokens[1] != edgeColor ? materialColor : edgeColor;
-             QString type2  = tokens[tokens.size()-1];
-             if (FadeStepColorParts::isStaticColorPart(type2)){
-                 QString fadeFileName = type2;
-                 fadeFileName = "fade\\" + fadeFileName.replace(".dat","-fade.dat");
-                 tokens[tokens.size()-1] = fadeFileName;
-                 createFadePart(type2);
+             // Set fade colour
+             if (tokens[1] != edgeColor){
+                   tokens[1] = materialColor;}
+             QString fileName  = tokens[tokens.size()-1];
+             // Check if part contains static colour sub parts
+             if (FadeStepColorParts::isStaticColorPart(fileName)){
+                 tokens[tokens.size()-1] = fileName;
+                 createFadePart(fileName);
              }
-
          } else if ((tokens.size() == 8  && tokens[0] == "2") ||
                     (tokens.size() == 11 && tokens[0] == "3") ||
                     (tokens.size() == 14 && tokens[0] == "4") ||
                     (tokens.size() == 14 && tokens[0] == "5")) {
-              tokens[1] != edgeColor ? materialColor : edgeColor;
+             if (tokens[1] != edgeColor){
+                   tokens[1] = materialColor;}
          }
-
          line = tokens.join(" ");
          fadePartContent << line;
      }
-
      writeToFade(fadePartFile, fadePartContent);
 }
 
@@ -2163,8 +2147,8 @@ void Gui::writeToFade(
     QFile file(fileName);
     if ( ! file.open(QFile::WriteOnly|QFile::Text)) {
         QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
-                             QMessageBox::tr("Failed to open %1 for writing: %2")
-                             .arg(fileName) .arg(file.errorString()));
+                     QMessageBox::tr("Failed to open %1 for writing: %2")
+                     .arg(fileName) .arg(file.errorString()));
     } else {
         QTextStream out(&file);
         for (int i = 0; i < contents.size(); i++) {

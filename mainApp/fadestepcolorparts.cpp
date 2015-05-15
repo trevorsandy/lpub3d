@@ -16,18 +16,19 @@ FadeStepColorParts::FadeStepColorParts()
         QFile file(colorPartsFile);
         if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
             QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
-                                 QMessageBox::tr("failed to open fadeStepColorParts.lst file: %1:\n%2")
+                                 QMessageBox::tr("Failed to open fadeStepColorParts.lst file: %1:\n%2")
                                  .arg(colorPartsFile)
                                  .arg(file.errorString()));
             return;
         }
         QTextStream in(&file);
-        QRegExp rx("^\\b([\\d\\w\\-\\_\\\\.]+)\\b\\s*~*\\b(.*)\\b\\s*$");
+        QRegExp rx("^\\b([\\d\\w\\-\\_\\+\\\\.]+)\\b\\s*~*\\b(.*)\\b\\s*$");
                 while ( ! in.atEnd()) {
             QString sLine = in.readLine(0);
             if (sLine.contains(rx)) {
                 QString colorParts = rx.cap(1);
-                fadeStepStaticColorParts << colorParts;
+                fadeStepStaticColorParts << colorParts.toLower().trimmed();
+                //qDebug() << "** Color Parts Loaded: " << colorParts.toLower(); //TEST
             }
         }
     }
@@ -35,11 +36,11 @@ FadeStepColorParts::FadeStepColorParts()
 
 const bool &FadeStepColorParts::isStaticColorPart(QString part)
 {
-  if (fadeStepStaticColorParts.contains(part)) {
-    result = true;
-    return result;
-  } else {
-    result = false;
-    return result;
-  }
+    if (fadeStepStaticColorParts.contains(part.toLower().trimmed())) {
+        result = true;
+        return result;
+    } else {
+        result = false;
+        return result;
+    }
 }

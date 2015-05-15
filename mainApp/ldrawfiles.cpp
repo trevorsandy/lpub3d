@@ -463,7 +463,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
        appearance and stage for later processing */
     while ( ! in.atEnd()) {
       QString sLine = in.readLine(0);
-      stageContents << sLine;
+      stageContents << sLine.trimmed();
       counter++;
     }
 
