@@ -439,18 +439,24 @@ void Gui::preferences()
 {
   if (Preferences::getPreferences()) {
     Meta meta;
-    Step::isCsiDataModified = true;
     page.meta = meta;
+
+    Step::isCsiDataModified = true;
+
     QString renderer = Render::getRenderer();
     Render::setRenderer(Preferences::preferredRenderer);
     if (Render::getRenderer() != renderer) {
-      gui->clearCSICache();
-      gui->clearPLICache();
-      gui->clearCSI3DCache();
+        gui->clearCSICache();
+        gui->clearPLICache();
+        gui->clearCSI3DCache();
     }
+
     if (Preferences::enableFadeStep)
         processFadeColorParts();
 
+    QString topLevel = ldrawFile.topLevelFile();
+    GlobalPliDialog *pliParms = new GlobalPliDialog(topLevel, page.meta, false);
+    pliParms->accept();
     displayPage();
   }
 }
@@ -1151,7 +1157,7 @@ bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &commen
 
     char c;
     foreach(QFileInfo fileInfo, files) {
-        //qDebug() << "Disk File Name: " << fileInfo.absoluteFilePath(); //TEST
+
         if (!fileInfo.isFile())
             continue;
 
@@ -1160,7 +1166,6 @@ bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &commen
 
             if (fileInfo == zipFileInfo) {
                 alreadyArchived = true;
-                qDebug() << "FileMatch - Skipping !! " << fileInfo.absoluteFilePath(); //TEST
             }
         }
 
@@ -1175,9 +1180,6 @@ bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &commen
          in the correct directory, so we append the string "parts/fade" to the relative file name path. */
         QString fileNameWithRelativePath = fileInfo.filePath().remove(0, dir.absolutePath().length() + 1);
         QString fileNameWithCompletePath = QString("%1/%2").arg("parts/fade").arg(fileNameWithRelativePath);
-
-        //qDebug() << QString("File Name with Relative Path: %1").arg(fileNameWithCompletePath);
-        //qDebug() << "Processing Disk File Name: " << fileInfo.absoluteFilePath();
 
         inFile.setFileName(fileInfo.filePath());
 
@@ -1264,8 +1266,6 @@ bool Gui::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDirPath, co
 
                 } else
                     zipDirFileList << zipFileInfo.filePath();
-
-                qDebug() << "Zip File Name: " << zipFileInfo.filePath(); //TEST
             }
         }
 
@@ -1294,7 +1294,6 @@ void Gui::RecurseAddDir(const QDir &dir, QStringList &list) {
         if (finfo.isDir()) {
 
             QDir subDir(finfo.filePath());
-
             RecurseAddDir(subDir, list);
 
         } else

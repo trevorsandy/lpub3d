@@ -2071,8 +2071,6 @@ void Gui::createFadePart(QString &type) {
      QString unofficialPartFile = QDir::toNativeSeparators(filePath + "/Unofficial/parts/" + type);
      QString fadePartFile = QDir::toNativeSeparators(fadeFilePath + "/" + type.replace(".dat","-fade.dat"));
 
-     qDebug() << "Creating Color Part For: " << fadePartFile;     //TEST
-
      QFile ofile(officialPartFile);
      QFile ufile(unofficialPartFile);
      QFileInfo fadeStepColorFileInfo(fadePartFile);

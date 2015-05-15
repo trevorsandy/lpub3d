@@ -131,8 +131,11 @@ void GlobalFadeStepDialog::accept()
 
   mi.endMacro();
 
-  if (Preferences::enableFadeStep)
+  if (Preferences::enableFadeStep){
       Step::isCsiDataModified = true;
+      TODO ; //
+      //Gui::processFadeColorParts();
+  }
 
   QDialog::accept();
 }
