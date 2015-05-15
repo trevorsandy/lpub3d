@@ -296,7 +296,7 @@ void Gui::zoomOut(
 
 void Gui::UpdateStepRotation()
 {
-    mModelStepRotation = lcVector3(mRotStepAngleX,mRotStepAngleY,mRotStepAngleZ);
+    mModelStepRotation = lcVector3(mRotStepAngleX, mRotStepAngleY, mRotStepAngleZ);
 
     QString rotLabel("Step Rotation %1 %2 %3");
     rotLabel = rotLabel.arg(QString::number(mModelStepRotation[0], 'f', 2),
@@ -305,10 +305,6 @@ void Gui::UpdateStepRotation()
     statusBarMsg(rotLabel);
 }
 
-void Gui::statusBarMsg(QString msg)
-{
-  statusBar()->showMessage(msg);
-}
 
 void Gui::displayFile(
   LDrawFile     *ldrawFile, 
@@ -1053,10 +1049,15 @@ void Gui::createToolBars()
     zoomToolBar->addAction(zoomOutAct);
 }
 
+void Gui::statusBarMsg(QString msg)
+{
+  statusBar()->showMessage(msg);
+}
+
 void Gui::createStatusBar()
 {
     statusBar()->showMessage(tr("Ready"));
-    gMainWindow->statusBar()->hide();
+    //gMainWindow->statusBar()->hide();
 }
 
 void Gui::createDockWindows()
@@ -1081,8 +1082,18 @@ void Gui::createDockWindows()
 //**
     tabifyDockWidget(modelDockWindow, fileEditDockWindow);
     modelDockWindow->raise();
+
+    connect(modelDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleStatusBar()));
 }
 
+void Gui::toggleStatusBar(){
+
+    if(modelDockWindow->isFloating())
+        gMainWindow->statusBar()->show();
+    else
+        gMainWindow->statusBar()->hide();
+
+}
 void Gui::readSettings()
 {
     QSettings Settings;

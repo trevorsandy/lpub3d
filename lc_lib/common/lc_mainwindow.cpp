@@ -649,20 +649,21 @@ void lcMainWindow::CreateToolBars()
 
 void lcMainWindow::CreateStatusBar()
 {
-	QStatusBar* StatusBar = new QStatusBar(this);
-	setStatusBar(StatusBar);
+    QStatusBar* lcStatusBar = new QStatusBar(this);
+    setStatusBar(lcStatusBar);
 
 	mStatusBarLabel = new QLabel();
-	StatusBar->addWidget(mStatusBarLabel);
+    lcStatusBar->addWidget(mStatusBarLabel);
 
 	mStatusPositionLabel = new QLabel();
-	StatusBar->addPermanentWidget(mStatusPositionLabel);
+    lcStatusBar->addPermanentWidget(mStatusPositionLabel);
 
 	mStatusSnapLabel = new QLabel();
-	StatusBar->addPermanentWidget(mStatusSnapLabel);
+    lcStatusBar->addPermanentWidget(mStatusSnapLabel);
 
 	mStatusTimeLabel = new QLabel();
-	StatusBar->addPermanentWidget(mStatusTimeLabel);
+    lcStatusBar->addPermanentWidget(mStatusTimeLabel);
+
 }
 
 void lcMainWindow::closeEvent(QCloseEvent *event)

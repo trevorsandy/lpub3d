@@ -571,7 +571,9 @@ public slots:
       QMessageBox::warning(this,tr("LPub3D"),tr(errorMsg.toAscii()));
     }
   }
-  
+
+  void statusBarMsg(QString msg);
+
   void showLine(const Where &topOfStep)
   {
     displayFile(&ldrawFile,topOfStep.modelName);
@@ -601,8 +603,6 @@ public slots:
   void clearCSICache();
   void clearCSI3DCache();
   void clearALLCache();
-
-  void statusBarMsg(QString msg);
 
   void fileChanged(const QString &path);
 
@@ -733,6 +733,8 @@ private slots:
     void openRecentFile();
     bool aboutDialog();
     bool updateDialog();
+
+    void toggleStatusBar();
 
     // Begin Jaco's code
 
