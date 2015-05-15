@@ -302,7 +302,7 @@ void Gui::UpdateStepRotation()
     rotLabel = rotLabel.arg(QString::number(mModelStepRotation[0], 'f', 2),
                             QString::number(mModelStepRotation[1], 'f', 2),
                             QString::number(mModelStepRotation[2], 'f', 2));
-    gui->statusBarMsg(rotLabel);
+    statusBarMsg(rotLabel);
 }
 
 void Gui::statusBarMsg(QString msg)
@@ -1056,6 +1056,7 @@ void Gui::createToolBars()
 void Gui::createStatusBar()
 {
     statusBar()->showMessage(tr("Ready"));
+    gMainWindow->statusBar()->hide();
 }
 
 void Gui::createDockWindows()

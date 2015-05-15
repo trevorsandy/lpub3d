@@ -133,7 +133,7 @@ void GlobalFadeStepDialog::accept()
 
   if (Preferences::enableFadeStep){
       Step::isCsiDataModified = true;
-      TODO ; //
+      // TODO ; //
       //Gui::processFadeColorParts();
   }
 
