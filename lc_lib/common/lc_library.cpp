@@ -376,38 +376,30 @@ void lcPiecesLibrary::ReadArchiveDescriptions(const char* OfficialFileName, cons
 
 		mSaveCache = true;
 
-        const QString Prefix = "Model #";
-
 		for (int PieceInfoIndex = 0; PieceInfoIndex < mPieces.GetSize(); PieceInfoIndex++)
 		{
 			PieceInfo* Info = mPieces[PieceInfoIndex];
-            //qDebug() << QString("Identified Piece ID: %1, Index %2").arg(Info->GetSaveID()).arg(PieceInfoIndex);
-            QString PieceID = Info->GetSaveID();
 
-            if (PieceID.startsWith(Prefix.toUpper())) { //Do not process project model placeholder part
-
+            //If piece is not an archive (zip file) piece (i.e. it's a Model); skip.
+            if(Info->mZipFileIndex < 0)
                 continue;
 
-            } else {
-
-                //qDebug() << "   Processing Piece ID: " << Info->GetSaveID();
-                mZipFiles[Info->mZipFileType]->ExtractFile(Info->mZipFileIndex, PieceFile, 256);
-                PieceFile.Seek(0, SEEK_END);
-                PieceFile.WriteU8(0);
-                char* Src = (char*)PieceFile.mBuffer + 2;
-                char* Dst = Info->m_strDescription;
-                for (;;)
+            mZipFiles[Info->mZipFileType]->ExtractFile(Info->mZipFileIndex, PieceFile, 256);
+            PieceFile.Seek(0, SEEK_END);
+            PieceFile.WriteU8(0);
+            char* Src = (char*)PieceFile.mBuffer + 2;
+            char* Dst = Info->m_strDescription;
+            for (;;)
+            {
+                if (*Src != '\r' && *Src != '\n' && *Src && Dst - Info->m_strDescription < (int)sizeof(Info->m_strDescription) - 1)
                 {
-                    if (*Src != '\r' && *Src != '\n' && *Src && Dst - Info->m_strDescription < (int)sizeof(Info->m_strDescription) - 1)
-                    {
 
-                        *Dst++ = *Src++;
-                        continue;
-                    }
-
-                    *Dst = 0;
-                    break;
+                    *Dst++ = *Src++;
+                    continue;
                 }
+
+                *Dst = 0;
+                break;
             }
 		}
 	}

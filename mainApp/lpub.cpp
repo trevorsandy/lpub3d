@@ -439,13 +439,13 @@ void Gui::preferences()
 {
   if (Preferences::getPreferences()) {
     Meta meta;
-        Step::isCsiDataModified = true;
+    Step::isCsiDataModified = true;
     page.meta = meta;
     QString renderer = Render::getRenderer();
     Render::setRenderer(Preferences::preferredRenderer);
     if (Render::getRenderer() != renderer) {
       gui->clearCSICache();
-      //gui->clearPLICache();
+      gui->clearPLICache();
       gui->clearCSI3DCache();
     }
     if (Preferences::enableFadeStep)

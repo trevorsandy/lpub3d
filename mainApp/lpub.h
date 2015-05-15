@@ -356,12 +356,13 @@
 #include "updatedialog.h"
 #include "version.h"
 
+#include ""
+
 //** 3D
 #include "lc_math.h"
 
 #include <QFile>
 #include "lc_library.h"
-#include "lc_application.h"
 
 #include "quazip.h"
 #include "quazipfile.h"
