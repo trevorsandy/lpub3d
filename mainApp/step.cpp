@@ -186,22 +186,13 @@ int Step::createCsi(
       outOfDate = true;
     }
   }
-  //**3D
-  int  ln = top.lineNumber;
-  RotStepData rotStepData = meta.rotStep.value();
-  QString rotStep = QString("%1_%2_%3_%4")
-          .arg(rotStepData.type)      //REL or ABS
-          .arg(rotStepData.rots[0])
-          .arg(rotStepData.rots[1])
-          .arg(rotStepData.rots[2]);
-  QString fileNamekey = QString("%1+%2+%3%4")
-          .arg(csiName()+"_"+QString::number(sn))
-          .arg(ln)
-          .arg(rotStep+orient)
+  //**3D  
+  QString fileNamekey = QString("%1_%2%3")
+          .arg(csiName())
+          .arg(QString::number(sn))
           .arg(".ldr");
   csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + fileNamekey;
   renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate);
-  //qDebug() << "RENDERING: " << fileNamekey.toStdString() << " Exists: " << (csi.exists()?"Yes":"No") << " Out of Date: " << (outOfDate?"Yes":"No");
   //**
 
   if ( ! csi.exists() || outOfDate) {
