@@ -734,7 +734,8 @@ private slots:
     bool aboutDialog();
     bool updateDialog();
 
-    void toggleStatusBar();
+    void toggleLCStatusBar();
+    void showLCStatusMessage();
 
     // Begin Jaco's code
 

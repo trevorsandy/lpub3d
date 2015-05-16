@@ -502,6 +502,7 @@ Gui::Gui()
     createStatusBar();
 
     createDockWindows();
+    toggleLCStatusBar();
 
     readSettings();
 
@@ -1056,8 +1057,16 @@ void Gui::statusBarMsg(QString msg)
 
 void Gui::createStatusBar()
 {
-    statusBar()->showMessage(tr("Ready"));
-    //gMainWindow->statusBar()->hide();
+
+  statusBar()->showMessage(tr("Ready"));
+  connect(gMainWindow->mLCStatusBar, SIGNAL(messageChanged(QString)), this, SLOT(showLCStatusMessage()));
+
+}
+
+void Gui::showLCStatusMessage(){
+
+    if(!modelDockWindow->isFloating())
+    statusBarMsg(gMainWindow->mLCStatusBar->currentMessage());
 }
 
 void Gui::createDockWindows()
@@ -1083,17 +1092,17 @@ void Gui::createDockWindows()
     tabifyDockWidget(modelDockWindow, fileEditDockWindow);
     modelDockWindow->raise();
 
-    connect(modelDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleStatusBar()));
+    connect(modelDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar()));
 }
 
-void Gui::toggleStatusBar(){
+void Gui::toggleLCStatusBar(){
 
     if(modelDockWindow->isFloating())
         gMainWindow->statusBar()->show();
     else
         gMainWindow->statusBar()->hide();
-
 }
+
 void Gui::readSettings()
 {
     QSettings Settings;

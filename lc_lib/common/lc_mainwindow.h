@@ -191,6 +191,8 @@ public:
 	lcSearchOptions mSearchOptions;
 	QAction* mActions[LC_NUM_COMMANDS];
 
+    QStatusBar* mLCStatusBar;
+
 protected slots:
 	void ClipboardChanged();
 	void ActionTriggered();

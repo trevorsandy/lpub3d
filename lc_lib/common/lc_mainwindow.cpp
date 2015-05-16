@@ -50,6 +50,8 @@ lcMainWindow::lcMainWindow()
 	for (int FileIdx = 0; FileIdx < LC_MAX_RECENT_FILES; FileIdx++)
 		mRecentFiles[FileIdx] = lcGetProfileString((LC_PROFILE_KEY)(LC_PROFILE_RECENT_FILE1 + FileIdx));
 
+    mLCStatusBar = new QStatusBar(this);
+
 	gMainWindow = this;
 }
 
@@ -649,20 +651,19 @@ void lcMainWindow::CreateToolBars()
 
 void lcMainWindow::CreateStatusBar()
 {
-    QStatusBar* lcStatusBar = new QStatusBar(this);
-    setStatusBar(lcStatusBar);
+    setStatusBar(mLCStatusBar);
 
 	mStatusBarLabel = new QLabel();
-    lcStatusBar->addWidget(mStatusBarLabel);
+    mLCStatusBar->addWidget(mStatusBarLabel);
 
 	mStatusPositionLabel = new QLabel();
-    lcStatusBar->addPermanentWidget(mStatusPositionLabel);
+    mLCStatusBar->addPermanentWidget(mStatusPositionLabel);
 
 	mStatusSnapLabel = new QLabel();
-    lcStatusBar->addPermanentWidget(mStatusSnapLabel);
+    mLCStatusBar->addPermanentWidget(mStatusSnapLabel);
 
 	mStatusTimeLabel = new QLabel();
-    lcStatusBar->addPermanentWidget(mStatusTimeLabel);
+    mLCStatusBar->addPermanentWidget(mStatusTimeLabel);
 
 }
 
