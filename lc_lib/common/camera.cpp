@@ -469,13 +469,13 @@ void lcCamera::CopyPosition(const lcCamera* camera)
 	mUpVector = camera->mUpVector;
 }
 
-void lcCamera::DrawInterface(lcContext* Context) const
+void lcCamera::DrawInterface(lcContext* Context, const lcMatrix44& ViewMatrix) const
 {
 	lcMatrix44 ViewWorldMatrix = lcMatrix44AffineInverse(mWorldView);
 	ViewWorldMatrix.SetTranslation(lcVector3(0, 0, 0));
 
-	lcMatrix44 CameraViewMatrix = lcMul(ViewWorldMatrix, lcMatrix44Translation(mPosition));
-	Context->SetWorldMatrix(CameraViewMatrix);
+	lcMatrix44 CameraViewMatrix = lcMul(ViewWorldMatrix, lcMul(lcMatrix44Translation(mPosition), ViewMatrix));
+	Context->SetWorldViewMatrix(CameraViewMatrix);
 
 	float Verts[(12 + 8 + 8 + 3 + 4) * 3];
 	float* CurVert = Verts;
@@ -537,7 +537,6 @@ void lcCamera::DrawInterface(lcContext* Context) const
 
 	Context->SetVertexBufferPointer(Verts);
 	Context->SetVertexFormat(0, 3, 0, 0);
-	Context->SetIndexBufferPointer(Indices);
 
 	float LineWidth = lcGetPreferences().mLineWidth;
 
@@ -546,7 +545,7 @@ void lcCamera::DrawInterface(lcContext* Context) const
 		Context->SetLineWidth(LineWidth);
 		Context->SetInterfaceColor(LC_COLOR_CAMERA);
 
-		Context->DrawIndexedPrimitives(GL_LINES, 40 + 24 + 24 + 4, GL_UNSIGNED_SHORT, 0);
+		glDrawElements(GL_LINES, 40 + 24 + 24 + 4, GL_UNSIGNED_SHORT, Indices);
 	}
 	else
 	{
@@ -564,7 +563,7 @@ void lcCamera::DrawInterface(lcContext* Context) const
 			Context->SetInterfaceColor(LC_COLOR_CAMERA);
 		}
 
-		Context->DrawIndexedPrimitives(GL_LINES, 40, GL_UNSIGNED_SHORT, 0);
+		glDrawElements(GL_LINES, 40, GL_UNSIGNED_SHORT, Indices);
 
 		if (IsSelected(LC_CAMERA_SECTION_TARGET))
 		{
@@ -580,7 +579,7 @@ void lcCamera::DrawInterface(lcContext* Context) const
 			Context->SetInterfaceColor(LC_COLOR_CAMERA);
 		}
 
-		Context->DrawIndexedPrimitives(GL_LINES, 24, GL_UNSIGNED_SHORT, 40 * 2);
+		glDrawElements(GL_LINES, 24, GL_UNSIGNED_SHORT, Indices + 40);
 
 		if (IsSelected(LC_CAMERA_SECTION_UPVECTOR))
 		{
@@ -596,7 +595,7 @@ void lcCamera::DrawInterface(lcContext* Context) const
 			Context->SetInterfaceColor(LC_COLOR_CAMERA);
 		}
 
-		Context->DrawIndexedPrimitives(GL_LINES, 24, GL_UNSIGNED_SHORT, (40 + 24) * 2);
+		glDrawElements(GL_LINES, 24, GL_UNSIGNED_SHORT, Indices + 40 + 24);
 
 		Context->SetInterfaceColor(LC_COLOR_CAMERA);
 		Context->SetLineWidth(LineWidth);
@@ -609,7 +608,7 @@ void lcCamera::DrawInterface(lcContext* Context) const
 		*CurVert++ = -SizeX; *CurVert++ = -SizeY; *CurVert++ = -Length;
 		*CurVert++ =  SizeX; *CurVert++ = -SizeY; *CurVert++ = -Length;
 
-		Context->DrawIndexedPrimitives(GL_LINES, 4 + 16, GL_UNSIGNED_SHORT, (40 + 24 + 24) * 2);
+		glDrawElements(GL_LINES, 4 + 16, GL_UNSIGNED_SHORT, Indices + 40 + 24 + 24);
 	}
 }
 

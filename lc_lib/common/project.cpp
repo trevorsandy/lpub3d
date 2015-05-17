@@ -1269,7 +1269,6 @@ void Project::ExportHTML()
 
 		Context->SetDefaultState();
 		Context->SetProjectionMatrix(ProjectionMatrix);
-		Context->SetProgram(LC_PROGRAM_SIMPLE);
 
 		for (int PieceIdx = 0; PieceIdx < PartsList.GetSize(); PieceIdx++)
 		{
@@ -1288,9 +1287,8 @@ void Project::ExportHTML()
 
 			Scene.End();
 
-			Context->SetViewMatrix(ViewMatrix);
-			Context->DrawOpaqueMeshes(Scene.mOpaqueMeshes);
-			Context->DrawTranslucentMeshes(Scene.mTranslucentMeshes);
+			Context->DrawOpaqueMeshes(ViewMatrix, Scene.mOpaqueMeshes);
+			Context->DrawTranslucentMeshes(ViewMatrix, Scene.mTranslucentMeshes);
 
 			Context->UnbindMesh(); // context remove
 

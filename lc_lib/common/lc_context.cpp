@@ -7,8 +7,6 @@
 #include "lc_mainwindow.h"
 #include "lc_library.h"
 
-lcProgram lcContext::mPrograms[LC_NUM_PROGRAMS];
-
 static int lcOpaqueRenderMeshCompare(const void* Elem1, const void* Elem2)
 {
 	lcRenderMesh* Mesh1 = (lcRenderMesh*)Elem1;
@@ -74,187 +72,14 @@ lcContext::lcContext()
 	mFramebufferTexture = 0;
 	mDepthRenderbufferObject = 0;
 
-	mViewportX = 0;
-	mViewportY = 0;
-	mViewportWidth = 1;
-	mViewportHeight = 1;
-
-	mColor = lcVector4(0.0f, 0.0f, 0.0f, 0.0f);
-	mWorldMatrix = lcMatrix44Identity();
-	mViewMatrix = lcMatrix44Identity();
-	mProjectionMatrix = lcMatrix44Identity();
-	mViewProjectionMatrix = lcMatrix44Identity();
-	mColorDirty = false;
-	mWorldMatrixDirty = false;
-	mViewMatrixDirty = false;
-	mProjectionMatrixDirty = false;
-	mViewProjectionMatrixDirty = false;
-
-	mProgramType = LC_NUM_PROGRAMS;
+    mViewportX = 0;
+    mViewportY = 0;
+    mViewportWidth = 1;
+    mViewportHeight = 1;
 }
 
 lcContext::~lcContext()
 {
-}
-
-void lcContext::CreateShaderPrograms()
-{
-	const char* VertexShaders[LC_NUM_PROGRAMS] =
-	{
-		// LC_PROGRAM_SIMPLE
-		"#version 110\n"
-		"in vec3 VertexPosition;\n"
-		"uniform mat4 WorldViewProjectionMatrix;\n"
-		"void main()\n"
-		"{\n"
-		"	gl_Position = WorldViewProjectionMatrix * vec4(VertexPosition, 1.0);\n"
-		"}\n",
-		// LC_PROGRAM_TEXTURE
-		"#version 110\n"
-		"in vec3 VertexPosition;\n"
-		"in vec2 VertexTexCoord;\n"
-		"varying vec2 PixelTexCoord;\n"
-		"uniform mat4 WorldViewProjectionMatrix;\n"
-		"void main()\n"
-		"{\n"
-		"	gl_Position = WorldViewProjectionMatrix * vec4(VertexPosition, 1.0);\n"
-		"	PixelTexCoord = VertexTexCoord;\n"
-		"}\n",
-		// LC_PROGRAM_VERTEX_COLOR
-		"#version 110\n"
-		"in vec3 VertexPosition;\n"
-		"in vec4 VertexColor;\n"
-		"varying vec4 PixelColor;\n"
-		"uniform mat4 WorldViewProjectionMatrix;\n"
-		"void main()\n"
-		"{\n"
-		"	gl_Position = WorldViewProjectionMatrix * vec4(VertexPosition, 1.0);\n"
-		"	PixelColor = VertexColor;\n"
-		"}\n"
-	};
-
-	const char* FragmentShaders[LC_NUM_PROGRAMS] =
-	{
-		// LC_PROGRAM_SIMPLE
-		"#version 110\n"
-		"uniform vec4 Color;\n"
-		"void main()\n"
-		"{\n"
-		"	gl_FragColor = Color;\n"
-		"}\n",
-		// LC_PROGRAM_TEXTURE
-		"#version 110\n"
-		"in vec2 PixelTexCoord;\n"
-		"uniform sampler2D Texture;\n"
-		"void main()\n"
-		"{\n"
-		"	gl_FragColor = texture2D(Texture, PixelTexCoord);\n"
-		"}\n",
-		// LC_PROGRAM_VERTEX_COLOR
-		"#version 110\n"
-		"in vec4 PixelColor;\n"
-		"void main()\n"
-		"{\n"
-		"	gl_FragColor = PixelColor;\n"
-		"}\n"
-	};
-
-	for (int ProgramIdx = 0; ProgramIdx < LC_NUM_PROGRAMS; ProgramIdx++)
-	{
-		GLuint VertexShader = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(VertexShader, 1, &VertexShaders[ProgramIdx], NULL);
-		glCompileShader(VertexShader);
-
-#ifndef QT_NO_DEBUG
-		GLint VertexShaderCompiled = 0;
-		glGetShaderiv(VertexShader, GL_COMPILE_STATUS, &VertexShaderCompiled);
-
-		if (VertexShaderCompiled == GL_FALSE)
-		{
-			GLint Length = 0;
-			glGetShaderiv(VertexShader, GL_INFO_LOG_LENGTH, &Length);
-
-			QByteArray InfoLog;
-			InfoLog.resize(Length);
-			glGetShaderInfoLog(VertexShader, Length, &Length, InfoLog.data());
-
-			qDebug() << InfoLog;
-		}
-#endif
-
-		GLuint FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(FragmentShader, 1, &FragmentShaders[ProgramIdx], NULL);
-		glCompileShader(FragmentShader);
-
-#ifndef QT_NO_DEBUG
-		GLint FragmentShaderCompiled = 0;
-		glGetShaderiv(FragmentShader, GL_COMPILE_STATUS, &FragmentShaderCompiled);
-
-		if (FragmentShaderCompiled == GL_FALSE)
-		{
-			GLint Length = 0;
-			glGetShaderiv(FragmentShader, GL_INFO_LOG_LENGTH, &Length);
-
-			QByteArray InfoLog;
-			InfoLog.resize(Length);
-			glGetShaderInfoLog(FragmentShader, Length, &Length, InfoLog.data());
-
-			qDebug() << InfoLog;
-		}
-#endif
-
-		GLuint Program = glCreateProgram();
-
-		glAttachShader(Program, VertexShader);
-		glAttachShader(Program, FragmentShader);
-
-		glBindAttribLocation(Program, LC_ATTRIB_POSITION, "VertexPosition");
-		glBindAttribLocation(Program, LC_ATTRIB_TEXCOORD, "VertexTexCoord");
-		glBindAttribLocation(Program, LC_ATTRIB_COLOR, "VertexColor");
-
-		glLinkProgram(Program);
-
-		glDetachShader(Program, VertexShader);
-		glDetachShader(Program, FragmentShader);
-		glDeleteShader(VertexShader);
-		glDeleteShader(FragmentShader);
-
-		GLint IsLinked = 0;
-		glGetProgramiv(Program, GL_LINK_STATUS, &IsLinked);
-		if (IsLinked == GL_FALSE)
-		{
-			GLint Length = 0;
-			glGetProgramiv(Program, GL_INFO_LOG_LENGTH, &Length);
-
-			QByteArray InfoLog;
-			InfoLog.resize(Length);
-			glGetProgramInfoLog(Program, Length, &Length, InfoLog.data());
- 
-			glDeleteProgram(Program);
-			Program = 0;
-		}
-
-		mPrograms[ProgramIdx].Object = Program;
-		mPrograms[ProgramIdx].MatrixLocation = glGetUniformLocation(Program, "WorldViewProjectionMatrix");
-		mPrograms[ProgramIdx].ColorLocation = glGetUniformLocation(Program, "Color");
-	}
-}
-
-void lcContext::CreateResources()
-{
-	if (!gSupportsShaderObjects)
-		return;
-
-	CreateShaderPrograms();
-}
-
-void lcContext::DestroyResources()
-{
-	if (!gSupportsShaderObjects)
-		return;
-
-	for (int ProgramIdx = 0; ProgramIdx < LC_NUM_PROGRAMS; ProgramIdx++)
-		glDeleteProgram(mPrograms[ProgramIdx].Object);
 }
 
 void lcContext::SetDefaultState()
@@ -265,29 +90,19 @@ void lcContext::SetDefaultState()
 	glEnable(GL_POLYGON_OFFSET_FILL);
 	glPolygonOffset(0.5f, 0.1f);
 
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+
 	if (gSupportsVertexBufferObject)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 	}
 
-	if (gSupportsShaderObjects)
-	{
-		glEnableVertexAttribArray(LC_ATTRIB_POSITION);
-		glDisableVertexAttribArray(LC_ATTRIB_TEXCOORD);
-		glDisableVertexAttribArray(LC_ATTRIB_COLOR);
-	}
-	else
-	{
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-
-		glVertexPointer(3, GL_FLOAT, 0, NULL);
-		glTexCoordPointer(2, GL_FLOAT, 0, NULL);
-		glColorPointer(4, GL_FLOAT, 0, NULL);
-	}
-
+	glVertexPointer(3, GL_FLOAT, 0, NULL);
+	glTexCoordPointer(2, GL_FLOAT, 0, NULL);
+	glColorPointer(4, GL_FLOAT, 0, NULL);
 	mTexCoordEnabled = false;
 	mColorEnabled = false;
 
@@ -303,27 +118,8 @@ void lcContext::SetDefaultState()
 	glLineWidth(1.0f);
 	mLineWidth = 1.0f;
 
-	if (gSupportsShaderObjects)
-	{
-		glUseProgram(0);
-		mProgramType = LC_NUM_PROGRAMS;
-	}
-	else
-	{
-		glMatrixMode(GL_MODELVIEW);
-		mMatrixMode = GL_MODELVIEW;
-	}
-}
-
-void lcContext::SetProgram(lcProgramType ProgramType)
-{
-	if (!gSupportsShaderObjects || mProgramType == ProgramType)
-		return;
-
-	glUseProgram(mPrograms[ProgramType].Object);
-	mProgramType = ProgramType;
-	mColorDirty = true;
-	mWorldMatrixDirty = true;
+	glMatrixMode(GL_MODELVIEW);
+	mMatrixMode = GL_MODELVIEW;
 }
 
 void lcContext::SetViewport(int x, int y, int Width, int Height)
@@ -339,6 +135,28 @@ void lcContext::SetViewport(int x, int y, int Width, int Height)
 	mViewportHeight = Height;
 }
 
+void lcContext::SetWorldViewMatrix(const lcMatrix44& WorldViewMatrix)
+{
+	if (mMatrixMode != GL_MODELVIEW)
+	{
+		glMatrixMode(GL_MODELVIEW);
+		mMatrixMode = GL_MODELVIEW;
+	}
+
+	glLoadMatrixf(WorldViewMatrix);
+}
+
+void lcContext::SetProjectionMatrix(const lcMatrix44& ProjectionMatrix)
+{
+	if (mMatrixMode != GL_PROJECTION)
+	{
+		glMatrixMode(GL_PROJECTION);
+		mMatrixMode = GL_PROJECTION;
+	}
+
+	glLoadMatrixf(ProjectionMatrix);
+}
+
 void lcContext::SetLineWidth(float LineWidth)
 {
 	if (LineWidth == mLineWidth)
@@ -350,27 +168,32 @@ void lcContext::SetLineWidth(float LineWidth)
 
 void lcContext::SetColor(float Red, float Green, float Blue, float Alpha)
 {
-	SetColor(lcVector4(Red, Green, Blue, Alpha));
+	glColor4f(Red, Green, Blue, Alpha);
+}
+
+void lcContext::SetColor(const lcVector4& Color)
+{
+	glColor4fv(Color);
 }
 
 void lcContext::SetColorIndex(int ColorIndex)
 {
-	SetColor(gColorList[ColorIndex].Value);
+	glColor4fv(gColorList[ColorIndex].Value);
 }
 
 void lcContext::SetColorIndexTinted(int ColorIndex, lcInterfaceColor InterfaceColor)
 {
-	SetColor((gColorList[ColorIndex].Value + gInterfaceColors[InterfaceColor]) * 0.5f);
+	glColor4fv((gColorList[ColorIndex].Value + gInterfaceColors[InterfaceColor]) * 0.5f);
 }
 
 void lcContext::SetEdgeColorIndex(int ColorIndex)
 {
-	SetColor(gColorList[ColorIndex].Edge);
+	glColor4fv(gColorList[ColorIndex].Edge);
 }
 
 void lcContext::SetInterfaceColor(lcInterfaceColor InterfaceColor)
 {
-	SetColor(gInterfaceColors[InterfaceColor]);
+	glColor4fv(gInterfaceColors[InterfaceColor]);
 }
 
 bool lcContext::BeginRenderToTexture(int Width, int Height)
@@ -657,75 +480,39 @@ void lcContext::SetVertexFormat(int BufferOffset, int PositionSize, int TexCoord
 
 	if (mVertexBufferOffset != VertexBufferPointer)
 	{
-		if (gSupportsShaderObjects)
-			glVertexAttribPointer(LC_ATTRIB_POSITION, PositionSize, GL_FLOAT, false, VertexSize, VertexBufferPointer);
-		else
-			glVertexPointer(PositionSize, GL_FLOAT, VertexSize, VertexBufferPointer);
-
+		glVertexPointer(PositionSize, GL_FLOAT, VertexSize, VertexBufferPointer);
 		mVertexBufferOffset = VertexBufferPointer;
 	}
 
 	if (TexCoordSize)
 	{
-		if (gSupportsShaderObjects)
-		{
-			glVertexAttribPointer(LC_ATTRIB_TEXCOORD, TexCoordSize, GL_FLOAT, false, VertexSize, VertexBufferPointer + PositionSize * sizeof(float));
+		glTexCoordPointer(TexCoordSize, GL_FLOAT, VertexSize, VertexBufferPointer + PositionSize * sizeof(float));
 
-			if (!mTexCoordEnabled)
-			{
-				glEnableVertexAttribArray(LC_ATTRIB_TEXCOORD);
-				mTexCoordEnabled = true;
-			}
-		}
-		else
+		if (!mTexCoordEnabled)
 		{
-			glTexCoordPointer(TexCoordSize, GL_FLOAT, VertexSize, VertexBufferPointer + PositionSize * sizeof(float));
-
-			if (!mTexCoordEnabled)
-			{
-				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-				mTexCoordEnabled = true;
-			}
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			mTexCoordEnabled = true;
 		}
 	}
 	else if (mTexCoordEnabled)
 	{
-		if (gSupportsShaderObjects)
-			glDisableVertexAttribArray(LC_ATTRIB_TEXCOORD);
-		else
-			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		mTexCoordEnabled = false;
 	}
 
 	if (ColorSize)
 	{
-		if (gSupportsShaderObjects)
-		{
-			glVertexAttribPointer(LC_ATTRIB_COLOR, ColorSize, GL_FLOAT, false, VertexSize, VertexBufferPointer + (PositionSize + TexCoordSize) * sizeof(float));
+		glColorPointer(ColorSize, GL_FLOAT, VertexSize, VertexBufferPointer + (PositionSize + TexCoordSize) * sizeof(float));
 
-			if (!mColorEnabled)
-			{
-				glEnableVertexAttribArray(LC_ATTRIB_COLOR);
-				mColorEnabled = true;
-			}
-		}
-		else
+		if (!mColorEnabled)
 		{
-			glColorPointer(ColorSize, GL_FLOAT, VertexSize, VertexBufferPointer + (PositionSize + TexCoordSize) * sizeof(float));
-
-			if (!mColorEnabled)
-			{
-				glEnableClientState(GL_COLOR_ARRAY);
-				mColorEnabled = true;
-			}
+			glEnableClientState(GL_COLOR_ARRAY);
+			mColorEnabled = true;
 		}
 	}
 	else if (mColorEnabled)
 	{
-		if (gSupportsShaderObjects)
-			glDisableVertexAttribArray(LC_ATTRIB_COLOR);
-		else
-			glDisableClientState(GL_COLOR_ARRAY);
+		glDisableClientState(GL_COLOR_ARRAY);
 		mColorEnabled = false;
 	}
 }
@@ -776,13 +563,14 @@ void lcContext::BindMesh(lcMesh* Mesh)
 	if (Mesh->mVertexCacheOffset != -1)
 	{
 		GLuint VertexBufferObject = Library->mVertexBuffer.Object;
+		mVertexBufferPointer = (char*)(quintptr)Mesh->mVertexCacheOffset;
 		GLuint IndexBufferObject = Library->mIndexBuffer.Object;
+		mIndexBufferPointer = (char*)(quintptr)Mesh->mIndexCacheOffset;
 
 		if (VertexBufferObject != mVertexBufferObject)
 		{
 			glBindBuffer(GL_ARRAY_BUFFER_ARB, VertexBufferObject);
 			mVertexBufferObject = VertexBufferObject;
-			mVertexBufferPointer = NULL;
 			mVertexBufferOffset = (char*)~0;
 		}
 
@@ -790,7 +578,6 @@ void lcContext::BindMesh(lcMesh* Mesh)
 		{
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, IndexBufferObject);
 			mIndexBufferObject = IndexBufferObject;
-			mIndexBufferPointer = NULL;
 		}
 	}
 	else
@@ -833,107 +620,38 @@ void lcContext::UnbindMesh()
 	mVertexBufferPointer = NULL;
 	mIndexBufferPointer = NULL;
 
-	if (gSupportsShaderObjects)
-	{
-		glDisableVertexAttribArray(LC_ATTRIB_TEXCOORD);
-		glDisableVertexAttribArray(LC_ATTRIB_COLOR);
-	}
-	else
-	{
-		glVertexPointer(3, GL_FLOAT, 0, NULL);
-		glTexCoordPointer(2, GL_FLOAT, 0, NULL);
-	}
-	mTexCoordEnabled = false;
-	mColorEnabled = false;
-}
-
-void lcContext::FlushState()
-{
-	if (gSupportsShaderObjects)
-	{
-		if (mWorldMatrixDirty || mViewMatrixDirty || mProjectionMatrixDirty)
-		{
-			if (mViewProjectionMatrixDirty)
-			{
-				mViewProjectionMatrix = lcMul(mViewMatrix, mProjectionMatrix);
-				mViewProjectionMatrixDirty = false;
-			}
-
-			glUniformMatrix4fv(mPrograms[mProgramType].MatrixLocation, 1, false, lcMul(mWorldMatrix, mViewProjectionMatrix));
-			mWorldMatrixDirty = false;
-			mViewMatrixDirty = false;
-			mProjectionMatrixDirty = false;
-		}
-
-		if (mColorDirty && mPrograms[mProgramType].ColorLocation != -1)
-		{
-			glUniform4fv(mPrograms[mProgramType].ColorLocation, 1, mColor);
-			mColorDirty = false;
-		}
-	}
-	else
-	{
-		glColor4fv(mColor);
-
-		if (mWorldMatrixDirty || mViewMatrixDirty)
-		{
-			if (mMatrixMode != GL_MODELVIEW)
-			{
-				glMatrixMode(GL_MODELVIEW);
-				mMatrixMode = GL_MODELVIEW;
-			}
-
-			glLoadMatrixf(lcMul(mWorldMatrix, mViewMatrix));
-			mWorldMatrixDirty = false;
-			mViewMatrixDirty = false;
-		}
-
-		if (mProjectionMatrixDirty)
-		{
-			if (mMatrixMode != GL_PROJECTION)
-			{
-				glMatrixMode(GL_PROJECTION);
-				mMatrixMode = GL_PROJECTION;
-			}
-
-			glLoadMatrixf(mProjectionMatrix);
-			mProjectionMatrixDirty = false;
-		}
-	}
+	glVertexPointer(3, GL_FLOAT, 0, NULL);
+	glTexCoordPointer(2, GL_FLOAT, 0, NULL);
 }
 
 void lcContext::DrawPrimitives(GLenum Mode, GLint First, GLsizei Count)
 {
-	FlushState();
 	glDrawArrays(Mode, First, Count);
 }
 
 void lcContext::DrawIndexedPrimitives(GLenum Mode, GLsizei Count, GLenum Type, int Offset)
 {
-	FlushState();
 	glDrawElements(Mode, Count, Type, mIndexBufferPointer + Offset);
 }
 
 void lcContext::DrawMeshSection(lcMesh* Mesh, lcMeshSection* Section)
 {
+	char* BufferOffset = mVertexBufferPointer;
 	lcTexture* Texture = Section->Texture;
-	int VertexBufferOffset = Mesh->mVertexCacheOffset != -1 ? Mesh->mVertexCacheOffset : 0;
-	int IndexBufferOffset = Mesh->mIndexCacheOffset != -1 ? Mesh->mIndexCacheOffset : 0;
 
 	if (!Texture)
 	{
-		SetVertexFormat(VertexBufferOffset, 3, 0, 0);
-
 		if (mTexture)
 		{
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 			glDisable(GL_TEXTURE_2D);
+
 			mTexture = NULL;
 		}
 	}
 	else
 	{
-		VertexBufferOffset += Mesh->mNumVertices * sizeof(lcVertex);
-		SetVertexFormat(VertexBufferOffset, 3, 2, 0);
+		BufferOffset += Mesh->mNumVertices * sizeof(lcVertex);
 
 		if (Texture != mTexture)
 		{
@@ -941,6 +659,7 @@ void lcContext::DrawMeshSection(lcMesh* Mesh, lcMeshSection* Section)
 
 			if (!mTexture)
 			{
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 				glEnable(GL_TEXTURE_2D);
 			}
@@ -949,10 +668,23 @@ void lcContext::DrawMeshSection(lcMesh* Mesh, lcMeshSection* Section)
 		}
 	}
 
-	DrawIndexedPrimitives(Section->PrimitiveType, Section->NumIndices, Mesh->mIndexType, IndexBufferOffset + Section->IndexOffset);
+	if (mVertexBufferOffset != BufferOffset)
+	{
+		if (!Texture)
+			glVertexPointer(3, GL_FLOAT, 0, BufferOffset);
+		else
+		{
+			glVertexPointer(3, GL_FLOAT, sizeof(lcVertexTextured), BufferOffset);
+			glTexCoordPointer(2, GL_FLOAT, sizeof(lcVertexTextured), BufferOffset + sizeof(lcVector3));
+		}
+
+		mVertexBufferOffset = BufferOffset;
+	}
+
+	glDrawElements(Section->PrimitiveType, Section->NumIndices, Mesh->mIndexType, mIndexBufferPointer + Section->IndexOffset);
 }
 
-void lcContext::DrawOpaqueMeshes(const lcArray<lcRenderMesh>& OpaqueMeshes)
+void lcContext::DrawOpaqueMeshes(const lcMatrix44& ViewMatrix, const lcArray<lcRenderMesh>& OpaqueMeshes)
 {
 	bool DrawLines = lcGetPreferences().mDrawEdgeLines;
 
@@ -964,7 +696,7 @@ void lcContext::DrawOpaqueMeshes(const lcArray<lcRenderMesh>& OpaqueMeshes)
 		lcMesh* Mesh = RenderMesh.Mesh;
 
 		BindMesh(Mesh);
-		SetWorldMatrix(RenderMesh.WorldMatrix);
+		SetWorldViewMatrix(lcMul(RenderMesh.WorldMatrix, ViewMatrix));
 
 		for (int SectionIdx = 0; SectionIdx < Mesh->mNumSections; SectionIdx++)
 		{
@@ -1025,7 +757,7 @@ void lcContext::DrawOpaqueMeshes(const lcArray<lcRenderMesh>& OpaqueMeshes)
 	}
 }
 
-void lcContext::DrawTranslucentMeshes(const lcArray<lcRenderMesh>& TranslucentMeshes)
+void lcContext::DrawTranslucentMeshes(const lcMatrix44& ViewMatrix, const lcArray<lcRenderMesh>& TranslucentMeshes)
 {
 	if (TranslucentMeshes.IsEmpty())
 		return;
@@ -1040,7 +772,7 @@ void lcContext::DrawTranslucentMeshes(const lcArray<lcRenderMesh>& TranslucentMe
 		lcMesh* Mesh = RenderMesh.Mesh;
 
 		BindMesh(Mesh);
-		SetWorldMatrix(RenderMesh.WorldMatrix);
+		SetWorldViewMatrix(lcMul(RenderMesh.WorldMatrix, ViewMatrix));
 
 		for (int SectionIdx = 0; SectionIdx < Mesh->mNumSections; SectionIdx++)
 		{
@@ -1079,8 +811,8 @@ void lcContext::DrawTranslucentMeshes(const lcArray<lcRenderMesh>& TranslucentMe
 	glDisable(GL_BLEND);
 }
 
-void lcContext::DrawInterfaceObjects(const lcArray<lcObject*>& InterfaceObjects)
+void lcContext::DrawInterfaceObjects(const lcMatrix44& ViewMatrix, const lcArray<lcObject*>& InterfaceObjects)
 {
 	for (int ObjectIdx = 0; ObjectIdx < InterfaceObjects.GetSize(); ObjectIdx++)
-		InterfaceObjects[ObjectIdx]->DrawInterface(this);
+		InterfaceObjects[ObjectIdx]->DrawInterface(this, ViewMatrix);
 }

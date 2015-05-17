@@ -562,9 +562,7 @@ void View::OnDraw()
 	const lcPreferences& Preferences = lcGetPreferences();
 	const lcModelProperties& Properties = mModel->GetProperties();
 
-	mContext->SetViewMatrix(mCamera->mWorldView);
 	mContext->SetProjectionMatrix(GetProjectionMatrix());
-	mContext->SetProgram(LC_PROGRAM_SIMPLE); // todo: lighting
 
 	if (Preferences.mLightingMode != LC_LIGHTING_FLAT)
 	{
@@ -601,8 +599,9 @@ void View::OnDraw()
 
 	mContext->SetLineWidth(Preferences.mLineWidth);
 
-	mContext->DrawOpaqueMeshes(mScene.mOpaqueMeshes);
-	mContext->DrawTranslucentMeshes(mScene.mTranslucentMeshes);
+	const lcMatrix44& ViewMatrix = mCamera->mWorldView;
+	mContext->DrawOpaqueMeshes(ViewMatrix, mScene.mOpaqueMeshes);
+	mContext->DrawTranslucentMeshes(ViewMatrix, mScene.mTranslucentMeshes);
 
 	mContext->UnbindMesh(); // context remove
 
@@ -618,8 +617,7 @@ void View::OnDraw()
 
 	if (DrawInterface)
 	{
-		mContext->SetProgram(LC_PROGRAM_SIMPLE);
-		mContext->DrawInterfaceObjects(mScene.mInterfaceObjects);
+		mContext->DrawInterfaceObjects(ViewMatrix, mScene.mInterfaceObjects);
 
 		mContext->SetLineWidth(1.0f);
 
@@ -648,8 +646,8 @@ void View::OnDraw()
 
 void View::DrawSelectMoveOverlay()
 {
-	mContext->SetProgram(LC_PROGRAM_SIMPLE);
-	mContext->SetViewMatrix(mCamera->mWorldView);
+
+	const lcMatrix44& ViewMatrix = mCamera->mWorldView;
 	mContext->SetProjectionMatrix(GetProjectionMatrix());
 
 	glDisable(GL_DEPTH_TEST);
@@ -658,12 +656,13 @@ void View::DrawSelectMoveOverlay()
 	lcVector3 OverlayCenter = mModel->GetFocusOrSelectionCenter();
 	bool AnyPiecesSelected = mModel->AnyPiecesSelected();
 
-	lcMatrix44 WorldMatrix = lcMul(RelativeRotation, lcMatrix44Translation(OverlayCenter));
+	lcMatrix44 WorldViewMatrix = lcMul(lcMatrix44Translation(OverlayCenter), ViewMatrix);
+	WorldViewMatrix = lcMul(RelativeRotation, WorldViewMatrix);
 
 	const float OverlayScale = GetOverlayScale();
-	WorldMatrix = lcMul(lcMatrix44Scale(lcVector3(OverlayScale, OverlayScale, OverlayScale)), WorldMatrix);
+	WorldViewMatrix = lcMul(lcMatrix44Scale(lcVector3(OverlayScale, OverlayScale, OverlayScale)), WorldViewMatrix);
 
-	mContext->SetWorldMatrix(WorldMatrix);
+	mContext->SetWorldViewMatrix(WorldViewMatrix);
 
 	mContext->SetIndexBuffer(mRotateMoveIndexBuffer);
 	mContext->SetVertexBuffer(mRotateMoveVertexBuffer);
@@ -754,10 +753,10 @@ void View::DrawSelectMoveOverlay()
 void View::DrawRotateOverlay()
 {
 	const float OverlayScale = GetOverlayScale();
+	const lcMatrix44& ViewMatrix = mCamera->mWorldView;
+
 	const float OverlayRotateRadius = 2.0f;
 
-	mContext->SetProgram(LC_PROGRAM_SIMPLE);
-	mContext->SetViewMatrix(mCamera->mWorldView);
 	mContext->SetProjectionMatrix(GetProjectionMatrix());
 
 	glDisable(GL_DEPTH_TEST);
@@ -812,10 +811,11 @@ void View::DrawRotateOverlay()
 
 		if (fabsf(Angle) >= fabsf(Step))
 		{
-			lcMatrix44 WorldMatrix = lcMul(RelativeRotation, lcMatrix44Translation(OverlayCenter));
-			WorldMatrix = lcMul(lcMatrix44FromAxisAngle(lcVector3(Rotation[1], Rotation[2], Rotation[3]), Rotation[0] * LC_DTOR), WorldMatrix);
+			lcMatrix44 WorldViewMatrix = lcMul(lcMatrix44Translation(OverlayCenter), ViewMatrix);
+			WorldViewMatrix = lcMul(RelativeRotation, WorldViewMatrix);
+			WorldViewMatrix = lcMul(lcMatrix44FromAxisAngle(lcVector3(Rotation[1], Rotation[2], Rotation[3]), Rotation[0] * LC_DTOR), WorldViewMatrix);
 
-			mContext->SetWorldMatrix(WorldMatrix);
+			mContext->SetWorldViewMatrix(WorldViewMatrix);
 
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glEnable(GL_BLEND);
@@ -863,12 +863,12 @@ void View::DrawRotateOverlay()
 		}
 	}
 
+	lcMatrix44 Mat = lcMatrix44AffineInverse(mCamera->mWorldView);
+	Mat.SetTranslation(OverlayCenter);
+
 	// Draw the circles.
 	if (gMainWindow->GetTool() == LC_TOOL_ROTATE && !HasAngle && mTrackButton == LC_TRACKBUTTON_NONE)
 	{
-		lcMatrix44 Mat = lcMatrix44AffineInverse(mCamera->mWorldView);
-		Mat.SetTranslation(OverlayCenter);
-
 		lcVector3 Verts[32];
 
 		for (j = 0; j < 32; j++)
@@ -883,7 +883,7 @@ void View::DrawRotateOverlay()
 		}
 
 		mContext->SetColor(0.1f, 0.1f, 0.1f, 1.0f);
-		mContext->SetWorldMatrix(lcMatrix44Identity());
+		mContext->SetWorldViewMatrix(ViewMatrix);
 
 		glVertexPointer(3, GL_FLOAT, 0, Verts);
 		glDrawArrays(GL_LINE_LOOP, 0, 32);
@@ -895,8 +895,9 @@ void View::DrawRotateOverlay()
 	// Transform ViewDir to local space.
 	ViewDir = lcMul30(ViewDir, lcMatrix44AffineInverse(RelativeRotation));
 
-	lcMatrix44 WorldMatrix = lcMul(RelativeRotation, lcMatrix44Translation(OverlayCenter));
-	mContext->SetWorldMatrix(WorldMatrix);
+	lcMatrix44 WorldViewMatrix = lcMul(lcMatrix44Translation(OverlayCenter), ViewMatrix);
+	WorldViewMatrix = lcMul(RelativeRotation, WorldViewMatrix);
+	mContext->SetWorldViewMatrix(WorldViewMatrix);
 
 	// Draw each axis circle.
 	for (int i = 0; i < 3; i++)
@@ -989,9 +990,10 @@ void View::DrawRotateOverlay()
 			break;
 		};
 
-		lcMatrix44 WorlMatrix = lcMul(RelativeRotation, lcMatrix44Translation(OverlayCenter));
-		WorldMatrix = lcMul(lcMatrix44FromAxisAngle(lcVector3(Rotation[1], Rotation[2], Rotation[3]), Rotation[0] * LC_DTOR), WorldMatrix);
-		mContext->SetWorldMatrix(WorldMatrix);
+		lcMatrix44 WorldViewMatrix = lcMul(lcMatrix44Translation(OverlayCenter), ViewMatrix);
+		WorldViewMatrix = lcMul(RelativeRotation, WorldViewMatrix);
+		WorldViewMatrix = lcMul(lcMatrix44FromAxisAngle(lcVector3(Rotation[1], Rotation[2], Rotation[3]), Rotation[0] * LC_DTOR), WorldViewMatrix);
+		mContext->SetWorldViewMatrix(WorldViewMatrix);
 
 		mContext->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
 
@@ -1019,9 +1021,8 @@ void View::DrawRotateOverlay()
 		// Draw text.
 		lcVector3 ScreenPos = ProjectPoint(OverlayCenter);
 
-		mContext->SetWorldMatrix(lcMatrix44Identity());
-		mContext->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
 		mContext->SetProjectionMatrix(lcMatrix44Ortho(0.0f, mWidth, 0.0f, mHeight, -1.0f, 1.0f));
+		mContext->SetWorldViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
 
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		gTexFont.MakeCurrent();
@@ -1047,10 +1048,8 @@ void View::DrawRotateOverlay()
 
 void View::DrawSelectZoomRegionOverlay()
 {
-	mContext->SetProgram(LC_PROGRAM_SIMPLE);
-	mContext->SetWorldMatrix(lcMatrix44Identity());
-	mContext->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
 	mContext->SetProjectionMatrix(lcMatrix44Ortho(0.0f, mWidth, 0.0f, mHeight, -1.0f, 1.0f));
+	mContext->SetWorldViewMatrix(lcMatrix44Translation(lcVector3(0.375f, 0.375f, 0.0f)));
 
 	glDisable(GL_DEPTH_TEST);
 
@@ -1136,10 +1135,8 @@ void View::DrawRotateViewOverlay()
 	w = mWidth;
 	h = mHeight;
 
-	mContext->SetProgram(LC_PROGRAM_SIMPLE);
-	mContext->SetWorldMatrix(lcMatrix44Identity());
-	mContext->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
 	mContext->SetProjectionMatrix(lcMatrix44Ortho(0, w, 0, h, -1, 1));
+	mContext->SetWorldViewMatrix(lcMatrix44Translation(lcVector3(0.375f, 0.375f, 0.0f)));
 
 	glDisable(GL_DEPTH_TEST);
 	mContext->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -1187,8 +1184,7 @@ void View::DrawRotateViewOverlay()
 		40, 41, 41, 42, 42, 43, 43, 40, 44, 45, 45, 46, 46, 47, 47, 44
 	};
 
-	mContext->SetIndexBufferPointer(Indices);
-	mContext->DrawIndexedPrimitives(GL_LINES, 96, GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_LINES, 96, GL_UNSIGNED_SHORT, Indices);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -1199,7 +1195,7 @@ void View::DrawGrid()
 {
 	const lcPreferences& Preferences = lcGetPreferences();
 
-	mContext->SetWorldMatrix(lcMatrix44Identity());
+	mContext->SetWorldViewMatrix(mCamera->mWorldView);
 
 	const int Spacing = lcMax(Preferences.mGridLineSpacing, 1);
 	int MinX, MaxX, MinY, MaxY;
@@ -1361,7 +1357,6 @@ void View::DrawGrid()
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 
-		mContext->SetProgram(LC_PROGRAM_TEXTURE);
 		mContext->SetColor(lcVector4FromColor(Preferences.mGridStudColor));
 
 		mContext->SetVertexFormat(0, 3, 2, 0);
@@ -1376,7 +1371,6 @@ void View::DrawGrid()
 	if (Preferences.mDrawGridLines)
 	{
 		mContext->SetLineWidth(1.0f);
-		mContext->SetProgram(LC_PROGRAM_SIMPLE);
 		mContext->SetColor(lcVector4FromColor(Preferences.mGridLineColor));
 
 		int NumVerts = 2 * (MaxX - MinX + MaxY - MinY + 2);
@@ -1403,9 +1397,10 @@ void View::DrawAxes()
 		 0.00f, -3.00f, 12.00f, -2.12f, -2.12f, 12.00f, -3.00f,  0.00f, 12.00f, -2.12f,  2.12f, 12.00f,
 	};
 
-	const GLushort Indices[78] =
+	GLushort LineIndices[6] = { 0, 1, 0, 10, 0, 19 };
+
+	GLushort TriIndices[72] = 
 	{
-		 0,  1,  0, 10,  0, 19,
 		 1,  2,  3,  1,  3,  4,  1,  4,  5,  1,  5,  6,  1,  6,  7,  1,  7,  8,  1,  8,  9,  1,  9,  2,
 		10, 11, 12, 10, 12, 13, 10, 13, 14, 10, 14, 15, 10, 15, 16, 10, 16, 17, 10, 17, 18, 10, 18, 11,
 		19, 20, 21, 19, 21, 22, 19, 22, 23, 19, 23, 24, 19, 24, 25, 19, 25, 26, 19, 26, 27, 19, 27, 20
@@ -1415,27 +1410,22 @@ void View::DrawAxes()
 	lcMatrix44 WorldViewMatrix = mCamera->mWorldView;
 	WorldViewMatrix.SetTranslation(lcVector3(0, 0, 0));
 
-	mContext->SetProgram(LC_PROGRAM_SIMPLE);
-	mContext->SetWorldMatrix(lcMatrix44Identity());
-	mContext->SetViewMatrix(lcMul(WorldViewMatrix, TranslationMatrix));
 	mContext->SetProjectionMatrix(lcMatrix44Ortho(0, mWidth, 0, mHeight, -50, 50));
+	mContext->SetWorldViewMatrix(lcMul(WorldViewMatrix, TranslationMatrix));
 
 	mContext->SetVertexBufferPointer(Verts);
 	mContext->SetVertexFormat(0, 3, 0, 0);
-	mContext->SetIndexBufferPointer(Indices);
 
-	mContext->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
-	mContext->DrawIndexedPrimitives(GL_LINES, 6, GL_UNSIGNED_SHORT, 0);
-
+		mContext->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glDrawElements(GL_LINES, 6, GL_UNSIGNED_SHORT, LineIndices);
 	mContext->SetColor(0.8f, 0.0f, 0.0f, 1.0f),
-	mContext->DrawIndexedPrimitives(GL_TRIANGLES, 24, GL_UNSIGNED_SHORT, 6 * 2);
+	glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_SHORT, TriIndices);
 	mContext->SetColor(0.0f, 0.8f, 0.0f, 1.0f);
-	mContext->DrawIndexedPrimitives(GL_TRIANGLES, 24, GL_UNSIGNED_SHORT, (6 + 24) * 2);
+	glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_SHORT, TriIndices + 24);
 	mContext->SetColor(0.0f, 0.0f, 0.8f, 1.0f);
-	mContext->DrawIndexedPrimitives(GL_TRIANGLES, 24, GL_UNSIGNED_SHORT, (6 + 48) * 2);
+	glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_SHORT, TriIndices + 48);
 
-	mContext->SetProgram(LC_PROGRAM_TEXTURE);
-	mContext->SetViewMatrix(TranslationMatrix);
+	mContext->SetWorldViewMatrix(TranslationMatrix);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	gTexFont.MakeCurrent();
 	glEnable(GL_TEXTURE_2D);
@@ -1464,10 +1454,8 @@ void View::DrawAxes()
 
 void View::DrawViewport()
 {
-	mContext->SetProgram(LC_PROGRAM_SIMPLE);
-	mContext->SetWorldMatrix(lcMatrix44Identity());
-	mContext->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
 	mContext->SetProjectionMatrix(lcMatrix44Ortho(0.0f, mWidth, 0.0f, mHeight, -1.0f, 1.0f));
+	mContext->SetWorldViewMatrix(lcMatrix44Translation(lcVector3(0.375f, 0.375f, 0.0f)));
 
 	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
