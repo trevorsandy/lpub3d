@@ -464,7 +464,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     while ( ! in.atEnd()) {
       QString sLine = in.readLine(0);
       stageContents << sLine.trimmed();
-      counter++;
+      counter++; //just to count the number of lines - not used otherwise
     }
 
     for (int i = 0; i < stageContents.size(); i++) {

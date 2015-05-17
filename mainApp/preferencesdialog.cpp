@@ -103,6 +103,8 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
     ui.preferredRenderer->setEnabled(false);
   }
 
+  //if(!ldviewExists && !ldgliteExists && !l3pExists)
+
   //fade step start
   ui.fadeStepColorLabel->setPalette(QPalette(LDrawColor::color(Preferences::fadeStepColor)));
   ui.fadeStepColorLabel->setAutoFillBackground(true);
