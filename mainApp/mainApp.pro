@@ -256,9 +256,11 @@ SOURCES += \
     updatedialog.cpp
 	
 FORMS += \
-    aboutdialog.ui \
     preferences.ui \
-    updatedialog.ui 
+    updatedialog.ui \
+    parmseditor.ui \
+    updatedialog.ui \
+    aboutdialog.ui
 	
 OTHER_FILES += \
     lpub.rc

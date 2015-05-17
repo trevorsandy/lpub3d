@@ -234,6 +234,7 @@ void PreferencesDialog::on_browseLDView_clicked()
         ui.preferredRenderer->setEnabled(true);
       } 
       ui.ldviewBox->setChecked(fileInfo.exists());
+      ui.RenderMessage->setText("");
     }
   }
 }
@@ -264,6 +265,7 @@ void PreferencesDialog::on_browseLDGLite_clicked()
         ui.preferredRenderer->setEnabled(true);
       } 
       ui.ldgliteBox->setChecked(fileInfo.exists());
+      ui.RenderMessage->setText("");
     }
   }
 }
@@ -295,6 +297,7 @@ void PreferencesDialog::on_browseL3P_clicked()
 				ui.preferredRenderer->setEnabled(true);
 			}
             ui.l3pBox->setChecked(fileInfo.exists() || povrayInfo.exists());
+            ui.RenderMessage->setText("");
 		}
 	}
 }
@@ -326,6 +329,7 @@ void PreferencesDialog::on_browsePOVRAY_clicked()
 				ui.preferredRenderer->setEnabled(true);
 			}
             ui.l3pBox->setChecked(fileInfo.exists() || l3pInfo.exists());
+            ui.RenderMessage->setText("");
 		}
 	}
 }
@@ -496,6 +500,8 @@ void PreferencesDialog::accept(){
                               QMessageBox::Yes|QMessageBox::No)){
             QDialog::reject(); //keep open
         }
+    } else {
+        QDialog::accept();
     }
 }
 

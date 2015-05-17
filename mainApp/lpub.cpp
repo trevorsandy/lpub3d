@@ -366,17 +366,30 @@ void Gui::clearCSICache()
 
 void Gui::clearCSI3DCache()
 {
-  QString dirName = QDir::currentPath() + "/" + Paths::viewerDir;
-  QDir dir(dirName);
+    QString tmpDirName = QDir::currentPath() + "/" + Paths::tmpDir;
+    QDir tmpDir(tmpDirName);
 
-  dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+    tmpDir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
 
-  QFileInfoList list = dir.entryInfoList();
-  for (int i = 0; i < list.size(); i++) {
-    QFileInfo fileInfo = list.at(i);
-    QFile     file(dirName + "/" + fileInfo.fileName());
-    file.remove();
-  }
+    QFileInfoList tmpDirList = tmpDir.entryInfoList();
+    for (int i = 0; i < tmpDirList.size(); i++) {
+        QFileInfo fileInfo = tmpDirList.at(i);
+        QFile     file(tmpDirName + "/" + fileInfo.fileName());
+        file.remove();
+    }
+
+    QString viewDirName = QDir::currentPath() + "/" + Paths::viewerDir;
+    QDir viewDir(viewDirName);
+
+    viewDir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+
+    QFileInfoList viewDirList = viewDir.entryInfoList();
+    for (int i = 0; i < viewDirList.size(); i++) {
+        QFileInfo fileInfo = viewDirList.at(i);
+        QFile     file(viewDirName + "/" + fileInfo.fileName());
+        file.remove();
+    }
+
 }
 
 void Gui::clearALLCache()
@@ -429,6 +442,16 @@ void Gui::projectSetup()
 void Gui::fadeStepSetup()
 {
   GlobalFadeStepDialog::getFadeStepGlobals(ldrawFile.topLevelFile(),page.meta);
+}
+
+void Gui::editFreeFormAnnitations()
+{
+   //parmsEditor->parmsOpen(Preferences::freeformAnnotationsFile);
+}
+
+void Gui::editFadeColourParts()
+{
+   //parmsEditor->parmsOpen(Preferences::fadeStepColorPartsFile);
 }
 
 void Gui::preferences()
@@ -870,6 +893,14 @@ void Gui::createActions()
     preferencesAct->setStatusTip(tr("Set your preferences for LPub"));
     connect(preferencesAct, SIGNAL(triggered()), this, SLOT(preferences()));
 
+    editFreeFormAnnitationsAct = new QAction(tr("Edit Freeform Annotations"), this);
+    editFreeFormAnnitationsAct->setStatusTip(tr("Add/Edit freeform part annotations"));
+    connect(editFreeFormAnnitationsAct, SIGNAL(triggered()), this, SLOT(editFreeFormAnnitations()));
+
+    editFadeColourPartsAct = new QAction(tr("Edit Fade Coloured Parts"), this);
+    editFadeColourPartsAct->setStatusTip(tr("Add/Edit static coloured parts to fade-parts list"));
+    connect(editFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(editFadeColourParts()));
+
     // Help
 
     aboutAct = new QAction(tr("&About"), this);
@@ -911,6 +942,9 @@ void Gui::enableActions()
     fadeStepSetupAct->setEnabled(true);
     addPictureAct->setEnabled(true);
     removeLPubFormattingAct->setEnabled(true);
+    editFreeFormAnnitationsAct->setEnabled(true);
+    editFadeColourPartsAct->setEnabled(true);
+
 }
 
 void Gui::enableActions2()
@@ -994,7 +1028,9 @@ void Gui::createMenus()
     configMenu->addAction(multiStepSetupAct);
     configMenu->addAction(projectSetupAct);
     configMenu->addAction(fadeStepSetupAct);
-
+    configMenu->addSeparator();
+    configMenu->addAction(editFreeFormAnnitationsAct);
+    configMenu->addAction(editFadeColourPartsAct);
     configMenu->addSeparator();
     configMenu->addAction(preferencesAct);
 
