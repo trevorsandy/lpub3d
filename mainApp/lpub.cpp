@@ -23,6 +23,10 @@
 #include <QTextStream>
 #include <QWidget>
 
+#include "QPushButton"
+#include "QHBoxLayout"
+#include "QVBoxLayout"
+
 #include "lpub.h"
 #include "editwindow.h"
 #include "paths.h"
@@ -446,12 +450,33 @@ void Gui::fadeStepSetup()
 
 void Gui::editFreeFormAnnitations()
 {
-   //parmsEditor->parmsOpen(Preferences::freeformAnnotationsFile);
+    parmsEditor.parmsOpen(mFreeFormAnno);
+    parmsEditor.setWindowTitle(tr("Freeform Annotation","Edit/add freeform part annotations"));
+    parmsEditor.show();
+
+//    QWidget *window = new QWidget;
+//    window->setWindowTitle(tr("Freeform Annotation","Edit/add freeform part annotations"));
+
+//    QPushButton *button1 = new QPushButton("Save");
+//    QPushButton *button2 = new QPushButton("Exit");
+
+//    QHBoxLayout *hlayout = new QHBoxLayout;
+//    //QHBoxLayout *vlayout = new QVBoxLayout;
+
+//    hlayout->addWidget(QWidget(parmsEditor));
+//    hlayout->addWidget(button1);
+//    hlayout->addWidget(button2);
+
+//    window->setLayout(hlayout);
+//    window.show();
 }
 
 void Gui::editFadeColourParts()
 {
-   //parmsEditor->parmsOpen(Preferences::fadeStepColorPartsFile);
+    parmsEditor.parmsOpen(mColourPartFade);
+    parmsEditor.setWindowTitle(tr("Fade Colour Parts","Edit/add static coulour parts for fade"));
+    parmsEditor.show();
+
 }
 
 void Gui::preferences()
@@ -570,6 +595,8 @@ Gui::Gui()
     Preferences::getRequireds();
     Render::setRenderer(Preferences::preferredRenderer);
 
+    mFreeFormAnno     = 1;
+    mColourPartFade   = 2;
 }
 
 Gui::~Gui()

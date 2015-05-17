@@ -354,8 +354,8 @@
 #include "FadeStepColorParts.h"
 #include "aboutdialog.h"
 #include "updatedialog.h"
+#include "parmseditor.h"
 #include "version.h"
-//#include "parmseditor.h"
 
 //** 3D
 #include "lc_math.h"
@@ -583,8 +583,6 @@ public slots:
 
   void preferences();
   void fadeStepSetup();
-  void editFreeFormAnnitations();
-  void editFadeColourParts();
 
   void pageSetup();
   void assemSetup();
@@ -626,8 +624,6 @@ private:
   QString         curFile;         // the file name for MPD, or top level file
   QString         curSubFile;      // whats being displayed in the edit window
   EditWindow     *editWindow;      // the sub file editable by the user
-  //ParmsEditor    *parmsEditor;     // text editor to add/edit static colour fade parts
-                                   // add add/edit freeform annotations
 
   GlobalFadeStep *data;
   FadeStepColorParts    fadeStepColorParts; //internal list of color parts to be processed for fade step.
@@ -738,6 +734,8 @@ private slots:
     void openRecentFile();
     bool aboutDialog();
     bool updateDialog();
+    void editFreeFormAnnitations();
+    void editFadeColourParts();
 
     void toggleLCStatusBar();
     void showLCStatusMessage();
@@ -918,6 +916,8 @@ private:
   QAction *editFreeFormAnnitationsAct;
   QAction *editFadeColourPartsAct;
 
+
+
   // help
 
   QAction  *aboutAct;
@@ -938,11 +938,16 @@ private:
 
   // capture camera rotation from LeoCad module
 protected:
+  ParmsEditor parmsEditor;
+  int mFreeFormAnno;
+  int mColourPartFade;
+
   lcVector3 mExistingRotStep;
   lcVector3 mModelStepRotation;
   float mRotStepAngleX;
   float mRotStepAngleY;
   float mRotStepAngleZ;
+
 };
 
 extern Gui *gui;
