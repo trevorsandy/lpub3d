@@ -451,78 +451,56 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     QString     mpdName;
     QRegExp sofRE("^\\s*0\\s+FILE\\s+(.*)$");
     QRegExp eofRE("^\\s*0\\s+NOFILE\\s*$");
-    QRegExp subFile("^\\s*1\\s(.+)\\s(.+)\\.((ldr|LDR)|(mpd|MPD))$");
     QRegExp upRE1( "^\\s*0\\s+(LDRAW_ORG|Unofficial Part)");
     QRegExp upRE2( "^\\s*0\\s+!(LDRAW_ORG|Unofficial Part)");
+    QRegExp upRE3( "^\\s*0\\s+!(LDRAW_ORG|Unofficial_Part)");
     bool    unofficialPart = false;
-    bool    isSubModel = false;
-    bool    isMainFile = true;
-    int     counter = 0;
 
     /* Read content into temperory content file the first time to put into fileList in order of
        appearance and stage for later processing */
     while ( ! in.atEnd()) {
       QString sLine = in.readLine(0);
       stageContents << sLine.trimmed();
-      counter++; //just to count the number of lines - not used otherwise
     }
 
     for (int i = 0; i < stageContents.size(); i++) {
-      QString line = stageContents.at(i);
-      QString subModel;
-      QStringList tokens;
+        QString smLine = stageContents.at(i);
+        QStringList tokens;
 
-      split(line,tokens);
+        bool sof = smLine.contains(sofRE);  //start of file
+        bool eof = smLine.contains(eofRE);  //end of file
 
-      // one time read to capture main.ldr file (first file in MPD)
-      if (isMainFile) {
-          isSubModel = line.contains(sofRE);
-          isMainFile = false;
-      } else {
-          isSubModel = line.contains(subFile);
-      }
+        split(smLine,tokens);
+        bool alreadyInserted = LDrawFile::contains(mpdName.toLower());
 
-      if (isSubModel) {
+        if (sof || eof) {
 
-          subModel = tokens[tokens.size()-1];
+            if (! mpdName.isEmpty() && ! alreadyInserted) {
 
-          for (int e = 0; e < stageContents.size(); e++) {
-              QString smLine = stageContents.at(e);
-              QStringList tokens2;
+                insert(mpdName,contents,datetime,unofficialPart);
+                qDebug() << QString("subModel: %1, Unofficial(false): %2,\nContent: %3").arg(mpdName).arg(unofficialPart).arg(smLine);
+                unofficialPart = false;
+            }
+            contents.clear();
 
-              bool sof = smLine.contains(sofRE);  //start of file
-              bool eof = smLine.contains(eofRE);  //end of file
-              split(smLine,tokens2);
-              bool alreadyInserted = LDrawFile::contains(mpdName.toLower());
+            if (sof) {
+                mpdName = sofRE.cap(1).toLower();
+            } else {
+                mpdName.clear();
+            }
 
-              if (sof || eof) {
-
-                  if (mpdName.toLower() == subModel.toLower() && ! alreadyInserted) {
-
-                      insert(mpdName,contents,datetime,unofficialPart);
-                      unofficialPart = false;
-
-                  }
-                  contents.clear();
-
-                  if (sof) {
-                      mpdName = sofRE.cap(1);
-                  } else {
-                      mpdName.clear();
-                  }
-
-              } else if ( ! mpdName.isEmpty() && smLine != "") {
-                  if (smLine.contains(upRE1)||smLine.contains(upRE2)) {
-                      unofficialPart = true;
-                  }
-                  contents << smLine;
-              }
-          }
-      }
+        } else if ( ! mpdName.isEmpty() && smLine != "") {
+            if (smLine.contains(upRE1) || smLine.contains(upRE2) || smLine.contains(upRE3)) {
+                unofficialPart = true;
+                qDebug() << QString("mpdName: %1, Unofficial(TRUE): Content: %2").arg(mpdName).arg(smLine);
+            }
+            contents << smLine;
+        }
     }
 
     if ( ! mpdName.isEmpty() && ! contents.isEmpty()) {
       insert(mpdName,contents,datetime,unofficialPart);
+      qDebug() << QString("mpdName: %1, Unofficial(true): %2").arg(mpdName).arg(unofficialPart);
     }
     _mpd = true;
 }

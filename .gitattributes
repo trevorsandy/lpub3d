@@ -275,6 +275,7 @@ mainApp/glwidget.cpp -text
 mainApp/glwidget.h -text
 mainApp/highlighter.cpp -text
 mainApp/highlighter.h -text
+mainApp/images/LPub64.ico -text
 mainApp/images/LPub64.png -text
 mainApp/images/actual.png -text
 mainApp/images/copy.png -text
