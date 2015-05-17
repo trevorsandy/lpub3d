@@ -52,6 +52,10 @@ class PreferencesDialog : public QDialog
     bool          enableFadeStep();
     bool          enableDocumentLogo();
 
+  public slots:
+    void accept();
+    void cancel();
+
   private slots:
     void on_browseLDraw_clicked();
     void on_browseLeoCADLibrary_clicked();
@@ -63,7 +67,7 @@ class PreferencesDialog : public QDialog
 	void on_browseLDGLite_clicked();
     void on_browsePublishLogo_clicked();
     void colorChange(QString const &colorName);
-		
+
   private:
     QWidget *parent;
     Ui::PreferencesDialog ui;

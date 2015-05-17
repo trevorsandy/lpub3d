@@ -1,4 +1,4 @@
-/**************************************************************************** 
+/****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
 **
@@ -18,7 +18,7 @@
  *
  * The editwindow is used to display the LDraw file to the user.  The Gui
  * portion of the program (see lpub.h) decides what files and line numbers
- * are displayed.  The edit window has as little responsibility as is 
+ * are displayed.  The edit window has as little responsibility as is
  * possible.  It does work the the syntax highlighter implemented in
  * highlighter.(h,cpp)
  *
@@ -140,7 +140,7 @@ void EditWindow::pageUpDown(
       cursor.movePosition(QTextCursor::Up, moveMode);
       _textEdit->verticalScrollBar()->triggerAction(QAbstractSlider::SliderPageStepSub);
     }
-  }  
+  }
 }
 
 void EditWindow::showLine(int lineNumber)
@@ -151,7 +151,7 @@ void EditWindow::showLine(int lineNumber)
   }
   _textEdit->moveCursor(QTextCursor::EndOfLine,QTextCursor::KeepAnchor);
   _textEdit->ensureCursorVisible();
-  
+
   pageUpDown(QTextCursor::Up, QTextCursor::KeepAnchor);
 }
 
@@ -170,7 +170,7 @@ void EditWindow::displayFile(
   _textEdit->document()->setModified(false);
   connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
           this,                  SLOT(  contentsChange(int,int,int)));
-  
+
 
 }
 // Jaco is trying to get the edit window to resize...

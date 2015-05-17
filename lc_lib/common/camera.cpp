@@ -871,7 +871,7 @@ void lcCamera::Orbit(float DistanceX, float DistanceY, const lcVector3& CenterPo
 	lcVector3 FrontVector(mPosition - mTargetPosition);
 
 	lcVector3 Z(lcNormalize(lcVector3(FrontVector[0], FrontVector[1], 0)));
-	if (isnan(Z[0]) || isnan(Z[1]))
+    if (isnan(Z[0]) || isnan(Z[1]))
 		Z = lcNormalize(lcVector3(mUpVector[0], mUpVector[1], 0));
 
 	if (mUpVector[2] < 0)

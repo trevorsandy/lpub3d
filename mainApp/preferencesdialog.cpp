@@ -103,7 +103,10 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
     ui.preferredRenderer->setEnabled(false);
   }
 
-  //if(!ldviewExists && !ldgliteExists && !l3pExists)
+  if(!ldviewExists && !ldgliteExists && !l3pExists){
+      ui.tabWidget->setCurrentIndex(1);
+      ui.RenderMessage->setText("<font color='red'>You must set a renderer.</font>");
+  }
 
   //fade step start
   ui.fadeStepColorLabel->setPalette(QPalette(LDrawColor::color(Preferences::fadeStepColor)));
@@ -484,4 +487,18 @@ QString const PreferencesDialog::defaultAuthor()
 QString const PreferencesDialog::publishDescription()
 {
   return ui.publishDescriptionEdit->toPlainText();
+}
+
+void PreferencesDialog::accept(){
+    if(ui.preferredRenderer->count() == 0){
+        if (QMessageBox::Yes == QMessageBox::question(this, "Close Dialog?",
+                              "You did not enter a Renderer, Are you sure you want to exit?",
+                              QMessageBox::Yes|QMessageBox::No)){
+            QDialog::reject(); //keep open
+        }
+    }
+}
+
+void PreferencesDialog::cancel(){
+  QDialog::reject();
 }

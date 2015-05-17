@@ -35,6 +35,9 @@ win32 {
 }
 
 lessThan(QT_MAJOR_VERSION, 5) {
+#        win32{
+#                        QMAKE_CXXFLAGS += -std=c++11
+#             }
         unix {
                 GCC_VERSION = $$system(g++ -dumpversion)
                 greaterThan(GCC_VERSION, 4.6) {
@@ -42,7 +45,7 @@ lessThan(QT_MAJOR_VERSION, 5) {
                 } else {
                         QMAKE_CXXFLAGS += -std=c++0x
                 }
-        }
+             }
 }
 
 isEmpty(QMAKE_LRELEASE) {

@@ -18,7 +18,7 @@
  *
  * The editwindow is used to display the LDraw file to the user.  The Gui
  * portion of the program (see lpub.h) decides what files and line numbers
- * are displayed.  The edit window has as little responsibility as is 
+ * are displayed.  The edit window has as little responsibility as is
  * possible.  It does work the the syntax highlighter implemented in
  * highlighter.(h,cpp)
  *
