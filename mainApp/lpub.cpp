@@ -611,6 +611,8 @@ void Gui::closeEvent(QCloseEvent *event)
     Settings.setValue("State", saveState());
     Settings.endGroup();
 
+    parmsWindow->close();
+
   } else {
     event->ignore();
   }
