@@ -20,6 +20,10 @@
 #include <QDir>
 #include <QString>
 #include <QMessageBox>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QProcess>
+#include <QErrorMessage>
 
 #include "lpub.h"
 
@@ -250,9 +254,45 @@ void Gui::printToFile()
 
   // release 3D Viewer
   halt3DViewer(false);
+
   // return to whatever page we were viewing before output
   displayPageNum = savePageNumber;
   drawPage(KpageView,KpageScene,false);
+
+  //display completion message
+  QMessageBox::StandardButton ret;
+  ret = QMessageBox::information(this, tr(VER_PRODUCTNAME_STR),
+          tr("Your instruction document has finished printing.\n"
+              "Do you want to open this document?\n %1").arg(fileName),
+          QMessageBox::Yes| QMessageBox::Discard | QMessageBox::Cancel);
+
+  if (ret == QMessageBox::Yes) {
+      QString CommandPath = fileName;
+      QProcess *Process = new QProcess(this);
+      Process->setWorkingDirectory(QDir::currentPath() + "/");
+      Process->setNativeArguments(CommandPath);
+
+#ifdef __APPLE__
+
+      Process->execute(CommandPath);
+      Process->waitForFinished();
+
+      QProcess::ExitStatus Status = Process->exitStatus();
+
+      if (Status != 0) {  // look for error
+          QErrorMessage *m = new QErrorMessage(this);
+          m->showMessage(QString("%1\n%2").arg("Failed to launch PDF document!").arg(CommandPath));
+      }
+#else
+
+      QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+
+#endif
+      return;
+  } else if (ret == QMessageBox::Cancel) {
+      return;
+  }
+
 }
 
 void Gui::exportAsPng()
