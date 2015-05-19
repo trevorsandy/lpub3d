@@ -106,6 +106,8 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
   if(!ldviewExists && !ldgliteExists && !l3pExists){
       ui.tabWidget->setCurrentIndex(1);
       ui.RenderMessage->setText("<font color='red'>You must set a renderer.</font>");
+  } else {
+      ui.tabWidget->setCurrentIndex(0);
   }
 
   //fade step start

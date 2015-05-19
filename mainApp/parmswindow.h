@@ -32,13 +32,20 @@
 #include <QMainWindow>
 #include <QTextCursor>
 
-class QTextEdit;
+class QPlainTextEdit;
 class LDrawFile;
-class Highlighter;
+class ParmsHighlighter;
 class QString;
 class QAction;
 class QMenu;
 class QUndoStack;
+
+class QPaintEvent;
+class QResizeEvent;
+class QSize;
+
+class LineNumberArea;
+class TextEditor;
 
 class ParmsWindow : public QMainWindow
 {
@@ -54,9 +61,9 @@ private:
     void createMenus();
     void createToolBars();
 
-    QTextEdit   *_textEdit;
-    Highlighter *highlighter;
-    QString      fileName;  // file currently being displayed
+    TextEditor       *_textEdit;
+    ParmsHighlighter *highlighter;
+    QString           fileName;  // file currently being displayed
 
     QMenu    *editMenu;
     QToolBar *editToolBar;
@@ -79,12 +86,54 @@ private slots:
 
 public slots:
     void displayParmsFile(const QString &fileName);
-    void pageUpDown(
-      QTextCursor::MoveOperation op,
-      QTextCursor::MoveMode      moveMode);
 
 public:
-    QTextEdit *textEdit() { return _textEdit; }
+    TextEditor *textEdit() { return _textEdit; }
+};
+
+class TextEditor : public QPlainTextEdit
+{
+    Q_OBJECT
+
+public:
+    explicit TextEditor(QWidget *parent = 0);
+
+    void lineNumberAreaPaintEvent(QPaintEvent *event);
+    int lineNumberAreaWidth();
+    void parmsOpen(int &opt);
+    bool parmsSave(int &opt);
+
+protected:
+    void resizeEvent(QResizeEvent *event);
+
+private slots:
+    void updateLineNumberAreaWidth(int newBlockCount);
+    void highlightCurrentLine();
+    void updateLineNumberArea(const QRect &, int);
+
+private:
+    QWidget *lineNumberArea;
+};
+
+
+class LineNumberArea : public QWidget
+{
+public:
+    LineNumberArea(TextEditor *editor) : QWidget(editor) {
+        textEditor = editor;
+    }
+
+    QSize sizeHint() const {
+        return QSize(textEditor->lineNumberAreaWidth(), 0);
+    }
+
+protected:
+    void paintEvent(QPaintEvent *event) {
+        textEditor->lineNumberAreaPaintEvent(event);
+    }
+
+private:
+    TextEditor *textEditor;
 };
 
 #endif

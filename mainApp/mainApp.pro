@@ -192,7 +192,8 @@ HEADERS += \
     where.h \
     updatedialog.h \
     version.h \
-    parmswindow.h
+    parmswindow.h \
+    parmshighlighter.h
 	
 SOURCES += \
     aboutdialog.cpp \
@@ -255,7 +256,8 @@ SOURCES += \
     traverse.cpp \
     undoredo.cpp \
     updatedialog.cpp \
-    parmswindow.cpp
+    parmswindow.cpp \
+    parmshighlighter.cpp
 	
 FORMS += \
     preferences.ui \

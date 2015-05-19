@@ -478,7 +478,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
             if (! mpdName.isEmpty() && ! alreadyInserted) {
 
                 insert(mpdName,contents,datetime,unofficialPart);
-                qDebug() << QString("subModel: %1, Unofficial(false): %2,\nContent: %3").arg(mpdName).arg(unofficialPart).arg(smLine);
                 unofficialPart = false;
             }
             contents.clear();

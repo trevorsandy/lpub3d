@@ -25,9 +25,8 @@
  ***************************************************************************/
 
 #include <QtGui>
-
+#include "parmshighlighter.h"
 #include "parmswindow.h"
-#include "highlighter.h"
 
 ParmsWindow *parmsWindow;
 
@@ -36,10 +35,10 @@ ParmsWindow::ParmsWindow()
     parmsWindow  = this;
     parmsWindow->statusBar()->show();
 
-    _textEdit   = new QTextEdit;
+    _textEdit   = new TextEditor;
 
-    highlighter = new Highlighter(_textEdit->document());
-    _textEdit->setLineWrapMode(QTextEdit::NoWrap);
+    highlighter = new ParmsHighlighter(_textEdit->document());
+    _textEdit->setLineWrapMode(TextEditor::NoWrap);
     _textEdit->setUndoRedoEnabled(true);
 
     createActions();
@@ -136,35 +135,6 @@ void ParmsWindow::createToolBars()
     undoRedoToolBar->addAction(redoAct);
 }
 
-void ParmsWindow::pageUpDown(
-  QTextCursor::MoveOperation op,
-  QTextCursor::MoveMode      moveMode)
-{
-  QTextCursor cursor = _textEdit->textCursor();
-  bool moved = false;
-  qreal lastY = _textEdit->cursorRect(cursor).top();
-  qreal distance = 0;
-  qreal delta;
-  // move using movePosition to keep the cursor's x
-  do {
-    qreal y = _textEdit->cursorRect(cursor).top();
-    delta = qAbs(y - lastY);
-    distance += delta;
-    lastY = y;
-    moved = cursor.movePosition(op, moveMode);
-  } while (moved && distance < _textEdit->viewport()->height());
-
-  if (moved) {
-    if (op == QTextCursor::Up) {
-      cursor.movePosition(QTextCursor::Down, moveMode);
-      _textEdit->verticalScrollBar()->triggerAction(QAbstractSlider::SliderPageStepAdd);
-    } else {
-      cursor.movePosition(QTextCursor::Up, moveMode);
-      _textEdit->verticalScrollBar()->triggerAction(QAbstractSlider::SliderPageStepSub);
-    }
-  }
-}
-
 void ParmsWindow::displayParmsFile(
   const QString &_fileName)
 {
@@ -233,7 +203,7 @@ bool ParmsWindow::saveFile()
 
         if (rc){
             _textEdit->document()->setModified(false);
-            saveAct->setEnabled(false);
+            //saveAct->setEnabled(false);
             statusBar()->showMessage(tr("File saved"), 2000);
         }
     }
@@ -250,3 +220,98 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
   }
 }
 
+
+TextEditor::TextEditor(QWidget *parent) :
+    QPlainTextEdit(parent)
+{
+    lineNumberArea = new LineNumberArea(this);
+
+    connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
+    connect(this, SIGNAL(updateRequest(QRect,int)), this, SLOT(updateLineNumberArea(QRect,int)));
+    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
+
+    updateLineNumberAreaWidth(0);
+    highlightCurrentLine();
+}
+
+int TextEditor::lineNumberAreaWidth()
+{
+    int digits = 1;
+    int max = qMax(1, blockCount());
+    while (max >= 10) {
+        max /= 10;
+        ++digits;
+    }
+
+    int space = 3 + fontMetrics().width(QLatin1Char('9')) * digits;
+
+    return space;
+}
+
+void TextEditor::updateLineNumberAreaWidth(int /* newBlockCount */)
+{
+    setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
+}
+
+void TextEditor::updateLineNumberArea(const QRect &rect, int dy)
+{
+    if (dy)
+        lineNumberArea->scroll(0, dy);
+    else
+        lineNumberArea->update(0, rect.y(), lineNumberArea->width(), rect.height());
+
+    if (rect.contains(viewport()->rect()))
+        updateLineNumberAreaWidth(0);
+}
+
+void TextEditor::resizeEvent(QResizeEvent *e)
+{
+    QPlainTextEdit::resizeEvent(e);
+
+    QRect cr = contentsRect();
+    lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+}
+
+void TextEditor::highlightCurrentLine()
+{
+    QList<QTextEdit::ExtraSelection> extraSelections;
+
+    if (!isReadOnly()) {
+        QTextEdit::ExtraSelection selection;
+
+        QColor lineColor = QColor(Qt::yellow).lighter(160);
+
+        selection.format.setBackground(lineColor);
+        selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+        selection.cursor = textCursor();
+        selection.cursor.clearSelection();
+        extraSelections.append(selection);
+    }
+
+    setExtraSelections(extraSelections);
+}
+
+void TextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
+{
+    QPainter painter(lineNumberArea);
+    painter.fillRect(event->rect(), Qt::lightGray);
+
+    QTextBlock block = firstVisibleBlock();
+    int blockNumber = block.blockNumber();
+    int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
+    int bottom = top + (int) blockBoundingRect(block).height();
+
+    while (block.isValid() && top <= event->rect().bottom()) {
+        if (block.isVisible() && bottom >= event->rect().top()) {
+            QString number = QString::number(blockNumber + 1);
+            painter.setPen(Qt::black);
+            painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(),
+                             Qt::AlignRight, number);
+        }
+
+        block = block.next();
+        top = bottom;
+        bottom = top + (int) blockBoundingRect(block).height();
+        ++blockNumber;
+    }
+}

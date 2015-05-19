@@ -333,6 +333,8 @@ mainApp/pagebackgrounditem.h -text
 mainApp/pageglobals.cpp -text
 mainApp/pairdialog.cpp -text
 mainApp/pairdialog.h -text
+mainApp/parmshighlighter.cpp -text
+mainApp/parmshighlighter.h -text
 mainApp/parmswindow.cpp -text
 mainApp/parmswindow.h -text
 mainApp/partslist.cpp -text
