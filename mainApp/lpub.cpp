@@ -29,6 +29,7 @@
 
 #include "lpub.h"
 #include "editwindow.h"
+#include "parmswindow.h"
 #include "paths.h"
 #include "globals.h"
 #include "resolution.h"
@@ -326,6 +327,11 @@ void Gui::displayFile(
 //  }
 }
 
+void Gui::displayParmsFile(
+  const QString &fileName)
+{
+    displayParmsFileSig(fileName);
+}
 /*-----------------------------------------------------------------------------*/
 
 void Gui::mpdComboChanged(int index)
@@ -450,33 +456,16 @@ void Gui::fadeStepSetup()
 
 void Gui::editFreeFormAnnitations()
 {
-    parmsEditor.parmsOpen(mFreeFormAnno);
-    parmsEditor.setWindowTitle(tr("Freeform Annotation","Edit/add freeform part annotations"));
-    parmsEditor.show();
-
-//    QWidget *window = new QWidget;
-//    window->setWindowTitle(tr("Freeform Annotation","Edit/add freeform part annotations"));
-
-//    QPushButton *button1 = new QPushButton("Save");
-//    QPushButton *button2 = new QPushButton("Exit");
-
-//    QHBoxLayout *hlayout = new QHBoxLayout;
-//    //QHBoxLayout *vlayout = new QVBoxLayout;
-
-//    hlayout->addWidget(QWidget(parmsEditor));
-//    hlayout->addWidget(button1);
-//    hlayout->addWidget(button2);
-
-//    window->setLayout(hlayout);
-//    window.show();
+    displayParmsFile(Preferences::freeformAnnotationsFile);
+    parmsWindow->setWindowTitle(tr("Freeform Annotation","Edit/add freeform part annotations"));
+    parmsWindow->show();
 }
 
 void Gui::editFadeColourParts()
 {
-    parmsEditor.parmsOpen(mColourPartFade);
-    parmsEditor.setWindowTitle(tr("Fade Colour Parts","Edit/add static coulour parts for fade"));
-    parmsEditor.show();
-
+    displayParmsFile(Preferences::fadeStepColorPartsFile);
+    parmsWindow->setWindowTitle(tr("Fade Colour Parts","Edit/add static coulour parts for fade"));
+    parmsWindow->show();
 }
 
 void Gui::preferences()
@@ -523,6 +512,7 @@ Gui::Gui()
     displayPageNum = 1;
 
     editWindow    = new EditWindow();
+    parmsWindow    = new ParmsWindow();
     KpageScene    = new QGraphicsScene(this);
     KpageScene->setBackgroundBrush(Qt::lightGray);
     KpageView     = new LGraphicsView(KpageScene);
@@ -568,6 +558,9 @@ Gui::Gui()
     connect(editWindow, SIGNAL(redrawSig()),
             this,       SLOT(  clearAndRedrawPage()));
 
+    connect(this,       SIGNAL(displayParmsFileSig(const QString &)),
+            parmsWindow, SLOT(  displayParmsFile   (const QString &)));
+
     connect(undoStack,  SIGNAL(canRedoChanged(bool)),
             this,       SLOT(  canRedoChanged(bool)));
     connect(undoStack,  SIGNAL(canUndoChanged(bool)),
@@ -594,9 +587,6 @@ Gui::Gui()
 
     Preferences::getRequireds();
     Render::setRenderer(Preferences::preferredRenderer);
-
-    mFreeFormAnno     = 1;
-    mColourPartFade   = 2;
 }
 
 Gui::~Gui()
@@ -604,6 +594,7 @@ Gui::~Gui()
     delete KpageScene;
     delete KpageView;
     delete editWindow;
+    delete parmsWindow;
 }
 
 
@@ -744,6 +735,7 @@ void Gui::createActions()
     undoAct = new QAction(QIcon(":/resources/editundo.png"), tr("Undo"), this);
     undoAct->setShortcut(tr("Ctrl+Z"));
     undoAct->setStatusTip(tr("Undo last change"));
+    undoAct->setEnabled(false);
     connect(undoAct, SIGNAL(triggered()), this, SLOT(undo()));
     redoAct = new QAction(QIcon(":/resources/editredo.png"), tr("Redo"), this);
 #ifdef __APPLE__
@@ -752,13 +744,13 @@ void Gui::createActions()
     redoAct->setShortcut(tr("Ctrl+Y"));
 #endif
     redoAct->setStatusTip(tr("Redo last change"));
+    redoAct->setEnabled(false);
     connect(redoAct, SIGNAL(triggered()), this, SLOT(redo()));
 
     insertCoverPageAct = new QAction(tr("Insert Cover Page"),this);
     insertCoverPageAct->setStatusTip(tr("Insert an unnumbered page"));
     insertCoverPageAct->setEnabled(false);
     connect(insertCoverPageAct, SIGNAL(triggered()), this, SLOT(insertCoverPage()));
-
 
     appendCoverPageAct = new QAction(tr("Append Cover Page"),this);
     appendCoverPageAct->setStatusTip(tr("Append a numbered page"));
@@ -916,7 +908,7 @@ void Gui::createActions()
     fadeStepSetupAct->setStatusTip(tr("Fade all parts not in the current step"));
     connect(fadeStepSetupAct, SIGNAL(triggered()), this, SLOT(fadeStepSetup()));
 
-    preferencesAct = new QAction(tr("Preferences"), this);
+    preferencesAct = new QAction(QIcon(":/resources/preferences.png"),tr("Preferences"), this);
     preferencesAct->setStatusTip(tr("Set your preferences for LPub"));
     connect(preferencesAct, SIGNAL(triggered()), this, SLOT(preferences()));
 
@@ -953,7 +945,6 @@ void Gui::createActions()
 
 void Gui::enableActions()
 {
-    saveAct->setEnabled(true);
     saveAsAct->setEnabled(true);
     printToFileAct->setEnabled(true);
     exportPngAct->setEnabled(true);
@@ -971,7 +962,6 @@ void Gui::enableActions()
     removeLPubFormattingAct->setEnabled(true);
     editFreeFormAnnitationsAct->setEnabled(true);
     editFadeColourPartsAct->setEnabled(true);
-
 }
 
 void Gui::enableActions2()

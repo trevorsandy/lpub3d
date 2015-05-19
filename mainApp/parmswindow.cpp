@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
+** Copyright (C) 2015 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -16,11 +16,8 @@
 
 /****************************************************************************
  *
- * The editwindow is used to display the LDraw file to the user.  The Gui
- * portion of the program (see lpub.h) decides what files and line numbers
- * are displayed.  The edit window has as little responsibility as is
- * possible.  It does work the the syntax highlighter implemented in
- * highlighter.(h,cpp)
+ * The editwindow is used to display the freeform annotations
+ * and colour parts fade listings to the user.
  *
  * Please see lpub.h for an overall description of how the files in LPub
  * make up the LPub program.
@@ -29,15 +26,16 @@
 
 #include <QtGui>
 
-#include "editwindow.h"
+#include "parmswindow.h"
 #include "highlighter.h"
-#include "ldrawfiles.h"
 
-EditWindow *editWindow;
+ParmsWindow *parmsWindow;
 
-EditWindow::EditWindow()
+ParmsWindow::ParmsWindow()
 {
-    editWindow  = this;
+    parmsWindow  = this;
+    parmsWindow->statusBar()->show();
+
     _textEdit   = new QTextEdit;
 
     highlighter = new Highlighter(_textEdit->document());
@@ -49,10 +47,10 @@ EditWindow::EditWindow()
 
     setCentralWidget(_textEdit);
 
-    resize(QSize(400, 300));
+    resize(QSize(600, 800));
 }
 
-void EditWindow::createActions()
+void ParmsWindow::createActions()
 {
     cutAct = new QAction(QIcon(":/resources/cut.png"), tr("Cu&t"), this);
     cutAct->setShortcut(tr("Ctrl+X"));
@@ -72,10 +70,10 @@ void EditWindow::createActions()
                               "selection"));
     connect(pasteAct, SIGNAL(triggered()), _textEdit, SLOT(paste()));
 
-    redrawAct = new QAction(QIcon(":/resources/redraw.png"), tr("&Redraw"), this);
-    redrawAct->setShortcut(tr("Ctrl+R"));
-    redrawAct->setStatusTip(tr("Redraw page"));
-    connect(redrawAct, SIGNAL(triggered()), this, SLOT(redraw()));
+    saveAct = new QAction(QIcon(":/resources/save.png"), tr("&Save"), this);
+    saveAct->setShortcut(tr("Ctrl+S"));
+    saveAct->setStatusTip(tr("Save the document to disk"));
+    connect(saveAct, SIGNAL(triggered()), this, SLOT(saveFile()));
 
     delAct = new QAction(QIcon(":/resources/delete.png"), tr("&Delete"), this);
     delAct->setShortcut(tr("DEL"));
@@ -87,10 +85,25 @@ void EditWindow::createActions()
     selAllAct->setStatusTip(tr("Select all page content"));
     connect(selAllAct, SIGNAL(triggered()), _textEdit, SLOT(selectAll()));
 
+    undoAct = new QAction(QIcon(":/resources/editundo.png"), tr("Undo"), this);
+    undoAct->setShortcut(tr("Ctrl+Z"));
+    undoAct->setStatusTip(tr("Undo last change"));
+    undoAct->setEnabled(false);
+    connect(undoAct, SIGNAL(triggered()), _textEdit, SLOT(undo()));
+    redoAct = new QAction(QIcon(":/resources/editredo.png"), tr("Redo"), this);
+#ifdef __APPLE__
+    redoAct->setShortcut(tr("Ctrl+Shift+Z"));
+#else
+    redoAct->setShortcut(tr("Ctrl+Y"));
+#endif
+    redoAct->setStatusTip(tr("Redo last change"));
+    redoAct->setEnabled(false);
+    connect(redoAct, SIGNAL(triggered()), _textEdit, SLOT(redo()));
+
+    saveAct->setEnabled(false);
     cutAct->setEnabled(false);
     copyAct->setEnabled(false);
     delAct->setEnabled(false);
-    redrawAct->setEnabled(false);
     selAllAct->setEnabled(false);
     connect(_textEdit, SIGNAL(copyAvailable(bool)),
             cutAct,    SLOT(setEnabled(bool)));
@@ -98,40 +111,32 @@ void EditWindow::createActions()
             copyAct,   SLOT(setEnabled(bool)));
     connect(_textEdit, SIGNAL(copyAvailable(bool)),
              delAct,   SLOT(setEnabled(bool)));
+    connect(_textEdit, SIGNAL(undoAvailable(bool)),
+             undoAct,  SLOT(setEnabled(bool)));
+    connect(_textEdit, SIGNAL(redoAvailable(bool)),
+             redoAct,  SLOT(setEnabled(bool)));
+    connect(_textEdit, SIGNAL(undoAvailable(bool)),
+             saveAct,  SLOT(setEnabled(bool)));
 }
 
-void EditWindow::createToolBars()
+void ParmsWindow::createToolBars()
 {
     editToolBar = addToolBar(tr("Edit"));
     editToolBar->setObjectName("EditToolbar");
-    editToolBar->addAction(cutAct);
+    editToolBar->addAction(saveAct);
     editToolBar->addAction(selAllAct);
+    editToolBar->addAction(cutAct);
     editToolBar->addAction(copyAct);
     editToolBar->addAction(pasteAct);
     editToolBar->addAction(delAct);
-    editToolBar->addAction(redrawAct);
+
+    undoRedoToolBar = addToolBar(tr("Undo Redo"));
+    undoRedoToolBar->setObjectName("UndoRedoToolbar");
+    undoRedoToolBar->addAction(undoAct);
+    undoRedoToolBar->addAction(redoAct);
 }
 
-void EditWindow::contentsChange(
-  int position,
-  int charsRemoved,
-  int charsAdded)
-{
-  QString addedChars;
-
-  if (charsAdded) {
-    addedChars = _textEdit->toPlainText();
-    if (addedChars.size() == 0) {
-      return;
-    }
-
-    addedChars = addedChars.mid(position,charsAdded);
-  }
-
-  contentsChange(fileName, position, charsRemoved, addedChars);
-}
-
-void EditWindow::pageUpDown(
+void ParmsWindow::pageUpDown(
   QTextCursor::MoveOperation op,
   QTextCursor::MoveMode      moveMode)
 {
@@ -160,45 +165,88 @@ void EditWindow::pageUpDown(
   }
 }
 
-void EditWindow::showLine(int lineNumber)
-{
-  _textEdit->moveCursor(QTextCursor::Start,QTextCursor::MoveAnchor);
-  for (int i = 0; i < lineNumber; i++) {
-    _textEdit->moveCursor(QTextCursor::Down,QTextCursor::MoveAnchor);
-  }
-  _textEdit->moveCursor(QTextCursor::EndOfLine,QTextCursor::KeepAnchor);
-  _textEdit->ensureCursorVisible();
-
-  pageUpDown(QTextCursor::Up, QTextCursor::KeepAnchor);
-}
-
-void EditWindow::displayFile(
-  LDrawFile     *ldrawFile,
+void ParmsWindow::displayParmsFile(
   const QString &_fileName)
 {
-  fileName = _fileName;
-  disconnect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
-             this,                  SLOT(  contentsChange(int,int,int)));
-  if (fileName == "") {
-    _textEdit->document()->clear();
-  } else {
-    _textEdit->setPlainText(ldrawFile->contents(fileName).join("\n"));
-  }
-  _textEdit->document()->setModified(false);
-  connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
-          this,                  SLOT(  contentsChange(int,int,int)));
+    fileName = _fileName;
+    QFile file(fileName);
 
-  selAllAct->setEnabled(true);
-  redrawAct->setEnabled(true);
+    if (! file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        QMessageBox::warning(NULL,
+                 QMessageBox::tr("Parmeter Editor"),
+                 QMessageBox::tr("Cannot read file %1:\n%2.")
+                 .arg(fileName)
+                 .arg(file.errorString()));
 
+        _textEdit->document()->clear();
+        return;
+    }
+
+    QTextStream ss(&file);
+
+    _textEdit->setPlainText(ss.readAll());
+    _textEdit->document()->setModified(false);
+
+    file.close();
+
+    selAllAct->setEnabled(true);
 }
-// Jaco is trying to get the edit window to resize...
 
-void EditWindow::redraw()
+bool ParmsWindow::maybeSave()
 {
-  redrawSig();
-// QT manual says
-// void QWidget::adjustSize ()
-// Adjusts the size of the widget to fit its contents.
-  adjustSize(); //Does not work.
+  bool rc = true;
+
+  if (_textEdit->document()->isModified()) {
+    QMessageBox::StandardButton ret;
+    ret = QMessageBox::warning(this, tr("Parmeter Editor"),
+            tr("The document has been modified.\n"
+                "Do you want to save your changes?"),
+            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    if (ret == QMessageBox::Save) {
+      saveFile();
+      return rc;
+    } else if (ret == QMessageBox::Cancel) {
+      return ! rc;
+    }
+  }
+  return rc;
 }
+
+bool ParmsWindow::saveFile()
+{
+    bool rc = false;
+    // check for dirty editor
+    if (_textEdit->document()->isModified())
+    {
+        QFile file(fileName);
+        if (! file.open(QFile::WriteOnly | QFile::Text)) {
+            QMessageBox::warning(NULL,
+                                 QMessageBox::tr("Parmeter Editor"),
+                                 QMessageBox::tr("Cannot write file %1:\n%2.")
+                                 .arg(fileName)
+                                 .arg(file.errorString()));
+            return ! rc;
+        }
+
+        QTextDocumentWriter writer(fileName, "plaintext");
+        rc = writer.write(_textEdit->document());
+
+        if (rc){
+            _textEdit->document()->setModified(false);
+            saveAct->setEnabled(false);
+            statusBar()->showMessage(tr("File saved"), 2000);
+        }
+    }
+
+  return rc;
+}
+
+void ParmsWindow::closeEvent(QCloseEvent *event)
+{
+  if (maybeSave()) {
+    event->accept();
+  } else {
+    event->ignore();
+  }
+}
+

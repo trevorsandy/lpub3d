@@ -280,6 +280,7 @@ mainApp/images/LPub64.png -text
 mainApp/images/actual.png -text
 mainApp/images/copy.png -text
 mainApp/images/cut.png -text
+mainApp/images/delete.png -text
 mainApp/images/editredo.png -text
 mainApp/images/editundo.png -text
 mainApp/images/first.png -text
@@ -294,11 +295,13 @@ mainApp/images/open.png -text
 mainApp/images/paste.png -text
 mainApp/images/pdf_logo.png -text
 mainApp/images/plus.png -text
+mainApp/images/preferences.png -text
 mainApp/images/prev.png -text
 mainApp/images/print.png -text
 mainApp/images/redraw.png -text
 mainApp/images/save.png -text
 mainApp/images/saveas.png -text
+mainApp/images/selectall.png -text
 mainApp/images/zoomin.png -text
 mainApp/images/zoomout.png -text
 mainApp/ldrawfiles.cpp -text
@@ -330,9 +333,8 @@ mainApp/pagebackgrounditem.h -text
 mainApp/pageglobals.cpp -text
 mainApp/pairdialog.cpp -text
 mainApp/pairdialog.h -text
-mainApp/parmseditor.cpp -text
-mainApp/parmseditor.h -text
-mainApp/parmseditor.ui -text
+mainApp/parmswindow.cpp -text
+mainApp/parmswindow.h -text
 mainApp/partslist.cpp -text
 mainApp/partslist.h -text
 mainApp/paths.cpp -text

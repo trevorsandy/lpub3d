@@ -3,6 +3,7 @@
         <file alias="lpub.icns">lpub.icns</file>
         <file alias="LPub.ico">LPub.ico</file>
         <file alias="actual.png">images/actual.png</file>
+        <file alias="delete.png">images/delete.png</file>
         <file alias="copy.png">images/copy.png</file>
         <file alias="cut.png">images/cut.png</file>
         <file alias="editredo.png">images/editredo.png</file>
@@ -21,11 +22,13 @@
         <file alias="paste.png">images/paste.png</file>
         <file alias="pdf_logo.png">images/pdf_logo.png</file>
         <file alias="plus.png">images/plus.png</file>
+        <file alias="preferences.png">images/preferences.png</file>
         <file alias="prev.png">images/prev.png</file>
         <file alias="print.png">images/print.png</file>
         <file alias="redraw.png">images/redraw.png</file>
         <file alias="save.png">images/save.png</file>
         <file alias="saveas.png">images/saveas.png</file>
+        <file alias="selectall.png">images/selectall.png</file>
         <file alias="zoomin.png">images/zoomin.png</file>
         <file alias="zoomout.png">images/zoomout.png</file>
         <file alias="action_camera.png">../lc_lib/resources/action_camera.png</file>

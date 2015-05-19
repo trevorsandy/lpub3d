@@ -354,7 +354,6 @@
 #include "FadeStepColorParts.h"
 #include "aboutdialog.h"
 #include "updatedialog.h"
-#include "parmseditor.h"
 #include "version.h"
 
 //** 3D
@@ -381,6 +380,7 @@ class QUndoStack;
 class QUndoCommand;
 
 class EditWindow;
+class ParmsWindow;
 
 class Meta;
 class Pli;
@@ -496,6 +496,7 @@ public:
   void endMacro   ();
 
   void displayFile(LDrawFile *ldrawFile, const QString &modelName);
+  void displayParmsFile(const QString &fileName);
 
   int             maxPages;
   
@@ -612,6 +613,7 @@ signals:
     /* tell the editor to display this file */
 
   void displayFileSig(LDrawFile *ldrawFile, const QString &subFile);
+  void displayParmsFileSig(const QString &fileName);
   void showLineSig(int lineNumber);
 public:
   Page            page;            // the abstract version of page contents
@@ -624,6 +626,7 @@ private:
   QString         curFile;         // the file name for MPD, or top level file
   QString         curSubFile;      // whats being displayed in the edit window
   EditWindow     *editWindow;      // the sub file editable by the user
+  ParmsWindow    *parmsWindow;     // the parametrer file editor
 
   GlobalFadeStep *data;
   FadeStepColorParts    fadeStepColorParts; //internal list of color parts to be processed for fade step.
@@ -938,10 +941,6 @@ private:
 
   // capture camera rotation from LeoCad module
 protected:
-  ParmsEditor parmsEditor;
-  int mFreeFormAnno;
-  int mColourPartFade;
-
   lcVector3 mExistingRotStep;
   lcVector3 mModelStepRotation;
   float mRotStepAngleX;

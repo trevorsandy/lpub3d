@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
+** Copyright (C) 2015 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -16,19 +16,18 @@
 
 /****************************************************************************
  *
- * The editwindow is used to display the LDraw file to the user.  The Gui
- * portion of the program (see lpub.h) decides what files and line numbers
- * are displayed.  The edit window has as little responsibility as is
- * possible.  It does work the the syntax highlighter implemented in
- * highlighter.(h,cpp)
+ * The editwindow is used to display the freeform annotations
+ * and colour parts fade listings to the user.
  *
  * Please see lpub.h for an overall description of how the files in LPub
  * make up the LPub program.
  *
  ***************************************************************************/
 
-#ifndef EDITWINDOW_H
-#define EDITWINDOW_H
+#ifndef PARMSWINDOW_H
+#define PARMSWINDOW_H
+
+#define WINDOW   "MainWindow"
 
 #include <QMainWindow>
 #include <QTextCursor>
@@ -39,13 +38,14 @@ class Highlighter;
 class QString;
 class QAction;
 class QMenu;
+class QUndoStack;
 
-class EditWindow : public QMainWindow
+class ParmsWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    EditWindow();
+    ParmsWindow();
 
 protected:
 
@@ -56,29 +56,29 @@ private:
 
     QTextEdit   *_textEdit;
     Highlighter *highlighter;
-    QString      fileName;  // of file currently being displayed
+    QString      fileName;  // file currently being displayed
 
     QMenu    *editMenu;
     QToolBar *editToolBar;
+    QToolBar *undoRedoToolBar;
     QAction  *cutAct;
     QAction  *copyAct;
     QAction  *pasteAct;
-    QAction  *redrawAct;
+    QAction  *saveAct;
+    QAction  *undoAct;
+    QAction  *redoAct;
     QAction  *delAct;
     QAction  *selAllAct;
 
 signals:
-    void contentsChange(const QString &, int position, int charsRemoved, const QString &charsAdded);
-    void redrawSig();
 
 private slots:
-    void contentsChange(int position, int charsRemoved, int charsAdded);
-    // Maybe this helps resizing the editwindow (Jaco)
-    void redraw();
+    bool maybeSave();
+    bool saveFile();
+    void closeEvent(QCloseEvent *event);
 
 public slots:
-    void displayFile(LDrawFile *, const QString &fileName);
-    void showLine(int);
+    void displayParmsFile(const QString &fileName);
     void pageUpDown(
       QTextCursor::MoveOperation op,
       QTextCursor::MoveMode      moveMode);

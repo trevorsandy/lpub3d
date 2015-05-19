@@ -192,7 +192,7 @@ HEADERS += \
     where.h \
     updatedialog.h \
     version.h \
-    parmseditor.h
+    parmswindow.h
 	
 SOURCES += \
     aboutdialog.cpp \
@@ -255,13 +255,12 @@ SOURCES += \
     traverse.cpp \
     undoredo.cpp \
     updatedialog.cpp \
-    parmseditor.cpp
+    parmswindow.cpp
 	
 FORMS += \
     preferences.ui \
     updatedialog.ui \
-    aboutdialog.ui \
-    parmseditor.ui
+    aboutdialog.ui
 	
 OTHER_FILES += \
     lpub.rc
