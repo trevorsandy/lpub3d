@@ -2655,13 +2655,13 @@ void View::GetRotateStepAngles()
             //LDraw Y axis is vertical, with negative value in the up direction
             Angle = MouseToolDistance[2] + -ExistingRotStep[1];
             gui->SetRotStepAngleY(-Angle);
-            qDebug() << "Rotate Z(Y) -Angle: " << Angle << " Neg Angle: " << -Angle;
+            qDebug() << "Rotate Z(Y): Angle: " << Angle << " (Neg) Angle: " << -Angle;
             break;
         default:
             Angle = 0.0f;
             break;
         };
-
+        // display the combined angle in the status bar
         gui->UpdateStepRotation();
     }
 

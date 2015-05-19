@@ -42,7 +42,8 @@
 //** 3D
 #include "camera.h"
 #include "piece.h"
-#include "lc_mainwindow.h"
+#include "lc_profile.h"
+
 //**
 
 Gui *gui;
@@ -332,7 +333,99 @@ void Gui::displayParmsFile(
 {
     displayParmsFileSig(fileName);
 }
+
+void Gui::halt3DViewer(bool b)
+{
+    qDebug() << "1. Gui (SIGNAL) halt3DViewer Status: " << b;
+
+    QString printBanner, imageFile;
+
+#ifdef __APPLE__
+
+    printBanner = QString("%1/%2").arg(Preferences::lpubPath,"extras/printbanner.ldr");
+    imageFile = QString("%1/%2").arg(Preferences::lpubPath,"extras/PDFPrint.jpg");
+
+#else
+
+    printBanner = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubPath,"extras/printbanner.ldr"));
+    imageFile = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubPath,"extras/PDFPrint.jpg"));
+
+#endif
+
+    if (b){
+
+        //lcSetProfileString(LC_PROFILE_DEFAULT_BACKGROUND_TYPE, "2"); behaving strangely
+//        gMainWindow->mToolsToolBar->setEnabled(false);
+//        gMainWindow->menuBar()->setDisabled(true);
+        installPrintBanner(printBanner,imageFile);
+
+    } else {
+//        gMainWindow->menuBar()->setDisabled(false);
+//        gMainWindow->mToolsToolBar->setEnabled(true);
+
+    }
+
+    bool rc = b;
+    halt3DViewerSig(rc);
+}
 /*-----------------------------------------------------------------------------*/
+
+bool Gui::installPrintBanner(const QString &printFile, const QString &imageFile){
+
+    QList<QString> ldrData;
+    ldrData << "0 FILE printbanner.ldr";
+    ldrData << "0 Name: printbanner.ldr";
+    ldrData << "0 Author: Trevor SANDY";
+    ldrData << "0 Unofficial Model";
+    ldrData << "0 !LEOCAD MODEL NAME Printbanner";
+    ldrData << "0 !LEOCAD MODEL AUTHOR Trevor SANDY";
+    ldrData << "0 !LEOCAD MODEL DESCRIPTION Graphic displayed during pdf printing";
+    ldrData << "0 !LEOCAD MODEL BACKGROUND IMAGE NAME " + imageFile;
+    ldrData << "1 71 27.754391 -8.000004 15.334212 -0.500038 0 -0.866003 0 1 0 0.866003 0 -0.500038 3020.DAT";
+    ldrData << "1 71 21.413288 -16 46.314728 -0.866003 0 0.500038 0 1 0 -0.500038 0 -0.866003 3024.DAT";
+    ldrData << "1 71 21.413288 -23.999998 46.314728 -0.866003 0 0.500038 0 1 0 -0.500038 0 -0.866003 3024.DAT";
+    ldrData << "1 71 21.413288 -39.999996 46.314728 0.500038 0 0.866003 0 1 0 -0.866003 0 0.500038 6091.DAT";
+    ldrData << "1 2 21.413288 -39.999996 46.314728 -0.866003 0 0.500038 0 1 0 -0.500038 0 -0.866003 30039.DAT";
+    ldrData << "1 71 51.415627 -15.999998 -5.645548 -0.866003 0 0.500038 0 1 0 -0.500038 0 -0.866003 3024.DAT";
+    ldrData << "1 71 51.415627 -23.999998 -5.645548 -0.866003 0 0.500038 0 1 0 -0.500038 0 -0.866003 3024.DAT";
+    ldrData << "1 71 51.415627 -39.999996 -5.645548 0.500038 0 0.866003 0 1 0 -0.866003 0 0.500038 6091.DAT";
+    ldrData << "1 71 51.415627 -39.999996 -5.645548 -0.866003 0 0.500038 0 1 0 -0.500038 0 -0.866003 30039.DAT";
+    ldrData << "1 71 36.414444 -32 20.334612 0.500038 0 0.866003 0 1 0 -0.866003 0 0.500038 3937.DAT";
+    ldrData << "1 72 19.094339 -16.000002 10.333817 -0.500038 0 -0.866003 0 1 0 0.866003 0 -0.500038 3023.DAT";
+    ldrData << "1 72 19.094339 -16 10.333817 -0.500038 0 -0.866003 0 1 0 0.866003 0 -0.500038 85984.DAT";
+    ldrData << "1 71 33.315815 -31.337952 18.545441 -0.500038 0.309864 -0.80867 0 0.933795 0.357809 0.866003 0.178918 -0.466933 3938.DAT";
+    ldrData << "1 72 25.879089 -53.749039 14.251392 -0.500038 0.309864 -0.80867 0 0.933795 0.357809 0.866003 0.178918 -0.466933 4865A.DAT";
+    ldrData << "1 216 -8.957584 -12.000671 14.921569 0.500038 0.757423 0.419848 0 0.484811 -0.874619 -0.866003 0.437343 0.242424 3070BPTP.DAT";
+    ldrData << "1 216 1.043207 -12.000679 -2.398535 0.500038 0.757423 0.419848 0 0.484811 -0.874619 -0.866003 0.437343 0.242424 3070BPTD.DAT";
+    ldrData << "1 216 11.043989 -12.000673 -19.718601 0.500038 0.757423 0.419848 0 0.484811 -0.874619 -0.866003 0.437343 0.242424 3070BPTF.DAT";
+    ldrData << "0";
+    ldrData << "0 NOFILE";
+
+    QFile ldrFile(printFile);
+    if ( ! ldrFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
+        QMessageBox::warning(NULL,
+                             QMessageBox::tr("LPub3D"),
+                             QMessageBox::tr("Cannot open Print Banner file %1 for writing:\n%2")
+                             .arg(printFile)
+                             .arg(ldrFile.errorString()));
+        return false;
+    }
+    QTextStream out(&ldrFile);
+    for (int i = 0; i < ldrData.size(); i++) {
+        QString fileLine = ldrData[i];
+        out << fileLine << endl;
+    }
+
+    ldrFile.close();
+
+    //load CSI 3D file into viewer
+    if (gMainWindow->OpenProject(ldrFile.fileName())){
+        return true;
+
+    } else {return false;}
+
+    return true;
+}
 
 void Gui::mpdComboChanged(int index)
 {
@@ -547,30 +640,33 @@ Gui::Gui()
     undoStack = new QUndoStack();
     macroNesting = 0;
 
-    connect(this,       SIGNAL(displayFileSig(LDrawFile *, const QString &)),
-            editWindow, SLOT(  displayFile   (LDrawFile *, const QString &)));
-    connect(this,       SIGNAL(showLineSig(int)),
-            editWindow, SLOT(  showLine(   int)));
+    connect(this,           SIGNAL(displayFileSig(LDrawFile *, const QString &)),
+            editWindow,     SLOT(  displayFile   (LDrawFile *, const QString &)));
+    connect(this,           SIGNAL(showLineSig(int)),
+            editWindow,     SLOT(  showLine(   int)));
 
-    connect(editWindow, SIGNAL(contentsChange(const QString &,int,int,const QString &)),
-            this,       SLOT(  contentsChange(const QString &,int,int,const QString &)));
+    connect(editWindow,     SIGNAL(contentsChange(const QString &,int,int,const QString &)),
+            this,           SLOT(  contentsChange(const QString &,int,int,const QString &)));
 
-    connect(editWindow, SIGNAL(redrawSig()),
-            this,       SLOT(  clearAndRedrawPage()));
+    connect(editWindow,     SIGNAL(redrawSig()),
+            this,           SLOT(  clearAndRedrawPage()));
 
-    connect(this,       SIGNAL(displayParmsFileSig(const QString &)),
-            parmsWindow, SLOT(  displayParmsFile   (const QString &)));
+    connect(this,           SIGNAL(displayParmsFileSig(const QString &)),
+            parmsWindow,    SLOT( displayParmsFile   (const QString &)));
 
-    connect(undoStack,  SIGNAL(canRedoChanged(bool)),
-            this,       SLOT(  canRedoChanged(bool)));
-    connect(undoStack,  SIGNAL(canUndoChanged(bool)),
-            this,       SLOT(  canUndoChanged(bool)));
-    connect(undoStack,  SIGNAL(cleanChanged(bool)),
-            this,       SLOT(  cleanChanged(bool)));
+    connect(undoStack,      SIGNAL(canRedoChanged(bool)),
+            this,           SLOT(  canRedoChanged(bool)));
+    connect(undoStack,      SIGNAL(canUndoChanged(bool)),
+            this,           SLOT(  canUndoChanged(bool)));
+    connect(undoStack,      SIGNAL(cleanChanged(bool)),
+            this,           SLOT(  cleanChanged(bool)));
+
+    connect(this,           SIGNAL(halt3DViewerSig(bool)),
+            gMainWindow,    SLOT(  halt3DViewer   (bool)));
 
 #ifdef WATCHER
-    connect(&watcher,   SIGNAL(fileChanged(const QString &)),
-             this,      SLOT(  fileChanged(const QString &)));
+    connect(&watcher,       SIGNAL(fileChanged(const QString &)),
+             this,          SLOT(  fileChanged(const QString &)));
 #endif
     setCurrentFile("");
     // Jaco: This sets the initial size of the main window
@@ -1048,8 +1144,8 @@ void Gui::createMenus()
     configMenu->addAction(projectSetupAct);
     configMenu->addAction(fadeStepSetupAct);
     configMenu->addSeparator();
-    configMenu->addAction(editFreeFormAnnitationsAct);
     configMenu->addAction(editFadeColourPartsAct);
+    configMenu->addAction(editFreeFormAnnitationsAct);
     configMenu->addSeparator();
     configMenu->addAction(preferencesAct);
 
@@ -1233,7 +1329,7 @@ bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &commen
 
     char c;
     foreach(QFileInfo fileInfo, files) {
-
+        //qDebug() << "Disk File Name: " << fileInfo.absoluteFilePath();
         if (!fileInfo.isFile())
             continue;
 
@@ -1242,6 +1338,7 @@ bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &commen
 
             if (fileInfo == zipFileInfo) {
                 alreadyArchived = true;
+                //qDebug() << "FileMatch - Skipping !! " << fileInfo.absoluteFilePath();
             }
         }
 
@@ -1256,6 +1353,8 @@ bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &commen
          in the correct directory, so we append the string "parts/fade" to the relative file name path. */
         QString fileNameWithRelativePath = fileInfo.filePath().remove(0, dir.absolutePath().length() + 1);
         QString fileNameWithCompletePath = QString("%1/%2").arg("parts/fade").arg(fileNameWithRelativePath);
+
+        qDebug() << "Processing Disk File Name: " << fileInfo.absoluteFilePath();
 
         inFile.setFileName(fileInfo.filePath());
 
@@ -1313,8 +1412,8 @@ bool Gui::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDirPath, co
 
     zip.setFileNameCodec("IBM866");
 
-//    qWarning("%d entries\n", zip.getEntriesCount());
-//    qWarning("Global comment: %s\n", zip.getComment().toLocal8Bit().constData());
+    qWarning("%d entries\n", zip.getEntriesCount());
+    qWarning("Global comment: %s\n", zip.getComment().toLocal8Bit().constData());
 
     QuaZipDir zipDir(ptrZip,zipDirPath);
 
@@ -1322,7 +1421,7 @@ bool Gui::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDirPath, co
 
         zipDir.cd(zipDirPath);
 
-//        qWarning("%d zipDir entries\n", zipDir.count());
+        qWarning("%d Fade ZipDir entries\n", zipDir.count());
 
         QStringList qsl = zipDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files, QDir::SortByMask);
 

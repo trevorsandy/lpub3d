@@ -25,7 +25,7 @@
  * make up the LPub program.
  *
  ***************************************************************************/
- 
+
 #include <QFileInfo>
 #include <QDir>
 #include <QFile>
@@ -186,13 +186,18 @@ int Step::createCsi(
       outOfDate = true;
     }
   }
-  //**3D  
-  QString fileNamekey = QString("%1_%2%3")
-          .arg(csiName())
-          .arg(QString::number(sn))
-          .arg(".ldr");
-  csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + fileNamekey;
-  renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate);
+
+  //**3D
+  if (!gMainWindow->GetHalt3DViewer()) {
+
+  qDebug() << "3. Step (CSI) halt3DViewer Status: " << gMainWindow->GetHalt3DViewer();
+      QString fileNamekey = QString("%1_%2%3")
+              .arg(csiName())
+              .arg(QString::number(sn))
+              .arg(".ldr");
+      csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + fileNamekey;
+      renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate);
+  }
   //**
 
   if ( ! csi.exists() || outOfDate) {
@@ -216,8 +221,11 @@ int Step::createCsi(
 
 int Step::Render3DCsi(QString &csi3DName)
 {
-    int rc = renderer->render3DCsi(csi3DName);
-    return rc;
+    if (!gMainWindow->GetHalt3DViewer()) {
+        int rc = renderer->render3DCsi(csi3DName);
+        return rc;
+    }
+    return -1;
 }
 
 /*

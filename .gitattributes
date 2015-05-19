@@ -261,6 +261,7 @@ mainApp/dividerdialog.cpp -text
 mainApp/dividerdialog.h -text
 mainApp/editwindow.cpp -text
 mainApp/editwindow.h -text
+mainApp/extras/PDFPrint.jpg -text
 mainApp/extras/fadeStepColorParts.lst -text
 mainApp/extras/freeformAnnotations.lst -text
 mainApp/extras/lcLDrawArchive.bat -text

@@ -44,6 +44,7 @@ lcMainWindow::lcMainWindow()
 	mLockY = false;
 	mLockZ = false;
 	mRelativeTransform = true;
+    mHalt3DViewer = false;
 
 	memset(&mSearchOptions, 0, sizeof(mSearchOptions));
 
@@ -53,6 +54,8 @@ lcMainWindow::lcMainWindow()
     mLCStatusBar = new QStatusBar(this);
 
 	gMainWindow = this;
+
+    qDebug() << "0. lcMainWindow (Init) halt3DViewer Status: " << mHalt3DViewer;
 }
 
 lcMainWindow::~lcMainWindow()
@@ -1282,6 +1285,12 @@ void lcMainWindow::SetLockZ(bool LockZ)
 	UpdateLockSnap();
 }
 
+void lcMainWindow::halt3DViewer(bool b){
+
+    qDebug() << "2. lcMainWindow (SLOT) halt3DViewer Status: " << b;
+    mHalt3DViewer = b;
+}
+
 void lcMainWindow::SetRelativeTransform(bool RelativeTransform)
 {
 	mRelativeTransform = RelativeTransform;
@@ -1341,14 +1350,6 @@ lcVector3 lcMainWindow::GetRotateStepAmount()
     lcVector3    rotateStep(0.0f, 0.0f, 0.0f);
 
     rotateStep = gui->GetStepRotationStatus();
-
-    // DEBUG ONLY
-    QString rotDisplay("%1 %2 %3");
-    rotDisplay = rotDisplay.arg(QString::number(rotateStep[0], 'f', 2),
-                                QString::number(rotateStep[1], 'f', 2),
-                                QString::number(rotateStep[2], 'f', 2));
-    qDebug() << "2.ROTATION STEP CAPTURE: " << rotDisplay;
-    // END DEBUG
 
     return rotateStep;
 }
@@ -1818,7 +1819,7 @@ bool lcMainWindow::OpenProject(const QString& FileName)
 			View->ZoomExtents();
 		}
 
-        gui->ResetStepRotation();
+        //gui->ResetStepRotation(); //this causes the step rotation to display at every step load
 		UpdateAllViews();
 
 		return true;

@@ -165,6 +165,9 @@ void Gui::GetPagePixelDimensions(float &pagePixelWidth, float &pagePixelHeight, 
 
 void Gui::printToFile()
 {
+  // send signal to halt 3DViewer
+  halt3DViewer(true);
+
   // determine location for output file
   QFileInfo fileInfo(curFile);
   QString baseName = fileInfo.baseName();
@@ -174,6 +177,8 @@ void Gui::printToFile()
       QDir::currentPath() + "/" + baseName,
       tr("PDF (*.pdf)\nPDF (*.PDF)"));
   if (fileName == "") {
+    // release 3D Viewer
+    halt3DViewer(false);
     return;
   }
   
@@ -242,7 +247,9 @@ void Gui::printToFile()
   }
   
   painter.end();
-  
+
+  // release 3D Viewer
+  halt3DViewer(false);
   // return to whatever page we were viewing before output
   displayPageNum = savePageNumber;
   drawPage(KpageView,KpageScene,false);

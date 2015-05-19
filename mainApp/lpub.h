@@ -357,11 +357,11 @@
 #include "version.h"
 
 //** 3D
-#include "lc_math.h"
-
 #include <QFile>
+#include "lc_math.h"
 #include "lc_library.h"
 #include "lc_application.h"
+#include "lc_mainwindow.h" //moved from
 
 #include "quazip.h"
 #include "quazipfile.h"
@@ -497,6 +497,7 @@ public:
 
   void displayFile(LDrawFile *ldrawFile, const QString &modelName);
   void displayParmsFile(const QString &fileName);
+  void halt3DViewer(bool b);
 
   int             maxPages;
   
@@ -613,8 +614,11 @@ signals:
     /* tell the editor to display this file */
 
   void displayFileSig(LDrawFile *ldrawFile, const QString &subFile);
-  void displayParmsFileSig(const QString &fileName);
+  void displayParmsFileSig(const QString &fileName);  
   void showLineSig(int lineNumber);
+
+  void halt3DViewerSig(bool b);
+
 public:
   Page            page;            // the abstract version of page contents
 
@@ -728,6 +732,10 @@ private:
           QString &zipDirPath,
     const QString &zipFile,
     const QDir &dir);
+
+  static bool installPrintBanner(
+    const QString &printFile,
+    const QString &imageFile);
 
 private slots:
     void open();

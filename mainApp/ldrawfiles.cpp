@@ -491,7 +491,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
         } else if ( ! mpdName.isEmpty() && smLine != "") {
             if (smLine.contains(upRE1) || smLine.contains(upRE2) || smLine.contains(upRE3)) {
                 unofficialPart = true;
-                qDebug() << QString("mpdName: %1, Unofficial(TRUE): Content: %2").arg(mpdName).arg(smLine);
             }
             contents << smLine;
         }
@@ -499,7 +498,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
     if ( ! mpdName.isEmpty() && ! contents.isEmpty()) {
       insert(mpdName,contents,datetime,unofficialPart);
-      qDebug() << QString("mpdName: %1, Unofficial(true): %2").arg(mpdName).arg(unofficialPart);
     }
     _mpd = true;
 }

@@ -2311,7 +2311,7 @@ void lcModel::TransformSelectedObjects(lcTransformType TransformType, const lcVe
 	}
 }
 
-void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep)   //TODO can probably drop 2nd variable
+void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep)
 {
     lcVector3 rotateStep = RotateStep;
     QString   rotationType;
@@ -2347,7 +2347,6 @@ void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const l
         mi.writeRotateStep(rotationValue);
         gui->SetExistingRotStep(rotateStep);
         gui->UpdateStepRotation();
-        //gui->save(); //private - consider adding public function
     }
 
     gMainWindow->UpdateAllViews();
@@ -2374,9 +2373,6 @@ void lcModel::ParseExsitingRotStepLine(QTextStream& LineStream)
 
             gui->SetExistingRotStep(rotStep);
 
-            //debug only...
-            //qDebug() << "STEP: " << mCurrentStep << " ROTATION: " << rotStep[0] << " " << rotStep[1] << " " << rotStep[2];
-            //debug end
             continue;
         }
     }

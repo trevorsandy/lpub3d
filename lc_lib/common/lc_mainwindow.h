@@ -56,6 +56,11 @@ public:
 		return mAddKeys;
 	}
 
+    bool GetHalt3DViewer() const
+    {
+        return mHalt3DViewer;
+    }
+
 	float GetMoveXYSnap() const
 	{
 		const float SnapXYTable[] = { 0.0f, 1.0f, 5.0f, 8.0f, 10.0f, 20.0f, 40.0f, 60.0f, 80.0f, 160.0f };
@@ -193,6 +198,10 @@ public:
 
     QStatusBar* mLCStatusBar;
 
+public slots:
+    //inline void halt3DViewer(bool b){mHalt3DViewer = b;}
+    void halt3DViewer(bool b);
+
 protected slots:
 	void ClipboardChanged();
 	void ActionTriggered();
@@ -229,6 +238,7 @@ protected:
 	bool mLockY;
 	bool mLockZ;
 	bool mRelativeTransform;
+    bool mHalt3DViewer;
 
 	QAction* mActionFileRecentSeparator;
 
