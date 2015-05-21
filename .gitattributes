@@ -392,6 +392,15 @@ mainApp/updatedialog.h -text
 mainApp/updatedialog.ui -text
 mainApp/version.h -text
 mainApp/where.h -text
+qslog/QsDebugOutput.cpp -text
+qslog/QsDebugOutput.h -text
+qslog/QsLog.cpp -text
+qslog/QsLog.h -text
+qslog/QsLog.pri -text
+qslog/QsLogDest.cpp -text
+qslog/QsLogDest.h -text
+qslog/QsLogDisableForThisFile.h -text
+qslog/qslog.pro -text
 quazip/JlCompress.cpp -text
 quazip/JlCompress.h -text
 quazip/crypt.h -text

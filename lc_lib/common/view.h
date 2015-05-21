@@ -5,6 +5,8 @@
 #include "lc_model.h"
 #include "camera.h"
 
+#include "QsLog.h"
+
 enum lcTrackButton
 {
 	LC_TRACKBUTTON_NONE,

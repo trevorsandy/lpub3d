@@ -3,7 +3,6 @@ CONFIG += qt warn_on
 QT -= gui
 
 # The ABI version.
-
 !win32:VERSION = 1.0.0
 
 # 1.0.0 is the first stable ABI.
@@ -22,6 +21,12 @@ QT -= gui
 # 2.0, VERSION to 2.0.0.
 # And so on.
 
+win32 {
+
+    QMAKE_EXT_OBJ = .obj
+    CONFIG += windows
+    CONFIG += debug_and_release	
+}
 
 # This one handles dllimport/dllexport directives.
 DEFINES += QUAZIP_BUILD
@@ -29,6 +34,14 @@ DEFINES += QUAZIP_BUILD
 # You'll need to define this one manually if using a build system other
 # than qmake or using QuaZIP sources directly in your project.
 CONFIG(staticlib): DEFINES += QUAZIP_STATIC
+CONFIG(debug, debug|release) {
+        DESTDIR = build/debug
+} else {
+        DESTDIR = build/release
+}
+
+OBJECTS_DIR = $$DESTDIR/.obj
+MOC_DIR = $$DESTDIR/.moc
 
 # Input
 include(quazip.pri)
@@ -38,9 +51,6 @@ unix:!symbian {
     headers.files=$$HEADERS
     target.path=$$PREFIX/lib/$${LIB_ARCH}
     INSTALLS += headers target
-
-	OBJECTS_DIR=.obj
-	MOC_DIR=.moc
 	
 }
 

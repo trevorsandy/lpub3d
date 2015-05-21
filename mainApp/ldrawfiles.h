@@ -38,6 +38,8 @@
 #include <QRegExp>
 #include <QHash>
 
+#include "QsLog.h"
+
 extern QList<QRegExp> LDrawHeaderRegExp;
 
 class LDrawSubFile {

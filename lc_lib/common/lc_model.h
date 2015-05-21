@@ -5,6 +5,8 @@
 #include "lc_math.h"
 #include "object.h"
 
+#include "QsLog.h"
+
 #define LC_SEL_NO_PIECES         0x001 // No pieces in model
 #define LC_SEL_PIECE             0x002 // At last 1 piece selected
 #define LC_SEL_SELECTED          0x004 // At last 1 object selected

@@ -36,6 +36,13 @@
 #include <direct.h>
 #include <shlobj.h>
 
+#include "QsLogDest.h"
+#include "QsLog.h"
+#include <QtCore/QCoreApplication>
+#include <QDir>
+#include <iostream>
+
+
 #ifdef UNICODE
 #ifndef _UNICODE
 #define _UNICODE
@@ -116,6 +123,48 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName(VER_PRODUCTNAME_STR);
     QCoreApplication::setApplicationVersion(VER_TEXT);
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+    QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+    QString dataPath = dataPathList.first();
+#else
+    QString dataPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+#endif
+
+    QDir logDir(dataPath+"/logs");
+    if(!QDir(logDir).exists())
+        logDir.mkpath(".");
+    const QString sLogPath(QDir(logDir).filePath(QString("%1%2").arg(VER_PRODUCTNAME_STR).arg("Log.txt")));
+
+    // init the logging mechanism
+    QsLogging::Logger& logger = QsLogging::Logger::instance();
+
+    // set minimum log level and file name
+    logger.setLoggingLevel(QsLogging::TraceLevel);
+
+    // Create log destinations
+    QsLogging::DestinationPtr fileDestination(
+       QsLogging::DestinationFactory::MakeFileDestination(sLogPath));
+    QsLogging::DestinationPtr debugDestination(
+       QsLogging::DestinationFactory::MakeDebugOutputDestination());
+
+    // set log destinations on the logger
+    logger.addDestination(debugDestination.get());
+    logger.addDestination(fileDestination.get());
+
+    // write an info message using one of six macros:
+    bool showLogExamples = true;
+    if (showLogExamples){
+        logInfo() << "LPub3D started";
+        logInfo() << "Built with Qt" << QT_VERSION_STR << "running on" << qVersion();
+        logTrace() << "Here's a" << QString("trace") << "message";
+        logDebug() << "Here's a" << static_cast<int>(QsLogging::DebugLevel) << "message";
+        logWarn()  << "Uh-oh!";
+        qDebug() << "This message won't be picked up by the logger";
+        logError() << "An error has occurred";
+        qWarning() << "Neither will this one";
+        logFatal() << "Fatal error!";
+    }
+
     QTranslator Translator;
     Translator.load(QString("lpub_") + QLocale::system().name().section('_', 0, 0) + ".qm", ":../lc_lib/resources");
     app.installTranslator(&Translator);
@@ -157,8 +206,6 @@ int main(int argc, char *argv[])
 #else
     const char* LDrawPath = NULL;
 #endif
-
-//    QMessageBox::information(NULL,QMessageBox::tr("LPub3D"),QMessageBox::tr("Startup"));
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);

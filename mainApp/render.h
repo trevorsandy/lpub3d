@@ -28,6 +28,8 @@
 #ifndef RENDER_H
 #define RENDER_H
 
+#include "QsLog.h"
+
 class QString;
 class QStringList;
 class Meta;

@@ -12,7 +12,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
-INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../quazip
+INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../quazip ../qslog
 
 CONFIG += precompile_header c++11
 PRECOMPILED_HEADER += ../lc_lib/common/lc_global.h
@@ -73,10 +73,13 @@ unix:!macx {
 
 CONFIG(debug, debug|release) {
         DESTDIR = build/debug
-        LIBS += -L$$DESTDIR/../../../quazip/debug -lquazip
+        LIBS += -L$$DESTDIR/../../../quazip/build/debug -lquazip
+#        LIBS += -L$$DESTDIR/../../../qslog/build/debug -lqslog
 } else {
         DESTDIR = build/release
-        LIBS += -L$$DESTDIR/../../../quazip/release -lquazip
+        LIBS += -L$$DESTDIR/../../../quazip/build/release -lquazip
+#        LIBS += -L$$DESTDIR/../../../qslog/build/release -lqslog
+		
 }
 OBJECTS_DIR = $$DESTDIR/.obj
 MOC_DIR = $$DESTDIR/.moc
@@ -136,6 +139,7 @@ macx {
 # Input
 
 include(../lc_lib/lc_lib.pri)
+include(../qslog/QsLog.pri)
 
 HEADERS += \
     aboutdialog.h \

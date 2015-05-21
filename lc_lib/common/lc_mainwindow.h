@@ -6,6 +6,8 @@
 #include "lc_commands.h"
 #include "lc_model.h"
 
+#include "QsLog.h"
+
 class View;
 class PiecePreview;
 class lcQGLWidget;

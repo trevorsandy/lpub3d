@@ -7,6 +7,8 @@
 #include "lc_array.h"
 #include "str.h"
 
+#include "QsLog.h"
+
 class PieceInfo;
 class lcZipFile;
 

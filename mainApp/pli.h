@@ -50,6 +50,8 @@
 #include "resize.h"
 #include "annotations.h"
 
+#include "QsLog.h"
+
 class Pli;
 
 /****************************************************************************

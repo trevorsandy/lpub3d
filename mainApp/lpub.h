@@ -345,6 +345,7 @@
 #include <QFileSystemWatcher>
 #include <QComboBox>
 #include <QPrinter>
+#include <QFile>
  
 #include "color.h"
 #include "partslist.h"
@@ -357,7 +358,6 @@
 #include "version.h"
 
 //** 3D
-#include <QFile>
 #include "lc_math.h"
 #include "lc_library.h"
 #include "lc_application.h"
@@ -368,6 +368,7 @@
 #include "quazipdir.h"
 //**
 
+#include "QsLog.h"
 
 class QString;
 class QSplitter;

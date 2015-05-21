@@ -35,6 +35,8 @@
 #include "metaitem.h"
 #include "resize.h"
 
+#include "QsLog.h"
+
 class Step;
 
 class CsiItem : public ResizePixmapItem
