@@ -1,7 +1,23 @@
+/******************************************************************************
+ * Name       : lpub.rc
+ * Description:
+ * Author     : Trevor SANDY
+ * Date       : 2015-04-30
+ * Copyright c: 2015 by Trevor SANDY
+ * ----------------------------------------------------------------------------
+ * History : 2015-04-30 Initial Version
+ *****************************************************************************/
+
+// ~~~~~ global includes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+#include <windows.h>
+// #include "winver.h"
+
+// ~~~~~ local includes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+#include "version.h"
+
+// ~~~~~ Windows Icon ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 IDI_ICON1               ICON    DISCARDABLE     "LPub.ico"
 
-#include <windows.h>
-#include "version.h"
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION     VER_FILEVERSION

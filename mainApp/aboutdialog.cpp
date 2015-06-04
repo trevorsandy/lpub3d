@@ -12,7 +12,7 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
 
     ui->version->setTextFormat(Qt::RichText);
     ui->version->setText(tr("<b>%1</b> Version <b>%2</b> Rev %3 Build %4").arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
-                                                                          .arg(QString::fromLatin1(VER_TEXT))
+                                                                          .arg(QString::fromLatin1(VER_PRODUCTVERSION_STR))
                                                                           .arg(QString::fromLatin1(VER_REVISION))
                                                                           .arg(QString::fromLatin1(VER_BUILD)));
     ui->description->setTextFormat(Qt::RichText);
@@ -41,8 +41,8 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
                                .arg(QString::fromLatin1(VER_UPDATE_URL))
                                .arg(QString::fromLatin1(VER_LEGALCOPYRIGHT_STR))
                                .arg(QString::fromLatin1(VER_PUBLISHER_STR))
-                               .arg(QString::fromLatin1(VER_PUBLISHER_SUPPORT_EMAIL))
-                               .arg(QString::fromLatin1(VER_PUBLISHER_EMAIL));
+                               .arg(QString::fromLatin1(VER_PUBLISHER_SUPPORT_EMAIL_STR))
+                               .arg(QString::fromLatin1(VER_PUBLISHER_EMAIL_STR));
 
     ui->AppInfo->setTextFormat(Qt::RichText);
     ui->AppInfo->setOpenExternalLinks(true);

@@ -27,7 +27,7 @@
   !include "AppVersion.nsh"
   
   ;Installer name
-  Name "${ProductName}, Ver ${Version}, Rev ${RevisionNumber}"
+  Name "${ProductName}, Ver ${Version}, Rev ${BuildRevision}"
 
   ; Changes the caption, default beeing 'Setup'
   Caption "${ProductName} x32/x64"
@@ -41,7 +41,7 @@
   SetCompressor /SOLID lzma
    
   ;The file to write
-  OutFile "..\release\${ProductName}-${Version}-${RevisionNumber}.exe"
+  OutFile "..\release\${ProductName}-${Version}-${BuildRevision}.exe"
   
   ;Default installation folder
   InstallDir "$InstDir"

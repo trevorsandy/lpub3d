@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 
     QCoreApplication::setOrganizationName(VER_COMPANYNAME_STR);
     QCoreApplication::setApplicationName(VER_PRODUCTNAME_STR);
-    QCoreApplication::setApplicationVersion(VER_TEXT);
+    QCoreApplication::setApplicationVersion(VER_PRODUCTVERSION_STR);
 
     Preferences::lpubPreferences();
     Preferences::ldrawPreferences(false);

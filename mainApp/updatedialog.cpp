@@ -114,7 +114,7 @@ void UpdateDialog::replyFinished(QNetworkReply *reply)
 					updateAvailable = true;
                 else if (minorVersion == VER_MINOR)
 				{
-                    if (patchVersion > VER_PATCH)
+                    if (patchVersion > VER_SVC_PACK)
 						updateAvailable = true;
 				}
 			}
@@ -127,7 +127,7 @@ void UpdateDialog::replyFinished(QNetworkReply *reply)
                                                                                          QString::number(patchVersion),
                                                                                          QString::number(VER_MAJOR),
                                                                                          QString::number(VER_MINOR),
-                                                                                         QString::number(VER_PATCH));
+                                                                                         QString::number(VER_SVC_PACK));
 			else
                 status = QString(tr("<p>You are using the latest %1 version.</p>")).arg(QString::fromLatin1(VER_PRODUCTNAME_STR));
 
