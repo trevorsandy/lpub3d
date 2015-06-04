@@ -123,16 +123,19 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName(VER_PRODUCTNAME_STR);
     QCoreApplication::setApplicationVersion(VER_TEXT);
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-    QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-    QString dataPath = dataPathList.first();
-#else
-    QString dataPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-#endif
+    Preferences::lpubPreferences();
+    Preferences::ldrawPreferences(false);
+    Preferences::unitsPreferences();
+    Preferences::leocadLibPreferences(false);
+    Preferences::annotationPreferences();
+    Preferences::fadestepPreferences();
+    Preferences::viewerPreferences();
 
-    QDir logDir(dataPath+"/logs");
+    QString lpubDataPath = Preferences::lpubDataPath;
+    QDir logDir(lpubDataPath+"/logs");
     if(!QDir(logDir).exists())
         logDir.mkpath(".");
+
     const QString sLogPath(QDir(logDir).filePath(QString("%1%2").arg(VER_PRODUCTNAME_STR).arg("Log.txt")));
 
     // init the logging mechanism
@@ -152,10 +155,11 @@ int main(int argc, char *argv[])
     logger.addDestination(fileDestination.get());
 
     // write an info message using one of six macros:
-    bool showLogExamples = true;
+    bool showLogExamples = false;
     if (showLogExamples){
         logInfo() << "LPub3D started";
         logInfo() << "Built with Qt" << QT_VERSION_STR << "running on" << qVersion();
+        logNotice() <<  "Here's a" << QString("Notice") << "message";
         logTrace() << "Here's a" << QString("trace") << "message";
         logDebug() << "Here's a" << static_cast<int>(QsLogging::DebugLevel) << "message";
         logWarn()  << "Uh-oh!";
@@ -168,14 +172,6 @@ int main(int argc, char *argv[])
     QTranslator Translator;
     Translator.load(QString("lpub_") + QLocale::system().name().section('_', 0, 0) + ".qm", ":../lc_lib/resources");
     app.installTranslator(&Translator);
-
-    Preferences::lpubPreferences();
-    Preferences::ldrawPreferences(false);
-    Preferences::unitsPreferences();
-    Preferences::leocadLibPreferences(false);
-    Preferences::annotationPreferences();
-    Preferences::fadestepPreferences();
-    Preferences::viewerPreferences();
 
     defaultResolutionType(Preferences::preferCentimeters);
     setResolution(150);  // DPI
@@ -207,13 +203,7 @@ int main(int argc, char *argv[])
     const char* LDrawPath = NULL;
 #endif
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-    QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
-    QString cachePath = cachePathList.first();
-#else
-    QString cachePath = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
-#endif
-
+    QString cachePath = Preferences::lpubCachePath;
     QDir dir;
     dir.mkpath(cachePath);
 

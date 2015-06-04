@@ -336,33 +336,23 @@ void Gui::displayParmsFile(
 
 void Gui::halt3DViewer(bool b)
 {
-    qDebug() << "1. Gui (SIGNAL) halt3DViewer Status: " << b;
 
     QString printBanner, imageFile;
 
 #ifdef __APPLE__
 
-    printBanner = QString("%1/%2").arg(Preferences::lpubPath,"extras/printbanner.ldr");
-    imageFile = QString("%1/%2").arg(Preferences::lpubPath,"extras/PDFPrint.jpg");
+    printBanner = QString("%1/%2").arg(Preferences::lpubDataPath,"extras/printbanner.ldr");
+    imageFile = QString("%1/%2").arg(Preferences::lpubDataPath,"extras/PDFPrint.jpg");
 
 #else
 
-    printBanner = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubPath,"extras/printbanner.ldr"));
-    imageFile = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubPath,"extras/PDFPrint.jpg"));
+    printBanner = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath,"extras/printbanner.ldr"));
+    imageFile = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath,"extras/PDFPrint.jpg"));
 
 #endif
 
     if (b){
-
-        //lcSetProfileString(LC_PROFILE_DEFAULT_BACKGROUND_TYPE, "2"); behaving strangely
-//        gMainWindow->mToolsToolBar->setEnabled(false);
-//        gMainWindow->menuBar()->setDisabled(true);
         installPrintBanner(printBanner,imageFile);
-
-    } else {
-//        gMainWindow->menuBar()->setDisabled(false);
-//        gMainWindow->mToolsToolBar->setEnabled(true);
-
     }
 
     bool rc = b;
@@ -415,13 +405,11 @@ bool Gui::installPrintBanner(const QString &printFile, const QString &imageFile)
         QString fileLine = ldrData[i];
         out << fileLine << endl;
     }
-
     ldrFile.close();
 
     //load CSI 3D file into viewer
     if (gMainWindow->OpenProject(ldrFile.fileName())){
         return true;
-
     } else {return false;}
 
     return true;
@@ -577,8 +565,8 @@ void Gui::preferences()
         gui->clearCSI3DCache();
     }
 
-    if (Preferences::enableFadeStep)
-        processFadeColorParts();
+    if (Preferences::enableFadeStep && !getCurFile().isEmpty())
+        colourPart.processFadeColorParts();
 
     QString topLevel = ldrawFile.topLevelFile();
     GlobalPliDialog *pliParms = new GlobalPliDialog(topLevel, page.meta, false);
@@ -620,6 +608,11 @@ Gui::Gui()
     mpdCombo->setMinimumContentsLength(25);
     mpdCombo->setInsertPolicy(QComboBox::InsertAtBottom);
     mpdCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+
+    progressLabel = new QLabel();
+    progressLabel->setMinimumWidth(200);
+    progressBar = new QProgressBar();
+    progressBar->setMaximumWidth(300);
 
     connect(mpdCombo,SIGNAL(activated(int)),
             this,    SLOT(mpdComboChanged(int)));
@@ -664,6 +657,22 @@ Gui::Gui()
     connect(this,           SIGNAL(halt3DViewerSig(bool)),
             gMainWindow,    SLOT(  halt3DViewer   (bool)));
 
+    connect(&colourPart, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
+    connect(&colourPart, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
+    connect(&colourPart, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
+    connect(&colourPart, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
+    connect(&colourPart, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
+    connect(&colourPart, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
+    connect(&colourPart, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
+
+    connect(this, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarPermInit()));
+    connect(this, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
+    connect(this, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
+    connect(this, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
+    connect(this, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
+    connect(this, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
+    connect(this, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
+
 #ifdef WATCHER
     connect(&watcher,       SIGNAL(fileChanged(const QString &)),
              this,          SLOT(  fileChanged(const QString &)));
@@ -691,15 +700,29 @@ Gui::~Gui()
     delete KpageView;
     delete editWindow;
     delete parmsWindow;
-}
 
+    if (partListWorker) {
+        logError() << "01 Level ~Gui: Part List Worker Detected";
+        QThread *thread = partListWorker->thread();
+        if (thread->isRunning()) {
+            logError() << "02 Level ~Gui: Thread is running";
+            emit requestEndThreadNowSig();
+            logError() << "O3 Level ~Gui: Fired requestEndThreadNowSig";
+            thread->quit();
+            if (!thread->wait(3000)){
+                thread->terminate();
+                thread->wait();
+            }
+        }
+    }
+}
 
 void Gui::closeEvent(QCloseEvent *event)
 {
   writeSettings();
 
   if (maybeSave()) {
-    event->accept();
+
 
     QSettings Settings;
     Settings.beginGroup(WINDOW);
@@ -709,9 +732,69 @@ void Gui::closeEvent(QCloseEvent *event)
 
     parmsWindow->close();
 
+    if (partListWorker) {
+        logError() << "01 Level closeEvent(): Part List Worker Detected";
+        QThread *thread = partListWorker->thread();
+        if (thread->isRunning()) {
+            logInfo() << "02 Level closeEvent(): Thread is running";
+            emit requestEndThreadNowSig();
+            logError() << "O3 Level closeEvent(): Fired requestEndThreadNowSig";
+            thread->quit();
+            if (!thread->wait(3000)){
+                thread->terminate();
+                thread->wait();
+            }
+        }
+    }
+    event->accept();
   } else {
     event->ignore();
   }
+}
+
+void Gui::generageFadeColourParts()
+{
+    QMessageBox::StandardButton ret;
+    ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
+            tr("Generating the colour parts list may take a long time.\n"
+                "Are you sure you want to generate this list?"),
+            QMessageBox::Ok | QMessageBox::Discard | QMessageBox::Cancel);
+    if (ret == QMessageBox::Ok) {
+
+        QThread *thread                      = new QThread(this);
+        ColourPartListWorker *partListWorker = new ColourPartListWorker();
+        partListWorker->moveToThread(thread);
+        connect(thread,         SIGNAL(finished()),                          thread, SLOT(deleteLater()));
+        connect(partListWorker, SIGNAL(finishedSig()),               partListWorker, SLOT(deleteLater()));
+        connect(partListWorker, SIGNAL(finishedSig()),                       thread, SLOT(quit()));
+        connect(thread,         SIGNAL(started()),                   partListWorker, SLOT(scanDir()));
+        connect(partListWorker, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
+        connect(partListWorker, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
+        connect(partListWorker, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
+        connect(partListWorker, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
+        connect(partListWorker, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
+        connect(partListWorker, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
+        connect(partListWorker, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
+        connect(this,           SIGNAL(requestEndThreadNowSig()),    partListWorker, SLOT(requestEndThreadNow()));
+        thread->start();
+
+    } else if (ret == QMessageBox::Cancel) {
+      return;
+    }
+}
+
+void Gui::progressBarInit(){
+    statusBar()->addWidget(progressLabel);
+    statusBar()->addWidget(progressBar);
+    progressLabel->show();
+    progressBar->show();
+}
+
+void Gui::progressBarPermInit(){
+    statusBar()->addPermanentWidget(progressLabel);
+    statusBar()->addPermanentWidget(progressBar);
+    progressLabel->show();
+    progressBar->show();
 }
 
 bool Gui::aboutDialog()
@@ -1018,6 +1101,10 @@ void Gui::createActions()
     editFadeColourPartsAct->setStatusTip(tr("Add/Edit static coloured parts to fade-parts list"));
     connect(editFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(editFadeColourParts()));
 
+    generateFadeColourPartsAct = new QAction(tr("Generage Fade Coloured Parts List"), this);
+    generateFadeColourPartsAct->setStatusTip(tr("Generage list of static coloured parts"));
+    connect(generateFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(generageFadeColourParts()));
+
     // Help
 
     aboutAct = new QAction(tr("&About"), this);
@@ -1146,6 +1233,7 @@ void Gui::createMenus()
     configMenu->addSeparator();
     configMenu->addAction(editFadeColourPartsAct);
     configMenu->addAction(editFreeFormAnnitationsAct);
+    configMenu->addAction(generateFadeColourPartsAct);
     configMenu->addSeparator();
     configMenu->addAction(preferencesAct);
 
@@ -1276,202 +1364,3 @@ void Gui::writeSettings()
     Settings.endGroup();
 }
 
-/*
- * Insert static coloured fade parts into unofficial ldraw library
- *
- */
-bool Gui::Archive(const QString &zipFile, const QDir &dir, const QString &comment = QString("")) {
-
-    // Initialize the zip file
-    QuaZip zip(zipFile);
-    zip.setFileNameCodec("IBM866");
-
-    // Check if directory exists
-    if (!dir.exists()) {
-        qDebug() << QString("dir.exists(%1)=FALSE").arg(dir.absolutePath());
-        return false;
-    }
-
-    // Check if the zip file exist; if yes, set to add content, and if no create
-    QFileInfo zipFileInfo(zipFile);
-    QFileInfoList zipFiles;
-    if (zipFileInfo.exists()){
-        if (!zip.open(QuaZip::mdAdd)) {
-            qDebug() <<  QString("Archive(): zip.open(): %1").arg(zip.getZipError());
-            return false;
-        }
-
-        // We get the list of files already in the archive.
-        QString zipDirPath = "parts/fade/";
-        QStringList zipFileList;
-        RecurseZipArchive(zipFileList, zipDirPath, zipFile, dir);
-
-        //Create an array of archive file objects consisting of QFileInfo
-        foreach (QString zipFile, zipFileList) zipFiles << QFileInfo(zipFile);
-
-    } else {
-        if (!zip.open(QuaZip::mdCreate)) {
-            qDebug() <<  QString("Archive(): zip.open(): %1").arg(zip.getZipError());
-            return false;
-        }
-    }
-
-    // We get the list of directory files and folders recursively
-    QStringList dirFileList;
-    RecurseAddDir(dir, dirFileList);
-
-    // Create an array of objects consisting of QFileInfo
-    QFileInfoList files;
-    foreach (QString fileName, dirFileList) files << QFileInfo(fileName);
-
-    QFile inFile;
-    QuaZipFile outFile(&zip);
-
-    char c;
-    foreach(QFileInfo fileInfo, files) {
-        //qDebug() << "Disk File Name: " << fileInfo.absoluteFilePath();
-        if (!fileInfo.isFile())
-            continue;
-
-        bool alreadyArchived = false;
-        foreach (QFileInfo zipFileInfo, zipFiles) {
-
-            if (fileInfo == zipFileInfo) {
-                alreadyArchived = true;
-                //qDebug() << "FileMatch - Skipping !! " << fileInfo.absoluteFilePath();
-            }
-        }
-
-        if (alreadyArchived)
-            continue;
-
-      /* If the file is in a subdirectory, then add the name of the subdirectory to filenames
-         For example: fileInfo.filePath() = "D:\Work\Sources\SAGO\svn\sago\Release\tmp_DOCSWIN\Folder\123.opn"
-         then after removing the absolute path portion of the line will produce the fileNameWithSubFolders "Folder\123.opn", etc.
-         For example: QString fileNameWithRelativePath = fileInfo.filePath().remove(0, dir.absolutePath().length() + 1);
-         But for this application, we want to capture the root (fade) and the root's parent (parts) directory to archive
-         in the correct directory, so we append the string "parts/fade" to the relative file name path. */
-        QString fileNameWithRelativePath = fileInfo.filePath().remove(0, dir.absolutePath().length() + 1);
-        QString fileNameWithCompletePath = QString("%1/%2").arg("parts/fade").arg(fileNameWithRelativePath);
-
-        qDebug() << "Processing Disk File Name: " << fileInfo.absoluteFilePath();
-
-        inFile.setFileName(fileInfo.filePath());
-
-        if (!inFile.open(QIODevice::ReadOnly)) {
-            qDebug() <<  QString("Archive(): inFile.open(): %1").arg(inFile.errorString().toLocal8Bit().constData());
-            return false;
-        }
-
-        if (!outFile.open(QIODevice::WriteOnly, QuaZipNewInfo(fileNameWithCompletePath, fileInfo.filePath()))) {
-            qDebug() << QString("Archive(): outFile.open(): %1").arg(outFile.getZipError());
-            return false;
-        }
-
-        while (inFile.getChar(&c) && outFile.putChar(c));
-
-        if (outFile.getZipError() != UNZ_OK) {
-            qDebug() << QString("Archive(): outFile.putChar(): %1").arg(outFile.getZipError());
-            return false;
-        }
-
-        outFile.close();
-
-        if (outFile.getZipError() != UNZ_OK) {
-            qDebug() << QString("Archive(): outFile.close(): %1").arg(outFile.getZipError());
-            return false;
-        }
-
-        inFile.close();
-    }
-
-    // + comment
-    if (!comment.isEmpty())
-        zip.setComment(comment);
-
-    zip.close();
-
-    if (zip.getZipError() != 0) {
-        qDebug() << QString("Archive(): zip.close(): %1").arg(zip.getZipError());
-        return false;
-    }
-
-    return true;
-}
-
-/* Recursively searches files in the archive for a given directory \ a, and adds to the list of \ b */
-bool Gui::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDirPath, const QString &zipFile, const QDir &dir) {
-
-    QuaZip zip(zipFile);
-    QuaZip *ptrZip = &zip;
-
-    if (!zip.open(QuaZip::mdUnzip)) {
-        qWarning("Extract(): zip.open(): %d", zip.getZipError());
-        return false;
-    }
-
-    zip.setFileNameCodec("IBM866");
-
-    qWarning("%d entries\n", zip.getEntriesCount());
-    qWarning("Global comment: %s\n", zip.getComment().toLocal8Bit().constData());
-
-    QuaZipDir zipDir(ptrZip,zipDirPath);
-
-    if (zipDir.exists()) {
-
-        zipDir.cd(zipDirPath);
-
-        qWarning("%d Fade ZipDir entries\n", zipDir.count());
-
-        QStringList qsl = zipDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files, QDir::SortByMask);
-
-        foreach (QString zipFile, qsl) {
-
-                QFileInfo zipFileInfo(QString("%1/%2").arg(dir.absolutePath()).arg(zipFile));
-
-                if (zipFileInfo.isSymLink())
-                    return false;
-
-                if(zipFileInfo.isDir()){
-
-                    QString subDirPath = QString("%1%2").arg(zipDirPath).arg(zipFile);
-                    QDir subDir(zipFileInfo.filePath());
-
-                    RecurseZipArchive(zipDirFileList, subDirPath, zipFile, subDir);
-
-                } else
-                    zipDirFileList << zipFileInfo.filePath();
-            }
-        }
-
-    zip.close();
-
-    if (zip.getZipError() != UNZ_OK) {
-        qWarning("Extract(): zip.close(): %d", zip.getZipError());
-        return false;
-    }
-
-    return true;
-}
-
-/* Recursively searches for all files on the disk \ a, and adds to the list of \ b */
-void Gui::RecurseAddDir(const QDir &dir, QStringList &list) {
-
-    QStringList qsl = dir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
-
-    foreach (QString file, qsl) {
-
-        QFileInfo finfo(QString("%1/%2").arg(dir.absolutePath()).arg(file));
-
-        if (finfo.isSymLink())
-            return;
-
-        if (finfo.isDir()) {
-
-            QDir subDir(finfo.filePath());
-            RecurseAddDir(subDir, list);
-
-        } else
-            list << QDir::toNativeSeparators(finfo.filePath());
-    }
-}

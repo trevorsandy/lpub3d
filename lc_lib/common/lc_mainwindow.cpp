@@ -55,7 +55,6 @@ lcMainWindow::lcMainWindow()
 
 	gMainWindow = this;
 
-    qDebug() << "0. lcMainWindow (Init) halt3DViewer Status: " << mHalt3DViewer;
 }
 
 lcMainWindow::~lcMainWindow()
@@ -400,16 +399,15 @@ void lcMainWindow::CreateMenus()
     menuBar()->removeAction(FileMenu->menuAction());
     menuBar()->removeAction(EditMenu->menuAction());
     menuBar()->removeAction(PieceMenu->menuAction());
+    menuBar()->removeAction(ModelMenu->menuAction());
+    ViewMenu->removeAction(StepMenu->menuAction());
     /*** management - menu actions ***/
-    StepMenu->removeAction(mActions[LC_VIEW_TIME_INSERT]);
-    StepMenu->removeAction(mActions[LC_VIEW_TIME_DELETE]);
     ToolBarsMenu->removeAction(mStandardToolBar->toggleViewAction());
     ToolBarsMenu->removeAction(mPartsToolBar->toggleViewAction());
     ToolBarsMenu->removeAction(mPropertiesToolBar->toggleViewAction());
 	ToolBarsMenu->removeAction(mTimelineToolBar->toggleViewAction());
     ToolBarsMenu->removeAction(mTimeToolBar->toggleViewAction());
     ViewMenu->removeAction(mActions[LC_VIEW_FULLSCREEN]);
-    ModelMenu->removeAction(mActions[LC_MODEL_NEW]);
     HelpMenu->removeAction(mActions[LC_HELP_HOMEPAGE]);
     HelpMenu->removeAction(mActions[LC_HELP_EMAIL]);
 #if !LC_DISABLE_UPDATE_CHECK
@@ -1288,7 +1286,16 @@ void lcMainWindow::SetLockZ(bool LockZ)
 void lcMainWindow::halt3DViewer(bool b){
 
     qDebug() << "2. lcMainWindow (SLOT) halt3DViewer Status: " << b;
+
     mHalt3DViewer = b;
+
+    if(mHalt3DViewer){
+        mToolsToolBar->setEnabled(false);
+        menuBar()->setEnabled(false);
+    } else {
+        mToolsToolBar->setEnabled(true);
+        menuBar()->setEnabled(true);
+    }
 }
 
 void lcMainWindow::SetRelativeTransform(bool RelativeTransform)

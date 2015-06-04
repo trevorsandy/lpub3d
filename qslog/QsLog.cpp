@@ -37,12 +37,13 @@ namespace QsLogging
 {
 typedef QList<Destination*> DestinationList;
 
-static const char TraceString[] = "\033[01;35mTRACE\033[0m";    //MAGENTA
-static const char DebugString[] = "\033[22;34mDEBUG\033[0m";    //BLUE
-static const char InfoString[]  = "\33[22;32mINFO\033[0m";      //GREEN
-static const char WarnString[]  = "\33[01;33mWARN\033[0m";      //YELLOW
-static const char ErrorString[] = "\33[22;31mERROR\033[0m";     //RED
-static const char FatalString[] = "\33[22;31mFATAL\033[0m";     //RED
+static const char TraceString[] = "\033[01;35mTRACE\033[0m";     //MAGENTA
+static const char NoticeString[]= "\033[22;36mNOTICE\033[0m";    //CYAN
+static const char DebugString[] = "\033[22;34mDEBUG\033[0m";     //BLUE
+static const char InfoString[]  = "\033[22;32mINFO\033[0m";      //GREEN
+static const char WarnString[]  = "\033[01;33mWARN\033[0m";      //YELLOW
+static const char ErrorString[] = "\033[22;31mERROR\033[0m";     //RED
+static const char FatalString[] = "\033[22;31mFATAL\033[0m";     //RED
 
 // not using Qt::ISODate because we need the milliseconds too
 static const QString fmtDateTime("yyyy-MM-ddThh:mm:ss.zzz");
@@ -53,6 +54,8 @@ static const char* LevelToText(Level theLevel)
    {
    case TraceLevel:
       return TraceString;
+   case NoticeLevel:
+      return NoticeString;
    case DebugLevel:
       return DebugString;
    case InfoLevel:
@@ -77,6 +80,8 @@ QString OutputToColour(Level theLevel, QString output)
    {
    case TraceLevel:
       return QString("%1%2%3").arg("\033[01;35m").arg(output).arg("\033[0m");
+   case NoticeLevel:
+      return QString("%1%2%3").arg("\033[22;36m").arg(output).arg("\033[0m");
    case DebugLevel:
       return QString("%1%2%3").arg("\033[22;34m").arg(output).arg("\033[0m");
    case InfoLevel:
@@ -138,11 +143,15 @@ Level Logger::loggingLevel() const
 void Logger::Helper::writeToLog()
 {
    const char* const levelName = LevelToText(level);
-   const QString completeMessage(QString("%1 %2 %3")
+   const QString completeMessage(QString("%1 %2")
       .arg(levelName, 5)
-      .arg(OutputToColour(level,QDateTime::currentDateTime().toString(fmtDateTime)))
       .arg(OutputToColour(level,buffer))
       );
+//   const QString completeMessage(QString("%1 %2 %3")
+//      .arg(levelName, 5)
+//      .arg(OutputToColour(level,QDateTime::currentDateTime().toString(fmtDateTime)))
+//      .arg(OutputToColour(level,buffer))
+//      );
 
    Logger& logger = Logger::instance();
    QMutexLocker lock(&logger.d->logMutex);

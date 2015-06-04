@@ -190,7 +190,6 @@ int Step::createCsi(
   //**3D
   if (!gMainWindow->GetHalt3DViewer()) {
 
-  qDebug() << "3. Step (CSI) halt3DViewer Status: " << gMainWindow->GetHalt3DViewer();
       QString fileNamekey = QString("%1_%2%3")
               .arg(csiName())
               .arg(QString::number(sn))

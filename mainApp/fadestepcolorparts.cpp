@@ -7,7 +7,9 @@
 #include "lpub_preferences.h"
 
 bool                    FadeStepColorParts::result;
-QList<QString>          FadeStepColorParts::fadeStepStaticColorParts;
+QString                 FadeStepColorParts::empty;
+QString                 FadeStepColorParts::path;
+QMap<QString, QString>  FadeStepColorParts::fadeStepStaticColorParts;
 
 FadeStepColorParts::FadeStepColorParts()
 {
@@ -22,13 +24,17 @@ FadeStepColorParts::FadeStepColorParts()
             return;
         }
         QTextStream in(&file);
-        QRegExp rx("^\\b([\\d\\w\\-\\_\\+\\\\.]+)\\b\\s*~*\\b(.*)\\b\\s*$");
+        // ^^\\b([\\d\\w\\-\\_\\+\\\\.]+)\\b\\s*\\b([\\d\\w\\:\\/\\-\\_\\+\\\\.]+)\\b\\s*(.*)\\s*$   // QMap
+        // ^\\b([\\d\\w\\-\\_\\+\\\\.]+)\\b\\s*~*\\b(.*)\\b\\s*$"                                    // QString
+
+        QRegExp rx("^\\b([\\d\\w\\-\\_\\+\\\\.]+)\\b\\s*\\b([\\d\\w\\:\\/\\-\\_\\+\\\\.]+)\\b\\s*(.*)\\s*$");
                 while ( ! in.atEnd()) {
             QString sLine = in.readLine(0);
             if (sLine.contains(rx)) {
-                QString colorParts = rx.cap(1);
-                fadeStepStaticColorParts << colorParts.toLower().trimmed();
-                //qDebug() << "** Color Parts Loaded: " << colorParts.toLower(); //TEST
+                QString colorPartID = rx.cap(1);
+                QString colorPartPath = rx.cap(2);
+                fadeStepStaticColorParts.insert(colorPartID.toLower().trimmed(),colorPartPath.toLower().trimmed());
+                //qDebug() << "** Color Parts Loaded: " << colorPartID.toLower() << " Path: " << colorPartPath.toLower(); //TEST
             }
         }
     }
@@ -42,5 +48,26 @@ const bool &FadeStepColorParts::isStaticColorPart(QString part)
     } else {
         result = false;
         return result;
+    }
+}
+
+const bool &FadeStepColorParts::getStaticColorPartPath(QString &part){
+    if (fadeStepStaticColorParts.contains(part.toLower().toLower().trimmed())) {
+        part = fadeStepStaticColorParts.value(part.toLower());
+        result = true;
+        return result;
+    } else {
+        part = empty;
+        result = false;
+        return result;
+    }
+}
+
+const QString &FadeStepColorParts::staticColorPartPath(QString part){
+    if (fadeStepStaticColorParts.contains(part.toLower().toLower().trimmed())) {
+        path = fadeStepStaticColorParts.value(part.toLower());
+      return path;
+    } else {
+      return empty;
     }
 }

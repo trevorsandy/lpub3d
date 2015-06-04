@@ -171,6 +171,9 @@ void Gui::printToFile()
 {
   // send signal to halt 3DViewer
   halt3DViewer(true);
+  // initialize progress bar
+  emit progressBarInitSig();
+  emit progressMessageSig("Printing instructions to pdf.");
 
   // determine location for output file
   QFileInfo fileInfo(curFile);
@@ -183,6 +186,8 @@ void Gui::printToFile()
   if (fileName == "") {
     // release 3D Viewer
     halt3DViewer(false);
+    // remove progress bar
+    emit removeProgressStatusSig();
     return;
   }
   
@@ -234,8 +239,10 @@ void Gui::printToFile()
   clearPage(&view,&scene);
   
   int savePageNumber = displayPageNum;
+  emit progressRangeSig(1, maxPages);
   for (displayPageNum = 1; displayPageNum <= maxPages; displayPageNum++) {
 
+     emit progressSetValueSig(displayPageNum);
     //qApp->processEvents();
 
     // render this page
@@ -249,11 +256,12 @@ void Gui::printToFile()
       printer.newPage();
     }
   }
-  
+  emit progressSetValueSig(maxPages);
   painter.end();
 
   // release 3D Viewer
   halt3DViewer(false);
+  emit removeProgressStatusSig();
 
   // return to whatever page we were viewing before output
   displayPageNum = savePageNumber;
@@ -263,7 +271,7 @@ void Gui::printToFile()
   QMessageBox::StandardButton ret;
   ret = QMessageBox::information(this, tr(VER_PRODUCTNAME_STR),
           tr("Your instruction document has finished printing.\n"
-              "Do you want to open this document?\n %1").arg(fileName),
+              "Do you want to open this document ?\n %1").arg(fileName),
           QMessageBox::Yes| QMessageBox::Discard | QMessageBox::Cancel);
 
   if (ret == QMessageBox::Yes) {
@@ -284,15 +292,13 @@ void Gui::printToFile()
           m->showMessage(QString("%1\n%2").arg("Failed to launch PDF document!").arg(CommandPath));
       }
 #else
-
       QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
-
 #endif
+      emit messageSig(true,QString("Print to pdf completed."));
       return;
   } else if (ret == QMessageBox::Cancel) {
       return;
   }
-
 }
 
 void Gui::exportAsPng()

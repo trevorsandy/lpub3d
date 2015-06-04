@@ -428,7 +428,16 @@ int Gui::addGraphicsPageItems(
             QString addLine;
             getBOMParts(current,addLine,bomParts);
             page->pli.steps = steps;
-            page->pli.setParts(bomParts,page->meta,true);
+            getBOMOccurrence(current);                                      //divide BOM Parts
+            if (boms > 1){
+                logError() << "BOMS: " << boms;
+                QStringList dividedBOMParts;
+                divideBOMParts(bomParts,dividedBOMParts);
+                page->pli.setParts(dividedBOMParts,page->meta,true);
+                dividedBOMParts.clear();
+            } else {
+                page->pli.setParts(bomParts,page->meta,true);
+            }
             bomParts.clear();
             page->pli.sizePli(&page->meta,page->relativeType,false);
             page->pli.relativeToSize[0] = plPage.size[XX];
@@ -650,4 +659,128 @@ int Gui::addGraphicsPageItems(
   page->relativeType = SingleStepType;
   statusBarMsg("");
   return 0;
+}
+
+int Gui::getBOMOccurrence(Where	current) {		// top of ldrawFile
+
+    // traverse content to find the number and location of BOM pages
+    // key=modelName_LineNumber, value=occurrence
+    QHash<QString, int> bom_Occurrence;
+
+    Meta meta;
+
+    skipHeader(current);
+
+    int numLines        = ldrawFile.size(current.modelName);
+    int occurrenceNum   = 0;
+    boms                = 0;
+    bomOccurrence       = 0;
+
+    Rc rc;
+
+    for ( ;
+          current.lineNumber < numLines;
+          current.lineNumber++) {
+
+        QString line = ldrawFile.readLine(current.modelName,current.lineNumber).trimmed();
+        switch (line.toAscii()[0]) {
+        case '1':
+          {
+            QStringList token;
+            split(line,token);
+            QString type = token[token.size()-1];
+
+            if (ldrawFile.isSubmodel(type)) {
+                Where current2(type,0);
+                getBOMOccurrence(current2);
+            }
+            break;
+          }
+        case '0':
+          {
+            rc = meta.parse(line,current);
+            switch (rc) {
+            case InsertRc:
+              {
+                InsertData insertData = meta.LPub.insert.value();
+                if (insertData.type == InsertData::InsertBom){
+
+                    QString uniqueID = QString("%1_%2").arg(current.modelName).arg(current.lineNumber);
+                    occurrenceNum++;
+                    bom_Occurrence[uniqueID] = occurrenceNum;
+
+                    logTrace()  << "BOM Occurrence: " << bom_Occurrence[uniqueID]
+                                << " in Model: "      << current.modelName
+                                << " on Line: "       << current.lineNumber
+                                << " Number of BOMs: "<< bom_Occurrence.size()
+                                << " Key: "           << uniqueID
+                                   ;
+                }
+              }
+                break;
+            default:
+                break;
+            } // switch metas
+            break;
+          }  // switch line type
+        }
+    } // for every line
+
+    if (occurrenceNum > 1) {
+        // now set the bom occurrance based on our current position
+        Where here = gui->topOfPages[gui->displayPageNum-1];
+        for (++here; here.lineNumber < ldrawFile.size(here.modelName); here++) {
+            QString line = gui->readLine(here);
+            Meta meta;
+            Rc rc;
+
+            rc = meta.parse(line,here);
+            if (rc == InsertRc) {
+
+                InsertData insertData = meta.LPub.insert.value();
+                if (insertData.type == InsertData::InsertBom) {
+
+                    QString bomID   = QString("%1_%2").arg(here.modelName).arg(here.lineNumber);
+                    bomOccurrence   = bom_Occurrence[bomID];
+                    boms            = bom_Occurrence.size();
+
+                    logInfo() << QString("BOM Occurrance: %1 Number of BOMs: %2").arg(bomOccurrence).arg(boms)
+                              << QString(" BOM_ID %1_%2").arg(here.modelName).arg(here.lineNumber);
+
+                    break;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+int Gui::divideBOMParts(
+        const QStringList   &bomParts,
+              QStringList   &dividedBOMParts){
+
+    int quotient    = bomParts.size() / boms;
+    int remainder   = bomParts.size() % boms;
+    int maxParts    = 0;
+    int i           = 0;
+
+    if (bomOccurrence == boms){
+        maxParts = bomOccurrence * quotient + remainder;
+        i = maxParts - quotient - remainder;
+    } else {
+        maxParts = bomOccurrence * quotient;
+        i = maxParts - quotient;
+    }
+
+    for(; i < maxParts; i++){
+        dividedBOMParts << bomParts[i];
+        //logInfo() << "BomPart: " << bomParts[i] << ", index: " << i;
+    }
+
+    logTrace() << "bomParts: " << bomParts.size();
+    logTrace() << "quotient: " << quotient;
+    logTrace() << "remainder: " << remainder;
+    logTrace() << "dividedBOMParts: " << dividedBOMParts.size();
+
+    return 0;
 }

@@ -29,6 +29,7 @@
 
 #define WINDOW   "MainWindow"
 
+#include <QtGui>
 #include <QMainWindow>
 #include <QTextCursor>
 
@@ -76,6 +77,7 @@ private:
     QAction  *redoAct;
     QAction  *delAct;
     QAction  *selAllAct;
+    QAction  *findAct;
 
 signals:
 
@@ -91,6 +93,7 @@ public:
     TextEditor *textEdit() { return _textEdit; }
 };
 
+
 class TextEditor : public QPlainTextEdit
 {
     Q_OBJECT
@@ -102,6 +105,13 @@ public:
     int lineNumberAreaWidth();
     void parmsOpen(int &opt);
     bool parmsSave(int &opt);
+    QLineEdit   *textFind;
+    QLabel      *labelMessage;
+    QPushButton *buttonFind;
+    QPushButton *buttonFindNext;
+    QPushButton *buttonFindPrevious;
+    QGridLayout *layout;
+    QWidget     *popUp;
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -110,6 +120,10 @@ private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
     void highlightCurrentLine();
     void updateLineNumberArea(const QRect &, int);
+    void findDialog();
+    void findInText();
+    void findInTextNext();
+    void findInTextPrevious();
 
 private:
     QWidget *lineNumberArea;

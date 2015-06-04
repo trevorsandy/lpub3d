@@ -24,6 +24,7 @@
 #include "lpub_preferences.h"
 #include "editwindow.h"
 #include "paths.h"
+#include "colourpartlist.h"
 
 void Gui::open()
 {  
@@ -227,7 +228,7 @@ void Gui::openFile(QString &fileName)
   QDir::setCurrent(info.absolutePath());
   Paths::mkdirs();
   ldrawFile.loadFile(fileName);
-  processFadeColorParts();
+  colourPart.processFadeColorParts();
   attitudeAdjustment();
   mpdCombo->setMaxCount(0);
   mpdCombo->setMaxCount(1000);

@@ -24,6 +24,7 @@ class Paths {
 public:
 
     static void mkdirs();
+    static void mkfadedirs();
     static QString lpubDir;
     static QString tmpDir;
     static QString assemDir;
@@ -31,5 +32,9 @@ public:
     static QString viewerDir;
     static QString fadeDir;
     static QString fadeSDir;
+    static QString fadePDir;
+    static QString fadeP8Dir;
+    static QString fadeP48Dir;
 };
+
 #endif

@@ -346,6 +346,8 @@
 #include <QComboBox>
 #include <QPrinter>
 #include <QFile>
+#include <QProgressBar>
+#include <QElapsedTimer>
  
 #include "color.h"
 #include "partslist.h"
@@ -356,6 +358,7 @@
 #include "aboutdialog.h"
 #include "updatedialog.h"
 #include "version.h"
+#include "colourpartlist.h"
 
 //** 3D
 #include "lc_math.h"
@@ -363,9 +366,6 @@
 #include "lc_application.h"
 #include "lc_mainwindow.h" //moved from
 
-#include "quazip.h"
-#include "quazipfile.h"
-#include "quazipdir.h"
 //**
 
 #include "QsLog.h"
@@ -426,7 +426,6 @@ public:
   void            *noData;
   /**Fade Step variables**/
   FadeStepMeta    *fadeMeta;             // propagate fade color and fade bool
-
   FitMode         fitMode;              // how to fit the scene into the view
 
   Where &topOfPage();
@@ -487,6 +486,10 @@ public:
     QDateTime date;
     ldrawFile.insert(name,csiParts,date,false,true);
     writeToTmp();
+  }
+  LDrawFile getLDrawFile()
+  {
+      return ldrawFile;
   }
   void insertLine (const Where &here, const QString &line, QUndoCommand *parent = 0);
   void appendLine (const Where &here, const QString &line, QUndoCommand *parent = 0);
@@ -551,6 +554,7 @@ public:
   {
       return curFile;
   }
+
   //**
 
 
@@ -576,12 +580,28 @@ public slots:
     }
   }
 
+  void statusMessage(bool status, QString message){
+      if (status){
+          statusBarMsg(message);
+      }else{
+          QMessageBox::warning(this,tr("LPub3D"),tr(message.toAscii()));
+      }
+  }
+
   void statusBarMsg(QString msg);
 
   void showLine(const Where &topOfStep)
   {
     displayFile(&ldrawFile,topOfStep.modelName);
     showLineSig(topOfStep.lineNumber);
+  }
+
+  void progressBarInit();
+  void progressBarPermInit();
+
+  void removeProgressStatus(){
+      statusBar()->removeWidget(progressBar);
+      statusBar()->removeWidget(progressLabel);
   }
 
   void preferences();
@@ -619,21 +639,40 @@ signals:
   void showLineSig(int lineNumber);
 
   void halt3DViewerSig(bool b);
+  void quit();
+
+  // progress bar
+  void progressBarInitSig();
+  void progressMessageSig(const QString &text);
+  void progressRangeSig(const int &min, const int &max);
+  void progressSetValueSig(const int &value);
+  void progressResetSig();
+  void messageSig(bool  status, QString message);
+  void removeProgressStatusSig();
+  void requestEndThreadNowSig();
 
 public:
-  Page            page;            // the abstract version of page contents
+  Page                  page;            // the abstract version of page contents
 
 private:    
   QGraphicsScene *KpageScene;      // top of displayed page's graphics items
   LGraphicsView  *KpageView;       // the visual representation of the scene
+
+  int             boms;            // the number of pli BOMs in the document
+  int             bomOccurrence;   // the acutal occurenc of each pli BOM
 
   LDrawFile       ldrawFile;       // contains MPD or all files used in model
   QString         curFile;         // the file name for MPD, or top level file
   QString         curSubFile;      // whats being displayed in the edit window
   EditWindow     *editWindow;      // the sub file editable by the user
   ParmsWindow    *parmsWindow;     // the parametrer file editor
+  QProgressBar   *progressBar;
+  QLabel         *progressLabel;
+  QElapsedTimer  *timer;
+  ColourPartListWorker  *partListWorker; // create static colour parts list in separate thread
+  GlobalFadeStep        *data;
 
-  GlobalFadeStep *data;
+  ColourPartList        colourPart;         // create fade parts for static colour parts
   FadeStepColorParts    fadeStepColorParts; //internal list of color parts to be processed for fade step.
 
 #ifdef WATCHER
@@ -696,16 +735,22 @@ private:
     QString     &addLine,
     QStringList &csiParts);
 
+  int getBOMOccurrence(
+          Where  current);
+
+  int divideBOMParts(
+    const QStringList  &bomParts,
+          QStringList  &dividedBOMParts);
+
   void writeToTmp(
     const QString &fileName,
     const QStringList &);
+
   void writeToTmp();
 
-  void processFadeColorParts();   // scan LDraw file for static colored parts and create fade copy
 
-  void writeToFade(               // copy to fade dir
-    const QString     &fileName,
-    const QStringList &contents);
+
+
 
   QStringList fadeSubFile(
      const QStringList &,
@@ -715,24 +760,6 @@ private:
      QStringList  &csiParts,
      int          &stepNum,
      Where        &current);      // fade parts in a step that are not current
-
-  void createFadePart(            // convert static color files
-    QString   &type);             // replace color code with fade color
-
-  static bool Archive(
-    const QString &zipFile,
-    const QDir &dir,
-    const QString &comment);
-
-  static void RecurseAddDir(
-    const QDir &dir,
-    QStringList &list);
-
-  static bool RecurseZipArchive(
-          QStringList &zipDirFileList,
-          QString &zipDirPath,
-    const QString &zipFile,
-    const QDir &dir);
 
   static bool installPrintBanner(
     const QString &printFile,
@@ -748,6 +775,7 @@ private slots:
     bool updateDialog();
     void editFreeFormAnnitations();
     void editFadeColourParts();
+    void generageFadeColourParts();
 
     void toggleLCStatusBar();
     void showLCStatusMessage();
@@ -927,8 +955,7 @@ private:
 
   QAction *editFreeFormAnnitationsAct;
   QAction *editFadeColourPartsAct;
-
-
+  QAction *generateFadeColourPartsAct;
 
   // help
 

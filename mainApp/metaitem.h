@@ -290,6 +290,7 @@ public:
   void insertPicture();
   void insertText();
   void insertBOM();
+  void insertSplitBOM();
   void deleteBOM();
   void deletePage();
 

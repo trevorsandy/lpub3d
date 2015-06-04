@@ -235,6 +235,8 @@ mainApp/aboutdialog.h -text
 mainApp/aboutdialog.ui -text
 mainApp/annotations.cpp -text
 mainApp/annotations.h -text
+mainApp/archivefadeparts.cpp -text
+mainApp/archivefadeparts.h -text
 mainApp/assemglobals.cpp -text
 mainApp/backgrounddialog.cpp -text
 mainApp/backgrounddialog.h -text
@@ -249,6 +251,8 @@ mainApp/calloutbackgrounditem.h -text
 mainApp/calloutglobals.cpp -text
 mainApp/color.cpp -text
 mainApp/color.h -text
+mainApp/colourpartlist.cpp -text
+mainApp/colourpartlist.h -text
 mainApp/commands.cpp -text
 mainApp/commands.h -text
 mainApp/commonmenus.cpp -text
@@ -284,6 +288,7 @@ mainApp/images/cut.png -text
 mainApp/images/delete.png -text
 mainApp/images/editredo.png -text
 mainApp/images/editundo.png -text
+mainApp/images/find.png -text
 mainApp/images/first.png -text
 mainApp/images/fitPage.png -text
 mainApp/images/fitVisible.png -text

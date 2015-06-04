@@ -72,12 +72,16 @@ unix:!macx {
 }
 
 CONFIG(debug, debug|release) {
+        CONFIG += shared
         DESTDIR = build/debug
         LIBS += -L$$DESTDIR/../../../quazip/build/debug -lquazip
+
 #        LIBS += -L$$DESTDIR/../../../qslog/build/debug -lqslog
 } else {
+        CONFIG += staticlib
         DESTDIR = build/release
         LIBS += -L$$DESTDIR/../../../quazip/build/release -lquazip
+
 #        LIBS += -L$$DESTDIR/../../../qslog/build/release -lqslog
 		
 }
@@ -144,6 +148,7 @@ include(../qslog/QsLog.pri)
 HEADERS += \
     aboutdialog.h \
     annotations.h \
+    archivefadeparts.h \
     backgrounddialog.h \
     backgrounditem.h \
     borderdialog.h \
@@ -151,6 +156,7 @@ HEADERS += \
     callout.h \
     calloutbackgrounditem.h \
     color.h \
+    colourpartlist.h \
     commands.h \
     commonmenus.h \
     csiitem.h \
@@ -203,6 +209,7 @@ SOURCES += \
     aboutdialog.cpp \
     annotations.cpp \
     assemglobals.cpp \
+    archivefadeparts.cpp \
     backgrounddialog.cpp \
     backgrounditem.cpp \
     borderdialog.cpp \
@@ -210,6 +217,7 @@ SOURCES += \
     calloutbackgrounditem.cpp \
     calloutglobals.cpp \
     color.cpp \
+    colourpartlist.cpp \
     commands.cpp \
     commonmenus.cpp \
     csiitem.cpp \

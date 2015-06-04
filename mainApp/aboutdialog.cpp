@@ -44,9 +44,12 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
                                .arg(QString::fromLatin1(VER_PUBLISHER_SUPPORT_EMAIL))
                                .arg(QString::fromLatin1(VER_PUBLISHER_EMAIL));
 
-    ui->info->setTextFormat(Qt::RichText);
-    ui->info->setOpenExternalLinks(true);
-    ui->info->setText(Version + About);
+    ui->AppInfo->setTextFormat(Qt::RichText);
+    ui->AppInfo->setOpenExternalLinks(true);
+    ui->AppInfo->setText(Version + About);
+
+    //    ui->BuildInfo;
+    //    ui->OsInfo;
 }
 
 AboutDialog::~AboutDialog()

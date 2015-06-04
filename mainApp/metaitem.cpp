@@ -1434,6 +1434,21 @@ void MetaItem::insertBOM()
   insertMeta(topOfStep,meta);
 }
 
+void MetaItem::insertSplitBOM()
+{
+  QString pageMeta = QString("0 !LPUB INSERT PAGE");
+  QString bomMeta  = QString("0 !LPUB INSERT BOM");
+
+  Where topOfStep = gui->topOfPages[gui->displayPageNum-1];
+
+  scanPastGlobal(topOfStep);
+
+  beginMacro("splitBOM");
+  insertPage(pageMeta);
+  appendMeta(topOfStep,bomMeta);
+  endMacro();
+}
+
 void MetaItem::deleteBOM()
 {
   Where topOfPage    = gui->topOfPages[gui->displayPageNum-1];

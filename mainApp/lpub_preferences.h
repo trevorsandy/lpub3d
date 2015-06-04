@@ -40,6 +40,9 @@ class Preferences
     static QString ldrawPath;
     static QString leocadLibFile;
     static QString lgeoPath;
+    static QString lpubDataPath;
+    static QString lpubCachePath;
+    static QString lpubExtrasPath;
     static QString ldgliteExe;
     static QString ldviewExe;
 	static QString l3pExe;

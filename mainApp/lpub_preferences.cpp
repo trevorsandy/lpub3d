@@ -13,6 +13,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+#include <QDesktopServices>
 #include <QSettings>
 #include <QFileInfo>
 #include <QProcess>
@@ -39,6 +40,9 @@ QString Preferences::ldrawPath = " ";
 QString Preferences::leocadLibFile = " ";
 QString Preferences::lgeoPath;
 QString Preferences::lpubPath = ".";
+QString Preferences::lpubDataPath = ".";
+QString Preferences::lpubCachePath = ".";
+QString Preferences::lpubExtrasPath = ".";
 QString Preferences::ldgliteExe;
 QString Preferences::ldviewExe;
 QString Preferences::l3pExe;
@@ -76,6 +80,21 @@ void Preferences::lpubPreferences()
       cwd.cdUp(); //LPub3D.app
   }
       lpubPath = cwd.absolutePath();
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+    QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
+    lpubCachePath = cachePathList.first();
+
+    QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+    lpubDataPath = dataPathList.first();
+#else
+    lpubCachePath = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
+    lpubDataPath  = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+#endif
+
+    QDir extrasDir(lpubDataPath + "/extras");
+    if(!QDir(extrasDir).exists())
+        extrasDir.mkpath(".");
 }
 
 void Preferences::ldrawPreferences(bool force)
@@ -324,13 +343,13 @@ void Preferences::pliPreferences()
   
 #ifdef __APPLE__
 
-  pliFile = QString("%1/%2").arg(lpubPath,"extras/pli.mpd");
+  pliFile = QString("%1/%2").arg(lpubDataPath,"extras/pli.mpd");
   
 #else
 
   //30-11-14 Incorrect path string
   //pliFile = "/extras/pli.mpd";
-  pliFile = QDir::toNativeSeparators(QString("%1/%2").arg(lpubPath,"extras/pli.mpd"));
+  pliFile = QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath,"extras/pli.mpd"));
 
 #endif
 
@@ -399,15 +418,15 @@ void Preferences::annotationPreferences()
     }
 #ifdef __APPLE__
 
-   titleAnnotationsFile    = QString("%1/%2").arg(lpubPath,"extras/titleAnnotations.lst");
-   freeformAnnotationsFile = QString("%1/%2").arg(lpubPath,"extras/freeformAnnotations.lst");
+   titleAnnotationsFile    = QString("%1/%2").arg(lpubDataPath,"extras/titleAnnotations.lst");
+   freeformAnnotationsFile = QString("%1/%2").arg(lpubDataPath,"extras/freeformAnnotations.lst");
 
    qDebug() << " Annotation File:  " << titleAnnotationsFile;
 
 #else
 
-    titleAnnotationsFile    = QDir::toNativeSeparators(QString("%1/%2").arg(lpubPath,"extras/titleAnnotations.lst"));
-    freeformAnnotationsFile = QDir::toNativeSeparators(QString("%1/%2").arg(lpubPath,"extras/freeformAnnotations.lst"));
+    titleAnnotationsFile    = QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath,"extras/titleAnnotations.lst"));
+    freeformAnnotationsFile = QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath,"extras/freeformAnnotations.lst"));
 
 #endif
    QFileInfo popTitleFileInfo(titleAnnotationsFile);
@@ -451,11 +470,11 @@ void Preferences::fadestepPreferences()
   }
 #ifdef __APPLE__
 
- fadeStepColorPartsFile    =  QString("%1/%2").arg(lpubPath,"extras/fadeStepColorParts.lst");
+ fadeStepColorPartsFile    =  QString("%1/%2").arg(lpubDataPath,"extras/fadeStepColorParts.lst");
 
 #else
 
-  fadeStepColorPartsFile    = QDir::toNativeSeparators(QString("%1/%2").arg(lpubPath,"extras/fadeStepColorParts.lst"));
+  fadeStepColorPartsFile    = QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath,"extras/fadeStepColorParts.lst"));
 
 #endif
  QFileInfo popFadeStepColorFileInfo(fadeStepColorPartsFile);

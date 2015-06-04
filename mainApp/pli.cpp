@@ -1497,15 +1497,21 @@ void PliBackgroundItem::contextMenuEvent(
       "  The last way is to tell the computer how many columns it\n"
       "  can have, and then it will try to make all the columns the\n"
                                                "  same height\n");
-                                               
+
+    QAction *splitBomAction = NULL;
+
+    if (pli->bom) {
+      splitBomAction = menu.addAction("Split Bill of Materials");
+    }
+
     PlacementData placementData = pli->placement.value();
 
-    QString name = bom ? "Move Bill Of Materials" : "Move Parts List";
+    QString name = pli->bom ? "Move Bill Of Materials" : "Move Parts List";
     QAction *placementAction  = menu.addAction(name);
     placementAction->setWhatsThis(
       commonMenus.naturalLanguagePlacementWhatsThis(PartsListType,placementData,name));
 
-    QString pl = bom ? "Bill of Materials " : "Parts List ";
+    QString pl = pli->bom ? "Bill of Materials " : "Parts List ";
     QAction *backgroundAction = commonMenus.backgroundMenu(menu,pl);
     QAction *borderAction     = commonMenus.borderMenu(menu,pl);
     QAction *marginAction     = commonMenus.marginMenu(menu,pl);
@@ -1614,6 +1620,8 @@ void PliBackgroundItem::contextMenuEvent(
                    &pli->pliMeta.border);
     } else if (selectedAction == deleteBomAction) {
       deleteBOM();
+    } else if (selectedAction == splitBomAction){
+        insertSplitBOM();
     }
   }
 }

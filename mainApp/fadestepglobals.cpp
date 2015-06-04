@@ -30,11 +30,13 @@
 #include "lpub_preferences.h"
 #include "step.h"
 
+
 /**********************************************************************
  *
  * FadeStep
  *
  *********************************************************************/
+
 
 class GlobalFadeStepPrivate
 {
@@ -133,8 +135,6 @@ void GlobalFadeStepDialog::accept()
 
   if (Preferences::enableFadeStep){
       Step::isCsiDataModified = true;
-      // TODO ; //
-      //Gui::processFadeColorParts();
   }
 
   QDialog::accept();

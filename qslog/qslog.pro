@@ -12,11 +12,15 @@ win32 {
     CONFIG += debug_and_release	
 }
 
-CONFIG += shared
+
+
 CONFIG(debug, debug|release) {
         DESTDIR = build/debug
+        CONFIG += shared
 } else {
         DESTDIR = build/release
+        CONFIG += staticlib
+
 }
 
 OBJECTS_DIR = $$DESTDIR/.obj

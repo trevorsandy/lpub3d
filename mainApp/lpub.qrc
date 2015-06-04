@@ -8,6 +8,7 @@
         <file alias="cut.png">images/cut.png</file>
         <file alias="editredo.png">images/editredo.png</file>
         <file alias="editundo.png">images/editundo.png</file>
+        <file alias="find.png">images/find.png</file>
         <file alias="first.png">images/first.png</file>
         <file alias="fitPage.png">images/fitPage.png</file>
         <file alias="fitVisible.png">images/fitVisible.png</file>

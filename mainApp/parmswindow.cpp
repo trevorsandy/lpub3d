@@ -69,6 +69,11 @@ void ParmsWindow::createActions()
                               "selection"));
     connect(pasteAct, SIGNAL(triggered()), _textEdit, SLOT(paste()));
 
+    findAct = new QAction(QIcon(":/resources/find.png"), tr("&Paste"), this);
+    findAct->setShortcut(tr("Ctrl+F"));
+    findAct->setStatusTip(tr("Find object "));
+    connect(findAct, SIGNAL(triggered()), _textEdit, SLOT(findDialog()));
+
     saveAct = new QAction(QIcon(":/resources/save.png"), tr("&Save"), this);
     saveAct->setShortcut(tr("Ctrl+S"));
     saveAct->setStatusTip(tr("Save the document to disk"));
@@ -104,6 +109,7 @@ void ParmsWindow::createActions()
     copyAct->setEnabled(false);
     delAct->setEnabled(false);
     selAllAct->setEnabled(false);
+    findAct->setEnabled(false);
     connect(_textEdit, SIGNAL(copyAvailable(bool)),
             cutAct,    SLOT(setEnabled(bool)));
     connect(_textEdit, SIGNAL(copyAvailable(bool)),
@@ -127,6 +133,7 @@ void ParmsWindow::createToolBars()
     editToolBar->addAction(cutAct);
     editToolBar->addAction(copyAct);
     editToolBar->addAction(pasteAct);
+    editToolBar->addAction(findAct);
     editToolBar->addAction(delAct);
 
     undoRedoToolBar = addToolBar(tr("Undo Redo"));
@@ -160,6 +167,7 @@ void ParmsWindow::displayParmsFile(
     file.close();
 
     selAllAct->setEnabled(true);
+    findAct->setEnabled(true);
 }
 
 bool ParmsWindow::maybeSave()
@@ -314,4 +322,74 @@ void TextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
         bottom = top + (int) blockBoundingRect(block).height();
         ++blockNumber;
     }
+}
+
+void TextEditor::findDialog(){
+
+    popUp = new QWidget;
+    popUp->setWindowTitle("Find");
+
+    layout = new QGridLayout;
+
+    buttonFind  = new QPushButton("Find");
+    buttonFindNext = new QPushButton("Find Next");
+    buttonFindPrevious = new QPushButton("Find Previous");
+
+    connect(buttonFind, SIGNAL(clicked()), this,SLOT(findInText()));
+    connect(buttonFindNext,SIGNAL(clicked()),this,SLOT(findInTextNext()));
+    connect(buttonFindPrevious,SIGNAL(clicked()),this,SLOT(findInTextPrevious()));
+
+    textFind    = new QLineEdit;
+    textFind->setMinimumWidth(250);
+
+    labelMessage = new QLabel;
+    labelMessage->setMinimumWidth(250);
+
+    layout->addWidget(textFind,0,0,1,3);
+
+    layout->addWidget(buttonFind,1,0,1,1);
+    layout->addWidget(buttonFindNext,1,1,1,1);
+    layout->addWidget(buttonFindPrevious,1,2,1,1);
+    layout->addWidget(labelMessage,2,0,1,3);
+
+    popUp->setLayout(layout);
+    popUp->resize(300,50);
+
+    popUp->show();
+
+}
+
+void TextEditor::findInText(){
+    //Set Cursor position to the start of document
+    //to let find() method make search in whole text,
+    //otherwise it search from cursor position to the end.
+    moveCursor(QTextCursor::Start);
+    if (!find(textFind->text()))
+        labelMessage->setText("Did not find the text '" + textFind->text() + "'");
+    else
+        labelMessage->clear();
+}
+
+void TextEditor::findInTextNext()
+{
+  if(buttonFindPrevious->isEnabled() == false)
+  {
+      moveCursor(QTextCursor::Start);
+  }
+
+  if(find(textFind->text()))
+  {
+      buttonFindPrevious->setEnabled(true);
+      labelMessage->clear();
+  } else {
+      labelMessage->setText("No more items.");
+  }
+}
+
+void TextEditor::findInTextPrevious()
+{
+  if(! find(textFind->text(), QTextDocument::FindBackward))
+      labelMessage->setText("No more items.");
+  else
+      labelMessage->clear();
 }

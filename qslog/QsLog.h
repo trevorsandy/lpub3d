@@ -85,6 +85,7 @@ class Destination;
 enum Level
 {
    TraceLevel = 0,
+   NoticeLevel,
    DebugLevel,
    InfoLevel,
    WarnLevel,
@@ -148,6 +149,9 @@ private:
 #define logTrace() \
    if( QsLogging::Logger::instance().loggingLevel() > QsLogging::TraceLevel ){} \
    else QsLogging::Logger::Helper(QsLogging::TraceLevel).stream()
+#define logNotice() \
+   if( QsLogging::Logger::instance().loggingLevel() > QsLogging::NoticeLevel ){} \
+   else QsLogging::Logger::Helper(QsLogging::NoticeLevel).stream()
 #define logDebug() \
    if( QsLogging::Logger::instance().loggingLevel() > QsLogging::DebugLevel ){} \
    else QsLogging::Logger::Helper(QsLogging::DebugLevel).stream()
@@ -165,21 +169,24 @@ private:
 #else
 #define logTrace() \
    if( QsLogging::Logger::instance().loggingLevel() > QsLogging::TraceLevel ){} \
-   else  QsLogging::Logger::Helper(QsLogging::TraceLevel).stream() << __FILE__ << Q_FUNC_INFO << '@' << __LINE__
+   else  QsLogging::Logger::Helper(QsLogging::TraceLevel).stream() << Q_FUNC_INFO << '@' << __LINE__
+#define logNotice() \
+   if( QsLogging::Logger::instance().loggingLevel() > QsLogging::NoticeLevel ){} \
+   else QsLogging::Logger::Helper(QsLogging::NoticeLevel).stream() << Q_FUNC_INFO << '@' << __LINE__
 #define logDebug() \
    if( QsLogging::Logger::instance().loggingLevel() > QsLogging::DebugLevel ){} \
-   else QsLogging::Logger::Helper(QsLogging::DebugLevel).stream() << __FILE__ << Q_FUNC_INFO << '@' << __LINE__
+   else QsLogging::Logger::Helper(QsLogging::DebugLevel).stream() << Q_FUNC_INFO << '@' << __LINE__
 #define logInfo()  \
    if( QsLogging::Logger::instance().loggingLevel() > QsLogging::InfoLevel ){} \
-   else QsLogging::Logger::Helper(QsLogging::InfoLevel).stream() << __FILE__ << Q_FUNC_INFO << '@' << __LINE__
+   else QsLogging::Logger::Helper(QsLogging::InfoLevel).stream() << Q_FUNC_INFO << '@' << __LINE__
 #define logWarn()  \
    if( QsLogging::Logger::instance().loggingLevel() > QsLogging::WarnLevel ){} \
-   else QsLogging::Logger::Helper(QsLogging::WarnLevel).stream() << __FILE__ << Q_FUNC_INFO << '@' << __LINE__
+   else QsLogging::Logger::Helper(QsLogging::WarnLevel).stream() << Q_FUNC_INFO << '@' << __LINE__
 #define logError() \
    if( QsLogging::Logger::instance().loggingLevel() > QsLogging::ErrorLevel ){} \
-   else QsLogging::Logger::Helper(QsLogging::ErrorLevel).stream() << __FILE__ << Q_FUNC_INFO << '@' << __LINE__
+   else QsLogging::Logger::Helper(QsLogging::ErrorLevel).stream()<< Q_FUNC_INFO << '@' << __LINE__
 #define logFatal() \
-   QsLogging::Logger::Helper(QsLogging::FatalLevel).stream() << __FILE__ << Q_FUNC_INFO << '@' << __LINE__
+   QsLogging::Logger::Helper(QsLogging::FatalLevel).stream() << Q_FUNC_INFO << '@' << __LINE__
 #endif
 
 //  else QsLogging::Logger::Helper(QsLogging::InfoLevel).stream() << __FILE__ << QsLogging::Logger::Helper(QsLogging::InfoLevel).colourFunctionName(Q_FUNC_INFO) << '@' << __LINE__

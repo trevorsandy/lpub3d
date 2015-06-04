@@ -18,6 +18,7 @@
 
 #include "ui_preferences.h"
 
+#include "colourpartlist.h"
 #include "meta.h"
 #include "lc_qpreferencesdialog.h"
 #include "ui_lc_qpreferencesdialog.h"
@@ -68,10 +69,11 @@ class PreferencesDialog : public QDialog
     void on_browsePublishLogo_clicked();
     void colorChange(QString const &colorName);
 
-  private:
+private:
     QWidget *parent;
     Ui::PreferencesDialog ui;
     FadeStepMeta    fadeStepMeta;             // propagate fade color and fade bool
+    ColourPartList      colourPart;
 };
 
 #endif

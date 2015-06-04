@@ -26,6 +26,7 @@
 #include "meta.h"
 #include "lpub.h"
 
+
 PreferencesDialog::PreferencesDialog(QWidget     *_parent)
 {
   ui.setupUi(this);
@@ -64,7 +65,7 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
   ui.publishDescriptionEdit->setText(   Preferences::publishDescription);
 
   ui.preferredRenderer->setMaxCount(0);
-	ui.preferredRenderer->setMaxCount(3);
+  ui.preferredRenderer->setMaxCount(3);
 	
 	QFileInfo fileInfo(Preferences::l3pExe);
 	int l3pIndex = ui.preferredRenderer->count();
@@ -117,7 +118,7 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
   ui.fadeStepColorsCombo->setCurrentIndex(int(ui.fadeStepColorsCombo->findText(Preferences::fadeStepColor)));
   fadeStepMeta.fadeColor.setValue(LDrawColor::name(Preferences::fadeStepColor));
   connect(ui.fadeStepColorsCombo,SIGNAL(currentIndexChanged(QString const &)),
-          this, SLOT(colorChange(                    QString const &)));
+          this, SLOT(colorChange(QString const &)));
   //fade step end
 
   bool centimeters = Preferences::preferCentimeters;
@@ -510,3 +511,4 @@ void PreferencesDialog::accept(){
 void PreferencesDialog::cancel(){
   QDialog::reject();
 }
+
