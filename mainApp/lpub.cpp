@@ -881,25 +881,25 @@ void Gui::createActions()
     printToFileAct->setEnabled(false);
     connect(printToFileAct, SIGNAL(triggered()), this, SLOT(printToFile()));
 
-    exportPngAct = new QAction(tr("Export As &PNG Images"), this);
+    exportPngAct = new QAction(QIcon(":/resources/exportpng.png"),tr("Export As &PNG Images"), this);
     exportPngAct->setShortcut(tr("Ctrl+Shift+P"));
     exportPngAct->setStatusTip(tr("Export your document as a sequence of PNG images"));
     exportPngAct->setEnabled(false);
     connect(exportPngAct, SIGNAL(triggered()), this, SLOT(exportAsPng()));
 
-    exportJpgAct = new QAction(tr("Export As &JPEG Images"), this);
+    exportJpgAct = new QAction(QIcon(":/resources/exportjpeg.png"),tr("Export As &JPEG Images"), this);
     exportJpgAct->setShortcut(tr("Ctrl+J"));
     exportJpgAct->setStatusTip(tr("Export your document as a sequence of JPEG images"));
     exportJpgAct->setEnabled(false);
     connect(exportJpgAct, SIGNAL(triggered()), this, SLOT(exportAsJpg()));
 
-    exportBmpAct = new QAction(tr("Export As &Bitmap Images"), this);
+    exportBmpAct = new QAction(QIcon(":/resources/exportbmp.png"),tr("Export As &Bitmap Images"), this);
     exportBmpAct->setShortcut(tr("Ctrl+B"));
     exportBmpAct->setStatusTip(tr("Export your document as a sequence of bitmap images"));
     exportBmpAct->setEnabled(false);
     connect(exportBmpAct, SIGNAL(triggered()), this, SLOT(exportAsBmp()));
 
-    exitAct = new QAction(tr("E&xit"), this);
+    exitAct = new QAction(QIcon(":/resources/exit.png"),tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     exitAct->setStatusTip(tr("Exit the application"));
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
@@ -1031,19 +1031,19 @@ void Gui::createActions()
     setPageLineEdit->setMinimumSize(size);
     connect(setPageLineEdit, SIGNAL(returnPressed()), this, SLOT(setPage()));
 
-    clearPLICacheAct = new QAction(tr("Clear Parts List Cache"), this);
+    clearPLICacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Clear Parts List Cache"), this);
     clearPLICacheAct->setStatusTip(tr("Erase the parts list image cache"));
     connect(clearPLICacheAct, SIGNAL(triggered()), this, SLOT(clearPLICache()));
 
-    clearCSICacheAct = new QAction(tr("Clear Assembly Image Cache"), this);
+    clearCSICacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Clear Assembly Image Cache"), this);
     clearCSICacheAct->setStatusTip(tr("Erase the assembly image cache"));
     connect(clearCSICacheAct, SIGNAL(triggered()), this, SLOT(clearCSICache()));
 
-    clearCSI3DCacheAct = new QAction(tr("Clear 3D Viewer Image Cache"), this);
+    clearCSI3DCacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Clear 3D Viewer Image Cache"), this);
     clearCSI3DCacheAct->setStatusTip(tr("Erase the 3D viewer image cache"));
     connect(clearCSI3DCacheAct, SIGNAL(triggered()), this, SLOT(clearCSI3DCache()));
 
-    clearALLCacheAct = new QAction(tr("Clear All Caches"), this);
+    clearALLCacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Clear All Caches"), this);
     clearALLCacheAct->setStatusTip(tr("Erase all caches"));
     connect(clearALLCacheAct, SIGNAL(triggered()), this, SLOT(clearALLCache()));
 
@@ -1093,37 +1093,37 @@ void Gui::createActions()
     preferencesAct->setStatusTip(tr("Set your preferences for LPub"));
     connect(preferencesAct, SIGNAL(triggered()), this, SLOT(preferences()));
 
-    editFreeFormAnnitationsAct = new QAction(tr("Edit Freeform Annotations"), this);
+    editFreeFormAnnitationsAct = new QAction(QIcon(":/resources/editfreeformannotations.png"),tr("Edit Freeform Annotations"), this);
     editFreeFormAnnitationsAct->setStatusTip(tr("Add/Edit freeform part annotations"));
     connect(editFreeFormAnnitationsAct, SIGNAL(triggered()), this, SLOT(editFreeFormAnnitations()));
 
-    editFadeColourPartsAct = new QAction(tr("Edit Fade Coloured Parts"), this);
+    editFadeColourPartsAct = new QAction(QIcon(":/resources/editfadeparts.png"),tr("Edit Fade Coloured Parts"), this);
     editFadeColourPartsAct->setStatusTip(tr("Add/Edit static coloured parts to fade-parts list"));
     connect(editFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(editFadeColourParts()));
 
-    generateFadeColourPartsAct = new QAction(tr("Generage Fade Coloured Parts List"), this);
+    generateFadeColourPartsAct = new QAction(QIcon(":/resources/generatefadeparts.png"),tr("Generage Fade Coloured Parts List"), this);
     generateFadeColourPartsAct->setStatusTip(tr("Generage list of static coloured parts"));
     connect(generateFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(generageFadeColourParts()));
 
     // Help
 
-    aboutAct = new QAction(tr("&About"), this);
+    aboutAct = new QAction(QIcon(":/resources/LPub32.png"),tr("&About"), this);
     aboutAct->setStatusTip(tr("Show the application's About box"));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(aboutDialog()));
 
     // Begin Jaco's code
 
-    onlineManualAct = new QAction(tr("&Online manual"), this);
+    onlineManualAct = new QAction(QIcon(":/resources/onlinemanual.png"),tr("&Online manual"), this);
     onlineManualAct->setStatusTip(tr("Visit the Online Manual Website."));
     connect(onlineManualAct, SIGNAL(triggered()), this, SLOT(onlineManual()));
 
     // End Jaco's code
 
-    metaAct = new QAction(tr("&Save LPub Metacommands to File"), this);
+    metaAct = new QAction(QIcon(":/resources/savemetacommands.png"),tr("&Save LPub Metacommands to File"), this);
     metaAct->setStatusTip(tr("Save a list of the known LPub meta commands to a file"));
     connect(metaAct, SIGNAL(triggered()), this, SLOT(meta()));
 
-    updateApp = new QAction(tr("Check for &Updates..."), this);
+    updateApp = new QAction(QIcon(":/resources/softwareupdate.png"),tr("Check for &Updates..."), this);
     updateApp->setStatusTip(tr("Check if a newer LPub3D version is available for download"));
     connect(updateApp, SIGNAL(triggered()), this, SLOT(updateDialog()));
 }
@@ -1171,6 +1171,7 @@ void Gui::createMenus()
     fileMenu->addAction(saveAsAct);
 
     QMenu *exportMenu = fileMenu->addMenu("Export As...");
+    exportMenu->setIcon(QIcon(":/resources/exportas.png"));
     exportMenu->addAction(exportPngAct);
     exportMenu->addAction(exportJpgAct);
     exportMenu->addAction(exportBmpAct);

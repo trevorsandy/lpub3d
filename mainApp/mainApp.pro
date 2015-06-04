@@ -85,7 +85,6 @@ message($$CONFIG)
 CONFIG(debug, debug|release) {
         message("~~~ DEBUG build ~~~")
         CONFIG += shared
-        CONFIG(debug,debug|release):buildhook.target = Makefile.Debug
         DESTDIR = build/debug
         LIBS += -L$$DESTDIR/../../../quazip/build/debug -lquazip
 }
@@ -93,24 +92,9 @@ CONFIG(debug, debug|release) {
 CONFIG(release, debug|release) {
         message("~~~ RELEASE build ~~~")
         CONFIG += static
-        CONFIG(release,debug|release):buildhook.target = Makefile.Release
         DESTDIR = build/release
         LIBS += -L$$DESTDIR/../../../quazip/build/release -lquazip		
 }
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Hook our build to add a pre pre build target into the build system between qmake's
-# Makefile update and the actual project target.
-# this idea comes from: http://colby.id.au/node/145
-buildhook.depends =
-QMAKE_EXTRA_TARGETS += buildhook
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create our custom build number target as pre pre build step.
-# this idea comes from: http://colby.id.au/node/145
-win32:versionbuild.commands = $$PWD/../tools/Win-setup/build_inc.bat
-buildhook.depends += versionbuild
-QMAKE_EXTRA_TARGETS += versionbuild
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

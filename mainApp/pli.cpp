@@ -1502,6 +1502,7 @@ void PliBackgroundItem::contextMenuEvent(
 
     if (pli->bom) {
       splitBomAction = menu.addAction("Split Bill of Materials");
+      splitBomAction->setIcon(QIcon(":/resources/splitbom.png"));
     }
 
     PlacementData placementData = pli->placement.value();

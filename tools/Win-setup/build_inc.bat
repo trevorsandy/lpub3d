@@ -14,10 +14,10 @@ set COMPANYURL=unknown
 set REVISION_CMS=unknown
 set REVISION_FILE=unknown
 
-rem set devRootPath="../../mainApp"
-set devRootPath="C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D\mainApp"
-rem set versionFile=../tools/Win-setup/AppVersion.nsh
-set versionFile="C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D\tools\Win-setup\AppVersion.nsh"
+set devRootPath="../../mainApp"
+rem devRootPath="C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D\mainApp"
+set versionFile=../tools/Win-setup/AppVersion.nsh
+rem set versionFile="C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D\tools\Win-setup\AppVersion.nsh"
 
 set buildFile=build.h
 
