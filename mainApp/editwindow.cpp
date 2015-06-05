@@ -40,12 +40,16 @@ EditWindow::EditWindow()
     editWindow  = this;
     _textEdit   = new QTextEdit;
 
+    connect(_textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
+
     highlighter = new Highlighter(_textEdit->document());
     _textEdit->setLineWrapMode(QTextEdit::NoWrap);
     _textEdit->setUndoRedoEnabled(true);
 
     createActions();
     createToolBars();
+
+    highlightCurrentLine();
 
     setCentralWidget(_textEdit);
 
@@ -129,6 +133,25 @@ void EditWindow::contentsChange(
   }
 
   contentsChange(fileName, position, charsRemoved, addedChars);
+}
+
+void EditWindow::highlightCurrentLine()
+{
+    QList<QTextEdit::ExtraSelection> extraSelections;
+
+    if (!_textEdit->isReadOnly()) {
+        QTextEdit::ExtraSelection selection;
+
+        QColor lineColor = QColor(Qt::blue).lighter(180);
+
+        selection.format.setBackground(lineColor);
+        selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+        selection.cursor = _textEdit->textCursor();
+        selection.cursor.clearSelection();
+        extraSelections.append(selection);
+    }
+
+     _textEdit->setExtraSelections(extraSelections);
 }
 
 void EditWindow::pageUpDown(

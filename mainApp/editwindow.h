@@ -75,6 +75,7 @@ private slots:
     void contentsChange(int position, int charsRemoved, int charsAdded);
     // Maybe this helps resizing the editwindow (Jaco)
     void redraw();
+    void highlightCurrentLine();
 
 public slots:
     void displayFile(LDrawFile *, const QString &fileName);

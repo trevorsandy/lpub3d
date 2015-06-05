@@ -4,13 +4,19 @@ SETLOCAL
 @break off
 @color 0a
 
+
+
 set BUILD=unknown
+set VER_SP=unknown
 set COMPANY=unknown
 set PRODUCT=unknown
 set VERSION=unknown
 set FILENAME=unknown
+set VER_MAJOR=unknown
+set VER_MINOR=unknown
 set PUBLISHER=unknown
 set COMPANYURL=unknown
+set BUILD_DATE=unknown
 set REVISION_CMS=unknown
 set REVISION_FILE=unknown
 
@@ -40,10 +46,36 @@ IF %REVISION_CMS% EQU %REVISION_FILE% (
 
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_COMPANYNAME_STR" version.h') DO SET COMPANY=%%i %%j
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PRODUCTNAME_STR" version.h') DO SET PRODUCT=%%i
-FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_BUILDINCVERSION_STR" version.h') DO SET VERSION=%%i
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_MAJOR_STR" version.h') DO SET VER_MAJOR=%%i
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_MINOR_STR" version.h') DO SET VER_MINOR=%%i
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_SP_STR" version.h') DO SET VER_SP=%%i
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_ORIGINALFILENAME_STR" version.h') DO SET FILENAME=%%i
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PUBLISHER_STR" version.h') DO SET PUBLISHER=%%i %%j
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_COMPANYDOMAIN_STR" version.h') DO SET COMPANYURL=%%i
+
+SET VERSION=%VER_MAJOR%.%VER_MINOR%.%VER_SP%
+
+SET HOUR=%TIME:~0,2%
+IF "%HOUR:~0,1%" == " " SET HOUR=0%HOUR:~1,1%
+ECHO HOUR=%HOUR%
+SET MIN=%TIME:~3,2%
+IF "%MIN:~0,1%" == " " SET MIN=0%MIN:~1,1%
+ECHO MIN=%MIN%
+SET SECS=%TIME:~6,2%
+IF "%SECS:~0,1%" == " " SET SECS=0%SECS:~1,1%
+ECHO SECS=%SECS%
+
+SET YEAR=%DATE:~-4%
+ECHO YEAR=%YEAR%
+SET MONTH=%DATE:~3,2%
+IF "%MONTH:~0,1%" == " " SET MONTH=0%MONTH:~1,1%
+ECHO MONTH=%MONTH%
+SET DAY=%DATE:~0,2%
+IF "%DAY:~0,1%" == " " SET DAY=0%DAY:~1,1%
+ECHO DAY=%DAY%
+
+SET DATETIMEf=%YEAR% %MONTH% %DAY% %HOUR%:%MIN%:%SECS%
+
 
 :GENERATE AppVersion.nsh file
 >%genVersion% !define Company %COMPANY% 
@@ -52,8 +84,11 @@ FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_COMPANYDOMAIN_STR" version.h
 >>%genVersion% !define ProductName %PRODUCT% 
 >>%genVersion% ; ${ProductName}
 >>%genVersion%.	
->>%genVersion% !define Version %VERSION% 
+>>%genVersion% !define Version "%VERSION%"
 >>%genVersion% ; ${Version}
+>>%genVersion%.	
+>>%genVersion% !define CompleteVersion "%VERSION%.%REVISION_CMS%.%BUILD%_%YEAR%%MONTH%%DAY%_%HOUR%%MIN%%SECS%"
+>>%genVersion% ; ${CompleteVersion}
 >>%genVersion%.	
 >>%genVersion% !define FileName %FILENAME%
 >>%genVersion% ; ${FileName}
@@ -63,6 +98,9 @@ FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_COMPANYDOMAIN_STR" version.h
 >>%genVersion%.	
 >>%genVersion% !define BuildNumber "%BUILD%" 
 >>%genVersion% ; ${BuildNumber}
+>>%genVersion%.	
+>>%genVersion% !define BuildDate "%DATETIMEf%" 
+>>%genVersion% ; ${BuildDate}
 >>%genVersion%.	
 >>%genVersion% !define Publisher %PUBLISHER% 
 >>%genVersion% ; ${Publisher}
@@ -77,6 +115,7 @@ FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_COMPANYDOMAIN_STR" version.h
 >>%genBuild%. 
 >>%genBuild% #define _BUILD_REVISION "%REVISION_CMS%" 
 >>%genBuild% #define _BUILD_NUMBER "%BUILD%"
+>>%genBuild% #define _BUILD_DATE "%DATETIMEf%"
 >>%genBuild%.
 >>%genBuild% #endif
 >>%genBuild%.

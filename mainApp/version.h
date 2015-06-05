@@ -9,18 +9,18 @@
 #define STRING(x)  STR(x)
 
 // ~~~~~ Version info ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-#define VER_MAJOR                   		1
-#define VER_MINOR                   		0
-#define VER_SVC_PACK                		0
-#define VER_BUILDINCVERSION_STR     		"1.0.0"
+#define VER_MAJOR_STR                   	1
+#define VER_MINOR_STR                   	0
+#define VER_SP_STR                          0
 
-#define VER_BUILD                   		_BUILD_NUMBER
-#define VER_REVISION                		_BUILD_REVISION
+#define VER_BUILD_STR                   	_BUILD_NUMBER
+#define VER_REVISION_STR                    _BUILD_REVISION
+#define VER_BUILDDATE_STR                   _BUILD_DATE
 
-#define VER_FILEVERSION             		STRING(VER_MAJOR),STRING(VER_MINOR),STRING(VER_SVC_PACK),VER_REVISION,VER_BUILD
-#define VER_FILEVERSION_STR         		STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SVC_PACK) "." VER_REVISION "." VER_BUILD "\0"
-#define VER_PRODUCTVERSION          		STRING(VER_MAJOR),STRING(VER_MINOR),STRING(VER_SVC_PACK)
-#define VER_PRODUCTVERSION_STR      		STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SVC_PACK) "\0"
+#define VER_FILEVERSION             		STRING(VER_MAJOR_STR),STRING(VER_MINOR_STR),STRING(VER_SP_STR),VER_REVISION_STR,VER_BUILD_STR
+#define VER_FILEVERSION_STR         		STRING(VER_MAJOR_STR) "." STRING(VER_MINOR_STR) "." STRING(VER_SP_STR) "." VER_REVISION_STR "." VER_BUILD_STR "\0"
+#define VER_PRODUCTVERSION          		STRING(VER_MAJOR_STR),STRING(VER_MINOR_STR),STRING(VER_SP_STR)
+#define VER_PRODUCTVERSION_STR      		STRING(VER_MAJOR_STR) "." STRING(VER_MINOR_STR) "." STRING(VER_SP_STR) "\0"
 
 #define VER_COMPANYNAME_STR         		"LPub Software"
 #define VER_FILEDESCRIPTION_STR     		"LPub3D - An LDraw Building Instruction Editor"
@@ -34,16 +34,12 @@
 #define VER_PUBLISHER_EMAIL_STR     		"trevor.sandy@gmail.com"
 #define VER_PUBLISHER_SUPPORT_EMAIL_STR		"mailto:trevor.sandy@gmail.com?subject=LPub3D Version " VER_FILEVERSION_STR
 #define VER_UPDATE_CHECK_URL        		"http://lpub3d.sourceforge.net/latest.txt"
-//#define VER_UPDATE_CHECK_URL      		 "http://www.leocad.org/updates.txt"
+//#define VER_UPDATE_CHECK_URL      		"http://www.leocad.org/updates.txt"
 #define VER_UPDATE_URL              		"http://lpub3d.sourceforge.net/"
 #define VER_COMPANYDOMAIN_STR       		"http://lpub3d.sourceforge.net"
 
-#define VER_COMPILED_ON             		"x86_64-w64-mingw64"
-#define VER_COMPILED_FOR            		"x86_64-w64-mingw64"
-
-#define VER_OPERATING_SYSTEM        		"Windows 8.1 (build 9600), 64-bit edition"
-#define VER_OS_VERSION              		"6.3"
-#define VER_PLATFORM                		"64-bit system"
-#define VER_LIBRARY                 		"Qt 4.8.6"
+#define VER_COMPILED_ON             		"MinGW (i686-4.9.2-x64) Windows"
+#define VER_COMPILED_FOR            		"x86_64-w64-mingw32"
+#define VER_COMPILED_WITH                   "x86_64-w64-mingw32-gcc (posix-seh-rev1) 4.9.2"
 
 #endif // VERSION_H

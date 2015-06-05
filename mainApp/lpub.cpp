@@ -1097,12 +1097,12 @@ void Gui::createActions()
     editFreeFormAnnitationsAct->setStatusTip(tr("Add/Edit freeform part annotations"));
     connect(editFreeFormAnnitationsAct, SIGNAL(triggered()), this, SLOT(editFreeFormAnnitations()));
 
-    editFadeColourPartsAct = new QAction(QIcon(":/resources/editfadeparts.png"),tr("Edit Fade Coloured Parts"), this);
-    editFadeColourPartsAct->setStatusTip(tr("Add/Edit static coloured parts to fade-parts list"));
+    editFadeColourPartsAct = new QAction(QIcon(":/resources/editfadeparts.png"),tr("Edit Colour Parts List"), this);
+    editFadeColourPartsAct->setStatusTip(tr("Add/Edit the list of static colour parts used to fade parts"));
     connect(editFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(editFadeColourParts()));
 
     generateFadeColourPartsAct = new QAction(QIcon(":/resources/generatefadeparts.png"),tr("Generage Fade Coloured Parts List"), this);
-    generateFadeColourPartsAct->setStatusTip(tr("Generage list of static coloured parts"));
+    generateFadeColourPartsAct->setStatusTip(tr("Generage list of all static coloured parts"));
     connect(generateFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(generageFadeColourParts()));
 
     // Help
@@ -1217,10 +1217,10 @@ void Gui::createMenus()
     toolsMenu->addAction(nextPageAct);
     toolsMenu->addAction(lastPageAct);
     toolsMenu->addSeparator();
+    toolsMenu->addAction(clearALLCacheAct);
     toolsMenu->addAction(clearPLICacheAct);
     toolsMenu->addAction(clearCSICacheAct);
     toolsMenu->addAction(clearCSI3DCacheAct);
-    toolsMenu->addAction(clearALLCacheAct);
 
     configMenu = menuBar()->addMenu(tr("&Configuration"));
     configMenu->addAction(pageSetupAct);
