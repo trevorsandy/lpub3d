@@ -106,15 +106,15 @@ void UpdateDialog::replyFinished(QNetworkReply *reply)
 		{
 			QString status;
 
-            if (majorVersion > VER_MAJOR_STR)
+            if (majorVersion > VER_MAJOR)
 				updateAvailable = true;
-            else if (majorVersion == VER_MAJOR_STR)
+            else if (majorVersion == VER_MAJOR)
 			{
-                if (minorVersion > VER_MINOR_STR)
+                if (minorVersion > VER_MINOR)
 					updateAvailable = true;
-                else if (minorVersion == VER_MINOR_STR)
+                else if (minorVersion == VER_MINOR)
 				{
-                    if (patchVersion > VER_SP_STR)
+                    if (patchVersion > VER_SP)
 						updateAvailable = true;
 				}
 			}
@@ -125,9 +125,9 @@ void UpdateDialog::replyFinished(QNetworkReply *reply)
                                                                                          QString::number(majorVersion),
                                                                                          QString::number(minorVersion),
                                                                                          QString::number(patchVersion),
-                                                                                         QString::number(VER_MAJOR_STR),
-                                                                                         QString::number(VER_MINOR_STR),
-                                                                                         QString::number(VER_SP_STR));
+                                                                                         QString::number(VER_MAJOR),
+                                                                                         QString::number(VER_MINOR),
+                                                                                         QString::number(VER_SP));
 			else
                 status = QString(tr("<p>You are using the latest %1 version.</p>")).arg(QString::fromLatin1(VER_PRODUCTNAME_STR));
 

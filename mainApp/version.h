@@ -9,23 +9,25 @@
 #define STRING(x)  STR(x)
 
 // ~~~~~ Version info ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-#define VER_MAJOR_STR                   	1
-#define VER_MINOR_STR                   	0
-#define VER_SP_STR                          0
+#define VER_MAJOR                           1
+#define VER_MINOR                           0
+#define VER_SP                              0
 
 #define VER_BUILD_STR                   	_BUILD_NUMBER
 #define VER_REVISION_STR                    _BUILD_REVISION
 #define VER_BUILDDATE_STR                   _BUILD_DATE
 
-#define VER_FILEVERSION             		STRING(VER_MAJOR_STR),STRING(VER_MINOR_STR),STRING(VER_SP_STR),VER_REVISION_STR,VER_BUILD_STR
-#define VER_FILEVERSION_STR         		STRING(VER_MAJOR_STR) "." STRING(VER_MINOR_STR) "." STRING(VER_SP_STR) "." VER_REVISION_STR "." VER_BUILD_STR "\0"
-#define VER_PRODUCTVERSION          		STRING(VER_MAJOR_STR),STRING(VER_MINOR_STR),STRING(VER_SP_STR)
-#define VER_PRODUCTVERSION_STR      		STRING(VER_MAJOR_STR) "." STRING(VER_MINOR_STR) "." STRING(VER_SP_STR) "\0"
+//#define VER_FILEVERSION             		VER_MAJOR,VER_MINOR,VER_SP,VER_REVISION_STR,VER_BUILD_STR
+#define VER_FILEVERSION             		1,0,0,0
+#define VER_FILEVERSION_STR         		STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SP) "." VER_REVISION_STR "." VER_BUILD_STR "\0"
+//#define VER_PRODUCTVERSION          		VER_MAJOR,VER_MINOR,VER_SP
+#define VER_PRODUCTVERSION                  1,0,0,0
+#define VER_PRODUCTVERSION_STR      		STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SP) "\0"
 
 #define VER_COMPANYNAME_STR         		"LPub Software"
 #define VER_FILEDESCRIPTION_STR     		"LPub3D - An LDraw Building Instruction Editor"
 #define VER_INTERNALNAME_STR        		"LegacyOne"
-#define VER_LEGALCOPYRIGHT_STR      		"Copyright (c) 2015 by Trevor Sandy"
+#define VER_LEGALCOPYRIGHT_STR      		"Copyright (C) 2015 by Trevor Sandy"
 #define VER_LEGALTRADEMARKS1_STR    		"All Rights Reserved"
 #define VER_LEGALTRADEMARKS2_STR    		VER_LEGALTRADEMARKS1_STR
 #define VER_ORIGINALFILENAME_STR    		"LPub3D.exe"

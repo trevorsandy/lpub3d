@@ -24,18 +24,17 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
     ui->description->setTextFormat(Qt::RichText);
     ui->description->setText(tr("<p><b>%1</b> is a free application that can be used <br>"
                                 "to create digital build instructions for "
-                                "virtual LEGO(c) models.</p>").arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+                                "virtual LEGO(C) models.</p>").arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
 
     ui->url->setTextFormat(Qt::RichText);
     ui->url->setText(tr("Homepage: <a href=\"%1\">sourceforge.net/lpub3d</a>").arg(QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     QString AboutFormat = tr("<b>%1</b> is a WYSIWYG tool for creating<br>"
-                             "LEGO(c) style building instructions.<br>"
-                             "%1 is a significant update and refresh of LPub.<br>"
-                             "%1 source code and application can be found on<br><br>"
+                             "LEGO(C) style building instructions.<br>"
+                             "%1 is a major refresh of Kevin Clague's LPub.<br><br>"
                              "%3<br>"
-                             "Copyright (c) 2000-2011 Kevin Clague<br>"
+                             "Copyright (C) 2000-2011 Kevin Clague<br>"
                              "<table style=""width:100%"">"
                                "<tr>"
                                  "<td>Feedback:</td>"
@@ -108,7 +107,6 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
     else
         osPlatform = "Cannot determine system";
 
-    qDebug() << "CheckOS():" << checkOS() << " Return " << osPlatform;
     QString OsInfoFormat = tr("<table style=""width:100%"">"
                               "<tr>"
                                 "<td>Name:</td>"
@@ -162,7 +160,6 @@ QString AboutDialog::osName()
 
 }
 
-//int AboutDialog::checkOS()
 OsType AboutDialog::checkOS()
 {
 #ifndef Q_OS_WIN32

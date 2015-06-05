@@ -46,9 +46,9 @@ IF %REVISION_CMS% EQU %REVISION_FILE% (
 
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_COMPANYNAME_STR" version.h') DO SET COMPANY=%%i %%j
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PRODUCTNAME_STR" version.h') DO SET PRODUCT=%%i
-FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_MAJOR_STR" version.h') DO SET VER_MAJOR=%%i
-FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_MINOR_STR" version.h') DO SET VER_MINOR=%%i
-FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_SP_STR" version.h') DO SET VER_SP=%%i
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_MAJOR" version.h') DO SET VER_MAJOR=%%i
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_MINOR" version.h') DO SET VER_MINOR=%%i
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_SP" version.h') DO SET VER_SP=%%i
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_ORIGINALFILENAME_STR" version.h') DO SET FILENAME=%%i
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PUBLISHER_STR" version.h') DO SET PUBLISHER=%%i %%j
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_COMPANYDOMAIN_STR" version.h') DO SET COMPANYURL=%%i

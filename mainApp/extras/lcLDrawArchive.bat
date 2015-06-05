@@ -12,15 +12,64 @@ SETLOCAL
 @break off
 @color 0a
 @cls
-ECHO -Start
+ECHO -Start Create LDraw Unofficial Library Archive
 ECHO.
-set zipExe="C:\program files\7-zip\7z.exe"
-set ldrawPath="C:\Users\Trevor\LDraw"
-set outputPath="C:\Users\Trevor\LDraw"
 
+ECHO.
+ECHO This file will download the most recent LDraw unofficial archive.
+ECHO It will then combine you current LDraw unofficial library archive
+ECHO overwriting content in the downloaded zip file. A directory named
+ECHO LeoCAD-Libraries will be created in you LDraw folder where the updated
+ECHO unofficial archive will be stored.
+ECHO.
+
+set /p LDRAWDIR=Type you LDraw Folder and close by pressing Enter: 
+ECHO You entered "%LDRAWDIR%" which will also be your working directory.
+PAUSE >NUL
+
+set ldrawPath="%LDRAWDIR%"
+set outputPath="%LDRAWDIR%"
+REM set ldrawPath="C:\Users\Trevor\LDraw"
+REM set outputPath="C:\Users\Trevor\LDraw"
+
+set zipWin64=C:\program filess\7-zip
+set zipWin32=C:\Program Filess (x86)\7-zip
+
+set zipExe=unknown
+
+if exist "%zipWin64%" (
+	ECHO.
+	set zipExe="%zipWin64%\7z.exe"
+    ECHO Found zip exe at "%zipWin64%"
+    GOTO FINISHED_SETUP
+) 
+
+ECHO.
+
+if exist "%zipWin32%" (
+	ECHO.
+	set zipExe="%zipWin32%\7z.exe"
+    ECHO Found zip exe at "%zipWin32%"
+    GOTO FINISHED_SETUP
+)
+
+ECHO.
+set /p zipExe=Could not find any zip exectutable. You can manually enter a location: 
+set /p OPTION=Zip exe at (%zipExe%) will be used to archive your library. Hit [1] to exit or enter to continue:
+if  %OPTION% == 1  EXIT
+
+rem can test here for entered zip exe then terminate if no suitable location found
+GOTO FINISHED_SETUP
+
+:FINISHED_SETUP
+ECHO.
+ECHO LDraw path entered: %LDRAWDIR%
+ECHO Zip exe location: %zipExe%
+ECHO.
 ECHO -Archive custom content
 ECHO.
 cd /D %outputPath%\
+ECHO.
 ECHO -Create 'LeoCAD-Libraries' folder
 ECHO.
 if not exist ".\LeoCAD-Libraries\" (

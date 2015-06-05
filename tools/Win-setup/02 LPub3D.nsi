@@ -144,11 +144,15 @@ Section "${ProductName} (required)" SecMain${ProductName}
   File "..\docs\ReadMe.txt"
   
   ;extras contents
-  CreateDirectory "$INSTDIR\extras"
-  SetOutPath "$INSTDIR\extras"
+  SetShellVarContext all
+  !define InstDir_AppData "$LOCALAPPDATA\${Company}\${ProductName}"
+  
+  CreateDirectory "${InstDir_AppData}\extras"
+  SetOutPath "${InstDir_AppData}\extras"
   File "..\..\mainApp\extras\fadeStepColorParts.lst"
   File "..\..\mainApp\extras\freeformAnnotations.lst"
   File "..\..\mainApp\extras\titleAnnotations.lst"
+  File "..\..\mainApp\extras\PDFPrint.jpg"
   File "..\..\mainApp\extras\pli.mpd"
   
   ;documents  

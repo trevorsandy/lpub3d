@@ -10,7 +10,6 @@ class AboutDialog;
 }
 
 typedef enum { Win_64, Win_32, OsError, OSother } OsType;
-//enum OsType {Win_64, Win_32, OsError, OsOther};
 typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 
 class AboutDialog : public QDialog
@@ -23,7 +22,6 @@ public:
 	~AboutDialog();
 
 #ifdef Q_WS_WIN
-    //int checkOS();
     OsType checkOS();
 #endif
 
