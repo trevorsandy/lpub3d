@@ -673,8 +673,6 @@ Gui::Gui()
     connect(this, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
     connect(this, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
 
-    partListWorkerThreadRunning = false;
-
 #ifdef WATCHER
     connect(&watcher,       SIGNAL(fileChanged(const QString &)),
              this,          SLOT(  fileChanged(const QString &)));
@@ -698,23 +696,17 @@ Gui::Gui()
 
 Gui::~Gui()
 { 
+
     delete KpageScene;
     delete KpageView;
     delete editWindow;
     delete parmsWindow;
-    emit requestEndThreadNowSig();
-//    logTrace() << "Gui::~Gui() FIRED...partListWorkerThreadRunning: " <<
-//                  partListWorkerThreadRunning;
-
-//    if (partListWorkerThreadRunning){
-//        emit requestEndThreadNowSig();
-//        logTrace() << "~Gui::closeEvent partListWorkerThreadRunning";
-//    }
 
 }
 
 void Gui::closeEvent(QCloseEvent *event)
 {
+
   writeSettings();
 
   if (maybeSave()) {
@@ -729,18 +721,11 @@ void Gui::closeEvent(QCloseEvent *event)
 
     emit requestEndThreadNowSig();
 
-    logTrace() << "Gui::closeEvent() FIRED... partListWorkerThreadRunning: " <<
-                  partListWorkerThreadRunning;
-
-//    if (partListWorkerThreadRunning){
-//        emit requestEndThreadNowSig();
-//        logTrace() << "~Gui::closeEvent partListWorkerThreadRunning";
-//    }
-
     event->accept();
   } else {
     event->ignore();
   }
+
 }
 
 void Gui::generageFadeColourParts()
@@ -757,9 +742,7 @@ void Gui::generageFadeColourParts()
         partListWorker->moveToThread(thread);
 
         connect(thread,         SIGNAL(started()),                   partListWorker, SLOT(scanDir()));
-        connect(thread,         SIGNAL(started()),                             this, SLOT(workerThreadRunning()));
         connect(thread,         SIGNAL(finished()),                          thread, SLOT(deleteLater()));
-        connect(thread,         SIGNAL(finished()),                            this, SLOT(workerThreadFinished()));
         connect(partListWorker, SIGNAL(finishedSig()),                       thread, SLOT(quit()));
         connect(partListWorker, SIGNAL(finishedSig()),               partListWorker, SLOT(deleteLater()));
         connect(partListWorker, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));

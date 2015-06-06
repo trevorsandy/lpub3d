@@ -604,16 +604,6 @@ public slots:
       statusBar()->removeWidget(progressLabel);
   }
 
-  void workerThreadRunning(){
-      partListWorkerThreadRunning = true;
-      logTrace() << "partListWorkerThreadRunning = TRUE";
-  }
-
-  void workerThreadFinished(){
-      partListWorkerThreadRunning = false;
-      logTrace() << "partListWorkerThreadRunning = FALSE";
-  }
-
   void preferences();
   void fadeStepSetup();
 
