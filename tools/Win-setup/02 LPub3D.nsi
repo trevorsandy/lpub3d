@@ -1,5 +1,5 @@
-;LPub Setup Script
-;Updated by Trevor Sandy
+;LPub3D Setup Script
+;Copyright (C) 2015 by Trevor Sandy
 
 ;--------------------------------
 ;Include Modern UI
@@ -30,7 +30,7 @@
   Name "${ProductName}, Ver ${Version}, Rev ${BuildRevision}"
 
   ; Changes the caption, default beeing 'Setup'
-  Caption "${ProductName} x32/x64"
+  Caption "${ProductName} x32/x64 Setup"
   
   ; Rebrand bottom textrow
   BrandingText "${Company} Installer"
@@ -41,10 +41,10 @@
   SetCompressor /SOLID lzma
    
   ;The file to write
-  OutFile "..\release\${ProductName}-${Version}-${BuildRevision}.exe"
+  OutFile "..\release\${ProductName}-${CompleteVersion}.exe"
   
   ;Default installation folder
-  InstallDir "$InstDir"
+  InstallDir "$INSTDIR"
   
   ;Get installation folder from registry if available
   InstallDirRegKey HKCU "Software\${Company}\${ProductName}" "InstallPath"
@@ -119,10 +119,10 @@ Function .onInit
   
   ${If} ${RunningX64}
 	StrCpy $FileName "${ProductName}_x64.exe"
-	StrCpy $InstDir "$PROGRAMFILES64\${ProductName}"
+	StrCpy $INSTDIR "$PROGRAMFILES64\${ProductName}"
   ${Else}
 	StrCpy $FileName "${ProductName}_x32.exe"
-	StrCpy $InstDir "$PROGRAMFILES32\${ProductName}"
+	StrCpy $INSTDIR "$PROGRAMFILES32\${ProductName}"
   ${EndIf}
   
 FunctionEnd
@@ -145,10 +145,10 @@ Section "${ProductName} (required)" SecMain${ProductName}
   
   ;extras contents
   SetShellVarContext all
-  !define InstDir_AppData "$LOCALAPPDATA\${Company}\${ProductName}"
+  !define INSTDIR_AppData "$LOCALAPPDATA\${Company}\${ProductName}"
   
-  CreateDirectory "${InstDir_AppData}\extras"
-  SetOutPath "${InstDir_AppData}\extras"
+  CreateDirectory "${INSTDIR_AppData}\extras"
+  SetOutPath "${INSTDIR_AppData}\extras"
   File "..\..\mainApp\extras\fadeStepColorParts.lst"
   File "..\..\mainApp\extras\freeformAnnotations.lst"
   File "..\..\mainApp\extras\titleAnnotations.lst"
@@ -168,10 +168,14 @@ Section "${ProductName} (required)" SecMain${ProductName}
   ;Create uninstaller
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "DisplayIcon" '"$INSTDIR\$FileName"'  
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "DisplayName" "${ProductName}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "DisplayVersion" ${Version}
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "DisplayVersion" "${Version}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "Publisher" "${Publisher}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "URLInfoAbout" "${CompanyURL}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "URLUpdateInfo" "${CompanyURL}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "HelpLink" "${SupportEmail}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "Comments" "${Comments}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "UninstallString" '"$INSTDIR\Uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "EstimatedSize" 11000
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "EstimatedSize" 14000
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "NoRepair" 1
   WriteUninstaller "$INSTDIR\Uninstall.exe"
@@ -303,7 +307,7 @@ Section "Uninstall"
 
 ; Remove directories used
   RMDir "$SMPROGRAMS\$StartMenuFolder"
-  RMDir "$INSTDIR\extras"
+  RMDir "${INSTDIR_AppData}\extras"
   RMDir "$INSTDIR\docs"
   RMDir "$INSTDIR"
   

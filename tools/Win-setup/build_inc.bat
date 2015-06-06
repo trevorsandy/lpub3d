@@ -4,13 +4,12 @@ SETLOCAL
 @break off
 @color 0a
 
-
-
 set BUILD=unknown
 set VER_SP=unknown
 set COMPANY=unknown
 set PRODUCT=unknown
 set VERSION=unknown
+set COMMENTS=unknown
 set FILENAME=unknown
 set VER_MAJOR=unknown
 set VER_MINOR=unknown
@@ -19,11 +18,10 @@ set COMPANYURL=unknown
 set BUILD_DATE=unknown
 set REVISION_CMS=unknown
 set REVISION_FILE=unknown
+set SUPPORT_EMAIL=unknown
 
 set devRootPath="../../mainApp"
-rem devRootPath="C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D\mainApp"
 set versionFile=../tools/Win-setup/AppVersion.nsh
-rem set versionFile="C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D\tools\Win-setup\AppVersion.nsh"
 
 set buildFile=build.h
 
@@ -52,6 +50,8 @@ FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_SP" version.h') DO SET VER_S
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_ORIGINALFILENAME_STR" version.h') DO SET FILENAME=%%i
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PUBLISHER_STR" version.h') DO SET PUBLISHER=%%i %%j
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_COMPANYDOMAIN_STR" version.h') DO SET COMPANYURL=%%i
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_FILEDESCRIPTION_STR" version.h') DO SET COMMENTS=%%i %%j
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PUBLISHER_SUPPORT_EMAIL_STR" version.h') DO SET SUPPORT_EMAIL=%%i
 
 SET VERSION=%VER_MAJOR%.%VER_MINOR%.%VER_SP%
 
@@ -76,7 +76,6 @@ ECHO DAY=%DAY%
 
 SET DATETIMEf=%YEAR% %MONTH% %DAY% %HOUR%:%MIN%:%SECS%
 
-
 :GENERATE AppVersion.nsh file
 >%genVersion% !define Company %COMPANY% 
 >>%genVersion% ; ${Company} 	
@@ -87,7 +86,7 @@ SET DATETIMEf=%YEAR% %MONTH% %DAY% %HOUR%:%MIN%:%SECS%
 >>%genVersion% !define Version "%VERSION%"
 >>%genVersion% ; ${Version}
 >>%genVersion%.	
->>%genVersion% !define CompleteVersion "%VERSION%.%REVISION_CMS%.%BUILD%_%YEAR%%MONTH%%DAY%_%HOUR%%MIN%%SECS%"
+>>%genVersion% !define CompleteVersion "%VERSION%.%REVISION_CMS%.%BUILD%_%YEAR%%MONTH%%DAY%"
 >>%genVersion% ; ${CompleteVersion}
 >>%genVersion%.	
 >>%genVersion% !define FileName %FILENAME%
@@ -107,6 +106,12 @@ SET DATETIMEf=%YEAR% %MONTH% %DAY% %HOUR%:%MIN%:%SECS%
 >>%genVersion%.	
 >>%genVersion% !define CompanyURL %COMPANYURL% 
 >>%genVersion% ; ${CompanyURL}
+>>%genVersion%.
+>>%genVersion% !define Comments %COMMENTS% 
+>>%genVersion% ; ${Comments}
+>>%genVersion%.
+>>%genVersion% !define SupportEmail %SUPPORT_EMAIL% %VERSION%.%REVISION_CMS%.%BUILD%_%YEAR%%MONTH%%DAY%"
+>>%genVersion% ; ${SupportEmail}
 >>%genVersion%.
 
 :GENERATE build.h file
