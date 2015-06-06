@@ -46,7 +46,7 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
                                "</tr>"
                              "</table>");
     QString About = AboutFormat.arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
-                               .arg(QString::fromLatin1(VER_UPDATE_URL))
+                               .arg(QString::fromLatin1(VER_SOURCE_URL))
                                .arg(QString::fromLatin1(VER_LEGALCOPYRIGHT_STR))
                                .arg(QString::fromLatin1(VER_PUBLISHER_SUPPORT_EMAIL_STR))
                                .arg(QString::fromLatin1(VER_PUBLISHER_EMAIL_STR));

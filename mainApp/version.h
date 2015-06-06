@@ -33,9 +33,10 @@
 #define VER_PUBLISHER_STR           		"Trevor SANDY"
 #define VER_PUBLISHER_EMAIL_STR     		"trevor.sandy@gmail.com"
 #define VER_PUBLISHER_SUPPORT_EMAIL_STR		"mailto:trevor.sandy@gmail.com?subject=LPub3D Version " VER_FILEVERSION_STR
+#define VER_CHANGE_LOG_URL                  "http://lpub3d.sourceforge.net/change_log.txt"
 #define VER_UPDATE_CHECK_URL        		"http://lpub3d.sourceforge.net/latest.txt"
-//#define VER_UPDATE_CHECK_URL      		"http://www.leocad.org/updates.txt"
-#define VER_UPDATE_URL              		"http://lpub3d.sourceforge.net/"
+#define VER_DOWNLOAD_URL                    "http://lpub3d.sourceforge.net/master.zip"
+#define VER_SOURCE_URL              		"http://lpub3d.sourceforge.net/"
 #define VER_COMPANYDOMAIN_STR       		"http://lpub3d.sourceforge.net"
 
 #define VER_COMPILED_ON             		"MinGW (i686-4.9.2-x64) Windows"

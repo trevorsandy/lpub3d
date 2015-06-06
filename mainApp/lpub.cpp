@@ -785,6 +785,10 @@ bool Gui::updateDialog()
 {
     UpdateDialog Dialog(this, NULL);
     return Dialog.exec() == QDialog::Accepted;
+
+    //    // Create the dialog and show it
+    //    UpdateDialog UpdateDialog;
+    //    UpdateDialog.show();
 }
 
 // Begin Jaco's code
