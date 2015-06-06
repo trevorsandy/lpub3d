@@ -393,7 +393,7 @@ ColourPart::ColourPart(
 
 
 ColourPartListWorker::ColourPartListWorker(QObject *parent) : QObject(parent)
-{}
+{_endThreadNowRequested = false;}
 
 /*
  * build colour part directory
@@ -716,9 +716,9 @@ void ColourPartListWorker::fileHeader(const int &option){
     }
 }
 
-bool ColourPartListWorker::needEndThreadNow(){
+bool ColourPartListWorker::endThreadEventLoopNow(){
 
-    logTrace() << "needEndThreadNow: " << _endThreadNowRequested;
+    logTrace() << "endThreadEventLoopNow: " << _endThreadNowRequested;
     return _endThreadNowRequested;
 }
 
@@ -726,7 +726,7 @@ void ColourPartListWorker::requestEndThreadNow(){
 
     logTrace() << "requestEndThreadNow: " << _endThreadNowRequested;
     _endThreadNowRequested = true;
-
+    emit finishedSig();
 }
 
 

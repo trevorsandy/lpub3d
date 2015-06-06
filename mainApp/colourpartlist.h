@@ -177,9 +177,9 @@ public:
             const QString       &fileNameStr,
             const int           &lineNum);
 
-    bool needEndThreadNow();
+    bool endThreadEventLoopNow();
 
-     QStringList                _partList;
+    QStringList                 _partList;
 
 public slots:
      void                       scanDir();

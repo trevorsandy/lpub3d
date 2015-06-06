@@ -593,7 +593,7 @@ Gui::Gui()
     displayPageNum = 1;
 
     editWindow    = new EditWindow();
-    parmsWindow    = new ParmsWindow();
+    parmsWindow   = new ParmsWindow();
     KpageScene    = new QGraphicsScene(this);
     KpageScene->setBackgroundBrush(Qt::lightGray);
     KpageView     = new LGraphicsView(KpageScene);
@@ -673,6 +673,8 @@ Gui::Gui()
     connect(this, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
     connect(this, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
 
+    partListWorkerThreadRunning = false;
+
 #ifdef WATCHER
     connect(&watcher,       SIGNAL(fileChanged(const QString &)),
              this,          SLOT(  fileChanged(const QString &)));
@@ -695,26 +697,20 @@ Gui::Gui()
 }
 
 Gui::~Gui()
-{
+{ 
     delete KpageScene;
     delete KpageView;
     delete editWindow;
     delete parmsWindow;
+    emit requestEndThreadNowSig();
+//    logTrace() << "Gui::~Gui() FIRED...partListWorkerThreadRunning: " <<
+//                  partListWorkerThreadRunning;
 
-    if (partListWorker) {
-        logError() << "01 Level ~Gui: Part List Worker Detected";
-        QThread *thread = partListWorker->thread();
-        if (thread->isRunning()) {
-            logError() << "02 Level ~Gui: Thread is running";
-            emit requestEndThreadNowSig();
-            logError() << "O3 Level ~Gui: Fired requestEndThreadNowSig";
-            thread->quit();
-            if (!thread->wait(3000)){
-                thread->terminate();
-                thread->wait();
-            }
-        }
-    }
+//    if (partListWorkerThreadRunning){
+//        emit requestEndThreadNowSig();
+//        logTrace() << "~Gui::closeEvent partListWorkerThreadRunning";
+//    }
+
 }
 
 void Gui::closeEvent(QCloseEvent *event)
@@ -722,7 +718,6 @@ void Gui::closeEvent(QCloseEvent *event)
   writeSettings();
 
   if (maybeSave()) {
-
 
     QSettings Settings;
     Settings.beginGroup(WINDOW);
@@ -732,20 +727,16 @@ void Gui::closeEvent(QCloseEvent *event)
 
     parmsWindow->close();
 
-    if (partListWorker) {
-        logError() << "01 Level closeEvent(): Part List Worker Detected";
-        QThread *thread = partListWorker->thread();
-        if (thread->isRunning()) {
-            logInfo() << "02 Level closeEvent(): Thread is running";
-            emit requestEndThreadNowSig();
-            logError() << "O3 Level closeEvent(): Fired requestEndThreadNowSig";
-            thread->quit();
-            if (!thread->wait(3000)){
-                thread->terminate();
-                thread->wait();
-            }
-        }
-    }
+    emit requestEndThreadNowSig();
+
+    logTrace() << "Gui::closeEvent() FIRED... partListWorkerThreadRunning: " <<
+                  partListWorkerThreadRunning;
+
+//    if (partListWorkerThreadRunning){
+//        emit requestEndThreadNowSig();
+//        logTrace() << "~Gui::closeEvent partListWorkerThreadRunning";
+//    }
+
     event->accept();
   } else {
     event->ignore();
@@ -761,13 +752,16 @@ void Gui::generageFadeColourParts()
             QMessageBox::Ok | QMessageBox::Discard | QMessageBox::Cancel);
     if (ret == QMessageBox::Ok) {
 
-        QThread *thread                      = new QThread(this);
-        ColourPartListWorker *partListWorker = new ColourPartListWorker();
+        QThread *thread = new QThread();
+        partListWorker  = new ColourPartListWorker();
         partListWorker->moveToThread(thread);
-        connect(thread,         SIGNAL(finished()),                          thread, SLOT(deleteLater()));
-        connect(partListWorker, SIGNAL(finishedSig()),               partListWorker, SLOT(deleteLater()));
-        connect(partListWorker, SIGNAL(finishedSig()),                       thread, SLOT(quit()));
+
         connect(thread,         SIGNAL(started()),                   partListWorker, SLOT(scanDir()));
+        connect(thread,         SIGNAL(started()),                             this, SLOT(workerThreadRunning()));
+        connect(thread,         SIGNAL(finished()),                          thread, SLOT(deleteLater()));
+        connect(thread,         SIGNAL(finished()),                            this, SLOT(workerThreadFinished()));
+        connect(partListWorker, SIGNAL(finishedSig()),                       thread, SLOT(quit()));
+        connect(partListWorker, SIGNAL(finishedSig()),               partListWorker, SLOT(deleteLater()));
         connect(partListWorker, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
         connect(partListWorker, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
         connect(partListWorker, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
@@ -776,6 +770,7 @@ void Gui::generageFadeColourParts()
         connect(partListWorker, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
         connect(partListWorker, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
         connect(this,           SIGNAL(requestEndThreadNowSig()),    partListWorker, SLOT(requestEndThreadNow()));
+
         thread->start();
 
     } else if (ret == QMessageBox::Cancel) {

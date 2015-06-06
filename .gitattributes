@@ -331,7 +331,6 @@ mainApp/lpub.cpp -text
 mainApp/lpub.h -text
 mainApp/lpub.qrc -text
 mainApp/lpub.rc -text
-mainApp/lpub.res -text
 mainApp/lpub_preferences.cpp -text
 mainApp/lpub_preferences.h -text
 mainApp/main.cpp -text

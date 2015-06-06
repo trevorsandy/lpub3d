@@ -604,6 +604,16 @@ public slots:
       statusBar()->removeWidget(progressLabel);
   }
 
+  void workerThreadRunning(){
+      partListWorkerThreadRunning = true;
+      logTrace() << "partListWorkerThreadRunning = TRUE";
+  }
+
+  void workerThreadFinished(){
+      partListWorkerThreadRunning = false;
+      logTrace() << "partListWorkerThreadRunning = FALSE";
+  }
+
   void preferences();
   void fadeStepSetup();
 
@@ -655,25 +665,26 @@ public:
   Page                  page;            // the abstract version of page contents
 
 private:    
-  QGraphicsScene *KpageScene;      // top of displayed page's graphics items
-  LGraphicsView  *KpageView;       // the visual representation of the scene
+  QGraphicsScene        *KpageScene;      // top of displayed page's graphics items
+  LGraphicsView         *KpageView;       // the visual representation of the scene
 
-  int             boms;            // the number of pli BOMs in the document
-  int             bomOccurrence;   // the acutal occurenc of each pli BOM
+  int                   boms;            // the number of pli BOMs in the document
+  int                   bomOccurrence;   // the acutal occurenc of each pli BOM
 
-  LDrawFile       ldrawFile;       // contains MPD or all files used in model
-  QString         curFile;         // the file name for MPD, or top level file
-  QString         curSubFile;      // whats being displayed in the edit window
-  EditWindow     *editWindow;      // the sub file editable by the user
-  ParmsWindow    *parmsWindow;     // the parametrer file editor
-  QProgressBar   *progressBar;
-  QLabel         *progressLabel;
-  QElapsedTimer  *timer;
-  ColourPartListWorker  *partListWorker; // create static colour parts list in separate thread
+  LDrawFile             ldrawFile;       // contains MPD or all files used in model
+  QString               curFile;         // the file name for MPD, or top level file
+  QString               curSubFile;      // whats being displayed in the edit window
+  EditWindow            *editWindow;      // the sub file editable by the user
+  ParmsWindow           *parmsWindow;     // the parametrer file editor
+  QProgressBar          *progressBar;
+  QLabel                *progressLabel;
+  QElapsedTimer         *timer;
   GlobalFadeStep        *data;
 
   ColourPartList        colourPart;         // create fade parts for static colour parts
   FadeStepColorParts    fadeStepColorParts; //internal list of color parts to be processed for fade step.
+
+  ColourPartListWorker  *partListWorker;    // create static colour parts list in separate thread
 
 #ifdef WATCHER
   QFileSystemWatcher watcher;      // watch the file system for external
@@ -747,10 +758,6 @@ private:
     const QStringList &);
 
   void writeToTmp();
-
-
-
-
 
   QStringList fadeSubFile(
      const QStringList &,

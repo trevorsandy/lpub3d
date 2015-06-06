@@ -29,7 +29,7 @@ win32 {
     RC_FILE = lpub.rc
     PRECOMPILED_SOURCE = ../lc_lib/common/lc_global.cpp
     CONFIG += windows
-    #CONFIG += debug_and_release
+    CONFIG += debug_and_release
     LIBS += -ladvapi32 -lshell32
 
 } else {
@@ -79,19 +79,16 @@ unix:!macx {
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-message(Variable CONFIG:)
-message($$CONFIG)
-
 CONFIG(debug, debug|release) {
         message("~~~ DEBUG build ~~~")
-        CONFIG += shared
+        #CONFIG += shared
         DESTDIR = build/debug
         LIBS += -L$$DESTDIR/../../../quazip/build/debug -lquazip
 }
 
 CONFIG(release, debug|release) {
         message("~~~ RELEASE build ~~~")
-        CONFIG += static
+        #CONFIG += static
         DESTDIR = build/release
         LIBS += -L$$DESTDIR/../../../quazip/build/release -lquazip		
 }
@@ -108,9 +105,9 @@ static { # everything in these brackets takes effect with CONFIG += static
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 OBJECTS_DIR = $$DESTDIR/.obj
-MOC_DIR = $$DESTDIR/.moc
-RCC_DIR = $$DESTDIR/.qrc
-UI_DIR = $$DESTDIR/.ui
+MOC_DIR     = $$DESTDIR/.moc
+RCC_DIR     = $$DESTDIR/.qrc
+UI_DIR      = $$DESTDIR/.ui
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -163,9 +160,6 @@ macx {
 
     QMAKE_BUNDLE_DATA += document_icon library
 }
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-VERSION = 01.00.00
 
 #~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -307,7 +301,7 @@ OTHER_FILES += \
     lpub.rc
 
 RESOURCES += \
-        lpub.qrc
+    lpub.qrc
 
 !win32 {
     TRANSLATIONS = TSFILES
