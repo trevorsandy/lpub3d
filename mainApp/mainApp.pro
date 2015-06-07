@@ -14,7 +14,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
-INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../quazip ../qslog ../qsimpleupdater/src
+INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../quazip ../qslog
 
 CONFIG += precompile_header c++11
 PRECOMPILED_HEADER += ../lc_lib/common/lc_global.h
@@ -165,7 +165,6 @@ macx {
 
 include(../lc_lib/lc_lib.pri)
 include(../qslog/QsLog.pri)
-include(../qsimpleupdater/QSimpleUpdater.pri)
 
 HEADERS += \
     aboutdialog.h \

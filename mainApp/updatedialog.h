@@ -2,8 +2,7 @@
 #define UPDATEDIALOG_H
 
 #include <QDialog>
-#include <QMessageBox>
-#include <QSimpleUpdater>
+#include <QNetworkReply>
 
 namespace Ui {
 class UpdateDialog;
@@ -13,23 +12,28 @@ void DoInitialUpdateCheck();
 
 class UpdateDialog : public QDialog
 {
-    Q_OBJECT
-
+	Q_OBJECT
+	
 public:
-    explicit UpdateDialog(QWidget *parent, void *data);
-    ~UpdateDialog();
+	explicit UpdateDialog(QWidget *parent, void *data);
+	~UpdateDialog();
+
+	void parseUpdate(const char *update);
 
 public slots:
-    void checkForUpdates();
-    void onCheckingFinished();
+	void replyFinished(QNetworkReply *reply);
+	void accept();
+	void reject();
+	void finished(int result);
 
 private:
-    Ui::UpdateDialog *ui;
+	Ui::UpdateDialog *ui;
 
-    QString m_installed_version;
-    QSimpleUpdater *updater;
-    // from original
-    bool initialUpdate;
+    QNetworkRequest         updateRequest;
+    QNetworkReply           *updateReply;
+    QNetworkAccessManager   *manager;
+    QByteArray              versionData;
+    bool                    initialUpdate;
 };
 
-#endif //UPDATEDIALOG_H
+#endif // UPDATEDIALOG_H

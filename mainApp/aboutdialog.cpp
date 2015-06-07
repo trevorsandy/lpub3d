@@ -27,7 +27,7 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
                                 "virtual LEGO(C) models.</p>").arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
 
     ui->url->setTextFormat(Qt::RichText);
-    ui->url->setText(tr("Homepage: <a href=\"%1\">sourceforge.net/lpub3d</a>").arg(QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
+    ui->url->setText(tr("Homepage: <a href=\"%1\">%1</a>").arg(QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     QString AboutFormat = tr("<b>%1</b> is a WYSIWYG tool for creating<br>"
@@ -46,7 +46,7 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
                                "</tr>"
                              "</table>");
     QString About = AboutFormat.arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
-                               .arg(QString::fromLatin1(VER_SOURCE_URL))
+                               .arg(QString::fromLatin1(VER_UPDATE_CHECK_URL))
                                .arg(QString::fromLatin1(VER_LEGALCOPYRIGHT_STR))
                                .arg(QString::fromLatin1(VER_PUBLISHER_SUPPORT_EMAIL_STR))
                                .arg(QString::fromLatin1(VER_PUBLISHER_EMAIL_STR));
