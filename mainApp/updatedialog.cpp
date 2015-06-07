@@ -40,13 +40,23 @@ UpdateDialog::UpdateDialog(QWidget *parent, void *data) :
 
 	ui->status->setText(tr("Connecting to update server..."));
 
-	manager = new QNetworkAccessManager(this);
-	connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
+//	manager = new QNetworkAccessManager(this);
+//	connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
 
-    updateRequest.setUrl(QUrl(VER_UPDATE_CHECK_URL));
-    updateRequest.setRawHeader("User-Agent","Mozilla Firefox");
+//    updateRequest.setUrl(QUrl(VER_UPDATE_CHECK_URL));
+//    updateRequest.setRawHeader("User-Agent","Mozilla Firefox");
 
-    updateReply = manager->get(updateRequest);
+//    updateReply = manager->get(updateRequest);
+
+    // Initialize the updater
+    updater = new QSimpleUpdater (this);
+
+    // Check for updates when the updates
+    checkForUpdates();
+
+    // When the updater finishes checking for updates, show a message box
+    // and show the change log of the latest version
+    connect (updater, SIGNAL (checkingFinished()), this, SLOT (onCheckingFinished()));  // can change slot to finished();
 }
 
 UpdateDialog::~UpdateDialog()
@@ -61,6 +71,38 @@ UpdateDialog::~UpdateDialog()
 		manager->deleteLater();
 
 	delete ui;
+}
+
+void UpdateDialog::onCheckingFinished()
+{
+    //nothing to do yet.
+}
+
+void UpdateDialog::checkForUpdates(){
+
+    ui->status->setText(tr("Checking for updates..."));
+
+    // Set the current application version
+    updater->setApplicationVersion (VER_PRODUCTVERSION_STR);
+
+    // Tell the updater where we can find the file that tells us the latest version
+    // of the application
+    updater->setReferenceUrl (VER_UPDATE_CHECK_URL);
+
+    // Tell the updater where we should download the changelog, note that
+    // the changelog can be any file you want,
+    // such as an HTML page or (as in this example), a text file
+    updater->setChangelogUrl (VER_CHANGE_LOG_URL);
+
+    // Tell the updater where to download the update, its recommended to use direct links
+    updater->setDownloadUrl (VER_DOWNLOAD_URL);
+
+    // Show the progress dialog and show messages when checking is finished
+    updater->setSilent (false);
+    updater->setShowNewestVersionMessage (true);
+
+    // Finally, check for updates...
+    updater->checkForUpdates();
 }
 
 void UpdateDialog::accept()

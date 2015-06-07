@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QNetworkReply>
+#include <QSimpleUpdater>
 
 namespace Ui {
 class UpdateDialog;
@@ -19,12 +20,14 @@ public:
 	~UpdateDialog();
 
 	void parseUpdate(const char *update);
+    void checkForUpdates();
 
 public slots:
-	void replyFinished(QNetworkReply *reply);
-	void accept();
-	void reject();
-	void finished(int result);
+    void replyFinished(QNetworkReply *reply);       //dep
+    void accept();                                  //dep
+    void reject();                                  //dep
+    void finished(int result);
+    void onCheckingFinished();
 
 private:
 	Ui::UpdateDialog *ui;
@@ -34,6 +37,9 @@ private:
     QNetworkAccessManager   *manager;
     QByteArray              versionData;
     bool                    initialUpdate;
+
+    QSimpleUpdater          *updater;
+    QString                 m_installed_version;
 };
 
 #endif // UPDATEDIALOG_H
