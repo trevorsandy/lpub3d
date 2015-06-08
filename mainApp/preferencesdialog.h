@@ -52,6 +52,8 @@ class PreferencesDialog : public QDialog
     bool          titleAndFreeformAnnotation();
     bool          enableFadeStep();
     bool          enableDocumentLogo();
+    bool          silentUpdate();
+    int           checkForUpdates();
 
   public slots:
     void accept();

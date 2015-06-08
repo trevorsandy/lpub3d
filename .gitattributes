@@ -405,9 +405,8 @@ mainApp/textitem.cpp -text
 mainApp/textitem.h -text
 mainApp/traverse.cpp -text
 mainApp/undoredo.cpp -text
-mainApp/updatedialog.cpp -text
-mainApp/updatedialog.h -text
-mainApp/updatedialog.ui -text
+mainApp/updatecheck.cpp -text
+mainApp/updatecheck.h -text
 mainApp/version.h -text
 mainApp/where.h -text
 qslog/QsDebugOutput.cpp -text
@@ -462,9 +461,9 @@ tools/Win-setup/setup.ico -text
 tools/Win-setup/welcome.bmp -text
 tools/docs/COPYING.txt -text
 tools/docs/CREDITS.txt -text
+tools/docs/Copyright-Source-Header.txt -text
 tools/docs/README.txt -text
 tools/icons/LPub.icns -text
-tools/icons/LPub.ico -text
 tools/icons/LPub128.png -text
 tools/icons/LPub16.png -text
 tools/icons/LPub256.png -text

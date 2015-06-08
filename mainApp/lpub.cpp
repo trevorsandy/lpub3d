@@ -37,6 +37,7 @@
 #include "render.h"
 #include "metaitem.h"
 #include "ranges_element.h"
+#include "updatecheck.h"
 
 #include "step.h"
 //** 3D
@@ -781,14 +782,11 @@ bool Gui::aboutDialog()
     return Dialog.exec() == QDialog::Accepted;
 }
 
-bool Gui::updateDialog()
+void Gui::updateCheck()
 {
-    UpdateDialog Dialog(this, NULL);
-    return Dialog.exec() == QDialog::Accepted;
+    // Create an instance of update check
+    new UpdateCheck(this, (void*)0);
 
-    //    // Create the dialog and show it
-    //    UpdateDialog UpdateDialog;
-    //    UpdateDialog.show();
 }
 
 // Begin Jaco's code
@@ -1107,7 +1105,7 @@ void Gui::createActions()
 
     updateApp = new QAction(QIcon(":/resources/softwareupdate.png"),tr("Check for &Updates..."), this);
     updateApp->setStatusTip(tr("Check if a newer LPub3D version is available for download"));
-    connect(updateApp, SIGNAL(triggered()), this, SLOT(updateDialog()));
+    connect(updateApp, SIGNAL(triggered()), this, SLOT(updateCheck()));
 }
 
 void Gui::enableActions()

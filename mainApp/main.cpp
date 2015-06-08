@@ -19,7 +19,7 @@
 #include "lpub_preferences.h"
 #include "lpub.h"
 #include "resolution.h"
-#include "updatedialog.h"
+#include "updatecheck.h"
 #include <QMessageBox>
 
 //**3D

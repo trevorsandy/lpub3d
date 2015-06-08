@@ -356,7 +356,6 @@
 #include "where.h"
 #include "FadeStepColorParts.h"
 #include "aboutdialog.h"
-#include "updatedialog.h"
 #include "version.h"
 #include "colourpartlist.h"
 
@@ -768,8 +767,8 @@ private slots:
     void saveAs();
 
     void openRecentFile();
+    void updateCheck();
     bool aboutDialog();
-    bool updateDialog();
     void editFreeFormAnnitations();
     void editFadeColourParts();
     void generageFadeColourParts();

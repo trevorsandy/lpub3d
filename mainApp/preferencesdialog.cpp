@@ -42,27 +42,29 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
       leocadLibFile = ".";
   }
   
-  ui.ldrawPath->setText(                ldrawPath);
-  ui.leocadLibFile->setText(            leocadLibFile);
-  ui.pliName->setText(                  Preferences::pliFile);
-  ui.pliBox->setChecked(                Preferences::pliFile != "");
-  ui.ldglitePath->setText(              Preferences::ldgliteExe);
-  ui.ldgliteBox->setChecked(            Preferences::ldgliteExe != "");
-  ui.l3pPath->setText(                  Preferences::l3pExe);
-  ui.povrayPath->setText(               Preferences::povrayExe);
-  ui.l3pBox->setChecked(                Preferences::l3pExe != "" && Preferences::povrayExe != "");
-  ui.lgeoPath->setText(                 Preferences::lgeoPath);
-  ui.lgeoBox->setChecked(               Preferences::lgeoPath != "");
-  ui.ldviewPath->setText(               Preferences::ldviewExe);
-  ui.ldviewBox->setChecked(             Preferences::ldviewExe != "");
-  ui.fadeStepBox->setChecked(           Preferences::enableFadeStep);
-  ui.publishLogoBox->setChecked(        Preferences::documentLogoFile != "");
-  ui.publishLogoPath->setText(          Preferences::documentLogoFile);
-  ui.authorName_Edit->setText(          Preferences::defaultAuthor);
-  ui.publishCopyright_Chk->setChecked(  Preferences::printCopyright);
-  ui.publishURL_Edit->setText(          Preferences::defaultURL);
-  ui.publishEmail_Edit->setText(        Preferences::defaultEmail);
-  ui.publishDescriptionEdit->setText(   Preferences::publishDescription);
+  ui.ldrawPath->setText(                    ldrawPath);
+  ui.leocadLibFile->setText(                leocadLibFile);
+  ui.pliName->setText(                      Preferences::pliFile);
+  ui.pliBox->setChecked(                    Preferences::pliFile != "");
+  ui.ldglitePath->setText(                  Preferences::ldgliteExe);
+  ui.ldgliteBox->setChecked(                Preferences::ldgliteExe != "");
+  ui.l3pPath->setText(                      Preferences::l3pExe);
+  ui.povrayPath->setText(                   Preferences::povrayExe);
+  ui.l3pBox->setChecked(                    Preferences::l3pExe != "" && Preferences::povrayExe != "");
+  ui.lgeoPath->setText(                     Preferences::lgeoPath);
+  ui.lgeoBox->setChecked(                   Preferences::lgeoPath != "");
+  ui.ldviewPath->setText(                   Preferences::ldviewExe);
+  ui.ldviewBox->setChecked(                 Preferences::ldviewExe != "");
+  ui.fadeStepBox->setChecked(               Preferences::enableFadeStep);
+  ui.publishLogoBox->setChecked(            Preferences::documentLogoFile != "");
+  ui.publishLogoPath->setText(              Preferences::documentLogoFile);
+  ui.authorName_Edit->setText(              Preferences::defaultAuthor);
+  ui.publishCopyright_Chk->setChecked(      Preferences::printCopyright);
+  ui.publishURL_Edit->setText(              Preferences::defaultURL);
+  ui.publishEmail_Edit->setText(            Preferences::defaultEmail);
+  ui.publishDescriptionEdit->setText(       Preferences::publishDescription);
+  ui.chkBoxSilent->setChecked(              Preferences::silentUpdate);
+  ui.comboCheckForUpdates->setCurrentIndex( Preferences::checkForUpdates);
 
   ui.preferredRenderer->setMaxCount(0);
   ui.preferredRenderer->setMaxCount(3);
@@ -494,6 +496,16 @@ QString const PreferencesDialog::defaultAuthor()
 QString const PreferencesDialog::publishDescription()
 {
   return ui.publishDescriptionEdit->toPlainText();
+}
+
+bool PreferencesDialog::silentUpdate()
+{
+  return ui.chkBoxSilent->isChecked();
+}
+
+int PreferencesDialog::checkForUpdates()
+{
+  return ui.comboCheckForUpdates->currentIndex();
 }
 
 void PreferencesDialog::accept(){

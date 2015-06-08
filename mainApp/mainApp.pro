@@ -26,7 +26,7 @@ win32 {
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
     DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
     QMAKE_EXT_OBJ = .obj
-    RC_FILE = lpub.rc
+    win32:RC_FILE = lpub.rc
     PRECOMPILED_SOURCE = ../lc_lib/common/lc_global.cpp
     CONFIG += windows
     CONFIG += debug_and_release
@@ -199,6 +199,8 @@ HEADERS += \
     numberitem.h \
     pagebackgrounditem.h \
     pairdialog.h \
+    parmshighlighter.h \
+    parmswindow.h \
     partslist.h \
     paths.h \
     placement.h \
@@ -221,11 +223,10 @@ HEADERS += \
     scaledialog.h \
     step.h \
     textitem.h \
+    updatecheck.h \
     where.h \
-    updatedialog.h \
-    version.h \
-    parmswindow.h \
-    parmshighlighter.h
+    version.h
+
 	
 SOURCES += \
     aboutdialog.cpp \
@@ -263,6 +264,8 @@ SOURCES += \
     pagebackgrounditem.cpp \
     pageglobals.cpp \
     pairdialog.cpp \
+    parmshighlighter.cpp \
+    parmswindow.cpp \
     partslist.cpp \
     paths.cpp \
     placement.cpp \
@@ -288,14 +291,12 @@ SOURCES += \
     step.cpp \
     textitem.cpp \
     traverse.cpp \
-    undoredo.cpp \
-    updatedialog.cpp \
-    parmswindow.cpp \
-    parmshighlighter.cpp
+    updatecheck.cpp \
+    undoredo.cpp
+
 	
 FORMS += \
     preferences.ui \
-    updatedialog.ui \
     aboutdialog.ui
 	
 OTHER_FILES += \

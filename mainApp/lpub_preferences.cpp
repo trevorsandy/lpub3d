@@ -65,6 +65,8 @@ bool    Preferences::preferFreeformAnnotation = false;
 bool    Preferences::titleAndFreeformAnnotation = false;
 bool    Preferences::enableFadeStep = false;
 bool    Preferences::preferCentimeters = true;
+bool    Preferences::silentUpdate = false;
+int     Preferences::checkForUpdates = 0;
 
 Preferences::Preferences()
 {
@@ -95,6 +97,24 @@ void Preferences::lpubPreferences()
     QDir extrasDir(lpubDataPath + "/extras");
     if(!QDir(extrasDir).exists())
         extrasDir.mkpath(".");
+
+    QSettings Settings;
+
+    if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"SilentUpdate"))) {
+        QVariant pValue(false);
+        silentUpdate = false;
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"SilentUpdate"),pValue);
+    } else {
+        silentUpdate = Settings.value(QString("%1/%2").arg(DEFAULTS,"SilentUpdate")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"CheckForUpdates"))) {
+        checkForUpdates = 0;
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"CheckForUpdates"),checkForUpdates);
+    } else {
+        checkForUpdates = Settings.value(QString("%1/%2").arg(DEFAULTS,"CheckForUpdates")).toInt();
+    }
+
 }
 
 void Preferences::ldrawPreferences(bool force)
@@ -716,9 +736,21 @@ bool Preferences::getPreferences()
         }
     }
 
-    printCopyright = dialog->printCopyright();
-    Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PrintCopyright"),printCopyright);
-    //SET DEFAULT PRINT STATE HERE AS NEEDED
+    if (silentUpdate != dialog->silentUpdate()) {
+        silentUpdate = dialog->silentUpdate();
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"SilentUpdate"),silentUpdate);
+    }
+
+    if (checkForUpdates != dialog->checkForUpdates()) {
+        checkForUpdates = dialog->checkForUpdates();
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"CheckForUpdates"),checkForUpdates);
+    }
+
+    if (printCopyright != dialog->printCopyright()) {
+        printCopyright = dialog->printCopyright();
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PrintCopyright"),printCopyright);
+    }
+
     return true;
   } else {
     return false;

@@ -18,7 +18,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -787,6 +787,107 @@
       <zorder>label_17</zorder>
       <zorder>publishEmail_Edit</zorder>
       <zorder>publishCopyright_Chk</zorder>
+     </widget>
+     <widget class="QWidget" name="tabUpdates">
+      <attribute name="title">
+       <string>Updates</string>
+      </attribute>
+      <widget class="QLabel" name="label_11">
+       <property name="geometry">
+        <rect>
+         <x>26</x>
+         <y>39</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Frequency</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="comboCheckForUpdates">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>39</y>
+         <width>131</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Select check for update frequency</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>Never</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Once a day</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Once a week</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Once a month</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QCheckBox" name="chkBoxSilent">
+       <property name="geometry">
+        <rect>
+         <x>240</x>
+         <y>40</y>
+         <width>201</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Do not show progress bar while checking for updates</string>
+       </property>
+       <property name="text">
+        <string>Do not show progress bar</string>
+       </property>
+      </widget>
+      <widget class="QGroupBox" name="groupBoxUpdates">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>451</width>
+         <height>81</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Check for newer version online.</string>
+       </property>
+       <property name="title">
+        <string>Check for updates</string>
+       </property>
+      </widget>
+      <widget class="Line" name="line">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>96</y>
+         <width>451</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+      <zorder>groupBoxUpdates</zorder>
+      <zorder>label_11</zorder>
+      <zorder>comboCheckForUpdates</zorder>
+      <zorder>chkBoxSilent</zorder>
+      <zorder>line</zorder>
      </widget>
     </widget>
    </item>

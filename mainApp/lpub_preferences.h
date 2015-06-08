@@ -66,6 +66,8 @@ class Preferences
     static bool    preferFreeformAnnotation;
     static bool    titleAndFreeformAnnotation;
     static bool    enableFadeStep;
+    static bool    silentUpdate;
+    static int     checkForUpdates;
 
     virtual ~Preferences() {}
 };
