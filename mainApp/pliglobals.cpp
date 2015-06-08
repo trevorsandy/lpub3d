@@ -63,16 +63,20 @@ GlobalPliDialog::GlobalPliDialog(
     setWindowTitle(tr("Parts List Setup"));
   }
 
-  QTabWidget  *tab = new QTabWidget(this);
-  QVBoxLayout *layout = new QVBoxLayout(this);  
+  //QTabWidget  *tab = new QTabWidget(this);
+  QTabWidget  *tab = new QTabWidget(NULL);
+  //QVBoxLayout *layout = new QVBoxLayout(this);
+  QVBoxLayout *layout = new QVBoxLayout(NULL);
   setLayout(layout);
   layout->addWidget(tab);
 
   QWidget *widget;
   QGridLayout *grid;
 
-  widget = new QWidget(this);
-  grid = new QGridLayout(this);
+  //widget = new QWidget(this);
+  widget = new QWidget(NULL);
+  //grid = new QGridLayout(this);
+  grid = new QGridLayout(NULL);
   widget->setLayout(grid);
 
   MetaGui *child;
@@ -86,39 +90,47 @@ GlobalPliDialog::GlobalPliDialog(
     grid->addWidget(child);
   }
 
-  box = new QGroupBox("Background",this);
+  //box = new QGroupBox("Background",this);
+  box = new QGroupBox("Background",NULL);
   grid->addWidget(box);
   child = new BackgroundGui(&pliMeta->background,box);
   data->children.append(child);
 
-  box = new QGroupBox("Border",this);
+  //box = new QGroupBox("Border",this);
+  box = new QGroupBox("Border",NULL);
   grid->addWidget(box);
   child = new BorderGui(&pliMeta->border,box);
   data->children.append(child);
   
-  box = new QGroupBox("Margins",this);
+  //box = new QGroupBox("Margins",this);
+  box = new QGroupBox("Margins",NULL);
   grid->addWidget(box);
   child = new UnitsGui("",&pliMeta->margin,box);
   data->children.append(child);
   
-  box = new QGroupBox("Constrain",this);
+  //box = new QGroupBox("Constrain",this);
+  box = new QGroupBox("Constrain",NULL);
   grid->addWidget(box);
   child = new ConstrainGui("",&pliMeta->constrain,box);
   data->children.append(child);
 
   tab->addTab(widget,"Background/Border");
 
-  widget = new QWidget(this);
-  grid = new QGridLayout(this);
+  //widget = new QWidget(this);
+  widget = new QWidget(NULL);
+  //grid = new QGridLayout(this);
+  grid = new QGridLayout(NULL);
   widget->setLayout(grid);
 
   /*
    * Part
    */
 
-  box = new QGroupBox("Part Pictures",this);
+  //box = new QGroupBox("Part Pictures",this);
+  box = new QGroupBox("Part Pictures",NULL);
   grid->addWidget(box);
-  QVBoxLayout *partsLayout = new QVBoxLayout(this);
+  //QVBoxLayout *partsLayout = new QVBoxLayout(this);
+  QVBoxLayout *partsLayout = new QVBoxLayout(NULL);
   box->setLayout(partsLayout);
 
   child = new DoubleSpinGui(
@@ -140,18 +152,21 @@ GlobalPliDialog::GlobalPliDialog(
   partsLayout->addWidget(child);
 
   if ( ! bom) {
-    box = new QGroupBox("Submodels",this);
+    //box = new QGroupBox("Submodels",this);
+    box = new QGroupBox("Submodels",NULL);
     grid->addWidget(box);
     child = new CheckBoxGui("Show in Parts List",&pliMeta->includeSubs,box);
     data->children.append(child);
   }
 
-  box = new QGroupBox("Part Counts",this);
+  //box = new QGroupBox("Part Counts",this);
+  box = new QGroupBox("Part Counts",NULL);
   grid->addWidget(box);
   child = new NumberGui(&pliMeta->instance,box);
   data->children.append(child);
 
-  box = new QGroupBox("Part Annotation",this);
+  //box = new QGroupBox("Part Annotation",this);
+  box = new QGroupBox("Part Annotation",NULL);
   grid->addWidget(box);
   child = new NumberGui(&pliMeta->annotate,box);
   data->children.append(child);
@@ -160,7 +175,8 @@ GlobalPliDialog::GlobalPliDialog(
 
   QDialogButtonBox *buttonBox;
 
-  buttonBox = new QDialogButtonBox(this);
+  //buttonBox = new QDialogButtonBox(this);
+  buttonBox = new QDialogButtonBox(NULL);
   buttonBox->addButton(QDialogButtonBox::Ok);
   connect(buttonBox,SIGNAL(accepted()),SLOT(accept()));
   buttonBox->addButton(QDialogButtonBox::Cancel);
