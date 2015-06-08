@@ -75,21 +75,26 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   QGroupBox     *box;
   MetaGui       *child;
 
-  grid = new QGridLayout(this);
+  //grid = new QGridLayout(this);
+  grid = new QGridLayout();
   setLayout(grid);
 
-  box = new QGroupBox("Select Fade Color",this);
+  //box = new QGroupBox("Select Fade Color",this);
+  box = new QGroupBox("Select Fade Color",NULL);
   grid->addWidget(box,0,0);
-  boxGrid = new QGridLayout(this);
+  //boxGrid = new QGridLayout(this);
+  boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
   child = new FadeStepGui("Color",fadeStepMeta,NULL);
   data->children.append(child);
   boxGrid->addWidget(child,0,0,1,2);
 
-  box = new QGroupBox("Enable Fade Step",this);
+  //box = new QGroupBox("Enable Fade Step",this);
+  box = new QGroupBox("Enable Fade Step",NULL);
   grid->addWidget(box,1,0);
-  boxGrid = new QGridLayout(this);
+  //boxGrid = new QGridLayout(this);
+  boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
   child = new CheckBoxGui("Enabled",&fadeStepMeta->fadeStep,NULL);

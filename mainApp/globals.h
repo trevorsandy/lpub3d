@@ -188,7 +188,7 @@ private:
 public:
 
   GlobalProjectDialog(const QString &topLevelFile, Meta &meta);
-  ~GlobalProjectDialog() {};  
+  ~GlobalProjectDialog() {}
   static void getProjectGlobals(const QString topLevelFile, Meta &meta);
   
 public slots:

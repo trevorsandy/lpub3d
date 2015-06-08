@@ -569,12 +569,12 @@ void Gui::preferences()
     if (Preferences::enableFadeStep && !getCurFile().isEmpty())
         colourPart.processFadeColorParts();
 
-    if (!getCurFile().isEmpty()){
-        QString topLevel = ldrawFile.topLevelFile();
-        GlobalPliDialog *pliParms = new GlobalPliDialog(topLevel, page.meta, false);
-        pliParms->accept();
-        displayPage();
-    }
+//    if (!getCurFile().isEmpty()){
+//        QString topLevel = ldrawFile.topLevelFile();
+//        GlobalPliDialog *pliParms = new GlobalPliDialog(topLevel, page.meta, false);
+//        pliParms->accept();
+//    }
+    displayPage();
   }
 }
 
