@@ -680,14 +680,14 @@ FadeStepGui::FadeStepGui(
 
     colorLabel = new QLabel(heading,parent);
 
-    grid->addWidget(colorLabel,0,0);
+    grid->addWidget(colorLabel);
 
     colorExample = new QLabel(parent);
     colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
     colorExample->setPalette(QPalette(LDrawColor::color(meta->fadeColor.value())));
     colorExample->setAutoFillBackground(true);
 
-    grid->addWidget(colorExample,0,1);
+    grid->addWidget(colorExample);
 
     colorCombo = new QComboBox(parent);
     colorCombo->addItems(LDrawColor::names());
@@ -698,7 +698,7 @@ FadeStepGui::FadeStepGui(
             this, SLOT(  colorChange(         QString const &)));
     colorModified = false;
 
-    grid->addWidget(colorCombo,0,2);
+    grid->addWidget(colorCombo);
 
     if (parent) {
         parent->setLayout(grid);
@@ -808,7 +808,8 @@ BackgroundGui::BackgroundGui(
 
   fill = new QGroupBox("Fill",parent);
 
-  vert = new QVBoxLayout(parent);
+  //vert = new QVBoxLayout(parent); // generating error: QLayout: Attempting to add QLayout "" to QGroupBox "", which already has a layout
+  vert = new QVBoxLayout();
   fill->setLayout(vert);
   grid->addWidget(fill,2,0,1,3);
 

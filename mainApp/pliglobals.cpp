@@ -91,25 +91,25 @@ GlobalPliDialog::GlobalPliDialog(
   }
 
   //box = new QGroupBox("Background",this);
-  box = new QGroupBox("Background",NULL);
+  box = new QGroupBox("Background");
   grid->addWidget(box);
   child = new BackgroundGui(&pliMeta->background,box);
   data->children.append(child);
 
   //box = new QGroupBox("Border",this);
-  box = new QGroupBox("Border",NULL);
+  box = new QGroupBox("Border");
   grid->addWidget(box);
   child = new BorderGui(&pliMeta->border,box);
   data->children.append(child);
   
   //box = new QGroupBox("Margins",this);
-  box = new QGroupBox("Margins",NULL);
+  box = new QGroupBox("Margins");
   grid->addWidget(box);
   child = new UnitsGui("",&pliMeta->margin,box);
   data->children.append(child);
   
   //box = new QGroupBox("Constrain",this);
-  box = new QGroupBox("Constrain",NULL);
+  box = new QGroupBox("Constrain");
   grid->addWidget(box);
   child = new ConstrainGui("",&pliMeta->constrain,box);
   data->children.append(child);
@@ -127,7 +127,7 @@ GlobalPliDialog::GlobalPliDialog(
    */
 
   //box = new QGroupBox("Part Pictures",this);
-  box = new QGroupBox("Part Pictures",NULL);
+  box = new QGroupBox("Part Pictures");
   grid->addWidget(box);
   //QVBoxLayout *partsLayout = new QVBoxLayout(this);
   QVBoxLayout *partsLayout = new QVBoxLayout(NULL);
@@ -153,20 +153,20 @@ GlobalPliDialog::GlobalPliDialog(
 
   if ( ! bom) {
     //box = new QGroupBox("Submodels",this);
-    box = new QGroupBox("Submodels",NULL);
+    box = new QGroupBox("Submodels");
     grid->addWidget(box);
     child = new CheckBoxGui("Show in Parts List",&pliMeta->includeSubs,box);
     data->children.append(child);
   }
 
   //box = new QGroupBox("Part Counts",this);
-  box = new QGroupBox("Part Counts",NULL);
+  box = new QGroupBox("Part Counts");
   grid->addWidget(box);
   child = new NumberGui(&pliMeta->instance,box);
   data->children.append(child);
 
   //box = new QGroupBox("Part Annotation",this);
-  box = new QGroupBox("Part Annotation",NULL);
+  box = new QGroupBox("Part Annotation");
   grid->addWidget(box);
   child = new NumberGui(&pliMeta->annotate,box);
   data->children.append(child);

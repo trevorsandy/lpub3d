@@ -51,16 +51,16 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
 
   setWindowTitle(tr("Callout Globals Setup"));
 
-  QTabWidget  *tab = new QTabWidget(this);
-  QVBoxLayout *layout = new QVBoxLayout(this);  
+  QTabWidget  *tab = new QTabWidget();
+  QVBoxLayout *layout = new QVBoxLayout();
   setLayout(layout);
   layout->addWidget(tab);
 
   QWidget *widget;
   QGridLayout *grid;
 
-  widget = new QWidget(this);
-  grid = new QGridLayout(this);
+  widget = new QWidget();
+  grid = new QGridLayout();
   widget->setLayout(grid);
 
   MetaGui *child;
@@ -68,40 +68,40 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
 
   CalloutMeta *calloutMeta = &data->meta.LPub.callout;
 
-  box = new QGroupBox("Background",this);
+  box = new QGroupBox("Background");
   grid->addWidget(box);
   child = new BackgroundGui(&calloutMeta->background,box);
   data->children.append(child);
 
-  box = new QGroupBox("Border",this);
+  box = new QGroupBox("Border");
   grid->addWidget(box);
   child = new BorderGui(&calloutMeta->border,box);
   data->children.append(child);
   
-  box = new QGroupBox("Margins",this);
+  box = new QGroupBox("Margins");
   grid->addWidget(box);
   child = new UnitsGui("",&calloutMeta->margin,box);
   data->children.append(child);
   
-  box = new QGroupBox("Divider",this);
+  box = new QGroupBox("Divider");
   grid->addWidget(box);
   child = new SepGui(&calloutMeta->sep,box);
   data->children.append(child);
 
   tab->addTab(widget,"Background/Border");
 
-  widget = new QWidget(this);
-  grid = new QGridLayout(this);
+  widget = new QWidget();
+  grid = new QGridLayout();
   widget->setLayout(grid);
   
-  box = new QGroupBox("Assembly Margins",this);
+  box = new QGroupBox("Assembly Margins");
   grid->addWidget(box);
   child = new UnitsGui("",&calloutMeta->csi.margin,box);
   data->children.append(child);
   
-  box = new QGroupBox("Parts List",this);
+  box = new QGroupBox("Parts List");
   grid->addWidget(box);
-  QVBoxLayout *tempLayout = new QVBoxLayout(this);
+  QVBoxLayout *tempLayout = new QVBoxLayout();
   box->setLayout(tempLayout);
   child = new UnitsGui("Margins",&calloutMeta->pli.margin);
   data->children.append(child);
@@ -111,12 +111,12 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
   data->children.append(child);
   tempLayout->addWidget(child);
 
-  box = new QGroupBox("Step Number",this);
+  box = new QGroupBox("Step Number");
   grid->addWidget(box);
   child = new NumberGui(&calloutMeta->stepNum,box);
   data->children.append(child);
 
-  box = new QGroupBox("Times Used",this);
+  box = new QGroupBox("Times Used");
   grid->addWidget(box);
   child = new NumberGui(&calloutMeta->instance,box);
   data->children.append(child);
@@ -125,7 +125,7 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
 
   QDialogButtonBox *buttonBox;
 
-  buttonBox = new QDialogButtonBox(this);
+  buttonBox = new QDialogButtonBox();
   buttonBox->addButton(QDialogButtonBox::Ok);
   connect(buttonBox,SIGNAL(accepted()),SLOT(accept()));
   buttonBox->addButton(QDialogButtonBox::Cancel);

@@ -74,37 +74,44 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   QGridLayout   *boxGrid;
   QGroupBox     *box;
   MetaGui       *child;
+  QLabel        *label;
 
   //grid = new QGridLayout(this);
   grid = new QGridLayout();
   setLayout(grid);
 
   //box = new QGroupBox("Select Fade Color",this);
-  box = new QGroupBox("Select Fade Color",NULL);
+  box = new QGroupBox("Select Fade Color");
   grid->addWidget(box,0,0);
   //boxGrid = new QGridLayout(this);
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
-  child = new FadeStepGui("Color",fadeStepMeta,NULL);
+  child = new FadeStepGui("Color",fadeStepMeta);
   data->children.append(child);
-  boxGrid->addWidget(child,0,0,1,2);
+  boxGrid->addWidget(child);
 
   //box = new QGroupBox("Enable Fade Step",this);
-  box = new QGroupBox("Enable Fade Step",NULL);
+  box = new QGroupBox("Enable Fade Step");
   grid->addWidget(box,1,0);
   //boxGrid = new QGridLayout(this);
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
-  child = new CheckBoxGui("Enabled",&fadeStepMeta->fadeStep,NULL);
+  child = new CheckBoxGui("Enabled",&fadeStepMeta->fadeStep);
   child->setDisabled(true); //disabled - property set from properties form
   data->children.append(child);
-  boxGrid->addWidget(child,1,0,1,2);
+  boxGrid->addWidget(child,0,0);
+
+  label = new QLabel();
+  label->setText("Set from Preferences dialog");
+  label->setDisabled(true);
+  boxGrid->addWidget(label,0,1);
 
   QDialogButtonBox *buttonBox;
 
-  buttonBox = new QDialogButtonBox(this);
+  //buttonBox = new QDialogButtonBox(this);
+  buttonBox = new QDialogButtonBox();
   buttonBox->addButton(QDialogButtonBox::Ok);
   connect(buttonBox,SIGNAL(accepted()),SLOT(accept()));
   buttonBox->addButton(QDialogButtonBox::Cancel);
@@ -112,7 +119,7 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
 
   grid->addWidget(buttonBox);
 
-  resize(375,200);
+  //resize(375,200);
 
   setModal(true);
 }

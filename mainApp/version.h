@@ -25,7 +25,7 @@
 #define VER_COMPANYNAME_STR         		"LPub Software"
 #define VER_FILEDESCRIPTION_STR     		"LPub3D - An LDraw Building Instruction Editor"
 #define VER_INTERNALNAME_STR        		"bociphus"
-#define VER_LEGALCOPYRIGHT_STR      		"Copyright (C) 2015 by Trevor Sandy"
+#define VER_LEGALCOPYRIGHT_STR      		"Copyright &copy; 2015 by Trevor SANDY"
 #define VER_LEGALTRADEMARKS1_STR    		"All Rights Reserved"
 #define VER_LEGALTRADEMARKS2_STR    		VER_LEGALTRADEMARKS1_STR
 #define VER_ORIGINALFILENAME_STR    		"LPub3D.exe"
@@ -42,5 +42,6 @@
 #define VER_COMPILED_ON             		"MinGW (i686-4.9.2-x64) Windows"
 #define VER_COMPILED_FOR            		"x86_64-w64-mingw32"
 #define VER_COMPILED_WITH                   "x86_64-w64-mingw32-gcc (posix-seh-rev1) 4.9.2"
+#define VER_IDE                             "Qt Creator 3.4.0 on Qt 5.4.1 (MSVC 2013, x64)"
 
 #endif // VERSION_H

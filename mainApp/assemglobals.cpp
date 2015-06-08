@@ -66,12 +66,12 @@ GlobalAssemDialog::GlobalAssemDialog(
 
   setWindowTitle(tr("Assembly Globals Setup"));
 
-  grid = new QGridLayout(this);
+  grid = new QGridLayout();
   setLayout(grid);
 
-  box = new QGroupBox("Assembly",this);
+  box = new QGroupBox("Assembly");
   grid->addWidget(box,0,0);
-  boxGrid = new QGridLayout(this);
+  boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
   MetaGui *child;

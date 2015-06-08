@@ -573,8 +573,8 @@ void Gui::preferences()
         QString topLevel = ldrawFile.topLevelFile();
         GlobalPliDialog *pliParms = new GlobalPliDialog(topLevel, page.meta, false);
         pliParms->accept();
+        displayPage();
     }
-    displayPage();
   }
 }
 
@@ -1302,7 +1302,7 @@ void Gui::createDockWindows()
     addDockWidget(Qt::RightDockWidgetArea, fileEditDockWindow);
     viewMenu->addAction(fileEditDockWindow->toggleViewAction());
 //**3D
-    modelDockWindow = new QDockWidget(tr("3D Viewer - by LeoCAD"), this);
+    modelDockWindow = new QDockWidget(trUtf8("3D Viewer - by LeoCAD\u00A9"), this);
     modelDockWindow->setObjectName("ModelDockWindow");
     modelDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |

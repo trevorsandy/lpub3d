@@ -184,9 +184,10 @@ void ColourPartList::retrieveContent(
 
 void ColourPartList::createFadePartFiles(){
 
+    int maxValue            = _partList.size();
     emit progressResetSig();
     emit progressMessageSig("Creating Fade Colour Parts");
-    emit progressRangeSig(1, _partList.size());
+    emit progressRangeSig(1, maxValue);
 
     QString materialColor  ="16";  // Internal Common Material Colour (main)
     QString edgeColor      ="24";  // Internal Common Material Color (edge)
@@ -243,7 +244,12 @@ void ColourPartList::createFadePartFiles(){
             // check if part exist and if yes return
             if (fadeStepColorPartFileInfo.exists()){
                 logError() << "PART EXISTS: " << fadeStepColorPartFileInfo.absoluteFilePath();
-                continue;}
+//                QString uniqueIDParts = _partList[part];
+//                int lineNum = uniqueIDParts.section("***",0,-2).toInt();
+//                QString fileName = uniqueIDParts.section("***",-1,-1);
+//                remove(fileName,lineNum);
+                continue;
+            }
 
             fadePartFile = fadeStepColorPartFileInfo.absoluteFilePath();
             // process part contents
@@ -289,7 +295,7 @@ void ColourPartList::createFadePartFiles(){
         saveFadeFile(fadePartFile, fadePartContent);
         fadePartContent.clear();
     }
-    emit progressSetValueSig(_partList.size());
+    emit progressSetValueSig(maxValue);
 }
 
 
@@ -644,7 +650,7 @@ void ColourPartListWorker::insert(
         const int           &lineNum,
         const int           &partType){
 
-    QString uniqueID = QString("%1_%2").arg(QString::number(lineNum)).arg(fileNameStr.toLower());
+    QString uniqueID = QString("%1***%2").arg(QString::number(lineNum)).arg(fileNameStr.toLower());
     QMap<QString, ColourPart>::iterator i = _colourParts.find(uniqueID);
 
     if (i != _colourParts.end()){
@@ -658,7 +664,7 @@ void ColourPartListWorker::insert(
 
 void ColourPartListWorker::remove(const QString &fileNameStr, const int &lineNum)
 {
-    QString uniqueID = QString("%1_%2").arg(QString::number(lineNum)).arg(fileNameStr.toLower());
+    QString uniqueID = QString("%1***%2").arg(QString::number(lineNum)).arg(fileNameStr.toLower());
     QMap<QString, ColourPart>::iterator i = _colourParts.find(uniqueID);
 
   if (i != _colourParts.end()) {

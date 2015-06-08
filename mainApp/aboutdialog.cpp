@@ -9,6 +9,7 @@
 #include "ui_aboutdialog.h"
 #include "name.h"
 #include "version.h"
+#include "lc_global.h"
  
 AboutDialog::AboutDialog(QWidget *parent, void *data) :
 	QDialog(parent),
@@ -17,28 +18,27 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
 	ui->setupUi(this);
 
     ui->version->setTextFormat(Qt::RichText);
-    ui->version->setText(tr("<b>%1</b> Version <b>%2</b> Revision %3 Build %4").arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
-                                                                          .arg(QString::fromLatin1(VER_PRODUCTVERSION_STR))
-                                                                          .arg(QString::fromLatin1(VER_REVISION_STR))
-                                                                          .arg(QString::fromLatin1(VER_BUILD_STR)));
+    ui->version->setText(tr("Version <b>%1</b> Revision <b>%2</b> Build <b>%3</b>").arg(QString::fromLatin1(VER_PRODUCTVERSION_STR))
+                                                                                   .arg(QString::fromLatin1(VER_REVISION_STR))
+                                                                                   .arg(QString::fromLatin1(VER_BUILD_STR)));
     ui->description->setTextFormat(Qt::RichText);
-    ui->description->setText(tr("<p><b>%1</b> is a free application that can be used <br>"
-                                "to create digital build instructions for "
-                                "virtual LEGO(C) models.</p>").arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+    ui->description->setText(tr("<p><b>%1</b> is an LDraw&trade; building instruction editor.<br><br>"
+                                "%2</p>").arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
+                                             .arg(QString::fromLatin1(VER_LEGALCOPYRIGHT_STR)));
 
     ui->url->setTextFormat(Qt::RichText);
     ui->url->setText(tr("Homepage: <a href=\"%1\">%1</a>").arg(QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    QString AboutFormat = tr("<b>%1</b> is a WYSIWYG tool for creating<br>"
-                             "LEGO(C) style building instructions.<br>"
-                             "%1 is a major refresh of Kevin Clague's LPub.<br><br>"
-                             "%3<br>"
-                             "Copyright (C) 2000-2011 Kevin Clague<br>"
+    QString AboutFormat = tr("<b>%1</b> is a free WYSIWYG editing application for<br>"
+                             "creating LEGO&copy; style digital building instructions<br>"
+                             "for LDraw&trade; based digital models.<br><br>"
+                             "%1 is a major refresh of Kevin Clague's LPub&copy;<br>"
+                             "incorporating LeoCAD&copy; to render 3D visualization.<br>"
                              "<table style=""width:100%"">"
                                "<tr>"
                                  "<td>Feedback:</td>"
-                                 "<td><a href=\"%4\">%5</a></td>"
+                                 "<td><a href=\"%3\">%4</a></td>"
                                "</tr>"
                                "<tr>"
                                  "<td>Source:</td>"
@@ -46,8 +46,7 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
                                "</tr>"
                              "</table>");
     QString About = AboutFormat.arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
-                               .arg(QString::fromLatin1(VER_UPDATE_CHECK_URL))
-                               .arg(QString::fromLatin1(VER_LEGALCOPYRIGHT_STR))
+                               .arg(QString::fromLatin1(VER_SOURCE_URL))
                                .arg(QString::fromLatin1(VER_PUBLISHER_SUPPORT_EMAIL_STR))
                                .arg(QString::fromLatin1(VER_PUBLISHER_EMAIL_STR));
 
@@ -71,23 +70,28 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
                                    "<td>%3</td>"
                                  "</tr>"
                                   "<tr>"
-                                   "<td>Framework/Library:</td>"
+                                   "<td>Framework/Library:&nbsp;</td>"
                                    "<td>%4</td>"
                                  "</tr>"
                                  "</tr>"
                                   "<tr>"
-                                   "<td>LeoCAD Version:</td>"
+                                   "<td>Dev Environment:</td>"
                                    "<td>%5</td>"
                                  "</tr>"
-                                 "<tr>"
-                                   "<td>Build Date</td>"
+                                  "<tr>"
+                                   "<td>LeoCAD Version:</td>"
                                    "<td>%6</td>"
+                                 "</tr>"
+                                 "<tr>"
+                                   "<td>Build Date:</td>"
+                                   "<td>%7</td>"
                                  "</tr>"
                                "</table>");
     QString BuildInfo = BuildInfoFormat.arg(QString::fromLatin1(VER_COMPILED_ON))
                                        .arg(QString::fromLatin1(VER_COMPILED_FOR))
                                        .arg(QString::fromLatin1(VER_COMPILED_WITH))
                                        .arg(QString("Qt %1").arg(qVersion()))
+                                       .arg(QString::fromLatin1(VER_IDE))
                                        .arg(tr("%1 - Revision %2").arg(QString::fromLatin1(LC_VERSION_TEXT))
                                                                   .arg(QString::fromLatin1(LC_VERSION_BUILD)))
                                        .arg(QString::fromLatin1(VER_BUILDDATE_STR));
@@ -113,18 +117,18 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
                                 "<td>%1</td>"
                               "</tr>"
                               "<tr>"
-                                "<td>Architecture</td>"
+                                "<td>Architecture:</td>"
                                 "<td>%2</td>"
                               "</tr>"
                               "<tr>"
-                                "<td>OpenGL Version</td>"
+                                "<td>OpenGL Version:&nbsp;</td>"
                                 "<td>%3<br>%4 - %5</td>"
                               "</tr>"
                             "</table>");
     QString OsInfo = OsInfoFormat.arg(osName())
                                  .arg(osPlatform)
                                  .arg(QString((const char*)glGetString(GL_VERSION)),
-                                      QString((const char*)glGetString(GL_RENDERER)),
+                                      QString((const char*)glGetString(GL_RENDERER)).replace("(R)", "&reg;"),
                                       QString((const char*)glGetString(GL_VENDOR)));
 
     ui->OsInfo->setTextFormat(Qt::RichText);

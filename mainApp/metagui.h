@@ -75,7 +75,7 @@ public:
 
   CheckBoxGui(
     QString const  &heading,
-    BoolMeta      *meta,
+    BoolMeta       *meta,
     QGroupBox      *parent = NULL);
   ~CheckBoxGui() {}
 
@@ -107,7 +107,7 @@ public:
     QString const &trueHeading,
     QString const &falseHeading,
     BoolMeta      *meta,
-    QGroupBox     *parent);
+    QGroupBox     *parent = NULL);
 
   ~BoolRadioGui() {}
 
@@ -254,7 +254,7 @@ public:
   FadeStepGui(
     QString const &heading,
     FadeStepMeta *meta,
-    QGroupBox  *parent);
+    QGroupBox  *parent = NULL);
   ~FadeStepGui() {}
 
   virtual void apply(QString &modelName);
@@ -327,7 +327,7 @@ public:
 
   BackgroundGui(
     BackgroundMeta  *meta,
-    QGroupBox       *parent);
+    QGroupBox       *parent = NULL);
 
   ~BackgroundGui() {}
 
@@ -373,7 +373,7 @@ public:
 
   BorderGui(
     BorderMeta *meta,
-    QGroupBox  *parent);
+    QGroupBox  *parent = NULL);
   ~BorderGui() {}
 
   virtual void apply(QString &modelName);
@@ -450,7 +450,7 @@ public:
 
   SepGui(
     SepMeta *meta,
-    QGroupBox     *parent);
+    QGroupBox     *parent = NULL);
   ~SepGui() {}
 
   virtual void apply(QString &modelName);
@@ -481,7 +481,7 @@ public:
 
   ResolutionGui(
     ResolutionMeta *meta,
-    QGroupBox      *parent);
+    QGroupBox      *parent = NULL);
   ~ResolutionGui() {}
 
   virtual void apply(QString &modelName);

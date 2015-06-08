@@ -58,16 +58,16 @@ GlobalPageDialog::GlobalPageDialog(
 
   setWindowTitle(tr("Page Globals Setup"));
 
-  QTabWidget    *tab = new QTabWidget(this);
-  QVBoxLayout   *layout = new QVBoxLayout(this);
+  QTabWidget    *tab = new QTabWidget();
+  QVBoxLayout   *layout = new QVBoxLayout();
   setLayout(layout);
   layout->addWidget(tab);
   
   QWidget       *widget;
   QGridLayout   *grid;
   
-  widget = new QWidget(this);
-  grid = new QGridLayout(this);
+  widget = new QWidget();
+  grid = new QGridLayout();
   widget->setLayout(grid);
 
   MetaGui   *child;
@@ -75,42 +75,42 @@ GlobalPageDialog::GlobalPageDialog(
 
   PageMeta *pageMeta = &data->meta.LPub.page;
   
-  box = new QGroupBox("Size",this);
+  box = new QGroupBox("Size");
   grid->addWidget(box,0,0);
   child = new UnitsGui("",&pageMeta->size,box);
   data->children.append(child);
  
-  box = new QGroupBox("Margins",this);
+  box = new QGroupBox("Margins");
   grid->addWidget(box,1,0);
   child = new UnitsGui("",&pageMeta->margin,box);
   data->children.append(child);
 
-  box = new QGroupBox("Background",this);
+  box = new QGroupBox("Background");
   grid->addWidget(box, 2, 0);
   child = new BackgroundGui(&pageMeta->background,box);
   data->children.append(child);
 
-  box = new QGroupBox("Border",this);
+  box = new QGroupBox("Border");
   grid->addWidget(box, 3, 0);
   child = new BorderGui(&pageMeta->border,box);
   data->children.append(child);
 
   tab->addTab(widget,"Page");
   
-  widget = new QWidget(this);
-  grid = new QGridLayout(this);
+  widget = new QWidget();
+  grid = new QGridLayout();
   widget->setLayout(grid);
 
   child = new CheckBoxGui("Display Page Number",&pageMeta->dpn,NULL);
   data->children.append(child);
   grid->addWidget(child,0,0,1,2);
 
-  box = new QGroupBox("Look",this);
+  box = new QGroupBox("Look");
   grid->addWidget(box,1,0);
   child = new NumberGui(&pageMeta->number,box);
   data->children.append(child);
 
-  box = new QGroupBox("Placement",this);
+  box = new QGroupBox("Placement");
   grid->addWidget(box,2,0);
   child = new BoolRadioGui(
     "Alternate Corners (like books)",
@@ -123,7 +123,7 @@ GlobalPageDialog::GlobalPageDialog(
  
   QDialogButtonBox *buttonBox;
 
-  buttonBox = new QDialogButtonBox(this);
+  buttonBox = new QDialogButtonBox();
   buttonBox->addButton(QDialogButtonBox::Ok);
   connect(buttonBox,SIGNAL(accepted()),SLOT(accept()));
   buttonBox->addButton(QDialogButtonBox::Cancel);

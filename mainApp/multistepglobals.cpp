@@ -60,7 +60,7 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
 
   setWindowTitle(tr("Step Group Globals Setup"));
 
-  QVBoxLayout *grid = new QVBoxLayout(this);
+  QVBoxLayout *grid = new QVBoxLayout();
   setLayout(grid);
 
   MetaGui *child;
@@ -68,24 +68,24 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
 
   MultiStepMeta *multiStepMeta = &data->meta.LPub.multiStep;
   
-  box = new QGroupBox("Margins",this);
+  box = new QGroupBox("Margins");
   grid->addWidget(box);
   child = new UnitsGui("",&multiStepMeta->margin,box);
   data->children.append(child);
   
-  box = new QGroupBox("Divider",this);
+  box = new QGroupBox("Divider");
   grid->addWidget(box);
   child = new SepGui(&multiStepMeta->sep,box);
   data->children.append(child);
   
-  box = new QGroupBox("Assembly Margins",this);
+  box = new QGroupBox("Assembly Margins");
   grid->addWidget(box);
   child = new UnitsGui("",&multiStepMeta->csi.margin,box);
   data->children.append(child);
   
-  box = new QGroupBox("Parts List",this);
+  box = new QGroupBox("Parts List");
   grid->addWidget(box);
-  QVBoxLayout *tempLayout = new QVBoxLayout(this);
+  QVBoxLayout *tempLayout = new QVBoxLayout();
   box->setLayout(tempLayout);
   child = new UnitsGui("Margins",&multiStepMeta->pli.margin);
   data->children.append(child);
@@ -95,14 +95,14 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   data->children.append(child);
   tempLayout->addWidget(child);
 
-  box = new QGroupBox("Step Number",this);
+  box = new QGroupBox("Step Number");
   grid->addWidget(box);
   child = new NumberGui(&multiStepMeta->stepNum,box);
   data->children.append(child);
 
   QDialogButtonBox *buttonBox;
 
-  buttonBox = new QDialogButtonBox(this);
+  buttonBox = new QDialogButtonBox();
   buttonBox->addButton(QDialogButtonBox::Ok);
   connect(buttonBox,SIGNAL(accepted()),SLOT(accept()));
   buttonBox->addButton(QDialogButtonBox::Cancel);
