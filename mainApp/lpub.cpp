@@ -1293,7 +1293,7 @@ void Gui::showLCStatusMessage(){
 
 void Gui::createDockWindows()
 {
-    fileEditDockWindow = new QDockWidget(tr("LDraw File Editor"), this);
+    fileEditDockWindow = new QDockWidget(trUtf8("LDraw\u2122 File Editor"), this);
     fileEditDockWindow->setObjectName("LDrawFileDockWindow");
     fileEditDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |

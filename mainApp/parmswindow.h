@@ -48,6 +48,7 @@ class QSize;
 class LineNumberArea;
 class TextEditor;
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class ParmsWindow : public QMainWindow
 {
     Q_OBJECT
@@ -93,7 +94,7 @@ public:
     TextEditor *textEdit() { return _textEdit; }
 };
 
-
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class TextEditor : public QPlainTextEdit
 {
     Q_OBJECT
@@ -129,7 +130,7 @@ private:
     QWidget *lineNumberArea;
 };
 
-
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LineNumberArea : public QWidget
 {
 public:

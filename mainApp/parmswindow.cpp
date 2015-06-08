@@ -69,7 +69,7 @@ void ParmsWindow::createActions()
                               "selection"));
     connect(pasteAct, SIGNAL(triggered()), _textEdit, SLOT(paste()));
 
-    findAct = new QAction(QIcon(":/resources/find.png"), tr("&Paste"), this);
+    findAct = new QAction(QIcon(":/resources/find.png"), tr("&Find"), this);
     findAct->setShortcut(tr("Ctrl+F"));
     findAct->setStatusTip(tr("Find object "));
     connect(findAct, SIGNAL(triggered()), _textEdit, SLOT(findDialog()));
@@ -309,10 +309,14 @@ void TextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
     int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
     int bottom = top + (int) blockBoundingRect(block).height();
 
+    QColor col_1(Qt::magenta);   // Current line
+    QColor col_0(Qt::darkGray);    // Other lines
+
+    // Draw the numbers (displaying the current line number in green)
     while (block.isValid() && top <= event->rect().bottom()) {
         if (block.isVisible() && bottom >= event->rect().top()) {
             QString number = QString::number(blockNumber + 1);
-            painter.setPen(Qt::gray);
+            painter.setPen((this->textCursor().blockNumber() == blockNumber) ? col_1 : col_0);
             painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(),
                              Qt::AlignRight, number);
         }

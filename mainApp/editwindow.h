@@ -40,6 +40,14 @@ class QString;
 class QAction;
 class QMenu;
 
+class QPaintEvent;
+class QResizeEvent;
+class QSize;
+
+class QLineNumberArea;
+class QTextEditor;
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class EditWindow : public QMainWindow
 {
     Q_OBJECT
@@ -54,7 +62,7 @@ private:
     void createMenus();
     void createToolBars();
 
-    QTextEdit   *_textEdit;
+    QTextEditor  *_textEdit;
     Highlighter *highlighter;
     QString      fileName;  // of file currently being displayed
 
@@ -85,7 +93,59 @@ public slots:
       QTextCursor::MoveMode      moveMode);
 
 public:
-    QTextEdit *textEdit() { return _textEdit; }
+    QTextEditor *textEdit() { return _textEdit; }
 };
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class QTextEditor : public QTextEdit
+{
+    Q_OBJECT
+
+public:
+    explicit QTextEditor(QWidget *parent = 0);
+
+    void lineNumberAreaPaintEvent(QPaintEvent *event);
+    int getFirstVisibleBlockId();
+    int lineNumberAreaWidth();
+
+signals:
+
+
+public slots:
+
+    void resizeEvent(QResizeEvent *e);
+
+private slots:
+
+    void updateLineNumberAreaWidth(int newBlockCount);
+    void updateLineNumberArea(QRectF /*rect_f*/);
+    void updateLineNumberArea(int /*slider_pos*/);
+    void updateLineNumberArea();
+
+private:
+
+    QWidget *lineNumberArea;
+
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class QLineNumberArea : public QWidget
+{
+public:
+    QLineNumberArea(QTextEditor *editor) : QWidget(editor) {
+        textEditor = editor;}
+
+    QSize sizeHint() const {
+        return QSize(textEditor->lineNumberAreaWidth(), 0);
+    }
+
+protected:
+    void paintEvent(QPaintEvent *event){
+        textEditor->lineNumberAreaPaintEvent(event);
+    }
+
+private:
+    QTextEditor *textEditor;
+};
 #endif

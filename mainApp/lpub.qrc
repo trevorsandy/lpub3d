@@ -25,6 +25,7 @@
         <file alias="LPub64.png">images/LPub64.png</file>
         <file alias="LPub64.ico">images/LPub64.ico</file>
         <file alias="LPub32.png">images/LPub32.png</file>
+        <file alias="LPub512Splash.png">images/LPub512Splash.png</file>
         <file alias="last.png">images/last.png</file>
         <file alias="minus.png">images/minus.png</file>
         <file alias="new.png">images/new.png</file>

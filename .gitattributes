@@ -281,6 +281,7 @@ mainApp/glwidget.h -text
 mainApp/highlighter.cpp -text
 mainApp/highlighter.h -text
 mainApp/images/LPub32.png -text
+mainApp/images/LPub512Splash.png -text
 mainApp/images/LPub64.ico -text
 mainApp/images/LPub64.png -text
 mainApp/images/actual.png -text
@@ -488,5 +489,6 @@ tools/icons/LPub48.png -text
 tools/icons/LPub512.png -text
 tools/icons/LPub64.ico -text
 tools/icons/LPub64.png -text
+tools/icons/LPub96.png -text
 tools/icons/setup.icns -text
 tools/icons/setup.ico -text
