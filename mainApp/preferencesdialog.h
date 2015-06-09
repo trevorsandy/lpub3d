@@ -16,19 +16,25 @@
 #ifndef PREFERENCES_DIALOG_H
 #define PREFERENCES_DIALOG_H
 
-#include "ui_preferences.h"
+#include <QDialog>
 
-#include "colourpartlist.h"
-#include "meta.h"
+#include "ui_preferences.h"
 #include "lc_qpreferencesdialog.h"
 #include "ui_lc_qpreferencesdialog.h"
+#include "colourpartlist.h"
+#include "meta.h"
+
+namespace Ui{
+class PreferencesDialog;
+}
 
 class PreferencesDialog : public QDialog
 {
   Q_OBJECT
   
   public:
-    PreferencesDialog(QWidget *parent = 0);
+    explicit PreferencesDialog(QWidget *parent = 0);
+    ~PreferencesDialog();
 	
 	QString const ldrawPath();
     QString const leocadLibFile();
@@ -72,8 +78,9 @@ class PreferencesDialog : public QDialog
     void colorChange(QString const &colorName);
 
 private:
-    QWidget *parent;
     Ui::PreferencesDialog ui;
+
+    QWidget *parent;
     FadeStepMeta    fadeStepMeta;             // propagate fade color and fade bool
     ColourPartList      colourPart;
 };

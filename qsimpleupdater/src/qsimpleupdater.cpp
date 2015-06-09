@@ -394,8 +394,6 @@ void QSimpleUpdater::onCheckingFinished (void)
     m_progressDialog->hide();
 
     // Get the application icon as a pixmap
-//    QPixmap _icon = qApp->windowIcon().pixmap (
-//                        qApp->windowIcon().actualSize (QSize (96, 96)));
     QPixmap _icon = QPixmap(":/icons/lpub96.png");
 
     // If the icon is invalid, use default icon

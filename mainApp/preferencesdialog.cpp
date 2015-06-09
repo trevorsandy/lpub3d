@@ -14,6 +14,7 @@
 **
 ****************************************************************************/
 
+#include <QDesktopServices>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMessageBox>
@@ -27,18 +28,19 @@
 #include "lpub.h"
 
 
-PreferencesDialog::PreferencesDialog(QWidget     *_parent)
+PreferencesDialog::PreferencesDialog(QWidget *_parent) :
+    QDialog(_parent)
 {
   ui.setupUi(this);
   
   QString ldrawPath = Preferences::ldrawPath;
   
-  if (ldrawPath == "") {
+  if (ldrawPath.isEmpty()) {
     ldrawPath = ".";
   }
 
   QString leocadLibFile = Preferences::leocadLibFile;
-  if (leocadLibFile == " ") {
+  if (leocadLibFile.isEmpty()) {
       leocadLibFile = ".";
   }
   
@@ -50,7 +52,7 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
   ui.ldgliteBox->setChecked(                Preferences::ldgliteExe != "");
   ui.l3pPath->setText(                      Preferences::l3pExe);
   ui.povrayPath->setText(                   Preferences::povrayExe);
-  ui.l3pBox->setChecked(                    Preferences::l3pExe != "" && Preferences::povrayExe != "");
+  ui.POVRayBox->setChecked(                    Preferences::l3pExe != "" && Preferences::povrayExe != "");
   ui.lgeoPath->setText(                     Preferences::lgeoPath);
   ui.lgeoBox->setChecked(                   Preferences::lgeoPath != "");
   ui.ldviewPath->setText(                   Preferences::ldviewExe);
@@ -147,12 +149,14 @@ PreferencesDialog::PreferencesDialog(QWidget     *_parent)
 
 }
 
+PreferencesDialog::~PreferencesDialog()
+{}
+
 void PreferencesDialog::colorChange(QString const &colorName)
 {
   QColor qcolor = LDrawColor::color(Preferences::fadeStepColor);
   QColor newColor = LDrawColor::color(colorName);
-  bool notMatch = (qcolor != newColor);
-  if (notMatch) {
+  if (qcolor != newColor) {
     fadeStepMeta.fadeColor.setValue(LDrawColor::name(newColor.name()));
     ui.fadeStepColorLabel->setPalette(QPalette(newColor));
     ui.fadeStepColorLabel->setAutoFillBackground(true);
@@ -173,193 +177,158 @@ void PreferencesDialog::on_browseLeoCADLibrary_clicked()
 
 void PreferencesDialog::on_browseLGEO_clicked()
 {
-	QFileDialog dialog(parent);
-	dialog.setFileMode(QFileDialog::Directory);
-	dialog.setWindowTitle(tr("Locate LGEO Directory"));
-    dialog.setDirectory(Preferences::ldrawPath);
-	dialog.setOptions(QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-	
-	if (dialog.exec()) {
-		QStringList selectedFiles = dialog.selectedFiles();
-		
-		if (selectedFiles.size() == 1) {
-			ui.lgeoPath->setText(selectedFiles[0]);
-			QFileInfo  fileInfo(selectedFiles[0]);
-			ui.lgeoBox->setChecked(fileInfo.exists());
+
+    QString result = QFileDialog::getExistingDirectory(this, tr("Locate LGEO Directory"),
+                                                       ui.lgeoPath->text().isEmpty() ? Preferences::ldrawPath : ui.lgeoPath->text(),
+                                                       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+    if (!result.isEmpty()) {
+            ui.lgeoPath->setText(QDir::toNativeSeparators(result));
+            ui.lgeoBox->setChecked(true);
 		}
-	}
 }
 
 void PreferencesDialog::on_browsePli_clicked()
-{
-  QFileDialog dialog(parent);
-  
-  dialog.setWindowTitle(tr("Locate Parts List orientation/size file"));
-  dialog.setFileMode(QFileDialog::ExistingFile);
-
-#ifdef __APPLE__
-  //dialog.setFilter("LDraw (*.mpd,*.dat,*.ldr)");
+{        
+#ifdef Q_OS_WIN
+    QString filter(tr("LDraw (*.mpd;*.dat;*.ldr);;All Files (*.*)"));
 #else
-  dialog.setFilter("LDraw (*.mpd,*.dat,*.ldr)");
+    QString filter(tr("All Files (*.*)"));
 #endif
-  if (dialog.exec()) {
-    QStringList selectedFiles = dialog.selectedFiles();
-    
-    if (selectedFiles.size() == 1) {
-      ui.pliName->setText(selectedFiles[0]);
-      QFileInfo  fileInfo(ui.pliName->displayText());
-      ui.pliBox->setChecked(fileInfo.exists());
+
+    QString result = QFileDialog::getOpenFileName(this, tr("Locate Parts List orientation/size file"),
+                                                  ui.pliName->text().isEmpty() ? Preferences::lpubDataPath + "/extras" : ui.pliName->text(),
+                                                  filter);
+
+    if (!result.isEmpty()) {
+      ui.pliName->setText(QDir::toNativeSeparators(result));
+      ui.pliBox->setChecked(true);
     }
-  }
 }
 
 void PreferencesDialog::on_browseLDView_clicked()
-{
-  QFileDialog dialog(parent);
-  
-  dialog.setWindowTitle(tr("Locate LDView program"));
-  dialog.setFileMode(QFileDialog::ExistingFile);
-
-#ifdef __APPLE__
-  //dialog.setFilter("Program (*.app,*.App)");
+{     
+#ifdef Q_OS_WIN
+    QString filter(tr("Executable Files (*.exe);;All Files (*.*)"));
 #else
-  dialog.setFilter("Program (*.exe)");
+    QString filter(tr("All Files (*.*)"));
 #endif
-  if (dialog.exec()) {
-    QStringList selectedFiles = dialog.selectedFiles();
-    
-    if (selectedFiles.size() == 1) {
-      ui.ldviewPath->setText(selectedFiles[0]);
-      QFileInfo  fileInfo(selectedFiles[0]);
-      if (fileInfo.exists()) {
+
+    QString result = QFileDialog::getOpenFileName(this, tr("Locate LDView Executable"),
+                                                  ui.ldviewPath->text(),
+                                                  filter);
+
+    if (!result.isEmpty()) {
+        result = QDir::toNativeSeparators(result);
+        ui.ldviewPath->setText(result);
         int ldviewIndex = ui.preferredRenderer->findText("LDView");
         if (ldviewIndex < 0) {
-          ui.preferredRenderer->addItem("LDView");
+            ui.preferredRenderer->addItem("LDView");
         }
         ui.preferredRenderer->setEnabled(true);
-      } 
-      ui.ldviewBox->setChecked(fileInfo.exists());
-      ui.RenderMessage->setText("");
+        ui.ldviewBox->setChecked(true);
+        ui.RenderMessage->setText("");
     }
-  }
 }
 
 void PreferencesDialog::on_browseLDGLite_clicked()
-{
-  QFileDialog dialog(parent);
-  
-  dialog.setWindowTitle(tr("Locate LDGLite program"));
-  dialog.setFileMode(QFileDialog::ExistingFile);
-
-#ifdef __APPLE__
-  //dialog.setFilter("Program (*.app,*.App)");
+{           
+#ifdef Q_OS_WIN
+    QString filter(tr("Executable Files (*.exe);;All Files (*.*)"));
 #else
-  dialog.setFilter("Program (*.exe)");
+    QString filter(tr("All Files (*.*)"));
 #endif
-  if (dialog.exec()) {
-    QStringList selectedFiles = dialog.selectedFiles();
-    
-    if (selectedFiles.size() == 1) {
-      ui.ldglitePath->setText(selectedFiles[0]);
-      QFileInfo  fileInfo(selectedFiles[0]);
-      if (fileInfo.exists()) {
+
+    QString result = QFileDialog::getOpenFileName(this, tr("Locate LDGLite Executable"),
+                                                  ui.ldglitePath->text().isEmpty() ? Preferences::lpubPath : ui.ldglitePath->text(),
+                                                  filter);
+
+    if (!result.isEmpty()) {
+        result = QDir::toNativeSeparators(result);
+        ui.ldglitePath->setText(result);
         int ldgliteIndex = ui.preferredRenderer->findText("LDGLite");
         if (ldgliteIndex < 0) {
-          ui.preferredRenderer->addItem("LDGLite");
+            ui.preferredRenderer->addItem("LDGLite");
         }
         ui.preferredRenderer->setEnabled(true);
-      } 
-      ui.ldgliteBox->setChecked(fileInfo.exists());
-      ui.RenderMessage->setText("");
+        ui.ldgliteBox->setChecked(true);
+        ui.RenderMessage->setText("");
     }
-  }
 }
 
 void PreferencesDialog::on_browseL3P_clicked()
-{
-	QFileDialog dialog(parent);
-	
-	dialog.setWindowTitle(tr("Locate L3P program"));
-	dialog.setFileMode(QFileDialog::ExistingFile);
-	
-#ifdef __APPLE__
-	//dialog.setFilter("Program (*.app,*.App)");
+{                  
+#ifdef Q_OS_WIN
+    QString filter(tr("Executable Files (*.exe);;All Files (*.*)"));
 #else
-	dialog.setFilter("Program (*.exe)");
+    QString filter(tr("All Files (*.*)"));
 #endif
-	if (dialog.exec()) {
-		QStringList selectedFiles = dialog.selectedFiles();
-		
-		if (selectedFiles.size() == 1) {
-			ui.l3pPath->setText(selectedFiles[0]);
-			QFileInfo  fileInfo(selectedFiles[0]);
-			QFileInfo povrayInfo(ui.povrayPath->text());
-			if (fileInfo.exists() && povrayInfo.exists()) {
-				int l3pIndex = ui.preferredRenderer->findText("L3P");
-				if (l3pIndex < 0) {
-					ui.preferredRenderer->addItem("L3P");
-				}
-				ui.preferredRenderer->setEnabled(true);
-			}
-            ui.l3pBox->setChecked(fileInfo.exists() || povrayInfo.exists());
-            ui.RenderMessage->setText("");
-		}
-	}
+
+    QString result = QFileDialog::getOpenFileName(this, tr("Locate L3P Executable"),
+                                                  ui.l3pPath->text().isEmpty() ? Preferences::lpubPath : ui.l3pPath->text(),
+                                                  filter);
+
+    if (!result.isEmpty()) {
+        result = QDir::toNativeSeparators(result);
+        ui.l3pPath->setText(result);
+        QFileInfo povrayInfo(ui.povrayPath->text());
+        if (povrayInfo.exists()) {
+            int l3pIndex = ui.preferredRenderer->findText("L3P");
+            if (l3pIndex < 0) {
+                ui.preferredRenderer->addItem("L3P");
+            }
+            ui.preferredRenderer->setEnabled(true);
+        }
+        ui.POVRayBox->setChecked(povrayInfo.exists());
+        ui.RenderMessage->setText("");
+    }
 }
 
 void PreferencesDialog::on_browsePOVRAY_clicked()
 {
-	QFileDialog dialog(parent);
-	
-	dialog.setWindowTitle(tr("Locate POV-RAY program"));
-	dialog.setFileMode(QFileDialog::ExistingFile);
-	
-#ifdef __APPLE__
-	//dialog.setFilter("Program (*.app,*.App)");
+#ifdef Q_OS_WIN
+    QString filter(tr("Executable Files (*.exe);;All Files (*.*)"));
 #else
-	dialog.setFilter("Program (*.exe)");
+    QString filter(tr("All Files (*.*)"));
 #endif
-	if (dialog.exec()) {
-		QStringList selectedFiles = dialog.selectedFiles();
-		
-		if (selectedFiles.size() == 1) {
-			ui.povrayPath->setText(selectedFiles[0]);
-			QFileInfo  fileInfo(selectedFiles[0]);
-			QFileInfo l3pInfo(ui.l3pPath->text());
-			if (fileInfo.exists() && l3pInfo.exists()) {
-				int l3pIndex = ui.preferredRenderer->findText("L3P");
-				if (l3pIndex < 0) {
-					ui.preferredRenderer->addItem("L3P");
-				}
-				ui.preferredRenderer->setEnabled(true);
-			}
-            ui.l3pBox->setChecked(fileInfo.exists() || l3pInfo.exists());
-            ui.RenderMessage->setText("");
-		}
-	}
+
+    QString result = QFileDialog::getOpenFileName(this, tr("Locate POV-Ray Executable"),
+                                                  ui.povrayPath->text(),
+                                                  filter);
+
+    if (!result.isEmpty()) {
+        result = QDir::toNativeSeparators(result);
+        ui.povrayPath->setText(result);
+        QFileInfo l3pInfo(ui.l3pPath->text());
+        if (l3pInfo.exists()) {
+            int l3pIndex = ui.preferredRenderer->findText("L3P");
+            if (l3pIndex < 0) {
+                ui.preferredRenderer->addItem("L3P");
+            }
+            ui.preferredRenderer->setEnabled(true);
+        }
+        ui.POVRayBox->setChecked(l3pInfo.exists());
+        ui.RenderMessage->setText("");
+    }
 }
 
 void PreferencesDialog::on_browsePublishLogo_clicked()
-{
-  QFileDialog dialog(parent);
-
-  dialog.setWindowTitle(tr("Select Document Logo"));
-  dialog.setFileMode(QFileDialog::ExistingFile);
-
-#ifdef __APPLE__
-  //dialog.setFilter("Logo (*.png)");
+{        
+#ifdef Q_OS_WIN
+    QString filter(tr("Logo (*.png);;All Files (*.*)"));
 #else
-  dialog.setFilter("Logo (*.png)");
+    QString filter(tr("All Files (*.*)"));
 #endif
-  if (dialog.exec()) {
-    QStringList selectedFiles = dialog.selectedFiles();
 
-    if (selectedFiles.size() == 1) {
-      ui.publishLogoPath->setText(selectedFiles[0]);
-      QFileInfo  fileInfo(selectedFiles[0]);
-      ui.publishLogoBox->setChecked(fileInfo.exists());
+    QString result = QFileDialog::getOpenFileName(this, tr("Select Document Logo"),
+                                                  ui.publishLogoPath->text().isEmpty() ? Preferences::lpubDataPath + "/extras" : ui.publishLogoPath->text(),
+                                                  filter);
+
+    if (!result.isEmpty()) {
+      result = QDir::toNativeSeparators(result);
+      ui.publishLogoPath->setText(result);
+      ui.publishLogoBox->setChecked(true);
     }
-  }
 }
 
 QString const PreferencesDialog::ldrawPath()
@@ -374,7 +343,7 @@ QString const PreferencesDialog::leocadLibFile()
 
 QString const PreferencesDialog::lgeoPath()
 {
-	if (ui.l3pBox->isChecked() && ui.lgeoBox->isChecked()){
+    if (ui.POVRayBox->isChecked() && ui.lgeoBox->isChecked()){
 		return ui.lgeoPath->displayText();
 	}
 	return "";
@@ -406,14 +375,14 @@ QString const PreferencesDialog::ldgliteExe()
 
 QString const PreferencesDialog::povrayExe()
 {
-	if (ui.l3pBox->isChecked()) {
+    if (ui.POVRayBox->isChecked()) {
 		return ui.povrayPath->displayText();
 	}
 	return "";
 }
 QString const PreferencesDialog::l3pExe()
 {
-	if (ui.l3pBox->isChecked()) {
+    if (ui.POVRayBox->isChecked()) {
 		return ui.l3pPath->displayText();
 	}
 	return "";
@@ -509,9 +478,21 @@ int PreferencesDialog::checkForUpdates()
 }
 
 void PreferencesDialog::accept(){
-    if(ui.preferredRenderer->count() == 0){
+    if(ui.preferredRenderer->count() == 0 || ui.ldrawPath->text().isEmpty() || ui.leocadLibFile->text().isEmpty()){
+        QPalette palette;
+        palette.setColor(QPalette::Base,Qt::yellow);
+        if (ui.ldrawPath->text().isEmpty())
+            ui.ldrawPath->setPalette(palette);
+        if (ui.leocadLibFile->text().isEmpty())
+            ui.leocadLibFile->setPalette(palette);
+        if (ui.preferredRenderer->count() == 0){
+            ui.ldglitePath->setPalette(palette);
+            ui.ldviewPath->setPalette(palette);
+            ui.l3pPath->setPalette(palette);
+            ui.povrayPath->setPalette(palette);
+        }
         if (QMessageBox::Yes == QMessageBox::question(this, "Close Dialog?",
-                              "You did not enter a Renderer, Are you sure you want to exit?",
+                              "Required settings are missing, Are you sure you want to exit?",
                               QMessageBox::Yes|QMessageBox::No)){
             QDialog::reject(); //keep open
         }

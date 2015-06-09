@@ -36,8 +36,8 @@
 
 Preferences preferences;
 
-QString Preferences::ldrawPath = " ";
-QString Preferences::leocadLibFile = " ";
+QString Preferences::ldrawPath = "";
+QString Preferences::leocadLibFile = "";
 QString Preferences::lgeoPath;
 QString Preferences::lpubPath = ".";
 QString Preferences::lpubDataPath = ".";
@@ -119,115 +119,151 @@ void Preferences::lpubPreferences()
 
 void Preferences::ldrawPreferences(bool force)
 {
-  QFileInfo fileInfo;
-  QSettings Settings;
-  QString const ldrawKey("LDrawDir");
-  
-  if (Settings.contains(QString("%1/%2").arg(SETTINGS,ldrawKey))) {
-    ldrawPath = Settings.value(QString("%1/%2").arg(SETTINGS,ldrawKey)).toString();
-  }
+    QSettings Settings;
+    QString const ldrawKey("LDrawDir");
 
-  if (ldrawPath != "" && ! force) {
-    QDir cwd(ldrawPath);
-
-    if (cwd.exists()) {
-      return;
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,ldrawKey))) {
+        ldrawPath = Settings.value(QString("%1/%2").arg(SETTINGS,ldrawKey)).toString();
     }
-  }
 
-  ldrawPath = "c:\\LDraw";
+    if (! ldrawPath.isEmpty() && ! force) {
+        QDir cwd(ldrawPath);
 
-  QDir guesses;
-  guesses.setPath(ldrawPath);
-  if ( ! guesses.exists()) {
-    ldrawPath = "c:\\Program Files\\LDraw";
-    guesses.setPath(ldrawPath);
-    if ( ! guesses.exists()) {
-
-      ldrawPath = QFileDialog::getExistingDirectory(NULL,
-                  QFileDialog::tr("Locate LDraw Directory"),
-                  "/",
-                  QFileDialog::ShowDirsOnly |
-                  QFileDialog::DontResolveSymlinks);
+        if (cwd.exists()) {
+            return;
+        }
     }
-  }
 
-  fileInfo.setFile(ldrawPath);
+    if (ldrawPath.isEmpty() && ! force) {
 
-  if (fileInfo.exists()) {
-    Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawKey),ldrawPath);
-  } else {
-    exit(-1);
-  }  
+        ldrawPath = "c:\\LDraw";
+        QDir guesses;
+        guesses.setPath(ldrawPath);
+        if ( ! guesses.exists()) {
+            ldrawPath = "c:\\Program Files (x86)\\LDraw";
+            guesses.setPath(ldrawPath);
+            if ( ! guesses.exists()) {
+
+                ldrawPath = QFileDialog::getExistingDirectory(NULL,
+                     QFileDialog::tr("Locate LDraw Directory"),
+                     "/",
+                     QFileDialog::ShowDirsOnly |
+                     QFileDialog::DontResolveSymlinks);
+            }
+        }
+    }
+
+    if (! ldrawPath.isEmpty() && force){
+
+        QString result = QFileDialog::getExistingDirectory(NULL,
+                         QFileDialog::tr("Select LDraw Directory"),
+                         ldrawPath,
+                         QFileDialog::ShowDirsOnly |
+                         QFileDialog::DontResolveSymlinks);
+
+        if (! result.isEmpty())
+            ldrawPath = QDir::toNativeSeparators(result);
+    }
+
+    if (! ldrawPath.isEmpty()) {
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawKey),ldrawPath);
+    } else {
+        QString question = QMessageBox::tr("You must enter your LDraw directory. \nDo you wish to continue?");
+        if (QMessageBox::question(NULL, "LDraw3D", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+            exit(-1);
+    }
 }
 
 void Preferences::leocadLibPreferences(bool force)
 {
-  QFileInfo fileInfo;
-  QSettings Settings;
-  QString const LeocadLibKey("PartsLibrary");
+#ifdef Q_OS_WIN
+    QString filter(QFileDialog::tr("Archive (*.zip *.bin);;All Files (*.*)"));
+#else
+    QString filter(QFileDialog::tr("All Files (*.*)"));
+#endif
 
-  if (Settings.contains(QString("%1/%2").arg(SETTINGS,LeocadLibKey))) {
-    leocadLibFile = Settings.value(QString("%1/%2").arg(SETTINGS,LeocadLibKey)).toString();
-  }
+    QSettings Settings;
+    QString const LeocadLibKey("PartsLibrary");
 
-  if (leocadLibFile != "" && ! force) {
-
-    fileInfo.setFile(leocadLibFile);
-    bool leocadLibExists = fileInfo.exists();
-
-    if (leocadLibExists) {
-      return;
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,LeocadLibKey))) {
+        leocadLibFile = Settings.value(QString("%1/%2").arg(SETTINGS,LeocadLibKey)).toString();
     }
-  }
 
-  leocadLibFile = "c:\\LDraw\\Complete.zip";
+    if (! leocadLibFile.isEmpty() && ! force) {
+        QDir cwd(leocadLibFile);
 
-  QDir guesses;
-  guesses.setPath(leocadLibFile);
-  if ( ! guesses.exists()) {
-    leocadLibFile = "c:\\Program Files\\LDraw\\Complete.zip";
-    guesses.setPath(leocadLibFile);
-    if ( ! guesses.exists()) {
-      leocadLibFile = QFileDialog::getOpenFileName(NULL,
-                      QFileDialog::tr("Locate LeoCad Library Archive"),
-                      ldrawPath,
-                      QFileDialog::tr("Archive (*.zip *.bin)"));
+        if (cwd.exists()) {
+            return;
+        }
     }
-  }
 
-  fileInfo.setFile(leocadLibFile);
+    if (leocadLibFile.isEmpty() && ! force) {
 
-  if (fileInfo.exists()) {
-    Settings.setValue(QString("%1/%2").arg(SETTINGS,LeocadLibKey),leocadLibFile);
-  } else {
-    exit(-1);
-  }
+        leocadLibFile = "c:\\LDraw\\Complete.zip";
+        QDir guesses;
+        guesses.setPath(leocadLibFile);
+        if ( ! guesses.exists()) {
+            leocadLibFile = "c:\\Program Files (x86)\\LDraw\\Complete.zip";
+            guesses.setPath(leocadLibFile);
+            if ( ! guesses.exists()) {
+                leocadLibFile = "c:\\Program Files (x86)\\LDraw\\LeoCAD-Libraries\\Complete.zip";
+                if (! guesses.exists()){
+                    leocadLibFile = QFileDialog::getOpenFileName(NULL,
+                         QFileDialog::tr("Locate LeoCad Library Archive"),
+                         ldrawPath,
+                         filter);
+                }
+            }
+        }
+    }
+
+    if (! leocadLibFile.isEmpty() && force){
+
+        QString result = QFileDialog::getOpenFileName(NULL,
+                         QFileDialog::tr("Select LeoCad Library Archive"),
+                         leocadLibFile,
+                         filter);
+        if (! result.isEmpty())
+            leocadLibFile = QDir::toNativeSeparators(result);
+    }
+
+    if (! leocadLibFile.isEmpty()) {
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,LeocadLibKey),leocadLibFile);
+    } else {
+        QString question = QMessageBox::tr("You must select an LDraw library archive file. \nDo you wish to continue?");
+        if (QMessageBox::question(NULL, "LDraw3D", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+            exit(-1);
+    }
+
 }
 
 void Preferences::lgeoPreferences()
 {
     QSettings Settings;
-	bool lgeoInstalled;
     QString lgeoDirKey("LGEOPath");
 	QString lgeoDir;
     if (Settings.contains(QString("%1/%2").arg(POVRAY,lgeoDirKey))){
         lgeoDir = Settings.value(QString("%1/%2").arg(POVRAY,lgeoDirKey)).toString();
 		QFileInfo info(lgeoDir);
 		if (info.exists()) {
-			lgeoInstalled = true;
 			lgeoPath = lgeoDir;
 		} else {
             Settings.remove(QString("%1/%2").arg(POVRAY,lgeoDirKey));
-			lgeoInstalled = false;
 		}
-	} else {
-		lgeoInstalled = false;
-	}
+    }
 }
 
 void Preferences::renderPreferences()
 {
+#ifdef Q_OS_WIN
+    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpubPath).arg("3rdParty/ldglite1.2.6Win/ldglite.exe"));
+    QFileInfo l3pInfo(QString("%1/%2").arg(lpubPath).arg("3rdParty/l3p1.4WinB/L3P.EXE"));
+#else
+    //TODO
+    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpubPath).arg("3rdParty/ldglite1.2.6Win/ldglite.exe"));
+    QFileInfo l3pInfo(QString("%1/%2").arg(lpubPath).arg("3rdParty/l3p1.4WinB/L3P.EXE"));
+#endif
+
   QSettings Settings;
 
   /* Find LDGLite's installation status */
@@ -246,8 +282,13 @@ void Preferences::renderPreferences()
       Settings.remove(QString("%1/%2").arg(SETTINGS,ldglitePathKey));
       ldgliteInstalled = false;
     }
+  } else if (ldgliteInfo.exists()) {
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,ldglitePathKey),ldgliteInfo.absoluteFilePath());
+      ldgliteInstalled = true;
+      ldgliteExe = ldgliteInfo.absoluteFilePath();
   } else {
-    ldgliteInstalled = false;
+      Settings.remove(QString("%1/%2").arg(SETTINGS,ldglitePathKey));
+      ldgliteInstalled = false;
   }
   
   /* Find LDView's installation status */
@@ -270,7 +311,7 @@ void Preferences::renderPreferences()
     ldviewInstalled = false;
   }
 	
-	/* Find L3P's installation status */
+   /* Find L3P's installation status */
 	
 	bool    l3pInstalled;
 	QString const l3pPathKey("L3P");
@@ -287,10 +328,15 @@ void Preferences::renderPreferences()
             Settings.remove(QString("%1/%2").arg(POVRAY,l3pPathKey));
 			l3pInstalled = false;
 		}
-	} else {
-		l3pInstalled = false;
-	}
-	
+    } else if (l3pInfo.exists()) {
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,l3pPathKey),l3pInfo.absoluteFilePath());
+        l3pInstalled = true;
+        l3pExe = l3pInfo.absoluteFilePath();
+    } else {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,l3pPathKey));
+        l3pInstalled = false;
+    }
+
     if (Settings.contains(QString("%1/%2").arg(POVRAY,povrayPathKey))) {
         povrayPath = Settings.value(QString("%1/%2").arg(POVRAY,povrayPathKey)).toString();
 		QFileInfo info(povrayPath);

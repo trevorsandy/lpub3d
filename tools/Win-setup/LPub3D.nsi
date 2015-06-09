@@ -80,7 +80,7 @@
   ;Start Menu Folder Page Configuration
   !define MUI_STARTMENUPAGE_DEFAULTFOLDER "${ProductName}"
   !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU" 
-  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\${Company}\${ProductName}\Settings" 
+  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\${Company}\${ProductName}\Installation" 
   !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "StartMenuFolder"
   !insertmacro MUI_PAGE_STARTMENU Application $StartMenuFolder
   
@@ -139,13 +139,26 @@ Section "${ProductName} (required)" SecMain${ProductName}
   ;install directory
   SetOutPath "$INSTDIR"
   
-  ;Executable and readme
+  ;executable and readme ©
   ${If} ${RunningX64}
 	File "..\release\${ProductName}_x64.exe"
   ${Else}
 	File "..\release\${ProductName}_x32.exe"
   ${EndIf}
   File "..\docs\ReadMe.txt"
+  
+  ;3rd party renderer (LdgLite, L3P)
+  CreateDirectory "$INSTDIR\3rdParty\ldglite1.2.6Win"
+  SetOutPath "$INSTDIR\3rdParty\ldglite1.2.6Win"
+  File "..\release\3rdParty\ldglite1.2.6Win\ldglite.exe"
+  File "..\release\3rdParty\ldglite1.2.6Win\LICENCE"
+  File "..\release\3rdParty\ldglite1.2.6Win\README.TXT" 
+  CreateDirectory "$INSTDIR\3rdParty\ldglite1.2.6Win\plugins"
+  SetOutPath "$INSTDIR\3rdParty\ldglite1.2.6Win\plugins" 
+  File "..\release\3rdParty\ldglite1.2.6Win\plugins\pluginldlist.dll"
+  CreateDirectory "$INSTDIR\3rdParty\l3p1.4WinB"
+  SetOutPath "$INSTDIR\3rdParty\l3p1.4WinB" 
+  File "..\release\3rdParty\l3p1.4WinB\L3P.EXE"
   
   ;extras contents
   SetShellVarContext all
@@ -162,8 +175,8 @@ Section "${ProductName} (required)" SecMain${ProductName}
   ;documents  
   CreateDirectory "$INSTDIR\docs"
   SetOutPath "$INSTDIR\docs"
-  File "..\docs\Credits.txt"
-  File "..\docs\Copying.txt"
+  File "..\docs\COPYING.txt"
+  File "..\docs\CREDITS.txt"
   SetOutPath "$INSTDIR"
   
   ;Store installation folder
@@ -254,7 +267,7 @@ Function nsDialogLeaveCustomPage
    
   ;Validate the LDraw Directory path
   ${If} ${FileExists} '$LDrawDirPath\*.*'
-    ; Update the registry wiht the LeoCad Library path.
+    ; Update the registry wiht the LDraw Directory path.
 	WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "LDrawDir" $LDrawDirPath
   ${Else}
     MessageBox mb_iconstop "You must select the LDraw Directory to continue!" 
@@ -317,9 +330,10 @@ Section "Uninstall"
   
 ; Remove registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}"
-  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\StartMenuFolder"
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Installation\StartMenuFolder"
   DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\PartsLibrary"
   DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\LDrawDir"
+  DeleteRegKey /ifempty HKCU "Software\${Company}\${ProductName}\Installation"
   DeleteRegKey /ifempty HKCU "Software\${Company}\${ProductName}\Settings"
   DeleteRegKey /ifempty HKCU "Software\${Company}\${ProductName}"
 

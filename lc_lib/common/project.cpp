@@ -1318,6 +1318,16 @@ void Project::ExportPOVRay()
 	Options.LGEOPath = lcGetProfileString(LC_PROFILE_POVRAY_LGEO_PATH);
 	Options.Render = lcGetProfileInt(LC_PROFILE_POVRAY_RENDER);
 
+    if (!mFileName.isEmpty())
+    {
+        Options.FileName = mFileName;
+        QString Extension = QFileInfo(Options.FileName).suffix();
+        Options.FileName = Options.FileName.left(Options.FileName.length() - Extension.length() - 1);
+        Options.FileName = Options.FileName.append(".pov");
+    }
+    else
+        Options.FileName = QLatin1String("povimage");
+
 	if (!gMainWindow->DoDialog(LC_DIALOG_EXPORT_POVRAY, &Options))
 		return;
 
@@ -1573,13 +1583,21 @@ void Project::ExportPOVRay()
 
 		if (!Options.LGEOPath.isEmpty())
 		{
-			Arguments.append(QString::fromLatin1("+L%1lg/").arg(Options.LGEOPath));
-			Arguments.append(QString::fromLatin1("+L%1ar/").arg(Options.LGEOPath));
+            QString conCatLg, conCatAr;
+            if (Options.LGEOPath.endsWith("/") || Options.LGEOPath.endsWith("\\")){
+                conCatLg = "+L%1lg/";
+                conCatAr = "+L%1ar/";
+            } else {
+                conCatLg = "+L%1/lg/";
+                conCatAr = "+L%1/ar/";
+            }
+            Arguments.append(QString::fromLatin1(conCatLg.toLatin1()).arg(Options.LGEOPath));
+            Arguments.append(QString::fromLatin1(conCatAr.toLatin1()).arg(Options.LGEOPath));
 		}
 
-		QString AbsolutePath = QFileInfo(Options.FileName).absolutePath();
-		if (!AbsolutePath.isEmpty())
-			Arguments.append(QString::fromLatin1("+o%1").arg(AbsolutePath));
+        QString AbsoluteFilePath = QFileInfo(Options.FileName).absoluteFilePath();  // Change to AbsFilePath
+        if (!AbsoluteFilePath.isEmpty())
+            Arguments.append(QString::fromLatin1("+o%1").arg(AbsoluteFilePath));
 
 		QProcess::execute(Options.POVRayPath, Arguments);
 	}
