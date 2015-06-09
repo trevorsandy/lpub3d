@@ -22,6 +22,7 @@
 #define VER_PRODUCTVERSION          		VER_MAJOR,VER_MINOR,VER_SP
 #define VER_PRODUCTVERSION_STR      		STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SP) "\0"
 
+#define VER_PRODUCTNAME_STR         		"LPub3D"
 #define VER_COMPANYNAME_STR         		"LPub Software"
 #define VER_FILEDESCRIPTION_STR     		"LPub3D - An LDraw Building Instruction Editor"
 #define VER_INTERNALNAME_STR        		"bociphus"
@@ -29,13 +30,12 @@
 #define VER_LEGALTRADEMARKS1_STR    		"All Rights Reserved"
 #define VER_LEGALTRADEMARKS2_STR    		VER_LEGALTRADEMARKS1_STR
 #define VER_ORIGINALFILENAME_STR    		"LPub3D.exe"
-#define VER_PRODUCTNAME_STR         		"LPub3D"
 #define VER_PUBLISHER_STR           		"Trevor SANDY"
 #define VER_PUBLISHER_EMAIL_STR     		"trevor.sandy@gmail.com"
 #define VER_PUBLISHER_SUPPORT_EMAIL_STR		"mailto:trevor.sandy@gmail.com?subject=LPub3D Version " VER_FILEVERSION_STR
 #define VER_UPDATE_CHECK_URL        		"http://lpub3d.sourceforge.net/latest.txt"
 #define VER_CHANGE_LOG_URL                  "http://lpub3d.sourceforge.net/change_log.txt"
-#define VER_DOWNLOAD_URL                    "http://lpub3d.sourceforge.net/master.zip"
+#define VER_DOWNLOAD_URL                    "http://lpub3d.sourceforge.net/" VER_PRODUCTNAME_STR "-UpdateMaster.exe"
 #define VER_SOURCE_URL              		"http://lpub3d.sourceforge.net/"
 #define VER_COMPANYDOMAIN_STR       		"http://lpub3d.sourceforge.net"
 

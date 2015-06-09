@@ -211,7 +211,7 @@ bool ParmsWindow::saveFile()
 
         if (rc){
             _textEdit->document()->setModified(false);
-            //saveAct->setEnabled(false);
+            emit fileModified(_textEdit->document()->isModified());
             statusBar()->showMessage(tr("File saved"), 2000);
         }
     }

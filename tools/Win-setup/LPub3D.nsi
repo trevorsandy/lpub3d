@@ -30,7 +30,7 @@
   Name "${ProductName}, Ver ${Version}, Rev ${BuildRevision}"
 
   ; Changes the caption, default beeing 'Setup'
-  Caption "${ProductName} x32/x64 Setup"
+  Caption "${ProductName} x86 32/64-bit Setup"
   
   ; Rebrand bottom textrow
   BrandingText "${Company} Installer"

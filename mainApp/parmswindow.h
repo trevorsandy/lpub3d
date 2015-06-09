@@ -81,6 +81,7 @@ private:
     QAction  *findAct;
 
 signals:
+    bool fileModified(bool);
 
 private slots:
     bool maybeSave();
