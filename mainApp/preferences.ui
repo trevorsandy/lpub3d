@@ -433,7 +433,7 @@
          <x>16</x>
          <y>260</y>
          <width>441</width>
-         <height>178</height>
+         <height>170</height>
         </rect>
        </property>
        <property name="title">
@@ -445,83 +445,125 @@
        <property name="checked">
         <bool>false</bool>
        </property>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>POV-Ray</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="povrayPath"/>
-        </item>
-        <item row="0" column="2">
-         <widget class="QPushButton" name="browseL3P">
-          <property name="text">
-           <string>Browse...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QPushButton" name="browsePOVRAY">
-          <property name="text">
-           <string>Browse...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="l3pPath"/>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>L3P</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="3">
-         <widget class="QGroupBox" name="lgeoBox">
-          <property name="toolTip">
-           <string>This library provides higher quality rendering models for POV RAY</string>
-          </property>
-          <property name="title">
-           <string>LGEO is available</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
-          </property>
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="0">
-            <widget class="QLineEdit" name="lgeoPath">
-             <property name="minimumSize">
-              <size>
-               <width>200</width>
-               <height>0</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QPushButton" name="browseLGEO">
-             <property name="toolTip">
-              <string>Use directory dialog to find LGEO directory</string>
-             </property>
-             <property name="whatsThis">
-              <string>This lets you find the LGEO directory</string>
-             </property>
-             <property name="text">
-              <string>Browse...</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QLabel" name="label_3">
+        <property name="geometry">
+         <rect>
+          <x>15</x>
+          <y>29</y>
+          <width>41</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>POV-Ray</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="povrayPath">
+        <property name="geometry">
+         <rect>
+          <x>95</x>
+          <y>29</y>
+          <width>230</width>
+          <height>20</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="browsePOVRAY">
+        <property name="geometry">
+         <rect>
+          <x>335</x>
+          <y>24</y>
+          <width>93</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Browse...</string>
+        </property>
+       </widget>
+       <widget class="QGroupBox" name="lgeoBox">
+        <property name="geometry">
+         <rect>
+          <x>12</x>
+          <y>94</y>
+          <width>324</width>
+          <height>64</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>This library provides higher quality rendering models for POV RAY</string>
+        </property>
+        <property name="title">
+         <string>LGEO is available</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="QLineEdit" name="lgeoPath">
+           <property name="minimumSize">
+            <size>
+             <width>200</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QPushButton" name="browseLGEO">
+           <property name="toolTip">
+            <string>Use directory dialog to find LGEO directory</string>
+           </property>
+           <property name="whatsThis">
+            <string>This lets you find the LGEO directory</string>
+           </property>
+           <property name="text">
+            <string>Browse...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QPushButton" name="browseL3P">
+        <property name="geometry">
+         <rect>
+          <x>335</x>
+          <y>59</y>
+          <width>93</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Browse...</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="l3pPath">
+        <property name="geometry">
+         <rect>
+          <x>95</x>
+          <y>63</y>
+          <width>230</width>
+          <height>20</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_7">
+        <property name="geometry">
+         <rect>
+          <x>15</x>
+          <y>65</y>
+          <width>16</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>L3P</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QGroupBox" name="ldgliteBox">
        <property name="geometry">
