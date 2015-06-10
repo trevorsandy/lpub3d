@@ -2318,16 +2318,8 @@ void lcModel::TransformSelectedObjects(lcTransformType TransformType, const lcVe
 void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep)
 {
     lcVector3 rotateStep = RotateStep;
+
     QString   rotationType;
-
-    int secondPos      = 1;
-    QString lineNumber = "-1";
-    QString model      = mProperties.mName;       //(lc_Model version)
-    model.replace(QRegExp("\\+")," ");
-    QStringList argv = model.split(QRegExp("\\s"));
-    if (argv.size() == 3)
-        lineNumber = argv[secondPos];
-
     switch (RotateStepType)
     {
     case LC_ROTATESTEP_ABSOLUTE_ROTATION:
@@ -2337,6 +2329,10 @@ void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const l
         rotationType = "REL";
         break;
     }
+
+    QString modelNameParts  = mProperties.mName;                    // Model Name Format = csiName_sn_ln.ldr
+            modelNameParts  = modelNameParts.section("_",-1,-1);    // First split to get 'ln.ldr'
+    QString lineNumber      = modelNameParts.section(".",0,-2);     // Second split to get 'ln'
 
     QString rotationValue("%1 %2 %3 %4 %5");
     rotationValue = rotationValue.arg(lineNumber,
@@ -2348,9 +2344,12 @@ void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const l
     MetaItem mi;
 
     if (gui->getCurFile() != "") {
+
         mi.writeRotateStep(rotationValue);
+        gui->clearAndRedrawPage();
         gui->SetExistingRotStep(rotateStep);
         gui->UpdateStepRotation();
+
     }
 
     gMainWindow->UpdateAllViews();
@@ -2381,6 +2380,7 @@ void lcModel::ParseExsitingRotStepLine(QTextStream& LineStream)
         }
     }
 }
+
 void lcModel::SetObjectProperty(lcObject* Object, lcObjectPropertyType ObjectPropertyType, const void* Value)
 {
 	QString CheckPointString;

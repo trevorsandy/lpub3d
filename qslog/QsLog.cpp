@@ -228,7 +228,6 @@ QString Logger::Helper::colourFunctionName(QString name)
     }
     output.append("\033[0m)");
 
-
     return output;
 }
 

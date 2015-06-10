@@ -72,13 +72,6 @@
     #define QS_LOG_INVERT     "\\"
 #endif
 
-#define QS_LOG_TRACE "TRACE"
-#define QS_LOG_DEBUG "DEBUG"
-#define QS_LOG_INFO  "INFO"
-#define QS_LOG_WARN  "WARN"
-#define QS_LOG_ERROR "ERROR"
-#define QS_LOG_FATAL "FATAL"
-
 namespace QsLogging
 {
 class Destination;

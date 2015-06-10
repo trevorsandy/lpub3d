@@ -846,7 +846,7 @@ void MetaItem::setMetaBottomOf(
     QString line = meta->format(local, global);
 
     int  numLines = gui->subFileSize(topOf.modelName);
-    bool eof = bottomOf.lineNumber + 1 == numLines;
+    bool eof = bottomOf.lineNumber == numLines;
     
     if (eof) {
       QString tline = gui->readLine(bottomOf);
@@ -2481,53 +2481,59 @@ void MetaItem::writeRotateStep(QString &value)
         }
     }
 
-    if (ok && multiStep) {
+    QString stepType = (multiStep)? "iMulti-Step " : "iSingle-Step ";
+    logTrace() << "-STARTING INPUT: " << stepType << " iModel: " << modelName << "iLineNum: " << lineNumber << " iMeta (ROTSTEP): " << meta ;
+
+    if (ok && multiStep) {                                                          //ok, we have a multi-step page
 
         Rc rc;
         QString line;
         here = Where(modelName,lineNumber);
 
-        if (here.lineNumber == 0) {
+        if (here.lineNumber == 0) {                                                 //if starting from [modelName]top.lineNumber because the passed in line number is 0
             int  numLines  = gui->subFileSize(here.modelName);
-            scanPastGlobal(here);
+            scanPastGlobal(here);                                                   //scan down the page - going from low pgNum to high pgNum
             for ( ; here < numLines; here++) {
                 line = gui->readLine(here);
                 rc = content.parse(line,here);
+
                 if (rc == StepRc || rc == RotStepRc || rc == StepGroupBeginRc) {
                     lineNumber = here.lineNumber;
-                    break;
+                    break;                                                           //stop at 1st occurrence of Step/RotStep or StepGroupBegin
                 } else {
                     QStringList tokens;
                     split(line,tokens);
                     bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
-                            tokens[0] >= "1" && tokens[0] <= "5";
+                         tokens[0] >= "1" && tokens[0] <= "5";
                     if (token_1_5) {
-                        lineNumber = here.lineNumber;
+                        lineNumber = here.lineNumber;                               //traverse non-starting-zero lines
                         break;
                     }
                 }
             }
         }
 
-        line = gui->readLine(here);
-        rc = content.parse(line,here);
+        line = gui->readLine(here);                                                 //Here we are not starting from [modelName]top.lineNumber
+        rc = content.parse(line,here);                                              //so we read the pass-in line number and check...
 
-        if (rc == StepRc){
+        if (rc == StepRc){                                                          //if we reach a step...
             rotStep = false;
             here++;
             QString line = gui->readLine(here);
-            Rc rc1 = content.parse(line,here);
+            Rc rc1 = content.parse(line,here);                                      //check the line below the see if it's  RotStep
 
             if (rc1 == RotStepRc){
-                rotStep = true;
+                rotStep = true;                                                     //if it's  a RotStep we'll have to update with new value
             }
         }
 
     } else if (ok) {
 
+        logTrace() << "-SS MODEL NAME      :       " << modelName;
         Where pagePosition = gui->topOfPages[gui->displayPageNum];
         Rc rc = scanBackward(pagePosition,StepMask);
         here = pagePosition;
+        logTrace() << "-SS PAGE LINE NUMBER: " << pagePosition.lineNumber;
 
         if (rc == StepRc) {
             rotStep = false;
@@ -2540,6 +2546,8 @@ void MetaItem::writeRotateStep(QString &value)
             } else {
                 here = here - 1;
             }
+            logDebug() << "-SS LINE NUMBER  :       " << here.lineNumber;
+            logDebug() << "-SS RC1: " << rc1 << "   -STEP LINE: " << line;
 
         } else if (rc == RotStepRc) {
             rotStep = true;
@@ -2547,12 +2555,15 @@ void MetaItem::writeRotateStep(QString &value)
     }
 
     if (! rotStep && ! multiStep){
+        logNotice() << "FIN - INSERT SINGLE PAGE STEP HERE - LINE: " << here.lineNumber;
         appendMeta(here,meta);
     }
     if (multiStep && ! rotStep){
+        logNotice() << "FIN - INSERT MULTI STEP PAGE HERE - LINE:  " << here.lineNumber;
         insertMeta(here,meta);
     }
     if (rotStep){
+        logNotice() << "FIN - REPLACE ROTATE STEP HERE AT LINE: " << here.lineNumber;
         replaceMeta(here,meta);
     }
 }

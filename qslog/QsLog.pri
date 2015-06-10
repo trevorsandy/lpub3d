@@ -14,4 +14,4 @@ HEADERS += \
     $$PWD/QSLogDest.h \
     $$PWD/QsLog.h \
     $$PWD/QsDebugOutput.h \
-    $$PWD/QsLogDisableForThisFile.h \
+    $$PWD/QsLogDisableForThisFile.h

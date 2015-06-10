@@ -325,7 +325,10 @@ void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   //placeGrabbers();
   position = pos();
   gui->showLine(step->topOfStep());
-  step->Render3DCsi(step->csi3DName);
+
+  int  rc = step->Render3DCsi(step->csi3DName);
+  QString result = (rc == -1) ? "File Does not Exist" : "File Ok";
+  logInfo() << "CsiItem Render status ("<< result <<"): " << step->csi3DName;
 }
 
 void CsiItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)

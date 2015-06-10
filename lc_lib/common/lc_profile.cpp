@@ -58,7 +58,7 @@ lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
     lcProfileEntry("Settings", "GridLines", 0),                                      // LC_PROFILE_GRID_LINES
 	lcProfileEntry("Settings", "GridLineSpacing", 5),                                // LC_PROFILE_GRID_LINE_SPACING
 	lcProfileEntry("Settings", "GridLineColor", LC_RGBA(0, 0, 0, 255)),              // LC_PROFILE_GRID_LINE_COLOR
-	lcProfileEntry("Settings", "AASamples", 1),                                      // LC_PROFILE_ANTIALIASING_SAMPLES
+    lcProfileEntry("Settings", "AASamples", 8),                                      // LC_PROFILE_ANTIALIASING_SAMPLES
 
     lcProfileEntry("Settings", "CheckUpdates", 0),                                   // LC_PROFILE_CHECK_UPDATES
 	lcProfileEntry("Settings", "ProjectsPath", ""),                                  // LC_PROFILE_PROJECTS_PATH

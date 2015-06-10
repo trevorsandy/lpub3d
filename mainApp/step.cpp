@@ -190,12 +190,16 @@ int Step::createCsi(
   //**3D
   if (!gMainWindow->GetHalt3DViewer()) {
 
-      QString fileNamekey = QString("%1_%2%3")
-              .arg(csiName())
-              .arg(QString::number(sn))
-              .arg(".ldr");
+      int ln = top.lineNumber;                     // we need this to facilitate placing the ROTSTEP meta later on
+      QString fileNamekey = QString("%1_%2_%3%4")  // File Name Format = csiName_sn_ln.ldr
+              .arg(csiName())   // csi model name
+              .arg(sn)          // step number
+              .arg(ln)          // line number
+              .arg(".ldr");     // extension
+
       csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + fileNamekey;
       renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate);
+
   }
   //**
 

@@ -404,8 +404,7 @@ enum FitMode { FitNone, FitWidth, FitVisible };
 void clearPliCache();
 void clearCsiCache();
 void clearCsi3dCache();
-void clearAllCache();
-
+void clearAndRedrawPage();
 
 class Gui : public QMainWindow
 {
@@ -625,7 +624,8 @@ public slots:
   void clearPLICache();
   void clearCSICache();
   void clearCSI3DCache();
-  void clearALLCache();
+
+  void clearAndRedrawPage();
 
   void fileChanged(const QString &path);
 
@@ -824,8 +824,6 @@ private slots:
     void clearPage(
       LGraphicsView  *view,
       QGraphicsScene *scene);
-
-    void clearAndRedrawPage();
     
     void enableActions();
     void enableActions2();

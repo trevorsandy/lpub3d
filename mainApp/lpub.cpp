@@ -64,9 +64,9 @@ void clearCsi3dCache()
     gui->clearCSI3DCache();
 }
 
-void clearAllCache()
+void clearAndRedrawPage()
 {
-    gui->clearALLCache();
+    gui->clearAndRedrawPage();
 }
 
 /****************************************************************************
@@ -176,10 +176,22 @@ void Gui::firstPage()
 
 void Gui::clearAndRedrawPage()
 {
-  clearCSICache();
-  clearPLICache();
-  clearALLCache();
-  displayPage();
+    if (getCurFile().isEmpty()) {
+        statusBarMsg("A model must be opened to clean its caches - no action taken.");
+        return;
+    }
+
+       clearPLICache();
+       clearCSICache();
+       clearCSI3DCache();
+       displayPage();
+
+       QObject *obj = sender();
+       if (obj == editWindow)
+           statusBarMsg("Page regenerated.");
+
+       else if (obj == clearALLCacheAct)
+           statusBarMsg("Assembly, Parts and 3D content caches cleaned.");
 }
 
 
@@ -428,39 +440,54 @@ void Gui::mpdComboChanged(int index)
 
 void Gui::clearPLICache()
 {
-  QString dirName = QDir::currentPath() + "/" + Paths::partsDir;
-  QDir dir(dirName);
+    if (getCurFile().isEmpty()) {
+        statusBarMsg("A model must be opened to clean its parts cache - no action taken.");
+        return;
+    }
 
-  dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+    QString dirName = QDir::currentPath() + "/" + Paths::partsDir;
+    QDir dir(dirName);
 
-  QFileInfoList list = dir.entryInfoList();
-  for (int i = 0; i < list.size(); i++) {
-    QFileInfo fileInfo = list.at(i);
-    QFile     file(dirName + "/" + fileInfo.fileName());
-    file.remove();
-  }
+    dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
 
-  statusBarMsg("PLI cache cleared.");
+    QFileInfoList list = dir.entryInfoList();
+    for (int i = 0; i < list.size(); i++) {
+        QFileInfo fileInfo = list.at(i);
+        QFile     file(dirName + "/" + fileInfo.fileName());
+        file.remove();
+    }
+
+    statusBarMsg("Parts content cache cleaned.");
 }
 
 void Gui::clearCSICache()
 {
-  QString dirName = QDir::currentPath() + "/" + Paths::assemDir;
-  QDir dir(dirName);
+    if (getCurFile().isEmpty()) {
+        statusBarMsg("A model must be opened to clean its assembly cache - no action taken.");
+        return;
+    }
 
-  dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+    QString dirName = QDir::currentPath() + "/" + Paths::assemDir;
+    QDir dir(dirName);
 
-  QFileInfoList list = dir.entryInfoList();
-  for (int i = 0; i < list.size(); i++) {
-    QFileInfo fileInfo = list.at(i);
-    QFile     file(dirName + "/" + fileInfo.fileName());
-    file.remove();
-  }
-  statusBarMsg("CSI cache cleared.");
+    dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+
+    QFileInfoList list = dir.entryInfoList();
+    for (int i = 0; i < list.size(); i++) {
+        QFileInfo fileInfo = list.at(i);
+        QFile     file(dirName + "/" + fileInfo.fileName());
+        file.remove();
+    }
+    statusBarMsg("Assembly content cache cleaned.");
 }
 
 void Gui::clearCSI3DCache()
 {
+    if (getCurFile().isEmpty()) {
+        statusBarMsg("A model must be opened to clean its 3D cache - no action taken.");
+        return;
+    }
+
     QString tmpDirName = QDir::currentPath() + "/" + Paths::tmpDir;
     QDir tmpDir(tmpDirName);
 
@@ -485,19 +512,7 @@ void Gui::clearCSI3DCache()
         file.remove();
     }
 
-    statusBarMsg("3D cache cleared.");
-}
-
-void Gui::clearALLCache()
-{
-    clearPLICache();
-    clearCSICache();
-    clearCSI3DCache();
-
-    if (!getCurFile().isEmpty())
-        displayPage();
-
-    statusBarMsg("CSI, PLI and 3D caches cleared.");
+    statusBarMsg("3D content cache cleaned.");
 }
 
 /***************************************************************************
@@ -1022,21 +1037,21 @@ void Gui::createActions()
     setPageLineEdit->setMinimumSize(size);
     connect(setPageLineEdit, SIGNAL(returnPressed()), this, SLOT(setPage()));
 
-    clearPLICacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Clear Parts List Cache"), this);
-    clearPLICacheAct->setStatusTip(tr("Erase the parts list image cache"));
+    clearPLICacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Clean Parts Image Cache"), this);
+    clearPLICacheAct->setStatusTip(tr("Clean the parts list image cache"));
     connect(clearPLICacheAct, SIGNAL(triggered()), this, SLOT(clearPLICache()));
 
-    clearCSICacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Clear Assembly Image Cache"), this);
-    clearCSICacheAct->setStatusTip(tr("Erase the assembly image cache"));
+    clearCSICacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Clean Assembly Image Cache"), this);
+    clearCSICacheAct->setStatusTip(tr("Clean the assembly image cache"));
     connect(clearCSICacheAct, SIGNAL(triggered()), this, SLOT(clearCSICache()));
 
-    clearCSI3DCacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Clear 3D Viewer Image Cache"), this);
-    clearCSI3DCacheAct->setStatusTip(tr("Erase the 3D viewer image cache"));
+    clearCSI3DCacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Clean 3D Viewer Model Cache"), this);
+    clearCSI3DCacheAct->setStatusTip(tr("Clean the 3D viewer image cache"));
     connect(clearCSI3DCacheAct, SIGNAL(triggered()), this, SLOT(clearCSI3DCache()));
 
-    clearALLCacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Clear All Caches"), this);
-    clearALLCacheAct->setStatusTip(tr("Erase all caches"));
-    connect(clearALLCacheAct, SIGNAL(triggered()), this, SLOT(clearALLCache()));
+    clearALLCacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Clean All Caches"), this);
+    clearALLCacheAct->setStatusTip(tr("Clean all caches"));
+    connect(clearALLCacheAct, SIGNAL(triggered()), this, SLOT(clearAndRedrawPage()));
 
     // Config menu
 
