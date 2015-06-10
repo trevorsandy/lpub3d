@@ -31,7 +31,7 @@ typedef quintptr lcuintptr;
 
 #ifdef Q_OS_WIN
 #define snprintf _snprintf
-#define isnan _isnan
+//#define isnan _isnan              //remarked out on LeoCAD update to revision 1848
 #define strcasecmp stricmp
 #define strncasecmp strnicmp
 char* strcasestr(const char *s, const char *find);
@@ -46,7 +46,7 @@ int stricmp(const char* str1, const char* str2);
 #define LC_VERSION_MINOR 82
 #define LC_VERSION_PATCH 1
 #define LC_VERSION_TEXT "0.82.1"
-#define LC_VERSION_BUILD "1840"
+#define LC_VERSION_BUILD "1848"
 
 // Forward declarations.
 class Project;

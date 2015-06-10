@@ -765,9 +765,9 @@ void Project::Export3DStudio(const QString& FileName)
 
 		int NumTriangles = 0;
 
-		for (int SectionIdx = 0; SectionIdx < Mesh->mNumSections; SectionIdx++)
+		for (int SectionIdx = 0; SectionIdx < Mesh->mLods[LC_MESH_LOD_HIGH].NumSections; SectionIdx++)
 		{
-			lcMeshSection* Section = &Mesh->mSections[SectionIdx];
+			lcMeshSection* Section = &Mesh->mLods[LC_MESH_LOD_HIGH].Sections[SectionIdx];
 
 			if (Section->PrimitiveType != GL_TRIANGLES)
 				continue;
@@ -777,9 +777,9 @@ void Project::Export3DStudio(const QString& FileName)
 
 		File.WriteU16(NumTriangles);
 
-		for (int SectionIdx = 0; SectionIdx < Mesh->mNumSections; SectionIdx++)
+		for (int SectionIdx = 0; SectionIdx < Mesh->mLods[LC_MESH_LOD_HIGH].NumSections; SectionIdx++)
 		{
-			lcMeshSection* Section = &Mesh->mSections[SectionIdx];
+			lcMeshSection* Section = &Mesh->mLods[LC_MESH_LOD_HIGH].Sections[SectionIdx];
 
 			if (Section->PrimitiveType != GL_TRIANGLES)
 				continue;
@@ -797,9 +797,9 @@ void Project::Export3DStudio(const QString& FileName)
 
 		NumTriangles = 0;
 
-		for (int SectionIdx = 0; SectionIdx < Mesh->mNumSections; SectionIdx++)
+		for (int SectionIdx = 0; SectionIdx < Mesh->mLods[LC_MESH_LOD_HIGH].NumSections; SectionIdx++)
 		{
-			lcMeshSection* Section = &Mesh->mSections[SectionIdx];
+			lcMeshSection* Section = &Mesh->mLods[LC_MESH_LOD_HIGH].Sections[SectionIdx];
 
 			if (Section->PrimitiveType != GL_TRIANGLES)
 				continue;
@@ -1269,6 +1269,7 @@ void Project::ExportHTML()
 
 		Context->SetDefaultState();
 		Context->SetProjectionMatrix(ProjectionMatrix);
+		Context->SetProgram(LC_PROGRAM_SIMPLE);
 
 		for (int PieceIdx = 0; PieceIdx < PartsList.GetSize(); PieceIdx++)
 		{
@@ -1287,8 +1288,9 @@ void Project::ExportHTML()
 
 			Scene.End();
 
-			Context->DrawOpaqueMeshes(ViewMatrix, Scene.mOpaqueMeshes);
-			Context->DrawTranslucentMeshes(ViewMatrix, Scene.mTranslucentMeshes);
+			Context->SetViewMatrix(ViewMatrix);
+			Context->DrawOpaqueMeshes(Scene.mOpaqueMeshes);
+			Context->DrawTranslucentMeshes(Scene.mTranslucentMeshes);
 
 			Context->UnbindMesh(); // context remove
 

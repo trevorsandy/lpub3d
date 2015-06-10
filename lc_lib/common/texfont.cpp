@@ -1,6 +1,7 @@
 #include "lc_global.h"
 #include <string.h>
 #include "texfont.h"
+#include "lc_context.h"
 
 static const unsigned char TextureData[2048] =
 {
@@ -120,14 +121,17 @@ bool TexFont::Load()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	unsigned char ExpandedData[sizeof(TextureData) * 8];
+	unsigned char ExpandedData[sizeof(TextureData) * 8 * 2];
 	for (unsigned int TexelIdx = 0; TexelIdx < sizeof(TextureData) * 8; TexelIdx++)
-		ExpandedData[TexelIdx] = TextureData[TexelIdx / 8] & (1 << (TexelIdx % 8)) ? 255 : 0;
+	{
+		unsigned char Texel = TextureData[TexelIdx / 8] & (1 << (TexelIdx % 8)) ? 255 : 0;
+		ExpandedData[TexelIdx * 2] = ExpandedData[TexelIdx * 2 + 1] = Texel;
+	}
 
 	mTextureWidth = 128;
 	mTextureHeight = 128;
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, mTextureWidth, mTextureHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, ExpandedData);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA, mTextureWidth, mTextureHeight, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, ExpandedData);
 
 	const unsigned char* Ptr = GlyphData;
 
@@ -175,7 +179,7 @@ void TexFont::GetStringDimensions(int* cx, int* cy, const char* Text) const
 	}
 }
 
-void TexFont::PrintText(float Left, float Top, float Z, const char* Text) const
+void TexFont::PrintText(lcContext* Context, float Left, float Top, float Z, const char* Text) const
 {
 	int Length = strlen(Text);
 
@@ -217,13 +221,12 @@ void TexFont::PrintText(float Left, float Top, float Z, const char* Text) const
 		Text++;
 	}
 
-	glVertexPointer(3, GL_FLOAT, 5 * sizeof(float), Verts);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glTexCoordPointer(2, GL_FLOAT, 5 * sizeof(float), Verts + 3);
+	Context->SetVertexBufferPointer(Verts);
+	Context->SetVertexFormat(0, 3, 2, 0);
 
-	glDrawArrays(GL_QUADS, 0, 4 * Length);
+	Context->DrawPrimitives(GL_QUADS, 0, 4 * Length);
 
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	Context->ClearVertexBuffer(); // context remove
 
 	delete[] Verts;
 }
