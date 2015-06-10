@@ -450,7 +450,7 @@
          <rect>
           <x>15</x>
           <y>29</y>
-          <width>41</width>
+          <width>51</width>
           <height>16</height>
          </rect>
         </property>
@@ -461,9 +461,9 @@
        <widget class="QLineEdit" name="povrayPath">
         <property name="geometry">
          <rect>
-          <x>95</x>
+          <x>74</x>
           <y>29</y>
-          <width>230</width>
+          <width>251</width>
           <height>20</height>
          </rect>
         </property>
@@ -544,9 +544,9 @@
        <widget class="QLineEdit" name="l3pPath">
         <property name="geometry">
          <rect>
-          <x>95</x>
+          <x>74</x>
           <y>63</y>
-          <width>230</width>
+          <width>251</width>
           <height>20</height>
          </rect>
         </property>
@@ -556,7 +556,7 @@
          <rect>
           <x>15</x>
           <y>65</y>
-          <width>16</width>
+          <width>31</width>
           <height>16</height>
          </rect>
         </property>
@@ -564,6 +564,13 @@
          <string>L3P</string>
         </property>
        </widget>
+       <zorder>povrayPath</zorder>
+       <zorder>browsePOVRAY</zorder>
+       <zorder>lgeoBox</zorder>
+       <zorder>browseL3P</zorder>
+       <zorder>l3pPath</zorder>
+       <zorder>label_3</zorder>
+       <zorder>label_7</zorder>
       </widget>
       <widget class="QGroupBox" name="ldgliteBox">
        <property name="geometry">

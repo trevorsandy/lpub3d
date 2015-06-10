@@ -77,7 +77,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 	fileInfo.setFile(Preferences::povrayExe);
 	l3pExists &= fileInfo.exists();
 	if (l3pExists) {
-		ui.preferredRenderer->addItem("L3P");
+        ui.preferredRenderer->addItem("POV-Ray");
 	}
 	
   fileInfo.setFile(Preferences::ldgliteExe);
@@ -101,7 +101,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   } else if (Preferences::preferredRenderer == "LDGLite" && ldgliteExists) {
     ui.preferredRenderer->setCurrentIndex(ldgliteIndex);
     ui.preferredRenderer->setEnabled(true);
-  }  else if (Preferences::preferredRenderer == "L3P" && l3pExists) {
+  }  else if (Preferences::preferredRenderer == "POV-Ray" && l3pExists) {
 	  ui.preferredRenderer->setCurrentIndex(l3pIndex);
 	  ui.preferredRenderer->setEnabled(true);
   } else {
@@ -273,9 +273,9 @@ void PreferencesDialog::on_browseL3P_clicked()
         ui.l3pPath->setText(result);
         QFileInfo povrayInfo(ui.povrayPath->text());
         if (povrayInfo.exists()) {
-            int l3pIndex = ui.preferredRenderer->findText("L3P");
+            int l3pIndex = ui.preferredRenderer->findText("POV-Ray");
             if (l3pIndex < 0) {
-                ui.preferredRenderer->addItem("L3P");
+                ui.preferredRenderer->addItem("POV-Ray");
             }
             ui.preferredRenderer->setEnabled(true);
         }
@@ -301,9 +301,9 @@ void PreferencesDialog::on_browsePOVRAY_clicked()
         ui.povrayPath->setText(result);
         QFileInfo l3pInfo(ui.l3pPath->text());
         if (l3pInfo.exists()) {
-            int l3pIndex = ui.preferredRenderer->findText("L3P");
+            int l3pIndex = ui.preferredRenderer->findText("POV-Ray");
             if (l3pIndex < 0) {
-                ui.preferredRenderer->addItem("L3P");
+                ui.preferredRenderer->addItem("POV-Ray");
             }
             ui.preferredRenderer->setEnabled(true);
         }

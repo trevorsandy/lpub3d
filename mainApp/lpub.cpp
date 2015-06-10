@@ -439,6 +439,8 @@ void Gui::clearPLICache()
     QFile     file(dirName + "/" + fileInfo.fileName());
     file.remove();
   }
+
+  statusBarMsg("PLI cache cleared.");
 }
 
 void Gui::clearCSICache()
@@ -454,6 +456,7 @@ void Gui::clearCSICache()
     QFile     file(dirName + "/" + fileInfo.fileName());
     file.remove();
   }
+  statusBarMsg("CSI cache cleared.");
 }
 
 void Gui::clearCSI3DCache()
@@ -482,6 +485,7 @@ void Gui::clearCSI3DCache()
         file.remove();
     }
 
+    statusBarMsg("3D cache cleared.");
 }
 
 void Gui::clearALLCache()
@@ -489,6 +493,11 @@ void Gui::clearALLCache()
     clearPLICache();
     clearCSICache();
     clearCSI3DCache();
+
+    if (!getCurFile().isEmpty())
+        displayPage();
+
+    statusBarMsg("CSI, PLI and 3D caches cleared.");
 }
 
 /***************************************************************************
