@@ -51,7 +51,7 @@
   InstallDir "$INSTDIR"
   
   ;Get installation folder from registry if available
-  InstallDirRegKey HKCU "Software\${Company}\${ProductName}" "InstallPath"
+  InstallDirRegKey HKCU "Software\${Company}\${ProductName}\Installation" "InstallPath"
 
   Icon "setup.ico"
 
@@ -180,7 +180,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   SetOutPath "$INSTDIR"
   
   ;Store installation folder
-  WriteRegStr HKCU "Software\${Company}\${ProductName}" "InstallPath" $INSTDIR
+  WriteRegStr HKCU "Software\${Company}\${ProductName}\Installation" "InstallPath" $INSTDIR
   
   ;Create uninstaller
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "DisplayIcon" '"$INSTDIR\$FileName"'  
