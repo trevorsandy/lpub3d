@@ -72,11 +72,11 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.preferredRenderer->setMaxCount(3);
 	
 	QFileInfo fileInfo(Preferences::l3pExe);
-	int l3pIndex = ui.preferredRenderer->count();
-	bool l3pExists = fileInfo.exists();
+    int povRayIndex = ui.preferredRenderer->count();
+    bool povRayExists = fileInfo.exists();
 	fileInfo.setFile(Preferences::povrayExe);
-	l3pExists &= fileInfo.exists();
-	if (l3pExists) {
+    povRayExists &= fileInfo.exists();
+    if (povRayExists) {
         ui.preferredRenderer->addItem("POV-Ray");
 	}
 	
@@ -94,21 +94,20 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     ui.preferredRenderer->addItem("LDView");
   }
   
-  parent = _parent;
   if (Preferences::preferredRenderer == "LDView" && ldviewExists) {
     ui.preferredRenderer->setCurrentIndex(ldviewIndex);
     ui.preferredRenderer->setEnabled(true);
   } else if (Preferences::preferredRenderer == "LDGLite" && ldgliteExists) {
     ui.preferredRenderer->setCurrentIndex(ldgliteIndex);
     ui.preferredRenderer->setEnabled(true);
-  }  else if (Preferences::preferredRenderer == "POV-Ray" && l3pExists) {
-	  ui.preferredRenderer->setCurrentIndex(l3pIndex);
+  }  else if (Preferences::preferredRenderer == "POV-Ray" && povRayExists) {
+      ui.preferredRenderer->setCurrentIndex(povRayIndex);
 	  ui.preferredRenderer->setEnabled(true);
   } else {
     ui.preferredRenderer->setEnabled(false);
   }
 
-  if(!ldviewExists && !ldgliteExists && !l3pExists){
+  if(!ldviewExists && !ldgliteExists && !povRayExists){
       ui.tabWidget->setCurrentIndex(1);
       ui.RenderMessage->setText("<font color='red'>You must set a renderer.</font>");
   } else {
@@ -271,15 +270,15 @@ void PreferencesDialog::on_browseL3P_clicked()
     if (!result.isEmpty()) {
         result = QDir::toNativeSeparators(result);
         ui.l3pPath->setText(result);
-        QFileInfo povrayInfo(ui.povrayPath->text());
-        if (povrayInfo.exists()) {
-            int l3pIndex = ui.preferredRenderer->findText("POV-Ray");
-            if (l3pIndex < 0) {
+        QFileInfo povRayInfo(ui.povrayPath->text());
+        if (povRayInfo.exists()) {
+            int povRayIndex = ui.preferredRenderer->findText("POV-Ray");
+            if (povRayIndex < 0) {
                 ui.preferredRenderer->addItem("POV-Ray");
             }
             ui.preferredRenderer->setEnabled(true);
         }
-        ui.POVRayBox->setChecked(povrayInfo.exists());
+        ui.POVRayBox->setChecked(povRayInfo.exists());
         ui.RenderMessage->setText("");
     }
 }
@@ -301,8 +300,8 @@ void PreferencesDialog::on_browsePOVRAY_clicked()
         ui.povrayPath->setText(result);
         QFileInfo l3pInfo(ui.l3pPath->text());
         if (l3pInfo.exists()) {
-            int l3pIndex = ui.preferredRenderer->findText("POV-Ray");
-            if (l3pIndex < 0) {
+            int povRayIndex = ui.preferredRenderer->findText("POV-Ray");
+            if (povRayIndex < 0) {
                 ui.preferredRenderer->addItem("POV-Ray");
             }
             ui.preferredRenderer->setEnabled(true);
@@ -482,14 +481,14 @@ void PreferencesDialog::accept(){
         QPalette palette;
         palette.setColor(QPalette::Base,Qt::yellow);
         if (ui.ldrawPath->text().isEmpty())
-            ui.ldrawPath->setPalette(palette);
+            ui.ldrawPath->setPlaceholderText("LDraw directry must be defined");
         if (ui.leocadLibFile->text().isEmpty())
-            ui.leocadLibFile->setPalette(palette);
+            ui.leocadLibFile->setPlaceholderText("Archive library must be configured");
         if (ui.preferredRenderer->count() == 0){
-            ui.ldglitePath->setPalette(palette);
-            ui.ldviewPath->setPalette(palette);
-            ui.l3pPath->setPalette(palette);
-            ui.povrayPath->setPalette(palette);
+            ui.ldglitePath->setPlaceholderText("At lease one renderer must be defined");
+            ui.ldviewPath->setPlaceholderText("At lease one renderer must be defined");
+            ui.povrayPath->setPlaceholderText("At lease one renderer must be defined");
+            ui.l3pPath->setPlaceholderText("Reqired if POV-Ray defined");
         }
         if (QMessageBox::Yes == QMessageBox::question(this, "Close Dialog?",
                               "Required settings are missing, Are you sure you want to exit?",

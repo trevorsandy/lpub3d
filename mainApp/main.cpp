@@ -120,13 +120,23 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     // splash
-    int duration = 4000;
+    int splashDuration = 4000;
     QPixmap pixmap(":/resources/LPub512Splash.png");
     QSplashScreen *splash = new QSplashScreen(pixmap);
+
+    QFont splashFont;
+    splashFont.setFamily("Arial");
+    splashFont.setPixelSize(12);
+    splashFont.setStretch(130);
+
+    splash->setFont(splashFont);
     splash->show();
+
+    app.processEvents();
     splash->showMessage(QSplashScreen::tr("LPub3D is loading..."),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
     app.processEvents();
-    QTimer::singleShot(duration,splash,SLOT(close()));
+
+    QTimer::singleShot(splashDuration,splash,SLOT(close()));
 
     QCoreApplication::setOrganizationName(VER_COMPANYNAME_STR);
     QCoreApplication::setApplicationName(VER_PRODUCTNAME_STR);
@@ -224,7 +234,9 @@ int main(int argc, char *argv[])
     gMainWindow->SetColorIndex(lcGetColorIndex(4));
     gMainWindow->UpdateRecentFiles();
 
-    QTimer::singleShot(duration, &LPub3DApp, SLOT(show()));
+    QTimer::singleShot(splashDuration, &LPub3DApp, SLOT(show()));
+    //QTimer::singleShot(splashDuration, gMainWindow, SLOT(show()));
+
     LPub3DApp.sizeit();
 
 #if !DISABLE_UPDATE_CHECK

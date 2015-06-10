@@ -311,45 +311,45 @@ void Preferences::renderPreferences()
     ldviewInstalled = false;
   }
 	
-   /* Find L3P's installation status */
+   /* Find POV-Ray's installation status */
 	
-	bool    l3pInstalled;
-	QString const l3pPathKey("L3P");
+    bool    povRayInstalled;
     QString const povrayPathKey("POVRayPath");
-	QString l3pPath, povrayPath;
-	
+	QString const l3pPathKey("L3P");
+    QString povrayPath, l3pPath;
+
+    if (Settings.contains(QString("%1/%2").arg(POVRAY,povrayPathKey))) {
+        povrayPath = Settings.value(QString("%1/%2").arg(POVRAY,povrayPathKey)).toString();
+        QFileInfo info(povrayPath);
+        if (info.exists()) {
+            povRayInstalled = true;
+            povrayExe = povrayPath;
+        } else {
+            Settings.remove(QString("%1/%2").arg(POVRAY,povrayPathKey));
+            povRayInstalled = false;
+        }
+    } else {
+        povRayInstalled = false;
+    }
+
     if (Settings.contains(QString("%1/%2").arg(POVRAY,l3pPathKey))) {
         l3pPath = Settings.value(QString("%1/%2").arg(POVRAY,l3pPathKey)).toString();
 		QFileInfo info(l3pPath);
 		if (info.exists()) {
-			l3pInstalled = true;
+            povRayInstalled &= true;
 			l3pExe = l3pPath;
 		} else {
             Settings.remove(QString("%1/%2").arg(POVRAY,l3pPathKey));
-			l3pInstalled = false;
+            povRayInstalled &= false;
 		}
     } else if (l3pInfo.exists()) {
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,l3pPathKey),l3pInfo.absoluteFilePath());
-        l3pInstalled = true;
+        Settings.setValue(QString("%1/%2").arg(POVRAY,l3pPathKey),l3pInfo.absoluteFilePath());
+        povRayInstalled &= true;
         l3pExe = l3pInfo.absoluteFilePath();
     } else {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,l3pPathKey));
-        l3pInstalled = false;
+        Settings.remove(QString("%1/%2").arg(POVRAY,l3pPathKey));
+        povRayInstalled &= false;
     }
-
-    if (Settings.contains(QString("%1/%2").arg(POVRAY,povrayPathKey))) {
-        povrayPath = Settings.value(QString("%1/%2").arg(POVRAY,povrayPathKey)).toString();
-		QFileInfo info(povrayPath);
-		if (info.exists()) {
-			l3pInstalled &= true;
-			povrayExe = povrayPath;
-		} else {
-            Settings.remove(QString("%1/%2").arg(POVRAY,povrayPathKey));
-			l3pInstalled &= false;
-		}
-	} else {
-		l3pInstalled &= false;
-	}
 
   /* Find out if we have a valid preferred renderer */
     
@@ -367,8 +367,8 @@ void Preferences::renderPreferences()
         preferredRenderer.clear();
       Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
       }
-    } else if (preferredRenderer == "L3P") {
-		if ( ! l3pInstalled) {
+    } else if (preferredRenderer == "POV-Ray") {
+        if ( ! povRayInstalled) {
 			preferredRenderer.clear();
             Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
 		}
@@ -376,9 +376,9 @@ void Preferences::renderPreferences()
   }
   if (preferredRenderer == "") {
     if (ldviewInstalled && ldgliteInstalled) {
-		preferredRenderer = l3pInstalled? "L3P" : "LDGLite";
-    } else if (l3pInstalled) {
-      preferredRenderer = "L3P";
+        preferredRenderer = povRayInstalled? "POV-Ray" : "LDGLite";
+    } else if (povRayInstalled) {
+      preferredRenderer = "POV-Ray";
     } else if (ldviewInstalled) {
 		preferredRenderer = "LDView";
     } else if (ldgliteInstalled) {
