@@ -36,8 +36,8 @@
 #define VER_UPDATE_CHECK_URL        		"http://lpub3d.sourceforge.net/latest.txt"
 #define VER_CHANGE_LOG_URL                  "http://lpub3d.sourceforge.net/change_log.txt"
 #define VER_DOWNLOAD_URL                    "http://lpub3d.sourceforge.net/" VER_PRODUCTNAME_STR "-UpdateMaster.exe"
-#define VER_SOURCE_URL              		"http://lpub3d.sourceforge.net/"
-#define VER_COMPANYDOMAIN_STR       		"http://lpub3d.sourceforge.net"
+#define VER_SOURCE_URL              		"https://sourceforge.net/p/lpub3d/code/ref/master/"
+#define VER_COMPANYDOMAIN_STR       		"https://sourceforge.net/projects/lpub3d/"
 
 #define VER_COMPILED_ON             		"MinGW (i686-4.9.2-x64) Windows"
 #define VER_COMPILED_FOR            		"x86_64-w64-mingw32"

@@ -934,8 +934,8 @@ void Gui::createActions()
     redoAct->setEnabled(false);
     connect(redoAct, SIGNAL(triggered()), this, SLOT(redo()));
 
-    insertCoverPageAct = new QAction(tr("Insert Cover Page"),this);
-    insertCoverPageAct->setStatusTip(tr("Insert an unnumbered page"));
+    insertCoverPageAct = new QAction(tr("Insert Blank Cover Page"),this);
+    insertCoverPageAct->setStatusTip(tr("Insert a blank unnumbered cover page"));
     insertCoverPageAct->setEnabled(false);
     connect(insertCoverPageAct, SIGNAL(triggered()), this, SLOT(insertCoverPage()));
 

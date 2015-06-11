@@ -42,7 +42,7 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
                                "</tr>"
                                "<tr>"
                                  "<td>Source:</td>"
-                                 "<td><a href=\"%2files\">%2</a></td>"
+                                 "<td><a href=\"%2\">%2</a></td>"
                                "</tr>"
                              "</table>");
     QString About = AboutFormat.arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
