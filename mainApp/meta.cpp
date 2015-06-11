@@ -1931,7 +1931,9 @@ PliMeta::PliMeta() : BranchMeta()
   part.margin.setValuesInches(0.05f,0.03f);
   instance.font.setValuePoints("Arial,36,-1,255,75,0,0,0,0,0");
   instance.margin.setValuesInches(0.0f,0.0f);
-  annotate.font.setValuePoints("Arial,36,-1,255,75,0,0,0,0,0");
+  //annotate.font.setValuePoints("Arial,36,-1,255,75,0,0,0,0,0");   // Rem at revision 226 11/06/15
+  annotate.font.setValuePoints("Arial,24,-1,5,50,0,0,0,0,0");
+  annotate.color.setValue("#93928f");                               // Add at revision 226 11/06/15
   annotate.margin.setValuesInches(0.0f,0.0f);
   margin.setValuesInches(DEFAULT_MARGIN,DEFAULT_MARGIN);
   pack.setValue(true);
@@ -1999,7 +2001,9 @@ BomMeta::BomMeta() : PliMeta()
   part.margin.setValuesInches(0.05f,0.03f);
   instance.font.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");
   instance.margin.setValuesInches(0.0f,0.0f);
-  annotate.font.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");
+  //instance.font.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");   // Rem at revision 226 11/06/15
+  annotate.font.setValuePoints("Arial,18,-1,5,50,0,0,0,0,0");
+  annotate.color.setValue("#93928f");                               // Add at revision 226 11/06/15
   annotate.margin.setValuesInches(0.0f,0.0f);
   pack.setValue(false);
   sort.setValue(true);
