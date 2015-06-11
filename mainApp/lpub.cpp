@@ -145,6 +145,7 @@ void Gui::displayPage()
     page.coverPage = false;
     drawPage(KpageView,KpageScene,false);
     enableActions2();
+    emit enable3DActionsSig();
     Step::isCsiDataModified = false; //reset
   }
 }
@@ -369,7 +370,7 @@ void Gui::halt3DViewer(bool b)
     }
 
     bool rc = b;
-    halt3DViewerSig(rc);
+    emit halt3DViewerSig(rc);
 }
 /*-----------------------------------------------------------------------------*/
 
@@ -683,6 +684,9 @@ Gui::Gui()
 
     connect(this,           SIGNAL(halt3DViewerSig(bool)),
             gMainWindow,    SLOT(  halt3DViewer   (bool)));
+
+    connect(this,           SIGNAL(enable3DActionsSig()),
+            gMainWindow,    SLOT(  enable3DActions()));
 
     connect(&colourPart, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
     connect(&colourPart, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));

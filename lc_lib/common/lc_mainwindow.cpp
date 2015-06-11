@@ -99,6 +99,27 @@ void lcMainWindow::CreateWidgets()
 	mPreviewWidget = Preview;
 	mPreviewWidget->SetDefaultPiece();
 
+    // disable menu itmes until model loaded
+    //File
+    mActions[LC_FILE_SAVEAS]->setDisabled(true);
+    mActions[LC_FILE_SAVE_IMAGE]->setDisabled(true);
+    //Export
+    mActions[LC_FILE_EXPORT_3DS]->setDisabled(true);
+    mActions[LC_FILE_EXPORT_BRICKLINK]->setDisabled(true);
+    mActions[LC_FILE_EXPORT_CSV]->setDisabled(true);
+    mActions[LC_FILE_EXPORT_HTML]->setDisabled(true);
+    mActions[LC_FILE_EXPORT_POVRAY]->setDisabled(true);
+    mActions[LC_FILE_EXPORT_WAVEFRONT]->setDisabled(true);
+    //Tools
+    mActions[LC_EDIT_ROTATESTEP_RELATIVE_ROTATION]->setDisabled(true);
+    mActions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION]->setDisabled(true);
+    mActions[LC_EDIT_ACTION_ROTATESTEP]->setDisabled(true);
+    mActions[LC_EDIT_ACTION_SELECT]->setDisabled(true);
+    mActions[LC_EDIT_ACTION_ROTATE]->setDisabled(true);
+    mActions[LC_EDIT_ACTION_PAN]->setDisabled(true);
+    mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setDisabled(true);
+    mActions[LC_EDIT_ACTION_ZOOM_REGION]->setDisabled(true);
+
 //    QSettings Settings;
 //    Settings.beginGroup(WINDOW);
       resize(QSize(400, 300));
@@ -106,6 +127,7 @@ void lcMainWindow::CreateWidgets()
 //    restoreGeometry(Settings.value("Geometry").toByteArray());
 //    restoreState(Settings.value("State").toByteArray());
 //    Settings.endGroup();
+
 
 }
 
@@ -512,9 +534,9 @@ void lcMainWindow::CreateToolBars()
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_LIGHT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
-	mToolsToolBar->addSeparator();
+    mToolsToolBar->addSeparator();
+    mToolsToolBar->addAction(AngleAction);                          // Snap Rotations to Fixed Intervals menu item
     mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATESTEP]);
-    mToolsToolBar->addAction(AngleAction);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SELECT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_MOVE]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATE]);
@@ -648,6 +670,30 @@ void lcMainWindow::CreateToolBars()
         }
     }
     /*** management - end ***/
+}
+
+void lcMainWindow::enable3DActions(){
+
+    //File
+    mActions[LC_FILE_SAVEAS]->setEnabled(true);
+    mActions[LC_FILE_SAVE_IMAGE]->setEnabled(true);
+    //Export
+    mActions[LC_FILE_EXPORT_3DS]->setEnabled(true);
+    mActions[LC_FILE_EXPORT_BRICKLINK]->setEnabled(true);
+    mActions[LC_FILE_EXPORT_CSV]->setEnabled(true);
+    mActions[LC_FILE_EXPORT_HTML]->setEnabled(true);
+    mActions[LC_FILE_EXPORT_POVRAY]->setEnabled(true);
+    mActions[LC_FILE_EXPORT_WAVEFRONT]->setEnabled(true);
+    //Tools
+    mActions[LC_EDIT_ROTATESTEP_RELATIVE_ROTATION]->setEnabled(true);
+    mActions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION]->setEnabled(true);
+    mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(true);
+    mActions[LC_EDIT_ACTION_SELECT]->setEnabled(true);
+    mActions[LC_EDIT_ACTION_ROTATE]->setEnabled(true);
+    mActions[LC_EDIT_ACTION_PAN]->setEnabled(true);
+    mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setEnabled(true);
+    mActions[LC_EDIT_ACTION_ZOOM_REGION]->setEnabled(true);
+
 }
 
 void lcMainWindow::CreateStatusBar()

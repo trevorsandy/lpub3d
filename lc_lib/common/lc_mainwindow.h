@@ -203,6 +203,7 @@ public:
 public slots:
     //inline void halt3DViewer(bool b){mHalt3DViewer = b;}
     void halt3DViewer(bool b);
+    void enable3DActions();
 
 protected slots:
 	void ClipboardChanged();

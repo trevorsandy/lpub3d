@@ -122,8 +122,9 @@ struct lcModelPartsEntry
 	int ColorIndex;
 };
 
-class lcModel
+class lcModel : public QObject
 {
+
 public:
 	lcModel(const QString& Name);
 	~lcModel();
@@ -324,6 +325,8 @@ public:
 	void ShowArrayDialog();
 	void ShowMinifigDialog();
 	void UpdateInterface();
+signals:
+
 
 protected:
 	void DeleteModel();

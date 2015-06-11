@@ -579,6 +579,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 	delete Piece;
 	delete Camera;
 	delete Light;
+
 }
 
 bool lcModel::LoadBinary(lcFile* file)

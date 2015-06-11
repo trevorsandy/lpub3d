@@ -636,6 +636,7 @@ signals:
   void displayFileSig(LDrawFile *ldrawFile, const QString &subFile);
   void displayParmsFileSig(const QString &fileName);  
   void showLineSig(int lineNumber);
+  void enable3DActionsSig();
 
   void halt3DViewerSig(bool b);
   void quit();
