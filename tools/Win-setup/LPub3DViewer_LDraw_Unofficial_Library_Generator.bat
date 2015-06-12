@@ -1,12 +1,12 @@
 @echo off
-Title Create LeoCAD unofficial library archive
+Title Create LPub3DViewer unofficial library archive
 rem --
 rem  README
-rem  How to setup LeoCad libraries for LPub 3D Viewer
-rem	 1. create a sub-directory in your LDRAW directory and name it LeoCAD-Libraries.
+rem  How to setup LPub3DViewer libraries for LPub 3D Viewer
+rem	 1. create a sub-directory in your LDRAW directory and name it LPub3DViewer-Library.
 rem  2. place this file in your LDRAW directory and run it (double-click).
-rem  3. review command window and "LDRAW directory"\LeoCadLibrary-archive-log.txt details
-rem  4. copy and paste (or download from LDraw.org) complete.zip to LeoCAD-Libraries
+rem  3. review command window and "LDRAW directory"\LPub3DViewerLibrary-archive-log.txt details
+rem  4. copy and paste (or download from LDraw.org) complete.zip to LPub3DViewer-Library
 rem --
 SETLOCAL
 @break off
@@ -19,7 +19,7 @@ ECHO.
 ECHO This file will download the most recent LDraw unofficial archive.
 ECHO It will then combine you current LDraw unofficial library archive
 ECHO overwriting content in the downloaded zip file. A directory named
-ECHO LeoCAD-Libraries will be created in you LDraw folder where the updated
+ECHO LPub3DViewer-Library will be created in you LDraw folder where the updated
 ECHO unofficial archive will be stored.
 ECHO.
 
@@ -29,8 +29,6 @@ PAUSE >NUL
 
 set ldrawPath="%LDRAWDIR%"
 set outputPath="%LDRAWDIR%"
-REM set ldrawPath="C:\Users\Trevor\LDraw"
-REM set outputPath="C:\Users\Trevor\LDraw"
 
 set zipWin64=C:\program filess\7-zip
 set zipWin32=C:\Program Filess (x86)\7-zip
@@ -70,10 +68,10 @@ ECHO -Archive custom content
 ECHO.
 cd /D %outputPath%\
 ECHO.
-ECHO -Create 'LeoCAD-Libraries' folder
+ECHO -Create 'LPub3DViewer-Library' folder
 ECHO.
-if not exist ".\LeoCAD-Libraries\" (
-  mkdir ".\LeoCAD-Libraries\"
+if not exist ".\LPub3DViewer-Library\" (
+  mkdir ".\LPub3DViewer-Library\"
 )
 ECHO -Download unofficial content from LDraw.org
 ECHO.
@@ -83,7 +81,7 @@ if not exist "%TEMP%\$" (
 )
 set n=WebContentDownload.vbs
 set t=%TEMP%\$\%n% ECHO
-set WebCONTENT="%~dp0LeoCAD-Libraries\ldrawunf.zip"
+set WebCONTENT="%~dp0LPub3DViewer-Library\ldrawunf.zip"
 set WebNAME=http://www.ldraw.org/library/unofficial/ldrawunf.zip
 del %TEMP%\$\%n%
 if exist %WebCONTENT% (
@@ -154,8 +152,8 @@ ECHO.
 ECHO -Merge custom and unofficial content 
 ECHO.
 cd /D %ldrawPath%\Unofficial\
-%zipExe% a -tzip %outputPath%\LeoCAD-Libraries\ldrawunf.zip p\ > %outputPath%\LeoCadLibrary-archive-log.txt
-%zipExe% a -tzip %outputPath%\LeoCAD-Libraries\ldrawunf.zip parts\ >> %outputPath%\LeoCadLibrary-archive-log.txt
+%zipExe% a -tzip %outputPath%\LPub3DViewer-Library\ldrawunf.zip p\ > %outputPath%\LPub3DViewerLibrary-archive-log.txt
+%zipExe% a -tzip %outputPath%\LPub3DViewer-Library\ldrawunf.zip parts\ >> %outputPath%\LPub3DViewerLibrary-archive-log.txt
 ECHO -Finshed
 ECHO.
 ECHO If everything went well then, Press any key to EXIT!

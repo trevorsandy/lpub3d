@@ -1094,7 +1094,7 @@ void Gui::createActions()
     projectSetupAct->setStatusTip(tr("Default values for your project"));
     connect(projectSetupAct, SIGNAL(triggered()), this, SLOT(projectSetup()));
 
-    fadeStepSetupAct = new QAction(QIcon(":/fadestepsetup/editundo.png"),tr("Fade Step Setup"), this);
+    fadeStepSetupAct = new QAction(QIcon(":/resources/fadestepsetup.png"),tr("Fade Step Setup"), this);
     fadeStepSetupAct->setEnabled(false);
     fadeStepSetupAct->setStatusTip(tr("Fade all parts not in the current step"));
     connect(fadeStepSetupAct, SIGNAL(triggered()), this, SLOT(fadeStepSetup()));

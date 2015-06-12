@@ -103,7 +103,7 @@ static void lcSehInit()
 {
     if (SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA | CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, minidumpPath) == S_OK)
     {
-        lstrcat(minidumpPath, TEXT("\\LPub Software\\LPub3D\\dump\\"));
+        lstrcat(minidumpPath, TEXT("\\LPub3D Software\\LPub3D\\dump\\"));
         _tmkdir(minidumpPath);
         lstrcat(minidumpPath, TEXT("minidump.dmp"));
     }

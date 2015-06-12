@@ -206,7 +206,7 @@ void Preferences::leocadLibPreferences(bool force)
             leocadLibFile = "c:\\Program Files (x86)\\LDraw\\Complete.zip";
             guesses.setPath(leocadLibFile);
             if ( ! guesses.exists()) {
-                leocadLibFile = "c:\\Program Files (x86)\\LDraw\\LeoCAD-Libraries\\Complete.zip";
+                leocadLibFile = "c:\\Program Files (x86)\\LDraw\\LPub3DViewer-Library\\Complete.zip";
                 if (! guesses.exists()){
                     leocadLibFile = QFileDialog::getOpenFileName(NULL,
                          QFileDialog::tr("Locate LeoCad Library Archive"),

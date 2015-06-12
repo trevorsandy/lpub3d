@@ -9,6 +9,7 @@
 
 ;--------------------------------
 ;File & Directory Exist Macros
+
 ;FileExists is already part of LogicLib, but returns true for directories as well as files
 !macro _FileExists2 _a _b _t _f
 	!insertmacro _LOGICLIB_TEMP
@@ -33,9 +34,11 @@
 !define DirExists `"" DirExists`
 
 ;--------------------------------
-;Additional plugins
-  !addplugindir /x86-ansi "C:\Users\Trevor\Downloads\NSIS\Inetc\Plugins"
-
+;generated define statements
+  
+  ; Include app version details.
+  !include "AppVersion.nsh"
+  
 ;--------------------------------
 ;LDraw Libraries
 
@@ -49,26 +52,23 @@
   var /global StartMenuFolder
   var /global FileName
   var /global LDrawDirPath
-  var /global LeoCADLibFile
+  var /global LPub3DViewerLibFile
   var /global LDrawUnoffLibFile
   var /global PathsGrpBox
   var /global BrowseLDraw
-  var /global BrowseLeoCAD
+  var /global BrowseLPub3DViewer
   var /global LDrawText
-  var /global LeoCADText
+  var /global LPub3DViewerText
   var /global DownloadLDrawLibrary
   
 ;--------------------------------
 ;General
-  
-  ; Include app version details.
-  !include "AppVersion.nsh"
-  
+ 
   ;Installer name
   Name "${ProductName}, Ver ${Version}, Rev ${BuildRevision}"
 
   ; Changes the caption, default beeing 'Setup'
-  Caption "${ProductName} x86 32/64-bit Setup"
+  Caption "${ProductName} 32,64-bit Setup"
   
   ; Rebrand bottom textrow
   BrandingText "${Company} Installer"
@@ -78,7 +78,7 @@
   
   SetCompressor /SOLID lzma
    
-  ;The file to write
+  ;The files to write
   !ifdef UpdateMaster
   OutFile "..\release\${ProductName}-UpdateMaster.exe"
   !else
@@ -151,8 +151,8 @@
 
   ;Language strings
   LangString CUST_PAGE_TITLE ${LANG_ENGLISH} "Library Paths"
-  LangString CUST_PAGE_SUBTITLE ${LANG_ENGLISH} "Enter paths for your LDraw directory and LeoCAD library file \
-											     $\r$\nIf you do not have a LeoCAD library archive file, select Download."
+  LangString CUST_PAGE_SUBTITLE ${LANG_ENGLISH} "Enter paths for your LDraw directory and archive (Complete.zip) library file \
+											     $\r$\nIf you do not have an archive library file, select Download."
  
 ;--------------------------------
 ;Initialize install directory 
@@ -178,7 +178,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   ;install directory
   SetOutPath "$INSTDIR"
   
-  ;executable and readme ©
+  ;executable and readme
   ${If} ${RunningX64}
 	File "..\release\${ProductName}_x64.exe"
   ${Else}
@@ -186,7 +186,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   ${EndIf}
   File "..\docs\ReadMe.txt"
   
-  ;3rd party renderer (LdgLite, L3P)
+  ;3rd party renderer utilities (LdgLite, L3P)
   CreateDirectory "$INSTDIR\3rdParty\ldglite1.2.6Win"
   SetOutPath "$INSTDIR\3rdParty\ldglite1.2.6Win"
   File "..\release\3rdParty\ldglite1.2.6Win\ldglite.exe"
@@ -270,19 +270,19 @@ Function nsDialogShowCustomPage
 	
 	${NSD_CreateHLine} 7.9u 68.31u 281.72u 1.23u "HLine"
 	
-	${NSD_CreateLabel} 7.9u 31.38u 228.41u 11.69u "Select LDraw Directory"
+	${NSD_CreateLabel} 7.9u 31.38u 228.41u 11.69u "LDraw Directory"
 	${NSD_CreateText} 7.9u 44.92u 228.41u 12.31u "$LDrawDirPath"
 	Pop $LDrawText
 
 	${NSD_CreateButton} 240.25u 44.92u 49.37u 14.15u "Browse"
 	Pop $BrowseLDraw
 
-	${NSD_CreateLabel} 7.9u 78.15u 228.41u 11.69u "Select LeoCAD Library Archive File (Complete.zip)"
-	${NSD_CreateText} 7.9u 92.31u 228.41u 12.31u "$LeoCADLibFile"
-	Pop $LeoCADText
+	${NSD_CreateLabel} 7.9u 78.15u 228.41u 11.69u "Archive Library (Complete.zip) File"
+	${NSD_CreateText} 7.9u 92.31u 228.41u 12.31u "$LPub3DViewerLibFile"
+	Pop $LPub3DViewerText
 
 	${NSD_CreateButton} 240.25u 92.31u 49.37u 14.15u "Browse"
-	Pop $BrowseLeoCAD
+	Pop $BrowseLPub3DViewer
 	
 	${NSD_CreateLabel} 7.9u 110.15u 228.41u 11.69u "Optional - Download Library (Complete.zip, Ldrawunf.zip)"
 	
@@ -290,7 +290,7 @@ Function nsDialogShowCustomPage
 	Pop $DownloadLDrawLibrary
 
 	${NSD_OnClick} $BrowseLDraw fnBrowseLDraw
-	${NSD_OnClick} $BrowseLeoCAD fnBrowseLeoCAD
+	${NSD_OnClick} $BrowseLPub3DViewer fnBrowseLPub3DViewer
 	${NSD_OnClick} $DownloadLDrawLibrary fnDownloadLDrawLibrary
 	
  nsDialogs::Show
@@ -305,11 +305,11 @@ Function fnBrowseLDraw
 
 FunctionEnd
 
-Function fnBrowseLeoCAD
+Function fnBrowseLPub3DViewer
 
-  nsDialogs::SelectFileDialog "open" $LDrawDirPath "LeoCAD Library|*.zip|All files|*.*"
-  Pop $LeoCADLibFile
-  ${NSD_SetText} $LeoCADText $LeoCADLibFile
+  nsDialogs::SelectFileDialog "open" $LDrawDirPath "Archived Library|*.zip|All files|*.*"
+  Pop $LPub3DViewerLibFile
+  ${NSD_SetText} $LPub3DViewerText $LPub3DViewerLibFile
 
 FunctionEnd
 
@@ -329,36 +329,36 @@ Function fnDownloadLDrawLibrary
 	
   DoDownload:	
 	; disable browse dialog
-	EnableWindow $LeoCADText 0	
-	EnableWindow $BrowseLeoCAD 0 
+	EnableWindow $LPub3DViewerText 0	
+	EnableWindow $BrowseLPub3DViewer 0 
   
 	MessageBox MB_OKCANCEL|MB_USERICON "${ProductName} will download \
 	the LDraw Official and Unofficial parts library to folder \
-	$LDrawDirPath\LeoCAD-Libraries" IDCANCEL Cancel
+	$LDrawDirPath\LDraw3DViewer-Library" IDCANCEL Cancel
 	
-	CreateDirectory "$LDrawDirPath\LeoCAD-Libraries"
+	CreateDirectory "$LDrawDirPath\LDraw3DViewer-Library"
 	
-	StrCpy $LeoCADLibFile "$LDrawDirPath\LeoCAD-Libraries\complete.zip"
-	StrCpy $LDrawUnoffLibFile "$LDrawDirPath\LeoCAD-Libraries\ldrawunf.zip"	
+	StrCpy $LPub3DViewerLibFile "$LDrawDirPath\LDraw3DViewer-Library\complete.zip"
+	StrCpy $LDrawUnoffLibFile "$LDrawDirPath\LDraw3DViewer-Library\ldrawunf.zip"	
 	
-	INETC::get /caption "Download LDraw Libraries" /popup "" ${LDRAW_OFFICIAL_LIB} $LeoCADLibFile ${LDRAW_UNOFFICIAL_LIB} $LDrawUnoffLibFile  /end
+	INETC::get /caption "Download LDraw Libraries" /popup "" ${LDRAW_OFFICIAL_LIB} $LPub3DViewerLibFile ${LDRAW_UNOFFICIAL_LIB} $LDrawUnoffLibFile  /end
 	Pop $R0 ;Get the return value
 		StrCmp $R0 "OK" UpdateDialog
 		MessageBox MB_ICONSTOP "Download library failed: $R0"
 		; restore browse dialog
-		EnableWindow $LeoCADText 1	
-		EnableWindow $BrowseLeoCAD 1
+		EnableWindow $LPub3DViewerText 1	
+		EnableWindow $BrowseLPub3DViewer 1
 		Abort
 	
 	UpdateDialog:	
-	${NSD_SetText} $LeoCADText $LeoCADLibFile
+	${NSD_SetText} $LPub3DViewerText $LPub3DViewerLibFile
 	${NSD_SetText} $PathsGrpBox "Library paths defined - click Next to continue."
 	Goto Done
 	
 	Cancel:
 	; restore browse dialog
-	EnableWindow $LeoCADText 1	
-	EnableWindow $BrowseLeoCAD 1 
+	EnableWindow $LPub3DViewerText 1	
+	EnableWindow $BrowseLPub3DViewer 1 
 	
 	Done:
 FunctionEnd
@@ -370,16 +370,16 @@ Function nsDialogLeaveCustomPage
     ; Update the registry wiht the LDraw Directory path.
 	WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "LDrawDir" $LDrawDirPath
   ${Else}
-    MessageBox MB_ICONSTOP "You must select the LDraw Directory to continue!" 
+    MessageBox MB_ICONSTOP "You must enter the LDraw Directory to continue!" 
     Abort
   ${EndIf}
 
-  ;Validate the LeoCAD Library path
-  ${If} ${FileExists} $LeoCADLibFile
-    ; Update the registry wiht the LeoCad Library path.
-    WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "PartsLibrary" $LeoCADLibFile
+  ;Validate the LPub3DViewer Library path
+  ${If} ${FileExists} $LPub3DViewerLibFile
+    ; Update the registry wiht the LPub3DViewer Library path.
+    WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "PartsLibrary" $LPub3DViewerLibFile
   ${Else}
-    MessageBox MB_ICONSTOP "You must select the LeoCAD Library file to continue!"
+    MessageBox MB_ICONSTOP "You must enter an archive library file to continue!"
     Abort
   ${EndIf}
 
