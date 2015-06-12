@@ -1,9 +1,9 @@
 @ECHO off
-Title Create manual and automatic install distributions
+Title Pack and create manual and automatic install distributions
 SETLOCAL
 @break off
 @color 0a
-ECHO Create manual and automatic install distributions
+ECHO Pack and create manual and automatic install distributions
 ECHO.
 ECHO - Start Pack LPub3D x86_32...
 ECHO - Start Pack LPub3D x86_32 	>  ../release/LPub3D.Release.build.log.txt
@@ -35,6 +35,7 @@ ECHO - Start NSIS Manual Install	>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 								>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Finished NSIS Manual Install >>  ../release/LPub3D.Release.build.log.txt
 ECHO - Finished NSIS Manual Install...
+%SystemRoot%\explorer.exe "C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D\tools\release"
 ECHO.
 ECHO ~Finshed!~
 ECHO.

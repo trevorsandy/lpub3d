@@ -8,6 +8,41 @@
   !include "x64.nsh"
 
 ;--------------------------------
+;File & Directory Exist Macros
+;FileExists is already part of LogicLib, but returns true for directories as well as files
+!macro _FileExists2 _a _b _t _f
+	!insertmacro _LOGICLIB_TEMP
+	StrCpy $_LOGICLIB_TEMP "0"
+	StrCmp `${_b}` `` +4 0 ;if path is not blank, continue to next check
+	IfFileExists `${_b}` `0` +3 ;if path exists, continue to next check (IfFileExists returns true if this is a directory)
+	IfFileExists `${_b}\*.*` +2 0 ;if path is not a directory, continue to confirm exists
+	StrCpy $_LOGICLIB_TEMP "1" ;file exists
+	;now we have a definitive value - the file exists or it does not
+	StrCmp $_LOGICLIB_TEMP "1" `${_t}` `${_f}`
+!macroend
+!undef FileExists
+!define FileExists `"" FileExists2`
+!macro _DirExists _a _b _t _f
+	!insertmacro _LOGICLIB_TEMP
+	StrCpy $_LOGICLIB_TEMP "0"	
+	StrCmp `${_b}` `` +3 0 ;if path is not blank, continue to next check
+	IfFileExists `${_b}\*.*` 0 +2 ;if directory exists, continue to confirm exists
+	StrCpy $_LOGICLIB_TEMP "1"
+	StrCmp $_LOGICLIB_TEMP "1" `${_t}` `${_f}`
+!macroend
+!define DirExists `"" DirExists`
+
+;--------------------------------
+;Additional plugins
+  !addplugindir /x86-ansi "C:\Users\Trevor\Downloads\NSIS\Inetc\Plugins"
+
+;--------------------------------
+;LDraw Libraries
+
+!define LDRAW_OFFICIAL_LIB	"http://www.ldraw.org/library/updates/complete.zip"
+!define LDRAW_UNOFFICIAL_LIB "http://www.ldraw.org/library/unofficial/ldrawunf.zip"
+
+;--------------------------------
 ;Variables
 
   var /global Dialog
@@ -15,10 +50,13 @@
   var /global FileName
   var /global LDrawDirPath
   var /global LeoCADLibFile
+  var /global LDrawUnoffLibFile
+  var /global PathsGrpBox
   var /global BrowseLDraw
   var /global BrowseLeoCAD
   var /global LDrawText
   var /global LeoCADText
+  var /global DownloadLDrawLibrary
   
 ;--------------------------------
 ;General
@@ -60,7 +98,7 @@
   
   ; Execution level 
   RequestExecutionLevel admin
-  
+    
 ;--------------------------------
 ;Interface Settings
 
@@ -113,7 +151,8 @@
 
   ;Language strings
   LangString CUST_PAGE_TITLE ${LANG_ENGLISH} "Library Paths"
-  LangString CUST_PAGE_SUBTITLE ${LANG_ENGLISH} "Enter paths for your LDraw Directory and LeoCAD Library File"
+  LangString CUST_PAGE_SUBTITLE ${LANG_ENGLISH} "Enter paths for your LDraw directory and LeoCAD library file \
+											     $\r$\nIf you do not have a LeoCAD library archive file, select Download."
  
 ;--------------------------------
 ;Initialize install directory 
@@ -128,7 +167,7 @@ Function .onInit
 	StrCpy $FileName "${ProductName}_x32.exe"
 	StrCpy $INSTDIR "$PROGRAMFILES32\${ProductName}"
   ${EndIf}
-  
+    
 FunctionEnd
  
 ;--------------------------------
@@ -224,25 +263,36 @@ Function nsDialogShowCustomPage
 
 	${If} $Dialog == error
 		Abort
-	${EndIf}	
+	${EndIf}
+
+	${NSD_CreateGroupBox} 1u 12.31u 297.52u 120.62u "Define Library Paths"
+	Pop $PathsGrpBox
 	
-	${NSD_CreateLabel} 0 10 100% 12u "Select LDraw Directory"
-	${NSD_CreateText} 0 30 70% 12u "$LDrawDirPath"
+	${NSD_CreateHLine} 7.9u 68.31u 281.72u 1.23u "HLine"
+	
+	${NSD_CreateLabel} 7.9u 31.38u 228.41u 11.69u "Select LDraw Directory"
+	${NSD_CreateText} 7.9u 44.92u 228.41u 12.31u "$LDrawDirPath"
 	Pop $LDrawText
 
-	${NSD_CreateBrowseButton} 320 30 30% 12u "Browse"
+	${NSD_CreateButton} 240.25u 44.92u 49.37u 14.15u "Browse"
 	Pop $BrowseLDraw
 
-	${NSD_CreateLabel} 0 60 100% 12u "Select LeoCAD Library File (Complete.zip)"
-	${NSD_CreateText} 0 80 70% 12u "$LeoCADLibFile"
+	${NSD_CreateLabel} 7.9u 78.15u 228.41u 11.69u "Select LeoCAD Library Archive File (Complete.zip)"
+	${NSD_CreateText} 7.9u 92.31u 228.41u 12.31u "$LeoCADLibFile"
 	Pop $LeoCADText
 
-	${NSD_CreateBrowseButton} 320 80 30% 12u "Browse"
+	${NSD_CreateButton} 240.25u 92.31u 49.37u 14.15u "Browse"
 	Pop $BrowseLeoCAD
+	
+	${NSD_CreateLabel} 7.9u 110.15u 228.41u 11.69u "Optional - Download Library (Complete.zip, Ldrawunf.zip)"
+	
+	${NSD_CreateButton} 240.25u 110.15u 49.37u 14.15u "Download"
+	Pop $DownloadLDrawLibrary
 
 	${NSD_OnClick} $BrowseLDraw fnBrowseLDraw
 	${NSD_OnClick} $BrowseLeoCAD fnBrowseLeoCAD
-
+	${NSD_OnClick} $DownloadLDrawLibrary fnDownloadLDrawLibrary
+	
  nsDialogs::Show
 
 FunctionEnd
@@ -263,23 +313,73 @@ Function fnBrowseLeoCAD
 
 FunctionEnd
 
+Function fnDownloadLDrawLibrary
+
+;--------------------------------
+;LDraw Archive Library Settings
+
+  ;Validate the LDraw Directory path
+
+  ${If} ${DirExists} $LDrawDirPath 
+	Goto DoDownload
+  ${Else}
+    MessageBox MB_ICONEXCLAMATION "You must select the LDraw Directory to continue!" 
+    Abort
+  ${EndIf}
+	
+  DoDownload:	
+	; disable browse dialog
+	EnableWindow $LeoCADText 0	
+	EnableWindow $BrowseLeoCAD 0 
+  
+	MessageBox MB_OKCANCEL|MB_USERICON "${ProductName} will download \
+	the LDraw Official and Unofficial parts library to folder \
+	$LDrawDirPath\LeoCAD-Libraries" IDCANCEL Cancel
+	
+	CreateDirectory "$LDrawDirPath\LeoCAD-Libraries"
+	
+	StrCpy $LeoCADLibFile "$LDrawDirPath\LeoCAD-Libraries\complete.zip"
+	StrCpy $LDrawUnoffLibFile "$LDrawDirPath\LeoCAD-Libraries\ldrawunf.zip"	
+	
+	INETC::get /caption "Download LDraw Libraries" /popup "" ${LDRAW_OFFICIAL_LIB} $LeoCADLibFile ${LDRAW_UNOFFICIAL_LIB} $LDrawUnoffLibFile  /end
+	Pop $R0 ;Get the return value
+		StrCmp $R0 "OK" UpdateDialog
+		MessageBox MB_ICONSTOP "Download library failed: $R0"
+		; restore browse dialog
+		EnableWindow $LeoCADText 1	
+		EnableWindow $BrowseLeoCAD 1
+		Abort
+	
+	UpdateDialog:	
+	${NSD_SetText} $LeoCADText $LeoCADLibFile
+	${NSD_SetText} $PathsGrpBox "Library paths defined - click Next to continue."
+	Goto Done
+	
+	Cancel:
+	; restore browse dialog
+	EnableWindow $LeoCADText 1	
+	EnableWindow $BrowseLeoCAD 1 
+	
+	Done:
+FunctionEnd
+
 Function nsDialogLeaveCustomPage
    
   ;Validate the LDraw Directory path
-  ${If} ${FileExists} '$LDrawDirPath\*.*'
+  ${If} ${DirExists} $LDrawDirPath
     ; Update the registry wiht the LDraw Directory path.
 	WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "LDrawDir" $LDrawDirPath
   ${Else}
-    MessageBox mb_iconstop "You must select the LDraw Directory to continue!" 
+    MessageBox MB_ICONSTOP "You must select the LDraw Directory to continue!" 
     Abort
   ${EndIf}
 
   ;Validate the LeoCAD Library path
-  ${If} ${FileExists} '$LeoCADLibFile'
+  ${If} ${FileExists} $LeoCADLibFile
     ; Update the registry wiht the LeoCad Library path.
     WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "PartsLibrary" $LeoCADLibFile
   ${Else}
-    MessageBox mb_iconstop "You must select the LeoCAD Library file to continue!"
+    MessageBox MB_ICONSTOP "You must select the LeoCAD Library file to continue!"
     Abort
   ${EndIf}
 
@@ -308,10 +408,15 @@ Section "Uninstall"
   Delete "$INSTDIR\docs\Credits.txt"
   Delete "$INSTDIR\docs\Copying.txt"
   Delete "$INSTDIR\docs\License.txt"
-  Delete "$INSTDIR\extras\fadeStepColorParts.lst"
-  Delete "$INSTDIR\extras\freeformAnnotations.lst"
-  Delete "$INSTDIR\extras\titleAnnotations.lst"
-  Delete "$INSTDIR\extras\pli.mpd"  
+  Delete "$INSTDIR\3rdParty\ldglite1.2.6Win\plugins\pluginldlist.dll"  
+  Delete "$INSTDIR\3rdParty\ldglite1.2.6Win\ldglite.exe"
+  Delete "$INSTDIR\3rdParty\ldglite1.2.6Win\LICENCE"
+  Delete "$INSTDIR\3rdParty\ldglite1.2.6Win\README.TXT" 
+  Delete "$INSTDIR\3rdParty\l3p1.4WinB\L3P.EXE"
+  Delete "${INSTDIR_AppData}\extras\fadeStepColorParts.lst"
+  Delete "${INSTDIR_AppData}\extras\freeformAnnotations.lst"
+  Delete "${INSTDIR_AppData}\extras\titleAnnotations.lst"
+  Delete "${INSTDIR_AppData}\extras\pli.mpd"    
   
   !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
     
@@ -325,6 +430,10 @@ Section "Uninstall"
 ; Remove directories used
   RMDir "$SMPROGRAMS\$StartMenuFolder"
   RMDir "${INSTDIR_AppData}\extras"
+  RMDir "$INSTDIR\3rdParty\ldglite1.2.6Win\plugins"
+  RMDir "$INSTDIR\3rdParty\ldglite1.2.6Win"
+  RMDir "$INSTDIR\3rdParty\l3p1.4WinB"
+  RMDir "$INSTDIR\3rdParty"
   RMDir "$INSTDIR\docs"
   RMDir "$INSTDIR"
   
@@ -338,7 +447,7 @@ Section "Uninstall"
   DeleteRegKey /ifempty HKCU "Software\${Company}\${ProductName}"
 
   IfFileExists "$INSTDIR" 0 NoErrorMsg
-    MessageBox MB_OK "Note: $INSTDIR could not be removed!" IDOK 0 ; skipped if file doesn't exist
+    MessageBox MB_ICONEXCLAMATION "Note: $INSTDIR could not be removed!" IDOK 0 ; skipped if file doesn't exist
   NoErrorMsg: 
   
 SectionEnd
