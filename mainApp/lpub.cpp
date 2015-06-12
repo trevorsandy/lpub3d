@@ -938,47 +938,47 @@ void Gui::createActions()
     redoAct->setEnabled(false);
     connect(redoAct, SIGNAL(triggered()), this, SLOT(redo()));
 
-    insertCoverPageAct = new QAction(tr("Insert Blank Cover Page"),this);
+    insertCoverPageAct = new QAction(QIcon(":/resources/insertcoverpage.png"),tr("Insert Blank Cover Page"),this);
     insertCoverPageAct->setStatusTip(tr("Insert a blank unnumbered cover page"));
     insertCoverPageAct->setEnabled(false);
     connect(insertCoverPageAct, SIGNAL(triggered()), this, SLOT(insertCoverPage()));
 
-    appendCoverPageAct = new QAction(tr("Append Cover Page"),this);
+    appendCoverPageAct = new QAction(QIcon(":/resources/appendcoverpage.png"),tr("Append Cover Page"),this);
     appendCoverPageAct->setStatusTip(tr("Append a numbered page"));
     appendCoverPageAct->setEnabled(false);
     connect(appendCoverPageAct, SIGNAL(triggered()), this, SLOT(appendCoverPage()));
 
-    insertNumberedPageAct = new QAction(tr("Insert Page"),this);
+    insertNumberedPageAct = new QAction(QIcon(":/resources/insertpage.png"),tr("Insert Page"),this);
     insertNumberedPageAct->setStatusTip(tr("Insert a numbered page"));
     insertNumberedPageAct->setEnabled(false);
     connect(insertNumberedPageAct, SIGNAL(triggered()), this, SLOT(insertNumberedPage()));
 
-    appendNumberedPageAct = new QAction(tr("Append Page"),this);
+    appendNumberedPageAct = new QAction(QIcon(":/resources/appendpage.png"),tr("Append Page"),this);
     appendNumberedPageAct->setStatusTip(tr("Append a numbered page"));
     appendNumberedPageAct->setEnabled(false);
     connect(appendNumberedPageAct, SIGNAL(triggered()), this, SLOT(appendNumberedPage()));
 
-    deletePageAct = new QAction(tr("Delete Page"),this);
+    deletePageAct = new QAction(QIcon(":/resources/deletepage.png"),tr("Delete Page"),this);
     deletePageAct->setStatusTip(tr("Delete this page"));
     deletePageAct->setEnabled(false);
     connect(deletePageAct, SIGNAL(triggered()), this, SLOT(deletePage()));
 
-    addPictureAct = new QAction(tr("Add Picture"),this);
+    addPictureAct = new QAction(QIcon(":/resources/addpicture.png"),tr("Add Picture"),this);
     addPictureAct->setStatusTip(tr("Add a picture to this page"));
     addPictureAct->setEnabled(false);
     connect(addPictureAct, SIGNAL(triggered()), this, SLOT(addPicture()));
 
-    addTextAct = new QAction(tr("Add Text"),this);
+    addTextAct = new QAction(QIcon(":/resources/addtext.png"),tr("Add Text"),this);
     addTextAct->setStatusTip(tr("Add text to this page"));
     addTextAct->setEnabled(false);
     connect(addTextAct, SIGNAL(triggered()), this, SLOT(addText()));
 
-    addBomAct = new QAction(tr("Add Bill of Materials"),this);
+    addBomAct = new QAction(QIcon(":/resources/addbom.png"),tr("Add Bill of Materials"),this);
     addBomAct->setStatusTip(tr("Add Bill of Materials to this page"));
     addBomAct->setEnabled(false);
     connect(addBomAct, SIGNAL(triggered()), this, SLOT(addBom()));
 
-    removeLPubFormattingAct = new QAction(tr("Remove LPub Formatting"),this);
+    removeLPubFormattingAct = new QAction(QIcon(":/resources/removelpubformat.png"),tr("Remove LPub Formatting"),this);
     removeLPubFormattingAct->setStatusTip(tr("Remove all LPub metacommands from all files"));
     removeLPubFormattingAct->setEnabled(false);
     connect(removeLPubFormattingAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
@@ -1059,42 +1059,42 @@ void Gui::createActions()
 
     // Config menu
 
-    pageSetupAct = new QAction(tr("Page Setup"), this);
+    pageSetupAct = new QAction(QIcon(":/resources/pagesetup.png"),tr("Page Setup"), this);
     pageSetupAct->setEnabled(false);
     pageSetupAct->setStatusTip(tr("Default values for your project's pages"));
     connect(pageSetupAct, SIGNAL(triggered()), this, SLOT(pageSetup()));
 
-    assemSetupAct = new QAction(tr("Assembly Setup"), this);
+    assemSetupAct = new QAction(QIcon(":/resources/assemblysetup.png"),tr("Assembly Setup"), this);
     assemSetupAct->setEnabled(false);
     assemSetupAct->setStatusTip(tr("Default values for your project's assembly images"));
     connect(assemSetupAct, SIGNAL(triggered()), this, SLOT(assemSetup()));
 
-    pliSetupAct = new QAction(tr("Parts List Setup"), this);
+    pliSetupAct = new QAction(QIcon(":/resources/partslistsetup.png"),tr("Parts List Setup"), this);
     pliSetupAct->setEnabled(false);
     pliSetupAct->setStatusTip(tr("Default values for your project's parts lists"));
     connect(pliSetupAct, SIGNAL(triggered()), this, SLOT(pliSetup()));
 
-    bomSetupAct = new QAction(tr("Bill of Materials Setup"), this);
+    bomSetupAct = new QAction(QIcon(":/resources/bomsetup.png"),tr("Bill of Materials Setup"), this);
     bomSetupAct->setEnabled(false);
     bomSetupAct->setStatusTip(tr("Default values for your project's bill of materials"));
     connect(bomSetupAct, SIGNAL(triggered()), this, SLOT(bomSetup()));
 
-    calloutSetupAct = new QAction(tr("Callout Setup"), this);
+    calloutSetupAct = new QAction(QIcon(":/resources/calloutsetup.png"),tr("Callout Setup"), this);
     calloutSetupAct->setEnabled(false);
     calloutSetupAct->setStatusTip(tr("Default values for your project's callouts"));
     connect(calloutSetupAct, SIGNAL(triggered()), this, SLOT(calloutSetup()));
 
-    multiStepSetupAct = new QAction(tr("Step Group Setup"), this);
+    multiStepSetupAct = new QAction(QIcon(":/resources/stepgroupsetup.png"),tr("Step Group Setup"), this);
     multiStepSetupAct->setEnabled(false);
     multiStepSetupAct->setStatusTip(tr("Default values for your project's step groups"));
     connect(multiStepSetupAct, SIGNAL(triggered()), this, SLOT(multiStepSetup()));
 
-    projectSetupAct = new QAction(tr("Project Setup"), this);
+    projectSetupAct = new QAction(QIcon(":/resources/projectsetup.png"),tr("Project Setup"), this);
     projectSetupAct->setEnabled(false);
     projectSetupAct->setStatusTip(tr("Default values for your project"));
     connect(projectSetupAct, SIGNAL(triggered()), this, SLOT(projectSetup()));
 
-    fadeStepSetupAct = new QAction(tr("Fade Step Setup"), this);
+    fadeStepSetupAct = new QAction(QIcon(":/fadestepsetup/editundo.png"),tr("Fade Step Setup"), this);
     fadeStepSetupAct->setEnabled(false);
     fadeStepSetupAct->setStatusTip(tr("Fade all parts not in the current step"));
     connect(fadeStepSetupAct, SIGNAL(triggered()), this, SLOT(fadeStepSetup()));
