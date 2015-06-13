@@ -178,7 +178,7 @@ void Gui::firstPage()
 void Gui::clearAndRedrawPage()
 {
     if (getCurFile().isEmpty()) {
-        statusBarMsg("A model must be opened to clean its caches - no action taken.");
+        statusBarMsg("A model must be opened to reset its caches - no action taken.");
         return;
     }
 
@@ -190,9 +190,8 @@ void Gui::clearAndRedrawPage()
        QObject *obj = sender();
        if (obj == editWindow)
            statusBarMsg("Page regenerated.");
-
        else if (obj == clearALLCacheAct)
-           statusBarMsg("Assembly, Parts and 3D content caches cleaned.");
+           statusBarMsg("Assembly, Parts and 3D content caches reset.");
 }
 
 
@@ -1041,20 +1040,20 @@ void Gui::createActions()
     setPageLineEdit->setMinimumSize(size);
     connect(setPageLineEdit, SIGNAL(returnPressed()), this, SLOT(setPage()));
 
-    clearPLICacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Clean Parts Image Cache"), this);
-    clearPLICacheAct->setStatusTip(tr("Clean the parts list image cache"));
+    clearPLICacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Reset Parts Image Cache"), this);
+    clearPLICacheAct->setStatusTip(tr("Reset the parts list image cache"));
     connect(clearPLICacheAct, SIGNAL(triggered()), this, SLOT(clearPLICache()));
 
-    clearCSICacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Clean Assembly Image Cache"), this);
-    clearCSICacheAct->setStatusTip(tr("Clean the assembly image cache"));
+    clearCSICacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Reset Assembly Image Cache"), this);
+    clearCSICacheAct->setStatusTip(tr("Reset the assembly image cache"));
     connect(clearCSICacheAct, SIGNAL(triggered()), this, SLOT(clearCSICache()));
 
-    clearCSI3DCacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Clean 3D Viewer Model Cache"), this);
-    clearCSI3DCacheAct->setStatusTip(tr("Clean the 3D viewer image cache"));
+    clearCSI3DCacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Reset 3D Viewer Model Cache"), this);
+    clearCSI3DCacheAct->setStatusTip(tr("Reset the 3D viewer image cache"));
     connect(clearCSI3DCacheAct, SIGNAL(triggered()), this, SLOT(clearCSI3DCache()));
 
-    clearALLCacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Clean All Caches"), this);
-    clearALLCacheAct->setStatusTip(tr("Clean all caches"));
+    clearALLCacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Reset All Caches"), this);
+    clearALLCacheAct->setStatusTip(tr("Reset all caches"));
     connect(clearALLCacheAct, SIGNAL(triggered()), this, SLOT(clearAndRedrawPage()));
 
     // Config menu
@@ -1219,6 +1218,7 @@ void Gui::createMenus()
     viewMenu->addAction(actualSizeAct);
     viewMenu->addAction(zoomInAct);
     viewMenu->addAction(zoomOutAct);
+
     viewMenu->addSeparator();
 
     toolsMenu = menuBar()->addMenu(tr("&Tools"));
@@ -1226,11 +1226,15 @@ void Gui::createMenus()
     toolsMenu->addAction(previousPageAct);
     toolsMenu->addAction(nextPageAct);
     toolsMenu->addAction(lastPageAct);
+
     toolsMenu->addSeparator();
-    toolsMenu->addAction(clearALLCacheAct);
-    toolsMenu->addAction(clearPLICacheAct);
-    toolsMenu->addAction(clearCSICacheAct);
-    toolsMenu->addAction(clearCSI3DCacheAct);
+
+    QMenu *cacheMenu = toolsMenu->addMenu("Reset Cache...");
+    cacheMenu->setIcon(QIcon(":/resources/resetcache.png"));
+    cacheMenu->addAction(clearALLCacheAct);
+    cacheMenu->addAction(clearPLICacheAct);
+    cacheMenu->addAction(clearCSICacheAct);
+    cacheMenu->addAction(clearCSI3DCacheAct);
 
     configMenu = menuBar()->addMenu(tr("&Configuration"));
     configMenu->addAction(pageSetupAct);
@@ -1241,11 +1245,15 @@ void Gui::createMenus()
     configMenu->addAction(multiStepSetupAct);
     configMenu->addAction(projectSetupAct);
     configMenu->addAction(fadeStepSetupAct);
+
     configMenu->addSeparator();
+
     configMenu->addAction(editFadeColourPartsAct);
     configMenu->addAction(editFreeFormAnnitationsAct);
     configMenu->addAction(generateFadeColourPartsAct);
+
     configMenu->addSeparator();
+
     configMenu->addAction(preferencesAct);
 
     helpMenu = menuBar()->addMenu(tr("&Help"));

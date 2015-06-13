@@ -1346,6 +1346,51 @@ public:
 };
 
 /*------------------------*/
+
+class PageAttributeMeta : public BranchMeta
+{
+public:
+    enum coverPageType
+    {
+        configuredFrontCover,
+        configuredBackCover
+    } coverType;
+  QString     	pageStrAttribute; 		// can be name, description, url, email, path (e.g. logo) etc...
+  FloatMeta		picScale;				// only for logo
+  FontMeta    	textFont;
+  StringMeta  	textColor;
+  MarginsMeta 	margin;
+  AlignmentMeta alignment;
+  void setValue(QString _value)
+  {
+      pageStrAttribute = _value;
+  }
+  PageAttributeMeta();
+  PageAttributeMeta(const PageAttributeMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~PageAttributeMeta() {}
+
+  virtual void init(BranchMeta *parent,
+                    QString name);
+};
+
+class PageAttributePlacementMeta : public PageAttributeMeta
+{
+public:
+  PlacementMeta  placement;
+  PageAttributePlacementMeta();
+  PageAttributePlacementMeta(const PageAttributePlacementMeta &rhs) : PageAttributeMeta(rhs)
+  {
+  }
+
+  virtual ~PageAttributePlacementMeta() {}
+  virtual void init(BranchMeta *parent,
+                    QString name);
+};
+
+/*------------------------*/
 /*
  * Fade Step Meta
  */
@@ -1654,15 +1699,29 @@ class PageMeta : public BranchMeta
 public:
   // top    == top of page
   // bottom == bottom of page
-  UnitsMeta      size;
-  MarginsMeta    margin;
-  BorderMeta     border;
-  BackgroundMeta background;
-  BoolMeta       dpn;
-  BoolMeta       togglePnPlacement;
-  NumberPlacementMeta number;
-  NumberPlacementMeta instanceCount;
-  StringListMeta subModelColor;
+  UnitsMeta                 size;
+  MarginsMeta               margin;
+  BorderMeta                border;
+  BackgroundMeta            background;
+  BoolMeta                  dpn;
+  BoolMeta                  togglePnPlacement;
+  NumberPlacementMeta       number;
+  NumberPlacementMeta       instanceCount;
+  StringListMeta            subModelColor;
+
+  //pageAttributes
+  PageAttributePlacementMeta title;
+  PageAttributePlacementMeta modelNum;
+  PageAttributePlacementMeta modelDesc;
+  PageAttributePlacementMeta author;
+  PageAttributePlacementMeta url;
+  PageAttributePlacementMeta email;
+  PageAttributePlacementMeta disclaimer;
+  PageAttributePlacementMeta logo;
+  PageAttributePlacementMeta pieces;
+  PageAttributePlacementMeta copyright;
+  PageAttributePlacementMeta plug;
+  PageAttributePlacementMeta plugImage;
 
   PageMeta();
   PageMeta(const PageMeta &rhs) : BranchMeta(rhs)

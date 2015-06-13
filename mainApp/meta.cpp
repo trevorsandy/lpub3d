@@ -1400,8 +1400,8 @@ QString InsertMeta::format(bool local, bool global)
     break;
     case InsertData::InsertText:
       foo += QString("TEXT \"%1\" \"%2\" \"%3\"") .arg(_value.text)
-                                                                                   .arg(_value.textFont)
-                                                                                   .arg(_value.textColor);
+                                                   .arg(_value.textFont)
+                                                   .arg(_value.textColor);
     break;
     case InsertData::InsertArrow:
       foo += " ARROW";
@@ -1620,23 +1620,6 @@ void NumberMeta::init(
   margin.init   (this, "MARGINS");
 }
 
-/* ------------------ */
-
-FadeStepMeta::FadeStepMeta() : BranchMeta()
-{
-  fadeColor.setValue(Preferences::fadeStepColor); // inherited from properties
-  fadeStep.setValue(Preferences::enableFadeStep); // inherited from properties
-}
-
-void FadeStepMeta::init(
-  BranchMeta *parent,
-  QString name)
-{
-  AbstractMeta::init(parent, name);
-  fadeColor.init    (this, "FADE_COLOR");
-  fadeStep.init     (this, "FADE");
-}
-
 NumberPlacementMeta::NumberPlacementMeta() : NumberMeta()
 {
   placement.setValue(TopLeftInsideCorner,PageType);
@@ -1654,6 +1637,70 @@ void NumberPlacementMeta::init(
   color.init    (this, "FONT_COLOR");
   font.init     (this, "FONT",OkRc, "\"");
   margin.init   (this, "MARGINS");
+}
+
+/* ------------------ */
+
+PageAttributeMeta::PageAttributeMeta() : BranchMeta()
+{
+  textColor.setValue("black");
+  // textFont - default
+  picScale.setRange(-10000.0,10000.0);
+  picScale.setFormats(7,4,"99999.9");
+  picScale.setValue(1.0);
+}
+
+void PageAttributeMeta::init(
+  BranchMeta *parent,
+  QString name)
+{
+  AbstractMeta::init(parent, name);
+  textColor.init    	(this, "COLOR");
+  textFont.init     	(this, "FONT");
+  margin.init   		(this, "MARGINS");
+  alignment.init		(this, "ALIGNMENT");
+  picScale.init			(this, "SCALE");
+}
+
+PageAttributePlacementMeta::PageAttributePlacementMeta() : PageAttributeMeta()
+{
+  placement.setValue(CenterCenter,PageType);  // check on 'PageType' maybe can use 'CoverType' somewhere
+
+  textColor.setValue("black");
+  // textFont - default
+  picScale.setRange(-10000.0,10000.0);
+  picScale.setFormats(7,4,"99999.9");
+  picScale.setValue(1.0);
+}
+
+void PageAttributePlacementMeta::init(
+  BranchMeta *parent,
+  QString name)
+{
+  AbstractMeta::init(parent, name);
+  placement.init		(this, "PLACEMENT");
+  textColor.init		(this, "COLOR");
+  textFont.init 		(this, "FONT");
+  margin.init   		(this, "MARGINS");
+  alignment.init		(this, "ALIGNMENT");
+  picScale.init			(this, "SCALE");
+}
+
+/* ------------------ */
+
+FadeStepMeta::FadeStepMeta() : BranchMeta()
+{
+  fadeColor.setValue(Preferences::fadeStepColor); // inherited from properties
+  fadeStep.setValue(Preferences::enableFadeStep); // inherited from properties
+}
+
+void FadeStepMeta::init(
+  BranchMeta *parent,
+  QString name)
+{
+  AbstractMeta::init(parent, name);
+  fadeColor.init    (this, "FADE_COLOR");
+  fadeStep.init     (this, "FADE");
 }
 
 /* ------------------ */ 

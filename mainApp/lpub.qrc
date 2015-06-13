@@ -57,6 +57,7 @@
         <file alias="projectsetup.png">images/projectsetup.png</file>
         <file alias="redraw.png">images/redraw.png</file>
         <file alias="removelpubformat.png">images/removelpubformat.png</file>
+        <file alias="resetcache.png">images/resetcache.png</file>
         <file alias="save.png">images/save.png</file>
         <file alias="saveas.png">images/saveas.png</file>        
         <file alias="savemetacommands.png">images/savemetacommands.png</file>
