@@ -225,7 +225,8 @@ HEADERS += \
     textitem.h \
     updatecheck.h \
     where.h \
-    version.h
+    version.h \
+    pageattributeitem.h
 
 	
 SOURCES += \
@@ -292,7 +293,8 @@ SOURCES += \
     textitem.cpp \
     traverse.cpp \
     updatecheck.cpp \
-    undoredo.cpp
+    undoredo.cpp \
+    pageattributeitem.cpp
 
 	
 FORMS += \

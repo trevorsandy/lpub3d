@@ -105,7 +105,23 @@ enum PlacementType {
   ReserveType,
   BomType,
   CoverPageType,
-  NumRelatives
+  NumRelatives,
+
+  PageTitleType,
+  PageModelNumType,
+  PageAuthorType,
+  PageAuthorURLType,
+  PageLogoType,
+  PageShortDescType,
+  PageCopyrightType,
+  PageEmailType,
+  PageDisclaimerType,
+  PagePiecesType,
+  PagePlugType,
+  PagePlugImageType,
+  PageFrontCoverType,
+  PageBackCoverType,
+  PageAttributeType
 };
 
 class PlacementData

@@ -367,6 +367,8 @@ mainApp/name.h -text
 mainApp/numberitem.cpp -text
 mainApp/numberitem.h -text
 mainApp/openclose.cpp -text
+mainApp/pageattributeitem.cpp -text
+mainApp/pageattributeitem.h -text
 mainApp/pagebackgrounditem.cpp -text
 mainApp/pagebackgrounditem.h -text
 mainApp/pageglobals.cpp -text

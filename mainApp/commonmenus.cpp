@@ -44,6 +44,8 @@
 
 #include <QString>
 
+#include "version.h"
+
 
 
 CommonMenus::CommonMenus(void)
@@ -236,57 +238,147 @@ QString type2english(PlacementType type)
 
 {
 
-  switch (type) {
+    switch (type) {
 
     case PageType:
 
-      return "page";
+        return "page";
 
-    break;
+        break;
 
     case CsiType:
 
-      return "step assembly image";
+        return "step assembly image";
 
-    break;
+        break;
 
     case StepGroupType:
 
-      return "group of steps";
+        return "group of steps";
 
-    break;
+        break;
 
     case StepNumberType:
 
-      return "step number";
+        return "step number";
 
-    break;
+        break;
 
     case PartsListType:
 
-      return "parts list";
+        return "parts list";
 
-    break;
+        break;
 
     case CalloutType:
 
-      return "callout";
+        return "callout";
 
-    break;
+        break;
 
     case PageNumberType:
 
-      return "page number";
+        return "page number";
 
-    break;
+        break;
+
+    case PageTitleType:
+
+        return "document title";
+
+        break;
+
+    case PageModelNumType:
+
+        return "model id";
+
+        break;
+
+    case PageAuthorType:
+
+        return "author";
+
+        break;
+
+    case PageAuthorURLType:
+
+        return "publisher url";
+
+        break;
+
+    case PageLogoType:
+
+        return "publisher logo";
+
+        break;
+
+    case PageShortDescType:
+
+        return "short model description";
+
+        break;
+
+    case PageCopyrightType:
+
+        return "copyright notice";
+
+        break;
+
+    case PageEmailType:
+
+        return "publisher email";
+
+        break;
+
+    case PageDisclaimerType:
+
+        return "LEGO © disclaimer";
+
+        break;
+
+    case PagePiecesType:
+
+        return "number of pieces";
+
+        break;
+
+    case PagePlugType:
+
+        return VER_PRODUCTNAME_STR + " caption";
+
+        break;
+
+    case PagePlugImageType:
+
+        return VER_PRODUCTNAME_STR + " logo";
+
+        break;
+
+    case PageFrontCoverType:
+
+        return "confighured front cover page";
+
+        break;
+
+    case PageBackCoverType:
+
+        return "configured back cover page";
+
+        break;
+
+    case PageAttributeType:
+
+        return "page attribute";
+
+        break;
 
     default:
 
-      return "";
+        return "";
 
-    break;
+        break;
 
-  }
+    }
 
 }
 
@@ -339,6 +431,12 @@ QString type2english2(PlacementType type)
       return "the page number";
 
     break;
+
+  case PageAttributeType:
+
+      return "this page attribute";
+
+      break;
 
     default:
 

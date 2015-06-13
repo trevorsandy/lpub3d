@@ -1350,20 +1350,15 @@ public:
 class PageAttributeMeta : public BranchMeta
 {
 public:
-    enum coverPageType
-    {
-        configuredFrontCover,
-        configuredBackCover
-    } coverType;
-  QString     	pageStrAttribute; 		// can be name, description, url, email, path (e.g. logo) etc...
-  FloatMeta		picScale;				// only for logo
+  QString     	pageAttribute; 		// can be name, description, url, email, path (e.g. logo) etc...
+  FloatMeta		picScale;		   // only for logo
   FontMeta    	textFont;
   StringMeta  	textColor;
   MarginsMeta 	margin;
   AlignmentMeta alignment;
   void setValue(QString _value)
   {
-      pageStrAttribute = _value;
+      pageAttribute = _value;
   }
   PageAttributeMeta();
   PageAttributeMeta(const PageAttributeMeta &rhs) : BranchMeta(rhs)
