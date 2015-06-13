@@ -44,6 +44,8 @@ void PageAttributeItem::setAttributes(
   textFont           = &_pageAttribute.textFont;
   textColor          = &_pageAttribute.textColor;
   margin             = &_pageAttribute.margin;
+  alignment          = &_pageAttribute.alignment;
+  picScale           = &_pageAttribute.picScale;
   value              = _value;
   name               = _name;
 
@@ -54,7 +56,7 @@ void PageAttributeItem::setAttributes(
   QString foo;
   foo.sprintf(_format,_value);
   setPlainText(foo);
-  setDefaultTextColor(LDrawColor::textColor(textColor->value()));
+  setDefaultTextColor(LDrawColor::color(textColor->value()));
   setToolTip(toolTip);
   setParentItem(_parent);
 }
@@ -66,6 +68,8 @@ PageAttributeItem::PageAttributeItem()
   textFont      = NULL;
   textColor     = NULL;
   margin        = NULL;
+  alignment     = NULL;
+  picScale      = NULL;
 }
 
 PageAttributeItem::PageAttributeItem(
@@ -132,6 +136,8 @@ void PageAttributePlacementItem::setAttributes(
   textFont              =  _pageAttribute.textFont;
   textColor             =  _pageAttribute.textColor;
   margin                =  _pageAttribute.margin;
+  picScale              =  _pageAttribute.picScale;
+  //alignment           =  _pageAttribute.alignment;            //don't think we need this her but putting as placeholder until verified
   placement             =  _pageAttribute.placement;
   value                 =  _value;
   name                  =  _name;
@@ -143,7 +149,7 @@ void PageAttributePlacementItem::setAttributes(
   QString foo;
   foo.sprintf(_format,_value);
   setPlainText(foo);
-  setDefaultTextColor(LDrawColor::textColor(textColor.value()));
+  setDefaultTextColor(LDrawColor::color(textColor.value()));
 
   setToolTip(toolTip);
   setParentItem(_parent);

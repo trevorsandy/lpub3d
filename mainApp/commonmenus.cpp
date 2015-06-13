@@ -344,13 +344,13 @@ QString type2english(PlacementType type)
 
     case PagePlugType:
 
-        return VER_PRODUCTNAME_STR + " caption";
+        return  "LPub3D caption";               // change to global variable once runnig
 
         break;
 
     case PagePlugImageType:
 
-        return VER_PRODUCTNAME_STR + " logo";
+        return "LPub3D logo";
 
         break;
 

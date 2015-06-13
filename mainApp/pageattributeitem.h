@@ -33,6 +33,8 @@ public:
   FontMeta      *textFont;
   StringMeta    *textColor;
   MarginsMeta   *margin;
+  AlignmentMeta *alignment;
+  FloatMeta		*picScale;
   QString        value;
   QString        name;
 
@@ -74,10 +76,13 @@ public:
   FontMeta       textFont;
   StringMeta     textColor;
   QString        value;
+  FloatMeta		 picScale;
   QString        name;
 
   bool           positionChanged;
   QPointF        position;
+
+  //AlignmentMeta alignment;        //don't think we need this her but putting as placeholder until verified
 
   PageAttributePlacementItem();
 
