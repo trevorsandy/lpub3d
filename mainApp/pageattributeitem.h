@@ -24,7 +24,7 @@ class Where;
 class Page;
 class Step;
 
-class PageAttributeItem : public QGraphicsTextItem, public MetaItem
+class PageAttributeItem : public QGraphicsTextItem, public MetaItem, public Placement
 {
 public:
   PlacementType  relativeType;
@@ -38,98 +38,63 @@ public:
   QString        value;
   QString        name;
 
+  bool              positionChanged;
+  QPointF           position;
+  bool              textValueChanged;
+  // Implement complete InsertMeta model (PageAttributeChangeMeta)
+  // change to PageAttributeChangeMeta pageAttributeChangeMeta
+  // InsertMeta     meta;
+
   PageAttributeItem();
 
   PageAttributeItem(
-    PlacementType       relativeType,
-    PlacementType       parentRelativeType,
+    PlacementType        relativeType,
+    PlacementType        parentRelativeType,
     Meta                *meta,
     PageAttributeMeta   &pageAttribute,
-    const char          *format,
     QString             _value,
     QString             &toolTip,
     QGraphicsItem       *parent,
-    QString             name = "");
+    QString              name = "");
 
   void setAttributes(
-    PlacementType       relativeType,
-    PlacementType       parentRelativeType,
+    PlacementType        relativeType,
+    PlacementType        parentRelativeType,
     Meta                *meta,
     PageAttributeMeta   &pageAttribute,
-    const char          *format,
     QString             _value,
     QString             &toolTip,
     QGraphicsItem       *parent,
-    QString             name = "");
-
-  void setFlags( GraphicsItemFlag flag, bool value)
-  {
-    QGraphicsTextItem::setFlag(flag,value);
-  }
-};
-
-class PageAttributePlacementItem : public QGraphicsTextItem, public MetaItem, public Placement
-{
-public:
-  PlacementType  relativeType;
-  PlacementType  parentRelativeType;
-  FontMeta       textFont;
-  StringMeta     textColor;
-  QString        value;
-  FloatMeta		 picScale;
-  QString        name;
-
-  bool           positionChanged;
-  QPointF        position;
-
-  //AlignmentMeta alignment;        //don't think we need this her but putting as placeholder until verified
-
-  PageAttributePlacementItem();
-
-  PageAttributePlacementItem(
-    PlacementType               relativeType,
-    PlacementType               parentRelativeType,
-    PageAttributePlacementMeta  &pageAttribute,
-    const char                  *format,
-    QString                     _value,
-    QString                     &toolTip,
-    QGraphicsItem               *parent,
-    QString                     name = "");
-
-  void setAttributes(
-    PlacementType               relativeType,
-    PlacementType               parentRelativeType,
-    PageAttributePlacementMeta  &pageAttribute,
-    const char                  *format,
-    QString                     _value,
-    QString                     &toolTip,
-    QGraphicsItem               *parent,
-    QString                     name = "");
+    QString              name = "");
 
   void setFlags( GraphicsItemFlag flag, bool value)
   {
     QGraphicsTextItem::setFlag(flag,value);
   }
 
-protected:
-  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-  virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 };
 
-class PagePageAttributeItem : public PageAttributePlacementItem
+
+class PagePageAttributeItem : public PageAttributeItem
 {
-  Page                         *page;
+  Page                *page;
 public:
   PagePageAttributeItem(
-    Page                       *page,
-    PageAttributePlacementMeta &pageAttribute,
-    const char                 *format,
-    QString                    _value,
-    QGraphicsItem              *parent);
+    Page              *page,
+    PageAttributeItem &pageAttribute,
+    QString           _value,
+    QGraphicsItem     *parent);
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+
+  void focusInEvent(QFocusEvent *event);
+  void focusOutEvent(QFocusEvent *event);
+  void keyPressEvent(QKeyEvent *event);
+  void keyReleaseEvent(QKeyEvent *event);
 };
 
 

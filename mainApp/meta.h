@@ -1350,15 +1350,20 @@ public:
 class PageAttributeMeta : public BranchMeta
 {
 public:
-  QString     	pageAttribute; 		// can be name, description, url, email, path (e.g. logo) etc...
-  FloatMeta		picScale;		   // only for logo
+  QString   	pageAttribute; 		// can be name, description, url, email, path (e.g. logo) etc...
+  FloatMeta		picScale;		    // only for logo
   FontMeta    	textFont;
   StringMeta  	textColor;
   MarginsMeta 	margin;
   AlignmentMeta alignment;
+  PlacementMeta  placement;
   void setValue(QString _value)
   {
       pageAttribute = _value;
+  }
+  QString value()
+  {
+      return pageAttribute;
   }
   PageAttributeMeta();
   PageAttributeMeta(const PageAttributeMeta &rhs) : BranchMeta(rhs)
@@ -1367,20 +1372,6 @@ public:
 
   virtual ~PageAttributeMeta() {}
 
-  virtual void init(BranchMeta *parent,
-                    QString name);
-};
-
-class PageAttributePlacementMeta : public PageAttributeMeta
-{
-public:
-  PlacementMeta  placement;
-  PageAttributePlacementMeta();
-  PageAttributePlacementMeta(const PageAttributePlacementMeta &rhs) : PageAttributeMeta(rhs)
-  {
-  }
-
-  virtual ~PageAttributePlacementMeta() {}
   virtual void init(BranchMeta *parent,
                     QString name);
 };
@@ -1705,18 +1696,18 @@ public:
   StringListMeta            subModelColor;
 
   //pageAttributes
-  PageAttributePlacementMeta title;
-  PageAttributePlacementMeta modelNum;
-  PageAttributePlacementMeta modelDesc;
-  PageAttributePlacementMeta author;
-  PageAttributePlacementMeta url;
-  PageAttributePlacementMeta email;
-  PageAttributePlacementMeta disclaimer;
-  PageAttributePlacementMeta logo;
-  PageAttributePlacementMeta pieces;
-  PageAttributePlacementMeta copyright;
-  PageAttributePlacementMeta plug;
-  PageAttributePlacementMeta plugImage;
+  PageAttributeMeta title;
+  PageAttributeMeta modelNum;
+  PageAttributeMeta modelDesc;
+  PageAttributeMeta author;
+  PageAttributeMeta url;
+  PageAttributeMeta email;
+  PageAttributeMeta disclaimer;
+  PageAttributeMeta logo;
+  PageAttributeMeta pieces;
+  PageAttributeMeta copyright;
+  PageAttributeMeta plug;
+  PageAttributeMeta plugImage;
 
   PageMeta();
   PageMeta(const PageMeta &rhs) : BranchMeta(rhs)

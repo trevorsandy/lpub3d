@@ -118,6 +118,7 @@ void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     pld.preposition   = Inside;
 
     calcOffsets(pld,insertData.offsets,topLeft,size);
+
     QStringList list = toPlainText().split("\n");
     insertData.text = list.join("\\n");
     meta.setValue(insertData);
@@ -135,6 +136,7 @@ void TextItem::focusInEvent(QFocusEvent *event)
   textChanged = false;
   QGraphicsTextItem::focusInEvent(event);
 }
+
 void TextItem::focusOutEvent(QFocusEvent *event)
 {
   QGraphicsTextItem::focusOutEvent(event);
@@ -151,6 +153,7 @@ void TextItem::focusOutEvent(QFocusEvent *event)
     endMacro();
   }
 }
+
 void TextItem::keyPressEvent(QKeyEvent *event)
 {
   textChanged = true;

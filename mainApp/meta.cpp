@@ -1662,30 +1662,6 @@ void PageAttributeMeta::init(
   picScale.init			(this, "SCALE");
 }
 
-PageAttributePlacementMeta::PageAttributePlacementMeta() : PageAttributeMeta()
-{
-  placement.setValue(CenterCenter,PageType);  // check on 'PageType' maybe can use 'CoverType' somewhere
-
-  textColor.setValue("black");
-  // textFont - default
-  picScale.setRange(-10000.0,10000.0);
-  picScale.setFormats(7,4,"99999.9");
-  picScale.setValue(1.0);
-}
-
-void PageAttributePlacementMeta::init(
-  BranchMeta *parent,
-  QString name)
-{
-  AbstractMeta::init(parent, name);
-  placement.init		(this, "PLACEMENT");
-  textColor.init		(this, "COLOR");
-  textFont.init 		(this, "FONT");
-  margin.init   		(this, "MARGINS");
-  alignment.init		(this, "ALIGNMENT");
-  picScale.init			(this, "SCALE");
-}
-
 /* ------------------ */
 
 FadeStepMeta::FadeStepMeta() : BranchMeta()

@@ -28,33 +28,32 @@
 #include "step.h"
 
 void PageAttributeItem::setAttributes(
-  PlacementType      _relativeType,
-  PlacementType      _parentRelativeType,
+  PlacementType       _relativeType,
+  PlacementType       _parentRelativeType,
   Meta               *_meta,
   PageAttributeMeta  &_pageAttribute,
-  const char         *_format,
-  QString            _value,
+  QString             _value,
   QString            &toolTip,
   QGraphicsItem      *_parent,
-  QString            _name)
+  QString             _name)
 {
-  relativeType       = _relativeType;
-  parentRelativeType = _parentRelativeType;
-  meta               = _meta;
+  relativeType       =  _relativeType;
+  parentRelativeType =  _parentRelativeType;
+  meta               =  _meta;
   textFont           = &_pageAttribute.textFont;
   textColor          = &_pageAttribute.textColor;
   margin             = &_pageAttribute.margin;
   alignment          = &_pageAttribute.alignment;
   picScale           = &_pageAttribute.picScale;
-  value              = _value;
-  name               = _name;
+  value              =  _value;
+  name               =  _name;
 
   QFont qfont;
   qfont.fromString(_pageAttribute.textFont.valueFoo());
   setFont(qfont);
 
   QString foo;
-  foo.sprintf(_format,_value);
+  foo = _value;
   setPlainText(foo);
   setDefaultTextColor(LDrawColor::color(textColor->value()));
   setToolTip(toolTip);
@@ -73,123 +72,23 @@ PageAttributeItem::PageAttributeItem()
 }
 
 PageAttributeItem::PageAttributeItem(
-  PlacementType     _relativeType,
-  PlacementType     _parentRelativeType,
+  PlacementType      _relativeType,
+  PlacementType      _parentRelativeType,
   Meta              *_meta,
   PageAttributeMeta &_pageAttribute,
-  const char        *_format,
-  QString           _value,
+  QString            _value,
   QString           &_toolTip,
   QGraphicsItem     *_parent,
-  QString           _name)
+  QString            _name)
 {
   setAttributes(_relativeType,
                 _parentRelativeType,
                 _meta,
                 _pageAttribute,
-                _format,
                 _value,
                 _toolTip,
                 _parent,
                 _name);
-}
-
-PageAttributePlacementItem::PageAttributePlacementItem()
-{
-  relativeType = PageAttributeType;
-  setFlag(QGraphicsItem::ItemIsMovable,true);
-  setFlag(QGraphicsItem::ItemIsSelectable,true);
-}
-
-PageAttributePlacementItem::PageAttributePlacementItem(
-  PlacementType                 _relativeType,
-  PlacementType                 _parentRelativeType,
-  PageAttributePlacementMeta    &_pageAttribute,
-  const char                    *_format,
-  QString                       _value,
-  QString                       &toolTip,
-  QGraphicsItem                 *_parent,
-  QString                       _name)
-{
-  setAttributes(_relativeType,
-                _parentRelativeType,
-                _pageAttribute,
-                _format,
-                _value,
-                toolTip,
-                _parent,
-                _name);
-}
-
-void PageAttributePlacementItem::setAttributes(
-  PlacementType                 _relativeType,
-  PlacementType                 _parentRelativeType,
-  PageAttributePlacementMeta    &_pageAttribute,
-  const char                    *_format,
-  QString                       _value,
-  QString                       &toolTip,
-  QGraphicsItem                 *_parent,
-  QString                       _name)
-{
-  relativeType          = _relativeType;
-  parentRelativeType    = _parentRelativeType;
-  textFont              =  _pageAttribute.textFont;
-  textColor             =  _pageAttribute.textColor;
-  margin                =  _pageAttribute.margin;
-  picScale              =  _pageAttribute.picScale;
-  //alignment           =  _pageAttribute.alignment;            //don't think we need this her but putting as placeholder until verified
-  placement             =  _pageAttribute.placement;
-  value                 =  _value;
-  name                  =  _name;
-
-  QFont qfont;
-  qfont.fromString(_pageAttribute.textFont.valueFoo());
-  setFont(qfont);
-
-  QString foo;
-  foo.sprintf(_format,_value);
-  setPlainText(foo);
-  setDefaultTextColor(LDrawColor::color(textColor.value()));
-
-  setToolTip(toolTip);
-  setParentItem(_parent);
-}
-void PageAttributePlacementItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-  QGraphicsItem::mousePressEvent(event);
-  positionChanged = false;
-  position = pos();
-}
-
-void PageAttributePlacementItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-  QGraphicsItem::mouseMoveEvent(event);
-  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
-    positionChanged = true;
-  }
-}
-
-void PageAttributePlacementItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
-  QGraphicsItem::mouseReleaseEvent(event);
-}
-
-PagePageAttributeItem::PagePageAttributeItem(
-  Page                          *_page,
-  PageAttributePlacementMeta    &_pageAttribute,
-  const char                    *_format,
-  QString                       _value,
-  QGraphicsItem                 *_parent)
-{
-  page = _page;
-  QString toolTip("Page Attribute - use popu menu");
-  setAttributes(PageAttributeType,
-                SingleStepType,
-                _pageAttribute,
-                _format,
-                _value,
-                toolTip,
-                _parent);
 }
 
 void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
@@ -205,10 +104,16 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   QAction *fontAction       = menu.addAction("Change Page Attribute Font");
   QAction *colorAction      = menu.addAction("Change Page Attribute Color");
   QAction *marginAction     = menu.addAction("Change Page Attribute Margins");
+  QAction *scaleAction      = menu.addAction("Change Image Scale");
 
   fontAction->setWhatsThis("You can change the textFont or the size of the page pageAttribute");
   colorAction->setWhatsThis("You can change the textColor of the page pageAttribute");
   marginAction->setWhatsThis("You can change how much empty space their is around the page pageAttribute");
+  scaleAction->setWhatsThis("You can change the size of this image using the scale dialog (window).");
+
+  Where topOfSteps      = page->topOfSteps();
+  Where bottomOfSteps   = page->bottomOfSteps();
+  Where begin           = topOfSteps;
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
@@ -216,24 +121,34 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
 
     changePlacement(PageType,
                     PageAttributeType,
-                    "Page Attribute Placement",
-                    page->topOfSteps(),
-                    page->bottomOfSteps(),
-                  &placement);
+                    "Move Page Attribute",
+                    topOfSteps,
+                    bottomOfSteps,
+                    &placement);
 
   } else if (selectedAction == fontAction) {
 
-    changeFont(page->topOfSteps(),page->bottomOfSteps(),&textFont);
+    changeFont(topOfSteps,bottomOfSteps,textFont);
 
   } else if (selectedAction == colorAction) {
 
-    changeColor(page->topOfSteps(),page->bottomOfSteps(),&textColor);
+    changeColor(topOfSteps,bottomOfSteps,textColor);
 
   } else if (selectedAction == marginAction) {
 
     changeMargins("Page Attribute Margins",
-                  page->topOfSteps(),page->bottomOfSteps(),
-                &margin);
+                  topOfSteps,bottomOfSteps,margin);
+
+  }else if (selectedAction == scaleAction) {
+
+      bool allowLocal = parentRelativeType != StepGroupType &&
+                        parentRelativeType != CalloutType;
+      changeFloatSpin("Image",
+                      "Image Size",
+                      begin,
+                      topOfSteps,
+                      &meta->LPub.page.logo.picScale,
+                      1,allowLocal);
   }
 }
 
@@ -258,7 +173,65 @@ void PagePageAttributeItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
       placement.setValue(placementData);
 
-      changePlacementOffset(page->bottomOfSteps(),&placement,StepNumberType);
+      changePlacementOffset(page->bottomOfSteps(),&placement,PageAttributeType);
+
     }
   }
+}
+
+void PagePageAttributeItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+  QGraphicsItem::mousePressEvent(event);
+  positionChanged = false;
+  position = pos();
+}
+
+void PagePageAttributeItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+  QGraphicsItem::mouseMoveEvent(event);
+  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+    positionChanged = true;
+  }
+}
+
+void PagePageAttributeItem::focusInEvent(QFocusEvent *event)
+{
+  textValueChanged = false;
+  QGraphicsTextItem::focusInEvent(event);
+}
+
+void PagePageAttributeItem::focusOutEvent(QFocusEvent *event)
+{
+  QGraphicsTextItem::focusOutEvent(event);
+
+  // change meta
+  // Implement complete InsertMeta model using only PICTURE and TEXT
+  // metaTypes.h: class InsertData=PageAttributeData
+  // meta.h     : class InsertMeta=InsertMeta=PageAttributeChangeMeta
+  // meta.cpp   : method Rc InsertMeta::parse()=Rc PageAttributeChangeMeta::parse()
+  // meta.cpp   : method Rc InsertMeta::doc()=Rc PageAttributeChangeMeta::doc()
+  // meta.cpp   : method Rc InsertMeta::format()=Rc PageAttributeChangeMeta::format()
+
+  // change InsertData to PageAttributeData pageAttributeData
+//  if (textChanged) {
+//    InsertData insertData = meta.value();
+//    QStringList list = toPlainText().split("\n");
+//    insertData.text = list.join("\\n");
+//    meta.setValue(insertData);
+
+//    beginMacro(QString("Edit"));
+//    changeInsertOffset(&meta);
+//    endMacro();
+//  }
+}
+
+void PagePageAttributeItem::keyPressEvent(QKeyEvent *event)
+{
+  textValueChanged = true;
+  QGraphicsTextItem::keyPressEvent(event);
+}
+void PagePageAttributeItem::keyReleaseEvent(QKeyEvent *event)
+{
+  textValueChanged = true;
+  QGraphicsTextItem::keyReleaseEvent(event);
 }
