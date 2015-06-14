@@ -26,6 +26,7 @@
 #include "meta.h"
 #include "metaitem.h"
 #include "metagui.h"
+#include "lpub_preferences.h"
 
 /**********************************************************************
  *
@@ -97,6 +98,46 @@ GlobalPageDialog::GlobalPageDialog(
 
   tab->addTab(widget,"Page");
   
+  widget = new QWidget();
+  grid = new QGridLayout();
+  widget->setLayout(grid);
+
+  /*
+    Title,
+    Model ID,
+    Pieces,
+
+    Model Description
+  */
+
+  tab->addTab(widget,"Model");
+
+  widget = new QWidget();
+  grid = new QGridLayout();
+  widget->setLayout(grid);
+
+  /*
+    Author,
+    Email,
+    AuthorURL,
+    Copyright
+    Publish Desription
+    Logo
+  */
+
+  tab->addTab(widget,"Publisher");
+
+  widget = new QWidget();
+  grid = new QGridLayout();
+  widget->setLayout(grid);
+
+  /*
+    LEGO disclaimer,
+    Plug
+  */
+
+  tab->addTab(widget,"Disclaimer");
+
   widget = new QWidget();
   grid = new QGridLayout();
   widget->setLayout(grid);

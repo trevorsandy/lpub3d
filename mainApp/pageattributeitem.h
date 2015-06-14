@@ -41,6 +41,7 @@ public:
   bool              positionChanged;
   QPointF           position;
   bool              textValueChanged;
+
   // Implement complete InsertMeta model (PageAttributeChangeMeta)
   // change to PageAttributeChangeMeta pageAttributeChangeMeta
   // InsertMeta     meta;

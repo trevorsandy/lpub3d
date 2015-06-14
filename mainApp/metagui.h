@@ -239,6 +239,50 @@ public slots:
 };
 /***********************************************************************
  *
+ * PageAttribute
+ *
+ **********************************************************************/
+
+class PageAttributeMeta;
+class QGroupBox;
+class QPushButton;
+class PageAttributeGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  PageAttributeGui(
+    PageAttributeMeta *meta,
+    QGroupBox  *parent = NULL);
+  ~PageAttributeGui() {}
+
+  virtual void apply(QString &modelName);
+
+private:
+  PageAttributeMeta  *meta;
+
+  bool        fontModified;
+  bool        colorModified;
+  bool        marginsModified;
+
+  QLabel      *fontLabel;
+  QLabel      *fontExample;
+  QPushButton *fontButton;
+  QLabel      *colorLabel;
+  QLabel      *colorExample;
+  QPushButton *colorButton;
+  QLabel      *marginsLabel;
+  QLineEdit   *value0;
+  QLineEdit   *value1;
+
+public slots:
+  void browseFont(bool clicked);
+  void browseColor(bool clicked);
+  void value0Changed(QString const &);
+  void value1Changed(QString const &);
+};
+/***********************************************************************
+ *
  * FadeStep
  *
  **********************************************************************/

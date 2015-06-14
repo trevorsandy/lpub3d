@@ -662,6 +662,135 @@ void NumberGui::apply(
 }
 /***********************************************************************
  *
+ * PageAttribute
+ *
+ **********************************************************************/
+
+PageAttributeGui::PageAttributeGui(
+  PageAttributeMeta *_meta,
+  QGroupBox  *parent)
+{
+  meta = _meta;
+
+  QGridLayout *grid;
+
+  grid = new QGridLayout(parent);
+
+  if (parent) {
+    parent->setLayout(grid);
+  }
+
+  fontLabel = new QLabel("Font",parent);
+  grid->addWidget(fontLabel,0,0);
+
+  fontExample = new QLabel("1234",parent);
+  QFont font;
+  font.fromString(meta->textFont.valueFoo());
+  fontExample->setFont(font);
+  grid->addWidget(fontExample,0,1);
+
+  fontButton = new QPushButton("Change",parent);
+  connect(fontButton,SIGNAL(clicked(   bool)),
+          this,      SLOT(  browseFont(bool)));
+  grid->addWidget(fontButton,0,2);
+
+  colorLabel = new QLabel("Color",parent);
+  grid->addWidget(colorLabel,1,0);
+
+  colorExample = new QLabel(parent);
+  colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+  colorExample->setPalette(QPalette(meta->textColor.value()));
+  colorExample->setAutoFillBackground(true);
+  grid->addWidget(colorExample,1,1);
+
+  colorButton = new QPushButton("Change");
+  connect(colorButton,SIGNAL(clicked(    bool)),
+          this,       SLOT(  browseColor(bool)));
+  grid->addWidget(colorButton,1,2);
+
+  marginsLabel = new QLabel("Margins",parent);
+  grid->addWidget(marginsLabel,2,0);
+
+  QString string;
+
+  string = QString("%1") .arg(meta->margin.value(0),5,'f',4);
+  value0 = new QLineEdit(string,parent);
+  connect(value0,SIGNAL(textEdited(   QString const &)),
+          this,  SLOT(  value0Changed(QString const &)));
+  grid->addWidget(value0,2,1);
+
+  string = QString("%1") .arg(meta->margin.value(1),5,'f',4);
+  value1 = new QLineEdit(string,parent);
+  connect(value1,SIGNAL(textEdited(   QString const &)),
+          this,  SLOT(  value1Changed(QString const &)));
+  grid->addWidget(value1,2,2);
+
+  fontModified = false;
+  colorModified = false;
+  marginsModified = false;
+}
+
+void PageAttributeGui::browseFont(bool clicked)
+{
+  clicked = clicked;
+  QFont font;
+  QString fontName = meta->textFont.valueFoo();
+  font.fromString(fontName);
+  bool ok;
+  font = QFontDialog::getFont(&ok,font);
+  fontName = font.toString();
+
+  if (ok) {
+    meta->textFont.setValue(font.toString());
+    fontExample->setFont(font);
+    fontModified = true;
+  }
+}
+
+void PageAttributeGui::browseColor(bool clicked)
+{
+  clicked = clicked;
+  QColor qcolor = LDrawColor::color(meta->textColor.value());
+  QColor newColor = QColorDialog::getColor(qcolor,this);
+  if (qcolor != newColor) {
+    colorExample->setPalette(QPalette(newColor));
+    colorExample->setAutoFillBackground(true);
+    meta->textColor.setValue(newColor.name());
+    colorModified = true;
+  }
+}
+
+void PageAttributeGui::value0Changed(QString const &string)
+{
+  meta->margin.setValue(0,string.toFloat());
+  marginsModified = true;
+}
+
+void PageAttributeGui::value1Changed(QString const &string)
+{
+  meta->margin.setValue(1, string.toFloat());
+  marginsModified = true;
+}
+
+void PageAttributeGui::apply(
+  QString &topLevelFile)
+{
+  MetaItem mi;
+  mi.beginMacro("Settings");
+
+  if (fontModified) {
+    mi.setGlobalMeta(topLevelFile,&meta->textFont);
+  }
+  if (colorModified) {
+    mi.setGlobalMeta(topLevelFile,&meta->textColor);
+  }
+  if (marginsModified) {
+    mi.setGlobalMeta(topLevelFile,&meta->margin);
+  }
+  mi.endMacro();
+}
+/***********************************************************************
+ *
  * FadeStep
  *
  **********************************************************************/
