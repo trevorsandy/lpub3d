@@ -34,7 +34,7 @@ public:
   StringMeta    *textColor;
   MarginsMeta   *margin;
   AlignmentMeta *alignment;
-  FloatMeta		*picScale;
+  PictureMeta   *picture;
   QString        value;
   QString        name;
 
@@ -44,7 +44,6 @@ public:
 
   // Implement complete InsertMeta model (PageAttributeChangeMeta)
   // change to PageAttributeChangeMeta pageAttributeChangeMeta
-  // InsertMeta     meta;
 
   PageAttributeItem();
 
@@ -52,7 +51,7 @@ public:
     PlacementType        relativeType,
     PlacementType        parentRelativeType,
     Meta                *meta,
-    PageAttributeMeta   &pageAttribute,
+    PageAttributeMeta   &pageAttribute,     //change to PageAttributeData
     QString             _value,
     QString             &toolTip,
     QGraphicsItem       *parent,

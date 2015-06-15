@@ -82,7 +82,7 @@ enum PlacementEnc {
   BottomLeft,
   Left,
   Center,
-  NumPlacements,
+  NumPlacements
 };
 
 enum PrepositionEnc {
@@ -106,6 +106,7 @@ enum PlacementType {
   BomType,
   CoverPageType,
   NumRelatives,
+  PageAttributeType,
 
   PageTitleType,
   PageModelNumType,
@@ -121,7 +122,8 @@ enum PlacementType {
   PagePlugImageType,
   PageFrontCoverType,
   PageBackCoverType,
-  PageAttributeType
+  PageAttributePictureType,
+  PageAttributeTextType
 };
 
 class PlacementData
@@ -150,7 +152,7 @@ class PointerData
 {
 public:
   PlacementEnc placement;
-  float loc;  // fraction of side/top/bottom o callout
+  float loc;  // fraction of side/top/bottom of callout
   float x;    // fraction of CSI size
   float y;
   float base; // in units
@@ -228,6 +230,19 @@ public:
   } type;
   QString    string;
   bool       stretch;
+};
+
+class PictureData
+{
+public:
+  QString           picName;
+  qreal             picScale;
+  QString           string;
+  bool              stretch;
+  PictureData()
+  {
+      picScale = 1.0;
+  }
 };
 
 class BorderData

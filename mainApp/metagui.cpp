@@ -662,17 +662,18 @@ void NumberGui::apply(
 }
 /***********************************************************************
  *
- * PageAttribute
+ * PageAttributeText
  *
  **********************************************************************/
 
-PageAttributeGui::PageAttributeGui(
+PageAttributeTextGui::PageAttributeTextGui(
   PageAttributeMeta *_meta,
   QGroupBox  *parent)
 {
-  meta = _meta;
+  QString        string;
+  QGridLayout   *grid;
 
-  QGridLayout *grid;
+  meta = _meta;
 
   grid = new QGridLayout(parent);
 
@@ -711,8 +712,6 @@ PageAttributeGui::PageAttributeGui(
   marginsLabel = new QLabel("Margins",parent);
   grid->addWidget(marginsLabel,2,0);
 
-  QString string;
-
   string = QString("%1") .arg(meta->margin.value(0),5,'f',4);
   value0 = new QLineEdit(string,parent);
   connect(value0,SIGNAL(textEdited(   QString const &)),
@@ -725,12 +724,36 @@ PageAttributeGui::PageAttributeGui(
           this,  SLOT(  value1Changed(QString const &)));
   grid->addWidget(value1,2,2);
 
+  // Placement
+  QComboBox         *placementCombo;
+  placementCombo = new QComboBox(parent);
+
+  placementCombo->addItem("TopLeft");
+  placementCombo->addItem("Top");
+  placementCombo->addItem("TopRight");
+  placementCombo->addItem("Right");
+  placementCombo->addItem("BottomRight");
+  placementCombo->addItem("Bottom");
+  placementCombo->addItem("BottomLeft");
+  placementCombo->addItem("Left");
+  placementCombo->addItem("Center");
+
+  //placementCombo->setCurrentIndex(int(meta->placement.value())); //solve later
+  connect(placementCombo,SIGNAL(currentIndexChanged(QString const &)),
+          this, SLOT(  typePlacementChange(         QString const &)));
+  grid->addWidget(placementCombo, 3, 0);
+
+  placement = new QLabel(parent);
+  placement->setText("Placement");
+  grid->addWidget(placement,3,1);
+
   fontModified = false;
   colorModified = false;
   marginsModified = false;
+  placementModified = false;
 }
 
-void PageAttributeGui::browseFont(bool clicked)
+void PageAttributeTextGui::browseFont(bool clicked)
 {
   clicked = clicked;
   QFont font;
@@ -747,7 +770,7 @@ void PageAttributeGui::browseFont(bool clicked)
   }
 }
 
-void PageAttributeGui::browseColor(bool clicked)
+void PageAttributeTextGui::browseColor(bool clicked)
 {
   clicked = clicked;
   QColor qcolor = LDrawColor::color(meta->textColor.value());
@@ -760,19 +783,45 @@ void PageAttributeGui::browseColor(bool clicked)
   }
 }
 
-void PageAttributeGui::value0Changed(QString const &string)
+void PageAttributeTextGui::value0Changed(QString const &string)
 {
   meta->margin.setValue(0,string.toFloat());
   marginsModified = true;
 }
 
-void PageAttributeGui::value1Changed(QString const &string)
+void PageAttributeTextGui::value1Changed(QString const &string)
 {
   meta->margin.setValue(1, string.toFloat());
   marginsModified = true;
 }
 
-void PageAttributeGui::apply(
+void PageAttributeTextGui::typePlaceChange(QString const &type)
+{
+
+    if (type == "TopLeft") {
+        meta->placement.setValue(TopLeftInsideCorner,PageType);
+    } else if (type == "Top") {
+        meta->placement.setValue(TopInside,PageType);
+    } else if (type == "TopRight") {
+        meta->placement.setValue(TopRightInsideCorner,PageType);
+    } else if (type == "Right") {
+        meta->placement.setValue(RightInside,PageType);
+    } else if (type == "BottomRight") {
+        meta->placement.setValue(BottomRightInsideCorner,PageType);
+    } else if (type == "Bottom") {
+        meta->placement.setValue(BottomInside,PageType);
+    } else if (type == "BottomLeft") {
+        meta->placement.setValue(BottomLeftInsideCorner,PageType);
+    } else if (type == "Left") {
+        meta->placement.setValue(LeftInside,PageType);
+    } else {
+        meta->placement.setValue(CenterCenter,PageType);
+    }
+
+  placementModified = true;
+}
+
+void PageAttributeTextGui::apply(
   QString &topLevelFile)
 {
   MetaItem mi;
@@ -787,8 +836,121 @@ void PageAttributeGui::apply(
   if (marginsModified) {
     mi.setGlobalMeta(topLevelFile,&meta->margin);
   }
+  if (placementModified){
+      mi.setGlobalMeta(topLevelFile,&meta->placement);
+  }
   mi.endMacro();
 }
+
+/***********************************************************************
+ *
+ * PageAttributePicture
+ *
+ **********************************************************************/
+
+ PageAttributePictureGui::PageAttributePictureGui(
+  PageAttributeMeta *_meta,
+  QGroupBox  *parent)
+{
+  QGridLayout   *grid;
+  QVBoxLayout   *vert;
+
+  meta = _meta;
+
+  grid = new QGridLayout(parent);
+  parent->setLayout(grid);
+
+    /* Image */
+
+  pictureEdit = new QLineEdit(picture,parent);
+  connect(pictureEdit,SIGNAL(textEdited(   QString const &)),
+          this,       SLOT(  pictureChange(QString const &)));
+  grid->addWidget(pictureEdit,1,0);
+
+  pictureButton = new QPushButton("Browse",parent);
+  connect(pictureButton,SIGNAL(clicked(     bool)),
+          this,         SLOT(  browsePicture(bool)));
+  grid->addWidget(pictureButton,1,1);
+
+  /* Fill */
+
+  fill = new QGroupBox("Fill",parent);
+
+  //vert = new QVBoxLayout(parent); // generating error: QLayout: Attempting to add QLayout "" to QGroupBox "", which already has a layout
+  vert = new QVBoxLayout(); // change to horizontal
+  fill->setLayout(vert);
+  grid->addWidget(fill,1,0,1,3);
+
+  stretchRadio = new QRadioButton("Stretch Picture",parent);
+  connect(stretchRadio,SIGNAL(clicked(bool)),
+          this,        SLOT(  stretch(bool)));
+  vert->addWidget(stretchRadio);
+  tileRadio    = new QRadioButton("Tile Picture",parent);
+  connect(tileRadio,SIGNAL(clicked(bool)),
+          this,     SLOT(  stretch(bool)));
+  vert->addWidget(tileRadio);
+
+  stretchRadio->setChecked(meta->picture);
+  tileRadio->setChecked( false);
+
+//  stretchRadio->setChecked(meta->pi.stretch);
+//  tileRadio->setChecked( !Picture.stretch);
+
+  pictureEdit->setEnabled(true);
+  pictureButton->setEnabled(true);
+  fill->setEnabled(true);
+}
+
+void PageAttributePictureGui::pictureChange(QString const &pic)
+{
+  PictureData Picture = meta->value();
+  Picture.string = pic;
+  meta->setValue(Picture);
+  modified = true;
+}
+
+void PageAttributePictureGui::browsePicture(bool)
+{
+  PictureData Picture = meta->value();
+
+  QString foo = QFileDialog::getOpenFileName(
+    gui,
+    tr("Choose Picture File"),
+    picture,
+    tr("Picture Files (*.png;*.jpg)"));
+  if (foo != "") {
+    picture = foo;
+    Picture.string = foo;
+    pictureEdit->setText(foo);
+    meta->setValue(Picture);
+    modified = true;
+  }
+}
+
+void PageAttributePictureGui::stretch(bool checked)
+{
+  PictureData Picture = meta->value();
+  Picture.stretch = checked;
+  meta->setValue(Picture);
+  modified = true;
+}
+
+void PageAttributePictureGui::tile(bool checked)
+{
+  PictureData Picture = meta->value();
+  Picture.stretch = ! checked;
+  meta->setValue(Picture);
+  modified = true;
+}
+
+void PageAttributePictureGui::apply(QString &modelName)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
+  }
+}
+
 /***********************************************************************
  *
  * FadeStep
@@ -873,7 +1035,6 @@ BackgroundGui::BackgroundGui(
   BackgroundMeta *_meta,
   QGroupBox      *parent)
 {
-  QString        string;
   QComboBox     *combo;
   QGridLayout   *grid;
   QVBoxLayout   *vert;

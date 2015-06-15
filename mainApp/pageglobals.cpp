@@ -109,6 +109,14 @@ GlobalPageDialog::GlobalPageDialog(
 
     Model Description
   */
+  box = new QGroupBox("Title");
+  grid->addWidget(box, 0, 0);
+  child = new PageAttributeTextGui(&pageMeta->title,box);
+  data->children.append(child);
+
+  child = new CheckBoxGui("Display Title",&pageMeta->dp_title,NULL);
+  data->children.append(child);
+  grid->addWidget(child,0,0,1,2);
 
   tab->addTab(widget,"Model");
 
@@ -124,6 +132,14 @@ GlobalPageDialog::GlobalPageDialog(
     Publish Desription
     Logo
   */
+  box = new QGroupBox("Logo");
+  grid->addWidget(box, 0, 0);
+  child = new PageAttributePictureGui(&pageMeta->logo,box);
+  data->children.append(child);
+
+  child = new CheckBoxGui("Display Logo",&pageMeta->dp_logo,NULL);
+  data->children.append(child);
+  grid->addWidget(child,0,0,1,2);
 
   tab->addTab(widget,"Publisher");
 

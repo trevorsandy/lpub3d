@@ -31,7 +31,7 @@ void PageAttributeItem::setAttributes(
   PlacementType       _relativeType,
   PlacementType       _parentRelativeType,
   Meta               *_meta,
-  PageAttributeMeta  &_pageAttribute,
+  PageAttributeMeta  &_pageAttribute,       // change to PageAttributeData
   QString             _value,
   QString            &toolTip,
   QGraphicsItem      *_parent,
@@ -44,7 +44,7 @@ void PageAttributeItem::setAttributes(
   textColor          = &_pageAttribute.textColor;
   margin             = &_pageAttribute.margin;
   alignment          = &_pageAttribute.alignment;
-  picScale           = &_pageAttribute.picScale;
+  picture            = &_pageAttribute.picture;
   value              =  _value;
   name               =  _name;
 
@@ -58,17 +58,19 @@ void PageAttributeItem::setAttributes(
   setDefaultTextColor(LDrawColor::color(textColor->value()));
   setToolTip(toolTip);
   setParentItem(_parent);
+
+  // set picture
 }
 
 PageAttributeItem::PageAttributeItem()
 {
-  relativeType  = PageAttributeType;
+  relativeType  = PageAttributeType;    // should be from PageAttributeData
   meta          = NULL;
   textFont      = NULL;
   textColor     = NULL;
   margin        = NULL;
   alignment     = NULL;
-  picScale      = NULL;
+  picture       = NULL;
 }
 
 PageAttributeItem::PageAttributeItem(
@@ -205,14 +207,7 @@ void PagePageAttributeItem::focusOutEvent(QFocusEvent *event)
   QGraphicsTextItem::focusOutEvent(event);
 
   // change meta
-  // Implement complete InsertMeta model using only PICTURE and TEXT
-  // metaTypes.h: class InsertData=PageAttributeData
-  // meta.h     : class InsertMeta=InsertMeta=PageAttributeChangeMeta
-  // meta.cpp   : method Rc InsertMeta::parse()=Rc PageAttributeChangeMeta::parse()
-  // meta.cpp   : method Rc InsertMeta::doc()=Rc PageAttributeChangeMeta::doc()
-  // meta.cpp   : method Rc InsertMeta::format()=Rc PageAttributeChangeMeta::format()
 
-  // change InsertData to PageAttributeData pageAttributeData
 //  if (textChanged) {
 //    InsertData insertData = meta.value();
 //    QStringList list = toPlainText().split("\n");
@@ -220,7 +215,7 @@ void PagePageAttributeItem::focusOutEvent(QFocusEvent *event)
 //    meta.setValue(insertData);
 
 //    beginMacro(QString("Edit"));
-//    changeInsertOffset(&meta);
+//    changeInsertOffset(&meta);    // Create New one to accept PageAttributeItewm
 //    endMacro();
 //  }
 }

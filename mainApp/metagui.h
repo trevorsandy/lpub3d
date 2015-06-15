@@ -239,22 +239,23 @@ public slots:
 };
 /***********************************************************************
  *
- * PageAttribute
+ * PageAttributeText
  *
  **********************************************************************/
 
 class PageAttributeMeta;
 class QGroupBox;
 class QPushButton;
-class PageAttributeGui : public MetaGui
+class PlacementMeta;
+class PageAttributeTextGui : public MetaGui
 {
   Q_OBJECT
 public:
 
-  PageAttributeGui(
+  PageAttributeTextGui(
     PageAttributeMeta *meta,
     QGroupBox  *parent = NULL);
-  ~PageAttributeGui() {}
+  ~PageAttributeTextGui() {}
 
   virtual void apply(QString &modelName);
 
@@ -264,6 +265,7 @@ private:
   bool        fontModified;
   bool        colorModified;
   bool        marginsModified;
+  bool        placementModified;
 
   QLabel      *fontLabel;
   QLabel      *fontExample;
@@ -275,12 +277,65 @@ private:
   QLineEdit   *value0;
   QLineEdit   *value1;
 
+  QLabel       *placement;
+  QCheckBox    *display;
+
 public slots:
   void browseFont(bool clicked);
   void browseColor(bool clicked);
   void value0Changed(QString const &);
   void value1Changed(QString const &);
+
+  void typePlaceChange(QString const &);    //type of placement
+
 };
+/***********************************************************************
+ *
+ * PageAttributePicture
+ *
+ **********************************************************************/
+
+class PageAttributeMeta;
+class QLabel;
+class QPushButton;
+class QLineEdit;
+class QRadioButton;
+class QGroupBox;
+
+class PageAttributePictureGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  PageAttributePictureGui(PageAttributeMeta *meta,
+    QGroupBox       *parent = NULL);
+
+  ~PageAttributePictureGui() {}
+
+  PageAttributeMeta   *meta;
+
+  virtual void apply(QString &modelName);
+
+private:
+  QString picture;
+
+  QLineEdit    *pictureEdit;
+  QPushButton  *pictureButton;
+  QRadioButton *stretchRadio;
+  QRadioButton *tileRadio;
+  QGroupBox    *fill;
+
+  QLabel       *placement;
+
+public slots:
+  void pictureChange(QString const &);
+  void browsePicture(bool);
+  void stretch(bool);
+  void tile(bool);
+
+  //void typePlaceChange(QString const &);    //type of placement
+};
+
 /***********************************************************************
  *
  * FadeStep

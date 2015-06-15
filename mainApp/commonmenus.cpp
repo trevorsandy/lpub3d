@@ -282,89 +282,89 @@ QString type2english(PlacementType type)
 
         break;
 
-    case PageTitleType:
+//    case PageTitleType:
 
-        return "document title";
+//        return "document title";
 
-        break;
+//        break;
 
-    case PageModelNumType:
+//    case PageModelNumType:
 
-        return "model id";
+//        return "model id";
 
-        break;
+//        break;
 
-    case PageAuthorType:
+//    case PageAuthorType:
 
-        return "author";
+//        return "author";
 
-        break;
+//        break;
 
-    case PageAuthorURLType:
+//    case PageAuthorURLType:
 
-        return "publisher url";
+//        return "publisher url";
 
-        break;
+//        break;
 
-    case PageLogoType:
+//    case PageLogoType:
 
-        return "publisher logo";
+//        return "publisher logo";
 
-        break;
+//        break;
 
-    case PageShortDescType:
+//    case PageShortDescType:
 
-        return "short model description";
+//        return "short model description";
 
-        break;
+//        break;
 
-    case PageCopyrightType:
+//    case PageCopyrightType:
 
-        return "copyright notice";
+//        return "copyright notice";
 
-        break;
+//        break;
 
-    case PageEmailType:
+//    case PageEmailType:
 
-        return "publisher email";
+//        return "publisher email";
 
-        break;
+//        break;
 
-    case PageDisclaimerType:
+//    case PageDisclaimerType:
 
-        return "LEGO © disclaimer";
+//        return "LEGO © disclaimer";
 
-        break;
+//        break;
 
-    case PagePiecesType:
+//    case PagePiecesType:
 
-        return "number of pieces";
+//        return "number of pieces";
 
-        break;
+//        break;
 
-    case PagePlugType:
+//    case PagePlugType:
 
-        return  "LPub3D caption";               // change to global variable once runnig
+//        return  "LPub3D caption";               // change to global variable once runnig
 
-        break;
+//        break;
 
-    case PagePlugImageType:
+//    case PagePlugImageType:
 
-        return "LPub3D logo";
+//        return "LPub3D logo";
 
-        break;
+//        break;
 
-    case PageFrontCoverType:
+//    case PageFrontCoverType:
 
-        return "confighured front cover page";
+//        return "confighured front cover page";
 
-        break;
+//        break;
 
-    case PageBackCoverType:
+//    case PageBackCoverType:
 
-        return "configured back cover page";
+//        return "configured back cover page";
 
-        break;
+//        break;
 
     case PageAttributeType:
 

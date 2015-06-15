@@ -883,6 +883,43 @@ public:
   virtual QString text();
 };
 
+/* This class is used to parse Picture data */
+
+class PictureMeta : public LeafMeta
+{
+private:
+  PictureData _value[2];
+public:
+  PictureData &value()
+  {
+    return _value[pushed];
+  }
+  void setValue(PictureData &value)
+  {
+    _value[pushed] = value;
+  }
+  PictureMeta() : LeafMeta()
+  {
+  }
+  PictureMeta(const PictureMeta &rhs) : LeafMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+  }
+  virtual ~PictureMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  void    pop()
+  {
+    if (pushed) {
+      _value[1].string.clear();
+      pushed = 0;
+    }
+  }
+  virtual void doc(QStringList &out, QString preamble);
+  virtual QString text();
+};
+
 /* This leaf class is used to parse border metas */
 
 class BorderMeta : public LeafMeta
@@ -1350,12 +1387,32 @@ public:
 class PageAttributeMeta : public BranchMeta
 {
 public:
-  QString   	pageAttribute; 		// can be name, description, url, email, path (e.g. logo) etc...
-  FloatMeta		picScale;		    // only for logo
-  FontMeta    	textFont;
-  StringMeta  	textColor;
-  MarginsMeta 	margin;
-  AlignmentMeta alignment;
+    enum PageAttributeType
+    {
+        PageTitleType,
+        PageModelNumType,
+        PageAuthorType,
+        PageAuthorURLType,
+        PageLogoType,
+        PageShortDescType,
+        PageCopyrightType,
+        PageEmailType,
+        PageDisclaimerType,
+        PagePiecesType,
+        PagePlugType,
+        PagePlugImageType,
+        PageFrontCoverType,
+        PageBackCoverType,
+        PageAttributePictureType,
+        PageAttributeTextType
+    } type;
+
+  QString   	 pageAttribute; 		// can be name, description, url, email, path (e.g. logo) etc...
+  PictureMeta	 picture;		       // only for logo
+  FontMeta    	 textFont;
+  StringMeta  	 textColor;
+  MarginsMeta 	 margin;
+  AlignmentMeta  alignment;
   PlacementMeta  placement;
   void setValue(QString _value)
   {
@@ -1697,16 +1754,29 @@ public:
 
   //pageAttributes
   PageAttributeMeta title;
+  BoolMeta          dp_title;
   PageAttributeMeta modelNum;
+  BoolMeta          dp_modelNum;
   PageAttributeMeta modelDesc;
+  BoolMeta          dp_modelDesc;
   PageAttributeMeta author;
+  BoolMeta          dp_author;
   PageAttributeMeta url;
+  BoolMeta          dp_url;
   PageAttributeMeta email;
+  BoolMeta          dp_email;
   PageAttributeMeta disclaimer;
+  BoolMeta          dp_disclaimer;
   PageAttributeMeta logo;
+  BoolMeta          dp_logo;
+  PageAttributeMeta coverImage;
+  BoolMeta          dp_coverImage;
   PageAttributeMeta pieces;
+  BoolMeta          dp_pieces;
   PageAttributeMeta copyright;
+  BoolMeta          dp_copyright;
   PageAttributeMeta plug;
+  BoolMeta          dp_plug;
   PageAttributeMeta plugImage;
 
   PageMeta();

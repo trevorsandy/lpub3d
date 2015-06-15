@@ -873,6 +873,68 @@ QString BackgroundMeta::text()
   return "Submodel level color";
 }
 
+/* ------------------ */
+
+Rc PictureMeta::parse(QStringList &argv, int index,Where &here)
+{
+  Rc rc = FailureRc;
+
+  if (argv.size() - index == 1) {
+      _value[pushed].string = argv[index];
+      _value[pushed].stretch = false;
+      rc = OkRc;
+  } else if (argv.size() - index == 2) {
+    if (argv[index] == "PICTURE") {
+      _value[pushed].string = argv[index+1];
+      _value[pushed].stretch = false;
+      rc = OkRc;
+    }
+  } else if (argv.size() - index == 3) {
+    if (argv[index] == "PICTURE" && argv[index+2] == "STRETCH") {
+      _value[pushed].string = argv[index+1];
+      _value[pushed].stretch = true;
+      rc = OkRc;
+    }
+  }
+  if (rc == OkRc) {
+    _here[pushed] = here;
+    return rc;
+  } else {
+
+    if (reportErrors) {
+      QMessageBox::warning(NULL,
+        QMessageBox::tr("LPub3D"),
+        QMessageBox::tr("Malformed Picture \"%1\"") .arg(argv.join(" ")));
+    }
+
+    return FailureRc;
+  }
+}
+
+QString PictureMeta::format(bool local, bool global)
+{
+  QString foo;
+      foo = "PICTURE \"" + _value[pushed].string + "\"";
+      if (_value[pushed].stretch) {
+        foo += " STRETCH";
+      }
+  //TODO Format picure scale here
+  return LeafMeta::format(local,global,foo);
+}
+
+void PictureMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " (PICTURE (STRETCH) <\"picture\">)";
+}
+
+QString PictureMeta::text()
+{
+  PictureData Picture = value();
+  return "Picture " + Picture.string;
+  //return "Submodel level color";
+}
+
+
 /* ------------------ */ 
 
 Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
@@ -1641,13 +1703,13 @@ void NumberPlacementMeta::init(
 
 /* ------------------ */
 
-PageAttributeMeta::PageAttributeMeta() : BranchMeta()
+PageAttributeMeta::PageAttributeMeta() : BranchMeta() //remove attributes and move to .h
 {
   textColor.setValue("black");
   // textFont - default
-  picScale.setRange(-10000.0,10000.0);
-  picScale.setFormats(7,4,"99999.9");
-  picScale.setValue(1.0);
+//  picScale.setRange(-10000.0,10000.0);
+//  picScale.setFormats(7,4,"99999.9");
+//  picScale.setValue(1.0);
 }
 
 void PageAttributeMeta::init(
@@ -1659,7 +1721,8 @@ void PageAttributeMeta::init(
   textFont.init     	(this, "FONT");
   margin.init   		(this, "MARGINS");
   alignment.init		(this, "ALIGNMENT");
-  picScale.init			(this, "SCALE");
+  picture.init          (this, "PICTURE");
+  //picScale.init			(this, "SCALE");
 }
 
 /* ------------------ */
