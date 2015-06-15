@@ -31,6 +31,7 @@
 #include <QString>
 #include <QStringList>
 #include <QPointF>
+#include <QObject>
 
 enum AllocEnc {
   Horizontal = 0,
@@ -124,6 +125,46 @@ enum PlacementType {
   PageBackCoverType,
   PageAttributePictureType,
   PageAttributeTextType
+};
+
+class PageAttributePlacementEnum : public QObject {
+Q_OBJECT
+Q_ENUMS(EnumPageAttributePlacement)
+public:
+    enum EnumPageAttributePlacement{
+
+        TopLeftOutsideCorner,       //00
+        TopLeftOutside,             //01
+        TopOutside,                 //02
+        TopRightOutSide,            //03
+        TopRightOutsideCorner,      //04
+
+        LeftTopOutside,             //05
+        TopLeftInsideCorner,        //06 "Top Left"
+        TopInside,                  //07 "Top"
+        TopRightInsideCorner,       //08 "Top Right"
+        RightTopOutside,            //09
+
+        LeftOutside,                //10
+        LeftInside,                 //11 "Left"
+        CenterCenter,               //12 "Center"
+        RightInside,                //13 "Right"
+        RightOutside,               //14
+
+        LeftBottomOutside,          //15
+        BottomLeftInsideCorner,     //16 "Bottom Left"
+        BottomInside,               //17 "Bottom"
+        BottomRightInsideCorner,    //18 "Bottom Right"
+        RightBottomOutside,         //19
+
+        BottomLeftOutsideCorner,    //20
+        BottomLeftOutside,          //21
+        BottomOutside,              //22
+        BottomRightOutside,         //23
+        BottomRightOutsideCorner,   //24
+
+        NumSpots                    //25
+    };
 };
 
 class PlacementData

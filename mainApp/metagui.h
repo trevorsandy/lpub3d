@@ -32,6 +32,9 @@
 #include "resolution.h"
 #include "metatypes.h"
 
+#include <QMetaObject>
+#include <QMetaEnum>
+
 void clearPliCache();
 
 class QWidget;
@@ -247,6 +250,7 @@ class PageAttributeMeta;
 class QGroupBox;
 class QPushButton;
 class PlacementMeta;
+class PageAttributePlacementEnum;
 class PageAttributeTextGui : public MetaGui
 {
   Q_OBJECT
@@ -281,13 +285,18 @@ private:
   QLabel       *placement;
   QCheckBox    *display;
 
+  //PageAttributePlacementEnum enumObj;
+
+  int combo2placementIndex(int const &index, bool reverse = false);
+
 public slots:
   void browseFont(bool clicked);
   void browseColor(bool clicked);
   void value0Changed(QString const &);
   void value1Changed(QString const &);
 
-  void typePlacementChanged(QString const &);
+  //void typePlacementChanged(QString const &);
+  void typePlacementChanged(int);
   void stateDisplayChanged(int state);
 
 };

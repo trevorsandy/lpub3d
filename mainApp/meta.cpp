@@ -1943,7 +1943,7 @@ PageMeta::PageMeta() : BranchMeta()
   // Page Attributes
   //model title
   title.textColor.setValue("Black");
-  title.textFont.setValuePoints("Arial,48,-1,255,75,0,0,0,0,0");
+  title.textFont.setValuePoints("Arial,32,-1,255,75,0,0,0,0,0");
   title.placement.setValue(CenterCenter,PageType);
   //model identification
   modelNum.textColor.setValue("Black");

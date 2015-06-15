@@ -731,25 +731,87 @@ PageAttributeTextGui::PageAttributeTextGui(
 
   QComboBox         *placementCombo;
   placementCombo = new QComboBox(parent);
+  bool             reverse = true;
 
-  placementCombo->addItem();
-  placementCombo->addItem("Top");
-  placementCombo->addItem("TopRight");
-  placementCombo->addItem("Right");
-  placementCombo->addItem("BottomRight");
-  placementCombo->addItem("Bottom");
-  placementCombo->addItem("BottomLeft");
-  placementCombo->addItem("Left");
-  placementCombo->addItem("Center");
+//  const QMetaObject* metaObj = enumObj.metaObject();
+//  QMetaEnum enumType = metaObj->enumerator(metaObj->indexOfEnumerator("EnumPageAttributePlacement"));
 
-  //placementCombo->setCurrentIndex(int(meta->placement.value())); //solve later
-  connect(placementCombo,SIGNAL(currentIndexChanged(QString const &)),
-          this, SLOT(  typePlacementChanged(         QString const &)));
+//  for(int i=0; i < enumType.keyCount(); ++i)
+//  {
+//      QString item;
+//      switch(enumType.value(i))
+//      {
+//      case 6:
+//          item = "Top Left";
+//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
+//          placementCombo->addItem(item);
+//          break;
+//      case 7:
+//          item = "Top";
+//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
+//          placementCombo->addItem(item);
+//          break;
+//      case 8:
+//          item = "Top Right";
+//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
+//          placementCombo->addItem(item);
+//          break;
+//      case 11:
+//          item = "Left";
+//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
+//          placementCombo->addItem(item);
+//          break;
+//      case 12:
+//          item = "Center";
+//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
+//          placementCombo->addItem(item);
+//          break;
+//      case 13:
+//          item = "Right";
+//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
+//          placementCombo->addItem(item);
+//          break;
+//      case 16:
+//          item = "Bottom Left";
+//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
+//          placementCombo->addItem(item);
+//          break;
+//      case 17:
+//          item = "Bottom";
+//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
+//          placementCombo->addItem(item);
+//          break;
+//      case 18:
+//          item = "Bottom Right";
+//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
+//          placementCombo->addItem(item);
+//          break;
+//      }
+//  }
+
+
+    placementCombo->addItem("1(06) Top Left");
+    placementCombo->addItem("2(07) Top");
+    placementCombo->addItem("3(08) Top Right");
+    placementCombo->addItem("4(11) Left");
+    placementCombo->addItem("5(12) Center");
+    placementCombo->addItem("6(13) Right");
+    placementCombo->addItem("7(16) Bottom Left");
+    placementCombo->addItem("8(17) Bottom");
+    placementCombo->addItem("9(18) Bottom Right");
+
+    placementCombo->setCurrentIndex(combo2placementIndex(int(RectPlacement(meta->placement.value().rectPlacement)),reverse));
+//  placementCombo->setCurrentIndex(int(RectPlacement(meta->placement.value().rectPlacement)));
+//  connect(placementCombo,SIGNAL(currentIndexChanged(QString const &)),
+//          this, SLOT(  typePlacementChanged(         QString const &)));
+  connect(placementCombo,SIGNAL(currentIndexChanged(int)),
+          this, SLOT(  typePlacementChanged(        int)));
+
   grid->addWidget(placementCombo, 3,1);
 
   // Display
   display = new QCheckBox(tr("Display"),parent);
-  display->setChecked(meta->display.value());   //wrong type passed
+  display->setChecked(meta->display.value());
   grid->addWidget(display,3,2);
 
   connect(display,SIGNAL(stateChanged(int)),
@@ -804,32 +866,85 @@ void PageAttributeTextGui::value1Changed(QString const &string)
   marginsModified = true;
 }
 
-void PageAttributeTextGui::typePlacementChanged(QString const &type)
+void PageAttributeTextGui::typePlacementChanged(int type)
 {
-
-    if (type == "TopLeft") {
-        meta->placement.setValue(TopLeftInsideCorner,PageType);
-    } else if (type == "Top") {
-        meta->placement.setValue(TopInside,PageType);
-    } else if (type == "TopRight") {
-        meta->placement.setValue(TopRightInsideCorner,PageType);
-    } else if (type == "Right") {
-        meta->placement.setValue(RightInside,PageType);
-    } else if (type == "BottomRight") {
-        meta->placement.setValue(BottomRightInsideCorner,PageType);
-    } else if (type == "Bottom") {
-        meta->placement.setValue(BottomInside,PageType);
-    } else if (type == "BottomLeft") {
-        meta->placement.setValue(BottomLeftInsideCorner,PageType);
-    } else if (type == "Left") {
-        meta->placement.setValue(LeftInside,PageType);
-    } else {
-        meta->placement.setValue(CenterCenter,PageType);
-    }
-
+  meta->placement.setValue(RectPlacement(PageAttributePlacementEnum::EnumPageAttributePlacement(combo2placementIndex(type))),PageType);
   placementModified = true;
 }
 
+//void PageAttributeTextGui::typePlacementChanged(QString const &string)
+//{
+
+//    if (type == "TopLeft") {
+//        meta->placement.setValue(TopLeftInsideCorner,PageType);
+//    } else if (type == "Top") {
+//        meta->placement.setValue(TopInside,PageType);
+//    } else if (type == "TopRight") {
+//        meta->placement.setValue(TopRightInsideCorner,PageType);
+//    } else if (type == "Right") {
+//        meta->placement.setValue(RightInside,PageType);
+//    } else if (type == "BottomRight") {
+//        meta->placement.setValue(BottomRightInsideCorner,PageType);
+//    } else if (type == "Bottom") {
+//        meta->placement.setValue(BottomInside,PageType);
+//    } else if (type == "BottomLeft") {
+//        meta->placement.setValue(BottomLeftInsideCorner,PageType);
+//    } else if (type == "Left") {
+//        meta->placement.setValue(LeftInside,PageType);
+//    } else {
+//        meta->placement.setValue(CenterCenter,PageType);
+//    }
+
+//  placementModified = true;
+//}
+
+int PageAttributeTextGui::combo2placementIndex(int const &index, bool reverse){
+    if(! reverse){
+        switch(index)
+        {
+        case 0:
+            return 6;
+        case 1:
+            return 7;
+        case 2:
+            return 8;
+        case 3:
+            return 11;
+        case 4:
+            return 12;
+        case 5:
+            return 13;
+        case 6:
+            return 16;
+        case 7:
+            return 17;
+        case 8:
+            return 18;
+        }
+    } else {
+        switch(index)
+        {
+        case 6:
+            return 0;
+        case 7:
+            return 1;
+        case 8:
+            return 2;
+        case 11:
+            return 3;
+        case 12:
+            return 4;
+        case 13:
+            return 5;
+        case 16:
+            return 6;
+        case 17:
+            return 7;
+        case 18:
+            return 8;
+        }
+    }
+}
 void PageAttributeTextGui::stateDisplayChanged(int state)
 {
   bool checked = meta->display.value();
