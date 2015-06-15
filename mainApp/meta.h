@@ -1407,12 +1407,12 @@ public:
         PageAttributeTextType
     } type;
 
-  QString   	 pageAttribute; 		// can be name, description, url, email, path (e.g. logo) etc...
-  PictureMeta	 picture;		       // only for logo
-  FontMeta    	 textFont;
-  StringMeta  	 textColor;
-  MarginsMeta 	 margin;
-  AlignmentMeta  alignment;
+  QString   	pageAttribute; 		// can be name, description, url, email, path (e.g. logo) etc...
+  FloatMeta		picScale;		    // only for logo
+  FontMeta    	textFont;
+  StringMeta  	textColor;
+  MarginsMeta 	margin;
+  AlignmentMeta alignment;
   PlacementMeta  placement;
   void setValue(QString _value)
   {

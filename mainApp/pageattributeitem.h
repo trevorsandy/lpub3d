@@ -34,7 +34,7 @@ public:
   StringMeta    *textColor;
   MarginsMeta   *margin;
   AlignmentMeta *alignment;
-  PictureMeta   *picture;
+  FloatMeta		*picScale;
   QString        value;
   QString        name;
 

@@ -918,7 +918,6 @@ QString PictureMeta::format(bool local, bool global)
       if (_value[pushed].stretch) {
         foo += " STRETCH";
       }
-  //TODO Format picure scale here
   return LeafMeta::format(local,global,foo);
 }
 
@@ -1707,9 +1706,9 @@ PageAttributeMeta::PageAttributeMeta() : BranchMeta() //remove attributes and mo
 {
   textColor.setValue("black");
   // textFont - default
-//  picScale.setRange(-10000.0,10000.0);
-//  picScale.setFormats(7,4,"99999.9");
-//  picScale.setValue(1.0);
+  picScale.setRange(-10000.0,10000.0);
+  picScale.setFormats(7,4,"99999.9");
+  picScale.setValue(1.0);
 }
 
 void PageAttributeMeta::init(
@@ -1721,8 +1720,7 @@ void PageAttributeMeta::init(
   textFont.init     	(this, "FONT");
   margin.init   		(this, "MARGINS");
   alignment.init		(this, "ALIGNMENT");
-  picture.init          (this, "PICTURE");
-  //picScale.init			(this, "SCALE");
+  picScale.init			(this, "SCALE");
 }
 
 /* ------------------ */

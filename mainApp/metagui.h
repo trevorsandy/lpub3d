@@ -295,7 +295,7 @@ public slots:
  *
  **********************************************************************/
 
-class PageAttributeMeta;
+class PictureMeta;
 class QLabel;
 class QPushButton;
 class QLineEdit;
@@ -307,12 +307,12 @@ class PageAttributePictureGui : public MetaGui
   Q_OBJECT
 public:
 
-  PageAttributePictureGui(PageAttributeMeta *meta,
+  PageAttributePictureGui(PictureMeta *meta,
     QGroupBox       *parent = NULL);
 
   ~PageAttributePictureGui() {}
 
-  PageAttributeMeta   *meta;
+  PictureMeta   *meta;
 
   virtual void apply(QString &modelName);
 

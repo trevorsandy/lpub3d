@@ -44,7 +44,7 @@ void PageAttributeItem::setAttributes(
   textColor          = &_pageAttribute.textColor;
   margin             = &_pageAttribute.margin;
   alignment          = &_pageAttribute.alignment;
-  picture            = &_pageAttribute.picture;
+  picScale           = &_pageAttribute.picScale;
   value              =  _value;
   name               =  _name;
 
@@ -58,8 +58,6 @@ void PageAttributeItem::setAttributes(
   setDefaultTextColor(LDrawColor::color(textColor->value()));
   setToolTip(toolTip);
   setParentItem(_parent);
-
-  // set picture
 }
 
 PageAttributeItem::PageAttributeItem()
@@ -70,7 +68,7 @@ PageAttributeItem::PageAttributeItem()
   textColor     = NULL;
   margin        = NULL;
   alignment     = NULL;
-  picture       = NULL;
+  picScale      = NULL;
 }
 
 PageAttributeItem::PageAttributeItem(

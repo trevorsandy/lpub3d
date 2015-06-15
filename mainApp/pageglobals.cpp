@@ -134,8 +134,8 @@ GlobalPageDialog::GlobalPageDialog(
   */
   box = new QGroupBox("Logo");
   grid->addWidget(box, 0, 0);
-  child = new PageAttributePictureGui(&pageMeta->logo,box);
-  data->children.append(child);
+//  child = new PageAttributePictureGui(&pageMeta->logo,box);
+//  data->children.append(child);
 
   child = new CheckBoxGui("Display Logo",&pageMeta->dp_logo,NULL);
   data->children.append(child);

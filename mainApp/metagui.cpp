@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -849,13 +849,16 @@ void PageAttributeTextGui::apply(
  **********************************************************************/
 
  PageAttributePictureGui::PageAttributePictureGui(
-  PageAttributeMeta *_meta,
+  PictureMeta *_meta,
   QGroupBox  *parent)
 {
   QGridLayout   *grid;
   QVBoxLayout   *vert;
 
   meta = _meta;
+
+  PictureData Picture = meta->value();
+  picture = Picture.string;
 
   grid = new QGridLayout(parent);
   parent->setLayout(grid);
@@ -890,11 +893,8 @@ void PageAttributeTextGui::apply(
           this,     SLOT(  stretch(bool)));
   vert->addWidget(tileRadio);
 
-  stretchRadio->setChecked(meta->picture);
-  tileRadio->setChecked( false);
-
-//  stretchRadio->setChecked(meta->pi.stretch);
-//  tileRadio->setChecked( !Picture.stretch);
+  stretchRadio->setChecked(Picture.stretch);
+  tileRadio->setChecked( !Picture.stretch);
 
   pictureEdit->setEnabled(true);
   pictureButton->setEnabled(true);
