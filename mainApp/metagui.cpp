@@ -725,10 +725,14 @@ PageAttributeTextGui::PageAttributeTextGui(
   grid->addWidget(value1,2,2);
 
   // Placement
+  placement = new QLabel(parent);
+  placement->setText("Placement");
+  grid->addWidget(placement,3,0);
+
   QComboBox         *placementCombo;
   placementCombo = new QComboBox(parent);
 
-  placementCombo->addItem("TopLeft");
+  placementCombo->addItem();
   placementCombo->addItem("Top");
   placementCombo->addItem("TopRight");
   placementCombo->addItem("Right");
@@ -740,17 +744,22 @@ PageAttributeTextGui::PageAttributeTextGui(
 
   //placementCombo->setCurrentIndex(int(meta->placement.value())); //solve later
   connect(placementCombo,SIGNAL(currentIndexChanged(QString const &)),
-          this, SLOT(  typePlacementChange(         QString const &)));
-  grid->addWidget(placementCombo, 3, 0);
+          this, SLOT(  typePlacementChanged(         QString const &)));
+  grid->addWidget(placementCombo, 3,1);
 
-  placement = new QLabel(parent);
-  placement->setText("Placement");
-  grid->addWidget(placement,3,1);
+  // Display
+  display = new QCheckBox(tr("Display"),parent);
+  display->setChecked(meta->display.value());   //wrong type passed
+  grid->addWidget(display,3,2);
+
+  connect(display,SIGNAL(stateChanged(int)),
+          this, SLOT(  stateDisplayChanged(int)));
 
   fontModified = false;
   colorModified = false;
   marginsModified = false;
   placementModified = false;
+  displayModified = false;
 }
 
 void PageAttributeTextGui::browseFont(bool clicked)
@@ -795,7 +804,7 @@ void PageAttributeTextGui::value1Changed(QString const &string)
   marginsModified = true;
 }
 
-void PageAttributeTextGui::typePlaceChange(QString const &type)
+void PageAttributeTextGui::typePlacementChanged(QString const &type)
 {
 
     if (type == "TopLeft") {
@@ -821,6 +830,19 @@ void PageAttributeTextGui::typePlaceChange(QString const &type)
   placementModified = true;
 }
 
+void PageAttributeTextGui::stateDisplayChanged(int state)
+{
+  bool checked = meta->display.value();
+
+  if (state == Qt::Unchecked) {
+    checked = false;
+  } else if (state == Qt::Checked) {
+    checked = true;
+  }
+  meta->display.setValue(checked);
+  displayModified = true;
+}
+
 void PageAttributeTextGui::apply(
   QString &topLevelFile)
 {
@@ -838,6 +860,9 @@ void PageAttributeTextGui::apply(
   }
   if (placementModified){
       mi.setGlobalMeta(topLevelFile,&meta->placement);
+  }
+  if (displayModified){
+      mi.setGlobalMeta(topLevelFile,&meta->display);
   }
   mi.endMacro();
 }

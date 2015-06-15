@@ -266,6 +266,7 @@ private:
   bool        colorModified;
   bool        marginsModified;
   bool        placementModified;
+  bool        displayModified;
 
   QLabel      *fontLabel;
   QLabel      *fontExample;
@@ -286,7 +287,8 @@ public slots:
   void value0Changed(QString const &);
   void value1Changed(QString const &);
 
-  void typePlaceChange(QString const &);    //type of placement
+  void typePlacementChanged(QString const &);
+  void stateDisplayChanged(int state);
 
 };
 /***********************************************************************

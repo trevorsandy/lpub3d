@@ -76,6 +76,7 @@ GlobalPageDialog::GlobalPageDialog(
 
   PageMeta *pageMeta = &data->meta.LPub.page;
   
+  //~~~~~~~~~~~~ page tab ~~~~~~~~~~~~~~~~//
   box = new QGroupBox("Size");
   grid->addWidget(box,0,0);
   child = new UnitsGui("",&pageMeta->size,box);
@@ -98,6 +99,7 @@ GlobalPageDialog::GlobalPageDialog(
 
   tab->addTab(widget,"Page");
   
+  //~~~~~~~~~~~~ model tab ~~~~~~~~~~~~~~~//
   widget = new QWidget();
   grid = new QGridLayout();
   widget->setLayout(grid);
@@ -106,7 +108,6 @@ GlobalPageDialog::GlobalPageDialog(
     Title,
     Model ID,
     Pieces,
-
     Model Description
   */
   box = new QGroupBox("Title");
@@ -114,12 +115,9 @@ GlobalPageDialog::GlobalPageDialog(
   child = new PageAttributeTextGui(&pageMeta->title,box);
   data->children.append(child);
 
-  child = new CheckBoxGui("Display Title",&pageMeta->dp_title,NULL);
-  data->children.append(child);
-  grid->addWidget(child,0,0,1,2);
-
   tab->addTab(widget,"Model");
 
+  //~~~~~~~~~~~~ publisher tab ~~~~~~~~~~~~//
   widget = new QWidget();
   grid = new QGridLayout();
   widget->setLayout(grid);
@@ -127,22 +125,23 @@ GlobalPageDialog::GlobalPageDialog(
   /*
     Author,
     Email,
-    AuthorURL,
+    Author URL,
     Copyright
-    Publish Desription
+    Publish desription
     Logo
   */
-  box = new QGroupBox("Logo");
-  grid->addWidget(box, 0, 0);
-//  child = new PageAttributePictureGui(&pageMeta->logo,box);
-//  data->children.append(child);
 
-  child = new CheckBoxGui("Display Logo",&pageMeta->dp_logo,NULL);
-  data->children.append(child);
-  grid->addWidget(child,0,0,1,2);
+  // this will go away cuz the chkbox will go into PageAttributePictureGui
+  box = new QGroupBox("Display");
+  grid->addWidget(box, 0, 0);
+//  child = new CheckBoxGui("Display Logo",false,box);
+//  data->children.append(child);
+  //  child = new PageAttributePictureGui(&pageMeta->logo,box);
+  //  data->children.append(child);
 
   tab->addTab(widget,"Publisher");
 
+  //~~~~~~~~~~~~ disclaimer tab ~~~~~~~~~~~//
   widget = new QWidget();
   grid = new QGridLayout();
   widget->setLayout(grid);
@@ -150,17 +149,21 @@ GlobalPageDialog::GlobalPageDialog(
   /*
     LEGO disclaimer,
     Plug
+    Plug image
   */
 
   tab->addTab(widget,"Disclaimer");
+
+  //~~~~~~~~~ page number tab ~~~~~~~~~~~~//
 
   widget = new QWidget();
   grid = new QGridLayout();
   widget->setLayout(grid);
 
-  child = new CheckBoxGui("Display Page Number",&pageMeta->dpn,NULL);
+  box = new QGroupBox("Display");
+  grid->addWidget(box, 0,0);
+  child = new CheckBoxGui("Display Page Number",&pageMeta->dpn,box);
   data->children.append(child);
-  grid->addWidget(child,0,0,1,2);
 
   box = new QGroupBox("Look");
   grid->addWidget(box,1,0);
@@ -172,8 +175,7 @@ GlobalPageDialog::GlobalPageDialog(
   child = new BoolRadioGui(
     "Alternate Corners (like books)",
     "Page Number Always in Same Place",
-    &pageMeta->togglePnPlacement,
-    box);
+    &pageMeta->togglePnPlacement,box);
   data->children.append(child);
 
   tab->addTab(widget,"Page Number");

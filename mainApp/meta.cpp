@@ -1709,6 +1709,7 @@ PageAttributeMeta::PageAttributeMeta() : BranchMeta() //remove attributes and mo
   picScale.setRange(-10000.0,10000.0);
   picScale.setFormats(7,4,"99999.9");
   picScale.setValue(1.0);
+  display.setValue(false);
 }
 
 void PageAttributeMeta::init(
@@ -1721,6 +1722,7 @@ void PageAttributeMeta::init(
   margin.init   		(this, "MARGINS");
   alignment.init		(this, "ALIGNMENT");
   picScale.init			(this, "SCALE");
+  display.init          (this, "DISPLAY");
 }
 
 /* ------------------ */
@@ -1937,20 +1939,88 @@ PageMeta::PageMeta() : BranchMeta()
   subModelColor.setValue("#ffffcc");
   subModelColor.setValue("#ffcccc");
   subModelColor.setValue("#ccccff");
+
+  // Page Attributes
+  //model title
+  title.textColor.setValue("Black");
+  title.textFont.setValuePoints("Arial,48,-1,255,75,0,0,0,0,0");
+  title.placement.setValue(CenterCenter,PageType);
+  //model identification
+  modelNum.textColor.setValue("Black");
+  modelNum.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  modelNum.placement.setValue(CenterCenter,PageType);
+  //model description
+  modelDesc.textColor.setValue("Black");
+  modelDesc.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  modelDesc.placement.setValue(CenterCenter,PageType);
+  //model number of pieces
+  pieces.textColor.setValue("Black");
+  pieces.textFont.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");
+  pieces.placement.setValue(CenterCenter,PageType);
+  //publisher author
+  author.textColor.setValue("Black");
+  author.textFont.setValuePoints("Arial,32,-1,255,75,0,0,0,0,0");
+  author.placement.setValue(CenterCenter,PageType);
+  //publisher description
+  publishDesc.textColor.setValue("Black");
+  publishDesc.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  publishDesc.placement.setValue(CenterCenter,PageType);
+  //publisher url
+  url.textColor.setValue("Black");
+  url.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  url.placement.setValue(CenterCenter,PageType);
+  //publisher email
+  email.textColor.setValue("Black");
+  email.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  email.placement.setValue(CenterCenter,PageType);
+  //publisher copyright
+  copyright.textColor.setValue("Black");
+  copyright.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  copyright.placement.setValue(CenterCenter,PageType);
+  //publisher logo
+  logo.placement.setValue(CenterCenter,PageType);
+  //publisher cover image
+  coverImage.placement.setValue(CenterCenter,PageType);
+  //disclaimer LEGO
+  disclaimer.textColor.setValue("Black");
+  disclaimer.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  disclaimer.placement.setValue(CenterCenter,PageType);
+  //disclaimer 'built by' text
+  plug.textColor.setValue("Black");
+  plug.textFont.setValuePoints("Arial,12,-1,255,75,0,0,0,0,0");
+  plug.placement.setValue(CenterCenter,PageType);
+  //disclaimer 'built by' image
+  plugImage.placement.setValue(CenterCenter,PageType);
+
 }
 
 void PageMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  size.init         (this, "SIZE");
-  margin.init       (this, "MARGINS");
-  border.init       (this, "BORDER");
-  background.init   (this, "BACKGROUND");
-  dpn.init          (this, "DISPLAY_PAGE_NUMBER");
-  togglePnPlacement.init(this,"TOGGLE_PAGE_NUMBER_PLACEMENT");
-  number.init       (this, "NUMBER");
-  instanceCount.init(this, "SUBMODEL_INSTANCE_COUNT");
-  subModelColor.init(this, "SUBMODEL_BACKGROUND_COLOR");
+  size.init             (this, "SIZE");
+  margin.init           (this, "MARGINS");
+  border.init           (this, "BORDER");
+  background.init       (this, "BACKGROUND");
+  dpn.init              (this, "DISPLAY_PAGE_NUMBER");
+  togglePnPlacement.init(this, "TOGGLE_PAGE_NUMBER_PLACEMENT");
+  number.init           (this, "NUMBER");
+  instanceCount.init    (this, "SUBMODEL_INSTANCE_COUNT");
+  subModelColor.init    (this, "SUBMODEL_BACKGROUND_COLOR");
+
+  title.init			(this, "TITLE");
+  modelNum.init         (this, "MODEL_NUMBER");
+  modelDesc.init		(this, "MODEL_DESCRIPTION");
+  pieces.init			(this, "NUMBER_OF_PIECES");
+  author.init			(this, "AUTHOR");
+  publishDesc.init      (this, "PUBLISH_DESCRIPTION");
+  url.init              (this, "PUBLISH_URL");
+  email.init			(this, "PUBLISH_EMAIL");
+  copyright.init		(this, "COPYRIGHT");
+  logo.init             (this, "DOCUMENT_LOGO");
+  coverImage.init		(this, "COVER_IMAGE");
+  disclaimer.init		(this, "LEGO_DISCLAIMER");
+  plug.init             (this, "PLUG");
+  plugImage.init		(this, "PLUG_IMAGE");
 }
 
 /* ------------------ */ 

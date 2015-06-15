@@ -1394,7 +1394,8 @@ public:
         PageAuthorType,
         PageAuthorURLType,
         PageLogoType,
-        PageShortDescType,
+        PageModelDescType,
+        PagePublishDescType,
         PageCopyrightType,
         PageEmailType,
         PageDisclaimerType,
@@ -1407,20 +1408,21 @@ public:
         PageAttributeTextType
     } type;
 
-  QString   	pageAttribute; 		// can be name, description, url, email, path (e.g. logo) etc...
-  FloatMeta		picScale;		    // only for logo
-  FontMeta    	textFont;
-  StringMeta  	textColor;
-  MarginsMeta 	margin;
-  AlignmentMeta alignment;
+  QString   	 pageAttributeValue; // can be name, description, url, email, path (e.g. logo) etc... [DON'T THINK THIS IS USED??]
+  FloatMeta		 picScale;		     // only for logo
+  FontMeta    	 textFont;
+  StringMeta  	 textColor;
+  BoolMeta       display;
+  MarginsMeta 	 margin;
+  AlignmentMeta  alignment;
   PlacementMeta  placement;
   void setValue(QString _value)
   {
-      pageAttribute = _value;
+      pageAttributeValue = _value;
   }
   QString value()
   {
-      return pageAttribute;
+      return pageAttributeValue;
   }
   PageAttributeMeta();
   PageAttributeMeta(const PageAttributeMeta &rhs) : BranchMeta(rhs)
@@ -1752,31 +1754,20 @@ public:
   NumberPlacementMeta       instanceCount;
   StringListMeta            subModelColor;
 
-  //pageAttributes
+  //pageAttributes 
   PageAttributeMeta title;
-  BoolMeta          dp_title;
   PageAttributeMeta modelNum;
-  BoolMeta          dp_modelNum;
   PageAttributeMeta modelDesc;
-  BoolMeta          dp_modelDesc;
+  PageAttributeMeta publishDesc;
   PageAttributeMeta author;
-  BoolMeta          dp_author;
   PageAttributeMeta url;
-  BoolMeta          dp_url;
   PageAttributeMeta email;
-  BoolMeta          dp_email;
   PageAttributeMeta disclaimer;
-  BoolMeta          dp_disclaimer;
   PageAttributeMeta logo;
-  BoolMeta          dp_logo;
   PageAttributeMeta coverImage;
-  BoolMeta          dp_coverImage;
   PageAttributeMeta pieces;
-  BoolMeta          dp_pieces;
   PageAttributeMeta copyright;
-  BoolMeta          dp_copyright;
   PageAttributeMeta plug;
-  BoolMeta          dp_plug;
   PageAttributeMeta plugImage;
 
   PageMeta();
