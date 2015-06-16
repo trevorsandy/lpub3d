@@ -994,6 +994,7 @@ void PageAttributeTextGui::apply(
   //fill
   gbFill = new QGroupBox("Fill",parent);
   gbFill->setCheckable(true);
+  gbFill->setChecked(false);
   hLayout = new QHBoxLayout();
   gbFill->setLayout(hLayout);
   grid->addWidget(gbFill,2,0,1,3);
@@ -1017,6 +1018,7 @@ void PageAttributeTextGui::apply(
   //scale
   gbScale = new QGroupBox("Scale", parent);
   gbScale->setCheckable(true);
+  gbScale->setChecked(false);
   hLayout = new QHBoxLayout();
   gbScale->setLayout(hLayout);
   grid->addWidget(gbScale,3,0,1,3);
@@ -1037,9 +1039,8 @@ void PageAttributeTextGui::apply(
           this,SLOT  (valueChanged(double)));
   hLayout->addWidget(spin);
 
-
-
-  //gbFill->setChecked(false);
+  connect(gbFill,SIGNAL(clicked(bool)),gbScale,SLOT(setDisabled(bool)));
+  connect(gbScale,SIGNAL(clicked(bool)),gbFill,SLOT(setDisabled(bool)));
 
   enable();
 
@@ -1178,20 +1179,15 @@ void PageAttributePictureGui::enable(){
     if (checked){
         pictureEdit->setEnabled(true);
         pictureButton->setEnabled(true);
-        stretchRadio->setEnabled(false);
-        tileRadio->setEnabled(true);
-        spin->setEnabled(true);
         placement->setEnabled(true);
         placementCombo->setEnabled(true);
-        gbScale->setChecked(true);
-        gbFill->setEnabled(!gbScale->isChecked());
-        gbScale->setEnabled(!gbFill->isChecked());
+        gbScale->setEnabled(true);
+        gbFill->setEnabled(true);
     } else {
         pictureEdit->setEnabled(false);
         pictureButton->setEnabled(false);
-        stretchRadio->setEnabled(false);
-        tileRadio->setEnabled(true);
-        spin->setEnabled(true);
+        gbScale->setEnabled(false);
+        gbFill->setEnabled(false);
         placement->setEnabled(false);
         placementCombo->setEnabled(false);
     }

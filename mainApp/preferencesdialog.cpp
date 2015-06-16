@@ -52,7 +52,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.ldgliteBox->setChecked(                Preferences::ldgliteExe != "");
   ui.l3pPath->setText(                      Preferences::l3pExe);
   ui.povrayPath->setText(                   Preferences::povrayExe);
-  ui.POVRayBox->setChecked(                    Preferences::l3pExe != "" && Preferences::povrayExe != "");
+  ui.POVRayBox->setChecked(                 Preferences::l3pExe != "" && Preferences::povrayExe != "");
   ui.lgeoPath->setText(                     Preferences::lgeoPath);
   ui.lgeoBox->setChecked(                   Preferences::lgeoPath != "");
   ui.ldviewPath->setText(                   Preferences::ldviewExe);

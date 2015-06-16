@@ -62,7 +62,6 @@ GlobalAssemDialog::GlobalAssemDialog(
   QGridLayout *grid;
   QGridLayout *boxGrid;
   QGroupBox   *box;
-  QString	   string;
 
   setWindowTitle(tr("Assembly Globals Setup"));
 
@@ -80,7 +79,8 @@ GlobalAssemDialog::GlobalAssemDialog(
 
   child = new UnitsGui("Margins",&assem->margin);
   data->children.append(child);
-  boxGrid->addWidget(child,0,0,1,2);
+  boxGrid->addWidget(child,0,0);
+  //boxGrid->addWidget(child,0,0,1,2);
 
   child = new DoubleSpinGui(
     "Scale",&assem->modelScale,
@@ -89,7 +89,8 @@ GlobalAssemDialog::GlobalAssemDialog(
     0.01);
   data->modelScale = child;
   data->children.append(child);
-  boxGrid->addWidget(child,1,0,1,2);
+  boxGrid->addWidget(child,1,0);
+  //boxGrid->addWidget(child,1,0,1,2);
 
   /* Step Number */
 
@@ -100,14 +101,16 @@ GlobalAssemDialog::GlobalAssemDialog(
 
   child = new NumberGui(stepNumber,box);
   data->children.append(child);
-  boxGrid->addWidget(child,0,0,1,2);
+  boxGrid->addWidget(child);
+  //boxGrid->addWidget(child,0,0,1,2);
 
   box = new QGroupBox("Display");
   grid->addWidget(box,2,0);
 
   child = new CheckBoxGui("Step Number",&assem->showStepNumber,box);
   data->children.append(child);
-  boxGrid->addWidget(child,1,0,1,2);
+  boxGrid->addWidget(child);
+  //boxGrid->addWidget(child,1,0,1,2);
 
   QDialogButtonBox *buttonBox;
 
