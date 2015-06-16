@@ -681,141 +681,84 @@ PageAttributeTextGui::PageAttributeTextGui(
     parent->setLayout(grid);
   }
 
-  fontLabel = new QLabel("Font",parent);
-  grid->addWidget(fontLabel,0,0);
-
-  fontExample = new QLabel("1234",parent);
-  QFont font;
-  font.fromString(meta->textFont.valueFoo());
-  fontExample->setFont(font);
-  grid->addWidget(fontExample,0,1);
-
-  fontButton = new QPushButton("Change",parent);
-  connect(fontButton,SIGNAL(clicked(   bool)),
-          this,      SLOT(  browseFont(bool)));
-  grid->addWidget(fontButton,0,2);
-
-  colorLabel = new QLabel("Color",parent);
-  grid->addWidget(colorLabel,1,0);
-
-  colorExample = new QLabel(parent);
-  colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-  colorExample->setPalette(QPalette(meta->textColor.value()));
-  colorExample->setAutoFillBackground(true);
-  grid->addWidget(colorExample,1,1);
-
-  colorButton = new QPushButton("Change");
-  connect(colorButton,SIGNAL(clicked(    bool)),
-          this,       SLOT(  browseColor(bool)));
-  grid->addWidget(colorButton,1,2);
-
-  marginsLabel = new QLabel("Margins",parent);
-  grid->addWidget(marginsLabel,2,0);
-
-  string = QString("%1") .arg(meta->margin.value(0),5,'f',4);
-  value0 = new QLineEdit(string,parent);
-  connect(value0,SIGNAL(textEdited(   QString const &)),
-          this,  SLOT(  value0Changed(QString const &)));
-  grid->addWidget(value0,2,1);
-
-  string = QString("%1") .arg(meta->margin.value(1),5,'f',4);
-  value1 = new QLineEdit(string,parent);
-  connect(value1,SIGNAL(textEdited(   QString const &)),
-          this,  SLOT(  value1Changed(QString const &)));
-  grid->addWidget(value1,2,2);
-
   // Placement
   placement = new QLabel(parent);
   placement->setText("Placement");
-  grid->addWidget(placement,3,0);
+  grid->addWidget(placement,0,0);
 
   QComboBox         *placementCombo;
   placementCombo = new QComboBox(parent);
   bool             reverse = true;
 
-//  const QMetaObject* metaObj = enumObj.metaObject();
-//  QMetaEnum enumType = metaObj->enumerator(metaObj->indexOfEnumerator("EnumPageAttributePlacement"));
+  placementCombo->addItem(" Top Left");
+  placementCombo->addItem(" Top");
+  placementCombo->addItem(" Top Right");
+  placementCombo->addItem(" Left");
+  placementCombo->addItem(" Center");
+  placementCombo->addItem(" Right");
+  placementCombo->addItem(" Bottom Left");
+  placementCombo->addItem(" Bottom");
+  placementCombo->addItem(" Bottom Right");
 
-//  for(int i=0; i < enumType.keyCount(); ++i)
-//  {
-//      QString item;
-//      switch(enumType.value(i))
-//      {
-//      case 6:
-//          item = "Top Left";
-//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
-//          placementCombo->addItem(item);
-//          break;
-//      case 7:
-//          item = "Top";
-//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
-//          placementCombo->addItem(item);
-//          break;
-//      case 8:
-//          item = "Top Right";
-//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
-//          placementCombo->addItem(item);
-//          break;
-//      case 11:
-//          item = "Left";
-//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
-//          placementCombo->addItem(item);
-//          break;
-//      case 12:
-//          item = "Center";
-//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
-//          placementCombo->addItem(item);
-//          break;
-//      case 13:
-//          item = "Right";
-//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
-//          placementCombo->addItem(item);
-//          break;
-//      case 16:
-//          item = "Bottom Left";
-//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
-//          placementCombo->addItem(item);
-//          break;
-//      case 17:
-//          item = "Bottom";
-//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
-//          placementCombo->addItem(item);
-//          break;
-//      case 18:
-//          item = "Bottom Right";
-//          logTrace() << "Key: " << QString::fromAscii(enumType.key(i)) << " Value: " << QString::number(enumType.value(i)) << "Item: " << item;
-//          placementCombo->addItem(item);
-//          break;
-//      }
-//  }
+  placementCombo->setCurrentIndex(combo2placementIndex(int(RectPlacement(meta->placement.value().rectPlacement)),reverse));
 
-
-    placementCombo->addItem("1(06) Top Left");
-    placementCombo->addItem("2(07) Top");
-    placementCombo->addItem("3(08) Top Right");
-    placementCombo->addItem("4(11) Left");
-    placementCombo->addItem("5(12) Center");
-    placementCombo->addItem("6(13) Right");
-    placementCombo->addItem("7(16) Bottom Left");
-    placementCombo->addItem("8(17) Bottom");
-    placementCombo->addItem("9(18) Bottom Right");
-
-    placementCombo->setCurrentIndex(combo2placementIndex(int(RectPlacement(meta->placement.value().rectPlacement)),reverse));
-//  placementCombo->setCurrentIndex(int(RectPlacement(meta->placement.value().rectPlacement)));
-//  connect(placementCombo,SIGNAL(currentIndexChanged(QString const &)),
-//          this, SLOT(  typePlacementChanged(         QString const &)));
   connect(placementCombo,SIGNAL(currentIndexChanged(int)),
           this, SLOT(  typePlacementChanged(        int)));
 
-  grid->addWidget(placementCombo, 3,1);
+  grid->addWidget(placementCombo, 0,1);
 
   // Display
   display = new QCheckBox(tr("Display"),parent);
   display->setChecked(meta->display.value());
-  grid->addWidget(display,3,2);
+  grid->addWidget(display,0,2);
 
   connect(display,SIGNAL(stateChanged(int)),
           this, SLOT(  stateDisplayChanged(int)));
+
+  fontLabel = new QLabel("Font",parent);
+  grid->addWidget(fontLabel,1,0);
+
+  fontExample = new QLabel("1234",parent);
+  QFont font;
+  font.fromString(meta->textFont.valueFoo());
+  fontExample->setFont(font);
+  grid->addWidget(fontExample,1,1);
+
+  fontButton = new QPushButton("Change",parent);
+  connect(fontButton,SIGNAL(clicked(   bool)),
+          this,      SLOT(  browseFont(bool)));
+  grid->addWidget(fontButton,1,2);
+
+  colorLabel = new QLabel("Color",parent);
+  grid->addWidget(colorLabel,2,0);
+
+  colorExample = new QLabel(parent);
+  colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+  colorExample->setPalette(QPalette(meta->textColor.value()));
+  colorExample->setAutoFillBackground(true);
+  grid->addWidget(colorExample,2,1);
+
+  colorButton = new QPushButton("Change");
+  connect(colorButton,SIGNAL(clicked(    bool)),
+          this,       SLOT(  browseColor(bool)));
+  grid->addWidget(colorButton,2,2);
+
+  marginsLabel = new QLabel("Margins",parent);
+  grid->addWidget(marginsLabel,3,0);
+
+  string = QString("%1") .arg(meta->margin.value(0),5,'f',4);
+  value0 = new QLineEdit(string,parent);
+  connect(value0,SIGNAL(textEdited(   QString const &)),
+          this,  SLOT(  value0Changed(QString const &)));
+  grid->addWidget(value0,3,1);
+
+  string = QString("%1") .arg(meta->margin.value(1),5,'f',4);
+  value1 = new QLineEdit(string,parent);
+  connect(value1,SIGNAL(textEdited(   QString const &)),
+          this,  SLOT(  value1Changed(QString const &)));
+  grid->addWidget(value1,3,2);
+
+  enable();
 
   fontModified = false;
   colorModified = false;
@@ -868,35 +811,9 @@ void PageAttributeTextGui::value1Changed(QString const &string)
 
 void PageAttributeTextGui::typePlacementChanged(int type)
 {
-  meta->placement.setValue(RectPlacement(PageAttributePlacementEnum::EnumPageAttributePlacement(combo2placementIndex(type))),PageType);
+  meta->placement.setValue(RectPlacement(combo2placementIndex(type)),PageType);
   placementModified = true;
 }
-
-//void PageAttributeTextGui::typePlacementChanged(QString const &string)
-//{
-
-//    if (type == "TopLeft") {
-//        meta->placement.setValue(TopLeftInsideCorner,PageType);
-//    } else if (type == "Top") {
-//        meta->placement.setValue(TopInside,PageType);
-//    } else if (type == "TopRight") {
-//        meta->placement.setValue(TopRightInsideCorner,PageType);
-//    } else if (type == "Right") {
-//        meta->placement.setValue(RightInside,PageType);
-//    } else if (type == "BottomRight") {
-//        meta->placement.setValue(BottomRightInsideCorner,PageType);
-//    } else if (type == "Bottom") {
-//        meta->placement.setValue(BottomInside,PageType);
-//    } else if (type == "BottomLeft") {
-//        meta->placement.setValue(BottomLeftInsideCorner,PageType);
-//    } else if (type == "Left") {
-//        meta->placement.setValue(LeftInside,PageType);
-//    } else {
-//        meta->placement.setValue(CenterCenter,PageType);
-//    }
-
-//  placementModified = true;
-//}
 
 int PageAttributeTextGui::combo2placementIndex(int const &index, bool reverse){
     if(! reverse){
@@ -944,6 +861,7 @@ int PageAttributeTextGui::combo2placementIndex(int const &index, bool reverse){
             return 8;
         }
     }
+    return -1;
 }
 void PageAttributeTextGui::stateDisplayChanged(int state)
 {
@@ -956,6 +874,24 @@ void PageAttributeTextGui::stateDisplayChanged(int state)
   }
   meta->display.setValue(checked);
   displayModified = true;
+}
+
+void PageAttributeTextGui::enable(){
+    bool checked = meta->display.value();
+
+    if (checked){
+        value0->setEnabled(true);
+        value1->setEnabled(true);
+        fontButton->setEnabled(true);
+        colorButton->setEnabled(true);
+        placement->setEnabled(true);
+    } else {
+        value0->setEnabled(false);
+        value1->setEnabled(false);
+        fontButton->setEnabled(false);
+        colorButton->setEnabled(false);
+        placement->setEnabled(false);
+    }
 }
 
 void PageAttributeTextGui::apply(
@@ -989,7 +925,7 @@ void PageAttributeTextGui::apply(
  **********************************************************************/
 
  PageAttributePictureGui::PageAttributePictureGui(
-  PictureMeta *_meta,
+  PageAttributePictureMeta *_meta,
   QGroupBox  *parent)
 {
   QGridLayout   *grid;

@@ -877,62 +877,102 @@ QString BackgroundMeta::text()
 
 Rc PictureMeta::parse(QStringList &argv, int index,Where &here)
 {
-  Rc rc = FailureRc;
+ Rc rc = FailureRc;
 
-  if (argv.size() - index == 1) {
-      _value[pushed].string = argv[index];
-      _value[pushed].stretch = false;
-      rc = OkRc;
-  } else if (argv.size() - index == 2) {
-    if (argv[index] == "PICTURE") {
-      _value[pushed].string = argv[index+1];
-      _value[pushed].stretch = false;
-      rc = OkRc;
-    }
-  } else if (argv.size() - index == 3) {
-    if (argv[index] == "PICTURE" && argv[index+2] == "STRETCH") {
-      _value[pushed].string = argv[index+1];
-      _value[pushed].stretch = true;
-      rc = OkRc;
-    }
-  }
-  if (rc == OkRc) {
-    _here[pushed] = here;
-    return rc;
-  } else {
+ if (argv.size() - index == 2) {
+   if (argv[index] == "PICTURE") {
+     _value[pushed].filePath = argv[index+1];
+     _value[pushed].stretch = false;
+     rc = OkRc;
+   }
+ } else if (argv.size() - index == 3) {
+   if (argv[index] == "PICTURE" && argv[index+2] == "STRETCH") {
+     _value[pushed].filePath = argv[index+1];
+     _value[pushed].stretch = true;
+     rc = OkRc;
+   }
+ } else if (argv.size() - index == 4) {
+   if (argv[index] == "PICTURE" && argv[index+2] == "SCALE") {
+     _value[pushed].filePath = argv[index+1];
+     _value[pushed].stretch = false;
+     bool ok;
+     _value[pushed].picScale = argv[index+3].toFloat(&ok);
+     if (! ok) {
+       rc = FailureRc;
+     } else {
+     rc = OkRc;
+     }
+   }
+ } else if (argv.size() - index == 5) { 							//OFFSET WITH NO SCALE
+   if (argv[index] == "PICTURE" && argv[index+2] == "OFFSET") {
+     _value[pushed].filePath = argv[index+1];
+     _value[pushed].stretch = false;
+     bool ok[2];
+     _value[pushed].offsets[0] = argv[index+3].toFloat(&ok[0]);
+     _value[pushed].offsets[1] = argv[index+4].toFloat(&ok[1]);
+     if ( ! ok[0] || ! ok[1]) {
+       rc = FailureRc;
+     }	else {
+     rc = OkRc;
+     }
+   }
+ } else if (argv.size() - index == 7) {							//OFFSET AND SCALE
+   if (argv[index] == "PICTURE" && argv[index+2] == "OFFSET") {
+     _value[pushed].filePath = argv[index+1];
+     _value[pushed].stretch = false;
+     bool ok[3];
+     _value[pushed].picScale = argv[index+3].toFloat(&ok[0]);
+     _value[pushed].offsets[0] = argv[index+5].toFloat(&ok[1]);
+     _value[pushed].offsets[1] = argv[index+6].toFloat(&ok[2]);
+     if ( ! ok[0] || ! ok[1] || ! ok[2]) {
+       rc = FailureRc;
+     }	else {
+     rc = OkRc;
+     }
+   }
+ } else if (argv.size() - index > 0) {
+     rc = FailureRc;
+ }
 
-    if (reportErrors) {
-      QMessageBox::warning(NULL,
-        QMessageBox::tr("LPub3D"),
-        QMessageBox::tr("Malformed Picture \"%1\"") .arg(argv.join(" ")));
-    }
+ if (rc == OkRc) {
+   _here[pushed] = here;
+   return rc;
+ } else {
 
-    return FailureRc;
-  }
+   if (reportErrors) {
+     QMessageBox::warning(NULL,
+       QMessageBox::tr("LPub3D"),
+       QMessageBox::tr("Malformed picture \"%1\"") .arg(argv.join(" ")));
+   }
+
+   return FailureRc;
+ }
 }
 
 QString PictureMeta::format(bool local, bool global)
 {
   QString foo;
-      foo = "PICTURE \"" + _value[pushed].string + "\"";
-      if (_value[pushed].stretch) {
-        foo += " STRETCH";
-      }
+  foo = "PICTURE \"" + _value[pushed].filePath + "\"";
+  if (_value[pushed].stretch) {
+    foo += " STRETCH";
+  }
+  if (_value[pushed].picScale) {
+    foo += QString(" SCALE %1") .arg(_value[pushed].picScale);
+  }
+
+  if (_value[pushed].offsets[0] || _value[pushed].offsets[1]) {
+    foo += QString(" OFFSET %1 %2") .arg(_value[pushed].offsets[0])
+                                    .arg(_value[pushed].offsets[1]);
+  }
+
   return LeafMeta::format(local,global,foo);
 }
 
 void PictureMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (PICTURE (STRETCH) <\"picture\">)";
+  out << preamble + " PICTURE \"filePath\" (STRETCH) (SCALE <Value>) (OFFSET <valueX> <valueY>)";
 }
-
-QString PictureMeta::text()
-{
-  PictureData Picture = value();
-  return "Picture " + Picture.string;
-  //return "Submodel level color";
-}
-
+ //						01			02		   03       03     04	   03/05   04/06    05/07
 
 /* ------------------ */ 
 
@@ -1706,9 +1746,9 @@ PageAttributeMeta::PageAttributeMeta() : BranchMeta() //remove attributes and mo
 {
   textColor.setValue("black");
   // textFont - default
-  picScale.setRange(-10000.0,10000.0);
-  picScale.setFormats(7,4,"99999.9");
-  picScale.setValue(1.0);
+  picScale.setRange(-10000.0,10000.0);      //may not need = only apply to FloatMeta
+  picScale.setFormats(7,4,"99999.9");       //may not need = only apply to FloatMeta
+  picScale.setValue(1.0);                   //may not need = moved to PictureData
   display.setValue(false);
 }
 
@@ -1721,7 +1761,8 @@ void PageAttributeMeta::init(
   textFont.init     	(this, "FONT");
   margin.init   		(this, "MARGINS");
   alignment.init		(this, "ALIGNMENT");
-  picScale.init			(this, "SCALE");
+  picture.init          (this, "PICTURE");
+  picScale.init			(this, "SCALE");        //may not need = moved to PictureData
   display.init          (this, "DISPLAY");
 }
 
@@ -1942,54 +1983,43 @@ PageMeta::PageMeta() : BranchMeta()
 
   // Page Attributes
   //model title
-  title.textColor.setValue("Black");
   title.textFont.setValuePoints("Arial,32,-1,255,75,0,0,0,0,0");
   title.placement.setValue(CenterCenter,PageType);
-  //model identification
-  modelNum.textColor.setValue("Black");
+  //model identificatio
   modelNum.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   modelNum.placement.setValue(CenterCenter,PageType);
   //model description
-  modelDesc.textColor.setValue("Black");
   modelDesc.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   modelDesc.placement.setValue(CenterCenter,PageType);
   //model number of pieces
-  pieces.textColor.setValue("Black");
   pieces.textFont.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");
   pieces.placement.setValue(CenterCenter,PageType);
   //publisher author
-  author.textColor.setValue("Black");
   author.textFont.setValuePoints("Arial,32,-1,255,75,0,0,0,0,0");
   author.placement.setValue(CenterCenter,PageType);
   //publisher description
-  publishDesc.textColor.setValue("Black");
   publishDesc.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   publishDesc.placement.setValue(CenterCenter,PageType);
   //publisher url
-  url.textColor.setValue("Black");
   url.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   url.placement.setValue(CenterCenter,PageType);
   //publisher email
-  email.textColor.setValue("Black");
   email.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   email.placement.setValue(CenterCenter,PageType);
   //publisher copyright
-  copyright.textColor.setValue("Black");
   copyright.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   copyright.placement.setValue(CenterCenter,PageType);
-  //publisher logo
+  //publisher IMAGE
   logo.placement.setValue(CenterCenter,PageType);
-  //publisher cover image
+  //publisher cover IMAGE
   coverImage.placement.setValue(CenterCenter,PageType);
   //disclaimer LEGO
-  disclaimer.textColor.setValue("Black");
   disclaimer.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   disclaimer.placement.setValue(CenterCenter,PageType);
   //disclaimer 'built by' text
-  plug.textColor.setValue("Black");
   plug.textFont.setValuePoints("Arial,12,-1,255,75,0,0,0,0,0");
   plug.placement.setValue(CenterCenter,PageType);
-  //disclaimer 'built by' image
+  //disclaimer 'built by' IMAGE
   plugImage.placement.setValue(CenterCenter,PageType);
 
 }

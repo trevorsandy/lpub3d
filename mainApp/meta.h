@@ -1409,7 +1409,8 @@ public:
     } type;
 
   QString   	 pageAttributeValue; // can be name, description, url, email, path (e.g. logo) etc... [DON'T THINK THIS IS USED??]
-  FloatMeta		 picScale;		     // only for logo
+  FloatMeta		 picScale;		     // only for logo (mighto not need)
+  PictureMeta    picture;
   FontMeta    	 textFont;
   StringMeta  	 textColor;
   BoolMeta       display;

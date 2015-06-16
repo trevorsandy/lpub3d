@@ -31,7 +31,6 @@
 #include <QString>
 #include <QStringList>
 #include <QPointF>
-#include <QObject>
 
 enum AllocEnc {
   Horizontal = 0,
@@ -40,37 +39,37 @@ enum AllocEnc {
 
 enum RectPlacement{
 
-  TopLeftOutsideCorner, 
-  TopLeftOutside, 
-  TopOutside, 
-  TopRightOutSide, 
-  TopRightOutsideCorner,
+    TopLeftOutsideCorner,       //00
+    TopLeftOutside,             //01
+    TopOutside,                 //02
+    TopRightOutSide,            //03
+    TopRightOutsideCorner,      //04
 
-  LeftTopOutside,
-  TopLeftInsideCorner, 
-  TopInside,
-  TopRightInsideCorner,
-  RightTopOutside,
+    LeftTopOutside,             //05
+    TopLeftInsideCorner,        //06 "Top Left"
+    TopInside,                  //07 "Top"
+    TopRightInsideCorner,       //08 "Top Right"
+    RightTopOutside,            //09
 
-  LeftOutside,
-  LeftInside,
-  CenterCenter,
-  RightInside,
-  RightOutside,
+    LeftOutside,                //10
+    LeftInside,                 //11 "Left"
+    CenterCenter,               //12 "Center"
+    RightInside,                //13 "Right"
+    RightOutside,               //14
 
-  LeftBottomOutside,
-  BottomLeftInsideCorner,
-  BottomInside,
-  BottomRightInsideCorner,
-  RightBottomOutside,
+    LeftBottomOutside,          //15
+    BottomLeftInsideCorner,     //16 "Bottom Left"
+    BottomInside,               //17 "Bottom"
+    BottomRightInsideCorner,    //18 "Bottom Right"
+    RightBottomOutside,         //19
 
-  BottomLeftOutsideCorner,
-  BottomLeftOutside,
-  BottomOutside,
-  BottomRightOutside,
-  BottomRightOutsideCorner,
+    BottomLeftOutsideCorner,    //20
+    BottomLeftOutside,          //21
+    BottomOutside,              //22
+    BottomRightOutside,         //23
+    BottomRightOutsideCorner,   //24
 
-  NumSpots
+    NumSpots                    //25
 };
 
 enum PlacementEnc {
@@ -125,46 +124,6 @@ enum PlacementType {
   PageBackCoverType,
   PageAttributePictureType,
   PageAttributeTextType
-};
-
-class PageAttributePlacementEnum : public QObject {
-Q_OBJECT
-Q_ENUMS(EnumPageAttributePlacement)
-public:
-    enum EnumPageAttributePlacement{
-
-        TopLeftOutsideCorner,       //00
-        TopLeftOutside,             //01
-        TopOutside,                 //02
-        TopRightOutSide,            //03
-        TopRightOutsideCorner,      //04
-
-        LeftTopOutside,             //05
-        TopLeftInsideCorner,        //06 "Top Left"
-        TopInside,                  //07 "Top"
-        TopRightInsideCorner,       //08 "Top Right"
-        RightTopOutside,            //09
-
-        LeftOutside,                //10
-        LeftInside,                 //11 "Left"
-        CenterCenter,               //12 "Center"
-        RightInside,                //13 "Right"
-        RightOutside,               //14
-
-        LeftBottomOutside,          //15
-        BottomLeftInsideCorner,     //16 "Bottom Left"
-        BottomInside,               //17 "Bottom"
-        BottomRightInsideCorner,    //18 "Bottom Right"
-        RightBottomOutside,         //19
-
-        BottomLeftOutsideCorner,    //20
-        BottomLeftOutside,          //21
-        BottomOutside,              //22
-        BottomRightOutside,         //23
-        BottomRightOutsideCorner,   //24
-
-        NumSpots                    //25
-    };
 };
 
 class PlacementData
@@ -276,14 +235,17 @@ public:
 class PictureData
 {
 public:
-  QString           picName;
-  qreal             picScale;
-  QString           string;
-  bool              stretch;
-  PictureData()
-  {
-      picScale = 1.0;
-  }
+    QString    filePath;
+    bool       stretch;
+    qreal      picScale;
+    float      offsets[2];
+    PictureData()
+   {
+     picScale   = 1.0;
+     stretch    = false;
+     offsets[0] = 0.5;
+     offsets[1] = 0.5;
+   }
 };
 
 class BorderData

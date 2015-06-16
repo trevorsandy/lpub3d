@@ -32,9 +32,6 @@
 #include "resolution.h"
 #include "metatypes.h"
 
-#include <QMetaObject>
-#include <QMetaEnum>
-
 void clearPliCache();
 
 class QWidget;
@@ -285,8 +282,7 @@ private:
   QLabel       *placement;
   QCheckBox    *display;
 
-  //PageAttributePlacementEnum enumObj;
-
+  void enable();
   int combo2placementIndex(int const &index, bool reverse = false);
 
 public slots:
@@ -295,7 +291,6 @@ public slots:
   void value0Changed(QString const &);
   void value1Changed(QString const &);
 
-  //void typePlacementChanged(QString const &);
   void typePlacementChanged(int);
   void stateDisplayChanged(int state);
 
@@ -306,7 +301,8 @@ public slots:
  *
  **********************************************************************/
 
-class PictureMeta;
+//class PictureMeta;
+class PageAttributePictureMeta;
 class QLabel;
 class QPushButton;
 class QLineEdit;
@@ -318,12 +314,13 @@ class PageAttributePictureGui : public MetaGui
   Q_OBJECT
 public:
 
-  PageAttributePictureGui(PictureMeta *meta,
-    QGroupBox       *parent = NULL);
+  PageAttributePictureGui(PageAttributePictureMeta *meta,
+    QGroupBox         *parent = NULL);
 
   ~PageAttributePictureGui() {}
 
-  PictureMeta   *meta;
+  //PictureMeta   *meta;
+  PageAttributePictureMeta *meta;
 
   virtual void apply(QString &modelName);
 
