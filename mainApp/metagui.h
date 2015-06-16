@@ -256,9 +256,10 @@ public:
   PageAttributeTextGui(
     PageAttributeTextMeta *meta,
     QGroupBox  *parent = NULL);
+
   ~PageAttributeTextGui() {}
 
-  virtual void apply(QString &modelName);
+  virtual void apply(QString &topLevelFile);
 
 private:
   PageAttributeTextMeta  *meta;
@@ -281,6 +282,7 @@ private:
 
   QLabel       *placement;
   QCheckBox    *display;
+  QComboBox    *placementCombo;
 
   void enable();
   int combo2placementIndex(int const &index, bool reverse = false);
@@ -314,18 +316,21 @@ class PageAttributePictureGui : public MetaGui
   Q_OBJECT
 public:
 
-  PageAttributePictureGui(PageAttributePictureMeta *meta,
+  PageAttributePictureGui(
+    PageAttributePictureMeta *meta,
     QGroupBox         *parent = NULL);
 
   ~PageAttributePictureGui() {}
 
-  PageAttributePictureMeta *meta;
-
-  virtual void apply(QString &modelName);
+  virtual void apply(QString &topLevelFile);
 
   void setEnabled(bool enabled);
 
-private:
+private:  
+  PageAttributePictureMeta *meta;
+
+  bool           pictureModified;
+
   QString        picture;
 
   QLineEdit      *pictureEdit;
@@ -335,14 +340,18 @@ private:
   QGroupBox      *gbFill;
   QGroupBox      *gbScale;
 
-  QLabel         *label;
-  QDoubleSpinBox *spin;
-
   float          min;
   float          max;
   float          step;
   QLabel        *scale;
-  QLabel        *placement;
+  QDoubleSpinBox *spin;
+
+  QLabel       *placement;
+  QCheckBox    *display;
+  QComboBox    *placementCombo;
+
+  void enable();
+  int combo2placementIndex(int const &index, bool reverse = false);
 
 public slots:
   void pictureChange(QString const &);
@@ -352,7 +361,8 @@ public slots:
 
   void valueChanged(double);
 
-  //void typePlaceChange(QString const &);    //type of placement
+  void typePlacementChanged(int);
+  void stateDisplayChanged(int state);
 };
 
 /***********************************************************************

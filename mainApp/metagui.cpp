@@ -686,7 +686,6 @@ PageAttributeTextGui::PageAttributeTextGui(
   placement->setText("Placement");
   grid->addWidget(placement,0,0);
 
-  QComboBox         *placementCombo;
   placementCombo = new QComboBox(parent);
   bool             reverse = true;
 
@@ -715,6 +714,7 @@ PageAttributeTextGui::PageAttributeTextGui(
   connect(display,SIGNAL(stateChanged(int)),
           this, SLOT(  stateDisplayChanged(int)));
 
+  // font
   fontLabel = new QLabel("Font",parent);
   grid->addWidget(fontLabel,1,0);
 
@@ -729,6 +729,7 @@ PageAttributeTextGui::PageAttributeTextGui(
           this,      SLOT(  browseFont(bool)));
   grid->addWidget(fontButton,1,2);
 
+  // colour
   colorLabel = new QLabel("Color",parent);
   grid->addWidget(colorLabel,2,0);
 
@@ -743,6 +744,7 @@ PageAttributeTextGui::PageAttributeTextGui(
           this,       SLOT(  browseColor(bool)));
   grid->addWidget(colorButton,2,2);
 
+  // margins
   marginsLabel = new QLabel("Margins",parent);
   grid->addWidget(marginsLabel,3,0);
 
@@ -873,6 +875,7 @@ void PageAttributeTextGui::stateDisplayChanged(int state)
     checked = true;
   }
   meta->display.setValue(checked);
+  enable();
   displayModified = true;
 }
 
@@ -885,12 +888,14 @@ void PageAttributeTextGui::enable(){
         fontButton->setEnabled(true);
         colorButton->setEnabled(true);
         placement->setEnabled(true);
+        placementCombo->setEnabled(true);
     } else {
         value0->setEnabled(false);
         value1->setEnabled(false);
         fontButton->setEnabled(false);
         colorButton->setEnabled(false);
         placement->setEnabled(false);
+        placementCombo->setEnabled(false);
     }
 }
 
@@ -933,12 +938,7 @@ void PageAttributeTextGui::apply(
 
   meta  = _meta;
 
-  min   = -10000.0;
-  max   =  10000.0;
-  step  =  0.01;
-
   PageAttributePictureData Picture = meta->value();
-  picture = Picture.string;
 
   grid = new QGridLayout(parent);
 
@@ -946,23 +946,57 @@ void PageAttributeTextGui::apply(
       parent->setLayout(grid);
   }
 
+  // Placement
+  placement = new QLabel(parent);
+  placement->setText("Placement");
+  grid->addWidget(placement,0,0);
+
+  placementCombo = new QComboBox(parent);
+  bool             reverse = true;
+
+  placementCombo->addItem(" Top Left");
+  placementCombo->addItem(" Top");
+  placementCombo->addItem(" Top Right");
+  placementCombo->addItem(" Left");
+  placementCombo->addItem(" Center");
+  placementCombo->addItem(" Right");
+  placementCombo->addItem(" Bottom Left");
+  placementCombo->addItem(" Bottom");
+  placementCombo->addItem(" Bottom Right");
+
+  placementCombo->setCurrentIndex(combo2placementIndex(int(RectPlacement(Picture.rectPlacement)),reverse));
+
+  connect(placementCombo,SIGNAL(currentIndexChanged(int)),
+          this, SLOT(  typePlacementChanged(        int)));
+
+  grid->addWidget(placementCombo, 0,1);
+
+  // Display
+  display = new QCheckBox(tr("Display"),parent);
+  display->setChecked(Picture.display);
+  grid->addWidget(display,0,2);
+
+  connect(display,SIGNAL(stateChanged(int)),
+          this, SLOT(  stateDisplayChanged(int)));
+
   // Image
+  picture = Picture.string;
   pictureEdit = new QLineEdit(picture,parent);
   connect(pictureEdit,SIGNAL(textEdited(   QString const &)),
           this,       SLOT(  pictureChange(QString const &)));
-  grid->addWidget(pictureEdit,0,0);
+  grid->addWidget(pictureEdit,1,0,1,2);
 
   pictureButton = new QPushButton("Browse",parent);
   connect(pictureButton,SIGNAL(clicked(     bool)),
           this,         SLOT(  browsePicture(bool)));
-  grid->addWidget(pictureButton,0,1);
+  grid->addWidget(pictureButton,1,2,1,1);
 
   //fill
   gbFill = new QGroupBox("Fill",parent);
-
+  gbFill->setCheckable(true);
   hLayout = new QHBoxLayout();
   gbFill->setLayout(hLayout);
-  grid->addWidget(gbFill,1,0,1,2);
+  grid->addWidget(gbFill,2,0,1,3);
 
   stretchRadio = new QRadioButton("Stretch Picture",parent);
   connect(stretchRadio,SIGNAL(clicked(bool)),
@@ -979,26 +1013,37 @@ void PageAttributeTextGui::apply(
 
   pictureEdit->setEnabled(true);
   pictureButton->setEnabled(true);
-  gbFill->setEnabled(true);
 
   //scale
   gbScale = new QGroupBox("Scale", parent);
+  gbScale->setCheckable(true);
   hLayout = new QHBoxLayout();
   gbScale->setLayout(hLayout);
-  grid->addWidget(scale,2,0,1,2);
+  grid->addWidget(gbScale,3,0,1,3);
 
-  scale = new QLabel("Scale image",parent);
+  scale = new QLabel("Scale Picture",parent);
   hLayout->addWidget(scale);
 
+  min   = -10000.0;
+  max   =  10000.0;
+  step  =  0.01;
+
   spin = new QDoubleSpinBox(parent);
-  hLayout->addWidget(spin);
   spin->setRange(min,max);
   spin->setSingleStep(step);
   spin->setDecimals(6);
   spin->setValue(Picture.picScale);
   connect(spin,SIGNAL(valueChanged(double)),
           this,SLOT  (valueChanged(double)));
+  hLayout->addWidget(spin);
 
+
+
+  //gbFill->setChecked(false);
+
+  enable();
+
+  pictureModified = false;
 }
 
 void PageAttributePictureGui::pictureChange(QString const &pic)
@@ -1006,12 +1051,13 @@ void PageAttributePictureGui::pictureChange(QString const &pic)
   PageAttributePictureData Picture = meta->value();
   Picture.string = pic;
   meta->setValue(Picture);
-  modified = true;
+  pictureModified = true;
 }
 
 void PageAttributePictureGui::browsePicture(bool)
 {
   PageAttributePictureData Picture = meta->value();
+  picture = Picture.string;
 
   QString foo = QFileDialog::getOpenFileName(
     gui,
@@ -1023,7 +1069,7 @@ void PageAttributePictureGui::browsePicture(bool)
     Picture.string = foo;
     pictureEdit->setText(foo);
     meta->setValue(Picture);
-    modified = true;
+    pictureModified = true;
   }
 }
 
@@ -1032,7 +1078,7 @@ void PageAttributePictureGui::stretch(bool checked)
   PageAttributePictureData Picture = meta->value();
   Picture.stretch = checked;
   meta->setValue(Picture);
-  modified = true;
+  pictureModified = true;
 }
 
 void PageAttributePictureGui::tile(bool checked)
@@ -1040,7 +1086,7 @@ void PageAttributePictureGui::tile(bool checked)
   PageAttributePictureData Picture = meta->value();
   Picture.stretch = ! checked;
   meta->setValue(Picture);
-  modified = true;
+  pictureModified = true;
 }
 
 void PageAttributePictureGui::valueChanged(double value)
@@ -1048,15 +1094,118 @@ void PageAttributePictureGui::valueChanged(double value)
   PageAttributePictureData Picture = meta->value();
   Picture.picScale = value;
   meta->setValue(Picture);
-  modified = true;
+  pictureModified = true;
 }
 
-void PageAttributePictureGui::apply(QString &modelName)
+void PageAttributePictureGui::typePlacementChanged(int type)
 {
-  if (modified) {
-    MetaItem mi;
-    mi.setGlobalMeta(modelName,meta);
+  PageAttributePictureData Picture = meta->value();
+  Picture.rectPlacement = RectPlacement(combo2placementIndex(type));
+  Picture.relativeTo    = PageType;
+  meta->setValue(Picture);
+  pictureModified = true;
+}
+
+int PageAttributePictureGui::combo2placementIndex(int const &index, bool reverse){
+    if(! reverse){
+        switch(index)
+        {
+        case 0:
+            return 6;
+        case 1:
+            return 7;
+        case 2:
+            return 8;
+        case 3:
+            return 11;
+        case 4:
+            return 12;
+        case 5:
+            return 13;
+        case 6:
+            return 16;
+        case 7:
+            return 17;
+        case 8:
+            return 18;
+        }
+    } else {
+        switch(index)
+        {
+        case 6:
+            return 0;
+        case 7:
+            return 1;
+        case 8:
+            return 2;
+        case 11:
+            return 3;
+        case 12:
+            return 4;
+        case 13:
+            return 5;
+        case 16:
+            return 6;
+        case 17:
+            return 7;
+        case 18:
+            return 8;
+        }
+    }
+    return -1;
+}
+
+void PageAttributePictureGui::stateDisplayChanged(int state)
+{
+  PageAttributePictureData Picture = meta->value();
+  bool checked = Picture.display;
+
+  if (state == Qt::Unchecked) {
+    checked = false;
+  } else if (state == Qt::Checked) {
+    checked = true;
   }
+  Picture.display = checked;
+  meta->setValue(Picture);
+  enable();
+  pictureModified = true;
+}
+
+void PageAttributePictureGui::enable(){
+    PageAttributePictureData Picture = meta->value();
+    bool checked = Picture.display;
+
+    if (checked){
+        pictureEdit->setEnabled(true);
+        pictureButton->setEnabled(true);
+        stretchRadio->setEnabled(false);
+        tileRadio->setEnabled(true);
+        spin->setEnabled(true);
+        placement->setEnabled(true);
+        placementCombo->setEnabled(true);
+        gbScale->setChecked(true);
+        gbFill->setEnabled(!gbScale->isChecked());
+        gbScale->setEnabled(!gbFill->isChecked());
+    } else {
+        pictureEdit->setEnabled(false);
+        pictureButton->setEnabled(false);
+        stretchRadio->setEnabled(false);
+        tileRadio->setEnabled(true);
+        spin->setEnabled(true);
+        placement->setEnabled(false);
+        placementCombo->setEnabled(false);
+    }
+}
+
+void PageAttributePictureGui::apply(QString &topLevelFile)
+{
+    MetaItem mi;
+    mi.beginMacro("Settings");
+
+    if (pictureModified) {
+        mi.setGlobalMeta(topLevelFile,meta);
+    }
+    mi.endMacro();
 }
 
 /***********************************************************************

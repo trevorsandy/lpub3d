@@ -131,13 +131,10 @@ GlobalPageDialog::GlobalPageDialog(
     Logo
   */
 
-  // this will go away cuz the chkbox will go into PageAttributePictureGui
-  box = new QGroupBox("Display");
+  box = new QGroupBox("Logo");
   grid->addWidget(box, 0, 0);
-//  child = new CheckBoxGui("Display Logo",false,box);
-//  data->children.append(child);
-  //  child = new PageAttributePictureGui(&pageMeta->logo,box);
-  //  data->children.append(child);
+  child = new PageAttributePictureGui(&pageMeta->documentLogo,box);
+  data->children.append(child);
 
   tab->addTab(widget,"Publisher");
 
