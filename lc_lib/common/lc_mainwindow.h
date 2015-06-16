@@ -48,6 +48,23 @@ public:
 		return mTransformType;
 	}
 
+    QString GetRotateStep() const
+    {
+        //only for status bar
+        switch(mRotateStepType)
+        {
+        case LC_ROTATESTEP_ABSOLUTE_ROTATION:
+            return tr("ABS");
+            break;
+        case LC_ROTATESTEP_RELATIVE_ROTATION:
+            return tr("REL");
+            break;
+        default:
+            return tr("N/A");
+            break;
+        }
+    }
+
     lcRotateStepType GetRotateStepType() const
     {
         return mRotateStepType;
@@ -263,9 +280,9 @@ protected:
 	QLineEdit* mTransformZEdit;
 
 	QLabel* mStatusBarLabel;
-	QLabel* mStatusPositionLabel;
 	QLabel* mStatusSnapLabel;
-	QLabel* mStatusTimeLabel;
+//  QLabel* mStatusPositionLabel;       //remarked at LPub3D Rev 244 build 05
+//	QLabel* mStatusTimeLabel;
 };
 
 extern class lcMainWindow* gMainWindow;

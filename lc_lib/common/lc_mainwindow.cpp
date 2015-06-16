@@ -32,7 +32,6 @@ lcMainWindow::lcMainWindow()
     mRotateStepType = LC_ROTATESTEP_RELATIVE_ROTATION;
 
 	mColorIndex = lcGetColorIndex(4);
-    //mTool = LC_TOOL_ROTATESTEP;
     mTool = LC_TOOL_SELECT;
 	mAddKeys = false;
 	mMoveSnapEnabled = true;
@@ -286,7 +285,7 @@ void lcMainWindow::CreateMenus()
 	CameraMenu->addSeparator();
 	CameraMenu->addAction(mActions[LC_VIEW_CAMERA_RESET]);
 
-    QMenu* FileMenuShort = menuBar()->addMenu(tr("&File"));
+    QMenu* FileMenuShort = menuBar()->addMenu(tr("&Step"));
     FileMenuShort->addAction(mActions[LC_FILE_SAVEAS]);
     FileMenuShort->addAction(mActions[LC_FILE_SAVE_IMAGE]);
     QMenu* ExportMenuShort = FileMenuShort->addMenu(tr("&Export"));
@@ -703,14 +702,15 @@ void lcMainWindow::CreateStatusBar()
 	mStatusBarLabel = new QLabel();
     mLCStatusBar->addWidget(mStatusBarLabel);
 
-	mStatusPositionLabel = new QLabel();
-    mLCStatusBar->addPermanentWidget(mStatusPositionLabel);
-
 	mStatusSnapLabel = new QLabel();
     mLCStatusBar->addPermanentWidget(mStatusSnapLabel);
 
-	mStatusTimeLabel = new QLabel();
-    mLCStatusBar->addPermanentWidget(mStatusTimeLabel);
+//    mStatusPositionLabel = new QLabel();                              //remarked at LPbub3D Rev 244 build 05
+//    mLCStatusBar->addPermanentWidget(mStatusPositionLabel);
+
+//	  mStatusTimeLabel = new QLabel();
+//    mLCStatusBar->addPermanentWidget(mStatusTimeLabel);
+
 
 }
 
@@ -1396,6 +1396,8 @@ void lcMainWindow::SetRotateStepType(lcRotateStepType RotateStepType)
         mActions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION + RotateStepType]->setChecked(true);
         mActions[LC_EDIT_ACTION_ROTATESTEP]->setIcon(QIcon(IconNames[RotateStepType]));
     }
+
+    UpdateSnap();
 }
 
 lcVector3 lcMainWindow::GetRotateStepAmount()
@@ -1565,7 +1567,7 @@ void lcMainWindow::UpdateFocusObject(lcObject* Focus)
 
 	QString Label("X: %1 Y: %2 Z: %3");
 	Label = Label.arg(QString::number(Position[0], 'f', 2), QString::number(Position[1], 'f', 2), QString::number(Position[2], 'f', 2));
-	mStatusPositionLabel->setText(Label);
+    //mStatusPositionLabel->setText(Label);  //remarked on LPub3D Revision 244 build 05
 
 }
 
@@ -1649,7 +1651,7 @@ void lcMainWindow::UpdateCurrentStep()
 	mActions[LC_VIEW_TIME_NEXT]->setEnabled(CurrentStep < LC_STEP_MAX);
 	mActions[LC_VIEW_TIME_LAST]->setEnabled(CurrentStep != LastStep);
 
-	mStatusTimeLabel->setText(QString(tr("Step %1")).arg(QString::number(CurrentStep)));
+    //mStatusTimeLabel->setText(QString(tr("Step %1")).arg(QString::number(CurrentStep)));      //remarked on LPub3D Rev 244 build 05
 }
 
 void lcMainWindow::SetAddKeys(bool AddKeys)
@@ -1678,7 +1680,8 @@ void lcMainWindow::UpdateSnap()
 	mActions[LC_EDIT_SNAP_MOVE_Z0 + mMoveZSnapIndex]->setChecked(true);
 	mActions[LC_EDIT_SNAP_ANGLE0 + mAngleSnapIndex]->setChecked(true);
 
-	mStatusSnapLabel->setText(QString(tr(" M: %1 %2 R: %3 ")).arg(GetMoveXYSnapText(), GetMoveZSnapText(), GetAngleSnapText()));
+    //mStatusSnapLabel->setText(QString(tr(" M: %1 %2 R: %3 ")).arg(GetMoveXYSnapText(), GetMoveZSnapText(), GetAngleSnapText())); // changed on LPub3D Rev 244 build 05
+    mStatusSnapLabel->setText(QString(tr("Rot: %1 Snap: %2 ")).arg(GetRotateStep()).arg(GetAngleSnapText()));
 }
 
 void lcMainWindow::UpdateColor()

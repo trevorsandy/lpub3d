@@ -59,12 +59,16 @@ GlobalPageDialog::GlobalPageDialog(
 
   setWindowTitle(tr("Page Globals Setup"));
 
-  QTabWidget    *tab = new QTabWidget();
-  QVBoxLayout   *layout = new QVBoxLayout();
+  QTabWidget    *tab         = new QTabWidget();
+  QTabWidget    *childtab    = new QTabWidget();
+  QVBoxLayout   *layout      = new QVBoxLayout();
+  QVBoxLayout   *childlayout = new QVBoxLayout();
+
   setLayout(layout);
   layout->addWidget(tab);
   
   QWidget       *widget;
+  QWidget       *childwidget;
   QGridLayout   *grid;
   
   widget = new QWidget();
@@ -99,11 +103,21 @@ GlobalPageDialog::GlobalPageDialog(
 
   tab->addTab(widget,"Page");
   
-  //~~~~~~~~~~~~ model tab ~~~~~~~~~~~~~~~//
-  widget = new QWidget();
+  //~~~~~~~~~~~~ model tab ~~~~~~~~~~~~~~~//  
+  childwidget = new QWidget();
+  childlayout = new QVBoxLayout;                //new QVBox layout - to apply tabl later
+  //grid = new QGridLayout();                           //exist rid layout - to apply tabl later
+  childwidget->setLayout(childlayout);          //new 'model' widget - tab not yet added
+  //widget->setLayout(grid);                            //exist 'model' widget - tab not yet added
+
+  childtab = new QTabWidget();                  // new tab object
+  childlayout->addWidget(childtab);             // new add the tab
+
+  tab->addTab(childwidget, "Model");       // new add the tab  (This is the new 'Model' tab
+
+  widget = new QWidget();                       // now start the 'model' widget definintion
   grid = new QGridLayout();
   widget->setLayout(grid);
-
   /*
     Title,
     Model ID,
@@ -115,7 +129,15 @@ GlobalPageDialog::GlobalPageDialog(
   child = new PageAttributeTextGui(&pageMeta->title,box);
   data->children.append(child);
 
-  tab->addTab(widget,"Model");
+//  grid = new QGridLayout();
+//  widget->setLayout(grid);
+//  //.....
+//  box = new QGroupBox("Title");
+//  grid->addWidget(box, 0, 0);
+//  child = new PageAttributeTextGui(&pageMeta->title,box);
+//  data->children.append(child);
+
+  childtab->addTab(widget,"childModel");                //new 'childModel' added to childtab
 
   //~~~~~~~~~~~~ publisher tab ~~~~~~~~~~~~//
   widget = new QWidget();
