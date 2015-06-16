@@ -883,30 +883,30 @@ public:
   virtual QString text();
 };
 
-/* This class is used to parse Picture data */
+/* This class is used to parse PageAttributePicture data */
 
-class PictureMeta : public LeafMeta
+class PageAttributePictureMeta : public LeafMeta
 {
 private:
-  PictureData _value[2];
+  PageAttributePictureData _value[2];
 public:
-  PictureData &value()
+  PageAttributePictureData &value()
   {
     return _value[pushed];
   }
-  void setValue(PictureData &value)
+  void setValue(PageAttributePictureData &value)
   {
     _value[pushed] = value;
   }
-  PictureMeta() : LeafMeta()
+  PageAttributePictureMeta() : LeafMeta()
   {
   }
-  PictureMeta(const PictureMeta &rhs) : LeafMeta(rhs)
+  PageAttributePictureMeta(const PageAttributePictureMeta &rhs) : LeafMeta(rhs)
   {
     _value[0] = rhs._value[0];
     _value[1] = rhs._value[1];
   }
-  virtual ~PictureMeta() {}
+  virtual ~PageAttributePictureMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   void    pop()
@@ -1384,7 +1384,7 @@ public:
 
 /*------------------------*/
 
-class PageAttributeMeta : public BranchMeta
+class PageAttributeTextMeta : public BranchMeta
 {
 public:
     enum PageAttributeType
@@ -1409,8 +1409,8 @@ public:
     } type;
 
   QString   	 pageAttributeValue; // can be name, description, url, email, path (e.g. logo) etc... [DON'T THINK THIS IS USED??]
-  FloatMeta		 picScale;		     // only for logo (mighto not need)
-  PictureMeta    picture;
+  //FloatMeta		 picScale;		     // only for logo (mighto not need) //may not need = moved to PageAttributePictureData
+  //PageAttributePictureMeta    picture; //may not need = moved to PageAttributePictureData
   FontMeta    	 textFont;
   StringMeta  	 textColor;
   BoolMeta       display;
@@ -1425,12 +1425,12 @@ public:
   {
       return pageAttributeValue;
   }
-  PageAttributeMeta();
-  PageAttributeMeta(const PageAttributeMeta &rhs) : BranchMeta(rhs)
+  PageAttributeTextMeta();
+  PageAttributeTextMeta(const PageAttributeTextMeta &rhs) : BranchMeta(rhs)
   {
   }
 
-  virtual ~PageAttributeMeta() {}
+  virtual ~PageAttributeTextMeta() {}
 
   virtual void init(BranchMeta *parent,
                     QString name);
@@ -1756,20 +1756,20 @@ public:
   StringListMeta            subModelColor;
 
   //pageAttributes 
-  PageAttributeMeta title;
-  PageAttributeMeta modelNum;
-  PageAttributeMeta modelDesc;
-  PageAttributeMeta publishDesc;
-  PageAttributeMeta author;
-  PageAttributeMeta url;
-  PageAttributeMeta email;
-  PageAttributeMeta disclaimer;
-  PageAttributeMeta logo;
-  PageAttributeMeta coverImage;
-  PageAttributeMeta pieces;
-  PageAttributeMeta copyright;
-  PageAttributeMeta plug;
-  PageAttributeMeta plugImage;
+  PageAttributeTextMeta     title;
+  PageAttributeTextMeta     modelNum;
+  PageAttributeTextMeta     modelDesc;
+  PageAttributeTextMeta     publishDesc;
+  PageAttributeTextMeta     author;
+  PageAttributeTextMeta     url;
+  PageAttributeTextMeta     email;
+  PageAttributeTextMeta     disclaimer;
+  PageAttributePictureMeta  documentLogo;
+  PageAttributePictureMeta  coverImage;
+  PageAttributeTextMeta     pieces;
+  PageAttributeTextMeta     copyright;
+  PageAttributeTextMeta     plug;
+  PageAttributePictureMeta  plugImage;
 
   PageMeta();
   PageMeta(const PageMeta &rhs) : BranchMeta(rhs)

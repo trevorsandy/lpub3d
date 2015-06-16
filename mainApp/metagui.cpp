@@ -667,7 +667,7 @@ void NumberGui::apply(
  **********************************************************************/
 
 PageAttributeTextGui::PageAttributeTextGui(
-  PageAttributeMeta *_meta,
+  PageAttributeTextMeta *_meta,
   QGroupBox  *parent)
 {
   QString        string;
@@ -929,57 +929,81 @@ void PageAttributeTextGui::apply(
   QGroupBox  *parent)
 {
   QGridLayout   *grid;
-  QVBoxLayout   *vert;
+  QHBoxLayout   *hLayout;
 
-  meta = _meta;
+  meta  = _meta;
 
-  PictureData Picture = meta->value();
+  min   = -10000.0;
+  max   =  10000.0;
+  step  =  0.01;
+
+  PageAttributePictureData Picture = meta->value();
   picture = Picture.string;
 
   grid = new QGridLayout(parent);
-  parent->setLayout(grid);
 
-    /* Image */
+  if (parent) {
+      parent->setLayout(grid);
+  }
 
+  // Image
   pictureEdit = new QLineEdit(picture,parent);
   connect(pictureEdit,SIGNAL(textEdited(   QString const &)),
           this,       SLOT(  pictureChange(QString const &)));
-  grid->addWidget(pictureEdit,1,0);
+  grid->addWidget(pictureEdit,0,0);
 
   pictureButton = new QPushButton("Browse",parent);
   connect(pictureButton,SIGNAL(clicked(     bool)),
           this,         SLOT(  browsePicture(bool)));
-  grid->addWidget(pictureButton,1,1);
+  grid->addWidget(pictureButton,0,1);
 
-  /* Fill */
+  //fill
+  gbFill = new QGroupBox("Fill",parent);
 
-  fill = new QGroupBox("Fill",parent);
-
-  //vert = new QVBoxLayout(parent); // generating error: QLayout: Attempting to add QLayout "" to QGroupBox "", which already has a layout
-  vert = new QVBoxLayout(); // change to horizontal
-  fill->setLayout(vert);
-  grid->addWidget(fill,1,0,1,3);
+  hLayout = new QHBoxLayout();
+  gbFill->setLayout(hLayout);
+  grid->addWidget(gbFill,1,0,1,2);
 
   stretchRadio = new QRadioButton("Stretch Picture",parent);
   connect(stretchRadio,SIGNAL(clicked(bool)),
           this,        SLOT(  stretch(bool)));
-  vert->addWidget(stretchRadio);
+  hLayout->addWidget(stretchRadio);
+
   tileRadio    = new QRadioButton("Tile Picture",parent);
   connect(tileRadio,SIGNAL(clicked(bool)),
           this,     SLOT(  stretch(bool)));
-  vert->addWidget(tileRadio);
+  hLayout->addWidget(tileRadio);
 
   stretchRadio->setChecked(Picture.stretch);
   tileRadio->setChecked( !Picture.stretch);
 
   pictureEdit->setEnabled(true);
   pictureButton->setEnabled(true);
-  fill->setEnabled(true);
+  gbFill->setEnabled(true);
+
+  //scale
+  gbScale = new QGroupBox("Scale", parent);
+  hLayout = new QHBoxLayout();
+  gbScale->setLayout(hLayout);
+  grid->addWidget(scale,2,0,1,2);
+
+  scale = new QLabel("Scale image",parent);
+  hLayout->addWidget(scale);
+
+  spin = new QDoubleSpinBox(parent);
+  hLayout->addWidget(spin);
+  spin->setRange(min,max);
+  spin->setSingleStep(step);
+  spin->setDecimals(6);
+  spin->setValue(Picture.picScale);
+  connect(spin,SIGNAL(valueChanged(double)),
+          this,SLOT  (valueChanged(double)));
+
 }
 
 void PageAttributePictureGui::pictureChange(QString const &pic)
 {
-  PictureData Picture = meta->value();
+  PageAttributePictureData Picture = meta->value();
   Picture.string = pic;
   meta->setValue(Picture);
   modified = true;
@@ -987,7 +1011,7 @@ void PageAttributePictureGui::pictureChange(QString const &pic)
 
 void PageAttributePictureGui::browsePicture(bool)
 {
-  PictureData Picture = meta->value();
+  PageAttributePictureData Picture = meta->value();
 
   QString foo = QFileDialog::getOpenFileName(
     gui,
@@ -1005,7 +1029,7 @@ void PageAttributePictureGui::browsePicture(bool)
 
 void PageAttributePictureGui::stretch(bool checked)
 {
-  PictureData Picture = meta->value();
+  PageAttributePictureData Picture = meta->value();
   Picture.stretch = checked;
   meta->setValue(Picture);
   modified = true;
@@ -1013,8 +1037,16 @@ void PageAttributePictureGui::stretch(bool checked)
 
 void PageAttributePictureGui::tile(bool checked)
 {
-  PictureData Picture = meta->value();
+  PageAttributePictureData Picture = meta->value();
   Picture.stretch = ! checked;
+  meta->setValue(Picture);
+  modified = true;
+}
+
+void PageAttributePictureGui::valueChanged(double value)
+{
+  PageAttributePictureData Picture = meta->value();
+  Picture.picScale = value;
   meta->setValue(Picture);
   modified = true;
 }

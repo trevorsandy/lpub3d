@@ -875,25 +875,37 @@ QString BackgroundMeta::text()
 
 /* ------------------ */
 
-Rc PictureMeta::parse(QStringList &argv, int index,Where &here)
+Rc PageAttributePictureMeta::parse(QStringList &argv, int index,Where &here)
 {
  Rc rc = FailureRc;
 
+ if (argv.size() - index >= 2){
+   if (argv[index] == "DOCUMENT_LOGO") {
+     _value[pushed].type = PageAttributePictureData::DocumentLogo;
+     rc = OkRc;
+   } else if (argv[index] == "COVER_IMAGE") {
+      _value[pushed].type = PageAttributePictureData::CoverImage;
+      rc = OkRc;
+   }else if (argv[index] == "PLUG_IMAGE") {
+      _value[pushed].type = PageAttributePictureData::PlugImage;
+      rc = OkRc;
+   }
+ }
  if (argv.size() - index == 2) {
-   if (argv[index] == "PICTURE") {
-     _value[pushed].filePath = argv[index+1];
+   if (argv[index] == "DOCUMENT_LOGO" || argv[index] == "COVER_IMAGE" || argv[index] == "PLUG_IMAGE") {
+     _value[pushed].string = argv[index+1];
      _value[pushed].stretch = false;
      rc = OkRc;
    }
  } else if (argv.size() - index == 3) {
-   if (argv[index] == "PICTURE" && argv[index+2] == "STRETCH") {
-     _value[pushed].filePath = argv[index+1];
+   if ((argv[index] == "DOCUMENT_LOGO" || argv[index] == "COVER_IMAGE" || argv[index] == "PLUG_IMAGE") && argv[index+2] == "STRETCH") {
+     _value[pushed].string = argv[index+1];
      _value[pushed].stretch = true;
      rc = OkRc;
    }
  } else if (argv.size() - index == 4) {
-   if (argv[index] == "PICTURE" && argv[index+2] == "SCALE") {
-     _value[pushed].filePath = argv[index+1];
+   if ((argv[index] == "DOCUMENT_LOGO" || argv[index] == "COVER_IMAGE" || argv[index] == "PLUG_IMAGE") && argv[index+2] == "SCALE") {
+     _value[pushed].string = argv[index+1];
      _value[pushed].stretch = false;
      bool ok;
      _value[pushed].picScale = argv[index+3].toFloat(&ok);
@@ -904,8 +916,8 @@ Rc PictureMeta::parse(QStringList &argv, int index,Where &here)
      }
    }
  } else if (argv.size() - index == 5) { 							//OFFSET WITH NO SCALE
-   if (argv[index] == "PICTURE" && argv[index+2] == "OFFSET") {
-     _value[pushed].filePath = argv[index+1];
+   if ((argv[index] == "DOCUMENT_LOGO" || argv[index] == "COVER_IMAGE" || argv[index] == "PLUG_IMAGE") && argv[index+2] == "OFFSET") {
+     _value[pushed].string = argv[index+1];
      _value[pushed].stretch = false;
      bool ok[2];
      _value[pushed].offsets[0] = argv[index+3].toFloat(&ok[0]);
@@ -917,8 +929,8 @@ Rc PictureMeta::parse(QStringList &argv, int index,Where &here)
      }
    }
  } else if (argv.size() - index == 7) {							//OFFSET AND SCALE
-   if (argv[index] == "PICTURE" && argv[index+2] == "OFFSET") {
-     _value[pushed].filePath = argv[index+1];
+   if ((argv[index] == "DOCUMENT_LOGO" || argv[index] == "COVER_IMAGE" || argv[index] == "PLUG_IMAGE") && argv[index+2] == "OFFSET") {
+     _value[pushed].string = argv[index+1];
      _value[pushed].stretch = false;
      bool ok[3];
      _value[pushed].picScale = argv[index+3].toFloat(&ok[0]);
@@ -949,17 +961,27 @@ Rc PictureMeta::parse(QStringList &argv, int index,Where &here)
  }
 }
 
-QString PictureMeta::format(bool local, bool global)
+QString PageAttributePictureMeta::format(bool local, bool global)
 {
   QString foo;
-  foo = "PICTURE \"" + _value[pushed].filePath + "\"";
+  switch (_value[pushed].type) {
+   case PageAttributePictureData::DocumentLogo:
+     foo = "DOCUMENT_LOGO";
+   break;
+   case PageAttributePictureData::CoverImage:
+     foo = "COVER_IMAGE";
+   break;
+   case PageAttributePictureData::PlugImage:
+     foo = "PLUG_IMAGE";
+   break;
+  }
+  foo += " \"" + _value[pushed].string + "\"";
   if (_value[pushed].stretch) {
     foo += " STRETCH";
   }
   if (_value[pushed].picScale) {
     foo += QString(" SCALE %1") .arg(_value[pushed].picScale);
   }
-
   if (_value[pushed].offsets[0] || _value[pushed].offsets[1]) {
     foo += QString(" OFFSET %1 %2") .arg(_value[pushed].offsets[0])
                                     .arg(_value[pushed].offsets[1]);
@@ -968,11 +990,30 @@ QString PictureMeta::format(bool local, bool global)
   return LeafMeta::format(local,global,foo);
 }
 
-void PictureMeta::doc(QStringList &out, QString preamble)
+void PageAttributePictureMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " PICTURE \"filePath\" (STRETCH) (SCALE <Value>) (OFFSET <valueX> <valueY>)";
+  out << preamble + " DOCUMENT_LOGO|COVER_IMAGE|PLUG_IMAGE \"filePath\" (STRETCH) (SCALE <Value>) (OFFSET <valueX> <valueY>)";
 }
  //						01			02		   03       03     04	   03/05   04/06    05/07
+
+QString PageAttributePictureMeta::text()
+{
+    PageAttributePictureData documentImage = value();
+    switch (documentImage.type) {
+      case PageAttributePictureData::DocumentLogo:
+        return "Document logo " + documentImage.string;
+      break;
+      case PageAttributePictureData::CoverImage:
+        return "Cover Page image " + documentImage.string;
+      break;
+      case PageAttributePictureData::PlugImage:
+        return "Plug image " + documentImage.string;
+      break;
+      default:
+      break;
+    }
+    return "Document image";
+}
 
 /* ------------------ */ 
 
@@ -1029,6 +1070,7 @@ Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
   }
   return rc;
 }
+
 
 QString BorderMeta::format(bool local, bool global)
 {
@@ -1742,17 +1784,17 @@ void NumberPlacementMeta::init(
 
 /* ------------------ */
 
-PageAttributeMeta::PageAttributeMeta() : BranchMeta() //remove attributes and move to .h
+PageAttributeTextMeta::PageAttributeTextMeta() : BranchMeta() //remove attributes and move to .h
 {
   textColor.setValue("black");
   // textFont - default
-  picScale.setRange(-10000.0,10000.0);      //may not need = only apply to FloatMeta
-  picScale.setFormats(7,4,"99999.9");       //may not need = only apply to FloatMeta
-  picScale.setValue(1.0);                   //may not need = moved to PictureData
+//  picScale.setRange(-10000.0,10000.0);      //may not need = only apply to FloatMeta
+//  picScale.setFormats(7,4,"99999.9");       //may not need = only apply to FloatMeta
+//  picScale.setValue(1.0);                   //may not need = moved to PageAttributePictureData
   display.setValue(false);
 }
 
-void PageAttributeMeta::init(
+void PageAttributeTextMeta::init(
   BranchMeta *parent,
   QString name)
 {
@@ -1761,8 +1803,8 @@ void PageAttributeMeta::init(
   textFont.init     	(this, "FONT");
   margin.init   		(this, "MARGINS");
   alignment.init		(this, "ALIGNMENT");
-  picture.init          (this, "PICTURE");
-  picScale.init			(this, "SCALE");        //may not need = moved to PictureData
+  //picture.init        (this, "PICTURE");
+  //picScale.init		(this, "SCALE");        //may not need = moved to PageAttributePictureData
   display.init          (this, "DISPLAY");
 }
 
@@ -2009,10 +2051,10 @@ PageMeta::PageMeta() : BranchMeta()
   //publisher copyright
   copyright.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   copyright.placement.setValue(CenterCenter,PageType);
-  //publisher IMAGE
-  logo.placement.setValue(CenterCenter,PageType);
-  //publisher cover IMAGE
-  coverImage.placement.setValue(CenterCenter,PageType);
+  //publisher IMAGE                                             //may not need = moved to PageAttributePictureData
+  //logo.placement.setValue(CenterCenter,PageType);
+  //publisher cover IMAGE                                       //may not need = moved to PageAttributePictureData
+  //coverImage.placement.setValue(CenterCenter,PageType);
   //disclaimer LEGO
   disclaimer.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   disclaimer.placement.setValue(CenterCenter,PageType);
@@ -2020,7 +2062,7 @@ PageMeta::PageMeta() : BranchMeta()
   plug.textFont.setValuePoints("Arial,12,-1,255,75,0,0,0,0,0");
   plug.placement.setValue(CenterCenter,PageType);
   //disclaimer 'built by' IMAGE
-  plugImage.placement.setValue(CenterCenter,PageType);
+  //plugImage.placement.setValue(CenterCenter,PageType);        //may not need = moved to PageAttributePictureData
 
 }
 
@@ -2046,7 +2088,7 @@ void PageMeta::init(BranchMeta *parent, QString name)
   url.init              (this, "PUBLISH_URL");
   email.init			(this, "PUBLISH_EMAIL");
   copyright.init		(this, "COPYRIGHT");
-  logo.init             (this, "DOCUMENT_LOGO");
+  documentLogo.init     (this, "DOCUMENT_LOGO");
   coverImage.init		(this, "COVER_IMAGE");
   disclaimer.init		(this, "LEGO_DISCLAIMER");
   plug.init             (this, "PLUG");

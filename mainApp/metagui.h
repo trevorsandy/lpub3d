@@ -243,7 +243,7 @@ public slots:
  *
  **********************************************************************/
 
-class PageAttributeMeta;
+class PageAttributeTextMeta;
 class QGroupBox;
 class QPushButton;
 class PlacementMeta;
@@ -254,14 +254,14 @@ class PageAttributeTextGui : public MetaGui
 public:
 
   PageAttributeTextGui(
-    PageAttributeMeta *meta,
+    PageAttributeTextMeta *meta,
     QGroupBox  *parent = NULL);
   ~PageAttributeTextGui() {}
 
   virtual void apply(QString &modelName);
 
 private:
-  PageAttributeMeta  *meta;
+  PageAttributeTextMeta  *meta;
 
   bool        fontModified;
   bool        colorModified;
@@ -301,14 +301,14 @@ public slots:
  *
  **********************************************************************/
 
-//class PictureMeta;
 class PageAttributePictureMeta;
 class QLabel;
 class QPushButton;
 class QLineEdit;
 class QRadioButton;
 class QGroupBox;
-
+class QDoubleSpinBox;
+class FloatMeta;
 class PageAttributePictureGui : public MetaGui
 {
   Q_OBJECT
@@ -319,27 +319,38 @@ public:
 
   ~PageAttributePictureGui() {}
 
-  //PictureMeta   *meta;
   PageAttributePictureMeta *meta;
 
   virtual void apply(QString &modelName);
 
+  void setEnabled(bool enabled);
+
 private:
-  QString picture;
+  QString        picture;
 
-  QLineEdit    *pictureEdit;
-  QPushButton  *pictureButton;
-  QRadioButton *stretchRadio;
-  QRadioButton *tileRadio;
-  QGroupBox    *fill;
+  QLineEdit      *pictureEdit;
+  QPushButton    *pictureButton;
+  QRadioButton   *stretchRadio;
+  QRadioButton   *tileRadio;
+  QGroupBox      *gbFill;
+  QGroupBox      *gbScale;
 
-  QLabel       *placement;
+  QLabel         *label;
+  QDoubleSpinBox *spin;
+
+  float          min;
+  float          max;
+  float          step;
+  QLabel        *scale;
+  QLabel        *placement;
 
 public slots:
   void pictureChange(QString const &);
   void browsePicture(bool);
   void stretch(bool);
   void tile(bool);
+
+  void valueChanged(double);
 
   //void typePlaceChange(QString const &);    //type of placement
 };

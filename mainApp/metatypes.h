@@ -232,19 +232,30 @@ public:
   bool       stretch;
 };
 
-class PictureData
+class PageAttributePictureData
 {
 public:
-    QString    filePath;
-    bool       stretch;
-    qreal      picScale;
-    float      offsets[2];
-    PictureData()
+    enum PageAttributePicture{
+        DocumentLogo,
+        CoverImage,
+        PlugImage
+    } type;
+    PlacementType   relativeTo;
+    RectPlacement   rectPlacement;
+    QString         string;
+    qreal           picScale;
+    float           offsets[2];
+    bool            stretch;
+    bool            display;
+    PageAttributePictureData()
    {
-     picScale   = 1.0;
-     stretch    = false;
-     offsets[0] = 0.5;
-     offsets[1] = 0.5;
+     relativeTo    = PageType;
+     rectPlacement = CenterCenter;
+     picScale      = 1.0;
+     offsets[0]    = 0.0;
+     offsets[1]    = 0.0;
+     stretch       = false;
+     display       = false;
    }
 };
 

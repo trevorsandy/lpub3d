@@ -31,25 +31,27 @@ void PageAttributeItem::setAttributes(
   PlacementType       _relativeType,
   PlacementType       _parentRelativeType,
   Meta               *_meta,
-  PageAttributeMeta  &_pageAttribute,       // change to PageAttributeData
+  PageAttributeTextMeta  &_pageAttributeText,       // change to PageAttributeData
+  PageAttributePictureMeta &_pageAttributePicture,
   QString             _value,
   QString            &toolTip,
   QGraphicsItem      *_parent,
   QString             _name)
 {
+  PageAttributePictureData _Picture = _pageAttributePicture.value();
   relativeType       =  _relativeType;
   parentRelativeType =  _parentRelativeType;
   meta               =  _meta;
-  textFont           = &_pageAttribute.textFont;
-  textColor          = &_pageAttribute.textColor;
-  margin             = &_pageAttribute.margin;
-  alignment          = &_pageAttribute.alignment;
-  picScale           = &_pageAttribute.picScale;
+  textFont           = &_pageAttributeText.textFont;
+  textColor          = &_pageAttributeText.textColor;
+  margin             = &_pageAttributeText.margin;
+  alignment          = &_pageAttributeText.alignment;
+  picScale           =  _Picture.picScale;      // don't need, can just use mouse drag
   value              =  _value;
   name               =  _name;
 
   QFont qfont;
-  qfont.fromString(_pageAttribute.textFont.valueFoo());
+  qfont.fromString(_pageAttributeText.textFont.valueFoo());
   setFont(qfont);
 
   QString foo;
@@ -75,7 +77,8 @@ PageAttributeItem::PageAttributeItem(
   PlacementType      _relativeType,
   PlacementType      _parentRelativeType,
   Meta              *_meta,
-  PageAttributeMeta &_pageAttribute,
+  PageAttributeTextMeta &_pageAttributeText,
+  PageAttributePictureMeta &_pageAttributePicture,
   QString            _value,
   QString           &_toolTip,
   QGraphicsItem     *_parent,
@@ -84,7 +87,8 @@ PageAttributeItem::PageAttributeItem(
   setAttributes(_relativeType,
                 _parentRelativeType,
                 _meta,
-                _pageAttribute,
+                _pageAttributeText,
+                _pageAttributePicture,
                 _value,
                 _toolTip,
                 _parent,
@@ -106,9 +110,9 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   QAction *marginAction     = menu.addAction("Change Page Attribute Margins");
   QAction *scaleAction      = menu.addAction("Change Image Scale");
 
-  fontAction->setWhatsThis("You can change the textFont or the size of the page pageAttribute");
-  colorAction->setWhatsThis("You can change the textColor of the page pageAttribute");
-  marginAction->setWhatsThis("You can change how much empty space their is around the page pageAttribute");
+  fontAction->setWhatsThis("You can change the textFont or the size of the page pageAttributeText");
+  colorAction->setWhatsThis("You can change the textColor of the page pageAttributeText");
+  marginAction->setWhatsThis("You can change how much empty space their is around the page pageAttributeText");
   scaleAction->setWhatsThis("You can change the size of this image using the scale dialog (window).");
 
   Where topOfSteps      = page->topOfSteps();
@@ -116,6 +120,7 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   Where begin           = topOfSteps;
 
   QAction *selectedAction   = menu.exec(event->screenPos());
+
 
   if (selectedAction == placementAction) {
 
@@ -139,17 +144,19 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
     changeMargins("Page Attribute Margins",
                   topOfSteps,bottomOfSteps,margin);
 
-  }else if (selectedAction == scaleAction) {
-
-      bool allowLocal = parentRelativeType != StepGroupType &&
-                        parentRelativeType != CalloutType;
-      changeFloatSpin("Image",
-                      "Image Size",
-                      begin,
-                      topOfSteps,
-                      &meta->LPub.page.logo.picScale,
-                      1,allowLocal);
   }
+
+//  else if (selectedAction == scaleAction) {
+
+//      bool allowLocal = parentRelativeType != StepGroupType &&
+//                        parentRelativeType != CalloutType;
+//      changeFloatSpin("Image",
+//                      "Image Size",
+//                      begin,
+//                      topOfSteps,
+//                      &meta->LPub.page.documentLogo.,     //investigate
+//                      1,allowLocal);
+//  }
 }
 
 void PagePageAttributeItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)

@@ -34,7 +34,7 @@ public:
   StringMeta    *textColor;
   MarginsMeta   *margin;
   AlignmentMeta *alignment;
-  FloatMeta		*picScale;
+  qreal		     picScale;          //changed from floatMeta
   QString        value;
   QString        name;
 
@@ -51,17 +51,18 @@ public:
     PlacementType        relativeType,
     PlacementType        parentRelativeType,
     Meta                *meta,
-    PageAttributeMeta   &pageAttribute,     //change to PageAttributeData
+    PageAttributeTextMeta   &pageAttributeText,     //change to PageAttributeData
+    PageAttributePictureMeta &pageAttributePicture,
     QString             _value,
     QString             &toolTip,
     QGraphicsItem       *parent,
     QString              name = "");
 
-  void setAttributes(
-    PlacementType        relativeType,
+  void setAttributes(PlacementType        relativeType,
     PlacementType        parentRelativeType,
     Meta                *meta,
-    PageAttributeMeta   &pageAttribute,
+    PageAttributeTextMeta   &pageAttributeText,
+    PageAttributePictureMeta &pageAttributePicture,
     QString             _value,
     QString             &toolTip,
     QGraphicsItem       *parent,
@@ -81,7 +82,7 @@ class PagePageAttributeItem : public PageAttributeItem
 public:
   PagePageAttributeItem(
     Page              *page,
-    PageAttributeItem &pageAttribute,
+    PageAttributeItem &pageAttributeText,
     QString           _value,
     QGraphicsItem     *parent);
 protected:
