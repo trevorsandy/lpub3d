@@ -29,10 +29,19 @@
 #define metagui_h
 
 #include <QWidget>
+#include <QTextEdit>
 #include "resolution.h"
 #include "metatypes.h"
 
+#include "QsLog.h"
+
 void clearPliCache();
+
+static const int    placementOption = 1;
+static const int    justifyOption   = 2;
+
+int combo2placementIndex(int const &index, int option = placementOption, bool reverse = false);
+
 
 class QWidget;
 class QString;
@@ -269,6 +278,7 @@ private:
   bool        marginsModified;
   bool        placementModified;
   bool        displayModified;
+  bool        valueModified;
 
   QLabel      *fontLabel;
   QLabel      *fontExample;
@@ -283,18 +293,21 @@ private:
   QLabel       *placement;
   QCheckBox    *display;
   QComboBox    *placementCombo;
+  QComboBox    *justifyCombo;
 
-  void enable();
-  int combo2placementIndex(int const &index, bool reverse = false);
+  QGroupBox    *gbDialog;
+  QTextEdit    *edit;
 
 public slots:
   void browseFont(bool clicked);
   void browseColor(bool clicked);
+  void editChanged();
   void value0Changed(QString const &);
   void value1Changed(QString const &);
 
+  void typeJustificationChanged(int);
   void typePlacementChanged(int);
-  void stateDisplayChanged(int state);
+  void toggled(bool toggled);
 
 };
 /***********************************************************************
@@ -350,9 +363,6 @@ private:
   QCheckBox    *display;
   QComboBox    *placementCombo;
 
-  void enable();
-  int combo2placementIndex(int const &index, bool reverse = false);
-
 public slots:
   void pictureChange(QString const &);
   void browsePicture(bool);
@@ -362,7 +372,7 @@ public slots:
   void valueChanged(double);
 
   void typePlacementChanged(int);
-  void stateDisplayChanged(int state);
+  void toggled(bool toggled);
 };
 
 /***********************************************************************

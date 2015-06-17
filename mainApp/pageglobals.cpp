@@ -1,4 +1,4 @@
-/**************************************************************************** 
+/****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
 **
@@ -104,77 +104,201 @@ GlobalPageDialog::GlobalPageDialog(
   tab->addTab(widget,"Page");
   
   //~~~~~~~~~~~~ model tab ~~~~~~~~~~~~~~~//  
-  childwidget = new QWidget();
+  childwidget = new QWidget();                  //START DO THIS FOR MODEL, PUBLISHER AND DISCLAIMER
   childlayout = new QVBoxLayout;                //new QVBox layout - to apply tabl later
-  //grid = new QGridLayout();                           //exist rid layout - to apply tabl later
   childwidget->setLayout(childlayout);          //new 'model' widget - tab not yet added
-  //widget->setLayout(grid);                            //exist 'model' widget - tab not yet added
 
   childtab = new QTabWidget();                  // new tab object
   childlayout->addWidget(childtab);             // new add the tab
-
-  tab->addTab(childwidget, "Model");       // new add the tab  (This is the new 'Model' tab
-
-  widget = new QWidget();                       // now start the 'model' widget definintion
+  tab->addTab(childwidget, "Display Model");            // new add the tab  (This is the new 'Model' tab
+                                                // END
+  // child header (one) start
+  widget = new QWidget();                       // existig 'model' widget definintion
   grid = new QGridLayout();
   widget->setLayout(grid);
+  // child header end
   /*
     Title,
-    Model ID,
-    Pieces,
-    Model Description
-  */
-  box = new QGroupBox("Title");
+    Cover Image
+  */ 
+  //child body (many) start
+  box = new QGroupBox("Display Title");
   grid->addWidget(box, 0, 0);
   child = new PageAttributeTextGui(&pageMeta->title,box);
   data->children.append(child);
+  //child body end
 
-//  grid = new QGridLayout();
-//  widget->setLayout(grid);
-//  //.....
-//  box = new QGroupBox("Title");
-//  grid->addWidget(box, 0, 0);
-//  child = new PageAttributeTextGui(&pageMeta->title,box);
-//  data->children.append(child);
+  //child body (many) start
+  box = new QGroupBox("Display Cover Image");
+  grid->addWidget(box, 1, 0);
+  child = new PageAttributePictureGui(&pageMeta->coverImage,box);
+  data->children.append(child);
+  //child body end
 
-  childtab->addTab(widget,"childModel");                //new 'childModel' added to childtab
+  // child footer (one) end
+  childtab->addTab(widget,"Title/Cover Image");         //new 'childModel' added to childtab
+  // child footer end
 
-  //~~~~~~~~~~~~ publisher tab ~~~~~~~~~~~~//
+  // child header (one) start
   widget = new QWidget();
   grid = new QGridLayout();
   widget->setLayout(grid);
+  // child header end
+  /*
+    Description,
+    Description Dialog,
+  */
+  //child body (many) start
+  box = new QGroupBox("Display Model Description");
+  grid->addWidget(box, 0, 0);
+  child = new PageAttributeTextGui(&pageMeta->modelDesc,box);
+  data->children.append(child);
+  //child body end
 
+  // child footer (one) end
+  childtab->addTab(widget,"Description");
+  // child footer end
+
+
+  // child header (one) start
+  widget = new QWidget();
+  grid = new QGridLayout();
+  widget->setLayout(grid);
+  // child header end
+  /*
+    Model ID,
+    Pieces,
+  */
+  //child body (many) start
+  box = new QGroupBox("Display ModelID");
+  grid->addWidget(box, 0, 0);
+  child = new PageAttributeTextGui(&pageMeta->modelNum,box);
+  data->children.append(child);
+  //child body end
+
+  //child body (many) start
+  box = new QGroupBox("Display Pieces");
+  grid->addWidget(box, 1, 0);
+  child = new PageAttributeTextGui(&pageMeta->pieces,box);
+  data->children.append(child);
+  //child body end
+
+  // child footer (one) end
+  childtab->addTab(widget,"Model ID/Pieces");
+  // child footer end
+
+  //~~~~~~~~~~~~ publisher tab ~~~~~~~~~~~~//
+  childwidget = new QWidget();
+  childlayout = new QVBoxLayout;
+  childwidget->setLayout(childlayout);
+
+  childtab = new QTabWidget();
+  childlayout->addWidget(childtab);
+  tab->addTab(childwidget, "Publisher");
+
+  widget = new QWidget();
+  grid = new QGridLayout();
+  widget->setLayout(grid);
   /*
     Author,
     Email,
-    Author URL,
-    Copyright
-    Publish desription
-    Logo
   */
-
-  box = new QGroupBox("Logo");
+  box = new QGroupBox("Display Author");
   grid->addWidget(box, 0, 0);
-  child = new PageAttributePictureGui(&pageMeta->documentLogo,box);
+  child = new PageAttributeTextGui(&pageMeta->author,box);
   data->children.append(child);
 
-  tab->addTab(widget,"Publisher");
+  box = new QGroupBox("Display Email");
+  grid->addWidget(box, 1, 0);
+  child = new PageAttributeTextGui(&pageMeta->email,box);
+  data->children.append(child);
 
-  //~~~~~~~~~~~~ disclaimer tab ~~~~~~~~~~~//
+  childtab->addTab(widget,"Author/Email");
+
   widget = new QWidget();
   grid = new QGridLayout();
   widget->setLayout(grid);
+  /*
+    Publish desription
+    URL
+  */
+  box = new QGroupBox("Display URL");
+  grid->addWidget(box, 0, 0);
+  child = new PageAttributeTextGui(&pageMeta->url,box);
+  data->children.append(child);
 
+  box = new QGroupBox("Publish Description");
+  grid->addWidget(box, 1, 0);
+  child = new PageAttributeTextGui(&pageMeta->publishDesc,box);
+  data->children.append(child);
+
+  childtab->addTab(widget,"URL/Description");
+
+  widget = new QWidget();
+  grid = new QGridLayout();
+  widget->setLayout(grid);
+  /*
+    Copyright
+    Logo
+  */
+  box = new QGroupBox("Display Copyright");
+  grid->addWidget(box, 0, 0);
+  child = new PageAttributeTextGui(&pageMeta->copyright,box);
+  data->children.append(child);
+
+  box = new QGroupBox("Display Logo");
+  grid->addWidget(box, 1, 0);
+  child = new PageAttributePictureGui(&pageMeta->documentLogo,box);
+  data->children.append(child);
+
+  childtab->addTab(widget,"Copyright/Logo");
+
+  //~~~~~~~~~~~~ disclaimer tab ~~~~~~~~~~~//
+  childwidget = new QWidget();
+  childlayout = new QVBoxLayout;
+  childwidget->setLayout(childlayout);
+
+  childtab = new QTabWidget();
+  childlayout->addWidget(childtab);
+  tab->addTab(childwidget, "Disclaimer");
+
+  widget = new QWidget();
+  grid = new QGridLayout();
+  widget->setLayout(grid);
   /*
     LEGO disclaimer,
+  */
+  box = new QGroupBox("Display LEGO Disclaimer");
+  grid->addWidget(box, 0, 0);
+  child = new PageAttributeTextGui(&pageMeta->disclaimer,box);
+  data->children.append(child);
+
+  //empty box
+  box = new QGroupBox(NULL);
+  grid->addWidget(box, 1,0);
+
+  childtab->addTab(widget,"Disclaimer");
+
+  widget = new QWidget();
+  grid = new QGridLayout();
+  widget->setLayout(grid);
+  /*
     Plug
     Plug image
   */
+  box = new QGroupBox("Display LPub3D Plug");
+  grid->addWidget(box, 1, 0);
+  child = new PageAttributeTextGui(&pageMeta->plug,box);
+  data->children.append(child);
 
-  tab->addTab(widget,"Disclaimer");
+  box = new QGroupBox("Display LPub3D Logo");
+  grid->addWidget(box, 2, 0);
+  child = new PageAttributePictureGui(&pageMeta->plugImage,box);
+  data->children.append(child);
+
+  childtab->addTab(widget,"LPub3D PLug");
 
   //~~~~~~~~~ page number tab ~~~~~~~~~~~~//
-
   widget = new QWidget();
   grid = new QGridLayout();
   widget->setLayout(grid);

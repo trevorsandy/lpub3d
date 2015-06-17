@@ -236,9 +236,10 @@ class PageAttributePictureData
 {
 public:
     enum PageAttributePicture{
-        DocumentLogo,
-        CoverImage,
-        PlugImage
+        DocumentLogoType = 0,
+        CoverImageType,
+        PlugImageType,
+        PageAttributePictureType
     } type;
     PlacementType   relativeTo;
     RectPlacement   rectPlacement;
@@ -256,6 +257,7 @@ public:
      offsets[1]    = 0.0;
      stretch       = false;
      display       = false;
+
    }
 };
 

@@ -898,6 +898,10 @@ public:
   {
     _value[pushed] = value;
   }
+  void setValue(PageAttributePictureData::PageAttributePicture type){
+    _value[pushed].type = type;
+  }
+
   PageAttributePictureMeta() : LeafMeta()
   {
   }
@@ -1149,6 +1153,7 @@ class AlignmentMeta : public LeafMeta
 private:
   Qt::Alignment _value[2];
 public:
+
   AlignmentMeta()
   {
     _value[0] = Qt::AlignLeft;
@@ -1389,11 +1394,10 @@ class PageAttributeTextMeta : public BranchMeta
 public:
     enum PageAttributeType
     {
-        PageTitleType,
+        PageTitleType = 0,
         PageModelNumType,
         PageAuthorType,
-        PageAuthorURLType,
-        PageLogoType,
+        PageURLType,
         PageModelDescType,
         PagePublishDescType,
         PageCopyrightType,
@@ -1401,29 +1405,24 @@ public:
         PageDisclaimerType,
         PagePiecesType,
         PagePlugType,
-        PagePlugImageType,
         PageFrontCoverType,
         PageBackCoverType,
-        PageAttributePictureType,
         PageAttributeTextType
     } type;
-
-  QString   	 pageAttributeValue; // can be name, description, url, email, path (e.g. logo) etc... [DON'T THINK THIS IS USED??]
-  //FloatMeta		 picScale;		     // only for logo (mighto not need) //may not need = moved to PageAttributePictureData
-  //PageAttributePictureMeta    picture; //may not need = moved to PageAttributePictureData
   FontMeta    	 textFont;
   StringMeta  	 textColor;
-  BoolMeta       display;
   MarginsMeta 	 margin;
   AlignmentMeta  alignment;
   PlacementMeta  placement;
+  StringMeta   	 content;
+  BoolMeta       display;
   void setValue(QString _value)
   {
-      pageAttributeValue = _value;
+      content.setValue(_value);
   }
   QString value()
   {
-      return pageAttributeValue;
+      return content.value();
   }
   PageAttributeTextMeta();
   PageAttributeTextMeta(const PageAttributeTextMeta &rhs) : BranchMeta(rhs)

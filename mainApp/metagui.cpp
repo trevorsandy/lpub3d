@@ -57,6 +57,57 @@
 #include "lpub_preferences.h"
 #include "render.h"
 
+int combo2placementIndex(int const &index, int option, bool reverse){
+    if(option == placementOption) {
+        if(! reverse){
+            switch(index)
+            {
+            case 0:
+                return 6;
+            case 1:
+                return 7;
+            case 2:
+                return 8;
+            case 3:
+                return 11;
+            case 4:
+                return 12;
+            case 5:
+                return 13;
+            case 6:
+                return 16;
+            case 7:
+                return 17;
+            case 8:
+                return 18;
+            }
+        } else {
+            switch(index)
+            {
+            case 6:
+                return 0;
+            case 7:
+                return 1;
+            case 8:
+                return 2;
+            case 11:
+                return 3;
+            case 12:
+                return 4;
+            case 13:
+                return 5;
+            case 16:
+                return 6;
+            case 17:
+                return 7;
+            case 18:
+                return 8;
+            }
+        }
+    }
+    return -1;
+}
+
 /***********************************************************************
  *
  * Checkbox
@@ -672,6 +723,7 @@ PageAttributeTextGui::PageAttributeTextGui(
 {
   QString        string;
   QGridLayout   *grid;
+  QHBoxLayout   *hLayout;
 
   meta = _meta;
 
@@ -680,6 +732,12 @@ PageAttributeTextGui::PageAttributeTextGui(
   if (parent) {
     parent->setLayout(grid);
   }
+
+  // Display
+  parent->setCheckable(true);
+  parent->setChecked(meta->display.value());
+  connect(parent,SIGNAL(toggled(bool)),
+          this, SLOT(  toggled(bool)));
 
   // Placement
   placement = new QLabel(parent);
@@ -706,13 +764,19 @@ PageAttributeTextGui::PageAttributeTextGui(
 
   grid->addWidget(placementCombo, 0,1);
 
-  // Display
-  display = new QCheckBox(tr("Display"),parent);
-  display->setChecked(meta->display.value());
-  grid->addWidget(display,0,2);
+  // Justification
+  justifyCombo = new QComboBox(parent);
+  justifyCombo->addItem(" Justify");
+  justifyCombo->addItem(" Left");
+  justifyCombo->addItem(" Center");
+  justifyCombo->addItem(" Right");
 
-  connect(display,SIGNAL(stateChanged(int)),
-          this, SLOT(  stateDisplayChanged(int)));
+  //justifyCombo->setCurrentIndex(int(Placement.placementType));
+  connect(justifyCombo,SIGNAL(currentIndexChanged(    int)),
+          this, SLOT(  typeJustificationChanged(      int)));
+
+
+  grid->addWidget(justifyCombo,0,2);
 
   // font
   fontLabel = new QLabel("Font",parent);
@@ -760,13 +824,33 @@ PageAttributeTextGui::PageAttributeTextGui(
           this,  SLOT(  value1Changed(QString const &)));
   grid->addWidget(value1,3,2);
 
-  enable();
+  //Dialog
+  gbDialog = new QGroupBox("Description Dialog",parent);
+  gbDialog->hide();
+  hLayout = new QHBoxLayout();
+  gbDialog->setLayout(hLayout);
+  grid->addWidget(gbDialog,4,0,1,3);
+
+  edit = new QTextEdit(parent);
+
+  hLayout->addWidget(edit);
+
+  connect(edit,SIGNAL(textChanged()),
+          this,  SLOT(  editChanged()));
+
+  if (meta->type == PageAttributeTextMeta::PageModelDescType) {
+
+      gbDialog->show();
+      string = QString("%1").arg(meta->content.value());
+      edit->setText(string);
+  }
 
   fontModified = false;
   colorModified = false;
   marginsModified = false;
   placementModified = false;
   displayModified = false;
+  valueModified = false;
 }
 
 void PageAttributeTextGui::browseFont(bool clicked)
@@ -817,86 +901,20 @@ void PageAttributeTextGui::typePlacementChanged(int type)
   placementModified = true;
 }
 
-int PageAttributeTextGui::combo2placementIndex(int const &index, bool reverse){
-    if(! reverse){
-        switch(index)
-        {
-        case 0:
-            return 6;
-        case 1:
-            return 7;
-        case 2:
-            return 8;
-        case 3:
-            return 11;
-        case 4:
-            return 12;
-        case 5:
-            return 13;
-        case 6:
-            return 16;
-        case 7:
-            return 17;
-        case 8:
-            return 18;
-        }
-    } else {
-        switch(index)
-        {
-        case 6:
-            return 0;
-        case 7:
-            return 1;
-        case 8:
-            return 2;
-        case 11:
-            return 3;
-        case 12:
-            return 4;
-        case 13:
-            return 5;
-        case 16:
-            return 6;
-        case 17:
-            return 7;
-        case 18:
-            return 8;
-        }
-    }
-    return -1;
-}
-void PageAttributeTextGui::stateDisplayChanged(int state)
+void PageAttributeTextGui::typeJustificationChanged(int type)
 {
-  bool checked = meta->display.value();
-
-  if (state == Qt::Unchecked) {
-    checked = false;
-  } else if (state == Qt::Checked) {
-    checked = true;
-  }
-  meta->display.setValue(checked);
-  enable();
-  displayModified = true;
+//    PageAttributePictureData Picture = meta->value();
+//    Picture.string = pic;
+//    meta->setValue(Picture);
+  AlignmentMeta foo = AlignmentMeta("LEFT";
+  meta->alignment = foo;
+  placementModified = false;
 }
 
-void PageAttributeTextGui::enable(){
-    bool checked = meta->display.value();
-
-    if (checked){
-        value0->setEnabled(true);
-        value1->setEnabled(true);
-        fontButton->setEnabled(true);
-        colorButton->setEnabled(true);
-        placement->setEnabled(true);
-        placementCombo->setEnabled(true);
-    } else {
-        value0->setEnabled(false);
-        value1->setEnabled(false);
-        fontButton->setEnabled(false);
-        colorButton->setEnabled(false);
-        placement->setEnabled(false);
-        placementCombo->setEnabled(false);
-    }
+void PageAttributeTextGui::toggled(bool toggled)
+{
+    meta->display.setValue(toggled);
+    displayModified = true;
 }
 
 void PageAttributeTextGui::apply(
@@ -919,6 +937,9 @@ void PageAttributeTextGui::apply(
   }
   if (displayModified){
       mi.setGlobalMeta(topLevelFile,&meta->display);
+  }
+  if (valueModified){
+      mi.setGlobalMeta(topLevelFile,&meta->content);
   }
   mi.endMacro();
 }
@@ -946,6 +967,12 @@ void PageAttributeTextGui::apply(
       parent->setLayout(grid);
   }
 
+  // Display
+  parent->setCheckable(true);
+  parent->setChecked(Picture.display);
+  connect(parent,SIGNAL(toggled(bool)),
+          this, SLOT(  toggled(bool)));
+
   // Placement
   placement = new QLabel(parent);
   placement->setText("Placement");
@@ -971,13 +998,9 @@ void PageAttributeTextGui::apply(
 
   grid->addWidget(placementCombo, 0,1);
 
-  // Display
-  display = new QCheckBox(tr("Display"),parent);
-  display->setChecked(Picture.display);
-  grid->addWidget(display,0,2);
-
-  connect(display,SIGNAL(stateChanged(int)),
-          this, SLOT(  stateDisplayChanged(int)));
+  // empty
+  placement = new QLabel(NULL);
+  grid->addWidget(placement,0,2);
 
   // Image
   picture = Picture.string;
@@ -1042,7 +1065,12 @@ void PageAttributeTextGui::apply(
   connect(gbFill,SIGNAL(clicked(bool)),gbScale,SLOT(setDisabled(bool)));
   connect(gbScale,SIGNAL(clicked(bool)),gbFill,SLOT(setDisabled(bool)));
 
-  enable();
+  if(Picture.type == PageAttributePictureData::DocumentLogoType ||
+     Picture.type == PageAttributePictureData::PlugImageType) {
+      gbFill->hide();
+  }
+
+  //enable();
 
   pictureModified = false;
 }
@@ -1107,90 +1135,14 @@ void PageAttributePictureGui::typePlacementChanged(int type)
   pictureModified = true;
 }
 
-int PageAttributePictureGui::combo2placementIndex(int const &index, bool reverse){
-    if(! reverse){
-        switch(index)
-        {
-        case 0:
-            return 6;
-        case 1:
-            return 7;
-        case 2:
-            return 8;
-        case 3:
-            return 11;
-        case 4:
-            return 12;
-        case 5:
-            return 13;
-        case 6:
-            return 16;
-        case 7:
-            return 17;
-        case 8:
-            return 18;
-        }
-    } else {
-        switch(index)
-        {
-        case 6:
-            return 0;
-        case 7:
-            return 1;
-        case 8:
-            return 2;
-        case 11:
-            return 3;
-        case 12:
-            return 4;
-        case 13:
-            return 5;
-        case 16:
-            return 6;
-        case 17:
-            return 7;
-        case 18:
-            return 8;
-        }
-    }
-    return -1;
-}
-
-void PageAttributePictureGui::stateDisplayChanged(int state)
+void PageAttributePictureGui::toggled(bool toggled)
 {
   PageAttributePictureData Picture = meta->value();
-  bool checked = Picture.display;
 
-  if (state == Qt::Unchecked) {
-    checked = false;
-  } else if (state == Qt::Checked) {
-    checked = true;
-  }
-  Picture.display = checked;
+  Picture.display = toggled;
   meta->setValue(Picture);
-  enable();
+  //enable();
   pictureModified = true;
-}
-
-void PageAttributePictureGui::enable(){
-    PageAttributePictureData Picture = meta->value();
-    bool checked = Picture.display;
-
-    if (checked){
-        pictureEdit->setEnabled(true);
-        pictureButton->setEnabled(true);
-        placement->setEnabled(true);
-        placementCombo->setEnabled(true);
-        gbScale->setEnabled(true);
-        gbFill->setEnabled(true);
-    } else {
-        pictureEdit->setEnabled(false);
-        pictureButton->setEnabled(false);
-        gbScale->setEnabled(false);
-        gbFill->setEnabled(false);
-        placement->setEnabled(false);
-        placementCombo->setEnabled(false);
-    }
 }
 
 void PageAttributePictureGui::apply(QString &topLevelFile)
@@ -1290,7 +1242,7 @@ BackgroundGui::BackgroundGui(
 {
   QComboBox     *combo;
   QGridLayout   *grid;
-  QVBoxLayout   *vert;
+  QHBoxLayout   *layout;
 
   meta = _meta;
 
@@ -1351,19 +1303,18 @@ BackgroundGui::BackgroundGui(
 
   fill = new QGroupBox("Fill",parent);
 
-  //vert = new QVBoxLayout(parent); // generating error: QLayout: Attempting to add QLayout "" to QGroupBox "", which already has a layout
-  vert = new QVBoxLayout();
-  fill->setLayout(vert);
+  layout = new QHBoxLayout();
+  fill->setLayout(layout);
   grid->addWidget(fill,2,0,1,3);
 
   stretchRadio = new QRadioButton("Stretch Picture",parent);
   connect(stretchRadio,SIGNAL(clicked(bool)),
           this,        SLOT(  stretch(bool)));
-  vert->addWidget(stretchRadio);
+  layout->addWidget(stretchRadio);
   tileRadio    = new QRadioButton("Tile Picture",parent);
   connect(tileRadio,SIGNAL(clicked(bool)),
           this,     SLOT(  stretch(bool)));
-  vert->addWidget(tileRadio);
+  layout->addWidget(tileRadio);
 
   enable();
 }
