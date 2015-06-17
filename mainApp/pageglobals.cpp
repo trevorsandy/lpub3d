@@ -81,22 +81,22 @@ GlobalPageDialog::GlobalPageDialog(
   PageMeta *pageMeta = &data->meta.LPub.page;
   
   //~~~~~~~~~~~~ page tab ~~~~~~~~~~~~~~~~//
-  box = new QGroupBox("Size");
+  box = new QGroupBox(tr("Size"));
   grid->addWidget(box,0,0);
   child = new UnitsGui("",&pageMeta->size,box);
   data->children.append(child);
  
-  box = new QGroupBox("Margins");
+  box = new QGroupBox(tr("Margins"));
   grid->addWidget(box,1,0);
   child = new UnitsGui("",&pageMeta->margin,box);
   data->children.append(child);
 
-  box = new QGroupBox("Background");
+  box = new QGroupBox(tr("Background"));
   grid->addWidget(box, 2, 0);
   child = new BackgroundGui(&pageMeta->background,box);
   data->children.append(child);
 
-  box = new QGroupBox("Border");
+  box = new QGroupBox(tr("Border"));
   grid->addWidget(box, 3, 0);
   child = new BorderGui(&pageMeta->border,box);
   data->children.append(child);
@@ -110,7 +110,7 @@ GlobalPageDialog::GlobalPageDialog(
 
   childtab = new QTabWidget();                  // new tab object
   childlayout->addWidget(childtab);             // new add the tab
-  tab->addTab(childwidget, "Display Model");            // new add the tab  (This is the new 'Model' tab
+  tab->addTab(childwidget, tr("Model"));            // new add the tab  (This is the new 'Model' tab
                                                 // END
   // child header (one) start
   widget = new QWidget();                       // existig 'model' widget definintion
@@ -122,14 +122,14 @@ GlobalPageDialog::GlobalPageDialog(
     Cover Image
   */ 
   //child body (many) start
-  box = new QGroupBox("Display Title");
+  box = new QGroupBox(tr("Display Title"));
   grid->addWidget(box, 0, 0);
   child = new PageAttributeTextGui(&pageMeta->title,box);
   data->children.append(child);
   //child body end
 
   //child body (many) start
-  box = new QGroupBox("Display Cover Image");
+  box = new QGroupBox(tr("Display Cover Image"));
   grid->addWidget(box, 1, 0);
   child = new PageAttributePictureGui(&pageMeta->coverImage,box);
   data->children.append(child);
@@ -149,14 +149,14 @@ GlobalPageDialog::GlobalPageDialog(
     Description Dialog,
   */
   //child body (many) start
-  box = new QGroupBox("Display Model Description");
+  box = new QGroupBox(tr("Display Model Description"));
   grid->addWidget(box, 0, 0);
   child = new PageAttributeTextGui(&pageMeta->modelDesc,box);
   data->children.append(child);
   //child body end
 
   // child footer (one) end
-  childtab->addTab(widget,"Description");
+  childtab->addTab(widget,tr("Description"));
   // child footer end
 
 
@@ -170,21 +170,21 @@ GlobalPageDialog::GlobalPageDialog(
     Pieces,
   */
   //child body (many) start
-  box = new QGroupBox("Display ModelID");
+  box = new QGroupBox(tr("Display Model Identification"));
   grid->addWidget(box, 0, 0);
   child = new PageAttributeTextGui(&pageMeta->modelNum,box);
   data->children.append(child);
   //child body end
 
   //child body (many) start
-  box = new QGroupBox("Display Pieces");
+  box = new QGroupBox(tr("Display Pieces"));
   grid->addWidget(box, 1, 0);
   child = new PageAttributeTextGui(&pageMeta->pieces,box);
   data->children.append(child);
   //child body end
 
   // child footer (one) end
-  childtab->addTab(widget,"Model ID/Pieces");
+  childtab->addTab(widget,tr("Model ID/Pieces"));
   // child footer end
 
   //~~~~~~~~~~~~ publisher tab ~~~~~~~~~~~~//
@@ -194,7 +194,7 @@ GlobalPageDialog::GlobalPageDialog(
 
   childtab = new QTabWidget();
   childlayout->addWidget(childtab);
-  tab->addTab(childwidget, "Publisher");
+  tab->addTab(childwidget, tr("Publisher"));
 
   widget = new QWidget();
   grid = new QGridLayout();
@@ -203,17 +203,17 @@ GlobalPageDialog::GlobalPageDialog(
     Author,
     Email,
   */
-  box = new QGroupBox("Display Author");
+  box = new QGroupBox(tr("Display Author"));
   grid->addWidget(box, 0, 0);
   child = new PageAttributeTextGui(&pageMeta->author,box);
   data->children.append(child);
 
-  box = new QGroupBox("Display Email");
+  box = new QGroupBox(tr("Display Email"));
   grid->addWidget(box, 1, 0);
   child = new PageAttributeTextGui(&pageMeta->email,box);
   data->children.append(child);
 
-  childtab->addTab(widget,"Author/Email");
+  childtab->addTab(widget,tr("Author/Email"));
 
   widget = new QWidget();
   grid = new QGridLayout();
@@ -222,17 +222,17 @@ GlobalPageDialog::GlobalPageDialog(
     Publish desription
     URL
   */
-  box = new QGroupBox("Display URL");
+  box = new QGroupBox(tr("Display URL"));
   grid->addWidget(box, 0, 0);
   child = new PageAttributeTextGui(&pageMeta->url,box);
   data->children.append(child);
 
-  box = new QGroupBox("Publish Description");
+  box = new QGroupBox(tr("Publisher Description"));
   grid->addWidget(box, 1, 0);
   child = new PageAttributeTextGui(&pageMeta->publishDesc,box);
   data->children.append(child);
 
-  childtab->addTab(widget,"URL/Description");
+  childtab->addTab(widget,tr("URL/Description"));
 
   widget = new QWidget();
   grid = new QGridLayout();
@@ -241,17 +241,17 @@ GlobalPageDialog::GlobalPageDialog(
     Copyright
     Logo
   */
-  box = new QGroupBox("Display Copyright");
+  box = new QGroupBox(tr("Display Copyright"));
   grid->addWidget(box, 0, 0);
   child = new PageAttributeTextGui(&pageMeta->copyright,box);
   data->children.append(child);
 
-  box = new QGroupBox("Display Logo");
+  box = new QGroupBox(tr("Display Logo"));
   grid->addWidget(box, 1, 0);
   child = new PageAttributePictureGui(&pageMeta->documentLogo,box);
   data->children.append(child);
 
-  childtab->addTab(widget,"Copyright/Logo");
+  childtab->addTab(widget,tr("Copyright/Logo"));
 
   //~~~~~~~~~~~~ disclaimer tab ~~~~~~~~~~~//
   childwidget = new QWidget();
@@ -260,7 +260,7 @@ GlobalPageDialog::GlobalPageDialog(
 
   childtab = new QTabWidget();
   childlayout->addWidget(childtab);
-  tab->addTab(childwidget, "Disclaimer");
+  tab->addTab(childwidget,tr("Disclaimer"));
 
   widget = new QWidget();
   grid = new QGridLayout();
@@ -268,7 +268,7 @@ GlobalPageDialog::GlobalPageDialog(
   /*
     LEGO disclaimer,
   */
-  box = new QGroupBox("Display LEGO Disclaimer");
+  box = new QGroupBox(tr("Display LEGO Disclaimer"));
   grid->addWidget(box, 0, 0);
   child = new PageAttributeTextGui(&pageMeta->disclaimer,box);
   data->children.append(child);
@@ -277,7 +277,7 @@ GlobalPageDialog::GlobalPageDialog(
   box = new QGroupBox(NULL);
   grid->addWidget(box, 1,0);
 
-  childtab->addTab(widget,"Disclaimer");
+  childtab->addTab(widget,tr("Disclaimer"));
 
   widget = new QWidget();
   grid = new QGridLayout();
@@ -286,34 +286,34 @@ GlobalPageDialog::GlobalPageDialog(
     Plug
     Plug image
   */
-  box = new QGroupBox("Display LPub3D Plug");
+  box = new QGroupBox(tr("Display LPub3D Plug"));
   grid->addWidget(box, 1, 0);
   child = new PageAttributeTextGui(&pageMeta->plug,box);
   data->children.append(child);
 
-  box = new QGroupBox("Display LPub3D Logo");
+  box = new QGroupBox(tr("Display LPub3D Logo"));
   grid->addWidget(box, 2, 0);
   child = new PageAttributePictureGui(&pageMeta->plugImage,box);
   data->children.append(child);
 
-  childtab->addTab(widget,"LPub3D PLug");
+  childtab->addTab(widget,tr("LPub3D PLug"));
 
   //~~~~~~~~~ page number tab ~~~~~~~~~~~~//
   widget = new QWidget();
   grid = new QGridLayout();
   widget->setLayout(grid);
 
-  box = new QGroupBox("Display");
+  box = new QGroupBox(tr("Display"));
   grid->addWidget(box, 0,0);
-  child = new CheckBoxGui("Display Page Number",&pageMeta->dpn,box);
+  child = new CheckBoxGui(tr("Display Page Number"),&pageMeta->dpn,box);
   data->children.append(child);
 
-  box = new QGroupBox("Look");
+  box = new QGroupBox(tr("Look"));
   grid->addWidget(box,1,0);
   child = new NumberGui(&pageMeta->number,box);
   data->children.append(child);
 
-  box = new QGroupBox("Placement");
+  box = new QGroupBox(tr("Placement"));
   grid->addWidget(box,2,0);
   child = new BoolRadioGui(
     "Alternate Corners (like books)",
@@ -321,7 +321,7 @@ GlobalPageDialog::GlobalPageDialog(
     &pageMeta->togglePnPlacement,box);
   data->children.append(child);
 
-  tab->addTab(widget,"Page Number");
+  tab->addTab(widget,tr("Page Number"));
  
   QDialogButtonBox *buttonBox;
 

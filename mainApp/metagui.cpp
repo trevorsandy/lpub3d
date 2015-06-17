@@ -955,6 +955,9 @@ void PageAttributeTextGui::apply(
   if (placementModified){
       mi.setGlobalMeta(topLevelFile,&meta->placement);
   }
+  if (alignmentModified){
+      mi.setGlobalMeta(topLevelFile,&meta->alignment);
+  }
   if (displayModified){
       mi.setGlobalMeta(topLevelFile,&meta->display);
   }
