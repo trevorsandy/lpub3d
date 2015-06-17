@@ -37,10 +37,7 @@
 
 void clearPliCache();
 
-static const int    placementOption = 1;
-static const int    justifyOption   = 2;
-
-int combo2placementIndex(int const &index, int option = placementOption, bool reverse = false);
+int combo2placementIndex(int const &index, bool reverse = false);
 
 
 class QWidget;
@@ -277,8 +274,9 @@ private:
   bool        colorModified;
   bool        marginsModified;
   bool        placementModified;
+  bool        alignmentModified;
   bool        displayModified;
-  bool        valueModified;
+  bool        editModified;
 
   QLabel      *fontLabel;
   QLabel      *fontExample;

@@ -1153,7 +1153,14 @@ class AlignmentMeta : public LeafMeta
 private:
   Qt::Alignment _value[2];
 public:
-
+  Qt::Alignment value()
+  {
+    return _value[pushed];
+  }
+  void setValue(Qt::Alignment value)
+  {
+    _value[pushed] = value;
+  }
   AlignmentMeta()
   {
     _value[0] = Qt::AlignLeft;
@@ -1167,6 +1174,25 @@ public:
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
 };
+
+//class AlignmentMeta : public LeafMeta
+//{
+//private:
+//  Qt::Alignment _value[2];
+//public:
+//  AlignmentMeta()
+//  {
+//    _value[0] = Qt::AlignLeft;
+//  }
+//  AlignmentMeta(const AlignmentMeta &rhs) : LeafMeta(rhs)
+//  {
+//    _value[0]   = rhs._value[0];
+//    _value[1]   = rhs._value[1];
+//  }
+//  Rc parse(QStringList &argv, int index, Where &here);
+//  QString format(bool,bool);
+//  virtual void doc(QStringList &out, QString preamble);
+//};
 
 class TextMeta : public BranchMeta
 {

@@ -57,8 +57,7 @@
 #include "lpub_preferences.h"
 #include "render.h"
 
-int combo2placementIndex(int const &index, int option, bool reverse){
-    if(option == placementOption) {
+int combo2placementIndex(int const &index, bool reverse){
         if(! reverse){
             switch(index)
             {
@@ -104,7 +103,6 @@ int combo2placementIndex(int const &index, int option, bool reverse){
                 return 8;
             }
         }
-    }
     return -1;
 }
 
@@ -766,15 +764,21 @@ PageAttributeTextGui::PageAttributeTextGui(
 
   // Justification
   justifyCombo = new QComboBox(parent);
-  justifyCombo->addItem(" Justify");
   justifyCombo->addItem(" Left");
   justifyCombo->addItem(" Center");
   justifyCombo->addItem(" Right");
 
-  //justifyCombo->setCurrentIndex(int(Placement.placementType));
-  connect(justifyCombo,SIGNAL(currentIndexChanged(    int)),
-          this, SLOT(  typeJustificationChanged(      int)));
+  if (meta->alignment.value() == Qt::AlignLeft)
+      justifyCombo->setCurrentIndex(0);
+  else if (meta->alignment.value() == Qt::AlignCenter)
+      justifyCombo->setCurrentIndex(1);
+  else if (meta->alignment.value() == Qt::AlignRight)
+      justifyCombo->setCurrentIndex(2);
+  else
+      justifyCombo->setCurrentIndex(1);
 
+  connect(justifyCombo,SIGNAL(currentIndexChanged( int)),
+          this, SLOT(  typeJustificationChanged(   int)));
 
   grid->addWidget(justifyCombo,0,2);
 
@@ -845,12 +849,13 @@ PageAttributeTextGui::PageAttributeTextGui(
       edit->setText(string);
   }
 
-  fontModified = false;
-  colorModified = false;
-  marginsModified = false;
+  fontModified      = false;
+  colorModified     = false;
+  marginsModified   = false;
   placementModified = false;
-  displayModified = false;
-  valueModified = false;
+  alignmentModified = false;
+  displayModified   = false;
+  editModified      = false;
 }
 
 void PageAttributeTextGui::browseFont(bool clicked)
@@ -891,8 +896,14 @@ void PageAttributeTextGui::value0Changed(QString const &string)
 
 void PageAttributeTextGui::value1Changed(QString const &string)
 {
-  meta->margin.setValue(1, string.toFloat());
+  meta->margin.setValue(1,string.toFloat());
   marginsModified = true;
+}
+
+void PageAttributeTextGui::editChanged()
+{
+  meta->content.setValue(edit->toPlainText());
+  editModified = true;
 }
 
 void PageAttributeTextGui::typePlacementChanged(int type)
@@ -903,12 +914,21 @@ void PageAttributeTextGui::typePlacementChanged(int type)
 
 void PageAttributeTextGui::typeJustificationChanged(int type)
 {
-//    PageAttributePictureData Picture = meta->value();
-//    Picture.string = pic;
-//    meta->setValue(Picture);
-  AlignmentMeta foo = AlignmentMeta("LEFT";
-  meta->alignment = foo;
-  placementModified = false;
+    switch(type)
+    {
+    case 0:
+        meta->alignment.setValue(Qt::AlignLeft);
+        break;
+    case 1:
+        meta->alignment.setValue(Qt::AlignCenter);
+        break;
+    case 2:
+        meta->alignment.setValue(Qt::AlignRight);
+        break;
+    default:
+        meta->alignment.setValue(Qt::AlignLeft);
+    }
+  alignmentModified = true;
 }
 
 void PageAttributeTextGui::toggled(bool toggled)
@@ -938,7 +958,7 @@ void PageAttributeTextGui::apply(
   if (displayModified){
       mi.setGlobalMeta(topLevelFile,&meta->display);
   }
-  if (valueModified){
+  if (editModified){
       mi.setGlobalMeta(topLevelFile,&meta->content);
   }
   mi.endMacro();

@@ -1788,6 +1788,7 @@ PageAttributeTextMeta::PageAttributeTextMeta() : BranchMeta()
 {
   textColor.setValue("black");
   display.setValue(false);
+  alignment.setValue(Qt::AlignLeft);
 }
 
 void PageAttributeTextMeta::init(
