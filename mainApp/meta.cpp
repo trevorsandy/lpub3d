@@ -1450,9 +1450,22 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
   if (argv.size() - index == 1) {
     if (argv[index] == "PAGE") {
       return InsertPageRc;
-    } else if (argv[index] == "COVER_PAGE") {
-      return InsertCoverPageRc;
     }
+  }
+
+  if (argv.size() - index == 2 && argv[index] == "COVER_PAGE") {
+      int pos = 3;
+      if  (argv[pos] == "FRONT"){
+          // set whatever we need to identify the front page
+
+          logTrace() << "Insert Cover Page Front";
+          return InsertCoverPageRc;
+      } else if ( argv[pos] == "BACK"){
+          logTrace() << "Insert Cover Page Front";
+          // set whatever we need to identify the back page
+          return InsertCoverPageRc;
+      } else
+          rc = FailureRc;
   }
 
   if (argv.size() - index > 1 && argv[index] == "PICTURE") {

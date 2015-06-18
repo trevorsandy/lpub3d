@@ -62,6 +62,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.publishLogoPath->setText(              Preferences::documentLogoFile);
   ui.authorName_Edit->setText(              Preferences::defaultAuthor);
   ui.publishCopyright_Chk->setChecked(      Preferences::printCopyright);
+  ui.publishTOC_Chk->setChecked(            Preferences::printDocumentTOC);
   ui.publishURL_Edit->setText(              Preferences::defaultURL);
   ui.publishEmail_Edit->setText(            Preferences::defaultEmail);
   ui.publishDescriptionEdit->setText(       Preferences::publishDescription);
@@ -444,6 +445,11 @@ bool PreferencesDialog::enableDocumentLogo()
 bool  PreferencesDialog::printCopyright()
 {
   return ui.publishCopyright_Chk->isChecked();
+}
+
+bool  PreferencesDialog::printDocumentTOC()
+{
+  return ui.publishTOC_Chk->isChecked();
 }
 
 QString const PreferencesDialog::defaultURL()

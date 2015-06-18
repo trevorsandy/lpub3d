@@ -1768,6 +1768,14 @@ public:
 class PageMeta : public BranchMeta
 {
 public:
+    enum PageLayout{
+        FrontCoverPage = 0,
+        BackCoverPage,
+        ToCPage,
+        BOMPage,
+        BlankPage,
+        ContentPage
+    }layoutType;
   // top    == top of page
   // bottom == bottom of page
   UnitsMeta                 size;

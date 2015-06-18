@@ -61,6 +61,7 @@ class Preferences
     static QString publishDescription;
     static bool    enableDocumentLogo;
     static bool    printCopyright;
+    static bool    printDocumentTOC;
     static bool    preferCentimeters;
     static bool    preferTitleAnnotation;
     static bool    preferFreeformAnnotation;

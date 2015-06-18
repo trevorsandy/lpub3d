@@ -195,7 +195,8 @@ public:
     InsertPicture,
     InsertText,
     InsertArrow,
-    InsertBom
+    InsertBom,
+    InsertCoverPage
   } type;
 
   QString picName;

@@ -53,13 +53,18 @@ QString Preferences::titleAnnotationsFile;
 QString Preferences::freeformAnnotationsFile;
 QString Preferences::fadeStepColor = "Very_Light_Bluish_Gray";
 QString Preferences::fadeStepColorPartsFile;
+//page attributes
 QString Preferences::defaultAuthor;
 QString Preferences::defaultURL;
 QString Preferences::defaultEmail;
 QString Preferences::documentLogoFile;
 QString Preferences::publishDescription;
+
 bool    Preferences::enableDocumentLogo = false;
 bool    Preferences::printCopyright = false;
+bool    Preferences::printDocumentTOC = false;
+//
+
 bool    Preferences::preferTitleAnnotation = true;
 bool    Preferences::preferFreeformAnnotation = false;
 bool    Preferences::titleAndFreeformAnnotation = false;
@@ -565,6 +570,14 @@ void Preferences::publishingPreferences()
         printCopyright = Settings.value(QString("%1/%2").arg(DEFAULTS,"PrintCopyright")).toBool();
     }
 
+    if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"PrintDocumentTOC"))) {
+        QVariant pValue(false);
+        printDocumentTOC = false;
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PrintDocumentTOC"),pValue);
+    } else {
+        printDocumentTOC = Settings.value(QString("%1/%2").arg(DEFAULTS,"PrintDocumentTOC")).toBool();
+    }
+
     if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"Email"))) {
         QVariant eValue("");
         defaultEmail = "";
@@ -795,6 +808,11 @@ bool Preferences::getPreferences()
     if (printCopyright != dialog->printCopyright()) {
         printCopyright = dialog->printCopyright();
         Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PrintCopyright"),printCopyright);
+    }
+
+    if (printDocumentTOC != dialog->printDocumentTOC()) {
+        printDocumentTOC = dialog->printDocumentTOC();
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PrintDocumentTOC"),printDocumentTOC);
     }
 
     return true;

@@ -52,6 +52,7 @@ class PreferencesDialog : public QDialog
     QString const documentLogoFile();
     QString const publishDescription();
     bool          printCopyright();
+    bool          printDocumentTOC();
     bool          centimeters();
     bool          titleAnnotation();
     bool          freeformAnnotation();
@@ -80,9 +81,9 @@ class PreferencesDialog : public QDialog
 private:
     Ui::PreferencesDialog ui;
 
-    QWidget *parent;
+    QWidget         *parent;
     FadeStepMeta    fadeStepMeta;             // propagate fade color and fade bool
-    ColourPartList      colourPart;
+    ColourPartList  colourPart;
 };
 
 #endif

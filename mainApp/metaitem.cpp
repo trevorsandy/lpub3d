@@ -1267,18 +1267,6 @@ bool MetaItem::okToAppendCoverPage()
   return frontCover || backCover;
 }
 
-//void MetaItem::insertCoverPage()
-//{
-//  QString meta = "0 !LPUB INSERT COVER_PAGE";
-//  insertPage(meta);
-//}
-
-//void MetaItem::appendCoverPage()
-//{
-//  QString meta = "0 !LPUB INSERT COVER_PAGE";
-//  appendPage(meta);
-//}
-
 //PROTOTYPE
 void MetaItem::insertCoverPage(const QString &topLevelFile)
 {
@@ -1286,7 +1274,7 @@ void MetaItem::insertCoverPage(const QString &topLevelFile)
   QString line;
   Meta content;
 
-  QString meta = "0 !LPUB INSERT COVER_PAGE";
+  QString meta = "0 !LPUB INSERT COVER_PAGE FRONT";
 
   Where here(topLevelFile,0);
 
@@ -1311,7 +1299,7 @@ void MetaItem::appendCoverPage(const QString &topLevelFile)
   QString line;
   Meta content;
 
-  QString meta = "0 !LPUB INSERT COVER_PAGE";
+  QString meta = "0 !LPUB INSERT COVER_PAGE BACK";
 
   Where backPage(topLevelFile, gui->subFileSize(topLevelFile));
 
@@ -1319,9 +1307,8 @@ void MetaItem::appendCoverPage(const QString &topLevelFile)
   --backPage;
   line = gui->readLine(backPage);
   rc = content.parse(line,backPage);
-  logInfo() << "Append Cover Page, LineNum: " << backPage.lineNumber << ", Model Name: " << backPage.modelName << ", Line: " << line;
   if (rc == StepRc){
-      backPage++;
+      backPage++;                           //STEP so advance page before (insert) meta
       insertMeta(backPage,meta);
       appendMeta(backPage,step);
   }else{
@@ -1331,7 +1318,6 @@ void MetaItem::appendCoverPage(const QString &topLevelFile)
   }
   endMacro();
 }
-//PROTOTYPE END
 
 bool MetaItem::okToInsertNumberedPage()
 {
