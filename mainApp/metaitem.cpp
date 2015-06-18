@@ -1255,7 +1255,7 @@ void MetaItem::changeAlloc(
 bool MetaItem::okToInsertCoverPage()
 {
   bool frontCover = gui->displayPageNum <= gui->firstStepPageNum;
-  bool backCover  = gui->displayPageNum >    gui->lastStepPageNum;;
+  bool backCover  = gui->displayPageNum >    gui->lastStepPageNum;
 
   return frontCover || backCover;
 }
@@ -1267,16 +1267,71 @@ bool MetaItem::okToAppendCoverPage()
   return frontCover || backCover;
 }
 
-void MetaItem::insertCoverPage()
+//void MetaItem::insertCoverPage()
+//{
+//  QString meta = "0 !LPUB INSERT COVER_PAGE";
+//  insertPage(meta);
+//}
+
+//void MetaItem::appendCoverPage()
+//{
+//  QString meta = "0 !LPUB INSERT COVER_PAGE";
+//  appendPage(meta);
+//}
+
+//PROTOTYPE
+void MetaItem::insertCoverPage(const QString &topLevelFile)
 {
+  Rc rc;
+  QString line;
+  Meta content;
+
   QString meta = "0 !LPUB INSERT COVER_PAGE";
-  insertPage(meta);
+
+  Where here(topLevelFile,0);
+
+  scanPastGlobal(here);
+
+  beginMacro("InsertCoverPage");
+  here++;                                   //advance 1 to compensate for zero index
+  line = gui->readLine(here);               //read the line
+  rc = content.parse(line,here);            //parse the line
+  if (rc == StepRc) {                       //check if line is 0 STEP
+      insertMeta(here,meta);                //STEP is there, so (insert) meta just before
+  } else {                                  //NO STEP to start so...
+      insertMeta(here,meta);                //(insert) meta
+      appendMeta(here,step);                //then (append) step just after
+  }
+  endMacro();
 }
-void MetaItem::appendCoverPage()
+
+void MetaItem::appendCoverPage(const QString &topLevelFile)
 {
+  Rc rc;
+  QString line;
+  Meta content;
+
   QString meta = "0 !LPUB INSERT COVER_PAGE";
-  appendPage(meta);
+
+  Where backPage(topLevelFile, gui->subFileSize(topLevelFile));
+
+  beginMacro("AppendCoverPage");
+  --backPage;
+  line = gui->readLine(backPage);
+  rc = content.parse(line,backPage);
+  logInfo() << "Append Cover Page, LineNum: " << backPage.lineNumber << ", Model Name: " << backPage.modelName << ", Line: " << line;
+  if (rc == StepRc){
+      backPage++;
+      insertMeta(backPage,meta);
+      appendMeta(backPage,step);
+  }else{
+      appendMeta(backPage,step);            //if NO STEP, (append) one before appending meta
+      appendMeta(backPage,meta);
+      appendMeta(backPage,step);
+  }
+  endMacro();
 }
+//PROTOTYPE END
 
 bool MetaItem::okToInsertNumberedPage()
 {
@@ -1483,10 +1538,11 @@ void MetaItem::scanPastGlobal(
   if (walk < numLines) {
     QString line = gui->readLine(walk);
     QRegExp globalLine("^\\s*0\\s+!LPUB\\s+.*GLOBAL");
-    if (line.contains(globalLine)) {
+    if (line.contains(globalLine) || isHeader(line)) {
       for ( ++walk; walk < numLines; ++walk) {
         line = gui->readLine(walk);
-        if ( ! line.contains(globalLine)) {
+        logTrace() << "Scan Past GLOBAL LineNum (final -1): " << walk.lineNumber << ", Line: " << line;
+        if ( ! line.contains(globalLine) && ! isHeader(line)) {
           topOfStep = walk - 1;
           break;
         }

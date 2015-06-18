@@ -276,8 +276,14 @@ public:
 
   bool okToInsertCoverPage();
   bool okToAppendCoverPage();
-  void insertCoverPage();
-  void appendCoverPage();
+
+// PROTOTYPE
+  void insertCoverPage(const QString &topLevelFile);
+  void appendCoverPage(const QString &topLevelFile);
+// PROTPTYPE END
+
+//  void insertCoverPage();
+//  void appendCoverPage();
 
   bool okToInsertNumberedPage();
   bool okToAppendNumberedPage();

@@ -76,20 +76,37 @@ void clearAndRedrawPage()
  *
  ***************************************************************************/
 
+//PROTPTYPE
 void Gui::insertCoverPage()
 {
   MetaItem mi;
-  mi.insertCoverPage();
+  mi.insertCoverPage(ldrawFile.topLevelFile());
 }
 
 void Gui::appendCoverPage()
 {
   MetaItem mi;
-  mi.appendCoverPage();
+  mi.appendCoverPage(ldrawFile.topLevelFile());
   countPages();
   ++displayPageNum;
   displayPage();  // display the page we just added
 }
+//PROTOTYPE END
+
+//void Gui::insertCoverPage()
+//{
+//  MetaItem mi;
+//  mi.insertCoverPage();
+//}
+
+//void Gui::appendCoverPage()
+//{
+//  MetaItem mi;
+//  mi.appendCoverPage();
+//  countPages();
+//  ++displayPageNum;
+//  displayPage();  // display the page we just added
+//}
 
 void Gui::insertNumberedPage()
 {
@@ -937,13 +954,13 @@ void Gui::createActions()
     redoAct->setEnabled(false);
     connect(redoAct, SIGNAL(triggered()), this, SLOT(redo()));
 
-    insertCoverPageAct = new QAction(QIcon(":/resources/insertcoverpage.png"),tr("Insert Blank Cover Page"),this);
-    insertCoverPageAct->setStatusTip(tr("Insert a blank unnumbered cover page"));
+    insertCoverPageAct = new QAction(QIcon(":/resources/insertcoverpage.png"),tr("Insert Front Cover Page"),this);
+    insertCoverPageAct->setStatusTip(tr("Insert a front cover page"));
     insertCoverPageAct->setEnabled(false);
     connect(insertCoverPageAct, SIGNAL(triggered()), this, SLOT(insertCoverPage()));
 
-    appendCoverPageAct = new QAction(QIcon(":/resources/appendcoverpage.png"),tr("Append Cover Page"),this);
-    appendCoverPageAct->setStatusTip(tr("Append a numbered page"));
+    appendCoverPageAct = new QAction(QIcon(":/resources/appendcoverpage.png"),tr("Append Back Cover Page"),this);
+    appendCoverPageAct->setStatusTip(tr("Append back cover page"));
     appendCoverPageAct->setEnabled(false);
     connect(appendCoverPageAct, SIGNAL(triggered()), this, SLOT(appendCoverPage()));
 

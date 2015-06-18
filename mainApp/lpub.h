@@ -790,6 +790,7 @@ private slots:
 
     void insertCoverPage();
     void appendCoverPage();
+
     void insertNumberedPage();
     void appendNumberedPage();
     void deletePage();
