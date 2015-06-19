@@ -28,15 +28,15 @@
 #include "step.h"
 
 void PageAttributeItem::setAttributes(
-  PlacementType       _relativeType,
-  PlacementType       _parentRelativeType,
-  Meta               *_meta,
-  PageAttributeTextMeta  &_pageAttributeText,       // change to PageAttributeData
-  PageAttributePictureMeta &_pageAttributePicture,
-  QString             _value,
-  QString            &toolTip,
-  QGraphicsItem      *_parent,
-  QString             _name)
+  PlacementType              _relativeType,
+  PlacementType              _parentRelativeType,
+  Meta                      *_meta,
+  PageAttributeTextMeta     &_pageAttributeText,
+  PageAttributePictureMeta  &_pageAttributePicture,
+  QString                    _value,
+  QString                   &toolTip,
+  QGraphicsItem             *_parent,
+  QString                    _name)
 {
   PageAttributePictureData _Picture = _pageAttributePicture.value();
   relativeType       =  _relativeType;
@@ -46,7 +46,9 @@ void PageAttributeItem::setAttributes(
   textColor          = &_pageAttributeText.textColor;
   margin             = &_pageAttributeText.margin;
   alignment          = &_pageAttributeText.alignment;
-  picScale           =  _Picture.picScale;      // don't need, can just use mouse drag
+  picScale           =  _Picture.picScale;                      // don't need, can just use mouse drag
+  displayText        = &_pageAttributeText.display;
+  displayPic         = &_Picture.display;
   value              =  _value;
   name               =  _name;
 
@@ -70,19 +72,19 @@ PageAttributeItem::PageAttributeItem()
   textColor     = NULL;
   margin        = NULL;
   alignment     = NULL;
-  picScale      = NULL;
+  picScale      = 0.0;
 }
 
 PageAttributeItem::PageAttributeItem(
-  PlacementType      _relativeType,
-  PlacementType      _parentRelativeType,
-  Meta              *_meta,
-  PageAttributeTextMeta &_pageAttributeText,
-  PageAttributePictureMeta &_pageAttributePicture,
-  QString            _value,
-  QString           &_toolTip,
-  QGraphicsItem     *_parent,
-  QString            _name)
+  PlacementType              _relativeType,
+  PlacementType              _parentRelativeType,
+  Meta                      *_meta,
+  PageAttributeTextMeta     &_pageAttributeText,
+  PageAttributePictureMeta  &_pageAttributePicture,
+  QString                    _value,
+  QString                   &_toolTip,
+  QGraphicsItem             *_parent,
+  QString                    _name)
 {
   setAttributes(_relativeType,
                 _parentRelativeType,
@@ -146,17 +148,22 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
 
   }
 
-//  else if (selectedAction == scaleAction) {
+  else if (selectedAction == scaleAction) {
 
-//      bool allowLocal = parentRelativeType != StepGroupType &&
-//                        parentRelativeType != CalloutType;
-//      changeFloatSpin("Image",
-//                      "Image Size",
-//                      begin,
-//                      topOfSteps,
-//                      &meta->LPub.page.documentLogo.,     //investigate
-//                      1,allowLocal);
-//  }
+      bool allowLocal = parentRelativeType != StepGroupType &&
+                        parentRelativeType != CalloutType;
+      PageAttributePictureData Picture = meta->LPub.page.documentLogo.value();
+      FloatMeta picScale;
+      picScale.setValue(Picture.picScale);
+      // implement swithc to handle all image types
+      // finish process (e.g. implement change method see csiitem.cpp line 382)
+      changeFloatSpin("Image",
+                      "Image Size",
+                      begin,
+                      topOfSteps,
+                      &picScale,     //investigate
+                      1,allowLocal);
+  }
 }
 
 void PagePageAttributeItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)

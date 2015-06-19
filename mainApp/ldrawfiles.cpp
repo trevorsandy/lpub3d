@@ -497,7 +497,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
                 _file = sofRE.cap(1).replace(".ldr","");
                 descriptionLine = i+1;      //next line will be description
                 topLevelFileNotCaptured = false;
-                logWarn() << "LineNo: " << i << " descriptionLine: " << descriptionLine << " file: " << _file << " Line: " << smLine;
             }
         }
 

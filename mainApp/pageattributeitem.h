@@ -34,6 +34,8 @@ public:
   StringMeta    *textColor;
   MarginsMeta   *margin;
   AlignmentMeta *alignment;
+  BoolMeta      *displayText;
+  bool          *displayPic;
   qreal		     picScale;          //changed from floatMeta
   QString        value;
   QString        name;
@@ -48,25 +50,26 @@ public:
   PageAttributeItem();
 
   PageAttributeItem(
-    PlacementType        relativeType,
-    PlacementType        parentRelativeType,
-    Meta                *meta,
-    PageAttributeTextMeta   &pageAttributeText,     //change to PageAttributeData
-    PageAttributePictureMeta &pageAttributePicture,
-    QString             _value,
-    QString             &toolTip,
-    QGraphicsItem       *parent,
-    QString              name = "");
+    PlacementType                relativeType,
+    PlacementType                parentRelativeType,
+    Meta                        *meta,
+    PageAttributeTextMeta       &pageAttributeText,     //change to PageAttributeData
+    PageAttributePictureMeta    &pageAttributePicture,
+    QString                     _value,
+    QString                     &toolTip,
+    QGraphicsItem               *parent,
+    QString                      name = "");
 
-  void setAttributes(PlacementType        relativeType,
-    PlacementType        parentRelativeType,
-    Meta                *meta,
-    PageAttributeTextMeta   &pageAttributeText,
-    PageAttributePictureMeta &pageAttributePicture,
-    QString             _value,
-    QString             &toolTip,
-    QGraphicsItem       *parent,
-    QString              name = "");
+  void setAttributes(
+    PlacementType                    relativeType,
+    PlacementType                    parentRelativeType,
+    Meta                            *meta,
+    PageAttributeTextMeta           &pageAttributeText,
+    PageAttributePictureMeta        &pageAttributePicture,
+    QString                         _value,
+    QString                         &toolTip,
+    QGraphicsItem                   *parent,
+    QString                          name = "");
 
   void setFlags( GraphicsItemFlag flag, bool value)
   {
@@ -78,13 +81,15 @@ public:
 
 class PagePageAttributeItem : public PageAttributeItem
 {
-  Page                *page;
+  Page                          *page;
 public:
+  Meta                          *meta;
   PagePageAttributeItem(
-    Page              *page,
-    PageAttributeItem &pageAttributeText,
-    QString           _value,
-    QGraphicsItem     *parent);
+    Page                *page,
+    Meta                *_meta,
+    PageAttributeItem   &pageAttributeItem,
+    QString              _value,
+    QGraphicsItem       *parent);
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
