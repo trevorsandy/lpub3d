@@ -36,6 +36,7 @@
 //**
 
 Preferences preferences;
+QDate date = QDate::currentDate();
 
 QString Preferences::ldrawPath                  = "";
 QString Preferences::leocadLibFile              = "";
@@ -60,11 +61,16 @@ QString Preferences::defaultURL;
 QString Preferences::defaultEmail;
 QString Preferences::documentLogoFile;
 QString Preferences::publishDescription;
-//page attributes static in - publishPreferences()
-QString Preferences::disclaimer;
-QString Preferences::copyright;
-QString Preferences::plugImage;
-QString Preferences::plug;
+//Static page attributes
+QString Preferences::disclaimer                 = QString(QObject::trUtf8("LEGO® is a registered trademark of the LEGO Group, \n"
+                                                                          "which does not sponsor, endorse, or authorize these \n"
+                                                                          "instructions and the model they depict."));
+QString Preferences::copyright                  = QString(QObject::trUtf8("Copyright © %1 by ").arg(date.toString("yyyy")));
+QString Preferences::plugImage                  = QString(":/resources/LPub64.png");
+QString Preferences::plug                       = QString(QObject::trUtf8("Instructions configured and generated using %1 %2 \n%3")
+                                                                 .arg(QString::fromLatin1(VER_PRODUCTNAME_STR),
+                                                                     QString::fromLatin1(VER_FILEVERSION_STR),
+                                                                     QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
 
 bool    Preferences::enableDocumentLogo         = false;
 bool    Preferences::printCopyright             = false;
@@ -625,19 +631,6 @@ void Preferences::publishingPreferences()
             Settings.remove(QString("%1/%2").arg(DEFAULTS,"DocumentLogoFile"));
         }
     }
-
-    //static preferences for page attributes
-    QDate date;
-    plugImage = QObject::tr(":/resources/LPub64.png");
-    plug      = QObject::trUtf8("Instructions configured and generated using %1 %2 \n%3")
-                            .arg(QString::fromLatin1(VER_PRODUCTNAME_STR),
-                                 QString::fromLatin1(VER_FILEVERSION_STR),
-                                 QString::fromLatin1(VER_COMPANYDOMAIN_STR));
-    copyright = QObject::trUtf8("Copyright \u00A9 %1 by %2").arg(Preferences::defaultAuthor, date.year());
-    disclaimer= QObject::trUtf8("LEGO\u0174 is a registered trademark of the LEGO Group, \n"
-                                "which does not sponsor, endorse, or authorize these \n"
-                                "instructions and the model they depict.");
-
 }
 
 void Preferences::viewerPreferences()

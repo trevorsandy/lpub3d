@@ -494,7 +494,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
         if (topLevelFileNotCaptured) {
             if (sof){
-                _file = sofRE.cap(1).replace(".ldr ","");
+                _file = sofRE.cap(1).replace(".ldr","");
                 descriptionLine = i+1;      //next line will be description
                 topLevelFileNotCaptured = false;
                 logWarn() << "LineNo: " << i << " descriptionLine: " << descriptionLine << " file: " << _file << " Line: " << smLine;
@@ -624,7 +624,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
         if (topLevelFileNotCaptured) {
             if (line.contains(sofRE)){
-                _file = sofRE.cap(1).replace(".ldr ","");
+                _file = sofRE.cap(1).replace(".ldr","");
                 descriptionLine = i+1;      //next line will be description
                 topLevelFileNotCaptured = false;
                 logWarn() << "LineNo: " << i << " descriptionLine: " << descriptionLine << " file: " << _file << " Line: " << line;

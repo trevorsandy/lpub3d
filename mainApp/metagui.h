@@ -251,6 +251,7 @@ public slots:
 
 class PageAttributeTextMeta;
 class QGroupBox;
+class QLineEdit;
 class QPushButton;
 class PlacementMeta;
 class PageAttributePlacementEnum;
@@ -293,13 +294,20 @@ private:
   QComboBox    *placementCombo;
   QComboBox    *justifyCombo;
 
-  QGroupBox    *gbDialog;
+  QGroupBox    *gbContentEdit;
+  QGroupBox    *gbDescDialog;
+  QGroupBox    *gbDiscDialog;
   QTextEdit    *edit;
+  QLineEdit    *contentEdit;
+
+  QString      content;
+  QLabel       *contentLabel;
 
 public slots:
+  void editChanged();
   void browseFont(bool clicked);
   void browseColor(bool clicked);
-  void editChanged();
+  void editChanged(QString const &);
   void value0Changed(QString const &);
   void value1Changed(QString const &);
 

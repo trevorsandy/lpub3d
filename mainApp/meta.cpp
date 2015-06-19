@@ -2086,10 +2086,12 @@ PageMeta::PageMeta() : BranchMeta()
   email.setValue(Preferences::defaultEmail);
 
   //publisher copyright
+
   copyright.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   copyright.placement.setValue(CenterCenter,PageType);
   copyright.type = PageAttributeTextMeta::PageCopyrightType;
-  copyright.setValue(Preferences::copyright);
+  copyright.setValue(Preferences::copyright + Preferences::defaultAuthor);
+  //copyright.setValue(QString("Copyright (C) %1 by %2 ").arg(date.toString("yyyy"),Preferences::defaultAuthor));
 
   //publisher IMAGE
   documentLogo.setValue(PageAttributePictureData::DocumentLogoType); 

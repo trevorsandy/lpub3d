@@ -828,12 +828,48 @@ PageAttributeTextGui::PageAttributeTextGui(
           this,  SLOT(  value1Changed(QString const &)));
   grid->addWidget(value1,3,2);
 
-  //Dialog
-  gbDialog = new QGroupBox("Description Dialog",parent);
-  gbDialog->hide();
+  //Content Dialog
+  gbContentEdit = new QGroupBox("Content",parent);
   hLayout = new QHBoxLayout();
-  gbDialog->setLayout(hLayout);
-  grid->addWidget(gbDialog,4,0,1,3);
+  gbContentEdit->setLayout(hLayout);
+  grid->addWidget(gbContentEdit,4,0,1,3);
+
+  contentLabel = new QLabel("Content",parent);
+  hLayout->addWidget(contentLabel);
+
+  content = meta->content.value();
+  contentEdit = new QLineEdit(content,parent);
+
+  connect(contentEdit,SIGNAL(textChanged(QString const &)),
+        this,  SLOT(  editChanged(QString const &)));
+  hLayout->addWidget(contentEdit);
+
+  //Description Dialog
+  gbDescDialog = new QGroupBox("Description Dialog Content",parent);
+  gbDescDialog->hide();
+  hLayout = new QHBoxLayout();
+  gbDescDialog->setLayout(hLayout);
+  grid->addWidget(gbDescDialog,4,0,1,3);
+
+  edit = new QTextEdit(parent);
+
+  connect(edit,SIGNAL(textChanged()),
+          this,  SLOT(  editChanged()));
+  hLayout->addWidget(edit);
+
+  if (meta->type == PageAttributeTextMeta::PageModelDescType) {
+      gbDescDialog->show();
+      gbContentEdit->hide();
+      string = QString("%1").arg(meta->content.value());
+      edit->setText(string);
+  }
+
+  //Disclaimer Dialog
+  gbDiscDialog = new QGroupBox("Disclaimer Dialog Content",parent);
+  gbDiscDialog->hide();
+  hLayout = new QHBoxLayout();
+  gbDiscDialog->setLayout(hLayout);
+  grid->addWidget(gbDiscDialog,4,0,1,3);
 
   edit = new QTextEdit(parent);
 
@@ -842,9 +878,9 @@ PageAttributeTextGui::PageAttributeTextGui(
   connect(edit,SIGNAL(textChanged()),
           this,  SLOT(  editChanged()));
 
-  if (meta->type == PageAttributeTextMeta::PageModelDescType) {
-
-      gbDialog->show();
+  if (meta->type == PageAttributeTextMeta::PageDisclaimerType) {
+      gbDiscDialog->show();
+      gbContentEdit->hide();
       string = QString("%1").arg(meta->content.value());
       edit->setText(string);
   }
@@ -903,6 +939,12 @@ void PageAttributeTextGui::value1Changed(QString const &string)
 void PageAttributeTextGui::editChanged()
 {
   meta->content.setValue(edit->toPlainText());
+  editModified = true;
+}
+
+void PageAttributeTextGui::editChanged(const QString &value)
+{
+  meta->content.setValue(value);
   editModified = true;
 }
 

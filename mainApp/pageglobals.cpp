@@ -148,12 +148,12 @@ GlobalPageDialog::GlobalPageDialog(
     Description,
     Description Dialog,
   */
-  //child body (many) start
+  // child body (many) start
   box = new QGroupBox(tr("Display Model Description"));
   grid->addWidget(box, 0, 0);
   child = new PageAttributeTextGui(&pageMeta->modelDesc,box);
   data->children.append(child);
-  //child body end
+  // child body end
 
   // child footer (one) end
   childtab->addTab(widget,tr("Description"));
@@ -169,19 +169,19 @@ GlobalPageDialog::GlobalPageDialog(
     Model ID,
     Pieces,
   */
-  //child body (many) start
+  // child body (many) start
   box = new QGroupBox(tr("Display Model Identification"));
   grid->addWidget(box, 0, 0);
   child = new PageAttributeTextGui(&pageMeta->modelName,box);
   data->children.append(child);
-  //child body end
+  // child body end
 
-  //child body (many) start
+  // child body (many) start
   box = new QGroupBox(tr("Display Pieces"));
   grid->addWidget(box, 1, 0);
   child = new PageAttributeTextGui(&pageMeta->pieces,box);
   data->children.append(child);
-  //child body end
+  // child body end
 
   // child footer (one) end
   childtab->addTab(widget,tr("Model ID/Pieces"));
@@ -274,8 +274,8 @@ GlobalPageDialog::GlobalPageDialog(
   data->children.append(child);
 
   //empty box
-  box = new QGroupBox(NULL);
-  grid->addWidget(box, 1,0);
+//  box = new QGroupBox(NULL);
+//  grid->addWidget(box, 1,0);
 
   childtab->addTab(widget,tr("Disclaimer"));
 

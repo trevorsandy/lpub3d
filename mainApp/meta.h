@@ -1429,6 +1429,7 @@ public:
         PageCopyrightType,
         PageEmailType,
         PageDisclaimerType,
+        PageCategoryType,
         PagePiecesType,
         PagePlugType,
         PageFrontCoverType,
@@ -1764,7 +1765,6 @@ public:
 /*---------------------------------------------------------------
  * The Top Level LPub Metas
  *---------------------------------------------------------------*/
-
 class PageMeta : public BranchMeta
 {
 public:
