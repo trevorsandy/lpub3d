@@ -59,6 +59,10 @@ class Preferences
     static QString defaultEmail;
     static QString documentLogoFile;
     static QString publishDescription;
+    static QString disclaimer;
+    static QString copyright;
+    static QString plugImage;
+    static QString plug;
     static bool    enableDocumentLogo;
     static bool    printCopyright;
     static bool    printDocumentTOC;

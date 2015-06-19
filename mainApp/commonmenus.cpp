@@ -288,7 +288,7 @@ QString type2english(PlacementType type)
 
 //        break;
 
-//    case PageModelNumType:
+//    case PagemodelNameType:
 
 //        return "model id";
 

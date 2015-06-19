@@ -22,6 +22,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QDate>
 
 #include "lpub_preferences.h"
 #include "render.h"
@@ -36,13 +37,13 @@
 
 Preferences preferences;
 
-QString Preferences::ldrawPath = "";
-QString Preferences::leocadLibFile = "";
+QString Preferences::ldrawPath                  = "";
+QString Preferences::leocadLibFile              = "";
 QString Preferences::lgeoPath;
-QString Preferences::lpubPath = ".";
-QString Preferences::lpubDataPath = ".";
-QString Preferences::lpubCachePath = ".";
-QString Preferences::lpubExtrasPath = ".";
+QString Preferences::lpubPath                   = ".";
+QString Preferences::lpubDataPath               = ".";
+QString Preferences::lpubCachePath              = ".";
+QString Preferences::lpubExtrasPath             = ".";
 QString Preferences::ldgliteExe;
 QString Preferences::ldviewExe;
 QString Preferences::l3pExe;
@@ -51,27 +52,32 @@ QString Preferences::pliFile;
 QString Preferences::preferredRenderer;
 QString Preferences::titleAnnotationsFile;
 QString Preferences::freeformAnnotationsFile;
-QString Preferences::fadeStepColor = "Very_Light_Bluish_Gray";
+QString Preferences::fadeStepColor              = "Very_Light_Bluish_Gray";
 QString Preferences::fadeStepColorPartsFile;
-//page attributes
+//page attributes dynamic
 QString Preferences::defaultAuthor;
 QString Preferences::defaultURL;
 QString Preferences::defaultEmail;
 QString Preferences::documentLogoFile;
 QString Preferences::publishDescription;
+//page attributes static in - publishPreferences()
+QString Preferences::disclaimer;
+QString Preferences::copyright;
+QString Preferences::plugImage;
+QString Preferences::plug;
 
-bool    Preferences::enableDocumentLogo = false;
-bool    Preferences::printCopyright = false;
-bool    Preferences::printDocumentTOC = false;
+bool    Preferences::enableDocumentLogo         = false;
+bool    Preferences::printCopyright             = false;
+bool    Preferences::printDocumentTOC           = false;
 //
 
-bool    Preferences::preferTitleAnnotation = true;
-bool    Preferences::preferFreeformAnnotation = false;
+bool    Preferences::preferTitleAnnotation      = true;
+bool    Preferences::preferFreeformAnnotation   = false;
 bool    Preferences::titleAndFreeformAnnotation = false;
-bool    Preferences::enableFadeStep = false;
-bool    Preferences::preferCentimeters = true;
-bool    Preferences::silentUpdate = false;
-int     Preferences::checkForUpdates = 0;
+bool    Preferences::enableFadeStep             = false;
+bool    Preferences::preferCentimeters          = true;
+bool    Preferences::silentUpdate               = false;
+int     Preferences::checkForUpdates            = 0;
 
 Preferences::Preferences()
 {
@@ -619,6 +625,19 @@ void Preferences::publishingPreferences()
             Settings.remove(QString("%1/%2").arg(DEFAULTS,"DocumentLogoFile"));
         }
     }
+
+    //static preferences for page attributes
+    QDate date;
+    plugImage = QObject::tr(":/resources/LPub64.png");
+    plug      = QObject::trUtf8("Instructions configured and generated using %1 %2 \n%3")
+                            .arg(QString::fromLatin1(VER_PRODUCTNAME_STR),
+                                 QString::fromLatin1(VER_FILEVERSION_STR),
+                                 QString::fromLatin1(VER_COMPANYDOMAIN_STR));
+    copyright = QObject::trUtf8("Copyright \u00A9 %1 by %2").arg(Preferences::defaultAuthor, date.year());
+    disclaimer= QObject::trUtf8("LEGO\u0174 is a registered trademark of the LEGO Group, \n"
+                                "which does not sponsor, endorse, or authorize these \n"
+                                "instructions and the model they depict.");
+
 }
 
 void Preferences::viewerPreferences()

@@ -172,7 +172,7 @@ GlobalPageDialog::GlobalPageDialog(
   //child body (many) start
   box = new QGroupBox(tr("Display Model Identification"));
   grid->addWidget(box, 0, 0);
-  child = new PageAttributeTextGui(&pageMeta->modelNum,box);
+  child = new PageAttributeTextGui(&pageMeta->modelName,box);
   data->children.append(child);
   //child body end
 

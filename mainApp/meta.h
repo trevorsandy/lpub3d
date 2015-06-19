@@ -42,10 +42,10 @@
 #include <QHash>
 #include <QRegExp>
 #include <QStringList>
+#include <QMessageBox>
 #include "where.h"
 #include "metatypes.h"
 #include "resolution.h"
-#include <QMessageBox>
 
 class QStringList;
 
@@ -1421,7 +1421,7 @@ public:
     enum PageAttributeType
     {
         PageTitleType = 0,
-        PageModelNumType,
+        PagemodelNameType,
         PageAuthorType,
         PageURLType,
         PageModelDescType,
@@ -1789,20 +1789,24 @@ public:
   StringListMeta            subModelColor;
 
   //pageAttributes 
-  PageAttributeTextMeta     title;
-  PageAttributeTextMeta     modelNum;
-  PageAttributeTextMeta     modelDesc;
-  PageAttributeTextMeta     publishDesc;
-  PageAttributeTextMeta     author;
-  PageAttributeTextMeta     url;
-  PageAttributeTextMeta     email;
-  PageAttributeTextMeta     disclaimer;
-  PageAttributePictureMeta  documentLogo;
-  PageAttributePictureMeta  coverImage;
-  PageAttributeTextMeta     pieces;
-  PageAttributeTextMeta     copyright;
-  PageAttributeTextMeta     plug;
-  PageAttributePictureMeta  plugImage;
+  PageAttributeTextMeta     title;              //from LDrawFile - LDraw: File
+  PageAttributeTextMeta     modelName;          //from LDrawFile - LDraw: Name
+  PageAttributeTextMeta     modelDesc;          //from LDrawFile - LDraw: 2nd line in <topLevelFile>.ldr
+  PageAttributeTextMeta     publishDesc;        //from preferences
+  PageAttributeTextMeta     author;             //from LDrawFile - LDraw: Author
+  PageAttributeTextMeta     url;                //from preferences
+  PageAttributeTextMeta     email;              //from preferences
+  PageAttributeTextMeta     disclaimer;         //from preferences static
+  PageAttributePictureMeta  documentLogo;       //from preferences
+  PageAttributePictureMeta  coverImage;         //from Globals setup
+  PageAttributeTextMeta     pieces;             //from LDrawFile - count .dat during load
+  PageAttributeTextMeta     copyright;          //from preferences static
+  PageAttributeTextMeta     plug;               //from preferences static
+  PageAttributePictureMeta  plugImage;          //from preferences static
+  PageAttributeTextMeta     category;           //from LDrawFile - LDraw: !CATEGORY (NOT IMPLEMENTED)
+
+  PageAttributePictureData  logoPic;
+  PageAttributePictureData  plugPic;
 
   PageMeta();
   PageMeta(const PageMeta &rhs) : BranchMeta(rhs)

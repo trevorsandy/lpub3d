@@ -86,7 +86,14 @@ class LDrawFile {
     {
       _subFiles.empty();
     }
-    QStringList                  _subFileOrder;
+
+    QStringList                 _subFileOrder;
+    static QString              _file;
+    static QString              _name;
+    static QString              _author;
+    static QString              _description;
+    static QString              _category;
+    static int                  _pieces;
 
     bool saveFile(const QString &fileName);
     bool saveMPDFile(const QString &filename);

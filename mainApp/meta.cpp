@@ -974,6 +974,9 @@ QString PageAttributePictureMeta::format(bool local, bool global)
    case PageAttributePictureData::PlugImageType:
      foo = "PLUG_IMAGE";
    break;
+   case PageAttributePictureData::PageAttributePictureType:
+     foo = "PICTURE";
+   break;
   }
   foo += " \"" + _value[pushed].string + "\"";
   if (_value[pushed].stretch) {
@@ -2038,53 +2041,86 @@ PageMeta::PageMeta() : BranchMeta()
   title.textFont.setValuePoints("Arial,32,-1,255,75,0,0,0,0,0");
   title.placement.setValue(CenterCenter,PageType);
   title.type = PageAttributeTextMeta::PageTitleType;
+  title.setValue(LDrawFile::_file);
+
   //model identification
-  modelNum.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  modelNum.placement.setValue(CenterCenter,PageType);
-  modelNum.type = PageAttributeTextMeta::PageModelNumType;
+  modelName.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  modelName.placement.setValue(CenterCenter,PageType);
+  modelName.type = PageAttributeTextMeta::PagemodelNameType;
+  modelName.setValue(LDrawFile::_name);
+
   //model description
   modelDesc.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   modelDesc.placement.setValue(CenterCenter,PageType);
   modelDesc.type = PageAttributeTextMeta::PageModelDescType;
+  modelDesc.setValue(LDrawFile::_description);
+
   //model number of pieces
   pieces.textFont.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");
   pieces.placement.setValue(CenterCenter,PageType);
   pieces.type = PageAttributeTextMeta::PagePiecesType;
+  pieces.setValue(QString::number(LDrawFile::_pieces));
+
   //publisher author
   author.textFont.setValuePoints("Arial,32,-1,255,75,0,0,0,0,0");
   author.placement.setValue(CenterCenter,PageType);
   author.type = PageAttributeTextMeta::PageAuthorType;
+  author.setValue(Preferences::defaultAuthor);
+
   //publisher description
   publishDesc.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   publishDesc.placement.setValue(CenterCenter,PageType);
   publishDesc.type = PageAttributeTextMeta::PagePublishDescType;
+  publishDesc.setValue(Preferences::publishDescription);
+
   //publisher url
   url.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   url.placement.setValue(CenterCenter,PageType);
   url.type = PageAttributeTextMeta::PageURLType;
+  url.setValue(Preferences::defaultURL);
+
   //publisher email
   email.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   email.placement.setValue(CenterCenter,PageType);
   email.type = PageAttributeTextMeta::PageEmailType;
+  email.setValue(Preferences::defaultEmail);
+
   //publisher copyright
   copyright.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   copyright.placement.setValue(CenterCenter,PageType);
   copyright.type = PageAttributeTextMeta::PageCopyrightType;
+  copyright.setValue(Preferences::copyright);
+
   //publisher IMAGE
-  documentLogo.setValue(PageAttributePictureData::DocumentLogoType);
+  documentLogo.setValue(PageAttributePictureData::DocumentLogoType); 
+  logoPic.string = Preferences::documentLogoFile;
+  documentLogo.setValue(logoPic);
+
   //publisher cover IMAGE
   coverImage.setValue(PageAttributePictureData::CoverImageType);
+
   //disclaimer LEGO
   disclaimer.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   disclaimer.placement.setValue(CenterCenter,PageType);
   disclaimer.type = PageAttributeTextMeta::PageDisclaimerType;
+  disclaimer.setValue(Preferences::disclaimer);
+
   //disclaimer 'built by' text
   plug.textFont.setValuePoints("Arial,12,-1,255,75,0,0,0,0,0");
   plug.placement.setValue(CenterCenter,PageType);
   plug.type = PageAttributeTextMeta::PagePlugType;
+  plug.setValue(Preferences::plug);
+
   //disclaimer 'built by' IMAGE
   plugImage.setValue(PageAttributePictureData::PlugImageType);
+  plugPic.string = Preferences::plugImage;
+  plugImage.setValue(plugPic);
 
+  //model category
+  category.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  category.placement.setValue(CenterCenter,PageType);
+  category.type = PageAttributeTextMeta::PageCopyrightType;
+  category.setValue(LDrawFile::_category);
 }
 
 void PageMeta::init(BranchMeta *parent, QString name)
@@ -2100,20 +2136,21 @@ void PageMeta::init(BranchMeta *parent, QString name)
   instanceCount.init    (this, "SUBMODEL_INSTANCE_COUNT");
   subModelColor.init    (this, "SUBMODEL_BACKGROUND_COLOR");
 
-  title.init			(this, "PA_TITLE");
-  modelNum.init         (this, "PA_MODEL_NUMBER");
-  modelDesc.init		(this, "PA_MODEL_DESCRIPTION");
-  pieces.init			(this, "PA_NUMBER_OF_PIECES");
-  author.init			(this, "PA_AUTHOR");
-  publishDesc.init      (this, "PA_PUBLISH_DESCRIPTION");
-  url.init              (this, "PA_PUBLISH_URL");
-  email.init			(this, "PA_PUBLISH_EMAIL");
-  copyright.init		(this, "PA_COPYRIGHT");
-  documentLogo.init     (this, "PA_DOCUMENT_LOGO");
-  coverImage.init		(this, "PA_COVER_IMAGE");
-  disclaimer.init		(this, "PA_LEGO_DISCLAIMER");
-  plug.init             (this, "PA_PLUG");
-  plugImage.init		(this, "PA_PLUG_IMAGE");
+  title.init			(this, "DOCUMENT_TITLE");
+  modelName.init         (this, "MODEL_NUMBER");
+  modelDesc.init		(this, "MODEL_DESCRIPTION");
+  pieces.init			(this, "MODEL_PIECES");
+  author.init			(this, "DOCUMENT_AUTHOR");
+  publishDesc.init      (this, "PUBLISH_DESCRIPTION");
+  url.init              (this, "PUBLISH_URL");
+  email.init			(this, "PUBLISH_EMAIL");
+  copyright.init		(this, "PUBLISH_COPYRIGHT");
+  documentLogo.init     (this, "DOCUMENT_LOGO");
+  coverImage.init		(this, "DOCUMENT_COVER_IMAGE");
+  disclaimer.init		(this, "LEGO_DISCLAIMER");
+  plug.init             (this, "APP_PLUG");
+  plugImage.init		(this, "APP_PLUG_IMAGE");
+  category.init         (this, "MODEL_CATEGORY" );
 }
 
 /* ------------------ */ 

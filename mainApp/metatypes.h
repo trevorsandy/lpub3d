@@ -109,7 +109,7 @@ enum PlacementType {
   PageAttributeType,
 
   PageTitleType,
-  PageModelNumType,
+  PagemodelNameType,
   PageAuthorType,
   PageAuthorURLType,
   PageLogoType,
@@ -119,6 +119,7 @@ enum PlacementType {
   PageDisclaimerType,
   PagePiecesType,
   PagePlugType,
+  PageCategoryType,
   PagePlugImageType,
   PageFrontCoverType,
   PageBackCoverType,

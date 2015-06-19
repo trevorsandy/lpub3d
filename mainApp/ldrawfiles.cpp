@@ -34,7 +34,13 @@
 #include "version.h"
 #include "paths.h"
 
-int                 LDrawFile::_emptyInt;
+QString LDrawFile::_file        = "";
+QString LDrawFile::_name        = "";
+QString LDrawFile::_author      = "";
+QString LDrawFile::_description = "";
+QString LDrawFile::_category    = "";
+int     LDrawFile::_emptyInt;
+int     LDrawFile::_pieces      = 0;
 
 LDrawSubFile::LDrawSubFile(
   const QStringList &contents,
@@ -445,16 +451,28 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     }
 
     QTextStream in(&file);
-
     QStringList stageContents;
-    QStringList contents;   
+    QStringList contents;
     QString     mpdName;
-    QRegExp sofRE("^\\s*0\\s+FILE\\s+(.*)$");
     QRegExp eofRE("^\\s*0\\s+NOFILE\\s*$");
-    QRegExp upRE1( "^\\s*0\\s+(LDRAW_ORG|Unofficial Part)");
-    QRegExp upRE2( "^\\s*0\\s+!(LDRAW_ORG|Unofficial Part)");
-    QRegExp upRE3( "^\\s*0\\s+!(LDRAW_ORG|Unofficial_Part)");
-    bool    unofficialPart = false;
+    QRegExp upRE1("^\\s*0\\s+(LDRAW_ORG|Unofficial Part)");
+    QRegExp upRE2("^\\s*0\\s+!(LDRAW_ORG|Unofficial Part)");
+    QRegExp upRE3("^\\s*0\\s+!(LDRAW_ORG|Unofficial_Part)");
+
+    QRegExp sofRE("^\\s*0\\s+FILE\\s+(.*)$");
+    QRegExp upAUT("^\\s*0\\s+Author(.*)$");
+    QRegExp upNAM("^\\s*0\\s+Name(.*)$");
+    QRegExp upCAT("^\\s*0\\s+!CATEGORY(.*)$");
+    QRegExp upDAT("\\.dat$");
+
+    bool topLevelFileNotCaptured        = true;
+    bool topLevelNameNotCaptured        = true;
+    bool topLevelAuthorNotCaptured      = true;
+    bool topLevelDescriptionNotCaptured = true;
+    bool topLevelCategoryNotCaptured    = true;
+    bool unofficialPart                 = false;
+    int  descriptionLine                = 0;
+    int  pieces                         = 0;
 
     /* Read content into temperory content file the first time to put into fileList in order of
        appearance and stage for later processing */
@@ -465,18 +483,55 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
     for (int i = 0; i < stageContents.size(); i++) {
         QString smLine = stageContents.at(i);
-        QStringList tokens;
 
         bool sof = smLine.contains(sofRE);  //start of file
         bool eof = smLine.contains(eofRE);  //end of file
 
+        QStringList tokens;        
         split(smLine,tokens);
+        if (tokens.size() == 15 && tokens[0] == "1" && tokens[14].contains(upDAT))
+            pieces++;
+
+        if (topLevelFileNotCaptured) {
+            if (sof){
+                _file = sofRE.cap(1).replace(".ldr ","");
+                descriptionLine = i+1;      //next line will be description
+                topLevelFileNotCaptured = false;
+                logWarn() << "LineNo: " << i << " descriptionLine: " << descriptionLine << " file: " << _file << " Line: " << smLine;
+            }
+        }
+
+        if (topLevelAuthorNotCaptured) {
+           if (smLine.contains(upAUT)) {
+               _author = upAUT.cap(1).replace(": ","");
+               topLevelAuthorNotCaptured = false;
+            }
+        }
+
+        if (topLevelNameNotCaptured) {
+            if (smLine.contains(upNAM)) {
+                _name = upNAM.cap(1).replace(": ","");
+                topLevelNameNotCaptured = false;
+            }
+        }
+
+        if (topLevelCategoryNotCaptured) {
+            if (smLine.contains(upCAT)) {
+                _category = upCAT.cap(1);
+                topLevelCategoryNotCaptured = false;
+            }
+        }
+
+        if (topLevelDescriptionNotCaptured && i == descriptionLine) {
+            _description = smLine;
+            topLevelCategoryNotCaptured = false;
+        }
+
         bool alreadyInserted = LDrawFile::contains(mpdName.toLower());
 
         if (sof || eof) {
 
             if (! mpdName.isEmpty() && ! alreadyInserted) {
-
                 insert(mpdName,contents,datetime,unofficialPart);
                 unofficialPart = false;
             }
@@ -499,7 +554,16 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     if ( ! mpdName.isEmpty() && ! contents.isEmpty()) {
       insert(mpdName,contents,datetime,unofficialPart);
     }
+
     _mpd = true;
+    _pieces = pieces;
+
+    logInfo() << "MPD File: "         << _file
+              << ", Name: "           << _name
+              << ", Author: "         << _author
+              << ", Description: "    << _description
+              << ", Pieces: "         << _pieces
+              << ", Category: "       << _category;
 }
 
 void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
@@ -524,6 +588,20 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
       QTextStream in(&file);
       QStringList contents;
 
+      QRegExp sofRE("^\\s*0\\s+FILE\\s+(.*)$");
+      QRegExp upAUT("^\\s*0\\s+Author(.*)$");
+      QRegExp upNAM("^\\s*0\\s+Name(.*)$");
+      QRegExp upCAT("^\\s*0\\s+!CATEGORY(.*)$");
+      QRegExp upDAT("\\.dat$");
+
+      bool topLevelFileNotCaptured        = true;
+      bool topLevelNameNotCaptured        = true;
+      bool topLevelAuthorNotCaptured      = true;
+      bool topLevelDescriptionNotCaptured = true;
+      bool topLevelCategoryNotCaptured    = true;
+      int  descriptionLine                = 0;
+      int  pieces                         = 0;
+
       while ( ! in.atEnd()) {
         QString line = in.readLine(0);
         contents << line;
@@ -538,9 +616,46 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
       for (int i = 0; i < contents.size(); i++) {
         QString line = contents.at(i);
-        QStringList tokens;
 
+        QStringList tokens;
         split(line,tokens);
+        if (tokens.size() == 15 && tokens[0] == "1" && tokens[14].contains(upDAT))
+            pieces++;
+
+        if (topLevelFileNotCaptured) {
+            if (line.contains(sofRE)){
+                _file = sofRE.cap(1).replace(".ldr ","");
+                descriptionLine = i+1;      //next line will be description
+                topLevelFileNotCaptured = false;
+                logWarn() << "LineNo: " << i << " descriptionLine: " << descriptionLine << " file: " << _file << " Line: " << line;
+            }
+        }
+
+        if (topLevelAuthorNotCaptured) {
+           if (line.contains(upAUT)) {
+               _author = upAUT.cap(1).replace(": ","");
+               topLevelAuthorNotCaptured = false;
+            }
+        }
+
+        if (topLevelNameNotCaptured) {
+            if (line.contains(upNAM)) {
+                _name = upNAM.cap(1).replace(": ","");
+                topLevelNameNotCaptured = false;
+            }
+        }
+
+        if (topLevelCategoryNotCaptured) {
+            if (line.contains(upCAT)) {
+                _category = upCAT.cap(1);
+                topLevelCategoryNotCaptured = false;
+            }
+        }
+
+        if (topLevelDescriptionNotCaptured && i == descriptionLine) {
+            _description = line;
+            topLevelCategoryNotCaptured = false;
+        }
 
         if (line[0] == '1' && tokens.size() == 15) {
           const QString subModel = tokens[tokens.size()-1];
@@ -551,6 +666,14 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
         }
       }
       _mpd = false;
+      _pieces = pieces;
+
+      logInfo() << "LDR File: "        << _file
+                << ", Name: "           << _name
+                << ", Author: "         << _author
+                << ", Description: "    << _description
+                << ", Pieces: "         << _pieces
+                << ", Category: "       << _category;
     }
 }
 
