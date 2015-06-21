@@ -306,12 +306,23 @@ int Gui::addGraphicsPageItems(
     pageNumber->setPos(pageNumber->loc[XX],pageNumber->loc[YY]);
 
     // allocate QGraphicsTextItem for copyright
-//    PagePageAttributeItem *copyright =
-//            new PageAttributeItem(
-//                page,
-//                page->meta.LPub.page.copyright,
+    PagePageAttributeItem *copyright =
+            new PagePageAttributeItem(
+                page,
+                page->meta.LPub.page.copyright,
+                page->meta.LPub.page.coverImage,
+                false,
+                pageBg);
 
-//                );
+    copyright->relativeType = PageCopyrightType;
+    copyright->size[XX]     = (int) copyright->document()->size().width();
+    copyright->size[YY]     = (int) copyright->document()->size().height();
+
+    placementData = copyright->placement.value();           //process placement data as needed.
+
+    plPage.appendRelativeTo(copyright);
+    plPage.placeRelative(copyright);
+    copyright->setPos(copyright->loc[XX],copyright->loc[YY]);
 
     // if this page contains the last step of the page, 
     // and instance is > 1 then display instance
