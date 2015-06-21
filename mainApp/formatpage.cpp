@@ -310,8 +310,6 @@ int Gui::addGraphicsPageItems(
             new PagePageAttributeItem(
                 page,
                 page->meta.LPub.page.copyright,
-                page->meta.LPub.page.coverImage,
-                false,
                 pageBg);
 
     copyright->relativeType = PageCopyrightType;

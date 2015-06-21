@@ -32,23 +32,16 @@ public:
   PlacementType  relativeType;
   PlacementType  parentRelativeType;
   Page          *page;
-  Meta          *meta;
   FontMeta      *textFont;
   StringMeta    *textColor;
   StringMeta    *content;
   MarginsMeta   *margin;
   AlignmentMeta *alignment;
   BoolMeta      *displayText;
-  bool          *displayPic;
-  qreal		     picScale;          //changed from floatMeta
-  QPixmap        pageAttributePixmap;
 
-  bool              positionChanged;
-  QPointF           position;
-  bool              textValueChanged;
-
-  // Implement complete InsertMeta model (PageAttributeChangeMeta)
-  // change to PageAttributeChangeMeta pageAttributeChangeMeta
+  bool           positionChanged;
+  QPointF        position;
+  bool           textValueChanged;
 
   PageAttributeItem();
 
@@ -56,42 +49,32 @@ public:
     PlacementType                relativeType,
     PlacementType                parentRelativeType,
     Page                        *page,
-    Meta                        *meta,
-    PageAttributeTextMeta       &pageAttributeText,     //change to PageAttributeData
-    PageAttributePictureMeta    &pageAttributePicture,
-    bool                         isPicture,
+    PageAttributeTextMeta       &pageAttributeText,
     QString                     &toolTip,
     QGraphicsItem               *parent);
 
   void setAttributes(
-    PlacementType                    relativeType,
-    PlacementType                    parentRelativeType,
-    Page                            *page,
-    Meta                            *meta,
-    PageAttributeTextMeta           &pageAttributeText,
-    PageAttributePictureMeta        &pageAttributePicture,
-    bool                            isPicture,
-    QString                         &toolTip,
-    QGraphicsItem                   *parent);
+    PlacementType                relativeType,
+    PlacementType                parentRelativeType,
+    Page                        *page,
+    PageAttributeTextMeta       &pageAttributeText,
+    QString                     &toolTip,
+    QGraphicsItem               *parent);
 
   void setFlags( GraphicsItemFlag flag, bool value)
   {
     QGraphicsTextItem::setFlag(flag,value);
   }
-
 };
 
 
 class PagePageAttributeItem : public PageAttributeItem
 {
   Page                  *page;
-  Meta                  *meta;
 public:
   PagePageAttributeItem(
     Page                       *page,
     PageAttributeTextMeta     &_pageAttributeText,
-    PageAttributePictureMeta  &_pageAttributePicture,
-    bool                      *_isPicture,
     QGraphicsItem              *parent);
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);

@@ -106,7 +106,6 @@ enum PlacementType {
   BomType,
   CoverPageType,
   NumRelatives,
-  PageAttributeType,
 
   PageTitleType,
   PageModelNameType,
@@ -128,8 +127,8 @@ enum PlacementType {
   PageFrontCoverType,
   PageBackCoverType,
 
-  PageAttributePictureType,
-  PageAttributeTextType
+  PageAttributeTextType,
+  PageAttributePictureType
 };
 
 class PlacementData

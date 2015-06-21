@@ -28,76 +28,41 @@
 
 ****************************************************************************/
 
-
-
 #include "commonmenus.h"
-
 #include "placement.h"
-
 #include "metatypes.h"
 
-
-
 #include <QMenu>
-
 #include <QAction>
-
 #include <QString>
-
 #include "version.h"
 
-
-
 CommonMenus::CommonMenus(void)
-
 {
-
 }
-
-
 
 CommonMenus::~CommonMenus(void)
-
 {
-
 }
-
-
 
 CommonMenus commonMenus;
 
-
-
 QAction* CommonMenus::fontMenu(
-
         QMenu   &menu, 
-
   const QString  name)
 
 {
-
   QAction *action;
 
-
-
   QString formatted = QString("Change %1Font") .arg(name);
-
   action = menu.addAction(formatted);
 
-
-
   formatted = QString(
-
    "You can change the font or the size for this %1") .arg(name);
-
-
 
   action->setWhatsThis(formatted);
 
-
-
   return action;
-
 }
 
 
@@ -282,93 +247,111 @@ QString type2english(PlacementType type)
 
         break;
 
-//    case PageTitleType:
+    case PageTitleType:
 
-//        return "document title";
+        return "document title";
 
-//        break;
+        break;
 
-//    case PageModelNameType:
+    case PageModelNameType:
 
-//        return "model id";
+        return "model id";
 
-//        break;
+        break;
 
-//    case PageAuthorType:
+    case PageAuthorType:
 
-//        return "author";
+        return "author";
 
-//        break;
+        break;
 
-//    case PageAuthorURLType:
+    case PageURLType:
 
-//        return "publisher url";
+        return "publisher url";
 
-//        break;
+        break;
 
-//    case PageLogoType:
+    case PageDocumentLogoType:
 
-//        return "publisher logo";
+        return "publisher logo";
 
-//        break;
+        break;
 
-//    case PageShortDescType:
+    case PageModelDescType:
 
-//        return "short model description";
+        return "model description";
 
-//        break;
+        break;
 
-//    case PageCopyrightType:
+    case PagePublishDescType:
 
-//        return "copyright notice";
+        return "publish description";
 
-//        break;
+        break;
 
-//    case PageEmailType:
+    case PageCopyrightType:
 
-//        return "publisher email";
+        return "copyright notice";
 
-//        break;
+        break;
 
-//    case PageDisclaimerType:
+    case PageEmailType:
 
-//        return "LEGO © disclaimer";
+        return "publisher email";
 
-//        break;
+        break;
 
-//    case PagePiecesType:
+    case PageDisclaimerType:
 
-//        return "number of pieces";
+        return "LEGO © disclaimer";
 
-//        break;
+        break;
 
-//    case PagePlugType:
+    case PagePiecesType:
 
-//        return  "LPub3D caption";               // change to global variable once runnig
+        return "number of pieces";
 
-//        break;
+        break;
 
-//    case PagePlugImageType:
+    case PagePlugType:
 
-//        return "LPub3D logo";
+        return  "LPub3D caption";               // change to global variable once runnig
 
-//        break;
+        break;
 
-//    case PageFrontCoverType:
+    case PageCategoryType:
 
-//        return "confighured front cover page";
+        return "model category";
 
-//        break;
+        break;
 
-//    case PageBackCoverType:
+    case PagePlugImageType:
 
-//        return "configured back cover page";
+        return "LPub3D logo";
 
-//        break;
+        break;
 
-    case PageAttributeType:
+    case PageFrontCoverType:
 
-        return "page attribute";
+        return "confighured front cover page";
+
+        break;
+
+    case PageBackCoverType:
+
+        return "configured back cover page";
+
+        break;
+
+    case PageAttributeTextType:
+
+        return "page text attribute";
+
+        break;
+
+    case PageAttributePictureType:
+
+        return "page picture attribute";
 
         break;
 
@@ -432,7 +415,7 @@ QString type2english2(PlacementType type)
 
     break;
 
-  case PageAttributeType:
+  case PageAttributeTextType:
 
       return "this page attribute";
 

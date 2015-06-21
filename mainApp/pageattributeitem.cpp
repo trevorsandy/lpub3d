@@ -12,10 +12,6 @@
 **
 ****************************************************************************/
 
-#include <QGraphicsItem>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsScene>
-
 #include <QColor>
 #include <QPixmap>
 #include <QAction>
@@ -36,94 +32,56 @@ void PageAttributeItem::setAttributes(
   PlacementType              _relativeType,
   PlacementType              _parentRelativeType,
   Page                      *_page,
-  Meta                      *_meta,
   PageAttributeTextMeta     &_pageAttributeText,
-  PageAttributePictureMeta  &_pageAttributePicture,
-  bool                       _isPicture,
   QString                   &toolTip,
   QGraphicsItem             *_parent)
 {
     page               =  _page;
-    meta               =  _meta;
     relativeType       =  _relativeType;
     parentRelativeType =  _parentRelativeType;
 
-    if (_isPicture){
-        // manage picture attributes here
-        PageAttributePictureData _Picture = _pageAttributePicture.value();
-        picScale       =  _Picture.picScale;
-        displayPic     = &_Picture.display;
+    textFont           = &_pageAttributeText.textFont;
+    textColor          = &_pageAttributeText.textColor;
+    margin             = &_pageAttributeText.margin;
+    alignment          = &_pageAttributeText.alignment;
+    displayText        = &_pageAttributeText.display;
+    content            = &_pageAttributeText.content;
 
-//        pageAttributePixmap.load(_Picture.string);
-//        setPixmap(pageAttributePixmap);
-//        setParentItem(_parent);
-//        setTransformationMode(Qt::SmoothTransformation);
+    QFont qfont;
+    qfont.fromString(_pageAttributeText.textFont.valueFoo());
+    setFont(qfont);
 
-//        size[0] = pageAttributePixmap.width() *picScale;
-//        size[1] = pageAttributePixmap.height() *picScale;
+    QString foo;
+    foo = content->value();
+    setPlainText(foo);
+    setDefaultTextColor(LDrawColor::color(textColor->value()));
 
-//        setFlag(QGraphicsItem::ItemIsSelectable,true);
-//        setFlag(QGraphicsItem::ItemIsMovable,true);
-//        setZValue(500);
-
-        //PageAttributePixmapItem *pixmap = new PageAttributePixmapItem(qpixmap,_pageAttributePicture,_parent);
-        //page->addPageAttributePixmap(pixmap);
-        //pixmap->setTransformationMode(Qt::SmoothTransformation);
-        //pixmap->scale(picScale,picScale);
-
-    } else {
-        // manage text attributes here
-        textFont           = &_pageAttributeText.textFont;
-        textColor          = &_pageAttributeText.textColor;
-        margin             = &_pageAttributeText.margin;
-        alignment          = &_pageAttributeText.alignment;
-        displayText        = &_pageAttributeText.display;
-        content            = &_pageAttributeText.content;
-
-        QFont qfont;
-        qfont.fromString(_pageAttributeText.textFont.valueFoo());
-        setFont(qfont);
-
-        QString foo;
-        foo = content->value();
-        setPlainText(foo);
-        setDefaultTextColor(LDrawColor::color(textColor->value()));
-    }
-
-  setToolTip(toolTip);
-  setParentItem(_parent);
+    setToolTip(toolTip);
+    setParentItem(_parent);
 }
 
 PageAttributeItem::PageAttributeItem()
 {
-  relativeType  = PageAttributeType;    // should be from PageAttributeData
-  meta          = NULL;
+  relativeType  = PageAttributeTextType;
   textFont      = NULL;
   textColor     = NULL;
   margin        = NULL;
   alignment     = NULL;
   content       = NULL;
-  picScale      = 0.0;
 }
 
 PageAttributeItem::PageAttributeItem(
   PlacementType              _relativeType,
   PlacementType              _parentRelativeType,
   Page                      *_page,
-  Meta                      *_meta,
   PageAttributeTextMeta     &_pageAttributeText,
-  PageAttributePictureMeta  &_pageAttributePicture,
-  bool                       _isPicture,
   QString                   &_toolTip,
   QGraphicsItem             *_parent)
 {
   setAttributes(_relativeType,
                 _parentRelativeType,
                 _page,
-                _meta,
                 _pageAttributeText,
-                _pageAttributePicture,
-                _isPicture,
                 _toolTip,
                 _parent);
 }
@@ -131,8 +89,6 @@ PageAttributeItem::PageAttributeItem(
 PagePageAttributeItem::PagePageAttributeItem(
   Page                      *_page,
   PageAttributeTextMeta     &_pageAttributeText,
-  PageAttributePictureMeta  &_pageAttributePicture,
-  bool                      *_isPicture,
   QGraphicsItem             *_parent)
 {
   page          = _page;
@@ -190,29 +146,10 @@ PagePageAttributeItem::PagePageAttributeItem(
       break;
   }
 
-  switch(_pageAttributePicture.value().type)
-  {
-  case PageAttributePictureData::PageDocumentLogoType:
-      pageAttributeType = PageDocumentLogoType;
-      toolTip           = tr("Logo image - right-click to modify");
-      break;
-  case PageAttributePictureData::PageCoverImageType:
-      pageAttributeType = PageCoverImageType;
-      toolTip           = tr("Cover image - right-click to modify");
-      break;
-  case PageAttributePictureData::PagePlugImageType:
-      pageAttributeType = PagePlugImageType;
-      toolTip           = tr("Plug image - right-click to modify");
-      break;
-  }
-
   setAttributes(pageAttributeType,
                 SingleStepType,
                 _page,
-                meta,
                 _pageAttributeText,
-                _pageAttributePicture,
-                _isPicture,
                  toolTip,
                 _parent);
 }
@@ -226,7 +163,7 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   QAction *placementAction  = menu.addAction(name);
   QAction *marginAction     = menu.addAction("Change Page Attribute Margins");
   placementAction->setWhatsThis(
-    commonMenus.naturalLanguagePlacementWhatsThis(PageAttributeType,placementData,name));
+    commonMenus.naturalLanguagePlacementWhatsThis(PageAttributeTextType,placementData,name));
 
   Where topOfSteps      = page->topOfSteps();
   Where bottomOfSteps   = page->bottomOfSteps();
@@ -237,7 +174,7 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   if (selectedAction == placementAction) {
 
     changePlacement(PageType,
-                    PageAttributeType,
+                    PageAttributeTextType,
                     "Move Page Attribute",
                     topOfSteps,
                     bottomOfSteps,
@@ -263,12 +200,10 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   case PageAttributeTextMeta::PagePiecesType:
   case PageAttributeTextMeta::PagePlugType:
   case PageAttributeTextMeta::PageCategoryType:
-      //text
+
       QAction *fontAction       = menu.addAction("Change Page Attribute Font");
       QAction *colorAction      = menu.addAction("Change Page Attribute Color");
 
-
-      //text
       fontAction->setWhatsThis("You can change the textFont or the size of the page pageAttributeText");
       colorAction->setWhatsThis("You can change the textColor of the page pageAttributeText");
       marginAction->setWhatsThis("You can change how much empty space their is around the page pageAttributeText");
@@ -281,36 +216,6 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
 
         changeColor(topOfSteps,bottomOfSteps,textColor);
 
-      }
-      break;
-  }
-
-  switch(relativeType)
-  {
-  case PageAttributePictureData::PageDocumentLogoType:
-  case PageAttributePictureData::PageCoverImageType:
-  case PageAttributePictureData::PagePlugImageType:
-      //picture
-      QAction *scaleAction      = menu.addAction("Change Image Scale");
-
-      //picture
-      scaleAction->setWhatsThis("You can change the size of this image using the scale dialog (window).");
-
-      if (selectedAction == scaleAction) {
-
-          bool allowLocal = parentRelativeType != StepGroupType &&
-                            parentRelativeType != CalloutType;
-          PageAttributePictureData Picture = meta->LPub.page.documentLogo.value();
-          FloatMeta picScale;
-          picScale.setValue(Picture.picScale);
-          // implement swithc to handle all image types
-          // finish process (e.g. implement change method see csiitem.cpp line 382)
-          changeFloatSpin("Image",
-                          "Image Size",
-                          begin,
-                          topOfSteps,
-                          &picScale,     //investigate
-                          1,allowLocal);
       }
       break;
   }
@@ -337,7 +242,7 @@ void PagePageAttributeItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
       placement.setValue(placementData);
 
-      changePlacementOffset(page->bottomOfSteps(),&placement,PageAttributeType);
+      changePlacementOffset(page->bottomOfSteps(),&placement,PageAttributeTextType);
 
     }
   }
