@@ -75,6 +75,7 @@ void TextItem::contextMenuEvent(
     beginMacro("UpdateColor");
     replaceMeta(meta.here(),meta.format(false,false));
     endMacro();
+
   } else if (selectedAction == deleteTextAction) {
 
     Where here = meta.here();

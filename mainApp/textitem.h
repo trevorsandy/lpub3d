@@ -61,10 +61,13 @@ public:
 
     QColor color(data.textColor);
     setDefaultTextColor(color);
+
     QRegExp rx("\\\\n");
     QStringList list = data.text.split(rx);
     QString text = list.join("\n");
+
     setPlainText(text);
+
     setTextInteractionFlags(Qt::TextEditorInteraction);
 
     setFlag(QGraphicsItem::ItemIsMovable);

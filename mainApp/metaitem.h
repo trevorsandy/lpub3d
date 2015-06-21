@@ -257,6 +257,7 @@ public:
   void changeConstraint(Where topOfStep, Where bottomOfStep, ConstrainMeta *constraint,int append = 1, bool useBot = false);
   void changeConstraintStepGroup(Where topOfStep, Where bottomOfStep, ConstrainMeta *constraint, int append = 1);
   void changeInsertOffset(InsertMeta *placement);
+  void changePageAttributePictureOffset(PageAttributePictureMeta *placement);
 
   void hidePLIParts(QList<Where> &parts);
   void removeLPubFormatting();

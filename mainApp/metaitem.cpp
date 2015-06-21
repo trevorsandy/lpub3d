@@ -979,6 +979,13 @@ void MetaItem::changeInsertOffset(
   replaceMeta(placement->here(),newMetaString);
 }
 
+void MetaItem::changePageAttributePictureOffset(
+  PageAttributePictureMeta *placement)
+{
+  QString newMetaString = placement->format(false,false);
+  replaceMeta(placement->here(),newMetaString);
+}
+
 void MetaItem::changeBackground(
   QString         title,
   const Where    &topOfStep,

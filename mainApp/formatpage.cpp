@@ -305,7 +305,8 @@ int Gui::addGraphicsPageItems(
     plPage.placeRelative(pageNumber);
     pageNumber->setPos(pageNumber->loc[XX],pageNumber->loc[YY]);
 
-    // allocate QGraphicsTextItem for copyright
+    // allocate QGraphicsTextItem for // copyright //~~~~~~~~~~~~~~~~
+
     PagePageAttributeItem *copyright =
             new PagePageAttributeItem(
                 page,
@@ -316,11 +317,52 @@ int Gui::addGraphicsPageItems(
     copyright->size[XX]     = (int) copyright->document()->size().width();
     copyright->size[YY]     = (int) copyright->document()->size().height();
 
-    placementData = copyright->placement.value();           //process placement data as needed.
+    placementData = copyright->placement->value();           //process placement data as needed.
+
+    placementData.placement     = TopLeft;
+    placementData.justification = Center;
+    placementData.relativeTo    = PageType;
+    placementData.preposition   = Inside;
+    placementData.offsets[0]    = page->meta.LPub.page.copyright.placement.value().offsets[0];
+    placementData.offsets[1]    = page->meta.LPub.page.copyright.placement.value().offsets[1];
+
+    copyright->placement->setValue(placementData);
 
     plPage.appendRelativeTo(copyright);
     plPage.placeRelative(copyright);
     copyright->setPos(copyright->loc[XX],copyright->loc[YY]);
+
+    // allocate QGraphicsTextItem for // documentLogo //~~~~~~~~~~~~~~~~
+    QFileInfo fileInfo;
+    PageAttributePictureMeta pictureMeta = page->meta.LPub.page.documentLogo;
+    fileInfo.setFile(pictureMeta.value().string);
+    if (fileInfo.exists()) {
+
+      QPixmap qpixmap;
+      qpixmap.load(pictureMeta.value().string);
+      PageAttributePixmapItem *pixmap = new PageAttributePixmapItem(qpixmap,pictureMeta,pageBg);
+
+      page->addPageAttributePixmap(pixmap);
+      pixmap->setTransformationMode(Qt::SmoothTransformation);
+      pixmap->scale(pictureMeta.value().picScale,pictureMeta.value().picScale);
+
+      //PlacementData placementData;
+      placementData.placement     = TopRight;
+      placementData.justification = Center;
+      placementData.relativeTo    = PageType;
+      placementData.preposition   = Inside;
+      placementData.offsets[0]    = pictureMeta.value().offsets[0];
+      placementData.offsets[1]    = pictureMeta.value().offsets[1];
+
+      pixmap->placement.setValue(placementData);
+
+      int margin[2] = {0, 0};
+
+      plPage.placeRelative(pixmap, margin);
+      pixmap->setPos(pixmap->loc[XX],pixmap->loc[YY]);
+      pixmap->relativeToSize[0] = plPage.size[XX];
+      pixmap->relativeToSize[1] = plPage.size[YY];
+    }
 
     // if this page contains the last step of the page, 
     // and instance is > 1 then display instance

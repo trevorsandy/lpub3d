@@ -296,3 +296,75 @@ void InsertPixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     mi.deleteMeta(insertMeta.here());
   }
 }
+
+//-------Page Attribute Picture--------------------------------------
+
+PageAttributePixmapItem::PageAttributePixmapItem(
+  QPixmap    &pixmap,
+  PageAttributePictureMeta &pageAttributePictureMeta,
+  QGraphicsItem *parent)
+
+  : pageAttributePictureMeta(pageAttributePictureMeta)
+{
+  setPixmap(pixmap);
+  setParentItem(parent);
+
+  size[0] = pixmap.width() *pageAttributePictureMeta.value().picScale;
+  size[1] = pixmap.height()*pageAttributePictureMeta.value().picScale;
+
+  setFlag(QGraphicsItem::ItemIsSelectable,true);
+  setFlag(QGraphicsItem::ItemIsMovable,true);
+  setZValue(500);
+
+  margin.setValues(0.0,0.0);
+}
+
+void PageAttributePixmapItem::change()
+{
+  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+    if (positionChanged || sizeChanged) {
+
+      beginMacro(QString("Resize"));
+
+      PageAttributePictureData pictureData = pageAttributePictureMeta.value();
+
+      qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
+      qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
+
+      PlacementData pld;
+
+      pld.placement    		= TopLeft;
+      pld.justification    	= Center;
+      pld.relativeTo      	= PageType;
+      pld.preposition   	= Inside;
+
+      calcOffsets(pld,pictureData.offsets,topLeft,size);
+
+      pictureData.picScale *= oldScale;
+      pageAttributePictureMeta.setValue(pictureData);
+
+      changePageAttributePictureOffset(&pageAttributePictureMeta);
+
+      endMacro();
+    }
+  }
+}
+
+void PageAttributePixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+  QMenu menu;
+
+  QAction *deleteAction = menu.addAction("Delete this Picture");
+  deleteAction->setWhatsThis("Delete this picture");
+
+  QAction *selectedAction   = menu.exec(event->screenPos());
+
+  if (selectedAction == NULL) {
+    return;
+  }
+
+  if (selectedAction == deleteAction) {
+    MetaItem mi;
+    mi.deleteMeta(pageAttributePictureMeta.here());
+  }
+}

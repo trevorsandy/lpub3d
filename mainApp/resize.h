@@ -162,7 +162,7 @@ class ResizePixmapItem: public QGraphicsPixmapItem,
 
     ResizePixmapItem();
 
-    virtual void change() {};
+    virtual void change() {}
     QRectF currentRect();
     QPointF currentPos();
     virtual void setNewPos(qreal,qreal);

@@ -29,19 +29,20 @@ class Step;
 class PageAttributeItem : public QGraphicsTextItem, public MetaItem, public Placement
 {
 public:
-  PlacementType  relativeType;
-  PlacementType  parentRelativeType;
-  Page          *page;
-  FontMeta      *textFont;
-  StringMeta    *textColor;
-  StringMeta    *content;
-  MarginsMeta   *margin;
-  AlignmentMeta *alignment;
-  BoolMeta      *displayText;
+  PlacementType          relativeType;
+  PlacementType          parentRelativeType;
+  Page                  *page;
+  FontMeta              *textFont;
+  StringMeta            *textColor;
+  StringMeta            *content;
+  MarginsMeta           *margin;
+  AlignmentMeta         *alignment;
+  PlacementMeta         *placement;
+  BoolMeta              *displayText;
 
-  bool           positionChanged;
-  QPointF        position;
-  bool           textValueChanged;
+  bool                   positionChanged;
+  QPointF                position;
+  bool                   textValueChanged;
 
   PageAttributeItem();
 
@@ -70,7 +71,7 @@ public:
 
 class PagePageAttributeItem : public PageAttributeItem
 {
-  Page                  *page;
+  Page                         *page;
 public:
   PagePageAttributeItem(
     Page                       *page,
@@ -79,7 +80,6 @@ public:
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 
