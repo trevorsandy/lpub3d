@@ -1421,9 +1421,10 @@ public:
     enum PageAttributeType
     {
         PageTitleType = 0,
-        PagemodelNameType,
+        PageModelNameType,
         PageAuthorType,
         PageURLType,
+        PageAuthorURLType,
         PageModelDescType,
         PagePublishDescType,
         PageCopyrightType,

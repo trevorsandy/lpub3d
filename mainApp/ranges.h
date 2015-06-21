@@ -89,16 +89,27 @@ class Page : public Steps {
   public:
     QList<InsertMeta> inserts;
     QList<InsertPixmapItem *> insertPixmaps;
+    QList<PageAttributePixmapItem *> pageAttributePixmaps;
     bool coverPage;
+    bool frontCover;
+    bool backCover;
     Page()
     {
-      coverPage = false;
+      coverPage  = false;
+      frontCover = false;
+      backCover  = false;
     }
     
     void addInsertPixmap(InsertPixmapItem *pixMap)
     {
       insertPixmaps.append(pixMap);
     }
+
+    void addPageAttributePixmap(PageAttributePixmapItem *pixMap)
+    {
+      pageAttributePixmaps.append(pixMap);
+    }
+
     void freePage()
     {
       for (int i = 0; i < insertPixmaps.size(); i++) {

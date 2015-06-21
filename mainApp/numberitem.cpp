@@ -183,11 +183,11 @@ void NumberPlacementItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 } 
 
 PageNumberItem::PageNumberItem(
-  Page          *_page,
+  Page                *_page,
   NumberPlacementMeta &_number,
-  const char    *_format,
-  int            _value,
-  QGraphicsItem *_parent)
+  const char          *_format,
+  int                  _value,
+  QGraphicsItem       *_parent)
 {
   page = _page;
   QString toolTip("Page Number - use popu menu");

@@ -64,13 +64,13 @@ QString Preferences::publishDescription;
 //Static page attributes
 QString Preferences::disclaimer                 = QString(QObject::trUtf8("LEGO® is a registered trademark of the LEGO Group, \n"
                                                                           "which does not sponsor, endorse, or authorize these \n"
-                                                                          "instructions and the model they depict."));
+                                                                          "instructions or the model they depict."));
 QString Preferences::copyright                  = QString(QObject::trUtf8("Copyright © %1 by ").arg(date.toString("yyyy")));
 QString Preferences::plugImage                  = QString(":/resources/LPub64.png");
 QString Preferences::plug                       = QString(QObject::trUtf8("Instructions configured and generated using %1 %2 \n%3")
                                                                  .arg(QString::fromLatin1(VER_PRODUCTNAME_STR),
-                                                                     QString::fromLatin1(VER_FILEVERSION_STR),
-                                                                     QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
+                                                                      QString::fromLatin1(VER_FILEVERSION_STR),
+                                                                      QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
 
 bool    Preferences::enableDocumentLogo         = false;
 bool    Preferences::printCopyright             = false;

@@ -109,20 +109,25 @@ enum PlacementType {
   PageAttributeType,
 
   PageTitleType,
-  PagemodelNameType,
+  PageModelNameType,
   PageAuthorType,
-  PageAuthorURLType,
-  PageLogoType,
-  PageShortDescType,
+  PageURLType,
+  PageModelDescType,
+  PagePublishDescType,
   PageCopyrightType,
   PageEmailType,
   PageDisclaimerType,
   PagePiecesType,
   PagePlugType,
   PageCategoryType,
+
+  PageDocumentLogoType,
+  PageCoverImageType,
   PagePlugImageType,
+
   PageFrontCoverType,
   PageBackCoverType,
+
   PageAttributePictureType,
   PageAttributeTextType
 };
@@ -238,9 +243,9 @@ class PageAttributePictureData
 {
 public:
     enum PageAttributePicture{
-        DocumentLogoType = 0,
-        CoverImageType,
-        PlugImageType,
+        PageDocumentLogoType = 0,
+        PageCoverImageType,
+        PagePlugImageType,
         PageAttributePictureType
     } type;
     PlacementType   relativeTo;

@@ -699,6 +699,7 @@ int Gui::drawPage(
         break;
         
         case InsertCoverPageRc:
+          //che if front or back
           coverPage = true;
           page.coverPage = true;
 

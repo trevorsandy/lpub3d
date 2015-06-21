@@ -881,13 +881,13 @@ Rc PageAttributePictureMeta::parse(QStringList &argv, int index,Where &here)
 
  if (argv.size() - index >= 2){
    if (argv[index] == "DOCUMENT_LOGO") {
-     _value[pushed].type = PageAttributePictureData::DocumentLogoType;
+     _value[pushed].type = PageAttributePictureData::PageDocumentLogoType;
      rc = OkRc;
    } else if (argv[index] == "COVER_IMAGE") {
-      _value[pushed].type = PageAttributePictureData::CoverImageType;
+      _value[pushed].type = PageAttributePictureData::PageCoverImageType;
       rc = OkRc;
    }else if (argv[index] == "PLUG_IMAGE") {
-      _value[pushed].type = PageAttributePictureData::PlugImageType;
+      _value[pushed].type = PageAttributePictureData::PagePlugImageType;
       rc = OkRc;
    }
  }
@@ -965,13 +965,13 @@ QString PageAttributePictureMeta::format(bool local, bool global)
 {
   QString foo;
   switch (_value[pushed].type) {
-   case PageAttributePictureData::DocumentLogoType:
+   case PageAttributePictureData::PageDocumentLogoType:
      foo = "DOCUMENT_LOGO";
    break;
-   case PageAttributePictureData::CoverImageType:
+   case PageAttributePictureData::PageCoverImageType:
      foo = "COVER_IMAGE";
    break;
-   case PageAttributePictureData::PlugImageType:
+   case PageAttributePictureData::PagePlugImageType:
      foo = "PLUG_IMAGE";
    break;
    case PageAttributePictureData::PageAttributePictureType:
@@ -1003,13 +1003,13 @@ QString PageAttributePictureMeta::text()
 {
     PageAttributePictureData documentImage = value();
     switch (documentImage.type) {
-      case PageAttributePictureData::DocumentLogoType:
+      case PageAttributePictureData::PageDocumentLogoType:
         return "Document logo " + documentImage.string;
       break;
-      case PageAttributePictureData::CoverImageType:
+      case PageAttributePictureData::PageCoverImageType:
         return "Cover Page image " + documentImage.string;
       break;
-      case PageAttributePictureData::PlugImageType:
+      case PageAttributePictureData::PagePlugImageType:
         return "Plug image " + documentImage.string;
       break;
       default:
@@ -1459,13 +1459,14 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
   if (argv.size() - index == 2 && argv[index] == "COVER_PAGE") {
       int pos = 3;
       if  (argv[pos] == "FRONT"){
-          // set whatever we need to identify the front page
-
+          gui->page.frontCover = true;
+          gui->page.backCover  = false;
           logTrace() << "Insert Cover Page Front";
           return InsertCoverPageRc;
       } else if ( argv[pos] == "BACK"){
+          gui->page.backCover  = true;
+          gui->page.frontCover = false;
           logTrace() << "Insert Cover Page Front";
-          // set whatever we need to identify the back page
           return InsertCoverPageRc;
       } else
           rc = FailureRc;
@@ -2046,7 +2047,7 @@ PageMeta::PageMeta() : BranchMeta()
   //model identification
   modelName.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   modelName.placement.setValue(CenterCenter,PageType);
-  modelName.type = PageAttributeTextMeta::PagemodelNameType;
+  modelName.type = PageAttributeTextMeta::PageModelNameType;
   modelName.setValue(LDrawFile::_name);
 
   //model description
@@ -2094,12 +2095,12 @@ PageMeta::PageMeta() : BranchMeta()
   //copyright.setValue(QString("Copyright (C) %1 by %2 ").arg(date.toString("yyyy"),Preferences::defaultAuthor));
 
   //publisher IMAGE
-  documentLogo.setValue(PageAttributePictureData::DocumentLogoType); 
+  documentLogo.setValue(PageAttributePictureData::PageDocumentLogoType);
   logoPic.string = Preferences::documentLogoFile;
   documentLogo.setValue(logoPic);
 
   //publisher cover IMAGE
-  coverImage.setValue(PageAttributePictureData::CoverImageType);
+  coverImage.setValue(PageAttributePictureData::PageCoverImageType);
 
   //disclaimer LEGO
   disclaimer.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
@@ -2114,7 +2115,7 @@ PageMeta::PageMeta() : BranchMeta()
   plug.setValue(Preferences::plug);
 
   //disclaimer 'built by' IMAGE
-  plugImage.setValue(PageAttributePictureData::PlugImageType);
+  plugImage.setValue(PageAttributePictureData::PagePlugImageType);
   plugPic.string = Preferences::plugImage;
   plugImage.setValue(plugPic);
 

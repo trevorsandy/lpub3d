@@ -460,10 +460,10 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     QRegExp upRE3("^\\s*0\\s+!(LDRAW_ORG|Unofficial_Part)");
 
     QRegExp sofRE("^\\s*0\\s+FILE\\s+(.*)$");
-    QRegExp upAUT("^\\s*0\\s+Author(.*)$");
-    QRegExp upNAM("^\\s*0\\s+Name(.*)$");
-    QRegExp upCAT("^\\s*0\\s+!CATEGORY(.*)$");
-    QRegExp upDAT("\\.dat$");
+    QRegExp upAUT("^\\s*0\\s+AUTHOR(.*)|Author(.*)|author(.*)$");
+    QRegExp upNAM("^\\s*0\\s+Name(.*)|name(.*)|NAME(.*)$");
+    QRegExp upCAT("^\\s*0\\s+!CATEGORY(.*)|!Category(.*)|!category(.*)$");
+    QRegExp upDAT("\\.dat|\\.DAT$");
 
     bool topLevelFileNotCaptured        = true;
     bool topLevelNameNotCaptured        = true;
@@ -523,7 +523,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
         if (topLevelDescriptionNotCaptured && i == descriptionLine) {
             _description = smLine;
-            topLevelCategoryNotCaptured = false;
+            topLevelDescriptionNotCaptured = false;
         }
 
         bool alreadyInserted = LDrawFile::contains(mpdName.toLower());
@@ -588,10 +588,10 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
       QStringList contents;
 
       QRegExp sofRE("^\\s*0\\s+FILE\\s+(.*)$");
-      QRegExp upAUT("^\\s*0\\s+Author(.*)$");
-      QRegExp upNAM("^\\s*0\\s+Name(.*)$");
-      QRegExp upCAT("^\\s*0\\s+!CATEGORY(.*)$");
-      QRegExp upDAT("\\.dat$");
+      QRegExp upAUT("^\\s*0\\s+AUTHOR(.*)|Author(.*)|author(.*)$");
+      QRegExp upNAM("^\\s*0\\s+Name(.*)|name(.*)|NAME(.*)$");
+      QRegExp upCAT("^\\s*0\\s+!CATEGORY(.*)|!Category(.*)|!category(.*)$");
+      QRegExp upDAT("\\.dat|\\.DAT$");
 
       bool topLevelFileNotCaptured        = true;
       bool topLevelNameNotCaptured        = true;
@@ -626,7 +626,6 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
                 _file = sofRE.cap(1).replace(".ldr","");
                 descriptionLine = i+1;      //next line will be description
                 topLevelFileNotCaptured = false;
-                logWarn() << "LineNo: " << i << " descriptionLine: " << descriptionLine << " file: " << _file << " Line: " << line;
             }
         }
 
@@ -653,7 +652,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
         if (topLevelDescriptionNotCaptured && i == descriptionLine) {
             _description = line;
-            topLevelCategoryNotCaptured = false;
+            topLevelDescriptionNotCaptured = false;
         }
 
         if (line[0] == '1' && tokens.size() == 15) {

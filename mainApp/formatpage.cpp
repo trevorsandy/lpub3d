@@ -38,6 +38,7 @@
 #include "color.h"
 #include "pagebackgrounditem.h"
 #include "numberitem.h"
+#include "pageattributeitem.h"
 #include "csiitem.h"
 #include "calloutbackgrounditem.h"
 #include "textitem.h"
@@ -303,7 +304,15 @@ int Gui::addGraphicsPageItems(
     plPage.appendRelativeTo(pageNumber);
     plPage.placeRelative(pageNumber);
     pageNumber->setPos(pageNumber->loc[XX],pageNumber->loc[YY]);
-    
+
+    // allocate QGraphicsTextItem for copyright
+//    PagePageAttributeItem *copyright =
+//            new PageAttributeItem(
+//                page,
+//                page->meta.LPub.page.copyright,
+
+//                );
+
     // if this page contains the last step of the page, 
     // and instance is > 1 then display instance
 
@@ -402,9 +411,9 @@ int Gui::addGraphicsPageItems(
 
             PlacementData pld;
 
-            pld.placement    = TopLeft;
-            pld.justification    = Center;
-            pld.relativeTo      = PageType;
+            pld.placement     = TopLeft;
+            pld.justification = Center;
+            pld.relativeTo    = PageType;
             pld.preposition   = Inside;
             pld.offsets[0]    = insert.offsets[0];
             pld.offsets[1]    = insert.offsets[1];
@@ -430,7 +439,7 @@ int Gui::addGraphicsPageItems(
             page->pli.steps = steps;
             getBOMOccurrence(current);                                      //divide BOM Parts
             if (boms > 1){
-                logError() << "BOMS: " << boms;
+                logTrace() << "BOMS: " << boms;
                 QStringList dividedBOMParts;
                 divideBOMParts(bomParts,dividedBOMParts);
                 page->pli.setParts(dividedBOMParts,page->meta,true);
@@ -774,7 +783,6 @@ int Gui::divideBOMParts(
 
     for(; i < maxParts; i++){
         dividedBOMParts << bomParts[i];
-        //logInfo() << "BomPart: " << bomParts[i] << ", index: " << i;
     }
 
     logTrace() << "bomParts: " << bomParts.size();

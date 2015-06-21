@@ -1130,8 +1130,8 @@ void PageAttributeTextGui::apply(
   connect(gbFill,SIGNAL(clicked(bool)),gbScale,SLOT(setDisabled(bool)));
   connect(gbScale,SIGNAL(clicked(bool)),gbFill,SLOT(setDisabled(bool)));
 
-  if(Picture.type == PageAttributePictureData::DocumentLogoType ||
-     Picture.type == PageAttributePictureData::PlugImageType) {
+  if(Picture.type == PageAttributePictureData::PageDocumentLogoType ||
+     Picture.type == PageAttributePictureData::PagePlugImageType) {
       gbFill->hide();
   }
 
