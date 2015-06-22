@@ -51,7 +51,8 @@ class PreferencesDialog : public QDialog
     QString const defaultEmail();
     QString const documentLogoFile();
     QString const publishDescription();
-    bool          printCopyright();
+    bool          displayAllAttributes();
+    bool          printCopyright();   
     bool          printDocumentTOC();
     bool          centimeters();
     bool          titleAnnotation();

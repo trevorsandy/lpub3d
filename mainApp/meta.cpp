@@ -37,7 +37,6 @@
 #include <QStringList>
 #include "meta.h"
 #include "lpub.h"
-#include "lpub_preferences.h"
 
 /* The token map translates known keywords to values 
  * used by LPub to identify things like placement and such
@@ -1466,7 +1465,7 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
       } else if ( argv[pos] == "BACK"){
           gui->page.backCover  = true;
           gui->page.frontCover = false;
-          logTrace() << "Insert Cover Page Front";
+          logTrace() << "Insert Cover Page Back";
           return InsertCoverPageRc;
       } else
           rc = FailureRc;
@@ -1804,8 +1803,9 @@ void NumberPlacementMeta::init(
 PageAttributeTextMeta::PageAttributeTextMeta() : BranchMeta()
 {
   textColor.setValue("black");
-  display.setValue(false);
+  display.setValue(Preferences::displayAllAttributes);
   alignment.setValue(Qt::AlignLeft);
+  placement.setValue(TopLeftInsideCorner,PageType);
 }
 
 void PageAttributeTextMeta::init(

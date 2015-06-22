@@ -670,7 +670,7 @@
        <property name="geometry">
         <rect>
          <x>28</x>
-         <y>241</y>
+         <y>300</y>
          <width>421</width>
          <height>191</height>
         </rect>
@@ -683,7 +683,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>125</y>
+         <y>184</y>
          <width>451</width>
          <height>68</height>
         </rect>
@@ -737,7 +737,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>210</y>
+         <y>269</y>
          <width>451</width>
          <height>241</height>
         </rect>
@@ -753,7 +753,7 @@
        <property name="geometry">
         <rect>
          <x>30</x>
-         <y>17</y>
+         <y>76</y>
          <width>211</width>
          <height>20</height>
         </rect>
@@ -766,7 +766,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>55</y>
+         <y>114</y>
          <width>81</width>
          <height>22</height>
         </rect>
@@ -782,7 +782,7 @@
        <property name="geometry">
         <rect>
          <x>100</x>
-         <y>55</y>
+         <y>114</y>
          <width>361</width>
          <height>22</height>
         </rect>
@@ -792,7 +792,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>90</y>
+         <y>149</y>
          <width>81</width>
          <height>22</height>
         </rect>
@@ -808,7 +808,7 @@
        <property name="geometry">
         <rect>
          <x>100</x>
-         <y>90</y>
+         <y>149</y>
          <width>361</width>
          <height>22</height>
         </rect>
@@ -817,14 +817,30 @@
       <widget class="QCheckBox" name="publishCopyright_Chk">
        <property name="geometry">
         <rect>
-         <x>270</x>
-         <y>19</y>
-         <width>171</width>
+         <x>250</x>
+         <y>78</y>
+         <width>211</width>
          <height>20</height>
         </rect>
        </property>
        <property name="text">
         <string>Print Copyright statement</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="displayAllAttributes_Chk">
+       <property name="geometry">
+        <rect>
+         <x>250</x>
+         <y>20</y>
+         <width>211</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Display all checked or enabled page attributes </string>
+       </property>
+       <property name="text">
+        <string>Display all page attributes</string>
        </property>
       </widget>
       <zorder>publishDescriptionBox</zorder>
@@ -836,6 +852,7 @@
       <zorder>label_17</zorder>
       <zorder>publishEmail_Edit</zorder>
       <zorder>publishCopyright_Chk</zorder>
+      <zorder>displayAllAttributes_Chk</zorder>
      </widget>
      <widget class="QWidget" name="tabUpdates">
       <attribute name="title">

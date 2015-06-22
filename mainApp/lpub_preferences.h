@@ -64,6 +64,7 @@ class Preferences
     static QString plugImage;
     static QString plug;
     static bool    enableDocumentLogo;
+    static bool    displayAllAttributes;
     static bool    printCopyright;
     static bool    printDocumentTOC;
     static bool    preferCentimeters;

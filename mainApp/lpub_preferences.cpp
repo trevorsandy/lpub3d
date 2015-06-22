@@ -73,6 +73,7 @@ QString Preferences::plug                       = QString(QObject::trUtf8("Instr
                                                                       QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
 
 bool    Preferences::enableDocumentLogo         = false;
+bool    Preferences::displayAllAttributes       = false;
 bool    Preferences::printCopyright             = false;
 bool    Preferences::printDocumentTOC           = false;
 //
@@ -574,6 +575,14 @@ void Preferences::publishingPreferences()
 {
     QSettings Settings;
 
+    if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"DisplayAllAttributes"))) {
+        QVariant pValue(false);
+        displayAllAttributes = false;
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DisplayAllAttributes"),pValue);
+    } else {
+        displayAllAttributes = Settings.value(QString("%1/%2").arg(DEFAULTS,"DisplayAllAttributes")).toBool();
+    }
+
     if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"PrintCopyright"))) {
         QVariant pValue(false);
         printCopyright = false;
@@ -815,6 +824,11 @@ bool Preferences::getPreferences()
     if (checkForUpdates != dialog->checkForUpdates()) {
         checkForUpdates = dialog->checkForUpdates();
         Settings.setValue(QString("%1/%2").arg(DEFAULTS,"CheckForUpdates"),checkForUpdates);
+    }
+
+    if (displayAllAttributes != dialog->displayAllAttributes()) {
+        displayAllAttributes = dialog->displayAllAttributes();
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DisplayAllAttributes"),displayAllAttributes);
     }
 
     if (printCopyright != dialog->printCopyright()) {

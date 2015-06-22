@@ -61,6 +61,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.publishLogoBox->setChecked(            Preferences::documentLogoFile != "");
   ui.publishLogoPath->setText(              Preferences::documentLogoFile);
   ui.authorName_Edit->setText(              Preferences::defaultAuthor);
+  ui.displayAllAttributes_Chk->setChecked(  Preferences::displayAllAttributes);
   ui.publishCopyright_Chk->setChecked(      Preferences::printCopyright);
   ui.publishTOC_Chk->setChecked(            Preferences::printDocumentTOC);
   ui.publishURL_Edit->setText(              Preferences::defaultURL);
@@ -440,6 +441,11 @@ bool  PreferencesDialog::enableFadeStep()
 bool PreferencesDialog::enableDocumentLogo()
 {
   return ui.publishLogoBox->isChecked();
+}
+
+bool  PreferencesDialog::displayAllAttributes()
+{
+  return ui.displayAllAttributes_Chk->isChecked();
 }
 
 bool  PreferencesDialog::printCopyright()

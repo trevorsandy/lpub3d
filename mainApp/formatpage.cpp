@@ -136,7 +136,7 @@ void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
                     "Submodel Count Placement",
                     page->topOfSteps(),
                     page->bottomOfSteps(),
-                  &placement);
+                    &placement);
   }
 }
 

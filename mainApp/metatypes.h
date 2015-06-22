@@ -31,6 +31,7 @@
 #include <QString>
 #include <QStringList>
 #include <QPointF>
+#include "lpub_preferences.h"
 
 enum AllocEnc {
   Horizontal = 0,
@@ -263,7 +264,7 @@ public:
      offsets[0]    = 0.0;
      offsets[1]    = 0.0;
      stretch       = false;
-     display       = false;
+     display       = Preferences::displayAllAttributes;
 
    }
 };
