@@ -124,10 +124,10 @@ enum PlacementType {
     CoverPageType,
     PageFrontCoverType,			//page attribute
     PageBackCoverType,			//page attribute
-    NumRelatives,
+    NumRelatives
 
-    PageAttributeTextType,
-    PageAttributePictureType
+//    PageAttributeTextType,
+//    PageAttributePictureType
 };
 
 class PlacementData
@@ -240,28 +240,18 @@ public:
 class PageAttributePictureData
 {
 public:
-//    enum PageAttributePicture{
-//        PageDocumentLogoType = 0,
-//        PageCoverImageType,
-//        PagePlugImageType,
-//        PageAttributePictureType
-//    } type;
-    //PlacementType   relativeTo;         //deprecate
-    //RectPlacement   rectPlacement;      //deprecate
     PlacementType   type;
     PlacementData   placement;
     QString         string;
     qreal           picScale;
-//    float           offsets[2];
+    float           offsets[2];
     bool            stretch;
     bool            display;
     PageAttributePictureData()
    {
-     //relativeTo    = PageType;
-     //rectPlacement = CenterCenter;
      picScale      = 1.0;
-     //offsets[0]    = 0.0;               //deprecate
-     //offsets[1]    = 0.0;               //deprecate
+     offsets[0]    = 0.0;               //cannot remove until meta.cpp's use is resolved
+     offsets[1]    = 0.0;               //""
      stretch       = false;
      display       = Preferences::displayAllAttributes;
    }

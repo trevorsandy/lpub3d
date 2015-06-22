@@ -581,17 +581,6 @@ int Gui::addGraphicsPageItems(
           title->size[XX]     = (int) title->document()->size().width();
           title->size[YY]     = (int) title->document()->size().height();
 
-      /*     placementData = title->placement->value();
-
-          placementData.placement     = TopLeft;
-          placementData.justification = Center;
-          placementData.relativeTo    = PageType;
-          placementData.preposition   = Inside;
-          placementData.offsets[0]    = page->meta.LPub.page.title.placement.value().offsets[0];
-          placementData.offsets[1]    = page->meta.LPub.page.title.placement.value().offsets[1];
-
-          title->placement->setValue(placementData); */
-
           plPage.appendRelativeTo(title);
           plPage.placeRelative(title);
           title->setPos(title->loc[XX],title->loc[YY]);
@@ -609,17 +598,6 @@ int Gui::addGraphicsPageItems(
           modelName->relativeType = PageCopyrightType;
           modelName->size[XX]     = (int) modelName->document()->size().width();
           modelName->size[YY]     = (int) modelName->document()->size().height();
-
-      /*     placementData = modelName->placement->value();
-
-          placementData.placement     = TopLeft;
-          placementData.justification = Center;
-          placementData.relativeTo    = PageType;
-          placementData.preposition   = Inside;
-          placementData.offsets[0]    = page->meta.LPub.page.modelName.placement.value().offsets[0];
-          placementData.offsets[1]    = page->meta.LPub.page.modelName.placement.value().offsets[1];
-
-          modelName->placement->setValue(placementData); */
 
           plPage.appendRelativeTo(modelName);
           plPage.placeRelative(modelName);
@@ -639,17 +617,6 @@ int Gui::addGraphicsPageItems(
           modelDesc->size[XX]     = (int) modelDesc->document()->size().width();
           modelDesc->size[YY]     = (int) modelDesc->document()->size().height();
 
-      /*     placementData = modelDesc->placement->value();
-
-          placementData.placement     = TopLeft;
-          placementData.justification = Center;
-          placementData.relativeTo    = PageType;
-          placementData.preposition   = Inside;
-          placementData.offsets[0]    = page->meta.LPub.page.modelDesc.placement.value().offsets[0];
-          placementData.offsets[1]    = page->meta.LPub.page.modelDesc.placement.value().offsets[1];
-
-          modelDesc->placement->setValue(placementData); */
-
           plPage.appendRelativeTo(modelDesc);
           plPage.placeRelative(modelDesc);
           modelDesc->setPos(modelDesc->loc[XX],modelDesc->loc[YY]);
@@ -667,17 +634,6 @@ int Gui::addGraphicsPageItems(
           publishDesc->relativeType = PageCopyrightType;
           publishDesc->size[XX]     = (int) publishDesc->document()->size().width();
           publishDesc->size[YY]     = (int) publishDesc->document()->size().height();
-
-      /*     placementData = publishDesc->placement->value();
-
-          placementData.placement     = TopLeft;
-          placementData.justification = Center;
-          placementData.relativeTo    = PageType;
-          placementData.preposition   = Inside;
-          placementData.offsets[0]    = page->meta.LPub.page.publishDesc.placement.value().offsets[0];
-          placementData.offsets[1]    = page->meta.LPub.page.publishDesc.placement.value().offsets[1];
-
-          publishDesc->placement->setValue(placementData); */
 
           plPage.appendRelativeTo(publishDesc);
           plPage.placeRelative(publishDesc);
@@ -697,17 +653,6 @@ int Gui::addGraphicsPageItems(
           author->size[XX]     = (int) author->document()->size().width();
           author->size[YY]     = (int) author->document()->size().height();
 
-      /*     placementData = author->placement->value();
-
-          placementData.placement     = TopLeft;
-          placementData.justification = Center;
-          placementData.relativeTo    = PageType;
-          placementData.preposition   = Inside;
-          placementData.offsets[0]    = page->meta.LPub.page.author.placement.value().offsets[0];
-          placementData.offsets[1]    = page->meta.LPub.page.author.placement.value().offsets[1];
-
-          author->placement->setValue(placementData); */
-
           plPage.appendRelativeTo(author);
           plPage.placeRelative(author);
           author->setPos(author->loc[XX],author->loc[YY]);
@@ -726,17 +671,6 @@ int Gui::addGraphicsPageItems(
           pieces->size[XX]     = (int) pieces->document()->size().width();
           pieces->size[YY]     = (int) pieces->document()->size().height();
 
-      /*     placementData = pieces->placement->value();
-
-          placementData.placement     = TopLeft;
-          placementData.justification = Center;
-          placementData.relativeTo    = PageType;
-          placementData.preposition   = Inside;
-          placementData.offsets[0]    = page->meta.LPub.page.pieces.placement.value().offsets[0];
-          placementData.offsets[1]    = page->meta.LPub.page.pieces.placement.value().offsets[1];
-
-          pieces->placement->setValue(placementData); */
-
           plPage.appendRelativeTo(pieces);
           plPage.placeRelative(pieces);
           pieces->setPos(pieces->loc[XX],pieces->loc[YY]);
@@ -754,17 +688,6 @@ int Gui::addGraphicsPageItems(
           category->relativeType = PageCopyrightType;
           category->size[XX]     = (int) category->document()->size().width();
           category->size[YY]     = (int) category->document()->size().height();
-
-          placementData = category->placement->value();
-
-          placementData.placement     = TopLeft;
-          placementData.justification = Center;
-          placementData.relativeTo    = PageType;
-          placementData.preposition   = Inside;
-          placementData.offsets[0]    = page->meta.LPub.page.category.placement.value().offsets[0];
-          placementData.offsets[1]    = page->meta.LPub.page.category.placement.value().offsets[1];
-
-          category->placement->setValue(placementData);
 
           plPage.appendRelativeTo(category);
           plPage.placeRelative(category);
@@ -786,16 +709,7 @@ int Gui::addGraphicsPageItems(
               page->addPageAttributePixmap(pixmap);
               pixmap->setTransformationMode(Qt::SmoothTransformation);
               pixmap->scale(pictureMeta.value().picScale,pictureMeta.value().picScale);
-
-              PlacementData placementData;
-              placementData.placement     = Left;
-              placementData.justification = Center;
-              placementData.relativeTo    = PageType;
-              placementData.preposition   = Inside;
-              placementData.offsets[0]    = pictureMeta.value().offsets[0];
-              placementData.offsets[1]    = pictureMeta.value().offsets[1];
-
-              pixmap->placement.setValue(placementData);
+              pixmap->placement.setValue(pictureMeta.value().placement);
 
               int margin[2] = {0, 0};
 
@@ -821,16 +735,7 @@ int Gui::addGraphicsPageItems(
               page->addPageAttributePixmap(pixmap);
               pixmap->setTransformationMode(Qt::SmoothTransformation);
               pixmap->scale(pictureMeta.value().picScale,pictureMeta.value().picScale);
-
-              PlacementData placementData;
-              placementData.placement     = Center;
-              placementData.justification = Center;
-              placementData.relativeTo    = PageType;
-              placementData.preposition   = Inside;
-              placementData.offsets[0]    = pictureMeta.value().offsets[0];
-              placementData.offsets[1]    = pictureMeta.value().offsets[1];
-
-              pixmap->placement.setValue(placementData);
+              pixmap->placement.setValue(pictureMeta.value().placement);
 
               int margin[2] = {0, 0};
 
@@ -857,17 +762,6 @@ int Gui::addGraphicsPageItems(
           url->size[XX]     = (int) url->document()->size().width();
           url->size[YY]     = (int) url->document()->size().height();
 
- /*         placementData = url->placement->value();           //process placement data as needed.
-
-              placementData.placement     = TopRight;
-              placementData.justification = Center;
-              placementData.relativeTo    = PageType;
-              placementData.preposition   = Inside;
-              placementData.offsets[0]    = page->meta.LPub.page.url.placement.value().offsets[0];
-              placementData.offsets[1]    = page->meta.LPub.page.url.placement.value().offsets[1];
-
-              url->placement->setValue(placementData); */
-
           plPage.appendRelativeTo(url);
           plPage.placeRelative(url);
           url->setPos(url->loc[XX],url->loc[YY]);
@@ -886,17 +780,6 @@ int Gui::addGraphicsPageItems(
           disclaimer->size[XX]     = (int) disclaimer->document()->size().width();
           disclaimer->size[YY]     = (int) disclaimer->document()->size().height();
 
- /*         placementData = disclaimer->placement->value();           //process placement data as needed.
-
-              placementData.placement     = Center;
-              placementData.justification = Center;
-              placementData.relativeTo    = PageType;
-              placementData.preposition   = Inside;
-              placementData.offsets[0]    = page->meta.LPub.page.disclaimer.placement.value().offsets[0];
-              placementData.offsets[1]    = page->meta.LPub.page.disclaimer.placement.value().offsets[1];
-
-              disclaimer->placement->setValue(placementData); */
-
           plPage.appendRelativeTo(disclaimer);
           plPage.placeRelative(disclaimer);
           disclaimer->setPos(disclaimer->loc[XX],disclaimer->loc[YY]);
@@ -914,17 +797,6 @@ int Gui::addGraphicsPageItems(
           plug->relativeType = PageCopyrightType;
           plug->size[XX]     = (int) plug->document()->size().width();
           plug->size[YY]     = (int) plug->document()->size().height();
-
-   /*       placementData = plug->placement->value();           //process placement data as needed.
-
-              placementData.placement     = BottomLeft;
-              placementData.justification = Center;
-              placementData.relativeTo    = PageType;
-              placementData.preposition   = Inside;
-              placementData.offsets[0]    = page->meta.LPub.page.plug.placement.value().offsets[0];
-              placementData.offsets[1]    = page->meta.LPub.page.plug.placement.value().offsets[1];
-
-              plug->placement->setValue(placementData); */
 
           plPage.appendRelativeTo(plug);
           plPage.placeRelative(plug);
@@ -947,15 +819,7 @@ int Gui::addGraphicsPageItems(
               pixmap->setTransformationMode(Qt::SmoothTransformation);
               pixmap->scale(pictureMeta.value().picScale,pictureMeta.value().picScale);
 
-              PlacementData placementData;
-              placementData.placement     = TopRight;
-              placementData.justification = Center;
-              placementData.relativeTo    = PageType;
-              placementData.preposition   = Inside;
-              placementData.offsets[0]    = pictureMeta.value().offsets[0];
-              placementData.offsets[1]    = pictureMeta.value().offsets[1];
-
-              pixmap->placement.setValue(placementData);
+              pixmap->placement.setValue(pictureMeta.value().placement);
 
               int margin[2] = {0, 0};
 

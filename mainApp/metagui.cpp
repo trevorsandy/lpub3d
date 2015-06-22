@@ -70,31 +70,6 @@ const QString placementEncNames[NumPlacements] =
     "Center",
 };
 
-//const QString placementTypeNames[NumRelatives] =
-//{
-//    "Page",          "Assem",      "Step Group",  "Step Number",
-//    "Parts List",    "Callout",    "Page Number",
-//    "Title",         "Model ID",   "Author",      "URL",         "Model Description", "Publish Description",
-//    "Copyright",     "Email",      "Disclaimer",  "Pieces",      "Plug",              "Category",
-//    "Logo",          "Cover Image","Plug Image",
-//    "Single Step",   "Submodel Instance Count",   "Step",        "Range",             "Reserve",
-//    "BOM",           "Cover Page",
-//    "Front Cover",   "Back Cover"
-//};
-
-//const int placementTypeVars[NumRelatives] =
-//{
-//  PageType,            CsiType,           StepGroupType,    StepNumberType,
-//  PartsListType,       CalloutType,       PageNumberType,
-//  PageTitleType,       PageModelNameType, PageAuthorType,   PageURLType,         PageModelDescType,
-//  PagePublishDescType, PageCopyrightType, PageEmailType,    PageDisclaimerType,
-//  PagePiecesType,      PagePlugType,      PageCategoryType, PageDocumentLogoType,
-//  PageCoverImageType,  PagePlugImageType,
-//  SingleStepType,      SubmodelInstanceCountType,           StepType,            RangeType,         ReserveType,
-//  BomType,             CoverPageType,
-//  PageFrontCoverType,  PageBackCoverType
-//};
-
 const QString placementTypeNames[23] =
 {
     "Page",                "Assem",      "Step Group",  "Step Number",
@@ -115,55 +90,6 @@ const int placementTypeVars[23] =
   PageCoverImageType,  PagePlugImageType, BomType,
 };
 
-
-int combo2placementIndex(int const &index, bool reverse){
-        if(! reverse){
-            switch(index)
-            {
-            case 0:
-                return 6;
-            case 1:
-                return 7;
-            case 2:
-                return 8;
-            case 3:
-                return 11;
-            case 4:
-                return 12;
-            case 5:
-                return 13;
-            case 6:
-                return 16;
-            case 7:
-                return 17;
-            case 8:
-                return 18;
-            }
-        } else {
-            switch(index)
-            {
-            case 6:
-                return 0;
-            case 7:
-                return 1;
-            case 8:
-                return 2;
-            case 11:
-                return 3;
-            case 12:
-                return 4;
-            case 13:
-                return 5;
-            case 16:
-                return 6;
-            case 17:
-                return 7;
-            case 18:
-                return 8;
-            }
-        }
-    return -1;
-}
 
 /***********************************************************************
  *

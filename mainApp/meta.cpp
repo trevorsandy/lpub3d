@@ -981,7 +981,7 @@ QString PageAttributePictureMeta::format(bool local, bool global)
    case PagePlugImageType:
      foo = "PLUG_IMAGE";
    break;
-   case PageAttributePictureType:
+   default:
      foo = "PICTURE";
    break;
   }

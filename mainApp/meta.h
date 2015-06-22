@@ -1391,25 +1391,6 @@ public:
 class PageAttributeTextMeta : public BranchMeta
 {
 public:
-//    enum PageAttributeType
-//    {
-//        PageTitleType = 0,
-//        PageModelNameType,
-//        PageAuthorType,
-//        PageURLType,
-//        PageAuthorURLType,
-//        PageModelDescType,
-//        PagePublishDescType,
-//        PageCopyrightType,
-//        PageEmailType,
-//        PageDisclaimerType,
-//        PageCategoryType,
-//        PagePiecesType,
-//        PagePlugType,
-//        PageFrontCoverType,
-//        PageBackCoverType,
-//        PageAttributeTextType
-//    } type;
   PlacementType  type;
   FontMeta    	 textFont;
   StringMeta  	 textColor;

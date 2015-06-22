@@ -69,7 +69,7 @@ void PageAttributeItem::setAttributes(
 
 PageAttributeItem::PageAttributeItem()
 {
-  relativeType  = PageAttributeTextType;
+  relativeType  = PageTitleType;
   textFont      = NULL;
   textColor     = NULL;
   margin        = NULL;
@@ -99,60 +99,47 @@ PagePageAttributeItem::PagePageAttributeItem(
 {
   page          = _page;
   QString       toolTip;
-  PlacementType pageAttributeType;
   switch(_pageAttributeText.type)
   {
   case PageTitleType:
-      pageAttributeType = PageTitleType;
       toolTip           = tr("Title text - right-click to modify");
       break;
   case PageModelNameType:
-      pageAttributeType = PageModelNameType;
       toolTip           = tr("Model Name text - right-click to modify");
       break;
   case PageAuthorType:
-      pageAttributeType = PageAuthorType;
       toolTip           = tr("Author text - right-click to modify");
       break;
   case PageURLType:
-      pageAttributeType = PageURLType;
       toolTip           = tr("URL text - right-click to modify");
       break;
   case PageModelDescType:
-      pageAttributeType = PageModelDescType;
       toolTip           = tr("Model Description text - right-click to modify");
       break;
   case PagePublishDescType:
-      pageAttributeType = PagePublishDescType;
       toolTip           = tr("Publish Description text - right-click to modify");
       break;
   case PageCopyrightType:
-      pageAttributeType = PageCopyrightType;
       toolTip           = tr("Copyright text - right-click to modify");
       break;
   case PageEmailType:
-      pageAttributeType = PageEmailType;
       toolTip           = tr("Email text - right-click to modify");
       break;
   case PageDisclaimerType:
-      pageAttributeType = PageDisclaimerType;
       toolTip           = tr("Disclaimer text - right-click to modify");
       break;
   case PagePiecesType:
-      pageAttributeType = PagePiecesType;
       toolTip           = tr("Pieces text - right-click to modify");
       break;
   case PagePlugType:
-      pageAttributeType = PagePlugType;
       toolTip           = tr("Plug text - right-click to modify");
       break;
   case PageCategoryType:
-      pageAttributeType = PageCategoryType;
       toolTip           = tr("Category text - right-click to modify");
       break;
   }
 
-  setAttributes(pageAttributeType,
+  setAttributes(_pageAttributeText.type,
                 SingleStepType,
                 _page,
                 _pageAttributeText,
@@ -177,7 +164,7 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   marginAction->setWhatsThis("Edit the margin space around this attribute");
   doNotDisplayTextAction->setWhatsThis("Do not display this attribute");
   placementAction->setWhatsThis(
-    commonMenus.naturalLanguagePlacementWhatsThis(PageAttributeTextType,placementData,name));
+    commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,name));
 
   Where topOfSteps          = page->topOfSteps();
   Where bottomOfSteps       = page->bottomOfSteps();
@@ -191,8 +178,8 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   } else if (selectedAction == placementAction) {
 
     changePlacement(PageType,
-                    PageAttributeTextType,  // likely not resolvable
-                    "Move Page Attribute",
+                    relativeType,
+                    "Move Page Attribute",              //resolve name (use placeTypeNames framework)
                     topOfSteps,
                     bottomOfSteps,
                     placement);         //used to be &placement (before making placement a pointer)
@@ -237,7 +224,7 @@ void PagePageAttributeItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
       placement->setValue(placementData);
 
-      changePlacementOffset(page->bottomOfSteps(),placement,PageAttributeTextType);  //used to be &placement (before making placement a pointer)
+      changePlacementOffset(page->bottomOfSteps(),placement,relativeType);  //used to be &placement (before making placement a pointer)
     }
   }
 }
@@ -272,7 +259,7 @@ void PagePageAttributeItem::focusOutEvent(QFocusEvent *event)
     QStringList list = toPlainText().split("\n");
     content->setValue(list.join("\\n"));
 
-    changePlacementOffset(page->bottomOfSteps(),placement,PageAttributeTextType); //used to be &placement (before making placement a pointer)
+    changePlacementOffset(page->bottomOfSteps(),placement,relativeType); //used to be &placement (before making placement a pointer)
   }
 }
 

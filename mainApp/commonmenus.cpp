@@ -343,18 +343,6 @@ QString type2english(PlacementType type)
 
         break;
 
-    case PageAttributeTextType:
-
-        return "page text attribute";
-
-        break;
-
-    case PageAttributePictureType:
-
-        return "page picture attribute";
-
-        break;
-
     default:
 
         return "";
@@ -414,12 +402,6 @@ QString type2english2(PlacementType type)
       return "the page number";
 
     break;
-
-  case PageAttributeTextType:
-
-      return "this page attribute";
-
-      break;
 
     default:
 
