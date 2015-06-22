@@ -79,7 +79,7 @@ const int PlacementDialog::relativeToOks[NumRelatives] =
   /* Callout */   Page | Csi | Ms | Sn | Pli | Callout,
   /* PageNum */   Page,
   /* SingleStep */Page | Csi,
-  /* SubmodelIns*/Page |                 Pn
+  /* SubmodelIns*/Page |                  Pn
 };
 
 const int PlacementDialog::prepositionOks[NumRelatives] = // indexed by them
@@ -338,7 +338,7 @@ PlacementDialog::PlacementDialog(
 
 PlacementDialog::~PlacementDialog()
 {  
-};
+}
 
 void PlacementDialog::relativeToChanged(int /* unused */)
 {

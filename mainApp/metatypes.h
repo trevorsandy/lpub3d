@@ -100,6 +100,7 @@ enum PlacementType {
   PageNumberType,
   SingleStepType,
   SubmodelInstanceCountType,
+
   StepType,
   RangeType,
   ReserveType,

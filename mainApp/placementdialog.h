@@ -1,5 +1,3 @@
- 
-
 /****************************************************************************
 
 **
@@ -30,73 +28,38 @@
 
 ****************************************************************************/
 
-
-
 /****************************************************************************
 
  *
-
  * This class implements a dialog that lets the user pick the placement for
-
  * something relative to other things.
-
  *
-
  * Please see lpub.h for an overall description of how the files in LPub
-
  * make up the LPub program.
-
  *
-
  ***************************************************************************/
 
-
-
 #ifndef PLACEMENTDIALOG_H
-
 #define PLACEMENTDIALOG_H
 
-
-
 #include <QDialog>
-
 #include "metatypes.h"
 
-
-
 class QGridLayout;
-
 class QPushButton;
-
 class QFrame;
-
 class QComboBox;
-
 class QDialogButtonBox;
 
-
-
-
-
 /*
-
  *    TL|T-L T-C T-R|TR
-
  *   ---+-----------+--
-
  *   L-T|TL   T   TR|R-T
-
  *   L-C|L    C    R|R-C
-
  *   L_B|BL   B   BR|R-B
-
  *   ---+-----------+---
-
  *    BL|B-L  B  B-R|BR
-
  */
-
-
 
 class PlacementDialog : public QDialog
 
