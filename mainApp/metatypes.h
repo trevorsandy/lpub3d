@@ -92,45 +92,42 @@ enum PrepositionEnc {
 };
 
 enum PlacementType {
-  PageType,
-  CsiType,
-  StepGroupType,
-  StepNumberType,
-  PartsListType,
-  CalloutType,
-  PageNumberType,
-  SingleStepType,
-  SubmodelInstanceCountType,
+    PageType,
+    CsiType,
+    StepGroupType,
+    StepNumberType,
+    PartsListType,
+    CalloutType,
+    PageNumberType,
+    PageTitleType,				//tt   page attribute
+    PageModelNameType,			//mnt  page attribute
+    PageAuthorType,             //at   page attribute header	front cover
+    PageURLType,				//urlt page attribute header	back cover
+    PageModelDescType,			//mdt  page attribute
+    PagePublishDescType,		//pdt  page attribute
+    PageCopyrightType,			//ct   page attribute
+    PageEmailType,				//et   page attribute footer	back cover
+    PageDisclaimerType,			//dt   page attribute footer    back cover
+    PagePiecesType,				//pt   page attribute
+    PagePlugType,				//plt  page attribute
+    PageCategoryType,			//cat  page attribute
+    PageDocumentLogoType,		//dlt  page attribute
+    PageCoverImageType,			//cit  page attribute
+    PagePlugImageType,			//pit  page attribute
+    SingleStepType,
+    SubmodelInstanceCountType,
 
-  StepType,
-  RangeType,
-  ReserveType,
-  BomType,
-  CoverPageType,
-  NumRelatives,
+    StepType,
+    RangeType,
+    ReserveType,
+    BomType,
+    CoverPageType,
+    PageFrontCoverType,			//page attribute
+    PageBackCoverType,			//page attribute
+    NumRelatives,
 
-  PageTitleType,
-  PageModelNameType,
-  PageAuthorType,
-  PageURLType,
-  PageModelDescType,
-  PagePublishDescType,
-  PageCopyrightType,
-  PageEmailType,
-  PageDisclaimerType,
-  PagePiecesType,
-  PagePlugType,
-  PageCategoryType,
-
-  PageDocumentLogoType,
-  PageCoverImageType,
-  PagePlugImageType,
-
-  PageFrontCoverType,
-  PageBackCoverType,
-
-  PageAttributeTextType,
-  PageAttributePictureType
+    PageAttributeTextType,
+    PageAttributePictureType
 };
 
 class PlacementData
@@ -243,29 +240,30 @@ public:
 class PageAttributePictureData
 {
 public:
-    enum PageAttributePicture{
-        PageDocumentLogoType = 0,
-        PageCoverImageType,
-        PagePlugImageType,
-        PageAttributePictureType
-    } type;
-    PlacementType   relativeTo;
-    RectPlacement   rectPlacement;
+//    enum PageAttributePicture{
+//        PageDocumentLogoType = 0,
+//        PageCoverImageType,
+//        PagePlugImageType,
+//        PageAttributePictureType
+//    } type;
+    //PlacementType   relativeTo;         //deprecate
+    //RectPlacement   rectPlacement;      //deprecate
+    PlacementType   type;
+    PlacementData   placement;
     QString         string;
     qreal           picScale;
-    float           offsets[2];
+//    float           offsets[2];
     bool            stretch;
     bool            display;
     PageAttributePictureData()
    {
-     relativeTo    = PageType;
-     rectPlacement = CenterCenter;
+     //relativeTo    = PageType;
+     //rectPlacement = CenterCenter;
      picScale      = 1.0;
-     offsets[0]    = 0.0;
-     offsets[1]    = 0.0;
+     //offsets[0]    = 0.0;               //deprecate
+     //offsets[1]    = 0.0;               //deprecate
      stretch       = false;
      display       = Preferences::displayAllAttributes;
-
    }
 };
 

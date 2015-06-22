@@ -37,9 +37,6 @@
 
 void clearPliCache();
 
-int combo2placementIndex(int const &index, bool reverse = false);
-
-
 class QWidget;
 class QString;
 class QHBoxLayout;
@@ -274,8 +271,7 @@ private:
   bool        fontModified;
   bool        colorModified;
   bool        marginsModified;
-  bool        placementModified;
-  bool        alignmentModified;
+  bool        positionModified;
   bool        displayModified;
   bool        editModified;
 
@@ -289,19 +285,28 @@ private:
   QLineEdit   *value0;
   QLineEdit   *value1;
 
-  QLabel       *placement;
   QCheckBox    *display;
-  QComboBox    *placementCombo;
-  QComboBox    *justifyCombo;
 
   QGroupBox    *gbContentEdit;
   QGroupBox    *gbDescDialog;
   QGroupBox    *gbDiscDialog;
+
   QTextEdit    *edit;
   QLineEdit    *contentEdit;
 
   QString      content;
   QLabel       *contentLabel;
+
+  QGroupBox    *gbPosition;
+  QLabel       *position;
+  QLabel       *placement;
+  QLabel       *justify;
+  QLabel       *relativeTo;
+  QLabel       *preposition;
+  QComboBox    *placementCombo;
+  QComboBox    *justifyCombo;
+  QComboBox    *relativeToCombo;
+  QComboBox    *prepositionCombo;
 
 public slots:
   void editChanged();
@@ -311,8 +316,7 @@ public slots:
   void value0Changed(QString const &);
   void value1Changed(QString const &);
 
-  void typeJustificationChanged(int);
-  void typePlacementChanged(int);
+  void typePositionChanged(int);
   void toggled(bool toggled);
 
 };
@@ -365,9 +369,18 @@ private:
   QLabel        *scale;
   QDoubleSpinBox *spin;
 
-  QLabel       *placement;
   QCheckBox    *display;
+
+  QGroupBox    *gbPosition;
+  QLabel       *position;
+  QLabel       *placement;
+  QLabel       *justify;
+  QLabel       *relativeTo;
+  QLabel       *preposition;
   QComboBox    *placementCombo;
+  QComboBox    *justifyCombo;
+  QComboBox    *relativeToCombo;
+  QComboBox    *prepositionCombo;
 
 public slots:
   void pictureChange(QString const &);
@@ -377,7 +390,7 @@ public slots:
 
   void valueChanged(double);
 
-  void typePlacementChanged(int);
+  void typePositionChanged(int);
   void toggled(bool toggled);
 };
 

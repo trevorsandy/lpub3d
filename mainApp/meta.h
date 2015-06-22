@@ -898,7 +898,7 @@ public:
   {
     _value[pushed] = value;
   }
-  void setValue(PageAttributePictureData::PageAttributePicture type){
+  void setValue(PlacementType type){                        //changed from PageAttributePictureData::PageAttributePicture
     _value[pushed].type = type;
   }
 
@@ -1153,14 +1153,6 @@ class AlignmentMeta : public LeafMeta
 private:
   Qt::Alignment _value[2];
 public:
-  Qt::Alignment value()
-  {
-    return _value[pushed];
-  }
-  void setValue(Qt::Alignment value)
-  {
-    _value[pushed] = value;
-  }
   AlignmentMeta()
   {
     _value[0] = Qt::AlignLeft;
@@ -1174,25 +1166,6 @@ public:
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
 };
-
-//class AlignmentMeta : public LeafMeta
-//{
-//private:
-//  Qt::Alignment _value[2];
-//public:
-//  AlignmentMeta()
-//  {
-//    _value[0] = Qt::AlignLeft;
-//  }
-//  AlignmentMeta(const AlignmentMeta &rhs) : LeafMeta(rhs)
-//  {
-//    _value[0]   = rhs._value[0];
-//    _value[1]   = rhs._value[1];
-//  }
-//  Rc parse(QStringList &argv, int index, Where &here);
-//  QString format(bool,bool);
-//  virtual void doc(QStringList &out, QString preamble);
-//};
 
 class TextMeta : public BranchMeta
 {
@@ -1418,29 +1391,29 @@ public:
 class PageAttributeTextMeta : public BranchMeta
 {
 public:
-    enum PageAttributeType
-    {
-        PageTitleType = 0,
-        PageModelNameType,
-        PageAuthorType,
-        PageURLType,
-        PageAuthorURLType,
-        PageModelDescType,
-        PagePublishDescType,
-        PageCopyrightType,
-        PageEmailType,
-        PageDisclaimerType,
-        PageCategoryType,
-        PagePiecesType,
-        PagePlugType,
-        PageFrontCoverType,
-        PageBackCoverType,
-        PageAttributeTextType
-    } type;
+//    enum PageAttributeType
+//    {
+//        PageTitleType = 0,
+//        PageModelNameType,
+//        PageAuthorType,
+//        PageURLType,
+//        PageAuthorURLType,
+//        PageModelDescType,
+//        PagePublishDescType,
+//        PageCopyrightType,
+//        PageEmailType,
+//        PageDisclaimerType,
+//        PageCategoryType,
+//        PagePiecesType,
+//        PagePlugType,
+//        PageFrontCoverType,
+//        PageBackCoverType,
+//        PageAttributeTextType
+//    } type;
+  PlacementType  type;
   FontMeta    	 textFont;
   StringMeta  	 textColor;
   MarginsMeta 	 margin;
-  AlignmentMeta  alignment;
   PlacementMeta  placement;
   StringMeta   	 content;
   BoolMeta       display;
@@ -1806,8 +1779,8 @@ public:
   PageAttributePictureMeta  plugImage;          //from preferences static
   PageAttributeTextMeta     category;           //from LDrawFile - LDraw: !CATEGORY (NOT IMPLEMENTED)
 
-  PageAttributePictureData  logoPic;
-  PageAttributePictureData  plugPic;
+//  PageAttributePictureData  logoPic;          //deprecate
+//  PageAttributePictureData  plugPic;          //deprecate
 
   PageMeta();
   PageMeta(const PageMeta &rhs) : BranchMeta(rhs)

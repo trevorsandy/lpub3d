@@ -57,6 +57,65 @@
 #include "lpub_preferences.h"
 #include "render.h"
 
+const QString placementEncNames[NumPlacements] =
+{
+    "Top Left",
+    "Top",
+    "Top Right",
+    "Right",
+    "Bottom Right",
+    "Bottom",
+    "Bottom Left",
+    "Left",
+    "Center",
+};
+
+//const QString placementTypeNames[NumRelatives] =
+//{
+//    "Page",          "Assem",      "Step Group",  "Step Number",
+//    "Parts List",    "Callout",    "Page Number",
+//    "Title",         "Model ID",   "Author",      "URL",         "Model Description", "Publish Description",
+//    "Copyright",     "Email",      "Disclaimer",  "Pieces",      "Plug",              "Category",
+//    "Logo",          "Cover Image","Plug Image",
+//    "Single Step",   "Submodel Instance Count",   "Step",        "Range",             "Reserve",
+//    "BOM",           "Cover Page",
+//    "Front Cover",   "Back Cover"
+//};
+
+//const int placementTypeVars[NumRelatives] =
+//{
+//  PageType,            CsiType,           StepGroupType,    StepNumberType,
+//  PartsListType,       CalloutType,       PageNumberType,
+//  PageTitleType,       PageModelNameType, PageAuthorType,   PageURLType,         PageModelDescType,
+//  PagePublishDescType, PageCopyrightType, PageEmailType,    PageDisclaimerType,
+//  PagePiecesType,      PagePlugType,      PageCategoryType, PageDocumentLogoType,
+//  PageCoverImageType,  PagePlugImageType,
+//  SingleStepType,      SubmodelInstanceCountType,           StepType,            RangeType,         ReserveType,
+//  BomType,             CoverPageType,
+//  PageFrontCoverType,  PageBackCoverType
+//};
+
+const QString placementTypeNames[23] =
+{
+    "Page",                "Assem",      "Step Group",  "Step Number",
+    "Parts List",          "Callout",    "Page Number",
+    "Title",               "Model ID",   "Author",      "URL",         "Model Description",
+    "Publish Description", "Copyright",  "Email",       "Disclaimer",
+    "Pieces",              "Plug",       "Category",    "Logo",
+    "Cover Image",         "Plug Image", "BOM",
+};
+
+const int placementTypeVars[23] =
+{
+  PageType,            CsiType,           StepGroupType,    StepNumberType,
+  PartsListType,       CalloutType,       PageNumberType,
+  PageTitleType,       PageModelNameType, PageAuthorType,   PageURLType,         PageModelDescType,
+  PagePublishDescType, PageCopyrightType, PageEmailType,    PageDisclaimerType,
+  PagePiecesType,      PagePlugType,      PageCategoryType, PageDocumentLogoType,
+  PageCoverImageType,  PagePlugImageType, BomType,
+};
+
+
 int combo2placementIndex(int const &index, bool reverse){
         if(! reverse){
             switch(index)
@@ -721,6 +780,7 @@ PageAttributeTextGui::PageAttributeTextGui(
 {
   QString        string;
   QGridLayout   *grid;
+  QGridLayout   *gLayout;
   QHBoxLayout   *hLayout;
 
   meta = _meta;
@@ -737,50 +797,86 @@ PageAttributeTextGui::PageAttributeTextGui(
   connect(parent,SIGNAL(toggled(bool)),
           this, SLOT(  toggled(bool)));
 
-  // Placement
+  //Positioning
+  gbPosition = new QGroupBox("Position",parent);
+  gLayout = new QGridLayout();
+  gbPosition->setLayout(gLayout);
+  grid->addWidget(gbPosition,0,0,1,3);
+
+  //placement group
+  //lable
   placement = new QLabel(parent);
   placement->setText("Placement");
-  grid->addWidget(placement,0,0);
-
+  gLayout->addWidget(placement,0,0);
+  //combo
   placementCombo = new QComboBox(parent);
-  bool             reverse = true;
-
-  placementCombo->addItem(" Top Left");
-  placementCombo->addItem(" Top");
-  placementCombo->addItem(" Top Right");
-  placementCombo->addItem(" Left");
-  placementCombo->addItem(" Center");
-  placementCombo->addItem(" Right");
-  placementCombo->addItem(" Bottom Left");
-  placementCombo->addItem(" Bottom");
-  placementCombo->addItem(" Bottom Right");
-
-  placementCombo->setCurrentIndex(combo2placementIndex(int(RectPlacement(meta->placement.value().rectPlacement)),reverse));
-
+  int placementComboCurrentIndex = 0;
+  for(int i = 0; i < NumPlacements; i++){
+     placementCombo->addItem(placementEncNames[i]);
+     if (meta->placement.value().placement == i)
+         placementComboCurrentIndex = placementCombo->count()-1;
+  }
+  placementCombo->setCurrentIndex(placementComboCurrentIndex);
   connect(placementCombo,SIGNAL(currentIndexChanged(int)),
-          this, SLOT(  typePlacementChanged(        int)));
+          this, SLOT(  typePositionChanged(         int)));
+  gLayout->addWidget(placementCombo, 0,1);
 
-  grid->addWidget(placementCombo, 0,1);
-
-  // Justification
+  //justify group
+  //lable
+  justify = new QLabel(parent);
+  justify->setText("Justification");
+  gLayout->addWidget(justify,0,2);
+  //combo
   justifyCombo = new QComboBox(parent);
-  justifyCombo->addItem(" Left");
-  justifyCombo->addItem(" Center");
-  justifyCombo->addItem(" Right");
+  int justifyComboCurrentIndex = 0;
+  for(int i = 0; i < NumPlacements; i++){
+     justifyCombo->addItem(placementEncNames[i]);
+     if (meta->placement.value().justification == i)
+         justifyComboCurrentIndex = justifyCombo->count()-1;
+  }
+  justifyCombo->setCurrentIndex(justifyComboCurrentIndex);
+  connect(justifyCombo,SIGNAL(currentIndexChanged(int)),
+          this, SLOT(  typePositionChanged(       int)));
+  gLayout->addWidget(justifyCombo, 0,3);
 
-  if (meta->alignment.value() == Qt::AlignLeft)
-      justifyCombo->setCurrentIndex(0);
-  else if (meta->alignment.value() == Qt::AlignCenter)
-      justifyCombo->setCurrentIndex(1);
-  else if (meta->alignment.value() == Qt::AlignRight)
-      justifyCombo->setCurrentIndex(2);
-  else
-      justifyCombo->setCurrentIndex(1);
+  //relativeTo group
+  //lable
+  relativeTo = new QLabel(parent);
+  relativeTo->setText("Relative To");
+  gLayout->addWidget(relativeTo,1,0);
+  //combo
+  relativeToCombo = new QComboBox(parent);
+  int placementTypeNamesCount = 23;
+  int relativeToComboCurrentIndex = 0;
+  for(int i = 0; i < NumRelatives; i++){
+      for(int j = 0; j < placementTypeNamesCount ; j++){
+          if (placementTypeVars[j] == i){
+            relativeToCombo->addItem(placementTypeNames[j]);
+          }
+      }
+      if (meta->placement.value().relativeTo == i){
+          relativeToComboCurrentIndex = relativeToCombo->count()-1;
+      }
+  }
+  relativeToCombo->setCurrentIndex(relativeToComboCurrentIndex);
+  connect(relativeToCombo,SIGNAL(currentIndexChanged(int)),
+          this, SLOT(  typePositionChanged(          int)));
+  gLayout->addWidget(relativeToCombo, 1,1);
 
-  connect(justifyCombo,SIGNAL(currentIndexChanged( int)),
-          this, SLOT(  typeJustificationChanged(   int)));
+  //preposition group
+  //lable
+  preposition = new QLabel(parent);
+  preposition->setText("Preposition");
+  gLayout->addWidget(preposition,1,2);
+  //combo
+  prepositionCombo = new QComboBox(parent);
+  prepositionCombo->addItem("Inside");
+  prepositionCombo->addItem("Outside");
+  prepositionCombo->setCurrentIndex(int(meta->placement.value().preposition));
 
-  grid->addWidget(justifyCombo,0,2);
+  connect(prepositionCombo,SIGNAL(currentIndexChanged(int)),
+          this, SLOT(  typePositionChanged(           int)));
+  gLayout->addWidget(prepositionCombo, 1,3);
 
   // font
   fontLabel = new QLabel("Font",parent);
@@ -857,7 +953,7 @@ PageAttributeTextGui::PageAttributeTextGui(
           this,  SLOT(  editChanged()));
   hLayout->addWidget(edit);
 
-  if (meta->type == PageAttributeTextMeta::PageModelDescType) {
+  if (meta->type == PageModelDescType) {
       gbDescDialog->show();
       gbContentEdit->hide();
       string = QString("%1").arg(meta->content.value());
@@ -878,7 +974,7 @@ PageAttributeTextGui::PageAttributeTextGui(
   connect(edit,SIGNAL(textChanged()),
           this,  SLOT(  editChanged()));
 
-  if (meta->type == PageAttributeTextMeta::PageDisclaimerType) {
+  if (meta->type == PageDisclaimerType) {
       gbDiscDialog->show();
       gbContentEdit->hide();
       string = QString("%1").arg(meta->content.value());
@@ -888,8 +984,7 @@ PageAttributeTextGui::PageAttributeTextGui(
   fontModified      = false;
   colorModified     = false;
   marginsModified   = false;
-  placementModified = false;
-  alignmentModified = false;
+  positionModified  = false;
   displayModified   = false;
   editModified      = false;
 }
@@ -948,29 +1043,20 @@ void PageAttributeTextGui::editChanged(const QString &value)
   editModified = true;
 }
 
-void PageAttributeTextGui::typePlacementChanged(int type)
+void PageAttributeTextGui::typePositionChanged(int type)
 {
-  meta->placement.setValue(RectPlacement(combo2placementIndex(type)),PageType);
-  placementModified = true;
-}
-
-void PageAttributeTextGui::typeJustificationChanged(int type)
-{
-    switch(type)
-    {
-    case 0:
-        meta->alignment.setValue(Qt::AlignLeft);
-        break;
-    case 1:
-        meta->alignment.setValue(Qt::AlignCenter);
-        break;
-    case 2:
-        meta->alignment.setValue(Qt::AlignRight);
-        break;
-    default:
-        meta->alignment.setValue(Qt::AlignLeft);
-    }
-  alignmentModified = true;
+  PlacementData textData = meta->placement.value();
+  QObject *obj = sender();
+  if(obj == placementCombo)
+     textData.placement = PlacementEnc(type);
+  if(obj == justifyCombo)
+     textData.justification = PlacementEnc(type);
+  if(obj == relativeToCombo)
+     textData.relativeTo = PlacementType(type);
+  if(obj == prepositionCombo)
+     textData.preposition = PrepositionEnc(type);
+  meta->placement.setValue(textData);
+  positionModified = true;
 }
 
 void PageAttributeTextGui::toggled(bool toggled)
@@ -994,11 +1080,8 @@ void PageAttributeTextGui::apply(
   if (marginsModified) {
     mi.setGlobalMeta(topLevelFile,&meta->margin);
   }
-  if (placementModified){
+  if (positionModified){
       mi.setGlobalMeta(topLevelFile,&meta->placement);
-  }
-  if (alignmentModified){
-      mi.setGlobalMeta(topLevelFile,&meta->alignment);
   }
   if (displayModified){
       mi.setGlobalMeta(topLevelFile,&meta->display);
@@ -1020,11 +1103,13 @@ void PageAttributeTextGui::apply(
   QGroupBox  *parent)
 {
   QGridLayout   *grid;
+  QGridLayout   *gLayout;
   QHBoxLayout   *hLayout;
 
   meta  = _meta;
 
   PageAttributePictureData Picture = meta->value();
+  PlacementData        pictureData = meta->value().placement;
 
   grid = new QGridLayout(parent);
 
@@ -1038,34 +1123,85 @@ void PageAttributeTextGui::apply(
   connect(parent,SIGNAL(toggled(bool)),
           this, SLOT(  toggled(bool)));
 
-  // Placement
+  //Positioning
+  gbPosition = new QGroupBox("Position",parent);
+  gLayout = new QGridLayout();
+  gbPosition->setLayout(gLayout);
+  grid->addWidget(gbPosition,0,0,1,3);
+
+  //placement group
+  //lable
   placement = new QLabel(parent);
   placement->setText("Placement");
-  grid->addWidget(placement,0,0);
-
+  gLayout->addWidget(placement,0,0);
+  //combo
   placementCombo = new QComboBox(parent);
-  bool             reverse = true;
-
-  placementCombo->addItem(" Top Left");
-  placementCombo->addItem(" Top");
-  placementCombo->addItem(" Top Right");
-  placementCombo->addItem(" Left");
-  placementCombo->addItem(" Center");
-  placementCombo->addItem(" Right");
-  placementCombo->addItem(" Bottom Left");
-  placementCombo->addItem(" Bottom");
-  placementCombo->addItem(" Bottom Right");
-
-  placementCombo->setCurrentIndex(combo2placementIndex(int(RectPlacement(Picture.rectPlacement)),reverse));
-
+  int placementComboCurrentIndex = 0;
+  for(int i = 0; i < NumPlacements; i++){
+     placementCombo->addItem(placementEncNames[i]);
+     if (pictureData.placement == i)
+         placementComboCurrentIndex = placementCombo->count()-1;
+  }
+  placementCombo->setCurrentIndex(placementComboCurrentIndex);
   connect(placementCombo,SIGNAL(currentIndexChanged(int)),
-          this, SLOT(  typePlacementChanged(        int)));
+          this, SLOT(  typePositionChanged(         int)));
+  gLayout->addWidget(placementCombo, 0,1);
 
-  grid->addWidget(placementCombo, 0,1);
+  //justify group
+  //lable
+  justify = new QLabel(parent);
+  justify->setText("Justification");
+  gLayout->addWidget(justify,0,2);
+  //combo
+  justifyCombo = new QComboBox(parent);
+  int justifyComboCurrentIndex = 0;
+  for(int i = 0; i < NumPlacements; i++){
+     justifyCombo->addItem(placementEncNames[i]);
+     if (pictureData.justification == i)
+         justifyComboCurrentIndex = justifyCombo->count()-1;
+  }
+  justifyCombo->setCurrentIndex(justifyComboCurrentIndex);
+  connect(justifyCombo,SIGNAL(currentIndexChanged(int)),
+          this, SLOT(  typePositionChanged(       int)));
+  gLayout->addWidget(justifyCombo, 0,3);
 
-  // empty
-  placement = new QLabel(NULL);
-  grid->addWidget(placement,0,2);
+  //relativeTo group
+  //lable
+  relativeTo = new QLabel(parent);
+  relativeTo->setText("Relative To");
+  gLayout->addWidget(relativeTo,1,0);
+  //combo
+  relativeToCombo = new QComboBox(parent);
+  int placementTypeNamesCount = 23;
+  int relativeToComboCurrentIndex = 0;
+  for(int i = 0; i < NumRelatives; i++){
+      for(int j = 0; j < placementTypeNamesCount; j++){
+          if (placementTypeVars[j] == i){
+            relativeToCombo->addItem(placementTypeNames[j]);
+          }
+      }
+      if (pictureData.relativeTo == i){
+          relativeToComboCurrentIndex = relativeToCombo->count()-1;
+      }
+  }
+  relativeToCombo->setCurrentIndex(relativeToComboCurrentIndex);
+  connect(relativeToCombo,SIGNAL(currentIndexChanged(int)),
+          this, SLOT(  typePositionChanged(          int)));
+  gLayout->addWidget(relativeToCombo, 1,1);
+
+  //preposition group
+  //lable
+  preposition = new QLabel(parent);
+  preposition->setText("Preposition");
+  gLayout->addWidget(preposition,1,2);
+  //combo
+  prepositionCombo = new QComboBox(parent);
+  prepositionCombo->addItem("Inside");
+  prepositionCombo->addItem("Outside");
+  prepositionCombo->setCurrentIndex(int(pictureData.preposition));
+  connect(prepositionCombo,SIGNAL(currentIndexChanged(int)),
+          this, SLOT(  typePositionChanged(           int)));
+  gLayout->addWidget(prepositionCombo, 1,3);
 
   // Image
   picture = Picture.string;
@@ -1130,12 +1266,10 @@ void PageAttributeTextGui::apply(
   connect(gbFill,SIGNAL(clicked(bool)),gbScale,SLOT(setDisabled(bool)));
   connect(gbScale,SIGNAL(clicked(bool)),gbFill,SLOT(setDisabled(bool)));
 
-  if(Picture.type == PageAttributePictureData::PageDocumentLogoType ||
-     Picture.type == PageAttributePictureData::PagePlugImageType) {
+  if(Picture.type == PageDocumentLogoType ||
+     Picture.type == PagePlugImageType) {
       gbFill->hide();
   }
-
-  //enable();
 
   pictureModified = false;
 }
@@ -1191,12 +1325,19 @@ void PageAttributePictureGui::valueChanged(double value)
   pictureModified = true;
 }
 
-void PageAttributePictureGui::typePlacementChanged(int type)
+void PageAttributePictureGui::typePositionChanged(int type)
 {
-  PageAttributePictureData Picture = meta->value();
-  Picture.rectPlacement = RectPlacement(combo2placementIndex(type));
-  Picture.relativeTo    = PageType;
-  meta->setValue(Picture);
+  PageAttributePictureData pictureData = meta->value();
+  QObject *obj = sender();
+  if(obj == placementCombo)
+     pictureData.placement.placement = PlacementEnc(type);
+  if(obj == justifyCombo)
+     pictureData.placement.justification = PlacementEnc(type);
+  if(obj == relativeToCombo)
+     pictureData.placement.relativeTo = PlacementType(type);
+  if(obj == prepositionCombo)
+     pictureData.placement.preposition = PrepositionEnc(type);
+  meta->setValue(pictureData);
   pictureModified = true;
 }
 
@@ -1206,7 +1347,6 @@ void PageAttributePictureGui::toggled(bool toggled)
 
   Picture.display = toggled;
   meta->setValue(Picture);
-  //enable();
   pictureModified = true;
 }
 

@@ -71,34 +71,67 @@ QString labels[5][5] =
 
 const int PlacementDialog::relativeToOks[NumRelatives] =
 {
-  /* Page */      0,
-  /* Csi  */      Page,
-  /* MultiStep */ Page | Pli,
-  /* StepNum */   Page | Csi | Pli,
-  /* Pli */       Page | Csi | Ms | Sn,
-  /* Callout */   Page | Csi | Ms | Sn | Pli | Callout,
-  /* PageNum */   Page,
-  /* SingleStep */Page | Csi,
-  /* SubmodelIns*/Page |                  Pn
+    /* Page */        0,
+    /* Csi  */        Page,
+    /* MultiStep */   Page | Pli,
+    /* StepNum */     Page | Csi | Pli,
+    /* Pli */         Page | Csi | Ms | Sn,
+    /* Callout */     Page | Csi | Ms | Sn | Pli | Callout,
+    /* PageNum */     Page,
+    /* SingleStep */  Page | Csi,
+    /* SubmodelIns*/  Page |                  Pn,
+    /* title */       Page | Csi | Pli |  mnt | mdt | pdt | at  | pt   | cat | dlt | cit,
+    /* modelName */   Page | Csi | Pli |  tt  | mdt | pdt | at  | pt   | cat | dlt | cit,
+    /* modelDesc */   Page | Csi | Pli |  tt  | mnt | pdt | at  | pt   | cat | dlt | cit,
+    /* publishDesc */ Page | Csi | Pli |  tt  | mnt | mdt | at  | pt   | cat | dlt | cit,
+    /* author */      Page | Csi | Pli |  tt  | mnt | mdt | pdt | pt   | cat | dlt | cit | urlt,
+    /* pieces */      Page | Csi | Pli |  tt  | mnt | mdt | pdt | at   | cat | dlt | cit,
+    /* category */    Page | Csi | Pli |  tt  | mnt | mdt | pdt | at   | pt  | dlt | cit,
+    /* url */         Page | Csi | Pli |  et  | ct  | dt  | plt | pit  | at,
+    /* email */       Page | Csi | Pli |  ct  | dt  | plt | pit | urlt | at,
+    /* copyright */   Page | Csi | Pli |  et  | dt  | plt | pit | urlt | at,
+    /* disclaimer */  Page | Csi | Pli |  et  | ct  | plt | pit | urlt | at,
+    /* documentLogo */Page | Csi | Pli |  tt  | mnt | pdt | at  | pt   | cat | mdt | cit,
+    /* coverImage */  Page | Csi | Pli |  tt  | mnt | pdt | at  | pt   | cat | dlt | mdt,
+    /* plug */        Page | Csi | Pli |  et  | ct  | dt  | pit | urlt | at,
+    /* plugImage */   Page | Csi | Pli |  et  | ct  | plt | dt  | urlt | at
 };
 
 const int PlacementDialog::prepositionOks[NumRelatives] = // indexed by them
 {
-  /* Page */      InsideOk,
-  /* Csi */       InsideOk|OutsideOk,
-  /* MultiStep */ OutsideOk,
-  /* StepNum */   OutsideOk,
-  /* Pli */       OutsideOk,
-  /* Callout */   OutsideOk,
-  /* PageNum */   OutsideOk,
+    /* Page */        InsideOk,
+    /* Csi */         InsideOk|OutsideOk,
+    /* MultiStep */   OutsideOk,
+    /* StepNum */     OutsideOk,
+    /* Pli */         OutsideOk,
+    /* Callout */     OutsideOk,
+    /* PageNum */     OutsideOk,
+    /* title */       OutsideOk,
+    /* modelName */   OutsideOk,
+    /* modelDesc */   OutsideOk,
+    /* publishDesc */ OutsideOk,
+    /* author */      OutsideOk,
+    /* pieces */      OutsideOk,
+    /* category */    OutsideOk,
+    /* url */         OutsideOk,
+    /* email */       OutsideOk,
+    /* copyright */   OutsideOk,
+    /* disclaimer */  OutsideOk,
+    /* documentLogo */OutsideOk,
+    /* coverImage */  OutsideOk,
+    /* plug */        OutsideOk,
+    /* plugImage */   OutsideOk
 };
 
 const QString relativeNames[NumRelatives] =
 {
-  "Page",        "Assem",   "Step Group",  "Step Number",
-  "Parts List",  "Callout", "Page Number",
-  "Single Step", "Submodel Instance Count", "Range",   "Step",        "Reserve",
-  "BOM", "Cover Page"
+  "Page",          "Assem",      "Step Group",  "Step Number",
+  "Parts List",    "Callout",    "Page Number",
+  "Title",         "Model ID",   "Author",      "URL",         "Model Description", "Publish Description",
+  "Copyright",     "Email",      "Disclaimer",  "Pieces",      "Plug",              "Category",
+  "Logo",          "Cover Image","Plug Image",
+  "Single Step",   "Submodel Instance Count",   "Step",        "Range",             "Reserve",
+  "BOM",           "Cover Page",                "Front Cover", "Back Cover"
 };
 
 QString PlacementDialog::relativeToName(

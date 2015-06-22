@@ -43,7 +43,6 @@ void PageAttributeItem::setAttributes(
     textFont              = &_pageAttributeText.textFont;
     textColor             = &_pageAttributeText.textColor;
     margin                = &_pageAttributeText.margin;
-    alignment             = &_pageAttributeText.alignment;
     placement             = &_pageAttributeText.placement;
     displayText           = &_pageAttributeText.display;
     content               = &_pageAttributeText.content;
@@ -74,7 +73,6 @@ PageAttributeItem::PageAttributeItem()
   textFont      = NULL;
   textColor     = NULL;
   margin        = NULL;
-  alignment     = NULL;
   content       = NULL;
 }
 
@@ -104,51 +102,51 @@ PagePageAttributeItem::PagePageAttributeItem(
   PlacementType pageAttributeType;
   switch(_pageAttributeText.type)
   {
-  case PageAttributeTextMeta::PageTitleType:
+  case PageTitleType:
       pageAttributeType = PageTitleType;
       toolTip           = tr("Title text - right-click to modify");
       break;
-  case PageAttributeTextMeta::PageModelNameType:
+  case PageModelNameType:
       pageAttributeType = PageModelNameType;
       toolTip           = tr("Model Name text - right-click to modify");
       break;
-  case PageAttributeTextMeta::PageAuthorType:
+  case PageAuthorType:
       pageAttributeType = PageAuthorType;
       toolTip           = tr("Author text - right-click to modify");
       break;
-  case PageAttributeTextMeta::PageURLType:
+  case PageURLType:
       pageAttributeType = PageURLType;
       toolTip           = tr("URL text - right-click to modify");
       break;
-  case PageAttributeTextMeta::PageModelDescType:
+  case PageModelDescType:
       pageAttributeType = PageModelDescType;
       toolTip           = tr("Model Description text - right-click to modify");
       break;
-  case PageAttributeTextMeta::PagePublishDescType:
+  case PagePublishDescType:
       pageAttributeType = PagePublishDescType;
       toolTip           = tr("Publish Description text - right-click to modify");
       break;
-  case PageAttributeTextMeta::PageCopyrightType:
+  case PageCopyrightType:
       pageAttributeType = PageCopyrightType;
       toolTip           = tr("Copyright text - right-click to modify");
       break;
-  case PageAttributeTextMeta::PageEmailType:
+  case PageEmailType:
       pageAttributeType = PageEmailType;
       toolTip           = tr("Email text - right-click to modify");
       break;
-  case PageAttributeTextMeta::PageDisclaimerType:
+  case PageDisclaimerType:
       pageAttributeType = PageDisclaimerType;
       toolTip           = tr("Disclaimer text - right-click to modify");
       break;
-  case PageAttributeTextMeta::PagePiecesType:
+  case PagePiecesType:
       pageAttributeType = PagePiecesType;
       toolTip           = tr("Pieces text - right-click to modify");
       break;
-  case PageAttributeTextMeta::PagePlugType:
+  case PagePlugType:
       pageAttributeType = PagePlugType;
       toolTip           = tr("Plug text - right-click to modify");
       break;
-  case PageAttributeTextMeta::PageCategoryType:
+  case PageCategoryType:
       pageAttributeType = PageCategoryType;
       toolTip           = tr("Category text - right-click to modify");
       break;
@@ -193,7 +191,7 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   } else if (selectedAction == placementAction) {
 
     changePlacement(PageType,
-                    PageAttributeTextType,
+                    PageAttributeTextType,  // likely not resolvable
                     "Move Page Attribute",
                     topOfSteps,
                     bottomOfSteps,

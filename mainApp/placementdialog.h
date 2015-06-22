@@ -59,6 +59,9 @@ class QDialogButtonBox;
  *   L_B|BL   B   BR|R-B
  *   ---+-----------+---
  *    BL|B-L  B  B-R|BR
+ *
+ * TL,T-L=Top Left
+ * BL,B-L=Bottom Left
  */
 
 class PlacementDialog : public QDialog
@@ -73,7 +76,11 @@ public:
 
   enum RelativeTos 
 
-    { Page = 1 , Csi = 2, Ms = 4, Sn = 8, Pli = 16, Callout = 32, Pn = 64};
+    { Page = 1 , Csi = 2, Ms = 4, Sn = 8, Pli = 16, Callout = 32, Pn = 64,
+
+      tt = 66, mnt = 67, mdt = 68, pdt = 69, at = 70, pt = 71, cat = 72, urlt = 73,
+
+      et = 74, ct = 75, dt = 75, dlt = 76, cit = 77, plt = 78, pit = 79};
 
   RelativeTos currentRelativeType;
 

@@ -36,7 +36,6 @@ public:
   StringMeta            *textColor;
   StringMeta            *content;
   MarginsMeta           *margin;
-  AlignmentMeta         *alignment;
   PlacementMeta         *placement;
   BoolMeta              *displayText;
 
