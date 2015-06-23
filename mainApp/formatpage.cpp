@@ -318,17 +318,6 @@ int Gui::addGraphicsPageItems(
         author->size[XX]     = (int) author->document()->size().width();
         author->size[YY]     = (int) author->document()->size().height();
 
-    /*     placementData = author->placement->value();
-
-        placementData.placement     = TopLeft;
-        placementData.justification = Center;
-        placementData.relativeTo    = PageType;
-        placementData.preposition   = Inside;
-        placementData.offsets[0]    = page->meta.LPub.page.author.placement.value().offsets[0];
-        placementData.offsets[1]    = page->meta.LPub.page.author.placement.value().offsets[1];
-
-        author->placement->setValue(placementData); */
-
         plPage.appendRelativeTo(author);
         plPage.placeRelative(author);
         author->setPos(author->loc[XX],author->loc[YY]);
@@ -346,17 +335,6 @@ int Gui::addGraphicsPageItems(
         url->relativeType = PageCopyrightType;
         url->size[XX]     = (int) url->document()->size().width();
         url->size[YY]     = (int) url->document()->size().height();
-
-    /*     placementData = url->placement->value();
-
-        placementData.placement     = TopRight;
-        placementData.justification = Center;
-        placementData.relativeTo    = PageType;
-        placementData.preposition   = Inside;
-        placementData.offsets[0]    = page->meta.LPub.page.url.placement.value().offsets[0];
-        placementData.offsets[1]    = page->meta.LPub.page.url.placement.value().offsets[1];
-
-        url->placement->setValue(placementData); */
 
         plPage.appendRelativeTo(url);
         plPage.placeRelative(url);
@@ -376,17 +354,6 @@ int Gui::addGraphicsPageItems(
         email->size[XX]     = (int) email->document()->size().width();
         email->size[YY]     = (int) email->document()->size().height();
 
-    /*     placementData = email->placement->value();
-
-        placementData.placement     = BottomLeft;
-        placementData.justification = Center;
-        placementData.relativeTo    = PageType;
-        placementData.preposition   = Inside;
-        placementData.offsets[0]    = page->meta.LPub.page.email.placement.value().offsets[0];
-        placementData.offsets[1]    = page->meta.LPub.page.email.placement.value().offsets[1];
-
-        email->placement->setValue(placementData); */
-
         plPage.appendRelativeTo(email);
         plPage.placeRelative(email);
         email->setPos(email->loc[XX],email->loc[YY]);
@@ -404,17 +371,6 @@ int Gui::addGraphicsPageItems(
         copyright->relativeType = PageCopyrightType;
         copyright->size[XX]     = (int) copyright->document()->size().width();
         copyright->size[YY]     = (int) copyright->document()->size().height();
-
-        placementData = copyright->placement->value();           //process placement data as needed.
-
-  /*        placementData.placement     = BottomLeft;
-            placementData.justification = Center;
-            placementData.relativeTo    = PageType;
-            placementData.preposition   = Inside;
-            placementData.offsets[0]    = page->meta.LPub.page.copyright.placement.value().offsets[0];
-            placementData.offsets[1]    = page->meta.LPub.page.copyright.placement.value().offsets[1];
-
-            copyright->placement->setValue(placementData); */
 
         plPage.appendRelativeTo(copyright);
         plPage.placeRelative(copyright);

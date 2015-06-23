@@ -1468,12 +1468,12 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
       if  (argv[pos] == "FRONT"){
           gui->page.frontCover = true;
           gui->page.backCover  = false;
-          logTrace() << "Insert Cover Page Front";
+          //logTrace() << "Insert Cover Page Front";
           return InsertCoverPageRc;
       } else if ( argv[pos] == "BACK"){
           gui->page.backCover  = true;
           gui->page.frontCover = false;
-          logTrace() << "Insert Cover Page Back";
+          //logTrace() << "Insert Cover Page Back";
           return InsertCoverPageRc;
       } else
           rc = FailureRc;

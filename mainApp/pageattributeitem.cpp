@@ -31,38 +31,33 @@
 void PageAttributeItem::setAttributes(
   PlacementType              _relativeType,
   PlacementType              _parentRelativeType,
-  Page                      *_page,
   PageAttributeTextMeta     &_pageAttributeText,
   QString                   &toolTip,
   QGraphicsItem             *_parent)
 {
-    page                  =  _page;
     relativeType          =  _relativeType;
     parentRelativeType    =  _parentRelativeType;
 
-    textFont              = &_pageAttributeText.textFont;
-    textColor             = &_pageAttributeText.textColor;
-    margin                = &_pageAttributeText.margin;
-    placement             = &_pageAttributeText.placement;
-    displayText           = &_pageAttributeText.display;
-    content               = &_pageAttributeText.content;
+    textFont              = _pageAttributeText.textFont;
+    textColor             = _pageAttributeText.textColor;
+    margin                = _pageAttributeText.margin;
+    placement             = _pageAttributeText.placement;
+    displayText           = _pageAttributeText.display;
+    content               = _pageAttributeText.content;
 
     QFont qfont;
     qfont.fromString(_pageAttributeText.textFont.valueFoo());
     setFont(qfont);
 
     QString text;
-    //text = content->value();
     QRegExp rx("\\\\n");
-    QStringList list = content->value().split(rx);   //rem this if ko
+    QStringList list = content.value().split(rx);   //rem this if ko
     text = list.join("\n");
     setPlainText(text);
+    setDefaultTextColor(LDrawColor::color(textColor.value()));
+    setTextInteractionFlags(Qt::TextEditorInteraction);
 
     setToolTip(toolTip);
-    setDefaultTextColor(LDrawColor::color(textColor->value()));
-    setTextInteractionFlags(Qt::TextEditorInteraction);
-    setFlag(QGraphicsItem::ItemIsMovable);
-    setFlag(QGraphicsItem::ItemIsSelectable);
     setZValue(1000);
     setParentItem(_parent);
 }
@@ -70,23 +65,19 @@ void PageAttributeItem::setAttributes(
 PageAttributeItem::PageAttributeItem()
 {
   relativeType  = PageTitleType;
-  textFont      = NULL;
-  textColor     = NULL;
-  margin        = NULL;
-  content       = NULL;
+  setFlag(QGraphicsItem::ItemIsMovable,true);
+  setFlag(QGraphicsItem::ItemIsSelectable,true);
 }
 
 PageAttributeItem::PageAttributeItem(
   PlacementType              _relativeType,
   PlacementType              _parentRelativeType,
-  Page                      *_page,
   PageAttributeTextMeta     &_pageAttributeText,
   QString                   &_toolTip,
   QGraphicsItem             *_parent)
 {
   setAttributes(_relativeType,
                 _parentRelativeType,
-                _page,
                 _pageAttributeText,
                 _toolTip,
                 _parent);
@@ -139,9 +130,8 @@ PagePageAttributeItem::PagePageAttributeItem(
       break;
   }
 
-  setAttributes(_pageAttributeText.type,
-                SingleStepType,
-                _page,
+  setAttributes(_pageAttributeText.type,                //relativeType
+                SingleStepType,                         //parent relative type
                 _pageAttributeText,
                  toolTip,
                 _parent);
@@ -151,7 +141,7 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
 {
   QMenu menu;
 
-  PlacementData placementData = placement->value();
+  PlacementData placementData = placement.value();
   QString name = "Move Attribute";
   QAction *placementAction        = menu.addAction(name);
   QAction *fontAction             = menu.addAction("Edit Font");
@@ -179,26 +169,26 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
 
     changePlacement(PageType,
                     relativeType,
-                    "Move Page Attribute",              //resolve name (use placeTypeNames framework)
+                    "Move Page Attribute",
                     topOfSteps,
                     bottomOfSteps,
-                    placement);         //used to be &placement (before making placement a pointer)
+                    &placement);
 
   } else if (selectedAction == marginAction) {
 
       changeMargins("Page Attribute Margins",
-                    topOfSteps,bottomOfSteps,margin);
+                    topOfSteps,bottomOfSteps,&margin);
   } else if (selectedAction == fontAction) {
 
-      changeFont(topOfSteps,bottomOfSteps,textFont);
+      changeFont(topOfSteps,bottomOfSteps,&textFont);
 
   } else if (selectedAction == colorAction) {
 
-      changeColor(topOfSteps,bottomOfSteps,textColor);
+      changeColor(topOfSteps,bottomOfSteps,&textColor);
 
   } else if (selectedAction == doNotDisplayTextAction){
 
-      displayText->setValue(false);
+      displayText.setValue(false);     //this is not complete (have to redraw page)
 
   }
 }
@@ -217,14 +207,14 @@ void PagePageAttributeItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     if (newPosition.x() || newPosition.y()) {
       positionChanged = true;
 
-      PlacementData placementData = placement->value();
+      PlacementData placementData = placement.value();
 
       placementData.offsets[0] += newPosition.x()/relativeToSize[0];
       placementData.offsets[1] += newPosition.y()/relativeToSize[1];
 
-      placement->setValue(placementData);
+      placement.setValue(placementData);
 
-      changePlacementOffset(page->bottomOfSteps(),placement,relativeType);  //used to be &placement (before making placement a pointer)
+      changePlacementOffset(page->bottomOfSteps(),&placement,relativeType);
     }
   }
 }
@@ -257,9 +247,9 @@ void PagePageAttributeItem::focusOutEvent(QFocusEvent *event)
   if (textValueChanged) {
 
     QStringList list = toPlainText().split("\n");
-    content->setValue(list.join("\\n"));
+    content.setValue(list.join("\\n"));
 
-    changePlacementOffset(page->bottomOfSteps(),placement,relativeType); //used to be &placement (before making placement a pointer)
+    changePlacementOffset(page->bottomOfSteps(),&placement,relativeType);
   }
 }
 

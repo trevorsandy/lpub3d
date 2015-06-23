@@ -20,7 +20,6 @@
 #include "where.h"
 #include "placement.h"
 #include "metaitem.h"
-#include "resize.h"
 
 class Where;
 class Page;
@@ -31,13 +30,10 @@ class PageAttributeItem : public QGraphicsTextItem, public MetaItem, public Plac
 public:
   PlacementType          relativeType;
   PlacementType          parentRelativeType;
-  Page                  *page;
-  FontMeta              *textFont;
-  StringMeta            *textColor;
-  StringMeta            *content;
-  MarginsMeta           *margin;
-  PlacementMeta         *placement;
-  BoolMeta              *displayText;
+  FontMeta               textFont;
+  StringMeta             textColor;
+  StringMeta             content;
+  BoolMeta               displayText;
 
   bool                   positionChanged;
   QPointF                position;
@@ -48,7 +44,6 @@ public:
   PageAttributeItem(
     PlacementType                relativeType,
     PlacementType                parentRelativeType,
-    Page                        *page,
     PageAttributeTextMeta       &pageAttributeText,
     QString                     &toolTip,
     QGraphicsItem               *parent);
@@ -56,7 +51,6 @@ public:
   void setAttributes(
     PlacementType                relativeType,
     PlacementType                parentRelativeType,
-    Page                        *page,
     PageAttributeTextMeta       &pageAttributeText,
     QString                     &toolTip,
     QGraphicsItem               *parent);

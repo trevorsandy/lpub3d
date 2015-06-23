@@ -98,6 +98,7 @@ enum PlacementType {
     StepNumberType,
     PartsListType,
     CalloutType,
+
     PageNumberType,
     PageTitleType,				//tt   page attribute
     PageModelNameType,			//mnt  page attribute
@@ -125,9 +126,6 @@ enum PlacementType {
     PageFrontCoverType,			//page attribute
     PageBackCoverType,			//page attribute
     NumRelatives
-
-//    PageAttributeTextType,
-//    PageAttributePictureType
 };
 
 class PlacementData
