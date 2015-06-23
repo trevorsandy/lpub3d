@@ -32,8 +32,9 @@ void PageAttributeItem::setAttributes(
   PlacementType              _relativeType,
   PlacementType              _parentRelativeType,
   PageAttributeTextMeta     &_pageAttributeText,
-  QString                   &toolTip,
-  QGraphicsItem             *_parent)
+  QString                   &_toolTip,
+  QGraphicsItem             *_parent,
+  QString                   &_name)
 {
     relativeType          =  _relativeType;
     parentRelativeType    =  _parentRelativeType;
@@ -44,6 +45,7 @@ void PageAttributeItem::setAttributes(
     placement             = _pageAttributeText.placement;
     displayText           = _pageAttributeText.display;
     content               = _pageAttributeText.content;
+    name                  = _name;
 
     QFont qfont;
     qfont.fromString(_pageAttributeText.textFont.valueFoo());
@@ -57,7 +59,7 @@ void PageAttributeItem::setAttributes(
     setDefaultTextColor(LDrawColor::color(textColor.value()));
     setTextInteractionFlags(Qt::TextEditorInteraction);
 
-    setToolTip(toolTip);
+    setToolTip(_toolTip);
     setZValue(1000);
     setParentItem(_parent);
 }
@@ -74,13 +76,15 @@ PageAttributeItem::PageAttributeItem(
   PlacementType              _parentRelativeType,
   PageAttributeTextMeta     &_pageAttributeText,
   QString                   &_toolTip,
-  QGraphicsItem             *_parent)
+  QGraphicsItem             *_parent,
+  QString                   &_name)
 {
   setAttributes(_relativeType,
                 _parentRelativeType,
                 _pageAttributeText,
                 _toolTip,
-                _parent);
+                _parent,
+                _name);
 }
 
 PagePageAttributeItem::PagePageAttributeItem(
@@ -90,42 +94,55 @@ PagePageAttributeItem::PagePageAttributeItem(
 {
   page          = _page;
   QString       toolTip;
+  QString       name;
   switch(_pageAttributeText.type)
   {
   case PageTitleType:
+      name              = tr("Title");
       toolTip           = tr("Title text - right-click to modify");
       break;
   case PageModelNameType:
+      name              = tr("Model Name");
       toolTip           = tr("Model Name text - right-click to modify");
       break;
   case PageAuthorType:
+      name              = tr("Author");
       toolTip           = tr("Author text - right-click to modify");
       break;
   case PageURLType:
+      name              = tr("URL");
       toolTip           = tr("URL text - right-click to modify");
       break;
   case PageModelDescType:
+      name              = tr("Model Description");
       toolTip           = tr("Model Description text - right-click to modify");
       break;
   case PagePublishDescType:
+      name              = tr("Publish Description");
       toolTip           = tr("Publish Description text - right-click to modify");
       break;
   case PageCopyrightType:
+      name              = tr("Copyright");
       toolTip           = tr("Copyright text - right-click to modify");
       break;
   case PageEmailType:
+      name              = tr("Email");
       toolTip           = tr("Email text - right-click to modify");
       break;
   case PageDisclaimerType:
+      name              = tr("LEGO Disclaimer");
       toolTip           = tr("Disclaimer text - right-click to modify");
       break;
   case PagePiecesType:
+      name              = tr("Pieces");
       toolTip           = tr("Pieces text - right-click to modify");
       break;
   case PagePlugType:
+      name              = tr("Plug");
       toolTip           = tr("Plug text - right-click to modify");
       break;
   case PageCategoryType:
+      name              = tr("Category");
       toolTip           = tr("Category text - right-click to modify");
       break;
   }
@@ -134,7 +151,8 @@ PagePageAttributeItem::PagePageAttributeItem(
                 SingleStepType,                         //parent relative type
                 _pageAttributeText,
                  toolTip,
-                _parent);
+                _parent,
+                 name);
 }
 
 void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
@@ -142,19 +160,24 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   QMenu menu;
 
   PlacementData placementData = placement.value();
-  QString name = "Move Attribute";
-  QAction *placementAction        = menu.addAction(name);
-  QAction *fontAction             = menu.addAction("Edit Font");
-  QAction *colorAction            = menu.addAction("Edit Color");
-  QAction *marginAction           = menu.addAction("Edit margins");
-  QAction *doNotDisplayTextAction = menu.addAction("Do not display");
+//  QString name = "Move Attribute";
+//  QAction *placementAction        = menu.addAction(name);
+//  QAction *fontAction             = menu.addAction("Edit Font");
+//  QAction *colorAction            = menu.addAction("Edit Color");
+//  QAction *marginAction           = menu.addAction("Edit margins");
+  QAction *placementAction        = commonMenus.placementMenu(menu,name,
+                                    commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,name));
+  QAction *fontAction             = commonMenus.fontMenu(menu,name);
+  QAction *colorAction            = commonMenus.colorMenu(menu,name);
+  QAction *marginAction           = commonMenus.marginMenu(menu,name);
+  QAction *displayTextAction      = commonMenus.displayMenu(menu,name);
 
-  fontAction->setWhatsThis("Edit this attribute's font");
-  colorAction->setWhatsThis("Edit this attribute's colour");
-  marginAction->setWhatsThis("Edit the margin space around this attribute");
-  doNotDisplayTextAction->setWhatsThis("Do not display this attribute");
-  placementAction->setWhatsThis(
-    commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,name));
+//  fontAction->setWhatsThis("Edit this attribute's font");
+//  colorAction->setWhatsThis("Edit this attribute's colour");
+//  marginAction->setWhatsThis("Edit the margin space around this attribute");
+//  doNotDisplayTextAction->setWhatsThis("Do not display this attribute");
+//  placementAction->setWhatsThis(
+//    commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,name));
 
   Where topOfSteps          = page->topOfSteps();
   Where bottomOfSteps       = page->bottomOfSteps();
@@ -167,7 +190,7 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
 
   } else if (selectedAction == placementAction) {
 
-    changePlacement(PageType,
+    changePlacement(parentRelativeType,
                     relativeType,
                     "Move Page Attribute",
                     topOfSteps,
@@ -186,7 +209,7 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
 
       changeColor(topOfSteps,bottomOfSteps,&textColor);
 
-  } else if (selectedAction == doNotDisplayTextAction){
+  } else if (selectedAction == displayTextAction){
 
       displayText.setValue(false);     //this is not complete (have to redraw page)
 
@@ -208,10 +231,8 @@ void PagePageAttributeItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
       positionChanged = true;
 
       PlacementData placementData = placement.value();
-
       placementData.offsets[0] += newPosition.x()/relativeToSize[0];
       placementData.offsets[1] += newPosition.y()/relativeToSize[1];
-
       placement.setValue(placementData);
 
       changePlacementOffset(page->bottomOfSteps(),&placement,relativeType);
@@ -245,10 +266,8 @@ void PagePageAttributeItem::focusOutEvent(QFocusEvent *event)
   QGraphicsTextItem::focusOutEvent(event);
 
   if (textValueChanged) {
-
     QStringList list = toPlainText().split("\n");
     content.setValue(list.join("\\n"));
-
     changePlacementOffset(page->bottomOfSteps(),&placement,relativeType);
   }
 }

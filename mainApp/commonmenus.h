@@ -72,6 +72,9 @@ public:
           QMenu   &menu, 
     const QString  name = "");
 
+  QAction *displayMenu(
+          QMenu   &menu,
+    const QString  name = "");
 private:
   QString englishPlacement(
     PlacementType  type,

@@ -65,66 +65,56 @@ QAction* CommonMenus::fontMenu(
   return action;
 }
 
-
-
 QAction* CommonMenus::colorMenu(
-
         QMenu   &menu, 
-
   const QString  name)
 
 {
-
   QAction *action;
 
-
-
   QString formatted = QString("Change %1Color") .arg(name);
-
   action = menu.addAction(formatted);
 
-
-
   formatted = QString("You can change the color of this %1") .arg(name);
-
   action->setWhatsThis(formatted);
 
-
-
   return action;
-
 }
 
 
 
 QAction* CommonMenus::marginMenu(
-
         QMenu   &menu, 
-
   const QString  name)
 
 {
 
   QAction *action;
 
-
-
   QString formatted = QString("Change %1Margins") .arg(name);
-
   action = menu.addAction(formatted);
 
-
-
   formatted = QString("You can change how much empty space their is around this %1 number") .arg(name);
-
   action->setWhatsThis(formatted);
 
-
-
   return action;
-
 }
 
+QAction* CommonMenus::displayMenu(
+      QMenu   &menu,
+  const QString  name)
+
+{
+QAction *action;
+
+QString formatted = QString("Toggle %1 display") .arg(name);
+action = menu.addAction(formatted);
+
+formatted = QString("You can turn off and on the display of %1") .arg(name);
+action->setWhatsThis(formatted);
+
+return action;
+}
 
 
 QString placement2english(PlacementEnc placement)
@@ -315,7 +305,7 @@ QString type2english(PlacementType type)
 
     case PagePlugType:
 
-        return  "LPub3D caption";               // change to global variable once runnig
+        return  "application plug";               // change to global variable once runnig
 
         break;
 
@@ -327,7 +317,7 @@ QString type2english(PlacementType type)
 
     case PagePlugImageType:
 
-        return "LPub3D logo";
+        return "application logo";
 
         break;
 
@@ -403,11 +393,107 @@ QString type2english2(PlacementType type)
 
     break;
 
-    default:
+  case PageTitleType:
+
+      return "the document title";
+
+      break;
+
+  case PageModelNameType:
+
+      return "the model id";
+
+      break;
+
+  case PageAuthorType:
+
+      return "the author";
+
+      break;
+
+  case PageURLType:
+
+      return "the publisher url";
+
+      break;
+
+  case PageDocumentLogoType:
+
+      return "the publisher logo";
+
+      break;
+
+  case PageModelDescType:
+
+      return "the model description";
+
+      break;
+
+  case PagePublishDescType:
+
+      return "the publish description";
+
+      break;
+
+  case PageCopyrightType:
+
+      return "the copyright notice";
+
+      break;
+
+  case PageEmailType:
+
+      return "the publisher email";
+
+      break;
+
+  case PageDisclaimerType:
+
+      return "the LEGO © disclaimer";
+
+      break;
+
+  case PagePiecesType:
+
+      return "the number of pieces";
+
+      break;
+
+  case PagePlugType:
+
+      return  "the application plug";               // change to global variable once runnig
+
+      break;
+
+  case PageCategoryType:
+
+      return "the model category";
+
+      break;
+
+  case PagePlugImageType:
+
+      return "the application logo";
+
+      break;
+
+  case PageFrontCoverType:
+
+      return "the configured front cover page";
+
+      break;
+
+  case PageBackCoverType:
+
+      return "the configured back cover page";
+
+      break;
+
+  default:
 
       return "";
 
-    break;
+      break;
 
   }
 

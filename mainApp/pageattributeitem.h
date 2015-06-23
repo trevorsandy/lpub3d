@@ -34,10 +34,11 @@ public:
   StringMeta             textColor;
   StringMeta             content;
   BoolMeta               displayText;
+  QString                name;
 
+  bool                   textValueChanged;
   bool                   positionChanged;
   QPointF                position;
-  bool                   textValueChanged;
 
   PageAttributeItem();
 
@@ -46,14 +47,16 @@ public:
     PlacementType                parentRelativeType,
     PageAttributeTextMeta       &pageAttributeText,
     QString                     &toolTip,
-    QGraphicsItem               *parent);
+    QGraphicsItem               *parent,
+    QString                     &name);
 
   void setAttributes(
     PlacementType                relativeType,
     PlacementType                parentRelativeType,
     PageAttributeTextMeta       &pageAttributeText,
     QString                     &toolTip,
-    QGraphicsItem               *parent);
+    QGraphicsItem               *parent,
+    QString                     &name);
 
   void setFlags( GraphicsItemFlag flag, bool value)
   {
