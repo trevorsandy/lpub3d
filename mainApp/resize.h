@@ -43,8 +43,11 @@
 #include "resolution.h"
 #include "meta.h"
 
+#include "QsLog.h"
+
 class Grabber;
 class QGraphicsItem;
+class Page;
 
 class AbstractResize
 {
@@ -198,13 +201,15 @@ class InsertPixmapItem : public ResizePixmapItem
 
 class PageAttributePixmapItem : public ResizePixmapItem
 {
+    Page                    *page;
   public:
-
     PageAttributePictureMeta pageAttributePictureMeta;
     qreal                    relativeToLoc[2];
     qreal                    relativeToSize[2];
 
+
     PageAttributePixmapItem(
+      Page                        *page,
       QPixmap                     &pixmap,
       PageAttributePictureMeta    &pageAttributePictureMeta,
       QGraphicsItem               *parent = 0);

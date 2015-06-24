@@ -54,7 +54,7 @@ QAction* CommonMenus::fontMenu(
 {
   QAction *action;
 
-  QString formatted = QString("Change %1Font") .arg(name);
+  QString formatted = QString("Change %1 Font") .arg(name);
   action = menu.addAction(formatted);
 
   formatted = QString(
@@ -72,7 +72,7 @@ QAction* CommonMenus::colorMenu(
 {
   QAction *action;
 
-  QString formatted = QString("Change %1Color") .arg(name);
+  QString formatted = QString("Change %1 Color") .arg(name);
   action = menu.addAction(formatted);
 
   formatted = QString("You can change the color of this %1") .arg(name);
@@ -91,7 +91,7 @@ QAction* CommonMenus::marginMenu(
 
   QAction *action;
 
-  QString formatted = QString("Change %1Margins") .arg(name);
+  QString formatted = QString("Change %1 Margins") .arg(name);
   action = menu.addAction(formatted);
 
   formatted = QString("You can change how much empty space their is around this %1 number") .arg(name);
@@ -107,7 +107,7 @@ QAction* CommonMenus::displayMenu(
 {
 QAction *action;
 
-QString formatted = QString("Toggle %1 display") .arg(name);
+QString formatted = QString("Hide %1") .arg(name);
 action = menu.addAction(formatted);
 
 formatted = QString("You can turn off and on the display of %1") .arg(name);

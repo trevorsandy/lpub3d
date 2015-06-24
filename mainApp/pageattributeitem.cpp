@@ -53,7 +53,7 @@ void PageAttributeItem::setAttributes(
 
     QString text;
     QRegExp rx("\\\\n");
-    QStringList list = content.value().split(rx);   //rem this if ko
+    QStringList list = content.value().split(rx);
     text = list.join("\n");
     setPlainText(text);
     setDefaultTextColor(LDrawColor::color(textColor.value()));
@@ -148,7 +148,7 @@ PagePageAttributeItem::PagePageAttributeItem(
   }
 
   setAttributes(_pageAttributeText.type,                //relativeType
-                SingleStepType,                         //parent relative type
+                 SingleStepType,                    //SingleStepType / page->relativeType, -parent relative type (using resolution)
                 _pageAttributeText,
                  toolTip,
                 _parent,
@@ -160,24 +160,12 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   QMenu menu;
 
   PlacementData placementData = placement.value();
-//  QString name = "Move Attribute";
-//  QAction *placementAction        = menu.addAction(name);
-//  QAction *fontAction             = menu.addAction("Edit Font");
-//  QAction *colorAction            = menu.addAction("Edit Color");
-//  QAction *marginAction           = menu.addAction("Edit margins");
   QAction *placementAction        = commonMenus.placementMenu(menu,name,
                                     commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,name));
   QAction *fontAction             = commonMenus.fontMenu(menu,name);
   QAction *colorAction            = commonMenus.colorMenu(menu,name);
   QAction *marginAction           = commonMenus.marginMenu(menu,name);
   QAction *displayTextAction      = commonMenus.displayMenu(menu,name);
-
-//  fontAction->setWhatsThis("Edit this attribute's font");
-//  colorAction->setWhatsThis("Edit this attribute's colour");
-//  marginAction->setWhatsThis("Edit the margin space around this attribute");
-//  doNotDisplayTextAction->setWhatsThis("Do not display this attribute");
-//  placementAction->setWhatsThis(
-//    commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,name));
 
   Where topOfSteps          = page->topOfSteps();
   Where bottomOfSteps       = page->bottomOfSteps();

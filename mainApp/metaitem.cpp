@@ -980,10 +980,45 @@ void MetaItem::changeInsertOffset(
 }
 
 void MetaItem::changePageAttributePictureOffset(
-  PageAttributePictureMeta *placement)
+  Where defaultWhere,
+  PageAttributePictureMeta *pictureMeta)
 {
-  QString newMetaString = placement->format(false,false);
-  replaceMeta(placement->here(),newMetaString);
+  QString newMetaString = pictureMeta->format(false,false);
+  logNotice() << "(2.) New Meta String: " << newMetaString;
+
+  //Where defaultWhere = pictureMeta->here();
+
+  if (pictureMeta->here().modelName == "undefined") {
+    Where walk = defaultWhere + 1;
+
+    bool partsAdded;
+
+    logNotice() << "(3.) Model undefined - line number: " << pictureMeta->here().lineNumber;
+    if (scanBackward(walk,StepMask,partsAdded) == EndOfFileRc) {
+      defaultWhere = firstLine(defaultWhere.modelName);
+      logNotice() << "(3a.) STEP, so scan backward: " << defaultWhere.lineNumber;
+    }
+    if (pictureMeta->value().type == StepGroupType) {
+      scanForward(defaultWhere,StepGroupBeginMask);
+      logNotice() << "(3b.) STEP-GROUP, so scan forward: " << defaultWhere.lineNumber;
+    } else if (pictureMeta->value().type == CalloutType) {
+      scanForward(defaultWhere,CalloutEndMask);
+      --defaultWhere;
+      logNotice() << "(3c.) CALLOUT, so scan forward: " << defaultWhere.lineNumber;
+    } else if (defaultWhere.modelName == gui->topLevelFile()) {
+      scanPastGlobal(defaultWhere);
+      logNotice() << "(3d.) TOP-LEVEL, so scan past GLOBAL: " << defaultWhere.lineNumber;
+    }
+    appendMeta(defaultWhere,newMetaString);
+    logNotice() << "(4.) APPEND meta at line number: " << defaultWhere.lineNumber
+                << ", Model Name: " << defaultWhere.modelName
+                << " ,Meta: " << newMetaString;
+  } else {
+    replaceMeta(pictureMeta->here(),newMetaString);
+    logNotice() << "(4.) REPLACE meta at line number: " << pictureMeta->here().lineNumber
+                << ", Model Name: " << pictureMeta->here().lineNumber
+                << " ,meta: " << newMetaString;
+  }
 }
 
 void MetaItem::changeBackground(

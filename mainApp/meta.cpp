@@ -886,111 +886,114 @@ Rc PageAttributePictureMeta::parse(QStringList &argv, int index,Where &here)
 {
  Rc rc = FailureRc;
 
- if (argv.size() - index >= 2){
-   if (argv[index] == "DOCUMENT_LOGO") {
+ for(int i=0;i<argv.size();i++){
+
+     logNotice() << "PAGE ARGV Index: (" << i << ")" << i+1 << " " << argv[i];}
+     logNotice() << "SIZE: " << argv.size() << ", INDX: " << index;
+     logInfo() << "00 START - Value at index: " << argv[index];
+
+ if (argv.size() - index >= 4){
+   if (argv[index-1] == "DOCUMENT_LOGO") {
+       logInfo() << "\n01 Doc Logo: " << argv[index-1];
      _value[pushed].type = PageDocumentLogoType;
      rc = OkRc;
-   } else if (argv[index] == "COVER_IMAGE") {
+   } else if (argv[index-1] == "APP_PLUG_IMAGE") {
+       logInfo() << "\n02 Plug image: " << argv[index-1];
+       _value[pushed].type = PagePlugImageType;
+       rc = OkRc;
+   } else if (argv[index-2] == "DOCUMENT_COVER_IMAGE") {
+       logInfo() << "\n03 Cover image: " << argv[index-2];
       _value[pushed].type = PageCoverImageType;
-      rc = OkRc;
-   }else if (argv[index] == "PLUG_IMAGE") {
-      _value[pushed].type = PagePlugImageType;
       rc = OkRc;
    }
  }
- if (argv.size() - index == 2) {
-   if (argv[index] == "DOCUMENT_LOGO" || argv[index] == "COVER_IMAGE" || argv[index] == "PLUG_IMAGE") {
-     _value[pushed].string = argv[index+1];
+
+ if ((argv[index-1] == "DOCUMENT_LOGO" || argv[index-1] == "APP_PLUG_IMAGE" || argv[index-2] == "DOCUMENT_COVER_IMAGE") && argv[index+2] == "SCALE") {
+     logInfo() << "\n06 IN SCALE - \nlogo: " << argv[index-1] << "\nFile: " << argv[index+1] << "\nScale: " << argv[index+2] << " " << argv[index+3].toFloat() ;
+     _value[pushed].string  = argv[index+1];
      _value[pushed].stretch = false;
-     rc = OkRc;
-   }
- } else if (argv.size() - index == 3) {
-   if ((argv[index] == "DOCUMENT_LOGO" || argv[index] == "COVER_IMAGE" || argv[index] == "PLUG_IMAGE") && argv[index+2] == "STRETCH") {
-     _value[pushed].string = argv[index+1];
-     _value[pushed].stretch = true;
-     rc = OkRc;
-   }
- } else if (argv.size() - index == 4) {
-   if ((argv[index] == "DOCUMENT_LOGO" || argv[index] == "COVER_IMAGE" || argv[index] == "PLUG_IMAGE") && argv[index+2] == "SCALE") {
-     _value[pushed].string = argv[index+1];
-     _value[pushed].stretch = false;
+     _value[pushed].tile = false;
      bool ok;
      _value[pushed].picScale = argv[index+3].toFloat(&ok);
      if (! ok) {
-       rc = FailureRc;
+         rc = FailureRc;
      } else {
-     rc = OkRc;
+         rc = OkRc;
      }
-   }
- } else if (argv.size() - index == 5) { 							//OFFSET WITH NO SCALE
-   if ((argv[index] == "DOCUMENT_LOGO" || argv[index] == "COVER_IMAGE" || argv[index] == "PLUG_IMAGE") && argv[index+2] == "OFFSET") {
-     _value[pushed].string = argv[index+1];
-     _value[pushed].stretch = false;
-     bool ok[2];
-     _value[pushed].offsets[0] = argv[index+3].toFloat(&ok[0]);
-     _value[pushed].offsets[1] = argv[index+4].toFloat(&ok[1]);
-     if ( ! ok[0] || ! ok[1]) {
-       rc = FailureRc;
-     }	else {
-     rc = OkRc;
-     }
-   }
- } else if (argv.size() - index == 7) {							//OFFSET AND SCALE
-   if ((argv[index] == "DOCUMENT_LOGO" || argv[index] == "COVER_IMAGE" || argv[index] == "PLUG_IMAGE") && argv[index+2] == "OFFSET") {
-     _value[pushed].string = argv[index+1];
-     _value[pushed].stretch = false;
-     bool ok[3];
-     _value[pushed].picScale = argv[index+3].toFloat(&ok[0]);
-     _value[pushed].offsets[0] = argv[index+5].toFloat(&ok[1]);
-     _value[pushed].offsets[1] = argv[index+6].toFloat(&ok[2]);
-     if ( ! ok[0] || ! ok[1] || ! ok[2]) {
-       rc = FailureRc;
-     }	else {
-     rc = OkRc;
-     }
-   }
- } else if (argv.size() - index > 0) {
-     rc = FailureRc;
  }
 
  if (rc == OkRc) {
-   _here[pushed] = here;
-   return rc;
+     if (argv[index+4] == "OFFSET") {
+         logInfo() << "\n08 IN OFFSET: " << " \noffset: " << argv[index+4] << " " << argv[index+5].toFloat() << " " << argv[index+6].toFloat() ;
+         bool ok[2];
+         _value[pushed].offsets[0]  = argv[index+5].toFloat(&ok[0]);
+         _value[pushed].offsets[1]  = argv[index+6].toFloat(&ok[1]);
+         if ( ! ok[0] || ! ok[1]) {
+             rc = FailureRc;
+         }	else {
+             rc = OkRc;
+         }
+     } else if (argv.size() - index > 0) {
+         rc = FailureRc;
+     }
+ }
+
+ //logInfo() << "\n04 OUT STRETCH \nlogo: " << argv[index-1] << "\nPlug:  " << argv[index-1] << "\nCover image: " << argv[index-2] << "\nFile: " << argv[index+1] << "\nStretch: " << argv[index+2];
+ if (argv[index-2] == "DOCUMENT_COVER_IMAGE" && argv[index+2] == "STRETCH") {
+     logInfo() << "\n04 IN STRETCH - logo: " << argv[index-1] << ", Plug:  " << argv[index-1] << ", Cover image: " << argv[index-2] << "\nFile: " << argv[index+1] << "\nStretch: " << argv[index+2];
+     _value[pushed].string  = argv[index+1];
+     _value[pushed].stretch = true;
+     _value[pushed].tile    = false;
+     rc = OkRc;
+ } else if (argv[index-2] == "DOCUMENT_COVER_IMAGE" && argv[index+2] == "TILE") {
+     logInfo() << "\n05 TILE - \nlogo: " << argv[index-1] << "\nPlug:  " << argv[index-1] << "\nCover image: " << argv[index-2] << "\nFile: " << argv[index+1] << "\nTile: " << argv[index+2] ;
+     _value[pushed].string  = argv[index+2];
+     _value[pushed].stretch = false;
+     _value[pushed].tile = true;
+     rc = OkRc;
+ }
+
+ if (rc == OkRc) {
+     _here[pushed] = here;
+     return rc;
+
  } else {
 
-   if (reportErrors) {
-     QMessageBox::warning(NULL,
-       QMessageBox::tr("LPub3D"),
-       QMessageBox::tr("Malformed picture \"%1\"") .arg(argv.join(" ")));
-   }
-
-   return FailureRc;
+     if (reportErrors) {
+         QMessageBox::warning(NULL,
+              QMessageBox::tr("LPub3D"),
+              QMessageBox::tr("Malformed picture \"%1\"") .arg(argv.join(" ")));
+     }
+     return FailureRc;
  }
 }
 
 QString PageAttributePictureMeta::format(bool local, bool global)
 {
-  QString foo;
-  switch (_value[pushed].type) {
-   case PageDocumentLogoType:
-     foo = "DOCUMENT_LOGO";
-   break;
-   case PageCoverImageType:
-     foo = "COVER_IMAGE";
-   break;
-   case PagePlugImageType:
-     foo = "PLUG_IMAGE";
-   break;
-   default:
-     foo = "PICTURE";
-   break;
-  }
+  QString foo = "PICTURE";
+//  switch (_value[pushed].type) {
+//   case PageDocumentLogoType:
+//     foo = "DOCUMENT_LOGO";
+//   break;
+//   case PageCoverImageType:
+//     foo = "COVER_IMAGE";
+//   break;
+//   case PagePlugImageType:
+//     foo = "PLUG_IMAGE";
+//   break;
+//   default:
+//     foo = "PICTURE";
+//   break;
+//  }
   foo += " \"" + _value[pushed].string + "\"";
+  if (_value[pushed].picScale) {
+    foo += QString(" SCALE %1") .arg(_value[pushed].picScale);
+  }
   if (_value[pushed].stretch) {
     foo += " STRETCH";
   }
-  if (_value[pushed].picScale) {
-    foo += QString(" SCALE %1") .arg(_value[pushed].picScale);
+  if (_value[pushed].tile) {
+    foo += " TILE";
   }
   if (_value[pushed].offsets[0] || _value[pushed].offsets[1]) {
     foo += QString(" OFFSET %1 %2") .arg(_value[pushed].offsets[0])
@@ -1002,9 +1005,9 @@ QString PageAttributePictureMeta::format(bool local, bool global)
 
 void PageAttributePictureMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " DOCUMENT_LOGO|COVER_IMAGE|PLUG_IMAGE \"filePath\" (STRETCH) (SCALE <Value>) (OFFSET <valueX> <valueY>)";
+  out << preamble + " DOCUMENT_LOGO|COVER_IMAGE|PLUG_IMAGE PICTURE \"filePath\" (STRETCH) (TILE) (SCALE <Value>) (OFFSET <valueX> <valueY>)";
 }
- //						01			02		   03       03     04	   03/05   04/06    05/07
+
 
 QString PageAttributePictureMeta::text()
 {
@@ -1457,6 +1460,9 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
   InsertData insertData;
   Rc rc = OkRc;
 
+//  for(int i=0;i<argv.size();i++){
+//      logNotice() << "INSERT argv Item (" << i << ") " << argv[i] << " Index: " << index;}
+
   if (argv.size() - index == 1) {
     if (argv[index] == "PAGE") {
       return InsertPageRc;
@@ -1480,6 +1486,7 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
   }
 
   if (argv.size() - index > 1 && argv[index] == "PICTURE") {
+
     insertData.type = InsertData::InsertPicture;
     insertData.picName = argv[++index];
     ++index;

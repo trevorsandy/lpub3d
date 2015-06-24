@@ -28,6 +28,8 @@
 #include <QGraphicsScene>
 #include <QScrollBar>
 #include <QPixmap>
+#include <QBitmap>
+#include <QPainter>
 #include <QColor>
 #include "callout.h"
 #include "lpub.h"
@@ -654,21 +656,26 @@ int Gui::addGraphicsPageItems(
       if (page->meta.LPub.page.documentLogo.value().display) {
 
           QFileInfo fileInfo;
-          PageAttributePictureMeta pictureMeta = page->meta.LPub.page.documentLogo;
-          fileInfo.setFile(pictureMeta.value().string);
+          PageAttributePictureData pictureData = page->meta.LPub.page.documentLogo.value();
+          fileInfo.setFile(pictureData.string);
           if (fileInfo.exists()) {
 
               QPixmap qpixmap;
-              qpixmap.load(pictureMeta.value().string);
-              PageAttributePixmapItem *pixmap = new PageAttributePixmapItem(qpixmap,pictureMeta,pageBg);
+              qpixmap.load(pictureData.string);
+              PageAttributePixmapItem *pixmap =
+                      new PageAttributePixmapItem(
+                          page,
+                          qpixmap,
+                          page->meta.LPub.page.documentLogo,
+                          pageBg);
 
               page->addPageAttributePixmap(pixmap);
               pixmap->setTransformationMode(Qt::SmoothTransformation);
-              pixmap->scale(pictureMeta.value().picScale,pictureMeta.value().picScale);
-              pixmap->placement.setValue(pictureMeta.value().placement);
+              pixmap->scale(pictureData.picScale,pictureData.picScale);
+              pixmap->relativeType = PageDocumentLogoType;
+              pixmap->placement.setValue(pictureData.placement);
 
               int margin[2] = {0, 0};
-
               plPage.placeRelative(pixmap, margin);
               pixmap->setPos(pixmap->loc[XX],pixmap->loc[YY]);
               pixmap->relativeToSize[0] = plPage.size[XX];
@@ -680,25 +687,68 @@ int Gui::addGraphicsPageItems(
       if (page->meta.LPub.page.coverImage.value().display) {
 
           QFileInfo fileInfo;
-          PageAttributePictureMeta pictureMeta = page->meta.LPub.page.coverImage;
-          fileInfo.setFile(pictureMeta.value().string);
-          if (fileInfo.exists()) {
+          PageAttributePictureData pictureData = page->meta.LPub.page.coverImage.value();
 
-              QPixmap qpixmap;
-              qpixmap.load(pictureMeta.value().string);
-              PageAttributePixmapItem *pixmap = new PageAttributePixmapItem(qpixmap,pictureMeta,pageBg);
+          fileInfo.setFile(pictureData.string);
+          if ( ! fileInfo.exists()) {
 
-              page->addPageAttributePixmap(pixmap);
-              pixmap->setTransformationMode(Qt::SmoothTransformation);
-              pixmap->scale(pictureMeta.value().picScale,pictureMeta.value().picScale);
-              pixmap->placement.setValue(pictureMeta.value().placement);
+              if (! pictureData.stretch && ! pictureData.tile) {
 
-              int margin[2] = {0, 0};
+                  QPixmap qpixmap;
+                  qpixmap.load(pictureData.string);
+                  PageAttributePixmapItem *pixmap =
+                          new PageAttributePixmapItem(
+                              page,
+                              qpixmap,
+                              page->meta.LPub.page.coverImage,
+                              pageBg);
 
-              plPage.placeRelative(pixmap, margin);
-              pixmap->setPos(pixmap->loc[XX],pixmap->loc[YY]);
-              pixmap->relativeToSize[0] = plPage.size[XX];
-              pixmap->relativeToSize[1] = plPage.size[YY];
+                  page->addPageAttributePixmap(pixmap);
+                  pixmap->setTransformationMode(Qt::SmoothTransformation);
+                  pixmap->scale(pictureData.picScale,pictureData.picScale);
+                  pixmap->relativeType = PageCoverImageType;
+                  pixmap->placement.setValue(pictureData.placement);
+
+                  int margin[2] = {0, 0};
+                  plPage.placeRelative(pixmap, margin);
+                  pixmap->setPos(pixmap->loc[XX],pixmap->loc[YY]);
+                  pixmap->relativeToSize[0] = plPage.size[XX];
+                  pixmap->relativeToSize[1] = plPage.size[YY];
+
+              } else {
+
+                  //will probably have to create a class similar to backgrounditem for this logic to succeed
+
+                  QPixmap *pixmap = new QPixmap(plPage.size[XX],plPage.size[YY]);
+
+                  pixmap->setAlphaChannel(*pixmap);
+                  pixmap->fill(Qt::transparent);
+
+                  QPainter painter(pixmap);
+
+                  QImage image(pictureData.string);
+                  if (pictureData.stretch) {
+                      QSize psize = pixmap->size();
+                      QSize isize = image.size();
+                      qreal sx = psize.width();
+                      qreal sy = psize.height();
+                      sx /= isize.width();
+                      sy /= isize.height();
+                      painter.scale(sx,sy);
+                      painter.drawImage(0,0,image);
+                  } else if (pictureData.tile){
+                      for (int y = 0; y < pixmap->height(); y += image.height()) {
+                          for (int x = 0; x < pixmap->width(); x += image.width()) {
+                              painter.drawImage(x,y,image);
+                          }
+                      }
+                  }
+                  QColor brushColor;
+                  brushColor = Qt::transparent;
+
+                  //              setFlag(QGraphicsItem::ItemIsSelectable,true);
+                  //              setFlag(QGraphicsItem::ItemIsMovable,true);
+              }
           }
       }
   }
@@ -714,7 +764,7 @@ int Gui::addGraphicsPageItems(
                       page->meta.LPub.page.url,
                       pageBg);
 
-          url->relativeType = PageCopyrightType;
+          url->relativeType = PageURLType;
           url->size[XX]     = (int) url->document()->size().width();
           url->size[YY]     = (int) url->document()->size().height();
 
@@ -732,7 +782,7 @@ int Gui::addGraphicsPageItems(
                       page->meta.LPub.page.disclaimer,
                       pageBg);
 
-          disclaimer->relativeType = PageCopyrightType;
+          disclaimer->relativeType = PageDisclaimerType;
           disclaimer->size[XX]     = (int) disclaimer->document()->size().width();
           disclaimer->size[YY]     = (int) disclaimer->document()->size().height();
 
@@ -750,7 +800,7 @@ int Gui::addGraphicsPageItems(
                       page->meta.LPub.page.plug,
                       pageBg);
 
-          plug->relativeType = PageCopyrightType;
+          plug->relativeType = PagePlugType;
           plug->size[XX]     = (int) plug->document()->size().width();
           plug->size[YY]     = (int) plug->document()->size().height();
 
@@ -763,22 +813,26 @@ int Gui::addGraphicsPageItems(
       if (page->meta.LPub.page.plugImage.value().display) {
 
           QFileInfo fileInfo;
-          PageAttributePictureMeta pictureMeta = page->meta.LPub.page.plugImage;
-          fileInfo.setFile(pictureMeta.value().string);
+          PageAttributePictureData pictureData = page->meta.LPub.page.plugImage.value();
+          fileInfo.setFile(pictureData.string);
           if (fileInfo.exists()) {
 
               QPixmap qpixmap;
-              qpixmap.load(pictureMeta.value().string);
-              PageAttributePixmapItem *pixmap = new PageAttributePixmapItem(qpixmap,pictureMeta,pageBg);
+              qpixmap.load(pictureData.string);
+              PageAttributePixmapItem *pixmap =
+                      new PageAttributePixmapItem(
+                          page,
+                          qpixmap,
+                          page->meta.LPub.page.plugImage,
+                          pageBg);
 
               page->addPageAttributePixmap(pixmap);
               pixmap->setTransformationMode(Qt::SmoothTransformation);
-              pixmap->scale(pictureMeta.value().picScale,pictureMeta.value().picScale);
-
-              pixmap->placement.setValue(pictureMeta.value().placement);
+              pixmap->scale(pictureData.picScale,pictureData.picScale);
+              pixmap->relativeType = PagePlugImageType;
+              pixmap->placement.setValue(pictureData.placement);
 
               int margin[2] = {0, 0};
-
               plPage.placeRelative(pixmap, margin);
               pixmap->setPos(pixmap->loc[XX],pixmap->loc[YY]);
               pixmap->relativeToSize[0] = plPage.size[XX];

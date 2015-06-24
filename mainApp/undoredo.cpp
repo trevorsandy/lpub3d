@@ -31,7 +31,10 @@ void Gui::insertLine(const Where &here, const QString &line, QUndoCommand *paren
 
 void Gui::appendLine(const Where &here, const QString &line, QUndoCommand *parent)
 {
+    logTrace() << "check if ldrawfile contains model name: " << here.modelName
+               << " and line: " << line;
   if (ldrawFile.contains(here.modelName)) {
+      logTrace() << "Yes: ldrawFile contains model name: " << here.modelName;
     undoStack->push(new AppendLineCommand(&ldrawFile,here,line,parent));
   }
 }

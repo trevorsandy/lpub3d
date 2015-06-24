@@ -1156,7 +1156,7 @@ void PageAttributeTextGui::apply(
 
   tileRadio    = new QRadioButton("Tile Picture",parent);
   connect(tileRadio,SIGNAL(clicked(bool)),
-          this,     SLOT(  stretch(bool)));
+          this,     SLOT(  tile(bool)));
   hLayout->addWidget(tileRadio);
 
   stretchRadio->setChecked(Picture.stretch);
@@ -1231,6 +1231,7 @@ void PageAttributePictureGui::stretch(bool checked)
 {
   PageAttributePictureData Picture = meta->value();
   Picture.stretch = checked;
+  Picture.tile    = ! checked;
   meta->setValue(Picture);
   pictureModified = true;
 }
@@ -1239,6 +1240,7 @@ void PageAttributePictureGui::tile(bool checked)
 {
   PageAttributePictureData Picture = meta->value();
   Picture.stretch = ! checked;
+  Picture.tile    = checked;
   meta->setValue(Picture);
   pictureModified = true;
 }
@@ -1247,6 +1249,8 @@ void PageAttributePictureGui::valueChanged(double value)
 {
   PageAttributePictureData Picture = meta->value();
   Picture.picScale = value;
+  Picture.stretch = false;
+  Picture.tile    = false;
   meta->setValue(Picture);
   pictureModified = true;
 }
