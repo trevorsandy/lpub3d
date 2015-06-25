@@ -524,7 +524,7 @@ int Gui::addGraphicsPageItems(
   }
 
   // Process Front and Back Cover Pages - if selected
-  if (page->frontCover) {
+  if (page->coverPage && page->frontCover) {
 
       // allocate QGraphicsTextItem for // title (Front Cover) //~~~~~~~~~~~~~~~~
       if (page->meta.LPub.page.title.display.value()) {
@@ -754,7 +754,7 @@ int Gui::addGraphicsPageItems(
       }
   }
 
-  if (page->backCover){
+  if (page->coverPage && page->backCover){
 
       // allocate QGraphicsTextItem for // url (Back Cover)//~~~~~~~~~~~~~~~~
       if (page->meta.LPub.page.url.display.value() ) {

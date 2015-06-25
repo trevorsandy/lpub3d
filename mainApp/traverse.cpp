@@ -812,10 +812,12 @@ int Gui::drawPage(
               page->inserts = inserts;
             }
 
+            if (! coverPage){
+                gui->page.frontCover = false;
+                gui->page.backCover = false;}
             bool endOfSubmodel = stepNum >= ldrawFile.numSteps(current.modelName);
             int  instances = ldrawFile.instances(current.modelName,isMirrored);
             addGraphicsPageItems(steps, coverPage, endOfSubmodel,instances, view, scene, printing);
-
             return HitEndOfPage;
           }
           inserts.clear();
@@ -943,10 +945,13 @@ int Gui::drawPage(
               int  numSteps = ldrawFile.numSteps(current.modelName);
               bool endOfSubmodel = numSteps == 0 || stepNum >= numSteps;
               int  instances = ldrawFile.instances(current.modelName, isMirrored);
-
+              if (! coverPage){
+                  page.frontCover = false;
+                  page.backCover = false;}
               addGraphicsPageItems(steps,coverPage,endOfSubmodel,instances,view,scene,printing);
               stepPageNum += ! coverPage;
               steps->setBottomOfSteps(current);
+
               return HitEndOfPage;
             }
             steps->meta.pop();
