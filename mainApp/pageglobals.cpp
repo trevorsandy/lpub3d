@@ -159,7 +159,6 @@ GlobalPageDialog::GlobalPageDialog(
   childtab->addTab(widget,tr("Description"));
   // child footer end
 
-
   // child header (one) start
   widget = new QWidget();
   grid = new QGridLayout();
@@ -272,11 +271,6 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(box, 0, 0);
   child = new PageAttributeTextGui(&pageMeta->disclaimer,box);
   data->children.append(child);
-
-  //empty box
-//  box = new QGroupBox(NULL);
-//  grid->addWidget(box, 1,0);
-
   childtab->addTab(widget,tr("Disclaimer"));
 
   widget = new QWidget();

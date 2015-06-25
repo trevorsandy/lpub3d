@@ -199,7 +199,8 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
 
   } else if (selectedAction == displayTextAction){
 
-      displayText.setValue(false);     //this is not complete (have to redraw page)
+      displayText.setValue(false);
+      mi.setGlobalMeta(topOfSteps.modelName,&displayText);
 
   }
 }
@@ -256,7 +257,9 @@ void PagePageAttributeItem::focusOutEvent(QFocusEvent *event)
   if (textValueChanged) {
     QStringList list = toPlainText().split("\n");
     content.setValue(list.join("\\n"));
-    changePlacementOffset(page->bottomOfSteps(),&placement,relativeType);
+    MetaItem mi;
+    Where topLevelFile = page->topOfSteps();
+    mi.setGlobalMeta(topLevelFile.modelName,&content);
   }
 }
 

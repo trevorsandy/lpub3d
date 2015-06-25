@@ -983,27 +983,39 @@ void MetaItem::changePageAttributePictureOffset(
   Where defaultWhere,
   PageAttributePictureMeta *pictureMeta)
 {
-  QString newMetaString = pictureMeta->format(false,false);
-  logNotice() << "(2.) New Meta String: " << newMetaString;
+  QString newMetaString = pictureMeta->format(false,true);  //this is set to always use GLOBAl
+
+
+  logNotice() << "\n(2.) New Meta String: " << newMetaString
+              << "\nPage Where Line: " << defaultWhere.lineNumber
+              << "\nPage Where Model: " << defaultWhere.modelName
+              << "\nDefault Where Model: " << defaultWhere.lineNumber+1
+              << "\nMeta Where Line: " << pictureMeta->here().lineNumber
+              << "\nMeta Where Model: " << pictureMeta->here().modelName
+                 ;
 
   if (pictureMeta->here().modelName == "undefined") {
+
+    int lastLine = gui->subFileSize(defaultWhere.modelName);
+
     Where walk = defaultWhere + 1;
+
+    //defaultWhere + 1 == lastLine ? walk = defaultWhere : walk = defaultWhere + 1;
 
     bool partsAdded;
 
-    logNotice() << "(3.) Model undefined - line number: " << pictureMeta->here().lineNumber;
-    if (scanBackward(walk,StepMask,partsAdded) == EndOfFileRc) {
+    logNotice() << "(3.) Model undefined - line number: "
+                << pictureMeta->here().lineNumber
+                << " Start Walk Line: " << walk.lineNumber
+                << " Start Walk Model: " << walk.modelName
+                << " Walk Model Size:" << gui->subFileSize(walk.modelName)
+                   ;
+
+    if (walk == lastLine || scanBackward(walk,StepMask,partsAdded) == EndOfFileRc) {
       defaultWhere = firstLine(defaultWhere.modelName);
       logNotice() << "(3a.) STEP, so scan backward: " << defaultWhere.lineNumber;
     }
-    if (pictureMeta->value().type == StepGroupType) {
-      scanForward(defaultWhere,StepGroupBeginMask);
-      logNotice() << "(3b.) STEP-GROUP, so scan forward: " << defaultWhere.lineNumber;
-    } else if (pictureMeta->value().type == CalloutType) {
-      scanForward(defaultWhere,CalloutEndMask);
-      --defaultWhere;
-      logNotice() << "(3c.) CALLOUT, so scan forward: " << defaultWhere.lineNumber;
-    } else if (defaultWhere.modelName == gui->topLevelFile()) {
+    if (defaultWhere.modelName == gui->topLevelFile()) {
       scanPastGlobal(defaultWhere);
       logNotice() << "(3d.) TOP-LEVEL, so scan past GLOBAL: " << defaultWhere.lineNumber;
     }
@@ -1638,14 +1650,20 @@ Rc MetaItem::scanBackward(
   int    mask,  // What we stop on
   bool  &partsAdded)
 {
-  Meta tmpMeta;
-  
+  Meta tmpMeta; 
   partsAdded = false;
 
   for ( ; here >= 0; here--) {
 
     QString line = gui->readLine(here);
     QStringList tokens;
+
+    logWarn() << "02 SCAN BACKWARD READLINE: "
+                << " Here Line: " << here.lineNumber
+                << " Here Model: " << here.modelName
+                << " \nLine: "   << line
+                << " \nIs Header: " << isHeader(line)
+                   ;
 
     if (isHeader(line)) {
       scanPastGlobal(here);

@@ -291,7 +291,8 @@ private:
   QGroupBox    *gbDescDialog;
   QGroupBox    *gbDiscDialog;
 
-  QTextEdit    *edit;
+  QTextEdit    *editDesc;
+  QTextEdit    *editDisc;
   QLineEdit    *contentEdit;
 
   QString      content;
@@ -309,7 +310,8 @@ private:
   QComboBox    *prepositionCombo;
 
 public slots:
-  void editChanged();
+  void editDescChanged();
+  void editDiscChanged();
   void browseFont(bool clicked);
   void browseColor(bool clicked);
   void editChanged(QString const &);
@@ -385,6 +387,8 @@ private:
 public slots:
   void pictureChange(QString const &);
   void browsePicture(bool);
+  void gbFillClicked(bool);
+  void gbScaleClicked(bool);
   void stretch(bool);
   void tile(bool);
 

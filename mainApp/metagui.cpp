@@ -873,17 +873,18 @@ PageAttributeTextGui::PageAttributeTextGui(
   gbDescDialog->setLayout(hLayout);
   grid->addWidget(gbDescDialog,4,0,1,3);
 
-  edit = new QTextEdit(parent);
+  editDesc = new QTextEdit(parent);
 
-  connect(edit,SIGNAL(textChanged()),
-          this,  SLOT(  editChanged()));
-  hLayout->addWidget(edit);
+  hLayout->addWidget(editDesc);
+
+  connect(editDesc,SIGNAL(textChanged()),
+          this,  SLOT(  editDescChanged()));
 
   if (meta->type == PageModelDescType) {
       gbDescDialog->show();
       gbContentEdit->hide();
-      string = QString("%1").arg(meta->content.value());
-      edit->setText(string);
+      string = QString("%1").arg(meta->content.value());      
+      editDesc->setText(string);
   }
 
   //Disclaimer Dialog
@@ -893,18 +894,18 @@ PageAttributeTextGui::PageAttributeTextGui(
   gbDiscDialog->setLayout(hLayout);
   grid->addWidget(gbDiscDialog,4,0,1,3);
 
-  edit = new QTextEdit(parent);
+  editDisc = new QTextEdit(parent);
 
-  hLayout->addWidget(edit);
+  hLayout->addWidget(editDisc);
 
-  connect(edit,SIGNAL(textChanged()),
-          this,  SLOT(  editChanged()));
+  connect(editDisc,SIGNAL(textChanged()),
+          this,  SLOT(  editDiscChanged()));
 
   if (meta->type == PageDisclaimerType) {
       gbDiscDialog->show();
       gbContentEdit->hide();
       string = QString("%1").arg(meta->content.value());
-      edit->setText(string);
+      editDisc->setText(string);
   }
 
   fontModified      = false;
@@ -957,15 +958,24 @@ void PageAttributeTextGui::value1Changed(QString const &string)
   marginsModified = true;
 }
 
-void PageAttributeTextGui::editChanged()
+void PageAttributeTextGui::editDescChanged()
 {
-  meta->content.setValue(edit->toPlainText());
+  QStringList  text = editDesc->toPlainText().split("\n");
+  meta->content.setValue(text.join("\\n"));
+  editModified = true;
+}
+
+void PageAttributeTextGui::editDiscChanged()
+{
+  QStringList  text = editDisc->toPlainText().split("\n");
+  meta->content.setValue(text.join("\\n"));
   editModified = true;
 }
 
 void PageAttributeTextGui::editChanged(const QString &value)
 {
-  meta->content.setValue(value);
+  QStringList  text = value.split("\n");
+  meta->content.setValue(text.join("\\n"));
   editModified = true;
 }
 
@@ -1190,7 +1200,9 @@ void PageAttributeTextGui::apply(
   hLayout->addWidget(spin);
 
   connect(gbFill,SIGNAL(clicked(bool)),gbScale,SLOT(setDisabled(bool)));
+  connect(gbFill,SIGNAL(clicked(bool)),this,SLOT(gbFillClicked(bool)));
   connect(gbScale,SIGNAL(clicked(bool)),gbFill,SLOT(setDisabled(bool)));
+  connect(gbScale,SIGNAL(clicked(bool)),this,SLOT(gbScaleClicked(bool)));
 
   if(Picture.type == PageDocumentLogoType ||
      Picture.type == PagePlugImageType) {
@@ -1227,6 +1239,13 @@ void PageAttributePictureGui::browsePicture(bool)
   }
 }
 
+void PageAttributePictureGui::gbFillClicked(bool checked)
+{
+    PageAttributePictureData Picture = meta->value();
+    Picture.stretch = checked;
+    Picture.tile    = checked;
+    pictureModified = true;
+}
 void PageAttributePictureGui::stretch(bool checked)
 {
   PageAttributePictureData Picture = meta->value();
@@ -1243,6 +1262,15 @@ void PageAttributePictureGui::tile(bool checked)
   Picture.tile    = checked;
   meta->setValue(Picture);
   pictureModified = true;
+}
+
+void PageAttributePictureGui::gbScaleClicked(bool checked)
+{
+    PageAttributePictureData Picture = meta->value();
+    Picture.stretch = ! checked;
+    Picture.tile    = ! checked;
+    meta->setValue(Picture);
+    pictureModified = true;
 }
 
 void PageAttributePictureGui::valueChanged(double value)

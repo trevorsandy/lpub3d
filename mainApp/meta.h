@@ -883,36 +883,6 @@ public:
   virtual QString text();
 };
 
-/* This class is used to parse PageAttributePicture data */
-
-//class PageAttributePictureMeta : public LeafMeta
-//{
-//private:
-//public:
-//  PageAttributePictureData _value;
-//  PageAttributePictureData &value()
-//  {
-//    return _value;
-//  }
-//  void setValue(PageAttributePictureData &value)
-//  {
-//    _value = value;
-//  }
-//  PageAttributePictureMeta() : LeafMeta()
-//  {
-//  }
-//  PageAttributePictureMeta(const PageAttributePictureMeta &rhs) : LeafMeta(rhs)
-//  {
-//    _value = rhs._value;
-//  }
-//  virtual ~PageAttributePictureMeta() {}
-//  Rc parse(QStringList &argv, int index, Where &here);
-//  QString format(bool,bool);
-//  virtual void doc(QStringList &out, QString preamble);
-//};
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 class PageAttributePictureMeta : public LeafMeta
 {
 private:
@@ -926,9 +896,6 @@ public:
   {
     _value[pushed] = value;
   }
-//  void setValue(PlacementType type){
-//    _value[pushed].type = type;
-//  }
   PageAttributePictureMeta() : LeafMeta()
   {
   }
@@ -1786,9 +1753,6 @@ public:
   PageAttributeTextMeta     plug;               //from preferences static
   PageAttributePictureMeta  plugImage;          //from preferences static
   PageAttributeTextMeta     category;           //from LDrawFile - LDraw: !CATEGORY (NOT IMPLEMENTED)
-
-//  PageAttributePictureData  logoPic;          //deprecate
-//  PageAttributePictureData  plugPic;          //deprecate
 
   PageMeta();
   PageMeta(const PageMeta &rhs) : BranchMeta(rhs)

@@ -337,13 +337,6 @@ void PageAttributePixmapItem::change()
       qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
       qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
 
-//      PlacementData pld;
-
-//      pld.placement    		= pictureData.placement.placement;
-//      pld.justification    	= pictureData.placement.justification;
-//      pld.relativeTo      	= pictureData.placement.relativeTo;
-//      pld.preposition   	= pictureData.placement.preposition;
-
       calcOffsets(pictureData.placement,pictureData.placement.offsets,topLeft,size);
 
       pictureData.picScale *= oldScale;
@@ -352,22 +345,23 @@ void PageAttributePixmapItem::change()
       Where bottomOfSteps       = page->bottomOfSteps();
 
       logInfo() << "\n(1.)RESIZE PICTURE META - "
-                << " \nType: " << QString::number(pictureData.type)
-                << " \nMeta Here (Model Name): " << pageAttributePictureMeta.here().modelName
-                << " \nMeta Here (Line Number): " << pageAttributePictureMeta.here().lineNumber
-                << " \nPicScale: " << QString::number(pictureData.picScale)
-                << " \nStretch: " << pictureData.stretch
-                << " \nFileName: " << pictureData.string
+                << " \nDisplay: "                   <<  pictureData.display
+                << " \nType: "                      << QString::number(pictureData.type)
+                << " \nMeta Here (Model Name): "    << pageAttributePictureMeta.here().modelName
+                << " \nMeta Here (Line Number): "   << pageAttributePictureMeta.here().lineNumber
+                << " \nPicScale: "                  << QString::number(pictureData.picScale)
+                << " \nStretch: "                   << pictureData.stretch
+                << " \nFileName: "                  << pictureData.string
                 << "\nPICTURE DATA - "
-                << " \nPlacement: " << QString::number(pictureData.placement.placement)
-                << " \nJustification: " << QString::number(pictureData.placement.justification)
-                << " \nPreposition: " << QString::number(pictureData.placement.preposition)
-                << " \nRelativeTo: " << QString::number(pictureData.placement.relativeTo)
-                << " \nOffset[0]: " << QString::number(pictureData.placement.offsets[0])
-                << " \nOffset[1]: " << QString::number(pictureData.placement.offsets[1])
+                << " \nPlacement: "                 << QString::number(pictureData.placement.placement)
+                << " \nJustification: "             << QString::number(pictureData.placement.justification)
+                << " \nPreposition: "               << QString::number(pictureData.placement.preposition)
+                << " \nRelativeTo: "                << QString::number(pictureData.placement.relativeTo)
+                << " \nOffset[0]: "                 << QString::number(pictureData.placement.offsets[0])
+                << " \nOffset[1]: "                 << QString::number(pictureData.placement.offsets[1])
                 << "\nPAGE WHERE - "
-                << " \nMeta Here (Model Name): " << bottomOfSteps.modelName
-                << " \nMeta Here (Line Number): " << bottomOfSteps.lineNumber
+                << " \nSteps Here (Model Name): "   << bottomOfSteps.modelName
+                << " \nSteps Here (Line Number): "  << bottomOfSteps.lineNumber
                 ;
 
       changePageAttributePictureOffset(bottomOfSteps,&pageAttributePictureMeta);

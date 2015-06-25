@@ -267,7 +267,7 @@ QStringList LDrawFile::subFileOrder() {
 }
 
 QString LDrawFile::readLine(const QString &mcFileName, int lineNumber)
-{
+{                   ;
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
 

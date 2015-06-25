@@ -73,6 +73,7 @@ public:
     Page                       *page,
     PageAttributeTextMeta     &_pageAttributeText,
     QGraphicsItem              *parent);
+  MetaItem                     mi;
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);

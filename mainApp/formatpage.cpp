@@ -690,7 +690,8 @@ int Gui::addGraphicsPageItems(
           PageAttributePictureData pictureData = page->meta.LPub.page.coverImage.value();
 
           fileInfo.setFile(pictureData.string);
-          if ( ! fileInfo.exists()) {
+
+          if (fileInfo.exists()) {
 
               if (! pictureData.stretch && ! pictureData.tile) {
 
