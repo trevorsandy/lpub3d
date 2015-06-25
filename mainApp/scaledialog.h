@@ -47,7 +47,7 @@ public:
   static bool getUnits(
     float   values[],
     QString      name,
-    QWidget     *parent);
+    QWidget     *parent = 0);
 
   UnitsMeta meta;
 

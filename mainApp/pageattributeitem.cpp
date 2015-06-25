@@ -21,6 +21,7 @@
 #include "pageattributeitem.h"
 #include "metatypes.h"
 #include "color.h"
+#include "scaledialog.h"
 #include "name.h"
 #include "placementdialog.h"
 #include "commonmenus.h"
@@ -147,7 +148,7 @@ PagePageAttributeItem::PagePageAttributeItem(
       break;
   }
 
-  setAttributes(_pageAttributeText.type,                //relativeType
+  setAttributes(_pageAttributeText.type,            //relativeType
                  SingleStepType,                    //SingleStepType / page->relativeType, -parent relative type (using resolution)
                 _pageAttributeText,
                  toolTip,
@@ -187,21 +188,53 @@ void PagePageAttributeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
 
   } else if (selectedAction == marginAction) {
 
-      changeMargins("Page Attribute Margins",
-                    topOfSteps,bottomOfSteps,&margin);
+//      changeMargins("Page Attribute Margins",
+//                    topOfSteps,bottomOfSteps,&margin);
+      float values[2];
+
+      values[0] = margin.value(0);
+      values[1] = margin.value(1);
+
+      bool ok   = UnitsDialog::getUnits(values,"Attribute Margins");
+
+      if (ok) {
+        margin.setValues(values[0],values[1]);
+      }
+
+      mi.setGlobalMeta(topOfSteps.modelName,&margin);
+
   } else if (selectedAction == fontAction) {
 
-      changeFont(topOfSteps,bottomOfSteps,&textFont);
+//      changeFont(topOfSteps,bottomOfSteps,&textFont);
+
+      QFont _font;
+      QString fontName = textFont.valueFoo();
+      _font.fromString(fontName);
+      bool ok;
+      _font = QFontDialog::getFont(&ok,_font);
+      fontName = _font.toString();
+
+      if (ok) {
+        textFont.setValue(_font.toString());
+      }
+
+      mi.setGlobalMeta(topOfSteps.modelName,&textFont);
 
   } else if (selectedAction == colorAction) {
 
-      changeColor(topOfSteps,bottomOfSteps,&textColor);
+//      changeColor(topOfSteps,bottomOfSteps,&textColor);
+
+      QColor _color = LDrawColor::color(textColor.value());
+      _color = QColorDialog::getColor(_color,NULL);
+      if (_color.isValid())
+          textColor.setValue(_color.name());
+
+      mi.setGlobalMeta(topOfSteps.modelName,&textColor);
 
   } else if (selectedAction == displayTextAction){
 
       displayText.setValue(false);
       mi.setGlobalMeta(topOfSteps.modelName,&displayText);
-
   }
 }
 
