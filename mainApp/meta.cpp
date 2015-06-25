@@ -882,6 +882,136 @@ QString BackgroundMeta::text()
 
 /* ------------------ */
 
+//Rc PageAttributePictureMeta::parse(QStringList &argv, int index,Where &here)
+//{
+// Rc rc = FailureRc;
+// PageAttributePictureData pageAttributePictureData;
+// int indexSize = argv.size()-1;
+
+// //debug logging only
+// for(int i=0;i<argv.size();i++){
+//     int size = argv.size();
+//     int incr = i;
+//     int result = size - incr;
+//     logNotice() << "PAGE ARGV pos:(" << i+1 << ") index:(" << i << ") [" << size << " - " << incr << " = " << result << "] " << argv[i];}
+//     logNotice() << "SIZE: " << argv.size() << ", INDEX: " << index;
+//     logInfo() << "\n00 START - Value at index: " << argv[index];
+// //end debug logging only
+
+// if (argv.size() - index > 2 /* && argv[index] == "PICTURE" */){
+//   if (argv[index-1] == "DOCUMENT_LOGO") {
+//       logInfo() << "\n01 Image: " << argv[index-1];
+//     pageAttributePictureData.type = PageDocumentLogoType;
+//     rc = OkRc;
+//   } else if (argv[index-1] == "APP_PLUG_IMAGE") {
+//       logInfo() << "\n01 Image: " << argv[index-1];
+//       pageAttributePictureData.type = PagePlugImageType;
+//       rc = OkRc;
+//   } else if (argv[index-2] == "DOCUMENT_COVER_IMAGE") {
+//       logInfo() << "\n01 Image: " << argv[index-2];
+//      pageAttributePictureData.type = PageCoverImageType;
+//      rc = OkRc;
+//   }
+// }
+
+// if ((argv[index-1] == "DOCUMENT_LOGO" || argv[index-1] == "APP_PLUG_IMAGE" || argv[index-2] == "DOCUMENT_COVER_IMAGE") && argv[index+2] == "SCALE") {
+//     //logging
+//     if (argv[index-1] == "DOCUMENT_LOGO" || argv[index-1] == "APP_PLUG_IMAGE"){
+//         logInfo() << "\n02 SCALE: \nImage: " << argv[index-1] << "\nFile: " << argv[index+1] << "\nKey: " << argv[index+2] << " Value: " << argv[index+3].toFloat();}
+//     if (argv[index-2] == "DOCUMENT_COVER_IMAGE"){
+//         logInfo() << "\n02 SCALE: \nImage: " << argv[index-2] << "\nFile: " << argv[index+1] << "\nKey: " << argv[index+2] << " Value: " << argv[index+3].toFloat();}
+//     //logging
+//     pageAttributePictureData.string  = argv[index+1];
+//     pageAttributePictureData.stretch = false;
+//     pageAttributePictureData.tile    = false;
+//     bool ok;
+//     pageAttributePictureData.picScale = argv[index+3].toFloat(&ok);
+//     if (! ok) {
+//         rc = FailureRc;
+//     } else {
+//         rc = OkRc;
+//     }
+// }
+
+// if (rc == OkRc && (indexSize - (index+3) >= 1)) {
+//     if (argv[index+4] == "OFFSET") {
+//         logInfo() << "\n03 OFFSET:" << " \nKey: " << argv[index+4] << " Value: " << argv[index+5].toFloat() << " " << argv[index+6].toFloat() ;
+//         bool ok[2];
+//         pageAttributePictureData.placement.offsets[0]  = argv[index+5].toFloat(&ok[0]);
+//         pageAttributePictureData.placement.offsets[1]  = argv[index+6].toFloat(&ok[1]);
+//         if ( ! ok[0] || ! ok[1]) {
+//             rc = FailureRc;
+//         }	else {
+//             rc = OkRc;
+//         }
+//     } else if (argv.size() - index > 0) {
+//         rc = FailureRc;
+//     }
+// }
+
+// if (argv[index-2] == "DOCUMENT_COVER_IMAGE" && argv[index+2] == "STRETCH") {
+//     logInfo() << "\n04 STRETCH: \nImage: " << argv[index-2] << "\nFile: " << argv[index+1] << "\nParm: " << argv[index+2];
+//     pageAttributePictureData.string  = argv[index+1];
+//     pageAttributePictureData.stretch = true;
+//     pageAttributePictureData.tile    = false;
+//     rc = OkRc;
+// } else if (argv[index-2] == "DOCUMENT_COVER_IMAGE" && argv[index+2] == "TILE") {
+//     logInfo() << "\n04 TILE: \nImage: " << argv[index-2] << "\nFile: " << argv[index+1] << "\nParm: " << argv[index+2] ;
+//     pageAttributePictureData.string  = argv[index+2];
+//     pageAttributePictureData.stretch = false;
+//     pageAttributePictureData.tile    = true;
+//     rc = OkRc;
+// }
+
+// if (rc == OkRc) {
+//     _value = pageAttributePictureData;
+//     _here[0] = here;
+
+//     return rc;
+
+// } else {
+
+//     if (reportErrors) {
+//         QMessageBox::warning(NULL,
+//              QMessageBox::tr("LPub3D"),
+//              QMessageBox::tr("Malformed picture \"%1\"") .arg(argv.join(" ")));
+//     }
+//     return FailureRc;
+// }
+//}
+
+//QString PageAttributePictureMeta::format(bool local, bool global)
+//{
+//  QString foo;
+//  foo += " PICTURE \"" + _value.string + "\"";
+//  if (_value.picScale &&
+//          ! _value.tile && ! _value.stretch) {
+
+//    foo += QString(" SCALE %1").arg(_value.picScale);
+//  }
+//  if (_value.stretch) {
+//    foo += " STRETCH";
+//  }
+//  if (_value.tile) {
+//    foo += " TILE";
+//  }
+//  if ((_value.placement.offsets[0] || _value.placement.offsets[1]) &&
+//          ! _value.tile && ! _value.stretch) {
+
+//    foo += QString(" OFFSET %1 %2").arg(_value.placement.offsets[0])
+//                                   .arg(_value.placement.offsets[1]);
+//  }
+
+//  return LeafMeta::format(local,global,foo);
+//}
+
+//void PageAttributePictureMeta::doc(QStringList &out, QString preamble)
+//{
+//  out << preamble + " DOCUMENT_LOGO|DOCUMENT_COVER_IMAGE|PLUG_IMAGE [GLOBAL] PICTURE \"filePath\" (STRETCH) (TILE) (SCALE <Value>) (OFFSET <valueX> <valueY>)";
+//}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 Rc PageAttributePictureMeta::parse(QStringList &argv, int index,Where &here)
 {
  Rc rc = FailureRc;
@@ -895,7 +1025,7 @@ Rc PageAttributePictureMeta::parse(QStringList &argv, int index,Where &here)
      logNotice() << "PAGE ARGV pos:(" << i+1 << ") index:(" << i << ") [" << size << " - " << incr << " = " << result << "] " << argv[i];}
      logNotice() << "SIZE: " << argv.size() << ", INDEX: " << index;
      logInfo() << "\n00 START - Value at index: " << argv[index];
-//end debug logging only
+ //end debug logging only
 
      if (argv.size() - index > 2){
        if (argv[index-1] == "DOCUMENT_LOGO") {
@@ -922,7 +1052,7 @@ Rc PageAttributePictureMeta::parse(QStringList &argv, int index,Where &here)
          //logging
          _value[pushed].string  = argv[index+1];
          _value[pushed].stretch = false;
-         _value[pushed].tile = false;
+         _value[pushed].tile    = false;
          bool ok;
          _value[pushed].picScale = argv[index+3].toFloat(&ok);
          if (! ok) {
@@ -936,8 +1066,8 @@ Rc PageAttributePictureMeta::parse(QStringList &argv, int index,Where &here)
          if (argv[index+4] == "OFFSET") {
              logInfo() << "\n03 OFFSET:" << " \nKey: " << argv[index+4] << " Value: " << argv[index+5].toFloat() << " " << argv[index+6].toFloat() ;
              bool ok[2];
-             _value[pushed].offsets[0]  = argv[index+5].toFloat(&ok[0]);
-             _value[pushed].offsets[1]  = argv[index+6].toFloat(&ok[1]);
+             _value[pushed].placement.offsets[0]  = argv[index+5].toFloat(&ok[0]);
+             _value[pushed].placement.offsets[1]  = argv[index+6].toFloat(&ok[1]);
              if ( ! ok[0] || ! ok[1]) {
                  rc = FailureRc;
              }	else {
@@ -979,10 +1109,14 @@ Rc PageAttributePictureMeta::parse(QStringList &argv, int index,Where &here)
 
 QString PageAttributePictureMeta::format(bool local, bool global)
 {
-  QString foo = "PICTURE";
-  foo += " \"" + _value[pushed].string + "\"";
+  QString foo;
+  foo += "PICTURE \"" + _value[pushed].string + "\"";
   if (_value[pushed].picScale && ! _value[pushed].tile && ! _value[pushed].stretch) {
     foo += QString(" SCALE %1") .arg(_value[pushed].picScale);
+  }
+  if ((_value[pushed].placement.offsets[0] || _value[pushed].placement.offsets[1]) && ! _value[pushed].tile && ! _value[pushed].stretch) {
+    foo += QString(" OFFSET %1 %2") .arg(_value[pushed].placement.offsets[0])
+                                    .arg(_value[pushed].placement.offsets[1]);
   }
   if (_value[pushed].stretch) {
     foo += " STRETCH";
@@ -990,11 +1124,6 @@ QString PageAttributePictureMeta::format(bool local, bool global)
   if (_value[pushed].tile) {
     foo += " TILE";
   }
-  if ((_value[pushed].offsets[0] || _value[pushed].offsets[1]) && ! _value[pushed].tile && ! _value[pushed].stretch) {
-    foo += QString(" OFFSET %1 %2") .arg(_value[pushed].offsets[0])
-                                    .arg(_value[pushed].offsets[1]);
-  }
-
   return LeafMeta::format(local,global,foo);
 }
 
@@ -1532,7 +1661,7 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
   if (rc == OkRc) {
     if (argv.size() - index == 3 && argv[index] == "OFFSET") {
       bool ok[2];
-      insertData.offsets[0] = argv[++index  ].toFloat(&ok[0]);
+      insertData.offsets[0] = argv[++index].toFloat(&ok[0]);
       insertData.offsets[1] = argv[++index].toFloat(&ok[1]);
       if ( ! ok[0] || ! ok[1]) {
         rc = FailureRc;
@@ -2048,12 +2177,11 @@ PageMeta::PageMeta() : BranchMeta()
   // Page Attributes
   //model title
   title.textFont.setValuePoints("Arial,32,-1,255,75,0,0,0,0,0");
-  //title.placement.setValue(CenterCenter,PageType);
   title.placement.value().placement     = Left;
   title.placement.value().justification = Center;
   title.placement.value().relativeTo    = PageType;
   title.placement.value().preposition   = Inside;
-  title.type = PageTitleType ;// PageAttributeTextMeta::PageTitleType;
+  title.type = PageTitleType;
   title.setValue(LDrawFile::_file);
 
   //model identification
@@ -2081,7 +2209,7 @@ PageMeta::PageMeta() : BranchMeta()
   pieces.placement.value().relativeTo    = PageType;
   pieces.placement.value().preposition   = Inside;
   pieces.type = PagePiecesType;
-  pieces.setValue(QString::number(LDrawFile::_pieces));
+  pieces.setValue(QString("%1 Pieces").arg(QString::number(LDrawFile::_pieces)));
 
   //publisher author
   author.textFont.setValuePoints("Arial,32,-1,255,75,0,0,0,0,0");
@@ -2090,7 +2218,7 @@ PageMeta::PageMeta() : BranchMeta()
   author.placement.value().relativeTo    = PageType;
   author.placement.value().preposition   = Inside;
   author.type = PageAuthorType;
-  author.setValue(Preferences::defaultAuthor);
+  author.setValue(QString("Model design by %1").arg(Preferences::defaultAuthor));
 
   //publisher description
   publishDesc.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");

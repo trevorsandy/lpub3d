@@ -242,15 +242,15 @@ public:
     PlacementData   placement;
     QString         string;
     qreal           picScale;
-    float           offsets[2];
+//    float           offsets[2];
     bool            stretch;
     bool            tile;
     bool            display;
     PageAttributePictureData()
    {
      picScale      = 1.0;
-     offsets[0]    = 0.0;               //cannot remove until meta.cpp's use is resolved
-     offsets[1]    = 0.0;               //""
+//     offsets[0]    = 0.0;               //cannot remove until meta.cpp's use is resolved
+//     offsets[1]    = 0.0;               //""
      stretch       = false;
      tile          = false;
      display       = Preferences::displayAllAttributes;

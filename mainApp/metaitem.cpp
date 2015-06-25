@@ -986,8 +986,6 @@ void MetaItem::changePageAttributePictureOffset(
   QString newMetaString = pictureMeta->format(false,false);
   logNotice() << "(2.) New Meta String: " << newMetaString;
 
-  //Where defaultWhere = pictureMeta->here();
-
   if (pictureMeta->here().modelName == "undefined") {
     Where walk = defaultWhere + 1;
 

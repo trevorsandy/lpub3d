@@ -337,14 +337,14 @@ void PageAttributePixmapItem::change()
       qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
       qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
 
-      PlacementData pld;
+//      PlacementData pld;
 
-      pld.placement    		= TopLeft;
-      pld.justification    	= Center;
-      pld.relativeTo      	= PageType;
-      pld.preposition   	= Inside;
+//      pld.placement    		= pictureData.placement.placement;
+//      pld.justification    	= pictureData.placement.justification;
+//      pld.relativeTo      	= pictureData.placement.relativeTo;
+//      pld.preposition   	= pictureData.placement.preposition;
 
-      calcOffsets(pld,pictureData.offsets,topLeft,size);
+      calcOffsets(pictureData.placement,pictureData.placement.offsets,topLeft,size);
 
       pictureData.picScale *= oldScale;
       pageAttributePictureMeta.setValue(pictureData);
@@ -355,8 +355,6 @@ void PageAttributePixmapItem::change()
                 << " \nType: " << QString::number(pictureData.type)
                 << " \nMeta Here (Model Name): " << pageAttributePictureMeta.here().modelName
                 << " \nMeta Here (Line Number): " << pageAttributePictureMeta.here().lineNumber
-                << " \nOffsets[0]: " << QString::number(pictureData.offsets[0])
-                << " \nOffsets[1]: " << QString::number(pictureData.offsets[1])
                 << " \nPicScale: " << QString::number(pictureData.picScale)
                 << " \nStretch: " << pictureData.stretch
                 << " \nFileName: " << pictureData.string
