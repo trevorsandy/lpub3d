@@ -979,11 +979,10 @@ void MetaItem::changeInsertOffset(
   replaceMeta(placement->here(),newMetaString);
 }
 
-void MetaItem::changePageAttributePictureOffset(
-  Where defaultWhere,
-  PageAttributePictureMeta *pictureMeta)
+void MetaItem::changePageAttributePictureOffset(Where defaultWhere,
+  PageAttributePictureMeta *pictureMeta, bool local, bool global)
 {
-  QString newMetaString = pictureMeta->format(false,true);  //this is set to always use GLOBAl
+  QString newMetaString = pictureMeta->format(local,global);  //this is set to always use GLOBAl
 
 
   logNotice() << "\n(2.) New Meta String: " << newMetaString

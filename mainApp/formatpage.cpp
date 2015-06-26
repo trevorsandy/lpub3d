@@ -310,19 +310,35 @@ int Gui::addGraphicsPageItems(
     // allocate QGraphicsTextItem for // author (Header) //~~~~~~~~~~~~~~~~
     if (page->meta.LPub.page.author.display.value() && ! coverPage) {
 
-        PagePageAttributeItem *author =
+        PagePageAttributeItem *authorHeader =
                 new PagePageAttributeItem(
                     page,
                     page->meta.LPub.page.author,
                     pageBg);
 
-        author->relativeType = PageCopyrightType;
-        author->size[XX]     = (int) author->document()->size().width();
-        author->size[YY]     = (int) author->document()->size().height();
+        authorHeader->relativeType = PageAuthorType;
+        authorHeader->size[XX]     = (int) authorHeader->document()->size().width();
+        authorHeader->size[YY]     = (int) authorHeader->document()->size().height();
 
-        plPage.appendRelativeTo(author);
-        plPage.placeRelative(author);
-        author->setPos(author->loc[XX],author->loc[YY]);
+        //settings
+        PlacementData pld = authorHeader->placement.value();
+        pld.placement      = TopLeft;
+        pld.justification  = Center;
+        pld.relativeTo     = PageType;
+        pld.preposition    = Inside;
+        pld.offsets[0]     = 0;
+        pld.offsets[1]     = 0;
+        authorHeader->placement.setValue(pld);
+        /* Font input format:
+           "Arial,64,-1,255,75,0,0,0,0,0"
+        0 family, 1 pointSizeF, 2 pixelSize, 3 styleHint, 4 weight,
+        5 underline, 6 strikeout, 7 strikeOut, 8 fixedPitch 9 rawMode */
+        authorHeader->textFont.setValueFoo("Arial,18,-1,255,75,0,0,0,0,0");
+        authorHeader->content.setValue(Preferences::defaultAuthor);
+        //
+        plPage.appendRelativeTo(authorHeader);
+        plPage.placeRelative(authorHeader);
+        authorHeader->setPos(authorHeader->loc[XX],authorHeader->loc[YY]);
     }
 
     // allocate QGraphicsTextItem for // url (Header) //~~~~~~~~~~~~~~~~
@@ -334,7 +350,7 @@ int Gui::addGraphicsPageItems(
                     page->meta.LPub.page.url,
                     pageBg);
 
-        url->relativeType = PageCopyrightType;
+        url->relativeType = PageURLType;
         url->size[XX]     = (int) url->document()->size().width();
         url->size[YY]     = (int) url->document()->size().height();
 
@@ -352,7 +368,7 @@ int Gui::addGraphicsPageItems(
                     page->meta.LPub.page.email,
                     pageBg);
 
-        email->relativeType = PageCopyrightType;
+        email->relativeType = PageEmailType;
         email->size[XX]     = (int) email->document()->size().width();
         email->size[YY]     = (int) email->document()->size().height();
 
@@ -453,12 +469,12 @@ int Gui::addGraphicsPageItems(
               
               PlacementData pld;
               
-              pld.placement    = TopLeft;
-              pld.justification    = Center;
-              pld.relativeTo      = PageType;
-              pld.preposition   = Inside;
-              pld.offsets[0]    = insert.offsets[0];
-              pld.offsets[1]    = insert.offsets[1];
+              pld.placement      = TopLeft;
+              pld.justification  = Center;
+              pld.relativeTo     = PageType;
+              pld.preposition    = Inside;
+              pld.offsets[0]     = insert.offsets[0];
+              pld.offsets[1]     = insert.offsets[1];
               
               pixmap->placement.setValue(pld);
 

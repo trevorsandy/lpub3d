@@ -887,37 +887,23 @@ Rc PageAttributePictureMeta::parse(QStringList &argv, int index,Where &here)
  Rc rc = FailureRc;
  int indexSize = argv.size()-1;
 
- //debug logging only
- for(int i=0;i<argv.size();i++){
-     int size = argv.size();
-     int incr = i;
-     int result = size - incr;
-     logNotice() << "PAGE ARGV pos:(" << i+1 << ") index:(" << i << ") [" << size << " - " << incr << " = " << result << "] " << argv[i];}
-     logNotice() << "SIZE: " << argv.size() << ", INDEX: " << index;
-     logInfo() << "\n00 START - Value at index: " << argv[index];
- //end debug logging only
-
      if (argv.size() - index > 2){
        if (argv[index-2] == "DOCUMENT_LOGO") {
-           logInfo() << "\n01 Image: " << argv[index-1];
          _value[pushed].type = PageDocumentLogoType;
          rc = OkRc;
        } else if (argv[index-2] == "APP_PLUG_IMAGE") {
-           logInfo() << "\n01 Image: " << argv[index-1];
            _value[pushed].type = PagePlugImageType;
            rc = OkRc;
        } else if (argv[index-2] == "DOCUMENT_COVER_IMAGE") {
-           logInfo() << "\n01 Image: " << argv[index-2];
           _value[pushed].type = PageCoverImageType;
           rc = OkRc;
        }
      }
 
-     if ((argv[index-2] == "DOCUMENT_LOGO" || argv[index-2] == "APP_PLUG_IMAGE" || argv[index-2] == "DOCUMENT_COVER_IMAGE") && argv[index+2] == "SCALE") {
-         //logging
-         if (argv[index-2] == "DOCUMENT_COVER_IMAGE" || argv[index-2] == "DOCUMENT_LOGO" || argv[index-2] == "APP_PLUG_IMAGE"){
-             logInfo() << "\n02 SCALE: \nImage: " << argv[index-2] << "\nFile: " << argv[index+1] << "\nKey: " << argv[index+2] << " Value: " << argv[index+3].toFloat();}
-         //logging
+     if ((argv[index-2] == "DOCUMENT_LOGO" ||
+          argv[index-2] == "APP_PLUG_IMAGE" ||
+          argv[index-2] == "DOCUMENT_COVER_IMAGE") &&
+          argv[index+2] == "SCALE") {
          _value[pushed].string  = argv[index+1];
          _value[pushed].stretch = false;
          _value[pushed].tile    = false;
@@ -932,7 +918,6 @@ Rc PageAttributePictureMeta::parse(QStringList &argv, int index,Where &here)
 
      if (rc == OkRc && (indexSize - (index+3) >= 1)) {
          if (argv[index+4] == "OFFSET") {
-             logInfo() << "\n03 OFFSET:" << " \nKey: " << argv[index+4] << " Value: " << argv[index+5].toFloat() << " " << argv[index+6].toFloat() ;
              bool ok[2];
              _value[pushed].placement.offsets[0]  = argv[index+5].toFloat(&ok[0]);
              _value[pushed].placement.offsets[1]  = argv[index+6].toFloat(&ok[1]);
@@ -947,13 +932,11 @@ Rc PageAttributePictureMeta::parse(QStringList &argv, int index,Where &here)
      }
 
      if (argv[index-2] == "DOCUMENT_COVER_IMAGE" && argv[index+2] == "STRETCH") {
-         logInfo() << "\n04 STRETCH: \nImage: " << argv[index-2] << "\nFile: " << argv[index+1] << "\nParm: " << argv[index+2];
          _value[pushed].string  = argv[index+1];
          _value[pushed].stretch = true;
          _value[pushed].tile    = false;
          rc = OkRc;
      } else if (argv[index-2] == "DOCUMENT_COVER_IMAGE" && argv[index+2] == "TILE") {
-         logInfo() << "\n04 TILE: \nImage: " << argv[index-2] << "\nFile: " << argv[index+1] << "\nParm: " << argv[index+2] ;
          _value[pushed].string  = argv[index+2];
          _value[pushed].stretch = false;
          _value[pushed].tile = true;
@@ -1452,9 +1435,6 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
   InsertData insertData;
   Rc rc = OkRc;
 
-//  for(int i=0;i<argv.size();i++){
-//      logNotice() << "INSERT argv Item (" << i << ") " << argv[i] << " Index: " << index;}
-
   if (argv.size() - index == 1) {
     if (argv[index] == "PAGE") {
       return InsertPageRc;
@@ -1466,12 +1446,10 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
       if  (argv[pos] == "FRONT"){
           gui->page.frontCover = true;
           gui->page.backCover  = false;
-          //logTrace() << "Insert Cover Page Front";
           return InsertCoverPageRc;
       } else if ( argv[pos] == "BACK"){
           gui->page.backCover  = true;
           gui->page.frontCover = false;
-          //logTrace() << "Insert Cover Page Back";
           return InsertCoverPageRc;
       } else
           rc = FailureRc;

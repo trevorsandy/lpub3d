@@ -257,7 +257,7 @@ void PagePageAttributeItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
       placementData.offsets[1] += newPosition.y()/relativeToSize[1];
       placement.setValue(placementData);
 
-      changePlacementOffset(page->bottomOfSteps(),&placement,relativeType);
+      changePlacementOffset(page->bottomOfSteps(),&placement,relativeType,false,false,true);
     }
   }
 }
