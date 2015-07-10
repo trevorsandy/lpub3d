@@ -43,6 +43,7 @@
 #define PLACEMENTDIALOG_H
 
 #include <QDialog>
+#include <QLabel>
 #include "metatypes.h"
 
 class QGridLayout;
@@ -52,13 +53,13 @@ class QComboBox;
 class QDialogButtonBox;
 
 /*
- *    TL|T-L T-C T-R|TR
+ *   T/L|T:L T:C T:R|T/R
  *   ---+-----------+--
- *   L-T|TL   T   TR|R-T
- *   L-C|L    C    R|R-C
- *   L_B|BL   B   BR|R-B
+ *   L:T|T/L  T  T/R|R:T
+ *   L:C|L    C    R|R:C
+ *   L:B|B/L  B  B/R|R:B
  *   ---+-----------+---
- *    BL|B-L  B  B-R|BR
+ *   B/L|B:L B:C B:R|B/R
  *
  * TL,T-L=Top Left
  * BL,B-L=Bottom Left
@@ -75,154 +76,83 @@ public:
   enum PrepositionMask { InsideOk = 128, OutsideOk = 256 };
 
   enum RelativeTos 
-
-    { Page = 1 , Csi = 2, Ms = 4, Sn = 8, Pli = 16, Callout = 32, Pn = 64,
-
-      tt = 66, mnt = 67, mdt = 68, pdt = 69, at = 70, pt = 71, cat = 72, urlt = 73,
-
-      et = 74, ct = 75, dt = 75, dlt = 76, cit = 77, plt = 78, pit = 79};
+    { Page = 1 ,   Csi = 2,     Ms  = 4,      Sn  = 8,      Pli  = 16,     Callout = 32,
+      Pn  = 64,    tt  = 128,   mnt = 256,    at  = 512,    urlt = 1024,   mdt = 2048,
+      pdt = 4096,  ct  = 8192,  et  = 16384,  dt  = 32768,  pt   = 65536,  plt = 131072,
+      cat = 262144,dlt = 524288,cit = 1048576,pit = 2097152,ph   = 4194304,pf  = 8388608
+    };
 
   RelativeTos currentRelativeType;
 
-    
-
   PlacementDialog(
-
     PlacementType   parentType,
-
     PlacementType   placedType,
-
     PlacementData  &goods,
-
     QString         title,
-
+    int             onPageType,
     QWidget        *parent,
-
     bool            pliPerStep);
-
-
-
  ~PlacementDialog();
 
-
-
   static bool getPlacement(
-
     PlacementType   parentType,
-
     PlacementType   placedType,
-
     PlacementData  &goods,  // the type in here provides default value
-
     QString         title,
-
+    int             onPageType = ContentPage,
     QWidget        *parent = 0,
-
     bool            pliPerStep = false);
-
-
 
   static QString relativeToName(int relativeTo);
 
-
-
 private slots:
-
   void topLeftO();
-
   void topleft();
-
   void topcenter();
-
   void topright();
-
   void topRightO();
 
-
-
   void lefttop();
-
   void topLeftI();
-
   void top();
-
   void topRightI();
-
   void righttop();
 
-
-
   void leftcenter();
-
   void left();
-
   void center();
-
   void right();
-
   void rightcenter();
 
-
-
   void leftbottom();
-
   void bottomLeftI();
-
   void bottom();
-
   void bottomRightI();
-
   void rightbottom();
 
-
-
   void bottomLeftO();
-
   void bottomleft();
-
   void bottomcenter();
-
   void bottomright();
-
   void bottomRightO();
-
-
 
   void relativeToChanged(int);
 
-  
-
 private:
-
   void setEnabled(int okPrepositions);
-
   void highlightPlacement(PlacementData *goods);
 
-
-
-  PlacementData *goods;
-
-
-
-  QComboBox   *combo;
-
-  QPushButton *buttons[5][5];
-
-  QGridLayout *outsideGrid;
-
-  QGridLayout *insideGrid;
-
-  QFrame      *insideFrame;
-
-  QDialogButtonBox *buttonBox;
-
-
+  PlacementData     *goods;
+  QComboBox         *combo;
+  QPushButton       *buttons[5][5];
+  QGridLayout       *outsideGrid;
+  QGridLayout       *insideGrid;
+  QFrame            *insideFrame;
+  QLabel            *lblRelativeTo;
+  QDialogButtonBox  *buttonBox;
 
   static const int relativeToOks[];
-
   static const int prepositionOks[];
-
 };
 
 #endif
-

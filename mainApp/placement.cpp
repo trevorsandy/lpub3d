@@ -54,6 +54,8 @@ void PlacementNum::sizeit(QString format)
   }
 }
 
+/* add a placement element (ranges, range, setep, callout, pli ...) to the list */
+
 void Placement::appendRelativeTo(Placement *element)
 {
   if (element->relativeType != PageType) {
@@ -84,27 +86,44 @@ int Placement::relativeTo(
   int rc = 0;
 
   if (step) {
+    /*
+     * step = a range of ranges where ranges by itself are multi-step
+     * relativeTo = item is placed relative to what?
+              e.g. relativeTo PageType(Page)
+       relativeType = item's placement type is what?
+              e.g. pageHeader's placementType is PageHeaderType */
     PlacementType stepRelativeTo;
+    /* pageHeader */
+    stepRelativeTo = step->pageHeader.placement.value().relativeTo;
+    if (stepRelativeTo == relativeType) {
+      placeRelative(&step->pageHeader);
+      appendRelativeTo(&step->pageHeader);
+    }
+    /* csiItem (Assembly) */
     stepRelativeTo = step->csiItem->placement.value().relativeTo;
     if (stepRelativeTo == relativeType) {
       placeRelative(step->csiItem);
       appendRelativeTo(step->csiItem);
     }
-
+    /* pli (Parts List) */
     stepRelativeTo = step->pli.placement.value().relativeTo;
     if (stepRelativeTo == relativeType) {
       placeRelative(&step->pli);
       appendRelativeTo(&step->pli);
     }
-
+    /* step number */
     stepRelativeTo = step->stepNumber.placement.value().relativeTo;
     if (stepRelativeTo == relativeType) {
       placeRelative(&step->stepNumber);
       appendRelativeTo(&step->stepNumber);
     }
-
+    /* pageFooter */
+    stepRelativeTo = step->pageFooter.placement.value().relativeTo;
+    if (stepRelativeTo == relativeType) {
+      placeRelative(&step->pageFooter);
+      appendRelativeTo(&step->pageFooter);
+    }
     /* callouts */
-
     for (int i = 0; i < step->list.size(); i++) {
       if (step->list[i]->relativeType == CalloutType) {
         Callout *callout = step->list[i];
@@ -260,27 +279,6 @@ void Placement::placeRelative(
   }
 }
 
-void Placement::placeRelativeBounding(
-  Placement *them)
-{
-  int lmargin[2] = { them->margin.valuePixels(XX), them->margin.valuePixels(YY) };
-  int margin2[2] = { margin.valuePixels(XX), margin.valuePixels(YY) };
-  
-  for (int i = 0; i < 2; i++) {  
-    lmargin[i] = margin2[i] > lmargin[i] ? margin2[i] : lmargin[i];
-  }
-
-  int bias[2];
-  
-  bias[XX] = them->loc[XX] - them->boundingLoc[XX];
-  bias[YY] = them->loc[YY] - them->boundingLoc[YY];
-
-  placeRelative(them, them->boundingSize, lmargin);
-  
-  them->loc[XX] += bias[XX];
-  them->loc[YY] += bias[YY];
-}
-
 void Placement::placeRelative(
   Placement *them,
   int   them_size[2],
@@ -398,6 +396,27 @@ void Placement::placeRelative(
   them->loc[YY] += int(size[YY] * them->placement.value().offsets[YY]);
 }
 
+void Placement::placeRelativeBounding(
+  Placement *them)
+{
+  int lmargin[2] = { them->margin.valuePixels(XX), them->margin.valuePixels(YY) };
+  int margin2[2] = { margin.valuePixels(XX), margin.valuePixels(YY) };
+
+  for (int i = 0; i < 2; i++) {
+    lmargin[i] = margin2[i] > lmargin[i] ? margin2[i] : lmargin[i];
+  }
+
+  int bias[2];
+
+  bias[XX] = them->loc[XX] - them->boundingLoc[XX];
+  bias[YY] = them->loc[YY] - them->boundingLoc[YY];
+
+  placeRelative(them, them->boundingSize, lmargin);
+
+  them->loc[XX] += bias[XX];
+  them->loc[YY] += bias[YY];
+}
+
 void Placement::justifyX(
   int          origin,
   int          height)
@@ -423,6 +442,9 @@ void Placement::justifyX(
     break;
   }
 }
+
+
+
 
 void Placement::justifyY(
   int          origin,

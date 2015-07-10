@@ -65,7 +65,7 @@ class Preferences
     static QString plug;
     static bool    enableDocumentLogo;
     static bool    displayAllAttributes;
-    static bool    printCopyright;
+    static bool    generageCoverPages;
     static bool    printDocumentTOC;
     static bool    preferCentimeters;
     static bool    preferTitleAnnotation;

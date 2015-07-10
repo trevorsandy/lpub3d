@@ -1,41 +1,34 @@
-About LeoCAD
+About LPub3D
 ------------
 
-LeoCAD is a CAD program for creating virtual LEGO models. It's available
-or free under the GNU Public License v2 and works on the Windows, Linux
-and Mac OSX Operating Systems.
+LPub3D is an editing application for creating LEGO style digital building instructions.
+It's available for free under the GNU Public License v3 and works on the Windows
+Operating Systems.
+
+Features and enhancements
+------------
 
 
 Installation
 ------------
 
-You can download the latest version of LPubV from
-http://sourceforge.net
+You can download the latest version of LPub3D from
+https://sourceforge.net/projects/lpub3d
 
 It's recommended that you install the latest drivers for your video card
-since LPubV uses OpenGL to take advantage of hardware acceleration for
-rendering.
+since LPub3D uses LeoCAD which uses OpenGL to take advantage of hardware 
+acceleration for rendering.
 
-- LPubV for Windows:
+- LPub3D for Windows:
 
-  Download LPubV-5.0.0-0106.exe to your computer, double click on the 
+  Download LPub3D to your computer, double click on the 
   icon to launch the installer and follow the intructions.
   
-  Alternatively, you may download LPubV-5.0.0-0106.zip to your computer,
-  unpack in your desired directory and follow the on-screen prompts 
-  to complete the setup.
-
-- LPubV for Mac OSX:
-
-  Download LPubV-5.0.0-0106.dmg to your computer, double click on the 
-  icon to open the archive and copy LPubV.app to your Applications folder.
-
 Online Resources
 ----------------
 
 - Website:
-  http://sourceforge.net
-
+  https://sourceforge.net/projects/lpub3d
 
 Legal Disclaimer
 ----------------

@@ -16,9 +16,9 @@ ColourPartList::ColourPartList(QObject *parent) : QObject(parent)
  */
 void ColourPartList::processFadeColorParts()
 {
-    data = new GlobalFadeStep();
-    FadeStepMeta *fadeStepMeta = &data->meta.LPub.fadeStep;
-    bool doFadeStep     = (fadeStepMeta->fadeStep.value() || Preferences::enableFadeStep);
+    Meta meta;
+    bool fadeStep   = meta.LPub.fadeStep.fadeStep.value();
+    bool doFadeStep = (fadeStep || Preferences::enableFadeStep);
     QStringList contents;
 
     if (doFadeStep) {
@@ -34,7 +34,7 @@ void ColourPartList::processFadeColorParts()
             QString subfileNameStr = ldrawFile._subFileOrder[i].toLower();
             contents = ldrawFile.contents(subfileNameStr);
             emit progressSetValueSig(i);
-            logDebug() << "00 PROCESSING SUBFILE: " << subfileNameStr;
+            //logDebug() << "00 PROCESSING SUBFILE: " << subfileNameStr;
             for (int i = 0; i < contents.size(); i++) {
                 QString line = contents[i];
                 QStringList tokens;
@@ -43,7 +43,7 @@ void ColourPartList::processFadeColorParts()
                     // check if colored part and create fade version if yes
                     QString fileNameStr  = tokens[tokens.size()-1];
                     if (FadeStepColorParts::getStaticColorPartPath(fileNameStr)){
-                        logInfo() << "01 SUBMIT COLOUR PART: " << QString("%1**%2").arg(tokens[tokens.size()-1]).arg(fileNameStr) << " Line: " << i;
+                        //logInfo() << "01 SUBMIT COLOUR PART: " << QString("%1**%2").arg(tokens[tokens.size()-1]).arg(fileNameStr) << " Line: " << i;
                         createFadePartContent(QString("%1**%2").arg(tokens[tokens.size()-1]).arg(fileNameStr), i);
                     }
                 }
@@ -96,7 +96,7 @@ void ColourPartList::createFadePartContent(const QString &fileNameComboStr, cons
         if (tokens.size() == 15 && tokens[0] == "1") {
             QString childFileNameStr  = tokens[tokens.size()-1];
             if (FadeStepColorParts::getStaticColorPartPath(childFileNameStr)){
-                logInfo() << "03 SUBMIT CHILD COLOUR PART: " << childFileNameStr << " Colour: " << tokens[1];
+                //logInfo() << "03 SUBMIT CHILD COLOUR PART: " << childFileNameStr << " Colour: " << tokens[1];
                 createFadePartContent(QString("%1**%2").arg(tokens[tokens.size()-1]).arg(childFileNameStr), i);
             }
         }
@@ -172,7 +172,7 @@ void ColourPartList::retrieveContent(
             _partFileContents.clear();
 
         } else {
-            logError() << QString("%1%2%3").arg("Failed to OPEN Part file: ").arg(fileInfo.fileName()).arg(fileErrorString);
+            //logError() << QString("%1%2%3").arg("Failed to OPEN Part file: ").arg(fileInfo.fileName()).arg(fileErrorString);
             QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
                                  QMessageBox::tr("Failed to OPEN Part file :%1\n%2")
                                  .arg(fileInfo.fileName())
@@ -238,16 +238,12 @@ void ColourPartList::createFadePartFiles(){
                 break;
             }
             QFileInfo fadeFileInfo = cp.value()._fileNameStr;
-            logTrace() << "A PART CONTENT FILENAME: " << fadeFileInfo.absoluteFilePath();
+            //logTrace() << "A PART CONTENT FILENAME: " << fadeFileInfo.absoluteFilePath();
 
             QFileInfo fadeStepColorPartFileInfo(fadePartDir, fadeFileInfo.fileName().replace(".dat","-fade.dat"));
             // check if part exist and if yes return
             if (fadeStepColorPartFileInfo.exists()){
-                logError() << "PART EXISTS: " << fadeStepColorPartFileInfo.absoluteFilePath();
-//                QString uniqueIDParts = _partList[part];
-//                int lineNum = uniqueIDParts.section("***",0,-2).toInt();
-//                QString fileName = uniqueIDParts.section("***",-1,-1);
-//                remove(fileName,lineNum);
+                //logError() << "PART EXISTS: " << fadeStepColorPartFileInfo.absoluteFilePath();
                 continue;
             }
 
@@ -264,7 +260,7 @@ void ColourPartList::createFadePartFiles(){
                     // check ColourPartList contents if line part is an identified colour part and rename accordingly
                     QString uniqueID = QString("%1_%2").arg(QString::number(i)).arg(fileNameStr.toLower());
                     QMap<QString, ColourPart>::iterator cpc = _colourParts.find(uniqueID);                    
-                    logTrace() << "B. COMPARE CHILD - LINE NUM: "<< i << " PART ID: " << fileNameStr << " AND CONTENT UID:" << uniqueID;
+                    //logTrace() << "B. COMPARE CHILD - LINE NUM: "<< i << " PART ID: " << fileNameStr << " AND CONTENT UID:" << uniqueID;
 
                     if (cpc != _colourParts.end()){
                         if (cpc.value()._fileNameStr == fileNameStr){
@@ -283,15 +279,15 @@ void ColourPartList::createFadePartFiles(){
                      (tokens[1] != materialColor) 				&&
                      (tokens[1] != edgeColor))){
 
-                    QString oldColour(tokens[1]);       //logging only
+                    //QString oldColour(tokens[1]);       //logging only
                     tokens[1] = materialColor;
-                    logTrace() << "D. CHANGE CHILD PART COLOUR: " << fileNameStr << " NewColour: " << tokens[1] << " OldColour: " << oldColour;
+                    //logTrace() << "D. CHANGE CHILD PART COLOUR: " << fileNameStr << " NewColour: " << tokens[1] << " OldColour: " << oldColour;
                 }
                 line = tokens.join(" ");
                 fadePartContent << line;
             }
         }
-        logTrace() << "04 SAVE COLOUR PART: " << fadePartFile;
+        //logTrace() << "04 SAVE COLOUR PART: " << fadePartFile;
         saveFadeFile(fadePartFile, fadePartContent);
         fadePartContent.clear();
     }
@@ -318,7 +314,7 @@ bool ColourPartList::saveFadeFile(
             out << fadePartContent[i] << endl;
         }
         file.close();
-        logWarn() << "05 WRITE PART TO DISC: " << fileName << "\n";
+        //logWarn() << "05 WRITE PART TO DISC: " << fileName << "\n";
         return true;
     }
 }
@@ -339,7 +335,7 @@ void ColourPartList::insert(
     ColourPart colourPartEntry(contents, fileNameStr, lineNum, partType);
     _colourParts.insert(uniqueID, colourPartEntry);
     _partList << uniqueID;
-    logNotice() << "02 INSERT PART CONTENTS - UID: " << uniqueID  <<  " partType: " << partType;
+    //logNotice() << "02 INSERT PART CONTENTS - UID: " << uniqueID  <<  " partType: " << partType;
 }
 
 int ColourPartList::size(const QString &fileNameStr, const int &lineNum){
@@ -376,7 +372,7 @@ void ColourPartList::remove(const QString &fileNameStr, const int &lineNum)
   if (i != _colourParts.end()) {
     i.value()._contents.removeAll(uniqueID);
     _partList.removeAll(uniqueID);
-    logWarn() << "REMOVE COLOUR PART: " << uniqueID << " from contents and _partList";
+    //logWarn() << "REMOVE COLOUR PART: " << uniqueID << " from contents and _partList";
   }
 }
 
@@ -419,7 +415,7 @@ void ColourPartListWorker::scanDir()
     partTypeDir << QDir::toNativeSeparators(filePath + "/p/");
     partTypeDir << QDir::toNativeSeparators(filePath + "/Unofficial/p/");
 
-    logDebug() << "Launch Direcory Listing.";
+    //logDebug() << "Launch Direcory Listing.";
     _timer.start();
     fileHeader(FADESTEP_FILE_HEADER);
     emit progressBarInitSig();
@@ -439,7 +435,7 @@ void ColourPartListWorker::scanDir()
     .arg(hours, 2, 10, QLatin1Char('0'))
     .arg(mins,  2, 10, QLatin1Char('0'))
     .arg(secs,  2, 10, QLatin1Char('0'));
-    logNotice()<< QString("COLOUR PARTS FILE WRITTEN WITH %1 LINES, ELAPSED TIME %2").arg(QString::number(_cpLines)).arg(time);
+    //logNotice()<< QString("COLOUR PARTS FILE WRITTEN WITH %1 LINES, ELAPSED TIME %2").arg(QString::number(_cpLines)).arg(time);
     emit messageSig(true,QString("Colour parts list successfully created with %1 entries, elapsed time %2.").arg(QString::number(_cpLines)).arg(time));
     emit removeProgressStatusSig();
     emit finishedSig();
@@ -479,9 +475,9 @@ void ColourPartListWorker::scanDir(QDir dir){
             dirName == dirFadePrims+"/48")
             continue;
 
-        logInfo() << "Sending FILE to getParts: " << itDir.fileInfo().absoluteFilePath();
+        //logInfo() << "Sending FILE to getParts: " << itDir.fileInfo().absoluteFilePath();
         getParts(itDir.fileInfo());
-        logTrace() << "Sending FILE to buildList: " << itDir.fileInfo().absoluteFilePath();
+        //logTrace() << "Sending FILE to buildList: " << itDir.fileInfo().absoluteFilePath();
         buildList(itDir.fileInfo());
 
     }
@@ -491,7 +487,7 @@ void ColourPartListWorker::scanDir(QDir dir){
 void ColourPartListWorker::getParts(const QFileInfo &fileInfo)
 {
     if(fileInfo.exists()){
-        logInfo() << "Part FOUND: " << fileInfo.absoluteFilePath();
+        //logInfo() << "Part FOUND: " << fileInfo.absoluteFilePath();
         QFile file(fileInfo.absoluteFilePath());
         QString fileErrorString;
         fileErrorString += file.errorString();
@@ -506,7 +502,7 @@ void ColourPartListWorker::getParts(const QFileInfo &fileInfo)
             insert(_partFileContents, fileInfo.absoluteFilePath(), -1, -1);
 
         } else {
-            logError() << QString("Failed to OPEN Part file :%1\n%2").arg(fileInfo.fileName()).arg(fileErrorString);
+            //logError() << QString("Failed to OPEN Part file :%1\n%2").arg(fileInfo.fileName()).arg(fileErrorString);
             emit messageSig(false,QString("Failed to OPEN Part file :%1\n%2").arg(fileInfo.fileName()).arg(fileErrorString));
             return;
         }
@@ -547,7 +543,7 @@ void ColourPartListWorker::buildList(const QFileInfo &fileInfo){
 
             } else {
                 hasColour = true;
-                logInfo() << " File contents VERIFY: " << line << " COLOUR: " << colour;
+                //logInfo() << " File contents VERIFY: " << line << " COLOUR: " << colour;
                 if (fileName.isEmpty()){
                     fileName = fileInfo.fileName();
                     emit messageSig(false,QString("Part: %1 \nhas no 'Name:' attribute. Using file name instead.\n"
@@ -563,7 +559,7 @@ void ColourPartListWorker::buildList(const QFileInfo &fileInfo){
     _partFileContents.clear();
     if(hasColour) {
         _fadeStepColourParts  << fileEntry.toLower();
-        logWarn() << "ADD COLOUR PART: " << fileEntry << " Colour: " << colour;
+        //logWarn() << "ADD COLOUR PART: " << fileEntry << " Colour: " << colour;
     }
 }
 
@@ -604,7 +600,7 @@ void ColourPartListWorker::colourChildren(){
                            QString fileEntry;
                            fileEntry = QString("%1\t\t%2\t\t%3").arg(parentFileNameStr).arg(fadeFileInfo.absoluteFilePath()).arg(ap.value()._contents[0].remove(0,2));
                            _fadeStepColourParts  << fileEntry.toLower();
-                           logInfo() << "ADD CHILD COLOUR PART: " << fileEntry;
+                           //logInfo() << "ADD CHILD COLOUR PART: " << fileEntry;
                            gotoMainLoop = true;
                         }
                     }
@@ -628,7 +624,7 @@ void ColourPartListWorker::writeFile(){
         _cpLines = 0;
         QFile file(colourFileList.absoluteFilePath());
         if ( ! file.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
-            logError() << QString("Failed to OPEN colourFileList %1 for writing:\n%2").arg(file.fileName()).arg(file.errorString());
+            //logError() << QString("Failed to OPEN colourFileList %1 for writing:\n%2").arg(file.fileName()).arg(file.errorString());
             emit messageSig(false,QString("Failed to OPEN colourFileList %1 for writing:\n%2").arg(file.fileName()).arg(file.errorString()));
             return;
         }
@@ -659,7 +655,7 @@ void ColourPartListWorker::insert(
     ColourPart colourPartEntry(contents, fileNameStr, lineNum, partType);
     _colourParts.insert(uniqueID, colourPartEntry);
     _partList << uniqueID;
-    logNotice() << "02 INSERT PART CONTENTS - UID: " << uniqueID  <<  " partType: " << partType;
+    //logNotice() << "02 INSERT PART CONTENTS - UID: " << uniqueID  <<  " partType: " << partType;
 }
 
 void ColourPartListWorker::remove(const QString &fileNameStr, const int &lineNum)
@@ -670,7 +666,7 @@ void ColourPartListWorker::remove(const QString &fileNameStr, const int &lineNum
   if (i != _colourParts.end()) {
     i.value()._contents.removeAll(uniqueID);
     _partList.removeAll(uniqueID);
-    logWarn() << "REMOVE COLOUR PART: " << uniqueID << " from contents and _partList";
+    //logWarn() << "REMOVE COLOUR PART: " << uniqueID << " from contents and _partList";
   }
 }
 
@@ -724,13 +720,13 @@ void ColourPartListWorker::fileHeader(const int &option){
 
 bool ColourPartListWorker::endThreadEventLoopNow(){
 
-    logTrace() << "endThreadEventLoopNow: " << _endThreadNowRequested;
+    //logTrace() << "endThreadEventLoopNow: " << _endThreadNowRequested;
     return _endThreadNowRequested;
 }
 
 void ColourPartListWorker::requestEndThreadNow(){
 
-    logTrace() << "requestEndThreadNow: " << _endThreadNowRequested;
+    //logTrace() << "requestEndThreadNow: " << _endThreadNowRequested;
     _endThreadNowRequested = true;
     emit finishedSig();
 }

@@ -29,7 +29,7 @@
  * make up the LPub program.
  *
  ***************************************************************************/
- 
+
 #include <QtGui>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
@@ -44,6 +44,7 @@
 #include "reserve.h"
 #include "step.h"
 #include "paths.h"
+#include "metaitem.h"
 
 /*********************************************
  *
@@ -98,7 +99,7 @@ static void remove_parttype(
   for (int i = 0; i < in.size(); i++) {
     QString line = in.at(i);
     QStringList tokens;
- 
+
     split(line,tokens);
 
     if (tokens.size() == 15 && tokens[0] == "1") {
@@ -130,11 +131,11 @@ static void remove_partname(
   for (int i = 0; i < in.size(); i++) {
     QString line = in.at(i);
     QStringList tokens;
- 
+
     split(line,tokens);
 
-    if (tokens.size() == 4 && tokens[0] == "0" && 
-                              tokens[1] == "LPUB" && 
+    if (tokens.size() == 4 && tokens[0] == "0" &&
+                              tokens[1] == "LPUB" &&
                               tokens[2] == "NAME") {
       QString type = tokens[3].toLower();
       if (type == name) {
@@ -182,9 +183,9 @@ static void remove_partname(
  * user wants to see.  If the current page number is lower than the "display"
  * page number, the state of meta, the parts in the submodel, the filename
  * and linenumber of the first line of page is saved.  When findPage hits end
- * of page for the "display" page, it hands the saved start of page state to 
- * drawPage.  drawPage parses from start of page, creating a tree of data 
- * structures representing the content of the page.  At end of page, the 
+ * of page for the "display" page, it hands the saved start of page state to
+ * drawPage.  drawPage parses from start of page, creating a tree of data
+ * structures representing the content of the page.  At end of page, the
  * tree is converted into Qt GraphicsItems for display.
  *
  * One thing to note is that findPage does the bulk of the LDraw file parsing
@@ -200,13 +201,13 @@ static void remove_partname(
  * are in the building instuctions.
  *
  */
- 
+
 Range *newRange(
   Steps  *steps,
   bool    calledOut)
 {
   Range *range;
-  
+
   if (calledOut) {
     range = new Range(steps,
                       steps->meta.LPub.callout.alloc.value(),
@@ -252,12 +253,13 @@ int Gui::drawPage(
   int         numLines = ldrawFile.size(current.modelName);
   bool        firstStep   = true;
   bool        noStep      = false;
-  
+  bool        insertModel = false;
+
   steps->isMirrored = isMirrored;
   steps->setTopOfSteps(current);
-  
+
   QList<InsertMeta> inserts;
-  
+
   Where topOfStep = current;
   Rc gprc = OkRc;
   Rc rc;
@@ -283,16 +285,16 @@ int Gui::drawPage(
       line.clear();
       gprc = EndOfFileRc;
       tokens << "0";
-      
-      // not end of file, so get the next LDraw line 
-     
+
+      // not end of file, so get the next LDraw line
+
     } else {
       line = ldrawFile.readLine(current.modelName,current.lineNumber);
       split(line,tokens);
     }
-    
+
     if (tokens.size() == 15 && tokens[0] == "1") {
-      
+
       QString color = tokens[1];
       QString type  = tokens[tokens.size()-1];
 
@@ -330,8 +332,8 @@ int Gui::drawPage(
       /* addition of ldraw parts */
 
       if (curMeta.LPub.pli.show.value()
-          && ! pliIgnore 
-          && ! partIgnore 
+          && ! pliIgnore
+          && ! partIgnore
           && ! synthBegin) {
         QString colorType = color+type;
         if (! isSubmodel(type) || curMeta.LPub.pli.includeSubs.value()) {
@@ -478,7 +480,7 @@ int Gui::drawPage(
       /* and make sure we know we have a step */
 
       if (step == NULL && ! noStep) {
-        if (range == NULL) {            
+        if (range == NULL) {
           range = newRange(steps,calledOut);
           steps->append(range);
         }
@@ -493,7 +495,7 @@ int Gui::drawPage(
       }
 
     } else if ( (tokens.size() > 0 && tokens[0] == "0") || gprc == EndOfFileRc) {
-      
+
       /* must be meta-command (or comment) */
       if (global && tokens.contains("!LPUB") && tokens.contains("GLOBAL")) {
         topOfStep = current;
@@ -538,7 +540,7 @@ int Gui::drawPage(
         case MLCadGroupRc:
           csiParts << line;
         break;
-        
+
         case IncludeRc:
           include(curMeta);
         break;
@@ -548,10 +550,10 @@ int Gui::drawPage(
         case PliBeginSub1Rc:
           if (pliIgnore) {
             parseError("Nested PLI BEGIN/ENDS not allowed\n",current);
-          } 
-          if (steps->meta.LPub.pli.show.value() && 
-              ! pliIgnore && 
-              ! partIgnore && 
+          }
+          if (steps->meta.LPub.pli.show.value() &&
+              ! pliIgnore &&
+              ! partIgnore &&
               ! synthBegin) {
 
             SubData subData = curMeta.LPub.pli.begin.sub.value();
@@ -579,7 +581,7 @@ int Gui::drawPage(
         case PliBeginSub2Rc:
           if (pliIgnore) {
             parseError("Nested BEGIN/ENDS not allowed\n",current);
-          } 
+          }
           if (steps->meta.LPub.pli.show.value() &&
               ! pliIgnore &&
               ! partIgnore &&
@@ -610,7 +612,7 @@ int Gui::drawPage(
         case PliBeginIgnRc:
           if (pliIgnore) {
             parseError("Nested BEGIN/ENDS not allowed\n",current);
-          } 
+          }
           pliIgnore = true;
         break;
         case PliEndRc:
@@ -625,7 +627,7 @@ int Gui::drawPage(
         case MLCadSkipBeginRc:
           if (partIgnore) {
             parseError("Nested BEGIN/ENDS not allowed\n",current);
-          } 
+          }
           partIgnore = true;
         break;
 
@@ -640,7 +642,7 @@ int Gui::drawPage(
         case SynthBeginRc:
           if (synthBegin) {
             parseError("Nested BEGIN/ENDS not allowed\n",current);
-          } 
+          }
           synthBegin = true;
         break;
 
@@ -697,19 +699,50 @@ int Gui::drawPage(
             range->append(reserve);
           }
         break;
-        
+
         case InsertCoverPageRc:
-          //che if front or back
+         {
           coverPage = true;
           page.coverPage = true;
-
+          QRegExp frontCoverPage("^\\s*0\\s+!LPUB\\s+.*FRONT");
+          QRegExp backCoverPage("^\\s*0\\s+!LPUB\\s+.*BACK");
+           if (line.contains(frontCoverPage)){
+               page.frontCover = true;
+               page.backCover  = false;
+           }
+           if (line.contains(backCoverPage)){
+               page.backCover  = true;
+               page.frontCover = false;
+           }
+         }
         case InsertPageRc:
           partsAdded = true;
         break;
-        
+
         case InsertRc:
-          inserts.append(curMeta.LPub.insert);  // these are always placed before any parts in step
-          insertData = curMeta.LPub.insert.value();
+         {
+           inserts.append(curMeta.LPub.insert);  // these are always placed before any parts in step
+           insertData = curMeta.LPub.insert.value();
+
+           QRegExp InsertModel("^\\s*0\\s+!LPUB\\s+.*MODEL");
+           if (line.contains(InsertModel)){
+               if (step == NULL) {
+                   if (range == NULL) {
+                       range = newRange(steps,calledOut);
+                       steps->append(range);
+                   }
+                   step = new Step(topOfStep,
+                                   range,
+                                   stepNum,
+                                   curMeta,
+                                   calledOut,
+                                   multiStep);
+                   range->append(step);
+               }
+               partsAdded  = true; // OK, so this is a lie, but it works
+               insertModel = true;
+           }
+         }
         break;
 
         case CalloutBeginRc:
@@ -812,9 +845,6 @@ int Gui::drawPage(
               page->inserts = inserts;
             }
 
-            if (! coverPage){
-                gui->page.frontCover = false;
-                gui->page.backCover = false;}
             bool endOfSubmodel = stepNum >= ldrawFile.numSteps(current.modelName);
             int  instances = ldrawFile.instances(current.modelName,isMirrored);
             addGraphicsPageItems(steps, coverPage, endOfSubmodel,instances, view, scene, printing);
@@ -849,7 +879,6 @@ int Gui::drawPage(
 
             (void) step->createCsi(
               isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-              /********DO FADE STEP*****************************/
               saveCsiParts = fadeStep(csiParts, stepNum, current),
               &step->csiPixmap,
               steps->meta);
@@ -910,8 +939,7 @@ int Gui::drawPage(
 
               int rc = step->createCsi(
                   isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                  /********DO FADE STEP****************************/
-                  saveCsiParts = fadeStep(csiParts, stepNum, current),
+                  saveCsiParts = insertModel ? csiParts : fadeStep(csiParts, stepNum, current),
                   &step->csiPixmap,
                   steps->meta);
 
@@ -922,7 +950,7 @@ int Gui::drawPage(
               if (pliPerStep) {
                 pliParts.clear();
               }
-              
+
               /*
                * Only pages or step can have inserts.... no callouts
                */
@@ -945,9 +973,6 @@ int Gui::drawPage(
               int  numSteps = ldrawFile.numSteps(current.modelName);
               bool endOfSubmodel = numSteps == 0 || stepNum >= numSteps;
               int  instances = ldrawFile.instances(current.modelName, isMirrored);
-              if (! coverPage){
-                  page.frontCover = false;
-                  page.backCover = false;}
               addGraphicsPageItems(steps,coverPage,endOfSubmodel,instances,view,scene,printing);
               stepPageNum += ! coverPage;
               steps->setBottomOfSteps(current);
@@ -976,8 +1001,8 @@ int Gui::drawPage(
           QMessageBox::critical(NULL,
                                QMessageBox::tr("LPub3D"),
                                QMessageBox::tr("Parameter(s) out of range: %1:%2\n%3")
-                               .arg(current.modelName) 
-                               .arg(current.lineNumber) 
+                               .arg(current.modelName)
+                               .arg(current.lineNumber)
                                .arg(line));
           return RangeErrorRc;
         break;
@@ -989,8 +1014,8 @@ int Gui::drawPage(
       QMessageBox::critical(NULL,
                             QMessageBox::tr("LPub3D"),
                             QMessageBox::tr("Invalid LDraw Line Type: %1:%2\n  %3")
-                            .arg(current.modelName) 
-                            .arg(current.lineNumber) 
+                            .arg(current.modelName)
+                            .arg(current.lineNumber)
                             .arg(line));
       return InvalidLDrawLineRc;
     }
@@ -1024,7 +1049,7 @@ int Gui::findPage(
   int  partsAdded = 0;
   int  stepNumber = 1;
   Rc   rc;
-  
+
   skipHeader(current);
 
   if (pageNum == 1) {
@@ -1038,7 +1063,7 @@ int Gui::findPage(
   Where       stepGroupCurrent;
   int         saveStepNumber = 1;
               saveStepPageNum = stepPageNum;
-              
+
   Meta        saveMeta = meta;
 
   QHash<QString, QStringList> bfx;
@@ -1047,7 +1072,7 @@ int Gui::findPage(
   int numLines = ldrawFile.size(current.modelName);
 
   Where topOfStep = current;
-  
+
   ldrawFile.setRendered(current.modelName, isMirrored);
 
   RotStepMeta saveRotStep = meta.rotStep;
@@ -1089,15 +1114,15 @@ int Gui::findPage(
           lastStepPageNum = pageNum;
 
           QStringList token;
-          
+
           split(line,token);
-          
+
           QString    type = token[token.size()-1];
-          
+
           bool contains   = ldrawFile.isSubmodel(type);
           bool rendered   = ldrawFile.rendered(type,ldrawFile.mirrored(token));
           CalloutBeginMeta::CalloutMode mode = meta.LPub.callout.begin.value();
-                    
+
           if (contains && (!callout || (callout && mode != CalloutBeginMeta::Unassembled) )) {
               if ( ! rendered && (! bfxStore2 || ! bfxParts.contains(token[1]+type))) {
 
@@ -1165,7 +1190,7 @@ int Gui::findPage(
                 page.meta.rotStep = saveRotStep;
 
                 QStringList pliParts;
-                
+
                 (void) drawPage(view,
                                 scene,
                                 &page,
@@ -1179,7 +1204,7 @@ int Gui::findPage(
                                 printing,
                                 stepGroupBfxStore2,
                                 saveBfxParts);
-                                
+
                 saveCurrent.modelName.clear();
                 saveCsiParts.clear();
               }
@@ -1221,7 +1246,7 @@ int Gui::findPage(
                   page.meta.rotStep = saveRotStep;
                   page.meta.rotStep = meta.rotStep;
                   QStringList pliParts;
-                                    
+
                   (void) drawPage(view,
                                   scene,
                                   &page,
@@ -1238,7 +1263,7 @@ int Gui::findPage(
 
                   saveCurrent.modelName.clear();
                   saveCsiParts.clear();
-                } 
+                }
                 ++pageNum;
                 topOfPages.append(current);
               }
@@ -1259,7 +1284,7 @@ int Gui::findPage(
             }
             noStep2 = noStep;
             noStep = false;
-          break;  
+          break;
 
           case CalloutBeginRc:
             callout = true;
@@ -1269,7 +1294,7 @@ int Gui::findPage(
             callout = false;
             meta.LPub.callout.placement.clear();
           break;
-          
+
           case InsertCoverPageRc:
             coverPage  = true;
             partsAdded = true;
@@ -1278,7 +1303,7 @@ int Gui::findPage(
             stepPage   = true;
             partsAdded = true;
           break;
-          
+
           case PartBeginIgnRc:
             partIgnore = true;
           break;
@@ -1336,7 +1361,7 @@ int Gui::findPage(
               newCSIParts.empty();
             }
           break;
-          
+
           case IncludeRc:
             include(meta);
           break;
@@ -1344,7 +1369,7 @@ int Gui::findPage(
           case NoStepRc:
             noStep = true;
           break;
-          
+
           default:
           break;
         } // switch
@@ -1583,18 +1608,98 @@ int Gui::getBOMParts(
   return 0;
 }
 
+int Gui::getBOMOccurrence(Where	current) {		// start at top of ldrawFile
+
+    // traverse content to find the number and location of BOM pages
+    // key=modelName_LineNumber, value=occurrence
+    QHash<QString, int> bom_Occurrence;
+    Meta meta;
+
+    skipHeader(current);
+
+    int numLines        = ldrawFile.size(current.modelName);
+    int occurrenceNum   = 0;
+    boms                = 0;
+    bomOccurrence       = 0;
+    Rc rc;
+
+    for ( ; current.lineNumber < numLines;
+            current.lineNumber++) {
+
+        QString line = ldrawFile.readLine(current.modelName,current.lineNumber).trimmed();
+        switch (line.toAscii()[0]) {
+        case '1':
+          {
+            QStringList token;
+            split(line,token);
+            QString type = token[token.size()-1];
+
+            if (ldrawFile.isSubmodel(type)) {
+                Where current2(type,0);
+                getBOMOccurrence(current2);
+            }
+            break;
+          }
+        case '0':
+          {
+            rc = meta.parse(line,current);
+            switch (rc) {
+            case InsertRc:
+              {
+                InsertData insertData = meta.LPub.insert.value();
+                if (insertData.type == InsertData::InsertBom){
+
+                    QString uniqueID = QString("%1_%2").arg(current.modelName).arg(current.lineNumber);
+                    occurrenceNum++;
+                    bom_Occurrence[uniqueID] = occurrenceNum;
+                }
+              }
+                break;
+            default:
+                break;
+            } // switch metas
+            break;
+          }  // switch line type
+        }
+    } // for every line
+
+    if (occurrenceNum > 1) {
+        // now set the bom occurrance based on our current position
+        Where here = gui->topOfPages[gui->displayPageNum-1];
+        for (++here; here.lineNumber < ldrawFile.size(here.modelName); here++) {
+            QString line = gui->readLine(here);
+            Meta meta;
+            Rc rc;
+
+            rc = meta.parse(line,here);
+            if (rc == InsertRc) {
+
+                InsertData insertData = meta.LPub.insert.value();
+                if (insertData.type == InsertData::InsertBom) {
+
+                    QString bomID   = QString("%1_%2").arg(here.modelName).arg(here.lineNumber);
+                    bomOccurrence   = bom_Occurrence[bomID];
+                    boms            = bom_Occurrence.size();
+                    break;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
 void Gui::attitudeAdjustment()
 {
   Meta meta;
   bool callout = false;
   int numFiles = ldrawFile.subFileOrder().size();
-  
+
   for (int i = 0; i < numFiles; i++) {
     QString fileName = ldrawFile.subFileOrder()[i];
     int numLines     = ldrawFile.size(fileName);
-    
+
     QStringList pending;
-    
+
     for (Where current(fileName,0);
       current.lineNumber < numLines;
       current.lineNumber++) {
@@ -1602,7 +1707,7 @@ void Gui::attitudeAdjustment()
       QString line = ldrawFile.readLine(current.modelName,current.lineNumber);
       QStringList argv;
       split(line,argv);
-      
+
       if (argv.size() >= 4 &&
           argv[0] == "0" &&
          (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
@@ -1618,10 +1723,10 @@ void Gui::attitudeAdjustment()
             ++current;
           }
           pending.clear();
-        } else if (argv[3] == "ALLOC" || 
-                   argv[3] == "BACKGROUND" || 
-                   argv[3] == "BORDER" || 
-                   argv[3] == "MARGINS" || 
+        } else if (argv[3] == "ALLOC" ||
+                   argv[3] == "BACKGROUND" ||
+                   argv[3] == "BORDER" ||
+                   argv[3] == "MARGINS" ||
                    argv[3] == "PLACEMENT") {
           if (callout && argv.size() >= 5 && argv[4] != "GLOBAL") {
             ldrawFile.deleteLine(current.modelName,current.lineNumber);
@@ -1635,15 +1740,44 @@ void Gui::attitudeAdjustment()
   }
 }
 
+//void Gui::countPages()
+//{
+//  if (maxPages < 1) {
+//    //writeToTmp() moved from here
+//    statusBarMsg("Counting");
+//    Where current(ldrawFile.topLevelFile(),0);
+//    int savedDpn     = displayPageNum;
+//    displayPageNum   = 1 << 31;
+//    writeToTmp();
+//    firstStepPageNum = -1;
+//    lastStepPageNum  = -1;
+//    maxPages         = 1;
+//    Meta meta;
+//    QString empty;
+//    stepPageNum = 1;
+//    findPage(KpageView,KpageScene,maxPages,empty,current,false,meta,false);
+//    topOfPages.append(current);
+//    maxPages--;
+
+//    if (displayPageNum > maxPages) {
+//      displayPageNum = maxPages;
+//    } else {
+//      displayPageNum = savedDpn;
+//    }
+//    QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+//    setPageLineEdit->setText(string);
+//    statusBarMsg("");
+//  }
+//}
+
 void Gui::countPages()
 {
   if (maxPages < 1) {
-    //writeToTmp() moved from here
+    writeToTmp();
     statusBarMsg("Counting");
     Where current(ldrawFile.topLevelFile(),0);
     int savedDpn     = displayPageNum;
     displayPageNum   = 1 << 31;
-    writeToTmp();    
     firstStepPageNum = -1;
     lastStepPageNum  = -1;
     maxPages         = 1;
@@ -1663,7 +1797,7 @@ void Gui::countPages()
     setPageLineEdit->setText(string);
     statusBarMsg("");
   }
-}         
+}
 
 void Gui::drawPage(
   LGraphicsView  *view,
@@ -1672,17 +1806,16 @@ void Gui::drawPage(
 {
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
-  
+
   ldrawFile.unrendered();
   ldrawFile.countInstances();
-  //writToTemp() moved from here
+  writeToTmp();
   Where       current(ldrawFile.topLevelFile(),0);
   maxPages = 1;
   stepPageNum = 1;
-  
+
   QString empty;
   Meta    meta;
-  writeToTmp();
   firstStepPageNum = -1;
   lastStepPageNum = -1;
   findPage(view,scene,maxPages,empty,current,false,meta,printing);
@@ -1712,7 +1845,7 @@ void Gui::skipHeader(Where &current)
         gui->insertLine(current,empty,NULL);
       } else if (current > 0) {
         --current;
-      }        
+      }
       break;
     } else if ( ! isHeader(line)) {
       if (current.lineNumber != 0) {
@@ -1739,7 +1872,7 @@ void Gui::include(Meta &meta)
     if (fileInfo.exists()) {
       QFile file(fileName);
       if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(NULL, 
+        QMessageBox::warning(NULL,
                              QMessageBox::tr(VER_PRODUCTNAME_STR),
                              QMessageBox::tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
@@ -1747,7 +1880,7 @@ void Gui::include(Meta &meta)
         return;
       }
 
-      /* Read it in the first time to put into fileList in order of 
+      /* Read it in the first time to put into fileList in order of
          appearance */
 
       QTextStream in(&file);
@@ -1802,7 +1935,7 @@ void Gui::writeToTmp(const QString &fileName,
     QMessageBox::tr("Failed to open %1 for writing: %2")
       .arg(fname) .arg(file.errorString()));
   } else {
-    QStringList csiParts;  
+    QStringList csiParts;
     QHash<QString, QStringList> bfx;
 
     for (int i = 0; i < contents.size(); i++) {
@@ -1863,19 +1996,20 @@ void Gui::writeToTmp(const QString &fileName,
 
 void Gui::writeToTmp()
 {
-    data = new GlobalFadeStep();
-    FadeStepMeta *fadeStepMeta = &data->meta.LPub.fadeStep;
-    bool doFadeStep     = (fadeStepMeta->fadeStep.value() || Preferences::enableFadeStep);
-    QString fadeColor   = LDrawColor::ldColorCode(fadeStepMeta->fadeColor.value());
+    Meta    meta;
+    bool    fadeStep       = meta.LPub.fadeStep.fadeStep.value();
+    QString fadeStepColour = meta.LPub.fadeStep.fadeColor.value();
+
+    bool    doFadeStep  = (fadeStep || Preferences::enableFadeStep);
+    QString fadeColor   = LDrawColor::ldColorCode(fadeStepColour);
 
     QStringList content;
 
     for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
+
         QString fileName = ldrawFile._subFileOrder[i].toLower();
 
         if (doFadeStep) {
-            /*********** Add FadeStep temp files****************/
-            /* change file name */
             QRegExp rgxLDR("\\.(ldr)$");
             QRegExp rgxMPD("\\.(mpd)$");
             QString fadeFileName = fileName;
@@ -1892,7 +2026,7 @@ void Gui::writeToTmp()
                 writeToTmp(fileName,content);
                 content = fadeSubFile(content,fadeColor);
 
-                /* Faded version of submodels - used for main page fade display */
+                /* Faded version of submodels */
                 writeToTmp(fadeFileName,content);
             }
         } else {
@@ -1960,10 +2094,12 @@ QStringList Gui::fadeSubFile(const QStringList &contents, const QString &color)
  */
 QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) {
 
-    data = new GlobalFadeStep();
-    FadeStepMeta *fadeStepMeta = &data->meta.LPub.fadeStep;
-    bool doFadeStep     = (fadeStepMeta->fadeStep.value()  || Preferences::enableFadeStep);
-    QString fadeColor   = LDrawColor::ldColorCode(fadeStepMeta->fadeColor.value());
+    Meta    meta;
+    bool    fadeStep       = meta.LPub.fadeStep.fadeStep.value();
+    QString fadeStepColour = meta.LPub.fadeStep.fadeColor.value();
+
+    bool doFadeStep     = (fadeStep || Preferences::enableFadeStep);
+    QString fadeColor   = LDrawColor::ldColorCode(fadeStepColour);
     QString edgeColor   = "24";  // Internal Common Material Color (edge)
     int  fadePosition   = ldrawFile.getFadePosition(current.modelName);
     QStringList fadeCsiParts;
@@ -1992,7 +2128,7 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
                             fileNameStr = fileNameStr.replace(".ldr","-fade.ldr");
                         } else if (fileNameStr.contains(rgxMPD)) {
                             fileNameStr = fileNameStr.replace(".mpd","-fade.mpd");
-                        }                        
+                        }
                     }
                     argv[argv.size()-1] = fileNameStr;
                 } else if ((argv.size() == 8  && argv[0] == "2") ||

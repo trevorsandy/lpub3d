@@ -83,9 +83,9 @@ QString Steps::csiName()
   for (int i = 0; i < meta.submodelStack.size(); i++) {
     QString lineNum = QString("%1") .arg(meta.submodelStack[i].stepNumber);
     thePath += QFileInfo(meta.submodelStack[i].modelName).baseName() + "_" + lineNum + "_";
-  }
-  
+  } 
   thePath += QFileInfo(modelName()).baseName();
+
   return thePath;
 }
 

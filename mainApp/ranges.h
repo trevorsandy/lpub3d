@@ -33,6 +33,7 @@
 #include "meta.h"
 #include "placement.h"
 #include "resize.h"
+#include "pageattributepixmapitem.h"
 
 /*
  * This is a base class for multi-step and
@@ -95,9 +96,9 @@ class Page : public Steps {
     bool backCover;
     Page()
     {
-      coverPage  = false;
-      frontCover = false;
-      backCover  = false;
+      coverPage     = false;
+      frontCover    = false;
+      backCover     = false;
     }
     
     void addInsertPixmap(InsertPixmapItem *pixMap)

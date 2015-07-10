@@ -62,7 +62,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.publishLogoPath->setText(              Preferences::documentLogoFile);
   ui.authorName_Edit->setText(              Preferences::defaultAuthor);
   ui.displayAllAttributes_Chk->setChecked(  Preferences::displayAllAttributes);
-  ui.publishCopyright_Chk->setChecked(      Preferences::printCopyright);
+  ui.generageCoverPages_Chk->setChecked(    Preferences::generageCoverPages);
   ui.publishTOC_Chk->setChecked(            Preferences::printDocumentTOC);
   ui.publishURL_Edit->setText(              Preferences::defaultURL);
   ui.publishEmail_Edit->setText(            Preferences::defaultEmail);
@@ -116,7 +116,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
       ui.tabWidget->setCurrentIndex(0);
   }
 
-  //fade step start
   ui.fadeStepColorLabel->setPalette(QPalette(LDrawColor::color(Preferences::fadeStepColor)));
   ui.fadeStepColorLabel->setAutoFillBackground(true);
   ui.fadeStepColorsCombo->addItems(LDrawColor::names());
@@ -124,7 +123,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   fadeStepMeta.fadeColor.setValue(LDrawColor::name(Preferences::fadeStepColor));
   connect(ui.fadeStepColorsCombo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(colorChange(QString const &)));
-  //fade step end
+  connect(ui.fadeStepBox,SIGNAL(clicked(bool)),
+          this,SLOT(processFadeColourParts(bool)));
 
   bool centimeters = Preferences::preferCentimeters;
   ui.Centimeters->setChecked(centimeters);
@@ -332,6 +332,12 @@ void PreferencesDialog::on_browsePublishLogo_clicked()
     }
 }
 
+void PreferencesDialog::processFadeColourParts(bool clicked)
+{
+    if (clicked && !gui->getCurFile().isEmpty())
+        colourPart.processFadeColorParts();
+}
+
 QString const PreferencesDialog::ldrawPath()
 {
   return ui.ldrawPath->displayText();
@@ -448,9 +454,9 @@ bool  PreferencesDialog::displayAllAttributes()
   return ui.displayAllAttributes_Chk->isChecked();
 }
 
-bool  PreferencesDialog::printCopyright()
+bool  PreferencesDialog::generageCoverPages()
 {
-  return ui.publishCopyright_Chk->isChecked();
+  return ui.generageCoverPages_Chk->isChecked();
 }
 
 bool  PreferencesDialog::printDocumentTOC()

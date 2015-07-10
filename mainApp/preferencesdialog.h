@@ -52,7 +52,7 @@ class PreferencesDialog : public QDialog
     QString const documentLogoFile();
     QString const publishDescription();
     bool          displayAllAttributes();
-    bool          printCopyright();   
+    bool          generageCoverPages();
     bool          printDocumentTOC();
     bool          centimeters();
     bool          titleAnnotation();
@@ -78,13 +78,16 @@ class PreferencesDialog : public QDialog
 	void on_browseLDGLite_clicked();
     void on_browsePublishLogo_clicked();
     void colorChange(QString const &colorName);
+    void processFadeColourParts(bool);
+
 
 private:
     Ui::PreferencesDialog ui;
 
     QWidget         *parent;
-    FadeStepMeta    fadeStepMeta;             // propagate fade color and fade bool
-    ColourPartList  colourPart;
+    FadeStepMeta     fadeStepMeta;             // propagate fade color and fade bool
+    ColourPartList   colourPart;               // create fade parts for static colour parts
+
 };
 
 #endif

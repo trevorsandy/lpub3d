@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -16,7 +16,7 @@
 ****************************************************************************/
 
 /***************************************************************************
- 
+
  * This header file describes the global setup dialogs used to configur
  * global settings for page, assembly, parts lists, callouts, step groups
  * and projects
@@ -30,6 +30,14 @@
 #define GLOBAL_H
 
 #include <QDialog>
+#include <QGroupBox>
+#include <QGridLayout>
+#include <QWidget>
+#include <QTabWidget>
+
+#include "meta.h"
+#include "metaitem.h"
+#include "metagui.h"
 
 class Meta;
 
@@ -51,7 +59,53 @@ public:
   ~GlobalPageDialog() {};
   static void getPageGlobals(QString topLevelFile, Meta &meta);
 
+  int             sectionIndex;
+
+  QGroupBox      *box;
+
+  QGroupBox      *authorBoxFront;
+  QGroupBox      *authorBoxBack;
+  QGroupBox      *authorBox;
+
+  QGroupBox      *titleBoxFront;
+  QGroupBox      *titleBoxBack;
+
+  QGroupBox      *urlBoxBack;
+  QGroupBox      *urlBox;
+
+  QGroupBox      *documentLogoBoxFront;
+  QGroupBox      *documentLogoBoxBack;
+
+  QGroupBox      *copyrightBox;
+  QGroupBox      *copyrightBoxBack;
+
+  QGroupBox      *emailBoxBack;
+  QGroupBox      *emailBox;
+
+
+  MetaGui        *child;
+
+  MetaGui        *authorChildFront;
+  MetaGui        *authorChildBack;
+  MetaGui        *authorChild;
+
+  MetaGui        *titleChildFront;
+  MetaGui        *titleChildBack;
+
+  MetaGui        *urlChildBack;
+  MetaGui        *urlChild;
+
+  MetaGui        *documentLogoChildFront;
+  MetaGui        *documentLogoChildBack;
+
+  MetaGui        *copyrightChildBack;
+  MetaGui        *copyrightChild;
+
+  MetaGui        *emailChildBack;
+  MetaGui        *emailChild;
+
 public slots:
+  void indexChanged(int selection);
   void accept();
   void cancel();
 };
@@ -182,7 +236,7 @@ class GlobalProjectPrivate;
 class GlobalProjectDialog : public QDialog
 {
   Q_OBJECT
-private:  
+private:
   GlobalProjectPrivate *data;
 
 public:
@@ -190,7 +244,7 @@ public:
   GlobalProjectDialog(const QString &topLevelFile, Meta &meta);
   ~GlobalProjectDialog() {}
   static void getProjectGlobals(const QString topLevelFile, Meta &meta);
-  
+
 public slots:
   void accept();
   void cancel();

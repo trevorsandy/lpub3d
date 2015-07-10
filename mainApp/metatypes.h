@@ -40,6 +40,18 @@ enum AllocEnc {
 
 enum RectPlacement{
 
+    /**************************************************************************************************************************
+     *  TopLeftOutsideCorner    * TopLeftOutside         * TopOutside    * TopRightOutSide         * TopRightOutsideCorner    *
+     **************************** *********************************************************************************************
+     *  LeftTopOutside          * TopLeftInsideCorner    * TopInside     * TopRightInsideCorner    * RightTopOutside          *
+     **************************************************************************************************************************
+     *  LeftOutside             * LeftInside             * CenterCenter  * RightInside             * RightOutside             *
+     **************************************************************************************************************************
+     *  LeftBottomOutside       * BottomLeftInsideCorner * BottomInside  * BottomRightInsideCorner * RightBottomOutside       *
+     **************************************************************************************************************************
+     *  BottomLeftOutsideCorner * BottomLeftOutside      * BottomOutside * BottomRightOutside      * BottomRightOutsideCorner *
+     **************************************************************************************************************************/
+
     TopLeftOutsideCorner,       //00
     TopLeftOutside,             //01
     TopOutside,                 //02
@@ -47,21 +59,21 @@ enum RectPlacement{
     TopRightOutsideCorner,      //04
 
     LeftTopOutside,             //05
-    TopLeftInsideCorner,        //06 "Top Left"
-    TopInside,                  //07 "Top"
-    TopRightInsideCorner,       //08 "Top Right"
+    TopLeftInsideCorner,        //06 "Page Top Left"
+    TopInside,                  //07 "Page Top"
+    TopRightInsideCorner,       //08 "Page Top Right"
     RightTopOutside,            //09
 
     LeftOutside,                //10
-    LeftInside,                 //11 "Left"
-    CenterCenter,               //12 "Center"
-    RightInside,                //13 "Right"
+    LeftInside,                 //11 "Page Left"
+    CenterCenter,               //12 "Page Center"
+    RightInside,                //13 "Page Right"
     RightOutside,               //14
 
     LeftBottomOutside,          //15
-    BottomLeftInsideCorner,     //16 "Bottom Left"
-    BottomInside,               //17 "Bottom"
-    BottomRightInsideCorner,    //18 "Bottom Right"
+    BottomLeftInsideCorner,     //16 "Page Bottom Left"
+    BottomInside,               //17 "Page Bottom"
+    BottomRightInsideCorner,    //18 "Page Bottom Right"
     RightBottomOutside,         //19
 
     BottomLeftOutsideCorner,    //20
@@ -74,15 +86,15 @@ enum RectPlacement{
 };
 
 enum PlacementEnc {
-  TopLeft,
-  Top,
-  TopRight,
-  Right,
-  BottomRight,
-  Bottom,
-  BottomLeft,
-  Left,
-  Center,
+  TopLeft,                      //00
+  Top,                          //01
+  TopRight,                     //02
+  Right,                        //03
+  BottomRight,                  //04
+  Bottom,                       //05
+  BottomLeft,                   //06
+  Left,                         //07
+  Center,                       //08
   NumPlacements
 };
 
@@ -91,41 +103,48 @@ enum PrepositionEnc {
   Outside
 };
 
-enum PlacementType {
-    PageType,
-    CsiType,
-    StepGroupType,
-    StepNumberType,
-    PartsListType,
-    CalloutType,
+enum PlacementType {            //  placement dialog codes:
+    PageType,                   // 0 page
+    CsiType,                    // 1 Csi  (Assem)
+    StepGroupType,              // 2 Ms   (Multi-Step)
+    StepNumberType,             // 3 Sn
+    PartsListType,              // 4 Pli
+    CalloutType,                // 5 Callout
+    PageNumberType,             // 6 pn
 
-    PageNumberType,
-    PageTitleType,				//tt   page attribute
-    PageModelNameType,			//mnt  page attribute
-    PageAuthorType,             //at   page attribute header	front cover
-    PageURLType,				//urlt page attribute header	back cover
-    PageModelDescType,			//mdt  page attribute
-    PagePublishDescType,		//pdt  page attribute
-    PageCopyrightType,			//ct   page attribute
-    PageEmailType,				//et   page attribute footer	back cover
-    PageDisclaimerType,			//dt   page attribute footer    back cover
-    PagePiecesType,				//pt   page attribute
-    PagePlugType,				//plt  page attribute
-    PageCategoryType,			//cat  page attribute
-    PageDocumentLogoType,		//dlt  page attribute
-    PageCoverImageType,			//cit  page attribute
-    PagePlugImageType,			//pit  page attribute
-    SingleStepType,
-    SubmodelInstanceCountType,
+    PageTitleType,				// 7 tt
+    PageModelNameType,			// 8 mnt
+    PageAuthorType,             // 9 at
+    PageURLType,				//10 urlt
+    PageModelDescType,			//11 mdt
+    PagePublishDescType,		//12 pdt
+    PageCopyrightType,			//13 ct
+    PageEmailType,				//14 et
+    PageDisclaimerType,			//15 dt
+    PagePiecesType,				//16 pt
+    PagePlugType,				//17 plt
+    PageCategoryType,			//18 cat
+    PageDocumentLogoType,		//19 dlt
+    PageCoverImageType,			//20 cit
+    PagePlugImageType,			//21 pit
+    PageHeaderType,             //22 ph
+    PageFooterType,             //23 pf
 
-    StepType,
-    RangeType,
-    ReserveType,
-    BomType,
-    CoverPageType,
-    PageFrontCoverType,			//page attribute
-    PageBackCoverType,			//page attribute
-    NumRelatives
+    SingleStepType,             //24
+    SubmodelInstanceCountType,  //25
+
+    StepType,                   //26
+    RangeType,                  //27
+    ReserveType,                //28
+    BomType,                    //29
+    CoverPageType,              //30   
+    NumRelatives                //33
+};
+
+enum pageType{
+    ContentPage = 0,
+    FrontCoverPage,
+    BackCoverPage
 };
 
 class PlacementData
@@ -198,19 +217,20 @@ public:
     InsertText,
     InsertArrow,
     InsertBom,
-    InsertCoverPage
+    InsertCoverPage,
+    InsertModel
   } type;
 
-  QString picName;
-  qreal   picScale;
-  QString text;
-  QString textFont;
-  QString textColor;
-  QPointF arrowHead;
-  QPointF arrowTail;
-  qreal   haftingDepth;
-  QPointF haftingTip;
-  float   offsets[2];
+  QString     picName;
+  qreal       picScale;
+  QString     text;
+  QString     textFont;
+  QString     textColor;
+  QPointF     arrowHead;
+  QPointF     arrowTail;
+  qreal       haftingDepth;
+  QPointF     haftingTip;
+  float       offsets[2];
   InsertData()
   {
     picScale = 1.0;
@@ -233,27 +253,6 @@ public:
   } type;
   QString    string;
   bool       stretch;
-};
-
-class PageAttributePictureData
-{
-public:
-    PlacementType   type;
-    PlacementData   placement;
-    QString         string;
-    qreal           picScale;
-    bool            stretch;
-    bool            tile;
-    bool            display;
-    PageAttributePictureData()
-   {
-     picScale               = 1.0;
-     placement.offsets[0]   = 0.0;
-     placement.offsets[1]   = 0.0;
-     stretch                = false;
-     tile                   = false;
-     display                = Preferences::displayAllAttributes;
-   }
 };
 
 class BorderData
@@ -323,5 +322,95 @@ public:
   }
 };
 
-  
+// testing and diagnostics only
+const QString RectNames[NumSpots] =
+ {                                //  placement dialog codes:
+    "TopLeftOutsideCorner",       //00
+    "TopLeftOutside",              //01
+    "TopOutside",                 //02
+    "TopRightOutSide",            //03
+    "TopRightOutsideCorner",      //04
+
+    "LeftTopOutside",             //05
+    "TopLeftInsideCorner",        //06 "Page Top Left"
+    "TopInside",                  //07 "Page Top"
+    "TopRightInsideCorner",       //08 "Page Top Right"
+    "RightTopOutside",            //09
+
+    "LeftOutside",                //10
+    "LeftInside",                 //11 "Page Left"
+    "CenterCenter",               //12 "Page Center"
+    "RightInside",                //13 "Page Right"
+    "RightOutside",               //14
+
+    "LeftBottomOutside",          //15
+    "BottomLeftInsideCorner",     //16 "Page Bottom Left"
+    "BottomInside",               //17 "Page Bottom"
+    "BottomRightInsideCorner",    //18 "Page Bottom Right"
+    "RightBottomOutside",         //19
+
+    "BottomLeftOutsideCorner",    //20
+    "BottomLeftOutside",          //21
+    "BottomOutside",              //22
+    "BottomRightOutside",         //23
+    "BottomRightOutsideCorner",   //24
+};	//NumSpots
+
+const QString RelNames[NumRelatives] =
+{                              	//  placement dialog codes:
+   "PageType",                 	 // 0 page
+   "CsiType",                    // 1 Csi  (Assem)
+   "StepGroupType",              // 2 Ms   (Multi-Step)
+   "StepNumberType",             // 3 Sn
+   "PartsListType",              // 4 Pli
+   "CalloutType",                // 5 Callout
+   "PageNumberType",             // 6 pn
+
+   "PageTitleType",				 // 7 tt
+   "PageModelNameType",			 // 8 mnt
+   "PageAuthorType",             // 9 at
+   "PageURLType",				 //10 urlt
+   "PageModelDescType",			 //11 mdt
+   "PagePublishDescType",		 //12 pdt
+   "PageCopyrightType",			 //13 ct
+   "PageEmailType",				 //14 et
+   "PageDisclaimerType",		 //15 dt
+   "PagePiecesType",			 //16 pt
+   "PagePlugType",				 //17 plt
+   "PageCategoryType",			 //18 cat
+   "PageDocumentLogoType",		 //19 dlt
+   "PageCoverImageType",		 //20 cit
+   "PagePlugImageType",			 //21 pit
+   "PageHeaderType",             //22 ph
+   "PageFooterType",             //23 pf
+
+   "SingleStepType",             //24
+   "SubmodelInstanceCountType",  //25
+
+   "StepType",                   //26
+   "RangeType",                  //27
+   "ReserveType",                //28
+   "BomType",                    //29
+   "CoverPageType"               //30
+}; //NumRelatives"
+
+const QString PlacNames[NumPlacements] =
+ {
+  "TopLeft",                      //00
+  "Top",                          //01
+  "TopRight",                     //02
+  "Right",                        //03
+  "BottomRight",                  //04
+  "Bottom",                       //05
+  "BottomLeft",                   //06
+  "Left",                         //07
+  "Center"                        //08
+}; //NumPlacements
+
+const QString PrepNames[2] =
+{
+  "Inside",
+  "Outside"
+};
+
 #endif

@@ -759,10 +759,33 @@ void MetaItem::setMeta(
   bool         askLocal,
   bool         global)
 {
+    logNotice() << "\n MOVE (CHANGE PLACEMENT) SET META VALUES - "
+                << "\n PAGE WHERE - "
+                << "\nPAGE- "
+                << (useTop ? " \nUseTop: True=Single-Step Page" : " \nUseTop: False=Multi-Step Page")
+                << "\n1. Page TopOf (Model Name):     "  << topOf.modelName
+                << "\n1. Page TopOf (Line Number):    "  << topOf.lineNumber
+                << "\n2. Page BottomOf (Model Name):  "  << bottomOf.modelName
+                << "\n2. Page BottomOf (Line Number): "  << bottomOf.lineNumber
+                << "\n FORMATTED META -               "
+                << "\n3. Meta:                        "  << meta->format(local,global)
+                << "\n META WHERE -                   "
+                << "\n3. Meta Here (Model Name):      "  << meta->here().modelName
+                << "\n3. Meta Here (Line Number):     "  << meta->here().lineNumber
+                << "\n3. Meta String:                 "  << meta->format(local,global)
+                << "\n PARAMETERS -                   "
+                << "\n4. ~(UseTop)~:                  "  << useTop
+                << "\n5. Append:                      "  << append
+                << "\n6. Local:                       "  << local
+                << "\n7. AskLocal:                    "  << askLocal
+                << "\n8. Global:                      "  << global
+              ;
   if (useTop) {
     setMetaTopOf(topOf,bottomOf,meta,append,local,askLocal,global);
+    logNotice() << "\n SET META - USE TOP OF - ";
   } else {
     setMetaBottomOf(topOf,bottomOf,meta,append,local,askLocal,global);
+    logNotice() << "\n SET META - USE BOTTOM OF - ";
   }  
 }
   
@@ -775,49 +798,51 @@ void MetaItem::setMetaTopOf(
   bool         askLocal,
   bool         global)
 {
-  int  lineNumber = meta->here().lineNumber;
-  bool metaInRange;
-  QString modelName = meta->here().modelName;
+    int  lineNumber = meta->here().lineNumber;
+    bool metaInRange;
+    QString modelName = meta->here().modelName;
 
-  metaInRange = meta->here().modelName == topOf.modelName;
-  
-  metaInRange = metaInRange
-   && lineNumber >= topOf.lineNumber 
-   && lineNumber <= bottomOf.lineNumber;
+    metaInRange = meta->here().modelName == topOf.modelName;
 
-  if (metaInRange) {
-    QString line = meta->format(meta->pushed,meta->global);
-    replaceMeta(meta->here(),line);
-  } else {
-    if (askLocal) {
-      local = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Change only this step?",gui);
-    }
-    QString line = meta->format(local,global);
+    metaInRange = metaInRange
+            && lineNumber >= topOf.lineNumber
+            && lineNumber <= bottomOf.lineNumber;
 
-    Where topOfFile = topOf;
-
-    if (topOf.lineNumber == 0) {
-      QString line = gui->readLine(topOf);
-      QStringList argv;
-      split(line,argv);
-      if (argv.size() >= 1 && argv[0] != "0") {
-        insertMeta(topOf,"0");
-      }
+    if (metaInRange) {
+        QString line = meta->format(meta->pushed,meta->global);
+        replaceMeta(meta->here(),line);
     } else {
-      Where walk = topOf+1;
-      Rc rc = scanForward(walk,StepMask|StepGroupMask);
-      if (rc == StepGroupEndRc) {
-        topOfFile = walk++;
-        rc = scanForward(walk,StepMask|StepGroupMask);
-      }
-      if (rc == StepGroupBeginRc) {
-        topOfFile = walk;
-      }
+
+        if (askLocal) {
+            local = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Change only this step?",NULL);       //change from gui error (QLayout: Attempting to add QLayout "" to Gui "", which already has a layout)
+        }
+
+        QString newMetaString = meta->format(local,global);
+
+        Where topOfFile = topOf;
+
+        if (topOf.lineNumber == 0) {
+            QString line = gui->readLine(topOf);
+            QStringList argv;
+            split(line,argv);
+            if (argv.size() >= 1 && argv[0] != "0") {
+                insertMeta(topOf,"0");
+            }
+        } else {
+            Where walk = topOf+1;
+            Rc rc = scanForward(walk,StepMask|StepGroupMask);
+            if (rc == StepGroupEndRc) {
+                topOfFile = walk++;
+                rc = scanForward(walk,StepMask|StepGroupMask);
+            }
+            if (rc == StepGroupBeginRc) {
+                topOfFile = walk;
+            }
+        }
+        topOfFile.lineNumber += append;
+        insertMeta(topOfFile, newMetaString);
     }
-      
-    topOfFile.lineNumber += append;
-    insertMeta(topOfFile, line);
-  }
+
 }
 
 void MetaItem::setMetaBottomOf(
@@ -841,7 +866,7 @@ void MetaItem::setMetaBottomOf(
     replaceMeta(meta->here(),line);
   } else {
     if (askLocal) {
-      local = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Change only this step?",gui);
+      local = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Change only this step?",NULL); // changed from gui error(QLayout: Attempting to add QLayout "" to Gui "", which already has a layout)
     }
     QString line = meta->format(local, global);
 
@@ -849,6 +874,7 @@ void MetaItem::setMetaBottomOf(
     bool eof = bottomOf.lineNumber == numLines;
     
     if (eof) {
+      bottomOf -1;       //fix: numLines is inclusive (starts from 1) while readline index is exclusive (i.e. starts from 0)
       QString tline = gui->readLine(bottomOf);
       QStringList argv;
       split(tline,argv);
@@ -879,12 +905,13 @@ void MetaItem::changePlacement(
   bool           useTop,
   int            append,
   bool           local,
-  bool           useLocal) 
+  bool           useLocal,
+  int            onPageType)
 {
   PlacementData placementData = placement->value();
   bool ok;
   ok = PlacementDialog
-       ::getPlacement(parentType,relativeType,placementData,title);
+       ::getPlacement(parentType,relativeType,placementData,title,onPageType);
 
   if (ok) {
     placement->setValue(placementData);
@@ -903,15 +930,17 @@ void MetaItem::changePlacement(
   bool           useTop,
   int            append,
   bool           local,
-  bool           useLocal)
+  bool           useLocal,
+  int            onPageType)
 {
   PlacementData placementData = placement->value();
   bool ok;
   ok = PlacementDialog
-       ::getPlacement(parentType,relativeType,placementData,title,NULL,pliPerStep);
+       ::getPlacement(parentType,relativeType,placementData,title,onPageType,NULL,pliPerStep);
 
   if (ok) {
     placement->setValue(placementData);
+
     setMeta(topOfSteps,bottomOfSteps,placement,useTop,append,local,useLocal);
   }
 }
@@ -924,28 +953,95 @@ void MetaItem::changePlacementOffset(
   bool           local,
   bool           global)
 {
+
+ qDebug() << "\nCHANGE PLACEMENT OFFSET -    "
+          << "\nPAGE WHERE -                 "
+          << " \nDefaultWhere (Model Name):  "   << defaultWhere.modelName
+          << " \nDefaultWhere (Line Number): "   << defaultWhere.lineNumber
+          << "\nPLACEMENT DATA -             "
+          << " \nPlacement:                  "   << PlacNames[placement->value().placement]     << " (" << placement->value().placement << ")"
+          << " \nJustification:              "   << PlacNames[placement->value().justification] << " (" << placement->value().justification << ")"
+          << " \nRelativeTo:                 "   << RelNames[placement->value().relativeTo]     << " (" << placement->value().relativeTo << ")"
+          << " \nPreposition:                "   << PrepNames[placement->value().preposition]   << " (" << placement->value().preposition << ")"
+          << " \nRectPlacement:              "   << RectNames[placement->value().rectPlacement] << " (" << placement->value().rectPlacement << ")"
+          << " \nOffset[0]:                  "   << placement->value().offsets[0]
+          << " \nOffset[1]:                  "   << placement->value().offsets[1]
+          << "\nPLACEMENT WHERE -            "
+          << " \nPlacement Here(Model Name): "   << placement->here().modelName
+          << " \nPlacement Here(Line Number):"   << placement->here().lineNumber
+          << "\nOTHER DATA -                 "
+          << " \n:Type:                      "   << RelNames[type] << " (" << type << ")"
+          << " \n:Local:                     "   << local
+          << " \n:Global:                    "   << global
+          << "\n FORMATTED META -            "
+          << "\nMeta Format:                 "   << placement->format(local,global)
+          ;
+
   QString newMetaString = placement->format(local,global);
 
-  Where walk = defaultWhere + 1;
-  if (placement->here().modelName == "undefined") {    
-    Where walk = defaultWhere + 1;
+  if (placement->here().modelName == "undefined") {
 
+    Where walk;
     bool partsAdded;
+    int eof = gui->subFileSize(defaultWhere.modelName);
+    defaultWhere+1 == eof ? walk = defaultWhere : walk = defaultWhere+1;
 
-    if (scanBackward(walk,StepMask,partsAdded) == EndOfFileRc) {
+    if (scanBackward(walk,StepMask,partsAdded) == EndOfFileRc) {        
       defaultWhere = firstLine(defaultWhere.modelName);
+      logNotice() << " \nScanBackward[TOP]: EndOfFileRc (StepMask) - defaultLine is: "
+                  << firstLine(defaultWhere.modelName).lineNumber
+                  << " of model: "
+                  << defaultWhere.modelName
+                     ;
     }
-    if (type == StepGroupType) {
+
+    if (type == StepGroupType) {             
       scanForward(defaultWhere,StepGroupBeginMask);
+      logNotice() << " \nScanForward[BOTTOM]: StepGroupType (StepGroupBeginMask) - file name is: "
+                  << defaultWhere.modelName
+                  << " \nStop at line: "
+                  << defaultWhere.lineNumber
+                  << " with line contents: \n"
+                  << gui->readLine(defaultWhere)
+                     ;
     } else if (type == CalloutType) {
       scanForward(defaultWhere,CalloutEndMask);
       --defaultWhere;
-    } else if (defaultWhere.modelName == gui->topLevelFile()) {
+      logNotice() << " \nScanForward[BOTTOM]: CalloutType (CalloutEndMask) - file name is: "
+                  << defaultWhere.modelName
+                  << " \nStop at line: "
+                  << defaultWhere.lineNumber
+                  << " with line contents: \n"
+                  << gui->readLine(defaultWhere)
+                     ;
+    } else if (defaultWhere.modelName == gui->topLevelFile()) {       
       scanPastGlobal(defaultWhere);
+      logNotice() << " \nTopLevelFile[TOP]: ScanPastGlobal - file name is: "
+                  << defaultWhere.modelName
+                  << " \nStop at line: "
+                  << defaultWhere.lineNumber
+                  << " with line contents: \n"
+                  << gui->readLine(defaultWhere)
+                     ;
     }
-    appendMeta(defaultWhere,newMetaString);
+
+    if (defaultWhere.lineNumber == eof){
+        insertMeta(defaultWhere,newMetaString);
+        logNotice() << " \nLast line so insert Meta:  \n" << newMetaString << " \nat line: "
+                    << defaultWhere.lineNumber
+                       ;
+    } else {
+        appendMeta(defaultWhere,newMetaString);
+        logNotice() << " \nNot last line so append Meta: \n" << newMetaString << " \nat line: "
+                    << defaultWhere.lineNumber+1
+                       ;
+    }
+
   } else {
     replaceMeta(placement->here(),newMetaString);
+    logNotice() << " \nPlacement defined so replace Meta:  \n" << newMetaString << " \nat line: "
+                << defaultWhere.lineNumber
+                   ;
   }
 }
 
@@ -977,57 +1073,6 @@ void MetaItem::changeInsertOffset(
 {
   QString newMetaString = placement->format(false,false);
   replaceMeta(placement->here(),newMetaString);
-}
-
-void MetaItem::changePageAttributePictureOffset(Where defaultWhere,
-  PageAttributePictureMeta *pictureMeta, bool local, bool global)
-{
-  QString newMetaString = pictureMeta->format(local,global);  //this is set to always use GLOBAl
-
-
-  logNotice() << "\n(2.) New Meta String: " << newMetaString
-              << "\nPage Where Line: " << defaultWhere.lineNumber
-              << "\nPage Where Model: " << defaultWhere.modelName
-              << "\nDefault Where Model: " << defaultWhere.lineNumber+1
-              << "\nMeta Where Line: " << pictureMeta->here().lineNumber
-              << "\nMeta Where Model: " << pictureMeta->here().modelName
-                 ;
-
-  if (pictureMeta->here().modelName == "undefined") {
-
-    int lastLine = gui->subFileSize(defaultWhere.modelName);
-
-    Where walk = defaultWhere + 1;
-
-    //defaultWhere + 1 == lastLine ? walk = defaultWhere : walk = defaultWhere + 1;
-
-    bool partsAdded;
-
-    logNotice() << "(3.) Model undefined - line number: "
-                << pictureMeta->here().lineNumber
-                << " Start Walk Line: " << walk.lineNumber
-                << " Start Walk Model: " << walk.modelName
-                << " Walk Model Size:" << gui->subFileSize(walk.modelName)
-                   ;
-
-    if (walk == lastLine || scanBackward(walk,StepMask,partsAdded) == EndOfFileRc) {
-      defaultWhere = firstLine(defaultWhere.modelName);
-      logNotice() << "(3a.) STEP, so scan backward: " << defaultWhere.lineNumber;
-    }
-    if (defaultWhere.modelName == gui->topLevelFile()) {
-      scanPastGlobal(defaultWhere);
-      logNotice() << "(3d.) TOP-LEVEL, so scan past GLOBAL: " << defaultWhere.lineNumber;
-    }
-    appendMeta(defaultWhere,newMetaString);
-    logNotice() << "(4.) APPEND meta at line number: " << defaultWhere.lineNumber
-                << ", Model Name: " << defaultWhere.modelName
-                << " ,Meta: " << newMetaString;
-  } else {
-    replaceMeta(pictureMeta->here(),newMetaString);
-    logNotice() << "(4.) REPLACE meta at line number: " << pictureMeta->here().lineNumber
-                << ", Model Name: " << pictureMeta->here().lineNumber
-                << " ,meta: " << newMetaString;
-  }
 }
 
 void MetaItem::changeBackground(
@@ -1072,24 +1117,28 @@ void MetaItem::changeFont(
   const Where   &bottomOfStep,
   FontMeta      *font,
   int            append,
-  bool           local)
+  bool           local,
+  bool           useTop)
 {
-  bool ok;
-  QString fontName = font->value();
-  QString fontName2;
-  QFont _font(fontName);
 
-  QFont newFont;
+    QFont _font;
+    QString fontName = font->valueFoo();
+    _font.fromString(fontName);
+    bool ok;
+    _font = QFontDialog::getFont(&ok,_font);
+    fontName = _font.toString();
 
-  newFont = QFontDialog::getFont(&ok, _font, gui);
   if ( ! ok) {
     return;
   }
 
-  fontName2 = newFont.toString();
+  font->setValue(fontName);
 
-  font->setValue(fontName2);
-  setMetaTopOf(topOfStep,bottomOfStep,font,append,local);
+  logTrace() << "\nCHANGE FONT FUNCTION - "
+             << "\nCalling setMeta with "
+             << (useTop ? "UseTop: True=Single-Step Page" : " \nFalse=Multi-Step Page")
+                         ;
+  setMeta(topOfStep,bottomOfStep,font,useTop,append,local);
 }
 
 void MetaItem::changeColor(
@@ -1097,14 +1146,19 @@ void MetaItem::changeColor(
   const Where &bottomOfStep,
   StringMeta *color,
   int         append,
-  bool        local)
+  bool        local,
+  bool        useTop)
 {
   QColor _color = LDrawColor::color(color->value());
   _color = QColorDialog::getColor(_color,NULL);
 
   if (_color.isValid()) {
     color->setValue(_color.name());
-    setMetaTopOf(topOfStep,bottomOfStep,color,append,local);
+    logNotice() << "\nCHANGE COLOUR FUNCTION - "
+              << "\nPAGE- "
+              << (useTop ? " \nUseTop: True=Single-Step Page" : " \nFalse=Multi-Step Page")
+                           ;
+    setMeta(topOfStep,bottomOfStep,color,useTop,append,local);
   }
 }
 
@@ -1201,6 +1255,7 @@ void MetaItem::changeFloat(
     setMetaTopOf(topOfStep,bottomOfStep,floatMeta,append,local);
   }
 }
+
 
 void MetaItem::changeFloat(
   const Where &topOfStep,
@@ -1318,56 +1373,131 @@ bool MetaItem::okToAppendCoverPage()
   return frontCover || backCover;
 }
 
-//PROTOTYPE
-void MetaItem::insertCoverPage(const QString &topLevelFile)
+void MetaItem::insertCoverPage()
 {
   Rc rc;
   QString line;
   Meta content;
+  Where here(gui->topLevelFile(),0);
+  QString meta = "0 !LPUB INSERT COVER_PAGE FRONT";  
+  int numLines = gui->subFileSize(here.modelName);
 
-  QString meta = "0 !LPUB INSERT COVER_PAGE FRONT";
-
-  Where here(topLevelFile,0);
-
-  scanPastGlobal(here);
+  scanPastGlobal(here);                         //scan past headers and global
 
   beginMacro("InsertCoverPage");
-  here++;                                   //advance 1 to compensate for zero index
-  line = gui->readLine(here);               //read the line
-  rc = content.parse(line,here);            //parse the line
-  if (rc == StepRc) {                       //check if line is 0 STEP
-      insertMeta(here,meta);                //STEP is there, so (insert) meta just before
-  } else {                                  //NO STEP to start so...
-      insertMeta(here,meta);                //(insert) meta
-      appendMeta(here,step);                //then (append) step just after
+  for ( ; here < numLines; here++) {            //scan forward
+      line = gui->readLine(here);
+      rc = content.parse(line,here);
+
+      if (rc == StepRc    ||
+          rc == RotStepRc ||
+          rc == StepGroupBeginRc) {             //check if line is 0 STEP
+          insertMeta(here,meta);                //STEP is there, so (insert) meta just before
+          break;
+      } else {                                  //NO STEP to start so...
+          QStringList tokens;                   //check for non-zero line
+          split(line,tokens);
+          bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
+               tokens[0] >= "1" && tokens[0] <= "5";
+          if (token_1_5) {                      //non-zero line detected so insert cover page here
+              insertMeta(here,meta);            //(insert) meta
+              appendMeta(here,step);            //then (append) step just after
+              break;
+          }
+      }
   }
   endMacro();
 }
 
-void MetaItem::appendCoverPage(const QString &topLevelFile)
+
+bool MetaItem::frontCoverPageExist()
+{
+    Rc rc;
+    QString line;
+    Meta content;   
+    Where here(gui->topLevelFile(),0);
+    int numLines = gui->subFileSize(here.modelName);
+
+    scanPastGlobal(here);                         //scan past headers and global
+
+    for ( ; here < numLines; here++) {            //scan forward
+        line = gui->readLine(here);
+        rc   = content.parse(line,here);
+
+        if (rc == InsertCoverPageRc) {            //check if line is Cover Page
+            return true;                          //it is a cover page, so return true
+        } else {                                  //no cover page detected so...
+            QStringList tokens;                   //check if non-zero line
+            split(line,tokens);
+            bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
+                 tokens[0] >= "1" && tokens[0] <= "5";
+            if (token_1_5) {                      //non-zeor line detected so return false
+                return false;
+            }
+        }
+    }
+    return false;
+}
+
+void MetaItem::appendCoverPage()
 {
   Rc rc;
   QString line;
   Meta content;
-
-  QString meta = "0 !LPUB INSERT COVER_PAGE BACK";
-
-  Where backPage(topLevelFile, gui->subFileSize(topLevelFile));
+  Where here(gui->topLevelFile(),0);
+  here.lineNumber = gui->subFileSize(here.modelName); //start at bottom of file
+  QString meta    = "0 !LPUB INSERT COVER_PAGE BACK";
+  here--;
 
   beginMacro("AppendCoverPage");
-  --backPage;
-  line = gui->readLine(backPage);
-  rc = content.parse(line,backPage);
-  if (rc == StepRc){
-      backPage++;                           //STEP so advance page before (insert) meta
-      insertMeta(backPage,meta);
-      appendMeta(backPage,step);
-  }else{
-      appendMeta(backPage,step);            //if NO STEP, (append) one before appending meta
-      appendMeta(backPage,meta);
-      appendMeta(backPage,step);
-  }
-  endMacro();
+  line = gui->readLine(here);
+  rc   = content.parse(line,here);
+
+   if ((rc == StepGroupEndRc ||                        //STEP so advance line before 'insert' meta
+        rc == StepRc)) {
+      here++;
+      insertMeta(here,meta);
+      appendMeta(here,step);
+   } else {
+      appendMeta(here,step);                           //NO STEP, 'append' one before appending meta
+      appendMeta(here,meta);
+      appendMeta(here,step);
+   }
+   endMacro();
+}
+
+bool MetaItem::backCoverPageExist()
+{
+    Rc rc;
+    QString line;
+    Meta content;
+    bool endStep = true;
+    Where here(gui->topLevelFile(),0);
+    here.lineNumber = gui->subFileSize(here.modelName); //start at bottom of file
+    here--;                                             //adjust to readline from zero-start index
+
+    for ( ; here >= 0; here--) {                        //scan backwards
+        line = gui->readLine(here);
+        rc = content.parse(line,here);
+        if ((rc == StepRc) && endStep) {                //if end STEP, continue
+            endStep = false;
+            continue;
+        } else if (rc == InsertCoverPageRc) {           //check if line is Cover Page
+            return true;
+        } else if (rc == StepGroupEndRc ||              //if Step Grpup end or STEP, then there is no back cover page
+                  (rc == StepRc && ! endStep)) {        //so return false
+            return false;
+        } else {
+            QStringList tokens;                         //no STEP encountered os check for non-zero line
+            split(line,tokens);
+            bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
+                 tokens[0] >= "1" && tokens[0] <= "5";
+            if (token_1_5) {                            //non-zeor line detected so no back cover page, return false
+                return false;
+            }
+        }
+    }
+    return false;
 }
 
 bool MetaItem::okToInsertNumberedPage()
@@ -1526,6 +1656,71 @@ void MetaItem::insertBOM()
   insertMeta(topOfStep,meta);
 }
 
+int MetaItem::okToInsertFinalModel()
+{
+    Rc rc;
+    QString line;
+    Meta content;
+    Where here(gui->topLevelFile(),0);
+    here.lineNumber = gui->subFileSize(here.modelName); //start at bottom of file
+    here--;                                             //adjust to readline from zero-start index
+
+    for ( ; here >= 0; here--) {                        //scan backwards
+        line = gui->readLine(here);
+        rc = content.parse(line,here);
+
+        if (rc == InsertRc) {                           //check if insert line is Insert Model
+            QRegExp InsertModel("^\\s*0\\s+!LPUB\\s+.*MODEL");
+            if (line.contains(InsertModel)){
+                logInfo() << " \nModel detected at line: " << here.lineNumber;
+                return -1;                              //insert line exist so return -1;
+            }
+            continue;
+        } else if (rc == StepGroupEndRc) {              //if Step Grpup, then there is no final model
+            logInfo() << " \nOK to Insert Model after StepGroup at line: " << here.lineNumber;
+            return here.lineNumber;						//so return line number
+        } else {										//no Insert line encountered os check for non-zero line
+            QStringList tokens;
+            split(line,tokens);
+            bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
+                 tokens[0] >= "1" && tokens[0] <= "5";
+            if (token_1_5) {                            //non-zero line detected so no back final model, return line number
+                Where walkForward = here;               //check if previous line was a STEP
+                walkForward++;
+                line = gui->readLine(walkForward);
+                rc = content.parse(line,walkForward);
+                if (rc == StepRc){
+                    logInfo() << " \nOK to Insert Model after STEP at line: " << here.lineNumber;
+                    return walkForward.lineNumber;
+                } else {
+                    logInfo() << " \nOK to Insert Model after Parts at line: " << here.lineNumber;
+                    return here.lineNumber;
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+
+void MetaItem::insertFinalModel(int atLine)
+{
+  QString pageMeta  = QString("0 !LPUB INSERT PAGE");
+  QString modelMeta = QString("0 !LPUB INSERT MODEL");
+
+  if (atLine == -1){
+    return;
+  }
+
+  Where here(gui->topLevelFile(),atLine);
+
+  beginMacro("insertFinalModel");
+  appendMeta(here,step);
+  appendMeta(here,pageMeta);
+  appendMeta(here,modelMeta);
+  endMacro();
+}
+
 void MetaItem::insertSplitBOM()
 {
   QString pageMeta = QString("0 !LPUB INSERT PAGE");
@@ -1578,7 +1773,7 @@ void MetaItem::scanPastGlobal(
     if (line.contains(globalLine) || isHeader(line)) {
       for ( ++walk; walk < numLines; ++walk) {
         line = gui->readLine(walk);
-        logTrace() << "Scan Past GLOBAL LineNum (final -1): " << walk.lineNumber << ", Line: " << line;
+        //logTrace() << "Scan Past GLOBAL LineNum (final -1): " << walk.lineNumber << ", Line: " << line;
         if ( ! line.contains(globalLine) && ! isHeader(line)) {
           topOfStep = walk - 1;
           break;
@@ -1603,7 +1798,7 @@ Rc  MetaItem::scanForward(
   Meta tmpMeta;
   int  numLines  = gui->subFileSize(here.modelName);
   partsAdded = false;
-  
+
   scanPastGlobal(here);
       
   for ( ; here < numLines; here++) {
@@ -1612,23 +1807,27 @@ Rc  MetaItem::scanForward(
 
     split(line,tokens);
 
-    bool token_1_5 = tokens.size() && tokens[0].size() == 1 && 
-         tokens[0] >= "1" && tokens[0] <= "5";
+    bool token_1_5 = tokens.size() && tokens[0].size() == 1 && tokens[0] >= "1" && tokens[0] <= "5";
 
     if (token_1_5) {
       partsAdded = true;
+
     } else {
       Rc rc = tmpMeta.parse(line,here);
       
       if (rc == InsertRc && ((mask >> rc) & 1)) {
-        // return rc;
+         //return rc;
+
       } else if (rc == StepRc || rc == RotStepRc) {
+
         if (((mask >> rc) & 1) && partsAdded) {
+
           return rc;
         }
         partsAdded = false;
       } else {
         if (rc < ClearRc && ((mask >> rc) & 1)) {
+
           return rc;
         }
       }
@@ -1650,22 +1849,29 @@ Rc MetaItem::scanBackward(
   bool  &partsAdded)
 {
   Meta tmpMeta; 
-  partsAdded = false;
+  partsAdded     = false;
 
   for ( ; here >= 0; here--) {
 
     QString line = gui->readLine(here);
     QStringList tokens;
 
-    logWarn() << "02 SCAN BACKWARD READLINE: "
-                << " Here Line: " << here.lineNumber
-                << " Here Model: " << here.modelName
-                << " \nLine: "   << line
-                << " \nIs Header: " << isHeader(line)
+    logWarn() << "\n==SCAN BACKWARD READLINE==: "
+              << " \nMask:StepRc = (1 << StepRc)|(1 << RotStepRc): "  << mask
+              << " \nHere LINE:          " << here.lineNumber
+              << " \nHere Model:         " << here.modelName
+              << " \nLine:               " << line
+              << " \nIs Header:          " << isHeader(line)
+              << " \nParts Added:        " << partsAdded
                    ;
 
     if (isHeader(line)) {
       scanPastGlobal(here);
+
+      logWarn() << "\nIN SCAN BACKWARD AT HEADER: "
+                << " \nScanPastGlobal"
+                << " \nRETURN EndOfFileRc at line:"  << here.lineNumber
+                   ;
       return EndOfFileRc;
     }
     split(line,tokens);
@@ -1674,14 +1880,38 @@ Rc MetaItem::scanBackward(
 
     if (token_1_5) {
       partsAdded = true;
+
     } else {
       Rc rc = tmpMeta.parse(line,here);
-      if (rc == StepRc || rc == RotStepRc) {
-        if (((mask >> rc) & 1) && partsAdded) {
+
+      if (rc == InsertPageRc /*&& ((mask >> rc) & 1)*/) {
+          logWarn() << "\nIN SCAN BACKWARD AT INSERT PAGE: "
+                    << " \nRETURN InsertRc at Line:"  << here.lineNumber
+                       ;
+         return rc;
+
+      } else if (rc == InsertCoverPageRc /* && ((mask >> rc) & 1)*/) {
+          logWarn() << "\nIN SCAN BACKWARD AT INSERT COVER PAGE: "
+                    << " \nRETURN InsertRc at Line:"  << here.lineNumber
+                       ;
+         return rc;
+
+      } else if (rc == StepRc || rc == RotStepRc) {
+          logWarn() << "\nIN SCAN BACKWARD AT STEP: "
+                    << " \nRc == StepRc || RotStep at Line:"  << here.lineNumber
+                       ;
+          if (((mask >> rc) & 1) && partsAdded) {
+              logWarn() << "\nIN SCAN BACKWARD AT STEP WITH PARTS: "
+                        << " \nParts Added: " << partsAdded
+                        << " \nRETURN StepRc|RotStepRc at Line:"  << here.lineNumber
+                         ;
           return rc;
-        }
+         }
         partsAdded = false;
       } else if (rc < ClearRc && ((mask >> rc) & 1)) {
+          logWarn() << "\nIN SCAN BACKWARD AT CLEAR: "
+                     << " \nRETURN ClearRc at Line:"  << here.lineNumber
+                       ;
         return rc;
       }
     }

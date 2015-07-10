@@ -45,19 +45,52 @@ class Step;
 class Steps;
 
 //---------------------------------------------------------------------------
-//
-// ccccccccccc
-// csssssssssc
-// cscccccccsc
-// cscpppppcsc
-// cscpcccpcsc
-// cscpcacpcsc
-// cscpcccpcsc
-// cscpppppcsc
-// cscccccccsc
-// csssssssssc
-// ccccccccccc
-//
+/*
+ * Think of the possible placement as a two dimensional table, of
+ * places where something can be placed within a rectangle.
+ * -- see step.cpp for detail walkthrough --
+ *
+ *  CCCCCCCCCCC
+ *  CSSSSSSSSSC
+ *  CSCCCCCCCSC
+ *  CSCPPPPPCSC
+ *  CSCPCCCPCSC
+ *  CSCPCACPCSC
+ *  CSCPCCCPCSC
+ *  CSCPPPPPCSC
+ *  CSCCCCCCCSC
+ *  CSSSSSSSSSC
+ *  CCCCCCCCCCC
+ *
+ *  The table above represents either the Horizontal slice
+ *  going through the CSI (represented by A for assembly),
+ *  or the Vertical slice going through the CSI.
+ *
+ *  C0 - callout relative to step number
+ *  S - step number relative to csi
+ *  C1 - callout relative to PLI
+ *  P - pli relative to csi
+ *  C2 - callout relative to csi
+ *  A - csi
+ *  C3 - callout relative to csi
+ *  P - pli relative to csi
+ *  C4 - callout relative to PLI
+ *  S - step number relative to csi
+ *  C5 - callout relative to step number
+ *
+ * const int stepNumberPlace[NumPlacements][2] =
+{
+  { TblSn0, TblSn0 },  // TopLeft
+  { TblCsi, TblSn0 },  // Top
+  { TblSn1, TblSn0 },  // TopRight
+  { TblSn1, TblCsi },  // Right
+  { TblSn1, TblSn1 },  // BOT_RIGHT
+  { TblCsi, TblSn1 },  // BOT
+  { TblSn0, TblSn1 },  // BOT_LEFT
+  { TblSn0, TblCsi },  // Left
+  { TblCsi, TblCsi },
+};
+ */
 //---------------------------------------------------------------------------
 
 enum Boundary {
@@ -97,7 +130,8 @@ class Placement {
     int           tbl[2];          // Where am I in my grid?
     int           boundingSize[2]; // Me and my neighbors
     int           boundingLoc[2];  // Where do I live within my group
-    
+    QList<PlacementData *>  pldList;
+
     void setSize(int _size[2])
     {
       size[XX] = boundingSize[XX] = _size[XX];
@@ -207,7 +241,6 @@ class Placement {
       float offsets[2],
       qreal topLeft[2],
       qreal size[2]);
-
 };
 
 class PlacementPixmap : public Placement {
@@ -236,6 +269,22 @@ class PlacementNum : public Placement {
     }
     void sizeit();
     void sizeit(QString fmt);
+};
+
+class PlacementHeader : public Placement,
+                        public QGraphicsPixmapItem {
+public:
+    PlacementHeader()
+    {
+    }
+};
+
+class PlacementFooter : public Placement ,
+                        public QGraphicsPixmapItem {
+public:
+    PlacementFooter()
+    {
+    }
 };
 
 #endif

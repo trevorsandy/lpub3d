@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -229,7 +229,7 @@ private:
   QPushButton *fontButton;
   QLabel      *colorLabel;
   QLabel      *colorExample;
-  QPushButton *colorButton;  
+  QPushButton *colorButton;
   QLabel      *marginsLabel;
   QLineEdit   *value0;
   QLineEdit   *value1;
@@ -240,11 +240,17 @@ public slots:
   void value0Changed(QString const &);
   void value1Changed(QString const &);
 };
+
+
+
 /***********************************************************************
  *
  * PageAttributeText
  *
  **********************************************************************/
+
+enum RelativeTos
+{ fc = 1 ,   bc = 2,     ph  = 4,      pf  = 8};
 
 class PageAttributeTextMeta;
 class QGroupBox;
@@ -252,6 +258,7 @@ class QLineEdit;
 class QPushButton;
 class PlacementMeta;
 class PageAttributePlacementEnum;
+class GlobalPageDialog;
 class PageAttributeTextGui : public MetaGui
 {
   Q_OBJECT
@@ -268,10 +275,11 @@ public:
 private:
   PageAttributeTextMeta  *meta;
 
+  int         selection;
   bool        fontModified;
   bool        colorModified;
   bool        marginsModified;
-  bool        positionModified;
+  bool        placementModified;
   bool        displayModified;
   bool        editModified;
 
@@ -282,8 +290,9 @@ private:
   QLabel      *colorExample;
   QPushButton *colorButton;
   QLabel      *marginsLabel;
-  QLineEdit   *value0;
-  QLineEdit   *value1;
+
+  QLineEdit    *value0;
+  QLineEdit    *value1;
 
   QCheckBox    *display;
 
@@ -294,22 +303,24 @@ private:
   QTextEdit    *editDesc;
   QTextEdit    *editDisc;
   QLineEdit    *contentEdit;
-
   QString      content;
-  QLabel       *contentLabel;
 
-  QGroupBox    *gbPosition;
-  QLabel       *position;
-  QLabel       *placement;
-  QLabel       *justify;
-  QLabel       *relativeTo;
-  QLabel       *preposition;
-  QComboBox    *placementCombo;
-  QComboBox    *justifyCombo;
-  QComboBox    *relativeToCombo;
-  QComboBox    *prepositionCombo;
+  QGroupBox    *gbPlacement;
+  QPushButton  *placementButton;
+
+  QLabel       *sectionLabel;
+  QComboBox    *sectionCombo;
+
+signals:
+  void indexChanged(int index);
 
 public slots:
+  void newIndex(int value){
+      logInfo() << " New Index Received (Text MetaGui): "
+                << " INDEX " << value;
+                    ;
+      selection = value;
+  }
   void editDescChanged();
   void editDiscChanged();
   void browseFont(bool clicked);
@@ -317,8 +328,7 @@ public slots:
   void editChanged(QString const &);
   void value0Changed(QString const &);
   void value1Changed(QString const &);
-
-  void typePositionChanged(int);
+  void placementChanged(bool);
   void toggled(bool toggled);
 
 };
@@ -351,51 +361,102 @@ public:
 
   void setEnabled(bool enabled);
 
-private:  
+private:
   PageAttributePictureMeta *meta;
 
-  bool           pictureModified;
+  int             selection;
+  bool            marginsModified;
+  bool            placementModified;
+  bool            displayModified;
+  bool            pictureModified;
+  bool            scaleModified;
+  bool            stretchTileModified;
 
-  QString        picture;
+  QString         picture;
+
+  QLabel         *marginsLabel;
+  QLineEdit      *value0;
+  QLineEdit      *value1;
 
   QLineEdit      *pictureEdit;
   QPushButton    *pictureButton;
-  QRadioButton   *stretchRadio;
-  QRadioButton   *tileRadio;
-  QGroupBox      *gbFill;
+//  QRadioButton   *stretchRadio;
+//  QRadioButton   *tileRadio;
+//  QGroupBox      *gbFill;
   QGroupBox      *gbScale;
 
-  float          min;
-  float          max;
-  float          step;
-  QLabel        *scale;
+  float           min;
+  float           max;
+  float           step;
+  QLabel         *scale;
   QDoubleSpinBox *spin;
 
-  QCheckBox    *display;
+  QCheckBox      *display;
 
-  QGroupBox    *gbPosition;
-  QLabel       *position;
-  QLabel       *placement;
-  QLabel       *justify;
-  QLabel       *relativeTo;
-  QLabel       *preposition;
-  QComboBox    *placementCombo;
-  QComboBox    *justifyCombo;
-  QComboBox    *relativeToCombo;
-  QComboBox    *prepositionCombo;
+  QGroupBox      *gbPlacement;
+  QPushButton    *placementButton;
+
+  QLabel         *sectionLabel;
+  QComboBox      *sectionCombo;
+
+signals:
+  void indexChanged(int index);
 
 public slots:
+  void selectionChanged(int value){
+      logInfo() << " Selection Change Received (Picture MetaGui): "
+                << " INDEX " << value
+                    ;
+      selection = value;
+  }
   void pictureChange(QString const &);
   void browsePicture(bool);
-  void gbFillClicked(bool);
+//  void gbFillClicked(bool);
   void gbScaleClicked(bool);
-  void stretch(bool);
-  void tile(bool);
+//  void stretch(bool);
+//  void tile(bool);
+
+  void value0Changed(QString const &);
+  void value1Changed(QString const &);
 
   void valueChanged(double);
 
-  void typePositionChanged(int);
+  void placementChanged(bool);
   void toggled(bool toggled);
+};
+
+/***********************************************************************
+ *
+ * PageHeaderFooterHeight
+ *
+ **********************************************************************/
+
+class QGroupBox;
+class QLabel;
+class QLineEdit;
+class HeaderFooterHeightGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  HeaderFooterHeightGui(
+    QString const  &heading,
+    UnitsMeta      *meta,
+    QGroupBox      *parent = NULL);
+  ~HeaderFooterHeightGui() {}
+
+  void setEnabled(bool enabled);
+
+  virtual void apply(QString &modelName);
+
+private:
+  UnitsMeta *meta;
+  QLabel    *label;
+  QLineEdit *value0;
+  QLineEdit *value1;
+
+public slots:
+  void value1Change(QString const &);
 };
 
 /***********************************************************************
@@ -445,7 +506,7 @@ class DoubleSpinGui : public MetaGui
 {
   Q_OBJECT
 public:
-  
+
   DoubleSpinGui(
     QString const &heading,
     FloatMeta     *meta,
@@ -467,7 +528,7 @@ private:
 public slots:
   void valueChanged(double);
 };
-  
+
 /***********************************************************************
  *
  * Background

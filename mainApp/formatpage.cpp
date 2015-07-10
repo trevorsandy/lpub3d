@@ -40,7 +40,8 @@
 #include "color.h"
 #include "pagebackgrounditem.h"
 #include "numberitem.h"
-#include "pageattributeitem.h"
+#include "pageattributetextitem.h"
+#include "pageattributepixmapitem.h"
 #include "csiitem.h"
 #include "calloutbackgrounditem.h"
 #include "textitem.h"
@@ -191,7 +192,41 @@ int Gui::addGraphicsPageItems(
   QGraphicsScene *scene,
   bool            printing)
 {
-  Page *page = dynamic_cast<Page *>(steps);
+
+  Page                    *page = dynamic_cast<Page *>(steps);
+
+  PageBackgroundItem      *pageBg;
+  Placement                plPage;
+  PlacementHeader          pageHeader;
+  PlacementFooter          pageFooter;
+  PageNumberItem          *pageNumber;
+  SubmodelInstanceCount   *instanceCount;
+
+  PageAttributeTextItem   *url;
+  PageAttributeTextItem   *email;
+
+  PageAttributeTextItem   *copyright;
+  PageAttributeTextItem   *author;
+
+  PageAttributeTextItem   *titleFront;
+  PageAttributeTextItem   *modelNameFront;
+  PageAttributeTextItem   *modelDescFront;
+  PageAttributeTextItem   *publishDescFront;
+  PageAttributeTextItem   *authorFront;
+  PageAttributeTextItem   *piecesFront;
+//  PageAttributeTextItem   *categoryFront;
+  PageAttributePixmapItem *pixmapLogoFront;
+  PageAttributePixmapItem *pixmapLogoBack;
+  PageAttributePixmapItem *pixmapCoverImageFront;
+
+  PageAttributeTextItem   *titleBack;
+  PageAttributeTextItem   *authorBack;
+  PageAttributeTextItem   *copyrightBack;
+  PageAttributeTextItem   *urlBack;
+  PageAttributeTextItem   *emailBack;
+  PageAttributeTextItem   *disclaimerBack;
+  PageAttributeTextItem   *plugBack;
+  PageAttributePixmapItem *pixmapPlugImageBack;
 
   /* There are issues with printing to PDF and its fixed page sizes, and
    * LPub's aribitrary page size controls.  So when printing, we have to
@@ -226,8 +261,6 @@ int Gui::addGraphicsPageItems(
    // pW = page->meta.LPub.page.size.valuePixels(0);
    // pH = page->meta.LPub.page.size.valuePixels(1);
 
-
-  PageBackgroundItem *pageBg;
   pageBg = new PageBackgroundItem(page, pW, pH);
 
   view->pageBackgroundItem = pageBg;
@@ -235,7 +268,6 @@ int Gui::addGraphicsPageItems(
 
   // Set up the placement aspects of the page in the Qt space
 
-  Placement plPage;
   plPage.relativeType = PageType;
 
   plPage.setSize(pW,pH);
@@ -243,13 +275,26 @@ int Gui::addGraphicsPageItems(
   plPage.loc[XX] = 0;
   plPage.loc[YY] = 0;
 
+  // Set up page footer
+
+  pageFooter.relativeType   = PageFooterType;
+  pageFooter.placement      = page->meta.LPub.page.pageFooter.placement;
+  pageFooter.size[XX]       = page->meta.LPub.page.pageFooter.size.valuePixels(XX);
+  pageFooter.size[YY]       = page->meta.LPub.page.pageFooter.size.valuePixels(YY);
+
+  if (pageFooter.placement.value().relativeTo == plPage.relativeType) {
+    plPage.placeRelative(&pageFooter);
+    plPage.appendRelativeTo(&pageFooter);
+  }
+  pageFooter.setPos(pageFooter.loc[XX],pageFooter.loc[YY]);
+
   // Display a page number?
 
   if (page->meta.LPub.page.dpn.value() && ! coverPage) {
 
     // allocate QGraphicsTextItem for page number
 
-    PageNumberItem  *pageNumber = 
+    pageNumber =
       new PageNumberItem(
                       page,
                       page->meta.LPub.page.number, 
@@ -261,7 +306,9 @@ int Gui::addGraphicsPageItems(
     pageNumber->size[XX]     = (int) pageNumber->document()->size().width();
     pageNumber->size[YY]     = (int) pageNumber->document()->size().height();
     
-    PlacementData placementData = pageNumber->placement.value();
+    PlacementData  placementData;
+
+    placementData = pageNumber->placement.value();
     
     if (page->meta.LPub.page.togglePnPlacement.value() && ! (stepPageNum & 1)) {
       switch (placementData.placement) {
@@ -307,101 +354,157 @@ int Gui::addGraphicsPageItems(
     plPage.placeRelative(pageNumber);
     pageNumber->setPos(pageNumber->loc[XX],pageNumber->loc[YY]);
 
-    // allocate QGraphicsTextItem for // author (Header) //~~~~~~~~~~~~~~~~
-    if (page->meta.LPub.page.author.display.value() && ! coverPage) {
+    if (! page->coverPage)
+    {
 
-        PagePageAttributeItem *authorHeader =
-                new PagePageAttributeItem(
-                    page,
-                    page->meta.LPub.page.author,
-                    pageBg);
+        // allocate QGraphicsTextItem for // url (Header/Footer) //~~~~~~~~~~~~~~~~
+        if (page->meta.LPub.page.url.display.value()) {
 
-        authorHeader->relativeType = PageAuthorType;
-        authorHeader->size[XX]     = (int) authorHeader->document()->size().width();
-        authorHeader->size[YY]     = (int) authorHeader->document()->size().height();
+            url               = new PageAttributeTextItem(page,page->meta.LPub.page.url,pageBg);
+            url->relativeType = PageURLType;
+            url->size[XX]     = (int) url->document()->size().width();
+            url->size[YY]     = (int) url->document()->size().height();
 
-        //settings
-        PlacementData pld = authorHeader->placement.value();
-        pld.placement      = TopLeft;
-        pld.justification  = Center;
-        pld.relativeTo     = PageType;
-        pld.preposition    = Inside;
-        pld.offsets[0]     = 0;
-        pld.offsets[1]     = 0;
-        authorHeader->placement.setValue(pld);
-        /* Font input format:
-           "Arial,64,-1,255,75,0,0,0,0,0"
-        0 family, 1 pointSizeF, 2 pixelSize, 3 styleHint, 4 weight,
-        5 underline, 6 strikeout, 7 strikeOut, 8 fixedPitch 9 rawMode */
-        authorHeader->textFont.setValueFoo("Arial,18,-1,255,75,0,0,0,0,0");
-        authorHeader->content.setValue(Preferences::defaultAuthor);
-        //
-        plPage.appendRelativeTo(authorHeader);
-        plPage.placeRelative(authorHeader);
-        authorHeader->setPos(authorHeader->loc[XX],authorHeader->loc[YY]);
-    }
+            PlacementData pld = url->placement.value();
+            if (pld.relativeTo == PageType) {
+                plPage.appendRelativeTo(url);
+                plPage.placeRelative(url);
+            } else if (pld.relativeTo == PageHeaderType) {
+                pageHeader.placeRelative(url);
+            } else if (pld.relativeTo == PageFooterType) {
+                pageFooter.placeRelative(url);
+            } else if (pld.relativeTo == PageNumberType) {
+                pageNumber->placeRelative(url);
+            } else if (pld.relativeTo == PageEmailType &&
+                       page->meta.LPub.page.email.display.value()) {
+                email->placeRelative(url);
+            } else if (pld.relativeTo == PageCopyrightType &&
+                       page->meta.LPub.page.copyright.display.value()) {
+                copyright->placeRelative(url);
+            } else if (pld.relativeTo == PageAuthorType &&
+                       page->meta.LPub.page.author.display.value()) {
+                author->placeRelative(url);
+            } else {
+                url->placement.setValue(TopLeftInsideCorner,PageType);
+                plPage.appendRelativeTo(url);
+                plPage.placeRelative(url);
+            }
+            url->setPos(url->loc[XX],url->loc[YY]);
+        }
 
-    // allocate QGraphicsTextItem for // url (Header) //~~~~~~~~~~~~~~~~
-    if (page->meta.LPub.page.url.display.value() && ! coverPage) {
+        // allocate QGraphicsTextItem for // email (Header/Footer) //~~~~~~~~~~~~~~~~
+        if (page->meta.LPub.page.email.display.value()) {
 
-        PagePageAttributeItem *url =
-                new PagePageAttributeItem(
-                    page,
-                    page->meta.LPub.page.url,
-                    pageBg);
 
-        url->relativeType = PageURLType;
-        url->size[XX]     = (int) url->document()->size().width();
-        url->size[YY]     = (int) url->document()->size().height();
+            email               = new PageAttributeTextItem(page,page->meta.LPub.page.email,pageBg);
+            email->relativeType = PageEmailType;
+            email->size[XX]     = (int) email->document()->size().width();
+            email->size[YY]     = (int) email->document()->size().height();
 
-        plPage.appendRelativeTo(url);
-        plPage.placeRelative(url);
-        url->setPos(url->loc[XX],url->loc[YY]);
-    }
+            PlacementData pld = email->placement.value();
+            if (pld.relativeTo == PageType) {
+                plPage.appendRelativeTo(email);
+                plPage.placeRelative(email);
+            } else if (pld.relativeTo == PageHeaderType) {
+                pageHeader.placeRelative(email);
+            } else if (pld.relativeTo == PageFooterType) {
+                pageFooter.placeRelative(email);
+            } else if (pld.relativeTo == PageNumberType) {
+                pageNumber->placeRelative(email);
+            } else if (pld.relativeTo == PageURLType &&
+                       page->meta.LPub.page.url.display.value()) {
+                url->placeRelative(email);
+            } else if (pld.relativeTo == PageCopyrightType &&
+                       page->meta.LPub.page.copyright.display.value()) {
+                copyright->placeRelative(email);
+            } else if (pld.relativeTo == PageAuthorType &&
+                       page->meta.LPub.page.author.display.value()) {
+                author->placeRelative(email);
+            } else {
+                email->placement.setValue(TopRightInsideCorner,PageType);
+                plPage.appendRelativeTo(email);
+                plPage.placeRelative(email);
+            }
+            email->setPos(email->loc[XX],email->loc[YY]);
+        }
 
-    // allocate QGraphicsTextItem for // email (Footer) //~~~~~~~~~~~~~~~~
-    if (page->meta.LPub.page.email.display.value() && ! coverPage) {
+        // allocate QGraphicsTextItem for // author (Header/Footer) //~~~~~~~~~~~~~~~~
+        if (page->meta.LPub.page.author.display.value()) {
 
-        PagePageAttributeItem *email =
-                new PagePageAttributeItem(
-                    page,
-                    page->meta.LPub.page.email,
-                    pageBg);
+            author               = new PageAttributeTextItem(page,page->meta.LPub.page.author,pageBg);
+            author->relativeType = PageAuthorType;
+            author->size[XX]     = (int) author->document()->size().width();
+            author->size[YY]     = (int) author->document()->size().height();
 
-        email->relativeType = PageEmailType;
-        email->size[XX]     = (int) email->document()->size().width();
-        email->size[YY]     = (int) email->document()->size().height();
+            PlacementData pld = author->placement.value();
+            if (pld.relativeTo == PageType) {
+                plPage.appendRelativeTo(author);
+                plPage.placeRelative(author);
+            } else if (pld.relativeTo == PageHeaderType) {
+                pageHeader.placeRelative(author);
+            } else if (pld.relativeTo == PageFooterType) {
+                pageFooter.placeRelative(author);
+            } else if (pld.relativeTo == PageNumberType) {
+                pageNumber->placeRelative(author);
+            } else if (pld.relativeTo == PageURLType &&
+                       page->meta.LPub.page.url.display.value()) {
+                url->placeRelative(author);
+            } else if (pld.relativeTo == PageEmailType &&
+                       page->meta.LPub.page.email.display.value()) {
+                email->placeRelative(author);
+            } else if (pld.relativeTo == PageCopyrightType &&
+                       page->meta.LPub.page.copyright.display.value()) {
+                copyright->placeRelative(author);
+            } else {
+                author->placement.setValue(BottomRightInsideCorner,PageType);
+                plPage.appendRelativeTo(author);
+                plPage.placeRelative(author);
+            }
+            author->setPos(author->loc[XX],author->loc[YY]);
+        }
 
-        plPage.appendRelativeTo(email);
-        plPage.placeRelative(email);
-        email->setPos(email->loc[XX],email->loc[YY]);
-    }
 
-    // allocate QGraphicsTextItem for // copyright (Footer) //~~~~~~~~~~~~~~~~
-    if (page->meta.LPub.page.copyright.display.value() && ! coverPage) {
+        // allocate QGraphicsTextItem for // copyright (Header/Footer) //~~~~~~~~~~~~~~~~
+        if (page->meta.LPub.page.copyright.display.value()) {
 
-        PagePageAttributeItem *copyright =
-                new PagePageAttributeItem(
-                    page,
-                    page->meta.LPub.page.copyright,
-                    pageBg);
+            copyright               = new PageAttributeTextItem(page,page->meta.LPub.page.copyright,pageBg);
+            copyright->relativeType = PageCopyrightType;
+            copyright->size[XX]     = (int) copyright->document()->size().width();
+            copyright->size[YY]     = (int) copyright->document()->size().height();
 
-        copyright->relativeType = PageCopyrightType;
-        copyright->size[XX]     = (int) copyright->document()->size().width();
-        copyright->size[YY]     = (int) copyright->document()->size().height();
-
-        plPage.appendRelativeTo(copyright);
-        plPage.placeRelative(copyright);
-        copyright->setPos(copyright->loc[XX],copyright->loc[YY]);
+            PlacementData pld = copyright->placement.value();
+            if (pld.relativeTo == PageType) {
+                plPage.appendRelativeTo(copyright);
+                plPage.placeRelative(copyright);
+            } else if (pld.relativeTo == PageHeaderType) {
+                pageHeader.placeRelative(copyright);
+            } else if (pld.relativeTo == PageFooterType) {
+                pageFooter.placeRelative(copyright);
+            } else if (pld.relativeTo == PageNumberType) {
+                pageNumber->placeRelative(copyright);
+            } else if (pld.relativeTo == PageURLType &&
+                       page->meta.LPub.page.url.display.value()) {
+                url->placeRelative(copyright);
+            } else if (pld.relativeTo == PageEmailType &&
+                       page->meta.LPub.page.email.display.value()) {
+                email->placeRelative(copyright);
+            } else if (pld.relativeTo == PageAuthorType &&
+                       page->meta.LPub.page.author.display.value()) {
+                author->placeRelative(copyright);
+            } else {
+                copyright->placement.setValue(BottomLeftInsideCorner,PageType);
+                plPage.appendRelativeTo(copyright);
+                plPage.placeRelative(copyright);
+            }
+            copyright->setPos(copyright->loc[XX],copyright->loc[YY]);
+        }
     }
 
     // if this page contains the last step of the page, 
     // and instance is > 1 then display instance
 
     // allocate QGraphicsTextItem for instance number 
-    
-    SubmodelInstanceCount *instanceCount;
-    
+     
     if (endOfSubmodel && instances > 1) {
       instanceCount = new SubmodelInstanceCount(
         page,
@@ -431,8 +534,7 @@ int Gui::addGraphicsPageItems(
         
         instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
                         
-        PlacementData placementData = instanceCount->placement.value();
-        
+        PlacementData placementData = instanceCount->placement.value();       
         if (placementData.relativeTo == PageNumberType &&
             page->meta.LPub.page.dpn.value()) {
           pageNumber->placeRelative(instanceCount);
@@ -519,13 +621,9 @@ int Gui::addGraphicsPageItems(
             QString addLine;
             getBOMParts(current,addLine,bomParts);
             page->pli.steps = steps;
-            getBOMOccurrence(current);                                      //divide BOM Parts
+            getBOMOccurrence(current);
             if (boms > 1){
-                logTrace() << "BOMS: " << boms;
-                QStringList dividedBOMParts;
-                divideBOMParts(bomParts,dividedBOMParts);
-                page->pli.setParts(dividedBOMParts,page->meta,true);
-                dividedBOMParts.clear();
+                page->pli.setParts(bomParts,page->meta,true,true); //Split BOM Parts
             } else {
                 page->pli.setParts(bomParts,page->meta,true);
             }
@@ -535,6 +633,8 @@ int Gui::addGraphicsPageItems(
             page->pli.relativeToSize[1] = plPage.size[YY];
           }
         break;
+        case InsertData::InsertModel:
+        break;
       }
     }
   }
@@ -542,229 +642,293 @@ int Gui::addGraphicsPageItems(
   // Process Front and Back Cover Pages - if selected
   if (page->coverPage && page->frontCover) {
 
+      // allocate QGraphicsTextItem for // page Header (Front Cover) //~~~~~~~~~~~~~~~~
+      pageHeader.relativeType   = PageHeaderType;
+      pageHeader.placement      = page->meta.LPub.page.pageHeader.placement;
+      pageHeader.size[XX]       = page->meta.LPub.page.pageHeader.size.valuePixels(XX);
+      pageHeader.size[YY]       = page->meta.LPub.page.pageHeader.size.valuePixels(YY);
+      if (pageHeader.placement.value().relativeTo == plPage.relativeType) {
+        plPage.placeRelative(&pageHeader);
+        plPage.appendRelativeTo(&pageHeader);
+      }
+      pageHeader.setPos(pageHeader.loc[XX],pageHeader.loc[YY]);
+
+      // allocate QGraphicsTextItem for // page Footer (Front Cover) //~~~~~~~~~~~~~~~~
+      pageFooter.relativeType   = PageFooterType;
+      pageFooter.placement      = page->meta.LPub.page.pageFooter.placement;
+      pageFooter.size[XX]       = page->meta.LPub.page.pageFooter.size.valuePixels(XX);
+      pageFooter.size[YY]       = page->meta.LPub.page.pageFooter.size.valuePixels(YY);
+      if (pageFooter.placement.value().relativeTo == plPage.relativeType) {
+        plPage.placeRelative(&pageFooter);
+        plPage.appendRelativeTo(&pageFooter);
+      }
+      pageFooter.setPos(pageFooter.loc[XX],pageFooter.loc[YY]);
+
       // allocate QGraphicsTextItem for // title (Front Cover) //~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.title.display.value()) {
+      if (page->meta.LPub.page.titleFront.display.value()) {
 
-          PagePageAttributeItem *title =
-                  new PagePageAttributeItem(
-                      page,
-                      page->meta.LPub.page.title,
-                      pageBg);
+          titleFront               = new PageAttributeTextItem(page,page->meta.LPub.page.titleFront,pageBg);
+          titleFront->relativeType = PageTitleType;
+          titleFront->size[XX]     = (int) titleFront->document()->size().width();
+          titleFront->size[YY]     = (int) titleFront->document()->size().height();
 
-          title->relativeType = PageCopyrightType;
-          title->size[XX]     = (int) title->document()->size().width();
-          title->size[YY]     = (int) title->document()->size().height();
-
-          plPage.appendRelativeTo(title);
-          plPage.placeRelative(title);
-          title->setPos(title->loc[XX],title->loc[YY]);
+          PlacementData pld = titleFront->placement.value();
+          if (pld.relativeTo == PageType) {
+              plPage.appendRelativeTo(titleFront);
+              plPage.placeRelative(titleFront);
+          } else {
+              titleFront->placement.setValue(LeftInside,PageType);
+              plPage.appendRelativeTo(titleFront);
+              plPage.placeRelative(titleFront);
+          }
+          titleFront->setPos(titleFront->loc[XX],titleFront->loc[YY]);
       }
 
       // allocate QGraphicsTextItem for // modelName (Front Cover) //~~~~~~~~~~~~~~~~
       if (page->meta.LPub.page.modelName.display.value()) {
 
-          PagePageAttributeItem *modelName =
-                  new PagePageAttributeItem(
-                      page,
-                      page->meta.LPub.page.modelName,
-                      pageBg);
+          modelNameFront               = new PageAttributeTextItem(page,page->meta.LPub.page.modelName,pageBg);
+          modelNameFront->relativeType = PageModelNameType;
+          modelNameFront->size[XX]     = (int) modelNameFront->document()->size().width();
+          modelNameFront->size[YY]     = (int) modelNameFront->document()->size().height();
 
-          modelName->relativeType = PageCopyrightType;
-          modelName->size[XX]     = (int) modelName->document()->size().width();
-          modelName->size[YY]     = (int) modelName->document()->size().height();
-
-          plPage.appendRelativeTo(modelName);
-          plPage.placeRelative(modelName);
-          modelName->setPos(modelName->loc[XX],modelName->loc[YY]);
-      }
-
-      // allocate QGraphicsTextItem for // modelDesc (Front Cover) //~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.modelDesc.display.value()) {
-
-          PagePageAttributeItem *modelDesc =
-                  new PagePageAttributeItem(
-                      page,
-                      page->meta.LPub.page.modelDesc,
-                      pageBg);
-
-          modelDesc->relativeType = PageCopyrightType;
-          modelDesc->size[XX]     = (int) modelDesc->document()->size().width();
-          modelDesc->size[YY]     = (int) modelDesc->document()->size().height();
-
-          plPage.appendRelativeTo(modelDesc);
-          plPage.placeRelative(modelDesc);
-          modelDesc->setPos(modelDesc->loc[XX],modelDesc->loc[YY]);
-      }
-
-      // allocate QGraphicsTextItem for // publishDesc (Front Cover) //~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.publishDesc.display.value()) {
-
-          PagePageAttributeItem *publishDesc =
-                  new PagePageAttributeItem(
-                      page,
-                      page->meta.LPub.page.publishDesc,
-                      pageBg);
-
-          publishDesc->relativeType = PageCopyrightType;
-          publishDesc->size[XX]     = (int) publishDesc->document()->size().width();
-          publishDesc->size[YY]     = (int) publishDesc->document()->size().height();
-
-          plPage.appendRelativeTo(publishDesc);
-          plPage.placeRelative(publishDesc);
-          publishDesc->setPos(publishDesc->loc[XX],publishDesc->loc[YY]);
+          PlacementData pld = modelNameFront->placement.value();
+          if (pld.relativeTo == PageType) {
+              plPage.appendRelativeTo(modelNameFront);
+              plPage.placeRelative(modelNameFront);
+          } else if (pld.relativeTo == PageTitleType &&
+                     page->meta.LPub.page.titleFront.display.value()) {
+              titleFront->placeRelative(modelNameFront);
+          } else {
+              modelNameFront->placement.setValue(LeftInside,PageType);
+              plPage.appendRelativeTo(modelNameFront);
+              plPage.placeRelative(modelNameFront);
+          }
+          modelNameFront->setPos(modelNameFront->loc[XX],modelNameFront->loc[YY]);
       }
 
       // allocate QGraphicsTextItem for // author (Front Cover) //~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.author.display.value()) {
+      if (page->meta.LPub.page.authorFront.display.value()) {
 
-          PagePageAttributeItem *author =
-                  new PagePageAttributeItem(
-                      page,
-                      page->meta.LPub.page.author,
-                      pageBg);
+          authorFront               = new PageAttributeTextItem(page,page->meta.LPub.page.authorFront,pageBg);
+          authorFront->relativeType = PageAuthorType;
+          authorFront->size[XX]     = (int) authorFront->document()->size().width();
+          authorFront->size[YY]     = (int) authorFront->document()->size().height();
 
-          author->relativeType = PageCopyrightType;
-          author->size[XX]     = (int) author->document()->size().width();
-          author->size[YY]     = (int) author->document()->size().height();
-
-          plPage.appendRelativeTo(author);
-          plPage.placeRelative(author);
-          author->setPos(author->loc[XX],author->loc[YY]);
+          PlacementData pld = authorFront->placement.value();
+          if (pld.relativeTo == PageType) {
+              plPage.appendRelativeTo(authorFront);
+              plPage.placeRelative(authorFront);
+          } else if (pld.relativeTo == PageTitleType &&
+                     page->meta.LPub.page.titleFront.display.value()) {
+              titleFront->placeRelative(authorFront);
+          } else {
+              authorFront->placement.setValue(LeftInside,PageType);
+              plPage.appendRelativeTo(authorFront);
+              plPage.placeRelative(authorFront);
+          }
+          authorFront->setPos(authorFront->loc[XX],authorFront->loc[YY]);
       }
 
       // allocate QGraphicsTextItem for // pieces (Front Cover) //~~~~~~~~~~~~~~~~
       if (page->meta.LPub.page.pieces.display.value()) {
 
-          PagePageAttributeItem *pieces =
-                  new PagePageAttributeItem(
-                      page,
-                      page->meta.LPub.page.pieces,
-                      pageBg);
+          piecesFront               = new PageAttributeTextItem(page,page->meta.LPub.page.pieces,pageBg);
+          piecesFront->relativeType = PagePiecesType;
+          piecesFront->size[XX]     = (int) piecesFront->document()->size().width();
+          piecesFront->size[YY]     = (int) piecesFront->document()->size().height();
 
-          pieces->relativeType = PageCopyrightType;
-          pieces->size[XX]     = (int) pieces->document()->size().width();
-          pieces->size[YY]     = (int) pieces->document()->size().height();
+          PlacementData pld = piecesFront->placement.value();
+          if (pld.relativeTo == PageType) {
+              plPage.appendRelativeTo(piecesFront);
+              plPage.placeRelative(piecesFront);
+          } else if (pld.relativeTo == PageAuthorType &&
+                     page->meta.LPub.page.authorFront.display.value()) {
+              authorFront->placeRelative(piecesFront);
+          } else {
+              piecesFront->placement.setValue(LeftInside,PageType);
+              plPage.appendRelativeTo(piecesFront);
+              plPage.placeRelative(piecesFront);
+          }
+          piecesFront->setPos(piecesFront->loc[XX],piecesFront->loc[YY]);
+      }
+      // allocate QGraphicsTextItem for // modelDesc (Front Cover) //~~~~~~~~~~~~~~~~
+      if (page->meta.LPub.page.modelDesc.display.value()) {
 
-          plPage.appendRelativeTo(pieces);
-          plPage.placeRelative(pieces);
-          pieces->setPos(pieces->loc[XX],pieces->loc[YY]);
+          modelDescFront               = new PageAttributeTextItem(page,page->meta.LPub.page.modelDesc,pageBg);
+          modelDescFront->relativeType = PageModelDescType;
+          modelDescFront->size[XX]     = (int) modelDescFront->document()->size().width();
+          modelDescFront->size[YY]     = (int) modelDescFront->document()->size().height();
+
+          PlacementData pld = page->meta.LPub.page.modelDesc.placement.value();
+          if (pld.relativeTo == PagePiecesType &&
+                  page->meta.LPub.page.pieces.display.value()) {
+              piecesFront->appendRelativeTo(modelDescFront);
+              piecesFront->placeRelative(modelDescFront);
+          }
+          modelDescFront->setPos(modelDescFront->loc[XX],modelDescFront->loc[YY]);
+      }
+
+      // allocate QGraphicsTextItem for // publishDesc (Front Cover) //~~~~~~~~~~~~~~~~
+      if (page->meta.LPub.page.publishDesc.display.value()) {
+
+          publishDescFront               = new PageAttributeTextItem(page,page->meta.LPub.page.publishDesc,pageBg);
+          publishDescFront->relativeType = PagePublishDescType;
+          publishDescFront->size[XX]     = (int) publishDescFront->document()->size().width();
+          publishDescFront->size[YY]     = (int) publishDescFront->document()->size().height();
+
+          PlacementData pld = publishDescFront->placement.value();
+          if (pld.relativeTo == PageType) {
+              plPage.appendRelativeTo(publishDescFront);
+              plPage.placeRelative(publishDescFront);
+          } else if (pld.relativeTo == PageModelDescType &&
+                     page->meta.LPub.page.modelDesc.display.value()) {
+              modelDescFront->placeRelative(publishDescFront);
+          } else {
+              publishDescFront->placement.setValue(LeftInside,PageType);
+              plPage.appendRelativeTo(publishDescFront);
+              plPage.placeRelative(publishDescFront);
+          }
+          publishDescFront->setPos(publishDescFront->loc[XX],publishDescFront->loc[YY]);
       }
 
       // allocate QGraphicsTextItem for // category (Front Cover) //~~~~~~~~~~~~~~~~
       /* if (page->meta.LPub.page.category.display.value()) {
 
-          PagePageAttributeItem *category =
-                  new PagePageAttributeItem(
-                      page,
-                      page->meta.LPub.page.category,
-                      pageBg);
+        //categoryFront               = new PageAttributeTextItem(page,page->meta.LPub.page.category,pageBg);
+          categoryFront->relativeType = PageCopyrightType;
+          categoryFront->size[XX]     = (int) categoryFront->document()->size().width();
+          categoryFront->size[YY]     = (int) categoryFront->document()->size().height();
 
-          category->relativeType = PageCopyrightType;
-          category->size[XX]     = (int) category->document()->size().width();
-          category->size[YY]     = (int) category->document()->size().height();
-
-          plPage.appendRelativeTo(category);
-          plPage.placeRelative(category);
-          category->setPos(category->loc[XX],category->loc[YY]);
+          PlacementData pld = categoryFront->placement.value();
+          if (pld.relativeTo == PageType) {
+              plPage.appendRelativeTo(categoryFront);
+              plPage.placeRelative(categoryFront);
+          } else if (pld.relativeTo == PagePiecesType) {
+              piecesFront->placeRelative(categoryFront);
+          } else {
+              categoryFront->placement.setValue(LeftInside,PageType);
+              plPage.appendRelativeTo(categoryFront);
+              plPage.placeRelative(categoryFront);
+          }
+          categoryFront->setPos(categoryFront->loc[XX],categoryFront->loc[YY]);
       } */
 
-      // allocate QGraphicsTextItem for // documentLogo (Front Cover) //~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.documentLogo.value().display) {
+      // allocate QGraphicsTextItem for // documentLogoFront (Front Cover) //~~~~~~~~~~~~~~~~
+      if (page->meta.LPub.page.documentLogoFront.display.value()) {
 
           QFileInfo fileInfo;
-          PageAttributePictureData pictureData = page->meta.LPub.page.documentLogo.value();
-          fileInfo.setFile(pictureData.string);
+          QString file = page->meta.LPub.page.documentLogoFront.file.value();
+          qreal picScale   = page->meta.LPub.page.documentLogoFront.picScale.value();
+          fileInfo.setFile(file);
           if (fileInfo.exists()) {
 
               QPixmap qpixmap;
-              qpixmap.load(pictureData.string);
-              PageAttributePixmapItem *pixmap =
-                      new PageAttributePixmapItem(
+              qpixmap.load(file);
+              pixmapLogoFront
+                      = new PageAttributePixmapItem(
                           page,
                           qpixmap,
-                          page->meta.LPub.page.documentLogo,
+                          page->meta.LPub.page.documentLogoFront,
                           pageBg);
 
-              page->addPageAttributePixmap(pixmap);
-              pixmap->setTransformationMode(Qt::SmoothTransformation);
-              pixmap->scale(pictureData.picScale,pictureData.picScale);
-              pixmap->relativeType = PageDocumentLogoType;
-              pixmap->placement.setValue(pictureData.placement);
+              page->addPageAttributePixmap(pixmapLogoFront);
+              pixmapLogoFront->setTransformationMode(Qt::SmoothTransformation);
+              pixmapLogoFront->scale(picScale,picScale);
 
               int margin[2] = {0, 0};
-              plPage.placeRelative(pixmap, margin);
-              pixmap->setPos(pixmap->loc[XX],pixmap->loc[YY]);
-              pixmap->relativeToSize[0] = plPage.size[XX];
-              pixmap->relativeToSize[1] = plPage.size[YY];
+
+              PlacementData pld = pixmapLogoFront->placement.value();
+              if (pld.relativeTo == PageType) {
+                  plPage.placeRelative(pixmapLogoFront, margin);
+                  pixmapLogoFront->relativeToSize[0] = plPage.size[XX];
+                  pixmapLogoFront->relativeToSize[1] = plPage.size[YY];
+              } else if (pld.relativeTo == PageHeaderType) {
+                  pageHeader.placeRelative(pixmapLogoFront, margin);
+                  pixmapLogoFront->relativeToSize[0] = pageHeader.size[XX];
+                  pixmapLogoFront->relativeToSize[1] = pageHeader.size[YY];
+              } else if (pld.relativeTo == PageFooterType) {
+                  pageFooter.placeRelative(pixmapLogoFront, margin);
+                  pixmapLogoFront->relativeToSize[0] = pageFooter.size[XX];
+                  pixmapLogoFront->relativeToSize[1] = pageFooter.size[YY];
+              } else {
+                  pixmapLogoFront->placement.setValue(TopLeftInsideCorner,PageType);
+                  plPage.placeRelative(pixmapLogoFront, margin);
+                  pixmapLogoFront->relativeToSize[0] = plPage.size[XX];
+                  pixmapLogoFront->relativeToSize[1] = plPage.size[YY];
+              }
+              pixmapLogoFront->setPos(pixmapLogoFront->loc[XX],pixmapLogoFront->loc[YY]);
           }
       }
 
       // allocate QGraphicsTextItem for // coverImage (Front Cover) //~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.coverImage.value().display) {
+      if (page->meta.LPub.page.coverImage.display.value()) {
 
           QFileInfo fileInfo;
-          PageAttributePictureData pictureData = page->meta.LPub.page.coverImage.value();
-
-          fileInfo.setFile(pictureData.string);
+          QString file = page->meta.LPub.page.coverImage.file.value();
+          qreal picScale   = page->meta.LPub.page.coverImage.picScale.value();
+          fileInfo.setFile(file);
 
           if (fileInfo.exists()) {
 
-              if (! pictureData.stretch && ! pictureData.tile) {
+              if (page->meta.LPub.page.coverImage.stretch.value() ||
+                  page->meta.LPub.page.coverImage.tile.value()) {
+
+                  QPixmap *qpixmap = new QPixmap(plPage.size[XX],plPage.size[YY]);
+
+                   qpixmap->setAlphaChannel(*qpixmap);
+                   qpixmap->fill(Qt::transparent);
+
+                   QPainter painter(qpixmap);
+                   QImage   image(file);
+                   if (page->meta.LPub.page.coverImage.stretch.value()) {
+                       QSize psize = qpixmap->size();
+                       QSize isize = image.size();
+                       qreal sx = psize.width();
+                       qreal sy = psize.height();
+                       sx /= isize.width();
+                       sy /= isize.height();
+                       painter.scale(sx,sy);
+                       painter.drawImage(0,0,image);
+                   } else if (page->meta.LPub.page.coverImage.tile.value()){
+                       for (int y = 0; y < qpixmap->height(); y += image.height()) {
+                           for (int x = 0; x < qpixmap->width(); x += image.width()) {
+                               painter.drawImage(x,y,image);
+                           }
+                       }
+                   }
+
+                   QColor brushColor;
+                   brushColor = Qt::transparent;
+                   // unfinished - need to implement placement
+
+              } else {
 
                   QPixmap qpixmap;
-                  qpixmap.load(pictureData.string);
-                  PageAttributePixmapItem *pixmap =
-                          new PageAttributePixmapItem(
+                  qpixmap.load(file);
+                  pixmapCoverImageFront
+                          = new PageAttributePixmapItem(
                               page,
                               qpixmap,
                               page->meta.LPub.page.coverImage,
                               pageBg);
 
-                  page->addPageAttributePixmap(pixmap);
-                  pixmap->setTransformationMode(Qt::SmoothTransformation);
-                  pixmap->scale(pictureData.picScale,pictureData.picScale);
-                  pixmap->relativeType = PageCoverImageType;
-                  pixmap->placement.setValue(pictureData.placement);
+                  page->addPageAttributePixmap(pixmapCoverImageFront);
+                  pixmapCoverImageFront->setTransformationMode(Qt::SmoothTransformation);
+                  pixmapCoverImageFront->scale(picScale,picScale);
 
                   int margin[2] = {0, 0};
-                  plPage.placeRelative(pixmap, margin);
-                  pixmap->setPos(pixmap->loc[XX],pixmap->loc[YY]);
-                  pixmap->relativeToSize[0] = plPage.size[XX];
-                  pixmap->relativeToSize[1] = plPage.size[YY];
 
-              } else {
-
-                  //will probably have to create a class similar to backgrounditem for this logic to succeed
-
-                  QPixmap *pixmap = new QPixmap(plPage.size[XX],plPage.size[YY]);
-
-                  pixmap->setAlphaChannel(*pixmap);
-                  pixmap->fill(Qt::transparent);
-
-                  QPainter painter(pixmap);
-
-                  QImage image(pictureData.string);
-                  if (pictureData.stretch) {
-                      QSize psize = pixmap->size();
-                      QSize isize = image.size();
-                      qreal sx = psize.width();
-                      qreal sy = psize.height();
-                      sx /= isize.width();
-                      sy /= isize.height();
-                      painter.scale(sx,sy);
-                      painter.drawImage(0,0,image);
-                  } else if (pictureData.tile){
-                      for (int y = 0; y < pixmap->height(); y += image.height()) {
-                          for (int x = 0; x < pixmap->width(); x += image.width()) {
-                              painter.drawImage(x,y,image);
-                          }
-                      }
+                  PlacementData pld = pixmapCoverImageFront->placement.value();
+                  if (pld.relativeTo == PageType) {
+                      plPage.placeRelative(pixmapCoverImageFront, margin);
+                  } else {
+                      pixmapCoverImageFront->placement.setValue(CenterCenter,PageType);
+                      plPage.placeRelative(pixmapCoverImageFront, margin);
                   }
-                  QColor brushColor;
-                  brushColor = Qt::transparent;
-
-                  //              setFlag(QGraphicsItem::ItemIsSelectable,true);
-                  //              setFlag(QGraphicsItem::ItemIsMovable,true);
+                  pixmapCoverImageFront->relativeToSize[0] = plPage.size[XX];
+                  pixmapCoverImageFront->relativeToSize[1] = plPage.size[YY];
+                  pixmapCoverImageFront->setPos(pixmapCoverImageFront->loc[XX],pixmapCoverImageFront->loc[YY]);
               }
           }
       }
@@ -772,100 +936,281 @@ int Gui::addGraphicsPageItems(
 
   if (page->coverPage && page->backCover){
 
-      // allocate QGraphicsTextItem for // url (Back Cover)//~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.url.display.value() ) {
+      // allocate QGraphicsTextItem for // page Header (Back Cover) //~~~~~~~~~~~~~~~~
+      pageHeader.relativeType   = PageHeaderType;
+      pageHeader.placement      = page->meta.LPub.page.pageHeader.placement;
+      pageHeader.size[XX]       = page->meta.LPub.page.pageHeader.size.valuePixels(XX);
+      pageHeader.size[YY]       = page->meta.LPub.page.pageHeader.size.valuePixels(YY);
+      if (pageHeader.placement.value().relativeTo == plPage.relativeType) {
+        plPage.placeRelative(&pageHeader);
+        plPage.appendRelativeTo(&pageHeader);
+      }
+      pageHeader.setPos(pageHeader.loc[XX],pageHeader.loc[YY]);
 
-          PagePageAttributeItem *url =
-                  new PagePageAttributeItem(
-                      page,
-                      page->meta.LPub.page.url,
-                      pageBg);
+      // allocate QGraphicsTextItem for // page Footer (Back Cover) //~~~~~~~~~~~~~~~~
+      pageFooter.relativeType   = PageFooterType;
+      pageFooter.placement      = page->meta.LPub.page.pageFooter.placement;
+      pageFooter.size[XX]       = page->meta.LPub.page.pageFooter.size.valuePixels(XX);
+      pageFooter.size[YY]       = page->meta.LPub.page.pageFooter.size.valuePixels(YY);
+      if (pageFooter.placement.value().relativeTo == plPage.relativeType) {
+        plPage.placeRelative(&pageFooter);
+        plPage.appendRelativeTo(&pageFooter);
+      }
+      pageFooter.setPos(pageFooter.loc[XX],pageFooter.loc[YY]);
 
-          url->relativeType = PageURLType;
-          url->size[XX]     = (int) url->document()->size().width();
-          url->size[YY]     = (int) url->document()->size().height();
+      // allocate QGraphicsTextItem for // title (Back Cover) //~~~~~~~~~~~~~~~~
+      if (page->meta.LPub.page.titleBack.display.value()) {
 
-          plPage.appendRelativeTo(url);
-          plPage.placeRelative(url);
-          url->setPos(url->loc[XX],url->loc[YY]);
+        titleBack               = new PageAttributeTextItem(page,page->meta.LPub.page.titleBack,pageBg);
+        titleBack->relativeType = PageTitleType;
+        titleBack->size[XX]     = (int) titleBack->document()->size().width();
+        titleBack->size[YY]     = (int) titleBack->document()->size().height();
+
+        PlacementData pld = page->meta.LPub.page.titleBack.placement.value();
+        if (pld.relativeTo == PageType) {
+            plPage.appendRelativeTo(titleBack);
+            plPage.placeRelative(titleBack);
+        } else {
+            titleBack->placement.setValue(CenterCenter,PageType);
+            plPage.appendRelativeTo(titleBack);
+            plPage.placeRelative(titleBack);
+        }
+        titleBack->setPos(titleBack->loc[XX],titleBack->loc[YY]);
+      }
+
+      // allocate QGraphicsTextItem for // author (Back) //~~~~~~~~~~~~~~~~
+      if (page->meta.LPub.page.authorBack.display.value()) {
+
+          authorBack               = new PageAttributeTextItem(page,page->meta.LPub.page.authorBack,pageBg);
+          authorBack->relativeType = PageAuthorType;
+          authorBack->size[XX]     = (int) authorBack->document()->size().width();
+          authorBack->size[YY]     = (int) authorBack->document()->size().height();
+
+          PlacementData pld = authorBack->placement.value();
+          if (pld.relativeTo == PageType) {
+              plPage.appendRelativeTo(authorBack);
+              plPage.placeRelative(authorBack);
+          } else if (pld.relativeTo == PageTitleType &&
+                     page->meta.LPub.page.titleBack.display.value()) {
+              titleBack->placeRelative(authorBack);
+          } else {
+              authorBack->placement.setValue(CenterCenter,PageType);
+              plPage.appendRelativeTo(authorBack);
+              plPage.placeRelative(authorBack);
+          }
+          authorBack->setPos(authorBack->loc[XX],authorBack->loc[YY]);
+      }
+
+      // allocate QGraphicsTextItem for // copyright (Back) //~~~~~~~~~~~~~~~~
+      if (page->meta.LPub.page.copyrightBack.display.value()) {
+
+          copyrightBack               = new PageAttributeTextItem(page,page->meta.LPub.page.copyrightBack,pageBg);
+          copyrightBack->relativeType = PageCopyrightType;
+          copyrightBack->size[XX]     = (int) copyrightBack->document()->size().width();
+          copyrightBack->size[YY]     = (int) copyrightBack->document()->size().height();
+
+          PlacementData pld = copyrightBack->placement.value();
+          if (pld.relativeTo == PageType) {
+              plPage.appendRelativeTo(copyrightBack);
+              plPage.placeRelative(copyrightBack);
+          } else if (pld.relativeTo == PageAuthorType &&
+                     page->meta.LPub.page.authorBack.display.value()) {
+              authorBack->placeRelative(copyrightBack);
+          } else {
+              copyrightBack->placement.setValue(CenterCenter,PageType);
+              plPage.appendRelativeTo(copyrightBack);
+              plPage.placeRelative(copyrightBack);
+          }
+          copyrightBack->setPos(copyrightBack->loc[XX],copyrightBack->loc[YY]);
+      }
+
+      // allocate QGraphicsTextItem for // url (Back) //~~~~~~~~~~~~~~~~
+      if (page->meta.LPub.page.urlBack.display.value()) {
+
+          urlBack               = new PageAttributeTextItem(page,page->meta.LPub.page.urlBack,pageBg);
+          urlBack->relativeType = PageURLType;
+          urlBack->size[XX]     = (int) urlBack->document()->size().width();
+          urlBack->size[YY]     = (int) urlBack->document()->size().height();
+
+          PlacementData pld = urlBack->placement.value();
+          if (pld.relativeTo == PageType) {
+              plPage.appendRelativeTo(urlBack);
+              plPage.placeRelative(urlBack);
+          } else if (pld.relativeTo == PageCopyrightType &&
+                     page->meta.LPub.page.copyrightBack.display.value()) {
+              copyrightBack->placeRelative(urlBack);
+          } else {
+              urlBack->placement.setValue(CenterCenter,PageType);
+              plPage.appendRelativeTo(urlBack);
+              plPage.placeRelative(urlBack);
+          }
+          urlBack->setPos(urlBack->loc[XX],urlBack->loc[YY]);
+      }
+
+      // allocate QGraphicsTextItem for // emailBack (Back) //~~~~~~~~~~~~~~~~
+      if (page->meta.LPub.page.emailBack.display.value()) {
+
+          emailBack               = new PageAttributeTextItem(page,page->meta.LPub.page.emailBack,pageBg);
+          emailBack->relativeType = PageEmailType;
+          emailBack->size[XX]     = (int) emailBack->document()->size().width();
+          emailBack->size[YY]     = (int) emailBack->document()->size().height();
+
+          PlacementData pld = emailBack->placement.value();
+          if (pld.relativeTo == PageType) {
+              plPage.appendRelativeTo(emailBack);
+              plPage.placeRelative(emailBack);
+          } else if (pld.relativeTo == PageURLType &&
+                     page->meta.LPub.page.urlBack.display.value()) {
+              urlBack->placeRelative(emailBack);
+          } else {
+              emailBack->placement.setValue(CenterCenter,PageType);
+              plPage.appendRelativeTo(emailBack);
+              plPage.placeRelative(emailBack);
+          }
+          emailBack->setPos(emailBack->loc[XX],emailBack->loc[YY]);
       }
 
       // allocate QGraphicsTextItem for // disclaimer (Back Cover)//~~~~~~~~~~~~~~~~
       if (page->meta.LPub.page.disclaimer.display.value() ) {
 
-          PagePageAttributeItem *disclaimer =
-                  new PagePageAttributeItem(
-                      page,
-                      page->meta.LPub.page.disclaimer,
-                      pageBg);
+          disclaimerBack               = new PageAttributeTextItem(page,page->meta.LPub.page.disclaimer,pageBg);
+          disclaimerBack->relativeType = PageDisclaimerType;
+          disclaimerBack->size[XX]     = (int) disclaimerBack->document()->size().width();
+          disclaimerBack->size[YY]     = (int) disclaimerBack->document()->size().height();
 
-          disclaimer->relativeType = PageDisclaimerType;
-          disclaimer->size[XX]     = (int) disclaimer->document()->size().width();
-          disclaimer->size[YY]     = (int) disclaimer->document()->size().height();
-
-          plPage.appendRelativeTo(disclaimer);
-          plPage.placeRelative(disclaimer);
-          disclaimer->setPos(disclaimer->loc[XX],disclaimer->loc[YY]);
+          PlacementData pld = disclaimerBack->placement.value();
+          if (pld.relativeTo == PageType) {
+              plPage.appendRelativeTo(disclaimerBack);
+              plPage.placeRelative(disclaimerBack);
+          } else if (pld.relativeTo == PageEmailType &&
+                     page->meta.LPub.page.emailBack.display.value()) {
+              emailBack->placeRelative(disclaimerBack);
+          } else {
+              disclaimerBack->placement.setValue(CenterCenter,PageType);
+              plPage.appendRelativeTo(disclaimerBack);
+              plPage.placeRelative(disclaimerBack);
+          }
+          disclaimerBack->setPos(disclaimerBack->loc[XX],disclaimerBack->loc[YY]);
       }
 
       // allocate QGraphicsTextItem for // plug (Back Cover)//~~~~~~~~~~~~~~~~
       if (page->meta.LPub.page.plug.display.value() ) {
 
-          PagePageAttributeItem *plug =
-                  new PagePageAttributeItem(
-                      page,
-                      page->meta.LPub.page.plug,
-                      pageBg);
+          plugBack               = new PageAttributeTextItem(page,page->meta.LPub.page.plug,pageBg);
+          plugBack->relativeType = PagePlugType;
+          plugBack->size[XX]     = (int) plugBack->document()->size().width();
+          plugBack->size[YY]     = (int) plugBack->document()->size().height();
 
-          plug->relativeType = PagePlugType;
-          plug->size[XX]     = (int) plug->document()->size().width();
-          plug->size[YY]     = (int) plug->document()->size().height();
-
-          plPage.appendRelativeTo(plug);
-          plPage.placeRelative(plug);
-          plug->setPos(plug->loc[XX],plug->loc[YY]);
+          PlacementData pld = plugBack->placement.value();
+          if (pld.relativeTo == PageType) {
+              plPage.appendRelativeTo(plugBack);
+              plPage.placeRelative(plugBack);
+          } else if (pld.relativeTo == PageDisclaimerType &&
+                     page->meta.LPub.page.disclaimer.display.value()) {
+              disclaimerBack->placeRelative(plugBack);
+          } else {
+              plugBack->placement.setValue(CenterCenter,PageType);
+              plPage.appendRelativeTo(plugBack);
+              plPage.placeRelative(plugBack);
+          }
+          plugBack->setPos(plugBack->loc[XX],plugBack->loc[YY]);
       }
-
-      // allocate QGraphicsTextItem for // plugImage (Back Cover) //~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.plugImage.value().display) {
+      // allocate QGraphicsTextItem for // documentLogoBack (Back Cover) //~~~~~~~~~~~~~~~~
+      if (page->meta.LPub.page.documentLogoBack.display.value()) {
 
           QFileInfo fileInfo;
-          PageAttributePictureData pictureData = page->meta.LPub.page.plugImage.value();
-          fileInfo.setFile(pictureData.string);
+          QString file = page->meta.LPub.page.documentLogoBack.file.value();
+          qreal picScale   = page->meta.LPub.page.documentLogoBack.picScale.value();
+          fileInfo.setFile(file);
           if (fileInfo.exists()) {
 
               QPixmap qpixmap;
-              qpixmap.load(pictureData.string);
-              PageAttributePixmapItem *pixmap =
+              qpixmap.load(file);
+              pixmapLogoBack =
+                      new PageAttributePixmapItem(
+                          page,
+                          qpixmap,
+                          page->meta.LPub.page.documentLogoBack,
+                          pageBg);
+
+              page->addPageAttributePixmap(pixmapLogoBack);
+              pixmapLogoBack->setTransformationMode(Qt::SmoothTransformation);
+              pixmapLogoBack->scale(picScale,picScale);
+
+              int margin[2] = {0, 0};
+
+              PlacementData pld = pixmapLogoBack->placement.value();
+              if (pld.relativeTo == PageType) {
+                  plPage.placeRelative(pixmapLogoBack, margin);
+                  pixmapLogoBack->relativeToSize[0] = plPage.size[XX];
+                  pixmapLogoBack->relativeToSize[1] = plPage.size[YY];
+              } else if (pld.relativeTo == PageHeaderType) {
+                  pageHeader.placeRelative(pixmapLogoBack, margin);
+                  pixmapLogoBack->relativeToSize[0] = pageHeader.size[XX];
+                  pixmapLogoBack->relativeToSize[1] = pageHeader.size[YY];
+              } else if (pld.relativeTo == PageFooterType) {
+                  pageFooter.placeRelative(pixmapLogoBack, margin);
+                  pixmapLogoBack->relativeToSize[0] = pageFooter.size[XX];
+                  pixmapLogoBack->relativeToSize[1] = pageFooter.size[YY];
+              } else {
+                  pixmapLogoBack->placement.setValue(TopInside,PageType);
+                  plPage.placeRelative(pixmapLogoBack, margin);
+                  pixmapLogoBack->relativeToSize[0] = plPage.size[XX];
+                  pixmapLogoBack->relativeToSize[1] = plPage.size[YY];
+              }
+              pixmapLogoBack->setPos(pixmapLogoBack->loc[XX],pixmapLogoBack->loc[YY]);
+          }
+      }
+      // allocate QGraphicsTextItem for // plugImage (Back Cover) //~~~~~~~~~~~~~~~~
+      if (page->meta.LPub.page.plugImage.display.value()) {
+
+          QFileInfo fileInfo;
+          QString file     = page->meta.LPub.page.plugImage.file.value();
+          qreal picScale   = page->meta.LPub.page.plugImage.picScale.value();
+          fileInfo.setFile(file);
+          if (fileInfo.exists()) {
+
+              QPixmap qpixmap;
+              qpixmap.load(file);
+              pixmapPlugImageBack =
                       new PageAttributePixmapItem(
                           page,
                           qpixmap,
                           page->meta.LPub.page.plugImage,
                           pageBg);
 
-              page->addPageAttributePixmap(pixmap);
-              pixmap->setTransformationMode(Qt::SmoothTransformation);
-              pixmap->scale(pictureData.picScale,pictureData.picScale);
-              pixmap->relativeType = PagePlugImageType;
-              pixmap->placement.setValue(pictureData.placement);
+              page->addPageAttributePixmap(pixmapPlugImageBack);;
+              pixmapPlugImageBack->setTransformationMode(Qt::SmoothTransformation);
+              pixmapPlugImageBack->scale(picScale,picScale);
 
               int margin[2] = {0, 0};
-              plPage.placeRelative(pixmap, margin);
-              pixmap->setPos(pixmap->loc[XX],pixmap->loc[YY]);
-              pixmap->relativeToSize[0] = plPage.size[XX];
-              pixmap->relativeToSize[1] = plPage.size[YY];
-          }
-      }
-  }
-  // If the page contains a single step then process it here
 
+              PlacementData pld = pixmapPlugImageBack->placement.value();
+              if (pld.relativeTo == PageType) {
+                  plPage.placeRelative(pixmapPlugImageBack, margin);
+              } else if (pld.relativeTo == PagePlugType) {
+                  plugBack->placeRelative(pixmapPlugImageBack, margin);                 
+              } else {
+                  pixmapLogoBack->placement.setValue(TopInside,PageType);
+                  plPage.placeRelative(pixmapLogoBack, margin);
+              }
+              pixmapPlugImageBack->setPos(pixmapPlugImageBack->loc[XX],pixmapPlugImageBack->loc[YY]);
+              pixmapPlugImageBack->relativeToSize[0] = plPage.size[XX];
+              pixmapPlugImageBack->relativeToSize[1] = plPage.size[YY];
+          }
+      }  
+  }
+
+  // If the page contains a single step then process it here
   if (page->relativeType == SingleStepType && page->list.size()) {
     if (page->list.size()) {
       Range *range = dynamic_cast<Range *>(page->list[0]);
       if (range->relativeType == RangeType) {        
-        Step *step= dynamic_cast<Step *>(range->list[0]);
+        Step *step = dynamic_cast<Step *>(range->list[0]);
         if (step && step->relativeType == StepType) {
        
+          // add the step number
+
           if ( ! step->onlyChild() && step->showStepNumber) {
             step->stepNumber.sizeit();
           }
@@ -972,7 +1317,7 @@ int Gui::addGraphicsPageItems(
             }
           }
 
-          // Place the Bill of materials on the page along with single step
+          // Place the Bill of Materials on the page along with single step
 
           if (page->pli.tsize()) {
             if (page->pli.bom) {
@@ -1032,9 +1377,7 @@ int Gui::addGraphicsPageItems(
         page->pli.setFlag(QGraphicsItem::ItemIsMovable,true);
 
         PlacementData pld;
-
         pld = page->pli.pliMeta.placement.value();
-
         page->pli.placement.setValue(pld);
         if (pld.relativeTo == PageType) {
           plPage.placeRelative(page->pli.background);
@@ -1070,125 +1413,4 @@ int Gui::addGraphicsPageItems(
   return 0;
 }
 
-int Gui::getBOMOccurrence(Where	current) {		// top of ldrawFile
 
-    // traverse content to find the number and location of BOM pages
-    // key=modelName_LineNumber, value=occurrence
-    QHash<QString, int> bom_Occurrence;
-
-    Meta meta;
-
-    skipHeader(current);
-
-    int numLines        = ldrawFile.size(current.modelName);
-    int occurrenceNum   = 0;
-    boms                = 0;
-    bomOccurrence       = 0;
-
-    Rc rc;
-
-    for ( ;
-          current.lineNumber < numLines;
-          current.lineNumber++) {
-
-        QString line = ldrawFile.readLine(current.modelName,current.lineNumber).trimmed();
-        switch (line.toAscii()[0]) {
-        case '1':
-          {
-            QStringList token;
-            split(line,token);
-            QString type = token[token.size()-1];
-
-            if (ldrawFile.isSubmodel(type)) {
-                Where current2(type,0);
-                getBOMOccurrence(current2);
-            }
-            break;
-          }
-        case '0':
-          {
-            rc = meta.parse(line,current);
-            switch (rc) {
-            case InsertRc:
-              {
-                InsertData insertData = meta.LPub.insert.value();
-                if (insertData.type == InsertData::InsertBom){
-
-                    QString uniqueID = QString("%1_%2").arg(current.modelName).arg(current.lineNumber);
-                    occurrenceNum++;
-                    bom_Occurrence[uniqueID] = occurrenceNum;
-
-                    logTrace()  << "BOM Occurrence: " << bom_Occurrence[uniqueID]
-                                << " in Model: "      << current.modelName
-                                << " on Line: "       << current.lineNumber
-                                << " Number of BOMs: "<< bom_Occurrence.size()
-                                << " Key: "           << uniqueID
-                                   ;
-                }
-              }
-                break;
-            default:
-                break;
-            } // switch metas
-            break;
-          }  // switch line type
-        }
-    } // for every line
-
-    if (occurrenceNum > 1) {
-        // now set the bom occurrance based on our current position
-        Where here = gui->topOfPages[gui->displayPageNum-1];
-        for (++here; here.lineNumber < ldrawFile.size(here.modelName); here++) {
-            QString line = gui->readLine(here);
-            Meta meta;
-            Rc rc;
-
-            rc = meta.parse(line,here);
-            if (rc == InsertRc) {
-
-                InsertData insertData = meta.LPub.insert.value();
-                if (insertData.type == InsertData::InsertBom) {
-
-                    QString bomID   = QString("%1_%2").arg(here.modelName).arg(here.lineNumber);
-                    bomOccurrence   = bom_Occurrence[bomID];
-                    boms            = bom_Occurrence.size();
-
-                    logInfo() << QString("BOM Occurrance: %1 Number of BOMs: %2").arg(bomOccurrence).arg(boms)
-                              << QString(" BOM_ID %1_%2").arg(here.modelName).arg(here.lineNumber);
-
-                    break;
-                }
-            }
-        }
-    }
-    return 0;
-}
-
-int Gui::divideBOMParts(
-        const QStringList   &bomParts,
-              QStringList   &dividedBOMParts){
-
-    int quotient    = bomParts.size() / boms;
-    int remainder   = bomParts.size() % boms;
-    int maxParts    = 0;
-    int i           = 0;
-
-    if (bomOccurrence == boms){
-        maxParts = bomOccurrence * quotient + remainder;
-        i = maxParts - quotient - remainder;
-    } else {
-        maxParts = bomOccurrence * quotient;
-        i = maxParts - quotient;
-    }
-
-    for(; i < maxParts; i++){
-        dividedBOMParts << bomParts[i];
-    }
-
-    logTrace() << "bomParts: " << bomParts.size();
-    logTrace() << "quotient: " << quotient;
-    logTrace() << "remainder: " << remainder;
-    logTrace() << "dividedBOMParts: " << dividedBOMParts.size();
-
-    return 0;
-}

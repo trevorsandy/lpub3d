@@ -48,7 +48,7 @@
 #include "paths.h"
 #include "ldrawfiles.h"
 
-bool Step::isCsiDataModified(true);  //detect preference dialog updates
+bool Step::refreshCsi(true);  //detect preference dialog updates
 
 /*********************************************************************
  *
@@ -64,8 +64,7 @@ Step::Step(
   Meta    &meta,           // the current state of the meta-commands
   bool     calledOut,      // if we're a callout
   bool     multiStep)      // we can't be a multi-step
-  : 
-  calledOut(calledOut)
+  : calledOut(calledOut)
 {
   top = topOfStep;
   parent = _parent;
@@ -74,9 +73,17 @@ Step::Step(
 
   stepNumber.number = num;                                  // record step number
 
-  relativeType               = StepType;
-  csiPlacement.relativeType  = CsiType;
-  stepNumber.relativeType    = StepNumberType;
+  relativeType              = StepType;
+  csiPlacement.relativeType = CsiType;
+  stepNumber.relativeType   = StepNumberType;
+  pageHeader.relativeType   = PageHeaderType;
+  pageHeader.placement      = meta.LPub.page.pageHeader.placement;
+  pageHeader.size[XX]       = meta.LPub.page.pageHeader.size.valuePixels(XX);
+  pageHeader.size[YY]       = meta.LPub.page.pageHeader.size.valuePixels(YY);
+  pageFooter.relativeType   = PageFooterType;
+  pageFooter.placement      = meta.LPub.page.pageFooter.placement;
+  pageFooter.size[XX]       = meta.LPub.page.pageFooter.size.valuePixels(XX);
+  pageFooter.size[YY]       = meta.LPub.page.pageFooter.size.valuePixels(YY);
   csiItem = NULL;
 
   if (calledOut) {
@@ -182,7 +189,7 @@ int Step::createCsi(
     QDateTime lastModified = QFileInfo(pngName).lastModified();
     QStringList stack = submodelStack();
     stack << parent->modelName();
-    if ( ! isOlder(stack,lastModified) || isCsiDataModified) {
+    if ( ! isOlder(stack,lastModified) || refreshCsi) {
       outOfDate = true;
     }
   }
@@ -326,7 +333,7 @@ int Step::Render3DCsi(QString &csi3DName)
  *  CSSSSSSSSSC
  *  CCCCCCCCCCC
  *
- *  The table below represents either the Horizontal slice
+ *  The table above represents either the Horizontal slice
  *  going through the CSI (represented by A for assembly),
  *  or the Vertical slice going through the CSI.
  *
@@ -376,7 +383,7 @@ const int pliPlace[NumPlacements][2] =
   { TblCsi,  TblPli1 }, // BOT
   { TblPli0, TblPli1 }, // BOT_LEFT
   { TblPli0, TblCsi  }, // Left
-  { TblCsi, TblCsi },
+  { TblCsi,  TblCsi },
 };
 
 /*

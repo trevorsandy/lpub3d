@@ -19,8 +19,10 @@
 #include <QAction>
 #include "resize.h"
 #include "metaitem.h"
+#include "scaledialog.h"
 #include "step.h"
 #include "ranges.h"
+#include "commonmenus.h"
 
 qreal AbstractResize::grabsize = 0.125; // inches
 
@@ -296,97 +298,5 @@ void InsertPixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   if (selectedAction == deleteAction) {
     MetaItem mi;
     mi.deleteMeta(insertMeta.here());
-  }
-}
-
-//-------Page Attribute Picture--------------------------------------
-
-PageAttributePixmapItem::PageAttributePixmapItem(
-  Page                      *_page,
-  QPixmap                   &pixmap,
-  PageAttributePictureMeta  &pageAttributePictureMeta,
-  QGraphicsItem             *parent)
-
-  : pageAttributePictureMeta(pageAttributePictureMeta)
-{
-  page = _page;
-
-  setParentItem(parent);
-  setPixmap(pixmap);
-
-  size[0] = pixmap.width() *pageAttributePictureMeta.value().picScale;
-  size[1] = pixmap.height()*pageAttributePictureMeta.value().picScale;
-
-  margin.setValues(0.0,0.0);
-
-  setFlag(QGraphicsItem::ItemIsSelectable,true);
-  setFlag(QGraphicsItem::ItemIsMovable,true);
-  setZValue(500);
-
-}
-
-void PageAttributePixmapItem::change()
-{
-  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
-    if (positionChanged || sizeChanged) {
-
-      beginMacro(QString("Resize"));
-
-      PageAttributePictureData pictureData = pageAttributePictureMeta.value();
-
-      qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
-      qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
-
-      calcOffsets(pictureData.placement,pictureData.placement.offsets,topLeft,size);
-
-      pictureData.picScale *= oldScale;
-      pageAttributePictureMeta.setValue(pictureData);
-
-      Where bottomOfSteps       = page->bottomOfSteps();
-
-      logInfo() << "\n(1.)RESIZE PICTURE META - "
-                << " \nDisplay: "                   <<  pictureData.display
-                << " \nType: "                      << QString::number(pictureData.type)
-                << " \nMeta Here (Model Name): "    << pageAttributePictureMeta.here().modelName
-                << " \nMeta Here (Line Number): "   << pageAttributePictureMeta.here().lineNumber
-                << " \nPicScale: "                  << QString::number(pictureData.picScale)
-                << " \nStretch: "                   << pictureData.stretch
-                << " \nFileName: "                  << pictureData.string
-                << "\nPICTURE DATA - "
-                << " \nPlacement: "                 << QString::number(pictureData.placement.placement)
-                << " \nJustification: "             << QString::number(pictureData.placement.justification)
-                << " \nPreposition: "               << QString::number(pictureData.placement.preposition)
-                << " \nRelativeTo: "                << QString::number(pictureData.placement.relativeTo)
-                << " \nOffset[0]: "                 << QString::number(pictureData.placement.offsets[0])
-                << " \nOffset[1]: "                 << QString::number(pictureData.placement.offsets[1])
-                << "\nPAGE WHERE - "
-                << " \nSteps Here (Model Name): "   << bottomOfSteps.modelName
-                << " \nSteps Here (Line Number): "  << bottomOfSteps.lineNumber
-                ;
-
-      changePageAttributePictureOffset(bottomOfSteps,&pageAttributePictureMeta);
-
-      endMacro();
-    }
-  }
-}
-
-void PageAttributePixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
-{
-  QMenu menu;
-
-  QAction *deleteAction = menu.addAction("Delete this Picture");
-  deleteAction->setWhatsThis("Delete this picture");
-
-  QAction *selectedAction   = menu.exec(event->screenPos());
-
-  if (selectedAction == NULL) {
-    return;
-  }
-
-  // implement stretch, tile and scale
-  if (selectedAction == deleteAction) {
-    MetaItem mi;
-    mi.deleteMeta(pageAttributePictureMeta.here());
   }
 }

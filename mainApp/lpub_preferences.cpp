@@ -65,16 +65,16 @@ QString Preferences::publishDescription;
 QString Preferences::disclaimer                 = QString(QObject::trUtf8("LEGO® is a registered trademark of the LEGO Group, \n"
                                                                           "which does not sponsor, endorse, or authorize these \n"
                                                                           "instructions or the model they depict."));
-QString Preferences::copyright                  = QString(QObject::trUtf8("Copyright © %1 by ").arg(date.toString("yyyy")));
+QString Preferences::copyright                  = QString(QObject::trUtf8("Copyright © %1").arg(date.toString("yyyy")));
 QString Preferences::plugImage                  = QString(":/resources/LPub64.png");
-QString Preferences::plug                       = QString(QObject::trUtf8("Instructions configured and generated using %1 %2 \n%3")
+QString Preferences::plug                       = QString(QObject::trUtf8("Instructions configured and generated using %1 %2 \n Download %1 at %3")
                                                                  .arg(QString::fromLatin1(VER_PRODUCTNAME_STR),
                                                                       QString::fromLatin1(VER_FILEVERSION_STR),
                                                                       QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
 
 bool    Preferences::enableDocumentLogo         = false;
 bool    Preferences::displayAllAttributes       = false;
-bool    Preferences::printCopyright             = false;
+bool    Preferences::generageCoverPages         = false;
 bool    Preferences::printDocumentTOC           = false;
 //
 
@@ -583,12 +583,12 @@ void Preferences::publishingPreferences()
         displayAllAttributes = Settings.value(QString("%1/%2").arg(DEFAULTS,"DisplayAllAttributes")).toBool();
     }
 
-    if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"PrintCopyright"))) {
+    if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"GenerageCoverPages"))) {
         QVariant pValue(false);
-        printCopyright = false;
-        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PrintCopyright"),pValue);
+        generageCoverPages = false;
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"GenerageCoverPages"),pValue);
     } else {
-        printCopyright = Settings.value(QString("%1/%2").arg(DEFAULTS,"PrintCopyright")).toBool();
+        generageCoverPages = Settings.value(QString("%1/%2").arg(DEFAULTS,"GenerageCoverPages")).toBool();
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"PrintDocumentTOC"))) {
@@ -831,9 +831,9 @@ bool Preferences::getPreferences()
         Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DisplayAllAttributes"),displayAllAttributes);
     }
 
-    if (printCopyright != dialog->printCopyright()) {
-        printCopyright = dialog->printCopyright();
-        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PrintCopyright"),printCopyright);
+    if (generageCoverPages != dialog->generageCoverPages()) {
+        generageCoverPages = dialog->generageCoverPages();
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"GenerageCoverPages"),generageCoverPages);
     }
 
     if (printDocumentTOC != dialog->printDocumentTOC()) {

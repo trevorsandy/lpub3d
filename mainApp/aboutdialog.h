@@ -16,9 +16,16 @@ class AboutDialog : public QDialog
 {
 	Q_OBJECT
 
+private slots:
+    void showReadmeDetails(bool);
+    void showCreditDetails(bool);
+
 public:
 	explicit AboutDialog(QWidget *parent, void *data);
     QString osName();
+    QPushButton *detailsButton;
+    QPushButton *creditsButton;
+    QString content;
 	~AboutDialog();
 
 #ifdef Q_WS_WIN

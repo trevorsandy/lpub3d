@@ -199,23 +199,4 @@ class InsertPixmapItem : public ResizePixmapItem
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 };
 
-class PageAttributePixmapItem : public ResizePixmapItem
-{
-    Page                    *page;
-  public:
-    PageAttributePictureMeta pageAttributePictureMeta;
-    qreal                    relativeToLoc[2];
-    qreal                    relativeToSize[2];
-
-
-    PageAttributePixmapItem(
-      Page                        *page,
-      QPixmap                     &pixmap,
-      PageAttributePictureMeta    &pageAttributePictureMeta,
-      QGraphicsItem               *parent = 0);
-
-    virtual void change();
-    void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-};
-
 #endif

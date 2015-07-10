@@ -124,12 +124,15 @@ QString Pli::partLine(QString &line, Where &here, Meta & /*meta*/)
 void Pli::setParts(
   QStringList &csiParts,
   Meta        &meta,
-  bool         _bom)
+  bool         _bom,
+  bool         _split)
 {
   bom = _bom;
   pliMeta = _bom ? meta.LPub.bom : meta.LPub.pli;
 
   const int numParts = csiParts.size();
+
+  //for the entire BOM calculates instances
   for (int i = 0; i < numParts; i++) {
     QString part = csiParts[i];
     QStringList sections = part.split(";");
@@ -148,16 +151,79 @@ void Pli::setParts(
 
       QString key = info.baseName() + "_" + color;
 
-      if ( ! parts.contains(key)) {
-        PliPart *part = new PliPart(type,color);
-        part->annotateMeta = pliMeta.annotate;
-        part->instanceMeta = pliMeta.instance;
-        part->csiMargin    = pliMeta.part.margin;
-        parts.insert(key,part);
+      if (_split){
+          if ( ! tempParts.contains(key)) {
+              PliPart *part = new PliPart(type,color);
+              part->annotateMeta = pliMeta.annotate;
+              part->instanceMeta = pliMeta.instance;
+              part->csiMargin    = pliMeta.part.margin;
+              tempParts.insert(key,part);
+          }
+          tempParts[key]->instances.append(here);
+      } else {
+          if ( ! parts.contains(key)) {
+              PliPart *part = new PliPart(type,color);
+              part->annotateMeta = pliMeta.annotate;
+              part->instanceMeta = pliMeta.instance;
+              part->csiMargin    = pliMeta.part.margin;
+              parts.insert(key,part);
+          }
+          parts[key]->instances.append(here);
+      }
+    }
+  } //instances
+
+   // now divide the list based on BOM occurrence
+  if (_split){
+
+      int quotient    = tempParts.size() / gui->boms;
+      int remainder   = tempParts.size() % gui->boms;
+      int maxParts    = 0;
+      int i           = 0;
+      int n           = 0;
+
+      logTrace() << " \n\nBOM PARTS STATUS:    "
+                 << " \nBOMS:                  " << gui->boms
+                 << " \nBOM Occurrence:        " << gui->bomOccurrence
+                 << " \nCsiParts Size (Parts): " << csiParts.size()
+                 << " \nTempParts Size (Lots): " << tempParts.size()
+                 << " \nQuotient:              " << quotient
+                 << " \nRemainder:             " << remainder
+                 << " \n"
+                   ;
+
+      if (gui->bomOccurrence == gui->boms){
+          maxParts = gui->bomOccurrence * quotient + remainder;
+          i = maxParts - quotient - remainder;
+      } else {
+          maxParts = gui->bomOccurrence * quotient;
+          i = maxParts - quotient;
       }
 
-      parts[key]->instances.append(here);
-    }
+      QString key;
+      foreach(key,tempParts.keys()){
+          PliPart *part;
+          part = tempParts[key];
+          n++;
+
+          if (n >= i && n <= maxParts) {
+              parts.insert(key,part);
+//              logNotice() << "\nINSERTED PART(n): " << n << " (key)" << key
+//                          << " \nPart Type:       " << QString("%1").arg(part->type)
+//                          << " \nPart Colour:     " << QString("%1").arg(part->color)
+//                          << " \nPart Instances:  " << QString("%1x").arg(part->instances.size(),0,10);
+//                             ;
+          }
+//          logInfo() << " \nPROCESSED PART: "
+//                    << " \nIndex(n):       " << n
+//                    << " \nValid Start(i): " << i
+//                    << " \nValid End(maxP):" << maxParts
+//                    << " \nKey:            " << key
+//                    << " \nInserted:       " << parts.size()
+//                       ;
+      }
+      tempParts.clear();
+//      logTrace() << " tempParts Cleared! ";
   }
 }
 
@@ -1850,4 +1916,5 @@ void PGraphicsPixmapItem::contextMenuEvent(
 #endif
   }
 }
+
 

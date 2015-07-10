@@ -103,26 +103,28 @@ public:
 
   void changePlacement( PlacementType parentType,
                         PlacementType placedType, 
-                        QString, 
+                        QString title,
                         const Where &top,
                         const Where &bottom,
                         PlacementMeta *,
                         bool useTop = true, 
                         int  append = 1, 
                         bool local = true,
-                        bool checkLocal = true);
+                        bool checkLocal = true,
+                        int  onPageType = ContentPage);
 
   void changePlacement( PlacementType parentType,
                         bool          pliPerStep,
                         PlacementType placedType,
-                        QString,
+                        QString title,
                         const Where &top,
                         const Where &bottom,
                         PlacementMeta *,
                         bool useTop = true,
                         int  append = 1,
                         bool local = true,
-                        bool checkLocal = true);
+                        bool checkLocal = true,
+                        int  onPageType = ContentPage);
 
   void changePlacementOffset(
                         Where defaultconst,
@@ -149,13 +151,15 @@ public:
                         const Where &,
                         FontMeta  *,
                         int   append = 1,
-                        bool checkLocal = true);  
+                        bool checkLocal = true,
+                        bool  useTop = true);
   
   void changeColor(     const Where &, 
                         const Where &,
                         StringMeta  *,  
                         int   append = 1, 
-                        bool checkLocal = true);
+                        bool checkLocal = true,
+                        bool  useTop = true);
 
   void changeBackground(QString, 
                         const Where &, 
@@ -257,7 +261,7 @@ public:
   void changeConstraint(Where topOfStep, Where bottomOfStep, ConstrainMeta *constraint,int append = 1, bool useBot = false);
   void changeConstraintStepGroup(Where topOfStep, Where bottomOfStep, ConstrainMeta *constraint, int append = 1);
   void changeInsertOffset(InsertMeta *placement);
-  void changePageAttributePictureOffset(Where defaultconst,PageAttributePictureMeta *pictureMeta,bool local = false,bool global = true);
+  //void changePageAttributePictureOffset(Where defaultconst,PageAttributePictureMeta *pictureMeta,bool local = false,bool global = true);
 
   void hidePLIParts(QList<Where> &parts);
   void removeLPubFormatting();
@@ -277,9 +281,12 @@ public:
 
   bool okToInsertCoverPage();
   bool okToAppendCoverPage();
+  int  okToInsertFinalModel();
+  bool frontCoverPageExist();
+  bool backCoverPageExist();
 
-  void insertCoverPage(const QString &topLevelFile);
-  void appendCoverPage(const QString &topLevelFile);
+  void insertCoverPage();
+  void appendCoverPage();
 
   bool okToInsertNumberedPage();
   bool okToAppendNumberedPage();
@@ -288,6 +295,7 @@ public:
 
   void insertPage(QString &meta);
   void appendPage(QString &meta);
+  void insertFinalModel(int atLine);
 
   void insertPicture();
   void insertText();

@@ -145,8 +145,6 @@ private:
     QString                   _emptyString;
     QStringList               _fadeStepColourParts;
     QStringList               _partFileContents;
-
-    GlobalFadeStep            *data;
     LDrawFile                 ldrawFile;           // contains MPD or all files used in model
     ArchiveFadeParts          archiveFadeParts;    // add fade contente to unofficial zip archive (for LeoCAD)
 

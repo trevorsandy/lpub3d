@@ -980,7 +980,7 @@ int Render::render3DCsi(QStringList &subModels,
             if ( ! ldrfile.open(QFile::ReadOnly | QFile::Text)) {
                 QMessageBox::warning(NULL,
                                      QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                     QMessageBox::tr("Cannot read subModel file %1:\n%2.")
+                                     QMessageBox::tr("3D CSI render cannot read subModel file %1:\n%2.")
                                      .arg(ldrName)
                                      .arg(ldrfile.errorString()));
                 return -1;

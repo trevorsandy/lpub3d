@@ -41,7 +41,7 @@
 
 #define VER_COMPILED_ON             		"MinGW (i686-4.9.2-x64) Windows"
 #define VER_COMPILED_FOR            		"x86_64-w64-mingw32"
-#define VER_COMPILED_WITH                   "x86_64-w64-mingw32-gcc (posix-seh-rev1) 4.9.2"
-#define VER_IDE                             "Qt Creator 3.4.0 on Qt 5.4.1 (MSVC 2013, x64)"
+#define VER_COMPILED_WITH                   "x86_64-w64-mingw32-g++ (posix-sjlj-rev1) 4.9.2"
+#define VER_IDE                             "Qt Creator 3.4.2 x64 on Qt 5.5.0 (MSVC 2013 x64)"
 
 #endif // VERSION_H

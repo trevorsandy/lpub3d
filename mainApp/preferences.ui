@@ -758,6 +758,9 @@
          <height>20</height>
         </rect>
        </property>
+       <property name="toolTip">
+        <string>Generate table of contents in pdf output</string>
+       </property>
        <property name="text">
         <string>Generate PDF Table of Contents</string>
        </property>
@@ -814,7 +817,7 @@
         </rect>
        </property>
       </widget>
-      <widget class="QCheckBox" name="publishCopyright_Chk">
+      <widget class="QCheckBox" name="generageCoverPages_Chk">
        <property name="geometry">
         <rect>
          <x>250</x>
@@ -823,8 +826,11 @@
          <height>20</height>
         </rect>
        </property>
+       <property name="toolTip">
+        <string>Automatically generate front and back cover page</string>
+       </property>
        <property name="text">
-        <string>Print Copyright statement</string>
+        <string>Generate cover pages</string>
        </property>
       </widget>
       <widget class="QCheckBox" name="displayAllAttributes_Chk">
@@ -851,7 +857,7 @@
       <zorder>publishURL_Edit</zorder>
       <zorder>label_17</zorder>
       <zorder>publishEmail_Edit</zorder>
-      <zorder>publishCopyright_Chk</zorder>
+      <zorder>generageCoverPages_Chk</zorder>
       <zorder>displayAllAttributes_Chk</zorder>
      </widget>
      <widget class="QWidget" name="tabUpdates">

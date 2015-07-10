@@ -192,7 +192,7 @@ PageNumberItem::PageNumberItem(
   page = _page;
   QString toolTip("Page Number - use popu menu");
   setAttributes(PageNumberType,
-                SingleStepType,
+                page->relativeType,                 //Trevor@vers303 changed from static value SingleStepType
                 _number,
                 _format,
                 _value,
@@ -220,28 +220,36 @@ void PageNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
-  if (selectedAction == placementAction) {
+  Where topOfSteps          = page->topOfSteps();                   //Trevor@vers303 add
+  Where bottomOfSteps       = page->bottomOfSteps();                //Trevor@vers303 add
+  bool multiStep            = parentRelativeType == StepGroupType;  //Trevor@vers303 add
 
-    changePlacement(PageType,
+  if (selectedAction == NULL) {
+    return;
+  } else if (selectedAction == placementAction) {
+
+    changePlacement(parentRelativeType,                           //Trevor@vers303 change from static PageType
                     PageNumberType,
-                    "Page Number Placement",
-                    page->topOfSteps(),
-                    page->bottomOfSteps(),
-                  &placement);
+                    "Move Page Number",
+                    topOfSteps,                                   //Trevor@vers303 change
+                    bottomOfSteps,                                //Trevor@vers303 change
+                   &placement,
+                    multiStep ? false : true);                    //Trevor@vers303 add
 
   } else if (selectedAction == fontAction) {
 
-    changeFont(page->topOfSteps(),page->bottomOfSteps(),&font);
+    changeFont(topOfSteps,bottomOfSteps,&font);                   //Trevor@vers303 change
 
-  } else if (selectedAction == colorAction) {
+  } else if (selectedAction == colorAction) {                     //Trevor@vers303 change
 
-    changeColor(page->topOfSteps(),page->bottomOfSteps(),&color);
+    changeColor(topOfSteps,bottomOfSteps,&color);                 //Trevor@vers303 change
 
-  } else if (selectedAction == marginAction) {
+  } else if (selectedAction == marginAction) {                    //Trevor@vers303 change
 
     changeMargins("Page Number Margins",
-                  page->topOfSteps(),page->bottomOfSteps(),
-                &margin);
+                  topOfSteps,bottomOfSteps,                       //Trevor@vers303 change
+                 &margin,
+                  multiStep ? false : true);                      //Trevor@vers303 add
   }
 }
 
@@ -253,20 +261,23 @@ void PageNumberItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     QPointF newPosition;
 
-    // back annotate the movement of the PLI into the LDraw file.
+    Where topOfSteps    = page->topOfSteps();                       //Trevor@vers303 add
+    Where bottomOfSteps = page->bottomOfSteps();                    //Trevor@vers303 add
+    bool  useTop        = parentRelativeType != StepGroupType;
+
     newPosition = pos() - position;
     
     if (newPosition.x() || newPosition.y()) {
       positionChanged = true;
 
       PlacementData placementData = placement.value();
-
       placementData.offsets[0] += newPosition.x()/relativeToSize[0];
       placementData.offsets[1] += newPosition.y()/relativeToSize[1];
-
       placement.setValue(placementData);
 
-      changePlacementOffset(page->bottomOfSteps(),&placement,StepNumberType);
+      changePlacementOffset(useTop ? topOfSteps : bottomOfSteps,     //Trevor@vers303 change from page-bottomOfSteps()
+                           &placement,
+                            StepNumberType);
     }
   }
 }
@@ -302,30 +313,33 @@ void StepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   QAction *selectedAction   = menu.exec(event->screenPos());
   
-  Where topOfStep = step->topOfStep();
-  Where bottomOfStep = step->bottomOfStep();
-  Where topOfSteps = step->topOfSteps();
-  Where bottomOfSteps = step->bottomOfSteps();
-  
+  Where topOfStep       = step->topOfStep();
+  Where bottomOfStep    = step->bottomOfStep();
+  Where topOfSteps      = step->topOfSteps();
+  Where bottomOfSteps   = step->bottomOfSteps();
+  Where topOfCallout    = step->topOfCallout();                     //Trevor@vers305 add
+  Where bottomOfCallout = step->bottomOfCallout();                  //Trevor@vers305 add
+
   Where top, bottom;
-  bool  local;
-  MetaItem mi;
-  
+  bool local,useTop;                                                //Trevor@vers305 add useTop
+
   switch (parentRelativeType) {
-    case StepGroupType:
-      top    = step->topOfSteps();
-      mi.scanForward(top,StepGroupMask);
-      bottom = step->bottomOfSteps();
+  case StepGroupType:
+      top    = topOfSteps;                                          //Trevor@vers305 change to use variable
+      bottom = bottomOfSteps;                                       //Trevor@vers305 change to use variable
+      useTop = false;                                               //Trevor@vers305 add
       local  = false;
-    break;
-    case CalloutType:
-      top    = step->topOfCallout();
-      bottom = step->bottomOfCallout();
+  break;
+  case CalloutType:
+      top    = topOfCallout;                                        //Trevor@vers305 change to use variable
+      bottom = bottomOfCallout;                                     //Trevor@vers305 change to use variable
+      useTop = true;                                                //Trevor@vers305 add
       local  = false;
-    break;
-    default:
-      top    = step->topOfStep();
-      bottom = step->bottomOfStep();
+  break;
+  default:
+      top    = topOfStep;                                           //Trevor@vers305 change to use variable
+      bottom = bottomOfStep;                                        //Trevor@vers305 change to use variable
+      useTop = true;                                                //Trevor@vers305 add
       local  = true;
     break;
   }
@@ -334,25 +348,25 @@ void StepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
     changePlacement(parentRelativeType,
                     StepNumberType,
-                    "Move Step Number", 
+                    "Move Step Number",
                     top,
                     bottom,
                    &placement,
-                    true,
-                    1,
+                    useTop,                                         //Trevor@vers305 change to useTop
+                    1,                  //append
                     local);
 
   } else if (selectedAction == fontAction) {
 
-    changeFont(top, bottom, &font, 1, local);
+    changeFont(top, bottom, &font, 1, local, useTop);               //Trevor@vers305 add useTop
 
   } else if (selectedAction == colorAction) {
 
-    changeColor(top,bottom, &color, 1, local);
+    changeColor(top,bottom, &color, 1, local, useTop);              //Trevor@vers305 add useTop
 
   } else if (selectedAction == marginAction) {
 
-    changeMargins("Change Step Number Margins",top,bottom,&margin,true,1,local);
+    changeMargins("Change Step Number Margins",top,bottom,&margin,useTop,1,local); //Trevor@vers305 change to useTop
   } 
 }
 
@@ -364,7 +378,6 @@ void StepNumberItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     QPointF newPosition;
 
-    // back annotate the movement of the PLI into the LDraw file.
     newPosition = pos() - position;
     
     if (newPosition.x() || newPosition.y()) {

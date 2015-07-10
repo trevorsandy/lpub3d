@@ -421,10 +421,13 @@ public:
   int             lastStepPageNum;
   QList<Where>    topOfPages;
 
+  int             boms;            // the number of pli BOMs in the document
+  int             bomOccurrence;   // the acutal occurenc of each pli BOM
+
   void            *noData;
   /**Fade Step variables**/
   FadeStepMeta    *fadeMeta;             // propagate fade color and fade bool
-  FitMode         fitMode;              // how to fit the scene into the view
+  FitMode          fitMode;              // how to fit the scene into the view
 
   Where &topOfPage();
   Where &bottomOfPage();
@@ -604,6 +607,8 @@ public slots:
 
   void preferences();
   void fadeStepSetup();
+  void generateCoverPages();
+  void insertFinalModel();
 
   void pageSetup();
   void assemSetup();
@@ -624,6 +629,7 @@ public slots:
   void clearPLICache();
   void clearCSICache();
   void clearCSI3DCache();
+  void clearAllCaches();
 
   void clearAndRedrawPage();
 
@@ -658,9 +664,6 @@ private:
   QGraphicsScene        *KpageScene;      // top of displayed page's graphics items
   LGraphicsView         *KpageView;       // the visual representation of the scene
 
-  int                   boms;            // the number of pli BOMs in the document
-  int                   bomOccurrence;   // the acutal occurenc of each pli BOM
-
   LDrawFile             ldrawFile;       // contains MPD or all files used in model
   QString               curFile;         // the file name for MPD, or top level file
   QString               curSubFile;      // whats being displayed in the edit window
@@ -669,7 +672,7 @@ private:
   QProgressBar          *progressBar;
   QLabel                *progressLabel;
   QElapsedTimer         *timer;
-  GlobalFadeStep        *data;
+//  GlobalFadeStep        *data;
 
   ColourPartList        colourPart;         // create fade parts for static colour parts
   FadeStepColorParts    fadeStepColorParts; //internal list of color parts to be processed for fade step.
@@ -738,10 +741,6 @@ private:
 
   int getBOMOccurrence(
           Where  current);
-
-  int divideBOMParts(
-    const QStringList  &bomParts,
-          QStringList  &dividedBOMParts);
 
   void writeToTmp(
     const QString &fileName,
@@ -991,6 +990,7 @@ public:
     setScene(scene);
     pageBackgroundItem = NULL;
   }
+
   PageBackgroundItem *pageBackgroundItem;
 
 protected:

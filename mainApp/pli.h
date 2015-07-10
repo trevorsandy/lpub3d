@@ -133,6 +133,7 @@ class Pli : public Placement {
     static QCache<QString, QString> orientation;
 
     QHash<QString, PliPart*> parts;
+    QHash<QString, PliPart*> tempParts;       // temp list used to devide the BOM
     QList<QString>           sortedKeys;
     Annotations              annotations;     // this is an internal list of title and custom part annotations
 
@@ -182,7 +183,8 @@ class Pli : public Placement {
     void setParts(
       QStringList &csiParts,
       Meta        &meta,
-      bool         bom = false);
+      bool         bom = false,
+      bool       split = false);
 
     int tsize()
     {
@@ -221,6 +223,7 @@ class Pli : public Placement {
 
     void getLeftEdge(QImage &, QList<int> &);
     void getRightEdge(QImage &, QList<int> &);
+
 };
 
 class PliBackgroundItem : public BackgroundItem, public AbstractResize, public Placement

@@ -305,7 +305,7 @@ QString type2english(PlacementType type)
 
     case PagePlugType:
 
-        return  "application plug";               // change to global variable once runnig
+        return  "application plug";
 
         break;
 
@@ -318,18 +318,6 @@ QString type2english(PlacementType type)
     case PagePlugImageType:
 
         return "application logo";
-
-        break;
-
-    case PageFrontCoverType:
-
-        return "confighured front cover page";
-
-        break;
-
-    case PageBackCoverType:
-
-        return "configured back cover page";
 
         break;
 
@@ -461,7 +449,7 @@ QString type2english2(PlacementType type)
 
   case PagePlugType:
 
-      return  "the application plug";               // change to global variable once runnig
+      return  "the application plug";
 
       break;
 
@@ -474,18 +462,6 @@ QString type2english2(PlacementType type)
   case PagePlugImageType:
 
       return "the application logo";
-
-      break;
-
-  case PageFrontCoverType:
-
-      return "the configured front cover page";
-
-      break;
-
-  case PageBackCoverType:
-
-      return "the configured back cover page";
 
       break;
 
@@ -715,7 +691,7 @@ QAction* CommonMenus::backgroundMenu(
 
 
 
-  QString formatted = QString("Change %1Background") .arg(name);
+  QString formatted = QString("Change %1 Background") .arg(name);
 
   action = menu.addAction(formatted);
 
@@ -745,7 +721,7 @@ QAction* CommonMenus::borderMenu(
 
 
 
-  QString formatted = QString("Change %1Border") .arg(name);
+  QString formatted = QString("Change %1 Border") .arg(name);
 
   action = menu.addAction(formatted);
 
@@ -769,7 +745,7 @@ QAction* CommonMenus::scaleMenu(
 
 {
 
-  QString formatted = QString("Change %1Scale") .arg(name);
+  QString formatted = QString("Change %1 Scale") .arg(name);
 
 
 
@@ -801,9 +777,7 @@ QAction* CommonMenus::renderParmsMenu(
 
 {
 
-  QString formatted = QString("Change %1Render Parameters") .arg(name);
-
-
+  QString formatted = QString("Change %1 Render Parameters") .arg(name);
 
   QAction *action;
 
@@ -811,11 +785,7 @@ QAction* CommonMenus::renderParmsMenu(
 
   action->setEnabled(false);
 
-
-
   action->setWhatsThis("This is not implemented yet");
-
-
 
   return action;
 

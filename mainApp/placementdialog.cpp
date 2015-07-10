@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -33,6 +33,7 @@
 #include "metatypes.h"
 #include "placementdialog.h"
 #include "meta.h"
+#include "version.h"
 
 #include <QString>
 #include <QGridLayout>
@@ -42,15 +43,18 @@
 #include <QFrame>
 #include <QComboBox>
 
+#include "QsLog.h"
+
 bool PlacementDialog::getPlacement(
   PlacementType  parentType,
   PlacementType  placedType,
   PlacementData &goods,
   QString        title,
+  int            onPageType,
   QWidget       *parent,
   bool           pliPerStep)
 {
-  PlacementDialog *dialog = new PlacementDialog(parentType,placedType,goods,title,parent,pliPerStep);
+  PlacementDialog *dialog = new PlacementDialog(parentType,placedType,goods,title,onPageType,parent,pliPerStep);
 
   bool ok = dialog->exec() == QDialog::Accepted;
   if (ok) {
@@ -71,68 +75,103 @@ QString labels[5][5] =
 
 const int PlacementDialog::relativeToOks[NumRelatives] =
 {
-    /* Page */        0,
-    /* Csi  */        Page,
-    /* MultiStep */   Page | Pli,
-    /* StepNum */     Page | Csi | Pli,
-    /* Pli */         Page | Csi | Ms | Sn,
-    /* Callout */     Page | Csi | Ms | Sn | Pli | Callout,
-    /* PageNum */     Page,
-    /* SingleStep */  Page | Csi,
-    /* SubmodelIns*/  Page |                  Pn,
-    /* title */       Page | Csi | Pli |  mnt | mdt | pdt | at  | pt   | cat | dlt | cit,
-    /* modelName */   Page | Csi | Pli |  tt  | mdt | pdt | at  | pt   | cat | dlt | cit,
-    /* modelDesc */   Page | Csi | Pli |  tt  | mnt | pdt | at  | pt   | cat | dlt | cit,
-    /* publishDesc */ Page | Csi | Pli |  tt  | mnt | mdt | at  | pt   | cat | dlt | cit,
-    /* author */      Page | Csi | Pli |  tt  | mnt | mdt | pdt | pt   | cat | dlt | cit | urlt,
-    /* pieces */      Page | Csi | Pli |  tt  | mnt | mdt | pdt | at   | cat | dlt | cit,
-    /* category */    Page | Csi | Pli |  tt  | mnt | mdt | pdt | at   | pt  | dlt | cit,
-    /* url */         Page | Csi | Pli |  et  | ct  | dt  | plt | pit  | at,
-    /* email */       Page | Csi | Pli |  ct  | dt  | plt | pit | urlt | at,
-    /* copyright */   Page | Csi | Pli |  et  | dt  | plt | pit | urlt | at,
-    /* disclaimer */  Page | Csi | Pli |  et  | ct  | plt | pit | urlt | at,
-    /* documentLogo */Page | Csi | Pli |  tt  | mnt | pdt | at  | pt   | cat | mdt | cit,
-    /* coverImage */  Page | Csi | Pli |  tt  | mnt | pdt | at  | pt   | cat | dlt | mdt,
-    /* plug */        Page | Csi | Pli |  et  | ct  | dt  | pit | urlt | at,
-    /* plugImage */   Page | Csi | Pli |  et  | ct  | plt | dt  | urlt | at
+    /*  0 Page 		  	page 	*/0,
+    /*  1 Csi (assem) 	Csi		*/Page,
+    /*  2 MultiStep 	Ms 		*/Page | Pli,
+    /*  3 StepNum 		Sn		*/Page | Csi| Pli| ph,
+    /*  4 Pli 			Pli		*/Page | Csi| Ms | Sn,
+    /*  5 Callout 		Callout	*/Page | Csi| Ms | Sn  | Pli| Callout,
+    /*  6 PageNum 		Pn		*/Page,
+
+    /*  7 title 		tt		*/Page ,
+    /*  8 modelName 	mnt		*/Page |                tt,
+    /*  9 author 		at		*/Page | Pn | ph | pf | tt |      ct | et | urlt,
+    /* 10 url 			urlt	*/Page | Pn | ph | pf      | at | ct | et,
+    /* 11 modelDesc 	mdt		*/Page |                                                pt,
+    /* 12 publishDesc 	pdt		*/Page |                                                     mdt,
+    /* 13 copyright 	ct		*/Page | Pn | ph | pf      | at |      et | urlt,
+    /* 14 email 		et		*/Page | Pn | ph | pf      | at | ct |      urlt,
+    /* 15 disclaimer  	dt		*/Page |                               et,
+    /* 16 pieces 		pt		*/Page |                     at,
+    /* 17 plug 			plt		*/Page |                                                                        dt,
+    /* 18 category 		cat		*/Page,
+    /* 19 documentLogo	dlt 	*/Page |      ph | pf,
+    /* 20 coverImage  	cit		*/Page,
+    /* 21 plugImage 	pit		*/Page |                                                                             plt,
+    /* 22 pageHeader 	ph		*/Page,
+    /* 23 pageFooter 	pf		*/Page,
+    /* 24 SingleStep 			*/Page | Csi,
+    /* 25 SubmodelIns			*/Page |                 Pn
 };
+//front cover (all options)       Page     | ph | pf | tt | at                  | mnt | pt | mdt | pdt | dlt,
+//back  cover (all options)       Page     | ph | pf | tt | at | ct | et | urlt |                      | dlt | dt | plt | pit,
 
 const int PlacementDialog::prepositionOks[NumRelatives] = // indexed by them
 {
-    /* Page */        InsideOk,
-    /* Csi */         InsideOk|OutsideOk,
-    /* MultiStep */   OutsideOk,
-    /* StepNum */     OutsideOk,
-    /* Pli */         OutsideOk,
-    /* Callout */     OutsideOk,
-    /* PageNum */     OutsideOk,
-    /* title */       OutsideOk,
-    /* modelName */   OutsideOk,
-    /* modelDesc */   OutsideOk,
-    /* publishDesc */ OutsideOk,
-    /* author */      OutsideOk,
-    /* pieces */      OutsideOk,
-    /* category */    OutsideOk,
-    /* url */         OutsideOk,
-    /* email */       OutsideOk,
-    /* copyright */   OutsideOk,
-    /* disclaimer */  OutsideOk,
-    /* documentLogo */OutsideOk,
-    /* coverImage */  OutsideOk,
-    /* plug */        OutsideOk,
-    /* plugImage */   OutsideOk
+    /*  0 Page */        InsideOk,
+    /*  1 Csi */         InsideOk|OutsideOk,
+    /*  2 MultiStep */   OutsideOk,
+    /*  3 StepNum */     OutsideOk,
+    /*  4 Pli */         OutsideOk,
+    /*  5 Callout */     OutsideOk,
+    /*  6 PageNum */     OutsideOk,
+
+    /*  7 title */       OutsideOk,
+    /*  8 modelName */   OutsideOk,
+    /*  9 author */      OutsideOk,
+    /* 10 url */         OutsideOk,
+    /* 11 modelDesc */   OutsideOk,
+    /* 12 publishDesc */ OutsideOk,
+    /* 13 copyright */   OutsideOk,
+    /* 14 email */       OutsideOk,
+    /* 15 disclaimer */  OutsideOk,
+    /* 16 pieces */      OutsideOk,
+    /* 17 plug */        OutsideOk,
+    /* 18 category */    OutsideOk,
+    /* 19 documentLogo */OutsideOk,
+    /* 20 coverImage */  OutsideOk,
+    /* 21 plugImage */   OutsideOk,
+    /* 22 pageHeader */  InsideOk|OutsideOk,
+    /* 23 pageFooter */  InsideOk|OutsideOk
 };
 
 const QString relativeNames[NumRelatives] =
 {
-  "Page",          "Assem",      "Step Group",  "Step Number",
-  "Parts List",    "Callout",    "Page Number",
-  "Title",         "Model ID",   "Author",      "URL",         "Model Description", "Publish Description",
-  "Copyright",     "Email",      "Disclaimer",  "Pieces",      "Plug",              "Category",
-  "Logo",          "Cover Image","Plug Image",
-  "Single Step",   "Submodel Instance Count",   "Step",        "Range",             "Reserve",
-  "BOM",           "Cover Page",                "Front Cover", "Back Cover"
-};
+  "Page",        				// 0 page
+  "Assem",                      // 1 Csi
+  "Step Group",                 // 2 Ms
+  "Step Number",                // 3 Sn
+  "Parts List",                 // 4 Pli
+  "Callout",                    // 5 Call
+  "Page Number",                // 6 pn
+
+  "Title",                      // 7 tt
+  "Model ID",                   // 8 mnt
+  "Author",                     // 9 at
+  "URL",                        //10 urlt
+  "Model Description",          //11 mdt
+  "Publish Description",        //12 pdt
+  "Copyright",                  //13 ct
+  "Email",                      //14 et
+  "Disclaimer",                 //15 dt
+  "Pieces",                     //16 pt
+  "Plug",                       //17 plt
+  "Category",                   //18 cat
+  "Logo",                       //19 dlt
+  "Cover Image",                //20 cit
+  "Plug Image",                 //21 pit
+  "Page Header",                //22 ph
+  "Page Footer",                //23 pf
+
+  "Single Step",                //24
+  "Submodel Instance Count",    //25
+
+  "Step",                       //27
+  "Range",                      //28
+  "Reserve",                    //29
+  "BOM",                        //24
+  "Cover Page"                  //30
+};                              //33 NumRelatives
 
 QString PlacementDialog::relativeToName(
   int relativeTo)
@@ -149,6 +188,7 @@ PlacementDialog::PlacementDialog(
   PlacementType  placedType,
   PlacementData &_goods,
   QString        title,
+  int            onPageType,
   QWidget       *parent,
   bool           pliPerStep)
 {
@@ -158,15 +198,35 @@ PlacementDialog::PlacementDialog(
   QGridLayout *insideGrid  = new QGridLayout;
   QFrame      *insideFrame = new QFrame;
 
+  lblRelativeTo = new QLabel("Relative To",parent);
+  lblRelativeTo->setToolTip(tr("Select item that %1 will be moved relative to.").arg(title));
+  outsideGrid->addWidget(lblRelativeTo,0,0);
+
   combo = new QComboBox;
   connect(combo,SIGNAL(activated(int)),this,SLOT(relativeToChanged(int)));
-  outsideGrid->addWidget(combo,0,0);
+  outsideGrid->addWidget(combo,0,1);
 
   int oks;
-
+  logTrace() << " \nPLACEMENT DIALOG "
+             << " \nParentType: " << RelNames[parentType]     << " (" << parentType << ")"
+             << " \nPlacedType: " << RelNames[placedType]     << " (" << placedType << ")"
+             << " \nOnPageType: " << (onPageType == 0 ? "Content Page" : onPageType == 1 ? "Front Cover Page" : "Back Cover Page")
+                ;
   switch (parentType) {
     case StepGroupType:
       switch (placedType) {
+        case PageURLType:
+            oks =  Page | Pn | ph | pf;
+        break;
+        case PageEmailType:
+            oks =  Page | Pn | ph | pf |                     urlt;
+        break;
+        case PageAuthorType:
+            oks =  Page | Pn | ph | pf |                et | urlt;
+        break;
+        case PageCopyrightType:
+            oks =  Page | Pn | ph | pf |      at |      et | urlt;
+        break;  
         case PartsListType:
           if (pliPerStep) {
             oks = Csi | Sn;
@@ -207,7 +267,7 @@ PlacementDialog::PlacementDialog(
           oks = Page | Csi | Sn;
         break;
         case StepNumberType:
-          oks = Page | Csi | Pli;
+          oks = Page | Csi | Pli | ph;
         break;
         case CalloutType:
           oks = Page | Csi | Sn | Pli;
@@ -215,6 +275,45 @@ PlacementDialog::PlacementDialog(
         default:
           oks = Csi | Pli | Sn;
         break;
+      }
+    break;
+  case SingleStepType:
+      switch (placedType) {
+      case PageURLType:
+        if (onPageType == BackCoverPage) {
+           oks = Page |                          ct;
+         //oks = Page      | ph | pf | tt | at | ct | et;
+        } else
+           oks = Page | Pn | ph | pf;
+      break;
+      case PageEmailType:
+        if (onPageType == BackCoverPage) {
+           oks = Page |                                    urlt;
+         //oks = Page      | ph | pf | tt | at | ct |      urlt;
+        } else
+           oks = Page | Pn | ph | pf |                     urlt;
+      break;
+      case PageAuthorType:
+        if (onPageType == FrontCoverPage) {
+           oks = Page |                tt;
+         //oks = Page      | ph | pf | tt;
+        } else if (onPageType == BackCoverPage) {
+           oks = Page |                tt;
+         //oks = Page      | ph | pf | tt |      ct | et | urlt;
+        } else
+           oks = Page | Pn | ph | pf |                et | urlt;
+      break;
+      case PageCopyrightType:
+        if (onPageType == BackCoverPage) {
+           oks = Page |                     at;
+         //oks = Page      | ph | pf | tt | at |      et | urlt;
+        } else
+           oks = Page | Pn | ph | pf |      at |      et | urlt;
+      break;
+
+      default:
+        oks = relativeToOks[placedType];
+      break;
       }
     break;
     default:
@@ -225,7 +324,18 @@ PlacementDialog::PlacementDialog(
   int currentIndex = 0;
 
   for (int i = 0; i < NumRelatives; i++) {
+//debug
+//    logNotice() << "\n POPULATE PLACEMENT COMBO"
+//                << "\n    Index: " << i   <<      " Bits: " << QString::number(i,2)
+//                << "\n      Oks: " << oks <<      " Bits: " << QString::number(oks,2)
+//                << "\n (1 << i): " << (1 << i) << " Bits: " << QString::number((1 << i),2)
+//                   ;
+//end debug
     if (oks & (1 << i)) {
+//debug
+//    qDebug() << " MATCH: " << i << " " << oks << " " << (1 << i)
+//                 ;
+//end debug
       combo->addItem(relativeNames[i]);
       if (i == goods->relativeTo) {
         currentIndex = combo->count()-1;
@@ -353,7 +463,7 @@ PlacementDialog::PlacementDialog(
     }
   }
 
-  buttonBox = new QDialogButtonBox(this);
+  buttonBox = new QDialogButtonBox();               //removed 'this' from constructor
   buttonBox->addButton(QDialogButtonBox::Ok);
   connect(buttonBox,SIGNAL(accepted()),SLOT(accept()));
   buttonBox->addButton(QDialogButtonBox::Cancel);
@@ -362,7 +472,7 @@ PlacementDialog::PlacementDialog(
   outsideGrid->addWidget(buttonBox,6,0,1,5);
 
   setLayout(outsideGrid);
-  setWindowTitle(tr("LPub: %1 Dialog") .arg(title));
+  setWindowTitle(tr("%1 %2 Dialog").arg(QString::fromLatin1(VER_PRODUCTNAME_STR),title));
   setModal(true);
 
   setEnabled(prepositionOks[goods->relativeTo]);

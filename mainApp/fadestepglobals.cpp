@@ -146,7 +146,7 @@ void GlobalFadeStepDialog::accept()
   mi.endMacro();
 
   if (Preferences::enableFadeStep){
-      Step::isCsiDataModified = true;
+      Step::refreshCsi = true;
   }
 
   QDialog::accept();

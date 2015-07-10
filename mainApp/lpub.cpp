@@ -34,6 +34,7 @@
 #include "globals.h"
 #include "resolution.h"
 #include "lpub_preferences.h"
+#include "preferencesdialog.h"
 #include "render.h"
 #include "metaitem.h"
 #include "ranges_element.h"
@@ -76,22 +77,39 @@ void clearAndRedrawPage()
  *
  ***************************************************************************/
 
-//PROTPTYPE
 void Gui::insertCoverPage()
 {
   MetaItem mi;
-  mi.insertCoverPage(ldrawFile.topLevelFile());
+  mi.insertCoverPage();
 }
 
 void Gui::appendCoverPage()
 {
   MetaItem mi;
-  mi.appendCoverPage(ldrawFile.topLevelFile());
+  mi.appendCoverPage();
   countPages();
-  ++displayPageNum;
-  displayPage();  // display the page we just added
+  displayPageNum = maxPages;
+  displayPage();
 }
-//PROTOTYPE END
+
+void Gui::generateCoverPages()
+{
+    if (Preferences::generageCoverPages){
+        MetaItem mi;
+        if (! mi.frontCoverPageExist())
+            mi.insertCoverPage();
+
+        if (! mi.backCoverPageExist())
+            mi.appendCoverPage();
+    }
+}
+
+void Gui::insertFinalModel(){
+    if (Preferences::enableFadeStep){
+        MetaItem mi;
+        mi.insertFinalModel(mi.okToInsertFinalModel());
+    }
+}
 
 //void Gui::insertCoverPage()
 //{
@@ -163,7 +181,7 @@ void Gui::displayPage()
     drawPage(KpageView,KpageScene,false);
     enableActions2();
     emit enable3DActionsSig();
-    Step::isCsiDataModified = false; //reset
+    Step::refreshCsi = false; //reset
   }
 }
 
@@ -195,7 +213,7 @@ void Gui::firstPage()
 void Gui::clearAndRedrawPage()
 {
     if (getCurFile().isEmpty()) {
-        statusBarMsg("A model must be opened to reset its caches - no action taken.");
+        statusBarMsg("A model must be open to reset its caches - no action taken.");
         return;
     }
 
@@ -455,10 +473,24 @@ void Gui::mpdComboChanged(int index)
   }
 }
 
+void Gui::clearAllCaches()
+{
+    if (getCurFile().isEmpty()) {
+        statusBarMsg("A model must be open to reset its caches - no action taken.");
+        return;
+    }
+
+       clearPLICache();
+       clearCSICache();
+       clearCSI3DCache();
+
+       statusBarMsg("Assembly, Parts and 3D content caches reset.");
+}
+
 void Gui::clearPLICache()
 {
     if (getCurFile().isEmpty()) {
-        statusBarMsg("A model must be opened to clean its parts cache - no action taken.");
+        statusBarMsg("A model must be open to clean its parts cache - no action taken.");
         return;
     }
 
@@ -480,7 +512,7 @@ void Gui::clearPLICache()
 void Gui::clearCSICache()
 {
     if (getCurFile().isEmpty()) {
-        statusBarMsg("A model must be opened to clean its assembly cache - no action taken.");
+        statusBarMsg("A model must be open to clean its assembly cache - no action taken.");
         return;
     }
 
@@ -501,7 +533,7 @@ void Gui::clearCSICache()
 void Gui::clearCSI3DCache()
 {
     if (getCurFile().isEmpty()) {
-        statusBarMsg("A model must be opened to clean its 3D cache - no action taken.");
+        statusBarMsg("A model must be open to clean its 3D cache - no action taken.");
         return;
     }
 
@@ -516,6 +548,8 @@ void Gui::clearCSI3DCache()
         QFile     file(tmpDirName + "/" + fileInfo.fileName());
         file.remove();
     }
+
+    ldrawFile.tempCacheCleared();
 
     QString viewDirName = QDir::currentPath() + "/" + Paths::viewerDir;
     QDir viewDir(viewDirName);
@@ -597,7 +631,7 @@ void Gui::preferences()
     Meta meta;
     page.meta = meta;
 
-    Step::isCsiDataModified = true;
+    Step::refreshCsi = true;
 
     QString renderer = Render::getRenderer();
     Render::setRenderer(Preferences::preferredRenderer);
@@ -606,9 +640,6 @@ void Gui::preferences()
         gui->clearPLICache();
         gui->clearCSI3DCache();
     }
-
-    if (Preferences::enableFadeStep && !getCurFile().isEmpty())
-        colourPart.processFadeColorParts();
 
     if (!getCurFile().isEmpty()){
         QString topLevel = ldrawFile.topLevelFile();
@@ -1071,7 +1102,7 @@ void Gui::createActions()
 
     clearALLCacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Reset All Caches"), this);
     clearALLCacheAct->setStatusTip(tr("Reset all caches"));
-    connect(clearALLCacheAct, SIGNAL(triggered()), this, SLOT(clearAndRedrawPage()));
+    connect(clearALLCacheAct, SIGNAL(triggered()), this, SLOT(clearAllCaches()));
 
     // Config menu
 
@@ -1178,8 +1209,10 @@ void Gui::enableActions()
 void Gui::enableActions2()
 {
     MetaItem mi;
-    insertCoverPageAct->setEnabled(mi.okToInsertCoverPage());
-    appendCoverPageAct->setEnabled(mi.okToAppendCoverPage());
+    insertCoverPageAct->setEnabled(mi.okToInsertCoverPage() &&
+                                   ! mi.frontCoverPageExist());
+    appendCoverPageAct->setEnabled(mi.okToAppendCoverPage() &&
+                                   ! mi.backCoverPageExist());
     bool frontCover = mi.okToInsertNumberedPage();
     insertNumberedPageAct->setEnabled(frontCover);
     bool backCover = mi.okToAppendNumberedPage();

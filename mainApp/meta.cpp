@@ -456,8 +456,6 @@ void StringListMeta::doc(QStringList &out, QString preamble)
 
 /* ------------------ */
 
-/* ------------------ */
-
 Rc BoolMeta::parse(QStringList &argv, int index,Where &here)
 {
   QRegExp rx("^(TRUE|FALSE)$");
@@ -497,22 +495,22 @@ QString placementOptions[][3] =
   { "TOP_RIGHT",   "",      "OUTSIDE" },
 
   { "LEFT",        "TOP",   "OUTSIDE" },
-  { "TOP_LEFT",    "",      "INSIDE" },
-  { "TOP",         "",      "INSIDE" },
-  { "TOP_RIGHT",   "",      "INSIDE" },
+  { "TOP_LEFT",    "",      "INSIDE"  },
+  { "TOP",         "",      "INSIDE"  },
+  { "TOP_RIGHT",   "",      "INSIDE"  },
   { "RIGHT",       "TOP",   "OUTSIDE" },
 
   { "LEFT",        "CENTER","OUTSIDE" },
-  { "LEFT",        "",      "INSIDE" },
-  { "CENTER",      "",      "INSIDE" },
-  { "RIGHT",       "",      "INSIDE" },
+  { "LEFT",        "",      "INSIDE"  },
+  { "CENTER",      "",      "INSIDE"  },
+  { "RIGHT",       "",      "INSIDE"  },
   { "RIGHT",       "CENTER","OUTSIDE" },
 
-  { "LEFT",        "BOTTOM", "OUTSIDE" },
+  { "LEFT",        "BOTTOM", "OUTSIDE"},
   { "BOTTOM_LEFT", "",       "INSIDE" },
   { "BOTTOM",      "",       "INSIDE" },
   { "BOTTOM_RIGHT","",       "INSIDE" },
-  { "RIGHT",       "BOTTOM", "OUTSIDE" },
+  { "RIGHT",       "BOTTOM", "OUTSIDE"},
 
   { "BOTTOM_LEFT", "",       "OUTSIDE" },
   { "BOTTOM",      "LEFT",   "OUTSIDE" },
@@ -542,9 +540,9 @@ int placementDecode[][3] =
   { Right,       Center, Outside },
 
   { Left,        Bottom, Outside },
-  { BottomLeft,  Center, Inside },
-  { Bottom,      Center, Inside },
-  { BottomRight, Center, Inside },
+  { BottomLeft,  Center, Inside  },
+  { Bottom,      Center, Inside  },
+  { BottomRight, Center, Inside  },
   { Right,       Bottom, Outside },
   
   { BottomLeft,  Center, Outside },
@@ -560,7 +558,7 @@ QString relativeNames[] =
   "DOCUMENT_TITLE","MODEL_ID","DOCUMENT_AUTHOR","PUBLISH_URL","MODEL_DESCRIPTION",
   "PUBLISH_DESCRIPTION","PUBLISH_COPYRIGHT","PUBLISH_EMAIL","LEGO_DISCLAIMER",
   "MODEL_PIECES","APP_PLUG","MODEL_CATEGORY","DOCUMENT_LOGO","DOCUMENT_COVER_IMAGE",
-  "APP_PLUG_IMAGE"
+  "APP_PLUG_IMAGE","PAGE_HEADER","PAGE_FOOTER"
 };
 
 PlacementMeta::PlacementMeta() : LeafMeta()
@@ -597,12 +595,25 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
                         "DOCUMENT_TITLE|MODEL_ID|DOCUMENT_AUTHOR|PUBLISH_URL|MODEL_DESCRIPTION|"
                         "PUBLISH_DESCRIPTION|PUBLISH_COPYRIGHT|PUBLISH_EMAIL|LEGO_DISCLAIMER|"
                         "MODEL_PIECES|APP_PLUG|MODEL_CATEGORY|DOCUMENT_LOGO|DOCUMENT_COVER_IMAGE|"
-                        "APP_PLUG_IMAGE)$";
+                        "APP_PLUG_IMAGE|PAGE_HEADER|PAGE_FOOTER)$";
 
   _placementR    = _value[pushed].rectPlacement;
   _relativeTo    = _value[pushed].relativeTo;
   _offsets[0]    = 0;
   _offsets[1]    = 0;
+
+//debug logging
+//   for(int i=0;i<argv.size();i++){
+//       int size = argv.size();
+//       int incr = i;
+//       int result = size - incr;
+//       logNotice() << "\nPAGE ARGV pos:(" << i+1 << ") index:(" << i << ") [" << size << " - " << incr << " = " << result << "] " << argv[i];}
+//       logNotice() << "\nWHERE: " << here.modelName << ", Line: " << here.lineNumber
+//                   << "\nSIZE: " << argv.size() << ", INDEX: " << index
+//                      ;
+//       logInfo()   << "\nSTART - Value at index: " << argv[index]
+//                      ;
+//end debug logging only
 
   if (argv[index] == "OFFSET") {
     index++;
@@ -731,6 +742,22 @@ QString prepositionNames[] =
 
 QString PlacementMeta::format(bool local, bool global)
 {
+//debug logging
+//qDebug() << " \nPLACEMENT META FORMAT: "
+//           << " \nPUSHED VALUES: "
+//           << " \nPlacement: "      << _value[pushed].placement
+//           << " \nJustification: "  << _value[pushed].justification
+//           << " \nRelativeTo: "     << _value[pushed].relativeTo
+//           << " \nPreposition(*): " << _value[pushed].preposition
+//           << " \nOffset[0]: "      << _value[pushed].offsets[0]
+//           << " \nOffset[0]: "      << _value[pushed].offsets[1]
+//           << " \nNAMES: "
+//           << " \nPlacement: "      << placementNames  [_value[pushed].placement]
+//           << " \nJustification: "  << placementNames  [_value[pushed].justification]
+//           << " \nRelativeTo: "     << relativeNames   [_value[pushed].relativeTo]
+//           << " \nPreposition(*): " << prepositionNames[_value[pushed].preposition]
+//              ;
+//end debug logging
   QString foo;
   
   if (_value[pushed].preposition == Inside) {
@@ -879,131 +906,6 @@ QString BackgroundMeta::text()
   }
   return "Submodel level color";
 }
-
-/* ------------------ */
-
-Rc PageAttributePictureMeta::parse(QStringList &argv, int index,Where &here)
-{
- Rc rc = FailureRc;
- int indexSize = argv.size()-1;
-
-     if (argv.size() - index > 2){
-       if (argv[index-2] == "DOCUMENT_LOGO") {
-         _value[pushed].type = PageDocumentLogoType;
-         rc = OkRc;
-       } else if (argv[index-2] == "APP_PLUG_IMAGE") {
-           _value[pushed].type = PagePlugImageType;
-           rc = OkRc;
-       } else if (argv[index-2] == "DOCUMENT_COVER_IMAGE") {
-          _value[pushed].type = PageCoverImageType;
-          rc = OkRc;
-       }
-     }
-
-     if ((argv[index-2] == "DOCUMENT_LOGO" ||
-          argv[index-2] == "APP_PLUG_IMAGE" ||
-          argv[index-2] == "DOCUMENT_COVER_IMAGE") &&
-          argv[index+2] == "SCALE") {
-         _value[pushed].string  = argv[index+1];
-         _value[pushed].stretch = false;
-         _value[pushed].tile    = false;
-         bool ok;
-         _value[pushed].picScale = argv[index+3].toFloat(&ok);
-         if (! ok) {
-             rc = FailureRc;
-         } else {
-             rc = OkRc;
-         }
-     }
-
-     if (rc == OkRc && (indexSize - (index+3) >= 1)) {
-         if (argv[index+4] == "OFFSET") {
-             bool ok[2];
-             _value[pushed].placement.offsets[0]  = argv[index+5].toFloat(&ok[0]);
-             _value[pushed].placement.offsets[1]  = argv[index+6].toFloat(&ok[1]);
-             if ( ! ok[0] || ! ok[1]) {
-                 rc = FailureRc;
-             }	else {
-                 rc = OkRc;
-             }
-         } else if (argv.size() - index > 0) {
-             rc = FailureRc;
-         }
-     }
-
-     if (argv[index-2] == "DOCUMENT_COVER_IMAGE" && argv[index+2] == "STRETCH") {
-         _value[pushed].string  = argv[index+1];
-         _value[pushed].stretch = true;
-         _value[pushed].tile    = false;
-         rc = OkRc;
-     } else if (argv[index-2] == "DOCUMENT_COVER_IMAGE" && argv[index+2] == "TILE") {
-         _value[pushed].string  = argv[index+2];
-         _value[pushed].stretch = false;
-         _value[pushed].tile = true;
-         rc = OkRc;
-     }
-
- if (rc == OkRc) {
-     _here[pushed] = here;
-     return rc;
-
- } else {
-
-     if (reportErrors) {
-         QMessageBox::warning(NULL,
-              QMessageBox::tr("LPub3D"),
-              QMessageBox::tr("Malformed picture \"%1\"") .arg(argv.join(" ")));
-     }
-     return FailureRc;
- }
-}
-
-QString PageAttributePictureMeta::format(bool local, bool global)
-{
-  QString foo;
-  foo += "PICTURE \"" + _value[pushed].string + "\"";
-  if (_value[pushed].picScale && ! _value[pushed].tile && ! _value[pushed].stretch) {
-    foo += QString(" SCALE %1") .arg(_value[pushed].picScale);
-  }
-  if ((_value[pushed].placement.offsets[0] || _value[pushed].placement.offsets[1]) && ! _value[pushed].tile && ! _value[pushed].stretch) {
-    foo += QString(" OFFSET %1 %2") .arg(_value[pushed].placement.offsets[0])
-                                    .arg(_value[pushed].placement.offsets[1]);
-  }
-  if (_value[pushed].stretch) {
-    foo += " STRETCH";
-  }
-  if (_value[pushed].tile) {
-    foo += " TILE";
-  }
-  return LeafMeta::format(local,global,foo);
-}
-
-void PageAttributePictureMeta::doc(QStringList &out, QString preamble)
-{
-      out << preamble + " DOCUMENT_LOGO|DOCUMENT_COVER_IMAGE|PLUG_IMAGE [GLOBAL] PICTURE \"filePath\" (STRETCH) (TILE) (SCALE <Value>) (OFFSET <valueX> <valueY>)";
-}
-
-
-QString PageAttributePictureMeta::text()
-{
-    PageAttributePictureData documentImage = value();
-    switch (documentImage.type) {
-      case PageDocumentLogoType:
-        return "Document logo " + documentImage.string;
-      break;
-      case PageCoverImageType:
-        return "Cover Page image " + documentImage.string;
-      break;
-      case PagePlugImageType:
-        return "Plug image " + documentImage.string;
-      break;
-      default:
-      break;
-    }
-    return "Document image";
-}
-
-/* ------------------ */ 
 
 Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
 {
@@ -1229,6 +1131,7 @@ void PointerMeta::doc(QStringList &out, QString preamble)
 }
 
 /* ------------------ */ 
+
 FreeFormMeta::FreeFormMeta() : LeafMeta()
 {
   _value[0].mode = false;
@@ -1374,6 +1277,7 @@ void AllocMeta::doc(QStringList &out, QString preamble)
 }
 
 /* ------------------ */ 
+
 SepMeta::SepMeta() : LeafMeta()
 {
   _value[0].thickness = DEFAULT_THICKNESS;
@@ -1426,7 +1330,8 @@ void SepMeta::doc(QStringList &out, QString preamble)
  *   PICTURE "name" (SCALE x) |
  *   TEXT "text" "font" color  |
  *   ARROW HDX HDY TLX TLY HD HFX HFY |
- *   BOM)
+ *   BOM
+ *   MODEL)
  *   OFFSET x y
  */
 
@@ -1439,20 +1344,10 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
     if (argv[index] == "PAGE") {
       return InsertPageRc;
     }
-  }
-
-  if (argv.size() - index == 2 && argv[index] == "COVER_PAGE") {
-      int pos = 3;
-      if  (argv[pos] == "FRONT"){
-          gui->page.frontCover = true;
-          gui->page.backCover  = false;
-          return InsertCoverPageRc;
-      } else if ( argv[pos] == "BACK"){
-          gui->page.backCover  = true;
-          gui->page.frontCover = false;
-          return InsertCoverPageRc;
-      } else
-          rc = FailureRc;
+  } else if (argv.size() - index == 2) {
+      if (argv[index] == "COVER_PAGE") {
+        return InsertCoverPageRc;
+      }
   }
 
   if (argv.size() - index > 1 && argv[index] == "PICTURE") {
@@ -1500,7 +1395,10 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
     ++index;
 
   } else if (argv[index] == "BOM") {
-    insertData.type = InsertData::InsertBom;
+      insertData.type = InsertData::InsertBom;
+    ++index;
+  } else if (argv[index] == "MODEL"){
+      insertData.type = InsertData::InsertModel;
     ++index;
   }
 
@@ -1544,8 +1442,8 @@ QString InsertMeta::format(bool local, bool global)
     break;
     case InsertData::InsertText:
       foo += QString("TEXT \"%1\" \"%2\" \"%3\"") .arg(_value.text)
-                                                   .arg(_value.textFont)
-                                                   .arg(_value.textColor);
+                                                  .arg(_value.textFont)
+                                                  .arg(_value.textColor);
     break;
     case InsertData::InsertArrow:
       foo += " ARROW";
@@ -1559,6 +1457,9 @@ QString InsertMeta::format(bool local, bool global)
     break;
     case InsertData::InsertBom:
       foo += " BOM";
+    break;
+    case InsertData::InsertModel:
+      foo += " MODEL";
     break;
   }
 
@@ -1767,7 +1668,6 @@ void NumberMeta::init(
 NumberPlacementMeta::NumberPlacementMeta() : NumberMeta()
 {
   placement.setValue(TopLeftInsideCorner,PageType);
-
   color.setValue("black");
   // font - default
 }
@@ -1787,9 +1687,15 @@ void NumberPlacementMeta::init(
 
 PageAttributeTextMeta::PageAttributeTextMeta() : BranchMeta()
 {
-  textColor.setValue("black");
-  display.setValue(Preferences::displayAllAttributes);
   placement.setValue(TopLeftInsideCorner,PageType);
+  display.setValue(Preferences::displayAllAttributes);
+  textColor.setValue("black");
+  placement.value().placement     = TopLeft;
+  placement.value().justification = Center;
+  placement.value().preposition   = Inside;
+  placement.value().relativeTo    = PageType;
+  placement.value().offsets[0]    = 0.0;
+  placement.value().offsets[1]    = 0.0;
 }
 
 void PageAttributeTextMeta::init(
@@ -1797,12 +1703,79 @@ void PageAttributeTextMeta::init(
   QString name)
 {
   AbstractMeta::init(parent, name);
-  textFont.init     	(this, "FONT");
+  textFont.init     	(this, "FONT",OkRc, "\"");
   textColor.init    	(this, "COLOR");
   margin.init   		(this, "MARGINS");
   placement.init        (this, "PLACEMENT");
   content.init          (this, "CONTENT");
   display.init          (this, "DISPLAY");
+}
+
+/* ------------------ */
+
+PageAttributePictureMeta::PageAttributePictureMeta() : BranchMeta()
+{
+  placement.setValue(TopLeftInsideCorner,PageType);
+  display.setValue(Preferences::displayAllAttributes);
+  picScale.setRange(-10000.0,10000.0);
+  picScale.setFormats(7,4,"99999.9");
+  picScale.setValue(1.0);
+  tile.setValue(false);
+  stretch.setValue(false);
+  placement.value().placement     = TopLeft;
+  placement.value().justification = Center;
+  placement.value().preposition   = Inside;
+  placement.value().relativeTo    = PageType;
+  placement.value().offsets[0]    = 0.0;
+  placement.value().offsets[1]    = 0.0;
+}
+
+void PageAttributePictureMeta::init(
+  BranchMeta *parent,
+  QString name)
+{
+  AbstractMeta::init(parent, name);
+  placement.init        (this, "PLACEMENT");
+  margin.init   		(this, "MARGINS");
+  picScale.init         (this, "SCALE");
+  file.init             (this, "FILE");
+  display.init          (this, "DISPLAY");
+  stretch.init          (this, "STRETCH");
+  tile.init             (this, "TILE");
+}
+
+/* ------------------ */
+
+PageHeaderMeta::PageHeaderMeta() : BranchMeta()
+{
+  placement.setValue(TopInside,PageType);
+  size.setValuesInches(8.5f,0.3f);
+  size.setRange(.1,1000);
+  size.setFormats(6,4,"9.9999");
+}
+
+ void PageHeaderMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  placement.init        (this, "PLACEMENT");
+  size.init             (this, "SIZE");
+}
+
+ /* ------------------ */
+
+PageFooterMeta::PageFooterMeta() : BranchMeta()
+{
+  placement.setValue(BottomInside,PageType);
+  size.setValuesInches(8.5f,0.3f);
+  size.setRange(.1,1000);
+  size.setFormats(6,4,"9.9999");
+}
+
+ void PageFooterMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  placement.init        (this, "PLACEMENT");
+  size.init             (this, "SIZE");
 }
 
 /* ------------------ */
@@ -1822,7 +1795,7 @@ void FadeStepMeta::init(
   fadeStep.init     (this, "FADE");
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 void RemoveMeta::init(BranchMeta *parent, QString name)
 {
@@ -2011,7 +1984,7 @@ PageMeta::PageMeta() : BranchMeta()
   number.placement.setValue(BottomRightInsideCorner,PageType);
   number.color.setValue("black");
   number.font.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");
-  instanceCount.placement.setValue(LeftBottomOutside,PageNumberType);
+  instanceCount.placement.setValue(TopLeftOutsideCorner,PageNumberType); //fooWas LeftBottomOutside,PageNumberType
   instanceCount.color.setValue("black");
   instanceCount.font.setValuePoints("Arial,48,-1,255,75,0,0,0,0,0");
 
@@ -2020,136 +1993,210 @@ PageMeta::PageMeta() : BranchMeta()
   subModelColor.setValue("#ffcccc");
   subModelColor.setValue("#ccccff");
 
-  // Page Attributes
-  //model title
-  title.textFont.setValuePoints("Arial,32,-1,255,75,0,0,0,0,0");
-  title.placement.value().placement     = Left;
-  title.placement.value().justification = Center;
-  title.placement.value().relativeTo    = PageType;
-  title.placement.value().preposition   = Inside;
-  title.type = PageTitleType;
-  title.setValue(LDrawFile::_file);
+  /* PAGE ATTRIBUTE FORMAT
+   *
+   * Front Cover Default Attribute Placements
+   *************************************
+   *   Logo (Top Left of Page)         *
+   *                                   *
+   *   ModelName                       *  (Top of Title)
+   *   Title                           *  (Left Center of Page)
+   *   Author                          *  (Bottom of Title)
+   *   Pieces                          *  (Bottom of Author)
+   *   Model Description               *  (Bottom of Pieces)
+   *   Publsiher Description           *  (Bottom of Model Description)
+   *                                   *
+   *************************************
 
-  //model identification
-  modelName.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  modelName.placement.value().placement     = Left;
-  modelName.placement.value().justification = Center;
-  modelName.placement.value().relativeTo    = PageType;
-  modelName.placement.value().preposition   = Inside;
+
+   * Header/Footer Default Attribute Placements
+   * ***********************************
+   * URL (Top Left of Page)            Email (Top Right of Page)
+   * ***********************************
+   * *                                 *
+   * *                                 *
+   * *                                 *
+   * *                                 *
+   * ***********************************
+   * Copyright (Bottom Left of Page)   Author (Bottom Right of Page)
+   * ***********************************
+
+
+   * Back Cover Default Attribute Placements
+   * **********************************
+   *               Logo               *  (Top of Page)
+   *  Title                           *  (Top of Author)
+   *  Author                          *  (Top of Copyright)
+   *  Copyright                       *  (Top of URL)
+   *  URL                             *  (Top of LEGO Disclaimer)
+   *  Email                           *
+   *  LEGO Disclaimer                 *  (Center of Page)
+   *  LPub3D Plug                     *  (Below LEGO Disclaimer)
+   *  LPub3D Plug Image               *  (Right of LPub3D Plug)
+   *                                  *
+   ************************************
+
+
+   * Page Attribute relative Tos
+   *
+   *  FRONT COVER PAGE
+   *  documentLogoFront.placement.setValue  (BottomLeftOutside,PageHeaderType); //fooWas TopLeftInsideCorner, PageType
+   *  modelName.placement.setValue          (TopLeftOutside,	PageTitleType);
+   *  titleFront.placement.setValue         (LeftInside,		PageType);
+   *  authorFront.placement.setValue        (BottomLeftOutside,	PageTitleType);
+   *  pieces.placement.setValue             (BottomLeftOutside,	PageAuthorType);
+   *  modelDesc.placement.setValue          (BottomLeftOutside,	PagePiecesType);
+   *  publishDesc.placement.setValue        (BottomLeftOutside,	PageModelDescType);
+   *
+   *  BACK COVER PAGE
+   *  documentLogoBack.placement.setValue	(BottomOutside,		PageHeaderType);
+   *  titleBack.placement.setValue          (CenterCenter,		PageType);
+   *  authorBack.placement.setValue         (BottomOutside,     PageTitleType);
+   *  copyrightBack.placement.setValue      (BottomOutside,     PageAuthorType);
+   *  urlBack.placement.setValue            (BottomOutside,     PageCopyrightType);
+   *  emailBack.placement.setValue          (BottomOutside,     PageURLType);
+   *  disclaimer.placement.setValue         (BottomOutside,     PageEmailType);
+   *  plug.placement.setValue               (BottomOutside,		PageDisclaimerType);
+   *  plugImage.placement.setValue          (BottomOutside,		PagePlugType);
+   *
+   *  HEADER
+   *  url.placement.setValue          (TopLeftInsideCorner,	PageType);
+   *  email.placement.setValue		(TopRightInsideCorner,	PageType);
+   *
+   *  FOOTER
+   *  copyright.placement.setValue	(BottomLeftInsideCorner,PageType);
+   *  author.placement.setValue		(LeftBottomOutside,     PageNumberType);
+   *
+   *  NOT PLACED
+   *  category      (TopLeftInsideCorner,       PageType)
+   */
+
+  //model titleFront text
+  titleFront.placement.setValue(LeftInside,PageType);
+  titleFront.type = PageTitleType;
+  titleFront.textFont.setValuePoints("Arial,32,-1,255,75,0,0,0,0,0");
+  titleFront.setValue(LDrawFile::_file);
+
+  //model titleBack text
+  titleBack.placement.setValue(CenterCenter,PageType);
+  titleBack.type = PageTitleType;
+  titleBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  titleBack.setValue(LDrawFile::_file);
+
+  //model id/name text
+  modelName.placement.setValue(TopLeftOutside,PageTitleType);
   modelName.type = PageModelNameType;
+  modelName.textFont.setValuePoints("Arial,20,-1,255,75,0,0,0,0,0");
   modelName.setValue(LDrawFile::_name);
 
-  //model description
-  modelDesc.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  modelDesc.placement.value().placement     = Left;
-  modelDesc.placement.value().justification = Center;
-  modelDesc.placement.value().relativeTo    = PageType;
-  modelDesc.placement.value().preposition   = Inside;
-  modelDesc.type = PageModelDescType;
-  modelDesc.setValue(LDrawFile::_description);
+  //publisher authorFront text
+  authorFront.placement.setValue(BottomLeftOutside,PageTitleType);
+  authorFront.type = PageAuthorType;
+  authorFront.textFont.setValuePoints("Arial,20,-1,255,75,0,0,0,0,0");
+  authorFront.setValue(QString("Model instructions by %1").arg(Preferences::defaultAuthor));
 
-  //model number of pieces
-  pieces.textFont.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");
-  pieces.placement.value().placement     = Right;
-  pieces.placement.value().justification = Center;
-  pieces.placement.value().relativeTo    = PageType;
-  pieces.placement.value().preposition   = Inside;
+  //publisher authorBack text
+  authorBack.placement.setValue(BottomOutside,PageTitleType);
+  authorBack.type = PageAuthorType;
+  authorBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  authorBack.setValue(QString("Model instructions by %1").arg(Preferences::defaultAuthor));
+
+  //publisher author text
+  author.placement.setValue(LeftBottomOutside,PageNumberType);
+  author.type = PageAuthorType;
+  author.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  author.setValue(Preferences::defaultAuthor);
+
+  //model number of pieces text
+  pieces.placement.setValue(BottomLeftOutside,PageAuthorType);
   pieces.type = PagePiecesType;
+  pieces.textFont.setValuePoints("Arial,20,-1,255,75,0,0,0,0,0");
   pieces.setValue(QString("%1 Pieces").arg(QString::number(LDrawFile::_pieces)));
 
-  //publisher author
-  author.textFont.setValuePoints("Arial,26,-1,255,75,0,0,0,0,0");
-  author.placement.value().placement     = TopLeft;
-  author.placement.value().justification = Center;
-  author.placement.value().relativeTo    = PageType;
-  author.placement.value().preposition   = Inside;
-  author.type = PageAuthorType;
-  author.setValue(QString("Model instructions by %1").arg(Preferences::defaultAuthor));
+  //model description text
+  modelDesc.placement.setValue(BottomLeftOutside,PagePiecesType);
+  modelDesc.type = PageModelDescType;
+  modelDesc.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  modelDesc.setValue(LDrawFile::_description);
 
-  //publisher description
-  publishDesc.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  publishDesc.placement.value().placement     = Left;
-  publishDesc.placement.value().justification = Center;
-  publishDesc.placement.value().relativeTo    = PageType;
-  publishDesc.placement.value().preposition   = Inside;
+  //publisher description text
+  publishDesc.placement.setValue(BottomLeftOutside,PageModelDescType);
   publishDesc.type = PagePublishDescType;
+  publishDesc.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   publishDesc.setValue(Preferences::publishDescription);
 
-  //publisher url
-  url.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  url.placement.value().placement     = TopRight;
-  url.placement.value().justification = Center;
-  url.placement.value().relativeTo    = PageType;
-  url.placement.value().preposition   = Inside;
+  //publisher url text
+  url.placement.setValue(TopLeftInsideCorner,PageType);
   url.type = PageURLType;
+  url.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   url.setValue(Preferences::defaultURL);
 
-  //publisher email
-  email.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  email.placement.value().placement     = BottomRight;
-  email.placement.value().justification = Center;
-  email.placement.value().relativeTo    = PageType;
-  email.placement.value().preposition   = Inside;
+  //publisher urlBack text
+  urlBack.placement.setValue(BottomOutside,PageCopyrightType);
+  urlBack.type = PageURLType;
+  urlBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  urlBack.setValue(Preferences::defaultURL);
+
+  //publisher email text
+  email.placement.setValue(TopRightInsideCorner,PageType);
   email.type = PageEmailType;
+  email.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   email.setValue(Preferences::defaultEmail);
 
-  //publisher copyright
-  copyright.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  copyright.placement.value().placement     = BottomLeft;
-  copyright.placement.value().justification = Center;
-  copyright.placement.value().relativeTo    = PageType;
-  copyright.placement.value().preposition   = Inside;
+  //publisher emailBack text
+  emailBack.placement.setValue(BottomOutside,PageURLType);
+  emailBack.type = PageEmailType;
+  emailBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  emailBack.setValue(Preferences::defaultEmail);
+
+  //publisher copyright text
+  copyright.placement.setValue(BottomLeftInsideCorner,PageType);
   copyright.type = PageCopyrightType;
-  copyright.setValue(Preferences::copyright + Preferences::defaultAuthor);
+  copyright.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  copyright.setValue(Preferences::copyright + " by " + Preferences::defaultAuthor);
 
-  //publisher Logo IMAGE
-  documentLogo.value().placement.placement     = Right;
-  documentLogo.value().placement.justification = Center;
-  documentLogo.value().placement.relativeTo    = PageType;
-  documentLogo.value().placement.preposition   = Inside;
-  documentLogo.value().string = Preferences::documentLogoFile;
-  documentLogo.value().type = PageDocumentLogoType;
+  //publisher copyrightBack text
+  copyrightBack.placement.setValue(BottomOutside,PageAuthorType);
+  copyrightBack.type = PageCopyrightType;
+  copyrightBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  copyrightBack.setValue(Preferences::copyright);
 
-  //publisher cover IMAGE
-  coverImage.value().placement.placement     = Center;
-  coverImage.value().placement.justification = Center;
-  coverImage.value().placement.relativeTo    = PageType;
-  coverImage.value().placement.preposition   = Inside;
-  coverImage.value().type = PageCoverImageType;
-
-  //disclaimer LEGO
-  disclaimer.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  disclaimer.placement.value().placement     = Center;
-  disclaimer.placement.value().justification = Center;
-  disclaimer.placement.value().relativeTo    = PageType;
-  disclaimer.placement.value().preposition   = Inside;
-  disclaimer.type = PageDisclaimerType;
-  disclaimer.setValue(Preferences::disclaimer);
-
-  //disclaimer 'built by' text
-  plug.textFont.setValuePoints("Arial,12,-1,255,75,0,0,0,0,0");
-  plug.placement.value().placement     = Bottom;
-  plug.placement.value().justification = Center;
-  plug.placement.value().relativeTo    = PageType;
-  plug.placement.value().preposition   = Inside;
+  //plug text
+  plug.placement.setValue(BottomOutside,PageDisclaimerType);
   plug.type = PagePlugType;
+  plug.textFont.setValuePoints("Arial,16,-1,255,75,0,0,0,0,0");
   plug.setValue(Preferences::plug);
 
-  //disclaimer 'built by' IMAGE
-  plugImage.value().placement.placement     = BottomRight;
-  plugImage.value().placement.justification = Center;
-  plugImage.value().placement.relativeTo    = PageType;
-  plugImage.value().placement.preposition   = Inside;
-  plugImage.value().string = Preferences::plugImage;
-  plugImage.value().type = PagePlugImageType;
+  //disclaimer text
+  disclaimer.placement.setValue(BottomOutside,PageEmailType);
+  disclaimer.type = PageDisclaimerType;
+  disclaimer.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  disclaimer.setValue(Preferences::disclaimer);
 
-  //model category
+  //publisher cover IMAGE
+  coverImage.placement.setValue(CenterCenter,PageType);
+  coverImage.type = PageCoverImageType;
+
+  //publisher documentLogoFront IMAGE
+  documentLogoFront.placement.setValue(BottomLeftOutside,PageHeaderType);
+  documentLogoFront.type = PageDocumentLogoType;
+  documentLogoFront.file.setValue(Preferences::documentLogoFile);
+
+  //publisher documentLogoBack IMAGE
+  documentLogoBack.placement.setValue(BottomOutside,PageHeaderType);
+  documentLogoBack.picScale.setValue(0.5);
+  documentLogoBack.type = PageDocumentLogoType;
+  documentLogoBack.file.setValue(Preferences::documentLogoFile);
+
+  //plug IMAGE
+  plugImage.placement.setValue(BottomOutside,PagePlugType);
+  plugImage.type = PagePlugImageType;
+  plugImage.file.setValue(Preferences::plugImage);
+
+  //model category text (NOT USED)
+  category.placement.setValue(BottomLeftOutside,PageType);
+  category.type = PageCategoryType;
   category.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  category.placement.value().placement     = Left;
-  category.placement.value().justification = Center;
-  category.placement.value().relativeTo    = PageType;
-  category.placement.value().preposition   = Inside;
-  category.type = PageCopyrightType;
   category.setValue(LDrawFile::_category);
 }
 
@@ -2166,16 +2213,26 @@ void PageMeta::init(BranchMeta *parent, QString name)
   instanceCount.init    (this, "SUBMODEL_INSTANCE_COUNT");
   subModelColor.init    (this, "SUBMODEL_BACKGROUND_COLOR");
 
-  title.init			(this, "DOCUMENT_TITLE");
+  pageHeader.init       (this, "PAGE_HEADER");
+  pageFooter.init       (this, "PAGE_FOOTER");
+
+  titleFront.init		(this, "DOCUMENT_TITLE_FRONT");
+  titleBack.init		(this, "DOCUMENT_TITLE_BACK");
   modelName.init        (this, "MODEL_ID");
   modelDesc.init		(this, "MODEL_DESCRIPTION");
   pieces.init			(this, "MODEL_PIECES");
-  author.init			(this, "DOCUMENT_AUTHOR");
+  authorFront.init		(this, "DOCUMENT_AUTHOR_FRONT");
+  authorBack.init		(this, "DOCUMENT_AUTHOR_BACK");
+  author.init       	(this, "DOCUMENT_AUTHOR");
   publishDesc.init      (this, "PUBLISH_DESCRIPTION");
   url.init              (this, "PUBLISH_URL");
-  email.init			(this, "PUBLISH_EMAIL");
-  copyright.init		(this, "PUBLISH_COPYRIGHT");
-  documentLogo.init     (this, "DOCUMENT_LOGO");
+  urlBack.init          (this, "PUBLISH_URL_BACK");
+  email.init            (this, "PUBLISH_EMAIL");
+  emailBack.init		(this, "PUBLISH_EMAIL_BACK");
+  copyrightBack.init	(this, "PUBLISH_COPYRIGHT_BACK");
+  copyright.init        (this, "PUBLISH_COPYRIGHT");
+  documentLogoFront.init(this, "DOCUMENT_LOGO_FRONT");
+  documentLogoBack.init (this, "DOCUMENT_LOGO_BACK");
   coverImage.init		(this, "DOCUMENT_COVER_IMAGE");
   disclaimer.init		(this, "LEGO_DISCLAIMER");
   plug.init             (this, "APP_PLUG");
@@ -2247,7 +2304,7 @@ PliMeta::PliMeta() : BranchMeta()
   instance.margin.setValuesInches(0.0f,0.0f);
   //annotate.font.setValuePoints("Arial,36,-1,255,75,0,0,0,0,0");   // Rem at revision 226 11/06/15
   annotate.font.setValuePoints("Arial,24,-1,5,50,0,0,0,0,0");
-  annotate.color.setValue("#93928f");                               // Add at revision 226 11/06/15
+  annotate.color.setValue("#3a3938");                               // Add at revision 285 01/07/15
   annotate.margin.setValuesInches(0.0f,0.0f);
   margin.setValuesInches(DEFAULT_MARGIN,DEFAULT_MARGIN);
   pack.setValue(true);
@@ -2317,7 +2374,7 @@ BomMeta::BomMeta() : PliMeta()
   instance.margin.setValuesInches(0.0f,0.0f);
   //instance.font.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");   // Rem at revision 226 11/06/15
   annotate.font.setValuePoints("Arial,18,-1,5,50,0,0,0,0,0");
-  annotate.color.setValue("#93928f");                               // Add at revision 226 11/06/15
+  annotate.color.setValue("#3a3938");                               // Add at revision 285 01/07/15
   annotate.margin.setValuesInches(0.0f,0.0f);
   pack.setValue(false);
   sort.setValue(true);
@@ -2528,13 +2585,6 @@ void ResolutionMeta::doc(QStringList &out, QString preamble)
   out << preamble + "<integer> (DPI|DPCM)";
 }
 
-LPubMeta::LPubMeta() : BranchMeta()
-{
-  stepNumber.placement.setValue(TopLeftInsideCorner,PageType);
-  stepNumber.color.setValue("black");
-  // stepNumber - default 
-}
-
 /* ------------------ */
 
 void NoStepMeta::init(
@@ -2571,6 +2621,13 @@ void NoStepMeta::doc(QStringList &out, QString preamble)
 }
 
 /* ------------------ */
+
+LPubMeta::LPubMeta() : BranchMeta()
+{
+  stepNumber.placement.setValue(BottomLeftOutside,PageHeaderType);      //fooWas TopLeftInsideCorner,PageType
+  stepNumber.color.setValue("black");
+  // stepNumber - default
+}
 
 void LPubMeta::init(BranchMeta *parent, QString name)
 {
@@ -2677,6 +2734,24 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
     tokenMap["PLI"]          = PartsListType;
     tokenMap["PAGE_NUMBER"]  = PageNumberType;
     tokenMap["CALLOUT"]      = CalloutType;
+
+    tokenMap["DOCUMENT_TITLE"]    	= PageTitleType;
+    tokenMap["MODEL_ID"]    		= PageModelNameType;
+    tokenMap["DOCUMENT_AUTHOR"]    	= PageAuthorType;
+    tokenMap["PUBLISH_URL"]    		= PageURLType;
+    tokenMap["MODEL_DESCRIPTION"]   = PageModelDescType;
+    tokenMap["PUBLISH_DESCRIPTION"]	= PagePublishDescType;
+    tokenMap["PUBLISH_COPYRIGHT"]   = PageCopyrightType;
+    tokenMap["PUBLISH_EMAIL"]    	= PageEmailType;
+    tokenMap["LEGO_DISCLAIMER"]    	= PageDisclaimerType;
+    tokenMap["MODEL_PIECES"]    	= PagePiecesType;
+    tokenMap["APP_PLUG"]    		= PagePlugType;
+    tokenMap["MODEL_CATEGORY"]    	= PageCategoryType;
+    tokenMap["DOCUMENT_LOGO"]    	= PageDocumentLogoType;
+    tokenMap["DOCUMENT_COVER_IMAGE"]= PageCoverImageType;
+    tokenMap["APP_PLUG_IMAGE"]    	= PagePlugImageType;
+    tokenMap["PAGE_HEADER"]    		= PageHeaderType;
+    tokenMap["PAGE_FOOTER"]    		= PageFooterType;
 
     tokenMap["AREA"]         = ConstrainData::PliConstrainArea;
     tokenMap["SQUARE"]       = ConstrainData::PliConstrainSquare;

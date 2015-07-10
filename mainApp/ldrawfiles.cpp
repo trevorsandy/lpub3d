@@ -489,6 +489,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
         QStringList tokens;        
         split(smLine,tokens);
+
         if (tokens.size() == 15 && tokens[0] == "1" && tokens[14].contains(upDAT))
             pieces++;
 
@@ -562,7 +563,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
               << ", Author: "         << _author
               << ", Description: "    << _description
               << ", Pieces: "         << _pieces
-              << ", Category: "       << _category;
+              << ", Category: "       << _category
+                 ;
 }
 
 void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
@@ -618,6 +620,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
         QStringList tokens;
         split(line,tokens);
+
         if (tokens.size() == 15 && tokens[0] == "1" && tokens[14].contains(upDAT))
             pieces++;
 
@@ -666,12 +669,13 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
       _mpd = false;
       _pieces = pieces;
 
-      logInfo() << "LDR File: "        << _file
+      logInfo() << "LDR File: "         << _file
                 << ", Name: "           << _name
                 << ", Author: "         << _author
                 << ", Description: "    << _description
                 << ", Pieces: "         << _pieces
-                << ", Category: "       << _category;
+                << ", Category: "       << _category
+                   ;
     }
 }
 
@@ -1038,6 +1042,13 @@ bool LDrawFile::changedSinceLastWrite(const QString &fileName)
   return false;
 }
 
+void LDrawFile::tempCacheCleared()
+{
+  QString key;
+  foreach(key,_subFiles.keys()) {
+    _subFiles[key]._changedSinceLastWrite = true;
+  }
+}
 
 bool isHeader(QString &line)
 {

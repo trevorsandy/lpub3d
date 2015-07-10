@@ -883,47 +883,13 @@ public:
   virtual QString text();
 };
 
-class PageAttributePictureMeta : public LeafMeta
-{
-private:
-public:
-  PageAttributePictureData _value[2];
-  PageAttributePictureData &value()
-  {
-    return _value[pushed];
-  }
-  void setValue(PageAttributePictureData &value)
-  {
-    _value[pushed] = value;
-  }
-  PageAttributePictureMeta() : LeafMeta()
-  {
-  }
-  PageAttributePictureMeta(const PageAttributePictureMeta &rhs) : LeafMeta(rhs)
-  {
-    _value[0] = rhs._value[0];
-    _value[1] = rhs._value[1];
-  }
-  virtual ~PageAttributePictureMeta() {}
-  Rc parse(QStringList &argv, int index, Where &here);
-  QString format(bool,bool);
-  void    pop()
-  {
-    if (pushed) {
-      _value[1].string.clear();
-      pushed = 0;
-    }
-  }
-  virtual void doc(QStringList &out, QString preamble);
-  virtual QString text();
-};
 
 /* This leaf class is used to parse border metas */
 
 class BorderMeta : public LeafMeta
 {
 private:
-  BorderData _value[2];  // come of this is in units
+  BorderData _value[2];  // some of this is in units
   BorderData _result;
 public:
   BorderData &value()
@@ -1104,7 +1070,8 @@ public:
  *   (PICTURE "name" (SCALE x) |
  *    TEXT "font" "string" |
  *    ARROW head_x head_y tail_x tail_y hafting_depth hafting_x hafting_y
- *    BOM)
+ *    BOM
+ *    MODEL)
  *   (OFFSET X Y)
  *
  *              . ' (hox hoy) (hafting outside)
@@ -1409,6 +1376,72 @@ public:
 
   virtual void init(BranchMeta *parent,
                     QString name);
+};
+
+/*------------------------*/
+
+class PageAttributePictureMeta : public BranchMeta
+{
+public:
+  PlacementType  type;
+  PlacementMeta  placement;
+  MarginsMeta 	 margin;
+  FloatMeta		 picScale;
+  StringMeta	 file;
+  BoolMeta	     stretch;
+  BoolMeta       tile;
+  BoolMeta       display;
+  void setValue(QString _value)
+  {
+      file.setValue(_value);
+  }
+  QString value()
+  {
+      return file.value();
+  }
+  PageAttributePictureMeta();
+  PageAttributePictureMeta(const PageAttributePictureMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~PageAttributePictureMeta() {}
+
+  virtual void init(BranchMeta *parent,
+                    QString name);
+};
+
+/*------------------------*/
+
+class PageHeaderMeta : public BranchMeta
+{
+    public:
+    UnitsMeta      size;
+    PlacementMeta  placement;
+
+    PageHeaderMeta();
+    PageHeaderMeta(const PageHeaderMeta &rhs) : BranchMeta(rhs)
+    {
+    }
+
+    virtual ~PageHeaderMeta() {}
+    virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
+class PageFooterMeta : public BranchMeta
+{
+    public:
+    UnitsMeta      size;
+    PlacementMeta  placement;
+
+    PageFooterMeta();
+    PageFooterMeta(const PageFooterMeta &rhs) : BranchMeta(rhs)
+    {
+    }
+
+    virtual ~PageFooterMeta() {}
+    virtual void init(BranchMeta *parent, QString name);
 };
 
 /*------------------------*/
@@ -1717,14 +1750,6 @@ public:
 class PageMeta : public BranchMeta
 {
 public:
-    enum PageLayout{
-        FrontCoverPage = 0,
-        BackCoverPage,
-        ToCPage,
-        BOMPage,
-        BlankPage,
-        ContentPage
-    }layoutType;
   // top    == top of page
   // bottom == bottom of page
   UnitsMeta                 size;
@@ -1737,22 +1762,32 @@ public:
   NumberPlacementMeta       instanceCount;
   StringListMeta            subModelColor;
 
+  PageHeaderMeta            pageHeader;
+  PageFooterMeta            pageFooter;
+
   //pageAttributes 
-  PageAttributeTextMeta     title;              //from LDrawFile - LDraw: File
-  PageAttributeTextMeta     modelName;          //from LDrawFile - LDraw: Name
-  PageAttributeTextMeta     modelDesc;          //from LDrawFile - LDraw: 2nd line in <topLevelFile>.ldr
-  PageAttributeTextMeta     publishDesc;        //from preferences
-  PageAttributeTextMeta     author;             //from LDrawFile - LDraw: Author
-  PageAttributeTextMeta     url;                //from preferences
-  PageAttributeTextMeta     email;              //from preferences
-  PageAttributeTextMeta     disclaimer;         //from preferences static
-  PageAttributePictureMeta  documentLogo;       //from preferences
-  PageAttributePictureMeta  coverImage;         //from Globals setup
-  PageAttributeTextMeta     pieces;             //from LDrawFile - count .dat during load
-  PageAttributeTextMeta     copyright;          //from preferences static
-  PageAttributeTextMeta     plug;               //from preferences static
-  PageAttributePictureMeta  plugImage;          //from preferences static
-  PageAttributeTextMeta     category;           //from LDrawFile - LDraw: !CATEGORY (NOT IMPLEMENTED)
+  PageAttributeTextMeta     titleFront;              //from LDrawFile - LDraw: File
+  PageAttributeTextMeta     titleBack;               //from LDrawFile - LDraw: File
+  PageAttributeTextMeta     modelName;               //from LDrawFile - LDraw: Name
+  PageAttributeTextMeta     modelDesc;               //from LDrawFile - LDraw: 2nd line in <topLevelFile>.ldr
+  PageAttributeTextMeta     publishDesc;             //from preferences
+  PageAttributeTextMeta     authorFront;             //from LDrawFile - LDraw: Author
+  PageAttributeTextMeta     authorBack;              //from LDrawFile - LDraw: Author
+  PageAttributeTextMeta     author;                  //from LDrawFile - LDraw: Author
+  PageAttributeTextMeta     url;                     //from preferences
+  PageAttributeTextMeta     urlBack;                 //from preferences
+  PageAttributeTextMeta     email;                   //from preferences
+  PageAttributeTextMeta     emailBack;               //from preferences
+  PageAttributeTextMeta     disclaimer;              //from preferences static
+  PageAttributePictureMeta  documentLogoFront;       //from preferences
+  PageAttributePictureMeta  documentLogoBack;        //from preferences
+  PageAttributePictureMeta  coverImage;              //from Globals setup
+  PageAttributeTextMeta     pieces;                  //from LDrawFile - count .dat during load
+  PageAttributeTextMeta     copyrightBack;           //from preferences static
+  PageAttributeTextMeta     copyright;               //from preferences static
+  PageAttributeTextMeta     plug;                    //from preferences static
+  PageAttributePictureMeta  plugImage;               //from preferences static
+  PageAttributeTextMeta     category;                //from LDrawFile - LDraw: !CATEGORY (NOT IMPLEMENTED)
 
   PageMeta();
   PageMeta(const PageMeta &rhs) : BranchMeta(rhs)
@@ -1967,23 +2002,26 @@ public:
 class LPubMeta : public BranchMeta
 {
 public:
-  ResolutionMeta resolution;
-  PageMeta       page;
-  AssemMeta      assem;
-  NumberPlacementMeta stepNumber;
-  CalloutMeta    callout;
-  MultiStepMeta  multiStep;
-  PliMeta        pli;
-  BomMeta        bom;
-  RemoveMeta     remove;
-  FloatMeta      reserve;
-  PartIgnMeta    partSub;
-  InsertMeta     insert;
-  StringMeta     include;
-  NoStepMeta     nostep;
-  FadeStepMeta   fadeStep;
+  ResolutionMeta        resolution;
+  PageMeta              page;
+  AssemMeta             assem;
+  NumberPlacementMeta   stepNumber;
+  CalloutMeta           callout;
+  MultiStepMeta         multiStep;
+  PliMeta               pli;
+  BomMeta               bom;
+  RemoveMeta            remove;
+  FloatMeta             reserve;
+  PartIgnMeta           partSub;
+  InsertMeta            insert;
+  StringMeta            include;
+  NoStepMeta            nostep;
+  FadeStepMeta          fadeStep;
+
+
+
   LPubMeta();
-  virtual ~LPubMeta() {};
+  virtual ~LPubMeta() {}
   virtual void init(BranchMeta *parent, QString name);
   LPubMeta(const LPubMeta &rhs) : BranchMeta(rhs)
   {
@@ -2099,6 +2137,66 @@ public:
   }
 
 private:
+};
+
+const QString RcNames[56] =
+{
+     "InvalidLDrawLineRc = -3",
+     "RangeErrorRc = -2",
+     "FailureRc = -1",
+     "OkRc = 0",
+     "StepRc",
+     "RotStepRc",
+
+     "StepGroupBeginRc",
+     "StepGroupDividerRc",
+     "StepGroupEndRc",
+
+     "CalloutBeginRc",
+     "CalloutPointerRc",
+     "CalloutDividerRc",
+     "CalloutEndRc",
+
+     "InsertRc",
+     "InsertPageRc",
+     "InsertCoverPageRc",
+
+     "ClearRc",
+     "BufferStoreRc",
+     "BufferLoadRc",
+     "MLCadSkipBeginRc",
+     "MLCadSkipEndRc",
+     "MLCadGroupRc",
+
+     "PliBeginIgnRc",
+     "PliBeginSub1Rc",
+     "PliBeginSub2Rc",
+     "PliEndRc",
+
+     "PartBeginIgnRc",
+     "PartEndRc",
+
+     "BomBeginIgnRc",
+     "BomEndRc",
+
+     "ReserveSpaceRc",
+     "PictureAsStep",
+
+     "GroupRemoveRc",
+     "RemoveGroupRc",
+     "RemovePartRc",
+     "RemoveNameRc",
+
+     "SynthBeginRc",
+     "SynthEndRc",
+
+     "ResolutionRc",
+
+     "IncludeRc",
+
+     "NoStepRc",
+
+     "EndOfFileRc",
 };
 
 #endif

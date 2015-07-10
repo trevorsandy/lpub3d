@@ -56,6 +56,20 @@ void Gui::open()
   return;
 }
 
+void Gui::openRecentFile()
+{
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (action) {
+    QString fileName = action->data().toString();
+    QFileInfo info(fileName);
+    QDir::setCurrent(info.absolutePath());
+    openFile(fileName);
+    Paths::mkdirs();
+    displayPage();
+    enableActions();
+  }
+}
+
 void Gui::save()
 {
 #ifdef WATCHER
@@ -186,20 +200,6 @@ void Gui::closeFile()
   mpdCombo->setMaxCount(1000);
 }
 
-void Gui::openRecentFile()
-{
-  QAction *action = qobject_cast<QAction *>(sender());
-  if (action) {
-    QString fileName = action->data().toString();
-    QFileInfo info(fileName);
-    QDir::setCurrent(info.absolutePath());
-    openFile(fileName);
-    Paths::mkdirs();
-    displayPage();
-    enableActions();
-  }
-}
-
 /***************************************************************************
  * File opening closing stuff
  **************************************************************************/
@@ -237,6 +237,8 @@ void Gui::openFile(QString &fileName)
   displayFile(&ldrawFile,ldrawFile.topLevelFile());
   undoStack->setClean();
   curFile = fileName;
+  insertFinalModel();    //insert final fully coloured model if fadeStep turned on
+  generateCoverPages();  //autogenerate cover page
 
 #ifdef WATCHER
   if (isMpd()) {

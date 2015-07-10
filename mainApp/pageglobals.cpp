@@ -57,53 +57,62 @@ GlobalPageDialog::GlobalPageDialog(
 {
   data = new GlobalPagePrivate(topLevelFile,meta);
 
+  sectionIndex = 0;
+
   setWindowTitle(tr("Page Globals Setup"));
 
-  QTabWidget    *tab         = new QTabWidget();
-  QTabWidget    *childtab    = new QTabWidget();
-  QVBoxLayout   *layout      = new QVBoxLayout();
-  QVBoxLayout   *childlayout = new QVBoxLayout();
+  QTabWidget     *tab         = new QTabWidget();
+  QTabWidget     *childtab    = new QTabWidget();
+  QGridLayout    *grid        = new QGridLayout();
+  QVBoxLayout    *layout      = new QVBoxLayout();
+  QVBoxLayout    *childlayout = new QVBoxLayout();
+
+  QWidget        *widget      = new QWidget();
+  QWidget        *childwidget;
+
+  PageMeta       *pageMeta       = &data->meta.LPub.page;
+  PageHeaderMeta *pageHeaderMeta = &data->meta.LPub.page.pageHeader;
+  PageFooterMeta *pageFooterMeta = &data->meta.LPub.page.pageFooter;
 
   setLayout(layout);
   layout->addWidget(tab);
-  
-  QWidget       *widget;
-  QWidget       *childwidget;
-  QGridLayout   *grid;
-  
-  widget = new QWidget();
-  grid = new QGridLayout();
   widget->setLayout(grid);
 
-  MetaGui   *child;
-  QGroupBox *box;
-
-  PageMeta *pageMeta = &data->meta.LPub.page;
-  
   //~~~~~~~~~~~~ page tab ~~~~~~~~~~~~~~~~//
   box = new QGroupBox(tr("Size"));
   grid->addWidget(box,0,0);
   child = new UnitsGui("",&pageMeta->size,box);
   data->children.append(child);
- 
-  box = new QGroupBox(tr("Margins"));
+
+  box = new QGroupBox(tr("Header Height"));
   grid->addWidget(box,1,0);
+  child = new HeaderFooterHeightGui("",&pageHeaderMeta->size,box);
+
+  data->children.append(child);
+
+  box = new QGroupBox(tr("Footer Height"));
+  grid->addWidget(box,2,0);
+  child = new HeaderFooterHeightGui("",&pageFooterMeta->size,box);
+  data->children.append(child);
+
+  box = new QGroupBox(tr("Margins"));
+  grid->addWidget(box,3,0);
   child = new UnitsGui("",&pageMeta->margin,box);
   data->children.append(child);
 
   box = new QGroupBox(tr("Background"));
-  grid->addWidget(box, 2, 0);
+  grid->addWidget(box, 4, 0);
   child = new BackgroundGui(&pageMeta->background,box);
   data->children.append(child);
 
   box = new QGroupBox(tr("Border"));
-  grid->addWidget(box, 3, 0);
+  grid->addWidget(box, 5, 0);
   child = new BorderGui(&pageMeta->border,box);
   data->children.append(child);
 
   tab->addTab(widget,"Page");
-  
-  //~~~~~~~~~~~~ model tab ~~~~~~~~~~~~~~~//  
+
+  //~~~~~~~~~~~~ model tab ~~~~~~~~~~~~~~~//
   childwidget = new QWidget();                  //START DO THIS FOR MODEL, PUBLISHER AND DISCLAIMER
   childlayout = new QVBoxLayout;                //new QVBox layout - to apply tabl later
   childwidget->setLayout(childlayout);          //new 'model' widget - tab not yet added
@@ -120,12 +129,23 @@ GlobalPageDialog::GlobalPageDialog(
   /*
     Title,
     Cover Image
-  */ 
+  */
+
   //child body (many) start
-  box = new QGroupBox(tr("Display Title"));
-  grid->addWidget(box, 0, 0);
-  child = new PageAttributeTextGui(&pageMeta->title,box);
-  data->children.append(child);
+  titleBoxFront = new QGroupBox(tr("Display Title Front Cover"));
+  grid->addWidget(titleBoxFront, 0, 0);
+  titleChildFront = new PageAttributeTextGui(&pageMeta->titleFront,titleBoxFront);
+  data->children.append(titleChildFront);
+  connect(titleChildFront, SIGNAL(indexChanged(int)),
+          SLOT(indexChanged(int)));
+
+  titleBoxBack = new QGroupBox(tr("Display Title Back Cover"));
+  grid->addWidget(titleBoxBack, 0, 0);
+  titleBoxBack->hide();
+  titleChildBack = new PageAttributeTextGui(&pageMeta->titleBack,titleBoxBack);
+  data->children.append(titleChildBack);
+  connect(titleChildBack, SIGNAL(indexChanged(int)),
+          SLOT(indexChanged(int)));
   //child body end
 
   //child body (many) start
@@ -136,7 +156,7 @@ GlobalPageDialog::GlobalPageDialog(
   //child body end
 
   // child footer (one) end
-  childtab->addTab(widget,"Title/Cover Image");         //new 'childModel' added to childtab
+  childtab->addTab(widget,"Title/Cover Image");
   // child footer end
 
   // child header (one) start
@@ -202,15 +222,43 @@ GlobalPageDialog::GlobalPageDialog(
     Author,
     Email,
   */
-  box = new QGroupBox(tr("Display Author"));
-  grid->addWidget(box, 0, 0);
-  child = new PageAttributeTextGui(&pageMeta->author,box);
-  data->children.append(child);
+  authorBoxFront = new QGroupBox(tr("Display Author Front Cover"));
+  grid->addWidget(authorBoxFront, 0, 0);
+  authorChildFront = new PageAttributeTextGui(&pageMeta->authorFront,authorBoxFront);
+  data->children.append(authorChildFront);
+  connect(authorChildFront, SIGNAL(indexChanged(int)),
+          SLOT(indexChanged(int)));
 
-  box = new QGroupBox(tr("Display Email"));
-  grid->addWidget(box, 1, 0);
-  child = new PageAttributeTextGui(&pageMeta->email,box);
-  data->children.append(child);
+  authorBoxBack = new QGroupBox(tr("Display Author Back Cover"));
+  grid->addWidget(authorBoxBack, 0, 0);
+  authorBoxBack->hide();
+  authorChildBack = new PageAttributeTextGui(&pageMeta->authorBack,authorBoxBack);
+  data->children.append(authorChildBack);
+  connect(authorChildBack, SIGNAL(indexChanged(int)),
+          SLOT(indexChanged(int)));
+
+  authorBox = new QGroupBox(tr("Display Author Header/Footer"));
+  grid->addWidget(authorBox, 0, 0);
+  authorBox->hide();
+  authorChild = new PageAttributeTextGui(&pageMeta->author,authorBox);
+  data->children.append(authorChild);
+  connect(authorChild, SIGNAL(indexChanged(int)),
+          SLOT(indexChanged(int)));
+
+  emailBoxBack = new QGroupBox(tr("Display Email Back Cover"));
+  grid->addWidget(emailBoxBack, 1, 0);
+  emailChildBack = new PageAttributeTextGui(&pageMeta->emailBack,emailBoxBack);
+  data->children.append(emailChildBack);
+  connect(emailChildBack, SIGNAL(indexChanged(int)),
+          SLOT(indexChanged(int)));
+
+  emailBox = new QGroupBox(tr("Display Email Header/Footer"));
+  grid->addWidget(emailBox, 1, 0);
+  emailBox->hide();
+  emailChild = new PageAttributeTextGui(&pageMeta->email,emailBox);
+  data->children.append(emailChild);
+  connect(emailChild, SIGNAL(indexChanged(int)),
+          SLOT(indexChanged(int)));
 
   childtab->addTab(widget,tr("Author/Email"));
 
@@ -221,10 +269,20 @@ GlobalPageDialog::GlobalPageDialog(
     Publish desription
     URL
   */
-  box = new QGroupBox(tr("Display URL"));
-  grid->addWidget(box, 0, 0);
-  child = new PageAttributeTextGui(&pageMeta->url,box);
-  data->children.append(child);
+  urlBoxBack = new QGroupBox(tr("Display URL Back Cover"));
+  grid->addWidget(urlBoxBack, 0, 0);
+  urlChildBack = new PageAttributeTextGui(&pageMeta->urlBack,urlBoxBack);
+  data->children.append(urlChildBack);
+  connect(urlChildBack, SIGNAL(indexChanged(int)),
+         SLOT(indexChanged(int)));
+
+  urlBox = new QGroupBox(tr("Display URL Header/Footer"));
+  grid->addWidget(urlBox, 0, 0);
+  urlBox->hide();
+  urlChild = new PageAttributeTextGui(&pageMeta->url,urlBox);
+  data->children.append(urlChild);
+  connect(urlChild, SIGNAL(indexChanged(int)),
+         SLOT(indexChanged(int)));
 
   box = new QGroupBox(tr("Publisher Description"));
   grid->addWidget(box, 1, 0);
@@ -240,15 +298,35 @@ GlobalPageDialog::GlobalPageDialog(
     Copyright
     Logo
   */
-  box = new QGroupBox(tr("Display Copyright"));
-  grid->addWidget(box, 0, 0);
-  child = new PageAttributeTextGui(&pageMeta->copyright,box);
-  data->children.append(child);
+  copyrightBoxBack = new QGroupBox(tr("Display Copyright Back Cover"));
+  grid->addWidget(copyrightBoxBack, 0, 0);
+  copyrightChildBack = new PageAttributeTextGui(&pageMeta->copyrightBack,copyrightBoxBack);
+  data->children.append(copyrightChildBack);
+  connect(copyrightChildBack, SIGNAL(indexChanged(int)),
+         SLOT(indexChanged(int)));
 
-  box = new QGroupBox(tr("Display Logo"));
-  grid->addWidget(box, 1, 0);
-  child = new PageAttributePictureGui(&pageMeta->documentLogo,box);
-  data->children.append(child);
+  copyrightBox = new QGroupBox(tr("Display Copyright Header/Footer"));
+  grid->addWidget(copyrightBox, 0, 0);
+  copyrightBox->hide();
+  copyrightChild = new PageAttributeTextGui(&pageMeta->copyright,copyrightBox);
+  data->children.append(copyrightChild);
+  connect(copyrightChild, SIGNAL(indexChanged(int)),
+         SLOT(indexChanged(int)));
+
+  documentLogoBoxFront = new QGroupBox(tr("Display Logo Front Cover"));
+  grid->addWidget(documentLogoBoxFront, 1, 0);
+  documentLogoChildFront = new PageAttributePictureGui(&pageMeta->documentLogoFront,documentLogoBoxFront);
+  data->children.append(documentLogoChildFront);
+  connect(documentLogoChildFront, SIGNAL(indexChanged(int)),
+         SLOT(indexChanged(int)));
+
+  documentLogoBoxBack = new QGroupBox(tr("Display Logo Back Cover"));
+  grid->addWidget(documentLogoBoxBack, 1, 0);
+  documentLogoBoxBack->hide();
+  documentLogoChildBack = new PageAttributePictureGui(&pageMeta->documentLogoBack,documentLogoBoxBack);
+  data->children.append(documentLogoChildBack);
+  connect(documentLogoChildBack, SIGNAL(indexChanged(int)),
+         SLOT(indexChanged(int)));
 
   childtab->addTab(widget,tr("Copyright/Logo"));
 
@@ -316,7 +394,7 @@ GlobalPageDialog::GlobalPageDialog(
   data->children.append(child);
 
   tab->addTab(widget,tr("Page Number"));
- 
+
   QDialogButtonBox *buttonBox;
 
   buttonBox = new QDialogButtonBox();
@@ -327,6 +405,107 @@ GlobalPageDialog::GlobalPageDialog(
 
   layout->addWidget(buttonBox);
   setModal(true);
+}
+
+void GlobalPageDialog::indexChanged(int selection){
+
+    sectionIndex = selection;
+
+    QObject *obj = sender();
+
+//    logTrace() << " RECIEVED SINGAL: "
+//               << " INDEX: " << sectionIndex
+//               << " Sender Class Name: "  << sender()->metaObject()->className()
+//               << " Sender Object Name: " << sender()->objectName()
+                  ;
+    if (obj == authorChildFront || obj == authorChildBack || obj == authorChild) {
+        switch(sectionIndex){
+        case 0: //FrontCover
+            logTrace() << " AUTHOR FRONT COVER: ";
+            authorBoxFront->show();
+            authorBoxBack->hide();
+            authorBox->hide();
+            break;
+        case 1: //BackCover
+            logTrace() << " AUTHOR BACK COVER: ";
+            authorBoxFront->hide();
+            authorBoxBack->show();
+            authorBox->hide();
+            break;
+        case 2: //Header
+        case 3: //Footer
+            logTrace() << " AUTHOR HEADER/FOOTER: ";
+            authorBoxFront->hide();
+            authorBoxBack->hide();
+            authorBox->show();
+            break;
+        }
+    }
+    else if (obj == titleChildFront || obj == titleChildBack){
+        switch(sectionIndex){
+        case 0: //FrontCover
+            logTrace() << " TITLE FRONT COVER: ";
+            titleBoxFront->show();            
+            titleBoxBack->hide();
+            break;
+        case 1: //BackCover
+            logTrace() << " TITLE BACK COVER: ";
+            titleBoxFront->hide();
+            titleBoxBack->show();
+            break;
+        }
+    }
+    else if (obj == urlChildBack || obj == urlChild) {
+        switch(sectionIndex){
+        case 0: //BackCover
+            urlBoxBack->show();
+            urlBox->hide();
+            break;
+        case 1: //Header
+        case 2: //Footer
+            urlBoxBack->hide();
+            urlBox->show();
+            break;
+        }
+    }
+    else if (obj == emailChildBack || obj == emailChild) {
+        switch(sectionIndex){
+        case 0: //BackCover
+            emailBoxBack->show();
+            emailBox->hide();
+            break;
+        case 1: //Header
+        case 2: //Footer
+            emailBoxBack->hide();
+            emailBox->show();
+            break;
+        }
+    }
+    else if (obj == copyrightChild || obj == copyrightChildBack) {
+        switch(sectionIndex){
+        case 0: //BackCover
+            copyrightBoxBack->show();
+            copyrightBox->hide();
+            break;
+        case 1: //Header
+        case 2: //Footer
+            copyrightBoxBack->hide();
+            copyrightBox->show();
+            break;
+        }
+    }
+    else if (obj == documentLogoChildFront || obj == documentLogoChildBack) {
+        switch(sectionIndex){
+        case 0: //FrontCover
+            documentLogoBoxFront->show();
+            documentLogoBoxBack->hide();
+            break;
+        case 1: //BackCover
+            documentLogoBoxFront->hide();
+            documentLogoBoxBack->show();
+            break;
+        }
+    }
 }
 
 void GlobalPageDialog::getPageGlobals(

@@ -166,6 +166,8 @@ macx {
 include(../lc_lib/lc_lib.pri)
 include(../qslog/QsLog.pri)
 include(../QSimpleUpdater/QSimpleUpdater.pri)
+#NOTE: To set and indicate which architecture is being used, setup BUILD_ARCH
+#BUILD_ARCH is a custom Environment Variable set under Projects=>Build Environments = Values are x86 (32-bit) and x86_64 (64-bit)
 
 HEADERS += \
     aboutdialog.h \
@@ -198,6 +200,8 @@ HEADERS += \
     name.h \
     numberitem.h \
     pagebackgrounditem.h \
+    pageattributetextitem.h \
+    pageattributepixmapitem.h \
     pairdialog.h \
     parmshighlighter.h \
     parmswindow.h \
@@ -225,9 +229,7 @@ HEADERS += \
     textitem.h \
     updatecheck.h \
     where.h \
-    version.h \
-    pageattributeitem.h
-
+    version.h
 	
 SOURCES += \
     aboutdialog.cpp \
@@ -263,6 +265,8 @@ SOURCES += \
     numberitem.cpp \
     openclose.cpp \
     pagebackgrounditem.cpp \
+    pageattributetextitem.cpp \
+    pageattributepixmapitem.cpp \
     pageglobals.cpp \
     pairdialog.cpp \
     parmshighlighter.cpp \
@@ -293,9 +297,7 @@ SOURCES += \
     textitem.cpp \
     traverse.cpp \
     updatecheck.cpp \
-    undoredo.cpp \
-    pageattributeitem.cpp
-
+    undoredo.cpp
 	
 FORMS += \
     preferences.ui \

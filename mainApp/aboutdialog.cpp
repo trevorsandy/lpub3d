@@ -10,12 +10,15 @@
 #include "name.h"
 #include "version.h"
 #include "lc_global.h"
+#include "lpub_preferences.h"
  
 AboutDialog::AboutDialog(QWidget *parent, void *data) :
 	QDialog(parent),
 	ui(new Ui::AboutDialog)
 {
 	ui->setupUi(this);
+
+    ui->contentGroupBox->hide();
 
     ui->version->setTextFormat(Qt::RichText);
     ui->version->setText(tr("Version <b>%1</b> Revision <b>%2</b> Build <b>%3</b>").arg(QString::fromLatin1(VER_PRODUCTVERSION_STR))
@@ -30,25 +33,45 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
     ui->url->setText(tr("Homepage: <a href=\"%1\">%1</a>").arg(QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    QString AboutFormat = tr("<b>%1</b> is a free WYSIWYG editing application for<br>"
-                             "creating LEGO&copy; style digital building instructions<br>"
-                             "for LDraw&trade; based digital models.<br><br>"
-                             "%1 is a major refresh of Kevin Clague's LPub&copy;<br>"
-                             "incorporating LeoCAD&copy; to render 3D visualization.<br>"
-                             "<table style=""width:100%"">"
-                               "<tr>"
-                                 "<td>Feedback:</td>"
-                                 "<td><a href=\"%3\">%4</a></td>"
-                               "</tr>"
-                               "<tr>"
-                                 "<td>Source:</td>"
-                                 "<td><a href=\"%2\">%2</a></td>"
-                               "</tr>"
+    QString AboutFormat = tr("<table style=\"width:100%\">"
+                             "<tr>"
+                               "<td>"
+                                  "<table>"
+                                     "<tr>"
+                                       "<td>"
+                                         "<b>%1</b> is a free WYSIWYG editing application for<br>"
+                                         "creating LEGO&copy; style digital building instructions<br>"
+                                         "for LDraw&trade; based digital models.<br><br>"
+                                         "%1 is a major refresh of Kevin Clague's LPub&copy;<br>"
+                                         "incorporating LeoCAD&copy; to render 3D visualization.<br>"
+                                       "</td>"
+                                       "<td valign=\"middle\">"
+                                         "<a href=\"%5\"><img src=\":/resources/gplv3.png\"></a>"
+                                       "</td>"
+                                    "</tr>"
+                                  "</table>"
+                                "</td>"
+                             "</tr>"
+                             "<tr>"
+                                "<td>"
+                                   "<table>"
+                                     "<tr>"
+                                       "<td>Feedback:</td>"
+                                       "<td><a href=\"%3\">%4</a></td>"
+                                     "</tr>"
+                                     "<tr>"
+                                       "<td>Source:</td>"
+                                       "<td><a href=\"%2\">%2</a></td>"
+                                     "</tr>"
+                                  "</table>"
+                                "</td>"
+                             "</tr>"
                              "</table>");
     QString About = AboutFormat.arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
                                .arg(QString::fromLatin1(VER_SOURCE_URL))
                                .arg(QString::fromLatin1(VER_PUBLISHER_SUPPORT_EMAIL_STR))
-                               .arg(QString::fromLatin1(VER_PUBLISHER_EMAIL_STR));
+                               .arg(QString::fromLatin1(VER_PUBLISHER_EMAIL_STR))
+                               .arg(QString("http://www.gnu.org/licenses/gpl-3.0.html"));
 
     ui->AppInfo->setTextFormat(Qt::RichText);
     ui->AppInfo->setOpenExternalLinks(true);
@@ -69,16 +92,15 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
                                    "<td>Compiled with:</td>"
                                    "<td>%3</td>"
                                  "</tr>"
-                                  "<tr>"
+                                 "<tr>"
                                    "<td>Framework/Library:&nbsp;</td>"
                                    "<td>%4</td>"
                                  "</tr>"
-                                 "</tr>"
-                                  "<tr>"
+                                 "<tr>"
                                    "<td>Dev Environment:</td>"
                                    "<td>%5</td>"
                                  "</tr>"
-                                  "<tr>"
+                                 "<tr>"
                                    "<td>LeoCAD Version:</td>"
                                    "<td>%6</td>"
                                  "</tr>"
@@ -133,11 +155,84 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
 
     ui->OsInfo->setTextFormat(Qt::RichText);
     ui->OsInfo->setText(OsInfo);
+
+    //buttonBar additions
+    detailsButton = new QPushButton(tr("Version Details..."));
+    detailsButton->setDefault(true);
+    ui->buttonBox->addButton(detailsButton,QDialogButtonBox::ActionRole);
+
+    connect(detailsButton,SIGNAL(clicked(bool)),
+            this,SLOT(showReadmeDetails(bool)));
+
+    creditsButton = new QPushButton(tr("Credits..."));
+    creditsButton->setDefault(true);
+    ui->buttonBox->addButton(creditsButton,QDialogButtonBox::ActionRole);
+
+    connect(creditsButton,SIGNAL(clicked(bool)),
+            this,SLOT(showCreditDetails(bool)));
 }
 
 AboutDialog::~AboutDialog()
 {
 	delete ui;
+}
+
+void AboutDialog::showReadmeDetails(bool clicked){
+    clicked = clicked;
+    //populate readme
+    QString readmeFile = QString("%1/%2").arg(Preferences::lpubPath).arg("README.txt");
+    QFile file(readmeFile);
+    if (! file.open(QFile::ReadOnly | QFile::Text)) {
+        QMessageBox::warning(NULL,QMessageBox::tr("%1").arg(QString::fromLatin1(VER_PRODUCTNAME_STR)),
+                             QMessageBox::tr("Failed to open Readme file: %1:\n%2")
+                             .arg(readmeFile)
+                             .arg(file.errorString()));
+        return;
+    } else {
+        QTextStream in(&file);
+        while (! in.atEnd()){
+            content = in.readAll();
+        }
+        ui->contentEdit->setPlainText(content);
+    }
+
+    if (ui->contentGroupBox->isHidden()){
+        ui->contentGroupBox->show();
+        this->adjustSize();
+    }
+    else{
+        ui->contentGroupBox->hide();
+        this->adjustSize();
+    }
+}
+
+void AboutDialog::showCreditDetails(bool clicked){
+    clicked = clicked;
+    //populate credits
+    QString creditsFile = QString("%1/%2").arg(Preferences::lpubPath).arg("CREDITS.txt");
+    QFile file(creditsFile);
+    if (! file.open(QFile::ReadOnly | QFile::Text)) {
+        QMessageBox::warning(NULL,QMessageBox::tr("%1").arg(QString::fromLatin1(VER_PRODUCTNAME_STR)),
+                             QMessageBox::tr("Failed to open credits file: %1:\n%2")
+                             .arg(creditsFile)
+                             .arg(file.errorString()));
+        return;
+    } else {
+        QTextStream in(&file);
+        while (! in.atEnd()){
+            content = in.readAll();
+        }
+        ui->contentEdit->setPlainText(content);
+    }
+
+    if (ui->contentGroupBox->isHidden()){
+        ui->contentGroupBox->show();
+        this->adjustSize();
+    }
+    else{
+        ui->contentGroupBox->hide();
+        this->adjustSize();
+    }
 }
 
 QString AboutDialog::osName()
