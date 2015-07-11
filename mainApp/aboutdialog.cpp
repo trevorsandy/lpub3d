@@ -209,7 +209,7 @@ void AboutDialog::showReadmeDetails(bool clicked){
 void AboutDialog::showCreditDetails(bool clicked){
     clicked = clicked;
     //populate credits
-    QString creditsFile = QString("%1/%2").arg(Preferences::lpubPath).arg("CREDITS.txt");
+    QString creditsFile = QString("%1/%2").arg(Preferences::lpubPath).arg("/docs/CREDITS.txt");
     QFile file(creditsFile);
     if (! file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(NULL,QMessageBox::tr("%1").arg(QString::fromLatin1(VER_PRODUCTNAME_STR)),

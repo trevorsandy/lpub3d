@@ -125,17 +125,22 @@
   !insertmacro MUI_PAGE_INSTFILES
   
   ;These indented statements modify settings for MUI_PAGE_FINISH
-    !define MUI_FINISHPAGE_NOAUTOCLOSE	
-    !define MUI_FINISHPAGE_RUN "$FileName"
-    !define MUI_FINISHPAGE_RUN_TEXT "Launch ${ProductName}"
-	!define MUI_FINISHPAGE_RUN_NOTCHECKED
-	!define MUI_FINISHPAGE_SHOWREADME "${ProductName}"
-	!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
-	!define MUI_FINISHPAGE_SHOWREADME_TEXT "Install Desktop Icon"
-	!define MUI_FINISHPAGE_SHOWREADME_FUNCTION desktopIcon
+  !define MUI_FINISHPAGE_NOAUTOCLOSE	
+  !define MUI_FINISHPAGE_RUN "$FileName"
+  !define MUI_FINISHPAGE_RUN_TEXT "Launch ${ProductName}"
+  !define MUI_FINISHPAGE_RUN_NOTCHECKED
+  !define MUI_FINISHPAGE_SHOWREADME "${ProductName}"
+  !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
+  !define MUI_FINISHPAGE_SHOWREADME_TEXT "Install Desktop Icon"
+  !define MUI_FINISHPAGE_SHOWREADME_FUNCTION desktopIcon
+  !define MUI_FINISHPAGE_LINK "${CompanyURL}"
+  !define MUI_FINISHPAGE_LINK_LOCATION "${CompanyURL}"
   !insertmacro MUI_PAGE_FINISH
   
   ;Uninstall pages
+  !define MUI_UNWELCOMEFINISHPAGE_BITMAP "welcome.bmp"
+  !define MUI_FINISHPAGE_LINK "${CompanyURL}"
+  !define MUI_FINISHPAGE_LINK_LOCATION "${CompanyURL}"
   !insertmacro MUI_UNPAGE_WELCOME
   !insertmacro MUI_UNPAGE_CONFIRM
   !insertmacro MUI_UNPAGE_INSTFILES

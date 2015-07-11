@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>607</height>
+    <height>575</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,7 +28,7 @@
        <property name="geometry">
         <rect>
          <x>11</x>
-         <y>45</y>
+         <y>15</y>
          <width>451</width>
          <height>68</height>
         </rect>
@@ -82,7 +82,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>213</y>
+         <y>183</y>
          <width>451</width>
          <height>68</height>
         </rect>
@@ -136,8 +136,8 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>363</y>
-         <width>450</width>
+         <y>333</y>
+         <width>451</width>
          <height>77</height>
         </rect>
        </property>
@@ -200,7 +200,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>450</y>
+         <y>420</y>
          <width>451</width>
          <height>60</height>
         </rect>
@@ -225,40 +225,11 @@
         </item>
        </layout>
       </widget>
-      <widget class="QLabel" name="label_8">
-       <property name="geometry">
-        <rect>
-         <x>11</x>
-         <y>13</y>
-         <width>122</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>Sets the default Author on published documents</string>
-       </property>
-       <property name="text">
-        <string>Default author name:</string>
-       </property>
-       <property name="buddy">
-        <cstring>authorName_Edit</cstring>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="authorName_Edit">
-       <property name="geometry">
-        <rect>
-         <x>140</x>
-         <y>13</y>
-         <width>321</width>
-         <height>22</height>
-        </rect>
-       </property>
-      </widget>
       <widget class="QGroupBox" name="annotationBox">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>291</y>
+         <y>261</y>
          <width>451</width>
          <height>60</height>
         </rect>
@@ -328,8 +299,8 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>124</y>
-         <width>450</width>
+         <y>94</y>
+         <width>451</width>
          <height>76</height>
         </rect>
        </property>
@@ -670,9 +641,9 @@
        <property name="geometry">
         <rect>
          <x>28</x>
-         <y>300</y>
+         <y>320</y>
          <width>421</width>
-         <height>191</height>
+         <height>121</height>
         </rect>
        </property>
        <property name="acceptRichText">
@@ -683,7 +654,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>184</y>
+         <y>210</y>
          <width>451</width>
          <height>68</height>
         </rect>
@@ -737,9 +708,9 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>269</y>
+         <y>289</y>
          <width>451</width>
-         <height>241</height>
+         <height>171</height>
         </rect>
        </property>
        <property name="title">
@@ -753,7 +724,7 @@
        <property name="geometry">
         <rect>
          <x>30</x>
-         <y>76</y>
+         <y>60</y>
          <width>211</width>
          <height>20</height>
         </rect>
@@ -769,7 +740,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>114</y>
+         <y>142</y>
          <width>81</width>
          <height>22</height>
         </rect>
@@ -777,15 +748,12 @@
        <property name="text">
         <string>Default URL:</string>
        </property>
-       <property name="buddy">
-        <cstring>authorName_Edit</cstring>
-       </property>
       </widget>
       <widget class="QLineEdit" name="publishURL_Edit">
        <property name="geometry">
         <rect>
          <x>100</x>
-         <y>114</y>
+         <y>142</y>
          <width>361</width>
          <height>22</height>
         </rect>
@@ -795,7 +763,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>149</y>
+         <y>177</y>
          <width>81</width>
          <height>22</height>
         </rect>
@@ -803,15 +771,12 @@
        <property name="text">
         <string>Default Email:</string>
        </property>
-       <property name="buddy">
-        <cstring>authorName_Edit</cstring>
-       </property>
       </widget>
       <widget class="QLineEdit" name="publishEmail_Edit">
        <property name="geometry">
         <rect>
          <x>100</x>
-         <y>149</y>
+         <y>177</y>
          <width>361</width>
          <height>22</height>
         </rect>
@@ -821,7 +786,7 @@
        <property name="geometry">
         <rect>
          <x>250</x>
-         <y>78</y>
+         <y>61</y>
          <width>211</width>
          <height>20</height>
         </rect>
@@ -837,7 +802,7 @@
        <property name="geometry">
         <rect>
          <x>250</x>
-         <y>20</y>
+         <y>23</y>
          <width>211</width>
          <height>20</height>
         </rect>
@@ -847,6 +812,35 @@
        </property>
        <property name="text">
         <string>Display all page attributes</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_8">
+       <property name="geometry">
+        <rect>
+         <x>11</x>
+         <y>107</y>
+         <width>81</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Sets the default Author on published documents</string>
+       </property>
+       <property name="text">
+        <string>Default Author:</string>
+       </property>
+       <property name="buddy">
+        <cstring>authorName_Edit</cstring>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="authorName_Edit">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>107</y>
+         <width>361</width>
+         <height>22</height>
+        </rect>
        </property>
       </widget>
       <zorder>publishDescriptionBox</zorder>
@@ -859,6 +853,8 @@
       <zorder>publishEmail_Edit</zorder>
       <zorder>generageCoverPages_Chk</zorder>
       <zorder>displayAllAttributes_Chk</zorder>
+      <zorder>label_8</zorder>
+      <zorder>authorName_Edit</zorder>
      </widget>
      <widget class="QWidget" name="tabUpdates">
       <attribute name="title">
