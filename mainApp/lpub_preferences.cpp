@@ -84,7 +84,7 @@ bool    Preferences::titleAndFreeformAnnotation = false;
 bool    Preferences::enableFadeStep             = false;
 bool    Preferences::preferCentimeters          = true;
 bool    Preferences::silentUpdate               = false;
-int     Preferences::checkForUpdates            = 0;
+int     Preferences::checkForUpdates            = 2;        //0=Never,1=Daily,2=Weekly,3=Monthly
 
 Preferences::Preferences()
 {
