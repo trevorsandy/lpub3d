@@ -115,7 +115,20 @@ SET DATETIMEf=%YEAR% %MONTH% %DAY% %HOUR%:%MIN%:%SECS%
 >>%genVersion%.
 
 :GENERATE build.h file
->%genBuild% #ifndef BUILD_H 
+>%genBuild%  /****************************************************************************
+>>%genBuild% **
+>>%genBuild% ** Copyright (C) 2015 Trevor SANDY. All rights reserved.
+>>%genBuild% **
+>>%genBuild% ** This file may be used under the terms of the
+>>%genBuild% ** GNU General Public Liceense (GPL) version 3.0
+>>%genBuild% ** which accompanies this distribution, and is
+>>%genBuild% ** available at http://www.gnu.org/licenses/gpl.html
+>>%genBuild% **
+>>%genBuild% ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+>>%genBuild% ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+>>%genBuild% **
+>>%genBuild%.
+>>%genBuild% #ifndef BUILD_H 
 >>%genBuild% #define BUILD_H 
 >>%genBuild%. 
 >>%genBuild% #define _BUILD_REVISION "%REVISION_CMS%" 
