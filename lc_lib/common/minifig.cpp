@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <zlib.h>
+#include <QtZlib/zlib.h>
 #include "minifig.h"
 #include "pieceinf.h"
 #include "project.h"

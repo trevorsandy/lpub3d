@@ -1,5 +1,5 @@
 * text=auto !eol
-/LPub3D.pro -text
+/LPub3DQt531.pro -text
 lc_lib/common/camera.cpp -text
 lc_lib/common/camera.h -text
 lc_lib/common/debug.cpp -text
