@@ -127,6 +127,7 @@ SET DATETIMEf=%YEAR% %MONTH% %DAY% %HOUR%:%MIN%:%SECS%
 >>%genBuild% ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 >>%genBuild% ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 >>%genBuild% **
+>>%genBuild% ****************************************************************************/
 >>%genBuild%.
 >>%genBuild% #ifndef BUILD_H 
 >>%genBuild% #define BUILD_H 
