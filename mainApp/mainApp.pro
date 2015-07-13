@@ -17,6 +17,7 @@ DEPENDPATH += .
 INCLUDEPATH += .
 INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../quazip ../qslog ../qsimpleupdater
 
+
 CONFIG += precompile_header c++11
 PRECOMPILED_HEADER += ../lc_lib/common/lc_global.h
 
@@ -32,6 +33,7 @@ win32 {
     CONFIG += windows
     CONFIG += debug_and_release
     LIBS += -ladvapi32 -lshell32
+
 
 } else {
         LIBS += -lz
@@ -91,7 +93,7 @@ CONFIG(release, debug|release) {
         message("~~~ RELEASE build ~~~")
         #CONFIG += static
         DESTDIR = build/release
-        LIBS += -L$$DESTDIR/../../../quazip/build/release -lquazip		
+        LIBS += -L$$DESTDIR/../../../quazip/build/release -lquazip
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
