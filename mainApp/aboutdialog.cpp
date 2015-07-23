@@ -197,11 +197,10 @@ void AboutDialog::showReadmeDetails(bool clicked){
     QString readmeFile = QString("%1/%2").arg(Preferences::lpubPath).arg("README.txt");
     QFile file(readmeFile);
     if (! file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(NULL,QMessageBox::tr("%1").arg(QString::fromLatin1(VER_PRODUCTNAME_STR)),
-                             QMessageBox::tr("Failed to open Readme file: %1:\n%2")
-                             .arg(readmeFile)
-                             .arg(file.errorString()));
-        return;
+        content = QString("Failed to open Readme file: \n%1:\n%2")
+                            .arg(readmeFile)
+                            .arg(file.errorString());
+        ui->contentEdit->setPlainText(content);
     } else {
         QTextStream in(&file);
         while (! in.atEnd()){
@@ -226,11 +225,10 @@ void AboutDialog::showCreditDetails(bool clicked){
     QString creditsFile = QString("%1/%2").arg(Preferences::lpubPath).arg("/docs/CREDITS.txt");
     QFile file(creditsFile);
     if (! file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(NULL,QMessageBox::tr("%1").arg(QString::fromLatin1(VER_PRODUCTNAME_STR)),
-                             QMessageBox::tr("Failed to open credits file: %1:\n%2")
-                             .arg(creditsFile)
-                             .arg(file.errorString()));
-        return;
+        content = QString("Failed to open Credits file: \n%1:\n%2")
+                            .arg(creditsFile)
+                            .arg(file.errorString());
+        ui->contentEdit->setPlainText(content);
     } else {
         QTextStream in(&file);
         while (! in.atEnd()){
