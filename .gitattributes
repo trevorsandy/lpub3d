@@ -514,13 +514,16 @@ quazip/unzip.c -text
 quazip/unzip.h -text
 quazip/zip.c -text
 quazip/zip.h -text
+tools/Win-setup/00[!!-~]BuildLPub3D01AndCreateDistNoPack.bat -text
 tools/Win-setup/00[!!-~]BuildLPub3D01PackAndCreateDist.bat -text
 tools/Win-setup/00[!!-~]BuildLPub3D02CreateDistOnly.bat -text
 tools/Win-setup/LPub3D.nsi -text
+tools/Win-setup/LPub3DNoPack.nsi -text
 tools/Win-setup/LPub3DViewer_LDraw_Unofficial_Library_Generator.bat -text
 tools/Win-setup/LPub3D_x32.evb -text
 tools/Win-setup/LPub3D_x64.evb -text
 tools/Win-setup/build_inc.bat -text
+tools/Win-setup/gplv3-127x51.png -text
 tools/Win-setup/setup.ico -text
 tools/Win-setup/welcome.bmp -text
 tools/docs/COPYING.txt -text

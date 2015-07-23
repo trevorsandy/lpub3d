@@ -26,24 +26,8 @@ unix:!android {
     LIBS += -lcrypto -lssl
 }
 
-#BUILD_ARCH is a custom Environment Variable set under Projects=>Build Environments
-QMAKE_TARGET.arch = $$(BUILD_ARCH)
-
 win32* {
-
-    !contains(QMAKE_TARGET.arch, x86_64) {
-
-        ## Windows x86 (32bit) specific build here
-        message("~~~ using x86 OpenSSL ~~~")
-        LIBS += -LC:/OpenSSL-Win32/bin -llibeay32
-
-    } else {
-
-        ## Windows x64 (64bit) specific build here
-        message("~~~ using x86_64 OpenSSL ~~~")
-        LIBS += -LC:/OpenSSL-Win64/bin -llibeay32
-
-    }
+    LIBS += -L$$[QT_INSTALL_PREFIX]/bin -llibeay32
 }
 
 RESOURCES += $$PWD/res/qsu_resources.qrc

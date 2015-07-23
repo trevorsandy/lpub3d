@@ -20,9 +20,8 @@ set REVISION_CMS=unknown
 set REVISION_FILE=unknown
 set SUPPORT_EMAIL=unknown
 
-set devRootPath="../../mainApp"
-set versionFile=../tools/Win-setup/AppVersion.nsh
-
+set devRootPath="..\..\mainApp"
+set versionFile=..\tools\Win-setup\AppVersion.nsh
 set buildFile=build.h
 
 set genVersion=%versionFile% ECHO
@@ -53,6 +52,7 @@ FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_COMPANYDOMAIN_STR" version.h
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_FILEDESCRIPTION_STR" version.h') DO SET COMMENTS=%%i %%j
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PUBLISHER_SUPPORT_EMAIL_STR" version.h') DO SET SUPPORT_EMAIL=%%i
 
+SET PRODUCT=%PRODUCT:"=%
 SET VERSION=%VER_MAJOR%.%VER_MINOR%.%VER_SP%
 
 SET HOUR=%TIME:~0,2%
@@ -76,11 +76,14 @@ ECHO DAY=%DAY%
 
 SET DATETIMEf=%YEAR% %MONTH% %DAY% %HOUR%:%MIN%:%SECS%
 
+SET WIN32PRODUCTDIR=%PRODUCT%_x32-%VERSION%.%REVISION_CMS%.%BUILD%_%YEAR%%MONTH%%DAY%
+SET WIN64PRODUCTDIR=%PRODUCT%_x64-%VERSION%.%REVISION_CMS%.%BUILD%_%YEAR%%MONTH%%DAY%
+
 :GENERATE AppVersion.nsh file
 >%genVersion% !define Company %COMPANY% 
 >>%genVersion% ; ${Company} 	
 >>%genVersion%.	
->>%genVersion% !define ProductName %PRODUCT% 
+>>%genVersion% !define ProductName "%PRODUCT%" 
 >>%genVersion% ; ${ProductName}
 >>%genVersion%.	
 >>%genVersion% !define Version "%VERSION%"
@@ -88,7 +91,13 @@ SET DATETIMEf=%YEAR% %MONTH% %DAY% %HOUR%:%MIN%:%SECS%
 >>%genVersion%.	
 >>%genVersion% !define CompleteVersion "%VERSION%.%REVISION_CMS%.%BUILD%_%YEAR%%MONTH%%DAY%"
 >>%genVersion% ; ${CompleteVersion}
->>%genVersion%.	
+>>%genVersion%.		
+>>%genVersion% !define Win32BuildDir "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32" 
+>>%genVersion% ; ${Win32BuildDir}
+>>%genVersion%.
+>>%genVersion% !define Win64BuildDir "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64" 
+>>%genVersion% ; ${Win64BuildDir}
+>>%genVersion%.
 >>%genVersion% !define FileName %FILENAME%
 >>%genVersion% ; ${FileName}
 >>%genVersion%.	
