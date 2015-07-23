@@ -214,7 +214,7 @@ GlobalPageDialog::GlobalPageDialog(
 
   childtab = new QTabWidget();
   childlayout->addWidget(childtab);
-  tab->addTab(childwidget, tr("Publisher"));
+  tab->addTab(childwidget, tr("Publish"));
 
   widget = new QWidget();
   grid = new QGridLayout();
@@ -373,26 +373,36 @@ GlobalPageDialog::GlobalPageDialog(
 
   //~~~~~~~~~ page number tab ~~~~~~~~~~~~//
   widget = new QWidget();
-  grid = new QGridLayout();
-  widget->setLayout(grid);
+  //grid = new QGridLayout();
+  QVBoxLayout *vLayout = new QVBoxLayout(NULL);
+  //widget->setLayout(grid);
+  widget->setLayout(vLayout);
 
   box = new QGroupBox(tr("Display"));
-  grid->addWidget(box, 0,0);
+  //grid->addWidget(box, 0,0);
+  vLayout->addWidget(box);
   child = new CheckBoxGui(tr("Display Page Number"),&pageMeta->dpn,box);
   data->children.append(child);
 
   box = new QGroupBox(tr("Look"));
-  grid->addWidget(box,1,0);
+  //grid->addWidget(box,1,0);
+  vLayout->addWidget(box);
   child = new NumberGui(&pageMeta->number,box);
   data->children.append(child);
 
   box = new QGroupBox(tr("Placement"));
-  grid->addWidget(box,2,0);
+  //grid->addWidget(box,2,0);
+  vLayout->addWidget(box);
   child = new BoolRadioGui(
     "Alternate Corners (like books)",
     "Page Number Always in Same Place",
     &pageMeta->togglePnPlacement,box);
   data->children.append(child);
+
+  //spacer
+  QSpacerItem *vSpacer;
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vLayout->addSpacerItem(vSpacer);
 
   tab->addTab(widget,tr("Page Number"));
 

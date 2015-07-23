@@ -148,6 +148,20 @@ enum pageType{
     BackCoverPage
 };
 
+enum annotationType{
+  TitleAnnotationType = 0,
+  FreeFormAnnotationType,
+  TitleAndFreeFormAnnotationType,
+  AnnotationType
+};
+
+enum sortType{
+    PartSize = 0,
+    PartColour,
+    PartCategory,
+    SortByType
+};
+
 class PlacementData
 {
 public:
@@ -321,6 +335,13 @@ public:
     margin[0] = 0;
     margin[1] = 0;
   }
+};
+
+const QString SortOptionName[SortByType] =
+{
+    "Part Size",
+    "Part Colour",
+    "Part Category"
 };
 
 // testing and diagnostics only

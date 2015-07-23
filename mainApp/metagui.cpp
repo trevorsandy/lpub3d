@@ -848,13 +848,21 @@ PageAttributeTextGui::PageAttributeTextGui(
   //Description Dialog
   gbDescDialog = new QGroupBox("Description Dialog Content",parent);
   gbDescDialog->hide();
-  hLayout = new QHBoxLayout();
-  gbDescDialog->setLayout(hLayout);
+  QVBoxLayout *vLayout = new QVBoxLayout(NULL);
+  //hLayout = new QHBoxLayout();
+  gbDescDialog->setLayout(vLayout);
+  //gbDescDialog->setLayout(hLayout);
   grid->addWidget(gbDescDialog,4,0,1,3);
 
   editDesc = new QTextEdit(parent);
 
-  hLayout->addWidget(editDesc);
+  vLayout->addWidget(editDesc);
+  //hLayout->addWidget(editDesc);
+
+  //spacer
+  QSpacerItem *vSpacer;
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vLayout->addSpacerItem(vSpacer);
 
   connect(editDesc,SIGNAL(textChanged()),
           this,  SLOT(  editDescChanged()));
@@ -869,13 +877,20 @@ PageAttributeTextGui::PageAttributeTextGui(
   //Disclaimer Dialog
   gbDiscDialog = new QGroupBox("Disclaimer Dialog Content",parent);
   gbDiscDialog->hide();
-  hLayout = new QHBoxLayout();
-  gbDiscDialog->setLayout(hLayout);
+  vLayout = new QVBoxLayout(NULL);
+  //hLayout = new QHBoxLayout();
+  gbDiscDialog->setLayout(vLayout);
+  //gbDiscDialog->setLayout(hLayout);
   grid->addWidget(gbDiscDialog,4,0,1,3);
 
   editDisc = new QTextEdit(parent);
 
-  hLayout->addWidget(editDisc);
+  vLayout->addWidget(editDisc);
+  //hLayout->addWidget(editDisc);
+
+  //spacer
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vLayout->addSpacerItem(vSpacer);
 
   connect(editDisc,SIGNAL(textChanged()),
           this,  SLOT(  editDiscChanged()));
@@ -2093,4 +2108,182 @@ void RendererGui::apply(QString & /* unused */)
   if (modified) {
     Render::setRenderer(pick);
   }
+}
+
+/***********************************************************************
+ *
+ * PliSort
+ *
+ **********************************************************************/
+
+PliSortGui::PliSortGui(
+  const QString   &heading,
+  PliSortMeta     *_meta,
+  QGroupBox       *parent)
+{
+  meta = _meta;
+
+  QGridLayout *grid = new QGridLayout(parent);
+
+  if (parent) {
+    parent->setLayout(grid);
+  }
+
+  if (heading != "") {
+    headingLabel = new QLabel(heading,parent);
+    grid->addWidget(headingLabel);
+  } else {
+    headingLabel = NULL;
+  }
+
+  QLabel      *label;
+  label = new QLabel("Sort By",parent);
+  grid->addWidget(label,0,0);
+
+  int currentIndex = PartSize;
+  sortOption  = meta->sortOption.value();
+  sortOption == SortOptionName[PartSize]   ? currentIndex = PartSize :
+  sortOption == SortOptionName[PartColour] ? currentIndex = PartColour :
+                                             currentIndex = PartCategory;
+
+  combo = new QComboBox(parent);
+  combo->addItem(SortOptionName[PartSize]);
+  combo->addItem(SortOptionName[PartColour]);
+  combo->addItem(SortOptionName[PartCategory]);
+  combo->setCurrentIndex(currentIndex);
+  connect(combo,SIGNAL(currentIndexChanged(QString const &)),
+          this, SLOT(  optionChange(       QString const &)));
+  grid->addWidget(combo,0,1);
+
+  modified = false;
+}
+
+void PliSortGui::optionChange(QString const &sortOption)
+{
+  StringMeta sortBy = meta->sortOption;
+  sortBy.setValue(sortOption);
+  meta->sortOption.setValue(sortBy.value());
+  modified = true;
+}
+
+void PliSortGui::apply(QString &topLevelFile)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(topLevelFile,&meta->sortOption);
+  }
+}
+
+/***********************************************************************
+ *
+ * PliAnnotation
+ *
+ **********************************************************************/
+
+PliAnnotationGui::PliAnnotationGui(
+    const QString     &heading,
+    PliAnnotationMeta *_meta,
+    QGroupBox         *parent)
+{
+  meta = _meta;
+
+  QGridLayout *grid = new QGridLayout(parent);
+  QHBoxLayout *hLayout;
+
+  if (parent) {
+      parent->setLayout(grid);
+    }
+
+  if (heading != "") {
+      headingLabel = new QLabel(heading,parent);
+      grid->addWidget(headingLabel);
+    } else {
+      headingLabel = NULL;
+    }
+
+  //PLIAnnotation
+  gbPLIAnnotation = new QGroupBox("Display PLI Annotation",parent);
+  gbPLIAnnotation->setCheckable(true);
+  gbPLIAnnotation->setChecked(meta->display.value());
+  hLayout = new QHBoxLayout();
+  gbPLIAnnotation->setLayout(hLayout);
+  grid->addWidget(gbPLIAnnotation,0,0);
+  connect(gbPLIAnnotation,SIGNAL(toggled(bool)),
+          this, SLOT(  gbToggled(bool)));
+
+  titleAnnotationButton = new QRadioButton("Title",parent);
+  connect(titleAnnotationButton,SIGNAL(clicked(bool)),
+          this,        SLOT(  titleAnnotation(bool)));
+  hLayout->addWidget(titleAnnotationButton);
+
+  freeformAnnotationButton = new QRadioButton("Free Form",parent);
+  connect(freeformAnnotationButton,SIGNAL(clicked(bool)),
+          this,     SLOT(  freeformAnnotation(bool)));
+  hLayout->addWidget(freeformAnnotationButton);
+
+  titleAndFreeformAnnotationButton = new QRadioButton("Both",parent);
+  connect(titleAndFreeformAnnotationButton,SIGNAL(clicked(bool)),
+          this,     SLOT(  titleAndFreeformAnnotation(bool)));
+  hLayout->addWidget(titleAndFreeformAnnotationButton);
+
+  titleAnnotationButton->setChecked(meta->titleAnnotation.value());
+  freeformAnnotationButton->setChecked(meta->freeformAnnotation.value());
+  titleAndFreeformAnnotationButton->setChecked(meta->titleAndFreeformAnnotation.value());
+
+  titleModified            = false;
+  freeformModified         = false;
+  titleAndFreeformModified = false;
+  displayModified          = false;
+}
+
+void PliAnnotationGui::titleAnnotation(bool checked)
+{
+  meta->titleAnnotation.setValue(checked);
+  meta->freeformAnnotation.setValue(! checked);
+  meta->titleAndFreeformAnnotation.setValue(! checked);
+  titleModified = true;
+}
+
+void PliAnnotationGui::freeformAnnotation(bool checked)
+{
+  meta->titleAnnotation.setValue(! checked);
+  meta->freeformAnnotation.setValue( checked);
+  meta->titleAndFreeformAnnotation.setValue(! checked);
+  freeformModified = true;
+}
+
+void PliAnnotationGui::titleAndFreeformAnnotation(bool checked)
+{
+  meta->titleAnnotation.setValue(! checked);
+  meta->freeformAnnotation.setValue(! checked);
+  meta->titleAndFreeformAnnotation.setValue( checked);
+  titleAndFreeformModified = true;
+}
+
+void PliAnnotationGui::gbToggled(bool toggled)
+{
+  meta->display.setValue(toggled);
+  if(toggled){
+      titleAnnotationButton->setChecked(meta->titleAnnotation.value());
+      freeformAnnotationButton->setChecked(meta->freeformAnnotation.value());
+      titleAndFreeformAnnotationButton->setChecked(meta->titleAndFreeformAnnotation.value());
+    }
+  displayModified = true;
+}
+
+void PliAnnotationGui::apply(QString &topLevelFile)
+{
+  MetaItem mi;
+  if (titleModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->titleAnnotation);
+    }
+  if (freeformModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->freeformAnnotation);
+    }
+  if (titleAndFreeformModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->titleAndFreeformAnnotation);
+    }
+  if (displayModified){
+      mi.setGlobalMeta(topLevelFile,&meta->display);
+    }
 }

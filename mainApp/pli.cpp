@@ -52,6 +52,11 @@
 #include "ranges_element.h"
 #include "range_element.h"
 
+//#include "lc_global.h"
+#include "lc_category.h"
+#include "lc_library.h"
+#include "pieceinf.h"
+
 QCache<QString,QString> Pli::orientation;
     
 const Where &Pli::topOfStep()
@@ -279,13 +284,21 @@ void Pli::getAnnotate(
      QString &annotateStr)
 {
     annotateStr.clear();
-    annotateStr = PartsList::title(type.toLower());
 
-    bool title = Preferences::preferTitleAnnotation;
-    bool freeform = Preferences::preferFreeformAnnotation;
-    bool titleAndFreeform = Preferences::titleAndFreeformAnnotation;
+    //bool enable = Preferences::enablePLIPartAnnotation;
+    bool enable = pliMeta.annotation.display.value();
+    if (! enable)
+        return;
+
+    //bool title = Preferences::preferTitleAnnotation;
+    bool title = pliMeta.annotation.titleAnnotation.value();
+    //bool freeform = Preferences::preferFreeformAnnotation;
+    bool freeform = pliMeta.annotation.freeformAnnotation.value();
+    //bool titleAndFreeform = Preferences::titleAndFreeformAnnotation;
+    bool titleAndFreeform = pliMeta.annotation.titleAndFreeformAnnotation.value();
 
     // pick up annotations
+    annotateStr = PartsList::title(type.toLower());
     if(title || titleAndFreeform){
         if (titleAnnotations.size() == 0 && !titleAndFreeform)
             return;
@@ -881,8 +894,85 @@ void Pli::getRightEdge(
 
 int Pli::sortPli()
 {
+  // populate partSize
+  partSize();
+  // populate partCategory
+  partCategory();
+
+  sortedKeys = parts.keys();
+
+  if (pliMeta.sortBy.value() == SortOptionName[PartColour]){
+
+      // Sort parts by colour
+      for (int i = 0; i < parts.size() - 1; i++) {
+          for (int j = i+1; j < parts.size(); j++) {
+              if (parts[sortedKeys[i]]->color < parts[sortedKeys[j]]->color) {
+                  QString t = sortedKeys[i];
+                  sortedKeys[i] = sortedKeys[j];
+                  sortedKeys[j] = t;
+                }
+            }
+        }
+
+      // Sort colour-sorted parts by size
+      for (int i = 0; i < parts.size() - 1; i++) {
+          for (int j = i+1; j < parts.size(); j++) {
+              if (parts[sortedKeys[i]]->color == parts[sortedKeys[j]]->color) {
+                  if (parts[sortedKeys[i]]->size < parts[sortedKeys[j]]->size) {
+                      QString t = sortedKeys[i];
+                      sortedKeys[i] = sortedKeys[j];
+                      sortedKeys[j] = t;
+                    }
+                }
+            }
+        }
+
+    } else if (pliMeta.sortBy.value() == SortOptionName[PartCategory]){
+
+      // Sort parts by category
+      for (int i = 0; i < parts.size() - 1; i++) {
+          for (int j = i+1; j < parts.size(); j++) {
+              if (parts[sortedKeys[i]]->category < parts[sortedKeys[j]]->category) {
+                  QString t = sortedKeys[i];
+                  sortedKeys[i] = sortedKeys[j];
+                  sortedKeys[j] = t;
+                }
+            }
+        }
+
+      // Sort category-sorted parts by size
+      for (int i = 0; i < parts.size() - 1; i++) {
+          for (int j = i+1; j < parts.size(); j++) {
+              if (parts[sortedKeys[i]]->category == parts[sortedKeys[j]]->category) {
+                  if (parts[sortedKeys[i]]->size < parts[sortedKeys[j]]->size) {
+                      QString t = sortedKeys[i];
+                      sortedKeys[i] = sortedKeys[j];
+                      sortedKeys[j] = t;
+                    }
+                }
+            }
+        }
+
+    } else {
+
+      // Sort parts by size
+      for (int i = 0; i < parts.size() - 1; i++) {
+          for (int j = i+1; j < parts.size(); j++) {
+              if (parts[sortedKeys[i]]->size < parts[sortedKeys[j]]->size) {
+                  QString t = sortedKeys[i];
+                  sortedKeys[i] = sortedKeys[j];
+                  sortedKeys[j] = t;
+                }
+            }
+        }
+    }
+  return 0;
+}
+
+int Pli::partSize()
+{
   QString key;
-  
+
   widestPart = 0;
   tallestPart = 0;
 
@@ -906,14 +996,14 @@ int Pli::sortPli()
       QString imageName = Paths::partsDir + "/" + key + ".png";
 
       QPixmap *pixmap = new QPixmap();
-      
+
       if (pixmap == NULL) {
         return -1;
       }
 
       if (createPartImage(key,part->type,part->color,pixmap)) {
         QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
-        QMessageBox::tr("Failed to load %1")
+        QMessageBox::tr("Failed to create PLI part %1")
         .arg(imageName));
         return -1;
       }
@@ -924,9 +1014,9 @@ int Pli::sortPli()
 
       delete pixmap;
 
-      part->pixmapWidth  = image.width(); 
+      part->pixmapWidth  = image.width();
       part->pixmapHeight = image.height();
-     
+
       part->width  = image.width();
 
       /* Add instance count area */
@@ -934,15 +1024,15 @@ int Pli::sortPli()
       QString descr;
 
       descr = QString("%1x") .arg(part->instances.size(),0,10);
-      
+
       QString font = pliMeta.instance.font.valueFoo();
       QString color = pliMeta.instance.color.value();
-      
-      part->instanceText = 
+
+      part->instanceText =
         new InstanceTextItem(this,part,descr,font,color,parentRelativeType);
 
       int textWidth, textHeight;
-        
+
       part->instanceText->size(textWidth,textHeight);
 
       part->textHeight = textHeight;
@@ -1013,13 +1103,13 @@ int Pli::sortPli()
       if (bom && pliMeta.sort.value()) {
         QString pclass;
         partClass(part->type,pclass);
-        part->sort = QString("%1%2%3%%4")
+        part->size = QString("%1%2%3%%4")
                      .arg(pclass,80,' ')
                      .arg(part->width, 8,10,QChar('0'))
                      .arg(part->height,8,10,QChar('0'))
                      .arg(part->color);
       } else {
-        part->sort = QString("%1%2%3%4")
+        part->size = QString("%1%2%3%4")
                      .arg(part->width, 8,10,QChar('0'))
                      .arg(part->height,8,10,QChar('0'))
                      .arg(part->type)
@@ -1037,20 +1127,39 @@ int Pli::sortPli()
     }
   }
 
-  sortedKeys = parts.keys();
+  return 0;
+}
 
-  // We got all the sizes for parts for a given step so sort
+int Pli::partCategory(){
 
-  for (int i = 0; i < parts.size() - 1; i++) {
-    for (int j = i+1; j < parts.size(); j++) {
-      if (parts[sortedKeys[i]]->sort < parts[sortedKeys[j]]->sort) {
-        QString t = sortedKeys[i];
-        sortedKeys[i] = sortedKeys[j];
-        sortedKeys[j] = t;
-      }
+  lcPiecesLibrary* library = lcGetPiecesLibrary();
+  int categoryIndex;
+  QString key;
+
+  foreach(key,parts.keys()) {
+      PliPart *part;
+
+      part = parts[key];
+
+      if (PartsList::isKnownPart(part->type) && ! PartsList::isSubPart(part->type)) {
+
+          QFileInfo info(part->type);
+          PieceInfo *partInfo = library->FindPiece(info.baseName().toUpper().toLatin1().constData(), NULL, false);
+
+          for (categoryIndex = 0; categoryIndex < gCategories.GetSize(); categoryIndex++)
+            if (library->PieceInCategory(partInfo, gCategories[categoryIndex].Keywords)){
+                part->category = categoryIndex;
+//                logInfo() << " Type Name: " << QString("%1").arg(info.baseName().toLatin1().constData())
+//                          << " Part Name: " << QString("%1").arg(partInfo->m_strName)
+//                          << " Category:  " << QString("%1").arg(categoryIndex)
+//                             ;
+                break;
+              }
+        } else {
+          part->category = gCategories.GetSize()+10;
+        }
     }
-  }
-  
+
   return 0;
 }
 
@@ -1433,8 +1542,7 @@ QString PGraphicsPixmapItem::pliToolTip(
     title = title.right(title.length() - 2);
   }
   QString toolTip;
-
-  toolTip = LDrawColor::name(color) + " " + type + " \"" + title + "\" - popup menu";
+  toolTip = LDrawColor::name(color) + " (" + LDrawColor::ldColorCode(LDrawColor::name(color)) + ") " + type + " \"" + title + "\" - right-click to modify";
   return toolTip;
 }
 
@@ -1457,9 +1565,9 @@ PliBackgroundItem::PliBackgroundItem(
   QString toolTip;
 
   if (_pli->bom) {
-    toolTip = "Bill Of Materials - popup menu";
+    toolTip = "Bill Of Materials - right-click to modify";
   } else {
-    toolTip = "Part List - popup menu";
+    toolTip = "Part List - right-click to modify";
   }
 
   if (parentRelativeType == StepGroupType /* && pli->perStep == false */) {
@@ -1551,43 +1659,31 @@ void PliBackgroundItem::contextMenuEvent(
 {
   if (pli) {
     QMenu menu;
-      
-    QAction *constrainAction  = menu.addAction("Change Shape");
-    constrainAction->setWhatsThis(             "Change Shape:\n"
-      "  You can change the shape of this parts list.  One way, is\n"
-      "  is to ask the computer to make the parts list as small as\n"
-      "  possible (area). Another way is to ask the computer to\n"
-      "  make it as close to square as possible.  You can also pick\n"
-      "  how wide you want it, and the computer will make it as\n"
-      "  tall as is needed.  Another way is to pick how tall you\n"
-      "  and it, and the computer will make it as wide as it needs.\n"
-      "  The last way is to tell the computer how many columns it\n"
-      "  can have, and then it will try to make all the columns the\n"
-                                               "  same height\n");
 
-    QAction *splitBomAction = NULL;
+    PlacementData placementData = pli->placement.value();
+
+    QString pl = pli->bom ? "Bill Of Materials" : "Parts List";
+    QAction *placementAction  = commonMenus.placementMenu(menu,pl,
+                                commonMenus.naturalLanguagePlacementWhatsThis(PartsListType,placementData,pl));
+    QAction *constrainAction  = commonMenus.constrainMenu(menu,pl);
+    QAction *backgroundAction = commonMenus.backgroundMenu(menu,pl);
+    QAction *borderAction     = commonMenus.borderMenu(menu,pl);
+    QAction *marginAction     = commonMenus.marginMenu(menu,pl);
+    QAction *sortAction       = commonMenus.sortMenu(menu,pl);
+    QAction *annotationAction = commonMenus.annotationMenu(menu,pl);
+
+
+    QAction *splitBomAction  = NULL;
+    QAction *deleteBomAction = NULL;
 
     if (pli->bom) {
       splitBomAction = menu.addAction("Split Bill of Materials");
       splitBomAction->setIcon(QIcon(":/resources/splitbom.png"));
-    }
 
-    PlacementData placementData = pli->placement.value();
-
-    QString name = pli->bom ? "Move Bill Of Materials" : "Move Parts List";
-    QAction *placementAction  = menu.addAction(name);
-    placementAction->setWhatsThis(
-      commonMenus.naturalLanguagePlacementWhatsThis(PartsListType,placementData,name));
-
-    QString pl = pli->bom ? "Bill of Materials " : "Parts List ";
-    QAction *backgroundAction = commonMenus.backgroundMenu(menu,pl);
-    QAction *borderAction     = commonMenus.borderMenu(menu,pl);
-    QAction *marginAction     = commonMenus.marginMenu(menu,pl);
-
-    QAction *deleteBomAction  = NULL;
-
-    if (pli->bom) {
       deleteBomAction = menu.addAction("Delete Bill of Materials");
+      deleteBomAction->setIcon(QIcon(":/resources/delete.png"));
+
+      annotationAction->setIcon(QIcon(":/resources/bomannotation.png"));
     }
 
     QAction *selectedAction   = menu.exec(event->screenPos());
@@ -1595,52 +1691,91 @@ void PliBackgroundItem::contextMenuEvent(
     if (selectedAction == NULL) {
       return;
     }
-  
-    Where top;
-    Where bottom;
-    bool  local;
-      
+       
     Where topOfStep;
     Where bottomOfStep;
-    
+
     if (pli->step) {
-      if (pli->bom || pli->perStep) {
+        if (pli->bom) {
+            topOfStep = pli->topOfSteps();
+            bottomOfStep = pli->bottomOfSteps();
+          } else {
+            topOfStep = pli->topOfStep();
+            bottomOfStep = pli->bottomOfStep();
+          }
+      } else {
         topOfStep = pli->topOfSteps();
         bottomOfStep = pli->bottomOfSteps();
-      } else {
-        topOfStep = pli->topOfStep();
-        bottomOfStep = pli->bottomOfStep();
       }
-    } else {
-      topOfStep = pli->topOfSteps();
-      bottomOfStep = pli->bottomOfSteps();
-    }
+
+//    Where top;
+//    Where bottom;
+
+//    switch (parentRelativeType) {
+//      case StepGroupType:
+//        top    = pli->topOfSteps();
+//        bottom = pli->bottomOfSteps();
+//        break;
+//      case CalloutType:
+//        top    = pli->topOfCallout();
+//        bottom = pli->bottomOfCallout();
+//        break;
+//      default:
+//        if (pli->bom) {
+//            top    = pli->topOfSteps();
+//            bottom = pli->bottomOfSteps();
+//          } else {
+//            top    = pli->topOfStep();
+//            bottom = pli->bottomOfStep();
+//          }
+//        break;
+//      }
+
+//    if (pli->step) {
+//      if (pli->bom || pli->perStep) {
+//        topOfStep = pli->topOfSteps();
+//        bottomOfStep = pli->bottomOfSteps();
+//      } else {
+//        topOfStep = pli->topOfStep();
+//        bottomOfStep = pli->bottomOfStep();
+//      }
+//    } else {
+//      topOfStep = pli->topOfSteps();
+//      bottomOfStep = pli->bottomOfSteps();
+//    }
   
-    switch (parentRelativeType) {
-      case StepGroupType:
-        top    = pli->topOfSteps();
-        bottom = pli->bottomOfSteps();
-        local = false;
-      break;
-      case CalloutType:
-        top    = pli->topOfCallout();
-        bottom = pli->bottomOfCallout();
-        local = false;
-      break;
-      default:
-        if (pli->bom || pli->perStep) {
-          top    = pli->topOfSteps();
-          bottom = pli->bottomOfSteps();
-        } else {
-          top    = pli->topOfStep();
-          bottom = pli->bottomOfStep();
-        }
-        local = true;
-      break;
-    }
+//    switch (parentRelativeType) {
+//      case StepGroupType:
+//        top    = pli->topOfSteps();
+//        bottom = pli->bottomOfSteps();
+//      break;
+//      case CalloutType:
+//        top    = pli->topOfCallout();
+//        bottom = pli->bottomOfCallout();
+//      break;
+//      default:
+//        if (pli->bom || pli->perStep) {
+//          top    = pli->topOfSteps();
+//          bottom = pli->bottomOfSteps();
+//        } else {
+//          top    = pli->topOfStep();
+//          bottom = pli->bottomOfStep();
+//        }
+//      break;
+//    }
 
     QString me = pli->bom ? "BOM" : "PLI";
-    if (selectedAction == constrainAction) {
+    if (selectedAction == sortAction) {
+      changePliSort(me+" Sort",
+                    topOfStep,
+                    bottomOfStep,
+                   &pli->pliMeta.sortBy.sortOption);
+    } else if (selectedAction == annotationAction) {
+        changePliAnnotation(me+" Annotaton",
+                            topOfStep,
+                            bottomOfStep,
+                            &pli->pliMeta.annotation);
+    } else if (selectedAction == constrainAction) {
       changeConstraint(me+" Constraint",
                        topOfStep,
                        bottomOfStep,
@@ -1678,13 +1813,13 @@ void PliBackgroundItem::contextMenuEvent(
                     &pli->pliMeta.margin);
     } else if (selectedAction == backgroundAction) {
       changeBackground(me+" Background",
-                       top,
-                       bottom,
+                       topOfStep,
+                       bottomOfStep,
                        &pli->pliMeta.background);
     } else if (selectedAction == borderAction) {
       changeBorder(me+" Border",
-                   top,
-                   bottom,
+                   topOfStep,
+                   bottomOfStep,
                    &pli->pliMeta.border);
     } else if (selectedAction == deleteBomAction) {
       deleteBOM();
@@ -1785,7 +1920,7 @@ void AnnotateTextItem::contextMenuEvent(
 {
   QMenu menu;
      
-  QString pl = "Part Length ";
+  QString pl = "Part Annotation";
 
   QAction *fontAction   = commonMenus.fontMenu(menu,pl);
   QAction *colorAction  = commonMenus.colorMenu(menu,pl);
@@ -1801,12 +1936,12 @@ void AnnotateTextItem::contextMenuEvent(
   Where bottom;
   
   switch (parentRelativeType) {
-    case StepGroupType:
-      top    = pli->topOfSteps();
-      MetaItem mi;
-      mi.scanForward(top,StepGroupMask);
-      bottom = pli->bottomOfSteps();
-    break;
+//    case StepGroupType:
+//      top    = pli->topOfSteps();
+//      MetaItem mi;
+//      mi.scanForward(top,StepGroupMask);
+//      bottom = pli->bottomOfSteps();
+//    break;
     case CalloutType:
       top    = pli->topOfCallout();
       bottom = pli->bottomOfCallout();
@@ -1818,11 +1953,15 @@ void AnnotateTextItem::contextMenuEvent(
   }
 
   if (selectedAction == fontAction) {
-    changeFont(top,bottom,&pli->pliMeta.annotate.font);
+    changeFont(top,
+               bottom,
+               &pli->pliMeta.annotate.font);
   } else if (selectedAction == colorAction) {
-    changeColor(top,bottom,&pli->pliMeta.annotate.color);
+    changeColor(top,
+                bottom,
+                &pli->pliMeta.annotate.color);
   } else if (selectedAction == marginAction) {
-    changeMargins("Part Length Margins",
+    changeMargins(pl + " Margins",
                   top,
                   bottom,
                   &pli->pliMeta.annotate.margin);
@@ -1850,12 +1989,12 @@ void InstanceTextItem::contextMenuEvent(
   Where bottom;
   
   switch (parentRelativeType) {
-    case StepGroupType:
-      top    = pli->topOfSteps() + 1;
-      MetaItem mi;
-      mi.scanForward(top,StepGroupMask);
-      bottom = pli->bottomOfSteps();
-    break;
+//    case StepGroupType:
+//      top    = pli->topOfSteps() + 1;
+//      MetaItem mi;
+//      mi.scanForward(top,StepGroupMask);
+//      bottom = pli->bottomOfSteps();
+//    break;
     case CalloutType:
       top    = pli->topOfCallout();
       bottom = pli->bottomOfCallout();
@@ -1871,7 +2010,7 @@ void InstanceTextItem::contextMenuEvent(
   } else if (selectedAction == colorAction) {
     changeColor(top,bottom,&pli->pliMeta.instance.color,1,false);
   } else if (selectedAction == marginAction) {
-    changeMargins("Margins",top,bottom,&pli->pliMeta.instance.margin,true,1,false);
+    changeMargins(pl + " Margins",top,bottom,&pli->pliMeta.instance.margin,true,1,false);
   }
 }
 
@@ -1879,12 +2018,14 @@ void PGraphicsPixmapItem::contextMenuEvent(
   QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QString part = "Part ";
+  QString pl = "Part ";
   QAction *hideAction = menu.addAction("Hide Part(s) from Parts List");
-  QAction *marginAction = commonMenus.marginMenu(menu,part);
+  hideAction->setIcon(QIcon(":/resources/display.png"));
+
+  QAction *marginAction = commonMenus.marginMenu(menu,pl);
 
 #if 0
-  QAction *scaleAction  = commonMenus.scaleMenu(menu,part);
+  QAction *scaleAction  = commonMenus.scaleMenu(menu,pl);
 
   QAction *orientationAction= menu.addAction("Change Part Orientation");
   orientationAction->setDisabled(true);

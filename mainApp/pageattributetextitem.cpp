@@ -154,19 +154,19 @@ void PageAttributeTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   int  onPageType;
   if (page->coverPage && page->frontCover){
       onPageType = FrontCoverPage;
-      logInfo() << " On Front Cover Page";
+      //logInfo() << " On Front Cover Page";
   }
   else if(page->coverPage && page->backCover){
       onPageType = BackCoverPage;
-      logInfo() << " On Back Cover Page";
+      //logInfo() << " On Back Cover Page";
   }
   else {
       onPageType = ContentPage;
-      logInfo() << " On Content Page";
+      //logInfo() << " On Content Page";
   }
 
   //temporary until I figure a way to hide dependent attributes w/o crashing
-  //TODO redesign attribute placement relativeTo scheme to allow hide w/o cras
+  //TODO redesign attribute placement relativeTo scheme to allow hide w/o crash
   QAction *displayTextAction = NULL;
   if (onPageType == FrontCoverPage){
       switch(relativeType)
@@ -357,6 +357,7 @@ void PageAttributeTextItem::focusInEvent(QFocusEvent *event)
 {
   textValueChanged = false;
   QGraphicsTextItem::focusInEvent(event);
+
 }
 
 void PageAttributeTextItem::focusOutEvent(QFocusEvent *event)

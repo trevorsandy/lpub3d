@@ -89,7 +89,7 @@ class SubmodelInstanceCount : public NumberPlacementItem
       int                  valueIn,
       QGraphicsItem       *parentIn)    {
       page = pageIn;
-      QString toolTip("Times used - popup menu");
+      QString toolTip("Times used - right-click to modify");
       setAttributes(PageNumberType,
                     SingleStepType,
                     numberMetaIn,
@@ -240,6 +240,8 @@ int Gui::addGraphicsPageItems(
    * There still seem to be cases where we get little gaps on either the
    * right or bottom edge, and I just don't know what the problem is.
    */
+
+  QApplication::processEvents();
 
   int pW, pH;
 

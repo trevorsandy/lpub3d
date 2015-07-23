@@ -233,7 +233,7 @@ int Step::createCsi(
 int Step::Render3DCsi(QString &csi3DName)
 {
     if (!gMainWindow->GetHalt3DViewer()) {
-        int rc = renderer->render3DCsi(csi3DName);
+        int rc = renderer->render3DCsiImage(csi3DName);
         return rc;
     }
     return -1;
@@ -981,6 +981,9 @@ void Step::addGraphicsItems(
   }
 
   for (int i = 0; i < list.size(); i++) {
+
+    QApplication::processEvents();
+
     Callout *callout = list[i];
     PlacementData placementData = callout->placement.value();
 
@@ -1038,6 +1041,9 @@ void Step::placeInside()
   }
 
   for (int i = 0; i < list.size(); i++) {
+
+    QApplication::processEvents();
+
     Callout *callout = list[i];
     PlacementData placementData = callout->placement.value();
 
@@ -1176,6 +1182,8 @@ void Step::sizeitFreeform(
   // size the step
 
   for (int dim = XX; dim <= YY; dim++) {
+
+    QApplication::processEvents();
 
     int min = 500000;
     int max = 0;

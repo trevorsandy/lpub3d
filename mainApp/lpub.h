@@ -419,7 +419,7 @@ public:
   int             stepPageNum;     // the number displayed on the page
   int             saveStepPageNum;
   int             firstStepPageNum;
-  int             lastStepPageNum;
+  int             lastStepPageNum; 
   QList<Where>    topOfPages;
 
   int             boms;            // the number of pli BOMs in the document
@@ -464,12 +464,15 @@ public:
     return ldrawFile.numSteps(modelName);
   }
   QString readLine(const Where &here);
+
   bool isSubmodel(const QString &modelName)
   {
     return ldrawFile.isSubmodel(modelName);
   }
-
-  bool isMpd() { return ldrawFile.isMpd(); }
+  bool isMpd()
+  {
+    return ldrawFile.isMpd();
+  }
   bool isOlder(const QStringList &foo,const QDateTime &lastModified)
   {
     bool older = ldrawFile.older(foo,lastModified);
@@ -664,16 +667,14 @@ public:
 private:    
   QGraphicsScene        *KpageScene;      // top of displayed page's graphics items
   LGraphicsView         *KpageView;       // the visual representation of the scene
-
-  LDrawFile             ldrawFile;       // contains MPD or all files used in model
-  QString               curFile;         // the file name for MPD, or top level file
-  QString               curSubFile;      // whats being displayed in the edit window
+  LDrawFile              ldrawFile;       // contains MPD or all files used in model
+  QString                curFile;         // the file name for MPD, or top level file
+  QString                curSubFile;      // whats being displayed in the edit window
   EditWindow            *editWindow;      // the sub file editable by the user
   ParmsWindow           *parmsWindow;     // the parametrer file editor
   QProgressBar          *progressBar;
   QLabel                *progressLabel;
   QElapsedTimer         *timer;
-//  GlobalFadeStep        *data;
 
   ColourPartList        colourPart;         // create fade parts for static colour parts
   FadeStepColorParts    fadeStepColorParts; //internal list of color parts to be processed for fade step.
@@ -770,6 +771,7 @@ private slots:
     void openRecentFile();
     void updateCheck();
     bool aboutDialog();
+    void editTitleAnnotations();
     void editFreeFormAnnitations();
     void editFadeColourParts();
     void generageFadeColourParts();
@@ -804,6 +806,8 @@ private slots:
     void setPage();
     void firstPage();
     void lastPage();
+    void setGoToPage(int index);
+    void loadPages();
 
     void zoomIn();
     void zoomOut();
@@ -929,6 +933,7 @@ private:
   QAction  *nextPageAct;
   QAction  *previousPageAct;
   QLineEdit*setPageLineEdit;
+  QComboBox*setGoToPageCombo;
 
   // manage Caches
   QAction  *clearPLICacheAct;
@@ -950,6 +955,7 @@ private:
   QAction *preferencesAct;
 
   QAction *editFreeFormAnnitationsAct;
+  QAction *editTitleAnnotationsAct;
   QAction *editFadeColourPartsAct;
   QAction *generateFadeColourPartsAct;
 

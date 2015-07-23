@@ -127,9 +127,9 @@ QStringList LDrawColor::names()
 }
 
 /* This function provides LDraw color codes*/
-QString LDrawColor::ldColorCode(QString ldrawName)
+QString LDrawColor::ldColorCode(QString name)
 {
-    QString key(ldrawName.toLower());
+    QString key(name.toLower());
     if (ldname2ldcolor.contains(key)) {
       return ldname2ldcolor[key];
     } else {

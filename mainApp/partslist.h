@@ -52,40 +52,25 @@
 
  ***************************************************************************/
 
-
-
 #ifndef PARTSLIST_H
-
 #define PARTSLIST_H
 
 
-
 #include <QHash>
-
 #include <QString>
-
 #include <QStringList>
 
-
-
 class PartsList {
-
   private:
-
     static QHash<QString, QString> list;
-
-    static QString     empty;
-
-    static QStringList partialPaths;
-
+    static QHash<QString, QString> subList;
+    static QString                 empty;
+    static QStringList             partialPaths;
   public:
-
     PartsList();
-
     static const QString &title(QString part);
-
     static bool  isKnownPart(QString &part);
-
+    static bool  isSubPart(QString &part);
 };
 
 #endif

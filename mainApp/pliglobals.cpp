@@ -159,6 +159,34 @@ GlobalPliDialog::GlobalPliDialog(
 
   tab->addTab(widget,"Contents");
 
+  /*
+   * PLI Sort
+   */
+  widget = new QWidget(NULL);
+  //grid = new QGridLayout(NULL);
+  QVBoxLayout *vLayout = new QVBoxLayout(NULL);
+  //widget->setLayout(grid);
+  widget->setLayout(vLayout);
+
+  box = new QGroupBox("Annotation Options");
+  //grid->addWidget(box);
+  vLayout->addWidget(box);
+  child = new PliAnnotationGui("",&pliMeta->annotation,box);
+  data->children.append(child);
+
+  box = new QGroupBox("Sort Options");
+  //grid->addWidget(box);
+  vLayout->addWidget(box);
+  child = new PliSortGui("",&pliMeta->sortBy,box);
+  data->children.append(child);
+
+  //spacer
+  QSpacerItem *vSpacer;
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vLayout->addSpacerItem(vSpacer);
+
+  tab->addTab(widget,"Annotations/Sorting");
+
   QDialogButtonBox *buttonBox;
 
   buttonBox = new QDialogButtonBox(NULL);

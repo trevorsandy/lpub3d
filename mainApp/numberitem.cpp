@@ -206,24 +206,20 @@ void PageNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QMenu menu;
 
   PlacementData placementData = placement.value();
-  QString name = "Move Page Number";
+  QString pl = "Page Number";
   QAction *placementAction  = menu.addAction(name);
   placementAction->setWhatsThis(
     commonMenus.naturalLanguagePlacementWhatsThis(PageNumberType,placementData,name));
 
-  QAction *fontAction       = menu.addAction("Change Page Number Font");
-  QAction *colorAction      = menu.addAction("Change Page Number Color");
-  QAction *marginAction     = menu.addAction("Change Page Number Margins");
-
-  fontAction->setWhatsThis("You can change the font or the size of the page number");
-  colorAction->setWhatsThis("You can change the color of the page number");
-  marginAction->setWhatsThis("You can change how much empty space their is around the page number");
+  QAction *fontAction   = commonMenus.fontMenu(menu,pl);
+  QAction *colorAction  = commonMenus.colorMenu(menu,pl);
+  QAction *marginAction = commonMenus.marginMenu(menu,pl);
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
   Where topOfSteps          = page->topOfSteps();                   //Trevor@vers303 add
   Where bottomOfSteps       = page->bottomOfSteps();                //Trevor@vers303 add
-  bool multiStep            = parentRelativeType == StepGroupType;  //Trevor@vers303 add
+  bool  useTop              = parentRelativeType != StepGroupType;  //Trevor@vers303 add
 
   if (selectedAction == NULL) {
     return;
@@ -231,26 +227,33 @@ void PageNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
     changePlacement(parentRelativeType,                           //Trevor@vers303 change from static PageType
                     PageNumberType,
-                    "Move Page Number",
+                    "Move " + pl,
                     topOfSteps,                                   //Trevor@vers303 change
                     bottomOfSteps,                                //Trevor@vers303 change
                    &placement,
-                    multiStep ? false : true);                    //Trevor@vers303 add
+                    useTop);                                      //Trevor@vers303 add
 
   } else if (selectedAction == fontAction) {
 
-    changeFont(topOfSteps,bottomOfSteps,&font);                   //Trevor@vers303 change
+    changeFont(topOfSteps,
+               bottomOfSteps,
+              &font,1,true,
+               useTop);                                           //Trevor@vers303 change
 
   } else if (selectedAction == colorAction) {                     //Trevor@vers303 change
 
-    changeColor(topOfSteps,bottomOfSteps,&color);                 //Trevor@vers303 change
+    changeColor(topOfSteps,
+                bottomOfSteps,
+               &color,1,true,
+                useTop);                                           //Trevor@vers303 change
 
   } else if (selectedAction == marginAction) {                    //Trevor@vers303 change
 
-    changeMargins("Page Number Margins",
-                  topOfSteps,bottomOfSteps,                       //Trevor@vers303 change
+    changeMargins(pl + " Margins",
+                  topOfSteps,
+                  bottomOfSteps,                                  //Trevor@vers303 change
                  &margin,
-                  multiStep ? false : true);                      //Trevor@vers303 add
+                  useTop);                                        //Trevor@vers303 add
   }
 }
 
@@ -290,10 +293,10 @@ StepNumberItem::StepNumberItem(
   const char    *_format,
   int            _value,
   QGraphicsItem *_parent,
-  QString        name)
+  QString         name)
 {
   step = _step;
-  QString toolTip("Step Number - popup menu");
+  QString toolTip("Step Number - right-click to modify");
   setAttributes(StepNumberType,
                 parentRelativeType,
                 _number,
@@ -301,74 +304,61 @@ StepNumberItem::StepNumberItem(
                 _value,
                 toolTip,
                 _parent,
-                name);
+                 name);
 }
 
 void StepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
+
+  QString pl = "Step Number";
+
   QAction *placementAction = commonMenus.placementMenu(menu,name);
   QAction *fontAction      = commonMenus.fontMenu(menu,name);
   QAction *colorAction     = commonMenus.colorMenu(menu,name);
   QAction *marginAction    = commonMenus.marginMenu(menu,name);
 
   QAction *selectedAction   = menu.exec(event->screenPos());
-  
-  Where topOfStep       = step->topOfStep();
-  Where bottomOfStep    = step->bottomOfStep();
-  Where topOfSteps      = step->topOfSteps();
-  Where bottomOfSteps   = step->bottomOfSteps();
-  Where topOfCallout    = step->topOfCallout();                     //Trevor@vers305 add
-  Where bottomOfCallout = step->bottomOfCallout();                  //Trevor@vers305 add
 
-  Where top, bottom;
-  bool local,useTop;                                                //Trevor@vers305 add useTop
+  if (selectedAction == NULL) {
+    return;
+  }
+
+  Where top;
+  Where bottom;
 
   switch (parentRelativeType) {
-  case StepGroupType:
-      top    = topOfSteps;                                          //Trevor@vers305 change to use variable
-      bottom = bottomOfSteps;                                       //Trevor@vers305 change to use variable
-      useTop = false;                                               //Trevor@vers305 add
-      local  = false;
-  break;
-  case CalloutType:
-      top    = topOfCallout;                                        //Trevor@vers305 change to use variable
-      bottom = bottomOfCallout;                                     //Trevor@vers305 change to use variable
-      useTop = true;                                                //Trevor@vers305 add
-      local  = false;
-  break;
-  default:
-      top    = topOfStep;                                           //Trevor@vers305 change to use variable
-      bottom = bottomOfStep;                                        //Trevor@vers305 change to use variable
-      useTop = true;                                                //Trevor@vers305 add
-      local  = true;
+    case CalloutType:
+      top    = step->topOfCallout();
+      bottom = step->bottomOfCallout();
+    break;
+    default:
+      top    = step->topOfStep();
+      bottom = step->bottomOfStep();
     break;
   }
 
   if (selectedAction == placementAction) {
-
-    changePlacement(parentRelativeType,
-                    StepNumberType,
-                    "Move Step Number",
+      changePlacement(parentRelativeType,
+                      StepNumberType,
+                      "Move " + pl,
+                      top,
+                      bottom,
+                      &placement);
+    } else if (selectedAction == fontAction) {
+      changeFont(top,
+                 bottom,
+                 &font);
+    } else if (selectedAction == colorAction) {
+      changeColor(top,
+                  bottom,
+                  &color);
+    } else if (selectedAction == marginAction) {
+      changeMargins(pl + " Margins",
                     top,
                     bottom,
-                   &placement,
-                    useTop,                                         //Trevor@vers305 change to useTop
-                    1,                  //append
-                    local);
-
-  } else if (selectedAction == fontAction) {
-
-    changeFont(top, bottom, &font, 1, local, useTop);               //Trevor@vers305 add useTop
-
-  } else if (selectedAction == colorAction) {
-
-    changeColor(top,bottom, &color, 1, local, useTop);              //Trevor@vers305 add useTop
-
-  } else if (selectedAction == marginAction) {
-
-    changeMargins("Change Step Number Margins",top,bottom,&margin,useTop,1,local); //Trevor@vers305 change to useTop
-  } 
+                    &margin);
+    }
 }
 
 void StepNumberItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)

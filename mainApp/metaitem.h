@@ -170,6 +170,21 @@ public:
                         int   append = 1, 
                         bool checkLocal = true);
 
+  void changePliSort(   QString,
+                        const Where &,
+                        const Where &,
+                        StringMeta  *,
+                        int   append = 1,
+                        bool checkLocal = true);
+
+  void changePliAnnotation(
+                        QString,
+                        const Where &,
+                        const Where &,
+                        PliAnnotationMeta *,
+                        int  append = 1,
+                        bool  local = true);
+
   void changeBorder(    QString, 
                         const Where &, 
                         const Where &,

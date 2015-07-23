@@ -24,7 +24,7 @@
 
 // ~~~~~ Version info ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 #define VER_MAJOR                           1
-#define VER_MINOR                           0
+#define VER_MINOR                           2
 #define VER_SP                              0
 
 #define VER_BUILD_STR                   	_BUILD_NUMBER
@@ -48,14 +48,14 @@
 #define VER_PUBLISHER_EMAIL_STR     		"trevor.sandy@gmail.com"
 #define VER_PUBLISHER_SUPPORT_EMAIL_STR		"mailto:trevor.sandy@gmail.com?subject=LPub3D Version " VER_FILEVERSION_STR
 #define VER_UPDATE_CHECK_URL        		"http://lpub3d.sourceforge.net/latest.txt"
-#define VER_CHANGE_LOG_URL                  "http://lpub3d.sourceforge.net/change_log.txt"
-#define VER_DOWNLOAD_URL                    "http://lpub3d.sourceforge.net/" VER_PRODUCTNAME_STR "-UpdateMaster.exe"
-#define VER_SOURCE_URL              		"https://sourceforge.net/p/lpub3d/code/ref/master/"
-#define VER_COMPANYDOMAIN_STR       		"https://sourceforge.net/projects/lpub3d/"
+#define VER_CHANGE_LOG_URL                      "http://lpub3d.sourceforge.net/change_log.txt"
+#define VER_DOWNLOAD_URL                        "http://lpub3d.sourceforge.net/" VER_PRODUCTNAME_STR "-UpdateMaster.exe"
+#define VER_SOURCE_URL              		"http://sourceforge.net/p/lpub3d/code/"
+#define VER_COMPANYDOMAIN_STR       		"http://sourceforge.net/projects/lpub3d/"
 
 #define VER_COMPILED_ON             		"MinGW (i686-4.9.2-x64) Windows"
 #define VER_COMPILED_FOR            		"x86_64-w64-mingw32"
-#define VER_COMPILED_WITH                   "x86_64-w64-mingw32-g++ (posix-sjlj-rev1) 4.9.2"
-#define VER_IDE                             "Qt Creator 3.5 b1 on Qt 5.5.0 (MSVC 2013 x32)"
+#define VER_COMPILED_WITH                       "x86_64-w64-mingw32-g++ (posix-sjlj-rev1) 4.9.2"
+#define VER_IDE                                 "Qt Creator 3.5 b1 on Qt 5.5.0 (MSVC 2013 x32)"
 
 #endif // VERSION_H

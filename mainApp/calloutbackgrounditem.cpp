@@ -84,11 +84,10 @@ void CalloutBackgroundItem::contextMenuEvent(
   QMenu menu;
   QString co = "Callout ";
 
-  QString       name = "Move This Callout";  
-  QAction      *placementAction      = menu.addAction(name);
+  QString       pl = "Move This Callout";
   PlacementData placementData = callout->meta.LPub.callout.placement.value();
-  placementAction->setWhatsThis(
-    commonMenus.naturalLanguagePlacementWhatsThis(CalloutType,placementData,name));
+  QAction *placementAction  = commonMenus.placementMenu(menu,pl,
+                              commonMenus.naturalLanguagePlacementWhatsThis(CalloutType,placementData,pl));
 
   QAction *allocAction = NULL;
   QAction *perStepAction = NULL;
@@ -97,12 +96,14 @@ void CalloutBackgroundItem::contextMenuEvent(
 
     if (callout->allocType() == Vertical) {
       allocAction = menu.addAction("Display as Rows");
+      allocAction->setIcon(QIcon(":/resources/displayrow.png"));
       allocAction->setWhatsThis(
         "Display as Rows:\n"
         "  Change this whole set of steps from columns of steps\n"
         "  to rows of steps");
     } else {
       allocAction = menu.addAction("Display as Columns");
+      allocAction->setIcon(QIcon(":/resources/displaycolumn.png"));
       allocAction->setWhatsThis(
       "Display as Columns:\n"
       "  Change this whole set of steps from rows of steps\n"

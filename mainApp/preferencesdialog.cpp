@@ -131,24 +131,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.Centimeters->setChecked(centimeters);
   ui.Inches->setChecked(! centimeters);
 
-  bool titleAnnotation = Preferences::preferTitleAnnotation;
-  bool freeformAnnotation = Preferences::preferFreeformAnnotation;
-  bool titleAndFreeformAnnotation = Preferences::titleAndFreeformAnnotation;
-
-  if (titleAnnotation) {
-      ui.titleAnnotation->setChecked(titleAnnotation );
-      ui.freeformAnnotation->setChecked(! titleAnnotation);
-      ui.titleAndFreeformAnnotation->setChecked(! titleAnnotation);
-  } else if (freeformAnnotation){
-      ui.titleAnnotation->setChecked(freeformAnnotation );
-      ui.freeformAnnotation->setChecked(! freeformAnnotation);
-      ui.titleAndFreeformAnnotation->setChecked(! freeformAnnotation);
-  } else {
-      ui.titleAnnotation->setChecked(titleAndFreeformAnnotation );
-      ui.freeformAnnotation->setChecked(! titleAndFreeformAnnotation);
-      ui.titleAndFreeformAnnotation->setChecked(! titleAndFreeformAnnotation);
-  }
-
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -423,21 +405,6 @@ QString const PreferencesDialog::documentLogoFile()
 bool PreferencesDialog::centimeters()
 {
   return ui.Centimeters->isChecked();
-}
-
-bool PreferencesDialog::titleAnnotation()
-{
-  return ui.titleAnnotation->isChecked();
-}
-
-bool PreferencesDialog::freeformAnnotation()
-{
-  return ui.freeformAnnotation->isChecked();
-}
-
-bool PreferencesDialog::titleAndFreeformAnnotation()
-{
-  return ui.titleAndFreeformAnnotation->isChecked();
 }
 
 bool  PreferencesDialog::enableFadeStep()

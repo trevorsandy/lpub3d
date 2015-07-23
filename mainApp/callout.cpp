@@ -417,7 +417,7 @@ CalloutInstanceItem::CalloutInstanceItem(
   QGraphicsItem       *_parent)
 {
   callout = _callout;
-  QString toolTip("Times used - popup menu");
+  QString toolTip("Times used - right-click to modify");
   setAttributes(PageNumberType,
                 CalloutType,
                 _meta->LPub.callout.instance,

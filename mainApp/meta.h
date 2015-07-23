@@ -1387,9 +1387,9 @@ public:
   PlacementType  type;
   PlacementMeta  placement;
   MarginsMeta 	 margin;
-  FloatMeta		 picScale;
+  FloatMeta	 picScale;
   StringMeta	 file;
-  BoolMeta	     stretch;
+  BoolMeta	 stretch;
   BoolMeta       tile;
   BoolMeta       display;
   void setValue(QString _value)
@@ -1745,6 +1745,49 @@ public:
   virtual void doc(QStringList &out, QString preamble);
 };
 
+/*------------------------*/
+
+class PliSortMeta : public BranchMeta
+{
+public:
+  StringMeta      sortOption;
+
+  void setValue(QString _value)
+  {
+    sortOption.setValue(_value);
+  }
+  QString value()
+  {
+    return sortOption.value();
+  }
+  PliSortMeta();
+  PliSortMeta(const PliSortMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~PliSortMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
+class PliAnnotationMeta : public BranchMeta
+{
+public:
+  BoolMeta      titleAnnotation;
+  BoolMeta      freeformAnnotation;
+  BoolMeta      titleAndFreeformAnnotation;
+  BoolMeta      display;
+
+  PliAnnotationMeta();
+  PliAnnotationMeta(const PliAnnotationMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~PliAnnotationMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
 /*---------------------------------------------------------------
  * The Top Level LPub Metas
  *---------------------------------------------------------------*/
@@ -1828,29 +1871,31 @@ public:
 class PliMeta  : public BranchMeta
 {
 public:
-  BorderMeta     border;
-  BackgroundMeta background;
-  MarginsMeta    margin;
-  NumberMeta     instance;
-  NumberMeta     annotate;
-  PlacementMeta  placement;
-  ConstrainMeta  constrain;
-  FloatMeta      modelScale;
-  FloatPairMeta  angle;
-  PartMeta       part;
-  PliBeginMeta   begin;
-  RcMeta         end;
-  BoolMeta       includeSubs;
-  BoolMeta       show;
-  StringListMeta subModelColor;     // FIXME: we need a dialog for submodel level color
-  FontListMeta   subModelFont;
-  StringListMeta subModelFontColor;
-  StringMeta     ldviewParms;
-  StringMeta     ldgliteParms;
-	StringMeta l3pParms;
-	StringMeta povrayParms;
-  BoolMeta       pack;
-  BoolMeta       sort;
+  BorderMeta        border;
+  BackgroundMeta    background;
+  MarginsMeta       margin;
+  NumberMeta        instance;
+  NumberMeta        annotate;
+  PlacementMeta     placement;
+  ConstrainMeta     constrain;
+  FloatMeta         modelScale;
+  FloatPairMeta     angle;
+  PartMeta          part;
+  PliBeginMeta      begin;
+  RcMeta            end;
+  BoolMeta          includeSubs;
+  BoolMeta          show;
+  StringListMeta    subModelColor;     // FIXME: we need a dialog for submodel level color
+  FontListMeta      subModelFont;
+  StringListMeta    subModelFontColor;
+  StringMeta        ldviewParms;
+  StringMeta        ldgliteParms;
+  StringMeta        l3pParms;
+  StringMeta        povrayParms;
+  BoolMeta          pack;
+  BoolMeta          sort;
+  PliSortMeta       sortBy;
+  PliAnnotationMeta annotation;
 
   PliMeta();
   PliMeta(const PliMeta &rhs) : BranchMeta(rhs)

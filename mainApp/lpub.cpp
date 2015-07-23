@@ -176,14 +176,25 @@ void Gui::removeLPubFormatting()
 
 void Gui::displayPage()
 {
+  // initialize progress bar
+  emit progressBarInitSig();
+  emit progressMessageSig("Processing page...");
+  emit progressRangeSig(0,0);
+  QApplication::processEvents();
+
   if (macroNesting == 0) {
-    clearPage(KpageView,KpageScene);
-    page.coverPage = false;
-    drawPage(KpageView,KpageScene,false);
-    enableActions2();
-    emit enable3DActionsSig();
-    Step::refreshCsi = false; //reset
-  }
+      clearPage(KpageView,KpageScene);
+      page.coverPage = false;
+      drawPage(KpageView,KpageScene,false);
+      enableActions2();
+
+      emit enable3DActionsSig();
+      Step::refreshCsi = false; //reset
+
+      emit progressRangeSig(1, maxPages);
+      emit progressSetValueSig(maxPages);
+      emit removeProgressStatusSig();
+    }
 }
 
 void Gui::nextPage()
@@ -258,6 +269,22 @@ void Gui::setPage()
     }
   }
   string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+  setPageLineEdit->setText(string);
+}
+
+void Gui::setGoToPage(int index)
+{
+  int goToPageNum = index+1;
+  countPages();
+  if (goToPageNum <= maxPages) {
+      if (goToPageNum != displayPageNum) {
+          displayPageNum = goToPageNum;
+          displayPage();
+          return;
+        }
+    }
+
+  QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
   setPageLineEdit->setText(string);
 }
 
@@ -366,12 +393,14 @@ void Gui::displayFile(
   const QString &modelName)
 {
 //  if (force || modelName != curSubFile) {
+    int currentIndex = 0;
     for (int i = 0; i < mpdCombo->count(); i++) {
       if (mpdCombo->itemText(i) == modelName) {
-        mpdCombo->setCurrentIndex(i);
+        currentIndex = i;
         break;
       }
     }
+    mpdCombo->setCurrentIndex(currentIndex);
     curSubFile = modelName;
     displayFileSig(ldrawFile, modelName);
 //  }
@@ -468,10 +497,25 @@ void Gui::mpdComboChanged(int index)
 {
   index = index;
   QString newSubFile = mpdCombo->currentText();
+
   if (curSubFile != newSubFile) {
-    curSubFile = newSubFile;
-    displayFileSig(&ldrawFile, curSubFile);
-  }
+      int modelPageNum = ldrawFile.getModelStartPageNumber(newSubFile);
+      logInfo() << "SELECT Model: " << newSubFile << " @ Page: " << modelPageNum;
+      countPages();
+      if (displayPageNum != modelPageNum && modelPageNum != 0) {
+          displayPageNum  = modelPageNum;
+          displayPage();
+          return;
+        } else {
+
+          // TODO add status bar message
+          Where topOfSteps(newSubFile,0);
+          curSubFile = newSubFile;
+          displayFileSig(&ldrawFile, curSubFile);
+          showLineSig(topOfSteps.lineNumber);
+          return;
+        }
+    }
 }
 
 void Gui::clearAllCaches()
@@ -612,6 +656,13 @@ void Gui::fadeStepSetup()
   GlobalFadeStepDialog::getFadeStepGlobals(ldrawFile.topLevelFile(),page.meta);
 }
 
+void Gui::editTitleAnnotations()
+{
+    displayParmsFile(Preferences::titleAnnotationsFile);
+    parmsWindow->setWindowTitle(tr("Part Title Annotation","Edit/add part title part annotations"));
+    parmsWindow->show();
+}
+
 void Gui::editFreeFormAnnitations()
 {
     displayParmsFile(Preferences::freeformAnnotationsFile);
@@ -662,7 +713,7 @@ void Gui::preferences()
 Gui::Gui()
 {
     Preferences::renderPreferences();
-	Preferences::lgeoPreferences();
+    Preferences::lgeoPreferences();
     Preferences::pliPreferences();
     Preferences::publishingPreferences();
 
@@ -680,18 +731,25 @@ Gui::Gui()
     setCentralWidget(KpageView);
 
     mpdCombo = new QComboBox;
-    mpdCombo->setEditable(false);
+    mpdCombo->setToolTip(tr("Go to Submodel"));
     mpdCombo->setMinimumContentsLength(25);
     mpdCombo->setInsertPolicy(QComboBox::InsertAtBottom);
     mpdCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+    connect(mpdCombo,SIGNAL(activated(int)),
+            this,    SLOT(mpdComboChanged(int)));
+
+    setGoToPageCombo = new QComboBox(this);
+    setGoToPageCombo->setToolTip(tr("Go to Page"));
+    setGoToPageCombo->setMinimumContentsLength(10);
+    setGoToPageCombo->setInsertPolicy(QComboBox::InsertAtBottom);
+    setGoToPageCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+    connect(setGoToPageCombo,SIGNAL(activated(int)),
+            this,            SLOT(setGoToPage(int)));
 
     progressLabel = new QLabel();
     progressLabel->setMinimumWidth(200);
     progressBar = new QProgressBar();
     progressBar->setMaximumWidth(300);
-
-    connect(mpdCombo,SIGNAL(activated(int)),
-            this,    SLOT(mpdComboChanged(int)));
 
     mExistingRotStep = lcVector3(0.0f, 0.0f, 0.0f);
     mModelStepRotation = lcVector3(0.0f, 0.0f, 0.0f);
@@ -841,6 +899,7 @@ void Gui::generageFadeColourParts()
 }
 
 void Gui::progressBarInit(){
+    progressBar->setMaximumHeight(15);
     statusBar()->addWidget(progressLabel);
     statusBar()->addWidget(progressBar);
     progressLabel->show();
@@ -848,6 +907,7 @@ void Gui::progressBarInit(){
 }
 
 void Gui::progressBarPermInit(){
+    progressBar->setMaximumHeight(15);
     statusBar()->addPermanentWidget(progressLabel);
     statusBar()->addPermanentWidget(progressBar);
     progressLabel->show();
@@ -1151,15 +1211,19 @@ void Gui::createActions()
     preferencesAct->setStatusTip(tr("Set your preferences for LPub"));
     connect(preferencesAct, SIGNAL(triggered()), this, SLOT(preferences()));
 
-    editFreeFormAnnitationsAct = new QAction(QIcon(":/resources/editfreeformannotations.png"),tr("Edit Freeform Annotations"), this);
-    editFreeFormAnnitationsAct->setStatusTip(tr("Add/Edit freeform part annotations"));
+    editTitleAnnotationsAct = new QAction(QIcon(":/resources/edittitleannotations.png"),tr("Edit Part Title PLI Annotations"), this);
+    editTitleAnnotationsAct->setStatusTip(tr("Add/Edit part title PLI part annotatons"));
+    connect(editTitleAnnotationsAct, SIGNAL(triggered()), this, SLOT(editTitleAnnotations()));
+
+    editFreeFormAnnitationsAct = new QAction(QIcon(":/resources/editfreeformannotations.png"),tr("Edit Freeform PLI Annotations"), this);
+    editFreeFormAnnitationsAct->setStatusTip(tr("Add/Edit freeform PLI part annotations"));
     connect(editFreeFormAnnitationsAct, SIGNAL(triggered()), this, SLOT(editFreeFormAnnitations()));
 
     editFadeColourPartsAct = new QAction(QIcon(":/resources/editfadeparts.png"),tr("Edit Colour Parts List"), this);
     editFadeColourPartsAct->setStatusTip(tr("Add/Edit the list of static colour parts used to fade parts"));
     connect(editFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(editFadeColourParts()));
 
-    generateFadeColourPartsAct = new QAction(QIcon(":/resources/generatefadeparts.png"),tr("Generage Fade Coloured Parts List"), this);
+    generateFadeColourPartsAct = new QAction(QIcon(":/resources/generatefadeparts.png"),tr("Generage Fade Colour Parts List"), this);
     generateFadeColourPartsAct->setStatusTip(tr("Generage list of all static coloured parts"));
     connect(generateFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(generageFadeColourParts()));
 
@@ -1186,25 +1250,51 @@ void Gui::createActions()
     connect(updateApp, SIGNAL(triggered()), this, SLOT(updateCheck()));
 }
 
+void Gui::loadPages(){
+
+  MetaItem mi;
+  int pageNum     = 0;
+  setGoToPageCombo->setMaxCount(0);
+  setGoToPageCombo->setMaxCount(1000);
+  bool frontCoverPage = mi.frontCoverPageExist();
+  bool backCoverPage  = mi.backCoverPageExist();
+
+  for(int i=1;i <= maxPages;i++){
+      QApplication::processEvents();
+      pageNum++;
+      if (frontCoverPage && i == 1){
+          pageNum--;
+          setGoToPageCombo->addItem(QString("Front Cover"));
+        }
+      else if (backCoverPage && i == maxPages){
+          setGoToPageCombo->addItem(QString("Back Cover"));
+        }
+      else
+        setGoToPageCombo->addItem(QString("Page %1").arg(QString::number(pageNum)));
+    }
+  setGoToPageCombo->setCurrentIndex(displayPageNum-1);
+}
+
 void Gui::enableActions()
 {
-    saveAsAct->setEnabled(true);
-    printToFileAct->setEnabled(true);
-    exportPngAct->setEnabled(true);
-    exportJpgAct->setEnabled(true);
-    exportBmpAct->setEnabled(true);
-    pageSetupAct->setEnabled(true);
-    assemSetupAct->setEnabled(true);
-    pliSetupAct->setEnabled(true);
-    bomSetupAct->setEnabled(true);
-    calloutSetupAct->setEnabled(true);
-    multiStepSetupAct->setEnabled(true);
-    projectSetupAct->setEnabled(true);
-    fadeStepSetupAct->setEnabled(true);
-    addPictureAct->setEnabled(true);
-    removeLPubFormattingAct->setEnabled(true);
-    editFreeFormAnnitationsAct->setEnabled(true);
-    editFadeColourPartsAct->setEnabled(true);
+  saveAsAct->setEnabled(true);
+  printToFileAct->setEnabled(true);
+  exportPngAct->setEnabled(true);
+  exportJpgAct->setEnabled(true);
+  exportBmpAct->setEnabled(true);
+  pageSetupAct->setEnabled(true);
+  assemSetupAct->setEnabled(true);
+  pliSetupAct->setEnabled(true);
+  bomSetupAct->setEnabled(true);
+  calloutSetupAct->setEnabled(true);
+  multiStepSetupAct->setEnabled(true);
+  projectSetupAct->setEnabled(true);
+  fadeStepSetupAct->setEnabled(true);
+  addPictureAct->setEnabled(true);
+  removeLPubFormattingAct->setEnabled(true);
+  editTitleAnnotationsAct->setEnabled(true);
+  editFreeFormAnnitationsAct->setEnabled(true);
+  editFadeColourPartsAct->setEnabled(true);
 }
 
 void Gui::enableActions2()
@@ -1221,6 +1311,8 @@ void Gui::enableActions2()
     deletePageAct->setEnabled(page.list.size() == 0);
     addBomAct->setEnabled(frontCover||backCover);
     addTextAct->setEnabled(true);
+
+    loadPages();
 }
 
 void Gui::createMenus()
@@ -1300,6 +1392,7 @@ void Gui::createMenus()
     configMenu->addSeparator();
 
     configMenu->addAction(editFadeColourPartsAct);
+    configMenu->addAction(editTitleAnnotationsAct);
     configMenu->addAction(editFreeFormAnnitationsAct);
     configMenu->addAction(generateFadeColourPartsAct);
 
@@ -1344,6 +1437,7 @@ void Gui::createToolBars()
     navigationToolBar->addWidget(setPageLineEdit);
     navigationToolBar->addAction(nextPageAct);
     navigationToolBar->addAction(lastPageAct);
+    navigationToolBar->addWidget(setGoToPageCombo);
 
     mpdToolBar = addToolBar(tr("MPD"));
     mpdToolBar->setObjectName("MPDToolbar");

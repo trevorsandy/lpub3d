@@ -44,14 +44,13 @@ QString Preferences::leocadLibFile              = "";
 QString Preferences::lgeoPath;
 QString Preferences::lpubPath                   = ".";
 QString Preferences::lpubDataPath               = ".";
-QString Preferences::lpubCachePath              = ".";
 QString Preferences::lpubExtrasPath             = ".";
 QString Preferences::ldgliteExe;
 QString Preferences::ldviewExe;
 QString Preferences::l3pExe;
 QString Preferences::povrayExe;
-QString Preferences::pliFile;
 QString Preferences::preferredRenderer;
+QString Preferences::pliFile;
 QString Preferences::titleAnnotationsFile;
 QString Preferences::freeformAnnotationsFile;
 QString Preferences::fadeStepColor              = "Very_Light_Bluish_Gray";
@@ -79,9 +78,6 @@ bool    Preferences::generageCoverPages         = false;
 bool    Preferences::printDocumentTOC           = false;
 //
 
-bool    Preferences::preferTitleAnnotation      = true;
-bool    Preferences::preferFreeformAnnotation   = false;
-bool    Preferences::titleAndFreeformAnnotation = false;
 bool    Preferences::enableFadeStep             = false;
 bool    Preferences::preferCentimeters          = true;
 bool    Preferences::silentUpdate               = false;
@@ -103,13 +99,9 @@ void Preferences::lpubPreferences()
       lpubPath = cwd.absolutePath();
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-    QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
-    lpubCachePath = cachePathList.first();
-
     QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
     lpubDataPath = dataPathList.first();
 #else
-    lpubCachePath = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
     lpubDataPath  = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 #endif
 
@@ -461,30 +453,6 @@ void Preferences::unitsPreferences()
 void Preferences::annotationPreferences()
 {
     QSettings Settings;
-    if(! Settings.contains(QString("%1/%2").arg(SETTINGS,"TitleAnnotation"))) {
-        QVariant aValue(true);
-        preferTitleAnnotation = true;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"TitleAnnotation"), aValue);
-    } else {
-        preferTitleAnnotation = Settings.value(QString("%1/%2").arg(SETTINGS,"TitleAnnotation")).toBool();
-    }
-
-    if(! Settings.contains(QString("%1/%2").arg(SETTINGS,"FreeFormAnnotation"))) {
-        QVariant aValue(false);
-        preferFreeformAnnotation = false;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"FreeFormAnnotation"), aValue);
-    } else {
-        preferFreeformAnnotation = Settings.value(QString("%1/%2").arg(SETTINGS,"FreeFormAnnotation")).toBool();
-    }
-
-    if(! Settings.contains(QString("%1/%2").arg(SETTINGS,"TitleAndFreeformAnnotation"))) {
-        QVariant aValue(false);
-        titleAndFreeformAnnotation = false;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"TitleAndFreeformAnnotation"), aValue);
-    } else {
-        titleAndFreeformAnnotation = Settings.value(QString("%1/%2").arg(SETTINGS,"TitleAndFreeformAnnotation")).toBool();
-    }
-
     titleAnnotationsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"TitleAnnotationFile")).toString();
     freeformAnnotationsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"FreeFormAnnotationsFile")).toString();
 
@@ -747,18 +715,12 @@ bool Preferences::getPreferences()
       }
     }
 
-    preferCentimeters = dialog->centimeters();
-    Settings.setValue(QString("%1/%2").arg(SETTINGS,"Centimeters"),preferCentimeters);
-    defaultResolutionType(preferCentimeters);
-
-    preferTitleAnnotation = dialog->titleAnnotation();
-    Settings.setValue(QString("%1/%2").arg(SETTINGS,"TitleAnnotation"),preferTitleAnnotation);
-
-    preferFreeformAnnotation = dialog->freeformAnnotation();
-    Settings.setValue(QString("%1/%2").arg(SETTINGS,"FreeFormAnnotation"),preferFreeformAnnotation);
-
-    titleAndFreeformAnnotation = dialog->titleAndFreeformAnnotation();
-    Settings.setValue(QString("%1/%2").arg(SETTINGS,"TitleAndFreeformAnnotation"),titleAndFreeformAnnotation);
+    if ((fadeStepColor != dialog->fadeStepColor()))
+    {
+        preferCentimeters = dialog->centimeters();
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"Centimeters"),preferCentimeters);
+        defaultResolutionType(preferCentimeters);
+    }
 
     enableFadeStep = dialog->enableFadeStep();
     Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableFadeStep"),enableFadeStep);

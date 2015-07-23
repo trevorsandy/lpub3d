@@ -47,6 +47,8 @@
 #include "color.h"
 #include "placementdialog.h"
 #include "pliconstraindialog.h"
+#include "pliannotationdialog.h"
+#include "plisortdialog.h"
 #include "pairdialog.h"
 #include "scaledialog.h"
 #include "borderdialog.h"
@@ -815,7 +817,7 @@ void MetaItem::setMetaTopOf(
     } else {
 
         if (askLocal) {
-            local = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Change only this step?",NULL);       //change from gui error (QLayout: Attempting to add QLayout "" to Gui "", which already has a layout)
+            local = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Change only this step?",NULL);
         }
 
         QString newMetaString = meta->format(local,global);
@@ -1093,6 +1095,60 @@ void MetaItem::changeBackground(
     background->setValue(backgroundData);
     setMeta(topOfStep,bottomOfStep,background,useTop,append,local);
   }
+}
+
+void MetaItem::changePliSort(
+  QString        title,
+  const Where   &topOfStep,
+  const Where   &bottomOfStep,
+  StringMeta    *sortMeta,
+  int            append,
+  bool           local)
+{
+  QString sortBy = sortMeta->value();
+  bool ok;
+  ok = PliSortDialog::getPliSortOption(sortBy,title,gui);
+
+  if (ok) {
+    sortMeta->setValue(sortBy);
+    setMetaTopOf(topOfStep,bottomOfStep,sortMeta,append,local, false);
+  }
+}
+
+void MetaItem::changePliAnnotation(
+  QString            title,
+  const Where       &topOfStep,
+  const Where       &bottomOfStep,
+  PliAnnotationMeta *pliAnnotationMeta,
+  int                append,
+  bool               local)
+{
+  PliAnnotationMeta annotation;
+  annotation.display                   = pliAnnotationMeta->display;
+  annotation.titleAnnotation           = pliAnnotationMeta->titleAnnotation;
+  annotation.freeformAnnotation        = pliAnnotationMeta->freeformAnnotation;
+  annotation.titleAndFreeformAnnotation= pliAnnotationMeta->titleAndFreeformAnnotation;
+  bool ok;
+  ok = PliAnnotationDialog::getPliAnnotationOption(annotation,title,gui);
+
+  if (ok) {
+      if(annotation.display.value() != pliAnnotationMeta->display.value()){
+          pliAnnotationMeta->display.setValue(annotation.display.value());
+          setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->display,append,local,true);
+        }
+      if(annotation.titleAnnotation.value() != pliAnnotationMeta->titleAnnotation.value()){
+          pliAnnotationMeta->titleAnnotation.setValue(annotation.titleAnnotation.value());
+          setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->titleAnnotation,append,local,true);
+        }
+      if(annotation.freeformAnnotation.value() != pliAnnotationMeta->freeformAnnotation.value()){
+          pliAnnotationMeta->freeformAnnotation.setValue(annotation.freeformAnnotation.value());
+          setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->freeformAnnotation,append,local,true);
+        }
+      if(annotation.titleAndFreeformAnnotation.value() != pliAnnotationMeta->titleAndFreeformAnnotation.value()){
+          pliAnnotationMeta->titleAndFreeformAnnotation.setValue(annotation.titleAndFreeformAnnotation.value());
+          setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->titleAndFreeformAnnotation,append,local,true);
+        }
+    }
 }
 
 void MetaItem::changeConstraint(
@@ -1618,9 +1674,9 @@ void MetaItem::insertText()
 {
   bool ok;
   QString text = QInputDialog::getText(NULL, QInputDialog::tr("Text"),
-                                            QInputDialog::tr("Input:"),
-                                            QLineEdit::Normal,
-                                            QString(""), &ok);
+                                             QInputDialog::tr("Input:"),
+                                             QLineEdit::Normal,
+                                             QString(""), &ok);
   if (ok && !text.isEmpty()) {
     QString meta = QString("0 !LPUB INSERT TEXT \"%1\" \"%2\" \"%3\"") .arg(text) .arg("Arial,36,-1,255,75,0,0,0,0,0") .arg("Black");
     Where topOfStep;
@@ -2897,3 +2953,4 @@ void MetaItem::writeRotateStep(QString &value)
         replaceMeta(here,meta);
     }
 }
+

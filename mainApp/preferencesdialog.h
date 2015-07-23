@@ -37,16 +37,16 @@ class PreferencesDialog : public QDialog
     explicit PreferencesDialog(QWidget *parent = 0);
     ~PreferencesDialog();
 	
-	QString const ldrawPath();
+    QString const ldrawPath();
     QString const leocadLibFile();
-	QString const lgeoPath();
-	QString const pliFile();
-	QString const l3pExe();
-	QString const povrayExe();
-	QString const ldgliteExe();
-	QString const ldviewExe();
+    QString const lgeoPath();
+    QString const pliFile();
+    QString const l3pExe();
+    QString const povrayExe();
+    QString const ldgliteExe();
+    QString const ldviewExe();
     QString const fadeStepColor();
-	QString const preferredRenderer();
+    QString const preferredRenderer();
     QString const defaultAuthor();
     QString const defaultURL();
     QString const defaultEmail();
@@ -56,9 +56,6 @@ class PreferencesDialog : public QDialog
     bool          generageCoverPages();
     bool          printDocumentTOC();
     bool          centimeters();
-    bool          titleAnnotation();
-    bool          freeformAnnotation();
-    bool          titleAndFreeformAnnotation();
     bool          enableFadeStep();
     bool          enableDocumentLogo();
     bool          silentUpdate();
@@ -71,12 +68,12 @@ class PreferencesDialog : public QDialog
   private slots:
     void on_browseLDraw_clicked();
     void on_browseLeoCADLibrary_clicked();
-	void on_browseLGEO_clicked();
-	void on_browsePli_clicked();
-	void on_browseL3P_clicked();
-	void on_browsePOVRAY_clicked();
-	void on_browseLDView_clicked();
-	void on_browseLDGLite_clicked();
+    void on_browseLGEO_clicked();
+    void on_browsePli_clicked();
+    void on_browseL3P_clicked();
+    void on_browsePOVRAY_clicked();
+    void on_browseLDView_clicked();
+    void on_browseLDGLite_clicked();
     void on_browsePublishLogo_clicked();
     void colorChange(QString const &colorName);
     void processFadeColourParts(bool);

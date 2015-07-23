@@ -58,6 +58,7 @@ class LDrawSubFile {
     bool        _unofficialPart;
     bool        _generated;
     int         _fadePosition;
+    int         _startPageNumber;
 
     LDrawSubFile()
     {
@@ -115,6 +116,9 @@ class LDrawFile {
     void setFadePosition(const QString &mcFileName,
                          const int     &fadePosition);
     int getFadePosition(const QString &mcFileName);
+    void setModelStartPageNumber(const QString &mcFileName,
+                         const int     &startPageNumber);
+    int getModelStartPageNumber(const QString &mcFileName);
     void subFileLevels(QStringList &contents, int &level);
     void loadFile(const QString &fileName);
     void loadMPDFile(const QString &fileName, QDateTime &datetime);
@@ -153,6 +157,7 @@ class LDrawFile {
 };
 
 int split(const QString &line, QStringList &argv);
+int validSoQ(const QString &line, int soq);
 bool isHeader(QString &line);
 
 

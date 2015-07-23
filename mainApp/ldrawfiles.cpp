@@ -61,6 +61,7 @@ LDrawSubFile::LDrawSubFile(
   _unofficialPart = unofficialPart;
   _generated = generated;
   _fadePosition = 0;
+  _startPageNumber = 0;
 }
 
 void LDrawFile::empty()
@@ -132,7 +133,7 @@ QString LDrawFile::topLevelFile()
   }
 }
 
-/* return the name and last stored position value */
+/* return the last fade position value */
 
 int LDrawFile::getFadePosition(const QString &mcFileName)
 {
@@ -152,6 +153,18 @@ int LDrawFile::numSteps(const QString &mcFileName)
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
   if (i != _subFiles.end()) {
     return i.value()._numSteps;
+  }
+  return 0;
+}
+
+/* return the model start page number value */
+
+int LDrawFile::getModelStartPageNumber(const QString &mcFileName)
+{
+  QString fileName = mcFileName.toLower();
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+  if (i != _subFiles.end()) {
+    return i.value()._startPageNumber;
   }
   return 0;
 }
@@ -181,7 +194,8 @@ bool LDrawFile::isSubmodel(const QString &file)
   QString fileName = file.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
   if (i != _subFiles.end()) {
-      return ! i.value()._unofficialPart && ! i.value()._generated;
+      //return ! i.value()._unofficialPart && ! i.value()._generated;
+      return ! i.value()._generated;
   }
   return false;
 }
@@ -243,6 +257,20 @@ void LDrawFile::setFadePosition(const QString     &mcFileName,
     i.value()._modified = true;
     //i.value()._datetime = QDateTime::currentDateTime();
     i.value()._fadePosition = fadePosition;
+    i.value()._changedSinceLastWrite = true;
+  }
+}
+
+void LDrawFile::setModelStartPageNumber(const QString     &mcFileName,
+                 const int &startPageNumber)
+{
+  QString fileName = mcFileName.toLower();
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+
+  if (i != _subFiles.end()) {
+    i.value()._modified = true;
+    //i.value()._datetime = QDateTime::currentDateTime();
+    i.value()._startPageNumber = startPageNumber;
     i.value()._changedSinceLastWrite = true;
   }
 }
@@ -899,112 +927,128 @@ bool LDrawFile::saveLDRFile(const QString &fileName)
     }
     return true;
 }
+
 int split(const QString &line, QStringList &argv)
 {
   QString     chopped = line;
   int         p = 0;
   int         length = chopped.length();
 
+  // line length check
   if (p == length) {
-    return 0;
-  }
-  
-  while (chopped[p] == ' ') {
-    if (++p == length) {
-      return -1;
+      return 0;
     }
-  }
-  
+  // eol check
+  while (chopped[p] == ' ') {
+      if (++p == length) {
+          return -1;
+        }
+    }
+
   argv.clear();
-  
+
+  // if line starts with 1 (part line)
   if (chopped[p] == '1') {
 
-    argv << "1";
-    p += 2;
-    if (p >= length) {
-      return -1;
-    }
-    while (chopped[p] == ' ') {
-      if (++p >= length) {
-        return -1;
-      }
-    }
-    
-    // color x y z a b c d e f g h i
-    
-    for (int i = 0; i < 13; i++) {
-      QString token;
-      
-      while (chopped[p] != ' ') {
-        token += chopped[p];
-        if (++p >= length) {
+      // line length check
+      argv << "1";
+      p += 2;
+      if (p >= length) {
           return -1;
         }
-      }
-      argv << token;
+      // eol check
       while (chopped[p] == ' ') {
-        if (++p >= length) {
-          return -1;
+          if (++p >= length) {
+              return -1;
+            }
         }
-      }
-    }
-    
-    argv << chopped.mid(p);
-  
-    if (argv.size() > 1 && argv[1] == "WRITE") {
-      argv.removeAt(1);
-    }
-  } else if (chopped[p] >= '2' && chopped[p] <= '5') {
-    chopped = chopped.mid(p);  
-    argv << chopped.split(" ",QString::SkipEmptyParts);
-  } else if (chopped[p] == '0') {
 
-    /* Parse the input line into argv[] */
-  
-    int soq = chopped.indexOf("\"");
-    if (soq == -1) {
+      // color x y z a b c d e f g h i //
+
+      // populate argv with part line tokens
+      for (int i = 0; i < 13; i++) {
+          QString token;
+
+          while (chopped[p] != ' ') {
+              token += chopped[p];
+              if (++p >= length) {
+                  return -1;
+                }
+            }
+          argv << token;
+          while (chopped[p] == ' ') {
+              if (++p >= length) {
+                  return -1;
+                }
+            }
+        }
+
+      argv << chopped.mid(p);
+
+      if (argv.size() > 1 && argv[1] == "WRITE") {
+          argv.removeAt(1);
+        }
+
+    } else if (chopped[p] >= '2' && chopped[p] <= '5') {
+      chopped = chopped.mid(p);
       argv << chopped.split(" ",QString::SkipEmptyParts);
-    } else {
-      while (chopped.size()) {
-        soq = chopped.indexOf("\"");
-        if (soq == -1) {
+    } else if (chopped[p] == '0') {
+
+      /* Parse the input line into argv[] */
+
+      int soq = validSoQ(chopped,chopped.indexOf("\""));
+      if (soq == -1) {
           argv << chopped.split(" ",QString::SkipEmptyParts);
-          chopped.clear();
         } else {
-        // we found a double quote
-          QString left = chopped.left(soq);
-
-          left = left.trimmed();
-  
-          argv << left.split(" ",QString::SkipEmptyParts);
-
-          chopped = chopped.mid(soq+1);
-  
-          soq = chopped.indexOf("\"");
-  
-          if (soq == -1) {
-            argv << left;
-            return -1;
-          }
-          argv << chopped.left(soq);
-  
-          chopped = chopped.mid(soq+1);
-  
-          if (chopped == "\"") {
-            chopped.clear();
-          }
+          // quotes found
+          while (chopped.size()) {
+              soq = validSoQ(chopped,chopped.indexOf("\""));
+              if (soq == -1) {
+                  argv << chopped.split(" ",QString::SkipEmptyParts);
+                  chopped.clear();
+                } else {
+                  QString left = chopped.left(soq);
+                  left = left.trimmed();
+                  argv << left.split(" ",QString::SkipEmptyParts);
+                  chopped = chopped.mid(soq+1);
+                  soq = validSoQ(chopped,chopped.indexOf("\""));
+                  if (soq == -1) {
+                      argv << left;
+                      return -1;
+                    }
+                  argv << chopped.left(soq);
+                  chopped = chopped.mid(soq+1);
+                  if (chopped == "\"") {
+                    }
+                }
+            }
         }
-      }
+
+      if (argv.size() > 1 && argv[0] == "0" && argv[1] == "GHOST") {
+          argv.removeFirst();
+          argv.removeFirst();
+        }
     }
-  
-    if (argv.size() > 1 && argv[0] == "0" && argv[1] == "GHOST") {
-      argv.removeFirst();
-      argv.removeFirst();
-    }
-  }
-  
+
   return 0;
 }
+
+// check for escaped quotes
+int validSoQ(const QString &line, int soq){
+
+  int nextq;
+//  logTrace() << "\n  A. START VALIDATE SoQ"
+//             << "\n SoQ (at Index):   " << soq
+//             << "\n Line Content:     " << line;
+  if(soq > 0 && line.at(soq-1) == '\\' ){
+      nextq = validSoQ(line,line.indexOf("\"",soq+1));
+      soq = nextq;
+    }
+//  logTrace() << "\n  D. END VALIDATE SoQ"
+//             << "\n SoQ (at Index):   " << soq;
+  return soq;
+}
+
 
 QList<QRegExp> LDrawHeaderRegExp;
 

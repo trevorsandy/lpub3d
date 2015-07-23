@@ -223,11 +223,7 @@ int main(int argc, char *argv[])
     const char* LDrawPath = NULL;
 #endif
 
-    QString cachePath = Preferences::lpubCachePath;
-    QDir dir;
-    dir.mkpath(cachePath);
-
-    if (!g_App->Initialize(argc, argv, libPath, LDrawPath, cachePath.toLocal8Bit().data()))
+    if (!g_App->Initialize(argc, argv, libPath, LDrawPath))
         return 1;
 
     Gui     LPub3DApp;

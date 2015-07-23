@@ -31,12 +31,28 @@ public:
 	CommonMenus(void);
 	~CommonMenus(void);
 
-  QAction *fontMenu(
-          QMenu   &menu, 
+  QAction *addMenu(
+          QMenu   &menu,
+          const QString  name = "");
+
+  QAction *annotationMenu(
+          QMenu   &menu,
     const QString  name = "");
+
+  QAction *constrainMenu(
+            QMenu   &menu,
+      const QString  name = "");
 
   QAction *colorMenu(
           QMenu   &menu, 
+    const QString  name = "");
+
+  QAction *displayMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
+  QAction *fontMenu(
+          QMenu   &menu,
     const QString  name = "");
 
   QAction *marginMenu(
@@ -69,13 +85,18 @@ public:
           QMenu   &menu, 
     const QString  name = "");
 
+  QAction *removeMenu(
+            QMenu   &menu,
+      const QString  name = "");
+
   QAction *renderParmsMenu(  
           QMenu   &menu, 
     const QString  name = "");
 
-  QAction *displayMenu(
+  QAction *sortMenu(
           QMenu   &menu,
     const QString  name = "");
+
 private:
   QString englishPlacement(
     PlacementType  type,

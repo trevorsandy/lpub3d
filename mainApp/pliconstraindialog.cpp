@@ -69,9 +69,7 @@
 ConstrainDialog::ConstrainDialog(
 
   ConstrainData &goods,
-
   QString       _name,
-
   QWidget       *parent)
 
   : QDialog(parent)
@@ -80,111 +78,59 @@ ConstrainDialog::ConstrainDialog(
 
   setWindowTitle(_name);
 
-
-
   meta.setValueUnit(goods);
 
   QVBoxLayout *layout = new QVBoxLayout(this);
-
   setLayout(layout);
-
-
-
   QGroupBox *box = new QGroupBox(_name,this);
-
   layout->addWidget(box);
 
   constraint = new ConstrainGui("",&meta,box);
 
-
-
   QDialogButtonBox *buttonBox;
 
-  
-
   buttonBox = new QDialogButtonBox(this);
-
-
-
   buttonBox->addButton(QDialogButtonBox::Ok);
-
   connect(buttonBox,SIGNAL(accepted()),SLOT(accept()));
-
   buttonBox->addButton(QDialogButtonBox::Cancel);
-
   connect(buttonBox,SIGNAL(rejected()),SLOT(cancel()));
-
-
-
   layout->addWidget(buttonBox);
-
-
 
   setModal(true);
 
 }
 
-
-
 ConstrainDialog::~ConstrainDialog()
-
 {
-
 }
 
-
-
 bool ConstrainDialog::getConstraint(
-
   ConstrainData &goods,
-
   QString         name,
-
   QWidget        *parent)
 
 {
-
   ConstrainDialog *dialog = new ConstrainDialog(goods,name,parent);
 
-
-
   bool ok = dialog->exec() == QDialog::Accepted;
-
   if (ok) {
-
     goods = dialog->meta.value();
-
   }
-
   return ok;
-
 }
-
-
 
 void ConstrainDialog::accept()
 
 {
-
   if (constraint->modified) {
-
     QDialog::accept();
-
   } else {
-
     QDialog::reject();
-
   }
-
 }
 
-
-
 void ConstrainDialog::cancel()
-
 {
-
   QDialog::reject();
-
 }
 

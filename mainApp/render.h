@@ -61,9 +61,9 @@ class Render
 						  Meta &, 
 					bool cisExists, 
 					bool outOfDate);
-    int render3DCsi(QStringList &, 
-					QStringList &);
-    int render3DCsi(QString &);
+    int render3DCsiSubModels(QStringList &,
+                             QStringList &);
+    int render3DCsiImage(QString &);
 
   protected:
     virtual float cameraDistance(Meta &meta, float) = 0;

@@ -33,8 +33,10 @@
 #include <QFileInfo>
 #include <QTextStream>
 #include "lpub_preferences.h"
+#include "QsLog.h"
 
 QHash<QString, QString> PartsList::list;
+QHash<QString, QString> PartsList::subList;
 QString                 PartsList::empty;
 QStringList             PartsList::partialPaths;
 
@@ -52,13 +54,18 @@ PartsList::PartsList()
     }
     QTextStream in(&file);
     QString line;
-    QRegExp rx("^([\\d\\w\\.]+)\\s+~*\\b(.*)\\b\\s*$");
+    QRegExp rx("^([\\d\\w\\.]+)\\s+(=*~*\\b.*)\\b\\s*$");
     while ( ! in.atEnd()) {
       line = in.readLine(0);
       if (line.contains(rx)) {
         QString parttype = rx.cap(1);
         QString title = rx.cap(2);
-        if (title[0] == '~' || title[0] == '_') {
+        if (title[0] == '~' || title[0] == '_' || title[0] == '=') {
+          if (title[0] == '~')  {
+            subList[parttype.toLower()] = title;
+//            logNotice() << "PartsList add " << parttype.toLower() << " to subpart list";
+          }
+//          logTrace() << "PartsList removed " << parttype.toLower() << " description prefix " << title[0] << " from title: " << title;
           title.remove(0,1);
         }
         list[parttype.toLower()] = title;
@@ -66,12 +73,52 @@ PartsList::PartsList()
     }
   }
   if (partialPaths.size() == 0) {
-    partialPaths << "/parts/" << "/parts/s/" << "/p/" << "/p/48/" <<
-                    "/Unofficial/parts/" << "/Unofficial/p/" <<
-                    "/Unofficial/LSynth/" << "/Unofficial/helper/" <<
-                    "/Helpers/" << "/Development/";
+    partialPaths << "/parts/"
+                 << "/parts/s/"
+                 << "/p/"
+                 << "/p/48/"
+                 << "/Unofficial/parts/"
+                 << "/Unofficial/p/"
+                 << "/Unofficial/LSynth/"
+                 << "/Unofficial/helper/"
+                 << "/Helpers/"
+                 << "/Development/";
   }
 }
+
+bool PartsList::isSubPart(QString &part)
+{
+  if (subList.contains(part.toLower())){
+      logWarn() << "isSubPart file " << part.toLower() << " in subList" ;
+      return true;
+    } else {
+      QString testName;
+      QFileInfo info;
+      for (int i = 0; i < partialPaths.size(); i++) {
+        testName = Preferences::ldrawPath + partialPaths[i] + part;
+        info.setFile(testName);
+
+        if (info.exists()) {
+          QFile file(testName);
+          if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
+            return false;
+          }
+          QTextStream in(&file);
+          QString line = in.readLine(0).trimmed();
+          if (line[0] == '0') {
+            while (line[0] == '~') {                //   '~' = subfile, '=' = alias, '_' = shortcut
+              logWarn() << "isSubPart add part " << part.toLower() << " to subList, prifix " << line[0] << " in title " << line;
+              subList[part.toLower()] = line;
+            }
+          }
+          file.close();
+          return true;
+        }
+      }
+      return false;
+    }
+}
+
 bool PartsList::isKnownPart(QString &part)
 {
   if (list.contains(part.toLower())) {
@@ -91,7 +138,8 @@ bool PartsList::isKnownPart(QString &part)
         QTextStream in(&file);
         QString line = in.readLine(0).trimmed();
         if (line[0] == '0') {
-          while (line[0] == '0' || line[0] == ' ' || line[0] == '~' || line[0] == '_') {
+          while (line[0] == '0' || line[0] == ' ' || line[0] == '~' || line[0] == '_' || line[0] == '=') {
+//            logWarn() << "isKnownPart " << part.toLower() << " removed description prefix " << line[0] << " from title: " << line;
             line.remove(0,1);
           }
           list[part.toLower()] = line;  

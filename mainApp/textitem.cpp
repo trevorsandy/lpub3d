@@ -45,25 +45,32 @@ void TextItem::contextMenuEvent(
   }
 
   if (selectedAction == editFontAction) {
-    InsertData data = meta.value();
 
-    QFont font(data.textFont);
+    InsertData data = meta.value();
+    FontMeta font;
+    font.setValuePoints(data.textFont);
+
+    QFont _font;
+    QString fontName = font.valueFoo();
+    _font.fromString(fontName);
+
     bool ok;
 
-    font = QFontDialog::getFont(&ok,font);
+    _font = QFontDialog::getFont(&ok,_font);
 
     if (ok) {
 
-      data.textFont = font.toString();
+        data.textFont = _font.toString();
+        meta.setValue(data);
 
-      meta.setValue(data);
+        beginMacro("UpdateFont");
+        replaceMeta(meta.here(),meta.format(false,false));
+        endMacro();
 
-      beginMacro("UpdateFont");
-      replaceMeta(meta.here(),meta.format(false,false));
-      endMacro();
     } else {
-      gui->displayPage();
+        gui->displayPage();
     }
+
   } else if (selectedAction == editColorAction) {
     InsertData data = meta.value();
 

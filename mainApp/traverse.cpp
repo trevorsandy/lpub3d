@@ -47,6 +47,8 @@
 #include "paths.h"
 #include "metaitem.h"
 
+#include "QsLog.h"
+
 /*********************************************
  *
  * remove_group
@@ -57,25 +59,25 @@
  ********************************************/
 
 static void remove_group(
-  QStringList  in,
-  QString      group,
-  QStringList &out)
+    QStringList  in,
+    QString      group,
+    QStringList &out)
 {
   QRegExp bgt("^\\s*0\\s+MLCAD\\s+BTG\\s+(.*)$");
 
   for (int i = 0; i < in.size(); i++) {
-    QString line = in.at(i);
+      QString line = in.at(i);
 
-    if (line.contains(bgt)) {
-      if (bgt.cap(bgt.numCaptures()) == group) {
-        i++;
-      } else {
-        out << line;
-      }
-    } else {
-      out << line;
+      if (line.contains(bgt)) {
+          if (bgt.cap(bgt.numCaptures()) == group) {
+              i++;
+            } else {
+              out << line;
+            }
+        } else {
+          out << line;
+        }
     }
-  }
 
   return;
 }
@@ -90,28 +92,28 @@ static void remove_group(
  ********************************************/
 
 static void remove_parttype(
-  QStringList  in,
-  QString      model,
-  QStringList &out)
+    QStringList  in,
+    QString      model,
+    QStringList &out)
 {
 
   model = model.toLower();
 
   for (int i = 0; i < in.size(); i++) {
-    QString line = in.at(i);
-    QStringList tokens;
+      QString line = in.at(i);
+      QStringList tokens;
 
-    split(line,tokens);
+      split(line,tokens);
 
-    if (tokens.size() == 15 && tokens[0] == "1") {
-      QString type = tokens[14].toLower();
-      if (type != model) {
-        out << line;
-      }
-    } else {
-      out << line;
+      if (tokens.size() == 15 && tokens[0] == "1") {
+          QString type = tokens[14].toLower();
+          if (type != model) {
+              out << line;
+            }
+        } else {
+          out << line;
+        }
     }
-  }
 
   return;
 }
@@ -123,39 +125,39 @@ static void remove_parttype(
  ********************************************/
 
 static void remove_partname(
-  QStringList  in,
-  QString      name,
-  QStringList &out)
+    QStringList  in,
+    QString      name,
+    QStringList &out)
 {
   name = name.toLower();
 
   for (int i = 0; i < in.size(); i++) {
-    QString line = in.at(i);
-    QStringList tokens;
+      QString line = in.at(i);
+      QStringList tokens;
 
-    split(line,tokens);
+      split(line,tokens);
 
-    if (tokens.size() == 4 && tokens[0] == "0" &&
-                              tokens[1] == "LPUB" &&
-                              tokens[2] == "NAME") {
-      QString type = tokens[3].toLower();
-      if (type == name) {
-        for ( ; i < in.size(); i++) {
-          line = in.at(i);
-          split(line,tokens);
-          if (tokens.size() == 15 && tokens[0] == "1") {
-            break;
-          } else {
-            out << line;
-          }
+      if (tokens.size() == 4 && tokens[0] == "0" &&
+          tokens[1] == "LPUB" &&
+          tokens[2] == "NAME") {
+          QString type = tokens[3].toLower();
+          if (type == name) {
+              for ( ; i < in.size(); i++) {
+                  line = in.at(i);
+                  split(line,tokens);
+                  if (tokens.size() == 15 && tokens[0] == "1") {
+                      break;
+                    } else {
+                      out << line;
+                    }
+                }
+            } else {
+              out << line;
+            }
+        } else {
+          out << line;
         }
-      } else {
-        out << line;
-      }
-    } else {
-      out << line;
     }
-  }
 
   return;
 }
@@ -204,38 +206,38 @@ static void remove_partname(
  */
 
 Range *newRange(
-  Steps  *steps,
-  bool    calledOut)
+    Steps  *steps,
+    bool    calledOut)
 {
   Range *range;
 
   if (calledOut) {
-    range = new Range(steps,
-                      steps->meta.LPub.callout.alloc.value(),
-                      steps->meta.LPub.callout.freeform);
-  } else {
-    range = new Range(steps,
-                      steps->meta.LPub.multiStep.alloc.value(),
-                      steps->meta.LPub.multiStep.freeform);
-  }
+      range = new Range(steps,
+                        steps->meta.LPub.callout.alloc.value(),
+                        steps->meta.LPub.callout.freeform);
+    } else {
+      range = new Range(steps,
+                        steps->meta.LPub.multiStep.alloc.value(),
+                        steps->meta.LPub.multiStep.freeform);
+    }
   return range;
 }
 
 int Gui::drawPage(
-  LGraphicsView  *view,
-  QGraphicsScene *scene,
-  Steps          *steps,
-  int             stepNum,
-  QString const  &addLine,
-  Where          &current,
-  QStringList    &csiParts,
-  QStringList    &pliParts,
-  bool            isMirrored,
-  QHash<QString, QStringList> &bfx,
-  bool            printing,
-  bool            bfxStore2,
-  QStringList    &bfxParts,
-  bool            calledOut)
+    LGraphicsView  *view,
+    QGraphicsScene *scene,
+    Steps          *steps,
+    int             stepNum,
+    QString const  &addLine,
+    Where          &current,
+    QStringList    &csiParts,
+    QStringList    &pliParts,
+    bool            isMirrored,
+    QHash<QString, QStringList> &bfx,
+    bool            printing,
+    bool            bfxStore2,
+    QStringList    &bfxParts,
+    bool            calledOut)
 {
   QStringList saveCsiParts;
   bool        global = true;
@@ -276,763 +278,765 @@ int Gui::drawPage(
    */
   for ( ; current <= numLines; current++) {
 
-    Meta   &curMeta = callout ? callout->meta : steps->meta;
+      QApplication::processEvents();
 
-    QStringList tokens;
+      Meta   &curMeta = callout ? callout->meta : steps->meta;
 
-    // If we hit end of file we've got to note end of step
+      QStringList tokens;
 
-    if (current >= numLines) {
-      line.clear();
-      gprc = EndOfFileRc;
-      tokens << "0";
+      // If we hit end of file we've got to note end of step
 
-      // not end of file, so get the next LDraw line
+      if (current >= numLines) {
+          line.clear();
+          gprc = EndOfFileRc;
+          tokens << "0";
 
-    } else {
-      line = ldrawFile.readLine(current.modelName,current.lineNumber);
-      split(line,tokens);
-    }
+          // not end of file, so get the next LDraw line
 
-    if (tokens.size() == 15 && tokens[0] == "1") {
-
-      QString color = tokens[1];
-      QString type  = tokens[tokens.size()-1];
-
-      if (color == "16") {
-        QStringList addTokens;
-        split(addLine,addTokens);
-        if (addTokens.size() == 15) {
-          tokens[1] = addTokens[1];
-        }
-        line = tokens.join(" ");
-        color = tokens[1];
-      }
-
-      csiParts << line;
-      partsAdded = true;
-
-      /* since we have a part usage, we have a valid step */
-
-      if (step == NULL  && ! noStep) {
-        if (range == NULL) {
-          range = newRange(steps,calledOut);
-          steps->append(range);
+        } else {
+          line = ldrawFile.readLine(current.modelName,current.lineNumber);
+          split(line,tokens);
         }
 
-        step = new Step(topOfStep,
-                        range,
-                        stepNum,
-                        curMeta,
-                        calledOut,
-                        multiStep);
+      if (tokens.size() == 15 && tokens[0] == "1") {
 
-        range->append(step);
-      }
+          QString color = tokens[1];
+          QString type  = tokens[tokens.size()-1];
 
-      /* addition of ldraw parts */
-
-      if (curMeta.LPub.pli.show.value()
-          && ! pliIgnore
-          && ! partIgnore
-          && ! synthBegin) {
-        QString colorType = color+type;
-        if (! isSubmodel(type) || curMeta.LPub.pli.includeSubs.value()) {
-          if (bfxStore2 && bfxLoad) {
-            bool removed = false;
-            for (int i = 0; i < bfxParts.size(); i++) {
-              if (bfxParts[i] == colorType) {
-                bfxParts.removeAt(i);
-                removed = true;
-                break;
-              }
+          if (color == "16") {
+              QStringList addTokens;
+              split(addLine,addTokens);
+              if (addTokens.size() == 15) {
+                  tokens[1] = addTokens[1];
+                }
+              line = tokens.join(" ");
+              color = tokens[1];
             }
 
-            // Danny: the following condition should help LPUB to remove automatically from PLI the parts in the buffer,
-            // but does not work if two buffers are used one after another in a multi step page.
-            // Better to make the user use the !LPUB PLI BEGIN IGN / END
+          csiParts << line;
+          partsAdded = true;
 
-            //if ( ! removed )  {
-              pliParts << Pli::partLine(line,current,steps->meta);
-            //}
-          } else {
-            pliParts << Pli::partLine(line,current,steps->meta);
-          }
-        }
-      // bfxStore1 goes true when we've seen BFX STORE the first time
-      // in a sequence of steps.  This used to be commented out which
-      // means it didn't work in some cases, but we need it in step
-      // group cases, so.... bfxStore1 && multiStep (was just bfxStore1)
-        if (bfxStore1 && (multiStep || calledOut)) {
-          bfxParts << colorType;
-        }
-      }
+          /* since we have a part usage, we have a valid step */
 
-      /* if it is a sub-model, then process it */
+          if (step == NULL  && ! noStep) {
+              if (range == NULL) {
+                  range = newRange(steps,calledOut);
+                  steps->append(range);
+                }
 
-      if (ldrawFile.isSubmodel(type) && callout && ! noStep) {
+              step = new Step(topOfStep,
+                              range,
+                              stepNum,
+                              curMeta,
+                              calledOut,
+                              multiStep);
 
-        CalloutBeginMeta::CalloutMode mode = callout->meta.LPub.callout.begin.value();
+              range->append(step);
+            }
 
-        /* we are a callout, so gather all the steps within the callout */
-        /* start with new meta, but no rotation step */
+          /* addition of ldraw parts */
 
-        QString thisType = type;
+          if (curMeta.LPub.pli.show.value()
+              && ! pliIgnore
+              && ! partIgnore
+              && ! synthBegin) {
+              QString colorType = color+type;
+              if (! isSubmodel(type) || curMeta.LPub.pli.includeSubs.value()) {
+                  if (bfxStore2 && bfxLoad) {
+                      bool removed = false;
+                      for (int i = 0; i < bfxParts.size(); i++) {
+                          if (bfxParts[i] == colorType) {
+                              bfxParts.removeAt(i);
+                              removed = true;
+                              break;
+                            }
+                        }
 
-        if (mode != CalloutBeginMeta::Unassembled) {
-          /* So, we process callouts in-line, not when we finally hit the STEP or
+                      // Danny: the following condition should help LPUB to remove automatically from PLI the parts in the buffer,
+                      // but does not work if two buffers are used one after another in a multi step page.
+                      // Better to make the user use the !LPUB PLI BEGIN IGN / END
+
+                      //if ( ! removed )  {
+                      pliParts << Pli::partLine(line,current,steps->meta);
+                      //}
+                    } else {
+                      pliParts << Pli::partLine(line,current,steps->meta);
+                    }
+                }
+              // bfxStore1 goes true when we've seen BFX STORE the first time
+              // in a sequence of steps.  This used to be commented out which
+              // means it didn't work in some cases, but we need it in step
+              // group cases, so.... bfxStore1 && multiStep (was just bfxStore1)
+              if (bfxStore1 && (multiStep || calledOut)) {
+                  bfxParts << colorType;
+                }
+            }
+
+          /* if it is a sub-model, then process it */
+
+          if (ldrawFile.isSubmodel(type) && callout && ! noStep) {
+
+              CalloutBeginMeta::CalloutMode mode = callout->meta.LPub.callout.begin.value();
+
+              /* we are a callout, so gather all the steps within the callout */
+              /* start with new meta, but no rotation step */
+
+              QString thisType = type;
+
+              if (mode != CalloutBeginMeta::Unassembled) {
+                  /* So, we process callouts in-line, not when we finally hit the STEP or
              ROTSTEP that ends this processing, but for ASSEMBLED or ROTATED
              callouts, the ROTSTEP state affects the results, so we have to search
              forward until we hit STEP or ROTSTEP to know how the submodel might
              want to be rotated.  Also, for submodel's who's scale is different
              than their parent's scale, we want to scan ahead and find out the
              parent's scale and "render" the submodels at the parent's scale */
-          Meta tmpMeta = curMeta;
-          Where walk = current;
-          for (++walk; walk < numLines; ++walk) {
-            QStringList tokens;
-            QString scanLine = ldrawFile.readLine(walk.modelName,walk.lineNumber);
-            split(scanLine,tokens);
-            if (tokens.size() > 0 && tokens[0] == "0") {
-              Rc rc = tmpMeta.parse(scanLine,walk,false);
-              if (rc == StepRc || rc == RotStepRc) {
-                break;
-              }
-            }
-          }
-          callout->meta.rotStep = tmpMeta.rotStep;
-          callout->meta.LPub.assem.modelScale = tmpMeta.LPub.assem.modelScale;
-          // The next command applies the rotation due to line, but not due to callout->meta.rotStep
-          thisType = callout->wholeSubmodel(callout->meta,type,line,0);
-        }
-
-        if (callout->bottom.modelName != thisType) {
-
-          Where current2(thisType,0);
-          skipHeader(current2);
-          if (mode == CalloutBeginMeta::Assembled) {
-            // In this case, no additional rotation should be applied to the submodel
-            callout->meta.rotStep.clear();
-          }
-          SubmodelStack tos(current.modelName,current.lineNumber,stepNum);
-          callout->meta.submodelStack << tos;
-          Meta saveMeta = callout->meta;
-          callout->meta.LPub.pli.constrain.resetToDefault();
-
-          step->append(callout);
-
-          calloutParts.clear();
-          QStringList csiParts2;
-
-          QHash<QString, QStringList> calloutBfx;
-
-          int rc;
-          rc = drawPage(
-                 view,
-                 scene,
-                 callout,
-                 1,
-                 line,
-                 current2,
-                 csiParts2,
-                 calloutParts,
-                 ldrawFile.mirrored(tokens),
-                 calloutBfx,
-                 printing,
-                 bfxStore2,
-                 bfxParts,
-                 true);
-
-          callout->meta = saveMeta;
-
-          if (callout->meta.LPub.pli.show.value() &&
-            ! callout->meta.LPub.callout.pli.perStep.value() &&
-            ! pliIgnore && ! partIgnore && ! synthBegin &&
-              mode == CalloutBeginMeta::Unassembled) {
-
-            pliParts += calloutParts;
-          }
-
-          if (rc != 0) {
-            steps->placement = steps->meta.LPub.assem.placement;
-            return rc;
-          }
-        } else {
-          callout->instances++;
-          if (mode == CalloutBeginMeta::Unassembled) {
-            pliParts += calloutParts;
-          }
-        }
-
-        /* remind user what file we're working on */
-
-        statusBar()->showMessage("Processing " + current.modelName);
-      }
-    } else if (tokens.size() > 0 &&
-              (tokens[0] == "2" ||
-               tokens[0] == "3" ||
-               tokens[0] == "4" ||
-               tokens[0] == "5")) {
-
-      csiParts << line;
-      partsAdded = true;
-
-      /* we've got a line, triangle or polygon, so add it to the list */
-      /* and make sure we know we have a step */
-
-      if (step == NULL && ! noStep) {
-        if (range == NULL) {
-          range = newRange(steps,calledOut);
-          steps->append(range);
-        }
-
-        step = new Step(topOfStep,
-                        range,
-                        stepNum,
-                        steps->meta,
-                        calledOut,
-                        multiStep);
-        range->append(step);
-      }
-
-    } else if ( (tokens.size() > 0 && tokens[0] == "0") || gprc == EndOfFileRc) {
-
-      /* must be meta-command (or comment) */
-      if (global && tokens.contains("!LPUB") && tokens.contains("GLOBAL")) {
-        topOfStep = current;
-      } else {
-        global = false;
-      }
-
-      QString part;
-
-      if (gprc == EndOfFileRc) {
-        rc = gprc;
-      } else {
-        rc = curMeta.parse(line,current,true);
-      }
-
-      InsertData insertData;
-
-      /* handle specific meta-commands */
-
-      switch (rc) {
-
-        /* toss it all out the window, per James' original plan */
-        case ClearRc:
-          pliParts.clear();
-          csiParts.clear();
-          //steps->freeSteps();  // had to remove this because it blows steps following clear
-                                 // in step group.
-        break;
-
-        /* Buffer exchange */
-        case BufferStoreRc:
-          bfx[curMeta.bfx.value()] = csiParts;
-          bfxStore1 = true;
-          bfxParts.clear();
-        break;
-
-        case BufferLoadRc:
-          csiParts = bfx[curMeta.bfx.value()];
-          bfxLoad = true;
-        break;
-
-        case MLCadGroupRc:
-          csiParts << line;
-        break;
-
-        case IncludeRc:
-          include(curMeta);
-        break;
-
-        /* substitute part/parts with this */
-
-        case PliBeginSub1Rc:
-          if (pliIgnore) {
-            parseError("Nested PLI BEGIN/ENDS not allowed\n",current);
-          }
-          if (steps->meta.LPub.pli.show.value() &&
-              ! pliIgnore &&
-              ! partIgnore &&
-              ! synthBegin) {
-
-            SubData subData = curMeta.LPub.pli.begin.sub.value();
-            QString addPart = QString("1 0  0 0 0  0 0 0 0 0 0 0 0 0 %1") .arg(subData.part);
-            pliParts << Pli::partLine(addPart,current,curMeta);
-          }
-
-          if (step == NULL && ! noStep) {
-            if (range == NULL) {
-              range = newRange(steps,calledOut);
-              steps->append(range);
-            }
-            step = new Step(topOfStep,
-                            range,
-                            stepNum,
-                            curMeta,
-                            calledOut,
-                            multiStep);
-            range->append(step);
-          }
-          pliIgnore = true;
-        break;
-
-        /* substitute part/parts with this */
-        case PliBeginSub2Rc:
-          if (pliIgnore) {
-            parseError("Nested BEGIN/ENDS not allowed\n",current);
-          }
-          if (steps->meta.LPub.pli.show.value() &&
-              ! pliIgnore &&
-              ! partIgnore &&
-              ! synthBegin) {
-
-            SubData subData = curMeta.LPub.pli.begin.sub.value();
-            QString addPart = QString("1 %1  0 0 0  0 0 0 0 0 0 0 0 0 %2") .arg(subData.color) .arg(subData.part);
-            pliParts << Pli::partLine(addPart,current,curMeta);
-          }
-
-          if (step == NULL && ! noStep) {
-            if (range == NULL) {
-              range = newRange(steps,calledOut);
-              steps->append(range);
-            }
-            step = new Step(topOfStep,
-                            range,
-                            stepNum,
-                            curMeta,
-                            calledOut,
-                            multiStep);
-            range->append(step);
-          }
-          pliIgnore = true;
-        break;
-
-        /* do not put subsequent parts into PLI */
-        case PliBeginIgnRc:
-          if (pliIgnore) {
-            parseError("Nested BEGIN/ENDS not allowed\n",current);
-          }
-          pliIgnore = true;
-        break;
-        case PliEndRc:
-          if ( ! pliIgnore) {
-            parseError("PLI END with no PLI BEGIN",current);
-          }
-          pliIgnore = false;
-        break;
-
-        /* discard subsequent parts, and don't create CSI's for them */
-        case PartBeginIgnRc:
-        case MLCadSkipBeginRc:
-          if (partIgnore) {
-            parseError("Nested BEGIN/ENDS not allowed\n",current);
-          }
-          partIgnore = true;
-        break;
-
-        case PartEndRc:
-        case MLCadSkipEndRc:
-          if (partIgnore) {
-            parseError("Ignore ending with no ignore begin",current);
-          }
-          partIgnore = false;
-        break;
-
-        case SynthBeginRc:
-          if (synthBegin) {
-            parseError("Nested BEGIN/ENDS not allowed\n",current);
-          }
-          synthBegin = true;
-        break;
-
-        case SynthEndRc:
-          if ( ! synthBegin) {
-            parseError("Ignore ending with no ignore begin",current);
-          }
-          synthBegin = false;
-        break;
-
-
-        /* remove a group or all instances of a part type */
-        case GroupRemoveRc:
-        case RemoveGroupRc:
-        case RemovePartRc:
-        case RemoveNameRc:
-          {
-            QStringList newCSIParts;
-
-            if (rc == RemoveGroupRc) {
-              remove_group(csiParts,steps->meta.LPub.remove.group.value(),newCSIParts);
-            } else if (rc == RemovePartRc) {
-              remove_parttype(csiParts, steps->meta.LPub.remove.parttype.value(),newCSIParts);
-            } else {
-              remove_partname(csiParts, steps->meta.LPub.remove.partname.value(),newCSIParts);
-            }
-            csiParts = newCSIParts;
-
-            if (step == NULL && ! noStep) {
-              if (range == NULL) {
-                range = newRange(steps,calledOut);
-                steps->append(range);
-              }
-              step = new Step(topOfStep,
-                              range,
-                              stepNum,
-                              curMeta,
-                              calledOut,
-                              multiStep);
-              range->append(step);
-            }
-          }
-        break;
-
-        case ReserveSpaceRc:
-          /* since we have a part usage, we have a valid step */
-          if (calledOut || multiStep) {
-            step = NULL;
-            Reserve *reserve = new Reserve(current,steps->meta.LPub);
-            if (range == NULL) {
-              range = newRange(steps,calledOut);
-              steps->append(range);
-            }
-            range->append(reserve);
-          }
-        break;
-
-        case InsertCoverPageRc:
-         {
-          coverPage = true;
-          page.coverPage = true;
-          QRegExp frontCoverPage("^\\s*0\\s+!LPUB\\s+.*FRONT");
-          QRegExp backCoverPage("^\\s*0\\s+!LPUB\\s+.*BACK");
-           if (line.contains(frontCoverPage)){
-               page.frontCover = true;
-               page.backCover  = false;
-           }
-           if (line.contains(backCoverPage)){
-               page.backCover  = true;
-               page.frontCover = false;
-           }
-         }
-        case InsertPageRc:
-          partsAdded = true;
-        break;
-
-        case InsertRc:
-         {
-           inserts.append(curMeta.LPub.insert);  // these are always placed before any parts in step
-           insertData = curMeta.LPub.insert.value();
-
-           QRegExp InsertModel("^\\s*0\\s+!LPUB\\s+.*MODEL");
-           if (line.contains(InsertModel)){
-               if (step == NULL) {
-                   if (range == NULL) {
-                       range = newRange(steps,calledOut);
-                       steps->append(range);
-                   }
-                   step = new Step(topOfStep,
-                                   range,
-                                   stepNum,
-                                   curMeta,
-                                   calledOut,
-                                   multiStep);
-                   range->append(step);
-               }
-               partsAdded  = true; // OK, so this is a lie, but it works
-               insertModel = true;
-           }
-         }
-        break;
-
-        case CalloutBeginRc:
-          if (callout) {
-            parseError("Nested CALLOUT not allowed within the same file",current);
-          } else {
-            callout = new Callout(curMeta,view);
-            callout->setTopOfCallout(current);
-          }
-        break;
-
-        case CalloutDividerRc:
-          if (range) {
-            range->sepMeta = curMeta.LPub.callout.sep;
-            range = NULL;
-            step = NULL;
-          }
-        break;
-
-        case CalloutPointerRc:
-          if (callout) {
-            callout->appendPointer(current,curMeta.LPub.callout);
-          }
-        break;
-
-        case CalloutEndRc:
-          if ( ! callout) {
-            parseError("CALLOUT END without a CALLOUT BEGIN",current);
-          } else {
-            callout->parentStep = step;
-            if (multiStep) {
-              callout->parentRelativeType = StepGroupType;
-            } else if (calledOut) {
-              callout->parentRelativeType = CalloutType;
-            } else {
-              callout->parentRelativeType = step->relativeType;
-            }
-            callout->pli.clear();
-            callout->placement = curMeta.LPub.callout.placement;
-            callout->setBottomOfCallout(current);
-            callout = NULL;
-          }
-        break;
-
-        case StepGroupBeginRc:
-          if (calledOut) {
-            parseError("MULTI_STEP not allowed inside callout models",current);
-          } else {
-            if (multiStep) {
-              parseError("Nested MULTI_STEP not allowed",current);
-            }
-            multiStep = true;
-          }
-          steps->relativeType = StepGroupType;
-        break;
-
-        case StepGroupDividerRc:
-          if (range) {
-            range->sepMeta = steps->meta.LPub.multiStep.sep;
-            range = NULL;
-            step = NULL;
-          }
-        break;
-
-        /* finished off a multiStep */
-        case StepGroupEndRc:
-          if (multiStep && steps->list.size()) {
-            // save the current meta as the meta for step group
-            // PLI for non-pli-per-step
-            if (partsAdded) {
-              parseError("Expected STEP before MULTI_STEP END", current);
-            }
-            multiStep = false;
-
-            if (pliParts.size() && steps->meta.LPub.multiStep.pli.perStep.value() == false) {
-              PlacementData placementData = steps->stepGroupMeta.LPub.multiStep.pli.placement.value();
-              // Override default, which is for PliPerStep true
-              if (placementData.relativeTo != PageType &&
-                  placementData.relativeTo != StepGroupType) {
-                  placementData.relativeTo  = PageType;
-                  placementData.placement   = TopLeft;
-                  placementData.preposition = Inside;
-                  placementData.offsets[0]  = 0;
-                  placementData.offsets[1]  = 0;
-                steps->stepGroupMeta.LPub.multiStep.pli.placement.setValue(placementData);
-              }
-              steps->pli.bom = false;
-              steps->pli.setParts(pliParts,steps->stepGroupMeta);
-              steps->pli.sizePli(&steps->stepGroupMeta, StepGroupType, false);
-            }
-            pliParts.clear();
-
-            /* this is a page we're supposed to process */
-
-            steps->placement = steps->meta.LPub.multiStep.placement;
-            showLine(steps->topOfSteps());
-
-            Page *page = dynamic_cast<Page *>(steps);
-            if (page) {
-              page->inserts = inserts;
-            }
-
-            bool endOfSubmodel = stepNum >= ldrawFile.numSteps(current.modelName);
-            int  instances = ldrawFile.instances(current.modelName,isMirrored);
-            addGraphicsPageItems(steps, coverPage, endOfSubmodel,instances, view, scene, printing);
-            return HitEndOfPage;
-          }
-          inserts.clear();
-        break;
-
-        case NoStepRc:
-          noStep = true;
-        break;
-
-        /* we're hit some kind of step, or implied step and end of file */
-        case EndOfFileRc:
-        case RotStepRc:
-        case StepRc:
-          if ( ! partsAdded && bfxLoad && ! noStep) {
-            // special case of no parts added, but BFX load sans NOSTEP
-            if (step == NULL) {
-              if (range == NULL) {
-                range = newRange(steps,calledOut);
-                steps->append(range);
-              }
-              step = new Step(topOfStep,
-                              range,
-                              stepNum,
-                              curMeta,
-                              calledOut,
-                              multiStep);
-              range->append(step);
-            }
-
-            (void) step->createCsi(
-              isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-              saveCsiParts = fadeStep(csiParts, stepNum, current),
-              &step->csiPixmap,
-              steps->meta);
-            partsAdded = true; // OK, so this is a lie, but it works
-          }
-          if (partsAdded && ! noStep) {
-            if (firstStep) {
-              steps->stepGroupMeta = curMeta;
-              firstStep = false;
-            }
-
-            if (pliIgnore) {
-              parseError("PLI BEGIN then STEP. Expected PLI END",current);
-              pliIgnore = false;
-            }
-            if (partIgnore) {
-              parseError("PART BEGIN then STEP. Expected PART END",current);
-              partIgnore = false;
-            }
-            if (synthBegin) {
-              parseError("SYNTH BEGIN then STEP. Expected SYNTH_END",current);
-              synthBegin = false;
-            }
-
-            bool pliPerStep;
-
-            if (multiStep && steps->meta.LPub.multiStep.pli.perStep.value()) {
-              pliPerStep = true;
-            } else if (calledOut && steps->meta.LPub.callout.pli.perStep.value()) {
-              pliPerStep = true;
-            } else if ( ! multiStep && ! calledOut) {
-              pliPerStep = true;
-            } else {
-              pliPerStep = false;
-            }
-
-            if (step) {
-              Page *page = dynamic_cast<Page *>(steps);
-              if (page) {
-                page->inserts = inserts;
-              }
-
-              if (pliPerStep) {
-                PlacementType relativeType;
-                if (multiStep) {
-                  relativeType = StepGroupType;
-                } else if (calledOut) {
-                  relativeType = CalloutType;
-                } else {
-                  relativeType = SingleStepType;
+                  Meta tmpMeta = curMeta;
+                  Where walk = current;
+                  for (++walk; walk < numLines; ++walk) {
+                      QStringList tokens;
+                      QString scanLine = ldrawFile.readLine(walk.modelName,walk.lineNumber);
+                      split(scanLine,tokens);
+                      if (tokens.size() > 0 && tokens[0] == "0") {
+                          Rc rc = tmpMeta.parse(scanLine,walk,false);
+                          if (rc == StepRc || rc == RotStepRc) {
+                              break;
+                            }
+                        }
+                    }
+                  callout->meta.rotStep = tmpMeta.rotStep;
+                  callout->meta.LPub.assem.modelScale = tmpMeta.LPub.assem.modelScale;
+                  // The next command applies the rotation due to line, but not due to callout->meta.rotStep
+                  thisType = callout->wholeSubmodel(callout->meta,type,line,0);
                 }
-                step->pli.setParts(pliParts,steps->meta);
-                pliParts.clear();
-                step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
-              }
+
+              if (callout->bottom.modelName != thisType) {
+
+                  Where current2(thisType,0);
+                  skipHeader(current2);
+                  if (mode == CalloutBeginMeta::Assembled) {
+                      // In this case, no additional rotation should be applied to the submodel
+                      callout->meta.rotStep.clear();
+                    }
+                  SubmodelStack tos(current.modelName,current.lineNumber,stepNum);
+                  callout->meta.submodelStack << tos;
+                  Meta saveMeta = callout->meta;
+                  callout->meta.LPub.pli.constrain.resetToDefault();
+
+                  step->append(callout);
+
+                  calloutParts.clear();
+                  QStringList csiParts2;
+
+                  QHash<QString, QStringList> calloutBfx;
+
+                  int rc;
+                  rc = drawPage(
+                        view,
+                        scene,
+                        callout,
+                        1,
+                        line,
+                        current2,
+                        csiParts2,
+                        calloutParts,
+                        ldrawFile.mirrored(tokens),
+                        calloutBfx,
+                        printing,
+                        bfxStore2,
+                        bfxParts,
+                        true);
+
+                  callout->meta = saveMeta;
+
+                  if (callout->meta.LPub.pli.show.value() &&
+                      ! callout->meta.LPub.callout.pli.perStep.value() &&
+                      ! pliIgnore && ! partIgnore && ! synthBegin &&
+                      mode == CalloutBeginMeta::Unassembled) {
+
+                      pliParts += calloutParts;
+                    }
+
+                  if (rc != 0) {
+                      steps->placement = steps->meta.LPub.assem.placement;
+                      return rc;
+                    }
+                } else {
+                  callout->instances++;
+                  if (mode == CalloutBeginMeta::Unassembled) {
+                      pliParts += calloutParts;
+                    }
+                }
+
+              /* remind user what file we're working on */
 
               statusBar()->showMessage("Processing " + current.modelName);
+            }
+        } else if (tokens.size() > 0 &&
+                   (tokens[0] == "2" ||
+                    tokens[0] == "3" ||
+                    tokens[0] == "4" ||
+                    tokens[0] == "5")) {
 
-              int rc = step->createCsi(
-                  isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                  saveCsiParts = insertModel ? csiParts : fadeStep(csiParts, stepNum, current),
-                  &step->csiPixmap,
-                  steps->meta);
+          csiParts << line;
+          partsAdded = true;
 
-              if (rc) {
-                return rc;
-              }
-            } else {
-              if (pliPerStep) {
-                pliParts.clear();
-              }
+          /* we've got a line, triangle or polygon, so add it to the list */
+          /* and make sure we know we have a step */
 
-              /*
-               * Only pages or step can have inserts.... no callouts
-               */
-              if ( ! multiStep && ! calledOut) {
-                Page *page = dynamic_cast<Page *>(steps);
-                if (page) {
-                  page->inserts = inserts;
+          if (step == NULL && ! noStep) {
+              if (range == NULL) {
+                  range = newRange(steps,calledOut);
+                  steps->append(range);
                 }
-              }
+
+              step = new Step(topOfStep,
+                              range,
+                              stepNum,
+                              steps->meta,
+                              calledOut,
+                              multiStep);
+              range->append(step);
             }
 
-            if ( ! multiStep && ! calledOut) {
-              /*
+        } else if ( (tokens.size() > 0 && tokens[0] == "0") || gprc == EndOfFileRc) {
+
+          /* must be meta-command (or comment) */
+          if (global && tokens.contains("!LPUB") && tokens.contains("GLOBAL")) {
+              topOfStep = current;
+            } else {
+              global = false;
+            }
+
+          QString part;
+
+          if (gprc == EndOfFileRc) {
+              rc = gprc;
+            } else {
+              rc = curMeta.parse(line,current,true);
+            }
+
+          InsertData insertData;
+
+          /* handle specific meta-commands */
+
+          switch (rc) {
+
+            /* toss it all out the window, per James' original plan */
+            case ClearRc:
+              pliParts.clear();
+              csiParts.clear();
+              //steps->freeSteps();  // had to remove this because it blows steps following clear
+              // in step group.
+              break;
+
+              /* Buffer exchange */
+            case BufferStoreRc:
+              bfx[curMeta.bfx.value()] = csiParts;
+              bfxStore1 = true;
+              bfxParts.clear();
+              break;
+
+            case BufferLoadRc:
+              csiParts = bfx[curMeta.bfx.value()];
+              bfxLoad = true;
+              break;
+
+            case MLCadGroupRc:
+              csiParts << line;
+              break;
+
+            case IncludeRc:
+              include(curMeta);
+              break;
+
+              /* substitute part/parts with this */
+
+            case PliBeginSub1Rc:
+              if (pliIgnore) {
+                  parseError("Nested PLI BEGIN/ENDS not allowed\n",current);
+                }
+              if (steps->meta.LPub.pli.show.value() &&
+                  ! pliIgnore &&
+                  ! partIgnore &&
+                  ! synthBegin) {
+
+                  SubData subData = curMeta.LPub.pli.begin.sub.value();
+                  QString addPart = QString("1 0  0 0 0  0 0 0 0 0 0 0 0 0 %1") .arg(subData.part);
+                  pliParts << Pli::partLine(addPart,current,curMeta);
+                }
+
+              if (step == NULL && ! noStep) {
+                  if (range == NULL) {
+                      range = newRange(steps,calledOut);
+                      steps->append(range);
+                    }
+                  step = new Step(topOfStep,
+                                  range,
+                                  stepNum,
+                                  curMeta,
+                                  calledOut,
+                                  multiStep);
+                  range->append(step);
+                }
+              pliIgnore = true;
+              break;
+
+              /* substitute part/parts with this */
+            case PliBeginSub2Rc:
+              if (pliIgnore) {
+                  parseError("Nested BEGIN/ENDS not allowed\n",current);
+                }
+              if (steps->meta.LPub.pli.show.value() &&
+                  ! pliIgnore &&
+                  ! partIgnore &&
+                  ! synthBegin) {
+
+                  SubData subData = curMeta.LPub.pli.begin.sub.value();
+                  QString addPart = QString("1 %1  0 0 0  0 0 0 0 0 0 0 0 0 %2") .arg(subData.color) .arg(subData.part);
+                  pliParts << Pli::partLine(addPart,current,curMeta);
+                }
+
+              if (step == NULL && ! noStep) {
+                  if (range == NULL) {
+                      range = newRange(steps,calledOut);
+                      steps->append(range);
+                    }
+                  step = new Step(topOfStep,
+                                  range,
+                                  stepNum,
+                                  curMeta,
+                                  calledOut,
+                                  multiStep);
+                  range->append(step);
+                }
+              pliIgnore = true;
+              break;
+
+              /* do not put subsequent parts into PLI */
+            case PliBeginIgnRc:
+              if (pliIgnore) {
+                  parseError("Nested BEGIN/ENDS not allowed\n",current);
+                }
+              pliIgnore = true;
+              break;
+            case PliEndRc:
+              if ( ! pliIgnore) {
+                  parseError("PLI END with no PLI BEGIN",current);
+                }
+              pliIgnore = false;
+              break;
+
+              /* discard subsequent parts, and don't create CSI's for them */
+            case PartBeginIgnRc:
+            case MLCadSkipBeginRc:
+              if (partIgnore) {
+                  parseError("Nested BEGIN/ENDS not allowed\n",current);
+                }
+              partIgnore = true;
+              break;
+
+            case PartEndRc:
+            case MLCadSkipEndRc:
+              if (partIgnore) {
+                  parseError("Ignore ending with no ignore begin",current);
+                }
+              partIgnore = false;
+              break;
+
+            case SynthBeginRc:
+              if (synthBegin) {
+                  parseError("Nested BEGIN/ENDS not allowed\n",current);
+                }
+              synthBegin = true;
+              break;
+
+            case SynthEndRc:
+              if ( ! synthBegin) {
+                  parseError("Ignore ending with no ignore begin",current);
+                }
+              synthBegin = false;
+              break;
+
+
+              /* remove a group or all instances of a part type */
+            case GroupRemoveRc:
+            case RemoveGroupRc:
+            case RemovePartRc:
+            case RemoveNameRc:
+              {
+                QStringList newCSIParts;
+
+                if (rc == RemoveGroupRc) {
+                    remove_group(csiParts,steps->meta.LPub.remove.group.value(),newCSIParts);
+                  } else if (rc == RemovePartRc) {
+                    remove_parttype(csiParts, steps->meta.LPub.remove.parttype.value(),newCSIParts);
+                  } else {
+                    remove_partname(csiParts, steps->meta.LPub.remove.partname.value(),newCSIParts);
+                  }
+                csiParts = newCSIParts;
+
+                if (step == NULL && ! noStep) {
+                    if (range == NULL) {
+                        range = newRange(steps,calledOut);
+                        steps->append(range);
+                      }
+                    step = new Step(topOfStep,
+                                    range,
+                                    stepNum,
+                                    curMeta,
+                                    calledOut,
+                                    multiStep);
+                    range->append(step);
+                  }
+              }
+              break;
+
+            case ReserveSpaceRc:
+              /* since we have a part usage, we have a valid step */
+              if (calledOut || multiStep) {
+                  step = NULL;
+                  Reserve *reserve = new Reserve(current,steps->meta.LPub);
+                  if (range == NULL) {
+                      range = newRange(steps,calledOut);
+                      steps->append(range);
+                    }
+                  range->append(reserve);
+                }
+              break;
+
+            case InsertCoverPageRc:
+              {
+                coverPage = true;
+                page.coverPage = true;
+                QRegExp frontCoverPage("^\\s*0\\s+!LPUB\\s+.*FRONT");
+                QRegExp backCoverPage("^\\s*0\\s+!LPUB\\s+.*BACK");
+                if (line.contains(frontCoverPage)){
+                    page.frontCover = true;
+                    page.backCover  = false;
+                  }
+                if (line.contains(backCoverPage)){
+                    page.backCover  = true;
+                    page.frontCover = false;
+                  }
+              }
+            case InsertPageRc:
+              partsAdded = true;
+              break;
+
+            case InsertRc:
+              {
+                inserts.append(curMeta.LPub.insert);  // these are always placed before any parts in step
+                insertData = curMeta.LPub.insert.value();
+
+                QRegExp InsertModel("^\\s*0\\s+!LPUB\\s+.*MODEL");
+                if (line.contains(InsertModel)){
+                    if (step == NULL) {
+                        if (range == NULL) {
+                            range = newRange(steps,calledOut);
+                            steps->append(range);
+                          }
+                        step = new Step(topOfStep,
+                                        range,
+                                        stepNum,
+                                        curMeta,
+                                        calledOut,
+                                        multiStep);
+                        range->append(step);
+                      }
+                    partsAdded  = true; // OK, so this is a lie, but it works
+                    insertModel = true;
+                  }
+              }
+              break;
+
+            case CalloutBeginRc:
+              if (callout) {
+                  parseError("Nested CALLOUT not allowed within the same file",current);
+                } else {
+                  callout = new Callout(curMeta,view);
+                  callout->setTopOfCallout(current);
+                }
+              break;
+
+            case CalloutDividerRc:
+              if (range) {
+                  range->sepMeta = curMeta.LPub.callout.sep;
+                  range = NULL;
+                  step = NULL;
+                }
+              break;
+
+            case CalloutPointerRc:
+              if (callout) {
+                  callout->appendPointer(current,curMeta.LPub.callout);
+                }
+              break;
+
+            case CalloutEndRc:
+              if ( ! callout) {
+                  parseError("CALLOUT END without a CALLOUT BEGIN",current);
+                } else {
+                  callout->parentStep = step;
+                  if (multiStep) {
+                      callout->parentRelativeType = StepGroupType;
+                    } else if (calledOut) {
+                      callout->parentRelativeType = CalloutType;
+                    } else {
+                      callout->parentRelativeType = step->relativeType;
+                    }
+                  callout->pli.clear();
+                  callout->placement = curMeta.LPub.callout.placement;
+                  callout->setBottomOfCallout(current);
+                  callout = NULL;
+                }
+              break;
+
+            case StepGroupBeginRc:
+              if (calledOut) {
+                  parseError("MULTI_STEP not allowed inside callout models",current);
+                } else {
+                  if (multiStep) {
+                      parseError("Nested MULTI_STEP not allowed",current);
+                    }
+                  multiStep = true;
+                }
+              steps->relativeType = StepGroupType;
+              break;
+
+            case StepGroupDividerRc:
+              if (range) {
+                  range->sepMeta = steps->meta.LPub.multiStep.sep;
+                  range = NULL;
+                  step = NULL;
+                }
+              break;
+
+              /* finished off a multiStep */
+            case StepGroupEndRc:
+              if (multiStep && steps->list.size()) {
+                  // save the current meta as the meta for step group
+                  // PLI for non-pli-per-step
+                  if (partsAdded) {
+                      parseError("Expected STEP before MULTI_STEP END", current);
+                    }
+                  multiStep = false;
+
+                  if (pliParts.size() && steps->meta.LPub.multiStep.pli.perStep.value() == false) {
+                      PlacementData placementData = steps->stepGroupMeta.LPub.multiStep.pli.placement.value();
+                      // Override default, which is for PliPerStep true
+                      if (placementData.relativeTo != PageType &&
+                          placementData.relativeTo != StepGroupType) {
+                          placementData.relativeTo  = PageType;
+                          placementData.placement   = TopLeft;
+                          placementData.preposition = Inside;
+                          placementData.offsets[0]  = 0;
+                          placementData.offsets[1]  = 0;
+                          steps->stepGroupMeta.LPub.multiStep.pli.placement.setValue(placementData);
+                        }
+                      steps->pli.bom = false;
+                      steps->pli.setParts(pliParts,steps->stepGroupMeta);
+                      steps->pli.sizePli(&steps->stepGroupMeta, StepGroupType, false);
+                    }
+                  pliParts.clear();
+
+                  /* this is a page we're supposed to process */
+
+                  steps->placement = steps->meta.LPub.multiStep.placement;
+                  showLine(steps->topOfSteps());
+
+                  Page *page = dynamic_cast<Page *>(steps);
+                  if (page) {
+                      page->inserts = inserts;
+                    }
+
+                  bool endOfSubmodel = stepNum >= ldrawFile.numSteps(current.modelName);
+                  int  instances = ldrawFile.instances(current.modelName,isMirrored);
+                  addGraphicsPageItems(steps, coverPage, endOfSubmodel,instances, view, scene, printing);
+                  return HitEndOfPage;
+                }
+              inserts.clear();
+              break;
+
+            case NoStepRc:
+              noStep = true;
+              break;
+
+              /* we're hit some kind of step, or implied step and end of file */
+            case EndOfFileRc:
+            case RotStepRc:
+            case StepRc:
+              if ( ! partsAdded && bfxLoad && ! noStep) {
+                  // special case of no parts added, but BFX load sans NOSTEP
+                  if (step == NULL) {
+                      if (range == NULL) {
+                          range = newRange(steps,calledOut);
+                          steps->append(range);
+                        }
+                      step = new Step(topOfStep,
+                                      range,
+                                      stepNum,
+                                      curMeta,
+                                      calledOut,
+                                      multiStep);
+                      range->append(step);
+                    }
+
+                  (void) step->createCsi(
+                        isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
+                        saveCsiParts = fadeStep(csiParts, stepNum, current),
+                        &step->csiPixmap,
+                        steps->meta);
+                  partsAdded = true; // OK, so this is a lie, but it works
+                }
+              if (partsAdded && ! noStep) {
+                  if (firstStep) {
+                      steps->stepGroupMeta = curMeta;
+                      firstStep = false;
+                    }
+
+                  if (pliIgnore) {
+                      parseError("PLI BEGIN then STEP. Expected PLI END",current);
+                      pliIgnore = false;
+                    }
+                  if (partIgnore) {
+                      parseError("PART BEGIN then STEP. Expected PART END",current);
+                      partIgnore = false;
+                    }
+                  if (synthBegin) {
+                      parseError("SYNTH BEGIN then STEP. Expected SYNTH_END",current);
+                      synthBegin = false;
+                    }
+
+                  bool pliPerStep;
+
+                  if (multiStep && steps->meta.LPub.multiStep.pli.perStep.value()) {
+                      pliPerStep = true;
+                    } else if (calledOut && steps->meta.LPub.callout.pli.perStep.value()) {
+                      pliPerStep = true;
+                    } else if ( ! multiStep && ! calledOut) {
+                      pliPerStep = true;
+                    } else {
+                      pliPerStep = false;
+                    }
+
+                  if (step) {
+                      Page *page = dynamic_cast<Page *>(steps);
+                      if (page) {
+                          page->inserts = inserts;
+                        }
+
+                      if (pliPerStep) {
+                          PlacementType relativeType;
+                          if (multiStep) {
+                              relativeType = StepGroupType;
+                            } else if (calledOut) {
+                              relativeType = CalloutType;
+                            } else {
+                              relativeType = SingleStepType;
+                            }
+                          step->pli.setParts(pliParts,steps->meta);
+                          pliParts.clear();
+                          step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
+                        }
+
+                      statusBar()->showMessage("Processing " + current.modelName);
+
+                      int rc = step->createCsi(
+                            isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
+                            saveCsiParts = insertModel ? csiParts : fadeStep(csiParts, stepNum, current),
+                            &step->csiPixmap,
+                            steps->meta);
+
+                      if (rc) {
+                          return rc;
+                        }
+                    } else {
+                      if (pliPerStep) {
+                          pliParts.clear();
+                        }
+
+                      /*
+               * Only pages or step can have inserts.... no callouts
+               */
+                      if ( ! multiStep && ! calledOut) {
+                          Page *page = dynamic_cast<Page *>(steps);
+                          if (page) {
+                              page->inserts = inserts;
+                            }
+                        }
+                    }
+
+                  if ( ! multiStep && ! calledOut) {
+                      /*
                * Simple step
                */
 
-              steps->placement = steps->meta.LPub.assem.placement;
-              showLine(topOfStep);
+                      steps->placement = steps->meta.LPub.assem.placement;
+                      showLine(topOfStep);
 
-              int  numSteps = ldrawFile.numSteps(current.modelName);
-              bool endOfSubmodel = numSteps == 0 || stepNum >= numSteps;
-              int  instances = ldrawFile.instances(current.modelName, isMirrored);
-              addGraphicsPageItems(steps,coverPage,endOfSubmodel,instances,view,scene,printing);
-              stepPageNum += ! coverPage;
+                      int  numSteps = ldrawFile.numSteps(current.modelName);
+                      bool endOfSubmodel = numSteps == 0 || stepNum >= numSteps;
+                      int  instances = ldrawFile.instances(current.modelName, isMirrored);
+                      addGraphicsPageItems(steps,coverPage,endOfSubmodel,instances,view,scene,printing);
+                      stepPageNum += ! coverPage;
+                      steps->setBottomOfSteps(current);
+
+                      return HitEndOfPage;
+                    }
+                  steps->meta.pop();
+                  stepNum += partsAdded;
+                  topOfStep = current;
+
+                  partsAdded = false;
+                  coverPage = false;
+                  step = NULL;
+                  bfxStore2 = bfxStore1;
+                  bfxStore1 = false;
+                  bfxLoad = false;
+                }
+              if ( ! multiStep) {
+                  inserts.clear();
+                }
               steps->setBottomOfSteps(current);
-
-              return HitEndOfPage;
+              noStep = false;
+              break;
+            case RangeErrorRc:
+              showLine(current);
+              QMessageBox::critical(NULL,
+                                    QMessageBox::tr("LPub3D"),
+                                    QMessageBox::tr("Parameter(s) out of range: %1:%2\n%3")
+                                    .arg(current.modelName)
+                                    .arg(current.lineNumber)
+                                    .arg(line));
+              return RangeErrorRc;
+              break;
+            default:
+              break;
             }
-            steps->meta.pop();
-            stepNum += partsAdded;
-            topOfStep = current;
-
-            partsAdded = false;
-            coverPage = false;
-            step = NULL;
-            bfxStore2 = bfxStore1;
-            bfxStore1 = false;
-            bfxLoad = false;
-          }
-          if ( ! multiStep) {
-            inserts.clear();
-          }
-          steps->setBottomOfSteps(current);
-          noStep = false;
-        break;
-        case RangeErrorRc:
+        } else if (line != "") {
           showLine(current);
           QMessageBox::critical(NULL,
-                               QMessageBox::tr("LPub3D"),
-                               QMessageBox::tr("Parameter(s) out of range: %1:%2\n%3")
-                               .arg(current.modelName)
-                               .arg(current.lineNumber)
-                               .arg(line));
-          return RangeErrorRc;
-        break;
-        default:
-        break;
-      }
-    } else if (line != "") {
-      showLine(current);
-      QMessageBox::critical(NULL,
-                            QMessageBox::tr("LPub3D"),
-                            QMessageBox::tr("Invalid LDraw Line Type: %1:%2\n  %3")
-                            .arg(current.modelName)
-                            .arg(current.lineNumber)
-                            .arg(line));
-      return InvalidLDrawLineRc;
+                                QMessageBox::tr("LPub3D"),
+                                QMessageBox::tr("Invalid LDraw Line Type: %1:%2\n  %3")
+                                .arg(current.modelName)
+                                .arg(current.lineNumber)
+                                .arg(line));
+          return InvalidLDrawLineRc;
+        }
     }
-  }
   return 0;
 }
 
 int Gui::findPage(
-  LGraphicsView  *view,
-  QGraphicsScene *scene,
-  int            &pageNum,
-  QString const  &addLine,
-  Where          &current,
-  bool            isMirrored,
-  Meta            meta,
-  bool            printing)
+    LGraphicsView  *view,
+    QGraphicsScene *scene,
+    int            &pageNum,
+    QString const  &addLine,
+    Where          &current,
+    bool            isMirrored,
+    Meta            meta,
+    bool            printing)
 {
   bool stepGroup  = false;
   bool partIgnore = false;
@@ -1054,16 +1058,16 @@ int Gui::findPage(
   skipHeader(current);
 
   if (pageNum == 1) {
-    topOfPages.clear();
-    topOfPages.append(current);
-  }
+      topOfPages.clear();
+      topOfPages.append(current);
+    }
 
   QStringList csiParts;
   QStringList saveCsiParts;
   Where       saveCurrent = current;
   Where       stepGroupCurrent;
   int         saveStepNumber = 1;
-              saveStepPageNum = stepPageNum;
+  saveStepPageNum = stepPageNum;
 
   Meta        saveMeta = meta;
 
@@ -1079,336 +1083,352 @@ int Gui::findPage(
   RotStepMeta saveRotStep = meta.rotStep;
 
   for ( ;
-       current.lineNumber < numLines;
-       current.lineNumber++) {
+        current.lineNumber < numLines;
+        current.lineNumber++) {
 
-    // scan through the rest of the model counting pages
-    // if we've already hit the display page, then do as little as possible
+      QApplication::processEvents();
+      // scan through the rest of the model counting pages
+      // if we've already hit the display page, then do as little as possible
 
-    QString line = ldrawFile.readLine(current.modelName,current.lineNumber).trimmed();
+      QString line = ldrawFile.readLine(current.modelName,current.lineNumber).trimmed();
 
-    if (line.startsWith("0 GHOST ")) {
-      line = line.mid(8).trimmed();
-    }
-
-    QStringList tokens, addTokens;
-
-    switch (line.toAscii()[0]) {
-      case '1':
-        split(line,tokens);
-
-        if (tokens[1] == "16") {
-          split(addLine,addTokens);
-          if (addTokens.size() == 15) {
-            tokens[1] = addTokens[1];
-          }
-          line = tokens.join(" ");
+      if (line.startsWith("0 GHOST ")) {
+          line = line.mid(8).trimmed();
         }
 
-        if ( ! partIgnore) {
+      QStringList tokens, addTokens;
 
-          // csiParts << line;
+      switch (line.toAscii()[0]) {
+        case '1':
+          split(line,tokens);
 
-          if (firstStepPageNum == -1) {
-            firstStepPageNum = pageNum;
-          }
-          lastStepPageNum = pageNum;
-
-          QStringList token;
-
-          split(line,token);
-
-          QString    type = token[token.size()-1];
-
-          bool contains   = ldrawFile.isSubmodel(type);
-          bool rendered   = ldrawFile.rendered(type,ldrawFile.mirrored(token));
-          CalloutBeginMeta::CalloutMode mode = meta.LPub.callout.begin.value();
-
-          if (contains && (!callout || (callout && mode != CalloutBeginMeta::Unassembled) )) {
-              if ( ! rendered && (! bfxStore2 || ! bfxParts.contains(token[1]+type))) {
-
-              isMirrored = ldrawFile.mirrored(token);
-
-              // can't be a callout
-              SubmodelStack tos(current.modelName,current.lineNumber,stepNumber);
-              meta.submodelStack << tos;
-              Where current2(type,0);
-
-              // save rotStep, clear it, and restore it afterwards
-              // since rotsteps don't affect submodels
-              RotStepMeta saveRotStep2 = meta.rotStep;
-              meta.rotStep.clear();
-
-              findPage(view,scene,pageNum,line,current2,isMirrored,meta,printing);
-              saveStepPageNum = stepPageNum;
-              meta.submodelStack.pop_back();
-              meta.rotStep = saveRotStep2; // restore old rotstep
-            }
-          }
-          if (bfxStore1) {
-            bfxParts << token[1]+type;
-          }
-        }
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-        ++partsAdded;
-        csiParts << line;
-      break;
-
-      case '0':
-        rc = meta.parse(line,current);
-        switch (rc) {
-          case StepGroupBeginRc:
-            stepGroup = true;
-            stepGroupCurrent = topOfStep;
-            // Steps within step group modify bfxStore2 as they progress
-            // so we must save bfxStore2 and use the saved copy when
-            // we call drawPage for a step group.
-            stepGroupBfxStore2 = bfxStore2;
-          break;
-          case StepGroupEndRc:
-            if (stepGroup && ! noStep2) {
-              stepGroup = false;
-              if (pageNum < displayPageNum) {
-                saveCsiParts   = csiParts;
-                saveStepNumber = stepNumber;
-                saveMeta       = meta;
-                saveBfx        = bfx;
-                saveBfxParts   = bfxParts;
-                bfxParts.clear();
-                saveRotStep = meta.rotStep;
-              } else if (pageNum == displayPageNum) {
-                csiParts.clear();
-                stepPageNum = saveStepPageNum;
-                if (pageNum == 1) {
-                  page.meta = meta;
-                } else {
-                  page.meta = saveMeta;
+          if (tokens[1] == "16") {
+              split(addLine,addTokens);
+              if (addTokens.size() == 15) {
+                  tokens[1] = addTokens[1];
                 }
-                page.meta.pop();
-                page.meta.rotStep = saveRotStep;
-
-                QStringList pliParts;
-
-                (void) drawPage(view,
-                                scene,
-                                &page,
-                                saveStepNumber,
-                                addLine,
-                                stepGroupCurrent,
-                                saveCsiParts,
-                                pliParts,
-                                isMirrored,
-                                saveBfx,
-                                printing,
-                                stepGroupBfxStore2,
-                                saveBfxParts);
-
-                saveCurrent.modelName.clear();
-                saveCsiParts.clear();
-              }
-              ++pageNum;
-              topOfPages.append(current);
-              saveStepPageNum = ++stepPageNum;
+              line = tokens.join(" ");
             }
-            noStep2 = false;
+
+          if ( ! partIgnore) {
+
+              // csiParts << line;
+
+              if (firstStepPageNum == -1) {
+                  firstStepPageNum = pageNum;
+                }
+              lastStepPageNum = pageNum;
+
+              QStringList token;
+
+              split(line,token);
+
+              QString    type = token[token.size()-1];
+
+              bool contains   = ldrawFile.isSubmodel(type);
+              bool rendered   = ldrawFile.rendered(type,ldrawFile.mirrored(token));
+              CalloutBeginMeta::CalloutMode mode = meta.LPub.callout.begin.value();
+
+              if (contains && (!callout || (callout && mode != CalloutBeginMeta::Unassembled) )) {
+                  if ( ! rendered && (! bfxStore2 || ! bfxParts.contains(token[1]+type))) {
+
+                      isMirrored = ldrawFile.mirrored(token);
+
+                      // can't be a callout
+                      SubmodelStack tos(current.modelName,current.lineNumber,stepNumber);
+                      meta.submodelStack << tos;
+                      Where current2(type,0);
+
+                      ldrawFile.setModelStartPageNumber(current2.modelName,pageNum);
+                      //logTrace() << "SET Model: " << current2.modelName << " @ Page: " << pageNum;
+
+                      // save rotStep, clear it, and restore it afterwards
+                      // since rotsteps don't affect submodels
+                      RotStepMeta saveRotStep2 = meta.rotStep;
+                      meta.rotStep.clear();
+
+                      findPage(view,scene,pageNum,line,current2,isMirrored,meta,printing);
+                      saveStepPageNum = stepPageNum;
+                      meta.submodelStack.pop_back();
+                      meta.rotStep = saveRotStep2; // restore old rotstep
+                    }
+                }
+              if (bfxStore1) {
+                  bfxParts << token[1]+type;
+                }
+            } else if (partIgnore){
+
+              if (tokens.size() == 15){
+                  QString lineItem = tokens[tokens.size()-1];
+
+                  if (ldrawFile.isSubmodel(lineItem)){
+                      //Where model(lineItem,0);
+                      statusBarMsg("Submodel " + lineItem + " is set to ignore (IGN).");
+                      //ldrawFile.setModelStartPageNumber(model.modelName,pageNum);
+                      //logTrace() << "SET Model (Ignore): " << model.modelName << " @ Page: " << pageNum;
+                    }
+                }
+            }
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+          ++partsAdded;
+          csiParts << line;
           break;
 
-          case RotStepRc:
-          case StepRc:
-            if (partsAdded && ! noStep) {
-              stepNumber += ! coverPage && ! stepPage;
-              stepPageNum += ! coverPage && ! stepGroup;
-              if (pageNum < displayPageNum) {
-                if ( ! stepGroup) {
-                  saveCsiParts   = csiParts;
-                  saveStepNumber = stepNumber;
-                  saveMeta       = meta;
-                  saveBfx        = bfx;
-                  saveBfxParts   = bfxParts;
-                  saveStepPageNum = stepPageNum;
-                  // bfxParts.clear();
+        case '0':
+          rc = meta.parse(line,current);
+          switch (rc) {
+            case StepGroupBeginRc:
+              stepGroup = true;
+              stepGroupCurrent = topOfStep;
+              // Steps within step group modify bfxStore2 as they progress
+              // so we must save bfxStore2 and use the saved copy when
+              // we call drawPage for a step group.
+              stepGroupBfxStore2 = bfxStore2;
+              break;
+            case StepGroupEndRc:
+              if (stepGroup && ! noStep2) {
+                  stepGroup = false;
+                  if (pageNum < displayPageNum) {
+                      saveCsiParts   = csiParts;
+                      saveStepNumber = stepNumber;
+                      saveMeta       = meta;
+                      saveBfx        = bfx;
+                      saveBfxParts   = bfxParts;
+                      bfxParts.clear();
+                      saveRotStep = meta.rotStep;
+                    } else if (pageNum == displayPageNum) {
+                      csiParts.clear();
+                      stepPageNum = saveStepPageNum;
+                      if (pageNum == 1) {
+                          page.meta = meta;
+                        } else {
+                          page.meta = saveMeta;
+                        }
+                      page.meta.pop();
+                      page.meta.rotStep = saveRotStep;
+
+                      QStringList pliParts;
+
+                      (void) drawPage(view,
+                                      scene,
+                                      &page,
+                                      saveStepNumber,
+                                      addLine,
+                                      stepGroupCurrent,
+                                      saveCsiParts,
+                                      pliParts,
+                                      isMirrored,
+                                      saveBfx,
+                                      printing,
+                                      stepGroupBfxStore2,
+                                      saveBfxParts);
+
+                      saveCurrent.modelName.clear();
+                      saveCsiParts.clear();
+                    }
+                  ++pageNum;
+                  topOfPages.append(current);
+                  saveStepPageNum = ++stepPageNum;
                 }
-                saveCurrent    = current;
-                saveRotStep = meta.rotStep;
-              }
-              if ( ! stepGroup) {
-                if (pageNum == displayPageNum) {
+              noStep2 = false;
+              break;
+
+            case RotStepRc:
+            case StepRc:
+              if (partsAdded && ! noStep) {
+                  stepNumber += ! coverPage && ! stepPage;
+                  stepPageNum += ! coverPage && ! stepGroup;
+                  if (pageNum < displayPageNum) {
+                      if ( ! stepGroup) {
+                          saveCsiParts   = csiParts;
+                          saveStepNumber = stepNumber;
+                          saveMeta       = meta;
+                          saveBfx        = bfx;
+                          saveBfxParts   = bfxParts;
+                          saveStepPageNum = stepPageNum;
+                          // bfxParts.clear();
+                        }
+                      saveCurrent    = current;
+                      saveRotStep = meta.rotStep;
+                    }
+                  if ( ! stepGroup) {
+                      if (pageNum == displayPageNum) {
+                          csiParts.clear();
+                          stepPageNum = saveStepPageNum;
+                          if (pageNum == 1) {
+                              page.meta = meta;
+                            } else {
+                              page.meta = saveMeta;
+                            }
+                          page.meta.pop();
+                          page.meta.rotStep = saveRotStep;
+                          page.meta.rotStep = meta.rotStep;
+                          QStringList pliParts;
+
+                          (void) drawPage(view,
+                                          scene,
+                                          &page,
+                                          saveStepNumber,
+                                          addLine,
+                                          saveCurrent,
+                                          saveCsiParts,
+                                          pliParts,
+                                          isMirrored,
+                                          saveBfx,
+                                          printing,
+                                          bfxStore2,
+                                          saveBfxParts);
+
+                          saveCurrent.modelName.clear();
+                          saveCsiParts.clear();
+                        }
+                      ++pageNum;
+                      topOfPages.append(current);
+                    }
+                  topOfStep = current;
+                  partsAdded = 0;
+                  meta.pop();
+                  coverPage = false;
+                  stepPage = false;
+
+                  bfxStore2 = bfxStore1;
+                  bfxStore1 = false;
+                  if ( ! bfxStore2) {
+                      bfxParts.clear();
+                    }
+                } else if ( ! stepGroup) {
+                  saveCurrent = current;  // so that draw page doesn't have to
+                  // deal with steps that are not steps
+                }
+              noStep2 = noStep;
+              noStep = false;
+              break;
+
+            case CalloutBeginRc:
+              callout = true;
+              break;
+
+            case CalloutEndRc:
+              callout = false;
+              meta.LPub.callout.placement.clear();
+              break;
+
+            case InsertCoverPageRc:
+              coverPage  = true;
+              partsAdded = true;
+              break;
+            case InsertPageRc:
+              stepPage   = true;
+              partsAdded = true;
+              break;
+
+            case PartBeginIgnRc:
+              partIgnore = true;
+              break;
+            case PartEndRc:
+              partIgnore = false;
+              break;
+
+              // Any of the metas that can change csiParts needs
+              // to be processed here
+
+            case ClearRc:
+              if (pageNum < displayPageNum) {
                   csiParts.clear();
-                  stepPageNum = saveStepPageNum;
-                  if (pageNum == 1) {
-                    page.meta = meta;
-                  } else {
-                    page.meta = saveMeta;
-                  }
-                  page.meta.pop();
-                  page.meta.rotStep = saveRotStep;
-                  page.meta.rotStep = meta.rotStep;
-                  QStringList pliParts;
-
-                  (void) drawPage(view,
-                                  scene,
-                                  &page,
-                                  saveStepNumber,
-                                  addLine,
-                                  saveCurrent,
-                                  saveCsiParts,
-                                  pliParts,
-                                  isMirrored,
-                                  saveBfx,
-                                  printing,
-                                  bfxStore2,
-                                  saveBfxParts);
-
-                  saveCurrent.modelName.clear();
                   saveCsiParts.clear();
                 }
-                ++pageNum;
-                topOfPages.append(current);
-              }
-              topOfStep = current;
-              partsAdded = 0;
-              meta.pop();
-              coverPage = false;
-              stepPage = false;
+              break;
 
-              bfxStore2 = bfxStore1;
-              bfxStore1 = false;
-              if ( ! bfxStore2) {
-                bfxParts.clear();
-              }
-            } else if ( ! stepGroup) {
-              saveCurrent = current;  // so that draw page doesn't have to
-                                      // deal with steps that are not steps
-            }
-            noStep2 = noStep;
-            noStep = false;
-          break;
-
-          case CalloutBeginRc:
-            callout = true;
-          break;
-
-          case CalloutEndRc:
-            callout = false;
-            meta.LPub.callout.placement.clear();
-          break;
-
-          case InsertCoverPageRc:
-            coverPage  = true;
-            partsAdded = true;
-          break;
-          case InsertPageRc:
-            stepPage   = true;
-            partsAdded = true;
-          break;
-
-          case PartBeginIgnRc:
-            partIgnore = true;
-          break;
-          case PartEndRc:
-            partIgnore = false;
-          break;
-
-          // Any of the metas that can change csiParts needs
-          // to be processed here
-
-          case ClearRc:
-            if (pageNum < displayPageNum) {
-              csiParts.clear();
-              saveCsiParts.clear();
-            }
-          break;
-
-          /* Buffer exchange */
-          case BufferStoreRc:
-            if (pageNum < displayPageNum) {
-              bfx[meta.bfx.value()] = csiParts;
-            }
-            bfxStore1 = true;
-            bfxParts.clear();
-          break;
-          case BufferLoadRc:
-            if (pageNum < displayPageNum) {
-              csiParts = bfx[meta.bfx.value()];
-            }
-            partsAdded = true;
-          break;
-
-          case MLCadGroupRc:
-            if (pageNum < displayPageNum) {
-              csiParts << line;
+              /* Buffer exchange */
+            case BufferStoreRc:
+              if (pageNum < displayPageNum) {
+                  bfx[meta.bfx.value()] = csiParts;
+                }
+              bfxStore1 = true;
+              bfxParts.clear();
+              break;
+            case BufferLoadRc:
+              if (pageNum < displayPageNum) {
+                  csiParts = bfx[meta.bfx.value()];
+                }
               partsAdded = true;
-            }
-          break;
+              break;
 
-          /* remove a group or all instances of a part type */
-          case GroupRemoveRc:
-          case RemoveGroupRc:
-          case RemovePartRc:
-          case RemoveNameRc:
-            if (pageNum < displayPageNum) {
-              QStringList newCSIParts;
-              if (rc == RemoveGroupRc) {
-                remove_group(csiParts,    meta.LPub.remove.group.value(),newCSIParts);
-              } else if (rc == RemovePartRc) {
-                remove_parttype(csiParts, meta.LPub.remove.parttype.value(),newCSIParts);
-              } else {
-                remove_partname(csiParts, meta.LPub.remove.partname.value(),newCSIParts);
-              }
-              csiParts = newCSIParts;
-              newCSIParts.empty();
-            }
-          break;
+            case MLCadGroupRc:
+              if (pageNum < displayPageNum) {
+                  csiParts << line;
+                  partsAdded = true;
+                }
+              break;
 
-          case IncludeRc:
-            include(meta);
-          break;
+              /* remove a group or all instances of a part type */
+            case GroupRemoveRc:
+            case RemoveGroupRc:
+            case RemovePartRc:
+            case RemoveNameRc:
+              if (pageNum < displayPageNum) {
+                  QStringList newCSIParts;
+                  if (rc == RemoveGroupRc) {
+                      remove_group(csiParts,    meta.LPub.remove.group.value(),newCSIParts);
+                    } else if (rc == RemovePartRc) {
+                      remove_parttype(csiParts, meta.LPub.remove.parttype.value(),newCSIParts);
+                    } else {
+                      remove_partname(csiParts, meta.LPub.remove.partname.value(),newCSIParts);
+                    }
+                  csiParts = newCSIParts;
+                  newCSIParts.empty();
+                }
+              break;
 
-          case NoStepRc:
-            noStep = true;
-          break;
+            case IncludeRc:
+              include(meta);
+              break;
 
-          default:
+            case NoStepRc:
+              noStep = true;
+              break;
+
+            default:
+              break;
+            } // switch
           break;
-        } // switch
-      break;
-    }
-  } // for every line
+        }
+    } // for every line
   csiParts.clear();
 
   if (partsAdded && ! noStep) {
-    if (pageNum == displayPageNum) {
+      if (pageNum == displayPageNum) {
 
-      page.meta = saveMeta;
-      QStringList pliParts;
-      (void) drawPage(view,
-                      scene,
-                      &page,
-                      saveStepNumber,
-                      addLine,
-                      saveCurrent,
-                      saveCsiParts,
-                      pliParts,
-                      isMirrored,
-                      saveBfx,
-                      printing,
-                      bfxStore2,
-                      saveBfxParts);
+          page.meta = saveMeta;
+          QStringList pliParts;
+          (void) drawPage(view,
+                          scene,
+                          &page,
+                          saveStepNumber,
+                          addLine,
+                          saveCurrent,
+                          saveCsiParts,
+                          pliParts,
+                          isMirrored,
+                          saveBfx,
+                          printing,
+                          bfxStore2,
+                          saveBfxParts);
+        }
+      ++pageNum;
+      topOfPages.append(current);
+      ++stepPageNum;
     }
-    ++pageNum;
-    topOfPages.append(current);
-    ++stepPageNum;
-  }
   return 0;
 }
 
 int Gui::getBOMParts(
-  Where        current,
-  QString     &addLine,
-  QStringList &pliParts)
+    Where        current,
+    QString     &addLine,
+    QStringList &pliParts)
 {
   bool partIgnore = false;
   bool pliIgnore = false;
@@ -1430,205 +1450,209 @@ int Gui::getBOMParts(
   Rc rc;
 
   for ( ;
-       current.lineNumber < numLines;
-       current.lineNumber++) {
+        current.lineNumber < numLines;
+        current.lineNumber++) {
 
-    // scan through the rest of the model counting pages
-    // if we've already hit the display page, then do as little as possible
+      QApplication::processEvents();
 
-    QString line = ldrawFile.readLine(current.modelName,current.lineNumber).trimmed();
+      // scan through the rest of the model counting pages
+      // if we've already hit the display page, then do as little as possible
 
-    if (line.startsWith("0 GHOST ")) {
-      line = line.mid(8).trimmed();
-    }
+      QString line = ldrawFile.readLine(current.modelName,current.lineNumber).trimmed();
 
-    switch (line.toAscii()[0]) {
-      case '1':
-        if ( ! partIgnore && ! pliIgnore && ! synthBegin) {
+      if (line.startsWith("0 GHOST ")) {
+          line = line.mid(8).trimmed();
+        }
 
-          QStringList token,addToken;
+      switch (line.toAscii()[0]) {
+        case '1':
+          if ( ! partIgnore && ! pliIgnore && ! synthBegin) {
 
-          split(line,token);
+              QStringList token,addToken;
 
-          QString    type = token[token.size()-1];
+              split(line,token);
 
-          if (token[1] == "16") {
-            split(addLine,addToken);
-            if (addToken.size() == 15) {
-              token[1] = addToken[1];
-              line = token.join(" ");
-            }
-          }
+              QString    type = token[token.size()-1];
 
-          /*
+              if (token[1] == "16") {
+                  split(addLine,addToken);
+                  if (addToken.size() == 15) {
+                      token[1] = addToken[1];
+                      line = token.join(" ");
+                    }
+                }
+
+              /*
            * Automatically ignore parts added twice due to buffer exchange
            */
-          bool removed = false;
-          QString colorPart = token[1] + type;
+              bool removed = false;
+              QString colorPart = token[1] + type;
 
-          if (bfxStore2 && bfxLoad) {
-            int i;
-            for (i = 0; i < bfxParts.size(); i++) {
-              if (bfxParts[i] == colorPart) {
-                bfxParts.removeAt(i);
-                removed = true;
-                break;
-              }
-            }
-          }
-          if ( ! removed) {
-            if (ldrawFile.isSubmodel(type)) {
+              if (bfxStore2 && bfxLoad) {
+                  int i;
+                  for (i = 0; i < bfxParts.size(); i++) {
+                      if (bfxParts[i] == colorPart) {
+                          bfxParts.removeAt(i);
+                          removed = true;
+                          break;
+                        }
+                    }
+                }
+              if ( ! removed) {
+                  if (ldrawFile.isSubmodel(type)) {
 
-              Where current2(type,0);
+                      Where current2(type,0);
 
-              getBOMParts(current2,line,pliParts);
-            } else {
-              QString newLine = Pli::partLine(line,current,meta);
+                      getBOMParts(current2,line,pliParts);
+                    } else {
+                      QString newLine = Pli::partLine(line,current,meta);
 
-              pliParts << newLine;
-            }
-          }
-          if (bfxStore1) {
-            bfxParts << colorPart;
-          }
-          partsAdded = true;
-        }
-      break;
-      case '0':
-        rc = meta.parse(line,current);
-
-        /* substitute part/parts with this */
-
-        switch (rc) {
-          case PliBeginSub1Rc:
-            if (! pliIgnore &&
-                ! partIgnore &&
-                ! synthBegin) {
-
-              QString line = QString("1 0  0 0 0  0 0 0  0 0 0  0 0 0 %1") .arg(meta.LPub.pli.begin.sub.value().part);
-              pliParts << Pli::partLine(line,current,meta);
-              pliIgnore = true;
+                      pliParts << newLine;
+                    }
+                }
+              if (bfxStore1) {
+                  bfxParts << colorPart;
+                }
+              partsAdded = true;
             }
           break;
+        case '0':
+          rc = meta.parse(line,current);
 
           /* substitute part/parts with this */
-          case PliBeginSub2Rc:
-            if (! pliIgnore &&
-                ! partIgnore &&
-                ! synthBegin) {
-              QString line = QString("1 %1  0 0 0  0 0 0  0 0 0  0 0 0 %2")
-                .arg(meta.LPub.pli.begin.sub.value().color)
-                .arg(meta.LPub.pli.begin.sub.value().part);
-              pliParts << Pli::partLine(line,current,meta);
+
+          switch (rc) {
+            case PliBeginSub1Rc:
+              if (! pliIgnore &&
+                  ! partIgnore &&
+                  ! synthBegin) {
+
+                  QString line = QString("1 0  0 0 0  0 0 0  0 0 0  0 0 0 %1") .arg(meta.LPub.pli.begin.sub.value().part);
+                  pliParts << Pli::partLine(line,current,meta);
+                  pliIgnore = true;
+                }
+              break;
+
+              /* substitute part/parts with this */
+            case PliBeginSub2Rc:
+              if (! pliIgnore &&
+                  ! partIgnore &&
+                  ! synthBegin) {
+                  QString line = QString("1 %1  0 0 0  0 0 0  0 0 0  0 0 0 %2")
+                      .arg(meta.LPub.pli.begin.sub.value().color)
+                      .arg(meta.LPub.pli.begin.sub.value().part);
+                  pliParts << Pli::partLine(line,current,meta);
+                  pliIgnore = true;
+                }
+              break;
+
+            case PliBeginIgnRc:
               pliIgnore = true;
-            }
-          break;
+              break;
 
-          case PliBeginIgnRc:
-            pliIgnore = true;
-          break;
+            case PliEndRc:
+              pliIgnore = false;
+              break;
 
-          case PliEndRc:
-            pliIgnore = false;
-          break;
+            case PartBeginIgnRc:
+              partIgnore = true;
+              break;
 
-          case PartBeginIgnRc:
-            partIgnore = true;
-          break;
+            case PartEndRc:
+              partIgnore = false;
+              break;
 
-          case PartEndRc:
-            partIgnore = false;
-          break;
+            case SynthBeginRc:
+              synthBegin = true;
+              break;
 
-          case SynthBeginRc:
-            synthBegin = true;
-          break;
+            case SynthEndRc:
+              synthBegin = false;
+              break;
 
-          case SynthEndRc:
-            synthBegin = false;
-          break;
-
-          /* Buffer exchange */
-          case BufferStoreRc:
-            bfxStore1 = true;
-            bfxParts.clear();
-          break;
-          case BufferLoadRc:
-            bfxLoad = true;
-          break;
+              /* Buffer exchange */
+            case BufferStoreRc:
+              bfxStore1 = true;
+              bfxParts.clear();
+              break;
+            case BufferLoadRc:
+              bfxLoad = true;
+              break;
 
 
-          // Any of the metas that can change pliParts needs
-          // to be processed here
+              // Any of the metas that can change pliParts needs
+              // to be processed here
 
-          case ClearRc:
-            pliParts.empty();
-          break;
+            case ClearRc:
+              pliParts.empty();
+              break;
 
-          case MLCadGroupRc:
-            pliParts << Pli::partLine(line,current,meta);
-          break;
+            case MLCadGroupRc:
+              pliParts << Pli::partLine(line,current,meta);
+              break;
 
-          /* remove a group or all instances of a part type */
-          case GroupRemoveRc:
-          case RemoveGroupRc:
-          case RemovePartRc:
-          case RemoveNameRc:
-            {
-              QStringList newCSIParts;
-              if (rc == RemoveGroupRc) {
-                remove_group(pliParts,meta.LPub.remove.group.value(),newCSIParts);
-              } else if (rc == RemovePartRc) {
-                remove_parttype(pliParts, meta.LPub.remove.parttype.value(),newCSIParts);
-              } else {
-                remove_partname(pliParts, meta.LPub.remove.partname.value(),newCSIParts);
+              /* remove a group or all instances of a part type */
+            case GroupRemoveRc:
+            case RemoveGroupRc:
+            case RemovePartRc:
+            case RemoveNameRc:
+              {
+                QStringList newCSIParts;
+                if (rc == RemoveGroupRc) {
+                    remove_group(pliParts,meta.LPub.remove.group.value(),newCSIParts);
+                  } else if (rc == RemovePartRc) {
+                    remove_parttype(pliParts, meta.LPub.remove.parttype.value(),newCSIParts);
+                  } else {
+                    remove_partname(pliParts, meta.LPub.remove.partname.value(),newCSIParts);
+                  }
+                pliParts = newCSIParts;
               }
-              pliParts = newCSIParts;
-            }
-          break;
+              break;
 
-          case StepRc:
+            case StepRc:
 
-            if (partsAdded) {
-              bfxStore2 = bfxStore1;
-              bfxStore1 = false;
-              bfxLoad = false;
-              if ( ! bfxStore2) {
-                bfxParts.clear();
-              }
-            }
-            partsAdded = false;
-          break;
+              if (partsAdded) {
+                  bfxStore2 = bfxStore1;
+                  bfxStore1 = false;
+                  bfxLoad = false;
+                  if ( ! bfxStore2) {
+                      bfxParts.clear();
+                    }
+                }
+              partsAdded = false;
+              break;
 
-          default:
+            default:
+              break;
+            } // switch
           break;
-        } // switch
-      break;
-    }
-  } // for every line
+        }
+    } // for every line
   return 0;
 }
 
 int Gui::getBOMOccurrence(Where	current) {		// start at top of ldrawFile
 
-    // traverse content to find the number and location of BOM pages
-    // key=modelName_LineNumber, value=occurrence
-    QHash<QString, int> bom_Occurrence;
-    Meta meta;
+  // traverse content to find the number and location of BOM pages
+  // key=modelName_LineNumber, value=occurrence
+  QHash<QString, int> bom_Occurrence;
+  Meta meta;
 
-    skipHeader(current);
+  skipHeader(current);
 
-    int numLines        = ldrawFile.size(current.modelName);
-    int occurrenceNum   = 0;
-    boms                = 0;
-    bomOccurrence       = 0;
-    Rc rc;
+  int numLines        = ldrawFile.size(current.modelName);
+  int occurrenceNum   = 0;
+  boms                = 0;
+  bomOccurrence       = 0;
+  Rc rc;
 
-    for ( ; current.lineNumber < numLines;
-            current.lineNumber++) {
+  for ( ; current.lineNumber < numLines;
+        current.lineNumber++) {
 
-        QString line = ldrawFile.readLine(current.modelName,current.lineNumber).trimmed();
-        switch (line.toAscii()[0]) {
+      QApplication::processEvents();
+
+      QString line = ldrawFile.readLine(current.modelName,current.lineNumber).trimmed();
+      switch (line.toAscii()[0]) {
         case '1':
           {
             QStringList token;
@@ -1638,55 +1662,55 @@ int Gui::getBOMOccurrence(Where	current) {		// start at top of ldrawFile
             if (ldrawFile.isSubmodel(type)) {
                 Where current2(type,0);
                 getBOMOccurrence(current2);
-            }
+              }
             break;
           }
         case '0':
           {
             rc = meta.parse(line,current);
             switch (rc) {
-            case InsertRc:
-              {
-                InsertData insertData = meta.LPub.insert.value();
-                if (insertData.type == InsertData::InsertBom){
+              case InsertRc:
+                {
+                  InsertData insertData = meta.LPub.insert.value();
+                  if (insertData.type == InsertData::InsertBom){
 
-                    QString uniqueID = QString("%1_%2").arg(current.modelName).arg(current.lineNumber);
-                    occurrenceNum++;
-                    bom_Occurrence[uniqueID] = occurrenceNum;
+                      QString uniqueID = QString("%1_%2").arg(current.modelName).arg(current.lineNumber);
+                      occurrenceNum++;
+                      bom_Occurrence[uniqueID] = occurrenceNum;
+                    }
                 }
-              }
                 break;
-            default:
+              default:
                 break;
-            } // switch metas
+              } // switch metas
             break;
           }  // switch line type
         }
     } // for every line
 
-    if (occurrenceNum > 1) {
-        // now set the bom occurrance based on our current position
-        Where here = gui->topOfPages[gui->displayPageNum-1];
-        for (++here; here.lineNumber < ldrawFile.size(here.modelName); here++) {
-            QString line = gui->readLine(here);
-            Meta meta;
-            Rc rc;
+  if (occurrenceNum > 1) {
+      // now set the bom occurrance based on our current position
+      Where here = gui->topOfPages[gui->displayPageNum-1];
+      for (++here; here.lineNumber < ldrawFile.size(here.modelName); here++) {
+          QString line = gui->readLine(here);
+          Meta meta;
+          Rc rc;
 
-            rc = meta.parse(line,here);
-            if (rc == InsertRc) {
+          rc = meta.parse(line,here);
+          if (rc == InsertRc) {
 
-                InsertData insertData = meta.LPub.insert.value();
-                if (insertData.type == InsertData::InsertBom) {
+              InsertData insertData = meta.LPub.insert.value();
+              if (insertData.type == InsertData::InsertBom) {
 
-                    QString bomID   = QString("%1_%2").arg(here.modelName).arg(here.lineNumber);
-                    bomOccurrence   = bom_Occurrence[bomID];
-                    boms            = bom_Occurrence.size();
-                    break;
+                  QString bomID   = QString("%1_%2").arg(here.modelName).arg(here.lineNumber);
+                  bomOccurrence   = bom_Occurrence[bomID];
+                  boms            = bom_Occurrence.size();
+                  break;
                 }
             }
         }
     }
-    return 0;
+  return 0;
 }
 
 void Gui::attitudeAdjustment()
@@ -1696,116 +1720,87 @@ void Gui::attitudeAdjustment()
   int numFiles = ldrawFile.subFileOrder().size();
 
   for (int i = 0; i < numFiles; i++) {
-    QString fileName = ldrawFile.subFileOrder()[i];
-    int numLines     = ldrawFile.size(fileName);
+      QString fileName = ldrawFile.subFileOrder()[i];
+      int numLines     = ldrawFile.size(fileName);
 
-    QStringList pending;
+      QStringList pending;
 
-    for (Where current(fileName,0);
-      current.lineNumber < numLines;
-      current.lineNumber++) {
+      for (Where current(fileName,0);
+           current.lineNumber < numLines;
+           current.lineNumber++) {
 
-      QString line = ldrawFile.readLine(current.modelName,current.lineNumber);
-      QStringList argv;
-      split(line,argv);
+          QString line = ldrawFile.readLine(current.modelName,current.lineNumber);
+          QStringList argv;
+          split(line,argv);
 
-      if (argv.size() >= 4 &&
-          argv[0] == "0" &&
-         (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
-          argv[2] == "CALLOUT") {
-        if (argv.size() == 4 && argv[3] == "BEGIN") {
-          callout = true;
-          pending.clear();
-        } else if (argv[3] == "END") {
-          callout = false;
-          for (int i = 0; i < pending.size(); i++) {
-            ldrawFile.insertLine(current.modelName,current.lineNumber, pending[i]);
-            ++numLines;
-            ++current;
-          }
-          pending.clear();
-        } else if (argv[3] == "ALLOC" ||
-                   argv[3] == "BACKGROUND" ||
-                   argv[3] == "BORDER" ||
-                   argv[3] == "MARGINS" ||
-                   argv[3] == "PLACEMENT") {
-          if (callout && argv.size() >= 5 && argv[4] != "GLOBAL") {
-            ldrawFile.deleteLine(current.modelName,current.lineNumber);
-            pending << line;
-            --numLines;
-            --current;
-          }
+          if (argv.size() >= 4 &&
+              argv[0] == "0" &&
+              (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
+              argv[2] == "CALLOUT") {
+              if (argv.size() == 4 && argv[3] == "BEGIN") {
+                  callout = true;
+                  pending.clear();
+                } else if (argv[3] == "END") {
+                  callout = false;
+                  for (int i = 0; i < pending.size(); i++) {
+                      ldrawFile.insertLine(current.modelName,current.lineNumber, pending[i]);
+                      ++numLines;
+                      ++current;
+                    }
+                  pending.clear();
+                } else if (argv[3] == "ALLOC" ||
+                           argv[3] == "BACKGROUND" ||
+                           argv[3] == "BORDER" ||
+                           argv[3] == "MARGINS" ||
+                           argv[3] == "PLACEMENT") {
+                  if (callout && argv.size() >= 5 && argv[4] != "GLOBAL") {
+                      ldrawFile.deleteLine(current.modelName,current.lineNumber);
+                      pending << line;
+                      --numLines;
+                      --current;
+                    }
+                }
+            }
         }
-      }
     }
-  }
 }
 
-//void Gui::countPages()
-//{
-//  if (maxPages < 1) {
-//    //writeToTmp() moved from here
-//    statusBarMsg("Counting");
-//    Where current(ldrawFile.topLevelFile(),0);
-//    int savedDpn     = displayPageNum;
-//    displayPageNum   = 1 << 31;
-//    writeToTmp();
-//    firstStepPageNum = -1;
-//    lastStepPageNum  = -1;
-//    maxPages         = 1;
-//    Meta meta;
-//    QString empty;
-//    stepPageNum = 1;
-//    findPage(KpageView,KpageScene,maxPages,empty,current,false,meta,false);
-//    topOfPages.append(current);
-//    maxPages--;
-
-//    if (displayPageNum > maxPages) {
-//      displayPageNum = maxPages;
-//    } else {
-//      displayPageNum = savedDpn;
-//    }
-//    QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
-//    setPageLineEdit->setText(string);
-//    statusBarMsg("");
-//  }
-//}
 
 void Gui::countPages()
 {
   if (maxPages < 1) {
-    writeToTmp();
-    statusBarMsg("Counting");
-    Where current(ldrawFile.topLevelFile(),0);
-    int savedDpn     = displayPageNum;
-    displayPageNum   = 1 << 31;
-    firstStepPageNum = -1;
-    lastStepPageNum  = -1;
-    maxPages         = 1;
-    Meta meta;
-    QString empty;
-    stepPageNum = 1;
-    findPage(KpageView,KpageScene,maxPages,empty,current,false,meta,false);
-    topOfPages.append(current);
-    maxPages--;
+      writeToTmp();
+      statusBarMsg("Counting");
+      Where current(ldrawFile.topLevelFile(),0);
+      int savedDpn     = displayPageNum;
+      displayPageNum   = 1 << 31;
+      firstStepPageNum = -1;
+      lastStepPageNum  = -1;
+      maxPages         = 1;
+      Meta meta;
+      QString empty;
+      stepPageNum = 1;
+      findPage(KpageView,KpageScene,maxPages,empty,current,false,meta,false);
+      topOfPages.append(current);
+      maxPages--;
 
-    if (displayPageNum > maxPages) {
-      displayPageNum = maxPages;
-    } else {
-      displayPageNum = savedDpn;
+      if (displayPageNum > maxPages) {
+          displayPageNum = maxPages;
+        } else {
+          displayPageNum = savedDpn;
+        }
+      QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+      setPageLineEdit->setText(string);
+      statusBarMsg("");
     }
-    QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
-    setPageLineEdit->setText(string);
-    statusBarMsg("");
-  }
 }
 
 void Gui::drawPage(
-  LGraphicsView  *view,
-  QGraphicsScene *scene,
-  bool            printing)
+    LGraphicsView  *view,
+    QGraphicsScene *scene,
+    bool            printing)
 {
-
+  QApplication::processEvents();
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
   ldrawFile.unrendered();
@@ -1814,7 +1809,8 @@ void Gui::drawPage(
   Where       current(ldrawFile.topLevelFile(),0);
   maxPages = 1;
   stepPageNum = 1;
-
+  ldrawFile.setModelStartPageNumber(current.modelName,maxPages);
+  //logTrace() << "SET INITIAL Model: " << current.modelName << " @ Page: " << maxPages;
   QString empty;
   Meta    meta;
   firstStepPageNum = -1;
@@ -1825,7 +1821,6 @@ void Gui::drawPage(
 
   QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
   setPageLineEdit->setText(string);
-
   QApplication::restoreOverrideCursor();
 }
 
@@ -1833,69 +1828,69 @@ void Gui::skipHeader(Where &current)
 {
   int numLines = ldrawFile.size(current.modelName);
   for ( ; current.lineNumber < numLines; current.lineNumber++) {
-    QString line = gui->readLine(current);
-    int p;
-    for (p = 0; p < line.size(); ++p) {
-      if (line[p] != ' ') {
-        break;
-      }
+      QString line = gui->readLine(current);
+      int p;
+      for (p = 0; p < line.size(); ++p) {
+          if (line[p] != ' ') {
+              break;
+            }
+        }
+      if (line[p] >= '1' && line[p] <= '5') {
+          if (current.lineNumber == 0) {
+              QString empty = "0 ";
+              gui->insertLine(current,empty,NULL);
+            } else if (current > 0) {
+              --current;
+            }
+          break;
+        } else if ( ! isHeader(line)) {
+          if (current.lineNumber != 0) {
+              --current;
+              break;
+            }
+        }
     }
-    if (line[p] >= '1' && line[p] <= '5') {
-      if (current.lineNumber == 0) {
-        QString empty = "0 ";
-        gui->insertLine(current,empty,NULL);
-      } else if (current > 0) {
-        --current;
-      }
-      break;
-    } else if ( ! isHeader(line)) {
-      if (current.lineNumber != 0) {
-        --current;
-        break;
-      }
-    }
-  }
 }
 
 void Gui::include(Meta &meta)
 {
   QString fileName = meta.LPub.include.value();
   if (ldrawFile.isSubmodel(fileName)) {
-    int numLines = ldrawFile.size(fileName);
+      int numLines = ldrawFile.size(fileName);
 
-    Where current(fileName,0);
-    for (; current < numLines; current++) {
-      QString line = ldrawFile.readLine(fileName,current.lineNumber);
-      meta.parse(line,current);
-    }
-  } else {
-    QFileInfo fileInfo(fileName);
-    if (fileInfo.exists()) {
-      QFile file(fileName);
-      if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(NULL,
-                             QMessageBox::tr(VER_PRODUCTNAME_STR),
-                             QMessageBox::tr("Cannot read file %1:\n%2.")
-                             .arg(fileName)
-                             .arg(file.errorString()));
-        return;
-      }
+      Where current(fileName,0);
+      for (; current < numLines; current++) {
+          QString line = ldrawFile.readLine(fileName,current.lineNumber);
+          meta.parse(line,current);
+        }
+    } else {
+      QFileInfo fileInfo(fileName);
+      if (fileInfo.exists()) {
+          QFile file(fileName);
+          if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
+              QMessageBox::warning(NULL,
+                                   QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                   QMessageBox::tr("Cannot read file %1:\n%2.")
+                                   .arg(fileName)
+                                   .arg(file.errorString()));
+              return;
+            }
 
-      /* Read it in the first time to put into fileList in order of
+          /* Read it in the first time to put into fileList in order of
          appearance */
 
-      QTextStream in(&file);
-      QStringList contents;
-      Where       current(fileName,0);
+          QTextStream in(&file);
+          QStringList contents;
+          Where       current(fileName,0);
 
-      while ( ! in.atEnd()) {
-        QString line = in.readLine(0);
-        meta.parse(line,current);
-        ++current;
-      }
-      file.close();
+          while ( ! in.atEnd()) {
+              QString line = in.readLine(0);
+              meta.parse(line,current);
+              ++current;
+            }
+          file.close();
+        }
     }
-  }
 }
 
 Where dummy;
@@ -1904,19 +1899,19 @@ Where &Gui::topOfPage()
 {
   int pageNum = displayPageNum - 1;
   if (pageNum < topOfPages.size()) {
-    return topOfPages[pageNum];
-  } else {
-    return dummy;
-  }
+      return topOfPages[pageNum];
+    } else {
+      return dummy;
+    }
 }
 
 Where &Gui::bottomOfPage()
 {
   if (displayPageNum < topOfPages.size()) {
-    return topOfPages[displayPageNum];
-  } else {
-    return dummy;
-  }
+      return topOfPages[displayPageNum];
+    } else {
+      return dummy;
+    }
 }
 
 /*
@@ -1932,109 +1927,118 @@ void Gui::writeToTmp(const QString &fileName,
   QString fname = QDir::currentPath() + "/" + Paths::tmpDir + "/" + fileName;
   QFile file(fname);
   if ( ! file.open(QFile::WriteOnly|QFile::Text)) {
-    QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
-    QMessageBox::tr("Failed to open %1 for writing: %2")
-      .arg(fname) .arg(file.errorString()));
-  } else {
-    QStringList csiParts;
-    QHash<QString, QStringList> bfx;
+      QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
+                           QMessageBox::tr("Failed to open %1 for writing: %2")
+                           .arg(fname) .arg(file.errorString()));
+    } else {
+      QStringList csiParts;
+      QHash<QString, QStringList> bfx;
 
-    for (int i = 0; i < contents.size(); i++) {
-      QString line = contents[i];
-      QStringList tokens;
+      for (int i = 0; i < contents.size(); i++) {
+          QString line = contents[i];
+          QStringList tokens;
 
-      split(line,tokens);
-      if (tokens.size()) {
-        if (tokens[0] != "0") {
-          csiParts << line;
-        } else {
-          Meta meta;
-          Rc   rc;
-          Where here(fileName,i);
-          rc = meta.parse(line,here,false);
+          QApplication::processEvents();
 
-          switch (rc) {
-
-            /* Buffer exchange */
-            case BufferStoreRc:
-              bfx[meta.bfx.value()] = csiParts;
-            break;
-            case BufferLoadRc:
-              csiParts = bfx[meta.bfx.value()];
-            break;
-
-            /* remove a group or all instances of a part type */
-            case GroupRemoveRc:
-            case RemoveGroupRc:
-            case RemovePartRc:
-            case RemoveNameRc:
-              {
-                QStringList newCSIParts;
-                if (rc == RemoveGroupRc) {
-                  remove_group(csiParts,meta.LPub.remove.group.value(),newCSIParts);
-                } else if (rc == RemovePartRc) {
-                  remove_parttype(csiParts, meta.LPub.remove.parttype.value(),newCSIParts);
+          split(line,tokens);
+          if (tokens.size()) {
+              if (tokens[0] != "0") {
+                  csiParts << line;
                 } else {
-                  remove_partname(csiParts, meta.LPub.remove.partname.value(),newCSIParts);
-                }
-                csiParts = newCSIParts;
-              }
-            break;
-            default:
-            break;
-          }
-        }
-      }
-    }
+                  Meta meta;
+                  Rc   rc;
+                  Where here(fileName,i);
+                  rc = meta.parse(line,here,false);
 
-    QTextStream out(&file);
-    for (int i = 0; i < csiParts.size(); i++) {
-      out << csiParts[i] << endl;
+                  switch (rc) {
+
+                    /* Buffer exchange */
+                    case BufferStoreRc:
+                      bfx[meta.bfx.value()] = csiParts;
+                      break;
+                    case BufferLoadRc:
+                      csiParts = bfx[meta.bfx.value()];
+                      break;
+
+                      /* remove a group or all instances of a part type */
+                    case GroupRemoveRc:
+                    case RemoveGroupRc:
+                    case RemovePartRc:
+                    case RemoveNameRc:
+                      {
+                        QStringList newCSIParts;
+                        if (rc == RemoveGroupRc) {
+                            remove_group(csiParts,meta.LPub.remove.group.value(),newCSIParts);
+                          } else if (rc == RemovePartRc) {
+                            remove_parttype(csiParts, meta.LPub.remove.parttype.value(),newCSIParts);
+                          } else {
+                            remove_partname(csiParts, meta.LPub.remove.partname.value(),newCSIParts);
+                          }
+                        csiParts = newCSIParts;
+                      }
+                      break;
+                    default:
+                      break;
+                    }
+                }
+            }
+        }
+
+      QTextStream out(&file);
+      for (int i = 0; i < csiParts.size(); i++) {
+          out << csiParts[i] << endl;
+        }
+      file.close();
     }
-    file.close();
-  }
 }
 
 void Gui::writeToTmp()
 {
-    Meta    meta;
-    bool    fadeStep       = meta.LPub.fadeStep.fadeStep.value();
-    QString fadeStepColour = meta.LPub.fadeStep.fadeColor.value();
+  QApplication::processEvents();
+  Meta    meta;
+  bool    fadeStep       = meta.LPub.fadeStep.fadeStep.value();
+  QString fadeStepColour = meta.LPub.fadeStep.fadeColor.value();
 
-    bool    doFadeStep  = (fadeStep || Preferences::enableFadeStep);
-    QString fadeColor   = LDrawColor::ldColorCode(fadeStepColour);
+  bool    doFadeStep  = (fadeStep || Preferences::enableFadeStep);
+  QString fadeColor   = LDrawColor::ldColorCode(fadeStepColour);
 
-    QStringList content;
+  QStringList content;
 
-    for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
+  for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
 
-        QString fileName = ldrawFile._subFileOrder[i].toLower();
+      QApplication::processEvents();
 
-        if (doFadeStep) {
-            QRegExp rgxLDR("\\.(ldr)$");
-            QRegExp rgxMPD("\\.(mpd)$");
-            QString fadeFileName = fileName;
-            bool ldr = fadeFileName.contains(rgxLDR);
-            bool mpd = fadeFileName.contains(rgxMPD);
-            if (ldr) {
-                fadeFileName = fadeFileName.replace(".ldr","-fade.ldr");
+      QString fileName = ldrawFile._subFileOrder[i].toLower();
+
+      if (doFadeStep) {
+          QRegExp rgxLDR("\\.(ldr)$");
+          QRegExp rgxMPD("\\.(mpd)$");
+          QRegExp rgxDAT("\\.(dat)$");
+          QString fadeFileName = fileName;
+          bool ldr = fadeFileName.contains(rgxLDR);
+          bool mpd = fadeFileName.contains(rgxMPD);
+          bool dat = fadeFileName.contains(rgxDAT);
+          if (ldr) {
+              fadeFileName = fadeFileName.replace(".ldr","-fade.ldr");
             } else if (mpd) {
-                fadeFileName = fadeFileName.replace(".mpd","-fade.mpd");
+              fadeFileName = fadeFileName.replace(".mpd","-fade.mpd");
+            } else if (dat) {
+              fadeFileName = fadeFileName.replace(".dat","-fade.dat");
             }
-            content = ldrawFile.contents(fileName);
-            if (ldrawFile.changedSinceLastWrite(fileName)) {
+          content = ldrawFile.contents(fileName);
+          if (ldrawFile.changedSinceLastWrite(fileName)) {
 
-                writeToTmp(fileName,content);
-                content = fadeSubFile(content,fadeColor);
+              writeToTmp(fileName,content);
+              content = fadeSubFile(content,fadeColor);
 
-                /* Faded version of submodels */
-                writeToTmp(fadeFileName,content);
+              /* Faded version of submodels */
+              writeToTmp(fadeFileName,content);
             }
         } else {
 
-            content = ldrawFile.contents(fileName);
-            if (ldrawFile.changedSinceLastWrite(fileName)) {
-                writeToTmp(fileName,content);
+          content = ldrawFile.contents(fileName);
+          if (ldrawFile.changedSinceLastWrite(fileName)) {
+              writeToTmp(fileName,content);
             }
         }
     }
@@ -2045,49 +2049,58 @@ void Gui::writeToTmp()
  */
 QStringList Gui::fadeSubFile(const QStringList &contents, const QString &color)
 {
-    QString edgeColor = "24";  // Internal Common Material Color (edge)
-    QString fadeColor = color;
-    QStringList fadeContents;
-    QStringList argv;
+  QString edgeColor = "24";  // Internal Common Material Color (edge)
+  QString fadeColor = color;
+  QStringList fadeContents;
+  QStringList argv;
 
-    if (contents.size() > 0) {
-        for (int index = 0; index < contents.size(); index++) {
-            QString contentLine = contents[index];
-            split(contentLine, argv);
-            if (argv.size() == 15 && argv[0] == "1") {
-                // set fade colour
-                if (argv[1] != edgeColor){
-                    argv[1] = fadeColor;}
-                // process static colored parts
-                QString fileNameStr = argv[argv.size()-1];
-                if (FadeStepColorParts::isStaticColorPart(fileNameStr)){
-                    fileNameStr = QDir::toNativeSeparators("fade\\" + fileNameStr.replace(".dat","-fade.dat"));
+  if (contents.size() > 0) {
+      for (int index = 0; index < contents.size(); index++) {
+
+          QApplication::processEvents();
+
+          QString contentLine = contents[index];
+          split(contentLine, argv);
+          if (argv.size() == 15 && argv[0] == "1") {
+              // set fade colour
+              if (argv[1] != edgeColor){
+                  argv[1] = fadeColor;}
+              // process static colored parts
+              QString fileNameStr = argv[argv.size()-1];
+              if (FadeStepColorParts::isStaticColorPart(fileNameStr)){
+                  fileNameStr = QDir::toNativeSeparators("fade\\" + fileNameStr.replace(".dat","-fade.dat"));
                 }
-                // process subfile naming
-                if (ldrawFile.isSubmodel(fileNameStr)) {
-                    QRegExp rgxLDR("\\.(ldr)$");
-                    QRegExp rgxMPD("\\.(mpd)$");
-                    if (fileNameStr.contains(rgxLDR)) {
-                        fileNameStr = fileNameStr.replace(".ldr","-fade.ldr");
-                    } else if (fileNameStr.contains(rgxMPD)) {
-                        fileNameStr = fileNameStr.replace(".mpd","-fade.mpd");
+              // process subfile naming
+              if (ldrawFile.isSubmodel(fileNameStr)) {
+                  QRegExp rgxLDR("\\.(ldr)$");
+                  QRegExp rgxMPD("\\.(mpd)$");
+                  QRegExp rgxDAT("\\.(dat)$");
+                  bool ldr = fileNameStr.contains(rgxLDR);
+                  bool mpd = fileNameStr.contains(rgxMPD);
+                  bool dat = fileNameStr.contains(rgxDAT);
+                  if (ldr) {
+                      fileNameStr = fileNameStr.replace(".ldr","-fade.ldr");
+                    } else if (mpd) {
+                      fileNameStr = fileNameStr.replace(".mpd","-fade.mpd");
+                    } else if (dat) {
+                      fileNameStr = fileNameStr.replace(".dat","-fade.dat");
                     }
                 }
-                argv[argv.size()-1] = fileNameStr;
+              argv[argv.size()-1] = fileNameStr;
             } else if ((argv.size() == 8  && argv[0] == "2") ||
                        (argv.size() == 11 && argv[0] == "3") ||
                        (argv.size() == 14 && argv[0] == "4") ||
                        (argv.size() == 14 && argv[0] == "5")) {
-                if (argv[1] != edgeColor){
-                    argv[1] = fadeColor;}
+              if (argv[1] != edgeColor){
+                  argv[1] = fadeColor;}
             }
-            contentLine = argv.join(" ");
-            fadeContents  << contentLine;
+          contentLine = argv.join(" ");
+          fadeContents  << contentLine;
         }
     } else {
-        fadeContents  << contents;
+      fadeContents  << contents;
     }
-    return fadeContents;
+  return fadeContents;
 }
 
 /*
@@ -2095,57 +2108,66 @@ QStringList Gui::fadeSubFile(const QStringList &contents, const QString &color)
  */
 QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) {
 
-    Meta    meta;
-    bool    fadeStep       = meta.LPub.fadeStep.fadeStep.value();
-    QString fadeStepColour = meta.LPub.fadeStep.fadeColor.value();
+  Meta    meta;
+  bool    fadeStep       = meta.LPub.fadeStep.fadeStep.value();
+  QString fadeStepColour = meta.LPub.fadeStep.fadeColor.value();
 
-    bool doFadeStep     = (fadeStep || Preferences::enableFadeStep);
-    QString fadeColor   = LDrawColor::ldColorCode(fadeStepColour);
-    QString edgeColor   = "24";  // Internal Common Material Color (edge)
-    int  fadePosition   = ldrawFile.getFadePosition(current.modelName);
-    QStringList fadeCsiParts;
-    QStringList argv;
+  bool doFadeStep     = (fadeStep || Preferences::enableFadeStep);
+  QString fadeColor   = LDrawColor::ldColorCode(fadeStepColour);
+  QString edgeColor   = "24";  // Internal Common Material Color (edge)
+  int  fadePosition   = ldrawFile.getFadePosition(current.modelName);
+  QStringList fadeCsiParts;
+  QStringList argv;
 
-    if (csiParts.size() > 0 && stepNum > 1 && doFadeStep) {
-        for (int index = 0; index < csiParts.size(); index++) {
-            QString csiLine = csiParts[index];
-            if ((index + 1) <= fadePosition) {
-                split(csiLine, argv);
-                if (argv.size() == 15 && argv[0] == "1") {
-                    // update fade colour
-                    if (argv[1] != edgeColor){
-                        argv[1] = fadeColor;}
-                    // process color parts naming
-                    QString fileNameStr = argv[argv.size()-1];
+  if (csiParts.size() > 0 && stepNum > 1 && doFadeStep) {
+      for (int index = 0; index < csiParts.size(); index++) {
 
-                    if (FadeStepColorParts::isStaticColorPart(fileNameStr)){
-                        fileNameStr = QDir::toNativeSeparators("fade\\" + fileNameStr.replace(".dat","-fade.dat"));
+          QApplication::processEvents();
+
+          QString csiLine = csiParts[index];
+          if ((index + 1) <= fadePosition) {
+              split(csiLine, argv);
+              if (argv.size() == 15 && argv[0] == "1") {
+                  // update fade colour
+                  if (argv[1] != edgeColor){
+                      argv[1] = fadeColor;}
+                  // process color parts naming
+                  QString fileNameStr = argv[argv.size()-1];
+
+                  if (FadeStepColorParts::isStaticColorPart(fileNameStr)){
+                      fileNameStr = QDir::toNativeSeparators("fade\\" + fileNameStr.replace(".dat","-fade.dat"));
                     }
-                    // process subfile naming
-                    if (ldrawFile.isSubmodel(fileNameStr)) {
-                        QRegExp rgxLDR("\\.(ldr)$");
-                        QRegExp rgxMPD("\\.(mpd)$");
-                        if (fileNameStr.contains(rgxLDR)) {
-                            fileNameStr = fileNameStr.replace(".ldr","-fade.ldr");
-                        } else if (fileNameStr.contains(rgxMPD)) {
-                            fileNameStr = fileNameStr.replace(".mpd","-fade.mpd");
+                  // process subfile naming
+                  if (ldrawFile.isSubmodel(fileNameStr)) {
+                      QRegExp rgxLDR("\\.(ldr)$");
+                      QRegExp rgxMPD("\\.(mpd)$");
+                      QRegExp rgxDAT("\\.(dat)$");
+                      bool ldr = fileNameStr.contains(rgxLDR);
+                      bool mpd = fileNameStr.contains(rgxMPD);
+                      bool dat = fileNameStr.contains(rgxDAT);
+                      if (ldr) {
+                          fileNameStr = fileNameStr.replace(".ldr","-fade.ldr");
+                        } else if (mpd) {
+                          fileNameStr = fileNameStr.replace(".mpd","-fade.mpd");
+                        } else if (dat) {
+                          fileNameStr = fileNameStr.replace(".dat","-fade.dat");
                         }
                     }
-                    argv[argv.size()-1] = fileNameStr;
+                  argv[argv.size()-1] = fileNameStr;
                 } else if ((argv.size() == 8  && argv[0] == "2") ||
                            (argv.size() == 11 && argv[0] == "3") ||
                            (argv.size() == 14 && argv[0] == "4") ||
                            (argv.size() == 14 && argv[0] == "5")) {
-                    if (argv[1] != edgeColor){
-                        argv[1] = fadeColor;}
+                  if (argv[1] != edgeColor){
+                      argv[1] = fadeColor;}
                 }
-                csiLine = argv.join(" ");
+              csiLine = argv.join(" ");
             }
-            fadeCsiParts  << csiLine;
+          fadeCsiParts  << csiLine;
         }
     } else {
-        fadeCsiParts  << csiParts;
+      fadeCsiParts  << csiParts;
     }
-    ldrawFile.setFadePosition(current.modelName,fadeCsiParts.size());
-    return fadeCsiParts;
+  ldrawFile.setFadePosition(current.modelName,fadeCsiParts.size());
+  return fadeCsiParts;
 }

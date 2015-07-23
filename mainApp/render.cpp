@@ -873,11 +873,9 @@ int Render::render3DCsi(
     QStringList csiSubModels;
     QStringList csiSubModelParts;
 
-    QRegExp     subModel("\\.((ldr|LDR)|(mpd|MPD))$");
     QStringList csi3DParts;
     QString     csi3DName;
     QStringList argv;
-    bool        isSubModel = false;
     bool        alreadyInserted = false;
     int         rc;
 
@@ -886,27 +884,34 @@ int Render::render3DCsi(
     if ( ! csiExists || outOfDate) {
         if (csiParts.size() > 0) {
             csi3DParts << "0 FILE " + nameKeys + "\n"
-                          "0 !LEOCAD MODEL NAME " + nameKeys + "\n"
-                          "0 !LEOCAD MODEL BACKGROUND GRADIENT 0 0 0.74902 1 1 1\n"
-                          "0 !LEOCAD MODEL BACKGROUND COLOR 1 1 1";
+                          "0 !LEOCAD MODEL NAME " + nameKeys;
             int counter = 0;
             for (int index = 0; index < csiParts.size(); index++) {
+                QApplication::processEvents();
+
                 QString csiLine = csiParts[index];
                 split(csiLine, argv);
                 if (argv.size() == 15 && argv[0] == "1") {
                     /* process subfiles in csiParts */
                     QString type = argv[argv.size()-1];
-                    isSubModel = type.contains(subModel);
-                    if (isSubModel) {
+//                    logTrace() << " Csi3D Part Type: " << type
+//                               << " Is Submodel: " << gui->isSubmodel(type)
+//                               << " IsUnofficialPart: " <<
+//                                  ;
+                    if (gui->isSubmodel(type)) {
                         counter++;
                         /* capture all subfiles (full string) to be processed when finished */
                         for(QStringList::iterator it = csiSubModels.begin(); it != csiSubModels.end(); ++it)
                         {
                             *it == type ? alreadyInserted = true : alreadyInserted = false;
                         }
+//                        logTrace() << " Csi3D Part Type: " << type
+//                                   << " Is Submodel: " << gui->isSubmodel(type)
+//                                   << " Already Inserted: " << alreadyInserted
+//                                      ;
                         if (! alreadyInserted){
                             csiSubModels << type;
-                            alreadyInserted = false;
+                            alreadyInserted = false;                            
                         }
                     }
                 }
@@ -916,7 +921,7 @@ int Render::render3DCsi(
 
             /* process extracted submodels */
             if (csiSubModels.size() > 0)
-                render3DCsi(csiSubModels, csiSubModelParts);
+                render3DCsiSubModels(csiSubModels, csiSubModelParts);
             else
                 csi3DParts.append("0 NOFILE");
 
@@ -948,34 +953,31 @@ int Render::render3DCsi(
         }
     }
 
-    if ((rc = render3DCsi(csi3DName)) < 0)
+    if ((rc = render3DCsiImage(csi3DName)) < 0)
         return rc;
 
     return 0;
 }
 
-int Render::render3DCsi(QStringList &subModels,
+int Render::render3DCsiSubModels(QStringList &subModels,
                   QStringList &subModelParts)
 {
-    QRegExp     subModel("\\.((ldr|LDR)|(mpd|MPD))$");
     QStringList csiSubModels        = subModels;
     QStringList csiSubModelParts    = subModelParts;
     QStringList newSubModels;
     QStringList argv;
-    bool        isSubModel          = false;
     bool        alreadyInserted     = false;
 
     if (csiSubModels.size() > 0) {
         /* read in all detected sub model file content */
         for (int index = 0; index < csiSubModels.size(); index++) {
+            QApplication::processEvents();
             QString ldrName(QDir::currentPath() + "/" +
                             Paths::tmpDir + "/" +
                             csiSubModels[index]);
             /* initialize the working submodel file - define header. */
             csiSubModelParts.append("0 NOFILE\n0 FILE " + csiSubModels[index] + "\n"
-                                    "0 !LEOCAD MODEL NAME " + csiSubModels[index] + "\n"
-                                    "0 !LEOCAD MODEL BACKGROUND GRADIENT 0 0 0.74902 1 1 1\n"
-                                    "0 !LEOCAD MODEL BACKGROUND COLOR 1 1 1");
+                                    "0 !LEOCAD MODEL NAME " + csiSubModels[index]);
             /* read the actual submodel file */
             QFile ldrfile(ldrName);
             if ( ! ldrfile.open(QFile::ReadOnly | QFile::Text)) {
@@ -995,8 +997,7 @@ int Render::render3DCsi(QStringList &subModels,
                 if (argv.size() == 15 && argv[0] == "1") {
                     /* check and process any subfiles in csiParts */
                     QString type = argv[argv.size()-1];
-                    isSubModel = type.contains(subModel);
-                    if (isSubModel) {
+                    if (gui->isSubmodel(type)) {
                         counter++;
                         /* capture all subfiles (full string) to be processed when finished */
                         for(QStringList::iterator it = newSubModels.begin(); it != newSubModels.end(); ++it)
@@ -1015,7 +1016,7 @@ int Render::render3DCsi(QStringList &subModels,
         }
 		/* recurse and process any identified submodel files */
         if (newSubModels.size() > 0){
-            render3DCsi(newSubModels, csiSubModelParts);
+            render3DCsiSubModels(newSubModels, csiSubModelParts);
         }
         //end for
         csiSubModelParts.append("0 NOFILE");
@@ -1024,7 +1025,7 @@ int Render::render3DCsi(QStringList &subModels,
     return 0;
 }
 
-int Render::render3DCsi(QString &csi3DName)
+int Render::render3DCsiImage(QString &csi3DName)
 {
     //load CSI 3D file into viewer
     QFile csi3DFile(csi3DName);

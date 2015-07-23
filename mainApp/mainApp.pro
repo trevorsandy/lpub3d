@@ -169,8 +169,6 @@ macx {
 include(../lc_lib/lc_lib.pri)
 include(../qslog/QsLog.pri)
 include(../QSimpleUpdater/QSimpleUpdater.pri)
-#NOTE: To set and indicate which architecture is being used, setup BUILD_ARCH
-#BUILD_ARCH is a custom Environment Variable set under Projects=>Build Environments = Values are x86 (32-bit) and x86_64 (64-bit)
 
 HEADERS += \
     aboutdialog.h \
@@ -213,7 +211,9 @@ HEADERS += \
     placement.h \
     placementdialog.h \
     pli.h \
+    pliannotationdialog.h \
     pliconstraindialog.h \
+    plisortdialog.h \
     pointer.h \
     pointeritem.h \
     preferencesdialog.h \
@@ -279,8 +279,10 @@ SOURCES += \
     placement.cpp \
     placementdialog.cpp \
     pli.cpp \
+    pliannotationdialog.cpp \
     pliconstraindialog.cpp \
     pliglobals.cpp \
+    plisortdialog.cpp \
     pointeritem.cpp \
     preferencesdialog.cpp \
     printpdf.cpp \

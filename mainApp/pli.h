@@ -70,7 +70,7 @@ class PliPart {
     QList<Where>         instances; 
     QString              type;
     QString              color;
-    QString              sort;
+    QString              size;
     NumberMeta           instanceMeta;
     NumberMeta           annotateMeta;
     MarginsMeta          csiMargin;
@@ -92,6 +92,8 @@ class PliPart {
     int           topMargin;
     int           partTopMargin;
     int           partBotMargin;
+
+    int           category;
 
     QList<int>    leftEdge;
     QList<int>    rightEdge;
@@ -118,6 +120,7 @@ class PliPart {
       annotateText = NULL;
       pixmap       = NULL;
     }
+
     float maxMargin();
 
     virtual ~PliPart();
@@ -133,10 +136,10 @@ class Pli : public Placement {
   private:
     static QCache<QString, QString> orientation;
 
+    QHash<QString, PliPart*> tempParts;        // temp list used to devide the BOM
     QHash<QString, PliPart*> parts;
-    QHash<QString, PliPart*> tempParts;       // temp list used to devide the BOM
     QList<QString>           sortedKeys;
-    Annotations              annotations;     // this is an internal list of title and custom part annotations
+    Annotations              annotations;      // this is an internal list of title and custom part annotations
 
   public:
     PlacementType      parentRelativeType;
@@ -198,6 +201,8 @@ class Pli : public Placement {
     int  sizePli(Meta *, PlacementType, bool perStep);
     int  sizePli(ConstrainData::PliConstrain, unsigned height);
     int  sortPli();
+    int  partSize();
+    int  partCategory();
     int  resizePli(Meta *, ConstrainData &constrainData);
     int  placePli(QList<QString> &, int,int,bool,bool,int&,int&,int&);
     void positionChildren(int height, qreal scaleX, qreal scaleY);
@@ -338,7 +343,7 @@ public:
     PlacementType _parentRelativeType)
   {
     parentRelativeType = _parentRelativeType;
-    QString toolTip("Part Length - popup menu");
+    QString toolTip("Part Annotation - right-click to modify");
     setText(_pli,_part,text,fontString,toolTip);
     QColor color(colorString);
     setDefaultTextColor(color);
@@ -360,7 +365,7 @@ public:
     PlacementType _parentRelativeType)
   {
     parentRelativeType = _parentRelativeType;
-    QString toolTip(tr("Times used - popup menu"));
+    QString toolTip(tr("Times used - right-click to modify"));
     setText(_pli,_part,text,fontString,toolTip);
     QColor color(colorString);
     setDefaultTextColor(color);

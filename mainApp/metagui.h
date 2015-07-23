@@ -747,4 +747,74 @@ public slots:
   void typeChange(QString const &);
 };
 
+/***********************************************************************
+ *
+ * PliSort
+ *
+ **********************************************************************/
+
+class PliSortMeta;
+class PliSortGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  PliSortGui(
+      QString const &heading,
+      PliSortMeta   *meta,
+      QGroupBox     *parent = NULL);
+  ~PliSortGui() {}
+
+  virtual void apply(QString &topLevelFile);
+
+private:
+  QLabel       *headingLabel;
+  QComboBox    *combo;
+  PliSortMeta  *meta;
+  QString       sortOption;
+
+public slots:
+  void optionChange(QString const &);
+};
+
+/***********************************************************************
+ *
+ * PliAnnotation
+ *
+ **********************************************************************/
+
+class PliAnnotationMeta;
+class QLabel;
+class QRadioButton;
+class PliAnnotationGui : public MetaGui
+{
+  Q_OBJECT
+public:
+  bool displayModified;
+  bool titleModified;
+  bool freeformModified;
+  bool titleAndFreeformModified;
+
+  PliAnnotationGui(
+      QString const       &heading,
+      PliAnnotationMeta   *meta,
+      QGroupBox           *parent = NULL);
+  ~PliAnnotationGui() {}
+
+  virtual void apply(QString &topLevelFile);
+
+private:
+  QLabel            *headingLabel;
+  QRadioButton      *titleAnnotationButton;
+  QRadioButton      *freeformAnnotationButton;
+  QRadioButton      *titleAndFreeformAnnotationButton;
+  QGroupBox         *gbPLIAnnotation;
+  PliAnnotationMeta *meta;
+
+public slots:
+  void titleAnnotation(bool);
+  void freeformAnnotation(bool);
+  void titleAndFreeformAnnotation(bool);
+  void gbToggled(bool toggled);
+};
 #endif

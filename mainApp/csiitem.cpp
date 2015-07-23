@@ -65,7 +65,7 @@ CsiItem::CsiItem(
 
   setTransformationMode(Qt::SmoothTransformation);
 
-  setToolTip(step->path() + "- popup menu");
+  setToolTip(step->path() + "- right-click to modify");
 
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsMovable,true);
@@ -91,6 +91,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
      (parentRelativeType == SingleStepType ||
      (parentRelativeType == StepGroupType &&  (boundary & EndOfSteps)))) {
     addNextAction = menu.addAction("Add Next Step");
+    addNextAction->setIcon(QIcon(":/resources/addnext.png"));
     addNextAction->setWhatsThis("Add Next Step:\n  Add the first step of the next page to this page");
   }
 
@@ -99,6 +100,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
      (parentRelativeType == SingleStepType ||
      (parentRelativeType == StepGroupType && (boundary & StartOfSteps)))) {
     addPrevAction = menu.addAction("Add Previous Step");
+    addPrevAction->setIcon(QIcon(":/resources/addprevious.png"));
     addPrevAction->setWhatsThis("Add Previous Step:\n  Add the last step of the previous page to this page");
   }
 
@@ -106,6 +108,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   if (parentRelativeType == StepGroupType &&
      (boundary & (StartOfSteps | EndOfSteps))) {
     removeAction = menu.addAction("Remove this Step");
+    removeAction->setIcon(QIcon(":/resources/remove.png"));
     if (boundary & StartOfSteps) {
       removeAction->setWhatsThis("Remove this Step:\n  Move this step from this page to the previous page");
     } else {
@@ -123,11 +126,13 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     if ((boundary & StartOfRange) && ! (boundary & StartOfSteps)) {
       if (allocType == Vertical) {
         movePrevAction = menu.addAction("Add to Previous Column");
+        movePrevAction->setIcon(QIcon(":/resources/addprevious.png"));
         movePrevAction->setWhatsThis(
           "Add to Previous Column:\n"
           "  Move this step to the previous column");
       } else {
         movePrevAction = menu.addAction("Add to Previous Row");
+        movePrevAction->setIcon(QIcon(":/resources/addprevious.png"));
         movePrevAction->setWhatsThis(
           "Add to Previous Row:\n"
           "  Move this step to the previous row\n");
@@ -137,12 +142,14 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     if ((boundary & EndOfRange) && ! (boundary & EndOfSteps)) {
       if (allocType == Vertical) {
         moveNextAction = menu.addAction("Add to Next Column");
+        moveNextAction->setIcon(QIcon(":/resources/addnext.png"));
         moveNextAction->setWhatsThis(
           "Add to Next Colum:\n"
           "  Remove this step from its current column,\n"
           "  and put it in the column to the right");
       } else {
         moveNextAction = menu.addAction("Add to Next Row");
+        moveNextAction->setIcon(QIcon(":/resources/addnext.png"));
         moveNextAction->setWhatsThis(
           "Add to Next Row:\n"
           "  Remove this step from its current column,\n"
@@ -151,6 +158,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     }
     if ( ! (boundary & EndOfRange) && ! (boundary & EndOfSteps)) {
       addDividerAction = menu.addAction("Add Divider After Step");
+      addDividerAction->setIcon(QIcon(":/resources/divider.png"));
       if (allocType == Vertical) {
         addDividerAction->setWhatsThis(
           "Add Divider After Step:\n"
@@ -163,12 +171,14 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     }
     if (allocType == Vertical) {
       allocAction = menu.addAction("Display as Rows");
+      allocAction->setIcon(QIcon(":/resources/displayrow.png"));
       allocAction->setWhatsThis(
         "Display as Rows:\n"
         "  Change this whole set of steps from columns of steps\n"
         "  to rows of steps");
     } else {
       allocAction = menu.addAction("Display as Columns");
+      allocAction->setIcon(QIcon(":/resources/displaycolumn.png"));
       allocAction->setWhatsThis(
         "Display as Columns:\n"
         "  Change this whole set of steps from rows of steps\n"
@@ -180,6 +190,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   if (parentRelativeType == SingleStepType) {
     placementAction = menu.addAction("Move This Step");
+    placementAction->setIcon(QIcon(":/resources/placement.png"));
     placementAction->setWhatsThis(   
       "Move This Step:\n"
       "  Move this assembly step image using a dialog (window)\n"
@@ -188,6 +199,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   }
 
   QAction *scaleAction = menu.addAction("Change Scale");
+  scaleAction->setIcon(QIcon(":/resources/scale.png"));
   scaleAction->setWhatsThis("Change Scale:\n"
     "  You can change the size of this assembly image using the scale\n"
     "  dialog (window).  A scale of 1.0 is true size.  A scale of 2.0\n"
@@ -195,7 +207,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     "  half real size\n");
        
   QAction *marginsAction = menu.addAction("Change Assembly Margins");
-
+  marginsAction->setIcon(QIcon(":/resources/margins.png"));
   switch (parentRelativeType) {
     case SingleStepType:
       marginsAction->setWhatsThis("Change Assembly Margins:\n"
@@ -226,6 +238,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   }
 
   QAction *noStepAction = menu.addAction("Don't Show This Step");
+  noStepAction->setIcon(QIcon(":/resources/display.png"));
 
   QAction *selectedAction = menu.exec(event->screenPos());
 

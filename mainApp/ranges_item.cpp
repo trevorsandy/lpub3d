@@ -47,7 +47,7 @@ MultiStepRangesBackgroundItem::MultiStepRangesBackgroundItem(
   setPen(Qt::NoPen);
   setBrush(Qt::NoBrush);
   setParentItem(parent);
-  setToolTip("Step Group - popup menu");
+  setToolTip("Step Group - right-click to modify");
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsMovable,true);
   setZValue(-2);
@@ -111,7 +111,7 @@ MultiStepRangeBackgroundItem::MultiStepRangeBackgroundItem(
 
   setPen(QPen(Qt::NoPen));
   setBrush(QBrush(Qt::NoBrush));
-  setToolTip("Step Group - popup menu");
+  setToolTip("Step Group - right-click to modify");
   setParentItem(parent);
   setZValue(-2);
 }
@@ -222,7 +222,7 @@ DividerItem::DividerItem(
 
   setPen(QPen(Qt::NoPen));
   setBrush(QBrush(Qt::NoBrush));
-  setToolTip("Divider - popup menu");
+  setToolTip("Divider - right-click to modify");
   lineItem = new DividerLine(this);
 
   BorderData borderData;

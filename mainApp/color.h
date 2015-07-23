@@ -66,7 +66,7 @@ class LDrawColor {
     /*
      * This function provides LDraw color codes.
      */
-    static QString ldColorCode(QString ldrawName);
+    static QString ldColorCode(QString name);
 };
 
 #endif
