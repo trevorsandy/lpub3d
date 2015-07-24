@@ -1993,6 +1993,43 @@ void PliAnnotationMeta::init(BranchMeta *parent, QString name)
   display.init                    (this, "DISPLAY");
 }
 
+/* ------------------ */
+
+RotateIconMeta::RotateIconMeta() : BranchMeta()
+{
+  size.setValuesInches(1.0f,1.0f);
+  size.setRange(1,1000);
+  size.setFormats(6,4,"9.9999");
+  placement.setValue(TopLeftInsideCorner,PageType);
+  BorderData borderData;
+  borderData.type = BorderData::BdrSquare;
+  borderData.color = "Black";
+  borderData.thickness = DEFAULT_THICKNESS;
+  borderData.radius = 15;
+  borderData.margin[0] = DEFAULT_MARGIN;
+  borderData.margin[1] = DEFAULT_MARGIN;
+  border.setValueInches(borderData);
+  background.setValue(BackgroundData::BgColor,"#ffffff");
+  margin.setValuesInches(0.0f,0.0f);
+  display.setValue(true);
+
+  subModelColor.setValue("#ffffff");
+  subModelColor.setValue("#ffffcc");
+  subModelColor.setValue("#ffcccc");
+  subModelColor.setValue("#ccccff");
+}
+
+void RotateIconMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  size            .init(this,"SIZE");
+  placement       .init(this,"PLACEMENT");
+  border          .init(this,"BORDER");
+  background      .init(this,"BACKGROUND");
+  margin          .init(this,"MARGINS");
+  display         .init(this,"DISPLAY");
+}
+
 /*---------------------------------------------------------------
  * The Top Level LPub Metas
  *---------------------------------------------------------------*/
@@ -2696,6 +2733,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   include                .init(this,"INCLUDE", IncludeRc);
   nostep                 .init(this,"NOSTEP",NoStepRc);\
   fadeStep               .init(this,"FADE_STEP");
+  rotateIconMeta         .init(this,"ROTATE_ICON");
   reserve.setRange(0.0,1000000.0);
 }
 
@@ -2813,6 +2851,7 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
 
       tokenMap["SORT_BY"]        = SortByType;
       tokenMap["ANNOTATION"]     = AnnotationType;
+      tokenMap["ROTATE_ICON"]    = RotateIconType;
     }
 }
 

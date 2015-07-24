@@ -1788,6 +1788,27 @@ public:
   virtual void init(BranchMeta *parent, QString name);
 };
 
+/*------------------------*/
+
+class RotateIconMeta  : public BranchMeta
+{
+public:
+  UnitsMeta         size;
+  BorderMeta        border;
+  BackgroundMeta    background;
+  MarginsMeta       margin;
+  PlacementMeta     placement;
+  BoolMeta          display;
+  StringListMeta    subModelColor;
+
+  RotateIconMeta();
+  RotateIconMeta(const RotateIconMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+  virtual ~RotateIconMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
 /*---------------------------------------------------------------
  * The Top Level LPub Metas
  *---------------------------------------------------------------*/
@@ -2063,8 +2084,7 @@ public:
   StringMeta            include;
   NoStepMeta            nostep;
   FadeStepMeta          fadeStep;
-
-
+  RotateIconMeta        rotateIconMeta;
 
   LPubMeta();
   virtual ~LPubMeta() {}

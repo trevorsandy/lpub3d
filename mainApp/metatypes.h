@@ -105,41 +105,42 @@ enum PrepositionEnc {
 };
 
 enum PlacementType {            //  placement dialog codes:
-    PageType,                   // 0 page
-    CsiType,                    // 1 Csi  (Assem)
-    StepGroupType,              // 2 Ms   (Multi-Step)
-    StepNumberType,             // 3 Sn
-    PartsListType,              // 4 Pli
-    CalloutType,                // 5 Callout
-    PageNumberType,             // 6 pn
+  PageType,                   // 0 page
+  CsiType,                    // 1 Csi  (Assem)
+  StepGroupType,              // 2 Ms   (Multi-Step)
+  StepNumberType,             // 3 Sn
+  PartsListType,              // 4 Pli
+  CalloutType,                // 5 Callout
+  PageNumberType,             // 6 pn
 
-    PageTitleType,				// 7 tt
-    PageModelNameType,			// 8 mnt
-    PageAuthorType,             // 9 at
-    PageURLType,				//10 urlt
-    PageModelDescType,			//11 mdt
-    PagePublishDescType,		//12 pdt
-    PageCopyrightType,			//13 ct
-    PageEmailType,				//14 et
-    PageDisclaimerType,			//15 dt
-    PagePiecesType,				//16 pt
-    PagePlugType,				//17 plt
-    PageCategoryType,			//18 cat
-    PageDocumentLogoType,		//19 dlt
-    PageCoverImageType,			//20 cit
-    PagePlugImageType,			//21 pit
-    PageHeaderType,             //22 ph
-    PageFooterType,             //23 pf
+  PageTitleType,				// 7 tt
+  PageModelNameType,			// 8 mnt
+  PageAuthorType,             // 9 at
+  PageURLType,				//10 urlt
+  PageModelDescType,			//11 mdt
+  PagePublishDescType,		//12 pdt
+  PageCopyrightType,			//13 ct
+  PageEmailType,				//14 et
+  PageDisclaimerType,			//15 dt
+  PagePiecesType,				//16 pt
+  PagePlugType,				//17 plt
+  PageCategoryType,			//18 cat
+  PageDocumentLogoType,		//19 dlt
+  PageCoverImageType,			//20 cit
+  PagePlugImageType,			//21 pit
+  PageHeaderType,             //22 ph
+  PageFooterType,             //23 pf
 
-    SingleStepType,             //24
-    SubmodelInstanceCountType,  //25
+  SingleStepType,             //24
+  SubmodelInstanceCountType,  //25
 
-    StepType,                   //26
-    RangeType,                  //27
-    ReserveType,                //28
-    BomType,                    //29
-    CoverPageType,              //30   
-    NumRelatives                //33
+  StepType,                   //26
+  RangeType,                  //27
+  ReserveType,                //28
+  BomType,                    //29
+  CoverPageType,              //30
+  RotateIconType,             //31
+  NumRelatives                //33
 };
 
 enum pageType{
@@ -233,7 +234,8 @@ public:
     InsertArrow,
     InsertBom,
     InsertCoverPage,
-    InsertModel
+    InsertModel,
+    InsertRotateIcon
   } type;
 
   QString     picName;
@@ -413,7 +415,8 @@ const QString RelNames[NumRelatives] =
    "RangeType",                  //27
    "ReserveType",                //28
    "BomType",                    //29
-   "CoverPageType"               //30
+   "CoverPageType",              //30
+   "RotateIconType"              //31
 }; //NumRelatives"
 
 const QString PlacNames[NumPlacements] =

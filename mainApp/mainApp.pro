@@ -229,7 +229,8 @@ HEADERS += \
     textitem.h \
     updatecheck.h \
     where.h \
-    version.h
+    version.h \
+    rotateicon.h
 	
 SOURCES += \
     aboutdialog.cpp \
@@ -299,7 +300,8 @@ SOURCES += \
     textitem.cpp \
     traverse.cpp \
     updatecheck.cpp \
-    undoredo.cpp
+    undoredo.cpp \
+    rotateicon.cpp
 	
 FORMS += \
     preferences.ui \

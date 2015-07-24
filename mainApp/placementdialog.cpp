@@ -171,7 +171,8 @@ const QString relativeNames[NumRelatives] =
   "Range",                      //28
   "Reserve",                    //29
   "BOM",                        //24
-  "Cover Page"                  //30
+  "Cover Page",                 //30
+  "Rotate Icon"                 //31
 };                              //33 NumRelatives
 
 QString PlacementDialog::relativeToName(
