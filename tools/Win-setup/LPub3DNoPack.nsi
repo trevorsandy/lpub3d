@@ -73,8 +73,8 @@
   ; Rebrand bottom textrow
   BrandingText "${Company} Installer"
 
-  ; Show install details
-  ShowInstDetails show
+  ; hide install details - show with details button
+  ShowInstDetails hide
   
   SetCompressor /SOLID lzma
    

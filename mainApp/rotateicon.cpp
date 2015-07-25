@@ -25,21 +25,11 @@
 #include <QGraphicsSceneContextMenuEvent>
 #include "commonmenus.h"
 
-RotateIcon::RotateIcon(InsertMeta _insMeta, PlacementType _parentRelativeType, QGraphicsItem *parent)
-{
-  insMeta            = _insMeta;
-  parentRelativeType = _parentRelativeType;
-  //addBackground(0,parent);
-
-  //InsertData data    = _insMeta.value();
-  //setParentItem(parent);
-}
-
 int RotateIcon::addBackground(
-    int       submodelLevel,
+    int            submodelLevel,
     QGraphicsItem *parent){
 
-  background =
+  background     =
       new RotateIconBackgroundItem(
         this,
         size[0],
@@ -54,8 +44,7 @@ int RotateIcon::addBackground(
 
   background->size[0] = size[0];
   background->size[1] = size[1];
-
-  background->setPos(0,0);
+  background->setPos(this->loc[XX],this->loc[YY]);
   background->setFlag(QGraphicsItem::ItemIsMovable,true);
   background->setFlag(QGraphicsItem::ItemIsSelectable,true);
 
@@ -77,7 +66,6 @@ RotateIconBackgroundItem::RotateIconBackgroundItem(
   QPixmap *pixmap = new QPixmap(width,height);
 
   QString toolTip;
-
 
   toolTip = "Rotate Icon - right-click to modify";
 
@@ -109,7 +97,7 @@ void RotateIconBackgroundItem::contextMenuEvent(
 
     QString pl = "Rotate Icon";
     QAction *placementAction  = commonMenus.placementMenu(menu,pl,
-                                commonMenus.naturalLanguagePlacementWhatsThis(PartsListType,placementData,pl));
+                                commonMenus.naturalLanguagePlacementWhatsThis(SingleStepType,placementData,pl));
     QAction *backgroundAction = commonMenus.backgroundMenu(menu,pl);
     QAction *borderAction     = commonMenus.borderMenu(menu,pl);
     QAction *marginAction     = commonMenus.marginMenu(menu,pl);

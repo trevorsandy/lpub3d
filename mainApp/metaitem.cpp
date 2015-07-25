@@ -551,7 +551,6 @@ void MetaItem::addDivider(
 
   if (rc == StepRc || rc == RotStepRc) {
     // we can add a divider after meta->context.curStep().lineNumber    
-
     appendMeta(bottomOfStep,divString); 
   }
 }

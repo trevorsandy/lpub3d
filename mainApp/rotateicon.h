@@ -26,53 +26,50 @@
 #include <QGraphicsItem>
 #include <QGraphicsSceneMouseEvent>
 #include "backgrounditem.h"
-#include <placement.h>
-#include "resize.h"
-#include <meta.h>
+#include "placement.h"
+#include "metaitem.h"
+#include "meta.h"
 
 #include "QsLog.h"
 
-class RotateIcon;
-class RotateIconBackgroundItem;
 
-class RotateIcon : public Placement,public MetaItem
+class RotateIconBackgroundItem;
+class RotateIcon : public Placement
 {
 public:
-  InsertMeta                insMeta;
   Meta                     *meta;
+  InsertMeta                insMeta;
   RotateIconMeta            rotateIconMeta;
+  PlacementType             parentRelativeType;
   bool                      positionChanged;
   QPointF                   position;
-
-  PlacementType             parentRelativeType;
   RotateIconBackgroundItem *background;
+  //RotateIconArrowsItem     *rotateArrows;
 
-  RotateIcon();
-  RotateIcon(
-      InsertMeta     insMeta,
-      PlacementType  parentRelativeType,
-      QGraphicsItem *parent);
-  int  addBackground (int, QGraphicsItem *);
+  RotateIcon(/*Meta          *meta,
+             InsertMeta     insMeta,
+             PlacementType  parentRelativeType,
+             QGraphicsItem *parent*/); /*:
+    meta(meta),
+    insMeta(insMeta),
+    rotateIconMeta(meta->LPub.rotateIconMeta),
+    parentRelativeType(parentRelativeType)
+  {
+    addBackground(0,parent);
+  } */
   ~RotateIcon();
 
-signals:
-
-public slots:
+  int  addBackground (int, QGraphicsItem *);
 };
 
-
-class RotateIconBackgroundItem : public BackgroundItem, public AbstractResize, public Placement
+class RotateIcon;
+class RotateIconBackgroundItem : public BackgroundItem, public Placement
 {
 public:
   RotateIcon    *rotateIcon;
   PlacementType  parentRelativeType;
   bool           positionChanged;
   QPointF        position;
-
-//  // resize
-//  Grabber       *grabber;
-//  QPointF        point;
-//  int            grabHeight;
 
   RotateIconBackgroundItem(
     RotateIcon   *_rotateIcon,
@@ -91,7 +88,6 @@ public:
     QGraphicsItem::setFlag(flag,value);
   }
 
-//  virtual void placeGrabbers();
   virtual QGraphicsItem *myParentItem()
   {
     return parentItem();
@@ -103,12 +99,5 @@ protected:
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
-  //-----------------------------------------
-
-//  virtual void resize(QPointF);
-//  virtual void change();
-//  virtual QRectF currentRect();
-
-private:
 };
 #endif // ROTATEICON_H

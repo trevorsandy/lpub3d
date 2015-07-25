@@ -46,6 +46,7 @@
 #include "csiitem.h"
 #include "calloutbackgrounditem.h"
 #include "textitem.h"
+#include "RotateIcon.h"
 
 /*
  * We need to draw page every time there is change to the LDraw file.
@@ -613,6 +614,38 @@ int Gui::addGraphicsPageItems(
             text->setPos(text->loc[XX],text->loc[YY]);
             text->relativeToSize[0] = plPage.size[XX];
             text->relativeToSize[1] = plPage.size[YY];
+          }
+        break;
+        case InsertData::InsertRotateIcon:
+          {
+            RotateIcon *rotateIcon = new RotateIcon(
+                  /* &page->meta,
+                  page->inserts[i],
+                   page->relativeType,
+                   pageBg*/);
+
+            rotateIcon->meta               = &page->meta;
+            rotateIcon->insMeta            = page->inserts[i];
+            rotateIcon->parentRelativeType = page->relativeType;
+            rotateIcon->rotateIconMeta     = page->meta.LPub.rotateIconMeta;
+            rotateIcon->addBackground(0,pageBg);
+
+            PlacementData pld;
+
+            pld.placement    = Center;
+            pld.justification= Center;
+            pld.relativeTo   = PageType;
+            pld.preposition  = Inside;
+            pld.offsets[0]   = insert.offsets[0];
+            pld.offsets[1]   = insert.offsets[1];
+
+            rotateIcon->placement.setValue(pld);
+
+            int margin[2]    ={0,0};
+
+            plPage.placeRelative(rotateIcon,margin);
+            rotateIcon->relativeToSize[0] = plPage.size[XX];
+            rotateIcon->relativeToSize[1] = plPage.size[YY];
           }
         break;
         case InsertData::InsertArrow:

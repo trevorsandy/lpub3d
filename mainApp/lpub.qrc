@@ -77,6 +77,7 @@
         <file alias="remove.png">images/remove.png</file>
         <file alias="removelpubformat.png">images/removelpubformat.png</file>
         <file alias="resetcache.png">images/resetcache.png</file>
+        <file alias="rotateicon.png">images/rotateicon.png</file>
         <file alias="save.png">images/save.png</file>
         <file alias="saveas.png">images/saveas.png</file>        
         <file alias="savemetacommands.png">images/savemetacommands.png</file>

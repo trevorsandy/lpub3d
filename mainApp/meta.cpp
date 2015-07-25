@@ -1352,11 +1352,9 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
     }
 
   if (argv.size() - index > 1 && argv[index] == "PICTURE") {
-
       insertData.type = InsertData::InsertPicture;
       insertData.picName = argv[++index];
       ++index;
-
       if (argv.size() - index >= 2 && argv[index] == "SCALE") {
           bool good;
           insertData.picScale = argv[++index].toFloat(&good);
@@ -1366,15 +1364,15 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
               rc = FailureRc;
             }
         }
-
     } else if (argv.size() - index > 3 && argv[index] == "TEXT") {
-
       insertData.type       = InsertData::InsertText;
       insertData.text       = argv[++index].replace("\\""","""");
       insertData.textFont   = argv[++index];
       insertData.textColor  = argv[++index];
       ++index;
-
+    } else if (argv[index] == "ROTATE_ICON"){
+      insertData.type = InsertData::InsertRotateIcon;
+      ++index;
     } else if (argv.size() - index >= 8 && argv[index] == "ARROW") {
       insertData.type = InsertData::InsertArrow;
       bool good, ok;
@@ -1447,6 +1445,9 @@ QString InsertMeta::format(bool local, bool global)
           .arg(_value.textFont)
           .arg(_value.textColor);
       break;
+    case InsertData::InsertRotateIcon:
+      foo += " ROTATE_ICON";
+      break;
     case InsertData::InsertArrow:
       foo += " ARROW";
       foo += QString(" %1") .arg(_value.arrowHead.rx());
@@ -1475,7 +1476,7 @@ QString InsertMeta::format(bool local, bool global)
 
 void InsertMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <placement> (PICTURE \"name\"|ARROW x y x y |BOM|TEXT \"\" \"\"";
+  out << preamble + " <placement> PICTURE \"name\"|ARROW x y x y |BOM|TEXT|MODEL|ROTATE_ICON \"\" \"\"";
 }
 
 /* ------------------ */
