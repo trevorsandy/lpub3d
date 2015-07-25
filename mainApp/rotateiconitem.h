@@ -19,64 +19,37 @@
  *
  ***************************************************************************/
 
-#ifndef ROTATEICON_H
-#define ROTATEICON_H
+#ifndef ROTATEICONITEM_H
+#define ROTATEICONITEM_H
 
 #include <QGraphicsScene>
 #include <QGraphicsItem>
+#include <QGraphicsPixmapItem>
 #include <QGraphicsSceneMouseEvent>
 #include "backgrounditem.h"
 #include "placement.h"
 #include "metaitem.h"
+#include "ranges.h"
 #include "meta.h"
 
 #include "QsLog.h"
 
+class RotateIconItem;
 
-class RotateIconBackgroundItem;
-class RotateIcon : public Placement
+class RotateIconItem : public BackgroundItem, public Placement
 {
 public:
-  Meta                     *meta;
+  Page                     *page;
   InsertMeta                insMeta;
   RotateIconMeta            rotateIconMeta;
   PlacementType             parentRelativeType;
+  BoolMeta                  display;
   bool                      positionChanged;
   QPointF                   position;
-  RotateIconBackgroundItem *background;
-  //RotateIconArrowsItem     *rotateArrows;
 
-  RotateIcon(/*Meta          *meta,
-             InsertMeta     insMeta,
-             PlacementType  parentRelativeType,
-             QGraphicsItem *parent*/); /*:
-    meta(meta),
-    insMeta(insMeta),
-    rotateIconMeta(meta->LPub.rotateIconMeta),
-    parentRelativeType(parentRelativeType)
-  {
-    addBackground(0,parent);
-  } */
-  ~RotateIcon();
-
-  int  addBackground (int, QGraphicsItem *);
-};
-
-class RotateIcon;
-class RotateIconBackgroundItem : public BackgroundItem, public Placement
-{
-public:
-  RotateIcon    *rotateIcon;
-  PlacementType  parentRelativeType;
-  bool           positionChanged;
-  QPointF        position;
-
-  RotateIconBackgroundItem(
-    RotateIcon   *_rotateIcon,
-    int            width,
-    int            height,
-    PlacementType _parentRelativeType,
-    int            submodelLevel,
+  RotateIconItem(
+    Page          *page,
+    InsertMeta     insMeta,
     QGraphicsItem *parent);
 
   void setPos(float x, float y)
@@ -100,4 +73,4 @@ protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
 };
-#endif // ROTATEICON_H
+#endif // ROTATEICONITEM_H

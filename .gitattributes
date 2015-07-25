@@ -445,8 +445,8 @@ mainApp/resize.h -text
 mainApp/resolution.cpp -text
 mainApp/resolution.h -text
 mainApp/rotate.cpp -text
-mainApp/rotateicon.cpp -text
-mainApp/rotateicon.h -text
+mainApp/rotateiconitem.cpp -text
+mainApp/rotateiconitem.h -text
 mainApp/rx.cpp -text
 mainApp/rx.h -text
 mainApp/scaledialog.cpp -text

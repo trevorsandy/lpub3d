@@ -223,14 +223,14 @@ HEADERS += \
     reserve.h \
     resize.h \
     resolution.h \
+    rotateiconitem.h \
     rx.h \
     scaledialog.h \
     step.h \
     textitem.h \
     updatecheck.h \
     where.h \
-    version.h \
-    rotateicon.h
+    version.h
 	
 SOURCES += \
     aboutdialog.cpp \
@@ -293,6 +293,7 @@ SOURCES += \
     render.cpp \
     resize.cpp \
     resolution.cpp \
+    rotateiconitem.cpp \
     rotate.cpp \
     rx.cpp \
     scaledialog.cpp \
@@ -300,8 +301,7 @@ SOURCES += \
     textitem.cpp \
     traverse.cpp \
     updatecheck.cpp \
-    undoredo.cpp \
-    rotateicon.cpp
+    undoredo.cpp
 	
 FORMS += \
     preferences.ui \

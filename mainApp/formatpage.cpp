@@ -46,7 +46,7 @@
 #include "csiitem.h"
 #include "calloutbackgrounditem.h"
 #include "textitem.h"
-#include "RotateIcon.h"
+#include "rotateiconitem.h"
 
 /*
  * We need to draw page every time there is change to the LDraw file.
@@ -618,17 +618,10 @@ int Gui::addGraphicsPageItems(
         break;
         case InsertData::InsertRotateIcon:
           {
-            RotateIcon *rotateIcon = new RotateIcon(
-                  /* &page->meta,
-                  page->inserts[i],
-                   page->relativeType,
-                   pageBg*/);
-
-            rotateIcon->meta               = &page->meta;
-            rotateIcon->insMeta            = page->inserts[i];
-            rotateIcon->parentRelativeType = page->relativeType;
-            rotateIcon->rotateIconMeta     = page->meta.LPub.rotateIconMeta;
-            rotateIcon->addBackground(0,pageBg);
+            RotateIconItem *rotateIcon = new RotateIconItem(
+                   page,
+                   page->inserts[i],
+                   pageBg);
 
             PlacementData pld;
 
@@ -641,7 +634,7 @@ int Gui::addGraphicsPageItems(
 
             rotateIcon->placement.setValue(pld);
 
-            int margin[2]    ={0,0};
+            int margin[2]    = {0,0};
 
             plPage.placeRelative(rotateIcon,margin);
             rotateIcon->relativeToSize[0] = plPage.size[XX];
@@ -1151,7 +1144,7 @@ int Gui::addGraphicsPageItems(
           }
           plugBack->setPos(plugBack->loc[XX],plugBack->loc[YY]);
       }
-      // allocate QGraphicsTextItem for // documentLogoBack (Back Cover) //~~~~~~~~~~~~~~~~
+      // allocate QGraphicsPixmapItem for // documentLogoBack (Back Cover) //~~~~~~~~~~~~~~~~
       if (page->meta.LPub.page.documentLogoBack.display.value()) {
 
           QFileInfo fileInfo;
@@ -1197,7 +1190,7 @@ int Gui::addGraphicsPageItems(
               pixmapLogoBack->setPos(pixmapLogoBack->loc[XX],pixmapLogoBack->loc[YY]);
           }
       }
-      // allocate QGraphicsTextItem for // plugImage (Back Cover) //~~~~~~~~~~~~~~~~
+      // allocate QGraphicsPixmapItem for // plugImage (Back Cover) //~~~~~~~~~~~~~~~~
       if (page->meta.LPub.page.plugImage.display.value()) {
 
           QFileInfo fileInfo;
