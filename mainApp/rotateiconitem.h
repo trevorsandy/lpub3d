@@ -31,11 +31,11 @@
 #include "metaitem.h"
 #include "ranges.h"
 #include "meta.h"
+#include "color.h"
 
 #include "QsLog.h"
 
 class RotateIconItem;
-
 class RotateIconItem : public BackgroundItem, public Placement
 {
 public:
@@ -71,6 +71,7 @@ protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-
 };
+
+
 #endif // ROTATEICONITEM_H

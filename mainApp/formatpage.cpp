@@ -242,6 +242,10 @@ int Gui::addGraphicsPageItems(
    * right or bottom edge, and I just don't know what the problem is.
    */
 
+  QGraphicsDropShadowEffect* effect	= new QGraphicsDropShadowEffect();
+  effect->setBlurRadius(5);
+
+
   QApplication::processEvents();
 
   int pW, pH;

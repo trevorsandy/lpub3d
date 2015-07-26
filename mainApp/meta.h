@@ -1793,6 +1793,7 @@ public:
 class RotateIconMeta  : public BranchMeta
 {
 public:
+  StringMeta        arrowColour;
   UnitsMeta         size;
   BorderMeta        border;
   BackgroundMeta    background;

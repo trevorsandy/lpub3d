@@ -1,5 +1,3 @@
- 
-
 /****************************************************************************
 
 **
@@ -31,163 +29,100 @@
 
 ****************************************************************************/
 
-
-
 /****************************************************************************
-
  *
-
  * This file describes a class that implements an LPub background.
-
  * Page, Parts Lists and Callouts have backgrounds.
-
  *
-
  * Please see lpub.h for an overall description of how the files in LPub
-
  * make up the LPub program.
-
  *
-
  ***************************************************************************/
 
-
-
 #ifndef BACKGROUND_H 
-
 #define BACKGROUND_H
 
-
-
 #include <QObject>
-
 #include <QGraphicsPixmapItem>
-
 #include <QPixmap>
-
 #include "placement.h"
-
 #include "metaitem.h"
 
-
-
-class BackgroundItem : public QGraphicsPixmapItem, public MetaItem
-
-{
-
-public:
-
+class BackgroundItem : public QGraphicsPixmapItem, public MetaItem   
+{ 
+public: 
   Meta           *meta;
-
   BackgroundMeta  background;
-
   BorderMeta      border;
-
   MarginsMeta     margin;
-
+//  StringMeta      arrowColour;
   StringListMeta  subModelColor;
-
   int             submodelLevel;
-
+  bool            isRotationIcon;
   PlacementType   parentRelativeType;
 
-  
+  // Rotate Arrow
 
+//  BackgroundItem()
+//  {}
   BackgroundItem()
-
-  {}
+  {isRotationIcon = false;}
 
   void setBackground(
+      QPixmap         *pixmap,
+      PlacementType    parentRelativeType,
+      Meta            *meta,
+      BackgroundMeta  &background,
+      BorderMeta      &border,
+      MarginsMeta     &margin,
+      StringListMeta  &subModelColor,
+      int              submodelLevel,
+      QString         &toolTip);
 
-    QPixmap         *pixmap,
-
-    PlacementType    parentRelativeType,
-
-    Meta            *meta,
-
-    BackgroundMeta  &background,
-
-    BorderMeta      &border,
-
-    MarginsMeta     &margin,
-
-    StringListMeta  &subModelColor,
-
-    int              submodelLevel,
-
-    QString         &toolTip);
-
-
-
-private:
-
+  void setRotateIconBackground(
+//      QPixmap         *pixmap,
+      PlacementType    parentRelativeType,
+      Meta            *meta,
+//      StringMeta      &arrowColour,
+      BackgroundMeta  &background,
+      BorderMeta      &border,
+      MarginsMeta     &margin,
+      StringListMeta  &subModelColor,
+      int              submodelLevel,
+      QString         &toolTip);
+private: 
 };
 
-
-
-class PlacementBackgroundItem : public BackgroundItem
-
-{
-
-public:
-
+class PlacementBackgroundItem : public BackgroundItem   
+{ 
+public:  
   PlacementMeta  placement;
-
   bool           positionChanged;
-
   QPointF        position;
-
   PlacementType  relativeType;
 
-  
-
   PlacementBackgroundItem()
-
   {
-
   }
-
-
-
   void setBackground(
+      QPixmap         *pixmap,
+      PlacementType   _relativeType,
+      PlacementType   _parentRelativeType,
+      PlacementMeta   &placement,
+      BackgroundMeta  &background,
+      BorderMeta      &border,
+      MarginsMeta     &margin,
+      StringListMeta  &subModelColor,
+      int              submodelLevel,
+      QString         &toolTip);
 
-    QPixmap         *pixmap,
-
-    PlacementType   _relativeType,
-
-    PlacementType   _parentRelativeType,
-
-    PlacementMeta   &placement,
-
-    BackgroundMeta  &background,
-
-    BorderMeta      &border,
-
-    MarginsMeta     &margin,
-
-    StringListMeta  &subModelColor,
-
-    int              submodelLevel,
-
-    QString         &toolTip);
-
-
-
-protected:
-
+protected: 
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
-
-
 private:
-
 };
-
-
 
 #endif
 

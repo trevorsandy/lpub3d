@@ -30,11 +30,13 @@
 #ifndef rangesH
 #define rangesH
 
+#include <QGraphicsDropShadowEffect>
 #include "pli.h"
 #include "meta.h"
 #include "placement.h"
 #include "resize.h"
 #include "pageattributepixmapitem.h"
+
 
 /*
  * This is a base class for multi-step and

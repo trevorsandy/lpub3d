@@ -1998,20 +1998,21 @@ void PliAnnotationMeta::init(BranchMeta *parent, QString name)
 
 RotateIconMeta::RotateIconMeta() : BranchMeta()
 {
-  size.setValuesInches(1.0f,1.0f);
+  size.setValuesInches(0.75f,0.75f);
   size.setRange(1,1000);
   size.setFormats(6,4,"9.9999");
-  placement.setValue(TopLeftInsideCorner,PageType);
+  placement.setValue(CenterCenter,PageType);
   BorderData borderData;
-  borderData.type = BorderData::BdrSquare;
+  borderData.type = BorderData::BdrRound;
   borderData.color = "Black";
   borderData.thickness = DEFAULT_THICKNESS;
-  borderData.radius = 15;
+  borderData.radius = 10;
   borderData.margin[0] = DEFAULT_MARGIN;
   borderData.margin[1] = DEFAULT_MARGIN;
   border.setValueInches(borderData);
-  background.setValue(BackgroundData::BgColor,"#ffffff");
+  background.setValue(BackgroundData::BgTransparent);
   margin.setValuesInches(0.0f,0.0f);
+  arrowColour.setValue("Dark_Blue");
   display.setValue(true);
 
   subModelColor.setValue("#ffffff");
@@ -2024,6 +2025,7 @@ void RotateIconMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
   size            .init(this,"SIZE");
+  arrowColour     .init(this,"ARROW_COLOUR");
   placement       .init(this,"PLACEMENT");
   border          .init(this,"BORDER");
   background      .init(this,"BACKGROUND");
