@@ -55,13 +55,11 @@ public:
   BackgroundMeta  background;
   BorderMeta      border;
   MarginsMeta     margin;
-//  StringMeta      arrowColour;
+  StringMeta      arrowColour;
   StringListMeta  subModelColor;
   int             submodelLevel;
   bool            isRotationIcon;
   PlacementType   parentRelativeType;
-
-  // Rotate Arrow
 
 //  BackgroundItem()
 //  {}
@@ -80,10 +78,10 @@ public:
       QString         &toolTip);
 
   void setRotateIconBackground(
-//      QPixmap         *pixmap,
+      QPixmap         *pixmap,
       PlacementType    parentRelativeType,
       Meta            *meta,
-//      StringMeta      &arrowColour,
+      StringMeta      &arrowColour,
       BackgroundMeta  &background,
       BorderMeta      &border,
       MarginsMeta     &margin,

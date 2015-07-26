@@ -65,6 +65,7 @@ void BackgroundItem::setBackground(
   QColor penColor,brushColor;
   QRectF prect(bt/2,bt/2,pixmap->width()-bt,pixmap->height()-bt); // was -1-bt
 
+
   pixmap->setAlphaChannel(*pixmap);
   pixmap->fill(Qt::transparent);
 
@@ -129,66 +130,69 @@ void BackgroundItem::setBackground(
         }
     }
 
-  //  if (isRotationIcon){
-  //      qreal arrowTipLength = 9.0;
-  //      qreal arrowTipHeight = 4.0;
-  //      QPolygonF arrowHead;
-  //      arrowHead << QPointF()
-  //                << QPointF(arrowTipLength + 2.5, -arrowTipHeight)
-  //                << QPointF(arrowTipLength      , 0.0)
-  //                << QPointF(arrowTipLength + 2.5,  arrowTipHeight);
+    if (isRotationIcon){
+        QRectF arect(0,0,50,50);
+        qreal arrowTipLength = 9.0;
+        qreal arrowTipHeight = 4.0;
+        QPolygonF arrowHead;
+        arrowHead << QPointF()
+                  << QPointF(arrowTipLength + 2.5, -arrowTipHeight)
+                  << QPointF(arrowTipLength      , 0.0)
+                  << QPointF(arrowTipLength + 2.5,  arrowTipHeight);
 
-  //      QColor arrowPenColor;
-  //      arrowPenColor = LDrawColor::color(arrowColour.value());
-  //      QPen defaultArrowPen;
-  //      defaultArrowPen.setColor(arrowPenColor);
-  //      defaultArrowPen.setCapStyle(Qt::SquareCap);
-  //      defaultArrowPen.setJoinStyle(Qt::MiterJoin);
-  //      defaultArrowPen.setStyle(Qt::SolidLine);
-  //      defaultArrowPen.setWidth(0);
+        QColor arrowPenColor;
+        arrowPenColor = LDrawColor::color(arrowColour.value());
+        QPen defaultArrowPen;
+        defaultArrowPen.setColor(arrowPenColor);
+        defaultArrowPen.setCapStyle(Qt::SquareCap);
+        defaultArrowPen.setJoinStyle(Qt::MiterJoin);
+        defaultArrowPen.setStyle(Qt::SolidLine);
+        defaultArrowPen.setWidth(3);
 
-  //      QPen arrowPen = defaultArrowPen;
-  //      painter.setRenderHints(QPainter::Antialiasing,false);
-  //      painter.setPen(arrowPen);
-  //      painter.setBrush(Qt::transparent);
+        QPen arrowPen = defaultArrowPen;
+        painter.setRenderHints(QPainter::Antialiasing,false);
+        painter.setPen(arrowPen);
+        painter.setBrush(Qt::transparent);
 
-  //      qreal aw = prect.width();
-  //      qreal ah = prect.height() / 2.0;
-  //      float inset = 6.0;
+//        qreal aw = prect.width();
+//        qreal ah = prect.height() / 2.0;
+        qreal aw = arect.width();
+        qreal ah = arect.height() / 2.0;
+        float inset = 6.0;
 
-  //      // 1.8 & 2.5 entirely qualitative, for a 'nice' curve
-  //      float ix    = inset * 1.8;
-  //      float iy    = inset * 2.5;
+        // 1.8 & 2.5 entirely qualitative, for a 'nice' curve
+        float ix    = inset * 1.8;
+        float iy    = inset * 2.5;
 
-  //      QPainterPath path;
+        QPainterPath path;
 
-  //      QPointF start(     inset, ah - inset);
-  //      QPointF end  (aw - inset, ah - inset);
-  //      path.moveTo(start);
-  //      path.cubicTo(start + QPointF( ix, -iy),   end + QPointF(-ix, -iy),end);
+        QPointF start(     inset, ah - inset);
+        QPointF end  (aw - inset, ah - inset);
+        path.moveTo(start);
+        path.cubicTo(start + QPointF( ix, -iy),   end + QPointF(-ix, -iy),end);
 
-  //      start += QPointF(0, inset + inset);
-  //      end   += QPointF(0, inset + inset);
-  //      path.moveTo(end);
-  //      path.cubicTo(end   + QPointF(-ix,  iy), start + QPointF( ix,  iy),start);
+        start += QPointF(0, inset + inset);
+        end   += QPointF(0, inset + inset);
+        path.moveTo(end);
+        path.cubicTo(end   + QPointF(-ix,  iy), start + QPointF( ix,  iy),start);
 
-  //      painter.drawPath(path);
+        painter.drawPath(path);
 
-  //      painter.setBrush(arrowPen.color());
+        painter.setBrush(arrowPen.color());
 
-  //      painter.save();
-  //      painter.translate(aw - inset, ah - inset);
-  //      painter.rotate(-135);
-  //      painter.drawPolygon(arrowHead);
-  //      painter.restore();
+        painter.save();
+        painter.translate(aw - inset, ah - inset);
+        painter.rotate(-135);
+        painter.drawPolygon(arrowHead);
+        painter.restore();
 
-  //      painter.save();
-  //      painter.translate(inset, ah + inset);
-  //      painter.rotate(45);
-  //      painter.drawPolygon(arrowHead);
-  //      painter.restore();
+        painter.save();
+        painter.translate(inset, ah + inset);
+        painter.rotate(45);
+        painter.drawPolygon(arrowHead);
+        painter.restore();
 
-  //    }
+      }
 
   if (borderData.type == BorderData::BdrNone) {
       penColor = Qt::transparent;
@@ -221,10 +225,10 @@ void BackgroundItem::setBackground(
 }
 
 void BackgroundItem::setRotateIconBackground(
-//    QPixmap          *pixmap,
+    QPixmap          *pixmap,
     PlacementType    _parentRelativeType,
     Meta            *_meta,
-//    StringMeta      &_arrowColour,
+    StringMeta      &_arrowColour,
     BackgroundMeta  &_background,
     BorderMeta      &_border,
     MarginsMeta     &_margin,
@@ -232,26 +236,18 @@ void BackgroundItem::setRotateIconBackground(
     int              _submodelLevel,
     QString          &toolTip)
 {
-//  arrowColour    = _arrowColour;
+  arrowColour    = _arrowColour;
   isRotationIcon = true;
 
-  meta          =  _meta;
-  background    =  _background;
-  border        =  _border;
-  margin        =  _margin;
-  subModelColor =  _subModel;
-  submodelLevel =  _submodelLevel;
-  parentRelativeType = _parentRelativeType;
-  setToolTip(toolTip);
-//  BackgroundItem::setBackground( pixmap,
-//                                _parentRelativeType,
-//                                _meta,
-//                                _background,
-//                                _border,
-//                                _margin,
-//                                _subModel,
-//                                _submodelLevel,
-//                                toolTip);
+  BackgroundItem::setBackground( pixmap,
+                                _parentRelativeType,
+                                _meta,
+                                _background,
+                                _border,
+                                _margin,
+                                _subModel,
+                                _submodelLevel,
+                                toolTip);
 }
 
 void PlacementBackgroundItem::setBackground(

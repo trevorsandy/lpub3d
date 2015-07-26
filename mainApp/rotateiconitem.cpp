@@ -40,9 +40,7 @@ RotateIconItem::RotateIconItem(
   rotateIconMeta     = _page->meta.LPub.rotateIconMeta;
   display            = _page->meta.LPub.rotateIconMeta.display;
 
-  QPixmap *pixmap = new QPixmap(
-        rotateIconMeta.size.valuePixels(0),
-        rotateIconMeta.size.valuePixels(1));
+  QPixmap *pixmap = new QPixmap(50,50);
 
   QString toolTip;
   toolTip = "Rotate Icon - right-click to modify";
@@ -51,151 +49,23 @@ RotateIconItem::RotateIconItem(
 
   int submodelLevel = 0;
 
-  BorderData     borderData     = rotateIconMeta.border.valuePixels();
-  BackgroundData backgroundData = rotateIconMeta.background.value();
-
-  int ibt = int(borderData.thickness);
-  QRectF arect(ibt/2,ibt/2,pixmap->width()-ibt,pixmap->height()-ibt);
-
-  pixmap->setAlphaChannel(*pixmap);
-  pixmap->fill(Qt::transparent);
-
-  qreal arrowTipLength = 9.0;
-  qreal arrowTipHeight = 4.0;
-  QPolygonF arrowHead;
-  arrowHead << QPointF()
-            << QPointF(arrowTipLength + 2.5, -arrowTipHeight)
-            << QPointF(arrowTipLength      , 0.0)
-            << QPointF(arrowTipLength + 2.5,  arrowTipHeight);
-
-  QColor arrowPenColor;
-  arrowPenColor = LDrawColor::color(rotateIconMeta.arrowColour.value());
-  QPen defaultArrowPen;
-  defaultArrowPen.setColor(arrowPenColor);
-  defaultArrowPen.setCapStyle(Qt::SquareCap);
-  defaultArrowPen.setJoinStyle(Qt::MiterJoin);
-  defaultArrowPen.setStyle(Qt::SolidLine);
-  defaultArrowPen.setWidth(0);
-
-  QPen arrowPen = defaultArrowPen;
-
-  QPainter painter(pixmap);
-  painter.setRenderHints(QPainter::Antialiasing,false);
-  painter.setPen(arrowPen);
-  painter.setBrush(Qt::transparent);
-
-  qreal aw = arect.width();
-  qreal ah = arect.height() / 2.0;
-  float inset = 6.0;
-
-  float ix    = inset * 1.8;
-  float iy    = inset * 2.5;
-
-  QPainterPath path;
-
-  QPointF start(     inset, ah - inset);
-  QPointF end  (aw - inset, ah - inset);
-  path.moveTo(start);
-  path.cubicTo(start + QPointF( ix, -iy),   end + QPointF(-ix, -iy),end);
-
-  start += QPointF(0, inset + inset);
-  end   += QPointF(0, inset + inset);
-  path.moveTo(end);
-  path.cubicTo(end   + QPointF(-ix,  iy), start + QPointF( ix,  iy),start);
-
-  painter.drawPath(path);
-
-  painter.setBrush(arrowPen.color());
-
-  painter.save();
-  painter.translate(aw - inset, ah - inset);
-  painter.rotate(-135);
-  painter.drawPolygon(arrowHead);
-  painter.restore();
-
-  painter.save();
-  painter.translate(inset, ah + inset);
-  painter.rotate(45);
-  painter.drawPolygon(arrowHead);
-  painter.restore();
-
-  QColor penColor,brushColor;
-  QPen backgroundPen;
-  backgroundPen.setColor(penColor);
-  backgroundPen.setCapStyle(Qt::RoundCap);
-  backgroundPen.setJoinStyle(Qt::RoundJoin);
-  backgroundPen.setStyle(Qt::SolidLine);
-  backgroundPen.setWidth(ibt);
-
-  painter.setPen(backgroundPen);
-  painter.setBrush(brushColor);
-
-  painter.setRenderHints(QPainter::HighQualityAntialiasing,true);
-  painter.setRenderHints(QPainter::Antialiasing,true);
-
-  switch(backgroundData.type) {
-    case BackgroundData::BgTransparent:
-      brushColor = Qt::transparent;
-      break;
-    case BackgroundData::BgColor:
-    case BackgroundData::BgSubmodelColor:
-      if (backgroundData.type == BackgroundData::BgColor) {
-          brushColor = LDrawColor::color(backgroundData.string);
-        } else {
-          brushColor = LDrawColor::color(rotateIconMeta.subModelColor.value(submodelLevel));
-        }
-      break;
-    }
-
-  if (borderData.type == BorderData::BdrNone) {
-      penColor = Qt::transparent;
-    } else {
-      penColor =  LDrawColor::color(borderData.color);
-    }
-
-  qreal rx = borderData.radius;
-  qreal ry = borderData.radius;
-  qreal dx = pixmap->width();
-  qreal dy = pixmap->height();
-
-  if (dx && dy) {
-      if (dx > dy) {
-          rx *= dy;
-          rx /= dx;
-        } else {
-          ry *= dx;
-          ry /= dy;
-        }
-    }
-
-  if (borderData.type == BorderData::BdrRound) {
-      painter.drawRoundRect(arect,int(rx),int(ry));
-    } else {
-      painter.drawRect(arect);
-    }
-
-//  setBackground(  pixmap,
-//                  parentRelativeType,
-//                  meta,
-//                  rotateIconMeta.background,
-//                  rotateIconMeta.border,
-//                  rotateIconMeta.margin,
-//                  rotateIconMeta.subModelColor,
-//                  submodelLevel,
-//                  toolTip);
-
-  setRotateIconBackground( /*pixmap,*/
-                           parentRelativeType,
-                           meta,
-//                           rotateIconMeta.arrowColour,
-                           rotateIconMeta.background,
-                           rotateIconMeta.border,
-                           rotateIconMeta.margin,
-                           rotateIconMeta.subModelColor,
-                           submodelLevel,
-                           toolTip);
+  setRotateIconBackground(
+             pixmap,
+             parentRelativeType,
+             meta,
+             rotateIconMeta.arrowColour,
+             rotateIconMeta.background,
+             rotateIconMeta.border,
+             rotateIconMeta.margin,
+             rotateIconMeta.subModelColor,
+             submodelLevel,
+             toolTip);
 
   setZValue(500);
+  *pixmap = pixmap->scaled(rotateIconMeta.size.valuePixels(0),
+                           rotateIconMeta.size.valuePixels(1),
+                           Qt::KeepAspectRatio,
+                           Qt::SmoothTransformation);
   setPixmap(*pixmap);
   setParentItem(parent);
   setFlag(QGraphicsItem::ItemIsMovable,true);
