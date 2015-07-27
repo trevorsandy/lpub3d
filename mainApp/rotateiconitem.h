@@ -39,12 +39,13 @@ public:
   InsertMeta                insMeta;
   RotateIconMeta            rotateIconMeta;
   PlacementType             parentRelativeType;
-  bool                      positionChanged;
-  QPointF                   position;
+
+  FloatMeta                 picScale;
+//  bool                      positionChanged;
+//  QPointF                   position;
 
   RotateIconItem(
     Page          *_page,
-    QPixmap        &pixmap,
     InsertMeta     _insMeta,
     QGraphicsItem  *parent);
 
@@ -53,9 +54,7 @@ public:
 
   }
 protected:
-  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-  virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+  virtual void change();
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 };
 

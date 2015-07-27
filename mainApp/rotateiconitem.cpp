@@ -32,7 +32,6 @@
 
 RotateIconItem::RotateIconItem(
   Page          *_page,
-  QPixmap        &pixmap,
   InsertMeta     _insMeta,
   QGraphicsItem  *parent)
 {
@@ -41,29 +40,28 @@ RotateIconItem::RotateIconItem(
   parentRelativeType = page->relativeType;
   rotateIconMeta     = page->meta.LPub.rotateIconMeta;
 
-
-//  pixmap = new QPixmap(50,50);
-
-//  QPixmap *pixmap = new QPixmap(
-//        rotateIconMeta.size.valuePixels(0),
-//        rotateIconMeta.size.valuePixels(1));
+   QPixmap *pixmap = new QPixmap(rotateIconMeta.size.valuePixels(0),
+                                 rotateIconMeta.size.valuePixels(1));
 
   QString toolTip("Rotate Icon - right-click to modify");
 
   margin             = rotateIconMeta.margin;
-  size[0]            = pixmap.width() *rotateIconMeta.size.valuePixels(0);
-  size[1]            = pixmap.height()*rotateIconMeta.size.valuePixels(1);
+  size[0]            = pixmap->width() *rotateIconMeta.size.valuePixels(0);
+  size[1]            = pixmap->height()*rotateIconMeta.size.valuePixels(1);
   placement          = rotateIconMeta.placement;
   relativeType       = RotateIconType;
+  picScale.setRange(-10000.0,10000.0);
+  picScale.setFormats(7,4,"99999.9");
+  picScale.setValue(1.0);
 
   BorderData     borderData     = rotateIconMeta.border.valuePixels();
   BackgroundData backgroundData = rotateIconMeta.background.value();
 
   int ibt = int(borderData.thickness);
-  QRectF arect(ibt/2,ibt/2,pixmap.width()-ibt,pixmap.height()-ibt);
+  QRectF arect(ibt/2,ibt/2,pixmap->width()-ibt,pixmap->height()-ibt);
 
-  pixmap.setAlphaChannel(pixmap);
-  pixmap.fill(Qt::transparent);
+  pixmap->setAlphaChannel(*pixmap);
+  pixmap->fill(Qt::transparent);
 
   qreal arrowTipLength = 9.0;
   qreal arrowTipHeight = 4.0;
@@ -84,7 +82,7 @@ RotateIconItem::RotateIconItem(
 
   QPen arrowPen = defaultArrowPen;
 
-  QPainter painter(&pixmap);
+  QPainter painter(pixmap);
   painter.setRenderHints(QPainter::Antialiasing,false);
   painter.setPen(arrowPen);
   painter.setBrush(Qt::transparent);
@@ -160,8 +158,8 @@ RotateIconItem::RotateIconItem(
 
   qreal rx = borderData.radius;
   qreal ry = borderData.radius;
-  qreal dx = pixmap.width();
-  qreal dy = pixmap.height();
+  qreal dx = pixmap->width();
+  qreal dy = pixmap->height();
 
   if (dx && dy) {
       if (dx > dy) {
@@ -186,11 +184,10 @@ RotateIconItem::RotateIconItem(
 //                             Qt::SmoothTransformation);
 
   setToolTip(toolTip);
-  setPixmap(pixmap);
+  setPixmap(*pixmap);
   setParentItem(parent);
   setFlag(QGraphicsItem::ItemIsMovable,true);
   setFlag(QGraphicsItem::ItemIsSelectable,true);
-  delete &pixmap;
 }
 
 
@@ -203,7 +200,7 @@ void RotateIconItem::contextMenuEvent(
 
   QString pl = "Rotate Icon";
   QAction *placementAction  = commonMenus.placementMenu(menu,pl,
-                                                        commonMenus.naturalLanguagePlacementWhatsThis(SingleStepType,placementData,pl));
+                                                        commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,pl));
   QAction *backgroundAction = commonMenus.backgroundMenu(menu,pl);
   QAction *borderAction     = commonMenus.borderMenu(menu,pl);
   QAction *marginAction     = commonMenus.marginMenu(menu,pl);
@@ -262,47 +259,134 @@ void RotateIconItem::contextMenuEvent(
     }
 }
 
-void RotateIconItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void RotateIconItem::change()
 {
-  QGraphicsItem::mousePressEvent(event);
-  positionChanged = false;
-  position = pos();
-}
-
-void RotateIconItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-  QGraphicsItem::mouseMoveEvent(event);
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
-      positionChanged = true;
+
+    Where topOfSteps              = page->topOfSteps();
+    Where bottomOfSteps           = page->bottomOfSteps();
+
+    if (positionChanged) {
+
+      beginMacro(QString("DragRotateIcon"));
+
+      qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
+      qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
+      calcOffsets(placement.value(),placement.value().offsets,topLeft,size);
+
+      logInfo() << "\nDRAG ROTATE ICON - "
+                << "\nPAGE WHERE - "
+                << " \nPage TopOf (Model Name): "    << topOfSteps.modelName
+                << " \nPage TopOf (Line Number): "   << topOfSteps.lineNumber
+                << " \nPage BottomOf (Model Name): " << bottomOfSteps.modelName
+                << " \nPage BottomOf (Line Number): "<< bottomOfSteps.lineNumber
+                << "\nUSING PLACEMENT DATA - "
+                << " \nPlacement: "                 << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
+                << " \nJustification: "             << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
+                << " \nPreposition: "               << PrepNames[placement.value().preposition]   << " (" << placement.value().justification << ")"
+                << " \nRelativeTo: "                << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
+                << " \nRectPlacement: "             << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
+                << " \nOffset[0]: "                 << placement.value().offsets[0]
+                << " \nOffset[1]: "                 << placement.value().offsets[1]
+                << "\nOTHER DATA - "
+                << " \nRelativeType: "               << RelNames[relativeType]       << " (" << relativeType << ")"
+                << " \nParentRelativeType: "         << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
+                ;
+
+      changePlacementOffset(topOfSteps,
+                           &placement,
+                            relativeType);
+
+      endMacro();
+
+    } else if (sizeChanged) {
+
+        beginMacro(QString("Resize"));
+
+        qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
+        qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
+        calcOffsets(placement.value(),placement.value().offsets,topLeft,size);
+
+        changePlacementOffset(topOfSteps,
+                             &placement,
+                              relativeType);
+
+        picScale.setValue(picScale.value()*oldScale);
+        changeFloat(topOfSteps,bottomOfSteps,&picScale, 1, false);
+
+        logInfo() << "\nRESIZE ROTATE ICON - "
+                  << "\nPICTURE DATA - "
+                  << " \npicScale: "                   << picScale.value()
+                  << " \nMargin X: "                   << margin.value(0)
+                  << " \nMargin Y: "                   << margin.value(1)
+//                  << " \nDisplay: "                    << displayPicture.value()
+                  << "\nPAGE WHERE - "
+                  << " \nPage TopOf (Model Name): "    << topOfSteps.modelName
+                  << " \nPage TopOf (Line Number): "   << topOfSteps.lineNumber
+                  << " \nPage BottomOf (Model Name): " << bottomOfSteps.modelName
+                  << " \nPage BottomOf (Line Number): "<< bottomOfSteps.lineNumber
+                  << "\nUSING PLACEMENT DATA - "
+                  << " \nPlacement: "                  << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
+                  << " \nJustification: "              << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
+                  << " \nPreposition: "                << PrepNames[placement.value().preposition]   << " (" << placement.value().justification << ")"
+                  << " \nRelativeTo: "                 << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
+                  << " \nRectPlacement: "              << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
+                  << " \nOffset[0]: "                  << placement.value().offsets[0]
+                  << " \nOffset[1]: "                  << placement.value().offsets[1]
+                  << "\nMETA WHERE - "
+                  << " \nMeta Here (Model Name): "     << placement.here().modelName
+                  << " \nMeta Here (Line Number): "    << placement.here().lineNumber
+                  << "\nOTHER DATA - "
+                  << " \nRelativeType: "               << RelNames[relativeType]       << " (" << relativeType << ")"
+                  << " \nParentRelativeType: "         << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
+                  ;
+
+        endMacro();
     }
-}
-
-void RotateIconItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
-  QGraphicsItem::mouseReleaseEvent(event);
-
-  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable) && positionChanged) {
-
-    InsertData insertData = insMeta.value();
-
-    qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
-    qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
-
-    PlacementData pld;
-
-    pld.placement    = Center;
-    pld.justification= Center;
-    pld.relativeTo   = PageType;
-    pld.preposition  = Inside;
-
-    calcOffsets(pld,insertData.offsets,topLeft,size);
-
-    beginMacro(QString("MoveRotateIcon"));
-
-    changeInsertOffset(&insMeta);
-
-    endMacro();
   }
 }
+
+//void RotateIconItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+//{
+//  QGraphicsItem::mousePressEvent(event);
+//  positionChanged = false;
+//  position = pos();
+//}
+
+//void RotateIconItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+//{
+//  QGraphicsItem::mouseMoveEvent(event);
+//  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+//      positionChanged = true;
+//    }
+//}
+
+//void RotateIconItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+//{
+//  QGraphicsItem::mouseReleaseEvent(event);
+
+//  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable) && positionChanged) {
+
+//    InsertData insertData = insMeta.value();
+
+//    qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
+//    qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
+
+//    PlacementData pld;
+
+//    pld.placement    = Center;
+//    pld.justification= Center;
+//    pld.relativeTo   = PageType;
+//    pld.preposition  = Inside;
+
+//    calcOffsets(pld,insertData.offsets,topLeft,size);
+
+//    beginMacro(QString("MoveRotateIcon"));
+
+//    changeInsertOffset(&insMeta);
+
+//    endMacro();
+//  }
+//}
 
 

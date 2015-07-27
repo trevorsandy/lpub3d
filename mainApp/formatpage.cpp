@@ -618,10 +618,9 @@ int Gui::addGraphicsPageItems(
         break;
         case InsertData::InsertRotateIcon:
           {
-            QPixmap pixmap;
+            //QPixmap pixmap;
             RotateIconItem *rotateIcon = new RotateIconItem(
                    page,
-                   pixmap,
                    page->inserts[i],
                    pageBg);
 
