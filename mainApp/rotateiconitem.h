@@ -34,6 +34,7 @@ class Page;
 class RotateIconItem : public ResizePixmapItem
 {
   Page                     *page;
+  QPixmap                  *pixmap;
 public:
 
   InsertMeta                insMeta;
@@ -46,11 +47,12 @@ public:
     Page          *_page,
     InsertMeta     _insMeta,
     QGraphicsItem  *parent = 0);
-
   ~RotateIconItem()
   {
-
   }
+
+  void setRotateIconImage(QPixmap *pixmap);
+
 protected:
   virtual void change();
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);

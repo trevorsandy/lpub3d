@@ -48,7 +48,7 @@ RotateIconItem::RotateIconItem(
   picScale.setValue(1.0);
 
   // initialize pixmap using icon demensions
-  QPixmap *pixmap    = new QPixmap(rotateIconMeta.size.valuePixels(0),
+  pixmap             = new QPixmap(rotateIconMeta.size.valuePixels(0),
                                    rotateIconMeta.size.valuePixels(1));
 
   // set image size (pixmap size)
@@ -58,6 +58,21 @@ RotateIconItem::RotateIconItem(
   QString toolTip("Rotate Icon - right-click to modify");
   setToolTip(toolTip);
 
+  setRotateIconPixmap(*pixmap, rotateIconMeta);
+  //setRotateIconImage(pixmap);
+
+  setZValue(10000);
+  setParentItem(parent);
+  setPixmap(*pixmap);
+  setFlag(QGraphicsItem::ItemIsMovable,true);
+  setFlag(QGraphicsItem::ItemIsSelectable,true);
+
+  delete pixmap;
+}
+
+void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
+{
+
   // set border and background parameters
   BorderData     borderData     = rotateIconMeta.border.valuePixels();
   BackgroundData backgroundData = rotateIconMeta.background.value();
@@ -66,16 +81,23 @@ RotateIconItem::RotateIconItem(
   int ibt = int(borderData.thickness);
   QRectF irect(ibt/2,ibt/2,pixmap->width()-ibt,pixmap->height()-ibt);
 
+  // set pixmap to transparent
+//  pixmap->setAlphaChannel(*pixmap);
+//  pixmap->fill(Qt::transparent);
+  QPixmap transform(pixmap->size());
+  transform.fill(Qt::transparent);
+
+  QPainter painter(&transform);
+  painter.setOpacity(0.2);
+  painter.drawPixmap(0, 0, *pixmap);
+  painter.end();
+
   qreal aw = irect.width();
   qreal ah = irect.height() / 2.0;
   float inset = 6.0;
 
   float ix    = inset * 1.8;
   float iy    = inset * 2.5;
-
-  // set pixmap to transparent
-  pixmap->setAlphaChannel(*pixmap);
-  pixmap->fill(Qt::transparent);
 
   // set arrow parts (head, tips etc...)
   qreal arrowTipLength = 9.0;
@@ -98,7 +120,10 @@ RotateIconItem::RotateIconItem(
   QPen arrowPen = defaultArrowPen;
 
   // set painter (initialized with pixmap) and set render hints, pen and brush
-  QPainter painter(pixmap);
+//  QPainter painter;
+//  painter.begin(pixmap);
+
+  painter.begin(pixmap);
   painter.setRenderHints(QPainter::Antialiasing,false);
   painter.setPen(arrowPen);
   painter.setBrush(Qt::transparent);
@@ -194,14 +219,7 @@ RotateIconItem::RotateIconItem(
     }
 
   painter.end();
-
-  setZValue(500);
-//  setParentItem(parent);
-  setPixmap(*pixmap);
-  setFlag(QGraphicsItem::ItemIsMovable,true);
-  setFlag(QGraphicsItem::ItemIsSelectable,true);
 }
-
 
 void RotateIconItem::contextMenuEvent(
     QGraphicsSceneContextMenuEvent *event)
