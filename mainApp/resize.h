@@ -164,8 +164,6 @@ class ResizePixmapItem: public QGraphicsPixmapItem,
     QPointF  position;
     bool     positionChanged;
 
-    RotateIconMeta      rotateIconMeta;
-
     ResizePixmapItem();
 
     virtual void change() {}
@@ -177,9 +175,6 @@ class ResizePixmapItem: public QGraphicsPixmapItem,
     {
       return parentItem();
     }
-    void setRotateIconPixmap(
-        QPixmap        &pixmap,
-        RotateIconMeta &rotateIconMeta);
   protected:
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);

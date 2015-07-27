@@ -58,10 +58,9 @@ RotateIconItem::RotateIconItem(
   QString toolTip("Rotate Icon - right-click to modify");
   setToolTip(toolTip);
 
-  setRotateIconPixmap(*pixmap, rotateIconMeta);
-  //setRotateIconImage(pixmap);
+  setRotateIconImage(pixmap);
 
-  setZValue(10000);
+//  setZValue(10000);
   setParentItem(parent);
   setPixmap(*pixmap);
   setFlag(QGraphicsItem::ItemIsMovable,true);
@@ -82,15 +81,15 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
   QRectF irect(ibt/2,ibt/2,pixmap->width()-ibt,pixmap->height()-ibt);
 
   // set pixmap to transparent
-//  pixmap->setAlphaChannel(*pixmap);
-//  pixmap->fill(Qt::transparent);
-  QPixmap transform(pixmap->size());
-  transform.fill(Qt::transparent);
+  pixmap->setAlphaChannel(*pixmap);
+  pixmap->fill(Qt::transparent);
+//  QPixmap transform(pixmap->size());
+//  transform.fill(Qt::transparent);
 
-  QPainter painter(&transform);
-  painter.setOpacity(0.2);
-  painter.drawPixmap(0, 0, *pixmap);
-  painter.end();
+//  QPainter painter(&transform);
+//  painter.setOpacity(0.2);
+//  painter.drawPixmap(0, 0, *pixmap);
+//  painter.end();
 
   qreal aw = irect.width();
   qreal ah = irect.height() / 2.0;
@@ -98,6 +97,74 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
 
   float ix    = inset * 1.8;
   float iy    = inset * 2.5;
+
+  // set painter and render hints (initialized with pixmap)
+  QPainter painter;
+  painter.begin(pixmap);
+  painter.setRenderHints(QPainter::HighQualityAntialiasing,true);
+  painter.setRenderHints(QPainter::Antialiasing,true);
+
+        /* BACKGROUND */
+
+  // set icon background colour
+  QColor brushColor;
+  switch(backgroundData.type) {
+    case BackgroundData::BgTransparent:
+      brushColor = Qt::transparent;
+      break;
+    case BackgroundData::BgColor:
+    case BackgroundData::BgSubmodelColor:
+      if (backgroundData.type == BackgroundData::BgColor) {
+          brushColor = LDrawColor::color(backgroundData.string);
+        } else {
+          brushColor = LDrawColor::color(rotateIconMeta.subModelColor.value(0));
+        }
+      break;
+    }
+    painter.setBrush(brushColor);
+
+      /* BORDER */
+
+  // set icon border pen colour
+  QPen borderPen;
+  QColor borderPenColor;
+  if (borderData.type == BorderData::BdrNone) {
+      borderPenColor = Qt::transparent;
+    } else {
+      borderPenColor =  LDrawColor::color(borderData.color);
+    }
+  borderPen.setColor(borderPenColor);
+  borderPen.setCapStyle(Qt::RoundCap);
+  borderPen.setJoinStyle(Qt::RoundJoin);
+  borderPen.setStyle(Qt::SolidLine);
+  borderPen.setWidth(ibt);
+
+  painter.setPen(borderPen);
+
+  // set icon border demensions
+  qreal rx = borderData.radius;
+  qreal ry = borderData.radius;
+  qreal dx = pixmap->width();
+  qreal dy = pixmap->height();
+
+  if (dx && dy) {
+      if (dx > dy) {
+          rx *= dy;
+          rx /= dx;
+        } else {
+          ry *= dx;
+          ry /= dy;
+        }
+    }
+
+  // draw icon rectangle
+  if (borderData.type == BorderData::BdrRound) {
+      painter.drawRoundRect(irect,int(rx),int(ry));
+    } else {
+      painter.drawRect(irect);
+    }
+
+  /* ARROWS */
 
   // set arrow parts (head, tips etc...)
   qreal arrowTipLength = 9.0;
@@ -119,11 +186,7 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
   defaultArrowPen.setWidth(0);
   QPen arrowPen = defaultArrowPen;
 
-  // set painter (initialized with pixmap) and set render hints, pen and brush
-//  QPainter painter;
-//  painter.begin(pixmap);
-
-  painter.begin(pixmap);
+  // set painter for arrows
   painter.setRenderHints(QPainter::Antialiasing,false);
   painter.setPen(arrowPen);
   painter.setBrush(Qt::transparent);
@@ -157,66 +220,6 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
   painter.rotate(45);
   painter.drawPolygon(arrowHead);
   painter.restore();
-
-  // set icon brush, pen and render hints
-  QColor penColor,brushColor;
-  QPen backgroundPen;
-  backgroundPen.setColor(penColor);
-  backgroundPen.setCapStyle(Qt::RoundCap);
-  backgroundPen.setJoinStyle(Qt::RoundJoin);
-  backgroundPen.setStyle(Qt::SolidLine);
-  backgroundPen.setWidth(ibt);
-
-  painter.setPen(backgroundPen);
-  painter.setBrush(brushColor);
-
-  painter.setRenderHints(QPainter::HighQualityAntialiasing,true);
-  painter.setRenderHints(QPainter::Antialiasing,true);
-
-  // set icon background colour
-  switch(backgroundData.type) {
-    case BackgroundData::BgTransparent:
-      brushColor = Qt::transparent;
-      break;
-    case BackgroundData::BgColor:
-    case BackgroundData::BgSubmodelColor:
-      if (backgroundData.type == BackgroundData::BgColor) {
-          brushColor = LDrawColor::color(backgroundData.string);
-        } else {
-          brushColor = LDrawColor::color(rotateIconMeta.subModelColor.value(0));
-        }
-      break;
-    }
-
-  // set icon border attribute
-  if (borderData.type == BorderData::BdrNone) {
-      penColor = Qt::transparent;
-    } else {
-      penColor =  LDrawColor::color(borderData.color);
-    }
-
-  // set icon border demensions
-  qreal rx = borderData.radius;
-  qreal ry = borderData.radius;
-  qreal dx = pixmap->width();
-  qreal dy = pixmap->height();
-
-  if (dx && dy) {
-      if (dx > dy) {
-          rx *= dy;
-          rx /= dx;
-        } else {
-          ry *= dx;
-          ry /= dy;
-        }
-    }
-
-  // draw icon rectangle
-  if (borderData.type == BorderData::BdrRound) {
-      painter.drawRoundRect(irect,int(rx),int(ry));
-    } else {
-      painter.drawRect(irect);
-    }
 
   painter.end();
 }
