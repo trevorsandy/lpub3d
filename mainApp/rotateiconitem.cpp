@@ -19,58 +19,180 @@
  *
  ***************************************************************************/
 
-#include <QGraphicsSceneContextMenuEvent>
-#include <QPainter>
-#include <QPixmap>
-#include <QColor>
 #include <QMenu>
 #include <QAction>
+#include <QGraphicsRectItem>
+#include <QGraphicsSceneContextMenuEvent>
 #include "rotateiconitem.h"
-#include "color.h"
 #include "commonmenus.h"
+#include "step.h"
+#include "ranges.h"
+#include "color.h"
+
 
 RotateIconItem::RotateIconItem(
   Page          *_page,
+  QPixmap        &pixmap,
   InsertMeta     _insMeta,
   QGraphicsItem  *parent)
 {
   page               = _page;
   insMeta            = _insMeta;
-  parentRelativeType = _page->relativeType;
-  rotateIconMeta     = _page->meta.LPub.rotateIconMeta;
-  display            = _page->meta.LPub.rotateIconMeta.display;
+  parentRelativeType = page->relativeType;
+  rotateIconMeta     = page->meta.LPub.rotateIconMeta;
 
-  QPixmap *pixmap = new QPixmap(50,50);
 
-  QString toolTip;
-  toolTip = "Rotate Icon - right-click to modify";
+//  pixmap = new QPixmap(50,50);
 
-  placement = rotateIconMeta.placement;
+//  QPixmap *pixmap = new QPixmap(
+//        rotateIconMeta.size.valuePixels(0),
+//        rotateIconMeta.size.valuePixels(1));
 
-  int submodelLevel = 0;
+  QString toolTip("Rotate Icon - right-click to modify");
 
-  setRotateIconBackground(
-             pixmap,
-             parentRelativeType,
-             meta,
-             rotateIconMeta.arrowColour,
-             rotateIconMeta.background,
-             rotateIconMeta.border,
-             rotateIconMeta.margin,
-             rotateIconMeta.subModelColor,
-             submodelLevel,
-             toolTip);
+  margin             = rotateIconMeta.margin;
+  size[0]            = pixmap.width() *rotateIconMeta.size.valuePixels(0);
+  size[1]            = pixmap.height()*rotateIconMeta.size.valuePixels(1);
+  placement          = rotateIconMeta.placement;
+  relativeType       = RotateIconType;
+
+  BorderData     borderData     = rotateIconMeta.border.valuePixels();
+  BackgroundData backgroundData = rotateIconMeta.background.value();
+
+  int ibt = int(borderData.thickness);
+  QRectF arect(ibt/2,ibt/2,pixmap.width()-ibt,pixmap.height()-ibt);
+
+  pixmap.setAlphaChannel(pixmap);
+  pixmap.fill(Qt::transparent);
+
+  qreal arrowTipLength = 9.0;
+  qreal arrowTipHeight = 4.0;
+  QPolygonF arrowHead;
+  arrowHead << QPointF()
+            << QPointF(arrowTipLength + 2.5, -arrowTipHeight)
+            << QPointF(arrowTipLength      , 0.0)
+            << QPointF(arrowTipLength + 2.5,  arrowTipHeight);
+
+  QColor arrowPenColor;
+  arrowPenColor = LDrawColor::color(rotateIconMeta.arrowColour.value());
+  QPen defaultArrowPen;
+  defaultArrowPen.setColor(arrowPenColor);
+  defaultArrowPen.setCapStyle(Qt::SquareCap);
+  defaultArrowPen.setJoinStyle(Qt::MiterJoin);
+  defaultArrowPen.setStyle(Qt::SolidLine);
+  defaultArrowPen.setWidth(0);
+
+  QPen arrowPen = defaultArrowPen;
+
+  QPainter painter(&pixmap);
+  painter.setRenderHints(QPainter::Antialiasing,false);
+  painter.setPen(arrowPen);
+  painter.setBrush(Qt::transparent);
+
+  qreal aw = arect.width();
+  qreal ah = arect.height() / 2.0;
+  float inset = 6.0;
+
+  float ix    = inset * 1.8;
+  float iy    = inset * 2.5;
+
+  QPainterPath path;
+
+  QPointF start(     inset, ah - inset);
+  QPointF end  (aw - inset, ah - inset);
+  path.moveTo(start);
+  path.cubicTo(start + QPointF( ix, -iy),   end + QPointF(-ix, -iy),end);
+
+  start += QPointF(0, inset + inset);
+  end   += QPointF(0, inset + inset);
+  path.moveTo(end);
+  path.cubicTo(end   + QPointF(-ix,  iy), start + QPointF( ix,  iy),start);
+
+  painter.drawPath(path);
+
+  painter.setBrush(arrowPen.color());
+
+  painter.save();
+  painter.translate(aw - inset, ah - inset);
+  painter.rotate(-135);
+  painter.drawPolygon(arrowHead);
+  painter.restore();
+
+  painter.save();
+  painter.translate(inset, ah + inset);
+  painter.rotate(45);
+  painter.drawPolygon(arrowHead);
+  painter.restore();
+
+  QColor penColor,brushColor;
+  QPen backgroundPen;
+  backgroundPen.setColor(penColor);
+  backgroundPen.setCapStyle(Qt::RoundCap);
+  backgroundPen.setJoinStyle(Qt::RoundJoin);
+  backgroundPen.setStyle(Qt::SolidLine);
+  backgroundPen.setWidth(ibt);
+
+  painter.setPen(backgroundPen);
+  painter.setBrush(brushColor);
+
+  painter.setRenderHints(QPainter::HighQualityAntialiasing,true);
+  painter.setRenderHints(QPainter::Antialiasing,true);
+
+  switch(backgroundData.type) {
+    case BackgroundData::BgTransparent:
+      brushColor = Qt::transparent;
+      break;
+    case BackgroundData::BgColor:
+    case BackgroundData::BgSubmodelColor:
+      if (backgroundData.type == BackgroundData::BgColor) {
+          brushColor = LDrawColor::color(backgroundData.string);
+        } else {
+          brushColor = LDrawColor::color(rotateIconMeta.subModelColor.value(0));
+        }
+      break;
+    }
+
+  if (borderData.type == BorderData::BdrNone) {
+      penColor = Qt::transparent;
+    } else {
+      penColor =  LDrawColor::color(borderData.color);
+    }
+
+  qreal rx = borderData.radius;
+  qreal ry = borderData.radius;
+  qreal dx = pixmap.width();
+  qreal dy = pixmap.height();
+
+  if (dx && dy) {
+      if (dx > dy) {
+          rx *= dy;
+          rx /= dx;
+        } else {
+          ry *= dx;
+          ry /= dy;
+        }
+    }
+
+  if (borderData.type == BorderData::BdrRound) {
+      painter.drawRoundRect(arect,int(rx),int(ry));
+    } else {
+      painter.drawRect(arect);
+    }
 
   setZValue(500);
-  *pixmap = pixmap->scaled(rotateIconMeta.size.valuePixels(0),
-                           rotateIconMeta.size.valuePixels(1),
-                           Qt::KeepAspectRatio,
-                           Qt::SmoothTransformation);
-  setPixmap(*pixmap);
+//    *pixmap = pixmap->scaled(rotateIconMeta.size.valuePixels(0),
+//                             rotateIconMeta.size.valuePixels(1),
+//                             Qt::KeepAspectRatio,
+//                             Qt::SmoothTransformation);
+
+  setToolTip(toolTip);
+  setPixmap(pixmap);
   setParentItem(parent);
   setFlag(QGraphicsItem::ItemIsMovable,true);
   setFlag(QGraphicsItem::ItemIsSelectable,true);
+  delete &pixmap;
 }
+
 
 void RotateIconItem::contextMenuEvent(
     QGraphicsSceneContextMenuEvent *event)
@@ -129,7 +251,7 @@ void RotateIconItem::contextMenuEvent(
     } else if (selectedAction == displayAction){
       changeBool(topOfSteps,
                  bottomOfSteps,
-                 &display);
+                 &rotateIconMeta.display);
     } else if (selectedAction == editArrowAction) {
 
       //TODO
@@ -142,15 +264,17 @@ void RotateIconItem::contextMenuEvent(
 
 void RotateIconItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-  position        = pos();
-  positionChanged = false;
   QGraphicsItem::mousePressEvent(event);
+  positionChanged = false;
+  position = pos();
 }
 
 void RotateIconItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-  positionChanged = true;
   QGraphicsItem::mouseMoveEvent(event);
+  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+      positionChanged = true;
+    }
 }
 
 void RotateIconItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)

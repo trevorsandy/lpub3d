@@ -1392,6 +1392,12 @@ public:
   BoolMeta	 stretch;
   BoolMeta       tile;
   BoolMeta       display;
+
+  UnitsMeta      size;
+  BorderMeta     border;
+  StringMeta     arrowColour;
+  BackgroundMeta background;
+
   void setValue(QString _value)
   {
       file.setValue(_value);

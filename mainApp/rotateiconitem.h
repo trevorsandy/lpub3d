@@ -22,50 +22,36 @@
 #ifndef ROTATEICONITEM_H
 #define ROTATEICONITEM_H
 
-#include <QGraphicsScene>
-#include <QGraphicsItem>
 #include <QGraphicsPixmapItem>
-#include <QGraphicsSceneMouseEvent>
-#include "backgrounditem.h"
-#include "placement.h"
-#include "metaitem.h"
-#include "ranges.h"
+#include <QSize>
+#include <QRect>
 #include "meta.h"
-#include "color.h"
+#include "metaitem.h"
+#include "resize.h"
 
 #include "QsLog.h"
-
-class RotateIconItem;
-class RotateIconItem : public BackgroundItem, public Placement
+class Page;
+class RotateIconItem : public ResizePixmapItem
 {
-public:
   Page                     *page;
+public:
+
   InsertMeta                insMeta;
   RotateIconMeta            rotateIconMeta;
   PlacementType             parentRelativeType;
-  BoolMeta                  display;
   bool                      positionChanged;
   QPointF                   position;
 
   RotateIconItem(
-    Page          *page,
-    InsertMeta     insMeta,
-    QGraphicsItem *parent);
+    Page          *_page,
+    QPixmap        &pixmap,
+    InsertMeta     _insMeta,
+    QGraphicsItem  *parent);
 
-  void setPos(float x, float y)
+  ~RotateIconItem()
   {
-    QGraphicsPixmapItem::setPos(x,y);
-  }
-  void setFlag(GraphicsItemFlag flag, bool value)
-  {
-    QGraphicsItem::setFlag(flag,value);
-  }
 
-  virtual QGraphicsItem *myParentItem()
-  {
-    return parentItem();
   }
-
 protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);

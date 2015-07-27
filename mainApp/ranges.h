@@ -30,11 +30,11 @@
 #ifndef rangesH
 #define rangesH
 
-#include <QGraphicsDropShadowEffect>
 #include "pli.h"
 #include "meta.h"
 #include "placement.h"
 #include "resize.h"
+#include "rotateiconitem.h"
 #include "pageattributepixmapitem.h"
 
 
@@ -94,6 +94,7 @@ class Page : public Steps {
     QList<InsertMeta> inserts;
     QList<InsertPixmapItem *> insertPixmaps;
     QList<PageAttributePixmapItem *> pageAttributePixmaps;
+    QList<RotateIconItem *> insertRotateIcons;
     bool coverPage;
     bool frontCover;
     bool backCover;
@@ -114,13 +115,28 @@ class Page : public Steps {
       pageAttributePixmaps.append(pixMap);
     }
 
+    void addInsertRotateIcon(RotateIconItem *pixMap)
+    {
+      insertRotateIcons.append(pixMap);
+    }
+
     void freePage()
     {
       for (int i = 0; i < insertPixmaps.size(); i++) {
         InsertPixmapItem *pixmap = insertPixmaps[i];
         delete pixmap;
       }
+      for (int i = 0; i < pageAttributePixmaps.size(); i++) {
+        PageAttributePixmapItem *pixmap = pageAttributePixmaps[i];
+        delete pixmap;
+      }
+      for (int i = 0; i < insertRotateIcons.size(); i++) {
+        RotateIconItem *pixmap = insertRotateIcons[i];
+        delete pixmap;
+      }
       insertPixmaps.clear();
+      pageAttributePixmaps.clear();
+      insertRotateIcons.clear();
       inserts.clear();
       freeSteps();
     }

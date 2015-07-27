@@ -1723,14 +1723,29 @@ PageAttributePictureMeta::PageAttributePictureMeta() : BranchMeta()
   picScale.setRange(-10000.0,10000.0);
   picScale.setFormats(7,4,"99999.9");
   picScale.setValue(1.0);
-  tile.setValue(false);
-  stretch.setValue(false);
+  margin.setValuesInches(0.0f,0.0f);
   placement.value().placement     = TopLeft;
   placement.value().justification = Center;
   placement.value().preposition   = Inside;
   placement.value().relativeTo    = PageType;
   placement.value().offsets[0]    = 0.0;
   placement.value().offsets[1]    = 0.0;
+  tile.setValue(false);
+  stretch.setValue(false);
+
+  size.setValuesInches(0.75f,0.75f);
+  size.setRange(1,1000);
+  size.setFormats(6,4,"9.9999");
+  BorderData borderData;
+  borderData.type = BorderData::BdrRound;
+  borderData.color = "Black";
+  borderData.thickness = DEFAULT_THICKNESS;
+  borderData.radius = 10;
+  borderData.margin[0] = DEFAULT_MARGIN;
+  borderData.margin[1] = DEFAULT_MARGIN;
+  border.setValueInches(borderData);
+  arrowColour.setValue("Dark_Blue");
+  background.setValue(BackgroundData::BgTransparent);
 }
 
 void PageAttributePictureMeta::init(
@@ -1739,12 +1754,17 @@ void PageAttributePictureMeta::init(
 {
   AbstractMeta::init(parent, name);
   placement.init        (this, "PLACEMENT");
-  margin.init   		(this, "MARGINS");
+  margin.init   	(this, "MARGINS");
   picScale.init         (this, "SCALE");
   file.init             (this, "FILE");
   display.init          (this, "DISPLAY");
   stretch.init          (this, "STRETCH");
   tile.init             (this, "TILE");
+
+  size.init             (this,"SIZE");
+  border.init           (this,"BORDER");
+  arrowColour.init      (this,"ARROW_COLOUR");
+  background.init       (this,"BACKGROUND");
 }
 
 /* ------------------ */

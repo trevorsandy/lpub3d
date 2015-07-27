@@ -618,10 +618,16 @@ int Gui::addGraphicsPageItems(
         break;
         case InsertData::InsertRotateIcon:
           {
+            QPixmap pixmap;
             RotateIconItem *rotateIcon = new RotateIconItem(
                    page,
+                   pixmap,
                    page->inserts[i],
                    pageBg);
+
+            page->addInsertRotateIcon(rotateIcon);
+            rotateIcon->setTransformationMode(Qt::SmoothTransformation);
+            rotateIcon->scale(insert.picScale,insert.picScale);
 
             PlacementData pld;
 
@@ -637,8 +643,9 @@ int Gui::addGraphicsPageItems(
             int margin[2]    = {0,0};
 
             plPage.placeRelative(rotateIcon,margin);
+            rotateIcon->setPos(rotateIcon->loc[XX],rotateIcon->loc[YY]);
             rotateIcon->relativeToSize[0] = plPage.size[XX];
-            rotateIcon->relativeToSize[1] = plPage.size[YY];
+            rotateIcon->relativeToSize[1] = plPage.size[YY];           
           }
         break;
         case InsertData::InsertArrow:

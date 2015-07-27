@@ -274,7 +274,6 @@ void PlacementBackgroundItem::setBackground(
                                 _subModel,
                                 _submodelLevel,
                                 toolTip);
-
 }
 
 void PlacementBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
