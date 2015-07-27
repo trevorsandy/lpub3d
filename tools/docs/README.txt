@@ -29,7 +29,48 @@ Features and enhancements
 -CHANGE: LPub3D distribution no longer packed due to reported Win32 incompatability issues. 
  unpacked executable and dependencies are now deposited in installation folder 
  for both x32 and x64 distributions. 
- 
+ Windows Content Structure:
+	<Install Path>LPub3D/											<installed>
+					3rdParty/										<installed>
+						l3p1.4WinB/									<installed>
+							L3P.EXE									<installed>
+						ldglite1.2.6Win/							<installed>
+							plugins/								<installed>
+								pluginldlist.dll					<installed>
+							ldglite.exe								<installed>
+							LICENCE									<installed>
+							README.TXT								<installed>
+					docs/											<installed>
+						COPYING.txt									<installed>
+						CREDITS.txt									<installed>
+					libeay32.dll									<installed>
+					libgcc_s_sjlj-1.dll								<installed>
+					libstdc++-6.dll									<installed>
+					libwinpthread-1.dll								<installed>
+					LPub3D_x<64/32>.exe								<installed>
+					QtCore4.dll										<installed>
+					QtGui4.dll										<installed>
+					QtNetwork4.dll									<installed>
+					QtOpenGL4.dll									<installed>
+					quazip.dll										<installed>
+					README.txt										<installed>
+					ssleay32.dll									<installed>
+					Uninstall.exe									<installed>
+	<Drive>\Users\<User>\AppData\Local\LPub3D Software\LPub3D\		<installed/automatically generated>
+					cache/											<automatically generated>
+						*											<automatically generated>
+					dump/											<automatically generated>
+						minidump.dmp								<automatically generated>
+					extras/											<installed>
+						fadeStepColorParts.lst						<installed>
+						freeformAnnotations.lst						<installed>
+						PDFPrint.jpg								<installed>
+						pli.mpd										<installed>
+						printbanner.ldr								<installed>
+						titleAnnotations.lst						<installed>
+					logs/											<automatically generaged>
+						LPub3DLog.txt								<automatically generaged>
+  
 LPub3D 1.1.0.370.2 
  
 Features and enhancements 

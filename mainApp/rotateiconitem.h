@@ -41,13 +41,11 @@ public:
   PlacementType             parentRelativeType;
 
   FloatMeta                 picScale;
-//  bool                      positionChanged;
-//  QPointF                   position;
 
   RotateIconItem(
     Page          *_page,
     InsertMeta     _insMeta,
-    QGraphicsItem  *parent);
+    QGraphicsItem  *parent = 0);
 
   ~RotateIconItem()
   {
