@@ -223,8 +223,7 @@ Range *newRange(
   return range;
 }
 
-int Gui::drawPage(
-    LGraphicsView  *view,
+int Gui::drawPage(LGraphicsView  *view,
     QGraphicsScene *scene,
     Steps          *steps,
     int             stepNum,
@@ -237,7 +236,8 @@ int Gui::drawPage(
     bool            printing,
     bool            bfxStore2,
     QStringList    &bfxParts,
-    bool            calledOut)
+    bool            calledOut,
+    bool            rotateIcon)
 {
   QStringList saveCsiParts;
   bool        global = true;
@@ -329,7 +329,8 @@ int Gui::drawPage(
                               stepNum,
                               curMeta,
                               calledOut,
-                              multiStep);
+                              multiStep,
+                              rotateIcon);
 
               range->append(step);
             }
@@ -495,7 +496,9 @@ int Gui::drawPage(
                               stepNum,
                               steps->meta,
                               calledOut,
-                              multiStep);
+                              multiStep,
+                              rotateIcon);
+
               range->append(step);
             }
 
@@ -576,7 +579,9 @@ int Gui::drawPage(
                                   stepNum,
                                   curMeta,
                                   calledOut,
-                                  multiStep);
+                                  multiStep,
+                                  rotateIcon);
+
                   range->append(step);
                 }
               pliIgnore = true;
@@ -607,7 +612,9 @@ int Gui::drawPage(
                                   stepNum,
                                   curMeta,
                                   calledOut,
-                                  multiStep);
+                                  multiStep,
+                                  rotateIcon);
+
                   range->append(step);
                 }
               pliIgnore = true;
@@ -686,7 +693,9 @@ int Gui::drawPage(
                                     stepNum,
                                     curMeta,
                                     calledOut,
-                                    multiStep);
+                                    multiStep,
+                                    rotateIcon);
+
                     range->append(step);
                   }
               }
@@ -878,7 +887,9 @@ int Gui::drawPage(
                                       stepNum,
                                       curMeta,
                                       calledOut,
-                                      multiStep);
+                                      multiStep,
+                                      rotateIcon);
+
                       range->append(step);
                     }
 
@@ -1048,6 +1059,7 @@ int Gui::findPage(
   bool callout    = false;
   bool noStep     = false;
   bool noStep2    = false;
+  bool rotateIcon = false;
 
   QStringList bfxParts;
   QStringList saveBfxParts;
@@ -1316,6 +1328,14 @@ int Gui::findPage(
               meta.LPub.callout.placement.clear();
               break;
 
+            case InsertRc:
+              {
+                QRegExp rgxRotIcon("^\\s*0\\s+!LPUB\\s+.*ROTATE_ICON");
+                if (line.contains(rgxRotIcon)){
+                    rotateIcon = true;
+                  }
+              }
+              break;
             case InsertCoverPageRc:
               coverPage  = true;
               partsAdded = true;

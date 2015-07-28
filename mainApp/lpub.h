@@ -721,7 +721,8 @@ private:
     bool           printing,
     bool           bfxStore2,
     QStringList   &bfxParts,
-    bool           calledOut = false);
+    bool           calledOut = false,
+    bool           rotateIcon = false);
 
   void attitudeAdjustment(); // reformat the LDraw file to fix LPub backward compatibility issues 
     

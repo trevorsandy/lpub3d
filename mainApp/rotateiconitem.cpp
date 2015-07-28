@@ -38,14 +38,13 @@ RotateIconItem::RotateIconItem(
   page               = _page;
   insMeta            = _insMeta;
   parentRelativeType = page->relativeType;
-  rotateIconMeta     = page->meta.LPub.rotateIconMeta;
+  rotateIconMeta     = page->meta.LPub.rotateIcon;
 
   margin             = rotateIconMeta.margin;
   placement          = rotateIconMeta.placement;
+  picScale           = rotateIconMeta.picScale;
   relativeType       = RotateIconType;
-  picScale.setRange(-10000.0,10000.0);
-  picScale.setFormats(7,4,"99999.9");
-  picScale.setValue(1.0);
+
 
   // initialize pixmap using icon demensions
   pixmap             = new QPixmap(rotateIconMeta.size.valuePixels(0),
@@ -60,7 +59,7 @@ RotateIconItem::RotateIconItem(
 
   setRotateIconImage(pixmap);
 
-//  setZValue(10000);
+  setZValue(10000);
   setParentItem(parent);
   setPixmap(*pixmap);
   setFlag(QGraphicsItem::ItemIsMovable,true);
@@ -71,32 +70,16 @@ RotateIconItem::RotateIconItem(
 
 void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
 {
+  // set pixmap to transparent
+  pixmap->fill(Qt::transparent);
 
   // set border and background parameters
   BorderData     borderData     = rotateIconMeta.border.valuePixels();
   BackgroundData backgroundData = rotateIconMeta.background.value();
 
-  // set icon size and demensions parameters
+  // set rectangle size and demensions parameters
   int ibt = int(borderData.thickness);
   QRectF irect(ibt/2,ibt/2,pixmap->width()-ibt,pixmap->height()-ibt);
-
-  // set pixmap to transparent
-  pixmap->setAlphaChannel(*pixmap);
-  pixmap->fill(Qt::transparent);
-//  QPixmap transform(pixmap->size());
-//  transform.fill(Qt::transparent);
-
-//  QPainter painter(&transform);
-//  painter.setOpacity(0.2);
-//  painter.drawPixmap(0, 0, *pixmap);
-//  painter.end();
-
-  qreal aw = irect.width();
-  qreal ah = irect.height() / 2.0;
-  float inset = 6.0;
-
-  float ix    = inset * 1.8;
-  float iy    = inset * 2.5;
 
   // set painter and render hints (initialized with pixmap)
   QPainter painter;
@@ -117,7 +100,8 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
       if (backgroundData.type == BackgroundData::BgColor) {
           brushColor = LDrawColor::color(backgroundData.string);
         } else {
-          brushColor = LDrawColor::color(rotateIconMeta.subModelColor.value(0));
+          brushColor = LDrawColor::color(rotateIconMeta.subModelColor.
+                                         value(page->meta.submodelStack.size()));
         }
       break;
     }
@@ -179,17 +163,25 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
   QColor arrowPenColor;
   arrowPenColor = LDrawColor::color(rotateIconMeta.arrowColour.value());
   QPen defaultArrowPen;
+  int defaultLineWidth = 2;
   defaultArrowPen.setColor(arrowPenColor);
   defaultArrowPen.setCapStyle(Qt::SquareCap);
   defaultArrowPen.setJoinStyle(Qt::MiterJoin);
   defaultArrowPen.setStyle(Qt::SolidLine);
-  defaultArrowPen.setWidth(0);
+  defaultArrowPen.setWidth(defaultLineWidth);
   QPen arrowPen = defaultArrowPen;
 
   // set painter for arrows
-  painter.setRenderHints(QPainter::Antialiasing,false);
   painter.setPen(arrowPen);
   painter.setBrush(Qt::transparent);
+
+  // set arrow height and width parameters
+  qreal aw = irect.width();
+  qreal ah = irect.height() / 2.0;
+  float inset = 6.0;
+
+  float ix    = inset * 1.8;
+  float iy    = inset * 2.5;
 
   // draw upper and lower arrow arcs
   QPainterPath path;
@@ -211,13 +203,13 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
 
   painter.save();
   painter.translate(aw - inset, ah - inset);
-  painter.rotate(-135);
+  painter.rotate(-140);
   painter.drawPolygon(arrowHead);
   painter.restore();
 
   painter.save();
   painter.translate(inset, ah + inset);
-  painter.rotate(45);
+  painter.rotate(40);
   painter.drawPolygon(arrowHead);
   painter.restore();
 

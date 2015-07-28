@@ -104,7 +104,7 @@ enum PrepositionEnc {
   Outside
 };
 
-enum PlacementType {            //  placement dialog codes:
+enum PlacementType {          //  placement dialog codes:
   PageType,                   // 0 page
   CsiType,                    // 1 Csi  (Assem)
   StepGroupType,              // 2 Ms   (Multi-Step)
@@ -113,21 +113,21 @@ enum PlacementType {            //  placement dialog codes:
   CalloutType,                // 5 Callout
   PageNumberType,             // 6 pn
 
-  PageTitleType,				// 7 tt
-  PageModelNameType,			// 8 mnt
+  PageTitleType,              // 7 tt
+  PageModelNameType,          // 8 mnt
   PageAuthorType,             // 9 at
-  PageURLType,				//10 urlt
-  PageModelDescType,			//11 mdt
-  PagePublishDescType,		//12 pdt
-  PageCopyrightType,			//13 ct
-  PageEmailType,				//14 et
-  PageDisclaimerType,			//15 dt
-  PagePiecesType,				//16 pt
-  PagePlugType,				//17 plt
-  PageCategoryType,			//18 cat
-  PageDocumentLogoType,		//19 dlt
-  PageCoverImageType,			//20 cit
-  PagePlugImageType,			//21 pit
+  PageURLType,                //10 urlt
+  PageModelDescType,          //11 mdt
+  PagePublishDescType,        //12 pdt
+  PageCopyrightType,          //13 ct
+  PageEmailType,              //14 et
+  PageDisclaimerType,         //15 dt
+  PagePiecesType,             //16 pt
+  PagePlugType,               //17 plt
+  PageCategoryType,           //18 cat
+  PageDocumentLogoType,       //19 dlt
+  PageCoverImageType,         //20 cit
+  PagePlugImageType,          //21 pit
   PageHeaderType,             //22 ph
   PageFooterType,             //23 pf
 

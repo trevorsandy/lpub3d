@@ -58,14 +58,15 @@ bool Step::refreshCsi(true);  //detect preference dialog updates
  *
  ********************************************************************/
 
-Step::Step(
-  Where   &topOfStep,
+Step::Step(Where   &topOfStep,
   AbstractStepsElement *_parent,
   int      num,            // step number as seen by the user
   Meta    &meta,           // the current state of the meta-commands
   bool     calledOut,      // if we're a callout
-  bool     multiStep)      // we can't be a multi-step
-  : calledOut(calledOut)
+  bool     multiStep,      // we can't be a multi-step
+  bool rotateIcon)
+  : calledOut(calledOut),
+    rotateIcon(rotateIcon)
 {
   top = topOfStep;
   parent = _parent;
@@ -85,12 +86,15 @@ Step::Step(
   pageFooter.placement      = meta.LPub.page.pageFooter.placement;
   pageFooter.size[XX]       = meta.LPub.page.pageFooter.size.valuePixels(XX);
   pageFooter.size[YY]       = meta.LPub.page.pageFooter.size.valuePixels(YY);
+  iconPlacement.relativeType   = RotateIconType;
   csiItem = NULL;
 
   if (calledOut) {
     csiPlacement.margin     = meta.LPub.callout.csi.margin;    // assembly meta's
     csiPlacement.placement  = meta.LPub.callout.csi.placement;
     pli.margin              = meta.LPub.callout.pli.margin;    // PLI info
+    iconPlacement.placement = meta.LPub.callout.rotateIcon.placement;
+    iconPlacement.margin    = meta.LPub.callout.rotateIcon.margin;
     pli.placement           = meta.LPub.callout.pli.placement;
     stepNumber.placement    = meta.LPub.callout.stepNum.placement;
     stepNumber.font         = meta.LPub.callout.stepNum.font.valueFoo();
@@ -102,6 +106,8 @@ Step::Step(
     csiPlacement.placement  = meta.LPub.multiStep.csi.placement;
     pli.margin              = meta.LPub.multiStep.pli.margin;
     pli.placement           = meta.LPub.multiStep.pli.placement;
+    iconPlacement.placement = meta.LPub.multiStep.rotateIcon.placement;
+    iconPlacement.margin    = meta.LPub.multiStep.rotateIcon.margin;
     stepNumber.placement    = meta.LPub.multiStep.stepNum.placement;
     stepNumber.font         = meta.LPub.multiStep.stepNum.font.valueFoo();
     stepNumber.color        = meta.LPub.multiStep.stepNum.color.value();
@@ -113,6 +119,8 @@ Step::Step(
     placement               = meta.LPub.assem.placement;
     pli.margin              = meta.LPub.assem.margin;
     pli.placement           = meta.LPub.pli.placement;
+    iconPlacement.placement = meta.LPub.rotateIcon.placement;
+    iconPlacement.margin    = meta.LPub.rotateIcon.margin;
     stepNumber.font         = meta.LPub.stepNumber.font.valueFoo();
     stepNumber.color        = meta.LPub.stepNumber.color.value();
     stepNumber.margin       = meta.LPub.stepNumber.margin;
@@ -507,6 +515,16 @@ int Step::sizeit(
       pli.tbl[YY] = TblCsi;
     }
   }
+
+  if (rotateIcon){
+      PlacementData rotateIconPlacement = iconPlacement.placement.value();
+
+      if (rotateIconPlacement.relativeTo == CsiType){
+          if (rotateIconPlacement.preposition == Outside) {
+
+            }
+        }
+    }
 
   PlacementData stepNumberPlacement = stepNumber.placement.value();
   

@@ -55,16 +55,12 @@ public:
   BackgroundMeta  background;
   BorderMeta      border;
   MarginsMeta     margin;
-  StringMeta      arrowColour;
   StringListMeta  subModelColor;
   int             submodelLevel;
-  bool            isRotationIcon;
   PlacementType   parentRelativeType;
 
-//  BackgroundItem()
-//  {}
   BackgroundItem()
-  {isRotationIcon = false;}
+  {}
 
   void setBackground(
       QPixmap         *pixmap,
@@ -77,17 +73,6 @@ public:
       int              submodelLevel,
       QString         &toolTip);
 
-  void setRotateIconBackground(
-      QPixmap         *pixmap,
-      PlacementType    parentRelativeType,
-      Meta            *meta,
-      StringMeta      &arrowColour,
-      BackgroundMeta  &background,
-      BorderMeta      &border,
-      MarginsMeta     &margin,
-      StringListMeta  &subModelColor,
-      int              submodelLevel,
-      QString         &toolTip);
 private: 
 };
 

@@ -1312,6 +1312,22 @@ public:
 
 /*------------------------*/
 
+class CalloutRotateIconMeta : public BranchMeta
+{
+public:
+  PlacementMeta placement;
+  MarginsMeta   margin;
+  CalloutRotateIconMeta();
+  CalloutRotateIconMeta(const CalloutRotateIconMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~CalloutRotateIconMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
 class NumberMeta : public BranchMeta
 {
 public:
@@ -1796,6 +1812,7 @@ class RotateIconMeta  : public BranchMeta
 public:
   StringMeta        arrowColour;
   UnitsMeta         size;
+  FloatMeta	    picScale;
   BorderMeta        border;
   BackgroundMeta    background;
   MarginsMeta       margin;
@@ -1956,6 +1973,7 @@ public:
   MarginsMeta    margin;
   CalloutCsiMeta csi;               
   CalloutPliMeta pli;
+  CalloutRotateIconMeta rotateIcon;
   NumberPlacementMeta stepNum;
   SepMeta        sep;
   FreeFormMeta   freeform;
@@ -1991,6 +2009,7 @@ public:
   MarginsMeta    margin;
   CalloutCsiMeta csi;
   CalloutPliMeta pli;
+  CalloutRotateIconMeta rotateIcon;
   NumberPlacementMeta stepNum;
   SepMeta        sep;
   FreeFormMeta   freeform;
@@ -2086,7 +2105,7 @@ public:
   StringMeta            include;
   NoStepMeta            nostep;
   FadeStepMeta          fadeStep;
-  RotateIconMeta        rotateIconMeta;
+  RotateIconMeta        rotateIcon;
 
   LPubMeta();
   virtual ~LPubMeta() {}

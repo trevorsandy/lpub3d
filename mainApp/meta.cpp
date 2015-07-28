@@ -1641,6 +1641,20 @@ void CalloutPliMeta::init(BranchMeta *parent, QString name)
   perStep.init  (this,"PER_STEP");
 }
 
+/* ------------------ */
+
+CalloutRotateIconMeta::CalloutRotateIconMeta() : BranchMeta()
+{
+  placement.setValue(LeftOutside,CalloutType);
+}
+
+void CalloutRotateIconMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  placement.init(this,"PLACEMENT");
+  margin.init(   this,"MARGINS");
+}
+
 /* ------------------ */ 
 
 void PliBeginMeta::init(BranchMeta *parent, QString name)
@@ -1999,10 +2013,7 @@ void PliAnnotationMeta::init(BranchMeta *parent, QString name)
 
 RotateIconMeta::RotateIconMeta() : BranchMeta()
 {
-  size.setValuesInches(0.75f,0.75f);
-  size.setRange(1,1000);
-  size.setFormats(6,4,"9.9999");
-  placement.setValue(CenterCenter,PageType);
+  placement.setValue(RightOutside,CsiType);   // right outside single step
   BorderData borderData;
   borderData.type = BorderData::BdrRound;
   borderData.color = "Black";
@@ -2015,7 +2026,12 @@ RotateIconMeta::RotateIconMeta() : BranchMeta()
   margin.setValuesInches(0.0f,0.0f);
   arrowColour.setValue("Dark_Blue");
   display.setValue(true);
-
+  size.setValuesInches(0.52f,0.52f);
+  size.setRange(1,1000);
+  size.setFormats(6,4,"9.9999");
+  picScale.setRange(-10000.0,10000.0);
+  picScale.setFormats(7,4,"99999.9");
+  picScale.setValue(1.0);
   subModelColor.setValue("#ffffff");
   subModelColor.setValue("#ffffcc");
   subModelColor.setValue("#ffcccc");
@@ -2032,6 +2048,7 @@ void RotateIconMeta::init(BranchMeta *parent, QString name)
   background      .init(this,"BACKGROUND");
   margin          .init(this,"MARGINS");
   display         .init(this,"DISPLAY");
+  picScale        .init(this,"SCALE");
 }
 
 /*---------------------------------------------------------------
@@ -2569,6 +2586,7 @@ CalloutMeta::CalloutMeta() : BranchMeta()
   alloc.setValue(Vertical);
   pli.placement.setValue(TopLeftOutside,CsiType);
   pli.perStep.setValue(true);
+  rotateIcon.placement.setValue(LeftOutside,CalloutType);
 }
 
 void CalloutMeta::init(BranchMeta *parent, QString name)
@@ -2594,6 +2612,7 @@ void CalloutMeta::init(BranchMeta *parent, QString name)
   end        .init(this,      "END",     CalloutEndRc);
   csi        .init(this,      "ASSEM");
   pli        .init(this,      "PLI");
+  rotateIcon .init(this,      "ROTATE_ICON");
 }
 
 /* ------------------ */ 
@@ -2611,6 +2630,7 @@ MultiStepMeta::MultiStepMeta() : BranchMeta()
   alloc.setValue(Vertical);
   pli.placement.setValue(LeftTopOutside,CsiType);
   pli.perStep.setValue(true);
+  rotateIcon.placement.setValue(RightOutside,CsiType);
 }
 
 void MultiStepMeta::init(BranchMeta *parent, QString name)
@@ -2627,6 +2647,7 @@ void MultiStepMeta::init(BranchMeta *parent, QString name)
   alloc    .init(this,    "ALLOC");
   csi      .init(this,    "ASSEM");
   pli      .init(this,    "PLI");
+  rotateIcon .init(this,  "ROTATE_ICON");
 
   begin    .init(this,    "BEGIN",  StepGroupBeginRc);
   divider  .init(this,    "DIVIDER",StepGroupDividerRc);
@@ -2737,7 +2758,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   include                .init(this,"INCLUDE", IncludeRc);
   nostep                 .init(this,"NOSTEP",NoStepRc);\
   fadeStep               .init(this,"FADE_STEP");
-  rotateIconMeta         .init(this,"ROTATE_ICON");
+  rotateIcon             .init(this,"ROTATE_ICON");
   reserve.setRange(0.0,1000000.0);
 }
 

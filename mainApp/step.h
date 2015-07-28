@@ -48,9 +48,11 @@ class Step : public AbstractRangeElement
 {
   public: 
     bool              calledOut;
+    bool              rotateIcon;
     QList<Callout *>  list;
     Pli               pli;
     CsiItem          *csiItem;
+    Placement         iconPlacement;
     Placement         csiPlacement;
     QPixmap           csiPixmap;
     PlacementNum      stepNumber;
@@ -70,7 +72,8 @@ class Step : public AbstractRangeElement
       int                    num, 
       Meta                  &meta, 
       bool                   calledOut, 
-      bool                   multiStep);
+      bool                   multiStep,
+      bool                   rotateIcon = false);
 
     virtual ~Step();
 

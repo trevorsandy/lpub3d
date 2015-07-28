@@ -617,34 +617,34 @@ int Gui::addGraphicsPageItems(
           }
         break;
         case InsertData::InsertRotateIcon:
-          {
-            RotateIconItem *rotateIcon = new RotateIconItem(
-                   page,
-                   page->inserts[i],
-                   pageBg);
+//          {
+//            RotateIconItem *rotateIcon = new RotateIconItem(
+//                   page,
+//                   page->inserts[i],
+//                   pageBg);
 
-            page->addInsertRotateIcon(rotateIcon);
-            rotateIcon->setTransformationMode(Qt::SmoothTransformation);
-            rotateIcon->scale(insert.picScale,insert.picScale);
+//            page->addInsertRotateIcon(rotateIcon);
+//            rotateIcon->setTransformationMode(Qt::SmoothTransformation);
+//            rotateIcon->scale(insert.picScale,insert.picScale);
 
-            PlacementData pld;
+//            PlacementData pld;
 
-            pld.placement    = TopLeft;
-            pld.justification= Center;
-            pld.relativeTo   = PageType;
-            pld.preposition  = Inside;
-            pld.offsets[0]   = insert.offsets[0];
-            pld.offsets[1]   = insert.offsets[1];
+//            pld.placement    = TopLeft;
+//            pld.justification= Center;
+//            pld.relativeTo   = PageType;
+//            pld.preposition  = Inside;
+//            pld.offsets[0]   = insert.offsets[0];
+//            pld.offsets[1]   = insert.offsets[1];
 
-            rotateIcon->placement.setValue(pld);
+//            rotateIcon->placement.setValue(pld);
 
-            int margin[2]    = {0,0};
+//            int margin[2]    = {0,0};
 
-            plPage.placeRelative(rotateIcon,margin);
-            rotateIcon->setPos(rotateIcon->loc[XX],rotateIcon->loc[YY]);
-            rotateIcon->relativeToSize[0] = plPage.size[XX];
-            rotateIcon->relativeToSize[1] = plPage.size[YY];
-          }
+//            plPage.placeRelative(rotateIcon,margin);
+//            rotateIcon->setPos(rotateIcon->loc[XX],rotateIcon->loc[YY]);
+//            rotateIcon->relativeToSize[0] = plPage.size[XX];
+//            rotateIcon->relativeToSize[1] = plPage.size[YY];
+//          }
         break;
         case InsertData::InsertArrow:
         break;
