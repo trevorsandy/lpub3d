@@ -1647,7 +1647,7 @@ void CalloutPliMeta::init(BranchMeta *parent, QString name)
 
 CalloutRotateIconMeta::CalloutRotateIconMeta() : BranchMeta()
 {
-  placement.setValue(LeftOutside,CalloutType);
+  placement.setValue(RightOutside,CsiType);
 }
 
 void CalloutRotateIconMeta::init(BranchMeta *parent, QString name)
@@ -2588,7 +2588,7 @@ CalloutMeta::CalloutMeta() : BranchMeta()
   alloc.setValue(Vertical);
   pli.placement.setValue(TopLeftOutside,CsiType);
   pli.perStep.setValue(true);
-  rotateIcon.placement.setValue(LeftOutside,CalloutType);
+  rotateIcon.placement.setValue(RightOutside,CsiType);
 }
 
 void CalloutMeta::init(BranchMeta *parent, QString name)
@@ -2737,7 +2737,8 @@ void NoStepMeta::doc(QStringList &out, QString preamble)
 
 LPubMeta::LPubMeta() : BranchMeta()
 {
-  stepNumber.placement.setValue(BottomLeftOutside,PageHeaderType);      //fooWas TopLeftInsideCorner,PageType
+  rotateIcon.placement.setValue(RightOutside,CsiType);
+  stepNumber.placement.setValue(BottomLeftOutside,PageHeaderType);      // TopLeftInsideCorner,PageType
   stepNumber.color.setValue("black");
   // stepNumber - default
 }
@@ -2758,7 +2759,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   resolution             .init(this,"RESOLUTION");
   insert                 .init(this,"INSERT");
   include                .init(this,"INCLUDE", IncludeRc);
-  nostep                 .init(this,"NOSTEP",NoStepRc);\
+  nostep                 .init(this,"NOSTEP", NoStepRc);\
   fadeStep               .init(this,"FADE_STEP");
   rotateIcon             .init(this,"ROTATE_ICON");
   reserve.setRange(0.0,1000000.0);

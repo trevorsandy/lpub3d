@@ -61,7 +61,6 @@ void PlacementRotateIcon::setSize(
 {
   iconImageSize   = _size;
   borderThickness =_borderThickness;
-  sizeit();
 }
 
 void PlacementRotateIcon::sizeit()
@@ -136,6 +135,12 @@ int Placement::relativeTo(
     if (stepRelativeTo == relativeType) {
       placeRelative(&step->stepNumber);
       appendRelativeTo(&step->stepNumber);
+    }
+    /* rotate icon */
+    stepRelativeTo = step->rotateIcon.placement.value().relativeTo;
+    if (stepRelativeTo == relativeType) {
+      placeRelative(&step->rotateIcon);
+      appendRelativeTo(&step->rotateIcon);
     }
     /* pageFooter */
     stepRelativeTo = step->pageFooter.placement.value().relativeTo;

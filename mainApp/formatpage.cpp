@@ -1276,23 +1276,6 @@ int Gui::addGraphicsPageItems(
           step->csiItem->assign(&step->csiPlacement);
           step->csiItem->boundingSize[XX] = step->csiItem->size[XX];
           step->csiItem->boundingSize[YY] = step->csiItem->size[YY];
-
-          // add the rotate icon image the scene
-          if (step->placeRotateIcon) {
-              step->rotateIcon.sizeit();
-              step->rotateIconItem = new RotateIconItem(
-                    step,
-                    page->relativeType,
-                    page->meta.LPub.rotateIcon,
-                    pageBg);
-
-              if (step->rotateIconItem == NULL) {
-                  exit(-1);
-                }
-              step->rotateIconItem->assign(&step->rotateIcon);
-              step->rotateIconItem->boundingSize[XX] = step->rotateIconItem->size[XX];
-              step->rotateIconItem->boundingSize[YY] = step->rotateIconItem->size[YY];
-            }
           
           // Place the step relative to the page.
 
@@ -1330,10 +1313,20 @@ int Gui::addGraphicsPageItems(
           step->pli.setPos(step->pli.loc[XX],
                            step->pli.loc[YY]);
 
-          // place the Rotate Icon relatevie to the entire step's box
+          // allocate QGraphicsTextItem for rotate icon
           if (step->placeRotateIcon) {
-              step->rotateIconItem->setPos(step->rotateIconItem->loc[XX],
-                                           step->rotateIconItem->loc[YY]);
+
+              step->rotateIcon.sizeit();
+              RotateIconItem *rotateIcon =
+                  new RotateIconItem(
+                    step,
+                    page->relativeType,
+                    page->meta.LPub.rotateIcon,
+                    pageBg);
+              rotateIcon->setPos(step->rotateIcon.loc[XX],
+                                 step->rotateIcon.loc[YY]);
+              rotateIcon->relativeToSize[0] = step->rotateIcon.size[0];
+              rotateIcon->relativeToSize[1] = step->rotateIcon.size[1];
             }
 
           // allocate QGraphicsTextItem for step number
