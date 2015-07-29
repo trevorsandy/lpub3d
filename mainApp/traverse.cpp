@@ -223,7 +223,8 @@ Range *newRange(
   return range;
 }
 
-int Gui::drawPage(LGraphicsView  *view,
+int Gui::drawPage(
+    LGraphicsView  *view,
     QGraphicsScene *scene,
     Steps          *steps,
     int             stepNum,
@@ -236,8 +237,7 @@ int Gui::drawPage(LGraphicsView  *view,
     bool            printing,
     bool            bfxStore2,
     QStringList    &bfxParts,
-    bool            calledOut,
-    bool            rotateIcon)
+    bool            calledOut)
 {
   QStringList saveCsiParts;
   bool        global = true;
@@ -257,6 +257,7 @@ int Gui::drawPage(LGraphicsView  *view,
   bool        firstStep   = true;
   bool        noStep      = false;
   bool        insertModel = false;
+  bool        rotateIcon  = false;
 
   steps->isMirrored = isMirrored;
   steps->setTopOfSteps(current);
@@ -329,8 +330,7 @@ int Gui::drawPage(LGraphicsView  *view,
                               stepNum,
                               curMeta,
                               calledOut,
-                              multiStep,
-                              rotateIcon);
+                              multiStep);
 
               range->append(step);
             }
@@ -496,8 +496,7 @@ int Gui::drawPage(LGraphicsView  *view,
                               stepNum,
                               steps->meta,
                               calledOut,
-                              multiStep,
-                              rotateIcon);
+                              multiStep);
 
               range->append(step);
             }
@@ -579,8 +578,7 @@ int Gui::drawPage(LGraphicsView  *view,
                                   stepNum,
                                   curMeta,
                                   calledOut,
-                                  multiStep,
-                                  rotateIcon);
+                                  multiStep);
 
                   range->append(step);
                 }
@@ -612,8 +610,7 @@ int Gui::drawPage(LGraphicsView  *view,
                                   stepNum,
                                   curMeta,
                                   calledOut,
-                                  multiStep,
-                                  rotateIcon);
+                                  multiStep);
 
                   range->append(step);
                 }
@@ -693,8 +690,7 @@ int Gui::drawPage(LGraphicsView  *view,
                                     stepNum,
                                     curMeta,
                                     calledOut,
-                                    multiStep,
-                                    rotateIcon);
+                                    multiStep);
 
                     range->append(step);
                   }
@@ -735,8 +731,12 @@ int Gui::drawPage(LGraphicsView  *view,
 
             case InsertRc:
               {
-                inserts.append(curMeta.LPub.insert);  // these are always placed before any parts in step
+                inserts.append(curMeta.LPub.insert);         // these are always placed before any parts in step
                 insertData = curMeta.LPub.insert.value();
+
+                if (insertData.type == InsertData::InsertRotateIcon) { // indicate that we have a rotate icon for this step
+                    rotateIcon = true;
+                  }
 
                 QRegExp InsertModel("^\\s*0\\s+!LPUB\\s+.*MODEL");
                 if (line.contains(InsertModel)){
@@ -875,8 +875,9 @@ int Gui::drawPage(LGraphicsView  *view,
             case EndOfFileRc:
             case RotStepRc:
             case StepRc:
+
+              // special case of no parts added, but BFX load and not NOSTEP
               if ( ! partsAdded && bfxLoad && ! noStep) {
-                  // special case of no parts added, but BFX load sans NOSTEP
                   if (step == NULL) {
                       if (range == NULL) {
                           range = newRange(steps,calledOut);
@@ -887,8 +888,7 @@ int Gui::drawPage(LGraphicsView  *view,
                                       stepNum,
                                       curMeta,
                                       calledOut,
-                                      multiStep,
-                                      rotateIcon);
+                                      multiStep);
 
                       range->append(step);
                     }
@@ -900,6 +900,8 @@ int Gui::drawPage(LGraphicsView  *view,
                         steps->meta);
                   partsAdded = true; // OK, so this is a lie, but it works
                 }
+
+              // normal case of parts added, and not NOSTEP
               if (partsAdded && ! noStep) {
                   if (firstStep) {
                       steps->stepGroupMeta = curMeta;
@@ -951,6 +953,10 @@ int Gui::drawPage(LGraphicsView  *view,
                           step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
                         }
 
+                      if (rotateIcon) {
+                          step->placeRotateIcon = true;
+                        }
+
                       statusBar()->showMessage("Processing " + current.modelName);
 
                       int rc = step->createCsi(
@@ -967,9 +973,8 @@ int Gui::drawPage(LGraphicsView  *view,
                           pliParts.clear();
                         }
 
-                      /*
-               * Only pages or step can have inserts.... no callouts
-               */
+
+                      // Only pages or step can have inserts.... not callouts
                       if ( ! multiStep && ! calledOut) {
                           Page *page = dynamic_cast<Page *>(steps);
                           if (page) {
@@ -979,10 +984,8 @@ int Gui::drawPage(LGraphicsView  *view,
                     }
 
                   if ( ! multiStep && ! calledOut) {
-                      /*
-               * Simple step
-               */
 
+                      // Simple step
                       steps->placement = steps->meta.LPub.assem.placement;
                       showLine(topOfStep);
 
@@ -995,12 +998,14 @@ int Gui::drawPage(LGraphicsView  *view,
 
                       return HitEndOfPage;
                     }
+
                   steps->meta.pop();
                   stepNum += partsAdded;
                   topOfStep = current;
 
                   partsAdded = false;
                   coverPage = false;
+                  rotateIcon = false;
                   step = NULL;
                   bfxStore2 = bfxStore1;
                   bfxStore1 = false;
@@ -1059,7 +1064,6 @@ int Gui::findPage(
   bool callout    = false;
   bool noStep     = false;
   bool noStep2    = false;
-  bool rotateIcon = false;
 
   QStringList bfxParts;
   QStringList saveBfxParts;
@@ -1327,19 +1331,6 @@ int Gui::findPage(
               callout = false;
               meta.LPub.callout.placement.clear();
               break;
-
-            case InsertRc:
-              {
-                InsertData insertData = meta.LPub.insert.value();
-                if (insertData.type == InsertData::InsertRotateIcon) {
-                    rotateIcon = true;
-                  }
-//                QRegExp rgxRotIcon("^\\s*0\\s+!LPUB\\s+.*ROTATE_ICON");
-//                if (line.contains(rgxRotIcon)){
-//                    rotateIcon = true;
-//                  }
-              }
-              break;
             case InsertCoverPageRc:
               coverPage  = true;
               partsAdded = true;
@@ -1602,7 +1593,6 @@ int Gui::getBOMParts(
             case BufferLoadRc:
               bfxLoad = true;
               break;
-
 
               // Any of the metas that can change pliParts needs
               // to be processed here

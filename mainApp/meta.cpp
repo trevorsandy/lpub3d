@@ -1464,6 +1464,8 @@ QString InsertMeta::format(bool local, bool global)
     case InsertData::InsertModel:
       foo += " MODEL";
       break;
+    case InsertData::InsertCoverPage:
+      break;
     }
 
   if (_value.offsets[0] || _value.offsets[1]) {

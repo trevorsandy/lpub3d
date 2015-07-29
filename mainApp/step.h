@@ -73,8 +73,7 @@ class Step : public AbstractRangeElement
       int                    num, 
       Meta                  &meta, 
       bool                   calledOut, 
-      bool                   multiStep,
-      bool                   placeRotateIcon = false);
+      bool                   multiStep);
 
     virtual ~Step();
 

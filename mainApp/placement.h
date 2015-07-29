@@ -317,11 +317,15 @@ public:
 
 class PlacementRotateIcon: public Placement {
 public:
-  Meta *meta;
+  UnitsMeta iconImageSize;
+  float     borderThickness;
   PlacementRotateIcon()
   {
   }
   void sizeit();
+  void setSize(
+      UnitsMeta _size,
+      float     _borderThickness = 0);
 };
 
 #endif

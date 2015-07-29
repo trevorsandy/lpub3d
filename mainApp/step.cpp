@@ -58,26 +58,24 @@ bool Step::refreshCsi(true);  //detect preference dialog updates
  *
  ********************************************************************/
 
-Step::Step(Where   &topOfStep,
+Step::Step(
+  Where                 &topOfStep,
   AbstractStepsElement *_parent,
-  int      num,            // step number as seen by the user
-  Meta    &meta,           // the current state of the meta-commands
-  bool     calledOut,      // if we're a callout
-  bool     multiStep,      // we can't be a multi-step
-  bool     placeRotateIcon)
-  : calledOut(calledOut),
-    placeRotateIcon(placeRotateIcon)
+  int                    num,            // step number as seen by the user
+  Meta                  &meta,           // the current state of the meta-commands
+  bool                   calledOut,      // if we're a callout
+  bool                   multiStep)
+  : calledOut(calledOut)
 {
-  top    = topOfStep;
-  parent = _parent;
-  
-  submodelLevel = meta.submodelStack.size();
-
-  stepNumber.number = num;                                  // record step number
+  top                       = topOfStep;
+  parent                    = _parent;
+  submodelLevel             = meta.submodelStack.size();
+  stepNumber.number         = num;             // record step number
 
   relativeType              = StepType;
   csiPlacement.relativeType = CsiType;
   stepNumber.relativeType   = StepNumberType;
+  rotateIcon.relativeType   = RotateIconType;
   pageHeader.relativeType   = PageHeaderType;
   pageHeader.placement      = meta.LPub.page.pageHeader.placement;
   pageHeader.size[XX]       = meta.LPub.page.pageHeader.size.valuePixels(XX);
@@ -86,9 +84,8 @@ Step::Step(Where   &topOfStep,
   pageFooter.placement      = meta.LPub.page.pageFooter.placement;
   pageFooter.size[XX]       = meta.LPub.page.pageFooter.size.valuePixels(XX);
   pageFooter.size[YY]       = meta.LPub.page.pageFooter.size.valuePixels(YY);
-  rotateIcon.relativeType   = RotateIconType;
-  csiItem        = NULL;
-  rotateIconItem = NULL;
+  csiItem                   = NULL;
+  rotateIconItem            = NULL;
 
   if (calledOut) {
     csiPlacement.margin     = meta.LPub.callout.csi.margin;    // assembly meta's
@@ -129,9 +126,12 @@ Step::Step(Where   &topOfStep,
     stepNumber.margin       = meta.LPub.stepNumber.margin;
     pliPerStep              = false;
   }
-  pli.steps = grandparent();
-  pli.step  = this;
-  showStepNumber = meta.LPub.assem.showStepNumber.value();
+  pli.steps                 = grandparent();
+  pli.step                  = this;
+  showStepNumber            = meta.LPub.assem.showStepNumber.value();
+  rotateIcon.setSize(         meta.LPub.rotateIcon.size,
+                              meta.LPub.rotateIcon.border.valuePixels().thickness);
+  placeRotateIcon           = false;
 }
 
 /* step destructor destroys all callouts */
@@ -205,14 +205,14 @@ int Step::createCsi(
   }
 
   //**3D
-  if (!gMainWindow->GetHalt3DViewer()) {
+  if (! gMainWindow->GetHalt3DViewer()) {
 
-      int ln = top.lineNumber;                     // we need this to facilitate placing the ROTSTEP meta later on
-      QString fileNamekey = QString("%1_%2_%3%4")  // File Name Format = csiName_sn_ln.ldr
-              .arg(csiName())   // csi model name
-              .arg(sn)          // step number
-              .arg(ln)          // line number
-              .arg(".ldr");     // extension
+      int ln = top.lineNumber;                    // we need this to facilitate placing the ROTSTEP meta later on
+      QString fileNamekey = QString("%1_%2_%3%4") // File Name Format = csiName_sn_ln.ldr
+              .arg(csiName())                     // csi model name
+              .arg(sn)                            // step number
+              .arg(ln)                            // line number
+              .arg(".ldr");                       // extension
 
       csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + fileNamekey;
       renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate);
@@ -222,7 +222,7 @@ int Step::createCsi(
 
   if ( ! csi.exists() || outOfDate) {
 
-    int        rc;
+    int rc;
 
     // render the partially assembled model
 
@@ -241,7 +241,7 @@ int Step::createCsi(
 
 int Step::Render3DCsi(QString &csi3DName)
 {
-    if (!gMainWindow->GetHalt3DViewer()) {
+    if (! gMainWindow->GetHalt3DViewer()) {
         int rc = renderer->render3DCsiImage(csi3DName);
         return rc;
     }
@@ -1109,15 +1109,15 @@ void Step::addGraphicsItems(
   }
 
   if (placeRotateIcon){
-      RotateIconItem *ri;
-      ri = new RotateIconItem(this,
-                              parentRelativeType,
-                              meta->LPub.rotateIcon,
-                              parent);
-      ri->setPos(offsetX + rotateIcon.loc[XX],
-                 offsetY + rotateIcon.loc[YY]);
+      //      RotateIconItem *ri;
+      rotateIconItem = new RotateIconItem(this,
+                                          parentRelativeType,
+                                          meta->LPub.rotateIcon,
+                                          parent);
+      rotateIconItem->setPos(offsetX + rotateIcon.loc[XX],
+                             offsetY + rotateIcon.loc[YY]);
 
-      ri->setFlag(QGraphicsItem::ItemIsMovable,movable);
+      rotateIconItem->setFlag(QGraphicsItem::ItemIsMovable,movable);
     }
 
   for (int i = 0; i < list.size(); i++) {
@@ -1422,10 +1422,10 @@ void Step::sizeitFreeform(
 
   /* Now make all things relative to the base */
 
-  csiPlacement.loc[xx]  -= offsetX + sizeX;
-  pli.loc[xx]           -= offsetX + sizeX;
-  stepNumber.loc[xx]    -= offsetX + sizeX;
-  rotateIcon.loc[xx] -= offsetX + sizeX;
+  csiPlacement.loc[xx] -= offsetX + sizeX;
+  pli.loc[xx]          -= offsetX + sizeX;
+  stepNumber.loc[xx]   -= offsetX + sizeX;
+  rotateIcon.loc[xx]   -= offsetX + sizeX;
 
   for (int i = 0; i < list.size(); i++) {
     list[i]->loc[xx] -= offsetX + sizeX;

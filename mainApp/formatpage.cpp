@@ -616,7 +616,32 @@ int Gui::addGraphicsPageItems(
             text->relativeToSize[1] = plPage.size[YY];
           }
         break;
-//        case InsertData::InsertRotateIcon:
+        case InsertData::InsertArrow:
+        break;
+        case InsertData::InsertBom:
+          {
+            Where current(ldrawFile.topLevelFile(),0);
+            QStringList bomParts;
+            QString addLine;
+            getBOMParts(current,addLine,bomParts);
+            page->pli.steps = steps;
+            getBOMOccurrence(current);
+            if (boms > 1){
+                page->pli.setParts(bomParts,page->meta,true,true); //Split BOM Parts
+            } else {
+                page->pli.setParts(bomParts,page->meta,true);
+            }
+            bomParts.clear();
+            page->pli.sizePli(&page->meta,page->relativeType,false);
+            page->pli.relativeToSize[0] = plPage.size[XX];
+            page->pli.relativeToSize[1] = plPage.size[YY];
+          }
+        break;
+        case InsertData::InsertModel:
+        break;
+        case InsertData::InsertCoverPage:
+        break;
+        case InsertData::InsertRotateIcon:
 //          {
 //            RotateIconItem *rotateIcon = new RotateIconItem(
 //                   page,
@@ -645,29 +670,6 @@ int Gui::addGraphicsPageItems(
 //            rotateIcon->relativeToSize[0] = plPage.size[XX];
 //            rotateIcon->relativeToSize[1] = plPage.size[YY];
 //          }
-//        break;
-        case InsertData::InsertArrow:
-        break;
-        case InsertData::InsertBom:
-          {
-            Where current(ldrawFile.topLevelFile(),0);
-            QStringList bomParts;
-            QString addLine;
-            getBOMParts(current,addLine,bomParts);
-            page->pli.steps = steps;
-            getBOMOccurrence(current);
-            if (boms > 1){
-                page->pli.setParts(bomParts,page->meta,true,true); //Split BOM Parts
-            } else {
-                page->pli.setParts(bomParts,page->meta,true);
-            }
-            bomParts.clear();
-            page->pli.sizePli(&page->meta,page->relativeType,false);
-            page->pli.relativeToSize[0] = plPage.size[XX];
-            page->pli.relativeToSize[1] = plPage.size[YY];
-          }
-        break;
-        case InsertData::InsertModel:
         break;
       }
     }
@@ -1260,20 +1262,37 @@ int Gui::addGraphicsPageItems(
           
           // add the assembly image to the scene
 
-          step->csiItem = new CsiItem(step,
-                                 &page->meta, 
-                                  step->csiPixmap,
-                                  step->submodelLevel,
-                                  pageBg,
-                                  page->relativeType);
+          step->csiItem = new CsiItem(
+                step,
+               &page->meta,
+                step->csiPixmap,
+                step->submodelLevel,
+                pageBg,
+                page->relativeType);
         
           if (step->csiItem == NULL) {
             exit(-1);
           }
           step->csiItem->assign(&step->csiPlacement);
-
           step->csiItem->boundingSize[XX] = step->csiItem->size[XX];
           step->csiItem->boundingSize[YY] = step->csiItem->size[YY];
+
+          // add the rotate icon image the scene
+          if (step->placeRotateIcon) {
+              step->rotateIcon.sizeit();
+              step->rotateIconItem = new RotateIconItem(
+                    step,
+                    page->relativeType,
+                    page->meta.LPub.rotateIcon,
+                    pageBg);
+
+              if (step->rotateIconItem == NULL) {
+                  exit(-1);
+                }
+              step->rotateIconItem->assign(&step->rotateIcon);
+              step->rotateIconItem->boundingSize[XX] = step->rotateIconItem->size[XX];
+              step->rotateIconItem->boundingSize[YY] = step->rotateIconItem->size[YY];
+            }
           
           // Place the step relative to the page.
 
@@ -1298,6 +1317,7 @@ int Gui::addGraphicsPageItems(
             } // if callout
           } // callouts
 
+
           if (step->pli.placement.value().relativeTo == CsiType) {
             step->csiItem->placeRelative(&step->pli);
           }
@@ -1309,6 +1329,12 @@ int Gui::addGraphicsPageItems(
           // place the PLI relative to the entire step's box
           step->pli.setPos(step->pli.loc[XX],
                            step->pli.loc[YY]);
+
+          // place the Rotate Icon relatevie to the entire step's box
+          if (step->placeRotateIcon) {
+              step->rotateIconItem->setPos(step->rotateIconItem->loc[XX],
+                                           step->rotateIconItem->loc[YY]);
+            }
 
           // allocate QGraphicsTextItem for step number
       
@@ -1324,6 +1350,7 @@ int Gui::addGraphicsPageItems(
                                step->stepNumber.loc[YY]);
             stepNumber->relativeToSize[0] = step->stepNumber.relativeToSize[0];
             stepNumber->relativeToSize[1] = step->stepNumber.relativeToSize[1];
+
           } else if (step->pli.background) {
             step->pli.background->setFlag(QGraphicsItem::ItemIsMovable,false);
           }

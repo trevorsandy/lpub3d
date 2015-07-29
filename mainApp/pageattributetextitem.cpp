@@ -124,6 +124,28 @@ PageAttributeTextItem::PageAttributeTextItem(
       name              = tr("Category");
       toolTip           = tr("Category - click to edit, right-click to modify");
       break;
+  case PageType:
+  case CsiType:
+  case StepGroupType:
+  case StepNumberType:
+  case PartsListType:
+  case CalloutType:
+  case PageNumberType:
+  case PageDocumentLogoType:
+  case PageCoverImageType:
+  case PagePlugImageType:
+  case PageHeaderType:
+  case PageFooterType:
+  case SingleStepType:
+  case SubmodelInstanceCountType:
+  case StepType:
+  case RangeType:
+  case ReserveType:
+  case BomType:
+  case CoverPageType:
+  case RotateIconType:
+  case NumRelatives:
+      break;
   }
 
   //relativeType  = PageTitleType;
@@ -169,13 +191,9 @@ void PageAttributeTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   //TODO redesign attribute placement relativeTo scheme to allow hide w/o crash
   QAction *displayTextAction = NULL;
   if (onPageType == FrontCoverPage){
-      switch(relativeType)
-      {
-      case PageModelNameType:
-      case PagePublishDescType:
+      if (relativeType == PageModelNameType || relativeType == PagePublishDescType){
           displayTextAction  = commonMenus.displayMenu(menu,name);
-          break;
-      }
+        }
   } else if (onPageType == BackCoverPage) {
       switch(relativeType)
       {
