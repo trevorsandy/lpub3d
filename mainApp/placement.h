@@ -51,33 +51,41 @@ class Steps;
  * places where something can be placed within a rectangle.
  * -- see step.cpp for detail walkthrough --
  *
- *  CCCCCCCCCCC
- *  CSSSSSSSSSC
- *  CSCCCCCCCSC
- *  CSCPPPPPCSC
- *  CSCPCCCPCSC
- *  CSCPCACPCSC
- *  CSCPCCCPCSC
- *  CSCPPPPPCSC
- *  CSCCCCCCCSC
- *  CSSSSSSSSSC
- *  CCCCCCCCCCC
+ *  CCCCCCCCCCCCCCC
+ *  CRRRRRRRRRRRRRC
+ *  CRCCCCCCCCCCCRC
+ *  CRCSSSSSSSSSCRC
+ *  CRCSCCCCCCCSCRC
+ *  CRCSCPPPPPCSCRC
+ *  CRCSCPCCCPCSCRC
+ *  CRCSCPCACPCSCRC
+ *  CRCSCPCCCPCSCRC
+ *  CRCSCPPPPPCSCRC
+ *  CRCSCCCCCCCSCRC
+ *  CRCSSSSSSSSSCRC
+ *  CRCCCCCCCCCCCRC
+ *  CRRRRRRRRRRRRRC
+ *  CCCCCCCCCCCCCCC
  *
  *  The table above represents either the Horizontal slice
  *  going through the CSI (represented by A for assembly),
  *  or the Vertical slice going through the CSI.
  *
- *  C0 - callout relative to step number
- *  S - step number relative to csi
- *  C1 - callout relative to PLI
- *  P - pli relative to csi
- *  C2 - callout relative to csi
- *  A - csi
+ *  C0 - callout relative to rotateIcon
+ *  R0 - rotateIcon relateive to csi
+ *  C1 - callout relative to step number
+ *  S0 - step number relative to csi
+ *  C2 - callout relative to PLI
+ *  P0 - pli relative to csi
  *  C3 - callout relative to csi
- *  P - pli relative to csi
- *  C4 - callout relative to PLI
- *  S - step number relative to csi
- *  C5 - callout relative to step number
+ *  A  - csi
+ *  C4 - callout relative to csi
+ *  P1 - pli relative to csi
+ *  C5 - callout relative to PLI
+ *  S1 - step number relative to csi
+ *  C6 - callout relative to step number
+ *  R1 - rotateIcon relateive to csi
+ *  C7 - callout relative to rotateIcon
  *
  * const int stepNumberPlace[NumPlacements][2] =
 {
@@ -105,19 +113,38 @@ enum Boundary {
 };
 
 enum {
-  TblCo0 = 0,
-  TblSn0,
-  TblCo1,
-  TblPli0,
-  TblCo2,
-  TblCsi,
-  TblCo3,
-  TblPli1,
-  TblCo4,
-  TblSn1,
-  TblCo5,
-  NumPlaces
+TblCo0 = 0,
+TblRi0,
+TblCo1,
+TblSn0,
+TblCo2,
+TblPli0,
+TblCo3,
+TblCsi,
+TblCo4,
+TblPli1,
+TblCo5,
+TblSn1,
+TblCo6,
+TblRi1,
+TblCo7,
+NumPlaces
 };
+
+//enum {
+//  TblCo0 = 0,
+//  TblSn0,
+//  TblCo1,
+//  TblPli0,
+//  TblCo2,
+//  TblCsi,
+//  TblCo3,
+//  TblPli1,
+//  TblCo4,
+//  TblSn1,
+//  TblCo5,
+//  NumPlaces
+//};
 
 enum dim {
   XX = 0,
@@ -286,6 +313,15 @@ public:
     PlacementFooter()
     {
     }
+};
+
+class PlacementRotateIcon: public Placement {
+public:
+  Meta *meta;
+  PlacementRotateIcon()
+  {
+  }
+  void sizeit();
 };
 
 #endif

@@ -64,11 +64,11 @@ Step::Step(Where   &topOfStep,
   Meta    &meta,           // the current state of the meta-commands
   bool     calledOut,      // if we're a callout
   bool     multiStep,      // we can't be a multi-step
-  bool rotateIcon)
+  bool     placeRotateIcon)
   : calledOut(calledOut),
-    rotateIcon(rotateIcon)
+    placeRotateIcon(placeRotateIcon)
 {
-  top = topOfStep;
+  top    = topOfStep;
   parent = _parent;
   
   submodelLevel = meta.submodelStack.size();
@@ -86,15 +86,16 @@ Step::Step(Where   &topOfStep,
   pageFooter.placement      = meta.LPub.page.pageFooter.placement;
   pageFooter.size[XX]       = meta.LPub.page.pageFooter.size.valuePixels(XX);
   pageFooter.size[YY]       = meta.LPub.page.pageFooter.size.valuePixels(YY);
-  iconPlacement.relativeType   = RotateIconType;
-  csiItem = NULL;
+  rotateIcon.relativeType   = RotateIconType;
+  csiItem        = NULL;
+  rotateIconItem = NULL;
 
   if (calledOut) {
     csiPlacement.margin     = meta.LPub.callout.csi.margin;    // assembly meta's
     csiPlacement.placement  = meta.LPub.callout.csi.placement;
     pli.margin              = meta.LPub.callout.pli.margin;    // PLI info
-    iconPlacement.placement = meta.LPub.callout.rotateIcon.placement;
-    iconPlacement.margin    = meta.LPub.callout.rotateIcon.margin;
+    rotateIcon.placement    = meta.LPub.callout.rotateIcon.placement;
+    rotateIcon.margin       = meta.LPub.callout.rotateIcon.margin;
     pli.placement           = meta.LPub.callout.pli.placement;
     stepNumber.placement    = meta.LPub.callout.stepNum.placement;
     stepNumber.font         = meta.LPub.callout.stepNum.font.valueFoo();
@@ -106,8 +107,8 @@ Step::Step(Where   &topOfStep,
     csiPlacement.placement  = meta.LPub.multiStep.csi.placement;
     pli.margin              = meta.LPub.multiStep.pli.margin;
     pli.placement           = meta.LPub.multiStep.pli.placement;
-    iconPlacement.placement = meta.LPub.multiStep.rotateIcon.placement;
-    iconPlacement.margin    = meta.LPub.multiStep.rotateIcon.margin;
+    rotateIcon.placement    = meta.LPub.multiStep.rotateIcon.placement;
+    rotateIcon.margin       = meta.LPub.multiStep.rotateIcon.margin;
     stepNumber.placement    = meta.LPub.multiStep.stepNum.placement;
     stepNumber.font         = meta.LPub.multiStep.stepNum.font.valueFoo();
     stepNumber.color        = meta.LPub.multiStep.stepNum.color.value();
@@ -119,8 +120,8 @@ Step::Step(Where   &topOfStep,
     placement               = meta.LPub.assem.placement;
     pli.margin              = meta.LPub.assem.margin;
     pli.placement           = meta.LPub.pli.placement;
-    iconPlacement.placement = meta.LPub.rotateIcon.placement;
-    iconPlacement.margin    = meta.LPub.rotateIcon.margin;
+    rotateIcon.placement    = meta.LPub.rotateIcon.placement;
+    rotateIcon.margin       = meta.LPub.rotateIcon.margin;
     stepNumber.font         = meta.LPub.stepNumber.font.valueFoo();
     stepNumber.color        = meta.LPub.stepNumber.color.value();
     stepNumber.margin       = meta.LPub.stepNumber.margin;
@@ -265,9 +266,9 @@ int Step::Render3DCsi(QString &csi3DName)
  * These concepts and algorithms are described below.
  *   1. tabular format
  *      a) either Vertically broken down into sub-columns for
- *         csi, pli, stepNumber and/or callouts.
+ *         csi, pli, stepNumber, rotateIcon and/or callouts.
  *      b) or Horizontally broken down into sub-rows for
- *         csi, pli, stepNumber and/or callouts.
+ *         csi, pli, stepNumber, rotateIcon and/or callouts.
  *
  *   2. free form format
  *      a) either Vertically composed into columns of steps
@@ -291,8 +292,8 @@ int Step::Render3DCsi(QString &csi3DName)
  *
  * size - allocate step sub-components into sub-rows or sub-columns.
  * place - determine the rectangle that is needed to totally contain
- *   the subcomponents (CSI, step number, PLI, step-relative callouts.)
- *   Also place the CSI, step number, PLI and step-relative callouts
+ *   the subcomponents (CSI, step number, PLI, roitateIcon, step-relative callouts.)
+ *   Also place the CSI, step number, PLI, rotateIcon and step-relative callouts
  *   within the step's rectangle.
  *
  * making all this look nice takes a few passes:
@@ -317,7 +318,7 @@ int Step::Render3DCsi(QString &csi3DName)
  *
  * Multi-steps can only be placed relative to the page.
  *
- * Callouts can be place relative to CSI, PLI, step-number, multi-step, or
+ * Callouts can be place relative to CSI, PLI, step-number, rotateIcon, multi-step, or
  * page.
  */
 
@@ -330,33 +331,37 @@ int Step::Render3DCsi(QString &csi3DName)
  * Think of the possible placement as a two dimensional table, of
  * places where something can be placed within a step's rectangle.
  *
- *  CCCCCCCCCCC
- *  CSSSSSSSSSC
- *  CSCCCCCCCSC
- *  CSCPPPPPCSC
- *  CSCPCCCPCSC
- *  CSCPCACPCSC
- *  CSCPCCCPCSC
- *  CSCPPPPPCSC
- *  CSCCCCCCCSC
- *  CSSSSSSSSSC
- *  CCCCCCCCCCC
- *
- *  The table above represents either the Horizontal slice
- *  going through the CSI (represented by A for assembly),
- *  or the Vertical slice going through the CSI.
- *
- *  C0 - callout relative to step number
- *  S - step number relative to csi
- *  C1 - callout relative to PLI
- *  P - pli relative to csi
- *  C2 - callout relative to csi
- *  A - csi
+ *  CCCCCCCCCCCCCCC
+ *  CRRRRRRRRRRRRRC
+ *  CRCCCCCCCCCCCRC
+ *  CRCSSSSSSSSSCRC
+ *  CRCSCCCCCCCSCRC
+ *  CRCSCPPPPPCSCRC
+ *  CRCSCPCCCPCSCRC
+ *  CRCSCPCACPCSCRC
+ *  CRCSCPCCCPCSCRC
+ *  CRCSCPPPPPCSCRC
+ *  CRCSCCCCCCCSCRC
+ *  CRCSSSSSSSSSCRC
+ *  CRCCCCCCCCCCCRC
+ *  CRRRRRRRRRRRRRC
+ *  CCCCCCCCCCCCCCC
+
+ *  C0 - callout relative to rotateIcon
+ *  R0 - rotateIcon relateive to csi
+ *  C1 - callout relative to step number
+ *  S0 - step number relative to csi
+ *  C2 - callout relative to PLI
+ *  P0 - pli relative to csi
  *  C3 - callout relative to csi
- *  P - pli relative to csi
- *  C4 - callout relative to PLI
- *  S - step number relative to csi
- *  C5 - callout relative to step number
+ *  A  - csi
+ *  C4 - callout relative to csi
+ *  P1 - pli relative to csi
+ *  C5 - callout relative to PLI
+ *  S1 - step number relative to csi
+ *  C6 - callout relative to step number
+ *  R1 - rotateIcon relateive to csi
+ *  C7 - callout relative to rotateIcon
  */
 
 /*
@@ -393,6 +398,24 @@ const int pliPlace[NumPlacements][2] =
   { TblPli0, TblPli1 }, // BOT_LEFT
   { TblPli0, TblCsi  }, // Left
   { TblCsi,  TblCsi },
+};
+
+/*
+ * this tells us where to place a rotateIcon when placing
+ * relative to csi
+ */
+
+const int rotateIconPlace[NumPlacements][2] =
+{
+ { TblRi0, TblRi0 },  // TopLeft
+ { TblCsi, TblRi0 },  // Top
+ { TblRi1, TblRi0 },  // TopRight
+ { TblRi1, TblCsi },  // Right
+ { TblRi1, TblRi1 },  // BOT_RIGHT
+ { TblCsi, TblRi1 },  // BOT
+ { TblRi0, TblRi1 },  // BOT_LEFT
+ { TblRi0, TblCsi },  // Left
+ { TblCsi, TblCsi },
 };
 
 /*
@@ -455,7 +478,7 @@ void Step::maxMargin(
  * This is the first pass of sizing a step.
  *
  *   locate the proper row/col in the placement table (see above)
- *   for each component (csi, pli, stepNumber, callout) in the step
+ *   for each component (csi, pli, stepNumber, roateIcon, callout) in the step
  *
  *     locate the proper row/col for those relative to CSI (absolute)
  *
@@ -493,6 +516,12 @@ int Step::sizeit(
     stepNumber.sizeit();
   }
 
+  // size up the rotate icon
+
+  if (placeRotateIcon){
+      rotateIcon.sizeit();
+    }
+
   /****************************************************/
   /* figure out who is placed in which row and column */
   /****************************************************/
@@ -516,12 +545,19 @@ int Step::sizeit(
     }
   }
 
-  if (rotateIcon){
-      PlacementData rotateIconPlacement = iconPlacement.placement.value();
+  // Rotate Icon relative to CSI
+
+  PlacementData rotateIconPlacement = rotateIcon.placement.value();
+
+  if (placeRotateIcon){
 
       if (rotateIconPlacement.relativeTo == CsiType){
           if (rotateIconPlacement.preposition == Outside) {
-
+              rotateIcon.tbl[XX] = rotateIconPlace[rotateIconPlacement.placement][XX];
+              rotateIcon.tbl[YY] = rotateIconPlace[rotateIconPlacement.placement][YY];
+            } else {
+              rotateIcon.tbl[XX] = TblCsi;
+              rotateIcon.tbl[YY] = TblCsi;
             }
         }
     }
@@ -529,7 +565,7 @@ int Step::sizeit(
   PlacementData stepNumberPlacement = stepNumber.placement.value();
   
   // if Step Number relative to parts list, but no parts list,
-  //    Step Number is relative to Assem
+  //    Step Number is relative to CSI (Assem)
 
   if (stepNumberPlacement.relativeTo == PartsListType && ! pliPerStep) {
     stepNumberPlacement.relativeTo = CsiType;
@@ -559,16 +595,52 @@ int Step::sizeit(
     }
   }
 
+  if (pliPlacement.relativeTo == RotateIconType) {
+    if (pliPerStep && pli.tsize()) {
+      pli.tbl[XX] = rotateIcon.tbl[XX]+relativePlace[pliPlacement.placement][XX];
+      pli.tbl[YY] = rotateIcon.tbl[YY]+relativePlace[pliPlacement.placement][YY];
+    } else {
+      rotateIcon.tbl[XX] = rotateIconPlace[rotateIconPlacement.placement][XX];
+      rotateIcon.tbl[YY] = rotateIconPlace[rotateIconPlacement.placement][YY];
+    }
+  }
+
   if (stepNumberPlacement.relativeTo == PartsListType) {
     stepNumber.tbl[XX] = pli.tbl[XX]+relativePlace[stepNumberPlacement.placement][XX];
     stepNumber.tbl[YY] = pli.tbl[YY]+relativePlace[stepNumberPlacement.placement][YY];
   }
 
+  if (stepNumberPlacement.relativeTo == RotateIconType) {
+    stepNumber.tbl[XX] = rotateIcon.tbl[XX]+relativePlace[stepNumberPlacement.placement][XX];
+    stepNumber.tbl[YY] = rotateIcon.tbl[YY]+relativePlace[stepNumberPlacement.placement][YY];
+  }
+
+  if (rotateIconPlacement.relativeTo == PartsListType) {
+      if (placeRotateIcon) {
+          rotateIcon.tbl[XX] = pli.tbl[XX]+relativePlace[rotateIconPlacement.placement][XX];
+          rotateIcon.tbl[YY] = pli.tbl[YY]+relativePlace[rotateIconPlacement.placement][YY];
+        } else {
+          pli.tbl[XX] = pliPlace[pliPlacement.placement][XX];
+          pli.tbl[YY] = pliPlace[pliPlacement.placement][YY];
+        }
+    }
+
+  if (rotateIconPlacement.relativeTo == StepNumberType) {
+      if (placeRotateIcon) {
+          rotateIcon.tbl[XX] = stepNumber.tbl[XX]+relativePlace[rotateIconPlacement.placement][XX];
+          rotateIcon.tbl[YY] = stepNumber.tbl[YY]+relativePlace[rotateIconPlacement.placement][YY];
+        } else {
+          stepNumber.tbl[XX] = stepNumberPlace[stepNumberPlacement.placement][XX];
+          stepNumber.tbl[YY] = stepNumberPlace[stepNumberPlacement.placement][YY];
+        }
+    }
+
   maxMargin(pli.margin,pli.tbl,marginRows,marginCols);
   maxMargin(stepNumber.margin,stepNumber.tbl,marginRows,marginCols);
   maxMargin(csiPlacement.margin,csiPlacement.tbl,marginRows,marginCols);
+  maxMargin(rotateIcon.margin,rotateIcon.tbl,marginRows,marginCols);
 
-  /* now place the callouts relative to the known (CSI, PLI, SN) */
+  /* now place the callouts relative to the known (CSI, PLI, SN, RI) */
   
   int calloutSize[2] = { 0, 0 };
   bool shared = false;
@@ -584,6 +656,7 @@ int Step::sizeit(
   square[TblCsi][TblCsi] = CsiType;
   square[pli.tbl[XX]][pli.tbl[YY]] = PartsListType;
   square[stepNumber.tbl[XX]][stepNumber.tbl[YY]] = StepNumberType;
+  square[rotateIcon.tbl[XX]][rotateIcon.tbl[YY]] = RotateIconType;
   
   int pixmapSize[2] = { csiPixmap.width(), csiPixmap.height() };
   int max = pixmapSize[y];
@@ -621,6 +694,10 @@ int Step::sizeit(
       case StepNumberType:
         callout->tbl[XX] = stepNumber.tbl[XX] + relativePlace[rp][XX];
         callout->tbl[YY] = stepNumber.tbl[YY] + relativePlace[rp][YY];
+      break;
+      case RotateIconType:
+        callout->tbl[XX] = rotateIcon.tbl[XX] + relativePlace[rp][XX];
+        callout->tbl[YY] = rotateIcon.tbl[YY] + relativePlace[rp][YY];
       break;
       default:
         sharable = false;
@@ -737,6 +814,7 @@ int Step::sizeit(
   if (cols[stepNumber.tbl[XX]] < stepNumber.size[XX]) {
     cols[stepNumber.tbl[XX]] = stepNumber.size[XX];
   }
+
   if (rows[stepNumber.tbl[YY]] < stepNumber.size[YY]) {
     rows[stepNumber.tbl[YY]] = stepNumber.size[YY];
   }
@@ -744,8 +822,17 @@ int Step::sizeit(
   if (cols[TblCsi] < csiPlacement.size[XX]) {
     cols[TblCsi] = csiPlacement.size[XX];
   }
+
   if (rows[TblCsi] < csiPlacement.size[YY]) {
     rows[TblCsi] = csiPlacement.size[YY];
+  }
+
+  if (cols[rotateIcon.tbl[XX]] < rotateIcon.size[XX]) {
+    cols[rotateIcon.tbl[XX]] = rotateIcon.size[XX];
+  }
+
+  if (rows[rotateIcon.tbl[YY]] < rotateIcon.size[YY]) {
+    rows[rotateIcon.tbl[YY]] = rotateIcon.size[YY];
   }
 
   /******************************************************************/
@@ -759,7 +846,8 @@ int Step::sizeit(
     switch (callout->placement.value().relativeTo) {
       case CsiType:
       case PartsListType:
-      case StepNumberType:      
+      case StepNumberType:
+      case RotateIconType:
         if (callout->shared && rows[TblCsi] < callout->size[y]) {
           rows[TblCsi] = callout->size[y];
         } else {
@@ -833,6 +921,20 @@ void Step::maxMargin(int &top, int &bot, int y)
     }
   }
 
+  if (placeRotateIcon){
+      if (rotateIcon.tbl[YY] < TblCsi) {
+          top = rotateIcon.margin.valuePixels(y);
+          top_tbl = rotateIcon.tbl[y];
+        } else if (stepNumber.tbl[y] == TblCsi) {
+          int margin = rotateIcon.margin.valuePixels(y);
+          top = qMax(top,margin);
+          bot = qMax(bot,margin);
+        } else {
+          bot = rotateIcon.margin.valuePixels(y);
+          bot_tbl = rotateIcon.tbl[y];
+        }
+    }
+
   for (int i = 0; i < list.size(); i++) {
     Callout *callout = list[i];
     if (callout->tbl[y] < TblCsi) {
@@ -851,7 +953,7 @@ void Step::maxMargin(int &top, int &bot, int y)
 
 /***************************************************************************
  * This routine is used for tabular multi-steps.  It is used to determine
- * the location of csi, pli, stepNumber, and step relative callouts.
+ * the location of csi, pli, stepNumber, rotateIcon and step relative callouts.
  ***************************************************************************/
 
 void Step::placeit(
@@ -885,23 +987,30 @@ void Step::placeit(
   csiPlacement.loc[y] = origins[TblCsi] + (rows[TblCsi] - csiPlacement.size[y])/2;
   pli.loc[y]          = origins[pli.tbl[y]];
   stepNumber.loc[y]   = origins[stepNumber.tbl[y]];
+  rotateIcon.loc[y]= origins[rotateIcon.tbl[y]];
 
   switch (y) {
     case XX:
       if ( ! shared) {
-        pli.justifyX(origins[pli.tbl[y]],rows[pli.tbl[y]]);
-      }
+          pli.justifyX(origins[pli.tbl[y]],rows[pli.tbl[y]]);
+        }
       stepNumber.justifyX(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
+      if(placeRotateIcon){
+          rotateIcon.justifyX(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
+        }
     break;
     case YY:
       if ( ! shared) {
-        pli.justifyY(origins[pli.tbl[y]],rows[pli.tbl[y]]);
-      }
+          pli.justifyY(origins[pli.tbl[y]],rows[pli.tbl[y]]);
+        }
       stepNumber.justifyY(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
+      if(placeRotateIcon){
+          rotateIcon.justifyY(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
+        }
     break;
     default:
     break;
-  }
+    }
 
   /* place the callouts that are relative to step components */
 
@@ -922,6 +1031,7 @@ void Step::placeit(
         case CsiType:
         case PartsListType:
         case StepNumberType:
+        case RotateIconType:
           callout->loc[y] = origins[callout->tbl[y]];
           if (callout->shared) {
             callout->loc[y] -= callout->margin.value(y) - 500;
@@ -998,6 +1108,18 @@ void Step::addGraphicsItems(
     sn->setFlag(QGraphicsItem::ItemIsMovable,movable);
   }
 
+  if (placeRotateIcon){
+      RotateIconItem *ri;
+      ri = new RotateIconItem(this,
+                              parentRelativeType,
+                              meta->LPub.rotateIcon,
+                              parent);
+      ri->setPos(offsetX + rotateIcon.loc[XX],
+                 offsetY + rotateIcon.loc[YY]);
+
+      ri->setFlag(QGraphicsItem::ItemIsMovable,movable);
+    }
+
   for (int i = 0; i < list.size(); i++) {
 
     QApplication::processEvents();
@@ -1034,10 +1156,13 @@ void Step::placeInside()
       case CsiType:
         csiPlacement.placeRelative(&pli);
       break;
-      case PartsListType:
+      case PartsListType:    
       break;
       case StepNumberType:
         stepNumber.placeRelative(&pli);
+      break;
+      case RotateIconType:
+        rotateIcon.placeRelative(&pli);
       break;
       default:
       break;
@@ -1053,14 +1178,32 @@ void Step::placeInside()
       break;
       case StepNumberType:
       break;
+      case RotateIconType:
+        rotateIcon.placeRelative(&stepNumber);
+      break;
       default:
       break;
     }
   }
 
+  if (rotateIcon.placement.value().preposition == Inside) {
+    switch (pli.placement.value().relativeTo) {
+      case CsiType:
+        csiPlacement.placeRelative(&rotateIcon);
+      break;
+      case PartsListType:
+        pli.placeRelative(&rotateIcon);
+      break;
+      case StepNumberType:
+        stepNumber.placeRelative(&rotateIcon);
+      break;
+      case RotateIconType:
+      break;
+      default:
+      break;
+    }
+  }
   for (int i = 0; i < list.size(); i++) {
-
-    QApplication::processEvents();
 
     Callout *callout = list[i];
     PlacementData placementData = callout->placement.value();
@@ -1085,6 +1228,10 @@ void Step::placeInside()
         relativeToSize[XX] = stepNumber.size[XX];
         relativeToSize[YY] = stepNumber.size[YY];
       break;
+      case RotateIconType:
+        relativeToSize[XX] = rotateIcon.size[XX];
+        relativeToSize[YY] = rotateIcon.size[YY];
+      break;
       default:
       break;
     }
@@ -1108,7 +1255,7 @@ void Step::placeInside()
  * be placed.
  *
  * In free-form placement, some placement component is the root of all
- * placement (CSI, PLI, STEP_NUMBER).  All other placement components
+ * placement (CSI, PLI, STEP_NUMBER, ROTATE_ICON).  All other placement components
  * are placed relative to the base, or placed relative to things that
  * are placed relative to the root.
  *
@@ -1155,6 +1302,12 @@ void Step::sizeitFreeform(
     stepNumber.sizeit();
   }
 
+  // size up the rotateIcon
+
+  if (placeRotateIcon){
+      rotateIcon.sizeit();
+    }
+
   // place everything relative to the base
 
   int offsetX = 0, sizeX = 0;
@@ -1186,6 +1339,14 @@ void Step::sizeitFreeform(
       offsetX = stepNumber.loc[xx];
       sizeX   = stepNumber.size[xx];
     break;
+    case RotateIconType:
+            placementData = rotateIcon.placement.value();
+            placementData.relativeTo = PageType;
+            rotateIcon.placement.setValue(placementData);
+      rotateIcon.relativeTo(this);
+      offsetX = rotateIcon.loc[xx];
+      sizeX   = rotateIcon.size[xx];
+    break;
   }
 
   // FIXME: when we get here for callouts that are to to the left of the CSI
@@ -1200,8 +1361,6 @@ void Step::sizeitFreeform(
   // size the step
 
   for (int dim = XX; dim <= YY; dim++) {
-
-    QApplication::processEvents();
 
     int min = 500000;
     int max = 0;
@@ -1224,6 +1383,12 @@ void Step::sizeitFreeform(
     if (stepNumber.loc[dim] + stepNumber.size[dim] > max) {
       max = stepNumber.loc[dim] + stepNumber.size[dim];
     }
+    if (rotateIcon.loc[dim] < min) {
+      min = rotateIcon.loc[dim];
+    }
+    if (rotateIcon.loc[dim] + rotateIcon.size[dim] > max) {
+      max = rotateIcon.loc[dim] + rotateIcon.size[dim];
+    }
 
     for (int i = 0; i < list.size(); i++) {
       Callout *callout = list[i];
@@ -1236,9 +1401,10 @@ void Step::sizeitFreeform(
     }
 
     if (calledOut) {
-      csiPlacement.loc[dim] -= min;
-      pli.loc[dim]        -= min;
-      stepNumber.loc[dim] -= min;
+      csiPlacement.loc[dim]  -= min;
+      pli.loc[dim]           -= min;
+      stepNumber.loc[dim]    -= min;
+      rotateIcon.loc[dim] -= min;
 
       for (int i = 0; i < list.size(); i++) {
         Callout *callout = list[i];
@@ -1257,8 +1423,9 @@ void Step::sizeitFreeform(
   /* Now make all things relative to the base */
 
   csiPlacement.loc[xx]  -= offsetX + sizeX;
-  pli.loc[xx]        -= offsetX + sizeX;
-  stepNumber.loc[xx] -= offsetX + sizeX;
+  pli.loc[xx]           -= offsetX + sizeX;
+  stepNumber.loc[xx]    -= offsetX + sizeX;
+  rotateIcon.loc[xx] -= offsetX + sizeX;
 
   for (int i = 0; i < list.size(); i++) {
     list[i]->loc[xx] -= offsetX + sizeX;

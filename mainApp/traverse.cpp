@@ -1330,10 +1330,14 @@ int Gui::findPage(
 
             case InsertRc:
               {
-                QRegExp rgxRotIcon("^\\s*0\\s+!LPUB\\s+.*ROTATE_ICON");
-                if (line.contains(rgxRotIcon)){
+                InsertData insertData = meta.LPub.insert.value();
+                if (insertData.type == InsertData::InsertRotateIcon) {
                     rotateIcon = true;
                   }
+//                QRegExp rgxRotIcon("^\\s*0\\s+!LPUB\\s+.*ROTATE_ICON");
+//                if (line.contains(rgxRotIcon)){
+//                    rotateIcon = true;
+//                  }
               }
               break;
             case InsertCoverPageRc:

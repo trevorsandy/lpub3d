@@ -29,40 +29,37 @@
 #include "ranges.h"
 #include "color.h"
 
-
 RotateIconItem::RotateIconItem(
-  Page          *_page,
-  InsertMeta     _insMeta,
-  QGraphicsItem  *parent)
+  Step           *_step,
+  PlacementType   _parentRelativeType,
+  RotateIconMeta &_rotateIconMeta,
+  QGraphicsItem   *parent)
 {
-  page               = _page;
-  insMeta            = _insMeta;
-  parentRelativeType = page->relativeType;
-  rotateIconMeta     = page->meta.LPub.rotateIcon;
-
-  margin             = rotateIconMeta.margin;
-  placement          = rotateIconMeta.placement;
+  step               = _step;
+  parentRelativeType = _parentRelativeType;
+  rotateIconMeta     = _rotateIconMeta;
   picScale           = rotateIconMeta.picScale;
-  relativeType       = RotateIconType;
 
+  relativeType       = RotateIconType;
+  placement          = rotateIconMeta.placement;
+  margin             = rotateIconMeta.margin;
 
   // initialize pixmap using icon demensions
-  pixmap             = new QPixmap(rotateIconMeta.size.valuePixels(0),
-                                   rotateIconMeta.size.valuePixels(1));
+  pixmap             = new QPixmap(rotateIconMeta.size.valuePixels(XX),
+                                   rotateIconMeta.size.valuePixels(YY));
+  // set image size
+  placementRotateIcon.sizeit();
 
-  // set image size (pixmap size)
-  size[0]            = pixmap->width() *rotateIconMeta.size.valuePixels(0);
-  size[1]            = pixmap->height()*rotateIconMeta.size.valuePixels(1);
+  setRotateIconImage(pixmap);
 
   QString toolTip("Rotate Icon - right-click to modify");
   setToolTip(toolTip);
 
-  setRotateIconImage(pixmap);
-
   setZValue(10000);
   setParentItem(parent);
   setPixmap(*pixmap);
-  setFlag(QGraphicsItem::ItemIsMovable,true);
+  setTransformationMode(Qt::SmoothTransformation);
+//  setFlag(QGraphicsItem::ItemIsMovable,true);
   setFlag(QGraphicsItem::ItemIsSelectable,true);
 
   delete pixmap;
@@ -100,8 +97,7 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
       if (backgroundData.type == BackgroundData::BgColor) {
           brushColor = LDrawColor::color(backgroundData.string);
         } else {
-          brushColor = LDrawColor::color(rotateIconMeta.subModelColor.
-                                         value(page->meta.submodelStack.size()));
+          brushColor = LDrawColor::color(rotateIconMeta.subModelColor.value(0));
         }
       break;
     }
@@ -244,11 +240,35 @@ void RotateIconItem::contextMenuEvent(
       return;
     }
 
-  Where here          = insMeta.here();
-  Where topOfSteps    = page->topOfSteps();
-  Where bottomOfSteps = page->bottomOfSteps();
+  Where topOfStep     = step->topOfStep();
+  Where bottomOfStep  = step->bottomOfStep();
+  Where topOfSteps    = step->topOfSteps();
+  Where bottomOfSteps = step->bottomOfSteps();
 
   if (selectedAction == placementAction) {
+
+      bool multiStep                = parentRelativeType == StepGroupType;
+      logInfo() << "\nMOVE ROTATE_ICON - "
+                << "\nPAGE- "
+                << (multiStep ? " \nMulti-Step Page" : " \nSingle-Step Page")
+                << "\nPAGE WHERE -                  "
+                << " \nPage TopOf (Model Name):     " << topOfSteps.modelName
+                << " \nPage TopOf (Line Number):    " << topOfSteps.lineNumber
+                << " \nPage BottomOf (Model Name):  " << bottomOfSteps.modelName
+                << " \nPage BottomOf (Line Number): " << bottomOfSteps.lineNumber
+                << "\nUSING PLACEMENT DATA -        "
+                << " \nPlacement:                   " << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
+                << " \nJustification:               " << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
+                << " \nPreposition:                 " << PrepNames[placement.value().preposition]   << " (" << placement.value().justification << ")"
+                << " \nRelativeTo:                  " << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
+                << " \nRectPlacement:               " << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
+                << " \nOffset[0]:                   " << placement.value().offsets[0]
+                << " \nOffset[1]:                   " << placement.value().offsets[1]
+                << "\nOTHER DATA -                  "
+                << " \nRelativeType:                " << RelNames[relativeType]       << " (" << relativeType << ")"
+                << " \nParentRelativeType:          " << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
+                                                ;
+
       changePlacement(parentRelativeType,
                       SingleStepType,         //not using RotateIconType intentionally
                       pl+" Placement",
@@ -279,7 +299,7 @@ void RotateIconItem::contextMenuEvent(
       //TODO
     } else if (selectedAction == deleteRotateIconAction) {
       beginMacro("DeleteRotateIcon");
-      deleteMeta(here);
+      deleteMeta(topOfStep);
       endMacro();
     }
 }
@@ -288,23 +308,23 @@ void RotateIconItem::change()
 {
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
 
-    Where topOfSteps              = page->topOfSteps();
-    Where bottomOfSteps           = page->bottomOfSteps();
+    Where topOfSteps              = step->topOfSteps();
+    Where bottomOfSteps           = step->bottomOfSteps();
 
     if (positionChanged) {
 
-      beginMacro(QString("DragRotateIcon"));
+      beginMacro(QString("DragPicture"));
 
       qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
       qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
       calcOffsets(placement.value(),placement.value().offsets,topLeft,size);
 
-      logInfo() << "\nDRAG ROTATE ICON - "
+      logInfo() << "\nCHANGE ROTATE_ICON - "
                 << "\nPAGE WHERE - "
-                << " \nPage TopOf (Model Name): "    << topOfSteps.modelName
-                << " \nPage TopOf (Line Number): "   << topOfSteps.lineNumber
-                << " \nPage BottomOf (Model Name): " << bottomOfSteps.modelName
-                << " \nPage BottomOf (Line Number): "<< bottomOfSteps.lineNumber
+                << " \nStep TopOf (Model Name): "    << topOfSteps.modelName
+                << " \nStep TopOf (Line Number): "   << topOfSteps.lineNumber
+                << " \nStep BottomOf (Model Name): " << bottomOfSteps.modelName
+                << " \nStep BottomOf (Line Number): "<< bottomOfSteps.lineNumber
                 << "\nUSING PLACEMENT DATA - "
                 << " \nPlacement: "                 << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
                 << " \nJustification: "             << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
@@ -339,17 +359,17 @@ void RotateIconItem::change()
         picScale.setValue(picScale.value()*oldScale);
         changeFloat(topOfSteps,bottomOfSteps,&picScale, 1, false);
 
-        logInfo() << "\nRESIZE ROTATE ICON - "
+        logInfo() << "\nRESIZE ROTATE_ICON - "
                   << "\nPICTURE DATA - "
                   << " \npicScale: "                   << picScale.value()
                   << " \nMargin X: "                   << margin.value(0)
                   << " \nMargin Y: "                   << margin.value(1)
 //                  << " \nDisplay: "                    << displayPicture.value()
                   << "\nPAGE WHERE - "
-                  << " \nPage TopOf (Model Name): "    << topOfSteps.modelName
-                  << " \nPage TopOf (Line Number): "   << topOfSteps.lineNumber
-                  << " \nPage BottomOf (Model Name): " << bottomOfSteps.modelName
-                  << " \nPage BottomOf (Line Number): "<< bottomOfSteps.lineNumber
+                  << " \nStep TopOf (Model Name): "    << topOfSteps.modelName
+                  << " \nStep TopOf (Line Number): "   << topOfSteps.lineNumber
+                  << " \nStep BottomOf (Model Name): " << bottomOfSteps.modelName
+                  << " \nStep BottomOf (Line Number): "<< bottomOfSteps.lineNumber
                   << "\nUSING PLACEMENT DATA - "
                   << " \nPlacement: "                  << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
                   << " \nJustification: "              << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
@@ -390,27 +410,22 @@ void RotateIconItem::change()
 //{
 //  QGraphicsItem::mouseReleaseEvent(event);
 
-//  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable) && positionChanged) {
+//  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
 
-//    InsertData insertData = insMeta.value();
+//    QPointF newPosition;
+//    newPosition = pos() - position;
 
-//    qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
-//    qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
+//    if (newPosition.x() || newPosition.y()) {
+//      positionChanged = true;
 
-//    PlacementData pld;
+//      PlacementData placementData = placement.value();
 
-//    pld.placement    = Center;
-//    pld.justification= Center;
-//    pld.relativeTo   = PageType;
-//    pld.preposition  = Inside;
+//      placementData.offsets[0] += newPosition.x()/relativeToSize[0];
+//      placementData.offsets[1] += newPosition.y()/relativeToSize[1];
+//      placement.setValue(placementData);
 
-//    calcOffsets(pld,insertData.offsets,topLeft,size);
-
-//    beginMacro(QString("MoveRotateIcon"));
-
-//    changeInsertOffset(&insMeta);
-
-//    endMacro();
+//      changePlacementOffset(step->topOfStep(),&placement,StepNumberType);
+//    }
 //  }
 //}
 

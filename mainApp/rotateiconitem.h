@@ -30,28 +30,32 @@
 #include "resize.h"
 
 #include "QsLog.h"
-class Page;
+
 class RotateIconItem : public ResizePixmapItem
 {
-  Page                     *page;
-  QPixmap                  *pixmap;
 public:
-
-  InsertMeta                insMeta;
-  RotateIconMeta            rotateIconMeta;
-  PlacementType             parentRelativeType;
+  Step                     *step;
+  QPixmap                  *pixmap;
 
   FloatMeta                 picScale;
+  RotateIconMeta            rotateIconMeta;
+  PlacementType             parentRelativeType;
+  PlacementRotateIcon       placementRotateIcon;
+
+  bool                      positionChanged;
+  QPointF                   position;
 
   RotateIconItem(
-    Page          *_page,
-    InsertMeta     _insMeta,
+    Step           *_step,
+    PlacementType   _parentRelativeType,
+    RotateIconMeta &_rotateIconMeta,
     QGraphicsItem  *parent = 0);
   ~RotateIconItem()
   {
   }
 
   void setRotateIconImage(QPixmap *pixmap);
+  //virtual void sizeIt(); vtable error on compile
 
 protected:
   virtual void change();

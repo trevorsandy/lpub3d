@@ -616,7 +616,7 @@ int Gui::addGraphicsPageItems(
             text->relativeToSize[1] = plPage.size[YY];
           }
         break;
-        case InsertData::InsertRotateIcon:
+//        case InsertData::InsertRotateIcon:
 //          {
 //            RotateIconItem *rotateIcon = new RotateIconItem(
 //                   page,
@@ -645,7 +645,7 @@ int Gui::addGraphicsPageItems(
 //            rotateIcon->relativeToSize[0] = plPage.size[XX];
 //            rotateIcon->relativeToSize[1] = plPage.size[YY];
 //          }
-        break;
+//        break;
         case InsertData::InsertArrow:
         break;
         case InsertData::InsertBom:

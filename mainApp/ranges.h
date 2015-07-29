@@ -94,7 +94,7 @@ class Page : public Steps {
     QList<InsertMeta> inserts;
     QList<InsertPixmapItem *> insertPixmaps;
     QList<PageAttributePixmapItem *> pageAttributePixmaps;
-    QList<RotateIconItem *> insertRotateIcons;
+//    QList<RotateIconItem *> insertRotateIcons;
     bool coverPage;
     bool frontCover;
     bool backCover;
@@ -115,10 +115,10 @@ class Page : public Steps {
       pageAttributePixmaps.append(pixMap);
     }
 
-    void addInsertRotateIcon(RotateIconItem *pixMap)
-    {
-      insertRotateIcons.append(pixMap);
-    }
+//    void addInsertRotateIcon(RotateIconItem *pixMap)
+//    {
+//      insertRotateIcons.append(pixMap);
+//    }
 
     void freePage()
     {
@@ -130,13 +130,13 @@ class Page : public Steps {
         PageAttributePixmapItem *pixmap = pageAttributePixmaps[i];
         delete pixmap;
       }
-      for (int i = 0; i < insertRotateIcons.size(); i++) {
-        RotateIconItem *pixmap = insertRotateIcons[i];
-        delete pixmap;
-      }
+//      for (int i = 0; i < insertRotateIcons.size(); i++) {
+//        RotateIconItem *pixmap = insertRotateIcons[i];
+//        delete pixmap;
+//      }
       insertPixmaps.clear();
       pageAttributePixmaps.clear();
-      insertRotateIcons.clear();
+//      insertRotateIcons.clear();
       inserts.clear();
       freeSteps();
     }

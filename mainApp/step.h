@@ -47,24 +47,25 @@ enum PlacementType;
 class Step : public AbstractRangeElement
 {
   public: 
-    bool              calledOut;
-    bool              rotateIcon;
-    QList<Callout *>  list;
-    Pli               pli;
-    CsiItem          *csiItem;
-    Placement         iconPlacement;
-    Placement         csiPlacement;
-    QPixmap           csiPixmap;
-    PlacementNum      stepNumber;
-    bool              showStepNumber;
-    int               submodelLevel;
-    bool              pliPerStep;
-    static bool       refreshCsi;
-    PlacementMeta     placement;
-    QString           pngName;
-    QString           csi3DName;
-    PlacementHeader   pageHeader;
-    PlacementFooter   pageFooter;
+    bool                  calledOut;
+    bool                  placeRotateIcon;
+    QList<Callout *>      list;
+    Pli                   pli;
+    CsiItem              *csiItem;
+    RotateIconItem       *rotateIconItem;
+    PlacementRotateIcon   rotateIcon;
+    Placement             csiPlacement;
+    QPixmap               csiPixmap;
+    PlacementNum          stepNumber;
+    bool                  showStepNumber;
+    int                   submodelLevel;
+    bool                  pliPerStep;
+    static bool           refreshCsi;
+    PlacementMeta         placement;
+    QString               pngName;
+    QString               csi3DName;
+    PlacementHeader       pageHeader;
+    PlacementFooter       pageFooter;
 
     Step(
       Where                 &topOfStep,
@@ -73,7 +74,7 @@ class Step : public AbstractRangeElement
       Meta                  &meta, 
       bool                   calledOut, 
       bool                   multiStep,
-      bool                   rotateIcon = false);
+      bool                   placeRotateIcon = false);
 
     virtual ~Step();
 

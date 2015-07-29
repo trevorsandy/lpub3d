@@ -50,10 +50,20 @@ void PlacementNum::sizeit(QString format)
     QFont   f;
     f.fromString(font);
     gti.setFont(f);
-    size[0] = int(gti.document()->size().width());
-    size[1] = int(gti.document()->size().height());
+    size[XX] = int(gti.document()->size().width());
+    size[YY] = int(gti.document()->size().height());
   }
 }
+
+void PlacementRotateIcon::sizeit()
+{
+  size[0] = int(meta->LPub.rotateIcon.size.valuePixels(0));
+  size[1] = int(meta->LPub.rotateIcon.size.valuePixels(1));
+
+  size[0] += 2*int(meta->LPub.rotateIcon.border.valuePixels().thickness);
+  size[1] += 2*int(meta->LPub.rotateIcon.border.valuePixels().thickness);
+}
+
 
 /* add a placement element (ranges, range, setep, callout, pli ...) to the list */
 
