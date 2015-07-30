@@ -1315,14 +1315,46 @@ public:
 class CalloutRotateIconMeta : public BranchMeta
 {
 public:
-  PlacementMeta placement;
-  MarginsMeta   margin;
+  StringMeta        arrowColour;
+  UnitsMeta         size;
+  FloatMeta	    picScale;
+  BorderMeta        border;
+  BackgroundMeta    background;
+  MarginsMeta       margin;
+  PlacementMeta     placement;
+  BoolMeta          display;
+  StringListMeta    subModelColor;
+
   CalloutRotateIconMeta();
   CalloutRotateIconMeta(const CalloutRotateIconMeta &rhs) : BranchMeta(rhs)
   {
   }
 
   virtual ~CalloutRotateIconMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
+class MultiStepRotateIconMeta : public BranchMeta
+{
+public:
+  StringMeta        arrowColour;
+  UnitsMeta         size;
+  FloatMeta	    picScale;
+  BorderMeta        border;
+  BackgroundMeta    background;
+  MarginsMeta       margin;
+  PlacementMeta     placement;
+  BoolMeta          display;
+  StringListMeta    subModelColor;
+
+  MultiStepRotateIconMeta();
+  MultiStepRotateIconMeta(const MultiStepRotateIconMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~MultiStepRotateIconMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2009,7 +2041,7 @@ public:
   MarginsMeta    margin;
   CalloutCsiMeta csi;
   CalloutPliMeta pli;
-  CalloutRotateIconMeta rotateIcon;
+  MultiStepRotateIconMeta rotateIcon;
   NumberPlacementMeta stepNum;
   SepMeta        sep;
   FreeFormMeta   freeform;

@@ -163,6 +163,7 @@ void NumberPlacementItem::setAttributes(
   setToolTip(toolTip);
   setParentItem(_parent);
 }
+
 void NumberPlacementItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {     
   QGraphicsItem::mousePressEvent(event);

@@ -85,15 +85,14 @@ Step::Step(
   pageFooter.size[XX]       = meta.LPub.page.pageFooter.size.valuePixels(XX);
   pageFooter.size[YY]       = meta.LPub.page.pageFooter.size.valuePixels(YY);
   csiItem                   = NULL;
-  rotateIconItem            = NULL;
 
   if (calledOut) {
     csiPlacement.margin     = meta.LPub.callout.csi.margin;    // assembly meta's
     csiPlacement.placement  = meta.LPub.callout.csi.placement;
     pli.margin              = meta.LPub.callout.pli.margin;    // PLI info
+    pli.placement           = meta.LPub.callout.pli.placement;
     rotateIcon.placement    = meta.LPub.callout.rotateIcon.placement;
     rotateIcon.margin       = meta.LPub.callout.rotateIcon.margin;
-    pli.placement           = meta.LPub.callout.pli.placement;
     stepNumber.placement    = meta.LPub.callout.stepNum.placement;
     stepNumber.font         = meta.LPub.callout.stepNum.font.valueFoo();
     stepNumber.color        = meta.LPub.callout.stepNum.color.value();
@@ -1068,6 +1067,7 @@ void Step::addGraphicsItems(
   offsetX += loc[XX];
   offsetY += loc[YY];
   
+  // CSI
   csiItem = new CsiItem(this,
                         meta,
                         csiPixmap, 
@@ -1079,12 +1079,14 @@ void Step::addGraphicsItems(
                   offsetY + csiItem->loc[YY]);
   csiItem->setFlag(QGraphicsItem::ItemIsMovable,movable);
 
+  // PLI
   if (pli.tsize()) {
     pli.addPli(submodelLevel, parent);
     pli.setPos(offsetX + pli.loc[XX],
                offsetY + pli.loc[YY]);
   }
   
+  // Step Number
   if (stepNumber.number > 0 && ! onlyChild() && showStepNumber) {
     StepNumberItem *sn; 
     if (calledOut) {
@@ -1108,18 +1110,27 @@ void Step::addGraphicsItems(
     sn->setFlag(QGraphicsItem::ItemIsMovable,movable);
   }
 
+  // Rotate Icon
   if (placeRotateIcon){
-      //      RotateIconItem *ri;
-      rotateIconItem = new RotateIconItem(this,
-                                          parentRelativeType,
-                                          meta->LPub.rotateIcon,
-                                          parent);
-      rotateIconItem->setPos(offsetX + rotateIcon.loc[XX],
-                             offsetY + rotateIcon.loc[YY]);
+      RotateIconItem *ri;
+      if (calledOut){
+          ri = new CalloutRotateIconItem(this,
+                                         parentRelativeType,
+                                         meta->LPub.callout.rotateIcon,
+                                         parent);
+        } else {
+          ri = new MultiStepRotateIconItem(this,
+                                           parentRelativeType,
+                                           meta->LPub.multiStep.rotateIcon,
+                                           parent);
+        }
+      ri->setPos(offsetX + rotateIcon.loc[XX],
+                 offsetY + rotateIcon.loc[YY]);
 
-      rotateIconItem->setFlag(QGraphicsItem::ItemIsMovable,movable);
+      ri->setFlag(QGraphicsItem::ItemIsMovable,movable);
     }
 
+  // Callouts
   for (int i = 0; i < list.size(); i++) {
 
     QApplication::processEvents();

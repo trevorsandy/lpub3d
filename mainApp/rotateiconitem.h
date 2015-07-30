@@ -40,27 +40,64 @@ public:
   FloatMeta                 picScale;
   RotateIconMeta            rotateIconMeta;
   PlacementType             parentRelativeType;
+
   PlacementRotateIcon       placementRotateIcon;
 
   bool                      positionChanged;
   QPointF                   position;
 
+  RotateIconItem();
+
   RotateIconItem(
     Step           *_step,
     PlacementType   _parentRelativeType,
     RotateIconMeta &_rotateIconMeta,
-    QGraphicsItem  *parent = 0);
+    QGraphicsItem  *_parent = 0);
   ~RotateIconItem()
   {
   }
 
+  void setAttributes(
+      Step           *_step,
+      PlacementType   _parentRelativeType,
+      RotateIconMeta &_rotateIconMeta,
+      QGraphicsItem  *parent = 0);
+
   void setRotateIconImage(QPixmap *pixmap);
-  //virtual void sizeIt(); vtable error on compile
 
 protected:
   virtual void change();
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 };
 
+class CalloutRotateIconItem : public RotateIconItem
+{
+  Step           *step;
+  RotateIconMeta rotateIconMeta;
+public:
+  CalloutRotateIconItem(
+    Step                  *_step,
+    PlacementType          _parentRelativeType,
+    CalloutRotateIconMeta &_rotateIconMeta,
+    QGraphicsItem         *_parent = 0);
+protected:
+  virtual void change();
+  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+};
+
+class MultiStepRotateIconItem : public RotateIconItem
+{
+  Step           *step;
+  RotateIconMeta rotateIconMeta;
+public:
+  MultiStepRotateIconItem(
+    Step                    *_step,
+    PlacementType            _parentRelativeType,
+    MultiStepRotateIconMeta &_rotateIconMeta,
+    QGraphicsItem           *_parent = 0);
+protected:
+  virtual void change();
+  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+};
 
 #endif // ROTATEICONITEM_H

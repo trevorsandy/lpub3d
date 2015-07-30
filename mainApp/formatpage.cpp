@@ -1313,7 +1313,8 @@ int Gui::addGraphicsPageItems(
           step->pli.setPos(step->pli.loc[XX],
                            step->pli.loc[YY]);
 
-          // allocate QGraphicsTextItem for rotate icon
+          // allocate QGraphicsPixmapItem for rotate icon
+
           if (step->placeRotateIcon) {
 
               step->rotateIcon.sizeit();

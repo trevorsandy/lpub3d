@@ -322,10 +322,10 @@ public:
   PlacementRotateIcon()
   {
   }
-  void sizeit();
   void setSize(
       UnitsMeta _size,
       float     _borderThickness = 0);
+  void sizeit();
 };
 
 #endif
