@@ -130,17 +130,17 @@ enum PlacementType {          //  placement dialog codes:
   PagePlugImageType,          //21 pit
   PageHeaderType,             //22 ph
   PageFooterType,             //23 pf
+  RotateIconType,             //24
 
-  SingleStepType,             //24
-  SubmodelInstanceCountType,  //25
+  SingleStepType,             //25
+  SubmodelInstanceCountType,  //26
 
-  StepType,                   //26
-  RangeType,                  //27
-  ReserveType,                //28
-  BomType,                    //29
-  CoverPageType,              //30
-  RotateIconType,             //31
-  NumRelatives                //33
+  StepType,                   //27
+  RangeType,                  //28
+  ReserveType,                //29
+  BomType,                    //31
+  CoverPageType,              //31
+  NumRelatives                //32
 };
 
 enum pageType{

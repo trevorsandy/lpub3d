@@ -52,10 +52,13 @@ class Step : public AbstractRangeElement
     QList<Callout *>      list;
     Pli                   pli;
     CsiItem              *csiItem;
+    CalloutRotateIconMeta   calloutRotateIconMeta;
+    MultiStepRotateIconMeta multiStepRotateIconMeta;
     PlacementRotateIcon   rotateIcon;
     Placement             csiPlacement;
     QPixmap               csiPixmap;
     PlacementNum          stepNumber;
+    NumberPlacementMeta   numberPlacemetMeta;
     bool                  showStepNumber;
     int                   submodelLevel;
     bool                  pliPerStep;
@@ -64,13 +67,13 @@ class Step : public AbstractRangeElement
     QString               pngName;
     QString               csi3DName;
     PlacementHeader       pageHeader;
-    PlacementFooter       pageFooter;
+    PlacementFooter       pageFooter;  
 
     Step(
       Where                 &topOfStep,
       AbstractStepsElement *_parent,
       int                    num, 
-      Meta                  &meta, 
+      Meta                  &_meta,
       bool                   calledOut, 
       bool                   multiStep);
 

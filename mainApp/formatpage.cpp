@@ -1324,6 +1324,11 @@ int Gui::addGraphicsPageItems(
                     page->relativeType,
                     page->meta.LPub.rotateIcon,
                     pageBg);
+
+              logWarn() << "\nROTATE_ICON SIGLE-STEP - "
+                        << "\nBACKGROUND - "
+                        << "\nColour - " << page->meta.LPub.rotateIcon.background.value().string
+                           ;
               rotateIcon->setPos(step->rotateIcon.loc[XX],
                                  step->rotateIcon.loc[YY]);
               rotateIcon->relativeToSize[0] = step->rotateIcon.size[0];
@@ -1409,7 +1414,7 @@ int Gui::addGraphicsPageItems(
     // place all the steps in the group relative to each other, including
     // any callouts placed relative to steps
 
-    page->sizeIt();             // multi-step
+    page->sizeIt();             // size multi-step
 
     plPage.relativeToSg(page);  // place callouts relative to PAGE
     plPage.placeRelative(page); // place multi-step relative to the page    

@@ -314,22 +314,31 @@ void RotateIconItem::contextMenuEvent(
       return;
     }
 
-  Where topOfStep     = step->topOfStep();
-  Where bottomOfStep  = step->bottomOfStep();
-  Where topOfSteps    = step->topOfSteps();
-  Where bottomOfSteps = step->bottomOfSteps();
+  Where top;
+  Where bottom;
+
+  switch (parentRelativeType) {
+    case CalloutType:
+      top    = step->topOfCallout();
+      bottom = step->bottomOfCallout();
+    break;
+    default:
+      top    = step->topOfStep();
+      bottom = step->bottomOfStep();
+    break;
+  }
 
   if (selectedAction == placementAction) {
 
-      bool multiStep                = parentRelativeType == StepGroupType;
+      bool multiStep = parentRelativeType == StepGroupType;
       logInfo() << "\nMOVE ROTATE_ICON - "
                 << "\nPAGE- "
                 << (multiStep ? " \nMulti-Step Page" : " \nSingle-Step Page")
                 << "\nPAGE WHERE -                  "
-                << " \nPage TopOf (Model Name):     " << topOfSteps.modelName
-                << " \nPage TopOf (Line Number):    " << topOfSteps.lineNumber
-                << " \nPage BottomOf (Model Name):  " << bottomOfSteps.modelName
-                << " \nPage BottomOf (Line Number): " << bottomOfSteps.lineNumber
+                << " \nPage TopOf (Model Name):     " << top.modelName
+                << " \nPage TopOf (Line Number):    " << top.lineNumber
+                << " \nPage BottomOf (Model Name):  " << bottom.modelName
+                << " \nPage BottomOf (Line Number): " << bottom.lineNumber
                 << "\nUSING PLACEMENT DATA -        "
                 << " \nPlacement:                   " << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
                 << " \nJustification:               " << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
@@ -346,34 +355,34 @@ void RotateIconItem::contextMenuEvent(
       changePlacement(parentRelativeType,
                       SingleStepType,         //not using RotateIconType intentionally
                       pl+" Placement",
-                      topOfSteps,
-                      bottomOfSteps,
+                      top,
+                      bottom,
                       &rotateIconMeta.placement,true,1,0,false);
     } else if (selectedAction == backgroundAction) {
       changeBackground(pl+" Background",
-                       topOfSteps,
-                       bottomOfSteps,
+                       top,
+                       bottom,
                        &rotateIconMeta.background);
     } else if (selectedAction == borderAction) {
       changeBorder(pl+" Border",
-                   topOfSteps,
-                   bottomOfSteps,
+                   top,
+                   bottom,
                    &rotateIconMeta.border);
     } else if (selectedAction == marginAction) {
       changeMargins(pl+" Margins",
-                    topOfSteps,
-                    bottomOfSteps,
+                    top,
+                    bottom,
                     &rotateIconMeta.margin);
     } else if (selectedAction == displayAction){
-      changeBool(topOfSteps,
-                 bottomOfSteps,
+      changeBool(top,
+                 bottom,
                  &rotateIconMeta.display);
     } else if (selectedAction == editArrowAction) {
 
       //TODO
     } else if (selectedAction == deleteRotateIconAction) {
       beginMacro("DeleteRotateIcon");
-      deleteMeta(topOfStep);
+      deleteMeta(top);
       endMacro();
     }
 }
@@ -382,12 +391,23 @@ void RotateIconItem::change()
 {
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
 
-    Where topOfSteps              = step->topOfSteps();
-    Where bottomOfSteps           = step->bottomOfSteps();
+      Where top;
+      Where bottom;
+
+      switch (parentRelativeType) {
+        case CalloutType:
+          top    = step->topOfCallout();
+          bottom = step->bottomOfCallout();
+        break;
+        default:
+          top    = step->topOfStep();
+          bottom = step->bottomOfStep();
+        break;
+      }
 
     if (positionChanged) {
 
-      beginMacro(QString("DragPicture"));
+      beginMacro(QString("DragRotateIcon"));
 
       qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
       qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
@@ -395,10 +415,10 @@ void RotateIconItem::change()
 
       logInfo() << "\nCHANGE ROTATE_ICON - "
                 << "\nPAGE WHERE - "
-                << " \nStep TopOf (Model Name): "    << topOfSteps.modelName
-                << " \nStep TopOf (Line Number): "   << topOfSteps.lineNumber
-                << " \nStep BottomOf (Model Name): " << bottomOfSteps.modelName
-                << " \nStep BottomOf (Line Number): "<< bottomOfSteps.lineNumber
+                << " \nStep TopOf (Model Name): "    << top.modelName
+                << " \nStep TopOf (Line Number): "   << top.lineNumber
+                << " \nStep BottomOf (Model Name): " << bottom.modelName
+                << " \nStep BottomOf (Line Number): "<< bottom.lineNumber
                 << "\nUSING PLACEMENT DATA - "
                 << " \nPlacement: "                 << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
                 << " \nJustification: "             << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
@@ -412,7 +432,7 @@ void RotateIconItem::change()
                 << " \nParentRelativeType: "         << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
                 ;
 
-      changePlacementOffset(topOfSteps,
+      changePlacementOffset(top,
                            &placement,
                             relativeType);
 
@@ -420,18 +440,18 @@ void RotateIconItem::change()
 
     } else if (sizeChanged) {
 
-        beginMacro(QString("Resize"));
+        beginMacro(QString("ResizeRotateIcon"));
 
         qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
         qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
         calcOffsets(placement.value(),placement.value().offsets,topLeft,size);
 
-        changePlacementOffset(topOfSteps,
+        changePlacementOffset(top,
                              &placement,
                               relativeType);
 
         picScale.setValue(picScale.value()*oldScale);
-        changeFloat(topOfSteps,bottomOfSteps,&picScale, 1, false);
+        changeFloat(top,bottom,&picScale, 1, false);
 
         logInfo() << "\nRESIZE ROTATE_ICON - "
                   << "\nPICTURE DATA - "
@@ -440,10 +460,10 @@ void RotateIconItem::change()
                   << " \nMargin Y: "                   << margin.value(1)
 //                  << " \nDisplay: "                    << displayPicture.value()
                   << "\nPAGE WHERE - "
-                  << " \nStep TopOf (Model Name): "    << topOfSteps.modelName
-                  << " \nStep TopOf (Line Number): "   << topOfSteps.lineNumber
-                  << " \nStep BottomOf (Model Name): " << bottomOfSteps.modelName
-                  << " \nStep BottomOf (Line Number): "<< bottomOfSteps.lineNumber
+                  << " \nStep TopOf (Model Name): "    << top.modelName
+                  << " \nStep TopOf (Line Number): "   << top.lineNumber
+                  << " \nStep BottomOf (Model Name): " << bottom.modelName
+                  << " \nStep BottomOf (Line Number): "<< bottom.lineNumber
                   << "\nUSING PLACEMENT DATA - "
                   << " \nPlacement: "                  << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
                   << " \nJustification: "              << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
@@ -493,10 +513,19 @@ void CalloutRotateIconItem::contextMenuEvent(
       return;
     }
 
-  Where topOfStep     = step->topOfStep();
-  Where bottomOfStep  = step->bottomOfStep();
-  Where topOfSteps    = step->topOfSteps();
-  Where bottomOfSteps = step->bottomOfSteps();
+  Where top;
+  Where bottom;
+
+  switch (parentRelativeType) {
+    case CalloutType:
+      top    = step->topOfCallout();
+      bottom = step->bottomOfCallout();
+    break;
+    default:
+      top    = step->topOfStep();
+      bottom = step->bottomOfStep();
+    break;
+  }
 
   if (selectedAction == placementAction) {
 
@@ -505,10 +534,10 @@ void CalloutRotateIconItem::contextMenuEvent(
                 << "\nPAGE- "
                 << (multiStep ? " \nMulti-Step Page" : " \nSingle-Step Page")
                 << "\nPAGE WHERE -                  "
-                << " \nPage TopOf (Model Name):     " << topOfSteps.modelName
-                << " \nPage TopOf (Line Number):    " << topOfSteps.lineNumber
-                << " \nPage BottomOf (Model Name):  " << bottomOfSteps.modelName
-                << " \nPage BottomOf (Line Number): " << bottomOfSteps.lineNumber
+                << " \nPage TopOf (Model Name):     " << top.modelName
+                << " \nPage TopOf (Line Number):    " << top.lineNumber
+                << " \nPage BottomOf (Model Name):  " << bottom.modelName
+                << " \nPage BottomOf (Line Number): " << bottom.lineNumber
                 << "\nUSING PLACEMENT DATA -        "
                 << " \nPlacement:                   " << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
                 << " \nJustification:               " << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
@@ -525,34 +554,34 @@ void CalloutRotateIconItem::contextMenuEvent(
       changePlacement(parentRelativeType,
                       SingleStepType,         //not using RotateIconType intentionally
                       pl+" Placement",
-                      topOfSteps,
-                      bottomOfSteps,
+                      top,
+                      bottom,
                       &rotateIconMeta.placement,true,1,0,false);
     } else if (selectedAction == backgroundAction) {
       changeBackground(pl+" Background",
-                       topOfSteps,
-                       bottomOfSteps,
+                       top,
+                       bottom,
                        &rotateIconMeta.background);
     } else if (selectedAction == borderAction) {
       changeBorder(pl+" Border",
-                   topOfSteps,
-                   bottomOfSteps,
+                   top,
+                   bottom,
                    &rotateIconMeta.border);
     } else if (selectedAction == marginAction) {
       changeMargins(pl+" Margins",
-                    topOfSteps,
-                    bottomOfSteps,
+                    top,
+                    bottom,
                     &rotateIconMeta.margin);
     } else if (selectedAction == displayAction){
-      changeBool(topOfSteps,
-                 bottomOfSteps,
+      changeBool(top,
+                 bottom,
                  &rotateIconMeta.display);
     } else if (selectedAction == editArrowAction) {
 
       //TODO
     } else if (selectedAction == deleteRotateIconAction) {
       beginMacro("DeleteRotateIcon");
-      deleteMeta(topOfStep);
+      deleteMeta(top);
       endMacro();
     }
 }
@@ -561,12 +590,23 @@ void CalloutRotateIconItem::change()
 {
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
 
-    Where topOfSteps              = step->topOfSteps();
-    Where bottomOfSteps           = step->bottomOfSteps();
+      Where top;
+      Where bottom;
+
+      switch (parentRelativeType) {
+        case CalloutType:
+          top    = step->topOfCallout();
+          bottom = step->bottomOfCallout();
+        break;
+        default:
+          top    = step->topOfStep();
+          bottom = step->bottomOfStep();
+        break;
+      }
 
     if (positionChanged) {
 
-      beginMacro(QString("DragPicture"));
+      beginMacro(QString("DragRotateIcon"));
 
       qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
       qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
@@ -574,10 +614,10 @@ void CalloutRotateIconItem::change()
 
       logInfo() << "\nCHANGE CALLOUT ROTATE_ICON - "
                 << "\nPAGE WHERE - "
-                << " \nStep TopOf (Model Name): "    << topOfSteps.modelName
-                << " \nStep TopOf (Line Number): "   << topOfSteps.lineNumber
-                << " \nStep BottomOf (Model Name): " << bottomOfSteps.modelName
-                << " \nStep BottomOf (Line Number): "<< bottomOfSteps.lineNumber
+                << " \nStep TopOf (Model Name): "    << top.modelName
+                << " \nStep TopOf (Line Number): "   << top.lineNumber
+                << " \nStep BottomOf (Model Name): " << bottom.modelName
+                << " \nStep BottomOf (Line Number): "<< bottom.lineNumber
                 << "\nUSING PLACEMENT DATA - "
                 << " \nPlacement: "                 << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
                 << " \nJustification: "             << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
@@ -591,7 +631,7 @@ void CalloutRotateIconItem::change()
                 << " \nParentRelativeType: "         << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
                 ;
 
-      changePlacementOffset(topOfSteps,
+      changePlacementOffset(top,
                            &placement,
                             relativeType);
 
@@ -599,18 +639,18 @@ void CalloutRotateIconItem::change()
 
     } else if (sizeChanged) {
 
-        beginMacro(QString("Resize"));
+        beginMacro(QString("ResizeRotateIcon"));
 
         qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
         qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
         calcOffsets(placement.value(),placement.value().offsets,topLeft,size);
 
-        changePlacementOffset(topOfSteps,
+        changePlacementOffset(top,
                              &placement,
                               relativeType);
 
         picScale.setValue(picScale.value()*oldScale);
-        changeFloat(topOfSteps,bottomOfSteps,&picScale, 1, false);
+        changeFloat(top,bottom,&picScale, 1, false);
 
         logInfo() << "\nRESIZE CALLOUT ROTATE_ICON - "
                   << "\nPICTURE DATA - "
@@ -619,10 +659,10 @@ void CalloutRotateIconItem::change()
                   << " \nMargin Y: "                   << margin.value(1)
 //                  << " \nDisplay: "                    << displayPicture.value()
                   << "\nPAGE WHERE - "
-                  << " \nStep TopOf (Model Name): "    << topOfSteps.modelName
-                  << " \nStep TopOf (Line Number): "   << topOfSteps.lineNumber
-                  << " \nStep BottomOf (Model Name): " << bottomOfSteps.modelName
-                  << " \nStep BottomOf (Line Number): "<< bottomOfSteps.lineNumber
+                  << " \nStep TopOf (Model Name): "    << top.modelName
+                  << " \nStep TopOf (Line Number): "   << top.lineNumber
+                  << " \nStep BottomOf (Model Name): " << bottom.modelName
+                  << " \nStep BottomOf (Line Number): "<< bottom.lineNumber
                   << "\nUSING PLACEMENT DATA - "
                   << " \nPlacement: "                  << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
                   << " \nJustification: "              << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
@@ -672,22 +712,31 @@ void MultiStepRotateIconItem::contextMenuEvent(
       return;
     }
 
-  Where topOfStep     = step->topOfStep();
-  Where bottomOfStep  = step->bottomOfStep();
-  Where topOfSteps    = step->topOfSteps();
-  Where bottomOfSteps = step->bottomOfSteps();
+  Where top;
+  Where bottom;
+
+  switch (parentRelativeType) {
+    case CalloutType:
+      top    = step->topOfCallout();
+      bottom = step->bottomOfCallout();
+    break;
+    default:
+      top    = step->topOfStep();
+      bottom = step->bottomOfStep();
+    break;
+  }
 
   if (selectedAction == placementAction) {
 
-      bool multiStep                = parentRelativeType == StepGroupType;
+      bool multiStep = parentRelativeType == StepGroupType;
       logInfo() << "\nMOVE MULTISCREEN ROTATE_ICON - "
                 << "\nPAGE- "
                 << (multiStep ? " \nMulti-Step Page" : " \nSingle-Step Page")
                 << "\nPAGE WHERE -                  "
-                << " \nPage TopOf (Model Name):     " << topOfSteps.modelName
-                << " \nPage TopOf (Line Number):    " << topOfSteps.lineNumber
-                << " \nPage BottomOf (Model Name):  " << bottomOfSteps.modelName
-                << " \nPage BottomOf (Line Number): " << bottomOfSteps.lineNumber
+                << " \nPage TopOf (Model Name):     " << top.modelName
+                << " \nPage TopOf (Line Number):    " << top.lineNumber
+                << " \nPage BottomOf (Model Name):  " << bottom.modelName
+                << " \nPage BottomOf (Line Number): " << bottom.lineNumber
                 << "\nUSING PLACEMENT DATA -        "
                 << " \nPlacement:                   " << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
                 << " \nJustification:               " << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
@@ -704,34 +753,34 @@ void MultiStepRotateIconItem::contextMenuEvent(
       changePlacement(parentRelativeType,
                       SingleStepType,         //not using RotateIconType intentionally
                       pl+" Placement",
-                      topOfSteps,
-                      bottomOfSteps,
+                      top,
+                      bottom,
                       &rotateIconMeta.placement,true,1,0,false);
     } else if (selectedAction == backgroundAction) {
       changeBackground(pl+" Background",
-                       topOfSteps,
-                       bottomOfSteps,
+                       top,
+                       bottom,
                        &rotateIconMeta.background);
     } else if (selectedAction == borderAction) {
       changeBorder(pl+" Border",
-                   topOfSteps,
-                   bottomOfSteps,
+                   top,
+                   bottom,
                    &rotateIconMeta.border);
     } else if (selectedAction == marginAction) {
       changeMargins(pl+" Margins",
-                    topOfSteps,
-                    bottomOfSteps,
+                    top,
+                    bottom,
                     &rotateIconMeta.margin);
     } else if (selectedAction == displayAction){
-      changeBool(topOfSteps,
-                 bottomOfSteps,
+      changeBool(top,
+                 bottom,
                  &rotateIconMeta.display);
     } else if (selectedAction == editArrowAction) {
 
       //TODO
     } else if (selectedAction == deleteRotateIconAction) {
       beginMacro("DeleteRotateIcon");
-      deleteMeta(topOfStep);
+      deleteMeta(top);
       endMacro();
     }
 }
@@ -740,12 +789,23 @@ void MultiStepRotateIconItem::change()
 {
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
 
-    Where topOfSteps              = step->topOfSteps();
-    Where bottomOfSteps           = step->bottomOfSteps();
+      Where top;
+      Where bottom;
+
+      switch (parentRelativeType) {
+        case CalloutType:
+          top    = step->topOfCallout();
+          bottom = step->bottomOfCallout();
+        break;
+        default:
+          top    = step->topOfStep();
+          bottom = step->bottomOfStep();
+        break;
+      }
 
     if (positionChanged) {
 
-      beginMacro(QString("DragPicture"));
+      beginMacro(QString("DragRotateIcon"));
 
       qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
       qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
@@ -753,10 +813,10 @@ void MultiStepRotateIconItem::change()
 
       logInfo() << "\nCHANGE MULTISCREEN ROTATE_ICON - "
                 << "\nPAGE WHERE - "
-                << " \nStep TopOf (Model Name): "    << topOfSteps.modelName
-                << " \nStep TopOf (Line Number): "   << topOfSteps.lineNumber
-                << " \nStep BottomOf (Model Name): " << bottomOfSteps.modelName
-                << " \nStep BottomOf (Line Number): "<< bottomOfSteps.lineNumber
+                << " \nStep TopOf (Model Name): "    << top.modelName
+                << " \nStep TopOf (Line Number): "   << top.lineNumber
+                << " \nStep BottomOf (Model Name): " << bottom.modelName
+                << " \nStep BottomOf (Line Number): "<< bottom.lineNumber
                 << "\nUSING PLACEMENT DATA - "
                 << " \nPlacement: "                 << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
                 << " \nJustification: "             << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
@@ -770,7 +830,7 @@ void MultiStepRotateIconItem::change()
                 << " \nParentRelativeType: "         << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
                 ;
 
-      changePlacementOffset(topOfSteps,
+      changePlacementOffset(top,
                            &placement,
                             relativeType);
 
@@ -778,18 +838,18 @@ void MultiStepRotateIconItem::change()
 
     } else if (sizeChanged) {
 
-        beginMacro(QString("Resize"));
+        beginMacro(QString("ResizeRotateIcon"));
 
         qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
         qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
         calcOffsets(placement.value(),placement.value().offsets,topLeft,size);
 
-        changePlacementOffset(topOfSteps,
+        changePlacementOffset(top,
                              &placement,
                               relativeType);
 
         picScale.setValue(picScale.value()*oldScale);
-        changeFloat(topOfSteps,bottomOfSteps,&picScale, 1, false);
+        changeFloat(top,bottom,&picScale, 1, false);
 
         logInfo() << "\nRESIZE MULTISCREEN ROTATE_ICON - "
                   << "\nPICTURE DATA - "
@@ -798,10 +858,10 @@ void MultiStepRotateIconItem::change()
                   << " \nMargin Y: "                   << margin.value(1)
 //                  << " \nDisplay: "                    << displayPicture.value()
                   << "\nPAGE WHERE - "
-                  << " \nStep TopOf (Model Name): "    << topOfSteps.modelName
-                  << " \nStep TopOf (Line Number): "   << topOfSteps.lineNumber
-                  << " \nStep BottomOf (Model Name): " << bottomOfSteps.modelName
-                  << " \nStep BottomOf (Line Number): "<< bottomOfSteps.lineNumber
+                  << " \nStep TopOf (Model Name): "    << top.modelName
+                  << " \nStep TopOf (Line Number): "   << top.lineNumber
+                  << " \nStep BottomOf (Model Name): " << bottom.modelName
+                  << " \nStep BottomOf (Line Number): "<< bottom.lineNumber
                   << "\nUSING PLACEMENT DATA - "
                   << " \nPlacement: "                  << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
                   << " \nJustification: "              << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"

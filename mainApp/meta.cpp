@@ -559,7 +559,7 @@ QString relativeNames[] =
   "DOCUMENT_TITLE","MODEL_ID","DOCUMENT_AUTHOR","PUBLISH_URL","MODEL_DESCRIPTION",
   "PUBLISH_DESCRIPTION","PUBLISH_COPYRIGHT","PUBLISH_EMAIL","LEGO_DISCLAIMER",
   "MODEL_PIECES","APP_PLUG","MODEL_CATEGORY","DOCUMENT_LOGO","DOCUMENT_COVER_IMAGE",
-  "APP_PLUG_IMAGE","PAGE_HEADER","PAGE_FOOTER"
+  "APP_PLUG_IMAGE","PAGE_HEADER","PAGE_FOOTER","ROTATE_ICON"
 };
 
 PlacementMeta::PlacementMeta() : LeafMeta()
@@ -596,7 +596,7 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
                         "DOCUMENT_TITLE|MODEL_ID|DOCUMENT_AUTHOR|PUBLISH_URL|MODEL_DESCRIPTION|"
                         "PUBLISH_DESCRIPTION|PUBLISH_COPYRIGHT|PUBLISH_EMAIL|LEGO_DISCLAIMER|"
                         "MODEL_PIECES|APP_PLUG|MODEL_CATEGORY|DOCUMENT_LOGO|DOCUMENT_COVER_IMAGE|"
-                        "APP_PLUG_IMAGE|PAGE_HEADER|PAGE_FOOTER)$";
+                        "APP_PLUG_IMAGE|PAGE_HEADER|PAGE_FOOTER|ROTATE_ICON)$";
 
   _placementR    = _value[pushed].rectPlacement;
   _relativeTo    = _value[pushed].relativeTo;
@@ -806,7 +806,7 @@ void PlacementMeta::doc(QStringList &out, QString preamble)
 {
   out << preamble + " (TOP|BOTTOM) (LEFT|CENTER|RIGHT) (PAGE|ASSEM (INSIDE|OUTSIDE)|MULTI_STEP|STEP_NUMBER|PLI|CALLOUT)";
   out << preamble + " (LEFT|RIGHT) (TOP|CENTER|BOTTOM) (PAGE|ASSEM (INSIDE|OUTSIDE)|MULTI_STEP|STEP_NUMBER|PLI|CALLOUT)";
-  out << preamble + " (TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT) (PAGE|ASSEM (INSIDE|OUTIDE)|MULTI_STEP|STEP_NUMBER|PLI|CALLOUT)";
+  out << preamble + " (TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT) (PAGE|ASSEM (INSIDE|OUTIDE)|MULTI_STEP|STEP_NUMBER|PLI|ROTATE_ICON|CALLOUT)";
 }
 /* ------------------ */ 
 
@@ -1145,7 +1145,7 @@ Rc FreeFormMeta::parse(QStringList &argv, int index,Where &here)
       rc = OkRc;
     } else if (argv.size() - index == 2) {
       _value[pushed].mode = true;
-      QRegExp rx("^(STEP_NUMBER|ASSEM|PLI)$");
+      QRegExp rx("^(STEP_NUMBER|ASSEM|PLI|ROTATE_ICON)$");
       if (argv[index].contains(rx)) {
           rx.setPattern("^(LEFT|RIGHT|TOP|BOTTOM|CENTER)$");
           if (argv[index+1].contains(rx)) {
@@ -1173,7 +1173,7 @@ QString FreeFormMeta::format(bool local, bool global)
 }
 void FreeFormMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (FALSE|(STEP_NUMBER|ASSEM|PLI) (LEFT|RIGHT|TOP|BOTTOM|CENTER))";
+  out << preamble + " (FALSE|(STEP_NUMBER|ASSEM|PLI|ROTATE_ICON) (LEFT|RIGHT|TOP|BOTTOM|CENTER))";
 }
 
 /* ------------------ */ 
@@ -2953,7 +2953,7 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
 
       tokenMap["SORT_BY"]        = SortByType;
       tokenMap["ANNOTATION"]     = AnnotationType;
-      //tokenMap["ROTATE_ICON"]    = RotateIconType;
+      tokenMap["ROTATE_ICON"]    = RotateIconType;
     }
 }
 

@@ -468,9 +468,6 @@ void Placement::justifyX(
   }
 }
 
-
-
-
 void Placement::justifyY(
   int          origin,
   int          height)

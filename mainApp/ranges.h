@@ -53,7 +53,7 @@ class Steps : public Placement {
     QList<AbstractStepsElement *> list;  // of range
     QGraphicsView *view;
     Pli            pli;
-    Where          top;   // needed for non-step pages
+    Where          top;                  // needed for non-step pages
     Where          bottom;
     bool           isMirrored;
 
@@ -94,7 +94,6 @@ class Page : public Steps {
     QList<InsertMeta> inserts;
     QList<InsertPixmapItem *> insertPixmaps;
     QList<PageAttributePixmapItem *> pageAttributePixmaps;
-//    QList<RotateIconItem *> insertRotateIcons;
     bool coverPage;
     bool frontCover;
     bool backCover;
@@ -115,11 +114,6 @@ class Page : public Steps {
       pageAttributePixmaps.append(pixMap);
     }
 
-//    void addInsertRotateIcon(RotateIconItem *pixMap)
-//    {
-//      insertRotateIcons.append(pixMap);
-//    }
-
     void freePage()
     {
       for (int i = 0; i < insertPixmaps.size(); i++) {
@@ -130,13 +124,8 @@ class Page : public Steps {
         PageAttributePixmapItem *pixmap = pageAttributePixmaps[i];
         delete pixmap;
       }
-//      for (int i = 0; i < insertRotateIcons.size(); i++) {
-//        RotateIconItem *pixmap = insertRotateIcons[i];
-//        delete pixmap;
-//      }
       insertPixmaps.clear();
       pageAttributePixmaps.clear();
-//      insertRotateIcons.clear();
       inserts.clear();
       freeSteps();
     }
