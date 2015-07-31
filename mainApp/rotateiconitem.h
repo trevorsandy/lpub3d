@@ -36,12 +36,16 @@ class RotateIconItem : public ResizePixmapItem
 public:
   Step                     *step;
   QPixmap                  *pixmap;
-
-  FloatMeta                 picScale;
-  RotateIconMeta            rotateIconMeta;
   PlacementType             parentRelativeType;
-
   PlacementRotateIcon       placementRotateIcon;
+
+  StringMeta                arrowColour;
+  UnitsMeta                 size;
+  FloatMeta                 picScale;
+  BorderMeta                border;
+  BackgroundMeta            background;
+  BoolMeta                  display;
+  StringListMeta            subModelColor;
 
   bool                      positionChanged;
   QPointF                   position;
@@ -65,36 +69,6 @@ public:
 
   void setRotateIconImage(QPixmap *pixmap);
 
-protected:
-  virtual void change();
-  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-};
-
-class CalloutRotateIconItem : public RotateIconItem
-{
-  Step           *step;
-  RotateIconMeta rotateIconMeta;
-public:
-  CalloutRotateIconItem(
-    Step                  *_step,
-    PlacementType          _parentRelativeType,
-    CalloutRotateIconMeta &_rotateIconMeta,
-    QGraphicsItem         *_parent = 0);
-protected:
-  virtual void change();
-  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-};
-
-class MultiStepRotateIconItem : public RotateIconItem
-{
-  Step           *step;
-  RotateIconMeta rotateIconMeta;
-public:
-  MultiStepRotateIconItem(
-    Step                    *_step,
-    PlacementType            _parentRelativeType,
-    MultiStepRotateIconMeta &_rotateIconMeta,
-    QGraphicsItem           *_parent = 0);
 protected:
   virtual void change();
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);

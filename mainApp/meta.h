@@ -1312,54 +1312,6 @@ public:
 
 /*------------------------*/
 
-class CalloutRotateIconMeta : public BranchMeta
-{
-public:
-  StringMeta        arrowColour;
-  UnitsMeta         size;
-  FloatMeta	    picScale;
-  BorderMeta        border;
-  BackgroundMeta    background;
-  MarginsMeta       margin;
-  PlacementMeta     placement;
-  BoolMeta          display;
-  StringListMeta    subModelColor;
-
-  CalloutRotateIconMeta();
-  CalloutRotateIconMeta(const CalloutRotateIconMeta &rhs) : BranchMeta(rhs)
-  {
-  }
-
-  virtual ~CalloutRotateIconMeta() {}
-  virtual void init(BranchMeta *parent, QString name);
-};
-
-/*------------------------*/
-
-class MultiStepRotateIconMeta : public BranchMeta
-{
-public:
-  StringMeta        arrowColour;
-  UnitsMeta         size;
-  FloatMeta	    picScale;
-  BorderMeta        border;
-  BackgroundMeta    background;
-  MarginsMeta       margin;
-  PlacementMeta     placement;
-  BoolMeta          display;
-  StringListMeta    subModelColor;
-
-  MultiStepRotateIconMeta();
-  MultiStepRotateIconMeta(const MultiStepRotateIconMeta &rhs) : BranchMeta(rhs)
-  {
-  }
-
-  virtual ~MultiStepRotateIconMeta() {}
-  virtual void init(BranchMeta *parent, QString name);
-};
-
-/*------------------------*/
-
 class NumberMeta : public BranchMeta
 {
 public:
@@ -2005,7 +1957,7 @@ public:
   MarginsMeta    margin;
   CalloutCsiMeta csi;               
   CalloutPliMeta pli;
-  CalloutRotateIconMeta rotateIcon;
+  RotateIconMeta rotateIcon;
   NumberPlacementMeta stepNum;
   SepMeta        sep;
   FreeFormMeta   freeform;
@@ -2041,7 +1993,7 @@ public:
   MarginsMeta    margin;
   CalloutCsiMeta csi;
   CalloutPliMeta pli;
-  MultiStepRotateIconMeta rotateIcon;
+  RotateIconMeta rotateIcon;
   NumberPlacementMeta stepNum;
   SepMeta        sep;
   FreeFormMeta   freeform;

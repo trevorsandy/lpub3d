@@ -92,7 +92,7 @@ Step::Step(
     pli.placement           = _meta.LPub.callout.pli.placement;
     rotateIcon.placement    = _meta.LPub.callout.rotateIcon.placement;
     rotateIcon.margin       = _meta.LPub.callout.rotateIcon.margin;
-    calloutRotateIconMeta   = _meta.LPub.callout.rotateIcon;
+    rotateIconMeta          = _meta.LPub.callout.rotateIcon;
     numberPlacemetMeta      = _meta.LPub.callout.stepNum;
     stepNumber.placement    = _meta.LPub.callout.stepNum.placement;
     stepNumber.font         = _meta.LPub.callout.stepNum.font.valueFoo();
@@ -106,7 +106,7 @@ Step::Step(
     pli.placement           = _meta.LPub.multiStep.pli.placement;
     rotateIcon.placement    = _meta.LPub.multiStep.rotateIcon.placement;
     rotateIcon.margin       = _meta.LPub.multiStep.rotateIcon.margin;
-    multiStepRotateIconMeta = _meta.LPub.multiStep.rotateIcon;
+    rotateIconMeta          = _meta.LPub.multiStep.rotateIcon;
     numberPlacemetMeta      = _meta.LPub.multiStep.stepNum;
     stepNumber.placement    = _meta.LPub.multiStep.stepNum.placement;
     stepNumber.font         = _meta.LPub.multiStep.stepNum.font.valueFoo();
@@ -1099,23 +1099,7 @@ void Step::addGraphicsItems(
                             "%d",
                             stepNumber.number,
                             parent);
-    logNotice() << "\nSTEP NUMBER MULTI-STEP - "
-                << "\nColour - " << numberPlacemetMeta.color.value();
-//    if (calledOut) {
-//      sn = new StepNumberItem(this,
-//                              parentRelativeType,
-//                              numberPlacemetMeta,
-//                              "%d",
-//                              stepNumber.number,
-//                              parent);
-//    } else {
-//      sn = new StepNumberItem(this,
-//                              parentRelativeType,
-//                              meta->LPub.multiStep.stepNum,
-//                              "%d",
-//                              stepNumber.number,
-//                              parent);
-//    }
+
     sn->setPos(offsetX + stepNumber.loc[XX],
                offsetY + stepNumber.loc[YY]);
 
@@ -1125,30 +1109,39 @@ void Step::addGraphicsItems(
   // Rotate Icon
   if (placeRotateIcon){
       RotateIconItem *ri;
-      if (calledOut){
-          ri = new CalloutRotateIconItem(this,
-                                         parentRelativeType,
-                                         meta->LPub.callout.rotateIcon,
-                                         parent);
+      ri = new RotateIconItem(this,
+                              parentRelativeType,
+                              rotateIconMeta,
+                              parent);
+      logNotice() << "\nROTATE_ICON MULTI-STEP - "
+                  << "\nBACKGROUND Meta (curMeta) - "
+                  << "\nColour - " << rotateIconMeta.background.value().string
+                     ;
+
+//      if (calledOut){
 //          ri = new CalloutRotateIconItem(this,
 //                                         parentRelativeType,
 //                                         meta->LPub.callout.rotateIcon,
 //                                         parent);
-        } else {
+//          ri = new CalloutRotateIconItem(this,
+//                                         parentRelativeType,
+//                                         meta->LPub.callout.rotateIcon,
+//                                         parent);
+//        } else {
 
-          ri = new MultiStepRotateIconItem(this,
-                                           parentRelativeType,
-                                           multiStepRotateIconMeta,
-                                           parent);
+//          ri = new MultiStepRotateIconItem(this,
+//                                           parentRelativeType,
+//                                           multiStepRotateIconMeta,
+//                                           parent);
 //          ri = new MultiStepRotateIconItem(this,
 //                                           parentRelativeType,
 //                                           meta->LPub.multiStep.rotateIcon,
 //                                           parent);
-          logNotice() << "\nROTATE_ICON MULTI-STEP - "
-                      << "\nBACKGROUND Meta (curMeta) - "
-                      << "\nColour - " << multiStepRotateIconMeta.background.value().string
-                         ;
-        }
+//          logNotice() << "\nROTATE_ICON MULTI-STEP - "
+//                      << "\nBACKGROUND Meta (curMeta) - "
+//                      << "\nColour - " << rotateIconMeta.background.value().string
+//                         ;
+//        }
       ri->setPos(offsetX + rotateIcon.loc[XX],
                  offsetY + rotateIcon.loc[YY]);
 

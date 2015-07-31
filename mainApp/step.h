@@ -52,8 +52,7 @@ class Step : public AbstractRangeElement
     QList<Callout *>      list;
     Pli                   pli;
     CsiItem              *csiItem;
-    CalloutRotateIconMeta   calloutRotateIconMeta;
-    MultiStepRotateIconMeta multiStepRotateIconMeta;
+    RotateIconMeta        rotateIconMeta;
     PlacementRotateIcon   rotateIcon;
     Placement             csiPlacement;
     QPixmap               csiPixmap;

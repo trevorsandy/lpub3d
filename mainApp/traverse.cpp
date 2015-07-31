@@ -333,14 +333,6 @@ int Gui::drawPage(
                               multiStep);
 
               range->append(step);
-              logTrace() << "\nROTATE_ICON TRAVERSE CREATE STEP- "
-                         << "\nBACKGROUND curMeta - "
-                         << "\nColour - " << curMeta.LPub.multiStep.rotateIcon.background.value().string
-                         << "\nBACKGROUND steps - "
-                         << "\nColour - " << steps->meta.LPub.multiStep.rotateIcon.background.value().string
-                         << "\nBACKGROUND stepGroup - "
-                         << "\nColour - " << steps->stepGroupMeta.LPub.multiStep.rotateIcon.background.value().string
-                            ;
             }
 
           /* addition of ldraw parts */
@@ -911,15 +903,6 @@ int Gui::drawPage(
 
               // normal case of parts added, and not NOSTEP
               if (partsAdded && ! noStep) {
-
-                  logTrace() << "\nROTATE_ICON TRAVERSE STEP META- "
-                             << "\nBACKGROUND curMeta - "
-                             << "\nColour - " << curMeta.LPub.multiStep.rotateIcon.background.value().string
-                             << "\nBACKGROUND steps - "
-                             << "\nColour - " << steps->meta.LPub.multiStep.rotateIcon.background.value().string
-                             << "\nBACKGROUND stepGroup - "
-                             << "\nColour - " << steps->stepGroupMeta.LPub.multiStep.rotateIcon.background.value().string
-                                ;
 
                   if (firstStep) {
                       steps->stepGroupMeta = curMeta;
