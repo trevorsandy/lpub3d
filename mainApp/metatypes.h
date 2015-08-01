@@ -280,10 +280,19 @@ public:
     BdrSquare,
     BdrRound
   } type;
+  enum Line {
+    BdrLnNone = 0,
+    BdrLnSolid,
+    BdrLnDash,
+    BdrLnDot,
+    BdrLnDashDot,
+    BdrLnDashDotDot,
+  };
   QString color;
   float   thickness;  // in units 
   float   radius;     // in units
   float   margin[2];  // in units
+  int     line;
   
   BorderData()
   {
@@ -292,6 +301,7 @@ public:
     margin[1] = 0;
     radius = 15;
     type = BdrNone;
+    line = BdrLnNone;
     color = "Black";
   }
 };

@@ -596,7 +596,8 @@ public:
 
   BorderGui(
     BorderMeta *meta,
-    QGroupBox  *parent = NULL);
+    QGroupBox  *parent  = NULL,
+    bool rotateArrow = false);
   ~BorderGui() {}
 
   virtual void apply(QString &modelName);
@@ -610,11 +611,14 @@ private:
   QPushButton *colorButton;
   QSpinBox    *spin;
   QLabel      *spinLabel;
+  QComboBox   *combo;
+  QComboBox   *lineCombo;
 
   void enable();
 
 public slots:
   void typeChange(QString const &);
+  void lineChange(QString const &);
   void thicknessChange(QString const &);
   void browseColor(bool);
   void radiusChange(int);

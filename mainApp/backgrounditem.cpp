@@ -140,7 +140,21 @@ void BackgroundItem::setBackground(
   pen.setColor(penColor);
   pen.setCapStyle(Qt::RoundCap);
   pen.setJoinStyle(Qt::RoundJoin);
-  pen.setStyle(Qt::SolidLine);
+  if (borderData.line == BorderData::BdrLnSolid){
+        pen.setStyle(Qt::SolidLine);
+    }
+  else if (borderData.line == BorderData::BdrLnDash){
+      pen.setStyle(Qt::DashLine);
+    }
+  else if (borderData.line == BorderData::BdrLnDot){
+      pen.setStyle(Qt::DotLine);
+    }
+  else if (borderData.line == BorderData::BdrLnDashDot){
+      pen.setStyle(Qt::DashDotLine);
+    }
+  else if (borderData.line == BorderData::BdrLnDashDotDot){
+      pen.setStyle(Qt::DashDotDotLine);
+    }
   pen.setWidth(bt);
 
   painter.setPen(pen);

@@ -920,6 +920,27 @@ public:
   {
     _value[pushed] = borderData;
   }
+  int setBorderLine(const QString argvIndex)
+  {
+    if (argvIndex == "0"){
+        return BorderData::BdrLnNone;
+      }
+    else if (argvIndex == "1"){
+      return BorderData::BdrLnSolid;
+      }
+    else if (argvIndex == "2"){
+      return BorderData::BdrLnDash;
+      }
+    else if (argvIndex == "3"){
+      return BorderData::BdrLnDot;
+      }
+    else if (argvIndex == "4"){
+      return BorderData::BdrLnDashDot;
+      }
+    else {//"Dot-Dot-Dash Line"
+      return BorderData::BdrLnDashDotDot;
+      }
+  }
   BorderData &valuePixels()
   {
     _result = _value[pushed];
@@ -1794,9 +1815,9 @@ public:
 class RotateIconMeta  : public BranchMeta
 {
 public:
-  StringMeta        arrowColour;
   UnitsMeta         size;
   FloatMeta	    picScale;
+  BorderMeta        arrow;
   BorderMeta        border;
   BackgroundMeta    background;
   MarginsMeta       margin;

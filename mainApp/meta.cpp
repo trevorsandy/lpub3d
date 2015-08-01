@@ -914,32 +914,41 @@ Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
 
   if (argv[index] == "NONE" && argv.size() - index >= 1) {
       _value[pushed].type = BorderData::BdrNone;
-      index++;
-      rc = OkRc;
-    } else if (argv[index] == "SQUARE" && argv.size() - index >= 3) {
       bool ok;
-      QString foo = argv[index+2];
-      argv[index+2].toFloat(&ok);
-      if (ok) {
-          _value[pushed].type = BorderData::BdrSquare;
-          _value[pushed].color = argv[index+1];
-          _value[pushed].thickness = argv[index+2].toFloat(&ok);
-          index += 3;
-          rc = OkRc;
+      argv[index+1].toInt(&ok);
+      if (ok){
+         _value[pushed].line = setBorderLine(argv[index+1]);
+         index++;
+         rc = OkRc;
         }
-    } else if (argv[index] == "ROUND" && argv.size() - index >= 4) {
+    } else if (argv[index] == "SQUARE" && argv.size() - index >= 4) {
       bool ok[2];
-      argv[index+2].toFloat(&ok[0]);
-      argv[index+3].toInt(&ok[1]);
+      argv[index+1].toInt(&ok[0]);
+      argv[index+3].toFloat(&ok[1]);
       if (ok[0] && ok[1]) {
-          _value[pushed].type = BorderData::BdrRound;
-          _value[pushed].color = argv[index+1];
-          _value[pushed].thickness = argv[index+2].toFloat(&ok[0]);
-          _value[pushed].radius    = argv[index+3].toInt(&ok[0]);
+          _value[pushed].type      = BorderData::BdrSquare;
+          _value[pushed].line      = setBorderLine(argv[index+1]);
+          _value[pushed].color     = argv[index+2];
+          _value[pushed].thickness = argv[index+3].toFloat(&ok[1]);
           index += 4;
           rc = OkRc;
         }
+    } else if (argv[index] == "ROUND" && argv.size() - index >= 5) {
+      bool ok[3];
+      argv[index+1].toInt(&ok[0]);
+      argv[index+3].toFloat(&ok[1]);
+      argv[index+4].toInt(&ok[2]);
+      if (ok[0] && ok[1] && ok[2]) {
+          _value[pushed].type      = BorderData::BdrRound;
+          _value[pushed].line      = setBorderLine(argv[index+1]);
+          _value[pushed].color     = argv[index+2];
+          _value[pushed].thickness = argv[index+3].toFloat(&ok[0]);
+          _value[pushed].radius    = argv[index+4].toInt(&ok[0]);
+          index += 5;
+          rc = OkRc;
+        }
     }
+
   if (rc == OkRc && argv.size() - index == 3) {
       if (argv[index] == "MARGINS") {
           bool ok[2];
@@ -962,26 +971,29 @@ Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
   return rc;
 }
 
-
 QString BorderMeta::format(bool local, bool global)
 {
   QString foo;
   switch (_value[pushed].type) {
     case BorderData::BdrNone:
-      foo = "NONE";
+      foo = QString("NONE %1")
+          .arg(_value[pushed].line);
       break;
     case BorderData::BdrSquare:
-      foo = QString("SQUARE %1 %2")
+      foo = QString("SQUARE %1 %2 %3")
+          .arg(_value[pushed].line)
           .arg(_value[pushed].color)
           .arg(_value[pushed].thickness);
       break;
     case BorderData::BdrRound:
-      foo = QString("ROUND %1 %2 %3")
+      foo = QString("ROUND %1 %2 %3 %4")
+          .arg(_value[pushed].line)
           .arg(_value[pushed].color)
           .arg(_value[pushed].thickness)
           .arg(_value[pushed].radius);
       break;
     }
+
   QString bar = QString(" MARGINS %1 %2")
       .arg(_value[pushed].margin[0])
       .arg(_value[pushed].margin[1]);
@@ -991,7 +1003,7 @@ QString BorderMeta::format(bool local, bool global)
 
 void BorderMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (NONE|SQUARE <color> <thickness>|ROUND <color> <thickness> <radius>) MARGINS <x> <y>";
+  out << preamble + " (NONE <line> |SQUARE <line> <color> <thickness>|ROUND <line> <color> <thickness> <radius>) MARGINS <x> <y>";
 }
 
 QString BorderMeta::text()
@@ -2004,6 +2016,7 @@ RotateIconMeta::RotateIconMeta() : BranchMeta()
   placement.setValue(RightOutside,CsiType);   // right outside single step
   BorderData borderData;
   borderData.type = BorderData::BdrRound;
+  borderData.line = BorderData::BdrLnSolid;
   borderData.color = "Black";
   borderData.thickness = DEFAULT_THICKNESS;
   borderData.radius = 10;
@@ -2012,7 +2025,14 @@ RotateIconMeta::RotateIconMeta() : BranchMeta()
   border.setValueInches(borderData);
   background.setValue(BackgroundData::BgTransparent);
   margin.setValuesInches(0.0f,0.0f);
-  arrowColour.setValue("Dark_Blue");
+  BorderData arrowData;
+  arrowData.type = BorderData::BdrSquare;
+  arrowData.line = BorderData::BdrLnSolid;
+  arrowData.color = "Blue";
+  arrowData.thickness = DEFAULT_THICKNESS;
+  arrowData.margin[0] = DEFAULT_MARGIN;
+  arrowData.margin[1] = DEFAULT_MARGIN;
+  arrow.setValueInches(arrowData);
   display.setValue(true);
   size.setValuesInches(0.52f,0.52f);
   size.setRange(1,1000);
@@ -2030,7 +2050,7 @@ void RotateIconMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
   size            .init(this,"SIZE");
-  arrowColour     .init(this,"ARROW_COLOUR");
+  arrow           .init(this,"ARROW");
   placement       .init(this,"PLACEMENT");
   border          .init(this,"BORDER");
   background      .init(this,"BACKGROUND");
@@ -2051,6 +2071,7 @@ PageMeta::PageMeta() : BranchMeta()
 
   BorderData borderData;
   borderData.type = BorderData::BdrNone;
+  borderData.line = BorderData::BdrLnNone;
   borderData.color = "Black";
   borderData.thickness = 0;
   borderData.radius = 0;
@@ -2353,6 +2374,7 @@ PliMeta::PliMeta() : BranchMeta()
   placement.setValue(RightTopOutside,StepNumberType);
   BorderData borderData;
   borderData.type = BorderData::BdrSquare;
+  borderData.line = BorderData::BdrLnSolid;
   borderData.color = "Black";
   borderData.thickness = DEFAULT_THICKNESS;
   borderData.radius = 15;
@@ -2430,6 +2452,7 @@ BomMeta::BomMeta() : PliMeta()
   placement.setValue(CenterCenter,PageType);
   BorderData borderData;
   borderData.type = BorderData::BdrSquare;
+  borderData.line = BorderData::BdrLnSolid;
   borderData.color = "Black";
   borderData.thickness = DEFAULT_THICKNESS;
   borderData.radius = 15;
@@ -2552,6 +2575,7 @@ CalloutMeta::CalloutMeta() : BranchMeta()
   sep.setValueInches("Black",DEFAULT_THICKNESS,DEFAULT_MARGINS);
   BorderData borderData;
   borderData.type = BorderData::BdrSquare;
+  borderData.line = BorderData::BdrLnSolid;
   borderData.color = "Black";
   borderData.thickness = DEFAULT_THICKNESS;
   borderData.radius = 15;

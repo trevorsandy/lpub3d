@@ -1347,17 +1347,17 @@ void MetaItem::changeFloatSpin(
   }
 }
 
-void MetaItem::changeBorder(
-  QString      title,
+void MetaItem::changeBorder(QString      title,
   const Where &topOfStep,
   const Where &bottomOfStep,
   BorderMeta  *border,
   bool         useTop,
   int          append,
-  bool         local)
+  bool         local,
+  bool         rotateArrow)
 {
   BorderData borderData = border->value();
-  bool ok = BorderDialog::getBorder(borderData,title);
+  bool ok = BorderDialog::getBorder(borderData,title,rotateArrow);
 
   if (ok) {
 

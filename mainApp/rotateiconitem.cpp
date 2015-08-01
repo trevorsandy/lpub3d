@@ -38,20 +38,21 @@ void RotateIconItem::setAttributes(
   step               = _step;
   parentRelativeType = _parentRelativeType;
 
-  arrowColour        = _rotateIconMeta.arrowColour;
-  size               = _rotateIconMeta.size;
-  picScale           = _rotateIconMeta.picScale;
-  border             = _rotateIconMeta.border;
-  background         = _rotateIconMeta.background;
-  display            = _rotateIconMeta.display;
-  subModelColor      = _rotateIconMeta.subModelColor;
 
-  placement          = _rotateIconMeta.placement;
-  margin             = _rotateIconMeta.margin;
+  size           = _rotateIconMeta.size;
+  picScale       = _rotateIconMeta.picScale;
+  border         = _rotateIconMeta.border;
+  arrow          = _rotateIconMeta.arrow;
+  background     = _rotateIconMeta.background;
+  display        = _rotateIconMeta.display;
+  subModelColor  = _rotateIconMeta.subModelColor;
+
+  placement      = _rotateIconMeta.placement;
+  margin         = _rotateIconMeta.margin;
 
   // initialize pixmap using icon demensions
-  pixmap             = new QPixmap(size.valuePixels(XX),
-                                   size.valuePixels(YY));
+  pixmap         = new QPixmap(size.valuePixels(XX),
+                               size.valuePixels(YY));
   // set image size
   placementRotateIcon.sizeit();
 
@@ -64,7 +65,9 @@ void RotateIconItem::setAttributes(
   setParentItem(parent);
   setPixmap(*pixmap);
   setTransformationMode(Qt::SmoothTransformation);
-//  setFlag(QGraphicsItem::ItemIsMovable,true);
+  if (parentRelativeType == SingleStepType) {
+      //setFlag(QGraphicsItem::ItemIsMovable,true);
+    }
   setFlag(QGraphicsItem::ItemIsSelectable,true);
 
   delete pixmap;
@@ -96,7 +99,9 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
 
   // set border and background parameters
   BorderData     borderData     = border.valuePixels();
+  BorderData     arrowData      = arrow.valuePixels();
   BackgroundData backgroundData = background.value();
+
 
   // set rectangle size and demensions parameters
   int ibt = int(borderData.thickness);
@@ -142,7 +147,21 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
   borderPen.setColor(borderPenColor);
   borderPen.setCapStyle(Qt::RoundCap);
   borderPen.setJoinStyle(Qt::RoundJoin);
-  borderPen.setStyle(Qt::SolidLine);
+  if (borderData.line == BorderData::BdrLnSolid){
+      borderPen.setStyle(Qt::SolidLine);
+    }
+  else if (borderData.line == BorderData::BdrLnDash){
+      borderPen.setStyle(Qt::DashLine);
+    }
+  else if (borderData.line == BorderData::BdrLnDot){
+      borderPen.setStyle(Qt::DotLine);
+    }
+  else if (borderData.line == BorderData::BdrLnDashDot){
+      borderPen.setStyle(Qt::DashDotLine);
+    }
+  else if (borderData.line == BorderData::BdrLnDashDotDot){
+      borderPen.setStyle(Qt::DashDotDotLine);
+    }
   borderPen.setWidth(ibt);
 
   painter.setPen(borderPen);
@@ -183,13 +202,27 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
 
   // set default arrow pen and transfer to working arrow pen
   QColor arrowPenColor;
-  arrowPenColor = LDrawColor::color(arrowColour.value());
+  arrowPenColor = LDrawColor::color(arrowData.color);
   QPen defaultArrowPen;
-  int defaultLineWidth = 2;
+  int defaultLineWidth = arrowData.thickness;
   defaultArrowPen.setColor(arrowPenColor);
   defaultArrowPen.setCapStyle(Qt::SquareCap);
   defaultArrowPen.setJoinStyle(Qt::MiterJoin);
-  defaultArrowPen.setStyle(Qt::SolidLine);
+  if (borderData.line == BorderData::BdrLnSolid){
+      defaultArrowPen.setStyle(Qt::SolidLine);
+    }
+  else if (arrowData.line == BorderData::BdrLnDash){
+      defaultArrowPen.setStyle(Qt::DashLine);
+    }
+  else if (arrowData.line == BorderData::BdrLnDot){
+      defaultArrowPen.setStyle(Qt::DotLine);
+    }
+  else if (arrowData.line == BorderData::BdrLnDashDot){
+      defaultArrowPen.setStyle(Qt::DashDotLine);
+    }
+  else if (arrowData.line == BorderData::BdrLnDashDotDot){
+      defaultArrowPen.setStyle(Qt::DashDotDotLine);
+    }
   defaultArrowPen.setWidth(defaultLineWidth);
   QPen arrowPen = defaultArrowPen;
 
@@ -200,7 +233,7 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
   // set arrow height and width parameters
   qreal aw = irect.width();
   qreal ah = irect.height() / 2.0;
-  float inset = 6.0;
+  float inset = arrowData.margin[0];
 
   float ix    = inset * 1.8;
   float iy    = inset * 2.5;
@@ -247,8 +280,13 @@ void RotateIconItem::contextMenuEvent(
   PlacementData placementData = placement.value();
 
   QString pl = "Rotate Icon";
-  QAction *placementAction  = commonMenus.placementMenu(menu,pl,
-                                                        commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,pl));
+  QAction *placementAction = NULL;
+  bool singleStep = parentRelativeType == SingleStepType;
+  if (! singleStep) {
+      placementAction  = commonMenus.placementMenu(menu,pl,
+                                                   commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,pl));
+    }
+
   QAction *backgroundAction = commonMenus.backgroundMenu(menu,pl);
   QAction *borderAction     = commonMenus.borderMenu(menu,pl);
   QAction *marginAction     = commonMenus.marginMenu(menu,pl);
@@ -256,6 +294,7 @@ void RotateIconItem::contextMenuEvent(
 
   QAction *editArrowAction = menu.addAction("Edit Arrow");
   editArrowAction->setWhatsThis("Edit this rotation icon arrows");
+  editArrowAction->setIcon(QIcon(":/resources/editrotateicon.png"));
 
   QAction *deleteRotateIconAction = menu.addAction("Delete " +pl);
   deleteRotateIconAction->setWhatsThis("Delete this rotate icon");
@@ -283,6 +322,8 @@ void RotateIconItem::contextMenuEvent(
 
   if (selectedAction == placementAction) {
 
+      // logging only
+      if (! singleStep) {
       bool multiStep = parentRelativeType == StepGroupType;
       logInfo() << "\nMOVE ROTATE_ICON - "
                 << "\nPAGE- "
@@ -304,6 +345,7 @@ void RotateIconItem::contextMenuEvent(
                 << " \nRelativeType:                " << RelNames[relativeType]       << " (" << relativeType << ")"
                 << " \nParentRelativeType:          " << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
                                                 ;
+        } // end logging only
 
       changePlacement(parentRelativeType,
                       SingleStepType,         //not using RotateIconType intentionally
@@ -331,8 +373,12 @@ void RotateIconItem::contextMenuEvent(
                  bottom,
                  &display);
     } else if (selectedAction == editArrowAction) {
-
-      //TODO
+      changeBorder(pl+" Arrow",
+                   top,
+                   bottom,
+                   &arrow,
+                   true,1,true,
+                   true);   // indicate that this is a rotate arrow
     } else if (selectedAction == deleteRotateIconAction) {
       beginMacro("DeleteRotateIcon");
       deleteMeta(top);

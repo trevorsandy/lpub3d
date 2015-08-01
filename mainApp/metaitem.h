@@ -191,7 +191,8 @@ public:
                         BorderMeta  *,
                         bool useTop = true,
                         int  append = 1, 
-                        bool checkLocal = true);
+                        bool checkLocal = true,
+                        bool rotateArrow = false);
 
   void changeViewAngle( QString, 
                         const Where &, 

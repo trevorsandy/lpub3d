@@ -34,6 +34,7 @@
         <file alias="editredo.png">images/editredo.png</file>
         <file alias="edittitleannotations.png">images/edittitleannotations.png</file>
         <file alias="editundo.png">images/editundo.png</file>
+        <file alias="editrotateicon.png">images/editrotateicon.png</file>
         <file alias="exit.png">images/exit.png</file>
         <file alias="exportas.png">images/exportas.png</file>
         <file alias="exportbmp.png">images/exportbmp.png</file>

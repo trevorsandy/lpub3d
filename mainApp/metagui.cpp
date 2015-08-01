@@ -1673,22 +1673,21 @@ void BackgroundGui::apply(QString &modelName)
  *
  **********************************************************************/
 
-BorderGui::BorderGui(
-  BorderMeta *_meta,
-  QGroupBox *parent)
+BorderGui::BorderGui(BorderMeta *_meta,
+  QGroupBox *parent,
+  bool rotateArrow)
 {
   meta = _meta;
 
   BorderData border = meta->value();
 
   QString        string;
-  QComboBox     *combo;
   QGridLayout   *grid;
 
   grid = new QGridLayout(parent);
   parent->setLayout(grid);
 
-  /* Combo */
+  /* Type Combo */
 
   combo = new QComboBox(parent);
   combo->addItem("Borderless");
@@ -1699,67 +1698,89 @@ BorderGui::BorderGui(
           this, SLOT(  typeChange(         QString const &)));
   grid->addWidget(combo,0,0);
 
+  /* Radius */
+
+  spinLabel = new QLabel("Radius",parent);
+  grid->addWidget(spinLabel,0,1);
+
+  spin = new QSpinBox(parent);
+  spin->setRange(0,100);
+  spin->setSingleStep(5);
+  spin->setValue(int(border.radius));
+  grid->addWidget(spin,0,2);
+  connect(spin,SIGNAL(valueChanged(int)),
+          this,SLOT(  radiusChange(int)));
+
+  /* Line Combo */
+
+  lineCombo = new QComboBox(parent);
+  lineCombo->addItem("No Line");
+  lineCombo->addItem("Solid Line");
+  lineCombo->addItem("Dash Line");
+  lineCombo->addItem("Dotted Line");
+  lineCombo->addItem("Dot-Dash Line");
+  lineCombo->addItem("Dot-Dot-Dash Line");
+  lineCombo->setCurrentIndex(border.line);
+  connect(lineCombo,SIGNAL(currentIndexChanged(QString const &)),
+          this, SLOT(  lineChange(         QString const &)));
+  grid->addWidget(lineCombo,1,0);
+
+
   /* Thickness */
 
   thicknessLabel = new QLabel("Width",parent);
-  grid->addWidget(thicknessLabel,0,1);
+  grid->addWidget(thicknessLabel,1,1);
 
   string = QString("%1") .arg(border.thickness,5,'f',4);
   thicknessEdit = new QLineEdit(string,parent);
   thicknessEdit->setInputMask("9.9000");
   connect(thicknessEdit,SIGNAL(textEdited(     QString const &)),
           this,         SLOT(  thicknessChange(QString const &)));
-  grid->addWidget(thicknessEdit,0,2);
+  grid->addWidget(thicknessEdit,1,2);
 
   /* Color */
 
   QLabel *label = new QLabel("Color",parent);
-  grid->addWidget(label,1,0);
+  grid->addWidget(label,2,0);
 
   colorLabel = new QLabel(parent);
   colorLabel->setFrameStyle(QFrame::Sunken|QFrame::Panel);
   colorLabel->setPalette(QPalette(border.color));
   colorLabel->setAutoFillBackground(true);
-  grid->addWidget(colorLabel,1,1);
+  grid->addWidget(colorLabel,2,1);
 
   colorButton = new QPushButton("Change",parent);
   connect(colorButton,SIGNAL(clicked(    bool)),
           this,       SLOT(  browseColor(bool)));
-  grid->addWidget(colorButton,1,2);
-
-  /* Radius */
-
-  spinLabel = new QLabel("Radius",parent);
-  grid->addWidget(spinLabel,2,0);
-
-  spin = new QSpinBox(parent);
-  spin->setRange(0,100);
-  spin->setSingleStep(5);
-  spin->setValue(int(border.radius));
-  grid->addWidget(spin,2,1);
-  connect(spin,SIGNAL(valueChanged(int)),
-          this,SLOT(  radiusChange(int)));
+  grid->addWidget(colorButton,2,2);
 
   /* Margins */
 
   label = new QLabel("Margins",parent);
   grid->addWidget(label,3,0);
 
-  QLineEdit *lineEdit;
+  QLineEdit *lineEdit1;
 
   string = QString("%1") .arg(border.margin[0],5,'f',4);
-  lineEdit = new QLineEdit(string,parent);
-  grid->addWidget(lineEdit,3,1);
-  connect(lineEdit,SIGNAL(textEdited(QString const &)),
+  lineEdit1 = new QLineEdit(string,parent);
+  grid->addWidget(lineEdit1,3,1);
+  connect(lineEdit1,SIGNAL(textEdited(QString const &)),
           this,    SLOT(marginXChange(QString const &)));
 
+  QLineEdit *lineEdit2;
   string = QString("%1") .arg(border.margin[1],5,'f',4);
-  lineEdit = new QLineEdit(string,parent);
-  grid->addWidget(lineEdit,3,2);
-  connect(lineEdit,SIGNAL(textEdited(QString const &)),
+  lineEdit2 = new QLineEdit(string,parent);
+  grid->addWidget(lineEdit2,3,2);
+  connect(lineEdit2,SIGNAL(textEdited(QString const &)),
           this,    SLOT(marginYChange(QString const &)));
 
   enable();
+
+  if (rotateArrow) {
+      combo->hide();
+      spinLabel->hide();
+      spin->hide();
+    }
 }
 void BorderGui::enable()
 {
@@ -1774,6 +1795,7 @@ void BorderGui::enable()
       spinLabel->setEnabled(false);
     break;
     case BorderData::BdrSquare:
+      lineCombo->setEnabled(true);
       thicknessLabel->setEnabled(true);
       thicknessEdit->setEnabled(true);
       colorButton->setEnabled(true);
@@ -1781,6 +1803,7 @@ void BorderGui::enable()
       spinLabel->setEnabled(false);
     break;
     default:
+      lineCombo->setEnabled(true);
       thicknessLabel->setEnabled(true);
       thicknessEdit->setEnabled(true);
       colorButton->setEnabled(true);
@@ -1788,6 +1811,7 @@ void BorderGui::enable()
       spinLabel->setEnabled(true);
     break;
   }
+
 }
 
 void BorderGui::typeChange(QString const &type)
@@ -1796,15 +1820,49 @@ void BorderGui::typeChange(QString const &type)
 
   if (type == "Borderless") {
     border.type = BorderData::BdrNone;
-  } else if (type == "Square Corners") {
-    border.type = BorderData::BdrSquare;
+    lineCombo->setCurrentIndex(0);
   } else {
+    lineCombo->setCurrentIndex(1);
+  }
+
+  if (type == "Square Corners") {
+    border.type = BorderData::BdrSquare;
+  } else if (type == "Round Corners"){
     border.type = BorderData::BdrRound;
   }
+
   meta->setValue(border);
   enable();
   modified = true;
 }
+
+void BorderGui::lineChange(QString const &line)
+{
+  BorderData border = meta->value();
+
+  if (line == "No Line") {
+    border.line = BorderData::BdrLnNone;
+    combo->setCurrentIndex(0);
+  } else {
+    combo->setCurrentIndex(1);
+  }
+
+  if (line == "Solid Line") {
+    border.line = BorderData::BdrLnSolid;
+  } else if (line == "Dash Line") {
+    border.line = BorderData::BdrLnDash;
+  } else if (line == "Dotted Line") {
+    border.line = BorderData::BdrLnDot;
+  } else if (line == "Dot-Dash Line") {
+    border.line = BorderData::BdrLnDashDot;
+  } else if (line == "Dot-Dot-Dash Line"){
+    border.line = BorderData::BdrLnDashDotDot;
+  }
+
+  meta->setValue(border);
+  modified = true;
+}
+
 void BorderGui::browseColor(bool)
 {
   BorderData border = meta->value();

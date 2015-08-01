@@ -39,10 +39,10 @@ public:
   PlacementType             parentRelativeType;
   PlacementRotateIcon       placementRotateIcon;
 
-  StringMeta                arrowColour;
   UnitsMeta                 size;
   FloatMeta                 picScale;
   BorderMeta                border;
+  BorderMeta                arrow;
   BackgroundMeta            background;
   BoolMeta                  display;
   StringListMeta            subModelColor;

@@ -2,6 +2,13 @@ LPub3D 1.2.0.388.4
  
 Features and enhancements 
 ------------ 
+-Add Rotate Icon - indicate that the builder should "flip" the model
+-Add line configuration to border configuration
+
+LPub3D 1.2.0.388.4 
+ 
+Features and enhancements 
+------------ 
 -Sort PLI/BOM by part size (default), colour and category 
 -Improved model navigation - display selected model from model drop-down. Ignored 'meta=IGN' 
  submodels are not displayed even though they are in the drop-down list because they are 
