@@ -187,7 +187,9 @@ HEADERS += \
     editwindow.h \
     fadestepcolorparts.h \
     globals.h \
+    gradients.h \
     highlighter.h \
+    hoverpoints.h \
     ldrawfiles.h \
     lpub.h \
     lpub_preferences.h \
@@ -254,7 +256,9 @@ SOURCES += \
     fadestepcolorparts.cpp \
     fadestepglobals.cpp \
     formatpage.cpp \
+    gradients.cpp \
     highlighter.cpp \
+    hoverpoints.cpp \
     ldrawfiles.cpp \
     lpub.cpp \
     lpub_preferences.cpp \

@@ -277,8 +277,12 @@ mainApp/formatpage.cpp -text
 mainApp/globals.h -text
 mainApp/glwidget.cpp -text
 mainApp/glwidget.h -text
+mainApp/gradients.cpp -text
+mainApp/gradients.h -text
 mainApp/highlighter.cpp -text
 mainApp/highlighter.h -text
+mainApp/hoverpoints.cpp -text
+mainApp/hoverpoints.h -text
 mainApp/images/LPub32.png -text
 mainApp/images/LPub512Splash.png -text
 mainApp/images/LPub64.ico -text

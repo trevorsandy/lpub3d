@@ -49,6 +49,11 @@
 #include <QFileDialog>
 #include <QString>
 
+#include <QPainter>
+#include <QPainterPath>
+#include <QPixmapCache>
+#include <QtEvents>
+
 #include "meta.h"
 #include "metatypes.h"
 #include "metaitem.h"
@@ -58,6 +63,9 @@
 #include "lpub.h"
 #include "lpub_preferences.h"
 #include "render.h"
+
+#include "gradients.h"
+#include "hoverpoints.h"
 
 /***********************************************************************
  *
@@ -2344,4 +2352,165 @@ void PliAnnotationGui::apply(QString &topLevelFile)
   if (displayModified){
       mi.setGlobalMeta(topLevelFile,&meta->display);
     }
+}
+
+/***********************************************************************
+ *
+ * Gradient
+ *
+ **********************************************************************/
+
+GradientGui::GradientGui(QGroupBox *parent)
+//    : QWidget(parent)
+{
+    setWindowTitle(tr("Gradients"));
+
+    m_renderer = new GradientRenderer(this);
+
+    QGroupBox *mainGroup = new QGroupBox(this);
+    mainGroup->setTitle(tr("Gradients"));
+
+    QGroupBox *editorGroup = new QGroupBox(mainGroup);
+    editorGroup->setTitle(tr("Color Editor"));
+    m_editor = new GradientEditor(editorGroup);
+
+    QGroupBox *typeGroup = new QGroupBox(mainGroup);
+    typeGroup->setTitle(tr("Gradient Type"));
+    m_linearButton = new QRadioButton(tr("Linear Gradient"), typeGroup);
+    m_radialButton = new QRadioButton(tr("Radial Gradient"), typeGroup);
+    m_conicalButton = new QRadioButton(tr("Conical Gradient"), typeGroup);
+
+    QGroupBox *spreadGroup = new QGroupBox(mainGroup);
+    spreadGroup->setTitle(tr("Spread Method"));
+    m_padSpreadButton = new QRadioButton(tr("Pad Spread"), spreadGroup);
+    m_reflectSpreadButton = new QRadioButton(tr("Reflect Spread"), spreadGroup);
+    m_repeatSpreadButton = new QRadioButton(tr("Repeat Spread"), spreadGroup);
+
+    QGroupBox *defaultsGroup = new QGroupBox(mainGroup);
+    defaultsGroup->setTitle(tr("Defaults"));
+    QPushButton *default1Button = new QPushButton(tr("1"), defaultsGroup);
+    QPushButton *default2Button = new QPushButton(tr("2"), defaultsGroup);
+    QPushButton *default3Button = new QPushButton(tr("3"), defaultsGroup);
+    QPushButton *default4Button = new QPushButton(tr("Reset"), editorGroup);
+
+    // Layouts
+    QHBoxLayout *mainLayout = new QHBoxLayout(this);
+    mainLayout->addWidget(m_renderer);
+    mainLayout->addWidget(mainGroup);
+
+    mainGroup->setFixedWidth(180);
+    QVBoxLayout *mainGroupLayout = new QVBoxLayout(mainGroup);
+    mainGroupLayout->addWidget(editorGroup);
+    mainGroupLayout->addWidget(typeGroup);
+    mainGroupLayout->addWidget(spreadGroup);
+    mainGroupLayout->addWidget(defaultsGroup);
+    mainGroupLayout->addStretch(1);
+
+    QVBoxLayout *editorGroupLayout = new QVBoxLayout(editorGroup);
+    editorGroupLayout->addWidget(m_editor);
+
+    QVBoxLayout *typeGroupLayout = new QVBoxLayout(typeGroup);
+    typeGroupLayout->addWidget(m_linearButton);
+    typeGroupLayout->addWidget(m_radialButton);
+    typeGroupLayout->addWidget(m_conicalButton);
+
+    QVBoxLayout *spreadGroupLayout = new QVBoxLayout(spreadGroup);
+    spreadGroupLayout->addWidget(m_padSpreadButton);
+    spreadGroupLayout->addWidget(m_repeatSpreadButton);
+    spreadGroupLayout->addWidget(m_reflectSpreadButton);
+
+    QHBoxLayout *defaultsGroupLayout = new QHBoxLayout(defaultsGroup);
+    defaultsGroupLayout->addWidget(default1Button);
+    defaultsGroupLayout->addWidget(default2Button);
+    defaultsGroupLayout->addWidget(default3Button);
+    editorGroupLayout->addWidget(default4Button);
+
+    connect(m_editor, SIGNAL(gradientStopsChanged(QGradientStops)),
+            m_renderer, SLOT(setGradientStops(QGradientStops)));
+
+    connect(m_linearButton, SIGNAL(clicked()), m_renderer, SLOT(setLinearGradient()));
+    connect(m_radialButton, SIGNAL(clicked()), m_renderer, SLOT(setRadialGradient()));
+    connect(m_conicalButton, SIGNAL(clicked()), m_renderer, SLOT(setConicalGradient()));
+
+    connect(m_padSpreadButton, SIGNAL(clicked()), m_renderer, SLOT(setPadSpread()));
+    connect(m_reflectSpreadButton, SIGNAL(clicked()), m_renderer, SLOT(setReflectSpread()));
+    connect(m_repeatSpreadButton, SIGNAL(clicked()), m_renderer, SLOT(setRepeatSpread()));
+
+    connect(default1Button, SIGNAL(clicked()), this, SLOT(setDefault1()));
+    connect(default2Button, SIGNAL(clicked()), this, SLOT(setDefault2()));
+    connect(default3Button, SIGNAL(clicked()), this, SLOT(setDefault3()));
+    connect(default4Button, SIGNAL(clicked()), this, SLOT(setDefault4()));
+
+    QTimer::singleShot(50, this, SLOT(setDefault1()));
+}
+
+void GradientGui::setDefault(int config)
+{
+    QGradientStops stops;
+    QPolygonF points;
+    switch (config) {
+    case 1:
+        stops << QGradientStop(0.00, QColor::fromRgba(0));
+        stops << QGradientStop(0.04, QColor::fromRgba(0xff131360));
+        stops << QGradientStop(0.08, QColor::fromRgba(0xff202ccc));
+        stops << QGradientStop(0.42, QColor::fromRgba(0xff93d3f9));
+        stops << QGradientStop(0.51, QColor::fromRgba(0xffb3e6ff));
+        stops << QGradientStop(0.73, QColor::fromRgba(0xffffffec));
+        stops << QGradientStop(0.92, QColor::fromRgba(0xff5353d9));
+        stops << QGradientStop(0.96, QColor::fromRgba(0xff262666));
+        stops << QGradientStop(1.00, QColor::fromRgba(0));
+        m_linearButton->animateClick();
+        m_repeatSpreadButton->animateClick();
+        break;
+
+    case 2:
+        stops << QGradientStop(0.00, QColor::fromRgba(0xffffffff));
+        stops << QGradientStop(0.11, QColor::fromRgba(0xfff9ffa0));
+        stops << QGradientStop(0.13, QColor::fromRgba(0xfff9ff99));
+        stops << QGradientStop(0.14, QColor::fromRgba(0xfff3ff86));
+        stops << QGradientStop(0.49, QColor::fromRgba(0xff93b353));
+        stops << QGradientStop(0.87, QColor::fromRgba(0xff264619));
+        stops << QGradientStop(0.96, QColor::fromRgba(0xff0c1306));
+        stops << QGradientStop(1.00, QColor::fromRgba(0));
+        m_radialButton->animateClick();
+        m_padSpreadButton->animateClick();
+        break;
+
+    case 3:
+        stops << QGradientStop(0.00, QColor::fromRgba(0));
+        stops << QGradientStop(0.10, QColor::fromRgba(0xffe0cc73));
+        stops << QGradientStop(0.17, QColor::fromRgba(0xffc6a006));
+        stops << QGradientStop(0.46, QColor::fromRgba(0xff600659));
+        stops << QGradientStop(0.72, QColor::fromRgba(0xff0680ac));
+        stops << QGradientStop(0.92, QColor::fromRgba(0xffb9d9e6));
+        stops << QGradientStop(1.00, QColor::fromRgba(0));
+        m_conicalButton->animateClick();
+        m_padSpreadButton->animateClick();
+        break;
+
+    case 4:
+        stops << QGradientStop(0.00, QColor::fromRgba(0xff000000));
+        stops << QGradientStop(1.00, QColor::fromRgba(0xffffffff));
+        break;
+
+    default:
+        qWarning("bad default: %d\n", config);
+        break;
+    }
+
+    QPolygonF pts;
+    int h_off = m_renderer->width() / 10;
+    int v_off = m_renderer->height() / 8;
+    pts << QPointF(m_renderer->width() / 2, m_renderer->height() / 2)
+        << QPointF(m_renderer->width() / 2 - h_off, m_renderer->height() / 2 - v_off);
+
+    m_editor->setGradientStops(stops);
+    m_renderer->hoverPoints()->setPoints(pts);
+    m_renderer->setGradientStops(stops);
+}
+
+void GradientGui::apply(QString &topLevelFile)
+{
+  MetaItem mi;
+  // TODO ADD CONTENT
 }

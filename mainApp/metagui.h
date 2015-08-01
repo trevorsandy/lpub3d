@@ -33,6 +33,8 @@
 #include <QTextEdit>
 #include "resolution.h"
 #include "metatypes.h"
+#include "gradients.h"
+#include "hoverpoints.h"
 
 #include "QsLog.h"
 
@@ -820,5 +822,39 @@ public slots:
   void freeformAnnotation(bool);
   void titleAndFreeformAnnotation(bool);
   void gbToggled(bool toggled);
+};
+
+/***********************************************************************
+ *
+ * Gradient
+ *
+ **********************************************************************/
+
+class GradientGui : public MetaGui
+{
+    Q_OBJECT
+public:
+    GradientGui(
+        QGroupBox  *parent  = NULL);
+        ~GradientGui() {}
+virtual void apply(QString &modelName);
+private:
+    void setDefault(int i);
+
+    GradientRenderer *m_renderer;
+    GradientEditor   *m_editor;
+
+    QRadioButton *m_linearButton;
+    QRadioButton *m_radialButton;
+    QRadioButton *m_conicalButton;
+    QRadioButton *m_padSpreadButton;
+    QRadioButton *m_reflectSpreadButton;
+    QRadioButton *m_repeatSpreadButton;
+
+public slots:
+    void setDefault1() { setDefault(1); }
+    void setDefault2() { setDefault(2); }
+    void setDefault3() { setDefault(3); }
+    void setDefault4() { setDefault(4); }
 };
 #endif
