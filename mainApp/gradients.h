@@ -42,46 +42,15 @@
 #ifndef GRADIENTS_H
 #define GRADIENTS_H
 
-//#include "arthurwidgets.h"
-
 #include <QtGui>
-
-#if defined(QT_OPENGL_SUPPORT)
-#include <QGLWidget>
-#include <QEvent>
-class GLWidget : public QGLWidget
-{
-public:
-    GLWidget(QWidget *parent)
-        : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
-    {
-        setAttribute(Qt::WA_AcceptTouchEvents);
-    }
-    void disableAutoBufferSwap() { setAutoBufferSwap(false); }
-    void paintEvent(QPaintEvent *) { parentWidget()->update(); }
-protected:
-    bool event(QEvent *event)
-    {
-        switch (event->type()) {
-        case QEvent::TouchBegin:
-        case QEvent::TouchUpdate:
-        case QEvent::TouchEnd:
-            event->ignore();
-            return false;
-            break;
-        default:
-            break;
-        }
-        return QGLWidget::event(event);
-    }
-};
-#endif
+#include "hoverpoints.h"
+#include "meta.h"
 
 class HoverPoints;
-
 class ShadeWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     enum ShadeType {
         RedShade,
@@ -115,6 +84,64 @@ private:
     QLinearGradient m_alpha_gradient;
 };
 
+class GradientRenderer : public QWidget
+{
+    Q_OBJECT
+
+public:
+    GradientRenderer(QSize bgSize, QWidget *parent);
+
+    void paint(QPainter *p);
+
+    QSize sizeHint() const { return QSize(400, 400); }
+    HoverPoints *hoverPoints() const { return m_hoverPoints; }
+    void paintEvent(QPaintEvent *);
+    bool preferImage() const { return m_prefer_image; }
+    QGradient getGradient();
+
+#if defined(QT_OPENGL_SUPPORT)
+    QGLWidget *glWidget() const { return glw; }
+#endif
+
+public slots:
+    void setGradientStops(const QGradientStops &stops);
+
+    void setPadSpread() { m_spread = QGradient::PadSpread; update(); }
+    void setRepeatSpread() { m_spread = QGradient::RepeatSpread; update(); }
+    void setReflectSpread() { m_spread = QGradient::ReflectSpread; update(); }
+
+    void setLinearGradient() { m_gradientType = Qt::LinearGradientPattern; update(); }
+    void setRadialGradient() { m_gradientType = Qt::RadialGradientPattern; update(); }
+    void setConicalGradient() { m_gradientType = Qt::ConicalGradientPattern; update(); }
+
+#ifdef QT_OPENGL_SUPPORT
+    void enableOpenGL(bool use_opengl)
+    bool usesOpenGL() { return m_use_opengl;}
+#endif
+
+private:
+#if defined(QT_OPENGL_SUPPORT)
+    GLWidget *glw;
+    bool m_use_opengl;
+    bool m_use_opengl;
+#endif
+    QSize m_size;
+    QPixmap m_tile;
+
+#ifdef Q_WS_QWS
+    static QPixmap *static_image;
+#else
+    static QImage *static_image;
+#endif
+
+    bool m_prefer_image;
+    QGradientStops m_stops;
+    HoverPoints *m_hoverPoints;
+
+    QGradient::Spread m_spread;
+    Qt::BrushStyle m_gradientType;
+};
+
 class GradientEditor : public QWidget
 {
     Q_OBJECT
@@ -136,56 +163,69 @@ private:
     ShadeWidget *m_alpha_shade;
 };
 
-
-class GradientRenderer : public QWidget
+class BackgroundGui;
+class GradientDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    GradientRenderer(QWidget *parent);
-    void paint(QPainter *p);
-
-    QSize sizeHint() const { return QSize(400, 400); }
-
-    HoverPoints *hoverPoints() const { return m_hoverPoints; }
-//    void mousePressEvent(QMouseEvent *e);
-    void paintEvent(QPaintEvent *);
-
-    bool preferImage() const { return m_prefer_image; }
-
-#if defined(QT_OPENGL_SUPPORT)
-    QGLWidget *glWidget() const { return glw; }
-#endif
-
+    GradientDialog(QSize bgSize, QGradient *bgGradient, QDialog *parent = 0);
+    ~GradientDialog()
+    {}
+    void getGradient();
 public slots:
-    void setGradientStops(const QGradientStops &stops);
-
-    void setPadSpread() { m_spread = QGradient::PadSpread; update(); }
-    void setRepeatSpread() { m_spread = QGradient::RepeatSpread; update(); }
-    void setReflectSpread() { m_spread = QGradient::ReflectSpread; update(); }
-
-    void setLinearGradient() { m_gradientType = Qt::LinearGradientPattern; update(); }
-    void setRadialGradient() { m_gradientType = Qt::RadialGradientPattern; update(); }
-    void setConicalGradient() { m_gradientType = Qt::ConicalGradientPattern; update(); }
-
-#ifdef QT_OPENGL_SUPPORT
-    void enableOpenGL(bool use_opengl);
-#endif
+    void setDefault1() { setDefault(1); }
+    void setDefault2() { setDefault(2); }
+    void setDefault3() { setDefault(3); }
+    void setDefault4() { setDefault(4); }
+    void accept();
+    void cancel();
 
 private:
-#if defined(QT_OPENGL_SUPPORT)
-    GLWidget *glw;
-    bool m_use_opengl;
-    void enableOpenGL(bool use_opengl)
-#endif
-    QPixmap m_tile;
+    void setDefault(int i);
+    void setGradient(QGradient *bgGradient);
 
-    bool m_prefer_image;
-    QGradientStops m_stops;
-    HoverPoints *m_hoverPoints;
+    GradientRenderer *m_renderer;
+    GradientEditor   *m_editor;
 
-    QGradient::Spread m_spread;
-    Qt::BrushStyle m_gradientType;
+    QRadioButton *m_linearButton;
+    QRadioButton *m_radialButton;
+    QRadioButton *m_conicalButton;
+    QRadioButton *m_padSpreadButton;
+    QRadioButton *m_reflectSpreadButton;
+    QRadioButton *m_repeatSpreadButton;
+
 };
+
+#if defined(QT_OPENGL_SUPPORT)
+#include <QGLWidget>
+#include <QEvent>
+class GLWidget : public QGLWidget
+{
+public:
+    GLWidget(QWidget *parent)
+        : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
+    {
+        setAttribute(Qt::WA_AcceptTouchEvents);
+    }
+    void disableAutoBufferSwap() { setAutoBufferSwap(false); }
+    void paintEvent(QPaintEvent *) { parentWidget()->update(); }
+protected:
+    bool event(QEvent *event)
+    {
+        switch (event->type()) {
+        case QEvent::TouchBegin:
+        case QEvent::TouchUpdate:
+        case QEvent::TouchEnd:
+            event->ignore();
+            return false;
+            break;
+        default:
+            break;
+        }
+        return QGLWidget::event(event);
+    }
+};
+#endif
 
 #endif // GRADIENTS_H

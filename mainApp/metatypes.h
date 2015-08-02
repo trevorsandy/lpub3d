@@ -32,6 +32,7 @@
 #include <QString>
 #include <QStringList>
 #include <QPointF>
+#include <QGradient>
 #include "lpub_preferences.h"
 
 enum AllocEnc {
@@ -264,12 +265,14 @@ class BackgroundData
 public:
   enum Background {
     BgTransparent,
-    BgImage,
     BgColor,
+    BgGradient,
+    BgImage,
     BgSubmodelColor
   } type;
   QString    string;
   bool       stretch;
+  QBrush     gradientBrush;
 };
 
 class BorderData

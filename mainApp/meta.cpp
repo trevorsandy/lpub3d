@@ -832,6 +832,10 @@ Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
           _value[pushed].type = BackgroundData::BgColor;
           _value[pushed].string = argv[index+1];
           rc = OkRc;
+        } else if (argv[index] == "GRADIENT"){
+          _value[pushed].type = BackgroundData::BgGradient;
+          _value[pushed].string = argv[index+1];
+          rc = OkRc;
         } else if (argv[index] == "PICTURE") {
           _value[pushed].type = BackgroundData::BgImage;
           _value[pushed].string = argv[index+1];
@@ -874,6 +878,9 @@ QString BackgroundMeta::format(bool local, bool global)
     case BackgroundData::BgColor:
       foo = "COLOR \"" + _value[pushed].string + "\"";
       break;
+    case BackgroundData::BgGradient:
+      foo = "GRADIENT \"" + _value[pushed].string + "\"";
+      break;
     case BackgroundData::BgImage:
       foo = "PICTURE \"" + _value[pushed].string + "\"";
       if (_value[pushed].stretch) {
@@ -886,7 +893,7 @@ QString BackgroundMeta::format(bool local, bool global)
 
 void BackgroundMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (TRANSPARENT|SUBMODEL_BACKGROUND_COLOR|COLOR <color>|PICTURE (STRETCH) <\"picture\">)";
+  out << preamble + " (TRANSPARENT|SUBMODEL_BACKGROUND_COLOR|COLOR <\"color\">|GRADIENT <\"type~spreads~stops\">|PICTURE (STRETCH) <\"picture\">)";
 }
 
 QString BackgroundMeta::text()
@@ -900,6 +907,9 @@ QString BackgroundMeta::text()
       return "Picture " + background.string;
       break;
     case BackgroundData::BgColor:
+      return "Color " + background.string;
+      break;
+    case BackgroundData::BgGradient:
       return "Color " + background.string;
       break;
     default:

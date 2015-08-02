@@ -43,8 +43,8 @@
 #include <QGLWidget>
 #endif
 
-//#include "arthurwidgets.h"
 #include "hoverpoints.h"
+#include "gradients.h"
 
 #define printf
 
@@ -259,9 +259,9 @@ bool HoverPoints::eventFilter(QObject *object, QEvent *event)
             m_widget = that_widget;
             paintPoints();
 #ifdef QT_OPENGL_SUPPORT
-            ArthurFrame *af = qobject_cast<ArthurFrame *>(that_widget);
-            if (af && af->usesOpenGL())
-                af->glWidget()->swapBuffers();
+            GradientRenderer *gr = qobject_cast<GradientRenderer *>(that_widget);
+            if (gr && gr->usesOpenGL())
+                gr->glWidget()->swapBuffers();
 #endif
             return true;
         }
@@ -278,9 +278,9 @@ void HoverPoints::paintPoints()
 {
     QPainter p;
 #ifdef QT_OPENGL_SUPPORT
-    ArthurFrame *af = qobject_cast<ArthurFrame *>(m_widget);
-    if (af && af->usesOpenGL())
-        p.begin(af->glWidget());
+    GradientRenderer *af = qobject_cast<GradientRenderer *>(m_widget);
+    if (gr && gr->usesOpenGL())
+        p.begin(gr->glWidget());
     else
         p.begin(m_widget);
 #else
