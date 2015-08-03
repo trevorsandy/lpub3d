@@ -59,7 +59,7 @@ GradientDialog::GradientDialog(QSize bgSize, QGradient *bgGradient, QDialog *par
     QGroupBox *displayGroup = new QGroupBox(this);
     displayGroup->setTitle("Display");
     m_renderer = new GradientRenderer(bgSize,displayGroup);
-    displayGroup->setFixedWidth(100);
+    displayGroup->setMinimumWidth(100);
 
     QGroupBox *menuGroup = new QGroupBox(this);
     menuGroup->setTitle(tr("Gradients"));
@@ -86,7 +86,7 @@ GradientDialog::GradientDialog(QSize bgSize, QGradient *bgGradient, QDialog *par
     QPushButton *default2Button = new QPushButton(tr("2"), defaultsGroup);
     QPushButton *default3Button = new QPushButton(tr("3"), defaultsGroup);
     QPushButton *default4Button = new QPushButton(tr("Reset"), editorGroup);
-    //menuGroup->setFixedWidth(160);
+    menuGroup->setFixedWidth(180);
 
     // Layouts
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
@@ -139,7 +139,8 @@ GradientDialog::GradientDialog(QSize bgSize, QGradient *bgGradient, QDialog *par
     connect(default4Button, SIGNAL(clicked()), this, SLOT(setDefault4()));
 
     if (bgGradient){
-        QTimer::singleShot(50, this, SLOT(setGradient(bgGradient)));
+        m_gradient = bgGradient;
+        QTimer::singleShot(50, this, SLOT(setGradient()));
       } else {
         QTimer::singleShot(50, this, SLOT(setDefault1()));
       }
@@ -158,7 +159,7 @@ GradientDialog::GradientDialog(QSize bgSize, QGradient *bgGradient, QDialog *par
     setModal(true);
 }
 
-void GradientDialog::setGradient(QGradient *bgGradient)   // bgGradient may have to be a pointer *
+void GradientDialog::setGradient(QGradient *bgGradient)
 {
   QPolygonF pts;
 

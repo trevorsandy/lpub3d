@@ -4,6 +4,7 @@ Features and enhancements
 ------------ 
 -Add Rotate Icon - indicate that the builder should "flip" the model
 -Add line configuration to border configuration
+-Fix: Changing step number attributes on multi-step pages are now working
 
 LPub3D 1.2.0.388.4 
  

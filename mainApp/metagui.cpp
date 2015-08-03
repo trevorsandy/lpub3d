@@ -1516,6 +1516,8 @@ BackgroundGui::BackgroundGui(
   combo->setCurrentIndex(int(background.type));
   connect(combo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(  typeChange(         QString const &)));
+  connect(combo,SIGNAL(currentIndexChanged(QString const &)),
+          this, SLOT(          setGradient(QString const &)));
   grid->addWidget(combo, 0, 0);
 
   /* Color */
@@ -1607,7 +1609,6 @@ void BackgroundGui::typeChange(QString const &type)
     } else if (type == "Solid Color") {
       background.type = BackgroundData::BgColor;
     } else if (type == "Gradient") {
-      setGradient();
       background.type = BackgroundData::BgGradient;
     } else {
       background.type = BackgroundData::BgSubmodelColor;
@@ -1625,10 +1626,17 @@ void BackgroundGui::pictureChange(QString const &pic)
   modified = true;
 }
 
-bool BackgroundGui::setGradient(){
+bool BackgroundGui::setGradient(QString const &type){
+
+  bool ok = true;
+  if (type != "Gradient") {
+      return !ok;
+    }
 
   BackgroundData background = meta->value();
+
   QBrush gradientBrush = background.gradientBrush;
+
   /*TODO = create gradient object from text
     - get gradient string
     - construct gradient from string
@@ -1636,12 +1644,10 @@ bool BackgroundGui::setGradient(){
     - compare new and old gradient
     - if different, set new gradientBrush
 
-    QString qGradient = gradient;
+    QString qGradient = gradient; */
 
-  */
-  //~~~~~~~~~~~~
+  //~~~~~~~~~TEST~~~
 
-  //TEST
   QGradientStops stops;
   QGradient::Spread spread;
   spread = QGradient::RepeatSpread;
@@ -1660,15 +1666,14 @@ bool BackgroundGui::setGradient(){
 
   QRectF rect(QPointF(100,100),QPointF(200,200));
 
-  QBrush tstBrush = QBrush(tstG);
   //~~~~~~~~~~~~~~~~~~
-  QGradient &testG = tstBrush.gradient();
-  GradientDialog Dialog(rect.size().toSize(),testG);
+  QGradient *g = NULL;
+  GradientDialog Dialog(rect.size().toSize(),g);
+  //GradientDialog Dialog(rect.size().toSize(),g);
   //GradientDialog Dialog(rect.size().toSize(),gradientBrush.gradient());
-  bool ok = Dialog.exec() == QDialog::Accepted;
-  if (! ok) {
-      QBrush gradientBrush = QBrush(Dialog.getGradient());
-      background.gradientBrush = gradientBrush;
+  ok = Dialog.exec() == QDialog::Accepted;
+  if (ok) {
+      //background.gradientBrush = QBrush(Dialog.getGradient());
       // TODO call method to write out new gradient string
       // gradientBrush.gradient();
     }

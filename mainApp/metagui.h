@@ -576,7 +576,7 @@ private:
 
 public slots:
   void typeChange(QString const &);
-  bool setGradient();
+  bool setGradient(QString const &);
   void pictureChange(QString const &);
   void browsePicture(bool);
   void browseColor(bool);

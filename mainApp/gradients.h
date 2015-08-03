@@ -46,6 +46,8 @@
 #include "hoverpoints.h"
 #include "meta.h"
 
+#include "QsLog.h"
+
 class HoverPoints;
 class ShadeWidget : public QWidget
 {
@@ -178,6 +180,7 @@ public slots:
     void setDefault2() { setDefault(2); }
     void setDefault3() { setDefault(3); }
     void setDefault4() { setDefault(4); }
+    void setGradient() { setGradient(m_gradient);}
     void accept();
     void cancel();
 
@@ -185,9 +188,9 @@ private:
     void setDefault(int i);
     void setGradient(QGradient *bgGradient);
 
+    QGradient        *m_gradient;
     GradientRenderer *m_renderer;
     GradientEditor   *m_editor;
-
     QRadioButton *m_linearButton;
     QRadioButton *m_radialButton;
     QRadioButton *m_conicalButton;
