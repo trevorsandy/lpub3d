@@ -1633,50 +1633,145 @@ bool BackgroundGui::setGradient(QString const &type){
       return !ok;
     }
 
-  BackgroundData background = meta->value();
+  BackgroundData backgroundData = meta->value();
 
-  QBrush gradientBrush = background.gradientBrush;
-
-  /*TODO = create gradient object from text
-    - get gradient string
-    - construct gradient from string
-    - construct and get new gradient
-    - compare new and old gradient
-    - if different, set new gradientBrush
-
-    QString qGradient = gradient; */
-
-  //~~~~~~~~~TEST~~~
-
+  QGradient *g;
+  QPolygonF pts;
   QGradientStops stops;
   QGradient::Spread spread;
-  spread = QGradient::RepeatSpread;
-  stops << QGradientStop(0.00, QColor::fromRgba(0));
-  stops << QGradientStop(0.04, QColor::fromRgba(0xff131360));
-  stops << QGradientStop(0.08, QColor::fromRgba(0xff202ccc));
-  stops << QGradientStop(0.42, QColor::fromRgba(0xff93d3f9));
-  stops << QGradientStop(0.51, QColor::fromRgba(0xffb3e6ff));
-  stops << QGradientStop(0.73, QColor::fromRgba(0xffffffec));
-  stops << QGradientStop(0.92, QColor::fromRgba(0xff5353d9));
-  stops << QGradientStop(0.96, QColor::fromRgba(0xff262666));
-  stops << QGradientStop(1.00, QColor::fromRgba(0));
-  QLinearGradient tstG(QPointF(100,100),QPointF(200,200));
-  tstG.setStops(stops);
-  tstG.setSpread(spread);
+  QGradient::CoordinateMode mode;
 
-  QRectF rect(QPointF(100,100),QPointF(200,200));
+  QSize gSize(backgroundData.gsize[0],backgroundData.gsize[1]);
 
-  //~~~~~~~~~~~~~~~~~~
-  QGradient *g = NULL;
-  GradientDialog Dialog(rect.size().toSize(),g);
-  //GradientDialog Dialog(rect.size().toSize(),g);
-  //GradientDialog Dialog(rect.size().toSize(),gradientBrush.gradient());
-  ok = Dialog.exec() == QDialog::Accepted;
-  if (ok) {
-      //background.gradientBrush = QBrush(Dialog.getGradient());
-      // TODO call method to write out new gradient string
-      // gradientBrush.gradient();
+//  int h_off = gSize.width() / 10;
+//  int v_off = gSize.height() / 8;
+//  pts << QPointF(gSize.width() / 2, gSize.height() / 2)
+//      << QPointF(gSize.width() / 2 - h_off, gSize.height() / 2 - v_off);
+
+  for (int i=0; i<backgroundData.points.size(); i++)
+    pts.append(backgroundData.points.at(i));
+
+  switch (backgroundData.gmode){
+    case BackgroundData::LogicalMode:
+      mode = QGradient::LogicalMode;
+    break;
+    case BackgroundData::StretchToDeviceMode:
+      mode = QGradient::StretchToDeviceMode;
+    break;
+    case BackgroundData::ObjectBoundingMode:
+      mode = QGradient::ObjectBoundingMode;
+    break;
     }
+
+  switch (backgroundData.gspread){
+    case BackgroundData::PadSpread:
+      spread = QGradient::PadSpread;
+    break;
+    case BackgroundData::RepeatSpread:
+      spread = QGradient::RepeatSpread;
+    break;
+    case BackgroundData::ReflectSpread:
+      spread = QGradient::ReflectSpread;
+    break;
+    }
+
+  switch (backgroundData.gtype){
+    case BackgroundData::LinearGradient:
+      g = new QLinearGradient(pts.at(0), pts.at(1));
+    break;
+    case BackgroundData::RadialGradient:
+      {
+        QLineF line(pts[0], pts[1]);
+        if (line.length() > 132){
+            line.setLength(132);
+          }
+        g = new QRadialGradient(line.p1(),  qMin(gSize.width(), gSize.height()) / 3.0, line.p2());
+      }
+    break;
+    case BackgroundData::ConicalGradient:
+      {
+//        QLineF l(pts.at(0), pts.at(1));
+//        qreal angle = l.angle(QLineF(0, 0, 1, 0));
+//        if (l.dy() > 0)
+//          angle = 360 - angle;
+        qreal angle = backgroundData.angle;
+        g = new QConicalGradient(pts.at(0), angle);
+        logTrace() << " \nSET ANGLE - : "
+                   << " \nANGLE:        " << angle
+                   << " \npts.at(0)(x): " << pts.at(0).x()
+                   << " \npts.at(0)(y): " << pts.at(0).y();
+                    ;
+      }
+    break;
+    case BackgroundData::NoGradient:
+      return !ok;
+    break;
+    }
+
+  for (int i=0; i<backgroundData.gstops.size(); ++i) {
+      stops.append(backgroundData.gstops.at(i));
+      //g->setColorAt(backgroundData.gstops.at(i).first, backgroundData.gstops.at(i).second);   //alternative to stops
+    }
+
+  g->setStops(stops);
+  g->setSpread(spread);
+  g->setCoordinateMode(mode);
+
+  GradientDialog *dialog = new GradientDialog(gSize,g);
+  ok = dialog->exec() == QDialog::Accepted;
+  if (ok){
+
+      QGradient bgGradient = dialog->getGradient();
+
+      //type and points
+      if (bgGradient.type() == QGradient::LinearGradient) {
+          backgroundData.gtype = BackgroundData::LinearGradient;
+          QLinearGradient &newbgGradient = (QLinearGradient&)bgGradient;
+          backgroundData.points << newbgGradient.start() << newbgGradient.finalStop();
+        } else if (bgGradient.type() == QGradient::RadialGradient) {
+          backgroundData.gtype = BackgroundData::RadialGradient;
+          QRadialGradient &newbgGradient = (QRadialGradient&)bgGradient;
+          backgroundData.points << newbgGradient.center() << newbgGradient.focalPoint();
+        } else {
+          backgroundData.gtype = BackgroundData::ConicalGradient;
+          QConicalGradient &newbgGradient = (QConicalGradient&)bgGradient;
+          QLineF l(newbgGradient.center(), QPointF(0, 0));
+          l.setAngle(newbgGradient.angle());
+          l.setLength(120);
+          backgroundData.points << newbgGradient.center() << l.p2();
+
+          logTrace() << " \nGET ANGLE - "
+                     << " \nl.angle:   " << newbgGradient.angle()
+                     << " \ncenter(x): " << newbgGradient.center().x()
+                     << " \ncenter(y): " << newbgGradient.center().y()
+                     << " \nl.p2(x):   " << l.p2().x()
+                     << " \nl.p2(y):   " << l.p2().y();
+        }
+      //spread
+      if (bgGradient.spread() == QGradient::PadSpread){
+          backgroundData.gspread = BackgroundData::PadSpread;
+        } else if (bgGradient.spread() == QGradient::RepeatSpread){
+          backgroundData.gspread = BackgroundData::RepeatSpread;
+        } else {
+          backgroundData.gspread = BackgroundData::ReflectSpread;
+        }
+      //mode
+      if (bgGradient.coordinateMode() == QGradient::LogicalMode) {
+          backgroundData.gmode = BackgroundData::LogicalMode;
+        } else if (bgGradient.coordinateMode() == QGradient::StretchToDeviceMode) {
+           backgroundData.gmode = BackgroundData::StretchToDeviceMode;
+        } else {
+          backgroundData.gmode = BackgroundData::ObjectBoundingMode;
+        }
+
+      //stops
+      for (int i=0; i<bgGradient.stops().size(); i++)
+        backgroundData.gstops.append(bgGradient.stops().at(i));
+    }
+
+  meta->setValue(backgroundData);
+  enable();
+  modified = true;
   return ok;
 }
 
@@ -1697,6 +1792,7 @@ void BackgroundGui::browsePicture(bool)
     modified = true;
   }
 }
+
 void BackgroundGui::browseColor(bool)
 {
   BackgroundData background = meta->value();

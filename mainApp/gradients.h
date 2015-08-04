@@ -174,7 +174,8 @@ public:
     GradientDialog(QSize bgSize, QGradient *bgGradient, QDialog *parent = 0);
     ~GradientDialog()
     {}
-    void getGradient();
+    QGradient getGradient();
+
 public slots:
     void setDefault1() { setDefault(1); }
     void setDefault2() { setDefault(2); }
@@ -186,9 +187,9 @@ public slots:
 
 private:
     void setDefault(int i);
-    void setGradient(QGradient *bgGradient);
+    void setGradient(QGradient *inbgGradient);
 
-    QGradient        *m_gradient;
+    QGradient  *m_gradient;
     GradientRenderer *m_renderer;
     GradientEditor   *m_editor;
     QRadioButton *m_linearButton;

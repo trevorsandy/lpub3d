@@ -103,6 +103,8 @@ GlobalPageDialog::GlobalPageDialog(
 
   box = new QGroupBox(tr("Background"));
   grid->addWidget(box, 4, 0);
+  pageMeta->background.value().gsize[0] = pageMeta->size.valuePixels(0);
+  pageMeta->background.value().gsize[1] = pageMeta->size.valuePixels(1);
   child = new BackgroundGui(&pageMeta->background,box);
   data->children.append(child);
 

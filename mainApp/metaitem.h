@@ -162,12 +162,12 @@ public:
                         bool checkLocal = true,
                         bool  useTop = true);
 
-  void changeBackground(QString, 
-                        const Where &, 
+  void changeBackground(QString,
+                        const Where &,
                         const Where &,
                         BackgroundMeta*,
                         bool  useTop = true,
-                        int   append = 1, 
+                        int   append = 1,
                         bool checkLocal = true);
 
   void changePliSort(   QString,

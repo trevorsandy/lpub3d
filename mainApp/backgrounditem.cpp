@@ -71,6 +71,8 @@ void BackgroundItem::setBackground(
 
   QPainter painter(pixmap);
 
+  bool useGradient = false;
+
   switch(backgroundData.type) {
     case BackgroundData::BgImage:
       {
@@ -103,6 +105,9 @@ void BackgroundItem::setBackground(
       break;
     case BackgroundData::BgTransparent:
       brushColor = Qt::transparent;
+      break;
+    case BackgroundData::BgGradient:
+      useGradient = true;
       break;
     case BackgroundData::BgColor:
     case BackgroundData::BgSubmodelColor:
@@ -158,6 +163,7 @@ void BackgroundItem::setBackground(
   pen.setWidth(bt);
 
   painter.setPen(pen);
+  useGradient ? painter.setBrush(QBrush(setGradient())) :
   painter.setBrush(brushColor);
 
   painter.setRenderHints(QPainter::HighQualityAntialiasing,true);
@@ -198,6 +204,84 @@ void PlacementBackgroundItem::setBackground(
                                 _subModel,
                                 _submodelLevel,
                                 toolTip);
+}
+
+QGradient BackgroundItem::setGradient(){
+
+  BackgroundData backgroundData = background.value();
+
+  QGradient g;
+  QPolygonF pts;
+  QGradientStops stops;
+  QGradient::Spread spread;
+  QGradient::CoordinateMode mode;
+
+  QSize gSize(backgroundData.gsize[0],backgroundData.gsize[1]);
+
+  int h_off = gSize.width() / 10;
+  int v_off = gSize.height() / 8;
+  pts << QPointF(gSize.width() / 2, gSize.height() / 2)
+      << QPointF(gSize.width() / 2 - h_off, gSize.height() / 2 - v_off);
+
+  switch (backgroundData.gmode){
+    case BackgroundData::LogicalMode:
+      mode = QGradient::LogicalMode;
+    break;
+    case BackgroundData::StretchToDeviceMode:
+      mode = QGradient::StretchToDeviceMode;
+    break;
+    case BackgroundData::ObjectBoundingMode:
+      mode = QGradient::ObjectBoundingMode;
+    break;
+    }
+
+  switch (backgroundData.gspread){
+    case BackgroundData::PadSpread:
+      spread = QGradient::PadSpread;
+    break;
+    case BackgroundData::RepeatSpread:
+      spread = QGradient::RepeatSpread;
+    break;
+    case BackgroundData::ReflectSpread:
+      spread = QGradient::ReflectSpread;
+    break;
+    }
+
+  switch (backgroundData.gtype){
+    case BackgroundData::LinearGradient:
+      g = QLinearGradient(pts.at(0), pts.at(1));
+    break;
+    case BackgroundData::RadialGradient:
+      {
+        QLineF line(pts[0], pts[1]);
+        if (line.length() > 132){
+            line.setLength(132);
+          }
+        g = QRadialGradient(line.p1(),  qMin(gSize.width(), gSize.height()) / 3.0, line.p2());
+      }
+    break;
+    case BackgroundData::ConicalGradient:
+      {
+        QLineF l(pts.at(0), pts.at(1));
+        qreal angle = l.angle(QLineF(0, 0, 1, 0));
+        if (l.dy() > 0)
+          angle = 360 - angle;
+        g = QConicalGradient(pts.at(0), angle);
+      }
+    break;
+    case BackgroundData::NoGradient:
+    break;
+    }
+
+  for (int i=0; i<backgroundData.gstops.size(); ++i) {
+      stops.append(backgroundData.gstops.at(i));
+    }
+
+  g.setStops(stops);
+  g.setSpread(spread);
+  g.setCoordinateMode(mode);
+
+  return g;
 }
 
 void PlacementBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)

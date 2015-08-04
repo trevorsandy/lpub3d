@@ -45,6 +45,7 @@
 #include <QObject>
 #include <QGraphicsPixmapItem>
 #include <QPixmap>
+#include <QGradient>
 #include "placement.h"
 #include "metaitem.h"
 
@@ -74,6 +75,7 @@ public:
       QString         &toolTip);
 
 private: 
+  QGradient setGradient();
 };
 
 class PlacementBackgroundItem : public BackgroundItem   

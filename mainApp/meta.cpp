@@ -832,10 +832,6 @@ Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
           _value[pushed].type = BackgroundData::BgColor;
           _value[pushed].string = argv[index+1];
           rc = OkRc;
-        } else if (argv[index] == "GRADIENT"){
-          _value[pushed].type = BackgroundData::BgGradient;
-          _value[pushed].string = argv[index+1];
-          rc = OkRc;
         } else if (argv[index] == "PICTURE") {
           _value[pushed].type = BackgroundData::BgImage;
           _value[pushed].string = argv[index+1];
@@ -847,6 +843,12 @@ Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
           _value[pushed].type = BackgroundData::BgImage;
           _value[pushed].string = argv[index+1];
           _value[pushed].stretch = true;
+          rc = OkRc;
+        }
+    } else if (argv.size() - index == 2){
+      if (argv[index] == "GRADIENT"){
+          _value[pushed].type = BackgroundData::BgGradient;
+          _value[pushed].string = argv[index+1];
           rc = OkRc;
         }
     }
@@ -879,7 +881,30 @@ QString BackgroundMeta::format(bool local, bool global)
       foo = "COLOR \"" + _value[pushed].string + "\"";
       break;
     case BackgroundData::BgGradient:
-      foo = "GRADIENT \"" + _value[pushed].string + "\"";
+      {
+        QString points;
+        for (int i=0; i<_value[pushed].points.size(); i++){
+            points += QString("%1,%2|")
+                .arg(_value[pushed].points.at(i).x())
+                .arg(_value[pushed].points.at(i).y());
+          }
+        QString stops;
+        for (int i=0; i<_value[pushed].gstops.size(); i++){
+            qreal point = _value[pushed].gstops.at(i).first();
+            stops += QString("%1,%2|")
+                .arg(point)
+                .arg(_value[pushed].gstops.at(i).second());
+          }
+        foo = QString("GRADIENT %1 %2 %3 %4 %5 %6 \"%7\" \"%8\"")
+            .arg(_value[pushed].gmode)
+            .arg(_value[pushed].gspread)
+            .arg(_value[pushed].gtype)
+            .arg(_value[pushed].gsize[0])
+            .arg(_value[pushed].gsize[1])
+            .arg(_value[pushed].angle)
+            .arg(points)
+            .arg(stops);
+      }
       break;
     case BackgroundData::BgImage:
       foo = "PICTURE \"" + _value[pushed].string + "\"";

@@ -68,10 +68,12 @@ public:
       QGraphicsItem  *parent = 0);
 
   void setRotateIconImage(QPixmap *pixmap);
+  QGradient setGradient();
 
 protected:
   virtual void change();
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+
 };
 
 #endif // ROTATEICONITEM_H

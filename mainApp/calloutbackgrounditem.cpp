@@ -54,6 +54,10 @@ CalloutBackgroundItem::CalloutBackgroundItem(
 
   QPixmap *pixmap = new QPixmap(_calloutRect.width(),_calloutRect.height());
   QString toolTip("Callout " + _path + "popup menu");
+
+  meta->LPub.callout.background.value().gsize[0] = pixmap->width();
+  meta->LPub.callout.background.value().gsize[1] = pixmap->width();
+
   setBackground(pixmap,
                 CalloutType,
                 parentRelativeType,

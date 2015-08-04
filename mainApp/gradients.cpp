@@ -51,7 +51,7 @@
 
 extern QPixmap cached(const QString &img);
 
-GradientDialog::GradientDialog(QSize bgSize, QGradient *bgGradient, QDialog *parent)
+GradientDialog::GradientDialog(QSize bgSize,QGradient *bgGradient, QDialog *parent)
     : QDialog(parent)
 {
     setWindowTitle(tr("Gradients"));
@@ -164,19 +164,19 @@ void GradientDialog::setGradient(QGradient *bgGradient)
   QPolygonF pts;
 
   if (bgGradient->type() == QGradient::LinearGradient) {
-      QLinearGradient bgGradient;
-      pts << bgGradient.start() << bgGradient.finalStop();
+      QLinearGradient *newbgGradient = (QLinearGradient*)bgGradient;
+      pts << newbgGradient->start() << newbgGradient->finalStop();
       m_linearButton->animateClick();
     } else if (bgGradient->type() == QGradient::RadialGradient) {
-      QRadialGradient bgGradient;
-      pts << bgGradient.center() << bgGradient.focalPoint();
-      m_linearButton->animateClick();
+      QRadialGradient *newbgGradient = (QRadialGradient*)bgGradient;
+      pts << newbgGradient->center() << newbgGradient->focalPoint();
+      m_radialButton->animateClick();
     } else {
-      QConicalGradient bgGradient;
-      QLineF l(bgGradient.center(), QPointF(0, 0));
-      l.setAngle(bgGradient.angle());
+      QConicalGradient *newbgGradient = (QConicalGradient*)bgGradient;
+      QLineF l(newbgGradient->center(), QPointF(0, 0));
+      l.setAngle(newbgGradient->angle());
       l.setLength(120);
-      pts << bgGradient.center() << l.p2();
+      pts << newbgGradient->center() << l.p2();
       m_conicalButton->animateClick();
     }
 
@@ -191,11 +191,6 @@ void GradientDialog::setGradient(QGradient *bgGradient)
   m_editor->setGradientStops(bgGradient->stops());
   m_renderer->hoverPoints()->setPoints(pts);
   m_renderer->setGradientStops(bgGradient->stops());
-}
-
-void GradientDialog::getGradient()
-{
-  m_renderer->getGradient();
 }
 
 void GradientDialog::setDefault(int config)
@@ -262,6 +257,11 @@ void GradientDialog::setDefault(int config)
     m_renderer->setGradientStops(stops);
 }
 
+QGradient GradientDialog::getGradient()
+{
+  return m_renderer->getGradient();
+}
+
 void GradientDialog::accept()
 {
    QDialog::accept();
@@ -311,6 +311,10 @@ GradientRenderer::GradientRenderer(QSize bgSize, QWidget *parent)
 
     m_spread = QGradient::PadSpread;
     m_gradientType = Qt::LinearGradientPattern;
+    m_stops = {};
+
+    setMaximumSize(m_size);
+    setMinimumSize(m_size);
 }
 
 void GradientRenderer::setGradientStops(const QGradientStops &stops)

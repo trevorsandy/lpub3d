@@ -1580,6 +1580,9 @@ PliBackgroundItem::PliBackgroundItem(
     placement = pli->pliMeta.placement;
   }
 
+  pli->pliMeta.background.value().gsize[0] = pixmap->width();
+  pli->pliMeta.background.value().gsize[1] = pixmap->width();
+
   setBackground( pixmap,
                  PartsListType,
                  pli->meta,
