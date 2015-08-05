@@ -480,7 +480,7 @@ void RotateIconItem::contextMenuEvent(
                    bottom,
                    &arrow,
                    true,1,true,
-                   true);   // indicate that this is a rotate arrow
+                   true);   // indicate that this call if from rotate arrow
     } else if (selectedAction == deleteRotateIconAction) {
       beginMacro("DeleteRotateIcon");
       deleteMeta(top);

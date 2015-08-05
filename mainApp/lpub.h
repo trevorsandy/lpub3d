@@ -400,7 +400,7 @@ class PageBackgroundItem;
 
 enum traverseRc { HitEndOfPage = 1 };
 
-enum FitMode { FitNone, FitWidth, FitVisible };
+enum FitMode { FitNone, FitWidth, FitVisible, FitTwoPages, FitContinuousScroll };
 
 void clearPliCache();
 void clearCsiCache();
@@ -625,10 +625,17 @@ public slots:
   void fitWidth();
   void fitVisible();
   void actualSize();
+
+  void twoPages();
+  void continuousScroll();
+
   
   void fitWidth(  LGraphicsView *view);
   void fitVisible(LGraphicsView *view);
   void actualSize(LGraphicsView *view);
+
+  void twoPages(LGraphicsView *view);
+  void continuousScroll(LGraphicsView *view);
 
   void clearPLICache();
   void clearCSICache();

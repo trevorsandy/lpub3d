@@ -1315,7 +1315,7 @@ int Gui::addGraphicsPageItems(
 
           // allocate QGraphicsPixmapItem for rotate icon
 
-          if (step->placeRotateIcon) {
+          if (step->placeRotateIcon && page->meta.LPub.rotateIcon.display.value()) {
 
               step->rotateIcon.sizeit();
               RotateIconItem *rotateIcon =
@@ -1450,6 +1450,12 @@ int Gui::addGraphicsPageItems(
       page->pli.setPos(page->pli.loc[XX],page->pli.loc[YY]);
     }
   }
+
+  QGraphicsDropShadowEffect *bodyShadow = new QGraphicsDropShadowEffect;
+  bodyShadow->setBlurRadius(9.0);
+  bodyShadow->setColor(QColor(0, 0, 0, 160));
+  bodyShadow->setOffset(4.0);
+  pageBg->setGraphicsEffect(bodyShadow);
 
   scene->addItem(pageBg);
   

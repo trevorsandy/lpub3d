@@ -351,7 +351,30 @@ void Gui::actualSize(
   view->resetMatrix();
   fitMode = FitNone;
 }
+//~~~~~~~~~~~~~~
+void Gui::twoPages()
+{
+  twoPages(pageview());
+}
 
+void Gui::twoPages(
+  LGraphicsView *view)
+{
+   view->scale(1.0,1.0);
+  fitMode = FitTwoPages;
+}
+
+void Gui::continuousScroll()
+{
+  continuousScroll(pageview());
+}
+void Gui::continuousScroll(
+  LGraphicsView *view)
+{
+  view->scale(1.0,1.0);
+  fitMode = FitContinuousScroll;
+}
+//~~~~~~~~~~~~~~
 void Gui::zoomIn()
 {
   zoomIn(pageview());
@@ -1107,6 +1130,9 @@ void Gui::createActions()
     actualSizeAct->setShortcut(tr("Ctrl+A"));
     actualSizeAct->setStatusTip(tr("Show document actual size"));
     connect(actualSizeAct, SIGNAL(triggered()), this, SLOT(actualSize()));
+
+    // TESTING ONLY
+    //connect(actualSizeAct, SIGNAL(triggered()), this, SLOT(twoPages()));
     
     // zoomIn,zoomOut
 
