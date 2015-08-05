@@ -311,7 +311,6 @@ GradientRenderer::GradientRenderer(QSize bgSize, QWidget *parent)
 
     m_spread = QGradient::PadSpread;
     m_gradientType = Qt::LinearGradientPattern;
-    m_stops = {};
 
     setMaximumSize(m_size);
     setMinimumSize(m_size);

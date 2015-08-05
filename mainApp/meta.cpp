@@ -795,7 +795,8 @@ QString PlacementMeta::format(bool local, bool global)
         }
     }
   if (_value[pushed].offsets[0] || _value[pushed].offsets[1]) {
-      QString bar = QString(" %1 %2") .arg(_value[pushed].offsets[0])
+      QString bar = QString(" %1 %2")
+          .arg(_value[pushed].offsets[0])
           .arg(_value[pushed].offsets[1]);
       foo += bar;
     }
@@ -845,11 +846,86 @@ Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
           _value[pushed].stretch = true;
           rc = OkRc;
         }
-    } else if (argv.size() - index == 2){
+    } else if (argv.size() - index == 9){
       if (argv[index] == "GRADIENT"){
-          _value[pushed].type = BackgroundData::BgGradient;
-          _value[pushed].string = argv[index+1];
-          rc = OkRc;
+
+          bool ok[9];
+          argv[index+1].toInt(&ok[0]);
+          argv[index+2].toInt(&ok[1]);
+          argv[index+3].toInt(&ok[2]);
+          argv[index+4].toInt(&ok[3]);
+          argv[index+5].toInt(&ok[4]);
+          argv[index+6].toInt(&ok[5]);
+
+          const QStringList _gpoints = argv[index+7].split("|");
+          QVector<QPointF> gpoints;
+          Q_FOREACH(const QString &gpoint, _gpoints){
+              int x = gpoint.section(',',0,0).toInt(&ok[6]);
+              int y = gpoint.section(',',1,1).toInt(&ok[7]);
+              if (ok[6] && ok[7])
+                gpoints << QPointF(x, y);
+            }
+
+          const QStringList _gstops  = argv[index+8].split("|");
+          QVector<QPair<qreal,QColor> > gstops;
+          Q_FOREACH(const QString &_gstop, _gstops){
+              qreal point  = _gstop.section(',',0,0).toFloat(&ok[8]);
+              unsigned int rgba = _gstop.section(',',1,1).toUInt(&ok[9],16);
+              if (ok[8] && ok[9])
+                gstops.append(qMakePair(point, QColor::fromRgba(rgba)));
+            }
+
+          if (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] &&
+              ok[5] && ok[6] && ok[7] && ok[8] && ok[9]) {
+
+              int _gmode   = argv[index+1].toInt(&ok[0]);
+              int _gspread = argv[index+2].toInt(&ok[1]);
+              int _gtype   = argv[index+3].toInt(&ok[2]);
+
+              _value[pushed].type = BackgroundData::BgGradient;
+
+              switch (_gmode){
+              case 0:
+                  _value[pushed].gmode = BackgroundData::LogicalMode;
+              break;
+              case 1:
+                  _value[pushed].gmode = BackgroundData::StretchToDeviceMode;
+              break;
+              case 2:
+                  _value[pushed].gmode = BackgroundData::ObjectBoundingMode;
+              break;
+                }
+              switch (_gspread){
+              case 0:
+                  _value[pushed].gspread = BackgroundData::PadSpread;
+              break;
+              case 1:
+                  _value[pushed].gspread = BackgroundData::RepeatSpread;
+              break;
+              case 2:
+                  _value[pushed].gspread = BackgroundData::ReflectSpread;
+              break;
+                }
+              switch (_gtype){
+              case 0:
+                  _value[pushed].gtype = BackgroundData::LinearGradient;
+              break;
+              case 1:
+                  _value[pushed].gtype = BackgroundData::RadialGradient;
+              break;
+              case 2:
+                  _value[pushed].gtype = BackgroundData::ConicalGradient;
+              break;
+              case 3:
+              break;
+                }
+              _value[pushed].gsize[0] = argv[index+4].toInt(&ok[3]);
+              _value[pushed].gsize[1] = argv[index+5].toInt(&ok[4]);
+              _value[pushed].gangle   = argv[index+6].toInt(&ok[5]);
+              _value[pushed].gpoints  = gpoints;
+              _value[pushed].gstops   = gstops;
+              rc = OkRc;
+            }
         }
     }
   if (rc == OkRc) {
@@ -883,25 +959,33 @@ QString BackgroundMeta::format(bool local, bool global)
     case BackgroundData::BgGradient:
       {
         QString points;
-        for (int i=0; i<_value[pushed].points.size(); i++){
+        const QVector<QPointF> _points = _value[pushed].gpoints;
+        Q_FOREACH(const QPointF &point, _points){
             points += QString("%1,%2|")
-                .arg(_value[pushed].points.at(i).x())
-                .arg(_value[pushed].points.at(i).y());
+                .arg(point.x())
+                .arg(point.y());
           }
+        points = points.remove(points.size()-1,1);
+
         QString stops;
-        for (int i=0; i<_value[pushed].gstops.size(); i++){
-            qreal point = _value[pushed].gstops.at(i).first();
+        const QVector<QPair<qreal,QColor> > _gstops = _value[pushed].gstops;
+        typedef QPair<qreal,QColor> _gstop;
+        Q_FOREACH(const _gstop &gstop, _gstops){
+//            if (gstop.second.name() != "#000000")
+//            gstop.second.name().replace("#","0xff");
             stops += QString("%1,%2|")
-                .arg(point)
-                .arg(_value[pushed].gstops.at(i).second());
+                .arg(gstop.first)
+                .arg(gstop.second.name().replace("#","0xff"));
           }
+        stops = stops.remove(stops.size()-1,1);
+
         foo = QString("GRADIENT %1 %2 %3 %4 %5 %6 \"%7\" \"%8\"")
             .arg(_value[pushed].gmode)
             .arg(_value[pushed].gspread)
             .arg(_value[pushed].gtype)
             .arg(_value[pushed].gsize[0])
             .arg(_value[pushed].gsize[1])
-            .arg(_value[pushed].angle)
+            .arg(_value[pushed].gangle)
             .arg(points)
             .arg(stops);
       }
@@ -918,7 +1002,9 @@ QString BackgroundMeta::format(bool local, bool global)
 
 void BackgroundMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (TRANSPARENT|SUBMODEL_BACKGROUND_COLOR|COLOR <\"color\">|GRADIENT <\"type~spreads~stops\">|PICTURE (STRETCH) <\"picture\">)";
+  out << preamble + " (TRANSPARENT|SUBMODEL_BACKGROUND_COLOR|COLOR <\"color\">|"
+                    "GRADIENT <mode spread type size[0] size[1] angle \"points\" \"stops\">|"
+                    "PICTURE (STRETCH) <\"picture\">)";
 }
 
 QString BackgroundMeta::text()
@@ -935,7 +1021,7 @@ QString BackgroundMeta::text()
       return "Color " + background.string;
       break;
     case BackgroundData::BgGradient:
-      return "Color " + background.string;
+      return "Gradient " + background.string;
       break;
     default:
       break;

@@ -1580,9 +1580,18 @@ PliBackgroundItem::PliBackgroundItem(
     placement = pli->pliMeta.placement;
   }
 
-  pli->pliMeta.background.value().gsize[0] = pixmap->width();
-  pli->pliMeta.background.value().gsize[1] = pixmap->width();
-
+  //gradient settings
+  if (pli->pliMeta.background.value().gsize[0] == 0 &&
+      pli->pliMeta.background.value().gsize[1] == 0) {
+      pli->pliMeta.background.value().gsize[0] = pixmap->width();
+      pli->pliMeta.background.value().gsize[1] = pixmap->width();
+      QSize gSize(pli->pliMeta.background.value().gsize[0],
+          pli->pliMeta.background.value().gsize[1]);
+      int h_off = gSize.width() / 10;
+      int v_off = gSize.height() / 8;
+      pli->pliMeta.background.value().gpoints << QPointF(gSize.width() / 2, gSize.height() / 2)
+                                              << QPointF(gSize.width() / 2 - h_off, gSize.height() / 2 - v_off);
+    }
   setBackground( pixmap,
                  PartsListType,
                  pli->meta,

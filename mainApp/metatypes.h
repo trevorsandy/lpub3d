@@ -275,9 +275,9 @@ public:
   enum GradientSpread {PadSpread      = 0,RepeatSpread,       ReflectSpread}              gspread;
   enum GradientType   {LinearGradient = 0,RadialGradient,     ConicalGradient,NoGradient} gtype;
   QVector<QPair<qreal,QColor> > gstops;
-  QVector<QPointF> points;
+  QVector<QPointF> gpoints;
   qreal   gsize[2];                           // in pixels
-  qreal   angle;
+  qreal   gangle;
   QString string;
   bool    stretch;
 
@@ -286,14 +286,14 @@ public:
     type = BgTransparent;
     stretch = false;
     string = "";
-
+    //gradient initialization
     gmode    = LogicalMode;
-    gspread  = PadSpread;
+    gspread  = RepeatSpread;
     gtype    = LinearGradient;
     gsize[0] = 0;
     gsize[1] = 0;
-    angle    = 0;
-    points << QPointF(100, 100) << QPointF(200, 200);
+    gangle   = 0;
+    gpoints.clear();
     gstops.append(qMakePair(0.00, QColor::fromRgba(0)));
     gstops.append(qMakePair(0.04, QColor::fromRgba(0xff131360)));
     gstops.append(qMakePair(0.08, QColor::fromRgba(0xff202ccc)));

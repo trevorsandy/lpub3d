@@ -566,6 +566,7 @@ private:
 
   QLabel       *colorLabel;
   QPushButton  *colorButton;
+  QPushButton  *gradientButton;
   QLineEdit    *pictureEdit;
   QPushButton  *pictureButton;
   QRadioButton *stretchRadio;
@@ -576,9 +577,9 @@ private:
 
 public slots:
   void typeChange(QString const &);
-  bool setGradient(QString const &);
   void pictureChange(QString const &);
   void browsePicture(bool);
+  void setGradient(bool);
   void browseColor(bool);
   void stretch(bool);
   void tile(bool);

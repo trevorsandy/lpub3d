@@ -103,8 +103,44 @@ GlobalPageDialog::GlobalPageDialog(
 
   box = new QGroupBox(tr("Background"));
   grid->addWidget(box, 4, 0);
-  pageMeta->background.value().gsize[0] = pageMeta->size.valuePixels(0);
-  pageMeta->background.value().gsize[1] = pageMeta->size.valuePixels(1);
+  //gradient settings
+  logTrace() << "\nbackground.value().gsize[0]: " << pageMeta->background.value().gsize[0]
+             << "\nbackground.value().gsize[1]: " << pageMeta->background.value().gsize[1]
+                ;
+  if (pageMeta->background.value().gsize[0] == 0 &&
+      pageMeta->background.value().gsize[1] == 0) {
+      pageMeta->background.value().gsize[0] = 800;
+      pageMeta->background.value().gsize[1] = 600;
+      logTrace() << "\nbackground.value().gsize[0]: " << pageMeta->background.value().gsize[0]
+                 << "\nbackground.value().gsize[1]: " << pageMeta->background.value().gsize[1]
+                    ;
+      QSize gSize(pageMeta->background.value().gsize[0],
+                  pageMeta->background.value().gsize[1]);
+      int h_off = gSize.width() / 10;
+      int v_off = gSize.height() / 8;
+      pageMeta->background.value().gpoints << QPointF(gSize.width() / 2, gSize.height() / 2)
+                                           << QPointF(gSize.width() / 2 - h_off, gSize.height() / 2 - v_off);
+
+      //logging only
+      QString points;
+      const QVector<QPointF> _points = pageMeta->background.value().gpoints;
+      Q_FOREACH(const QPointF &point, _points){
+          points += QString("%1,%2|")
+              .arg(point.x())
+              .arg(point.y());
+        }
+      logTrace() << "\nPOINTS: " << points;
+      QString stops;
+      const QVector<QPair<qreal,QColor> > _gstops = pageMeta->background.value().gstops;
+      typedef QPair<qreal,QColor> _gstop;
+      Q_FOREACH(const _gstop &gstop, _gstops){
+          stops += QString("%1,%2|")
+              .arg(gstop.first)
+              .arg(gstop.second.name());
+        }
+      logTrace() << "\nSTOPS: " << stops;
+    } // logging only
+
   child = new BackgroundGui(&pageMeta->background,box);
   data->children.append(child);
 

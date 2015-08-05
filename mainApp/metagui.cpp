@@ -1497,9 +1497,6 @@ BackgroundGui::BackgroundGui(
     case BackgroundData::BgColor:
       color = background.string;
     break;
-    case BackgroundData::BgGradient:
-      gradient = background.string;
-    break;
     default:
     break;
   }
@@ -1516,24 +1513,32 @@ BackgroundGui::BackgroundGui(
   combo->setCurrentIndex(int(background.type));
   connect(combo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(  typeChange(         QString const &)));
-  connect(combo,SIGNAL(currentIndexChanged(QString const &)),
-          this, SLOT(          setGradient(QString const &)));
   grid->addWidget(combo, 0, 0);
 
-  /* Color */
+  /* Color  and Gradient button */
+
+  colorButton = new QPushButton("Change",parent);
+  colorButton->setToolTip(tr("Change Colour"));
+      connect(colorButton,SIGNAL(clicked(    bool)),
+              this,       SLOT(  browseColor(bool)));
+  grid->addWidget(colorButton,0,1);
+
+  gradientButton = new QPushButton("Change",parent);
+  colorButton->setToolTip(tr("Change Gradient"));
+  connect(gradientButton,SIGNAL(clicked(    bool)),
+          this, SLOT(        setGradient(   bool)));
+  grid->addWidget(gradientButton,0,1);
+
+  /* Color label */
 
   colorLabel = new QLabel(parent);
+  colorLabel->setFixedWidth(90);
   colorLabel->setFrameStyle(QFrame::Sunken|QFrame::Panel);
   colorLabel->setPalette(QPalette(color));
   colorLabel->setAutoFillBackground(true);
   colorLabel->setPalette(QPalette(color));
   colorLabel->setAutoFillBackground(true);
-  grid->addWidget(colorLabel,0,1);
-
-  colorButton = new QPushButton("Change",parent);
-  connect(colorButton,SIGNAL(clicked(    bool)),
-          this,       SLOT(  browseColor(bool)));
-  grid->addWidget(colorButton,0,2);
+  grid->addWidget(colorLabel,0,2);
 
   /* Image */
 
@@ -1546,6 +1551,7 @@ BackgroundGui::BackgroundGui(
   connect(pictureButton,SIGNAL(clicked(     bool)),
           this,         SLOT(  browsePicture(bool)));
   grid->addWidget(pictureButton,1,1);
+
 
   /* Fill */
 
@@ -1581,7 +1587,17 @@ void BackgroundGui::enable()
       pictureButton->setEnabled(true);
       fill->setEnabled(true);
     break;
+    case BackgroundData::BgGradient:
+      colorButton->hide();
+      gradientButton->show();
+      colorButton->setEnabled(true);
+      pictureEdit->setEnabled(false);
+      pictureButton->setEnabled(false);
+      fill->setEnabled(false);
+    break;
     case BackgroundData::BgColor:
+      colorButton->show();
+      gradientButton->hide();
       colorLabel->setPalette(QPalette(color));
       // colorLabel->setAutoFillBackground(true);
       colorButton->setEnabled(true);
@@ -1626,12 +1642,9 @@ void BackgroundGui::pictureChange(QString const &pic)
   modified = true;
 }
 
-bool BackgroundGui::setGradient(QString const &type){
+void BackgroundGui::setGradient(bool){
 
   bool ok = true;
-  if (type != "Gradient") {
-      return !ok;
-    }
 
   BackgroundData backgroundData = meta->value();
 
@@ -1648,8 +1661,8 @@ bool BackgroundGui::setGradient(QString const &type){
 //  pts << QPointF(gSize.width() / 2, gSize.height() / 2)
 //      << QPointF(gSize.width() / 2 - h_off, gSize.height() / 2 - v_off);
 
-  for (int i=0; i<backgroundData.points.size(); i++)
-    pts.append(backgroundData.points.at(i));
+  for (int i=0; i<backgroundData.gpoints.size(); i++)
+    pts.append(backgroundData.gpoints.at(i));
 
   switch (backgroundData.gmode){
     case BackgroundData::LogicalMode:
@@ -1694,17 +1707,16 @@ bool BackgroundGui::setGradient(QString const &type){
 //        qreal angle = l.angle(QLineF(0, 0, 1, 0));
 //        if (l.dy() > 0)
 //          angle = 360 - angle;
-        qreal angle = backgroundData.angle;
+        qreal angle = backgroundData.gangle;
         g = new QConicalGradient(pts.at(0), angle);
-        logTrace() << " \nSET ANGLE - : "
-                   << " \nANGLE:        " << angle
-                   << " \npts.at(0)(x): " << pts.at(0).x()
-                   << " \npts.at(0)(y): " << pts.at(0).y();
-                    ;
+//        logTrace() << " \nSET ANGLE - : "
+//                   << " \nANGLE:        " << angle
+//                   << " \npts.at(0)(x): " << pts.at(0).x()
+//                   << " \npts.at(0)(y): " << pts.at(0).y();
+//                    ;
       }
     break;
     case BackgroundData::NoGradient:
-      return !ok;
     break;
     }
 
@@ -1718,34 +1730,38 @@ bool BackgroundGui::setGradient(QString const &type){
   g->setCoordinateMode(mode);
 
   GradientDialog *dialog = new GradientDialog(gSize,g);
+
   ok = dialog->exec() == QDialog::Accepted;
   if (ok){
 
       QGradient bgGradient = dialog->getGradient();
+      backgroundData.gstops.clear();
+      backgroundData.gpoints.clear();
 
       //type and points
       if (bgGradient.type() == QGradient::LinearGradient) {
           backgroundData.gtype = BackgroundData::LinearGradient;
           QLinearGradient &newbgGradient = (QLinearGradient&)bgGradient;
-          backgroundData.points << newbgGradient.start() << newbgGradient.finalStop();
+          backgroundData.gpoints << newbgGradient.start() << newbgGradient.finalStop();
         } else if (bgGradient.type() == QGradient::RadialGradient) {
           backgroundData.gtype = BackgroundData::RadialGradient;
           QRadialGradient &newbgGradient = (QRadialGradient&)bgGradient;
-          backgroundData.points << newbgGradient.center() << newbgGradient.focalPoint();
+          backgroundData.gpoints << newbgGradient.center() << newbgGradient.focalPoint();
         } else {
           backgroundData.gtype = BackgroundData::ConicalGradient;
           QConicalGradient &newbgGradient = (QConicalGradient&)bgGradient;
           QLineF l(newbgGradient.center(), QPointF(0, 0));
           l.setAngle(newbgGradient.angle());
           l.setLength(120);
-          backgroundData.points << newbgGradient.center() << l.p2();
+          backgroundData.gpoints << newbgGradient.center() << l.p2();
+          backgroundData.gangle = newbgGradient.angle();
 
-          logTrace() << " \nGET ANGLE - "
-                     << " \nl.angle:   " << newbgGradient.angle()
-                     << " \ncenter(x): " << newbgGradient.center().x()
-                     << " \ncenter(y): " << newbgGradient.center().y()
-                     << " \nl.p2(x):   " << l.p2().x()
-                     << " \nl.p2(y):   " << l.p2().y();
+//          logTrace() << " \nGET ANGLE - "
+//                     << " \nl.angle:   " << newbgGradient.angle()
+//                     << " \ncenter(x): " << newbgGradient.center().x()
+//                     << " \ncenter(y): " << newbgGradient.center().y()
+//                     << " \nl.p2(x):   " << l.p2().x()
+//                     << " \nl.p2(y):   " << l.p2().y();
         }
       //spread
       if (bgGradient.spread() == QGradient::PadSpread){
@@ -1759,11 +1775,10 @@ bool BackgroundGui::setGradient(QString const &type){
       if (bgGradient.coordinateMode() == QGradient::LogicalMode) {
           backgroundData.gmode = BackgroundData::LogicalMode;
         } else if (bgGradient.coordinateMode() == QGradient::StretchToDeviceMode) {
-           backgroundData.gmode = BackgroundData::StretchToDeviceMode;
+          backgroundData.gmode = BackgroundData::StretchToDeviceMode;
         } else {
           backgroundData.gmode = BackgroundData::ObjectBoundingMode;
         }
-
       //stops
       for (int i=0; i<bgGradient.stops().size(); i++)
         backgroundData.gstops.append(bgGradient.stops().at(i));
@@ -1772,7 +1787,6 @@ bool BackgroundGui::setGradient(QString const &type){
   meta->setValue(backgroundData);
   enable();
   modified = true;
-  return ok;
 }
 
 void BackgroundGui::browsePicture(bool)

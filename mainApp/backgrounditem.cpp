@@ -108,6 +108,7 @@ void BackgroundItem::setBackground(
       break;
     case BackgroundData::BgGradient:
       useGradient = true;
+      brushColor = Qt::transparent;
       break;
     case BackgroundData::BgColor:
     case BackgroundData::BgSubmodelColor:
@@ -218,10 +219,13 @@ QGradient BackgroundItem::setGradient(){
 
   QSize gSize(backgroundData.gsize[0],backgroundData.gsize[1]);
 
-  int h_off = gSize.width() / 10;
-  int v_off = gSize.height() / 8;
-  pts << QPointF(gSize.width() / 2, gSize.height() / 2)
-      << QPointF(gSize.width() / 2 - h_off, gSize.height() / 2 - v_off);
+//  int h_off = gSize.width() / 10;
+//  int v_off = gSize.height() / 8;
+//  pts << QPointF(gSize.width() / 2, gSize.height() / 2)
+//      << QPointF(gSize.width() / 2 - h_off, gSize.height() / 2 - v_off);
+
+  for (int i=0; i<backgroundData.gpoints.size(); i++)
+    pts.append(backgroundData.gpoints.at(i));
 
   switch (backgroundData.gmode){
     case BackgroundData::LogicalMode:
@@ -262,10 +266,11 @@ QGradient BackgroundItem::setGradient(){
     break;
     case BackgroundData::ConicalGradient:
       {
-        QLineF l(pts.at(0), pts.at(1));
-        qreal angle = l.angle(QLineF(0, 0, 1, 0));
-        if (l.dy() > 0)
-          angle = 360 - angle;
+//        QLineF l(pts.at(0), pts.at(1));
+//        qreal angle = l.angle(QLineF(0, 0, 1, 0));
+//        if (l.dy() > 0)
+//          angle = 360 - angle;
+        qreal angle = backgroundData.gangle;
         g = QConicalGradient(pts.at(0), angle);
       }
     break;

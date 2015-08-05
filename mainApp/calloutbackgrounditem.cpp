@@ -55,8 +55,18 @@ CalloutBackgroundItem::CalloutBackgroundItem(
   QPixmap *pixmap = new QPixmap(_calloutRect.width(),_calloutRect.height());
   QString toolTip("Callout " + _path + "popup menu");
 
-  meta->LPub.callout.background.value().gsize[0] = pixmap->width();
-  meta->LPub.callout.background.value().gsize[1] = pixmap->width();
+  //gradient settings
+  if (meta->LPub.callout.background.value().gsize[0] == 0 &&
+      meta->LPub.callout.background.value().gsize[1] == 0) {
+      meta->LPub.callout.background.value().gsize[0] = pixmap->width();
+      meta->LPub.callout.background.value().gsize[1] = pixmap->width();
+      QSize gSize(meta->LPub.callout.background.value().gsize[0],
+          meta->LPub.callout.background.value().gsize[1]);
+      int h_off = gSize.width() / 10;
+      int v_off = gSize.height() / 8;
+      meta->LPub.callout.background.value().gpoints << QPointF(gSize.width() / 2, gSize.height() / 2)
+                                                    << QPointF(gSize.width() / 2 - h_off, gSize.height() / 2 - v_off);
+    }
 
   setBackground(pixmap,
                 CalloutType,
