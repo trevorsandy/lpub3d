@@ -1815,6 +1815,48 @@ void MetaItem::deleteBOM()
   }
 }
 
+
+void MetaItem::deleteRotateIcon(Where &topOfStep){
+  Rc rc;
+  Meta meta;
+  Where walk = topOfStep + 1;                                     // advance past STEP meta
+  int numLines = gui->subFileSize(topOfStep.modelName);
+  scanPastGlobal(topOfStep);
+  QRegExp rotateIconMeta("^\\s*0\\s+!LPUB\\s+.*ROTATE_ICON");
+  for ( ; walk < numLines; walk++) {
+      QString line = gui->readLine(walk);
+      logNotice() << "\n02 DELETE ROTATE ICON META IN LOOP - "
+                << "\nNum Lines:   " << numLines
+                << "\nLine number: " << walk.lineNumber
+                << "\nLine:        " << line
+                   ;
+      if (line.contains(rotateIconMeta)) {
+          logInfo() << "\n03 DELETE ROTATE ICON META AT LINE- "
+                    << "\nNum Lines:   " << numLines
+                    << "\nLine number: " << walk.lineNumber
+                    << "\nLine:        " << line
+                       ;
+
+          deleteMeta(walk);
+          walk--;                                                 // compensate for deleted line
+
+        } else {
+          QStringList tokens;
+          split(line,tokens);
+          bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
+              tokens[0] >= "1" && tokens[0] <= "5";
+          if (token_1_5) {                      //non-zeor line detected so break
+              break;
+            }
+          rc = meta.parse(line,walk);
+          if (rc == StepRc) {                   //reached end of step so break
+              break;
+            }
+        }
+
+    }
+}
+
 /***************************************************************************/
 
 void MetaItem::scanPastGlobal(

@@ -320,6 +320,7 @@ public:
   void insertSplitBOM();
   void deleteBOM();
   void deletePage();
+  void deleteRotateIcon(Where &);
 
   Where firstLine(QString);
   void firstLine(Where &);
