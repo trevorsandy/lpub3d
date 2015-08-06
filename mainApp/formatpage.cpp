@@ -1326,8 +1326,9 @@ int Gui::addGraphicsPageItems(
                     pageBg);
               rotateIcon->setPos(step->rotateIcon.loc[XX],
                                  step->rotateIcon.loc[YY]);
-              rotateIcon->relativeToSize[0] = step->rotateIcon.size[0];
-              rotateIcon->relativeToSize[1] = step->rotateIcon.size[1];
+              rotateIcon->relativeToSize[0] = step->rotateIcon.relativeToSize[0];
+              rotateIcon->relativeToSize[1] = step->rotateIcon.relativeToSize[1];
+              rotateIcon->setFlag(QGraphicsItem::ItemIsMovable,true);
             }
 
           // allocate QGraphicsTextItem for step number

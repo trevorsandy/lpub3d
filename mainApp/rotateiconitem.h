@@ -36,6 +36,7 @@ class RotateIconItem : public ResizePixmapItem
 public:
   Step                     *step;
   QPixmap                  *pixmap;
+  PlacementType             relativeType;
   PlacementType             parentRelativeType;
   PlacementRotateIcon       placementRotateIcon;
 
@@ -47,8 +48,10 @@ public:
   BoolMeta                  display;
   StringListMeta            subModelColor;
 
-  bool                      positionChanged;
-  QPointF                   position;
+//  qreal                     relativeToLoc[2];
+//  qreal                     relativeToSize[2];
+//  bool                      positionChanged;
+//  QPointF                   position;
 
   RotateIconItem();
 
@@ -70,10 +73,14 @@ public:
   void setRotateIconImage(QPixmap *pixmap);
   QGradient setGradient();
 
+  void setFlag(GraphicsItemFlag flag, bool value);
+
 protected:
   virtual void change();
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-
+  void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+  void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 };
 
 #endif // ROTATEICONITEM_H

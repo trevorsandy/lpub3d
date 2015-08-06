@@ -394,7 +394,7 @@ const QString SortOptionName[SortByType] =
 const QString RectNames[NumSpots] =
  {                                //  placement dialog codes:
     "TopLeftOutsideCorner",       //00
-    "TopLeftOutside",              //01
+    "TopLeftOutside",             //01
     "TopOutside",                 //02
     "TopRightOutSide",            //03
     "TopRightOutsideCorner",      //04
@@ -425,7 +425,7 @@ const QString RectNames[NumSpots] =
 };	//NumSpots
 
 const QString RelNames[NumRelatives] =
-{                              	//  placement dialog codes:
+{                              	 //  placement dialog codes:
    "PageType",                 	 // 0 page
    "CsiType",                    // 1 Csi  (Assem)
    "StepGroupType",              // 2 Ms   (Multi-Step)
@@ -434,34 +434,35 @@ const QString RelNames[NumRelatives] =
    "CalloutType",                // 5 Callout
    "PageNumberType",             // 6 pn
 
-   "PageTitleType",				 // 7 tt
-   "PageModelNameType",			 // 8 mnt
+   "PageTitleType",		 // 7 tt
+   "PageModelNameType",		 // 8 mnt
    "PageAuthorType",             // 9 at
-   "PageURLType",				 //10 urlt
-   "PageModelDescType",			 //11 mdt
-   "PagePublishDescType",		 //12 pdt
-   "PageCopyrightType",			 //13 ct
-   "PageEmailType",				 //14 et
-   "PageDisclaimerType",		 //15 dt
-   "PagePiecesType",			 //16 pt
-   "PagePlugType",				 //17 plt
-   "PageCategoryType",			 //18 cat
-   "PageDocumentLogoType",		 //19 dlt
-   "PageCoverImageType",		 //20 cit
-   "PagePlugImageType",			 //21 pit
+   "PageURLType",		 //10 urlt
+   "PageModelDescType",		 //11 mdt
+   "PagePublishDescType",	 //12 pdt
+   "PageCopyrightType",		 //13 ct
+   "PageEmailType",		 //14 et
+   "PageDisclaimerType",	 //15 dt
+   "PagePiecesType",		 //16 pt
+   "PagePlugType",		 //17 plt
+   "PageCategoryType",		 //18 cat
+   "PageDocumentLogoType",	 //19 dlt
+   "PageCoverImageType",	 //20 cit
+   "PagePlugImageType",		 //21 pit
    "PageHeaderType",             //22 ph
    "PageFooterType",             //23 pf
+   "RotateIconType",             //24
 
-   "SingleStepType",             //24
-   "SubmodelInstanceCountType",  //25
+   "SingleStepType",             //25
+   "SubmodelInstanceCountType",  //26
 
-   "StepType",                   //26
-   "RangeType",                  //27
-   "ReserveType",                //28
-   "BomType",                    //29
-   "CoverPageType",              //30
-   "RotateIconType"              //31
-}; //NumRelatives"
+   "StepType",                   //27
+   "RangeType",                  //28
+   "ReserveType",                //29
+   "BomType",                    //30
+   "CoverPageType"               //31
+
+}; //NumRelatives"               //32
 
 const QString PlacNames[NumPlacements] =
  {

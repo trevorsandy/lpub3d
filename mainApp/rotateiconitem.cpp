@@ -48,6 +48,7 @@ void RotateIconItem::setAttributes(
 
   placement      = _rotateIconMeta.placement;
   margin         = _rotateIconMeta.margin;
+  relativeType   = RotateIconType;
 
   // initialize pixmap using icon demensions
   pixmap         = new QPixmap(size.valuePixels(XX),
@@ -78,9 +79,6 @@ void RotateIconItem::setAttributes(
   setParentItem(parent);
   setPixmap(*pixmap);
   setTransformationMode(Qt::SmoothTransformation);
-  if (parentRelativeType == SingleStepType) {
-      //setFlag(QGraphicsItem::ItemIsMovable,true);
-    }
   setFlag(QGraphicsItem::ItemIsSelectable,true);
 
   delete pixmap;
@@ -363,6 +361,11 @@ QGradient RotateIconItem::setGradient(){
   return g;
 }
 
+void RotateIconItem::setFlag(GraphicsItemFlag flag, bool value)
+{
+  QGraphicsItem::setFlag(flag,value);
+}
+
 void RotateIconItem::contextMenuEvent(
     QGraphicsSceneContextMenuEvent *event)
 {
@@ -477,6 +480,78 @@ void RotateIconItem::contextMenuEvent(
     }
 }
 
+void RotateIconItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+  QGraphicsItem::mousePressEvent(event);
+  positionChanged = false;
+  position = pos();
+}
+
+void RotateIconItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+  QGraphicsItem::mouseMoveEvent(event);
+  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+      positionChanged = true;
+    }
+}
+
+void RotateIconItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+  QGraphicsItem::mouseReleaseEvent(event);
+  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+
+      Where top;
+
+      switch (parentRelativeType) {
+        case CalloutType:
+          top    = step->topOfCallout();
+          break;
+        default:
+          top    = step->topOfStep();
+          break;
+        }
+
+      if (positionChanged) {
+
+          beginMacro(QString("DragRotateIcon"));
+
+          QPointF newPosition;
+          newPosition = pos() - position;
+
+          if (newPosition.x() || newPosition.y()) {
+              positionChanged = true;
+
+              PlacementData placementData = placement.value();
+              placementData.offsets[0] += newPosition.x()/relativeToSize[0];
+              placementData.offsets[1] += newPosition.y()/relativeToSize[1];
+              placement.setValue(placementData);
+
+              logInfo() << "\nCHANGE ROTATE_ICON - "
+                        << "\nPAGE WHERE - "
+                        << " \nStep TopOf (Model Name): "    << top.modelName
+                        << " \nStep TopOf (Line Number): "   << top.lineNumber
+                        << "\nUSING PLACEMENT DATA - "
+                        << " \nPlacement: "                 << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
+                        << " \nJustification: "             << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
+                        << " \nPreposition: "               << PrepNames[placement.value().preposition]   << " (" << placement.value().justification << ")"
+                        << " \nRelativeTo: "                << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
+                        << " \nRectPlacement: "             << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
+                        << " \nOffset[0]: "                 << placement.value().offsets[0]
+                        << " \nOffset[1]: "                 << placement.value().offsets[1]
+                        << "\nOTHER DATA - "
+                        << " \nRelativeType: "               << RelNames[relativeType]       << " (" << relativeType << ")"
+                        << " \nParentRelativeType: "         << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
+                           ;
+
+              changePlacementOffset(top,
+                                    &placement,
+                                    relativeType);
+              endMacro();
+            }
+        }
+    }
+}
+
 void RotateIconItem::change()
 {
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
@@ -495,101 +570,55 @@ void RotateIconItem::change()
         break;
       }
 
-    if (positionChanged) {
+      if (sizeChanged) {
 
-      beginMacro(QString("DragRotateIcon"));
+          beginMacro(QString("ResizeRotateIcon"));
 
-      qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
-      qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
-      calcOffsets(placement.value(),placement.value().offsets,topLeft,size);
+          PlacementData placementData = placement.value();
 
-      logInfo() << "\nCHANGE ROTATE_ICON - "
-                << "\nPAGE WHERE - "
-                << " \nStep TopOf (Model Name): "    << top.modelName
-                << " \nStep TopOf (Line Number): "   << top.lineNumber
-                << " \nStep BottomOf (Model Name): " << bottom.modelName
-                << " \nStep BottomOf (Line Number): "<< bottom.lineNumber
-                << "\nUSING PLACEMENT DATA - "
-                << " \nPlacement: "                 << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
-                << " \nJustification: "             << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
-                << " \nPreposition: "               << PrepNames[placement.value().preposition]   << " (" << placement.value().justification << ")"
-                << " \nRelativeTo: "                << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
-                << " \nRectPlacement: "             << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
-                << " \nOffset[0]: "                 << placement.value().offsets[0]
-                << " \nOffset[1]: "                 << placement.value().offsets[1]
-                << "\nOTHER DATA - "
-                << " \nRelativeType: "               << RelNames[relativeType]       << " (" << relativeType << ")"
-                << " \nParentRelativeType: "         << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
-                ;
+          qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
+          qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
+          calcOffsets(placementData,placementData.offsets,topLeft,size);
+          placement.setValue(placementData);
 
-      changePlacementOffset(top,
-                           &placement,
-                            relativeType);
+          changePlacementOffset(top,
+                                &placement,
+                                relativeType);
 
-      endMacro();
+          picScale.setValue(picScale.value()*oldScale);
+          changeFloat(top,bottom,&picScale, 1, false);
 
-    } else if (sizeChanged) {
-
-        beginMacro(QString("ResizeRotateIcon"));
-
-        qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
-        qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
-        calcOffsets(placement.value(),placement.value().offsets,topLeft,size);
-
-        changePlacementOffset(top,
-                             &placement,
-                              relativeType);
-
-        picScale.setValue(picScale.value()*oldScale);
-        changeFloat(top,bottom,&picScale, 1, false);
-
-        logInfo() << "\nRESIZE ROTATE_ICON - "
-                  << "\nPICTURE DATA - "
-                  << " \npicScale: "                   << picScale.value()
-                  << " \nMargin X: "                   << margin.value(0)
-                  << " \nMargin Y: "                   << margin.value(1)
-                  << " \nDisplay: "                    << display.value()
-                  << "\nPAGE WHERE - "
-                  << " \nStep TopOf (Model Name): "    << top.modelName
-                  << " \nStep TopOf (Line Number): "   << top.lineNumber
-                  << " \nStep BottomOf (Model Name): " << bottom.modelName
-                  << " \nStep BottomOf (Line Number): "<< bottom.lineNumber
-                  << "\nUSING PLACEMENT DATA - "
-                  << " \nPlacement: "                  << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
-                  << " \nJustification: "              << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
-                  << " \nPreposition: "                << PrepNames[placement.value().preposition]   << " (" << placement.value().justification << ")"
-                  << " \nRelativeTo: "                 << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
-                  << " \nRectPlacement: "              << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
-                  << " \nOffset[0]: "                  << placement.value().offsets[0]
-                  << " \nOffset[1]: "                  << placement.value().offsets[1]
-                  << "\nMETA WHERE - "
-                  << " \nMeta Here (Model Name): "     << placement.here().modelName
-                  << " \nMeta Here (Line Number): "    << placement.here().lineNumber
-                  << "\nOTHER DATA - "
-                  << " \nRelativeType: "               << RelNames[relativeType]       << " (" << relativeType << ")"
-                  << " \nParentRelativeType: "         << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
-                  ;
-
-        endMacro();
+          logInfo() << "\nRESIZE ROTATE_ICON - "
+                    << "\nPICTURE DATA - "
+                    << " \npicScale: "                   << picScale.value()
+                    << " \nMargin X: "                   << margin.value(0)
+                    << " \nMargin Y: "                   << margin.value(1)
+                    << " \nDisplay: "                    << display.value()
+                    << "\nPAGE WHERE - "
+                    << " \nStep TopOf (Model Name): "    << top.modelName
+                    << " \nStep TopOf (Line Number): "   << top.lineNumber
+                    << " \nStep BottomOf (Model Name): " << bottom.modelName
+                    << " \nStep BottomOf (Line Number): "<< bottom.lineNumber
+                    << "\nUSING PLACEMENT DATA - "
+                    << " \nPlacement: "                  << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
+                    << " \nJustification: "              << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
+                    << " \nPreposition: "                << PrepNames[placement.value().preposition]   << " (" << placement.value().justification << ")"
+                    << " \nRelativeTo: "                 << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
+                    << " \nRectPlacement: "              << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
+                    << " \nOffset[0]: "                  << placement.value().offsets[0]
+                    << " \nOffset[1]: "                  << placement.value().offsets[1]
+                    << "\nMETA WHERE - "
+                    << " \nMeta Here (Model Name): "     << placement.here().modelName
+                    << " \nMeta Here (Line Number): "    << placement.here().lineNumber
+                    << "\nOTHER DATA - "
+                    << " \nRelativeType: "               << RelNames[relativeType]       << " (" << relativeType << ")"
+                    << " \nParentRelativeType: "         << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
+                       ;
+          endMacro();
+        }
     }
-  }
 }
 
-
-//void RotateIconItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-//{
-//  QGraphicsItem::mousePressEvent(event);
-//  positionChanged = false;
-//  position = pos();
-//}
-
-//void RotateIconItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-//{
-//  QGraphicsItem::mouseMoveEvent(event);
-//  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
-//      positionChanged = true;
-//    }
-//}
 
 
 
