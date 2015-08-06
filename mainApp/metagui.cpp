@@ -1656,11 +1656,6 @@ void BackgroundGui::setGradient(bool){
 
   QSize gSize(backgroundData.gsize[0],backgroundData.gsize[1]);
 
-//  int h_off = gSize.width() / 10;
-//  int v_off = gSize.height() / 8;
-//  pts << QPointF(gSize.width() / 2, gSize.height() / 2)
-//      << QPointF(gSize.width() / 2 - h_off, gSize.height() / 2 - v_off);
-
   for (int i=0; i<backgroundData.gpoints.size(); i++)
     pts.append(backgroundData.gpoints.at(i));
 
@@ -1703,17 +1698,8 @@ void BackgroundGui::setGradient(bool){
     break;
     case BackgroundData::ConicalGradient:
       {
-//        QLineF l(pts.at(0), pts.at(1));
-//        qreal angle = l.angle(QLineF(0, 0, 1, 0));
-//        if (l.dy() > 0)
-//          angle = 360 - angle;
         qreal angle = backgroundData.gangle;
         g = new QConicalGradient(pts.at(0), angle);
-//        logTrace() << " \nSET ANGLE - : "
-//                   << " \nANGLE:        " << angle
-//                   << " \npts.at(0)(x): " << pts.at(0).x()
-//                   << " \npts.at(0)(y): " << pts.at(0).y();
-//                    ;
       }
     break;
     case BackgroundData::NoGradient:
@@ -1722,7 +1708,6 @@ void BackgroundGui::setGradient(bool){
 
   for (int i=0; i<backgroundData.gstops.size(); ++i) {
       stops.append(backgroundData.gstops.at(i));
-      //g->setColorAt(backgroundData.gstops.at(i).first, backgroundData.gstops.at(i).second);   //alternative to stops
     }
 
   g->setStops(stops);
@@ -1755,13 +1740,6 @@ void BackgroundGui::setGradient(bool){
           l.setLength(120);
           backgroundData.gpoints << newbgGradient.center() << l.p2();
           backgroundData.gangle = newbgGradient.angle();
-
-//          logTrace() << " \nGET ANGLE - "
-//                     << " \nl.angle:   " << newbgGradient.angle()
-//                     << " \ncenter(x): " << newbgGradient.center().x()
-//                     << " \ncenter(y): " << newbgGradient.center().y()
-//                     << " \nl.p2(x):   " << l.p2().x()
-//                     << " \nl.p2(y):   " << l.p2().y();
         }
       //spread
       if (bgGradient.spread() == QGradient::PadSpread){
@@ -1966,6 +1944,7 @@ void BorderGui::enable()
 
   switch (border.type) {
     case BorderData::BdrNone:
+      lineCombo->setCurrentIndex(0);
       thicknessLabel->setEnabled(false);
       thicknessEdit->setEnabled(false);
       colorButton->setEnabled(false);
@@ -1990,24 +1969,34 @@ void BorderGui::enable()
     break;
   }
 
+  switch (border.line){
+    case BorderData::BdrLnNone:
+      thicknessLabel->setEnabled(false);
+      thicknessEdit->setEnabled(false);
+      colorButton->setEnabled(false);
+      spin->setEnabled(false);
+      spinLabel->setEnabled(false);
+    break;
+    case BorderData::BdrLnSolid:
+    case BorderData::BdrLnDash:
+    case BorderData::BdrLnDot:
+    case BorderData::BdrLnDashDot:
+    case BorderData::BdrLnDashDotDot:
+    break;
+    }
 }
 
 void BorderGui::typeChange(QString const &type)
 {
   BorderData border = meta->value();
 
-  if (type == "Borderless") {
-    border.type = BorderData::BdrNone;
-    lineCombo->setCurrentIndex(0);
-  } else {
-    lineCombo->setCurrentIndex(1);
-  }
-
   if (type == "Square Corners") {
-    border.type = BorderData::BdrSquare;
-  } else if (type == "Round Corners"){
-    border.type = BorderData::BdrRound;
-  }
+      border.type = BorderData::BdrSquare;
+    } else if (type == "Round Corners"){
+      border.type = BorderData::BdrRound;
+    } else {
+      border.type = BorderData::BdrNone;
+    }
 
   meta->setValue(border);
   enable();
@@ -2018,26 +2007,22 @@ void BorderGui::lineChange(QString const &line)
 {
   BorderData border = meta->value();
 
-  if (line == "No Line") {
-    border.line = BorderData::BdrLnNone;
-    combo->setCurrentIndex(0);
-  } else {
-    combo->setCurrentIndex(1);
-  }
-
   if (line == "Solid Line") {
-    border.line = BorderData::BdrLnSolid;
-  } else if (line == "Dash Line") {
-    border.line = BorderData::BdrLnDash;
-  } else if (line == "Dotted Line") {
-    border.line = BorderData::BdrLnDot;
-  } else if (line == "Dot-Dash Line") {
-    border.line = BorderData::BdrLnDashDot;
-  } else if (line == "Dot-Dot-Dash Line"){
-    border.line = BorderData::BdrLnDashDotDot;
-  }
+      border.line = BorderData::BdrLnSolid;
+    } else if (line == "Dash Line") {
+      border.line = BorderData::BdrLnDash;
+    } else if (line == "Dotted Line") {
+      border.line = BorderData::BdrLnDot;
+    } else if (line == "Dot-Dash Line") {
+      border.line = BorderData::BdrLnDashDot;
+    } else if (line == "Dot-Dot-Dash Line"){
+      border.line = BorderData::BdrLnDashDotDot;
+    } else {
+      border.line = BorderData::BdrLnNone;
+    }
 
   meta->setValue(border);
+  enable();
   modified = true;
 }
 
