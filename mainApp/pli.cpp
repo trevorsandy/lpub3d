@@ -138,7 +138,10 @@ void Pli::setParts(
 
   const int numParts = csiParts.size();
 
-  //for the entire BOM calculates instances
+  //for the entire BOM calculate instances
+  logInfo() << "\nPLI KEYS - INPUT - ";
+  int n = 0;    // logging only
+
   for (int i = 0; i < numParts; i++) {
     QString part = csiParts[i];
     QStringList sections = part.split(";");
@@ -157,13 +160,24 @@ void Pli::setParts(
 
       QString key = info.baseName() + "_" + color;
 
+      QString category;
+      partClass(type,category);
+
       if (_split){
           if ( ! tempParts.contains(key)) {
               PliPart *part = new PliPart(type,color);
               part->annotateMeta = pliMeta.annotate;
               part->instanceMeta = pliMeta.instance;
               part->csiMargin    = pliMeta.part.margin;
+              part->sortColour   = QString("%1").arg(color,5,'0');
+              part->sortCategory = QString("%1").arg(category,80,' ');
               tempParts.insert(key,part);
+              n++; //logging only
+              qDebug() << "\nInserted Part " << n
+                       << " Key:      " << key
+                       << " Colour:   " << part->sortColour
+                       << " Category: " << part->sortCategory
+                        ;
           }
           tempParts[key]->instances.append(here);
       } else {
@@ -172,7 +186,15 @@ void Pli::setParts(
               part->annotateMeta = pliMeta.annotate;
               part->instanceMeta = pliMeta.instance;
               part->csiMargin    = pliMeta.part.margin;
+              part->sortColour   = QString("%1").arg(color,5,'0');
+              part->sortCategory = QString("%1").arg(category,80,' ');
               parts.insert(key,part);
+              n++; //logging only
+              qDebug() << "\nInserted Part " << n
+                       << " Key:      " << key
+                       << " Colour:   " << part->sortColour
+                       << " Category: " << part->sortCategory
+                        ;
           }
           parts[key]->instances.append(here);
       }
@@ -185,8 +207,8 @@ void Pli::setParts(
       int quotient    = tempParts.size() / gui->boms;
       int remainder   = tempParts.size() % gui->boms;
       int maxParts    = 0;
-      int i           = 0;
-      int n           = 0;
+      int startIndex  = 0;
+      int partIndex   = 0;
 
       logTrace() << " \n\nBOM PARTS STATUS:    "
                  << " \nBOMS:                  " << gui->boms
@@ -200,29 +222,29 @@ void Pli::setParts(
 
       if (gui->bomOccurrence == gui->boms){
           maxParts = gui->bomOccurrence * quotient + remainder;
-          i = maxParts - quotient - remainder;
+          startIndex = maxParts - quotient - remainder;
       } else {
           maxParts = gui->bomOccurrence * quotient;
-          i = maxParts - quotient;
+          startIndex = maxParts - quotient;
       }
 
       QString key;
       foreach(key,tempParts.keys()){
           PliPart *part;
           part = tempParts[key];
-          n++;
+          partIndex++;
 
-          if (n >= i && n <= maxParts) {
+          if (partIndex >= startIndex && partIndex <= maxParts) {
               parts.insert(key,part);
-//              logNotice() << "\nINSERTED PART(n): " << n << " (key)" << key
-//                          << " \nPart Type:       " << QString("%1").arg(part->type)
-//                          << " \nPart Colour:     " << QString("%1").arg(part->color)
-//                          << " \nPart Instances:  " << QString("%1x").arg(part->instances.size(),0,10);
+//              logNotice() << "\nINSERTED PART(partIndex): " << n << " (key)" << key
+//                          << " \nPart Type:               " << QString("%1").arg(part->type)
+//                          << " \nPart Colour:             " << QString("%1").arg(part->color)
+//                          << " \nPart Instances:          " << QString("%1x").arg(part->instances.size(),0,10);
 //                             ;
           }
 //          logInfo() << " \nPROCESSED PART: "
-//                    << " \nIndex(n):       " << n
-//                    << " \nValid Start(i): " << i
+//                    << " \nIndex(partIndex):       " << partIndex
+//                    << " \nValid Start(startIndex): " << startIndex
 //                    << " \nValid End(maxP):" << maxParts
 //                    << " \nKey:            " << key
 //                    << " \nInserted:       " << parts.size()
@@ -285,16 +307,12 @@ void Pli::getAnnotate(
 {
     annotateStr.clear();
 
-    //bool enable = Preferences::enablePLIPartAnnotation;
     bool enable = pliMeta.annotation.display.value();
     if (! enable)
         return;
 
-    //bool title = Preferences::preferTitleAnnotation;
     bool title = pliMeta.annotation.titleAnnotation.value();
-    //bool freeform = Preferences::preferFreeformAnnotation;
     bool freeform = pliMeta.annotation.freeformAnnotation.value();
-    //bool titleAndFreeform = Preferences::titleAndFreeformAnnotation;
     bool titleAndFreeform = pliMeta.annotation.titleAndFreeformAnnotation.value();
 
     // pick up annotations
@@ -463,10 +481,10 @@ void Pli::partClass(
         pclass += rx.cap(2);
       }
     } else {
-      pclass = "ZZZ";
+      pclass = "NoCat";
     }
   } else {
-    pclass = "ZZZ";
+    pclass = "NoCat";
   }
 }
 
@@ -896,61 +914,81 @@ int Pli::sortPli()
 {
   // populate partSize
   partSize();
-  // populate partCategory
-  partCategory();
 
   sortedKeys = parts.keys();
 
   if (pliMeta.sortBy.value() == SortOptionName[PartColour]){
 
       // Sort parts by colour
+      logInfo() << "\nPLI KEYS - PART COLOUR - ";
       for (int i = 0; i < parts.size() - 1; i++) {
           for (int j = i+1; j < parts.size(); j++) {
-              if (parts[sortedKeys[i]]->color < parts[sortedKeys[j]]->color) {
+              if (parts[sortedKeys[i]]->sortColour < parts[sortedKeys[j]]->sortColour) {
                   QString t = sortedKeys[i];
                   sortedKeys[i] = sortedKeys[j];
                   sortedKeys[j] = t;
                 }
             }
+          qDebug() << "\nPart " << i
+                   << " of " << parts.size()
+                   << " Colour: " << parts[sortedKeys[i]]->sortColour
+                   << " - Sorted Key: " << sortedKeys[i];
         }
 
       // Sort colour-sorted parts by size
+      logInfo() << "\nPLI KEYS - PART COLOUR THEN SIZE - ";
       for (int i = 0; i < parts.size() - 1; i++) {
           for (int j = i+1; j < parts.size(); j++) {
-              if (parts[sortedKeys[i]]->color == parts[sortedKeys[j]]->color) {
-                  if (parts[sortedKeys[i]]->size < parts[sortedKeys[j]]->size) {
+              if (parts[sortedKeys[i]]->sortColour == parts[sortedKeys[j]]->sortColour) {
+                  if (parts[sortedKeys[i]]->sortSize < parts[sortedKeys[j]]->sortSize) {
                       QString t = sortedKeys[i];
                       sortedKeys[i] = sortedKeys[j];
                       sortedKeys[j] = t;
                     }
                 }
             }
+          qDebug() << "\nPart " << i
+                   << " of " << parts.size()
+                   << " Colour: " << parts[sortedKeys[i]]->sortColour
+                   << " Size: " << parts[sortedKeys[i]]->sortSize
+                   << " - Sorted Key: " << sortedKeys[i];
         }
 
     } else if (pliMeta.sortBy.value() == SortOptionName[PartCategory]){
 
       // Sort parts by category
+      logInfo() << "\nPLI KEYS - PART CATEGORY - ";
       for (int i = 0; i < parts.size() - 1; i++) {
           for (int j = i+1; j < parts.size(); j++) {
-              if (parts[sortedKeys[i]]->category < parts[sortedKeys[j]]->category) {
+              if (parts[sortedKeys[i]]->sortCategory < parts[sortedKeys[j]]->sortCategory) {
                   QString t = sortedKeys[i];
                   sortedKeys[i] = sortedKeys[j];
                   sortedKeys[j] = t;
                 }
             }
+          qDebug() << "\nPart " << i
+                   << " of " << parts.size()
+                   << " Category: " << parts[sortedKeys[i]]->sortCategory
+                   << " - Sorted Key: " << sortedKeys[i];
         }
 
       // Sort category-sorted parts by size
+      logInfo() << "\nPLI KEYS - PART CATEGORY THEN SIZE - ";
       for (int i = 0; i < parts.size() - 1; i++) {
           for (int j = i+1; j < parts.size(); j++) {
-              if (parts[sortedKeys[i]]->category == parts[sortedKeys[j]]->category) {
-                  if (parts[sortedKeys[i]]->size < parts[sortedKeys[j]]->size) {
+              if (parts[sortedKeys[i]]->sortCategory == parts[sortedKeys[j]]->sortCategory) {
+                  if (parts[sortedKeys[i]]->sortSize < parts[sortedKeys[j]]->sortSize) {
                       QString t = sortedKeys[i];
                       sortedKeys[i] = sortedKeys[j];
                       sortedKeys[j] = t;
                     }
                 }
             }
+          qDebug() << "\nPart " << i
+                   << " of " << parts.size()
+                   << " Category: " << parts[sortedKeys[i]]->sortCategory
+                   << " Size: " << parts[sortedKeys[i]]->sortSize
+                   << " - Sorted Key: " << sortedKeys[i];
         }
 
     } else {
@@ -958,12 +996,16 @@ int Pli::sortPli()
       // Sort parts by size
       for (int i = 0; i < parts.size() - 1; i++) {
           for (int j = i+1; j < parts.size(); j++) {
-              if (parts[sortedKeys[i]]->size < parts[sortedKeys[j]]->size) {
+              if (parts[sortedKeys[i]]->sortSize < parts[sortedKeys[j]]->sortSize) {
                   QString t = sortedKeys[i];
                   sortedKeys[i] = sortedKeys[j];
                   sortedKeys[j] = t;
                 }
             }
+          qDebug() << "\nPart " << i
+                   << " of " << parts.size()
+                   << " Size: " << parts[sortedKeys[i]]->sortSize
+                   << " - Sorted Key: " << sortedKeys[i];
         }
     }
   return 0;
@@ -1103,17 +1145,23 @@ int Pli::partSize()
       if (bom && pliMeta.sort.value()) {
         QString pclass;
         partClass(part->type,pclass);
-        part->size = QString("%1%2%3%%4")
+        part->size = QString("%1%2%3%4")
                      .arg(pclass,80,' ')
                      .arg(part->width, 8,10,QChar('0'))
                      .arg(part->height,8,10,QChar('0'))
                      .arg(part->color);
+        part->sortSize = QString("%1%2")
+            .arg(part->width, 8,10,QChar('0'))
+            .arg(part->height,8,10,QChar('0'));
       } else {
         part->size = QString("%1%2%3%4")
                      .arg(part->width, 8,10,QChar('0'))
                      .arg(part->height,8,10,QChar('0'))
                      .arg(part->type)
                      .arg(part->color);
+        part->sortSize = QString("%1%2")
+            .arg(part->width, 8,10,QChar('0'))
+            .arg(part->height,8,10,QChar('0'));
       }
       if (part->width > widestPart) {
         widestPart = part->width;
@@ -1126,39 +1174,6 @@ int Pli::partSize()
       parts.remove(key);
     }
   }
-
-  return 0;
-}
-
-int Pli::partCategory(){
-
-  lcPiecesLibrary* library = lcGetPiecesLibrary();
-  int categoryIndex;
-  QString key;
-
-  foreach(key,parts.keys()) {
-      PliPart *part;
-
-      part = parts[key];
-
-      if (PartsList::isKnownPart(part->type) && ! PartsList::isSubPart(part->type)) {
-
-          QFileInfo info(part->type);
-          PieceInfo *partInfo = library->FindPiece(info.baseName().toUpper().toLatin1().constData(), NULL, false);
-
-          for (categoryIndex = 0; categoryIndex < gCategories.GetSize(); categoryIndex++)
-            if (library->PieceInCategory(partInfo, gCategories[categoryIndex].Keywords)){
-                part->category = categoryIndex;
-//                logInfo() << " Type Name: " << QString("%1").arg(info.baseName().toLatin1().constData())
-//                          << " Part Name: " << QString("%1").arg(partInfo->m_strName)
-//                          << " Category:  " << QString("%1").arg(categoryIndex)
-//                             ;
-                break;
-              }
-        } else {
-          part->category = gCategories.GetSize()+10;
-        }
-    }
 
   return 0;
 }

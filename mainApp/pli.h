@@ -70,6 +70,9 @@ class PliPart {
     QList<Where>         instances; 
     QString              type;
     QString              color;
+    QString              sortCategory;
+    QString              sortColour;
+    QString              sortSize;
     QString              size;
     NumberMeta           instanceMeta;
     NumberMeta           annotateMeta;
@@ -92,8 +95,6 @@ class PliPart {
     int           topMargin;
     int           partTopMargin;
     int           partBotMargin;
-
-    int           category;
 
     QList<int>    leftEdge;
     QList<int>    rightEdge;
@@ -202,7 +203,6 @@ class Pli : public Placement {
     int  sizePli(ConstrainData::PliConstrain, unsigned height);
     int  sortPli();
     int  partSize();
-    int  partCategory();
     int  resizePli(Meta *, ConstrainData &constrainData);
     int  placePli(QList<QString> &, int,int,bool,bool,int&,int&,int&);
     void positionChildren(int height, qreal scaleX, qreal scaleY);

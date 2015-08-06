@@ -1,11 +1,15 @@
-LPub3D 1.2.0.388.4 
+LPub3D 1.3 XXXX
  
 Features and enhancements 
 ------------ 
 -Add Rotate Icon - indicate that the builder should "flip" the model
--Add line configuration to border configuration
+-Add line settings to border configuration
+-Add gradients to background options
+-Cosmetic updates
 -Fix: Changing step number attributes on multi-step pages are now working
-
+-Fix: PLI/BOM sort routine, sort on 'part colour' part(s) appear out of place relative to
+ part size and colour.
+ 
 LPub3D 1.2.0.388.4 
  
 Features and enhancements 
