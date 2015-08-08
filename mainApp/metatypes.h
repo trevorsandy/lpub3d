@@ -235,7 +235,7 @@ public:
     InsertArrow,
     InsertBom,
     InsertCoverPage,
-    InsertModel,
+    InsertFinalModel,
     InsertRotateIcon
   } type;
 

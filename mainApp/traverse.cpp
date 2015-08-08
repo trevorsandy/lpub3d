@@ -256,7 +256,7 @@ int Gui::drawPage(
   int         numLines = ldrawFile.size(current.modelName);
   bool        firstStep   = true;
   bool        noStep      = false;
-  bool        insertModel = false;
+  bool        InsertFinalModel = false;
   bool        rotateIcon  = false;
 
   steps->isMirrored = isMirrored;
@@ -738,23 +738,27 @@ int Gui::drawPage(
                     rotateIcon = true;
                   }
 
-                QRegExp InsertModel("^\\s*0\\s+!LPUB\\s+.*MODEL");
-                if (line.contains(InsertModel)){
-                    if (step == NULL) {
-                        if (range == NULL) {
-                            range = newRange(steps,calledOut);
-                            steps->append(range);
+                if (insertData.type == InsertData::InsertFinalModel){
+
+                    if (curMeta.LPub.fadeStep.fadeStep.value()){
+
+
+                        if (step == NULL) {
+                            if (range == NULL) {
+                                range = newRange(steps,calledOut);
+                                steps->append(range);
+                              }
+                            step = new Step(topOfStep,
+                                            range,
+                                            stepNum,
+                                            curMeta,
+                                            calledOut,
+                                            multiStep);
+                            range->append(step);
                           }
-                        step = new Step(topOfStep,
-                                        range,
-                                        stepNum,
-                                        curMeta,
-                                        calledOut,
-                                        multiStep);
-                        range->append(step);
+                        partsAdded  = true; // OK, so this is a lie, but it works
+                        InsertFinalModel = true;
                       }
-                    partsAdded  = true; // OK, so this is a lie, but it works
-                    insertModel = true;
                   }
               }
               break;
@@ -962,7 +966,7 @@ int Gui::drawPage(
 
                       int rc = step->createCsi(
                             isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                            saveCsiParts = insertModel ? csiParts : fadeStep(csiParts, stepNum, current),
+                            saveCsiParts = InsertFinalModel ? csiParts : fadeStep(csiParts, stepNum, current),
                             &step->csiPixmap,
                             steps->meta);
 

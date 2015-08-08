@@ -1726,8 +1726,8 @@ int MetaItem::okToInsertFinalModel()
         rc = content.parse(line,here);
 
         if (rc == InsertRc) {                           //check if insert line is Insert Model
-            QRegExp InsertModel("^\\s*0\\s+!LPUB\\s+.*MODEL");
-            if (line.contains(InsertModel)){
+            QRegExp InsertFinalModel("^\\s*0\\s+!LPUB\\s+.*MODEL");
+            if (line.contains(InsertFinalModel)){
                 logInfo() << " \nModel detected at line: " << here.lineNumber;
                 return -1;                              //insert line exist so return -1;
             }
@@ -1775,6 +1775,50 @@ void MetaItem::insertFinalModel(int atLine)
   appendMeta(here,pageMeta);
   appendMeta(here,modelMeta);
   endMacro();
+}
+
+void MetaItem::deleteFinalModel(){
+
+  Where here(gui->topLevelFile(),0);
+  here.lineNumber = gui->subFileSize(here.modelName);
+  here--;
+  logTrace() << " In delete Final Model: ";
+  Rc rc;
+  Meta meta;
+  bool foundFinalModel = false;
+  for (; here >=0; here--) {                            //scan backwards until Model
+      QString line = gui->readLine(here);
+      rc = meta.parse(line,here);
+      if (rc == InsertRc) {
+          QRegExp InsertFinalModel("^\\s*0\\s+!LPUB\\s+.*MODEL");
+          if (line.contains(InsertFinalModel)){
+              foundFinalModel = true;
+              continue;                               //model found so continue backwards until Model's begin STEP
+            }
+        } else if (foundFinalModel && rc == StepRc){   //at STEP...
+          Where walk = here;                           //delete each line until at Model's end Step
+          for(; walk >=0; walk++){
+              QString line = gui->readLine(walk);
+              rc = meta.parse(line,here);
+              if(rc != StepRc){
+                  deleteMeta(walk);
+                } else {
+                  break;
+                }
+            }
+          break;
+        } else if (rc == StepGroupEndRc){
+          break;
+        } else {
+          QStringList tokens;
+          split(line,tokens);
+          bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
+              tokens[0] >= "1" && tokens[0] <= "5";
+          if (token_1_5) {                              //non-zero line detected so break
+              break;
+            }
+        }
+    }
 }
 
 void MetaItem::insertSplitBOM()
@@ -1832,11 +1876,11 @@ void MetaItem::deleteRotateIcon(Where &topOfStep){
           split(line,tokens);
           bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
               tokens[0] >= "1" && tokens[0] <= "5";
-          if (token_1_5) {                      //non-zero line detected so break
+          if (token_1_5) {                                        //non-zero line detected so break
               break;
             }
           rc = meta.parse(line,walk);
-          if (rc == StepRc) {                   //reached end of step so break
+          if (rc == StepRc) {                                     //reached end of step so break
               break;
             }
         }

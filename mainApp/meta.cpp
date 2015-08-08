@@ -1531,7 +1531,7 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
       insertData.type = InsertData::InsertBom;
       ++index;
     } else if (argv[index] == "MODEL"){
-      insertData.type = InsertData::InsertModel;
+      insertData.type = InsertData::InsertFinalModel;
       ++index;
     }
 
@@ -1594,7 +1594,7 @@ QString InsertMeta::format(bool local, bool global)
     case InsertData::InsertBom:
       foo += " BOM";
       break;
-    case InsertData::InsertModel:
+    case InsertData::InsertFinalModel:
       foo += " MODEL";
       break;
     case InsertData::InsertCoverPage:

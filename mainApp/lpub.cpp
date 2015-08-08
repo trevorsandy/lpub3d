@@ -106,9 +106,16 @@ void Gui::generateCoverPages()
 }
 
 void Gui::insertFinalModel(){
-    if (Preferences::enableFadeStep){
-        MetaItem mi;
-        mi.insertFinalModel(mi.okToInsertFinalModel());
+  MetaItem mi;
+  static int modelExist = -1;
+  int modelStatus = mi.okToInsertFinalModel();
+
+  if (Preferences::enableFadeStep && modelStatus != modelExist){
+      mi.insertFinalModel(modelStatus);
+    } else if (! Preferences::enableFadeStep && modelStatus == modelExist){
+      beginMacro("deleteFinalModel");
+      mi.deleteFinalModel();
+      endMacro();
     }
 }
 
