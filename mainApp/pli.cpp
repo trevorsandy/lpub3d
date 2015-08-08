@@ -133,14 +133,11 @@ void Pli::setParts(
   bool         _bom,
   bool         _split)
 {
-  bom = _bom;
-  pliMeta = _bom ? meta.LPub.bom : meta.LPub.pli;
+  bom      = _bom;
+  splitBom = _split;
+  pliMeta  = _bom ? meta.LPub.bom : meta.LPub.pli;
 
   const int numParts = csiParts.size();
-
-  //for the entire BOM calculate instances
-  logInfo() << "\nPLI KEYS - INPUT - ";
-  int n = 0;    // logging only
 
   for (int i = 0; i < numParts; i++) {
     QString part = csiParts[i];
@@ -163,7 +160,7 @@ void Pli::setParts(
       QString category;
       partClass(type,category);
 
-      if (_split){
+      if (bom && splitBom){
           if ( ! tempParts.contains(key)) {
               PliPart *part = new PliPart(type,color);
               part->annotateMeta = pliMeta.annotate;
@@ -172,12 +169,6 @@ void Pli::setParts(
               part->sortColour   = QString("%1").arg(color,5,'0');
               part->sortCategory = QString("%1").arg(category,80,' ');
               tempParts.insert(key,part);
-              n++; //logging only
-              qDebug() << "\nInserted Part " << n
-                       << " Key:      " << key
-                       << " Colour:   " << part->sortColour
-                       << " Category: " << part->sortCategory
-                        ;
           }
           tempParts[key]->instances.append(here);
       } else {
@@ -189,36 +180,48 @@ void Pli::setParts(
               part->sortColour   = QString("%1").arg(color,5,'0');
               part->sortCategory = QString("%1").arg(category,80,' ');
               parts.insert(key,part);
-              n++; //logging only
-              qDebug() << "\nInserted Part " << n
-                       << " Key:      " << key
-                       << " Colour:   " << part->sortColour
-                       << " Category: " << part->sortCategory
-                        ;
           }
           parts[key]->instances.append(here);
       }
     }
   } //instances
 
-   // now divide the list based on BOM occurrence
-  if (_split){
+   // now sort then divide the list based on BOM occurrence
+  if (bom && splitBom){
+
+      //sort
+      sortedKeys = tempParts.keys();
+
+      if (pliMeta.sortBy.value() == SortOptionName[PartColour]){
+      // Sort tempParts by colour
+      for (int i = 0; i < tempParts.size() - 1; i++) {
+          for (int j = i+1; j < tempParts.size(); j++) {
+              if (tempParts[sortedKeys[i]]->sortColour < tempParts[sortedKeys[j]]->sortColour) {
+                  QString t = sortedKeys[i];
+                  sortedKeys[i] = sortedKeys[j];
+                  sortedKeys[j] = t;
+                }
+            }
+        }
+      } else if (pliMeta.sortBy.value() == SortOptionName[PartCategory]){
+
+          // Sort tempParts by category
+          for (int i = 0; i < tempParts.size() - 1; i++) {
+              for (int j = i+1; j < tempParts.size(); j++) {
+                  if (tempParts[sortedKeys[i]]->sortCategory < tempParts[sortedKeys[j]]->sortCategory) {
+                      QString t = sortedKeys[i];
+                      sortedKeys[i] = sortedKeys[j];
+                      sortedKeys[j] = t;
+                    }
+                }
+            }
+      }
 
       int quotient    = tempParts.size() / gui->boms;
       int remainder   = tempParts.size() % gui->boms;
       int maxParts    = 0;
       int startIndex  = 0;
       int partIndex   = 0;
-
-      logTrace() << " \n\nBOM PARTS STATUS:    "
-                 << " \nBOMS:                  " << gui->boms
-                 << " \nBOM Occurrence:        " << gui->bomOccurrence
-                 << " \nCsiParts Size (Parts): " << csiParts.size()
-                 << " \nTempParts Size (Lots): " << tempParts.size()
-                 << " \nQuotient:              " << quotient
-                 << " \nRemainder:             " << remainder
-                 << " \n"
-                   ;
 
       if (gui->bomOccurrence == gui->boms){
           maxParts = gui->bomOccurrence * quotient + remainder;
@@ -229,29 +232,17 @@ void Pli::setParts(
       }
 
       QString key;
-      foreach(key,tempParts.keys()){
+      foreach(key,sortedKeys){
           PliPart *part;
           part = tempParts[key];
           partIndex++;
 
           if (partIndex >= startIndex && partIndex <= maxParts) {
               parts.insert(key,part);
-//              logNotice() << "\nINSERTED PART(partIndex): " << n << " (key)" << key
-//                          << " \nPart Type:               " << QString("%1").arg(part->type)
-//                          << " \nPart Colour:             " << QString("%1").arg(part->color)
-//                          << " \nPart Instances:          " << QString("%1x").arg(part->instances.size(),0,10);
-//                             ;
           }
-//          logInfo() << " \nPROCESSED PART: "
-//                    << " \nIndex(partIndex):       " << partIndex
-//                    << " \nValid Start(startIndex): " << startIndex
-//                    << " \nValid End(maxP):" << maxParts
-//                    << " \nKey:            " << key
-//                    << " \nInserted:       " << parts.size()
-//                       ;
       }
       tempParts.clear();
-//      logTrace() << " tempParts Cleared! ";
+      sortedKeys.clear();
   }
 }
 
@@ -417,7 +408,6 @@ int Pli::createPartImage(
   QPixmap  *pixmap)
 {
   float modelScale = pliMeta.modelScale.value();
-  QString        unitsName = resolutionType() ? "DPI" : "DPCM";
 
   QString key = QString("%1_%2_%3_%4_%5_%6_%7")
                     .arg(partialKey) 
@@ -435,7 +425,7 @@ int Pli::createPartImage(
 
   if ( ! part.exists()) {
 
-    // create a temporary DAT to feed to LDGLite
+    // create a temporary DAT to feed the renderer
   
     part.setFileName(ldrName);
   
@@ -451,7 +441,7 @@ int Pli::createPartImage(
     out << orient(color, type);
     part.close();
       
-    // feed DAT to LDGLite
+    // feed DAT to renderer
   
     int rc = renderer->renderPli(ldrName,imageName,*meta, bom);
   
@@ -495,8 +485,8 @@ int Pli::placePli(
   bool   packSubs,
   bool   sortType,
   int   &cols,
-  int   &width,
-  int   &height)
+  int   &pliWidth,
+  int   &pliHeight)
 {
   
   // Place the first row
@@ -510,10 +500,8 @@ int Pli::placePli(
 
   cols = 0;
 
-  width = 0;
-  height = 0;
-
-  QString key;
+  pliWidth = 0;
+  pliHeight = 0;
 
   for (int i = 0; i < keys.size(); i++) {
     parts[keys[i]]->placed = false;
@@ -726,7 +714,7 @@ int Pli::placePli(
             break;
           }
 
-          int width = part->width;
+          int subWidth = part->width;
           part->left = subLeft + subMargin;
           part->bot  = bot;
           part->placed = true;
@@ -759,7 +747,7 @@ int Pli::placePli(
 
             subBot += part->height + splitMargin;
           }
-          subLeft += width;
+          subLeft += subWidth;
         }
       }
       
@@ -785,7 +773,7 @@ int Pli::placePli(
     margins.append(margin);
   }
 
-  width = left;
+  pliWidth = left;
 
   int margin;
   int totalCols = margins.size();
@@ -803,20 +791,20 @@ int Pli::placePli(
         parts[keys[i]]->left += margin;
       }
     }
-    width += margin;
+    pliWidth += margin;
   }
   if (lastMargin < borderData.margin[0]+borderData.thickness) {
     lastMargin = int(borderData.margin[0]+borderData.thickness);
   }
-  width += lastMargin;
+  pliWidth += lastMargin;
 
-  height = tallest;
+  pliHeight = tallest;
 
   for (int i = 0; i < parts.size(); i++) {
     parts[keys[i]]->bot += botMargin;
   }
 
-  height += botMargin + topMargin;
+  pliHeight += botMargin + topMargin;
 
   return 0;
 }
@@ -912,15 +900,17 @@ void Pli::getRightEdge(
 
 int Pli::sortPli()
 {
-  // populate partSize
+  // populate part size
   partSize();
 
   sortedKeys = parts.keys();
 
   if (pliMeta.sortBy.value() == SortOptionName[PartColour]){
 
+      if (! bom)
+        pliMeta.sort.setValue(true);
+
       // Sort parts by colour
-      logInfo() << "\nPLI KEYS - PART COLOUR - ";
       for (int i = 0; i < parts.size() - 1; i++) {
           for (int j = i+1; j < parts.size(); j++) {
               if (parts[sortedKeys[i]]->sortColour < parts[sortedKeys[j]]->sortColour) {
@@ -929,14 +919,9 @@ int Pli::sortPli()
                   sortedKeys[j] = t;
                 }
             }
-          qDebug() << "\nPart " << i
-                   << " of " << parts.size()
-                   << " Colour: " << parts[sortedKeys[i]]->sortColour
-                   << " - Sorted Key: " << sortedKeys[i];
         }
 
       // Sort colour-sorted parts by size
-      logInfo() << "\nPLI KEYS - PART COLOUR THEN SIZE - ";
       for (int i = 0; i < parts.size() - 1; i++) {
           for (int j = i+1; j < parts.size(); j++) {
               if (parts[sortedKeys[i]]->sortColour == parts[sortedKeys[j]]->sortColour) {
@@ -947,17 +932,14 @@ int Pli::sortPli()
                     }
                 }
             }
-          qDebug() << "\nPart " << i
-                   << " of " << parts.size()
-                   << " Colour: " << parts[sortedKeys[i]]->sortColour
-                   << " Size: " << parts[sortedKeys[i]]->sortSize
-                   << " - Sorted Key: " << sortedKeys[i];
         }
 
     } else if (pliMeta.sortBy.value() == SortOptionName[PartCategory]){
 
+      if (! bom)
+        pliMeta.sort.setValue(true);
+
       // Sort parts by category
-      logInfo() << "\nPLI KEYS - PART CATEGORY - ";
       for (int i = 0; i < parts.size() - 1; i++) {
           for (int j = i+1; j < parts.size(); j++) {
               if (parts[sortedKeys[i]]->sortCategory < parts[sortedKeys[j]]->sortCategory) {
@@ -966,14 +948,9 @@ int Pli::sortPli()
                   sortedKeys[j] = t;
                 }
             }
-          qDebug() << "\nPart " << i
-                   << " of " << parts.size()
-                   << " Category: " << parts[sortedKeys[i]]->sortCategory
-                   << " - Sorted Key: " << sortedKeys[i];
         }
 
       // Sort category-sorted parts by size
-      logInfo() << "\nPLI KEYS - PART CATEGORY THEN SIZE - ";
       for (int i = 0; i < parts.size() - 1; i++) {
           for (int j = i+1; j < parts.size(); j++) {
               if (parts[sortedKeys[i]]->sortCategory == parts[sortedKeys[j]]->sortCategory) {
@@ -984,11 +961,6 @@ int Pli::sortPli()
                     }
                 }
             }
-          qDebug() << "\nPart " << i
-                   << " of " << parts.size()
-                   << " Category: " << parts[sortedKeys[i]]->sortCategory
-                   << " Size: " << parts[sortedKeys[i]]->sortSize
-                   << " - Sorted Key: " << sortedKeys[i];
         }
 
     } else {
@@ -1002,10 +974,6 @@ int Pli::sortPli()
                   sortedKeys[j] = t;
                 }
             }
-          qDebug() << "\nPart " << i
-                   << " of " << parts.size()
-                   << " Size: " << parts[sortedKeys[i]]->sortSize
-                   << " - Sorted Key: " << sortedKeys[i];
         }
     }
   return 0;
@@ -1032,8 +1000,6 @@ int Pli::partSize()
       }
 
       // Part Pixmap
-
-      QFileInfo info(part->type);
 
       QString imageName = Paths::partsDir + "/" + key + ".png";
 
@@ -1142,27 +1108,10 @@ int Pli::partSize()
 
       part->height = part->leftEdge.size();
 
-      if (bom && pliMeta.sort.value()) {
-        QString pclass;
-        partClass(part->type,pclass);
-        part->size = QString("%1%2%3%4")
-                     .arg(pclass,80,' ')
-                     .arg(part->width, 8,10,QChar('0'))
-                     .arg(part->height,8,10,QChar('0'))
-                     .arg(part->color);
-        part->sortSize = QString("%1%2")
-            .arg(part->width, 8,10,QChar('0'))
-            .arg(part->height,8,10,QChar('0'));
-      } else {
-        part->size = QString("%1%2%3%4")
-                     .arg(part->width, 8,10,QChar('0'))
-                     .arg(part->height,8,10,QChar('0'))
-                     .arg(part->type)
-                     .arg(part->color);
-        part->sortSize = QString("%1%2")
-            .arg(part->width, 8,10,QChar('0'))
-            .arg(part->height,8,10,QChar('0'));
-      }
+      part->sortSize = QString("%1%2")
+          .arg(part->width, 8,10,QChar('0'))
+          .arg(part->height,8,10,QChar('0'));
+
       if (part->width > widestPart) {
         widestPart = part->width;
       }
@@ -1719,93 +1668,45 @@ void PliBackgroundItem::contextMenuEvent(
       return;
     }
        
-    Where topOfStep;
-    Where bottomOfStep;
+    Where top;
+    Where bottom;
 
-    if (pli->step) {
-        if (pli->bom) {
-            topOfStep = pli->topOfSteps();
-            bottomOfStep = pli->bottomOfSteps();
+    switch (parentRelativeType) {
+      case CalloutType:
+        top    = pli->topOfCallout();
+        bottom = pli->bottomOfCallout();
+        break;
+      default:
+        if (pli->step) {
+            if (pli->bom) {
+                top = pli->topOfSteps();
+                bottom = pli->bottomOfSteps();
+              } else {
+                top = pli->topOfStep();
+                bottom = pli->bottomOfStep();
+              }
           } else {
-            topOfStep = pli->topOfStep();
-            bottomOfStep = pli->bottomOfStep();
+            top = pli->topOfSteps();
+            bottom = pli->bottomOfSteps();
           }
-      } else {
-        topOfStep = pli->topOfSteps();
-        bottomOfStep = pli->bottomOfSteps();
+        break;
       }
-
-//    Where top;
-//    Where bottom;
-
-//    switch (parentRelativeType) {
-//      case StepGroupType:
-//        top    = pli->topOfSteps();
-//        bottom = pli->bottomOfSteps();
-//        break;
-//      case CalloutType:
-//        top    = pli->topOfCallout();
-//        bottom = pli->bottomOfCallout();
-//        break;
-//      default:
-//        if (pli->bom) {
-//            top    = pli->topOfSteps();
-//            bottom = pli->bottomOfSteps();
-//          } else {
-//            top    = pli->topOfStep();
-//            bottom = pli->bottomOfStep();
-//          }
-//        break;
-//      }
-
-//    if (pli->step) {
-//      if (pli->bom || pli->perStep) {
-//        topOfStep = pli->topOfSteps();
-//        bottomOfStep = pli->bottomOfSteps();
-//      } else {
-//        topOfStep = pli->topOfStep();
-//        bottomOfStep = pli->bottomOfStep();
-//      }
-//    } else {
-//      topOfStep = pli->topOfSteps();
-//      bottomOfStep = pli->bottomOfSteps();
-//    }
-  
-//    switch (parentRelativeType) {
-//      case StepGroupType:
-//        top    = pli->topOfSteps();
-//        bottom = pli->bottomOfSteps();
-//      break;
-//      case CalloutType:
-//        top    = pli->topOfCallout();
-//        bottom = pli->bottomOfCallout();
-//      break;
-//      default:
-//        if (pli->bom || pli->perStep) {
-//          top    = pli->topOfSteps();
-//          bottom = pli->bottomOfSteps();
-//        } else {
-//          top    = pli->topOfStep();
-//          bottom = pli->bottomOfStep();
-//        }
-//      break;
-//    }
 
     QString me = pli->bom ? "BOM" : "PLI";
     if (selectedAction == sortAction) {
       changePliSort(me+" Sort",
-                    topOfStep,
-                    bottomOfStep,
+                    top,
+                    bottom,
                    &pli->pliMeta.sortBy.sortOption);
     } else if (selectedAction == annotationAction) {
         changePliAnnotation(me+" Annotaton",
-                            topOfStep,
-                            bottomOfStep,
+                            top,
+                            bottom,
                             &pli->pliMeta.annotation);
     } else if (selectedAction == constrainAction) {
       changeConstraint(me+" Constraint",
-                       topOfStep,
-                       bottomOfStep,
+                       top,
+                       bottom,
                        &pli->pliMeta.constrain);
     } else if (selectedAction == placementAction) {
       if (pli->bom) {
@@ -1813,40 +1714,40 @@ void PliBackgroundItem::contextMenuEvent(
                         pli->perStep,
                         PartsListType,
                         me+" Placement",
-                        topOfStep,
-                        bottomOfStep,
+                        top,
+                        bottom,
                        &pli->pliMeta.placement,true,1,0,false);
       } else if (pli->perStep) {
         changePlacement(parentRelativeType,
                         pli->perStep,
                         PartsListType,
                         me+" Placement",
-                        pli->topOfStep(),
-                        pli->bottomOfStep(),
+                        top,
+                        bottom,
                        &pli->placement);
       } else {
         changePlacement(parentRelativeType,
                         pli->perStep,
                         PartsListType,
                         me+" Placement",
-                        pli->topOfStep(),
-                        pli->bottomOfStep(),
+                        top,
+                        bottom,
                        &pli->placement,true,1,0,false);
       }
     } else if (selectedAction == marginAction) {
       changeMargins(me+" Margins",
-                    topOfStep,
-                    bottomOfStep,
+                    top,
+                    bottom,
                     &pli->pliMeta.margin);
     } else if (selectedAction == backgroundAction) {
       changeBackground(me+" Background",
-                       topOfStep,
-                       bottomOfStep,
+                       top,
+                       bottom,
                        &pli->pliMeta.background);
     } else if (selectedAction == borderAction) {
       changeBorder(me+" Border",
-                   topOfStep,
-                   bottomOfStep,
+                   top,
+                   bottom,
                    &pli->pliMeta.border);
     } else if (selectedAction == deleteBomAction) {
       deleteBOM();
@@ -1963,12 +1864,6 @@ void AnnotateTextItem::contextMenuEvent(
   Where bottom;
   
   switch (parentRelativeType) {
-//    case StepGroupType:
-//      top    = pli->topOfSteps();
-//      MetaItem mi;
-//      mi.scanForward(top,StepGroupMask);
-//      bottom = pli->bottomOfSteps();
-//    break;
     case CalloutType:
       top    = pli->topOfCallout();
       bottom = pli->bottomOfCallout();
@@ -2016,12 +1911,6 @@ void InstanceTextItem::contextMenuEvent(
   Where bottom;
   
   switch (parentRelativeType) {
-//    case StepGroupType:
-//      top    = pli->topOfSteps() + 1;
-//      MetaItem mi;
-//      mi.scanForward(top,StepGroupMask);
-//      bottom = pli->bottomOfSteps();
-//    break;
     case CalloutType:
       top    = pli->topOfCallout();
       bottom = pli->bottomOfCallout();

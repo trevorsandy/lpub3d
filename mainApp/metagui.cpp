@@ -2361,7 +2361,7 @@ PliSortGui::PliSortGui(
   label = new QLabel("Sort By",parent);
   grid->addWidget(label,0,0);
 
-  int currentIndex = PartSize;
+  int currentIndex;
   sortOption  = meta->sortOption.value();
   sortOption == SortOptionName[PartSize]   ? currentIndex = PartSize :
   sortOption == SortOptionName[PartColour] ? currentIndex = PartColour :

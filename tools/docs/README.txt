@@ -9,6 +9,7 @@ Features and enhancements
 -Fix: Changing step number attributes on multi-step pages are now working
 -Fix: PLI/BOM sort routine, sort on 'part colour' part(s) appear out of place relative to
  part size and colour.
+-CHANGE: BOM default sort to sort by colour then size, previous default was size only (PLI default sort by size)
  
 LPub3D 1.2.0.388.4 
  

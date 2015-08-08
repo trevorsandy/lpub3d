@@ -2532,11 +2532,7 @@ PliMeta::PliMeta() : BranchMeta()
   margin.setValuesInches(DEFAULT_MARGIN,DEFAULT_MARGIN);
   pack.setValue(true);
   sort.setValue(false);
-  sortBy.setValue("Part Size");
-//  annotation.display.setValue(false);
-//  annotation.titleAnnotation.setValue(true);
-//  annotation.freeformAnnotation.setValue(false);
-//  annotation.titleAndFreeformAnnotation.setValue(false);
+  sortBy.setValue(SortOptionName[PartSize]);
 }
 
 void PliMeta::init(BranchMeta *parent, QString name)
@@ -2610,11 +2606,7 @@ BomMeta::BomMeta() : PliMeta()
   pack.setValue(false);
   sort.setValue(true);
   sortBy.setValue("Part Size");
-//  annotation.display.setValue(false);
-//  annotation.titleAnnotation.setValue(true);
-//  annotation.freeformAnnotation.setValue(false);
-//  annotation.titleAndFreeformAnnotation.setValue(false);
-
+  sortBy.setValue(SortOptionName[PartColour]);
 }
 
 void BomMeta::init(BranchMeta *parent, QString name)

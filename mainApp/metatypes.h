@@ -386,7 +386,7 @@ public:
 const QString SortOptionName[SortByType] =
 {
     "Part Size",
-    "Part Colour",
+    "Part Color",
     "Part Category"
 };
 

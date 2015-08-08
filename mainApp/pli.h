@@ -70,16 +70,16 @@ class PliPart {
     QList<Where>         instances; 
     QString              type;
     QString              color;
-    QString              sortCategory;
-    QString              sortColour;
-    QString              sortSize;
-    QString              size;
     NumberMeta           instanceMeta;
     NumberMeta           annotateMeta;
     MarginsMeta          csiMargin;
     InstanceTextItem    *instanceText;
     AnnotateTextItem    *annotateText;
     PGraphicsPixmapItem *pixmap;
+
+    QString              sortCategory;
+    QString              sortColour;
+    QString              sortSize;
   
     int           width;
     int           height;
@@ -147,6 +147,7 @@ class Pli : public Placement {
     bool               perStep;
     PliBackgroundItem *background;
     bool               bom;
+    bool               splitBom;
     PliMeta            pliMeta;
     Meta              *meta;
     Steps             *steps;   // topOfSteps()
@@ -166,6 +167,7 @@ class Pli : public Placement {
       widestPart = 1;
       tallestPart = 1;
       background = NULL;
+      splitBom = false;
     }
     
     ~Pli()
