@@ -316,8 +316,8 @@ public:
 	void MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector3& ObjectDistance, bool Relative, bool Update, bool Checkpoint);
 	void RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool Update, bool Checkpoint);
 	void TransformSelectedObjects(lcTransformType TransformType, const lcVector3& Transform);
-    void RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep);
-    void ParseExsitingRotStepLine(QTextStream& LineStream);
+	void RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep);
+	void ParseExsitingRotStepLine(QTextStream& LineStream);
 	void SetObjectProperty(lcObject* Object, lcObjectPropertyType ObjectPropertyType, const void* Value);
 
 	void ShowPropertiesDialog();

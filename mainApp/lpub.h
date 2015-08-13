@@ -999,11 +999,13 @@ extern Gui *gui;
 class LGraphicsView : public QGraphicsView
 {
 public:
+  LGraphicsView();
   LGraphicsView(QGraphicsScene *scene)
   {
     setScene(scene);
     pageBackgroundItem = NULL;
   }
+  ~LGraphicsView();
 
   PageBackgroundItem *pageBackgroundItem;
 
@@ -1020,6 +1022,8 @@ protected:
     }
   }
 };
+//custom type definition and meta-type declaration
+Q_DECLARE_METATYPE(LGraphicsView);
 
 enum zValues {
   PageBackgroundZValue = 0,

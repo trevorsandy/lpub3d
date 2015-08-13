@@ -5,6 +5,7 @@ Features and enhancements
 -Add Rotate Icon - indicate that the builder should "flip" the model
 -Add line settings to border configuration
 -Add gradients to background options
+-Remove final model if fadestep not enabled
 -Cosmetic updates
 -Fix: Changing step number attributes on multi-step pages are now working
 -Fix: PLI/BOM sort routine, sort on 'part colour' part(s) appear out of place relative to

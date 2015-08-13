@@ -261,6 +261,8 @@ mainApp/csiitem.cpp -text
 mainApp/csiitem.h -text
 mainApp/dependencies.cpp -text
 mainApp/dependencies.h -text
+mainApp/displaypagethread.cpp -text
+mainApp/displaypagethread.h -text
 mainApp/dividerdialog.cpp -text
 mainApp/dividerdialog.h -text
 mainApp/editwindow.cpp -text

@@ -232,7 +232,8 @@ HEADERS += \
     textitem.h \
     updatecheck.h \
     where.h \
-    version.h
+    version.h \
+    displaypagethread.h
 	
 SOURCES += \
     aboutdialog.cpp \
@@ -305,7 +306,8 @@ SOURCES += \
     textitem.cpp \
     traverse.cpp \
     updatecheck.cpp \
-    undoredo.cpp
+    undoredo.cpp \
+    displaypagethread.cpp
 	
 FORMS += \
     preferences.ui \

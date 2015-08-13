@@ -197,11 +197,11 @@ void Gui::displayPage()
 
       emit enable3DActionsSig();
       Step::refreshCsi = false; //reset
-
-      emit progressRangeSig(1, maxPages);
-      emit progressSetValueSig(maxPages);
-      emit removeProgressStatusSig();
     }
+
+  emit progressRangeSig(1, maxPages);
+  emit progressSetValueSig(maxPages);
+  emit removeProgressStatusSig();
 }
 
 void Gui::nextPage()
@@ -1561,3 +1561,11 @@ void Gui::writeSettings()
     Settings.endGroup();
 }
 
+
+LGraphicsView::LGraphicsView()
+{
+}
+
+LGraphicsView::~LGraphicsView()
+{
+}

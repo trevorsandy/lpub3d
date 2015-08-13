@@ -120,6 +120,9 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
+    //register meta-type for queued communications
+    qRegisterMetaType<LGraphicsView>();
+
     // splash
     int splashDuration = 4000;
     QPixmap pixmap(":/resources/LPub512Splash.png");
