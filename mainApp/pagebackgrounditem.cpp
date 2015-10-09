@@ -50,8 +50,13 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *assembledAction = NULL;
   QAction *ignoreAction = NULL;
   QAction *partAction = NULL;
-  Step      *lastStep = NULL;
-  Step      *firstStep = NULL;
+
+  // change page background colour
+  QAction *backgroundAction = menu.addAction("Change Page Background");
+  backgroundAction->setIcon(QIcon(":/resources/background.png"));
+
+  Step    *lastStep = NULL;
+  Step    *firstStep = NULL;
 
   if (page->list.size()) {
     AbstractStepsElement *range = page->list[page->list.size()-1];
@@ -111,7 +116,54 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       return;
     }
 
-    if (selectedAction == calloutAction) {
+    bool useTop = relativeType == SingleStepType;
+    //logTrace() << " \nRelativeType: " << RelNames[relativeType] << " (" << relativeType << ")";
+
+    //gradient settings
+    logTrace() << "\nbackground.value().gsize[0]: " << page->meta.LPub.page.background.value().gsize[0]
+               << "\nbackground.value().gsize[1]: " << page->meta.LPub.page.background.value().gsize[1]
+                  ;
+    if (page->meta.LPub.page.background.value().gsize[0] == 0 &&
+        page->meta.LPub.page.background.value().gsize[1] == 0) {
+        page->meta.LPub.page.background.value().gsize[0] = 800;
+        page->meta.LPub.page.background.value().gsize[1] = 600;
+        logTrace() << "\nbackground.value().gsize[0]: " << page->meta.LPub.page.background.value().gsize[0]
+                   << "\nbackground.value().gsize[1]: " << page->meta.LPub.page.background.value().gsize[1]
+                      ;
+        QSize gSize(page->meta.LPub.page.background.value().gsize[0],
+                    page->meta.LPub.page.background.value().gsize[1]);
+        int h_off = gSize.width() / 10;
+        int v_off = gSize.height() / 8;
+        page->meta.LPub.page.background.value().gpoints << QPointF(gSize.width() / 2, gSize.height() / 2)
+                                                        << QPointF(gSize.width() / 2 - h_off, gSize.height() / 2 - v_off);
+
+        //logging only
+        QString points;
+        const QVector<QPointF> _points = page->meta.LPub.page.background.value().gpoints;
+        Q_FOREACH(const QPointF &point, _points){
+            points += QString("%1,%2|")
+                .arg(point.x())
+                .arg(point.y());
+          }
+        logTrace() << "\nPOINTS: " << points;
+        QString stops;
+        const QVector<QPair<qreal,QColor> > _gstops = page->meta.LPub.page.background.value().gstops;
+        typedef QPair<qreal,QColor> _gstop;
+        Q_FOREACH(const _gstop &gstop, _gstops){
+            stops += QString("%1,%2|")
+                .arg(gstop.first)
+                .arg(gstop.second.name());
+          }
+        logTrace() << "\nSTOPS: " << stops;
+        // end logging only
+      }
+
+    if (selectedAction == backgroundAction) {
+        changeBackground("Page Background",
+                          page->top,
+                          page->bottom,
+                         &page->meta.LPub.page.background, useTop);
+    } else if (selectedAction == calloutAction) {
       convertToCallout(&page->meta, page->bottom.modelName, page->isMirrored, false);
     } else if (selectedAction == assembledAction) {
       convertToCallout(&page->meta, page->bottom.modelName, page->isMirrored, true);
@@ -119,7 +171,6 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       convertToIgnore(&page->meta);
     } else if (selectedAction == partAction) {
       convertToPart(&page->meta);
-
     } else if (selectedAction == addNextAction) {
       addNextMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps());
     } else if (selectedAction == addPrevAction) {

@@ -58,6 +58,7 @@ class PageBackgroundItem : public BackgroundItem
       pixmap = new QPixmap(width,height);
 
       QString toolTip("Page background - right-click to modify");
+
       setBackground(pixmap,
                     PageType,
                    &page->meta,

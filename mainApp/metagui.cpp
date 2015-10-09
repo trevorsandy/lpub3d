@@ -1515,18 +1515,18 @@ BackgroundGui::BackgroundGui(
           this, SLOT(  typeChange(         QString const &)));
   grid->addWidget(combo, 0, 0);
 
-  /* Color  and Gradient button */
+  /* Color and Gradient button */
 
   colorButton = new QPushButton("Change",parent);
   colorButton->setToolTip(tr("Change Colour"));
-      connect(colorButton,SIGNAL(clicked(    bool)),
-              this,       SLOT(  browseColor(bool)));
+  connect(colorButton,SIGNAL(clicked(    bool)),
+          this,       SLOT(  browseColor(bool)));
   grid->addWidget(colorButton,0,1);
 
   gradientButton = new QPushButton("Change",parent);
-  colorButton->setToolTip(tr("Change Gradient"));
-  connect(gradientButton,SIGNAL(clicked(    bool)),
-          this, SLOT(        setGradient(   bool)));
+  gradientButton->setToolTip(tr("Change Gradient"));
+  connect(gradientButton,SIGNAL(clicked(     bool)),
+          this,          SLOT(setGradient(   bool)));
   grid->addWidget(gradientButton,0,1);
 
   /* Color label */
@@ -1551,7 +1551,6 @@ BackgroundGui::BackgroundGui(
   connect(pictureButton,SIGNAL(clicked(     bool)),
           this,         SLOT(  browsePicture(bool)));
   grid->addWidget(pictureButton,1,1);
-
 
   /* Fill */
 
@@ -1582,33 +1581,37 @@ void BackgroundGui::enable()
 
   switch (background.type) {
     case BackgroundData::BgImage:
+      colorButton->show();
       colorButton->setEnabled(false);
-      pictureEdit->setEnabled(true);
+      gradientButton->hide();
       pictureButton->setEnabled(true);
+      pictureEdit->setEnabled(true);
       fill->setEnabled(true);
     break;
     case BackgroundData::BgGradient:
       colorButton->hide();
       gradientButton->show();
-      colorButton->setEnabled(true);
-      pictureEdit->setEnabled(false);
+      gradientButton->setEnabled(true);
       pictureButton->setEnabled(false);
+      pictureEdit->setEnabled(false);
       fill->setEnabled(false);
     break;
     case BackgroundData::BgColor:
       colorButton->show();
+      colorButton->setEnabled(true);
       gradientButton->hide();
       colorLabel->setPalette(QPalette(color));
       // colorLabel->setAutoFillBackground(true);
-      colorButton->setEnabled(true);
-      pictureEdit->setEnabled(false);
       pictureButton->setEnabled(false);
+      pictureEdit->setEnabled(false);
       fill->setEnabled(false);
     break;
     default:
+      colorButton->show();
       colorButton->setEnabled(false);
-      pictureEdit->setEnabled(false);
+      gradientButton->hide();
       pictureButton->setEnabled(false);
+      pictureEdit->setEnabled(false);
       fill->setEnabled(false);
     break;
   }
@@ -1763,7 +1766,6 @@ void BackgroundGui::setGradient(bool){
     }
 
   meta->setValue(backgroundData);
-  enable();
   modified = true;
 }
 
