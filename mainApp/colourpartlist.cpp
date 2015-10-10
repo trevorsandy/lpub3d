@@ -30,9 +30,8 @@ ColourPartList::ColourPartList(QObject *parent) : QObject(parent)
  */
 void ColourPartList::processFadeColorParts()
 {
-    Meta meta;
-    bool fadeStep   = meta.LPub.fadeStep.fadeStep.value();
-    bool doFadeStep = (fadeStep || Preferences::enableFadeStep);
+    bool doFadeStep = (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
+
     QStringList contents;
 
     if (doFadeStep) {
@@ -79,10 +78,10 @@ void ColourPartList::processFadeColorParts()
         QString fadePrimitivesDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p/fade/"));
 
         if (! archiveFadeParts.Archive(archiveFile, fadePartsDir, "append fade parts"))
-            QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed archive fade parts."));
+            QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed to archive fade parts."));
 
         if (! archiveFadeParts.Archive(archiveFile, fadePrimitivesDir, "append primitives"))
-            QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed archive fade parts."));
+            QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed to archive fade primitives."));
 
         // Reload unofficial library parts into memory
         if (!g_App->mLibrary->ReloadUnoffLib()){

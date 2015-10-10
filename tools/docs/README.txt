@@ -9,12 +9,32 @@ Features and enhancements
 -Generate warning message when LPub 0 !LPUB INSERT COVER_PAGE encountered. Message: 
  LPub3D does not support the LPub meta 0 !LPUB INSERT COVER_PAGE.
  Please update to 0 !LPUB INSERT COVER_PAGE FRONT (or BACK) accordingly.
--Remove final model if fadestep not enabled
+-Remove final model if fadestep not enabled KO
 -Cosmetic updates
 -Fix: Changing step number attributes on multi-step pages are now working
 -Fix: PLI/BOM sort routine, sort on 'part colour' part(s) appear out of place relative to
  part size and colour.
 -CHANGE: BOM default sort to sort by colour then size, previous default was size only (PLI default sort by size)
+
+LPub3D 1.2.3.443.2 
+Features and enhancements 
+------------ 
+-Fix Insert Text meta command not recognizing \n (new line) characters. 
+ 
+LPub3D 1.2.2.442.3 
+Features and enhancements 
+------------ 
+-Fix: Update fade parts "failed to archive..." error messages 
+-Fix: Change fade step color from "Fade Step Setup" menu writes the correct meta command 
+ but color does not change when steps generated. 
+ 
+LPub3D 1.2.1.437.2 
+ 
+Features and enhancements 
+------------ 
+-Fix: PLI/BOM sort routine, sort on 'part colour' part(s) appear out of place relative to 
+ part size and colour. 
+-CHANGE: BOM default sort to sort by colour then size, previous default was size only (PLI default sort by size) 
  
 LPub3D 1.2.0.388.4 
  

@@ -128,8 +128,10 @@ void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     calcOffsets(pld,insertData.offsets,topLeft,size);
 
-    QStringList list = toPlainText().split("\n");
+    QRegExp rx("\\n");
+    QStringList list = toPlainText().split(rx);
     insertData.text = list.join("\\n");
+
     meta.setValue(insertData);
 
     beginMacro(QString("MoveText"));

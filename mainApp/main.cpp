@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     //register meta-type for queued communications
-    qRegisterMetaType<LGraphicsView>();
+//    qRegisterMetaType<LGraphicsView>();
 
     // splash
     int splashDuration = 4000;

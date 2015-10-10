@@ -1562,10 +1562,10 @@ void Gui::writeSettings()
 }
 
 
-LGraphicsView::LGraphicsView()
-{
-}
+//LGraphicsView::LGraphicsView()
+//{
+//}
 
-LGraphicsView::~LGraphicsView()
-{
-}
+//LGraphicsView::~LGraphicsView()
+//{
+//}

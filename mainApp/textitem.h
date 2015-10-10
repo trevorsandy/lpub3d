@@ -65,9 +65,13 @@ public:
 
     QRegExp rx("\\\\n");
     QStringList list = data.text.split(rx);
-    QString text = list.join("\n");
+    QString string = list.join("\n");
 
-    setPlainText(text);
+    QRegExp rx2("\\\\""");
+    QStringList list2 = string.split(rx2);
+    QString string2 = list2.join("""");
+
+    setPlainText(string2);
 
     setTextInteractionFlags(Qt::TextEditorInteraction);
 

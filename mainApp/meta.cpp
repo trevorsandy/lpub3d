@@ -1504,7 +1504,7 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
         }
     } else if (argv.size() - index > 3 && argv[index] == "TEXT") {
       insertData.type       = InsertData::InsertText;
-      insertData.text       = argv[++index].replace("\\""","""");
+      insertData.text       = argv[++index];
       insertData.textFont   = argv[++index];
       insertData.textColor  = argv[++index];
       ++index;

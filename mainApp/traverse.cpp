@@ -2014,12 +2014,9 @@ void Gui::writeToTmp(const QString &fileName,
 void Gui::writeToTmp()
 {
   QApplication::processEvents();
-  Meta    meta;
-  bool    fadeStep       = meta.LPub.fadeStep.fadeStep.value();
-  QString fadeStepColour = meta.LPub.fadeStep.fadeColor.value();
 
-  bool    doFadeStep  = (fadeStep || Preferences::enableFadeStep);
-  QString fadeColor   = LDrawColor::ldColorCode(fadeStepColour);
+  bool    doFadeStep  = (page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
+  QString fadeColor   = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
 
   QStringList content;
 
@@ -2127,12 +2124,9 @@ QStringList Gui::fadeSubFile(const QStringList &contents, const QString &color)
  */
 QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) {
 
-  Meta    meta;
-  bool    fadeStep       = meta.LPub.fadeStep.fadeStep.value();
-  QString fadeStepColour = meta.LPub.fadeStep.fadeColor.value();
+  bool    doFadeStep  = (page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
+  QString fadeColor   = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
 
-  bool doFadeStep     = (fadeStep || Preferences::enableFadeStep);
-  QString fadeColor   = LDrawColor::ldColorCode(fadeStepColour);
   QString edgeColor   = "24";  // Internal Common Material Color (edge)
   int  fadePosition   = ldrawFile.getFadePosition(current.modelName);
   QStringList fadeCsiParts;
