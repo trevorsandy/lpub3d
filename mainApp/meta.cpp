@@ -1474,9 +1474,14 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
   InsertData insertData;
   Rc rc = OkRc;
 
+  bool unsupportedInsertCoverPage = false;
+
   if (argv.size() - index == 1) {
       if (argv[index] == "PAGE") {
           return InsertPageRc;
+        } else if (argv[index] == "COVER_PAGE") {
+          unsupportedInsertCoverPage = true;
+          rc = FailureRc;
         }
     } else if (argv.size() - index == 2) {
       if (argv[index] == "COVER_PAGE") {
@@ -1554,10 +1559,16 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
 
       return InsertRc;
     } else {
+      QString coverPageMsg = "";
+      if (unsupportedInsertCoverPage){
+         coverPageMsg = "LPub3D does not support the LPub meta \n0 !LPUB INSERT COVER_PAGE.\n"
+                        "Please update to\n 0 !LPUB INSERT COVER_PAGE FRONT (or BACK) accordingly.";
+        }
       if (reportErrors) {
           QMessageBox::warning(NULL,
                                QMessageBox::tr("LPub3D"),
-                               QMessageBox::tr("Malformed Insert metacommand \"%1\"") .arg(argv.join(" ")));
+                               QMessageBox::tr("Malformed Insert metacommand \"%1\"\n"
+                                               "%2") .arg(argv.join(" ")).arg(coverPageMsg));
         }
       return FailureRc;
     }
