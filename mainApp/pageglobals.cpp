@@ -103,14 +103,16 @@ GlobalPageDialog::GlobalPageDialog(
 
   box = new QGroupBox(tr("Background"));
   grid->addWidget(box, 4, 0);
+
   //gradient settings
   logTrace() << "\nbackground.value().gsize[0]: " << pageMeta->background.value().gsize[0]
              << "\nbackground.value().gsize[1]: " << pageMeta->background.value().gsize[1]
                 ;
   if (pageMeta->background.value().gsize[0] == 0 &&
       pageMeta->background.value().gsize[1] == 0) {
-      pageMeta->background.value().gsize[0] = 800;
-      pageMeta->background.value().gsize[1] = 600;
+
+      pageMeta->background.value().gsize[0] = Preferences::pageHeight;
+      pageMeta->background.value().gsize[1] = Preferences::pageWidth;
       logTrace() << "\nbackground.value().gsize[0]: " << pageMeta->background.value().gsize[0]
                  << "\nbackground.value().gsize[1]: " << pageMeta->background.value().gsize[1]
                     ;
