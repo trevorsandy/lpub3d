@@ -83,6 +83,9 @@ bool    Preferences::preferCentimeters          = true;
 bool    Preferences::silentUpdate               = false;
 int     Preferences::checkForUpdates            = 2;        //0=Never,1=Daily,2=Weekly,3=Monthly
 
+int     Preferences::pageHeight                 = 800;
+int     Preferences::pageWidth                  = 600;
+
 Preferences::Preferences()
 {
 }

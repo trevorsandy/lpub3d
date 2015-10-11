@@ -32,13 +32,13 @@ lcMainWindow::lcMainWindow()
     mRotateStepType = LC_ROTATESTEP_RELATIVE_ROTATION;
 
 	mColorIndex = lcGetColorIndex(4);
-    mTool = LC_TOOL_SELECT;
+	mTool = LC_TOOL_SELECT;
 	mAddKeys = false;
 	mMoveSnapEnabled = true;
 	mAngleSnapEnabled = true;
 	mMoveXYSnapIndex = 4;
 	mMoveZSnapIndex = 3;
-    mAngleSnapIndex = 4;
+	mAngleSnapIndex = 5;
 	mLockX = false;
 	mLockY = false;
 	mLockZ = false;
@@ -53,7 +53,6 @@ lcMainWindow::lcMainWindow()
     mLCStatusBar = new QStatusBar(this);
 
 	gMainWindow = this;
-
 }
 
 lcMainWindow::~lcMainWindow()
@@ -69,7 +68,7 @@ lcMainWindow::~lcMainWindow()
 
 void lcMainWindow::CreateWidgets()
 {
-    setWindowIcon(QIcon(":/resources/icon64.png"));
+	setWindowIcon(QIcon(":/resources/icon64.png"));
 	setWindowFilePath(QString());
 
 	CreateActions();
@@ -134,8 +133,8 @@ void lcMainWindow::CreateActions()
 {
 	for (int CommandIdx = 0; CommandIdx < LC_NUM_COMMANDS; CommandIdx++)
 	{
-		QAction* Action = new QAction(tr(gCommands[CommandIdx].MenuName), this);
-		Action->setStatusTip(tr(gCommands[CommandIdx].StatusText));
+		QAction* Action = new QAction(qApp->translate("Menu", gCommands[CommandIdx].MenuName), this);
+		Action->setStatusTip(qApp->translate("Status", gCommands[CommandIdx].StatusText));
 		connect(Action, SIGNAL(triggered()), this, SLOT(ActionTriggered()));
 		addAction(Action);
 		mActions[CommandIdx] = Action;
@@ -145,46 +144,125 @@ void lcMainWindow::CreateActions()
 	mActions[LC_FILE_OPEN]->setToolTip(tr("Open Project"));
 	mActions[LC_FILE_SAVE]->setToolTip(tr("Save Project"));
 
-    mActions[LC_FILE_NEW]->setIcon(QIcon(":/resources/file_new.png"));
-    mActions[LC_FILE_OPEN]->setIcon(QIcon(":/resources/file_open.png"));
-    mActions[LC_FILE_SAVE]->setIcon(QIcon(":/resources/file_save.png"));
-    mActions[LC_FILE_SAVE_IMAGE]->setIcon(QIcon(":/resources/file_picture.png"));
-    mActions[LC_FILE_PRINT]->setIcon(QIcon(":/resources/file_print.png"));
-    mActions[LC_FILE_PRINT_PREVIEW]->setIcon(QIcon(":/resources/file_print_preview.png"));
-    mActions[LC_EDIT_UNDO]->setIcon(QIcon(":/resources/edit_undo.png"));
-    mActions[LC_EDIT_REDO]->setIcon(QIcon(":/resources/edit_redo.png"));
-    mActions[LC_EDIT_CUT]->setIcon(QIcon(":/resources/edit_cut.png"));
-    mActions[LC_EDIT_COPY]->setIcon(QIcon(":/resources/edit_copy.png"));
-    mActions[LC_EDIT_PASTE]->setIcon(QIcon(":/resources/edit_paste.png"));
-    mActions[LC_EDIT_ACTION_INSERT]->setIcon(QIcon(":/resources/action_insert.png"));
-    mActions[LC_EDIT_ACTION_LIGHT]->setIcon(QIcon(":/resources/action_light.png"));
-    mActions[LC_EDIT_ACTION_SPOTLIGHT]->setIcon(QIcon(":/resources/action_spotlight.png"));
-    mActions[LC_EDIT_ACTION_CAMERA]->setIcon(QIcon(":/resources/action_camera.png"));
-    mActions[LC_EDIT_ACTION_SELECT]->setIcon(QIcon(":/resources/action_select.png"));
-    mActions[LC_EDIT_ACTION_MOVE]->setIcon(QIcon(":/resources/action_move.png"));
-    mActions[LC_EDIT_ACTION_ROTATE]->setIcon(QIcon(":/resources/action_rotate.png"));
-    mActions[LC_EDIT_ACTION_DELETE]->setIcon(QIcon(":/resources/action_delete.png"));
-    mActions[LC_EDIT_ACTION_PAINT]->setIcon(QIcon(":/resources/action_paint.png"));
-    mActions[LC_EDIT_ACTION_ZOOM]->setIcon(QIcon(":/resources/action_zoom.png"));
-    mActions[LC_EDIT_ACTION_PAN]->setIcon(QIcon(":/resources/action_pan.png"));
-    mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setIcon(QIcon(":/resources/action_rotate_view.png"));
-    mActions[LC_EDIT_ACTION_ROLL]->setIcon(QIcon(":/resources/action_roll.png"));
-    mActions[LC_EDIT_ACTION_ZOOM_REGION]->setIcon(QIcon(":/resources/action_zoom_region.png"));
-    mActions[LC_EDIT_TRANSFORM_RELATIVE]->setIcon(QIcon(":/resources/edit_transform_relative.png"));
-    mActions[LC_PIECE_SHOW_EARLIER]->setIcon(QIcon(":/resources/piece_show_earlier.png"));
-    mActions[LC_PIECE_SHOW_LATER]->setIcon(QIcon(":/resources/piece_show_later.png"));
-    mActions[LC_VIEW_SPLIT_HORIZONTAL]->setIcon(QIcon(":/resources/view_split_horizontal.png"));
-    mActions[LC_VIEW_SPLIT_VERTICAL]->setIcon(QIcon(":/resources/view_split_vertical.png"));
-    mActions[LC_VIEW_ZOOM_IN]->setIcon(QIcon(":/resources/view_zoomin.png"));
-    mActions[LC_VIEW_ZOOM_OUT]->setIcon(QIcon(":/resources/view_zoomout.png"));
-    mActions[LC_VIEW_ZOOM_EXTENTS]->setIcon(QIcon(":/resources/view_zoomextents.png"));
-    mActions[LC_VIEW_TIME_FIRST]->setIcon(QIcon(":/resources/time_first.png"));
-    mActions[LC_VIEW_TIME_PREVIOUS]->setIcon(QIcon(":/resources/time_previous.png"));
-    mActions[LC_VIEW_TIME_NEXT]->setIcon(QIcon(":/resources/time_next.png"));
-    mActions[LC_VIEW_TIME_LAST]->setIcon(QIcon(":/resources/time_last.png"));
-    mActions[LC_VIEW_TIME_ADD_KEYS]->setIcon(QIcon(":/resources/time_add_keys.png"));
-    mActions[LC_HELP_HOMEPAGE]->setIcon(QIcon(":/resources/help_homepage.png"));
-    mActions[LC_HELP_EMAIL]->setIcon(QIcon(":/resources/help_email.png"));
+	QIcon FileNewIcon;
+	FileNewIcon.addFile(":/resources/file_new.png");
+	FileNewIcon.addFile(":/resources/file_new_16.png");
+	mActions[LC_FILE_NEW]->setIcon(FileNewIcon);
+
+	QIcon FileSaveIcon;
+	FileSaveIcon.addFile(":/resources/file_save.png");
+	FileSaveIcon.addFile(":/resources/file_save_16.png");
+	mActions[LC_FILE_SAVE]->setIcon(FileSaveIcon);
+
+	QIcon FileOpenIcon;
+	FileOpenIcon.addFile(":/resources/file_open.png");
+	FileOpenIcon.addFile(":/resources/file_open_16.png");
+	mActions[LC_FILE_OPEN]->setIcon(FileOpenIcon);
+
+	QIcon FilePrintIcon;
+	FilePrintIcon.addFile(":/resources/file_print.png");
+	FilePrintIcon.addFile(":/resources/file_print_16.png");
+	mActions[LC_FILE_PRINT]->setIcon(FilePrintIcon);
+
+	QIcon FilePrintPreviewIcon;
+	FilePrintPreviewIcon.addFile(":/resources/file_print_preview.png");
+	FilePrintPreviewIcon.addFile(":/resources/file_print_preview_16.png");
+	mActions[LC_FILE_PRINT_PREVIEW]->setIcon(FilePrintPreviewIcon);
+
+	QIcon EditUndoIcon;
+	EditUndoIcon.addFile(":/resources/edit_undo.png");
+	EditUndoIcon.addFile(":/resources/edit_undo_16.png");
+	mActions[LC_EDIT_UNDO]->setIcon(EditUndoIcon);
+
+	QIcon EditRedoIcon;
+	EditRedoIcon.addFile(":/resources/edit_redo.png");
+	EditRedoIcon.addFile(":/resources/edit_redo_16.png");
+	mActions[LC_EDIT_REDO]->setIcon(EditRedoIcon);
+
+	QIcon EditCutIcon;
+	EditCutIcon.addFile(":/resources/edit_cut.png");
+	EditCutIcon.addFile(":/resources/edit_cut_16.png");
+	mActions[LC_EDIT_CUT]->setIcon(EditCutIcon);
+
+	QIcon EditCopyIcon;
+	EditCopyIcon.addFile(":/resources/edit_copy.png");
+	EditCopyIcon.addFile(":/resources/edit_copy_16.png");
+	mActions[LC_EDIT_COPY]->setIcon(EditCopyIcon);
+
+	QIcon EditPasteIcon;
+	EditPasteIcon.addFile(":/resources/edit_paste.png");
+	EditPasteIcon.addFile(":/resources/edit_paste_16.png");
+	mActions[LC_EDIT_PASTE]->setIcon(EditPasteIcon);
+
+	QIcon EditActionInsertIcon;
+	EditActionInsertIcon.addFile(":/resources/action_insert.png");
+	EditActionInsertIcon.addFile(":/resources/action_insert_16.png");
+	mActions[LC_EDIT_ACTION_INSERT]->setIcon(EditActionInsertIcon);
+
+	QIcon EditActionLightIcon;
+	EditActionLightIcon.addFile(":/resources/action_light.png");
+	EditActionLightIcon.addFile(":/resources/action_light_16.png");
+	mActions[LC_EDIT_ACTION_LIGHT]->setIcon(EditActionLightIcon);
+
+	QIcon EditActionSpotLightIcon;
+	EditActionSpotLightIcon.addFile(":/resources/action_spotlight.png");
+	EditActionSpotLightIcon.addFile(":/resources/action_spotlight_16.png");
+	mActions[LC_EDIT_ACTION_SPOTLIGHT]->setIcon(EditActionSpotLightIcon);
+
+	QIcon EditActionSelectIcon;
+	EditActionSelectIcon.addFile(":/resources/action_select.png");
+	EditActionSelectIcon.addFile(":/resources/action_select_16.png");
+	mActions[LC_EDIT_ACTION_SELECT]->setIcon(EditActionSelectIcon);
+
+	QIcon EditActionMoveIcon;
+	EditActionMoveIcon.addFile(":/resources/action_move.png");
+	EditActionMoveIcon.addFile(":/resources/action_move_16.png");
+	mActions[LC_EDIT_ACTION_MOVE]->setIcon(EditActionMoveIcon);
+
+	QIcon EditActionRotateIcon;
+	EditActionRotateIcon.addFile(":/resources/action_rotate.png");
+	EditActionRotateIcon.addFile(":/resources/action_rotate_16.png");
+	mActions[LC_EDIT_ACTION_ROTATE]->setIcon(EditActionRotateIcon);
+
+	QIcon EditActionDeleteIcon;
+	EditActionDeleteIcon.addFile(":/resources/action_delete.png");
+	EditActionDeleteIcon.addFile(":/resources/action_delete_16.png");
+	mActions[LC_EDIT_ACTION_DELETE]->setIcon(EditActionDeleteIcon);
+
+	QIcon EditActionPaintIcon;
+	EditActionPaintIcon.addFile(":/resources/action_paint.png");
+	EditActionPaintIcon.addFile(":/resources/action_paint_16.png");
+	mActions[LC_EDIT_ACTION_PAINT]->setIcon(EditActionPaintIcon);
+
+	QIcon EditActionZoomIcon;
+	EditActionZoomIcon.addFile(":/resources/action_zoom.png");
+	EditActionZoomIcon.addFile(":/resources/action_zoom_16.png");
+	mActions[LC_EDIT_ACTION_ZOOM]->setIcon(EditActionZoomIcon);
+
+	QIcon EditActionPanIcon;
+	EditActionPanIcon.addFile(":/resources/action_pan.png");
+	EditActionPanIcon.addFile(":/resources/action_pan_16.png");
+	mActions[LC_EDIT_ACTION_PAN]->setIcon(EditActionPanIcon);
+
+	mActions[LC_EDIT_ACTION_CAMERA]->setIcon(QIcon(":/resources/action_camera.png"));
+	mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setIcon(QIcon(":/resources/action_rotate_view.png"));
+	mActions[LC_EDIT_ACTION_ROLL]->setIcon(QIcon(":/resources/action_roll.png"));
+	mActions[LC_EDIT_ACTION_ZOOM_REGION]->setIcon(QIcon(":/resources/action_zoom_region.png"));
+	mActions[LC_EDIT_TRANSFORM_RELATIVE]->setIcon(QIcon(":/resources/edit_transform_relative.png"));
+	mActions[LC_PIECE_SHOW_EARLIER]->setIcon(QIcon(":/resources/piece_show_earlier.png"));
+	mActions[LC_PIECE_SHOW_LATER]->setIcon(QIcon(":/resources/piece_show_later.png"));
+	mActions[LC_VIEW_SPLIT_HORIZONTAL]->setIcon(QIcon(":/resources/view_split_horizontal.png"));
+	mActions[LC_VIEW_SPLIT_VERTICAL]->setIcon(QIcon(":/resources/view_split_vertical.png"));
+	mActions[LC_VIEW_ZOOM_IN]->setIcon(QIcon(":/resources/view_zoomin.png"));
+	mActions[LC_VIEW_ZOOM_OUT]->setIcon(QIcon(":/resources/view_zoomout.png"));
+	mActions[LC_VIEW_ZOOM_EXTENTS]->setIcon(QIcon(":/resources/view_zoomextents.png"));
+	mActions[LC_VIEW_TIME_FIRST]->setIcon(QIcon(":/resources/time_first.png"));
+	mActions[LC_VIEW_TIME_PREVIOUS]->setIcon(QIcon(":/resources/time_previous.png"));
+	mActions[LC_VIEW_TIME_NEXT]->setIcon(QIcon(":/resources/time_next.png"));
+	mActions[LC_VIEW_TIME_LAST]->setIcon(QIcon(":/resources/time_last.png"));
+	mActions[LC_VIEW_TIME_ADD_KEYS]->setIcon(QIcon(":/resources/time_add_keys.png"));
+	mActions[LC_HELP_HOMEPAGE]->setIcon(QIcon(":/resources/help_homepage.png"));
+	mActions[LC_HELP_EMAIL]->setIcon(QIcon(":/resources/help_email.png"));
 
 	mActions[LC_EDIT_LOCK_X]->setCheckable(true);
 	mActions[LC_EDIT_LOCK_Y]->setCheckable(true);
@@ -332,6 +410,7 @@ void lcMainWindow::CreateMenus()
 	EditMenu->addAction(mActions[LC_EDIT_PASTE]);
 	EditMenu->addSeparator();
 	EditMenu->addAction(mActions[LC_EDIT_FIND]);
+	mActions[LC_EDIT_FIND]->setIcon(QIcon(":/resources/edit_find.png"));
 	EditMenu->addAction(mActions[LC_EDIT_FIND_NEXT]);
 	EditMenu->addAction(mActions[LC_EDIT_FIND_PREVIOUS]);
 	EditMenu->addSeparator();
@@ -448,7 +527,7 @@ void lcMainWindow::CreateToolBars()
 
 	QAction* LockAction = new QAction(tr("Lock Menu"), this);
 	LockAction->setStatusTip(tr("Toggle mouse movement on specific axes"));
-    LockAction->setIcon(QIcon(":/resources/edit_lock.png"));
+	LockAction->setIcon(QIcon(":/resources/edit_lock.png"));
 	LockAction->setMenu(LockMenu);
 
 	QMenu* SnapXYMenu = new QMenu(tr("Snap XY"), this);
@@ -467,7 +546,7 @@ void lcMainWindow::CreateToolBars()
 
 	QAction* MoveAction = new QAction(tr("Movement Snap"), this);
 	MoveAction->setStatusTip(tr("Snap translations to fixed intervals"));
-    MoveAction->setIcon(QIcon(":/resources/edit_snap_move.png"));
+	MoveAction->setIcon(QIcon(":/resources/edit_snap_move.png"));
 	MoveAction->setMenu(SnapMenu);
 
 	QMenu* SnapAngleMenu = new QMenu(tr("Snap Angle Menu"), this);
@@ -478,7 +557,7 @@ void lcMainWindow::CreateToolBars()
 
 	QAction* AngleAction = new QAction(tr("Rotation Snap"), this);
 	AngleAction->setStatusTip(tr("Snap rotations to fixed intervals"));
-    AngleAction->setIcon(QIcon(":/resources/edit_snap_angle.png"));
+	AngleAction->setIcon(QIcon(":/resources/edit_snap_angle.png"));
 	AngleAction->setMenu(SnapAngleMenu);
 
 	mStandardToolBar = addToolBar(tr("Standard"));
@@ -509,6 +588,7 @@ void lcMainWindow::CreateToolBars()
 	QHBoxLayout* TransformLayout = new QHBoxLayout;
 	QWidget* TransformWidget = new QWidget();
 	TransformWidget->setLayout(TransformLayout);
+	TransformLayout->setContentsMargins(5, 0, 5, 0);
 	mTransformXEdit = new QLineEdit();
 	mTransformXEdit->setMaximumWidth(75);
 	TransformLayout->addWidget(mTransformXEdit);
@@ -533,7 +613,7 @@ void lcMainWindow::CreateToolBars()
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_LIGHT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
-    mToolsToolBar->addSeparator();
+	mToolsToolBar->addSeparator();
     mToolsToolBar->addAction(AngleAction);                          // Snap Rotations to Fixed Intervals menu item
     mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATESTEP]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SELECT]);
@@ -702,11 +782,12 @@ void lcMainWindow::CreateStatusBar()
 	mStatusBarLabel = new QLabel();
     mLCStatusBar->addWidget(mStatusBarLabel);
 
-	mStatusSnapLabel = new QLabel();
-    mLCStatusBar->addPermanentWidget(mStatusSnapLabel);
 
 //    mStatusPositionLabel = new QLabel();                              //remarked at LPbub3D Rev 244 build 05
 //    mLCStatusBar->addPermanentWidget(mStatusPositionLabel);
+
+	mStatusSnapLabel = new QLabel();
+    mLCStatusBar->addPermanentWidget(mStatusSnapLabel);
 
 //	  mStatusTimeLabel = new QLabel();
 //    mLCStatusBar->addPermanentWidget(mStatusTimeLabel);
@@ -1357,10 +1438,10 @@ void lcMainWindow::SetTransformType(lcTransformType TransformType)
 
 	const char* IconNames[] =
 	{
-        ":/resources/edit_transform_absolute_translation.png",
-        ":/resources/edit_transform_relative_translation.png",
-        ":/resources/edit_transform_absolute_rotation.png",
-        ":/resources/edit_transform_relative_rotation.png"
+		":/resources/edit_transform_absolute_translation.png",
+		":/resources/edit_transform_relative_translation.png",
+		":/resources/edit_transform_absolute_rotation.png",
+		":/resources/edit_transform_relative_rotation.png"
 	};
 
 	if (TransformType >= 0 && TransformType <= 3)
@@ -1826,7 +1907,7 @@ void lcMainWindow::UpdateRecentFiles()
 void lcMainWindow::UpdateShortcuts()
 {
 	for (int ActionIdx = 0; ActionIdx < LC_NUM_COMMANDS; ActionIdx++)
-		mActions[ActionIdx]->setShortcut(QKeySequence(gKeyboardShortcuts.Shortcuts[ActionIdx]));
+		mActions[ActionIdx]->setShortcut(QKeySequence(gKeyboardShortcuts.mShortcuts[ActionIdx]));
 }
 
 void lcMainWindow::NewProject()
@@ -1840,8 +1921,8 @@ void lcMainWindow::NewProject()
 
 bool lcMainWindow::OpenProject(const QString& FileName)
 {
-    if (!SaveProjectIfModified())
-        return false;
+	if (!SaveProjectIfModified())
+		return false;
 
 	QString LoadFileName = FileName;
 

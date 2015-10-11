@@ -83,6 +83,10 @@ public:
 	virtual void OnMiddleButtonUp() { }
 	virtual void OnRightButtonDown() { }
 	virtual void OnRightButtonUp() { }
+	virtual void OnBackButtonDown() { }
+	virtual void OnBackButtonUp() { }
+	virtual void OnForwardButtonDown() { }
+	virtual void OnForwardButtonUp() { }
 	virtual void OnMouseMove() { }
 	virtual void OnMouseWheel(float Direction) { }
 

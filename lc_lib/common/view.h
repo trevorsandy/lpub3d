@@ -75,6 +75,8 @@ public:
 	void OnMiddleButtonUp();
 	void OnRightButtonDown();
 	void OnRightButtonUp();
+	void OnBackButtonUp();
+	void OnForwardButtonUp();
 	void OnMouseMove();
 	void OnMouseWheel(float Direction);
 

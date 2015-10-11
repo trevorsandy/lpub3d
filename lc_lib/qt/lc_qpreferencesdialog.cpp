@@ -502,12 +502,12 @@ void lcQPreferencesDialog::updateCommandList()
 		}
 
 		QTreeWidgetItem *item = new QTreeWidgetItem;
-		QKeySequence sequence(options->KeyboardShortcuts.Shortcuts[actionIdx]);
+		QKeySequence sequence(options->KeyboardShortcuts.mShortcuts[actionIdx]);
 		item->setText(0, subId);
 		item->setText(1, sequence.toString(QKeySequence::NativeText));
 		item->setData(0, Qt::UserRole, qVariantFromValue(actionIdx));
 
-		if (strcmp(options->KeyboardShortcuts.Shortcuts[actionIdx], gCommands[actionIdx].DefaultShortcut))
+		if (options->KeyboardShortcuts.mShortcuts[actionIdx] != gCommands[actionIdx].DefaultShortcut)
 			setShortcutModified(item, true);
 
 		sections[section]->addChild(item);
@@ -535,7 +535,7 @@ void lcQPreferencesDialog::commandChanged(QTreeWidgetItem *current)
 	ui->shortcutGroup->setEnabled(true);
 
 	int shortcutIndex = qvariant_cast<int>(current->data(0, Qt::UserRole));
-	QKeySequence key(options->KeyboardShortcuts.Shortcuts[shortcutIndex]);
+	QKeySequence key(options->KeyboardShortcuts.mShortcuts[shortcutIndex]);
 	ui->shortcutEdit->setText(key.toString(QKeySequence::NativeText));
 }
 
@@ -547,11 +547,11 @@ void lcQPreferencesDialog::on_shortcutAssign_clicked()
 		return;
 
 	int shortcutIndex = qvariant_cast<int>(current->data(0, Qt::UserRole));
-	strcpy(options->KeyboardShortcuts.Shortcuts[shortcutIndex], ui->shortcutEdit->text().toLocal8Bit().data());
+	options->KeyboardShortcuts.mShortcuts[shortcutIndex] = ui->shortcutEdit->text();
 
 	current->setText(1, ui->shortcutEdit->text());
 
-	setShortcutModified(current, strcmp(options->KeyboardShortcuts.Shortcuts[shortcutIndex], gCommands[shortcutIndex].DefaultShortcut) != 0);
+	setShortcutModified(current, options->KeyboardShortcuts.mShortcuts[shortcutIndex] != gCommands[shortcutIndex].DefaultShortcut);
 
 	options->ShortcutsModified = true;
 	options->ShortcutsDefault = false;
@@ -572,7 +572,7 @@ void lcQPreferencesDialog::on_shortcutsImport_clicked()
 		return;
 
 	lcKeyboardShortcuts Shortcuts;
-	if (!lcLoadKeyboardShortcuts(FileName, Shortcuts))
+	if (!Shortcuts.Load(FileName))
 	{
 		QMessageBox::warning(this, "LeoCAD", tr("Error loading keyboard shortcuts file."));
 		return;
@@ -591,7 +591,7 @@ void lcQPreferencesDialog::on_shortcutsExport_clicked()
 	if (FileName.isEmpty())
 		return;
 
-	if (!lcSaveKeyboardShortcuts(FileName, options->KeyboardShortcuts))
+	if (!options->KeyboardShortcuts.Save(FileName))
 	{
 		QMessageBox::warning(this, "LeoCAD", tr("Error saving keyboard shortcuts file."));
 		return;
@@ -603,7 +603,7 @@ void lcQPreferencesDialog::on_shortcutsReset_clicked()
 	if (QMessageBox::question(this, "LeoCAD", tr("Are you sure you want to load the default keyboard shortcuts?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
 
-	lcResetKeyboardShortcuts(options->KeyboardShortcuts);
+	options->KeyboardShortcuts.Reset();
 	updateCommandList();
 
 	options->ShortcutsModified = true;

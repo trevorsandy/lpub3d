@@ -90,6 +90,26 @@
         <file alias="stepgroupsetup.png">images/stepgroupsetup.png</file>
         <file alias="zoomin.png">images/zoomin.png</file>
         <file alias="zoomout.png">images/zoomout.png</file>
+        <file alias="action_delete_16.png">../lc_lib/resources/action_delete_16.png</file>
+        <file alias="action_insert_16.png">../lc_lib/resources/action_insert_16.png</file>
+        <file alias="action_light_16.png">../lc_lib/resources/action_light_16.png</file>
+        <file alias="action_move_16.png">../lc_lib/resources/action_move_16.png</file>
+        <file alias="action_paint_16.png">../lc_lib/resources/action_paint_16.png</file>
+        <file alias="action_pan_16.png">../lc_lib/resources/action_pan_16.png</file>
+        <file alias="action_rotate_16.png">../lc_lib/resources/action_rotate_16.png</file>
+        <file alias="action_select_16.png">../lc_lib/resources/action_select_16.png</file>
+        <file alias="action_spotlight_16.png">../lc_lib/resources/action_spotlight_16.png</file>
+        <file alias="action_zoom_16.png">../lc_lib/resources/action_zoom_16.png</file>
+        <file alias="edit_copy_16.png">../lc_lib/resources/edit_copy_16.png</file>
+        <file alias="edit_cut_16.png">../lc_lib/resources/edit_cut_16.png</file>
+        <file alias="edit_paste_16.png">../lc_lib/resources/edit_paste_16.png</file>
+        <file alias="edit_redo_16.png">../lc_lib/resources/edit_redo_16.png</file>
+        <file alias="edit_undo_16.png">../lc_lib/resources/edit_undo_16.png</file>
+        <file alias="file_new_16.png">../lc_lib/resources/file_new_16.png</file>
+        <file alias="file_open_16.png">../lc_lib/resources/file_open_16.png</file>
+        <file alias="file_print_16.png">../lc_lib/resources/file_print_16.png</file>
+        <file alias="file_print_preview_16.png">../lc_lib/resources/file_print_preview_16.png</file>
+        <file alias="file_save_16.png">../lc_lib/resources/file_save_16.png</file>
         <file alias="action_camera.png">../lc_lib/resources/action_camera.png</file>
         <file alias="action_delete.png">../lc_lib/resources/action_delete.png</file>
         <file alias="action_insert.png">../lc_lib/resources/action_insert.png</file>
@@ -126,6 +146,7 @@
         <file alias="cursor_zoom_region.png">../lc_lib/resources/cursor_zoom_region.png</file>
         <file alias="edit_copy.png">../lc_lib/resources/edit_copy.png</file>
         <file alias="edit_cut.png">../lc_lib/resources/edit_cut.png</file>
+        <file alias="edit_find.png">../lc_lib/resources/edit_find.png</file>
         <file alias="edit_lock.png">../lc_lib/resources/edit_lock.png</file>
         <file alias="edit_paste.png">../lc_lib/resources/edit_paste.png</file>
         <file alias="edit_redo.png">../lc_lib/resources/edit_redo.png</file>
@@ -163,5 +184,7 @@
         <file alias="view_zoomextents.png">../lc_lib/resources/view_zoomextents.png</file>
         <file alias="edit_rotatestep_absolute_rotation.png">../lc_lib/resources/edit_rotatestep_absolute_rotation.png</file>
         <file alias="edit_rotatestep_relative_rotation.png">../lc_lib/resources/edit_rotatestep_relative_rotation.png</file>
+        <file alias="leocad_fr.qm">../lc_lib/resources/leocad_fr.qm</file>
+        <file alias="leocad_pt.qm">../lc_lib/resources/leocad_pt.qm</file>
     </qresource>
 </RCC>

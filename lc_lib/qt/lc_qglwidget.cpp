@@ -156,7 +156,7 @@ lcQGLWidget::lcQGLWidget(QWidget *parent, lcQGLWidget *share, lcGLWidget *owner,
 	if (!gWidgetCount)
 	{
 		lcInitializeGLExtensions(context());
-		lcContext::CreateResources();	
+		lcContext::CreateResources();
 		View::CreateResources(widget->mContext);
 
 		gPlaceholderMesh = new lcMesh;
@@ -183,7 +183,7 @@ lcQGLWidget::~lcQGLWidget()
 	makeCurrent();
 	if (!gWidgetCount)
 	{
-		widget->MakeCurrent();
+//		widget->MakeCurrent(); //Rem on update to 1867
 		View::DestroyResources(widget->mContext);
 		lcContext::DestroyResources();
 
@@ -267,6 +267,17 @@ void lcQGLWidget::mousePressEvent(QMouseEvent *event)
 	case Qt::RightButton:
 		widget->OnRightButtonDown();
 		break;
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	case Qt::BackButton:
+		widget->OnBackButtonDown();
+		break;
+
+	case Qt::ForwardButton:
+		widget->OnForwardButtonDown();
+		break;
+#endif
+
 	default:
 		break;
 	}
@@ -293,6 +304,17 @@ void lcQGLWidget::mouseReleaseEvent(QMouseEvent *event)
 	case Qt::RightButton:
 		widget->OnRightButtonUp();
 		break;
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	case Qt::BackButton:
+		widget->OnBackButtonUp();
+		break;
+
+	case Qt::ForwardButton:
+		widget->OnForwardButtonUp();
+		break;
+#endif
+
 	default:
 		break;
 	}

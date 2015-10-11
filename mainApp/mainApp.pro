@@ -17,12 +17,12 @@ INCLUDEPATH += .
 INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../quazip ../qslog ../qsimpleupdater
 
 CONFIG += precompile_header c++11
-PRECOMPILED_HEADER += ../lc_lib/common/lc_global.h
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 win32 {
 
+    PRECOMPILED_HEADER += ../lc_lib/common/lc_global.h
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
     DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
     QMAKE_EXT_OBJ = .obj
@@ -33,8 +33,10 @@ win32 {
     LIBS += -ladvapi32 -lshell32
 
 } else {
+        PRECOMPILED_HEADER += ../lc_lib/common/lc_global.h
         LIBS += -lz
         QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
+		
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -62,13 +64,14 @@ isEmpty(QMAKE_LRELEASE) {
         }
 }
 
-TSFILES = ../lc_lib/resources/leocad_pt.ts
+TSFILES = ../lc_lib/resources/leocad_fr.ts ../lc_lib/resources/leocad_pt.ts 
 lrelease.input = TSFILES
 lrelease.output = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
 lrelease.commands = $$QMAKE_LRELEASE -silent ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
 lrelease.CONFIG += no_link target_predeps
 QMAKE_EXTRA_COMPILERS += lrelease
 
+system($$QMAKE_LRELEASE -silent $$TSFILES) 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 unix:!macx {
@@ -320,7 +323,7 @@ RESOURCES += \
     lpub.qrc
 
 !win32 {
-    TRANSLATIONS = TSFILES
+    TRANSLATIONS = ../lc_lib/resources/leocad_pt.ts
 }
 
 #message(FINAL CONFIG:)

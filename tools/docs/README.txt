@@ -6,6 +6,7 @@ Features and enhancements
 -Add line settings to border configuration
 -Add gradients to background options
 -Change local page background - colour, gradient, picture, submodel, none
+-Update 3DViewer to LeoCAD build 1867
 -Generate warning message when LPub 0 !LPUB INSERT COVER_PAGE encountered. Message: 
  LPub3D does not support the LPub meta 0 !LPUB INSERT COVER_PAGE.
  Please update to 0 !LPUB INSERT COVER_PAGE FRONT (or BACK) accordingly.

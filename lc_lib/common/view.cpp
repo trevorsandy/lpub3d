@@ -2380,6 +2380,16 @@ void View::OnRightButtonUp()
 		StopTracking(mTrackButton == LC_TRACKBUTTON_RIGHT);
 }
 
+void View::OnBackButtonUp()
+{
+	gMainWindow->HandleCommand(LC_VIEW_TIME_PREVIOUS);
+}
+
+void View::OnForwardButtonUp()
+{
+	gMainWindow->HandleCommand(LC_VIEW_TIME_NEXT);
+}
+
 void View::OnMouseMove()
 {
 	if (mTrackButton == LC_TRACKBUTTON_NONE)

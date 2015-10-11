@@ -71,6 +71,8 @@ class Preferences
     static bool    enableFadeStep;
     static bool    silentUpdate;
     static int     checkForUpdates;
+    static int     pageWidth;
+    static int     pageHeight;
 
     virtual ~Preferences() {}
 };

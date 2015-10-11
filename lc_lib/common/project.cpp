@@ -139,7 +139,7 @@ void Project::CreateNewModel()
 
 void Project::ShowModelListDialog()
 {
-    QList<QPair<QString, lcModel*> > Models;
+	QList<QPair<QString, lcModel*> > Models;
 	Models.reserve(mModels.GetSize());
 
 	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
@@ -155,7 +155,7 @@ void Project::ShowModelListDialog()
 
 	lcArray<lcModel*> NewModels;
 
-    for (QList<QPair<QString, lcModel*> >::iterator it = Models.begin(); it != Models.end(); it++)
+	for (QList<QPair<QString, lcModel*> >::iterator it = Models.begin(); it != Models.end(); it++)
 	{
 		lcModel* Model = it->second;
 
@@ -1585,21 +1585,11 @@ void Project::ExportPOVRay()
 
 		if (!Options.LGEOPath.isEmpty())
 		{
-            QString conCatLg, conCatAr;
-            if (Options.LGEOPath.endsWith("/") || Options.LGEOPath.endsWith("\\")){
-                conCatLg = "+L%1lg/";
-                conCatAr = "+L%1ar/";
-            } else {
-                conCatLg = "+L%1/lg/";
-                conCatAr = "+L%1/ar/";
-            }
-            Arguments.append(QString::fromLatin1(conCatLg.toLatin1()).arg(Options.LGEOPath));
-            Arguments.append(QString::fromLatin1(conCatAr.toLatin1()).arg(Options.LGEOPath));
+			Arguments.append(QString::fromLatin1("+L%1lg/").arg(Options.LGEOPath));
+			Arguments.append(QString::fromLatin1("+L%1ar/").arg(Options.LGEOPath));
 		}
 
-        QString AbsoluteFilePath = QFileInfo(Options.FileName).absoluteFilePath();  // Change to AbsFilePath
-        if (!AbsoluteFilePath.isEmpty())
-            Arguments.append(QString::fromLatin1("+o%1").arg(AbsoluteFilePath));
+		Arguments.append(QString::fromLatin1("/EXIT"));
 
 		QProcess::execute(Options.POVRayPath, Arguments);
 	}

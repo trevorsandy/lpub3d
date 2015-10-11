@@ -3,11 +3,16 @@
 
 #include "lc_commands.h"
 
-#define LC_SHORTCUT_LENGTH 32
-
-struct lcKeyboardShortcuts
+class lcKeyboardShortcuts
 {
-	char Shortcuts[LC_NUM_COMMANDS][LC_SHORTCUT_LENGTH];
+public:
+	void Reset();
+	bool Save(const QString& FileName);
+	bool Save(QTextStream& Stream);
+	bool Load(const QString& FileName);
+	bool Load(QTextStream& Stream);
+
+	QString mShortcuts[LC_NUM_COMMANDS];
 };
 
 extern lcKeyboardShortcuts gKeyboardShortcuts;
@@ -15,11 +20,5 @@ extern lcKeyboardShortcuts gKeyboardShortcuts;
 void lcLoadDefaultKeyboardShortcuts();
 void lcSaveDefaultKeyboardShortcuts();
 void lcResetDefaultKeyboardShortcuts();
-
-void lcResetKeyboardShortcuts(lcKeyboardShortcuts& Shortcuts);
-bool lcSaveKeyboardShortcuts(const QString& FileName, const lcKeyboardShortcuts& Shortcuts);
-bool lcSaveKeyboardShortcuts(lcFile& File, const lcKeyboardShortcuts& Shortcuts);
-bool lcLoadKeyboardShortcuts(const QString& FileName, lcKeyboardShortcuts& Shortcuts);
-bool lcLoadKeyboardShortcuts(lcFile& File, lcKeyboardShortcuts& Shortcuts);
 
 #endif // _LC_SHORTCUTS_H_
