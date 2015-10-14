@@ -894,10 +894,10 @@ int Render::render3DCsi(
                 if (argv.size() == 15 && argv[0] == "1") {
                     /* process subfiles in csiParts */
                     QString type = argv[argv.size()-1];
-                    logTrace() << " Csi3D Part Type: " << type
-                               << " Is Submodel: " << gui->isSubmodel(type)
-                               << " IsUnofficialPart: " << gui->isUnofficialPart(type)
-                                  ;
+//                    logTrace() << " Csi3D Part Type: " << type
+//                               << " Is Submodel: " << gui->isSubmodel(type)
+//                               << " IsUnofficialPart: " << gui->isUnofficialPart(type)
+//                                  ;
                     if (gui->isSubmodel(type) || gui->isUnofficialPart(type)) {
                         counter++;
                         /* capture all subfiles (full string) to be processed when finished */

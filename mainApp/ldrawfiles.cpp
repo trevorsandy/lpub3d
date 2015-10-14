@@ -586,13 +586,13 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     _mpd = true;
     _pieces = pieces;
 
-    logInfo() << "MPD File: "         << _file
-              << ", Name: "           << _name
-              << ", Author: "         << _author
-              << ", Description: "    << _description
-              << ", Pieces: "         << _pieces
-              << ", Category: "       << _category
-                 ;
+//    logInfo() << "MPD File: "         << _file
+//              << ", Name: "           << _name
+//              << ", Author: "         << _author
+//              << ", Description: "    << _description
+//              << ", Pieces: "         << _pieces
+//              << ", Category: "       << _category
+//                 ;
 }
 
 void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
