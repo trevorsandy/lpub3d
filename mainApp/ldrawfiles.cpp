@@ -485,10 +485,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     QString     mpdName;
     QRegExp sofRE("^\\s*0\\s+FILE\\s+(.*)$");
     QRegExp eofRE("^\\s*0\\s+NOFILE\\s*$");
-    QRegExp upRE1("^\\s*0\\s+(LDRAW_ORG|Unofficial Part)");
-    QRegExp upRE2("^\\s*0\\s+!(LDRAW_ORG|Unofficial Part)");
-    QRegExp upRE3("^\\s*0\\s+!(LDRAW_ORG|Unofficial_Part)");
-
 
     QRegExp upAUT("^\\s*0\\s+AUTHOR(.*)|Author(.*)|author(.*)$");
     QRegExp upNAM("^\\s*0\\s+Name(.*)|name(.*)|NAME(.*)$");
@@ -575,7 +571,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
         } else if ( ! mpdName.isEmpty() && smLine != "") {
 
-            if (smLine.contains(upRE1) || smLine.contains(upRE2) || smLine.contains(upRE3)) {
+            if (isUnofficialFileType(smLine)) {
                 unofficialPart = true;
             }
 
@@ -1054,29 +1050,55 @@ int validSoQ(const QString &line, int soq){
 
 
 QList<QRegExp> LDrawHeaderRegExp;
+QList<QRegExp> LDrawUnofficialFileTypeRegExp;
 
 LDrawFile::LDrawFile()
 {
-    {
-       LDrawHeaderRegExp
-       << QRegExp("^\\s*0\\s+Author[^\n]*") 
-       << QRegExp("^\\s*0\\s+!CATEGORY[^\n]*")
-       << QRegExp("^\\s*0\\s+!CMDLINE[^\n]*")
-       << QRegExp("^\\s*0\\s+!COLOUR[^\n]*")
-       << QRegExp("^\\s*0\\s+!HELP[^\n]*")
-       << QRegExp("^\\s*0\\s+!HISTORY[^\n]*")
-       << QRegExp("^\\s*0\\s+!KEYWORDS[^\n]*")
-       << QRegExp("^\\s*0\\s+!LDRAW_ORG[^\n]*")
-       << QRegExp("^\\s*0\\s+LDRAW_ORG[^\n]*")
-       << QRegExp("^\\s*0\\s+!LICENSE[^\n]*")
-       << QRegExp("^\\s*0\\s+Name[^\n]*")
-       << QRegExp("^\\s*0\\s+Official[^\n]*")
-       << QRegExp("^\\s*0\\s+Unofficial[^\n]*") 
-       << QRegExp("^\\s*0\\s+Un-official[^\n]*") 
-       << QRegExp("^\\s*0\\s+Original LDraw[^\n]*")
-       << QRegExp("^\\s*0\\s+~Moved to[^\n]*")
-       << QRegExp("^\\s*0\\s+ROTATION[^\n]*");
-    }
+  {
+    LDrawHeaderRegExp
+        << QRegExp("^\\s*0\\s+Author[^\n]*")
+        << QRegExp("^\\s*0\\s+!CATEGORY[^\n]*")
+        << QRegExp("^\\s*0\\s+!CMDLINE[^\n]*")
+        << QRegExp("^\\s*0\\s+!COLOUR[^\n]*")
+        << QRegExp("^\\s*0\\s+!HELP[^\n]*")
+        << QRegExp("^\\s*0\\s+!HISTORY[^\n]*")
+        << QRegExp("^\\s*0\\s+!KEYWORDS[^\n]*")
+        << QRegExp("^\\s*0\\s+!LDRAW_ORG[^\n]*")
+        << QRegExp("^\\s*0\\s+LDRAW_ORG[^\n]*")
+        << QRegExp("^\\s*0\\s+!LICENSE[^\n]*")
+        << QRegExp("^\\s*0\\s+Name[^\n]*")
+        << QRegExp("^\\s*0\\s+Official[^\n]*")
+        << QRegExp("^\\s*0\\s+Unofficial[^\n]*")
+        << QRegExp("^\\s*0\\s+Un-official[^\n]*")
+        << QRegExp("^\\s*0\\s+Original LDraw[^\n]*")
+        << QRegExp("^\\s*0\\s+~Moved to[^\n]*")
+        << QRegExp("^\\s*0\\s+ROTATION[^\n]*");
+  }
+
+  {
+    LDrawUnofficialFileTypeRegExp
+        << QRegExp("^\\s*0\\s+UNOFFICIAL PART[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_Part[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_Subpart[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_Shortcut[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_Primitive[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_48_Primitive[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_Part Alias[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_Shortcut Alias[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_Part Physical_Colour[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_Shortcut Physical_Colour[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial Part[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial Subpart[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial Shortcut[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial Primitive[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial 48_Primitive[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial Part Alias[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial Shortcut Alias[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial Part Physical_Colour[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial Shortcut Physical_Colour[^\n]*")
+           ;
+  }
+
 }
 
 bool LDrawFile::changedSinceLastWrite(const QString &fileName)
@@ -1107,6 +1129,19 @@ bool isHeader(QString &line)
       return true;
     }
   }
-  
+
+  return false;
+}
+
+bool isUnofficialFileType(QString &line)
+{
+  int size = LDrawUnofficialFileTypeRegExp.size();
+
+  for (int i = 0; i < size; i++) {
+    if (line.contains(LDrawUnofficialFileTypeRegExp[i])) {
+      return true;
+    }
+  }
+
   return false;
 }

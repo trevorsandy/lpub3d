@@ -5,6 +5,7 @@ Features and enhancements
 -Add Rotate Icon - indicate that the builder should "flip" the model
 -Add line settings to border configuration
 -Add gradients to background options
+-Add LDCad UNOFFICIAL PART meta
 -Change local page background - colour, gradient, picture, submodel, none
 -Update 3DViewer to LeoCAD build 1867
 -Generate warning message when LPub 0 !LPUB INSERT COVER_PAGE encountered. Message: 
@@ -15,6 +16,7 @@ Features and enhancements
 -Fix: Changing step number attributes on multi-step pages are now working
 -Fix: PLI/BOM sort routine, sort on 'part colour' part(s) appear out of place relative to
  part size and colour.
+-Fix: Do not create instruction page(s) for unofficial part
 -CHANGE: BOM default sort to sort by colour then size, previous default was size only (PLI default sort by size)
 
 LPub3D 1.2.3.443.2 
