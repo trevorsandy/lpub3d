@@ -194,8 +194,8 @@ bool LDrawFile::isSubmodel(const QString &file)
   QString fileName = file.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
   if (i != _subFiles.end()) {
-      //return ! i.value()._unofficialPart && ! i.value()._generated;
-      return ! i.value()._generated;
+      return ! i.value()._unofficialPart && ! i.value()._generated;
+      //return ! i.value()._generated; // added on revision 368 - to generate csiSubModels for 3D render
   }
   return false;
 }
@@ -483,12 +483,13 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     QStringList stageContents;
     QStringList contents;
     QString     mpdName;
+    QRegExp sofRE("^\\s*0\\s+FILE\\s+(.*)$");
     QRegExp eofRE("^\\s*0\\s+NOFILE\\s*$");
     QRegExp upRE1("^\\s*0\\s+(LDRAW_ORG|Unofficial Part)");
     QRegExp upRE2("^\\s*0\\s+!(LDRAW_ORG|Unofficial Part)");
     QRegExp upRE3("^\\s*0\\s+!(LDRAW_ORG|Unofficial_Part)");
 
-    QRegExp sofRE("^\\s*0\\s+FILE\\s+(.*)$");
+
     QRegExp upAUT("^\\s*0\\s+AUTHOR(.*)|Author(.*)|author(.*)$");
     QRegExp upNAM("^\\s*0\\s+Name(.*)|name(.*)|NAME(.*)$");
     QRegExp upCAT("^\\s*0\\s+!CATEGORY(.*)|!Category(.*)|!category(.*)$");
@@ -573,9 +574,11 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
             }
 
         } else if ( ! mpdName.isEmpty() && smLine != "") {
+
             if (smLine.contains(upRE1) || smLine.contains(upRE2) || smLine.contains(upRE3)) {
                 unofficialPart = true;
             }
+
             contents << smLine;
         }
     }

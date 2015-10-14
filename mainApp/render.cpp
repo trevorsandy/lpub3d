@@ -894,11 +894,11 @@ int Render::render3DCsi(
                 if (argv.size() == 15 && argv[0] == "1") {
                     /* process subfiles in csiParts */
                     QString type = argv[argv.size()-1];
-//                    logTrace() << " Csi3D Part Type: " << type
-//                               << " Is Submodel: " << gui->isSubmodel(type)
-//                               << " IsUnofficialPart: " <<
-//                                  ;
-                    if (gui->isSubmodel(type)) {
+                    logTrace() << " Csi3D Part Type: " << type
+                               << " Is Submodel: " << gui->isSubmodel(type)
+                               << " IsUnofficialPart: " << gui->isUnofficialPart(type)
+                                  ;
+                    if (gui->isSubmodel(type) || gui->isUnofficialPart(type)) {
                         counter++;
                         /* capture all subfiles (full string) to be processed when finished */
                         for(QStringList::iterator it = csiSubModels.begin(); it != csiSubModels.end(); ++it)
@@ -997,7 +997,7 @@ int Render::render3DCsiSubModels(QStringList &subModels,
                 if (argv.size() == 15 && argv[0] == "1") {
                     /* check and process any subfiles in csiParts */
                     QString type = argv[argv.size()-1];
-                    if (gui->isSubmodel(type)) {
+                    if (gui->isSubmodel(type) || gui->isUnofficialPart(type)) {
                         counter++;
                         /* capture all subfiles (full string) to be processed when finished */
                         for(QStringList::iterator it = newSubModels.begin(); it != newSubModels.end(); ++it)
