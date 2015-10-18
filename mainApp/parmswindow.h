@@ -65,6 +65,8 @@ private:
     void createToolBars();
 
     TextEditor       *_textEdit;
+    bool              _parmsChanged;
+    QString           title;
     ParmsHighlighter *highlighter;
     QString           fileName;  // file currently being displayed
 
@@ -85,6 +87,7 @@ signals:
     bool fileModified(bool);
 
 private slots:
+    void enableSave();
     bool maybeSave();
     bool saveFile();
     void closeEvent(QCloseEvent *event);

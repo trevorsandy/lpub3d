@@ -28,6 +28,7 @@
 #include <QtGui>
 #include "parmshighlighter.h"
 #include "parmswindow.h"
+#include "version.h"
 
 ParmsWindow *parmsWindow;
 
@@ -121,8 +122,8 @@ void ParmsWindow::createActions()
              undoAct,  SLOT(setEnabled(bool)));
     connect(_textEdit, SIGNAL(redoAvailable(bool)),
              redoAct,  SLOT(setEnabled(bool)));
-    connect(_textEdit, SIGNAL(undoAvailable(bool)),
-             saveAct,  SLOT(setEnabled(bool)));
+    connect(_textEdit, SIGNAL(textChanged()),
+             this,     SLOT(enableSave()));
 }
 
 void ParmsWindow::createToolBars()
@@ -148,6 +149,16 @@ void ParmsWindow::displayParmsFile(
 {
     fileName = _fileName;
     QFile file(fileName);
+    QFileInfo fileInfo(file.fileName());
+
+    if (fileInfo.fileName() == "pliSubstituteParts.lst")
+      title = "PLI/BOM Substitute Parts";
+    else if (fileInfo.fileName() == "fadeStepColorParts.lst")
+      title = "Fade Step Color Parts";
+    else if (fileInfo.fileName() == "titleAnnotations.lst")
+      title = "Title Annotation";
+    else //freeformAnnotations.lst
+      title = "Freeform";
 
     if (! file.open(QIODevice::ReadOnly | QIODevice::Text)){
         QMessageBox::warning(NULL,
@@ -162,8 +173,11 @@ void ParmsWindow::displayParmsFile(
 
     QTextStream ss(&file);
 
+    _textEdit->blockSignals(true);
     _textEdit->setPlainText(ss.readAll());
+    _textEdit->blockSignals(false);
     _textEdit->document()->setModified(false);
+    _parmsChanged = false;
 
     file.close();
 
@@ -200,7 +214,8 @@ bool ParmsWindow::saveFile()
         QFile file(fileName);
         if (! file.open(QFile::WriteOnly | QFile::Text)) {
             QMessageBox::warning(NULL,
-                                 QMessageBox::tr("Parmeter Editor"),
+                                 QMessageBox::tr("%1 Editor")
+                                 .arg(title),
                                  QMessageBox::tr("Cannot write file %1:\n%2.")
                                  .arg(fileName)
                                  .arg(file.errorString()));
@@ -211,6 +226,8 @@ bool ParmsWindow::saveFile()
         rc = writer.write(_textEdit->document());
 
         if (rc){
+            _parmsChanged = true;
+            saveAct->setEnabled(false);
             _textEdit->document()->setModified(false);
             emit fileModified(_textEdit->document()->isModified());
             statusBar()->showMessage(tr("File saved"), 2000);
@@ -220,13 +237,32 @@ bool ParmsWindow::saveFile()
   return rc;
 }
 
+void ParmsWindow::enableSave()
+{
+  if (_textEdit->document()->isModified())
+    {
+      saveAct->setEnabled(true);
+    }
+}
+
 void ParmsWindow::closeEvent(QCloseEvent *event)
 {
+
   if (maybeSave()) {
-    event->accept();
-  } else {
-    event->ignore();
-  }
+      event->accept();
+    } else {
+      event->ignore();
+    }
+
+  if (_parmsChanged){
+
+      QMessageBox::information(NULL,
+                               QMessageBox::tr("%1 Editor")
+                               .arg(title),
+                               QMessageBox::tr("You must close and restart %1"
+                                               "\nfor changes to take effect.")
+                               .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+    }
 }
 
 

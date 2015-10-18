@@ -54,6 +54,7 @@ QString Preferences::pliFile;
 QString Preferences::titleAnnotationsFile;
 QString Preferences::freeformAnnotationsFile;
 QString Preferences::fadeStepColor              = "Very_Light_Bluish_Gray";
+QString Preferences::pliSubstitutePartsFile;
 QString Preferences::fadeStepColorPartsFile;
 //page attributes dynamic
 QString Preferences::defaultAuthor;
@@ -410,35 +411,50 @@ void Preferences::pliPreferences()
 {
   QSettings Settings;
   pliFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliControl")).toString();
-  
-  QFileInfo fileInfo(pliFile);
+  pliSubstitutePartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile")).toString();
 
+  QFileInfo fileInfo(pliFile);
   if (fileInfo.exists()) {
-    return;
+    //return;
   } else {
     Settings.remove(QString("%1/%2").arg(SETTINGS,"PliControl"));
   }
 
-  //QMessageBox::warning(NULL,"LPub3D",lpubPath,QMessageBox::Cancel);
-  
+  QFileInfo pliSubstituteFileInfo(pliSubstitutePartsFile);
+  if (pliSubstituteFileInfo.exists()) {
+    return;
+  } else {
+    Settings.remove(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile"));
+  }
 #ifdef __APPLE__
 
   pliFile = QString("%1/%2").arg(lpubDataPath,"extras/pli.mpd");
+  pliSubstitutePartsFile =  QString("%1/%2").arg(lpubDataPath,"extras/pliSubstituteParts.lst");
   
 #else
 
   //30-11-14 Incorrect path string
   //pliFile = "/extras/pli.mpd";
   pliFile = QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath,"extras/pli.mpd"));
+  pliSubstitutePartsFile = QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath,"extras/pliSubstituteParts.lst"));
 
 #endif
 
-  fileInfo.setFile(pliFile);
-  if (fileInfo.exists()) {
+  QFileInfo popPliFileInfo(pliFile);
+  popPliFileInfo.setFile(pliFile);
+  if (popPliFileInfo.exists()) {
     Settings.setValue(QString("%1/%2").arg(SETTINGS,"PliControl"),pliFile);
   } else {
     //pliFile = "";
   }
+
+ QFileInfo popPliSubstituteFileInfo(pliSubstitutePartsFile);
+ popPliSubstituteFileInfo.setFile(pliSubstitutePartsFile);
+ if (popPliSubstituteFileInfo.exists()) {
+     Settings.setValue(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile"),pliSubstitutePartsFile);
+ } else {
+     //pliSubstitutePartsFile = "";
+ }
 }
 
 void Preferences::unitsPreferences()

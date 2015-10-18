@@ -355,10 +355,12 @@
 #include "ranges.h"
 #include "ldrawfiles.h"
 #include "where.h"
-#include "FadeStepColorParts.h"
 #include "aboutdialog.h"
 #include "version.h"
 #include "colourpartlist.h"
+#include "FadeStepColorParts.h"
+#include "annotations.h"
+#include "plisubstituteparts.h"
 
 //** 3D
 #include "lc_math.h"
@@ -683,9 +685,10 @@ private:
   QLabel                *progressLabel;
   QElapsedTimer         *timer;
 
-  ColourPartList        colourPart;         // create fade parts for static colour parts
-  FadeStepColorParts    fadeStepColorParts; //internal list of color parts to be processed for fade step.
-
+  ColourPartList         colourPart;         // create fade parts for static colour parts
+  FadeStepColorParts     fadeStepColorParts; // internal list of color parts to be processed for fade step.
+  Annotations            annotations;        // this is an internal list of title and custom part annotations
+  PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
   ColourPartListWorker  *partListWorker;    // create static colour parts list in separate thread
 
 #ifdef WATCHER
@@ -781,6 +784,7 @@ private slots:
     void editTitleAnnotations();
     void editFreeFormAnnitations();
     void editFadeColourParts();
+    void editPliBomSubstituteParts();
     void generageFadeColourParts();
 
     void toggleLCStatusBar();
@@ -964,6 +968,7 @@ private:
   QAction *editFreeFormAnnitationsAct;
   QAction *editTitleAnnotationsAct;
   QAction *editFadeColourPartsAct;
+  QAction *editPliBomSubstitutePartsAct;
   QAction *generateFadeColourPartsAct;
 
   // help

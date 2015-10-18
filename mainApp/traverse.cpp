@@ -343,6 +343,21 @@ int Gui::drawPage(
               && ! synthBegin) {
               QString colorType = color+type;
               if (! isSubmodel(type) || curMeta.LPub.pli.includeSubs.value()) {
+
+                  /*  check if substitute part exist and replace */
+                  if(PliSubstituteParts::hasSubstitutePart(type)) {
+
+                      QStringList substituteToken;
+                      split(line,substituteToken);
+                      QString substitutePart = type;
+
+                      if (PliSubstituteParts::getSubstitutePart(substitutePart)){
+                          substituteToken[substituteToken.size()-1] = substitutePart;
+                        }
+
+                      line = substituteToken.join(" ");
+                    }
+
                   if (bfxStore2 && bfxLoad) {
                       bool removed = false;
                       for (int i = 0; i < bfxParts.size(); i++) {
@@ -1518,13 +1533,30 @@ int Gui::getBOMParts(
                         }
                     }
                 }
+
               if ( ! removed) {
+
                   if (ldrawFile.isSubmodel(type)) {
 
                       Where current2(type,0);
 
                       getBOMParts(current2,line,pliParts);
+
                     } else {
+
+                      /*  check if substitute part exist and replace */
+                      if(PliSubstituteParts::hasSubstitutePart(type)) {
+
+                          QStringList substituteToken;
+                          split(line,substituteToken);
+                          QString substitutePart = type;
+
+                          if (PliSubstituteParts::getSubstitutePart(substitutePart)){
+                              substituteToken[substituteToken.size()-1] = substitutePart;
+                            }
+                          line = substituteToken.join(" ");
+                        }
+
                       QString newLine = Pli::partLine(line,current,meta);
 
                       pliParts << newLine;

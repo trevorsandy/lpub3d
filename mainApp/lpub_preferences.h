@@ -50,6 +50,7 @@ class Preferences
     static QString preferredRenderer;
     static QString lpubPath;
     static QString fadeStepColor;
+    static QString pliSubstitutePartsFile;
     static QString fadeStepColorPartsFile;
     static QString pliFile;
     static QString titleAnnotationsFile;

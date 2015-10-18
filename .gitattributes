@@ -445,6 +445,8 @@ mainApp/pliconstraindialog.h -text
 mainApp/pliglobals.cpp -text
 mainApp/plisortdialog.cpp -text
 mainApp/plisortdialog.h -text
+mainApp/plisubstituteparts.cpp -text
+mainApp/plisubstituteparts.h -text
 mainApp/pointer.h -text
 mainApp/pointeritem.cpp -text
 mainApp/pointeritem.h -text

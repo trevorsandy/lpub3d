@@ -707,6 +707,13 @@ void Gui::editFadeColourParts()
     parmsWindow->show();
 }
 
+void Gui::editPliBomSubstituteParts()
+{
+    displayParmsFile(Preferences::pliSubstitutePartsFile);
+    parmsWindow->setWindowTitle(tr("PLI/BOM Substitute Parts","Edit/add PLI/BOM substitute parts"));
+    parmsWindow->show();
+}
+
 void Gui::preferences()
 {
   if (Preferences::getPreferences()) {
@@ -744,7 +751,6 @@ Gui::Gui()
 {
     Preferences::renderPreferences();
     Preferences::lgeoPreferences();
-    Preferences::pliPreferences();
     Preferences::publishingPreferences();
 
     displayPageNum = 1;
@@ -1256,6 +1262,10 @@ void Gui::createActions()
     editFadeColourPartsAct->setStatusTip(tr("Add/Edit the list of static colour parts used to fade parts"));
     connect(editFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(editFadeColourParts()));
 
+    editPliBomSubstitutePartsAct = new QAction(QIcon(":/resources/editplisubstituteparts.png"),tr("Edit PLI/BOM Substitute Parts List"), this);
+    editPliBomSubstitutePartsAct->setStatusTip(tr("Add/Edit the list of PLI/BOM substitute parts"));
+    connect(editPliBomSubstitutePartsAct, SIGNAL(triggered()), this, SLOT(editPliBomSubstituteParts()));
+
     generateFadeColourPartsAct = new QAction(QIcon(":/resources/generatefadeparts.png"),tr("Generage Fade Colour Parts List"), this);
     generateFadeColourPartsAct->setStatusTip(tr("Generage list of all static coloured parts"));
     connect(generateFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(generageFadeColourParts()));
@@ -1328,6 +1338,7 @@ void Gui::enableActions()
   editTitleAnnotationsAct->setEnabled(true);
   editFreeFormAnnitationsAct->setEnabled(true);
   editFadeColourPartsAct->setEnabled(true);
+  editPliBomSubstitutePartsAct->setEnabled(true);
 }
 
 void Gui::enableActions2()
@@ -1427,6 +1438,7 @@ void Gui::createMenus()
     configMenu->addAction(editFadeColourPartsAct);
     configMenu->addAction(editTitleAnnotationsAct);
     configMenu->addAction(editFreeFormAnnitationsAct);
+    configMenu->addAction(editPliBomSubstitutePartsAct);
     configMenu->addAction(generateFadeColourPartsAct);
 
     configMenu->addSeparator();

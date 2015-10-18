@@ -217,6 +217,7 @@ HEADERS += \
     pliannotationdialog.h \
     pliconstraindialog.h \
     plisortdialog.h \
+    plisubstituteparts.h \
     pointer.h \
     pointeritem.h \
     preferencesdialog.h \
@@ -290,6 +291,7 @@ SOURCES += \
     pliconstraindialog.cpp \
     pliglobals.cpp \
     plisortdialog.cpp \
+    plisubstituteparts.cpp \
     pointeritem.cpp \
     preferencesdialog.cpp \
     printpdf.cpp \

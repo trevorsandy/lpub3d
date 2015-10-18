@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
 **
 ** Copyright (C) 2015 Trevor SANDY. All rights reserved.
 **
@@ -12,25 +12,22 @@
 **
 ****************************************************************************/
 
-#ifndef ANNOTATIONS_H
-#define ANNOTATIONS_H
+#ifndef PLISUBSTITUTEPARTS_H
+#define PLISUBSTITUTEPARTS_H
 
-#include <QHash>
 #include <QString>
 #include <QStringList>
 
-class Annotations {
+class PliSubstituteParts
+{
   private:
-    static QString     		   empty;
-    static QList<QString>	   titleAnnotations;
-    static QHash<QString, QString> freeformAnnotations;
+    static bool     				result;
+    static QString     				empty;
+    static QMap<QString, QString>               substituteParts;
   public:
-    Annotations();
-    static const QString &freeformAnnotation(QString part);
-    static const QList<QString> getTitleAnnotations()
-    {
-        return titleAnnotations;
-    }
+    PliSubstituteParts();
+    static const bool &hasSubstitutePart(QString part);
+    static const bool &getSubstitutePart(QString &part);
 };
 
-#endif
+#endif // PLISUBSTITUTEPARTS_H

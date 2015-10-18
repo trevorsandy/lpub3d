@@ -3,9 +3,19 @@ LPub3D 1.3 XXXX
 Features and enhancements 
 ------------ 
 -Add Rotate Icon - indicate that the builder should "flip" the model
--Add line settings to border configuration
+-Add line type attribute to border configuration
+ This adds a new meta value after (NONE|ROUND|SQUARE). Valid values are 
+ 0=none,1=solid,2=dash,3=dot,4=dashDot,5=dashDotDot. So an old meta line like this:
+ 0 !LPUB PLI BORDER GLOBAL ROUND Black 0 15 MARGINS 0.472439 0.07 should be updated to this:
+ 0 !LPUB PLI BORDER GLOBAL ROUND 1 Black 0 15 MARGINS 0.472439 0.07
+-PLI/BOM part substitution - substitute modeled part in PLI/BOM with alternate
+ This feature is useful when you have a modeled part (e.g. Power Functions Light) that will
+ take alot of space in the BOM/PLI, you can substitute the modeled version with an alternate 
+ representation that is suitable for the PLI/BOM view. This feature is complementary to LDCad's
+ template functionality which allows you to model adjustable parts as needed. To use this 
+ functionality, simply edit the substituation list from Configuration=>Edit BOM/PLI Substitute Parts List
+-Add LDCad UNOFFICIAL PART meta to recognize LDCad template generated parts
 -Add gradients to background options
--Add LDCad UNOFFICIAL PART meta
 -Change local page background - colour, gradient, picture, submodel, none
 -Update 3DViewer to LeoCAD build 1867
 -Generate warning message when LPub 0 !LPUB INSERT COVER_PAGE encountered. Message: 

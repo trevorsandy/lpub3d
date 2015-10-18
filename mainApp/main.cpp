@@ -152,6 +152,7 @@ int main(int argc, char *argv[])
     Preferences::leocadLibPreferences(false);
     Preferences::annotationPreferences();
     Preferences::fadestepPreferences();
+    Preferences::pliPreferences();
     Preferences::viewerPreferences();
 
     QString lpubDataPath = Preferences::lpubDataPath;
