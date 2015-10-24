@@ -16,29 +16,32 @@ ECHO -Start Create LDraw Unofficial Library Archive
 ECHO.
 
 ECHO.
-ECHO This file will download the most recent LDraw unofficial archive.
-ECHO It will then combine you current LDraw unofficial library archive
-ECHO overwriting content in the downloaded zip file. A directory named
-ECHO LPub3DViewer-Library will be created in you LDraw folder where the updated
-ECHO unofficial archive will be stored.
+ECHO This file will download the most recent LDraw unofficial library archive.
+ECHO It will then integrate it with your current LDraw unofficial library archive
+ECHO updating the content in the downloaded library archive (zip) file. The updated
+ECHO unofficial archive will be stored in your LPub3DViewer-Library subdirectory
+ECHO under your LDraw directory.
 ECHO.
 
-set /p LDRAWDIR=Type you LDraw Folder and close by pressing Enter: 
-ECHO You entered "%LDRAWDIR%" which will also be your working directory.
+set LDRAWDIR=%~dp0
+set /p LDRAWDIR=Enter your LDraw directory or hit Enter to accept default [%LDRAWDIR%]: 
+ECHO.
+ECHO -You entered "%LDRAWDIR%" which will also be your working directory.
+ECHO -Press Enter to continue.
 PAUSE >NUL
 
 set ldrawPath="%LDRAWDIR%"
 set outputPath="%LDRAWDIR%"
 
-set zipWin64=C:\program filess\7-zip
-set zipWin32=C:\Program Filess (x86)\7-zip
+set zipWin64=C:\Program files\7-zip
+set zipWin32=C:\Program Files (x86)\7-zip
 
 set zipExe=unknown
 
 if exist "%zipWin64%" (
 	ECHO.
 	set zipExe="%zipWin64%\7z.exe"
-    ECHO Found zip exe at "%zipWin64%"
+    ECHO -Found zip exe at "%zipWin64%"
     GOTO FINISHED_SETUP
 ) 
 
@@ -47,13 +50,13 @@ ECHO.
 if exist "%zipWin32%" (
 	ECHO.
 	set zipExe="%zipWin32%\7z.exe"
-    ECHO Found zip exe at "%zipWin32%"
+    ECHO -Found zip exe at "%zipWin32%"
     GOTO FINISHED_SETUP
 )
 
 ECHO.
 set /p zipExe=Could not find any zip exectutable. You can manually enter a location: 
-set /p OPTION=Zip exe at (%zipExe%) will be used to archive your library. Hit [1] to exit or enter to continue:
+set /p OPTION=Zip exe at [%zipExe%] will be used to archive your library. Hit [1] to exit or Enter to continue:
 if  %OPTION% == 1  EXIT
 
 rem can test here for entered zip exe then terminate if no suitable location found
@@ -61,10 +64,10 @@ GOTO FINISHED_SETUP
 
 :FINISHED_SETUP
 ECHO.
-ECHO LDraw path entered: %LDRAWDIR%
-ECHO Zip exe location: %zipExe%
+ECHO -LDraw path entered: %LDRAWDIR%
+ECHO -Zip exe location: %zipExe%
 ECHO.
-ECHO -Archive custom content
+ECHO -Update and archive unofficial parts content
 ECHO.
 cd /D %outputPath%\
 ECHO.
@@ -83,7 +86,9 @@ set n=WebContentDownload.vbs
 set t=%TEMP%\$\%n% ECHO
 set WebCONTENT="%~dp0LPub3DViewer-Library\ldrawunf.zip"
 set WebNAME=http://www.ldraw.org/library/unofficial/ldrawunf.zip
-del %TEMP%\$\%n%
+if exist %TEMP%\$\%n% (
+ del %TEMP%\$\%n%
+)
 if exist %WebCONTENT% (
  del %WebCONTENT%
 )
@@ -134,29 +139,32 @@ if exist %WebCONTENT% (
 >>%t%.
 rem -------------------------------------------------------------------------
 ECHO. 
-ECHO BATCH to VBS to Web Content Downloader
+ECHO -BATCH to VBS to Web Content Downloader
 ECHO.
-ECHO File "%n%" is done compiling.
+ECHO -File "%n%" is done compiling.
 ECHO.
-ECHO WEB URL: "%WebNAME%" 
-ECHO is ready to be downloaded to...
-ECHO FOLDER: %WebCONTENT%
+ECHO -WEB URL: "%WebNAME%" 
+ECHO  is ready to be downloaded to...
+ECHO  DIRECTORY: %WebCONTENT%
 ECHO.
 ECHO.
-ECHO If you are ready to continue and download the content, Press any key!
+ECHO -If you are ready to continue and download the content, Press any key!
 PAUSE >NUL
 @echo on
 cscript //Nologo %TEMP%\$\%n% %WebNAME% %WebCONTENT% && @echo off
 ECHO.
-ECHO.
-ECHO -Merge custom and unofficial content 
+ECHO -Extract downloaded unofficial library to Unofficial directory 
 ECHO.
 cd /D %ldrawPath%\Unofficial\
-%zipExe% a -tzip %outputPath%\LPub3DViewer-Library\ldrawunf.zip p\ > %outputPath%\LPub3DViewerLibrary-archive-log.txt
+%zipExe% x %outputPath%\LPub3DViewer-Library\ldrawunf.zip -aoa > %outputPath%\LPub3DViewerLibrary-archive-log.txt
+ECHO.
+ECHO -Merge unofficial content into new Unofficial archive [ldrawunf.zip]
+ECHO.
+%zipExe% a -tzip %outputPath%\LPub3DViewer-Library\ldrawunf.zip p\ >> %outputPath%\LPub3DViewerLibrary-archive-log.txt
 %zipExe% a -tzip %outputPath%\LPub3DViewer-Library\ldrawunf.zip parts\ >> %outputPath%\LPub3DViewerLibrary-archive-log.txt
 ECHO -Finshed
 ECHO.
-ECHO If everything went well then, Press any key to EXIT!
+ECHO -If everything went well then, Press any key to EXIT!
 PAUSE >NUL
 ENDLOCAL
 EXIT

@@ -162,6 +162,7 @@ COPY /V /Y %Win32QtPath%\QtNetwork4.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%
 COPY /V /Y %Win32QtPath%\QtOpenGL4.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                 >>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /A                          >>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32PRODUCTDIR%\ /A                                        >>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y Win-setup\LPub3DViewer_LDrawunf_Archive_Generator.bat ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\extras /A      >>  ../release/LPub3D.Release.build.log.txt
 
 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Copying %WIN64PRODUCTDIR% content to media folder      	>>  ../release/LPub3D.Release.build.log.txt
@@ -185,6 +186,7 @@ COPY /V /Y %Win64QtPath%\QtNetwork4.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%
 COPY /V /Y %Win64QtPath%\QtOpenGL4.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B					>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /A							>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN64PRODUCTDIR% /A											>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y Win-setup\LPub3DViewer_LDrawunf_Archive_Generator.bat ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\extras /A      >>  ../release/LPub3D.Release.build.log.txt
 
 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Finished copying content to media folders      			>>  ../release/LPub3D.Release.build.log.txt

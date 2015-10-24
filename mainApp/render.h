@@ -78,31 +78,31 @@ extern Render *renderer;
 class L3P : public Render
 {
 public:
-	L3P() {}
-	virtual ~L3P() {}
-	virtual int renderCsi(const QString &,  const QStringList &, const QString &, Meta &);
-    virtual int renderPli(                  const QString &,     const QString &, Meta &, bool bom);
-    virtual float cameraDistance(Meta &meta, float);
+  L3P() {}
+  virtual ~L3P() {}
+  virtual int renderCsi(const QString &,  const QStringList &, const QString &, Meta &);
+  virtual int renderPli(                  const QString &,     const QString &, Meta &, bool bom);
+  virtual float cameraDistance(Meta &meta, float);
 };
 
 class LDGLite : public Render
 {
-  public:
-    LDGLite() {}
-    virtual ~LDGLite() {}
-    virtual int renderCsi(const QString &,  const QStringList &, const QString &, Meta &);
-    virtual int renderPli(                  const QString &,     const QString &, Meta &, bool bom);  
-    virtual float cameraDistance(Meta &meta, float);
+public:
+  LDGLite() {}
+  virtual ~LDGLite() {}
+  virtual int renderCsi(const QString &,  const QStringList &, const QString &, Meta &);
+  virtual int renderPli(                  const QString &,     const QString &, Meta &, bool bom);
+  virtual float cameraDistance(Meta &meta, float);
 };
 
 class LDView : public Render
 {
-  public:
-    LDView() {}
-    virtual ~LDView() {}
-    virtual int renderCsi(const QString &,  const QStringList &, const QString &, Meta &);
-    virtual int renderPli(                  const QString &,     const QString &, Meta &, bool bom);
-    virtual float cameraDistance(Meta &meta, float);
+public:
+  LDView() {}
+  virtual ~LDView() {}
+  virtual int renderCsi(const QString &,  const QStringList &, const QString &, Meta &);
+  virtual int renderPli(                  const QString &,     const QString &, Meta &, bool bom);
+  virtual float cameraDistance(Meta &meta, float);
 };
 
 

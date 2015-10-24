@@ -753,6 +753,7 @@ int LDView::renderCsi(
   arguments << "-UseSpecular=0";
   arguments << "-LightVector=0,1,1";
   arguments << "-SaveActualSize=0";
+  //arguments << "-ExtraSearchDirs/Dir001=C:\\Users\\Trevor\\LDraw\\Unofficial\\testParts";
   arguments << w;
   arguments << h;
   arguments << s;
