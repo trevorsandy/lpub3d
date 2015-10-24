@@ -52,7 +52,6 @@
 #include "ranges_element.h"
 #include "range_element.h"
 
-//#include "lc_global.h"
 #include "lc_category.h"
 #include "lc_library.h"
 #include "pieceinf.h"
@@ -307,7 +306,8 @@ void Pli::getAnnotate(
     bool titleAndFreeform = pliMeta.annotation.titleAndFreeformAnnotation.value();
 
     // pick up annotations
-    annotateStr = PartsList::title(type.toLower());
+    annotateStr = titleDescription(type);
+
     if(title || titleAndFreeform){
         if (titleAnnotations.size() == 0 && !titleAndFreeform)
             return;
@@ -461,7 +461,7 @@ void Pli::partClass(
   QString &type,
   QString &pclass)
 {
-  pclass = PartsList::title(type);
+  pclass = titleDescription(type);
 
   if (pclass.length()) {
     QRegExp rx("^(\\w+)\\s+([0-9a-zA-Z]+).*$");
@@ -991,7 +991,11 @@ int Pli::partSize()
 
     part = parts[key];
 
-    if (PartsList::isKnownPart(part->type) ||
+    QFileInfo info(part->type);
+    PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.baseName().toUpper().toLatin1().constData(), NULL, false);
+
+
+    if (pieceInfo ||
         gui->isUnofficialPart(part->type) ||
         gui->isSubmodel(part->type)) {
 
@@ -1499,7 +1503,7 @@ QString PGraphicsPixmapItem::pliToolTip(
   QString type,
   QString color)
 {
-  QString title = PartsList::title(type);
+  QString title = Pli::titleDescription(type);
   if (title == "") {
     Where here(type,0);
     title = gui->readLine(here);
@@ -1508,6 +1512,18 @@ QString PGraphicsPixmapItem::pliToolTip(
   QString toolTip;
   toolTip = LDrawColor::name(color) + " (" + LDrawColor::ldColorCode(LDrawColor::name(color)) + ") " + type + " \"" + title + "\" - right-click to modify";
   return toolTip;
+}
+
+const QString Pli::titleDescription(QString &part)
+{
+  QString    titleDescription;
+  QFileInfo  info(part);
+  PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.baseName().toUpper().toLatin1().constData(), NULL, false);
+
+  if (pieceInfo) {
+      titleDescription = pieceInfo->m_strDescription;
+   }
+  return titleDescription;
 }
 
 PliBackgroundItem::PliBackgroundItem(

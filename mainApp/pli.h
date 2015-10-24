@@ -184,6 +184,7 @@ class Pli : public Placement {
     void setPos(float x, float y);
     void setFlag(QGraphicsItem::GraphicsItemFlag flag,bool value);
 
+    static const QString titleDescription(QString &part);
     static QString partLine(QString &line, Where & /*here*/, Meta &/*meta*/);
     void setParts(
       QStringList &csiParts,

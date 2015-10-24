@@ -698,7 +698,6 @@ private:
 #endif
 
   LDrawColor      ldrawColors;     // provides maps from ldraw color to RGB
-  PartsList       partsList;       // this is an internal version of PARTS.LST
 
   QUndoStack     *undoStack;       // the undo/redo stack
   int             macroNesting;
