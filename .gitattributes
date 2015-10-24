@@ -293,6 +293,7 @@ mainApp/extras/PDFPrint.jpg -text
 mainApp/extras/fadeStepColorParts.lst -text
 mainApp/extras/freeformAnnotations.lst -text
 mainApp/extras/pli.mpd -text
+mainApp/extras/pliSubstituteParts.lst -text
 mainApp/extras/titleAnnotations.lst -text
 mainApp/fadestepcolorparts.cpp -text
 mainApp/fadestepcolorparts.h -text

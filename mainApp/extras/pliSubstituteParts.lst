@@ -1,0 +1,22 @@
+# File: pliSubstituteParts.lst
+
+# This list captures substitute parts to support building the PLI/BOM
+# Parts on this list should have an accompanying substitute part.
+# Substitue parts must be defined using their absolute file path.
+# When building the PLI/BOM files on this list are replaced with their substitute.
+# Part identifiers with spaces will not be properly recoginzed.
+# This file can be modified in LPub3D from Configuration=>Edit Pli Substitute Parts
+
+# Part ID (LDraw Name:)		Substitute Part Absolute File Path		Part Description - for reference only
+
+# Official Parts
+
+003238a.dat		c:/users/trevor/ldraw/parts/003238a.dat		sticker minifig shield triangular with crown on dkpink b/ground
+
+# Unofficial Parts
+
+003238c.dat		c:/users/trevor/ldraw/parts/003238c.dat		sticker minifig shield triangular with white maltese cross
+
+# Custom Parts
+
+003238d.dat		c:/users/trevor/ldraw/parts/003238d.dat		sticker for minifig shield triangular w/ yellow trefoils/blue
