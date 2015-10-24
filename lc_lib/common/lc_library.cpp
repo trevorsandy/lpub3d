@@ -314,7 +314,7 @@ bool lcPiecesLibrary::OpenArchive(lcFile* File, const char* FileName, lcZipFileT
 void lcPiecesLibrary::ReadArchiveDescriptions(const QString& OfficialFileName, const QString& UnofficialFileName)
 {
 	QFileInfo OfficialInfo(OfficialFileName);
-	QFileInfo UnofficialInfo(OfficialFileName);
+	QFileInfo UnofficialInfo(UnofficialFileName);
 	
 	mArchiveCheckSum[0] = OfficialInfo.size();
 	mArchiveCheckSum[1] = OfficialInfo.lastModified().toMSecsSinceEpoch();
