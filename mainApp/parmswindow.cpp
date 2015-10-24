@@ -42,6 +42,7 @@ ParmsWindow::ParmsWindow()
     highlighter = new ParmsHighlighter(_textEdit->document());
     _textEdit->setLineWrapMode(TextEditor::NoWrap);
     _textEdit->setUndoRedoEnabled(true);
+    _parmsChanged = false;
 
     createActions();
     createToolBars();
@@ -177,7 +178,6 @@ void ParmsWindow::displayParmsFile(
     _textEdit->setPlainText(ss.readAll());
     _textEdit->blockSignals(false);
     _textEdit->document()->setModified(false);
-    _parmsChanged = false;
 
     file.close();
 
