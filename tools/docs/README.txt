@@ -8,7 +8,7 @@ Features and enhancements
  0=none,1=solid,2=dash,3=dot,4=dashDot,5=dashDotDot. So an old meta line like this:
  0 !LPUB PLI BORDER GLOBAL ROUND Black 0 15 MARGINS 0.472439 0.07 should be updated to this:
  0 !LPUB PLI BORDER GLOBAL ROUND 1 Black 0 15 MARGINS 0.472439 0.07
--PLI/BOM part substitution - substitute modeled part in PLI/BOM with alternate
+-Add PLI/BOM part substitution - substitute modeled part in PLI/BOM with alternate
  This feature is useful when you have a modeled part (e.g. Power Functions Light) that will
  take alot of space in the BOM/PLI, you can substitute the modeled version with an alternate 
  representation that is suitable for the PLI/BOM view. This feature is complementary to LDCad's
@@ -16,12 +16,15 @@ Features and enhancements
  functionality, simply edit the substituation list from Configuration=>Edit BOM/PLI Substitute Parts List
 -Add LDCad UNOFFICIAL PART meta to recognize LDCad template generated parts
 -Add gradients to background options
--Change local page background - colour, gradient, picture, submodel, none
+-Add Change local page background - colour, gradient, picture, submodel, none
 -Update 3DViewer to LeoCAD build 1867
 -Generate warning message when LPub 0 !LPUB INSERT COVER_PAGE encountered. Message: 
  LPub3D does not support the LPub meta 0 !LPUB INSERT COVER_PAGE.
  Please update to 0 !LPUB INSERT COVER_PAGE FRONT (or BACK) accordingly.
+-Remove PartsList class, use instead lcPiecesLibrary class to verify parts and capture part title
 -Remove final model if fadestep not enabled KO
+-Redesign color part list and archive classes - rename and separate generage color parts list 
+ and part archive functions
 -Cosmetic updates
 -Fix: Changing step number attributes on multi-step pages are now working
 -Fix: PLI/BOM sort routine, sort on 'part colour' part(s) appear out of place relative to

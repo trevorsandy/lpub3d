@@ -12,9 +12,9 @@
 **
 ****************************************************************************/
 
-#include "archivefadeparts.h"
+#include "archiveparts.h"
 
-ArchiveFadeParts::ArchiveFadeParts(QObject *parent) : QObject(parent)
+ArchiveParts::ArchiveParts(QObject *parent) : QObject(parent)
 {
 
 }
@@ -23,7 +23,7 @@ ArchiveFadeParts::ArchiveFadeParts(QObject *parent) : QObject(parent)
  * Insert static coloured fade parts into unofficial ldraw library
  *
  */
-bool ArchiveFadeParts::Archive(const QString &zipArchive, const QDir &dir, const QString &comment = QString("")) {
+bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QString &comment = QString("")) {
 
     // Initialize the zip file
     QuaZip zip(zipArchive);
@@ -144,7 +144,7 @@ bool ArchiveFadeParts::Archive(const QString &zipArchive, const QDir &dir, const
 }
 
 /* Recursively searches files in the archive for a given directory \ a, and adds to the list of \ b */
-bool ArchiveFadeParts::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDirPath, const QString &zipArchive, const QDir &dir) {
+bool ArchiveParts::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDirPath, const QString &zipArchive, const QDir &dir) {
 
     QuaZip zip(zipArchive);
     QuaZip *ptrZip = &zip;
@@ -198,7 +198,7 @@ bool ArchiveFadeParts::RecurseZipArchive(QStringList &zipDirFileList, QString &z
 }
 
 /* Recursively searches for all files on the disk \ a, and adds to the list of \ b */
-void ArchiveFadeParts::RecurseAddDir(const QDir &dir, QStringList &list) {
+void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
 
     QStringList qsl = dir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
 

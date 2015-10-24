@@ -3,3 +3,5 @@
 /lpubv.pro
 mainApp/build.h
 mainApp/images/Thumbs.db
+mainApp/partslist.cpp
+mainApp/partslist.h

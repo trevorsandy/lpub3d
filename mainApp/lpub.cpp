@@ -830,13 +830,13 @@ Gui::Gui()
     connect(this,           SIGNAL(enable3DActionsSig()),
             gMainWindow,    SLOT(  enable3DActions()));
 
-    connect(&colourPart, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
-    connect(&colourPart, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
-    connect(&colourPart, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
-    connect(&colourPart, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
-    connect(&colourPart, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
-    connect(&colourPart, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
-    connect(&colourPart, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
+    connect(&colourParts, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
+    connect(&colourParts, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
+    connect(&colourParts, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
+    connect(&colourParts, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
+    connect(&colourParts, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
+    connect(&colourParts, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
+    connect(&colourParts, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
 
     connect(this, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarPermInit()));
     connect(this, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
@@ -911,7 +911,7 @@ void Gui::generageFadeColourParts()
     if (ret == QMessageBox::Ok) {
 
         QThread *thread = new QThread();
-        partListWorker  = new ColourPartListWorker();
+        partListWorker  = new PartListWorker();
         partListWorker->moveToThread(thread);
 
         connect(thread,         SIGNAL(started()),                   partListWorker, SLOT(scanDir()));

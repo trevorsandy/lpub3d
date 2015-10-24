@@ -318,7 +318,7 @@ void PreferencesDialog::on_browsePublishLogo_clicked()
 void PreferencesDialog::processFadeColourParts(bool clicked)
 {
     if (clicked && !gui->getCurFile().isEmpty())
-        colourPart.processFadeColorParts();
+        colourParts.processFadeColorParts();
 }
 
 QString const PreferencesDialog::ldrawPath()

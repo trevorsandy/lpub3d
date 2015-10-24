@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef ARCHIVEFADEPARTS_H
-#define ARCHIVEFADEPARTS_H
+#ifndef ARCHIVEPARTS_H
+#define ARCHIVEPARTS_H
 
 #include <QObject>
 
@@ -23,11 +23,11 @@
 
 #include "QsLog.h"
 
-class ArchiveFadeParts : public QObject
+class ArchiveParts : public QObject
 {
     Q_OBJECT
 public:
-    explicit ArchiveFadeParts(QObject *parent = 0);
+    explicit ArchiveParts(QObject *parent = 0);
 
     static bool Archive(
       const QString &zipArchive,
@@ -49,4 +49,4 @@ signals:
 public slots:
 };
 
-#endif // ARCHIVEFADEPARTS_H
+#endif // ARCHIVEPARTS_H

@@ -257,8 +257,8 @@ mainApp/aboutdialog.h -text
 mainApp/aboutdialog.ui -text
 mainApp/annotations.cpp -text
 mainApp/annotations.h -text
-mainApp/archivefadeparts.cpp -text
-mainApp/archivefadeparts.h -text
+mainApp/archiveparts.cpp -text
+mainApp/archiveparts.h -text
 mainApp/assemglobals.cpp -text
 mainApp/backgrounddialog.cpp -text
 mainApp/backgrounddialog.h -text
@@ -273,8 +273,6 @@ mainApp/calloutbackgrounditem.h -text
 mainApp/calloutglobals.cpp -text
 mainApp/color.cpp -text
 mainApp/color.h -text
-mainApp/colourpartlist.cpp -text
-mainApp/colourpartlist.h -text
 mainApp/commands.cpp -text
 mainApp/commands.h -text
 mainApp/commonmenus.cpp -text
@@ -429,8 +427,8 @@ mainApp/parmshighlighter.cpp -text
 mainApp/parmshighlighter.h -text
 mainApp/parmswindow.cpp -text
 mainApp/parmswindow.h -text
-mainApp/partslist.cpp -text
-mainApp/partslist.h -text
+mainApp/partlist.cpp -text
+mainApp/partlist.h -text
 mainApp/paths.cpp -text
 mainApp/paths.h -text
 mainApp/placement.cpp -text

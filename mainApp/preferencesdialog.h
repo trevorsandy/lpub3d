@@ -22,7 +22,7 @@
 #include "ui_preferences.h"
 #include "lc_qpreferencesdialog.h"
 #include "ui_lc_qpreferencesdialog.h"
-#include "colourpartlist.h"
+#include "partlist.h"
 #include "meta.h"
 
 namespace Ui{
@@ -84,7 +84,7 @@ private:
 
     QWidget         *parent;
     FadeStepMeta     fadeStepMeta;             // propagate fade color and fade bool
-    ColourPartList   colourPart;               // create fade parts for static colour parts
+    PartList         colourParts;               // create fade parts for static colour parts
 
 };
 

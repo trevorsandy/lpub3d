@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef COLOURPARTLIST_H
-#define COLOURPARTLIST_H
+#ifndef PARTLIST_H
+#define PARTLIST_H
 
 #include <QFile>
 #include <QList>
@@ -24,13 +24,13 @@
 
 #include "ldrawfiles.h"
 #include "FadeStepColorParts.h"
-#include "archivefadeparts.h"
+#include "archiveparts.h"
 #include "version.h"
 
 #include "QsLog.h"
 
 class GlobalFadeStep;
-class ColourPartList;
+class PartList;
 class ColourParts;
 
 enum partTypeDir{
@@ -74,13 +74,13 @@ public:
     }
 };
 
-class ColourPartList: public QObject
+class PartList: public QObject
 {
    Q_OBJECT
 
 public:
-    explicit ColourPartList(QObject *parent = 0);
-    ~ColourPartList()
+    explicit PartList(QObject *parent = 0);
+    ~PartList()
     {
         _colourParts.empty();
         _fadeStepColourParts.clear();
@@ -130,6 +130,9 @@ public:
 
      void processFadeColorParts();                      // scan LDraw file for static colored parts and create fade copy
 
+     void processPartsArchive(
+         const QString         &comment);
+
 signals:
      void progressBarInitSig();
 
@@ -160,19 +163,20 @@ private:
     QStringList               _fadeStepColourParts;
     QStringList               _partFileContents;
     LDrawFile                 ldrawFile;           // contains MPD or all files used in model
-    ArchiveFadeParts          archiveFadeParts;    // add fade contente to unofficial zip archive (for LeoCAD)
+    ArchiveParts              archiveParts;        // add contente to unofficial zip archive (for LeoCAD)
+    QStringList               _partsDirs;
 
 };
 
 // Custom Thread
 
-class ColourPartListWorker: public QObject
+class PartListWorker: public QObject
 {
    Q_OBJECT
 
 public:
-    explicit ColourPartListWorker(QObject *parent = 0);
-    ~ColourPartListWorker()
+    explicit PartListWorker(QObject *parent = 0);
+    ~PartListWorker()
     {
         _colourParts.empty();
         _fadeStepColourParts.clear();
@@ -241,7 +245,7 @@ private:
 
 };
 
-#endif // COLOURPARTLIST_H
+#endif // PARTLIST_H
 
 
 

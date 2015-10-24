@@ -14,7 +14,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
-INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../quazip ../qslog ../qsimpleupdater
+INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../quazip ../qslog ../qsimpleupdater ../ldrawini
 
 CONFIG += precompile_header c++11
 
@@ -88,13 +88,15 @@ CONFIG(debug, debug|release) {
         #CONFIG += shared
         DESTDIR = build/debug
         LIBS += -L$$DESTDIR/../../../quazip/build/debug -lquazip
+        LIBS += -L$$DESTDIR/../../../ldrawini/build/debug -lldrawini
 }
 
 CONFIG(release, debug|release) {
         message("~~~ RELEASE build ~~~")
         #CONFIG += static
         DESTDIR = build/release
-        LIBS += -L$$DESTDIR/../../../quazip/build/release -lquazip		
+        LIBS += -L$$DESTDIR/../../../quazip/build/release -lquazip
+        LIBS += -L$$DESTDIR/../../../ldrawini/build/release -lldrawini
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -174,7 +176,6 @@ include(../QSimpleUpdater/QSimpleUpdater.pri)
 HEADERS += \
     aboutdialog.h \
     annotations.h \
-    archivefadeparts.h \
     backgrounddialog.h \
     backgrounditem.h \
     borderdialog.h \
@@ -182,7 +183,7 @@ HEADERS += \
     callout.h \
     calloutbackgrounditem.h \
     color.h \
-    colourpartlist.h \
+#  colourpartlist.h \
     commands.h \
     commonmenus.h \
     csiitem.h \
@@ -209,7 +210,7 @@ HEADERS += \
     pairdialog.h \
     parmshighlighter.h \
     parmswindow.h \
-    partslist.h \
+    partlist.h \
     paths.h \
     placement.h \
     placementdialog.h \
@@ -237,14 +238,14 @@ HEADERS += \
     textitem.h \
     updatecheck.h \
     where.h \
-    version.h
+    version.h \
+    archiveparts.h
 #    displaypagethread.h
 	
 SOURCES += \
     aboutdialog.cpp \
     annotations.cpp \
     assemglobals.cpp \
-    archivefadeparts.cpp \
     backgrounddialog.cpp \
     backgrounditem.cpp \
     borderdialog.cpp \
@@ -252,7 +253,7 @@ SOURCES += \
     calloutbackgrounditem.cpp \
     calloutglobals.cpp \
     color.cpp \
-    colourpartlist.cpp \
+#    colourpartlist.cpp \
     commands.cpp \
     commonmenus.cpp \
     csiitem.cpp \
@@ -282,7 +283,7 @@ SOURCES += \
     pairdialog.cpp \
     parmshighlighter.cpp \
     parmswindow.cpp \
-    partslist.cpp \
+    partlist.cpp \
     paths.cpp \
     placement.cpp \
     placementdialog.cpp \
@@ -312,7 +313,8 @@ SOURCES += \
     textitem.cpp \
     traverse.cpp \
     updatecheck.cpp \
-    undoredo.cpp
+    undoredo.cpp \
+    archiveparts.cpp
 #    displaypagethread.cpp
 	
 FORMS += \
