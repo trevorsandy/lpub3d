@@ -393,6 +393,8 @@ mainApp/images/zoomin.png -text
 mainApp/images/zoomout.png -text
 mainApp/ldrawfiles.cpp -text
 mainApp/ldrawfiles.h -text
+mainApp/ldsearchdirs.cpp -text
+mainApp/ldsearchdirs.h -text
 mainApp/license.gpl3 -text
 mainApp/lpub.cpp -text
 mainApp/lpub.h -text

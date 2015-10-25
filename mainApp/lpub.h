@@ -685,11 +685,11 @@ private:
   QLabel                *progressLabel;
   QElapsedTimer         *timer;
 
-  PartList               colourParts;         // create fade parts for static colour parts
+  PartList               colourParts;        // create fade parts for static colour parts
   FadeStepColorParts     fadeStepColorParts; // internal list of color parts to be processed for fade step.
   Annotations            annotations;        // this is an internal list of title and custom part annotations
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
-  PartListWorker        *partListWorker;    // create static colour parts list in separate thread
+  PartListWorker        *partListWorker;     // create static colour parts list in separate thread
 
 #ifdef WATCHER
   QFileSystemWatcher watcher;      // watch the file system for external

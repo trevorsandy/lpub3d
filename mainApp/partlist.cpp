@@ -15,15 +15,31 @@
 #include <QFileInfo>
 #include <QString>
 
+#include <stdio.h>      //can del
+#include <string.h>     //can del
+#include <sys/stat.h>   //can del
+
 #include "partlist.h"
+#include "LDrawIni.h"
 #include "lpub_preferences.h"
 #include "step.h"
 #include "paths.h"
 #include "lpub.h"
 
+#ifdef WIN32
+#include <clocale>
+#endif // WIN32
 
 PartList::PartList(QObject *parent) : QObject(parent)
 {}
+
+/*
+ * Process LDraw search directories part files.
+ */
+
+void PartList::processLDSearchDirParts(){
+
+ }
 
 /*
  * Create fade version of static colour part files.

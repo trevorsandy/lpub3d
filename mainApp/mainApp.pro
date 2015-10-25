@@ -239,7 +239,8 @@ HEADERS += \
     updatecheck.h \
     where.h \
     version.h \
-    archiveparts.h
+    archiveparts.h \
+    ldsearchdirs.h
 #    displaypagethread.h
 	
 SOURCES += \
@@ -314,7 +315,8 @@ SOURCES += \
     traverse.cpp \
     updatecheck.cpp \
     undoredo.cpp \
-    archiveparts.cpp
+    archiveparts.cpp \
+    ldsearchdirs.cpp
 #    displaypagethread.cpp
 	
 FORMS += \

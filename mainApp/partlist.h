@@ -22,6 +22,7 @@
 #include <QRegExp>
 #include <QElapsedTimer>
 
+#include "ldsearchdirs.h"
 #include "ldrawfiles.h"
 #include "FadeStepColorParts.h"
 #include "archiveparts.h"
@@ -31,7 +32,7 @@
 
 class GlobalFadeStep;
 class PartList;
-class ColourParts;
+class ColourPart;
 
 enum partTypeDir{
     OFFICIAL_PARTS,
@@ -129,6 +130,8 @@ public:
      QStringList              _partList;
 
      void processFadeColorParts();                      // scan LDraw file for static colored parts and create fade copy
+
+     void processLDSearchDirParts();
 
      void processPartsArchive(
          const QString         &comment);
