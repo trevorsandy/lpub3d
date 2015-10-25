@@ -19,7 +19,7 @@
 #include <string.h>     //can del
 #include <sys/stat.h>   //can del
 
-#include "partlist.h"
+#include "threadworkers.h"
 #include "LDrawIni.h"
 #include "lpub_preferences.h"
 #include "step.h"
@@ -30,21 +30,21 @@
 #include <clocale>
 #endif // WIN32
 
-PartList::PartList(QObject *parent) : QObject(parent)
+PartWorker::PartWorker(QObject *parent) : QObject(parent)
 {}
 
 /*
  * Process LDraw search directories part files.
  */
 
-void PartList::processLDSearchDirParts(){
+void PartWorker::processLDSearchDirParts(){
 
  }
 
 /*
  * Create fade version of static colour part files.
  */
-void PartList::processFadeColorParts()
+void PartWorker::processFadeColorParts()
 {
     bool doFadeStep = (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
 
@@ -104,7 +104,7 @@ void PartList::processFadeColorParts()
     }
 }
 
-void PartList::processPartsArchive(const QString &comment = QString("")){
+void PartWorker::processPartsArchive(const QString &comment = QString("")){
 
   // Append fade parts to unofficial library for LeoCAD's consumption
   QFileInfo libFileInfo(Preferences::leocadLibFile);
@@ -130,7 +130,7 @@ void PartList::processPartsArchive(const QString &comment = QString("")){
     }
 }
 
-void PartList::createFadePartContent(const QString &fileNameComboStr, const int &lineNum){
+void PartWorker::createFadePartContent(const QString &fileNameComboStr, const int &lineNum){
 
     QString fileNameParts = fileNameComboStr;
     QString fileNameStr = fileNameParts.section("**",0,-2);
@@ -157,7 +157,7 @@ void PartList::createFadePartContent(const QString &fileNameComboStr, const int 
 /*
  * Create fade version of static colour part files.
  */
-void PartList::retrieveContent(
+void PartWorker::retrieveContent(
         QStringList         &inputContents,
         const QString       &fileAbsPathStr,
         const QString       &fileNameStr,
@@ -216,7 +216,7 @@ void PartList::retrieveContent(
                 QString line = in.readLine(0);
                 _partFileContents << line;
             }
-            // populate PartList
+            // populate PartWorker
             //logNotice() << "02 INSERT PART CONTENTS " << fileNameStr << ", LineNum: " << lineNum << ", partType: " << partType ;
             insert(_partFileContents, fileNameStr, lineNum, partType);
             inputContents = _partFileContents;
@@ -233,7 +233,7 @@ void PartList::retrieveContent(
     }    
 }
 
-void PartList::createFadePartFiles(){
+void PartWorker::createFadePartFiles(){
 
     int maxValue            = _partList.size();
     emit progressResetSig();
@@ -308,7 +308,7 @@ void PartList::createFadePartFiles(){
                 split(line,tokens);
                 if (tokens.size() == 15 && tokens[0] == "1") {
                     fileNameStr = tokens[tokens.size()-1];
-                    // check PartList contents if line part is an identified colour part and rename accordingly
+                    // check PartWorker contents if line part is an identified colour part and rename accordingly
                     QString uniqueID = QString("%1_%2").arg(QString::number(i)).arg(fileNameStr.toLower());
                     QMap<QString, ColourPart>::iterator cpc = _colourParts.find(uniqueID);                    
                     //logTrace() << "B. COMPARE CHILD - LINE NUM: "<< i << " PART ID: " << fileNameStr << " AND CONTENT UID:" << uniqueID;
@@ -349,7 +349,7 @@ void PartList::createFadePartFiles(){
 /*
      * Write faded part files to fade directory.
      */
-bool PartList::saveFadeFile(
+bool PartWorker::saveFadeFile(
         const QString     &fileName,
         const QStringList &fadePartContent) {
 
@@ -371,7 +371,7 @@ bool PartList::saveFadeFile(
 }
 
 
-void PartList::insert(
+void PartWorker::insert(
         const QStringList   &contents,
         const QString       &fileNameStr,
         const int           &lineNum,
@@ -389,7 +389,7 @@ void PartList::insert(
     //logNotice() << "02 INSERT PART CONTENTS - UID: " << uniqueID  <<  " partType: " << partType;
 }
 
-int PartList::size(const QString &fileNameStr, const int &lineNum){
+int PartWorker::size(const QString &fileNameStr, const int &lineNum){
 
   QString uniqueID = QString("%1_%2").arg(QString::number(lineNum)).arg(fileNameStr.toLower());
   QMap<QString, ColourPart>::iterator i = _colourParts.find(uniqueID);
@@ -403,7 +403,7 @@ int PartList::size(const QString &fileNameStr, const int &lineNum){
   return mySize;
 }
 
-QStringList PartList::contents(const QString &fileNameStr, const int &lineNum){
+QStringList PartWorker::contents(const QString &fileNameStr, const int &lineNum){
 
     QString uniqueID = QString("%1_%2").arg(QString::number(lineNum)).arg(fileNameStr.toLower());
     QMap<QString, ColourPart>::iterator i = _colourParts.find(uniqueID);
@@ -415,7 +415,7 @@ QStringList PartList::contents(const QString &fileNameStr, const int &lineNum){
   }
 }
 
-void PartList::remove(const QString &fileNameStr, const int &lineNum)
+void PartWorker::remove(const QString &fileNameStr, const int &lineNum)
 {
     QString uniqueID = QString("%1_%2").arg(QString::number(lineNum)).arg(fileNameStr.toLower());
     QMap<QString, ColourPart>::iterator i = _colourParts.find(uniqueID);
@@ -427,9 +427,22 @@ void PartList::remove(const QString &fileNameStr, const int &lineNum)
   }
 }
 
-void PartList::empty()
+void PartWorker::empty()
 {
    _colourParts.clear();
+}
+
+bool PartWorker::endThreadEventLoopNow(){
+
+    //logTrace() << "endThreadEventLoopNow: " << _endThreadNowRequested;
+    return _endThreadNowRequested;
+}
+
+void PartWorker::requestEndThreadNow(){
+
+    //logTrace() << "requestEndThreadNow: " << _endThreadNowRequested;
+    _endThreadNowRequested = true;
+    emit finishedSig();
 }
 
 ColourPart::ColourPart(
@@ -445,7 +458,7 @@ ColourPart::ColourPart(
 }
 
 
-PartListWorker::PartListWorker(QObject *parent) : QObject(parent)
+ColourPartListWorker::ColourPartListWorker(QObject *parent) : QObject(parent)
 {_endThreadNowRequested = false;}
 
 /*
@@ -453,7 +466,7 @@ PartListWorker::PartListWorker(QObject *parent) : QObject(parent)
  *
  */
 
-void PartListWorker::scanDir()
+void ColourPartListWorker::scanDir()
 {
     QString filePath = Preferences::ldrawPath;
 
@@ -492,7 +505,7 @@ void PartListWorker::scanDir()
     emit finishedSig();
 }
 
-void PartListWorker::scanDir(QDir dir){
+void ColourPartListWorker::scanDir(QDir dir){
 
     emit progressMessageSig("Generating Colour Part List");
     dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
@@ -535,7 +548,7 @@ void PartListWorker::scanDir(QDir dir){
     emit progressSetValueSig(dirFiles);
 }
 
-void PartListWorker::getParts(const QFileInfo &fileInfo)
+void ColourPartListWorker::getParts(const QFileInfo &fileInfo)
 {
     if(fileInfo.exists()){
         //logInfo() << "Part FOUND: " << fileInfo.absoluteFilePath();
@@ -564,7 +577,7 @@ void PartListWorker::getParts(const QFileInfo &fileInfo)
 /*
  * parse colour part file to determine childre parts with static colour.
  */
-void PartListWorker::buildList(const QFileInfo &fileInfo){
+void ColourPartListWorker::buildList(const QFileInfo &fileInfo){
 
     QString materialColor  ="16";  // Internal Common Material Colour (main)
     QString edgeColor      ="24";  // Internal Common Material Color (edge)
@@ -614,7 +627,7 @@ void PartListWorker::buildList(const QFileInfo &fileInfo){
     }
 }
 
-void PartListWorker::colourChildren(){
+void ColourPartListWorker::colourChildren(){
 
     emit progressResetSig();
     emit progressMessageSig("Generating Child Colour Part List");
@@ -631,7 +644,7 @@ void PartListWorker::colourChildren(){
 
             QFileInfo fadeFileInfo(ap.value()._fileNameStr);
 
-            // process colourParts content
+            // process partWorker content
             for (int i = 0; i < ap.value()._contents.size() && !gotoMainLoop && !_endThreadNowRequested; i++) {
                 QString line =  ap.value()._contents[i];
                 QStringList tokens;
@@ -643,7 +656,7 @@ void PartListWorker::colourChildren(){
                 if (tokens.size() == 15 && tokens[0] == "1") {
 
                     QString childFileNameStr = tokens[tokens.size()-1];                     // child part name in parent part
-                    // match colourParts file with fadeStepColourParts
+                    // match partWorker file with fadeStepColourParts
                     for (int j = 0; j < _fadeStepColourParts.size() && !gotoMainLoop && !_endThreadNowRequested; ++j){
 
                         if (_fadeStepColourParts.at(j).contains(childFileNameStr) && _fadeStepColourParts.at(j).contains(QRegExp("\\b"+childFileNameStr.replace("\\","\\\\")+"[^\n]*"))){
@@ -663,7 +676,7 @@ void PartListWorker::colourChildren(){
 }
 
 
-void PartListWorker::writeFile(){
+void ColourPartListWorker::writeFile(){
 
     emit progressResetSig();
     emit progressMessageSig("Writing Colour Part List");
@@ -691,7 +704,7 @@ void PartListWorker::writeFile(){
     }
 }
 
-void PartListWorker::insert(
+void ColourPartListWorker::insert(
         const QStringList   &contents,
         const QString       &fileNameStr,
         const int           &lineNum,
@@ -709,7 +722,7 @@ void PartListWorker::insert(
     //logNotice() << "02 INSERT PART CONTENTS - UID: " << uniqueID  <<  " partType: " << partType;
 }
 
-void PartListWorker::remove(const QString &fileNameStr, const int &lineNum)
+void ColourPartListWorker::remove(const QString &fileNameStr, const int &lineNum)
 {
     QString uniqueID = QString("%1***%2").arg(QString::number(lineNum)).arg(fileNameStr.toLower());
     QMap<QString, ColourPart>::iterator i = _colourParts.find(uniqueID);
@@ -721,7 +734,7 @@ void PartListWorker::remove(const QString &fileNameStr, const int &lineNum)
   }
 }
 
-void PartListWorker::fileHeader(const int &option){
+void ColourPartListWorker::fileHeader(const int &option){
 
     static const QString fmtDateTime("MM-dd-yyyy hh:mm:ss");
 
@@ -769,13 +782,13 @@ void PartListWorker::fileHeader(const int &option){
     }
 }
 
-bool PartListWorker::endThreadEventLoopNow(){
+bool ColourPartListWorker::endThreadEventLoopNow(){
 
     //logTrace() << "endThreadEventLoopNow: " << _endThreadNowRequested;
     return _endThreadNowRequested;
 }
 
-void PartListWorker::requestEndThreadNow(){
+void ColourPartListWorker::requestEndThreadNow(){
 
     //logTrace() << "requestEndThreadNow: " << _endThreadNowRequested;
     _endThreadNowRequested = true;

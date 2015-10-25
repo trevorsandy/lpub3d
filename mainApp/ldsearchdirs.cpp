@@ -16,7 +16,7 @@
 
 #include "ldsearchdirs.h"
 #include "LDrawIni.h"
-#include "partlist.h"
+#include "threadworkers.h"
 #include "lpub_preferences.h"
 
 #ifdef WIN32            //can del

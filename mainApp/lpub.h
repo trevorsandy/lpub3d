@@ -357,7 +357,7 @@
 #include "where.h"
 #include "aboutdialog.h"
 #include "version.h"
-#include "partlist.h"
+#include "threadworkers.h"
 #include "FadeStepColorParts.h"
 #include "annotations.h"
 #include "plisubstituteparts.h"
@@ -648,6 +648,9 @@ public slots:
 
   void fileChanged(const QString &path);
 
+  void processFadeColourParts();
+  void processLDSearchDirParts();
+
 signals:       
 
     /* tell the editor to display this file */
@@ -685,11 +688,13 @@ private:
   QLabel                *progressLabel;
   QElapsedTimer         *timer;
 
-  PartList               colourParts;        // create fade parts for static colour parts
   FadeStepColorParts     fadeStepColorParts; // internal list of color parts to be processed for fade step.
   Annotations            annotations;        // this is an internal list of title and custom part annotations
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
-  PartListWorker        *partListWorker;     // create static colour parts list in separate thread
+
+  // multi-thread worker classes
+  PartWorker            *partWorker;            // part worker to process search directories and fade color parts
+  ColourPartListWorker  *colourPartListWorker;  // create static colour parts list in separate thread
 
 #ifdef WATCHER
   QFileSystemWatcher watcher;      // watch the file system for external
@@ -784,7 +789,7 @@ private slots:
     void editFreeFormAnnitations();
     void editFadeColourParts();
     void editPliBomSubstituteParts();
-    void generageFadeColourParts();
+    void generageFadeColourPartsList();
 
     void toggleLCStatusBar();
     void showLCStatusMessage();

@@ -210,7 +210,6 @@ HEADERS += \
     pairdialog.h \
     parmshighlighter.h \
     parmswindow.h \
-    partlist.h \
     paths.h \
     placement.h \
     placementdialog.h \
@@ -240,7 +239,8 @@ HEADERS += \
     where.h \
     version.h \
     archiveparts.h \
-    ldsearchdirs.h
+    ldsearchdirs.h \
+    threadWorkers.h
 #    displaypagethread.h
 	
 SOURCES += \
@@ -284,7 +284,6 @@ SOURCES += \
     pairdialog.cpp \
     parmshighlighter.cpp \
     parmswindow.cpp \
-    partlist.cpp \
     paths.cpp \
     placement.cpp \
     placementdialog.cpp \
@@ -316,7 +315,8 @@ SOURCES += \
     updatecheck.cpp \
     undoredo.cpp \
     archiveparts.cpp \
-    ldsearchdirs.cpp
+    ldsearchdirs.cpp \
+    threadWorkers.cpp
 #    displaypagethread.cpp
 	
 FORMS += \

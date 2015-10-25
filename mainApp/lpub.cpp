@@ -830,13 +830,13 @@ Gui::Gui()
     connect(this,           SIGNAL(enable3DActionsSig()),
             gMainWindow,    SLOT(  enable3DActions()));
 
-    connect(&colourParts, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
-    connect(&colourParts, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
-    connect(&colourParts, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
-    connect(&colourParts, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
-    connect(&colourParts, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
-    connect(&colourParts, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
-    connect(&colourParts, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
+//    connect(&partWorker, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
+//    connect(&partWorker, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
+//    connect(&partWorker, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
+//    connect(&partWorker, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
+//    connect(&partWorker, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
+//    connect(&partWorker, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
+//    connect(&partWorker, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
 
     connect(this, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarPermInit()));
     connect(this, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
@@ -901,7 +901,7 @@ void Gui::closeEvent(QCloseEvent *event)
 
 }
 
-void Gui::generageFadeColourParts()
+void Gui::generageFadeColourPartsList()
 {
     QMessageBox::StandardButton ret;
     ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
@@ -911,27 +911,71 @@ void Gui::generageFadeColourParts()
     if (ret == QMessageBox::Ok) {
 
         QThread *thread = new QThread();
-        partListWorker  = new PartListWorker();
-        partListWorker->moveToThread(thread);
+        colourPartListWorker  = new ColourPartListWorker();
+        colourPartListWorker->moveToThread(thread);
 
-        connect(thread,         SIGNAL(started()),                   partListWorker, SLOT(scanDir()));
-        connect(thread,         SIGNAL(finished()),                          thread, SLOT(deleteLater()));
-        connect(partListWorker, SIGNAL(finishedSig()),                       thread, SLOT(quit()));
-        connect(partListWorker, SIGNAL(finishedSig()),               partListWorker, SLOT(deleteLater()));
-        connect(partListWorker, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
-        connect(partListWorker, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
-        connect(partListWorker, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
-        connect(partListWorker, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
-        connect(partListWorker, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
-        connect(partListWorker, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
-        connect(partListWorker, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
-        connect(this,           SIGNAL(requestEndThreadNowSig()),    partListWorker, SLOT(requestEndThreadNow()));
+        connect(thread,         SIGNAL(started()),                   colourPartListWorker, SLOT(scanDir()));
+        connect(thread,         SIGNAL(finished()),                                thread, SLOT(deleteLater()));
+        connect(colourPartListWorker, SIGNAL(finishedSig()),                       thread, SLOT(quit()));
+        connect(colourPartListWorker, SIGNAL(finishedSig()),         colourPartListWorker, SLOT(deleteLater()));
+        connect(colourPartListWorker, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
+        connect(colourPartListWorker, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
+        connect(colourPartListWorker, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
+        connect(colourPartListWorker, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
+        connect(colourPartListWorker, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
+        connect(colourPartListWorker, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
+        connect(colourPartListWorker, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
+        connect(this,           SIGNAL(requestEndThreadNowSig()),    colourPartListWorker, SLOT(requestEndThreadNow()));
 
         thread->start();
 
     } else if (ret == QMessageBox::Cancel) {
       return;
     }
+}
+
+void Gui::processFadeColourParts()
+{
+	QThread *thread = new QThread();
+	partWorker  	= new PartWorker();
+	partWorker->moveToThread(thread);
+
+	connect(thread,     SIGNAL(started()),                 	     partWorker, SLOT(processFadeColorParts()));
+	connect(thread,     SIGNAL(finished()),                     	 thread, SLOT(deleteLater()));
+	connect(partWorker, SIGNAL(finishedSig()),                       thread, SLOT(quit()));
+	connect(partWorker, SIGNAL(finishedSig()),         			 partWorker, SLOT(deleteLater()));
+	connect(partWorker, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
+	connect(partWorker, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
+	connect(partWorker, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
+	connect(partWorker, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
+	connect(partWorker, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
+	connect(partWorker, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
+	connect(partWorker, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
+	connect(this,       SIGNAL(requestEndThreadNowSig()),        partWorker, SLOT(requestEndThreadNow()));
+
+	thread->start();
+}
+
+void Gui::processLDSearchDirParts()
+{
+	QThread *thread = new QThread();
+	partWorker  	= new PartWorker();
+	partWorker->moveToThread(thread);
+
+	connect(thread,     SIGNAL(started()),                 	     partWorker, SLOT(processFadeColorParts()));
+	connect(thread,     SIGNAL(finished()),                     	 thread, SLOT(deleteLater()));
+	connect(partWorker, SIGNAL(finishedSig()),                       thread, SLOT(quit()));
+	connect(partWorker, SIGNAL(finishedSig()),         			 partWorker, SLOT(deleteLater()));
+	connect(partWorker, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
+	connect(partWorker, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
+	connect(partWorker, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
+	connect(partWorker, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
+	connect(partWorker, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
+	connect(partWorker, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
+	connect(partWorker, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
+	connect(this,       SIGNAL(requestEndThreadNowSig()),        partWorker, SLOT(requestEndThreadNow()));
+
+	thread->start();
 }
 
 void Gui::progressBarInit(){
@@ -1268,7 +1312,7 @@ void Gui::createActions()
 
     generateFadeColourPartsAct = new QAction(QIcon(":/resources/generatefadeparts.png"),tr("Generage Fade Colour Parts List"), this);
     generateFadeColourPartsAct->setStatusTip(tr("Generage list of all static coloured parts"));
-    connect(generateFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(generageFadeColourParts()));
+    connect(generateFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(generageFadeColourPartsList()));
 
     // Help
 

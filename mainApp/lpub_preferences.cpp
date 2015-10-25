@@ -32,6 +32,7 @@
 #include "name.h"
 #include "resolution.h"
 #include "pli.h"
+#include "version.h"
 //**3D
 #include "lc_profile.h"
 //**

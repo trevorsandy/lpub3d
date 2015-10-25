@@ -23,7 +23,8 @@ Features and enhancements
  Please update to 0 !LPUB INSERT COVER_PAGE FRONT (or BACK) accordingly.
 -Remove PartsList class, use instead lcPiecesLibrary class to verify parts and capture part title
 -Remove final model if fadestep not enabled KO
--Redesign color part list and archive classes - rename and separate generage color parts list 
+-Redesign color part list and archive classes - rename and separate generage color parts list
+-Move archive colour fade parts to separate thread
  and part archive functions
 -Cosmetic updates
 -Fix: Changing step number attributes on multi-step pages are now working

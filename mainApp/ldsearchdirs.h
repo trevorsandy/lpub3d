@@ -20,7 +20,7 @@
 
 #include "QsLog.h"
 
-class PartList;
+class PartWorker;
 
 class LDSearchDirs
 {
