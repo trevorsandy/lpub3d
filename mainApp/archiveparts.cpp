@@ -25,6 +25,8 @@ ArchiveParts::ArchiveParts(QObject *parent) : QObject(parent)
  */
 bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QString &comment = QString("")) {
 
+    logWarn() << QString("\nProcessing %1 with comment: %2").arg(dir.absolutePath()).arg(comment);
+
     // Initialize the zip file
     QuaZip zip(zipArchive);
     zip.setFileNameCodec("IBM866");
@@ -82,7 +84,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
 
             if (fileInfo == zipFileInfo) {
                 alreadyArchived = true;
-                //qDebug() << "FileMatch - Skipping !! " << fileInfo.absoluteFilePath();
+                qDebug() << "FileMatch - Skipping !! " << fileInfo.absoluteFilePath();
             }
         }
 

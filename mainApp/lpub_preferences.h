@@ -26,7 +26,7 @@ class Preferences
     Preferences();
     static void lpubPreferences();
     static void ldrawPreferences(bool);
-    static void leocadLibPreferences(bool);
+    static void viewerLibPreferences(bool);
     static void viewerPreferences();
     static void lgeoPreferences();
     static void renderPreferences();
@@ -39,7 +39,7 @@ class Preferences
     static bool getPreferences();
 
     static QString ldrawPath;
-    static QString leocadLibFile;
+    static QString viewerLibFile;
     static QString lgeoPath;
     static QString lpubDataPath;
     static QString lpubExtrasPath;
@@ -48,7 +48,7 @@ class Preferences
     static QString l3pExe;
     static QString povrayExe;
     static QString preferredRenderer;
-    static QString lpubPath;
+    static QString lpub3dPath;
     static QString fadeStepColor;
     static QString pliSubstitutePartsFile;
     static QString fadeStepColorPartsFile;

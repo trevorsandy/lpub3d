@@ -46,11 +46,11 @@ void PartWorker::processLDSearchDirParts(){
  */
 void PartWorker::processFadeColorParts()
 {
-    bool doFadeStep = (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
+  bool doFadeStep = (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
+
+  if (doFadeStep) {
 
     QStringList contents;
-
-    if (doFadeStep) {
 
         emit progressBarInitSig();
         emit progressMessageSig("Parse Model and Parts Library");
@@ -82,10 +82,6 @@ void PartWorker::processFadeColorParts()
 
         createFadePartFiles();
 
-//        emit progressResetSig();
-//        emit progressMessageSig("Updating in-memory parts library");
-//        emit progressRangeSig(0, 0);
-
         // Append fade parts to unofficial library for LeoCAD's consumption
         QString fadePartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts/fade/"));
         QString fadePrimitivesDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p/fade/"));
@@ -101,19 +97,25 @@ void PartWorker::processFadeColorParts()
 
         emit messageSig(true,QString("Colour parts created and parts library updated successfully."));
         emit removeProgressStatusSig();
+        //emit finishedSig();
+
+        qDebug() << "\nfinished Process Fade Colour Parts.";
     }
 }
 
 void PartWorker::processPartsArchive(const QString &comment = QString("")){
 
   // Append fade parts to unofficial library for LeoCAD's consumption
-  QFileInfo libFileInfo(Preferences::leocadLibFile);
+  QFileInfo libFileInfo(Preferences::viewerLibFile);
   QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.dir().path()).arg("ldrawunf.zip"));
 
+  emit progressMessageSig("Archiving Colour Fade Parts");
   if(!_partsDirs.size() == 0){
 
+      emit progressRangeSig(1, _partsDirs.size());
       for (int i = 0; i < _partsDirs.size(); i++){
 
+          emit progressSetValueSig(i);
           if (! archiveParts.Archive(archiveFile, _partsDirs[i], QString("Append %1 parts").arg(comment)))
             QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed to archive %1 parts to \n %2")
                                                         .arg(comment)
@@ -124,6 +126,7 @@ void PartWorker::processPartsArchive(const QString &comment = QString("")){
       if (!g_App->mLibrary->ReloadUnoffLib()){
           QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed to reload unofficial parts library into memory."));
       }
+      emit progressSetValueSig(_partsDirs.size());
 
     } else {
       QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed to retrieve %1 parts directory.").arg(comment));

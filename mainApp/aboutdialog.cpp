@@ -194,7 +194,7 @@ AboutDialog::~AboutDialog()
 void AboutDialog::showReadmeDetails(bool clicked){
     clicked = clicked;
     //populate readme
-    QString readmeFile = QString("%1/%2").arg(Preferences::lpubPath).arg("README.txt");
+    QString readmeFile = QString("%1/%2").arg(Preferences::lpub3dPath).arg("README.txt");
     QFile file(readmeFile);
     if (! file.open(QFile::ReadOnly | QFile::Text)) {
         content = QString("Failed to open Readme file: \n%1:\n%2")
@@ -222,7 +222,7 @@ void AboutDialog::showReadmeDetails(bool clicked){
 void AboutDialog::showCreditDetails(bool clicked){
     clicked = clicked;
     //populate credits
-    QString creditsFile = QString("%1/%2").arg(Preferences::lpubPath).arg("/docs/CREDITS.txt");
+    QString creditsFile = QString("%1/%2").arg(Preferences::lpub3dPath).arg("/docs/CREDITS.txt");
     QFile file(creditsFile);
     if (! file.open(QFile::ReadOnly | QFile::Text)) {
         content = QString("Failed to open Credits file: \n%1:\n%2")

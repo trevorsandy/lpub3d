@@ -39,10 +39,6 @@
  *      model came from MPD or not.  The rest of LPub only interacts
  *      with the model through this layer of code.
  *
- *    partslist(h,cpp) - internalizes part headers from PARTS.LST from
- *      the LDraw installation.  All transations from part type to header
- *      go through this layer.
- *
  *    color(h,cpp) - knows about LDraw color numbers and their RGB values.
  *
  *    paths(h,cpp) - a place to put the names of external dependencies like
@@ -351,7 +347,6 @@
 #include <QElapsedTimer>
  
 #include "color.h"
-#include "partslist.h"
 #include "ranges.h"
 #include "ldrawfiles.h"
 #include "where.h"
@@ -676,6 +671,12 @@ signals:
 public:
   Page                  page;            // the abstract version of page contents
 
+  // multi-thread worker classes
+  //PartWorker            *partWorker;            // part worker to process search directories and fade color parts
+  PartWorker             partWorker;            // part worker to process search directories and fade color parts
+  ColourPartListWorker  *colourPartListWorker;  // create static colour parts list in separate thread
+
+
 private:    
   QGraphicsScene        *KpageScene;      // top of displayed page's graphics items
   LGraphicsView         *KpageView;       // the visual representation of the scene
@@ -691,10 +692,6 @@ private:
   FadeStepColorParts     fadeStepColorParts; // internal list of color parts to be processed for fade step.
   Annotations            annotations;        // this is an internal list of title and custom part annotations
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
-
-  // multi-thread worker classes
-  PartWorker            *partWorker;            // part worker to process search directories and fade color parts
-  ColourPartListWorker  *colourPartListWorker;  // create static colour parts list in separate thread
 
 #ifdef WATCHER
   QFileSystemWatcher watcher;      // watch the file system for external

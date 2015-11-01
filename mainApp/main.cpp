@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
     Preferences::lpubPreferences();
     Preferences::ldrawPreferences(false);
     Preferences::unitsPreferences();
-    Preferences::leocadLibPreferences(false);
+    Preferences::viewerLibPreferences(false);
     Preferences::annotationPreferences();
     Preferences::fadestepPreferences();
     Preferences::pliPreferences();

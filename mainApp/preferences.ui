@@ -265,7 +265,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="leocadLibFile">
+         <widget class="QLineEdit" name="viewerLibFile">
           <property name="minimumSize">
            <size>
             <width>200</width>

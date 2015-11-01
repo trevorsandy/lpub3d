@@ -40,13 +40,13 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     ldrawPath = ".";
   }
 
-  QString leocadLibFile = Preferences::leocadLibFile;
-  if (leocadLibFile.isEmpty()) {
-      leocadLibFile = ".";
+  QString viewerLibFile = Preferences::viewerLibFile;
+  if (viewerLibFile.isEmpty()) {
+      viewerLibFile = ".";
   }
   
   ui.ldrawPath->setText(                    ldrawPath);
-  ui.leocadLibFile->setText(                leocadLibFile);
+  ui.viewerLibFile->setText(                viewerLibFile);
   ui.pliName->setText(                      Preferences::pliFile);
   ui.pliBox->setChecked(                    Preferences::pliFile != "");
   ui.ldglitePath->setText(                  Preferences::ldgliteExe);
@@ -155,8 +155,8 @@ void PreferencesDialog::on_browseLDraw_clicked()
 
 void PreferencesDialog::on_browseLeoCADLibrary_clicked()
 {
-  Preferences::leocadLibPreferences(true);
-  ui.leocadLibFile->setText(Preferences::leocadLibFile);
+  Preferences::viewerLibPreferences(true);
+  ui.viewerLibFile->setText(Preferences::viewerLibFile);
 }
 
 void PreferencesDialog::on_browseLGEO_clicked()
@@ -224,7 +224,7 @@ void PreferencesDialog::on_browseLDGLite_clicked()
 #endif
 
     QString result = QFileDialog::getOpenFileName(this, tr("Locate LDGLite Executable"),
-                                                  ui.ldglitePath->text().isEmpty() ? Preferences::lpubPath : ui.ldglitePath->text(),
+                                                  ui.ldglitePath->text().isEmpty() ? Preferences::lpub3dPath : ui.ldglitePath->text(),
                                                   filter);
 
     if (!result.isEmpty()) {
@@ -249,7 +249,7 @@ void PreferencesDialog::on_browseL3P_clicked()
 #endif
 
     QString result = QFileDialog::getOpenFileName(this, tr("Locate L3P Executable"),
-                                                  ui.l3pPath->text().isEmpty() ? Preferences::lpubPath : ui.l3pPath->text(),
+                                                  ui.l3pPath->text().isEmpty() ? Preferences::lpub3dPath : ui.l3pPath->text(),
                                                   filter);
 
     if (!result.isEmpty()) {
@@ -318,8 +318,7 @@ void PreferencesDialog::on_browsePublishLogo_clicked()
 void PreferencesDialog::processFadeColourParts(bool clicked)
 {
     if (clicked && !gui->getCurFile().isEmpty())
-      gui->processFadeColourParts();
-//        partWorker.processFadeColorParts();
+      gui->partWorker.processFadeColorParts();
 }
 
 QString const PreferencesDialog::ldrawPath()
@@ -327,9 +326,9 @@ QString const PreferencesDialog::ldrawPath()
   return ui.ldrawPath->displayText();
 }
 
-QString const PreferencesDialog::leocadLibFile()
+QString const PreferencesDialog::viewerLibFile()
 {
-  return ui.leocadLibFile->displayText();
+  return ui.viewerLibFile->displayText();
 }
 
 QString const PreferencesDialog::lgeoPath()
@@ -464,13 +463,13 @@ int PreferencesDialog::checkForUpdates()
 }
 
 void PreferencesDialog::accept(){
-    if(ui.preferredRenderer->count() == 0 || ui.ldrawPath->text().isEmpty() || ui.leocadLibFile->text().isEmpty()){
+    if(ui.preferredRenderer->count() == 0 || ui.ldrawPath->text().isEmpty() || ui.viewerLibFile->text().isEmpty()){
         QPalette palette;
         palette.setColor(QPalette::Base,Qt::yellow);
         if (ui.ldrawPath->text().isEmpty())
             ui.ldrawPath->setPlaceholderText("LDraw directry must be defined");
-        if (ui.leocadLibFile->text().isEmpty())
-            ui.leocadLibFile->setPlaceholderText("Archive library must be configured");
+        if (ui.viewerLibFile->text().isEmpty())
+            ui.viewerLibFile->setPlaceholderText("Archive library must be configured");
         if (ui.preferredRenderer->count() == 0){
             ui.ldglitePath->setPlaceholderText("At lease one renderer must be defined");
             ui.ldviewPath->setPlaceholderText("At lease one renderer must be defined");

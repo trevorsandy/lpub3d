@@ -229,9 +229,7 @@ void Gui::openFile(QString &fileName)
   QDir::setCurrent(info.absolutePath());
   Paths::mkdirs();
   ldrawFile.loadFile(fileName);
-
-//  partWorker.processFadeColorParts();
-  processFadeColourParts();
+  partWorker.processFadeColorParts();
   attitudeAdjustment();
   mpdCombo->setMaxCount(0);
   mpdCombo->setMaxCount(1000);

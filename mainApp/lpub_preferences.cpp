@@ -41,9 +41,9 @@ Preferences preferences;
 QDate date = QDate::currentDate();
 
 QString Preferences::ldrawPath                  = "";
-QString Preferences::leocadLibFile              = "";
+QString Preferences::viewerLibFile              = "";
 QString Preferences::lgeoPath;
-QString Preferences::lpubPath                   = ".";
+QString Preferences::lpub3dPath                   = ".";
 QString Preferences::lpubDataPath               = ".";
 QString Preferences::lpubExtrasPath             = ".";
 QString Preferences::ldgliteExe;
@@ -101,7 +101,7 @@ void Preferences::lpubPreferences()
       cwd.cdUp(); //Contents
       cwd.cdUp(); //LPub3D.app
   }
-      lpubPath = cwd.absolutePath();
+      lpub3dPath = cwd.absolutePath();
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
@@ -190,7 +190,7 @@ void Preferences::ldrawPreferences(bool force)
     }
 }
 
-void Preferences::leocadLibPreferences(bool force)
+void Preferences::viewerLibPreferences(bool force)
 {
 #ifdef Q_OS_WIN
     QString filter(QFileDialog::tr("Archive (*.zip *.bin);;All Files (*.*)"));
@@ -199,32 +199,32 @@ void Preferences::leocadLibPreferences(bool force)
 #endif
 
     QSettings Settings;
-    QString const LeocadLibKey("PartsLibrary");
+    QString const ViewerLibKey("PartsLibrary");
 
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,LeocadLibKey))) {
-        leocadLibFile = Settings.value(QString("%1/%2").arg(SETTINGS,LeocadLibKey)).toString();
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,ViewerLibKey))) {
+        viewerLibFile = Settings.value(QString("%1/%2").arg(SETTINGS,ViewerLibKey)).toString();
     }
 
-    if (! leocadLibFile.isEmpty() && ! force) {
-        QDir cwd(leocadLibFile);
+    if (! viewerLibFile.isEmpty() && ! force) {
+        QDir cwd(viewerLibFile);
 
         if (cwd.exists()) {
             return;
         }
     }
 
-    if (leocadLibFile.isEmpty() && ! force) {
+    if (viewerLibFile.isEmpty() && ! force) {
 
-        leocadLibFile = "c:\\LDraw\\Complete.zip";
+        viewerLibFile = "c:\\LDraw\\Complete.zip";
         QDir guesses;
-        guesses.setPath(leocadLibFile);
+        guesses.setPath(viewerLibFile);
         if ( ! guesses.exists()) {
-            leocadLibFile = "c:\\Program Files (x86)\\LDraw\\Complete.zip";
-            guesses.setPath(leocadLibFile);
+            viewerLibFile = "c:\\Program Files (x86)\\LDraw\\Complete.zip";
+            guesses.setPath(viewerLibFile);
             if ( ! guesses.exists()) {
-                leocadLibFile = "c:\\Program Files (x86)\\LDraw\\LPub3DViewer-Library\\Complete.zip";
+                viewerLibFile = "c:\\Program Files (x86)\\LDraw\\LPub3DViewer-Library\\Complete.zip";
                 if (! guesses.exists()){
-                    leocadLibFile = QFileDialog::getOpenFileName(NULL,
+                    viewerLibFile = QFileDialog::getOpenFileName(NULL,
                          QFileDialog::tr("Locate LeoCad Library Archive"),
                          ldrawPath,
                          filter);
@@ -233,18 +233,18 @@ void Preferences::leocadLibPreferences(bool force)
         }
     }
 
-    if (! leocadLibFile.isEmpty() && force){
+    if (! viewerLibFile.isEmpty() && force){
 
         QString result = QFileDialog::getOpenFileName(NULL,
                          QFileDialog::tr("Select LeoCad Library Archive"),
-                         leocadLibFile,
+                         viewerLibFile,
                          filter);
         if (! result.isEmpty())
-            leocadLibFile = QDir::toNativeSeparators(result);
+            viewerLibFile = QDir::toNativeSeparators(result);
     }
 
-    if (! leocadLibFile.isEmpty()) {
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,LeocadLibKey),leocadLibFile);
+    if (! viewerLibFile.isEmpty()) {
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,ViewerLibKey),viewerLibFile);
     } else {
         QString question = QMessageBox::tr("You must select an LDraw library archive file. \nDo you wish to continue?");
         if (QMessageBox::question(NULL, "LDraw3D", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
@@ -272,12 +272,12 @@ void Preferences::lgeoPreferences()
 void Preferences::renderPreferences()
 {
 #ifdef Q_OS_WIN
-    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpubPath).arg("3rdParty/ldglite1.2.6Win/ldglite.exe"));
-    QFileInfo l3pInfo(QString("%1/%2").arg(lpubPath).arg("3rdParty/l3p1.4WinB/L3P.EXE"));
+    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/ldglite1.2.6Win/ldglite.exe"));
+    QFileInfo l3pInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/l3p1.4WinB/L3P.EXE"));
 #else
     //TODO
-    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpubPath).arg("3rdParty/ldglite1.2.6Win/ldglite.exe"));
-    QFileInfo l3pInfo(QString("%1/%2").arg(lpubPath).arg("3rdParty/l3p1.4WinB/L3P.EXE"));
+    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/ldglite1.2.6Win/ldglite.exe"));
+    QFileInfo l3pInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/l3p1.4WinB/L3P.EXE"));
 #endif
 
   QSettings Settings;
@@ -663,12 +663,12 @@ bool Preferences::getPreferences()
       }
     }
 
-    if (leocadLibFile != dialog->leocadLibFile()) {
-      leocadLibFile = dialog->leocadLibFile();
-      if (leocadLibFile == "") {
+    if (viewerLibFile != dialog->viewerLibFile()) {
+      viewerLibFile = dialog->viewerLibFile();
+      if (viewerLibFile == "") {
         Settings.remove(QString("%1/%2").arg(SETTINGS,"PartsLibrary"));
       } else {
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"PartsLibrary"),leocadLibFile);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"PartsLibrary"),viewerLibFile);
       }
     }
 
