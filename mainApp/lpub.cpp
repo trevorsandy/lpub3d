@@ -753,6 +753,8 @@ Gui::Gui()
     Preferences::lgeoPreferences();
     Preferences::publishingPreferences();
 
+    //processLDSearchDirParts();
+
     displayPageNum = 1;
 
     editWindow    = new EditWindow();
@@ -830,20 +832,13 @@ Gui::Gui()
     connect(this,           SIGNAL(enable3DActionsSig()),
             gMainWindow,    SLOT(  enable3DActions()));
 
-    connect(&partWorker, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
-    connect(&partWorker, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
-    connect(&partWorker, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
-    connect(&partWorker, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
-    connect(&partWorker, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
-    connect(&partWorker, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
-    connect(&partWorker, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
+    connect(this, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
 
     connect(this, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarPermInit()));
     connect(this, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
     connect(this, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
     connect(this, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
     connect(this, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
-    connect(this, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
     connect(this, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
 
 #ifdef WATCHER
@@ -916,15 +911,17 @@ void Gui::generageFadeColourPartsList()
 
         connect(listThread,           SIGNAL(started()),                 colourPartListWorker, SLOT(scanDir()));
         connect(listThread,           SIGNAL(finished()),                          listThread, SLOT(deleteLater()));
-        connect(colourPartListWorker, SIGNAL(finishedSig()),                       listThread, SLOT(quit()));
-        connect(colourPartListWorker, SIGNAL(finishedSig()),             colourPartListWorker, SLOT(deleteLater()));
+        connect(colourPartListWorker, SIGNAL(fadeColourFinishedSig()),             listThread, SLOT(quit()));
+        connect(colourPartListWorker, SIGNAL(fadeColourFinishedSig()),   colourPartListWorker, SLOT(deleteLater()));
+
+        connect(colourPartListWorker, SIGNAL(messageSig(bool,QString)),                  this, SLOT(statusMessage(bool,QString)));
+
         connect(colourPartListWorker, SIGNAL(progressBarInitSig()),                      this, SLOT(progressBarInit()));
         connect(colourPartListWorker, SIGNAL(progressMessageSig(QString)),      progressLabel, SLOT(setText(QString)));
         connect(colourPartListWorker, SIGNAL(progressRangeSig(int,int)),          progressBar, SLOT(setRange(int,int)));
         connect(colourPartListWorker, SIGNAL(progressSetValueSig(int)),           progressBar, SLOT(setValue(int)));
         connect(colourPartListWorker, SIGNAL(progressResetSig()),                 progressBar, SLOT(reset()));
         connect(colourPartListWorker, SIGNAL(removeProgressStatusSig()),                 this, SLOT(removeProgressStatus()));
-        connect(colourPartListWorker, SIGNAL(messageSig(bool,QString)),                  this, SLOT(statusMessage(bool,QString)));
         connect(this,                 SIGNAL(requestEndThreadNowSig()),  colourPartListWorker, SLOT(requestEndThreadNow()));
 
         listThread->start();
@@ -936,51 +933,74 @@ void Gui::generageFadeColourPartsList()
 
 void Gui::processFadeColourParts()
 {
-//  bool doFadeStep = (page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
+  bool doFadeStep = (page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
 
-//  if (doFadeStep) {
+  if (doFadeStep) {
 
-//      QThread *partThread = new QThread();
-//      partWorker	    = new PartWorker();
-//      partWorker->moveToThread(partThread);
+      QThread *partThread  = new QThread();
+      partWorkerFadeColour = new PartWorker();
+      partWorkerFadeColour->moveToThread(partThread);
 
-//      connect(partThread, SIGNAL(started()),                 	     partWorker, SLOT(processFadeColorParts()));
-//      connect(partThread, SIGNAL(finished()),			     partThread, SLOT(deleteLater()));
-//      connect(partWorker, SIGNAL(finishedSig()),                   partThread, SLOT(quit()));
-//      connect(partWorker, SIGNAL(finishedSig()),         	     partWorker, SLOT(deleteLater()));
-//      connect(partWorker, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
-//      connect(partWorker, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
-//      connect(partWorker, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
-//      connect(partWorker, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
-//      connect(partWorker, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
-//      connect(partWorker, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
-//      connect(partWorker, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
-//      connect(this,       SIGNAL(requestEndThreadNowSig()),        partWorker, SLOT(requestEndThreadNow()));
+      connect(partThread,           SIGNAL(started()),                 	     partWorkerFadeColour, SLOT(processFadeColourParts()));
+      connect(partThread,           SIGNAL(finished()),			     partThread,           SLOT(deleteLater()));
+      connect(partWorkerFadeColour, SIGNAL(fadeColourFinishedSig()),         partThread,           SLOT(quit()));
+      connect(partWorkerFadeColour, SIGNAL(fadeColourFinishedSig()),         partWorkerFadeColour, SLOT(deleteLater()));
+      connect(partWorkerFadeColour, SIGNAL(requestFinishSig()),              partThread,           SLOT(quit()));
+      connect(partWorkerFadeColour, SIGNAL(requestFinishSig()),              partWorkerFadeColour, SLOT(deleteLater()));
+//      connect(partWorkerFadeColour, SIGNAL(finishedSig()),			   this, SLOT(reloadUnofficialLibrary()));
+      connect(this,       SIGNAL(requestEndThreadNowSig()),                  partWorkerFadeColour, SLOT(requestEndThreadNow()));
 
-//      partThread->start();
-//    }
+      connect(partWorkerFadeColour, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
+
+      connect(partWorkerFadeColour, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
+      connect(partWorkerFadeColour, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
+      connect(partWorkerFadeColour, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
+      connect(partWorkerFadeColour, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
+      connect(partWorkerFadeColour, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
+      connect(partWorkerFadeColour, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
+
+      partThread->start();
+    }
 }
 
 void Gui::processLDSearchDirParts()
 {
-//	QThread *dirsThread = new QThread();
-//	partWorker	    = new PartWorker();
-//	partWorker->moveToThread(dirsThread);
+//        partWorkerLDSearchDirs	= new PartWorker();
 
-//	connect(dirsThread, SIGNAL(started()),                 	     partWorker, SLOT(processFadeColorParts()));
-//	connect(dirsThread, SIGNAL(finished()),			     dirsThread, SLOT(deleteLater()));
-//	connect(partWorker, SIGNAL(finishedSig()),                   dirsThread, SLOT(quit()));
-//	connect(partWorker, SIGNAL(finishedSig()),         	     partWorker, SLOT(deleteLater()));
-//	connect(partWorker, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
-//	connect(partWorker, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
-//	connect(partWorker, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
-//	connect(partWorker, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
-//	connect(partWorker, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
-//	connect(partWorker, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
-//	connect(partWorker, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
-//	connect(this,       SIGNAL(requestEndThreadNowSig()),        partWorker, SLOT(requestEndThreadNow()));
+        partWorkerLDSearchDirs.processLDSearchDirParts();
 
-//	dirsThread->start();
+//	QThread *dirsThread	= new QThread();
+//	partWorkerLDSearchDirs	= new PartWorker();
+//	partWorkerLDSearchDirs->moveToThread(dirsThread);
+
+//	connect(dirsThread, SIGNAL(started()),				  partWorkerLDSearchDirs, SLOT(processLDSearchDirParts()));
+//	connect(dirsThread, SIGNAL(finished()),					      dirsThread, SLOT(deleteLater()));
+//	connect(partWorkerLDSearchDirs, SIGNAL(ldSearchDirFinishedSig()),	      dirsThread, SLOT(quit()));
+//	connect(partWorkerLDSearchDirs, SIGNAL(ldSearchDirFinishedSig()), partWorkerLDSearchDirs, SLOT(deleteLater()));
+//	connect(partWorkerLDSearchDirs, SIGNAL(requestFinishSig()),		      dirsThread, SLOT(quit()));
+//	connect(partWorkerLDSearchDirs, SIGNAL(requestFinishSig()),	  partWorkerLDSearchDirs, SLOT(deleteLater()));
+//-	connect(partWorkerLDSearchDirs, SIGNAL(finishedSig()),			   this, SLOT(reloadUnofficialLibrary()));
+//	connect(this,       SIGNAL(requestEndThreadNowSig()),		  partWorkerLDSearchDirs, SLOT(requestEndThreadNow()));
+
+//	connect(partWorkerLDSearchDirs, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
+
+//-	connect(partWorkerLDSearchDirs, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
+//-	connect(partWorkerLDSearchDirs, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
+//-	connect(partWorkerLDSearchDirs, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
+//-	connect(partWorkerLDSearchDirs, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
+//-	connect(partWorkerLDSearchDirs, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
+//-	connect(partWorkerLDSearchDirs, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
+
+//      dirsThread->start();
+}
+
+void Gui::reloadUnofficialLibrary(){
+  // Reload unofficial library parts into memory
+  if (!g_App->mLibrary->ReloadUnoffLib()){
+      QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed to reload unofficial parts library into memory."));
+  } else {
+      statusBarMsg(QString("Unofficial LDraw Library Reloaded."));
+    }
 }
 
 void Gui::progressBarInit(){

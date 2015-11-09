@@ -15,21 +15,26 @@
 #ifndef LDSEARCHDIRS_H
 #define LDSEARCHDIRS_H
 
-// DEFINES
-#ifdef WIN32
-//#define TCExport __declspec(dllimport)
-//#else // WIN32
-#define TCExport
-#endif // WIN32
+//#ifdef WIN32
+//#define TCExport
+//#endif // WIN32
 
-#ifndef WIN32
-#include <unistd.h>
-#endif
+#define TCExport
 
 #if defined (__APPLE__)
 #include <wchar.h>
 #endif // __APPLE__
-// END DEFINES
+
+
+#ifndef WIN32
+#include <unistd.h>
+#include <sys/stat.h>
+#endif // !WIN32
+
+#ifdef _QT
+#include <QtCore/qstring.h>
+#endif // _QT
+
 
 // STRING UTILITIES
 #include <string.h>
@@ -39,20 +44,11 @@
 
 #include <stack>
 
-#ifndef WIN32
-#include <sys/stat.h>
-#endif // !WIN32
-
-#ifdef _QT
-#include <QtCore/qstring.h>
-#endif // _QT
-
 #include "QsLog.h"
 
 TCExport char *copyString(const char *string, size_t pad = 0);
 TCExport char *cleanedUpPath(const char* path);
 TCExport void  replaceStringCharacter(char*, char, char, int = 1);
-TCExport void  stripTrailingPathSeparators(char*);
 TCExport void  stripTrailingPathSeparators(char*);
 TCExport char *directoryFromPath(const char*);
 TCExport char *componentsJoinedByString(char** array, int count,
@@ -97,6 +93,8 @@ public:
   }
 
   static       bool  verifyLDrawDir(const char *value);
+  static       bool  verifyExtraDir(const char *value);
+  static       bool  verifyArchiveDir(const char *value);
   static       void  initCheckDirs();
 
 protected:
@@ -115,17 +113,21 @@ protected:
   friend class LDLPartsCleanup;
 };
 
+typedef std::map<std::string, bool> StringBoolMap;
 
 class LDPartsDirs : public LDSearchDirs
 {
 public:
-  LDPartsDirs();
+  LDPartsDirs(void);
+  virtual bool      loadLDrawSearchDirs(const char *filename);   //send default arbitrary file name
+  virtual void      setExtraSearchDirs(const char *value);
+  StringList        getExtraSearchDirs(void) { return m_extraSearchDirs; } //this is not used
+  StringList        getLDrawSearchDirs(void) { return m_ldrawSearchDirs; }
 
-signals:
-
-public slots:
+protected:
+  StringList        m_ldrawSearchDirs;
+  StringList 	    m_extraSearchDirs;
+  StringBoolMap     m_ancestorMap;
 };
-
-extern LDPartsDirs *ldPartsDirs;
 
 #endif // LDSEARCHDIRS_H

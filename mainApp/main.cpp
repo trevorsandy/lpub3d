@@ -16,12 +16,15 @@
 ****************************************************************************/
 
 #include <QApplication>
+#include <QtCore/QCoreApplication>
+#include <QDir>
+#include <iostream>
+#include <QMessageBox>
 
 #include "lpub_preferences.h"
 #include "lpub.h"
 #include "resolution.h"
 #include "updatecheck.h"
-#include <QMessageBox>
 
 //**3D
 #include "lc_global.h"
@@ -39,9 +42,7 @@
 
 #include "QsLogDest.h"
 #include "QsLog.h"
-#include <QtCore/QCoreApplication>
-#include <QDir>
-#include <iostream>
+
 
 
 #ifdef UNICODE
@@ -231,6 +232,8 @@ int main(int argc, char *argv[])
         return 1;
 
     Gui     LPub3DApp;
+
+    LPub3DApp.processLDSearchDirParts();
 
     gMainWindow->SetColorIndex(lcGetColorIndex(4));
     gMainWindow->UpdateRecentFiles();

@@ -39,14 +39,50 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
 
 void PartWorker::processLDSearchDirParts(){
 
+  if (ldPartsDirs.loadLDrawSearchDirs("")){
+
+//      if(!_ldSearchPartsDirs.size() == 0){
+//         _ldSearchPartsDirs.empty();
+//        }
+
+      QStringList ldSearchPartsDirs;
+
+      StringList ldrawSearchDirs = ldPartsDirs.getLDrawSearchDirs();
+
+      for (StringList::const_iterator it = ldrawSearchDirs.begin();
+           it != ldrawSearchDirs.end(); it++)
+        {
+          const char *dir = it->c_str();
+
+          QString partsDir = QString("%1").arg(dir);
+
+          if (partsDir != ".")  {  //REMOVE AFTER TEST
+
+              ldSearchPartsDirs << QDir::toNativeSeparators(QString("%1/").arg(partsDir));
+
+              qDebug() << "LDRAW SEARCH DIR:  " << QString(dir) <<
+                          "\nLDRAW PARTS DIR: " << partsDir;
+            }
+
+        }
+
+      processLDSearchPartsArchive(ldSearchPartsDirs, "search directory", true);
+
+    } else {
+        qDebug() << QString(tr("Failed to load LDraw search directores"));
+//      QMessageBox::critical(NULL, tr("LPub3D"), tr("Failed to load LDraw search directores"));
+    }
+
+//  emit ldSearchDirFinishedSig();
+
  }
 
 /*
  * Create fade version of static colour part files.
  */
-void PartWorker::processFadeColorParts()
+void PartWorker::processFadeColourParts()
 {
-  bool doFadeStep = (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
+/*  bool doFadeStep = (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
 
   if (doFadeStep) {
 
@@ -86,51 +122,115 @@ void PartWorker::processFadeColorParts()
         QString fadePartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts/fade/"));
         QString fadePrimitivesDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p/fade/"));
 
-        if(!_partsDirs.size() == 0){
-           _partsDirs.empty();
+        if(!_fadePartsDirs.size() == 0){
+           _fadePartsDirs.empty();
           }
 
-        _partsDirs << fadePartsDir
-                   << fadePrimitivesDir;
+        _fadePartsDirs << fadePartsDir
+                       << fadePrimitivesDir;
 
-        processPartsArchive("colour fade");
+        processFadeColourPartsArchive("colour fade");
 
         emit messageSig(true,QString("Colour parts created and parts library updated successfully."));
         emit removeProgressStatusSig();
-        //emit finishedSig();
+
+        emit fadeColourFinishedSig();
 
         qDebug() << "\nfinished Process Fade Colour Parts.";
-    }
+    } */
 }
 
-void PartWorker::processPartsArchive(const QString &comment = QString("")){
+void PartWorker::processLDSearchPartsArchive(const QStringList &ldSearchPartsDirs, const QString &comment = QString(""), bool silent){
 
   // Append fade parts to unofficial library for LeoCAD's consumption
   QFileInfo libFileInfo(Preferences::viewerLibFile);
   QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.dir().path()).arg("ldrawunf.zip"));
 
-  emit progressMessageSig("Archiving Colour Fade Parts");
-  if(!_partsDirs.size() == 0){
+  if (!silent)
+    emit progressMessageSig(QString("Archiving %1 parts.").arg(comment));
 
-      emit progressRangeSig(1, _partsDirs.size());
-      for (int i = 0; i < _partsDirs.size(); i++){
+  if(!ldSearchPartsDirs.size() == 0){
 
-          emit progressSetValueSig(i);
-          if (! archiveParts.Archive(archiveFile, _partsDirs[i], QString("Append %1 parts").arg(comment)))
-            QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed to archive %1 parts to \n %2")
-                                                        .arg(comment)
-                                                        .arg(_partsDirs[i]));
+      if (!silent)
+        emit progressRangeSig(1, ldSearchPartsDirs.size());
+
+      for (int i = 0; i < ldSearchPartsDirs.size(); i++){
+
+          if (!silent)
+            emit progressSetValueSig(i);
+
+          QDir foo = ldSearchPartsDirs[i];
+          qDebug() << QString(tr("ARCHIVING %1").arg(foo.absolutePath()));
+
+          if (! archiveLDSearchParts.Archive(archiveFile, foo.absolutePath(), QString("Append %1 parts").arg(comment))){
+            qDebug() << QString(tr("Failed to archive %1 parts to \n %2")
+                        .arg(comment)
+                        .arg(ldSearchPartsDirs[i]));
+
+//            QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed to archive %1 parts to \n %2")
+//                                                        .arg(comment)
+//                                                        .arg(_ldSearchPartsDirs[i]));
+            }
         }
 
       // Reload unofficial library parts into memory
       if (!g_App->mLibrary->ReloadUnoffLib()){
-          QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed to reload unofficial parts library into memory."));
+          qDebug() << QString(tr("Failed to reload unofficial parts library into memory."));
+//          QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed to reload unofficial parts library into memory."));
       }
-      emit progressSetValueSig(_partsDirs.size());
+
+      if (!silent) {
+          emit progressSetValueSig(ldSearchPartsDirs.size());
+          emit progressMessageSig(QString("Finished archiving %1 parts.").arg(comment));
+        }
 
     } else {
-      QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed to retrieve %1 parts directory.").arg(comment));
+      qDebug() << QString(tr("Failed to retrieve %1 parts directory.").arg(comment));
+//     QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed to retrieve %1 parts directory.").arg(comment));
     }
+}
+
+
+void PartWorker::processFadeColourPartsArchive(const QString &comment = QString(""), bool silent){
+/*
+  // Append fade parts to unofficial library for LeoCAD's consumption
+  QFileInfo libFileInfo(Preferences::viewerLibFile);
+  QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.dir().path()).arg("ldrawunf.zip"));
+
+  if (!silent)
+    emit progressMessageSig(QString("Archiving %1 parts.").arg(comment));
+
+  if(!_fadePartsDirs.size() == 0){
+
+      if (!silent)
+        emit progressRangeSig(1, _fadePartsDirs.size());
+
+      for (int i = 0; i < _fadePartsDirs.size(); i++){
+
+          if (!silent)
+            emit progressSetValueSig(i);
+
+          if (! archiveFadeColourParts.Archive(archiveFile, _fadePartsDirs[i], QString("Append %1 parts").arg(comment))){
+            qDebug() << QString(tr("Failed to archive %1 parts to \n %2")
+                        .arg(comment)
+                        .arg(_fadePartsDirs[i]));
+
+            }
+        }
+
+      // Reload unofficial library parts into memory
+      if (!g_App->mLibrary->ReloadUnoffLib()){
+          qDebug() << QString(tr("Failed to reload unofficial parts library into memory."));
+      }
+
+      if (!silent) {
+          emit progressSetValueSig(_fadePartsDirs.size());
+          emit progressMessageSig(QString("Finished archiving %1 parts.").arg(comment));
+        }
+
+    } else {
+      qDebug() << QString(tr("Failed to retrieve %1 parts directory.").arg(comment));
+    } */
 }
 
 void PartWorker::createFadePartContent(const QString &fileNameComboStr, const int &lineNum){
@@ -445,7 +545,7 @@ void PartWorker::requestEndThreadNow(){
 
     //logTrace() << "requestEndThreadNow: " << _endThreadNowRequested;
     _endThreadNowRequested = true;
-    emit finishedSig();
+    emit requestFinishSig();
 }
 
 ColourPart::ColourPart(
@@ -505,7 +605,7 @@ void ColourPartListWorker::scanDir()
     //logNotice()<< QString("COLOUR PARTS FILE WRITTEN WITH %1 LINES, ELAPSED TIME %2").arg(QString::number(_cpLines)).arg(time);
     emit messageSig(true,QString("Colour parts list successfully created with %1 entries, elapsed time %2.").arg(QString::number(_cpLines)).arg(time));
     emit removeProgressStatusSig();
-    emit finishedSig();
+    emit colourPartListFinishedSig();
 }
 
 void ColourPartListWorker::scanDir(QDir dir){
@@ -795,7 +895,7 @@ void ColourPartListWorker::requestEndThreadNow(){
 
     //logTrace() << "requestEndThreadNow: " << _endThreadNowRequested;
     _endThreadNowRequested = true;
-    emit finishedSig();
+    emit requestFinishSig();
 }
 
 

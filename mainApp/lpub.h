@@ -646,6 +646,8 @@ public slots:
   void processFadeColourParts();
   void processLDSearchDirParts();
 
+  void reloadUnofficialLibrary();
+
 signals:       
 
     /* tell the editor to display this file */
@@ -672,9 +674,9 @@ public:
   Page                  page;            // the abstract version of page contents
 
   // multi-thread worker classes
-  //PartWorker            *partWorker;            // part worker to process search directories and fade color parts
-  PartWorker             partWorker;            // part worker to process search directories and fade color parts
-  ColourPartListWorker  *colourPartListWorker;  // create static colour parts list in separate thread
+  PartWorker            partWorkerLDSearchDirs;  // part worker to process search directories and fade color parts
+  PartWorker            *partWorkerFadeColour;    // part worker to process colour part fade
+  ColourPartListWorker  *colourPartListWorker;    // create static colour parts list in separate thread
 
 
 private:    

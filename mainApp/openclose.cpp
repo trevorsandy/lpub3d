@@ -229,7 +229,8 @@ void Gui::openFile(QString &fileName)
   QDir::setCurrent(info.absolutePath());
   Paths::mkdirs();
   ldrawFile.loadFile(fileName);
-  partWorker.processFadeColorParts();
+  processFadeColourParts();
+  //partWorker.processFadeColorParts();
   attitudeAdjustment();
   mpdCombo->setMaxCount(0);
   mpdCombo->setMaxCount(1000);
@@ -238,7 +239,7 @@ void Gui::openFile(QString &fileName)
   displayFile(&ldrawFile,ldrawFile.topLevelFile());
   undoStack->setClean();
   curFile = fileName;
-  insertFinalModel();    //insert final fully coloured model if fadeStep turned on
+  //insertFinalModel();    //insert final fully coloured model if fadeStep turned on
   generateCoverPages();  //autogenerate cover page
 
 #ifdef WATCHER

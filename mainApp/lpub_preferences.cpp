@@ -43,7 +43,7 @@ QDate date = QDate::currentDate();
 QString Preferences::ldrawPath                  = "";
 QString Preferences::viewerLibFile              = "";
 QString Preferences::lgeoPath;
-QString Preferences::lpub3dPath                   = ".";
+QString Preferences::lpub3dPath                 = ".";
 QString Preferences::lpubDataPath               = ".";
 QString Preferences::lpubExtrasPath             = ".";
 QString Preferences::ldgliteExe;

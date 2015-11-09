@@ -796,7 +796,7 @@
       <zorder>label_8</zorder>
       <zorder>authorName_Edit</zorder>
      </widget>
-     <widget class="QWidget" name="tabUpdates">
+     <widget class="QWidget" name="tabOther">
       <attribute name="title">
        <string>Other</string>
       </attribute>
@@ -891,82 +891,30 @@
         <enum>Qt::Horizontal</enum>
        </property>
       </widget>
-      <widget class="QGroupBox" name="groupBoxLDrawIni">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>130</y>
-         <width>451</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <property name="title">
-        <string>Multiple LDraw Search Directories</string>
-       </property>
-       <widget class="QRadioButton" name="radioSDUseExisting">
-        <property name="geometry">
-         <rect>
-          <x>80</x>
-          <y>24</y>
-          <width>181</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Use existing LDraw.ini</string>
-        </property>
-       </widget>
-       <widget class="QRadioButton" name="radioSDAutoGenerate">
-        <property name="geometry">
-         <rect>
-          <x>260</x>
-          <y>24</y>
-          <width>191</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Auto-generate LDraw.ini</string>
-        </property>
-       </widget>
-       <widget class="QRadioButton" name="redioSDOff">
-        <property name="geometry">
-         <rect>
-          <x>14</x>
-          <y>24</y>
-          <width>71</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Off</string>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QTextEdit" name="textEditSearchDirectories">
+      <widget class="QTextEdit" name="textEditExtraLDrawSearchDirectories">
        <property name="geometry">
         <rect>
          <x>26</x>
-         <y>204</y>
+         <y>154</y>
          <width>421</width>
-         <height>71</height>
+         <height>121</height>
         </rect>
        </property>
        <property name="acceptRichText">
         <bool>false</bool>
        </property>
       </widget>
-      <widget class="QGroupBox" name="groupBoxSearchDirectories">
+      <widget class="QGroupBox" name="groupBoxExtraLDrawSearchDirectories">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>180</y>
+         <y>130</y>
          <width>451</width>
-         <height>111</height>
+         <height>161</height>
         </rect>
        </property>
        <property name="title">
-        <string>Directory List</string>
+        <string>Extra LDraw Search Directories</string>
        </property>
       </widget>
       <zorder>groupBoxUpdates</zorder>
@@ -974,9 +922,8 @@
       <zorder>comboCheckForUpdates</zorder>
       <zorder>chkBoxSilent</zorder>
       <zorder>line</zorder>
-      <zorder>groupBoxLDrawIni</zorder>
-      <zorder>textEditSearchDirectories</zorder>
-      <zorder>groupBoxSearchDirectories</zorder>
+      <zorder>textEditExtraLDrawSearchDirectories</zorder>
+      <zorder>groupBoxExtraLDrawSearchDirectories</zorder>
      </widget>
     </widget>
    </item>

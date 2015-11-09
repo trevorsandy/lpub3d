@@ -42,7 +42,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
     QFileInfoList zipFiles;
     if (zipFileInfo.exists()){
         if (!zip.open(QuaZip::mdAdd)) {
-            logWarn() <<  QString("! zip.open(): %1").arg(zip.getZipError());
+            logWarn() <<  QString("! zip.open()::mdAdd: %1").arg(zip.getZipError());
             return false;
         }
 
@@ -57,7 +57,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
 
     } else {
         if (!zip.open(QuaZip::mdCreate)) {
-            logWarn() <<  QString("! zip.open(): %1").arg(zip.getZipError());
+            logWarn() <<  QString("! zip.open()::mdCreate: %1").arg(zip.getZipError());
             return false;
         }
     }
@@ -208,6 +208,8 @@ void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
 
         QFileInfo finfo(QString("%1/%2").arg(dir.absolutePath()).arg(file));
 
+        logInfo() << "FILE INFO SUFFIX: " << finfo.suffix();
+
         if (finfo.isSymLink())
             return;
 
@@ -216,8 +218,11 @@ void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
             QDir subDir(finfo.filePath());
             RecurseAddDir(subDir, list);
 
-        } else
+        } else if (finfo.suffix().toLower() == "dat") {
+
             list << QDir::toNativeSeparators(finfo.filePath());
+
+        }
 
     }
 }
