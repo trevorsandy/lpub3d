@@ -93,74 +93,6 @@ bool LDSearchDirs::verifyExtraDir(const char *value)
 }
 
 // NOTE: static function.
-bool LDSearchDirs::verifyArchiveDir(const char *value)
-{
-  char currentDir[1024];
-  bool retValue = true;
-
-  char *offPartsDir = copyString(sm_systemLDrawDir);;
-  char *offPrimsDir = copyString(sm_systemLDrawDir);;
-  char *unoffPartsDir = copyString(sm_systemLDrawDir);;
-  char *unoffPrimsDir = copyString(sm_systemLDrawDir);;
-
-  strcat(offPartsDir, "/PARTS");
-  strcat(offPrimsDir, "/P");
-  strcat(unoffPartsDir, "/Unofficial/parts");
-  strcat(unoffPrimsDir, "/Unofficial/p");
-
-#ifdef WIN32
-  replaceStringCharacter(offPartsDir, '/', '\\');
-  replaceStringCharacter(offPrimsDir, '/', '\\');
-  replaceStringCharacter(unoffPartsDir, '/', '\\');
-  replaceStringCharacter(unoffPrimsDir, '/', '\\');
-#endif // WIN32
-
-  if (value && getcwd(currentDir, sizeof(currentDir)))
-    {
-
-      qDebug() << "03 VERIFY ARCHIVE DIRS:" <<
-                  " \nOFF PARTS DIR:   " << offPartsDir <<
-                  " \nOFF PRIMS DIR:   " << offPrimsDir <<
-                  " \nUNOFF PARTS DIR: " << unoffPartsDir <<
-                  " \nUNOFF PRIMS DIR: " << unoffPrimsDir
-                  ;
-
-      if (chdir(value) == 0)
-        {
-          if (strcasecmp(value, offPartsDir) == 0)
-            {
-              retValue = false;
-              return retValue;
-            } else if (strcasecmp(value, offPrimsDir) == 0)
-            {
-              retValue = false;
-              return retValue;
-            } else if (strcasecmp(value, unoffPartsDir) == 0)
-            {
-              retValue = false;
-              return retValue;
-            } else if (strcasecmp(value, unoffPrimsDir) == 0)
-            {
-              retValue = false;
-              return retValue;
-            }
-        }
-
-      if (chdir(currentDir) != 0)
-        {
-          qDebug("Error going back to original directory.\n");
-          qDebug("currentDir before: <%s>\n", currentDir);
-          if (getcwd(currentDir, sizeof(currentDir)) != NULL)
-            {
-              qDebug("currentDir  after: <%s>\n", currentDir);
-            }
-        }
-    }
-
-  return retValue;
-}
-
-// NOTE: static function.
 void LDSearchDirs::setFileCaseCallback(LDLFileCaseCallback value)
 {
   fileCaseCallback = value;
@@ -407,14 +339,17 @@ bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbit
 
           if ((searchDir->Flags & LDSDF_SKIP) == 0)
             {
-              qDebug() << "\n01 SYSTEM LDRAW DIR: " << sm_systemLDrawDir <<
-                          "\n02 SEARCH DIR: " << searchDir->Dir;
+//              qDebug() << "\n01 SYSTEM LDRAW DIR: " << sm_systemLDrawDir <<
+//                          "\n02 SEARCH DIR: " << searchDir->Dir;
 
-              if (verifyArchiveDir(searchDir->Dir))
-                {
-                  m_ldrawSearchDirs.push_back(searchDir->Dir);
-                  qDebug() << "\n04 SEARCH DIR PUSHED: " << searchDir->Dir;
-                }
+              m_ldrawSearchDirs.push_back(searchDir->Dir);
+              qDebug() << "\n04 SEARCH DIR PUSHED: " << searchDir->Dir;
+
+//              if (verifyArchiveDir(searchDir->Dir))
+//                {
+//                  m_ldrawSearchDirs.push_back(searchDir->Dir);
+//                  qDebug() << "\n04 SEARCH DIR PUSHED: " << searchDir->Dir;
+//                }
             }
         }
 
@@ -431,7 +366,9 @@ bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbit
               found = true;
             }
         }
-      //chdir(Preferences::lpub3dPath.toLatin1().constData());
+
+      chdir(Preferences::lpub3dPath.toLatin1().constData());
+
       return true;
     }
 

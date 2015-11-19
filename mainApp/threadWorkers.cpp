@@ -45,6 +45,11 @@ void PartWorker::processLDSearchDirParts(){
 //         _ldSearchPartsDirs.empty();
 //        }
 
+      QString offPartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("PARTS"));
+      QString offPrimsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("P"));
+      QString unoffPartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts"));
+      QString unoffPrimsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"));
+
       QStringList ldSearchPartsDirs;
 
       StringList ldrawSearchDirs = ldPartsDirs.getLDrawSearchDirs();
@@ -56,12 +61,19 @@ void PartWorker::processLDSearchDirParts(){
 
           QString partsDir = QString("%1").arg(dir);
 
-          if (partsDir != ".")  {  //REMOVE AFTER TEST
+          qDebug() << "LDRAW SEARCH DIR:  " << QString(dir);
+
+          if (
+              partsDir.toLower() != "." &&
+              partsDir.toLower() != offPartsDir.toLower() &&
+              partsDir.toLower() != offPrimsDir.toLower() &&
+              partsDir.toLower() != unoffPartsDir.toLower() &&
+              partsDir.toLower() != unoffPrimsDir.toLower()
+              ){
 
               ldSearchPartsDirs << QDir::toNativeSeparators(QString("%1/").arg(partsDir));
 
-              qDebug() << "LDRAW SEARCH DIR:  " << QString(dir) <<
-                          "\nLDRAW PARTS DIR: " << partsDir;
+              qDebug() << "\nLDRAW PARTS DIR: " << partsDir;
             }
 
         }
@@ -82,7 +94,7 @@ void PartWorker::processLDSearchDirParts(){
  */
 void PartWorker::processFadeColourParts()
 {
-/*  bool doFadeStep = (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
+ bool doFadeStep = (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
 
   if (doFadeStep) {
 
@@ -137,7 +149,7 @@ void PartWorker::processFadeColourParts()
         emit fadeColourFinishedSig();
 
         qDebug() << "\nfinished Process Fade Colour Parts.";
-    } */
+    }
 }
 
 void PartWorker::processLDSearchPartsArchive(const QStringList &ldSearchPartsDirs, const QString &comment = QString(""), bool silent){
@@ -151,6 +163,8 @@ void PartWorker::processLDSearchPartsArchive(const QStringList &ldSearchPartsDir
 
   if(!ldSearchPartsDirs.size() == 0){
 
+      qDebug() << "\n";
+
       if (!silent)
         emit progressRangeSig(1, ldSearchPartsDirs.size());
 
@@ -160,9 +174,12 @@ void PartWorker::processLDSearchPartsArchive(const QStringList &ldSearchPartsDir
             emit progressSetValueSig(i);
 
           QDir foo = ldSearchPartsDirs[i];
-          qDebug() << QString(tr("ARCHIVING %1").arg(foo.absolutePath()));
+          qDebug() << QString(tr("ARCHIVING NORMAL DIR %1").arg(foo.absolutePath()));
 
-          if (! archiveLDSearchParts.Archive(archiveFile, foo.absolutePath(), QString("Append %1 parts").arg(comment))){
+          if (! archiveLDSearchParts.Archive(archiveFile,
+                                             foo.absolutePath(),
+                                             QString("Append %1 parts").arg(comment),
+                                             NORMAL_ITEM)){
             qDebug() << QString(tr("Failed to archive %1 parts to \n %2")
                         .arg(comment)
                         .arg(ldSearchPartsDirs[i]));
@@ -192,7 +209,7 @@ void PartWorker::processLDSearchPartsArchive(const QStringList &ldSearchPartsDir
 
 
 void PartWorker::processFadeColourPartsArchive(const QString &comment = QString(""), bool silent){
-/*
+
   // Append fade parts to unofficial library for LeoCAD's consumption
   QFileInfo libFileInfo(Preferences::viewerLibFile);
   QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.dir().path()).arg("ldrawunf.zip"));
@@ -210,7 +227,13 @@ void PartWorker::processFadeColourPartsArchive(const QString &comment = QString(
           if (!silent)
             emit progressSetValueSig(i);
 
-          if (! archiveFadeColourParts.Archive(archiveFile, _fadePartsDirs[i], QString("Append %1 parts").arg(comment))){
+          QDir foo = _fadePartsDirs[i];
+          qDebug() << QString(tr("ARCHIVING FADE DIR %1").arg(foo.absolutePath()));
+
+          if (! archiveFadeColourParts.Archive(archiveFile,
+                                               foo.absolutePath(),
+                                               QString("Append %1 parts").arg(comment),
+                                               FADE_COLOUR_ITEM)){
             qDebug() << QString(tr("Failed to archive %1 parts to \n %2")
                         .arg(comment)
                         .arg(_fadePartsDirs[i]));
@@ -230,7 +253,7 @@ void PartWorker::processFadeColourPartsArchive(const QString &comment = QString(
 
     } else {
       qDebug() << QString(tr("Failed to retrieve %1 parts directory.").arg(comment));
-    } */
+    }
 }
 
 void PartWorker::createFadePartContent(const QString &fileNameComboStr, const int &lineNum){

@@ -32,6 +32,7 @@ Features and enhancements
  part size and colour.
 -Fix: Do not create instruction page(s) for unofficial part
 -CHANGE: BOM default sort to sort by colour then size, previous default was size only (PLI default sort by size)
+-CHANGE: Change 'Update' tab in preferences dialog to 'Other'.
 
 LPub3D 1.2.3.443.2 
 Features and enhancements 

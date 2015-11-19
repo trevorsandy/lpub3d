@@ -94,7 +94,6 @@ public:
 
   static       bool  verifyLDrawDir(const char *value);
   static       bool  verifyExtraDir(const char *value);
-  static       bool  verifyArchiveDir(const char *value);
   static       void  initCheckDirs();
 
 protected:

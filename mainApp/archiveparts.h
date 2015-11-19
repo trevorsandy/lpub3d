@@ -23,6 +23,12 @@
 
 #include "QsLog.h"
 
+enum ARCHIVE_TYPE
+{
+  FADE_COLOUR_ITEM = 1,
+  NORMAL_ITEM
+};
+
 class ArchiveParts : public QObject
 {
     Q_OBJECT
@@ -32,7 +38,8 @@ public:
     static bool Archive(
       const QString &zipArchive,
       const QDir &dir,
-      const QString &comment);
+      const QString &comment,
+                ARCHIVE_TYPE option);
 
     static void RecurseAddDir(
       const QDir &dir,
