@@ -26,6 +26,20 @@ ArchiveParts::ArchiveParts(QObject *parent) : QObject(parent)
  */
 bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QString &comment = QString(""), ARCHIVE_TYPE option = NORMAL_ITEM) {
 
+    QString fileNameWithRelativePath;
+    QString firstFilePathPiece;
+
+    bool setPrimDir = false;
+    bool setPartsDir = false;
+    bool setRootDir = false;
+
+    // If input directory is 'p' use 'p' (primitive) else use 'parts'
+    if (dir.dirName().toLower() == "p"){
+        setPrimDir = true;
+      } else if (dir.dirName().toLower() == "parts"){
+        setPartsDir = true;
+      }
+
     logWarn() << QString("\nProcessing %1 with comment: %2").arg(dir.absolutePath()).arg(comment);
 
     // Initialize the zip file
@@ -38,6 +52,21 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
         return false;
     }
 
+    // We get the list of directory files and folders recursively
+    QStringList dirFileList;
+    RecurseAddDir(dir, dirFileList);
+
+    // Check if file count is greater than zero
+    if (dirFileList.isEmpty()) {
+        logWarn() << QString("! dirFileList.isEmpty(): %1").arg(dir.absolutePath());
+        return false;
+    }
+
+    // Create an array of objects consisting of QFileInfo
+    QFileInfoList files;
+    foreach (QString fileName, dirFileList) files << QFileInfo(fileName);
+
+
     // Check if the zip file exist; if yes, set to add content, and if no create
     QFileInfo zipFileInfo(zipArchive);
     QFileInfoList zipFiles;
@@ -49,9 +78,57 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
 
         // We get the list of files already in the archive.
         QString dirPath = dir.absolutePath();
-        QString zipDirPath = dirPath.section("/",-2,-1);
+        QStringList zipDirPaths;
         QStringList zipFileList;
-        RecurseZipArchive(zipFileList, zipDirPath, zipArchive, dir);
+
+        // Test for 'parts' or 'p' sub directory
+        int filesTested = 0;
+        foreach (QFileInfo fileInfo, files){
+
+            if (!fileInfo.isFile())
+              continue;
+
+            filesTested ++;
+
+            fileNameWithRelativePath = fileInfo.filePath().remove(0, dir.absolutePath().length() + 1);
+            firstFilePathPiece = fileNameWithRelativePath.section('/',0,0);
+
+            if (firstFilePathPiece.toLower() == "parts" ||
+                firstFilePathPiece.toLower() == "p")
+              {
+                setRootDir = true;
+              }
+
+            if (filesTested > 1)
+              break;
+          }
+
+        switch (option)
+          {
+          case FADE_COLOUR_ITEM: {
+              zipDirPaths << dirPath.section("/",-2,-1); // parts/fade, p/fade
+              break;
+            }
+          case NORMAL_ITEM: {
+              if (setPrimDir)
+                zipDirPaths << "p";
+              else if (setPartsDir)
+                zipDirPaths << "parts";
+              else if (setRootDir)
+                zipDirPaths << "/";
+              else
+                zipDirPaths << "parts";
+              break;
+            }
+          default: {
+              zipDirPaths  << "/" << "parts" << "p";
+              break;
+            }
+          }
+
+        foreach (QString zipDirPath, zipDirPaths){
+            RecurseZipArchive(zipFileList, zipDirPath, zipArchive, dir);
+          }
 
         //Create an array of archive file objects consisting of QFileInfo
         foreach (QString zipFile, zipFileList) zipFiles << QFileInfo(zipFile);
@@ -63,14 +140,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
         }
     }
 
-    // We get the list of directory files and folders recursively
-    QStringList dirFileList;
-    RecurseAddDir(dir, dirFileList);
-
-    // Create an array of objects consisting of QFileInfo
-    QFileInfoList files;
-    foreach (QString fileName, dirFileList) files << QFileInfo(fileName);
-
+    // Archive each disk file as necessary
     QFile inFile;
     QuaZipFile outFile(&zip);
 
@@ -81,18 +151,19 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
             continue;
 
         bool alreadyArchived = false;
-        bool rootItem = false;
 
         foreach (QFileInfo zipFileInfo, zipFiles) {
-
             if (fileInfo == zipFileInfo) {
                 alreadyArchived = true;
                 qDebug() << "FileMatch - Skipping !! " << fileInfo.absoluteFilePath();
+                break;
             }
         }
 
         if (alreadyArchived)
             continue;
+
+        logNotice() << "Archived Disk File: " << fileInfo.absoluteFilePath();
 
       /* If the file is in a subdirectory, then add the name of the subdirectory to filenames
          For example: fileInfo.filePath() = "D:\Work\Sources\SAGO\svn\sago\Release\tmp_DOCSWIN\Folder\123.opn"
@@ -100,63 +171,49 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
          For example: QString fileNameWithRelativePath = fileInfo.filePath().remove(0, dir.absolutePath().length() + 1);
          But for part fade, we want to capture the root (fade) and the root's parent (parts) directory to archive
          in the correct directory, so we append the string "parts/fade" to the relative file name path.
-         For normal archive, we want to place all unofficial files not in directory P(rimative) in the parts directory*/
+         For normal archive, we want to place all unofficial files not in directory P(rimative) in the parts directory */
 
-        QString fileNameWithRelativePath = fileInfo.filePath().remove(0, dir.absolutePath().length() + 1);
+        fileNameWithRelativePath = fileInfo.filePath().remove(0, dir.absolutePath().length() + 1);
+        firstFilePathPiece = fileNameWithRelativePath.section('/',0,0);
+
+        // first part of file path is 'parts' or 'p' use root dir
+        if (firstFilePathPiece.toLower() == "parts" ||
+            firstFilePathPiece.toLower() == "p")
+          {
+            setRootDir = true;
+          }
+
         QString fileNameWithCompletePath;
-
-        QString firstPathPiece = fileNameWithRelativePath.section('/',0,0);
-
-        if (
-            QDir(fileInfo.absolutePath()).dirName().toLower() == "parts" ||
-            QDir(fileInfo.absolutePath()).dirName().toLower() == "s" ||
-            QDir(fileInfo.absolutePath()).dirName().toLower() == "p" ||
-            QDir(fileInfo.absolutePath()).dirName().toLower() == "8" ||
-            QDir(fileInfo.absolutePath()).dirName().toLower() == "48" ||
-            firstPathPiece.toLower() == "parts" ||
-            firstPathPiece.toLower() == "p" ||
-            firstPathPiece.toLower() == "s" ||
-            firstPathPiece.toLower() == "8" ||
-            firstPathPiece.toLower() == "48"
-            )
-          rootItem = true;
-
         switch (option)
           {
           case FADE_COLOUR_ITEM: {
 
-              if ( rootItem ){
+              if (setRootDir ){
                   fileNameWithCompletePath = QString("%1").arg("fade").arg(fileNameWithRelativePath);
-                  logInfo() << "\nfileNameWithCompletePath (ROOT FADE PART/PRIMITIVE ITEM)" << fileNameWithCompletePath;
+                  //logInfo() << "\nfileNameWithCompletePath (ROOT FADE PART/PRIMITIVE ITEM)" << fileNameWithCompletePath;
+                } else if (setPrimDir) {
+                  fileNameWithCompletePath = QString("%1/%2").arg("fade/p").arg(fileNameWithRelativePath);
+                  //logInfo() << "\nfileNameWithCompletePath (FADE PRIMITIVE ITEM)" << fileNameWithCompletePath;
                 } else {
                   fileNameWithCompletePath = QString("%1/%2").arg("fade/parts").arg(fileNameWithRelativePath);
-                  logInfo() << "\nfileNameWithCompletePath (FADE PART ITEM)" << fileNameWithCompletePath;
+                  //logInfo() << "\nfileNameWithCompletePath (FADE PART ITEM)" << fileNameWithCompletePath;
                 }
               break;
             }
           case NORMAL_ITEM: {
-              if ( rootItem ){
+              if (setRootDir ){
                   fileNameWithCompletePath = QString("%1").arg(fileNameWithRelativePath);
-                  logInfo() << "rootItem                 " << rootItem;
-                  logInfo() << "firstPathPiece           " << firstPathPiece;
-                  logInfo() << "dir.dirName              " << dir.dirName().toLower();
-                  logInfo() << "fileInfo.dirName         " << QDir(fileInfo.absolutePath()).dirName().toLower();
-                  logInfo() << "fileNameWithRelativePath " << fileNameWithRelativePath;
-                  logInfo() << "fileNameWithCompletePath (ROOT PART/PRIMITIVE ITEM) " << fileNameWithCompletePath;
+                  //logInfo() << "fileNameWithCompletePath (ROOT PART/PRIMITIVE ITEM) " << fileNameWithCompletePath;
+                } else if (setPrimDir) {
+                  fileNameWithCompletePath = QString("%1/%2").arg("p").arg(fileNameWithRelativePath);
+                  //logInfo() << "fileNameWithCompletePath (PRIMITIVE ITEM) " << fileNameWithCompletePath;
                 } else {
                   fileNameWithCompletePath = QString("%1/%2").arg("parts").arg(fileNameWithRelativePath);
-                  logInfo() << "rootItem                 " << rootItem;
-                  logInfo() << "firstPathPiece           " << firstPathPiece;
-                  logInfo() << "dir.dirName              " << dir.dirName().toLower();
-                  logInfo() << "fileInfo.dirName         " << QDir(fileInfo.absolutePath()).dirName().toLower();
-                  logInfo() << "fileNameWithRelativePath " << fileNameWithRelativePath;
-                  logInfo() << "fileNameWithCompletePath (PART ITEM) " << fileNameWithCompletePath;
+                  //logInfo() << "fileNameWithCompletePath (PART ITEM) " << fileNameWithCompletePath;
                 }
               break;
             }
           }
-
-        logTrace() << "Archived Disk File: " << fileInfo.absoluteFilePath();
 
         inFile.setFileName(fileInfo.filePath());
 
@@ -214,8 +271,9 @@ bool ArchiveParts::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDi
 
     zip.setFileNameCodec("IBM866");
 
-    logInfo() << QString("%1 entries").arg(zip.getEntriesCount());
-    logInfo() << QString("Global comment: %1").arg(zip.getComment().toLocal8Bit().constData());
+    logInfo() << QString("%1 Total Zip Archive Entries: ").arg(zip.getEntriesCount());
+    logInfo() << QString("Global Comment: %1").arg(zip.getComment().toLocal8Bit().constData());
+    logInfo() << QString("Disk Directory: %1").arg(dir.absolutePath());
 
     QuaZipDir zipDir(ptrZip,zipDirPath);
 
@@ -223,13 +281,15 @@ bool ArchiveParts::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDi
 
         zipDir.cd(zipDirPath);
 
-        logInfo() << QString("%1 Fade zipDir entries at %2").arg(zipDir.count()).arg(zipDirPath);
+        logInfo() << QString("%1 Zip Directory Entries in '%2'").arg(zipDir.count()).arg(zipDirPath);
 
         QStringList qsl = zipDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files, QDir::SortByMask);
 
         foreach (QString zipFile, qsl) {
 
                 QFileInfo zipFileInfo(QString("%1/%2").arg(dir.absolutePath()).arg(zipFile));
+//                logInfo() << QString("zipFileInfo (to compare): %1/%2").arg(dir.absolutePath()).arg(zipFile);
+//                logInfo() << QString("zipFile (qsl entry):      %1").arg(zipFile);
 
                 if (zipFileInfo.isSymLink())
                     return false;
@@ -275,7 +335,7 @@ void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
             finfo.absolutePath().toLower().contains(unoffPartsDir.toLower()) ||
             finfo.absolutePath().toLower().contains(unoffPrimsDir.toLower())
             ) {
-            qDebug() << "\nLDRAW EXCLUDED DIR: " << finfo.absolutePath();
+            //qDebug() << "\nLDRAW EXCLUDED DIR: " << finfo.absolutePath();
             return;
           }
 
@@ -284,14 +344,14 @@ void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
 
         if (finfo.isDir()) {
 
-            logInfo() << "FILE INFO DIR PATH: " << finfo.fileName();
+            //logInfo() << "FILE INFO DIR PATH: " << finfo.fileName();
 
             QDir subDir(finfo.filePath());
             RecurseAddDir(subDir, list);
 
         } else if (finfo.suffix().toLower() == "dat") {
 
-            logInfo() << "FILE INFO SUFFIX: " << finfo.suffix().toLower();
+            //logInfo() << "FILE INFO SUFFIX: " << finfo.suffix().toLower();
 
             list << QDir::toNativeSeparators(finfo.filePath());
 

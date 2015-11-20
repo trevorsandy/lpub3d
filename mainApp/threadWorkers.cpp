@@ -78,7 +78,7 @@ void PartWorker::processLDSearchDirParts(){
 
         }
 
-      processLDSearchPartsArchive(ldSearchPartsDirs, "search directory", true);
+      processPartsArchive(ldSearchPartsDirs, "search directory", false, true);
 
     } else {
         qDebug() << QString(tr("Failed to load LDraw search directores"));
@@ -86,6 +86,8 @@ void PartWorker::processLDSearchDirParts(){
     }
 
 //  emit ldSearchDirFinishedSig();
+
+  qDebug() << "\nfinished Process Search Directory Parts.";
 
  }
 
@@ -98,7 +100,8 @@ void PartWorker::processFadeColourParts()
 
   if (doFadeStep) {
 
-    QStringList contents;
+      QStringList fadePartsDirs;
+      QStringList contents;
 
         emit progressBarInitSig();
         emit progressMessageSig("Parse Model and Parts Library");
@@ -134,14 +137,14 @@ void PartWorker::processFadeColourParts()
         QString fadePartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts/fade/"));
         QString fadePrimitivesDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p/fade/"));
 
-        if(!_fadePartsDirs.size() == 0){
-           _fadePartsDirs.empty();
+        if(!fadePartsDirs.size() == 0){
+           fadePartsDirs.empty();
           }
 
-        _fadePartsDirs << fadePartsDir
-                       << fadePrimitivesDir;
+        fadePartsDirs << fadePartsDir
+                      << fadePrimitivesDir;
 
-        processFadeColourPartsArchive("colour fade");
+        processPartsArchive(fadePartsDirs, "colour fade", true);
 
         emit messageSig(true,QString("Colour parts created and parts library updated successfully."));
         emit removeProgressStatusSig();
@@ -151,6 +154,64 @@ void PartWorker::processFadeColourParts()
         qDebug() << "\nfinished Process Fade Colour Parts.";
     }
 }
+
+
+void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QString &comment = QString(""), bool fadeItem, bool silent){
+
+  // Append fade parts to unofficial library for LeoCAD's consumption
+  QFileInfo libFileInfo(Preferences::viewerLibFile);
+  QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.dir().path()).arg("ldrawunf.zip"));
+
+  if (!silent)
+    emit progressMessageSig(QString("Archiving %1 parts.").arg(comment));
+
+  if(!ldPartsDirs.size() == 0){
+
+      qDebug() << "\n";
+
+      if (!silent)
+        emit progressRangeSig(1, ldPartsDirs.size());
+
+      for (int i = 0; i < ldPartsDirs.size(); i++){
+
+          if (!silent)
+            emit progressSetValueSig(i);
+
+          QDir foo = ldPartsDirs[i];
+          qDebug() << QString(tr("ARCHIVING %1 DIR %2").arg(comment.toUpper()).arg(foo.absolutePath()));
+
+          if (! archiveParts.Archive(archiveFile,
+                                     foo.absolutePath(),
+                                     QString("Append %1 parts").arg(comment),
+                                     fadeItem ? FADE_COLOUR_ITEM : NORMAL_ITEM)){
+
+//            qDebug() << QString(tr("Failed to archive %1 parts from \n %2")
+//                        .arg(comment)
+//                        .arg(ldPartsDirs[i]));
+
+            QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed to archive %1 parts from \n %2")
+                                                        .arg(comment)
+                                                        .arg(ldPartsDirs[i]));
+            }
+        }
+
+      // Reload unofficial library parts into memory
+      if (!g_App->mLibrary->ReloadUnoffLib()){
+//          qDebug() << QString(tr("Failed to reload unofficial parts library into memory."));
+          QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed to reload unofficial parts library into memory."));
+      }
+
+      if (!silent) {
+          emit progressSetValueSig(ldPartsDirs.size());
+          emit progressMessageSig(QString("Finished archiving %1 parts.").arg(comment));
+        }
+
+    } else {
+//      qDebug() << QString(tr("Failed to retrieve %1 parts directory.").arg(comment));
+     QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed to retrieve %1 parts directory.").arg(comment));
+    }
+}
+
 
 void PartWorker::processLDSearchPartsArchive(const QStringList &ldSearchPartsDirs, const QString &comment = QString(""), bool silent){
 
@@ -180,11 +241,11 @@ void PartWorker::processLDSearchPartsArchive(const QStringList &ldSearchPartsDir
                                              foo.absolutePath(),
                                              QString("Append %1 parts").arg(comment),
                                              NORMAL_ITEM)){
-            qDebug() << QString(tr("Failed to archive %1 parts to \n %2")
+            qDebug() << QString(tr("Failed to archive %1 parts from \n %2")
                         .arg(comment)
                         .arg(ldSearchPartsDirs[i]));
 
-//            QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed to archive %1 parts to \n %2")
+//            QMessageBox::warning(NULL, tr("LPub3D"), tr("Failed to archive %1 parts from \n %2")
 //                                                        .arg(comment)
 //                                                        .arg(_ldSearchPartsDirs[i]));
             }
