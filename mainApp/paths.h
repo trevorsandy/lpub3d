@@ -31,11 +31,11 @@ public:
     static QString assemDir;
     static QString partsDir;
     static QString viewerDir;
-    static QString fadeDir;
-    static QString fadeSDir;
-    static QString fadePDir;
-    static QString fadeP8Dir;
-    static QString fadeP48Dir;
+    static QString fadePartDir;
+    static QString fadeSubDir;
+    static QString fadePrimDir;
+    static QString fadePrim8Dir;
+    static QString fadePrim48Dir;
 };
 
 #endif

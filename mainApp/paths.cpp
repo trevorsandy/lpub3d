@@ -46,11 +46,11 @@ QString Paths::assemDir  = "LPub/assem";
 QString Paths::partsDir  = "LPub/parts";
 QString Paths::viewerDir = "LPub/viewer";
 
-QString Paths::fadeDir;
-QString Paths::fadeSDir;
-QString Paths::fadePDir;
-QString Paths::fadeP8Dir;
-QString Paths::fadeP48Dir;
+QString Paths::fadePartDir;
+QString Paths::fadeSubDir;
+QString Paths::fadePrimDir;
+QString Paths::fadePrim8Dir;
+QString Paths::fadePrim48Dir;
 
 
 void Paths::mkdirs(){
@@ -66,21 +66,43 @@ void Paths::mkdirs(){
 
 void Paths::mkfadedirs(){
 
-    QDir dir;
-    if(! dir.exists(fadeDir)) {
-        fadeDir       = Preferences::ldrawPath + "/Unofficial/parts/fade";
-        dir.mkdir(fadeDir);
-        fadeSDir      = Preferences::ldrawPath + "/Unofficial/parts/fade/s";
-        dir.mkdir(fadeSDir);
+  QDir dir;
+  fadePartDir = Preferences::ldrawPath + "/Unofficial/fade";
+  //    if(! dir.exists(fadePartDir)) {
+  //        fadePartDir       = Preferences::ldrawPath + "/Unofficial/parts/fade";
+  //        dir.mkdir(fadePartDir);
+  //        fadeSubDir      = Preferences::ldrawPath + "/Unofficial/parts/fade/s";
+  //        dir.mkdir(fadeSubDir);
+  //    }
+
+  if(! dir.exists(fadePartDir)) {
+      dir.mkdir(fadePartDir);
+      fadePartDir   = Preferences::ldrawPath + "/Unofficial/fade/parts";
+      dir.mkdir(fadePartDir);
+      fadeSubDir    = Preferences::ldrawPath + "/Unofficial/fade/parts/s";
+      dir.mkdir(fadeSubDir);
+      fadePrimDir   = Preferences::ldrawPath + "/Unofficial/fade/p";
+      dir.mkdir(fadePrimDir);
+      fadePrim8Dir  = Preferences::ldrawPath + "/Unofficial/fade/p/8";
+      dir.mkdir(fadePrim8Dir);
+      fadePrim48Dir = Preferences::ldrawPath + "/Unofficial/fade/p/48";
+      dir.mkdir(fadePrim48Dir);
+    } else {
+      fadePartDir   = Preferences::ldrawPath + "/Unofficial/fade/parts";
+      fadeSubDir    = Preferences::ldrawPath + "/Unofficial/fade/parts/s";
+      fadePrimDir   = Preferences::ldrawPath + "/Unofficial/fade/p";
+      fadePrim8Dir  = Preferences::ldrawPath + "/Unofficial/fade/p/8";
+      fadePrim48Dir = Preferences::ldrawPath + "/Unofficial/fade/p/48";
     }
 
-    if(! dir.exists(fadePDir)) {
-        fadePDir      = Preferences::ldrawPath + "/Unofficial/p/fade/";
-        dir.mkdir(fadePDir);
-        fadeP8Dir     = Preferences::ldrawPath + "/Unofficial/p/fade/8";
-        dir.mkdir(fadeP8Dir);
-        fadeP48Dir    = Preferences::ldrawPath + "/Unofficial/p/fade/48";
-        dir.mkdir(fadeP48Dir);
-    }
+  //    if(! dir.exists(fadePrimDir)) {
+  //        fadePrimDir      = Preferences::ldrawPath + "/Unofficial/p/fade/";
+  //        dir.mkdir(fadePrimDir);
+  //        fadePrim8Dir     = Preferences::ldrawPath + "/Unofficial/p/fade/8";
+  //        dir.mkdir(fadePrim8Dir);
+  //        fadePrim48Dir    = Preferences::ldrawPath + "/Unofficial/p/fade/48";
+  //        dir.mkdir(fadePrim48Dir);
+  //    }
+
 }
 

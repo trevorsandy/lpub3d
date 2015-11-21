@@ -2116,7 +2116,8 @@ QStringList Gui::fadeSubFile(const QStringList &contents, const QString &color)
               // process static colored parts
               QString fileNameStr = argv[argv.size()-1];
               if (FadeStepColorParts::isStaticColorPart(fileNameStr)){
-                  fileNameStr = QDir::toNativeSeparators("fade\\" + fileNameStr.replace(".dat","-fade.dat"));
+                  fileNameStr = QDir::toNativeSeparators(fileNameStr.replace(".dat","-fade.dat"));
+//                  fileNameStr = QDir::toNativeSeparators("fade\\" + fileNameStr.replace(".dat","-fade.dat"));
                 }
               // process subfile naming
               if (ldrawFile.isSubmodel(fileNameStr)) {
@@ -2180,7 +2181,8 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
                   QString fileNameStr = argv[argv.size()-1];
 
                   if (FadeStepColorParts::isStaticColorPart(fileNameStr)){
-                      fileNameStr = QDir::toNativeSeparators("fade\\" + fileNameStr.replace(".dat","-fade.dat"));
+                      fileNameStr = QDir::toNativeSeparators(fileNameStr.replace(".dat","-fade.dat"));
+//                      fileNameStr = QDir::toNativeSeparators("fade\\" + fileNameStr.replace(".dat","-fade.dat"));
                     }
                   // process subfile naming
                   if (ldrawFile.isSubmodel(fileNameStr)) {

@@ -2,6 +2,8 @@ LPub3D 1.3 XXXX
  
 Features and enhancements 
 ------------ 
+-Add ability to configure additional ldraw content directories using ldrawini c api
+ I implemented the ldrawini c api to maintain compatability with LPub3D 3rd Party renderers - LDView, L3P(PovRay) and Ldglite. Additional directories must have same tree as LDraw Unofficial directory (i.e. parts and/or p subdirectories...) or alternatively, content can be deposited at the root of the additional directory (i.e. C:/ldrawFiles/*.dat). Directories declared in the ldraw.ini file at the root (C:/ldrawFiles), primitive (.../p) or parts (.../parts) will be properly managed in LPub3D. Other declarations have not been addressed in the process logic and may yield unintended behavior.
 -Add Rotate Icon - indicate that the builder should "flip" the model
 -Add line type attribute to border configuration
  This adds a new meta value after (NONE|ROUND|SQUARE). Valid values are 
@@ -18,14 +20,13 @@ Features and enhancements
 -Add gradients to background options
 -Add Change local page background - colour, gradient, picture, submodel, none
 -Update 3DViewer to LeoCAD build 1867
--Generate warning message when LPub 0 !LPUB INSERT COVER_PAGE encountered. Message: 
+-[not implemented]Generate warning message when LPub 0 !LPUB INSERT COVER_PAGE encountered. Message: 
  LPub3D does not support the LPub meta 0 !LPUB INSERT COVER_PAGE.
  Please update to 0 !LPUB INSERT COVER_PAGE FRONT (or BACK) accordingly.
 -Remove PartsList class, use instead lcPiecesLibrary class to verify parts and capture part title
--Remove final model if fadestep not enabled KO
+-[not completed]Remove final model if fadestep not enabled KO
+-Process create fade part files in separate thread
 -Redesign color part list and archive classes - rename and separate generage color parts list
--Move archive colour fade parts to separate thread
- and part archive functions
 -Cosmetic updates
 -Fix: Changing step number attributes on multi-step pages are now working
 -Fix: PLI/BOM sort routine, sort on 'part colour' part(s) appear out of place relative to

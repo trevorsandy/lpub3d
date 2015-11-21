@@ -25,8 +25,8 @@
 
 enum ARCHIVE_TYPE
 {
-  FADE_COLOUR_ITEM = 1,
-  NORMAL_ITEM
+  FADE_COLOUR_PART = 1,
+  NORMAL_PART
 };
 
 class ArchiveParts : public QObject

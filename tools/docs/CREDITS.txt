@@ -42,5 +42,8 @@ Alex Spataru
 Ldglite
 Don Heyse <dheyse@hotmail.com>
 
-L3P
+LDView (ldraw.ini snippits)
+Travis Cobb <ldview@gmail.com>
+
+L3P / LDraw.ini
 Lars C. Hassing <delete.lars.three@words.hassings.dk>

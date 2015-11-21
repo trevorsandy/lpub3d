@@ -24,7 +24,7 @@ ArchiveParts::ArchiveParts(QObject *parent) : QObject(parent)
  * Insert static coloured fade parts into unofficial ldraw library
  *
  */
-bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QString &comment = QString(""), ARCHIVE_TYPE option = NORMAL_ITEM) {
+bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QString &comment = QString(""), ARCHIVE_TYPE option = NORMAL_PART) {
 
     QString fileNameWithRelativePath;
     QString firstFilePathPiece;
@@ -56,10 +56,10 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
     QStringList dirFileList;
     RecurseAddDir(dir, dirFileList);
 
-    // Check if file count is greater than zero
+    // Check if file list is empty
     if (dirFileList.isEmpty()) {
         logWarn() << QString("! dirFileList.isEmpty(): %1").arg(dir.absolutePath());
-        return false;
+        return true;
     }
 
     // Create an array of objects consisting of QFileInfo
@@ -77,7 +77,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
         }
 
         // We get the list of files already in the archive.
-        QString dirPath = dir.absolutePath();
+//        QString dirPath = dir.absolutePath();
         QStringList zipDirPaths;
         QStringList zipFileList;
 
@@ -105,11 +105,17 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
 
         switch (option)
           {
-          case FADE_COLOUR_ITEM: {
-              zipDirPaths << dirPath.section("/",-2,-1); // parts/fade, p/fade
+          case FADE_COLOUR_PART: {
+//               zipDirPaths << dirPath.section("/",-2,-1); // parts/fade, p/fade
+              if (setPrimDir)
+                zipDirPaths << "p";
+              else if (setPartsDir)
+                zipDirPaths << "parts";
+              else
+                zipDirPaths << "parts";
               break;
             }
-          case NORMAL_ITEM: {
+          case NORMAL_PART: {
               if (setPrimDir)
                 zipDirPaths << "p";
               else if (setPartsDir)
@@ -184,36 +190,50 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
           }
 
         QString fileNameWithCompletePath;
-        switch (option)
-          {
-          case FADE_COLOUR_ITEM: {
 
-              if (setRootDir ){
-                  fileNameWithCompletePath = QString("%1").arg("fade").arg(fileNameWithRelativePath);
-                  //logInfo() << "\nfileNameWithCompletePath (ROOT FADE PART/PRIMITIVE ITEM)" << fileNameWithCompletePath;
-                } else if (setPrimDir) {
-                  fileNameWithCompletePath = QString("%1/%2").arg("fade/p").arg(fileNameWithRelativePath);
-                  //logInfo() << "\nfileNameWithCompletePath (FADE PRIMITIVE ITEM)" << fileNameWithCompletePath;
-                } else {
-                  fileNameWithCompletePath = QString("%1/%2").arg("fade/parts").arg(fileNameWithRelativePath);
-                  //logInfo() << "\nfileNameWithCompletePath (FADE PART ITEM)" << fileNameWithCompletePath;
-                }
-              break;
-            }
-          case NORMAL_ITEM: {
-              if (setRootDir ){
-                  fileNameWithCompletePath = QString("%1").arg(fileNameWithRelativePath);
-                  //logInfo() << "fileNameWithCompletePath (ROOT PART/PRIMITIVE ITEM) " << fileNameWithCompletePath;
-                } else if (setPrimDir) {
-                  fileNameWithCompletePath = QString("%1/%2").arg("p").arg(fileNameWithRelativePath);
-                  //logInfo() << "fileNameWithCompletePath (PRIMITIVE ITEM) " << fileNameWithCompletePath;
-                } else {
-                  fileNameWithCompletePath = QString("%1/%2").arg("parts").arg(fileNameWithRelativePath);
-                  //logInfo() << "fileNameWithCompletePath (PART ITEM) " << fileNameWithCompletePath;
-                }
-              break;
-            }
+        if (setPartsDir ){
+            fileNameWithCompletePath = QString("%1/%2").arg("parts").arg(fileNameWithRelativePath);
+            logInfo() << "fileNameWithCompletePath (PART)" << fileNameWithCompletePath;
+          } else if (setPrimDir) {
+            fileNameWithCompletePath = QString("%1/%2").arg("p").arg(fileNameWithRelativePath);
+            logInfo() << "fileNameWithCompletePath (PRIMITIVE)" << fileNameWithCompletePath;
+          } else if (setRootDir ){
+            fileNameWithCompletePath = QString("%1").arg(fileNameWithRelativePath);
+            logInfo() << "fileNameWithCompletePath (ROOT PART/PRIMITIVE) " << fileNameWithCompletePath;
+          } else {
+            fileNameWithCompletePath = QString("%1/%2").arg("parts").arg(fileNameWithRelativePath);
+            logInfo() << "fileNameWithCompletePath (PART - DEFAULT)" << fileNameWithCompletePath;
           }
+
+//        switch (option)
+//          {
+//          case FADE_COLOUR_PART: {
+//              if (setPartsDir ){
+//                  fileNameWithCompletePath = QString("%1/%2").arg("parts").arg(fileNameWithRelativePath);
+//                  logInfo() << "fileNameWithCompletePath (PART)" << fileNameWithCompletePath;
+//                } else if (setPrimDir) {
+//                  fileNameWithCompletePath = QString("%1/%2").arg("p").arg(fileNameWithRelativePath);
+//                  logInfo() << "fileNameWithCompletePath (PRIMITIVE)" << fileNameWithCompletePath;
+//                } else {
+//                  fileNameWithCompletePath = QString("%1").arg(fileNameWithRelativePath);
+//                  logInfo() << "fileNameWithCompletePath (ROOT PART/PRIMITIVE - DEFAULT)" << fileNameWithCompletePath;
+//                }
+//              break;
+//            }
+//          case NORMAL_PART: {
+//              if (setRootDir ){
+//                  fileNameWithCompletePath = QString("%1").arg(fileNameWithRelativePath);
+//                  //logInfo() << "fileNameWithCompletePath (ROOT PART/PRIMITIVE ITEM) " << fileNameWithCompletePath;
+//                } else if (setPrimDir) {
+//                  fileNameWithCompletePath = QString("%1/%2").arg("p").arg(fileNameWithRelativePath);
+//                  //logInfo() << "fileNameWithCompletePath (PRIMITIVE ITEM) " << fileNameWithCompletePath;
+//                } else {
+//                  fileNameWithCompletePath = QString("%1/%2").arg("parts").arg(fileNameWithRelativePath);
+//                  //logInfo() << "fileNameWithCompletePath (PART ITEM) " << fileNameWithCompletePath;
+//                }
+//              break;
+//            }
+//          }
 
         inFile.setFileName(fileInfo.filePath());
 
