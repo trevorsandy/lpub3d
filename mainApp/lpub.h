@@ -646,8 +646,6 @@ public slots:
   void processFadeColourParts();
   void processLDSearchDirParts();
 
-  void reloadUnofficialLibrary();
-
 signals:       
 
     /* tell the editor to display this file */

@@ -32,14 +32,16 @@ enum ARCHIVE_TYPE
 class ArchiveParts : public QObject
 {
     Q_OBJECT
-public:
-    explicit ArchiveParts(QObject *parent = 0);
 
-    static bool Archive(
+public:
+  explicit ArchiveParts(QObject *parent = 0);
+  ~ArchiveParts()
+  {}
+  static bool Archive(
       const QString &zipArchive,
       const QDir &dir,
       const QString &comment,
-                ARCHIVE_TYPE option);
+      ARCHIVE_TYPE option);
 
     static void RecurseAddDir(
       const QDir &dir,
@@ -51,9 +53,9 @@ public:
       const QString &zipArchive,
       const QDir &dir);
 
-signals:
-
 public slots:
+
+signals:
 };
 
 #endif // ARCHIVEPARTS_H

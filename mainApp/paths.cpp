@@ -67,42 +67,25 @@ void Paths::mkdirs(){
 void Paths::mkfadedirs(){
 
   QDir dir;
-  fadePartDir = Preferences::ldrawPath + "/Unofficial/fade";
-  //    if(! dir.exists(fadePartDir)) {
-  //        fadePartDir       = Preferences::ldrawPath + "/Unofficial/parts/fade";
-  //        dir.mkdir(fadePartDir);
-  //        fadeSubDir      = Preferences::ldrawPath + "/Unofficial/parts/fade/s";
-  //        dir.mkdir(fadeSubDir);
-  //    }
-
+  fadePartDir = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade");
   if(! dir.exists(fadePartDir)) {
       dir.mkdir(fadePartDir);
-      fadePartDir   = Preferences::ldrawPath + "/Unofficial/fade/parts";
+      fadePartDir   = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/parts");
       dir.mkdir(fadePartDir);
-      fadeSubDir    = Preferences::ldrawPath + "/Unofficial/fade/parts/s";
+      fadeSubDir    = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/parts/s");
       dir.mkdir(fadeSubDir);
-      fadePrimDir   = Preferences::ldrawPath + "/Unofficial/fade/p";
+      fadePrimDir   = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/p");
       dir.mkdir(fadePrimDir);
-      fadePrim8Dir  = Preferences::ldrawPath + "/Unofficial/fade/p/8";
+      fadePrim8Dir  = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/p/8");
       dir.mkdir(fadePrim8Dir);
-      fadePrim48Dir = Preferences::ldrawPath + "/Unofficial/fade/p/48";
+      fadePrim48Dir = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/p/48");
       dir.mkdir(fadePrim48Dir);
     } else {
-      fadePartDir   = Preferences::ldrawPath + "/Unofficial/fade/parts";
-      fadeSubDir    = Preferences::ldrawPath + "/Unofficial/fade/parts/s";
-      fadePrimDir   = Preferences::ldrawPath + "/Unofficial/fade/p";
-      fadePrim8Dir  = Preferences::ldrawPath + "/Unofficial/fade/p/8";
-      fadePrim48Dir = Preferences::ldrawPath + "/Unofficial/fade/p/48";
+      fadePartDir   = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/parts");
+      fadeSubDir    = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/parts/s");
+      fadePrimDir   = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/p");
+      fadePrim8Dir  = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/p/8");
+      fadePrim48Dir = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/p/48");
     }
-
-  //    if(! dir.exists(fadePrimDir)) {
-  //        fadePrimDir      = Preferences::ldrawPath + "/Unofficial/p/fade/";
-  //        dir.mkdir(fadePrimDir);
-  //        fadePrim8Dir     = Preferences::ldrawPath + "/Unofficial/p/fade/8";
-  //        dir.mkdir(fadePrim8Dir);
-  //        fadePrim48Dir    = Preferences::ldrawPath + "/Unofficial/p/fade/48";
-  //        dir.mkdir(fadePrim48Dir);
-  //    }
-
 }
 
