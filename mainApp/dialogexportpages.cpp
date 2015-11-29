@@ -65,3 +65,4 @@ bool DialogExportPages::currentPage(){
 bool DialogExportPages::pageRange(){
   return ui->radioButtonPageRange->isChecked();
 }
+

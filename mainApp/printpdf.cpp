@@ -374,6 +374,7 @@ void Gui::printToPdfFile()
 
       if(exportOption == EXPORT_ALL_PAGES){
           _displayPageNum = 1;
+          _maxPages = maxPages;
         }
 
       if (exportOption == EXPORT_CURRENT_PAGE){
@@ -556,10 +557,11 @@ void Gui::exportAs(QString &suffix)
 
   // initialize progress bar
   emit progressBarInitSig();
-  emit progressMessageSig(QString("Exporting instructions to %1.").arg(suffix.remove(".")));
+  emit progressMessageSig(QString("Exporting instructions to %1 format.").arg(suffix));
 
   // determine location to output images
   QFileInfo fileInfo(curFile);
+  //QDir initialDirectory = fileInfo.dir();
   QString baseName = fileInfo.baseName();
   QString directoryName = QFileDialog::getExistingDirectory(
         this,
@@ -610,6 +612,7 @@ void Gui::exportAs(QString &suffix)
 
       if(exportOption == EXPORT_ALL_PAGES){
           _displayPageNum = 1;
+          _maxPages = maxPages;
         }
 
       if (exportOption == EXPORT_CURRENT_PAGE){
@@ -618,7 +621,11 @@ void Gui::exportAs(QString &suffix)
         }
 
       emit progressRangeSig(1, _maxPages);
+
       for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
+
+          logWarn() << QString("Exporting (current / all) page: %1 of %2").arg(displayPageNum).arg(_maxPages);
+
           emit progressSetValueSig(displayPageNum);
           QApplication::processEvents();
           // clear the pixels of the image, just in case the background is
@@ -628,14 +635,14 @@ void Gui::exportAs(QString &suffix)
           image.fill(fill.Rgb);
           // render this page
           // scene.render instead of view.render resolves "warm up" issue
-          drawPage(&view,&scene,true);
+          drawPage(&view,&scene,false);
           scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
           scene.render(&painter);
           clearPage(&view,&scene);
           // save the image to the selected directory
           // internationalization of "_page_"?
           QString pn = QString("%1") .arg(displayPageNum);
-          image.save(directoryName + "/" + baseName + "_page_" + pn + suffix);
+          image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
         }
       emit progressSetValueSig(_maxPages);
 
@@ -665,7 +672,7 @@ void Gui::exportAs(QString &suffix)
       foreach(QString printPage,printPages){
           displayPageNum = printPage.toInt();
 
-          logWarn() << QString("Printing: page %1 of %2").arg(displayPageNum).arg(_maxPages);
+          logWarn() << QString("Exporting: page range %1 of %2").arg(displayPageNum).arg(_maxPages);
 
           emit progressSetValueSig(pageCount++);
           QApplication::processEvents();
@@ -676,14 +683,14 @@ void Gui::exportAs(QString &suffix)
           image.fill(fill.Rgb);
           // render this page
           // scene.render instead of view.render resolves "warm up" issue
-          drawPage(&view,&scene,true);
+          drawPage(&view,&scene,false);
           scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
           scene.render(&painter);
           clearPage(&view,&scene);
           // save the image to the selected directory
           // internationalization of "_page_"?
           QString pn = QString("%1") .arg(displayPageNum);
-          image.save(directoryName + "/" + baseName + "_page_" + pn + suffix);
+          image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
         }
        emit progressSetValueSig(printPages.count());
     }

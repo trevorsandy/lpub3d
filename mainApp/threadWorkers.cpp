@@ -15,10 +15,6 @@
 #include <QFileInfo>
 #include <QString>
 
-//#include <stdio.h>      //can del
-//#include <string.h>     //can del
-//#include <sys/stat.h>   //can del
-
 #include "threadworkers.h"
 #include "LDrawIni.h"
 #include "lpub_preferences.h"

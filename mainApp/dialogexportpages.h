@@ -35,10 +35,6 @@ public:
   bool pageRange();
   QString const pageRangeText();
 
-//public slots:
-//  void accept();
-//  void cancel();
-
 private:
   Ui::DialogExportPages *ui;
 };
