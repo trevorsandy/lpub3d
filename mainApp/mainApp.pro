@@ -240,7 +240,8 @@ HEADERS += \
     version.h \
     archiveparts.h \
     ldsearchdirs.h \
-    threadWorkers.h
+    threadWorkers.h \
+    dialogexportpages.h
 #    displaypagethread.h
 	
 SOURCES += \
@@ -316,12 +317,14 @@ SOURCES += \
     undoredo.cpp \
     archiveparts.cpp \
     ldsearchdirs.cpp \
-    threadWorkers.cpp
+    threadWorkers.cpp \
+    dialogexportpages.cpp
 #    displaypagethread.cpp
 	
 FORMS += \
     preferences.ui \
-    aboutdialog.ui
+    aboutdialog.ui \
+    dialogexportpages.ui
 	
 OTHER_FILES += \
     lpub.rc

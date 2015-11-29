@@ -753,9 +753,11 @@ Gui::Gui()
     Preferences::lgeoPreferences();
     Preferences::publishingPreferences();
 
-    //processLDSearchDirParts();
-
     displayPageNum = 1;
+
+    exportOption  = EXPORT_ALL_PAGES;
+    exportType    = EXPORT_PDF;
+    pageRangeText = displayPageNum;
 
     editWindow    = new EditWindow();
     parmsWindow   = new ParmsWindow();
@@ -964,32 +966,7 @@ void Gui::processFadeColourParts()
 
 void Gui::processLDSearchDirParts()
 {
-//        partWorkerLDSearchDirs	= new PartWorker();
-
-        partWorkerLDSearchDirs.processLDSearchDirParts();
-
-//	QThread *dirsThread	= new QThread();
-//	partWorkerLDSearchDirs	= new PartWorker();
-//	partWorkerLDSearchDirs->moveToThread(dirsThread);
-
-//	connect(dirsThread, SIGNAL(started()),				  partWorkerLDSearchDirs, SLOT(processLDSearchDirParts()));
-//	connect(dirsThread, SIGNAL(finished()),					      dirsThread, SLOT(deleteLater()));
-//	connect(partWorkerLDSearchDirs, SIGNAL(ldSearchDirFinishedSig()),	      dirsThread, SLOT(quit()));
-//	connect(partWorkerLDSearchDirs, SIGNAL(ldSearchDirFinishedSig()), partWorkerLDSearchDirs, SLOT(deleteLater()));
-//	connect(partWorkerLDSearchDirs, SIGNAL(requestFinishSig()),		      dirsThread, SLOT(quit()));
-//	connect(partWorkerLDSearchDirs, SIGNAL(requestFinishSig()),	  partWorkerLDSearchDirs, SLOT(deleteLater()));
-//	connect(this,       SIGNAL(requestEndThreadNowSig()),		  partWorkerLDSearchDirs, SLOT(requestEndThreadNow()));
-
-//	connect(partWorkerLDSearchDirs, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
-
-//-	connect(partWorkerLDSearchDirs, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarInit()));
-//-	connect(partWorkerLDSearchDirs, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
-//-	connect(partWorkerLDSearchDirs, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
-//-	connect(partWorkerLDSearchDirs, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
-//-	connect(partWorkerLDSearchDirs, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
-//-	connect(partWorkerLDSearchDirs, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
-
-//      dirsThread->start();
+  partWorkerLDSearchDirs.processLDSearchDirParts();
 }
 
 
@@ -1088,29 +1065,29 @@ void Gui::createActions()
     saveAsAct->setEnabled(false);
     connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
-    printToFileAct = new QAction(QIcon(":/resources/pdf_logo.png"), tr("Print to &File"), this);
-    printToFileAct->setShortcut(tr("Ctrl+F"));
-    printToFileAct->setStatusTip(tr("Print your document to a file"));
-    printToFileAct->setEnabled(false);
-    connect(printToFileAct, SIGNAL(triggered()), this, SLOT(printToFile()));
+    printToPdfFileAct = new QAction(QIcon(":/resources/pdf_logo.png"), tr("Print to PDF &File"), this);
+    printToPdfFileAct->setShortcut(tr("Ctrl+F"));
+    printToPdfFileAct->setStatusTip(tr("Print your document to a pdf file"));
+    printToPdfFileAct->setEnabled(false);
+    connect(printToPdfFileAct, SIGNAL(triggered()), this, SLOT(printToPdfDialog()));
 
     exportPngAct = new QAction(QIcon(":/resources/exportpng.png"),tr("Export As &PNG Images"), this);
     exportPngAct->setShortcut(tr("Ctrl+Shift+P"));
     exportPngAct->setStatusTip(tr("Export your document as a sequence of PNG images"));
     exportPngAct->setEnabled(false);
-    connect(exportPngAct, SIGNAL(triggered()), this, SLOT(exportAsPng()));
+    connect(exportPngAct, SIGNAL(triggered()), this, SLOT(exportAsPngDialog()));
 
     exportJpgAct = new QAction(QIcon(":/resources/exportjpeg.png"),tr("Export As &JPEG Images"), this);
     exportJpgAct->setShortcut(tr("Ctrl+J"));
     exportJpgAct->setStatusTip(tr("Export your document as a sequence of JPEG images"));
     exportJpgAct->setEnabled(false);
-    connect(exportJpgAct, SIGNAL(triggered()), this, SLOT(exportAsJpg()));
+    connect(exportJpgAct, SIGNAL(triggered()), this, SLOT(exportAsJpgDialog()));
 
     exportBmpAct = new QAction(QIcon(":/resources/exportbmp.png"),tr("Export As &Bitmap Images"), this);
     exportBmpAct->setShortcut(tr("Ctrl+B"));
     exportBmpAct->setStatusTip(tr("Export your document as a sequence of bitmap images"));
     exportBmpAct->setEnabled(false);
-    connect(exportBmpAct, SIGNAL(triggered()), this, SLOT(exportAsBmp()));
+    connect(exportBmpAct, SIGNAL(triggered()), this, SLOT(exportAsBmpDialog()));
 
     exitAct = new QAction(QIcon(":/resources/exit.png"),tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
@@ -1306,7 +1283,7 @@ void Gui::createActions()
     connect(fadeStepSetupAct, SIGNAL(triggered()), this, SLOT(fadeStepSetup()));
 
     preferencesAct = new QAction(QIcon(":/resources/preferences.png"),tr("Preferences"), this);
-    preferencesAct->setStatusTip(tr("Set your preferences for LPub"));
+    preferencesAct->setStatusTip(tr("Set your preferences for LPub3D"));
     connect(preferencesAct, SIGNAL(triggered()), this, SLOT(preferences()));
 
     editTitleAnnotationsAct = new QAction(QIcon(":/resources/edittitleannotations.png"),tr("Edit Part Title PLI Annotations"), this);
@@ -1380,7 +1357,7 @@ void Gui::loadPages(){
 void Gui::enableActions()
 {
   saveAsAct->setEnabled(true);
-  printToFileAct->setEnabled(true);
+  printToPdfFileAct->setEnabled(true);
   exportPngAct->setEnabled(true);
   exportJpgAct->setEnabled(true);
   exportBmpAct->setEnabled(true);
@@ -1435,7 +1412,7 @@ void Gui::createMenus()
     exportMenu->addAction(exportBmpAct);
 #endif
 
-    fileMenu->addAction(printToFileAct);
+    fileMenu->addAction(printToPdfFileAct);
     separatorAct = fileMenu->addSeparator();
     for (int i = 0; i < MaxRecentFiles; i++) {
       fileMenu->addAction(recentFilesActs[i]);
@@ -1527,7 +1504,7 @@ void Gui::createToolBars()
     fileToolBar->setObjectName("FileToolbar");
     fileToolBar->addAction(openAct);
     fileToolBar->addAction(saveAct);
-    fileToolBar->addAction(printToFileAct);
+    fileToolBar->addAction(printToPdfFileAct);
 
     editToolBar = addToolBar(tr("Edit"));
     editToolBar->setObjectName("EditToolbar");

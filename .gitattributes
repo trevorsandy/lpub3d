@@ -281,6 +281,9 @@ mainApp/csiitem.cpp -text
 mainApp/csiitem.h -text
 mainApp/dependencies.cpp -text
 mainApp/dependencies.h -text
+mainApp/dialogexportpages.cpp -text
+mainApp/dialogexportpages.h -text
+mainApp/dialogexportpages.ui -text
 mainApp/displaypagethread.cpp -text
 mainApp/displaypagethread.h -text
 mainApp/dividerdialog.cpp -text

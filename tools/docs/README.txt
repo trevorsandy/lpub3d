@@ -2,6 +2,7 @@ LPub3D 1.3 XXXX
  
 Features and enhancements 
 ------------ 
+-Dialog to print or export to image all pages, current page and custom range of pages (e.g. 1,3,5,7-9)
 -Add ability to configure additional ldraw content directories using ldrawini c api
  I implemented the ldrawini c api to maintain compatability with LPub3D 3rd Party renderers - LDView, L3P(PovRay) and Ldglite. Additional directories must have same tree as LDraw Unofficial directory (i.e. parts and/or p subdirectories...) or alternatively, content can be deposited at the root of the additional directory (i.e. C:/ldrawFiles/*.dat). Directories declared in the ldraw.ini file at the root (C:/ldrawFiles), primitive (.../p) or parts (.../parts) will be properly managed in LPub3D. Other declarations have not been addressed in the process logic and may yield unintended behavior.
 -Add Rotate Icon - indicate that the builder should "flip" the model

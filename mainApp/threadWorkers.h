@@ -27,47 +27,41 @@
 #include "FadeStepColorParts.h"
 #include "archiveparts.h"
 #include "version.h"
+#include "ldsearchdirs.h"
 
 #include "QsLog.h"
 
 class GlobalFadeStep;
 class PartWorker;
 class ColourPart;
+class LDPartsDirs;
 
 enum partTypeDir{
-    OFFICIAL_PARTS,
-    UNOFFICIAL_PARTS,
-    OFFICIAL_SUB_PARTS,
-    UNOFFICIAL_SUP_PARTS,
-    OFFICIAL_PRIMITIVES,
-    UNOFFICIAL_PRIMITIVES,
-    OFFICIAL_PRIMITIVES_8,
-    UNOFFICIAL_PRIMITIVES_8,
-    OFFICIAL_PRIMITIVES_48,
-    UNOFFICIAL_PRIMITIVES_48
+    LD_PARTS,
+    LD_SUB_PARTS,
+    LD_PRIMITIVES,
+    LD_PRIMITIVES_8,
+    LD_PRIMITIVES_48
 };
 
 enum headerOption{
-    OFFICIAL_PARTS_HEADER,
-    UNOFFICIAL_PARTS_HEADER,
-    OFFICIAL_PRIMITIVES_HEADER,
-    UNOFFICIAL_PRIMITIVES_HEADER,
+    FADESTEP_INTRO_HEADER,
     FADESTEP_FILE_HEADER,
-    FADESTEP_COLOUR_CHILDREN_HEADER
+    FADESTEP_COLOUR_PARTS_HEADER,
+    FADESTEP_COLOUR_CHILDREN_PARTS_HEADER,
+    FADESTEP_FILE_STATUS
 };
 
 class ColourPart {
 public:
     QStringList _contents;                        // from retrieveContents
     QString     _fileNameStr;                     // from parseParent
-    int         _lineNum;                         // from parseParent
     int         _partType;                        // from retrieveContent
 
     ColourPart(
             const QStringList   &contents,        // file contents
             const QString       &fileNameStr,     // file name as defined in part content
-            const int           &lineNum,         // line number in content
-            const int           &partType);       // weather official, unofficial, primitive etc...
+            const int           &partType);
 
     ~ColourPart()
     {
@@ -92,19 +86,20 @@ public:
     void insert(
             const QStringList   &contents,
             const QString       &fileNameStr,
-            const int           &lineNum,
             const int           &partType);
 
+    bool partAlreadyInList(
+        const QString           &fileNameStr);
+
     void remove(
-            const QString       &fileNameStr,
-            const int           &lineNum);
+        const QString           &fileNameStr);
 
      bool endThreadEventLoopNow();
 
      QStringList                _partList;
 
 public slots:
-     void processFadeColorParts();                      // scan LDraw file for static colored parts and create fade copy
+     void processFadeColourParts();                      // scan LDraw file for static colored parts and create fade copy
 
      void processLDSearchDirParts();
 
@@ -131,7 +126,11 @@ signals:
 
      void removeProgressStatusSig();
 
-     void finishedSig();
+     void fadeColourFinishedSig();
+
+     //2 below not used
+     void requestFinishSig();
+     void ldSearchDirFinishedSig();
 
 private:
     bool                      _endThreadNowRequested;
@@ -140,19 +139,19 @@ private:
     QString                   _emptyString;
     QStringList               _fadeStepColourParts;
     QStringList               _partFileContents;
-    QStringList               _partsDirs;
 
-    LDrawFile                  ldrawFile;           // contains MPD or all files used in model
-    ArchiveParts               archiveParts;        // add contente to unofficial zip archive (for LeoCAD)
+    LDPartsDirs                ldPartsDirs;                     // automatically load LDraw.ini parameters
+    LDrawFile                  ldrawFile;                       // contains MPD or all files used in model
+    ArchiveParts               archiveParts;                   // add contente to unofficial zip archive (for LeoCAD)
 
 
-    int  size(
-        const QString       &fileNameStr,
-        const int           &lineNum);
+    QStringList getLDrawDirectories(
+       const QString          &startDir);
 
     QStringList contents(
-        const QString       &fileNameStr,
-        const int           &lineNum);
+        const QString       &fileNameStr);
+
+    int  size(const QString &fileNameStr);
 
     int size(){return       _partList.size();}
 
@@ -165,17 +164,27 @@ private:
    void createFadePartFiles();                       // convert static color files // replace color code with fade color
 
    void createFadePartContent(                       // parse provided colour file to colour children
-       const QString         &fileNameComboStr,
-       const int             &lineNum);
+       const QString         &fileNameComboStr);
 
    void retrieveContent(                             // parse provided colour file to colour children
              QStringList     &inputContents,
        const QString         &fileAbsPathStr,
-       const QString         &fileNameStr,
-       const int             &lineNum);
+       const QString         &fileNameStr);
+
+   void processFadeColourPartsArchive(
+       const QString         &comment,
+       bool                   silent = false);
+
+   void processLDSearchPartsArchive(
+       const QStringList     &ldSearchPartsDirs,
+       const QString         &comment,
+       bool                   silent = false);
 
    void processPartsArchive(
-       const QString         &comment);
+       const QStringList     &ldPartsDirs,
+       const QString         &comment,
+       bool                   fadeItem = false,
+       bool                   silent = false);
 
 };
 
@@ -196,12 +205,13 @@ public:
     void insert(
             const QStringList   &contents,
             const QString       &fileNameStr,
-            const int           &lineNum,
             const int           &partType);
 
+    bool partAlreadyInList(
+            const QString       &fileNameStr);
+
     void remove(
-            const QString       &fileNameStr,
-            const int           &lineNum);
+            const QString       &fileNameStr);
 
     bool endThreadEventLoopNow();
 
@@ -231,8 +241,10 @@ signals:
             QString             message);
 
      void removeProgressStatusSig();
+     void colourPartListFinishedSig();
 
-     void finishedSig();
+     //not used
+     void requestFinishSig();
 
 private:
     bool                      _endThreadNowRequested;
@@ -244,14 +256,21 @@ private:
     QStringList               _fadeStepColourParts;
     QStringList               _partFileContents;
     QElapsedTimer             _timer;
+    QString                   _filePath;
+
+    LDPartsDirs                ldPartsDirs;                     // automatically load LDraw.ini parameters
+
+    QStringList getLDrawDirectories(
+       const QString          &startDir);
 
     void colourChildren();
-    void writeFile();
+    void writeFadeFile(bool append = false);
 
     void scanDir(             QDir dir);
     void getParts(const  QFileInfo &fileInfo);
     void buildList(const QFileInfo &fileInfo);
-    void fileHeader(const      int &option);
+    void fileSectionHeader(const          int &option,
+                           const QString      &heading = QString(""));
 
 };
 

@@ -356,6 +356,7 @@
 #include "FadeStepColorParts.h"
 #include "annotations.h"
 #include "plisubstituteparts.h"
+#include "dialogexportpages.h"
 
 //** 3D
 #include "lc_math.h"
@@ -399,6 +400,9 @@ enum traverseRc { HitEndOfPage = 1 };
 
 enum FitMode { FitNone, FitWidth, FitVisible, FitTwoPages, FitContinuousScroll };
 
+enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
+enum ExportType { EXPORT_PDF, EXPORT_PNG, EXPORT_JPG, EXPORT_BMP };
+
 void clearPliCache();
 void clearCsiCache();
 void clearCsi3dCache();
@@ -421,6 +425,10 @@ public:
 
   int             boms;            // the number of pli BOMs in the document
   int             bomOccurrence;   // the acutal occurenc of each pli BOM
+
+  int             exportType;      // export Type
+  int             exportOption;    // export Option
+  QString         pageRangeText;    // page range parameters
 
   void            *noData;
   /**Fade Step variables**/
@@ -782,6 +790,12 @@ private slots:
     void openRecentFile();
     void updateCheck();
     bool aboutDialog();
+
+    bool printToPdfDialog();
+    bool exportAsPngDialog();
+    bool exportAsJpgDialog();
+    bool exportAsBmpDialog();
+
     void editTitleAnnotations();
     void editFreeFormAnnitations();
     void editFadeColourParts();
@@ -829,7 +843,8 @@ private slots:
 
     void GetPixelDimensions(float &, float &);
     void GetPagePixelDimensions(float &, float &, QPrinter::PaperSize &, QPrinter::Orientation &);
-    void printToFile();
+
+    void printToPdfFile();
     void exportAs(QString &);
     void exportAsPng();
     void exportAsJpg();
@@ -866,6 +881,7 @@ public:
       list.append(centralWidget()->width()/4);
     }
 
+  // DELETE
   int bestPaperSizeOrientation(
     float widthMm,
     float heightMm,
@@ -908,8 +924,8 @@ private:
   QAction  *openAct;
   QAction  *saveAct;
   QAction  *saveAsAct;
-  QAction  *pageSetupAct2;
-  QAction  *printToFileAct;
+  QAction  *printToPdfFileAct;
+//  QAction  *printToFileAct;
   QAction  *exportPngAct;
   QAction  *exportJpgAct;
   QAction  *exportBmpAct;
