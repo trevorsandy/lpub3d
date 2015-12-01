@@ -155,7 +155,8 @@ void LDSearchDirs::initCheckDirs()
       sm_checkDirs.push_back(value);
     }
 
-    sm_checkDirs.push_back(Preferences::ldrawPath.toLatin1().constData());
+    // test only
+    // sm_checkDirs.push_back(Preferences::ldrawPath.toLatin1().constData());
 
 #ifdef WIN32
   char buf[1024];
@@ -165,14 +166,11 @@ void LDSearchDirs::initCheckDirs()
   const char *empty = "";
   const char *ldrawIni = "ldraw.ini";
 
-  //	if (GetPrivateProfileString("LDraw", "BaseDirectory", "", buf, 1024, "ldraw.ini"))
   if (GetPrivateProfileString((const wchar_t*)ldraw, (const wchar_t*)baseDirectory,
                               (const wchar_t*)empty, (wchar_t*)buf, 1024, (const wchar_t*)ldrawIni))
     {
       buf[1023] = 0;
     }
-
-  qDebug("Buffer after search for LDraw.ini in windows directory: <%s>\n", buf);
 
   if (buf[0])
     {
@@ -248,6 +246,7 @@ const char* LDSearchDirs::lDrawDir(bool defaultValue /*= false*/)
     {
       if (sm_defaultLDrawDir)
         {
+          qDebug() << "INFO (lDrawDir()->sm_defaultLDrawDir): ";
           return sm_defaultLDrawDir;
         }
       origValue = copyString(sm_systemLDrawDir);
@@ -262,6 +261,7 @@ const char* LDSearchDirs::lDrawDir(bool defaultValue /*= false*/)
 
       if (sm_checkDirs.size() == 0)
         {
+          qDebug() << "INFO (lDrawDir()->!m_checkDirs.size() == 0): ";
           initCheckDirs();
         }
       for (StringList::const_iterator it = sm_checkDirs.begin(); !found &&
@@ -272,16 +272,19 @@ const char* LDSearchDirs::lDrawDir(bool defaultValue /*= false*/)
           if (verifyLDrawDir(dir))
             {
               setLDrawDir(dir);
+              qDebug() << "INFO (lDrawDir()->verifyLDrawDir): " << dir;
               found = true;
             }
         }
       if (!found)
         {
+          qDebug() << "INFO (lDrawDir()->!found: ";
           sm_systemLDrawDir = copyString("");
         }
     }
   if (defaultValue)
     {
+      qDebug() << "INFO (lDrawDir()->defaultValue) sm_defaultLDrawDir";
       sm_defaultLDrawDir = copyString(sm_systemLDrawDir);
       setLDrawDir(origValue);
       delete origValue;
@@ -289,6 +292,7 @@ const char* LDSearchDirs::lDrawDir(bool defaultValue /*= false*/)
     }
   else
     {
+      qDebug() << "INFO (lDrawDir()->else) sm_systemLDrawDir";
       return sm_systemLDrawDir;
     }
 }
@@ -308,20 +312,21 @@ void LDPartsDirs::setExtraSearchDirs(const char *value)
 
 bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbitrary file name
 {
+  // set default ldraw Directory
+  setLDrawDir(Preferences::ldrawPath.toLatin1().constData());
+
   // initialize ldrawIni and check for error
   lDrawDir();
 
   if (sm_lDrawIni)
     {
+      qDebug() << "INFO sm_lDrawIni - firing  LDrawIniComputeRealDirs(sm_lDrawIni, 1, 0, filename)";
       LDrawIniComputeRealDirs(sm_lDrawIni, 1, 0, filename);
     }
 
   if (!strlen(lDrawDir()))
     {
-
-      qDebug() << "Could not find LDraw directory";
-//      QMessageBox::critical(NULL, "LPub3D", "Could not find LDraw directory");
-
+      qDebug() << "Could not find LDrawini search directories";
       return false;
     }
   // end initialize
@@ -331,25 +336,14 @@ bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbit
     {
       int i;
 
-//      qDebug() << "\n01 SYSTEM LDRAW DIR: " << sm_systemLDrawDir;
-
       for (i = 0; i < sm_lDrawIni->nSearchDirs; i++)
         {
           LDrawSearchDirS *searchDir = &sm_lDrawIni->SearchDirs[i];
 
           if ((searchDir->Flags & LDSDF_SKIP) == 0)
             {
-//              qDebug() << "\n01 SYSTEM LDRAW DIR: " << sm_systemLDrawDir <<
-//                          "\n02 SEARCH DIR: " << searchDir->Dir;
-
               m_ldrawSearchDirs.push_back(searchDir->Dir);
-              qDebug() << "\n04 SEARCH DIR PUSHED: " << searchDir->Dir;
-
-//              if (verifyArchiveDir(searchDir->Dir))
-//                {
-//                  m_ldrawSearchDirs.push_back(searchDir->Dir);
-//                  qDebug() << "\n04 SEARCH DIR PUSHED: " << searchDir->Dir;
-//                }
+              qDebug() << "\n LDRAW SEARCH DIR PUSHED: " << searchDir->Dir;
             }
         }
 
@@ -363,6 +357,7 @@ bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbit
           if (verifyExtraDir(dir))
             {
               m_ldrawSearchDirs.push_back(dir);
+              qDebug() << "\n LDRAW EXTRA SEARCH DIR PUSHED: " << dir;
               found = true;
             }
         }

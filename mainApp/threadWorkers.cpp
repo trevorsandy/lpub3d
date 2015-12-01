@@ -37,13 +37,28 @@ QStringList PartWorker::getLDrawDirectories(const QString &startDir){
   QStringList dirNames;
   QDir dir(startDir);
 
-  dirNames += "/";
+  QString unoffPartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts"));
+  QString unoffPrimsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"));
 
   foreach (QString subdir, dir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot)) {
 
-      dirNames += getLDrawDirectories(startDir + "/" + subdir);
+      QString partsDir = QDir::toNativeSeparators(startDir + "/" + subdir);
 
-      qDebug() << "\nLDRAW UNOFF DIR: " << startDir + "/" + subdir;
+      if (
+          partsDir.toLower().toLower().contains(unoffPartsDir.toLower()) ||
+          partsDir.toLower().toLower().contains(unoffPrimsDir.toLower())
+          ){
+
+          qDebug() << "\nEXCLUDE GET LDRAW DIR: " << partsDir;
+          continue;
+
+        } else {
+
+          dirNames += partsDir;
+          qDebug() << "\nINSERT LDRAW UNOFF DIR: " << partsDir;
+
+        }
+
     }
 
   return dirNames;
@@ -87,7 +102,7 @@ void PartWorker::processLDSearchDirParts(){
 
             } else {
 
-              ldSearchPartsDirs << QDir::toNativeSeparators(QString("%1/").arg(partsDir));
+              ldSearchPartsDirs << QDir::toNativeSeparators(partsDir);
               qDebug() << "\nINSERT LDRAW SEARCH DIR: " << partsDir;
 
             }
@@ -98,15 +113,13 @@ void PartWorker::processLDSearchDirParts(){
 
     } else {
 
-        qDebug() << QString(tr("Failed to load LDraw search directores using default LDraw directories"));
-
-        QString ldrawUnoffDirs = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial"));
+        qDebug() << QString(tr("Failed to load LDrawini search directores using default LDraw unofficial directory instead."));
 
         bool isFadeItem = false;
         bool isSilent   = false;
-        processPartsArchive(getLDrawDirectories(ldrawUnoffDirs), "ldraw unoff directory", isFadeItem, isSilent);
+        QString ldrawUnoffDirs = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial"));
 
-//      QMessageBox::critical(NULL, tr("LPub3D"), tr("Failed to load LDraw search directores"));
+        processPartsArchive(getLDrawDirectories(ldrawUnoffDirs), "ldraw unofficial directory", isFadeItem, isSilent);
     }
 
 //  emit ldSearchDirFinishedSig();
@@ -482,7 +495,7 @@ void PartWorker::requestEndThreadNow(){
 
 void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QString &comment = QString(""), bool fadeItem, bool silent){
 
-  // Append fade parts to unofficial library for LeoCAD's consumption
+  // Append fade parts to unofficial library for 3D Viewer's consumption
   QFileInfo libFileInfo(Preferences::viewerLibFile);
   QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.dir().path()).arg("ldrawunf.zip"));
 
@@ -563,12 +576,13 @@ QStringList ColourPartListWorker::getLDrawDirectories(const QString &startDir){
   QStringList dirNames;
   QDir dir(startDir);
 
-  dirNames += "/";
-
   foreach (QString subdir, dir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot)) {
 
-          dirNames += getLDrawDirectories(startDir + "/" + subdir);;
-          qDebug() << "\nLDRAW SUB DIRS: " << startDir + "/" + subdir;
+      QString partsDir = QDir::toNativeSeparators(startDir + "/" + subdir);
+
+      dirNames += partsDir;
+      qDebug() << "\nINSERT LDRAW UNOFF DIR: " << partsDir;
+
     }
 
   return dirNames;
@@ -603,7 +617,7 @@ void ColourPartListWorker::scanDir()
 
       } else {
 
-        qDebug() << QString(tr("Failed to load LDraw search directores using default LDraw directories"));
+        qDebug() << QString(tr("Failed to load LDrawini search directores using default LDraw directories instead."));
 
         QString filePath         = Preferences::ldrawPath;
         QString ldrawUnoffDirs   = QDir::toNativeSeparators(filePath + "/Unofficial/");
@@ -615,7 +629,6 @@ void ColourPartListWorker::scanDir()
 
       }
 
-    //logDebug() << "Launch Direcory Listing.";
     _timer.start();
     emit progressBarInitSig();
 
