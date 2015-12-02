@@ -26,155 +26,205 @@ ArchiveParts::ArchiveParts(QObject *parent) : QObject(parent)
  */
 bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QString &comment = QString(""), ARCHIVE_TYPE option = NORMAL_PART) {
 
-    QString fileNameWithRelativePath;
-    QString firstFilePathPiece;
-    QString folderInPath;
+  QString parts           = "parts";
+  QString primitives      = "p";
+  bool setPrimDir = false;
+  bool setPartsDir = false;
 
-    bool setPrimDir = false;
-    bool setPartsDir = false;
-//    bool setRootDir = false;
-    bool partsInDir = false;
-    bool primInDir = false;
-    bool firstPathPiecePart = false;
-    bool firstPathPiecePrim = false;
-
-    // If input directory is 'p' use 'p' (primitive) else use 'parts'
-    if (dir.dirName().toLower() == "p"){
-        setPrimDir = true;
-      } else if (dir.dirName().toLower() == "parts"){
-        setPartsDir = true;
-      }
-
-    logWarn() << QString("\nProcessing %1 with comment: %2").arg(dir.absolutePath()).arg(comment);
-
-    // Initialize the zip file
-    QuaZip zip(zipArchive);
-    zip.setFileNameCodec("IBM866");
-
-    // Check if directory exists
-    if (!dir.exists()) {
-        logWarn() << QString("! dir.exists(%1)=FALSE").arg(dir.absolutePath());
-        return false;
+  // If input directory is 'p' use 'p' (primitive) else use 'parts'
+  if (dir.dirName().toLower() == primitives){
+      setPrimDir = true;
+    } else if (dir.dirName().toLower() == parts){
+      setPartsDir = true;
     }
 
-    // We get the list of directory files and folders recursively
-    QStringList dirFileList;
-    RecurseAddDir(dir, dirFileList);
+  logWarn() << QString("\nProcessing %1 with comment: %2").arg(dir.absolutePath()).arg(comment);
 
-    // Check if file list is empty
-    if (dirFileList.isEmpty()) {
-        logWarn() << QString("! dirFileList.isEmpty(): %1").arg(dir.absolutePath());
-        return true;
+  // Initialize the zip file
+  QuaZip zip(zipArchive);
+  zip.setFileNameCodec("IBM866");
+
+  // Check if directory exists
+  if (!dir.exists()) {
+      logWarn() << QString("! dir.exists(%1)=FALSE").arg(dir.absolutePath());
+      return false;
     }
 
-    // Create an array of objects consisting of QFileInfo
-    QFileInfoList files;
-    foreach (QString fileName, dirFileList) files << QFileInfo(fileName);
+  // We get the list of directory files and folders recursively
+  QStringList dirFileList;
+  RecurseAddDir(dir, dirFileList);
 
+  // Check if file list is empty
+  if (dirFileList.isEmpty()) {
+      logWarn() << QString("! dirFileList.isEmpty(): %1").arg(dir.absolutePath());
+      return true;
+    }
 
-    // Check if the zip file exist; if yes, set to add content, and if no create
-    QFileInfo zipFileInfo(zipArchive);
-    QFileInfoList zipFiles;
-    if (zipFileInfo.exists()){
-        if (!zip.open(QuaZip::mdAdd)) {
-            logWarn() <<  QString("! zip.open()::mdAdd: %1").arg(zip.getZipError());
-            return false;
+  // Initialize variables
+  QString fileNameWithRelativePath;
+
+  bool partsInDir = false;
+  bool primInDir = false;
+
+  // Create an array of objects consisting of QFileInfo
+  QFileInfoList files;
+  foreach (QString fileName, dirFileList) files << QFileInfo(fileName);
+
+  // Check if the zip file exist; if yes, set to add content, and if no create
+  QFileInfo zipFileInfo(zipArchive);
+  QFileInfoList zipFiles;
+  if (zipFileInfo.exists()){
+      if (!zip.open(QuaZip::mdAdd)) {
+          logWarn() <<  QString("! zip.open()::mdAdd: %1").arg(zip.getZipError());
+          return false;
         }
 
-        // We get the list of files already in the archive.
-        QStringList zipDirPaths;
-        QStringList zipFileList;
+      // We get the list of files already in the archive.
+      QStringList zipDirPaths;
+      QStringList zipFileList;
 
-        // Test for 'parts' or 'p' sub directory
-        int filesTested = 0;
-        foreach (QFileInfo fileInfo, files){
+      QStringList subDirs = dir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
+      qDebug() << "---FIRST LEVEL SUBDIR LIST: " << subDirs;
+      if (subDirs.count() > 0 && !setPartsDir && !setPrimDir){       //first level (root) check
 
-            if (!fileInfo.isFile())
-              continue;
+          foreach(QString subDirName, subDirs){                      //first level sub directory processing e.g. ...Unofficial/foo
 
-            filesTested ++;
+              QDir subDir(QString("%1/%2").arg(dir.absolutePath()).arg(subDirName));
 
-//            fileNameWithRelativePath = fileInfo.filePath().remove(0, dir.absolutePath().length() + 1);
-//            firstFilePathPiece = fileNameWithRelativePath.section('/',0,0);
+              qDebug() << "---PROCESSING FIRST LEVEL SUBDIR: " << subDir.absolutePath();
 
-//            if (firstFilePathPiece.toLower() == "parts" ||
-//                firstFilePathPiece.toLower() == "p")
-//              {
-//                setRootDir = true;
-//              }
+              if (option == NORMAL_PART){ // don't load normal unofficial parts
+                  QDir excludePartsDir(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts"));
+                  QDir excludePrimDir(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"));
+                  if ((subDir == excludePartsDir) || (subDir == excludePrimDir)) {
+                      qDebug() << "SKIPPING " << subDir.absolutePath();
+                      continue;
+                    }
+                }
 
-            partsInDir = fileInfo.absolutePath().toLower().contains("/parts/");
-            primInDir  = fileInfo.absolutePath().toLower().contains("/p/");
+              QStringList subSubDirs = subDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
+              qDebug() << "---SECOND LEVEL SUBDIR LIST: " << subSubDirs;
+              if (subSubDirs.count() > 0) {                    //second level sub sub directory check
 
-            if (filesTested > 1)
-              break;
-          }
+                  foreach(QString subSubDirName, subSubDirs) {  //second level sub sub directory processing e.g. ...Unofficial/foo/parts
+                      // reset prtsInDir flags
+                      partsInDir  = false;
+                      primInDir   = false;
 
-        switch (option)
-          {
-          case FADE_COLOUR_PART: {
-              if (setPrimDir || primInDir)
-                zipDirPaths << "p";
-              else if (setPartsDir || partsInDir)
-                zipDirPaths << "parts";
-              else
-                zipDirPaths << "parts";
-              break;
+                      QDir subSubDir(QString("%1/%2").arg(subDir.absolutePath()).arg(subSubDirName));
+
+                      qDebug() << "---PROCESSING SECOND LEVEL SUBDIR: " << subSubDir.absolutePath();
+
+                      partsInDir = subSubDir.dirName().toLower() == parts;
+                      primInDir  = subSubDir.dirName().toLower() == primitives;
+
+
+                      if (setPrimDir || primInDir)
+                        zipDirPaths << primitives;
+                      else if (setPartsDir || partsInDir)
+                        zipDirPaths << parts;
+                      else
+                        zipDirPaths << parts;
+
+                      logDebug() << "\nCHECK IF ARCHIVE EXIST (SECOND LEVEL DIR - SUBS (P/PART DIRS)): "
+                                 << "\nsetPartsDir:              " << setPartsDir
+                                 << "\nsetPrimDir:               " << setPrimDir
+                                 << "\npartsInDir:               " << partsInDir
+                                 << "\nprimInDir:                " << primInDir
+                                 << "\nsubSubDir.absolutePath(): " << subSubDir.absolutePath()
+                                 << "\nzipDirPaths:              " << zipDirPaths
+                                    ;
+
+                      foreach (QString zipDirPath, zipDirPaths){
+                          RecurseZipArchive(zipFileList, zipDirPath, zipArchive, subSubDir/*dirRelativePath*/);
+                        }
+
+                      //Create an array of archive file objects consisting of QFileInfo
+                      foreach (QString zipFile, zipFileList) zipFiles << QFileInfo(zipFile);
+
+                      zipDirPaths.clear();
+
+                    }
+
+                } else { // No second level (p/parts) sub directories (move subDir only)
+
+                  zipDirPaths << parts;
+
+                  logDebug() << "\nCHECK IF ARCHIVE EXIST (FIRST LEVEL DIR - SUB (W/O P/PART DIR)): "
+                             << "\nsetPartsDir:           " << setPartsDir
+                             << "\nsetPrimDir:            " << setPrimDir
+                             << "\nsubDir.absolutePath(): " << subDir.absolutePath()
+                             << "\nzipDirPaths:           " << zipDirPaths
+                                ;
+
+                  foreach (QString zipDirPath, zipDirPaths){
+                      RecurseZipArchive(zipFileList, zipDirPath, zipArchive, subDir/*dirRelativePath*/);
+                    }
+
+                  //Create an array of archive file objects consisting of QFileInfo
+                  foreach (QString zipFile, zipFileList) zipFiles << QFileInfo(zipFile);
+
+                  zipDirPaths.clear();
+
+                }
             }
-          case NORMAL_PART: {
-              if (setPrimDir || primInDir)
-                zipDirPaths << "p";
-              else if (setPartsDir || partsInDir)
-                zipDirPaths << "parts";
-//              else if (setRootDir)
-//                zipDirPaths << "/";
-              else
-                zipDirPaths << "parts";
-              break;
-            }
-          default: {
-              zipDirPaths  << "/" << "parts" << "p";
-              break;
-            }
-          }
 
-        foreach (QString zipDirPath, zipDirPaths){
-            RecurseZipArchive(zipFileList, zipDirPath, zipArchive, dir);
-          }
+        } else {  //*** original code ***// No sub directories
 
-        //Create an array of archive file objects consisting of QFileInfo
-        foreach (QString zipFile, zipFileList) zipFiles << QFileInfo(zipFile);
+          if (setPrimDir)
+            zipDirPaths << primitives;
+          if (setPartsDir)
+            zipDirPaths << parts;
+          else
+            zipDirPaths << parts;
+
+          logDebug() << "\nCHECK IF ARCHIVE EXIST (ROOT LEVEL DIR - NO SUBS): "
+                     << "\nsetPartsDir:   " << setPartsDir
+                     << "\nsetPrimDir:    " << setPrimDir
+                     << "\ndir:           " << dir.absolutePath()
+                     << "\nzipDirPaths:   " << zipDirPaths
+                        ;
+
+          foreach (QString zipDirPath, zipDirPaths){
+              RecurseZipArchive(zipFileList, zipDirPath, zipArchive, dir);
+            }
+
+          //Create an array of archive file objects consisting of QFileInfo
+          foreach (QString zipFile, zipFileList) zipFiles << QFileInfo(zipFile);
+
+           zipDirPaths.clear();
+        }
 
     } else {
-        if (!zip.open(QuaZip::mdCreate)) {
-            logWarn() <<  QString("! zip.open()::mdCreate: %1").arg(zip.getZipError());
-            return false;
+      if (!zip.open(QuaZip::mdCreate)) {
+          logWarn() <<  QString("! zip.open()::mdCreate: %1").arg(zip.getZipError());
+          return false;
         }
     }
 
-    // Archive each disk file as necessary
-    QFile inFile;
-    QuaZipFile outFile(&zip);
+  // Archive each disk file as necessary
+  QFile inFile;
+  QuaZipFile outFile(&zip);
 
-    char c;
-    foreach(QFileInfo fileInfo, files) {
-        //qDebug() << "Disk File Name: " << fileInfo.absoluteFilePath();
-        if (!fileInfo.isFile())
-            continue;
+  char c;
+  foreach(QFileInfo fileInfo, files) {
+      //qDebug() << "Disk File Name: " << fileInfo.absoluteFilePath();
+      if (!fileInfo.isFile())
+        continue;
 
-        bool alreadyArchived = false;
-        bool setRootDir = false;
+      bool alreadyArchived = false;
+      bool setRootDir = false;
 
-        foreach (QFileInfo zipFileInfo, zipFiles) {
-            if (fileInfo == zipFileInfo) {
-                alreadyArchived = true;
-                qDebug() << "FileMatch - Skipping !! " << fileInfo.absoluteFilePath();
-                break;
+      foreach (QFileInfo zipFileInfo, zipFiles) {
+          if (fileInfo == zipFileInfo) {
+              alreadyArchived = true;
+              qDebug() << "FileMatch - Skipping !! " << fileInfo.absoluteFilePath();
+              break;
             }
         }
 
-        if (alreadyArchived)
-            continue;
+      if (alreadyArchived)
+        continue;
 
       /* If the file is in a subdirectory, then add the name of the subdirectory to filenames
          For example: fileInfo.filePath() = "D:\Work\Sources\SAGO\svn\sago\Release\tmp_DOCSWIN\Folder\123.opn"
@@ -184,220 +234,229 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
          in the correct directory, so we append the string "parts/fade" to the relative file name path.
          For normal archive, we want to place all unofficial files not in directory P(rimative) in the parts directory */
 
-        fileNameWithRelativePath = fileInfo.filePath().remove(0, dir.absolutePath().length() + 1);
+      fileNameWithRelativePath = fileInfo.filePath().remove(0, dir.absolutePath().length() + 1);
 
-        folderInPath = fileInfo.absoluteFilePath();
-        partsInDir   = folderInPath.contains("/parts/");
-        primInDir    = folderInPath.contains("/p/");
+      int partsDirIndex = fileInfo.absoluteFilePath().indexOf("/parts/",0,Qt::CaseInsensitive);
+      int primDirIndex  = fileInfo.absoluteFilePath().indexOf("/p/",0,Qt::CaseInsensitive);
+      partsInDir = partsDirIndex != -1;
+      primInDir  = primDirIndex  != -1;
 
-        firstFilePathPiece = fileNameWithRelativePath.section('/',0,0);
-        firstPathPiecePart = firstFilePathPiece.toLower() == "parts";
-        firstPathPiecePrim = firstFilePathPiece.toLower() == "p";
+      // first part of file path is 'parts' or 'p' use root dir
+      if (partsInDir || primInDir)
+          setRootDir = true;
 
-        // first part of file path is 'parts' or 'p' use root dir
-        if (firstPathPiecePart || firstPathPiecePrim || partsInDir || primInDir)
-          {
-            logDebug() << "\nSET ROOT DIR: "
-                       << "\nfirstPathPiecePart: " << firstPathPiecePart
-                       << "\nfirstPathPiecePrim: " << firstPathPiecePrim
-                       << "\npartsInDir:         " << partsInDir
-                       << "\nprimInDir:          " << primInDir
-                          ;
-            setRootDir = true;
-          }
+      logDebug() << "SET ROOT DIR (partsInDir primInDir = true): " << setRootDir ;
 
-        if (partsInDir && !firstPathPiecePart){
-            int index = fileInfo.filePath().indexOf("/parts/",0,Qt::CaseInsensitive);
-            fileNameWithRelativePath = fileInfo.filePath().remove(0, index + 1);
-            logTrace() << "Adjusted fileNameWithRelativePath: " << fileNameWithRelativePath;
-          }
-
-        if (primInDir && !firstPathPiecePrim){
-            int index = fileInfo.filePath().indexOf("/p/",0,Qt::CaseInsensitive);
-            fileNameWithRelativePath = fileInfo.filePath().remove(0, index + 1);
-            logTrace() << "Adjusted fileNameWithRelativePath: " << fileNameWithRelativePath;
-          }
-
-        if (!partsInDir && !primInDir && !setPartsDir && !setPrimDir) {
-            fileNameWithRelativePath = fileInfo.fileName();
-          }
-
-
-        logInfo() << "\nPARAMETERS: "
-                  << "\nsetRootDir:                " << setRootDir
-
-                  << "\nsetPartsDir:               " << setPartsDir
-                  << "\nsetPrimDir:                " << setPrimDir
-
-                  << "\n1. partsInDir:             " << partsInDir
-                  << "\n2. primInDir:              " << primInDir
-                  << "\n1. Not firstPathPiecePart: " << !firstPathPiecePart
-                  << "\n2. Not firstPathPiecePrim: " << !firstPathPiecePrim
-
-                  << "\nfolderInPath(FilePath):    " << folderInPath
-                  << "\nfileNameWithRelativePath:  " << fileNameWithRelativePath
-                  << "\nfileInfo.filePath():       " << fileInfo.filePath()
-                     ;
-
-        QString fileNameWithCompletePath;
-
-        if (setPartsDir){
-            fileNameWithCompletePath = QString("%1/%2").arg("parts").arg(fileNameWithRelativePath);
-            logInfo() << "fileNameWithCompletePath (PART)" << fileNameWithCompletePath;
-          } else if (setPrimDir) {
-            fileNameWithCompletePath = QString("%1/%2").arg("p").arg(fileNameWithRelativePath);
-            logInfo() << "fileNameWithCompletePath (PRIMITIVE)" << fileNameWithCompletePath;
-          } else if (setRootDir){
-            fileNameWithCompletePath = QString("%1").arg(fileNameWithRelativePath);
-            logInfo() << "fileNameWithCompletePath (ROOT PART/PRIMITIVE) " << fileNameWithCompletePath;
-          } else {
-            fileNameWithCompletePath = QString("%1/%2").arg("parts").arg(fileNameWithRelativePath);
-            logInfo() << "fileNameWithCompletePath (PART - DEFAULT)" << fileNameWithCompletePath;
-          }
-
-        inFile.setFileName(fileInfo.filePath());
-
-        if (!inFile.open(QIODevice::ReadOnly)) {
-            logWarn() <<  QString("! inFile.open(): %1").arg(inFile.errorString().toLocal8Bit().constData());
-            return false;
+      if (partsInDir){
+          fileNameWithRelativePath = fileInfo.filePath().remove(0, partsDirIndex + 1);
+          logTrace() << "Adjusted fileNameWithRelativePath: " << fileNameWithRelativePath;
         }
 
-        if (!outFile.open(QIODevice::WriteOnly, QuaZipNewInfo(fileNameWithCompletePath, fileInfo.filePath()))) {
-            logWarn() << QString("! outFile.open(): %1").arg(outFile.getZipError());
-            return false;
+      if (primInDir){
+          fileNameWithRelativePath = fileInfo.filePath().remove(0, primDirIndex + 1);
+          logTrace() << "Adjusted fileNameWithRelativePath: " << fileNameWithRelativePath;
         }
 
-        while (inFile.getChar(&c) && outFile.putChar(c));
-
-        if (outFile.getZipError() != UNZ_OK) {
-            logError() << QString("outFile.putChar() zipError(): %1").arg(outFile.getZipError());
-            return false;
+      if (!partsInDir && !primInDir && !setPartsDir && !setPrimDir) {
+          fileNameWithRelativePath = fileInfo.fileName();
         }
 
-        outFile.close();
+//              logInfo() << "\nPARAMETERS: "
+//                        << "\nsetRootDir:                " << setRootDir
 
-        if (outFile.getZipError() != UNZ_OK) {
-            logError() << QString("outFile.close() zipError(): %1").arg(outFile.getZipError());
-            return false;
+//                        << "\nsetPartsDir:               " << setPartsDir
+//                        << "\nsetPrimDir:                " << setPrimDir
+
+//                        << "\n1. partsInDir:             " << partsInDir
+//                        << "\n2. primInDir:              " << primInDir
+
+//                        << "\nfileNameWithRelativePath:  " << fileNameWithRelativePath
+//                        << "\nfileInfo.filePath():       " << fileInfo.filePath()
+//                           ;
+
+      QString fileNameWithCompletePath;
+
+      if (setPartsDir){
+          fileNameWithCompletePath = QString("%1/%2").arg("parts").arg(fileNameWithRelativePath);
+          logInfo() << "fileNameWithCompletePath (PART)" << fileNameWithCompletePath;
+        } else if (setPrimDir) {
+          fileNameWithCompletePath = QString("%1/%2").arg("p").arg(fileNameWithRelativePath);
+          logInfo() << "fileNameWithCompletePath (PRIMITIVE)" << fileNameWithCompletePath;
+        } else if (setRootDir){
+          fileNameWithCompletePath = QString("%1").arg(fileNameWithRelativePath);
+          logInfo() << "fileNameWithCompletePath (ROOT PART/PRIMITIVE) " << fileNameWithCompletePath;
+        } else {
+          fileNameWithCompletePath = QString("%1/%2").arg("parts").arg(fileNameWithRelativePath);
+          logInfo() << "fileNameWithCompletePath (PART - DEFAULT)" << fileNameWithCompletePath;
         }
 
-        inFile.close();
+      inFile.setFileName(fileInfo.filePath());
 
-        logNotice() << "Archived Disk File: " << fileInfo.absoluteFilePath();
+      if (!inFile.open(QIODevice::ReadOnly)) {
+          logWarn() <<  QString("! inFile.open(): %1").arg(inFile.errorString().toLocal8Bit().constData());
+          return false;
+        }
+
+      if (!outFile.open(QIODevice::WriteOnly, QuaZipNewInfo(fileNameWithCompletePath, fileInfo.filePath()))) {
+          logWarn() << QString("! outFile.open(): %1").arg(outFile.getZipError());
+          return false;
+        }
+
+      while (inFile.getChar(&c) && outFile.putChar(c));
+
+      if (outFile.getZipError() != UNZ_OK) {
+          logError() << QString("outFile.putChar() zipError(): %1").arg(outFile.getZipError());
+          return false;
+        }
+
+      outFile.close();
+
+      if (outFile.getZipError() != UNZ_OK) {
+          logError() << QString("outFile.close() zipError(): %1").arg(outFile.getZipError());
+          return false;
+        }
+
+      inFile.close();
+
+      logNotice() << "Archived Disk File: " << fileInfo.absoluteFilePath();
     }
 
-    // + comment
-    if (!comment.isEmpty())
-        zip.setComment(comment);
+  // + comment
+  if (!comment.isEmpty())
+    zip.setComment(comment);
 
-    zip.close();
+  zip.close();
 
-    if (zip.getZipError() != 0) {
-        logError() << QString("zip.close() zipError(): %1").arg(zip.getZipError());
-        return false;
+  if (zip.getZipError() != 0) {
+      logError() << QString("zip.close() zipError(): %1").arg(zip.getZipError());
+      return false;
     }
 
-    return true;
+  return true;
 }
 
 /* Recursively searches files in the archive for a given directory \ a, and adds to the list of \ b */
 bool ArchiveParts::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDirPath, const QString &zipArchive, const QDir &dir) {
 
-    QuaZip zip(zipArchive);
-    QuaZip *ptrZip = &zip;
+  QuaZip zip(zipArchive);
+  QuaZip *ptrZip = &zip;
 
-    if (!zip.open(QuaZip::mdUnzip)) {
-        logWarn() << QString("! zip.open(): %1 @ %2").arg(zip.getZipError()).arg(zipArchive);
-        return false;
+  if (!zip.open(QuaZip::mdUnzip)) {
+      logWarn() << QString("! zip.open(): %1 @ %2").arg(zip.getZipError()).arg(zipArchive);
+      return false;
     }
 
-    zip.setFileNameCodec("IBM866");
+  zip.setFileNameCodec("IBM866");
 
-    logInfo() << QString("%1 Total Zip Archive Entries: ").arg(zip.getEntriesCount());
-    logInfo() << QString("Global Comment: %1").arg(zip.getComment().toLocal8Bit().constData());
-    logInfo() << QString("Disk Directory: %1").arg(dir.absolutePath());
+  logInfo() << QString("%1 Total Zip Archive Entries: ").arg(zip.getEntriesCount());
+  logInfo() << QString("Global Comment: %1").arg(zip.getComment().toLocal8Bit().constData());
+  logInfo() << QString("Disk File Absolute Path: %1").arg(dir.absolutePath());
 
-    QuaZipDir zipDir(ptrZip,zipDirPath);
+  QuaZipDir zipDir(ptrZip,zipDirPath);
 
-    if (zipDir.exists()) {
+  if (zipDir.exists()) {
 
-        zipDir.cd(zipDirPath);
+      zipDir.cd(zipDirPath);
 
-        logInfo() << QString("%1 Zip Directory Entries in '%2'").arg(zipDir.count()).arg(zipDirPath);
+      logInfo() << QString("%1 Zip Directory Entries in '%2'").arg(zipDir.count()).arg(zipDirPath);
 
-        QStringList qsl = zipDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files, QDir::SortByMask);
+      QStringList qsl = zipDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files, QDir::SortByMask);
 
-        foreach (QString zipFile, qsl) {
+      foreach (QString zipFile, qsl) {
 
-                QFileInfo zipFileInfo(QString("%1/%2").arg(dir.absolutePath()).arg(zipFile));
-//                logInfo() << QString("zipFileInfo (to compare): %1/%2").arg(dir.absolutePath()).arg(zipFile);
-//                logInfo() << QString("zipFile (qsl entry):      %1").arg(zipFile);
+          if (!dir.exists())
+            continue;
 
-                if (zipFileInfo.isSymLink())
-                    return false;
+          //QDir dirPath(zipDirPath);
+          //logInfo() << "dir.dirName() == dirPath.dirName():" << dir.dirName() << " == " << dirPath.dirName();
 
-                if(zipFileInfo.isDir()){
+          //            QString fileDir;
+          //            QDir fooDir(QString("%1/%2").arg(dir.absolutePath()).arg(dirPath.dirName()));
+          //            if(dir.dirName() != dirPath.dirName() && fooDir.exists()){
+          //                fileDir = fooDir.absolutePath();
+          //              } else {
+          //                fileDir = dir.absolutePath();
+          //              }
+          //            QFileInfo zipFileInfo(QString("%1/%2").arg(fileDir).arg(zipFile));
 
-                    QString subDirPath = QString("%1/%2").arg(zipDirPath).arg(zipFile);
-                    QDir subDir(zipFileInfo.filePath());
-                    RecurseZipArchive(zipDirFileList, subDirPath, zipArchive, subDir);
+          QFileInfo zipFileInfo(QString("%1/%2").arg(dir.absolutePath()).arg(zipFile));
 
-                } else
-                    zipDirFileList << zipFileInfo.filePath();
-            }
+          //logTrace() << QString("zipFileInfo (for comparison): %1/%2").arg(dir.absolutePath()).arg(zipFile);
+          //logTrace() << QString("zipFile (qsl entry):      %1").arg(zipFile);
+
+          if (!zipFileInfo.exists())
+            continue;
+
+          if (zipFileInfo.isSymLink())
+            return false;
+
+          if(zipFileInfo.isDir()){
+
+              QString subDirPath = QString("%1/%2").arg(zipDirPath).arg(zipFile);
+
+              QDir subDir(zipFileInfo.filePath());
+
+              RecurseZipArchive(zipDirFileList, subDirPath, zipArchive, subDir);
+
+            } else
+
+            zipDirFileList << zipFileInfo.filePath();
+
+          logNotice() << "VALID FILE zipDirFileList: " << zipFileInfo.filePath();
         }
-
-    zip.close();
-
-    if (zip.getZipError() != UNZ_OK) {
-        logError() << QString("zip.close() zipError(): %1").arg(zip.getZipError());
-        return false;
     }
 
-    return true;
+  zip.close();
+
+  if (zip.getZipError() != UNZ_OK) {
+      logError() << QString("zip.close() zipError(): %1").arg(zip.getZipError());
+      return false;
+    }
+
+  return true;
 }
 
 /* Recursively searches for all files on the disk \ a, and adds to the list of \ b */
 void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
 
-    QString offPartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("PARTS"));
-    QString offPrimsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("P"));
-    QString unoffPartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts"));
-    QString unoffPrimsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"));
+  QString offPartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("PARTS"));
+  QString offPrimsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("P"));
+  QString unoffPartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts"));
+  QString unoffPrimsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"));
 
-    QStringList qsl = dir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
+  QStringList qsl = dir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
 
-    foreach (QString file, qsl) {
+  foreach (QString file, qsl) {
 
-        QString filePath = QDir::toNativeSeparators(QString("%1/%2").arg(dir.absolutePath()).arg(file));
+      QString filePath = QDir::toNativeSeparators(QString("%1/%2").arg(dir.absolutePath()).arg(file));
 
-        if (
-            filePath.toLower().contains(offPartsDir.toLower()) ||
-            filePath.toLower().contains(offPrimsDir.toLower()) ||
-            filePath.toLower().contains(unoffPartsDir.toLower()) ||
-            filePath.toLower().contains(unoffPrimsDir.toLower())
-            ) {
-            qDebug() << "\nLDRAW EXCLUDED DIR FILES: " << filePath;
-            return;
-          }
+      if (
+          filePath.toLower().contains(offPartsDir.toLower()) ||
+          filePath.toLower().contains(offPrimsDir.toLower()) ||
+          filePath.toLower().contains(unoffPartsDir.toLower()) ||
+          filePath.toLower().contains(unoffPrimsDir.toLower())
+          ) {
+          qDebug() << "\nLDRAW EXCLUDED DIR FILES: " << filePath;
+          return;
+        }
 
-        QFileInfo finfo(filePath);
+      QFileInfo finfo(filePath);
 
-        if (finfo.isSymLink())
-            return;
+      if (finfo.isSymLink())
+        return;
 
-        if (finfo.isDir()) {
+      if (finfo.isDir()) {
 
-            //logInfo() << "FILE INFO DIR PATH: " << finfo.fileName();
+          //logInfo() << "FILE INFO DIR PATH: " << finfo.fileName();
 
-            QDir subDir(finfo.filePath());
-            RecurseAddDir(subDir, list);
+          QDir subDir(finfo.filePath());
+          RecurseAddDir(subDir, list);
 
         } else if (finfo.suffix().toLower() == "dat") {
 
-            //qDebug() << "\nLDRAW INCLUDED DIR FILES: " << finfo.filePath();
+          //qDebug() << "\nLDRAW INCLUDED DIR FILES: " << finfo.filePath();
 
-            list << finfo.filePath();
+          list << finfo.filePath();
 
         }
 
