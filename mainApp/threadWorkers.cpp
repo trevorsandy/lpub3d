@@ -49,13 +49,13 @@ QStringList PartWorker::getLDrawDirectories(const QString &startDir){
           partsDir.toLower().toLower().contains(unoffPrimsDir.toLower())
           ){
 
-          qDebug() << "\nEXCLUDE GET LDRAW DIR: " << partsDir;
+          qDebug() << "\n<-EXCLUDE GET LDRAW DIR: " << partsDir;
           continue;
 
         } else {
 
           dirNames += partsDir;
-          qDebug() << "\nINSERT LDRAW UNOFF DIR: " << partsDir;
+          qDebug() << "\n->INSERT LDRAW UNOFF DIR: " << partsDir;
 
         }
 
@@ -97,13 +97,13 @@ void PartWorker::processLDSearchDirParts(){
               partsDir.toLower().toLower().contains(unoffPrimsDir.toLower())
               ){
 
-              qDebug() << "\nEXCLUDE LDRAW SEARCH DIR: " << partsDir;
+              qDebug() << "\n<-EXCLUDE LDRAW SEARCH DIR: " << partsDir;
               continue;
 
             } else {
 
               ldSearchPartsDirs << QDir::toNativeSeparators(partsDir);
-              qDebug() << "\nINSERT LDRAW SEARCH DIR: " << partsDir;
+              qDebug() << "\n->INSERT LDRAW SEARCH DIR: " << partsDir;
 
             }
 
@@ -506,15 +506,13 @@ void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
 
   if(!ldPartsDirs.size() == 0){
 
-      qDebug() << "\n";
-
       if (!silent)
           emit progressRangeSig(0, 0);
 
       for (int i = 0; i < ldPartsDirs.size(); i++){
 
           QDir foo = ldPartsDirs[i];
-          qDebug() << QString(tr("ARCHIVING %1 DIR %2").arg(comment.toUpper()).arg(foo.absolutePath()));
+          qDebug() << "\n" << QString(tr("ARCHIVING %1 DIR %2").arg(comment.toUpper()).arg(foo.absolutePath()));
 
           if (!archiveParts.Archive(archiveFile,
                                      foo.absolutePath(),

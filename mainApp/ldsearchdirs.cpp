@@ -343,7 +343,7 @@ bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbit
           if ((searchDir->Flags & LDSDF_SKIP) == 0)
             {
               m_ldrawSearchDirs.push_back(searchDir->Dir);
-              qDebug() << "\n LDRAW SEARCH DIR PUSHED: " << searchDir->Dir;
+              qDebug() << "\n" << "LDRAW SEARCH DIR PUSHED: " << searchDir->Dir;
             }
         }
 
