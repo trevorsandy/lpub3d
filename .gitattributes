@@ -329,6 +329,11 @@ mainApp/images/border.png -text
 mainApp/images/calloutsetup.png -text
 mainApp/images/changeshape.png -text
 mainApp/images/clearcache.png -text
+mainApp/images/clearcsi3dcache.png -text
+mainApp/images/clearcsicache.png -text
+mainApp/images/clearfadecache.png -text
+mainApp/images/clearimagemodelcache.png -text
+mainApp/images/clearplicache.png -text
 mainApp/images/contentspage.png -text
 mainApp/images/copy.png -text
 mainApp/images/cut.png -text

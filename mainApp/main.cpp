@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
     gMainWindow->SetColorIndex(lcGetColorIndex(4));
     gMainWindow->UpdateRecentFiles();
 
-    QTimer::singleShot(splashDuration, &LPub3DApp, SLOT(show()));
+    QTimer::singleShot(/*splashDuration*/100, &LPub3DApp, SLOT(show()));
     //QTimer::singleShot(splashDuration, gMainWindow, SLOT(show()));
 
     LPub3DApp.sizeit();

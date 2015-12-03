@@ -67,7 +67,7 @@ bool LDSearchDirs::verifyLDrawDir(const char *value)
   return retValue;
 }
 
-// NOTE: static function.
+// NOTE: static function. NOT USED
 bool LDSearchDirs::verifyExtraDir(const char *value)
 {
   char currentDir[1024];
@@ -90,6 +90,27 @@ bool LDSearchDirs::verifyExtraDir(const char *value)
         }
     }
   return retValue;
+}
+
+// NOTE: static function.
+bool LDSearchDirs::verifyExcludedDir(const char *value){
+  value = value;
+  //TODO
+  //get list from preferences
+  /*  bool validated;
+   *  foreach(QString validDir, Preferences::listValidDirs){
+   *      // this
+   *
+   *      validated = false;
+   *      if (value == validDir.toLatin1().constData())
+   *         validated = true;
+   *
+   *      //or
+   *
+   *      validated = value == validDir.toLatin1().constData();
+   * }
+   * return validated;
+   */
 }
 
 // NOTE: static function.
@@ -154,9 +175,6 @@ void LDSearchDirs::initCheckDirs()
     {
       sm_checkDirs.push_back(value);
     }
-
-    // test only
-    // sm_checkDirs.push_back(Preferences::ldrawPath.toLatin1().constData());
 
 #ifdef WIN32
   char buf[1024];
@@ -336,18 +354,20 @@ bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbit
     {
       int i;
 
+      qDebug() << "";
+
       for (i = 0; i < sm_lDrawIni->nSearchDirs; i++)
         {
           LDrawSearchDirS *searchDir = &sm_lDrawIni->SearchDirs[i];
 
-          if ((searchDir->Flags & LDSDF_SKIP) == 0)
+          if ((searchDir->Flags & LDSDF_SKIP) == 0)  //Add function to verifyExcludedDirs()
             {
               m_ldrawSearchDirs.push_back(searchDir->Dir);
-              qDebug() << "\n" << "LDRAW SEARCH DIR PUSHED: " << searchDir->Dir;
+              qDebug() << "LDRAW SEARCH DIR PUSHED: " << searchDir->Dir;
             }
         }
 
-      //process extra seach directories
+      //process extra seach directories NOT USED
       bool found = false;
       for (StringList::const_iterator it = m_extraSearchDirs.begin(); !found &&
            it != m_extraSearchDirs.end(); it++)
@@ -357,7 +377,7 @@ bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbit
           if (verifyExtraDir(dir))
             {
               m_ldrawSearchDirs.push_back(dir);
-              qDebug() << "\n LDRAW EXTRA SEARCH DIR PUSHED: " << dir;
+              qDebug() << "LDRAW EXTRA SEARCH DIR PUSHED: " << dir;
               found = true;
             }
         }

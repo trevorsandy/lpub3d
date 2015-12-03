@@ -244,7 +244,7 @@ void Gui::clearAndRedrawPage()
        QObject *obj = sender();
        if (obj == editWindow)
            statusBarMsg("Page regenerated.");
-       else if (obj == clearALLCacheAct)
+       else if (obj == clearImageModelCacheAct)
            statusBarMsg("Assembly, Parts and 3D content caches reset.");
 }
 
@@ -502,8 +502,8 @@ bool Gui::installPrintBanner(const QString &printFile, const QString &imageFile)
     QFile ldrFile(printFile);
     if ( ! ldrFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
         QMessageBox::warning(NULL,
-                             QMessageBox::tr("LPub3D"),
-                             QMessageBox::tr("Cannot open Print Banner file %1 for writing:\n%2")
+                             tr("LPub3D"),
+                             tr("Cannot open Print Banner file %1 for writing:\n%2")
                              .arg(printFile)
                              .arg(ldrFile.errorString()));
         return false;
@@ -548,7 +548,7 @@ void Gui::mpdComboChanged(int index)
     }
 }
 
-void Gui::clearAllCaches()
+void Gui::clearImageModelCaches()
 {
     if (getCurFile().isEmpty()) {
         statusBarMsg("A model must be open to reset its caches - no action taken.");
@@ -562,6 +562,34 @@ void Gui::clearAllCaches()
        statusBarMsg("Assembly, Parts and 3D content caches reset.");
 }
 
+void Gui::clearFadeCache()
+{
+  QMessageBox::StandardButton ret;
+  ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
+                             tr("All fade files will be deleted. \nFade files are automatically generated.\n"
+                                "Do you want to delete the current fade files?"),
+                             QMessageBox::Ok | QMessageBox::Discard | QMessageBox::Cancel);
+  if (ret == QMessageBox::Ok) {
+
+      QString dirName = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/fade"));
+
+      int count = 0;
+      if (removeDir(count, dirName)){
+          statusBarMsg(QString("Fade parts content cache cleaned.  %1 items removed.").arg(count));
+        } else {
+          QMessageBox::critical(NULL,
+                                tr("LPub3D"),
+                                tr("Unable to remeove fade cache directory \n%1")
+                                .arg(dirName));
+          return;
+        }
+
+    } else if (ret == QMessageBox::Cancel) {
+      return;
+    }
+
+}
+
 void Gui::clearPLICache()
 {
     if (getCurFile().isEmpty()) {
@@ -572,16 +600,24 @@ void Gui::clearPLICache()
     QString dirName = QDir::currentPath() + "/" + Paths::partsDir;
     QDir dir(dirName);
 
-    dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+    dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
     QFileInfoList list = dir.entryInfoList();
+    int count = 0;
     for (int i = 0; i < list.size(); i++) {
         QFileInfo fileInfo = list.at(i);
         QFile     file(dirName + "/" + fileInfo.fileName());
-        file.remove();
-    }
+        if (!file.remove()) {
+            QMessageBox::critical(NULL,
+                                  tr("LPub3D"),
+                                  tr("Unable to remeove %1")
+                                  .arg(dirName + "/" + fileInfo.fileName()));
+            count--;
+          } else
+          count++;
+      }
 
-    statusBarMsg("Parts content cache cleaned.");
+    statusBarMsg(QString("Parts content cache cleaned. %1 items removed.").arg(count));
 }
 
 void Gui::clearCSICache()
@@ -594,15 +630,24 @@ void Gui::clearCSICache()
     QString dirName = QDir::currentPath() + "/" + Paths::assemDir;
     QDir dir(dirName);
 
-    dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+    dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
     QFileInfoList list = dir.entryInfoList();
+    int count = 0;
     for (int i = 0; i < list.size(); i++) {
         QFileInfo fileInfo = list.at(i);
         QFile     file(dirName + "/" + fileInfo.fileName());
-        file.remove();
-    }
-    statusBarMsg("Assembly content cache cleaned.");
+        if (!file.remove()) {
+            QMessageBox::critical(NULL,
+                                  tr("LPub3D"),
+                                  tr("Unable to remeove %1")
+                                  .arg(dirName + "/" + fileInfo.fileName()));
+            count--;
+          } else
+          count++;
+      }
+
+    statusBarMsg(QString("Assembly content cache cleaned. %1 items removed.").arg(count));
 }
 
 void Gui::clearCSI3DCache()
@@ -615,30 +660,70 @@ void Gui::clearCSI3DCache()
     QString tmpDirName = QDir::currentPath() + "/" + Paths::tmpDir;
     QDir tmpDir(tmpDirName);
 
-    tmpDir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+    tmpDir.setFilter(QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
-    QFileInfoList tmpDirList = tmpDir.entryInfoList();
-    for (int i = 0; i < tmpDirList.size(); i++) {
-        QFileInfo fileInfo = tmpDirList.at(i);
+    QFileInfoList list = tmpDir.entryInfoList();
+    int count1 = 0;
+    for (int i = 0; i < list.size(); i++) {
+        QFileInfo fileInfo = list.at(i);
         QFile     file(tmpDirName + "/" + fileInfo.fileName());
-        file.remove();
-    }
+        if (!file.remove()) {
+            QMessageBox::critical(NULL,
+                                  tr("LPub3D"),
+                                  tr("Unable to remeove %1")
+                                  .arg(tmpDirName + "/" + fileInfo.fileName()));
+            count1--;
+          } else
+          count1++;
+      }
 
     ldrawFile.tempCacheCleared();
 
     QString viewDirName = QDir::currentPath() + "/" + Paths::viewerDir;
     QDir viewDir(viewDirName);
 
-    viewDir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+    viewDir.setFilter(QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
     QFileInfoList viewDirList = viewDir.entryInfoList();
+    int count2 = 0;
     for (int i = 0; i < viewDirList.size(); i++) {
         QFileInfo fileInfo = viewDirList.at(i);
         QFile     file(viewDirName + "/" + fileInfo.fileName());
-        file.remove();
+        if (!file.remove()) {
+            QMessageBox::critical(NULL,
+                                  tr("LPub3D"),
+                                  tr("Unable to remeove %1")
+                                  .arg(viewDirName + "/" + fileInfo.fileName()));
+            count2--;
+          } else
+          count2++;
     }
 
-    statusBarMsg("3D content cache cleaned.");
+    statusBarMsg(QString("3D Viewer content cache cleaned. %1 temp and %2 viewer items removed.").arg(count1).arg(count2));
+}
+
+bool Gui::removeDir(int &count, const QString & dirName)
+{
+    bool result = true;
+    QDir dir(dirName);
+
+    if (dir.exists(dirName)) {
+        Q_FOREACH(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
+            if (info.isDir()) {
+                result = removeDir(count,info.absoluteFilePath());
+            }
+            else {
+                result = QFile::remove(info.absoluteFilePath());
+                count++;
+            }
+
+            if (!result) {
+                return result;
+            }
+        }
+        result = dir.rmdir(dirName);
+    }
+    return result;
 }
 
 /***************************************************************************
@@ -1224,21 +1309,25 @@ void Gui::createActions()
     setPageLineEdit->setMinimumSize(size);
     connect(setPageLineEdit, SIGNAL(returnPressed()), this, SLOT(setPage()));
 
-    clearPLICacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Reset Parts Image Cache"), this);
+    clearPLICacheAct = new QAction(QIcon(":/resources/clearplicache.png"),tr("Reset Parts Image Cache"), this);
     clearPLICacheAct->setStatusTip(tr("Reset the parts list image cache"));
     connect(clearPLICacheAct, SIGNAL(triggered()), this, SLOT(clearPLICache()));
 
-    clearCSICacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Reset Assembly Image Cache"), this);
+    clearCSICacheAct = new QAction(QIcon(":/resources/clearcsicache.png"),tr("Reset Assembly Image Cache"), this);
     clearCSICacheAct->setStatusTip(tr("Reset the assembly image cache"));
     connect(clearCSICacheAct, SIGNAL(triggered()), this, SLOT(clearCSICache()));
 
-    clearCSI3DCacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Reset 3D Viewer Model Cache"), this);
+    clearCSI3DCacheAct = new QAction(QIcon(":/resources/clearcsi3dcache.png"),tr("Reset 3D Viewer Model Cache"), this);
     clearCSI3DCacheAct->setStatusTip(tr("Reset the 3D viewer image cache"));
     connect(clearCSI3DCacheAct, SIGNAL(triggered()), this, SLOT(clearCSI3DCache()));
 
-    clearALLCacheAct = new QAction(QIcon(":/resources/clearcache.png"),tr("Reset All Caches"), this);
-    clearALLCacheAct->setStatusTip(tr("Reset all caches"));
-    connect(clearALLCacheAct, SIGNAL(triggered()), this, SLOT(clearAllCaches()));
+    clearImageModelCacheAct = new QAction(QIcon(":/resources/clearimagemodelcache.png"),tr("Reset Image and Model Caches"), this);
+    clearImageModelCacheAct->setStatusTip(tr("Reset all image and model caches"));
+    connect(clearImageModelCacheAct, SIGNAL(triggered()), this, SLOT(clearImageModelCaches()));
+
+    clearFadeCacheAct = new QAction(QIcon(":/resources/clearfadecache.png"),tr("Reset Fade Files Cache"), this);
+    clearFadeCacheAct->setStatusTip(tr("Reset the fade part files cache"));
+    connect(clearFadeCacheAct, SIGNAL(triggered()), this, SLOT(clearFadeCache()));
 
     // Config menu
 
@@ -1454,10 +1543,11 @@ void Gui::createMenus()
 
     QMenu *cacheMenu = toolsMenu->addMenu("Reset Cache...");
     cacheMenu->setIcon(QIcon(":/resources/resetcache.png"));
-    cacheMenu->addAction(clearALLCacheAct);
+    cacheMenu->addAction(clearImageModelCacheAct);
     cacheMenu->addAction(clearPLICacheAct);
     cacheMenu->addAction(clearCSICacheAct);
     cacheMenu->addAction(clearCSI3DCacheAct);
+    cacheMenu->addAction(clearFadeCacheAct);
 
     configMenu = menuBar()->addMenu(tr("&Configuration"));
     configMenu->addAction(pageSetupAct);

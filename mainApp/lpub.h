@@ -645,7 +645,9 @@ public slots:
   void clearPLICache();
   void clearCSICache();
   void clearCSI3DCache();
-  void clearAllCaches();
+  void clearImageModelCaches();
+  void clearFadeCache();
+  bool removeDir(int &count,const QString &dirName);
 
   void clearAndRedrawPage();
 
@@ -967,7 +969,8 @@ private:
   QAction  *clearPLICacheAct;
   QAction  *clearCSICacheAct;
   QAction  *clearCSI3DCacheAct;
-  QAction  *clearALLCacheAct;
+  QAction  *clearImageModelCacheAct;
+  QAction  *clearFadeCacheAct;
 
   // config menu
 

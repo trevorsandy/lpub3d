@@ -30,42 +30,6 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
 {}
 
 /*
-    Utility function that recursivily searches for directories.
-*/
-QStringList PartWorker::getLDrawDirectories(const QString &startDir){
-
-  QStringList dirNames;
-  QDir dir(startDir);
-
-  QString unoffPartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts"));
-  QString unoffPrimsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"));
-
-  foreach (QString subdir, dir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot)) {
-
-      QString partsDir = QDir::toNativeSeparators(startDir + "/" + subdir);
-
-      if (
-          partsDir.toLower().toLower().contains(unoffPartsDir.toLower()) ||
-          partsDir.toLower().toLower().contains(unoffPrimsDir.toLower())
-          ){
-
-          qDebug() << "\n<-EXCLUDE GET LDRAW DIR: " << partsDir;
-          continue;
-
-        } else {
-
-          dirNames += partsDir;
-          qDebug() << "\n->INSERT LDRAW UNOFF DIR: " << partsDir;
-
-        }
-
-    }
-
-  return dirNames;
-
-}
-
-/*
  * Process LDraw search directories part files.
  */
 
@@ -82,6 +46,8 @@ void PartWorker::processLDSearchDirParts(){
 
       StringList ldrawSearchDirs = ldPartsDirs.getLDrawSearchDirs();
 
+      qDebug() << "";
+
       for (StringList::const_iterator it = ldrawSearchDirs.begin();
            it != ldrawSearchDirs.end(); it++)
         {
@@ -97,29 +63,22 @@ void PartWorker::processLDSearchDirParts(){
               partsDir.toLower().toLower().contains(unoffPrimsDir.toLower())
               ){
 
-              qDebug() << "\n<-EXCLUDE LDRAW SEARCH DIR: " << partsDir;
+              qDebug() << "<-EXCLUDE LDRAW SEARCH DIR: " << partsDir;
               continue;
 
             } else {
 
               ldSearchPartsDirs << QDir::toNativeSeparators(partsDir);
-              qDebug() << "\n->INSERT LDRAW SEARCH DIR: " << partsDir;
+              qDebug() << "->INSERT LDRAW SEARCH DIR: " << partsDir;
 
             }
-
         }
 
       processPartsArchive(ldSearchPartsDirs, "search directory", false, true);
 
     } else {
 
-        qDebug() << QString(tr("Failed to load LDrawini search directores using default LDraw unofficial directory instead."));
-
-        bool isFadeItem = false;
-        bool isSilent   = false;
-        QString ldrawUnoffDirs = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial"));
-
-        processPartsArchive(getLDrawDirectories(ldrawUnoffDirs), "ldraw unofficial directory", isFadeItem, isSilent);
+      qDebug() << QString(tr("Failed to load search directories - ldPartsDirs.loadLDrawSearchDirs() returned false."));
     }
 
 //  emit ldSearchDirFinishedSig();
@@ -512,12 +471,11 @@ void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
       for (int i = 0; i < ldPartsDirs.size(); i++){
 
           QDir foo = ldPartsDirs[i];
-          qDebug() << "\n" << QString(tr("ARCHIVING %1 DIR %2").arg(comment.toUpper()).arg(foo.absolutePath()));
+          qDebug() << QString(tr("ARCHIVING %1 DIR %2").arg(comment.toUpper()).arg(foo.absolutePath()));
 
           if (!archiveParts.Archive(archiveFile,
                                      foo.absolutePath(),
-                                     QString("Append %1 parts").arg(comment),
-                                     fadeItem ? FADE_COLOUR_PART : NORMAL_PART)){
+                                     QString("Append %1 parts").arg(comment))){
 
             if (!silent)
               emit messageSig(false,QString(tr("Failed to archive %1 parts from \n %2")
@@ -566,26 +524,6 @@ ColourPart::ColourPart(
 ColourPartListWorker::ColourPartListWorker(QObject *parent) : QObject(parent)
 {_endThreadNowRequested = false; _cpLines = 0; _filePath = "";}
 
-/*
-    Utility function that recursivily searches for directories.
-*/
-QStringList ColourPartListWorker::getLDrawDirectories(const QString &startDir){
-
-  QStringList dirNames;
-  QDir dir(startDir);
-
-  foreach (QString subdir, dir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot)) {
-
-      QString partsDir = QDir::toNativeSeparators(startDir + "/" + subdir);
-
-      dirNames += partsDir;
-      qDebug() << "\nINSERT LDRAW UNOFF DIR: " << partsDir;
-
-    }
-
-  return dirNames;
-
-}
 
 /*
  * build colour part directory
@@ -615,16 +553,8 @@ void ColourPartListWorker::scanDir()
 
       } else {
 
-        qDebug() << QString(tr("Failed to load LDrawini search directores using default LDraw directories instead."));
-
-        QString filePath         = Preferences::ldrawPath;
-        QString ldrawUnoffDirs   = QDir::toNativeSeparators(filePath + "/Unofficial/");
-        QStringList partTypeDirs = getLDrawDirectories(ldrawUnoffDirs);
-
-        partTypeDirs << QDir::toNativeSeparators(filePath + "/parts/");
-        partTypeDirs << QDir::toNativeSeparators(filePath + "/p/");
-        partTypeDirs << QDir::toNativeSeparators(filePath + "/models/");
-
+        //qDebug() << QString(tr("Failed to load search directories - ldPartsDirs.loadLDrawSearchDirs() returned false."));
+        emit messageSig(false, QString(tr("Failed to load search directories - ldPartsDirs.loadLDrawSearchDirs() returned false.")));
       }
 
     _timer.start();

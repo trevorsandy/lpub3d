@@ -20,6 +20,8 @@ Features and enhancements
 -Add LDCad UNOFFICIAL PART meta to recognize LDCad template generated parts
 -Add gradients to background options
 -Add Change local page background - colour, gradient, picture, submodel, none
+-Add menu option 'Reset Fade Files Cache' which deletes all generated fade files. Fade files automatically
+ generated as needed when you open a model with the 'Enable Fade Steps' preference option checked.
 -Update 3DViewer to LeoCAD build 1867
 -[not implemented]Generate warning message when LPub 0 !LPUB INSERT COVER_PAGE encountered. Message: 
  LPub3D does not support the LPub meta 0 !LPUB INSERT COVER_PAGE.
@@ -36,6 +38,7 @@ Features and enhancements
 -Fix: PLI/BOM sort routine, sort on 'part colour' part(s) appear out of place relative to
  part size and colour.
 -Fix: Do not create instruction page(s) for unofficial part
+-CHANGE: Change 'Reset All Caches' to 'Reset Image and Model' Caches
 -CHANGE: BOM default sort to sort by colour then size, previous default was size only (PLI default sort by size)
 -CHANGE: Change 'Update' tab in preferences dialog to 'Other'.
 
