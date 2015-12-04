@@ -87,10 +87,10 @@
 QSimpleUpdater::QSimpleUpdater (QObject *parent, bool isLdrawDownload)
     : QObject (parent)
     , m_silent (false)
-    , m_isLdrawDownload (isLdrawDownload)
     , m_show_newest_version (true)
     , m_show_update_available (true)
     , m_new_version_available (false)
+    , m_isLdrawDownload (isLdrawDownload)
 {
 
     m_updateRequest.setRawHeader("User-Agent","Mozilla Firefox");
@@ -122,7 +122,7 @@ QSimpleUpdater::QSimpleUpdater (QObject *parent, bool isLdrawDownload)
 
 QSimpleUpdater::~QSimpleUpdater()
 {
-    if (m_manager)
+    if (m_manager && !m_isLdrawDownload)
         m_manager->deleteLater();
 }
 

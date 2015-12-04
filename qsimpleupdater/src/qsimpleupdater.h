@@ -99,9 +99,9 @@ class QSimpleUpdater : public QObject
         bool m_show_update_available;
         bool m_new_version_available;
         bool m_initialUpdate;
+        bool m_isLdrawDownload;
 
         QString m_ldrawArchivePath;
-        bool m_isLdrawDownload;
 
         DownloadDialog *m_downloadDialog;
         ProgressDialog *m_progressDialog;
