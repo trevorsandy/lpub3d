@@ -855,6 +855,7 @@ private slots:
     void closeEvent(QCloseEvent *event);
 
     void mpdComboChanged(int index);
+    void refreshLDrawUnoffParts();
 
     void clearPage(
       LGraphicsView  *view,
@@ -971,6 +972,7 @@ private:
   QAction  *clearCSI3DCacheAct;
   QAction  *clearImageModelCacheAct;
   QAction  *clearFadeCacheAct;
+  QAction  *refreshLDrawUnoffPartsAct;
 
   // config menu
 

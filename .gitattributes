@@ -384,6 +384,7 @@ mainApp/images/prev.png -text
 mainApp/images/print.png -text
 mainApp/images/projectsetup.png -text
 mainApp/images/redraw.png -text
+mainApp/images/refreshunoffarchive.png -text
 mainApp/images/remove.png -text
 mainApp/images/removelpubformat.png -text
 mainApp/images/resetcache.png -text
@@ -496,6 +497,8 @@ mainApp/traverse.cpp -text
 mainApp/undoredo.cpp -text
 mainApp/updatecheck.cpp -text
 mainApp/updatecheck.h -text
+mainApp/updateldrawarchive.cpp -text
+mainApp/updateldrawarchive.h -text
 mainApp/version.h -text
 mainApp/where.h -text
 qsimpleupdater/QSimpleUpdater.pri -text

@@ -49,6 +49,8 @@ DownloadDialog::DownloadDialog (QWidget *parent)
     // Avoid SSL issues
     connect (m_manager, SIGNAL (sslErrors (QNetworkReply *, QList<QSslError>)), this,
              SLOT (ignoreSslErrors (QNetworkReply *, QList<QSslError>)));
+
+
 }
 
 DownloadDialog::~DownloadDialog (void)
@@ -72,7 +74,11 @@ void DownloadDialog::beginDownload (const QUrl& url)
     // Reset the UI
     ui->progressBar->setValue (0);
     ui->stopButton->setText (tr ("Stop"));
-    ui->downloadLabel->setText (tr ("Downloading updates"));
+    if (m_isLdrawDownload)
+      ui->downloadLabel->setText (tr ("Downloading ldrawunf.zip..."));
+    else
+      ui->downloadLabel->setText (tr ("Downloading updates"));
+
     ui->timeLabel->setText (tr ("Time remaining") + ": " + tr ("unknown"));
 
     // Begin the download
@@ -159,14 +165,18 @@ void DownloadDialog::downloadFinished (void)
 {
     ui->stopButton->setText (tr ("Close"));
     ui->downloadLabel->setText (tr ("Download complete!"));
-    ui->timeLabel->setText (tr ("The installer will open in a separate window..."));
+    if (m_isLdrawDownload)
+      ui->timeLabel->setText (tr ("File written to %1").arg(m_ldrawArchivePath));
+    else
+      ui->timeLabel->setText (tr ("The installer will open in a separate window..."));
 
     QByteArray data = m_reply->readAll();
 
     if (!data.isEmpty())
     {
         QStringList list = m_reply->url().toString().split ("/");
-        QFile file (QDir::tempPath() + "/" + list.at (list.count() - 1));
+        QFile file ((m_isLdrawDownload ? m_ldrawArchivePath : QDir::tempPath()) + "/" + list.at (list.count() - 1));
+
         QMutex _mutex;
 
         if (file.open (QIODevice::WriteOnly))
@@ -178,7 +188,8 @@ void DownloadDialog::downloadFinished (void)
             _mutex.unlock();
         }
 
-        installUpdate();
+        if (!m_isLdrawDownload)
+          installUpdate();
 
     }
 }
@@ -230,7 +241,10 @@ void DownloadDialog::updateProgress (qint64 received, qint64 total)
             _received_string = tr ("%1 MB").arg (_received);
         }
 
-        ui->downloadLabel->setText (tr ("Downloading updates") + " (" + _received_string + " " + tr ("of") + " " + _total_string + ")");
+        if (m_isLdrawDownload)
+          ui->downloadLabel->setText (tr ("Downloading ldrawunf.zip") + " (" + _received_string + " " + tr ("of") + " " + _total_string + ")");
+        else
+          ui->downloadLabel->setText (tr ("Downloading updates") + " (" + _received_string + " " + tr ("of") + " " + _total_string + ")");
 
         uint _diff = QDateTime::currentDateTime().toTime_t() - m_start_time;
 

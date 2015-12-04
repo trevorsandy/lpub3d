@@ -81,6 +81,7 @@
         <file alias="print.png">images/print.png</file>
         <file alias="projectsetup.png">images/projectsetup.png</file>
         <file alias="redraw.png">images/redraw.png</file>
+        <file alias="refreshunoffarchive.png">images/refreshunoffarchive.png</file>
         <file alias="remove.png">images/remove.png</file>
         <file alias="removelpubformat.png">images/removelpubformat.png</file>
         <file alias="resetcache.png">images/resetcache.png</file>

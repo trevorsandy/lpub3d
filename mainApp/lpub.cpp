@@ -40,6 +40,8 @@
 #include "metaitem.h"
 #include "ranges_element.h"
 #include "updatecheck.h"
+#include "updateldrawarchive.h"
+
 
 #include "step.h"
 //** 3D
@@ -547,6 +549,7 @@ void Gui::mpdComboChanged(int index)
         }
     }
 }
+
 
 void Gui::clearImageModelCaches()
 {
@@ -1077,6 +1080,14 @@ bool Gui::aboutDialog()
     return Dialog.exec() == QDialog::Accepted;
 }
 
+void Gui::refreshLDrawUnoffParts(){
+
+  // Create an instance of update ldraw archive
+  new UpdateLdrawArchive(this);
+
+}
+
+
 void Gui::updateCheck()
 {
     // Create an instance of update check
@@ -1321,13 +1332,17 @@ void Gui::createActions()
     clearCSI3DCacheAct->setStatusTip(tr("Reset the 3D viewer image cache"));
     connect(clearCSI3DCacheAct, SIGNAL(triggered()), this, SLOT(clearCSI3DCache()));
 
-    clearImageModelCacheAct = new QAction(QIcon(":/resources/clearimagemodelcache.png"),tr("Reset Image and Model Caches"), this);
+    clearImageModelCacheAct = new QAction(QIcon(":/resources/clearimagemodelcache.png"),tr("Reset Image and 3D Model Caches"), this);
     clearImageModelCacheAct->setStatusTip(tr("Reset all image and model caches"));
     connect(clearImageModelCacheAct, SIGNAL(triggered()), this, SLOT(clearImageModelCaches()));
 
     clearFadeCacheAct = new QAction(QIcon(":/resources/clearfadecache.png"),tr("Reset Fade Files Cache"), this);
     clearFadeCacheAct->setStatusTip(tr("Reset the fade part files cache"));
     connect(clearFadeCacheAct, SIGNAL(triggered()), this, SLOT(clearFadeCache()));
+
+    refreshLDrawUnoffPartsAct = new QAction(QIcon(":/resources/refreshunoffarchive.png"),tr("Refresh Unofficial Parts"), this);
+    refreshLDrawUnoffPartsAct->setStatusTip(tr("Download and replace LDraw Unofficial parts archive (ldrawunf.zip)"));
+    connect(refreshLDrawUnoffPartsAct, SIGNAL(triggered()), this, SLOT(refreshLDrawUnoffParts()));
 
     // Config menu
 
@@ -1542,6 +1557,7 @@ void Gui::createMenus()
     toolsMenu->addSeparator();
 
     QMenu *cacheMenu = toolsMenu->addMenu("Reset Cache...");
+    toolsMenu->addAction(refreshLDrawUnoffPartsAct);
     cacheMenu->setIcon(QIcon(":/resources/resetcache.png"));
     cacheMenu->addAction(clearImageModelCacheAct);
     cacheMenu->addAction(clearPLICacheAct);

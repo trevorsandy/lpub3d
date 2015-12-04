@@ -84,9 +84,10 @@
  * Initializes and configures the class.
  */
 
-QSimpleUpdater::QSimpleUpdater (QObject *parent)
+QSimpleUpdater::QSimpleUpdater (QObject *parent, bool isLdrawDownload)
     : QObject (parent)
     , m_silent (false)
+    , m_isLdrawDownload (isLdrawDownload)
     , m_show_newest_version (true)
     , m_show_update_available (true)
     , m_new_version_available (false)
@@ -94,19 +95,29 @@ QSimpleUpdater::QSimpleUpdater (QObject *parent)
 
     m_updateRequest.setRawHeader("User-Agent","Mozilla Firefox");
 
-    m_progressDialog = new ProgressDialog();
     m_downloadDialog = new DownloadDialog();
 
-    m_manager = new QNetworkAccessManager (this);
-    connect (m_manager, SIGNAL (finished (QNetworkReply *)), this,
-             SLOT (checkDownloadedVersion (QNetworkReply *)));
-    connect (m_manager, SIGNAL (sslErrors (QNetworkReply *, QList<QSslError>)),
-             this, SLOT (ignoreSslErrors (QNetworkReply *, QList<QSslError>)));
+    if (m_isLdrawDownload) {
 
-    connect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancel()));
-    connect (this, SIGNAL (checkingFinished()), this, SLOT (onCheckingFinished()));
+        m_downloadDialog->setIsLdrawDownload(m_isLdrawDownload);
 
-    setApplicationVersion (qApp->applicationVersion());
+        connect (this, SIGNAL (checkingFinished()), this, SLOT (onCheckingIsLdrawDownloadFinished()));
+
+      } else {
+
+        m_progressDialog = new ProgressDialog();
+
+        m_manager = new QNetworkAccessManager (this);
+        connect (m_manager, SIGNAL (finished (QNetworkReply *)), this,
+                 SLOT (checkDownloadedVersion (QNetworkReply *)));
+        connect (m_manager, SIGNAL (sslErrors (QNetworkReply *, QList<QSslError>)),
+                 this, SLOT (ignoreSslErrors (QNetworkReply *, QList<QSslError>)));
+
+        connect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancel()));
+        connect (this, SIGNAL (checkingFinished()), this, SLOT (onCheckingFinished()));
+
+        setApplicationVersion (qApp->applicationVersion());
+      }
 }
 
 QSimpleUpdater::~QSimpleUpdater()
@@ -147,6 +158,24 @@ void QSimpleUpdater::checkForUpdates (void)
 
     else
         qDebug() << "QSimpleUpdater: Invalid reference URL";
+}
+
+/*!
+ * Checks for updates and calls the appropiate functions
+ * when finished.
+ *
+ * \sa setDownloadUrl()
+ */
+void QSimpleUpdater::updateUnoffArchive (void)
+{
+    if (!m_download_url.isEmpty())
+    {
+        m_downloadDialog->setLdrawArchivePath(m_ldrawArchivePath);
+        emit checkingFinished();
+    }
+
+    else
+        qDebug() << "QSimpleUpdater: Invalid download URL";
 }
 
 /*!
@@ -354,6 +383,19 @@ void QSimpleUpdater::setInitialUpdate (bool b)
     m_initialUpdate = b;
 }
 
+/*!
+ * Write \a the ldraw archive file path
+ * so it can be passed to the download dialog.
+ *
+ * \sa setDownloadUrl()
+ */
+
+void QSimpleUpdater::setLdrawArchivePath (const QString& filePath)
+{
+    m_ldrawArchivePath = filePath;
+}
+
+
 /*! \internal
  * Disconnects the network access manager when the user
  * clicks on the "cancel" button in the progress dialog.
@@ -434,6 +476,39 @@ void QSimpleUpdater::onCheckingFinished (void)
             .arg (installedVersion()));
 
         _message.exec();
+    }
+}
+
+/*! \internal
+ * Asks the use if s/he would like to download
+ * the unofficial ldraw parts archive.
+ *
+ * \sa setDownloadUrl()
+ */
+void QSimpleUpdater::onCheckingIsLdrawDownloadFinished(){
+
+  // Get the application icon as a pixmap
+  QPixmap _icon = QPixmap(":/icons/lpub96.png");
+
+  // If the icon is invalid, use default icon
+  if (_icon.isNull())
+    _icon = QPixmap (":/icons/update.png");
+
+  QMessageBox _message;
+  _message.setIconPixmap (_icon);
+
+  // Ask user if he/she wants to download unofficial ldraw archive
+
+  _message.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+  _message.setText ("<b>" + tr ("Replace your ldrawunf.zip archive file?") +
+                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>");
+  _message.setInformativeText (
+        tr ("The latest version of ldrawunf.zip will be downloaded and written to the "
+            "LPub3DViewer-Library folder. "
+            "\n\nClick Yes to continue or No to cancel."));
+
+  if (_message.exec() == QMessageBox::Yes){
+      downloadLatestVersion();
     }
 }
 

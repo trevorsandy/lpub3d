@@ -241,7 +241,8 @@ HEADERS += \
     archiveparts.h \
     ldsearchdirs.h \
     threadWorkers.h \
-    dialogexportpages.h
+    dialogexportpages.h \
+    updateldrawarchive.h
 #    displaypagethread.h
 	
 SOURCES += \
@@ -318,7 +319,8 @@ SOURCES += \
     archiveparts.cpp \
     ldsearchdirs.cpp \
     threadWorkers.cpp \
-    dialogexportpages.cpp
+    dialogexportpages.cpp \
+    updateldrawarchive.cpp
 #    displaypagethread.cpp
 	
 FORMS += \
