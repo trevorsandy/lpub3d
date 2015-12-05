@@ -1052,10 +1052,10 @@ void Gui::processFadeColourParts()
     }
 }
 
-void Gui::processLDSearchDirParts()
-{
-  partWorkerLDSearchDirs.processLDSearchDirParts();
-}
+//void Gui::processLDSearchDirParts()
+//{
+//  partWorkerLDSearchDirs.processLDSearchDirParts();
+//}
 
 
 void Gui::progressBarInit(){
@@ -1340,7 +1340,7 @@ void Gui::createActions()
     clearFadeCacheAct->setStatusTip(tr("Reset the fade part files cache"));
     connect(clearFadeCacheAct, SIGNAL(triggered()), this, SLOT(clearFadeCache()));
 
-    refreshLDrawUnoffPartsAct = new QAction(QIcon(":/resources/refreshunoffarchive.png"),tr("Refresh Unofficial Parts"), this);
+    refreshLDrawUnoffPartsAct = new QAction(QIcon(":/resources/refreshunoffarchive.png"),tr("Refresh LDraw Unofficial Parts"), this);
     refreshLDrawUnoffPartsAct->setStatusTip(tr("Download and replace LDraw Unofficial parts archive (ldrawunf.zip)"));
     connect(refreshLDrawUnoffPartsAct, SIGNAL(triggered()), this, SLOT(refreshLDrawUnoffParts()));
 

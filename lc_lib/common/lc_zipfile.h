@@ -10,7 +10,8 @@
 class lcFile;
 
 // Date/time info.
-struct tm_unz
+//struct tm_unz //changed on 05/12/2015 move LDSearch directories to lc_application
+struct tm_unz_lc_zip
 {
 	lcuint32 tm_sec;            // seconds after the minute - [0,59]
 	lcuint32 tm_min;            // minutes after the hour - [0,59]
@@ -41,7 +42,9 @@ struct lcZipFileInfo
 
 	lcuint64 offset_curfile;       // relative offset of local header 8 bytes
 	char file_name[256];
-	tm_unz tmu_date;
+
+	tm_unz_lc_zip tmu_date; //changed on 05/12/2015 move LDSearch directories to lc_application
+	//tm_unz tmu_date;
 
 	lcMemFile* write_buffer;
 	bool deleted;

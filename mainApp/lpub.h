@@ -654,7 +654,7 @@ public slots:
   void fileChanged(const QString &path);
 
   void processFadeColourParts();
-  void processLDSearchDirParts();
+//  void processLDSearchDirParts(); //moved to lc_application
 
 signals:       
 
@@ -682,7 +682,7 @@ public:
   Page                  page;            // the abstract version of page contents
 
   // multi-thread worker classes
-  PartWorker            partWorkerLDSearchDirs;  // part worker to process search directories and fade color parts
+//  PartWorker            partWorkerLDSearchDirs;  // part worker to process search directories and fade color parts
   PartWorker            *partWorkerFadeColour;    // part worker to process colour part fade
   ColourPartListWorker  *colourPartListWorker;    // create static colour parts list in separate thread
 

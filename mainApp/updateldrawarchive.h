@@ -22,6 +22,7 @@
 class UpdateLdrawArchive : public QObject
 {
   Q_OBJECT
+
 public:
   explicit UpdateLdrawArchive(QObject *parent = 0);
   ~UpdateLdrawArchive();

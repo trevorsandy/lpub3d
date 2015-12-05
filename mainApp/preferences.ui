@@ -882,7 +882,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>107</y>
+         <y>326</y>
          <width>451</width>
          <height>16</height>
         </rect>
@@ -891,11 +891,66 @@
         <enum>Qt::Horizontal</enum>
        </property>
       </widget>
+      <widget class="QGroupBox" name="groupBox_SearchDirs">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>97</y>
+         <width>451</width>
+         <height>231</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Search Directories When LDraw.ini Not Detected</string>
+       </property>
+       <widget class="QLabel" name="label_12">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>16</y>
+          <width>431</width>
+          <height>61</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>If LPub3D does not detect an LDraw.ini file, it will automatically search the 
+directories in this list. You may modify this list as desired. 
+You may reset the list using the reset button.</string>
+        </property>
+       </widget>
+       <widget class="QTextEdit" name="textEditSearchDirs">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>80</y>
+          <width>431</width>
+          <height>101</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButtonResetSearchDirs">
+        <property name="geometry">
+         <rect>
+          <x>252</x>
+          <y>190</y>
+          <width>191</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Reset the list to the default search directories</string>
+        </property>
+        <property name="text">
+         <string>Set Default Search Directories</string>
+        </property>
+       </widget>
+      </widget>
       <zorder>groupBoxUpdates</zorder>
       <zorder>label_11</zorder>
       <zorder>comboCheckForUpdates</zorder>
       <zorder>chkBoxSilent</zorder>
       <zorder>line</zorder>
+      <zorder>groupBox_SearchDirs</zorder>
      </widget>
     </widget>
    </item>

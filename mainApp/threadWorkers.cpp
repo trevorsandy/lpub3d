@@ -74,7 +74,7 @@ void PartWorker::processLDSearchDirParts(){
             }
         }
 
-      processPartsArchive(ldSearchPartsDirs, "search directory", false, true);
+      processPartsArchive(ldSearchPartsDirs, "search directory", false /* doFadeStep */);
 
     } else {
 
@@ -83,7 +83,7 @@ void PartWorker::processLDSearchDirParts(){
 
 //  emit ldSearchDirFinishedSig();
 
-  qDebug() << "\nfinished Process Search Directory Parts.";
+  qDebug() << "\nFinished Processing Search Directory Parts.";
 
  }
 
@@ -452,20 +452,20 @@ void PartWorker::requestEndThreadNow(){
   emit requestFinishSig();
 }
 
-void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QString &comment = QString(""), bool fadeItem, bool silent){
+void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QString &comment = QString(""), bool doFadeStep){
 
   // Append fade parts to unofficial library for 3D Viewer's consumption
   QFileInfo libFileInfo(Preferences::viewerLibFile);
   QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.dir().path()).arg("ldrawunf.zip"));
 
-  if (!silent) {
+  if (doFadeStep) {
       emit progressResetSig();
       emit progressMessageSig(QString("Archiving %1 parts.").arg(comment));
     }
 
   if(!ldPartsDirs.size() == 0){
 
-      if (!silent)
+      if (doFadeStep)
           emit progressRangeSig(0, 0);
 
       for (int i = 0; i < ldPartsDirs.size(); i++){
@@ -477,7 +477,7 @@ void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
                                      foo.absolutePath(),
                                      QString("Append %1 parts").arg(comment))){
 
-            if (!silent)
+            if (doFadeStep)
               emit messageSig(false,QString(tr("Failed to archive %1 parts from \n %2")
                                             .arg(comment)
                                             .arg(ldPartsDirs[i])));
@@ -486,25 +486,34 @@ void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
                                   .arg(comment)
                                   .arg(ldPartsDirs[i]));
             }
+
+          emit progressSetValueSig(i);
         }
 
       // Reload unofficial library parts into memory
-      if (!g_App->mLibrary->ReloadUnoffLib()){
+      if (doFadeStep) {//changed on 05/12/2015 move LDSearch Directories to lc_application
+          if (!g_App->mLibrary->ReloadUnoffLib()){
 
-          if (!silent)
-            emit messageSig(false,QString(tr("Failed to reload unofficial parts library into memory.")));
+              //if (!silent)  //changed on 05/12/2015 move LDSearch Directories to lc_application
+              emit messageSig(false,QString(tr("Failed to reload unofficial parts library into memory.")));
 
-          else
-            qDebug() << QString(tr("Failed to reload unofficial parts library into memory."));
+            } else {
+              qDebug() << QString(tr("Failed to reload unofficial parts library into memory."));
+            }
         }
 
-      if (!silent) {
+      if (doFadeStep) {
+
           emit progressMessageSig(QString("Finished archiving %1 parts.").arg(comment));
+
+        } else {
+
+          qDebug() << "Finished archiving " + comment +  " parts.";
         }
 
     } else {
 
-      if (!silent)
+      if (doFadeStep)
         emit messageSig(false,QString(tr("Failed to retrieve %1 parts directory.").arg(comment)));
       else
         qDebug() << QString(tr("Failed to retrieve %1 parts directory.").arg(comment));
@@ -613,14 +622,14 @@ void ColourPartListWorker::scanDir(QDir dir){
 
     while(itDir.hasNext() && !_endThreadNowRequested) {
 
-        emit progressSetValueSig(i++);
-
         itDir.next();
 
         //logInfo() << "Sending FILE to getParts: " << itDir.fileInfo().absoluteFilePath();
         getParts(itDir.fileInfo());
         //logTrace() << "Sending FILE to buildList: " << itDir.fileInfo().absoluteFilePath();
         buildList(itDir.fileInfo());
+
+        emit progressSetValueSig(i++);
 
     }
     emit progressSetValueSig(dirFiles);

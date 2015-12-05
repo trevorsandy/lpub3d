@@ -111,6 +111,7 @@ bool LDSearchDirs::verifyExcludedDir(const char *value){
    * }
    * return validated;
    */
+  return true;
 }
 
 // NOTE: static function.

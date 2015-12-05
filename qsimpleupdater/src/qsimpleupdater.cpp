@@ -498,7 +498,6 @@ void QSimpleUpdater::onCheckingIsLdrawDownloadFinished(){
   _message.setIconPixmap (_icon);
 
   // Ask user if he/she wants to download unofficial ldraw archive
-
   _message.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
   _message.setText ("<b>" + tr ("Replace your ldrawunf.zip archive file?") +
                     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>");

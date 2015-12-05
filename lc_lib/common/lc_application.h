@@ -3,9 +3,11 @@
 
 #include "lc_array.h"
 #include "str.h"
+#include "threadworkers.h"
 
 class Project;
 class lcPiecesLibrary;
+class PartWorker;
 
 enum lcLightingMode
 {
@@ -46,6 +48,7 @@ public:
 	void Shutdown();
 	void ShowPreferencesDialog();
 
+	void processLDSearchDirParts();
 	bool LoadPiecesLibrary(const char* LibPath, const char* LibraryInstallPath, const char* LDrawPath);
 
 	void GetFileList(const char* Path, lcArray<String>& FileList);
@@ -53,9 +56,10 @@ public:
 	void ExportClipboard(const QByteArray& Clipboard);
 
 	Project* mProject;
-	lcPiecesLibrary* mLibrary;
+	lcPiecesLibrary* mLibrary;        	
 	lcPreferences mPreferences;
 	QByteArray mClipboard;
+	PartWorker partWorkerLDSearchDirs;  // part worker to process search directories and fade color parts
 
 protected:
 	void ParseIntegerArgument(int* CurArg, int argc, char* argv[], int* Value);
