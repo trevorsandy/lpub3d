@@ -24,7 +24,7 @@ ArchiveParts::ArchiveParts(QObject *parent) : QObject(parent)
  * Insert static coloured fade parts into unofficial ldraw library
  *
  */
-bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QString &comment = QString("")) {
+bool ArchiveParts::Archive(bool partsArchived, const QString &zipArchive, const QDir &dir, const QString &comment = QString("")) {
 
   logWarn() << QString("\nProcessing %1 with comment: %2").arg(dir.absolutePath()).arg(comment);
 
@@ -273,6 +273,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
 
       inFile.close();
 
+      partsArchived = true;
       logNotice() << "Archived Disk File: " << fileInfo.absoluteFilePath();
     }
 

@@ -28,9 +28,10 @@
 
 PartWorker::PartWorker(QObject *parent) : QObject(parent)
 {
-  _doFadeStep = false;
-  _doReload   = false;
-  _doLDSearch = false;
+  _doFadeStep     = false;
+  _doReload       = false;
+  _doInitLDSearch = false;
+  _partsArchived  = false;
 }
 
 /*
@@ -40,8 +41,6 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
 void PartWorker::processLDSearchDirParts(){
 
   if (ldPartsDirs.loadLDrawSearchDirs("")){
-
-      setDoLDSearch(true);
 
       QString offPartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("PARTS"));
       QString offPrimsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("P"));
@@ -479,7 +478,8 @@ void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
           QDir foo = ldPartsDirs[i];
           qDebug() << QString(tr("ARCHIVING %1 DIR %2").arg(comment.toUpper()).arg(foo.absolutePath()));
 
-          if (!archiveParts.Archive(archiveFile,
+          if (!archiveParts.Archive(_partsArchived,
+                                     archiveFile,
                                      foo.absolutePath(),
                                      QString("Append %1 parts").arg(comment))){
 
@@ -497,15 +497,19 @@ void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
         }
 
       // Reload unofficial library parts into memory
-      if (okToEmit()) {//changed on 05/12/2015 move LDSearch Directories to lc_application
-          if (!g_App->mLibrary->ReloadUnoffLib()){
+      if (_partsArchived){
+          if (okToEmit()) {//changed on 05/12/2015 move LDSearch Directories to lc_application
+              if (!g_App->mLibrary->ReloadUnoffLib()){
 
-              //if (!silent)  //changed on 05/12/2015 move LDSearch Directories to lc_application
-              emit messageSig(false,QString(tr("Failed to reload unofficial parts library into memory.")));
+                  //if (!silent)  //changed on 05/12/2015 move LDSearch Directories to lc_application
+                  emit messageSig(false,QString(tr("Failed to reload unofficial parts library into memory.")));
 
-            } else {
-              qDebug() << QString(tr("Reloaded unofficial parts library into memory."));
+                } else {
+                  qDebug() << QString(tr("Reloaded unofficial parts library into memory."));
+                }
             }
+        } else {
+          qDebug() << QString(tr("No unofficial library parts loaded into memory."));
         }
 
       if (okToEmit()) {

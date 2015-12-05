@@ -32,6 +32,7 @@ public:
   ~ArchiveParts()
   {}
   static bool Archive(
+            bool     partsArchived,
       const QString &zipArchive,
       const QDir &dir,
       const QString &comment);
