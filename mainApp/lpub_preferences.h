@@ -18,6 +18,7 @@
 #define LPUB_PREFERENCES_H
 
 class QString;
+class QStringList;
 
 class Preferences
 {
@@ -64,6 +65,9 @@ class Preferences
     static QString copyright;
     static QString plugImage;
     static QString plug;
+    static QString ldrawiniFile;
+    static QStringList ldSearchDirs;
+    static bool    ldrawiniFound;
     static bool    enableDocumentLogo;
     static bool    displayAllAttributes;
     static bool    generageCoverPages;

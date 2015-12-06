@@ -17,7 +17,6 @@
 
 #include "threadworkers.h"
 #include "LDrawIni.h"
-#include "lpub_preferences.h"
 #include "step.h"
 #include "paths.h"
 #include "lpub.h"
@@ -28,66 +27,111 @@
 
 PartWorker::PartWorker(QObject *parent) : QObject(parent)
 {
-  _doFadeStep     = false;
-  _doReload       = false;
-  _doInitLDSearch = false;
-  _partsArchived  = false;
+  _doFadeStep          = false;
+  _doReload            = false;
+  _doInitLDSearch      = false;
+  _partsArchived       = false;
+  _resetSearchSettings = false;
+}
+
+/*
+ * LDraw search directories preferences.
+ */
+void PartWorker::ldsearchDirPreferences(){
+
+  QSettings Settings;
+
+  _excludedSearchDirs << ".";
+  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("PARTS"));
+  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("P"));
+  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts"));
+  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"));
+
+  QString const LdrawiniFilePathKey("LDrawiniFile");
+  if (Settings.contains(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey))) {
+      QString ldrawiniFilePath = Settings.value(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey)).toString();
+      QFileInfo ldrawiniInfo(ldrawiniFilePath);
+      if (ldrawiniInfo.exists()) {
+          Preferences::ldrawiniFile = ldrawiniInfo.absoluteFilePath();
+          Preferences::ldrawiniFound = true;
+          qDebug() << "LDraw.ini FILE (form Settings: " << Preferences::ldrawiniFile;
+        } else {
+          Settings.remove(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey));
+          qDebug() << QString(tr("Failed to get Ldraw.ini, valid file (from Preferences) does not exist."));
+        }
+    } else if (ldPartsDirs.initLDrawSearchDirs()) {
+      QFileInfo ldrawiniInfo(ldPartsDirs.getSearchDirsOrigin());
+       if (ldrawiniInfo.exists()) {
+           Settings.setValue(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey),ldrawiniInfo.absoluteFilePath());
+           Preferences::ldrawiniFile = ldrawiniInfo.absoluteFilePath();
+           Preferences::ldrawiniFound = true;
+           qDebug() << "LDraw.ini FILE (form loadLDrawSearchDirs(): " << Preferences::ldrawiniFile;
+         } else {
+           qDebug() << QString(tr("Failed to get Ldraw.ini, valid file (from Ldrawini) does not exist."));
+         }
+    } else {
+      Settings.remove(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey));
+      qDebug() << QString(tr("Failed to get Ldraw.ini, unable to initialize Ldrawini."));
+    }
+
+  QString const LdSearchDirsKey("LDSearchDirs");
+  StringList ldrawSearchDirs;
+  QStringList templdSearchDirs;
+  QStringList ldSearchDirs;
+  if (ldPartsDirs.loadLDrawSearchDirs("")){
+      ldrawSearchDirs = ldPartsDirs.getLDrawSearchDirs();
+      for (StringList::const_iterator it = ldrawSearchDirs.begin();
+           it != ldrawSearchDirs.end(); it++)
+        {
+          const char *dir = it->c_str();
+          QString ldrawSearchDir = QString(dir);
+          bool excludeSearchDir = false;
+          foreach (QString excludedDir, _excludedSearchDirs){
+              if ((excludeSearchDir =
+                   ldrawSearchDir.toLower().contains(excludedDir.toLower()))) {
+                  break;
+                }
+            }
+          if (excludeSearchDir){
+               qDebug() << "<-EXCLUDE LDRAW SEARCH DIR: " << ldrawSearchDir;
+            } else {
+              templdSearchDirs << ldrawSearchDir;
+              qDebug() << "->INCLUDDE LDRAW SEARCH DIR: " << ldrawSearchDir;
+            }
+        }
+    }
+
+  if (Settings.contains(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey))) {
+      ldSearchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey)).toStringList();
+      if (!templdSearchDirs.isEmpty() && _resetSearchSettings && !Preferences::ldrawiniFound){
+          if (ldSearchDirs == templdSearchDirs){
+              Preferences::ldSearchDirs = ldSearchDirs;
+            } else {
+              Preferences::ldSearchDirs = templdSearchDirs;
+              Settings.setValue(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey), Preferences::ldSearchDirs);
+            }
+          _resetSearchSettings = false;
+          qDebug() << QString(tr("(Reset comparison) Set Preferences::ldSearchDirs using %1.").arg((ldSearchDirs == templdSearchDirs ? "ldSearchDirs" : "templdSearchDirs")));
+        } else {
+          Preferences::ldSearchDirs = ldSearchDirs;
+          qDebug() << QString(tr("(Do not reset) Set Preferences::ldSearchDirs using ldSearchDirs."));
+        }
+    } else if (!templdSearchDirs.isEmpty()){
+      Preferences::ldSearchDirs = templdSearchDirs;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey), Preferences::ldSearchDirs);
+      qDebug() << QString(tr("(Only ldrawini available) Set Preferences::ldSearchDirs using templdSearchDirs."));
+    } else {
+      Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
+      qDebug() << QString(tr("Failed to load search directories."));
+    }
 }
 
 /*
  * Process LDraw search directories part files.
  */
-
 void PartWorker::processLDSearchDirParts(){
 
-  if (ldPartsDirs.loadLDrawSearchDirs("")){
-
-      QString offPartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("PARTS"));
-      QString offPrimsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("P"));
-      QString unoffPartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts"));
-      QString unoffPrimsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"));
-
-      QStringList ldSearchPartsDirs;
-
-      StringList ldrawSearchDirs = ldPartsDirs.getLDrawSearchDirs();
-
-      qDebug() << "";
-
-      for (StringList::const_iterator it = ldrawSearchDirs.begin();
-           it != ldrawSearchDirs.end(); it++)
-        {
-          const char *dir = it->c_str();
-
-          QString partsDir = QString(dir);
-
-          if (
-              partsDir.toLower() == "." ||
-              partsDir.toLower().toLower().contains(offPartsDir.toLower()) ||
-              partsDir.toLower().toLower().contains(offPrimsDir.toLower()) ||
-              partsDir.toLower().toLower().contains(unoffPartsDir.toLower()) ||
-              partsDir.toLower().toLower().contains(unoffPrimsDir.toLower())
-              ){
-
-              qDebug() << "<-EXCLUDE LDRAW SEARCH DIR: " << partsDir;
-              continue;
-
-            } else {
-
-              ldSearchPartsDirs << QDir::toNativeSeparators(partsDir);
-              qDebug() << "->INSERT LDRAW SEARCH DIR: " << partsDir;
-
-            }
-        }
-
-      processPartsArchive(ldSearchPartsDirs, "search directory");
-
-    } else {
-
-      qDebug() << QString(tr("Failed to load search directories - ldPartsDirs.loadLDrawSearchDirs() returned false."));
-    }
-
-//  emit ldSearchDirFinishedSig();
-
+  processPartsArchive(Preferences::ldSearchDirs, "search directory");
   qDebug() << "\nFinished Processing Search Directory Parts.";
 
  }
@@ -509,7 +553,7 @@ void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
                 }
             }
         } else {
-          qDebug() << QString(tr("No unofficial library parts loaded into memory."));
+          qDebug() << QString(tr("No new unofficial library parts loaded into memory."));
         }
 
       if (okToEmit()) {

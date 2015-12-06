@@ -50,6 +50,7 @@ lcApplication::lcApplication()
 	mClipboard = NULL;
 
 	mPreferences.LoadDefaults();
+	partWorkerLDSearchDirs.ldsearchDirPreferences();
 }
 
 lcApplication::~lcApplication()

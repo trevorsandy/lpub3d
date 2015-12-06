@@ -3,9 +3,12 @@ LPub3D 1.3 XXXX
 Features and enhancements 
 ------------ 
 -Dialog to print or export to image all pages, current page and custom range of pages (e.g. 1,3,5,7-9)
--Add ability to configure additional ldraw content search directories using ldrawini c api
+-Add ability to detect additional ldraw content search directories using ldrawini c api
  I implemented the ldrawini c api to maintain compatability with LPub3D 3rd Party renderers - LDView, L3P(PovRay) and Ldglite. Additional directories must have same tree as LDraw Unofficial directory (i.e. parts and/or p subdirectories...) or alternatively, content can be deposited at the root of the additional directory (i.e. C:/ldrawFiles/*.dat). Content from all defined ldraw search directories are archived in the ldrawunf.zip archive allowing giving access to the 3DViewer.
  If no ldraw.ini file is detected. LPub3D will automatically search all subdirectories in the ldraw/Unofficial directory except directories p and parts. Unofficial subdirectories p and parts (like official p and parts directories) are never searched because they are atomatically loaded by the 3DViewer during startup. 
+-Add ability to manage additional ldraw content search directories whether using Ldraw.ini or not. 
+ If not using Ldraw.ini file, automatically detected search directories are be limited to those under the Unofficial directory. The user has the abilty to exclude and reset search directories within this listing. Unofficial P and Parts directories are automatically excluded from the search list as it is loaded automatically.
+ Custom content added to Unofficial P and Parts directories will consequently not be detected by LPub3D.
 -Add Rotate Icon - indicate that the builder should "flip" the model
 -Add line type attribute to border configuration
  This adds a new meta value after (NONE|ROUND|SQUARE). Valid values are 
@@ -21,7 +24,8 @@ Features and enhancements
 -Add LDCad UNOFFICIAL PART meta to recognize LDCad template generated parts
 -Add gradients to background options
 -Add Change local page background - colour, gradient, picture, submodel, none
--Add memu item 'Refresh Unofficial Parts' which downloads and replaces the ldrawunf.zip archive in the  LPub3DVoiewer-Library. LPub3D places all search directory parts in the ldrawunf.zip archive so they 
+-Add memu item 'Refresh Unofficial Parts' which downloads and replaces the ldrawunf.zip archive 
+ in the  LPub3DVoiewer-Library. LPub3D places all search directory parts in the ldrawunf.zip archive so they 
  can be made available for the LPub3D Viewer. This feature allows you to reset the archive file to 
  it's latestt default content.
  subdirectory. This archive is used, along with the complete.zip, by the 3DViewer.

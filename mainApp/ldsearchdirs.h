@@ -119,15 +119,18 @@ class LDPartsDirs : public LDSearchDirs
 {
 public:
   LDPartsDirs(void);
-  virtual bool      loadLDrawSearchDirs(const char *filename);   //send default arbitrary file name
-  virtual void      setExtraSearchDirs(const char *value);
-  StringList        getExtraSearchDirs(void) { return m_extraSearchDirs; } //this is not used
-  StringList        getLDrawSearchDirs(void) { return m_ldrawSearchDirs; }
+  virtual const char *getSearchDirsOrigin(void) const { return m_searchDirsOrigin; }
+  virtual bool        loadLDrawSearchDirs(const char *filename);   //send default arbitrary file name
+  virtual bool        initLDrawSearchDirs();                       //initialize ldrawini and check for errors
+  virtual void        setExtraSearchDirs(const char *value);
+  StringList          getExtraSearchDirs(void) { return m_extraSearchDirs; } //this is not used
+  StringList          getLDrawSearchDirs(void) { return m_ldrawSearchDirs; }
 
 protected:
   StringList        m_ldrawSearchDirs;
   StringList 	    m_extraSearchDirs;
   StringBoolMap     m_ancestorMap;
+  char             *m_searchDirsOrigin;
 };
 
 #endif // LDSEARCHDIRS_H
