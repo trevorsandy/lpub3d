@@ -882,7 +882,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>326</y>
+         <y>280</y>
          <width>451</width>
          <height>16</height>
         </rect>
@@ -891,57 +891,155 @@
         <enum>Qt::Horizontal</enum>
        </property>
       </widget>
-      <widget class="QGroupBox" name="groupBox_SearchDirs">
+      <widget class="QGroupBox" name="groupBoxSearchDirs">
        <property name="geometry">
         <rect>
          <x>10</x>
          <y>97</y>
          <width>451</width>
-         <height>231</height>
+         <height>181</height>
         </rect>
        </property>
        <property name="title">
-        <string>Search Directories When LDraw.ini Not Detected</string>
+        <string>LDraw Content Search Directories</string>
        </property>
-       <widget class="QLabel" name="label_12">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>16</y>
-          <width>431</width>
-          <height>61</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>If LPub3D does not detect an LDraw.ini file, it will automatically search the 
-directories in this list. You may modify this list as desired. 
-You may reset the list using the reset button.</string>
-        </property>
-       </widget>
        <widget class="QTextEdit" name="textEditSearchDirs">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>80</y>
-          <width>431</width>
+          <x>20</x>
+          <y>65</y>
+          <width>371</width>
           <height>101</height>
          </rect>
         </property>
+        <property name="acceptDrops">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Search directories</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
        </widget>
-       <widget class="QPushButton" name="pushButtonResetSearchDirs">
+       <widget class="QPushButton" name="pushButtonReset">
         <property name="geometry">
          <rect>
-          <x>252</x>
-          <y>190</y>
-          <width>191</width>
-          <height>28</height>
+          <x>401</x>
+          <y>136</y>
+          <width>30</width>
+          <height>30</height>
          </rect>
         </property>
         <property name="toolTip">
-         <string>Reset the list to the default search directories</string>
+         <string>Reset LPub3D LDraw search directories to default</string>
         </property>
         <property name="text">
-         <string>Set Default Search Directories</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="lpub.qrc">
+          <normaloff>:/resources/resetsetting.png</normaloff>:/resources/resetsetting.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>25</width>
+          <height>25</height>
+         </size>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButtonEditSetting">
+        <property name="geometry">
+         <rect>
+          <x>401</x>
+          <y>100</y>
+          <width>30</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Edit LPub3D LDraw search directories</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="lpub.qrc">
+          <normaloff>:/resources/editsetting.png</normaloff>:/resources/editsetting.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>25</width>
+          <height>25</height>
+         </size>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButtonEditIni">
+        <property name="geometry">
+         <rect>
+          <x>401</x>
+          <y>65</y>
+          <width>30</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Edit LDraw.ini search directories</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="lpub.qrc">
+          <normaloff>:/resources/editinifile.png</normaloff>:/resources/editinifile.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>25</width>
+          <height>25</height>
+         </size>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEditIniFile">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>32</y>
+          <width>371</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButtonRefreshUnoff">
+        <property name="geometry">
+         <rect>
+          <x>401</x>
+          <y>24</y>
+          <width>30</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Refresh LDraw Unofficial archive (ldrawunf.zip)</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="lpub.qrc">
+          <normaloff>:/resources/refreshunoffarchive.png</normaloff>:/resources/refreshunoffarchive.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>25</width>
+          <height>25</height>
+         </size>
         </property>
        </widget>
       </widget>
@@ -950,13 +1048,15 @@ You may reset the list using the reset button.</string>
       <zorder>comboCheckForUpdates</zorder>
       <zorder>chkBoxSilent</zorder>
       <zorder>line</zorder>
-      <zorder>groupBox_SearchDirs</zorder>
+      <zorder>groupBoxSearchDirs</zorder>
      </widget>
     </widget>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="lpub.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

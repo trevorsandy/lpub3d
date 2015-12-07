@@ -30,7 +30,7 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
   _doFadeStep          = false;
   _doReload            = false;
   _doInitLDSearch      = false;
-  _partsArchived       = false;
+//  _partsArchived       = false;
   _resetSearchSettings = false;
 }
 
@@ -522,8 +522,7 @@ void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
           QDir foo = ldPartsDirs[i];
           qDebug() << QString(tr("ARCHIVING %1 DIR %2").arg(comment.toUpper()).arg(foo.absolutePath()));
 
-          if (!archiveParts.Archive(_partsArchived,
-                                     archiveFile,
+          if (!archiveParts.Archive( archiveFile,
                                      foo.absolutePath(),
                                      QString("Append %1 parts").arg(comment))){
 
@@ -536,12 +535,12 @@ void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
                                   .arg(comment)
                                   .arg(ldPartsDirs[i]));
             }
-
+//          qDebug() << QString(tr("Archive Satus: %1").arg(_partsArchived));
           emit progressSetValueSig(i);
         }
 
       // Reload unofficial library parts into memory
-      if (_partsArchived){
+//      if (_partsArchived){
           if (okToEmit()) {//changed on 05/12/2015 move LDSearch Directories to lc_application
               if (!g_App->mLibrary->ReloadUnoffLib()){
 
@@ -552,9 +551,9 @@ void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
                   qDebug() << QString(tr("Reloaded unofficial parts library into memory."));
                 }
             }
-        } else {
-          qDebug() << QString(tr("No new unofficial library parts loaded into memory."));
-        }
+//        } else {
+//          qDebug() << QString(tr("No new unofficial library parts loaded into memory."));
+//        }
 
       if (okToEmit()) {
 

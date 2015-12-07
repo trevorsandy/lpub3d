@@ -345,7 +345,9 @@ mainApp/images/displayrow.png -text
 mainApp/images/divider.png -text
 mainApp/images/editfadeparts.png -text
 mainApp/images/editfreeformannotations.png -text
+mainApp/images/editinifile.png -text
 mainApp/images/editredo.png -text
+mainApp/images/editsetting.png -text
 mainApp/images/edittitleannotations.png -text
 mainApp/images/editundo.png -text
 mainApp/images/exit.png -text
@@ -388,6 +390,7 @@ mainApp/images/refreshunoffarchive.png -text
 mainApp/images/remove.png -text
 mainApp/images/removelpubformat.png -text
 mainApp/images/resetcache.png -text
+mainApp/images/resetsetting.png -text
 mainApp/images/rotateicon.png -text
 mainApp/images/save.png -text
 mainApp/images/saveas.png -text

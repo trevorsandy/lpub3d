@@ -36,7 +36,9 @@
         <file alias="deletepage.png">images/deletepage.png</file>
         <file alias="editfadeparts.png">images/editfadeparts.png</file>
         <file alias="editfreeformannotations.png">images/editfreeformannotations.png</file>
+        <file alias="editinifile.png">images/editinifile.png</file>
         <file alias="editplisubstituteparts.png">images/editplisubstituteparts.png</file>
+        <file alias="editsetting.png">images/editsetting.png</file>
         <file alias="editredo.png">images/editredo.png</file>
         <file alias="edittitleannotations.png">images/edittitleannotations.png</file>
         <file alias="editundo.png">images/editundo.png</file>
@@ -85,6 +87,7 @@
         <file alias="remove.png">images/remove.png</file>
         <file alias="removelpubformat.png">images/removelpubformat.png</file>
         <file alias="resetcache.png">images/resetcache.png</file>
+        <file alias="resetsetting.png">images/resetsetting.png</file>
         <file alias="rotateicon.png">images/rotateicon.png</file>
         <file alias="save.png">images/save.png</file>
         <file alias="saveas.png">images/saveas.png</file>        
