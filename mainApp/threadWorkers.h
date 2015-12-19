@@ -22,7 +22,7 @@
 #include <QRegExp>
 #include <QElapsedTimer>
 
-#include "ldsearchdirs.h"
+#include "lpub_preferences.h"
 #include "ldrawfiles.h"
 #include "FadeStepColorParts.h"
 #include "archiveparts.h"
@@ -94,7 +94,28 @@ public:
     void remove(
         const QString           &fileNameStr);
 
-     bool endThreadEventLoopNow();
+    bool endThreadEventLoopNow();
+
+    void setDoFadeStep(
+        bool                     doFadeStep)
+        {_doFadeStep           = doFadeStep;}
+
+    void setDoInitLDSearch(
+        bool                     doInitLDSearch)
+        {_doInitLDSearch       = doInitLDSearch;}
+
+    void setDoReloadUnoffLib(
+        bool                     doReload)
+        {_doReload             = doReload;}
+
+    void resetSearchDirSettings(bool reset)
+        {_resetSearchDirSettings = reset;
+         ldsearchDirPreferences();}
+
+    void ldsearchDirPreferences();
+
+    bool loadLDrawSearchDirs();
+
 
      QStringList                _partList;
 
@@ -139,14 +160,17 @@ private:
     QString                   _emptyString;
     QStringList               _fadeStepColourParts;
     QStringList               _partFileContents;
+    QStringList               _excludedSearchDirs;
+//    bool                      _partsArchived;
+    bool                      _doFadeStep;
+    bool                      _doReload;
+    bool                      _doInitLDSearch;
+    bool                      _resetSearchDirSettings;
 
     LDPartsDirs                ldPartsDirs;                     // automatically load LDraw.ini parameters
     LDrawFile                  ldrawFile;                       // contains MPD or all files used in model
-    ArchiveParts               archiveParts;                   // add contente to unofficial zip archive (for LeoCAD)
+    ArchiveParts               archiveParts;                    // add contente to unofficial zip archive (for LeoCAD)
 
-
-    QStringList getLDrawDirectories(
-       const QString          &startDir);
 
     QStringList contents(
         const QString       &fileNameStr);
@@ -182,9 +206,19 @@ private:
 
    void processPartsArchive(
        const QStringList     &ldPartsDirs,
-       const QString         &comment,
-       bool                   fadeItem = false,
-       bool                   silent = false);
+       const QString         &comment);
+
+   bool doFadeStep()
+      {return                _doFadeStep;}
+
+   bool doReloadUnoffLib()
+      {return                _doReload;}
+
+   bool doInitLDSearch()
+      {return                _doInitLDSearch;}
+
+   bool okToEmit()
+      {return                (!doInitLDSearch() && (doFadeStep() || doReloadUnoffLib()));}
 
 };
 
@@ -259,9 +293,6 @@ private:
     QString                   _filePath;
 
     LDPartsDirs                ldPartsDirs;                     // automatically load LDraw.ini parameters
-
-    QStringList getLDrawDirectories(
-       const QString          &startDir);
 
     void colourChildren();
     void writeFadeFile(bool append = false);

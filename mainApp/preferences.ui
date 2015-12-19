@@ -922,7 +922,7 @@
          <string>Search directories</string>
         </property>
         <property name="readOnly">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
        <widget class="QPushButton" name="pushButtonReset">
@@ -951,58 +951,6 @@
          </size>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButtonEditSetting">
-        <property name="geometry">
-         <rect>
-          <x>401</x>
-          <y>100</y>
-          <width>30</width>
-          <height>30</height>
-         </rect>
-        </property>
-        <property name="toolTip">
-         <string>Edit LPub3D LDraw search directories</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="lpub.qrc">
-          <normaloff>:/resources/editsetting.png</normaloff>:/resources/editsetting.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>25</width>
-          <height>25</height>
-         </size>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pushButtonEditIni">
-        <property name="geometry">
-         <rect>
-          <x>401</x>
-          <y>65</y>
-          <width>30</width>
-          <height>30</height>
-         </rect>
-        </property>
-        <property name="toolTip">
-         <string>Edit LDraw.ini search directories</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="lpub.qrc">
-          <normaloff>:/resources/editinifile.png</normaloff>:/resources/editinifile.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>25</width>
-          <height>25</height>
-         </size>
-        </property>
-       </widget>
        <widget class="QLineEdit" name="lineEditIniFile">
         <property name="geometry">
          <rect>
@@ -1012,34 +960,11 @@
           <height>22</height>
          </rect>
         </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pushButtonRefreshUnoff">
-        <property name="geometry">
-         <rect>
-          <x>401</x>
-          <y>24</y>
-          <width>30</width>
-          <height>30</height>
-         </rect>
-        </property>
         <property name="toolTip">
-         <string>Refresh LDraw Unofficial archive (ldrawunf.zip)</string>
+         <string>LDraw.ini file path dialog</string>
         </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="lpub.qrc">
-          <normaloff>:/resources/refreshunoffarchive.png</normaloff>:/resources/refreshunoffarchive.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>25</width>
-          <height>25</height>
-         </size>
+        <property name="readOnly">
+         <bool>false</bool>
         </property>
        </widget>
       </widget>

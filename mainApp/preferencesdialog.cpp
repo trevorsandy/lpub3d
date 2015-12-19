@@ -23,6 +23,8 @@
 #include "ui_preferences.h"
 #include "preferencesdialog.h"
 #include "lpub_preferences.h"
+#include "lc_application.h"
+#include "updateldrawarchive.h"
 
 #include "color.h"
 #include "meta.h"
@@ -70,6 +72,30 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.publishDescriptionEdit->setText(       Preferences::publishDescription);
   ui.chkBoxSilent->setChecked(              Preferences::silentUpdate);
   ui.comboCheckForUpdates->setCurrentIndex( Preferences::checkForUpdates);
+
+
+
+  //search directories
+  QPalette palette;
+  palette.setColor(QPalette::Base,Qt::lightGray);
+  ui.lineEditIniFile->setPalette(palette);
+  ui.lineEditIniFile->setReadOnly(true);
+  if (Preferences::ldrawiniFound) {
+      ui.lineEditIniFile->setText(QString("LDraw.ini File: %1").arg(Preferences::ldrawiniFile));
+      ui.pushButtonReset->hide();   
+      ui.textEditSearchDirs->setReadOnly(true);
+      ui.textEditSearchDirs->setPalette(palette);
+      ui.textEditSearchDirs->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
+      ui.textEditSearchDirs->setToolTip("Read only list of LDraw.ini search directories.");
+    } else {
+      ui.textEditSearchDirs->setToolTip("Editable list of unofficial (except Model) search directories.");
+      ui.lineEditIniFile->setText("LDraw.ini not found. Using default LPub3D search.");
+    }
+
+  foreach (QString iniFilePath, Preferences::ldSearchDirs)
+    ui.textEditSearchDirs->append(iniFilePath);
+  //end search dirs
+
 
   ui.preferredRenderer->setMaxCount(0);
   ui.preferredRenderer->setMaxCount(3);
@@ -315,10 +341,22 @@ void PreferencesDialog::on_browsePublishLogo_clicked()
     }
 }
 
+void PreferencesDialog::on_pushButtonReset_clicked()
+{
+  if (QMessageBox::Yes == QMessageBox::question(this, "Reset Settings?",
+                                                "This action will reset your search directory settings to the LPub3D default."
+                                                "Are you sure you want to continue? ",
+                                                QMessageBox::Yes|QMessageBox::No)){
+      partWorkerLDSearchDirs.resetSearchDirSettings(true);
+      ui.textEditSearchDirs->clear();
+      foreach (QString iniFilePath, Preferences::ldSearchDirs)
+        ui.textEditSearchDirs->append(iniFilePath);
+    }
+}
+
 void PreferencesDialog::processFadeColourParts(bool clicked)
 {
     if (clicked && !gui->getCurFile().isEmpty())
-      //gui->partWorker.processFadeColourParts();
       gui->processFadeColourParts();
 }
 
@@ -463,10 +501,15 @@ int PreferencesDialog::checkForUpdates()
   return ui.comboCheckForUpdates->currentIndex();
 }
 
+QStringList const PreferencesDialog::searchDirSettings()
+{
+  QString textEditContents = ui.textEditSearchDirs->toPlainText();
+  QStringList newContent = textEditContents.split("\n");
+  return newContent;
+}
+
 void PreferencesDialog::accept(){
     if(ui.preferredRenderer->count() == 0 || ui.ldrawPath->text().isEmpty() || ui.viewerLibFile->text().isEmpty()){
-        QPalette palette;
-        palette.setColor(QPalette::Base,Qt::yellow);
         if (ui.ldrawPath->text().isEmpty())
             ui.ldrawPath->setPlaceholderText("LDraw directry must be defined");
         if (ui.viewerLibFile->text().isEmpty())
@@ -490,4 +533,3 @@ void PreferencesDialog::accept(){
 void PreferencesDialog::cancel(){
   QDialog::reject();
 }
-

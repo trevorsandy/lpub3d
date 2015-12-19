@@ -1,4 +1,4 @@
-/**************************************************************************** 
+/****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
 ** Copyright (C) 2015 Trevor SANDY. All rights reserved.
@@ -722,6 +722,7 @@ bool Preferences::getPreferences()
               Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDGLite"),ldgliteExe);
             }
         }
+
       if (ldviewExe != dialog->ldviewExe()) {
           ldviewExe = dialog->ldviewExe();
           if (ldviewExe == "") {
@@ -756,6 +757,29 @@ bool Preferences::getPreferences()
               Settings.remove(QString("%1/%2").arg(SETTINGS,"FadeStepColor"));
             }else {
               Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepColor"),fadeStepColor);
+            }
+        }
+
+      if (ldSearchDirs != dialog->searchDirSettings()) {
+          if (!dialog->searchDirSettings().isEmpty()){
+              ldSearchDirs.clear();
+              QString unoffDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial"));
+              QString modelsDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("MODELS"));
+              foreach (QString dirPath, dialog->searchDirSettings()) {
+                  QDir ldrawiniDir(dirPath);
+                  if (!ldrawiniDir.exists() || (!dirPath.toLower().contains(unoffDirPath.toLower()) && dirPath.toLower() != modelsDirPath.toLower())){
+                      QMessageBox::warning(NULL,
+                                           QMessageBox::tr("LPub3D"),
+                                           QMessageBox::tr("%1 is not a valid path. This path will not be saved.")
+                                           .arg(dirPath));
+                      continue;
+                    } else {
+                      ldSearchDirs << dirPath;
+                    }
+                }
+              Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"),ldSearchDirs);
+            } else {
+              Settings.remove(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"));
             }
         }
 

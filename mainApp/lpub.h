@@ -685,6 +685,7 @@ public:
 //  PartWorker            partWorkerLDSearchDirs;  // part worker to process search directories and fade color parts
   PartWorker            *partWorkerFadeColour;    // part worker to process colour part fade
   ColourPartListWorker  *colourPartListWorker;    // create static colour parts list in separate thread
+  ParmsWindow           *parmsWindow;     // the parametrer file editor
 
 
 private:    
@@ -694,7 +695,6 @@ private:
   QString                curFile;         // the file name for MPD, or top level file
   QString                curSubFile;      // whats being displayed in the edit window
   EditWindow            *editWindow;      // the sub file editable by the user
-  ParmsWindow           *parmsWindow;     // the parametrer file editor
   QProgressBar          *progressBar;
   QLabel                *progressLabel;
   QElapsedTimer         *timer;
@@ -802,6 +802,7 @@ private slots:
     void editFreeFormAnnitations();
     void editFadeColourParts();
     void editPliBomSubstituteParts();
+    void editLdrawIniFile();
     void generageFadeColourPartsList();
 
     void toggleLCStatusBar();
@@ -991,6 +992,7 @@ private:
   QAction *editTitleAnnotationsAct;
   QAction *editFadeColourPartsAct;
   QAction *editPliBomSubstitutePartsAct;
+  QAction *editLdrawIniFileAct;
   QAction *generateFadeColourPartsAct;
 
   // help

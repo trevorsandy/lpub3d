@@ -384,6 +384,8 @@ void Gui::continuousScroll(
   fitMode = FitContinuousScroll;
 }
 //~~~~~~~~~~~~~~
+
+
 void Gui::zoomIn()
 {
   zoomIn(pageview());
@@ -800,6 +802,15 @@ void Gui::editPliBomSubstituteParts()
     displayParmsFile(Preferences::pliSubstitutePartsFile);
     parmsWindow->setWindowTitle(tr("PLI/BOM Substitute Parts","Edit/add PLI/BOM substitute parts"));
     parmsWindow->show();
+}
+
+void Gui::editLdrawIniFile()
+{
+  if (!Preferences::ldSearchDirs.isEmpty()) {
+      displayParmsFile(Preferences::ldrawiniFile);
+      parmsWindow->setWindowTitle(tr("LDraw.ini Edit","Edit LDraw.ini search directory entries."));
+      parmsWindow->show();
+    }
 }
 
 void Gui::preferences()
@@ -1406,6 +1417,10 @@ void Gui::createActions()
     editPliBomSubstitutePartsAct->setStatusTip(tr("Add/Edit the list of PLI/BOM substitute parts"));
     connect(editPliBomSubstitutePartsAct, SIGNAL(triggered()), this, SLOT(editPliBomSubstituteParts()));
 
+    editLdrawIniFileAct = new QAction(QIcon(":/resources/editinifile.png"),tr("Edit LDraw.ini"), this);
+    editLdrawIniFileAct->setStatusTip(tr("Add/Edit LDraw.ini search directory entries"));
+    connect(editLdrawIniFileAct, SIGNAL(triggered()), this, SLOT(editLdrawIniFile()));
+
     generateFadeColourPartsAct = new QAction(QIcon(":/resources/generatefadeparts.png"),tr("Generage Fade Colour Parts List"), this);
     generateFadeColourPartsAct->setStatusTip(tr("Generage list of all static coloured parts"));
     connect(generateFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(generageFadeColourPartsList()));
@@ -1581,6 +1596,8 @@ void Gui::createMenus()
     configMenu->addAction(editTitleAnnotationsAct);
     configMenu->addAction(editFreeFormAnnitationsAct);
     configMenu->addAction(editPliBomSubstitutePartsAct);
+    if (Preferences::ldrawiniFound) {
+      configMenu->addAction(editLdrawIniFileAct);}
     configMenu->addAction(generateFadeColourPartsAct);
 
     configMenu->addSeparator();

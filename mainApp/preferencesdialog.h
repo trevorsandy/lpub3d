@@ -22,6 +22,8 @@
 #include "ui_preferences.h"
 #include "lc_qpreferencesdialog.h"
 #include "ui_lc_qpreferencesdialog.h"
+#include "threadworkers.h"
+#include "parmswindow.h"
 #include "meta.h"
 
 namespace Ui{
@@ -51,6 +53,7 @@ class PreferencesDialog : public QDialog
     QString const defaultEmail();
     QString const documentLogoFile();
     QString const publishDescription();
+    QStringList const searchDirSettings();
     bool          displayAllAttributes();
     bool          generageCoverPages();
     bool          printDocumentTOC();
@@ -74,6 +77,8 @@ class PreferencesDialog : public QDialog
     void on_browseLDView_clicked();
     void on_browseLDGLite_clicked();
     void on_browsePublishLogo_clicked();
+    void on_pushButtonReset_clicked();
+
     void colorChange(QString const &colorName);
     void processFadeColourParts(bool);
 
@@ -81,8 +86,10 @@ class PreferencesDialog : public QDialog
 private:
     Ui::PreferencesDialog ui;
 
+    PartWorker       partWorkerLDSearchDirs;   // part worker to process search directories and fade color parts
     QWidget         *parent;
     FadeStepMeta     fadeStepMeta;             // propagate fade color and fade bool
+    ParmsWindow     *parmsWindow;              // the parametrer file editor
 
 };
 

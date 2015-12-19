@@ -14,6 +14,7 @@
 
 #include "archiveparts.h"
 #include "lpub_preferences.h"
+#include "lc_application.h"
 
 ArchiveParts::ArchiveParts(QObject *parent) : QObject(parent)
 {
@@ -58,6 +59,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
   QString fileNameWithRelativePath;
   bool setPrimDir         = false;
   bool setPartsDir        = false;
+  bool partArchived       = false;
 
   // If input directory is 'p' use 'p' (primitive) else use 'parts'
   if (dir.dirName().toLower() == primitives){
@@ -273,6 +275,9 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
 
       inFile.close();
 
+      if (!partArchived)
+        partArchived = true;
+
       logNotice() << "Archived Disk File: " << fileInfo.absoluteFilePath();
     }
 
@@ -286,6 +291,18 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
       logError() << QString("zip.close() zipError(): %1").arg(zip.getZipError());
       return false;
     }
+
+  // Reload unofficial library parts into memory
+//  if (partArchived){
+//      if (!g_App->mLibrary->ReloadUnoffLib()){
+//          qDebug() << QString(tr("Failed to reload unofficial parts library into memory."));
+//          return false;
+//        } else {
+//          qDebug() << QString(tr("Reloaded unofficial parts library into memory."));
+//        }
+//    } else {
+//      qDebug() << QString(tr("No new unofficial library parts loaded into memory."));
+//    }
 
   return true;
 }
