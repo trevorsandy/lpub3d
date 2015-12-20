@@ -27,11 +27,9 @@ class SplashScreen : public QSplashScreen
     Q_OBJECT
 
 public:
-  explicit SplashScreen(QApplication *app, QWidget *parent = 0);
+  explicit SplashScreen(QWidget *parent = 0);
 
-    QApplication *app;
     int m_progress;
-
 
 public slots:
     void setProgress(int value)

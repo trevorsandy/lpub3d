@@ -126,24 +126,23 @@ int main(int argc, char *argv[])
     //qRegisterMetaType<LGraphicsView>();
 
     // splash
-    SplashScreen *splash = new SplashScreen(&app);
-    splash->show();
-
-//    int splashDuration = 4000;
-//    QPixmap pixmap(":/resources/LPub512Splash.png");
-//    QSplashScreen *splash = new QSplashScreen(pixmap);
-
-//    QFont splashFont;
-//    splashFont.setFamily("Arial");
-//    splashFont.setPixelSize(12);
-//    splashFont.setStretch(130);
-
-//    splash->setFont(splashFont);
+//    SplashScreen *splash = new SplashScreen();
 //    splash->show();
 
-//    app.processEvents();
-//    splash->showMessage(QSplashScreen::tr("LPub3D is loading..."),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
-//    app.processEvents();
+//    int splashDuration = 4000;
+    QPixmap pixmap(":/resources/LPub512Splash.png");
+    QSplashScreen *splash = new QSplashScreen(pixmap);
+
+    QFont splashFont;
+    splashFont.setFamily("Arial");
+    splashFont.setPixelSize(14);
+    splashFont.setStretch(130);
+
+    splash->setFont(splashFont);
+    splash->show();
+
+    splash->showMessage(QSplashScreen::tr("LPub3D is loading..."),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
+    app.processEvents();
 
 //    QTimer::singleShot(splashDuration,splash,SLOT(close()));
     // end splash
@@ -176,8 +175,6 @@ int main(int argc, char *argv[])
     // set log destinations on the logger
     logger.addDestination(debugDestination.get());
     logger.addDestination(fileDestination.get());
-    splash->updateMessage(QString("LPub3d preference loaded."));
-    splash->setProgress(0);
 
     // write an info message using one of six macros:
     bool showLogExamples = false;
@@ -193,22 +190,16 @@ int main(int argc, char *argv[])
         qWarning() << "Neither will this one";
         logFatal() << "Fatal error!";
     } // end init logging
-    splash->updateMessage("Logging loaded.");
-    splash->setProgress(10);
 
     Preferences::ldrawPreferences(false);
     Preferences::unitsPreferences();
-    splash->updateMessage("LDraw and unit preference loaded.");
-    splash->setProgress(20);
+
     Preferences::viewerLibPreferences(false);
     Preferences::annotationPreferences();
-    splash->updateMessage("Library and annotation preference loaded.");
-    splash->setProgress(30);
+
     Preferences::fadestepPreferences();
     Preferences::pliPreferences();
     Preferences::viewerPreferences();
-    splash->updateMessage("Pli and 3d viewer preference loaded.");
-    splash->setProgress(40);
 
     QTranslator Translator;
     Translator.load(QString("lpub_") + QLocale::system().name().section('_', 0, 0) + ".qm", ":../lc_lib/resources");
@@ -216,12 +207,8 @@ int main(int argc, char *argv[])
 
     defaultResolutionType(Preferences::preferCentimeters);
     setResolution(150);  // DPI
-    splash->updateMessage("Resolution preference  loaded.");
-    splash->setProgress(50);
 
     g_App = new lcApplication();
-    splash->updateMessage("3DViewer application loaded.");
-    splash->setProgress(60);
 
 #if defined(Q_OS_WIN)
     char libPath[LC_MAXPATH], *ptr;
@@ -247,31 +234,23 @@ int main(int argc, char *argv[])
 #else
     const char* LDrawPath = NULL;
 #endif
-    splash->updateMessage("Loading LDraw seach directories...");
-    splash->setProgress(85);
+
+    splash->showMessage(QSplashScreen::tr("Loading LDraw seach directories..."),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
+    app.processEvents();
 
     if (!g_App->Initialize(argc, argv, libPath, LDrawPath))
         return 1;
 
-    splash->updateMessage("Loading LPub3D...");
-    splash->setProgress(95);
-
     Gui     LPub3DApp;
-
-    splash->updateMessage("LPub3D application loaded.");
-    splash->setProgress(90);
-
-    //LPub3DApp.processLDSearchDirParts();
 
     gMainWindow->SetColorIndex(lcGetColorIndex(4));
     gMainWindow->UpdateRecentFiles();
 
-    splash->updateMessage("LPub3D ready for launch.");
-    splash->setProgress(100);
-
     splash->finish(&LPub3DApp);
-    LPub3DApp.show();
-//    QTimer::singleShot(100, &LPub3DApp, SLOT(show()));
+    app.processEvents();
+
+//    LPub3DApp.show();
+    QTimer::singleShot(100, &LPub3DApp, SLOT(show()));
 
     LPub3DApp.sizeit();
 

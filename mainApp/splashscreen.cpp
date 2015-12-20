@@ -14,8 +14,8 @@
 
 #include "splashscreen.h"
 
-SplashScreen::SplashScreen(QApplication *aApp, QWidget *parent) :
-    QSplashScreen(parent), app(aApp), m_progress(0)
+SplashScreen::SplashScreen(QWidget *parent) :
+    QSplashScreen(parent), m_progress(0)
 
 {
     this->setPixmap(QPixmap(":/resources/LPub512Splash.png"));
