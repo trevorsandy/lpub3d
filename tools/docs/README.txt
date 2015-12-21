@@ -43,6 +43,7 @@ Features and enhancements
 -Fix: PLI/BOM sort routine, sort on 'part colour' part(s) appear out of place relative to
  part size and colour.
 -Fix: Do not create instruction page(s) for unofficial part
+-Fix: Create s/8/48 subdirectory in lpub/tmp directory when needed. This fix will resolve the issue of LPub3D not being able to create inline unofficial subparts and 8/48 primitives when rendering models where these parts are defined in the model file.
 -CHANGE: Change 'Reset All Caches' to 'Reset Image and Model' Caches
 -CHANGE: BOM default sort to sort by colour then size, previous default was size only (PLI default sort by size)
 -CHANGE: Change 'Update' tab in preferences dialog to 'Other'.

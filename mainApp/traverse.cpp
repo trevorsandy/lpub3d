@@ -1976,6 +1976,10 @@ void Gui::writeToTmp(const QString &fileName,
                      const QStringList &contents)
 {
   QString fname = QDir::currentPath() + "/" + Paths::tmpDir + "/" + fileName;
+  QFileInfo fileInfo(fname);
+  if(!fileInfo.dir().exists()) {
+     fileInfo.dir().mkpath(".");
+    }
   QFile file(fname);
   if ( ! file.open(QFile::WriteOnly|QFile::Text)) {
       QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
