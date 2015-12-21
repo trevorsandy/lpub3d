@@ -46,6 +46,7 @@ int     LDrawFile::_pieces      = 0;
 LDrawSubFile::LDrawSubFile(
   const QStringList &contents,
   QDateTime   &datetime,
+  QString     &unofficialPartType,
   bool         unofficialPart,
   bool         generated)
 {
@@ -59,6 +60,7 @@ LDrawSubFile::LDrawSubFile(
   _mirrorRendered = false;
   _changedSinceLastWrite = true;
   _unofficialPart = unofficialPart;
+  _unofficialPartType = unofficialPartType;
   _generated = generated;
   _fadePosition = 0;
   _startPageNumber = 0;
@@ -73,11 +75,12 @@ void LDrawFile::empty()
 
 /* Add a new subFile */
 
-void LDrawFile::insert(const QString     &mcFileName, 
-                      QStringList &contents, 
-                      QDateTime   &datetime,
-                      bool         unofficialPart,
-                      bool         generated)
+void LDrawFile::insert(const QString &mcFileName,
+                      QStringList    &contents,
+                      QDateTime      &datetime,
+                      QString        &unofficialPartType,
+                      bool            unofficialPart,
+                      bool            generated)
 {
   QString    fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
@@ -85,7 +88,7 @@ void LDrawFile::insert(const QString     &mcFileName,
   if (i != _subFiles.end()) {
     _subFiles.erase(i);
   }
-  LDrawSubFile subFile(contents,datetime,unofficialPart,generated);
+  LDrawSubFile subFile(contents,datetime,unofficialPartType,unofficialPart,generated);
   _subFiles.insert(fileName,subFile);
   _subFileOrder << fileName;
 }
@@ -482,6 +485,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     QTextStream in(&file);
     QStringList stageContents;
     QStringList contents;
+    QString     unofficialPartType;
     QString     mpdName;
     QRegExp sofRE("^\\s*0\\s+FILE\\s+(.*)$");
     QRegExp eofRE("^\\s*0\\s+NOFILE\\s*$");
@@ -558,7 +562,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
         if (sof || eof) {
 
             if (! mpdName.isEmpty() && ! alreadyInserted) {
-                insert(mpdName,contents,datetime,unofficialPart);
+                insert(mpdName,contents,datetime,unofficialPartType,unofficialPart);
                 unofficialPart = false;
             }
             contents.clear();
@@ -570,8 +574,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
             }
 
         } else if ( ! mpdName.isEmpty() && smLine != "") {
-
-            if (isUnofficialFileType(smLine)) {
+            if (isUnofficialFileType(smLine,unofficialPartType)) {
+                logInfo() << "YYYY unofficialPartType: " << unofficialPartType;
                 unofficialPart = true;
             }
 
@@ -580,7 +584,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     }
 
     if ( ! mpdName.isEmpty() && ! contents.isEmpty()) {
-      insert(mpdName,contents,datetime,unofficialPart);
+      insert(mpdName,contents,datetime,unofficialPartType,unofficialPart);
     }
 
     _mpd = true;
@@ -616,6 +620,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
       QTextStream in(&file);
       QStringList contents;
+      QString     unofficialPartType = "";
 
       QRegExp sofRE("^\\s*0\\s+FILE\\s+(.*)$");
       QRegExp upAUT("^\\s*0\\s+AUTHOR(.*)|Author(.*)|author(.*)$");
@@ -638,7 +643,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
       QDateTime datetime = QFileInfo(fullName).lastModified();
     
-      insert(fileName,contents,datetime,false);
+      insert(fileName,contents,datetime,unofficialPartType,false);
       //writeToTmp(fileName,contents);
 
       /* read it a second time to find submodels */
@@ -1078,24 +1083,24 @@ LDrawFile::LDrawFile()
   {
     LDrawUnofficialFileTypeRegExp
         << QRegExp("^\\s*0\\s+UNOFFICIAL PART[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_Part[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_Subpart[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_Shortcut[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_Primitive[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_48_Primitive[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_Part Alias[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_Shortcut Alias[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_Part Physical_Colour[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial_Shortcut Physical_Colour[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial Part[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial Subpart[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial Shortcut[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial Primitive[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial 48_Primitive[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial Part Alias[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial Shortcut Alias[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial Part Physical_Colour[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* Unofficial Shortcut Physical_Colour[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Part)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Subpart)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Primitive)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_48_Primitive)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Part Alias)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut Alias)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Part Physical_Colour)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut Physical_Colour)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Part)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Subpart)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Primitive)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial 48_Primitive)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Part Alias)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut Alias)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Part Physical_Colour)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut Physical_Colour)[^\n]*")
            ;
   }
 
@@ -1133,12 +1138,14 @@ bool isHeader(QString &line)
   return false;
 }
 
-bool isUnofficialFileType(QString &line)
+bool isUnofficialFileType(QString &line, QString &fileType)
 {
   int size = LDrawUnofficialFileTypeRegExp.size();
 
   for (int i = 0; i < size; i++) {
     if (line.contains(LDrawUnofficialFileTypeRegExp[i])) {
+        fileType = LDrawUnofficialFileTypeRegExp[i].cap(1);
+        logTrace() << "ZZZZZ fileType = LDrawUnofficialFileTypeRegExp[i]: " << fileType;
       return true;
     }
   }
