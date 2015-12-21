@@ -15,6 +15,8 @@
 #include "archiveparts.h"
 #include "lpub_preferences.h"
 #include "lc_application.h"
+#include "lpub.h"
+#include "paths.h"
 
 ArchiveParts::ArchiveParts(QObject *parent) : QObject(parent)
 {
@@ -56,9 +58,16 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
   // Initialize some variables
   QString parts           = "parts";
   QString primitives      = "p";
+  QString primitive8      = "8";
+  QString primitive48     = "48";
+  QString subParts        = "s";
   QString fileNameWithRelativePath;
-  bool setPrimDir         = false;
   bool setPartsDir        = false;
+  bool setPrimDir         = false;
+  bool setPrim8Dir        = false;
+  bool setPrim48Dir       = false;
+  bool setSubPartsDir     = false;
+
   bool partArchived       = false;
 
   // If input directory is 'p' use 'p' (primitive) else use 'parts'
@@ -85,9 +94,14 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
           qDebug() << "---FIRST LEVEL SUBDIR LIST:        " << subDirs;
 
           foreach(QString subDirName, subDirs){
+              // reset prtsInDir flags
+              setSubPartsDir = false;
+              setPrim8Dir    = false;
+              setPrim48Dir   = false;
 
               QDir subDir(QString("%1/%2").arg(dir.absolutePath()).arg(subDirName));
               qDebug() << "---PROCESSING FIRST LEVEL SUBDIR:  " << subDir.absolutePath();
+
               QDir excludeUnoffPartsDir(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts"));
               QDir excludeUnoffPrimDir(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"));
               QDir excludeOffPartsDir(QString("%1/%2").arg(Preferences::ldrawPath).arg("parts"));
@@ -101,13 +115,13 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
               QStringList subSubDirs = subDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
               if (subSubDirs.count() > 0) {
                   qDebug() << "---SECOND LEVEL SUBDIR LIST:       " << subSubDirs;
+
                   foreach(QString subSubDirName, subSubDirs) {
                       // reset prtsInDir flags
                       setPartsDir  = false;
                       setPrimDir   = false;
 
                       QDir subSubDir(QString("%1/%2").arg(subDir.absolutePath()).arg(subSubDirName));
-
                       qDebug() << "---PROCESSING SECOND LEVEL SUBDIR: " << subSubDir.absolutePath();
 
                       setPartsDir = subSubDir.dirName().toLower() == parts;
@@ -139,15 +153,35 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
                     }
                 }
 
-              // No second level sub directories detected - default to zipDir 'parts'
-              zipDirPaths << parts;
+              // First level sub directories - specific to capturing inlined parts written to the LPub3D temp directory
+              setPrimDir     = subDir.dirName().toLower() == primitives;
+              setPrim8Dir    = subDir.dirName().toLower() == primitive8;
+              setPrim48Dir   = subDir.dirName().toLower() == primitive48;
+              setSubPartsDir = subDir.dirName().toLower() == subParts;
 
-//              logDebug() << "\nCHECK IF ARCHIVE EXIST (FIRST LEVEL DIR - SUB (W/O P/PART DIR)): "
-//                         << "\nsetPartsDir:           " << setPartsDir
-//                         << "\nsetPrimDir:            " << setPrimDir
-//                         << "\nsubDir.absolutePath(): " << subDir.absolutePath()
-//                         << "\nzipDirPaths:           " << zipDirPaths
-//                            ;
+              if (setPrimDir)
+                zipDirPaths << primitives;
+              else if (setPrim8Dir)
+                zipDirPaths << QString("%1/%2").arg(primitives).arg(primitive8);
+              else if (setPrim48Dir)
+                zipDirPaths << QString("%1/%2").arg(primitives).arg(primitive48);
+              else if (setSubPartsDir)
+                zipDirPaths << QString("%1/%2").arg(parts).arg(subParts);
+              else
+                zipDirPaths << parts;
+
+//              // No second level sub directories detected - default to zipDir 'parts'
+//              zipDirPaths << parts;
+
+              logDebug() << "\nCHECK IF ARCHIVE EXIST (FIRST LEVEL DIR - SUB (W/O P/PART DIR)): "
+                         << "\nsetPartsDir:           " << (setPartsDir?"True":"False")
+                         << "\nsetPrimDir:            " << (setPrimDir?"True":"False")
+                         << "\nsetPrim8Dir:           " << (setPrim8Dir?"True":"False")
+                         << "\nsetPrim48Dir:          " << (setPrim48Dir?"True":"False")
+                         << "\nsetSubPartsDir:        " << (setSubPartsDir?"True":"False")
+                         << "\nsubDir.absolutePath(): " << subDir.absolutePath()
+                         << "\nzipDirPaths:           " << zipDirPaths
+                            ;
 
               foreach (QString zipDirPath, zipDirPaths){
                   RecurseZipArchive(zipFileList, zipDirPath, zipArchive, subDir/*dirRelativePath*/);
@@ -205,6 +239,9 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
       if (!fileInfo.isFile())
         continue;
 
+//      if (!comment.contains("colour fade") && fileInfo.fileName().contains("-fade.dat"))
+//        continue;
+
       bool alreadyArchived = false;
 
       foreach (QFileInfo zipFileInfo, zipFiles) {        
@@ -218,33 +255,82 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
       if (alreadyArchived)
         continue;
 
-      int partsDirIndex = fileInfo.absoluteFilePath().indexOf("/parts/",0,Qt::CaseInsensitive);
-      int primDirIndex  = fileInfo.absoluteFilePath().indexOf("/p/",0,Qt::CaseInsensitive);
-      setPartsDir = partsDirIndex != -1;
-      setPrimDir  = primDirIndex  != -1;
+      int partsDirIndex    = fileInfo.absoluteFilePath().indexOf("/parts/",0,Qt::CaseInsensitive);
+      int primDirIndex     = fileInfo.absoluteFilePath().indexOf("/p/",0,Qt::CaseInsensitive);
+
+      int prim8DirIndex    = fileInfo.absoluteFilePath().indexOf("/8/",0,Qt::CaseInsensitive);
+      int prim48DirIndex   = fileInfo.absoluteFilePath().indexOf("/48/",0,Qt::CaseInsensitive);
+      int subPartsDirIndex = fileInfo.absoluteFilePath().indexOf("/s/",0,Qt::CaseInsensitive);
+
+      setPartsDir    = partsDirIndex != -1;
+      setPrimDir     = primDirIndex != -1;
+
+      setPrim8Dir    = prim8DirIndex != -1;
+      setPrim48Dir   = prim48DirIndex != -1;
+      setSubPartsDir = subPartsDirIndex != -1;
 
       //logDebug() << "SET ROOT DIR: " << ((setPartsDir || setPrimDir) ? "YES":"NO") ;
 
       if (setPartsDir){
-          //fileNameWithRelativePath = fileInfo.filePath().remove(0, partsDirIndex + 1);
           fileNameWithRelativePath = fileInfo.absoluteFilePath().remove(0, partsDirIndex + 1);
           //logTrace() << "Adjusted Parts fileNameWithRelativePath: " << fileNameWithRelativePath;
         } else if (setPrimDir){
-          //fileNameWithRelativePath = fileInfo.filePath().remove(0, primDirIndex + 1);
           fileNameWithRelativePath = fileInfo.absoluteFilePath().remove(0, primDirIndex + 1);
           //logTrace() << "Adjusted Primitive fileNameWithRelativePath: " << fileNameWithRelativePath;
+        } else if (setPrim8Dir){
+          fileNameWithRelativePath = fileInfo.absoluteFilePath().remove(0, prim8DirIndex + 1);
+          //logTrace() << "Adjusted Primitive8 fileNameWithRelativePath: " << fileNameWithRelativePath;
+        } else if (setPrim48Dir){
+          fileNameWithRelativePath = fileInfo.absoluteFilePath().remove(0, prim48DirIndex + 1);
+          //logTrace() << "Adjusted Primitive48 fileNameWithRelativePath: " << fileNameWithRelativePath;
+        } else if (setSubPartsDir){
+          fileNameWithRelativePath = fileInfo.absoluteFilePath().remove(0, subPartsDirIndex + 1);
+          //logTrace() << "Adjusted SubParts fileNameWithRelativePath: " << fileNameWithRelativePath;
         } else {
-          fileNameWithRelativePath = fileInfo.fileName();
+          // Process temp directory primitives
+          if (fileInfo.absoluteFilePath().contains(Paths::tmpDir)) {
+
+              QString unofficialFileType;
+              if ((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep) &&
+                  fileInfo.fileName().contains("-fade.dat")){
+                  QString adjustedFileName = fileInfo.fileName().replace("-fade.dat",".dat");
+                  unofficialFileType = gui->getUnofficialPartType(adjustedFileName);
+                } else {
+                  unofficialFileType = gui->getUnofficialPartType(fileInfo.fileName());
+                }
+
+              if (unofficialFileType.contains("Unofficial_Primitive") || unofficialFileType.contains("Unofficial Primitive")) {
+                  setPrimDir = true;
+                  fileNameWithRelativePath = QString("%1/%2").arg(primitives).arg(fileInfo.fileName());
+                  logTrace() << "Adjusted Root_Primitive fileNameWithRelativePath: " << fileNameWithRelativePath;
+                } else {
+                  fileNameWithRelativePath = fileInfo.fileName();
+                  logTrace() << "Adjusted Root_Part fileNameWithRelativePath: " << fileNameWithRelativePath;
+                }
+
+            } else {
+              fileNameWithRelativePath = fileInfo.fileName();
+              //logTrace() << "Adjusted Root fileNameWithRelativePath: " << fileNameWithRelativePath;
+            }
         }
 
       QString fileNameWithCompletePath;
 
       if (setPartsDir || setPrimDir){
           fileNameWithCompletePath = fileNameWithRelativePath;
-          //logInfo() << "fileNameWithCompletePath (ROOT PART/PRIMITIVE) " << fileNameWithCompletePath;
+          logInfo() << "fileNameWithCompletePath (ROOT PART/PRIMITIVE) " << fileNameWithCompletePath;
+        } else if (setPrim8Dir) {
+          fileNameWithCompletePath = QString("%1/%2").arg(primitives).arg(fileNameWithRelativePath);
+          logInfo() << "fileNameWithCompletePath (PRIMITIVE - 8)" << fileNameWithCompletePath;
+        } else if (setPrim48Dir) {
+          fileNameWithCompletePath = QString("%1/%2").arg(primitives).arg(fileNameWithRelativePath);
+          logInfo() << "fileNameWithCompletePath (PRIMITIVE - 48)" << fileNameWithCompletePath;
+        } else if (setSubPartsDir) {
+          fileNameWithCompletePath = QString("%1/%2").arg(parts).arg(fileNameWithRelativePath);
+          logInfo() << "fileNameWithCompletePath (PART - SUBPARTS)" << fileNameWithCompletePath;
         } else {
-          fileNameWithCompletePath = QString("%1/%2").arg("parts").arg(fileNameWithRelativePath);
-          //logInfo() << "fileNameWithCompletePath (PART - DEFAULT)" << fileNameWithCompletePath;
+          fileNameWithCompletePath = QString("%1/%2").arg(parts).arg(fileNameWithRelativePath);
+          logInfo() << "fileNameWithCompletePath (PART - DEFAULT)" << fileNameWithCompletePath;
         }
 
       inFile.setFileName(fileInfo.filePath());
@@ -291,18 +377,6 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
       logError() << QString("zip.close() zipError(): %1").arg(zip.getZipError());
       return false;
     }
-
-  // Reload unofficial library parts into memory
-//  if (partArchived){
-//      if (!g_App->mLibrary->ReloadUnoffLib()){
-//          qDebug() << QString(tr("Failed to reload unofficial parts library into memory."));
-//          return false;
-//        } else {
-//          qDebug() << QString(tr("Reloaded unofficial parts library into memory."));
-//        }
-//    } else {
-//      qDebug() << QString(tr("No new unofficial library parts loaded into memory."));
-//    }
 
   return true;
 }

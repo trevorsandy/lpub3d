@@ -125,6 +125,17 @@ bool LDrawFile::isUnofficialPart(const QString &name)
   return false;
 }
 
+QString LDrawFile::getUnofficialPartType(const QString &name)
+{
+  QString fileName = name.toLower();
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+  if (i != _subFiles.end() && i.value()._unofficialPart) {
+    QString _unofficialPartType = i.value()._unofficialPartType;
+    return _unofficialPartType;
+  }
+  return _emptyString;
+}
+
 /* return the name of the top level file */
 
 QString LDrawFile::topLevelFile()
@@ -574,8 +585,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
             }
 
         } else if ( ! mpdName.isEmpty() && smLine != "") {
-            if (isUnofficialFileType(smLine,unofficialPartType)) {
-                logInfo() << "YYYY unofficialPartType: " << unofficialPartType;
+            if (isUnofficialPartType(smLine,unofficialPartType)) {
+                //logInfo() << "YYYY unofficialPartType: " << unofficialPartType << " mpdName: " << mpdName;
                 unofficialPart = true;
             }
 
@@ -932,6 +943,27 @@ bool LDrawFile::saveLDRFile(const QString &fileName)
     return true;
 }
 
+
+bool LDrawFile::changedSinceLastWrite(const QString &fileName)
+{
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+  if (i != _subFiles.end()) {
+    bool value = i.value()._changedSinceLastWrite;
+    i.value()._changedSinceLastWrite = false;
+    return value;
+  }
+  return false;
+}
+
+void LDrawFile::tempCacheCleared()
+{
+  QString key;
+  foreach(key,_subFiles.keys()) {
+    _subFiles[key]._changedSinceLastWrite = true;
+  }
+}
+
+
 int split(const QString &line, QStringList &argv)
 {
   QString     chopped = line;
@@ -1087,6 +1119,7 @@ LDrawFile::LDrawFile()
         << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Subpart)[^\n]*")
         << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut)[^\n]*")
         << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Primitive)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_8_Primitive)[^\n]*")
         << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_48_Primitive)[^\n]*")
         << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Part Alias)[^\n]*")
         << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut Alias)[^\n]*")
@@ -1096,6 +1129,7 @@ LDrawFile::LDrawFile()
         << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Subpart)[^\n]*")
         << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut)[^\n]*")
         << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Primitive)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial 8_Primitive)[^\n]*")
         << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial 48_Primitive)[^\n]*")
         << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Part Alias)[^\n]*")
         << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut Alias)[^\n]*")
@@ -1106,29 +1140,10 @@ LDrawFile::LDrawFile()
 
 }
 
-bool LDrawFile::changedSinceLastWrite(const QString &fileName)
-{
-  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
-  if (i != _subFiles.end()) {
-    bool value = i.value()._changedSinceLastWrite;
-    i.value()._changedSinceLastWrite = false;
-    return value;
-  }
-  return false;
-}
-
-void LDrawFile::tempCacheCleared()
-{
-  QString key;
-  foreach(key,_subFiles.keys()) {
-    _subFiles[key]._changedSinceLastWrite = true;
-  }
-}
-
 bool isHeader(QString &line)
 {
   int size = LDrawHeaderRegExp.size();
-   
+
   for (int i = 0; i < size; i++) {
     if (line.contains(LDrawHeaderRegExp[i])) {
       return true;
@@ -1138,17 +1153,19 @@ bool isHeader(QString &line)
   return false;
 }
 
-bool isUnofficialFileType(QString &line, QString &fileType)
+bool isUnofficialPartType(QString &line, QString &fileType)
 {
   int size = LDrawUnofficialFileTypeRegExp.size();
 
   for (int i = 0; i < size; i++) {
     if (line.contains(LDrawUnofficialFileTypeRegExp[i])) {
         fileType = LDrawUnofficialFileTypeRegExp[i].cap(1);
-        logTrace() << "ZZZZZ fileType = LDrawUnofficialFileTypeRegExp[i]: " << fileType;
       return true;
     }
   }
 
   return false;
 }
+
+
+

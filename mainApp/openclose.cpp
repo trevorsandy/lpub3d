@@ -50,6 +50,7 @@ void Gui::open()
       Settings.setValue(QString("%1/%2").arg(SETTINGS,"ProjectsPath"),info.path());
       openFile(fileName);
       displayPage();
+      //processTempDirParts();
       enableActions();
       return;
     }
@@ -67,6 +68,7 @@ void Gui::openRecentFile()
     openFile(fileName);
     Paths::mkdirs();
     displayPage();
+    processTempDirParts();
     enableActions();
   }
 }
@@ -139,6 +141,7 @@ void Gui::saveAs()
     closeFile();
     openFile(fileName);
     displayPage();
+    processTempDirParts();
   } else {
     QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
                               QMessageBox::tr("Invalid LDraw suffix %1.  File not saved.")
@@ -230,7 +233,6 @@ void Gui::openFile(QString &fileName)
   Paths::mkdirs();
   ldrawFile.loadFile(fileName);
   processFadeColourParts();
-  //partWorker.processFadeColorParts();
   attitudeAdjustment();
   mpdCombo->setMaxCount(0);
   mpdCombo->setMaxCount(1000);
@@ -240,7 +242,7 @@ void Gui::openFile(QString &fileName)
   undoStack->setClean();
   curFile = fileName;
   //insertFinalModel();    //insert final fully coloured model if fadeStep turned on
-  generateCoverPages();  //autogenerate cover page
+  //generateCoverPages();  //autogenerate cover page
 
 #ifdef WATCHER
   if (isMpd()) {

@@ -99,10 +99,10 @@ void Gui::generateCoverPages()
 {
     if (Preferences::generageCoverPages){
         MetaItem mi;
-        if (! mi.frontCoverPageExist())
+        if (!mi.frontCoverPageExist())
             mi.insertCoverPage();
 
-        if (! mi.backCoverPageExist())
+        if (!mi.backCoverPageExist())
             mi.appendCoverPage();
     }
 }
@@ -1063,11 +1063,10 @@ void Gui::processFadeColourParts()
     }
 }
 
-//void Gui::processLDSearchDirParts()
-//{
-//  partWorkerLDSearchDirs.processLDSearchDirParts();
-//}
-
+void Gui::processTempDirParts()
+{
+  partWorkerTempDirs.processTempDirParts();
+}
 
 void Gui::progressBarInit(){
     progressBar->setMaximumHeight(15);

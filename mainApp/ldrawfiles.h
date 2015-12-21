@@ -139,6 +139,7 @@ class LDrawFile {
 
     bool isMpd();
     QString topLevelFile();
+    QString getUnofficialPartType(const QString &name);
     bool isUnofficialPart(const QString &name);
     int numSteps(const QString &fileName);
     QDateTime lastModified(const QString &fileName);
@@ -162,7 +163,7 @@ class LDrawFile {
 int split(const QString &line, QStringList &argv);
 int validSoQ(const QString &line, int soq);
 bool isHeader(QString &line);
-bool isUnofficialFileType(QString &line, QString &fileType);
+bool isUnofficialPartType(QString &line, QString &fileType);
 
 
 #endif

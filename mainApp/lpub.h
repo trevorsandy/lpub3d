@@ -491,10 +491,15 @@ public:
   {
     return ldrawFile.isUnofficialPart(name);
   }
+  QString getUnofficialPartType(const QString &name)
+  {
+    return ldrawFile.getUnofficialPartType(name);
+  }
   void insertGeneratedModel(const QString &name,
                                   QStringList &csiParts) {
     QDateTime date;
-    ldrawFile.insert(name,csiParts,date,false,true);
+    QString unofficialPartType = "";
+    ldrawFile.insert(name,csiParts,date,unofficialPartType,false,true);
     writeToTmp();
   }
   LDrawFile getLDrawFile()
@@ -654,7 +659,8 @@ public slots:
   void fileChanged(const QString &path);
 
   void processFadeColourParts();
-//  void processLDSearchDirParts(); //moved to lc_application
+
+  void processTempDirParts();
 
 signals:       
 
@@ -683,6 +689,7 @@ public:
 
   // multi-thread worker classes
 //  PartWorker            partWorkerLDSearchDirs;  // part worker to process search directories and fade color parts
+  PartWorker             partWorkerTempDirs;      // part worker to process temp directory parts
   PartWorker            *partWorkerFadeColour;    // part worker to process colour part fade
   ColourPartListWorker  *colourPartListWorker;    // create static colour parts list in separate thread
   ParmsWindow           *parmsWindow;     // the parametrer file editor

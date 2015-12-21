@@ -1513,11 +1513,12 @@ void MetaItem::appendCoverPage()
         rc == StepRc)) {
       here++;
       insertMeta(here,meta);
-      appendMeta(here,step);
+//      appendMeta(here,step);
    } else {
       appendMeta(here,step);                           //NO STEP, 'append' one before appending meta
+      here++;
       appendMeta(here,meta);
-      appendMeta(here,step);
+//      appendMeta(here,step);
    }
    endMacro();
 }

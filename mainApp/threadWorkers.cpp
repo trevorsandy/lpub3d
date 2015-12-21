@@ -123,6 +123,13 @@ bool PartWorker::loadLDrawSearchDirs(){
   _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts"));
   _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"));
 
+  setDoFadeStep((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep));
+  if (!doFadeStep()) {
+      _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/fade"));
+      _excludedSearchDirs << QDir::toNativeSeparators(Paths::fadePartDir);
+      _excludedSearchDirs << QDir::toNativeSeparators(Paths::fadePrimDir);
+    }
+
   StringList ldrawSearchDirs;
   if (ldPartsDirs.loadLDrawSearchDirs("")){
       ldrawSearchDirs = ldPartsDirs.getLDrawSearchDirs();
@@ -159,6 +166,18 @@ void PartWorker::processLDSearchDirParts(){
 
   processPartsArchive(Preferences::ldSearchDirs, "search directory");
   qDebug() << "\nFinished Processing Search Directory Parts.";
+
+ }
+
+/*
+ * Process temp directory part files.
+ */
+void PartWorker::processTempDirParts(){
+
+  QStringList tempDirs;
+  tempDirs << Paths::tmpDir;
+  processPartsArchive(tempDirs, "temp directory");
+  qDebug() << "\nFinished Processing Temp Directory Parts.";
 
  }
 
@@ -209,15 +228,18 @@ void PartWorker::processFadeColourParts()
         createFadePartFiles();
 
         // Append fade parts to unofficial library for LeoCAD's consumption
-        QString fadePartsDir = Paths::fadePartDir;
-        QString fadePrimitivesDir = Paths::fadePrimDir;
+//        QString fadePartsDir = Paths::fadePartDir;
+//        QString fadePrimitivesDir = Paths::fadePrimDir;
 
         if(!fadePartsDirs.size() == 0){
            fadePartsDirs.empty();
           }
 
-        fadePartsDirs << fadePartsDir
-                      << fadePrimitivesDir;
+//        fadePartsDirs << fadePartsDir
+//                      << fadePrimitivesDir;
+        fadePartsDirs << Paths::fadePartDir
+                      << Paths::fadePrimDir;
+
 
         processPartsArchive(fadePartsDirs, "colour fade");
 

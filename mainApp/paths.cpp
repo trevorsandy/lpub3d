@@ -40,11 +40,11 @@
 
 Paths paths;
 
-QString Paths::lpubDir   = "LPub";
-QString Paths::tmpDir    = "LPub/tmp";
-QString Paths::assemDir  = "LPub/assem";
-QString Paths::partsDir  = "LPub/parts";
-QString Paths::viewerDir = "LPub/viewer";
+QString Paths::lpubDir   = "LPub3D";
+QString Paths::tmpDir    = "LPub3D/tmp";
+QString Paths::assemDir  = "LPub3D/assem";
+QString Paths::partsDir  = "LPub3D/parts";
+QString Paths::viewerDir = "LPub3D/viewer";
 
 QString Paths::fadePartDir;
 QString Paths::fadeSubDir;
