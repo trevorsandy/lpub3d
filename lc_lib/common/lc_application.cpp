@@ -110,7 +110,6 @@ void lcApplication::GetFileList(const char* Path, lcArray<String>& FileList)
 
 void lcApplication::processLDSearchDirParts()
 {
-  partWorkerLDSearchDirs.setDoInitLDSearch(true);
   partWorkerLDSearchDirs.processLDSearchDirParts();
 }
 

@@ -1857,16 +1857,19 @@ void Gui::drawPage(
   ldrawFile.unrendered();
   ldrawFile.countInstances();
   writeToTmp();
+  QApplication::processEvents();
   Where       current(ldrawFile.topLevelFile(),0);
   maxPages = 1;
   stepPageNum = 1;
   ldrawFile.setModelStartPageNumber(current.modelName,maxPages);
+  QApplication::processEvents();
   //logTrace() << "SET INITIAL Model: " << current.modelName << " @ Page: " << maxPages;
   QString empty;
   Meta    meta;
   firstStepPageNum = -1;
   lastStepPageNum = -1;
   findPage(view,scene,maxPages,empty,current,false,meta,printing);
+  QApplication::processEvents();
   topOfPages.append(current);
   maxPages--;
 
@@ -2093,6 +2096,11 @@ void Gui::writeToTmp()
               writeToTmp(fileName,content);
             }
         }
+    }
+
+  if (!tempDirPartsProcessed) {
+      processTempDirParts();
+      tempDirPartsProcessed = true;
     }
 }
 

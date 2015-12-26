@@ -242,6 +242,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
 //      if (!comment.contains("colour fade") && fileInfo.fileName().contains("-fade.dat"))
 //        continue;
 
+      bool processingTempDir = fileInfo.absoluteFilePath().contains(Paths::tmpDir);
       bool alreadyArchived = false;
 
       foreach (QFileInfo zipFileInfo, zipFiles) {        
@@ -288,7 +289,8 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
           //logTrace() << "Adjusted SubParts fileNameWithRelativePath: " << fileNameWithRelativePath;
         } else {
           // Process temp directory primitives
-          if (fileInfo.absoluteFilePath().contains(Paths::tmpDir)) {
+          //if (fileInfo.absoluteFilePath().contains(Paths::tmpDir)) {
+          if (processingTempDir) {
 
               QString unofficialFileType;
               if ((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep) &&
@@ -318,19 +320,24 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
 
       if (setPartsDir || setPrimDir){
           fileNameWithCompletePath = fileNameWithRelativePath;
-          logInfo() << "fileNameWithCompletePath (ROOT PART/PRIMITIVE) " << fileNameWithCompletePath;
+          if (processingTempDir)
+            logInfo() << "fileNameWithCompletePath (ROOT PART/PRIMITIVE) " << fileNameWithCompletePath;
         } else if (setPrim8Dir) {
           fileNameWithCompletePath = QString("%1/%2").arg(primitives).arg(fileNameWithRelativePath);
-          logInfo() << "fileNameWithCompletePath (PRIMITIVE - 8)" << fileNameWithCompletePath;
+          if (processingTempDir)
+            logInfo() << "fileNameWithCompletePath (PRIMITIVE - 8)" << fileNameWithCompletePath;
         } else if (setPrim48Dir) {
           fileNameWithCompletePath = QString("%1/%2").arg(primitives).arg(fileNameWithRelativePath);
-          logInfo() << "fileNameWithCompletePath (PRIMITIVE - 48)" << fileNameWithCompletePath;
+          if (processingTempDir)
+            logInfo() << "fileNameWithCompletePath (PRIMITIVE - 48)" << fileNameWithCompletePath;
         } else if (setSubPartsDir) {
           fileNameWithCompletePath = QString("%1/%2").arg(parts).arg(fileNameWithRelativePath);
-          logInfo() << "fileNameWithCompletePath (PART - SUBPARTS)" << fileNameWithCompletePath;
+          if (processingTempDir)
+            logInfo() << "fileNameWithCompletePath (PART - SUBPARTS)" << fileNameWithCompletePath;
         } else {
           fileNameWithCompletePath = QString("%1/%2").arg(parts).arg(fileNameWithRelativePath);
-          logInfo() << "fileNameWithCompletePath (PART - DEFAULT)" << fileNameWithCompletePath;
+          if (processingTempDir)
+            logInfo() << "fileNameWithCompletePath (PART - DEFAULT)" << fileNameWithCompletePath;
         }
 
       inFile.setFileName(fileInfo.filePath());

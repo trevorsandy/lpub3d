@@ -187,22 +187,21 @@ void Gui::displayPage()
 {
   // initialize progress bar
   emit progressBarInitSig();
-  emit progressMessageSig("Processing page...");
   emit progressRangeSig(0,0);
+  emit progressMessageSig("Processing display page...");
   QApplication::processEvents();
 
   if (macroNesting == 0) {
       clearPage(KpageView,KpageScene);
       page.coverPage = false;
       drawPage(KpageView,KpageScene,false);
+      QApplication::processEvents();
       enableActions2();
 
       emit enable3DActionsSig();
       Step::refreshCsi = false; //reset
     }
 
-  emit progressRangeSig(1, maxPages);
-  emit progressSetValueSig(maxPages);
   emit removeProgressStatusSig();
 }
 

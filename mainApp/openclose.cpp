@@ -50,7 +50,6 @@ void Gui::open()
       Settings.setValue(QString("%1/%2").arg(SETTINGS,"ProjectsPath"),info.path());
       openFile(fileName);
       displayPage();
-      //processTempDirParts();
       enableActions();
       return;
     }
@@ -68,7 +67,6 @@ void Gui::openRecentFile()
     openFile(fileName);
     Paths::mkdirs();
     displayPage();
-    processTempDirParts();
     enableActions();
   }
 }
@@ -141,7 +139,6 @@ void Gui::saveAs()
     closeFile();
     openFile(fileName);
     displayPage();
-    processTempDirParts();
   } else {
     QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
                               QMessageBox::tr("Invalid LDraw suffix %1.  File not saved.")
@@ -210,6 +207,11 @@ void Gui::closeFile()
 
 void Gui::openFile(QString &fileName)
 {
+  emit progressBarInitSig();
+  emit progressRangeSig(0,0);
+  emit progressMessageSig("Loading model file.");
+  QApplication::processEvents();
+
 #ifdef WATCHER
   if (curFile != "") {
     if (isMpd()) {
@@ -227,17 +229,26 @@ void Gui::openFile(QString &fileName)
 
   clearPage(KpageView,KpageScene);
   closeFile();
+  tempDirPartsProcessed = false;
   displayPageNum = 1;
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
   Paths::mkdirs();
+  emit progressMessageSig("Loading LDraw submodels...");
+  QApplication::processEvents();
   ldrawFile.loadFile(fileName);
+  emit progressMessageSig("Processing fade colour parts...");
+  QApplication::processEvents();
   processFadeColourParts();
+  emit progressMessageSig("Loading user interface items...");
+  QApplication::processEvents();
   attitudeAdjustment();
   mpdCombo->setMaxCount(0);
   mpdCombo->setMaxCount(1000);
   mpdCombo->addItems(ldrawFile.subFileOrder());
   setCurrentFile(fileName);
+  emit progressMessageSig("Loading display file...");
+  QApplication::processEvents();
   displayFile(&ldrawFile,ldrawFile.topLevelFile());
   undoStack->setClean();
   curFile = fileName;
@@ -257,6 +268,8 @@ void Gui::openFile(QString &fileName)
   }
 #endif
   defaultResolutionType(Preferences::preferCentimeters);
+  emit removeProgressStatusSig();
+  emit messageSig(true,"Ready");
 }
 
 void Gui::updateRecentFileActions()

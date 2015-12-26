@@ -29,7 +29,7 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
 {
   _doFadeStep             = false;
   _doReload               = false;
-  _doInitLDSearch         = false;
+  _didInitLDSearch        = false;
   _resetSearchDirSettings = false;
 }
 
@@ -187,6 +187,7 @@ void PartWorker::processTempDirParts(){
 void PartWorker::processFadeColourParts()
 {
   setDoFadeStep((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep));
+  setDidInitLDSearch(true);
 
   if (doFadeStep()) {
 

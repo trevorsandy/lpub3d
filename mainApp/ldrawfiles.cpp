@@ -580,6 +580,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
             if (sof) {
                 mpdName = sofRE.cap(1).toLower();
+                logTrace() << "MPD File: " << mpdName;
             } else {
                 mpdName.clear();
             }

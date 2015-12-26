@@ -688,7 +688,7 @@ public:
   Page                  page;            // the abstract version of page contents
 
   // multi-thread worker classes
-//  PartWorker            partWorkerLDSearchDirs;  // part worker to process search directories and fade color parts
+//  PartWorker            partWorkerLDSearchDirs; // part worker to process search directories and fade color parts
   PartWorker             partWorkerTempDirs;      // part worker to process temp directory parts
   PartWorker            *partWorkerFadeColour;    // part worker to process colour part fade
   ColourPartListWorker  *colourPartListWorker;    // create static colour parts list in separate thread
@@ -720,6 +720,8 @@ private:
 
   QUndoStack     *undoStack;       // the undo/redo stack
   int             macroNesting;
+
+  bool            tempDirPartsProcessed;
 
   void countPages();
 
