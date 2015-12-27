@@ -187,68 +187,68 @@ void PartWorker::processTempDirParts(){
 void PartWorker::processFadeColourParts()
 {
   setDoFadeStep((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep));
-  setDidInitLDSearch(true);
-
   if (doFadeStep()) {
+
+      setDidInitLDSearch(true);
 
       QStringList fadePartsDirs;
       QStringList contents;
 
-        emit progressBarInitSig();
-        emit progressMessageSig("Parse Model and Parts Library");
-        Paths::mkfadedirs();
+      emit progressBarInitSig();
+      emit progressMessageSig("Parse Model and Parts Library");
+      Paths::mkfadedirs();
 
-        ldrawFile = gui->getLDrawFile();
-        // porcess top-level submodels
-        emit progressRangeSig(1, ldrawFile._subFileOrder.size());
-        for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
-            QString subfileNameStr = ldrawFile._subFileOrder[i].toLower();
-            contents = ldrawFile.contents(subfileNameStr);
-            emit progressSetValueSig(i);
-            //logDebug() << "00 PROCESSING SUBFILE: " << subfileNameStr;
-            for (int i = 0; i < contents.size(); i++) {
-                QString line = contents[i];
-                QStringList tokens;
-                split(line,tokens);
-                if (tokens.size() == 15 && tokens[0] == "1") {
-                    // check if colored part and create fade version if yes
-                    QString fileNameStr  = tokens[tokens.size()-1];
-                    if (FadeStepColorParts::getStaticColorPartPath(fileNameStr)){
-                        logInfo() << "01 SUBMIT COLOUR PART: " << QString("%1**%2").arg(tokens[tokens.size()-1]).arg(fileNameStr) << " Line: " << i ;
-                        //tokens[tokens.size()-1] = part name
-                        //fileNameStr             = absolute path file name
+      ldrawFile = gui->getLDrawFile();
+      // porcess top-level submodels
+      emit progressRangeSig(1, ldrawFile._subFileOrder.size());
+      for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
+          QString subfileNameStr = ldrawFile._subFileOrder[i].toLower();
+          contents = ldrawFile.contents(subfileNameStr);
+          emit progressSetValueSig(i);
+          //logDebug() << "00 PROCESSING SUBFILE: " << subfileNameStr;
+          for (int i = 0; i < contents.size(); i++) {
+              QString line = contents[i];
+              QStringList tokens;
+              split(line,tokens);
+              if (tokens.size() == 15 && tokens[0] == "1") {
+                  // check if colored part and create fade version if yes
+                  QString fileNameStr  = tokens[tokens.size()-1];
+                  if (FadeStepColorParts::getStaticColorPartPath(fileNameStr)){
+                      logInfo() << "01 SUBMIT COLOUR PART: " << QString("%1**%2").arg(tokens[tokens.size()-1]).arg(fileNameStr) << " Line: " << i ;
+                      //tokens[tokens.size()-1] = part name
+                      //fileNameStr             = absolute path file name
 
-                        // create incremented number id for each directory
-                        createFadePartContent(QString("%1**%2").arg(tokens[tokens.size()-1]).arg(fileNameStr));
+                      // create incremented number id for each directory
+                      createFadePartContent(QString("%1**%2").arg(tokens[tokens.size()-1]).arg(fileNameStr));
                     }
                 }
             }
         }
-        emit progressSetValueSig(ldrawFile._subFileOrder.size());
+      emit progressSetValueSig(ldrawFile._subFileOrder.size());
 
-        createFadePartFiles();
+      createFadePartFiles();
 
-        // Append fade parts to unofficial library for LeoCAD's consumption
-//        QString fadePartsDir = Paths::fadePartDir;
-//        QString fadePrimitivesDir = Paths::fadePrimDir;
+      // Append fade parts to unofficial library for LeoCAD's consumption
+      //        QString fadePartsDir = Paths::fadePartDir;
+      //        QString fadePrimitivesDir = Paths::fadePrimDir;
 
-        if(!fadePartsDirs.size() == 0){
-           fadePartsDirs.empty();
-          }
+      if(!fadePartsDirs.size() == 0){
+          fadePartsDirs.empty();
+        }
 
-//        fadePartsDirs << fadePartsDir
-//                      << fadePrimitivesDir;
-        fadePartsDirs << Paths::fadePartDir
-                      << Paths::fadePrimDir;
+      //        fadePartsDirs << fadePartsDir
+      //                      << fadePrimitivesDir;
+      fadePartsDirs << Paths::fadePartDir
+                    << Paths::fadePrimDir;
 
 
-        processPartsArchive(fadePartsDirs, "colour fade");
+      processPartsArchive(fadePartsDirs, "colour fade");
 
-        emit messageSig(true,QString("Colour parts created and parts library updated successfully."));
-        emit removeProgressStatusSig();
-        emit fadeColourFinishedSig();
+      emit messageSig(true,QString("Colour parts created and parts library updated successfully."));
+      emit removeProgressStatusSig();
+      emit fadeColourFinishedSig();
 
-        qDebug() << "\nfinished Process Fade Colour Parts.";
+      qDebug() << "\nfinished Process Fade Colour Parts.";
     }
 }
 

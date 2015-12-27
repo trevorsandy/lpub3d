@@ -2098,10 +2098,10 @@ void Gui::writeToTmp()
         }
     }
 
-  if (!tempDirPartsProcessed) {
-      processTempDirParts();
-      tempDirPartsProcessed = true;
-    }
+//  if (!tempDirPartsProcessed) {
+//      processTempDirParts();
+//      tempDirPartsProcessed = true;
+//    }
 }
 
 /*

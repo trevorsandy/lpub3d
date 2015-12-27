@@ -573,6 +573,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
         if (sof || eof) {
 
             if (! mpdName.isEmpty() && ! alreadyInserted) {
+                logTrace() << "Inserted Subfile: " << mpdName;
                 insert(mpdName,contents,datetime,unofficialPartType,unofficialPart);
                 unofficialPart = false;
             }
@@ -580,7 +581,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
             if (sof) {
                 mpdName = sofRE.cap(1).toLower();
-                logTrace() << "MPD File: " << mpdName;
             } else {
                 mpdName.clear();
             }
