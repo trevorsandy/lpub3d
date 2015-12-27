@@ -108,13 +108,11 @@ void lcApplication::GetFileList(const char* Path, lcArray<String>& FileList)
 	}
 }
 
-void lcApplication::processLDSearchDirParts()
-{
-  partWorkerLDSearchDirs.processLDSearchDirParts();
-}
-
 bool lcApplication::LoadPiecesLibrary(const char* LibPath, const char* LibraryInstallPath, const char* LDrawPath)
 {
+        // process search directories to update library archive
+        partWorkerLDSearchDirs.processLDSearchDirParts();
+
 	if (mLibrary == NULL)
 		mLibrary = new lcPiecesLibrary();
 
@@ -317,9 +315,6 @@ bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstal
 
 	gMainWindow = new lcMainWindow();
 	lcLoadDefaultKeyboardShortcuts();
-
-	// Process LDraw search directories
-	processLDSearchDirParts();
 
 	// Load all parts
 	if (!LoadPiecesLibrary(LibPath, LibraryInstallPath, LDrawPath))

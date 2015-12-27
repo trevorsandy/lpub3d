@@ -47,8 +47,6 @@ public:
 	bool Initialize(int argc, char *argv[], const char* LibraryInstallPath, const char* LDrawPath);
 	void Shutdown();
 	void ShowPreferencesDialog();
-
-	void processLDSearchDirParts();
 	bool LoadPiecesLibrary(const char* LibPath, const char* LibraryInstallPath, const char* LDrawPath);
 
 	void GetFileList(const char* Path, lcArray<String>& FileList);
