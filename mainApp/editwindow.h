@@ -64,8 +64,8 @@ private:
     void createToolBars();
 
     QTextEditor  *_textEdit;
-    Highlighter *highlighter;
-    QString      fileName;  // of file currently being displayed
+    Highlighter  *highlighter;
+    QString       fileName;    // of file currently being displayed
 
     QMenu    *editMenu;
     QToolBar *editToolBar;

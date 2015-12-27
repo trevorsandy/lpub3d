@@ -446,6 +446,9 @@ int Gui::drawPage(
 
                   QHash<QString, QStringList> calloutBfx;
 
+                  emit progressMessageSig("Processing draw page...");
+                  QApplication::processEvents();
+
                   int rc;
                   rc = drawPage(
                         view,
@@ -880,6 +883,10 @@ int Gui::drawPage(
 
                   bool endOfSubmodel = stepNum >= ldrawFile.numSteps(current.modelName);
                   int  instances = ldrawFile.instances(current.modelName,isMirrored);
+
+                  emit progressMessageSig("Processing graphics page items...");
+                  QApplication::processEvents();
+
                   addGraphicsPageItems(steps, coverPage, endOfSubmodel,instances, view, scene, printing);
                   return HitEndOfPage;
                 }
@@ -911,6 +918,9 @@ int Gui::drawPage(
 
                       range->append(step);
                     }
+
+                  emit progressMessageSig("Processing create csi items...");
+                  QApplication::processEvents();
 
                   (void) step->createCsi(
                         isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
@@ -979,6 +989,9 @@ int Gui::drawPage(
 
                       statusBar()->showMessage("Processing " + current.modelName);
 
+                      emit progressMessageSig("Processing create csi items...");
+                      QApplication::processEvents();
+
                       int rc = step->createCsi(
                             isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
                             saveCsiParts = InsertFinalModel ? csiParts : fadeStep(csiParts, stepNum, current),
@@ -1012,6 +1025,10 @@ int Gui::drawPage(
                       int  numSteps = ldrawFile.numSteps(current.modelName);
                       bool endOfSubmodel = numSteps == 0 || stepNum >= numSteps;
                       int  instances = ldrawFile.instances(current.modelName, isMirrored);
+
+                      emit progressMessageSig("Processing graphics page items...");
+                      QApplication::processEvents();
+
                       addGraphicsPageItems(steps,coverPage,endOfSubmodel,instances,view,scene,printing);
                       stepPageNum += ! coverPage;
                       steps->setBottomOfSteps(current);
@@ -1183,6 +1200,9 @@ int Gui::findPage(
                       RotStepMeta saveRotStep2 = meta.rotStep;
                       meta.rotStep.clear();
 
+                      emit progressMessageSig("Processing find page...");
+                      QApplication::processEvents();
+
                       findPage(view,scene,pageNum,line,current2,isMirrored,meta,printing);
                       saveStepPageNum = stepPageNum;
                       meta.submodelStack.pop_back();
@@ -1248,6 +1268,9 @@ int Gui::findPage(
 
                       QStringList pliParts;
 
+                      emit progressMessageSig("Processing draw page...");
+                      QApplication::processEvents();
+
                       (void) drawPage(view,
                                       scene,
                                       &page,
@@ -1303,6 +1326,9 @@ int Gui::findPage(
                           page.meta.rotStep = saveRotStep;
                           page.meta.rotStep = meta.rotStep;
                           QStringList pliParts;
+
+                          emit progressMessageSig("Processing draw page...");
+                          QApplication::processEvents();
 
                           (void) drawPage(view,
                                           scene,
@@ -1439,6 +1465,10 @@ int Gui::findPage(
 
           page.meta = saveMeta;
           QStringList pliParts;
+
+          emit progressMessageSig("Processing draw page...");
+          QApplication::processEvents();
+
           (void) drawPage(view,
                           scene,
                           &page,
@@ -1868,6 +1898,8 @@ void Gui::drawPage(
   Meta    meta;
   firstStepPageNum = -1;
   lastStepPageNum = -1;
+  emit progressMessageSig("Processing find page...");
+  QApplication::processEvents();
   findPage(view,scene,maxPages,empty,current,false,meta,printing);
   QApplication::processEvents();
   topOfPages.append(current);
@@ -2097,11 +2129,6 @@ void Gui::writeToTmp()
             }
         }
     }
-
-//  if (!tempDirPartsProcessed) {
-//      processTempDirParts();
-//      tempDirPartsProcessed = true;
-//    }
 }
 
 /*

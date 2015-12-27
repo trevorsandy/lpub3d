@@ -56,7 +56,6 @@ class LDrawSubFile {
     bool        _mirrorRendered;
     bool        _changedSinceLastWrite;
     bool        _unofficialPart;
-    QString     _unofficialPartType;
     bool        _generated;
     int         _fadePosition;
     int         _startPageNumber;
@@ -68,7 +67,6 @@ class LDrawSubFile {
     LDrawSubFile(
       const QStringList &contents,
             QDateTime   &datetime,
-            QString     &unofficialPartType,
             bool         unofficialPart,
             bool         generated = false);
     ~LDrawSubFile()
@@ -106,7 +104,6 @@ class LDrawFile {
     void insert(const QString     &fileName, 
                       QStringList &contents, 
                       QDateTime   &datetime,
-                      QString     &unofficialPartType,
                       bool         unofficialPart,
                       bool         generated = false);
 
@@ -139,7 +136,6 @@ class LDrawFile {
 
     bool isMpd();
     QString topLevelFile();
-    QString getUnofficialPartType(const QString &name);
     bool isUnofficialPart(const QString &name);
     int numSteps(const QString &fileName);
     QDateTime lastModified(const QString &fileName);
@@ -163,7 +159,6 @@ class LDrawFile {
 int split(const QString &line, QStringList &argv);
 int validSoQ(const QString &line, int soq);
 bool isHeader(QString &line);
-bool isUnofficialPartType(QString &line, QString &fileType);
-
+bool isUnofficialFileType(QString &line);
 
 #endif

@@ -229,15 +229,14 @@ void Gui::openFile(QString &fileName)
 
   clearPage(KpageView,KpageScene);
   closeFile();
-  tempDirPartsProcessed = false;
   displayPageNum = 1;
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
   Paths::mkdirs();
-  emit progressMessageSig("Loading LDraw submodels...");
+  emit progressMessageSig("Loading LDraw model file...");
   QApplication::processEvents();
   ldrawFile.loadFile(fileName);
-  emit progressMessageSig("Processing fade colour parts...");
+  emit progressMessageSig("Loading fade colour parts...");
   QApplication::processEvents();
   processFadeColourParts();
   emit progressMessageSig("Loading user interface items...");
@@ -247,7 +246,7 @@ void Gui::openFile(QString &fileName)
   mpdCombo->setMaxCount(1000);
   mpdCombo->addItems(ldrawFile.subFileOrder());
   setCurrentFile(fileName);
-  emit progressMessageSig("Loading display file...");
+  emit progressMessageSig("Loading source view display...");
   QApplication::processEvents();
   displayFile(&ldrawFile,ldrawFile.topLevelFile());
   undoStack->setClean();
@@ -269,7 +268,7 @@ void Gui::openFile(QString &fileName)
 #endif
   defaultResolutionType(Preferences::preferCentimeters);
   emit removeProgressStatusSig();
-  emit messageSig(true,"Ready");
+  emit messageSig(true,"File opened.");
 }
 
 void Gui::updateRecentFileActions()

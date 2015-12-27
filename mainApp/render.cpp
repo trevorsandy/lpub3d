@@ -877,7 +877,7 @@ int Render::render3DCsi(
     QStringList csi3DParts;
     QString     csi3DName;
     QStringList argv;
-    bool        alreadyInserted = false;
+    bool        alreadyInserted;
     int         rc;
 
     csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + nameKeys;
@@ -889,7 +889,7 @@ int Render::render3DCsi(
             int counter = 0;
             for (int index = 0; index < csiParts.size(); index++) {
                 QApplication::processEvents();
-
+                alreadyInserted = false;
                 QString csiLine = csiParts[index];
                 split(csiLine, argv);
                 if (argv.size() == 15 && argv[0] == "1") {
@@ -902,16 +902,21 @@ int Render::render3DCsi(
                     if (gui->isSubmodel(type) || gui->isUnofficialPart(type)) {
                         counter++;
                         /* capture all subfiles (full string) to be processed when finished */
-                        for(QStringList::iterator it = csiSubModels.begin(); it != csiSubModels.end(); ++it)
-                        {
-                            *it == type ? alreadyInserted = true : alreadyInserted = false;
-                        }
-                        logNotice() << " \nSUB MODEL - FIRST LEVEL:  "
-                                    << " \nCsi3D Part Type:    " << type
-                                    << " \nIs Submodel:        " << gui->isSubmodel(type)
-                                    << " \nIs Unofficial Part: " << gui->isUnofficialPart(type)
-                                    << " \nAlready Inserted:   " << alreadyInserted
-                                      ;
+                        foreach (QString csiSubModel, csiSubModels) {
+                            if (csiSubModel == type) {
+                                alreadyInserted = true;
+                                break;
+                              } else {
+                                alreadyInserted = false;
+                              }
+                          }
+
+//                        logNotice() << " \nSUB MODEL - FIRST LEVEL:  "
+//                                    << " \nCsi3D Part Type:    " << type
+//                                    << " \nIs Submodel:        " << gui->isSubmodel(type)
+//                                    << " \nIs Unofficial Part: " << gui->isUnofficialPart(type)
+//                                    << " \nAlready Inserted:   " << alreadyInserted
+//                                      ;
                         if (! alreadyInserted){
                             csiSubModels << type;
                             alreadyInserted = false;                            
@@ -924,7 +929,7 @@ int Render::render3DCsi(
 
             /* process extracted submodels and unofficial files */
             if (csiSubModels.size() > 0)
-                render3DCsiSubModels(csiSubModels, csiSubModelParts, csiSubModels);
+                render3DCsiSubModels(csiSubModels, csiSubModelParts);
             else
                 csi3DParts.append("0 NOFILE");
 
@@ -963,26 +968,21 @@ int Render::render3DCsi(
 }
 
 int Render::render3DCsiSubModels(QStringList &subModels,
-                                 QStringList &subModelParts,
-                                 QStringList &compareList)
+                                 QStringList &subModelParts)
 {
-    QStringList csiCompareList      = compareList;
     QStringList csiSubModels        = subModels;
     QStringList csiSubModelParts    = subModelParts;
     QStringList newSubModels;
     QStringList argv;
-    bool        alreadyInserted     = false;
-    bool        inCsiCompareList    = false;
+    bool        alreadyInserted;
 
     if (csiSubModels.size() > 0) {
-        logDebug() << "XXX Processing new second level round !!";
 
         /* read in all detected sub model file content */
         for (int index = 0; index < csiSubModels.size(); index++) {
-
-            logDebug() << "Processing second level sub content: " << csiSubModels[index];
-
             QApplication::processEvents();
+
+            alreadyInserted     = false;
             QString ldrName(QDir::currentPath() + "/" +
                             Paths::tmpDir + "/" +
                             csiSubModels[index]);
@@ -1011,23 +1011,24 @@ int Render::render3DCsiSubModels(QStringList &subModels,
                     if (gui->isSubmodel(type) || gui->isUnofficialPart(type)) {
                         counter++;
                         /* capture all subfiles (full string) to be processed when finished */
-                        for(QStringList::iterator it = csiCompareList.begin(); it != csiCompareList.end(); ++it)
-                        {
-                            *it == type ? inCsiCompareList = true : inCsiCompareList = false;
-                        }
-                        for(QStringList::iterator it = newSubModels.begin(); it != newSubModels.end(); ++it)
-                        {
-                            *it == type ? alreadyInserted = true : alreadyInserted = false;
-                        }
-                        logNotice() << " \nSUB MODEL - SECOND LEVEL:  "
-                                    << " \nCsi3D Part Type:     " << type
-                                    << " \nIs Submodel:         " << gui->isSubmodel(type)
-                                    << " \nIs Unofficial Part:  " << gui->isUnofficialPart(type)
-                                    << " \nIn Csi Compare List: " << inCsiCompareList
-                                    << " \nAlready Inserted:    " << alreadyInserted
-                                      ;
-                        if (! inCsiCompareList && ! alreadyInserted){
+                        foreach (QString newSubModel, newSubModels) {
+                            if (newSubModel == type) {
+                                alreadyInserted = true;
+                                break;
+                              } else {
+                                alreadyInserted = false;
+                              }
+                          }
+
+//                        logNotice() << " \nSUB MODEL - SECOND LEVEL:  "
+//                                    << " \nCsi3D Part Type:     " << type
+//                                    << " \nIs Submodel:         " << gui->isSubmodel(type)
+//                                    << " \nIs Unofficial Part:  " << gui->isUnofficialPart(type)
+//                                    << " \nAlready Inserted:    " << alreadyInserted
+//                                      ;
+                        if (! alreadyInserted){
                             newSubModels << type;
+                            alreadyInserted = false;
                         }
                     }
                 }
@@ -1038,9 +1039,7 @@ int Render::render3DCsiSubModels(QStringList &subModels,
 
         /* recurse and process any identified submodel files */
         if (newSubModels.size() > 0){
-            // Update compare list with new items
-            foreach(QString newModel, newSubModels) csiCompareList << newModel;
-            render3DCsiSubModels(newSubModels, csiSubModelParts, csiCompareList);
+            render3DCsiSubModels(newSubModels, csiSubModelParts);
         }
         //end for
         csiSubModelParts.append("0 NOFILE");

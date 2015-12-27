@@ -491,15 +491,11 @@ public:
   {
     return ldrawFile.isUnofficialPart(name);
   }
-  QString getUnofficialPartType(const QString &name)
-  {
-    return ldrawFile.getUnofficialPartType(name);
-  }
+
   void insertGeneratedModel(const QString &name,
                                   QStringList &csiParts) {
     QDateTime date;
-    QString unofficialPartType = "";
-    ldrawFile.insert(name,csiParts,date,unofficialPartType,false,true);
+    ldrawFile.insert(name,csiParts,date,false,true);
     writeToTmp();
   }
   LDrawFile getLDrawFile()
@@ -660,8 +656,6 @@ public slots:
 
   void processFadeColourParts();
 
-  void processTempDirParts();
-
 signals:       
 
     /* tell the editor to display this file */
@@ -720,8 +714,6 @@ private:
 
   QUndoStack     *undoStack;       // the undo/redo stack
   int             macroNesting;
-
-  bool            tempDirPartsProcessed;
 
   void countPages();
 

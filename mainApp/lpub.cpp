@@ -203,6 +203,7 @@ void Gui::displayPage()
     }
 
   emit removeProgressStatusSig();
+  emit messageSig(true,"Display page ready.");
 }
 
 void Gui::nextPage()
@@ -435,6 +436,9 @@ void Gui::displayFile(
     }
     mpdCombo->setCurrentIndex(currentIndex);
     curSubFile = modelName;
+    emit progressMessageSig("Processing source view display signal...");
+    QApplication::processEvents();
+
     displayFileSig(ldrawFile, modelName);
 //  }
 }
@@ -1060,11 +1064,6 @@ void Gui::processFadeColourParts()
 
       partThread->start();
     }
-}
-
-void Gui::processTempDirParts()
-{
-  partWorkerTempDirs.processTempDirParts();
 }
 
 void Gui::progressBarInit(){

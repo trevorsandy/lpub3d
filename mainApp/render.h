@@ -62,7 +62,6 @@ public:
                   bool cisExists,
                   bool outOfDate);
   int render3DCsiSubModels(QStringList &,
-                           QStringList &,
                            QStringList &);
   int render3DCsiImage(QString &);
 

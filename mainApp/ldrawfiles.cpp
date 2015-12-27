@@ -46,7 +46,6 @@ int     LDrawFile::_pieces      = 0;
 LDrawSubFile::LDrawSubFile(
   const QStringList &contents,
   QDateTime   &datetime,
-  QString     &unofficialPartType,
   bool         unofficialPart,
   bool         generated)
 {
@@ -60,7 +59,6 @@ LDrawSubFile::LDrawSubFile(
   _mirrorRendered = false;
   _changedSinceLastWrite = true;
   _unofficialPart = unofficialPart;
-  _unofficialPartType = unofficialPartType;
   _generated = generated;
   _fadePosition = 0;
   _startPageNumber = 0;
@@ -75,10 +73,10 @@ void LDrawFile::empty()
 
 /* Add a new subFile */
 
-void LDrawFile::insert(const QString &mcFileName,
+void LDrawFile::insert(
+                      const QString &mcFileName,
                       QStringList    &contents,
                       QDateTime      &datetime,
-                      QString        &unofficialPartType,
                       bool            unofficialPart,
                       bool            generated)
 {
@@ -88,7 +86,7 @@ void LDrawFile::insert(const QString &mcFileName,
   if (i != _subFiles.end()) {
     _subFiles.erase(i);
   }
-  LDrawSubFile subFile(contents,datetime,unofficialPartType,unofficialPart,generated);
+  LDrawSubFile subFile(contents,datetime,unofficialPart,generated);
   _subFiles.insert(fileName,subFile);
   _subFileOrder << fileName;
 }
@@ -123,17 +121,6 @@ bool LDrawFile::isUnofficialPart(const QString &name)
     return _unofficialPart;
   }
   return false;
-}
-
-QString LDrawFile::getUnofficialPartType(const QString &name)
-{
-  QString fileName = name.toLower();
-  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
-  if (i != _subFiles.end() && i.value()._unofficialPart) {
-    QString _unofficialPartType = i.value()._unofficialPartType;
-    return _unofficialPartType;
-  }
-  return _emptyString;
 }
 
 /* return the name of the top level file */
@@ -573,8 +560,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
         if (sof || eof) {
 
             if (! mpdName.isEmpty() && ! alreadyInserted) {
-                logTrace() << "Inserted Subfile: " << mpdName;
-                insert(mpdName,contents,datetime,unofficialPartType,unofficialPart);
+//                logTrace() << "Inserted Subfile: " << mpdName;
+                insert(mpdName,contents,datetime,unofficialPart);
                 unofficialPart = false;
             }
             contents.clear();
@@ -586,8 +573,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
             }
 
         } else if ( ! mpdName.isEmpty() && smLine != "") {
-            if (isUnofficialPartType(smLine,unofficialPartType)) {
-                //logInfo() << "YYYY unofficialPartType: " << unofficialPartType << " mpdName: " << mpdName;
+            if (isUnofficialFileType(smLine)) {
                 unofficialPart = true;
             }
 
@@ -596,7 +582,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     }
 
     if ( ! mpdName.isEmpty() && ! contents.isEmpty()) {
-      insert(mpdName,contents,datetime,unofficialPartType,unofficialPart);
+      insert(mpdName,contents,datetime,unofficialPart);
     }
 
     _mpd = true;
@@ -655,7 +641,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
       QDateTime datetime = QFileInfo(fullName).lastModified();
     
-      insert(fileName,contents,datetime,unofficialPartType,false);
+      insert(fileName,contents,datetime,false);
       //writeToTmp(fileName,contents);
 
       /* read it a second time to find submodels */
@@ -1154,19 +1140,16 @@ bool isHeader(QString &line)
   return false;
 }
 
-bool isUnofficialPartType(QString &line, QString &fileType)
+bool isUnofficialFileType(QString &line)
 {
   int size = LDrawUnofficialFileTypeRegExp.size();
 
   for (int i = 0; i < size; i++) {
     if (line.contains(LDrawUnofficialFileTypeRegExp[i])) {
-        fileType = LDrawUnofficialFileTypeRegExp[i].cap(1);
       return true;
     }
   }
 
   return false;
 }
-
-
 
