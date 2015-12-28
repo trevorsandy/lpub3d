@@ -153,7 +153,7 @@ class LDrawFile {
     void countInstances();
     void countInstances(const QString &fileName, bool mirrored, const bool callout = false);
     bool changedSinceLastWrite(const QString &fileName);
-    void tempCacheCleared();
+//    void tempCacheCleared();
 };
 
 int split(const QString &line, QStringList &argv);

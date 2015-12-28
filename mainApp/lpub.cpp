@@ -185,24 +185,18 @@ void Gui::removeLPubFormatting()
 
 void Gui::displayPage()
 {
-  // initialize progress bar
-  emit progressBarInitSig();
-  emit progressRangeSig(0,0);
-  emit progressMessageSig("Processing display page...");
+  emit messageSig(true, "Processing display page...");
   QApplication::processEvents();
 
   if (macroNesting == 0) {
       clearPage(KpageView,KpageScene);
       page.coverPage = false;
       drawPage(KpageView,KpageScene,false);
-      QApplication::processEvents();
       enableActions2();
 
       emit enable3DActionsSig();
       Step::refreshCsi = false; //reset
     }
-
-  emit removeProgressStatusSig();
   emit messageSig(true,"Display page ready.");
 }
 
@@ -682,7 +676,7 @@ void Gui::clearCSI3DCache()
           count1++;
       }
 
-    ldrawFile.tempCacheCleared();
+//    ldrawFile.tempCacheCleared();
 
     QString viewDirName = QDir::currentPath() + "/" + Paths::viewerDir;
     QDir viewDir(viewDirName);

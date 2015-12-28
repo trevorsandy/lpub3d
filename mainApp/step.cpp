@@ -134,6 +134,7 @@ Step::Step(
   rotateIcon.setSize(         _meta.LPub.rotateIcon.size,
                               _meta.LPub.rotateIcon.border.valuePixels().thickness);
   placeRotateIcon           = false;
+
 }
 
 /* step destructor destroys all callouts */
@@ -182,6 +183,7 @@ int Step::createCsi(
       orient += "_" + tokens[i];
     }
   }
+    gui->statusBarMsg("Csi key created...");
   QString key = QString("%1_%2_%3_%4_%5_%6")
                         .arg(csiName()+orient)
                         .arg(sn)
@@ -193,6 +195,7 @@ int Step::createCsi(
   pngName = QDir::currentPath() + "/" +
                   Paths::assemDir + "/" + key + ".png";
 
+    gui->statusBarMsg("Csi Qfile created...");
   QFile csi(pngName);
 
   bool outOfDate = false;
@@ -209,6 +212,8 @@ int Step::createCsi(
   //**3D
   if (! gMainWindow->GetHalt3DViewer()) {
 
+      gui->statusBarMsg("Render 3DCsi content...");
+
       int ln = top.lineNumber;                    // we need this to facilitate placing the ROTSTEP meta later on
       QString fileNamekey = QString("%1_%2_%3%4") // File Name Format = csiName_sn_ln.ldr
               .arg(csiName())                     // csi model name
@@ -224,22 +229,26 @@ int Step::createCsi(
 
   if ( ! csi.exists() || outOfDate) {
 
-    int rc;
+      gui->statusBarMsg("Render Csi images...");
 
-    // render the partially assembled model
+      int rc;
 
-    rc = renderer->renderCsi(addLine,csiParts, pngName, meta);
+      // render the partially assembled model
 
-    if (rc < 0) {
-      return rc;
+      rc = renderer->renderCsi(addLine,csiParts, pngName, meta);
+
+      if (rc < 0) {
+          return rc;
+        }
     }
-  } 
   pixmap->load(pngName);
   csiPlacement.size[0] = pixmap->width();
   csiPlacement.size[1] = pixmap->height();
 
+  gui->statusBarMsg("Csi content created...");
+
   return 0;
-}
+  }
 
 int Step::Render3DCsi(QString &csi3DName)
 {

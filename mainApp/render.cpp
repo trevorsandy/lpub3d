@@ -924,14 +924,14 @@ int Render::render3DCsi(
                               }
                           }
 
-                        logNotice() << " \nSUB MODEL - FIRST LEVEL:  "
-                                    << " \nCsi3D Part Type:                 " << type
-                                    << " \nIsSubmodel:                      " << gui->isSubmodel(type)
-                                    << " \nIsUnofficialPart:                " << gui->isUnofficialPart(type)
-                                    << " \nIsFadedItem:                     " << isFadedItem
-                                    << " \nIsFadedSubModelOrUnofficialPart: " << isFadedSubModelOrUnofficialPart
-                                    << " \nAlready Inserted:                " << alreadyInserted
-                                       ;
+//                        logNotice() << " \nSUB MODEL - FIRST LEVEL:  "
+//                                    << " \nCsi3D Part Type:                 " << type
+//                                    << " \nIsSubmodel:                      " << gui->isSubmodel(type)
+//                                    << " \nIsUnofficialPart:                " << gui->isUnofficialPart(type)
+//                                    << " \nIsFadedItem:                     " << isFadedItem
+//                                    << " \nIsFadedSubModelOrUnofficialPart: " << isFadedSubModelOrUnofficialPart
+//                                    << " \nAlready Inserted:                " << alreadyInserted
+//                                       ;
 
                         if (! alreadyInserted){
                             alreadyInserted = false;
@@ -1045,14 +1045,14 @@ int Render::render3DCsiSubModels(QStringList &subModels,
                               }
                           }
 
-                        logNotice() << " \nSUB MODEL - SECOND LEVEL:  "
-                                    << " \nCsi3D Part Type:                 " << type
-                                    << " \nIsSubmodel:                      " << gui->isSubmodel(type)
-                                    << " \nIsUnofficialPart:                " << gui->isUnofficialPart(type)
-                                    << " \nIsFadedItem:                     " << isFadedItem
-                                    << " \nIsFadedSubModelOrUnofficialPart: " << isFadedSubModelOrUnofficialPart
-                                    << " \nAlready Inserted:                " << alreadyInserted
-                                       ;
+//                        logNotice() << " \nSUB MODEL - SECOND LEVEL:  "
+//                                    << " \nCsi3D Part Type:                 " << type
+//                                    << " \nIsSubmodel:                      " << gui->isSubmodel(type)
+//                                    << " \nIsUnofficialPart:                " << gui->isUnofficialPart(type)
+//                                    << " \nIsFadedItem:                     " << isFadedItem
+//                                    << " \nIsFadedSubModelOrUnofficialPart: " << isFadedSubModelOrUnofficialPart
+//                                    << " \nAlready Inserted:                " << alreadyInserted
+//                                       ;
 
                         if (! alreadyInserted){
                             alreadyInserted = false;

@@ -258,7 +258,7 @@ void LDrawFile::setFadePosition(const QString     &mcFileName,
     i.value()._modified = true;
     //i.value()._datetime = QDateTime::currentDateTime();
     i.value()._fadePosition = fadePosition;
-    i.value()._changedSinceLastWrite = true;
+    //i.value()._changedSinceLastWrite = true;  // remarked on build 491 28/12/2015
   }
 }
 
@@ -272,7 +272,7 @@ void LDrawFile::setModelStartPageNumber(const QString     &mcFileName,
     i.value()._modified = true;
     //i.value()._datetime = QDateTime::currentDateTime();
     i.value()._startPageNumber = startPageNumber;
-    i.value()._changedSinceLastWrite = true;
+    //i.value()._changedSinceLastWrite = true; // remarked on build 491 28/12/2015
   }
 }
 
@@ -942,13 +942,13 @@ bool LDrawFile::changedSinceLastWrite(const QString &fileName)
   return false;
 }
 
-void LDrawFile::tempCacheCleared()
-{
-  QString key;
-  foreach(key,_subFiles.keys()) {
-    _subFiles[key]._changedSinceLastWrite = true;
-  }
-}
+//void LDrawFile::tempCacheCleared()
+//{
+//  QString key;
+//  foreach(key,_subFiles.keys()) {
+//    _subFiles[key]._changedSinceLastWrite = true;
+//  }
+//}
 
 
 int split(const QString &line, QStringList &argv)

@@ -498,6 +498,7 @@ public:
     ldrawFile.insert(name,csiParts,date,false,true);
     writeToTmp();
   }
+
   LDrawFile getLDrawFile()
   {
       return ldrawFile;

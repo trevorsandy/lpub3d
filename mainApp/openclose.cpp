@@ -267,6 +267,7 @@ void Gui::openFile(QString &fileName)
   }
 #endif
   defaultResolutionType(Preferences::preferCentimeters);
+  emit progressMessageSig("");
   emit removeProgressStatusSig();
   emit messageSig(true,"File opened.");
 }
