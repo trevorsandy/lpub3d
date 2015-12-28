@@ -436,9 +436,6 @@ void Gui::displayFile(
     }
     mpdCombo->setCurrentIndex(currentIndex);
     curSubFile = modelName;
-    emit progressMessageSig("Processing source view display signal...");
-    QApplication::processEvents();
-
     displayFileSig(ldrawFile, modelName);
 //  }
 }

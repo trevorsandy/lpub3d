@@ -686,8 +686,7 @@ public:
   PartWorker             partWorkerTempDirs;      // part worker to process temp directory parts
   PartWorker            *partWorkerFadeColour;    // part worker to process colour part fade
   ColourPartListWorker  *colourPartListWorker;    // create static colour parts list in separate thread
-  ParmsWindow           *parmsWindow;     // the parametrer file editor
-
+  ParmsWindow           *parmsWindow;             // the parametrer file editor
 
 private:    
   QGraphicsScene        *KpageScene;      // top of displayed page's graphics items

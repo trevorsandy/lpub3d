@@ -2084,6 +2084,9 @@ void Gui::writeToTmp(const QString &fileName,
 
 void Gui::writeToTmp()
 {
+  emit progressBarInitSig();
+  emit progressRangeSig(1, ldrawFile._subFileOrder.size());
+  emit progressMessageSig("Writing submodels to temp directory...");
   QApplication::processEvents();
 
   bool    doFadeStep  = (page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
@@ -2092,7 +2095,7 @@ void Gui::writeToTmp()
   QStringList content;
 
   for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
-
+      emit progressSetValueSig(i);
       QApplication::processEvents();
 
       QString fileName = ldrawFile._subFileOrder[i].toLower();
@@ -2129,6 +2132,9 @@ void Gui::writeToTmp()
             }
         }
     }
+  emit progressSetValueSig(ldrawFile._subFileOrder.size());
+  emit removeProgressStatusSig();
+  emit progressMessageSig("Submodels written to temp directory.");
 }
 
 /*

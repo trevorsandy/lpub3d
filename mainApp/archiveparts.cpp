@@ -146,12 +146,12 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
               // No second level sub directories detected - default to zipDir 'parts'
               zipDirPaths << parts;
 
-              logDebug() << "\nCHECK IF ARCHIVE EXIST (FIRST LEVEL DIR - SUB (W/O P/PART DIR)): "
-                         << "\nsetPartsDir:           " << (setPartsDir?"True":"False")
-                         << "\nsetPrimDir:            " << (setPrimDir?"True":"False")
-                         << "\nsubDir.absolutePath(): " << subDir.absolutePath()
-                         << "\nzipDirPaths:           " << zipDirPaths
-                            ;
+//              logDebug() << "\nCHECK IF ARCHIVE EXIST (FIRST LEVEL DIR - SUB (W/O P/PART DIR)): "
+//                         << "\nsetPartsDir:           " << (setPartsDir?"True":"False")
+//                         << "\nsetPrimDir:            " << (setPrimDir?"True":"False")
+//                         << "\nsubDir.absolutePath(): " << subDir.absolutePath()
+//                         << "\nzipDirPaths:           " << zipDirPaths
+//                            ;
 
               foreach (QString zipDirPath, zipDirPaths){
                   RecurseZipArchive(zipFileList, zipDirPath, zipArchive, subDir/*dirRelativePath*/);

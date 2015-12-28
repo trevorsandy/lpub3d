@@ -62,7 +62,9 @@ public:
                   bool cisExists,
                   bool outOfDate);
   int render3DCsiSubModels(QStringList &,
-                           QStringList &);
+                           QStringList &,
+                           QString &fadeColor,
+                           bool doFadeStep = false);
   int render3DCsiImage(QString &);
 
 protected:

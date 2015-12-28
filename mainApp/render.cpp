@@ -879,6 +879,8 @@ int Render::render3DCsi(
     QStringList argv;
     bool        alreadyInserted;
     int         rc;
+    bool    doFadeStep  = (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
+    QString fadeColor   = LDrawColor::ldColorCode(gui->page.meta.LPub.fadeStep.fadeColor.value());
 
     csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + nameKeys;
 
@@ -886,7 +888,6 @@ int Render::render3DCsi(
         if (csiParts.size() > 0) {
             csi3DParts << "0 FILE " + nameKeys + "\n"
                           "0 !LEOCAD MODEL NAME " + nameKeys;
-            int counter = 0;
             for (int index = 0; index < csiParts.size(); index++) {
                 QApplication::processEvents();
                 alreadyInserted = false;
@@ -895,12 +896,24 @@ int Render::render3DCsi(
                 if (argv.size() == 15 && argv[0] == "1") {
                     /* process subfiles in csiParts */
                     QString type = argv[argv.size()-1];
-//                    logNotice() << " Csi3D Part Type: " << type
-//                                << " Is Submodel: " << gui->isSubmodel(type)
-//                                << " IsUnofficialPart: " << gui->isUnofficialPart(type)
-//                                  ;
-                    if (gui->isSubmodel(type) || gui->isUnofficialPart(type)) {
-                        counter++;
+
+                    bool isFadedItem = (argv[1] == fadeColor && type.contains("-fade."));
+                    bool isFadedSubModelOrUnofficialPart = false;
+                    if (isFadedItem) {
+                        QString fadedType = type;
+                        fadedType = fadedType.replace("-fade.",".");
+                        isFadedSubModelOrUnofficialPart = (gui->isSubmodel(fadedType) || gui->isUnofficialPart(fadedType));
+                      }
+
+//                    logNotice() << " \nROOT - FIRST LEVEL:  "
+//                                << " \nCsi3D Part Type:                 " << type
+//                                << " \nIsSubmodel:                      " << gui->isSubmodel(type)
+//                                << " \nIsUnofficialPart:                " << gui->isUnofficialPart(type)
+//                                << " \nIsFadedItem:                     " << isFadedItem
+//                                << " \nIsFadedSubModelOrUnofficialPart: " << isFadedSubModelOrUnofficialPart
+//                                   ;
+
+                    if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isFadedSubModelOrUnofficialPart) {
                         /* capture all subfiles (full string) to be processed when finished */
                         foreach (QString csiSubModel, csiSubModels) {
                             if (csiSubModel == type) {
@@ -911,25 +924,28 @@ int Render::render3DCsi(
                               }
                           }
 
-//                        logNotice() << " \nSUB MODEL - FIRST LEVEL:  "
-//                                    << " \nCsi3D Part Type:    " << type
-//                                    << " \nIs Submodel:        " << gui->isSubmodel(type)
-//                                    << " \nIs Unofficial Part: " << gui->isUnofficialPart(type)
-//                                    << " \nAlready Inserted:   " << alreadyInserted
-//                                      ;
+                        logNotice() << " \nSUB MODEL - FIRST LEVEL:  "
+                                    << " \nCsi3D Part Type:                 " << type
+                                    << " \nIsSubmodel:                      " << gui->isSubmodel(type)
+                                    << " \nIsUnofficialPart:                " << gui->isUnofficialPart(type)
+                                    << " \nIsFadedItem:                     " << isFadedItem
+                                    << " \nIsFadedSubModelOrUnofficialPart: " << isFadedSubModelOrUnofficialPart
+                                    << " \nAlready Inserted:                " << alreadyInserted
+                                       ;
+
                         if (! alreadyInserted){
+                            alreadyInserted = false;
                             csiSubModels << type;
-                            alreadyInserted = false;                            
-                        }
-                    }
-                }
+                          }
+                      }
+                  }
                 csiLine = argv.join(" ");
                 csi3DParts << csiLine;
             } //end for
 
             /* process extracted submodels and unofficial files */
             if (csiSubModels.size() > 0)
-                render3DCsiSubModels(csiSubModels, csiSubModelParts);
+                render3DCsiSubModels(csiSubModels, csiSubModelParts, fadeColor, doFadeStep);
             else
                 csi3DParts.append("0 NOFILE");
 
@@ -968,7 +984,9 @@ int Render::render3DCsi(
 }
 
 int Render::render3DCsiSubModels(QStringList &subModels,
-                                 QStringList &subModelParts)
+                                 QStringList &subModelParts,
+                                 QString &fadeColor,
+                                 bool doFadeStep)
 {
     QStringList csiSubModels        = subModels;
     QStringList csiSubModelParts    = subModelParts;
@@ -1001,15 +1019,22 @@ int Render::render3DCsiSubModels(QStringList &subModels,
             }
             /* populate file contents into working submodel csi parts */
             QTextStream in(&ldrfile);
-            int counter = 0;
             while ( ! in.atEnd()) {
                 QString csiLine = in.readLine(0);
                 split(csiLine, argv);
                 if (argv.size() == 15 && argv[0] == "1") {
                     /* check and process any subfiles in csiParts */
                     QString type = argv[argv.size()-1];
-                    if (gui->isSubmodel(type) || gui->isUnofficialPart(type)) {
-                        counter++;
+
+                    bool isFadedItem = (argv[1] == fadeColor && type.contains("-fade."));
+                    bool isFadedSubModelOrUnofficialPart = false;
+                    if (isFadedItem) {
+                        QString fadedType = type;
+                        fadedType = fadedType.replace("-fade.",".");
+                        isFadedSubModelOrUnofficialPart = (gui->isSubmodel(fadedType) || gui->isUnofficialPart(fadedType));
+                      }
+
+                    if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isFadedSubModelOrUnofficialPart) {
                         /* capture all subfiles (full string) to be processed when finished */
                         foreach (QString newSubModel, newSubModels) {
                             if (newSubModel == type) {
@@ -1020,18 +1045,21 @@ int Render::render3DCsiSubModels(QStringList &subModels,
                               }
                           }
 
-//                        logNotice() << " \nSUB MODEL - SECOND LEVEL:  "
-//                                    << " \nCsi3D Part Type:     " << type
-//                                    << " \nIs Submodel:         " << gui->isSubmodel(type)
-//                                    << " \nIs Unofficial Part:  " << gui->isUnofficialPart(type)
-//                                    << " \nAlready Inserted:    " << alreadyInserted
-//                                      ;
+                        logNotice() << " \nSUB MODEL - SECOND LEVEL:  "
+                                    << " \nCsi3D Part Type:                 " << type
+                                    << " \nIsSubmodel:                      " << gui->isSubmodel(type)
+                                    << " \nIsUnofficialPart:                " << gui->isUnofficialPart(type)
+                                    << " \nIsFadedItem:                     " << isFadedItem
+                                    << " \nIsFadedSubModelOrUnofficialPart: " << isFadedSubModelOrUnofficialPart
+                                    << " \nAlready Inserted:                " << alreadyInserted
+                                       ;
+
                         if (! alreadyInserted){
-                            newSubModels << type;
                             alreadyInserted = false;
-                        }
-                    }
-                }
+                            newSubModels << type;
+                          }
+                      }
+                  }
                 csiLine = argv.join(" ");
                 csiSubModelParts << csiLine;
             }
@@ -1039,7 +1067,7 @@ int Render::render3DCsiSubModels(QStringList &subModels,
 
         /* recurse and process any identified submodel files */
         if (newSubModels.size() > 0){
-            render3DCsiSubModels(newSubModels, csiSubModelParts);
+            render3DCsiSubModels(newSubModels, csiSubModelParts, fadeColor, doFadeStep);
         }
         //end for
         csiSubModelParts.append("0 NOFILE");

@@ -125,7 +125,7 @@ bool PartWorker::loadLDrawSearchDirs(){
 
 //  setDoFadeStep((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep));
 //  if (!doFadeStep()) {
-  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/fade"));
+//  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/fade"));
 //  _excludedSearchDirs << QDir::toNativeSeparators(Paths::fadePartDir);
 //  _excludedSearchDirs << QDir::toNativeSeparators(Paths::fadePrimDir);
 //    }
@@ -590,7 +590,7 @@ void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
             } else {
 
               if (okToEmit())
-                emit messageSig(false,QString(tr("Reloaded unofficial parts library into memory.")));
+                emit messageSig(true,QString(tr("Reloaded unofficial parts library into memory.")));
               else
                 qDebug() << QString(tr("Reloaded unofficial parts library into memory."));
             }
