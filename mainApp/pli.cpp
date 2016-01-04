@@ -121,7 +121,7 @@ float PliPart::maxMargin()
 
 QString Pli::partLine(QString &line, Where &here, Meta & /*meta*/)
 {
-  return line + QString(";%1;%2") .arg(here.modelName) .arg(here.lineNumber);
+  return line + QString(";%1;%2").arg(here.modelName).arg(here.lineNumber);
 }
 
 void Pli::setParts(
@@ -991,7 +991,6 @@ int Pli::partSize()
 
     QFileInfo info(part->type);
     PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.baseName().toUpper().toLatin1().constData(), NULL, false);
-
 
     if (pieceInfo ||
         gui->isUnofficialPart(part->type) ||

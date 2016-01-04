@@ -942,13 +942,13 @@ bool LDrawFile::changedSinceLastWrite(const QString &fileName)
   return false;
 }
 
-//void LDrawFile::tempCacheCleared()
-//{
-//  QString key;
-//  foreach(key,_subFiles.keys()) {
-//    _subFiles[key]._changedSinceLastWrite = true;
-//  }
-//}
+void LDrawFile::tempCacheCleared()
+{
+  QString key;
+  foreach(key,_subFiles.keys()) {
+    _subFiles[key]._changedSinceLastWrite = true;
+  }
+}
 
 
 int split(const QString &line, QStringList &argv)
