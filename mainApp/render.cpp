@@ -570,7 +570,7 @@ int LDGLite::renderCsi(
   arguments << v;
   arguments << o;
   arguments << w;
-  arguments << "-q";
+  arguments << "-q";        //Anti Aliasing (Quality Lines)
 
   QStringList list;
   list = meta.LPub.assem.ldgliteParms.value().split("\\s+");
@@ -586,8 +586,10 @@ int LDGLite::renderCsi(
   QProcess    ldglite;
   QStringList env = QProcess::systemEnvironment();
   env << "LDRAWDIR=" + Preferences::ldrawPath;
+  if (!Preferences::ldgliteSearchDirs.isEmpty())
+    env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
   ldglite.setEnvironment(env);
-  ldglite.setWorkingDirectory(QDir::currentPath()+"/"+Paths::tmpDir);
+  ldglite.setWorkingDirectory(QDir::currentPath() + "/"+Paths::tmpDir);
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout");
   ldglite.start(Preferences::ldgliteExe,arguments);
@@ -642,7 +644,7 @@ int LDGLite::renderPli(
   arguments << v;
   arguments << o;
   arguments << w;
-  arguments << "-q";
+  arguments << "-q";          //Anti Aliasing (Quality Lines)
 
   QStringList list;
   list = meta.LPub.pli.ldgliteParms.value().split("\\s+");
@@ -657,6 +659,8 @@ int LDGLite::renderPli(
   QProcess    ldglite;
   QStringList env = QProcess::systemEnvironment();
   env << "LDRAWDIR=" + Preferences::ldrawPath;
+  if (!Preferences::ldgliteSearchDirs.isEmpty())
+    env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
   ldglite.setEnvironment(env);  
   ldglite.setWorkingDirectory(QDir::currentPath());
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr");

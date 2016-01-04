@@ -64,6 +64,7 @@ QString Preferences::defaultEmail;
 QString Preferences::documentLogoFile;
 QString Preferences::publishDescription;
 QString Preferences::ldrawiniFile;
+QString Preferences::ldgliteSearchDirs;
 QStringList Preferences::ldSearchDirs;
 //Static page attributes
 QString Preferences::disclaimer                 = QString(QObject::trUtf8("LEGO® is a registered trademark of the LEGO Group, \n"

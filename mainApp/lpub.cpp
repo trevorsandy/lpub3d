@@ -676,7 +676,7 @@ void Gui::clearCSI3DCache()
           count1++;
       }
 
-//    ldrawFile.tempCacheCleared();
+    ldrawFile.tempCacheCleared();
 
     QString viewDirName = QDir::currentPath() + "/" + Paths::viewerDir;
     QDir viewDir(viewDirName);

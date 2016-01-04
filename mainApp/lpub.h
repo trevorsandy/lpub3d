@@ -656,6 +656,7 @@ public slots:
   void fileChanged(const QString &path);
 
   void processFadeColourParts();
+  void populateLdgLiteSearchDirs();
 
 signals:       
 

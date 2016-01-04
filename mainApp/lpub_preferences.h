@@ -66,6 +66,7 @@ class Preferences
     static QString plugImage;
     static QString plug;
     static QString ldrawiniFile;
+    static QString ldgliteSearchDirs;
     static QStringList ldSearchDirs;
     static bool    ldrawiniFound;
     static bool    enableDocumentLogo;

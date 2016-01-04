@@ -265,7 +265,6 @@ const char* LDSearchDirs::lDrawDir(bool defaultValue /*= false*/)
     {
       if (sm_defaultLDrawDir)
         {
-          qDebug() << "INFO (lDrawDir()->sm_defaultLDrawDir): ";
           return sm_defaultLDrawDir;
         }
       origValue = copyString(sm_systemLDrawDir);
@@ -280,7 +279,6 @@ const char* LDSearchDirs::lDrawDir(bool defaultValue /*= false*/)
 
       if (sm_checkDirs.size() == 0)
         {
-          qDebug() << "INFO (lDrawDir()->!m_checkDirs.size() == 0): ";
           initCheckDirs();
         }
       for (StringList::const_iterator it = sm_checkDirs.begin(); !found &&
@@ -291,19 +289,16 @@ const char* LDSearchDirs::lDrawDir(bool defaultValue /*= false*/)
           if (verifyLDrawDir(dir))
             {
               setLDrawDir(dir);
-              qDebug() << "INFO (lDrawDir()->verifyLDrawDir): " << dir;
               found = true;
             }
         }
       if (!found)
         {
-          qDebug() << "INFO (lDrawDir()->!found: ";
           sm_systemLDrawDir = copyString("");
         }
     }
   if (defaultValue)
     {
-      qDebug() << "INFO (lDrawDir()->defaultValue) sm_defaultLDrawDir";
       sm_defaultLDrawDir = copyString(sm_systemLDrawDir);
       setLDrawDir(origValue);
       delete origValue;
@@ -311,7 +306,6 @@ const char* LDSearchDirs::lDrawDir(bool defaultValue /*= false*/)
     }
   else
     {
-      qDebug() << "INFO (lDrawDir()->else) sm_systemLDrawDir";
       return sm_systemLDrawDir;
     }
 }
@@ -340,22 +334,16 @@ bool LDPartsDirs::initLDrawSearchDirs()
   if (sm_lDrawIni)
     {
       m_searchDirsOrigin = strdup(sm_lDrawIni->SearchDirsOrigin);
-      qDebug() << "LDrawini Initialized - m_searchDirsOrigin: " << m_searchDirsOrigin;
+//      qDebug() << "LDrawini Initialized - m_searchDirsOrigin: " << m_searchDirsOrigin;
       return true;
     } else {
-      qDebug() << "Unable to initialize LDrawini: ";
+//      qDebug() << "Unable to initialize LDrawini: ";
       return false;
     }
 }
 
 bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbitrary file name
 {
-//  // set default ldraw Directory
-//  setLDrawDir(Preferences::ldrawPath.toLatin1().constData());
-
-//  // initialize ldrawIni and check for error
-//  lDrawDir();
-
   if (!initLDrawSearchDirs()) {
       qDebug() << "Could not initialize LDrawini ";
       return false;
@@ -363,13 +351,11 @@ bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbit
 
   if (sm_lDrawIni)
     {
-      qDebug() << "INFO: (ldsearchdirs.cpp 342)sm_lDrawIni Populated !!";
       LDrawIniComputeRealDirs(sm_lDrawIni, 1, 0, filename);
     }
 
   if (!strlen(lDrawDir()))
     {
-      qDebug() << "Could not find LDrawini search directories";
       return false;
     }
   // end initialize
@@ -391,6 +377,8 @@ bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbit
               qDebug() << "LDRAW SEARCH DIR PUSHED: " << searchDir->Dir;
             }
         }
+
+      qDebug() << "";
 
       //process extra seach directories NOT USED
       bool found = false;
