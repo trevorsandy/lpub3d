@@ -253,7 +253,7 @@ int Gui::drawPage(
   bool        coverPage   = false;
   bool        bfxStore1   = false;
   bool        bfxLoad     = false;
-  int         numLines = ldrawFile.size(current.modelName);
+  int         numLines    = ldrawFile.size(current.modelName);
   bool        firstStep   = true;
   bool        noStep      = false;
   bool        InsertFinalModel = false;
@@ -336,7 +336,6 @@ int Gui::drawPage(
             }
 
           /* addition of ldraw parts */
-
           if (curMeta.LPub.pli.show.value()
               && ! pliIgnore
               && ! partIgnore
@@ -376,6 +375,7 @@ int Gui::drawPage(
                       pliParts << Pli::partLine(line,current,steps->meta);
                       //}
                     } else {
+
                       pliParts << Pli::partLine(line,current,steps->meta);
                     }
                 }
@@ -492,6 +492,7 @@ int Gui::drawPage(
 //              statusBar()->showMessage("Processing " + current.modelName);
               emit messageSig(true, "Processing " + current.modelName);
             }
+
         } else if (tokens.size() > 0 &&
                    (tokens[0] == "2" ||
                     tokens[0] == "3" ||
@@ -542,7 +543,6 @@ int Gui::drawPage(
           /* handle specific meta-commands */
 
           switch (rc) {
-
             /* toss it all out the window, per James' original plan */
             case ClearRc:
               pliParts.clear();
@@ -949,6 +949,10 @@ int Gui::drawPage(
                         saveCsiParts = fadeStep(csiParts, stepNum, current),
                         &step->csiPixmap,
                         steps->meta);
+
+                  emit messageSig(true, "Graphics generated for " + current.modelName);
+                  QApplication::processEvents();
+
                   partsAdded = true; // OK, so this is a lie, but it works
                 }
 
@@ -1000,8 +1004,12 @@ int Gui::drawPage(
                             } else {
                               relativeType = SingleStepType;
                             }
+
                           step->pli.setParts(pliParts,steps->meta);
                           pliParts.clear();
+
+                          logError() << "FOODOOSOOPOO StepRc - Size Pli";
+
                           step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
                         }
 
@@ -1018,8 +1026,10 @@ int Gui::drawPage(
                             saveCsiParts = InsertFinalModel ? csiParts : fadeStep(csiParts, stepNum, current),
                             &step->csiPixmap,
                             steps->meta);
+
                       emit messageSig(true, "Step graphics generated for " + current.modelName);
                       QApplication::processEvents();
+
                       if (rc) {
                           return rc;
                         }
@@ -1044,10 +1054,12 @@ int Gui::drawPage(
                       // Simple step
                       emit messageSig(true, "Get simple page placement...");
                       QApplication::processEvents();
+
                       steps->placement = steps->meta.LPub.assem.placement;
 
                       emit messageSig(true, "Set simple page show line (LDraw Editor)...");
                       QApplication::processEvents();
+
                       showLine(topOfStep);
 
                       emit messageSig(true, "Get simple page number of steps...");
@@ -1241,6 +1253,7 @@ int Gui::findPage(
                       // since rotsteps don't affect submodels
                       RotStepMeta saveRotStep2 = meta.rotStep;
                       meta.rotStep.clear();
+
                       emit messageSig(true, "Processing find page...");
                       QApplication::processEvents();
 
