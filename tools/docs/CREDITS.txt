@@ -45,5 +45,5 @@ Don Heyse <dheyse@hotmail.com>
 LDView (ldraw.ini snippits)
 Travis Cobb <ldview@gmail.com>
 
-L3P / LDraw.ini
+L3P / LDraw.ini / ldglite
 Lars C. Hassing <delete.lars.three@words.hassings.dk>

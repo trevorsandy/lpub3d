@@ -818,6 +818,8 @@ void Gui::preferences()
     QString renderer = Render::getRenderer();
     Render::setRenderer(Preferences::preferredRenderer);
     if (Render::getRenderer() != renderer) {
+        if (Preferences::preferredRenderer = "LDGLite")
+          gui->populateLdgLiteSearchDirs();
         gui->clearCSICache();
         gui->clearPLICache();
         gui->clearCSI3DCache();

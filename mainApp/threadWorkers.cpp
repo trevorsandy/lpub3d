@@ -112,6 +112,10 @@ void PartWorker::ldsearchDirPreferences(){
       Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
       qDebug() << QString(tr("  -Failed to load search directories."));
     }
+
+  // Process search directories for ldglite.
+  // see Gui::populateLdgLiteSearchDirs() for details
+  gui->populateLdgLiteSearchDirs();
 }
 /*
  * Load LDraw search directories into Preferences.
@@ -154,6 +158,7 @@ bool PartWorker::loadLDrawSearchDirs(){
               qDebug() << "->INCLUDDE LDRAW SEARCH DIR: " << ldrawSearchDir;
             }
         }
+
     } else {
       return false;
     }

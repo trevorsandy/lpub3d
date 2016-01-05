@@ -239,7 +239,6 @@ void Gui::openFile(QString &fileName)
   emit progressMessageSig("Loading fade colour parts...");
   QApplication::processEvents();
   processFadeColourParts();
-  populateLdgLiteSearchDirs();
   emit progressMessageSig("Loading user interface items...");
   QApplication::processEvents();
   attitudeAdjustment();
@@ -349,8 +348,13 @@ void Gui::fileChanged(const QString &path)
   }
 }
 
+/* Add qualified search directories to LDSEARCHDIRS string
+   This is used to pass search directories to ldglite.
+   This function will only execute if the preferred renderer is LDGLite
+   and ther are more than 0 search directories in Preferences::ldgliteSearchDirs.
+*/
 void Gui::populateLdgLiteSearchDirs(){
-  if (Preferences::preferredRenderer == "LDGLite"){
+  if (Preferences::preferredRenderer == "LDGLite" && !Preferences::ldSearchDirs.isEmpty()){
       // Define excluded directories
       QStringList ldgliteExcludedDirs;
       ldgliteExcludedDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("PARTS"))
