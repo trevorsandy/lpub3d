@@ -45,7 +45,7 @@ PliSubstituteParts::PliSubstituteParts()
                 QString modeledPartID = rx.cap(1);
                 QString substitutePartID = rx.cap(2);
                 substituteParts.insert(modeledPartID.toLower().trimmed(),substitutePartID.toLower().trimmed());
-                qDebug() << "** ModeledPartID Loaded: " << modeledPartID.toLower() << " SubstitutePartID: " << substitutePartID.toLower(); //TEST
+//                qDebug() << "** ModeledPartID Loaded: " << modeledPartID.toLower() << " SubstitutePartID: " << substitutePartID.toLower(); //TEST
             }
         }
     }

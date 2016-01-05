@@ -51,7 +51,7 @@ void PartWorker::ldsearchDirPreferences(){
       Settings.setValue(QString("%1/%2").arg(SETTINGS,LdrawIniFound),pValue);
     }
 
-  qDebug() << QString(tr("01 ldrawIniFoundReg(Original) = %1").arg((ldrawIniFoundReg ? "True" : "False")));
+ // qDebug() << QString(tr("01 ldrawIniFoundReg(Original) = %1").arg((ldrawIniFoundReg ? "True" : "False")));
 
   if (Settings.contains(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey))) {
       QString ldrawiniFilePath = Settings.value(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey)).toString();
@@ -61,12 +61,12 @@ void PartWorker::ldsearchDirPreferences(){
           Preferences::ldrawiniFound = true;
           QVariant pValue(true);
           Settings.setValue(QString("%1/%2").arg(SETTINGS,LdrawIniFound),pValue);
-          qDebug() << QString(tr("  -Using LDraw.ini file from Reg Settings: %1").arg(Preferences::ldrawiniFile));
+         // qDebug() << QString(tr("  -Using LDraw.ini file from Reg Settings: %1").arg(Preferences::ldrawiniFile));
         } else {
           QVariant pValue(false);
           Settings.setValue(QString("%1/%2").arg(SETTINGS,LdrawIniFound),pValue);
           Settings.remove(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey));
-          qDebug() << QString(tr("  -Failed to get Ldraw.ini, valid file (from Preferences) does not exist."));
+          //qDebug() << QString(tr("  -Failed to get Ldraw.ini, valid file (from Preferences) does not exist."));
         }
     } else if (ldPartsDirs.initLDrawSearchDirs()) {
       QFileInfo ldrawiniInfo(ldPartsDirs.getSearchDirsOrigin());
@@ -76,41 +76,41 @@ void PartWorker::ldsearchDirPreferences(){
            QVariant pValue(true);
            Settings.setValue(QString("%1/%2").arg(SETTINGS,LdrawIniFound),pValue);
            Settings.setValue(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey), Preferences::ldrawiniFile);
-           qDebug() << QString(tr("01 Using LDraw.ini file form loadLDrawSearchDirs(): ").arg(Preferences::ldrawiniFile));
+           //qDebug() << QString(tr("01 Using LDraw.ini file form loadLDrawSearchDirs(): ").arg(Preferences::ldrawiniFile));
          } else {
            QVariant pValue(false);
            Settings.setValue(QString("%1/%2").arg(SETTINGS,LdrawIniFound),pValue);
-           qDebug() << QString(tr("  -Failed to get Ldraw.ini, valid file (from Ldrawini) does not exist."));
+           //qDebug() << QString(tr("  -Failed to get Ldraw.ini, valid file (from Ldrawini) does not exist."));
          }
     } else {
-      qDebug() << QString(tr("  -Failed to get Ldraw.ini, unable to initialize Ldrawini."));
+      //qDebug() << QString(tr("  -Failed to get Ldraw.ini, unable to initialize Ldrawini."));
     }
 
-  qDebug() << QString(tr("02 Preferences::ldrawiniFound(Update) = %1").arg((Preferences::ldrawiniFound ? "True" : "False")));
+  //qDebug() << QString(tr("02 Preferences::ldrawiniFound(Update) = %1").arg((Preferences::ldrawiniFound ? "True" : "False")));
 
   QStringList ldSearchDirs;
   bool switchLdrawDirsSrc  = false;
   QString const LdSearchDirsKey("LDSearchDirs");
   if (Settings.contains(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey))) {
       switchLdrawDirsSrc = ldrawIniFoundReg != Preferences::ldrawiniFound;
-      qDebug() << QString(tr("03 switchLdrawDirsSrc(false) = %1").arg((switchLdrawDirsSrc ? "True" : "False")));
+      //qDebug() << QString(tr("03 switchLdrawDirsSrc(false) = %1").arg((switchLdrawDirsSrc ? "True" : "False")));
       if (!_resetSearchDirSettings && !switchLdrawDirsSrc){
           ldSearchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey)).toStringList();
           Preferences::ldSearchDirs = ldSearchDirs;
-          qDebug() << QString(tr("  -Set Preferences::ldSearchDirs using ldSearchDirs."));
+         // qDebug() << QString(tr("  -Set Preferences::ldSearchDirs using ldSearchDirs."));
         } else if (loadLDrawSearchDirs()){
           Settings.setValue(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey), Preferences::ldSearchDirs);
-          qDebug() << QString(tr("  -Set Preferences::ldSearchDirs using templdSearchDirs."));
+         // qDebug() << QString(tr("  -Set Preferences::ldSearchDirs using templdSearchDirs."));
         } else {
           Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
-          qDebug() << QString(tr("  -Failed to load search directories."));
+         // qDebug() << QString(tr("  -Failed to load search directories."));
         }
     } else if (loadLDrawSearchDirs()){
       Settings.setValue(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey), Preferences::ldSearchDirs);
-      qDebug() << QString(tr("  -Set Preferences::ldSearchDirs using templdSearchDirs."));
+      //qDebug() << QString(tr("  -Set Preferences::ldSearchDirs using templdSearchDirs."));
     } else {
       Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
-      qDebug() << QString(tr("  -Failed to load search directories."));
+     // qDebug() << QString(tr("  -Failed to load search directories."));
     }
 
   // Process search directories for ldglite.
@@ -152,10 +152,10 @@ bool PartWorker::loadLDrawSearchDirs(){
                 }
             }
           if (excludeSearchDir){
-               qDebug() << "<-EXCLUDE LDRAW SEARCH DIR: " << ldrawSearchDir;
+               //qDebug() << "<-EXCLUDE LDRAW SEARCH DIR: " << ldrawSearchDir;
             } else {
               Preferences::ldSearchDirs << ldrawSearchDir;
-              qDebug() << "->INCLUDDE LDRAW SEARCH DIR: " << ldrawSearchDir;
+             // qDebug() << "->INCLUDDE LDRAW SEARCH DIR: " << ldrawSearchDir;
             }
         }
 
@@ -171,7 +171,7 @@ bool PartWorker::loadLDrawSearchDirs(){
 void PartWorker::processLDSearchDirParts(){
 
   processPartsArchive(Preferences::ldSearchDirs, "search directory");
-  qDebug() << "\nFinished Processing Search Directory Parts.";
+ // qDebug() << "\nFinished Processing Search Directory Parts.";
 
  }
 
@@ -208,7 +208,7 @@ void PartWorker::processFadeColourParts()
                   // check if colored part and create fade version if yes
                   QString fileNameStr  = tokens[tokens.size()-1];
                   if (FadeStepColorParts::getStaticColorPartPath(fileNameStr)){
-                      logInfo() << "01 SUBMIT COLOUR PART: " << QString("%1**%2").arg(tokens[tokens.size()-1]).arg(fileNameStr) << " Line: " << i ;
+ //                     logInfo() << "01 SUBMIT COLOUR PART: " << QString("%1**%2").arg(tokens[tokens.size()-1]).arg(fileNameStr) << " Line: " << i ;
                       //tokens[tokens.size()-1] = part name
                       //fileNameStr             = absolute path file name
 
@@ -374,11 +374,11 @@ void PartWorker::createFadePartFiles(){
             QFileInfo fadeFileInfo = cp.value()._fileNameStr;
 
             QFileInfo fadeStepColorPartFileInfo(fadePartDirPath,fadeFileInfo.fileName().replace(".dat","-fade.dat"));
-            logTrace() << "A PART CONTENT ABSOLUTE FILEPATH: " << fadeStepColorPartFileInfo.absoluteFilePath();
+//            logTrace() << "A PART CONTENT ABSOLUTE FILEPATH: " << fadeStepColorPartFileInfo.absoluteFilePath();
 
             // check if part exist and if yes return
             if (fadeStepColorPartFileInfo.exists()){
-                logInfo() << "PART ALREADY EXISTS: " << fadeStepColorPartFileInfo.absoluteFilePath();
+//                logInfo() << "PART ALREADY EXISTS: " << fadeStepColorPartFileInfo.absoluteFilePath();
                 continue;
             }
 ;
@@ -468,7 +468,7 @@ void PartWorker::insert(
     if (i != _colourParts.end()){
         _colourParts.erase(i);
         partErased = true;
-        logError() << "PART ALREADY IN LIST - PART ERASED: " << fileNameStr;
+//        logError() << "PART ALREADY IN LIST - PART ERASED: " << fileNameStr;
     }
 
     ColourPart colourPartEntry(contents, fileNameStr, partType);
@@ -477,7 +477,7 @@ void PartWorker::insert(
     if (! partErased)
       _partList << fileNameStr;
 
-    logNotice() << "02 INSERT (COLOUR PART ENTRY) - UID: " << fileNameStr  <<  " fileNameStr: " << fileNameStr <<  " partType: " << partType;
+//    logNotice() << "02 INSERT (COLOUR PART ENTRY) - UID: " << fileNameStr  <<  " fileNameStr: " << fileNameStr <<  " partType: " << partType;
 }
 
 int PartWorker::size(const QString &fileNameStr){
@@ -565,7 +565,7 @@ void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
       for (int i = 0; i < ldPartsDirs.size(); i++){
 
           QDir foo = ldPartsDirs[i];
-          qDebug() << QString(tr("ARCHIVING %1 DIR %2").arg(comment.toUpper()).arg(foo.absolutePath()));
+//          qDebug() << QString(tr("ARCHIVING %1 DIR %2").arg(comment.toUpper()).arg(foo.absolutePath()));
 
           if (!archiveParts.Archive( archiveFile,
                                      foo.absolutePath(),
@@ -653,7 +653,7 @@ void ColourPartListWorker::scanDir()
 
             partTypeDirs << QDir::toNativeSeparators(QString(dir));
 
-            qDebug() << "LDRAW SEARCH DIR:  " << QString(dir);
+//            qDebug() << "LDRAW SEARCH DIR:  " << QString(dir);
           }
 
       } else {

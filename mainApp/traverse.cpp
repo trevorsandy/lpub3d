@@ -1008,8 +1008,6 @@ int Gui::drawPage(
                           step->pli.setParts(pliParts,steps->meta);
                           pliParts.clear();
 
-                          logError() << "FOODOOSOOPOO StepRc - Size Pli";
-
                           step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
                         }
 

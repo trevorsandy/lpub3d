@@ -179,16 +179,16 @@ int main(int argc, char *argv[])
     // write an info message using one of six macros:
     bool showLogExamples = false;
     if (showLogExamples){
-        logInfo() << "LPub3D started";
-        logInfo() << "Built with Qt" << QT_VERSION_STR << "running on" << qVersion();
+        logInfo()   << "LPub3D started";
+        logInfo()   << "Built with Qt" << QT_VERSION_STR << "running on" << qVersion();
         logNotice() <<  "Here's a" << QString("Notice") << "message";
-        logTrace() << "Here's a" << QString("trace") << "message";
-        logDebug() << "Here's a" << static_cast<int>(QsLogging::DebugLevel) << "message";
-        logWarn()  << "Uh-oh!";
-        qDebug() << "This message won't be picked up by the logger";
-        logError() << "An error has occurred";
-        qWarning() << "Neither will this one";
-        logFatal() << "Fatal error!";
+        logTrace()  << "Here's a" << QString("trace") << "message";
+        logDebug()  << "Here's a" << static_cast<int>(QsLogging::DebugLevel) << "message";
+        logWarn()   << "Uh-oh!";
+        qDebug()    << "This message won't be picked up by the logger";
+        logError()  << "An error has occurred";
+        qWarning()  << "Neither will this one";
+        logFatal()  << "Fatal error!";
     } // end init logging
 
     Preferences::ldrawPreferences(false);
