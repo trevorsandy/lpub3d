@@ -168,26 +168,31 @@ bool PartWorker::loadLDrawSearchDirs(){
 */
 void PartWorker::populateLdgLiteSearchDirs(){
   if (Preferences::preferredRenderer == "LDGLite" && !Preferences::ldSearchDirs.isEmpty()){
+      // Define fade Parts and P directories
+      QString fadePartDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/fade/parts"));
+      QString fadePrimDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/fade/p"));
       // Define excluded directories
       QStringList ldgliteExcludedDirs;
       ldgliteExcludedDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("PARTS"))
                           << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("P"))
+                          << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("MODELS"))
                           << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial"))
                           << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts"))
                           << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"))
-                          << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/LSynth"))
-                          << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("MODELS"));
+                          << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/LSynth"));
 
-      if (!(gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep)) {
+      bool fadeStepEnabled = (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
+      if (!fadeStepEnabled) {
           ldgliteExcludedDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/fade"));
-          ldgliteExcludedDirs << QDir::toNativeSeparators(Paths::fadePartDir);
-          ldgliteExcludedDirs << QDir::toNativeSeparators(Paths::fadePrimDir);
+          ldgliteExcludedDirs << fadePartDir;
+          ldgliteExcludedDirs << fadePrimDir;
         }
 
       // Clear directories
       Preferences::ldgliteSearchDirs.clear();
-      int count = 0; // set delimeter except for first item
-      // Recurse search directories
+      int count = 0;                    // set delimeter from 2nd entry
+      bool fadeDirsIncluded = false;
+      // Recurse ldraw search directories
       foreach (QString ldgliteSearchDir, Preferences::ldSearchDirs){
           //Check if Unofficial root directory
           bool foundUnofficialRootDir = false;
@@ -237,8 +242,22 @@ void PartWorker::populateLdgLiteSearchDirs(){
                               Preferences::ldgliteSearchDirs.append(ldgliteSearchDir);
                   logDebug() << "->INCLUDE LDGLITE LDRAW SEARCH DIR: " << ldgliteSearchDir;
                 }
+              // Check if fade directories included
+              if (Preferences::ldrawiniFound && fadeStepEnabled && !fadeDirsIncluded){
+                  fadeDirsIncluded = (ldgliteSearchDir.toLower() == fadePartDir.toLower() ||
+                                      ldgliteSearchDir.toLower() == fadePrimDir.toLower());
+                }
             }
         }
+      // If using ldraw.ini and fade step enabled but fade directories not defined in ldraw.ini, add fade directories
+      if (Preferences::ldrawiniFound && fadeStepEnabled && !fadeDirsIncluded) {
+          count ++;
+          count > 1 ? Preferences::ldgliteSearchDirs.append(QString("|%1|%2").arg(fadePartDir).arg(fadePrimDir)):
+                      Preferences::ldgliteSearchDirs.append(QString("%1|%2").arg(fadePartDir).arg(fadePrimDir));
+          count ++;
+          logDebug() << "->INCLUDE LDGLITE LDRAW SEARCH DIR: " << QString("%1 %2").arg(fadePartDir).arg(fadePrimDir);
+        }
+
       logDebug() << "--FINAL DIR COUNT: (" << count << ") " << Preferences::ldgliteSearchDirs;
     }
 }
