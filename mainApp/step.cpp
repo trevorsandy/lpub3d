@@ -1122,10 +1122,10 @@ void Step::addGraphicsItems(
                               parentRelativeType,
                               rotateIconMeta,
                               parent);
-      logNotice() << "\nROTATE_ICON MULTI-STEP - "
-                  << "\nBACKGROUND Meta (curMeta) - "
-                  << "\nColour - " << rotateIconMeta.background.value().string
-                     ;
+//      logNotice() << "\nROTATE_ICON MULTI-STEP - "
+//                  << "\nBACKGROUND Meta (curMeta) - "
+//                  << "\nColour - " << rotateIconMeta.background.value().string
+//                     ;
 
 //      if (calledOut){
 //          ri = new CalloutRotateIconItem(this,

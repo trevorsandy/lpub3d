@@ -420,7 +420,7 @@ int Pli::createPartImage(
   QString ldrName = QDir::currentPath() + "/" + 
                     Paths::tmpDir + "/pli.ldr";
   QFile part(imageName);
-
+  
   if ( ! part.exists()) {
 
     // create a temporary DAT to feed the renderer

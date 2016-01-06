@@ -592,6 +592,7 @@ int LDGLite::renderCsi(
   ldglite.setWorkingDirectory(QDir::currentPath() + "/"+Paths::tmpDir);
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout");
+//  logTrace() << "\nCSI render arguments: " << arguments;
   ldglite.start(Preferences::ldgliteExe,arguments);
   if ( ! ldglite.waitForFinished(6*60*1000)) {
     if (ldglite.exitCode() != 0) {
@@ -661,11 +662,12 @@ int LDGLite::renderPli(
   env << "LDRAWDIR=" + Preferences::ldrawPath;
   if (!Preferences::ldgliteSearchDirs.isEmpty())
     env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
-  ldglite.setEnvironment(env);  
+  ldglite.setEnvironment(env);
   ldglite.setWorkingDirectory(QDir::currentPath());
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout");
   ldglite.start(Preferences::ldgliteExe,arguments);
+//  logTrace() << "\nPLI render arguments: " << arguments;
   if (! ldglite.waitForFinished()) {
     if (ldglite.exitCode()) {
       QByteArray status = ldglite.readAll();

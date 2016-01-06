@@ -819,7 +819,7 @@ void Gui::preferences()
     Render::setRenderer(Preferences::preferredRenderer);
     if (Render::getRenderer() != renderer) {
         if (Preferences::preferredRenderer == "LDGLite")
-          gui->populateLdgLiteSearchDirs();
+          partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
         gui->clearCSICache();
         gui->clearPLICache();
         gui->clearCSI3DCache();
@@ -957,6 +957,8 @@ Gui::Gui()
 
     Preferences::getRequireds();
     Render::setRenderer(Preferences::preferredRenderer);
+    if (Preferences::preferredRenderer == "LDGLite")
+      partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
 }
 
 Gui::~Gui()

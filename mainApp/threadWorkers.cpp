@@ -112,10 +112,6 @@ void PartWorker::ldsearchDirPreferences(){
       Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
      // qDebug() << QString(tr("  -Failed to load search directories."));
     }
-
-  // Process search directories for ldglite.
-  // see Gui::populateLdgLiteSearchDirs() for details
-  gui->populateLdgLiteSearchDirs();
 }
 /*
  * Load LDraw search directories into Preferences.
@@ -163,6 +159,88 @@ bool PartWorker::loadLDrawSearchDirs(){
       return false;
     }
   return true;
+}
+
+/* Add qualified search directories to LDSEARCHDIRS string
+   This is used to pass search directories to ldglite.
+   This function will only execute if the preferred renderer is LDGLite
+   and ther are more than 0 search directories in Preferences::ldgliteSearchDirs.
+*/
+void PartWorker::populateLdgLiteSearchDirs(){
+  if (Preferences::preferredRenderer == "LDGLite" && !Preferences::ldSearchDirs.isEmpty()){
+      // Define excluded directories
+      QStringList ldgliteExcludedDirs;
+      ldgliteExcludedDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("PARTS"))
+                          << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("P"))
+                          << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial"))
+                          << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts"))
+                          << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"))
+                          << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/LSynth"))
+                          << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("MODELS"));
+
+      if (!(gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep)) {
+          ldgliteExcludedDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/fade"));
+          ldgliteExcludedDirs << QDir::toNativeSeparators(Paths::fadePartDir);
+          ldgliteExcludedDirs << QDir::toNativeSeparators(Paths::fadePrimDir);
+        }
+
+      // Clear directories
+      Preferences::ldgliteSearchDirs.clear();
+      int count = 0; // set delimeter except for first item
+      // Recurse search directories
+      foreach (QString ldgliteSearchDir, Preferences::ldSearchDirs){
+          //Check if Unofficial root directory
+          bool foundUnofficialRootDir = false;
+          QString unofficialRootDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial"));
+          if ((foundUnofficialRootDir =
+               ldgliteSearchDir.toLower() == unofficialRootDir.toLower())) {
+              logDebug() << "<-FOUND UNOFFICIAL DIR: " << ldgliteSearchDir;
+              QDir unofficialDir(unofficialRootDir);
+              // Get sub directories
+              QStringList unofficialSubDirs = unofficialDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
+              if (unofficialSubDirs.count() > 0){
+                  // Recurse unofficial subdirectories for excluded directories
+                  foreach (QString unofficialSubDirName, unofficialSubDirs){
+                      // Exclude invalid directories
+                      bool excludeSearchDir = false;
+                      QString unofficialDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(unofficialRootDir).arg(unofficialSubDirName));
+                      foreach (QString excludedDir, ldgliteExcludedDirs){
+                          if ((excludeSearchDir =
+                               unofficialDirPath.toLower() == excludedDir.toLower())) {
+                              break;
+                            }
+                        }
+                      if (excludeSearchDir){
+                          logDebug() << "<-EXCLUDE LDGLITE UNOFFICIAL LDRAW SEARCH SUB DIR: " << unofficialDirPath;
+                        } else {
+                          count++;
+                          count > 1 ? Preferences::ldgliteSearchDirs.append(QString("|%1").arg(unofficialDirPath)):
+                                      Preferences::ldgliteSearchDirs.append(unofficialDirPath);
+                          logDebug() << "->INCLUDE LDGLITE UNOFFICIAL LDRAW SEARCH SUB DIR: " << unofficialDirPath;
+                        }
+                    }
+                }
+            } else {
+              // Exclude invalid directories
+              bool excludeSearchDir = false;
+              foreach (QString excludedDir, ldgliteExcludedDirs){
+                  if ((excludeSearchDir =
+                       ldgliteSearchDir.toLower() == excludedDir.toLower())) {
+                      break;
+                    }
+                }
+              if (excludeSearchDir){
+                  logDebug() << "<-EXCLUDE LDGLITE LDRAW SEARCH DIR: " << ldgliteSearchDir;
+                } else {
+                  count++;
+                  count > 1 ? Preferences::ldgliteSearchDirs.append(QString("|%1").arg(ldgliteSearchDir)):
+                              Preferences::ldgliteSearchDirs.append(ldgliteSearchDir);
+                  logDebug() << "->INCLUDE LDGLITE LDRAW SEARCH DIR: " << ldgliteSearchDir;
+                }
+            }
+        }
+      logDebug() << "--FINAL DIR COUNT: (" << count << ") " << Preferences::ldgliteSearchDirs;
+    }
 }
 
 /*

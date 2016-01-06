@@ -656,7 +656,6 @@ public slots:
   void fileChanged(const QString &path);
 
   void processFadeColourParts();
-  void populateLdgLiteSearchDirs();
 
 signals:       
 
@@ -685,7 +684,7 @@ public:
 
   // multi-thread worker classes
 //  PartWorker            partWorkerLDSearchDirs; // part worker to process search directories and fade color parts
-  PartWorker             partWorkerTempDirs;      // part worker to process temp directory parts
+  PartWorker             partWorkerLdgLiteSearchDirs;      // part worker to process temp directory parts
   PartWorker            *partWorkerFadeColour;    // part worker to process colour part fade
   ColourPartListWorker  *colourPartListWorker;    // create static colour parts list in separate thread
   ParmsWindow           *parmsWindow;             // the parametrer file editor

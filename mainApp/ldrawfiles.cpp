@@ -34,6 +34,7 @@
 #include <QRegExp>
 #include "version.h"
 #include "paths.h"
+#include "lc_library.h"
 
 QString LDrawFile::_file        = "";
 QString LDrawFile::_name        = "";
@@ -506,7 +507,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
        appearance and stage for later processing */
     while ( ! in.atEnd()) {
       QString sLine = in.readLine(0);
-      stageContents << sLine.trimmed();
+      stageContents << sLine.trimmed();      
     }
 
     for (int i = 0; i < stageContents.size(); i++) {
@@ -1075,6 +1076,7 @@ int validSoQ(const QString &line, int soq){
 
 QList<QRegExp> LDrawHeaderRegExp;
 QList<QRegExp> LDrawUnofficialFileTypeRegExp;
+QList<QRegExp> LDrawPartRegExp;
 
 LDrawFile::LDrawFile()
 {
@@ -1125,31 +1127,57 @@ LDrawFile::LDrawFile()
            ;
   }
 
+  {
+    LDrawPartRegExp
+        << QRegExp("^\\s*0\\s+UNOFFICIAL PART[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Part)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Part Alias)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut Alias)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Part)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Part Alias)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut Alias)[^\n]*")
+        << QRegExp("^\\s*0\\s+PART[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Part)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Shortcut)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Part Alias)[^\n]*")
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Shortcut Alias)[^\n]*")
+           ;
+  }
+
 }
 
 bool isHeader(QString &line)
 {
   int size = LDrawHeaderRegExp.size();
-
   for (int i = 0; i < size; i++) {
     if (line.contains(LDrawHeaderRegExp[i])) {
       return true;
     }
   }
+  return false;
+}
 
+bool isLDrawPart(QString &line)
+{
+  int size = LDrawPartRegExp.size();
+  for (int i = 0; i < size; i++) {
+    if (line.contains(LDrawPartRegExp[i])) {
+      return true;
+    }
+  }
   return false;
 }
 
 bool isUnofficialFileType(QString &line)
 {
   int size = LDrawUnofficialFileTypeRegExp.size();
-
   for (int i = 0; i < size; i++) {
     if (line.contains(LDrawUnofficialFileTypeRegExp[i])) {
       return true;
     }
   }
-
   return false;
 }
 
