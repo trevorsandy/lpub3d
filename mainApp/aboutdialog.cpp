@@ -254,7 +254,7 @@ QString AboutDialog::osName()
     {
       case QSysInfo::WV_6_1: return "Windows 7";
       case QSysInfo::WV_6_2: return "Windows 8";
-      case QSysInfo::WV_6_3: return "Windows 8.1";
+      case QSysInfo::WV_6_3: return "Windows 8.1/10";
       default: return "Windows";
     }
 #endif

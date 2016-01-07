@@ -235,9 +235,6 @@ int main(int argc, char *argv[])
     const char* LDrawPath = NULL;
 #endif
 
-    splash->showMessage(QSplashScreen::tr("Loading LDraw seach directories..."),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
-    app.processEvents();
-
     if (!g_App->Initialize(argc, argv, libPath, LDrawPath))
         return 1;
 

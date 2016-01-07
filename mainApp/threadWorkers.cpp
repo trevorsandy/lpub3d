@@ -199,7 +199,7 @@ void PartWorker::populateLdgLiteSearchDirs(){
           QString unofficialRootDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial"));
           if ((foundUnofficialRootDir =
                ldgliteSearchDir.toLower() == unofficialRootDir.toLower())) {
-              logDebug() << "<-FOUND UNOFFICIAL DIR: " << ldgliteSearchDir;
+   //           logDebug() << "<-FOUND UNOFFICIAL DIR: " << ldgliteSearchDir;
               QDir unofficialDir(unofficialRootDir);
               // Get sub directories
               QStringList unofficialSubDirs = unofficialDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
@@ -216,12 +216,12 @@ void PartWorker::populateLdgLiteSearchDirs(){
                             }
                         }
                       if (excludeSearchDir){
-                          logDebug() << "<-EXCLUDE LDGLITE UNOFFICIAL LDRAW SEARCH SUB DIR: " << unofficialDirPath;
+ //                         logDebug() << "<-EXCLUDE LDGLITE UNOFFICIAL LDRAW SEARCH SUB DIR: " << unofficialDirPath;
                         } else {
                           count++;
                           count > 1 ? Preferences::ldgliteSearchDirs.append(QString("|%1").arg(unofficialDirPath)):
                                       Preferences::ldgliteSearchDirs.append(unofficialDirPath);
-                          logDebug() << "->INCLUDE LDGLITE UNOFFICIAL LDRAW SEARCH SUB DIR: " << unofficialDirPath;
+//                          logDebug() << "->INCLUDE LDGLITE UNOFFICIAL LDRAW SEARCH SUB DIR: " << unofficialDirPath;
                         }
                     }
                 }
@@ -235,12 +235,12 @@ void PartWorker::populateLdgLiteSearchDirs(){
                     }
                 }
               if (excludeSearchDir){
-                  logDebug() << "<-EXCLUDE LDGLITE LDRAW SEARCH DIR: " << ldgliteSearchDir;
+//                  logDebug() << "<-EXCLUDE LDGLITE LDRAW SEARCH DIR: " << ldgliteSearchDir;
                 } else {
                   count++;
                   count > 1 ? Preferences::ldgliteSearchDirs.append(QString("|%1").arg(ldgliteSearchDir)):
                               Preferences::ldgliteSearchDirs.append(ldgliteSearchDir);
-                  logDebug() << "->INCLUDE LDGLITE LDRAW SEARCH DIR: " << ldgliteSearchDir;
+//                  logDebug() << "->INCLUDE LDGLITE LDRAW SEARCH DIR: " << ldgliteSearchDir;
                 }
               // Check if fade directories included
               if (Preferences::ldrawiniFound && fadeStepEnabled && !fadeDirsIncluded){
@@ -255,10 +255,10 @@ void PartWorker::populateLdgLiteSearchDirs(){
           count > 1 ? Preferences::ldgliteSearchDirs.append(QString("|%1|%2").arg(fadePartDir).arg(fadePrimDir)):
                       Preferences::ldgliteSearchDirs.append(QString("%1|%2").arg(fadePartDir).arg(fadePrimDir));
           count ++;
-          logDebug() << "->INCLUDE LDGLITE LDRAW SEARCH DIR: " << QString("%1 %2").arg(fadePartDir).arg(fadePrimDir);
+//          logDebug() << "->INCLUDE LDGLITE LDRAW SEARCH DIR: " << QString("%1 %2").arg(fadePartDir).arg(fadePrimDir);
         }
 
-      logDebug() << "--FINAL DIR COUNT: (" << count << ") " << Preferences::ldgliteSearchDirs;
+//       logDebug() << "--FINAL DIR COUNT: (" << count << ") " << Preferences::ldgliteSearchDirs;
     }
 }
 
