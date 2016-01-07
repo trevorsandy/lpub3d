@@ -23,11 +23,11 @@
 #define STRING(x)  STR(x)
 
 // ~~~~~ Version info ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-#define VER_MAJOR                           2
-#define VER_MINOR                           0
+#define VER_MAJOR                           1
+#define VER_MINOR                           3
 #define VER_SP                              0
 
-#define VER_BUILD_STR                   	_BUILD_NUMBER
+#define VER_BUILD_STR                       _BUILD_NUMBER
 #define VER_REVISION_STR                    _BUILD_REVISION
 #define VER_BUILDDATE_STR                   _BUILD_DATE
 
@@ -40,7 +40,7 @@
 #define VER_COMPANYNAME_STR         		"LPub3D Software"
 #define VER_FILEDESCRIPTION_STR     		"LPub3D - An LDraw Building Instruction Editor"
 #define VER_INTERNALNAME_STR        		"bociphus"
-#define VER_LEGALCOPYRIGHT_STR      		"Copyright &copy; 2015 by Trevor SANDY"
+#define VER_LEGALCOPYRIGHT_STR      		"Copyright &copy; 2016 by Trevor SANDY"
 #define VER_LEGALTRADEMARKS1_STR    		"All Rights Reserved"
 #define VER_LEGALTRADEMARKS2_STR    		VER_LEGALTRADEMARKS1_STR
 #define VER_ORIGINALFILENAME_STR    		"LPub3D.exe"

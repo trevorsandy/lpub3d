@@ -1,61 +1,58 @@
-LPub3D 1.3 XXXX
+LPub3D 1.3.0.500.13 
  
 Features and enhancements 
 ------------ 
--Dialog to print or export to image all pages, current page and custom range of pages (e.g. 1,3,5,7-9)
--Add ability to detect additional ldraw content search directories using ldrawini c api
- I implemented the ldrawini c api to maintain compatability with LPub3D 3rd Party renderers - LDView, L3P(PovRay) and Ldglite. Additional directories must have same tree as LDraw Unofficial directory (i.e. parts and/or p subdirectories...) or alternatively, content can be deposited at the root of the additional directory (i.e. C:/ldrawFiles/*.dat). Content from all defined ldraw search directories are archived in the ldrawunf.zip archive enabling access to the 3DViewer.
- If no ldraw.ini file is detected. LPub3D will automatically search all subdirectories in the ldraw/Unofficial directory except directories p and parts. Unofficial subdirectories p and parts as well as official p and parts subdirectories are never searched because they are atomatically loaded by the 3DViewer during startup.
- There are 2 ways to define search directories: 1. using the Ldraw.ini file (there is now a menu button to edit the ldraw.ini file) and 2. editing the 'Ldraw
- Content Search Directories text edit dialog under the 'Other' tab in Preferences. If you are using an LDraw.ini file the preferences dialog will be read only - you #
- must use the menu edit button under 'Configurtion' to edit the ldraw.ini file. This button only appears if a valid ldraw.ini file is detectec. If you are not using 
- ldraw.ini, it is possible to add,remove and reset to default search directories in the Preferences => Other tab. 
--Enhanced ldglite (update from version 1.2.6 to 1.3) to accept 'LDSEARCHDIRS' environment variable - a '|' delimited string of search directories. This update brings 
+-Dialog to print or export to image all pages, current page and custom range of pages (e.g. 1,3,5,7-9) 
+-Add ability to detect additional ldraw content search directories using ldrawini c api 
+ I implemented the ldrawini c api to maintain compatability with LPub3D 3rd Party renderers - LDView, L3P(PovRay) and Ldglite. Additional directories must have same tree as LDraw Unofficial directory (i.e. parts and/or p subdirectories...) or alternatively, content can be deposited at the root of the additional directory (i.e. C:/ldrawFiles/*.dat). Content from all defined ldraw search directories are archived in the ldrawunf.zip archive enabling access to the 3DViewer. 
+ If no ldraw.ini file is detected. LPub3D will automatically search all subdirectories in the ldraw/Unofficial directory except directories p and parts. Unofficial subdirectories p and parts as well as official p and parts subdirectories are never searched because they are atomatically loaded by the 3DViewer during startup. 
+ There are 2 ways to define search directories: 1. using the Ldraw.ini file (there is now a menu button to edit the ldraw.ini file) and 2. editing the 'Ldraw 
+ Content Search Directories text edit dialog under the 'Other' tab in Preferences. If you are using an LDraw.ini file the preferences dialog will be read only - you must use the menu edit button under 'Configurtion' to edit the ldraw.ini file. This button only appears if a valid ldraw.ini file is detectec. If you are not using 
+ ldraw.ini, it is possible to add,remove and reset to default search directories in the Preferences = tab. 
  ldglite up to date with LDView and L3P in being able to process additional directories outside of official/unofficial parts, p and Model. I implemented this 
- enhancement to allow all 3 renderers of LPub3D (LDView, Ldglite, L3P/PoV Ray) the same functionality supporting additional ldraw content search directories. LPub2D now passes 2 env variables to ldglite - LDRAWDIR and LDSEARCHDIRS. LdView and L3P already uses the ldrawini.c library so can be configured to detect additional ldraw content search directories if no ldraw.ini file is configured.
- I also upgraded the open gl API from glut (deprecated) to freeglut 3.0
+ enhancement to allow all 3 renderers of LPub3D (LDView, Ldglite, L3P/PoV Ray) the same functionality supporting additional ldraw content search directories. LPub2D now passes 2 env variables to ldglite - LDRAWDIR and LDSEARCHDIRS. LdView and L3P already uses the ldrawini.c library so can be configured to detect additional ldraw content search directories if no ldraw.ini file is configured. 
+ I also upgraded the open gl API from glut (deprecated) to freeglut 3.0 
 -Add ability to manage additional ldraw content search directories whether using Ldraw.ini or not. 
- If not using Ldraw.ini file, automatically detected search directories are be limited to those under the Unofficial directory. The user has the abilty to exclude and reset search directories within this listing. Unofficial P and Parts directories are automatically excluded from the search list as it is loaded automatically.
- Custom content added to Unofficial P and Parts directories will consequently not be detected by LPub3D.
--Add Rotate Icon - indicate that the builder should "flip" the model
--Add line type attribute to border configuration
- This adds a new meta value after (NONE|ROUND|SQUARE). Valid values are 
- 0=none,1=solid,2=dash,3=dot,4=dashDot,5=dashDotDot. So an old meta line like this:
- 0 !LPUB PLI BORDER GLOBAL ROUND Black 0 15 MARGINS 0.472439 0.07 should be updated to this:
- 0 !LPUB PLI BORDER GLOBAL ROUND 1 Black 0 15 MARGINS 0.472439 0.07
--Add PLI/BOM part substitution - substitute modeled part in PLI/BOM with alternate
- This feature is useful when you have a modeled part (e.g. Power Functions Light) that will
+ If not using Ldraw.ini file, automatically detected search directories are be limited to those under the Unofficial directory. The user has the abilty to exclude and reset search directories within this listing. Unofficial P and Parts directories are automatically excluded from the search list as it is loaded automatically. 
+ Custom content added to Unofficial P and Parts directories will consequently not be detected by LPub3D. 
+-Add Rotate Icon - indicate that the builder should "flip" the model 
+-Add line type attribute to border configuration 
+ 0=none,1=solid,2=dash,3=dot,4=dashDot,5=dashDotDot. So an old meta line like this: 
+ 0 !LPUB PLI BORDER GLOBAL ROUND Black 0 15 MARGINS 0.472439 0.07 should be updated to this: 
+ 0 !LPUB PLI BORDER GLOBAL ROUND 1 Black 0 15 MARGINS 0.472439 0.07 
+-Add PLI/BOM part substitution - substitute modeled part in PLI/BOM with alternate 
+ This feature is useful when you have a modeled part (e.g. Power Functions Light) that will 
  take alot of space in the BOM/PLI, you can substitute the modeled version with an alternate 
- representation that is suitable for the PLI/BOM view. This feature is complementary to LDCad's
+ representation that is suitable for the PLI/BOM view. This feature is complementary to LDCad's 
  template functionality which allows you to model adjustable parts as needed. To use this 
- functionality, simply edit the substituation list from Configuration=>Edit BOM/PLI Substitute Parts List
--Add LDCad UNOFFICIAL PART meta to recognize LDCad template generated parts
--Add gradients to background options
--Add Change local page background - colour, gradient, picture, submodel, none
+ functionality, simply edit the substituation list from Configuration= BOM/PLI Substitute Parts List 
+-Add LDCad UNOFFICIAL PART meta to recognize LDCad template generated parts 
+-Add gradients to background options 
+-Add Change local page background - colour, gradient, picture, submodel, none 
 -Add memu item 'Refresh Unofficial Parts' which downloads and replaces the ldrawunf.zip archive 
  in the  LPub3DVoiewer-Library. LPub3D places all search directory parts in the ldrawunf.zip archive so they 
  can be made available for the LPub3D Viewer. This feature allows you to reset the archive file to 
- it's latestt default content.
- subdirectory. This archive is used, along with the complete.zip, by the 3DViewer.
--Add menu item 'Reset Fade Files Cache' which deletes all generated fade files. Fade files automatically
- generated as needed when you open a model with the 'Enable Fade Steps' preference option checked.
--Update 3DViewer to LeoCAD build 1867
--Remove PartsList class, use instead lcPiecesLibrary class to verify parts and capture part title
--Move process fade colour parts separate thread
--Move fade parts directory from under LDraw/Unofficial/parts and LDraw/Unofficial/p to as single directory
- under LDraw/Unofficial. So from this version of LPub3D, the fade directory will be autogenerated and populated
- as LDraw/Unofficial/fade. Old fade directories under Unofficial/parts and p must be manually removed if desired.
--Redesign color part list and archive classes - rename and separate generage color parts list
--Cosmetic updates
--Fix: Changing step number attributes on multi-step pages are now working
--Fix: PLI/BOM sort routine, sort on 'part colour' part(s) appear out of place relative to
- part size and colour.
--Fix: Do not create instruction page(s) for unofficial part
--Fix: Create s/8/48 subdirectory in lpub/tmp directory when needed. This fix will resolve the issue of LPub3D not being able to create inline unofficial subparts and 8/48 primitives when rendering models where these parts are defined in the model file.
--CHANGE: Change 'Reset All Caches' to 'Reset Image and Model' Caches
--CHANGE: BOM default sort to sort by colour then size, previous default was size only (PLI default sort by size)
--CHANGE: Change 'Update' tab in preferences dialog to 'Other'.
-
+ it's latestt default content. 
+ subdirectory. This archive is used, along with the complete.zip, by the 3DViewer. 
+-Add menu item 'Reset Fade Files Cache' which deletes all generated fade files. Fade files automatically 
+ generated as needed when you open a model with the 'Enable Fade Steps' preference option checked. 
+-Update 3DViewer to LeoCAD build 1867 
+-Remove PartsList class, use instead lcPiecesLibrary class to verify parts and capture part title 
+-Move process fade colour parts separate thread 
+-Move fade parts directory from under LDraw/Unofficial/parts and LDraw/Unofficial/p to as single directory 
+ under LDraw/Unofficial. So from this version of LPub3D, the fade directory will be autogenerated and populated 
+ as LDraw/Unofficial/fade. Old fade directories under Unofficial/parts and p must be manually removed if desired. 
+-Redesign color part list and archive classes - rename and separate generage color parts list 
+-Cosmetic updates 
+-Fix: Changing step number attributes on multi-step pages are now working 
+-Fix: PLI/BOM sort routine, sort on 'part colour' part(s) appear out of place relative to 
+ part size and colour. 
+-Fix: Do not create instruction page(s) for unofficial part 
+-Fix: Create s/8/48 subdirectory in lpub/tmp directory when needed. This fix will resolve the issue of LPub3D not being able to create inline unofficial subparts and 8/48 primitives when rendering models where these parts are defined in the model file. 
+-CHANGE: Change 'Reset All Caches' to 'Reset Image and Model' Caches 
+-CHANGE: BOM default sort to sort by colour then size, previous default was size only (PLI default sort by size) 
+-CHANGE: Change 'Update' tab in preferences dialog to 'Other'. 
+ 
 LPub3D 1.2.3.443.2 
 Features and enhancements 
 ------------ 
@@ -107,48 +104,8 @@ Features and enhancements
 -CHANGE: LPub3D distribution no longer packed due to reported Win32 incompatability issues. 
  unpacked executable and dependencies are now deposited in installation folder 
  for both x32 and x64 distributions. 
- Windows Content Structure:
-	<Install Path>LPub3D/											<installed>
-					3rdParty/										<installed>
-						l3p1.4WinB/									<installed>
-							L3P.EXE									<installed>
-						ldglite1.2.6Win/							<installed>
-							plugins/								<installed>
-								pluginldlist.dll					<installed>
-							ldglite.exe								<installed>
-							LICENCE									<installed>
-							README.TXT								<installed>
-					docs/											<installed>
-						COPYING.txt									<installed>
-						CREDITS.txt									<installed>
-					libeay32.dll									<installed>
-					libgcc_s_sjlj-1.dll								<installed>
-					libstdc++-6.dll									<installed>
-					libwinpthread-1.dll								<installed>
-					LPub3D_x<64/32>.exe								<installed>
-					QtCore4.dll										<installed>
-					QtGui4.dll										<installed>
-					QtNetwork4.dll									<installed>
-					QtOpenGL4.dll									<installed>
-					quazip.dll										<installed>
-					README.txt										<installed>
-					ssleay32.dll									<installed>
-					Uninstall.exe									<installed>
-	<Drive>\Users\<User>\AppData\Local\LPub3D Software\LPub3D\		<installed/automatically generated>
-					cache/											<automatically generated>
-						*											<automatically generated>
-					dump/											<automatically generated>
-						minidump.dmp								<automatically generated>
-					extras/											<installed>
-						fadeStepColorParts.lst						<installed>
-						freeformAnnotations.lst						<installed>
-						PDFPrint.jpg								<installed>
-						pli.mpd										<installed>
-						printbanner.ldr								<installed>
-						titleAnnotations.lst						<installed>
-					logs/											<automatically generaged>
-						LPub3DLog.txt								<automatically generaged>
-  
+ Windows Content Structure: 
+ 
 LPub3D 1.1.0.370.2 
  
 Features and enhancements 

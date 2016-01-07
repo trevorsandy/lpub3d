@@ -9,10 +9,10 @@ SETLOCAL
 @color 0a
 ECHO Pack and create manual and automatic install distributions
 
-SET Win32BuildFile="..\..\..\build-LPub3D1.0Maint-Win32-Release\mainApp\build\release\LPub3D.exe"
-SET Win64BuildFile="..\..\..\build-LPub3D1.0Maint-Win64-Release\mainApp\build\release\LPub3D.exe"
-SET Win32QuazipFile="..\..\..\build-LPub3D1.0Maint-Win32-Release\quazip\build\release\quazip.dll"
-SET Win64QuazipFile="..\..\..\build-LPub3D1.0Maint-Win64-Release\quazip\build\release\quazip.dll"
+SET Win32BuildFile="..\..\..\build-LPub3D-Win32-Release\mainApp\build\release\LPub3D.exe"
+SET Win64BuildFile="..\..\..\build-LPub3D-Win64-Release\mainApp\build\release\LPub3D.exe"
+SET Win32QuazipFile="..\..\..\build-LPub3D-Win32-Release\quazip\build\release\quazip.dll"
+SET Win64QuazipFile="..\..\..\build-LPub3D-Win64-Release\quazip\build\release\quazip.dll"
 
 SET Win32QtPath="C:\Qt\qt-4.8.6-x86-mingw492r1-sjlj\qt-4.8.6-x86-mingw492r1-sjlj\bin"
 SET Win64QtPath="C:\Qt\qt-4.8.6-x64-mingw492r1-sjlj\qt-4.8.6-x64-mingw492r1-sjlj\bin"

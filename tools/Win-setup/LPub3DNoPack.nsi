@@ -73,8 +73,8 @@
   ; Rebrand bottom textrow
   BrandingText "${Company} Installer"
 
-  ; hide install details - show with details button
-  ShowInstDetails hide
+  ; Show install details
+  ShowInstDetails show
   
   SetCompressor /SOLID lzma
    
@@ -191,6 +191,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   ${If} ${RunningX64}
 	File "${Win64BuildDir}\${ProductName}_x64.exe"
 	File "${Win64BuildDir}\quazip.dll"
+	File "${Win64BuildDir}\ldrawini.dll"
 	File "${Win64BuildDir}\libeay32.dll"
 	File "${Win64BuildDir}\ssleay32.dll"
 	File "${Win64BuildDir}\libgcc_s_sjlj-1.dll"
@@ -203,6 +204,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   ${Else}
 	File "${Win32BuildDir}\${ProductName}_x32.exe"
 	File "${Win32BuildDir}\quazip.dll"
+	File "${Win32BuildDir}\ldrawini.dll"
 	File "${Win32BuildDir}\libeay32.dll"
 	File "${Win32BuildDir}\ssleay32.dll"
 	File "${Win32BuildDir}\libgcc_s_sjlj-1.dll"
@@ -216,14 +218,14 @@ Section "${ProductName} (required)" SecMain${ProductName}
   File "..\docs\README.txt"
   
   ;3rd party renderer utilities (LdgLite, L3P)
-  CreateDirectory "$INSTDIR\3rdParty\ldglite1.2.6Win"
-  SetOutPath "$INSTDIR\3rdParty\ldglite1.2.6Win"
-  File "..\release\3rdParty\ldglite1.2.6Win\ldglite.exe"
-  File "..\release\3rdParty\ldglite1.2.6Win\LICENCE"
-  File "..\release\3rdParty\ldglite1.2.6Win\README.TXT" 
-  CreateDirectory "$INSTDIR\3rdParty\ldglite1.2.6Win\plugins"
-  SetOutPath "$INSTDIR\3rdParty\ldglite1.2.6Win\plugins" 
-  File "..\release\3rdParty\ldglite1.2.6Win\plugins\pluginldlist.dll"
+  CreateDirectory "$INSTDIR\3rdParty\ldglite1.3.0Win"
+  SetOutPath "$INSTDIR\3rdParty\ldglite1.3.0Win"
+  File "..\release\3rdParty\ldglite1.3.0Win\ldglite.exe"
+  File "..\release\3rdParty\ldglite1.3.0Win\LICENCE"
+  File "..\release\3rdParty\ldglite1.3.0Win\README.TXT" 
+  CreateDirectory "$INSTDIR\3rdParty\ldglite1.3.0Win\plugins"
+  SetOutPath "$INSTDIR\3rdParty\ldglite1.3.0Win\plugins" 
+  File "..\release\3rdParty\ldglite1.3.0Win\plugins\pluginldlist.dll"
   CreateDirectory "$INSTDIR\3rdParty\l3p1.4WinB"
   SetOutPath "$INSTDIR\3rdParty\l3p1.4WinB" 
   File "..\release\3rdParty\l3p1.4WinB\L3P.EXE"
@@ -260,7 +262,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "HelpLink" "${SupportEmail}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "Comments" "${Comments}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "UninstallString" '"$INSTDIR\Uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "EstimatedSize" 14000
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "EstimatedSize" 50000
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "NoRepair" 1
   WriteUninstaller "$INSTDIR\Uninstall.exe"
@@ -433,6 +435,7 @@ Section "Uninstall"
 	Delete "$INSTDIR\${ProductName}_x32.exe"
   ${EndIf}
   Delete "$INSTDIR\quazip.dll"
+  Delete "$INSTDIR\ldrawini.dll"
   Delete "$INSTDIR\libeay32.dll"
   Delete "$INSTDIR\ssleay32.dll"
   Delete "$INSTDIR\libgcc_s_sjlj-1.dll"
@@ -447,10 +450,10 @@ Section "Uninstall"
   Delete "$INSTDIR\docs\Credits.txt"
   Delete "$INSTDIR\docs\Copying.txt"
   Delete "$INSTDIR\docs\License.txt"
-  Delete "$INSTDIR\3rdParty\ldglite1.2.6Win\plugins\pluginldlist.dll"  
-  Delete "$INSTDIR\3rdParty\ldglite1.2.6Win\ldglite.exe"
-  Delete "$INSTDIR\3rdParty\ldglite1.2.6Win\LICENCE"
-  Delete "$INSTDIR\3rdParty\ldglite1.2.6Win\README.TXT" 
+  Delete "$INSTDIR\3rdParty\ldglite1.3.0Win\plugins\pluginldlist.dll"  
+  Delete "$INSTDIR\3rdParty\ldglite1.3.0Win\ldglite.exe"
+  Delete "$INSTDIR\3rdParty\ldglite1.3.0Win\LICENCE"
+  Delete "$INSTDIR\3rdParty\ldglite1.3.0Win\README.TXT" 
   Delete "$INSTDIR\3rdParty\l3p1.4WinB\L3P.EXE"
   Delete "${INSTDIR_AppData}\extras\fadeStepColorParts.lst"
   Delete "${INSTDIR_AppData}\extras\freeformAnnotations.lst"
@@ -469,8 +472,8 @@ Section "Uninstall"
 ; Remove directories used
   RMDir "$SMPROGRAMS\$StartMenuFolder"
   RMDir "${INSTDIR_AppData}\extras"
-  RMDir "$INSTDIR\3rdParty\ldglite1.2.6Win\plugins"
-  RMDir "$INSTDIR\3rdParty\ldglite1.2.6Win"
+  RMDir "$INSTDIR\3rdParty\ldglite1.3.0Win\plugins"
+  RMDir "$INSTDIR\3rdParty\ldglite1.3.0Win"
   RMDir "$INSTDIR\3rdParty\l3p1.4WinB"
   RMDir "$INSTDIR\3rdParty"
   RMDir "$INSTDIR\docs"

@@ -216,7 +216,6 @@ Section "${ProductName} (required)" SecMain${ProductName}
   SetOutPath "${INSTDIR_AppData}\extras"
   File "..\..\mainApp\extras\fadeStepColorParts.lst"
   File "..\..\mainApp\extras\freeformAnnotations.lst"
-  File "..\..\mainApp\extras\pliSubstituteParts.lst"
   File "..\..\mainApp\extras\titleAnnotations.lst"
   File "..\..\mainApp\extras\PDFPrint.jpg"
   File "..\..\mainApp\extras\pli.mpd"
@@ -379,7 +378,7 @@ Function nsDialogLeaveCustomPage
   ${If} ${DirExists} $LDrawDirPath
     ; Update the registry wiht the LDraw Directory path.
 	WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "LDrawDir" $LDrawDirPath
-	; Add LPub3DViewer Unofficial Library update batch file to LDraw directory
+    ; Add LPub3DViewer Unofficial Library update batch file to LDraw directory
 	SetOutPath $LDrawDirPath
     File "LPub3DViewer_LDrawunf_Archive_Generator.bat"
     SetOutPath "$INSTDIR"
@@ -417,7 +416,6 @@ Section "Uninstall"
   ${Else}
 	Delete "$INSTDIR\${ProductName}_x32.exe"
   ${EndIf}
-  Delete "$LDrawDirPath\LPub3DViewer_LDrawunf_Archive_Generator.bat"
   Delete "$INSTDIR\Uninstall.exe"
   Delete "$INSTDIR\readme.txt"
   Delete "$INSTDIR\docs\Credits.txt"
@@ -430,7 +428,6 @@ Section "Uninstall"
   Delete "$INSTDIR\3rdParty\l3p1.4WinB\L3P.EXE"
   Delete "${INSTDIR_AppData}\extras\fadeStepColorParts.lst"
   Delete "${INSTDIR_AppData}\extras\freeformAnnotations.lst"
-  Delete "${INSTDIR_AppData}\extras\pliSubstituteParts.lst"  
   Delete "${INSTDIR_AppData}\extras\titleAnnotations.lst"
   Delete "${INSTDIR_AppData}\extras\pli.mpd"    
   
