@@ -19,7 +19,7 @@
 #include "QsLog.h"
 
 #define LDRAW_UNOFFICIAL_ARCHIVE   "http://www.ldraw.org/library/unofficial/ldrawunf.zip"
-#define LDRAW_OFFICIAL_ARCHIVE
+#define LDRAW_OFFICIAL_ARCHIVE     "http://www.ldraw.org/library/updates/complete.zip"
 
 UpdateLdrawArchive::UpdateLdrawArchive(QObject *parent) : QObject(parent)
 {
@@ -30,7 +30,7 @@ UpdateLdrawArchive::UpdateLdrawArchive(QObject *parent) : QObject(parent)
   updater = new QSimpleUpdater (this, isLdrawDownload);
 
   // Download and refresh LDraw Unofficial Archive
-  updateUnoffArchive();
+  updateLdrawArchive(true);
 
 }
 
@@ -41,17 +41,16 @@ UpdateLdrawArchive::~UpdateLdrawArchive(){
 
 }
 
-void UpdateLdrawArchive::updateUnoffArchive(){
-
-  //set initial update status
+void UpdateLdrawArchive::updateLdrawArchive(bool unoff){
 
   // Tell the updater where to download the update, its recommended to use direct links
-  updater->setDownloadUrl (LDRAW_UNOFFICIAL_ARCHIVE);
+  QString url = unoff ? LDRAW_UNOFFICIAL_ARCHIVE : LDRAW_OFFICIAL_ARCHIVE;
+  updater->setDownloadUrl (url);
 
   // Tell the updater where to install the archive file
   updater->setLdrawArchivePath (QDir::toNativeSeparators(Preferences::ldrawPath + "/LPub3DViewer-Library"));
 
   // Finally, check for updates...
-  updater->updateUnoffArchive();
+  updater->updateLdrawArchive();
 
 }

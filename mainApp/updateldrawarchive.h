@@ -27,7 +27,7 @@ public:
   explicit UpdateLdrawArchive(QObject *parent = 0);
   ~UpdateLdrawArchive();
 
-  void updateUnoffArchive();
+  void updateLdrawArchive(bool unoff = true);
 
 signals:
 

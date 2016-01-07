@@ -90,29 +90,32 @@ QSimpleUpdater::QSimpleUpdater (QObject *parent, bool isLdrawDownload)
     , m_show_newest_version (true)
     , m_show_update_available (true)
     , m_new_version_available (false)
+    , m_ldraw_archive_site_available (false)
     , m_isLdrawDownload (isLdrawDownload)
 {
 
     m_updateRequest.setRawHeader("User-Agent","Mozilla Firefox");
 
     m_downloadDialog = new DownloadDialog();
+    m_manager = new QNetworkAccessManager (this);
+
+    connect (m_manager, SIGNAL (sslErrors (QNetworkReply *, QList<QSslError>)),
+             this, SLOT (ignoreSslErrors (QNetworkReply *, QList<QSslError>)));
 
     if (m_isLdrawDownload) {
 
         m_downloadDialog->setIsLdrawDownload(m_isLdrawDownload);
 
+        connect (m_manager, SIGNAL (finished (QNetworkReply *)), this,
+                 SLOT (checkLDrawDownloadConnection (QNetworkReply *)));
         connect (this, SIGNAL (checkingFinished()), this, SLOT (onCheckingIsLdrawDownloadFinished()));
 
       } else {
 
         m_progressDialog = new ProgressDialog();
 
-        m_manager = new QNetworkAccessManager (this);
         connect (m_manager, SIGNAL (finished (QNetworkReply *)), this,
                  SLOT (checkDownloadedVersion (QNetworkReply *)));
-        connect (m_manager, SIGNAL (sslErrors (QNetworkReply *, QList<QSslError>)),
-                 this, SLOT (ignoreSslErrors (QNetworkReply *, QList<QSslError>)));
-
         connect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancel()));
         connect (this, SIGNAL (checkingFinished()), this, SLOT (onCheckingFinished()));
 
@@ -122,7 +125,7 @@ QSimpleUpdater::QSimpleUpdater (QObject *parent, bool isLdrawDownload)
 
 QSimpleUpdater::~QSimpleUpdater()
 {
-    if (m_manager && !m_isLdrawDownload)
+    if (m_manager)
         m_manager->deleteLater();
 }
 
@@ -146,14 +149,15 @@ QString QSimpleUpdater::changeLog() const
 
 void QSimpleUpdater::checkForUpdates (void)
 {
-    if (!m_reference_url.isEmpty())
+  if (!m_reference_url.isEmpty())
     {
 
-        m_updateRequest.setUrl(QUrl(m_reference_url));
-        m_manager->get(m_updateRequest);
+      m_updateRequest.setUrl(QUrl(m_reference_url));
+      m_manager->get(m_updateRequest);
 
-        if (!silent())
-            m_progressDialog->show();
+      if (!silent())
+        m_progressDialog->show();
+
     }
 
     else
@@ -166,16 +170,15 @@ void QSimpleUpdater::checkForUpdates (void)
  *
  * \sa setDownloadUrl()
  */
-void QSimpleUpdater::updateUnoffArchive (void)
+void QSimpleUpdater::updateLdrawArchive (void)
 {
     if (!m_download_url.isEmpty())
     {
-        m_downloadDialog->setLdrawArchivePath(m_ldrawArchivePath);
-        emit checkingFinished();
+        m_updateRequest.setUrl(QUrl("http://www.ldraw.org"));
+        m_manager->get(m_updateRequest);
     }
-
     else
-        qDebug() << "QSimpleUpdater: Invalid download URL";
+        qDebug() << "QSimpleUpdater: Invalid download ldraw archive download URL";
 }
 
 /*!
@@ -213,7 +216,7 @@ QString QSimpleUpdater::installedVersion() const
 }
 
 /*!
- * Downloads the latest version of the application
+ * Downloads the latest version of the content
  * and displays download info in a dialog.
  *
  * \sa setDownloadUrl(), checkForUpdates()
@@ -415,11 +418,16 @@ void QSimpleUpdater::cancel (void)
 
 void QSimpleUpdater::showErrorMessage (QString error)
 {
-    if (!silent())
+  if (!silent())
     {
+      if (!m_isLdrawDownload)
         m_progressDialog->hide();
-        QMessageBox::warning (NULL, tr ("Software Updater"),
-                                    tr ("An error occured while checking for update. \n %1").arg(error));
+
+      QString header  = m_isLdrawDownload ? m_isUnoffArchive ? "ldrawunf.zip" : "complete.zip" : "update";
+      QString message = m_isLdrawDownload ? "processing ldrawunf.zip" : "checking for update";
+
+      QMessageBox::warning (NULL, tr ("Download %1").arg(header),
+                            tr ("An error occured while %1. \n %2").arg(message).arg(error));
     }
 }
 
@@ -487,27 +495,32 @@ void QSimpleUpdater::onCheckingFinished (void)
  */
 void QSimpleUpdater::onCheckingIsLdrawDownloadFinished(){
 
-  // Get the application icon as a pixmap
-  QPixmap _icon = QPixmap(":/icons/lpub96.png");
+  if (m_ldraw_archive_site_available) {
 
-  // If the icon is invalid, use default icon
-  if (_icon.isNull())
-    _icon = QPixmap (":/icons/update.png");
+      // Get the application icon as a pixmap
+      QPixmap _icon = QPixmap(":/icons/lpub96.png");
 
-  QMessageBox _message;
-  _message.setIconPixmap (_icon);
+      // If the icon is invalid, use default icon
+      if (_icon.isNull())
+        _icon = QPixmap (":/icons/update.png");
 
-  // Ask user if he/she wants to download unofficial ldraw archive
-  _message.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
-  _message.setText ("<b>" + tr ("Replace your ldrawunf.zip archive file?") +
-                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>");
-  _message.setInformativeText (
-        tr ("The latest version of ldrawunf.zip will be downloaded and written to the "
-            "LPub3DViewer-Library folder. "
-            "\n\nClick Yes to continue or No to cancel."));
+      QMessageBox _message;
+      _message.setIconPixmap (_icon);
 
-  if (_message.exec() == QMessageBox::Yes){
-      downloadLatestVersion();
+      // Ask user if he/she wants to download ldraw archive
+      _message.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+      _message.setText ("<b>" + tr ("Replace your %1 archive file?")
+                        .arg(m_isUnoffArchive ? "ldrawunf.zip" : "complete.zip") +
+                        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>");
+      _message.setInformativeText (
+            tr ("The latest version of %1 will be downloaded and written to the "
+                "LPub3DViewer-Library folder. "
+                "\n\nClick Yes to continue or No to cancel.")
+            .arg(m_isUnoffArchive ? "ldrawunf.zip" : "complete.zip"));
+
+      if (_message.exec() == QMessageBox::Yes){
+          downloadLatestVersion();
+        }
     }
 }
 
@@ -589,6 +602,30 @@ void QSimpleUpdater::checkDownloadedVersion (QNetworkReply *reply)
 }
 
 /*! \internal
+ * Check the ldraw download connection
+ * to be sure there is no network disruption.
+ *
+ * Finally, returns checking finished so
+ * archive download can proceed.
+ *
+ * \sa updateUnoffArchive()
+ */
+void QSimpleUpdater::checkLDrawDownloadConnection(QNetworkReply *reply)
+{
+  m_isUnoffArchive = m_download_url.toString().contains("ldrawunf.zip");
+  if(reply->error() == QNetworkReply::NoError)
+    {
+      m_downloadDialog->setLdrawArchivePath(m_ldrawArchivePath);
+      m_ldraw_archive_site_available = true;
+      reply->deleteLater();
+    }
+  else
+    showErrorMessage("Error connecting to the LDraw server: " + reply->errorString());
+
+  emit checkingFinished();
+}
+
+/*! \internal
  * Reads the downloaded changelog data and transforms it into a QString.
  *
  * \sa setChangelogUrl(), changeLog()
@@ -623,3 +660,4 @@ void QSimpleUpdater::ignoreSslErrors (QNetworkReply *reply,
     Q_UNUSED (error);
 #endif
 }
+

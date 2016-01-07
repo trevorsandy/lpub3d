@@ -57,7 +57,7 @@ class QSimpleUpdater : public QObject
         void openDownloadLink (void);
         void downloadLatestVersion (void);
 
-        void updateUnoffArchive (void);
+        void updateLdrawArchive (void);
 
     public slots:
         void setSilent (bool silent);
@@ -80,6 +80,7 @@ class QSimpleUpdater : public QObject
         void onCheckingIsLdrawDownloadFinished (void);
         void checkDownloadedVersion (QNetworkReply *reply);
         void processDownloadedChangelog (QNetworkReply *reply);
+        void checkLDrawDownloadConnection (QNetworkReply *reply);
         void ignoreSslErrors (QNetworkReply *reply, const QList<QSslError>& error);
 
     private:
@@ -98,7 +99,9 @@ class QSimpleUpdater : public QObject
         bool m_show_newest_version;
         bool m_show_update_available;
         bool m_new_version_available;
+        bool m_ldraw_archive_site_available;
         bool m_initialUpdate;
+        bool m_isUnoffArchive;
         bool m_isLdrawDownload;
 
         QString m_ldrawArchivePath;

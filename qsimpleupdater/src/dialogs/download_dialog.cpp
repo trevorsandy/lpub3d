@@ -50,7 +50,6 @@ DownloadDialog::DownloadDialog (QWidget *parent)
     connect (m_manager, SIGNAL (sslErrors (QNetworkReply *, QList<QSslError>)), this,
              SLOT (ignoreSslErrors (QNetworkReply *, QList<QSslError>)));
 
-
 }
 
 DownloadDialog::~DownloadDialog (void)
@@ -67,34 +66,40 @@ DownloadDialog::~DownloadDialog (void)
     delete ui;
 }
 
+
 void DownloadDialog::beginDownload (const QUrl& url)
 {
-    Q_ASSERT (!url.isEmpty());
+  Q_ASSERT (!url.isEmpty());
 
-    // Reset the UI
-    ui->progressBar->setValue (0);
-    ui->stopButton->setText (tr ("Stop"));
-    if (m_isLdrawDownload)
-      ui->downloadLabel->setText (tr ("Downloading ldrawunf.zip..."));
-    else
-      ui->downloadLabel->setText (tr ("Downloading updates"));
+  // Reset the UI
+  ui->progressBar->setValue (0);
+  ui->stopButton->setText (tr ("Stop"));
+  if (m_isLdrawDownload){
+      bool isUnoffArchive = url.toString().contains("ldrawunf.zip");
+      ui->downloadLabel->setText (tr ("Downloading %1...")
+                                .arg(isUnoffArchive ? "ldrawunf.zip" : "complete.zip"));
+    }
+  else
+    ui->downloadLabel->setText (tr ("Downloading updates"));
 
-    ui->timeLabel->setText (tr ("Time remaining") + ": " + tr ("unknown"));
+  ui->timeLabel->setText (tr ("Time remaining") + ": " + tr ("unknown"));
 
-    // Begin the download
-    m_downloadRequest.setUrl(url);
-    m_reply = m_manager->get (m_downloadRequest);
-    m_start_time = QDateTime::currentDateTime().toTime_t();
+  // Begin the download
+  m_downloadRequest.setUrl(url);
+  m_reply = m_manager->get (m_downloadRequest);
 
-    // Update the progress bar value automatically
-    connect (m_reply, SIGNAL (downloadProgress (qint64, qint64)), this,
-             SLOT (updateProgress (qint64, qint64)));
+  m_start_time = QDateTime::currentDateTime().toTime_t();
 
-    // Write the file to the hard disk once the download is finished
-    connect (m_reply, SIGNAL (finished()), this, SLOT (downloadFinished()));
+  // Update the progress bar value automatically
+  connect (m_reply, SIGNAL (downloadProgress (qint64, qint64)), this,
+           SLOT (updateProgress (qint64, qint64)));
 
-    // Show the dialog
-    showNormal();
+  // Write the file to the hard disk once the download is finished
+  connect (m_reply, SIGNAL (finished()), this, SLOT (downloadFinished()));
+
+  // Show the dialog
+  showNormal();
+
 }
 
 void DownloadDialog::installUpdate (void)
