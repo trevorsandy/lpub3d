@@ -177,7 +177,7 @@ protected:
 	bool OpenArchive(const char* FileName, lcZipFileType ZipFileType);
 	bool OpenArchive(lcFile* File, const char* FileName, lcZipFileType ZipFileType);
 	bool OpenDirectory(const char* Path);
-	void ReadArchiveDescriptions(const QString& OfficialFileName, const QString& UnofficialFileName);
+	void ReadArchiveDescriptionsAndPartTypes(const QString& OfficialFileName, const QString& UnofficialFileName);
 
 	bool ReadCacheFile(const QString& FileName, lcMemFile& CacheFile);
 	bool WriteCacheFile(const QString& FileName, lcMemFile& CacheFile);

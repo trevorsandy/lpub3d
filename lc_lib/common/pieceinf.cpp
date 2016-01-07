@@ -15,6 +15,7 @@ PieceInfo::PieceInfo()
 {
 	mZipFileType = LC_NUM_ZIPFILES;
 	mZipFileIndex = -1;
+	m_iPartType = 0;
 	mFlags = 0;
 	mRefCount = 0;
 	mMesh = NULL;

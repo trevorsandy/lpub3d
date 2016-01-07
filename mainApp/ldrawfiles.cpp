@@ -34,7 +34,10 @@
 #include <QRegExp>
 #include "version.h"
 #include "paths.h"
+
+#include "lc_application.h"
 #include "lc_library.h"
+#include "pieceinf.h"
 
 QString LDrawFile::_file        = "";
 QString LDrawFile::_name        = "";
@@ -484,7 +487,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     QTextStream in(&file);
     QStringList stageContents;
     QStringList contents;
-    QString     unofficialPartType;
     QString     mpdName;
     QRegExp sofRE("^\\s*0\\s+FILE\\s+(.*)$");
     QRegExp eofRE("^\\s*0\\s+NOFILE\\s*$");
@@ -519,8 +521,12 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
         QStringList tokens;        
         split(smLine,tokens);
 
-        if (tokens.size() == 15 && tokens[0] == "1" && tokens[14].contains(upDAT))
-            pieces++;
+        if (tokens.size() == 15 && tokens[0] == "1" && tokens[14].contains(upDAT)){
+            QFileInfo info(tokens[14]);
+            PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.baseName().toUpper().toLatin1().constData(), NULL, false);
+            if (pieceInfo && pieceInfo->IsPartType())
+              pieces++;
+          }
 
         if (topLevelFileNotCaptured) {
             if (sof){
@@ -653,8 +659,12 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
         QStringList tokens;
         split(line,tokens);
 
-        if (tokens.size() == 15 && tokens[0] == "1" && tokens[14].contains(upDAT))
-            pieces++;
+        if (tokens.size() == 15 && tokens[0] == "1" && tokens[14].contains(upDAT)){
+            QFileInfo info(tokens[14]);
+            PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.baseName().toUpper().toLatin1().constData(), NULL, false);
+            if (pieceInfo->IsPartType())
+              pieces++;
+          }
 
         if (topLevelFileNotCaptured) {
             if (line.contains(sofRE)){
@@ -1076,7 +1086,6 @@ int validSoQ(const QString &line, int soq){
 
 QList<QRegExp> LDrawHeaderRegExp;
 QList<QRegExp> LDrawUnofficialFileTypeRegExp;
-QList<QRegExp> LDrawPartRegExp;
 
 LDrawFile::LDrawFile()
 {
@@ -1127,25 +1136,6 @@ LDrawFile::LDrawFile()
            ;
   }
 
-  {
-    LDrawPartRegExp
-        << QRegExp("^\\s*0\\s+UNOFFICIAL PART[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Part)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Part Alias)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut Alias)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Part)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Part Alias)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut Alias)[^\n]*")
-        << QRegExp("^\\s*0\\s+PART[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Part)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Shortcut)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Part Alias)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Shortcut Alias)[^\n]*")
-           ;
-  }
-
 }
 
 bool isHeader(QString &line)
@@ -1153,17 +1143,6 @@ bool isHeader(QString &line)
   int size = LDrawHeaderRegExp.size();
   for (int i = 0; i < size; i++) {
     if (line.contains(LDrawHeaderRegExp[i])) {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool isLDrawPart(QString &line)
-{
-  int size = LDrawPartRegExp.size();
-  for (int i = 0; i < size; i++) {
-    if (line.contains(LDrawPartRegExp[i])) {
       return true;
     }
   }

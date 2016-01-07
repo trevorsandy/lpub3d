@@ -103,6 +103,11 @@ public:
 		return (m_strDescription[0] == '~');
 	}
 
+	bool IsPartType () const
+	{
+		return (m_iPartType != 0);
+	}
+
 	lcVector3 GetCenter() const
 	{
 		return lcVector3((m_fDimensions[0] + m_fDimensions[3]) * 0.5f,
@@ -130,6 +135,7 @@ public:
 	char m_strName[LC_PIECE_NAME_LEN];
 	char m_strDescription[128];
 	float m_fDimensions[6];
+	int m_iPartType;
 	int mZipFileType;
 	int mZipFileIndex;
 	lcuint32 mFlags;
