@@ -35,6 +35,7 @@ public slots:
 
 private:
   QSimpleUpdater  *updater;
+  QString ldrawArchivePath;
 };
 
 #endif // UPDATELDRAWARCHIVE_H

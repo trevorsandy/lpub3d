@@ -26,6 +26,9 @@ UpdateLdrawArchive::UpdateLdrawArchive(QObject *parent) : QObject(parent)
 
   bool isLdrawDownload = true;
 
+  // Set the ldraw archive librayr path
+  ldrawArchivePath = QDir::toNativeSeparators(QFileInfo(Preferences::viewerLibFile).absolutePath());
+
   // Initialize the updater
   updater = new QSimpleUpdater (this, isLdrawDownload);
 
@@ -48,7 +51,7 @@ void UpdateLdrawArchive::updateLdrawArchive(bool unoff){
   updater->setDownloadUrl (url);
 
   // Tell the updater where to install the archive file
-  updater->setLdrawArchivePath (QDir::toNativeSeparators(Preferences::ldrawPath + "/LPub3DViewer-Library"));
+  updater->setLdrawArchivePath (ldrawArchivePath);
 
   // Finally, check for updates...
   updater->updateLdrawArchive();

@@ -513,10 +513,9 @@ void QSimpleUpdater::onCheckingIsLdrawDownloadFinished(){
                         .arg(m_isUnoffArchive ? "ldrawunf.zip" : "complete.zip") +
                         "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>");
       _message.setInformativeText (
-            tr ("The latest version of %1 will be downloaded and written to the "
-                "LPub3DViewer-Library folder. "
-                "\n\nClick Yes to continue or No to cancel.")
-            .arg(m_isUnoffArchive ? "ldrawunf.zip" : "complete.zip"));
+            tr ("The latest version of %1 will be downloaded and written to the\n"
+                "%2 folder.\n\nClick Yes to continue or No to cancel.")
+            .arg(m_isUnoffArchive ? "ldrawunf.zip" : "complete.zip").arg(m_ldrawArchivePath));
 
       if (_message.exec() == QMessageBox::Yes){
           downloadLatestVersion();
