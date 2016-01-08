@@ -562,7 +562,7 @@ quazip/unzip.c -text
 quazip/unzip.h -text
 quazip/zip.c -text
 quazip/zip.h -text
-tools/Win-setup/00[!!-~]BuildLPub3D01AndCreateDistNoPack.bat -text
+tools/Win-setup/00[!!-~]BuildLPub3D00AndCreateDistNoPack.bat -text
 tools/Win-setup/00[!!-~]BuildLPub3D01PackAndCreateDist.bat -text
 tools/Win-setup/00[!!-~]BuildLPub3D02CreateDistOnly.bat -text
 tools/Win-setup/LPub3D.nsi -text

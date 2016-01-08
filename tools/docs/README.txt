@@ -1,3 +1,11 @@
+LPub3D 1.3.1
+ 
+Features and enhancements 
+------------ 
+-Fix: Update ldglite hard-coded default directory setting (r505)
+-Fix: Remove hard coded reference to LPub3DViewer-Library folder - this was added in 1.3.0 unofficial archive refresh functionality (r506)
+-Enhancements (r507)
+
 LPub3D 1.3.0.504.2 
  
 Features and enhancements 

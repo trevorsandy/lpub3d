@@ -378,28 +378,44 @@ void PartWorker::retrieveContent(
 
     // Initialize file to be found
     QFileInfo fileInfo(fileAbsPathStr);
+    QString fileDirectory = fileInfo.absoluteDir().dirName().toLower();
 
     // identify part type
     int partType = -1;
-    QRegExp rxPart("\\S*(\\/parts\\/)[^\\n]*");                    // partType=0
-    QRegExp rxSubPart("\\S*(\\/parts\\/s\\/)[^\\n]*");             // partType=1
-    QRegExp rxPrimPart("\\S*(\\/p\\/)[^\\n]*/i");                  // partType=2
-    QRegExp rxPrim8Part("\\S*(\\/p\\/8\\/)[^\\n]*/i");             // partType=3
-    QRegExp rxPrim48Part("\\S*(\\/p\\/48\\/)[^\\n]*/i");           // partType=4
-    if (fileAbsPathStr.contains(rxPrim48Part)){
-        partType=LD_PRIMITIVES_48;
-    } else if (fileAbsPathStr.contains(rxPrim8Part)){
-        partType=LD_PRIMITIVES_8;
-    } else if (fileAbsPathStr.contains(rxPrimPart)){
-        partType=LD_PRIMITIVES;
-    } else if (fileAbsPathStr.contains(rxSubPart)){
-        partType=LD_SUB_PARTS;
-        //logTrace()  << " SUB PARTS Type: " << partType << "Path: " << fileAbsPathStr;
-    } else if (fileAbsPathStr.contains(rxPart)){
+//    QRegExp rxPart("\\S*(\\/parts\\/)[^\\n]*");                    // partType=0
+//    QRegExp rxSubPart("\\S*(\\/parts\\/s\\/)[^\\n]*");             // partType=1
+//    QRegExp rxPrimPart("\\S*(\\/p\\/)[^\\n]*/i");                  // partType=2
+//    QRegExp rxPrim8Part("\\S*(\\/p\\/8\\/)[^\\n]*/i");             // partType=3
+//    QRegExp rxPrim48Part("\\S*(\\/p\\/48\\/)[^\\n]*/i");           // partType=4
+//    if (fileAbsPathStr.contains(rxPrim48Part)){
+//        partType=LD_PRIMITIVES_48;
+//    } else if (fileAbsPathStr.contains(rxPrim8Part)){
+//        partType=LD_PRIMITIVES_8;
+//    } else if (fileAbsPathStr.contains(rxPrimPart)){
+//        partType=LD_PRIMITIVES;
+//    } else if (fileAbsPathStr.contains(rxSubPart)){
+//        partType=LD_SUB_PARTS;
+//        //logTrace()  << " SUB PARTS Type: " << partType << "Path: " << fileAbsPathStr;
+//    } else if (fileAbsPathStr.contains(rxPart)){
+//        partType=LD_PARTS;
+//        //logTrace()  << " PARTS Type: " << partType << "Path: " << fileAbsPathStr;
+//    } else
+//        partType=LD_PARTS;
+
+    if (fileDirectory == "parts"){
         partType=LD_PARTS;
         //logTrace()  << " PARTS Type: " << partType << "Path: " << fileAbsPathStr;
-    } else
-        partType=LD_PARTS;
+      } else if (fileDirectory == "s"){
+        partType=LD_SUB_PARTS;
+        //logTrace()  << " SUB PARTS Type: " << partType << "Path: " << fileAbsPathStr;
+      } else  if (fileDirectory == "p"){
+        partType=LD_PRIMITIVES;
+      } else  if (fileDirectory == "8"){
+        partType=LD_PRIMITIVES_8;
+      } else if (fileDirectory == "48"){
+        partType=LD_PRIMITIVES_48;
+      } else
+      partType=LD_PARTS;
 
     if(fileInfo.exists() && ! partAlreadyInList(fileNameStr)){
         //logNotice() << "Part FOUND: " << fileInfo.absoluteFilePath();

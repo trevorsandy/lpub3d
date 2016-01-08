@@ -100,9 +100,9 @@ public:
         bool                     doFadeStep)
         {_doFadeStep           = doFadeStep;}
 
-    void setDoInitLDSearch(
-        bool                     doInitLDSearch)
-        {_doInitLDSearch       = doInitLDSearch;}
+    void setDidInitLDSearch(
+        bool                     initLDSearch)
+        {_didInitLDSearch      = initLDSearch;}
 
     void setDoReloadUnoffLib(
         bool                     doReload)
@@ -116,13 +116,14 @@ public:
 
     bool loadLDrawSearchDirs();
 
-
-     QStringList                _partList;
+    QStringList                _partList;
 
 public slots:
      void processFadeColourParts();                      // scan LDraw file for static colored parts and create fade copy
 
      void processLDSearchDirParts();
+
+     void populateLdgLiteSearchDirs();
 
      void requestEndThreadNow();
 
@@ -164,7 +165,7 @@ private:
 //    bool                      _partsArchived;
     bool                      _doFadeStep;
     bool                      _doReload;
-    bool                      _doInitLDSearch;
+    bool                      _didInitLDSearch;
     bool                      _resetSearchDirSettings;
 
     LDPartsDirs                ldPartsDirs;                     // automatically load LDraw.ini parameters
@@ -214,11 +215,11 @@ private:
    bool doReloadUnoffLib()
       {return                _doReload;}
 
-   bool doInitLDSearch()
-      {return                _doInitLDSearch;}
+   bool didInitLDSearch()
+      {return                _didInitLDSearch;}
 
    bool okToEmit()
-      {return                (!doInitLDSearch() && (doFadeStep() || doReloadUnoffLib()));}
+      {return               (doFadeStep() || doReloadUnoffLib());}
 
 };
 

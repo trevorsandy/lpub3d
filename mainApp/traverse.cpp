@@ -2153,13 +2153,18 @@ void Gui::writeToTmp()
       QApplication::processEvents();
 
       if (doFadeStep) {
-          QRegExp rgxLDR("\\.(ldr)$");
-          QRegExp rgxMPD("\\.(mpd)$");
-          QRegExp rgxDAT("\\.(dat)$");
+//          QRegExp rgxLDR("\\.(ldr)$");
+//          QRegExp rgxMPD("\\.(mpd)$");
+//          QRegExp rgxDAT("\\.(dat)$");
           QString fadeFileName = fileName;
-          bool ldr = fadeFileName.contains(rgxLDR);
-          bool mpd = fadeFileName.contains(rgxMPD);
-          bool dat = fadeFileName.contains(rgxDAT);
+          QString extension = QFileInfo(fileName).suffix().toLower();
+          bool ldr = extension == "ldr";
+          bool mpd = extension == "mpd";
+          bool dat = extension == "dat";
+//          bool ldr = fadeFileName.contains(rgxLDR);
+//          bool mpd = fadeFileName.contains(rgxMPD);
+//          bool dat = fadeFileName.contains(rgxDAT);
+
           if (ldr) {
               fadeFileName = fadeFileName.replace(".ldr","-fade.ldr");
             } else if (mpd) {
@@ -2219,12 +2224,16 @@ QStringList Gui::fadeSubFile(const QStringList &contents, const QString &color)
                 }
               // process subfile naming
               if (ldrawFile.isSubmodel(fileNameStr)) {
-                  QRegExp rgxLDR("\\.(ldr)$");
-                  QRegExp rgxMPD("\\.(mpd)$");
-                  QRegExp rgxDAT("\\.(dat)$");
-                  bool ldr = fileNameStr.contains(rgxLDR);
-                  bool mpd = fileNameStr.contains(rgxMPD);
-                  bool dat = fileNameStr.contains(rgxDAT);
+//                  QRegExp rgxLDR("\\.(ldr)$");
+//                  QRegExp rgxMPD("\\.(mpd)$");
+//                  QRegExp rgxDAT("\\.(dat)$");
+//                  bool ldr = fileNameStr.contains(rgxLDR);
+//                  bool mpd = fileNameStr.contains(rgxMPD);
+//                  bool dat = fileNameStr.contains(rgxDAT);
+                  QString extension = QFileInfo(fileNameStr).suffix().toLower();
+                  bool ldr = extension == "ldr";
+                  bool mpd = extension == "mpd";
+                  bool dat = extension == "dat";
                   if (ldr) {
                       fileNameStr = fileNameStr.replace(".ldr","-fade.ldr");
                     } else if (mpd) {
@@ -2286,12 +2295,16 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
                     }
                   // process subfile naming
                   if (ldrawFile.isSubmodel(fileNameStr)) {
-                      QRegExp rgxLDR("\\.(ldr)$");
-                      QRegExp rgxMPD("\\.(mpd)$");
-                      QRegExp rgxDAT("\\.(dat)$");
-                      bool ldr = fileNameStr.contains(rgxLDR);
-                      bool mpd = fileNameStr.contains(rgxMPD);
-                      bool dat = fileNameStr.contains(rgxDAT);
+//                      QRegExp rgxLDR("\\.(ldr)$");
+//                      QRegExp rgxMPD("\\.(mpd)$");
+//                      QRegExp rgxDAT("\\.(dat)$");
+//                      bool ldr = fileNameStr.contains(rgxLDR);
+//                      bool mpd = fileNameStr.contains(rgxMPD);
+//                      bool dat = fileNameStr.contains(rgxDAT);
+                      QString extension = QFileInfo(fileNameStr).suffix().toLower();
+                      bool ldr = extension == "ldr";
+                      bool mpd = extension == "mpd";
+                      bool dat = extension == "dat";
                       if (ldr) {
                           fileNameStr = fileNameStr.replace(".ldr","-fade.ldr");
                         } else if (mpd) {

@@ -14,10 +14,12 @@ ECHO - Start build process       			   		>>  ..\release\LPub3D.Release.build.log
 ECHO.
 ECHO - Start build process...
 
-SET Win32BuildFile="..\..\..\build-LPub3D1.0Maint-Win32-Release\mainApp\build\release\LPub3D.exe"
-SET Win64BuildFile="..\..\..\build-LPub3D1.0Maint-Win64-Release\mainApp\build\release\LPub3D.exe"
-SET Win32QuazipFile="..\..\..\build-LPub3D1.0Maint-Win32-Release\quazip\build\release\quazip.dll"
-SET Win64QuazipFile="..\..\..\build-LPub3D1.0Maint-Win64-Release\quazip\build\release\quazip.dll"
+SET Win32BuildFile="..\..\..\build-LPub3D-Win32-Release\mainApp\build\release\LPub3D.exe"
+SET Win64BuildFile="..\..\..\build-LPub3D-Win64-Release\mainApp\build\release\LPub3D.exe"
+SET Win32QuazipFile="..\..\..\build-LPub3D-Win32-Release\quazip\build\release\quazip.dll"
+SET Win64QuazipFile="..\..\..\build-LPub3D-Win64-Release\quazip\build\release\quazip.dll"
+SET Win32LdrawiniFile="..\..\..\build-LPub3D-Win32-Release\ldrawini\build\release\ldrawini.dll"
+SET Win64LdrawiniFile="..\..\..\build-LPub3D-Win64-Release\ldrawini\build\release\ldrawini.dll"
 
 SET Win32QtPath="C:\Qt\qt-4.8.6-x86-mingw492r1-sjlj\qt-4.8.6-x86-mingw492r1-sjlj\bin"
 SET Win64QtPath="C:\Qt\qt-4.8.6-x64-mingw492r1-sjlj\qt-4.8.6-x64-mingw492r1-sjlj\bin"
@@ -101,9 +103,17 @@ ECHO - Delete old media content and create new folders  		>>  ../release/LPub3D.
 ECHO. 	
 ECHO - Delete old media content and create new folders...
 
-RD /Q /S ..\release\%VERSION% ..\release\docs					>>  ../release/LPub3D.Release.build.log.txt
-DEL /Q ..\release\README.txt									>>  ../release/LPub3D.Release.build.log.txt
-rem DEL /Q ..\release\*.txt
+IF EXIST "..\release\%VERSION%" (
+  RD /Q /S ..\release\%VERSION%              					>>  ../release/LPub3D.Release.build.log.txt
+)
+
+IF EXIST "..\release\docs" (
+  RD /Q /S ..\release\docs			                    		>>  ../release/LPub3D.Release.build.log.txt
+)
+
+IF EXIST "..\release\README.txt" (
+  DEL /Q ..\release\README.txt									>>  ../release/LPub3D.Release.build.log.txt
+)
 
 IF NOT EXIST "..\release\%VERSION%\Download\" (
   MKDIR "..\release\%VERSION%\Download\"
@@ -151,6 +161,7 @@ XCOPY /S /I /E /V /Y ..\docs ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x3
 XCOPY /S /I /E /V /Y ..\icons ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\icons						>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win32BuildFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\%PRODUCT%_x32.exe /B			>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win32QuazipFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                           >>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32LdrawiniFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                         >>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win32QtPath%\libeay32.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                  >>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win32QtPath%\ssleay32.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                  >>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win32QtPath%\libgcc_s_sjlj-1.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B           >>  ../release/LPub3D.Release.build.log.txt
@@ -175,6 +186,7 @@ XCOPY /S /I /E /V /Y ..\docs ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x6
 XCOPY /S /I /E /V /Y ..\icons ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\icons						>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win64BuildFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\%PRODUCT%_x64.exe /B			>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win64QuazipFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B							>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64LdrawiniFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B							>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win64QtPath%\libeay32.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B					>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win64QtPath%\ssleay32.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B					>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win64QtPath%\libgcc_s_sjlj-1.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B			>>  ../release/LPub3D.Release.build.log.txt
@@ -242,7 +254,7 @@ ECHO - Finished...
 
 ECHO.
 ECHO If everything went well Press any key to EXIT!
-%SystemRoot%\explorer.exe "C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D1.0Maint\tools\release\%VERSION%"
+%SystemRoot%\explorer.exe "C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D\tools\release\%VERSION%"
 PAUSE >NUL
 ENDLOCAL
 EXIT /b 0
