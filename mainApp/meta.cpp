@@ -1412,6 +1412,42 @@ void AllocMeta::doc(QStringList &out, QString preamble)
 
 /* ------------------ */ 
 
+OrientationMeta::OrientationMeta() : LeafMeta()
+{
+  type[0] = Landscape;
+}
+Rc OrientationMeta::parse(QStringList &argv, int index, Where &here)
+{
+  QRegExp rx("^(PORTRAIT|LANDSCAPE)$");
+  if (argv.size() - index == 1 && argv[index].contains(rx)) {
+      type[pushed] = OrientationEnc(tokenMap[argv[index]]);
+      _here[pushed] = here;
+      return OkRc;
+    }
+  if (reportErrors) {
+      QMessageBox::warning(NULL,
+                           QMessageBox::tr("LPub3D"),
+                           QMessageBox::tr("Expected PORTRAIT or LANDSCAPE got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+    }
+  return FailureRc;
+}
+QString OrientationMeta::format(bool local, bool global)
+{
+  QString foo;
+  if (type[pushed] == Portrait) {
+      foo = "PORTRAIT";
+    } else {
+      foo = "LANDSCAPE";
+    }
+  return LeafMeta::format(local,global,foo);
+}
+void OrientationMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " (PORTRAIT|LANDSCAPE)";
+}
+
+/* ------------------ */
+
 SepMeta::SepMeta() : LeafMeta()
 {
   _value[0].thickness = DEFAULT_THICKNESS;
@@ -2197,9 +2233,14 @@ void RotateIconMeta::init(BranchMeta *parent, QString name)
 
 PageMeta::PageMeta() : BranchMeta()
 {
-  size.setValuesInches(8.5f,11.0f);
-  size.setRange(1,1000);
-  size.setFormats(6,4,"9.9999");
+//  size.setValuesInches(8.5f,11.0f);
+//  size.setRange(1,1000);
+//  size.setFormats(6,4,"9.9999");
+
+  sizeAndOrientation.size.setValuesInches(8.5f,11.0f);
+  sizeAndOrientation.size.setRange(1,1000);
+  sizeAndOrientation.size.setFormats(6,4,"9.9999");
+  sizeAndOrientation.orientation.setValue(Portrait);
 
   BorderData borderData;
   borderData.type = BorderData::BdrNone;
@@ -2436,44 +2477,46 @@ PageMeta::PageMeta() : BranchMeta()
 void PageMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  size.init             (this, "SIZE");
-  margin.init           (this, "MARGINS");
-  border.init           (this, "BORDER");
-  background.init       (this, "BACKGROUND");
-  dpn.init              (this, "DISPLAY_PAGE_NUMBER");
-  togglePnPlacement.init(this, "TOGGLE_PAGE_NUMBER_PLACEMENT");
-  number.init           (this, "NUMBER");
-  instanceCount.init    (this, "SUBMODEL_INSTANCE_COUNT");
-  subModelColor.init    (this, "SUBMODEL_BACKGROUND_COLOR");
+//  size.init             (this, "SIZE");
+  sizeAndOrientation.init (this, "SIZE_AND_ORIENTATION");
+  margin.init             (this, "MARGINS");
+  border.init             (this, "BORDER");
+  background.init         (this, "BACKGROUND");
+  dpn.init                (this, "DISPLAY_PAGE_NUMBER");
+  togglePnPlacement.init  (this, "TOGGLE_PAGE_NUMBER_PLACEMENT");
+  number.init             (this, "NUMBER");
+  instanceCount.init      (this, "SUBMODEL_INSTANCE_COUNT");
+  subModelColor.init      (this, "SUBMODEL_BACKGROUND_COLOR");
 
-  pageHeader.init       (this, "PAGE_HEADER");
-  pageFooter.init       (this, "PAGE_FOOTER");
+  pageHeader.init         (this, "PAGE_HEADER");
+  pageFooter.init         (this, "PAGE_FOOTER");
 
-  titleFront.init	(this, "DOCUMENT_TITLE_FRONT");
-  titleBack.init	(this, "DOCUMENT_TITLE_BACK");
-  modelName.init        (this, "MODEL_ID");
-  modelDesc.init	(this, "MODEL_DESCRIPTION");
-  pieces.init		(this, "MODEL_PIECES");
-  authorFront.init	(this, "DOCUMENT_AUTHOR_FRONT");
-  authorBack.init	(this, "DOCUMENT_AUTHOR_BACK");
-  author.init       	(this, "DOCUMENT_AUTHOR");
-  publishDesc.init      (this, "PUBLISH_DESCRIPTION");
-  url.init              (this, "PUBLISH_URL");
-  urlBack.init          (this, "PUBLISH_URL_BACK");
-  email.init            (this, "PUBLISH_EMAIL");
-  emailBack.init	(this, "PUBLISH_EMAIL_BACK");
-  copyrightBack.init	(this, "PUBLISH_COPYRIGHT_BACK");
-  copyright.init        (this, "PUBLISH_COPYRIGHT");
-  documentLogoFront.init(this, "DOCUMENT_LOGO_FRONT");
-  documentLogoBack.init (this, "DOCUMENT_LOGO_BACK");
-  coverImage.init	(this, "DOCUMENT_COVER_IMAGE");
-  disclaimer.init	(this, "LEGO_DISCLAIMER");
-  plug.init             (this, "APP_PLUG");
-  plugImage.init	(this, "APP_PLUG_IMAGE");
-  category.init         (this, "MODEL_CATEGORY" );
+  titleFront.init         (this, "DOCUMENT_TITLE_FRONT");
+  titleBack.init          (this, "DOCUMENT_TITLE_BACK");
+  modelName.init          (this, "MODEL_ID");
+  modelDesc.init          (this, "MODEL_DESCRIPTION");
+  pieces.init             (this, "MODEL_PIECES");
+  authorFront.init        (this, "DOCUMENT_AUTHOR_FRONT");
+  authorBack.init         (this, "DOCUMENT_AUTHOR_BACK");
+  author.init             (this, "DOCUMENT_AUTHOR");
+  publishDesc.init        (this, "PUBLISH_DESCRIPTION");
+  url.init                (this, "PUBLISH_URL");
+  urlBack.init            (this, "PUBLISH_URL_BACK");
+  email.init              (this, "PUBLISH_EMAIL");
+  emailBack.init          (this, "PUBLISH_EMAIL_BACK");
+  copyrightBack.init      (this, "PUBLISH_COPYRIGHT_BACK");
+  copyright.init          (this, "PUBLISH_COPYRIGHT");
+  documentLogoFront.init  (this, "DOCUMENT_LOGO_FRONT");
+  documentLogoBack.init   (this, "DOCUMENT_LOGO_BACK");
+  coverImage.init         (this, "DOCUMENT_COVER_IMAGE");
+  disclaimer.init         (this, "LEGO_DISCLAIMER");
+  plug.init               (this, "APP_PLUG");
+  plugImage.init          (this, "APP_PLUG_IMAGE");
+  category.init           (this, "MODEL_CATEGORY" );
 }
 
 /* ------------------ */ 
+
 AssemMeta::AssemMeta() : BranchMeta()
 {
   placement.setValue(CenterCenter,PageType);
@@ -2494,12 +2537,28 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   modelScale.init    (this,"MODEL_SCALE");
   ldviewParms.init   (this,"LDGLITE_PARMS");
   ldgliteParms.init  (this,"LDVIEW_PARMS");
-  l3pParms .init(this,"L3P_PARMS");
-  povrayParms .init(this,"POVRAY_PARMS");
+  l3pParms .init     (this,"L3P_PARMS");
+  povrayParms .init  (this,"POVRAY_PARMS");
   showStepNumber.init(this,"SHOW_STEP_NUMBER");
 }
 
 /* ------------------ */ 
+
+SizeAndOrientationMeta::SizeAndOrientationMeta() : BranchMeta()
+{
+  size.setValuesInches(8.5f,11.0f);
+  size.setRange(1,1000);
+  size.setFormats(6,4,"9.9999");
+  orientation.setValue(Portrait);
+}
+void SizeAndOrientationMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  size.init       (this, "SIZE");
+  orientation.init(this, "ORIENTATION");
+}
+
+/* ------------------ */
 
 PliMeta::PliMeta() : BranchMeta()
 {

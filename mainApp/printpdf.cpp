@@ -114,11 +114,11 @@ void Gui::GetPixelDimensions(float &pixelWidth, float &pixelHeight)
 
   // only concerned with inches because resolution() reports DPI
   if (page.meta.LPub.resolution.type() == DPI) {
-      pageWidthIn = page.meta.LPub.page.size.value(0);
-      pageHeightIn = page.meta.LPub.page.size.value(1);
+      pageWidthIn = page.meta.LPub.page.sizeAndOrientation.size.value(0);
+      pageHeightIn = page.meta.LPub.page.sizeAndOrientation.size.value(1);
     } else {
-      pageWidthIn = centimeters2inches(page.meta.LPub.page.size.value(0));
-      pageHeightIn = centimeters2inches(page.meta.LPub.page.size.value(1));
+      pageWidthIn = centimeters2inches(page.meta.LPub.page.sizeAndOrientation.size.value(0));
+      pageHeightIn = centimeters2inches(page.meta.LPub.page.sizeAndOrientation.size.value(1));
     }
 
   // pixel dimension are inches * pixels per inch
@@ -134,13 +134,13 @@ void Gui::GetPagePixelDimensions(float &pagePixelWidth, float &pagePixelHeight, 
   float pageWidthIn, pageHeightIn;
 
   if (page.meta.LPub.resolution.type() == DPI) {
-      pageWidthIn = page.meta.LPub.page.size.value(0);
-      pageHeightIn = page.meta.LPub.page.size.value(1);
+      pageWidthIn = page.meta.LPub.page.sizeAndOrientation.size.value(0);
+      pageHeightIn = page.meta.LPub.page.sizeAndOrientation.size.value(1);
       pageWidthCm = inches2centimeters(pageWidthIn);
       pageHeightCm = inches2centimeters(pageHeightIn);
     } else {
-      pageWidthCm = page.meta.LPub.page.size.value(0);
-      pageHeightCm = page.meta.LPub.page.size.value(1);
+      pageWidthCm = page.meta.LPub.page.sizeAndOrientation.size.value(0);
+      pageHeightCm = page.meta.LPub.page.sizeAndOrientation.size.value(1);
       pageWidthIn = centimeters2inches(pageWidthCm);
       pageHeightIn = centimeters2inches(pageHeightCm);
     }

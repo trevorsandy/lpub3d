@@ -305,8 +305,8 @@ void PlacementBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
       // back annotate the movement of the PLI into the LDraw file.
       newPosition = pos() - position;
       PlacementData placementData = placement.value();
-      placementData.offsets[0] += newPosition.x()/meta->LPub.page.size.valuePixels(0);
-      placementData.offsets[1] += newPosition.y()/meta->LPub.page.size.valuePixels(1);
+      placementData.offsets[0] += newPosition.x()/meta->LPub.page.sizeAndOrientation.size.valuePixels(0);
+      placementData.offsets[1] += newPosition.y()/meta->LPub.page.sizeAndOrientation.size.valuePixels(1);
       placement.setValue(placementData);
     }
 }

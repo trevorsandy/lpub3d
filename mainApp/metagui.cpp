@@ -1513,7 +1513,7 @@ BackgroundGui::BackgroundGui(
   combo->setCurrentIndex(int(background.type));
   connect(combo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(  typeChange(         QString const &)));
-  grid->addWidget(combo, 0, 0);
+  grid->addWidget(combo,0,0);
 
   /* Color and Gradient button */
 
@@ -2197,7 +2197,7 @@ void SepGui::apply(QString &modelName)
 
 ResolutionGui::ResolutionGui(
   ResolutionMeta   *_meta,
-  QGroupBox *parent)
+  QGroupBox        *parent)
 {
   meta = _meta;
 
@@ -2510,3 +2510,143 @@ void PliAnnotationGui::apply(QString &topLevelFile)
       mi.setGlobalMeta(topLevelFile,&meta->display);
     }
 }
+
+/***********************************************************************
+ *
+ * Page Size And Orientation
+ *
+ **********************************************************************/
+
+SizeAndOrientationGui::SizeAndOrientationGui(
+  QString const            &heading,
+  SizeAndOrientationMeta  *_meta,
+  QGroupBox               *parent)
+{
+
+  meta = _meta;
+
+  QGridLayout *grid   = new QGridLayout(parent);
+
+  sizeModified        = false;
+  orientationModified = false;
+
+  if (parent) {
+    parent->setLayout(grid);
+  } else {
+    setLayout(grid);
+  }
+
+  if (heading != "") {
+    label = new QLabel(heading);
+    grid->addWidget(label,0,0,1,2);
+  } else {
+    label = NULL;
+  }
+
+  /* page size */
+  QString      string;
+  string = QString("%1") .arg(meta->size.value(0),
+                              meta->size._fieldWidth,
+                              'f',
+                              meta->size._precision);
+  valueW = new QLineEdit(string,parent);
+  connect(valueW,SIGNAL(textEdited(  QString const &)),
+          this,  SLOT(  valueWChange(QString const &)));
+  if (heading != "")
+    grid->addWidget(valueW,1,0);
+  else
+    grid->addWidget(valueW,0,0);
+
+  string = QString("%1") .arg(meta->size.value(1),
+                              meta->size._fieldWidth,
+                              'f',
+                              meta->size._precision);
+  valueH = new QLineEdit(string,parent);
+  connect(valueH,SIGNAL(textEdited(  QString const &)),
+          this,  SLOT(  valueHChange(QString const &)));
+  if (heading != "")
+    grid->addWidget(valueH,1,1);
+  else
+    grid->addWidget(valueH,0,1);
+
+  /* page orientation */
+
+
+  portraitRadio = new QRadioButton("Portrait",parent);
+  connect(portraitRadio,SIGNAL(clicked(bool)),
+          this,        SLOT(  orientationChange(bool)));
+  if (heading != "")
+    grid->addWidget(portraitRadio,2,0);
+  else
+    grid->addWidget(portraitRadio,1,0);
+  landscapeRadio    = new QRadioButton("Landscape",parent);
+  connect(landscapeRadio,SIGNAL(clicked(bool)),
+          this,     SLOT(  orientationChange(bool)));
+  if (heading != "")
+    grid->addWidget(landscapeRadio,2,1);
+  else
+    grid->addWidget(landscapeRadio,1,1);
+
+  setEnabled(true);
+}
+
+void SizeAndOrientationGui::orientationChange(bool clicked)
+{
+  clicked = clicked;
+
+  QObject *radioButton = sender();
+  if (radioButton == portraitRadio)
+      meta->orientation.setValue(Portrait);
+  else
+      meta->orientation.setValue(Landscape);
+
+  // switch width and height
+  QString sW = valueW->text();
+  QString sH = valueH->text();
+  float w = sW.toFloat();
+  float h = sH.toFloat();
+  meta->size.setValue(0,h);
+  meta->size.setValue(1,w);
+  sizeModified        = true;
+  orientationModified = true;
+}
+
+void SizeAndOrientationGui::valueWChange(QString const &string)
+{
+  float w = string.toFloat();
+  meta->size.setValue(0,w);
+  sizeModified = true;
+}
+
+void SizeAndOrientationGui::valueHChange(QString const &string)
+{
+  float h = string.toFloat();
+  meta->size.setValue(1,h);
+  modified = true;
+}
+
+void SizeAndOrientationGui::setEnabled(bool enable)
+{
+  if (label) {
+    label->setEnabled(enable);
+  }
+  valueW->setEnabled(enable);
+  valueH->setEnabled(enable);
+
+  portraitRadio->setChecked(meta->orientation.value() == Portrait);
+  landscapeRadio->setChecked(meta->orientation.value() == Landscape);
+}
+
+void SizeAndOrientationGui::apply(QString &topLevelFile)
+{
+  if (sizeModified) {
+    MetaItem mi;
+    mi.setGlobalMeta(topLevelFile,&meta->size);
+  }
+  if (orientationModified) {
+    MetaItem mi;
+    mi.setGlobalMeta(topLevelFile,&meta->orientation);
+  }
+
+}
+

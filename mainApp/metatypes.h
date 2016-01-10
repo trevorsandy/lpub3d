@@ -40,6 +40,11 @@ enum AllocEnc {
   Vertical
 };
 
+enum OrientationEnc {
+  Portrait = 0,
+  Landscape
+};
+
 enum RectPlacement{
 
     /**************************************************************************************************************************

@@ -409,7 +409,7 @@ int Pli::createPartImage(
 
   QString key = QString("%1_%2_%3_%4_%5_%6_%7")
                     .arg(partialKey) 
-                    .arg(meta->LPub.page.size.valuePixels(0)) 
+                    .arg(meta->LPub.page.sizeAndOrientation.size.valuePixels(0)) 
                     .arg(resolution())
                     .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                     .arg(modelScale)

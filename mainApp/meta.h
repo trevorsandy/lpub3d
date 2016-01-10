@@ -452,7 +452,7 @@ public:
   {
     return _default;
   }
-  virtual ~FloatPairMeta() {};
+  virtual ~FloatPairMeta() {}
   virtual void    init(BranchMeta *parent, 
                     const QString name,
                     Rc _rc=OkRc);
@@ -1299,6 +1299,37 @@ public:
   virtual void doc(QStringList &out, QString preamble);
 };
 
+/*
+ * This class parses (Portait|Landscape)
+ */
+
+class OrientationMeta : public LeafMeta
+{
+private:
+  OrientationEnc type[2];
+public:
+  OrientationEnc value()
+  {
+    return type[pushed];
+  }
+  void setValue(OrientationEnc value)
+  {
+    type[pushed] = value;
+  }
+  OrientationMeta();
+  OrientationMeta(const OrientationMeta &rhs) : LeafMeta(rhs)
+  {
+    type[0] = rhs.type[0];
+    type[1] = rhs.type[1];
+  }
+  virtual ~OrientationMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
+/*------------------------*/
+
 class CalloutCsiMeta : public BranchMeta
 {
 public:
@@ -1465,6 +1496,23 @@ class PageFooterMeta : public BranchMeta
 
     virtual ~PageFooterMeta() {}
     virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
+class SizeAndOrientationMeta : public BranchMeta
+{
+public:
+  UnitsMeta       size;
+  OrientationMeta orientation;
+
+  SizeAndOrientationMeta();
+  SizeAndOrientationMeta(const SizeAndOrientationMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~SizeAndOrientationMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
 };
 
 /*------------------------*/
@@ -1834,14 +1882,15 @@ public:
 };
 
 /*---------------------------------------------------------------
- * The Top Level LPub Metas
+ * The Top Level LPub3D Metas
  *---------------------------------------------------------------*/
 class PageMeta : public BranchMeta
 {
 public:
   // top    == top of page
   // bottom == bottom of page
-  UnitsMeta                 size;
+//  UnitsMeta                 size;
+  SizeAndOrientationMeta    sizeAndOrientation;
   MarginsMeta               margin;
   BorderMeta                border;
   BackgroundMeta            background;
@@ -1899,9 +1948,10 @@ public:
   FloatMeta     modelScale;
   StringMeta    ldviewParms;
   StringMeta    ldgliteParms;
-	StringMeta l3pParms;
-	StringMeta povrayParms;
+  StringMeta    l3pParms;
+  StringMeta    povrayParms;
   BoolMeta      showStepNumber;
+
   AssemMeta();
   AssemMeta(const AssemMeta &rhs) : BranchMeta(rhs)
   {
@@ -1912,6 +1962,7 @@ public:
 };
 
 /*------------------------*/
+
 
 class PliMeta  : public BranchMeta
 {

@@ -825,4 +825,47 @@ public slots:
   void titleAndFreeformAnnotation(bool);
   void gbToggled(bool toggled);
 };
+
+/***********************************************************************
+ *
+ * Page Size And Orientation
+ *
+ **********************************************************************/
+
+class QGroupBox;
+class QLabel;
+class QRadioButton;
+class QLineEdit;
+class SizeAndOrientationGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  SizeAndOrientationGui(
+    QString const           &heading,
+    SizeAndOrientationMeta *_meta,
+    QGroupBox              *parent = NULL);
+  ~SizeAndOrientationGui() {}
+
+  void setEnabled(bool enabled);
+
+  virtual void apply(QString &topLevelFile);
+
+private:
+  bool                    sizeModified;
+  bool                    orientationModified;
+  SizeAndOrientationMeta *meta;
+  QLabel                 *label;
+  QLineEdit              *valueW;
+  QLineEdit              *valueH;
+  QRadioButton           *portraitRadio;
+  QRadioButton           *landscapeRadio;
+  QGroupBox              *size;
+  QGroupBox              *orientation;
+
+public slots:
+  void valueWChange(QString const &);
+  void valueHChange(QString const &);
+  void orientationChange(bool);
+};
 #endif
