@@ -2233,14 +2233,10 @@ void RotateIconMeta::init(BranchMeta *parent, QString name)
 
 PageMeta::PageMeta() : BranchMeta()
 {
-//  size.setValuesInches(8.5f,11.0f);
-//  size.setRange(1,1000);
-//  size.setFormats(6,4,"9.9999");
-
-  sizeAndOrientation.size.setValuesInches(8.5f,11.0f);
-  sizeAndOrientation.size.setRange(1,1000);
-  sizeAndOrientation.size.setFormats(6,4,"9.9999");
-  sizeAndOrientation.orientation.setValue(Portrait);
+  size.setValuesInches(8.5f,11.0f);
+  size.setRange(1,1000);
+  size.setFormats(6,4,"9.9999");
+  orientation.setValue(Portrait);
 
   BorderData borderData;
   borderData.type = BorderData::BdrNone;
@@ -2477,8 +2473,8 @@ PageMeta::PageMeta() : BranchMeta()
 void PageMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-//  size.init             (this, "SIZE");
-  sizeAndOrientation.init (this, "SIZE_AND_ORIENTATION");
+  size.init               (this, "SIZE");
+  orientation.init        (this, "ORIENTATION");
   margin.init             (this, "MARGINS");
   border.init             (this, "BORDER");
   background.init         (this, "BACKGROUND");
@@ -2540,22 +2536,6 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   l3pParms .init     (this,"L3P_PARMS");
   povrayParms .init  (this,"POVRAY_PARMS");
   showStepNumber.init(this,"SHOW_STEP_NUMBER");
-}
-
-/* ------------------ */ 
-
-SizeAndOrientationMeta::SizeAndOrientationMeta() : BranchMeta()
-{
-  size.setValuesInches(8.5f,11.0f);
-  size.setRange(1,1000);
-  size.setFormats(6,4,"9.9999");
-  orientation.setValue(Portrait);
-}
-void SizeAndOrientationMeta::init(BranchMeta *parent, QString name)
-{
-  AbstractMeta::init(parent, name);
-  size.init       (this, "SIZE");
-  orientation.init(this, "ORIENTATION");
 }
 
 /* ------------------ */

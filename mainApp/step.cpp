@@ -187,7 +187,7 @@ int Step::createCsi(
   QString key = QString("%1_%2_%3_%4_%5_%6")
                         .arg(csiName()+orient)
                         .arg(sn)
-                        .arg(meta.LPub.page.sizeAndOrientation.size.valuePixels(0))
+                        .arg(meta.LPub.page.size.valuePixels(0))
                         .arg(resolution())
                         .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                         .arg(modelScale);
@@ -747,7 +747,7 @@ int Step::sizeit(
       case Bottom:
         tsize = csiPlacement.size[XX];
         pli.sizePli(ConstrainData::PliConstrainWidth,tsize);
-        if (pli.size[YY] > gui->page.meta.LPub.page.sizeAndOrientation.size.valuePixels(YY)/3) {
+        if (pli.size[YY] > gui->page.meta.LPub.page.size.valuePixels(YY)/3) {
           pli.sizePli(ConstrainData::PliConstrainArea,tsize);
         }
       break;
@@ -755,7 +755,7 @@ int Step::sizeit(
       case Right:
         tsize = csiPlacement.size[YY];
         pli.sizePli(ConstrainData::PliConstrainHeight,tsize);
-        if (pli.size[XX] > gui->page.meta.LPub.page.sizeAndOrientation.size.valuePixels(XX)/3) {
+        if (pli.size[XX] > gui->page.meta.LPub.page.size.valuePixels(XX)/3) {
           pli.sizePli(ConstrainData::PliConstrainArea,tsize);
         }
       break;

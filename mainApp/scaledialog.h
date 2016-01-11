@@ -46,7 +46,7 @@ public:
   virtual ~UnitsDialog();
 
   static bool getUnits(
-    float   values[],
+    float        values[],
     QString      name,
     QWidget     *parent = 0);
 

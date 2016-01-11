@@ -56,6 +56,10 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *backgroundAction = menu.addAction("Change Page Background");
   backgroundAction->setIcon(QIcon(":/resources/background.png"));
 
+  // change page size and orientation
+  QAction *pageSizeAndOrientationAction = menu.addAction("Change Page Size or Orientation");
+  pageSizeAndOrientationAction->setIcon(QIcon(":/resources/pagesizeandorientation.png"));
+
   Step    *lastStep = NULL;
   Step    *firstStep = NULL;
 
@@ -69,6 +73,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         int numSteps = mi.numSteps(lastStep->topOfStep().modelName);
         if (lastStep->stepNumber.number != numSteps) {
           addNextAction = menu.addAction("Add Next Step");
+          addNextAction->setIcon(QIcon(":/resources/nextstep.png"));
           addNextAction->setWhatsThis("Add Next Step:\n Add the first step of the next page to this page\n");
         }
       }
@@ -83,6 +88,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         firstStep = dynamic_cast<Step *> (rangeElement);
         if (firstStep->stepNumber.number > 1) {
           addPrevAction = menu.addAction("Add Previous Step");
+          addPrevAction->setIcon(QIcon(":/resources/previousstep.png"));
           addPrevAction->setWhatsThis("Add Previous Step:\n Add the last step of the previous page to this page\n");
         }
       }
@@ -139,6 +145,12 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                           page->top,
                           page->bottom,
                          &page->meta.LPub.page.background, useTop);
+    } else if (selectedAction == pageSizeAndOrientationAction) {
+        changeSizeAndOrientation("Size and Orientation",
+                                 page->top,
+                                 page->bottom,
+                                &page->meta.LPub.page.size,
+                                &page->meta.LPub.page.orientation, useTop);
     } else if (selectedAction == calloutAction) {
       convertToCallout(&page->meta, page->bottom.modelName, page->isMirrored, false);
     } else if (selectedAction == assembledAction) {

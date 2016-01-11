@@ -69,9 +69,11 @@
         <file alias="minus.png">images/minus.png</file>
         <file alias="new.png">images/new.png</file>
         <file alias="next.png">images/next.png</file>
+        <file alias="nextstep.png">images/nextstep.png</file>
         <file alias="onlinemanual.png">images/onlinemanual.png</file>
         <file alias="open.png">images/open.png</file>
         <file alias="pagesetup.png">images/pagesetup.png</file>
+        <file alias="pagesizeandorientation.png">images/pagesizeandorientation.png</file>
         <file alias="partslistsetup.png">images/partslistsetup.png</file>
         <file alias="paste.png">images/paste.png</file>
         <file alias="pdf_logo.png">images/pdf_logo.png</file>
@@ -80,6 +82,7 @@
         <file alias="placement.png">images/placement.png</file>
         <file alias="preferences.png">images/preferences.png</file>
         <file alias="prev.png">images/prev.png</file>
+        <file alias="previousstep.png">images/previousstep.png</file>
         <file alias="print.png">images/print.png</file>
         <file alias="projectsetup.png">images/projectsetup.png</file>
         <file alias="redraw.png">images/redraw.png</file>

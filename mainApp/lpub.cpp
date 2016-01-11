@@ -301,7 +301,7 @@ void Gui::fitWidth(
 {
   view->scale(1.0,1.0);
 
-  QRectF rect(0,0,page.meta.LPub.page.sizeAndOrientation.size.valuePixels(0),page.meta.LPub.page.sizeAndOrientation.size.valuePixels(1));
+  QRectF rect(0,0,page.meta.LPub.page.size.valuePixels(0),page.meta.LPub.page.size.valuePixels(1));
 
   QRectF unity = view->matrix().mapRect(QRectF(0,0,1,1));
   view->scale(1/unity.width(), 1 / unity.height());
@@ -326,7 +326,7 @@ void Gui::fitVisible(
 {
   view->scale(1.0,1.0);
 
-  QRectF rect(0,0,page.meta.LPub.page.sizeAndOrientation.size.valuePixels(0),page.meta.LPub.page.sizeAndOrientation.size.valuePixels(1));
+  QRectF rect(0,0,page.meta.LPub.page.size.valuePixels(0),page.meta.LPub.page.size.valuePixels(1));
 
   QRectF unity = view->matrix().mapRect(QRectF(0,0,1,1));
   view->scale(1/unity.width(), 1 / unity.height());

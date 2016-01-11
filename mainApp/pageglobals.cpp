@@ -82,8 +82,7 @@ GlobalPageDialog::GlobalPageDialog(
   //~~~~~~~~~~~~ page tab ~~~~~~~~~~~~~~~~//
   box = new QGroupBox(tr("Size and Orientation"));
   grid->addWidget(box,0,0);
-  child = new SizeAndOrientationGui("",&pageMeta->sizeAndOrientation,box);
-  //child = new UnitsGui("",&pageMeta->size,box);
+  child = new SizeAndOrientationGui("",&pageMeta->size,&pageMeta->orientation,box);
   data->children.append(child);
 
   box = new QGroupBox(tr("Header Height"));

@@ -843,10 +843,12 @@ public:
 
   SizeAndOrientationGui(
     QString const           &heading,
-    SizeAndOrientationMeta *_meta,
+    UnitsMeta              *_smeta,
+    OrientationMeta        *_ometa,
     QGroupBox              *parent = NULL);
   ~SizeAndOrientationGui() {}
 
+  int  getTypeIndex(float &pgWidth, float &pgHeight);
   void setEnabled(bool enabled);
 
   virtual void apply(QString &topLevelFile);
@@ -854,7 +856,8 @@ public:
 private:
   bool                    sizeModified;
   bool                    orientationModified;
-  SizeAndOrientationMeta *meta;
+  UnitsMeta              *smeta;
+  OrientationMeta        *ometa;
   QLabel                 *label;
   QLineEdit              *valueW;
   QLineEdit              *valueH;
@@ -862,8 +865,10 @@ private:
   QRadioButton           *landscapeRadio;
   QGroupBox              *size;
   QGroupBox              *orientation;
+  QComboBox              *typeCombo;
 
 public slots:
+  void typeChange(int index);
   void valueWChange(QString const &);
   void valueHChange(QString const &);
   void orientationChange(bool);

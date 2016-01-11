@@ -1499,23 +1499,6 @@ class PageFooterMeta : public BranchMeta
 };
 
 /*------------------------*/
-
-class SizeAndOrientationMeta : public BranchMeta
-{
-public:
-  UnitsMeta       size;
-  OrientationMeta orientation;
-
-  SizeAndOrientationMeta();
-  SizeAndOrientationMeta(const SizeAndOrientationMeta &rhs) : BranchMeta(rhs)
-  {
-  }
-
-  virtual ~SizeAndOrientationMeta() {}
-  virtual void init(BranchMeta *parent, QString name);
-};
-
-/*------------------------*/
 /*
  * Fade Step Meta
  */
@@ -1889,8 +1872,8 @@ class PageMeta : public BranchMeta
 public:
   // top    == top of page
   // bottom == bottom of page
-//  UnitsMeta                 size;
-  SizeAndOrientationMeta    sizeAndOrientation;
+  UnitsMeta                 size;
+  OrientationMeta           orientation;
   MarginsMeta               margin;
   BorderMeta                border;
   BackgroundMeta            background;

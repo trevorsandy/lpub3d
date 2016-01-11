@@ -372,9 +372,11 @@ mainApp/images/margins.png -text
 mainApp/images/minus.png -text
 mainApp/images/new.png -text
 mainApp/images/next.png -text
+mainApp/images/nextstep.png -text
 mainApp/images/onlinemanual.png -text
 mainApp/images/open.png -text
 mainApp/images/pagesetup.png -text
+mainApp/images/pagesizeandorientation.png -text
 mainApp/images/partslistsetup.png -text
 mainApp/images/paste.png -text
 mainApp/images/pdf_logo.png -text
@@ -383,6 +385,7 @@ mainApp/images/pliannotation.png -text
 mainApp/images/plus.png -text
 mainApp/images/preferences.png -text
 mainApp/images/prev.png -text
+mainApp/images/previousstep.png -text
 mainApp/images/print.png -text
 mainApp/images/projectsetup.png -text
 mainApp/images/redraw.png -text
@@ -490,6 +493,8 @@ mainApp/rx.cpp -text
 mainApp/rx.h -text
 mainApp/scaledialog.cpp -text
 mainApp/scaledialog.h -text
+mainApp/sizeandorientationdialog.cpp -text
+mainApp/sizeandorientationdialog.h -text
 mainApp/splashscreen.cpp -text
 mainApp/splashscreen.h -text
 mainApp/step.cpp -text

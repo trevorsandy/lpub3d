@@ -247,23 +247,23 @@ int Gui::addGraphicsPageItems(
   int pW, pH;
 
   if (printing) {
-    if (view->maximumWidth() < page->meta.LPub.page.sizeAndOrientation.size.valuePixels(0)) {
+    if (view->maximumWidth() < page->meta.LPub.page.size.valuePixels(0)) {
       pW = view->maximumWidth();
     } else {
-      pW = page->meta.LPub.page.sizeAndOrientation.size.valuePixels(0);
+      pW = page->meta.LPub.page.size.valuePixels(0);
     }
-    if (view->maximumHeight() < page->meta.LPub.page.sizeAndOrientation.size.valuePixels(1)) {
+    if (view->maximumHeight() < page->meta.LPub.page.size.valuePixels(1)) {
       pH = view->maximumHeight();
     } else {
-      pH = page->meta.LPub.page.sizeAndOrientation.size.valuePixels(1);
+      pH = page->meta.LPub.page.size.valuePixels(1);
     }
   } else {
-    pW = page->meta.LPub.page.sizeAndOrientation.size.valuePixels(0);
-    pH = page->meta.LPub.page.sizeAndOrientation.size.valuePixels(1);
+    pW = page->meta.LPub.page.size.valuePixels(0);
+    pH = page->meta.LPub.page.size.valuePixels(1);
   }
 
-   // pW = page->meta.LPub.page.sizeAndOrientation.size.valuePixels(0);
-   // pH = page->meta.LPub.page.sizeAndOrientation.size.valuePixels(1);
+   // pW = page->meta.LPub.page.size.valuePixels(0);
+   // pH = page->meta.LPub.page.size.valuePixels(1);
 
   pageBg = new PageBackgroundItem(page, pW, pH);
 
@@ -1430,8 +1430,8 @@ int Gui::addGraphicsPageItems(
   view->setSceneRect(pageBg->sceneBoundingRect());
 
   if ( ! printing) {
-    view->horizontalScrollBar()->setRange(0,int(page->meta.LPub.page.sizeAndOrientation.size.valuePixels(0)));
-    view->verticalScrollBar()->setRange(0,int(page->meta.LPub.page.sizeAndOrientation.size.valuePixels(1)));
+    view->horizontalScrollBar()->setRange(0,int(page->meta.LPub.page.size.valuePixels(0)));
+    view->verticalScrollBar()->setRange(0,int(page->meta.LPub.page.size.valuePixels(1)));
   }
 
   if (printing) {

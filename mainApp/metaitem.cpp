@@ -54,6 +54,7 @@
 #include "borderdialog.h"
 #include "backgrounddialog.h"
 #include "dividerdialog.h"
+#include "sizeandorientationdialog.h"
 #include "paths.h"
 #include "render.h"
 
@@ -761,33 +762,33 @@ void MetaItem::setMeta(
   bool         askLocal,
   bool         global)
 {
-    logNotice() << "\n MOVE (CHANGE PLACEMENT) SET META VALUES - "
-                << "\n PAGE WHERE - "
-                << "\nPAGE- "
-                << (useTop ? " \nUseTop: True=Single-Step Page" : " \nUseTop: False=Multi-Step Page")
-                << "\n1. Page TopOf (Model Name):     "  << topOf.modelName
-                << "\n1. Page TopOf (Line Number):    "  << topOf.lineNumber
-                << "\n2. Page BottomOf (Model Name):  "  << bottomOf.modelName
-                << "\n2. Page BottomOf (Line Number): "  << bottomOf.lineNumber
-                << "\n FORMATTED META -               "
-                << "\n3. Meta:                        "  << meta->format(local,global)
-                << "\n META WHERE -                   "
-                << "\n3. Meta Here (Model Name):      "  << meta->here().modelName
-                << "\n3. Meta Here (Line Number):     "  << meta->here().lineNumber
-                << "\n3. Meta String:                 "  << meta->format(local,global)
-                << "\n PARAMETERS -                   "
-                << "\n4. ~(UseTop)~:                  "  << useTop
-                << "\n5. Append:                      "  << append
-                << "\n6. Local:                       "  << local
-                << "\n7. AskLocal:                    "  << askLocal
-                << "\n8. Global:                      "  << global
-              ;
+//    logNotice() << "\n MOVE (CHANGE PLACEMENT) SET META VALUES - "
+//                << "\n PAGE WHERE - "
+//                << "\nPAGE- "
+//                << (useTop ? " \nUseTop: True=Single-Step Page" : " \nUseTop: False=Multi-Step Page")
+//                << "\n1. Page TopOf (Model Name):     "  << topOf.modelName
+//                << "\n1. Page TopOf (Line Number):    "  << topOf.lineNumber
+//                << "\n2. Page BottomOf (Model Name):  "  << bottomOf.modelName
+//                << "\n2. Page BottomOf (Line Number): "  << bottomOf.lineNumber
+//                << "\n FORMATTED META -               "
+//                << "\n3. Meta:                        "  << meta->format(local,global)
+//                << "\n META WHERE -                   "
+//                << "\n3. Meta Here (Model Name):      "  << meta->here().modelName
+//                << "\n3. Meta Here (Line Number):     "  << meta->here().lineNumber
+//                << "\n3. Meta String:                 "  << meta->format(local,global)
+//                << "\n PARAMETERS -                   "
+//                << "\n4. ~(UseTop)~:                  "  << useTop
+//                << "\n5. Append:                      "  << append
+//                << "\n6. Local:                       "  << local
+//                << "\n7. AskLocal:                    "  << askLocal
+//                << "\n8. Global:                      "  << global
+//              ;
   if (useTop) {
     setMetaTopOf(topOf,bottomOf,meta,append,local,askLocal,global);
-    logNotice() << "\n SET META - USE TOP OF - ";
+//    logNotice() << "\n SET META - USE TOP OF - ";
   } else {
     setMetaBottomOf(topOf,bottomOf,meta,append,local,askLocal,global);
-    logNotice() << "\n SET META - USE BOTTOM OF - ";
+//    logNotice() << "\n SET META - USE BOTTOM OF - ";
   }  
 }
   
@@ -1093,6 +1094,41 @@ void MetaItem::changeBackground(
   if (ok) {
     background->setValue(backgroundData);
     setMeta(topOfStep,bottomOfStep,background,useTop,append,local);
+  }
+}
+
+void MetaItem::changeSizeAndOrientation(
+  QString         title,
+  const Where    &topOfStep,
+  const Where    &bottomOfStep,
+  UnitsMeta       *smeta,
+  OrientationMeta *ometa,
+  bool            useTop,
+  int             append,
+  bool            local)
+{
+  float values[2];
+
+  values[0]   = smeta->value(0);
+  values[1]   = smeta->value(1);
+
+  OrientationEnc orientation;
+  orientation = ometa->value();
+
+  bool ok;
+  ok = SizeAndOrientationDialog::getSizeAndOrientation(values,orientation,title,gui);
+
+  if (ok) {
+
+      smeta->setValue(0,values[0]);
+      smeta->setValue(1,values[1]);
+      ometa->setValue(orientation);
+
+      logDebug() << " SIZE (dialog return): Width: " << smeta->value(0) << " Height: " << smeta->value(1) << " Orientation: " << (orientation == Portrait ? "Portrait" : "Landscape");
+
+      setMeta(topOfStep,bottomOfStep,smeta,useTop,append,local);
+
+      setMeta(topOfStep,bottomOfStep,ometa,useTop,append,local);
   }
 }
 
@@ -1608,14 +1644,14 @@ void MetaItem::appendPage(QString &meta)
     QStringList tokens;
     split(line,tokens);
 
-    if (tokens.size() == 15 && tokens[0] == "1" ||
-        tokens.size() == 4  && tokens[0] == "0" && tokens[1] == "!LPUB" && tokens[2] == "INSERT" && tokens[3] == "COVER_PAGE") {
+    if ((tokens.size() == 15 && tokens[0] == "1") ||
+        (tokens.size() == 4  && tokens[0] == "0" && tokens[1] == "!LPUB" && tokens[2] == "INSERT" && tokens[3] == "COVER_PAGE")) {
       addStep = true;
       break;
     }
 
-    if (tokens.size() == 2 && tokens[0] == "0" && tokens[1] == "STEP" ||
-        tokens.size() > 2  && tokens[0] == "0" && tokens[1] == "ROTSTEP") {
+    if ((tokens.size() == 2 && tokens[0] == "0" && tokens[1] == "STEP") ||
+        (tokens.size() > 2  && tokens[0] == "0" && tokens[1] == "ROTSTEP")) {
       break;
     }
   }
@@ -2681,10 +2717,10 @@ int MetaItem::monoColorSubmodel(
         argv[14] = info.fileName();
       }
       argv[1] = color;
-    } else if (argv.size() == 8 && argv[0] == "2" ||
-               argv.size() == 11 && argv[0] == "3" ||
-               argv.size() == 14 && argv[0] == "4" ||
-               argv.size() == 14 && argv[0] == "5") {
+    } else if ((argv.size() == 8 && argv[0] == "2") ||
+               (argv.size() == 11 && argv[0] == "3") ||
+               (argv.size() == 14 && argv[0] == "4") ||
+               (argv.size() == 14 && argv[0] == "5")) {
       argv[1] = color;
     }
     line = argv.join(" ");

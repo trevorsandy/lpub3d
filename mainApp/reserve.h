@@ -49,9 +49,9 @@ class Reserve : public AbstractRangeElement {
       space = meta.reserve.value();
       relativeType = ReserveType;
       if (meta.multiStep.alloc.value() == Horizontal) {
-        setSize(int(meta.page.sizeAndOrientation.size.valuePixels(0) * space + 0.5),0);
+        setSize(int(meta.page.size.valuePixels(0) * space + 0.5),0);
       } else {
-        setSize(0,int(meta.page.sizeAndOrientation.size.valuePixels(1) * space + 0.5));
+        setSize(0,int(meta.page.size.valuePixels(1) * space + 0.5));
       }
     }
 };
