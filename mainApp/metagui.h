@@ -880,20 +880,25 @@ public:
   ~PageSizeGui() {}
 
   int  getTypeIndex(float &pgWidth, float &pgHeight);
+  void updatePageSize();
   void setEnabled(bool enabled);
 
   virtual void apply(QString &topLevelFile);
 
-private:
-  UnitsMeta              *meta;
-  QLabel                 *label;
   QLineEdit              *valueW;
   QLineEdit              *valueH;
-  QGroupBox              *size;
   QComboBox              *typeCombo;
 
+private:
+  float                   w;
+  float                   h;
+  UnitsMeta              *meta;
+  QLabel                 *label;
+  QGroupBox              *size;
+
+
 public slots:
-  void typeChange(int index);
+  void typeChange(QString const &);
   void valueWChange(QString const &);
   void valueHChange(QString const &);
 };

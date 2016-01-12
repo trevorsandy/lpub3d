@@ -57,7 +57,7 @@ private:
 
 public:
   GlobalPageDialog(QString &topLevelModel, Meta &meta);
-  ~GlobalPageDialog() {};
+  ~GlobalPageDialog() {}
   static void getPageGlobals(QString topLevelFile, Meta &meta);
 
   int             sectionIndex;
@@ -82,7 +82,6 @@ public:
 
   QGroupBox      *emailBoxBack;
   QGroupBox      *emailBox;
-
 
   MetaGui        *child;
 

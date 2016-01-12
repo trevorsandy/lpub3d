@@ -75,7 +75,9 @@ bool PageOrientationDialog::getPageOrientation(
   bool ok = dialog->exec() == QDialog::Accepted;
 
   if (ok) {
+
     goods = dialog->meta.value();
+
   }
   return ok;
 }

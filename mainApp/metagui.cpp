@@ -65,43 +65,58 @@
 
 #include "gradients.h"
 
-// sizes in mm
+// sizes in centimeters and inches
 struct pageTypes {
   QString pageType;
-  float   width;
-  float   height;
+  float   pageWidthCm;
+  float   pageHeightCm;
+  float   pageWidthIn;
+  float   pageHeightIn;
 } pageTypes[] = {
-{"A0",         841,   1189 },
-{"A1",         594,    841 },
-{"A2",         420,    594 },
-{"A3",         297,    420 },
-{"A4",         210,    297 },
-{"A5",         148,    210 },
-{"A6",         105,    148 },
-{"A7",          74,    105 },
-{"A8",          52,     74 },
-{"A9",          37,     52 },
-{"B0",        1030,   1456 },
-{"B1",         728,   1030 },
-{"B10",         32,     45 },
-{"B2",         515,    728 },
-{"B3",         364,    515 },
-{"B4",         257,    364 },
-{"B5",         182,    257 },
-{"B6",         128,    182 },
-{"B7",          91,    128 },
-{"B8",          64,     91 },
-{"B9",          45,     64 },
-{"B10",         31,     44 },
-{"C5E",        163,    229 },
-{"Comm10E",    105,    241 },
-{"DLE",        110,    220 },
-{"Executive",  190.5,  254 },
-{"Folio",      210,    330 },
-{"Ledger",     431.8,  279.4 },
-{"Legal",      215.9,  355.6 },
-{"Letter",     215.9,  279.4 },
-{"Tabloid",    279.4,  431.8 },
+{"A0",         84.1,   118.9,    33.1,	  46.8},
+{"A1",         59.4,    84.1,    23.4,    33.1},
+{"A2",         42.0,    59.4,    16.5,    23.4},
+{"A3",         29.7,    42.0,    11.7,    16.5},
+{"A4",         21.0,    29.7,     8.3,    11.7},
+{"A5",         14.8,    21.0,     5.8,     8.3},
+{"A6",         10.5,    14.8,     4.1,     5.8},
+{"A7",          7.4,    10.5,     2.9,     4.1},
+{"A8",          5.2,     7.4,     2.0,     2.9},
+{"A9",          3.7,     5.2,     1.5,     2.0},
+{"A10",         2.6,     3.7,     1.0,     1.5},
+{"ArchA",     22.9,    30.5,     9.0,    12.0},
+{"ArchB",     30.5,    45.7,    12.0,    18.0},
+{"ArchC",     45.7,    61.0,    18.0,    24.0},
+{"ArchD",     61.0,    91.4,    24.0,    36.0},
+{"ArchE",     91.4,   121.9,    36.0,    48.0},
+{"ArchE1",    76.2,   106.7,    30.0,    42.0},
+{"ArchE2",    66.0,    96.5,    26.0,    38.0},
+{"ArchE3",    68.6,    99.1,    27.0,    39.0},
+{"ANSI_C",     43.2,    55.9,    17.0,    22.0},
+{"ANSI_D",     55.9,    86.4,    22.0,    34.0},
+{"ANSI_E",     86.4 ,  111.8,    34.0,    44.0},
+{"B0",        141.4,   100.0,    55.7,    39.4},
+{"B1",        100.0,    70.7,    39.4,    27.8},
+{"B2",         70.7,    50.0,    27.8,    19.7},
+{"B3",         50.0,    35.3,    19.7,    13.9},
+{"B4",         35.3,    25.0,    13.9,     9.8},
+{"B5",         25.0,    17.6,     9.8,     6.9},
+{"B6",         17.6,    12.5,     6.9,     4.9},
+{"B7",         12.5,     8.8,     4.9,     3.5},
+{"B8",          8.8,     6.2,     3.5,     2.4},
+{"B9",          6.2,     4.4,     2.4,     1.7},
+{"B10",         4.4,     3.1,     1.7,     1.2},
+{"B1+",	      102.0,    72.0,    40.2,    28.3},
+{"B2+",	       72.0,    52.0,    28.3,    20.5},
+{"Comm10E",    10.47,   24.13,    4.125,   9.5},
+{"DLE",        10.0,    21.0,     3.9,	   8.2},
+{"Executive",  18.4,    26.7,     7.25,   10.5},
+{"Folio",      21.59,   33.02,    8.5,    13.0},
+{"Ledger",     43.2,    27.9,    17.0,    11.0},
+{"Legal",      21.59,   35.56,    8.5,    14.0},
+{"Letter",     21.6,    27.9,     8.0,    11.0},
+{"Tabloid",    27.9,    43.2,    11.0,    17.0},
+{"Custom", 0.1,     0.1,     0.1,     0.1},
 };
 
 
@@ -2555,7 +2570,7 @@ void PliAnnotationGui::apply(QString &topLevelFile)
 
 /***********************************************************************
  *
- * Page PageOrientation
+ * Page Orientation
  *
  **********************************************************************/
 
@@ -2612,11 +2627,6 @@ void PageOrientationGui::orientationChange(bool clicked)
   else
       meta->setValue(Landscape);
 
-  // switch width and height - get from strcut
-  //float w = valueW->text().toFloat();
-  //float h = valueH->text().toFloat();
-  //smeta->setValue(0,h);
-  //smeta->setValue(1,w);
   modified     = true;
 }
 
@@ -2645,7 +2655,7 @@ PageSizeGui::PageSizeGui(
 
   QGridLayout *grid   = new QGridLayout(parent);
 
-//   logTrace() << " \nPageSizeGui Initialized:" <<
+//   logNotice() << " \nPageSizeGui Initialized:" <<
 //                 " \nSize 0: " << meta->value(0) <<
 //                 " \nSize 1: " << meta->value(1) <<
 //                 " \nOrientation: " << ometa->value()
@@ -2665,58 +2675,47 @@ PageSizeGui::PageSizeGui(
   }
 
   /* page size */
-  bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
   int   numPageTypes = sizeof(pageTypes)/sizeof(pageTypes[0]);
-  float pageWidthCm, pageHeightCm;
-  float pageWidthIn, pageHeightIn;
-  float pageWidthMm, pageHeightMm;
 
   typeCombo = new QComboBox(parent);
   for (int i = 0; i < numPageTypes; i++) {
 
-        pageWidthCm  = pageTypes[i].width / 10.0;
-        pageHeightCm = pageTypes[i].height / 10.0;
-        pageWidthIn  = centimeters2inches(pageWidthCm);
-        pageHeightIn = centimeters2inches(pageHeightCm);
+//      QString type = QString("%1 (%2 x %3)")
+//          .arg(pageTypes[i].pageType)
+//          .arg((dpi ? pageTypes[i].pageWidthIn : pageTypes[i].pageWidthCm))
+//          .arg((dpi ? pageTypes[i].pageHeightIn : pageTypes[i].pageHeightCm));
 
-      QString type = QString("%1 (%2 x %3)")
-          .arg(pageTypes[i].pageType)
-          .arg((dpi ? pageWidthIn : pageWidthCm))
-          .arg((dpi ? pageHeightIn : pageHeightCm));
-
-      typeCombo->addItem(type);
+      typeCombo->addItem(pageTypes[i].pageType);
   }
-  typeCombo->addItem("Custom");
-
-  pageWidthMm  = meta->value(0) * 10.0;
-  pageHeightMm = meta->value(1) * 10.0;
-  typeCombo->setCurrentIndex(int(getTypeIndex(pageWidthMm,pageHeightMm)));
-  connect(typeCombo,SIGNAL(currentIndexChanged(int)),
-          this, SLOT(  typeChange(             int)));
+  float pageWidth = meta->value(0);
+  float pageHeight = meta->value(1);
+  typeCombo->setCurrentIndex(int(getTypeIndex(pageWidth,pageHeight)));
+  connect(typeCombo,SIGNAL(currentIndexChanged(QString const &)),
+          this, SLOT(  typeChange(             QString const &)));
   if (heading == "")
     grid->addWidget(typeCombo,0,0);
   else
     grid->addWidget(typeCombo,1,0);
 
   QString      string;
-  string = QString("%1") .arg((dpi ? centimeters2inches(meta->value(0)): meta->value(0)),
+  string = QString("%1") .arg(meta->value(0),
                               meta->_fieldWidth,
                               'f',
-                               2 /*meta->_precision*/);
+                              meta->_precision);
   valueW = new QLineEdit(string,parent);
 //  connect(valueW,SIGNAL(textEdited(  QString const &)),
 //          this,  SLOT(  valueWChange(QString const &)));
   connect(valueW,SIGNAL(textChanged( QString const &)),
-          this,  SLOT(  valueHChange(QString const &)));
+          this,  SLOT(  valueWChange(QString const &)));
   if (heading == "")
     grid->addWidget(valueW,0,1);
   else
     grid->addWidget(valueW,1,1);
 
-  string = QString("%1") .arg((dpi ? centimeters2inches(meta->value(1)) : meta->value(1)),
+  string = QString("%1") .arg(meta->value(1),
                               meta->_fieldWidth,
                               'f',
-                               2 /*meta->_precision*/);
+                              meta->_precision);
   valueH = new QLineEdit(string,parent);
 //  connect(valueH,SIGNAL(textEdited(  QString const &)),
 //          this,  SLOT(  valueHChange(QString const &)));
@@ -2726,9 +2725,18 @@ PageSizeGui::PageSizeGui(
     grid->addWidget(valueH,0,2);
   else
     grid->addWidget(valueH,1,2);
+
+  if (typeCombo->currentText() == "Custom")
+    setEnabled(true);
+  else
+    setEnabled(false);
+
+  logDebug() << "Current Page Type: " << typeCombo->currentText();
 }
 
 int PageSizeGui::getTypeIndex(float &pgWidth, float &pgHeight){
+
+  bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
   int   numPageTypes = sizeof(pageTypes)/sizeof(pageTypes[0]);
   int index = -1;
   QString pageWidth;
@@ -2737,71 +2745,108 @@ int PageSizeGui::getTypeIndex(float &pgWidth, float &pgHeight){
   QString typeHeight;
   for (int i = 0; i < numPageTypes; i++) {
 
-      pageWidth  = QString::number( pgWidth,  'f', 2 );
-      pageHeight = QString::number( pgHeight, 'f', 2 );
-      typeWidth  = QString::number( pageTypes[i].width,  'f', 2 );
-      typeHeight = QString::number( pageTypes[i].height, 'f', 2 );
+      pageWidth  = QString::number( pgWidth,  'f', 1 /*meta->_precision*/ );
+      pageHeight = QString::number( pgHeight, 'f', 1 /*meta->_precision*/ );
+      typeWidth  = QString::number((dpi ? pageTypes[i].pageWidthIn : pageTypes[i].pageWidthCm),  'f', 1 /*meta->_precision*/ );
+      typeHeight = QString::number((dpi ? pageTypes[i].pageHeightIn : pageTypes[i].pageHeightCm), 'f', 1 /*meta->_precision*/ );
 
-//      qDebug() << "\n" << pageTypes[i].pageType << " @ index: " << i
-//               << "\nType: (" << typeWidth << "x" << typeHeight << ") "
-//               << "\nPage: (" << pageWidth << "x" << pageHeight << ")";
+      qDebug() << "\n" << pageTypes[i].pageType << " @ index: " << i
+               << "\nType: (" << typeWidth << "x" << typeHeight << ") "
+               << "\nPage: (" << pageWidth << "x" << pageHeight << ")";
 
       if ((pageWidth == typeWidth) && (pageHeight == typeHeight)){
         index = i;
         break;
         }
   }
+  if (index == -1)
+      index = typeCombo->findText("Custom");
+
   return index;
 }
 
-void PageSizeGui::typeChange(int index){
+void PageSizeGui::typeChange(const QString &pageType){
 
-  if (typeCombo->currentText() != "Custom") {
+  float pageWidth, pageHeight;
+  bool  editLine;
+
+  qDebug() << "\nPage Type: " << pageType ;
+
+  if (pageType != "Custom") {
 
       bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
-      float pageWidthCm, pageHeightCm;
-      float pageWidthIn, pageHeightIn;
+      int   numPageTypes = sizeof(pageTypes)/sizeof(pageTypes[0]);
 
-      pageWidthCm  = pageTypes[index].width / 10.0;
-      pageHeightCm = pageTypes[index].height / 10.0;
-      pageWidthIn  = centimeters2inches(pageWidthCm);
-      pageHeightIn = centimeters2inches(pageHeightCm);
 
-      QString      string;
-      string = QString("%1") .arg((dpi ? pageWidthIn : pageWidthCm),
-                                  meta->_fieldWidth,
-                                  'f',
-                                   2 /*meta->_precision*/);
-      valueW->setText(string);
+      for (int i = 0; i < numPageTypes; i++) {
+          if (pageType == pageTypes[i].pageType) {
+              pageWidth  = dpi ? pageTypes[i].pageWidthIn : pageTypes[i].pageWidthCm;
+              pageHeight = dpi ? pageTypes[i].pageHeightIn : pageTypes[i].pageHeightCm;
+              break;
+            }
+        }
 
-      string = QString("%1") .arg((dpi ? pageHeightIn : pageHeightCm),
-                                  meta->_fieldWidth,
-                                  'f',
-                                   2 /*meta->_precision*/);
-      valueH->setText(string);
+      editLine = false;
+
+    } else {
+
+      pageWidth  = meta->value(0);
+      pageHeight = meta->value(1);
+      editLine = true;
+
     }
 
+  QString      string;
+  string = QString("%1") .arg(pageWidth,
+                              meta->_fieldWidth,
+                              'f',
+                              meta->_precision);
+  valueW->setText(string);
+
+  string = QString("%1") .arg(pageHeight,
+                              meta->_fieldWidth,
+                              'f',
+                              meta->_precision);
+  valueH->setText(string);
+
+  setEnabled(editLine);
 }
 
 void PageSizeGui::valueWChange(QString const &string)
 {
-  float w = string.toFloat();
-  meta->setValue(0,w);
+  w = string.toFloat();
   modified     = true;
+  qDebug() << "Meta setValue(0) Change:" << meta->value(0);
 }
 
 void PageSizeGui::valueHChange(QString const &string)
 {
-  float h = string.toFloat();
-  meta->setValue(1,h);
+  h = string.toFloat();
   modified     = true;
+  qDebug() << "Meta setValue(1) Change:" << meta->value(1);
+}
+
+void PageSizeGui::updatePageSize(){
+
+  if (gui->page.meta.LPub.page.orientation.value() == Portrait){
+      meta->setValue(0,w);
+      meta->setValue(1,h);
+      qDebug() << "\nMeta setValue(0) Portrait Update:" << meta->value(0)
+               << "\nMeta setValue(1) Portrait Update:" << meta->value(1);
+    }
+  else{
+      meta->setValue(0,h);
+      meta->setValue(1,w);
+      qDebug() << "\nMeta setValue(0) Landscape Update:" << meta->value(0)
+               << "\nMeta setValue(1) Landscape Update:" << meta->value(1);
+    }
 }
 
 void PageSizeGui::setEnabled(bool enable)
 {
-  if (label) {
-    label->setEnabled(enable);
-  }
+//  if (label) {
+//    label->setEnabled(enable);
+//  }
   valueW->setEnabled(enable);
   valueH->setEnabled(enable);
 }
@@ -2810,6 +2855,7 @@ void PageSizeGui::apply(QString &topLevelFile)
 {
 
   if (modified) {
+    updatePageSize();
     MetaItem mi;
     mi.setGlobalMeta(topLevelFile,meta);
   }

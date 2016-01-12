@@ -329,7 +329,8 @@ int UnitsMeta::valuePixels(int which)
 QString UnitsMeta::format(bool local, bool global)
 {
   QString foo;
-  foo = QString("%1 %2") .arg(valueInches(0),_fieldWidth,'f',_precision)
+  foo = QString("%1 %2")
+      .arg(valueInches(0),_fieldWidth,'f',_precision)
       .arg(valueInches(1),_fieldWidth,'f',_precision);
   return LeafMeta::format(local,global,foo);
 }

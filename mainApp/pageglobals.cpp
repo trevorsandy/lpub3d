@@ -80,32 +80,18 @@ GlobalPageDialog::GlobalPageDialog(
   widget->setLayout(grid);
 
   //~~~~~~~~~~~~ page tab ~~~~~~~~~~~~~~~~//
-  box = new QGroupBox(tr("Size and Orientation"));
+  box = new QGroupBox(tr("Size"));
   grid->addWidget(box,0,0);
-
   child = new PageSizeGui("",&pageMeta->size,box);
   data->children.append(child);
+
+  box = new QGroupBox(tr("Orientation"));
+  grid->addWidget(box,1,0);
   child = new PageOrientationGui("",&pageMeta->orientation,box);
   data->children.append(child);
 
-  box = new QGroupBox(tr("Header Height"));
-  grid->addWidget(box,1,0);
-  child = new HeaderFooterHeightGui("",&pageHeaderMeta->size,box);
-
-  data->children.append(child);
-
-  box = new QGroupBox(tr("Footer Height"));
-  grid->addWidget(box,2,0);
-  child = new HeaderFooterHeightGui("",&pageFooterMeta->size,box);
-  data->children.append(child);
-
-  box = new QGroupBox(tr("Margins"));
-  grid->addWidget(box,3,0);
-  child = new UnitsGui("",&pageMeta->margin,box);
-  data->children.append(child);
-
   box = new QGroupBox(tr("Background"));
-  grid->addWidget(box, 4, 0);
+  grid->addWidget(box,2,0);
 
   //gradient settings
 //  logTrace() << "\nbackground.value().gsize[0]: " << pageMeta->background.value().gsize[0]
@@ -132,9 +118,26 @@ GlobalPageDialog::GlobalPageDialog(
   data->children.append(child);
 
   box = new QGroupBox(tr("Border"));
-  grid->addWidget(box, 5, 0);
+  grid->addWidget(box,3,0);
   child = new BorderGui(&pageMeta->border,box);
   data->children.append(child);
+
+  box = new QGroupBox(tr("Margins"));
+  grid->addWidget(box,4,0);
+  child = new UnitsGui("",&pageMeta->margin,box);
+  data->children.append(child);
+
+  box = new QGroupBox(tr("Header Height"));
+  grid->addWidget(box,5,0);
+  child = new HeaderFooterHeightGui("",&pageHeaderMeta->size,box);
+  data->children.append(child);
+
+  box = new QGroupBox(tr("Footer Height"));
+  grid->addWidget(box,6,0);
+  child = new HeaderFooterHeightGui("",&pageFooterMeta->size,box);
+  data->children.append(child);
+
+
 
   tab->addTab(widget,"Page");
 
