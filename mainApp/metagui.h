@@ -828,25 +828,56 @@ public slots:
 
 /***********************************************************************
  *
- * Page Size And Orientation
+ * Page Orientation
  *
  **********************************************************************/
 
 class QGroupBox;
 class QLabel;
 class QRadioButton;
-class QLineEdit;
-class SizeAndOrientationGui : public MetaGui
+class PageOrientationGui : public MetaGui
 {
   Q_OBJECT
 public:
 
-  SizeAndOrientationGui(
+  PageOrientationGui(
     QString const           &heading,
-    UnitsMeta              *_smeta,
-    OrientationMeta        *_ometa,
+    PageOrientationMeta    *_meta,
     QGroupBox              *parent = NULL);
-  ~SizeAndOrientationGui() {}
+  ~PageOrientationGui() {}
+
+  virtual void apply(QString &topLevelFile);
+
+private:
+  PageOrientationMeta    *meta;
+  QLabel                 *label;
+  QRadioButton           *portraitRadio;
+  QRadioButton           *landscapeRadio;
+  QGroupBox              *orientation;
+
+public slots:
+  void orientationChange(bool);
+};
+
+/***********************************************************************
+ *
+ * Page Size
+ *
+ **********************************************************************/
+
+class QGroupBox;
+class QLabel;
+class QLineEdit;
+class PageSizeGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  PageSizeGui(
+    QString const           &heading,
+    UnitsMeta              *_meta,
+    QGroupBox              *parent = NULL);
+  ~PageSizeGui() {}
 
   int  getTypeIndex(float &pgWidth, float &pgHeight);
   void setEnabled(bool enabled);
@@ -854,23 +885,18 @@ public:
   virtual void apply(QString &topLevelFile);
 
 private:
-  bool                    sizeModified;
-  bool                    orientationModified;
-  UnitsMeta              *smeta;
-  OrientationMeta        *ometa;
+  UnitsMeta              *meta;
   QLabel                 *label;
   QLineEdit              *valueW;
   QLineEdit              *valueH;
-  QRadioButton           *portraitRadio;
-  QRadioButton           *landscapeRadio;
   QGroupBox              *size;
-  QGroupBox              *orientation;
   QComboBox              *typeCombo;
 
 public slots:
   void typeChange(int index);
   void valueWChange(QString const &);
   void valueHChange(QString const &);
-  void orientationChange(bool);
 };
+
+
 #endif

@@ -170,11 +170,18 @@ public:
                         int   append = 1,
                         bool checkLocal = true);
 
-  void changeSizeAndOrientation(QString,
+  void changePageSize(QString,
                         const Where &,
                         const Where &,
                         UnitsMeta *,
-                        OrientationMeta *,
+                        bool  useTop = true,
+                        int   append = 1,
+                        bool checkLocal = true);
+
+  void changePageOrientation(QString,
+                        const Where &,
+                        const Where &,
+                        PageOrientationMeta *,
                         bool  useTop = true,
                         int   append = 1,
                         bool checkLocal = true);

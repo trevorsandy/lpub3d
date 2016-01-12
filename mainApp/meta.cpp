@@ -1412,11 +1412,11 @@ void AllocMeta::doc(QStringList &out, QString preamble)
 
 /* ------------------ */ 
 
-OrientationMeta::OrientationMeta() : LeafMeta()
+PageOrientationMeta::PageOrientationMeta() : LeafMeta()
 {
   type[0] = Landscape;
 }
-Rc OrientationMeta::parse(QStringList &argv, int index, Where &here)
+Rc PageOrientationMeta::parse(QStringList &argv, int index, Where &here)
 {
   QRegExp rx("^(PORTRAIT|LANDSCAPE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
@@ -1431,7 +1431,7 @@ Rc OrientationMeta::parse(QStringList &argv, int index, Where &here)
     }
   return FailureRc;
 }
-QString OrientationMeta::format(bool local, bool global)
+QString PageOrientationMeta::format(bool local, bool global)
 {
   QString foo;
   if (type[pushed] == Portrait) {
@@ -1441,7 +1441,7 @@ QString OrientationMeta::format(bool local, bool global)
     }
   return LeafMeta::format(local,global,foo);
 }
-void OrientationMeta::doc(QStringList &out, QString preamble)
+void PageOrientationMeta::doc(QStringList &out, QString preamble)
 {
   out << preamble + " (PORTRAIT|LANDSCAPE)";
 }
@@ -3049,12 +3049,15 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       tokenMap["HEIGHT"]       = ConstrainData::PliConstrainHeight;
       tokenMap["COLS"]         = ConstrainData::PliConstrainColumns;
 
-      tokenMap["VERTICAL"]     = Vertical;
       tokenMap["HORIZONTAL"]   = Horizontal;
+      tokenMap["VERTICAL"]     = Vertical;
 
-      tokenMap["SORT_BY"]        = SortByType;
-      tokenMap["ANNOTATION"]     = AnnotationType;
-      tokenMap["ROTATE_ICON"]    = RotateIconType;
+      tokenMap["PORTRAIT"]     = Portrait;
+      tokenMap["LANDSCAPE"]    = Landscape;
+
+      tokenMap["SORT_BY"]       = SortByType;
+      tokenMap["ANNOTATION"]    = AnnotationType;
+      tokenMap["ROTATE_ICON"]   = RotateIconType;
     }
 }
 

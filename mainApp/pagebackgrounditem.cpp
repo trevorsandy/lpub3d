@@ -57,8 +57,13 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   backgroundAction->setIcon(QIcon(":/resources/background.png"));
 
   // change page size and orientation
-  QAction *pageSizeAndOrientationAction = menu.addAction("Change Page Size or Orientation");
-  pageSizeAndOrientationAction->setIcon(QIcon(":/resources/pagesizeandorientation.png"));
+  QAction *pageSizeAction = menu.addAction("Change Page Size");
+  pageSizeAction->setIcon(QIcon(":/resources/pagesize.png"));
+
+  // change page orientation
+  QAction *pageOrientationAction = menu.addAction("Change Page Orientation");
+  pageOrientationAction->setIcon(QIcon(":/resources/pageorientation.png"));
+
 
   Step    *lastStep = NULL;
   Step    *firstStep = NULL;
@@ -145,11 +150,15 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                           page->top,
                           page->bottom,
                          &page->meta.LPub.page.background, useTop);
-    } else if (selectedAction == pageSizeAndOrientationAction) {
-        changeSizeAndOrientation("Size and Orientation",
+    } else if (selectedAction == pageSizeAction) {
+        changePageSize("Page Size",
                                  page->top,
                                  page->bottom,
-                                &page->meta.LPub.page.size,
+                                &page->meta.LPub.page.size,useTop);
+    } else if (selectedAction == pageOrientationAction) {
+        changePageOrientation("Page Orientation",
+                                 page->top,
+                                 page->bottom,
                                 &page->meta.LPub.page.orientation, useTop);
     } else if (selectedAction == calloutAction) {
       convertToCallout(&page->meta, page->bottom.modelName, page->isMirrored, false);

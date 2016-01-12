@@ -1303,7 +1303,7 @@ public:
  * This class parses (Portait|Landscape)
  */
 
-class OrientationMeta : public LeafMeta
+class PageOrientationMeta : public LeafMeta
 {
 private:
   OrientationEnc type[2];
@@ -1316,13 +1316,13 @@ public:
   {
     type[pushed] = value;
   }
-  OrientationMeta();
-  OrientationMeta(const OrientationMeta &rhs) : LeafMeta(rhs)
+  PageOrientationMeta();
+  PageOrientationMeta(const PageOrientationMeta &rhs) : LeafMeta(rhs)
   {
     type[0] = rhs.type[0];
     type[1] = rhs.type[1];
   }
-  virtual ~OrientationMeta() {}
+  virtual ~PageOrientationMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -1873,7 +1873,7 @@ public:
   // top    == top of page
   // bottom == bottom of page
   UnitsMeta                 size;
-  OrientationMeta           orientation;
+  PageOrientationMeta       orientation;
   MarginsMeta               margin;
   BorderMeta                border;
   BackgroundMeta            background;

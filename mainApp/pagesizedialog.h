@@ -14,6 +14,18 @@
 
 /****************************************************************************
  *
+** This file may be used under the terms of the
+** GNU General Public Liceense (GPL) version 3.0
+** which accompanies this distribution, and is
+** available at http://www.gnu.org/licenses/gpl.html
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+/****************************************************************************
+ *
  * This file implements a dialog that allows the user to change the page
  * size and/or orientation.
  *
@@ -22,41 +34,38 @@
  *
  ***************************************************************************/
 
-#ifndef SIZEANDORIENTATIONDIALOG_H
-#define SIZEANDORIENTATIONDIALOG_H
+#ifndef PAGESIZEDIALOG_H
+#define PAGESIZEDIALOG_H
 
 #include <QDialog>
 #include "meta.h"
 
-class SizeAndOrientationGui;
-class SizeAndOrientationDialog : public QDialog
+class PageSizeGui;
+class PageSizeDialog : public QDialog
 {
   Q_OBJECT
 public:
 
-  SizeAndOrientationDialog(
-    float           sgoods[],
-    OrientationEnc  &ogoods,
+  PageSizeDialog(
+    float           goods[],
     QString          name,
     QWidget         *parent);
 
-  virtual ~SizeAndOrientationDialog();
+  virtual ~PageSizeDialog();
 
-  static bool getSizeAndOrientation(
-    float           sgoods[],
-    OrientationEnc &ogoods,
+  static bool getPageSize(
+    float           goods[],
     QString        name,
     QWidget       *parent = 0);
 
-    UnitsMeta       smeta;
-    OrientationMeta ometa;
+    UnitsMeta       meta;
 
 public slots:
   void accept();
   void cancel();
 
 private:
-  SizeAndOrientationGui *sizeAndOrientation;
+  PageSizeGui *pageSize;
 };
 
-#endif // SIZEANDORIENTATIONDIALOG_H
+#endif // PAGESIZEDIALOG_H

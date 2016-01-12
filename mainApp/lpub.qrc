@@ -72,8 +72,9 @@
         <file alias="nextstep.png">images/nextstep.png</file>
         <file alias="onlinemanual.png">images/onlinemanual.png</file>
         <file alias="open.png">images/open.png</file>
+        <file alias="pageorientation.png">images/pageorientation.png</file>
         <file alias="pagesetup.png">images/pagesetup.png</file>
-        <file alias="pagesizeandorientation.png">images/pagesizeandorientation.png</file>
+        <file alias="pagesize.png">images/pagesize.png</file>
         <file alias="partslistsetup.png">images/partslistsetup.png</file>
         <file alias="paste.png">images/paste.png</file>
         <file alias="pdf_logo.png">images/pdf_logo.png</file>

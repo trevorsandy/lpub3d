@@ -25,29 +25,27 @@
 #include <QGroupBox>
 #include <QDialogButtonBox>
 
-#include "sizeandorientationdialog.h"
+#include "pagesizedialog.h"
 #include "metagui.h"
 
-SizeAndOrientationDialog::SizeAndOrientationDialog(
-  float            sgoods[2],
-  OrientationEnc  &ogoods,
+PageSizeDialog::PageSizeDialog(
+  float            goods[2],
   QString         _name,
   QWidget         *parent)
   : QDialog(parent)
 {
   setWindowTitle(_name);
 
-  smeta.setValue(0,sgoods[0]);
-  smeta.setValue(1,sgoods[1]);
-  ometa.setValue(ogoods);
+  meta.setValue(0,goods[0]);
+  meta.setValue(1,goods[1]);
 
   QVBoxLayout *layout = new QVBoxLayout(this);
   setLayout(layout);
 
-  QGroupBox *box = new QGroupBox("Size and Orientation",this);
+  QGroupBox *box = new QGroupBox("Page Size",this);
   layout->addWidget(box);
 
-  sizeAndOrientation = new SizeAndOrientationGui("",&smeta,&ometa,box);
+  pageSize = new PageSizeGui("",&meta,box);
 
   QDialogButtonBox *buttonBox;
 
@@ -63,38 +61,36 @@ SizeAndOrientationDialog::SizeAndOrientationDialog(
   setModal(true);
 }
 
-SizeAndOrientationDialog::~SizeAndOrientationDialog()
+PageSizeDialog::~PageSizeDialog()
 {
 }
 
-bool SizeAndOrientationDialog::getSizeAndOrientation(
-  float           sgoods[2],
-  OrientationEnc &ogoods,
+bool PageSizeDialog::getPageSize(
+  float           goods[2],
   QString         name,
   QWidget        *parent)
 {
-  SizeAndOrientationDialog *dialog = new SizeAndOrientationDialog(sgoods,ogoods,name,parent);
+  PageSizeDialog *dialog = new PageSizeDialog(goods,name,parent);
 
   bool ok = dialog->exec() == QDialog::Accepted;
 
   if (ok) {
-    sgoods[0] = dialog->smeta.value(0);
-    sgoods[1] = dialog->smeta.value(1);
-    ogoods = dialog->ometa.value();
+    goods[0] = dialog->meta.value(0);
+    goods[1] = dialog->meta.value(1);
   }
   return ok;
 }
 
-void SizeAndOrientationDialog::accept()
+void PageSizeDialog::accept()
 {
-  if (sizeAndOrientation->modified) {
+  if (pageSize->modified) {
     QDialog::accept();
   } else {
     QDialog::reject();
   }
 }
 
-void SizeAndOrientationDialog::cancel()
+void PageSizeDialog::cancel()
 {
   QDialog::reject();
 }

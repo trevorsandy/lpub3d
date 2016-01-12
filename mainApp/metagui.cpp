@@ -2552,30 +2552,102 @@ void PliAnnotationGui::apply(QString &topLevelFile)
     }
 }
 
+
 /***********************************************************************
  *
- * Page Size And Orientation
+ * Page PageOrientation
  *
  **********************************************************************/
 
-SizeAndOrientationGui::SizeAndOrientationGui(
+PageOrientationGui::PageOrientationGui(
   QString const            &heading,
-  UnitsMeta               *_smeta,
-  OrientationMeta         *_ometa,
+  PageOrientationMeta     *_meta,
   QGroupBox               *parent)
 {
 
-  smeta = _smeta;
-  ometa = _ometa;
+  meta = _meta;
 
   QGridLayout *grid   = new QGridLayout(parent);
 
-  sizeModified        = false;
-  orientationModified = false;
+  if (parent) {
+    parent->setLayout(grid);
+  } else {
+    setLayout(grid);
+  }
 
-//   logTrace() << " \nSizeAndOrientationGui Initialized:" <<
-//                 " \nSize 0: " << smeta->value(0) <<
-//                 " \nSize 1: " << smeta->value(1) <<
+  if (heading != "") {
+    label = new QLabel(heading);
+    grid->addWidget(label,0,0);
+  } else {
+    label = NULL;
+  }
+
+  /* page orientation */
+  portraitRadio = new QRadioButton("Portrait",parent);
+  portraitRadio->setChecked(meta->value() == Portrait);
+  connect(portraitRadio,SIGNAL(clicked(bool)),
+          this,        SLOT(  orientationChange(bool)));
+  if (heading == "")
+    grid->addWidget(portraitRadio,0,0);
+  else
+    grid->addWidget(portraitRadio,1,0);
+
+  landscapeRadio    = new QRadioButton("Landscape",parent);
+  landscapeRadio->setChecked(meta->value() == Landscape);
+  connect(landscapeRadio,SIGNAL(clicked(bool)),
+          this,     SLOT(  orientationChange(bool)));
+  if (heading == "")
+    grid->addWidget(landscapeRadio,0,1);
+  else
+    grid->addWidget(landscapeRadio,1,1);
+}
+
+void PageOrientationGui::orientationChange(bool clicked)
+{
+  clicked = clicked;
+
+  QObject *radioButton = sender();
+  if (radioButton == portraitRadio)
+      meta->setValue(Portrait);
+  else
+      meta->setValue(Landscape);
+
+  // switch width and height - get from strcut
+  //float w = valueW->text().toFloat();
+  //float h = valueH->text().toFloat();
+  //smeta->setValue(0,h);
+  //smeta->setValue(1,w);
+  modified     = true;
+}
+
+void PageOrientationGui::apply(QString &topLevelFile)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(topLevelFile,meta);
+  }
+
+}
+
+/***********************************************************************
+ *
+ * Page Size
+ *
+ **********************************************************************/
+
+PageSizeGui::PageSizeGui(
+  QString const            &heading,
+  UnitsMeta               *_meta,
+  QGroupBox               *parent)
+{
+
+  meta = _meta;
+
+  QGridLayout *grid   = new QGridLayout(parent);
+
+//   logTrace() << " \nPageSizeGui Initialized:" <<
+//                 " \nSize 0: " << meta->value(0) <<
+//                 " \nSize 1: " << meta->value(1) <<
 //                 " \nOrientation: " << ometa->value()
 //                 ;
 
@@ -2616,8 +2688,8 @@ SizeAndOrientationGui::SizeAndOrientationGui(
   }
   typeCombo->addItem("Custom");
 
-  pageWidthMm  = smeta->value(0) * 10.0;
-  pageHeightMm = smeta->value(1) * 10.0;
+  pageWidthMm  = meta->value(0) * 10.0;
+  pageHeightMm = meta->value(1) * 10.0;
   typeCombo->setCurrentIndex(int(getTypeIndex(pageWidthMm,pageHeightMm)));
   connect(typeCombo,SIGNAL(currentIndexChanged(int)),
           this, SLOT(  typeChange(             int)));
@@ -2627,10 +2699,10 @@ SizeAndOrientationGui::SizeAndOrientationGui(
     grid->addWidget(typeCombo,1,0);
 
   QString      string;
-  string = QString("%1") .arg((dpi ? centimeters2inches(smeta->value(0)): smeta->value(0)),
-                              smeta->_fieldWidth,
+  string = QString("%1") .arg((dpi ? centimeters2inches(meta->value(0)): meta->value(0)),
+                              meta->_fieldWidth,
                               'f',
-                               2 /*smeta->_precision*/);
+                               2 /*meta->_precision*/);
   valueW = new QLineEdit(string,parent);
 //  connect(valueW,SIGNAL(textEdited(  QString const &)),
 //          this,  SLOT(  valueWChange(QString const &)));
@@ -2641,10 +2713,10 @@ SizeAndOrientationGui::SizeAndOrientationGui(
   else
     grid->addWidget(valueW,1,1);
 
-  string = QString("%1") .arg((dpi ? centimeters2inches(smeta->value(1)) : smeta->value(1)),
-                              smeta->_fieldWidth,
+  string = QString("%1") .arg((dpi ? centimeters2inches(meta->value(1)) : meta->value(1)),
+                              meta->_fieldWidth,
                               'f',
-                               2 /*smeta->_precision*/);
+                               2 /*meta->_precision*/);
   valueH = new QLineEdit(string,parent);
 //  connect(valueH,SIGNAL(textEdited(  QString const &)),
 //          this,  SLOT(  valueHChange(QString const &)));
@@ -2654,38 +2726,9 @@ SizeAndOrientationGui::SizeAndOrientationGui(
     grid->addWidget(valueH,0,2);
   else
     grid->addWidget(valueH,1,2);
-
-  //spacer
-  QHBoxLayout *hLayout = new QHBoxLayout(NULL);
-  if (heading == "")
-    grid->addLayout(hLayout,1,0);
-  else
-    grid->addLayout(hLayout,2,0);
-  QSpacerItem *hSpacer;
-  hSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
-  hLayout->addSpacerItem(hSpacer);
-
-  /* page orientation */
-  portraitRadio = new QRadioButton("Portrait",parent);
-  portraitRadio->setChecked(ometa->value() == Portrait);
-  connect(portraitRadio,SIGNAL(clicked(bool)),
-          this,        SLOT(  orientationChange(bool)));
-  if (heading == "")
-    grid->addWidget(portraitRadio,1,1);
-  else
-    grid->addWidget(portraitRadio,2,1);
-
-  landscapeRadio    = new QRadioButton("Landscape",parent);
-  landscapeRadio->setChecked(ometa->value() == Landscape);
-  connect(landscapeRadio,SIGNAL(clicked(bool)),
-          this,     SLOT(  orientationChange(bool)));
-  if (heading == "")
-    grid->addWidget(landscapeRadio,1,2);
-  else
-    grid->addWidget(landscapeRadio,2,2);
 }
 
-int SizeAndOrientationGui::getTypeIndex(float &pgWidth, float &pgHeight){
+int PageSizeGui::getTypeIndex(float &pgWidth, float &pgHeight){
   int   numPageTypes = sizeof(pageTypes)/sizeof(pageTypes[0]);
   int index = -1;
   QString pageWidth;
@@ -2711,7 +2754,7 @@ int SizeAndOrientationGui::getTypeIndex(float &pgWidth, float &pgHeight){
   return index;
 }
 
-void SizeAndOrientationGui::typeChange(int index){
+void PageSizeGui::typeChange(int index){
 
   if (typeCombo->currentText() != "Custom") {
 
@@ -2726,58 +2769,35 @@ void SizeAndOrientationGui::typeChange(int index){
 
       QString      string;
       string = QString("%1") .arg((dpi ? pageWidthIn : pageWidthCm),
-                                  smeta->_fieldWidth,
+                                  meta->_fieldWidth,
                                   'f',
-                                   2 /*smeta->_precision*/);
+                                   2 /*meta->_precision*/);
       valueW->setText(string);
 
       string = QString("%1") .arg((dpi ? pageHeightIn : pageHeightCm),
-                                  smeta->_fieldWidth,
+                                  meta->_fieldWidth,
                                   'f',
-                                   2 /*smeta->_precision*/);
+                                   2 /*meta->_precision*/);
       valueH->setText(string);
     }
 
-//  sizeModified = true;
 }
 
-void SizeAndOrientationGui::orientationChange(bool clicked)
-{
-  clicked = clicked;
-
-  QObject *radioButton = sender();
-  if (radioButton == portraitRadio)
-      ometa->setValue(Portrait);
-  else
-      ometa->setValue(Landscape);
-  orientationModified = true;
-
-  // switch width and height
-  float w = valueW->text().toFloat();
-  float h = valueH->text().toFloat();
-  smeta->setValue(0,h);
-  smeta->setValue(1,w);
-  sizeModified = true;
-  modified     = true;
-}
-
-void SizeAndOrientationGui::valueWChange(QString const &string)
+void PageSizeGui::valueWChange(QString const &string)
 {
   float w = string.toFloat();
-  smeta->setValue(0,w);
-  sizeModified = true;
+  meta->setValue(0,w);
   modified     = true;
 }
 
-void SizeAndOrientationGui::valueHChange(QString const &string)
+void PageSizeGui::valueHChange(QString const &string)
 {
   float h = string.toFloat();
-  smeta->setValue(1,h);
-  sizeModified = true;
+  meta->setValue(1,h);
   modified     = true;
 }
 
-void SizeAndOrientationGui::setEnabled(bool enable)
+void PageSizeGui::setEnabled(bool enable)
 {
   if (label) {
     label->setEnabled(enable);
@@ -2786,17 +2806,15 @@ void SizeAndOrientationGui::setEnabled(bool enable)
   valueH->setEnabled(enable);
 }
 
-void SizeAndOrientationGui::apply(QString &topLevelFile)
+void PageSizeGui::apply(QString &topLevelFile)
 {
 
-  if (sizeModified) {
+  if (modified) {
     MetaItem mi;
-    mi.setGlobalMeta(topLevelFile,smeta);
-  }
-  if (orientationModified) {
-    MetaItem mi;
-    mi.setGlobalMeta(topLevelFile,ometa);
+    mi.setGlobalMeta(topLevelFile,meta);
   }
 
 }
+
+
 

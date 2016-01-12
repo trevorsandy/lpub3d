@@ -244,7 +244,8 @@ HEADERS += \
     dialogexportpages.h \
     updateldrawarchive.h \
     splashscreen.h \
-    sizeandorientationdialog.h
+    pageorientationdialog.h \
+    pagesizedialog.h
 #    displaypagethread.h
 	
 SOURCES += \
@@ -324,7 +325,8 @@ SOURCES += \
     dialogexportpages.cpp \
     updateldrawarchive.cpp \
     splashscreen.cpp \
-    sizeandorientationdialog.cpp
+    pageorientationdialog.cpp \
+    pagesizedialog.cpp
 #    displaypagethread.cpp
 	
 FORMS += \

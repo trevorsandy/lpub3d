@@ -375,8 +375,9 @@ mainApp/images/next.png -text
 mainApp/images/nextstep.png -text
 mainApp/images/onlinemanual.png -text
 mainApp/images/open.png -text
+mainApp/images/pageorientation.png -text
 mainApp/images/pagesetup.png -text
-mainApp/images/pagesizeandorientation.png -text
+mainApp/images/pagesize.png -text
 mainApp/images/partslistsetup.png -text
 mainApp/images/paste.png -text
 mainApp/images/pdf_logo.png -text
@@ -438,6 +439,10 @@ mainApp/pageattributetextitem.h -text
 mainApp/pagebackgrounditem.cpp -text
 mainApp/pagebackgrounditem.h -text
 mainApp/pageglobals.cpp -text
+mainApp/pageorientationdialog.cpp -text
+mainApp/pageorientationdialog.h -text
+mainApp/pagesizedialog.cpp -text
+mainApp/pagesizedialog.h -text
 mainApp/pairdialog.cpp -text
 mainApp/pairdialog.h -text
 mainApp/parmshighlighter.cpp -text
@@ -493,8 +498,6 @@ mainApp/rx.cpp -text
 mainApp/rx.h -text
 mainApp/scaledialog.cpp -text
 mainApp/scaledialog.h -text
-mainApp/sizeandorientationdialog.cpp -text
-mainApp/sizeandorientationdialog.h -text
 mainApp/splashscreen.cpp -text
 mainApp/splashscreen.h -text
 mainApp/step.cpp -text

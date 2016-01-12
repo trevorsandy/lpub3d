@@ -54,7 +54,8 @@
 #include "borderdialog.h"
 #include "backgrounddialog.h"
 #include "dividerdialog.h"
-#include "sizeandorientationdialog.h"
+#include "pagesizedialog.h"
+#include "pageorientationdialog.h"
 #include "paths.h"
 #include "render.h"
 
@@ -1097,40 +1098,61 @@ void MetaItem::changeBackground(
   }
 }
 
-void MetaItem::changeSizeAndOrientation(
+void MetaItem::changePageSize(
   QString         title,
   const Where    &topOfStep,
   const Where    &bottomOfStep,
-  UnitsMeta       *smeta,
-  OrientationMeta *ometa,
+  UnitsMeta      *meta,
   bool            useTop,
   int             append,
   bool            local)
 {
   float values[2];
 
-  values[0]   = smeta->value(0);
-  values[1]   = smeta->value(1);
-
-  OrientationEnc orientation;
-  orientation = ometa->value();
+  values[0]   = meta->value(0);
+  values[1]   = meta->value(1);
 
   bool ok;
-  ok = SizeAndOrientationDialog::getSizeAndOrientation(values,orientation,title,gui);
+  ok = PageSizeDialog::getPageSize(values,title,gui);
 
   if (ok) {
 
-      smeta->setValue(0,values[0]);
-      smeta->setValue(1,values[1]);
-      ometa->setValue(orientation);
+      meta->setValue(0,values[0]);
+      meta->setValue(1,values[1]);
 
-      logDebug() << " SIZE (dialog return): Width: " << smeta->value(0) << " Height: " << smeta->value(1) << " Orientation: " << (orientation == Portrait ? "Portrait" : "Landscape");
+      logDebug() << " SIZE (dialog return): Width: " << meta->value(0) << " Height: " << meta->value(1);
 
-      setMeta(topOfStep,bottomOfStep,smeta,useTop,append,local);
-
-      setMeta(topOfStep,bottomOfStep,ometa,useTop,append,local);
+      setMeta(topOfStep,bottomOfStep,meta,useTop,append,local);
   }
 }
+
+void MetaItem::changePageOrientation(
+  QString              title,
+  const Where         &topOfStep,
+  const Where         &bottomOfStep,
+  PageOrientationMeta *meta,
+  bool                 useTop,
+  int                  append,
+  bool                 local)
+{
+
+  OrientationEnc orientation;
+  orientation = meta->value();
+
+  bool ok;
+  ok = PageOrientationDialog::getPageOrientation(orientation,title,gui);
+
+  if (ok) {
+
+      meta->setValue(orientation);
+
+      logDebug() << " SIZE (dialog return): Orientation: " << (orientation == Portrait ? "Portrait" : "Landscape");
+
+      setMeta(topOfStep,bottomOfStep,meta,useTop,append,local);
+
+  }
+}
+
 
 void MetaItem::changePliSort(
   QString        title,
