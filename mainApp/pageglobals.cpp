@@ -28,6 +28,7 @@
 #include "metaitem.h"
 #include "metagui.h"
 #include "lpub_preferences.h"
+#include "lpub.h"
 
 /**********************************************************************
  *
@@ -80,14 +81,22 @@ GlobalPageDialog::GlobalPageDialog(
   widget->setLayout(grid);
 
   //~~~~~~~~~~~~ page tab ~~~~~~~~~~~~~~~~//
-  box = new QGroupBox(tr("Size"));
-  grid->addWidget(box,0,0);
-  child = new PageSizeGui("",&pageMeta->size,box);
-  data->children.append(child);
+//  box = new QGroupBox(tr("Size"));
+//  grid->addWidget(box,0,0);
+//  child = new PageSizeGui("",&pageMeta->size,box);
+//  data->children.append(child);
 
-  box = new QGroupBox(tr("Orientation"));
-  grid->addWidget(box,1,0);
-  child = new PageOrientationGui("",&pageMeta->orientation,box);
+//  box = new QGroupBox(tr("Orientation"));
+//  grid->addWidget(box,1,0);
+//  child = new PageOrientationGui("",&pageMeta->orientation,box);
+//  data->children.append(child);
+
+  bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
+  QString header = (dpi ? "Size and Orientation (In) " : "Size and Orientation (Cm)" );
+
+  box = new QGroupBox(tr("%1").arg(header));
+  grid->addWidget(box,0,0);
+  child = new SizeAndOrientationGui("",&pageMeta->size,&pageMeta->orientation,box);
   data->children.append(child);
 
   box = new QGroupBox(tr("Background"));

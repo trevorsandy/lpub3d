@@ -170,6 +170,15 @@ public:
                         int   append = 1,
                         bool checkLocal = true);
 
+  void changeSizeAndOrientation(QString,
+                        const Where &,
+                        const Where &,
+                        UnitsMeta *,
+                        PageOrientationMeta *,
+                        bool  useTop = true,
+                        int   append = 1,
+                        bool checkLocal = true);
+/*
   void changePageSize(QString,
                         const Where &,
                         const Where &,
@@ -185,7 +194,7 @@ public:
                         bool  useTop = true,
                         int   append = 1,
                         bool checkLocal = true);
-
+*/
   void changePliSort(   QString,
                         const Where &,
                         const Where &,

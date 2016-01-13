@@ -52,12 +52,16 @@ public:
   MetaGui()
   {
     modified = false;
+    // only for SizeAndOrientation
+    sizeModified = false;
   }
   ~MetaGui() {}
 
   virtual void apply(QString &topLevelFile) = 0;
 
   bool      modified;
+  bool      sizeModified;
+  bool      orientationModified;
 
 protected:
   LeafMeta *_meta;
@@ -903,5 +907,57 @@ public slots:
   void valueHChange(QString const &);
 };
 
+/***********************************************************************
+ *
+ * Page Size And Orientation
+ *
+ **********************************************************************/
+
+class QGroupBox;
+class QLabel;
+class QLineEdit;
+class QRadioButton;
+class SizeAndOrientationGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  SizeAndOrientationGui(
+    QString const           &heading,
+    UnitsMeta              *_smeta,
+    PageOrientationMeta    *_ometa,
+    QGroupBox              *parent = NULL);
+  ~SizeAndOrientationGui() {}
+
+  int  getTypeIndex(float &pgWidth, float &pgHeight);
+  void setEnabled(bool enabled);
+//  void updateWidthAndHeight();
+
+  virtual void apply(QString &topLevelFile);
+
+private:
+  bool                    sizeModified;
+  bool                    orientationModified;
+  float                   w;
+  float                   h;
+  UnitsMeta              *smeta;
+  PageOrientationMeta    *ometa;
+  QLabel                 *label;
+  QRadioButton           *portraitRadio;
+  QRadioButton           *landscapeRadio;
+  QGroupBox              *orientation;
+  QGroupBox              *size;
+
+  QLineEdit              *valueW;
+  QLineEdit              *valueH;
+  QComboBox              *typeCombo;
+
+
+public slots:
+  void typeChange(QString const &);
+  void valueWChange(QString const &);
+  void valueHChange(QString const &);
+  void orientationChange(bool);
+};
 
 #endif

@@ -2311,35 +2311,35 @@ PageMeta::PageMeta() : BranchMeta()
    * Page Attribute relative Tos
    *
    *  FRONT COVER PAGE
-   *  documentLogoFront.placement.setValue  (BottomLeftOutside,PageHeaderType); //fooWas TopLeftInsideCorner, PageType
-   *  modelName.placement.setValue          (TopLeftOutside,	PageTitleType);
-   *  titleFront.placement.setValue         (LeftInside,		PageType);
-   *  authorFront.placement.setValue        (BottomLeftOutside,	PageTitleType);
-   *  pieces.placement.setValue             (BottomLeftOutside,	PageAuthorType);
-   *  modelDesc.placement.setValue          (BottomLeftOutside,	PagePiecesType);
-   *  publishDesc.placement.setValue        (BottomLeftOutside,	PageModelDescType);
+   *  documentLogoFront.placement  (BottomLeftOutside,  PageHeaderType)
+   *  modelName.placement          (TopLeftOutside,	PageTitleType)
+   *  titleFront.placement         (LeftInside,         PageType)
+   *  authorFront.placement        (BottomLeftOutside,	PageTitleType)
+   *  pieces.placement             (BottomLeftOutside,	PageAuthorType)
+   *  modelDesc.placement          (BottomLeftOutside,	PagePiecesType)
+   *  publishDesc.placement        (BottomLeftOutside,	PageModelDescType)
    *
    *  BACK COVER PAGE
-   *  documentLogoBack.placement.setValue	(BottomOutside,		PageHeaderType);
-   *  titleBack.placement.setValue          (CenterCenter,		PageType);
-   *  authorBack.placement.setValue         (BottomOutside,     PageTitleType);
-   *  copyrightBack.placement.setValue      (BottomOutside,     PageAuthorType);
-   *  urlBack.placement.setValue            (BottomOutside,     PageCopyrightType);
-   *  emailBack.placement.setValue          (BottomOutside,     PageURLType);
-   *  disclaimer.placement.setValue         (BottomOutside,     PageEmailType);
-   *  plug.placement.setValue               (BottomOutside,		PageDisclaimerType);
-   *  plugImage.placement.setValue          (BottomOutside,		PagePlugType);
+   *  documentLogoBack.placement   (BottomOutside,	PageHeaderType)
+   *  titleBack.placement          (CenterCenter,	PageType)
+   *  authorBack.placement         (BottomOutside,      PageTitleType)
+   *  copyrightBack.placement      (BottomOutside,      PageAuthorType)
+   *  urlBack.placement            (BottomOutside,      PageCopyrightType)
+   *  emailBack.placement          (BottomOutside,      PageURLType)
+   *  disclaimer.placement         (BottomOutside,      PageEmailType)
+   *  plug.placement               (BottomOutside,	PageDisclaimerType)
+   *  plugImage.placement          (BottomOutside,	PagePlugType)
    *
    *  HEADER
-   *  url.placement.setValue          (TopLeftInsideCorner,	PageType);
-   *  email.placement.setValue		(TopRightInsideCorner,	PageType);
+   *  url.placement                (TopLeftInsideCorner,	PageType)
+   *  email.placement		   (TopRightInsideCorner,	PageType)
    *
    *  FOOTER
-   *  copyright.placement.setValue	(BottomLeftInsideCorner,PageType);
-   *  author.placement.setValue		(LeftBottomOutside,     PageNumberType);
+   *  copyright.placement	   (BottomLeftInsideCorner,      PageType)
+   *  author.placement		   (LeftBottomOutside,     PageNumberType)
    *
    *  NOT PLACED
-   *  category      (TopLeftInsideCorner,       PageType)
+   *  category                     (TopLeftInsideCorner,       PageType)
    */
 
   //model titleFront text

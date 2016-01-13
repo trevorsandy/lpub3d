@@ -54,8 +54,9 @@
 #include "borderdialog.h"
 #include "backgrounddialog.h"
 #include "dividerdialog.h"
-#include "pagesizedialog.h"
-#include "pageorientationdialog.h"
+#include "sizeandorientationdialog.h"
+//#include "pagesizedialog.h"
+//#include "pageorientationdialog.h"
 #include "paths.h"
 #include "render.h"
 
@@ -1098,6 +1099,40 @@ void MetaItem::changeBackground(
   }
 }
 
+void MetaItem::changeSizeAndOrientation(
+  QString              title,
+  const Where         &topOfStep,
+  const Where         &bottomOfStep,
+  UnitsMeta           *smeta,
+  PageOrientationMeta *ometa,
+  bool                 useTop,
+  int                  append,
+  bool                 local)
+{
+  float values[2];
+
+  values[0]   = smeta->value(0);
+  values[1]   = smeta->value(1);
+
+  OrientationEnc orientation;
+  orientation = ometa->value();
+
+  bool ok;
+  ok = SizeAndOrientationDialog::getSizeAndOrientation(values,orientation,title,gui);
+
+  if (ok) {
+
+      smeta->setValue(0,values[0]);
+      smeta->setValue(1,values[1]);
+      ometa->setValue(orientation);
+
+      logDebug() << " SIZE (dialog return): Width: " << smeta->value(0) << " Height: " << smeta->value(1) << " Orientation: " << (orientation == Portrait ? "Portrait" : "Landscape");
+
+      setMeta(topOfStep,bottomOfStep,smeta,useTop,append,local);
+      setMeta(topOfStep,bottomOfStep,ometa,useTop,append,local);
+  }
+}
+/*
 void MetaItem::changePageSize(
   QString         title,
   const Where    &topOfStep,
@@ -1152,7 +1187,7 @@ void MetaItem::changePageOrientation(
 
   }
 }
-
+*/
 
 void MetaItem::changePliSort(
   QString        title,
