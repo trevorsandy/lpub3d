@@ -60,8 +60,8 @@ public:
   virtual void apply(QString &topLevelFile) = 0;
 
   bool      modified;
-  bool      sizeModified;
-  bool      orientationModified;
+//  bool      sizeModified;
+//  bool      orientationModified;
 
 protected:
   LeafMeta *_meta;
@@ -929,15 +929,15 @@ public:
     QGroupBox              *parent = NULL);
   ~SizeAndOrientationGui() {}
 
-  int  getTypeIndex(float &pgWidth, float &pgHeight);
+  int  getTypeIndex(float &widthPg, float &heightPg);
   void setEnabled(bool enabled);
 //  void updateWidthAndHeight();
 
   virtual void apply(QString &topLevelFile);
 
 private:
-  bool                    sizeModified;
-  bool                    orientationModified;
+//  bool                    sizeModified;
+//  bool                    orientationModified;
   float                   w;
   float                   h;
   UnitsMeta              *smeta;

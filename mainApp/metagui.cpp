@@ -116,7 +116,7 @@ struct pageTypes {
 {"Legal",      21.59,   35.56,    8.5,    14.0},
 {"Letter",     21.6,    27.9,     8.0,    11.0},
 {"Tabloid",    27.9,    43.2,    11.0,    17.0},
-{"Custom",     0.1,     0.1,     0.1,     0.1},
+{"Custom",      0.1,     0.1,     0.1,     0.1},
 };
 
 
@@ -2734,7 +2734,7 @@ PageSizeGui::PageSizeGui(
   logDebug() << "Current Page Type: " << typeCombo->currentText();
 }
 
-int PageSizeGui::getTypeIndex(float &pgWidth, float &pgHeight){
+int PageSizeGui::getTypeIndex(float &widthPg, float &heightPg){
 
   bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
   int   numPageTypes = sizeof(pageTypes)/sizeof(pageTypes[0]);
@@ -2745,8 +2745,8 @@ int PageSizeGui::getTypeIndex(float &pgWidth, float &pgHeight){
   QString typeHeight;
   for (int i = 0; i < numPageTypes; i++) {
 
-      pageWidth  = QString::number( pgWidth,  'f', 1 /*meta->_precision*/ );
-      pageHeight = QString::number( pgHeight, 'f', 1 /*meta->_precision*/ );
+      pageWidth  = QString::number( widthPg,  'f', 1 /*meta->_precision*/ );
+      pageHeight = QString::number( heightPg, 'f', 1 /*meta->_precision*/ );
       typeWidth  = QString::number((dpi ? pageTypes[i].pageWidthIn : pageTypes[i].pageWidthCm),  'f', 1 /*meta->_precision*/ );
       typeHeight = QString::number((dpi ? pageTypes[i].pageHeightIn : pageTypes[i].pageHeightCm), 'f', 1 /*meta->_precision*/ );
 
@@ -2904,6 +2904,19 @@ SizeAndOrientationGui::SizeAndOrientationGui(
   }
 
   /* page size */
+  float pageWidth;
+  float pageHeight;
+
+  if (ometa->value() == Portrait)
+    {
+      pageWidth = smeta->value(0);
+      pageHeight = smeta->value(1);
+    } else {
+      // Landscape so switch Width and Height
+      pageWidth = smeta->value(1);
+      pageHeight = smeta->value(0);
+    }
+
   int   numPageTypes = sizeof(pageTypes)/sizeof(pageTypes[0]);
   bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
 
@@ -2919,8 +2932,6 @@ SizeAndOrientationGui::SizeAndOrientationGui(
 
       typeCombo->addItem(type);
   }
-  float pageWidth = smeta->value(0);
-  float pageHeight = smeta->value(1);
   typeCombo->setCurrentIndex(int(getTypeIndex(pageWidth,pageHeight)));
   connect(typeCombo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(  typeChange(             QString const &)));
@@ -2991,7 +3002,7 @@ SizeAndOrientationGui::SizeAndOrientationGui(
   logDebug() << "Current Page Type: " << typeCombo->currentText();
 }
 
-int SizeAndOrientationGui::getTypeIndex(float &pgWidth, float &pgHeight){
+int SizeAndOrientationGui::getTypeIndex(float &widthPg, float &heightPg){
 
   bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
   int   numPageTypes = sizeof(pageTypes)/sizeof(pageTypes[0]);
@@ -3000,10 +3011,11 @@ int SizeAndOrientationGui::getTypeIndex(float &pgWidth, float &pgHeight){
   QString pageHeight;
   QString typeWidth;
   QString typeHeight;
+
   for (int i = 0; i < numPageTypes; i++) {
 
-      pageWidth  = QString::number( pgWidth,  'f', 1 /*smeta->_precision*/ );
-      pageHeight = QString::number( pgHeight, 'f', 1 /*smeta->_precision*/ );
+      pageWidth  = QString::number( widthPg,  'f', 1 /*smeta->_precision*/ );
+      pageHeight = QString::number( heightPg, 'f', 1 /*smeta->_precision*/ );
       typeWidth  = QString::number((dpi ? pageTypes[i].pageWidthIn : pageTypes[i].pageWidthCm),  'f', 1 /*smeta->_precision*/ );
       typeHeight = QString::number((dpi ? pageTypes[i].pageHeightIn : pageTypes[i].pageHeightCm), 'f', 1 /*smeta->_precision*/ );
 
@@ -3018,7 +3030,7 @@ int SizeAndOrientationGui::getTypeIndex(float &pgWidth, float &pgHeight){
   }
 
   if (index == -1)
-      index = typeCombo->findText("Custom");
+      index = typeCombo->count() - 1; // last index
 
   return index;
 }
@@ -3109,7 +3121,7 @@ void SizeAndOrientationGui::orientationChange(bool clicked)
 
   typeChange(newType);
 
-  orientationModified     = true;
+//  orientationModified     = true;
   modified		  = true;
 }
 
@@ -3117,7 +3129,7 @@ void SizeAndOrientationGui::valueWChange(QString const &string)
 {
   w = string.toFloat();
   smeta->setValue(0,w);
-  sizeModified     = true;
+//  sizeModified     = true;
   modified         = true;
   qDebug() << "Meta setValue(0) Value Change:" << smeta->value(0);
 }
@@ -3126,39 +3138,10 @@ void SizeAndOrientationGui::valueHChange(QString const &string)
 {
   h = string.toFloat();
   smeta->setValue(1,h);
-  sizeModified     = true;
+//  sizeModified     = true;
   modified         = true;
   qDebug() << "Meta setValue(1) Value Change:" << smeta->value(1);
 }
-
-
-//kill
-//void SizeAndOrientationGui::updateWidthAndHeight()
-//{
-
-//  if (ometa->value() == Portrait){
-
-//      smeta->setValue(0,w);
-//      smeta->setValue(1,h);
-//      qDebug() << "\nMeta setValue(0) Portrait Update:" << smeta->value(0)
-//               << "\nMeta setValue(1) Portrait Update:" << smeta->value(1);
-//    }
-//  else
-//    {
-//      // switch hegtht and width
-//      QString stringW, stringH;
-//      stringW = valueW->text();
-//      stringH = valueH->text();
-
-//      valueW->setText(stringH);
-//      valueH->setText(stringW);
-
-//      smeta->setValue(0,h);    //temporary
-//      smeta->setValue(1,w);
-//      qDebug() << "\nMeta setValue(0) Landscape Update:" << smeta->value(0)
-//               << "\nMeta setValue(1) Landscape Update:" << smeta->value(1);
-//    }
-//}
 
 void SizeAndOrientationGui::setEnabled(bool enable)
 {
@@ -3171,17 +3154,20 @@ void SizeAndOrientationGui::setEnabled(bool enable)
 
 void SizeAndOrientationGui::apply(QString &topLevelFile)
 {
-  qDebug() << "\nModifications (modified): " << modified << " (sizeModified): " << sizeModified << " (orientationModified: " << orientationModified ;
+  qDebug() << "\nModifications (modified): " << modified << " (sizeModified): " << sizeModified << " (orientationModified): " << orientationModified ;
   if (modified) {
-      if (orientationModified) {
-          MetaItem mi;
-          mi.setGlobalMeta(topLevelFile,ometa);
-        }
+      MetaItem mi;
+      mi.setGlobalMeta(topLevelFile,ometa);
+      mi.setGlobalMeta(topLevelFile,smeta);
+//      if (orientationModified) {
+//          //MetaItem mi;
+//          mi.setGlobalMeta(topLevelFile,ometa);
+//        }
 
-      if (sizeModified) {
-          MetaItem mi;
-          mi.setGlobalMeta(topLevelFile,smeta);
-        }
+//      if (sizeModified) {
+//          //MetaItem mi;
+//          mi.setGlobalMeta(topLevelFile,smeta);
+//        }
     }
 }
 

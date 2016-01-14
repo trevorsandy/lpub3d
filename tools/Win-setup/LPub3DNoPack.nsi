@@ -73,8 +73,8 @@
   ; Rebrand bottom textrow
   BrandingText "${Company} Installer"
 
-  ; Show install details
-  ShowInstDetails show
+  ; Show install details (show|hide|nevershow)
+  ShowInstDetails hide
   
   SetCompressor /SOLID lzma
    
@@ -239,6 +239,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   File "..\..\mainApp\extras\fadeStepColorParts.lst"
   File "..\..\mainApp\extras\freeformAnnotations.lst"
   File "..\..\mainApp\extras\titleAnnotations.lst"
+  File "..\..\mainApp\extras\pliSubstituteParts.lst"
   File "..\..\mainApp\extras\PDFPrint.jpg"
   File "..\..\mainApp\extras\pli.mpd"
   
@@ -458,6 +459,7 @@ Section "Uninstall"
   Delete "${INSTDIR_AppData}\extras\fadeStepColorParts.lst"
   Delete "${INSTDIR_AppData}\extras\freeformAnnotations.lst"
   Delete "${INSTDIR_AppData}\extras\titleAnnotations.lst"
+  Delete "${INSTDIR_AppData}\extras\pliSubstituteParts.lst"
   Delete "${INSTDIR_AppData}\extras\pli.mpd"    
   
   !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder

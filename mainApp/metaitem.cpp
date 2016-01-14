@@ -1122,14 +1122,15 @@ void MetaItem::changeSizeAndOrientation(
 
   if (ok) {
 
+      logDebug() << " SIZE (dialog return): Orientation: " << (orientation == Portrait ? "Portrait" : "Landscape");
+      ometa->setValue(orientation);
+      setMeta(topOfStep,bottomOfStep,ometa,useTop,append,local);
+
+      logDebug() << " SIZE (dialog return): Width: " << smeta->value(0) << " Height: " << smeta->value(1);
       smeta->setValue(0,values[0]);
       smeta->setValue(1,values[1]);
-      ometa->setValue(orientation);
-
-      logDebug() << " SIZE (dialog return): Width: " << smeta->value(0) << " Height: " << smeta->value(1) << " Orientation: " << (orientation == Portrait ? "Portrait" : "Landscape");
-
       setMeta(topOfStep,bottomOfStep,smeta,useTop,append,local);
-      setMeta(topOfStep,bottomOfStep,ometa,useTop,append,local);
+
   }
 }
 /*
