@@ -1106,7 +1106,7 @@ void Gui::updateCheck()
 
 void Gui::onlineManual()
 {
-    QDesktopServices::openUrl(QUrl("http://sites.google.com/site/workingwithlpub/"));
+    QDesktopServices::openUrl(QUrl("http://sites.google.com/site/workingwithlpub/lpub3d"));
 }
 
 // End Jaco's code

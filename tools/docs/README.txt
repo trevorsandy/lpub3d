@@ -1,11 +1,13 @@
-LPub3D 1.3.1
+LPub3D 1.4.0.516.14 
  
 Features and enhancements 
 ------------ 
--Fix: Update ldglite hard-coded default directory setting (r505)
--Fix: Remove hard coded reference to LPub3DViewer-Library folder - this was added in 1.3.0 unofficial archive refresh functionality (r506)
--Enhancements (r507)
-
+-Change: Point online manual to LPub3D content
+-Fix: Update ldglite hard-coded default directory setting (r505) 
+-Fix: Remove hard coded reference to LPub3DViewer-Library folder - this was added in 1.3.0 unofficial archive refresh functionality (r506) 
+-Enhancements (r507) 
+-Fix: Add pliSubstituteParts.lst to media build - sorry, I forgot to include in the NSIS build script:-( (r) 
+ 
 LPub3D 1.3.0.504.2 
  
 Features and enhancements 
