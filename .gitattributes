@@ -203,6 +203,7 @@ lc_lib/resources/edit_undo_16.png -text
 lc_lib/resources/file_new.png -text
 lc_lib/resources/file_new_16.png -text
 lc_lib/resources/file_open.png -text
+lc_lib/resources/file_open_16.png -text
 lc_lib/resources/file_picture.png -text
 lc_lib/resources/file_print.png -text
 lc_lib/resources/file_print_16.png -text
@@ -250,6 +251,11 @@ lc_lib/tools/setup/setup.ico -text
 lc_lib/tools/utils/bin2c.c -text
 lc_lib/tools/utils/partsgen.cpp -text
 lc_lib/tools/utils/zpipe.c -text
+ldrawini/ldrawini.c -text
+ldrawini/ldrawini.h -text
+ldrawini/ldrawini.pri -text
+ldrawini/ldrawini.pro -text
+ldrawini/ldrawinp.h -text
 mainApp/LPub.icns -text
 mainApp/LPub.ico -text
 mainApp/aboutdialog.cpp -text
@@ -346,7 +352,9 @@ mainApp/images/divider.png -text
 mainApp/images/editfadeparts.png -text
 mainApp/images/editfreeformannotations.png -text
 mainApp/images/editinifile.png -text
+mainApp/images/editplisubstituteparts.png -text
 mainApp/images/editredo.png -text
+mainApp/images/editrotateicon.png -text
 mainApp/images/editsetting.png -text
 mainApp/images/edittitleannotations.png -text
 mainApp/images/editundo.png -text

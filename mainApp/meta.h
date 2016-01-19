@@ -557,8 +557,8 @@ public:
     _min = 0;
     _max = 0;
     _fieldWidth = 6;
-    _precision = 2;
-    _inputMask = "999.99";
+    _precision  = 2;
+    _inputMask  = "999.99";
   }
   virtual ~UnitsMeta() {}
   virtual QString format(bool,bool);

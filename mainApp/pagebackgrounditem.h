@@ -42,38 +42,44 @@ class PageBackgroundItem : public BackgroundItem
     Page    *page;
 
   public:
-    PageBackgroundItem(
-      Page   *_page,
-      int     width,
-      int     height)
-    {
-      page = _page;
+        PageBackgroundItem(
+          Page   *_page,
+          int     width,
+          int     height);
 
-      relativeType = page->relativeType;
-#if 0
-      width = int(page->meta.LPub.page.size.valuePixels(0));
-      height= int(page->meta.LPub.page.size.valuePixels(1));
-#endif
+//    PageBackgroundItem(
+//      Page   *_page,
+//      int     width,
+//      int     height)
+//    {
+//      page = _page;
 
-      pixmap = new QPixmap(width,height);
+//      relativeType = page->relativeType;
+//#if 0
+//      width = int(page->meta.LPub.page.size.valuePixels(0));
+//      height= int(page->meta.LPub.page.size.valuePixels(1));
+//#endif
 
-      QString toolTip("Page background - right-click to modify");
+//      pixmap = new QPixmap(width,height);
 
-      setBackground(pixmap,
-                    PageType,
-                   &page->meta,
-                    page->meta.LPub.page.background,
-                    page->meta.LPub.page.border,
-                    page->meta.LPub.page.margin,
-                    page->meta.LPub.page.subModelColor,
-                    page->meta.submodelStack.size(),
-                    toolTip);
-      setPixmap(*pixmap);
-      setFlag(QGraphicsItem::ItemIsSelectable,false);
-      setFlag(QGraphicsItem::ItemIsMovable,false);
+//      QString toolTip("Page background - right-click to modify");
 
-      delete pixmap;
-    }
+//      setBackground(pixmap,
+//                    PageType,
+//                   &page->meta,
+//                    page->meta.LPub.page.background,
+//                    page->meta.LPub.page.border,
+//                    page->meta.LPub.page.margin,
+//                    page->meta.LPub.page.subModelColor,
+//                    page->meta.submodelStack.size(),
+//                    toolTip);
+
+//      setPixmap(*pixmap);
+//      setFlag(QGraphicsItem::ItemIsSelectable,false);
+//      setFlag(QGraphicsItem::ItemIsMovable,false);
+
+//      delete pixmap;
+//    }
     ~PageBackgroundItem()
     {
 //      delete pixmap;

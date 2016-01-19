@@ -39,6 +39,40 @@
 #include "lpub.h"
 #include "lpub_preferences.h"
 
+PageBackgroundItem::PageBackgroundItem(
+  Page   *_page,
+  int     width,
+  int     height)
+{
+  page = _page;
+
+  relativeType = page->relativeType;
+#if 0
+  width = int(page->meta.LPub.page.size.valuePixels(0));
+  height= int(page->meta.LPub.page.size.valuePixels(1));
+#endif
+
+  pixmap = new QPixmap(width,height);
+
+  QString toolTip("Page background - right-click to modify");
+
+  setBackground(pixmap,
+                PageType,
+               &page->meta,
+                page->meta.LPub.page.background,
+                page->meta.LPub.page.border,
+                page->meta.LPub.page.margin,
+                page->meta.LPub.page.subModelColor,
+                page->meta.submodelStack.size(),
+                toolTip);
+
+  setPixmap(*pixmap);
+  setFlag(QGraphicsItem::ItemIsSelectable,false);
+  setFlag(QGraphicsItem::ItemIsMovable,false);
+
+  delete pixmap;
+}
+
 void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
@@ -52,13 +86,19 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *ignoreAction = NULL;
   QAction *partAction = NULL;
 
+  QAction *backgroundAction = NULL;
+  QAction *sizeAndOrientationAction = NULL;
+
+//      logTrace() << "Fired";
   // change page background colour
-  QAction *backgroundAction = menu.addAction("Change Page Background");
+  backgroundAction = menu.addAction("Change Page Background");
   backgroundAction->setIcon(QIcon(":/resources/background.png"));
+  backgroundAction->setWhatsThis("Change the background colour");
 
   // change page size and orientation
-  QAction *sizeAndOrientationAction = menu.addAction("Change Page Size or Orientation");
+  sizeAndOrientationAction = menu.addAction("Change Page Size or Orientation");
   sizeAndOrientationAction->setIcon(QIcon(":/resources/pagesizeandorientation.png"));
+  sizeAndOrientationAction->setWhatsThis("Change the page size and orientation");
 
 //  // change page size and orientation
 //  QAction *pageSizeAction = menu.addAction("Change Page Size");

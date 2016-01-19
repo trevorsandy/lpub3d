@@ -761,7 +761,6 @@ int Gui::drawPage(
 
                     if (curMeta.LPub.fadeStep.fadeStep.value()){
 
-
                         if (step == NULL) {
                             if (range == NULL) {
                                 range = newRange(steps,calledOut);

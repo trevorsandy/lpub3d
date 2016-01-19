@@ -52,16 +52,12 @@ public:
   MetaGui()
   {
     modified = false;
-    // only for SizeAndOrientation
-    sizeModified = false;
   }
   ~MetaGui() {}
 
   virtual void apply(QString &topLevelFile) = 0;
 
   bool      modified;
-//  bool      sizeModified;
-//  bool      orientationModified;
 
 protected:
   LeafMeta *_meta;
