@@ -216,8 +216,6 @@ void CalloutBackgroundItem::contextMenuEvent(
 
 void CalloutBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-  PlacementData placementData = callout->meta.LPub.callout.placement.value();
-
   positionChanged = false;
   position = pos();
   QGraphicsItem::mousePressEvent(event);

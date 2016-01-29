@@ -108,8 +108,6 @@ void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
 {
   QMenu menu;
 
-  PlacementData placementData = placement.value();
-
   QAction *fontAction       = menu.addAction("Change Submodel Count Font");
   QAction *colorAction      = menu.addAction("Change Submodel Count Color");
   QAction *marginAction     = menu.addAction("Change Submodel Count Margins");

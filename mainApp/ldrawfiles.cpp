@@ -773,7 +773,6 @@ void LDrawFile::countInstances(const QString &mcFileName, bool isMirrored, bool 
 {
   QString fileName = mcFileName.toLower();
   bool partsAdded = false;
-  bool buffExchg = false;
   bool noStep = false;
   bool stepIgnore = false;
   
@@ -806,7 +805,7 @@ void LDrawFile::countInstances(const QString &mcFileName, bool isMirrored, bool 
         for (++i; i < j; i++) {
           split(f->_contents[i],tokens);
           if (tokens.size() == 15 && tokens[0] == "1") {
-            if (contains(tokens[14]) /*&& ! buffExchg */ && ! stepIgnore) {
+            if (contains(tokens[14]) && ! stepIgnore) {
               countInstances(tokens[14],mirrored(tokens),true);
             }
           } else if (tokens.size() == 4 &&
@@ -846,11 +845,10 @@ void LDrawFile::countInstances(const QString &mcFileName, bool isMirrored, bool 
         noStep = false;
       } else if (tokens.size() == 4 && tokens[0] == "0"
                                      && tokens[1] == "BUFEXCHG") {
-        buffExchg = tokens[3] == "STORE";
       } else if (tokens.size() == 15 && tokens[0] == "1") {
         bool containsSubFile = contains(tokens[14]);
-        // Danny: !buffExchg condition prevented from counting steps in submodels
-        if (containsSubFile /*&& ! buffExchg*/ && ! stepIgnore) {
+
+        if (containsSubFile && ! stepIgnore) {
           countInstances(tokens[14],mirrored(tokens),false);
         }
         partsAdded = true;

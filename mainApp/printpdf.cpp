@@ -604,7 +604,7 @@ void Gui::exportAs(QString &suffix)
   clearPage(&view, &scene);
 
   // Support transparency for formats that can handle it, but use white for those that can't.
-  QColor fill = (suffix.compare(".png", Qt::CaseInsensitive) == 0) ? Qt::transparent :  Qt::white;
+  QColor fillClear = (suffix.compare(".png", Qt::CaseInsensitive) == 0) ? Qt::transparent :  Qt::white;
 
   int _displayPageNum = 0;
   int _maxPages       = 0;
@@ -632,7 +632,7 @@ void Gui::exportAs(QString &suffix)
           // transparent or uses a PNG image with transparency. This will
           // prevent rendered pixels from each page layering on top of each
           // other.
-          image.fill(fill.Rgb);
+          image.fill(fillClear.Rgb);
           // render this page
           // scene.render instead of view.render resolves "warm up" issue
           drawPage(&view,&scene,false);
@@ -680,7 +680,7 @@ void Gui::exportAs(QString &suffix)
           // transparent or uses a PNG image with transparency. This will
           // prevent rendered pixels from each page layering on top of each
           // other.
-          image.fill(fill.Rgb);
+          image.fill(fillClear.Rgb);
           // render this page
           // scene.render instead of view.render resolves "warm up" issue
           drawPage(&view,&scene,false);

@@ -362,11 +362,9 @@ int Gui::drawPage(
                     }
 
                   if (bfxStore2 && bfxLoad) {
-                      bool removed = false;
                       for (int i = 0; i < bfxParts.size(); i++) {
                           if (bfxParts[i] == colorType) {
                               bfxParts.removeAt(i);
-                              removed = true;
                               break;
                             }
                         }

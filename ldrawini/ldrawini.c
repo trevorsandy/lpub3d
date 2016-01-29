@@ -86,7 +86,7 @@ sprintf stat strcat strchr strcmp strcpy strdup strlen strncmp strncpy ungetc
 /* Naming refers to Windows platform */
 #if defined(_WIN32) || defined(__TURBOC__)
 // Disable warning message C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead.
-#pragma warning( disable : 4996 )
+//#pragma warning( disable : 4996 )
 #define BACKSLASH_CHAR '\\'
 #define BACKSLASH_STRING "\\"
 #define SLASH_CHAR '/'
@@ -937,7 +937,9 @@ int LDrawIniParseSymbolicSearchDir(struct LDrawSearchDirS * Result,
       return 0;                 /* ModelDir/HomeDir not applicable           */
    }
    OldLen = strlen(PrefixDir);
-   Len = t ? t - s : strlen(s);
+
+   Len = t ? t - s : strlen(s); // generate warning: comparison between signed and unsigned type
+
    Dir = (char *) malloc(OldLen + Len + 1 + 1); /* See AddTrailingSlash      */
    if (!Dir)
       return 0;

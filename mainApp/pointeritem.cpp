@@ -228,8 +228,6 @@ void CalloutPointerItem::drawPointerPoly()
   head->setPos(points[Tip]);
   addToGroup(head);
 
-  QRectF rect = sceneBoundingRect();
-
   view->updateSceneRect(sceneBoundingRect());
 }
 
@@ -248,12 +246,10 @@ bool CalloutPointerItem::autoLocFromTip()
   int bottom = height;
 
   QPoint intersect;
-  int tx,ty,t;
+  int tx,ty;
 
   tx = points[Tip].x();
   ty = points[Tip].y();
-
-  t = borderThickness;
 
   /* Figure out which corner */
   BorderData borderData = callout->background->border.valuePixels();
