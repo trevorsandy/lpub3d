@@ -86,7 +86,7 @@ bool Project::IsModelNameValid(const QString& Name) const
 	return true;
 }
 
-lcModel* Project::CreateNewModel(bool ShowModel)
+void Project::CreateNewModel()
 {
 	const QString Prefix = tr("Model #");
 	int Max = 0;
@@ -114,7 +114,7 @@ lcModel* Project::CreateNewModel(bool ShowModel)
 		Name = QInputDialog::getText(gMainWindow, tr("New Model"), tr("Name:"), QLineEdit::Normal, Name, &Ok);
 
 		if (!Ok)
-			return NULL;
+			return;
 
 		if (IsModelNameValid(Name))
 			break;
@@ -125,26 +125,16 @@ lcModel* Project::CreateNewModel(bool ShowModel)
 			QMessageBox::information(gMainWindow, tr("Duplicate Model"), tr("A model named '%1' already exists in this project, please enter an unique name.").arg(Name));
 	}
 
-	lcModel* Model = NULL;
-
 	if (!Name.isEmpty())
 	{
 		mModified = true;
-		Model = new lcModel(Name);
+		lcModel* Model = new lcModel(Name);
 		Model->CreatePieceInfo(this);
 		Model->SetSaved();
 		mModels.Add(Model);
-
-		if (ShowModel)
-		{
-			SetActiveModel(mModels.GetSize() - 1);
-			gMainWindow->UpdateTitle();
-		}
-		else
-			SetActiveModel(mModels.FindIndex(mActiveModel));
+		SetActiveModel(mModels.GetSize() - 1);
+		gMainWindow->UpdateTitle();
 	}
-
-	return Model;
 }
 
 void Project::ShowModelListDialog()

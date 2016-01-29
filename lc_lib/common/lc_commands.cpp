@@ -2,7 +2,7 @@
 #include "lc_commands.h"
 #include "system.h"
 
-lcCommand gCommands[LC_NUM_COMMANDS] =
+lcCommand gCommands[LC_NUM_COMMANDS] = 
 {
 	// LC_FILE_NEW
 	{
@@ -970,13 +970,6 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Status", "Delete selected objects"),
 		QT_TRANSLATE_NOOP("Shortcut", "Delete")
 	},
-	// LC_PIECE_RESET_PIVOT_POINT
-	{
-		"Piece.ResetPivotPoint",
-		QT_TRANSLATE_NOOP("Menu", "Reset &Pivot Point"),
-		QT_TRANSLATE_NOOP("Status", "Reset the pivot point of the selected pieces to their origin"),
-		QT_TRANSLATE_NOOP("Shortcut", "")
-	},
 	// LC_PIECE_MOVE_PLUSX
 	{
 		"Piece.Move.PlusX",
@@ -1073,27 +1066,6 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		"Piece.Array",
 		QT_TRANSLATE_NOOP("Menu", "A&rray..."),
 		QT_TRANSLATE_NOOP("Status", "Make copies of the selected pieces"),
-		QT_TRANSLATE_NOOP("Shortcut", "")
-	},
-	// 	LC_PIECE_VIEW_SELECTED_MODEL
-	{
-		"Piece.ViewSelectedModel",
-		QT_TRANSLATE_NOOP("Menu", "View Selected Model"),
-		QT_TRANSLATE_NOOP("Status", "View the model referenced by the currently selected piece"),
-		QT_TRANSLATE_NOOP("Shortcut", "")
-	},
-	// LC_PIECE_MOVE_SELECTION_TO_MODEL
-	{
-		"Piece.MoveSelectionToModel",
-		QT_TRANSLATE_NOOP("Menu", "Move to New Model..."),
-		QT_TRANSLATE_NOOP("Status", "Move the currently selected pieces to a new model and replaces them with a reference to the model"),
-		QT_TRANSLATE_NOOP("Shortcut", "")
-	},
-	// LC_PIECE_INLINE_SELECTED_MODELS
-	{
-		"Piece.InlineSelectedModels",
-		QT_TRANSLATE_NOOP("Menu", "Inline Selected Models"),
-		QT_TRANSLATE_NOOP("Status", "Insert the contents of the selected model references into the current model"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_PIECE_GROUP

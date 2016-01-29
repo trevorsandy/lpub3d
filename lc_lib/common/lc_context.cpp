@@ -924,7 +924,6 @@ void lcContext::DrawMeshSection(lcMesh* Mesh, lcMeshSection* Section)
 
 	if (!Texture)
 	{
-		SetProgram(LC_PROGRAM_SIMPLE);
 		SetVertexFormat(VertexBufferOffset, 3, 0, 0);
 
 		if (mTexture)
@@ -936,7 +935,6 @@ void lcContext::DrawMeshSection(lcMesh* Mesh, lcMeshSection* Section)
 	else
 	{
 		VertexBufferOffset += Mesh->mNumVertices * sizeof(lcVertex);
-		SetProgram(LC_PROGRAM_TEXTURE);
 		SetVertexFormat(VertexBufferOffset, 3, 2, 0);
 
 		if (Texture != mTexture)

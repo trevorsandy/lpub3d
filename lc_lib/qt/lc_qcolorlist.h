@@ -1,7 +1,12 @@
 #ifndef _LC_QCOLORLIST_H_
 #define _LC_QCOLORLIST_H_
 
+#include "lc_global.h"
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QWidget>
+#else
 #include <QWidget>
+#endif
 #include "lc_colors.h"
 
 class lcQColorList : public QWidget

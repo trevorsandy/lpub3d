@@ -1,19 +1,8 @@
 #ifndef _LC_QPROPERTIESWIDGET_H_
 #define _LC_QPROPERTIESWIDGET_H_
 
-#include "lc_array.h"
-
 struct lcPartProperties;
 class lcQPropertiesTreeDelegate;
-
-enum lcPropertyWidgetMode
-{
-	LC_PROPERTY_WIDGET_EMPTY,
-	LC_PROPERTY_WIDGET_PIECE,
-	LC_PROPERTY_WIDGET_CAMERA,
-	LC_PROPERTY_WIDGET_LIGHT,
-	LC_PROPERTY_WIDGET_MULTIPLE
-};
 
 class lcQPropertiesTree : public QTreeWidget
 {
@@ -29,7 +18,7 @@ public:
 		return itemFromIndex(index);
 	}
 
-	void Update(const lcArray<lcObject*>& Selection, lcObject* Focus);
+	void updateFocusObject(lcObject *newFocusObject);
 
 	QWidget *createEditor(QWidget *parent, QTreeWidgetItem *item) const;
 	bool lastColumn(int column) const;
@@ -65,16 +54,14 @@ protected:
 
 	QTreeWidgetItem *addProperty(QTreeWidgetItem *parent, const QString& label, PropertyType propertyType);
 
-	void SetEmpty();
-	void SetPiece(lcObject* Focus);
-	void SetCamera(lcObject* Focus);
-	void SetLight(lcObject* Focus);
-	void SetMultiple();
+	void setEmpty();
+	void setPart(lcObject *newFocusObject);
+	void setCamera(lcObject *newFocusObject);
+	void setLight(lcObject *newFocusObject);
 
 	void getPartProperties(lcPartProperties *properties);
 
-	lcPropertyWidgetMode mWidgetMode;
-	lcObject* mFocus;
+	lcObject *focusObject;
 
 	lcQPropertiesTreeDelegate *m_delegate;
 	QIcon m_expandIcon;

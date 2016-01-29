@@ -5,8 +5,8 @@
 #include <QOpenGLWidget>
 #else
 #include <QGLWidget>
-
 #endif
+
 class lcGLWidget;
 
 class lcQGLWidget : public QGLWidget

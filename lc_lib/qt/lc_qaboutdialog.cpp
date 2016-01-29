@@ -4,7 +4,7 @@
 #include "lc_mainwindow.h"
 #include "preview.h"
 #include "lc_glextensions.h"
-
+ 
 lcQAboutDialog::lcQAboutDialog(QWidget *parent, void *data) :
 	QDialog(parent),
 	ui(new Ui::lcQAboutDialog)

@@ -157,6 +157,7 @@ bool lcPiecesLibrary::Load(const char* LibraryPath)
 		char UnofficialFileName[LC_MAXPATH];
 		strcpy(UnofficialFileName, mLibraryPath);
 		strcat(UnofficialFileName, "ldrawunf.zip");
+//		strcat(UnofficialFileName, "/ldrawunf.zip");
 
 		OpenArchive(UnofficialFileName, LC_ZIPFILE_UNOFFICIAL);
 
@@ -387,11 +388,13 @@ void lcPiecesLibrary::ReadArchiveDescriptionsAndPartTypes(const QString& Officia
 				*Dst = 0;
 				break;
 			}
+
 		}
 
 		SaveCacheIndex(IndexFileName);
 	}
 }
+
 
 bool lcPiecesLibrary::OpenDirectory(const char* Path)
 {
@@ -1312,12 +1315,6 @@ void lcPiecesLibrary::UpdateBuffers(lcContext* Context)
 
 	free(VertexData);
 	free(IndexData);
-}
-
-void lcPiecesLibrary::UnloadUnusedParts()
-{
-	for (int PieceInfoIndex = 0; PieceInfoIndex < mPieces.GetSize(); PieceInfoIndex++)
-		mPieces[PieceInfoIndex]->UnloadIfUnused();
 }
 
 bool lcPiecesLibrary::LoadTexture(lcTexture* Texture)

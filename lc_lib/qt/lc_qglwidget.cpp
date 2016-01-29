@@ -28,6 +28,68 @@ void lcGLWidget::Redraw()
 	Widget->mUpdateTimer.start(0);
 }
 
+
+void lcGLWidget::ShowPopupMenu()
+{
+	QGLWidget* Widget = (QGLWidget*)mWidget;
+	QAction **actions = gMainWindow->mActions;
+
+	QMenu *popup = new QMenu(Widget);
+
+	QMenu *tools = new QMenu("Tools");
+	popup->addMenu(tools);
+	for (int actionIdx = LC_EDIT_ACTION_FIRST; actionIdx <= LC_EDIT_ACTION_LAST; actionIdx++)
+		tools->addAction(actions[actionIdx]);
+    
+//    QMenu *rotateStepMenu = new QMenu("Step Rotation");
+//    rotateStepMenu->addAction(actions[LC_EDIT_ROTATESTEP_RELATIVE_ROTATION]);
+//    rotateStepMenu->addAction(actions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION]);
+//    actions[LC_EDIT_ACTION_ROTATESTEP]->setMenu(rotateStepMenu);
+
+//    QMenu *SnapAngleMenu = new QMenu("Snap Angle Menu");
+//    for (int actionIdx = LC_EDIT_SNAP_ANGLE0; actionIdx <= LC_EDIT_SNAP_ANGLE9; actionIdx++)
+//        SnapAngleMenu->addAction(actions[actionIdx]);
+//    actions[LC_EDIT_SNAP_ANGLE_TOGGLE]->setMenu(SnapAngleMenu);
+
+//    tools->addSeparator();
+//    tools->addAction(actions[LC_EDIT_SNAP_ANGLE_TOGGLE]);
+
+    /*** management - popupMenu ***/
+    //tools->removeAction(actions[LC_EDIT_ACTION_SELECT]);
+    tools->removeAction(actions[LC_EDIT_ACTION_ROTATESTEP]);
+    tools->removeAction(actions[LC_EDIT_ACTION_INSERT]);
+    tools->removeAction(actions[LC_EDIT_ACTION_LIGHT]);
+    tools->removeAction(actions[LC_EDIT_ACTION_SPOTLIGHT]);
+    tools->removeAction(actions[LC_EDIT_ACTION_CAMERA]);
+    tools->removeAction(actions[LC_EDIT_ACTION_MOVE]);
+    tools->removeAction(actions[LC_EDIT_ACTION_ZOOM]);
+    tools->removeAction(actions[LC_EDIT_ACTION_ROLL]);
+    //tools->removeAction(actions[LC_EDIT_ACTION_ROTATE]);
+    tools->removeAction(actions[LC_EDIT_ACTION_DELETE]);
+    tools->removeAction(actions[LC_EDIT_ACTION_PAINT]);
+    /*** management - end ***/
+
+	QMenu *cameras = new QMenu("Cameras");
+	popup->addMenu(cameras);
+	cameras->addAction(actions[LC_VIEW_CAMERA_NONE]);
+	for (int actionIdx = LC_VIEW_CAMERA_FIRST; actionIdx <= LC_VIEW_CAMERA_LAST; actionIdx++)
+		cameras->addAction(actions[actionIdx]);
+	cameras->addSeparator();
+	cameras->addAction(actions[LC_VIEW_CAMERA_RESET]);
+
+    popup->addSeparator();
+    popup->addAction(actions[LC_EDIT_UNDO]);
+    popup->addAction(actions[LC_EDIT_REDO]);
+
+	popup->addSeparator();
+	popup->addAction(actions[LC_VIEW_SPLIT_HORIZONTAL]);
+	popup->addAction(actions[LC_VIEW_SPLIT_VERTICAL]);
+	popup->addAction(actions[LC_VIEW_REMOVE_VIEW]);
+	popup->addAction(actions[LC_VIEW_RESET_VIEWS]);
+
+	popup->exec(QCursor::pos());
+}
+
 void lcGLWidget::SetCursor(LC_CURSOR_TYPE CursorType)
 {
 	if (mCursorType == CursorType)
@@ -63,8 +125,8 @@ void lcGLWidget::SetCursor(LC_CURSOR_TYPE CursorType)
 	};
 
 	QGLWidget* widget = (QGLWidget*)mWidget;
-
-	if (CursorType != LC_CURSOR_DEFAULT && CursorType < LC_CURSOR_COUNT - 1)
+    //if (CursorType != LC_CURSOR_DEFAULT && CursorType < LC_CURSOR_COUNT)
+    if (CursorType != LC_CURSOR_DEFAULT && CursorType < LC_CURSOR_COUNT - 1)
 	{
 		const lcCursorInfo& Cursor = Cursors[CursorType];
 		widget->setCursor(QCursor(QPixmap(Cursor.Name), Cursor.x, Cursor.y));
@@ -101,7 +163,6 @@ lcQGLWidget::lcQGLWidget(QWidget *parent, lcQGLWidget *share, lcGLWidget *owner,
 		gPlaceholderMesh->CreateBox();
 	}
 	gWidgetCount++;
-
 	widget->OnInitialUpdate();
 
 	preferredSize = QSize(0, 0);
@@ -122,6 +183,7 @@ lcQGLWidget::~lcQGLWidget()
 	makeCurrent();
 	if (!gWidgetCount)
 	{
+//		widget->MakeCurrent(); //Rem on update to 1867
 		View::DestroyResources(widget->mContext);
 		lcContext::DestroyResources();
 
@@ -199,11 +261,9 @@ void lcQGLWidget::mousePressEvent(QMouseEvent *event)
 	case Qt::LeftButton:
 		widget->OnLeftButtonDown();
 		break;
-
 	case Qt::MidButton:
 		widget->OnMiddleButtonDown();
 		break;
-
 	case Qt::RightButton:
 		widget->OnRightButtonDown();
 		break;
@@ -238,11 +298,9 @@ void lcQGLWidget::mouseReleaseEvent(QMouseEvent *event)
 	case Qt::LeftButton:
 		widget->OnLeftButtonUp();
 		break;
-
 	case Qt::MidButton:
 		widget->OnMiddleButtonUp();
 		break;
-
 	case Qt::RightButton:
 		widget->OnRightButtonUp();
 		break;

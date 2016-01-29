@@ -1,7 +1,7 @@
 #ifndef _LC_MAINWINDOW_H_
 #define _LC_MAINWINDOW_H_
 
-#include <QtWidgets>
+#include <QMainWindow>
 #include "lc_basewindow.h"
 #include "lc_array.h"
 #include "lc_commands.h"
@@ -34,7 +34,7 @@ class lcMainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	lcMainWindow(QMainWindow *parent = 0);
+	explicit lcMainWindow(QMainWindow *parent = 0);
 	~lcMainWindow();
 
 	void CreateWidgets();
@@ -146,16 +146,6 @@ public:
 		return mViews;
 	}
 
-	QMenu* GetCameraMenu() const
-	{
-		return mCameraMenu;
-	}
-
-	QMenu* GetViewpointMenu() const
-	{
-		return mViewpointMenu;
-	}
-
 	bool DoDialog(LC_DIALOG_TYPE Type, void* Data);
 
 	void ResetCameras();
@@ -166,7 +156,7 @@ public:
 
 	void SetTool(lcTool Tool);
 	void SetTransformType(lcTransformType TransformType);
-    void SetRotateStepType(lcRotateStepType RotateStepType);
+	void SetRotateStepType(lcRotateStepType RotateStepType);
 	void SetColorIndex(int ColorIndex);
 	void SetMoveSnapEnabled(bool Enabled);
 	void SetAngleSnapEnabled(bool Enabled);
@@ -183,8 +173,7 @@ public:
 	void MergeProject();
 	bool SaveProject(const QString& FileName);
 	bool SaveProjectIfModified();
-	bool SetModelFromFocus();
-	void SetModelFromSelection();
+	void SetModelFromFocus();
 	void HandleCommand(lcCommandId CommandId);
 
 	void AddRecentFile(const QString& FileName);
@@ -198,7 +187,8 @@ public:
 	void TogglePrintPreview();
 	void ToggleFullScreen();
 
-	void UpdateSelectedObjects(bool SelectionChanged);
+	void UpdateFocusObject(lcObject* Focus);
+	void UpdateSelectedObjects(int Flags, int SelectedCount, lcObject* Focus);
 	void UpdateTimeline(bool Clear, bool UpdateItems);
 	void UpdatePaste(bool Enabled);
 	void UpdateCurrentStep();
@@ -229,6 +219,7 @@ public:
     QStatusBar* mLCStatusBar;
 
 public slots:
+    //inline void halt3DViewer(bool b){mHalt3DViewer = b;}
     void halt3DViewer(bool b);
     void enable3DActions();
 
@@ -240,6 +231,9 @@ protected slots:
 	void PartSearchReturn();
 	void PartSearchChanged(const QString& Text);
 	void Print(QPrinter* Printer);
+
+//signals:
+//	void quit();
 
 protected:
 	void closeEvent(QCloseEvent *event);
@@ -268,7 +262,7 @@ protected:
 	bool mLockY;
 	bool mLockZ;
 	bool mRelativeTransform;
-    bool mHalt3DViewer;
+	bool mHalt3DViewer;
 
 	QAction* mActionFileRecentSeparator;
 
@@ -290,12 +284,9 @@ protected:
 	QLineEdit* mTransformZEdit;
 
 	QLabel* mStatusBarLabel;
-//  QLabel* mStatusPositionLabel;       //remarked at LPub3D Rev 244 build 05
 	QLabel* mStatusSnapLabel;
+//  QLabel* mStatusPositionLabel;       //remarked at LPub3D Rev 244 build 05
 //	QLabel* mStatusTimeLabel;
-
-	QMenu* mCameraMenu;
-	QMenu* mViewpointMenu;
 };
 
 extern class lcMainWindow* gMainWindow;

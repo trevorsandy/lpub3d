@@ -16,12 +16,15 @@
 #include "lc_context.h"
 #include "lc_qutils.h"
 
-#define LC_PIECE_CONTROL_POINT_SIZE 10.0f
+#define LC_PIECE_SAVE_VERSION 12 // LeoCAD 0.80
 
-lcPiece::lcPiece(PieceInfo* Info)
-	: lcObject(LC_OBJECT_PIECE)
+/////////////////////////////////////////////////////////////////////////////
+// Piece construction/destruction
+
+lcPiece::lcPiece(PieceInfo* pPieceInfo)
+	: lcObject (LC_OBJECT_PIECE)
 {
-	SetPieceInfo(Info);
+	mPieceInfo = pPieceInfo;
 	mState = 0;
 	mColorIndex = gDefaultColor;
 	mColorCode = 16;
@@ -29,7 +32,9 @@ lcPiece::lcPiece(PieceInfo* Info)
 	mStepHide = LC_STEP_MAX;
 	mGroup = NULL;
 	mFileLine = -1;
-	mPivotMatrix = lcMatrix44Identity();
+
+	if (mPieceInfo != NULL)
+		mPieceInfo->AddRef();
 
 	ChangeKey(mPositionKeys, lcVector3(0.0f, 0.0f, 0.0f), 1, true);
 	ChangeKey(mRotationKeys, lcMatrix33Identity(), 1, true);
@@ -37,26 +42,8 @@ lcPiece::lcPiece(PieceInfo* Info)
 
 lcPiece::~lcPiece()
 {
-	if (mPieceInfo)
-		mPieceInfo->Release(false);
-}
-
-void lcPiece::SetPieceInfo(PieceInfo* Info)
-{
-	mPieceInfo = Info;
-	if (mPieceInfo)
-		mPieceInfo->AddRef();
-
-	if (0) // todo: get control points from the piece info
-	{
-		mControlPoints.SetSize(2);
-		mControlPoints[0].Position = lcVector3(0, 0, -30);
-		mControlPoints[1].Position = lcVector3(0, 0, 30);
-	}
-	else
-	{
-		mControlPoints.RemoveAll();
-	}
+	if (mPieceInfo != NULL)
+		mPieceInfo->Release();
 }
 
 void lcPiece::SaveLDraw(QTextStream& Stream) const
@@ -68,19 +55,6 @@ void lcPiece::SaveLDraw(QTextStream& Stream) const
 
 	if (IsHidden())
 		Stream << QLatin1String("0 !LEOCAD PIECE HIDDEN") << LineEnding;
-
-	if (mState & LC_PIECE_PIVOT_POINT_VALID)
-	{
-		const float* PivotMatrix = mPivotMatrix;
-		float PivotNumbers[12] = { PivotMatrix[12], -PivotMatrix[14], PivotMatrix[13], PivotMatrix[0], -PivotMatrix[8], PivotMatrix[4], -PivotMatrix[2], PivotMatrix[10], -PivotMatrix[6], PivotMatrix[1], -PivotMatrix[9], PivotMatrix[5] };
-
-		Stream << QLatin1String("0 !LEOCAD PIECE PIVOT ");
-
-		for (int NumberIdx = 0; NumberIdx < 12; NumberIdx++)
-			Stream << ' ' << lcFormatValue(PivotNumbers[NumberIdx]);
-
-		Stream << LineEnding;
-	}
 
 	if (mPositionKeys.GetSize() > 1)
 		SaveKeysLDraw(Stream, mPositionKeys, "PIECE POSITION_KEY ");
@@ -110,18 +84,6 @@ bool lcPiece::ParseLDrawLine(QTextStream& Stream)
 			Stream >> mStepHide;
 		else if (Token == QLatin1String("HIDDEN"))
 			SetHidden(true);
-		else if (Token == QLatin1String("PIVOT"))
-		{
-			float PivotNumbers[12];
-			for (int TokenIdx = 0; TokenIdx < 12; TokenIdx++)
-				Stream >> PivotNumbers[TokenIdx];
-
-			lcMatrix44 PivotMatrix(lcVector4( PivotNumbers[3],  PivotNumbers[9], -PivotNumbers[6], 0.0f), lcVector4(PivotNumbers[5], PivotNumbers[11], -PivotNumbers[8], 0.0f),
-								   lcVector4(-PivotNumbers[4], -PivotNumbers[10], PivotNumbers[7], 0.0f), lcVector4(PivotNumbers[0], PivotNumbers[2],  -PivotNumbers[1], 1.0f));
-
-			mPivotMatrix = PivotMatrix;
-			mState |= LC_PIECE_PIVOT_POINT_VALID;
-		}
 		else if (Token == QLatin1String("POSITION_KEY"))
 			LoadKeysLDraw(Stream, mPositionKeys);
 		else if (Token == QLatin1String("ROTATION_KEY"))
@@ -131,13 +93,23 @@ bool lcPiece::ParseLDrawLine(QTextStream& Stream)
 	return false;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// Piece save/load
+
+// Use only when loading from a file
+void lcPiece::SetPieceInfo(PieceInfo* pPieceInfo)
+{
+	mPieceInfo = pPieceInfo;
+	mPieceInfo->AddRef();
+}
+
 bool lcPiece::FileLoad(lcFile& file)
 {
 	lcuint8 version, ch;
 
 	version = file.ReadU8();
 
-	if (version > 12) // LeoCAD 0.80
+	if (version > LC_PIECE_SAVE_VERSION)
 		return false;
 
 	if (version > 8)
@@ -425,31 +397,7 @@ void lcPiece::RayTest(lcObjectRayTest& ObjectRayTest) const
 	if (mPieceInfo->MinIntersectDist(mModelWorld, ObjectRayTest.Start, ObjectRayTest.End, ObjectRayTest.Distance))
 	{
 		ObjectRayTest.ObjectSection.Object = const_cast<lcPiece*>(this);
-		ObjectRayTest.ObjectSection.Section = LC_PIECE_SECTION_POSITION;
-	}
-
-	if (AreControlPointsVisible())
-	{
-		lcMatrix44 InverseWorldMatrix = lcMatrix44AffineInverse(mModelWorld);
-		lcVector3 Start = lcMul31(ObjectRayTest.Start, InverseWorldMatrix);
-		lcVector3 End = lcMul31(ObjectRayTest.End, InverseWorldMatrix);
-
-		for (int ControlPointIdx = 0; ControlPointIdx < mControlPoints.GetSize(); ControlPointIdx++)
-		{
-			lcVector3 Min(-LC_PIECE_CONTROL_POINT_SIZE, -LC_PIECE_CONTROL_POINT_SIZE, -LC_PIECE_CONTROL_POINT_SIZE);
-			lcVector3 Max(LC_PIECE_CONTROL_POINT_SIZE, LC_PIECE_CONTROL_POINT_SIZE, LC_PIECE_CONTROL_POINT_SIZE);
-
-			Min += mControlPoints[ControlPointIdx].Position;
-			Max += mControlPoints[ControlPointIdx].Position;
-
-			float Distance;
-			if (!lcBoundingBoxRayIntersectDistance(Min, Max, Start, End, &Distance, NULL) || (Distance >= ObjectRayTest.Distance))
-				continue;
-
-			ObjectRayTest.ObjectSection.Object = const_cast<lcPiece*>(this);
-			ObjectRayTest.ObjectSection.Section = LC_PIECE_SECTION_CONTROL_POINT_1 + ControlPointIdx;
-			ObjectRayTest.Distance = Distance;
-		}
+		ObjectRayTest.ObjectSection.Section = 0;
 	}
 }
 
@@ -503,10 +451,9 @@ void lcPiece::DrawInterface(lcContext* Context) const
 		{ Min[0], Min[1], Min[2] }, { Min[0], Min[1], Min[2] + Edge[2] },
 	};
 
-	Context->SetProgram(LC_PROGRAM_SIMPLE);
 	Context->SetWorldMatrix(mModelWorld);
 
-	if (IsFocused(LC_PIECE_SECTION_POSITION))
+	if (IsFocused())
 		Context->SetInterfaceColor(LC_COLOR_FOCUSED);
 	else
 		Context->SetInterfaceColor(LC_COLOR_SELECTED);
@@ -515,131 +462,15 @@ void lcPiece::DrawInterface(lcContext* Context) const
 	Context->SetVertexFormat(0, 3, 0, 0);
 
 	Context->DrawPrimitives(GL_LINES, 0, 48);
-
-	if (IsPivotPointVisible())
-	{
-		const float Size = 5.0f;
-		const float Verts[8 * 3] =
-		{
-			-Size, -Size, -Size, -Size,  Size, -Size, Size,  Size, -Size, Size, -Size, -Size,
-			-Size, -Size,  Size, -Size,  Size,  Size, Size,  Size,  Size, Size, -Size,  Size
-		};
-
-		const GLushort Indices[24] =
-		{
-			0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7
-		};
-
-		Context->SetWorldMatrix(lcMul(mPivotMatrix, mModelWorld));
-
-		Context->SetVertexBufferPointer(Verts);
-		Context->SetVertexFormat(0, 3, 0, 0);
-		Context->SetIndexBufferPointer(Indices);
-
-		Context->DrawIndexedPrimitives(GL_LINES, 24, GL_UNSIGNED_SHORT, 0);
-	}
-
-	if (AreControlPointsVisible())
-	{
-		for (int ControlPointIdx = 0; ControlPointIdx < mControlPoints.GetSize(); ControlPointIdx++)
-		{
-			float Verts[8 * 3];
-			float* CurVert = Verts;
-
-			lcVector3 Min(-LC_PIECE_CONTROL_POINT_SIZE, -LC_PIECE_CONTROL_POINT_SIZE, -LC_PIECE_CONTROL_POINT_SIZE);
-			lcVector3 Max(LC_PIECE_CONTROL_POINT_SIZE, LC_PIECE_CONTROL_POINT_SIZE, LC_PIECE_CONTROL_POINT_SIZE);
-
-			Min += mControlPoints[ControlPointIdx].Position;
-			Max += mControlPoints[ControlPointIdx].Position;
-
-			*CurVert++ = Min[0]; *CurVert++ = Min[1]; *CurVert++ = Min[2];
-			*CurVert++ = Min[0]; *CurVert++ = Max[1]; *CurVert++ = Min[2];
-			*CurVert++ = Max[0]; *CurVert++ = Max[1]; *CurVert++ = Min[2];
-			*CurVert++ = Max[0]; *CurVert++ = Min[1]; *CurVert++ = Min[2];
-			*CurVert++ = Min[0]; *CurVert++ = Min[1]; *CurVert++ = Max[2];
-			*CurVert++ = Min[0]; *CurVert++ = Max[1]; *CurVert++ = Max[2];
-			*CurVert++ = Max[0]; *CurVert++ = Max[1]; *CurVert++ = Max[2];
-			*CurVert++ = Max[0]; *CurVert++ = Min[1]; *CurVert++ = Max[2];
-
-			const GLushort Indices[36] =
-			{
-				0, 1, 2, 0, 2, 3, 7, 6, 5, 7, 5, 4, 0, 1, 5, 0, 5, 4,
-				2, 3, 7, 2, 7, 6, 0, 3, 7, 0, 7, 4, 1, 2, 6, 1, 6, 5
-			};
-
-			Context->SetVertexBufferPointer(Verts);
-			Context->SetVertexFormat(0, 3, 0, 0);
-			Context->SetIndexBufferPointer(Indices);
-
-			if (IsFocused(LC_PIECE_SECTION_CONTROL_POINT_1 + ControlPointIdx))
-				Context->SetInterfaceColor(LC_COLOR_FOCUSED);
-			else
-				Context->SetInterfaceColor(LC_COLOR_CAMERA);
-
-			Context->DrawIndexedPrimitives(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
-		}
-	}
 }
 
 void lcPiece::Move(lcStep Step, bool AddKey, const lcVector3& Distance)
 {
-	lcuint32 Section = GetFocusSection();
+	lcVector3 Position = mModelWorld.GetTranslation() + Distance;
 
-	if (Section == LC_PIECE_SECTION_POSITION || Section == LC_PIECE_SECTION_INVALID)
-	{
-		lcVector3 Position = mModelWorld.GetTranslation() + Distance;
+	ChangeKey(mPositionKeys, Position, Step, AddKey);
 
-		SetPosition(Position, Step, AddKey);
-
-		mModelWorld.SetTranslation(Position);
-	}
-	else
-	{
-		int ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_1;
-
-		if (ControlPointIndex >= 0 && ControlPointIndex < mControlPoints.GetSize())
-			mControlPoints[ControlPointIndex].Position += Distance;
-	}
-}
-
-void lcPiece::Rotate(lcStep Step, bool AddKey, const lcMatrix33& RotationMatrix, const lcVector3& Center, const lcMatrix33& RotationFrame)
-{
-	lcVector3 Distance = mModelWorld.GetTranslation() - Center;
-	lcMatrix33 LocalToWorldMatrix = lcMatrix33(mModelWorld);
-
-	lcMatrix33 LocalToFocusMatrix = lcMul(LocalToWorldMatrix, RotationFrame);
-	lcMatrix33 NewLocalToWorldMatrix = lcMul(LocalToFocusMatrix, RotationMatrix);
-
-	lcMatrix33 WorldToLocalMatrix = lcMatrix33AffineInverse(LocalToWorldMatrix);
-
-	Distance = lcMul(Distance, WorldToLocalMatrix);
-	Distance = lcMul(Distance, NewLocalToWorldMatrix);
-
-	NewLocalToWorldMatrix.Orthonormalize();
-
-	SetPosition(Center + Distance, Step, AddKey);
-	SetRotation(NewLocalToWorldMatrix, Step, AddKey);
-}
-
-void lcPiece::MovePivotPoint(const lcVector3& Distance)
-{
-	if (!IsFocused(LC_PIECE_SECTION_POSITION))
-		return;
-
-	mPivotMatrix.SetTranslation(mPivotMatrix.GetTranslation() + Distance);
-	mState |= LC_PIECE_PIVOT_POINT_VALID;
-}
-
-void lcPiece::RotatePivotPoint(const lcMatrix33& RotationMatrix)
-{
-	if (!IsFocused(LC_PIECE_SECTION_POSITION))
-		return;
-
-	lcMatrix33 NewPivotRotationMatrix = lcMul(RotationMatrix, lcMatrix33(mPivotMatrix));
-	NewPivotRotationMatrix.Orthonormalize();
-
-	mPivotMatrix = lcMatrix44(NewPivotRotationMatrix, mPivotMatrix.GetTranslation());
-	mState |= LC_PIECE_PIVOT_POINT_VALID;
+	mModelWorld.SetTranslation(Position);
 }
 
 const char* lcPiece::GetName() const

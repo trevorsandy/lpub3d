@@ -376,62 +376,6 @@ LC_CURSOR_TYPE View::GetCursor() const
 	return CursorFromTrackTool[mTrackTool];
 }
 
-void View::ShowContextMenu() const
-{
-	QGLWidget* Widget = (QGLWidget*)mWidget;
-	QAction** Actions = gMainWindow->mActions;
-
-	QMenu* Popup = new QMenu(Widget);
-
-	// LPub3D Start
-	QMenu *tools = new QMenu("Tools");
-	popup->addMenu(tools);
-	for (int actionIdx = LC_EDIT_ACTION_FIRST; actionIdx <= LC_EDIT_ACTION_LAST; actionIdx++)
-		tools->addAction(actions[actionIdx]);
-	// LPub3D End
-
-	Popup->addAction(Actions[LC_EDIT_CUT]);
-	Popup->addAction(Actions[LC_EDIT_COPY]);
-	Popup->addAction(Actions[LC_EDIT_PASTE]);
-
-	Popup->addSeparator();
-
-    /*** management - popupMenu ***/
-    //tools->removeAction(actions[LC_EDIT_ACTION_SELECT]);
-    tools->removeAction(actions[LC_EDIT_ACTION_ROTATESTEP]);
-    tools->removeAction(actions[LC_EDIT_ACTION_INSERT]);
-    tools->removeAction(actions[LC_EDIT_ACTION_LIGHT]);
-    tools->removeAction(actions[LC_EDIT_ACTION_SPOTLIGHT]);
-    tools->removeAction(actions[LC_EDIT_ACTION_CAMERA]);
-    tools->removeAction(actions[LC_EDIT_ACTION_MOVE]);
-    tools->removeAction(actions[LC_EDIT_ACTION_ZOOM]);
-    tools->removeAction(actions[LC_EDIT_ACTION_ROLL]);
-    //tools->removeAction(actions[LC_EDIT_ACTION_ROTATE]);
-    tools->removeAction(actions[LC_EDIT_ACTION_DELETE]);
-    tools->removeAction(actions[LC_EDIT_ACTION_PAINT]);
-    /*** management - end ***/
-
-	Popup->addSeparator();
-
-	Popup->addAction(Actions[LC_PIECE_VIEW_SELECTED_MODEL]);
-	Popup->addAction(Actions[LC_PIECE_INLINE_SELECTED_MODELS]);
-	Popup->addAction(Actions[LC_PIECE_MOVE_SELECTION_TO_MODEL]);
-
-	Popup->addSeparator();
-
-	Popup->addMenu(gMainWindow->GetCameraMenu());
-	Popup->addMenu(gMainWindow->GetViewpointMenu());
-
-	Popup->addSeparator();
-
-	Popup->addAction(Actions[LC_VIEW_SPLIT_HORIZONTAL]);
-	Popup->addAction(Actions[LC_VIEW_SPLIT_VERTICAL]);
-	Popup->addAction(Actions[LC_VIEW_REMOVE_VIEW]);
-	Popup->addAction(Actions[LC_VIEW_RESET_VIEWS]);
-
-	Popup->exec(QCursor::pos());
-}
-
 lcVector3 View::GetMoveDirection(const lcVector3& Direction) const
 {
 	if (lcGetPreferences().mFixedAxes)
@@ -710,11 +654,11 @@ void View::DrawSelectMoveOverlay()
 
 	glDisable(GL_DEPTH_TEST);
 
-	lcMatrix33 RelativeRotation = mModel->GetRelativeRotation();
+	lcMatrix44 RelativeRotation = mModel->GetRelativeRotation();
 	lcVector3 OverlayCenter = mModel->GetFocusOrSelectionCenter();
 	bool AnyPiecesSelected = mModel->AnyPiecesSelected();
 
-	lcMatrix44 WorldMatrix = lcMatrix44(RelativeRotation, OverlayCenter);
+	lcMatrix44 WorldMatrix = lcMul(RelativeRotation, lcMatrix44Translation(OverlayCenter));
 
 	const float OverlayScale = GetOverlayScale();
 	WorldMatrix = lcMul(lcMatrix44Scale(lcVector3(OverlayScale, OverlayScale, OverlayScale)), WorldMatrix);
@@ -820,7 +764,7 @@ void View::DrawRotateOverlay()
 
 	int j;
 
-	lcMatrix33 RelativeRotation = mModel->GetRelativeRotation();
+	lcMatrix44 RelativeRotation = mModel->GetRelativeRotation();
 	lcVector3 OverlayCenter = mModel->GetFocusOrSelectionCenter();
 	lcVector3 MouseToolDistance = mModel->SnapRotation(mModel->GetMouseToolDistance());
 	bool HasAngle = false;
@@ -868,7 +812,7 @@ void View::DrawRotateOverlay()
 
 		if (fabsf(Angle) >= fabsf(Step))
 		{
-			lcMatrix44 WorldMatrix = lcMatrix44(RelativeRotation, OverlayCenter);
+			lcMatrix44 WorldMatrix = lcMul(RelativeRotation, lcMatrix44Translation(OverlayCenter));
 			WorldMatrix = lcMul(lcMatrix44FromAxisAngle(lcVector3(Rotation[1], Rotation[2], Rotation[3]), Rotation[0] * LC_DTOR), WorldMatrix);
 
 			mContext->SetWorldMatrix(WorldMatrix);
@@ -952,9 +896,9 @@ void View::DrawRotateOverlay()
 	ViewDir.Normalize();
 
 	// Transform ViewDir to local space.
-	ViewDir = lcMul(ViewDir, lcMatrix33AffineInverse(RelativeRotation));
+	ViewDir = lcMul30(ViewDir, lcMatrix44AffineInverse(RelativeRotation));
 
-	lcMatrix44 WorldMatrix = lcMatrix44(RelativeRotation, OverlayCenter);
+	lcMatrix44 WorldMatrix = lcMul(RelativeRotation, lcMatrix44Translation(OverlayCenter));
 	mContext->SetWorldMatrix(WorldMatrix);
 
 	// Draw each axis circle.
@@ -1050,7 +994,7 @@ void View::DrawRotateOverlay()
 			break;
 		};
 
-		lcMatrix44 WorldMatrix = lcMatrix44(RelativeRotation, OverlayCenter);
+		lcMatrix44 WorldMatrix = lcMul(RelativeRotation, lcMatrix44Translation(OverlayCenter));
 		WorldMatrix = lcMul(lcMatrix44FromAxisAngle(lcVector3(Rotation[1], Rotation[2], Rotation[3]), Rotation[0] * LC_DTOR), WorldMatrix);
 		mContext->SetWorldMatrix(WorldMatrix);
 
@@ -1656,7 +1600,7 @@ void View::SetProjection(bool Ortho)
 		gMainWindow->UpdatePerspective();
 	}
 	else
-		mModel->SetCameraOrthographic(mCamera, Ortho);
+		mModel->SetObjectProperty(mCamera, LC_CAMERA_PROPERTY_ORTHO, &Ortho);
 }
 
 void View::LookAt()
@@ -1719,10 +1663,10 @@ void View::UpdateTrackTool()
 				lcVector3(0.0f, 0.0f, 1.0f),
 			};
 
-			lcMatrix33 RelativeRotation = mModel->GetRelativeRotation();
+			lcMatrix44 RelativeRotation = mModel->GetRelativeRotation();
 
 			for (int i = 0; i < 3; i++)
-				PlaneNormals[i] = lcMul(PlaneNormals[i], RelativeRotation);
+				PlaneNormals[i] = lcMul30(PlaneNormals[i], RelativeRotation);
 
 			lcVector3 StartEnd[2] = { lcVector3((float)x, (float)y, 0.0f), lcVector3((float)x, (float)y, 1.0f) };
 			UnprojectPoints(StartEnd, 2);
@@ -1862,7 +1806,7 @@ void View::UpdateTrackTool()
 						lcVector3(x1 + u2*(x2-x1), y1 + u2*(y2-y1), z1 + u2*(z2-z1))
 					};
 
-					lcMatrix33 RelativeRotation = mModel->GetRelativeRotation();
+					lcMatrix44 RelativeRotation = mModel->GetRelativeRotation();
 
 					for (int i = 0; i < 2; i++)
 					{
@@ -1871,7 +1815,7 @@ void View::UpdateTrackTool()
 						if (lcDot(ViewDir, Dist) > 0.0f)
 							continue;
 
-						Dist = lcMul(Dist, RelativeRotation);
+						Dist = lcMul30(Dist, RelativeRotation);
 
 						// Check if we're close enough to one of the axis.
 						Dist.Normalize();
@@ -2431,7 +2375,7 @@ void View::OnRightButtonDown()
 void View::OnRightButtonUp()
 {
 	if (mTrackButton == LC_TRACKBUTTON_NONE)
-		ShowContextMenu();
+		ShowPopupMenu();
 	else
 		StopTracking(mTrackButton == LC_TRACKBUTTON_RIGHT);
 }
@@ -2513,8 +2457,8 @@ void View::OnMouseMove()
 				else
 					Direction = lcVector3(0.0, 0.0f, 1.0f);
 
-				lcMatrix33 RelativeRotation = mModel->GetRelativeRotation();
-				Direction = lcMul(Direction, RelativeRotation);
+				lcMatrix44 RelativeRotation = mModel->GetRelativeRotation();
+				Direction = lcMul30(Direction, RelativeRotation);
 
 				lcVector3 Intersection;
 				lcClosestPointsBetweenLines(Center, Center + Direction, CurrentStart, CurrentEnd, &Intersection, NULL);
@@ -2523,8 +2467,8 @@ void View::OnMouseMove()
 				lcClosestPointsBetweenLines(Center, Center + Direction, MouseDownStart, MouseDownEnd, &MoveStart, NULL);
 
 				lcVector3 Distance = Intersection - MoveStart;
-				Distance = lcMul(Distance, lcMatrix33AffineInverse(RelativeRotation));
-				mModel->UpdateMoveTool(Distance, mTrackButton != LC_TRACKBUTTON_LEFT);
+				Distance = lcMul30(Distance, lcMatrix44AffineInverse(RelativeRotation));
+				mModel->UpdateMoveTool(Distance);
 			}
 			else if (mTrackTool == LC_TRACKTOOL_MOVE_XY || mTrackTool == LC_TRACKTOOL_MOVE_XZ || mTrackTool == LC_TRACKTOOL_MOVE_YZ)
 			{
@@ -2537,8 +2481,8 @@ void View::OnMouseMove()
 				else
 					PlaneNormal = lcVector3(1.0f, 0.0f, 0.0f);
 
-				lcMatrix33 RelativeRotation = mModel->GetRelativeRotation();
-				PlaneNormal = lcMul(PlaneNormal, RelativeRotation);
+				lcMatrix44 RelativeRotation = mModel->GetRelativeRotation();
+				PlaneNormal = lcMul30(PlaneNormal, RelativeRotation);
 				lcVector4 Plane(PlaneNormal, -lcDot(PlaneNormal, Center));
 				lcVector3 Intersection;
 
@@ -2549,8 +2493,8 @@ void View::OnMouseMove()
 					if (lcLinePlaneIntersection(&MoveStart, MouseDownStart, MouseDownEnd, Plane))
 					{
 						lcVector3 Distance = Intersection - MoveStart;
-						Distance = lcMul(Distance, lcMatrix33AffineInverse(RelativeRotation));
-						mModel->UpdateMoveTool(Distance, mTrackButton != LC_TRACKBUTTON_LEFT);
+						Distance = lcMul30(Distance, lcMatrix44AffineInverse(RelativeRotation));
+						mModel->UpdateMoveTool(Distance);
 					}
 				}
 			}
@@ -2568,7 +2512,7 @@ void View::OnMouseMove()
 					if (lcLinePlaneIntersection(&MoveStart, MouseDownStart, MouseDownEnd, Plane))
 					{
 						lcVector3 Distance = Intersection - MoveStart;
-						mModel->UpdateMoveTool(Distance, mTrackButton != LC_TRACKBUTTON_LEFT);
+						mModel->UpdateMoveTool(Distance);
 					}
 				}
 			}
@@ -2581,21 +2525,20 @@ void View::OnMouseMove()
 		{
 			lcVector3 ScreenX = lcNormalize(lcCross(mCamera->mTargetPosition - mCamera->mPosition, mCamera->mUpVector));
 			lcVector3 ScreenY = mCamera->mUpVector;
-			lcVector3 Dir1;
+            lcVector3 Dir1 = lcVector3(0, 0, 0);
 
 			switch (mTrackTool)
 			{
 			case LC_TRACKTOOL_ROTATE_X:
-				Dir1 = lcVector3(1.0f, 0.0f, 0.0f);
+				Dir1 = lcVector3(1, 0, 0);
 				break;
 			case LC_TRACKTOOL_ROTATE_Y:
-				Dir1 = lcVector3(0.0f, 1.0f, 0.0f);
+				Dir1 = lcVector3(0, 1, 0);
 				break;
 			case LC_TRACKTOOL_ROTATE_Z:
-				Dir1 = lcVector3(0.0f, 0.0f, 1.0f);
+				Dir1 = lcVector3(0, 0, 1);
 				break;
 			default:
-				Dir1 = lcVector3(0.0f, 0.0f, 1.0f);
 				break;
 			}
 
@@ -2626,7 +2569,7 @@ void View::OnMouseMove()
 			MoveX *= 36.0f * (float)(mInputState.x - mMouseDownX) * MouseSensitivity;
 			MoveY *= 36.0f * (float)(mInputState.y - mMouseDownY) * MouseSensitivity;
 
-			mModel->UpdateRotateTool(MoveX + MoveY, mTrackButton != LC_TRACKBUTTON_LEFT);
+			mModel->UpdateRotateTool(MoveX + MoveY);
 		}
 		break;
 
@@ -2638,7 +2581,7 @@ void View::OnMouseMove()
 
 			lcVector3 MoveX = 36.0f * (float)(mInputState.x - mMouseDownX) * MouseSensitivity * ScreenX;
 			lcVector3 MoveY = 36.0f * (float)(mInputState.y - mMouseDownY) * MouseSensitivity * ScreenY;
-			mModel->UpdateRotateTool(MoveX + MoveY, mTrackButton != LC_TRACKBUTTON_LEFT);
+			mModel->UpdateRotateTool(MoveX + MoveY);
 		}
 		break;
 
@@ -2646,7 +2589,7 @@ void View::OnMouseMove()
 		{
 			lcVector3 ScreenZ = lcNormalize(mCamera->mTargetPosition - mCamera->mPosition);
 
-			mModel->UpdateRotateTool(36.0f * (float)(mInputState.y - mMouseDownY) * MouseSensitivity * ScreenZ, mTrackButton != LC_TRACKBUTTON_LEFT);
+			mModel->UpdateRotateTool(36.0f * (float)(mInputState.y - mMouseDownY) * MouseSensitivity * ScreenZ);
 		}
 		break;
 
@@ -2693,7 +2636,6 @@ void View::OnMouseMove()
 	case LC_TRACKTOOL_ORBIT_X:
 		mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.0f);
 		break;
-
 	case LC_TRACKTOOL_ORBIT_Y:
 		mModel->UpdateOrbitTool(mCamera, 0.0f, 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
 		break;

@@ -23,7 +23,7 @@ enum LC_CURSOR_TYPE
 	LC_CURSOR_PAN,
 	LC_CURSOR_ROLL,
 	LC_CURSOR_ROTATE_VIEW,
-    LC_CURSOR_ROTATESTEP,           
+    LC_CURSOR_ROTATESTEP,           // add back
     LC_CURSOR_COUNT
 };
 
@@ -57,6 +57,8 @@ public:
 		if (mDeleteContext)
 			delete mContext;
 	}
+
+	void ShowPopupMenu();
 
 	void SetContext(lcContext* Context)
 	{

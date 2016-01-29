@@ -4,6 +4,7 @@
 #else
 #include <QtGui>
 #endif
+
 #include "lc_qcolorlist.h"
 
 lcQColorList::lcQColorList(QWidget *parent)

@@ -10,6 +10,7 @@
 #include "lc_mainwindow.h"
 #include "lc_shortcuts.h"
 #include "view.h"
+#include "name.h"
 
 lcApplication* g_App;
 
@@ -110,8 +111,8 @@ void lcApplication::GetFileList(const char* Path, lcArray<String>& FileList)
 
 bool lcApplication::LoadPiecesLibrary(const char* LibPath, const char* LibraryInstallPath, const char* LDrawPath)
 {
-    // process search directories to update library archive
-    partWorkerLDSearchDirs.processLDSearchDirParts();
+        // process search directories to update library archive
+        partWorkerLDSearchDirs.processLDSearchDirParts();
 
 	if (mLibrary == NULL)
 		mLibrary = new lcPiecesLibrary();
@@ -199,9 +200,6 @@ void lcApplication::ParseStringArgument(int* CurArg, int argc, char* argv[], cha
 	}
 }
 
-
-
-
 bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstallPath, const char* LDrawPath, QMainWindow *parent)
 {
 	char* LibPath = NULL;
@@ -210,6 +208,7 @@ bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstal
 	bool SaveImage = false;
 	bool SaveWavefront = false;
 	bool Save3DS = false;
+//	bool ImageHighlight = false;
 	int ImageWidth = lcGetProfileInt(LC_PROFILE_IMAGE_WIDTH);
 	int ImageHeight = lcGetProfileInt(LC_PROFILE_IMAGE_HEIGHT);
 	lcStep ImageStart = 0;
@@ -218,7 +217,6 @@ bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstal
 	char* ProjectName = NULL;
 	char* SaveWavefrontName = NULL;
 	char* Save3DSName = NULL;
-	//	bool ImageHighlight = false;
 
 	// Parse the command line arguments.
 	for (int i = 1; i < argc; i++)

@@ -42,27 +42,21 @@ public:
 	{
 		mRefCount++;
 
-		if (!mLoaded)
+		if (mRefCount == 1)
 			Load();
 	}
 
-	void Release(bool AllowUnload)
+	void Release()
 	{
 		mRefCount--;
 
-		if (!mRefCount && AllowUnload)
-			Unload();
-	}
-
-	void UnloadIfUnused()
-	{
-		if (!mRefCount && mLoaded)
+		if (!mRefCount)
 			Unload();
 	}
 
 	bool IsLoaded() const
 	{
-		return mLoaded;
+		return mRefCount != 0;
 	}
 
 	bool IsPlaceholder() const
@@ -141,12 +135,12 @@ public:
 	char m_strName[LC_PIECE_NAME_LEN];
 	char m_strDescription[128];
 	float m_fDimensions[6];
+	int m_iPartType;
 	int mZipFileType;
 	int mZipFileIndex;
 	lcuint32 mFlags;
 
 protected:
-	bool mLoaded;
 	int mRefCount;
 	lcModel* mModel;
 	lcMesh* mMesh;

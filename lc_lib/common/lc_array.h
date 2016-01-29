@@ -60,18 +60,6 @@ public:
 		return mData[Index];
 	}
 
-	bool operator==(const lcArray<T>& Array) const
-	{
-		if (mLength != Array.mLength)
-			return false;
-
-		for (int i = 0; i < mLength; i++)
-			if (mData[i] != Array.mData[i])
-				return false;
-
-		return true;
-	}
-
 	bool IsEmpty() const
 	{
 		return mLength == 0;

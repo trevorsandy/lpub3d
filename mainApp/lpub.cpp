@@ -1752,11 +1752,11 @@ void Gui::writeSettings()
 {
 // Crashes the viewer window
 
-    QSettings Settings;
-    Settings.beginGroup(MAINWINDOW);
-    Settings.setValue("pos", pos());
-    Settings.setValue("size", size());
-    Settings.endGroup();
+//    QSettings Settings;
+//    Settings.beginGroup(MAINWINDOW);
+//    Settings.setValue("pos", pos());
+//    Settings.setValue("size", size());
+//    Settings.endGroup();
 
 }
 

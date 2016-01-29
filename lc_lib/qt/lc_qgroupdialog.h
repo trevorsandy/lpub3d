@@ -12,10 +12,10 @@ class lcQGroupDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit lcQGroupDialog(QWidget *parent, const QString& Name);
+	explicit lcQGroupDialog(QWidget *parent, void *data);
 	~lcQGroupDialog();
 
-	QString mName;
+	char *options;
 
 public slots:
 	void accept();

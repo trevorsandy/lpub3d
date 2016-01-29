@@ -5,7 +5,7 @@
 #include "lc_model.h"
 #include "project.h"
 #include "system.h"
-
+ 
 lcProfileEntry::lcProfileEntry(const char* Section, const char* Key, int DefaultValue)
 {
 	mType = LC_PROFILE_ENTRY_INT;

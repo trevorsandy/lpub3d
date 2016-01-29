@@ -1,6 +1,6 @@
 #ifndef _LC_MODEL_H_
 #define _LC_MODEL_H_
-
+ 
 #include "lc_file.h"
 #include "lc_math.h"
 #include "object.h"
@@ -17,7 +17,6 @@
 #define LC_SEL_GROUPED           0x080 // At least one piece selected is grouped
 #define LC_SEL_FOCUS_GROUPED     0x100 // Focused piece is grouped
 #define LC_SEL_CAN_GROUP         0x200 // Can make a new group
-#define LC_SEL_MODEL_SELECTED    0x400 // At least one model reference is selected
 
 enum lcTransformType
 {
@@ -32,7 +31,6 @@ enum lcRotateStepType
     LC_ROTATESTEP_ABSOLUTE_ROTATION,
     LC_ROTATESTEP_RELATIVE_ROTATION
 };
-
 enum lcBackgroundType
 {
 	LC_BACKGROUND_SOLID,
@@ -100,7 +98,7 @@ enum lcTool
 	LC_TOOL_PAN,
 	LC_TOOL_ROTATE_VIEW,
 	LC_TOOL_ROLL,
-	LC_TOOL_ZOOM_REGION,
+    LC_TOOL_ZOOM_REGION,
     LC_TOOL_ROTATESTEP
 };
 
@@ -124,8 +122,9 @@ struct lcModelPartsEntry
 	int ColorIndex;
 };
 
-class lcModel
+class lcModel : public QObject
 {
+
 public:
 	lcModel(const QString& Name);
 	~lcModel();
@@ -205,16 +204,12 @@ public:
 	void AddPiece();
 	void DeleteAllCameras();
 	void DeleteSelectedObjects();
-	void ResetSelectedPiecesPivotPoint();
 	void ShowSelectedPiecesEarlier();
 	void ShowSelectedPiecesLater();
 	void SetPieceSteps(const QList<QPair<lcPiece*, lcStep> >& PieceSteps);
 
-	void MoveSelectionToModel(lcModel* Model);
-	void InlineSelectedModels();
-
-	lcGroup* AddGroup(const QString& Prefix, lcGroup* Parent);
-	lcGroup* GetGroup(const QString& Name, bool CreateIfMissing);
+	lcGroup* AddGroup(const char* Prefix, lcGroup* Parent);
+	lcGroup* GetGroup(const char* Name, bool CreateIfMissing);
 	void RemoveGroup(lcGroup* Group);
 	void GroupSelection();
 	void UngroupSelection();
@@ -251,7 +246,6 @@ public:
 
 	bool AnyPiecesSelected() const;
 	bool AnyObjectsSelected() const;
-	lcModel* GetFirstSelectedSubmodel() const;
 	bool GetPieceFocusOrSelectionCenter(lcVector3& Center) const;
 	bool GetFocusOrSelectionCenter(lcVector3& Center) const;
 	lcVector3 GetFocusOrSelectionCenter() const;
@@ -263,7 +257,6 @@ public:
 	void GetPartsList(int DefaultColorIndex, lcArray<lcPartsListEntry>& PartsList) const;
 	void GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcArray<lcPartsListEntry>& PartsList) const;
 	void GetModelParts(const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcArray<lcModelPartsEntry>& ModelParts) const;
-	void GetSelectionInformation(int* Flags, lcArray<lcObject*>& Selection, lcObject** Focus) const;
 
 	void FocusOrDeselectObject(const lcObjectSection& ObjectSection);
 	void ClearSelection(bool UpdateInterface);
@@ -287,7 +280,7 @@ public:
 	lcVector3 LockVector(const lcVector3& Vector) const;
 	lcVector3 SnapPosition(const lcVector3& Delta) const;
 	lcVector3 SnapRotation(const lcVector3& Delta) const;
-	lcMatrix33 GetRelativeRotation() const;
+	lcMatrix44 GetRelativeRotation() const;
 
 	const lcVector3& GetMouseToolDistance() const
 	{
@@ -302,8 +295,8 @@ public:
 	void UpdateSpotLightTool(const lcVector3& Position);
 	void BeginCameraTool(const lcVector3& Position, const lcVector3& Target);
 	void UpdateCameraTool(const lcVector3& Position);
-	void UpdateMoveTool(const lcVector3& Distance, bool AlternateButtonDrag);
-	void UpdateRotateTool(const lcVector3& Angles, bool AlternateButtonDrag);
+	void UpdateMoveTool(const lcVector3& Distance);
+	void UpdateRotateTool(const lcVector3& Angles);
 	void EraserToolClicked(lcObject* Object);
 	void PaintToolClicked(lcObject* Object);
 	void UpdateZoomTool(lcCamera* Camera, float Mouse);
@@ -315,32 +308,25 @@ public:
 	void ZoomExtents(lcCamera* Camera, float Aspect);
 	void Zoom(lcCamera* Camera, float Amount);
 
-	void MoveSelectedObjects(const lcVector3& Distance, bool Relative, bool AlternateButtonDrag, bool Update, bool Checkpoint)
+	void MoveSelectedObjects(const lcVector3& Distance, bool Relative, bool Update, bool Checkpoint)
 	{
-		MoveSelectedObjects(Distance, Distance, Relative, AlternateButtonDrag, Update, Checkpoint);
+		MoveSelectedObjects(Distance, Distance, Relative, Update, Checkpoint);
 	}
 
-	void MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector3& ObjectDistance, bool Relative, bool AlternateButtonDrag, bool Update, bool Checkpoint);
-	void RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool AlternateButtonDrag, bool Update, bool Checkpoint);
+	void MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector3& ObjectDistance, bool Relative, bool Update, bool Checkpoint);
+	void RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool Update, bool Checkpoint);
 	void TransformSelectedObjects(lcTransformType TransformType, const lcVector3& Transform);
 	void RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep);
 	void ParseExsitingRotStepLine(QTextStream& LineStream);
-	void SetSelectedPiecesColorIndex(int ColorIndex);
-	void SetSelectedPiecesPieceInfo(PieceInfo* Info);
-	void SetSelectedPiecesStepShow(lcStep Step);
-	void SetSelectedPiecesStepHide(lcStep Step);
-
-	void SetCameraOrthographic(lcCamera* Camera, bool Ortho);
-	void SetCameraFOV(lcCamera* Camera, float FOV);
-	void SetCameraZNear(lcCamera* Camera, float ZNear);
-	void SetCameraZFar(lcCamera* Camera, float ZFar);
-	void SetCameraName(lcCamera* Camera, const char* Name);
+	void SetObjectProperty(lcObject* Object, lcObjectPropertyType ObjectPropertyType, const void* Value);
 
 	void ShowPropertiesDialog();
 	void ShowSelectByNameDialog();
 	void ShowArrayDialog();
 	void ShowMinifigDialog();
 	void UpdateInterface();
+signals:
+
 
 protected:
 	void DeleteModel();
@@ -348,16 +334,16 @@ protected:
 	void SaveCheckpoint(const QString& Description);
 	void LoadCheckPoint(lcModelHistoryEntry* CheckPoint);
 
-	QString GetGroupName(const QString& Prefix);
+	void GetGroupName(const char* Prefix, char* GroupName);
 	void RemoveEmptyGroups();
 	bool RemoveSelectedObjects();
 
 	void UpdateBackgroundTexture();
 
+	void UpdateSelection() const;
 	void SelectGroup(lcGroup* TopGroup, bool Select);
 
 	void AddPiece(lcPiece* Piece);
-	void InsertPiece(lcPiece* Piece, int Index);
 
 	lcModelProperties mProperties;
 	PieceInfo* mPieceInfo;
