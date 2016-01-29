@@ -2,10 +2,17 @@
 #define _LC_GLOBAL_H_
 
 #include <QtGlobal>
-#include <QWidget>
 #include <QtOpenGL>
-#include <QGLWidget>
-#include <QtGui>
+#if QT_VERSION >= 0x050000
+	#include <QtWidgets/QWidget>
+	#include <QOpenGLWidget>
+	#include <QtWidgets>
+#else
+	#include <QWidget>
+	#include <QGLWidget>
+	#include <QtGui>
+#endif
+
 #include <QPrinter>
 
 #undef GL_LINES_ADJACENCY_EXT
@@ -31,9 +38,6 @@ typedef quintptr lcuintptr;
 
 #ifdef Q_OS_WIN
 #define snprintf _snprintf
-//#define isnan _isnan              //remarked out on LeoCAD update to revision 1848
-#define strcasecmp stricmp
-#define strncasecmp strnicmp
 char* strcasestr(const char *s, const char *find);
 #else
 char* strupr(char* string);
@@ -44,9 +48,9 @@ int stricmp(const char* str1, const char* str2);
 // Version number.
 #define LC_VERSION_MAJOR 0
 #define LC_VERSION_MINOR 82
-#define LC_VERSION_PATCH 1
-#define LC_VERSION_TEXT "0.82.1"
-#define LC_VERSION_BUILD "1867"
+#define LC_VERSION_PATCH 2
+#define LC_VERSION_TEXT "0.82.2"
+#define LC_VERSION_BUILD "1895"
 
 // Forward declarations.
 class Project;

@@ -18,12 +18,16 @@
 
 #define SUPPORTS_SSL !defined(Q_OS_IOS)
 
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QApplication>
+#else
+#include <QApplication>
+#endif
 #include <QUrl>
 #include <QIcon>
 #include <QPixmap>
 #include <QSettings>
 #include <QMessageBox>
-#include <QApplication>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QDesktopServices>

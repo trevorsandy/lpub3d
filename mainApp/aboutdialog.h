@@ -42,7 +42,7 @@ public:
     QString content;
 	~AboutDialog();
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
     OsType checkOS();
 #endif
 

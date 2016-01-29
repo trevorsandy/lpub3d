@@ -584,7 +584,7 @@ int Gui::addGraphicsPageItems(
               
               page->addInsertPixmap(pixmap);
               pixmap->setTransformationMode(Qt::SmoothTransformation);
-              pixmap->scale(insert.picScale,insert.picScale);
+              pixmap->setScale(insert.picScale,insert.picScale);
               
               PlacementData pld;
               
@@ -855,7 +855,7 @@ int Gui::addGraphicsPageItems(
 
               page->addPageAttributePixmap(pixmapLogoFront);
               pixmapLogoFront->setTransformationMode(Qt::SmoothTransformation);
-              pixmapLogoFront->scale(picScale,picScale);
+              pixmapLogoFront->setScale(picScale,picScale);
 
               int margin[2] = {0, 0};
 
@@ -897,27 +897,27 @@ int Gui::addGraphicsPageItems(
 
                   QPixmap *qpixmap = new QPixmap(plPage.size[XX],plPage.size[YY]);
 
-                   qpixmap->setAlphaChannel(*qpixmap);
-                   qpixmap->fill(Qt::transparent);
+                  QPainter painter(qpixmap);
+                  painter.setCompositionMode(QPainter::CompositionMode_Source);
+                  painter.fillRect(qpixmap->rect(), Qt::transparent);
 
-                   QPainter painter(qpixmap);
-                   QImage   image(file);
-                   if (page->meta.LPub.page.coverImage.stretch.value()) {
-                       QSize psize = qpixmap->size();
-                       QSize isize = image.size();
-                       qreal sx = psize.width();
-                       qreal sy = psize.height();
-                       sx /= isize.width();
-                       sy /= isize.height();
-                       painter.scale(sx,sy);
-                       painter.drawImage(0,0,image);
-                   } else if (page->meta.LPub.page.coverImage.tile.value()){
-                       for (int y = 0; y < qpixmap->height(); y += image.height()) {
-                           for (int x = 0; x < qpixmap->width(); x += image.width()) {
-                               painter.drawImage(x,y,image);
-                           }
-                       }
-                   }
+                  QImage   image(file);
+                  if (page->meta.LPub.page.coverImage.stretch.value()) {
+                      QSize psize = qpixmap->size();
+                      QSize isize = image.size();
+                      qreal sx = psize.width();
+                      qreal sy = psize.height();
+                      sx /= isize.width();
+                      sy /= isize.height();
+                      painter.scale(sx,sy);
+                      painter.drawImage(0,0,image);
+                    } else if (page->meta.LPub.page.coverImage.tile.value()){
+                      for (int y = 0; y < qpixmap->height(); y += image.height()) {
+                          for (int x = 0; x < qpixmap->width(); x += image.width()) {
+                              painter.drawImage(x,y,image);
+                            }
+                        }
+                    }
 
                    QColor brushColor;
                    brushColor = Qt::transparent;
@@ -936,7 +936,7 @@ int Gui::addGraphicsPageItems(
 
                   page->addPageAttributePixmap(pixmapCoverImageFront);
                   pixmapCoverImageFront->setTransformationMode(Qt::SmoothTransformation);
-                  pixmapCoverImageFront->scale(picScale,picScale);
+                  pixmapCoverImageFront->setScale(picScale,picScale);
 
                   int margin[2] = {0, 0};
 
@@ -1156,7 +1156,7 @@ int Gui::addGraphicsPageItems(
 
               page->addPageAttributePixmap(pixmapLogoBack);
               pixmapLogoBack->setTransformationMode(Qt::SmoothTransformation);
-              pixmapLogoBack->scale(picScale,picScale);
+              pixmapLogoBack->setScale(picScale,picScale);
 
               int margin[2] = {0, 0};
 
@@ -1202,7 +1202,7 @@ int Gui::addGraphicsPageItems(
 
               page->addPageAttributePixmap(pixmapPlugImageBack);;
               pixmapPlugImageBack->setTransformationMode(Qt::SmoothTransformation);
-              pixmapPlugImageBack->scale(picScale,picScale);
+              pixmapPlugImageBack->setScale(picScale,picScale);
 
               int margin[2] = {0, 0};
 

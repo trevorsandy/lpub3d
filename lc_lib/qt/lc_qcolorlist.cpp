@@ -1,5 +1,9 @@
-#include <QtGui>
 #include "lc_global.h"
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#else
+#include <QtGui>
+#endif
 #include "lc_qcolorlist.h"
 
 lcQColorList::lcQColorList(QWidget *parent)

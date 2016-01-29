@@ -29,7 +29,12 @@
 #ifndef rangeH
 #define rangeH
 
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#else
 #include <QtGui>
+#endif
 #include "meta.h"
 #include "ranges_element.h"
 

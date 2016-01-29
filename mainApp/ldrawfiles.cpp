@@ -27,12 +27,17 @@
  *
  ***************************************************************************/
 
+#include "version.h"
 #include "ldrawfiles.h"
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#else
 #include <QtGui>
+#endif
+
 #include <QFile>
 #include <QList>
 #include <QRegExp>
-#include "version.h"
 #include "paths.h"
 
 #include "lc_application.h"

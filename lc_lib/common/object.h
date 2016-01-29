@@ -44,24 +44,6 @@ struct lcObjectBoxTest
 	lcArray<lcObject*> Objects;
 };
 
-enum lcObjectPropertyType
-{
-	LC_PIECE_PROPERTY_POSITION,
-	LC_PIECE_PROPERTY_ROTATION,
-	LC_PIECE_PROPERTY_SHOW,
-	LC_PIECE_PROPERTY_HIDE,
-	LC_PIECE_PROPERTY_COLOR,
-	LC_PIECE_PROPERTY_ID,
-	LC_CAMERA_PROPERTY_POSITION,
-	LC_CAMERA_PROPERTY_TARGET,
-	LC_CAMERA_PROPERTY_UPVECTOR,
-	LC_CAMERA_PROPERTY_ORTHO,
-	LC_CAMERA_PROPERTY_FOV,
-	LC_CAMERA_PROPERTY_NEAR,
-	LC_CAMERA_PROPERTY_FAR,
-	LC_CAMERA_PROPERTY_NAME
-};
-
 class lcObject
 {
 public:
@@ -99,7 +81,6 @@ public:
 	virtual lcuint32 GetFocusSection() const = 0;
 
 	virtual lcVector3 GetSectionPosition(lcuint32 Section) const = 0;
-	virtual void Move(lcStep Step, bool AddKey, const lcVector3& Distance) = 0;
 	virtual void RayTest(lcObjectRayTest& ObjectRayTest) const = 0;
 	virtual void BoxTest(lcObjectBoxTest& ObjectBoxTest) const = 0;
 	virtual void DrawInterface(lcContext* Context) const = 0;

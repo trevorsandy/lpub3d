@@ -16,13 +16,17 @@
 **
 ****************************************************************************/
 
-#include <QString>
+#include "globals.h"
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QWidget>
+#else
 #include <QWidget>
+#endif
+#include <QString>
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QDialogButtonBox>
 
-#include "globals.h"
 #include "meta.h"
 #include "metagui.h"
 #include "metaitem.h"

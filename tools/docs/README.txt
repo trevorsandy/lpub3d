@@ -1,7 +1,8 @@
-LPub3D 1.4.0.516.14 
+LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Qt 5.5.1 base platform
 -Select local page size and global and local page orientation (Portrait and Landscape)
  Note: When manually editing the model file with either page size or orientation, it is recommended to insert both the size and orientation metas together. For example, even
  if you are only interested to add a page size, you shold update your file like the example 
@@ -12,7 +13,7 @@ Features and enhancements
 -Fix: Update ldglite hard-coded default directory setting (r505) 
 -Fix: Remove hard coded reference to LPub3DViewer-Library folder - this was added in 1.3.0 unofficial archive refresh functionality (r506) 
 -Enhancements (r507) 
--Fix: Add pliSubstituteParts.lst to media build - sorry, I forgot to include in the NSIS build script:-( (r) 
+-Fix: Add pliSubstituteParts.lst to media build - sorry, I forgot to include in the NSIS build script:-( (r??) NOTE - Not sure the build script is updated for development builds 
  
 LPub3D 1.3.0.504.2 
  

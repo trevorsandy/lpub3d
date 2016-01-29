@@ -1,6 +1,7 @@
 #ifndef _LC_MAINWINDOW_H_
 #define _LC_MAINWINDOW_H_
 
+#include <QtWidgets>
 #include "lc_basewindow.h"
 #include "lc_array.h"
 #include "lc_commands.h"
@@ -33,7 +34,7 @@ class lcMainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	lcMainWindow();
+	lcMainWindow(QMainWindow *parent = 0);
 	~lcMainWindow();
 
 	void CreateWidgets();
@@ -145,6 +146,16 @@ public:
 		return mViews;
 	}
 
+	QMenu* GetCameraMenu() const
+	{
+		return mCameraMenu;
+	}
+
+	QMenu* GetViewpointMenu() const
+	{
+		return mViewpointMenu;
+	}
+
 	bool DoDialog(LC_DIALOG_TYPE Type, void* Data);
 
 	void ResetCameras();
@@ -172,7 +183,8 @@ public:
 	void MergeProject();
 	bool SaveProject(const QString& FileName);
 	bool SaveProjectIfModified();
-	void SetModelFromFocus();
+	bool SetModelFromFocus();
+	void SetModelFromSelection();
 	void HandleCommand(lcCommandId CommandId);
 
 	void AddRecentFile(const QString& FileName);
@@ -186,8 +198,7 @@ public:
 	void TogglePrintPreview();
 	void ToggleFullScreen();
 
-	void UpdateFocusObject(lcObject* Focus);
-	void UpdateSelectedObjects(int Flags, int SelectedCount, lcObject* Focus);
+	void UpdateSelectedObjects(bool SelectionChanged);
 	void UpdateTimeline(bool Clear, bool UpdateItems);
 	void UpdatePaste(bool Enabled);
 	void UpdateCurrentStep();
@@ -218,7 +229,6 @@ public:
     QStatusBar* mLCStatusBar;
 
 public slots:
-    //inline void halt3DViewer(bool b){mHalt3DViewer = b;}
     void halt3DViewer(bool b);
     void enable3DActions();
 
@@ -280,9 +290,12 @@ protected:
 	QLineEdit* mTransformZEdit;
 
 	QLabel* mStatusBarLabel;
-	QLabel* mStatusSnapLabel;
 //  QLabel* mStatusPositionLabel;       //remarked at LPub3D Rev 244 build 05
+	QLabel* mStatusSnapLabel;
 //	QLabel* mStatusTimeLabel;
+
+	QMenu* mCameraMenu;
+	QMenu* mViewpointMenu;
 };
 
 extern class lcMainWindow* gMainWindow;

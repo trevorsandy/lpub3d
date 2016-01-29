@@ -15,10 +15,14 @@
 #ifndef SPLASHSCREEN_H
 #define SPLASHSCREEN_H
 
-#include <QObject>
-
-#include <QSplashScreen>
+#include "version.h"
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QApplication>
+#else
 #include <QApplication>
+#endif
+#include <QObject>
+#include <QSplashScreen>
 
 #include "QsLog.h"
 

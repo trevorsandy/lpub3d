@@ -27,8 +27,13 @@
  *
  ***************************************************************************/
 
-#include <QtGui>
 
+#include "lpub.h"
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#else
+#include <QtGui>
+#endif
 #include <QGraphicsView>
 #include <QGraphicsRectItem>
 #include <QGraphicsPolygonItem>
@@ -38,7 +43,6 @@
 #include <math.h>
 #include "pointeritem.h"
 #include "metaitem.h"
-#include "lpub.h"
 #include "callout.h"
 #include "calloutbackgrounditem.h"
 #include "step.h"
@@ -220,7 +224,7 @@ void CalloutPointerItem::drawPointerPoly()
   }
   
   head->resetTransform();
-  head->rotate(angle);
+  head->setRotation(rotation() + angle);
   head->setPos(points[Tip]);
   addToGroup(head);
 

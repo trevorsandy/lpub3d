@@ -26,7 +26,12 @@
  *
  ***************************************************************************/
 
+#include "lpub.h"
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#else
 #include <QtGui>
+#endif
 #include <QString>
 #include <QStringList>
 #include <QPixmap>
@@ -38,7 +43,6 @@
 #include "resolution.h"
 #include "meta.h"
 #include "math.h"
-#include "lpub.h"
 #include "lpub_preferences.h"
 
 #include "paths.h"

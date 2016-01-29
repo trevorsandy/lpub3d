@@ -42,7 +42,11 @@
 #ifndef GRADIENTS_H
 #define GRADIENTS_H
 
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#else
 #include <QtGui>
+#endif
 #include "hoverpoints.h"
 #include "meta.h"
 
@@ -202,7 +206,11 @@ private:
 };
 
 #if defined(QT_OPENGL_SUPPORT)
+#if QT_VERSION >= 0x050000
+#include <QOpenGLWidget>
+#else
 #include <QGLWidget>
+#endif
 #include <QEvent>
 class GLWidget : public QGLWidget
 {

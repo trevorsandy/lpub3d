@@ -49,6 +49,7 @@
 #include "where.h"
 #include "name.h"
 #include "resize.h"
+#include "annotations.h"
 
 #include "QsLog.h"
 
@@ -139,6 +140,7 @@ class Pli : public Placement {
     QHash<QString, PliPart*> tempParts;          // temp list used to devide the BOM
     QHash<QString, PliPart*> parts;
     QList<QString>           sortedKeys;
+    Annotations              annotations;        // this is an internal list of title and custom part annotations
 
   public:
     PlacementType      parentRelativeType;

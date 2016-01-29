@@ -28,7 +28,6 @@
 
 #include "metagui.h"
 
-#include <QWidget>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>

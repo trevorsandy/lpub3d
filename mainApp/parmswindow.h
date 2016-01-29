@@ -28,9 +28,12 @@
 #ifndef PARMSWINDOW_H
 #define PARMSWINDOW_H
 
-#define WINDOW   "MainWindow"
-
+#include "version.h"
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#else
 #include <QtGui>
+#endif
 #include <QMainWindow>
 #include <QTextCursor>
 
@@ -55,7 +58,7 @@ class ParmsWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    ParmsWindow();
+    ParmsWindow(QMainWindow *parent = 0);
 
 protected:
 

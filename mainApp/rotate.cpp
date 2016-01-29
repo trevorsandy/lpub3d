@@ -16,7 +16,12 @@
 **
 ****************************************************************************/
 
+#include "lpub.h"
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#else
 #include <QtGui>
+#endif
 #include <QStringList>
 #include <QFile>
 #include <QTextStream>
@@ -25,7 +30,7 @@
 #include "render.h"
 #include "ldrawfiles.h"
 
-#include "lpub.h"
+
 
 /*****************************************************************************
  * Rotation routines

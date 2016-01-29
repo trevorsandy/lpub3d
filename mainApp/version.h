@@ -14,7 +14,6 @@
 
 #ifndef VERSION_H
 #define VERSION_H
-
 // ~~~~~ local includes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 #include "build.h"
 
@@ -23,8 +22,8 @@
 #define STRING(x)  STR(x)
 
 // ~~~~~ Version info ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-#define VER_MAJOR                           1
-#define VER_MINOR                           4
+#define VER_MAJOR                           2
+#define VER_MINOR                           0
 #define VER_SP                              0
 
 #define VER_BUILD_STR                       _BUILD_NUMBER

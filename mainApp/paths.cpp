@@ -32,7 +32,6 @@
 
 ****************************************************************************/
 
-#include <QtGui>
 #include <QSettings>
 #include <QDir>
 #include "paths.h"

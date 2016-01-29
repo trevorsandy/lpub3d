@@ -26,13 +26,16 @@
  *
  ***************************************************************************/
 
+#include "lpub.h"
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#else
 #include <QtGui>
-
+#endif
 #include "callout.h"
 #include "calloutbackgrounditem.h"
 #include "pointer.h"
 #include "pointeritem.h"
-#include "lpub.h"
 #include <QGraphicsView>
 #include "commonmenus.h"
 

@@ -15,8 +15,7 @@
 **
 ****************************************************************************/
 
-#include <QApplication>
-#include <QtCore/QCoreApplication>
+#include <QtWidgets/QApplication>
 #include <QDir>
 #include <iostream>
 #include <QMessageBox>
@@ -25,7 +24,6 @@
 #include "lpub.h"
 #include "resolution.h"
 #include "updatecheck.h"
-#include "splashscreen.h"
 
 //**3D
 #include "lc_global.h"
@@ -43,7 +41,6 @@
 
 #include "QsLogDest.h"
 #include "QsLog.h"
-
 
 
 #ifdef UNICODE
@@ -118,18 +115,12 @@ static void lcSehInit()
 
 int main(int argc, char *argv[])
 {
-    Q_INIT_RESOURCE(lpub);
+//    Q_INIT_RESOURCE(lpub);
 
     QApplication app(argc, argv);
-
-    //register meta-type for queued communications
-    //qRegisterMetaType<LGraphicsView>();
+    app.setAttribute(Qt::AA_UseDesktopOpenGL);
 
     // splash
-//    SplashScreen *splash = new SplashScreen();
-//    splash->show();
-
-//    int splashDuration = 4000;
     QPixmap pixmap(":/resources/LPub512Splash.png");
     QSplashScreen *splash = new QSplashScreen(pixmap);
 
@@ -143,9 +134,6 @@ int main(int argc, char *argv[])
 
     splash->showMessage(QSplashScreen::tr("LPub3D is loading..."),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
     app.processEvents();
-
-//    QTimer::singleShot(splashDuration,splash,SLOT(close()));
-    // end splash
 
     QCoreApplication::setOrganizationName(VER_COMPANYNAME_STR);
     QCoreApplication::setApplicationName(VER_PRODUCTNAME_STR);
@@ -246,8 +234,7 @@ int main(int argc, char *argv[])
     splash->finish(&LPub3DApp);
     app.processEvents();
 
-//    LPub3DApp.show();
-    QTimer::singleShot(100, &LPub3DApp, SLOT(show()));
+    LPub3DApp.show();
 
     LPub3DApp.sizeit();
 

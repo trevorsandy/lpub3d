@@ -65,11 +65,9 @@ void BackgroundItem::setBackground(
   QColor penColor,brushColor;
   QRectF prect(bt/2,bt/2,pixmap->width()-bt,pixmap->height()-bt); // was -1-bt
 
-
-  pixmap->setAlphaChannel(*pixmap);
-  pixmap->fill(Qt::transparent);
-
   QPainter painter(pixmap);
+  painter.setCompositionMode(QPainter::CompositionMode_Source);
+  painter.fillRect(pixmap->rect(), Qt::transparent);
 
   bool useGradient = false;
 

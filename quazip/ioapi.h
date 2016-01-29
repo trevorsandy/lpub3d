@@ -44,7 +44,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
+#include <QtZlib/zlib.h>
+#else
 #include "zlib.h"
+#endif
 
 #if defined(USE_FILE32API)
 #define fopen64 fopen

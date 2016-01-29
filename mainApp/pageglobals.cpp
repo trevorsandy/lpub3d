@@ -15,15 +15,19 @@
 **
 ****************************************************************************/
 
+#include "globals.h"
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QWidget>
+#else
+#include <QWidget>
+#endif
 #include <QGroupBox>
 #include <QGridLayout>
-#include <QWidget>
 #include <QTabWidget>
 
 #include <QDialog>
 #include <QDialogButtonBox>
 
-#include "globals.h"
 #include "meta.h"
 #include "metaitem.h"
 #include "metagui.h"

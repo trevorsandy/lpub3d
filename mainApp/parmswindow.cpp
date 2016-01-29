@@ -25,14 +25,20 @@
  *
  ***************************************************************************/
 
+#include "version.h"
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#else
 #include <QtGui>
+#endif
 #include "parmshighlighter.h"
 #include "parmswindow.h"
-#include "version.h"
+
 
 ParmsWindow *parmsWindow;
 
-ParmsWindow::ParmsWindow()
+ParmsWindow::ParmsWindow(QMainWindow *parent) :
+  QMainWindow(parent)
 {
     parmsWindow  = this;
     parmsWindow->statusBar()->show();

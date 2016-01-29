@@ -31,13 +31,17 @@
  *
  ***************************************************************************/
 
+#include "lpub.h"
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#else
 #include <QtGui>
+#endif
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QString>
 #include <QFileInfo>
 #include "lpub_preferences.h"
-#include "lpub.h"
 #include "ranges.h"
 #include "callout.h"
 #include "pointer.h"
@@ -69,7 +73,7 @@ static void remove_group(
       QString line = in.at(i);
 
       if (line.contains(bgt)) {
-          if (bgt.cap(bgt.numCaptures()) == group) {
+          if (bgt.cap(bgt.captureCount()) == group) {
               i++;
             } else {
               out << line;
@@ -1202,7 +1206,7 @@ int Gui::findPage(
 
       QStringList tokens, addTokens;
 
-      switch (line.toAscii()[0]) {
+      switch (line.toLatin1()[0]) {
         case '1':
           split(line,tokens);
 
@@ -1580,7 +1584,7 @@ int Gui::getBOMParts(
           line = line.mid(8).trimmed();
         }
 
-      switch (line.toAscii()[0]) {
+      switch (line.toLatin1()[0]) {
         case '1':
           if ( ! partIgnore && ! pliIgnore && ! synthBegin) {
 
@@ -1784,7 +1788,7 @@ int Gui::getBOMOccurrence(Where	current) {		// start at top of ldrawFile
       QApplication::processEvents();
 
       QString line = ldrawFile.readLine(current.modelName,current.lineNumber).trimmed();
-      switch (line.toAscii()[0]) {
+      switch (line.toLatin1()[0]) {
         case '1':
           {
             QStringList token;

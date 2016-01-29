@@ -18,11 +18,10 @@
 #include "lc_library.h"
 #include "lc_colors.h"
 
-#include "lpub.h"
-
 lcMainWindow* gMainWindow;
 
-lcMainWindow::lcMainWindow()
+lcMainWindow::lcMainWindow(QMainWindow *parent) :
+  QMainWindow(parent)
 {
 	memset(mActions, 0, sizeof(mActions));
 
@@ -358,21 +357,19 @@ void lcMainWindow::CreateMenus()
 	CameraMenu->addAction(mActions[LC_VIEW_CAMERA_NONE]);
 
 	for (int actionIdx = LC_VIEW_CAMERA_FIRST; actionIdx <= LC_VIEW_CAMERA_LAST; actionIdx++)
-		CameraMenu->addAction(mActions[actionIdx]);
+		mCameraMenu->addAction(mActions[actionIdx]);
 
-	CameraMenu->addSeparator();
-	CameraMenu->addAction(mActions[LC_VIEW_CAMERA_RESET]);
+	mCameraMenu->addSeparator();
+	mCameraMenu->addAction(mActions[LC_VIEW_CAMERA_RESET]);
 
-    QMenu* FileMenuShort = menuBar()->addMenu(tr("&Step"));
-    FileMenuShort->addAction(mActions[LC_FILE_SAVEAS]);
-    FileMenuShort->addAction(mActions[LC_FILE_SAVE_IMAGE]);
-    QMenu* ExportMenuShort = FileMenuShort->addMenu(tr("&Export"));
-    ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_3DS]);
-    ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_BRICKLINK]);
-    ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_CSV]);
-    ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_HTML]);
-    ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_POVRAY]);
-    ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_WAVEFRONT]);
+	mViewpointMenu = new QMenu(tr("&Viewpoints"), this);
+	mViewpointMenu->addAction(mActions[LC_VIEW_VIEWPOINT_FRONT]);
+	mViewpointMenu->addAction(mActions[LC_VIEW_VIEWPOINT_BACK]);
+	mViewpointMenu->addAction(mActions[LC_VIEW_VIEWPOINT_LEFT]);
+	mViewpointMenu->addAction(mActions[LC_VIEW_VIEWPOINT_RIGHT]);
+	mViewpointMenu->addAction(mActions[LC_VIEW_VIEWPOINT_TOP]);
+	mViewpointMenu->addAction(mActions[LC_VIEW_VIEWPOINT_BOTTOM]);
+	mViewpointMenu->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
 
 	QMenu* FileMenu = menuBar()->addMenu(tr("&File"));
 	FileMenu->addAction(mActions[LC_FILE_NEW]);
@@ -410,6 +407,7 @@ void lcMainWindow::CreateMenus()
 	EditMenu->addAction(mActions[LC_EDIT_PASTE]);
 	EditMenu->addSeparator();
 	EditMenu->addAction(mActions[LC_EDIT_FIND]);
+
 	mActions[LC_EDIT_FIND]->setIcon(QIcon(":/resources/edit_find.png"));
 	EditMenu->addAction(mActions[LC_EDIT_FIND_NEXT]);
 	EditMenu->addAction(mActions[LC_EDIT_FIND_PREVIOUS]);
@@ -424,15 +422,8 @@ void lcMainWindow::CreateMenus()
 	ViewMenu->addSeparator();
 	ViewMenu->addAction(mActions[LC_VIEW_ZOOM_EXTENTS]);
 	ViewMenu->addAction(mActions[LC_VIEW_LOOK_AT]);
-	QMenu* ViewpointsMenu = ViewMenu->addMenu(tr("&Viewpoints"));
-	ViewpointsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_FRONT]);
-	ViewpointsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_BACK]);
-	ViewpointsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_LEFT]);
-	ViewpointsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_RIGHT]);
-	ViewpointsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_TOP]);
-	ViewpointsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_BOTTOM]);
-	ViewpointsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
-	ViewMenu->addMenu(CameraMenu);
+	ViewMenu->addMenu(mViewpointMenu);
+	ViewMenu->addMenu(mCameraMenu);
 	QMenu* PerspectiveMenu = ViewMenu->addMenu(tr("Projection"));
 	PerspectiveMenu->addAction(mActions[LC_VIEW_PROJECTION_PERSPECTIVE]);
 	PerspectiveMenu->addAction(mActions[LC_VIEW_PROJECTION_ORTHO]);
@@ -463,8 +454,13 @@ void lcMainWindow::CreateMenus()
 	QMenu* PieceMenu = menuBar()->addMenu(tr("&Piece"));
 	PieceMenu->addAction(mActions[LC_PIECE_INSERT]);
 	PieceMenu->addAction(mActions[LC_PIECE_DELETE]);
+	PieceMenu->addAction(mActions[LC_PIECE_RESET_PIVOT_POINT]);
 	PieceMenu->addAction(mActions[LC_PIECE_ARRAY]);
 	PieceMenu->addAction(mActions[LC_PIECE_MINIFIG_WIZARD]);
+	PieceMenu->addSeparator();
+	PieceMenu->addAction(mActions[LC_PIECE_VIEW_SELECTED_MODEL]);
+	PieceMenu->addAction(mActions[LC_PIECE_INLINE_SELECTED_MODELS]);
+	PieceMenu->addAction(mActions[LC_PIECE_MOVE_SELECTION_TO_MODEL]);
 	PieceMenu->addSeparator();
 	PieceMenu->addAction(mActions[LC_PIECE_GROUP]);
 	PieceMenu->addAction(mActions[LC_PIECE_UNGROUP]);
@@ -588,6 +584,7 @@ void lcMainWindow::CreateToolBars()
 	QHBoxLayout* TransformLayout = new QHBoxLayout;
 	QWidget* TransformWidget = new QWidget();
 	TransformWidget->setLayout(TransformLayout);
+
 	TransformLayout->setContentsMargins(5, 0, 5, 0);
 	mTransformXEdit = new QLineEdit();
 	mTransformXEdit->setMaximumWidth(75);
@@ -719,6 +716,7 @@ void lcMainWindow::CreateToolBars()
 
 	mTimelineToolBar->setWidget(mTimelineWidget);
 	addDockWidget(Qt::RightDockWidgetArea, mTimelineToolBar);
+
 	tabifyDockWidget(mPartsToolBar, mPropertiesToolBar);
 	tabifyDockWidget(mPropertiesToolBar, mTimelineToolBar);
 	mPartsToolBar->raise();
@@ -775,24 +773,23 @@ void lcMainWindow::enable3DActions(){
 
 }
 
+
 void lcMainWindow::CreateStatusBar()
 {
-    setStatusBar(mLCStatusBar);
+	QStatusBar* StatusBar = new QStatusBar(this);
+	setStatusBar(StatusBar);
 
 	mStatusBarLabel = new QLabel();
-    mLCStatusBar->addWidget(mStatusBarLabel);
+	StatusBar->addWidget(mStatusBarLabel);
 
-
-//    mStatusPositionLabel = new QLabel();                              //remarked at LPbub3D Rev 244 build 05
-//    mLCStatusBar->addPermanentWidget(mStatusPositionLabel);
+	mStatusPositionLabel = new QLabel();
+	StatusBar->addPermanentWidget(mStatusPositionLabel);
 
 	mStatusSnapLabel = new QLabel();
-    mLCStatusBar->addPermanentWidget(mStatusSnapLabel);
+	StatusBar->addPermanentWidget(mStatusSnapLabel);
 
-//	  mStatusTimeLabel = new QLabel();
-//    mLCStatusBar->addPermanentWidget(mStatusTimeLabel);
-
-
+	mStatusTimeLabel = new QLabel();
+	StatusBar->addPermanentWidget(mStatusTimeLabel);
 }
 
 void lcMainWindow::closeEvent(QCloseEvent *event)
@@ -800,12 +797,6 @@ void lcMainWindow::closeEvent(QCloseEvent *event)
 	if (SaveProjectIfModified())
 	{
 		event->accept();
-
-//        QSettings Settings;
-//        Settings.beginGroup(WINDOW);
-//        Settings.setValue("Geometry", saveGeometry());
-//        Settings.setValue("State", saveState());
-//        Settings.endGroup();
 	}
 	else
 		event->ignore();
@@ -1202,7 +1193,6 @@ void lcMainWindow::ShowPrintDialog()
 #include "lc_qselectdialog.h"
 #include "lc_qminifigdialog.h"
 #include "lc_qarraydialog.h"
-#include "lc_qgroupdialog.h"
 #include "lc_qeditgroupsdialog.h"
 #include "lc_qpreferencesdialog.h"
 #include "lc_qupdatedialog.h"
@@ -1257,12 +1247,6 @@ bool lcMainWindow::DoDialog(LC_DIALOG_TYPE Type, void* Data)
 	case LC_DIALOG_PIECE_ARRAY:
 		{
 			lcQArrayDialog Dialog(this, Data);
-			return Dialog.exec() == QDialog::Accepted;
-		} break;
-
-	case LC_DIALOG_PIECE_GROUP:
-		{
-			lcQGroupDialog Dialog(this, Data);
 			return Dialog.exec() == QDialog::Accepted;
 		} break;
 
@@ -1639,73 +1623,82 @@ void lcMainWindow::RemoveRecentFile(int FileIndex)
 	UpdateRecentFiles();
 }
 
-void lcMainWindow::UpdateFocusObject(lcObject* Focus)
+void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged)
 {
-	mPropertiesWidget->updateFocusObject(Focus);
+	int Flags;
+	lcArray<lcObject*> Selection;
+	lcObject* Focus;
 
+	lcGetActiveModel()->GetSelectionInformation(&Flags, Selection, &Focus);
+
+	if (SelectionChanged)
+	{
+		mTimelineWidget->UpdateSelection();
+
+		mActions[LC_EDIT_CUT]->setEnabled(Flags & LC_SEL_SELECTED);
+		mActions[LC_EDIT_COPY]->setEnabled(Flags & LC_SEL_SELECTED);
+		mActions[LC_EDIT_FIND]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
+		mActions[LC_EDIT_FIND_NEXT]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
+		mActions[LC_EDIT_FIND_PREVIOUS]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
+		mActions[LC_EDIT_SELECT_INVERT]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
+		mActions[LC_EDIT_SELECT_BY_NAME]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
+		mActions[LC_EDIT_SELECT_NONE]->setEnabled(Flags & LC_SEL_SELECTED);
+		mActions[LC_EDIT_SELECT_ALL]->setEnabled(Flags & LC_SEL_UNSELECTED);
+
+		mActions[LC_PIECE_DELETE]->setEnabled(Flags & LC_SEL_SELECTED);
+		mActions[LC_PIECE_RESET_PIVOT_POINT]->setEnabled(Flags & LC_SEL_SELECTED);
+		mActions[LC_PIECE_ARRAY]->setEnabled(Flags & LC_SEL_PIECE);
+		mActions[LC_PIECE_HIDE_SELECTED]->setEnabled(Flags & LC_SEL_VISIBLE_SELECTED);
+		mActions[LC_PIECE_HIDE_UNSELECTED]->setEnabled(Flags & LC_SEL_UNSELECTED);
+		mActions[LC_PIECE_UNHIDE_SELECTED]->setEnabled(Flags & LC_SEL_HIDDEN_SELECTED);
+		mActions[LC_PIECE_UNHIDE_ALL]->setEnabled(Flags & LC_SEL_HIDDEN);
+		mActions[LC_PIECE_VIEW_SELECTED_MODEL]->setEnabled(Flags & LC_SEL_MODEL_SELECTED);
+		mActions[LC_PIECE_MOVE_SELECTION_TO_MODEL]->setEnabled(Flags & LC_SEL_PIECE);
+		mActions[LC_PIECE_INLINE_SELECTED_MODELS]->setEnabled(Flags & LC_SEL_MODEL_SELECTED);
+		mActions[LC_PIECE_GROUP]->setEnabled(Flags & LC_SEL_CAN_GROUP);
+		mActions[LC_PIECE_UNGROUP]->setEnabled(Flags & LC_SEL_GROUPED);
+		mActions[LC_PIECE_GROUP_ADD]->setEnabled((Flags & (LC_SEL_GROUPED | LC_SEL_FOCUS_GROUPED)) == LC_SEL_GROUPED);
+		mActions[LC_PIECE_GROUP_REMOVE]->setEnabled(Flags & LC_SEL_FOCUS_GROUPED);
+		mActions[LC_PIECE_GROUP_EDIT]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
+		mActions[LC_PIECE_SHOW_EARLIER]->setEnabled(Flags & LC_SEL_PIECE); // FIXME: disable if current step is 1
+		mActions[LC_PIECE_SHOW_LATER]->setEnabled(Flags & LC_SEL_PIECE);
+	}
+
+	mPropertiesWidget->Update(Selection, Focus);
+
+	QString Message;
+
+	if ((Selection.GetSize() == 1) && Focus)
+	{
+		if (Focus->IsPiece())
+			Message = tr("%1 (ID: %2)").arg(Focus->GetName(), ((lcPiece*)Focus)->mPieceInfo->m_strName);
+		else
+			Message = Focus->GetName();
+	}
+	else if (Selection.GetSize() > 0)
+	{
+		if (Selection.GetSize() == 1)
+			Message = tr("1 Object selected");
+		else
+			Message = tr("%1 Objects selected").arg(QString::number(Selection.GetSize()));
+
+		if (Focus && Focus->IsPiece())
+		{
+			Message.append(tr(" - %1 (ID: %2)").arg(Focus->GetName(), ((lcPiece*)Focus)->mPieceInfo->m_strName));
+
+			const lcGroup* Group = ((lcPiece*)Focus)->GetGroup();
+			if (Group && !Group->mName.isEmpty())
+				Message.append(tr(" in group '%1'").arg(Group->mName));
+		}
+	}
+
+	mStatusBarLabel->setText(Message);
 	lcVector3 Position;
 	lcGetActiveModel()->GetFocusPosition(Position);
 
 	QString Label("X: %1 Y: %2 Z: %3");
 	Label = Label.arg(QString::number(Position[0], 'f', 2), QString::number(Position[1], 'f', 2), QString::number(Position[2], 'f', 2));
     //mStatusPositionLabel->setText(Label);  //remarked on LPub3D Revision 244 build 05
-
-}
-
-void lcMainWindow::UpdateSelectedObjects(int Flags, int SelectedCount, lcObject* Focus)
-{
-	mTimelineWidget->UpdateSelection();
-	mActions[LC_EDIT_CUT]->setEnabled(Flags & LC_SEL_SELECTED);
-	mActions[LC_EDIT_COPY]->setEnabled(Flags & LC_SEL_SELECTED);
-	mActions[LC_EDIT_FIND]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
-	mActions[LC_EDIT_FIND_NEXT]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
-	mActions[LC_EDIT_FIND_PREVIOUS]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
-	mActions[LC_EDIT_SELECT_INVERT]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
-	mActions[LC_EDIT_SELECT_BY_NAME]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
-	mActions[LC_EDIT_SELECT_NONE]->setEnabled(Flags & LC_SEL_SELECTED);
-	mActions[LC_EDIT_SELECT_ALL]->setEnabled(Flags & LC_SEL_UNSELECTED);
-
-	mActions[LC_PIECE_DELETE]->setEnabled(Flags & LC_SEL_SELECTED);
-	mActions[LC_PIECE_ARRAY]->setEnabled(Flags & LC_SEL_PIECE);
-	mActions[LC_PIECE_HIDE_SELECTED]->setEnabled(Flags & LC_SEL_VISIBLE_SELECTED);
-	mActions[LC_PIECE_HIDE_UNSELECTED]->setEnabled(Flags & LC_SEL_UNSELECTED);
-	mActions[LC_PIECE_UNHIDE_SELECTED]->setEnabled(Flags & LC_SEL_HIDDEN_SELECTED);
-	mActions[LC_PIECE_UNHIDE_ALL]->setEnabled(Flags & LC_SEL_HIDDEN);
-	mActions[LC_PIECE_GROUP]->setEnabled(Flags & LC_SEL_CAN_GROUP);
-	mActions[LC_PIECE_UNGROUP]->setEnabled(Flags & LC_SEL_GROUPED);
-	mActions[LC_PIECE_GROUP_ADD]->setEnabled((Flags & (LC_SEL_GROUPED | LC_SEL_FOCUS_GROUPED)) == LC_SEL_GROUPED);
-	mActions[LC_PIECE_GROUP_REMOVE]->setEnabled(Flags & LC_SEL_FOCUS_GROUPED);
-	mActions[LC_PIECE_GROUP_EDIT]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
-	mActions[LC_PIECE_SHOW_EARLIER]->setEnabled(Flags & LC_SEL_PIECE); // FIXME: disable if current step is 1
-	mActions[LC_PIECE_SHOW_LATER]->setEnabled(Flags & LC_SEL_PIECE);
-
-	QString Message;
-
-	if ((SelectedCount == 1) && Focus)
-	{
-		if (Focus->IsPiece())
-			Message = QString("%1 (ID: %2)").arg(Focus->GetName(), ((lcPiece*)Focus)->mPieceInfo->m_strName);
-		else
-			Message = Focus->GetName();
-	}
-	else if (SelectedCount > 0)
-	{
-		if (SelectedCount == 1)
-			Message = "1 Object selected";
-		else
-			Message = QString("%1 Objects selected").arg(QString::number(SelectedCount));
-
-		if (Focus && Focus->IsPiece())
-		{
-			Message.append(QString(" - %1 (ID: %2)").arg(Focus->GetName(), ((lcPiece*)Focus)->mPieceInfo->m_strName));
-
-			const lcGroup* Group = ((lcPiece*)Focus)->GetGroup();
-			if (Group && Group->m_strName[0])
-				Message.append(QString(" in group '%1'").arg(Group->m_strName));
-		}
-	}
-
-	mStatusBarLabel->setText(Message);
 }
 
 void lcMainWindow::UpdateTimeline(bool Clear, bool UpdateItems)
@@ -1917,6 +1910,7 @@ void lcMainWindow::NewProject()
 
 	Project* NewProject = new Project();
 	g_App->SetProject(NewProject);
+	lcGetPiecesLibrary()->UnloadUnusedParts();
 }
 
 bool lcMainWindow::OpenProject(const QString& FileName)
@@ -1956,7 +1950,6 @@ bool lcMainWindow::OpenProject(const QString& FileName)
 			View->ZoomExtents();
 		}
 
-        //gui->ResetStepRotation(); //this causes the step rotation to display at every step load
 		UpdateAllViews();
 
 		return true;
@@ -2068,14 +2061,31 @@ bool lcMainWindow::SaveProjectIfModified()
 	return true;
 }
 
-void lcMainWindow::SetModelFromFocus()
+bool lcMainWindow::SetModelFromFocus()
 {
 	lcObject* FocusObject = lcGetActiveModel()->GetFocusObject();
 
 	if (!FocusObject || !FocusObject->IsPiece())
-		return;
+		return false;
 
 	lcModel* Model = ((lcPiece*)FocusObject)->mPieceInfo->GetModel();
+
+	if (Model)
+	{
+		Project* Project = lcGetActiveProject();
+		Project->SetActiveModel(Project->GetModels().FindIndex(Model));
+		return true;
+	}
+
+	return false;
+}
+
+void lcMainWindow::SetModelFromSelection()
+{
+	if (SetModelFromFocus())
+		return;
+
+	lcModel* Model = lcGetActiveModel()->GetFirstSelectedSubmodel();
 
 	if (Model)
 	{
@@ -2245,52 +2255,56 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		lcGetActiveModel()->DeleteSelectedObjects();
 		break;
 
+	case LC_PIECE_RESET_PIVOT_POINT:
+		lcGetActiveModel()->ResetSelectedPiecesPivotPoint();
+		break;
+
 	case LC_PIECE_MOVE_PLUSX:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(lcMax(GetMoveXYSnap(), 0.1f), 0.0f, 0.0f)), true, true, true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(lcMax(GetMoveXYSnap(), 0.1f), 0.0f, 0.0f)), true, false, true, true);
 		break;
 
 	case LC_PIECE_MOVE_MINUSX:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(-lcMax(GetMoveXYSnap(), 0.1f), 0.0f, 0.0f)), true, true, true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(-lcMax(GetMoveXYSnap(), 0.1f), 0.0f, 0.0f)), true, false, true, true);
 		break;
 
 	case LC_PIECE_MOVE_PLUSY:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, lcMax(GetMoveXYSnap(), 0.1f), 0.0f)), true, true, true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, lcMax(GetMoveXYSnap(), 0.1f), 0.0f)), true, false, true, true);
 		break;
 
 	case LC_PIECE_MOVE_MINUSY:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, -lcMax(GetMoveXYSnap(), 0.1f), 0.0f)), true, true, true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, -lcMax(GetMoveXYSnap(), 0.1f), 0.0f)), true, false, true, true);
 		break;
 
 	case LC_PIECE_MOVE_PLUSZ:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, lcMax(GetMoveZSnap(), 0.1f))), true, true, true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, lcMax(GetMoveZSnap(), 0.1f))), true, false, true, true);
 		break;
 
 	case LC_PIECE_MOVE_MINUSZ:
-		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, -lcMax(GetMoveZSnap(), 0.1f))), true, true, true);
+		lcGetActiveModel()->MoveSelectedObjects(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, -lcMax(GetMoveZSnap(), 0.1f))), true, false, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_PLUSX:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(lcMax((float)GetAngleSnap(), 1.0f), 0.0f, 0.0f)), true, true, true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(lcMax((float)GetAngleSnap(), 1.0f), 0.0f, 0.0f)), true, false, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_MINUSX:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(-lcVector3(lcMax((float)GetAngleSnap(), 1.0f), 0.0f, 0.0f)), true, true, true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(-lcVector3(lcMax((float)GetAngleSnap(), 1.0f), 0.0f, 0.0f)), true, false, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_PLUSY:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, lcMax((float)GetAngleSnap(), 1.0f), 0.0f)), true, true, true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, lcMax((float)GetAngleSnap(), 1.0f), 0.0f)), true, false, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_MINUSY:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, -lcMax((float)GetAngleSnap(), 1.0f), 0.0f)), true, true, true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, -lcMax((float)GetAngleSnap(), 1.0f), 0.0f)), true, false, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_PLUSZ:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, lcMax((float)GetAngleSnap(), 1.0f))), true, true, true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, lcMax((float)GetAngleSnap(), 1.0f))), true, false, true, true);
 		break;
 
 	case LC_PIECE_ROTATE_MINUSZ:
-		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, -lcMax((float)GetAngleSnap(), 1.0f))), true, true, true);
+		lcGetActiveModel()->RotateSelectedPieces(mActiveView->GetMoveDirection(lcVector3(0.0f, 0.0f, -lcMax((float)GetAngleSnap(), 1.0f))), true, false, true, true);
 		break;
 
 	case LC_PIECE_MINIFIG_WIZARD:
@@ -2299,6 +2313,18 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_PIECE_ARRAY:
 		lcGetActiveModel()->ShowArrayDialog();
+		break;
+
+	case LC_PIECE_VIEW_SELECTED_MODEL:
+		SetModelFromSelection();
+		break;
+
+	case LC_PIECE_MOVE_SELECTION_TO_MODEL:
+		lcGetActiveModel()->MoveSelectionToModel(lcGetActiveProject()->CreateNewModel(false));
+		break;
+
+	case LC_PIECE_INLINE_SELECTED_MODELS:
+		lcGetActiveModel()->InlineSelectedModels();
 		break;
 
 	case LC_PIECE_GROUP:
@@ -2445,7 +2471,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_MODEL_NEW:
-		lcGetActiveProject()->CreateNewModel();
+		lcGetActiveProject()->CreateNewModel(true);
 		break;
 
 	case LC_MODEL_PROPERTIES:

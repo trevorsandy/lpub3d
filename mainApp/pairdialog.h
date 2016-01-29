@@ -59,9 +59,8 @@
 #define PAIRDIALOG
 
 
-
+#include <QtGlobal>
 #include <QDialog>
-
 #include "meta.h"
 
 class FloatsGui;
@@ -212,7 +211,11 @@ public slots:
 
 #include <QDialog>
 
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QWidget>
+#else
 #include <QWidget>
+#endif
 
 #include <QString>
 

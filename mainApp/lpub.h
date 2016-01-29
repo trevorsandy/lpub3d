@@ -329,7 +329,14 @@
 #ifndef GUI_H
 #define GUI_H
 
+#define MAINWINDOW   "MainWindow"
+
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QApplication>
+#else
 #include <QApplication>
+#endif
 #include <QMainWindow>
 #include <QMenuBar>
 #include <QAction>
@@ -354,17 +361,13 @@
 #include "version.h"
 #include "threadworkers.h"
 #include "FadeStepColorParts.h"
-#include "annotations.h"
 #include "plisubstituteparts.h"
 #include "dialogexportpages.h"
 
 //** 3D
 #include "lc_math.h"
 #include "lc_library.h"
-#include "lc_application.h"
 #include "lc_mainwindow.h" //moved from
-
-//**
 
 #include "QsLog.h"
 
@@ -511,6 +514,8 @@ public:
   void beginMacro (QString name);
   void endMacro   ();
 
+  bool Initialize3DViewer(int argc, char *argv[], const char* LibraryInstallPath, const char* LDrawPath);
+
   void displayFile(LDrawFile *ldrawFile, const QString &modelName);
   void displayParmsFile(const QString &fileName);
   void halt3DViewer(bool b);
@@ -588,7 +593,7 @@ public slots:
     if (1) {
       statusBarMsg(QString("%1 %2:%3") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber));
     } else {
-      QMessageBox::warning(this,tr("LPub3D"),tr(errorMsg.toAscii()));
+      QMessageBox::warning(this,tr("LPub3D"),tr(errorMsg.toLatin1()));
     }
   }
 
@@ -596,7 +601,7 @@ public slots:
       if (status){
           statusBarMsg(message);
       }else{
-          QMessageBox::warning(this,tr("LPub3D"),tr(message.toAscii()));
+          QMessageBox::warning(this,tr("LPub3D"),tr(message.toLatin1()));
       }
   }
 
@@ -667,7 +672,6 @@ signals:
   void enable3DActionsSig();
 
   void halt3DViewerSig(bool b);
-  void quit();
 
   // progress bar
   void progressBarInitSig();
@@ -701,7 +705,6 @@ private:
   QElapsedTimer         *timer;
 
   FadeStepColorParts     fadeStepColorParts; // internal list of color parts to be processed for fade step.
-  Annotations            annotations;        // this is an internal list of title and custom part annotations
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
 
 #ifdef WATCHER
@@ -875,7 +878,8 @@ private slots:
     bool maybeSave();
     bool saveFile(const QString &fileName);
     void closeFile();
-    void updateRecentFileActions();        
+    void updateRecentFileActions();
+
 public:
 
     void sizeit()
@@ -886,7 +890,7 @@ public:
       list.append(centralWidget()->width()/4);
     }
 
-  // DELETE
+  // Page size for pdf printing
   int bestPaperSizeOrientation(
     float widthMm,
     float heightMm,
@@ -1024,7 +1028,7 @@ protected:
 
 };
 
-extern Gui *gui;
+extern class Gui *gui;
 
 class LGraphicsView : public QGraphicsView
 {

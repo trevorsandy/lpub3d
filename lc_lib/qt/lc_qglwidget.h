@@ -1,7 +1,12 @@
 #ifndef _LC_QGLWIDGET_H_
 #define _LC_QGLWIDGET_H_
 
+#if QT_VERSION >= 0x050000
+#include <QOpenGLWidget>
+#else
 #include <QGLWidget>
+
+#endif
 class lcGLWidget;
 
 class lcQGLWidget : public QGLWidget

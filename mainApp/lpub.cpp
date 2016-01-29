@@ -14,6 +14,12 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+#include "lpub.h"
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QWidget>
+#else
+#include <QWidget>
+#endif
 #include <QSizePolicy>
 #include <QFileDialog>
 #include <QComboBox>
@@ -22,13 +28,11 @@
 #include <QCloseEvent>
 #include <QUndoStack>
 #include <QTextStream>
-#include <QWidget>
-
 #include "QPushButton"
 #include "QHBoxLayout"
 #include "QVBoxLayout"
 
-#include "lpub.h"
+
 #include "editwindow.h"
 #include "parmswindow.h"
 #include "paths.h"
@@ -854,8 +858,9 @@ Gui::Gui()
     exportType    = EXPORT_PDF;
     pageRangeText = displayPageNum;
 
-    editWindow    = new EditWindow();
-    parmsWindow   = new ParmsWindow();
+    editWindow    = new EditWindow(this);
+    parmsWindow   = new ParmsWindow(this);
+
     KpageScene    = new QGraphicsScene(this);
     KpageScene->setBackgroundBrush(Qt::lightGray);
     KpageView     = new LGraphicsView(KpageScene);
@@ -865,7 +870,7 @@ Gui::Gui()
                              QPainter::SmoothPixmapTransform);
     setCentralWidget(KpageView);
 
-    mpdCombo = new QComboBox;
+    mpdCombo = new QComboBox(this);
     mpdCombo->setToolTip(tr("Go to Submodel"));
     mpdCombo->setMinimumContentsLength(25);
     mpdCombo->setInsertPolicy(QComboBox::InsertAtBottom);
@@ -881,7 +886,7 @@ Gui::Gui()
     connect(setGoToPageCombo,SIGNAL(activated(int)),
             this,            SLOT(setGoToPage(int)));
 
-    progressLabel = new QLabel();
+    progressLabel = new QLabel(this);
     progressLabel->setMinimumWidth(200);
     progressBar = new QProgressBar();
     progressBar->setMaximumWidth(300);
@@ -892,14 +897,27 @@ Gui::Gui()
     createActions();
     createMenus();
     createToolBars();
-    createStatusBar();
 
-    createDockWindows();
-    toggleLCStatusBar();
+//    createStatusBar();
+//    createDockWindows();
+//    toggleLCStatusBar();
 
-    readSettings();
+//    readSettings();
+
+//    connect(this,           SIGNAL(halt3DViewerSig(bool)),
+//            gMainWindow,    SLOT(  halt3DViewer   (bool)));
+
+//    connect(this,           SIGNAL(enable3DActionsSig()),
+//            gMainWindow,    SLOT(  enable3DActions()));
 
     undoStack = new QUndoStack();
+    connect(undoStack,      SIGNAL(canRedoChanged(bool)),
+            this,           SLOT(  canRedoChanged(bool)));
+    connect(undoStack,      SIGNAL(canUndoChanged(bool)),
+            this,           SLOT(  canUndoChanged(bool)));
+    connect(undoStack,      SIGNAL(cleanChanged(bool)),
+            this,           SLOT(  cleanChanged(bool)));
+
     macroNesting = 0;
 
     connect(this,           SIGNAL(displayFileSig(LDrawFile *, const QString &)),
@@ -916,19 +934,6 @@ Gui::Gui()
     connect(this,           SIGNAL(displayParmsFileSig(const QString &)),
             parmsWindow,    SLOT( displayParmsFile   (const QString &)));
 
-    connect(undoStack,      SIGNAL(canRedoChanged(bool)),
-            this,           SLOT(  canRedoChanged(bool)));
-    connect(undoStack,      SIGNAL(canUndoChanged(bool)),
-            this,           SLOT(  canUndoChanged(bool)));
-    connect(undoStack,      SIGNAL(cleanChanged(bool)),
-            this,           SLOT(  cleanChanged(bool)));
-
-    connect(this,           SIGNAL(halt3DViewerSig(bool)),
-            gMainWindow,    SLOT(  halt3DViewer   (bool)));
-
-    connect(this,           SIGNAL(enable3DActionsSig()),
-            gMainWindow,    SLOT(  enable3DActions()));
-
     connect(this, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
 
     connect(this, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarPermInit()));
@@ -943,8 +948,9 @@ Gui::Gui()
              this,          SLOT(  fileChanged(const QString &)));
 #endif
     setCurrentFile("");
-    // Jaco: This sets the initial size of the main window
-    resize(QSize(1000, 600));
+
+// Jaco: This sets the initial size of the main window
+//    resize(QSize(1000, 600));  // moved to readSettings() r602
 
     gui = this;
 
@@ -974,12 +980,12 @@ Gui::~Gui()
 void Gui::closeEvent(QCloseEvent *event)
 {
 
-  writeSettings();
+  //writeSettings();
 
-  if (maybeSave()) {
+  if (maybeSave() /*&& gMainWindow->SaveProjectIfModified()*/) {
 
     QSettings Settings;
-    Settings.beginGroup(WINDOW);
+    Settings.beginGroup(MAINWINDOW);
     Settings.setValue("Geometry", saveGeometry());
     Settings.setValue("State", saveState());
     Settings.endGroup();
@@ -993,6 +999,33 @@ void Gui::closeEvent(QCloseEvent *event)
     event->ignore();
   }
 
+}
+
+bool Gui::Initialize3DViewer(int argc, char *argv[], const char* LibraryInstallPath, const char* LDrawPath){
+
+  g_App = new lcApplication();
+  bool initialized = g_App->Initialize(argc, argv, LibraryInstallPath, LDrawPath, this);
+
+  if (initialized){
+
+      gMainWindow->SetColorIndex(lcGetColorIndex(4));
+      gMainWindow->UpdateRecentFiles();
+
+      createStatusBar();
+      createDockWindows();
+      toggleLCStatusBar();
+
+      readSettings();
+
+      connect(this,           SIGNAL(halt3DViewerSig(bool)),
+              gMainWindow,    SLOT(  halt3DViewer   (bool)));
+
+      connect(this,           SIGNAL(enable3DActionsSig()),
+              gMainWindow,    SLOT(  enable3DActions()));
+
+    }
+
+  return initialized;
 }
 
 void Gui::generageFadeColourPartsList()
@@ -1705,7 +1738,7 @@ void Gui::toggleLCStatusBar(){
 void Gui::readSettings()
 {
     QSettings Settings;
-    Settings.beginGroup(WINDOW);
+    Settings.beginGroup(MAINWINDOW);
     restoreState(Settings.value("State").toByteArray());
     restoreGeometry(Settings.value("Geometry").toByteArray());
     QSize size = Settings.value("size", QSize(800, 600)).toSize();
@@ -1717,18 +1750,13 @@ void Gui::readSettings()
 
 void Gui::writeSettings()
 {
+// Crashes the viewer window
+
     QSettings Settings;
-    Settings.beginGroup(WINDOW);
+    Settings.beginGroup(MAINWINDOW);
     Settings.setValue("pos", pos());
     Settings.setValue("size", size());
     Settings.endGroup();
+
 }
 
-
-//LGraphicsView::LGraphicsView()
-//{
-//}
-
-//LGraphicsView::~LGraphicsView()
-//{
-//}

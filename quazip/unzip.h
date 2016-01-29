@@ -53,7 +53,12 @@ extern "C" {
 #endif
 
 #ifndef _ZLIB_H
-#include "zlib.h"
+  #include <QtGlobal>
+  #if QT_VERSION >= 0x050000
+  #include <QtZlib/zlib.h>
+  #else
+  #include "zlib.h"
+  #endif
 #endif
 
 #ifndef  _ZLIBIOAPI_H

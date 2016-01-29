@@ -28,15 +28,20 @@
  *
  ***************************************************************************/
 
+#include "version.h"
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#else
 #include <QtGui>
-
+#endif
 #include "editwindow.h"
 #include "highlighter.h"
 #include "ldrawfiles.h"
 
 EditWindow *editWindow;
 
-EditWindow::EditWindow()
+EditWindow::EditWindow(QMainWindow *parent) :
+  QMainWindow(parent)
 {
     editWindow  = this;
 
@@ -371,7 +376,7 @@ void QTextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
     else
         // Getting the height of the visible part of the previous "non entirely visible" block
         additional_margin = (int) this->document()->documentLayout()->blockBoundingRect(prev_block)
-                .translated(0, translate_y).intersect(this->viewport()->geometry()).height();
+                .translated(0, translate_y).intersected(this->viewport()->geometry()).height();
 
     // Shift the starting point
     top += additional_margin;

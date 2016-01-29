@@ -471,6 +471,8 @@ void lcCamera::CopyPosition(const lcCamera* camera)
 
 void lcCamera::DrawInterface(lcContext* Context) const
 {
+	Context->SetProgram(LC_PROGRAM_SIMPLE);
+
 	lcMatrix44 ViewWorldMatrix = lcMatrix44AffineInverse(mWorldView);
 	ViewWorldMatrix.SetTranslation(lcVector3(0, 0, 0));
 
@@ -872,7 +874,11 @@ void lcCamera::Orbit(float DistanceX, float DistanceY, const lcVector3& CenterPo
 	lcVector3 FrontVector(mPosition - mTargetPosition);
 
 	lcVector3 Z(lcNormalize(lcVector3(FrontVector[0], FrontVector[1], 0)));
+#if QT_VERSION >= 0x050000
+	if (std::isnan(Z[0]) || std::isnan(Z[1]))
+#else
 	if (isnan(Z[0]) || isnan(Z[1]))
+#endif
 		Z = lcNormalize(lcVector3(mUpVector[0], mUpVector[1], 0));
 
 	if (mUpVector[2] < 0)

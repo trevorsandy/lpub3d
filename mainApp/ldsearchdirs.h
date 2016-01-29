@@ -25,11 +25,17 @@
 #include <wchar.h>
 #endif // __APPLE__
 
-
-#ifndef WIN32
-#include <unistd.h>
-#include <sys/stat.h>
-#endif // !WIN32
+#if QT_VERSION >= 0x050000
+  #include <unistd.h>
+  #ifndef WIN32
+  #include <sys/stat.h>
+  #endif // !WIN32
+#else
+  #ifndef WIN32
+  #include <unistd.h>
+  #include <sys/stat.h>
+  #endif // !WIN32
+#endif
 
 #ifdef _QT
 #include <QtCore/qstring.h>

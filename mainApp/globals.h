@@ -30,10 +30,15 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QWidget>
+#else
+#include <QWidget>
+#endif
 #include <QDialog>
 #include <QGroupBox>
 #include <QGridLayout>
-#include <QWidget>
 #include <QTabWidget>
 
 #include "meta.h"

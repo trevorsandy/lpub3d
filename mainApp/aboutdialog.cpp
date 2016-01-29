@@ -249,7 +249,7 @@ void AboutDialog::showCreditDetails(bool clicked){
 
 QString AboutDialog::osName()
 {
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
     switch(QSysInfo::windowsVersion())
     {
       case QSysInfo::WV_6_1: return "Windows 7";

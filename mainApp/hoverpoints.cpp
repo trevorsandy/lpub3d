@@ -39,10 +39,10 @@
 **
 ****************************************************************************/
 
+#include <QtGlobal>
 #ifdef QT_OPENGL_SUPPORT
-#include <QGLWidget>
+#include <QOpenGLWidget>
 #endif
-
 #include "hoverpoints.h"
 #include "gradients.h"
 

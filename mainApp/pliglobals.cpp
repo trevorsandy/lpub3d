@@ -15,13 +15,18 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include <QTabWidget>
+
+#include "globals.h"
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QWidget>
+#else
 #include <QWidget>
+#endif
+#include <QTabWidget>
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QDialogButtonBox>
 
-#include "globals.h"
 #include "meta.h"
 #include "metagui.h"
 #include "metaitem.h"

@@ -29,7 +29,7 @@ ArchiveParts::ArchiveParts(QObject *parent) : QObject(parent)
  */
 bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QString &comment = QString("")) {
 
-  //logWarn() << QString("\nProcessing %1 with comment: %2").arg(dir.absolutePath()).arg(comment);
+  //qDebug() << QString("\nProcessing %1 with comment: %2").arg(dir.absolutePath()).arg(comment);
 
   // Initialize the zip file
   QuaZip zip(zipArchive);
@@ -37,7 +37,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
 
   // Check if directory exists
   if (!dir.exists()) {
-      logWarn() << QString("! dir.exists(%1)=FALSE").arg(dir.absolutePath());
+      qDebug() << QString("! dir.exists(%1)=FALSE").arg(dir.absolutePath());
       return false;
     }
 
@@ -47,7 +47,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
 
   // Check if file list is empty
   if (dirFileList.isEmpty()) {
-      logWarn() << QString("! dirFileList.isEmpty(): %1").arg(dir.absolutePath());
+      qDebug() << QString("! dirFileList.isEmpty(): %1").arg(dir.absolutePath());
       return true;
     }
 
@@ -76,7 +76,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
   QFileInfoList zipFiles;
   if (zipFileInfo.exists()){
       if (!zip.open(QuaZip::mdAdd)) {
-          logWarn() <<  QString("! zip.open()::mdAdd: %1").arg(zip.getZipError());
+          qDebug() <<  QString("! zip.open()::mdAdd: %1").arg(zip.getZipError());
           return false;
         }
 
@@ -124,7 +124,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
                       else
                         zipDirPaths << parts;
 
-//                      logDebug() << "\nCHECK IF ARCHIVE EXIST (SECOND LEVEL DIR - SUBS (P/PART DIRS)): "
+//                      qDebug() << "\nCHECK IF ARCHIVE EXIST (SECOND LEVEL DIR - SUBS (P/PART DIRS)): "
 //                                 << "\npartsInDir:               " << setPartsDir
 //                                 << "\nprimInDir:                " << setPrimDir
 //                                 << "\nsubSubDir.absolutePath(): " << subSubDir.absolutePath()
@@ -146,7 +146,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
               // No second level sub directories detected - default to zipDir 'parts'
               zipDirPaths << parts;
 
-//              logDebug() << "\nCHECK IF ARCHIVE EXIST (FIRST LEVEL DIR - SUB (W/O P/PART DIR)): "
+//              qDebug() << "\nCHECK IF ARCHIVE EXIST (FIRST LEVEL DIR - SUB (W/O P/PART DIR)): "
 //                         << "\nsetPartsDir:           " << (setPartsDir?"True":"False")
 //                         << "\nsetPrimDir:            " << (setPrimDir?"True":"False")
 //                         << "\nsubDir.absolutePath(): " << subDir.absolutePath()
@@ -173,7 +173,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
       else
         zipDirPaths << parts;
 
-//      logDebug() << "\nCHECK IF ARCHIVE EXIST (ROOT LEVEL DIR - NO SUBS): "
+//      qDebug() << "\nCHECK IF ARCHIVE EXIST (ROOT LEVEL DIR - NO SUBS): "
 //                 << "\nsetPartsDir:   " << setPartsDir
 //                 << "\nsetPrimDir:    " << setPrimDir
 //                 << "\ndir:           " << dir.absolutePath()
@@ -192,13 +192,13 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
     } else {
 
       if (!zip.open(QuaZip::mdCreate)) {
-          logWarn() <<  QString("! zip.open()::mdCreate: %1").arg(zip.getZipError());
+          qDebug() <<  QString("! zip.open()::mdCreate: %1").arg(zip.getZipError());
           return false;
         }
     }
 
   // Archive each disk file as necessary
-//  logDebug() << "PROCESSING DISK FILES FOR ARCHIVE";
+//  qDebug() << "PROCESSING DISK FILES FOR ARCHIVE";
   QFile inFile;
   QuaZipFile outFile(&zip);
 
@@ -230,48 +230,48 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
 
       if (setPartsDir){
           fileNameWithRelativePath = fileInfo.absoluteFilePath().remove(0, partsDirIndex + 1);
-          //logTrace() << "Adjusted Parts fileNameWithRelativePath: " << fileNameWithRelativePath;
+          //qDebug() << "Adjusted Parts fileNameWithRelativePath: " << fileNameWithRelativePath;
         } else if (setPrimDir){
           fileNameWithRelativePath = fileInfo.absoluteFilePath().remove(0, primDirIndex + 1);
-          //logTrace() << "Adjusted Primitive fileNameWithRelativePath: " << fileNameWithRelativePath;
+          //qDebug() << "Adjusted Primitive fileNameWithRelativePath: " << fileNameWithRelativePath;
         } else {
           fileNameWithRelativePath = fileInfo.fileName();
-          //logTrace() << "Adjusted Root fileNameWithRelativePath: " << fileNameWithRelativePath;
+          //qDebug() << "Adjusted Root fileNameWithRelativePath: " << fileNameWithRelativePath;
         }
 
       QString fileNameWithCompletePath;
 
       if (setPartsDir || setPrimDir){
           fileNameWithCompletePath = fileNameWithRelativePath;
-//          logInfo() << "fileNameWithCompletePath (ROOT PART/PRIMITIVE) " << fileNameWithCompletePath;
+//          qDebug() << "fileNameWithCompletePath (ROOT PART/PRIMITIVE) " << fileNameWithCompletePath;
         } else {
           fileNameWithCompletePath = QString("%1/%2").arg(parts).arg(fileNameWithRelativePath);
-//            logInfo() << "fileNameWithCompletePath (PART - DEFAULT)" << fileNameWithCompletePath;
+//            qDebug() << "fileNameWithCompletePath (PART - DEFAULT)" << fileNameWithCompletePath;
         }
 
       inFile.setFileName(fileInfo.filePath());
 
       if (!inFile.open(QIODevice::ReadOnly)) {
-            logWarn() <<  QString("! inFile.open(): %1").arg(inFile.errorString().toLocal8Bit().constData());
+            qDebug() <<  QString("! inFile.open(): %1").arg(inFile.errorString().toLocal8Bit().constData());
           return false;
         }
 
       if (!outFile.open(QIODevice::WriteOnly, QuaZipNewInfo(fileNameWithCompletePath, fileInfo.filePath()))) {
-            logWarn() << QString("! outFile.open(): %1").arg(outFile.getZipError());
+            qDebug() << QString("! outFile.open(): %1").arg(outFile.getZipError());
           return false;
         }
 
       while (inFile.getChar(&c) && outFile.putChar(c));
 
       if (outFile.getZipError() != UNZ_OK) {
-            logError() << QString("outFile.putChar() zipError(): %1").arg(outFile.getZipError());
+            qDebug() << QString("outFile.putChar() zipError(): %1").arg(outFile.getZipError());
           return false;
         }
 
       outFile.close();
 
       if (outFile.getZipError() != UNZ_OK) {
-            logError() << QString("outFile.close() zipError(): %1").arg(outFile.getZipError());
+            qDebug() << QString("outFile.close() zipError(): %1").arg(outFile.getZipError());
           return false;
         }
 
@@ -290,7 +290,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
   zip.close();
 
   if (zip.getZipError() != 0) {
-        logError() << QString("zip.close() zipError(): %1").arg(zip.getZipError());
+        qDebug() << QString("zip.close() zipError(): %1").arg(zip.getZipError());
       return false;
     }
 
@@ -304,7 +304,7 @@ bool ArchiveParts::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDi
   QuaZip *ptrZip = &zip;
 
   if (!zip.open(QuaZip::mdUnzip)) {
-      logWarn() << QString("! zip.open(): %1 @ %2").arg(zip.getZipError()).arg(zipArchive);
+      qDebug() << QString("! zip.open(): %1 @ %2").arg(zip.getZipError()).arg(zipArchive);
       return false;
     }
 
@@ -357,7 +357,7 @@ bool ArchiveParts::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDi
   zip.close();
 
   if (zip.getZipError() != UNZ_OK) {
-      logError() << QString("zip.close() zipError(): %1").arg(zip.getZipError());
+      qDebug() << QString("zip.close() zipError(): %1").arg(zip.getZipError());
       return false;
     }
 

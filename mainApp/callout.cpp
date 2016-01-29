@@ -27,8 +27,12 @@
  *
  ***************************************************************************/
 
+#include "lpub.h"
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#else
 #include <QtGui>
-
+#endif
 #include "callout.h"
 #include "calloutbackgrounditem.h"
 #include "pointer.h"
@@ -37,7 +41,6 @@
 #include "ranges.h"
 #include "range.h"
 #include "step.h"
-#include "lpub.h"
 #include "placementdialog.h"
 #include "commonmenus.h"
 #include "paths.h"

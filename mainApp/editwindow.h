@@ -54,7 +54,7 @@ class EditWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    EditWindow();
+    explicit EditWindow(QMainWindow *parent = 0);
 
 protected:
 

@@ -192,7 +192,7 @@ void ResizePixmapItem::setNewPos(qreal x, qreal y)
 
 void ResizePixmapItem::setScale(qreal x, qreal y)
 {
-  scale(x,y);
+  setTransform(QTransform::fromScale(x,y),true);
 }
 
 void ResizePixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)

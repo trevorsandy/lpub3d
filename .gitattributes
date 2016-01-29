@@ -162,6 +162,7 @@ lc_lib/resources/action_zoom.png -text
 lc_lib/resources/action_zoom_16.png -text
 lc_lib/resources/action_zoom_extents.png -text
 lc_lib/resources/action_zoom_region.png -text
+lc_lib/resources/application-vnd.leocad.svg -text
 lc_lib/resources/cursor_camera.png -text
 lc_lib/resources/cursor_delete.png -text
 lc_lib/resources/cursor_insert.png -text
@@ -216,12 +217,14 @@ lc_lib/resources/help_homepage.png -text
 lc_lib/resources/icon64.png -text
 lc_lib/resources/leocad.icns -text
 lc_lib/resources/leocad.ico -text
+lc_lib/resources/leocad.svg -text
 lc_lib/resources/leocad_document.icns -text
 lc_lib/resources/leocad_fr.qm -text
 lc_lib/resources/leocad_fr.ts -text
 lc_lib/resources/leocad_pt.qm -text
 lc_lib/resources/leocad_pt.ts -text
 lc_lib/resources/library.zip -text
+lc_lib/resources/minifig.ini -text
 lc_lib/resources/piece_show_earlier.png -text
 lc_lib/resources/piece_show_later.png -text
 lc_lib/resources/time_add_keys.png -text
@@ -263,6 +266,8 @@ mainApp/aboutdialog.h -text
 mainApp/aboutdialog.ui -text
 mainApp/annotations.cpp -text
 mainApp/annotations.h -text
+mainApp/application.cpp -text
+mainApp/application.h -text
 mainApp/archiveparts.cpp -text
 mainApp/archiveparts.h -text
 mainApp/assemglobals.cpp -text

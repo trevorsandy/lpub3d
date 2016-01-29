@@ -18,7 +18,11 @@
 
 #include <QObject>
 #include <QNetworkReply>
+#if QT_VERSION >= 0x050000
+#include "qsimpleupdater.h"
+#else
 #include <QSimpleUpdater>
+#endif
 
 void DoInitialUpdateCheck();
 
