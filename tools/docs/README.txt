@@ -2,13 +2,14 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
--Qt 5.5.1 base platform
+-Upgrade logging framework (r610)
+-Upgrade base to Qt 5.5.1 platform (r608)
 -Select local page size and global and local page orientation (Portrait and Landscape)
  Note: When manually editing the model file with either page size or orientation, it is recommended to insert both the size and orientation metas together. For example, even
  if you are only interested to add a page size, you shold update your file like the example 
  below - obviously selecting your own size values and orientation.
  0 !LPUB PAGE SIZE GLOBAL 8.2677 11.6929
- 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT
+ 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT (r518)
 -Change: Point online manual to LPub3D content (r517)
 -Fix: Update ldglite hard-coded default directory setting (r505) 
 -Fix: Remove hard coded reference to LPub3DViewer-Library folder - this was added in 1.3.0 unofficial archive refresh functionality (r506) 

@@ -13,7 +13,8 @@
 #include "view.h"
 #include "preview.h"
 #include "minifig.h"
- 
+#include "lc_qgroupdialog.h"
+
 #include "lpub.h"
 #include "metaitem.h"
 void lcModelProperties::LoadDefaults()
@@ -362,7 +363,7 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool MPD, bool SelectedOnly) const
 				{
 					lcGroup* Group = PieceParents[ParentIdx];
 					CurrentGroups.Add(Group);
-					Stream << QLatin1String("0 !LEOCAD GROUP BEGIN ") << Group->m_strName << LineEnding;
+					Stream << QLatin1String("0 !LEOCAD GROUP BEGIN ") << Group->mName << LineEnding;
 				}
 			}
 		}
@@ -721,9 +722,11 @@ bool lcModel::LoadBinary(lcFile* file)
 
 			if (fv < 1.0f)
 			{
-				file->ReadBuffer(Group->m_strName, 65);
-				file->ReadBuffer(&ch, 1);
-				Group->mGroup = (lcGroup*)-1;
+			    char Name[LC_MAX_GROUP_NAME + 1];
+			    file->ReadBuffer(Name, sizeof(Name));
+			    Group->mName = QString::fromUtf8(Name);
+			    file->ReadBuffer(&ch, 1);
+			    Group->mGroup = (lcGroup*)-1;
 			}
 			else
 				Group->FileLoad(file);
@@ -1431,34 +1434,32 @@ void lcModel::RemoveStep(lcStep Step)
 	SetCurrentStep(mCurrentStep);
 }
 
-lcGroup* lcModel::AddGroup(const char* Prefix, lcGroup* Parent)
+lcGroup* lcModel::AddGroup(const QString& Prefix, lcGroup* Parent)
 {
 	lcGroup* Group = new lcGroup();
 	mGroups.Add(Group);
 
-	GetGroupName(Prefix, Group->m_strName);
+	Group->mName = GetGroupName(Prefix);
 	Group->mGroup = Parent;
 
 	return Group;
 }
 
-lcGroup* lcModel::GetGroup(const char* Name, bool CreateIfMissing)
+lcGroup* lcModel::GetGroup(const QString& Name, bool CreateIfMissing)
 {
 	for (int GroupIdx = 0; GroupIdx < mGroups.GetSize(); GroupIdx++)
 	{
 		lcGroup* Group = mGroups[GroupIdx];
 
-		if (!strcmp(Group->m_strName, Name))
+		if (Group->mName == Name)
 			return Group;
 	}
 
 	if (CreateIfMissing)
 	{
 		lcGroup* Group = new lcGroup();
+		Group->mName = Name;
 		mGroups.Add(Group);
-
-		strncpy(Group->m_strName, Name, sizeof(Group->m_strName));
-		Group->m_strName[sizeof(Group->m_strName) - 1] = 0;
 
 		return Group;
 	}
@@ -1480,14 +1481,11 @@ void lcModel::GroupSelection()
 		return;
 	}
 
-	char GroupName[LC_MAX_GROUP_NAME + 1];
-
-	GetGroupName("Group #", GroupName);
-
-	if (!gMainWindow->DoDialog(LC_DIALOG_PIECE_GROUP, GroupName))
+	lcQGroupDialog Dialog(gMainWindow, GetGroupName(tr("Group #")));
+	if (Dialog.exec() != QDialog::Accepted)
 		return;
 
-	lcGroup* NewGroup = GetGroup(GroupName, true);
+	lcGroup* NewGroup = GetGroup(Dialog.mName, true);
 
 	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
 	{
@@ -1653,23 +1651,25 @@ void lcModel::ShowEditGroupsDialog()
 	}
 }
 
-void lcModel::GetGroupName(const char* Prefix, char* GroupName)
+QString lcModel::GetGroupName(const QString& Prefix)
 {
-	int Length = strlen(Prefix);
+	int Length = Prefix.length();
 	int Max = 0;
 
 	for (int GroupIdx = 0; GroupIdx < mGroups.GetSize(); GroupIdx++)
 	{
-		lcGroup* Group = mGroups[GroupIdx];
-		int GroupNumber;
+	    const QString& Name = mGroups[GroupIdx]->mName;
 
-		if (strncmp(Group->m_strName, Prefix, Length) == 0)
-			if (sscanf(Group->m_strName + Length, "%d", &GroupNumber) == 1)
-				if (GroupNumber > Max)
-					Max = GroupNumber;
-	}
+	    if (Name.startsWith(Prefix))
+	    {
+		    bool Ok = false;
+		    int GroupNumber = Name.mid(Length).toInt(&Ok);
+		    if (Ok && GroupNumber > Max)
+			    Max = GroupNumber;
+	    }
+    }
 
-	sprintf(GroupName, "%s%.2d", Prefix, Max + 1);
+    return Prefix + QString::number(Max + 1);
 }
 
 void lcModel::RemoveEmptyGroups()
@@ -3739,7 +3739,7 @@ void lcModel::ShowMinifigDialog()
 
 	gMainWindow->mPreviewWidget->MakeCurrent();
 
-	lcGroup* Group = AddGroup("Minifig #", NULL);
+	lcGroup* Group = AddGroup(tr("Minifig #"), NULL);
 	lcArray<lcObject*> Pieces(LC_MFW_NUMITEMS);
 
 	for (int PartIdx = 0; PartIdx < LC_MFW_NUMITEMS; PartIdx++)

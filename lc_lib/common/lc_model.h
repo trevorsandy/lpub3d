@@ -208,8 +208,8 @@ public:
 	void ShowSelectedPiecesLater();
 	void SetPieceSteps(const QList<QPair<lcPiece*, lcStep> >& PieceSteps);
 
-	lcGroup* AddGroup(const char* Prefix, lcGroup* Parent);
-	lcGroup* GetGroup(const char* Name, bool CreateIfMissing);
+	lcGroup* AddGroup(const QString& Prefix, lcGroup* Parent);
+	lcGroup* GetGroup(const QString& Name, bool CreateIfMissing);
 	void RemoveGroup(lcGroup* Group);
 	void GroupSelection();
 	void UngroupSelection();
@@ -334,7 +334,7 @@ protected:
 	void SaveCheckpoint(const QString& Description);
 	void LoadCheckPoint(lcModelHistoryEntry* CheckPoint);
 
-	void GetGroupName(const char* Prefix, char* GroupName);
+	QString GetGroupName(const QString& Prefix);
 	void RemoveEmptyGroups();
 	bool RemoveSelectedObjects();
 
