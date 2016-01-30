@@ -22,6 +22,9 @@
 #include "resolution.h"
 #include "updatecheck.h"
 
+#include "QsLog.h"
+#include "QsLogDest.h"
+
 #ifdef Q_OS_WIN
 
 #include <dbghelp.h>
@@ -141,11 +144,19 @@ void Application::initialize(int &argc, char **argv)
   splash->showMessage(QSplashScreen::tr("LPub3D is loading..."),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
   m_application.processEvents();
 
-  // initialize the logger
-  QsLogging::Logger& logger = QsLogging::Logger::instance();
+  using namespace QsLogging;
 
-  // set minimum log level
-  logger.setLoggingLevel(QsLogging::TraceLevel);
+  // initialize the logger
+  Logger& logger = Logger::instance();
+
+  // set default log options
+  logger.setLoggingLevel(TraceLevel);
+  logger.setIncludeLogLevel(true);
+  logger.setIncludeTimestamp(false);
+  logger.setIncludeLineNumber(false);
+  logger.setIncludeFileName(true);
+  logger.setColorizeOutput(true);
+  logger.setColorizeFunctionInfo(true);
 
   // define log path
   QString lpubDataPath = Preferences::lpubDataPath;
@@ -155,14 +166,35 @@ void Application::initialize(int &argc, char **argv)
   const QString sLogPath(QDir(logDir).filePath(QString("%1%2").arg(VER_PRODUCTNAME_STR).arg("Log.txt")));
 
   // Create log destinations
-  QsLogging::DestinationPtr fileDestination(
-        QsLogging::DestinationFactory::MakeFileDestination(sLogPath));
-  QsLogging::DestinationPtr debugDestination(
-        QsLogging::DestinationFactory::MakeDebugOutputDestination());
+  DestinationPtr fileDestination(DestinationFactory::MakeFileDestination(
+    sLogPath, EnableLogRotation, MaxSizeBytes(512), MaxOldLogCount(2)));
+  DestinationPtr debugDestination(
+        DestinationFactory::MakeDebugOutputDestination());
 
   // set log destinations on the logger
-  logger.addDestination(debugDestination.get());
-  logger.addDestination(fileDestination.get());
+  logger.addDestination(debugDestination);
+  logger.addDestination(fileDestination);
+
+  // write an info message using logging macros:
+  bool showLogExamples = false;
+  if (showLogExamples){
+      logInfo()   << "LPub3D started";
+      logInfo()   << "Built with Qt" << QT_VERSION_STR << "running on" << qVersion();
+      logNotice() << "Here's a" << QString("Notice") << "message";
+      logTrace()  << "Here's a" << QString("trace") << "message";
+      logDebug()  << "Here's a" << static_cast<int>(QsLogging::DebugLevel) << "message";
+      logWarn()   << "Uh-oh!";
+      qDebug()    << "This message won't be picked up by the logger";
+      logError()  << "An error has occurred";
+      qWarning()  << "Neither will this one";
+      logFatal()  << "Fatal error!";
+
+      logger.setLoggingLevel(QsLogging::OffLevel);
+      for (int i = 0;i < 10;++i) {
+          logError() << QString::fromUtf8("this message should not be visible");
+      }
+      logger.setLoggingLevel(QsLogging::TraceLevel);
+  } // end init logging
 
   // Preferences
   Preferences::ldrawPreferences(false);

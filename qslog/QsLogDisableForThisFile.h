@@ -5,18 +5,20 @@
 // When included AFTER QsLog.h, this file will disable logging in that C++ file. When included
 // before, it will lead to compiler warnings or errors about macro redefinitions.
 
-#undef QLOG_TRACE
-#undef QLOG_DEBUG
-#undef QLOG_INFO
-#undef QLOG_WARN
-#undef QLOG_ERROR
-#undef QLOG_FATAL
+#undef logTrace
+#undef logNotice
+#undef logDebug
+#undef logInfo
+#undef logWarn
+#undef logError
+#undef logFatal
 
-#define QLOG_TRACE() if (1) {} else qDebug()
-#define QLOG_DEBUG() if (1) {} else qDebug()
-#define QLOG_INFO()  if (1) {} else qDebug()
-#define QLOG_WARN()  if (1) {} else qDebug()
-#define QLOG_ERROR() if (1) {} else qDebug()
-#define QLOG_FATAL() if (1) {} else qDebug()
+#define logTrace() if (1) {} else qDebug()
+#define logNotice() if (1) {} else qDebug()
+#define logDebug()  if (1) {} else qDebug()
+#define logInfo()  if (1) {} else qDebug()
+#define logWarn()  if (1) {} else qDebug()
+#define logError() if (1) {} else qDebug()
+#define logFatal() if (1) {} else qDebug()
 
 #endif // QSLOGDISABLEFORTHISFILE_H

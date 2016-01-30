@@ -28,9 +28,6 @@
 
 #include "lc_global.h"
 
-#include "QsLogDest.h"
-#include "QsLog.h"
-
 
 /// The Application class is responsible for further initialization of the app
 /// and provides acessors to the current instance and internal resources. It

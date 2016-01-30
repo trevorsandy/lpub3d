@@ -3,7 +3,7 @@ CONFIG += qt warn_on
 QT -= gui
 
 # The ABI version.
-!win32:VERSION = 1.0.0
+!win32:VERSION = 2.0.0
 
 win32 {
 
@@ -12,15 +12,13 @@ win32 {
     CONFIG += debug_and_release	
 }
 
+TARGET = qslog
 
-
+CONFIG += shared
 CONFIG(debug, debug|release) {
         DESTDIR = build/debug
-        CONFIG += shared
 } else {
         DESTDIR = build/release
-        CONFIG += staticlib
-
 }
 
 OBJECTS_DIR = $$DESTDIR/.obj
@@ -31,7 +29,7 @@ include(QsLog.pri)
 
 unix:!symbian {
 
-    headers.path=$$PREFIX/include/qslog
+    headers.path=$$PREFIX/include/$(QMAKE_TARGET)
     headers.files=$$HEADERS
     target.path=$$PREFIX/lib/$${LIB_ARCH}
     INSTALLS += headers target
@@ -44,8 +42,9 @@ win32 {
     headers.files=$$HEADERS
     target.path=$$PREFIX/lib
     INSTALLS += headers target
-	
+
 }
+
 
 symbian {
 

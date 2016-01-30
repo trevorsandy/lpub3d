@@ -1,4 +1,4 @@
-// Copyright (c) 2010, Razvan Petru
+// Copyright (c) 2013, Razvan Petru
 // All rights reserved.
 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -23,8 +23,10 @@
 // OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef QSDEBUGOUTPUT_H
-#define QSDEBUGOUTPUT_H
+#ifndef QSLOGDESTCONSOLE_H
+#define QSLOGDESTCONSOLE_H
+
+#include "QsLogDest.h"
 
 class QString;
 
@@ -34,4 +36,18 @@ public:
    static void output(const QString& a_message);
 };
 
-#endif // QSDEBUGOUTPUT_H
+namespace QsLogging
+{
+
+// debugger sink
+class DebugOutputDestination : public Destination
+{
+public:
+    virtual void write(const QString& message, Level level);
+    virtual DestType destType();
+    virtual bool isValid();
+};
+
+}
+
+#endif // QSLOGDESTCONSOLE_H
