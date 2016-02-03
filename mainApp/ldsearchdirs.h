@@ -15,11 +15,7 @@
 #ifndef LDSEARCHDIRS_H
 #define LDSEARCHDIRS_H
 
-//#ifdef WIN32
-//#define TCExport
-//#endif // WIN32
-
-#define TCExport
+#include "ldrawini_global.h"
 
 #if defined (__APPLE__)
 #include <wchar.h>
@@ -50,22 +46,20 @@
 
 #include <stack>
 
-#include "QsLog.h"
-
-TCExport char *copyString(const char *string, size_t pad = 0);
-TCExport char *cleanedUpPath(const char* path);
-TCExport void  replaceStringCharacter(char*, char, char, int = 1);
-TCExport void  stripTrailingPathSeparators(char*);
-TCExport char *directoryFromPath(const char*);
-TCExport char *componentsJoinedByString(char** array, int count,
+char *copyString(const char *string, size_t pad = 0);
+char *cleanedUpPath(const char* path);
+void  replaceStringCharacter(char*, char, char, int = 1);
+void  stripTrailingPathSeparators(char*);
+char *directoryFromPath(const char*);
+char *componentsJoinedByString(char** array, int count,
 					const char* separator);
-TCExport char **componentsSeparatedByString(const char* string,
+char **componentsSeparatedByString(const char* string,
 					    const char* separator, int& count);
-TCExport char *stringByReplacingSubstring(const char* string,
+char *stringByReplacingSubstring(const char* string,
 					      const char* oldSubstring,
 					      const char* newSubstring,
 					      bool repeat = true);
-template<class T> inline TCExport void deleteStringArray(T** array, int count)
+template<class T> inline void deleteStringArray(T** array, int count)
 {
 	int i;
 
@@ -81,10 +75,10 @@ template<class T> inline TCExport void deleteStringArray(T** array, int count)
 class PartWorker;
 class LDPartsDirs;
 
+struct LDrawIniS;
+
 typedef bool (*LDLFileCaseCallback)(char *filename);
 typedef std::list<std::string> StringList;
-
-struct LDrawIniS;
 
 class LDSearchDirs
 {

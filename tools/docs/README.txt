@@ -2,6 +2,7 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Upgrade base to Qt 5.6.0 beta (MSVC 2015) (r613)
 -Upgrade logging framework (r610)
 -Upgrade base to Qt 5.5.1 platform (r608)
 -Select local page size and global and local page orientation (Portrait and Landscape)

@@ -258,6 +258,7 @@ ldrawini/ldrawini.c -text
 ldrawini/ldrawini.h -text
 ldrawini/ldrawini.pri -text
 ldrawini/ldrawini.pro -text
+ldrawini/ldrawini_global.h -text
 ldrawini/ldrawinp.h -text
 mainApp/LPub.icns -text
 mainApp/LPub.ico -text
@@ -523,6 +524,7 @@ mainApp/threadWorkers.cpp -text
 mainApp/threadWorkers.h -text
 mainApp/traverse.cpp -text
 mainApp/undoredo.cpp -text
+mainApp/unistd.h -text
 mainApp/updatecheck.cpp -text
 mainApp/updatecheck.h -text
 mainApp/updateldrawarchive.cpp -text
