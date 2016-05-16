@@ -4,11 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#if QT_VERSION >= 0x050000
-#include <QtZlib/zlib.h>
-#else
-#include  <zlib.h>
-#endif
+#include <zlib.h>
 #include "minifig.h"
 #include "pieceinf.h"
 #include "project.h"

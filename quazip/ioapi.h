@@ -46,7 +46,7 @@
 #include <stdlib.h>
 #include <QtGlobal>
 #if QT_VERSION >= 0x050000
-#include <QtZlib/zlib.h>
+#include <zlib.h>
 #else
 #include "zlib.h"
 #endif

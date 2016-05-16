@@ -170,7 +170,8 @@ macx {
 }
 
 #~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+# For Qt 5.6.0, build and link own copy of zlib
+greaterThan(QT_MAJOR_VERSION, 4): include($$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/zlib_dependency.pri)
 include(../lc_lib/lc_lib.pri)
 include(../qslog/QsLog.pri)
 include(../QSimpleUpdater/QSimpleUpdater.pri)

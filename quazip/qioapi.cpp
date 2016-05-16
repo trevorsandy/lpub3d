@@ -13,10 +13,11 @@
 #include <string.h>
 #include "ioapi.h"
 #if QT_VERSION >= 0x050000
-#include <QtZlib/zlib.h>
+#include <zlib.h>
 #else
 #include "zlib.h"
 #endif
+
 #include "quazip_global.h"
 #include <QIODevice>
 #if (QT_VERSION >= 0x050100)
