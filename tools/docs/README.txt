@@ -2,6 +2,7 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Upgrade to Qt 5.6.0 Stable (debug build KO), Build and link own copy of zlib. (r616)
 -Upgrade base to Qt 5.6.0 beta (MSVC 2015) (r613)
 -Upgrade logging framework (r610)
 -Upgrade base to Qt 5.5.1 platform (r608)

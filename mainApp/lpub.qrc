@@ -185,6 +185,7 @@
         <file alias="leocad.ico">../lc_lib/resources/leocad.ico</file>
         <file alias="leocad_document.icns">../lc_lib/resources/leocad_document.icns</file>
         <file alias="library.zip">../lc_lib/resources/library.zip</file>
+        <file alias="minifig.ini">../lc_lib/resources/minifig.ini</file>
         <file alias="piece_show_earlier.png">../lc_lib/resources/piece_show_earlier.png</file>
         <file alias="piece_show_later.png">../lc_lib/resources/piece_show_later.png</file>
         <file alias="time_add_keys.png">../lc_lib/resources/time_add_keys.png</file>

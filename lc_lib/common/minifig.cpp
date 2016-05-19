@@ -4,7 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <zlib.h>
+/* Insert minifig.ini changeset 1870
+   #include <zlib.h>
+*/
 #include "minifig.h"
 #include "pieceinf.h"
 #include "project.h"
@@ -15,6 +17,7 @@
 #include "lc_context.h"
 #include "lc_file.h"
 
+/*	Insert minifig.ini changeset 1870
 // =============================================================================
 // Static variables
 
@@ -860,6 +863,8 @@ static int lcGetMinifigSettings(lcMemFile& File)
 }
 
 // =============================================================================
+*/
+
 // MinifigWizard class
 
 MinifigWizard::MinifigWizard(lcMinifig* Minifig)
@@ -875,9 +880,26 @@ MinifigWizard::MinifigWizard(lcMinifig* Minifig)
 	}
 	else
 	{
+/*	Insert minifig.ini  changeset 1870
 		lcMemFile MemSettings;
 		lcGetMinifigSettings(MemSettings);
 		ParseSettings(MemSettings);
+*/
+	    QResource Resource(":/resources/minifig.ini");
+
+	    if (Resource.isValid())
+	    {
+		    QByteArray Data;
+
+		    if (Resource.isCompressed())
+			    Data = qUncompress(Resource.data(), Resource.size());
+		    else
+			    Data = QByteArray::fromRawData((const char*)Resource.data(), Resource.size());
+
+		    lcMemFile MemSettings;
+		    MemSettings.WriteBuffer(Data.constData(), Data.size());
+		    ParseSettings(MemSettings);
+	    }
 	}
 
 	mMinifig = Minifig;
