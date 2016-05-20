@@ -2787,7 +2787,6 @@ void CalloutMeta::init(BranchMeta *parent, QString name)
   freeform   .init(this,      "FREEFORM");
   alloc      .init(this,      "ALLOC");
   pointer    .init(this,      "POINTER");
-  silent_alloc.init(this,     "^(HORIZONTAL|VERTICAL)");
 
   begin      .init(this,      "BEGIN",   CalloutBeginRc);
   divider    .init(this,      "DIVIDER", CalloutDividerRc);

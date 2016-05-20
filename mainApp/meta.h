@@ -2020,7 +2020,6 @@ public:
   RcMeta         divider;
   RcMeta         end;
   AllocMeta      alloc;
-  AllocMeta      silent_alloc;
   NumberPlacementMeta instance;
   BorderMeta     border;
   BackgroundMeta background;
