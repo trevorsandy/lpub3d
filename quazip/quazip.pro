@@ -21,14 +21,12 @@ QT -= gui
 # 2.0, VERSION to 2.0.0.
 # And so on.
 
-# For Qt 5.6.0, build and link own copy of zlib
-greaterThan(QT_MAJOR_VERSION, 4): include($$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/zlib_dependency.pri)
-
 win32 {
 
     QMAKE_EXT_OBJ = .obj
     CONFIG += windows
     CONFIG += debug_and_release	
+greaterThan(QT_MAJOR_VERSION, 4): LIBS += -lz
 
 }
 

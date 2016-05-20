@@ -31,8 +31,12 @@
 #include <time.h>
 #include "zip.h"
 #if QT_VERSION >= 0x050000
-#include <zlib.h>
-#else
+	#if (_MSC_VER >= 1400)
+		#include <QtZlib/zlib.h>
+	#else // not using MSVC
+		#include <zlib.h>
+	#endif 
+#else // not using Qt 5.0.0 or greater
 #include "zlib.h"
 #endif
 

@@ -2,7 +2,11 @@
 #include "lc_zipfile.h"
 #include "lc_file.h"
 #include "lc_math.h"
-#include <zlib.h>
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
+	#include <QtZlib/zlib.h>
+#else // not using Qt 5.6.0
+	#include  <zlib.h>
+#endif
 #include <time.h>
 
 #if MAX_MEM_LEVEL >= 8
