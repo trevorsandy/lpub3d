@@ -2,6 +2,7 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Fix: When publishing instructions with the option 0 !LPUB PAGE BACKGROUND TRANSPARENT a drop shadow layer was added (r637)
 -Optimization: Update file load progress messages (r636)
 -Fix: 2 page refreshes when Parameters menu item is accpeted - only a single refresh needed. (r635)
 -Fix: Upon "Add assembled image to parent page" a rotation icon is added to the callout if rotation icons were present in the callout step(s). Assembled and rotated callouts will not display rotate icons on the parent page. Only unassembled callouts will display rotate icons if present in the callout step(s). (r634)
@@ -17,6 +18,7 @@ Features and enhancements
 -Fix: Control manual page number entry (r627) 
 -Fix: Crash when pieceinfo is null - this occurs when a file has no FILE meta and is imported as an ldr (versus an MPD) (r626)
 -Fix: Remove silent_alloc - meta-command (r625)
+-Fix: During installer installation, prompt user to overwrite existing configuration files (r624)
 -Update build assets (r624)
 -Update ldglite hard-coded default directory setting to ldglite1.3.1(r623)
 -Cleanup 'Copyright' and 'Trademark' unicode (utf8) chars on MSVC2015 build (r622)

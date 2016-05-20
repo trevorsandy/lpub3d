@@ -1429,23 +1429,26 @@ int Gui::addGraphicsPageItems(
     }
   }
 
-  // postpone body shadow
-//  QGraphicsDropShadowEffect *bodyShadow = new QGraphicsDropShadowEffect;
-//  bodyShadow->setBlurRadius(9.0);
-//  bodyShadow->setColor(QColor(0, 0, 0, 160));
-//  bodyShadow->setOffset(4.0);
-//  pageBg->setGraphicsEffect(bodyShadow);
+  if ( ! printing) {
+
+    QGraphicsDropShadowEffect *bodyShadow = new QGraphicsDropShadowEffect;
+    bodyShadow->setBlurRadius(9.0);
+    bodyShadow->setColor(QColor(0, 0, 0, 160));
+    bodyShadow->setOffset(4.0);
+
+    if (page->meta.LPub.page.background.value().type != BackgroundData::BgTransparent)
+      pageBg->setGraphicsEffect(bodyShadow);
+
+    view->horizontalScrollBar()->setRange(0,int(page->meta.LPub.page.size.valuePixels(0)));
+    view->verticalScrollBar()->setRange(0,int(page->meta.LPub.page.size.valuePixels(1)));
+  }
 
   scene->addItem(pageBg);
   
   view->setSceneRect(pageBg->sceneBoundingRect());
 
-  if ( ! printing) {
-    view->horizontalScrollBar()->setRange(0,int(page->meta.LPub.page.size.valuePixels(0)));
-    view->verticalScrollBar()->setRange(0,int(page->meta.LPub.page.size.valuePixels(1)));
-  }
 
-  if (printing) {
+  if (printing) {  
     view->fitInView(0,0,pW,pH);
   } else if (fitMode == FitWidth) {
     fitWidth(view);

@@ -830,11 +830,11 @@ void Gui::preferences()
         gui->clearCSI3DCache();
     }
 //-Fix: 2 page refreshes when Parameters menu item is accpeted (r635)
-//    if (!getCurFile().isEmpty()){
+    if (!getCurFile().isEmpty()){
 //        QString topLevel = ldrawFile.topLevelFile();
 //        GlobalPliDialog *pliParms = new GlobalPliDialog(topLevel, page.meta, false);
 //        pliParms->accept();
-//        displayPage();
+        displayPage();
     }
   }
 }
