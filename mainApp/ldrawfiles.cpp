@@ -667,7 +667,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
         if (tokens.size() == 15 && tokens[0] == "1" && tokens[14].contains(upDAT)){
             QFileInfo info(tokens[14]);
             PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.baseName().toUpper().toLatin1().constData(), NULL, false);
-            if (pieceInfo->IsPartType())
+            if (pieceInfo && pieceInfo->IsPartType())
               pieces++;
           }
 

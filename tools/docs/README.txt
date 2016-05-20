@@ -2,6 +2,8 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Fix Crash when pieceinfo is null - this occurs when a file has no FILE meta and is imported as an ldr (versus an MPD) (r626)
+-Fix: Remove silent_alloc - meta-command (r625)
 -Update build assets (r624)
 -Update ldglite hard-coded default directory setting to ldglite1.3.1(r623)
 -Cleanup 'Copyright' and 'Trademark' unicode (utf8) chars on MSVC2015 build (r622)
@@ -14,6 +16,7 @@ Features and enhancements
 -Upgrade base to Qt 5.6.0 beta (MSVC 2015) (r613)
 -Upgrade logging framework (r610)
 -Upgrade base to Qt 5.5.1 platform (r608)
+-Fix: PLI Parts annotation restored to short value (r555)
 -Select local page size and global and local page orientation (Portrait and Landscape)
  Note: When manually editing the model file with either page size or orientation, it is recommended to insert both the size and orientation metas together. For example, even
  if you are only interested to add a page size, you shold update your file like the example 
