@@ -2,6 +2,7 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Update build assets (r624)
 -Update ldglite hard-coded default directory setting to ldglite1.3.1(r623)
 -Cleanup 'Copyright' and 'Trademark' unicode (utf8) chars on MSVC2015 build (r622)
 -Supress MSVC type conversion warning C4267 (r621)
@@ -20,10 +21,10 @@ Features and enhancements
  0 !LPUB PAGE SIZE GLOBAL 8.2677 11.6929
  0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT (r518)
 -Change: Point online manual to LPub3D content (r517)
--Fix: Update ldglite hard-coded default directory setting (r505) - Deprecated
+-Fix: Update ldglite hard-coded default directory setting (r505) - Supersceded
 -Fix: Remove hard coded reference to LPub3DViewer-Library folder - this was added in 1.3.0 unofficial archive refresh functionality (r506) 
 -Enhancements (r507) 
--Fix: Add pliSubstituteParts.lst to media build - sorry, I forgot to include in the NSIS build script:-( (r515) NOTE - Not sure the build script is updated for development builds 
+-Fix: Add pliSubstituteParts.lst to media build - sorry, I forgot to include in the NSIS build script:-( (r515) - Supersceded
  
 LPub3D 1.3.0.504.2 
  

@@ -1,5 +1,5 @@
 @ECHO off
-Title Pack and create manual and automatic install distributions
+Title Build and create manual and automatic install distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
 rem  Copyright (c) 2015 by Trevor Sandy
@@ -7,7 +7,7 @@ rem --
 SETLOCAL
 @break off
 @color 0a
-ECHO Pack and create manual and automatic install distributions
+ECHO Build and create manual and automatic install distributions
 
 ECHO. 							                	 >  ..\release\LPub3D.Release.build.log.txt
 ECHO - Start build process       			   		>>  ..\release\LPub3D.Release.build.log.txt
@@ -34,7 +34,7 @@ SET zipWin32=C:\Program Files (x86)\7-zip
 SET zipExe=unknown
 
 ECHO. 							                	>>  ..\release\LPub3D.Release.build.log.txt
-ECHO - Environment check        			   		>>  ..\release\LPub3D.Release.build.log.txt
+ECHO - Environment check...        			   		>>  ..\release\LPub3D.Release.build.log.txt
 ECHO.
 ECHO - Environment check...
 
@@ -69,7 +69,7 @@ SET VER_MINOR=unknown
 SET REVISION_CMS=unknown
 
 ECHO. 							                	>>  ..\release\LPub3D.Release.build.log.txt
-ECHO - Setting up release variables          		>>  ..\release\LPub3D.Release.build.log.txt
+ECHO - Setting up release variables...          	>>  ..\release\LPub3D.Release.build.log.txt
 ECHO.
 ECHO - Setting up release variables...
 
@@ -123,7 +123,7 @@ IF NOT EXIST "..\release\%VERSION%\Update\" (
 )
 
 ECHO. 													 		>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Copying latest and change_log to media folder      		>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Copying latest and change_log to media folder...    		>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
 ECHO - Copying latest and change_log to media folder...
 
@@ -151,7 +151,7 @@ SET genLatestLog=%latestFile% ECHO
 >%genLatestLog% %VERSION% 
 
 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Copying %WIN32PRODUCTDIR% content to media folder      	>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Copying %WIN32PRODUCTDIR% content to media folder...    	>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
 ECHO - Copying %WIN32PRODUCTDIR% content to media folder...
 
@@ -173,10 +173,10 @@ COPY /V /Y %Win32QtPath%\QtNetwork4.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%
 COPY /V /Y %Win32QtPath%\QtOpenGL4.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                 >>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /A                          >>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32PRODUCTDIR%\ /A                                        >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y Win-setup\LPub3DViewer_LDrawunf_Archive_Generator.bat ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\extras /A      >>  ../release/LPub3D.Release.build.log.txt
+rem COPY /V /Y LPub3DViewer_LDrawunf_Archive_Generator.bat ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\extras /A      >>  ../release/LPub3D.Release.build.log.txt
 
 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Copying %WIN64PRODUCTDIR% content to media folder      	>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Copying %WIN64PRODUCTDIR% content to media folder...    	>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
 ECHO - Copying %WIN64PRODUCTDIR% content to media folder...
 
@@ -198,40 +198,40 @@ COPY /V /Y %Win64QtPath%\QtNetwork4.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%
 COPY /V /Y %Win64QtPath%\QtOpenGL4.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B					>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /A							>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN64PRODUCTDIR% /A											>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y Win-setup\LPub3DViewer_LDrawunf_Archive_Generator.bat ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\extras /A      >>  ../release/LPub3D.Release.build.log.txt
+rem COPY /V /Y Win-setup\LPub3DViewer_LDrawunf_Archive_Generator.bat ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\extras /A      >>  ../release/LPub3D.Release.build.log.txt
 
-ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Finished copying content to media folders      			>>  ../release/LPub3D.Release.build.log.txt
+ECHO. 														>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Finished copying content to media folder...    		>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
-ECHO - Finished copying content to media folders...
+ECHO - Finished copying content to media folder...
 
-ECHO. 								>>  ..\release\LPub3D.Release.build.log.txt
-ECHO - Start NSIS Master Update   	>>  ..\release\LPub3D.Release.build.log.txt
+ECHO. 										>>  ..\release\LPub3D.Release.build.log.txt
+ECHO - Start NSIS Master Update Build...  	>>  ..\release\LPub3D.Release.build.log.txt
 ECHO.
-ECHO - Start NSIS Master Update...
+ECHO - Start NSIS Master Update Build...
 
 "%NSISPath%\makensis.exe" /DUpdateMaster LPub3DNoPack.nsi 		>> ..\release\LPub3D.Release.build.log.txt
 
-ECHO. 								>>  ..\release\LPub3D.Release.build.log.txt
-ECHO - Finished NSIS Master Update 	>>  ..\release\LPub3D.Release.build.log.txt
+ECHO. 											>>  ..\release\LPub3D.Release.build.log.txt
+ECHO - Finished NSIS Master Update Build... 	>>  ..\release\LPub3D.Release.build.log.txt
 ECHO.
-ECHO - Finished NSIS Master Update...
+ECHO - Finished NSIS Master Update Build...
 
-ECHO. 								>>  ..\release\LPub3D.Release.build.log.txt
-ECHO - Start NSIS Manual Install	>>  ..\release\LPub3D.Release.build.log.txt
+ECHO. 										>>  ..\release\LPub3D.Release.build.log.txt
+ECHO - Start NSIS Manual Install Build...	>>  ..\release\LPub3D.Release.build.log.txt
 ECHO.
-ECHO - Start NSIS Manual Install...
+ECHO - Start NSIS Manual Install Build...
 
 "%NSISPath%\makensis.exe" LPub3DNoPack.nsi 						>> ..\release\LPub3D.Release.build.log.txt
 
-ECHO. 								>>  ..\release\LPub3D.Release.build.log.txt
-ECHO - Finished NSIS Manual Install >>  ..\release\LPub3D.Release.build.log.txt
+ECHO. 										 >>  ..\release\LPub3D.Release.build.log.txt
+ECHO - Finished NSIS Manual Install Build... >>  ..\release\LPub3D.Release.build.log.txt
 ECHO.
-ECHO - Finished NSIS Manual Install...
+ECHO - Finished NSIS Manual Install Build...
 
 
 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Creating portable media zip files		      			>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Creating portable media zip files...		      			>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
 ECHO - Creating portable media zip files...
 
@@ -240,7 +240,7 @@ ECHO - Creating portable media zip files...
 RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 							>>  ../release/LPub3D.Release.build.log.txt
 
 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Moving NSIS-generated files to media folders				>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Moving NSIS-generated files to media folder...			>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
 ECHO - Moving NSIS-generated files to media folder...
 
@@ -248,9 +248,9 @@ MOVE /Y ..\release\%DOWNLOADPRODUCT%.exe ..\release\%VERSION%\Download\									
 MOVE /Y ..\release\%PRODUCT%-UpdateMaster.exe ..\release\%VERSION%\Update\											>>  ../release/LPub3D.Release.build.log.txt		
 
 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Finished													>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Finished.												>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
-ECHO - Finished...
+ECHO - Finished.
 
 ECHO.
 ECHO If everything went well Press any key to EXIT!

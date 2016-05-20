@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Copyright (C) 2015 by Trevor Sandy
+;Copyright (C) 2016 by Trevor Sandy
 
 ;--------------------------------
 ;Include Modern UI
@@ -48,18 +48,33 @@
 ;--------------------------------
 ;Variables
 
-  var /global Dialog
-  var /global StartMenuFolder
-  var /global FileName
-  var /global LDrawDirPath
-  var /global LPub3DViewerLibFile
-  var /global LDrawUnoffLibFile
-  var /global PathsGrpBox
-  var /global BrowseLDraw
-  var /global BrowseLPub3DViewer
-  var /global LDrawText
-  var /global LPub3DViewerText
-  var /global DownloadLDrawLibrary
+  Var /global nsDialogFilePathsPage
+  Var /global StartMenuFolder
+  Var /global FileName
+  Var /global LDrawDirPath
+  Var /global LPub3DViewerLibFile
+  Var /global LDrawUnoffLibFile
+  Var /global PathsGrpBox
+  Var /global BrowseLDraw
+  Var /global BrowseLPub3DViewer
+  Var /global LDrawText
+  Var /global LPub3DViewerText
+  Var /global DownloadLDrawLibrary
+  
+  Var /global nsDialogOverwriteConfigPage
+  Var /global OverwriteMessagelbl
+  Var /global OverwriteConfigGrpBox
+  Var /global Overwrite_chkBoxAll
+  Var /global Overwrite_chkBoxTitle
+  Var /global Overwrite_chkBoxFreeform
+  Var /global Overwrite_chkBoxSubstitute
+  Var /global Overwrite_chkBoxFadeParts
+
+  Var /global OverwriteAll
+  Var /global OverwriteTitleAnnotaitonsFile
+  Var /global OverwriteFreeformAnnotationsFile
+  Var /global OverwriteSubstitutePartsFile
+  Var /global OverwriteFadeStepColourPartsFile
   
 ;--------------------------------
 ;General
@@ -88,6 +103,7 @@
   ;Default installation folder
   InstallDir "$INSTDIR"
   
+  ;Check if installation directory registry key exist
   ;Get installation folder from registry if available
   InstallDirRegKey HKCU "Software\${Company}\${ProductName}\Installation" "InstallPath"
   
@@ -114,6 +130,9 @@
   
   ;Custom page, Initialize library settings for smoother install.
   Page custom nsDialogShowCustomPage nsDialogLeaveCustomPage
+  
+  ;Custom page, Prompt user to overwrite configuration files
+  Page custom nsDialogShowOverwriteConfigPage nsDialogLeaveOverwriteConfigPage
   
   ;Start Menu Folder Page Configuration
   !define MUI_STARTMENUPAGE_DEFAULTFOLDER "${ProductName}"
@@ -158,6 +177,8 @@
   LangString CUST_PAGE_TITLE ${LANG_ENGLISH} "Library Paths"
   LangString CUST_PAGE_SUBTITLE ${LANG_ENGLISH} "Enter paths for your LDraw directory and archive (Complete.zip) library file \
 											     $\r$\nIf you do not have an archive library file, select Download."
+  LangString CUST_PAGE_OVERWRITE_TITLE ${LANG_ENGLISH} "Overwrite Configuration Files"
+  LangString CUST_PAGE_OVERWRITE_SUBTITLE ${LANG_ENGLISH} "Check the box next to the configuration file you would like to overwrite."
  
 ;--------------------------------
 ;Initialize install directory 
@@ -236,12 +257,37 @@ Section "${ProductName} (required)" SecMain${ProductName}
   
   CreateDirectory "${INSTDIR_AppData}\extras"
   SetOutPath "${INSTDIR_AppData}\extras"
-  File "..\..\mainApp\extras\fadeStepColorParts.lst"
-  File "..\..\mainApp\extras\freeformAnnotations.lst"
-  File "..\..\mainApp\extras\titleAnnotations.lst"
-  File "..\..\mainApp\extras\pliSubstituteParts.lst"
   File "..\..\mainApp\extras\PDFPrint.jpg"
   File "..\..\mainApp\extras\pli.mpd"
+  
+ ${If} $OverwriteTitleAnnotaitonsFile == 0
+  SetOverwrite off
+  File "..\..\mainApp\extras\titleAnnotations.lst"
+ ${Else}
+  SetOverwrite on
+  File "..\..\mainApp\extras\titleAnnotations.lst"
+ ${EndIf}
+ ${If} $OverwriteFreeformAnnotationsFile == 0
+  SetOverwrite off
+  File "..\..\mainApp\extras\freeformAnnotations.lst"
+ ${Else}
+  SetOverwrite on
+  File "..\..\mainApp\extras\freeformAnnotations.lst"
+ ${EndIf}
+ ${If} $OverwriteFadeStepColourPartsFile == 0
+  SetOverwrite off
+  File "..\..\mainApp\extras\fadeStepColorParts.lst"
+ ${Else} 
+  SetOverwrite on
+  File "..\..\mainApp\extras\fadeStepColorParts.lst"
+ ${EndIf}
+ ${If} $OverwriteSubstitutePartsFile == 0
+  SetOverwrite off
+  File "..\..\mainApp\extras\pliSubstituteParts.lst"
+ ${Else}
+  SetOverwrite on
+  File "..\..\mainApp\extras\pliSubstituteParts.lst"
+ ${EndIf}
   
   ;documents  
   CreateDirectory "$INSTDIR\docs"
@@ -268,7 +314,6 @@ Section "${ProductName} (required)" SecMain${ProductName}
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "NoRepair" 1
   WriteUninstaller "$INSTDIR\Uninstall.exe"
 
-  
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
   
     ;Create shortcuts
@@ -282,18 +327,18 @@ Section "${ProductName} (required)" SecMain${ProductName}
 SectionEnd
   
 ;--------------------------------
-;Custom Dialog to Capture Libraries
+;Custom nsDialogFilePathsPage to Capture Libraries
 
 Function nsDialogShowCustomPage
 
-  ;Display the InstallOptions dialog
+  ;Display the InstallOptions nsDialogFilePathsPage
   !insertmacro MUI_HEADER_TEXT $(CUST_PAGE_TITLE) $(CUST_PAGE_SUBTITLE)
   
-  #Create Dialog and quit if error
+  #Create nsDialogFilePathsPage and quit if error
 	nsDialogs::Create 1018
-	Pop $Dialog
+	Pop $nsDialogFilePathsPage
 
-	${If} $Dialog == error
+	${If} $nsDialogFilePathsPage == error
 		Abort
 	${EndIf}
 
@@ -360,7 +405,7 @@ Function fnDownloadLDrawLibrary
   ${EndIf}
 	
   DoDownload:	
-	; disable browse dialog
+	; disable browse nsDialogFilePathsPage
 	EnableWindow $LPub3DViewerText 0	
 	EnableWindow $BrowseLPub3DViewer 0 
   
@@ -377,7 +422,7 @@ Function fnDownloadLDrawLibrary
 	Pop $R0 ;Get the return value
 		StrCmp $R0 "OK" UpdateDialog
 		MessageBox MB_ICONSTOP "Download library failed: $R0"
-		; restore browse dialog
+		; restore browse nsDialogFilePathsPage
 		EnableWindow $LPub3DViewerText 1	
 		EnableWindow $BrowseLPub3DViewer 1
 		Abort
@@ -388,7 +433,7 @@ Function fnDownloadLDrawLibrary
 	Goto Done
 	
 	Cancel:
-	; restore browse dialog
+	; restore browse nsDialogFilePathsPage
 	EnableWindow $LPub3DViewerText 1	
 	EnableWindow $BrowseLPub3DViewer 1 
 	
@@ -415,6 +460,157 @@ Function nsDialogLeaveCustomPage
     Abort
   ${EndIf}
 
+FunctionEnd
+
+Function nsDialogShowOverwriteConfigPage
+
+  ;--------------------------------
+  ;Prompt user to overwrite configuration files
+
+  ; === nsDialogOverwriteConfigPage (type: nsDialogFilePathsPage) ===
+  nsDialogs::Create 1018
+  Pop $nsDialogOverwriteConfigPage
+  
+  ${If} $nsDialogOverwriteConfigPage == error
+    Abort
+  ${EndIf} 
+  
+  ; === check if directory already exist ===
+  ${If} ${DirExists} "${INSTDIR_AppData}\extras"
+	Goto DoShowOverwritePage
+  ${Else}
+    Abort
+  ${EndIf}
+  
+  DoShowOverwritePage:
+  
+  !insertmacro MUI_HEADER_TEXT $(CUST_PAGE_OVERWRITE_TITLE) $(CUST_PAGE_OVERWRITE_SUBTITLE)
+  
+  ; === OverwriteMessagelbl (type: Label) ===
+  ${NSD_CreateLabel} 64.51u 10.46u 170.48u 14.15u ""
+  Pop $OverwriteMessagelbl
+  SetCtlColors $OverwriteMessagelbl 0xFF0000 0xF0F0F0  
+  
+  ; === OverwriteConfigGrpBox (type: GroupBox) ===
+  ${NSD_CreateGroupBox} 64.51u 31.38u 170.48u 94.77u "Configuration Files"
+  Pop $OverwriteConfigGrpBox
+  
+  ; === chkBoxAll (type: Checkbox) ===
+  ${NSD_CreateCheckbox} 74.38u 43.08u 116.51u 14.77u "All Configuration Files" 
+  Pop $Overwrite_chkBoxAll
+  SendMessage $Overwrite_chkBoxAll ${WM_SETFONT} $nsDialogOverwriteConfigPage_Font1 0
+  
+  ; === chkBoxTitle (type: Checkbox) ===
+  ${NSD_CreateCheckbox} 74.38u 56.62u 116.51u 14.77u "Title Annotations"
+  Pop $Overwrite_chkBoxTitle
+  
+  ; === chkBoxFreeform (type: Checkbox) ===
+  ${NSD_CreateCheckbox} 74.38u 70.15u 116.51u 14.77u "Freeform Annotations"
+  Pop $Overwrite_chkBoxFreeform
+  
+  ; === chkBoxSubstitute (type: Checkbox) ===
+  ${NSD_CreateCheckbox} 74.38u 83.69u 116.51u 17.23u "Substitute Parts"
+  Pop $Overwrite_chkBoxSubstitute
+  
+  ; === chkBoxFadeParts (type: Checkbox) ===
+  ${NSD_CreateCheckbox} 74.38u 99.69u 116.51u 14.77u "Fade Step Colour Parts"
+  Pop $Overwrite_chkBoxFadeParts
+  
+  ${NSD_OnClick} $Overwrite_chkBoxAll fnSetOverwriteAll
+  ${NSD_OnClick} $Overwrite_chkBoxTitle fnOverwriteTitle
+  ${NSD_OnClick} $Overwrite_chkBoxFreeform fnOverwriteFreeform
+  ${NSD_OnClick} $Overwrite_chkBoxSubstitute fnOverwriteSubstitute
+  ${NSD_OnClick} $Overwrite_chkBoxFadeParts fnOverwriteFadeParts
+  
+  nsDialogs::Show
+  
+FunctionEnd
+
+Function fnSetOverwriteAll
+ Pop $Overwrite_chkBoxAll 
+ 
+ ${NSD_GetState} $Overwrite_chkBoxAll $OverwriteAll
+ ${If} $OverwriteAll == 1 
+	${NSD_Check} $Overwrite_chkBoxTitle
+	${NSD_Check} $Overwrite_chkBoxFreeform
+	${NSD_Check} $Overwrite_chkBoxSubstitute
+	${NSD_Check} $Overwrite_chkBoxFadeParts
+	Call fnWarning
+ ${Else}
+	${NSD_Uncheck} $Overwrite_chkBoxTitle
+	${NSD_Uncheck} $Overwrite_chkBoxFreeform
+	${NSD_Uncheck} $Overwrite_chkBoxSubstitute
+	${NSD_Uncheck} $Overwrite_chkBoxFadeParts
+	Call fnClear 
+ ${EndIf}
+
+FunctionEnd
+
+Function fnOverwriteTitle
+	Pop $Overwrite_chkBoxTitle
+	${NSD_GetState} $Overwrite_chkBoxTitle $OverwriteTitleAnnotaitonsFile
+    ${If} $OverwriteTitleAnnotaitonsFile == 1
+		Call fnWarning
+	${Else}
+		Call fnClear 
+	${EndIf}
+	
+FunctionEnd
+
+Function fnOverwriteFreeform
+	Pop $Overwrite_chkBoxFreeform
+    ${NSD_GetState} $Overwrite_chkBoxFreeform $OverwriteFreeformAnnotationsFile
+    ${If} $OverwriteFreeformAnnotationsFile == 1
+		Call fnWarning
+	${Else}
+		Call fnClear 
+	${EndIf}
+	
+FunctionEnd
+
+Function fnOverwriteSubstitute	
+	Pop $Overwrite_chkBoxSubstitute
+	${NSD_GetState} $Overwrite_chkBoxSubstitute $OverwriteSubstitutePartsFile
+    ${If} $OverwriteSubstitutePartsFile == 1
+		Call fnWarning
+	${Else}
+		Call fnClear 
+	${EndIf}
+
+FunctionEnd
+
+Function fnOverwriteFadeParts	
+	Pop $Overwrite_chkBoxFadeParts
+	${NSD_GetState} $Overwrite_chkBoxFadeParts $OverwriteFadeStepColourPartsFile	
+    ${If} $OverwriteFadeStepColourPartsFile == 1
+		Call fnWarning
+	${Else}
+		Call fnClear 
+	${EndIf}
+
+FunctionEnd
+
+Function fnWarning
+    ${NSD_SetText} $OverwriteMessagelbl "WARNING! You will overwrite your custom settings."
+	
+FunctionEnd
+
+Function fnClear
+    ${If} $OverwriteTitleAnnotaitonsFile <> 1
+	${AndIf} $OverwriteFreeformAnnotationsFile <> 1
+    ${AndIf} $OverwriteFadeStepColourPartsFile <> 1
+	${AndIf} $OverwriteSubstitutePartsFile <> 1
+		${NSD_SetText} $OverwriteMessagelbl ""
+	${EndIf}
+	
+FunctionEnd
+
+Function nsDialogLeaveOverwriteConfigPage  
+ ${NSD_GetState} $Overwrite_chkBoxTitle $OverwriteTitleAnnotaitonsFile
+ ${NSD_GetState} $Overwrite_chkBoxFreeform $OverwriteFreeformAnnotationsFile
+ ${NSD_GetState} $Overwrite_chkBoxSubstitute $OverwriteSubstitutePartsFile
+ ${NSD_GetState} $Overwrite_chkBoxFadeParts $OverwriteFadeStepColourPartsFile
+ 
 FunctionEnd
 
 Function desktopIcon
