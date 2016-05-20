@@ -210,7 +210,6 @@ void Gui::openFile(QString &fileName)
   emit progressBarInitSig();
   emit progressRangeSig(0,0);
   emit progressMessageSig("Loading model file.");
-  QApplication::processEvents();
 
 #ifdef WATCHER
   if (curFile != "") {
@@ -234,20 +233,16 @@ void Gui::openFile(QString &fileName)
   QDir::setCurrent(info.absolutePath());
   Paths::mkdirs();
   emit progressMessageSig("Loading LDraw model file...");
-  QApplication::processEvents();
   ldrawFile.loadFile(fileName);
   emit progressMessageSig("Loading fade colour parts...");
-  QApplication::processEvents();
   processFadeColourParts();
   emit progressMessageSig("Loading user interface items...");
-  QApplication::processEvents();
   attitudeAdjustment();
   mpdCombo->setMaxCount(0);
   mpdCombo->setMaxCount(1000);
   mpdCombo->addItems(ldrawFile.subFileOrder());
   setCurrentFile(fileName);
   emit progressMessageSig("Loading source view display...");
-  QApplication::processEvents();
   displayFile(&ldrawFile,ldrawFile.topLevelFile());
   undoStack->setClean();
   curFile = fileName;

@@ -190,7 +190,6 @@ void Gui::removeLPubFormatting()
 void Gui::displayPage()
 {
   emit messageSig(true, "Processing display page...");
-  QApplication::processEvents();
 
   if (macroNesting == 0) {
       clearPage(KpageView,KpageScene);

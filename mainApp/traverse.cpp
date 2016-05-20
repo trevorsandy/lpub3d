@@ -274,7 +274,6 @@ int Gui::drawPage(
 
 //  statusBar()->showMessage("Processing " + current.modelName);
   emit messageSig(true, "Processing " + current.modelName);
-  QApplication::processEvents();
 
   page.coverPage = false;
 
@@ -449,7 +448,6 @@ int Gui::drawPage(
                   QHash<QString, QStringList> calloutBfx;
 
                   emit messageSig(true, "Processing draw page...");
-                  QApplication::processEvents();
 
                   int rc;
                   rc = drawPage(
@@ -876,17 +874,14 @@ int Gui::drawPage(
                   /* this is a page we're supposed to process */
 
                   emit messageSig(true, "Get multi-step placement...");
-                  QApplication::processEvents();
 
                   steps->placement = steps->meta.LPub.multiStep.placement;
 
                   emit messageSig(true, "Set multi-step show line (LDraw Editor)...");
-                  QApplication::processEvents();
 
                   showLine(steps->topOfSteps());
 
                   emit messageSig(true, "Get multi-step page inserts...");
-                  QApplication::processEvents();
 
                   Page *page = dynamic_cast<Page *>(steps);                  
                   if (page) {
@@ -894,22 +889,18 @@ int Gui::drawPage(
                     }
 
                   emit messageSig(true, "Get multi-step end of submodel...");
-                  QApplication::processEvents();
 
                   bool endOfSubmodel = stepNum >= ldrawFile.numSteps(current.modelName);
 
                   emit messageSig(true, "Get multi-step instances...");
-                  QApplication::processEvents();
 
                   int  instances = ldrawFile.instances(current.modelName,isMirrored);
 
                   emit messageSig(true, "Processing multi-step page graphics...");
-                  QApplication::processEvents();
 
                   addGraphicsPageItems(steps, coverPage, endOfSubmodel,instances, view, scene, printing);
 
                   emit messageSig(true, "Multi-step page graphics processed.");
-                  QApplication::processEvents();
 
                   return HitEndOfPage;
                 }
@@ -943,7 +934,6 @@ int Gui::drawPage(
                     }
 
                   emit messageSig(true, "Generating graphics for " + current.modelName);
-                  QApplication::processEvents();
 
                   (void) step->createCsi(
                         isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
@@ -952,7 +942,6 @@ int Gui::drawPage(
                         steps->meta);
 
                   emit messageSig(true, "Graphics generated for " + current.modelName);
-                  QApplication::processEvents();
 
                   partsAdded = true; // OK, so this is a lie, but it works
                 }
@@ -1018,7 +1007,6 @@ int Gui::drawPage(
 
 //                      statusBar()->showMessage("Processing " + current.modelName);
                       emit messageSig(true, "Generating step graphics for " + current.modelName);
-                      QApplication::processEvents();
 
                       int rc = step->createCsi(
                             isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
@@ -1027,7 +1015,6 @@ int Gui::drawPage(
                             steps->meta);
 
                       emit messageSig(true, "Step graphics generated for " + current.modelName);
-                      QApplication::processEvents();
 
                       if (rc) {
                           return rc;
@@ -1052,39 +1039,32 @@ int Gui::drawPage(
 
                       // Simple step
                       emit messageSig(true, "Get simple page placement...");
-                      QApplication::processEvents();
 
                       steps->placement = steps->meta.LPub.assem.placement;
 
                       emit messageSig(true, "Set simple page show line (LDraw Editor)...");
-                      QApplication::processEvents();
 
                       showLine(topOfStep);
 
                       emit messageSig(true, "Get simple page number of steps...");
-                      QApplication::processEvents();
 
                       int  numSteps = ldrawFile.numSteps(current.modelName);
 
                       emit messageSig(true, "Get simple page end of submodel...");
-                      QApplication::processEvents();
 
                       bool endOfSubmodel = numSteps == 0 || stepNum >= numSteps;
 
                       emit messageSig(true, "Get simple page instances...");
-                      QApplication::processEvents();
 
                       int  instances = ldrawFile.instances(current.modelName, isMirrored);
 
                       emit messageSig(true, "Processing simple page graphics...");
-                      QApplication::processEvents();
 
                       addGraphicsPageItems(steps,coverPage,endOfSubmodel,instances,view,scene,printing);
                       stepPageNum += ! coverPage;
                       steps->setBottomOfSteps(current);
 
                       emit messageSig(true, "Simple page graphics processed.");
-                      QApplication::processEvents();
 
                       return HitEndOfPage;
                     }
@@ -1192,7 +1172,6 @@ int Gui::findPage(
         current.lineNumber < numLines;
         current.lineNumber++) {
 
-      QApplication::processEvents();
       // scan through the rest of the model counting pages
       // if we've already hit the display page, then do as little as possible
 
@@ -1254,7 +1233,6 @@ int Gui::findPage(
                       meta.rotStep.clear();
 
                       emit messageSig(true, "Processing find page...");
-                      QApplication::processEvents();
 
                       findPage(view,scene,pageNum,line,current2,isMirrored,meta,printing);
                       saveStepPageNum = stepPageNum;
@@ -1322,7 +1300,6 @@ int Gui::findPage(
                       QStringList pliParts;
 
                       emit messageSig(true, "Processing draw page...");
-                      QApplication::processEvents();
 
                       (void) drawPage(view,
                                       scene,
@@ -1381,7 +1358,6 @@ int Gui::findPage(
                           QStringList pliParts;
 
                           emit messageSig(true, "Processing draw page...");
-                          QApplication::processEvents();
 
                           (void) drawPage(view,
                                           scene,
@@ -1520,7 +1496,6 @@ int Gui::findPage(
           QStringList pliParts;
 
           emit messageSig(true, "Processing draw page...");
-          QApplication::processEvents();
 
           (void) drawPage(view,
                           scene,
@@ -1570,8 +1545,6 @@ int Gui::getBOMParts(
   for ( ;
         current.lineNumber < numLines;
         current.lineNumber++) {
-
-      QApplication::processEvents();
 
       // scan through the rest of the model counting pages
       // if we've already hit the display page, then do as little as possible
@@ -1783,8 +1756,6 @@ int Gui::getBOMOccurrence(Where	current) {		// start at top of ldrawFile
   for ( ; current.lineNumber < numLines;
         current.lineNumber++) {
 
-      QApplication::processEvents();
-
       QString line = ldrawFile.readLine(current.modelName,current.lineNumber).trimmed();
       switch (line.toLatin1()[0]) {
         case '1':
@@ -1949,9 +1920,7 @@ void Gui::drawPage(
   firstStepPageNum = -1;
   lastStepPageNum = -1;
   emit messageSig(true, "Processing find page...");
-  QApplication::processEvents();
   findPage(view,scene,maxPages,empty,current,false,meta,printing);
-  QApplication::processEvents();
   topOfPages.append(current);
   maxPages--;
 
@@ -2078,8 +2047,6 @@ void Gui::writeToTmp(const QString &fileName,
           QString line = contents[i];
           QStringList tokens;
 
-          QApplication::processEvents();
-
           split(line,tokens);
           if (tokens.size()) {
               if (tokens[0] != "0") {
@@ -2138,7 +2105,6 @@ void Gui::writeToTmp()
   emit progressRangeSig(1, ldrawFile._subFileOrder.size());
   emit progressMessageSig("Submodels...");
   emit messageSig(true, "Writing submodels to temp directory");
-  QApplication::processEvents();
 
   bool    doFadeStep  = (page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
   QString fadeColor   = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
@@ -2151,7 +2117,6 @@ void Gui::writeToTmp()
 
       emit progressSetValueSig(i);
       emit messageSig(true, "Writing submodel " + fileName + " to temp directory.");
-      QApplication::processEvents();
 
       if (doFadeStep) {
 //          QRegExp rgxLDR("\\.(ldr)$");
@@ -2208,8 +2173,6 @@ QStringList Gui::fadeSubFile(const QStringList &contents, const QString &color)
 
   if (contents.size() > 0) {
       for (int index = 0; index < contents.size(); index++) {
-
-          QApplication::processEvents();
 
           QString contentLine = contents[index];
           split(contentLine, argv);
@@ -2275,8 +2238,6 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
 
   if (csiParts.size() > 0 && stepNum > 1 && doFadeStep) {
       for (int index = 0; index < csiParts.size(); index++) {
-
-          QApplication::processEvents();
 
           QString csiLine = csiParts[index];
           if ((index + 1) <= fadePosition) {

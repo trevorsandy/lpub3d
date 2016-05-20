@@ -240,8 +240,6 @@ int Gui::addGraphicsPageItems(
    * right or bottom edge, and I just don't know what the problem is.
    */
 
-  QApplication::processEvents();
-
   int pW, pH;
 
   if (printing) {

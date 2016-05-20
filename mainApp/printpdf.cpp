@@ -389,7 +389,6 @@ void Gui::printToPdfFile()
           logWarn() << QString("Printing: page %1 of %2").arg(displayPageNum).arg(_maxPages);
 
           emit progressSetValueSig(displayPageNum);
-          QApplication::processEvents();
           // render this page
           drawPage(&view,&scene,true);
           scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
@@ -432,7 +431,6 @@ void Gui::printToPdfFile()
           logWarn() << QString("Printing: page %1 of %2").arg(displayPageNum).arg(_maxPages);
 
           emit progressSetValueSig(pageCount++);
-          QApplication::processEvents();
           // render this page
           drawPage(&view,&scene,true);
           scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
@@ -627,7 +625,6 @@ void Gui::exportAs(QString &suffix)
           logWarn() << QString("Exporting (current / all) page: %1 of %2").arg(displayPageNum).arg(_maxPages);
 
           emit progressSetValueSig(displayPageNum);
-          QApplication::processEvents();
           // clear the pixels of the image, just in case the background is
           // transparent or uses a PNG image with transparency. This will
           // prevent rendered pixels from each page layering on top of each
@@ -666,7 +663,7 @@ void Gui::exportAs(QString &suffix)
       qSort(printPages.begin(),printPages.end());
       _maxPages = printPages.last().toInt();
 
-      int pageCount = 0;
+      int _pageCount = 0;
       emit progressRangeSig(1, printPages.count());
 
       foreach(QString printPage,printPages){
@@ -674,8 +671,7 @@ void Gui::exportAs(QString &suffix)
 
           logWarn() << QString("Exporting: page range %1 of %2").arg(displayPageNum).arg(_maxPages);
 
-          emit progressSetValueSig(pageCount++);
-          QApplication::processEvents();
+          emit progressSetValueSig(_pageCount++);
           // clear the pixels of the image, just in case the background is
           // transparent or uses a PNG image with transparency. This will
           // prevent rendered pixels from each page layering on top of each

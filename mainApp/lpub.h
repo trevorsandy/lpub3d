@@ -615,6 +615,10 @@ public slots:
 
   void progressBarInit();
   void progressBarPermInit();
+  void progressBarSetText(const QString &progressText);
+  void progressBarSetRange(int minimum, int maximum);
+  void progressBarSetValue(int value);
+  void progressBarReset();
 
   void removeProgressStatus(){
       statusBar()->removeWidget(progressBar);
