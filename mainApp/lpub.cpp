@@ -829,12 +829,12 @@ void Gui::preferences()
         gui->clearPLICache();
         gui->clearCSI3DCache();
     }
-
-    if (!getCurFile().isEmpty()){
-        QString topLevel = ldrawFile.topLevelFile();
-        GlobalPliDialog *pliParms = new GlobalPliDialog(topLevel, page.meta, false);
-        pliParms->accept();
-        displayPage();
+//-Fix: 2 page refreshes when Parameters menu item is accpeted (r635)
+//    if (!getCurFile().isEmpty()){
+//        QString topLevel = ldrawFile.topLevelFile();
+//        GlobalPliDialog *pliParms = new GlobalPliDialog(topLevel, page.meta, false);
+//        pliParms->accept();
+//        displayPage();
     }
   }
 }
