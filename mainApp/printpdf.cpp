@@ -370,6 +370,8 @@ void Gui::printToPdfFile()
 
   int _displayPageNum = 0;
   int _maxPages       = 0;
+  int _pageCount      = 0;
+
   if (exportOption != EXPORT_PAGE_RANGE){
 
       if(exportOption == EXPORT_ALL_PAGES){
@@ -388,7 +390,7 @@ void Gui::printToPdfFile()
 
           logWarn() << QString("Printing: page %1 of %2").arg(displayPageNum).arg(_maxPages);
 
-          emit progressSetValueSig(displayPageNum);
+          emit progressSetValueSig(_pageCount++);
           // render this page
           drawPage(&view,&scene,true);
           scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
@@ -422,7 +424,6 @@ void Gui::printToPdfFile()
       qSort(printPages.begin(),printPages.end());
       _maxPages = printPages.last().toInt();
 
-      int pageCount = 0;
       emit progressRangeSig(1, printPages.count());
 
       foreach(QString printPage,printPages){
@@ -430,7 +431,7 @@ void Gui::printToPdfFile()
 
           logWarn() << QString("Printing: page %1 of %2").arg(displayPageNum).arg(_maxPages);
 
-          emit progressSetValueSig(pageCount++);
+          emit progressSetValueSig(_pageCount++);
           // render this page
           drawPage(&view,&scene,true);
           scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
@@ -485,6 +486,7 @@ void Gui::printToPdfFile()
       emit messageSig(true,QString("Print to pdf completed."));
       return;
     } else if (ret == QMessageBox::Cancel) {
+      emit messageSig(true,QString("Print to pdf cancelled."));
       return;
     }
 }

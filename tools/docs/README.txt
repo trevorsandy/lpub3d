@@ -2,7 +2,8 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
--Refactor processEvents statements (r631)
+-Refactor: Rearrange printToPdfFile page count (r632)
+-Refactor: Reposition rocessEvents statements (r631)
 -Fix: If using LPub3D archive distribution (no installer), use distribution's extras folder instead of creating one in AppData (r630)
 -Fix: Remove -w1 from default ldglite parms (r629)
 -Fix: Periodic crash when changing margin of assembly (CSI) in multi-step page (r628) 
