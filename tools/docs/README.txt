@@ -2,14 +2,15 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
--Fix Crash when pieceinfo is null - this occurs when a file has no FILE meta and is imported as an ldr (versus an MPD) (r626)
+-Fix: Control manual page number entry. (r627) 
+-Fix: Crash when pieceinfo is null - this occurs when a file has no FILE meta and is imported as an ldr (versus an MPD) (r626)
 -Fix: Remove silent_alloc - meta-command (r625)
 -Update build assets (r624)
 -Update ldglite hard-coded default directory setting to ldglite1.3.1(r623)
 -Cleanup 'Copyright' and 'Trademark' unicode (utf8) chars on MSVC2015 build (r622)
 -Supress MSVC type conversion warning C4267 (r621)
--Fix QPainter alphaChannel management - use setCompositionMode (r620)
--Fix QPainter alphaChannel management - use setCompositionMode (r619)
+-Fix: QPainter alphaChannel management - use setCompositionMode (r620)
+-Fix: QPainter alphaChannel management - use setCompositionMode (r619)
 -Update zlib reference for Qt 5.6.0 (r618)
 -Update minifig settings (move to ini file) - LeoCAD Changeset 1870 (r617)
 -Upgrade to Qt 5.6.0 Stable (debug build KO), Build and link own copy of zlib. (r616)

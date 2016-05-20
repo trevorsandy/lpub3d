@@ -272,6 +272,8 @@ void Gui::setPage()
           displayPage();
           return;
         }
+      } else {
+        statusBarMsg("Page number entered is higher than total pages");
       }
     }
   }
