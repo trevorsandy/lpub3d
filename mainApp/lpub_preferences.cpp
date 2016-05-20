@@ -278,11 +278,11 @@ void Preferences::lgeoPreferences()
 void Preferences::renderPreferences()
 {
 #ifdef Q_OS_WIN
-  QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/ldglite1.3.0Win/ldglite.exe"));
+  QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/ldglite1.3.1Win/ldglite.exe"));
   QFileInfo l3pInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/l3p1.4WinB/L3P.EXE"));
 #else
   //TODO
-  QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/ldglite1.3.0Win/ldglite.exe"));
+  QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/ldglite1.3.1Win/ldglite.exe"));
   QFileInfo l3pInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/l3p1.4WinB/L3P.EXE"));
 #endif
 
