@@ -345,14 +345,22 @@ void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   //placeGrabbers();
   position = pos();
   gui->showLine(step->topOfStep());
+  int  rc = step->Load3DCsi(step->csi3DName);
 
-  int  rc = step->Render3DCsi(step->csi3DName);
   if (rc == -1){
-      QString result = (rc == -1) ? "Render File Does not Exist - page will be regenerated" : "Render File Ok";
-      logInfo() << "\nCsiItem Render status ("<< result <<"): \n" << step->csi3DName;
-      QString thisImage = step->csi3DName;
-      gui->displayPage();
-      rc = step->Render3DCsi(thisImage);
+      QStringList fileFilters;
+      fileFilters << QString("%1_%2_*.ldr")
+                     .arg(step->csiName())
+                     .arg(step->stepNumber.number);
+      QFileInfo renderFileInfo(step->csi3DName);
+      QDir dir(renderFileInfo.absolutePath());
+      QStringList dirs = dir.entryList(fileFilters);
+      if (dirs.size() > 0) {
+        dir.rename(dirs.at(0), renderFileInfo.fileName());
+        rc = step->Load3DCsi(step->csi3DName);
+        if (rc != 0)
+          qDebug() << "\nCsiItem 3D-render failed to load " << step->csi3DName;
+      }
   }
 }
 

@@ -2,7 +2,10 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
--Fix: Control manual page number entry. (r627) 
+-Fix: Periodic crash when changing margin of assembly (CSI) in multi-step page (r628) 
+-Fix: Periodic crash when adding divider to multi-step page or callouts (r628) 
+-Fix: Periodic crash every time a second successive rotation icon is added to multi-step page (r628)
+-Fix: Control manual page number entry (r627) 
 -Fix: Crash when pieceinfo is null - this occurs when a file has no FILE meta and is imported as an ldr (versus an MPD) (r626)
 -Fix: Remove silent_alloc - meta-command (r625)
 -Update build assets (r624)

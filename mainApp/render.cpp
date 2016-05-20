@@ -564,19 +564,19 @@ int LDGLite::renderCsi(
                                     // ldglite always deals in 72 DPI
   QString w  = QString("-W%1")      .arg(lineThickness);
 
-   QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
+  QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
 
-  arguments << "-l3";
-  arguments << "-i2";
-  arguments << CA;
-  arguments << cg;
-  arguments << "-J";
-  arguments << v;
-  arguments << o;
-  arguments << w;
-  arguments << "-q";        //Anti Aliasing (Quality Lines)
+  arguments << "-l3";               // use l3 parser
+  arguments << "-i2";               // image type 2=.png
+  arguments << CA;                  // camera FOV angle in degrees
+  arguments << cg;                  // camera globe - scale factor
+  arguments << "-J";                // perspective projection
+  arguments << v;                   // display in X wide by Y high window
+  arguments << o;                   // changes the center X across and Y down
+  arguments << w;                   // line thickness
+  arguments << "-q";                // Anti aliasing (Quality Lines)
 
-  QStringList list;
+  QStringList list;                 // -fh = Turns on shading mode
   list = meta.LPub.assem.ldgliteParms.value().split("\\s+");
   for (int i = 0; i < list.size(); i++) {
     if (list[i] != "" && list[i] != " ") {
@@ -584,8 +584,8 @@ int LDGLite::renderCsi(
     }
   }
 
-  arguments << mf;
-  arguments << ldrName;
+  arguments << mf;                  // .png file name
+  arguments << ldrName;             // csi.ldr (input file)
   
   QProcess    ldglite;
   QStringList env = QProcess::systemEnvironment();
@@ -899,7 +899,7 @@ int Render::render3DCsi(
             csi3DParts << "0 FILE " + nameKeys + "\n"
                           "0 !LEOCAD MODEL NAME " + nameKeys;
             for (int index = 0; index < csiParts.size(); index++) {
-                QApplication::processEvents();
+
                 alreadyInserted = false;
                 QString csiLine = csiParts[index];
                 split(csiLine, argv);
@@ -987,7 +987,7 @@ int Render::render3DCsi(
         }
     }
 
-    if ((rc = render3DCsiImage(csi3DName)) < 0)
+    if ((rc = load3DCsiImage(csi3DName)) < 0)
         return rc;
 
     return 0;
@@ -1008,7 +1008,6 @@ int Render::render3DCsiSubModels(QStringList &subModels,
 
         /* read in all detected sub model file content */
         for (int index = 0; index < csiSubModels.size(); index++) {
-            QApplication::processEvents();
 
             alreadyInserted     = false;
             QString ldrName(QDir::currentPath() + "/" +
@@ -1086,14 +1085,18 @@ int Render::render3DCsiSubModels(QStringList &subModels,
     return 0;
 }
 
-int Render::render3DCsiImage(QString &csi3DName)
+int Render::load3DCsiImage(QString &csi3DName)
 {
-    //load CSI 3D file into viewer
-    QFile csi3DFile(csi3DName);
-    if (csi3DFile.exists()){
-        gMainWindow->OpenProject(csi3DFile.fileName());
+  //load CSI 3D file into viewer
+  QFile csi3DFile(csi3DName);
+  if (csi3DFile.exists()){
+      if (gMainWindow->OpenProject(csi3DFile.fileName()))
         return 0;
-    } else {return -1;}
+      else
+        return -1;
+    } else {
+      qDebug() << "3D-render file does not exist \n" << csi3DFile.fileName();
+    }
 
-    return 0;
+  return -1;
 }

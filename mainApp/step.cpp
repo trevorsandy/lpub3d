@@ -250,13 +250,14 @@ int Step::createCsi(
   return 0;
   }
 
-int Step::Render3DCsi(QString &csi3DName)
+int Step::Load3DCsi(QString &csi3DName)
 {
-    if (! gMainWindow->GetHalt3DViewer()) {
-        int rc = renderer->render3DCsiImage(csi3DName);
-        return rc;
+  if (! gMainWindow->GetHalt3DViewer()) {
+      return renderer->load3DCsiImage(csi3DName);
+    } else {
+      qDebug() << "3DViewer halted - rendering not allowed.";
     }
-    return -1;
+  return -1;
 }
 
 /*
@@ -1072,7 +1073,7 @@ void Step::addGraphicsItems(
   // CSI
   csiItem = new CsiItem(this,
                         meta,
-                        csiPixmap, 
+                        csiPixmap,
                         submodelLevel,
                         parent,
                         parentRelativeType);
@@ -1148,8 +1149,6 @@ void Step::addGraphicsItems(
 
   // Callouts
   for (int i = 0; i < list.size(); i++) {
-
-    QApplication::processEvents();
 
     Callout *callout = list[i];
     PlacementData placementData = callout->placement.value();

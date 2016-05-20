@@ -65,7 +65,7 @@ public:
                            QStringList &,
                            QString &fadeColor,
                            bool doFadeStep = false);
-  int render3DCsiImage(QString &);
+  int load3DCsiImage(QString &);
 
 protected:
   virtual float cameraDistance(Meta &meta, float) = 0;
