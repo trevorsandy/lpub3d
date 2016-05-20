@@ -14,7 +14,7 @@ public:
 	~String();
 
 	int GetLength() const
-	{ return strlen(m_pData); }
+	{ return (int)strlen(m_pData); }
 	bool IsEmpty() const
 	{ return m_pData[0] == '\0'; }
 	void Empty()
@@ -110,7 +110,7 @@ public:
 	void ReleaseBuffer(int len = -1)
 	{
 		if (len == -1)
-			len = strlen(m_pData);
+			len = (int)strlen(m_pData);
 		m_pData[len] = '\0';
 	}
 

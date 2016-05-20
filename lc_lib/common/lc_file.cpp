@@ -45,7 +45,7 @@ void lcMemFile::Seek(long Offset, int From)
 
 long lcMemFile::GetPosition() const
 {
-	return mPosition;
+	return (long)mPosition;
 }
 
 void lcMemFile::SetLength(size_t NewLength)
@@ -80,7 +80,7 @@ void lcMemFile::Close()
 	mBuffer = NULL;
 }
 
-size_t lcMemFile::ReadBuffer(void* Buffer, long Bytes)
+size_t lcMemFile::ReadBuffer(void* Buffer, size_t Bytes)
 {
 	if (Bytes == 0 || mPosition > mFileSize)
 		return 0;
@@ -98,7 +98,7 @@ size_t lcMemFile::ReadBuffer(void* Buffer, long Bytes)
 	return BytesToRead;
 }
 
-size_t lcMemFile::WriteBuffer(const void* Buffer, long Bytes)
+size_t lcMemFile::WriteBuffer(const void* Buffer, size_t Bytes)
 {
 	if (Bytes == 0)
 		return 0;
@@ -206,7 +206,7 @@ void lcDiskFile::Seek(long Offset, int From)
 
 void lcDiskFile::SetLength(size_t NewLength)
 {
-	fseek(mFile, NewLength, SEEK_SET);
+	fseek(mFile, (long)NewLength, SEEK_SET);
 }
 
 size_t lcDiskFile::GetLength() const
@@ -238,12 +238,12 @@ void lcDiskFile::Close()
 	mFile = NULL;
 }
 
-size_t lcDiskFile::ReadBuffer(void* pBuf, long Bytes)
+size_t lcDiskFile::ReadBuffer(void* pBuf, size_t Bytes)
 {
 	return fread(pBuf, 1, Bytes, mFile);
 }
 
-size_t lcDiskFile::WriteBuffer(const void* pBuf, long Bytes)
+size_t lcDiskFile::WriteBuffer(const void* pBuf, size_t Bytes)
 {
 	return fwrite(pBuf, 1, Bytes, mFile);
 }
@@ -267,7 +267,7 @@ bool lcDiskFile::Open(const char* FileName, const char* Mode)
 
 char* lcDiskFile::ReadLine(char* Buffer, size_t BufferSize)
 {
-	return fgets(Buffer, BufferSize, mFile);
+	return fgets(Buffer, (int)BufferSize, mFile);
 }
 
 void lcDiskFile::CopyFrom(lcMemFile& Source)
