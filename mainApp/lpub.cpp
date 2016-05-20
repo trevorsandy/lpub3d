@@ -892,33 +892,25 @@ Gui::Gui()
     progressBar = new QProgressBar();
     progressBar->setMaximumWidth(300);
 
+    progressLabelPerm = new QLabel();
+    progressLabelPerm->setMinimumWidth(200);
+    progressBarPerm = new QProgressBar();
+    progressBarPerm->setMaximumWidth(300);
+
     mExistingRotStep = lcVector3(0.0f, 0.0f, 0.0f);
     mModelStepRotation = lcVector3(0.0f, 0.0f, 0.0f);
 
     createActions();
     createMenus();
     createToolBars();
-
 //    createStatusBar();
+
 //    createDockWindows();
 //    toggleLCStatusBar();
 
 //    readSettings();
 
-//    connect(this,           SIGNAL(halt3DViewerSig(bool)),
-//            gMainWindow,    SLOT(  halt3DViewer   (bool)));
-
-//    connect(this,           SIGNAL(enable3DActionsSig()),
-//            gMainWindow,    SLOT(  enable3DActions()));
-
     undoStack = new QUndoStack();
-    connect(undoStack,      SIGNAL(canRedoChanged(bool)),
-            this,           SLOT(  canRedoChanged(bool)));
-    connect(undoStack,      SIGNAL(canUndoChanged(bool)),
-            this,           SLOT(  canUndoChanged(bool)));
-    connect(undoStack,      SIGNAL(cleanChanged(bool)),
-            this,           SLOT(  cleanChanged(bool)));
-
     macroNesting = 0;
 
     connect(this,           SIGNAL(displayFileSig(LDrawFile *, const QString &)),
@@ -935,14 +927,41 @@ Gui::Gui()
     connect(this,           SIGNAL(displayParmsFileSig(const QString &)),
             parmsWindow,    SLOT( displayParmsFile   (const QString &)));
 
+    connect(undoStack,      SIGNAL(canRedoChanged(bool)),
+            this,           SLOT(  canRedoChanged(bool)));
+    connect(undoStack,      SIGNAL(canUndoChanged(bool)),
+            this,           SLOT(  canUndoChanged(bool)));
+    connect(undoStack,      SIGNAL(cleanChanged(bool)),
+            this,           SLOT(  cleanChanged(bool)));
+
+    connect(this,           SIGNAL(halt3DViewerSig(bool)),
+            gMainWindow,    SLOT(  halt3DViewer   (bool)));
+
+    connect(this,           SIGNAL(enable3DActionsSig()),
+            gMainWindow,    SLOT(  enable3DActions()));
+
     connect(this, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
 
-    connect(this, SIGNAL(progressBarInitSig()),                  this, SLOT(progressBarPermInit()));
-    connect(this, SIGNAL(progressMessageSig(QString)),  progressLabel, SLOT(setText(QString)));
-    connect(this, SIGNAL(progressRangeSig(int,int)),      progressBar, SLOT(setRange(int,int)));
-    connect(this, SIGNAL(progressSetValueSig(int)),       progressBar, SLOT(setValue(int)));
-    connect(this, SIGNAL(progressResetSig()),             progressBar, SLOT(reset()));
-    connect(this, SIGNAL(removeProgressStatusSig()),             this, SLOT(removeProgressStatus()));
+    connect(this, SIGNAL(progressBarInitSig()),               this, SLOT(progressBarInit()));
+    connect(this, SIGNAL(progressMessageSig(QString)),        this, SLOT(progressBarSetText(QString)));
+    connect(this, SIGNAL(progressRangeSig(int,int)),          this, SLOT(progressBarSetRange(int,int)));
+    connect(this, SIGNAL(progressSetValueSig(int)),           this, SLOT(progressBarSetValue(int)));
+    connect(this, SIGNAL(progressResetSig()),                 this, SLOT(progressBarReset()));
+    connect(this, SIGNAL(removeProgressStatusSig()),          this, SLOT(removeProgressStatus()));
+
+    connect(this, SIGNAL(progressBarPermInitSig()),           this, SLOT(progressBarPermInit()));
+    connect(this, SIGNAL(progressPermMessageSig(QString)),    this, SLOT(progressBarPermSetText(QString)));
+    connect(this, SIGNAL(progressPermRangeSig(int,int)),      this, SLOT(progressBarPermSetRange(int,int)));
+    connect(this, SIGNAL(progressPermSetValueSig(int)),       this, SLOT(progressBarPermSetValue(int)));
+    connect(this, SIGNAL(progressPermResetSig()),             this, SLOT(progressBarPermReset()));
+    connect(this, SIGNAL(removeProgressPermStatusSig()),      this, SLOT(removeProgressPermStatus()));
+
+    m_progressDialog = new ProgressDialog();
+    m_progressDialog->setWindowFlags(Qt::WindowStaysOnTopHint);
+    m_progressDlgProgressBar = m_progressDialog->findChild<QProgressBar*>("progressBar");
+    m_progressDlgMessageLbl  = m_progressDialog->findChild<QLabel*>("ui_progress_bar");
+
+    connect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelPrinting()));
 
 #ifdef WATCHER
     connect(&watcher,       SIGNAL(fileChanged(const QString &)),
@@ -1051,10 +1070,10 @@ void Gui::generageFadeColourPartsList()
         connect(colourPartListWorker, SIGNAL(messageSig(bool,QString)),                      this, SLOT(statusMessage(bool,QString)));
 
         connect(colourPartListWorker, SIGNAL(progressBarInitSig()),                          this, SLOT(progressBarInit()));
-        connect(colourPartListWorker, SIGNAL(progressMessageSig(QString)),          progressLabel, SLOT(setText(QString)));
-        connect(colourPartListWorker, SIGNAL(progressRangeSig(int,int)),              progressBar, SLOT(setRange(int,int)));
-        connect(colourPartListWorker, SIGNAL(progressSetValueSig(int)),               progressBar, SLOT(setValue(int)));
-        connect(colourPartListWorker, SIGNAL(progressResetSig()),                     progressBar, SLOT(reset()));
+        connect(colourPartListWorker, SIGNAL(progressMessageSig(QString)),                   this, SLOT(progressBarSetText(QString)));
+        connect(colourPartListWorker, SIGNAL(progressRangeSig(int,int)),                     this, SLOT(progressBarSetRange(int,int)));
+        connect(colourPartListWorker, SIGNAL(progressSetValueSig(int)),                      this, SLOT(progressBarSetValue(int)));
+        connect(colourPartListWorker, SIGNAL(progressResetSig()),                            this, SLOT(progressBarReset()));
         connect(colourPartListWorker, SIGNAL(removeProgressStatusSig()),                     this, SLOT(removeProgressStatus()));
 
         listThread->start();
@@ -1085,16 +1104,17 @@ void Gui::processFadeColourParts()
       connect(partWorkerFadeColour, SIGNAL(messageSig(bool,QString)),                 this, SLOT(statusMessage(bool,QString)));
 
       connect(partWorkerFadeColour, SIGNAL(progressBarInitSig()),                     this, SLOT(progressBarInit()));
-      connect(partWorkerFadeColour, SIGNAL(progressMessageSig(QString)),     progressLabel, SLOT(setText(QString)));
-      connect(partWorkerFadeColour, SIGNAL(progressRangeSig(int,int)),         progressBar, SLOT(setRange(int,int)));
-      connect(partWorkerFadeColour, SIGNAL(progressSetValueSig(int)),          progressBar, SLOT(setValue(int)));
-      connect(partWorkerFadeColour, SIGNAL(progressResetSig()),                progressBar, SLOT(reset()));
+      connect(partWorkerFadeColour, SIGNAL(progressMessageSig(QString)),              this, SLOT(progressBarSetText(QString)));
+      connect(partWorkerFadeColour, SIGNAL(progressRangeSig(int,int)),                this, SLOT(progressBarSetRange(int,int)));
+      connect(partWorkerFadeColour, SIGNAL(progressSetValueSig(int)),                 this, SLOT(progressBarSetValue(int)));
+      connect(partWorkerFadeColour, SIGNAL(progressResetSig()),                       this, SLOT(progressBarReset()));
       connect(partWorkerFadeColour, SIGNAL(removeProgressStatusSig()),                this, SLOT(removeProgressStatus()));
 
       partThread->start();
     }
 }
 
+// left side progress bar
 void Gui::progressBarInit(){
     progressBar->setMaximumHeight(15);
     statusBar()->addWidget(progressLabel);
@@ -1103,12 +1123,56 @@ void Gui::progressBarInit(){
     progressBar->show();
 }
 
+void Gui::progressBarSetText(const QString &progressText)
+{
+  progressLabel->setText(progressText);
+  QApplication::processEvents();
+}
+void Gui::progressBarSetRange(int minimum, int maximum)
+{
+  progressBar->setRange(minimum,maximum);
+  QApplication::processEvents();
+}
+void Gui::progressBarSetValue(int value)
+{
+  progressBar->setValue(value);
+  QApplication::processEvents();
+}
+void Gui::progressBarReset()
+{
+  progressBar->reset();
+  QApplication::processEvents();
+}
+
+// right side progress bar
 void Gui::progressBarPermInit(){
-    progressBar->setMaximumHeight(15);
-    statusBar()->addPermanentWidget(progressLabel);
-    statusBar()->addPermanentWidget(progressBar);
-    progressLabel->show();
-    progressBar->show();
+  progressBarPerm->setMaximumHeight(15);
+  statusBar()->addPermanentWidget(progressLabelPerm);
+  statusBar()->addPermanentWidget(progressBarPerm);
+  progressLabelPerm->show();
+  progressBarPerm->show();
+  QApplication::processEvents();
+}
+
+void Gui::progressBarPermSetText(const QString &progressText)
+{
+progressLabelPerm->setText(progressText);
+QApplication::processEvents();
+}
+void Gui::progressBarPermSetRange(int minimum, int maximum)
+{
+progressBarPerm->setRange(minimum,maximum);
+QApplication::processEvents();
+}
+void Gui::progressBarPermSetValue(int value)
+{
+progressBarPerm->setValue(value);
+QApplication::processEvents();
+}
+void Gui::progressBarPermReset()
+{
+progressBarPerm->reset();
+QApplication::processEvents();
 }
 
 bool Gui::aboutDialog()

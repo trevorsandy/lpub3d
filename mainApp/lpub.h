@@ -367,8 +367,8 @@
 //** 3D
 #include "lc_math.h"
 #include "lc_library.h"
-#include "lc_mainwindow.h" //moved from
-
+#include "lc_mainwindow.h"
+#include "dialogs/progress_dialog.h"
 #include "QsLog.h"
 
 class QString;
@@ -432,6 +432,11 @@ public:
   int             exportType;      // export Type
   int             exportOption;    // export Option
   QString         pageRangeText;    // page range parameters
+
+  bool             m_cancelPrinting; // cancel print job
+  ProgressDialog  *m_progressDialog; // general use progress dialog
+  QLabel          *m_progressDlgMessageLbl;
+  QProgressBar    *m_progressDlgProgressBar;
 
   void            *noData;
   /**Fade Step variables**/
@@ -613,16 +618,30 @@ public slots:
     showLineSig(topOfStep.lineNumber);
   }
 
+  // cancel printing
+  void cancelPrinting(){m_cancelPrinting = true;}
+
+  // left side progress bar
   void progressBarInit();
-  void progressBarPermInit();
   void progressBarSetText(const QString &progressText);
   void progressBarSetRange(int minimum, int maximum);
   void progressBarSetValue(int value);
   void progressBarReset();
+  // right side progress bar
+  void progressBarPermInit();
+  void progressBarPermSetText(const QString &progressText);
+  void progressBarPermSetRange(int minimum, int maximum);
+  void progressBarPermSetValue(int value);
+  void progressBarPermReset();
 
   void removeProgressStatus(){
       statusBar()->removeWidget(progressBar);
       statusBar()->removeWidget(progressLabel);
+  }
+
+  void removeProgressPermStatus(){
+      statusBar()->removeWidget(progressBarPerm);
+      statusBar()->removeWidget(progressLabelPerm);
   }
 
   void preferences();
@@ -677,14 +696,24 @@ signals:
 
   void halt3DViewerSig(bool b);
 
-  // progress bar
-  void progressBarInitSig();
-  void progressMessageSig(const QString &text);
-  void progressRangeSig(const int &min, const int &max);
-  void progressSetValueSig(const int &value);
-  void progressResetSig();
+  // right side progress bar
+ void progressBarInitSig();
+ void progressMessageSig(const QString &text);
+ void progressRangeSig(const int &min, const int &max);
+ void progressSetValueSig(const int &value);
+ void progressResetSig();
+ void removeProgressStatusSig();
+
+   // right side progress bar
+  void progressBarPermInitSig();
+  void progressPermMessageSig(const QString &text);
+  void progressPermRangeSig(const int &min, const int &max);
+  void progressPermSetValueSig(const int &value);
+  void progressPermResetSig();
+  void removeProgressPermStatusSig();
+
   void messageSig(bool  status, QString message);
-  void removeProgressStatusSig();
+
   void requestEndThreadNowSig();
 
 public:
@@ -704,8 +733,10 @@ private:
   QString                curFile;         // the file name for MPD, or top level file
   QString                curSubFile;      // whats being displayed in the edit window
   EditWindow            *editWindow;      // the sub file editable by the user
-  QProgressBar          *progressBar;
+  QProgressBar          *progressBar;        // left side progress bar
+  QProgressBar          *progressBarPerm;    // Right side progress bar
   QLabel                *progressLabel;
+  QLabel                *progressLabelPerm;  //
   QElapsedTimer         *timer;
 
   FadeStepColorParts     fadeStepColorParts; // internal list of color parts to be processed for fade step.

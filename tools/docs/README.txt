@@ -2,6 +2,7 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Fix: Print/export dialog progress bar (r633) 
 -Refactor: Rearrange printToPdfFile page count (r632)
 -Refactor: Reposition rocessEvents statements (r631)
 -Fix: If using LPub3D archive distribution (no installer), use distribution's extras folder instead of creating one in AppData (r630)

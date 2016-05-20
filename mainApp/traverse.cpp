@@ -2101,9 +2101,9 @@ void Gui::writeToTmp(const QString &fileName,
 
 void Gui::writeToTmp()
 {
-  emit progressBarInitSig();
-  emit progressRangeSig(1, ldrawFile._subFileOrder.size());
-  emit progressMessageSig("Submodels...");
+  emit progressBarPermInitSig();
+  emit progressPermRangeSig(1, ldrawFile._subFileOrder.size());
+  emit progressPermMessageSig("Submodels...");
   emit messageSig(true, "Writing submodels to temp directory");
 
   bool    doFadeStep  = (page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
@@ -2115,7 +2115,7 @@ void Gui::writeToTmp()
 
       QString fileName = ldrawFile._subFileOrder[i].toLower();
 
-      emit progressSetValueSig(i);
+      emit progressPermSetValueSig(i);
       emit messageSig(true, "Writing submodel " + fileName + " to temp directory.");
 
       if (doFadeStep) {
@@ -2155,9 +2155,9 @@ void Gui::writeToTmp()
             }
         }
     }
-  emit progressSetValueSig(ldrawFile._subFileOrder.size());
-  emit progressMessageSig("");
-  emit removeProgressStatusSig();
+  emit progressPermSetValueSig(ldrawFile._subFileOrder.size());
+//  emit progressPermMessageSig("");
+  emit removeProgressPermStatusSig();
   emit messageSig(true, "Submodels written to temp directory.");
 }
 

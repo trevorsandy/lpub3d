@@ -301,9 +301,6 @@ void Gui::printToPdfFile()
 
   // send signal to halt 3DViewer
   halt3DViewer(true);
-  // initialize progress bar
-  emit progressBarInitSig();
-  emit progressMessageSig("Printing instructions to pdf.");
 
   // determine location for output file
   QFileInfo fileInfo(curFile);
@@ -316,8 +313,6 @@ void Gui::printToPdfFile()
   if (fileName == "") {
       // release 3D Viewer
       halt3DViewer(false);
-      // remove progress bar
-      emit removeProgressStatusSig();
       return;
     }
   
@@ -370,7 +365,12 @@ void Gui::printToPdfFile()
 
   int _displayPageNum = 0;
   int _maxPages       = 0;
-  int _pageCount      = 0;
+
+  // initialize progress bar dialog
+  m_cancelPrinting = false;
+  m_progressDialog->setWindowTitle("Print pdf");
+  m_progressDialog->show();
+  m_progressDlgMessageLbl->setText("Printing instructions to pdf.");
 
   if (exportOption != EXPORT_PAGE_RANGE){
 
@@ -384,13 +384,18 @@ void Gui::printToPdfFile()
           _maxPages       = displayPageNum;
         }
 
-      emit progressRangeSig(1, _maxPages);
+      m_progressDlgProgressBar->setRange(1,_maxPages);
 
       for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
 
+          if (m_cancelPrinting)
+            break;
+
           logWarn() << QString("Printing: page %1 of %2").arg(displayPageNum).arg(_maxPages);
 
-          emit progressSetValueSig(_pageCount++);
+          m_progressDlgMessageLbl->setText(QString("Printing: page %1 of %2").arg(displayPageNum).arg(_maxPages));
+          m_progressDlgProgressBar->setValue(displayPageNum);
+
           // render this page
           drawPage(&view,&scene,true);
           scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
@@ -402,7 +407,7 @@ void Gui::printToPdfFile()
               printer.newPage();
             }
         }
-      emit progressSetValueSig(_maxPages);
+      m_progressDlgProgressBar->setValue(_maxPages);
 
     } else {
 
@@ -424,14 +429,21 @@ void Gui::printToPdfFile()
       qSort(printPages.begin(),printPages.end());
       _maxPages = printPages.last().toInt();
 
-      emit progressRangeSig(1, printPages.count());
+       m_progressDlgProgressBar->setRange(1,printPages.count());
 
+      int _pageCount = 0;
       foreach(QString printPage,printPages){
+
+          if (m_cancelPrinting)
+            break;
+
           displayPageNum = printPage.toInt();
 
           logWarn() << QString("Printing: page %1 of %2").arg(displayPageNum).arg(_maxPages);
 
-          emit progressSetValueSig(_pageCount++);
+          m_progressDlgMessageLbl->setText(QString("Printing: page %1 of %2").arg(displayPageNum).arg(_maxPages));
+          m_progressDlgProgressBar->setValue(_pageCount++);
+
           // render this page
           drawPage(&view,&scene,true);
           scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
@@ -443,25 +455,31 @@ void Gui::printToPdfFile()
               printer.newPage();
             }
         }
-      emit progressSetValueSig(printPages.count());
+      m_progressDlgProgressBar->setValue(printPages.count());
     }
 
   painter.end();
 
   // release 3D Viewer
   halt3DViewer(false);
-  emit removeProgressStatusSig();
 
   // return to whatever page we were viewing before output
   displayPageNum = savePageNumber;
   drawPage(KpageView,KpageScene,false);
+
+  // hide progress bar
+  m_progressDialog->hide();
+
+  if (!m_cancelPrinting) {
+
+      emit messageSig(true,QString("Print to pdf completed."));
 
   //display completion message
   QMessageBox::StandardButton ret;
   ret = QMessageBox::information(this, tr(VER_PRODUCTNAME_STR),
                                  tr("Your instruction document has finished printing.\n"
                                     "Do you want to open this document ?\n %1").arg(fileName),
-                                 QMessageBox::Yes| QMessageBox::Discard | QMessageBox::Cancel);
+                                 QMessageBox::Yes| /*QMessageBox::Discard | */ QMessageBox::Cancel);
 
   if (ret == QMessageBox::Yes) {
       QString CommandPath = fileName;
@@ -483,11 +501,12 @@ void Gui::printToPdfFile()
 #else
       QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
 #endif
-      emit messageSig(true,QString("Print to pdf completed."));
       return;
     } else if (ret == QMessageBox::Cancel) {
-      emit messageSig(true,QString("Print to pdf cancelled."));
       return;
+    }
+    } else {
+      emit messageSig(true,QString("Print to pdf cancelled."));
     }
 }
 
@@ -555,10 +574,6 @@ void Gui::exportAs(QString &suffix)
   // send signal to halt 3DViewer
   halt3DViewer(true);
 
-  // initialize progress bar
-  emit progressBarInitSig();
-  emit progressMessageSig(QString("Exporting instructions to %1 format.").arg(suffix));
-
   // determine location to output images
   QFileInfo fileInfo(curFile);
   //QDir initialDirectory = fileInfo.dir();
@@ -572,7 +587,7 @@ void Gui::exportAs(QString &suffix)
       // release 3D Viewer
       halt3DViewer(false);
       // remove progress bar
-      emit removeProgressStatusSig();
+      emit removeProgressPermStatusSig();
       return;
     }
   
@@ -608,6 +623,13 @@ void Gui::exportAs(QString &suffix)
 
   int _displayPageNum = 0;
   int _maxPages       = 0;
+
+  // initialize progress bar
+  m_cancelPrinting = false;
+  m_progressDialog->setWindowTitle("Print pdf");
+  m_progressDialog->show();
+  m_progressDlgMessageLbl->setText(QString("Exporting instructions to %1 format.").arg(suffix));
+
   if (exportOption != EXPORT_PAGE_RANGE){
 
       if(exportOption == EXPORT_ALL_PAGES){
@@ -620,13 +642,18 @@ void Gui::exportAs(QString &suffix)
           _maxPages       = displayPageNum;
         }
 
-      emit progressRangeSig(1, _maxPages);
+      m_progressDlgProgressBar->setRange(1,_maxPages);
 
       for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
 
-          logWarn() << QString("Exporting (current / all) page: %1 of %2").arg(displayPageNum).arg(_maxPages);
+          if (m_cancelPrinting)
+            break;
 
-          emit progressSetValueSig(displayPageNum);
+          logWarn() << QString("Exporting page: %1 of %2").arg(displayPageNum).arg(_maxPages);
+
+          m_progressDlgMessageLbl->setText(QString("Exporting page: %1 of %2").arg(displayPageNum).arg(_maxPages));
+          m_progressDlgProgressBar->setValue(displayPageNum);
+
           // clear the pixels of the image, just in case the background is
           // transparent or uses a PNG image with transparency. This will
           // prevent rendered pixels from each page layering on top of each
@@ -643,7 +670,7 @@ void Gui::exportAs(QString &suffix)
           QString pn = QString("%1") .arg(displayPageNum);
           image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
         }
-      emit progressSetValueSig(_maxPages);
+      m_progressDlgProgressBar->setValue(_maxPages);
 
     } else {
 
@@ -665,15 +692,21 @@ void Gui::exportAs(QString &suffix)
       qSort(printPages.begin(),printPages.end());
       _maxPages = printPages.last().toInt();
 
-      int _pageCount = 0;
-      emit progressRangeSig(1, printPages.count());
+      m_progressDlgProgressBar->setRange(1,printPages.count());
 
+      int _pageCount = 0;
       foreach(QString printPage,printPages){
+
+          if (m_cancelPrinting)
+            break;
+
           displayPageNum = printPage.toInt();
 
           logWarn() << QString("Exporting: page range %1 of %2").arg(displayPageNum).arg(_maxPages);
 
-          emit progressSetValueSig(_pageCount++);
+          m_progressDlgMessageLbl->setText(QString("Exporting: page range %1 of %2").arg(displayPageNum).arg(_maxPages));
+          m_progressDlgProgressBar->setValue(_pageCount++);
+
           // clear the pixels of the image, just in case the background is
           // transparent or uses a PNG image with transparency. This will
           // prevent rendered pixels from each page layering on top of each
@@ -690,18 +723,24 @@ void Gui::exportAs(QString &suffix)
           QString pn = QString("%1") .arg(displayPageNum);
           image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
         }
-       emit progressSetValueSig(printPages.count());
+       m_progressDlgProgressBar->setValue(printPages.count());
     }
 
   painter.end();
 
   // release 3D Viewer
   halt3DViewer(false);
-  emit removeProgressStatusSig();
 
   // return to whatever page we were viewing before output
   displayPageNum = savePageNumber;
   drawPage(KpageView,KpageScene,false);
+
+  // hide progress bar
+  m_progressDialog->hide();
+
+  if (!m_cancelPrinting) {
+
+      emit messageSig(true,QString("Export as %1 completed.").arg(suffix.remove(".")));
 
   //display completion message
   QMessageBox::StandardButton ret;
@@ -730,9 +769,12 @@ void Gui::exportAs(QString &suffix)
 #else
       QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
 #endif
-      emit messageSig(true,QString("Export as %1 completed.").arg(suffix.remove(".")));
+
       return;
     } else if (ret == QMessageBox::Cancel) {
       return;
     }
+} else {
+  emit messageSig(true,QString("Export as %1 cancelled.").arg(suffix.remove(".")));
+}
 }
