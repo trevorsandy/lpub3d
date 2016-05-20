@@ -898,8 +898,6 @@ int Gui::addGraphicsPageItems(
 
                   QPainter painter(qpixmap);
                   painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-//                  painter.setCompositionMode(QPainter::CompositionMode_Source);
-//                  painter.fillRect(qpixmap->rect(), Qt::transparent);
 
                   QImage   image(file);
                   image.convertToFormat(QImage::Format_ARGB32_Premultiplied);

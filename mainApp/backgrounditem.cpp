@@ -68,8 +68,6 @@ void BackgroundItem::setBackground(
 
   QPainter painter(pixmap);
   painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-//  painter.setCompositionMode(QPainter::CompositionMode_Source);
-//  painter.fillRect(pixmap->rect(), Qt::transparent);
 
   bool useGradient = false;
 
