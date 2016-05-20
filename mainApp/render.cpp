@@ -574,7 +574,7 @@ int LDGLite::renderCsi(
   arguments << v;                   // display in X wide by Y high window
   arguments << o;                   // changes the center X across and Y down
   arguments << w;                   // line thickness
-  arguments << "-q";                // Anti aliasing (Quality Lines)
+  arguments << "-q";                // Anti Aliasing (Quality Lines)
 
   QStringList list;                 // -fh = Turns on shading mode
   list = meta.LPub.assem.ldgliteParms.value().split("\\s+");
@@ -592,11 +592,13 @@ int LDGLite::renderCsi(
   env << "LDRAWDIR=" + Preferences::ldrawPath;
   if (!Preferences::ldgliteSearchDirs.isEmpty())
     env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
+
+//qDebug() << "ldglite CLI Arguments: " << arguments;
+
   ldglite.setEnvironment(env);
   ldglite.setWorkingDirectory(QDir::currentPath() + "/"+Paths::tmpDir);
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout");
-//  logTrace() << "\nCSI render arguments: " << arguments;
   ldglite.start(Preferences::ldgliteExe,arguments);
   if ( ! ldglite.waitForFinished(6*60*1000)) {
     if (ldglite.exitCode() != 0) {
@@ -666,12 +668,12 @@ int LDGLite::renderPli(
   env << "LDRAWDIR=" + Preferences::ldrawPath;
   if (!Preferences::ldgliteSearchDirs.isEmpty())
     env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
+//  qDebug() << "ldglite PLI Arguments: " << arguments;
   ldglite.setEnvironment(env);
   ldglite.setWorkingDirectory(QDir::currentPath());
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout");
   ldglite.start(Preferences::ldgliteExe,arguments);
-//  logTrace() << "\nPLI render arguments: " << arguments;
   if (! ldglite.waitForFinished()) {
     if (ldglite.exitCode()) {
       QByteArray status = ldglite.readAll();

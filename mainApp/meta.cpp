@@ -2525,7 +2525,7 @@ AssemMeta::AssemMeta() : BranchMeta()
   modelScale.setRange(-10000.0,10000.0);
   modelScale.setFormats(7,4,"99999.9");
   modelScale.setValue(1.0);
-  ldgliteParms.setValue("-fh -w1");
+  ldgliteParms.setValue("-fh"); // change removed -w1 duplicate on 01-25-16 v1.3.3 r578
   ldviewParms.setValue("");
   l3pParms.setValue("-q4 -sw2");
   povrayParms.setValue("+A");
