@@ -2,6 +2,7 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Fix: Upon "Add assembled image to parent page" a rotation icon is added to the callout (r634)
 -Fix: Print/export dialog progress bar (r633) 
 -Refactor: Rearrange printToPdfFile page count (r632)
 -Refactor: Reposition rocessEvents statements (r631)

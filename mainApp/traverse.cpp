@@ -227,8 +227,7 @@ Range *newRange(
   return range;
 }
 
-int Gui::drawPage(
-    LGraphicsView  *view,
+int Gui::drawPage(LGraphicsView  *view,
     QGraphicsScene *scene,
     Steps          *steps,
     int             stepNum,
@@ -241,6 +240,7 @@ int Gui::drawPage(
     bool            printing,
     bool            bfxStore2,
     QStringList    &bfxParts,
+    bool            supressRotateIcon,
     bool            calledOut)
 {
   QStringList saveCsiParts;
@@ -395,6 +395,11 @@ int Gui::drawPage(
 
               CalloutBeginMeta::CalloutMode mode = callout->meta.LPub.callout.begin.value();
 
+//              qDebug() << "CALLOUT MODE: " << (mode == CalloutBeginMeta::Unassembled ? "Unassembled" :
+//                                               mode == CalloutBeginMeta::Rotated ? "Rotated" : "Assembled");
+              // If callout is rotated or assembled then suppress rotate icon
+              supressRotateIcon = (mode == CalloutBeginMeta::Unassembled ? false : true);
+
               /* we are a callout, so gather all the steps within the callout */
               /* start with new meta, but no rotation step */
 
@@ -464,6 +469,7 @@ int Gui::drawPage(
                         printing,
                         bfxStore2,
                         bfxParts,
+                        supressRotateIcon,
                         true);
 
                   callout->meta = saveMeta;
@@ -754,8 +760,15 @@ int Gui::drawPage(
                 insertData = curMeta.LPub.insert.value();
 
                 if (insertData.type == InsertData::InsertRotateIcon) { // indicate that we have a rotate icon for this step
-                    rotateIcon = true;
-                  }
+
+//                   qDebug() << "CALLED OUT: " << calledOut << " SUPRESS ROTATE ICON: " << supressRotateIcon;
+
+                  if (calledOut && supressRotateIcon) {
+                      rotateIcon = false;
+                    } else {
+                      rotateIcon = true;
+                    }
+                }
 
                 if (insertData.type == InsertData::InsertFinalModel){
 
@@ -1076,6 +1089,7 @@ int Gui::drawPage(
                   partsAdded = false;
                   coverPage = false;
                   rotateIcon = false;
+//                supressRotateIcon = false;
                   step = NULL;
                   bfxStore2 = bfxStore1;
                   bfxStore1 = false;
