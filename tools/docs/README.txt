@@ -2,6 +2,7 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Optimization: Update file load progress messages (r636)
 -Fix: 2 page refreshes when Parameters menu item is accpeted - only a single refresh needed. (r635)
 -Fix: Upon "Add assembled image to parent page" a rotation icon is added to the callout if rotation icons were present in the callout step(s). Assembled and rotated callouts will not display rotate icons on the parent page. Only unassembled callouts will display rotate icons if present in the callout step(s). (r634)
 -Fix: Print/export dialog progress bar (r633) 

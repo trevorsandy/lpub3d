@@ -207,9 +207,6 @@ void Gui::closeFile()
 
 void Gui::openFile(QString &fileName)
 {
-  emit progressBarInitSig();
-  emit progressRangeSig(0,0);
-  emit progressMessageSig("Loading model file.");
 
 #ifdef WATCHER
   if (curFile != "") {
@@ -232,17 +229,17 @@ void Gui::openFile(QString &fileName)
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
   Paths::mkdirs();
-  emit progressMessageSig("Loading LDraw model file...");
+  emit messageSig(true, "Loading LDraw model file...");
   ldrawFile.loadFile(fileName);
-  emit progressMessageSig("Loading fade colour parts...");
+  emit messageSig(true, "Loading fade colour parts...");
   processFadeColourParts();
-  emit progressMessageSig("Loading user interface items...");
+  emit messageSig(true, "Loading user interface items...");
   attitudeAdjustment();
   mpdCombo->setMaxCount(0);
   mpdCombo->setMaxCount(1000);
   mpdCombo->addItems(ldrawFile.subFileOrder());
   setCurrentFile(fileName);
-  emit progressMessageSig("Loading source view display...");
+  emit messageSig(true, "Loading source display...");
   displayFile(&ldrawFile,ldrawFile.topLevelFile());
   undoStack->setClean();
   curFile = fileName;
@@ -262,8 +259,6 @@ void Gui::openFile(QString &fileName)
   }
 #endif
   defaultResolutionType(Preferences::preferCentimeters);
-  emit progressMessageSig("");
-  emit removeProgressStatusSig();
   emit messageSig(true,"File opened.");
 }
 
