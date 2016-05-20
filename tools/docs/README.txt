@@ -2,6 +2,7 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Fix: wrong text when you export to PNG the window title says "Print to pdf" (r638)
 -Fix: When publishing instructions with the option 0 !LPUB PAGE BACKGROUND TRANSPARENT a drop shadow layer was added (r637)
 -Optimization: Update file load progress messages (r636)
 -Fix: 2 page refreshes when Parameters menu item is accpeted - only a single refresh needed. (r635)

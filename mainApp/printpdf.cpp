@@ -626,7 +626,7 @@ void Gui::exportAs(QString &suffix)
 
   // initialize progress bar
   m_cancelPrinting = false;
-  m_progressDialog->setWindowTitle("Print pdf");
+  m_progressDialog->setWindowTitle(QString("Export as %1").arg(suffix));
   m_progressDialog->show();
   m_progressDlgMessageLbl->setText(QString("Exporting instructions to %1 format.").arg(suffix));
 

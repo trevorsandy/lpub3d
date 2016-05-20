@@ -27,6 +27,6 @@ extern Gui *gui;
 #define DEFAULTS "Defaults"
 #define POVRAY   "POVRay"
 #define SETTINGS "Settings"
-#define WINDOW   "MainWindow"
+#define WINDOW   "DevMainWindow"
 
 #endif
