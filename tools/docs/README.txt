@@ -2,6 +2,9 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Fix QPainter alphaChannel management - use setCompositionMode (r619)
+-Update zlib reference for Qt 5.6.0 (r618)
+-Update minifig settings (move to ini file) - LeoCAD Changeset 1870 (r617)
 -Upgrade to Qt 5.6.0 Stable (debug build KO), Build and link own copy of zlib. (r616)
 -Upgrade base to Qt 5.6.0 beta (MSVC 2015) (r613)
 -Upgrade logging framework (r610)

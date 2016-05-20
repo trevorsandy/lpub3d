@@ -894,12 +894,15 @@ int Gui::addGraphicsPageItems(
                   page->meta.LPub.page.coverImage.tile.value()) {
 
                   QPixmap *qpixmap = new QPixmap(plPage.size[XX],plPage.size[YY]);
+                  qpixmap->fill(Qt::transparent);
 
                   QPainter painter(qpixmap);
-                  painter.setCompositionMode(QPainter::CompositionMode_Source);
-                  painter.fillRect(qpixmap->rect(), Qt::transparent);
+                  painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+//                  painter.setCompositionMode(QPainter::CompositionMode_Source);
+//                  painter.fillRect(qpixmap->rect(), Qt::transparent);
 
                   QImage   image(file);
+                  image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
                   if (page->meta.LPub.page.coverImage.stretch.value()) {
                       QSize psize = qpixmap->size();
                       QSize isize = image.size();
@@ -1430,11 +1433,12 @@ int Gui::addGraphicsPageItems(
     }
   }
 
-  QGraphicsDropShadowEffect *bodyShadow = new QGraphicsDropShadowEffect;
-  bodyShadow->setBlurRadius(9.0);
-  bodyShadow->setColor(QColor(0, 0, 0, 160));
-  bodyShadow->setOffset(4.0);
-  pageBg->setGraphicsEffect(bodyShadow);
+  // postpone body shadow
+//  QGraphicsDropShadowEffect *bodyShadow = new QGraphicsDropShadowEffect;
+//  bodyShadow->setBlurRadius(9.0);
+//  bodyShadow->setColor(QColor(0, 0, 0, 160));
+//  bodyShadow->setOffset(4.0);
+//  pageBg->setGraphicsEffect(bodyShadow);
 
   scene->addItem(pageBg);
   

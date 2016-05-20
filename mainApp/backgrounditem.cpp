@@ -64,10 +64,12 @@ void BackgroundItem::setBackground(
 
   QColor penColor,brushColor;
   QRectF prect(bt/2,bt/2,pixmap->width()-bt,pixmap->height()-bt); // was -1-bt
+  pixmap->fill(Qt::transparent);
 
   QPainter painter(pixmap);
-  painter.setCompositionMode(QPainter::CompositionMode_Source);
-  painter.fillRect(pixmap->rect(), Qt::transparent);
+  painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+//  painter.setCompositionMode(QPainter::CompositionMode_Source);
+//  painter.fillRect(pixmap->rect(), Qt::transparent);
 
   bool useGradient = false;
 
@@ -82,6 +84,7 @@ void BackgroundItem::setBackground(
           }
 
         QImage image(image_name);
+        image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
         if (backgroundData.stretch) {
             QSize psize = pixmap->size();
             QSize isize = image.size();
