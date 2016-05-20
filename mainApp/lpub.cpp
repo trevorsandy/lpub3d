@@ -1703,7 +1703,14 @@ void Gui::showLCStatusMessage(){
 
 void Gui::createDockWindows()
 {
+  #if (_MSC_VER >= 1400)
+    fileEditDockWindow = new QDockWidget(trUtf8("LDraw File Editor"), this);
+    modelDockWindow = new QDockWidget(trUtf8("3D Viewer - by LeoCAD"), this);
+  #else // not using MSVC
     fileEditDockWindow = new QDockWidget(trUtf8("LDraw\u2122 File Editor"), this);
+    modelDockWindow = new QDockWidget(trUtf8("3D Viewer - by LeoCAD\u00A9"), this);
+  #endif
+
     fileEditDockWindow->setObjectName("LDrawFileDockWindow");
     fileEditDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
@@ -1712,7 +1719,6 @@ void Gui::createDockWindows()
     addDockWidget(Qt::RightDockWidgetArea, fileEditDockWindow);
     viewMenu->addAction(fileEditDockWindow->toggleViewAction());
 //**3D
-    modelDockWindow = new QDockWidget(trUtf8("3D Viewer - by LeoCAD\u00A9"), this);
     modelDockWindow->setObjectName("ModelDockWindow");
     modelDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |

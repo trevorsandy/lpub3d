@@ -2,6 +2,9 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Cleanup 'Copyright' and 'Trademark' unicode (utf8) labels on MSVC2015 build (r622)
+-Supress MSVC type conversion warning C4267 (r621)
+-Fix QPainter alphaChannel management - use setCompositionMode (r620)
 -Fix QPainter alphaChannel management - use setCompositionMode (r619)
 -Update zlib reference for Qt 5.6.0 (r618)
 -Update minifig settings (move to ini file) - LeoCAD Changeset 1870 (r617)
