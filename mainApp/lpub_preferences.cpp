@@ -107,14 +107,23 @@ void Preferences::lpubPreferences()
     }
   lpub3dPath = cwd.absolutePath();
 
+  if (QDir(lpub3dPath + "/extras").exists()) {
+      lpubDataPath = lpub3dPath;
+    }
+  else
+    {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-  QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-  lpubDataPath = dataPathList.first();
+      QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+      lpubDataPath = dataPathList.first();
 #else
-  lpubDataPath  = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+      lpubDataPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 #endif
+    }
+
+  qDebug() << "LPub3D data path: " << lpubDataPath;
 
   QDir extrasDir(lpubDataPath + "/extras");
+
   if(!QDir(extrasDir).exists())
     extrasDir.mkpath(".");
 

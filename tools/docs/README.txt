@@ -2,7 +2,8 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
--Fix: Remove -w1 from default ldglite parms (r630)
+-Fix: If using LPub3D archive distribution (no installer), use distribution's extras folder instead of creating one in AppData (r630)
+-Fix: Remove -w1 from default ldglite parms (r629)
 -Fix: Periodic crash when changing margin of assembly (CSI) in multi-step page (r628) 
 -Fix: Periodic crash when adding divider to multi-step page or callouts (r628) 
 -Fix: Periodic crash every time a second successive rotation icon is added to multi-step page (r628)
