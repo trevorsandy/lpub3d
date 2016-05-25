@@ -24,9 +24,9 @@ class Gui;
 extern Gui *gui;
 
 // registry sections
-#define DEFAULTS "Defaults"
-#define POVRAY   "POVRay"
-#define SETTINGS "Settings"
-#define WINDOW   "DevMainWindow"
+#define DEFAULTS     "Defaults"
+#define POVRAY       "POVRay"
+#define SETTINGS     "Settings"
+#define MAINWINDOW   "DevMainWindow"
 
 #endif

@@ -329,8 +329,6 @@
 #ifndef GUI_H
 #define GUI_H
 
-#define MAINWINDOW   "MainWindow"
-
 #include <QtGlobal>
 #if QT_VERSION >= 0x050000
 #include <QtWidgets/QApplication>

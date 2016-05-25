@@ -32,7 +32,7 @@
 #include "QHBoxLayout"
 #include "QVBoxLayout"
 
-
+#include "name.h"
 #include "editwindow.h"
 #include "parmswindow.h"
 #include "paths.h"
