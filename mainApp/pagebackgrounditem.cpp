@@ -89,26 +89,6 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *backgroundAction = NULL;
   QAction *sizeAndOrientationAction = NULL;
 
-//      logTrace() << "Fired";
-  // change page background colour
-  backgroundAction = menu.addAction("Change Page Background");
-  backgroundAction->setIcon(QIcon(":/resources/background.png"));
-  backgroundAction->setWhatsThis("Change the background colour");
-
-  // change page size and orientation
-  sizeAndOrientationAction = menu.addAction("Change Page Size or Orientation");
-  sizeAndOrientationAction->setIcon(QIcon(":/resources/pagesizeandorientation.png"));
-  sizeAndOrientationAction->setWhatsThis("Change the page size and orientation");
-
-//  // change page size and orientation
-//  QAction *pageSizeAction = menu.addAction("Change Page Size");
-//  pageSizeAction->setIcon(QIcon(":/resources/pagesize.png"));
-
-//  // change page orientation
-//  QAction *pageOrientationAction = menu.addAction("Change Page Orientation");
-//  pageOrientationAction->setIcon(QIcon(":/resources/pageorientation.png"));
-
-
   Step    *lastStep = NULL;
   Step    *firstStep = NULL;
 
@@ -165,6 +145,25 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                                "and the submodel is displayed as a part in the parent step's "
                                "part list image.");
     }
+
+    //      logTrace() << "Fired";
+      // change page background colour
+      backgroundAction = menu.addAction("Change Page Background");
+      backgroundAction->setIcon(QIcon(":/resources/background.png"));
+      backgroundAction->setWhatsThis("Change the background colour");
+
+      // change page size and orientation
+      sizeAndOrientationAction = menu.addAction("Change Page Size or Orientation");
+      sizeAndOrientationAction->setIcon(QIcon(":/resources/pagesizeandorientation.png"));
+      sizeAndOrientationAction->setWhatsThis("Change the page size and orientation");
+
+    //  // change page size and orientation
+    //  QAction *pageSizeAction = menu.addAction("Change Page Size");
+    //  pageSizeAction->setIcon(QIcon(":/resources/pagesize.png"));
+
+    //  // change page orientation
+    //  QAction *pageOrientationAction = menu.addAction("Change Page Orientation");
+    //  pageOrientationAction->setIcon(QIcon(":/resources/pageorientation.png"));
 
     QAction *selectedAction     = menu.exec(event->screenPos());
 
