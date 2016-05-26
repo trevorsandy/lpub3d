@@ -348,6 +348,7 @@ void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   int  rc = step->Load3DCsi(step->csi3DName);
 
   if (rc == -1){
+      qDebug() << "\nCreating CsiItem 3D-render file: " << step->csi3DName;
       QStringList fileFilters;
       fileFilters << QString("%1_%2_*.ldr")
                      .arg(step->csiName())
