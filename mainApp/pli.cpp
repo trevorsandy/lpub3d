@@ -201,7 +201,6 @@ void Pli::setParts(
             }
         }
       } else if (pliMeta.sortBy.value() == SortOptionName[PartCategory]){
-
           // Sort tempParts by category
           for (int i = 0; i < tempParts.size() - 1; i++) {
               for (int j = i+1; j < tempParts.size(); j++) {
@@ -218,7 +217,7 @@ void Pli::setParts(
       int remainder   = tempParts.size() % gui->boms;
       int maxParts    = 0;
       int startIndex  = 0;
-      int partIndex   = 0;
+      int partIndex   = 0;   // using 0-based index
 
       if (gui->bomOccurrence == gui->boms){
           maxParts = gui->bomOccurrence * quotient + remainder;
@@ -232,11 +231,11 @@ void Pli::setParts(
       foreach(key,sortedKeys){
           PliPart *part;
           part = tempParts[key];
-          partIndex++;
 
-          if (partIndex >= startIndex && partIndex <= maxParts) {
+          if (partIndex >= startIndex && partIndex < maxParts) {
               parts.insert(key,part);
           }
+          partIndex++;
       }
       tempParts.clear();
       sortedKeys.clear();
