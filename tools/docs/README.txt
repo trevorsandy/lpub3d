@@ -2,6 +2,7 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Refactor: Update CSI image mousePressEvent logic (r640)
 -Fix: wrong text when you export to PNG the window title says "Print to pdf" (r638)
 -Fix: When publishing instructions with the option 0 !LPUB PAGE BACKGROUND TRANSPARENT a drop shadow layer was added (r637)
 -Optimization: Update file load progress messages (r636)
@@ -20,6 +21,7 @@ Features and enhancements
 -Fix: Crash when pieceinfo is null - this occurs when a file has no FILE meta and is imported as an ldr (versus an MPD) (r626)
 -Fix: Remove silent_alloc - meta-command (r625)
 -Fix: During installer installation, prompt user to overwrite existing configuration files (r624)
+-Update application name value to support development environment (r639)
 -Update build assets (r624)
 -Update ldglite hard-coded default directory setting to ldglite1.3.1(r623)
 -Cleanup 'Copyright' and 'Trademark' unicode (utf8) chars on MSVC2015 build (r622)

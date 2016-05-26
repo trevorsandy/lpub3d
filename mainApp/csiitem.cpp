@@ -359,7 +359,7 @@ void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         dir.rename(dirs.at(0), renderFileInfo.fileName());
         rc = step->Load3DCsi(step->csi3DName);
         if (rc != 0)
-          qDebug() << "\nCsiItem 3D-render failed to load " << step->csi3DName;
+          qDebug() << "\nCsiItem 3D-render failed to load: " << step->csi3DName;
       }
   }
 }
