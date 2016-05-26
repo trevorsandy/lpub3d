@@ -256,8 +256,9 @@ int Step::Load3DCsi(QString &csi3DName)
       return renderer->load3DCsiImage(csi3DName);
     } else {
       qDebug() << "3DViewer halted - rendering not allowed.";
+      return -1;
     }
-  return -1;
+  return 0;
 }
 
 /*
@@ -383,14 +384,14 @@ int Step::Load3DCsi(QString &csi3DName)
 
 const int stepNumberPlace[NumPlacements][2] =
 {
-  { TblSn0, TblSn0 },  // TopLeft
+  { TblSn0, TblSn0 },  // Top_Left
   { TblCsi, TblSn0 },  // Top
-  { TblSn1, TblSn0 },  // TopRight
+  { TblSn1, TblSn0 },  // Top_Right
   { TblSn1, TblCsi },  // Right
-  { TblSn1, TblSn1 },  // BOT_RIGHT
-  { TblCsi, TblSn1 },  // BOT
-  { TblSn0, TblSn1 },  // BOT_LEFT
-  { TblSn0, TblCsi },  // Left
+  { TblSn1, TblSn1 },  // BOTTOM_RIGHT
+  { TblCsi, TblSn1 },  // BOTTOM
+  { TblSn0, TblSn1 },  // BOTTOM_LEFT
+  { TblSn0, TblCsi },  // LEFT
   { TblCsi, TblCsi },
 };
 
@@ -401,14 +402,14 @@ const int stepNumberPlace[NumPlacements][2] =
 
 const int pliPlace[NumPlacements][2] =
 {
-  { TblPli0, TblPli0 }, // TopLeft
+  { TblPli0, TblPli0 }, // Top_Left
   { TblCsi,  TblPli0 }, // Top
-  { TblPli1, TblPli0 }, // TopRight
+  { TblPli1, TblPli0 }, // Top_Right
   { TblPli1, TblCsi  }, // Right
-  { TblPli1, TblPli1 }, // BOT_RIGHT
-  { TblCsi,  TblPli1 }, // BOT
-  { TblPli0, TblPli1 }, // BOT_LEFT
-  { TblPli0, TblCsi  }, // Left
+  { TblPli1, TblPli1 }, // BOTTOM_RIGHT
+  { TblCsi,  TblPli1 }, // BOTTOM
+  { TblPli0, TblPli1 }, // BOTTOM_LEFT
+  { TblPli0, TblCsi  }, // LEFT
   { TblCsi,  TblCsi },
 };
 
@@ -419,14 +420,14 @@ const int pliPlace[NumPlacements][2] =
 
 const int rotateIconPlace[NumPlacements][2] =
 {
- { TblRi0, TblRi0 },  // TopLeft
+ { TblRi0, TblRi0 },  // Top_Left
  { TblCsi, TblRi0 },  // Top
- { TblRi1, TblRi0 },  // TopRight
+ { TblRi1, TblRi0 },  // Top_Right
  { TblRi1, TblCsi },  // Right
- { TblRi1, TblRi1 },  // BOT_RIGHT
- { TblCsi, TblRi1 },  // BOT
- { TblRi0, TblRi1 },  // BOT_LEFT
- { TblRi0, TblCsi },  // Left
+ { TblRi1, TblRi1 },  // BOTTOM_RIGHT
+ { TblCsi, TblRi1 },  // BOTTOM
+ { TblRi0, TblRi1 },  // BOTTOM_LEFT
+ { TblRi0, TblCsi },  // LEFT
  { TblCsi, TblCsi },
 };
 
@@ -437,14 +438,14 @@ const int rotateIconPlace[NumPlacements][2] =
 
 const int coPlace[NumPlacements][2] =
 {
-  { TblCo2, TblCo2 }, // TopLeft
-  { TblCsi, TblCo2 }, // Top
-  { TblCo3, TblCo2 }, // TopRight
-  { TblCo3, TblCsi }, // Right
-  { TblCo3, TblCo3 }, // BottomRight
-  { TblCsi, TblCo3 }, // Bottom
-  { TblCo2, TblCo3 }, // BottomLeft
-  { TblCo2, TblCsi }, // Left
+  { TblCo3, TblCo3 }, // Top_Left
+  { TblCsi, TblCo3 }, // Top
+  { TblCo4, TblCo3 }, // Top_Right
+  { TblCo4, TblCsi }, // Right
+  { TblCo4, TblCo4 }, // BOTTOM_RIGHT
+  { TblCsi, TblCo4 }, // BOTTOM
+  { TblCo3, TblCo4 }, // BOTTOM_LEFT
+  { TblCo3, TblCsi }, // LEFT
   { TblCsi, TblCsi },
 };
 

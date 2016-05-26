@@ -87,18 +87,6 @@ class Steps;
  *  R1 - rotateIcon relateive to csi
  *  C7 - callout relative to rotateIcon
  *
- * const int stepNumberPlace[NumPlacements][2] =
-{
-  { TblSn0, TblSn0 },  // TopLeft
-  { TblCsi, TblSn0 },  // Top
-  { TblSn1, TblSn0 },  // TopRight
-  { TblSn1, TblCsi },  // Right
-  { TblSn1, TblSn1 },  // BOT_RIGHT
-  { TblCsi, TblSn1 },  // BOT
-  { TblSn0, TblSn1 },  // BOT_LEFT
-  { TblSn0, TblCsi },  // Left
-  { TblCsi, TblCsi },
-};
  */
 //---------------------------------------------------------------------------
 
@@ -112,25 +100,26 @@ enum Boundary {
   Middle             = 16
 };
 
-enum {
-TblCo0 = 0,
-TblRi0,
-TblCo1,
-TblSn0,
-TblCo2,
-TblPli0,
-TblCo3,
-TblCsi,
-TblCo4,
-TblPli1,
-TblCo5,
-TblSn1,
-TblCo6,
-TblRi1,
-TblCo7,
-NumPlaces
+enum {      // -1
+TblCo0 = 0, //  0  C0 - Callout relative to rotateIcon
+TblRi0,     //  1  R0 - RotateIcon relateive to csi
+TblCo1,     //  2  C1 - Callout relative to step number
+TblSn0,     //  3  S0 - Step number relative to csi
+TblCo2,     //  4  C2 - Callout relative to PLI
+TblPli0,    //  5  P0 - Pli relative to csi
+TblCo3,     //  6  C3 - Callout relative to csi
+TblCsi,     //  7  A  - Csi
+TblCo4,     //  8  C4 - Callout relative to csi
+TblPli1,    //  9  P1 - Pli relative to csi
+TblCo5,     //  10 C5 - Callout relative to PLI
+TblSn1,     //  11 S1 - Step number relative to csi
+TblCo6,     //  12 C6 - Callout relative to step number
+TblRi1,     //  13 R1 - RotateIcon relateive to csi
+TblCo7,     //  14 C7 - Callout relative to rotateIcon
+NumPlaces   //  15
 };
 
+// without RotateIcon placement value
 //enum {
 //  TblCo0 = 0,
 //  TblSn0,
