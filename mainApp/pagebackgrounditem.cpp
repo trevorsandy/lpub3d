@@ -137,7 +137,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
           "  is added to the set you are building");
       }
 
-      ignoreAction  = menu.addAction("Ignore this submodel");
+      ignoreAction = menu.addAction("Ignore this submodel");
       ignoreAction->setWhatsThis("Stops these steps from showing up in your instructions");
 
       partAction = menu.addAction("Treat as Part");
@@ -147,23 +147,15 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     }
 
     //      logTrace() << "Fired";
-      // change page background colour
-      backgroundAction = menu.addAction("Change Page Background");
-      backgroundAction->setIcon(QIcon(":/resources/background.png"));
-      backgroundAction->setWhatsThis("Change the background colour");
+    // change page background colour
+    backgroundAction = menu.addAction("Change Page Background");
+    backgroundAction->setIcon(QIcon(":/resources/background.png"));
+    backgroundAction->setWhatsThis("Change the background colour");
 
-      // change page size and orientation
-      sizeAndOrientationAction = menu.addAction("Change Page Size or Orientation");
-      sizeAndOrientationAction->setIcon(QIcon(":/resources/pagesizeandorientation.png"));
-      sizeAndOrientationAction->setWhatsThis("Change the page size and orientation");
-
-    //  // change page size and orientation
-    //  QAction *pageSizeAction = menu.addAction("Change Page Size");
-    //  pageSizeAction->setIcon(QIcon(":/resources/pagesize.png"));
-
-    //  // change page orientation
-    //  QAction *pageOrientationAction = menu.addAction("Change Page Orientation");
-    //  pageOrientationAction->setIcon(QIcon(":/resources/pageorientation.png"));
+    // change page size and orientation
+    sizeAndOrientationAction = menu.addAction("Change Page Size or Orientation");
+    sizeAndOrientationAction->setIcon(QIcon(":/resources/pagesizeandorientation.png"));
+    sizeAndOrientationAction->setWhatsThis("Change the page size and orientation");
 
     QAction *selectedAction     = menu.exec(event->screenPos());
 
@@ -188,28 +180,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
       }
 
-    if (selectedAction == backgroundAction) {
-        changeBackground("Page Background",
-                          page->top,
-                          page->bottom,
-                         &page->meta.LPub.page.background, useTop);
-    } else if (selectedAction == sizeAndOrientationAction) {
-        changeSizeAndOrientation("Size and Orientation",
-                                 page->top,
-                                 page->bottom,
-                                &page->meta.LPub.page.size,
-                                &page->meta.LPub.page.orientation, useTop);
-    } /* else if (selectedAction == pageSizeAction) {
-        changePageSize("Page Size",
-                                 page->top,
-                                 page->bottom,
-                                &page->meta.LPub.page.size,useTop);
-    } else if (selectedAction == pageOrientationAction) {
-        changePageOrientation("Page Orientation",
-                                 page->top,
-                                 page->bottom,
-                                &page->meta.LPub.page.orientation, useTop);
-    } */ else if (selectedAction == calloutAction) {
+    if (selectedAction == calloutAction) {
       convertToCallout(&page->meta, page->bottom.modelName, page->isMirrored, false);
     } else if (selectedAction == assembledAction) {
       convertToCallout(&page->meta, page->bottom.modelName, page->isMirrored, true);
@@ -221,6 +192,17 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       addNextMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps());
     } else if (selectedAction == addPrevAction) {
       addPrevMultiStep(firstStep->topOfSteps(),firstStep->bottomOfSteps());
+    } else if (selectedAction == backgroundAction) {
+        changeBackground("Page Background",
+                          page->top,
+                          page->bottom,
+                         &page->meta.LPub.page.background, useTop);
+    } else if (selectedAction == sizeAndOrientationAction) {
+        changeSizeAndOrientation("Size and Orientation",
+                                 page->top,
+                                 page->bottom,
+                                &page->meta.LPub.page.size,
+                                &page->meta.LPub.page.orientation, useTop);
     }
   }
 }

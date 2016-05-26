@@ -2,7 +2,9 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
--Refactor: Update CSI image mousePressEvent logic (r640)
+-Change: Update page background menu rearranged - see r641. (r642)
+-Change: Page background context menu rearranged. "Change page background" and "Change Page Size or Orientation" now appear at the end of the menu list because they are likely to be least often used. (r641)
+-Refactor: Update CSI image mousePressEvent logic. (r640)
 -Fix: wrong text when you export to PNG the window title says "Print to pdf" (r638)
 -Fix: When publishing instructions with the option 0 !LPUB PAGE BACKGROUND TRANSPARENT a drop shadow layer was added (r637)
 -Optimization: Update file load progress messages (r636)

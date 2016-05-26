@@ -1100,6 +1100,5 @@ int Render::load3DCsiImage(QString &csi3DName)
       qDebug() << "3D-render file does not exist: " << csi3DFile.fileName();
       return -1;
     }
-
   return 0;
 }
