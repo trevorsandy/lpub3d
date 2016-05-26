@@ -1540,9 +1540,12 @@ void MetaItem::insertCoverPage()
       rc = content.parse(line,here);
 
       if (rc == StepRc    ||
-          rc == RotStepRc ||
-          rc == StepGroupBeginRc) {             //check if line is 0 STEP
+          rc == RotStepRc) {                    //check if line is 0 STEP
           insertMeta(here,meta);                //STEP is there, so (insert) meta just before
+          break;
+      } else if (rc == StepGroupBeginRc) {
+          insertMeta(here,meta);                //MULTI-STEP BEGIN is here, so (insert) meta just before
+          appendMeta(here,step);                //then (append) step just after
           break;
       } else {                                  //NO STEP to start so...
           QStringList tokens;                   //check for non-zero line
