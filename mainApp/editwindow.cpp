@@ -229,7 +229,7 @@ void EditWindow::redraw()
 // QT manual says
 // void QWidget::adjustSize ()
 // Adjusts the size of the widget to fit its contents.
-  adjustSize(); //Does not work.
+//  adjustSize(); //Does not work.
 }
 
 QTextEditor::QTextEditor(QWidget *parent) :
