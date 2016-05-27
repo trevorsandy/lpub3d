@@ -2,6 +2,7 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Force to empty the cache before creating a PDF (r654)
 -Synchronize 'prev', 'next' and 'goto' page menu items (r653)
 -Supress rotateIcon from CSI (model) item context menu if callout and callout is not unassembled (r652)
 -Fix: When a CALLOUT allocation is changed, if you right-click a model in the callout and not the callout itself, the ALLOC meta is placed after the CALLOUT END and has no effect - meta appended but should be inserted (r650) 

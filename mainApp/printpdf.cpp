@@ -183,6 +183,10 @@ bool Gui::printToPdfDialog()
           exportOption  = EXPORT_PAGE_RANGE;
           pageRangeText = dialog->pageRangeText();
         }
+      if(dialog->resetCache()){
+          clearPLICache();
+          clearCSICache();
+        }
       printToPdfFile();
       return true;
     } else {

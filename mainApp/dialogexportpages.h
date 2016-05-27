@@ -33,6 +33,7 @@ public:
   bool allPages();
   bool currentPage();
   bool pageRange();
+  bool resetCache();
   QString const pageRangeText();
 
 private:

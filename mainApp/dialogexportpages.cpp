@@ -22,6 +22,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
   ui->setupUi(this);
 
   ui->radioButtonAllPages->setChecked(true);
+  ui->checkBoxResetCache->setChecked(false);
   ui->labelAllPages->setText(QString("1 to %1").arg(gui->maxPages));
   ui->labelCurrentPage->setText(QString("%1").arg(gui->displayPageNum));
 
@@ -29,18 +30,26 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     case EXPORT_PDF:
       setWindowTitle(tr("Print to pdf"));
       ui->groupBoxPrintOptions->setTitle("Print to pdf options");
+      ui->checkBoxResetCache->setText(tr("Reset all caches before printing pdf"));
+      ui->checkBoxResetCache->setToolTip(tr("Check to clear all caches before printing pdf"));
       break;
     case EXPORT_PNG:
       setWindowTitle(tr("Export as png"));
       ui->groupBoxPrintOptions->setTitle("Export as png options");
+      ui->checkBoxResetCache->setText(tr("Reset all caches before export to png"));
+      ui->checkBoxResetCache->setToolTip(tr("Check to clear all caches before export to png"));
       break;
     case EXPORT_JPG:
       setWindowTitle(tr("Export as jpg"));
       ui->groupBoxPrintOptions->setTitle("Export as jpg options");
+      ui->checkBoxResetCache->setText(tr("Reset all caches before export to jpg"));
+      ui->checkBoxResetCache->setToolTip(tr("Check to clear all caches before export to jpg"));
       break;
     case EXPORT_BMP:
       setWindowTitle(tr("Export as bmp"));
       ui->groupBoxPrintOptions->setTitle("Export as bmp options");
+      ui->checkBoxResetCache->setText(tr("Reset all caches before content export to bmp"));
+      ui->checkBoxResetCache->setToolTip(tr("Check to clear all caches before export to bmp"));
       break;
     }
 }
@@ -64,5 +73,9 @@ bool DialogExportPages::currentPage(){
 
 bool DialogExportPages::pageRange(){
   return ui->radioButtonPageRange->isChecked();
+}
+
+bool DialogExportPages::resetCache(){
+  return ui->checkBoxResetCache->isChecked();
 }
 
