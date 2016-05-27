@@ -2,6 +2,8 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Synchronize 'prev', 'next' and 'goto' page menu items (r653)
+-Supress rotateIcon from CSI (model) item context menu if callout and callout is not unassembled (r652)
 -Fix: When a CALLOUT allocation is changed, if you right-click a model in the callout and not the callout itself, the ALLOC meta is placed after the CALLOUT END and has no effect - meta appended but should be inserted (r650) 
 -Fix: Converting an assembly to a part results in a parse error when there are spaces in the file name (r649)
 -Fix: If a divided STEP GROUP allocation is changed from vertical (Display as columns - default) to horizontal (Display as rows),

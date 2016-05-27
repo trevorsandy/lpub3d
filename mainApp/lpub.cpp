@@ -203,31 +203,6 @@ void Gui::displayPage()
   emit messageSig(true,"Display page ready.");
 }
 
-void Gui::nextPage()
-{
-  countPages();
-  if (displayPageNum < maxPages) {
-    ++displayPageNum;
-    displayPage();
-  } else {
-    statusBarMsg("You're on the last page");
-  }
-}
-
-void Gui::prevPage()
-{
-  if (displayPageNum > 1) {
-    displayPageNum--;
-    displayPage();
-  }
-}
-
-void Gui::firstPage()
-{
-  displayPageNum = 1;
-  displayPage();
-}
-
 void Gui::clearAndRedrawPage()
 {
     if (getCurFile().isEmpty()) {
@@ -247,6 +222,101 @@ void Gui::clearAndRedrawPage()
            statusBarMsg("Assembly, Parts and 3D content caches reset.");
 }
 
+
+/*
+void Gui::nextPage()
+{
+  countPages();
+  if (displayPageNum < maxPages) {
+    ++displayPageNum;
+    displayPage();
+  } else {
+    statusBarMsg("You're on the last page");
+  }
+}
+
+void Gui::prevPage()
+{
+  if (displayPageNum > 1) {
+    displayPageNum--;
+    displayPage();
+  } else {
+     statusBarMsg("You're on the first page");
+  }
+} */
+
+void Gui::nextPage()
+{
+  QString string = setPageLineEdit->displayText();
+  QRegExp rx("^(\\d+)\\s+.*$");
+  if (string.contains(rx)) {
+      bool ok;
+      int inputPageNum;
+      inputPageNum = rx.cap(1).toInt(&ok);
+      if (ok && (inputPageNum != displayPageNum)) {		// numbers are different so jump to page
+          countPages();
+          if (inputPageNum <= maxPages) {
+              if (inputPageNum != displayPageNum) {
+                  displayPageNum = inputPageNum;
+                  displayPage();
+                  return;
+                }
+            } else {
+              statusBarMsg("Page number entered is higher than total pages");
+            }
+          string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+          setPageLineEdit->setText(string);
+          return;
+        } else {						// numbers are same so goto next page
+          countPages();
+          if (displayPageNum < maxPages) {
+              ++displayPageNum;
+              displayPage();
+            } else {
+              statusBarMsg("You are on the last page");
+            }
+        }
+    }
+}
+
+void Gui::prevPage()
+{
+  QString string = setPageLineEdit->displayText();
+  QRegExp rx("^(\\d+)\\s+.*$");
+  if (string.contains(rx)) {
+      bool ok;
+      int inputPageNum;
+      inputPageNum = rx.cap(1).toInt(&ok);
+      if (ok && (inputPageNum != displayPageNum)) {		// numbers are different so jump to page
+          countPages();
+          if (inputPageNum >= 1) {
+              if (inputPageNum != displayPageNum) {
+                  displayPageNum = inputPageNum;
+                  displayPage();
+                  return;
+                }
+            } else {
+              statusBarMsg("Page number entered is invalid");
+            }
+          string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+          setPageLineEdit->setText(string);
+          return;
+        } else {						// numbers are same so goto previous page
+                        if (displayPageNum > 1) {
+                                displayPageNum--;
+                                displayPage();
+                        } else {
+              statusBarMsg("You are on the first page");
+            }
+        }
+    }
+}
+
+void Gui::firstPage()
+{
+  displayPageNum = 1;
+  displayPage();
+}
 
 void Gui::lastPage()
 {
@@ -872,18 +942,20 @@ Gui::Gui()
     setCentralWidget(KpageView);
 
     mpdCombo = new QComboBox(this);
-    mpdCombo->setToolTip(tr("Go to Submodel"));
+    mpdCombo->setToolTip(tr("Current Submodel"));
     mpdCombo->setMinimumContentsLength(25);
     mpdCombo->setInsertPolicy(QComboBox::InsertAtBottom);
     mpdCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+    mpdCombo->setStatusTip("Use dropdown to select submodel");
     connect(mpdCombo,SIGNAL(activated(int)),
             this,    SLOT(mpdComboChanged(int)));
 
     setGoToPageCombo = new QComboBox(this);
-    setGoToPageCombo->setToolTip(tr("Go to Page"));
+    setGoToPageCombo->setToolTip(tr("Current Page"));
     setGoToPageCombo->setMinimumContentsLength(10);
     setGoToPageCombo->setInsertPolicy(QComboBox::InsertAtBottom);
     setGoToPageCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+    setGoToPageCombo->setStatusTip("Use dropdown to select page");
     connect(setGoToPageCombo,SIGNAL(activated(int)),
             this,            SLOT(setGoToPage(int)));
 
@@ -1414,6 +1486,8 @@ void Gui::createActions()
     QSize size = setPageLineEdit->sizeHint();
     size.setWidth(size.width()/3);
     setPageLineEdit->setMinimumSize(size);
+    setPageLineEdit->setToolTip("Current Page Index");
+    setPageLineEdit->setStatusTip("Enter index and hit enter to go to page");
     connect(setPageLineEdit, SIGNAL(returnPressed()), this, SLOT(setPage()));
 
     clearPLICacheAct = new QAction(QIcon(":/resources/clearplicache.png"),tr("Reset Parts Image Cache"), this);
