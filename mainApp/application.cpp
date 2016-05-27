@@ -241,25 +241,16 @@ void Application::initialize(int &argc, char **argv)
 #endif
 
   gui = new Gui();
+
   qDebug() << QString("-Initialize: New gui instance created.");
 
   if (!gui->Initialize3DViewer(argc, argv, m_libPath, m_LDrawPath)) {
       qDebug() << QString("Unable to initialize 3D Viewer.");
     }
-
-//  g_App = new lcApplication();
-//  if (!g_App->Initialize(argc, argv, m_libPath, m_LDrawPath)) {
-//      qDebug() << QString("Unable to initialize 3D Viewer.");
-//    }
-
-//  gMainWindow->SetColorIndex(lcGetColorIndex(4));
-//  gMainWindow->UpdateRecentFiles();
-
 }
 
 void Application::main()
 {
-//  gui = new Gui();
 
   splash->finish(gui);
 

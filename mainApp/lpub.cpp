@@ -915,17 +915,18 @@ Gui::Gui()
 
     connect(this,           SIGNAL(displayFileSig(LDrawFile *, const QString &)),
             editWindow,     SLOT(  displayFile   (LDrawFile *, const QString &)));
+
+    connect(this,           SIGNAL(displayParmsFileSig(const QString &)),
+            parmsWindow,    SLOT( displayParmsFile   (const QString &)));
+
     connect(this,           SIGNAL(showLineSig(int)),
             editWindow,     SLOT(  showLine(   int)));
-
-    connect(editWindow,     SIGNAL(contentsChange(const QString &,int,int,const QString &)),
-            this,           SLOT(  contentsChange(const QString &,int,int,const QString &)));
 
     connect(editWindow,     SIGNAL(redrawSig()),
             this,           SLOT(  clearAndRedrawPage()));
 
-    connect(this,           SIGNAL(displayParmsFileSig(const QString &)),
-            parmsWindow,    SLOT( displayParmsFile   (const QString &)));
+    connect(editWindow,     SIGNAL(contentsChange(const QString &,int,int,const QString &)),
+            this,           SLOT(  contentsChange(const QString &,int,int,const QString &)));
 
     connect(undoStack,      SIGNAL(canRedoChanged(bool)),
             this,           SLOT(  canRedoChanged(bool)));
@@ -933,12 +934,6 @@ Gui::Gui()
             this,           SLOT(  canUndoChanged(bool)));
     connect(undoStack,      SIGNAL(cleanChanged(bool)),
             this,           SLOT(  cleanChanged(bool)));
-
-    connect(this,           SIGNAL(halt3DViewerSig(bool)),
-            gMainWindow,    SLOT(  halt3DViewer   (bool)));
-
-    connect(this,           SIGNAL(enable3DActionsSig()),
-            gMainWindow,    SLOT(  enable3DActions()));
 
     connect(this, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
 
