@@ -1162,7 +1162,7 @@ void Step::addGraphicsItems(
     if (placementData.relativeTo == CalloutType) {
       callout->addGraphicsItems(offsetX-loc[XX],offsetY-loc[YY],rect,parent, movable);
     } else {
-      bool callout_movable = movable;
+      bool callout_movable = true /*movable*/;
       if (parentRelativeType == StepGroupType && placementData.relativeTo == StepGroupType) {
         callout_movable = true;
       }
