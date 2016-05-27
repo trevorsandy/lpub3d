@@ -740,11 +740,16 @@ void MetaItem::convertToPart(Meta *meta)
   QStringList tokens;
   split(line,tokens);
   if (tokens.size() == 15) {
+    //check for spaces in model name and wrap in quotes if yes
+    QString modelName = tokens[14];
+    if (modelName.contains(QRegExp("\\s+"))){
+        modelName = "\"" + modelName + "\"";
+      }
     beginMacro("submodelIsPart");
     insertMeta(here,      "0 !LPUB PART END");
     insertMeta(here,      "0 !LPUB PLI END");
     insertMeta(calledOut, "0 !LPUB PART BEGIN IGN");
-    insertMeta(calledOut, "0 !LPUB PLI BEGIN SUB " + tokens[14] + " " + tokens[1]);
+    insertMeta(calledOut, "0 !LPUB PLI BEGIN SUB " + modelName + " " + tokens[1]);
     endMacro();
   }
 }
