@@ -137,7 +137,7 @@ public:
 
   void changeAlloc(     const Where &, 
                         const Where &, 
-			                  AllocMeta   &,
+                        AllocMeta   &,
                         int   append = 1);
                         
   void changeBool(      const Where &, 

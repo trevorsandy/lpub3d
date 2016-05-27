@@ -866,6 +866,22 @@ void MetaItem::setMetaBottomOf(
    && lineNumber >= topOf.lineNumber 
    && lineNumber <= bottomOf.lineNumber;
 
+//  logInfo() << "\nSET META BOTTOM OF - "
+//            << "\nPAGE WHERE - "
+//            << " \nPage TopOf Model Name: "    << topOf.modelName
+//            << " \nPage TopOf Line Number: "   << topOf.lineNumber
+//            << " \nPage BottomOf Model Name: " << bottomOf.modelName
+//            << " \nPage BottomOf Line Number: "<< bottomOf.lineNumber
+//            << " \nHere Model Name: "          << meta->here().modelName
+//            << " \nHere Line Number: "         << meta->here().lineNumber
+//            << "\n --- "
+//            << " \nAppend: "                   << (append == 0 ? "NO" : "YES")
+//            << " \nMeta In Range: "            << (metaInRange ? "YES - Can replace Meta" : "NO")
+//            << " \nLine (Meta in Range): "     <<  meta->format(meta->pushed,meta->global)
+//            << " \nLine: "                     <<  meta->format(local, global)
+//            << "\n - "
+//            ;
+
   if (metaInRange) {
     QString line = meta->format(meta->pushed,meta->global);
     replaceMeta(meta->here(),line);
@@ -1497,9 +1513,28 @@ void MetaItem::changeAlloc(
   AllocMeta   &alloc,
   int          append)
 {
+  bool metaInRange;
+  metaInRange = alloc.here().lineNumber != 0 && alloc.here().modelName != "undefined";
+
+  logInfo() << "\nCHANGE ALLOC - "
+            << " \nHere Model Name: "          << alloc.here().modelName
+            << " \nHere Line Number: "         << alloc.here().lineNumber
+            << " \nAppend: "                   << (append == 0 ? "NO" : "YES")
+            << " \nMeta In Range: "            << (metaInRange ? QString("YES - Line %1").
+                                                               arg(alloc.format(alloc.pushed,alloc.global)) : "NO")
+            << "\n -- "
+            ;
+
   AllocEnc allocType = alloc.value();
   alloc.setValue(allocType == Vertical ? Horizontal : Vertical);
-  setMetaBottomOf(topOfSteps,bottomOfSteps,&alloc,append,false,false,false);
+
+  if (metaInRange) {
+      QString line = alloc.format(alloc.pushed,alloc.global);
+      replaceMeta(alloc.here(),line);
+    } else {
+      setMetaBottomOf(topOfSteps,bottomOfSteps,&alloc,append,false,false,false);
+    }
+
 }
 
 /********************************************************************
