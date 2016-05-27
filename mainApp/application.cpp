@@ -153,7 +153,7 @@ void Application::initialize(int &argc, char **argv)
   logger.setLoggingLevel(TraceLevel);
   logger.setIncludeLogLevel(true);
   logger.setIncludeTimestamp(false);
-  logger.setIncludeLineNumber(false);
+  logger.setIncludeLineNumber(true);
   logger.setIncludeFileName(true);
   logger.setColorizeOutput(true);
   logger.setColorizeFunctionInfo(true);

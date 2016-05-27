@@ -2,9 +2,10 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Fix: When a CALLOUT allocation is changed, if you right-click a model in the callout and not the callout itself, the ALLOC meta is placed after the CALLOUT END and has no effect - meta appended but should be inserted (r650) 
 -Fix: Converting an assembly to a part results in a parse error when there are spaces in the file name (r649)
--Fix: If a divided step group allocation is changed from vertical (Display as columns - default) to horizontal (Display as rows),
- selecting again Display as columns has no effect - meta appended versus replaced (r648)
+-Fix: If a divided STEP GROUP allocation is changed from vertical (Display as columns - default) to horizontal (Display as rows),
+ selecting again Display as columns has no effect - meta appended but should be replaced (r648)
 -Fix: When the "Redraw" icon is clicked on the LDraw File Editor window, the file editor resizes to 255x190 pixels (r647)
 -Fix: Split BOM duplicates one part onto current and subsequent BOM pages (r646)
 -Fix: Inserting a front cover page when the current first page is a multi step page (r645)

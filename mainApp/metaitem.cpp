@@ -871,7 +871,7 @@ void MetaItem::setMetaBottomOf(
    && lineNumber >= topOf.lineNumber 
    && lineNumber <= bottomOf.lineNumber;
 
-//  logInfo() << "\nSET META BOTTOM OF - "
+//  logTrace() << "\nSET META BOTTOM OF - "
 //            << "\nPAGE WHERE - "
 //            << " \nPage TopOf Model Name: "    << topOf.modelName
 //            << " \nPage TopOf Line Number: "   << topOf.lineNumber
@@ -885,7 +885,7 @@ void MetaItem::setMetaBottomOf(
 //            << " \nLine (Meta in Range): "     <<  meta->format(meta->pushed,meta->global)
 //            << " \nLine: "                     <<  meta->format(local, global)
 //            << "\n - "
-//            ;
+//               ;
 
   if (metaInRange) {
     QString line = meta->format(meta->pushed,meta->global);
@@ -1524,9 +1524,8 @@ void MetaItem::changeAlloc(
   logInfo() << "\nCHANGE ALLOC - "
             << " \nHere Model Name: "          << alloc.here().modelName
             << " \nHere Line Number: "         << alloc.here().lineNumber
-            << " \nAppend: "                   << (append == 0 ? "NO" : "YES")
-            << " \nMeta In Range: "            << (metaInRange ? QString("YES - Line %1").
-                                                               arg(alloc.format(alloc.pushed,alloc.global)) : "NO")
+            << " \nAppend: "                   << (metaInRange ? "NO" : alloc.format(false,false).contains("CALLOUT ALLOC") ? "NO" : append == 0 ? "NO" : "YES")
+            << " \nMeta In Range: "            << (metaInRange ? QString("YES - Line %1").arg(alloc.format(alloc.pushed,alloc.global)) : "NO")
             << "\n -- "
             ;
 
@@ -1537,6 +1536,9 @@ void MetaItem::changeAlloc(
       QString line = alloc.format(alloc.pushed,alloc.global);
       replaceMeta(alloc.here(),line);
     } else {
+      QString line = alloc.format(false,false);
+      if (line.contains("CALLOUT ALLOC"))
+        append = 0;
       setMetaBottomOf(topOfSteps,bottomOfSteps,&alloc,append,false,false,false);
     }
 
