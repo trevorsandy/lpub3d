@@ -591,7 +591,7 @@ void Gui::exportAs(QString &suffix)
       // release 3D Viewer
       halt3DViewer(false);
       // remove progress bar
-      emit removeProgressPermStatusSig();
+//      emit removeProgressPermStatusSig();
       return;
     }
   

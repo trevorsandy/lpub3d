@@ -818,7 +818,8 @@ private:
      int          &stepNum,
      Where        &current);      // fade parts in a step that are not current
 
-  static bool installPrintBanner(
+  static bool installExportBanner(
+    const int &type,
     const QString &printFile,
     const QString &imageFile);
 

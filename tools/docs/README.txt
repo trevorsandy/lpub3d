@@ -2,6 +2,8 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Unique splash 3D model displayed during pdf printing, png, jpg and bmp image export (r657)
+-Multi-step callouts are now movable (r656)
 -ldglite update to 1.3.1 executable with -2g,2x option hardcoded for sharper images with offscreen rendering (r655)
 -Force to empty the cache before creating a PDF (r654)
 -Synchronize 'prev', 'next' and 'goto' page menu items (r653)
