@@ -1197,10 +1197,6 @@ int Gui::addGraphicsPageItems(
           if ( ! step->onlyChild() && step->showStepNumber) {
             step->stepNumber.sizeit();
           }
-
-          // add the PLI graphically to the scene
-
-          step->pli.addPli(step->submodelLevel, pageBg);
           
           /* Size the callouts */   
           for (int i = 0; i < step->list.size(); i++) {
@@ -1255,6 +1251,10 @@ int Gui::addGraphicsPageItems(
           // place the CSI relative to the entire step's box
           step->csiItem->setPos(step->csiItem->loc[XX],
                                 step->csiItem->loc[YY]);
+
+          // add the PLI graphically to the scene
+
+          step->pli.addPli(step->submodelLevel, pageBg);
 
           // place the PLI relative to the entire step's box
           step->pli.setPos(step->pli.loc[XX],

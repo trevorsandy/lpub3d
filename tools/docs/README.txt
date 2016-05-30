@@ -2,6 +2,7 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-On single-step page, place PLI (Parts List) on top of CSI (Model) images (r664)
 -Upon reset image and model caches, reload current file, return to first page (r663)
 -Unique splash 3D model displayed during pdf printing, png, jpg and bmp image export (r657)
 -Multi-step callouts are now movable (r656)
