@@ -142,6 +142,8 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
         osPlatform   = "64-bit system";
     else if(OS == Win_32)
         osPlatform   = "32-bit system";
+    else if (OS == OsOther)
+        osPlatform  = "Other Operating System";
     else if (OS == OsError)
         osPlatform  = "Error encountered";
     else
@@ -252,9 +254,13 @@ QString AboutDialog::osName()
 #ifdef Q_OS_WIN
     switch(QSysInfo::windowsVersion())
     {
+      case QSysInfo::WV_5_1: return "Windows XP";
+      case QSysInfo::WV_5_2: return "Windows 2003";
+      case QSysInfo::WV_6_0: return "Windows Vista";
       case QSysInfo::WV_6_1: return "Windows 7";
       case QSysInfo::WV_6_2: return "Windows 8";
-      case QSysInfo::WV_6_3: return "Windows 8.1/10";
+      case QSysInfo::WV_6_3: return "Windows 8.1";
+      case QSysInfo::WV_10_0: return "Windows 10";
       default: return "Windows";
     }
 #endif
@@ -265,6 +271,7 @@ QString AboutDialog::osName()
       case QSysInfo::MV_MOUNTAINLION: return "OS X Mountain Lion";  // Version 10.8
       case QSysInfo::MV_MAVERICKS:    return "OS X Mavericks";      // version 10.9
       case QSysInfo::MW_YOSEMITE:     return "OS X Yosemite";       // Version 10.10
+      case QSysInfo::MV_ELCAPITAN:    return "OS X El Capitan";     // Version 10.11
       default: return "OS X";
     }
 #endif

@@ -52,9 +52,20 @@
 #define VER_SOURCE_URL              		"http://sourceforge.net/p/lpub3d/code/"
 #define VER_COMPANYDOMAIN_STR       		"http://sourceforge.net/projects/lpub3d/"
 
+#ifdef WIN32
+#if (_MSC_VER >= 1900)
 #define VER_COMPILED_ON             		"MSVC 2015"
 #define VER_COMPILED_FOR            		"MS Windows 32 bit, 64 bit"
 #define VER_COMPILED_WITH                   "Qt 5.6.0 (MSVC 2015 x86, x64)"
-#define VER_IDE                             "Visual Studio 2015 v14.0.24720.00 Update 1"
+#define VER_IDE                             "Visual Studio 2015 v14.0.25123.00 Update 2"
+#else
+#define VER_COMPILED_ON             		"MinGW (i686-4.9.2 32bit) Windows"
+#define VER_COMPILED_FOR            		"MS Windows 32 bit, 64 bit"
+#define VER_COMPILED_WITH                   "Qt 5.5.1 (MinGW 32bit)"
+#define VER_IDE                             "Qt Creator 4.0.0 on Qt 5.6.0 (MSVC 2013, x32)"
+#endif
+#else
+//MAC/Linux stuff
+#endif
 
 #endif // VERSION_H

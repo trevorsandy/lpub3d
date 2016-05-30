@@ -23,7 +23,7 @@ namespace Ui {
 class AboutDialog;
 }
 
-typedef enum { Win_64, Win_32, OsError, OSother } OsType;
+typedef enum { Win_64, Win_32, OsError, OsOther } OsType;
 typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 
 class AboutDialog : public QDialog

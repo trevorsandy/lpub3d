@@ -29,6 +29,7 @@ Features and enhancements
 -Refactor: Rearrange printToPdfFile page count (r632)
 -Refactor: Reposition rocessEvents statements (r631)
 -Rafactor: Supress MSVC type conversion warning C4267 (r621)
+-Update AboutDialog to recognize Win 10 and OSX El Capitan(r665)
 -Update application name value to support development environment (r639)
 -Update build assets (r624)
 -Update ldglite hard-coded default directory setting to ldglite1.3.1(r623)
