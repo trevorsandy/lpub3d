@@ -18,6 +18,7 @@ SplashScreen::SplashScreen(QWidget *parent) :
     QSplashScreen(parent), m_progress(0)
 
 {
+    this->setAttribute(Qt::WA_TranslucentBackground);
     this->setPixmap(QPixmap(":/resources/LPub512Splash.png"));
     this->setCursor(Qt::BusyCursor);
 
@@ -48,5 +49,5 @@ void SplashScreen::drawContents(QPainter *painter)
 }
 
 void SplashScreen::updateMessage(const QString &message){
-  this->showMessage(message, Qt::AlignBottom, Qt::white);
+  this->showMessage(message, Qt::AlignBottom | Qt::AlignCenter, Qt::white);
 }

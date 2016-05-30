@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "lc_global.h"
+//#include "splashscreen.h"
 
 
 /// The Application class is responsible for further initialization of the app
@@ -53,6 +54,7 @@ public:
 
     /// Initialize the splash screen
     QSplashScreen *splash;
+//    SplashScreen *splash;
 
 private:
     /// Qt application

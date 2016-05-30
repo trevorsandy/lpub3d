@@ -130,6 +130,7 @@ void Application::initialize(int &argc, char **argv)
   Preferences::lpubPreferences();
 
   // splash
+
   QPixmap pixmap(":/resources/LPub512Splash.png");
   splash = new QSplashScreen(pixmap);
 
@@ -142,6 +143,14 @@ void Application::initialize(int &argc, char **argv)
   splash->show();
 
   splash->showMessage(QSplashScreen::tr("LPub3D is loading..."),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
+
+  // splash new start
+//  splash = new SplashScreen();
+//  splash->show();
+//  splash->updateMessage(QSplashScreen::tr("%1 is loading...").arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+//  splash->setProgress(0);
+  // splash new end
+
   m_application.processEvents();
 
   using namespace QsLogging;
@@ -195,6 +204,9 @@ void Application::initialize(int &argc, char **argv)
       logger.setLoggingLevel(QsLogging::TraceLevel);
   } // end init logging
 
+//   splash->updateMessage("Logging loaded...");
+//   splash->setProgress(30);
+
   // Preferences
   Preferences::ldrawPreferences(false);
   Preferences::unitsPreferences();
@@ -239,18 +251,29 @@ void Application::initialize(int &argc, char **argv)
   m_LDrawPath = NULL;
 #endif
 
+//  splash->updateMessage("Preferences loaded...");
+//  splash->setProgress(60);
+
   gui = new Gui();
+
+//  splash->updateMessage("Gui loaded...");
+//  splash->setProgress(80);
 
   qDebug() << QString("-Initialize: New gui instance created.");
 
   if (!gui->Initialize3DViewer(argc, argv, m_libPath, m_LDrawPath)) {
       qDebug() << QString("Unable to initialize 3D Viewer.");
     }
+
+//  splash->updateMessage("3DViewer loaded...");
+//  splash->setProgress(90);
 }
 
 void Application::main()
 {
 
+//  splash->updateMessage("Finished loading...");
+//  splash->setProgress(100);
   splash->finish(gui);
 
   gui->show();
