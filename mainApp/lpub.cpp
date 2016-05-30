@@ -651,6 +651,11 @@ void Gui::clearImageModelCaches()
        clearCSICache();
        clearCSI3DCache();
 
+       //reload current model file
+       openFile(curFile);
+       displayPage();
+       enableActions();
+
        statusBarMsg("Assembly, Parts and 3D content caches reset.");
 }
 
