@@ -1,6 +1,6 @@
 ﻿/****************************************************************************
 **
-** Copyright (C) 2015 Trevor SANDY. All rights reserved.
+** Copyright (C) 2016 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
