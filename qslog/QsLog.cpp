@@ -162,8 +162,8 @@ LoggerImpl::LoggerImpl()
 	, includeLineNumber(true)
 	, includeFileName(true)
 	, includeFunctionInfo(true)
-	, colorizeOutput(true)
-	, colorizeFunctionInfo(true)
+	, colorizeOutput(false)
+	, colorizeFunctionInfo(false)
 {
     // assume at least file + console
     destList.reserve(2);
@@ -326,7 +326,7 @@ void Logger::setColorizeFunctionInfo(bool l)
 	    qDebug() << "QS_LOG Options Conflict: setColorizeFunctionInfo() is set to true but setColorizeOutput() is set to false.\n"
 			"colorizeOutput() has been internally set to true. Update your QS_LOG option setting.";
 	    d->colorizeOutput = l;
-	    d->includeFunctionInfo =l;
+	    d->includeFunctionInfo = l;
 	  }
 }
 

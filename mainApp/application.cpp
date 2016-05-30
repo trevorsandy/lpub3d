@@ -155,9 +155,8 @@ void Application::initialize(int &argc, char **argv)
   logger.setIncludeTimestamp(false);
   logger.setIncludeLineNumber(true);
   logger.setIncludeFileName(true);
-  logger.setColorizeOutput(true);
-  logger.setColorizeFunctionInfo(true);
-
+  logger.setColorizeFunctionInfo(true); //default should be false
+  logger.setColorizeOutput(true);       //default should be false
   // define log path
   QString lpubDataPath = Preferences::lpubDataPath;
   QDir logDir(lpubDataPath+"/logs");

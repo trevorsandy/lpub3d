@@ -830,7 +830,7 @@ int Gui::addGraphicsPageItems(
           categoryFront->setPos(categoryFront->loc[XX],categoryFront->loc[YY]);
       } */
 
-      // allocate QGraphicsTextItem for // documentLogoFront (Front Cover) //~~~~~~~~~~~~~~~~
+      // allocate QGraphicsPixmapItem for // documentLogoFront (Front Cover) //~~~~~~~~~~~~~~~~
       if (page->meta.LPub.page.documentLogoFront.display.value()) {
 
           QFileInfo fileInfo;
@@ -877,7 +877,7 @@ int Gui::addGraphicsPageItems(
           }
       }
 
-      // allocate QGraphicsTextItem for // coverImage (Front Cover) //~~~~~~~~~~~~~~~~
+      // allocate QGraphicsPixmapItem for // coverImage (Front Cover) //~~~~~~~~~~~~~~~~
       if (page->meta.LPub.page.coverImage.display.value()) {
 
           QFileInfo fileInfo;

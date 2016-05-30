@@ -17,6 +17,8 @@ Features and enhancements
 -Change: Update page background menu rearranged - see r641. (r642)
 -Change: Page background context menu rearranged. "Change page background" and "Change Page Size or Orientation" now appear at the end of the menu list because they are likely to be least often used. (r641)
 -Change: Point online manual to LPub3D content (r517)
+-Rafactor: Colour application output default set to off (r659)
+-Refactor: Define strcasecmp, strncasecmp in lc_global.h for MinGW builds only (r661)
 -Refactor: Replace 0x050000 with QT_VERSION_CHECK(5,0,0) (r660)
 -Refactor: Remove stretch/tile logic from coverImage management (r659)
 -Refactor: Remove QPainter::HighQualityAntialiasing obsolete renderHint (r658)
