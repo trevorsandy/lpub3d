@@ -38,9 +38,11 @@ typedef quintptr lcuintptr;
 
 #ifdef Q_OS_WIN
 #define snprintf _snprintf
-#define isnan _isnan              //enabled for VC2015 LPub3D 2.0
+#define isnan _isnan
+#if (_MSC_VER >= 1500)
 #define strcasecmp stricmp
 #define strncasecmp strnicmp
+#endif
 char* strcasestr(const char *s, const char *find);
 #else
 char* strupr(char* string);
