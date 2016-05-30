@@ -120,7 +120,6 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
   // set painter and render hints (initialized with pixmap)
   QPainter painter;
   painter.begin(pixmap);
-  painter.setRenderHints(QPainter::HighQualityAntialiasing,true);
   painter.setRenderHints(QPainter::Antialiasing,true);
 
         /* BACKGROUND */

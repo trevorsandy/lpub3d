@@ -313,7 +313,8 @@ void Gui::printToPdfFile()
         this,
         tr("Print File Name"),
         QDir::currentPath() + "/" + baseName,
-        tr("PDF (*.pdf)\nPDF (*.PDF)"));
+        tr("PDF (*.pdf)"));
+
   if (fileName == "") {
       // release 3D Viewer
       halt3DViewer(false);

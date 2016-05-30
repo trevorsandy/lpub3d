@@ -68,6 +68,7 @@ void BackgroundItem::setBackground(
 
   QPainter painter(pixmap);
   painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+  painter.setRenderHints(QPainter::Antialiasing,true);
 
   bool useGradient = false;
 
@@ -165,9 +166,6 @@ void BackgroundItem::setBackground(
   painter.setPen(pen);
   useGradient ? painter.setBrush(QBrush(setGradient())) :
   painter.setBrush(brushColor);
-
-  painter.setRenderHints(QPainter::HighQualityAntialiasing,true);
-  painter.setRenderHints(QPainter::Antialiasing,true);
 
   if (borderData.type == BorderData::BdrRound) {
       painter.drawRoundRect(prect,int(rx),int(ry));
