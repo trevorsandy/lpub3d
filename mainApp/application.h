@@ -15,7 +15,7 @@
 #define APPLICATION_H
 
 #include <QScopedPointer>
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 #include <QtWidgets/QApplication>
 #include <QtWidgets>
 #else

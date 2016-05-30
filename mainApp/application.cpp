@@ -109,7 +109,7 @@ Application::Application(int &argc, char **argv)
 {
   m_instance = this;
 
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
   m_application.setAttribute(Qt::AA_UseDesktopOpenGL);
 #endif
 

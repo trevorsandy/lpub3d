@@ -872,7 +872,7 @@ void lcCamera::Orbit(float DistanceX, float DistanceY, const lcVector3& CenterPo
 	lcVector3 FrontVector(mPosition - mTargetPosition);
 
 	lcVector3 Z(lcNormalize(lcVector3(FrontVector[0], FrontVector[1], 0)));
-//#if QT_VERSION >= 0x050000
+//#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 //	if (std::isnan(Z[0]) || std::isnan(Z[1]))
 //#else
 	if (isnan(Z[0]) || isnan(Z[1]))

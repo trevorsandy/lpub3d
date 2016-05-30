@@ -42,7 +42,7 @@
 #ifndef GRADIENTS_H
 #define GRADIENTS_H
 
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 #include <QtWidgets>
 #else
 #include <QtGui>
@@ -206,7 +206,7 @@ private:
 };
 
 #if defined(QT_OPENGL_SUPPORT)
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 #include <QOpenGLWidget>
 #else
 #include <QGLWidget>

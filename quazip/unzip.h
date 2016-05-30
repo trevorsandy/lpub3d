@@ -54,7 +54,7 @@ extern "C" {
 
 #ifndef _ZLIB_H
   #include <QtGlobal>
-  #if QT_VERSION >= 0x050000
+  #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 	#if (_MSC_VER >= 1400)
 		#include <QtZlib/zlib.h>
 	#else // not using MSVC

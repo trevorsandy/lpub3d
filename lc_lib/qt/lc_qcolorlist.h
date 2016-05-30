@@ -2,7 +2,7 @@
 #define _LC_QCOLORLIST_H_
 
 #include "lc_global.h"
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 #include <QtWidgets/QWidget>
 #else
 #include <QWidget>

@@ -17,6 +17,7 @@ Features and enhancements
 -Change: Update page background menu rearranged - see r641. (r642)
 -Change: Page background context menu rearranged. "Change page background" and "Change Page Size or Orientation" now appear at the end of the menu list because they are likely to be least often used. (r641)
 -Change: Point online manual to LPub3D content (r517)
+-Refactor: Replace 0x050000 with QT_VERSION_CHECK(5,0,0)
 -Refactor: Remove stretch/tile logic from coverImage management (r659)
 -Refactor: Remove QPainter::HighQualityAntialiasing obsolete renderHint (r658)
 -Refactor: Update CSI image mousePressEvent logic. (r640)
