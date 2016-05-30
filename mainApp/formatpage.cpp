@@ -30,7 +30,6 @@
 #include <QScrollBar>
 #include <QPixmap>
 #include <QBitmap>
-#include <QPainter>
 #include <QColor>
 #include "callout.h"
 #include "lpub.h"
@@ -888,66 +887,32 @@ int Gui::addGraphicsPageItems(
 
           if (fileInfo.exists()) {
 
-              if (page->meta.LPub.page.coverImage.stretch.value() ||
-                  page->meta.LPub.page.coverImage.tile.value()) {
+              QPixmap qpixmap;
+              qpixmap.load(file);
+              pixmapCoverImageFront
+                  = new PageAttributePixmapItem(
+                    page,
+                    qpixmap,
+                    page->meta.LPub.page.coverImage,
+                    pageBg);
 
-                  QPixmap *qpixmap = new QPixmap(plPage.size[XX],plPage.size[YY]);
-                  qpixmap->fill(Qt::transparent);
+              page->addPageAttributePixmap(pixmapCoverImageFront);
+              pixmapCoverImageFront->setTransformationMode(Qt::SmoothTransformation);
+              pixmapCoverImageFront->setScale(picScale,picScale);
 
-                  QPainter painter(qpixmap);
-                  painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+              int margin[2] = {0, 0};
 
-                  QImage   image(file);
-                  image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-                  if (page->meta.LPub.page.coverImage.stretch.value()) {
-                      QSize psize = qpixmap->size();
-                      QSize isize = image.size();
-                      qreal sx = psize.width();
-                      qreal sy = psize.height();
-                      sx /= isize.width();
-                      sy /= isize.height();
-                      painter.scale(sx,sy);
-                      painter.drawImage(0,0,image);
-                    } else if (page->meta.LPub.page.coverImage.tile.value()){
-                      for (int y = 0; y < qpixmap->height(); y += image.height()) {
-                          for (int x = 0; x < qpixmap->width(); x += image.width()) {
-                              painter.drawImage(x,y,image);
-                            }
-                        }
-                    }
+              PlacementData pld = pixmapCoverImageFront->placement.value();
+              if (pld.relativeTo == PageType) {
+                  plPage.placeRelative(pixmapCoverImageFront, margin);
+                } else {
+                  pixmapCoverImageFront->placement.setValue(CenterCenter,PageType);
+                  plPage.placeRelative(pixmapCoverImageFront, margin);
+                }
+              pixmapCoverImageFront->relativeToSize[0] = plPage.size[XX];
+              pixmapCoverImageFront->relativeToSize[1] = plPage.size[YY];
+              pixmapCoverImageFront->setPos(pixmapCoverImageFront->loc[XX],pixmapCoverImageFront->loc[YY]);
 
-                   QColor brushColor;
-                   brushColor = Qt::transparent;
-                   // unfinished - need to implement placement
-
-              } else {
-
-                  QPixmap qpixmap;
-                  qpixmap.load(file);
-                  pixmapCoverImageFront
-                          = new PageAttributePixmapItem(
-                              page,
-                              qpixmap,
-                              page->meta.LPub.page.coverImage,
-                              pageBg);
-
-                  page->addPageAttributePixmap(pixmapCoverImageFront);
-                  pixmapCoverImageFront->setTransformationMode(Qt::SmoothTransformation);
-                  pixmapCoverImageFront->setScale(picScale,picScale);
-
-                  int margin[2] = {0, 0};
-
-                  PlacementData pld = pixmapCoverImageFront->placement.value();
-                  if (pld.relativeTo == PageType) {
-                      plPage.placeRelative(pixmapCoverImageFront, margin);
-                  } else {
-                      pixmapCoverImageFront->placement.setValue(CenterCenter,PageType);
-                      plPage.placeRelative(pixmapCoverImageFront, margin);
-                  }
-                  pixmapCoverImageFront->relativeToSize[0] = plPage.size[XX];
-                  pixmapCoverImageFront->relativeToSize[1] = plPage.size[YY];
-                  pixmapCoverImageFront->setPos(pixmapCoverImageFront->loc[XX],pixmapCoverImageFront->loc[YY]);
-              }
           }
       }
   }
