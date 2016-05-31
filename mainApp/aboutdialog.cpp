@@ -252,6 +252,7 @@ void AboutDialog::showCreditDetails(bool clicked){
 QString AboutDialog::osName()
 {
 #ifdef Q_OS_WIN
+  #if QT_VERSION >= QT_VERSION_CHECK(5,5,0)
     switch(QSysInfo::windowsVersion())
     {
       case QSysInfo::WV_5_1: return "Windows XP";
@@ -263,8 +264,21 @@ QString AboutDialog::osName()
       case QSysInfo::WV_10_0: return "Windows 10";
       default: return "Windows";
     }
+  #else
+  switch(QSysInfo::windowsVersion())
+  {
+    case QSysInfo::WV_5_1: return "Windows XP";
+    case QSysInfo::WV_5_2: return "Windows 2003";
+    case QSysInfo::WV_6_0: return "Windows Vista";
+    case QSysInfo::WV_6_1: return "Windows 7";
+    case QSysInfo::WV_6_2: return "Windows 8";
+    case QSysInfo::WV_6_3: return "Windows 8.1 or later";
+    default: return "Windows";
+  }
+  #endif
 #endif
 #ifdef Q_OS_MAC
+  #if QT_VERSION >= QT_VERSION_CHECK(5,5,0)
     switch(QSysInfo::MacintoshVersion)
     {
       case QSysInfo::MV_LION:         return "OS X Lion";           // Version 10.7
@@ -274,6 +288,16 @@ QString AboutDialog::osName()
       case QSysInfo::MV_ELCAPITAN:    return "OS X El Capitan";     // Version 10.11
       default: return "OS X";
     }
+  #else
+  switch(QSysInfo::MacintoshVersion)
+  {
+    case QSysInfo::MV_LION:         return "OS X Lion";                    // Version 10.7
+    case QSysInfo::MV_MOUNTAINLION: return "OS X Mountain Lion";           // Version 10.8
+    case QSysInfo::MV_MAVERICKS:    return "OS X Mavericks";               // version 10.9
+    case QSysInfo::MW_YOSEMITE:     return "OS X Yosemite or later";       // Version 10.10
+    default: return "OS X";
+  }
+  #endif
 #endif
 
 }

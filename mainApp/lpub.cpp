@@ -1090,7 +1090,7 @@ Gui::~Gui()
 void Gui::closeEvent(QCloseEvent *event)
 {
 
-  //writeSettings();
+  writeSettings();
 
   if (maybeSave() /*&& gMainWindow->SaveProjectIfModified()*/) {
 
@@ -1915,11 +1915,11 @@ void Gui::writeSettings()
 {
 // Crashes the viewer window
 
-//    QSettings Settings;
-//    Settings.beginGroup(MAINWINDOW);
+    QSettings Settings;
+    Settings.beginGroup(MAINWINDOW);
 //    Settings.setValue("pos", pos());
-//    Settings.setValue("size", size());
-//    Settings.endGroup();
+    Settings.setValue("size", size());
+    Settings.endGroup();
 
 }
 
