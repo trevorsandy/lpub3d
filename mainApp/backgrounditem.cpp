@@ -64,6 +64,7 @@ void BackgroundItem::setBackground(
 
   QColor penColor,brushColor;
   QRectF prect(bt/2,bt/2,pixmap->width()-bt,pixmap->height()-bt); // was -1-bt
+
   pixmap->fill(Qt::transparent);
 
   QPainter painter(pixmap);
@@ -104,7 +105,11 @@ void BackgroundItem::setBackground(
       }
       break;
     case BackgroundData::BgTransparent:
-      brushColor = Qt::transparent;
+      {
+        QColor backgroundColor = Qt::white;
+        backgroundColor.setAlpha(1);
+        brushColor = backgroundColor /*Qt::transparent*/;
+      }
       break;
     case BackgroundData::BgGradient:
       useGradient = true;
@@ -165,6 +170,7 @@ void BackgroundItem::setBackground(
 
   painter.setPen(pen);
   useGradient ? painter.setBrush(QBrush(setGradient())) :
+
   painter.setBrush(brushColor);
 
   if (borderData.type == BorderData::BdrRound) {

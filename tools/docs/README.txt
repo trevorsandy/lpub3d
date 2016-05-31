@@ -1,7 +1,7 @@
 LPub3D 2.0.0.
  
 Features and enhancements 
------------- 
+------------  
 -Supress rotateIcon context menu item if icon already inserted for step (r670)
 -On single-step page, place PLI (Parts List) on top of CSI (Model) images (r664)
 -Upon reset image and model caches, reload current file, return to first page (r663)
@@ -37,6 +37,7 @@ Features and enhancements
 -Update: ldglite hard-coded default directory setting to ldglite1.3.1(r623)
 -Update: zlib reference for Qt 5.6.0 (r618)
 -Update: minifig settings (move to ini file) - LeoCAD Changeset 1870 (r617)
+-Fix: When background is transparent context menu functionality is lost (fix is a hack which sets the bg-color to white with an alpha of 1.) (r672)
 -Fix: When a CALLOUT allocation is changed, if you right-click a model in the callout and not the callout itself, the ALLOC meta is placed after the CALLOUT END and has no effect - meta appended but should be inserted (r650) 
 -Fix: Converting an assembly to a part results in a parse error when there are spaces in the file name (r649)
 -Fix: If a divided STEP GROUP allocation is changed from vertical (Display as columns - default) to horizontal (Display as rows),
