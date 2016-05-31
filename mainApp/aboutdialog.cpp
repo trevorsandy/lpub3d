@@ -137,6 +137,7 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     QString osPlatform;
+#ifdef Q_OS_WIN
     int OS = checkOS();
     if (OS == Win_64)
         osPlatform   = "64-bit system";
@@ -148,6 +149,11 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
         osPlatform  = "Error encountered";
     else
         osPlatform = "Cannot determine system";
+#endif
+#ifdef Q_OS_MAC
+    osPlatform = QSysInfo::currentCpuArchitecture();
+#endif
+    //TODO add Linus check
 
     QString OsInfoFormat = tr("<table style=""width:100%"">"
                               "<tr>"
@@ -299,7 +305,7 @@ QString AboutDialog::osName()
   }
   #endif
 #endif
-
+ //TODO add Linux Check
 }
 
 OsType AboutDialog::checkOS()
