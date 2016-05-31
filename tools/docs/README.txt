@@ -31,12 +31,12 @@ Features and enhancements
 -Refactor: Reposition rocessEvents statements (r631)
 -Rafactor: Supress MSVC type conversion warning C4267 (r621)
 -Update: Change copyright to 2016 (r666)
--Update AboutDialog to recognize Win 10 and OSX El Capitan(r665/r668/r669)
--Update application name value to support development environment (r639)
--Update build assets (r624)
--Update ldglite hard-coded default directory setting to ldglite1.3.1(r623)
--Update zlib reference for Qt 5.6.0 (r618)
--Update minifig settings (move to ini file) - LeoCAD Changeset 1870 (r617)
+-Update: AboutDialog to recognize Win 10 and OSX El Capitan(r665/r668/r669)
+-Update: application name value to support development environment (r639)
+-Update: build assets (r624)
+-Update: ldglite hard-coded default directory setting to ldglite1.3.1(r623)
+-Update: zlib reference for Qt 5.6.0 (r618)
+-Update: minifig settings (move to ini file) - LeoCAD Changeset 1870 (r617)
 -Fix: When a CALLOUT allocation is changed, if you right-click a model in the callout and not the callout itself, the ALLOC meta is placed after the CALLOUT END and has no effect - meta appended but should be inserted (r650) 
 -Fix: Converting an assembly to a part results in a parse error when there are spaces in the file name (r649)
 -Fix: If a divided STEP GROUP allocation is changed from vertical (Display as columns - default) to horizontal (Display as rows),
@@ -46,31 +46,60 @@ Features and enhancements
 -Fix: Inserting a front cover page when the current first page is a multi step page (r645)
 -Fix: Bug when using callouts in Multistep sequences. When you place your callout right from assembly, it appears on the left side. When you place your callout bottom, it appears on the top. (r643)
 -Fix: wrong text when you export to PNG the window title says "Print to pdf" (r638)
--Fix: When publishing instructions with the option 0 !LPUB PAGE BACKGROUND TRANSPARENT a drop shadow layer was added (r637)
--Fix: 2 page refreshes when Parameters menu item is accpeted - only a single refresh needed. (r635)
--Fix: Upon "Add assembled image to parent page" a rotation icon is added to the callout if rotation icons were present in the callout step(s). Assembled and rotated callouts will not display rotate icons on the parent page. Only unassembled callouts will display rotate icons if present in the callout step(s). (r634)
--Fix: Print/export dialog progress bar (r633) 
--Fix: If using LPub3D archive distribution (no installer), use distribution's extras folder instead of creating one in AppData (r630)
+-Fix: When publishing instructions with the option 0 !LPUB PAGE BACKGROUND TRANSPARENT a drop shadow layer was added (r637) 
 -Fix: Remove -w1 from default ldglite parms (r629)
 -Fix: Periodic multi-step crash - 3DViewer image file line number mismatch (r628)
--Fix: Periodic crash when changing margin of assembly (CSI) in multi-step page (r628) 
--Fix: Periodic crash when adding divider to multi-step page or callouts (r628) 
--Fix: Periodic crash every time a second successive rotation icon is added to multi-step page (r628)
 -Fix: Control manual page number entry (r627) 
--Fix: Crash when pieceinfo is null - this occurs when a file has no FILE meta and is imported as an ldr (versus an MPD) (r626)
--Fix: Remove silent_alloc - meta-command (r625)
--Fix: During installer installation, prompt user to overwrite existing configuration files (r624)
 -Fix: Cleanup 'Copyright' and 'Trademark' unicode (utf8) chars on MSVC2015 build (r622)
 -Fix: QPainter alphaChannel management - use setCompositionMode (r619/r620)
--Fix: PLI Parts annotation restored to short value (r555)
--Fix: Update ldglite hard-coded default directory setting (r505) - Supersceded
+-Upgrade: to Qt 5.6.0 Stable (debug build KO), Build and link own copy of zlib. (r616)
+-Upgrade: base to Qt 5.6.0 (MSVC 2015) (r613)
+-Upgrade: logging framework (r610)
+-Upgrade: base to Qt 5.5.1 (MinGW) platform (r608)
+
+LPub3D 1.3.5.615.2 
+ 
+Features and enhancements 
+------------ 
+-Fix: Pdf output restored to vector graphics - was being formatted as bitmap because conflicting setting was exposed during printing. (r615) 
+ 
+LPub3D 1.3.4.591.2 
+ 
+Features and enhancements 
+------------ 
+-Fix: During installer installation, prompt user to overwrite existing configuration files (r591) 
+ 
+LPub3D 1.3.3.590.2 
+ 
+Features and enhancements 
+------------ 
+-Fix: Crash when pieceinfo is null - this occurs when a file has no FILE meta and is imported as an ldr (versus an mpd).(r575) 
+-Fix: Periodic crash when changing margin of assembly (CSI) in multi-step page (r577) 
+-Fix: Periodic crash when adding divider to multi-step page or callouts (r577) 
+-Fix: Periodic crash every time a second successive rotation icon is added to multi-step page (r577) 
+-Fix: If using LPub3D archive distribution (no installer), use distribution's extras folder instead of creating one in AppData (r579) 
+-Fix: Print/export dialog progress bar (r585) 
+-Fix: Upon "Add assembled image to parent page" a rotation icon is added to the callout if rotation icons were present in the callout step(s). Assembled and rotated callouts will not display rotate icons on the parent page. Only unassembled callouts will display rotate icons if present in the callout step(s). (r587) 
+-Fix: 2 page refreshes when Parameters menu item is accpeted - only a single refresh needed. (r588) 
+ 
+LPub3D 1.3.2.563.5 
+ 
+Features and enhancements 
+------------ 
+-Fix: PLI Parts annotation restored to short value (r555) 
+-Fix: Control manual page number entry. (r562) 
+-Fix: Remove silent_alloc which would trap the Callout meta LPUB CALLOUT HORIZONTAL/VERTICAL and throw a parse error. 
+ However silent_alloc was not fully implemented and does not serve any current purpose. 
+ The correct meta to allocate a Callout Horizontally or Vertically is LPUB CALLOUT ALLOC HORIZONTAL/VERTICAL (r563)
+ 
+LPub3D 1.3.1.516.3 
+ 
+Features and enhancements 
+------------ 
+-Fix: Update ldglite hard-coded default directory setting (r505) 
 -Fix: Remove hard coded reference to LPub3DViewer-Library folder - this was added in 1.3.0 unofficial archive refresh functionality (r506) 
--Fix: Add pliSubstituteParts.lst to media build - sorry, I forgot to include in the NSIS build script:-( (r515) - Supersceded
--Upgrade to Qt 5.6.0 Stable (debug build KO), Build and link own copy of zlib. (r616)
--Upgrade base to Qt 5.6.0 (MSVC 2015) (r613)
--Upgrade logging framework (r610)
--Upgrade base to Qt 5.5.1 (MinGW) platform (r608)
 -Enhancements (r507) 
+-Fix: Add pliSubstituteParts.lst to media build - sorry, I forgot to include in the NSIS build script:-( (r515) 
  
 LPub3D 1.3.0.504.2 
  
