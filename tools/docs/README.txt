@@ -2,6 +2,7 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------ 
+-Supress rotateIcon context menu item if icon already inserted for step (r670)
 -On single-step page, place PLI (Parts List) on top of CSI (Model) images (r664)
 -Upon reset image and model caches, reload current file, return to first page (r663)
 -Unique splash 3D model displayed during pdf printing, png, jpg and bmp image export (r657)
@@ -60,16 +61,15 @@ Features and enhancements
 -Fix: Remove silent_alloc - meta-command (r625)
 -Fix: During installer installation, prompt user to overwrite existing configuration files (r624)
 -Fix: Cleanup 'Copyright' and 'Trademark' unicode (utf8) chars on MSVC2015 build (r622)
--Fix: QPainter alphaChannel management - use setCompositionMode (r620)
--Fix: QPainter alphaChannel management - use setCompositionMode (r619)
+-Fix: QPainter alphaChannel management - use setCompositionMode (r619/r620)
 -Fix: PLI Parts annotation restored to short value (r555)
 -Fix: Update ldglite hard-coded default directory setting (r505) - Supersceded
 -Fix: Remove hard coded reference to LPub3DViewer-Library folder - this was added in 1.3.0 unofficial archive refresh functionality (r506) 
 -Fix: Add pliSubstituteParts.lst to media build - sorry, I forgot to include in the NSIS build script:-( (r515) - Supersceded
 -Upgrade to Qt 5.6.0 Stable (debug build KO), Build and link own copy of zlib. (r616)
--Upgrade base to Qt 5.6.0 beta (MSVC 2015) (r613)
+-Upgrade base to Qt 5.6.0 (MSVC 2015) (r613)
 -Upgrade logging framework (r610)
--Upgrade base to Qt 5.5.1 platform (r608)
+-Upgrade base to Qt 5.5.1 (MinGW) platform (r608)
 -Enhancements (r507) 
  
 LPub3D 1.3.0.504.2 

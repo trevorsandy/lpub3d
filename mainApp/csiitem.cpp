@@ -242,12 +242,14 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   QAction *insertRotateIconAction = NULL;
 
-  if (parentRelativeType != CalloutType) {
-      insertRotateIconAction = menu.addAction("Add Rotate Icon");
-      insertRotateIconAction->setIcon(QIcon(":/resources/rotateicon.png"));
-    } else if (meta->LPub.callout.begin.mode == CalloutBeginMeta::Unassembled) {
-      insertRotateIconAction = menu.addAction("Add Rotate Icon");
-      insertRotateIconAction->setIcon(QIcon(":/resources/rotateicon.png"));
+  if (! step->placeRotateIcon) { // rotate icon already in place so don't show menu item
+      if (parentRelativeType != CalloutType) {
+          insertRotateIconAction = menu.addAction("Add Rotate Icon");
+          insertRotateIconAction->setIcon(QIcon(":/resources/rotateicon.png"));
+        } else if (meta->LPub.callout.begin.mode == CalloutBeginMeta::Unassembled) {
+          insertRotateIconAction = menu.addAction("Add Rotate Icon");
+          insertRotateIconAction->setIcon(QIcon(":/resources/rotateicon.png"));
+        }
     }
 
   QAction *selectedAction = menu.exec(event->screenPos());
