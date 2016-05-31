@@ -108,8 +108,8 @@ public:
         bool                     doReload)
         {_doReload             = doReload;}
 
-    void resetSearchDirSettings(bool reset)
-        {_resetSearchDirSettings = reset;
+    void resetSearchDirSettings()
+        {_resetSearchDirSettings = true;
          ldsearchDirPreferences();}
 
     void ldsearchDirPreferences();

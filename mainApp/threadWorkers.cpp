@@ -39,19 +39,10 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
 void PartWorker::ldsearchDirPreferences(){
 
   QSettings Settings;
-
   QString const LdrawiniFilePathKey("LDrawIniFile");
-  QString const LdrawIniFound("LDrawIniFound");
-  bool ldrawIniFoundReg    = false;
+  QString const LdSearchDirsKey("LDSearchDirs");
 
-  if (Settings.contains(QString("%1/%2").arg(SETTINGS,LdrawIniFound))) {
-      ldrawIniFoundReg = Settings.value(QString("%1/%2").arg(SETTINGS,LdrawIniFound)).toBool();
-    } else {
-      QVariant pValue(ldrawIniFoundReg);
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,LdrawIniFound),pValue);
-    }
-
- // qDebug() << QString(tr("01 ldrawIniFoundReg(Original) = %1").arg((ldrawIniFoundReg ? "True" : "False")));
+  // qDebug() << QString(tr("01 ldrawIniFoundReg(Original) = %1").arg((ldrawIniFoundReg ? "True" : "False")));
 
   if (Settings.contains(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey))) {
       QString ldrawiniFilePath = Settings.value(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey)).toString();
@@ -59,58 +50,33 @@ void PartWorker::ldsearchDirPreferences(){
       if (ldrawiniInfo.exists()) {
           Preferences::ldrawiniFile = ldrawiniInfo.absoluteFilePath();
           Preferences::ldrawiniFound = true;
-          QVariant pValue(true);
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,LdrawIniFound),pValue);
-         // qDebug() << QString(tr("  -Using LDraw.ini file from Reg Settings: %1").arg(Preferences::ldrawiniFile));
         } else {
-          QVariant pValue(false);
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,LdrawIniFound),pValue);
           Settings.remove(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey));
-          //qDebug() << QString(tr("  -Failed to get Ldraw.ini, valid file (from Preferences) does not exist."));
+          Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
         }
     } else if (ldPartsDirs.initLDrawSearchDirs()) {
       QFileInfo ldrawiniInfo(ldPartsDirs.getSearchDirsOrigin());
-       if (ldrawiniInfo.exists()) {
-           Preferences::ldrawiniFile = ldrawiniInfo.absoluteFilePath();
-           Preferences::ldrawiniFound = true;
-           QVariant pValue(true);
-           Settings.setValue(QString("%1/%2").arg(SETTINGS,LdrawIniFound),pValue);
-           Settings.setValue(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey), Preferences::ldrawiniFile);
-           //qDebug() << QString(tr("01 Using LDraw.ini file form loadLDrawSearchDirs(): ").arg(Preferences::ldrawiniFile));
-         } else {
-           QVariant pValue(false);
-           Settings.setValue(QString("%1/%2").arg(SETTINGS,LdrawIniFound),pValue);
-           //qDebug() << QString(tr("  -Failed to get Ldraw.ini, valid file (from Ldrawini) does not exist."));
-         }
+      if (ldrawiniInfo.exists()) {
+          Preferences::ldrawiniFile = ldrawiniInfo.absoluteFilePath();
+          Preferences::ldrawiniFound = true;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey), Preferences::ldrawiniFile);
+          //qDebug() << QString(tr("01 Using LDraw.ini file form loadLDrawSearchDirs(): ").arg(Preferences::ldrawiniFile));
+        } else {
+          Settings.remove(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey));
+          //qDebug() << QString(tr("  -Failed to get Ldraw.ini, valid file (from Preferences) does not exist."));
+        }
     } else {
-      //qDebug() << QString(tr("  -Failed to get Ldraw.ini, unable to initialize Ldrawini."));
+      emit messageSig(true,QString("Unable to initialize Ldrawini. Using default search directories."));
     }
 
-  //qDebug() << QString(tr("02 Preferences::ldrawiniFound(Update) = %1").arg((Preferences::ldrawiniFound ? "True" : "False")));
-
-  QStringList ldSearchDirs;
-  bool switchLdrawDirsSrc  = false;
-  QString const LdSearchDirsKey("LDSearchDirs");
-  if (Settings.contains(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey))) {
-      switchLdrawDirsSrc = ldrawIniFoundReg != Preferences::ldrawiniFound;
-      //qDebug() << QString(tr("03 switchLdrawDirsSrc(false) = %1").arg((switchLdrawDirsSrc ? "True" : "False")));
-      if (!_resetSearchDirSettings && !switchLdrawDirsSrc){
-          ldSearchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey)).toStringList();
-          Preferences::ldSearchDirs = ldSearchDirs;
-         // qDebug() << QString(tr("  -Set Preferences::ldSearchDirs using ldSearchDirs."));
-        } else if (loadLDrawSearchDirs()){
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey), Preferences::ldSearchDirs);
-         // qDebug() << QString(tr("  -Set Preferences::ldSearchDirs using templdSearchDirs."));
-        } else {
-          Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
-         // qDebug() << QString(tr("  -Failed to load search directories."));
-        }
-    } else if (loadLDrawSearchDirs()){
+  if (!Preferences::ldrawiniFound && !_resetSearchDirSettings &&
+      Settings.contains(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey))) {    // ldrawini not found and not reset so load registry key
+      Preferences::ldSearchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey)).toStringList();
+    } else if (loadLDrawSearchDirs()){                                        //ldraw.ini found or reset so load from disc file
       Settings.setValue(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey), Preferences::ldSearchDirs);
-      //qDebug() << QString(tr("  -Set Preferences::ldSearchDirs using templdSearchDirs."));
     } else {
       Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
-     // qDebug() << QString(tr("  -Failed to load search directories."));
+      emit messageSig(true,QString("Unable to load search directories."));
     }
 }
 /*
@@ -164,7 +130,7 @@ bool PartWorker::loadLDrawSearchDirs(){
 /* Add qualified search directories to LDSEARCHDIRS string
    This is used to pass search directories to ldglite.
    This function will only execute if the preferred renderer is LDGLite
-   and ther are more than 0 search directories in Preferences::ldgliteSearchDirs.
+   and there are more than 0 search directories in Preferences::ldgliteSearchDirs.
 */
 void PartWorker::populateLdgLiteSearchDirs(){
   if (Preferences::preferredRenderer == "LDGLite" && !Preferences::ldSearchDirs.isEmpty()){

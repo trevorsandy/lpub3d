@@ -88,7 +88,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
       ui.textEditSearchDirs->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
       ui.textEditSearchDirs->setToolTip("Read only list of LDraw.ini search directories.");
     } else {
-      ui.textEditSearchDirs->setToolTip("Editable list of unofficial (except Model) search directories.");
+      ui.textEditSearchDirs->setToolTip("Editable list of search directories.");
+      ui.textEditSearchDirs->setStatusTip("Added directories must be under the Unofficial directory.");
       ui.lineEditIniFile->setText("LDraw.ini not found. Using default LPub3D search.");
     }
 
@@ -347,7 +348,7 @@ void PreferencesDialog::on_pushButtonReset_clicked()
                                                 "This action will reset your search directory settings to the LPub3D default."
                                                 "Are you sure you want to continue? ",
                                                 QMessageBox::Yes|QMessageBox::No)){
-      partWorkerLDSearchDirs.resetSearchDirSettings(true);
+      partWorkerLDSearchDirs.resetSearchDirSettings();
       ui.textEditSearchDirs->clear();
       foreach (QString iniFilePath, Preferences::ldSearchDirs)
         ui.textEditSearchDirs->append(iniFilePath);

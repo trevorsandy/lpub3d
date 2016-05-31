@@ -37,6 +37,7 @@ Features and enhancements
 -Update: ldglite hard-coded default directory setting to ldglite1.3.1(r623)
 -Update: zlib reference for Qt 5.6.0 (r618)
 -Update: minifig settings (move to ini file) - LeoCAD Changeset 1870 (r617)
+-Fix: Search directories not updated when directory added to Ldraw.ini (r673)
 -Fix: When background is transparent context menu functionality is lost (fix is a hack which sets the bg-color to white with an alpha of 1.) (r672)
 -Fix: When a CALLOUT allocation is changed, if you right-click a model in the callout and not the callout itself, the ALLOC meta is placed after the CALLOUT END and has no effect - meta appended but should be inserted (r650) 
 -Fix: Converting an assembly to a part results in a parse error when there are spaces in the file name (r649)

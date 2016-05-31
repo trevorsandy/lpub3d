@@ -780,7 +780,7 @@ bool Preferences::getPreferences()
                   if (!ldrawiniDir.exists() || (!dirPath.toLower().contains(unoffDirPath.toLower()) && dirPath.toLower() != modelsDirPath.toLower())){
                       QMessageBox::warning(NULL,
                                            QMessageBox::tr("LPub3D"),
-                                           QMessageBox::tr("%1 is not a valid path. This path will not be saved.")
+                                           QMessageBox::tr("%1 is not a valid directory.\nAdded directories must be under the Unofficial directory. This path will not be saved.")
                                            .arg(dirPath));
                       continue;
                     } else {
