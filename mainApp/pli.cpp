@@ -980,6 +980,7 @@ int Pli::sortPli()
 
 int Pli::partSize()
 {
+
   QString key;
 
   widestPart = 0;
@@ -1001,10 +1002,6 @@ int Pli::partSize()
         part->color = "0";
       }
 
-      // Part Pixmap
-
-      QString imageName = Paths::partsDir + "/" + key + ".png";
-
       QPixmap *pixmap = new QPixmap();
 
       if (pixmap == NULL) {
@@ -1012,6 +1009,7 @@ int Pli::partSize()
       }
 
       if (createPartImage(key,part->type,part->color,pixmap)) {
+        QString imageName = Paths::partsDir + "/" + key + ".png";
         QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
         QMessageBox::tr("Failed to create PLI part %1")
         .arg(imageName));
