@@ -151,8 +151,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   fadeStepMeta.fadeColor.setValue(LDrawColor::name(Preferences::fadeStepColor));
   connect(ui.fadeStepColorsCombo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(colorChange(QString const &)));
-  connect(ui.fadeStepBox,SIGNAL(clicked(bool)),
-          this,SLOT(processFadeColourParts(bool)));
 
   bool centimeters = Preferences::preferCentimeters;
   ui.Centimeters->setChecked(centimeters);
@@ -353,12 +351,6 @@ void PreferencesDialog::on_pushButtonReset_clicked()
       foreach (QString iniFilePath, Preferences::ldSearchDirs)
         ui.textEditSearchDirs->append(iniFilePath);
     }
-}
-
-void PreferencesDialog::processFadeColourParts(bool clicked)
-{
-    if (clicked && !gui->getCurFile().isEmpty())
-      gui->processFadeColourParts();
 }
 
 QString const PreferencesDialog::ldrawPath()

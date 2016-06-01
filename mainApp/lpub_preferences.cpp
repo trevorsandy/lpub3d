@@ -87,6 +87,8 @@ bool    Preferences::enableFadeStep             = false;
 bool    Preferences::preferCentimeters          = true;
 bool    Preferences::silentUpdate               = false;
 bool    Preferences::ldrawiniFound              = false;
+bool    Preferences::fadeStepSettingChanged     = false;
+bool    Preferences::fadeStepColorChanged       = false;
 int     Preferences::checkForUpdates            = 2;        //0=Never,1=Daily,2=Weekly,3=Monthly
 
 int     Preferences::pageHeight                 = 800;
@@ -537,23 +539,25 @@ void Preferences::annotationPreferences()
 void Preferences::fadestepPreferences()
 {
   QSettings Settings;
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableFadeStep"))) {
+  if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableFadeStep"))) {
       QVariant eValue(false);
       enableFadeStep = false;
       Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableFadeStep"),eValue);
+    } else {
+      enableFadeStep = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableFadeStep")).toBool();     
+    }
+
+  if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepColor"))) {
       QVariant cValue("Very_Light_Bluish_Gray");
       fadeStepColor = "Very_Light_Bluish_Gray";
       Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepColor"),cValue);
     } else {
-      enableFadeStep = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableFadeStep")).toBool();
       fadeStepColor = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepColor")).toString();
     }
 
   fadeStepColorPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepColorPartsFile")).toString();
   QFileInfo fadeStepColorFileInfo(fadeStepColorPartsFile);
-  if (fadeStepColorFileInfo.exists()) {
-      //return;
-    } else {
+  if (!fadeStepColorFileInfo.exists()) {
       Settings.remove(QString("%1/%2").arg(SETTINGS,"FadeStepColorPartsFile"));
     }
 #ifdef __APPLE__
@@ -569,10 +573,7 @@ void Preferences::fadestepPreferences()
   popFadeStepColorFileInfo.setFile(fadeStepColorPartsFile);
   if (popFadeStepColorFileInfo.exists()) {
       Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepColorPartsFile"),fadeStepColorPartsFile);
-    } else {
-      //fadeStepColorPartsFile = "";
     }
-
 }
 
 void Preferences::publishingPreferences()
@@ -664,6 +665,9 @@ void Preferences::viewerPreferences()
 
 bool Preferences::getPreferences()
 {
+  fadeStepSettingChanged     = false;
+  fadeStepColorChanged       = false;
+
   PreferencesDialog *dialog = new PreferencesDialog();
   
   QSettings Settings;
@@ -751,25 +755,6 @@ bool Preferences::getPreferences()
             }
         }
 
-      if ((fadeStepColor != dialog->fadeStepColor()))
-        {
-          preferCentimeters = dialog->centimeters();
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,"Centimeters"),preferCentimeters);
-          defaultResolutionType(preferCentimeters);
-        }
-
-      enableFadeStep = dialog->enableFadeStep();
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableFadeStep"),enableFadeStep);
-      if (enableFadeStep && (fadeStepColor != dialog->fadeStepColor()))
-        {
-          fadeStepColor = dialog->fadeStepColor();
-          if (fadeStepColor == "") {
-              Settings.remove(QString("%1/%2").arg(SETTINGS,"FadeStepColor"));
-            }else {
-              Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepColor"),fadeStepColor);
-            }
-        }
-
       if (ldSearchDirs != dialog->searchDirSettings()) {
           if (!dialog->searchDirSettings().isEmpty()){
               ldSearchDirs.clear();
@@ -836,6 +821,27 @@ bool Preferences::getPreferences()
             } else {
               Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PublishDescription"),publishDescription);
             }
+        }
+
+      if (enableFadeStep != dialog->enableFadeStep())
+        {
+          fadeStepSettingChanged = true;
+          enableFadeStep = dialog->enableFadeStep();
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableFadeStep"),enableFadeStep);
+        }
+
+      if (enableFadeStep && (fadeStepColor != dialog->fadeStepColor()))
+        {
+          fadeStepColorChanged = true;
+          fadeStepColor = dialog->fadeStepColor();
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepColor"),fadeStepColor);
+        }
+
+      if (preferCentimeters != dialog->centimeters())
+        {
+          preferCentimeters = dialog->centimeters();
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,"Centimeters"),preferCentimeters);
+          defaultResolutionType(preferCentimeters);
         }
 
       if (silentUpdate != dialog->silentUpdate()) {

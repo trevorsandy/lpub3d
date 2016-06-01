@@ -118,10 +118,8 @@ void Gui::insertFinalModel(){
 
   if (Preferences::enableFadeStep && modelStatus != modelExist){
       mi.insertFinalModel(modelStatus);
-    } else if (! Preferences::enableFadeStep && modelStatus == modelExist){
-      beginMacro("deleteFinalModel");
+    } else if (! Preferences::enableFadeStep && modelStatus == modelExist){      
       mi.deleteFinalModel();
-      endMacro();
     }
 }
 
@@ -202,26 +200,6 @@ void Gui::displayPage()
     }
   emit messageSig(true,"Display page ready.");
 }
-
-void Gui::clearAndRedrawPage()
-{
-    if (getCurFile().isEmpty()) {
-        statusBarMsg("A model must be open to reset its caches - no action taken.");
-        return;
-    }
-
-       clearPLICache();
-       clearCSICache();
-       clearCSI3DCache();
-       displayPage();
-
-       QObject *obj = sender();
-       if (obj == editWindow)
-           statusBarMsg("Page regenerated.");
-       else if (obj == clearImageModelCacheAct)
-           statusBarMsg("Assembly, Parts and 3D content caches reset.");
-}
-
 
 /*
 void Gui::nextPage()
@@ -656,7 +634,28 @@ void Gui::clearImageModelCaches()
        displayPage();
        enableActions();
 
-       statusBarMsg("Assembly, Parts and 3D content caches reset.");
+       statusBarMsg("All content reset and file reloaded");
+}
+
+void Gui::clearAndRedrawPage()
+{
+    if (getCurFile().isEmpty()) {
+        statusBarMsg("A model must be open to reset its caches - no action taken.");
+        return;
+    }
+
+       clearPLICache();
+       clearCSICache();
+       clearCSI3DCache();
+       displayPage();
+
+       QObject *obj = sender();
+       if (obj == editWindow)
+         statusBarMsg("Page regenerated.");
+       else if (obj == clearImageModelCacheAct)
+         statusBarMsg("Assembly, Parts and 3D content caches reset.");
+       else
+         statusBarMsg("All content reset.");
 }
 
 void Gui::clearFadeCache()
@@ -908,28 +907,30 @@ void Gui::editLdrawIniFile()
 void Gui::preferences()
 {
   if (Preferences::getPreferences()) {
-    Meta meta;
-    page.meta = meta;
 
-    Step::refreshCsi = true;
+      Meta meta;
+      page.meta = meta;
 
-    QString renderer = Render::getRenderer();
-    Render::setRenderer(Preferences::preferredRenderer);
-    if (Render::getRenderer() != renderer) {
-        if (Preferences::preferredRenderer == "LDGLite")
-          partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
-        gui->clearCSICache();
-        gui->clearPLICache();
-        gui->clearCSI3DCache();
+      Step::refreshCsi = true;
+
+      if (!getCurFile().isEmpty()){
+
+          QString renderer = Render::getRenderer();
+          Render::setRenderer(Preferences::preferredRenderer);
+          bool rendererChanged = Render::getRenderer() != renderer;
+          bool fadeStepColorChanged = Preferences::fadeStepColorChanged && !Preferences::fadeStepSettingChanged;
+
+          if (rendererChanged && Preferences::preferredRenderer == "LDGLite") {
+              partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
+            }
+
+          if (Preferences::fadeStepSettingChanged){
+              clearImageModelCaches();
+            } else if (rendererChanged || fadeStepColorChanged){
+              clearAndRedrawPage();
+            }
+        }
     }
-//-Fix: 2 page refreshes when Parameters menu item is accpeted (r635)
-    if (!getCurFile().isEmpty()){
-//        QString topLevel = ldrawFile.topLevelFile();
-//        GlobalPliDialog *pliParms = new GlobalPliDialog(topLevel, page.meta, false);
-//        pliParms->accept();
-        displayPage();
-    }
-  }
 }
 
 

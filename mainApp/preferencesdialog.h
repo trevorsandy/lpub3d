@@ -80,7 +80,6 @@ class PreferencesDialog : public QDialog
     void on_pushButtonReset_clicked();
 
     void colorChange(QString const &colorName);
-    void processFadeColourParts(bool);
 
 
 private:

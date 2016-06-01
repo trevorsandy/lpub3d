@@ -1941,7 +1941,9 @@ void MetaItem::deleteFinalModel(){
               QString line = gui->readLine(walk);
               rc = meta.parse(line,here);
               if(rc != StepRc){
+                  beginMacro("deleteFinalModel");
                   deleteMeta(walk);
+                  endMacro();
                 } else {
                   break;
                 }

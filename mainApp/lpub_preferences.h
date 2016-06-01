@@ -75,6 +75,8 @@ class Preferences
     static bool    printDocumentTOC;
     static bool    preferCentimeters;
     static bool    enableFadeStep;
+    static bool    fadeStepSettingChanged;
+    static bool    fadeStepColorChanged;
     static bool    silentUpdate;
     static int     checkForUpdates;
     static int     pageWidth;
