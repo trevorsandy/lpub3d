@@ -136,22 +136,11 @@ void Application::initialize(int &argc, char **argv)
 
   QFont splashFont;
   splashFont.setFamily("Arial");
-  splashFont.setPixelSize(14);
+  splashFont.setPixelSize(16);
   splashFont.setStretch(130);
 
   splash->setFont(splashFont);
   splash->show();
-
-  splash->showMessage(QSplashScreen::tr("LPub3D is loading..."),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
-
-  // splash new start
-//  splash = new SplashScreen();
-//  splash->show();
-//  splash->updateMessage(QSplashScreen::tr("%1 is loading...").arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
-//  splash->setProgress(0);
-  // splash new end
-
-  m_application.processEvents();
 
   using namespace QsLogging;
 
@@ -204,8 +193,8 @@ void Application::initialize(int &argc, char **argv)
       logger.setLoggingLevel(QsLogging::TraceLevel);
   } // end init logging
 
-//   splash->updateMessage("Logging loaded...");
-//   splash->setProgress(30);
+  splash->showMessage(QSplashScreen::tr("30% Logging loaded..."),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
+  m_application.processEvents();
 
   // Preferences
   Preferences::ldrawPreferences(false);
@@ -251,13 +240,13 @@ void Application::initialize(int &argc, char **argv)
   m_LDrawPath = NULL;
 #endif
 
-//  splash->updateMessage("Preferences loaded...");
-//  splash->setProgress(60);
+  splash->showMessage(QSplashScreen::tr("60% Preferences loaded..."),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
+  m_application.processEvents();
 
   gui = new Gui();
 
-//  splash->updateMessage("Gui loaded...");
-//  splash->setProgress(80);
+  splash->showMessage(QSplashScreen::tr("80% GUI loaded..."),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
+  m_application.processEvents();
 
   qDebug() << QString("-Initialize: New gui instance created.");
 
@@ -265,15 +254,15 @@ void Application::initialize(int &argc, char **argv)
       qDebug() << QString("Unable to initialize 3D Viewer.");
     }
 
-//  splash->updateMessage("3DViewer loaded...");
-//  splash->setProgress(90);
+  splash->showMessage(QSplashScreen::tr("90% 3DViewer loaded..."),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
+  m_application.processEvents();
 }
 
 void Application::main()
 {
 
-//  splash->updateMessage("Finished loading...");
-//  splash->setProgress(100);
+  splash->showMessage(QSplashScreen::tr("100% %1 loaded.").arg(QString::fromLatin1(VER_PRODUCTNAME_STR)),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
+  m_application.processEvents();
   splash->finish(gui);
 
   gui->show();
