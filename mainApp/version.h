@@ -53,7 +53,7 @@
 #define VER_COMPANYDOMAIN_STR       		"http://sourceforge.net/projects/lpub3d/"
 
 #ifdef WIN32
-#if (_MSC_VER >= 1900)
+#ifdef _MSC_VER
 #define VER_COMPILED_ON             		"MSVC 2015"
 #define VER_COMPILED_FOR            		"MS Windows 32 bit, 64 bit"
 #define VER_COMPILED_WITH                   "Qt 5.6.0 (MSVC 2015 x86, x64)"

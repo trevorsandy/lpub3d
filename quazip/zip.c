@@ -31,7 +31,7 @@
 #include <time.h>
 #include "zip.h"
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-	#if (_MSC_VER >= 1400)
+	#ifdef _MSC_VER
 		#include <QtZlib/zlib.h>
 	#else // not using MSVC
 		#include <zlib.h>
