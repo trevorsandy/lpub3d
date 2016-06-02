@@ -38,6 +38,7 @@ Features and enhancements
 -Update: ldglite hard-coded default directory setting to ldglite1.3.1(r623)
 -Update: zlib reference for Qt 5.6.0 (r618)
 -Update: minifig settings (move to ini file) - LeoCAD Changeset 1870 (r617)
+-Fix: Convert special characters (copyright and trademark) to UTF8 for MSVC build (r677)
 -Fix: Remove final colour model if exist when Fade Step is not enabled (r674)
 -Fix: Clear cache when turning fade on/off (r674)
 -Fix: fadeStep and preferCentimeter setting mixmatch (r674)
