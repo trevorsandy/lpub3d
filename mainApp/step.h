@@ -39,6 +39,8 @@
 #include "csiitem.h"
 #include "callout.h"
 
+#define NOSTEPNUMBER -3
+
 class Meta;
 class Callout;
 class Range;

@@ -152,6 +152,7 @@ void CalloutBackgroundItem::contextMenuEvent(
   QAction *selectedAction = menu.exec(event->screenPos());
 
   if (selectedAction == NULL) {
+      return;
   } else if (selectedAction == addPointerAction) {
     Pointer *pointer = new Pointer(callout->topOfCallout(),calloutMeta);
     CalloutPointerItem *calloutPointer = 

@@ -260,7 +260,7 @@ int Gui::drawPage(LGraphicsView  *view,
   int         numLines    = ldrawFile.size(current.modelName);
   bool        firstStep   = true;
   bool        noStep      = false;
-  bool        InsertFinalModel = false;
+  bool        modelDisplayPage  = false;
   bool        rotateIcon  = false;
 
   steps->isMirrored = isMirrored;
@@ -773,12 +773,13 @@ int Gui::drawPage(LGraphicsView  *view,
                 if (insertData.type == InsertData::InsertFinalModel){
 
                     if (curMeta.LPub.fadeStep.fadeStep.value()){
-
+                        // this is not a step but it's necessary to use the step object to place the model
                         if (step == NULL) {
                             if (range == NULL) {
                                 range = newRange(steps,calledOut);
                                 steps->append(range);
                               }
+                            stepNum = NOSTEPNUMBER; //send special value so csiitem can supress some context menu items
                             step = new Step(topOfStep,
                                             range,
                                             stepNum,
@@ -788,7 +789,7 @@ int Gui::drawPage(LGraphicsView  *view,
                             range->append(step);
                           }
                         partsAdded  = true; // OK, so this is a lie, but it works
-                        InsertFinalModel = true;
+                        modelDisplayPage  = true;
                       }
                   }
               }
@@ -911,7 +912,7 @@ int Gui::drawPage(LGraphicsView  *view,
 
                   emit messageSig(true, "Processing multi-step page graphics...");
 
-                  addGraphicsPageItems(steps, coverPage, endOfSubmodel,instances, view, scene, printing);
+                  addGraphicsPageItems(steps, coverPage, modelDisplayPage, endOfSubmodel,instances, view, scene, printing);
 
                   emit messageSig(true, "Multi-step page graphics processed.");
 
@@ -1023,7 +1024,7 @@ int Gui::drawPage(LGraphicsView  *view,
 
                       int rc = step->createCsi(
                             isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                            saveCsiParts = InsertFinalModel ? csiParts : fadeStep(csiParts, stepNum, current),
+                            saveCsiParts = modelDisplayPage ? csiParts : fadeStep(csiParts, stepNum, current),
                             &step->csiPixmap,
                             steps->meta);
 
@@ -1073,7 +1074,7 @@ int Gui::drawPage(LGraphicsView  *view,
 
                       emit messageSig(true, "Processing simple page graphics...");
 
-                      addGraphicsPageItems(steps,coverPage,endOfSubmodel,instances,view,scene,printing);
+                      addGraphicsPageItems(steps,coverPage,modelDisplayPage, endOfSubmodel,instances,view,scene,printing);
                       stepPageNum += ! coverPage;
                       steps->setBottomOfSteps(current);
 

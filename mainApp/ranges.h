@@ -97,11 +97,13 @@ class Page : public Steps {
     bool coverPage;
     bool frontCover;
     bool backCover;
+    bool modelDisplayPage;
     Page()
     {
-      coverPage     = false;
-      frontCover    = false;
-      backCover     = false;
+      coverPage           = false;
+      frontCover          = false;
+      backCover           = false;
+      modelDisplayPage    = false;
     }
     
     void addInsertPixmap(InsertPixmapItem *pixMap)

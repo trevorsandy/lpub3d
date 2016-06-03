@@ -182,6 +182,7 @@ void SubmodelInstanceCount::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 int Gui::addGraphicsPageItems(
   Steps          *steps,
   bool            coverPage,
+  bool            modelDisplayPage,
   bool            endOfSubmodel,
   int             instances,
   LGraphicsView  *view,
@@ -257,6 +258,9 @@ int Gui::addGraphicsPageItems(
    // pW = page->meta.LPub.page.size.valuePixels(0);
    // pH = page->meta.LPub.page.size.valuePixels(1);
 
+  if (modelDisplayPage)
+    page->modelDisplayPage = true;
+
   pageBg = new PageBackgroundItem(page, pW, pH);
 
   view->pageBackgroundItem = pageBg;
@@ -264,7 +268,7 @@ int Gui::addGraphicsPageItems(
 
   // set Background
   QPixmap *pixmapBg = new QPixmap(pW,pH);
-  QString toolTip("Page background (from formatpage) - right-click to modify");
+  QString toolTip("Page background - right-click to modify");
   pageBg->setBackground(pixmapBg,
                         PageType,
                        &page->meta,
@@ -1277,7 +1281,7 @@ int Gui::addGraphicsPageItems(
 
           // allocate QGraphicsTextItem for step number
       
-          if ( ! step->onlyChild()) {
+          if ( ! step->onlyChild() && ! modelDisplayPage) {
             StepNumberItem *stepNumber =
               new StepNumberItem(step,
                                  page->relativeType,

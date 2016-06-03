@@ -85,10 +85,12 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   MetaItem mi;
   int numSteps = mi.numSteps(step->top.modelName);
+  bool fullContextMenu = step->stepNumber.number != NOSTEPNUMBER;
   Boundary boundary = step->boundary();
 
   QAction *addNextAction = NULL;
-  if (step->stepNumber.number != numSteps &&
+  if (fullContextMenu  &&
+      step->stepNumber.number != numSteps &&
       (parentRelativeType == SingleStepType ||
        (parentRelativeType == StepGroupType &&  (boundary & EndOfSteps)))) {
       addNextAction = menu.addAction("Add Next Step");
@@ -178,7 +180,6 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     }
 
   QAction *placementAction = NULL;
-
   if (parentRelativeType == SingleStepType) {
       placementAction = menu.addAction("Move This Step");
       placementAction->setIcon(QIcon(":/resources/placement.png"));
@@ -228,20 +229,21 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       break;
     }
 
-  QAction *noStepAction = menu.addAction("Don't Show This Step");
-  noStepAction->setIcon(QIcon(":/resources/display.png"));
-
   QAction *insertRotateIconAction = NULL;
-
-  if (! step->placeRotateIcon) { // rotate icon already in place so don't show menu item
-      if (parentRelativeType != CalloutType) {
-          insertRotateIconAction = menu.addAction("Add Rotate Icon");
-          insertRotateIconAction->setIcon(QIcon(":/resources/rotateicon.png"));
-        } else if (meta->LPub.callout.begin.mode == CalloutBeginMeta::Unassembled) {
-          insertRotateIconAction = menu.addAction("Add Rotate Icon");
-          insertRotateIconAction->setIcon(QIcon(":/resources/rotateicon.png"));
+  if (fullContextMenu) {
+      if (! step->placeRotateIcon) { // rotate icon already in place so don't show menu item
+          if (parentRelativeType != CalloutType) {
+              insertRotateIconAction = menu.addAction("Add Rotate Icon");
+              insertRotateIconAction->setIcon(QIcon(":/resources/rotateicon.png"));
+            } else if (meta->LPub.callout.begin.mode == CalloutBeginMeta::Unassembled) {
+              insertRotateIconAction = menu.addAction("Add Rotate Icon");
+              insertRotateIconAction->setIcon(QIcon(":/resources/rotateicon.png"));
+            }
         }
     }
+
+  QAction *noStepAction = menu.addAction(fullContextMenu ? "Don't Show This Page" : "Don't Show This Step");
+  noStepAction->setIcon(QIcon(":/resources/display.png"));
 
   QAction *selectedAction = menu.exec(event->screenPos());
 
@@ -332,9 +334,12 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                     margins);
     } else if (selectedAction == noStepAction) {
       appendMeta(topOfStep,"0 !LPUB NOSTEP");
-    } else if (selectedAction == insertRotateIconAction) {
+    }
+
+  if (selectedAction == insertRotateIconAction && fullContextMenu) {
       appendMeta(topOfStep,"0 !LPUB INSERT ROTATE_ICON OFFSET 0.5 0.5");
     }
+
 }
 
 

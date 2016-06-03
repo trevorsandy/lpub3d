@@ -77,6 +77,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
   QString name = "Page";
+  bool fullContextMenu = page->list.size() && ! page->modelDisplayPage;
 
   // figure out if first step step number is greater than 1
 
@@ -93,36 +94,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   Step    *lastStep = NULL;
   Step    *firstStep = NULL;
 
-  if (page->meta.LPub.page.background.value().gsize[0] == 0 &&
-      page->meta.LPub.page.background.value().gsize[1] == 0) {
-
-      page->meta.LPub.page.background.value().gsize[0] = Preferences::pageHeight;
-      page->meta.LPub.page.background.value().gsize[1] = Preferences::pageWidth;
-
-      QSize gSize(page->meta.LPub.page.background.value().gsize[0],
-          page->meta.LPub.page.background.value().gsize[1]);
-      int h_off = gSize.width() / 10;
-      int v_off = gSize.height() / 8;
-      page->meta.LPub.page.background.value().gpoints << QPointF(gSize.width() / 2, gSize.height() / 2)
-                                                      << QPointF(gSize.width() / 2 - h_off, gSize.height() / 2 - v_off);
-
-    }
-
-  backgroundAction = commonMenus.backgroundMenu(menu,name);
-
-  sizeAndOrientationAction = menu.addAction("Change Page Size or Orientation");
-  sizeAndOrientationAction->setIcon(QIcon(":/resources/pagesizeandorientation.png"));
-  sizeAndOrientationAction->setWhatsThis("Change the page size and orientation");
-
-  bool useTop = relativeType == SingleStepType;
-
-  QAction *selectedAction     = menu.exec(event->screenPos());
-
-  if (selectedAction == NULL) {
-      return;
-    }
-
-  if (page->list.size()) {
+  if (fullContextMenu) {
       AbstractStepsElement *range = page->list[page->list.size()-1];
       if (range->relativeType == RangeType) {
           AbstractRangeElement *rangeElement = range->list[range->list.size()-1];
@@ -160,7 +132,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                                       "  A callout shows how to build these steps in a picture next\n"
                                       "  to where it is added to the set you are building");
 
-          // FIXME: don't allow this it is already got an assembled.
+          // FIXME: don't allow this if it already got an assembled.
           if (canConvertToCallout(&page->meta)) {
               assembledAction = menu.addAction("Add Assembled Image to Parent Page");
               assembledAction->setIcon(QIcon(":/resources/addassembledimage.png"));
@@ -179,7 +151,38 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                                    "and the submodel is displayed as a part in the parent step's "
                                    "part list image.");
         }
+    }
 
+  backgroundAction = commonMenus.backgroundMenu(menu,name);
+
+  sizeAndOrientationAction = menu.addAction("Change Page Size or Orientation");
+  sizeAndOrientationAction->setIcon(QIcon(":/resources/pagesizeandorientation.png"));
+  sizeAndOrientationAction->setWhatsThis("Change the page size and orientation");
+
+  QAction *selectedAction     = menu.exec(event->screenPos());
+
+  if (selectedAction == NULL) {
+      return;
+    }
+
+  bool useTop = relativeType == SingleStepType;
+
+  if (page->meta.LPub.page.background.value().gsize[0] == 0 &&
+      page->meta.LPub.page.background.value().gsize[1] == 0) {
+
+      page->meta.LPub.page.background.value().gsize[0] = Preferences::pageHeight;
+      page->meta.LPub.page.background.value().gsize[1] = Preferences::pageWidth;
+
+      QSize gSize(page->meta.LPub.page.background.value().gsize[0],
+          page->meta.LPub.page.background.value().gsize[1]);
+      int h_off = gSize.width() / 10;
+      int v_off = gSize.height() / 8;
+      page->meta.LPub.page.background.value().gpoints << QPointF(gSize.width() / 2, gSize.height() / 2)
+                                                      << QPointF(gSize.width() / 2 - h_off, gSize.height() / 2 - v_off);
+
+    }
+
+  if (fullContextMenu){
       if (selectedAction == calloutAction) {
           convertToCallout(&page->meta, page->bottom.modelName, page->isMirrored, false);
         } else if (selectedAction == assembledAction) {
