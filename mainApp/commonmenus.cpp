@@ -133,7 +133,6 @@ QAction* CommonMenus::colorMenu(
   action = menu.addAction(formatted);
   action->setIcon(QIcon(":/resources/fontColour.png"));
 
-
   formatted = QString("You can change the color of this %1") .arg(name);
   action->setWhatsThis(formatted);
 
@@ -167,6 +166,74 @@ action = menu.addAction(formatted);
 action->setIcon(QIcon(":/resources/display.png"));
 
 formatted = QString("You can turn off and on the display of %1") .arg(name);
+action->setWhatsThis(formatted);
+
+return action;
+}
+
+QAction* CommonMenus::displayRowsMenu(
+      QMenu   &menu,
+  const QString  name)
+{
+QAction *action;
+
+QString formatted = QString("Display %1 as Rows") .arg(name);
+action = menu.addAction(formatted);
+action->setIcon(QIcon(":/resources/displayrow.png"));
+
+formatted = QString("Display %1 as Rows:\n"
+      "  Change this whole set of %1 from columns of %1\n"
+      "  to rows of %1.") .arg(name);
+action->setWhatsThis(formatted);
+
+return action;
+}
+
+QAction* CommonMenus::displayColumnsMenu(
+      QMenu   &menu,
+  const QString  name)
+{
+QAction *action;
+
+QString formatted = QString("Display %1 as Columns") .arg(name);
+action = menu.addAction(formatted);
+action->setIcon(QIcon(":/resources/displaycolumn.png"));
+
+formatted = QString("Display %1 as Columns:\n"
+      "  Change this whole set of %1 from rows of %1\n"
+      "  to columns of %1.") .arg(name);
+action->setWhatsThis(formatted);
+
+return action;
+}
+
+QAction* CommonMenus::partsList(
+      QMenu   &menu,
+  const QString  name)
+{
+QAction *action;
+
+QString formatted = QString("Parts List per %1") .arg(name);
+action = menu.addAction(formatted);
+action->setIcon(QIcon(":/resources/partslist.png"));
+
+formatted = QString("Show Parts List per %1.") .arg(name);
+action->setWhatsThis(formatted);
+
+return action;
+}
+
+QAction* CommonMenus::noPartsList(
+      QMenu   &menu,
+  const QString  name)
+{
+QAction *action;
+
+QString formatted = QString("No Parts List per %1") .arg(name);
+action = menu.addAction(formatted);
+action->setIcon(QIcon(":/resources/nopartslist.png"));
+
+formatted = QString("Do not show Parts List per %1.") .arg(name);
 action->setWhatsThis(formatted);
 
 return action;

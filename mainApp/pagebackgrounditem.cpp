@@ -76,6 +76,7 @@ PageBackgroundItem::PageBackgroundItem(
 void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
+  QString name = "Page";
 
   // figure out if first step step number is greater than 1
 
@@ -125,6 +126,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
     if (page->meta.submodelStack.size() > 0) {
       calloutAction = menu.addAction("Convert to Callout");
+      calloutAction->setIcon(QIcon(":/resources/convertcallout.png"));
       calloutAction->setWhatsThis("Convert to Callout:\n"
         "  A callout shows how to build these steps in a picture next\n"
         "  to where it is added to the set you are building");
@@ -132,30 +134,28 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       // FIXME: don't allow this it is already got an assembled.
       if (canConvertToCallout(&page->meta)) {
         assembledAction = menu.addAction("Add Assembled Image to Parent Page");
+        assembledAction->setIcon(QIcon(":/resources/addassembledimage.png"));
         assembledAction->setWhatsThis("Add Assembled Image to Parent Page\n"
           "  A callout like image is added to the page where this submodel\n"
           "  is added to the set you are building");
       }
 
       ignoreAction = menu.addAction("Ignore this submodel");
+      ignoreAction->setIcon(QIcon(":/resources/ignoresubmodel.png"));
       ignoreAction->setWhatsThis("Stops these steps from showing up in your instructions");
 
       partAction = menu.addAction("Treat as Part");
+      partAction->setIcon(QIcon(":/resources/treataspart.png"));
       partAction->setWhatsThis("Treating this submodel as a part means these steps go away, "
                                "and the submodel is displayed as a part in the parent step's "
                                "part list image.");
     }
 
-    //      logTrace() << "Fired";
-    // change page background colour
-    backgroundAction = menu.addAction("Change Page Background");
-    backgroundAction->setIcon(QIcon(":/resources/background.png"));
-    backgroundAction->setWhatsThis("Change the background colour");
-
-    // change page size and orientation
     sizeAndOrientationAction = menu.addAction("Change Page Size or Orientation");
     sizeAndOrientationAction->setIcon(QIcon(":/resources/pagesizeandorientation.png"));
     sizeAndOrientationAction->setWhatsThis("Change the page size and orientation");
+
+    backgroundAction = commonMenus.backgroundMenu(menu,name);
 
     QAction *selectedAction     = menu.exec(event->screenPos());
 

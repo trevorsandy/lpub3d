@@ -99,12 +99,11 @@ void CalloutBackgroundItem::contextMenuEvent(
   QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QString co = "Callout ";
+  QString name = "Callout ";
 
-  QString       pl = "Move This Callout";
   PlacementData placementData = callout->meta.LPub.callout.placement.value();
-  QAction *placementAction  = commonMenus.placementMenu(menu,pl,
-                              commonMenus.naturalLanguagePlacementWhatsThis(CalloutType,placementData,pl));
+  QAction *placementAction  = commonMenus.placementMenu(menu,name,
+                              commonMenus.naturalLanguagePlacementWhatsThis(CalloutType,placementData,name));
 
   QAction *allocAction = NULL;
   QAction *perStepAction = NULL;
@@ -112,48 +111,43 @@ void CalloutBackgroundItem::contextMenuEvent(
   if (calloutMeta.begin.value() == CalloutBeginMeta::Unassembled) {
 
     if (callout->allocType() == Vertical) {
-      allocAction = menu.addAction("Display as Rows");
-      allocAction->setIcon(QIcon(":/resources/displayrow.png"));
-      allocAction->setWhatsThis(
-        "Display as Rows:\n"
-        "  Change this whole set of steps from columns of steps\n"
-        "  to rows of steps");
+      allocAction = commonMenus.displayRowsMenu(menu,name);
     } else {
-      allocAction = menu.addAction("Display as Columns");
-      allocAction->setIcon(QIcon(":/resources/displaycolumn.png"));
-      allocAction->setWhatsThis(
-      "Display as Columns:\n"
-      "  Change this whole set of steps from rows of steps\n"
-      "  to columns of steps");
+      allocAction = commonMenus.displayColumnsMenu(menu, name);
     }
 
     if (callout->meta.LPub.callout.pli.perStep.value()) {
-      perStepAction = menu.addAction("No Parts List per Step");
+      perStepAction = commonMenus.noPartsList(menu,name);
     } else {
-      perStepAction = menu.addAction("Parts List per Step");
+      perStepAction = commonMenus.partsList(menu,name);
     }
   }
 
-  QAction *editBackgroundAction = commonMenus.backgroundMenu(menu,co);
-  QAction *editBorderAction     = commonMenus.borderMenu(menu,co);
-  QAction *marginAction         = commonMenus.marginMenu(menu,co);
+  QAction *editBackgroundAction = commonMenus.backgroundMenu(menu,name);
+  QAction *editBorderAction     = commonMenus.borderMenu(menu,name);
+  QAction *marginAction         = commonMenus.marginMenu(menu,name);
   QAction *rotateAction         = NULL;
 
   QAction *unCalloutAction;
 
   if (calloutMeta.begin.value() == CalloutBeginMeta::Unassembled) {
     unCalloutAction = menu.addAction("Unpack Callout");
+    unCalloutAction->setIcon(QIcon(":/resources/unpackcallout.png"));
   } else {
     unCalloutAction = menu.addAction("Remove Callout");
+    unCalloutAction->setIcon(QIcon(":/resources/remove.png"));
     if (calloutMeta.begin.value() == CalloutBeginMeta::Assembled) {
       rotateAction = menu.addAction("Rotate");
+      rotateAction->setIcon(QIcon(":/resources/rotate.png"));
     } else {
       rotateAction = menu.addAction("Unrotate");
+      rotateAction->setIcon(QIcon(":/resources/unrotate.png"));
     }
   }
 
   QAction *addPointerAction = menu.addAction("Add Arrow");
   addPointerAction->setWhatsThis("Add arrow from this callout to the step where it is used");
+  addPointerAction->setIcon(QIcon(":/resources/addarrow.png"));
 
   QAction *selectedAction = menu.exec(event->screenPos());
 

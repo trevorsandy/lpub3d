@@ -598,6 +598,7 @@ void CalloutPointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QMenu menu;
 
   QAction *removeAction = menu.addAction("Delete this Arrow");
+  removeAction->setIcon(QIcon(":/resources/deletearrow.png"));
   removeAction->setWhatsThis(            "Delete this Arrow:\n"
                                          "Deletes this arrow from the callout");
 

@@ -325,6 +325,8 @@ mainApp/images/LPub64.ico -text
 mainApp/images/LPub64.png -text
 mainApp/images/actual.png -text
 mainApp/images/add.png -text
+mainApp/images/addarrow.png -text
+mainApp/images/addassembledimage.png -text
 mainApp/images/addbom.png -text
 mainApp/images/addnext.png -text
 mainApp/images/addpicture.png -text
@@ -339,6 +341,7 @@ mainApp/images/bomannotation.png -text
 mainApp/images/bomsetup.png -text
 mainApp/images/border.png -text
 mainApp/images/calloutsetup.png -text
+mainApp/images/changedivider.png -text
 mainApp/images/changeshape.png -text
 mainApp/images/clearcache.png -text
 mainApp/images/clearcsi3dcache.png -text
@@ -347,9 +350,12 @@ mainApp/images/clearfadecache.png -text
 mainApp/images/clearimagemodelcache.png -text
 mainApp/images/clearplicache.png -text
 mainApp/images/contentspage.png -text
+mainApp/images/convertcallout.png -text
 mainApp/images/copy.png -text
 mainApp/images/cut.png -text
 mainApp/images/delete.png -text
+mainApp/images/deletearrow.png -text
+mainApp/images/deletedivider.png -text
 mainApp/images/deletepage.png -text
 mainApp/images/display.png -text
 mainApp/images/displaycolumn.png -text
@@ -364,6 +370,7 @@ mainApp/images/editrotateicon.png -text
 mainApp/images/editsetting.png -text
 mainApp/images/edittitleannotations.png -text
 mainApp/images/editundo.png -text
+mainApp/images/emailproblempackage.png -text
 mainApp/images/exit.png -text
 mainApp/images/exportas.png -text
 mainApp/images/exportbmp.png -text
@@ -379,6 +386,7 @@ mainApp/images/font.png -text
 mainApp/images/fontColour.png -text
 mainApp/images/generatefadeparts.png -text
 mainApp/images/gplv3.png -text
+mainApp/images/ignoresubmodel.png -text
 mainApp/images/insertcoverpage.png -text
 mainApp/images/insertpage.png -text
 mainApp/images/last.png -text
@@ -387,11 +395,12 @@ mainApp/images/minus.png -text
 mainApp/images/new.png -text
 mainApp/images/next.png -text
 mainApp/images/nextstep.png -text
+mainApp/images/nopartslist.png -text
 mainApp/images/onlinemanual.png -text
 mainApp/images/open.png -text
-mainApp/images/pageorientation.png -text
 mainApp/images/pagesetup.png -text
-mainApp/images/pagesize.png -text
+mainApp/images/pagesizeandorientation.png -text
+mainApp/images/partslist.png -text
 mainApp/images/partslistsetup.png -text
 mainApp/images/paste.png -text
 mainApp/images/pdf_logo.png -text
@@ -409,6 +418,7 @@ mainApp/images/remove.png -text
 mainApp/images/removelpubformat.png -text
 mainApp/images/resetcache.png -text
 mainApp/images/resetsetting.png -text
+mainApp/images/rotate.png -text
 mainApp/images/rotateicon.png -text
 mainApp/images/save.png -text
 mainApp/images/saveas.png -text
@@ -419,6 +429,9 @@ mainApp/images/softwareupdate.png -text
 mainApp/images/sortPli.png -text
 mainApp/images/splitbom.png -text
 mainApp/images/stepgroupsetup.png -text
+mainApp/images/treataspart.png -text
+mainApp/images/unpackcallout.png -text
+mainApp/images/unrotate.png -text
 mainApp/images/zoomin.png -text
 mainApp/images/zoomout.png -text
 mainApp/ldrawfiles.cpp -text

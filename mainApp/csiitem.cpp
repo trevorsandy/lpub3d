@@ -81,6 +81,7 @@ void CsiItem::setFlag(GraphicsItemFlag flag, bool value)
 void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
+  QString name = "Step";
 
   MetaItem mi;
   int numSteps = mi.numSteps(step->top.modelName);
@@ -170,19 +171,9 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
             }
         }
       if (allocType == Vertical) {
-          allocAction = menu.addAction("Display as Rows");
-          allocAction->setIcon(QIcon(":/resources/displayrow.png"));
-          allocAction->setWhatsThis(
-                "Display as Rows:\n"
-                "  Change this whole set of steps from columns of steps\n"
-                "  to rows of steps");
+          allocAction = commonMenus.displayRowsMenu(menu,name);
         } else {
-          allocAction = menu.addAction("Display as Columns");
-          allocAction->setIcon(QIcon(":/resources/displaycolumn.png"));
-          allocAction->setWhatsThis(
-                "Display as Columns:\n"
-                "  Change this whole set of steps from rows of steps\n"
-                "  to columns of steps");
+          allocAction = commonMenus.displayColumnsMenu(menu, name);
         }
     }
 

@@ -2,6 +2,7 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------  
+-Add missing context menu icons (r680)
 -Add progress message updates to splash screen (r676)
 -Supress rotateIcon context menu item if icon already inserted for step (r670)
 -On single-step page, place PLI (Parts List) on top of CSI (Model) images (r664)

@@ -31,6 +31,7 @@
 #include <QPixmap>
 #include <QBitmap>
 #include <QColor>
+#include "commonmenus.h"
 #include "callout.h"
 #include "lpub.h"
 #include "ranges.h"
@@ -106,16 +107,12 @@ class SubmodelInstanceCount : public NumberPlacementItem
 void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
+  QString name = "Submodel";
 
-  QAction *fontAction       = menu.addAction("Change Submodel Count Font");
-  QAction *colorAction      = menu.addAction("Change Submodel Count Color");
-  QAction *marginAction     = menu.addAction("Change Submodel Count Margins");
-  QAction *placementAction  = menu.addAction("Move this number");
-
-  fontAction->setWhatsThis("You can change the font or the size of the page number");
-  colorAction->setWhatsThis("You can change the color of the page number");
-  marginAction->setWhatsThis("You can change how much empty space their is around the page number");
-  placementAction->setWhatsThis("You can move this submodel count around");
+  QAction *fontAction       = commonMenus.fontMenu(menu,name);
+  QAction *colorAction      = commonMenus.colorMenu(menu,name);
+  QAction *marginAction     = commonMenus.marginMenu(menu,name);
+  QAction *placementAction  = commonMenus.placementMenu(menu,name,"You can move this submodel count around");
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 

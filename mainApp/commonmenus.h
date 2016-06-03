@@ -51,6 +51,14 @@ public:
           QMenu   &menu,
     const QString  name = "");
 
+  QAction *displayRowsMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
+  QAction *displayColumnsMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
   QAction *fontMenu(
           QMenu   &menu,
     const QString  name = "");
@@ -67,6 +75,14 @@ public:
           PlacementType  type,
           PlacementData &placement,
     const QString        name = "");
+
+  QAction *noPartsList(
+          QMenu   &menu,
+    const QString  name = "");
+
+  QAction *partsList(
+          QMenu   &menu,
+    const QString  name = "");
 
   QAction *placementMenu(
           QMenu   &menu, 

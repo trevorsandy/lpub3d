@@ -120,43 +120,29 @@ void MultiStepRangeBackgroundItem::contextMenuEvent(
   QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-
   PlacementData placementData = meta->LPub.multiStep.placement.value();
+  QString name = "Steps";
 
-  QString name = "Move These Steps";
-  QAction *placementAction = menu.addAction(name);
-  placementAction->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(
-    StepGroupType,placementData,name));
+  QAction *placementAction;
+  placementAction = commonMenus.placementMenu(menu,name,
+                                              commonMenus.naturalLanguagePlacementWhatsThis(StepGroupType,placementData,name));
 
-  QAction *perStepAction = menu.addAction(
-    meta->LPub.multiStep.pli.perStep.value() ?
-      "No Parts List per Step" :
-      "Parts List per Step");
-
-  QAction *allocAction;
-  
-  if (page->allocType() == Vertical) {
-    allocAction = menu.addAction("Display as Rows");
-    allocAction->setWhatsThis(
-      "Display as Rows:\n"
-      "  Change this whole set of steps from columns of steps\n"
-      "  to rows of steps");
+  QAction *perStepAction;
+  if (meta->LPub.multiStep.pli.perStep.value()) {
+    perStepAction = commonMenus.noPartsList(menu,"Step");
   } else {
-    allocAction = menu.addAction("Display as Columns");
-    allocAction->setWhatsThis(
-      "Display as Columns:\n"
-      "  Change this whole set of steps from rows of steps\n"
-      "  to columns of steps");
+    perStepAction = commonMenus.partsList(menu,"Step");
   }
 
-  QAction *marginAction = menu.addAction("Change Step Group Margins");
+  QAction *allocAction;
+  if (page->allocType() == Vertical) {
+    allocAction = commonMenus.displayRowsMenu(menu,name);
+  } else {
+    allocAction = commonMenus.displayColumnsMenu(menu, name);
+  }
 
-  marginAction->setWhatsThis("Change Step Group Margins:\n"
-                             "  Margins are the empty space around this group of steps.\n"
-                             "  You can change the margins if things are too close together,\n"
-                             "  or too far apart. You can change the things in this group of\n"
-                             "  steps by putting your mouse cursor over them, and clicking\n"
-                             "  the menu button\n");
+  QAction *marginAction;
+  marginAction = commonMenus.marginMenu(menu,name);
 
   QAction *selectedAction = menu.exec(event->screenPos());
 
@@ -267,10 +253,17 @@ DividerItem::DividerItem(
 void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QAction *editAction     = menu.addAction("Change Divider");
-  QAction *deleteAction   = menu.addAction("Delete Divider");
+  QAction *editAction;
 
+  editAction = menu.addAction("Change Divider");
+  editAction->setIcon(QIcon(":/resources/changedivider.png"));
   editAction->setWhatsThis("Put the steps in this row together with the steps after this");
+
+  QAction *deleteAction;
+
+  deleteAction = menu.addAction("Delete Divider");
+  deleteAction->setIcon(QIcon(":/resources/deletedivider.png"));
+  deleteAction->setWhatsThis("Delete this divider from the model");
   
   QAction *selectedAction = menu.exec(event->screenPos());
 
