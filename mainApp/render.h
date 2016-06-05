@@ -40,7 +40,7 @@ class Render
 {
 public:
   Render() {}
-  virtual ~Render() {};
+  virtual ~Render() {}
   static QString const getRenderer();
   static void          setRenderer(QString const &name);
   virtual int 		 renderCsi(const QString &,
@@ -51,6 +51,9 @@ public:
                                    const QString &,
                                    Meta &,
                                    bool bom) = 0;
+  int                    renderLDViewPli(const QStringList &ldrNames,
+                                         Meta &,
+                                         bool bom);
   static int             rotateParts(const QString &addLine,
                                      RotStepMeta &rotStep,
                                      QStringList &parts,

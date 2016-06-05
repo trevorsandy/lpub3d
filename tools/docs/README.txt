@@ -2,6 +2,7 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------  
+-Increase PLI rendering speed with LDView using -SaveSnapshots=1 (r683)
 -Add context menu to pages without steps - e.g. Cover Page, BOM Page (r681)
 -Add missing context menu icons (r680)
 -Add progress message updates to splash screen (r676)

@@ -140,6 +140,7 @@ class Pli : public Placement {
     QHash<QString, PliPart*> tempParts;          // temp list used to devide the BOM
     QHash<QString, PliPart*> parts;
     QList<QString>           sortedKeys;
+    QHash<QString, QString>  imageNames;         //LDView performance improvement
     Annotations              annotations;        // this is an internal list of title and custom part annotations
 
   public:
@@ -206,6 +207,7 @@ class Pli : public Placement {
     int  sizePli(ConstrainData::PliConstrain, unsigned height);
     int  sortPli();
     int  partSize();
+    int  partSizeLDView();                          //LDView performance improvement
     int  resizePli(Meta *, ConstrainData &constrainData);
     int  placePli(QList<QString> &, int,int,bool,bool,int&,int&,int&);
     void positionChildren(int height, qreal scaleX, qreal scaleY);
@@ -216,6 +218,7 @@ class Pli : public Placement {
     void getAnnotate(QString &, QString &);
     void partClass(QString &, QString &);
     int  createPartImage(QString &, QString &, QString &, QPixmap*);
+    int  createPartImagesLDView(QStringList &);      //LDView performance improvement
     QString orient(QString &color, QString part);
 
     void operator= (Pli& from)

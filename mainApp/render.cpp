@@ -765,7 +765,6 @@ int LDView::renderCsi(
   arguments << "-UseSpecular=0";
   arguments << "-LightVector=0,1,1";
   arguments << "-SaveActualSize=0";
-  //arguments << "-ExtraSearchDirs/Dir001=C:\\Users\\Trevor\\LDraw\\Unofficial\\testParts";
   arguments << w;
   arguments << h;
   arguments << s;
@@ -799,7 +798,6 @@ int LDView::renderCsi(
   return 0;
 }
 
-  
 int LDView::renderPli(
   const QString &ldrName,
   const QString &pngName,
@@ -808,9 +806,9 @@ int LDView::renderPli(
 {
   int width  = meta.LPub.page.size.valuePixels(0);
   int height = meta.LPub.page.size.valuePixels(1);
-  
+
   QFileInfo fileInfo(ldrName);
-  
+
   if ( ! fileInfo.exists()) {
     return -1;
   }
@@ -818,8 +816,10 @@ int LDView::renderPli(
   /* determine camera distance */
 
   PliMeta &pliMeta = bom ? meta.LPub.bom : meta.LPub.pli;
-  
+
   int cd = cameraDistance(meta,pliMeta.modelScale.value())*1700/1000;
+
+  //qDebug() << "LDView (Native) Camera Distance: " << cd;
 
   QString cg = QString("-cg%1,%2,%3") .arg(pliMeta.angle.value(0))
                                       .arg(pliMeta.angle.value(1))
@@ -853,6 +853,8 @@ int LDView::renderPli(
   }
   arguments << ldrName;
 
+  //qDebug() << "LDView (Native) PLI Arguments: " << arguments;
+
   QProcess    ldview;
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath());
@@ -870,6 +872,76 @@ int LDView::renderPli(
   }
   return 0;
 }
+
+int Render::renderLDViewPli(
+  const QStringList &ldrNames,
+  Meta    &meta,
+  bool     bom)
+{
+  int width  = meta.LPub.page.size.valuePixels(0);
+  int height = meta.LPub.page.size.valuePixels(1);
+
+  /* determine camera distance */
+
+  PliMeta &pliMeta = bom ? meta.LPub.bom : meta.LPub.pli;
+
+  int cd = cameraDistance(meta,pliMeta.modelScale.value())*1700/1000;
+
+  qDebug() << "Render Camera Distance: " << cd;
+
+  QString cg = QString("-cg%1,%2,%3") .arg(pliMeta.angle.value(0))
+                                      .arg(pliMeta.angle.value(1))
+                                      .arg(cd);
+  QString w  = QString("-SaveWidth=%1")  .arg(width);
+  QString h  = QString("-SaveHeight=%1") .arg(height);
+  QString s  = QString("-SaveSnapShots=1");
+
+  QStringList arguments;
+  arguments << CA;
+  arguments << cg;
+  arguments << "-SaveAlpha=1";
+  arguments << "-AutoCrop=1";
+  arguments << "-ShowHighlightLines=1";
+  arguments << "-ConditionalHighlights=1";
+  arguments << "-SaveZoomToFit=0";
+  arguments << "-SubduedLighting=1";
+  arguments << "-UseSpecular=0";
+  arguments << "-LightVector=0,1,1";
+  arguments << "-SaveActualSize=0";
+  arguments << w;
+  arguments << h;
+  arguments << s;
+
+  QStringList list;
+  list = meta.LPub.pli.ldviewParms.value().split("\\s+");
+  for (int i = 0; i < list.size(); i++) {
+    if (list[i] != "" && list[i] != " ") {
+      arguments << list[i];
+    }
+  }
+  arguments = arguments + ldrNames;
+
+//  qDebug() << "LDView PLI Arguments: " << arguments;
+
+  QProcess    ldview;
+  ldview.setEnvironment(QProcess::systemEnvironment());
+  ldview.setWorkingDirectory(QDir::currentPath());
+  ldview.start(Preferences::ldviewExe,arguments);
+  if ( ! ldview.waitForFinished()) {
+      if (ldview.exitCode() != 0) {
+          QByteArray status = ldview.readAll();
+          QString str;
+          str.append(status);
+          QMessageBox::warning(NULL,
+                               QMessageBox::tr("LPub3D"),
+                               QMessageBox::tr("LDView failed\n%1") .arg(str));
+          return -1;
+        }
+    }
+
+  return 0;
+}
+
 
 //**3D
 // create 3D Viewer version of the csi file
