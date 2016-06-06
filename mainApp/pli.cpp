@@ -155,7 +155,22 @@ void Pli::setParts(
           QString key = info.baseName() + "_" + color;
 
           QString category;
-          partClass(type,category);
+          partClass(type,category);  // populate category w/ part class
+
+          float modelScale = pliMeta.modelScale.value();
+
+          // assemble image name key
+          QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7")
+              .arg(key)
+              .arg(meta.LPub.page.size.valuePixels(0))
+              .arg(resolution())
+              .arg(resolutionType() == DPI ? "DPI" : "DPCM")
+              .arg(modelScale)
+              .arg(pliMeta.angle.value(0))
+              .arg(pliMeta.angle.value(1));
+          // assemble image name
+          QString imageName = QDir::currentPath() + "/" +
+              Paths::partsDir + "/" + nameKey + ".png";
 
           if (bom && splitBom){
               if ( ! tempParts.contains(key)) {
@@ -165,6 +180,8 @@ void Pli::setParts(
                   part->csiMargin    = pliMeta.part.margin;
                   part->sortColour   = QString("%1").arg(color,5,'0');
                   part->sortCategory = QString("%1").arg(category,80,' ');
+                  part->nameKey      = nameKey;
+                  part->imageName    = imageName;
                   tempParts.insert(key,part);
                 }
               tempParts[key]->instances.append(here);
@@ -176,6 +193,8 @@ void Pli::setParts(
                   part->csiMargin    = pliMeta.part.margin;
                   part->sortColour   = QString("%1").arg(color,5,'0');
                   part->sortCategory = QString("%1").arg(category,80,' ');
+                  part->nameKey      = nameKey;
+                  part->imageName    = imageName;
                   parts.insert(key,part);
                 }
               parts[key]->instances.append(here);
@@ -406,6 +425,8 @@ int Pli::createPartImage(
     QString  &color,
     QPixmap  *pixmap)
 {
+  gui->statusBarMsg("Render PLI image...");
+
   float modelScale = pliMeta.modelScale.value();
 
   QString key = QString("%1_%2_%3_%4_%5_%6_%7")
@@ -457,31 +478,13 @@ int Pli::createPartImage(
 }
 
 // LDView performance improvement
-int Pli::createPartImagesLDView(QStringList &pliPartNames) {
+int Pli::createPartImagesLDView(QStringList &ldrNames) {
 
-  if (pliPartNames.size() > 0) {
-      // build ldr file names
-      QString ldrName;
-      QString pliPartName;
-      QStringList ldrNames;
-      foreach(pliPartName, pliPartNames) {
-          ldrName = QDir::currentPath() + "/" +
-              Paths::tmpDir + "/" + pliPartName + ".ldr";
+  gui->statusBarMsg("Render PLI images...");
 
-          QFileInfo fileInfo(ldrName);
-
-          if ( ! fileInfo.exists()) {
-              QMessageBox::warning(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                   QMessageBox::tr("Render input file does not exist: \n%1")
-                                   .arg(ldrName));
-              return -1;
-            }
-          ldrNames << ldrName;
-        }
-
+  if (ldrNames.size() > 0) {
       // feed DAT to renderer
       int rc = renderer->renderLDViewPli(ldrNames,*meta, bom);
-
       if (rc != 0) {
           QMessageBox::warning(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
                                QMessageBox::tr("Render failed for Pli images."));
@@ -489,6 +492,7 @@ int Pli::createPartImagesLDView(QStringList &pliPartNames) {
         }
 
       // move the image files to the parts folder
+      QString ldrName;
       QString tempPath = QDir::currentPath() + "/" + Paths::tmpDir;
       QDir dir(tempPath);
       foreach(ldrName, ldrNames){
@@ -515,22 +519,20 @@ int Pli::createPartImagesLDView(QStringList &pliPartNames) {
         }
 
       // load pixmap with generated image
-      if (! pixmap->load(imageNames[key])) {
+//      QString imageName = QDir::currentPath() + "/" +
+//          Paths::tmpDir + "/" + part->nameKey + ".png";
+//      if (! pixmap->load(imageName)) {
+//              QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
+//                                    QMessageBox::tr("Cannot load pixmap. Image %1 is not a file.")
+//                                    .arg(imageName));
+//              return -1;
+//            }
+      if (! pixmap->load(part->imageName)) {
               QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
                                     QMessageBox::tr("Cannot load pixmap. Image %1 is not a file.")
-                                    .arg(imageNames[key]));
+                                    .arg(part->imageName));
               return -1;
             }
-
-//      QFileInfo fileInfo(imageNames[key]);
-//      if (fileInfo.isFile()) {
-//          pixmap->load(fileInfo.absoluteFilePath());
-//        } else {
-//          QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-//                                QMessageBox::tr("Cannot load pixmap. Image %1 is not a file.")
-//                                .arg(imageNames[key]));
-//          return -1;
-//        }
 
       // transfer image info to part
       QImage image = pixmap->toImage();
@@ -606,8 +608,7 @@ int Pli::createPartImagesLDView(QStringList &pliPartNames) {
 
       part->partBotMargin = part->instanceMeta.margin.valuePixels(YY);
 
-      /* Lets see if we can slide the text up in the bottom left corner of
-   * part image */
+      /* Lets see if we can slide the text up in the bottom left corner of part image */
 
       int overlap;
       bool overlapped = false;
@@ -637,9 +638,6 @@ int Pli::createPartImagesLDView(QStringList &pliPartNames) {
           tallestPart = part->height;
         }
     }
-
-  // clear image names
-  imageNames.clear();
 
   return 0;
 }
@@ -1328,10 +1326,9 @@ int Pli::partSizeLDView() {
   QString key;
   widestPart = 0;
   tallestPart = 0;
-  imageNames.clear();
-  QStringList pliPartNames;
+  QStringList ldrNames;
 
-  // 1. generate part ldr files, capture pli part names and image file paths
+  // 1. generate ldr files
   foreach(key,parts.keys()) {
       PliPart *pliPart;
 
@@ -1348,31 +1345,13 @@ int Pli::partSizeLDView() {
               pliPart->color = "0";
             }
 
-          float modelScale = pliMeta.modelScale.value();
-
-          // assemble image name
-          QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7")
-              .arg(key)
-              .arg(meta->LPub.page.size.valuePixels(0))
-              .arg(resolution())
-              .arg(resolutionType() == DPI ? "DPI" : "DPCM")
-              .arg(modelScale)
-              .arg(pliMeta.angle.value(0))
-              .arg(pliMeta.angle.value(1));
-
-          QString imageName = QDir::currentPath() + "/" +
-              Paths::partsDir + "/" + nameKey + ".png";
-          // save image file name
-          imageNames.insert(key,imageName);
-
-          QFile part(imageName);
+          QFile part(pliPart->imageName);
           if ( ! part.exists()) {
 
               // assemble ldr name
               QString ldrName = QDir::currentPath() + "/" +
-                  Paths::tmpDir + "/" + nameKey + ".ldr";
-              // assemble name nameKeys
-              pliPartNames << nameKey;
+                  Paths::tmpDir + "/" + pliPart->nameKey + ".ldr";
+
               // create a DAT files to feed the renderer
               part.setFileName(ldrName);
               if ( ! part.open(QIODevice::WriteOnly)) {
@@ -1382,6 +1361,8 @@ int Pli::partSizeLDView() {
                                         .arg(part.errorString()));
                   return -1;
                 }
+              // store ldrName
+              ldrNames << ldrName;
               QTextStream out(&part);
               out << orient(pliPart->color, pliPart->type);
               part.close();
@@ -1395,8 +1376,8 @@ int Pli::partSizeLDView() {
 
     }
 
-  // 2. Call create part images using pliPars (DAT file name list)
-  if (createPartImagesLDView(pliPartNames)) {
+  // 2. Call create part images; send ldr file names
+  if (createPartImagesLDView(ldrNames)) {
       QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
                            QMessageBox::tr("Failed to create PLI part images"));
       return -1;

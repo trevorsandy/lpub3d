@@ -80,6 +80,8 @@ class PliPart {
     QString              sortCategory;
     QString              sortColour;
     QString              sortSize;
+    QString              nameKey;
+    QString              imageName;
   
     int           width;
     int           height;
@@ -140,7 +142,6 @@ class Pli : public Placement {
     QHash<QString, PliPart*> tempParts;          // temp list used to devide the BOM
     QHash<QString, PliPart*> parts;
     QList<QString>           sortedKeys;
-    QHash<QString, QString>  imageNames;         //LDView performance improvement
     Annotations              annotations;        // this is an internal list of title and custom part annotations
 
   public:

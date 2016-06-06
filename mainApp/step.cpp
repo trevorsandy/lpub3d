@@ -241,6 +241,7 @@ int Step::createCsi(
           return rc;
         }
     }
+
   pixmap->load(pngName);
   csiPlacement.size[0] = pixmap->width();
   csiPlacement.size[1] = pixmap->height();

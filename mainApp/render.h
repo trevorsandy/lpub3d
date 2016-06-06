@@ -41,8 +41,12 @@ class Render
 public:
   Render() {}
   virtual ~Render() {}
-  static QString const getRenderer();
-  static void          setRenderer(QString const &name);
+  static QString const   getRenderer();
+  static void            setRenderer(QString const &name);
+  int                    rotateParts(const QString &addLine,
+                                      RotStepMeta &rotStep,
+                                      const QStringList &parts,
+                                      QString &ldrName);
   virtual int 		 renderCsi(const QString &,
                                    const QStringList &,
                                    const QString &,
@@ -51,31 +55,30 @@ public:
                                    const QString &,
                                    Meta &,
                                    bool bom) = 0;
-  int                    renderLDViewPli(const QStringList &ldrNames,
+  int                    renderLDViewCsi(const QStringList &,
+                                     Meta &);
+  int                    renderLDViewPli(const QStringList &,
                                          Meta &,
                                          bool bom);
   static int             rotateParts(const QString &addLine,
                                      RotStepMeta &rotStep,
                                      QStringList &parts,
                                      bool  defaultRot = true);
-  int render3DCsi(const QString &,
-                  const QString &,
-                  const QStringList &,
-                  Meta &,
-                  bool cisExists,
-                  bool outOfDate);
-  int render3DCsiSubModels(QStringList &,
-                           QStringList &,
-                           QString &fadeColor,
-                           bool doFadeStep = false);
-  int load3DCsiImage(QString &);
+  int                    render3DCsi(const QString &,
+                                    const QString &,
+                                    const QStringList &,
+                                    Meta &,
+                                    bool cisExists,
+                                    bool outOfDate);
+  int                    render3DCsiSubModels(QStringList &,
+                                             QStringList &,
+                                             QString &fadeColor,
+                                             bool doFadeStep = false);
+  int                    load3DCsiImage(QString &);
 
 protected:
-  virtual float cameraDistance(Meta &meta, float) = 0;
-  int rotateParts(const QString     &addLine,
-                  RotStepMeta &rotStep,
-                  const QStringList &parts,
-                  QString     &ldrName);
+  virtual float          cameraDistance(Meta &meta, float) = 0;
+
 };
 
 extern Render *renderer;
