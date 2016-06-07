@@ -983,6 +983,10 @@ private:
   QMenu    *configMenu;
   QMenu    *helpMenu;
 
+  QMenu    *cacheMenu;
+  QMenu    *exportMenu;
+
+
   QToolBar *fileToolBar;
   QToolBar *editToolBar;
   QToolBar *zoomToolBar;

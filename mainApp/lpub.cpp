@@ -1677,6 +1677,7 @@ void Gui::enableActions()
   editFreeFormAnnitationsAct->setEnabled(true);
   editFadeColourPartsAct->setEnabled(true);
   editPliBomSubstitutePartsAct->setEnabled(true);
+  cacheMenu->setEnabled(true);
 }
 
 void Gui::enableActions2()
@@ -1704,7 +1705,7 @@ void Gui::createMenus()
     fileMenu->addAction(saveAct);
     fileMenu->addAction(saveAsAct);
 
-    QMenu *exportMenu = fileMenu->addMenu("Export As...");
+    exportMenu = fileMenu->addMenu("Export As...");
     exportMenu->setIcon(QIcon(":/resources/exportas.png"));
     exportMenu->addAction(exportPngAct);
     exportMenu->addAction(exportJpgAct);
@@ -1754,7 +1755,7 @@ void Gui::createMenus()
 
     toolsMenu->addSeparator();
 
-    QMenu *cacheMenu = toolsMenu->addMenu("Reset Cache...");
+    cacheMenu = toolsMenu->addMenu("Reset Cache...");
     toolsMenu->addAction(refreshLDrawUnoffPartsAct);
     cacheMenu->setIcon(QIcon(":/resources/resetcache.png"));
     cacheMenu->addAction(clearImageModelCacheAct);
@@ -1762,6 +1763,7 @@ void Gui::createMenus()
     cacheMenu->addAction(clearCSICacheAct);
     cacheMenu->addAction(clearCSI3DCacheAct);
     cacheMenu->addAction(clearFadeCacheAct);
+    cacheMenu->setDisabled(true);
 
     configMenu = menuBar()->addMenu(tr("&Configuration"));
     configMenu->addAction(pageSetupAct);
