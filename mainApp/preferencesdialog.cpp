@@ -60,6 +60,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.lgeoBox->setChecked(                   Preferences::lgeoPath != "");
   ui.ldviewPath->setText(                   Preferences::ldviewExe);
   ui.ldviewBox->setChecked(                 Preferences::ldviewExe != "");
+  ui.ldviewSingleCall_Chk->setChecked(      Preferences::enableLDViewSingleCall && Preferences::ldviewExe != "");
   ui.fadeStepBox->setChecked(               Preferences::enableFadeStep);
   ui.publishLogoBox->setChecked(            Preferences::documentLogoFile != "");
   ui.publishLogoPath->setText(              Preferences::documentLogoFile);
@@ -387,6 +388,8 @@ QString const PreferencesDialog::ldviewExe()
   return "";
 }
 
+
+
 QString const PreferencesDialog::ldgliteExe()
 {
   if (ui.ldgliteBox->isChecked()) {
@@ -447,6 +450,11 @@ bool  PreferencesDialog::enableFadeStep()
 bool PreferencesDialog::enableDocumentLogo()
 {
   return ui.publishLogoBox->isChecked();
+}
+
+bool PreferencesDialog::enableLDViewSingleCall()
+{
+  return ui.ldviewSingleCall_Chk->isChecked();
 }
 
 bool  PreferencesDialog::displayAllAttributes()

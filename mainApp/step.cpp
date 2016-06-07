@@ -210,17 +210,17 @@ int Step::createCsi(
         }
     }
 
-  // Qualify if ok to generate CSI
-  bool notUsingLDView = Render::getRenderer() != "LDView";
+  // Check if using LDView Single Call
+  bool notUsingLDViewSCall = ! renderer->useLDViewSCall();
+  bool okToExecuteThis = ! multiStep /*|| ! calledOut*/;
 
   // generate CSI file as appropriate
   if ( ! csi.exists() || csiOutOfDate ) {
 
       int rc;
       // render the partially assembled model
-      if (notUsingLDView) {
+      if (notUsingLDViewSCall) {
 
-          //TODO - if this update is ok, can remove addLine (set as null)
           rc = renderer->renderCsi(addLine,csiParts, pngName, meta);
           if (rc < 0) {
               QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
@@ -229,7 +229,7 @@ int Step::createCsi(
               return rc;
             }
 
-        } else {
+        } else { // using LDView Single Call
 
           /* Generate and rotate the CSI DAT file */
           ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + key + ".ldr";
@@ -242,11 +242,11 @@ int Step::createCsi(
               return rc;
             }
 
-          if (! multiStep /* || ! calledOut */) {
+          if (okToExecuteThis) { //execute if single step
 
               QStringList ldrNames;
               ldrNames << ldrName;
-              rc = renderer->renderLDViewCsi(ldrNames, meta);
+              rc = renderer->renderLDViewSCallCsi(ldrNames, meta);
               if (rc < 0) {
                   QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
                                         QMessageBox::tr("Render CSI part failed for:\n%1.")
@@ -264,7 +264,7 @@ int Step::createCsi(
         }
     }
 
-  if (notUsingLDView || ! multiStep){
+  if (notUsingLDViewSCall || okToExecuteThis){
       pixmap->load(pngName);
       csiPlacement.size[0] = pixmap->width();
       csiPlacement.size[1] = pixmap->height();
@@ -272,7 +272,7 @@ int Step::createCsi(
 
   if (! gMainWindow->GetHalt3DViewer()) {
 
-      int ln = top.lineNumber;                    // we need this to facilitate placing the ROTSTEP meta later on
+      int ln = top.lineNumber;                // we need this to facilitate placing the ROTSTEP meta later on
       QString file3DNamekey = QString("%1_%2_%3%4") // File Name Format = csiName_sn_ln.ldr
           .arg(csiName())                     // csi model name
           .arg(sn)                            // step number

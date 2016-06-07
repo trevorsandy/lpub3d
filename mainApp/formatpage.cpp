@@ -1354,10 +1354,11 @@ int Gui::addGraphicsPageItems(
       // We've got a page that contains step groups, so add it
 
       // LDView generate multistep pixamps
-      bool usingLDView = Render::getRenderer() == "LDView";
       QStringList ldrNames;
 
-      if (usingLDView && page->relativeType == StepGroupType && page->list.size()) {
+      if (renderer->useLDViewSCall() &&
+          page->list.size() &&
+          page->relativeType == StepGroupType) {
           Range *range = dynamic_cast<Range *>(page->list[0]);
           // 1. Capture ldrNames
           for (int i = 0; i < range->list.size(); i++){
@@ -1371,7 +1372,7 @@ int Gui::addGraphicsPageItems(
           // 2. Generate png images
           if (! ldrNames.isEmpty()) {
               int rc;
-              rc = renderer->renderLDViewCsi(ldrNames, page->meta);
+              rc = renderer->renderLDViewSCallCsi(ldrNames, page->meta);
               if (rc < 0) {
                   QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
                                         QMessageBox::tr("Render MultiStep CSI images failed."));

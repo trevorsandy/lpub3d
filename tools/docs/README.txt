@@ -2,7 +2,15 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------  
--Increase CSI (Models) rendering speed with LDView using -SaveSnapshots=1 (r685)
+-Up to 60% increase rendering speed with configuration to render multiple files using a single call to LDView. All PLI (part list/BOM) parts for a given page are rendered in a single call versue individually. For CSI (Step models), all multi-step images on a page are rendered in a single call. Single step page images are rendered individually. This new confiuration will default as checked.
+
+To achieve this behavior, input files (csi.ldr, pli.ldr) are now uniquely named because rendering multiple files is done by using -SaveSnapshots=1 instead of -SaveSnapshot=somefile.png and then listing all the LDR files at the end of the command line. There is no control over the output file names. Instead, LDView will automatically use the input base filename changing only the output filename extension from .ldr to .png.
+
+Enabling this feature is optonal and can be selected on the Configuration=>Preferences=>Rendering tab by checking the box 'Use multiple files single call rendering' in the 'LDView in installed' group box. LDView must be installed and configured to enable this option.
+
+Notice: As this feature required a significant rewrite of the core image generation logic, it is likely to generate some unexpected behavior as not every scenario has been tested. Please report any unexptected behavior. Contact details can be found under the Help=>About menu.
+-Enable 'Use multiple files single call rendering' for LDView from Preferences=>Rendering tab (r687)
+-Increase CSI (Models) rendering speed with LDView using -SaveSnapshots=1. (r685)
 -Increase PLI (Part list/BOM) rendering speed with LDView using -SaveSnapshots=1 (r683/r684)
 -Add context menu to pages without steps - e.g. Cover Page, BOM Page (r681)
 -Add missing context menu icons (r680)

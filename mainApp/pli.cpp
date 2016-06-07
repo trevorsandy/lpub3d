@@ -478,13 +478,13 @@ int Pli::createPartImage(
 }
 
 // LDView performance improvement
-int Pli::createPartImagesLDView(QStringList &ldrNames) {
+int Pli::createPartImagesLDViewSCall(QStringList &ldrNames) {
 
   gui->statusBarMsg("Render PLI images...");
 
   if (ldrNames.size() > 0) {
       // feed DAT to renderer
-      int rc = renderer->renderLDViewPli(ldrNames,*meta, bom);
+      int rc = renderer->renderLDViewSCallPli(ldrNames,*meta, bom);
       if (rc != 0) {
           QMessageBox::warning(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
                                QMessageBox::tr("Render failed for Pli images."));
@@ -1156,9 +1156,9 @@ int Pli::sortPli()
 
 int Pli::partSize()
 {
-  if (Render::getRenderer() == "LDView") {
+  if (renderer->useLDViewSCall()) {
 
-      int rc = partSizeLDView();
+      int rc = partSizeLDViewSCall();
       if (rc != 0)
         return rc;
 
@@ -1311,7 +1311,7 @@ int Pli::partSize()
 }
 
 //LDView performance improvement
-int Pli::partSizeLDView() {
+int Pli::partSizeLDViewSCall() {
 
   QString key;
   widestPart = 0;
@@ -1367,7 +1367,7 @@ int Pli::partSizeLDView() {
     }
 
   // 2. Call create part images; send ldr file names
-  if (createPartImagesLDView(ldrNames)) {
+  if (createPartImagesLDViewSCall(ldrNames)) {
       QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
                            QMessageBox::tr("Failed to create PLI part images"));
       return -1;

@@ -128,6 +128,13 @@ void Render::setRenderer(QString const &name)
   }
 }
 
+bool Render::useLDViewSCall(bool override){
+  if (override)
+    return override;
+  else
+    return Preferences::useLDViewSingleCall;
+}
+
 void clipImage(QString const &pngName){
 	//printf("\n");
 	QImage toClip(QDir::toNativeSeparators(pngName));
@@ -331,8 +338,8 @@ int L3P::renderCsi(
 			QString str;
 			str.append(status);
 			QMessageBox::warning(NULL,
-                                 QMessageBox::tr("LPub3D"),
-								 QMessageBox::tr("L3P failed with code %1\n%2").arg(l3p.exitCode()) .arg(str));
+				 QMessageBox::tr(VER_PRODUCTNAME_STR),
+					QMessageBox::tr("L3P failed with code %1\n%2").arg(l3p.exitCode()) .arg(str));
 			return -1;
 		}
 	}
@@ -379,8 +386,8 @@ int L3P::renderCsi(
 			QString str;
 			str.append(status);
 			QMessageBox::warning(NULL,
-                                 QMessageBox::tr("LPub3D"),
-								 QMessageBox::tr("POV-RAY failed with code %1\n%2").arg(povray.exitCode()) .arg(str));
+				 QMessageBox::tr(VER_PRODUCTNAME_STR),
+					QMessageBox::tr("POV-RAY failed with code %1\n%2").arg(povray.exitCode()) .arg(str));
 			return -1;
 		}
 	}
@@ -454,8 +461,8 @@ int L3P::renderPli(const QString &ldrName,
 			QString str;
 			str.append(status);
 			QMessageBox::warning(NULL,
-                                 QMessageBox::tr("LPub3D"),
-								 QMessageBox::tr("L3P failed\n%1") .arg(str));
+				 QMessageBox::tr(VER_PRODUCTNAME_STR),
+					QMessageBox::tr("L3P failed\n%1") .arg(str));
 			return -1;
 		}
 	}
@@ -502,8 +509,8 @@ int L3P::renderPli(const QString &ldrName,
 			QString str;
 			str.append(status);
 			QMessageBox::warning(NULL,
-                                 QMessageBox::tr("LPub3D"),
-								 QMessageBox::tr("POV-RAY failed\n%1") .arg(str));
+				 QMessageBox::tr(VER_PRODUCTNAME_STR),
+					QMessageBox::tr("POV-RAY failed\n%1") .arg(str));
 			return -1;
 		}
 	}
@@ -606,7 +613,7 @@ int LDGLite::renderCsi(
       QString str;
       str.append(status);
       QMessageBox::warning(NULL,
-                           QMessageBox::tr("LPub3D"),
+                           QMessageBox::tr(VER_PRODUCTNAME_STR),
                            QMessageBox::tr("LDGlite failed\n%1") .arg(str));
       return -1;
     }
@@ -680,7 +687,7 @@ int LDGLite::renderPli(
       QString str;
       str.append(status);
       QMessageBox::warning(NULL,
-                           QMessageBox::tr("LPub3D"),
+                           QMessageBox::tr(VER_PRODUCTNAME_STR),
                            QMessageBox::tr("LDGlite failed\n%1") .arg(str));
       return -1;
     }
@@ -789,7 +796,7 @@ int LDView::renderCsi(
       QString str;
       str.append(status);
       QMessageBox::warning(NULL,
-                           QMessageBox::tr("LPub3D"),
+                           QMessageBox::tr(VER_PRODUCTNAME_STR),
                            QMessageBox::tr("LDView failed\n%1") .arg(str));
       return -1;
     }
@@ -865,7 +872,7 @@ int LDView::renderPli(
       QString str;
       str.append(status);
       QMessageBox::warning(NULL,
-                           QMessageBox::tr("LPub3D"),
+                           QMessageBox::tr(VER_PRODUCTNAME_STR),
                            QMessageBox::tr("LDView failed\n%1") .arg(str));
       return -1;
     }
@@ -873,7 +880,7 @@ int LDView::renderPli(
   return 0;
 }
 
-int Render::renderLDViewCsi(
+int Render::renderLDViewSCallCsi(
   const QStringList &ldrNames,
         Meta        &meta)
 {
@@ -933,7 +940,7 @@ int Render::renderLDViewCsi(
       QString str;
       str.append(status);
       QMessageBox::warning(NULL,
-                           QMessageBox::tr("LPub3D"),
+                           QMessageBox::tr(VER_PRODUCTNAME_STR),
                            QMessageBox::tr("LDView failed\n%1") .arg(str));
       return -1;
     }
@@ -942,7 +949,7 @@ int Render::renderLDViewCsi(
   return 0;
 }
 
-int Render::renderLDViewPli(
+int Render::renderLDViewSCallPli(
   const QStringList &ldrNames,
   Meta    &meta,
   bool     bom)
@@ -999,7 +1006,7 @@ int Render::renderLDViewPli(
           QString str;
           str.append(status);
           QMessageBox::warning(NULL,
-                               QMessageBox::tr("LPub3D"),
+                               QMessageBox::tr(VER_PRODUCTNAME_STR),
                                QMessageBox::tr("LDView failed\n%1") .arg(str));
           return -1;
         }
@@ -1101,6 +1108,10 @@ int Render::render3DCsi(
 
             /* Set the CSI 3D ldr ROTSTEP on top-level content */
             if ((rc = rotateParts(addLine, meta.rotStep, csi3DParts, csi3DName)) < 0) {
+                QMessageBox::warning(NULL,
+                                     QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                     QMessageBox::tr("3D-render rotate parts failed for: %1.")
+                                     .arg(csi3DName));
                 return rc;
             }
 
@@ -1111,7 +1122,7 @@ int Render::render3DCsi(
                 QFile csi3DFile(csi3DName);
                 if ( ! csi3DFile.open(QFile::Append | QFile::Text)) {
                     QMessageBox::warning(NULL,
-                                         QMessageBox::tr("LPub3D"),
+                                         QMessageBox::tr(VER_PRODUCTNAME_STR),
                                          QMessageBox::tr("Cannot open subModel file %1 for writing:\n%2")
                                          .arg(csi3DName)
                                          .arg(csi3DFile.errorString()));
@@ -1127,10 +1138,12 @@ int Render::render3DCsi(
         }
     }
 
-    if ((rc = load3DCsiImage(csi3DName)) < 0)
-        return rc;
+    rc = load3DCsiImage(csi3DName);
+    if (rc != 0)
+      return rc;
 
     return 0;
+
 }
 
 int Render::render3DCsiSubModels(QStringList &subModels,
@@ -1143,6 +1156,7 @@ int Render::render3DCsiSubModels(QStringList &subModels,
     QStringList newSubModels;
     QStringList argv;
     bool        alreadyInserted;
+    int         rc;
 
     if (csiSubModels.size() > 0) {
 
@@ -1216,7 +1230,12 @@ int Render::render3DCsiSubModels(QStringList &subModels,
 
         /* recurse and process any identified submodel files */
         if (newSubModels.size() > 0){
-            render3DCsiSubModels(newSubModels, csiSubModelParts, fadeColor, doFadeStep);
+           rc = render3DCsiSubModels(newSubModels, csiSubModelParts, fadeColor, doFadeStep);
+           if (rc != 0)
+             QMessageBox::warning(NULL,
+                                  QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                  QMessageBox::tr("3D-render construct submodel file failed."));
+             return rc;
         }
         //end for
         csiSubModelParts.append("0 NOFILE");
@@ -1235,8 +1254,13 @@ int Render::load3DCsiImage(QString &csi3DName)
       else
         return -1;
     } else {
-      qDebug() << "3D-render file does not exist: " << csi3DFile.fileName();
-      return -1;
+      if ( ! csi3DFile.open(QFile::ReadOnly | QFile::Text)) {
+          QMessageBox::warning(NULL,
+                               QMessageBox::tr(VER_PRODUCTNAME_STR),
+                               QMessageBox::tr("3D-render file does not exist: %1.")
+                               .arg(csi3DFile.fileName()));
+          return -1;
+        }
     }
   return 0;
 }

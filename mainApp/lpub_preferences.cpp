@@ -78,6 +78,8 @@ QString Preferences::plug                       = QString(QObject::trUtf8("Instr
                                                                QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
 
 bool    Preferences::enableDocumentLogo         = false;
+bool    Preferences::enableLDViewSingleCall     = true;
+bool    Preferences::useLDViewSingleCall        = false;
 bool    Preferences::displayAllAttributes       = false;
 bool    Preferences::generageCoverPages         = false;
 bool    Preferences::printDocumentTOC           = false;
@@ -407,6 +409,7 @@ void Preferences::renderPreferences()
             }
         }
     }
+
   if (preferredRenderer == "") {
       if (ldviewInstalled && ldgliteInstalled) {
           preferredRenderer = povRayInstalled? "POV-Ray" : "LDGLite";
@@ -418,10 +421,30 @@ void Preferences::renderPreferences()
           preferredRenderer = "LDGLite";
         }
     }
+
   if (preferredRenderer == "") {
       Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
     } else {
       Settings.setValue(QString("%1/%2").arg(SETTINGS,preferredRendererKey),preferredRenderer);
+    }
+
+  /* Set use multiple files single call rendering option */
+  if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"))) {
+      QVariant eValue(false);
+      if (preferredRenderer == "LDView") {
+          enableLDViewSingleCall = true;
+        } else {
+          enableLDViewSingleCall = false;
+        }
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"),eValue);
+    } else {
+      enableLDViewSingleCall = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall")).toBool();
+    }
+
+  if (preferredRenderer == "LDView" && enableLDViewSingleCall) {
+      useLDViewSingleCall = true;
+    } else {
+      useLDViewSingleCall - false;
     }
 }
 
@@ -844,6 +867,11 @@ bool Preferences::getPreferences()
           defaultResolutionType(preferCentimeters);
         }
 
+      if (enableLDViewSingleCall != dialog->enableLDViewSingleCall()) {
+          enableLDViewSingleCall = dialog->enableLDViewSingleCall();
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"),enableLDViewSingleCall);
+        }
+
       if (silentUpdate != dialog->silentUpdate()) {
           silentUpdate = dialog->silentUpdate();
           Settings.setValue(QString("%1/%2").arg(DEFAULTS,"SilentUpdate"),silentUpdate);
@@ -867,6 +895,12 @@ bool Preferences::getPreferences()
       if (printDocumentTOC != dialog->printDocumentTOC()) {
           printDocumentTOC = dialog->printDocumentTOC();
           Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PrintDocumentTOC"),printDocumentTOC);
+        }
+
+      if (preferredRenderer == "LDView" && enableLDViewSingleCall) {
+          useLDViewSingleCall = true;
+        } else {
+          useLDViewSingleCall - false;
         }
 
       return true;

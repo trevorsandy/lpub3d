@@ -906,6 +906,8 @@ void Gui::editLdrawIniFile()
 
 void Gui::preferences()
 {
+  bool useLDViewSCall= renderer->useLDViewSCall();
+
   if (Preferences::getPreferences()) {
 
       Meta meta;
@@ -915,10 +917,11 @@ void Gui::preferences()
 
       if (!getCurFile().isEmpty()){
 
-          QString renderer = Render::getRenderer();
+          QString currentRenderer = Render::getRenderer();
           Render::setRenderer(Preferences::preferredRenderer);
-          bool rendererChanged = Render::getRenderer() != renderer;
+          bool rendererChanged = Render::getRenderer() != currentRenderer;
           bool fadeStepColorChanged = Preferences::fadeStepColorChanged && !Preferences::fadeStepSettingChanged;
+          bool useLDViewSCallChanged = useLDViewSCall != renderer->useLDViewSCall();
 
           if (rendererChanged && Preferences::preferredRenderer == "LDGLite") {
               partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
@@ -926,7 +929,9 @@ void Gui::preferences()
 
           if (Preferences::fadeStepSettingChanged){
               clearImageModelCaches();
-            } else if (rendererChanged || fadeStepColorChanged){
+            } else if (rendererChanged ||
+                       fadeStepColorChanged ||
+                       useLDViewSCallChanged){
               clearAndRedrawPage();
             }
         }

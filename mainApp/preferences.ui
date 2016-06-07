@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>505</height>
+    <height>522</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,7 +28,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -342,7 +342,7 @@
        <property name="geometry">
         <rect>
          <x>16</x>
-         <y>239</y>
+         <y>260</y>
          <width>441</width>
          <height>170</height>
         </rect>
@@ -525,9 +525,9 @@
        <property name="geometry">
         <rect>
          <x>15</x>
-         <y>147</y>
+         <y>150</y>
          <width>441</width>
-         <height>77</height>
+         <height>91</height>
         </rect>
        </property>
        <property name="title">
@@ -539,25 +539,61 @@
        <property name="checked">
         <bool>false</bool>
        </property>
-       <layout class="QHBoxLayout" name="_4">
-        <item>
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Name</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="ldviewPath"/>
-        </item>
-        <item>
-         <widget class="QPushButton" name="browseLDView">
-          <property name="text">
-           <string>Browse...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QLabel" name="label_2">
+        <property name="geometry">
+         <rect>
+          <x>12</x>
+          <y>58</y>
+          <width>25</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="ldviewPath">
+        <property name="geometry">
+         <rect>
+          <x>44</x>
+          <y>56</y>
+          <width>281</width>
+          <height>20</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="browseLDView">
+        <property name="geometry">
+         <rect>
+          <x>336</x>
+          <y>52</y>
+          <width>93</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Browse...</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="ldviewSingleCall_Chk">
+        <property name="geometry">
+         <rect>
+          <x>44</x>
+          <y>26</y>
+          <width>281</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Potentially increase LDView rendering speed.</string>
+        </property>
+        <property name="statusTip">
+         <string>Increase rendering speed with option to render multiple files using a single call to LDView.</string>
+        </property>
+        <property name="text">
+         <string>Use multiple files single call rendering</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QLabel" name="RenderMessage">
        <property name="geometry">

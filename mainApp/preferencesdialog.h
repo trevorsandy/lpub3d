@@ -60,6 +60,7 @@ class PreferencesDialog : public QDialog
     bool          centimeters();
     bool          enableFadeStep();
     bool          enableDocumentLogo();
+    bool          enableLDViewSingleCall();
     bool          silentUpdate();
     int           checkForUpdates();
 

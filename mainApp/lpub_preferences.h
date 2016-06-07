@@ -70,6 +70,8 @@ class Preferences
     static QStringList ldSearchDirs;
     static bool    ldrawiniFound;
     static bool    enableDocumentLogo;
+    static bool    enableLDViewSingleCall;
+    static bool    useLDViewSingleCall;
     static bool    displayAllAttributes;
     static bool    generageCoverPages;
     static bool    printDocumentTOC;

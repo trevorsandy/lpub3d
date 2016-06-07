@@ -43,6 +43,7 @@ public:
   virtual ~Render() {}
   static QString const   getRenderer();
   static void            setRenderer(QString const &name);
+  bool                   useLDViewSCall(bool override = false);
   virtual int 		 renderCsi(const QString &,
                                    const QStringList &,
                                    const QString &,
@@ -55,9 +56,9 @@ public:
                                       RotStepMeta &rotStep,
                                       const QStringList &parts,
                                       QString &ldrName);
-  int                    renderLDViewCsi(const QStringList &,
+  int                    renderLDViewSCallCsi(const QStringList &,
                                      Meta &);
-  int                    renderLDViewPli(const QStringList &,
+  int                    renderLDViewSCallPli(const QStringList &,
                                          Meta &,
                                          bool bom);
   static int             rotateParts(const QString &addLine,
