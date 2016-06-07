@@ -58,13 +58,14 @@ bool Step::refreshCsi(true);  //detect preference dialog updates
  ********************************************************************/
 
 Step::Step(
-  Where                  &topOfStep,
-  AbstractStepsElement  *_parent,
-  int                     num,            // step number as seen by the user
-  Meta                  &_meta,           // the current state of the meta-commands
-  bool                    calledOut,      // if we're a callout
-  bool                    multiStep)
+    Where                  &topOfStep,
+    AbstractStepsElement  *_parent,
+    int                     num,            // step number as seen by the user
+    Meta                  &_meta,           // the current state of the meta-commands
+    bool                    calledOut,      // if we're a callout
+    bool                    multiStep)
   : calledOut(calledOut)
+  , multiStep(multiStep)
 {
   top                       =  topOfStep;
   parent                    = _parent;
@@ -86,48 +87,48 @@ Step::Step(
   csiItem                   = NULL;
 
   if (calledOut) {
-    csiPlacement.margin     = _meta.LPub.callout.csi.margin;
-    csiPlacement.placement  = _meta.LPub.callout.csi.placement;
-    pli.margin              = _meta.LPub.callout.pli.margin;
-    pli.placement           = _meta.LPub.callout.pli.placement;
-    rotateIcon.placement    = _meta.LPub.callout.rotateIcon.placement;
-    rotateIcon.margin       = _meta.LPub.callout.rotateIcon.margin;
-    rotateIconMeta          = _meta.LPub.callout.rotateIcon;
-    numberPlacemetMeta      = _meta.LPub.callout.stepNum;
-    stepNumber.placement    = _meta.LPub.callout.stepNum.placement;
-    stepNumber.font         = _meta.LPub.callout.stepNum.font.valueFoo();
-    stepNumber.color        = _meta.LPub.callout.stepNum.color.value();
-    stepNumber.margin       = _meta.LPub.callout.stepNum.margin;
-    pliPerStep              = _meta.LPub.callout.pli.perStep.value();
-  } else if (multiStep) {
-    csiPlacement.margin     = _meta.LPub.multiStep.csi.margin;
-    csiPlacement.placement  = _meta.LPub.multiStep.csi.placement;
-    pli.margin              = _meta.LPub.multiStep.pli.margin;
-    pli.placement           = _meta.LPub.multiStep.pli.placement;
-    rotateIcon.placement    = _meta.LPub.multiStep.rotateIcon.placement;
-    rotateIcon.margin       = _meta.LPub.multiStep.rotateIcon.margin;
-    rotateIconMeta          = _meta.LPub.multiStep.rotateIcon;
-    numberPlacemetMeta      = _meta.LPub.multiStep.stepNum;
-    stepNumber.placement    = _meta.LPub.multiStep.stepNum.placement;
-    stepNumber.font         = _meta.LPub.multiStep.stepNum.font.valueFoo();
-    stepNumber.color        = _meta.LPub.multiStep.stepNum.color.value();
-    stepNumber.margin       = _meta.LPub.multiStep.stepNum.margin;
-    pliPerStep              = _meta.LPub.multiStep.pli.perStep.value();
-  } else {
-    csiPlacement.margin     = _meta.LPub.assem.margin;
-    csiPlacement.placement  = _meta.LPub.assem.placement;
-    placement               = _meta.LPub.assem.placement;
-    pli.margin              = _meta.LPub.assem.margin;
-    pli.placement           = _meta.LPub.pli.placement;
-    rotateIcon.placement    = _meta.LPub.rotateIcon.placement;
-    rotateIcon.margin       = _meta.LPub.rotateIcon.margin;
-    stepNumber.font         = _meta.LPub.stepNumber.font.valueFoo();
-    stepNumber.color        = _meta.LPub.stepNumber.color.value();
-    stepNumber.margin       = _meta.LPub.stepNumber.margin;
-    stepNumber.placement    = _meta.LPub.stepNumber.placement;
-    stepNumber.margin       = _meta.LPub.stepNumber.margin;
-    pliPerStep              = false;
-  }
+      csiPlacement.margin     = _meta.LPub.callout.csi.margin;
+      csiPlacement.placement  = _meta.LPub.callout.csi.placement;
+      pli.margin              = _meta.LPub.callout.pli.margin;
+      pli.placement           = _meta.LPub.callout.pli.placement;
+      rotateIcon.placement    = _meta.LPub.callout.rotateIcon.placement;
+      rotateIcon.margin       = _meta.LPub.callout.rotateIcon.margin;
+      rotateIconMeta          = _meta.LPub.callout.rotateIcon;
+      numberPlacemetMeta      = _meta.LPub.callout.stepNum;
+      stepNumber.placement    = _meta.LPub.callout.stepNum.placement;
+      stepNumber.font         = _meta.LPub.callout.stepNum.font.valueFoo();
+      stepNumber.color        = _meta.LPub.callout.stepNum.color.value();
+      stepNumber.margin       = _meta.LPub.callout.stepNum.margin;
+      pliPerStep              = _meta.LPub.callout.pli.perStep.value();
+    } else if (multiStep) {
+      csiPlacement.margin     = _meta.LPub.multiStep.csi.margin;
+      csiPlacement.placement  = _meta.LPub.multiStep.csi.placement;
+      pli.margin              = _meta.LPub.multiStep.pli.margin;
+      pli.placement           = _meta.LPub.multiStep.pli.placement;
+      rotateIcon.placement    = _meta.LPub.multiStep.rotateIcon.placement;
+      rotateIcon.margin       = _meta.LPub.multiStep.rotateIcon.margin;
+      rotateIconMeta          = _meta.LPub.multiStep.rotateIcon;
+      numberPlacemetMeta      = _meta.LPub.multiStep.stepNum;
+      stepNumber.placement    = _meta.LPub.multiStep.stepNum.placement;
+      stepNumber.font         = _meta.LPub.multiStep.stepNum.font.valueFoo();
+      stepNumber.color        = _meta.LPub.multiStep.stepNum.color.value();
+      stepNumber.margin       = _meta.LPub.multiStep.stepNum.margin;
+      pliPerStep              = _meta.LPub.multiStep.pli.perStep.value();
+    } else {
+      csiPlacement.margin     = _meta.LPub.assem.margin;
+      csiPlacement.placement  = _meta.LPub.assem.placement;
+      placement               = _meta.LPub.assem.placement;
+      pli.margin              = _meta.LPub.assem.margin;
+      pli.placement           = _meta.LPub.pli.placement;
+      rotateIcon.placement    = _meta.LPub.rotateIcon.placement;
+      rotateIcon.margin       = _meta.LPub.rotateIcon.margin;
+      stepNumber.font         = _meta.LPub.stepNumber.font.valueFoo();
+      stepNumber.color        = _meta.LPub.stepNumber.color.value();
+      stepNumber.margin       = _meta.LPub.stepNumber.margin;
+      stepNumber.placement    = _meta.LPub.stepNumber.placement;
+      stepNumber.margin       = _meta.LPub.stepNumber.margin;
+      pliPerStep              = false;
+    }
   pli.steps                 = grandparent();
   pli.step                  = this;
   showStepNumber            = _meta.LPub.assem.showStepNumber.value();
@@ -141,9 +142,9 @@ Step::Step(
 
 Step::~Step() {
   for (int i = 0; i < list.size(); i++) {
-    Callout *callout = list[i];
-    delete callout;
-  }
+      Callout *callout = list[i];
+      delete callout;
+    }
   list.clear();
   pli.clear();
 }
@@ -165,13 +166,14 @@ Range *Step::range()
  */
 
 int Step::createCsi(
-  QString     const &addLine,
-  QStringList const &csiParts,  // the partially assembles model
-  QPixmap           *pixmap,
-  Meta              &meta)
+    QString     const &addLine,
+    QStringList const &csiParts,  // the partially assembles model
+    QPixmap           *pixmap,
+    Meta              &meta)
 {
   qreal       modelScale = meta.LPub.assem.modelScale.value();
   int         sn = stepNumber.number;
+  ldrName.clear();
   
   // 1 color x y z a b c d e f g h i foo.dat
   // 0 1     2 3 4 5 6 7 8 9 0 1 2 3 4
@@ -179,77 +181,112 @@ int Step::createCsi(
   split(addLine,tokens);
   QString orient;
   if (tokens.size() == 15) {
-    for (int i = 5; i < 14; i++) {
-      orient += "_" + tokens[i];
-    }
-  }
-    gui->statusBarMsg("Csi key created...");
-  QString key = QString("%1_%2_%3_%4_%5_%6")
-                        .arg(csiName()+orient)
-                        .arg(sn)
-                        .arg(meta.LPub.page.size.valuePixels(0))
-                        .arg(resolution())
-                        .arg(resolutionType() == DPI ? "DPI" : "DPCM")
-                        .arg(modelScale);
-
-  pngName = QDir::currentPath() + "/" +
-                  Paths::assemDir + "/" + key + ".png";
-
-    gui->statusBarMsg("Csi Qfile created...");
-  QFile csi(pngName);
-
-  bool outOfDate = false;
-  
-  if (csi.exists()) {
-    QDateTime lastModified = QFileInfo(pngName).lastModified();
-    QStringList stack = submodelStack();
-    stack << parent->modelName();
-    if ( ! isOlder(stack,lastModified) || refreshCsi) {
-      outOfDate = true;
-    }
-  }
-
-  //**3D
-  if (! gMainWindow->GetHalt3DViewer()) {
-
-      gui->statusBarMsg("Render 3DCsi content...");
-
-      int ln = top.lineNumber;                    // we need this to facilitate placing the ROTSTEP meta later on
-      QString fileNamekey = QString("%1_%2_%3%4") // File Name Format = csiName_sn_ln.ldr
-              .arg(csiName())                     // csi model name
-              .arg(sn)                            // step number
-              .arg(ln)                            // line number
-              .arg(".ldr");                       // extension
-
-      csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + fileNamekey;
-      renderer->render3DCsi(fileNamekey, addLine, csiParts, meta, csi.exists(), outOfDate);
-
-  }
-  //**
-
-  if ( ! csi.exists() || outOfDate) {
-
-      gui->statusBarMsg("Render Csi images...");
-
-      int rc;
-
-      // render the partially assembled model
-
-      rc = renderer->renderCsi(addLine,csiParts, pngName, meta);
-
-      if (rc < 0) {
-          return rc;
+      for (int i = 5; i < 14; i++) {
+          orient += "_" + tokens[i];
         }
     }
 
-  pixmap->load(pngName);
-  csiPlacement.size[0] = pixmap->width();
-  csiPlacement.size[1] = pixmap->height();
+  QString key = QString("%1_%2_%3_%4_%5_%6")
+      .arg(csiName()+orient)
+      .arg(sn)
+      .arg(meta.LPub.page.size.valuePixels(0))
+      .arg(resolution())
+      .arg(resolutionType() == DPI ? "DPI" : "DPCM")
+      .arg(modelScale);
 
-  gui->statusBarMsg("Csi content created...");
+  // png name
+  pngName = QDir::currentPath() + "/" +
+      Paths::assemDir + "/" + key + ".png";
+
+  csiOutOfDate = false;
+
+  QFile csi(pngName);
+  if (csi.exists()) {
+      QDateTime lastModified = QFileInfo(pngName).lastModified();
+      QStringList stack = submodelStack();
+      stack << parent->modelName();
+      if ( ! isOlder(stack,lastModified) || refreshCsi) {
+          csiOutOfDate = true;
+        }
+    }
+
+  // Qualify if ok to generate CSI
+  bool notUsingLDView = Render::getRenderer() != "LDView";
+
+  // generate CSI file as appropriate
+  if ( ! csi.exists() || csiOutOfDate ) {
+
+      int rc;
+      // render the partially assembled model
+      if (notUsingLDView) {
+
+          //TODO - if this update is ok, can remove addLine (set as null)
+          rc = renderer->renderCsi(addLine,csiParts, pngName, meta);
+          if (rc < 0) {
+              QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                    QMessageBox::tr("Render CSI part failed for:\n%1.")
+                                    .arg(pngName));
+              return rc;
+            }
+
+        } else {
+
+          /* Generate and rotate the CSI DAT file */
+          ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + key + ".ldr";
+
+          rc = renderer->rotateParts(addLine,meta.rotStep, csiParts, ldrName);
+          if (rc < 0) {
+              QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                    QMessageBox::tr("Creation and rotation of CSI ldr file failed for:\n%1.")
+                                    .arg(ldrName));
+              return rc;
+            }
+
+          if (! multiStep /* || ! calledOut */) {
+
+              QStringList ldrNames;
+              ldrNames << ldrName;
+              rc = renderer->renderLDViewCsi(ldrNames, meta);
+              if (rc < 0) {
+                  QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                        QMessageBox::tr("Render CSI part failed for:\n%1.")
+                                        .arg(ldrName));
+                  return rc;
+                }
+              // move image to parts folder
+              QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
+              QFileInfo fInfo(ldrName.replace(".ldr",".png"));
+              QString imageFilePath = QDir::currentPath() + "/" +
+                  Paths::assemDir + "/" + fInfo.fileName();
+              dir.rename(fInfo.absoluteFilePath(), imageFilePath);
+
+            }
+        }
+    }
+
+  if (notUsingLDView || ! multiStep){
+      pixmap->load(pngName);
+      csiPlacement.size[0] = pixmap->width();
+      csiPlacement.size[1] = pixmap->height();
+    }
+
+  if (! gMainWindow->GetHalt3DViewer()) {
+
+      int ln = top.lineNumber;                    // we need this to facilitate placing the ROTSTEP meta later on
+      QString file3DNamekey = QString("%1_%2_%3%4") // File Name Format = csiName_sn_ln.ldr
+          .arg(csiName())                     // csi model name
+          .arg(sn)                            // step number
+          .arg(ln)                            // line number
+          .arg(".ldr");                       // extension
+
+      csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + file3DNamekey;
+      QFile csi3D(csi3DName);
+      renderer->render3DCsi(file3DNamekey, addLine, csiParts, meta, csi3D.exists(), csiOutOfDate);
+
+    }
 
   return 0;
-  }
+}
 
 int Step::Load3DCsi(QString &csi3DName)
 {
@@ -421,15 +458,15 @@ const int pliPlace[NumPlacements][2] =
 
 const int rotateIconPlace[NumPlacements][2] =
 {
- { TblRi0, TblRi0 },  // Top_Left
- { TblCsi, TblRi0 },  // Top
- { TblRi1, TblRi0 },  // Top_Right
- { TblRi1, TblCsi },  // Right
- { TblRi1, TblRi1 },  // BOTTOM_RIGHT
- { TblCsi, TblRi1 },  // BOTTOM
- { TblRi0, TblRi1 },  // BOTTOM_LEFT
- { TblRi0, TblCsi },  // LEFT
- { TblCsi, TblCsi },
+  { TblRi0, TblRi0 },  // Top_Left
+  { TblCsi, TblRi0 },  // Top
+  { TblRi1, TblRi0 },  // Top_Right
+  { TblRi1, TblCsi },  // Right
+  { TblRi1, TblRi1 },  // BOTTOM_RIGHT
+  { TblCsi, TblRi1 },  // BOTTOM
+  { TblRi0, TblRi1 },  // BOTTOM_LEFT
+  { TblRi0, TblCsi },  // LEFT
+  { TblCsi, TblCsi },
 };
 
 /*
@@ -469,23 +506,23 @@ const int relativePlace[NumPlacements][2] =
 };
 
 void Step::maxMargin(
-  MarginsMeta &margin,
-  int tbl[2],
-  int marginRows[][2],
-  int marginCols[][2])
+    MarginsMeta &margin,
+    int tbl[2],
+int marginRows[][2],
+int marginCols[][2])
 {
   if (margin.valuePixels(XX) > marginCols[tbl[XX]][0]) {
-    marginCols[tbl[XX]][0] = margin.valuePixels(XX);
-  }
+      marginCols[tbl[XX]][0] = margin.valuePixels(XX);
+    }
   if (margin.valuePixels(XX) > marginCols[tbl[XX]][1]) {
-    marginCols[tbl[XX]][1] = margin.valuePixels(XX);
-  }
+      marginCols[tbl[XX]][1] = margin.valuePixels(XX);
+    }
   if (margin.valuePixels(YY) > marginRows[tbl[YY]][0]) {
-    marginRows[tbl[YY]][0] = margin.valuePixels(YY);
-  }
+      marginRows[tbl[YY]][0] = margin.valuePixels(YY);
+    }
   if (margin.valuePixels(YY) > marginRows[tbl[YY]][1]) {
-    marginRows[tbl[YY]][1] = margin.valuePixels(YY);
-  }
+      marginRows[tbl[YY]][1] = margin.valuePixels(YY);
+    }
 }
 
 /*
@@ -508,12 +545,12 @@ void Step::maxMargin(
  */
 
 int Step::sizeit(
-  int  rows[],         // accumulate sub-row heights here
-  int  cols[],         // accumulate sub-col widths here
-  int  marginRows[][2],// accumulate sub-row margin heights here
-  int  marginCols[][2],
-  int  x,
-  int  y)// accumulate sub-col margin widths here
+    int  rows[],         // accumulate sub-row heights here
+    int  cols[],         // accumulate sub-col widths here
+    int  marginRows[][2],// accumulate sub-row margin heights here
+int  marginCols[][2],
+int  x,
+int  y)// accumulate sub-col margin widths here
 {
 
   // size up each callout
@@ -521,14 +558,14 @@ int Step::sizeit(
   int numCallouts = list.size();
 
   for (int i = 0; i < numCallouts; i++) {
-    list[i]->sizeIt();
-  }
+      list[i]->sizeIt();
+    }
 
   // size up the step number
 
   if (showStepNumber && ! onlyChild()) {
-    stepNumber.sizeit();
-  }
+      stepNumber.sizeit();
+    }
 
   // size up the rotate icon
 
@@ -550,14 +587,14 @@ int Step::sizeit(
   // PLI relative to CSI
 
   if (pliPlacement.relativeTo == CsiType) {
-    if (pliPlacement.preposition == Outside) {
-      pli.tbl[XX] = pliPlace[pliPlacement.placement][XX];
-      pli.tbl[YY] = pliPlace[pliPlacement.placement][YY];
-    } else {
-      pli.tbl[XX] = TblCsi;
-      pli.tbl[YY] = TblCsi;
+      if (pliPlacement.preposition == Outside) {
+          pli.tbl[XX] = pliPlace[pliPlacement.placement][XX];
+          pli.tbl[YY] = pliPlace[pliPlacement.placement][YY];
+        } else {
+          pli.tbl[XX] = TblCsi;
+          pli.tbl[YY] = TblCsi;
+        }
     }
-  }
 
   // Rotate Icon relative to CSI
 
@@ -582,52 +619,52 @@ int Step::sizeit(
   //    Step Number is relative to CSI (Assem)
 
   if (stepNumberPlacement.relativeTo == PartsListType && ! pliPerStep) {
-    stepNumberPlacement.relativeTo = CsiType;
-  }
+      stepNumberPlacement.relativeTo = CsiType;
+    }
 
   if (stepNumberPlacement.relativeTo == CsiType) {
-    if (stepNumberPlacement.preposition == Outside) {
-      stepNumber.tbl[XX] = stepNumberPlace[stepNumberPlacement.placement][XX];
-      stepNumber.tbl[YY] = stepNumberPlace[stepNumberPlacement.placement][YY];
-    } else {
-      stepNumber.tbl[XX] = TblCsi;
-      stepNumber.tbl[YY] = TblCsi;
+      if (stepNumberPlacement.preposition == Outside) {
+          stepNumber.tbl[XX] = stepNumberPlace[stepNumberPlacement.placement][XX];
+          stepNumber.tbl[YY] = stepNumberPlace[stepNumberPlacement.placement][YY];
+        } else {
+          stepNumber.tbl[XX] = TblCsi;
+          stepNumber.tbl[YY] = TblCsi;
+        }
     }
-  }
 
   /* Now lets place things relative to others row/columns */
 
   /* first the known entities */
 
   if (pliPlacement.relativeTo == StepNumberType) {
-    if (pliPerStep && pli.tsize()) {
-      pli.tbl[XX] = stepNumber.tbl[XX]+relativePlace[pliPlacement.placement][XX];
-      pli.tbl[YY] = stepNumber.tbl[YY]+relativePlace[pliPlacement.placement][YY];
-    } else {
-      stepNumber.tbl[XX] = stepNumberPlace[stepNumberPlacement.placement][XX];
-      stepNumber.tbl[YY] = stepNumberPlace[stepNumberPlacement.placement][YY];
+      if (pliPerStep && pli.tsize()) {
+          pli.tbl[XX] = stepNumber.tbl[XX]+relativePlace[pliPlacement.placement][XX];
+          pli.tbl[YY] = stepNumber.tbl[YY]+relativePlace[pliPlacement.placement][YY];
+        } else {
+          stepNumber.tbl[XX] = stepNumberPlace[stepNumberPlacement.placement][XX];
+          stepNumber.tbl[YY] = stepNumberPlace[stepNumberPlacement.placement][YY];
+        }
     }
-  }
 
   if (pliPlacement.relativeTo == RotateIconType) {
-    if (pliPerStep && pli.tsize()) {
-      pli.tbl[XX] = rotateIcon.tbl[XX]+relativePlace[pliPlacement.placement][XX];
-      pli.tbl[YY] = rotateIcon.tbl[YY]+relativePlace[pliPlacement.placement][YY];
-    } else {
-      rotateIcon.tbl[XX] = rotateIconPlace[rotateIconPlacement.placement][XX];
-      rotateIcon.tbl[YY] = rotateIconPlace[rotateIconPlacement.placement][YY];
+      if (pliPerStep && pli.tsize()) {
+          pli.tbl[XX] = rotateIcon.tbl[XX]+relativePlace[pliPlacement.placement][XX];
+          pli.tbl[YY] = rotateIcon.tbl[YY]+relativePlace[pliPlacement.placement][YY];
+        } else {
+          rotateIcon.tbl[XX] = rotateIconPlace[rotateIconPlacement.placement][XX];
+          rotateIcon.tbl[YY] = rotateIconPlace[rotateIconPlacement.placement][YY];
+        }
     }
-  }
 
   if (stepNumberPlacement.relativeTo == PartsListType) {
-    stepNumber.tbl[XX] = pli.tbl[XX]+relativePlace[stepNumberPlacement.placement][XX];
-    stepNumber.tbl[YY] = pli.tbl[YY]+relativePlace[stepNumberPlacement.placement][YY];
-  }
+      stepNumber.tbl[XX] = pli.tbl[XX]+relativePlace[stepNumberPlacement.placement][XX];
+      stepNumber.tbl[YY] = pli.tbl[YY]+relativePlace[stepNumberPlacement.placement][YY];
+    }
 
   if (stepNumberPlacement.relativeTo == RotateIconType) {
-    stepNumber.tbl[XX] = rotateIcon.tbl[XX]+relativePlace[stepNumberPlacement.placement][XX];
-    stepNumber.tbl[YY] = rotateIcon.tbl[YY]+relativePlace[stepNumberPlacement.placement][YY];
-  }
+      stepNumber.tbl[XX] = rotateIcon.tbl[XX]+relativePlace[stepNumberPlacement.placement][XX];
+      stepNumber.tbl[YY] = rotateIcon.tbl[YY]+relativePlace[stepNumberPlacement.placement][YY];
+    }
 
   if (rotateIconPlacement.relativeTo == PartsListType) {
       if (placeRotateIcon) {
@@ -662,10 +699,10 @@ int Step::sizeit(
   int square[NumPlaces][NumPlaces];
   
   for (int i = 0; i < NumPlaces; i++) {
-    for (int j = 0; j < NumPlaces; j++) {
-      square[i][j] = -1;
+      for (int j = 0; j < NumPlaces; j++) {
+          square[i][j] = -1;
+        }
     }
-  }
   
   square[TblCsi][TblCsi] = CsiType;
   square[pli.tbl[XX]][pli.tbl[YY]] = PartsListType;
@@ -676,64 +713,64 @@ int Step::sizeit(
   int max = pixmapSize[y];
 
   for (int i = 0; i < numCallouts; i++) {
-    Callout *callout = list[i];
-    
-    PlacementData calloutPlacement = callout->placement.value();
-    bool sharable = true;
-    bool onSide = false;
+      Callout *callout = list[i];
 
-    if (calloutPlacement.relativeTo == CsiType) {
-      onSide = x == XX ? (calloutPlacement.placement == Left || 
-                          calloutPlacement.placement == Right)
-                       : (calloutPlacement.placement == Top || 
-                          calloutPlacement.placement == Bottom);
-    }
-    
-    if (onSide) {
-      if (max < callout->size[y]) {
-        max = callout->size[y];
-      }
-    }
+      PlacementData calloutPlacement = callout->placement.value();
+      bool sharable = true;
+      bool onSide = false;
 
-    int rp = calloutPlacement.placement;
-    switch (calloutPlacement.relativeTo) {
-      case CsiType:
-        callout->tbl[XX] = coPlace[rp][XX];
-        callout->tbl[YY] = coPlace[rp][YY];
-      break;
-      case PartsListType:
-        callout->tbl[XX] = pli.tbl[XX] + relativePlace[rp][XX];
-        callout->tbl[YY] = pli.tbl[YY] + relativePlace[rp][YY];
-      break;
-      case StepNumberType:
-        callout->tbl[XX] = stepNumber.tbl[XX] + relativePlace[rp][XX];
-        callout->tbl[YY] = stepNumber.tbl[YY] + relativePlace[rp][YY];
-      break;
-      case RotateIconType:
-        callout->tbl[XX] = rotateIcon.tbl[XX] + relativePlace[rp][XX];
-        callout->tbl[YY] = rotateIcon.tbl[YY] + relativePlace[rp][YY];
-      break;
-      default:
-        sharable = false;
-      break;
-    }
-    
-    if ( ! pliPerStep) {
-      sharable = false;
-    }
-    square[callout->tbl[XX]][callout->tbl[YY]] = i + 1;
-    int size = callout->submodelStack().size();
-    if (sharable && size > 1) {
-      if (callout->tbl[x] < TblCsi && callout->tbl[y] == TblCsi) {
-        if (calloutSize[x] < callout->size[x]) {
-          calloutSize[XX] = callout->size[XX];
-          calloutSize[YY] = callout->size[YY];
+      if (calloutPlacement.relativeTo == CsiType) {
+          onSide = x == XX ? (calloutPlacement.placement == Left ||
+                              calloutPlacement.placement == Right)
+                           : (calloutPlacement.placement == Top ||
+                              calloutPlacement.placement == Bottom);
         }
-        callout->shared = true;
-        shared = true;
-      }
-    } 
-  }
+
+      if (onSide) {
+          if (max < callout->size[y]) {
+              max = callout->size[y];
+            }
+        }
+
+      int rp = calloutPlacement.placement;
+      switch (calloutPlacement.relativeTo) {
+        case CsiType:
+          callout->tbl[XX] = coPlace[rp][XX];
+          callout->tbl[YY] = coPlace[rp][YY];
+          break;
+        case PartsListType:
+          callout->tbl[XX] = pli.tbl[XX] + relativePlace[rp][XX];
+          callout->tbl[YY] = pli.tbl[YY] + relativePlace[rp][YY];
+          break;
+        case StepNumberType:
+          callout->tbl[XX] = stepNumber.tbl[XX] + relativePlace[rp][XX];
+          callout->tbl[YY] = stepNumber.tbl[YY] + relativePlace[rp][YY];
+          break;
+        case RotateIconType:
+          callout->tbl[XX] = rotateIcon.tbl[XX] + relativePlace[rp][XX];
+          callout->tbl[YY] = rotateIcon.tbl[YY] + relativePlace[rp][YY];
+          break;
+        default:
+          sharable = false;
+          break;
+        }
+
+      if ( ! pliPerStep) {
+          sharable = false;
+        }
+      square[callout->tbl[XX]][callout->tbl[YY]] = i + 1;
+      int size = callout->submodelStack().size();
+      if (sharable && size > 1) {
+          if (callout->tbl[x] < TblCsi && callout->tbl[y] == TblCsi) {
+              if (calloutSize[x] < callout->size[x]) {
+                  calloutSize[XX] = callout->size[XX];
+                  calloutSize[YY] = callout->size[YY];
+                }
+              callout->shared = true;
+              shared = true;
+            }
+        }
+    }
 
   /************************************************/
   /*                                              */
@@ -742,112 +779,112 @@ int Step::sizeit(
   /************************************************/
   
   if (pli.pliMeta.constrain.isDefault()) {
-        
-    int tsize = 0;
-    
-    switch (pliPlacement.placement) {
-      case Top:
-      case Bottom:
-        tsize = csiPlacement.size[XX];
-        pli.sizePli(ConstrainData::PliConstrainWidth,tsize);
-        if (pli.size[YY] > gui->page.meta.LPub.page.size.valuePixels(YY)/3) {
+
+      int tsize = 0;
+
+      switch (pliPlacement.placement) {
+        case Top:
+        case Bottom:
+          tsize = csiPlacement.size[XX];
+          pli.sizePli(ConstrainData::PliConstrainWidth,tsize);
+          if (pli.size[YY] > gui->page.meta.LPub.page.size.valuePixels(YY)/3) {
+              pli.sizePli(ConstrainData::PliConstrainArea,tsize);
+            }
+          break;
+        case Left:
+        case Right:
+          tsize = csiPlacement.size[YY];
+          pli.sizePli(ConstrainData::PliConstrainHeight,tsize);
+          if (pli.size[XX] > gui->page.meta.LPub.page.size.valuePixels(XX)/3) {
+              pli.sizePli(ConstrainData::PliConstrainArea,tsize);
+            }
+          break;
+        default:
           pli.sizePli(ConstrainData::PliConstrainArea,tsize);
+          break;
         }
-      break;
-      case Left:
-      case Right:
-        tsize = csiPlacement.size[YY];
-        pli.sizePli(ConstrainData::PliConstrainHeight,tsize);
-        if (pli.size[XX] > gui->page.meta.LPub.page.size.valuePixels(XX)/3) {
-          pli.sizePli(ConstrainData::PliConstrainArea,tsize);
-        }
-      break;
-      default:
-        pli.sizePli(ConstrainData::PliConstrainArea,tsize);
-      break;
     }
-  }
   
   // Allow PLI and CALLOUT to share one column
   
   if (shared && pli.tbl[y] == TblCsi) {
-    int wX = 0, wY = 0;
-    if (x == XX) {
-      wX = pli.size[XX] + calloutSize[XX];
-      wY = pli.size[YY];
+      int wX = 0, wY = 0;
+      if (x == XX) {
+          wX = pli.size[XX] + calloutSize[XX];
+          wY = pli.size[YY];
+        } else {
+          wX = pli.size[XX];
+          wY = pli.size[YY] + calloutSize[YY];
+        }
+      if (cols[pli.tbl[XX]] < wX) {
+          cols[pli.tbl[XX]] = wX;
+        }
+      if (rows[pli.tbl[YY]] < wY) {
+          rows[pli.tbl[YY]] = wY;
+        }
     } else {
-      wX = pli.size[XX];
-      wY = pli.size[YY] + calloutSize[YY];
-    }  
-    if (cols[pli.tbl[XX]] < wX) {
-      cols[pli.tbl[XX]] = wX;
-    }
-    if (rows[pli.tbl[YY]] < wY) {
-      rows[pli.tbl[YY]] = wY;
-    }
-  } else {
 
-    bool addOn = true;
-    
-    /* Drop the PLI down on top of the CSI, and reduce the pli's size */
+      bool addOn = true;
 
-    if (onlyChild()) {
-      switch (pliPlacement.placement) {
-        case Top:
-        case Bottom:
-          if (pliPlacement.relativeTo == CsiType) {
-            if ( ! collide(square,pli.tbl,y, x)) {
-              int height = (max - pixmapSize[y])/2;
-              if (height > 0) {
-                if (height >= pli.size[y]) {  // entire thing fits
-                  rows[pli.tbl[y]] = 0;
-                  addOn = false;
-                } else {                      // fit what we can
-                  rows[pli.tbl[y]] = pli.size[y] - height;
-                  addOn = false;
+      /* Drop the PLI down on top of the CSI, and reduce the pli's size */
+
+      if (onlyChild()) {
+          switch (pliPlacement.placement) {
+            case Top:
+            case Bottom:
+              if (pliPlacement.relativeTo == CsiType) {
+                  if ( ! collide(square,pli.tbl,y, x)) {
+                      int height = (max - pixmapSize[y])/2;
+                      if (height > 0) {
+                          if (height >= pli.size[y]) {  // entire thing fits
+                              rows[pli.tbl[y]] = 0;
+                              addOn = false;
+                            } else {                      // fit what we can
+                              rows[pli.tbl[y]] = pli.size[y] - height;
+                              addOn = false;
+                            }
+                        }
+                    }
                 }
-              }
+              break;
+            default:
+              break;
             }
-          }
-        break;
-        default:
-        break;
-      }
-    }
+        }
 
-    if (cols[pli.tbl[XX]] < pli.size[XX]) {
-      cols[pli.tbl[XX]] = pli.size[XX];  // HINT 1
+      if (cols[pli.tbl[XX]] < pli.size[XX]) {
+          cols[pli.tbl[XX]] = pli.size[XX];  // HINT 1
+        }
+      if (addOn) {
+          if (rows[pli.tbl[YY]] < pli.size[YY]) {
+              rows[pli.tbl[YY]] = pli.size[YY];
+            }
+        }
     }
-    if (addOn) {
-      if (rows[pli.tbl[YY]] < pli.size[YY]) {
-        rows[pli.tbl[YY]] = pli.size[YY];
-      }
-    }
-  }
 
   if (cols[stepNumber.tbl[XX]] < stepNumber.size[XX]) {
-    cols[stepNumber.tbl[XX]] = stepNumber.size[XX];
-  }
+      cols[stepNumber.tbl[XX]] = stepNumber.size[XX];
+    }
 
   if (rows[stepNumber.tbl[YY]] < stepNumber.size[YY]) {
-    rows[stepNumber.tbl[YY]] = stepNumber.size[YY];
-  }
+      rows[stepNumber.tbl[YY]] = stepNumber.size[YY];
+    }
   
   if (cols[TblCsi] < csiPlacement.size[XX]) {
-    cols[TblCsi] = csiPlacement.size[XX];
-  }
+      cols[TblCsi] = csiPlacement.size[XX];
+    }
 
   if (rows[TblCsi] < csiPlacement.size[YY]) {
-    rows[TblCsi] = csiPlacement.size[YY];
-  }
+      rows[TblCsi] = csiPlacement.size[YY];
+    }
 
   if (cols[rotateIcon.tbl[XX]] < rotateIcon.size[XX]) {
-    cols[rotateIcon.tbl[XX]] = rotateIcon.size[XX];
-  }
+      cols[rotateIcon.tbl[XX]] = rotateIcon.size[XX];
+    }
 
   if (rows[rotateIcon.tbl[YY]] < rotateIcon.size[YY]) {
-    rows[rotateIcon.tbl[YY]] = rotateIcon.size[YY];
-  }
+      rows[rotateIcon.tbl[YY]] = rotateIcon.size[YY];
+    }
 
   /******************************************************************/
   /* Determine col/row and margin for each callout that is relative */
@@ -855,50 +892,50 @@ int Step::sizeit(
   /******************************************************************/
 
   for (int i = 0; i < numCallouts; i++) {
-    Callout *callout = list[i];
+      Callout *callout = list[i];
 
-    switch (callout->placement.value().relativeTo) {
-      case CsiType:
-      case PartsListType:
-      case StepNumberType:
-      case RotateIconType:
-        if (callout->shared && rows[TblCsi] < callout->size[y]) {
-          rows[TblCsi] = callout->size[y];
-        } else {
+      switch (callout->placement.value().relativeTo) {
+        case CsiType:
+        case PartsListType:
+        case StepNumberType:
+        case RotateIconType:
+          if (callout->shared && rows[TblCsi] < callout->size[y]) {
+              rows[TblCsi] = callout->size[y];
+            } else {
 
-          if (cols[callout->tbl[XX]] < callout->size[XX]) {
-            cols[callout->tbl[XX]] = callout->size[XX];
-          }
-          if (rows[callout->tbl[YY]] < callout->size[YY]) {
-            rows[callout->tbl[YY]] = callout->size[YY];
-          }
+              if (cols[callout->tbl[XX]] < callout->size[XX]) {
+                  cols[callout->tbl[XX]] = callout->size[XX];
+                }
+              if (rows[callout->tbl[YY]] < callout->size[YY]) {
+                  rows[callout->tbl[YY]] = callout->size[YY];
+                }
 
-          maxMargin(callout->margin,
-                    callout->tbl,
-                    marginRows,
-                    marginCols);
+              maxMargin(callout->margin,
+                        callout->tbl,
+                        marginRows,
+                        marginCols);
+            }
+          break;
+        default:
+          break;
         }
-      break;
-      default:
-     break;
     }
-  }
 
   return 0;
 }
 
 bool Step::collide(
-  int square[NumPlaces][NumPlaces],
-  int tbl[],
-  int x,
-  int y)
+    int square[NumPlaces][NumPlaces],
+    int tbl[],
+    int x,
+    int y)
 {
   int place;
   for (place = tbl[x]; place < TblCsi; place++) {
-    if (square[place][y] != -1) {
-      return true;
+      if (square[place][y] != -1) {
+          return true;
+        }
     }
-  }
   return false;
 }
 
@@ -908,26 +945,26 @@ void Step::maxMargin(int &top, int &bot, int y)
   bot = top;
 
   if (stepNumber.tbl[YY] < TblCsi) {
-    top = stepNumber.margin.valuePixels(y);
-  } else if (stepNumber.tbl[y] == TblCsi) {
-    int margin = stepNumber.margin.valuePixels(y);
-    top = qMax(top,margin);
-    bot = qMax(bot,margin);
-  } else {
-    bot = stepNumber.margin.valuePixels(y);
-  }
-
-  if (pli.size[y]) {
-    if (pli.tbl[y] < TblCsi) {
-      top = pli.margin.valuePixels(y);
+      top = stepNumber.margin.valuePixels(y);
     } else if (stepNumber.tbl[y] == TblCsi) {
-      int margin = pli.margin.valuePixels(y);
+      int margin = stepNumber.margin.valuePixels(y);
       top = qMax(top,margin);
       bot = qMax(bot,margin);
     } else {
-      bot = pli.margin.valuePixels(y);
+      bot = stepNumber.margin.valuePixels(y);
     }
-  }
+
+  if (pli.size[y]) {
+      if (pli.tbl[y] < TblCsi) {
+          top = pli.margin.valuePixels(y);
+        } else if (stepNumber.tbl[y] == TblCsi) {
+          int margin = pli.margin.valuePixels(y);
+          top = qMax(top,margin);
+          bot = qMax(bot,margin);
+        } else {
+          bot = pli.margin.valuePixels(y);
+        }
+    }
 
   if (placeRotateIcon){
       if (rotateIcon.tbl[YY] < TblCsi) {
@@ -942,17 +979,17 @@ void Step::maxMargin(int &top, int &bot, int y)
     }
 
   for (int i = 0; i < list.size(); i++) {
-    Callout *callout = list[i];
-    if (callout->tbl[y] < TblCsi) {
-      top = callout->margin.valuePixels(y);
-    } else if (stepNumber.tbl[y] == TblCsi) {
-      int margin = callout->margin.valuePixels(y);
-      top = qMax(top,margin);
-      bot = qMax(bot,margin);
-    } else {
-      bot = callout->margin.valuePixels(y);
+      Callout *callout = list[i];
+      if (callout->tbl[y] < TblCsi) {
+          top = callout->margin.valuePixels(y);
+        } else if (stepNumber.tbl[y] == TblCsi) {
+          int margin = callout->margin.valuePixels(y);
+          top = qMax(top,margin);
+          bot = qMax(bot,margin);
+        } else {
+          bot = callout->margin.valuePixels(y);
+        }
     }
-  }
 }
 
 /***************************************************************************
@@ -961,10 +998,10 @@ void Step::maxMargin(int &top, int &bot, int y)
  ***************************************************************************/
 
 void Step::placeit(
-  int rows[],
-  int margins[],
-  int y,
-  bool shared)
+    int rows[],
+    int margins[],
+    int y,
+    bool shared)
 {
 
   /*********************************/
@@ -976,11 +1013,11 @@ void Step::placeit(
   int origins[NumPlaces];
 
   for (int i = 0; i < NumPlaces; i++) {
-    origins[i] = origin;
-    if (rows[i]) {
-      origin += rows[i] + margins[i];
+      origins[i] = origin;
+      if (rows[i]) {
+          origin += rows[i] + margins[i];
+        }
     }
-  }
 
   size[y] = origin;
 
@@ -1002,7 +1039,7 @@ void Step::placeit(
       if(placeRotateIcon){
           rotateIcon.justifyX(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
         }
-    break;
+      break;
     case YY:
       if ( ! shared) {
           pli.justifyY(origins[pli.tbl[y]],rows[pli.tbl[y]]);
@@ -1011,49 +1048,49 @@ void Step::placeit(
       if(placeRotateIcon){
           rotateIcon.justifyY(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
         }
-    break;
+      break;
     default:
-    break;
+      break;
     }
 
   /* place the callouts that are relative to step components */
 
   for (int i = 0; i < list.size(); i++) {
-    Callout *callout = list[i];
-    PlacementData calloutPlacement = callout->placement.value();
+      Callout *callout = list[i];
+      PlacementData calloutPlacement = callout->placement.value();
 
-    if (shared && callout->shared) {
-      if (callout->size[y] > origins[TblCsi]) {
-        int locY = callout->size[y] - origins[TblCsi] - margins[TblCsi];
-        callout->loc[y] = locY;
-      } else {
-        int locY = origins[TblCsi] - callout->size[y] - margins[TblCsi];
-        callout->loc[y] = locY;
-      }
-    } else {
-      switch (calloutPlacement.relativeTo) {
-        case CsiType:
-        case PartsListType:
-        case StepNumberType:
-        case RotateIconType:
-          callout->loc[y] = origins[callout->tbl[y]];
-          if (callout->shared) {
-            callout->loc[y] -= callout->margin.value(y) - 500;
-          }
+      if (shared && callout->shared) {
+          if (callout->size[y] > origins[TblCsi]) {
+              int locY = callout->size[y] - origins[TblCsi] - margins[TblCsi];
+              callout->loc[y] = locY;
+            } else {
+              int locY = origins[TblCsi] - callout->size[y] - margins[TblCsi];
+              callout->loc[y] = locY;
+            }
+        } else {
+          switch (calloutPlacement.relativeTo) {
+            case CsiType:
+            case PartsListType:
+            case StepNumberType:
+            case RotateIconType:
+              callout->loc[y] = origins[callout->tbl[y]];
+              if (callout->shared) {
+                  callout->loc[y] -= callout->margin.value(y) - 500;
+                }
 
-          if (y == YY) {
-            callout->justifyY(origins[callout->tbl[y]],
-                                 rows[callout->tbl[y]]);
-          } else {
-            callout->justifyX(origins[callout->tbl[y]],
-                                 rows[callout->tbl[y]]);
-          }
-        break;
-        default:
-        break;
-      }
+              if (y == YY) {
+                  callout->justifyY(origins[callout->tbl[y]],
+                      rows[callout->tbl[y]]);
+                } else {
+                  callout->justifyX(origins[callout->tbl[y]],
+                      rows[callout->tbl[y]]);
+                }
+              break;
+            default:
+              break;
+            }
+        }
     }
-  }
 }
 
 /*
@@ -1062,12 +1099,12 @@ void Step::placeit(
  */
 
 void Step::addGraphicsItems(
-  int             offsetX,
-  int             offsetY,
-  Meta           *meta,
-  PlacementType   parentRelativeType,
-  QGraphicsItem  *parent,
-  bool            movable)
+    int             offsetX,
+    int             offsetY,
+    Meta           *meta,
+    PlacementType   parentRelativeType,
+    QGraphicsItem  *parent,
+    bool            movable)
 {
   offsetX += loc[XX];
   offsetY += loc[YY];
@@ -1086,26 +1123,26 @@ void Step::addGraphicsItems(
 
   // PLI
   if (pli.tsize()) {
-    pli.addPli(submodelLevel, parent);
-    pli.setPos(offsetX + pli.loc[XX],
-               offsetY + pli.loc[YY]);
-  }
+      pli.addPli(submodelLevel, parent);
+      pli.setPos(offsetX + pli.loc[XX],
+                 offsetY + pli.loc[YY]);
+    }
   
   // Step Number
   if (stepNumber.number > 0 && ! onlyChild() && showStepNumber) {
-    StepNumberItem *sn; 
-    sn = new StepNumberItem(this,
-                            parentRelativeType,
-                            numberPlacemetMeta,
-                            "%d",
-                            stepNumber.number,
-                            parent);
+      StepNumberItem *sn;
+      sn = new StepNumberItem(this,
+                              parentRelativeType,
+                              numberPlacemetMeta,
+                              "%d",
+                              stepNumber.number,
+                              parent);
 
-    sn->setPos(offsetX + stepNumber.loc[XX],
-               offsetY + stepNumber.loc[YY]);
+      sn->setPos(offsetX + stepNumber.loc[XX],
+                 offsetY + stepNumber.loc[YY]);
 
-    sn->setFlag(QGraphicsItem::ItemIsMovable,movable);
-  }
+      sn->setFlag(QGraphicsItem::ItemIsMovable,movable);
+    }
 
   // Rotate Icon
   if (placeRotateIcon){
@@ -1114,35 +1151,35 @@ void Step::addGraphicsItems(
                               parentRelativeType,
                               rotateIconMeta,
                               parent);
-//      logNotice() << "\nROTATE_ICON MULTI-STEP - "
-//                  << "\nBACKGROUND Meta (curMeta) - "
-//                  << "\nColour - " << rotateIconMeta.background.value().string
-//                     ;
+      //      logNotice() << "\nROTATE_ICON MULTI-STEP - "
+      //                  << "\nBACKGROUND Meta (curMeta) - "
+      //                  << "\nColour - " << rotateIconMeta.background.value().string
+      //                     ;
 
-//      if (calledOut){
-//          ri = new CalloutRotateIconItem(this,
-//                                         parentRelativeType,
-//                                         meta->LPub.callout.rotateIcon,
-//                                         parent);
-//          ri = new CalloutRotateIconItem(this,
-//                                         parentRelativeType,
-//                                         meta->LPub.callout.rotateIcon,
-//                                         parent);
-//        } else {
+      //      if (calledOut){
+      //          ri = new CalloutRotateIconItem(this,
+      //                                         parentRelativeType,
+      //                                         meta->LPub.callout.rotateIcon,
+      //                                         parent);
+      //          ri = new CalloutRotateIconItem(this,
+      //                                         parentRelativeType,
+      //                                         meta->LPub.callout.rotateIcon,
+      //                                         parent);
+      //        } else {
 
-//          ri = new MultiStepRotateIconItem(this,
-//                                           parentRelativeType,
-//                                           multiStepRotateIconMeta,
-//                                           parent);
-//          ri = new MultiStepRotateIconItem(this,
-//                                           parentRelativeType,
-//                                           meta->LPub.multiStep.rotateIcon,
-//                                           parent);
-//          logNotice() << "\nROTATE_ICON MULTI-STEP - "
-//                      << "\nBACKGROUND Meta (curMeta) - "
-//                      << "\nColour - " << rotateIconMeta.background.value().string
-//                         ;
-//        }
+      //          ri = new MultiStepRotateIconItem(this,
+      //                                           parentRelativeType,
+      //                                           multiStepRotateIconMeta,
+      //                                           parent);
+      //          ri = new MultiStepRotateIconItem(this,
+      //                                           parentRelativeType,
+      //                                           meta->LPub.multiStep.rotateIcon,
+      //                                           parent);
+      //          logNotice() << "\nROTATE_ICON MULTI-STEP - "
+      //                      << "\nBACKGROUND Meta (curMeta) - "
+      //                      << "\nColour - " << rotateIconMeta.background.value().string
+      //                         ;
+      //        }
       ri->setPos(offsetX + rotateIcon.loc[XX],
                  offsetY + rotateIcon.loc[YY]);
 
@@ -1152,120 +1189,120 @@ void Step::addGraphicsItems(
   // Callouts
   for (int i = 0; i < list.size(); i++) {
 
-    Callout *callout = list[i];
-    PlacementData placementData = callout->placement.value();
+      Callout *callout = list[i];
+      PlacementData placementData = callout->placement.value();
 
-    QRect rect(csiItem->loc[XX],
-               csiItem->loc[YY],
-               csiItem->size[XX],
-               csiItem->size[YY]);
+      QRect rect(csiItem->loc[XX],
+                 csiItem->loc[YY],
+                 csiItem->size[XX],
+                 csiItem->size[YY]);
 
-    if (placementData.relativeTo == CalloutType) {
-      callout->addGraphicsItems(offsetX-loc[XX],offsetY-loc[YY],rect,parent, movable);
-    } else {
-      bool callout_movable = true /*movable*/;
-      if (parentRelativeType == StepGroupType && placementData.relativeTo == StepGroupType) {
-        callout_movable = true;
-      }
-      callout->addGraphicsItems(callout->shared ? 0 : offsetX,offsetY,rect,parent, callout_movable);
-    }  
-    for (int i = 0; i < callout->pointerList.size(); i++) {
-      Pointer *pointer = callout->pointerList[i];
-      callout->parentStep = this;
-      callout->addGraphicsPointerItem(pointer,callout->underpinnings);
+      if (placementData.relativeTo == CalloutType) {
+          callout->addGraphicsItems(offsetX-loc[XX],offsetY-loc[YY],rect,parent, movable);
+        } else {
+          bool callout_movable = true /*movable*/;
+          if (parentRelativeType == StepGroupType && placementData.relativeTo == StepGroupType) {
+              callout_movable = true;
+            }
+          callout->addGraphicsItems(callout->shared ? 0 : offsetX,offsetY,rect,parent, callout_movable);
+        }
+      for (int i = 0; i < callout->pointerList.size(); i++) {
+          Pointer *pointer = callout->pointerList[i];
+          callout->parentStep = this;
+          callout->addGraphicsPointerItem(pointer,callout->underpinnings);
+        }
     }
-  }
 }
 
 void Step::placeInside()
 {
   if (pli.placement.value().preposition == Inside) {
-    switch (pli.placement.value().relativeTo) {
-      case CsiType:
-        csiPlacement.placeRelative(&pli);
-      break;
-      case PartsListType:    
-      break;
-      case StepNumberType:
-        stepNumber.placeRelative(&pli);
-      break;
-      case RotateIconType:
-        rotateIcon.placeRelative(&pli);
-      break;
-      default:
-      break;
+      switch (pli.placement.value().relativeTo) {
+        case CsiType:
+          csiPlacement.placeRelative(&pli);
+          break;
+        case PartsListType:
+          break;
+        case StepNumberType:
+          stepNumber.placeRelative(&pli);
+          break;
+        case RotateIconType:
+          rotateIcon.placeRelative(&pli);
+          break;
+        default:
+          break;
+        }
     }
-  }
   if (stepNumber.placement.value().preposition == Inside) {
-    switch (pli.placement.value().relativeTo) {
-      case CsiType:
-        csiPlacement.placeRelative(&stepNumber);
-      break;
-      case PartsListType:
-        pli.placeRelative(&stepNumber);
-      break;
-      case StepNumberType:
-      break;
-      case RotateIconType:
-        rotateIcon.placeRelative(&stepNumber);
-      break;
-      default:
-      break;
+      switch (pli.placement.value().relativeTo) {
+        case CsiType:
+          csiPlacement.placeRelative(&stepNumber);
+          break;
+        case PartsListType:
+          pli.placeRelative(&stepNumber);
+          break;
+        case StepNumberType:
+          break;
+        case RotateIconType:
+          rotateIcon.placeRelative(&stepNumber);
+          break;
+        default:
+          break;
+        }
     }
-  }
 
   if (rotateIcon.placement.value().preposition == Inside) {
-    switch (pli.placement.value().relativeTo) {
-      case CsiType:
-        csiPlacement.placeRelative(&rotateIcon);
-      break;
-      case PartsListType:
-        pli.placeRelative(&rotateIcon);
-      break;
-      case StepNumberType:
-        stepNumber.placeRelative(&rotateIcon);
-      break;
-      case RotateIconType:
-      break;
-      default:
-      break;
+      switch (pli.placement.value().relativeTo) {
+        case CsiType:
+          csiPlacement.placeRelative(&rotateIcon);
+          break;
+        case PartsListType:
+          pli.placeRelative(&rotateIcon);
+          break;
+        case StepNumberType:
+          stepNumber.placeRelative(&rotateIcon);
+          break;
+        case RotateIconType:
+          break;
+        default:
+          break;
+        }
     }
-  }
   for (int i = 0; i < list.size(); i++) {
 
-    Callout *callout = list[i];
-    PlacementData placementData = callout->placement.value();
+      Callout *callout = list[i];
+      PlacementData placementData = callout->placement.value();
 
-    /* Offset Callouts */
+      /* Offset Callouts */
 
-    int relativeToSize[2];
+      int relativeToSize[2];
 
-    relativeToSize[XX] = 0;
-    relativeToSize[YY] = 0;
+      relativeToSize[XX] = 0;
+      relativeToSize[YY] = 0;
 
-    switch (placementData.relativeTo) {
-      case CsiType:
-        relativeToSize[XX] = csiPlacement.size[XX];
-        relativeToSize[YY] = csiPlacement.size[YY];
-      break;
-      case PartsListType:
-        relativeToSize[XX] = pli.size[XX];
-        relativeToSize[YY] = pli.size[YY];
-      break;
-      case StepNumberType:
-        relativeToSize[XX] = stepNumber.size[XX];
-        relativeToSize[YY] = stepNumber.size[YY];
-      break;
-      case RotateIconType:
-        relativeToSize[XX] = rotateIcon.size[XX];
-        relativeToSize[YY] = rotateIcon.size[YY];
-      break;
-      default:
-      break;
+      switch (placementData.relativeTo) {
+        case CsiType:
+          relativeToSize[XX] = csiPlacement.size[XX];
+          relativeToSize[YY] = csiPlacement.size[YY];
+          break;
+        case PartsListType:
+          relativeToSize[XX] = pli.size[XX];
+          relativeToSize[YY] = pli.size[YY];
+          break;
+        case StepNumberType:
+          relativeToSize[XX] = stepNumber.size[XX];
+          relativeToSize[YY] = stepNumber.size[YY];
+          break;
+        case RotateIconType:
+          relativeToSize[XX] = rotateIcon.size[XX];
+          relativeToSize[YY] = rotateIcon.size[YY];
+          break;
+        default:
+          break;
+        }
+      callout->loc[XX] += relativeToSize[XX]*placementData.offsets[XX];
+      callout->loc[YY] += relativeToSize[YY]*placementData.offsets[YY];
     }
-    callout->loc[XX] += relativeToSize[XX]*placementData.offsets[XX];
-    callout->loc[YY] += relativeToSize[YY]*placementData.offsets[YY];
-  }
 }
 
 /*********************************************************************
@@ -1290,45 +1327,45 @@ void Step::placeInside()
  ********************************************************************/
 
 void Step::sizeitFreeform(
-  int xx,
-  int yy,
-  int relativeBase,
-  int relativeJustification,
-  int &left,
-  int &right)
+    int xx,
+    int yy,
+    int relativeBase,
+    int relativeJustification,
+    int &left,
+    int &right)
 {
   relativeJustification = relativeJustification;
   // size up each callout
 
   for (int i = 0; i < list.size(); i++) {
-    Callout *callout = list[i];
-    if (callout->meta.LPub.callout.freeform.value().mode) {
-      callout->sizeitFreeform(xx,yy);
-    } else {
-      callout->sizeIt();
+      Callout *callout = list[i];
+      if (callout->meta.LPub.callout.freeform.value().mode) {
+          callout->sizeitFreeform(xx,yy);
+        } else {
+          callout->sizeIt();
+        }
     }
-  }
 
   // place each callout
 
   for (int i = 0; i < list.size(); i++) {
-    Callout *callout = list[i];
+      Callout *callout = list[i];
 
-    if (callout->meta.LPub.callout.freeform.value().mode) {
-      if (callout->meta.LPub.callout.freeform.value().justification == Left ||
-          callout->meta.LPub.callout.freeform.value().justification == Top) {
-        callout->loc[xx] = callout->size[xx];
-      }
-    } else {
-      callout->sizeIt();
+      if (callout->meta.LPub.callout.freeform.value().mode) {
+          if (callout->meta.LPub.callout.freeform.value().justification == Left ||
+              callout->meta.LPub.callout.freeform.value().justification == Top) {
+              callout->loc[xx] = callout->size[xx];
+            }
+        } else {
+          callout->sizeIt();
+        }
     }
-  }
 
   // size up the step number
 
   if (showStepNumber && ! onlyChild()) {
-    stepNumber.sizeit();
-  }
+      stepNumber.sizeit();
+    }
 
   // size up the rotateIcon
 
@@ -1344,38 +1381,38 @@ void Step::sizeitFreeform(
 
   switch (relativeBase) {
     case CsiType:
-	    placementData = csiPlacement.placement.value();
-	    placementData.relativeTo = PageType;
-	    csiPlacement.placement.setValue(placementData);
+      placementData = csiPlacement.placement.value();
+      placementData.relativeTo = PageType;
+      csiPlacement.placement.setValue(placementData);
       csiPlacement.relativeTo(this);
       offsetX = csiPlacement.loc[xx];
       sizeX   = csiPlacement.size[yy];
-    break;
+      break;
     case PartsListType:
-	    placementData = pli.placement.value();
-	    placementData.relativeTo = PageType;
-	    pli.placement.setValue(placementData);
+      placementData = pli.placement.value();
+      placementData.relativeTo = PageType;
+      pli.placement.setValue(placementData);
       pli.relativeTo(this);
       offsetX = pli.loc[xx];
       sizeX   = pli.size[yy];
-    break;
+      break;
     case StepNumberType:
-	    placementData = stepNumber.placement.value();
-	    placementData.relativeTo = PageType;
-	    stepNumber.placement.setValue(placementData);
+      placementData = stepNumber.placement.value();
+      placementData.relativeTo = PageType;
+      stepNumber.placement.setValue(placementData);
       stepNumber.relativeTo(this);
       offsetX = stepNumber.loc[xx];
       sizeX   = stepNumber.size[xx];
-    break;
+      break;
     case RotateIconType:
-            placementData = rotateIcon.placement.value();
-            placementData.relativeTo = PageType;
-            rotateIcon.placement.setValue(placementData);
+      placementData = rotateIcon.placement.value();
+      placementData.relativeTo = PageType;
+      rotateIcon.placement.setValue(placementData);
       rotateIcon.relativeTo(this);
       offsetX = rotateIcon.loc[xx];
       sizeX   = rotateIcon.size[xx];
-    break;
-  }
+      break;
+    }
 
   // FIXME: when we get here for callouts that are to to the left of the CSI
   // the outermost box is correctly placed, but within there the CSI is
@@ -1390,63 +1427,63 @@ void Step::sizeitFreeform(
 
   for (int dim = XX; dim <= YY; dim++) {
 
-    int min = 500000;
-    int max = 0;
+      int min = 500000;
+      int max = 0;
 
-    if (csiPlacement.loc[dim] < min) {
-      min = csiPlacement.loc[dim];
-    }
-    if (csiPlacement.loc[dim] + csiPlacement.size[dim] > max) {
-      max = csiPlacement.loc[dim] + csiPlacement.size[dim];
-    }
-    if (pli.loc[dim] < min) {
-      min = pli.loc[dim];
-    }
-    if (pli.loc[dim] + pli.size[dim] > max) {
-      max = pli.loc[dim] + pli.size[dim];
-    }
-    if (stepNumber.loc[dim] < min) {
-      min = stepNumber.loc[dim];
-    }
-    if (stepNumber.loc[dim] + stepNumber.size[dim] > max) {
-      max = stepNumber.loc[dim] + stepNumber.size[dim];
-    }
-    if (rotateIcon.loc[dim] < min) {
-      min = rotateIcon.loc[dim];
-    }
-    if (rotateIcon.loc[dim] + rotateIcon.size[dim] > max) {
-      max = rotateIcon.loc[dim] + rotateIcon.size[dim];
-    }
-
-    for (int i = 0; i < list.size(); i++) {
-      Callout *callout = list[i];
-      if (callout->loc[dim] < min) {
-        min = callout->loc[dim];
-      }
-      if (callout->loc[dim] + callout->size[dim] > max) {
-        max = callout->loc[dim] + callout->size[dim];
-      }
-    }
-
-    if (calledOut) {
-      csiPlacement.loc[dim]  -= min;
-      pli.loc[dim]           -= min;
-      stepNumber.loc[dim]    -= min;
-      rotateIcon.loc[dim] -= min;
+      if (csiPlacement.loc[dim] < min) {
+          min = csiPlacement.loc[dim];
+        }
+      if (csiPlacement.loc[dim] + csiPlacement.size[dim] > max) {
+          max = csiPlacement.loc[dim] + csiPlacement.size[dim];
+        }
+      if (pli.loc[dim] < min) {
+          min = pli.loc[dim];
+        }
+      if (pli.loc[dim] + pli.size[dim] > max) {
+          max = pli.loc[dim] + pli.size[dim];
+        }
+      if (stepNumber.loc[dim] < min) {
+          min = stepNumber.loc[dim];
+        }
+      if (stepNumber.loc[dim] + stepNumber.size[dim] > max) {
+          max = stepNumber.loc[dim] + stepNumber.size[dim];
+        }
+      if (rotateIcon.loc[dim] < min) {
+          min = rotateIcon.loc[dim];
+        }
+      if (rotateIcon.loc[dim] + rotateIcon.size[dim] > max) {
+          max = rotateIcon.loc[dim] + rotateIcon.size[dim];
+        }
 
       for (int i = 0; i < list.size(); i++) {
-        Callout *callout = list[i];
-        callout->loc[dim] -= min;
-      }
-    }
+          Callout *callout = list[i];
+          if (callout->loc[dim] < min) {
+              min = callout->loc[dim];
+            }
+          if (callout->loc[dim] + callout->size[dim] > max) {
+              max = callout->loc[dim] + callout->size[dim];
+            }
+        }
 
-    size[dim] = max - min;
+      if (calledOut) {
+          csiPlacement.loc[dim]  -= min;
+          pli.loc[dim]           -= min;
+          stepNumber.loc[dim]    -= min;
+          rotateIcon.loc[dim] -= min;
 
-    if (dim == XX) {
-      left = min;
-      right = max;
+          for (int i = 0; i < list.size(); i++) {
+              Callout *callout = list[i];
+              callout->loc[dim] -= min;
+            }
+        }
+
+      size[dim] = max - min;
+
+      if (dim == XX) {
+          left = min;
+          right = max;
+        }
     }
-  }
 
   /* Now make all things relative to the base */
 
@@ -1456,6 +1493,6 @@ void Step::sizeitFreeform(
   rotateIcon.loc[xx]   -= offsetX + sizeX;
 
   for (int i = 0; i < list.size(); i++) {
-    list[i]->loc[xx] -= offsetX + sizeX;
-  }
+      list[i]->loc[xx] -= offsetX + sizeX;
+    }
 }

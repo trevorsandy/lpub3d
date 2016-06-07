@@ -731,14 +731,14 @@ int LDView::renderCsi(
   const QString     &pngName,
         Meta        &meta)
 {
-	/* Create the CSI DAT file */
-	QString ldrName;
-	int rc;
-	ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
-	if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrName)) < 0) {
-		return rc;
-	}
-	
+  /* Create the CSI DAT file */
+  QString ldrName;
+  int rc;
+  ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+  if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrName)) < 0) {
+      return rc;
+    }
+
 
   /* determine camera distance */
   

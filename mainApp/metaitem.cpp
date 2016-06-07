@@ -1868,12 +1868,12 @@ int MetaItem::okToInsertFinalModel()
         if (rc == InsertRc) {                           //check if insert line is Insert Model
             QRegExp InsertFinalModel("^\\s*0\\s+!LPUB\\s+.*MODEL");
             if (line.contains(InsertFinalModel)){
-                logInfo() << " \nModel detected at line: " << here.lineNumber;
+//                logInfo() << " \nModel detected at line: " << here.lineNumber;
                 return -1;                              //insert line exist so return -1;
             }
             continue;
         } else if (rc == StepGroupEndRc) {              //if Step Grpup, then there is no final model
-            logInfo() << " \nOK to Insert Model after StepGroup at line: " << here.lineNumber;
+//            logInfo() << " \nOK to Insert Model after StepGroup at line: " << here.lineNumber;
             return here.lineNumber;						//so return line number
         } else {										//no Insert line encountered os check for non-zero line
             QStringList tokens;
@@ -1886,10 +1886,10 @@ int MetaItem::okToInsertFinalModel()
                 line = gui->readLine(walkForward);
                 rc = content.parse(line,walkForward);
                 if (rc == StepRc){
-                    logInfo() << " \nOK to Insert Model after STEP at line: " << here.lineNumber;
+//                    logInfo() << " \nOK to Insert Model after STEP at line: " << here.lineNumber;
                     return walkForward.lineNumber;
                 } else {
-                    logInfo() << " \nOK to Insert Model after Parts at line: " << here.lineNumber;
+//                    logInfo() << " \nOK to Insert Model after Parts at line: " << here.lineNumber;
                     return here.lineNumber;
                 }
             }

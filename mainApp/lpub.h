@@ -808,6 +808,10 @@ private:
     
   void include(Meta &meta);
 
+  int  createLDVieiwCsiImage(
+            QPixmap            *pixmap,
+            Meta               &meta);
+
   int addGraphicsPageItems(        // this converts the abstract page into
     Steps          *steps,         // a graphics view
     bool            coverPage,

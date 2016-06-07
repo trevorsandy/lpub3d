@@ -47,6 +47,7 @@
 #include "calloutbackgrounditem.h"
 #include "textitem.h"
 #include "rotateiconitem.h"
+#include "paths.h"
 
 /*
  * We need to draw page every time there is change to the LDraw file.
@@ -1350,7 +1351,55 @@ int Gui::addGraphicsPageItems(
     }
   } else {
 
-    // We've got a page that contains step groups, so add it
+      // We've got a page that contains step groups, so add it
+
+      // LDView generate multistep pixamps
+      bool usingLDView = Render::getRenderer() == "LDView";
+      QStringList ldrNames;
+
+      if (usingLDView && page->relativeType == StepGroupType && page->list.size()) {
+          Range *range = dynamic_cast<Range *>(page->list[0]);
+          // 1. Capture ldrNames
+          for (int i = 0; i < range->list.size(); i++){
+              if (range->relativeType == RangeType) {
+                  Step *step = dynamic_cast<Step *>(range->list[i]);
+                  if (step && step->multiStep && (! step->ldrName.isNull() || step->csiOutOfDate)){
+                      ldrNames << step->ldrName;
+                    }
+                }
+            }
+          // 2. Generate png images
+          if (! ldrNames.isEmpty()) {
+              int rc;
+              rc = renderer->renderLDViewCsi(ldrNames, page->meta);
+              if (rc < 0) {
+                  QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                        QMessageBox::tr("Render MultiStep CSI images failed."));
+                  return rc;
+                }
+
+              // 3. Move image files to the parts folder
+              QString ldrName;
+              QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
+              foreach(ldrName, ldrNames){
+                  QFileInfo fInfo(ldrName.replace(".ldr",".png"));
+                  QString imageFilePath = QDir::currentPath() + "/" +
+                      Paths::assemDir + "/" + fInfo.fileName();
+                  dir.rename(fInfo.absoluteFilePath(), imageFilePath);
+                }
+            }
+          // 4. Load images and and set size
+          for (int i = 0; i < range->list.size(); i++){
+              if (range->relativeType == RangeType) {
+                  Step *step = dynamic_cast<Step *>(range->list[i]);
+                  if (step && step->multiStep /* && ! step->calledOut */){
+                      step->csiPixmap.load(step->pngName);
+                      step->csiPlacement.size[0] = step->csiPixmap.width();
+                      step->csiPlacement.size[1] = step->csiPixmap.height();
+                    }
+                }
+            }
+        }
 
     PlacementData data = page->meta.LPub.multiStep.placement.value();
     page->placement.setValue(data);

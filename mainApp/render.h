@@ -43,10 +43,6 @@ public:
   virtual ~Render() {}
   static QString const   getRenderer();
   static void            setRenderer(QString const &name);
-  int                    rotateParts(const QString &addLine,
-                                      RotStepMeta &rotStep,
-                                      const QStringList &parts,
-                                      QString &ldrName);
   virtual int 		 renderCsi(const QString &,
                                    const QStringList &,
                                    const QString &,
@@ -55,6 +51,10 @@ public:
                                    const QString &,
                                    Meta &,
                                    bool bom) = 0;
+  int                    rotateParts(const QString &addLine,
+                                      RotStepMeta &rotStep,
+                                      const QStringList &parts,
+                                      QString &ldrName);
   int                    renderLDViewCsi(const QStringList &,
                                      Meta &);
   int                    renderLDViewPli(const QStringList &,
@@ -78,7 +78,6 @@ public:
 
 protected:
   virtual float          cameraDistance(Meta &meta, float) = 0;
-
 };
 
 extern Render *renderer;

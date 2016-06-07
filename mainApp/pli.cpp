@@ -493,8 +493,7 @@ int Pli::createPartImagesLDView(QStringList &ldrNames) {
 
       // move the image files to the parts folder
       QString ldrName;
-      QString tempPath = QDir::currentPath() + "/" + Paths::tmpDir;
-      QDir dir(tempPath);
+      QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
       foreach(ldrName, ldrNames){
           QFileInfo fInfo(ldrName.replace(".ldr",".png"));
           QString imageFilePath = QDir::currentPath() + "/" +
@@ -518,15 +517,6 @@ int Pli::createPartImagesLDView(QStringList &ldrNames) {
           return -1;
         }
 
-      // load pixmap with generated image
-//      QString imageName = QDir::currentPath() + "/" +
-//          Paths::tmpDir + "/" + part->nameKey + ".png";
-//      if (! pixmap->load(imageName)) {
-//              QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-//                                    QMessageBox::tr("Cannot load pixmap. Image %1 is not a file.")
-//                                    .arg(imageName));
-//              return -1;
-//            }
       if (! pixmap->load(part->imageName)) {
               QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
                                     QMessageBox::tr("Cannot load pixmap. Image %1 is not a file.")

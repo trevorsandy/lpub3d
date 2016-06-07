@@ -50,6 +50,7 @@ class Step : public AbstractRangeElement
 {
   public: 
     bool                  calledOut;
+    bool                  multiStep;
     bool                  placeRotateIcon;
     QList<Callout *>      list;
     Pli                   pli;
@@ -63,12 +64,16 @@ class Step : public AbstractRangeElement
     bool                  showStepNumber;
     int                   submodelLevel;
     bool                  pliPerStep;
+    bool                  csiOutOfDate;
     static bool           refreshCsi;
     PlacementMeta         placement;
+    QString               ldrName;
     QString               pngName;
     QString               csi3DName;
     PlacementHeader       pageHeader;
     PlacementFooter       pageFooter;  
+
+    QString               foo;
 
     Step(
       Where                 &topOfStep,

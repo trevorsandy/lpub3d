@@ -885,36 +885,24 @@ int Gui::drawPage(LGraphicsView  *view,
                     }
                   pliParts.clear();
 
-                  /* this is a page we're supposed to process */
 
-                  emit messageSig(true, "Get multi-step placement...");
+
+                  /* this is a page we're supposed to process */
 
                   steps->placement = steps->meta.LPub.multiStep.placement;
 
-                  emit messageSig(true, "Set multi-step show line (LDraw Editor)...");
-
                   showLine(steps->topOfSteps());
-
-                  emit messageSig(true, "Get multi-step page inserts...");
 
                   Page *page = dynamic_cast<Page *>(steps);                  
                   if (page) {
                       page->inserts = inserts;
                     }
 
-                  emit messageSig(true, "Get multi-step end of submodel...");
-
-                  bool endOfSubmodel = stepNum >= ldrawFile.numSteps(current.modelName);
-
-                  emit messageSig(true, "Get multi-step instances...");
+                  bool endOfSubmodel = stepNum >= ldrawFile.numSteps(current.modelName);;
 
                   int  instances = ldrawFile.instances(current.modelName,isMirrored);
 
-                  emit messageSig(true, "Processing multi-step page graphics...");
-
                   addGraphicsPageItems(steps, coverPage, modelDisplayPage, endOfSubmodel,instances, view, scene, printing);
-
-                  emit messageSig(true, "Multi-step page graphics processed.");
 
                   return HitEndOfPage;
                 }
@@ -1020,15 +1008,12 @@ int Gui::drawPage(LGraphicsView  *view,
                         }
 
 //                      statusBar()->showMessage("Processing " + current.modelName);
-                      emit messageSig(true, "Generating step graphics for " + current.modelName);
 
                       int rc = step->createCsi(
                             isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
                             saveCsiParts = modelDisplayPage ? csiParts : fadeStep(csiParts, stepNum, current),
                             &step->csiPixmap,
                             steps->meta);
-
-                      emit messageSig(true, "Step graphics generated for " + current.modelName);
 
                       if (rc) {
                           return rc;
@@ -1052,33 +1037,20 @@ int Gui::drawPage(LGraphicsView  *view,
                   if ( ! multiStep && ! calledOut) {
 
                       // Simple step
-                      emit messageSig(true, "Get simple page placement...");
 
                       steps->placement = steps->meta.LPub.assem.placement;
 
-                      emit messageSig(true, "Set simple page show line (LDraw Editor)...");
-
                       showLine(topOfStep);
-
-                      emit messageSig(true, "Get simple page number of steps...");
 
                       int  numSteps = ldrawFile.numSteps(current.modelName);
 
-                      emit messageSig(true, "Get simple page end of submodel...");
-
                       bool endOfSubmodel = numSteps == 0 || stepNum >= numSteps;
 
-                      emit messageSig(true, "Get simple page instances...");
-
                       int  instances = ldrawFile.instances(current.modelName, isMirrored);
-
-                      emit messageSig(true, "Processing simple page graphics...");
 
                       addGraphicsPageItems(steps,coverPage,modelDisplayPage, endOfSubmodel,instances,view,scene,printing);
                       stepPageNum += ! coverPage;
                       steps->setBottomOfSteps(current);
-
-                      emit messageSig(true, "Simple page graphics processed.");
 
                       return HitEndOfPage;
                     }

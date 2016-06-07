@@ -63,7 +63,7 @@ class Steps : public Placement {
 
     QString modelName();
     QString path();
-	  QString csiName();
+    QString csiName();
     QStringList submodelStack();
     void freeSteps();
     void append(AbstractStepsElement *re);
@@ -88,6 +88,8 @@ class Steps : public Placement {
     void  setBottomOfSteps(const Where &bos);
     AbstractStepsElement *nextRange(const AbstractStepsElement *me);
 };
+
+#include "render.h"
 
 class Page : public Steps {
   public:
