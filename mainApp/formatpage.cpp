@@ -1350,27 +1350,38 @@ int Gui::addGraphicsPageItems(
       }
     }
   } else {
-
+      // qDebug() << "List relative type: " << RelNames[range->relativeType];
       // We've got a page that contains step groups, so add it
 
       // LDView generate multistep pixamps
       QStringList ldrNames;
-
       if (renderer->useLDViewSCall() &&
           page->list.size() &&
           page->relativeType == StepGroupType) {
-          Range *range = dynamic_cast<Range *>(page->list[0]);
-          // 1. Capture ldrNames
-          for (int i = 0; i < range->list.size(); i++){
-              if (range->relativeType == RangeType) {
-                  Step *step = dynamic_cast<Step *>(range->list[i]);
-                  if (step && step->multiStep && (! step->ldrName.isNull() || step->csiOutOfDate)){
-                      ldrNames << step->ldrName;
+
+          int fromStep = 0;
+          int toStep;
+
+          for (int i = 0; i < page->list.size(); i++){
+              Range *range = dynamic_cast<Range *>(page->list[i]);
+              // 1. Capture ldrNames
+              for (int j = 0; j < range->list.size(); j++){
+                  if (range->relativeType == RangeType) {
+                      Step *step = dynamic_cast<Step *>(range->list[j]);
+                      fromStep == 0 ? fromStep = step->stepNumber.number : toStep = step->stepNumber.number;
+                      if (step && step->multiStep && (! step->ldrName.isNull() || step->csiOutOfDate)){
+                          ldrNames << step->ldrName;
+                          qDebug() << "Mulit-Step ldrName: " << step->ldrName << " for Step " << step->stepNumber.number;
+                        }
                     }
                 }
             }
           // 2. Generate png images
           if (! ldrNames.isEmpty()) {
+
+              QElapsedTimer timer;
+              timer.start();
+
               int rc;
               rc = renderer->renderLDViewSCallCsi(ldrNames, page->meta);
               if (rc < 0) {
@@ -1388,15 +1399,24 @@ int Gui::addGraphicsPageItems(
                       Paths::assemDir + "/" + fInfo.fileName();
                   dir.rename(fInfo.absoluteFilePath(), imageFilePath);
                 }
+
+              qDebug() << Render::getRenderer()
+                       << " CSI single render call took "
+                       << timer.elapsed() << "milliseconds"
+                       << " for multi-steps " << fromStep << " to " << toStep
+                       << " on page " << stepPageNum;
             }
           // 4. Load images and and set size
-          for (int i = 0; i < range->list.size(); i++){
-              if (range->relativeType == RangeType) {
-                  Step *step = dynamic_cast<Step *>(range->list[i]);
-                  if (step && step->multiStep /* && ! step->calledOut */){
-                      step->csiPixmap.load(step->pngName);
-                      step->csiPlacement.size[0] = step->csiPixmap.width();
-                      step->csiPlacement.size[1] = step->csiPixmap.height();
+          for (int i = 0; i < page->list.size(); i++){
+              Range *range = dynamic_cast<Range *>(page->list[i]);
+              for (int j = 0; j < range->list.size(); j++){
+                  if (range->relativeType == RangeType) {
+                      Step *step = dynamic_cast<Step *>(range->list[j]);
+                      if (step && step->multiStep /* && ! step->calledOut */){
+                          step->csiPixmap.load(step->pngName);
+                          step->csiPlacement.size[0] = step->csiPixmap.width();
+                          step->csiPlacement.size[1] = step->csiPixmap.height();
+                        }
                     }
                 }
             }
