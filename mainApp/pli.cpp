@@ -1166,7 +1166,7 @@ int Pli::partSize()
         return rc;
 
       logTrace() << "\n" << Render::getRenderer()
-               << " PLI single render call took "
+               << " PLI single call render took "
                << timer.elapsed() << "milliseconds."
                ;
 

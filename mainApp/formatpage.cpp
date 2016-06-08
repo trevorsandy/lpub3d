@@ -1401,7 +1401,7 @@ int Gui::addGraphicsPageItems(
                 }
 
               logTrace() << "\n" << Render::getRenderer()
-                       << " CSI single render call took "
+                       << " CSI single call render took "
                        << timer.elapsed() << "milliseconds"
                        << " for multi-steps " << fromStep << " to " << toStep
                        << " on page " << stepPageNum;

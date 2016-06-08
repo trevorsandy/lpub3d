@@ -2,7 +2,7 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------  
--Up to 60% increase rendering speed with configuration to render multiple files using a single call to LDView. All PLI (part list/BOM) parts for a given page are rendered in a single call versue individually. For CSI (Step models), all multi-step images on a page are rendered in a single call. Single step page images are rendered individually. This new confiuration will default as checked.
+-Up to 75% increase rendering speed with configuration to render multiple files using a single call to LDView. All PLI (part list/BOM) parts for a given page are rendered in a single call versue individually. For CSI (Step models), all multi-step images on a page are rendered in a single call. Single step page images are rendered individually. This new confiuration will default as checked.
 
 To achieve this behavior, input files (csi.ldr, pli.ldr) are now uniquely named because rendering multiple files is done by using -SaveSnapshots=1 instead of -SaveSnapshot=somefile.png and then listing all the LDR files at the end of the command line. There is no control over the output file names. Instead, LDView will automatically use the input base filename changing only the output filename extension from .ldr to .png.
 
@@ -32,6 +32,7 @@ Notice: As this feature required a significant rewrite of the core image generat
  below - obviously selecting your own size values and orientation.
  0 !LPUB PAGE SIZE GLOBAL 8.2677 11.6929
  0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT (r518)
+-Add elapsed time to render page to logging - see session log (r694)
 -Change: Update page background menu rearranged - see r641. (r642)
 -Change: Page background context menu rearranged. "Change page background" and "Change Page Size or Orientation" now appear at the end of the menu list because they are likely to be least often used. (r641)
 -Change: Point online manual to LPub3D content (r517)

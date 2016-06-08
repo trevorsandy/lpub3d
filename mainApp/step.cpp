@@ -270,7 +270,7 @@ int Step::createCsi(
               dir.rename(fInfo.absoluteFilePath(), imageFilePath);
 
               logTrace() << "\n" << Render::getRenderer()
-                       << " CSI single render call took "
+                       << " CSI single call render took "
                        << timer.elapsed() << "milliseconds"
                        << " for step " << stepNumber.number
                        << " on page " << gui->stepPageNum;

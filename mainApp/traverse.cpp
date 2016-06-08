@@ -1007,7 +1007,7 @@ int Gui::drawPage(LGraphicsView  *view,
                           step->placeRotateIcon = true;
                         }
 
-//                      statusBar()->showMessage("Processing " + current.modelName);
+                      statusBar()->showMessage("Processing " + current.modelName);
 
                       int rc = step->createCsi(
                             isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
@@ -2145,12 +2145,13 @@ void Gui::writeToTmp()
  */
 QStringList Gui::fadeSubFile(const QStringList &contents, const QString &color)
 {
-  QString edgeColor = "24";  // Internal Common Material Color (edge)
-  QString fadeColor = color;
-  QStringList fadeContents;
-  QStringList argv;
-
   if (contents.size() > 0) {
+
+      QString edgeColor = "24";  // Internal Common Material Color (edge)
+      QString fadeColor = color;
+      QStringList fadeContents;
+      QStringList argv;
+
       for (int index = 0; index < contents.size(); index++) {
 
           QString contentLine = contents[index];
@@ -2201,14 +2202,15 @@ QStringList Gui::fadeSubFile(const QStringList &contents, const QString &color)
 QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) {
 
   bool    doFadeStep  = (page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
-  QString fadeColor   = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
-
-  QString edgeColor   = "24";  // Internal Common Material Color (edge)
-  int  fadePosition   = ldrawFile.getFadePosition(current.modelName);
-  QStringList fadeCsiParts;
-  QStringList argv;
 
   if (csiParts.size() > 0 && stepNum > 1 && doFadeStep) {
+
+      QString fadeColor   = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
+      QString edgeColor   = "24";  // Internal Common Material Color (edge)
+      int  fadePosition   = ldrawFile.getFadePosition(current.modelName);
+      QStringList fadeCsiParts;
+      QStringList argv;
+
       for (int index = 0; index < csiParts.size(); index++) {
 
           QString csiLine = csiParts[index];
@@ -2253,7 +2255,6 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
           fadeCsiParts  << csiLine;
         }
     } else {
-      emit messageSig(true, "Ignore fadeStep routine.");
       fadeCsiParts  << csiParts;
     }
   ldrawFile.setFadePosition(current.modelName,fadeCsiParts.size());
