@@ -1101,10 +1101,17 @@ int Render::render3DCsi(
             } //end for
 
             /* process extracted submodels and unofficial files */
-            if (csiSubModels.size() > 0)
-                render3DCsiSubModels(csiSubModels, csiSubModelParts, fadeColor, doFadeStep);
-            else
+            if (csiSubModels.size() > 0){
+                rc = render3DCsiSubModels(csiSubModels, csiSubModelParts, fadeColor, doFadeStep);
+                if (rc != 0){
+                    QMessageBox::warning(NULL,
+                                         QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                         QMessageBox::tr("3D-render process extracted submodels failed."));
+                    return rc;
+                  }
+              } else {
                 csi3DParts.append("0 NOFILE");
+              }
 
             /* Set the CSI 3D ldr ROTSTEP on top-level content */
             if ((rc = rotateParts(addLine, meta.rotStep, csi3DParts, csi3DName)) < 0) {
@@ -1133,6 +1140,7 @@ int Render::render3DCsi(
                     QString smLine = csiSubModelParts[i];
                     out << smLine << endl;
                 }
+                out << "0 NOFILE" << endl;
                 csi3DFile.close();
             }
         }
@@ -1230,15 +1238,14 @@ int Render::render3DCsiSubModels(QStringList &subModels,
 
         /* recurse and process any identified submodel files */
         if (newSubModels.size() > 0){
-           rc = render3DCsiSubModels(newSubModels, csiSubModelParts, fadeColor, doFadeStep);
-           if (rc != 0)
-             QMessageBox::warning(NULL,
-                                  QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                  QMessageBox::tr("3D-render construct submodel file failed."));
-             return rc;
-        }
-        //end for
-        csiSubModelParts.append("0 NOFILE");
+            rc = render3DCsiSubModels(newSubModels, csiSubModelParts, fadeColor, doFadeStep);
+            if (rc != 0){
+                QMessageBox::warning(NULL,
+                                     QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                     QMessageBox::tr("3D-render recurse submodel file failed."));
+                return rc;
+              }
+          }
         subModelParts = csiSubModelParts;
     }
     return 0;
