@@ -44,6 +44,8 @@
 #include "lc_library.h"
 #include "pieceinf.h"
 
+#include "lpub.h"
+
 QString LDrawFile::_file        = "";
 QString LDrawFile::_name        = "";
 QString LDrawFile::_author      = "";
@@ -514,11 +516,19 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
        appearance and stage for later processing */
     while ( ! in.atEnd()) {
       QString sLine = in.readLine(0);
-      stageContents << sLine.trimmed();      
+      stageContents << sLine.trimmed();
     }
 
+    emit gui->progressBarPermInitSig();
+    emit gui->progressPermRangeSig(1, stageContents.size());
+    emit gui->progressPermMessageSig("Processing...");
+    emit gui->messageSig(true, "Loading mpd model file.");
+
     for (int i = 0; i < stageContents.size(); i++) {
+
         QString smLine = stageContents.at(i);
+
+        emit gui->progressPermSetValueSig(i);
 
         bool sof = smLine.contains(sofRE);  //start of file
         bool eof = smLine.contains(eofRE);  //end of file
@@ -580,6 +590,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
             if (sof) {
                 mpdName = sofRE.cap(1).toLower();
+                emit gui->messageSig(true, "Loading submodel " + mpdName);
             } else {
                 mpdName.clear();
             }
@@ -599,6 +610,10 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
     _mpd = true;
     _pieces = pieces;
+
+    emit gui->progressPermSetValueSig(stageContents.size());
+    emit gui->removeProgressPermStatusSig();
+    emit gui->messageSig(true, "Model file loaded.");
 
 //    logInfo() << "MPD File: "         << _file
 //              << ", Name: "           << _name
@@ -651,6 +666,11 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
         contents << line;
       }
 
+      emit gui->progressBarPermInitSig();
+      emit gui->progressPermRangeSig(1, contents.size());
+      emit gui->progressPermMessageSig("Processing...");
+      emit gui->messageSig(true, "Loading ldr model file.");
+
       QDateTime datetime = QFileInfo(fullName).lastModified();
     
       insert(fileName,contents,datetime,false);
@@ -659,7 +679,10 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
       /* read it a second time to find submodels */
 
       for (int i = 0; i < contents.size(); i++) {
+
         QString line = contents.at(i);
+
+        emit gui->progressPermSetValueSig(i);
 
         QStringList tokens;
         split(line,tokens);
@@ -716,13 +739,17 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
       _mpd = false;
       _pieces = pieces;
 
-      logInfo() << "LDR File: "         << _file
-                << ", Name: "           << _name
-                << ", Author: "         << _author
-                << ", Description: "    << _description
-                << ", Pieces: "         << _pieces
-                << ", Category: "       << _category
-                   ;
+      emit gui->progressPermSetValueSig(contents.size());
+      emit gui->removeProgressPermStatusSig();
+      emit gui->messageSig(true, "Model file loaded.");
+
+//      logInfo() << "LDR File: "         << _file
+//                << ", Name: "           << _name
+//                << ", Author: "         << _author
+//                << ", Description: "    << _description
+//                << ", Pieces: "         << _pieces
+//                << ", Category: "       << _category
+//                   ;
     }
 }
 

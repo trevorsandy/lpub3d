@@ -2103,7 +2103,7 @@ void Gui::writeToTmp()
       QString fileName = ldrawFile._subFileOrder[i].toLower();
 
       emit progressPermSetValueSig(i);
-      emit messageSig(true, "Writing submodel " + fileName + " to temp directory.");
+      emit messageSig(true, "Writing submodel to temp directory: " + fileName);
 
       if (doFadeStep) {
           QString fadeFileName = fileName;
