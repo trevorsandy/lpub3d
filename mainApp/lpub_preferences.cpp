@@ -900,7 +900,7 @@ bool Preferences::getPreferences()
       if (preferredRenderer == "LDView" && enableLDViewSingleCall) {
           useLDViewSingleCall = true;
         } else {
-          useLDViewSingleCall - false;
+          useLDViewSingleCall = false;
         }
 
       return true;
