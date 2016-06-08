@@ -2106,18 +2106,11 @@ void Gui::writeToTmp()
       emit messageSig(true, "Writing submodel " + fileName + " to temp directory.");
 
       if (doFadeStep) {
-//          QRegExp rgxLDR("\\.(ldr)$");
-//          QRegExp rgxMPD("\\.(mpd)$");
-//          QRegExp rgxDAT("\\.(dat)$");
           QString fadeFileName = fileName;
           QString extension = QFileInfo(fileName).suffix().toLower();
           bool ldr = extension == "ldr";
           bool mpd = extension == "mpd";
           bool dat = extension == "dat";
-//          bool ldr = fadeFileName.contains(rgxLDR);
-//          bool mpd = fadeFileName.contains(rgxMPD);
-//          bool dat = fadeFileName.contains(rgxDAT);
-
           if (ldr) {
               fadeFileName = fadeFileName.replace(".ldr","-fade.ldr");
             } else if (mpd) {
@@ -2143,7 +2136,6 @@ void Gui::writeToTmp()
         }
     }
   emit progressPermSetValueSig(ldrawFile._subFileOrder.size());
-//  emit progressPermMessageSig("");
   emit removeProgressPermStatusSig();
   emit messageSig(true, "Submodels written to temp directory.");
 }
@@ -2171,16 +2163,9 @@ QStringList Gui::fadeSubFile(const QStringList &contents, const QString &color)
               QString fileNameStr = argv[argv.size()-1];
               if (FadeStepColorParts::isStaticColorPart(fileNameStr)){
                   fileNameStr = QDir::toNativeSeparators(fileNameStr.replace(".dat","-fade.dat"));
-//                  fileNameStr = QDir::toNativeSeparators("fade\\" + fileNameStr.replace(".dat","-fade.dat"));
                 }
               // process subfile naming
               if (ldrawFile.isSubmodel(fileNameStr)) {
-//                  QRegExp rgxLDR("\\.(ldr)$");
-//                  QRegExp rgxMPD("\\.(mpd)$");
-//                  QRegExp rgxDAT("\\.(dat)$");
-//                  bool ldr = fileNameStr.contains(rgxLDR);
-//                  bool mpd = fileNameStr.contains(rgxMPD);
-//                  bool dat = fileNameStr.contains(rgxDAT);
                   QString extension = QFileInfo(fileNameStr).suffix().toLower();
                   bool ldr = extension == "ldr";
                   bool mpd = extension == "mpd";
@@ -2240,16 +2225,9 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
 
                   if (FadeStepColorParts::isStaticColorPart(fileNameStr)){
                       fileNameStr = QDir::toNativeSeparators(fileNameStr.replace(".dat","-fade.dat"));
-//                      fileNameStr = QDir::toNativeSeparators("fade\\" + fileNameStr.replace(".dat","-fade.dat"));
                     }
                   // process subfile naming
                   if (ldrawFile.isSubmodel(fileNameStr)) {
-//                      QRegExp rgxLDR("\\.(ldr)$");
-//                      QRegExp rgxMPD("\\.(mpd)$");
-//                      QRegExp rgxDAT("\\.(dat)$");
-//                      bool ldr = fileNameStr.contains(rgxLDR);
-//                      bool mpd = fileNameStr.contains(rgxMPD);
-//                      bool dat = fileNameStr.contains(rgxDAT);
                       QString extension = QFileInfo(fileNameStr).suffix().toLower();
                       bool ldr = extension == "ldr";
                       bool mpd = extension == "mpd";
