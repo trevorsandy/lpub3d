@@ -217,6 +217,9 @@ int Step::createCsi(
   // generate CSI file as appropriate
   if ( ! csi.exists() || csiOutOfDate ) {
 
+      QElapsedTimer timer;
+      timer.start();
+
       int rc;
       // render the partially assembled model
       if (notUsingLDViewSCall) {
@@ -228,6 +231,12 @@ int Step::createCsi(
                                     .arg(pngName));
               return rc;
             }
+
+          logTrace() << "\n" << Render::getRenderer()
+                   << " CSI render call took "
+                   << timer.elapsed() << "milliseconds"
+                   << " for step number " << stepNumber.number
+                   << " on page number " << gui->stepPageNum;
 
         } else { // using LDView Single Call
 
@@ -260,6 +269,11 @@ int Step::createCsi(
                   Paths::assemDir + "/" + fInfo.fileName();
               dir.rename(fInfo.absoluteFilePath(), imageFilePath);
 
+              logTrace() << "\n" << Render::getRenderer()
+                       << " CSI single render call took "
+                       << timer.elapsed() << "milliseconds"
+                       << " for step " << stepNumber.number
+                       << " on page " << gui->stepPageNum;
             }
         }
     }
@@ -293,7 +307,9 @@ int Step::Load3DCsi(QString &csi3DName)
   if (! gMainWindow->GetHalt3DViewer()) {
       return renderer->load3DCsiImage(csi3DName);
     } else {
-      qDebug() << "3DViewer halted - rendering not allowed.";
+      QMessageBox::warning(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                            QMessageBox::tr("3DViewer halted - rendering not allowed for:\n%1.")
+                            .arg(csi3DName));
       return -1;
     }
   return 0;

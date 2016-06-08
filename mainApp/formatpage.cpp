@@ -1371,7 +1371,7 @@ int Gui::addGraphicsPageItems(
                       fromStep == 0 ? fromStep = step->stepNumber.number : toStep = step->stepNumber.number;
                       if (step && step->multiStep && (! step->ldrName.isNull() || step->csiOutOfDate)){
                           ldrNames << step->ldrName;
-                          qDebug() << "Mulit-Step ldrName: " << step->ldrName << " for Step " << step->stepNumber.number;
+                          logTrace() << "\nMulit-Step ldrName: " << step->ldrName << " for Step " << step->stepNumber.number;
                         }
                     }
                 }
@@ -1400,7 +1400,7 @@ int Gui::addGraphicsPageItems(
                   dir.rename(fInfo.absoluteFilePath(), imageFilePath);
                 }
 
-              qDebug() << Render::getRenderer()
+              logTrace() << "\n" << Render::getRenderer()
                        << " CSI single render call took "
                        << timer.elapsed() << "milliseconds"
                        << " for multi-steps " << fromStep << " to " << toStep
