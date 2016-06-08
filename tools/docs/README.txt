@@ -53,6 +53,7 @@ Notice: As this feature required a significant rewrite of the core image generat
 -Update: ldglite hard-coded default directory setting to ldglite1.3.1(r623)
 -Update: zlib reference for Qt 5.6.0 (r618)
 -Update: minifig settings (move to ini file) - LeoCAD Changeset 1870 (r617)
+-Fix: Set ldr load file to unofficial item by default (r691)
 -Fix: Load inline submodels break (r688)
 -Fix: Remove libpng warning: iCCP: known incorrect sRGB profile (r678)
 -Fix: Convert special characters (copyright and trademark) from Wide Char to UTF8 for MSVC build (r677)

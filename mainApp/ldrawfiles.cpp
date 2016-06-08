@@ -645,7 +645,6 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
       QTextStream in(&file);
       QStringList contents;
-      QString     unofficialPartType = "";
 
       QRegExp sofRE("^\\s*0\\s+FILE\\s+(.*)$");
       QRegExp upAUT("^\\s*0\\s+AUTHOR(.*)|Author(.*)|author(.*)$");
@@ -658,6 +657,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
       bool topLevelAuthorNotCaptured      = true;
       bool topLevelDescriptionNotCaptured = true;
       bool topLevelCategoryNotCaptured    = true;
+      bool unofficialPart                 = true;
       int  descriptionLine                = 0;
       int  pieces                         = 0;
 
@@ -673,7 +673,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
       QDateTime datetime = QFileInfo(fullName).lastModified();
     
-      insert(fileName,contents,datetime,false);
+      insert(fileName,contents,datetime,unofficialPart);
       //writeToTmp(fileName,contents);
 
       /* read it a second time to find submodels */
