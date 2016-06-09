@@ -274,11 +274,10 @@ float L3P::cameraDistance(Meta &meta, float scale){
 	return stdCameraDistance(meta, scale);
 }
 
-int L3P::renderCsi(
-				   const QString     &addLine,
-				   const QStringList &csiParts,
-				   const QString     &pngName,
-				   Meta        &meta){
+int L3P::renderCsi(const QString     &addLine,
+		   const QStringList &csiParts,
+		   const QString     &pngName,
+		   Meta        &meta){
 	
 	
 	/* Create the CSI DAT file */
@@ -324,10 +323,12 @@ int L3P::renderCsi(
 	arguments << fixupDirname(QDir::toNativeSeparators(ldrName));
 	arguments << fixupDirname(QDir::toNativeSeparators(povName));
 	
+	emit gui->messageSig(true, "Execute command: L3P render CSI.");
+
 	QProcess l3p;
 	QStringList env = QProcess::systemEnvironment();
 	l3p.setEnvironment(env);
-    l3p.setWorkingDirectory(QDir::currentPath() +"/"+Paths::tmpDir);
+	l3p.setWorkingDirectory(QDir::currentPath() +"/"+Paths::tmpDir);
 	l3p.setStandardErrorFile(QDir::currentPath() + "/stderr");
 	l3p.setStandardOutputFile(QDir::currentPath() + "/stdout");
 	qDebug() << qPrintable(Preferences::l3pExe + " " + arguments.join(" ")) << "\n";
@@ -372,6 +373,8 @@ int L3P::renderCsi(
 		}
 	}
 	
+	emit gui->messageSig(true, "Execute command: POV-RAY render CSI.");
+
 	QProcess povray;
 	QStringList povEnv = QProcess::systemEnvironment();
 	povray.setEnvironment(povEnv);
@@ -399,9 +402,9 @@ int L3P::renderCsi(
 }
 
 int L3P::renderPli(const QString &ldrName,
-				   const QString &pngName,
-				   Meta    &meta,
-				   bool     bom){
+		   const QString &pngName,
+		   Meta    &meta,
+		   bool     bom){
 	
 	QString povName = ldrName +".pov";
 	
@@ -446,6 +449,8 @@ int L3P::renderPli(const QString &ldrName,
 	
 	arguments << fixupDirname(QDir::toNativeSeparators(ldrName));
 	arguments << fixupDirname(QDir::toNativeSeparators(povName));
+
+	emit gui->messageSig(true, "Execute command: L3P render PLI.");
 	
 	QProcess    l3p;
 	QStringList env = QProcess::systemEnvironment();
@@ -494,7 +499,9 @@ int L3P::renderPli(const QString &ldrName,
 			povArguments << list[i];
 		}
 	}
-	
+
+	emit gui->messageSig(true, "Execute command: POV-RAY render PLI.");
+
 	QProcess povray;
 	QStringList povEnv = QProcess::systemEnvironment();
 	povray.setEnvironment(povEnv);
@@ -593,15 +600,15 @@ int LDGLite::renderCsi(
 
   arguments << mf;                  // .png file name
   arguments << ldrName;             // csi.ldr (input file)
-  
+
+  //qDebug() << "ldglite CLI Arguments: " << arguments;
+  emit gui->messageSig(true, "Execute command: LDGLite render CSI.");
+
   QProcess    ldglite;
   QStringList env = QProcess::systemEnvironment();
   env << "LDRAWDIR=" + Preferences::ldrawPath;
   if (!Preferences::ldgliteSearchDirs.isEmpty())
     env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
-
-//qDebug() << "ldglite CLI Arguments: " << arguments;
-
   ldglite.setEnvironment(env);
   ldglite.setWorkingDirectory(QDir::currentPath() + "/"+Paths::tmpDir);
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr");
@@ -670,6 +677,8 @@ int LDGLite::renderPli(
   arguments << mf;
   arguments << ldrName;
   
+  emit gui->messageSig(true, "Execute command: LDGLite render PLI.");
+
   QProcess    ldglite;
   QStringList env = QProcess::systemEnvironment();
   env << "LDRAWDIR=" + Preferences::ldrawPath;
@@ -784,6 +793,8 @@ int LDView::renderCsi(
     }
   }
   arguments << ldrName;
+
+  emit gui->messageSig(true, "Execute command: LDView render CSI.");
   
   QProcess    ldview;
   ldview.setEnvironment(QProcess::systemEnvironment());
@@ -861,6 +872,7 @@ int LDView::renderPli(
   arguments << ldrName;
 
   //qDebug() << "LDView (Native) PLI Arguments: " << arguments;
+  emit gui->messageSig(true, "Execute command: LDView render PLI.");
 
   QProcess    ldview;
   ldview.setEnvironment(QProcess::systemEnvironment());
@@ -929,11 +941,12 @@ int Render::renderLDViewSCallCsi(
   }
   arguments = arguments + ldrNames;
 
+  emit gui->messageSig(true, "Execute command: LDView render single call CSI.");
+
   QProcess    ldview;
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath()+"/"+Paths::tmpDir);
-  ldview.start(Preferences::ldviewExe,arguments);
-
+  ldview.start(Preferences::ldviewExe,arguments);  
   if ( ! ldview.waitForFinished(6*60*1000)) {
     if (ldview.exitCode() != 0 || 1) {
       QByteArray status = ldview.readAll();
@@ -995,11 +1008,12 @@ int Render::renderLDViewSCallPli(
   arguments = arguments + ldrNames;
 
 //  qDebug() << "LDView PLI Arguments: " << arguments;
+  emit gui->messageSig(true, "Execute command: LDView render single call PLI.");
 
   QProcess    ldview;
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath());
-  ldview.start(Preferences::ldviewExe,arguments);
+  ldview.start(Preferences::ldviewExe,arguments);  
   if ( ! ldview.waitForFinished()) {
       if (ldview.exitCode() != 0) {
           QByteArray status = ldview.readAll();

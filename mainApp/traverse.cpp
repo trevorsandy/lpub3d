@@ -885,8 +885,6 @@ int Gui::drawPage(LGraphicsView  *view,
                     }
                   pliParts.clear();
 
-
-
                   /* this is a page we're supposed to process */
 
                   steps->placement = steps->meta.LPub.multiStep.placement;
@@ -901,6 +899,8 @@ int Gui::drawPage(LGraphicsView  *view,
                   bool endOfSubmodel = stepNum >= ldrawFile.numSteps(current.modelName);;
 
                   int  instances = ldrawFile.instances(current.modelName,isMirrored);
+
+                  emit messageSig(true, "Add graphics for multi-step page " + current.modelName);
 
                   addGraphicsPageItems(steps, coverPage, modelDisplayPage, endOfSubmodel,instances, view, scene, printing);
 
@@ -935,15 +935,13 @@ int Gui::drawPage(LGraphicsView  *view,
                       range->append(step);
                     }
 
-                  emit messageSig(true, "Generating graphics for " + current.modelName);
+                  emit messageSig(true, "Processing bfx model (CSI) for " + current.modelName);
 
                   (void) step->createCsi(
                         isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
                         saveCsiParts = fadeStep(csiParts, stepNum, current),
                         &step->csiPixmap,
                         steps->meta);
-
-                  emit messageSig(true, "Graphics generated for " + current.modelName);
 
                   partsAdded = true; // OK, so this is a lie, but it works
                 }
@@ -1007,7 +1005,7 @@ int Gui::drawPage(LGraphicsView  *view,
                           step->placeRotateIcon = true;
                         }
 
-                      statusBar()->showMessage("Processing " + current.modelName);
+                      emit messageSig(true, "Processing model (CSI) for " + current.modelName);
 
                       int rc = step->createCsi(
                             isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
@@ -1047,6 +1045,8 @@ int Gui::drawPage(LGraphicsView  *view,
                       bool endOfSubmodel = numSteps == 0 || stepNum >= numSteps;
 
                       int  instances = ldrawFile.instances(current.modelName, isMirrored);
+
+                      emit messageSig(true, "Add graphics for single-step page.");
 
                       addGraphicsPageItems(steps,coverPage,modelDisplayPage, endOfSubmodel,instances,view,scene,printing);
                       stepPageNum += ! coverPage;
@@ -2145,11 +2145,12 @@ void Gui::writeToTmp()
  */
 QStringList Gui::fadeSubFile(const QStringList &contents, const QString &color)
 {
+  QStringList fadeContents;
+
   if (contents.size() > 0) {
 
       QString edgeColor = "24";  // Internal Common Material Color (edge)
       QString fadeColor = color;
-      QStringList fadeContents;
       QStringList argv;
 
       for (int index = 0; index < contents.size(); index++) {
@@ -2191,7 +2192,7 @@ QStringList Gui::fadeSubFile(const QStringList &contents, const QString &color)
           fadeContents  << contentLine;
         }
     } else {
-      fadeContents  << contents;
+      return contents;
     }
   return fadeContents;
 }
@@ -2199,8 +2200,9 @@ QStringList Gui::fadeSubFile(const QStringList &contents, const QString &color)
 /*
  * Process csiParts list - fade all non-current step-parts.
  */
-QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) {
+QStringList Gui::fadeStep(const QStringList &csiParts, const int &stepNum,  Where &current) {
 
+  QStringList fadeCsiParts;
   bool    doFadeStep  = (page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
 
   if (csiParts.size() > 0 && stepNum > 1 && doFadeStep) {
@@ -2208,7 +2210,6 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
       QString fadeColor   = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
       QString edgeColor   = "24";  // Internal Common Material Color (edge)
       int  fadePosition   = ldrawFile.getFadePosition(current.modelName);
-      QStringList fadeCsiParts;
       QStringList argv;
 
       for (int index = 0; index < csiParts.size(); index++) {
@@ -2255,7 +2256,7 @@ QStringList Gui::fadeStep(QStringList &csiParts, int &stepNum,  Where &current) 
           fadeCsiParts  << csiLine;
         }
     } else {
-      fadeCsiParts  << csiParts;
+      return csiParts;
     }
   ldrawFile.setFadePosition(current.modelName,fadeCsiParts.size());
   return fadeCsiParts;

@@ -1156,19 +1156,11 @@ int Pli::sortPli()
 
 int Pli::partSize()
 {
-  QElapsedTimer timer;
-  timer.start();
-
   if (renderer->useLDViewSCall()) {
 
       int rc = partSizeLDViewSCall();
       if (rc != 0)
         return rc;
-
-      logTrace() << "\n" << Render::getRenderer()
-               << " PLI single call render took "
-               << timer.elapsed() << "milliseconds."
-               ;
 
     } else {
 
@@ -1313,9 +1305,6 @@ int Pli::partSize()
             }
         }
 
-      logTrace() << "\n" << Render::getRenderer()
-                 << " PLI render call took "
-                 << timer.elapsed() << "milliseconds.";
     }
 
   return 0;

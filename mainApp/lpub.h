@@ -841,8 +841,8 @@ private:
      const QString &color);      // fade all parts in subfile
 
   QStringList fadeStep(
-     QStringList  &csiParts,
-     int          &stepNum,
+     const QStringList &csiParts,
+     const int &stepNum,
      Where        &current);      // fade parts in a step that are not current
 
   static bool installExportBanner(

@@ -174,7 +174,7 @@ int Step::createCsi(
   qreal       modelScale = meta.LPub.assem.modelScale.value();
   int         sn = stepNumber.number;
   ldrName.clear();
-  
+
   // 1 color x y z a b c d e f g h i foo.dat
   // 0 1     2 3 4 5 6 7 8 9 0 1 2 3 4
   QStringList tokens;
@@ -212,7 +212,8 @@ int Step::createCsi(
 
   // Check if using LDView Single Call
   bool notUsingLDViewSCall = ! renderer->useLDViewSCall();
-  bool okToExecuteThis = ! multiStep /*|| ! calledOut*/;
+  bool okToExecuteThis = ! multiStep;
+  //bool okToExecuteThis = ! multiStep || ! calledOut;
 
   // generate CSI file as appropriate
   if ( ! csi.exists() || csiOutOfDate ) {
@@ -224,6 +225,8 @@ int Step::createCsi(
       // render the partially assembled model
       if (notUsingLDViewSCall) {
 
+          emit gui->messageSig(true, "Render model (CSI) for step " + sn);
+
           rc = renderer->renderCsi(addLine,csiParts, pngName, meta);
           if (rc < 0) {
               QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
@@ -232,11 +235,13 @@ int Step::createCsi(
               return rc;
             }
 
-          logTrace() << "\n" << Render::getRenderer()
-                   << " CSI render call took "
+          qDebug() << Render::getRenderer()
+          //logTrace() << "\n" << Render::getRenderer()
+                   << "Step       CSI render call took "
                    << timer.elapsed() << "milliseconds"
-                   << " for step number " << stepNumber.number
-                   << " on page number " << gui->stepPageNum;
+                   << "for " << (calledOut ? "called out," : "")
+                   << "single step " << sn
+                   << "on page " << gui->stepPageNum;
 
         } else { // using LDView Single Call
 
@@ -255,6 +260,9 @@ int Step::createCsi(
 
               QStringList ldrNames;
               ldrNames << ldrName;
+
+              emit gui->messageSig(true, "Render models (CSI) for step - LDView Single Call");
+
               rc = renderer->renderLDViewSCallCsi(ldrNames, meta);
               if (rc < 0) {
                   QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
@@ -262,18 +270,20 @@ int Step::createCsi(
                                         .arg(ldrName));
                   return rc;
                 }
-              // move image to parts folder
+              // move image to part folder - this will be only 1 part
               QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
               QFileInfo fInfo(ldrName.replace(".ldr",".png"));
               QString imageFilePath = QDir::currentPath() + "/" +
                   Paths::assemDir + "/" + fInfo.fileName();
               dir.rename(fInfo.absoluteFilePath(), imageFilePath);
 
-              logTrace() << "\n" << Render::getRenderer()
-                       << " CSI single call render took "
+              qDebug() << Render::getRenderer()
+              //logTrace() << "\n" << Render::getRenderer()
+                       << "Step       CSI single call render took"
                        << timer.elapsed() << "milliseconds"
-                       << " for step " << stepNumber.number
-                       << " on page " << gui->stepPageNum;
+                       << "for" << (calledOut ? "called out," : "")
+                       << "single step" << sn
+                       << "on page" << gui->stepPageNum;
             }
         }
     }
@@ -307,9 +317,7 @@ int Step::Load3DCsi(QString &csi3DName)
   if (! gMainWindow->GetHalt3DViewer()) {
       return renderer->load3DCsiImage(csi3DName);
     } else {
-      QMessageBox::warning(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                            QMessageBox::tr("3DViewer halted - rendering not allowed for:\n%1.")
-                            .arg(csi3DName));
+      qDebug() << "3DViewer halted - rendering not allowed.";
       return -1;
     }
   return 0;

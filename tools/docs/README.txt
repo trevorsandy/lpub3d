@@ -2,7 +2,7 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------  
--Up to 75% increase rendering speed with configuration to render multiple files using a single call to LDView. All PLI (part list/BOM) parts for a given page are rendered in a single call versue individually. For CSI (Step models), all multi-step images on a page are rendered in a single call. Single step page images are rendered individually. This new confiuration will default as checked.
+-Up to 60% increase rendering speed with configuration to render multiple files using a single call to LDView. All PLI (part list/BOM) parts for a given page are rendered in a single call versue individually. For CSI (Step models), all multi-step images on a page are rendered in a single call. Single step page images are rendered individually. This new confiuration will default as checked.
 
 To achieve this behavior, input files (csi.ldr, pli.ldr) are now uniquely named because rendering multiple files is done by using -SaveSnapshots=1 instead of -SaveSnapshot=somefile.png and then listing all the LDR files at the end of the command line. There is no control over the output file names. Instead, LDView will automatically use the input base filename changing only the output filename extension from .ldr to .png.
 
@@ -32,11 +32,11 @@ Notice: As this feature required a significant rewrite of the core image generat
  below - obviously selecting your own size values and orientation.
  0 !LPUB PAGE SIZE GLOBAL 8.2677 11.6929
  0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT (r518)
--Add elapsed time to render page to logging - see session log (r694)
 -Change: Update page background menu rearranged - see r641. (r642)
 -Change: Page background context menu rearranged. "Change page background" and "Change Page Size or Orientation" now appear at the end of the menu list because they are likely to be least often used. (r641)
 -Change: Point online manual to LPub3D content (r517)
 -Change: Replace #if (_MSC_VER >= 1400) with #ifdef _MSC_VER (r679)
+-Refactor: Optimize fadeStep routines; change LDView logging details (r695)
 -Rafactor: Colour application output default set to off (r662)
 -Refactor: Define strcasecmp, strncasecmp in lc_global.h for MinGW builds only (r661)
 -Refactor: Replace 0x050000 with QT_VERSION_CHECK(5,0,0) (r660)
@@ -54,8 +54,6 @@ Notice: As this feature required a significant rewrite of the core image generat
 -Update: ldglite hard-coded default directory setting to ldglite1.3.1(r623)
 -Update: zlib reference for Qt 5.6.0 (r618)
 -Update: minifig settings (move to ini file) - LeoCAD Changeset 1870 (r617)
--Fix: Correct typo initializing variable useLDViewSingleCall (r693)
--Fix: Traverse multiple ranges (divided step groups) to apply pixmap image - see r685 (r692)
 -Fix: Set ldr load file to unofficial item by default (r691)
 -Fix: Load inline submodels break (r688)
 -Fix: Remove libpng warning: iCCP: known incorrect sRGB profile (r678)
