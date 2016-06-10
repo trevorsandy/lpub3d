@@ -889,6 +889,7 @@ int LDView::renderPli(
       return -1;
     }
   }
+
   return 0;
 }
 
@@ -896,14 +897,6 @@ int Render::renderLDViewSCallCsi(
   const QStringList &ldrNames,
         Meta        &meta)
 {
-	/* Create the CSI DAT file   // move all this
-	QString ldrName;
-	int rc;
-	ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
-	if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrName)) < 0) {
-		return rc;
-	}
-	*/
 
   int width = meta.LPub.page.size.valuePixels(0);
   int height = meta.LPub.page.size.valuePixels(1);
@@ -967,11 +960,15 @@ int Render::renderLDViewSCallCsi(
       QString imageFilePath = QDir::currentPath() + "/" +
           Paths::assemDir + "/" + fInfo.fileName();
       if (! dir.rename(fInfo.absoluteFilePath(), imageFilePath)){
-          QMessageBox::warning(NULL,
-                               QMessageBox::tr(VER_PRODUCTNAME_STR),
-                               QMessageBox::tr("LDView CSI image file move failed for\n%1")
-                               .arg(ldrName));
-          return -1;
+          //in case failure because file exist
+          QFile pngFile(imageFilePath);
+          if (! pngFile.exists()){
+              QMessageBox::warning(NULL,
+                                   QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                   QMessageBox::tr("LDView CSI image file move failed for\n%1")
+                                   .arg(imageFilePath));
+              return -1;
+            }
         }
     }
 
@@ -983,6 +980,7 @@ int Render::renderLDViewSCallPli(
   Meta    &meta,
   bool     bom)
 {
+
   PliMeta &pliMeta = bom ? meta.LPub.bom : meta.LPub.pli;
 
   int width  = meta.LPub.page.size.valuePixels(0);
@@ -1050,11 +1048,15 @@ int Render::renderLDViewSCallPli(
       QString imageFilePath = QDir::currentPath() + "/" +
           Paths::partsDir + "/" + fInfo.fileName();
       if (! dir.rename(fInfo.absoluteFilePath(), imageFilePath)){
-          QMessageBox::warning(NULL,
-                               QMessageBox::tr(VER_PRODUCTNAME_STR),
-                               QMessageBox::tr("LDView PLI image file move failed for\n%1")
-                                               .arg(ldrName));
-          return -1;
+          //in case failure because file exist
+          QFile pngFile(imageFilePath);
+          if (! pngFile.exists()){
+              QMessageBox::warning(NULL,
+                         QMessageBox::tr(VER_PRODUCTNAME_STR),
+                         QMessageBox::tr("LDView PLI image file move failed for\n%1")
+                         .arg(imageFilePath));
+              return -1;
+            }
         }
     }
 
@@ -1301,18 +1303,11 @@ int Render::load3DCsiImage(QString &csi3DName)
   //load CSI 3D file into viewer
   QFile csi3DFile(csi3DName);
   if (csi3DFile.exists()){
-      if (gMainWindow->OpenProject(csi3DFile.fileName()))
-        return 0;
-      else
+      if (! gMainWindow->OpenProject(csi3DFile.fileName()))
         return -1;
     } else {
-      if ( ! csi3DFile.open(QFile::ReadOnly | QFile::Text)) {
-          QMessageBox::warning(NULL,
-                               QMessageBox::tr(VER_PRODUCTNAME_STR),
-                               QMessageBox::tr("3D-render file does not exist: %1.")
-                               .arg(csi3DFile.fileName()));
-          return -1;
-        }
+      return -1;
     }
+
   return 0;
 }

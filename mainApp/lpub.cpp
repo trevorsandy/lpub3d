@@ -1001,6 +1001,8 @@ Gui::Gui()
     mExistingRotStep = lcVector3(0.0f, 0.0f, 0.0f);
     mModelStepRotation = lcVector3(0.0f, 0.0f, 0.0f);
 
+    timer = new QElapsedTimer();
+
     createActions();
     createMenus();
     createToolBars();

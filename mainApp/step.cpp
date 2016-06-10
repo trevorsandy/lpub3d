@@ -173,6 +173,7 @@ int Step::createCsi(
 {
   qreal       modelScale = meta.LPub.assem.modelScale.value();
   int         sn = stepNumber.number;
+  bool        csiExist = false;
   ldrName.clear();
 
   // 1 color x y z a b c d e f g h i foo.dat
@@ -194,14 +195,15 @@ int Step::createCsi(
       .arg(resolutionType() == DPI ? "DPI" : "DPCM")
       .arg(modelScale);
 
-  // png name
+  // populate png name
   pngName = QDir::currentPath() + "/" +
       Paths::assemDir + "/" + key + ".png";
 
   csiOutOfDate = false;
 
   QFile csi(pngName);
-  if (csi.exists()) {
+  csiExist = csi.exists();
+  if (csiExist) {
       QDateTime lastModified = QFileInfo(pngName).lastModified();
       QStringList stack = submodelStack();
       stack << parent->modelName();
@@ -210,28 +212,17 @@ int Step::createCsi(
         }
     }
 
-  // Check if ok to use LDView Single Call
-  bool canUseLDViewSCall = false;
-  if (renderer->useLDViewSCall() && multiStep)
-    canUseLDViewSCall = true;
-  else if (renderer->useLDViewSCall() && calledOut)
-    canUseLDViewSCall = true;
-  else
-    canUseLDViewSCall = false;
-
-  qDebug() <<  (canUseLDViewSCall ? "Using LDView Single Call" : "Single Step - Not using LDView Single Call" );
-
   // generate CSI file as appropriate
-  if ( ! csi.exists() || csiOutOfDate ) {
-
-      QElapsedTimer timer;
-      timer.start();
+  if ( ! csiExist || csiOutOfDate ) {
 
       int rc;
-      if (canUseLDViewSCall) {
-          // generate and assign the CSI ldr file and rotate its parts
-          ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + key + ".ldr";
+      if (renderer->useLDViewSCall()) {
 
+          // populate ldr file name
+          ldrName = QDir::currentPath() + "/" +
+              Paths::tmpDir + "/" + key + ".ldr";
+
+          // generate and assign the CSI ldr file and rotate its parts
           rc = renderer->rotateParts(addLine,meta.rotStep, csiParts, ldrName);
           if (rc != 0) {
               QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
@@ -239,7 +230,12 @@ int Step::createCsi(
                                     .arg(ldrName));
               return rc;
             }
+
         } else {
+
+          QElapsedTimer timer;
+          timer.start();
+
           // render the partially assembled model if single step and not called out
           rc = renderer->renderCsi(addLine,csiParts, pngName, meta);
           if (rc != 0) {
@@ -254,8 +250,8 @@ int Step::createCsi(
           csiPlacement.size[1] = pixmap->height();
 
           qDebug() << Render::getRenderer()
-          //logTrace() << "\n" << Render::getRenderer()
-                   << "Step       CSI render call took "
+                      //logTrace() << "\n" << Render::getRenderer()
+                   << "CSI render call took "
                    << timer.elapsed() << "milliseconds"
                    << "for " << (calledOut ? "called out," : "")
                    << (multiStep ? "multi-step" : "single step") << sn
@@ -274,7 +270,6 @@ int Step::createCsi(
 
       csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + file3DNamekey;
       QFile csi3D(csi3DName);
-
       int rc;
       rc = renderer->render3DCsi(file3DNamekey, addLine, csiParts, meta, csi3D.exists(), csiOutOfDate);
       if (rc != 0) {

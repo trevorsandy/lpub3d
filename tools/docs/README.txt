@@ -2,13 +2,14 @@ LPub3D 2.0.0.
  
 Features and enhancements 
 ------------  
--Up to 60% increase rendering speed with configuration to render multiple files using a single call to LDView. All PLI (part list/BOM) parts for a given page are rendered in a single call versue individually. For CSI (Step models), all multi-step images on a page are rendered in a single call. Single step page images are rendered individually. This new confiuration will default as checked.
+-Up to 60% increase rendering speed with configuration to render multiple files using a single call to LDView. All PLI (part list/BOM) parts for a given step are rendered in a single call versue individually. For CSI (Step models), all multi-step images on a page are rendered in a single call including callout(s). Single step page images are rendered with a single call for all model images including those in callou(s). This new confiuration will default as checked.
 
 To achieve this behavior, input files (csi.ldr, pli.ldr) are now uniquely named because rendering multiple files is done by using -SaveSnapshots=1 instead of -SaveSnapshot=somefile.png and then listing all the LDR files at the end of the command line. There is no control over the output file names. Instead, LDView will automatically use the input base filename changing only the output filename extension from .ldr to .png.
 
 Enabling this feature is optonal and can be selected on the Configuration=>Preferences=>Rendering tab by checking the box 'Use multiple files single call rendering' in the 'LDView in installed' group box. LDView must be installed and configured to enable this option.
 
 Notice: As this feature required a significant rewrite of the core image generation logic, it is likely to generate some unexpected behavior as not every scenario has been tested. Please report any unexptected behavior. Contact details can be found under the Help=>About menu.
+-Add callouts, refactor and optimize LDView single call image generation, see r683,r684,r685 (r698)
 -Add progress bar to mpd/ldr file load (r690)
 -Enable 'Use multiple files single call rendering' for LDView from Preferences=>Rendering tab (r687)
 -Increase CSI (Models) rendering speed with LDView using -SaveSnapshots=1. (r685)
@@ -36,7 +37,6 @@ Notice: As this feature required a significant rewrite of the core image generat
 -Change: Page background context menu rearranged. "Change page background" and "Change Page Size or Orientation" now appear at the end of the menu list because they are likely to be least often used. (r641)
 -Change: Point online manual to LPub3D content (r517)
 -Change: Replace #if (_MSC_VER >= 1400) with #ifdef _MSC_VER (r679)
--Refactor: Optimize LDView single call image generation, see r683,r684,r685 (r697)
 -Refactor: Optimize fadeStep routines; change LDView logging details (r695)
 -Rafactor: Colour application output default set to off (r662)
 -Refactor: Define strcasecmp, strncasecmp in lc_global.h for MinGW builds only (r661)

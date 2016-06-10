@@ -757,7 +757,7 @@ private:
   QProgressBar          *progressBarPerm;    // Right side progress bar
   QLabel                *progressLabel;
   QLabel                *progressLabelPerm;  //
-  QElapsedTimer         *timer;
+  QElapsedTimer         *timer;               // measure elapsed time for slow functions
 
   FadeStepColorParts     fadeStepColorParts; // internal list of color parts to be processed for fade step.
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
@@ -787,7 +787,7 @@ private:
     Meta           meta,
     bool           printing);
 
-  int drawPage(                    // process the page of interest and any callouts
+  int drawPage(// process the page of interest and any callouts
     LGraphicsView  *view,
     QGraphicsScene *scene,
     Steps          *steps,
@@ -801,6 +801,7 @@ private:
     bool           printing,
     bool           bfxStore2,
     QStringList   &bfxParts,
+    QStringList   &ldrStepFiles,
     bool           supressRotateIcon = false,
     bool           calledOut = false);
 

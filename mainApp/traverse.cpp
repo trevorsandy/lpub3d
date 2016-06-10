@@ -240,6 +240,7 @@ int Gui::drawPage(LGraphicsView  *view,
     bool            printing,
     bool            bfxStore2,
     QStringList    &bfxParts,
+    QStringList    &ldrStepFiles,
     bool            supressRotateIcon,
     bool            calledOut)
 {
@@ -469,6 +470,7 @@ int Gui::drawPage(LGraphicsView  *view,
                         printing,
                         bfxStore2,
                         bfxParts,
+                        ldrStepFiles,
                         supressRotateIcon,
                         true);
 
@@ -902,6 +904,25 @@ int Gui::drawPage(LGraphicsView  *view,
 
                   emit messageSig(true, "Add graphics for multi-step page " + current.modelName);
 
+                  if (renderer->useLDViewSCall() && ldrStepFiles.size() > 0){
+                      QElapsedTimer timer;
+                      timer.start();
+
+                      int rc = renderer->renderLDViewSCallCsi(ldrStepFiles, steps->meta);
+                      if (rc != 0) {
+                          QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                                QMessageBox::tr("Render CSI images failed."));
+                          return rc;
+                        }
+
+                      qDebug() << Render::getRenderer()
+                                  //logTrace() << "\n" << Render::getRenderer()
+                               << "CSI single call render took"
+                               << timer.elapsed() << "milliseconds"
+                               << "to render "<< ldrStepFiles.size()  << (ldrStepFiles.size() > 1 ? "images" : "image")
+                               << "for page" << stepPageNum << "of type step group.";
+                    }
+
                   addGraphicsPageItems(steps, coverPage, modelDisplayPage, endOfSubmodel,instances, view, scene, printing);
 
                   return HitEndOfPage;
@@ -942,6 +963,11 @@ int Gui::drawPage(LGraphicsView  *view,
                         saveCsiParts = fadeStep(csiParts, stepNum, current),
                         &step->csiPixmap,
                         steps->meta);
+
+                  if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
+                      ldrStepFiles << step->ldrName;
+                      //qDebug() << "CSI ldr file #"<< ldrStepFiles.count() <<"added: " << step->ldrName;
+                    }
 
                   partsAdded = true; // OK, so this is a lie, but it works
                 }
@@ -1014,7 +1040,14 @@ int Gui::drawPage(LGraphicsView  *view,
                             steps->meta);
 
                       if (rc) {
+                          QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                                QMessageBox::tr("Failed to create CSI."));
                           return rc;
+                        }
+
+                      if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
+                          ldrStepFiles << step->ldrName;
+                          //qDebug() << "CSI ldr file #"<< ldrStepFiles.count() <<"added: " << step->ldrName;
                         }
 
                     } else {
@@ -1047,6 +1080,26 @@ int Gui::drawPage(LGraphicsView  *view,
                       int  instances = ldrawFile.instances(current.modelName, isMirrored);
 
                       emit messageSig(true, "Add graphics for single-step page.");
+
+                      if (renderer->useLDViewSCall() && ldrStepFiles.size() > 0){
+
+                          QElapsedTimer timer;
+                          timer.start();
+
+                          int rc = renderer->renderLDViewSCallCsi(ldrStepFiles, steps->meta);
+                          if (rc != 0) {
+                              QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                                    QMessageBox::tr("Render CSI images failed."));
+                              return rc;
+                            }
+
+                          qDebug() << Render::getRenderer()
+                                      //logTrace() << "\n" << Render::getRenderer()
+                                   << "CSI single call render took"
+                                   << timer.elapsed() << "milliseconds"
+                                   << "to render "<< ldrStepFiles.size() << (ldrStepFiles.size() > 1 ? "images" : "image")
+                                   << "for page" << stepPageNum << "of type simple step.";
+                        }
 
                       addGraphicsPageItems(steps,coverPage,modelDisplayPage, endOfSubmodel,instances,view,scene,printing);
                       stepPageNum += ! coverPage;
@@ -1124,6 +1177,7 @@ int Gui::findPage(
 
   QStringList bfxParts;
   QStringList saveBfxParts;
+  QStringList ldrStepFiles;
   int  partsAdded = 0;
   int  stepNumber = 1;
   Rc   rc;
@@ -1300,7 +1354,8 @@ int Gui::findPage(
                                       saveBfx,
                                       printing,
                                       stepGroupBfxStore2,
-                                      saveBfxParts);
+                                      saveBfxParts,
+                                      ldrStepFiles);
 
                       saveCurrent.modelName.clear();
                       saveCsiParts.clear();
@@ -1358,7 +1413,8 @@ int Gui::findPage(
                                           saveBfx,
                                           printing,
                                           bfxStore2,
-                                          saveBfxParts);
+                                          saveBfxParts,
+                                          ldrStepFiles);
 
                           saveCurrent.modelName.clear();
                           saveCsiParts.clear();
@@ -1496,7 +1552,8 @@ int Gui::findPage(
                           saveBfx,
                           printing,
                           bfxStore2,
-                          saveBfxParts);
+                          saveBfxParts,
+                          ldrStepFiles);
         }
       ++pageNum;
       topOfPages.append(current);
