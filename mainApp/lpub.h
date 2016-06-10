@@ -1040,11 +1040,13 @@ private:
   QComboBox*setGoToPageCombo;
 
   // manage Caches
+  QAction  *clearImageModelCacheAct;
+
   QAction  *clearPLICacheAct;
   QAction  *clearCSICacheAct;
   QAction  *clearCSI3DCacheAct;
-  QAction  *clearImageModelCacheAct;
   QAction  *clearFadeCacheAct;
+
   QAction  *refreshLDrawUnoffPartsAct;
 
   // config menu

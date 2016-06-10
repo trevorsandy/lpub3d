@@ -80,7 +80,6 @@ Notice: As this feature required a significant rewrite of the core image generat
 -Fix: Control manual page number entry (r627) 
 -Fix: Cleanup 'Copyright' and 'Trademark' unicode (utf8) chars on MSVC2015 build (r622)
 -Fix: QPainter alphaChannel management - use setCompositionMode (r619/r620)
--Upgrade: to Qt 5.6.0 Stable (debug build KO), Build and link own copy of zlib. (r616)
 -Upgrade: base to Qt 5.6.0 (MSVC 2015) (r613)
 -Upgrade: logging framework (r610)
 -Upgrade: base to Qt 5.5.1 (MinGW) platform (r608)

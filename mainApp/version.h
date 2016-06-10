@@ -36,7 +36,7 @@
 #define VER_PRODUCTVERSION_STR      		STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SP) "\0"
 
 #define VER_PRODUCTNAME_STR         		"LPub3D"
-#define VER_COMPANYNAME_STR         		"LPub3D Software Dev"
+#define VER_COMPANYNAME_STR         		"LPub3D Software"
 #define VER_FILEDESCRIPTION_STR     		"LPub3D - An LDraw Building Instruction Editor"
 #define VER_INTERNALNAME_STR        		"bociphus"
 #define VER_LEGALCOPYRIGHT_STR      		"Copyright &copy; 2016 by Trevor SANDY"
