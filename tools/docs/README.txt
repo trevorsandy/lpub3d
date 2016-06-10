@@ -48,6 +48,8 @@ Notice: As this feature required a significant rewrite of the core image generat
 -Refactor: Rearrange printToPdfFile page count (r632)
 -Refactor: Reposition rocessEvents statements (r631)
 -Rafactor: Supress MSVC type conversion warning C4267 (r621)
+-Update: Clear 3D Window when there is no model to display - e.g. for cover or inserted pages (r701)
+-Update: Set download dialog to Library Updater when downloading library - otherwise Software Updater (r700)
 -Update: Change copyright to 2016 (r666)
 -Update: AboutDialog to recognize Win 10 and OSX El Capitan(r665/r668/r669)
 -Update: application name value to support development environment (r639)

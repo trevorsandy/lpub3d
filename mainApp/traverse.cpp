@@ -751,9 +751,16 @@ int Gui::drawPage(LGraphicsView  *view,
                     page.backCover  = true;
                     page.frontCover = false;
                   }
+                // nothing to display in 3D Window
+                gMainWindow->NewProject();
               }
             case InsertPageRc:
-              partsAdded = true;
+              {
+                partsAdded = true;
+
+                // nothing to display in 3D Window
+                gMainWindow->NewProject();
+              }
               break;
 
             case InsertRc:
