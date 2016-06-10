@@ -445,6 +445,9 @@ int Pli::createPartImage(
   
   if ( ! part.exists()) {
 
+      QElapsedTimer timer;
+      timer.start();
+
       // create a temporary DAT to feed the renderer
 
       part.setFileName(ldrName);
@@ -472,13 +475,14 @@ int Pli::createPartImage(
                                .arg(Paths::tmpDir+"/part.dat"));
           return -1;
         }
+
+      //  qDebug() << Render::getRenderer()
+        logTrace() << "\n" << Render::getRenderer()
+                   << "PLI single call render took"
+                   << timer.elapsed() << "milliseconds"
+                   << "to render "<< imageName
+                   << "for " << (bom ? "BOM part list" : "Step parts list.");
     }
-//  qDebug() << Render::getRenderer()
-  logTrace() << "\n" << Render::getRenderer()
-             << "PLI single call render took"
-             << timer.elapsed() << "milliseconds"
-             << "to render "<< imageName
-             << "for " << (bom ? "BOM part list" : "Step parts list.");
 
   pixmap->load(imageName);
 

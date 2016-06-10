@@ -75,6 +75,7 @@ void DownloadDialog::beginDownload (const QUrl& url)
   ui->progressBar->setValue (0);
   ui->stopButton->setText (tr ("Stop"));
   if (m_isLdrawDownload){
+      this->setWindowTitle("Softare Updater");
       bool isUnoffArchive = url.toString().contains("ldrawunf.zip");
       ui->downloadLabel->setText (tr ("Downloading %1...")
                                 .arg(isUnoffArchive ? "ldrawunf.zip" : "complete.zip"));
