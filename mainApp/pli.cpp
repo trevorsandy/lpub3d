@@ -473,7 +473,15 @@ int Pli::createPartImage(
           return -1;
         }
     }
+//  qDebug() << Render::getRenderer()
+  logTrace() << "\n" << Render::getRenderer()
+             << "PLI single call render took"
+             << timer.elapsed() << "milliseconds"
+             << "to render "<< imageName
+             << "for " << (bom ? "BOM part list" : "Step parts list.");
+
   pixmap->load(imageName);
+
   return 0;
 }
 
@@ -483,6 +491,9 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames) {
   emit gui->messageSig(true, "Render PLI images...");
 
   if (! ldrNames.isEmpty()) {
+
+      QElapsedTimer timer;
+      timer.start();
       // feed DAT to renderer
       int rc = renderer->renderLDViewSCallPli(ldrNames,*meta, bom);
       if (rc != 0) {
@@ -490,7 +501,12 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames) {
                                QMessageBox::tr("Render failed for Pli images."));
           return -1;
         }
-// insert log
+//      qDebug() << Render::getRenderer()
+      logTrace() << "\n" << Render::getRenderer()
+                 << "PLI single call render took"
+                 << timer.elapsed() << "milliseconds"
+                 << "to render "<< ldrNames.size()  << (ldrNames.size() > 1 ? "images" : "image")
+                 << "for " << (bom ? "BOM part list" : "Step parts list.");
     }
 
   QString key;

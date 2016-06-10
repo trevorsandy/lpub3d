@@ -249,13 +249,13 @@ int Step::createCsi(
           csiPlacement.size[0] = pixmap->width();
           csiPlacement.size[1] = pixmap->height();
 
-          qDebug() << Render::getRenderer()
-                      //logTrace() << "\n" << Render::getRenderer()
-                   << "CSI render call took "
-                   << timer.elapsed() << "milliseconds"
-                   << "for " << (calledOut ? "called out," : "")
-                   << (multiStep ? "multi-step" : "single step") << sn
-                   << "on page " << gui->stepPageNum;
+//          qDebug() << Render::getRenderer()
+          logTrace() << "\n" << Render::getRenderer()
+                     << "CSI render call took "
+                     << timer.elapsed() << "milliseconds"
+                     << "to render image for " << (calledOut ? "called out," : "simple,")
+                     << (multiStep ? "step group" : "single step") << sn
+                     << "on page " << gui->stepPageNum << ".";
         }
     }
 
