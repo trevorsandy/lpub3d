@@ -425,7 +425,7 @@ int Pli::createPartImage(
     QString  &color,
     QPixmap  *pixmap)
 {
-  gui->statusBarMsg("Render PLI image...");
+  emit gui->messageSig(true, "Render PLI image...");
 
   float modelScale = pliMeta.modelScale.value();
 
@@ -480,9 +480,9 @@ int Pli::createPartImage(
 // LDView performance improvement
 int Pli::createPartImagesLDViewSCall(QStringList &ldrNames) {
 
-  gui->statusBarMsg("Render PLI images...");
+  emit gui->messageSig(true, "Render PLI images...");
 
-  if (ldrNames.size() > 0) {
+  if (! ldrNames.isEmpty()) {
       // feed DAT to renderer
       int rc = renderer->renderLDViewSCallPli(ldrNames,*meta, bom);
       if (rc != 0) {
@@ -490,17 +490,7 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames) {
                                QMessageBox::tr("Render failed for Pli images."));
           return -1;
         }
-
-      // move the image files to the parts folder
-      QString ldrName;
-      QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
-      foreach(ldrName, ldrNames){
-          QFileInfo fInfo(ldrName.replace(".ldr",".png"));
-          QString imageFilePath = QDir::currentPath() + "/" +
-              Paths::partsDir + "/" + fInfo.fileName();
-          dir.rename(fInfo.absoluteFilePath(), imageFilePath);
-          //qDebug() << "LDView PLI Moved: " << fInfo.absoluteFilePath();
-        }
+// insert log
     }
 
   QString key;

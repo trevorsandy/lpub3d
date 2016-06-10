@@ -210,10 +210,16 @@ int Step::createCsi(
         }
     }
 
-  // Check if using LDView Single Call
-  bool notUsingLDViewSCall = ! renderer->useLDViewSCall();
-  bool okToExecuteThis = ! multiStep;
-  //bool okToExecuteThis = ! multiStep || ! calledOut;
+  // Check if ok to use LDView Single Call
+  bool canUseLDViewSCall = false;
+  if (renderer->useLDViewSCall() && multiStep)
+    canUseLDViewSCall = true;
+  else if (renderer->useLDViewSCall() && calledOut)
+    canUseLDViewSCall = true;
+  else
+    canUseLDViewSCall = false;
+
+  qDebug() <<  (canUseLDViewSCall ? "Using LDView Single Call" : "Single Step - Not using LDView Single Call" );
 
   // generate CSI file as appropriate
   if ( ! csi.exists() || csiOutOfDate ) {
@@ -222,91 +228,65 @@ int Step::createCsi(
       timer.start();
 
       int rc;
-      // render the partially assembled model
-      if (notUsingLDViewSCall) {
+      if (canUseLDViewSCall) {
+          // generate and assign the CSI ldr file and rotate its parts
+          ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + key + ".ldr";
 
-          emit gui->messageSig(true, "Render model (CSI) for step " + sn);
-
+          rc = renderer->rotateParts(addLine,meta.rotStep, csiParts, ldrName);
+          if (rc != 0) {
+              QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                    QMessageBox::tr("Creation and rotation of CSI ldr file failed for:\n%1.")
+                                    .arg(ldrName));
+              return rc;
+            }
+        } else {
+          // render the partially assembled model if single step and not called out
           rc = renderer->renderCsi(addLine,csiParts, pngName, meta);
-          if (rc < 0) {
+          if (rc != 0) {
               QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
                                     QMessageBox::tr("Render CSI part failed for:\n%1.")
                                     .arg(pngName));
               return rc;
             }
 
+          pixmap->load(pngName);
+          csiPlacement.size[0] = pixmap->width();
+          csiPlacement.size[1] = pixmap->height();
+
           qDebug() << Render::getRenderer()
           //logTrace() << "\n" << Render::getRenderer()
                    << "Step       CSI render call took "
                    << timer.elapsed() << "milliseconds"
                    << "for " << (calledOut ? "called out," : "")
-                   << "single step " << sn
+                   << (multiStep ? "multi-step" : "single step") << sn
                    << "on page " << gui->stepPageNum;
-
-        } else { // using LDView Single Call
-
-          /* Generate and rotate the CSI DAT file */
-          ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + key + ".ldr";
-
-          rc = renderer->rotateParts(addLine,meta.rotStep, csiParts, ldrName);
-          if (rc < 0) {
-              QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                    QMessageBox::tr("Creation and rotation of CSI ldr file failed for:\n%1.")
-                                    .arg(ldrName));
-              return rc;
-            }
-
-          if (okToExecuteThis) { //execute if single step
-
-              QStringList ldrNames;
-              ldrNames << ldrName;
-
-              emit gui->messageSig(true, "Render models (CSI) for step - LDView Single Call");
-
-              rc = renderer->renderLDViewSCallCsi(ldrNames, meta);
-              if (rc < 0) {
-                  QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                        QMessageBox::tr("Render CSI part failed for:\n%1.")
-                                        .arg(ldrName));
-                  return rc;
-                }
-              // move image to part folder - this will be only 1 part
-              QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
-              QFileInfo fInfo(ldrName.replace(".ldr",".png"));
-              QString imageFilePath = QDir::currentPath() + "/" +
-                  Paths::assemDir + "/" + fInfo.fileName();
-              dir.rename(fInfo.absoluteFilePath(), imageFilePath);
-
-              qDebug() << Render::getRenderer()
-              //logTrace() << "\n" << Render::getRenderer()
-                       << "Step       CSI single call render took"
-                       << timer.elapsed() << "milliseconds"
-                       << "for" << (calledOut ? "called out," : "")
-                       << "single step" << sn
-                       << "on page" << gui->stepPageNum;
-            }
         }
-    }
-
-  if (notUsingLDViewSCall || okToExecuteThis){
-      pixmap->load(pngName);
-      csiPlacement.size[0] = pixmap->width();
-      csiPlacement.size[1] = pixmap->height();
     }
 
   if (! gMainWindow->GetHalt3DViewer()) {
 
-      int ln = top.lineNumber;                // we need this to facilitate placing the ROTSTEP meta later on
+      int ln = top.lineNumber;                      // we need this to facilitate placing the ROTSTEP meta later on
       QString file3DNamekey = QString("%1_%2_%3%4") // File Name Format = csiName_sn_ln.ldr
-          .arg(csiName())                     // csi model name
-          .arg(sn)                            // step number
-          .arg(ln)                            // line number
-          .arg(".ldr");                       // extension
+          .arg(csiName())                           // csi model name
+          .arg(sn)                                  // step number
+          .arg(ln)                                  // line number
+          .arg(".ldr");                             // extension
 
       csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + file3DNamekey;
       QFile csi3D(csi3DName);
-      renderer->render3DCsi(file3DNamekey, addLine, csiParts, meta, csi3D.exists(), csiOutOfDate);
 
+      int rc;
+      rc = renderer->render3DCsi(file3DNamekey, addLine, csiParts, meta, csi3D.exists(), csiOutOfDate);
+      if (rc != 0) {
+          QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                QMessageBox::tr("Render 3D CSI failed for:\n%1.")
+                                .arg(file3DNamekey));
+          return rc;
+        }
+
+    } else {
+      qDebug() << "3DViewer halted - rendering not allowed.";
+      return -1;
     }
 
   return 0;

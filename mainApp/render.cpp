@@ -954,10 +954,26 @@ int Render::renderLDViewSCallCsi(
       str.append(status);
       QMessageBox::warning(NULL,
                            QMessageBox::tr(VER_PRODUCTNAME_STR),
-                           QMessageBox::tr("LDView failed\n%1") .arg(str));
+                           QMessageBox::tr("LDView command failed\n%1") .arg(str));
       return -1;
     }
   }
+
+  // move generated CSI images
+  QString ldrName;
+  QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
+  foreach(ldrName, ldrNames){
+      QFileInfo fInfo(ldrName.replace(".ldr",".png"));
+      QString imageFilePath = QDir::currentPath() + "/" +
+          Paths::assemDir + "/" + fInfo.fileName();
+      if (! dir.rename(fInfo.absoluteFilePath(), imageFilePath)){
+          QMessageBox::warning(NULL,
+                               QMessageBox::tr(VER_PRODUCTNAME_STR),
+                               QMessageBox::tr("LDView CSI image file move failed for\n%1")
+                               .arg(ldrName));
+          return -1;
+        }
+    }
 
   return 0;
 }
@@ -1021,14 +1037,29 @@ int Render::renderLDViewSCallPli(
           str.append(status);
           QMessageBox::warning(NULL,
                                QMessageBox::tr(VER_PRODUCTNAME_STR),
-                               QMessageBox::tr("LDView failed\n%1") .arg(str));
+                               QMessageBox::tr("LDView command failed\n%1") .arg(str));
+          return -1;
+        }
+    }
+
+  // move generated PLIimages
+  QString ldrName;
+  QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
+  foreach(ldrName, ldrNames){
+      QFileInfo fInfo(ldrName.replace(".ldr",".png"));
+      QString imageFilePath = QDir::currentPath() + "/" +
+          Paths::partsDir + "/" + fInfo.fileName();
+      if (! dir.rename(fInfo.absoluteFilePath(), imageFilePath)){
+          QMessageBox::warning(NULL,
+                               QMessageBox::tr(VER_PRODUCTNAME_STR),
+                               QMessageBox::tr("LDView PLI image file move failed for\n%1")
+                                               .arg(ldrName));
           return -1;
         }
     }
 
   return 0;
 }
-
 
 //**3D
 // create 3D Viewer version of the csi file
