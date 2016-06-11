@@ -55,6 +55,28 @@
 
 //**
 
+#if _MSC_VER > 1310
+// Visual C++ 2005 and later require the source files in UTF-8, and all strings
+// to be encoded as wchar_t otherwise the strings will be converted into the
+// local multibyte encoding and cause errors. To use a wchar_t as UTF-8, these
+// strings then need to be convert back to UTF-8.
+#define wCharToUtf8(str) ConvertWideCharToUTF8(L##str)
+const char * ConvertWideCharToUTF8(const wchar_t * wstr) {
+	int requiredSize = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, 0, 0, 0, 0);
+	if (requiredSize > 0) {
+		static char * buffer = new char[requiredSize + 1];
+		buffer[requiredSize] = 0;
+		WideCharToMultiByte(CP_UTF8, 0, wstr, -1, buffer, requiredSize, 0, 0);
+		return buffer;
+	}
+	return NULL;
+}
+#else
+// Visual C++ 2003 and gcc will use the string literals as is, so the files
+// should be saved as UTF-8. gcc requires the files to not have a UTF-8 BOM.
+#define wCharToUtf8(str) str
+#endif
+
 Gui *gui;
 
 void clearPliCache()
