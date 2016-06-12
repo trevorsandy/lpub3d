@@ -245,10 +245,6 @@ int Step::createCsi(
               return rc;
             }
 
-          pixmap->load(pngName);
-          csiPlacement.size[0] = pixmap->width();
-          csiPlacement.size[1] = pixmap->height();
-
 //          qDebug() << Render::getRenderer()
           logTrace() << "\n" << Render::getRenderer()
                      << "CSI render call took "
@@ -257,6 +253,13 @@ int Step::createCsi(
                      << (multiStep ? "step group" : "single step") << sn
                      << "on page " << gui->stepPageNum << ".";
         }
+    }
+
+  // If not using LDView SCall, populate pixmap
+  if (! renderer->useLDViewSCall()) {
+      pixmap->load(pngName);
+      csiPlacement.size[0] = pixmap->width();
+      csiPlacement.size[1] = pixmap->height();
     }
 
   if (! gMainWindow->GetHalt3DViewer()) {

@@ -444,7 +444,7 @@ void Preferences::renderPreferences()
   if (preferredRenderer == "LDView" && enableLDViewSingleCall) {
       useLDViewSingleCall = true;
     } else {
-      useLDViewSingleCall - false;
+      useLDViewSingleCall = false;
     }
 }
 
