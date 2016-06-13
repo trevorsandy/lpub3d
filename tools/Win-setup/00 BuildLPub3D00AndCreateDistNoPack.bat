@@ -2,7 +2,8 @@
 Title Build and create manual and automatic install distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Copyright (c) 2015 by Trevor Sandy
+rem  Last Update: June, 12, 2016
+rem  Copyright (c) 2016 by Trevor Sandy
 rem --
 SETLOCAL
 @break off
@@ -10,19 +11,19 @@ SETLOCAL
 ECHO Build and create manual and automatic install distributions
 
 ECHO. 							                	 >  ..\release\LPub3D.Release.build.log.txt
-ECHO - Start build process       			   		>>  ..\release\LPub3D.Release.build.log.txt
+ECHO - Start build process...      			   		>>  ..\release\LPub3D.Release.build.log.txt
 ECHO.
 ECHO - Start build process...
 
-SET Win32BuildFile="..\..\..\build-LPub3D-Win32-Release\mainApp\build\release\LPub3D.exe"
-SET Win64BuildFile="..\..\..\build-LPub3D-Win64-Release\mainApp\build\release\LPub3D.exe"
-SET Win32QuazipFile="..\..\..\build-LPub3D-Win32-Release\quazip\build\release\quazip.dll"
-SET Win64QuazipFile="..\..\..\build-LPub3D-Win64-Release\quazip\build\release\quazip.dll"
-SET Win32LdrawiniFile="..\..\..\build-LPub3D-Win32-Release\ldrawini\build\release\ldrawini.dll"
-SET Win64LdrawiniFile="..\..\..\build-LPub3D-Win64-Release\ldrawini\build\release\ldrawini.dll"
+SET Win32BuildFile="..\release\Win32\Release\LPub3D.exe"
+SET Win64BuildFile="..\release\x64\Release\LPub3D.exe"
+SET Win32QuazipFile="..\release\Win32\Release\quazip.dll"
+SET Win64QuazipFile="..\release\x64\Release\quazip.dll"
+SET Win32LdrawiniFile="..\release\Win32\Release\ldrawini.dll"
+SET Win64LdrawiniFile="..\release\x64\Release\ldrawini.dll"
 
-SET Win32QtPath="C:\Qt\qt-4.8.6-x86-mingw492r1-sjlj\qt-4.8.6-x86-mingw492r1-sjlj\bin"
-SET Win64QtPath="C:\Qt\qt-4.8.6-x64-mingw492r1-sjlj\qt-4.8.6-x64-mingw492r1-sjlj\bin"
+SET Win32QtPath="C:\Qt\IDE\5.6\msvc2015\bin"
+SET Win64QtPath="C:\Qt\IDE\5.6\msvc2015_64\bin"
 
 SET NSISPath=C:\Program Files (x86)\NSIS
 SET VirtualBoxPath=C:\Program Files (x86)\Enigma Virtual Box
@@ -68,6 +69,15 @@ SET VER_MAJOR=unknown
 SET VER_MINOR=unknown
 SET REVISION_CMS=unknown
 
+SET COMPANY=unknown
+SET COMMENTS=unknown
+SET FILENAME=unknown
+SET PUBLISHER=unknown
+SET COMPANYURL=unknown
+SET BUILD_DATE=unknown
+SET REVISION_FILE=unknown
+SET SUPPORT_EMAIL=unknown
+
 ECHO. 							                	>>  ..\release\LPub3D.Release.build.log.txt
 ECHO - Setting up release variables...          	>>  ..\release\LPub3D.Release.build.log.txt
 ECHO.
@@ -81,6 +91,14 @@ FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_MAJOR" version.h') DO SET VE
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_MINOR" version.h') DO SET VER_MINOR=%%i
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_SP" version.h') DO SET VER_SP=%%i
 
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_COMPANYNAME_STR" version.h') DO SET COMPANY=%%i %%j
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PRODUCTNAME_STR" version.h') DO SET PRODUCT=%%i
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_ORIGINALFILENAME_STR" version.h') DO SET FILENAME=%%i
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PUBLISHER_STR" version.h') DO SET PUBLISHER=%%i %%j
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_COMPANYDOMAIN_STR" version.h') DO SET COMPANYURL=%%i
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_FILEDESCRIPTION_STR" version.h') DO SET COMMENTS=%%i %%j
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PUBLISHER_SUPPORT_EMAIL_STR" version.h') DO SET SUPPORT_EMAIL=%%i
+
 SET BUILD=%BUILD:"=%
 SET PRODUCT=%PRODUCT:"=%
 SET YEAR=%DATE:~-4%
@@ -89,10 +107,20 @@ IF "%MONTH:~0,1%" == " " SET MONTH=0%MONTH:~1,1%
 SET DAY=%DATE:~0,2%
 IF "%DAY:~0,1%" == " " SET DAY=0%DAY:~1,1%
 
+SET HOUR=%TIME:~0,2%
+IF "%HOUR:~0,1%" == " " SET HOUR=0%HOUR:~1,1%
+SET MIN=%TIME:~3,2%
+IF "%MIN:~0,1%" == " " SET MIN=0%MIN:~1,1%
+SET SECS=%TIME:~6,2%
+IF "%SECS:~0,1%" == " " SET SECS=0%SECS:~1,1%
+
+SET DATETIMEf=%YEAR% %MONTH% %DAY% %HOUR%:%MIN%:%SECS%
+
 SET VERSION=%VER_MAJOR%.%VER_MINOR%.%VER_SP%
 SET BUILDVERSION=%VERSION%.%REVISION_CMS%.%BUILD%
 SET FULLVERSION=%VERSION%.%REVISION_CMS%.%BUILD%_%YEAR%%MONTH%%DAY%
 SET DOWNLOADPRODUCT=%PRODUCT%-%FULLVERSION%
+
 SET WIN32PRODUCTDIR=%PRODUCT%_x32-%FULLVERSION%
 SET WIN64PRODUCTDIR=%PRODUCT%_x64-%FULLVERSION%
 				
@@ -144,11 +172,68 @@ COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\Download\ /A													>>  
 COPY /V /Y ..\docs\README.txt ..\release\ /A																	>>  ../release/LPub3D.Release.build.log.txt
 XCOPY /S /I /E /V /Y ..\docs\CREDITS.txt ..\release\docs\ /A													>>  ../release/LPub3D.Release.build.log.txt
 
+ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Generating latest version file...    					>>  ../release/LPub3D.Release.build.log.txt
+ECHO. 	
+ECHO - Generating latest version file...
+
 SET latestFile=..\release\%VERSION%\Update\latest.txt
-SET genLatestLog=%latestFile% ECHO							
+SET genLatestLog=%latestFile% ECHO	
 
 :GENERATE latest.txt file
 >%genLatestLog% %VERSION% 
+
+ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Generating AppVersion.nsh script...    					>>  ../release/LPub3D.Release.build.log.txt
+ECHO. 	
+ECHO - Generating AppVersion.nsh script...
+
+SET versionFile=.\AppVersion.nsh
+SET genVersion=%versionFile% ECHO
+
+:GENERATE AppVersion.nsh file
+>%genVersion% !define Company %COMPANY% 
+>>%genVersion% ; ${Company} 	
+>>%genVersion%.	
+>>%genVersion% !define ProductName "%PRODUCT%" 
+>>%genVersion% ; ${ProductName}
+>>%genVersion%.	
+>>%genVersion% !define Version "%VERSION%"
+>>%genVersion% ; ${Version}
+>>%genVersion%.	
+>>%genVersion% !define CompleteVersion "%VERSION%.%REVISION_CMS%.%BUILD%_%YEAR%%MONTH%%DAY%"
+>>%genVersion% ; ${CompleteVersion}
+>>%genVersion%.		
+>>%genVersion% !define Win32BuildDir "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32" 
+>>%genVersion% ; ${Win32BuildDir}
+>>%genVersion%.
+>>%genVersion% !define Win64BuildDir "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64" 
+>>%genVersion% ; ${Win64BuildDir}
+>>%genVersion%.
+>>%genVersion% !define FileName %FILENAME%
+>>%genVersion% ; ${FileName}
+>>%genVersion%.	
+>>%genVersion% !define BuildRevision "%REVISION_CMS%" 
+>>%genVersion% ; ${BuildRevision}
+>>%genVersion%.	
+>>%genVersion% !define BuildNumber "%BUILD%" 
+>>%genVersion% ; ${BuildNumber}
+>>%genVersion%.	
+>>%genVersion% !define BuildDate "%DATETIMEf%" 
+>>%genVersion% ; ${BuildDate}
+>>%genVersion%.	
+>>%genVersion% !define Publisher %PUBLISHER% 
+>>%genVersion% ; ${Publisher}
+>>%genVersion%.	
+>>%genVersion% !define CompanyURL %COMPANYURL% 
+>>%genVersion% ; ${CompanyURL}
+>>%genVersion%.
+>>%genVersion% !define Comments %COMMENTS% 
+>>%genVersion% ; ${Comments}
+>>%genVersion%.
+>>%genVersion% !define SupportEmail %SUPPORT_EMAIL% %VERSION%.%REVISION_CMS%.%BUILD%_%YEAR%%MONTH%%DAY%"
+>>%genVersion% ; ${SupportEmail}
+>>%genVersion%.
 
 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Copying %WIN32PRODUCTDIR% content to media folder...    	>>  ../release/LPub3D.Release.build.log.txt
@@ -162,18 +247,14 @@ XCOPY /S /I /E /V /Y ..\icons ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x
 COPY /V /Y %Win32BuildFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\%PRODUCT%_x32.exe /B			>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win32QuazipFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                           >>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win32LdrawiniFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                         >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPath%\libeay32.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                  >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPath%\ssleay32.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                  >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPath%\libgcc_s_sjlj-1.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B           >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y "%Win32QtPath%\libstdc++-6.dll" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPath%\libwinpthread-1.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B           >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPath%\QtCore4.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                   >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPath%\QtGui4.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                    >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPath%\QtNetwork4.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPath%\QtOpenGL4.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                 >>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPath%\Qt5OpenGL.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                 >>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPath%\Qt5PrintSupport.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B           >>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPath%\Qt5Widgets.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                >>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPath%\Qt5Gui.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                 	>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPath%\Qt5Network.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                >>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPath%\Qt5Core.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                 	>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /A                          >>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32PRODUCTDIR%\ /A                                        >>  ../release/LPub3D.Release.build.log.txt
-rem COPY /V /Y LPub3DViewer_LDrawunf_Archive_Generator.bat ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\extras /A      >>  ../release/LPub3D.Release.build.log.txt
 
 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Copying %WIN64PRODUCTDIR% content to media folder...    	>>  ../release/LPub3D.Release.build.log.txt
@@ -187,48 +268,43 @@ XCOPY /S /I /E /V /Y ..\icons ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x
 COPY /V /Y %Win64BuildFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\%PRODUCT%_x64.exe /B			>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win64QuazipFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B							>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win64LdrawiniFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B							>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPath%\libeay32.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPath%\ssleay32.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPath%\libgcc_s_sjlj-1.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B			>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y "%Win64QtPath%\libstdc++-6.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B				>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPath%\libwinpthread-1.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B			>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPath%\QtCore4.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPath%\QtGui4.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPath%\QtNetwork4.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B				>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPath%\QtOpenGL4.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPath%\Qt5OpenGL.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPath%\Qt5PrintSupport.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B			>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPath%\Qt5Widgets.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B				>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPath%\Qt5Gui.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPath%\Qt5Network.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B				>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPath%\Qt5Core.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B					>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /A							>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN64PRODUCTDIR% /A											>>  ../release/LPub3D.Release.build.log.txt
-rem COPY /V /Y Win-setup\LPub3DViewer_LDrawunf_Archive_Generator.bat ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\extras /A      >>  ../release/LPub3D.Release.build.log.txt
 
 ECHO. 														>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Finished copying content to media folder...    		>>  ../release/LPub3D.Release.build.log.txt
-ECHO. 	
+ECHO - Finished copying content to media folder...     		>>  ../release/LPub3D.Release.build.log.txt
+ECHO. 
 ECHO - Finished copying content to media folder...
 
-ECHO. 										>>  ..\release\LPub3D.Release.build.log.txt
+ECHO. 								        >>  ..\release\LPub3D.Release.build.log.txt
 ECHO - Start NSIS Master Update Build...  	>>  ..\release\LPub3D.Release.build.log.txt
 ECHO.
 ECHO - Start NSIS Master Update Build...
-
+rem this line to ignore running the NSIS script
 "%NSISPath%\makensis.exe" /DUpdateMaster LPub3DNoPack.nsi 		>> ..\release\LPub3D.Release.build.log.txt
 
-ECHO. 											>>  ..\release\LPub3D.Release.build.log.txt
-ECHO - Finished NSIS Master Update Build... 	>>  ..\release\LPub3D.Release.build.log.txt
+ECHO. 										    >>  ..\release\LPub3D.Release.build.log.txt
+ECHO - Finished NSIS Master Update 	Build...	>>  ..\release\LPub3D.Release.build.log.txt
 ECHO.
-ECHO - Finished NSIS Master Update Build...
+ECHO - Finished NSIS Master Update  Build...
 
-ECHO. 										>>  ..\release\LPub3D.Release.build.log.txt
-ECHO - Start NSIS Manual Install Build...	>>  ..\release\LPub3D.Release.build.log.txt
+ECHO. 									    >>  ..\release\LPub3D.Release.build.log.txt
+ECHO - Start NSIS Manual Install Build... 	>>  ..\release\LPub3D.Release.build.log.txt
 ECHO.
 ECHO - Start NSIS Manual Install Build...
-
+rem this line to ignore running the NSIS script
 "%NSISPath%\makensis.exe" LPub3DNoPack.nsi 						>> ..\release\LPub3D.Release.build.log.txt
 
 ECHO. 										 >>  ..\release\LPub3D.Release.build.log.txt
 ECHO - Finished NSIS Manual Install Build... >>  ..\release\LPub3D.Release.build.log.txt
 ECHO.
 ECHO - Finished NSIS Manual Install Build...
-
 
 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Creating portable media zip files...		      			>>  ../release/LPub3D.Release.build.log.txt
@@ -237,10 +313,16 @@ ECHO - Creating portable media zip files...
 
 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN32PRODUCTDIR%.zip ..\release\%VERSION%\%WIN32PRODUCTDIR%\ 		>>  ../release/LPub3D.Release.build.log.txt
 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN64PRODUCTDIR%.zip ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 		>>  ../release/LPub3D.Release.build.log.txt
-RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 							>>  ../release/LPub3D.Release.build.log.txt
 
 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Moving NSIS-generated files to media folder...			>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Remove %PRODUCT% %VERSION% build files...		      	>>  ../release/LPub3D.Release.build.log.txt
+ECHO. 	
+ECHO - Remove %PRODUCT% %VERSION% build files...
+rem this line to keep build files - i.e. if needed to test NSIS script failuire
+rem RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 							>>  ../release/LPub3D.Release.build.log.txt
+
+ECHO. 													 			>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Moving NSIS-generated files to media folder...				>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
 ECHO - Moving NSIS-generated files to media folder...
 

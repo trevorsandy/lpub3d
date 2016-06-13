@@ -42,6 +42,7 @@
 ;--------------------------------
 ;LDraw Libraries
 
+;REMOVE THESE
 !define LDRAW_OFFICIAL_LIB	"http://www.ldraw.org/library/updates/complete.zip"
 !define LDRAW_UNOFFICIAL_LIB "http://www.ldraw.org/library/unofficial/ldrawunf.zip"
 
@@ -52,13 +53,15 @@
   var /global StartMenuFolder
   var /global FileName
   var /global LDrawDirPath
-  var /global LPub3DViewerLibFile
-  var /global LDrawUnoffLibFile
   var /global PathsGrpBox
   var /global BrowseLDraw
   var /global BrowseLPub3DViewer
   var /global LDrawText
   var /global LPub3DViewerText
+  
+;REMOVE THESE
+  var /global LPub3DViewerLibFile
+  var /global LDrawUnoffLibFile
   var /global DownloadLDrawLibrary
   
 ;--------------------------------
@@ -208,10 +211,11 @@ Section "${ProductName} (required)" SecMain${ProductName}
   SetOutPath "$INSTDIR\3rdParty\l3p1.4WinB" 
   File "..\release\3rdParty\l3p1.4WinB\L3P.EXE"
   
-  ;extras contents
+  ;AppData setup
   SetShellVarContext all
   !define INSTDIR_AppData "$LOCALAPPDATA\${Company}\${ProductName}"
   
+  ;extras contents
   CreateDirectory "${INSTDIR_AppData}\extras"
   SetOutPath "${INSTDIR_AppData}\extras"
   File "..\..\mainApp\extras\fadeStepColorParts.lst"
@@ -219,6 +223,12 @@ Section "${ProductName} (required)" SecMain${ProductName}
   File "..\..\mainApp\extras\titleAnnotations.lst"
   File "..\..\mainApp\extras\PDFPrint.jpg"
   File "..\..\mainApp\extras\pli.mpd"
+  
+  ;ldraw libraries
+  CreateDirectory "${INSTDIR_AppData}\libraries"
+  SetOutPath "${INSTDIR_AppData}\libraries"
+  File "..\release\libraries\complete.zip"
+  File "..\release\libraries\lpub3dldrawunf.zip"
   
   ;documents  
   CreateDirectory "$INSTDIR\docs"

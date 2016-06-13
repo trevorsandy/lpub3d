@@ -86,6 +86,7 @@ set n=WebContentDownload.vbs
 set t=%TEMP%\$\%n% ECHO
 set WebCONTENT="%~dp0LPub3DViewer-Library\ldrawunf.zip"
 set WebNAME=http://www.ldraw.org/library/unofficial/ldrawunf.zip
+rem http://www.ldraw.org/library/updates/complete.zip
 if exist %TEMP%\$\%n% (
  del %TEMP%\$\%n%
 )

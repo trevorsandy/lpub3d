@@ -1,90 +1,91 @@
-LPub3D 2.0.0.
+LPub3D 2.0.0.704.2 
  
 Features and enhancements 
-------------  
--Up to 60% increase rendering speed with configuration to render multiple files using a single call to LDView. All PLI (part list/BOM) parts for a given step are rendered in a single call versue individually. For CSI (Step models), all multi-step images on a page are rendered in a single call including callout(s). Single step page images are rendered with a single call for all model images including those in callou(s). This new confiuration will default as checked.
-
-To achieve this behavior, input files (csi.ldr, pli.ldr) are now uniquely named because rendering multiple files is done by using -SaveSnapshots=1 instead of -SaveSnapshot=somefile.png and then listing all the LDR files at the end of the command line. There is no control over the output file names. Instead, LDView will automatically use the input base filename changing only the output filename extension from .ldr to .png.
-
-Enabling this feature is optonal and can be selected on the Configuration=>Preferences=>Rendering tab by checking the box 'Use multiple files single call rendering' in the 'LDView in installed' group box. LDView must be installed and configured to enable this option.
-
-Notice: As this feature required a significant rewrite of the core image generation logic, it is likely to generate some unexpected behavior as not every scenario has been tested. Please report any unexptected behavior. Contact details can be found under the Help=>About menu.
--Add callouts, refactor and optimize LDView single call image generation, see r683,r684,r685 (r698)
--Add progress bar to mpd/ldr file load (r690)
--Enable 'Use multiple files single call rendering' for LDView from Preferences=>Rendering tab (r687)
--Increase CSI (Models) rendering speed with LDView using -SaveSnapshots=1. (r685)
--Increase PLI (Part list/BOM) rendering speed with LDView using -SaveSnapshots=1 (r683/r684)
--Add context menu to pages without steps - e.g. Cover Page, BOM Page (r681)
--Add missing context menu icons (r680)
--Add progress message updates to splash screen (r676)
--Supress rotateIcon context menu item if icon already inserted for step (r670)
--On single-step page, place PLI (Parts List) on top of CSI (Model) images (r664)
--Upon reset image and model caches, reload current file, return to first page (r663)
--Unique splash 3D model displayed during pdf printing, png, jpg and bmp image export (r657)
--Multi-step callouts are now movable (r656)
--ldglite update to 1.3.1 executable with -2g,2x option hardcoded for sharper images with offscreen rendering (r655)
--Disable Clear Cache menu when no file is loaded (r686)
--Force to empty the cache before creating a PDF (r654)
--Synchronize 'prev', 'next' and 'goto' page menu items (r653)
--Supress rotateIcon from CSI (model) item context menu if callout and callout is not unassembled (r652)
--Select local page size and global and local page orientation (Portrait and Landscape)
- Note: When manually editing the model file with either page size or orientation, it is recommended to insert both the size and orientation metas together. For example, even
+------------ 
+-Up to 60 increase rendering speed with configuration to render multiple files using a single call to LDView. All PLI (part list/BOM) parts for a given step are rendered in a single call versue individually. For CSI (Step models), all multi-step images on a page are rendered in a single call including callout(s). Single step page images are rendered with a single call for all model images including those in callou(s). This new confiuration will default as checked. 
+ 
+To achieve this behavior, input files (csi.ldr, pli.ldr) are now uniquely named because rendering multiple files is done by using -SaveSnapshots=1 instead of -SaveSnapshot=somefile.png and then listing all the LDR files at the end of the command line. There is no control over the output file names. Instead, LDView will automatically use the input base filename changing only the output filename extension from .ldr to .png. 
+ 
+Enabling this feature is optonal and can be selected on the Configuration= tab by checking the box 'Use multiple files single call rendering' in the 'LDView in installed' group box. LDView must be installed and configured to enable this option. 
+ 
+Notice: As this feature required a significant rewrite of the core image generation logic, it is likely to generate some unexpected behavior as not every scenario has been tested. Please report any unexptected behavior. Contact details can be found under the Help= 
+-Add callouts, refactor and optimize LDView single call image generation, see r683,r684,r685 (r698) 
+-Add progress bar to mpd/ldr file load (r690) 
+-Enable 'Use multiple files single call rendering' for LDView from Preferences= tab (r687) 
+-Increase CSI (Models) rendering speed with LDView using -SaveSnapshots=1. (r685) 
+-Increase PLI (Part list/BOM) rendering speed with LDView using -SaveSnapshots=1 (r683/r684) 
+-Add context menu to pages without steps - e.g. Cover Page, BOM Page (r681) 
+-Add missing context menu icons (r680) 
+-Add progress message updates to splash screen (r676) 
+-Supress rotateIcon context menu item if icon already inserted for step (r670) 
+-On single-step page, place PLI (Parts List) on top of CSI (Model) images (r664) 
+-Upon reset image and model caches, reload current file, return to first page (r663) 
+-Unique splash 3D model displayed during pdf printing, png, jpg and bmp image export (r657) 
+-Multi-step callouts are now movable (r656) 
+-ldglite update to 1.3.1 executable with -2g,2x option hardcoded for sharper images with offscreen rendering (r655) 
+-Disable Clear Cache menu when no file is loaded (r686) 
+-Force to empty the cache before creating a PDF (r654) 
+-Synchronize 'prev', 'next' and 'goto' page menu items (r653) 
+-Supress rotateIcon from CSI (model) item context menu if callout and callout is not unassembled (r652) 
+-Select local page size and global and local page orientation (Portrait and Landscape) 
+ Note: When manually editing the model file with either page size or orientation, it is recommended to insert both the size and orientation metas together. For example, even 
  if you are only interested to add a page size, you shold update your file like the example 
- below - obviously selecting your own size values and orientation.
- 0 !LPUB PAGE SIZE GLOBAL 8.2677 11.6929
- 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT (r518)
--Change: Update page background menu rearranged - see r641. (r642)
--Change: Page background context menu rearranged. "Change page background" and "Change Page Size or Orientation" now appear at the end of the menu list because they are likely to be least often used. (r641)
--Change: Point online manual to LPub3D content (r517)
--Change: Replace #if (_MSC_VER >= 1400) with #ifdef _MSC_VER (r679)
--Refactor: Optimize fadeStep routines; change LDView logging details (r695)
--Rafactor: Colour application output default set to off (r662)
--Refactor: Define strcasecmp, strncasecmp in lc_global.h for MinGW builds only (r661)
--Refactor: Replace 0x050000 with QT_VERSION_CHECK(5,0,0) (r660)
--Refactor: Remove stretch/tile logic from coverImage management (r659)
--Refactor: Remove QPainter::HighQualityAntialiasing obsolete renderHint (r658)
--Refactor: Update CSI image mousePressEvent logic. (r640)
--Refactor: Update file load progress messages (r636)
--Refactor: Rearrange printToPdfFile page count (r632)
--Refactor: Reposition rocessEvents statements (r631)
--Rafactor: Supress MSVC type conversion warning C4267 (r621)
--Update: Clear 3D Window when there is no model to display - e.g. for cover or inserted pages (r701)
--Update: Set download dialog to Library Updater when downloading library - otherwise Software Updater (r700)
--Update: Change copyright to 2016 (r666)
--Update: AboutDialog to recognize Win 10 and OSX El Capitan(r665/r668/r669)
--Update: application name value to support development environment (r639)
--Update: build assets (r624)
--Update: ldglite hard-coded default directory setting to ldglite1.3.1(r623)
--Update: zlib reference for Qt 5.6.0 (r618)
--Update: minifig settings (move to ini file) - LeoCAD Changeset 1870 (r617)
--Fix: No image after initial generation when renderer other than LDView selected (r704)
--Fix: Set ldr load file to unofficial item by default (r691)
--Fix: Load inline submodels break (r688)
--Fix: Remove libpng warning: iCCP: known incorrect sRGB profile (r678)
--Fix: Convert special characters (copyright and trademark) from Wide Char to UTF8 for MSVC build (r677)
--Fix: Remove final colour model if exist when Fade Step is not enabled (r674)
--Fix: Clear cache when turning fade on/off (r674)
--Fix: fadeStep and preferCentimeter setting mixmatch (r674)
--Fix: Search directories not updated when directory added to Ldraw.ini (r673)
--Fix: When background is transparent context menu functionality is lost (fix is a hack which sets the bg-color to white with an alpha of 1.) (r672)
+ below - obviously selecting your own size values and orientation. 
+ 0 !LPUB PAGE SIZE GLOBAL 8.2677 11.6929 
+ 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT (r518) 
+-Change: Update page background menu rearranged - see r641. (r642) 
+-Change: Page background context menu rearranged. "Change page background" and "Change Page Size or Orientation" now appear at the end of the menu list because they are likely to be least often used. (r641) 
+-Change: Point online manual to LPub3D content (r517) 
+-Change: Replace #if (_MSC_VER  with #ifdef _MSC_VER (r679) 
+-Refactor: Optimize fadeStep routines; change LDView logging details (r695) 
+-Rafactor: Colour application output default set to off (r662) 
+-Refactor: Define strcasecmp, strncasecmp in lc_global.h for MinGW builds only (r661) 
+-Refactor: Replace 0x050000 with QT_VERSION_CHECK(5,0,0) (r660) 
+-Refactor: Remove stretch/tile logic from coverImage management (r659) 
+-Refactor: Remove QPainter::HighQualityAntialiasing obsolete renderHint (r658) 
+-Refactor: Update CSI image mousePressEvent logic. (r640) 
+-Refactor: Update file load progress messages (r636) 
+-Refactor: Rearrange printToPdfFile page count (r632) 
+-Refactor: Reposition rocessEvents statements (r631) 
+-Rafactor: Supress MSVC type conversion warning C4267 (r621) 
+-Update: Align build scritps with MSVC environement (705)
+-Update: Clear 3D Window when there is no model to display - e.g. for cover or inserted pages (r701) 
+-Update: Set download dialog to Library Updater when downloading library - otherwise Software Updater (r700) 
+-Update: Change copyright to 2016 (r666) 
+-Update: AboutDialog to recognize Win 10 and OSX El Capitan(r665/r668/r669) 
+-Update: application name value to support development environment (r639) 
+-Update: build assets (r624) 
+-Update: ldglite hard-coded default directory setting to ldglite1.3.1(r623) 
+-Update: zlib reference for Qt 5.6.0 (r618) 
+-Update: minifig settings (move to ini file) - LeoCAD Changeset 1870 (r617x) 
+-Fix: No image after initial generation when renderer other than LDView selected (r704) 
+-Fix: Set ldr load file to unofficial item by default (r691) 
+-Fix: Load inline submodels break (r688) 
+-Fix: Remove libpng warning: iCCP: known incorrect sRGB profile (r678) 
+-Fix: Convert special characters (copyright and trademark) from Wide Char to UTF8 for MSVC build (r677) 
+-Fix: Remove final colour model if exist when Fade Step is not enabled (r674) 
+-Fix: Clear cache when turning fade on/off (r674) 
+-Fix: fadeStep and preferCentimeter setting mixmatch (r674) 
+-Fix: Search directories not updated when directory added to Ldraw.ini (r673) 
+-Fix: When background is transparent context menu functionality is lost (fix is a hack which sets the bg-color to white with an alpha of 1.) (r672) 
 -Fix: When a CALLOUT allocation is changed, if you right-click a model in the callout and not the callout itself, the ALLOC meta is placed after the CALLOUT END and has no effect - meta appended but should be inserted (r650) 
--Fix: Converting an assembly to a part results in a parse error when there are spaces in the file name (r649)
--Fix: If a divided STEP GROUP allocation is changed from vertical (Display as columns - default) to horizontal (Display as rows), selecting again Display as columns has no effect - meta appended but should be replaced (r648)
--Fix: When the "Redraw" icon is clicked on the LDraw File Editor window, the file editor resizes to 255x190 pixels (r647)
--Fix: Split BOM duplicates one part onto current and subsequent BOM pages (r646)
--Fix: Inserting a front cover page when the current first page is a multi step page (r645)
--Fix: Bug when using callouts in Multistep sequences. When you place your callout right from assembly, it appears on the left side. When you place your callout bottom, it appears on the top. (r643)
--Fix: wrong text when you export to PNG the window title says "Print to pdf" (r638)
+-Fix: Converting an assembly to a part results in a parse error when there are spaces in the file name (r649) 
+-Fix: If a divided STEP GROUP allocation is changed from vertical (Display as columns - default) to horizontal (Display as rows), selecting again Display as columns has no effect - meta appended but should be replaced (r648) 
+-Fix: When the "Redraw" icon is clicked on the LDraw File Editor window, the file editor resizes to 255x190 pixels (r647) 
+-Fix: Split BOM duplicates one part onto current and subsequent BOM pages (r646) 
+-Fix: Inserting a front cover page when the current first page is a multi step page (r645) 
+-Fix: Bug when using callouts in Multistep sequences. When you place your callout right from assembly, it appears on the left side. When you place your callout bottom, it appears on the top. (r643) 
+-Fix: wrong text when you export to PNG the window title says "Print to pdf" (r638) 
 -Fix: When publishing instructions with the option 0 !LPUB PAGE BACKGROUND TRANSPARENT a drop shadow layer was added (r637) 
--Fix: Remove -w1 from default ldglite parms (r629)
--Fix: Periodic multi-step crash - 3DViewer image file line number mismatch (r628)
+-Fix: Remove -w1 from default ldglite parms (r629) 
+-Fix: Periodic multi-step crash - 3DViewer image file line number mismatch (r628) 
 -Fix: Control manual page number entry (r627) 
--Fix: Cleanup 'Copyright' and 'Trademark' unicode (utf8) chars on MSVC2015 build (r622)
--Fix: QPainter alphaChannel management - use setCompositionMode (r619/r620)
--Upgrade: base to Qt 5.6.0 (MSVC 2015) (r613)
--Upgrade: logging framework (r610)
--Upgrade: base to Qt 5.5.1 (MinGW) platform (r608)
-
+-Fix: Cleanup 'Copyright' and 'Trademark' unicode (utf8) chars on MSVC2015 build (r622) 
+-Fix: QPainter alphaChannel management - use setCompositionMode (r619/r620) 
+-Upgrade: base to Qt 5.6.0 (MSVC 2015) (r613) 
+-Upgrade: logging framework (r610) 
+-Upgrade: base to Qt 5.5.1 (MinGW) platform (r608) 
+ 
 LPub3D 1.3.5.615.2 
  
 Features and enhancements 
@@ -118,7 +119,7 @@ Features and enhancements
 -Fix: Control manual page number entry. (r562) 
 -Fix: Remove silent_alloc which would trap the Callout meta LPUB CALLOUT HORIZONTAL/VERTICAL and throw a parse error. 
  However silent_alloc was not fully implemented and does not serve any current purpose. 
- The correct meta to allocate a Callout Horizontally or Vertically is LPUB CALLOUT ALLOC HORIZONTAL/VERTICAL (r563)
+ The correct meta to allocate a Callout Horizontally or Vertically is LPUB CALLOUT ALLOC HORIZONTAL/VERTICAL (r563) 
  
 LPub3D 1.3.1.516.3 
  

@@ -38,12 +38,6 @@
   
   ; Include app version details.
   !include "AppVersion.nsh"
-  
-;--------------------------------
-;LDraw Libraries
-
-!define LDRAW_OFFICIAL_LIB	"http://www.ldraw.org/library/updates/complete.zip"
-!define LDRAW_UNOFFICIAL_LIB "http://www.ldraw.org/library/unofficial/ldrawunf.zip"
 
 ;--------------------------------
 ;Variables
@@ -52,14 +46,9 @@
   Var /global StartMenuFolder
   Var /global FileName
   Var /global LDrawDirPath
-  Var /global LPub3DViewerLibFile
-  Var /global LDrawUnoffLibFile
   Var /global PathsGrpBox
   Var /global BrowseLDraw
-  Var /global BrowseLPub3DViewer
   Var /global LDrawText
-  Var /global LPub3DViewerText
-  Var /global DownloadLDrawLibrary
   
   Var /global nsDialogOverwriteConfigPage
   Var /global OverwriteMessagelbl
@@ -75,6 +64,7 @@
   Var /global OverwriteFreeformAnnotationsFile
   Var /global OverwriteSubstitutePartsFile
   Var /global OverwriteFadeStepColourPartsFile
+  
   
 ;--------------------------------
 ;General
@@ -174,9 +164,9 @@
 ;Descriptions
 
   ;Language strings
-  LangString CUST_PAGE_TITLE ${LANG_ENGLISH} "Library Paths"
-  LangString CUST_PAGE_SUBTITLE ${LANG_ENGLISH} "Enter paths for your LDraw directory and archive (Complete.zip) library file \
-											     $\r$\nIf you do not have an archive library file, select Download."
+  LangString CUST_PAGE_TITLE ${LANG_ENGLISH} "LDraw Library"
+  LangString CUST_PAGE_SUBTITLE ${LANG_ENGLISH} "Enter path for your LDraw directory."
+  
   LangString CUST_PAGE_OVERWRITE_TITLE ${LANG_ENGLISH} "Overwrite Configuration Files"
   LangString CUST_PAGE_OVERWRITE_SUBTITLE ${LANG_ENGLISH} "Check the box next to the configuration file you would like to overwrite."
  
@@ -187,7 +177,6 @@ Function .onInit
 
   ;Get Ldraw library folder and archive file paths from registry if available
    ReadRegStr $LDrawDirPath HKCU "Software\${Company}\${ProductName}\Settings" "LDrawDir"
-   ReadRegStr $LPub3DViewerLibFile HKCU "Software\${Company}\${ProductName}\Settings" "PartsLibrary"
 
   ;Identify installation folder
   ${If} ${RunningX64}
@@ -213,51 +202,47 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	File "${Win64BuildDir}\${ProductName}_x64.exe"
 	File "${Win64BuildDir}\quazip.dll"
 	File "${Win64BuildDir}\ldrawini.dll"
-	File "${Win64BuildDir}\libeay32.dll"
-	File "${Win64BuildDir}\ssleay32.dll"
-	File "${Win64BuildDir}\libgcc_s_sjlj-1.dll"
-	File "${Win64BuildDir}\libstdc++-6.dll"
-	File "${Win64BuildDir}\libwinpthread-1.dll"
-	File "${Win64BuildDir}\QtCore4.dll"
-	File "${Win64BuildDir}\QtGui4.dll"
-	File "${Win64BuildDir}\QtNetwork4.dll"
-	File "${Win64BuildDir}\QtOpenGL4.dll"
+	File "${Win64BuildDir}\Qt5Core.dll"
+	File "${Win64BuildDir}\Qt5Network.dll"
+	File "${Win64BuildDir}\Qt5Gui.dll"
+	File "${Win64BuildDir}\Qt5Widgets.dll"
+	File "${Win64BuildDir}\Qt5PrintSupport.dll"
+	File "${Win64BuildDir}\Qt5OpenGL.dll"
   ${Else}
 	File "${Win32BuildDir}\${ProductName}_x32.exe"
 	File "${Win32BuildDir}\quazip.dll"
 	File "${Win32BuildDir}\ldrawini.dll"
-	File "${Win32BuildDir}\libeay32.dll"
-	File "${Win32BuildDir}\ssleay32.dll"
-	File "${Win32BuildDir}\libgcc_s_sjlj-1.dll"
-	File "${Win32BuildDir}\libstdc++-6.dll"
-	File "${Win32BuildDir}\libwinpthread-1.dll"
-	File "${Win32BuildDir}\QtCore4.dll"
-	File "${Win32BuildDir}\QtGui4.dll"
-	File "${Win32BuildDir}\QtNetwork4.dll"
-	File "${Win32BuildDir}\QtOpenGL4.dll"
+	File "${Win32BuildDir}\Qt5Core.dll"
+	File "${Win32BuildDir}\Qt5Network.dll"
+	File "${Win32BuildDir}\Qt5Gui.dll"
+	File "${Win32BuildDir}\Qt5Widgets.dll"
+	File "${Win32BuildDir}\Qt5PrintSupport.dll"
+	File "${Win32BuildDir}\Qt5OpenGL.dll"
   ${EndIf}
   File "..\docs\README.txt"
   
-  ;3rd party renderer utilities (LdgLite, L3P)
-  ;LdgLite
+  ;3rd party renderer utility - LdgLite
   CreateDirectory "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win"
   SetOutPath "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win"
   File "..\release\3rdParty\ldglite1.3.1_2g2x_Win\ldglite.exe"
   File "..\release\3rdParty\ldglite1.3.1_2g2x_Win\LICENCE"
   File "..\release\3rdParty\ldglite1.3.1_2g2x_Win\README.TXT" 
-  
-  ;CreateDirectory "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win\plugins"
-  ;SetOutPath "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win\plugins" 
-  ;File "..\release\3rdParty\ldglite1.3.1_2g2x_Win\plugins\pluginldlist.dll"
-  ;L3P
+  ;3rd party renderer utility - L3P
   CreateDirectory "$INSTDIR\3rdParty\l3p1.4WinB"
   SetOutPath "$INSTDIR\3rdParty\l3p1.4WinB" 
   File "..\release\3rdParty\l3p1.4WinB\L3P.EXE"
   
-  ;extras contents
+  ;AppData setup
   SetShellVarContext all
   !define INSTDIR_AppData "$LOCALAPPDATA\${Company}\${ProductName}"
   
+  ;ldraw libraries
+  CreateDirectory "${INSTDIR_AppData}\libraries"
+  SetOutPath "${INSTDIR_AppData}\libraries"
+  File "..\release\libraries\complete.zip"
+  File "..\release\libraries\lpub3dldrawunf.zip"
+  
+  ;extras contents
   CreateDirectory "${INSTDIR_AppData}\extras"
   SetOutPath "${INSTDIR_AppData}\extras"
   File "..\..\mainApp\extras\PDFPrint.jpg"
@@ -345,33 +330,25 @@ Function nsDialogShowCustomPage
 		Abort
 	${EndIf}
 
-	${NSD_CreateGroupBox} 1u 12.31u 297.52u 120.62u "Define Library Paths"
+    ; === grpBoxPaths (type: GroupBox) ===
+    ${NSD_CreateGroupBox} -0.66u 24u 297.52u 88u "Define LDraw Library Path"
 	Pop $PathsGrpBox
 	
-	${NSD_CreateHLine} 7.9u 68.31u 281.72u 1.23u "HLine"
+	; === HLine1 (type: HLine) ===
+    ${NSD_CreateHLine} 7.9u 89.85u 281.72u 1.23u "HLine"
+
+    ; === lblLDrawText (type: Label) ===
+    ${NSD_CreateLabel} 7.9u 46.15u 228.41u 11.69u "Select LDraw Directory"	
 	
-	${NSD_CreateLabel} 7.9u 31.38u 228.41u 11.69u "LDraw Directory"
-	${NSD_CreateText} 7.9u 44.92u 228.41u 12.31u "$LDrawDirPath"
+    ; === LDrawText (type: Text) ===
+    ${NSD_CreateText} 7.9u 59.69u 228.41u 12.31u "$LDrawDirPath"	
 	Pop $LDrawText
 
-	${NSD_CreateButton} 240.25u 44.92u 49.37u 14.15u "Browse"
+    ; === BrowseLDraw (type: Button) ===
+    ${NSD_CreateButton} 240.25u 59.69u 49.37u 14.15u "Browse"
 	Pop $BrowseLDraw
 
-	${NSD_CreateLabel} 7.9u 78.15u 228.41u 11.69u "Archive Library (Complete.zip) File"
-	${NSD_CreateText} 7.9u 92.31u 228.41u 12.31u "$LPub3DViewerLibFile"
-	Pop $LPub3DViewerText
-
-	${NSD_CreateButton} 240.25u 92.31u 49.37u 14.15u "Browse"
-	Pop $BrowseLPub3DViewer
-	
-	${NSD_CreateLabel} 7.9u 110.15u 228.41u 11.69u "Optional - Download Library (Complete.zip, Ldrawunf.zip)"
-	
-	${NSD_CreateButton} 240.25u 110.15u 49.37u 14.15u "Download"
-	Pop $DownloadLDrawLibrary
-
 	${NSD_OnClick} $BrowseLDraw fnBrowseLDraw
-	${NSD_OnClick} $BrowseLPub3DViewer fnBrowseLPub3DViewer
-	${NSD_OnClick} $DownloadLDrawLibrary fnDownloadLDrawLibrary
 	
  nsDialogs::Show
 
@@ -385,64 +362,6 @@ Function fnBrowseLDraw
 
 FunctionEnd
 
-Function fnBrowseLPub3DViewer
-
-  nsDialogs::SelectFileDialog "open" $LDrawDirPath "Archived Library|*.zip|All files|*.*"
-  Pop $LPub3DViewerLibFile
-  ${NSD_SetText} $LPub3DViewerText $LPub3DViewerLibFile
-
-FunctionEnd
-
-Function fnDownloadLDrawLibrary
-
-;--------------------------------
-;LDraw Archive Library Settings
-
-  ;Validate the LDraw Directory path
-
-  ${If} ${DirExists} $LDrawDirPath 
-	Goto DoDownload
-  ${Else}
-    MessageBox MB_ICONEXCLAMATION "You must select the LDraw Directory to continue!" 
-    Abort
-  ${EndIf}
-	
-  DoDownload:	
-	; disable browse nsDialogFilePathsPage
-	EnableWindow $LPub3DViewerText 0	
-	EnableWindow $BrowseLPub3DViewer 0 
-  
-	MessageBox MB_OKCANCEL|MB_USERICON "${ProductName} will download \
-	the LDraw Official and Unofficial parts library to folder \
-	$LDrawDirPath\LDraw3DViewer-Library" IDCANCEL Cancel
-	
-	CreateDirectory "$LDrawDirPath\LDraw3DViewer-Library"
-	
-	StrCpy $LPub3DViewerLibFile "$LDrawDirPath\LDraw3DViewer-Library\complete.zip"
-	StrCpy $LDrawUnoffLibFile "$LDrawDirPath\LDraw3DViewer-Library\ldrawunf.zip"	
-	
-	INETC::get /caption "Download LDraw Libraries" /popup "" ${LDRAW_OFFICIAL_LIB} $LPub3DViewerLibFile ${LDRAW_UNOFFICIAL_LIB} $LDrawUnoffLibFile  /end
-	Pop $R0 ;Get the return value
-		StrCmp $R0 "OK" UpdateDialog
-		MessageBox MB_ICONSTOP "Download library failed: $R0"
-		; restore browse nsDialogFilePathsPage
-		EnableWindow $LPub3DViewerText 1	
-		EnableWindow $BrowseLPub3DViewer 1
-		Abort
-	
-	UpdateDialog:	
-	${NSD_SetText} $LPub3DViewerText $LPub3DViewerLibFile
-	${NSD_SetText} $PathsGrpBox "Library paths defined - click Next to continue."
-	Goto Done
-	
-	Cancel:
-	; restore browse nsDialogFilePathsPage
-	EnableWindow $LPub3DViewerText 1	
-	EnableWindow $BrowseLPub3DViewer 1 
-	
-	Done:
-FunctionEnd
-
 Function nsDialogLeaveCustomPage
    
   ;Validate the LDraw Directory path
@@ -451,15 +370,6 @@ Function nsDialogLeaveCustomPage
 	WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "LDrawDir" $LDrawDirPath
   ${Else}
     MessageBox MB_ICONSTOP "You must enter the LDraw Directory to continue!" 
-    Abort
-  ${EndIf}
-
-  ;Validate the LPub3DViewer Library path
-  ${If} ${FileExists} $LPub3DViewerLibFile
-    ; Update the registry wiht the LPub3DViewer Library path.
-    WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "PartsLibrary" $LPub3DViewerLibFile
-  ${Else}
-    MessageBox MB_ICONSTOP "You must enter an archive library file to continue!"
     Abort
   ${EndIf}
 
@@ -634,23 +544,20 @@ Section "Uninstall"
   ${Else}
 	Delete "$INSTDIR\${ProductName}_x32.exe"
   ${EndIf}
+  
   Delete "$INSTDIR\quazip.dll"
   Delete "$INSTDIR\ldrawini.dll"
-  Delete "$INSTDIR\libeay32.dll"
-  Delete "$INSTDIR\ssleay32.dll"
-  Delete "$INSTDIR\libgcc_s_sjlj-1.dll"
-  Delete "$INSTDIR\libstdc++-6.dll"
-  Delete "$INSTDIR\libwinpthread-1.dll"
-  Delete "$INSTDIR\QtCore4.dll"
-  Delete "$INSTDIR\QtGui4.dll"
-  Delete "$INSTDIR\QtNetwork4.dll"
-  Delete "$INSTDIR\QtOpenGL4.dll"  
+  Delete "$INSTDIR\Qt5Core.dll"
+  Delete "$INSTDIR\Qt5Network.dll"
+  Delete "$INSTDIR\Qt5Gui.dll"
+  Delete "$INSTDIR\Qt5Widgets.dll"
+  Delete "$INSTDIR\Qt5PrintSupport.dll"
+  Delete "$INSTDIR\Qt5OpenGL.dll"
   Delete "$INSTDIR\Uninstall.exe"
   Delete "$INSTDIR\README.txt"
   Delete "$INSTDIR\docs\Credits.txt"
   Delete "$INSTDIR\docs\Copying.txt"
-  Delete "$INSTDIR\docs\License.txt"
-  ;Delete "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win\plugins\pluginldlist.dll"  
+  Delete "$INSTDIR\docs\License.txt" 
   Delete "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win\ldglite.exe"
   Delete "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win\LICENCE"
   Delete "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win\README.TXT" 
@@ -659,7 +566,10 @@ Section "Uninstall"
   Delete "${INSTDIR_AppData}\extras\freeformAnnotations.lst"
   Delete "${INSTDIR_AppData}\extras\titleAnnotations.lst"
   Delete "${INSTDIR_AppData}\extras\pliSubstituteParts.lst"
-  Delete "${INSTDIR_AppData}\extras\pli.mpd"    
+  Delete "${INSTDIR_AppData}\extras\pli.mpd"
+  Delete "${INSTDIR_AppData}\dump\minidump.dmp"
+  Delete "${INSTDIR_AppData}\libraries\complete.zip"
+  Delete "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip"
   
   !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
     
@@ -672,8 +582,12 @@ Section "Uninstall"
 
 ; Remove directories used
   RMDir "$SMPROGRAMS\$StartMenuFolder"
+  RMDir "${INSTDIR_AppData}\libraries"  
   RMDir "${INSTDIR_AppData}\extras"
-  ;RMDir "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win\plugins"
+  RMDir "${INSTDIR_AppData}\dump"
+  RMDir /r "${INSTDIR_AppData}\cache"
+  RMDir /r "${INSTDIR_AppData}\logs"
+  RMDir "${INSTDIR_AppData}"
   RMDir "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win"
   RMDir "$INSTDIR\3rdParty\l3p1.4WinB"
   RMDir "$INSTDIR\3rdParty"
@@ -683,7 +597,6 @@ Section "Uninstall"
 ; Remove registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}"
   DeleteRegKey HKCU "Software\${Company}\${ProductName}\Installation\StartMenuFolder"
-  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\PartsLibrary"
   DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\LDrawDir"
   DeleteRegKey /ifempty HKCU "Software\${Company}\${ProductName}\Installation"
   DeleteRegKey /ifempty HKCU "Software\${Company}\${ProductName}\Settings"
