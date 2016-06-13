@@ -612,6 +612,7 @@ quazip/zip.h -text
 tools/Win-setup/00[!!-~]BuildLPub3D00AndCreateDistNoPack.bat -text
 tools/Win-setup/00[!!-~]BuildLPub3D01PackAndCreateDist.bat -text
 tools/Win-setup/00[!!-~]BuildLPub3D02CreateDistOnly.bat -text
+tools/Win-setup/LDraw_Archive_Download.bat -text
 tools/Win-setup/LPub3D.nsi -text
 tools/Win-setup/LPub3DNoPack.nsi -text
 tools/Win-setup/LPub3DViewer_LDrawunf_Archive_Generator.bat -text

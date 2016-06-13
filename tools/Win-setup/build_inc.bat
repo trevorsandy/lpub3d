@@ -10,8 +10,8 @@ SET REVISION_FILE=unknown
 
 SET devRootPath="..\..\mainApp"
 
-SET versionFile=..\tools\Win-setup\AppVersion.nsh
 SET buildFile=build.h
+set genBuild=%buildFile% ECHO
 
 CD /D %devRootPath%
 
