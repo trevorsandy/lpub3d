@@ -1306,6 +1306,13 @@ void Gui::refreshLDrawUnoffParts(){
 
 }
 
+void Gui::refreshLDrawOfficialParts(){
+
+  // Create an instance of update ldraw archive (void*)0 = false
+  new UpdateLdrawArchive(this, (void*)0);
+
+}
+
 
 void Gui::updateCheck()
 {
@@ -1565,6 +1572,10 @@ void Gui::createActions()
     refreshLDrawUnoffPartsAct->setStatusTip(tr("Download and replace LDraw Unofficial parts archive file"));
     connect(refreshLDrawUnoffPartsAct, SIGNAL(triggered()), this, SLOT(refreshLDrawUnoffParts()));
 
+    refreshLDrawOfficialPartsAct = new QAction(QIcon(":/resources/refreshoffarchive.png"),tr("Refresh LDraw Official Parts"), this);
+    refreshLDrawOfficialPartsAct->setStatusTip(tr("Download and replace LDraw Official parts archive file"));
+    connect(refreshLDrawOfficialPartsAct, SIGNAL(triggered()), this, SLOT(refreshLDrawOfficialParts()));
+
     // Config menu
 
     pageSetupAct = new QAction(QIcon(":/resources/pagesetup.png"),tr("Page Setup"), this);
@@ -1784,6 +1795,7 @@ void Gui::createMenus()
 
     cacheMenu = toolsMenu->addMenu("Reset Cache...");
     toolsMenu->addAction(refreshLDrawUnoffPartsAct);
+    toolsMenu->addAction(refreshLDrawOfficialPartsAct);
     cacheMenu->setIcon(QIcon(":/resources/resetcache.png"));
     cacheMenu->addAction(clearImageModelCacheAct);
     cacheMenu->addAction(clearPLICacheAct);

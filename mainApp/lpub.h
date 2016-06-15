@@ -904,6 +904,7 @@ private slots:
 
     void mpdComboChanged(int index);
     void refreshLDrawUnoffParts();
+    void refreshLDrawOfficialParts();
 
     void clearPage(
       LGraphicsView  *view,
@@ -1028,6 +1029,7 @@ private:
   QAction  *clearFadeCacheAct;
 
   QAction  *refreshLDrawUnoffPartsAct;
+  QAction  *refreshLDrawOfficialPartsAct;
 
   // config menu
 
