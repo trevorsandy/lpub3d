@@ -116,6 +116,9 @@ Application::Application(int &argc, char **argv)
   QCoreApplication::setOrganizationName(VER_COMPANYNAME_STR);
   QCoreApplication::setApplicationName(VER_PRODUCTNAME_STR);
   QCoreApplication::setApplicationVersion(VER_PRODUCTVERSION_STR);
+
+  connect(this, SIGNAL(splashMsgSig(QString)), this, SLOT(splashMsg(QString)));
+
 }
 
 Application* Application::instance()
@@ -125,12 +128,11 @@ Application* Application::instance()
 
 void Application::initialize(int &argc, char **argv)
 {
-  qDebug() << QString("Initializing application.");
+  logInfo() << QString("Initializing application.");
 
   Preferences::lpubPreferences();
 
   // splash
-
   QPixmap pixmap(":/resources/LPub512Splash.png");
   splash = new QSplashScreen(pixmap);
 
@@ -142,9 +144,9 @@ void Application::initialize(int &argc, char **argv)
   splash->setFont(splashFont);
   splash->show();
 
+  // initialize the logger
   using namespace QsLogging;
 
-  // initialize the logger
   Logger& logger = Logger::instance();
 
   // set default log options
@@ -172,7 +174,7 @@ void Application::initialize(int &argc, char **argv)
   logger.addDestination(debugDestination);
   logger.addDestination(fileDestination);
 
-  // write an info message using logging macros:
+  // logging examples
   bool showLogExamples = false;
   if (showLogExamples){
       logInfo()   << "LPub3D started";
@@ -193,8 +195,7 @@ void Application::initialize(int &argc, char **argv)
       logger.setLoggingLevel(QsLogging::TraceLevel);
   } // end init logging
 
-  splash->showMessage(QSplashScreen::tr("30% Logging loaded..."),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
-  m_application.processEvents();
+  emit splashMsgSig("10% - Logging loaded...");
 
   // Preferences
   Preferences::lpub3dLibPreferences(false);
@@ -240,29 +241,26 @@ void Application::initialize(int &argc, char **argv)
   m_LDrawPath = NULL;
 #endif
 
-  splash->showMessage(QSplashScreen::tr("60% Preferences loaded..."),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
-  m_application.processEvents();
+  emit splashMsgSig("30% - Core preferences loaded...");
 
   gui = new Gui();
 
-  splash->showMessage(QSplashScreen::tr("80% GUI loaded..."),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
-  m_application.processEvents();
+  emit splashMsgSig(QString("65% - %1 Mainwindow loaded...").arg(VER_PRODUCTNAME_STR));
 
-  qDebug() << QString("-Initialize: New gui instance created.");
+  logInfo() << QString("-Initialize: New gui instance created.");
 
-  if (!gui->Initialize3DViewer(argc, argv, m_libPath, m_LDrawPath)) {
-      qDebug() << QString("Unable to initialize 3D Viewer.");
+  if (!gui->InitializeApp(argc, argv, m_libPath, m_LDrawPath)) {
+      logError() << QString("Unable to initialize 3D Viewer.");
     }
 
-  splash->showMessage(QSplashScreen::tr("90% 3DViewer loaded..."),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
-  m_application.processEvents();
+  emit splashMsgSig("95% - 3D Viewer Mainwindow loaded...");
 }
 
 void Application::main()
 {
 
-  splash->showMessage(QSplashScreen::tr("100% %1 loaded.").arg(QString::fromLatin1(VER_PRODUCTNAME_STR)),Qt::AlignBottom | Qt::AlignCenter, Qt::white);
-  m_application.processEvents();
+  emit splashMsgSig(QString("100% %1 loaded.").arg(VER_PRODUCTNAME_STR));
+
   splash->finish(gui);
 
   gui->show();
@@ -279,22 +277,24 @@ int Application::run()
   try
   {
     // Call the main function
-    qDebug() << QString("Run: Starting application...");
+    logInfo() << QString("Run: Starting application...");
+
     main();
-    qDebug() << QString("Run: Application started.");
+
+    logInfo() << QString("Run: Application started.");
 
     returnCode = m_application.exec();
   }
   catch(const std::exception& ex)
   {
-    qDebug() << QString("Run: %1\n%2").arg("LOG_ERROR").arg(ex.what());
+    logError() << QString("Run: %1\n%2").arg("LOG_ERROR").arg(ex.what());
   }
   catch(...)
   {
-    qDebug() << QString("Run: An unhandled exception has been thrown.");
+    logError() << QString("Run: An unhandled exception has been thrown.");
   }
 
-  qDebug() << QString("Run: Application terminated with return code %1.").arg(returnCode);
+  logInfo() << QString("Run: Application terminated with return code %1.").arg(returnCode);
 
   return returnCode;
 }

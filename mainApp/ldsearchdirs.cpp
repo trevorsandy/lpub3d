@@ -374,7 +374,7 @@ bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbit
           if ((searchDir->Flags & LDSDF_SKIP) == 0)  //Add function to verifyExcludedDirs()
             {
               m_ldrawSearchDirs.push_back(searchDir->Dir);
-              qDebug() << "LDRAW SEARCH DIR PUSHED: " << searchDir->Dir;
+              logInfo() << "LDRAW SEARCH DIR PUSHED: " << searchDir->Dir;
             }
         }
 

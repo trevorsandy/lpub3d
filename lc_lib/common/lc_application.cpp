@@ -10,12 +10,15 @@
 #include "lc_mainwindow.h"
 #include "lc_shortcuts.h"
 #include "view.h"
+#include "application.h"
 #include "name.h"
 
 lcApplication* g_App;
 
 void lcPreferences::LoadDefaults()
 {
+	emit Application::instance()->splashMsgSig("65% - Viewer defaults loading...");
+
 	mFixedAxes = lcGetProfileInt(LC_PROFILE_FIXED_AXES);
 	mMouseSensitivity = lcGetProfileInt(LC_PROFILE_MOUSE_SENSITIVITY);
 	mLightingMode = (lcLightingMode)lcGetProfileInt(LC_PROFILE_LIGHTING_MODE);
@@ -113,6 +116,8 @@ bool lcApplication::LoadPiecesLibrary(const char* LibPath, const char* LibraryIn
 {
         // process search directories to update library archive
         partWorkerLDSearchDirs.processLDSearchDirParts();
+
+	emit Application::instance()->splashMsgSig("90% - Libraries loading...");
 
 	if (mLibrary == NULL)
 		mLibrary = new lcPiecesLibrary();
@@ -217,6 +222,8 @@ bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstal
 	char* ProjectName = NULL;
 	char* SaveWavefrontName = NULL;
 	char* Save3DSName = NULL;
+
+	emit Application::instance()->splashMsgSig("70% - Viewer window defaults loading...");
 
 	// Parse the command line arguments.
 	for (int i = 1; i < argc; i++)

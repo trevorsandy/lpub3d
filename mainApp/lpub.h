@@ -519,7 +519,7 @@ public:
   void beginMacro (QString name);
   void endMacro   ();
 
-  bool Initialize3DViewer(int argc, char *argv[], const char* LibraryInstallPath, const char* LDrawPath);
+  bool InitializeApp(int argc, char *argv[], const char* LibraryInstallPath, const char* LDrawPath);
 
   void displayFile(LDrawFile *ldrawFile, const QString &modelName);
   void displayParmsFile(const QString &fileName);

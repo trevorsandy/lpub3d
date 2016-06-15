@@ -21,6 +21,7 @@
 #include "paths.h"
 #include "lpub.h"
 #include "name.h"
+#include "application.h"
 
 #ifdef WIN32
 #include <clocale>
@@ -38,6 +39,8 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
  * LDraw search directories preferences.
  */
 void PartWorker::ldsearchDirPreferences(){
+
+  emit Application::instance()->splashMsgSig("70% - Search directory preferences loading...");
 
   QSettings Settings;
   QString const LdrawiniFilePathKey("LDrawIniFile");
@@ -85,18 +88,13 @@ void PartWorker::ldsearchDirPreferences(){
  */
 bool PartWorker::loadLDrawSearchDirs(){
 
+    emit Application::instance()->splashMsgSig("70% - Search directories loading...");
+
   _excludedSearchDirs << ".";
   _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("PARTS"));
   _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("P"));
   _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts"));
   _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"));
-
-//  setDoFadeStep((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep));
-//  if (!doFadeStep()) {
-//  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/fade"));
-//  _excludedSearchDirs << QDir::toNativeSeparators(Paths::fadePartDir);
-//  _excludedSearchDirs << QDir::toNativeSeparators(Paths::fadePrimDir);
-//    }
 
   StringList ldrawSearchDirs;
   if (ldPartsDirs.loadLDrawSearchDirs("")){
@@ -135,6 +133,9 @@ bool PartWorker::loadLDrawSearchDirs(){
 */
 void PartWorker::populateLdgLiteSearchDirs(){
   if (Preferences::preferredRenderer == "LDGLite" && !Preferences::ldSearchDirs.isEmpty()){
+
+      emit Application::instance()->splashMsgSig("70% - LDGlite Search directories loading...");
+
       // Define fade Parts and P directories
       QString fadePartDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/fade/parts"));
       QString fadePrimDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/fade/p"));
@@ -349,25 +350,6 @@ void PartWorker::retrieveContent(
 
     // identify part type
     int partType = -1;
-//    QRegExp rxPart("\\S*(\\/parts\\/)[^\\n]*");                    // partType=0
-//    QRegExp rxSubPart("\\S*(\\/parts\\/s\\/)[^\\n]*");             // partType=1
-//    QRegExp rxPrimPart("\\S*(\\/p\\/)[^\\n]*/i");                  // partType=2
-//    QRegExp rxPrim8Part("\\S*(\\/p\\/8\\/)[^\\n]*/i");             // partType=3
-//    QRegExp rxPrim48Part("\\S*(\\/p\\/48\\/)[^\\n]*/i");           // partType=4
-//    if (fileAbsPathStr.contains(rxPrim48Part)){
-//        partType=LD_PRIMITIVES_48;
-//    } else if (fileAbsPathStr.contains(rxPrim8Part)){
-//        partType=LD_PRIMITIVES_8;
-//    } else if (fileAbsPathStr.contains(rxPrimPart)){
-//        partType=LD_PRIMITIVES;
-//    } else if (fileAbsPathStr.contains(rxSubPart)){
-//        partType=LD_SUB_PARTS;
-//        //logTrace()  << " SUB PARTS Type: " << partType << "Path: " << fileAbsPathStr;
-//    } else if (fileAbsPathStr.contains(rxPart)){
-//        partType=LD_PARTS;
-//        //logTrace()  << " PARTS Type: " << partType << "Path: " << fileAbsPathStr;
-//    } else
-//        partType=LD_PARTS;
 
     if (fileDirectory == "parts"){
         partType=LD_PARTS;
@@ -630,16 +612,17 @@ void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   QFileInfo libFileInfo(Preferences::lpub3dLibFile);
   QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.absolutePath(),FILE_LPUB3D_UNOFFICIAL_ARCHIVE));
 
-  if (okToEmit()) {
+  if (okToEmitToProgressBar()) {
       emit progressResetSig();
       emit progressMessageSig(QString("Archiving %1 parts.").arg(comment));
     } else {
-      qDebug() << QString("Archiving %1 parts to : %2").arg(comment,archiveFile);
+      emit Application::instance()->splashMsgSig(QString("75% - Archiving %1 parts...").arg(comment));
+      logInfo() << QString("Archiving %1 parts to : %2.").arg(comment,archiveFile);
     }
 
   if(!ldPartsDirs.size() == 0){
 
-      if (okToEmit())
+      if (okToEmitToProgressBar())
           emit progressRangeSig(0, 0);
 
       for (int i = 0; i < ldPartsDirs.size(); i++){
@@ -651,48 +634,52 @@ void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
                                      foo.absolutePath(),
                                      QString("Append %1 parts").arg(comment))){
 
-            if (okToEmit())
-              emit messageSig(false,QString(tr("Failed to archive %1 parts from \n %2")
+            if (okToEmitToProgressBar())
+              emit messageSig(false,QString(tr("Failed to archive %1 parts from \n %2.")
                                             .arg(comment)
                                             .arg(ldPartsDirs[i])));
             else
-              qDebug() << QString(tr("Failed to archive %1 parts from \n %2")
+              logError() << QString(tr("Failed to archive %1 parts from \n %2.")
                                   .arg(comment)
                                   .arg(ldPartsDirs[i]));
             }
-          emit progressSetValueSig(i);
+          if (okToEmitToProgressBar())
+            emit progressSetValueSig(i);
         }
 
-      // Reload unofficial library parts into memory
+      // Reload unofficial library parts into memory - only if initial library load already done !
       if (didInitLDSearch()) {
 
           if (!g_App->mLibrary->ReloadUnoffLib()){
 
-              if (okToEmit())
-                emit messageSig(false,QString(tr("Failed to reload unofficial parts library into memory.")));
-              else
-                qDebug() << QString(tr("Failed to reload unofficial parts library into memory."));
-
+              if (okToEmitToProgressBar()) {
+                emit messageSig(false,tr("Failed to reload unofficial parts library into memory."));
+             } else {
+                logError() << tr("Failed to reload unofficial parts library into memory.");
+                }
             } else {
 
-              if (okToEmit())
-                emit messageSig(true,QString(tr("Reloaded unofficial parts library into memory.")));
-              else
-                qDebug() << QString(tr("Reloaded unofficial parts library into memory."));
+              if (okToEmitToProgressBar()) {
+                emit messageSig(true,tr("Reloaded unofficial parts library into memory."));
+             } else {
+                logInfo() << tr("Reloaded unofficial parts library into memory.");
+                }
             }
         }
 
-      if (okToEmit())
-          emit progressMessageSig(QString("Finished archiving %1 parts.").arg(comment));
-      else
-          qDebug() << "Finished archiving " + comment +  " parts.";
+      if (okToEmitToProgressBar()) {
+          emit progressMessageSig(tr("Finished archiving %1 parts.").arg(comment));
+      } else {
+          logInfo() << tr("Finished archiving %1 parts.").arg(comment);
+          emit Application::instance()->splashMsgSig(tr("80% - Finished archiving %1 parts.").arg(comment));
+        }
 
     } else {
 
-      if (okToEmit())
-        emit messageSig(false,QString(tr("Failed to retrieve %1 parts directory.").arg(comment)));
+      if (okToEmitToProgressBar())
+        emit messageSig(false,tr("Failed to retrieve %1 parts directory.").arg(comment));
       else
-        qDebug() << QString(tr("Failed to retrieve %1 parts directory.").arg(comment));
+        logError() << tr("Failed to retrieve %1 parts directory.").arg(comment);
     }
 }
 

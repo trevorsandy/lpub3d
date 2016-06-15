@@ -46,12 +46,13 @@
 #include "updatecheck.h"
 #include "updateldrawarchive.h"
 
-
 #include "step.h"
 //** 3D
 #include "camera.h"
 #include "piece.h"
 #include "lc_profile.h"
+
+#include "application.h"
 
 //**
 
@@ -1023,6 +1024,8 @@ Gui::Gui()
     mExistingRotStep = lcVector3(0.0f, 0.0f, 0.0f);
     mModelStepRotation = lcVector3(0.0f, 0.0f, 0.0f);
 
+    emit Application::instance()->splashMsgSig("40% - Mainwindow initialised...");
+
     createActions();
     createMenus();
     createToolBars();
@@ -1103,6 +1106,9 @@ Gui::Gui()
     Render::setRenderer(Preferences::preferredRenderer);
     if (Preferences::preferredRenderer == "LDGLite")
       partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
+
+    emit Application::instance()->splashMsgSig("60% - Mainwindow defaults loaded...");
+
 }
 
 Gui::~Gui()
@@ -1139,9 +1145,17 @@ void Gui::closeEvent(QCloseEvent *event)
 
 }
 
-bool Gui::Initialize3DViewer(int argc, char *argv[], const char* LibraryInstallPath, const char* LDrawPath){
+bool Gui::InitializeApp(int argc, char *argv[], const char* LibraryInstallPath, const char* LDrawPath){
 
+  /* load sequence
+   * lc_application::LoadDefaults
+   * lc_application::ldsearchDirPreferences()
+   * lc_application::Initialize()
+   * lc_application::LoadPiecesLibrary()
+   *
+   */
   g_App = new lcApplication();
+
   bool initialized = g_App->Initialize(argc, argv, LibraryInstallPath, LDrawPath, this);
 
   if (initialized){

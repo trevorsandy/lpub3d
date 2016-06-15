@@ -23,6 +23,7 @@ Notice: As this feature required a significant rewrite of the core image generat
 -Enable 'Use multiple files single call rendering' for LDView from Preferences= tab (r687) 
 -Increase CSI (Models) rendering speed with LDView using -SaveSnapshots=1. (r685) 
 -Increase PLI (Part list/BOM) rendering speed with LDView using -SaveSnapshots=1 (r683/r684) 
+-Display application load progress during splash screen display (r709)
 -Add context menu to pages without steps - e.g. Cover Page, BOM Page (r681) 
 -Add missing context menu icons (r680) 
 -Add progress message updates to splash screen (r676) 

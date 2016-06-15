@@ -218,7 +218,7 @@ private:
    bool didInitLDSearch()
       {return                _didInitLDSearch;}
 
-   bool okToEmit()
+   bool okToEmitToProgressBar()
       {return               (doFadeStep() || doReloadUnoffLib());}
 
 };

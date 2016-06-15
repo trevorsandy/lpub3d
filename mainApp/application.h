@@ -28,15 +28,14 @@
 
 #include "lc_global.h"
 
-//#include "splashscreen.h"
-
-
 /// The Application class is responsible for further initialization of the app
 /// and provides acessors to the current instance and internal resources. It
 /// also take cares of shutdown cleanup. An Application class must be
 /// instantiaded only once.
-class Application
+class Application : public QObject
 {
+     Q_OBJECT
+
 public:
     /// Creates the Application.
     Application(int& argc, char **argv);
@@ -55,7 +54,17 @@ public:
 
     /// Initialize the splash screen
     QSplashScreen *splash;
-//    SplashScreen *splash;
+
+public slots:
+    /// Splash message function to display message updates during startup
+    void splashMsg(QString message){
+      splash->showMessage(QSplashScreen::tr(message.toLatin1().constData()),Qt::AlignBottom | Qt::AlignLeft, Qt::white);
+      m_application.processEvents();
+    }
+
+signals:
+    /// Splash message sinal to pass messages
+    void splashMsgSig(QString message);
 
 private:
     /// Qt application
