@@ -56,7 +56,7 @@ UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
     initialUpdate = (bool)data;
 
     // Initialize the updater
-    updater = new QSimpleUpdater (this);
+    updater = new SimpleUpdater (this);
 
     // Check for updates
     checkForUpdates();

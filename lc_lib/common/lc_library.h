@@ -6,6 +6,7 @@
 #include "lc_math.h"
 #include "lc_array.h"
 #include "str.h"
+#include "name.h"
 
 #include "QsLog.h"
 class PieceInfo;

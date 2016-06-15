@@ -19,9 +19,9 @@
 #include <QObject>
 #include <QNetworkReply>
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-#include "qsimpleupdater.h"
+#include "SimpleUpdater.h"
 #else
-#include <QSimpleUpdater>
+#include <SimpleUpdater>
 #endif
 
 void DoInitialUpdateCheck();
@@ -41,7 +41,7 @@ public slots:
 
 private:
     bool                    initialUpdate;
-    QSimpleUpdater          *updater;
+    SimpleUpdater          *updater;
 };
 
 #endif // UPDATECHECK_H

@@ -96,6 +96,7 @@
         <file alias="print.png">images/print.png</file>
         <file alias="projectsetup.png">images/projectsetup.png</file>
         <file alias="redraw.png">images/redraw.png</file>
+        <file alias="refreshoffarchive.png">images/refreshoffarchive.png</file>
         <file alias="refreshunoffarchive.png">images/refreshunoffarchive.png</file>
         <file alias="remove.png">images/remove.png</file>
         <file alias="removelpubformat.png">images/removelpubformat.png</file>
@@ -215,5 +216,6 @@
         <file alias="edit_rotatestep_relative_rotation.png">../lc_lib/resources/edit_rotatestep_relative_rotation.png</file>
         <file alias="leocad_fr.qm">../lc_lib/resources/leocad_fr.qm</file>
         <file alias="leocad_pt.qm">../lc_lib/resources/leocad_pt.qm</file>
+        <file alias="ldconfig.ldr">../lc_lib/resources/ldconfig.ldr</file>
     </qresource>
 </RCC>

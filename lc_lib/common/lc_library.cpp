@@ -156,8 +156,7 @@ bool lcPiecesLibrary::Load(const char* LibraryPath)
 
 		char UnofficialFileName[LC_MAXPATH];
 		strcpy(UnofficialFileName, mLibraryPath);
-		strcat(UnofficialFileName, "ldrawunf.zip");
-//		strcat(UnofficialFileName, "/ldrawunf.zip");
+		strcat(UnofficialFileName, FILE_LPUB3D_UNOFFICIAL_ARCHIVE);
 
 		OpenArchive(UnofficialFileName, LC_ZIPFILE_UNOFFICIAL);
 

@@ -15,6 +15,8 @@
 
 #include "download_dialog.h"
 #include "ui_download_dialog.h"
+#include "version.h"
+#include "name.h"
 
 #include <QMutex>
 
@@ -75,13 +77,12 @@ void DownloadDialog::beginDownload (const QUrl& url)
   ui->progressBar->setValue (0);
   ui->stopButton->setText (tr ("Stop"));
   if (m_isLdrawDownload){
-      this->setWindowTitle("Softare Updater");
-      bool isUnoffArchive = url.toString().contains("ldrawunf.zip");
+      this->setWindowTitle("LDraw Library Updater");
       ui->downloadLabel->setText (tr ("Downloading %1...")
-                                .arg(isUnoffArchive ? "ldrawunf.zip" : "complete.zip"));
+                                .arg(m_isUnoffArchive ? FILE_LDRAW_UNOFFICIAL_ARCHIVE : FILE_LDRAW_OFFICIAL_ARCHIVE));
     }
   else
-    ui->downloadLabel->setText (tr ("Downloading updates"));
+    ui->downloadLabel->setText (tr ("Downloading %1 update") .arg(VER_PRODUCTNAME_STR));
 
   ui->timeLabel->setText (tr ("Time remaining") + ": " + tr ("unknown"));
 
@@ -119,7 +120,6 @@ void DownloadDialog::installUpdate (void)
         openDownload();
         qApp->closeAllWindows();
     }
-
     else
     {
         ui->openButton->setEnabled (true);
@@ -149,7 +149,7 @@ void DownloadDialog::cancelDownload (void)
     if (!m_reply->isFinished())
     {
         QMessageBox _message;
-        _message.setWindowTitle (tr ("Updater"));
+        _message.setWindowTitle (tr (m_isLdrawDownload ? "LDraw Library Updater" : "Software Updater" ));
         _message.setIcon (QMessageBox::Question);
         _message.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
         _message.setText (tr ("Are you sure you want to cancel the download?"));
@@ -181,22 +181,30 @@ void DownloadDialog::downloadFinished (void)
     if (!data.isEmpty())
     {
         QStringList list = m_reply->url().toString().split ("/");
-        QFile file ((m_isLdrawDownload ? m_ldrawArchivePath : QDir::tempPath()) + "/" + list.at (list.count() - 1));
+        QString archiveFile = QString("%1/%2").arg(m_ldrawArchivePath, m_isUnoffArchive ? FILE_LPUB3D_UNOFFICIAL_ARCHIVE : FILE_LDRAW_OFFICIAL_ARCHIVE );
+        QFile file (m_isLdrawDownload ? archiveFile : QDir::tempPath() + "/" + list.at (list.count() - 1));
 
         QMutex _mutex;
 
         if (file.open (QIODevice::WriteOnly))
-        {
-            _mutex.lock();
-            file.write (data);
-            m_path = file.fileName();
-            file.close();
-            _mutex.unlock();
-        }
+            {
+                _mutex.lock();
+                file.write (data);
+                m_path = file.fileName();
+                file.close();
+                _mutex.unlock();
+            }
+        else
+            {
+                QMessageBox _message;
+                _message.setWindowTitle (tr (m_isLdrawDownload ? "LDraw Library Updater" : "Software Updater" ));
+                _message.setIcon (QMessageBox::Critical);
+                _message.setText (tr ("Could not open the archive file\n%1\nPlease try again.") .arg(file.fileName()));
+                _message.setStandardButtons (QMessageBox::Ok);
+            }
 
-        if (!m_isLdrawDownload)
+        if (! m_isLdrawDownload)
           installUpdate();
-
     }
 }
 
@@ -248,9 +256,9 @@ void DownloadDialog::updateProgress (qint64 received, qint64 total)
         }
 
         if (m_isLdrawDownload)
-          ui->downloadLabel->setText (tr ("Downloading ldrawunf.zip") + " (" + _received_string + " " + tr ("of") + " " + _total_string + ")");
+          ui->downloadLabel->setText (tr ("Downloading %1") .arg(m_isUnoffArchive ? FILE_LDRAW_UNOFFICIAL_ARCHIVE : FILE_LDRAW_OFFICIAL_ARCHIVE) + " (" + _received_string + " " + tr ("of") + " " + _total_string + ")");
         else
-          ui->downloadLabel->setText (tr ("Downloading updates") + " (" + _received_string + " " + tr ("of") + " " + _total_string + ")");
+          ui->downloadLabel->setText (tr ("Downloading %1 update") .arg(VER_PRODUCTNAME_STR) + " (" + _received_string + " " + tr ("of") + " " + _total_string + ")");
 
         uint _diff = QDateTime::currentDateTime().toTime_t() - m_start_time;
 
@@ -285,7 +293,10 @@ void DownloadDialog::updateProgress (qint64 received, qint64 total)
         ui->progressBar->setValue (-1);
         ui->progressBar->setMinimum (0);
         ui->progressBar->setMaximum (0);
-        ui->downloadLabel->setText (tr ("Downloading updates"));
+        if (m_isLdrawDownload)
+            ui->downloadLabel->setText (tr ("Downloading %1") .arg(m_isUnoffArchive ? FILE_LDRAW_UNOFFICIAL_ARCHIVE : FILE_LDRAW_OFFICIAL_ARCHIVE));
+        else
+            ui->downloadLabel->setText (tr ("Downloading %1 update") .arg(VER_PRODUCTNAME_STR));
         ui->timeLabel->setText (tr ("Time remaining") + ": " + tr ("Unknown"));
     }
 }

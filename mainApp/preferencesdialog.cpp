@@ -41,14 +41,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   if (ldrawPath.isEmpty()) {
     ldrawPath = ".";
   }
-
-  QString viewerLibFile = Preferences::viewerLibFile;
-  if (viewerLibFile.isEmpty()) {
-      viewerLibFile = ".";
-  }
   
   ui.ldrawPath->setText(                    ldrawPath);
-  ui.viewerLibFile->setText(                viewerLibFile);
   ui.pliName->setText(                      Preferences::pliFile);
   ui.pliBox->setChecked(                    Preferences::pliFile != "");
   ui.ldglitePath->setText(                  Preferences::ldgliteExe);
@@ -177,12 +171,6 @@ void PreferencesDialog::on_browseLDraw_clicked()
 {
   Preferences::ldrawPreferences(true);
   ui.ldrawPath->setText(Preferences::ldrawPath);
-}
-
-void PreferencesDialog::on_browseLeoCADLibrary_clicked()
-{
-  Preferences::viewerLibPreferences(true);
-  ui.viewerLibFile->setText(Preferences::viewerLibFile);
 }
 
 void PreferencesDialog::on_browseLGEO_clicked()
@@ -359,11 +347,6 @@ QString const PreferencesDialog::ldrawPath()
   return ui.ldrawPath->displayText();
 }
 
-QString const PreferencesDialog::viewerLibFile()
-{
-  return ui.viewerLibFile->displayText();
-}
-
 QString const PreferencesDialog::lgeoPath()
 {
     if (ui.POVRayBox->isChecked() && ui.lgeoBox->isChecked()){
@@ -510,11 +493,9 @@ QStringList const PreferencesDialog::searchDirSettings()
 }
 
 void PreferencesDialog::accept(){
-    if(ui.preferredRenderer->count() == 0 || ui.ldrawPath->text().isEmpty() || ui.viewerLibFile->text().isEmpty()){
+    if(ui.preferredRenderer->count() == 0 || ui.ldrawPath->text().isEmpty()){
         if (ui.ldrawPath->text().isEmpty())
             ui.ldrawPath->setPlaceholderText("LDraw directry must be defined");
-        if (ui.viewerLibFile->text().isEmpty())
-            ui.viewerLibFile->setPlaceholderText("Archive library must be configured");
         if (ui.preferredRenderer->count() == 0){
             ui.ldglitePath->setPlaceholderText("At lease one renderer must be defined");
             ui.ldviewPath->setPlaceholderText("At lease one renderer must be defined");

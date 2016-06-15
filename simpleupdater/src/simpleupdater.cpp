@@ -12,20 +12,20 @@
  * Lesser General Public License for more details.
  */
 
-/*! \class QSimpleUpdater
+/*! \class SimpleUpdater
  * \brief A simple auto-updater system for Qt
  *
- * QSimpleUpdater is an implementation of an auto-updating system to be used with Qt projects.
+ * SimpleUpdater is an implementation of an auto-updating system to be used with Qt projects.
  * Aside from notifying you if there's a newer version, it allows you to download the change log in any
  * format (such as HTML or RTF) and download the updates directly from your application using a dialog.
- * QSimpleUpdater is free and open source LGPL software,
+ * SimpleUpdater is free and open source LGPL software,
  * which means that you can use it for both open source and proprietary applications.
  *
  * \chapter Installation
  *
  * \list
- * \o Copy the QSimpleUpdater folder in your "3rd-party" folder.
- * \o Include the QSimpleUpdater project include (pri) file using the include() function.
+ * \o Copy the SimpleUpdater folder in your "3rd-party" folder.
+ * \o Include the SimpleUpdater project include (pri) file using the include() function.
  * \o That's all! Check the example project as a reference for your project.
  * \endlist
  *
@@ -41,7 +41,7 @@
  * in order to communicate with them.
  * If your project needs to access such a webiste (for example GitHub),
  * you will need to carefully read the following information in order to ensure that
- * QSimpleUpdater works with those websites (both in your machine and in the final users' machine).
+ * SimpleUpdater works with those websites (both in your machine and in the final users' machine).
  *
  * This section is extremely important for any developers wishing to deploy their applications under
  * the Windows platform, because the application will depend on the OpenSSL libaries in order to work.
@@ -57,12 +57,12 @@
  *
  * \bold {Mac OS X}
  *
- * The libraries required by QSimpleUpdater are the same as Linux, however, these libraries
+ * The libraries required by SimpleUpdater are the same as Linux, however, these libraries
  * are installed by default in most Mac OS X installations.
  *
  * \bold {Microsoft Windows}
  *
- * QSimpleUpdater makes use of the OpenSSL-Win32 project, make sure that have it installed
+ * SimpleUpdater makes use of the OpenSSL-Win32 project, make sure that have it installed
  * and that the project knows where to find them (the default location is C:/OpenSSL-Win32).
  * Finally, deploy the following libraries with your compiled project:
  *
@@ -72,19 +72,20 @@
  * \endlist
  */
 
-/*! \fn QSimpleUpdater::checkingFinished (void)
+/*! \fn SimpleUpdater::checkingFinished (void)
  * This signal is triggered when the updater system finishes downloading
  * and proccessing the version data and changelog data.
  */
 
-#include "qsimpleupdater.h"
 #include "version.h"
+#include "SimpleUpdater.h"
+
 
 /*! \internal
  * Initializes and configures the class.
  */
 
-QSimpleUpdater::QSimpleUpdater (QObject *parent, bool isLdrawDownload)
+SimpleUpdater::SimpleUpdater (QObject *parent, bool isLdrawDownload)
     : QObject (parent)
     , m_silent (false)
     , m_show_newest_version (true)
@@ -123,7 +124,7 @@ QSimpleUpdater::QSimpleUpdater (QObject *parent, bool isLdrawDownload)
       }
 }
 
-QSimpleUpdater::~QSimpleUpdater()
+SimpleUpdater::~SimpleUpdater()
 {
     if (m_manager)
         m_manager->deleteLater();
@@ -135,7 +136,7 @@ QSimpleUpdater::~QSimpleUpdater()
  * \sa setChangelogUrl()
  */
 
-QString QSimpleUpdater::changeLog() const
+QString SimpleUpdater::changeLog() const
 {
     return m_changelog;
 }
@@ -147,7 +148,7 @@ QString QSimpleUpdater::changeLog() const
  * \sa setDownloadUrl(), setReferenceUrl()
  */
 
-void QSimpleUpdater::checkForUpdates (void)
+void SimpleUpdater::checkForUpdates (void)
 {
   if (!m_reference_url.isEmpty())
     {
@@ -161,7 +162,7 @@ void QSimpleUpdater::checkForUpdates (void)
     }
 
     else
-        qDebug() << "QSimpleUpdater: Invalid reference URL";
+        qDebug() << "SimpleUpdater: Invalid reference URL";
 }
 
 /*!
@@ -170,7 +171,7 @@ void QSimpleUpdater::checkForUpdates (void)
  *
  * \sa setDownloadUrl()
  */
-void QSimpleUpdater::updateLdrawArchive (void)
+void SimpleUpdater::updateLdrawArchive (void)
 {
     if (!m_download_url.isEmpty())
     {
@@ -178,7 +179,7 @@ void QSimpleUpdater::updateLdrawArchive (void)
         m_manager->get(m_updateRequest);
     }
     else
-        qDebug() << "QSimpleUpdater: Invalid download ldraw archive download URL";
+        qDebug() << "SimpleUpdater: Invalid download ldraw archive download URL";
 }
 
 /*!
@@ -187,7 +188,7 @@ void QSimpleUpdater::updateLdrawArchive (void)
  * \sa setDownloadUrl()
  */
 
-void QSimpleUpdater::openDownloadLink (void)
+void SimpleUpdater::openDownloadLink (void)
 {
     if (!m_download_url.isEmpty())
         QDesktopServices::openUrl (m_download_url);
@@ -199,7 +200,7 @@ void QSimpleUpdater::openDownloadLink (void)
  * \sa setReferenceUrl(), checkForUpdates()
  */
 
-QString QSimpleUpdater::latestVersion() const
+QString SimpleUpdater::latestVersion() const
 {
     return m_latest_version;
 }
@@ -210,7 +211,7 @@ QString QSimpleUpdater::latestVersion() const
  * \sa setApplicationVersion()
  */
 
-QString QSimpleUpdater::installedVersion() const
+QString SimpleUpdater::installedVersion() const
 {
     return m_installed_version;
 }
@@ -222,7 +223,7 @@ QString QSimpleUpdater::installedVersion() const
  * \sa setDownloadUrl(), checkForUpdates()
  */
 
-void QSimpleUpdater::downloadLatestVersion (void)
+void SimpleUpdater::downloadLatestVersion (void)
 {
     if (!m_download_url.isEmpty())
         m_downloadDialog->beginDownload (m_download_url);
@@ -235,7 +236,7 @@ void QSimpleUpdater::downloadLatestVersion (void)
  * \sa setReferenceUrl(), checkForUpdates()
  */
 
-bool QSimpleUpdater::newerVersionAvailable() const
+bool SimpleUpdater::newerVersionAvailable() const
 {
     return m_new_version_available;
 }
@@ -247,7 +248,7 @@ bool QSimpleUpdater::newerVersionAvailable() const
  * \sa setSilent()
  */
 
-bool QSimpleUpdater::silent() const
+bool SimpleUpdater::silent() const
 {
     return m_silent;
 }
@@ -263,7 +264,7 @@ bool QSimpleUpdater::silent() const
  * \sa downloadLatestVersion(), openDownloadLink()
  */
 
-void QSimpleUpdater::setDownloadUrl (const QString& url)
+void SimpleUpdater::setDownloadUrl (const QString& url)
 {
     Q_ASSERT (!url.isEmpty());
     m_download_url.setUrl (url);
@@ -287,7 +288,7 @@ void QSimpleUpdater::setDownloadUrl (const QString& url)
  * \sa latestVersion()
  */
 
-void QSimpleUpdater::setReferenceUrl (const QString& url)
+void SimpleUpdater::setReferenceUrl (const QString& url)
 {
     Q_ASSERT (!url.isEmpty());
     m_reference_url.setUrl (url);
@@ -304,7 +305,7 @@ void QSimpleUpdater::setReferenceUrl (const QString& url)
  */
 
 
-void QSimpleUpdater::setChangelogUrl (const QString& url)
+void SimpleUpdater::setChangelogUrl (const QString& url)
 {
     Q_ASSERT (!url.isEmpty());
     m_changelog_url.setUrl (url);
@@ -321,7 +322,7 @@ void QSimpleUpdater::setChangelogUrl (const QString& url)
  */
 
 
-void QSimpleUpdater::setApplicationVersion (const QString& version)
+void SimpleUpdater::setApplicationVersion (const QString& version)
 {
     Q_ASSERT (!version.isEmpty());
     m_installed_version = version;
@@ -339,7 +340,7 @@ void QSimpleUpdater::setApplicationVersion (const QString& version)
  * \sa silent()
  */
 
-void QSimpleUpdater::setSilent (bool silent)
+void SimpleUpdater::setSilent (bool silent)
 {
     m_silent = silent;
 
@@ -354,7 +355,7 @@ void QSimpleUpdater::setSilent (bool silent)
  * \sa checkForUpdates()
  */
 
-void QSimpleUpdater::setShowUpdateAvailableMessage (bool show)
+void SimpleUpdater::setShowUpdateAvailableMessage (bool show)
 {
     m_show_update_available = show;
 }
@@ -369,7 +370,7 @@ void QSimpleUpdater::setShowUpdateAvailableMessage (bool show)
  * \sa checkForUpdates()
  */
 
-void QSimpleUpdater::setShowNewestVersionMessage (bool show)
+void SimpleUpdater::setShowNewestVersionMessage (bool show)
 {
     m_show_newest_version = show;
 }
@@ -381,7 +382,7 @@ void QSimpleUpdater::setShowNewestVersionMessage (bool show)
  * \sa checkForUpdates()
  */
 
-void QSimpleUpdater::setInitialUpdate (bool b)
+void SimpleUpdater::setInitialUpdate (bool b)
 {
     m_initialUpdate = b;
 }
@@ -393,9 +394,22 @@ void QSimpleUpdater::setInitialUpdate (bool b)
  * \sa setDownloadUrl()
  */
 
-void QSimpleUpdater::setLdrawArchivePath (const QString& filePath)
+void SimpleUpdater::setLdrawArchivePath (const QString& filePath)
 {
     m_ldrawArchivePath = filePath;
+}
+
+/*!
+ * Indicate if the ldraw archive file
+ * is the unofficial or official archive.
+ *
+ * \sa setIsUnofficialArchive()
+ */
+
+void SimpleUpdater::setIsUnofficialArchive (bool b)
+{
+    m_isUnoffArchive = b;
+    m_downloadDialog->setIsLdrawUnoffArchive(b);
 }
 
 
@@ -404,7 +418,7 @@ void QSimpleUpdater::setLdrawArchivePath (const QString& filePath)
  * clicks on the "cancel" button in the progress dialog.
  */
 
-void QSimpleUpdater::cancel (void)
+void SimpleUpdater::cancel (void)
 {
     m_manager->disconnect();
 }
@@ -416,15 +430,15 @@ void QSimpleUpdater::cancel (void)
  * \sa checkDownloadedVersion()
  */
 
-void QSimpleUpdater::showErrorMessage (QString error)
+void SimpleUpdater::showErrorMessage (QString error)
 {
   if (!silent())
     {
       if (!m_isLdrawDownload)
         m_progressDialog->hide();
 
-      QString header  = m_isLdrawDownload ? m_isUnoffArchive ? "ldrawunf.zip" : "complete.zip" : "update";
-      QString message = m_isLdrawDownload ? "processing ldrawunf.zip" : "checking for update";
+      QString header  = m_isLdrawDownload ? m_isUnoffArchive ? FILE_LDRAW_UNOFFICIAL_ARCHIVE : FILE_LDRAW_OFFICIAL_ARCHIVE : "update";
+      QString message = m_isLdrawDownload ? m_isUnoffArchive ? tr ("processing %1") .arg(FILE_LDRAW_UNOFFICIAL_ARCHIVE) : tr ("processing %1") .arg(FILE_LDRAW_OFFICIAL_ARCHIVE) :"checking for update";
 
       QMessageBox::warning (NULL, tr ("Download %1").arg(header),
                             tr ("An error occured while %1. \n %2").arg(message).arg(error));
@@ -438,7 +452,7 @@ void QSimpleUpdater::showErrorMessage (QString error)
  * \sa checkDownloadedVersion()
  */
 
-void QSimpleUpdater::onCheckingFinished (void)
+void SimpleUpdater::onCheckingFinished (void)
 {
     // Hide the progress dialog
     m_progressDialog->hide();
@@ -493,7 +507,7 @@ void QSimpleUpdater::onCheckingFinished (void)
  *
  * \sa setDownloadUrl()
  */
-void QSimpleUpdater::onCheckingIsLdrawDownloadFinished(){
+void SimpleUpdater::onCheckingIsLdrawDownloadFinished(){
 
   if (m_ldraw_archive_site_available) {
 
@@ -510,12 +524,12 @@ void QSimpleUpdater::onCheckingIsLdrawDownloadFinished(){
       // Ask user if he/she wants to download ldraw archive
       _message.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
       _message.setText ("<b>" + tr ("Replace your %1 archive file?")
-                        .arg(m_isUnoffArchive ? "ldrawunf.zip" : "complete.zip") +
+                        .arg(m_isUnoffArchive ? FILE_LDRAW_UNOFFICIAL_ARCHIVE : FILE_LDRAW_OFFICIAL_ARCHIVE) +
                         "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>");
       _message.setInformativeText (
             tr ("The latest version of %1 will be downloaded and written to the\n"
                 "%2 folder.\n\nClick Yes to continue or No to cancel.")
-            .arg(m_isUnoffArchive ? "ldrawunf.zip" : "complete.zip").arg(m_ldrawArchivePath));
+            .arg(m_isUnoffArchive ? FILE_LDRAW_UNOFFICIAL_ARCHIVE : FILE_LDRAW_OFFICIAL_ARCHIVE).arg(m_ldrawArchivePath));
 
       if (_message.exec() == QMessageBox::Yes){
           downloadLatestVersion();
@@ -533,7 +547,7 @@ void QSimpleUpdater::onCheckingIsLdrawDownloadFinished(){
  * \sa checkForUpdates()
  */
 
-void QSimpleUpdater::checkDownloadedVersion (QNetworkReply *reply)
+void SimpleUpdater::checkDownloadedVersion (QNetworkReply *reply)
 {
     bool _new_update = false;
 
@@ -609,9 +623,8 @@ void QSimpleUpdater::checkDownloadedVersion (QNetworkReply *reply)
  *
  * \sa updateUnoffArchive()
  */
-void QSimpleUpdater::checkLDrawDownloadConnection(QNetworkReply *reply)
+void SimpleUpdater::checkLDrawDownloadConnection(QNetworkReply *reply)
 {
-  m_isUnoffArchive = m_download_url.toString().contains("ldrawunf.zip");
   if(reply->error() == QNetworkReply::NoError)
     {
       m_downloadDialog->setLdrawArchivePath(m_ldrawArchivePath);
@@ -630,7 +643,7 @@ void QSimpleUpdater::checkLDrawDownloadConnection(QNetworkReply *reply)
  * \sa setChangelogUrl(), changeLog()
  */
 
-void QSimpleUpdater::processDownloadedChangelog (QNetworkReply *reply)
+void SimpleUpdater::processDownloadedChangelog (QNetworkReply *reply)
 {
     QString _reply = QString::fromUtf8 (reply->readAll());
 
@@ -648,7 +661,7 @@ void QSimpleUpdater::processDownloadedChangelog (QNetworkReply *reply)
  * \sa checkForUpdates()
  */
 
-void QSimpleUpdater::ignoreSslErrors (QNetworkReply *reply,
+void SimpleUpdater::ignoreSslErrors (QNetworkReply *reply,
                                       const QList<QSslError>& error)
 {
 #if SUPPORTS_SSL

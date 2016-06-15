@@ -20,6 +20,7 @@
 #include "step.h"
 #include "paths.h"
 #include "lpub.h"
+#include "name.h"
 
 #ifdef WIN32
 #include <clocale>
@@ -626,14 +627,14 @@ void PartWorker::requestEndThreadNow(){
 void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QString &comment = QString("")){
 
   // Append fade parts to unofficial library for 3D Viewer's consumption
-  QFileInfo libFileInfo(Preferences::viewerLibFile);
-  QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.dir().path()).arg("ldrawunf.zip"));
+  QFileInfo libFileInfo(Preferences::lpub3dLibFile);
+  QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.absolutePath(),FILE_LPUB3D_UNOFFICIAL_ARCHIVE));
 
   if (okToEmit()) {
       emit progressResetSig();
       emit progressMessageSig(QString("Archiving %1 parts.").arg(comment));
     } else {
-      qDebug() << QString("Archiving %1 parts.").arg(comment);
+      qDebug() << QString("Archiving %1 parts to : %2").arg(comment,archiveFile);
     }
 
   if(!ldPartsDirs.size() == 0){

@@ -41,6 +41,7 @@ class DownloadDialog : public QWidget
 
         void setIsLdrawDownload (bool isLdrawDownload) {m_isLdrawDownload = isLdrawDownload;}
         void setLdrawArchivePath (const QString &filePath) {m_ldrawArchivePath = filePath;}
+        void setIsLdrawUnoffArchive (bool isUnoffArchive) {m_isUnoffArchive = isUnoffArchive;}
         void beginDownload (const QUrl& url);
 
     private slots:
@@ -58,6 +59,7 @@ class DownloadDialog : public QWidget
         QString m_ldrawArchivePath;
         bool m_download_paused;
         bool m_isLdrawDownload;
+        bool m_isUnoffArchive;
 
         QNetworkReply *m_reply;
         QNetworkRequest m_downloadRequest;

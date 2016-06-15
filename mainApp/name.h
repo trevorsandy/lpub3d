@@ -29,4 +29,16 @@ extern Gui *gui;
 #define SETTINGS     "Settings"
 #define MAINWINDOW   "MainWindow"
 
+// filenames
+#define URL_LDRAW_UNOFFICIAL_ARCHIVE      "http://www.ldraw.org/library/unofficial/ldrawunf.zip"
+#define URL_LDRAW_OFFICIAL_ARCHIVE        "http://www.ldraw.org/library/updates/complete.zip"
+
+#define FILE_LDRAW_OFFICIAL_ARCHIVE       "complete.zip"
+#define FILE_LDRAW_UNOFFICIAL_ARCHIVE     "ldrawunf.zip"
+#define FILE_LPUB3D_UNOFFICIAL_ARCHIVE    "lpub3dldrawunf.zip"
+
+
+#define FILE_LDRAW_LDCONFIG               "ldconfig.ldr"
+
+
 #endif

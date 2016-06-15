@@ -1301,8 +1301,8 @@ bool Gui::aboutDialog()
 
 void Gui::refreshLDrawUnoffParts(){
 
-  // Create an instance of update ldraw archive
-  new UpdateLdrawArchive(this);
+  // Create an instance of update ldraw archive (void*)1 = true
+  new UpdateLdrawArchive(this, (void*)1);
 
 }
 
@@ -1562,7 +1562,7 @@ void Gui::createActions()
     connect(clearFadeCacheAct, SIGNAL(triggered()), this, SLOT(clearFadeCache()));
 
     refreshLDrawUnoffPartsAct = new QAction(QIcon(":/resources/refreshunoffarchive.png"),tr("Refresh LDraw Unofficial Parts"), this);
-    refreshLDrawUnoffPartsAct->setStatusTip(tr("Download and replace LDraw Unofficial parts archive (ldrawunf.zip)"));
+    refreshLDrawUnoffPartsAct->setStatusTip(tr("Download and replace LDraw Unofficial parts archive file"));
     connect(refreshLDrawUnoffPartsAct, SIGNAL(triggered()), this, SLOT(refreshLDrawUnoffParts()));
 
     // Config menu

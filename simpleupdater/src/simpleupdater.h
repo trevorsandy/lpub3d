@@ -32,6 +32,7 @@
 #include <QNetworkRequest>
 #include <QDesktopServices>
 #include <QNetworkAccessManager>
+#include "name.h"
 
 #if SUPPORTS_SSL
 #include <QSsl>
@@ -42,13 +43,13 @@
 #include "dialogs/download_dialog.h"
 #include "dialogs/progress_dialog.h"
 
-class QSimpleUpdater : public QObject
+class SimpleUpdater : public QObject
 {
         Q_OBJECT
 
     public:
-        QSimpleUpdater (QObject *parent = 0, bool isLdrawDownload = false);
-        ~QSimpleUpdater();
+        SimpleUpdater (QObject *parent = 0, bool isLdrawDownload = false);
+        ~SimpleUpdater();
 
         QString changeLog() const;
         QString latestVersion() const;
@@ -69,6 +70,7 @@ class QSimpleUpdater : public QObject
         void setReferenceUrl (const QString& url);
         void setChangelogUrl (const QString& url);
         void setInitialUpdate (bool b);
+        void setIsUnofficialArchive (bool b);
         void setShowNewestVersionMessage (bool show);
         void setShowUpdateAvailableMessage (bool show);
         void setApplicationVersion (const QString& version);

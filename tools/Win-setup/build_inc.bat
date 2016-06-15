@@ -43,7 +43,7 @@ IF "%DAY:~0,1%" == " " SET DAY=0%DAY:~1,1%
 SET DATETIMEf=%YEAR% %MONTH% %DAY% %HOUR%:%MIN%:%SECS%
 
 :GENERATE build.h file
->%genBuild%  /****************************************************************************
+>%genBuild% /****************************************************************************
 >>%genBuild% **
 >>%genBuild% ** Copyright (C) 2016 Trevor SANDY. All rights reserved.
 >>%genBuild% **

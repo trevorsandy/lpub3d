@@ -173,7 +173,7 @@ macx {
 #~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 include(../lc_lib/lc_lib.pri)
 include(../qslog/QsLog.pri)
-include(../QSimpleUpdater/QSimpleUpdater.pri)
+include(../SimpleUpdater/SimpleUpdater.pri)
 
 HEADERS += \
     aboutdialog.h \

@@ -41,33 +41,40 @@ LDrawColor::LDrawColor ()
   QString fileName(Preferences::ldrawPath + "/ldconfig.ldr");
   QFile file(fileName);
   if (! file.open(QFile::ReadOnly | QFile::Text)) {
-    QMessageBox::warning(NULL,QMessageBox::tr("LDrawColor"),
-                              QMessageBox::tr("Cannot read file %1\n%2.")
-                                          .arg(fileName)
-                                          .arg(file.errorString()));
-    return;
-  }
+      // try resource file
+      file.setFileName(":/resources/ldconfig.ldr");
+      if (! file.open(QFile::ReadOnly | QFile::Text)){
+          QMessageBox::warning(NULL,QMessageBox::tr("LDrawColor"),
+                               QMessageBox::tr("Cannot read disc file %1"
+                                               "\nor resource file %2\n"
+                                               "Last error was %3.")
+                               .arg(fileName)
+                               .arg(file.fileName())
+                               .arg(file.errorString()));
+          return;
+        }
+    }
   QRegExp rx("^\\s*0\\s+!COLOUR\\s+(\\w+)\\s+"
              "CODE\\s+(\\d+)\\s+VALUE\\s+#([\\da-fA-F]+)");
   QTextStream in(&file);
   while ( ! in.atEnd()) {
-    QString line = in.readLine(0);
-    if (line.contains(rx)) {
-      bool ok;
-      QRgb hex = rx.cap(3).toLong(&ok,16);
-      QColor color(hex);
-      color.setAlpha(0xff);
-      QString name = rx.cap(1).toLower();
-      name2color.insert(name,color);
-      name = rx.cap(2).toLower();
-      name2color.insert(name,color);
-      name = rx.cap(1);
-      QString code = rx.cap(2);          
-      color2name.insert(code,name);
-      ldname2ldcolor.insert(name.toLower(),code);
-      color2name.insert(color.name(),name);
+      QString line = in.readLine(0);
+      if (line.contains(rx)) {
+          bool ok;
+          QRgb hex = rx.cap(3).toLong(&ok,16);
+          QColor color(hex);
+          color.setAlpha(0xff);
+          QString name = rx.cap(1).toLower();
+          name2color.insert(name,color);
+          name = rx.cap(2).toLower();
+          name2color.insert(name,color);
+          name = rx.cap(1);
+          QString code = rx.cap(2);
+          color2name.insert(code,name);
+          ldname2ldcolor.insert(name.toLower(),code);
+          color2name.insert(color.name(),name);
+        }
     }
-  }
 }
 
 /*
@@ -78,20 +85,20 @@ QColor LDrawColor::color(QString nickname)
 {
   QString lower(nickname.toLower());
   if (name2color.contains(lower)) {
-    return name2color[lower];
-  } else {
-    QRegExp rx("\\s*(0x|#)([\\da-fA-F]+)\\s*$");
-    if (nickname.contains(rx)) {
-      QString prefix("0xf"+rx.cap(2));
-      bool ok;
-      QRgb rgb = prefix.toLong(&ok,16);
-      QColor color(rgb);
-      color.setAlpha(0xff);
-      return color;
+      return name2color[lower];
     } else {
-      return Qt::black;
+      QRegExp rx("\\s*(0x|#)([\\da-fA-F]+)\\s*$");
+      if (nickname.contains(rx)) {
+          QString prefix("0xf"+rx.cap(2));
+          bool ok;
+          QRgb rgb = prefix.toLong(&ok,16);
+          QColor color(rgb);
+          color.setAlpha(0xff);
+          return color;
+        } else {
+          return Qt::black;
+        }
     }
-  }
 }
 
 /*

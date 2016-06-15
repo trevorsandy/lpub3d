@@ -27,7 +27,7 @@ class Preferences
     Preferences();
     static void lpubPreferences();
     static void ldrawPreferences(bool);
-    static void viewerLibPreferences(bool);
+    static void lpub3dLibPreferences(bool);
     static void viewerPreferences();
     static void lgeoPreferences();
     static void renderPreferences();
@@ -40,7 +40,7 @@ class Preferences
     static bool getPreferences();
 
     static QString ldrawPath;
-    static QString viewerLibFile;
+    static QString lpub3dLibFile;
     static QString lgeoPath;
     static QString lpubDataPath;
     static QString lpubExtrasPath;

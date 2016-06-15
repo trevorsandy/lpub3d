@@ -37,10 +37,10 @@
       <widget class="QGroupBox" name="ldrawBox">
        <property name="geometry">
         <rect>
-         <x>11</x>
+         <x>10</x>
          <y>15</y>
          <width>451</width>
-         <height>68</height>
+         <height>91</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -92,9 +92,9 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>183</y>
+         <y>235</y>
          <width>451</width>
-         <height>68</height>
+         <height>91</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -146,9 +146,9 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>263</y>
+         <y>125</y>
          <width>451</width>
-         <height>77</height>
+         <height>91</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -210,9 +210,9 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>350</y>
+         <y>345</y>
          <width>451</width>
-         <height>60</height>
+         <height>71</height>
         </rect>
        </property>
        <property name="title">
@@ -230,60 +230,6 @@
          <widget class="QRadioButton" name="Inches">
           <property name="text">
            <string>Inches</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QGroupBox" name="viewerBox">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>94</y>
-         <width>451</width>
-         <height>76</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>This directory contains the 3D Viewer library archive (zip) path</string>
-       </property>
-       <property name="title">
-        <string>3D Viewer (LeoCAD) Library Archive</string>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <layout class="QHBoxLayout" name="_6">
-        <item>
-         <widget class="QLabel" name="label_9">
-          <property name="text">
-           <string>Path</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="viewerLibFile">
-          <property name="minimumSize">
-           <size>
-            <width>200</width>
-            <height>0</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="browseLeoCADLibrary">
-          <property name="toolTip">
-           <string>Use directory dialog to find 3D viewer library directory</string>
-          </property>
-          <property name="whatsThis">
-           <string>This lets you find the 3D Viewer library directory</string>
-          </property>
-          <property name="text">
-           <string>Browse...</string>
           </property>
          </widget>
         </item>

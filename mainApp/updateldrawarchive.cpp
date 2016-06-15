@@ -15,25 +15,23 @@
 #include "updateldrawarchive.h"
 #include "version.h"
 #include "lpub_preferences.h"
+#include "name.h"
 
 #include "QsLog.h"
 
-#define LDRAW_UNOFFICIAL_ARCHIVE   "http://www.ldraw.org/library/unofficial/ldrawunf.zip"
-#define LDRAW_OFFICIAL_ARCHIVE     "http://www.ldraw.org/library/updates/complete.zip"
-
-UpdateLdrawArchive::UpdateLdrawArchive(QObject *parent) : QObject(parent)
+UpdateLdrawArchive::UpdateLdrawArchive(QObject *parent, void *data) : QObject(parent)
 {
 
-  bool isLdrawDownload = true;
+  bool isLdrawUpdate = true;
 
-  // Set the ldraw archive librayr path
-  ldrawArchivePath = QDir::toNativeSeparators(QFileInfo(Preferences::viewerLibFile).absolutePath());
+  // Set the ldraw archive library path
+  ldrawArchivePath = QDir::toNativeSeparators(QFileInfo(Preferences::lpub3dLibFile).absolutePath());
 
-  // Initialize the updater
-  updater = new QSimpleUpdater (this, isLdrawDownload);
+  // Initialize the updater - this bool is static @true
+  updater = new SimpleUpdater (this, isLdrawUpdate);
 
-  // Download and refresh LDraw Unofficial Archive
-  updateLdrawArchive(true);
+  // Download and refresh LDraw Archive
+  updateLdrawArchive((bool)data);
 
 }
 
@@ -44,11 +42,14 @@ UpdateLdrawArchive::~UpdateLdrawArchive(){
 
 }
 
-void UpdateLdrawArchive::updateLdrawArchive(bool unoff){
+void UpdateLdrawArchive::updateLdrawArchive(bool unofficial){
 
   // Tell the updater where to download the update, its recommended to use direct links
-  QString url = unoff ? LDRAW_UNOFFICIAL_ARCHIVE : LDRAW_OFFICIAL_ARCHIVE;
+  QString url = unofficial ? URL_LDRAW_UNOFFICIAL_ARCHIVE : URL_LDRAW_OFFICIAL_ARCHIVE;
   updater->setDownloadUrl (url);
+
+  // Tell the updated if the archive is unofficial - or offical
+  updater->setIsUnofficialArchive(unofficial);
 
   // Tell the updater where to install the archive file
   updater->setLdrawArchivePath (ldrawArchivePath);

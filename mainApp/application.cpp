@@ -197,10 +197,10 @@ void Application::initialize(int &argc, char **argv)
   m_application.processEvents();
 
   // Preferences
+  Preferences::lpub3dLibPreferences(false);
   Preferences::ldrawPreferences(false);
-  Preferences::unitsPreferences();
 
-  Preferences::viewerLibPreferences(false);
+  Preferences::unitsPreferences();
   Preferences::annotationPreferences();
 
   Preferences::fadestepPreferences();

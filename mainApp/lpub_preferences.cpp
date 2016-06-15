@@ -41,7 +41,7 @@ Preferences preferences;
 QDate date = QDate::currentDate();
 
 QString Preferences::ldrawPath                  = "";
-QString Preferences::viewerLibFile              = "";
+QString Preferences::lpub3dLibFile              = "";
 QString Preferences::lgeoPath;
 QString Preferences::lpub3dPath                 = ".";
 QString Preferences::lpubDataPath               = ".";
@@ -112,10 +112,39 @@ void Preferences::lpubPreferences()
   lpub3dPath = cwd.absolutePath();
 
   if (QDir(lpub3dPath + "/extras").exists()) {
+
+#ifdef Q_OS_WIN
+      bool programFolder = QCoreApplication::applicationDirPath().contains("Program Files") ||
+          QCoreApplication::applicationDirPath().contains("Program Files (x86)");
+
+      if (programFolder) {
+          QString question = QMessageBox::tr("It looks like this installation is a portable distribution of LPub3D\n"
+                                             "installed under the Program Files/(x86) directory.\n\n"
+                                             "Updatable data will not be able to be written to unless you modify\n"
+                                             "user account access for this folder which is not recommended.\n\n"
+                                             "You should consider changing the installation folder or placing\n"
+                                             "the updatable data folder outside the Program Files/(x86) directory\n\n"
+                                             "Choose continue to select a data folder outside Program Files/(x86)."
+                                             "Do you wish to continue?");
+          if (QMessageBox::question(NULL, "LPub3D", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) {
+              exit(-1);
+            } else {
+              QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+              lpubDataPath = dataPathList.first();
+              QString result = QFileDialog::getExistingDirectory(NULL,
+                                                                 QFileDialog::tr("Select Directory"),
+                                                                 lpubDataPath,
+                                                                 QFileDialog::ShowDirsOnly |
+                                                                 QFileDialog::DontResolveSymlinks);
+              if (! result.isEmpty())
+                lpubDataPath = QDir::toNativeSeparators(result);
+            }
+        }
+#endif
       lpubDataPath = lpub3dPath;
-    }
-  else
-    {
+
+    } else {
+
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
       QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
       lpubDataPath = dataPathList.first();
@@ -199,17 +228,42 @@ void Preferences::ldrawPreferences(bool force)
     }
 
   if (! ldrawPath.isEmpty()) {
+
       Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawKey),ldrawPath);
+
     } else {
-      QString question = QMessageBox::tr("You must enter your LDraw directory. \nDo you wish to continue?");
-      if (QMessageBox::question(NULL, "LDraw3D", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
-        exit(-1);
+
+      if (! lpub3dLibFile.isEmpty()) {
+          QString question = QMessageBox::tr("You did not enter your LDraw directory.\n"
+                                             "It is not mandatory as %1 uses built-in LDraw archive libraries.\n"
+                                             "However you will need to define an /LDraw/Unofficial directory to\n"
+                                             "store your custom unofficial parts if you wish to use these parts\n"
+                                             "in your instructions.\n\nDo you wish to create an LDraw unofficial directory?")
+              .arg(VER_PRODUCTNAME_STR);
+          if (QMessageBox::question(NULL, VER_PRODUCTNAME_STR, question, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+
+              QDir unofficialDir(lpubDataPath + "/libraries/ldraw/unofficial");
+
+              if(!QDir(unofficialDir).exists()) {
+                  if (unofficialDir.mkpath(".")) {
+                      ldrawPath = unofficialDir.cdUp();
+                      Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawKey),ldrawPath);
+                      QString information = QMessageBox::tr("Directory %1 created!").arg(unofficialDir.absolutePath());
+                      QMessageBox::information(NULL, VER_PRODUCTNAME_STR, information, QMessageBox::Ok);
+                    }
+                }
+            }
+        } else {
+          QString question = QMessageBox::tr("You did not enter your LDraw directory and\n"
+                                             "no LDraw archive library has been selected.\n"
+                                             "Do you wish to continue?");
+          if (QMessageBox::question(NULL, VER_PRODUCTNAME_STR, question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+            exit(-1);
+        }
     }
-
-
 }
 
-void Preferences::viewerLibPreferences(bool force)
+void Preferences::lpub3dLibPreferences(bool force)
 {
 #ifdef Q_OS_WIN
   QString filter(QFileDialog::tr("Archive (*.zip *.bin);;All Files (*.*)"));
@@ -218,59 +272,62 @@ void Preferences::viewerLibPreferences(bool force)
 #endif
 
   QSettings Settings;
-  QString const ViewerLibKey("PartsLibrary");
+  QFileInfo validFile;
+  QString const LPub3DLibKey("PartsLibrary");
 
-  if (Settings.contains(QString("%1/%2").arg(SETTINGS,ViewerLibKey))) {
-      viewerLibFile = Settings.value(QString("%1/%2").arg(SETTINGS,ViewerLibKey)).toString();
+  if (Settings.contains(QString("%1/%2").arg(SETTINGS,LPub3DLibKey))) {
+      lpub3dLibFile = Settings.value(QString("%1/%2").arg(SETTINGS,LPub3DLibKey)).toString();
     }
 
-  if (! viewerLibFile.isEmpty() && ! force) {
-      QDir cwd(viewerLibFile);
+  if (! lpub3dLibFile.isEmpty() && ! force) {
+      validFile.setFile(lpub3dLibFile);
 
-      if (cwd.exists()) {
+      if (validFile.exists()) {
           return;
         }
     }
 
-  if (viewerLibFile.isEmpty() && ! force) {
+  if (lpub3dLibFile.isEmpty() && ! force) {
 
-      viewerLibFile = "c:\\LDraw\\Complete.zip";
-      QDir guesses;
-      guesses.setPath(viewerLibFile);
-      if ( ! guesses.exists()) {
-          viewerLibFile = "c:\\Program Files (x86)\\LDraw\\Complete.zip";
-          guesses.setPath(viewerLibFile);
-          if ( ! guesses.exists()) {
-              viewerLibFile = "c:\\Program Files (x86)\\LDraw\\LPub3DViewer-Library\\Complete.zip";
-              if (! guesses.exists()){
-                  viewerLibFile = QFileDialog::getOpenFileName(NULL,
-                                                               QFileDialog::tr("Locate LeoCad Library Archive"),
-                                                               ldrawPath,
-                                                               filter);
-                }
+      lpub3dLibFile = QDir::toNativeSeparators(QString("%1/%2/%3").arg(lpubDataPath,"libraries",FILE_LDRAW_OFFICIAL_ARCHIVE));
+      validFile.setFile(lpub3dLibFile);
+      qDebug() << "LPub3D Library File (AppData): " << validFile.absoluteFilePath();
+      if ( ! validFile.exists()) {
+          lpub3dLibFile = QDir::toNativeSeparators(QString("%1/%2/%3").arg(ldrawPath,"libraries",FILE_LDRAW_OFFICIAL_ARCHIVE));
+          validFile.setFile(lpub3dLibFile);
+          qDebug() << "LPub3D Library File (LDraw Directory): " << validFile.absoluteFilePath();
+          if (! validFile.exists()){
+              lpub3dLibFile = QFileDialog::getOpenFileName(NULL,
+                                                           QFileDialog::tr("Select LDraw Library Archive "),
+                                                           lpubDataPath,
+                                                           filter);
             }
         }
     }
 
-  if (! viewerLibFile.isEmpty() && force){
+  if (! lpub3dLibFile.isEmpty() && force){
 
       QString result = QFileDialog::getOpenFileName(NULL,
-                                                    QFileDialog::tr("Select LeoCad Library Archive"),
-                                                    viewerLibFile,
+                                                    QFileDialog::tr("Select Library Archive"),
+                                                    lpub3dLibFile,
                                                     filter);
       if (! result.isEmpty())
-        viewerLibFile = QDir::toNativeSeparators(result);
+        lpub3dLibFile = QDir::toNativeSeparators(result);
     }
 
-  if (! viewerLibFile.isEmpty()) {
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,ViewerLibKey),viewerLibFile);
+  if (! lpub3dLibFile.isEmpty()) {
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,LPub3DLibKey),lpub3dLibFile);
     } else {
-      QString question = QMessageBox::tr("You must select an LDraw library archive file. \nDo you wish to continue?");
-      if (QMessageBox::question(NULL, "LDraw3D", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+      QString question = QMessageBox::tr("You must select your LDraw library archive file.\n"
+                                         "The location of your official archive file (complete.zip) should\n"
+                                         "also have the unofficial archive file (lpub3dldrawunf.zip).\n"
+                                         "LDraw archive files can be downloaded from the Tools menu."
+                                         "Do you wish to continue?");
+      if (QMessageBox::question(NULL, VER_PRODUCTNAME_STR, question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
         exit(-1);
     }
-
 }
+
 
 void Preferences::lgeoPreferences()
 {
@@ -702,15 +759,6 @@ bool Preferences::getPreferences()
               Settings.remove(QString("%1/%2").arg(SETTINGS,"LDrawDir"));
             } else {
               Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawDir"),ldrawPath);
-            }
-        }
-
-      if (viewerLibFile != dialog->viewerLibFile()) {
-          viewerLibFile = dialog->viewerLibFile();
-          if (viewerLibFile == "") {
-              Settings.remove(QString("%1/%2").arg(SETTINGS,"PartsLibrary"));
-            } else {
-              Settings.setValue(QString("%1/%2").arg(SETTINGS,"PartsLibrary"),viewerLibFile);
             }
         }
 

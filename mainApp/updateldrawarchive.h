@@ -18,9 +18,9 @@
 #include <QObject>
 #include <QNetworkReply>
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-#include "qsimpleupdater.h"
+#include "SimpleUpdater.h"
 #else
-#include <QSimpleUpdater>
+#include <SimpleUpdater>
 #endif
 
 class UpdateLdrawArchive : public QObject
@@ -28,17 +28,17 @@ class UpdateLdrawArchive : public QObject
   Q_OBJECT
 
 public:
-  explicit UpdateLdrawArchive(QObject *parent = 0);
+  explicit UpdateLdrawArchive(QObject *parent = 0, void *data = (void*)1);
   ~UpdateLdrawArchive();
 
-  void updateLdrawArchive(bool unoff = true);
+  void updateLdrawArchive(bool unofficial = true);
 
 signals:
 
 public slots:
 
 private:
-  QSimpleUpdater  *updater;
+  SimpleUpdater  *updater;
   QString ldrawArchivePath;
 };
 

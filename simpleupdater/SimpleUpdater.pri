@@ -1,5 +1,5 @@
 #
-#  This file is part of QSimpleUpdater
+#  This file is part of SimpleUpdater
 #
 #  Copyright (c) 2014 Alex Spataru <alex_spataru@outlook.com>
 #
@@ -7,20 +7,20 @@
 #
 
 QT += gui
-QT += widgets
 QT += network
+QT += widgets
 
-HEADERS += $$PWD/src/qsimpleupdater.h \
+HEADERS += $$PWD/src/SimpleUpdater.h \
            $$PWD/src/dialogs/download_dialog.h \
-    $$PWD/src/dialogs/progress_dialog.h
+           $$PWD/src/dialogs/progress_dialog.h
 
-SOURCES += $$PWD/src/qsimpleupdater.cpp \
+SOURCES += $$PWD/src/SimpleUpdater.cpp \
            $$PWD/src/dialogs/download_dialog.cpp \
-    $$PWD/src/dialogs/progress_dialog.cpp
-
-OTHER_FILES += $$PWD/src/QSimpleUpdater
+           $$PWD/src/dialogs/progress_dialog.cpp
 
 INCLUDEPATH += $$PWD/src
+
+OTHER_FILES += $$PWD/src/SimpleUpdater
 
 unix:!android {
     LIBS += -lcrypto -lssl
@@ -30,7 +30,10 @@ win32* {
     LIBS += -L$$[QT_INSTALL_PREFIX]/bin -llibeay32
 }
 
-RESOURCES += $$PWD/res/qsu_resources.qrc
+RESOURCES += $$PWD/res/su_resources.qrc
 
 FORMS += $$PWD/src/dialogs/download_dialog.ui \
-    $$PWD/src/dialogs/progress_dialog.ui
+         $$PWD/src/dialogs/progress_dialog.ui
+
+
+#message($$CONFIG)

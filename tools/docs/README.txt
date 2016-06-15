@@ -8,7 +8,16 @@ To achieve this behavior, input files (csi.ldr, pli.ldr) are now uniquely named 
  
 Enabling this feature is optonal and can be selected on the Configuration= tab by checking the box 'Use multiple files single call rendering' in the 'LDView in installed' group box. LDView must be installed and configured to enable this option. 
  
-Notice: As this feature required a significant rewrite of the core image generation logic, it is likely to generate some unexpected behavior as not every scenario has been tested. Please report any unexptected behavior. Contact details can be found under the Help= 
+Notice: As this feature required a significant rewrite of the core image generation logic, it is likely to generate some unexpected behavior as not every scenario has been tested. Please report any unexptected behavior. Contact details can be found under the Help=>About 
+-Move LPub3D Ldraw archive libraries to AppData and rename unofficial library to lpub3dldrawunf.zip (r707)
+ *Archive libraries loaded automatically by ldraw during ldraw installation and distributed with portable media
+ *Archive libraries stored in user data (i.e. on Windows user/AppData/Local/Lpub3D Software/Lpub/libraries
+ *LPub3D does not use parts from LDraw directory and ldconfig will fallback to resource version if no LDraw instance
+ *With exception of 'p' and 'parts', parts stored under .\LDraw\Unofficial are automatically added to lpub3d archive during application startup
+ *Lpub3d expects the official and unofficial archive in the same directory
+ *Lpub3d will prompt for archive file on startup if none is detected in the default location - support portable media and repackaged distributions (i.e. AIOI installation)
+ *If portable media installed in Program Files/(x86) folder, LPub3D will warn that it cannot place writable files at the default data location (folders under the installation directory) because UAC will prevent update access. This is useful for repackaged distribution (i.e. AIOI installations)
+-Add menu option to download official LDraw archive - unofficial archive was already available (r708)
 -Add callouts, refactor and optimize LDView single call image generation, see r683,r684,r685 (r698) 
 -Add progress bar to mpd/ldr file load (r690) 
 -Enable 'Use multiple files single call rendering' for LDView from Preferences= tab (r687) 

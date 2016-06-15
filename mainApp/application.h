@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "lc_global.h"
+
 //#include "splashscreen.h"
 
 
