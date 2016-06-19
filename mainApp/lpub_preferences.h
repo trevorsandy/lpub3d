@@ -67,6 +67,7 @@ class Preferences
     static QString plug;
     static QString ldrawiniFile;
     static QString ldgliteSearchDirs;
+    static QString moduleVersion;
     static QStringList ldSearchDirs;
     static bool    ldrawiniFound;
     static bool    enableDocumentLogo;
@@ -79,8 +80,10 @@ class Preferences
     static bool    enableFadeStep;
     static bool    fadeStepSettingChanged;
     static bool    fadeStepColorChanged;
-    static bool    silentUpdate;
-    static int     checkForUpdates;
+    static bool    showAllNotifications;
+    static bool    showUpdateNotifications;
+    static bool    enableDownloader;
+    static int     checkUpdateFrequency;
     static int     pageWidth;
     static int     pageHeight;
 

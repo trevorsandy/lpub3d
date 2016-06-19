@@ -44,7 +44,6 @@
 #include "metaitem.h"
 #include "ranges_element.h"
 #include "updatecheck.h"
-#include "updateldrawarchive.h"
 
 #include "step.h"
 //** 3D
@@ -971,6 +970,8 @@ void Gui::preferences()
 
 Gui::Gui()
 {
+    emit Application::instance()->splashMsgSig("40% - Mainwindow defaults loading...");
+
     Preferences::renderPreferences();
     Preferences::lgeoPreferences();
     Preferences::publishingPreferences();
@@ -1024,7 +1025,7 @@ Gui::Gui()
     mExistingRotStep = lcVector3(0.0f, 0.0f, 0.0f);
     mModelStepRotation = lcVector3(0.0f, 0.0f, 0.0f);
 
-    emit Application::instance()->splashMsgSig("40% - Mainwindow initialised...");
+    emit Application::instance()->splashMsgSig("50% - Mainwindow initializing...");
 
     createActions();
     createMenus();
@@ -1102,12 +1103,12 @@ Gui::Gui()
     qt_mac_set_native_menubar(true);
 #endif
 
+    emit Application::instance()->splashMsgSig("60% - Mainwindow renderer loading...");
+
     Preferences::getRequireds();
     Render::setRenderer(Preferences::preferredRenderer);
     if (Preferences::preferredRenderer == "LDGLite")
       partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
-
-    emit Application::instance()->splashMsgSig("60% - Mainwindow defaults loaded...");
 
 }
 
@@ -1315,15 +1316,17 @@ bool Gui::aboutDialog()
 
 void Gui::refreshLDrawUnoffParts(){
 
-  // Create an instance of update ldraw archive (void*)1 = true
-  new UpdateLdrawArchive(this, (void*)1);
+    // Create an instance of update ldraw archive
+    libraryDownload = new UpdateCheck(this, (void*)LDrawUnofficialLibraryDownload);
+    libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), tr("%1/%2").arg(Preferences::lpubDataPath, "libraries"));
 
 }
 
 void Gui::refreshLDrawOfficialParts(){
 
-  // Create an instance of update ldraw archive (void*)0 = false
-  new UpdateLdrawArchive(this, (void*)0);
+    // Create an instance of update ldraw archive
+    libraryDownload = new UpdateCheck(this, (void*)LDrawOfficialLibraryDownload);
+    libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), tr("%1/%2").arg(Preferences::lpubDataPath, "libraries"));
 
 }
 
@@ -1331,7 +1334,7 @@ void Gui::refreshLDrawOfficialParts(){
 void Gui::updateCheck()
 {
     // Create an instance of update check
-    new UpdateCheck(this, (void*)0);
+    new UpdateCheck(this, (void*)SoftwareUpdate);
 
 }
 
@@ -1955,9 +1958,9 @@ void Gui::readSettings()
     restoreState(Settings.value("State").toByteArray());
     restoreGeometry(Settings.value("Geometry").toByteArray());
     QSize size = Settings.value("size", QSize(800, 600)).toSize();
-    QPoint pos = Settings.value("pos", QPoint(200, 200)).toPoint();
+    QPoint position = Settings.value("pos", QPoint(200, 200)).toPoint();
     resize(size);
-    move(pos);
+    move(position);
     Settings.endGroup();
 }
 
@@ -1967,7 +1970,7 @@ void Gui::writeSettings()
 
     QSettings Settings;
     Settings.beginGroup(MAINWINDOW);
-//    Settings.setValue("pos", pos());
+    Settings.setValue("position", pos());
     Settings.setValue("size", size());
     Settings.endGroup();
 

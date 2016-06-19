@@ -366,7 +366,7 @@
 #include "lc_math.h"
 #include "lc_library.h"
 #include "lc_mainwindow.h"
-#include "dialogs/progress_dialog.h"
+#include "progress_dialog.h"
 #include "QsLog.h"
 
 
@@ -395,6 +395,7 @@ class ContentChangesCommand;
 class PlacementNum;
 class AbstractStepsElement;
 class GlobalFadeStep;
+class UpdateCheck;
 
 class LGraphicsView;
 class PageBackgroundItem;
@@ -738,6 +739,7 @@ private:
   QLabel                *progressLabel;
   QLabel                *progressLabelPerm;  //
   QElapsedTimer         *timer;               // measure elapsed time for slow functions
+  UpdateCheck           *libraryDownload;     // download request
 
   FadeStepColorParts     fadeStepColorParts; // internal list of color parts to be processed for fade step.
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts

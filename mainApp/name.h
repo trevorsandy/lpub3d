@@ -28,6 +28,7 @@ extern Gui *gui;
 #define POVRAY       "POVRay"
 #define SETTINGS     "Settings"
 #define MAINWINDOW   "MainWindow"
+#define UPDATES      "Updates"
 
 // filenames
 #define URL_LDRAW_UNOFFICIAL_ARCHIVE      "http://www.ldraw.org/library/unofficial/ldrawunf.zip"

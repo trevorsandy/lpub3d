@@ -12,21 +12,113 @@
 **
 ****************************************************************************/
 
-#include "updatecheck.h"
-#include "version.h"
-#include "lpub_preferences.h"
+#include <QSettings>
 
-#include "QsLog.h"
+#include "updatecheck.h"
+#include "lpub_preferences.h"
+#include "version.h"
+#include "name.h"
+
+UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
+{
+
+    DEFS_URL        = "";
+    m_latestVersion = "";
+    m_changeLog     = "";
+    m_option = (int)data;
+
+    m_updater = QSimpleUpdater::getInstance();
+
+    connect (m_updater, SIGNAL (checkingFinished (QString)),
+             this,        SLOT (updateChangelog  (QString)));
+
+    connect (m_updater, SIGNAL (checkingFinished (QString)),
+             this,      SIGNAL (checkingFinished (QString)));
+
+    connect (m_updater, SIGNAL (downloadFinished (QString, QString)),
+             this,      SIGNAL (downloadFinished (QString, QString)));
+
+    /* Run check for updates if sofware update */
+    if (m_option == SoftwareUpdate) {
+        DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
+        applyGeneralSettings(DEFS_URL);
+
+        m_updater->checkForUpdates (DEFS_URL);      
+    }
+
+}
+
+UpdateCheck::~UpdateCheck(){
+
+    if(m_updater)
+        m_updater->deleteLater();
+
+}
+
+void UpdateCheck::applyGeneralSettings(const QString &url){
+    if(url == DEFS_URL){
+        QString moduleVersion = Preferences::moduleVersion;
+        bool enableDownloader = Preferences::enableDownloader;
+        bool showAllNotifications = Preferences::showAllNotifications;
+        bool showUpdateNotifications = Preferences::showUpdateNotifications;
+
+        if (m_updater->getModuleVersion(DEFS_URL) != moduleVersion)
+            m_updater->setModuleVersion(DEFS_URL, moduleVersion);
+        m_updater->setEnableDownloader(DEFS_URL, enableDownloader);
+        m_updater->setShowAllNotifications(DEFS_URL, showAllNotifications);
+        m_updater->setShowUpdateNotifications (DEFS_URL, showUpdateNotifications);
+    }
+}
+
+void UpdateCheck::requestDownload(const QString &url, const QString &localPath)
+{
+    if (url == DEFS_URL) {
+        bool enabled  = true;
+        switch (m_option){
+        case LDrawOfficialLibraryDownload:
+            DEFS_URL = VER_OFFICIAL_LIBRARY_JSON_URL;
+            applyGeneralSettings(DEFS_URL);
+            m_updater->setPromptedDownload(DEFS_URL,enabled);
+            break;
+        case LDrawUnofficialLibraryDownload:
+            DEFS_URL = VER_UNOFFICIAL_LIBRARY_JSON_URL;
+            applyGeneralSettings(DEFS_URL);
+            m_updater->setPromptedDownload(DEFS_URL,enabled);
+            break;
+        case LDrawOfficialLibraryDirectDownload:
+            DEFS_URL = VER_OFFICIAL_LIBRARY_JSON_URL;
+            applyGeneralSettings(DEFS_URL);
+            m_updater->setDirectDownload(DEFS_URL,enabled);
+            break;
+        case LDrawUnofficialLibraryDirectDownload:
+            DEFS_URL = VER_UNOFFICIAL_LIBRARY_JSON_URL;
+            applyGeneralSettings(DEFS_URL);
+            m_updater->setDirectDownload(DEFS_URL,enabled);
+            break;
+        }
+        m_updater->setIsNotSoftwareUpdate(DEFS_URL,enabled);
+        m_updater->setLocalDownloadPath(DEFS_URL,localPath);
+
+        m_updater->checkForUpdates (DEFS_URL);
+    }
+}
+
+void UpdateCheck::updateChangelog (const QString &url) {
+    if (url == DEFS_URL) {
+        m_latestVersion = m_updater->getLatestVersion (url);
+        m_changeLog = m_updater->getChangelog (url);
+    }
+}
 
 void DoInitialUpdateCheck()
 {
-    int updateFrequency = Preferences::checkForUpdates;
+    int updateFrequency = Preferences::checkUpdateFrequency;;
 
-    if (updateFrequency == 0)
+    if (updateFrequency == 0)           //0=Never,1=Daily,2=Weekly,3=Monthly
         return;
 
     QSettings Settings;
-    QDateTime checkTime = Settings.value("Updates/LastCheck", QDateTime()).toDateTime();
+    QDateTime checkTime = Settings.value(QString("%1/%2").arg(UPDATES,"LastCheck"), QDateTime()).toDateTime();
 
     if (!checkTime.isNull())
     {
@@ -48,54 +140,5 @@ void DoInitialUpdateCheck()
             return;
     }
 
-    new UpdateCheck(NULL, (void*)1);
-}
-
-UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
-{
-    initialUpdate = (bool)data;
-
-    // Initialize the updater
-    updater = new SimpleUpdater (this);
-
-    // Check for updates
-    checkForUpdates();
-}
-
-UpdateCheck::~UpdateCheck(){
-
-    if(updater)
-        updater->deleteLater();
-
-}
-
-void UpdateCheck::checkForUpdates(){
-
-    //set initial update status
-    updater->setInitialUpdate(initialUpdate);
-
-    // Set the current application version
-    updater->setApplicationVersion (VER_PRODUCTVERSION_STR);
-
-    // Tell the updater where we can find the file that tells us the latest version
-    // of the application
-    updater->setReferenceUrl (VER_UPDATE_CHECK_URL);
-
-    // Tell the updater where we should download the changelog, note that
-    // the changelog can be any file you want,
-    // such as an HTML page or (as in this example), a text file
-    updater->setChangelogUrl (VER_CHANGE_LOG_URL);
-
-    // Tell the updater where to download the update, its recommended to use direct links
-    updater->setDownloadUrl (VER_DOWNLOAD_URL);
-
-    // Show the progress dialog and show messages when checking is finished
-    initialUpdate ? updater->setSilent (initialUpdate) :
-                    updater->setSilent(Preferences::silentUpdate);
-
-    // Show messages when checking is finished
-    updater->setShowNewestVersionMessage (true);
-
-    // Finally, check for updates...
-    updater->checkForUpdates();
+    new UpdateCheck(NULL, (void*)SoftwareUpdate);
 }

@@ -12,8 +12,8 @@
  * Lesser General Public License for more details.
  */
 
-#include "progress_dialog.h"
-#include "ui_progress_dialog.h"
+#include <progress_dialog.h>
+#include <ui_progress_dialog.h>
 
 ProgressDialog::ProgressDialog (QWidget *parent) : QDialog (parent), ui (new Ui::ProgressDialog)
 {
@@ -39,4 +39,9 @@ void ProgressDialog::cancel (void)
 {
     hide();
     emit cancelClicked();
+}
+
+void ProgressDialog::setDownloadInfo () {
+    setWindowTitle(tr("Library Update"));
+    ui->ui_progress_bar->setText(tr("Retrieving download..."));
 }

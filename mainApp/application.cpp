@@ -195,7 +195,7 @@ void Application::initialize(int &argc, char **argv)
       logger.setLoggingLevel(QsLogging::TraceLevel);
   } // end init logging
 
-  emit splashMsgSig("10% - Logging loaded...");
+  emit splashMsgSig("10% - Preferences loading...");
 
   // Preferences
   Preferences::lpub3dLibPreferences(false);
@@ -241,19 +241,18 @@ void Application::initialize(int &argc, char **argv)
   m_LDrawPath = NULL;
 #endif
 
-  emit splashMsgSig("30% - Core preferences loaded...");
+  logInfo() << QString("-Initialize: New gui instance created.");
+
+  emit splashMsgSig(QString("30% - %1 Mainwindow loading...").arg(VER_PRODUCTNAME_STR));
 
   gui = new Gui();
 
-  emit splashMsgSig(QString("65% - %1 Mainwindow loaded...").arg(VER_PRODUCTNAME_STR));
-
-  logInfo() << QString("-Initialize: New gui instance created.");
+  emit splashMsgSig("60% - 3D Viewer Mainwindow loading...");
 
   if (!gui->InitializeApp(argc, argv, m_libPath, m_LDrawPath)) {
       logError() << QString("Unable to initialize 3D Viewer.");
     }
 
-  emit splashMsgSig("95% - 3D Viewer Mainwindow loaded...");
 }
 
 void Application::main()

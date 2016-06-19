@@ -67,7 +67,7 @@ isEmpty(QMAKE_LRELEASE) {
         }
 }
 
-TSFILES = ../lc_lib/resources/leocad_fr.ts ../lc_lib/resources/leocad_pt.ts 
+TSFILES = ../lc_lib/resources/leocad_fr.ts ../lc_lib/resources/leocad_pt.ts
 lrelease.input = TSFILES
 lrelease.output = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
 lrelease.commands = $$QMAKE_LRELEASE -silent ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
@@ -142,7 +142,7 @@ unix:!macx {
         mime.path = $$MIME_DIR
         mime.files = qt/leocad.xml
         mime_icon.path = $$MIME_ICON_DIR
-        mime_icon.files = ../resources/application-vnd.leocad.svg
+        mime_icon.files = ../lc_lib/resources/application-vnd.leocad.svg
 
         INSTALLS += target docs man desktop icon mime mime_icon
 
@@ -162,18 +162,18 @@ macx {
     ICON = LPub.icns
     QMAKE_INFO_PLIST = ../lc_lib/qt/Info.plist
 
-    document_icon.files += $$_PRO_FILE_PWD_/../lc_lib/resources/leocad_document.icns
+    document_icon.files += ../lc_lib/resources/leocad_document.icns
     document_icon.path = Contents/Resources
-    library.files += $$_PRO_FILE_PWD_/library.bin
+    library.files += ../lc_lib/library.bin
     library.path = Contents/Resources
 
     QMAKE_BUNDLE_DATA += document_icon library
 }
 
 #~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-include(../lc_lib/lc_lib.pri)
+include(../lc_lib/Lc_Lib.pri)
 include(../qslog/QsLog.pri)
-include(../SimpleUpdater/SimpleUpdater.pri)
+include(../qsimpleupdater/QSimpleUpdater.pri)
 
 HEADERS += \
     aboutdialog.h \
@@ -247,8 +247,8 @@ HEADERS += \
     sizeandorientationdialog.h \
     splashscreen.h \
     threadWorkers.h \
-    updateldrawarchive.h \
     version.h
+
 
 SOURCES += \
     aboutdialog.cpp \
@@ -327,8 +327,7 @@ SOURCES += \
     threadWorkers.cpp \
     traverse.cpp \
     updatecheck.cpp \
-    undoredo.cpp \
-    updateldrawarchive.cpp
+    undoredo.cpp
 
 FORMS += \
     preferences.ui \

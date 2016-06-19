@@ -24,12 +24,14 @@
 #include "preferencesdialog.h"
 #include "lpub_preferences.h"
 #include "lc_application.h"
-#include "updateldrawarchive.h"
+#include "updatecheck.h"
 
 #include "color.h"
 #include "meta.h"
 #include "lpub.h"
+#include "version.h"
 
+static const QString DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
 
 PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     QDialog(_parent)
@@ -41,34 +43,34 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   if (ldrawPath.isEmpty()) {
     ldrawPath = ".";
   }
-  
-  ui.ldrawPath->setText(                    ldrawPath);
-  ui.pliName->setText(                      Preferences::pliFile);
-  ui.pliBox->setChecked(                    Preferences::pliFile != "");
-  ui.ldglitePath->setText(                  Preferences::ldgliteExe);
-  ui.ldgliteBox->setChecked(                Preferences::ldgliteExe != "");
-  ui.l3pPath->setText(                      Preferences::l3pExe);
-  ui.povrayPath->setText(                   Preferences::povrayExe);
-  ui.POVRayBox->setChecked(                 Preferences::l3pExe != "" && Preferences::povrayExe != "");
-  ui.lgeoPath->setText(                     Preferences::lgeoPath);
-  ui.lgeoBox->setChecked(                   Preferences::lgeoPath != "");
-  ui.ldviewPath->setText(                   Preferences::ldviewExe);
-  ui.ldviewBox->setChecked(                 Preferences::ldviewExe != "");
-  ui.ldviewSingleCall_Chk->setChecked(      Preferences::enableLDViewSingleCall && Preferences::ldviewExe != "");
-  ui.fadeStepBox->setChecked(               Preferences::enableFadeStep);
-  ui.publishLogoBox->setChecked(            Preferences::documentLogoFile != "");
-  ui.publishLogoPath->setText(              Preferences::documentLogoFile);
-  ui.authorName_Edit->setText(              Preferences::defaultAuthor);
-  ui.displayAllAttributes_Chk->setChecked(  Preferences::displayAllAttributes);
-  ui.generageCoverPages_Chk->setChecked(    Preferences::generageCoverPages);
-  ui.publishTOC_Chk->setChecked(            Preferences::printDocumentTOC);
-  ui.publishURL_Edit->setText(              Preferences::defaultURL);
-  ui.publishEmail_Edit->setText(            Preferences::defaultEmail);
-  ui.publishDescriptionEdit->setText(       Preferences::publishDescription);
-  ui.chkBoxSilent->setChecked(              Preferences::silentUpdate);
-  ui.comboCheckForUpdates->setCurrentIndex( Preferences::checkForUpdates);
 
-
+  ui.ldrawPath->setText(                            ldrawPath);
+  ui.pliName->setText(                              Preferences::pliFile);
+  ui.pliBox->setChecked(                            Preferences::pliFile != "");
+  ui.ldglitePath->setText(                          Preferences::ldgliteExe);
+  ui.ldgliteBox->setChecked(                        Preferences::ldgliteExe != "");
+  ui.l3pPath->setText(                              Preferences::l3pExe);
+  ui.povrayPath->setText(                           Preferences::povrayExe);
+  ui.POVRayBox->setChecked(                         Preferences::l3pExe != "" && Preferences::povrayExe != "");
+  ui.lgeoPath->setText(                             Preferences::lgeoPath);
+  ui.lgeoBox->setChecked(                           Preferences::lgeoPath != "");
+  ui.ldviewPath->setText(                           Preferences::ldviewExe);
+  ui.ldviewBox->setChecked(                         Preferences::ldviewExe != "");
+  ui.ldviewSingleCall_Chk->setChecked(              Preferences::enableLDViewSingleCall && Preferences::ldviewExe != "");
+  ui.fadeStepBox->setChecked(                       Preferences::enableFadeStep);
+  ui.publishLogoBox->setChecked(                    Preferences::documentLogoFile != "");
+  ui.publishLogoPath->setText(                      Preferences::documentLogoFile);
+  ui.authorName_Edit->setText(                      Preferences::defaultAuthor);
+  ui.displayAllAttributes_Chk->setChecked(          Preferences::displayAllAttributes);
+  ui.generageCoverPages_Chk->setChecked(            Preferences::generageCoverPages);
+  ui.publishTOC_Chk->setChecked(                    Preferences::printDocumentTOC);
+  ui.publishURL_Edit->setText(                      Preferences::defaultURL);
+  ui.publishEmail_Edit->setText(                    Preferences::defaultEmail);
+  ui.publishDescriptionEdit->setText(               Preferences::publishDescription);
+  ui.enableDownloader_Chk->setChecked(              Preferences::enableDownloader);
+  ui.showUpdateNotifications_Chk->setChecked(       Preferences::showUpdateNotifications);
+  ui.showAllNotificstions_Chk->setChecked(          Preferences::showAllNotifications);
+  ui.checkUpdateFrequency_Combo->setCurrentIndex(   Preferences::checkUpdateFrequency);
 
   //search directories
   QPalette palette;
@@ -76,7 +78,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.lineEditIniFile->setPalette(palette);
   ui.lineEditIniFile->setReadOnly(true);
   if (Preferences::ldrawiniFound) {
-      ui.lineEditIniFile->setText(QString("LDraw.ini File: %1").arg(Preferences::ldrawiniFile));
+      ui.lineEditIniFile->setText(QString("Using LDraw.ini File: %1").arg(Preferences::ldrawiniFile));
       ui.pushButtonReset->hide();   
       ui.textEditSearchDirs->setReadOnly(true);
       ui.textEditSearchDirs->setPalette(palette);
@@ -85,13 +87,20 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     } else {
       ui.textEditSearchDirs->setToolTip("Editable list of search directories.");
       ui.textEditSearchDirs->setStatusTip("Added directories must be under the Unofficial directory.");
-      ui.lineEditIniFile->setText("LDraw.ini not found. Using default LPub3D search.");
+      ui.lineEditIniFile->setText(tr("%1")
+                                  .arg(Preferences::ldSearchDirs.size() == 0 ?
+                                         tr("Using default search. No search directories detected.") :
+                                         tr("Using default %1 search.").arg(VER_PRODUCTNAME_STR)));
+      ui.pushButtonReset->setEnabled(Preferences::ldSearchDirs.size() > 0);
     }
 
-  foreach (QString iniFilePath, Preferences::ldSearchDirs)
-    ui.textEditSearchDirs->append(iniFilePath);
-  //end search dirs
+  if (Preferences::ldSearchDirs.size() > 0){
+      foreach (QString iniFilePath, Preferences::ldSearchDirs)
+        ui.textEditSearchDirs->append(iniFilePath);
+    }
 
+  connect(ui.textEditSearchDirs, SIGNAL(textChanged()),this, SLOT(pushButtonReset_SetState()));
+  //end search dirs
 
   ui.preferredRenderer->setMaxCount(0);
   ui.preferredRenderer->setMaxCount(3);
@@ -151,6 +160,32 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.Centimeters->setChecked(centimeters);
   ui.Inches->setChecked(! centimeters);
 
+  /* QSimpleUpdater start */
+  m_updater = QSimpleUpdater::getInstance();
+
+  /* Check for updates when the "Check For Updates" button is clicked */
+  connect (m_updater, SIGNAL (checkingFinished (QString)),
+           this,        SLOT (updateChangelog  (QString)));
+
+  QString version = qApp->applicationVersion();
+  QRegExp ipRegex("^(?:(\\d+)\\.)?(?:(\\d+)\\.)?(\\*|\\d+)$");
+  QRegExpValidator *versionValidator = new QRegExpValidator(ipRegex,this);
+  ui.moduleVersion_lne->setValidator(versionValidator);
+  ui.moduleVersion_lne->setText(version);
+  ui.moduleVersion_lbl->setText(tr("Set version (installed: %1)").arg(version));
+
+  QString readme = tr("%1/%2").arg(Preferences::lpub3dPath,"README.txt");
+  QFile file(readme);
+  if (! file.open(QFile::ReadOnly | QFile::Text)){
+      ui.changeLog_txbr->setText(tr("Failed to open %1\n%2").arg(readme,file.errorString()));
+  } else {
+      QTextStream in(&file);
+      while (! in.atEnd()){
+          ui.changeLog_txbr->append(in.readLine(0));
+      }
+  }
+
+  /* QSimpleUpdater end */
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -331,15 +366,27 @@ void PreferencesDialog::on_browsePublishLogo_clicked()
 
 void PreferencesDialog::on_pushButtonReset_clicked()
 {
-  if (QMessageBox::Yes == QMessageBox::question(this, "Reset Settings?",
-                                                "This action will reset your search directory settings to the LPub3D default."
-                                                "Are you sure you want to continue? ",
-                                                QMessageBox::Yes|QMessageBox::No)){
-      partWorkerLDSearchDirs.resetSearchDirSettings();
-      ui.textEditSearchDirs->clear();
-      foreach (QString iniFilePath, Preferences::ldSearchDirs)
-        ui.textEditSearchDirs->append(iniFilePath);
+  if (!ui.textEditSearchDirs->toPlainText().isEmpty()) {
+      if (QMessageBox::Yes == QMessageBox::question(this, "Reset Settings?",
+                                                    "This action will reset your search directory settings to the LPub3D default."
+                                                    "Are you sure you want to continue? ",
+                                                    QMessageBox::Yes|QMessageBox::No)){
+          partWorkerLDSearchDirs.resetSearchDirSettings();
+          ui.textEditSearchDirs->clear();
+          foreach (QString iniFilePath, Preferences::ldSearchDirs)
+            ui.textEditSearchDirs->append(iniFilePath);
+        }
     }
+}
+
+void PreferencesDialog::on_checkForUpdates_btn_clicked()
+{
+    checkForUpdatesFoo();
+}
+
+void PreferencesDialog::pushButtonReset_SetState()
+{
+  ui.pushButtonReset->setEnabled(!ui.textEditSearchDirs->toPlainText().isEmpty());
 }
 
 QString const PreferencesDialog::ldrawPath()
@@ -475,14 +522,24 @@ QString const PreferencesDialog::publishDescription()
   return ui.publishDescriptionEdit->toPlainText();
 }
 
-bool PreferencesDialog::silentUpdate()
+bool PreferencesDialog::showUpdateNotifications()
 {
-  return ui.chkBoxSilent->isChecked();
+  return ui.showUpdateNotifications_Chk->isChecked();
 }
 
-int PreferencesDialog::checkForUpdates()
+bool PreferencesDialog::enableDownloader()
 {
-  return ui.comboCheckForUpdates->currentIndex();
+  return ui.enableDownloader_Chk->isChecked();
+}
+
+bool PreferencesDialog::showAllNotifications()
+{
+  return ui.showAllNotificstions_Chk->isChecked();
+}
+
+int PreferencesDialog::checkUpdateFrequency()
+{
+  return ui.checkUpdateFrequency_Combo->currentIndex();
 }
 
 QStringList const PreferencesDialog::searchDirSettings()
@@ -492,10 +549,38 @@ QStringList const PreferencesDialog::searchDirSettings()
   return newContent;
 }
 
+void PreferencesDialog::updateChangelog (QString url) {
+    if (url == DEFS_URL) {
+        ui.groupBoxChangeLog->setTitle("Change Log - ");
+        ui.changeLog_txbr->setText (m_updater->getChangelog (url));
+    }
+}
+
+QString const PreferencesDialog::moduleVersion()
+{
+   return ui.moduleVersion_lne->displayText();
+}
+
+void PreferencesDialog::checkForUpdatesFoo () {
+    /* Get settings from the UI */
+    QString moduleVersion = ui.moduleVersion_lne->displayText();
+    bool enableDownloader = ui.enableDownloader_Chk->isChecked();
+    bool showAllNotifications = ui.showAllNotificstions_Chk->isChecked();
+    bool showUpdateNotifications = ui.showUpdateNotifications_Chk->isChecked();
+
+    /* Apply the settings */
+    if (m_updater->getModuleVersion(DEFS_URL) != moduleVersion)
+        m_updater->setModuleVersion(DEFS_URL, moduleVersion);
+    m_updater->setEnableDownloader(DEFS_URL, enableDownloader);
+    m_updater->setShowAllNotifications(DEFS_URL, showAllNotifications);
+    m_updater->setShowUpdateNotifications (DEFS_URL, showUpdateNotifications);
+
+    /* Check for updates */
+    m_updater->checkForUpdates (DEFS_URL);
+}
+
 void PreferencesDialog::accept(){
     if(ui.preferredRenderer->count() == 0 || ui.ldrawPath->text().isEmpty()){
-        if (ui.ldrawPath->text().isEmpty())
-            ui.ldrawPath->setPlaceholderText("LDraw directry must be defined");
         if (ui.preferredRenderer->count() == 0){
             ui.ldglitePath->setPlaceholderText("At lease one renderer must be defined");
             ui.ldviewPath->setPlaceholderText("At lease one renderer must be defined");
@@ -515,3 +600,5 @@ void PreferencesDialog::accept(){
 void PreferencesDialog::cancel(){
   QDialog::reject();
 }
+
+

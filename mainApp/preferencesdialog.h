@@ -22,6 +22,7 @@
 #include "ui_preferences.h"
 #include "lc_qpreferencesdialog.h"
 #include "ui_lc_qpreferencesdialog.h"
+#include "qsimpleupdater.h"
 #include "threadworkers.h"
 #include "parmswindow.h"
 #include "meta.h"
@@ -46,6 +47,7 @@ class PreferencesDialog : public QDialog
     QString const ldgliteExe();
     QString const ldviewExe();
     QString const fadeStepColor();
+    QString const moduleVersion();
     QString const preferredRenderer();
     QString const defaultAuthor();
     QString const defaultURL();
@@ -60,8 +62,10 @@ class PreferencesDialog : public QDialog
     bool          enableFadeStep();
     bool          enableDocumentLogo();
     bool          enableLDViewSingleCall();
-    bool          silentUpdate();
-    int           checkForUpdates();
+    bool          showUpdateNotifications();
+    bool          enableDownloader();
+    bool          showAllNotifications();
+    int           checkUpdateFrequency();
 
   public slots:
     void accept();
@@ -77,8 +81,13 @@ class PreferencesDialog : public QDialog
     void on_browseLDGLite_clicked();
     void on_browsePublishLogo_clicked();
     void on_pushButtonReset_clicked();
+    void on_checkForUpdates_btn_clicked();
 
     void colorChange(QString const &colorName);
+    void pushButtonReset_SetState();
+    void updateChangelog (QString url);
+    void checkForUpdatesFoo();
+
 
 
 private:
@@ -88,6 +97,8 @@ private:
     QWidget         *parent;
     FadeStepMeta     fadeStepMeta;             // propagate fade color and fade bool
     ParmsWindow     *parmsWindow;              // the parametrer file editor
+
+    QSimpleUpdater  *m_updater;
 
 };
 

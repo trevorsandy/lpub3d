@@ -24,20 +24,22 @@ class ProgressDialog;
 
 class ProgressDialog : public QDialog
 {
-        Q_OBJECT
+    Q_OBJECT
 
-    public:
-        explicit ProgressDialog (QWidget *parent = 0);
-        ~ProgressDialog();
+public:
+    explicit ProgressDialog (QWidget *parent = 0);
+    ~ProgressDialog();
 
-    signals:
-        void cancelClicked();
+    void setDownloadInfo ();
 
-    private slots:
-        void cancel (void);
+signals:
+    void cancelClicked();
 
-    private:
-        Ui::ProgressDialog *ui;
+private slots:
+    void cancel (void);
+
+private:
+    Ui::ProgressDialog *ui;
 };
 
 #endif // PROGRESS_DIALOG_H

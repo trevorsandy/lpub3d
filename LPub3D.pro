@@ -1,9 +1,9 @@
 TEMPLATE=subdirs
 CONFIG += ordered # This tells Qt to compile the following SUBDIRS in order
 SUBDIRS += \
-     quazip \
-     ldrawini \
-     mainApp
+     $$PWD/quazip \
+     $$PWD/ldrawini \
+     $$PWD/mainApp
 	 
 quazip.subdir = $$PWD/quazip
 quazip.target = sub-quazip
@@ -17,4 +17,7 @@ mainApp.subdir = $$PWD/mainApp
 mainApp.target = sub-mainApp
 mainApp.depends = quazip
 mainApp.depends = ldrawini
+
+RESOURCES += \
+    res/su_resources.qrc
 

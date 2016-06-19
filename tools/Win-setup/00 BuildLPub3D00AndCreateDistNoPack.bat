@@ -1,8 +1,8 @@
 @ECHO off
-Title Build and create manual and automatic install distributions
+Title Build and create manual and automatic LPub3D install distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June, 12, 2016
+rem  Last Update: June, 17, 2016
 rem  Copyright (c) 2016 by Trevor Sandy
 rem --
 SETLOCAL
@@ -124,7 +124,7 @@ SET DOWNLOADPRODUCT=%PRODUCT%-%FULLVERSION%
 SET WIN32PRODUCTDIR=%PRODUCT%_x32-%FULLVERSION%
 SET WIN64PRODUCTDIR=%PRODUCT%_x64-%FULLVERSION%
 				
-cd /D ..\tools\Win-setup
+CD /D ..\tools\Win-setup
 
 ECHO. 													 		>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Delete old media content and create new folders  		>>  ../release/LPub3D.Release.build.log.txt
@@ -161,11 +161,11 @@ SET targetln=1
 SET productversion=%PRODUCT% %BUILDVERSION%
 SET n=0
 
-cd /D ..\docs\
+CD /D ..\docs\
 RENAME %file% %temp%
 FOR /F "tokens=*" %%i IN ('FINDSTR /n "^" "%temp%"') DO CALL :setversion %%i
 DEL %temp%
-cd /D ..\Win-setup\
+CD /D ..\Win-setup\
 
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\Update\change_log.txt /A										>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\Download\ /A													>>  ../release/LPub3D.Release.build.log.txt
@@ -173,25 +173,50 @@ COPY /V /Y ..\docs\README.txt ..\release\ /A																	>>  ../release/LPub
 XCOPY /S /I /E /V /Y ..\docs\CREDITS.txt ..\release\docs\ /A													>>  ../release/LPub3D.Release.build.log.txt
 
 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Generating latest version file...    					>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Generating lpub3dupdates.json version input file...		>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
-ECHO - Generating latest version file...
+ECHO - Generating lpub3dupdates.json version input file...
 
-SET latestFile=..\release\%VERSION%\Update\latest.txt
-SET genLatestLog=%latestFile% ECHO	
+SET updatesFile=..\tools\release\json\lpub3dupdates.json
+SET genLPub3DUpdates=%updatesFile% ECHO
 
-:GENERATE latest.txt file
->%genLatestLog% %VERSION% 
+SET VER_LATEST=%VER_MAJOR%.%VER_MINOR%.%VER_SP%
+
+:GENERATE lpub3dupdates.json version input file
+>%genLPub3DUpdates% {
+>>%genLPub3DUpdates%   "_comment": "LPub3D lpub3dupdates.json generated on %DATETIMEf%",
+>>%genLPub3DUpdates%   "updates": {
+>>%genLPub3DUpdates%     "windows": {
+>>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VER_LATEST%/",
+>>%genLPub3DUpdates%       "latest-version": "%VER_LATEST%",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster.exe",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log.txt"
+>>%genLPub3DUpdates%     },
+>>%genLPub3DUpdates%     "osx": {
+>>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VER_LATEST%/",
+>>%genLPub3DUpdates%       "latest-version": "%VER_LATEST%",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster.exe",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log.txt"
+>>%genLPub3DUpdates%     },
+>>%genLPub3DUpdates%     "linux": {
+>>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VER_LATEST%/",
+>>%genLPub3DUpdates%       "latest-version": "%VER_LATEST%",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster.exe",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log.txt"
+>>%genLPub3DUpdates%     }
+>>%genLPub3DUpdates%   }
+>>%genLPub3DUpdates% }
+>>%genLPub3DUpdates%.
 
 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Generating AppVersion.nsh script...    					>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Generating AppVersion.nsh build input script...   		>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
-ECHO - Generating AppVersion.nsh script...
+ECHO - Generating AppVersion.nsh build input script...
 
 SET versionFile=.\AppVersion.nsh
 SET genVersion=%versionFile% ECHO
 
-:GENERATE AppVersion.nsh file
+:GENERATE AppVersion.nsh NSIS build input file
 >%genVersion% !define Company %COMPANY% 
 >>%genVersion% ; ${Company} 	
 >>%genVersion%.	
@@ -323,8 +348,8 @@ ECHO - Remove %PRODUCT% %VERSION% build files...
 rem this line to keep build files - i.e. if needed to test NSIS script failuire
 rem RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 							>>  ../release/LPub3D.Release.build.log.txt
 
-ECHO. 													 			>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Moving NSIS-generated files to media folder...				>>  ../release/LPub3D.Release.build.log.txt
+ECHO. 													 		>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Moving NSIS-generated files to media folder...			>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
 ECHO - Moving NSIS-generated files to media folder...
 

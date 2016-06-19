@@ -46,9 +46,19 @@
 #define VER_PUBLISHER_STR           		"Trevor SANDY"
 #define VER_PUBLISHER_EMAIL_STR     		"trevor.sandy@gmail.com"
 #define VER_PUBLISHER_SUPPORT_EMAIL_STR		"mailto:trevor.sandy@gmail.com?subject=LPub3D Version " VER_FILEVERSION_STR
+
+//obsolete
 #define VER_UPDATE_CHECK_URL        		"http://lpub3d.sourceforge.net/latest.txt"
-#define VER_CHANGE_LOG_URL                  "http://lpub3d.sourceforge.net/change_log.txt"
 #define VER_DOWNLOAD_URL                    "http://lpub3d.sourceforge.net/" VER_PRODUCTNAME_STR "-UpdateMaster.exe"
+
+#define VER_LDRAW_OFFICIAL_ARCHIVE          "complete.zip"
+#define VER_LDRAW_UNOFFICIAL_ARCHIVE        "ldrawunf.zip"
+#define VER_LPUB3D_UNOFFICIAL_ARCHIVE       "lpub3dldrawunf.zip"
+#define VER_UPDATE_CHECK_JSON_URL        	"http://lpub3d.sourceforge.net/lpub3dupdates.json"
+#define VER_OFFICIAL_LIBRARY_JSON_URL       "http://lpub3d.sourceforge.net/complete.json"
+#define VER_UNOFFICIAL_LIBRARY_JSON_URL     "http://lpub3d.sourceforge.net/lpub3dldrawunf.json"
+#define VER_CHANGE_LOG_URL                  "http://lpub3d.sourceforge.net/change_log.txt"
+
 #define VER_SOURCE_URL              		"http://sourceforge.net/p/lpub3d/code/"
 #define VER_COMPANYDOMAIN_STR       		"http://sourceforge.net/projects/lpub3d/"
 

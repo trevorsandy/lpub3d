@@ -235,7 +235,8 @@ void PartWorker::populateLdgLiteSearchDirs(){
  */
 void PartWorker::processLDSearchDirParts(){
 
-  processPartsArchive(Preferences::ldSearchDirs, "search directory");
+  if (Preferences::ldSearchDirs.size() > 0)
+    processPartsArchive(Preferences::ldSearchDirs, "search directory");
  // qDebug() << "\nFinished Processing Search Directory Parts.";
 
  }
@@ -677,9 +678,9 @@ void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
     } else {
 
       if (okToEmitToProgressBar())
-        emit messageSig(false,tr("Failed to retrieve %1 parts directory.").arg(comment));
+        emit messageSig(false,tr("No parts archived: No %1 detected").arg(comment));
       else
-        logError() << tr("Failed to retrieve %1 parts directory.").arg(comment);
+        logInfo() << tr("No parts archived: No %1 detected").arg(comment);
     }
 }
 
