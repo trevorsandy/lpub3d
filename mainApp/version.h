@@ -57,6 +57,8 @@
 #define VER_UPDATE_CHECK_JSON_URL        	"http://lpub3d.sourceforge.net/lpub3dupdates.json"
 #define VER_OFFICIAL_LIBRARY_JSON_URL       "http://lpub3d.sourceforge.net/complete.json"
 #define VER_UNOFFICIAL_LIBRARY_JSON_URL     "http://lpub3d.sourceforge.net/lpub3dldrawunf.json"
+//#define VER_OFFICIAL_LIBRARY_JSON_URL       "http://lpub3d.sourceforge.net/testfile01.json"
+//#define VER_UNOFFICIAL_LIBRARY_JSON_URL     "http://lpub3d.sourceforge.net/testfile02.json"
 #define VER_CHANGE_LOG_URL                  "http://lpub3d.sourceforge.net/change_log.txt"
 
 #define VER_SOURCE_URL              		"http://sourceforge.net/p/lpub3d/code/"

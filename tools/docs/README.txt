@@ -48,6 +48,7 @@ Notice: As this feature required a significant rewrite of the core image generat
 -Change: Page background context menu rearranged. "Change page background" and "Change Page Size or Orientation" now appear at the end of the menu list because they are likely to be least often used. (r641) 
 -Change: Point online manual to LPub3D content (r517) 
 -Change: Replace #if (_MSC_VER  with #ifdef _MSC_VER (r679) 
+-Refactor: Move library archives to AppData stabilization and robustness (r711)
 -Refactor: Optimize fadeStep routines; change LDView logging details (r695) 
 -Rafactor: Colour application output default set to off (r662) 
 -Refactor: Define strcasecmp, strncasecmp in lc_global.h for MinGW builds only (r661) 

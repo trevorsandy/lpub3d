@@ -34,6 +34,7 @@
 #include "pli.h"
 #include "version.h"
 #include "name.h"
+#include "application.h"
 //**3D
 #include "lc_profile.h"
 //**
@@ -201,6 +202,8 @@ void Preferences::lpubPreferences()
 
 void Preferences::ldrawPreferences(bool force)
 {
+    emit Application::instance()->splashMsgSig("10% - Locate LDraw directory...");
+
     QSettings Settings;
     QString const ldrawKey("LDrawDir");
 
@@ -271,6 +274,8 @@ void Preferences::ldrawPreferences(bool force)
                                               .arg(VER_PRODUCTNAME_STR);
           if (QMessageBox::question(NULL, VER_PRODUCTNAME_STR, question, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
 
+          emit Application::instance()->splashMsgSig("10% - Create LDraw unofficial directory...");
+
               QDir libraryDir(QString("%1/%2").arg(lpubDataPath,"libraries/ldraw/unofficial"));
 
               if(!QDir(libraryDir).exists()) {
@@ -302,6 +307,8 @@ void Preferences::ldrawPreferences(bool force)
 
 void Preferences::lpub3dLibPreferences(bool force)
 {
+    emit Application::instance()->splashMsgSig("15% - Locate LDraw archive libraries...");
+
 #ifdef Q_OS_WIN
     QString filter(QFileDialog::tr("Archive (*.zip *.bin);;All Files (*.*)"));
 #else
@@ -367,6 +374,8 @@ void Preferences::lpub3dLibPreferences(bool force)
                                            "Do you wish to download the archive libraries and continue?").arg(lpubDataPath, "libraries");
         if (QMessageBox::question(NULL, VER_PRODUCTNAME_STR, question, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
 
+            emit Application::instance()->splashMsgSig("15% - Downloading archive libraries...");
+
             QDir libraryDir(QString("%1/%2").arg(lpubDataPath, "libraries"));
             if (!QDir(libraryDir).exists())
                 libraryDir.mkpath(".");
@@ -397,9 +406,11 @@ void Preferences::lpub3dLibPreferences(bool force)
                     error = QMessageBox::tr("Ldraw library archives not created!\n"
                                             "%1 does not exist.").arg(lpub3dLibFile);
                 }
+                error.append("\nThe application will terminate.");
                 QMessageBox::critical(NULL, VER_PRODUCTNAME_STR, error, QMessageBox::Ok);
                 Settings.remove(QString("%1/%2").arg(SETTINGS, LPub3DLibKey));
                 lpub3dLibFile.clear();
+                exit(-1);
             }
         }
         else {

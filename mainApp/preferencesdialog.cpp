@@ -184,7 +184,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
           ui.changeLog_txbr->append(in.readLine(0));
       }
   }
-
   /* QSimpleUpdater end */
 }
 
