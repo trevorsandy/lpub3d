@@ -107,6 +107,8 @@ Preferences::Preferences()
 
 void Preferences::lpubPreferences()
 {
+    emit Application::instance()->splashMsgSig("10% - Selecting installation directory...");
+
     QDir cwd(QDir::currentPath());
 
     if (cwd.dirName() == "MacOS") {
@@ -123,15 +125,31 @@ void Preferences::lpubPreferences()
                 QCoreApplication::applicationDirPath().contains("Program Files (x86)");
 
         if (programFolder) {
-            QString question = QMessageBox::tr("It looks like this installation is a portable distribution of LPub3D\n"
-                                               "installed under the Program Files/(x86) directory.\n\n"
-                                               "Updatable data will not be able to be written to unless you modify\n"
-                                               "user account access for this folder which is not recommended.\n\n"
-                                               "You should consider changing the installation folder or placing\n"
-                                               "the updatable data folder outside the Program Files/(x86) directory\n\n"
-                                               "Choose continue to select a data folder outside Program Files/(x86)."
-                                               "Do you wish to continue?");
-            if (QMessageBox::question(NULL, "LPub3D", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) {
+            // Get the application icon as a pixmap
+            QPixmap _icon = QPixmap(":/icons/lpub96.png");
+            QMessageBox box;
+            box.setWindowIcon(QIcon());
+            box.setIconPixmap (_icon);
+            box.setTextFormat (Qt::RichText);
+            box.setWindowTitle(QMessageBox::tr ("Installation"));
+            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+
+            QString header  = "<b>" + QMessageBox::tr ("Data directory installation folder.") + "</b>";
+            QString body = QMessageBox::tr ("Would you like to create a folder outside the Program Files / (x86) directory?");
+            QString detail = QMessageBox::tr ("It looks like this installation is a portable or packaged (i.e. AIOI) distribution \n"
+                                              "of LPub3D installed under the system's Program Files/(x86) directory.\n\n"
+                                              "Updatable data will not be able to be written to unless you modify\n"
+                                              "user account access for this folder which is not recommended.\n\n"
+                                              "You should consider changing the installation folder or placing\n"
+                                              "the updatable data folder outside the Program Files/(x86) directory\n\n"
+                                              "Choose yes to continue and select a data folder outside Program Files/(x86).");
+            box.setText (header);
+            box.setInformativeText (body);
+            box.setDetailedText(detail);
+            box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
+            box.setDefaultButton   (QMessageBox::Yes);
+
+            if (box.exec() != QMessageBox::Yes) {
                 exit(-1);
             } else {
                 QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
@@ -259,46 +277,80 @@ void Preferences::ldrawPreferences(bool force)
 
     } else {
 
+        // This is temporary
         QString question = QMessageBox::tr("You must enter your LDraw directory. \nDo you wish to continue?");
         if (QMessageBox::question(NULL, "LDraw3D", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
             exit(-1);
 
-        /* // future feature start
-       if (! lpub3dLibFile.isEmpty()) {
-          QString question = QMessageBox::tr("You did not enter your LDraw directory.\n"
-                                             "It is not mandatory as %1 uses built-in LDraw archive libraries.\n"
-                                             "However you will need to define an Unofficial subdirectory under an "
-                                             "LDraw directory to store your custom unofficial parts if you wish to "
-                                             "use these parts in your instructions.\n\n"
-                                             "Do you wish to create an LDraw unofficial directory?")
-                                              .arg(VER_PRODUCTNAME_STR);
-          if (QMessageBox::question(NULL, VER_PRODUCTNAME_STR, question, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+         /* // future feature start
+        if (! lpub3dLibFile.isEmpty()) {
 
-          emit Application::instance()->splashMsgSig("10% - Create LDraw unofficial directory...");
+            QPixmap _icon = QPixmap(":/icons/lpub96.png");
+            QMessageBox box;
+            box.setWindowIcon(QIcon());
+            box.setIconPixmap (_icon);
+            box.setTextFormat (Qt::RichText);
+            box.setWindowTitle(QMessageBox::tr ("LDraw Directory"));
+            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-              QDir libraryDir(QString("%1/%2").arg(lpubDataPath,"libraries/ldraw/unofficial"));
+            QString header  = "<b>" + QMessageBox::tr ("Enter your LDraw directory to manage custom parts!") + "</b>";
+            QString body = QMessageBox::tr ("Would you like to create an LDraw directory and Unofficial subdirectory?");
+            QString detail = QMessageBox::tr ("You did not enter your LDraw directory.\n"
+                                 "It is not mandatory as %1 uses built-in LDraw archive libraries.\n"
+                                 "However you will need to define an Unofficial subdirectory under an "
+                                 "LDraw directory to store your custom unofficial parts if you wish to "
+                                 "use these parts in your instructions.");
+            box.setText (header);
+            box.setInformativeText (body);
+            box.setDetailedText(detail);
+            box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
+            box.setDefaultButton   (QMessageBox::Yes);
 
-              if(!QDir(libraryDir).exists()) {
-                  if (libraryDir.mkpath(".")) {
+            if (box.exec() == QMessageBox::Yes) {
+
+                emit Application::instance()->splashMsgSig("10% - Create LDraw unofficial directory...");
+
+                QDir libraryDir(QString("%1/%2").arg(lpubDataPath,"libraries/ldraw/unofficial"));
+
+                if(!QDir(libraryDir).exists()) {
+
+                    box.setStandardButtons (QMessageBox::Close);
+
+                    if (libraryDir.mkpath(".")) {
                       QString unofficialPath = libraryDir.absolutePath();
                       libraryDir.cdUp();
                       ldrawPath = libraryDir.absolutePath();
                       Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawKey),ldrawPath);
-                      QString information = QMessageBox::tr("Unofficial directory '%1' created\nunder LDraw path '%2' !")
-                                                            .arg(unofficialPath,ldrawPath);
-                      QMessageBox::information(NULL, VER_PRODUCTNAME_STR, information, QMessageBox::Ok);
+
+                      header  = "<b>" + QMessageBox::tr ("LDraw directory structure created!") + "</b>";
+                      body = QMessageBox::tr("Unofficial directory '%1' created\nunder LDraw path '%2'")
+                                             .arg(unofficialPath,ldrawPath);
+                      box.setText(header);
+                      box.setInformativeText(body);
+
+                      box.exec();
                     } else {
-                      QString information = QMessageBox::tr("Unable to create %1 !").arg(libraryDir.absolutePath());
-                      QMessageBox::critical(NULL, VER_PRODUCTNAME_STR, information, QMessageBox::Ok);
+
+                      header  = "<b>" + QMessageBox::tr ("Failed to create LDraw directory structure!") + "</b>";
+                      body = QMessageBox::tr("Unable to create folder structure \n'%1' !")
+                                             .arg(libraryDir.absolutePath());
+
+                      box.setText(header);
+                      box.setInformativeText(body);
+
+                      box.exec();
                     }
                 }
               //TODO set default renderer to 3D Viewer once enabled
             }
         } else {
-          QString question = QMessageBox::tr("You did not enter your LDraw directory and "
-                                             "no LDraw archive library has been selected.\n\n"
-                                             "Do you wish to continue?");
-          if (QMessageBox::question(NULL, VER_PRODUCTNAME_STR, question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+            header  = "<b>" + QMessageBox::tr ("You did not enter your LDraw directory!") + "</b>";
+            body = QMessageBox::tr("Also, no LDraw archive library has been selected.\n\n"
+                                   "Do you wish to continue?");
+            box.setText(header);
+            box.setInformativeText(body);
+
+          if (box.exec() != QMessageBox::Yes)
             exit(-1);
         }
         // future feature end */
@@ -367,12 +419,28 @@ void Preferences::lpub3dLibPreferences(bool force)
         Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
     }
     else {
-        QString question = QMessageBox::tr("You must select your LDraw library archive file.\n"
-                                           "The location of your official archive file (complete.zip) should "
-                                           "also have the unofficial archive file (lpub3dldrawunf.zip).\n"
-                                           "LDraw library archive files can be downloaded to your '%1/%2' folder now.\n\n"
-                                           "Do you wish to download the archive libraries and continue?").arg(lpubDataPath, "libraries");
-        if (QMessageBox::question(NULL, VER_PRODUCTNAME_STR, question, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+        QPixmap _icon = QPixmap(":/icons/lpub96.png");
+        QMessageBox box;
+        box.setWindowIcon(QIcon());
+        box.setIconPixmap (_icon);
+        box.setTextFormat (Qt::RichText);
+        box.setWindowTitle(QMessageBox::tr ("Library Selection"));
+        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+
+        QString header = "<b>" + QMessageBox::tr ("No LDraw library selected!") + "</b>";
+        QString body   = QMessageBox::tr ("Would you like to download the libraries?");
+        QString detail = QMessageBox::tr ("You must select your LDraw library archive file.\n"
+                                          "The location of your official archive file (complete.zip) should "
+                                          "also have the unofficial archive file (lpub3dldrawunf.zip).\n"
+                                          "LDraw library archive files can be downloaded to your '%1/%2'/ folder now.")
+                                          .arg(lpubDataPath, "libraries");
+        box.setText (header);
+        box.setInformativeText (body);
+        box.setDetailedText(detail);
+        box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
+        box.setDefaultButton   (QMessageBox::Yes);
+
+        if (box.exec() == QMessageBox::Yes) {
 
             emit Application::instance()->splashMsgSig("15% - Downloading archive libraries...");
 
@@ -397,19 +465,22 @@ void Preferences::lpub3dLibPreferences(bool force)
                 Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
             }
             else {
-                QString error;
+                Settings.remove(QString("%1/%2").arg(SETTINGS, LPub3DLibKey));
                 validFile.setFile(QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_UNOFFICIAL_ARCHIVE)));
                 if (validFile.exists()) {
-                    error = QMessageBox::tr("Ldraw library archives not created!\n%1 and\n"
-                                            "%2 does not exist.").arg(lpub3dLibFile, validFile.absoluteFilePath());
+                    body = QMessageBox::tr ("Files %1 and\n%2 does not exist.").arg(lpub3dLibFile, validFile.absoluteFilePath());
                 } else {
-                    error = QMessageBox::tr("Ldraw library archives not created!\n"
-                                            "%1 does not exist.").arg(lpub3dLibFile);
+                    body = QMessageBox::tr ("File %1 does not exist.").arg(lpub3dLibFile);
                 }
-                error.append("\nThe application will terminate.");
-                QMessageBox::critical(NULL, VER_PRODUCTNAME_STR, error, QMessageBox::Ok);
-                Settings.remove(QString("%1/%2").arg(SETTINGS, LPub3DLibKey));
+                body.append("\nThe application will terminate.");
+
+                box.setStandardButtons (QMessageBox::Close);
+                box.setText(header);
+                box.setInformativeText(body);
+
+                box.exec();
                 lpub3dLibFile.clear();
+
                 exit(-1);
             }
         }

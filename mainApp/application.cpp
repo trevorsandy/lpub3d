@@ -128,10 +128,6 @@ Application* Application::instance()
 
 void Application::initialize(int &argc, char **argv)
 {
-  logInfo() << QString("Initializing application.");
-
-  Preferences::lpubPreferences();
-
   // splash
   QPixmap pixmap(":/resources/LPub512Splash.png");
   splash = new QSplashScreen(pixmap);
@@ -143,6 +139,12 @@ void Application::initialize(int &argc, char **argv)
 
   splash->setFont(splashFont);
   splash->show();
+
+  logInfo() << QString("Initializing application.");
+
+  emit splashMsgSig("5% - Initializing application...");
+
+  Preferences::lpubPreferences();
 
   // initialize the logger
   using namespace QsLogging;

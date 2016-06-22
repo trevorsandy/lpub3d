@@ -12,7 +12,7 @@
         <file alias="appendcoverpage.png">images/appendcoverpage.png</file>
         <file alias="appendlastpage.png">images/appendlastpage.png</file>
         <file alias="appendpage.png">images/appendpage.png</file>
-        <file alias="assemblysetup.png">images/assemblysetup.png</file>        
+        <file alias="assemblysetup.png">images/assemblysetup.png</file>
         <file alias="background.png">images/background.png</file>
         <file alias="bomannotation.png">images/bomannotation.png</file>
         <file alias="bomsetup.png">images/bomsetup.png</file>
@@ -25,7 +25,7 @@
         <file alias="clearplicache.png">images/clearplicache.png</file>
         <file alias="clearcsicache.png">images/clearcsicache.png</file>
         <file alias="clearcsi3dcache.png">images/clearcsi3dcache.png</file>
-        <file alias="clearfadecache.png">images/clearfadecache.png</file> 
+        <file alias="clearfadecache.png">images/clearfadecache.png</file>
         <file alias="contentspage.png">images/contentspage.png</file>
         <file alias="convertcallout.png">images/convertcallout.png</file>
         <file alias="copy.png">images/copy.png</file>
@@ -72,7 +72,7 @@
         <file alias="LPub64.ico">images/LPub64.ico</file>
         <file alias="LPub32.png">images/LPub32.png</file>
         <file alias="LPub512Splash.png">images/LPub512Splash.png</file>
-        <file alias="last.png">images/last.png</file>        
+        <file alias="last.png">images/last.png</file>
         <file alias="margins.png">images/margins.png</file>
         <file alias="minus.png">images/minus.png</file>
         <file alias="new.png">images/new.png</file>
@@ -88,7 +88,7 @@
         <file alias="paste.png">images/paste.png</file>
         <file alias="pdf_logo.png">images/pdf_logo.png</file>
         <file alias="pliannotation.png">images/pliannotation.png</file>
-        <file alias="plus.png">images/plus.png</file>       
+        <file alias="plus.png">images/plus.png</file>
         <file alias="placement.png">images/placement.png</file>
         <file alias="preferences.png">images/preferences.png</file>
         <file alias="prev.png">images/prev.png</file>
@@ -106,7 +106,7 @@
         <file alias="rotate.png">images/rotate.png</file>
         <file alias="rotateicon.png">images/rotateicon.png</file>
         <file alias="save.png">images/save.png</file>
-        <file alias="saveas.png">images/saveas.png</file>        
+        <file alias="saveas.png">images/saveas.png</file>
         <file alias="savemetacommands.png">images/savemetacommands.png</file>
         <file alias="scale.png">images/scale.png</file>
         <file alias="selectall.png">images/selectall.png</file>
