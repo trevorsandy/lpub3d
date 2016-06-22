@@ -321,7 +321,7 @@ ECHO - Start NSIS Master Update Build...  	>>  ..\release\LPub3D.Release.build.l
 ECHO.
 ECHO - Start NSIS Master Update Build...
 rem this line to ignore running the NSIS script
-"%NSISPath%\makensis.exe" /DUpdateMaster LPub3DNoPack.nsi 		>> ..\release\LPub3D.Release.build.log.txt
+rem "%NSISPath%\makensis.exe" /DUpdateMaster LPub3DNoPack.nsi 		>> ..\release\LPub3D.Release.build.log.txt
 
 ECHO. 										    >>  ..\release\LPub3D.Release.build.log.txt
 ECHO - Finished NSIS Master Update 	Build...	>>  ..\release\LPub3D.Release.build.log.txt
@@ -333,7 +333,7 @@ ECHO - Start NSIS Manual Install Build... 	>>  ..\release\LPub3D.Release.build.l
 ECHO.
 ECHO - Start NSIS Manual Install Build...
 rem this line to ignore running the NSIS script
-"%NSISPath%\makensis.exe" LPub3DNoPack.nsi 						>> ..\release\LPub3D.Release.build.log.txt
+rem "%NSISPath%\makensis.exe" LPub3DNoPack.nsi 						>> ..\release\LPub3D.Release.build.log.txt
 
 ECHO. 										 >>  ..\release\LPub3D.Release.build.log.txt
 ECHO - Finished NSIS Manual Install Build... >>  ..\release\LPub3D.Release.build.log.txt
@@ -353,7 +353,7 @@ ECHO - Remove %PRODUCT% %VERSION% build files...		      	>>  ../release/LPub3D.R
 ECHO. 	
 ECHO - Remove %PRODUCT% %VERSION% build files...
 rem this line to keep build files - i.e. if needed to test NSIS script failuire
-RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 							>>  ../release/LPub3D.Release.build.log.txt
+rem RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 							>>  ../release/LPub3D.Release.build.log.txt
 
 ECHO. 													 		>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Moving NSIS-generated files to media folder...			>>  ../release/LPub3D.Release.build.log.txt

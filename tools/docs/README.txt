@@ -1,14 +1,12 @@
-LPub3D 2.0.0.712.39 
+LPub3D 2.0.0.713.46 
  
 Features and enhancements 
 ------------ 
--Up to 60 increase rendering speed with configuration to render multiple files using a single call to LDView. All PLI (part list/BOM) parts for a given step are rendered in a single call versue individually. For CSI (Step models), all multi-step images on a page are rendered in a single call including callout(s). Single step page images are rendered with a single call for all model images including those in callou(s). This new confiuration will default as checked. 
- 
-To achieve this behavior, input files (csi.ldr, pli.ldr) are now uniquely named because rendering multiple files is done by using -SaveSnapshots=1 instead of -SaveSnapshot=somefile.png and then listing all the LDR files at the end of the command line. There is no control over the output file names. Instead, LDView will automatically use the input base filename changing only the output filename extension from .ldr to .png. 
- 
-Enabling this feature is optonal and can be selected on the Configuration= tab by checking the box 'Use multiple files single call rendering' in the 'LDView in installed' group box. LDView must be installed and configured to enable this option. 
- 
-Notice: As this feature required a significant rewrite of the core image generation logic, it is likely to generate some unexpected behavior as not every scenario has been tested. Please report any unexptected behavior. Contact details can be found under the Help= 
+-Up to 60 increase rendering speed with configuration to render multiple files using a single call to LDView. 
+ *All PLI (part list/BOM) parts for a given step are rendered in a single call versue individually. For CSI (Step models), all multi-step images on a page are rendered in a single call including callout(s). Single step page images are rendered with a single call for all model images including those in callou(s). This new confiuration will default as checked. 
+ *To achieve this behavior, input files (csi.ldr, pli.ldr) are now uniquely named because rendering multiple files is done by using -SaveSnapshots=1 instead of -SaveSnapshot=somefile.png and then listing all the LDR files at the end of the command line. There is no control over the output file names. Instead, LDView will automatically use the input base filename changing only the output filename extension from .ldr to .png. 
+ *Enabling this feature is optonal and can be selected on the Configuration= tab by checking the box 'Use multiple files single call rendering' in the 'LDView in installed' group box. LDView must be installed and configured to enable this option. 
+ *Notice: As this feature required a significant rewrite of the core image generation logic, it is likely to generate some unexpected behavior as not every scenario has been tested. Please report any unexptected behavior. Contact details can be found under the Help= 
 -Move LPub3D Ldraw archive libraries to AppData and rename unofficial library to lpub3dldrawunf.zip (r707) 
  *Archive libraries loaded automatically by ldraw during ldraw installation and distributed with portable media 
  *Archive libraries stored in user data (i.e. on Windows user/AppData/Local/Lpub3D Software/Lpub/libraries 
@@ -17,59 +15,63 @@ Notice: As this feature required a significant rewrite of the core image generat
  *Lpub3d expects the official and unofficial archive in the same directory 
  *Lpub3d will prompt for archive file on startup if none is detected in the default location - support portable media and repackaged distributions (i.e. AIOI installation) 
  *If portable media installed in Program Files/(x86) folder, LPub3D will warn that it cannot place writable files at the default data location (folders under the installation directory) because UAC will prevent update access. This is useful for repackaged distribution (i.e. AIOI installations) 
--Add menu option to download official LDraw archive - unofficial archive was already available (r708) 
--Add callouts, refactor and optimize LDView single call image generation, see r683,r684,r685 (r698) 
--Add progress bar to mpd/ldr file load (r690) 
--Enable 'Use multiple files single call rendering' for LDView from Preferences= tab (r687) 
--Increase CSI (Models) rendering speed with LDView using -SaveSnapshots=1. (r685) 
--Increase PLI (Part list/BOM) rendering speed with LDView using -SaveSnapshots=1 (r683/r684) 
--Redesign software and library update functionality (r710) 
--Display application load progress during splash screen display (r709) 
--Add context menu to pages without steps - e.g. Cover Page, BOM Page (r681) 
--Add missing context menu icons (r680) 
--Add progress message updates to splash screen (r676) 
--Supress rotateIcon context menu item if icon already inserted for step (r670) 
--On single-step page, place PLI (Parts List) on top of CSI (Model) images (r664) 
--Upon reset image and model caches, reload current file, return to first page (r663) 
--Unique splash 3D model displayed during pdf printing, png, jpg and bmp image export (r657) 
--Multi-step callouts are now movable (r656) 
--ldglite update to 1.3.1 executable with -2g,2x option hardcoded for sharper images with offscreen rendering (r655) 
--Disable Clear Cache menu when no file is loaded (r686) 
--Force to empty the cache before creating a PDF (r654) 
--Synchronize 'prev', 'next' and 'goto' page menu items (r653) 
--Supress rotateIcon from CSI (model) item context menu if callout and callout is not unassembled (r652) 
--Select local page size and global and local page orientation (Portrait and Landscape) 
- Note: When manually editing the model file with either page size or orientation, it is recommended to insert both the size and orientation metas together. For example, even 
- if you are only interested to add a page size, you shold update your file like the example 
+-Multi-step callouts are now movable (r656)
+ *Callouts on multi-step pages are not freely movable on the page
+-Add menu option to download official LDraw archive - unofficial archive was already available (r708)
+ *You can refresh both your official and unofficial LDraw library archives from the UI
+-Add callouts, refactor and optimize LDView single call image generation, see r683,r684,r685 (r698)
+ *The LDView 'Single Call' rendering performance improvement will address parts list and model rendering for single step page, multi-step page and callouts - including divided pages/callouts. For example, a callout with 6 models, divided into 3 sections will send a single call to LDView to render all 6 model (CSI) images.
+-Add progress bar to mpd/ldr file load (r690)
+ *Users can now see the progress of loading models. This is particularly useful for large models or models which include a large number of lines due to generated flex-parts etc... 
+-Enable 'Use multiple files single call rendering' for LDView from Preferences= tab (r687)
+ *LDView 'Single Call' rendering performance improvement can be selected or unselected from the preferences dialog. Although I tested the as many scenarios as I can think of. If this new feature encounters some unique model file configuration that causes unexpected behavior, the user can revert back to the legacy functionality if s/he so desire.
+-Increase PLI (Part list/BOM) and CSI (Model) rendering speed with LDView using -SaveSnapshots=1 (r683/r684/r685)
+ *'Single Call' performance improvement for LDView
+-Redesign software and library update functionality (r710)
+ *Update architecture improved to allow archive library download during installation if no library is defined. This feature is positioned for mobile/packaged distributions (i.e. AIOI) distributions.
+-Display application load progress during splash screen display (r676/r709)
+ *User can follow the application loading progress during startup launch 
+-Add context menu to pages without steps - e.g. Cover Page, BOM Page (r681)
+ *Pages without steps (e.g. Cover pages, BOM pages etc.) can be modified using the context menu 
+-Add missing context menu icons (r680)
+ *Small beautification enhancement
+-Supress rotateIcon context menu item if icon already inserted for step (r670)
+ *If a step already has an inserted rotate icon, the page/callout context menu will not present the option to add a rotate icon. Note: The option to delete a rotate icon presents from the context menu of the rotate icon itself
+-On single-step page, place PLI (Parts List) on top of CSI (Model) images (r664)
+ *If a CIS (model) overlaps the PLI (parts list) the parts list will be presented on top so the instructions consumer can see all the parts implicated for the step presented
+-Upon reset image and model caches, reload current file, return to first page (r663)
+ *Reset cache options which clears all cache components (ldr, images, 3D views) will also reset the loaded file to the first page
+-Unique splash 3D model displayed during pdf printing, png, jpg and bmp image export (r657)
+ *Updated the 3D Viewer splash to reflect the format of output being generated - so an image depicting a pdf file will show when generating a pdf file and so on...
+-ldglite update to 1.3.1 executable with -2g,2x option hardcoded for sharper images with offscreen rendering (r655)
+ *Incorporated the new ldglite renderer with 2x sampling for improved image quality
+-Disable Clear Cache menu button when no file is loaded (r686)
+ *Just a little poka yoke.
+-Force to empty the cache before creating a PDF (r654)
+ *Added option to empty the image ldr and image cache before printing. With this feature the user can select the option on the print configuration menu to clear the cache and regenerate images as the print job executes.
+-Synchronize 'prev', 'next' and 'goto' page menu items (r653)
+ *User can enter directly any page number within range into the menu dialog. Clicking either the Previous or Next button will navigate to the page indicated is that page is not the next increment backward (for Previous) or forward (for Next). The user can still hit the enter key to navigate to the indicated page - if not the current page of course. 
+-Supress rotateIcon from CSI (model) item context menu if callout and callout is not unassembled (r652)
+ *The menu option to insert a rotate step icon is not presented for assembled callouts
+-Select local page size and global and local page orientation - Portrait and Landscape (r518)
+ *Note: When manually editing the model file with either page size or orientation, it is recommended to insert both the size and orientation metas together. For example, even if you are only interested to add a page size, you shold update your file like the example 
  below - obviously selecting your own size values and orientation. 
  0 !LPUB PAGE SIZE GLOBAL 8.2677 11.6929 
- 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT (r518) 
--Change: Update page background menu rearranged - see r641. (r642) 
--Change: Page background context menu rearranged. "Change page background" and "Change Page Size or Orientation" now appear at the end of the menu list because they are likely to be least often used. (r641) 
--Change: Point online manual to LPub3D content (r517) 
--Change: Replace #if (_MSC_VER  with #ifdef _MSC_VER (r679) 
+ 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT   
+-Change: Page background context menu rearranged. "Change page background" and "Change Page Size or Orientation" now appear at the end of the menu list because they are likely to be least often used. (r641)
+-Change: Point online manual to LPub3D content - was previously pointing to legacy LPub (r517) 
 -Refactor: Move library archives to AppData stabilization and robustness (r711) 
 -Refactor: Optimize fadeStep routines; change LDView logging details (r695) 
--Rafactor: Colour application output default set to off (r662) 
--Refactor: Define strcasecmp, strncasecmp in lc_global.h for MinGW builds only (r661) 
 -Refactor: Replace 0x050000 with QT_VERSION_CHECK(5,0,0) (r660) 
 -Refactor: Remove stretch/tile logic from coverImage management (r659) 
--Refactor: Remove QPainter::HighQualityAntialiasing obsolete renderHint (r658) 
 -Refactor: Update CSI image mousePressEvent logic. (r640) 
 -Refactor: Update file load progress messages (r636) 
--Refactor: Rearrange printToPdfFile page count (r632) 
--Refactor: Reposition rocessEvents statements (r631) 
--Rafactor: Supress MSVC type conversion warning C4267 (r621) 
--Update: Align build scritps with MSVC environement (705) 
+-Refactor: Rearrange printToPdfFile page count (r632)  
 -Update: Clear 3D Window when there is no model to display - e.g. for cover or inserted pages (r701) 
--Update: Set download dialog to Library Updater when downloading library - otherwise Software Updater (r700) 
--Update: Change copyright to 2016 (r666) 
--Update: AboutDialog to recognize Win 10 and OSX El Capitan(r665/r668/r669) 
--Update: application name value to support development environment (r639) 
--Update: build assets (r624) 
+-Update: Set download dialog header to Library Updater when downloading library - otherwise Software Updater (r700) 
+-Update: AboutDialog window recognizes and displays Win 10 and OSX El Capitan(r665/r668/r669)
 -Update: ldglite hard-coded default directory setting to ldglite1.3.1(r623) 
--Update: zlib reference for Qt 5.6.0 (r618) 
--Update: minifig settings (move to ini file) - LeoCAD Changeset 1870 (r617x) 
+-Update: 3DViewer minifig settings moved to ini file - LeoCAD Changeset 1870 (r617x) 
 -Fix: No image after initial generation when renderer other than LDView selected (r704) 
 -Fix: Set ldr load file to unofficial item by default (r691) 
 -Fix: Load inline submodels break (r688) 
@@ -94,9 +96,10 @@ Notice: As this feature required a significant rewrite of the core image generat
 -Fix: Control manual page number entry (r627) 
 -Fix: Cleanup 'Copyright' and 'Trademark' unicode (utf8) chars on MSVC2015 build (r622) 
 -Fix: QPainter alphaChannel management - use setCompositionMode (r619/r620) 
--Upgrade: base to Qt 5.6.0 (MSVC 2015) (r613) 
--Upgrade: logging framework (r610) 
--Upgrade: base to Qt 5.5.1 (MinGW) platform (r608) 
+-Upgrade: With upgrade to Qt5x, moved to MSVC 2015 release builds to continue providing x85 and x64 builds as MinGW does not officially support x64 on Windows 
+-Upgrade: Updated development platform to Qt 5.6.1 (MSVC 2015) (r613) 
+-Upgrade: Updated Qt logging framework from Qt4x to Qt5x (r610) 
+-Upgrade: Updated development platform to Qt 5.5.1 (MinGW) (r608)
  
 LPub3D 1.3.5.615.2 
  
