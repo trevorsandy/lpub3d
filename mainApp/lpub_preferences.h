@@ -28,6 +28,7 @@ class Preferences
     static void lpubPreferences();
     static void ldrawPreferences(bool);
     static void lpub3dLibPreferences(bool);
+    static void lpub3dUpdatePreferences();
     static void viewerPreferences();
     static void lgeoPreferences();
     static void renderPreferences();

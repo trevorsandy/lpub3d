@@ -409,11 +409,11 @@ void Updater::onReply (QNetworkReply* reply) {
 
                 m_updateRequest.setUrl(QUrl(_changelogUrl));
                 _manager->get(m_updateRequest);
-            }
 
-            QEventLoop wait;
-            wait.connect(this, SIGNAL(changeLogFinished()),&wait, SLOT(quit()));
-            wait.exec();
+                QEventLoop wait;
+                wait.connect(this, SIGNAL(changeLogReplyFinished()),&wait, SLOT(quit()));
+                wait.exec();
+            }
 
             setUpdateAvailable (_updateAvailable);
 
@@ -440,7 +440,7 @@ void Updater::changeLogReply (QNetworkReply *reply){
      } else {
          showErrorMessage("Error receiving change log: " + reply->errorString());
      }
-     emit changeLogFinished();
+     emit changeLogReplyFinished();
 }
 
 //==============================================================================

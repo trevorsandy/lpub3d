@@ -266,7 +266,7 @@ class QSU_DECL Updater : public QObject {
     ///
     /// Emitted when the change log download is complete
     ///
-    void changeLogFinished();
+    void changeLogReplyFinished();
 
   private slots:
     ///

@@ -202,6 +202,7 @@ void Application::initialize(int &argc, char **argv)
   // Preferences
   Preferences::lpub3dLibPreferences(false);
   Preferences::ldrawPreferences(false);
+  Preferences::lpub3dUpdatePreferences();
 
   Preferences::unitsPreferences();
   Preferences::annotationPreferences();

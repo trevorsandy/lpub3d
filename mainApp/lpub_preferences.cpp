@@ -66,7 +66,7 @@ QString Preferences::defaultEmail;
 QString Preferences::documentLogoFile;
 QString Preferences::publishDescription;
 QString Preferences::ldrawiniFile;
-QString Preferences::moduleVersion;
+QString Preferences::moduleVersion               = qApp->applicationVersion();
 QString Preferences::ldgliteSearchDirs;
 QStringList Preferences::ldSearchDirs;
 //Static page attributes
@@ -96,7 +96,7 @@ bool    Preferences::enableDownloader           = true;
 bool    Preferences::ldrawiniFound              = false;
 bool    Preferences::fadeStepSettingChanged     = false;
 bool    Preferences::fadeStepColorChanged       = false;
-int     Preferences::checkUpdateFrequency            = 2;        //0=Never,1=Daily,2=Weekly,3=Monthly
+int     Preferences::checkUpdateFrequency       = 2;        //0=Never,1=Daily,2=Weekly,3=Monthly
 
 int     Preferences::pageHeight                 = 800;
 int     Preferences::pageWidth                  = 600;
@@ -107,8 +107,6 @@ Preferences::Preferences()
 
 void Preferences::lpubPreferences()
 {
-    emit Application::instance()->splashMsgSig("10% - Selecting installation directory...");
-
     QDir cwd(QDir::currentPath());
 
     if (cwd.dirName() == "MacOS") {
@@ -182,39 +180,6 @@ void Preferences::lpubPreferences()
 
     if(!QDir(extrasDir).exists())
         extrasDir.mkpath(".");
-
-    QSettings Settings;
-
-    if ( ! Settings.contains(QString("%1/%2").arg(UPDATES,"ShowUpdateNotifications"))) {
-        QVariant pValue(false);
-        showUpdateNotifications = false;
-        Settings.setValue(QString("%1/%2").arg(UPDATES,"ShowUpdateNotifications"),pValue);
-    } else {
-        showUpdateNotifications = Settings.value(QString("%1/%2").arg(UPDATES,"ShowUpdateNotifications")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(UPDATES,"EnableDownloader"))) {
-        QVariant pValue(false);
-        enableDownloader = false;
-        Settings.setValue(QString("%1/%2").arg(UPDATES,"EnableDownloader"),pValue);
-    } else {
-        enableDownloader = Settings.value(QString("%1/%2").arg(UPDATES,"EnableDownloader")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(UPDATES,"ShowAllNotifications"))) {
-        QVariant pValue(false);
-        showAllNotifications = false;
-        Settings.setValue(QString("%1/%2").arg(UPDATES,"ShowAllNotifications"),pValue);
-    } else {
-        showAllNotifications = Settings.value(QString("%1/%2").arg(UPDATES,"ShowAllNotifications")).toBool();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(UPDATES,"CheckUpdateFrequency"))) {
-        checkUpdateFrequency = 0;
-        Settings.setValue(QString("%1/%2").arg(UPDATES,"CheckUpdateFrequency"),checkUpdateFrequency);
-    } else {
-        checkUpdateFrequency = Settings.value(QString("%1/%2").arg(UPDATES,"CheckUpdateFrequency")).toInt();
-    }
 
 }
 
@@ -490,6 +455,46 @@ void Preferences::lpub3dLibPreferences(bool force)
     }
 }
 
+void Preferences::lpub3dUpdatePreferences(){
+
+    emit Application::instance()->splashMsgSig("15% - Selecting update settings...");
+
+    QSettings Settings;
+
+    moduleVersion = qApp->applicationVersion();
+
+    if ( ! Settings.contains(QString("%1/%2").arg(UPDATES,"CheckUpdateFrequency"))) {
+        checkUpdateFrequency = 0;
+        Settings.setValue(QString("%1/%2").arg(UPDATES,"CheckUpdateFrequency"),checkUpdateFrequency);
+    } else {
+        checkUpdateFrequency = Settings.value(QString("%1/%2").arg(UPDATES,"CheckUpdateFrequency")).toInt();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(UPDATES,"ShowUpdateNotifications"))) {
+        QVariant pValue(false);
+        showUpdateNotifications = false;
+        Settings.setValue(QString("%1/%2").arg(UPDATES,"ShowUpdateNotifications"),pValue);
+    } else {
+        showUpdateNotifications = Settings.value(QString("%1/%2").arg(UPDATES,"ShowUpdateNotifications")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(UPDATES,"EnableDownloader"))) {
+        QVariant pValue(false);
+        enableDownloader = false;
+        Settings.setValue(QString("%1/%2").arg(UPDATES,"EnableDownloader"),pValue);
+    } else {
+        enableDownloader = Settings.value(QString("%1/%2").arg(UPDATES,"EnableDownloader")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(UPDATES,"ShowAllNotifications"))) {
+        QVariant pValue(false);
+        showAllNotifications = false;
+        Settings.setValue(QString("%1/%2").arg(UPDATES,"ShowAllNotifications"),pValue);
+    } else {
+        showAllNotifications = Settings.value(QString("%1/%2").arg(UPDATES,"ShowAllNotifications")).toBool();
+    }
+
+}
 
 void Preferences::lgeoPreferences()
 {
@@ -915,6 +920,7 @@ bool Preferences::getPreferences()
     QSettings Settings;
 
     if (dialog->exec() == QDialog::Accepted) {
+
         if (ldrawPath != dialog->ldrawPath()) {
             ldrawPath = dialog->ldrawPath();
             if (ldrawPath == "") {
@@ -932,6 +938,7 @@ bool Preferences::getPreferences()
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"PliControl"),pliFile);
             }
         }
+
         if (l3pExe != dialog->l3pExe()) {
             l3pExe = dialog->l3pExe();
             if (l3pExe == "") {
@@ -949,7 +956,6 @@ bool Preferences::getPreferences()
                 Settings.setValue(QString("%1/%2").arg(POVRAY,"POVRayPath"),povrayExe);
             }
         }
-
 
         if (lgeoPath != dialog->lgeoPath()) {
             lgeoPath = dialog->lgeoPath();
