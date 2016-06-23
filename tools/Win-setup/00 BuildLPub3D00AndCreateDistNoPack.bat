@@ -10,7 +10,10 @@ SETLOCAL
 @color 0a
 ECHO Build and create manual and automatic install distributions
 
-ECHO. 							                	 >  ..\release\LPub3D.Release.build.log.txt
+rem Change COMMAND to 'run' to execute and 'bypass' to disable NSIS script call and file delete (used for testing)
+SET COMMAND=run
+
+ECHO. 							                	>  ..\release\LPub3D.Release.build.log.txt
 ECHO - Start build process...      			   		>>  ..\release\LPub3D.Release.build.log.txt
 ECHO.
 ECHO - Start build process...
@@ -316,52 +319,52 @@ ECHO - Finished copying content to media folder...     			>>  ../release/LPub3D.
 ECHO. 
 ECHO - Finished copying content to media folder...
 
-ECHO. 								        >>  ..\release\LPub3D.Release.build.log.txt
-ECHO - Start NSIS Master Update Build...  	>>  ..\release\LPub3D.Release.build.log.txt
-ECHO.
-ECHO - Start NSIS Master Update Build...
-rem this line to ignore running the NSIS script
-rem "%NSISPath%\makensis.exe" /DUpdateMaster LPub3DNoPack.nsi 		>> ..\release\LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO. 								        >>  ..\release\LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO - Start NSIS Master Update Build...  	>>  ..\release\LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO.
+IF %COMMAND% == "run" ECHO - Start NSIS Master Update Build...
 
-ECHO. 										    >>  ..\release\LPub3D.Release.build.log.txt
-ECHO - Finished NSIS Master Update 	Build...	>>  ..\release\LPub3D.Release.build.log.txt
-ECHO.
-ECHO - Finished NSIS Master Update  Build...
+IF %COMMAND% == "run" IF %COMMAND% == "run" "%NSISPath%\makensis.exe" /DUpdateMaster LPub3DNoPack.nsi 		>> ..\release\LPub3D.Release.build.log.txt
 
-ECHO. 									    >>  ..\release\LPub3D.Release.build.log.txt
-ECHO - Start NSIS Manual Install Build... 	>>  ..\release\LPub3D.Release.build.log.txt
-ECHO.
-ECHO - Start NSIS Manual Install Build...
-rem this line to ignore running the NSIS script
-rem "%NSISPath%\makensis.exe" LPub3DNoPack.nsi 						>> ..\release\LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO. 										    >>  ..\release\LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO - Finished NSIS Master Update 	Build...	>>  ..\release\LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO.
+IF %COMMAND% == "run" ECHO - Finished NSIS Master Update  Build...
 
-ECHO. 										 >>  ..\release\LPub3D.Release.build.log.txt
-ECHO - Finished NSIS Manual Install Build... >>  ..\release\LPub3D.Release.build.log.txt
-ECHO.
-ECHO - Finished NSIS Manual Install Build...
+IF %COMMAND% == "run" ECHO. 									    >>  ..\release\LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO - Start NSIS Manual Install Build... 	>>  ..\release\LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO.
+IF %COMMAND% == "run" ECHO - Start NSIS Manual Install Build...
 
-ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Creating portable media zip files...		      			>>  ../release/LPub3D.Release.build.log.txt
-ECHO. 	
-ECHO - Creating portable media zip files...
+IF %COMMAND% == "run" IF %COMMAND% == "run" "%NSISPath%\makensis.exe" LPub3DNoPack.nsi 						>> ..\release\LPub3D.Release.build.log.txt
 
-%zipExe% a -tzip ..\release\%VERSION%\Download\%WIN32PRODUCTDIR%.zip ..\release\%VERSION%\%WIN32PRODUCTDIR%\ 		>>  ../release/LPub3D.Release.build.log.txt
-%zipExe% a -tzip ..\release\%VERSION%\Download\%WIN64PRODUCTDIR%.zip ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 		>>  ../release/LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO. 										 >>  ..\release\LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO - Finished NSIS Manual Install Build... >>  ..\release\LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO.
+IF %COMMAND% == "run" ECHO - Finished NSIS Manual Install Build...
 
-ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Remove %PRODUCT% %VERSION% build files...		      	>>  ../release/LPub3D.Release.build.log.txt
-ECHO. 	
-ECHO - Remove %PRODUCT% %VERSION% build files...
-rem this line to keep build files - i.e. if needed to test NSIS script failuire
-rem RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 							>>  ../release/LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO - Creating portable media zip files...		      			>>  ../release/LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO. 	
+IF %COMMAND% == "run" ECHO - Creating portable media zip files...
 
-ECHO. 													 		>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Moving NSIS-generated files to media folder...			>>  ../release/LPub3D.Release.build.log.txt
-ECHO. 	
-ECHO - Moving NSIS-generated files to media folder...
+IF %COMMAND% == "run" %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN32PRODUCTDIR%.zip ..\release\%VERSION%\%WIN32PRODUCTDIR%\ 		>>  ../release/LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN64PRODUCTDIR%.zip ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 		>>  ../release/LPub3D.Release.build.log.txt
 
-MOVE /Y ..\release\%DOWNLOADPRODUCT%.exe ..\release\%VERSION%\Download\												>>  ../release/LPub3D.Release.build.log.txt		
-MOVE /Y ..\release\%PRODUCT%-UpdateMaster.exe ..\release\%VERSION%\Update\											>>  ../release/LPub3D.Release.build.log.txt		
+IF %COMMAND% == "run" ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO - Remove %PRODUCT% %VERSION% build files...		      	>>  ../release/LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO. 	
+IF %COMMAND% == "run" ECHO - Remove %PRODUCT% %VERSION% build files...
+
+IF %COMMAND% == "run" RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 							>>  ../release/LPub3D.Release.build.log.txt
+
+IF %COMMAND% == "run" ECHO. 													 	>>  ../release/LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO - Moving NSIS-generated files to media folder...			>>  ../release/LPub3D.Release.build.log.txt
+IF %COMMAND% == "run" ECHO. 	
+IF %COMMAND% == "run" ECHO - Moving NSIS-generated files to media folder...
+
+IF %COMMAND% == "run" MOVE /Y ..\release\%DOWNLOADPRODUCT%.exe ..\release\%VERSION%\Download\												>>  ../release/LPub3D.Release.build.log.txt		
+IF %COMMAND% == "run" MOVE /Y ..\release\%PRODUCT%-UpdateMaster.exe ..\release\%VERSION%\Update\											>>  ../release/LPub3D.Release.build.log.txt		
 
 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Finished.												>>  ../release/LPub3D.Release.build.log.txt

@@ -1,10 +1,10 @@
-LPub3D 2.0.1.716.1
+LPub3D 2.0.1.716.1 
  
 Features and enhancements 
 ------------ 
--Fix: In support of archive library move to AppData (see r707), the installation process will delete the 'old' LDRaw library archive directory even if it is actually the new directory. For example this can be reproduced if one attempts to reinstall LPub3D where the actual 'old' directory would have been deleted during the initial installation. The installation will now compare the 'old' directory to the new one and present the user the option to delete if the comparison does not match. (r715)
--Fix: At applicaton launch, the 'Check for updates' functionality does not detect the installed version. As a result, if the user performs a check for update or update checks are set to automatic, the user is presented with a message dialog stating a new update version is available when in fact this is not the case. The correct message dialog is now presented. Runaway eventloop when newest version is same as installed version. (r716)
-
+-Fix: In support of archive library move to AppData (see r707), the installation process will delete the 'old' LDRaw library archive directory even if it is actually the new directory. For example this can be reproduced if one attempts to reinstall LPub3D where the actual 'old' directory would have been deleted during the initial installation. The installation will now compare the 'old' directory to the new one and present the user the option to delete if the comparison does not match. (r715) 
+-Fix: At applicaton launch, the 'Check for updates' does not detect the installed version. As a result, if the user performs a check for update or update checks are set to automatic, the user is presented with a message dialog stating a new update version is available when in fact this is not the case. The correct message dialog is now presented. Runaway eventloop when newest version is same as installed version. (r716) 
+ 
 LPub3D 2.0.0.714.2 
  
 Features and enhancements 
