@@ -1958,6 +1958,7 @@ void Gui::readSettings()
     restoreState(Settings.value("State").toByteArray());
     restoreGeometry(Settings.value("Geometry").toByteArray());
     QSize size = Settings.value("size", QSize(800, 600)).toSize();
+    // TODO causes crash
     QPoint position = Settings.value("pos", QPoint(200, 200)).toPoint();
     resize(size);
     move(position);
@@ -1967,10 +1968,9 @@ void Gui::readSettings()
 void Gui::writeSettings()
 {
 // Crashes the viewer window
-
     QSettings Settings;
     Settings.beginGroup(MAINWINDOW);
-    Settings.setValue("position", pos());
+    //Settings.setValue("position", pos());
     Settings.setValue("size", size());
     Settings.endGroup();
 

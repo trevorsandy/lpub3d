@@ -119,6 +119,15 @@ void Preferences::lpubPreferences()
     if (QDir(lpub3dPath + "/extras").exists()) {
 
 #ifdef Q_OS_WIN
+
+        // do some cleanup between version 1.3.5 and 2.0 - Qt4x and 5x
+        QSettings Settings;
+        QString const pos("pos");
+        if (Settings.contains(QString("%1/%2").arg(MAINWINDOW,pos))) {
+            Settings.remove(QString("%1/%2").arg(SETTINGS,pos));
+        }
+        // end cleanup
+
         bool programFolder = QCoreApplication::applicationDirPath().contains("Program Files") ||
                 QCoreApplication::applicationDirPath().contains("Program Files (x86)");
 

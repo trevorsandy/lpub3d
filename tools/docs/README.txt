@@ -1,4 +1,10 @@
-LPub3D 2.0.1.716.1 
+LPub3D 2.0.1.717.2 
+ 
+Features and enhancements 
+------------ 
+-Known Issue: Storing and retrieving the screen pos[ition] setting on multi-screen platforms causing a crash on startup. This feature has been disabled for the monent while I investigate. This unexpected behavior was introduced with the new version of Qt (development platform). The change you will notice is that the application will no longer start on the screen you closed it on last. Instead, it will will always start at x200 y200 on the main screen. Of course this issue is only related to multi-screen platforms. (r718)
+
+LPub3D 2.0.1.717.2 
  
 Features and enhancements 
 ------------ 
