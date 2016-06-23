@@ -8,31 +8,8 @@
   !include "x64.nsh"
 
 ;--------------------------------
-;File & Directory Exist Macros
-
-;FileExists is already part of LogicLib, but returns true for directories as well as files
-!macro _FileExists2 _a _b _t _f
-	!insertmacro _LOGICLIB_TEMP
-	StrCpy $_LOGICLIB_TEMP "0"
-	StrCmp `${_b}` `` +4 0 ;if path is not blank, continue to next check
-	IfFileExists `${_b}` `0` +3 ;if path exists, continue to next check (IfFileExists returns true if this is a directory)
-	IfFileExists `${_b}\*.*` +2 0 ;if path is not a directory, continue to confirm exists
-	StrCpy $_LOGICLIB_TEMP "1" ;file exists
-	;now we have a definitive value - the file exists or it does not
-	StrCmp $_LOGICLIB_TEMP "1" `${_t}` `${_f}`
-!macroend
-!undef FileExists
-!define FileExists `"" FileExists2`
-!macro _DirExists _a _b _t _f
-	!insertmacro _LOGICLIB_TEMP
-	StrCpy $_LOGICLIB_TEMP "0"	
-	StrCmp `${_b}` `` +3 0 ;if path is not blank, continue to next check
-	IfFileExists `${_b}\*.*` 0 +2 ;if directory exists, continue to confirm exists
-	StrCpy $_LOGICLIB_TEMP "1"
-	StrCmp $_LOGICLIB_TEMP "1" `${_t}` `${_f}`
-!macroend
-!define DirExists `"" DirExists`
-
+;Utility functions and macros
+  !include "nsisFunctions.nsh"
 ;--------------------------------
 ;generated define statements
   
@@ -68,6 +45,7 @@
   ;new stuff
   Var /global LPub3DViewerLibFile
   Var /global LPub3DViewerLibPath
+  Var /global HideDeleteDirectoryDialog
    
   Var /global OverwriteDeleteDirectoryGrpBox
   Var /global Overwrite_chkMoveLibraries
@@ -77,6 +55,7 @@
   Var /global OverwriteDeleteDirectory
   
   Var /global nsDialogOverwriteConfigPage_Font1
+  Var /global nsDialogOverwriteConfigPage_Font2
   
 ;--------------------------------
 ;General
@@ -189,12 +168,13 @@ Function .onInit
 
   ;Get Ldraw library folder and archive file paths from registry if available
    ReadRegStr $LDrawDirPath HKCU "Software\${Company}\${ProductName}\Settings" "LDrawDir"
-   ReadRegStr $LPub3DViewerLibFile HKCU "Software\${Company}\${ProductName}\Settings" "PartsLibrary"
-   
+   ReadRegStr $LPub3DViewerLibFile HKCU "Software\${Company}\${ProductName}\Settings" "PartsLibrary" 
+  ;Verify old library directory exist - and is not the same as new library directory
    Push $LPub3DViewerLibFile
    Call fnGetParent
    Pop $R0
-   StrCpy $LPub3DViewerLibPath $R0
+   StrCpy $LPub3DViewerLibPath $R0  
+   Call fnVerifyDeleteDirectory
 
   ;Identify installation folder
   ${If} ${RunningX64}
@@ -434,11 +414,13 @@ Function nsDialogShowOverwriteConfigPage
   !insertmacro MUI_HEADER_TEXT $(CUST_PAGE_OVERWRITE_TITLE) $(CUST_PAGE_OVERWRITE_SUBTITLE)
   
   ; custom font definitions
-  CreateFont $nsDialogOverwriteConfigPage_Font1 "Microsoft Sans Serif" "8.25" "700"
+  CreateFont $nsDialogOverwriteConfigPage_Font1 "Microsoft Sans Serif" "7.25" "400"
+  CreateFont $nsDialogOverwriteConfigPage_Font2 "Microsoft Sans Serif" "8.25" "700"
   
   ; === OverwriteMessagelbl (type: Label) ===
-  ${NSD_CreateLabel} 32.91u 3.08u 226.43u 14.15u ""
+  ${NSD_CreateLabel} 32.91u 0.01u 226.43u 14.15u ""
   Pop $OverwriteMessagelbl
+  SendMessage $OverwriteMessagelbl ${WM_SETFONT} $nsDialogOverwriteConfigPage_Font1 0
   SetCtlColors $OverwriteMessagelbl 0xFF0000 0xF0F0F0 
   
   ; === OverwriteConfigGrpBox (type: GroupBox) ===
@@ -448,7 +430,7 @@ Function nsDialogShowOverwriteConfigPage
   ; === chkBoxAll (type: Checkbox) ===
   ${NSD_CreateCheckbox} 42.78u 30.15u 116.51u 14.77u "All Configuration Files"
   Pop $Overwrite_chkBoxAll
-  SendMessage $Overwrite_chkBoxAll ${WM_SETFONT} $nsDialogOverwriteConfigPage_Font1 0
+  SendMessage $Overwrite_chkBoxAll ${WM_SETFONT} $nsDialogOverwriteConfigPage_Font2 0
   
   ; === chkBoxTitle (type: Checkbox) ===
   ${NSD_CreateCheckbox} 42.78u 43.69u 116.51u 14.77u "Title Annotations"
@@ -473,12 +455,10 @@ Function nsDialogShowOverwriteConfigPage
   ; === chkMoveLibraries (type: Checkbox) ===
   ${NSD_CreateCheckbox} 125.72u 119.38u 123.09u 14.77u "Move libraries to new location?"
   Pop $Overwrite_chkMoveLibraries
-  ${NSD_Check} $Overwrite_chkMoveLibraries
   
   ; === chkDeleteDirectory (type: Checkbox) ===
-  ${NSD_CreateCheckbox} 36.2u 119.38u 116.51u 14.77u "Delete directory ?"
+  ${NSD_CreateCheckbox} 36.2u 119.38u 116.51u 14.77u "Delete old directory?"
   Pop $Overwrite_chkDeleteDirectory
-  ${NSD_Check} $Overwrite_chkDeleteDirectory  
   
   ${NSD_OnClick} $Overwrite_chkBoxAll fnSetOverwriteAll
   ${NSD_OnClick} $Overwrite_chkBoxTitle fnOverwriteTitle
@@ -489,7 +469,29 @@ Function nsDialogShowOverwriteConfigPage
   ${NSD_OnClick} $Overwrite_chkMoveLibraries fnMoveLibraries
   ${NSD_OnClick} $Overwrite_chkDeleteDirectory fnDeleteDirectory
   
+  Call fnShowDeleteDirectoryDialog
+  
   nsDialogs::Show
+  
+FunctionEnd
+
+Function fnShowDeleteDirectoryDialog
+  ${If} $HideDeleteDirectoryDialog == 1	
+	ShowWindow $Overwrite_chkMoveLibraries ${SW_HIDE}
+	ShowWindow $Overwrite_chkDeleteDirectory ${SW_HIDE}
+	ShowWindow $OverwriteDeleteDirectoryGrpBox ${SW_HIDE}
+	${NSD_Uncheck} $Overwrite_chkMoveLibraries
+	${NSD_Uncheck} $Overwrite_chkDeleteDirectory
+	StrCpy $OverwriteDeleteDirectory 0
+  ${Else}
+    ShowWindow $Overwrite_chkMoveLibraries ${SW_SHOW}
+	ShowWindow $Overwrite_chkDeleteDirectory ${SW_SHOW}
+	ShowWindow $OverwriteDeleteDirectoryGrpBox ${SW_SHOW}
+	${NSD_Check} $Overwrite_chkMoveLibraries
+	${NSD_Check} $Overwrite_chkDeleteDirectory
+	Call fnMoveLibrariesInfo
+  ${EndIf}
+  ;MessageBox MB_ICONEXCLAMATION "fnShowDeleteDirectoryDialog HideDeleteDirectoryDialog = $HideDeleteDirectoryDialog" IDOK 0
   
 FunctionEnd
 
@@ -568,9 +570,16 @@ Function fnDeleteDirectory
 	${Else}
 		${NSD_GetState} $Overwrite_chkMoveLibraries $OverwriteMoveLibraries
 		${If} $OverwriteMoveLibraries == 1
-			${NSD_Uncheck} $Overwrite_chkMoveLibraries
-		${EndIf}
-		${NSD_SetText} $OverwriteMessagelbl ""
+			Call fnMoveLibrariesInfo
+		${Else}
+			Call fnClear 
+		${EndIf}		
+;	${Else}
+;		${NSD_GetState} $Overwrite_chkMoveLibraries $OverwriteMoveLibraries
+;		${If} $OverwriteMoveLibraries == 1
+;			${NSD_Uncheck} $Overwrite_chkMoveLibraries
+;		${EndIf}
+;		${NSD_SetText} $OverwriteMessagelbl ""
 	${EndIf}
 	
 FunctionEnd
@@ -579,10 +588,10 @@ Function fnMoveLibraries
 	Pop $Overwrite_chkMoveLibraries
 	${NSD_GetState} $Overwrite_chkMoveLibraries $OverwriteMoveLibraries
     ${If} $OverwriteMoveLibraries == 1
-		${NSD_GetState} $Overwrite_chkDeleteDirectory $OverwriteDeleteDirectory
-		${If} $OverwriteDeleteDirectory <> 1
-			${NSD_Check} $Overwrite_chkDeleteDirectory			
-		${EndIf}
+;		${NSD_GetState} $Overwrite_chkDeleteDirectory $OverwriteDeleteDirectory
+;		${If} $OverwriteDeleteDirectory <> 1
+;			${NSD_Check} $Overwrite_chkDeleteDirectory			
+;		${EndIf}
 		Call fnMoveLibrariesInfo
 	${Else}
 		${NSD_GetState} $Overwrite_chkDeleteDirectory $OverwriteDeleteDirectory
@@ -601,7 +610,7 @@ Function fnWarning
 FunctionEnd
 
 Function fnMoveLibrariesInfo
-    ${NSD_SetText} $OverwriteMessagelbl "INFO! LDraw libraries will be moved to new data directory."
+    ${NSD_SetText} $OverwriteMessagelbl "INFO: LDraw library archives will be moved to a new directory:$\r$\n'$LOCALAPPDATA\${Company}\${ProductName}\libraries'."
 	
 FunctionEnd
 
@@ -630,12 +639,14 @@ Function nsDialogLeaveOverwriteConfigPage
 
 	${NSD_GetState} $Overwrite_chkMoveLibraries $OverwriteMoveLibraries
 	${NSD_GetState} $Overwrite_chkDeleteDirectory $OverwriteDeleteDirectory
+	
 FunctionEnd
 
 Function fnInstallLibraries
 	SetOutPath "${INSTDIR_AppData}\libraries"
 	File "..\release\libraries\complete.zip"
 	File "..\release\libraries\lpub3dldrawunf.zip"
+	
 FunctionEnd
 
 Function fnCopyLibraries
@@ -646,12 +657,13 @@ Function fnCopyLibraries
 	install_new_off_Lib:
 	File "..\release\libraries\complete.zip"
 	Next:
-	IfFileExists "$LPub3DViewerLibPath\complete.zip" 0 install_new_unoff_Lib
+	IfFileExists "$LPub3DViewerLibPath\ldrawunf.zip" 0 install_new_unoff_Lib
 	CopyFiles "$LPub3DViewerLibPath\ldrawunf.zip" "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip"
 	goto Finish
 	install_new_unoff_Lib:
 	File "..\release\libraries\lpub3dldrawunf.zip"	
 	Finish:
+	
 FunctionEnd
 
 Function desktopIcon
@@ -736,38 +748,14 @@ Section "Uninstall"
   
 SectionEnd
 
-Function fnGetParent
-	; GetParent
-	; input, top of stack  (e.g. C:\Program Files\Poop)
-	; output, top of stack (replaces, with e.g. C:\Program Files)
-	; modifies no other variables.
-	;
-	; Usage:
-	;   Push "C:\Program Files\Directory\Whatever"
-	;   Call GetParent
-	;   Pop $R0
-	;   ; at this point $R0 will equal "C:\Program Files\Directory"
-	Exch $R0
-	Push $R1
-	Push $R2
-	Push $R3
-
-	StrCpy $R1 0
-	StrLen $R2 $R0
-
-	loop:
-		IntOp $R1 $R1 + 1
-		IntCmp $R1 $R2 get 0 get
-		StrCpy $R3 $R0 1 -$R1
-		StrCmp $R3 "\" get
-	Goto loop
-
-	get:
-		StrCpy $R0 $R0 -$R1
-
-		Pop $R3
-		Pop $R2
-		Pop $R1
-		Exch $R0
- 
+Function fnVerifyDeleteDirectory
+  StrCpy $HideDeleteDirectoryDialog 0
+  ${StrContains} $0 "$LOCALAPPDATA\${Company}\${ProductName}\libraries" $LPub3DViewerLibPath
+    StrCmp $0 "" notfound
+    StrCpy $HideDeleteDirectoryDialog 1
+    Goto done
+  notfound:
+    StrCpy $HideDeleteDirectoryDialog 0
+  done:
+    ;MessageBox MB_ICONEXCLAMATION "fnVerifyDeleteDirectory HideDeleteDirectoryDialog = $HideDeleteDirectoryDialog$\r$\nCompare this: ($LOCALAPPDATA\${Company}\${ProductName}\libraries)$\r$\nto ($LPub3DViewerLibPath)" IDOK 0 
 FunctionEnd
