@@ -57,6 +57,8 @@
   Var /global nsDialogOverwriteConfigPage_Font1
   Var /global nsDialogOverwriteConfigPage_Font2
   
+  Var /global IsVC2015DistInstalled
+  
 ;--------------------------------
 ;General
  
@@ -166,6 +168,9 @@
  
 Function .onInit 
 
+  ;Hack to prevent startup crash - has something to do with Qt 5.6 - investigatig...
+   DeleteRegValue HKCU "Software\${Company}\${ProductName}\MainWindow" "pos"
+  
   ;Get Ldraw library folder and archive file paths from registry if available
    ReadRegStr $LDrawDirPath HKCU "Software\${Company}\${ProductName}\Settings" "LDrawDir"
    ReadRegStr $LPub3DViewerLibFile HKCU "Software\${Company}\${ProductName}\Settings" "PartsLibrary" 
@@ -192,10 +197,15 @@ FunctionEnd
 
 Section "${ProductName} (required)" SecMain${ProductName}
 
+  ;Confirm VC++ 2015 Redistribution is installed
+  File "..\release\vcredist\vc_redist.x86.exe"
+  File "..\release\vcredist\vc_redist.x64.exe"
+  Call fnConfirmVC2015Redist
+  
   ;install directory
   SetOutPath "$INSTDIR"
   
-  ;executable and readme
+  ;executable requireds and readme
   ${If} ${RunningX64}
 	File "${Win64BuildDir}\${ProductName}_x64.exe"
 	File "${Win64BuildDir}\quazip.dll"
@@ -206,6 +216,37 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	File "${Win64BuildDir}\Qt5Widgets.dll"
 	File "${Win64BuildDir}\Qt5PrintSupport.dll"
 	File "${Win64BuildDir}\Qt5OpenGL.dll"
+  ;New Stuff - Qt Libraries	
+	File "${Win64BuildDir}\libGLESV2.dll"
+	File "${Win64BuildDir}\libEGL.dll"
+	File "${Win64BuildDir}\opengl32sw.dll"
+	File "${Win64BuildDir}\d3dcompiler_47.dll"
+  ;New Stuff - Qt Plugins
+    CreateDirectory "$INSTDIR\bearer"
+    SetOutPath "$INSTDIR\bearer"
+	File "${Win64BuildDir}\bearer\qgenericbearer.dll"
+	File "${Win64BuildDir}\bearer\qnativewifibearer.dll"
+    CreateDirectory "$INSTDIR\iconengines"
+    SetOutPath "$INSTDIR\iconengines"
+	File "${Win64BuildDir}\iconengines\qsvgicon.dll"
+    CreateDirectory "$INSTDIR\imageformats"
+    SetOutPath "$INSTDIR\imageformats"
+	File "${Win64BuildDir}\imageformats\qdds.dll"
+	File "${Win64BuildDir}\imageformats\qgif.dll"
+	File "${Win64BuildDir}\imageformats\qicns.dll"
+	File "${Win64BuildDir}\imageformats\qico.dll"
+	File "${Win64BuildDir}\imageformats\qjpeg.dll"
+	File "${Win64BuildDir}\imageformats\qsvg.dll"
+	File "${Win64BuildDir}\imageformats\qtga.dll"
+	File "${Win64BuildDir}\imageformats\qtiff.dll"
+	File "${Win64BuildDir}\imageformats\qwbmp.dll"
+	File "${Win64BuildDir}\imageformats\qwebp.dll"
+    CreateDirectory "$INSTDIR\platforms"
+    SetOutPath "$INSTDIR\platforms"
+	File "${Win64BuildDir}\platforms\qwindows.dll"
+    CreateDirectory "$INSTDIR\printsupport"
+    SetOutPath "$INSTDIR\printsupport"
+	File "${Win64BuildDir}\printsupport\windowsprintersupport.dll"
   ${Else}
 	File "${Win32BuildDir}\${ProductName}_x32.exe"
 	File "${Win32BuildDir}\quazip.dll"
@@ -216,6 +257,37 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	File "${Win32BuildDir}\Qt5Widgets.dll"
 	File "${Win32BuildDir}\Qt5PrintSupport.dll"
 	File "${Win32BuildDir}\Qt5OpenGL.dll"
+  ;New Stuff - Qt Libraries
+	File "${Win32BuildDir}\libGLESV2.dll"  
+	File "${Win32BuildDir}\libEGL.dll"
+	File "${Win32BuildDir}\opengl32sw.dll"	
+	File "${Win32BuildDir}\d3dcompiler_47.dll"
+  ;New Stuff - Qt Plugins
+    CreateDirectory "$INSTDIR\bearer"
+    SetOutPath "$INSTDIR\bearer"
+	File "${Win32BuildDir}\bearer\qgenericbearer.dll"
+	File "${Win32BuildDir}\bearer\qnativewifibearer.dll"
+    CreateDirectory "$INSTDIR\iconengines"
+    SetOutPath "$INSTDIR\iconengines"
+	File "${Win32BuildDir}\iconengines\qsvgicon.dll"
+    CreateDirectory "$INSTDIR\imageformats"
+    SetOutPath "$INSTDIR\imageformats"
+	File "${Win32BuildDir}\imageformats\qdds.dll"
+	File "${Win32BuildDir}\imageformats\qgif.dll"
+	File "${Win32BuildDir}\imageformats\qicns.dll"
+	File "${Win32BuildDir}\imageformats\qico.dll"
+	File "${Win32BuildDir}\imageformats\qjpeg.dll"
+	File "${Win32BuildDir}\imageformats\qsvg.dll"
+	File "${Win32BuildDir}\imageformats\qtga.dll"
+	File "${Win32BuildDir}\imageformats\qtiff.dll"
+	File "${Win32BuildDir}\imageformats\qwbmp.dll"
+	File "${Win32BuildDir}\imageformats\qwebp.dll"
+    CreateDirectory "$INSTDIR\platforms"
+    SetOutPath "$INSTDIR\platforms"
+	File "${Win32BuildDir}\platforms\qwindows.dll"
+    CreateDirectory "$INSTDIR\printsupport"
+    SetOutPath "$INSTDIR\printsupport"
+	File "${Win32BuildDir}\printsupport\windowsprintersupport.dll"	
   ${EndIf}
   File "..\docs\README.txt"
   
@@ -308,7 +380,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "HelpLink" "${SupportEmail}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "Comments" "${Comments}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "UninstallString" '"$INSTDIR\Uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "EstimatedSize" 50000
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "EstimatedSize" 106000
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "NoRepair" 1
   WriteUninstaller "$INSTDIR\Uninstall.exe"
@@ -666,6 +738,33 @@ Function fnCopyLibraries
 	
 FunctionEnd
 
+Function fnConfirmVC2015Redist
+	; Test if Visual Studio 2015 C++ Redistributables are installed
+	IfFileExists "$Windir\System32\vcruntime140.dll" +2 0
+	StrCpy $IsVC2015DistInstalled 0
+	${If} $IsVC2015DistInstalled == 0
+		MessageBox MB_ICONEXCLAMATION "Note: Visual Studio 2015 VC++ Redistributable not found and will be installed !" IDOK 0
+		SetOutPath "$TEMP"
+		${If} ${RunningX64}
+			File "..\release\vcredist\vc_redist.x64.exe"
+			goto InstallVC2015x64Redist
+		${Else}
+			File "..\release\vcredist\vc_redist.x86.exe"
+			goto InstallVC2015x86Redist
+		${EndIf}		
+	${Else}
+		MessageBox MB_ICONEXCLAMATION "Note: Visual Studio 2015 VC++ Redistributable found!" IDOK 0
+		goto Finish
+	${EndIf}
+	InstallVC2015x86Redist:
+	ExecWait '"$TEMP/vc_redist.x86.exe" /q' ; '/q' to install silently
+	goto Finish
+	InstallVC2015x64Redist:
+	ExecWait '"$TEMP/vc_redist.x64.exe" /q' 
+    Finish:
+	
+FunctionEnd
+
 Function desktopIcon
 
     SetShellVarContext current
@@ -693,8 +792,27 @@ Section "Uninstall"
   Delete "$INSTDIR\Qt5Widgets.dll"
   Delete "$INSTDIR\Qt5PrintSupport.dll"
   Delete "$INSTDIR\Qt5OpenGL.dll"
+  Delete "$INSTDIR\libGLESV2.dll"  
+  Delete "$INSTDIR\libEGL.dll"
+  Delete "$INSTDIR\opengl32sw.dll"	
+  Delete "$INSTDIR\d3dcompiler_47.dll"
   Delete "$INSTDIR\Uninstall.exe"
   Delete "$INSTDIR\README.txt"
+  Delete "$INSTDIR\bearer\qgenericbearer.dll"
+  Delete "$INSTDIR\bearer\qnativewifibearer.dll"
+  Delete "$INSTDIR\iconengines\qsvgicon.dll"
+  Delete "$INSTDIR\imageformats\qdds.dll"
+  Delete "$INSTDIR\imageformats\qgif.dll"
+  Delete "$INSTDIR\imageformats\qicns.dll"
+  Delete "$INSTDIR\imageformats\qico.dll"
+  Delete "$INSTDIR\imageformats\qjpeg.dll"
+  Delete "$INSTDIR\imageformats\qsvg.dll"
+  Delete "$INSTDIR\imageformats\qtga.dll"
+  Delete "$INSTDIR\imageformats\qtiff.dll"
+  Delete "$INSTDIR\imageformats\qwbmp.dll"
+  Delete "$INSTDIR\imageformats\qwebp.dll"
+  Delete "$INSTDIR\platforms\qwindows.dll"
+  Delete "$INSTDIR\printsupport\windowsprintersupport.dll"  
   Delete "$INSTDIR\docs\Credits.txt"
   Delete "$INSTDIR\docs\Copying.txt"
   Delete "$INSTDIR\docs\License.txt" 
@@ -728,6 +846,11 @@ Section "Uninstall"
   RMDir /r "${INSTDIR_AppData}\cache"
   RMDir /r "${INSTDIR_AppData}\logs"
   RMDir "${INSTDIR_AppData}"
+  RMDir "$INSTDIR\bearer"
+  RMDir "$INSTDIR\iconengines"
+  RMDir "$INSTDIR\imageformats"
+  RMDir "$INSTDIR\platforms"
+  RMDir "$INSTDIR\printsupport"
   RMDir "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win"
   RMDir "$INSTDIR\3rdParty\l3p1.4WinB"
   RMDir "$INSTDIR\3rdParty"

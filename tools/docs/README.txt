@@ -1,8 +1,11 @@
-LPub3D 2.0.1.718.14 
+LPub3D 2.0.1.719.2 
  
 Features and enhancements 
 ------------ 
--Known Issue: Storing and retrieving the screen pos[ition], size and state and geometry settings appear to be causing a crash on startup - at the end of the splash screen display. This functionality has been disabled for the moment while I investigate. This unexpected behavior was introduced with the Qt5.6/MSVC 2015 development platform. The change you may notice is that the application no longer starts on the screen you last close it. Instead, it will will always start at the same location. While I have experienced this behavior on a multi-screen display configuraion, there are reports that this behavior also exist on single-screen displays. (r718)
+-Fix: Add all Visual C++ dependencies to installation and portable distributions including VC++ 2015 redistributable runtime libraries (r720)
+ *Repackaged all distributions to incorporate all MSVC 2015 required dependency libraries. The Visual C++ Redistributable for Visual Studio 2015 is also included in the portable distributions. For the executable installation distribution, the installation program will check if the required libraries exist before silently installing the respective Visual C++ redistributable.
+ -Known Issue: Storing and retrieving the screen pos[ition], size, state and geometry settings appear to be causing intermittent crash on startup - at the end of the splash screen display. (r718/r719) 
+ *This functionality has been disabled for the moment while I investigate. This unexpected behavior was introduced with the Qt5.6/MSVC 2015 development platform. The change you may notice is that the application no longer starts on the screen you last close it. Instead, it will will always start at the same location. While I have experienced this behavior on a multi-screen display configuraion, there are reports that this behavior also exist on single-screen displays. 
  
 LPub3D 2.0.1.717.2 
  
