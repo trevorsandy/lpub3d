@@ -289,6 +289,8 @@ Section "${ProductName} (required)" SecMain${ProductName}
     SetOutPath "$INSTDIR\printsupport"
 	File "${Win32BuildDir}\printsupport\windowsprintersupport.dll"	
   ${EndIf}
+  
+  SetOutPath "$INSTDIR"
   File "..\docs\README.txt"
   
   ;3rd party renderer utility - LdgLite
@@ -743,7 +745,7 @@ Function fnConfirmVC2015Redist
 	IfFileExists "$Windir\System32\vcruntime140.dll" +2 0
 	StrCpy $IsVC2015DistInstalled 0
 	${If} $IsVC2015DistInstalled == 0
-		MessageBox MB_ICONEXCLAMATION "Note: Visual Studio 2015 VC++ Redistributable not found and will be installed !" IDOK 0
+		;MessageBox MB_ICONEXCLAMATION "Note: Visual Studio 2015 VC++ Redistributable not found and will be installed!" IDOK 0
 		SetOutPath "$TEMP"
 		${If} ${RunningX64}
 			File "..\release\vcredist\vc_redist.x64.exe"
@@ -753,7 +755,7 @@ Function fnConfirmVC2015Redist
 			goto InstallVC2015x86Redist
 		${EndIf}		
 	${Else}
-		MessageBox MB_ICONEXCLAMATION "Note: Visual Studio 2015 VC++ Redistributable found!" IDOK 0
+		;MessageBox MB_ICONEXCLAMATION "Note: Visual Studio 2015 VC++ Redistributable found!" IDOK 0
 		goto Finish
 	${EndIf}
 	InstallVC2015x86Redist:

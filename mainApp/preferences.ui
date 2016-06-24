@@ -28,7 +28,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -501,9 +501,9 @@
        <widget class="QLineEdit" name="ldviewPath">
         <property name="geometry">
          <rect>
-          <x>44</x>
+          <x>54</x>
           <y>56</y>
-          <width>281</width>
+          <width>271</width>
           <height>20</height>
          </rect>
         </property>
@@ -524,9 +524,9 @@
        <widget class="QCheckBox" name="ldviewSingleCall_Chk">
         <property name="geometry">
          <rect>
-          <x>44</x>
+          <x>54</x>
           <y>26</y>
-          <width>281</width>
+          <width>271</width>
           <height>20</height>
          </rect>
         </property>

@@ -6,6 +6,8 @@ Features and enhancements
  *Repackaged all distributions to incorporate all MSVC 2015 required dependency libraries. The Visual C++ Redistributable for Visual Studio 2015 is also included in the portable distributions. For the executable installation distribution, the installation program will check if the required libraries exist before silently installing the respective Visual C++ redistributable.
  -Known Issue: Storing and retrieving the screen pos[ition], size, state and geometry settings appear to be causing intermittent crash on startup - at the end of the splash screen display. (r718/r719) 
  *This functionality has been disabled for the moment while I investigate. This unexpected behavior was introduced with the Qt5.6/MSVC 2015 development platform. The change you may notice is that the application no longer starts on the screen you last close it. Instead, it will will always start at the same location. While I have experienced this behavior on a multi-screen display configuraion, there are reports that this behavior also exist on single-screen displays. 
+-Fix: Disable search directory validation in Preferences dialog - temporary workaround (r721)
+ *Warnings are displayed when there are no unofficial subdirectories under the LDraw directory. In such case no warnings should be displayed.
  
 LPub3D 2.0.1.717.2 
  
