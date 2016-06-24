@@ -480,29 +480,28 @@ void Preferences::lpub3dUpdatePreferences(){
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(UPDATES,"ShowUpdateNotifications"))) {
-        QVariant pValue(false);
-        showUpdateNotifications = false;
+        QVariant pValue(true);
+        showUpdateNotifications = true;
         Settings.setValue(QString("%1/%2").arg(UPDATES,"ShowUpdateNotifications"),pValue);
     } else {
         showUpdateNotifications = Settings.value(QString("%1/%2").arg(UPDATES,"ShowUpdateNotifications")).toBool();
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(UPDATES,"EnableDownloader"))) {
-        QVariant pValue(false);
-        enableDownloader = false;
+        QVariant pValue(true);
+        enableDownloader = true;
         Settings.setValue(QString("%1/%2").arg(UPDATES,"EnableDownloader"),pValue);
     } else {
         enableDownloader = Settings.value(QString("%1/%2").arg(UPDATES,"EnableDownloader")).toBool();
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(UPDATES,"ShowAllNotifications"))) {
-        QVariant pValue(false);
-        showAllNotifications = false;
+        QVariant pValue(true);
+        showAllNotifications = true;
         Settings.setValue(QString("%1/%2").arg(UPDATES,"ShowAllNotifications"),pValue);
     } else {
         showAllNotifications = Settings.value(QString("%1/%2").arg(UPDATES,"ShowAllNotifications")).toBool();
     }
-
 }
 
 void Preferences::lgeoPreferences()
