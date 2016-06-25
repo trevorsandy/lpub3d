@@ -178,8 +178,13 @@ Function .onInit
    Push $LPub3DViewerLibFile
    Call fnGetParent
    Pop $R0
-   StrCpy $LPub3DViewerLibPath $R0  
-   Call fnVerifyDeleteDirectory
+   StrCpy $LPub3DViewerLibPath $R0
+   
+  ${If} ${DirExists} $LPub3DViewerLibPath
+	Call fnVerifyDeleteDirectory
+  ${Else}
+	StrCpy $HideDeleteDirectoryDialog 1
+  ${EndIf}
 
   ;Identify installation folder
   ${If} ${RunningX64}
@@ -648,12 +653,6 @@ Function fnDeleteDirectory
 		${Else}
 			Call fnClear 
 		${EndIf}		
-;	${Else}
-;		${NSD_GetState} $Overwrite_chkMoveLibraries $OverwriteMoveLibraries
-;		${If} $OverwriteMoveLibraries == 1
-;			${NSD_Uncheck} $Overwrite_chkMoveLibraries
-;		${EndIf}
-;		${NSD_SetText} $OverwriteMessagelbl ""
 	${EndIf}
 	
 FunctionEnd
@@ -662,10 +661,6 @@ Function fnMoveLibraries
 	Pop $Overwrite_chkMoveLibraries
 	${NSD_GetState} $Overwrite_chkMoveLibraries $OverwriteMoveLibraries
     ${If} $OverwriteMoveLibraries == 1
-;		${NSD_GetState} $Overwrite_chkDeleteDirectory $OverwriteDeleteDirectory
-;		${If} $OverwriteDeleteDirectory <> 1
-;			${NSD_Check} $Overwrite_chkDeleteDirectory			
-;		${EndIf}
 		Call fnMoveLibrariesInfo
 	${Else}
 		${NSD_GetState} $Overwrite_chkDeleteDirectory $OverwriteDeleteDirectory
@@ -738,6 +733,18 @@ Function fnCopyLibraries
 	File "..\release\libraries\lpub3dldrawunf.zip"	
 	Finish:
 	
+FunctionEnd
+
+Function fnVerifyDeleteDirectory
+  StrCpy $HideDeleteDirectoryDialog 0
+  ${StrContains} $0 "$LOCALAPPDATA\${Company}\${ProductName}\libraries" $LPub3DViewerLibPath
+    StrCmp $0 "" doNotMatch
+    StrCpy $HideDeleteDirectoryDialog 1
+    Goto Finish
+  doNotMatch:
+    StrCpy $HideDeleteDirectoryDialog 0
+  Finish:
+    ;MessageBox MB_ICONEXCLAMATION "fnVerifyDeleteDirectory HideDeleteDirectoryDialog = $HideDeleteDirectoryDialog$\r$\nCompare this: ($LOCALAPPDATA\${Company}\${ProductName}\libraries)$\r$\nto ($LPub3DViewerLibPath)" IDOK 0 
 FunctionEnd
 
 Function fnConfirmVC2015Redist
@@ -863,6 +870,16 @@ Section "Uninstall"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}"
   DeleteRegKey HKCU "Software\${Company}\${ProductName}\Installation\StartMenuFolder"
   DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\LDrawDir"
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\LDSearchDirs"  
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\PartsLibrary"
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\FadeStepColorPartsFile"
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\PliSubstitutePartsFile"
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\TitleAnnotationFile"
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\FreeFormAnnotationsFile"
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\MainWindow"
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Defaults"
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Updates"
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\POVRay"  
   DeleteRegKey /ifempty HKCU "Software\${Company}\${ProductName}\Installation"
   DeleteRegKey /ifempty HKCU "Software\${Company}\${ProductName}\Settings"
   DeleteRegKey /ifempty HKCU "Software\${Company}\${ProductName}"
@@ -872,15 +889,3 @@ Section "Uninstall"
   NoErrorMsg: 
   
 SectionEnd
-
-Function fnVerifyDeleteDirectory
-  StrCpy $HideDeleteDirectoryDialog 0
-  ${StrContains} $0 "$LOCALAPPDATA\${Company}\${ProductName}\libraries" $LPub3DViewerLibPath
-    StrCmp $0 "" notfound
-    StrCpy $HideDeleteDirectoryDialog 1
-    Goto done
-  notfound:
-    StrCpy $HideDeleteDirectoryDialog 0
-  done:
-    ;MessageBox MB_ICONEXCLAMATION "fnVerifyDeleteDirectory HideDeleteDirectoryDialog = $HideDeleteDirectoryDialog$\r$\nCompare this: ($LOCALAPPDATA\${Company}\${ProductName}\libraries)$\r$\nto ($LPub3DViewerLibPath)" IDOK 0 
-FunctionEnd
