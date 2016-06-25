@@ -543,9 +543,12 @@ int PreferencesDialog::checkUpdateFrequency()
 
 QStringList const PreferencesDialog::searchDirSettings()
 {
-  QString textEditContents = ui.textEditSearchDirs->toPlainText();
-  QStringList newContent = textEditContents.split("\n");
-  return newContent;
+    QString textEditContents = ui.textEditSearchDirs->toPlainText();
+    QStringList newContent;
+    if (! textEditContents.isEmpty()) {
+        newContent = textEditContents.split("\n");
+    }
+    return newContent;
 }
 
 void PreferencesDialog::updateChangelog (QString url) {

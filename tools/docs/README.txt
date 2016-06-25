@@ -1,8 +1,10 @@
-LPub3D 2.0.2.721.2 
+LPub3D 2.0.3.722.2 
  
 Features and enhancements 
 ------------ 
 -Change: Check for update settings are now enabled by default. Previously, it was necessary to configure update settings in the Preferences/Other tab before one could visually confirm an update check. (r722)
+-Fix: Warnings are displayed when there are no unofficial subdirectories under the LDraw directory. (r723)
+ *When no search directories are defined (i.e. No Unofficial or Models directories exist) and the user opens the Preferences dialog, teh LDraw Content Search Directories dialog will validate an empty dialog with a warning that the 'entry' is an invalid search directory. In such case no warnings should be displayed. 
 
 LPub3D 2.0.2.721.2 
  

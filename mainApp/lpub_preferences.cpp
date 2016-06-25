@@ -1002,23 +1002,26 @@ bool Preferences::getPreferences()
         }
 
         if (ldSearchDirs != dialog->searchDirSettings()) {
-            if (!dialog->searchDirSettings().isEmpty()){
+            if (! dialog->searchDirSettings().isEmpty()){
                 ldSearchDirs.clear();
                 QString unoffDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial"));
                 QString modelsDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("MODELS"));
                 foreach (QString dirPath, dialog->searchDirSettings()) {
-                    QDir ldrawiniDir(dirPath);
-                    if (!ldrawiniDir.exists() || (dirPath.size() > 1 && !dirPath.toLower().contains(unoffDirPath.toLower()) && dirPath.toLower() != modelsDirPath.toLower())){
-//                        QMessageBox::warning(NULL,
-//                                             QMessageBox::tr("LPub3D"),
-//                                             QMessageBox::tr("%1 is not a valid directory.\nAdded directories must be under the Unofficial directory. This path will not be saved.")
-//                                             .arg(dirPath));
+                    QDir searchDir(dirPath);
+                    if (!searchDir.exists() || (dirPath.size() > 1 && !dirPath.toLower().contains(unoffDirPath.toLower()) && dirPath.toLower() != modelsDirPath.toLower())){
+                        QMessageBox::warning(NULL,
+                                             QMessageBox::tr("LPub3D"),
+                                             QMessageBox::tr("%1 is not a valid directory.\nAdded directories must be under the Unofficial directory. This path will not be saved.")
+                                             .arg(dirPath));
                         continue;
                     } else {
                         ldSearchDirs << dirPath;
                     }
                 }
-                Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"),ldSearchDirs);
+                if (! ldSearchDirs.isEmpty())
+                    Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"),ldSearchDirs);
+                else
+                    Settings.remove(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"));
             } else {
                 Settings.remove(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"));
             }
