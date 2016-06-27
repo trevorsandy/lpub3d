@@ -281,10 +281,6 @@ int Step::createCsi(
                                 .arg(file3DNamekey));
           return rc;
         }
-
-    } else {
-      qDebug() << "3DViewer halted - rendering not allowed.";
-      return -1;
     }
 
   return 0;

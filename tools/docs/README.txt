@@ -9,6 +9,10 @@ Features and enhancements
  *Comparison of old and new are not the same evaluated to true. Comparison improved to check that old is actually a directory also.
 -Change: Change Set Version (Installed 2.0.X) under Preferences/Other to dropdown list (r725)
  *Manage better the dialog entry. Restrict the entry to only valid update options. This feature will be extended in the future to allow flexible forward and backward update management.
+-Fix: Crash when last line in main model of mpd file is a part type line - i.e. line starts with 1 to 5. (r726)
+ *This behavior will be seen when the user loads a model file without the meta tag '0 STEP' or '0 NOFILE'.
+-Fix: Export and PDF generation produces "Failed to create CSI" and does not produce model images in the generated document.(r727)
+ *Temporary testing code blocked the creation of CSI images - my apoligies:-(
 
 LPub3D 2.0.2.721.2 
  
