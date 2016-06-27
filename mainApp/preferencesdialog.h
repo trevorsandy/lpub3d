@@ -86,7 +86,7 @@ class PreferencesDialog : public QDialog
     void colorChange(QString const &colorName);
     void pushButtonReset_SetState();
     void updateChangelog (QString url);
-    void checkForUpdatesFoo();
+    void checkForUpdates();
 
 
 
@@ -99,6 +99,7 @@ private:
     ParmsWindow     *parmsWindow;              // the parametrer file editor
 
     QSimpleUpdater  *m_updater;
+    static QString   DEFS_URL;
 
 };
 

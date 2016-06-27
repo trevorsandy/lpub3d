@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 #include <QSettings>
-
+#include <QApplication>
 #include "updatecheck.h"
 #include "lpub_preferences.h"
 #include "version.h"
@@ -40,7 +40,7 @@ UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
 
     /* Run check for updates if sofware update */
     if (m_option == SoftwareUpdate) {
-        DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
+        DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(Preferences::moduleVersion);
         applyGeneralSettings(DEFS_URL);
         m_updater->checkForUpdates (DEFS_URL);      
     }

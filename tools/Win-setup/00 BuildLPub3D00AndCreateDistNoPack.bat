@@ -2,7 +2,7 @@
 Title Build and create manual and automatic LPub3D install distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June, 17, 2016
+rem  Last Update: June, 23, 2016
 rem  Copyright (c) 2016 by Trevor Sandy
 rem --
 SETLOCAL
@@ -11,9 +11,9 @@ SETLOCAL
 ECHO Build and create manual and automatic install distributions
 
 rem ---------------------------------------
-rem Change COMMAND to 1 to execute and 0 to ignore the respective command
-SET RUN_NSIS=0
-SET CLEANUP=0
+rem Change value to 1 to execute and 0 to ignore the respective command
+SET RUN_NSIS=1
+SET CLEANUP=1
 SET UCRT=0
 rem ---------------------------------------
 
@@ -186,7 +186,7 @@ FOR /F "tokens=*" %%i IN ('FINDSTR /n "^" "%temp%"') DO CALL :setversion %%i
 DEL %temp%
 CD /D ..\Win-setup\
 
-COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\Update\change_log.txt /A										>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\Update\change_log_%BUILDVERSION%.txt /A						>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\Download\ /A													>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\ /A																	>>  ../release/LPub3D.Release.build.log.txt
 XCOPY /S /I /E /V /Y ..\docs\CREDITS.txt ..\release\docs\ /A													>>  ../release/LPub3D.Release.build.log.txt
@@ -196,36 +196,41 @@ ECHO - Generating lpub3dupdates.json version input file...			>>  ../release/LPub
 ECHO. 	
 ECHO - Generating lpub3dupdates.json version input file...
 
-SET updatesFile=..\release\json\lpub3dupdates.json
+SET updatesFile=..\release\json\lpub3dupdate_%VERSION%.json
 SET genLPub3DUpdates=%updatesFile% ECHO
 
-SET VER_LATEST=%VER_MAJOR%.%VER_MINOR%.%VER_SP%
-
-:GENERATE lpub3dupdates.json version input file
+:GENERATE lpub3dupdates_(VERSION).json version input file
 >%genLPub3DUpdates% {
 >>%genLPub3DUpdates%   "_comment": "LPub3D lpub3dupdates.json generated on %DATETIMEf%",
 >>%genLPub3DUpdates%   "updates": {
 >>%genLPub3DUpdates%     "windows": {
->>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VER_LATEST%/",
->>%genLPub3DUpdates%       "latest-version": "%VER_LATEST%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster.exe",
->>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log.txt"
+>>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VERSION%/",
+>>%genLPub3DUpdates%       "latest-version": "%VERSION%",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-Update_%BUILDVERSION%.exe",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%BUILDVERSION%.txt"
 >>%genLPub3DUpdates%     },
 >>%genLPub3DUpdates%     "osx": {
->>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VER_LATEST%/",
->>%genLPub3DUpdates%       "latest-version": "%VER_LATEST%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster.exe",
->>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log.txt"
+>>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VERSION%/",
+>>%genLPub3DUpdates%       "latest-version": "%VERSION%",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-Update_%BUILDVERSION%.exe",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%BUILDVERSION%.txt"
 >>%genLPub3DUpdates%     },
 >>%genLPub3DUpdates%     "linux": {
->>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VER_LATEST%/",
->>%genLPub3DUpdates%       "latest-version": "%VER_LATEST%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster.exe",
->>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log.txt"
+>>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VERSION%/",
+>>%genLPub3DUpdates%       "latest-version": "%VERSION%",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-Update_%BUILDVERSION%.exe",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%BUILDVERSION%.txt"
 >>%genLPub3DUpdates%     }
 >>%genLPub3DUpdates%   }
 >>%genLPub3DUpdates% }
 >>%genLPub3DUpdates%.
+
+ECHO. 													 			>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Copying lpub3dupdate_%VERSION%.json to media folder...    	>>  ../release/LPub3D.Release.build.log.txt
+ECHO. 	
+ECHO - Copying lpub3dupdate_%VERSION%.json to media folder...
+
+COPY /V /Y ..\release\json\lpub3dupdate_%VERSION%.json ..\release\%VERSION%\Update\ /A							>>  ../release/LPub3D.Release.build.log.txt
 
 ECHO. 																											>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Generating latest.txt version input file (backgward compatability)...   									>>  ../release/LPub3D.Release.build.log.txt
@@ -237,13 +242,6 @@ SET genLatest=%latestFile% ECHO
 
 :GENERATE latest.txt file
 >%genLatest% %VERSION% 
-
-ECHO. 													 			>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Copying lpub3dupdates.json to media folder...    			>>  ../release/LPub3D.Release.build.log.txt
-ECHO. 	
-ECHO - Copying lpub3dupdates.json to media folder...
-
-COPY /V /Y ..\release\json\lpub3dupdates.json ..\release\%VERSION%\Update\ /A									>>  ../release/LPub3D.Release.build.log.txt
 
 ECHO. 																>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Generating AppVersion.nsh build input script...   			>>  ../release/LPub3D.Release.build.log.txt
@@ -262,6 +260,9 @@ SET genVersion=%versionFile% ECHO
 >>%genVersion%.	
 >>%genVersion% !define Version "%VERSION%"
 >>%genVersion% ; ${Version}
+>>%genVersion%.	
+>>%genVersion% !define BuildVersion "%BUILDVERSION%"
+>>%genVersion% ; ${BuildVersion}
 >>%genVersion%.	
 >>%genVersion% !define CompleteVersion "%VERSION%.%REVISION_CMS%.%BUILD%_%YEAR%%MONTH%%DAY%"
 >>%genVersion% ; ${CompleteVersion}
@@ -321,7 +322,7 @@ COPY /V /Y %Win32QtBinPath%\Qt5Network.dll ..\release\%VERSION%\%WIN32PRODUCTDIR
 COPY /V /Y %Win32QtBinPath%\Qt5OpenGL.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B              >>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win32QtBinPath%\Qt5PrintSupport.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B        >>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win32QtBinPath%\Qt5Widgets.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             >>  ../release/LPub3D.Release.build.log.txt
-rem NEW - start
+
 COPY /V /Y %Win32QtBinPath%\libGLESV2.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             	>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win32QtBinPath%\libEGL.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             	>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win32QtBinPath%\opengl32sw.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             >>  ../release/LPub3D.Release.build.log.txt
@@ -379,7 +380,6 @@ IF %UCRT% == 1 COPY /V /Y "%Win32DevKit10UCRTRedist%\API-MS-WIN-CRT-ENVIRONMENT-
 IF %UCRT% == 1 COPY /V /Y "%Win32DevKit10UCRTRedist%\API-MS-WIN-CRT-CONVERT-L1-1-0.DLL" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             	>>  ../release/LPub3D.Release.build.log.txt
 IF %UCRT% == 1 COPY /V /Y "%Win32DevKit10UCRTRedist%\API-MS-WIN-CRT-UTILITY-L1-1-0.DLL" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             	>>  ../release/LPub3D.Release.build.log.txt
 IF %UCRT% == 1 COPY /V /Y "%Win32DevKit10UCRTRedist%\API-MS-WIN-CRT-LOCALE-L1-1-0.DLL" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             	>>  ../release/LPub3D.Release.build.log.txt
-rem NEW - end
 
 ECHO. 																>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Copying %WIN64PRODUCTDIR% content to media folder...    		>>  ../release/LPub3D.Release.build.log.txt
@@ -406,7 +406,6 @@ COPY /V /Y %Win64QtBinPath%\Qt5OpenGL.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%
 COPY /V /Y %Win64QtBinPath%\Qt5PrintSupport.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B		>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win64QtBinPath%\Qt5Widgets.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B				>>  ../release/LPub3D.Release.build.log.txt
 
-rem NEW - start
 COPY /V /Y %Win64QtBinPath%\libGLESV2.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B             	>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win64QtBinPath%\libEGL.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B             	>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win64QtBinPath%\opengl32sw.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B             >>  ../release/LPub3D.Release.build.log.txt
@@ -463,7 +462,6 @@ IF %UCRT% == 1 COPY /V /Y "%Win64DevKit10UCRTRedist%\API-MS-WIN-CRT-ENVIRONMENT-
 IF %UCRT% == 1 COPY /V /Y "%Win64DevKit10UCRTRedist%\API-MS-WIN-CRT-CONVERT-L1-1-0.DLL" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B            >>  ../release/LPub3D.Release.build.log.txt
 IF %UCRT% == 1 COPY /V /Y "%Win64DevKit10UCRTRedist%\API-MS-WIN-CRT-UTILITY-L1-1-0.DLL" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B            >>  ../release/LPub3D.Release.build.log.txt
 IF %UCRT% == 1 COPY /V /Y "%Win64DevKit10UCRTRedist%\API-MS-WIN-CRT-LOCALE-L1-1-0.DLL" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B             >>  ../release/LPub3D.Release.build.log.txt
-rem NEW - end
 
 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Finished copying content to media folder...     			>>  ../release/LPub3D.Release.build.log.txt

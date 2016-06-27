@@ -78,7 +78,7 @@
    
   ;The files to write
   !ifdef UpdateMaster
-  OutFile "..\release\${ProductName}-UpdateMaster.exe"
+  OutFile "..\release\${ProductName}-UpdateMaster_${BuildVersion}.exe"
   !else
   OutFile "..\release\${ProductName}-${CompleteVersion}.exe"
   !endif

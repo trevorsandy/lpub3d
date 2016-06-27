@@ -31,7 +31,7 @@
 #include "lpub.h"
 #include "version.h"
 
-static const QString DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
+QString PreferencesDialog::DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(qApp->applicationVersion());
 
 PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     QDialog(_parent)
@@ -163,16 +163,13 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   /* QSimpleUpdater start */
   m_updater = QSimpleUpdater::getInstance();
 
-  /* Check for updates when the "Check For Updates" button is clicked */
   connect (m_updater, SIGNAL (checkingFinished (QString)),
            this,        SLOT (updateChangelog  (QString)));
 
   QString version = qApp->applicationVersion();
-  QRegExp ipRegex("^(?:(\\d+)\\.)?(?:(\\d+)\\.)?(\\*|\\d+)$");
-  QRegExpValidator *versionValidator = new QRegExpValidator(ipRegex,this);
-  ui.moduleVersion_lne->setValidator(versionValidator);
-  ui.moduleVersion_lne->setText(version);
-  ui.moduleVersion_lbl->setText(tr("Set version (installed: %1)").arg(version));
+  QStringList updatableVersions = tr(VER_UPDATEABLE_VERSIONS_STR).split(",");
+  ui.moduleVersion_Combo->addItems(updatableVersions);
+  ui.moduleVersion_Combo->setCurrentIndex(int(ui.moduleVersion_Combo->findText(version)));
 
   QString readme = tr("%1/%2").arg(Preferences::lpub3dPath,"README.txt");
   QFile file(readme);
@@ -380,7 +377,7 @@ void PreferencesDialog::on_pushButtonReset_clicked()
 
 void PreferencesDialog::on_checkForUpdates_btn_clicked()
 {
-    checkForUpdatesFoo();
+    checkForUpdates();
 }
 
 void PreferencesDialog::pushButtonReset_SetState()
@@ -560,17 +557,18 @@ void PreferencesDialog::updateChangelog (QString url) {
 
 QString const PreferencesDialog::moduleVersion()
 {
-   return ui.moduleVersion_lne->displayText();
+   return ui.moduleVersion_Combo->currentText();
 }
 
-void PreferencesDialog::checkForUpdatesFoo () {
+void PreferencesDialog::checkForUpdates () {
     /* Get settings from the UI */
-    QString moduleVersion = ui.moduleVersion_lne->displayText();
+    QString moduleVersion = ui.moduleVersion_Combo->currentText();
     bool enableDownloader = ui.enableDownloader_Chk->isChecked();
     bool showAllNotifications = ui.showAllNotificstions_Chk->isChecked();
     bool showUpdateNotifications = ui.showUpdateNotifications_Chk->isChecked();
 
     /* Apply the settings */
+    DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(moduleVersion);
     if (m_updater->getModuleVersion(DEFS_URL) != moduleVersion)
         m_updater->setModuleVersion(DEFS_URL, moduleVersion);
     m_updater->setEnableDownloader(DEFS_URL, enableDownloader);

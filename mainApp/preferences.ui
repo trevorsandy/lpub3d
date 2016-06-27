@@ -28,7 +28,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -55,38 +55,54 @@
        <property name="checked">
         <bool>false</bool>
        </property>
-       <layout class="QHBoxLayout">
-        <item>
-         <widget class="QLabel" name="label_6">
-          <property name="text">
-           <string>Path</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="ldrawPath">
-          <property name="minimumSize">
-           <size>
-            <width>200</width>
-            <height>0</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="browseLDraw">
-          <property name="toolTip">
-           <string>Use directory dialog to find LDraw directory</string>
-          </property>
-          <property name="whatsThis">
-           <string>This lets you find the LDraw directory</string>
-          </property>
-          <property name="text">
-           <string>Browse...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QLabel" name="label_6">
+        <property name="geometry">
+         <rect>
+          <x>12</x>
+          <y>43</y>
+          <width>41</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Path</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="ldrawPath">
+        <property name="geometry">
+         <rect>
+          <x>59</x>
+          <y>41</y>
+          <width>281</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="browseLDraw">
+        <property name="geometry">
+         <rect>
+          <x>346</x>
+          <y>37</y>
+          <width>93</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Use directory dialog to find LDraw directory</string>
+        </property>
+        <property name="whatsThis">
+         <string>This lets you find the LDraw directory</string>
+        </property>
+        <property name="text">
+         <string>Browse...</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QGroupBox" name="pliBox">
        <property name="geometry">
@@ -109,38 +125,54 @@
        <property name="checked">
         <bool>false</bool>
        </property>
-       <layout class="QHBoxLayout">
-        <item>
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>Name</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="pliName">
-          <property name="minimumSize">
-           <size>
-            <width>200</width>
-            <height>0</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="browsePli">
-          <property name="toolTip">
-           <string>Use directory dialog to find the PLI file</string>
-          </property>
-          <property name="whatsThis">
-           <string>Use directory dialog to find the PLI file</string>
-          </property>
-          <property name="text">
-           <string>Browse...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QLabel" name="label_5">
+        <property name="geometry">
+         <rect>
+          <x>14</x>
+          <y>43</y>
+          <width>41</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="pliName">
+        <property name="geometry">
+         <rect>
+          <x>59</x>
+          <y>41</y>
+          <width>281</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="browsePli">
+        <property name="geometry">
+         <rect>
+          <x>346</x>
+          <y>37</y>
+          <width>93</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Use directory dialog to find the PLI file</string>
+        </property>
+        <property name="whatsThis">
+         <string>Use directory dialog to find the PLI file</string>
+        </property>
+        <property name="text">
+         <string>Browse...</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QGroupBox" name="fadeStepBox">
        <property name="geometry">
@@ -447,25 +479,42 @@
        <property name="checked">
         <bool>false</bool>
        </property>
-       <layout class="QHBoxLayout" name="_3">
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Name</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="ldglitePath"/>
-        </item>
-        <item>
-         <widget class="QPushButton" name="browseLDGLite">
-          <property name="text">
-           <string>Browse...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QLabel" name="label">
+        <property name="geometry">
+         <rect>
+          <x>12</x>
+          <y>36</y>
+          <width>51</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="ldglitePath">
+        <property name="geometry">
+         <rect>
+          <x>66</x>
+          <y>35</y>
+          <width>261</width>
+          <height>20</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="browseLDGLite">
+        <property name="geometry">
+         <rect>
+          <x>336</x>
+          <y>31</y>
+          <width>93</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Browse...</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QGroupBox" name="ldviewBox">
        <property name="geometry">
@@ -501,9 +550,9 @@
        <widget class="QLineEdit" name="ldviewPath">
         <property name="geometry">
          <rect>
-          <x>54</x>
+          <x>64</x>
           <y>56</y>
-          <width>271</width>
+          <width>261</width>
           <height>20</height>
          </rect>
         </property>
@@ -524,9 +573,9 @@
        <widget class="QCheckBox" name="ldviewSingleCall_Chk">
         <property name="geometry">
          <rect>
-          <x>54</x>
+          <x>64</x>
           <y>26</y>
-          <width>271</width>
+          <width>261</width>
           <height>20</height>
          </rect>
         </property>
@@ -593,38 +642,54 @@
        <property name="checked">
         <bool>false</bool>
        </property>
-       <layout class="QHBoxLayout" name="_5">
-        <item>
-         <widget class="QLabel" name="label_16">
-          <property name="text">
-           <string>Path</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="publishLogoPath">
-          <property name="minimumSize">
-           <size>
-            <width>200</width>
-            <height>0</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="browsePublishLogo">
-          <property name="toolTip">
-           <string>Use dialog to select logo file</string>
-          </property>
-          <property name="whatsThis">
-           <string>This lets you select your logo file</string>
-          </property>
-          <property name="text">
-           <string>Browse...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QLabel" name="label_16">
+        <property name="geometry">
+         <rect>
+          <x>12</x>
+          <y>32</y>
+          <width>51</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Path</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="publishLogoPath">
+        <property name="geometry">
+         <rect>
+          <x>59</x>
+          <y>30</y>
+          <width>281</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="browsePublishLogo">
+        <property name="geometry">
+         <rect>
+          <x>346</x>
+          <y>26</y>
+          <width>93</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Use dialog to select logo file</string>
+        </property>
+        <property name="whatsThis">
+         <string>This lets you select your logo file</string>
+        </property>
+        <property name="text">
+         <string>Browse...</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QGroupBox" name="publishDescriptionBox">
        <property name="geometry">
@@ -782,52 +847,6 @@
       <attribute name="title">
        <string>Other</string>
       </attribute>
-      <widget class="QLabel" name="label_11">
-       <property name="geometry">
-        <rect>
-         <x>22</x>
-         <y>35</y>
-         <width>61</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Frequency</string>
-       </property>
-      </widget>
-      <widget class="QComboBox" name="checkUpdateFrequency_Combo">
-       <property name="geometry">
-        <rect>
-         <x>86</x>
-         <y>35</y>
-         <width>111</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>Select check for update frequency</string>
-       </property>
-       <item>
-        <property name="text">
-         <string>Never</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Once a day</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Once a week</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Once a month</string>
-        </property>
-       </item>
-      </widget>
       <widget class="QGroupBox" name="groupBoxUpdates">
        <property name="geometry">
         <rect>
@@ -843,46 +862,30 @@
        <property name="title">
         <string>Check for updates</string>
        </property>
-       <widget class="QLineEdit" name="moduleVersion_lne">
-        <property name="geometry">
-         <rect>
-          <x>374</x>
-          <y>52</y>
-          <width>51</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="toolTip">
-         <string>Enter the application version to compare.</string>
-        </property>
-        <property name="text">
-         <string>0.1</string>
-        </property>
-        <property name="placeholderText">
-         <string>Write a version string...</string>
-        </property>
-       </widget>
        <widget class="QLabel" name="moduleVersion_lbl">
         <property name="geometry">
          <rect>
-          <x>200</x>
-          <y>52</y>
-          <width>171</width>
+          <x>213</x>
+          <y>23</y>
+          <width>121</width>
           <height>20</height>
          </rect>
         </property>
         <property name="toolTip">
-         <string>Change the application version to use when comparing with update version. Use to update earlier version.</string>
+         <string>Change the installed version to use when comparing with update version. Use to override installed version.</string>
         </property>
         <property name="text">
-         <string>Set version (installed 1.0)</string>
+         <string>Version installed </string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
        </widget>
        <widget class="QCheckBox" name="showAllNotificstions_Chk">
         <property name="geometry">
          <rect>
           <x>15</x>
-          <y>52</y>
+          <y>53</y>
           <width>181</width>
           <height>16</height>
          </rect>
@@ -898,7 +901,7 @@
         <property name="geometry">
          <rect>
           <x>15</x>
-          <y>77</y>
+          <y>82</y>
           <width>181</width>
           <height>16</height>
          </rect>
@@ -916,8 +919,8 @@
        <widget class="QCheckBox" name="enableDownloader_Chk">
         <property name="geometry">
          <rect>
-          <x>200</x>
-          <y>77</y>
+          <x>213</x>
+          <y>53</y>
           <width>171</width>
           <height>16</height>
          </rect>
@@ -936,9 +939,9 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>100</y>
+          <y>110</y>
           <width>431</width>
-          <height>131</height>
+          <height>121</height>
          </rect>
         </property>
         <property name="title">
@@ -964,8 +967,8 @@ p, li { white-space: pre-wrap; }
        <widget class="QPushButton" name="checkForUpdates_btn">
         <property name="geometry">
          <rect>
-          <x>200</x>
-          <y>20</y>
+          <x>326</x>
+          <y>75</y>
           <width>111</width>
           <height>28</height>
          </rect>
@@ -975,6 +978,68 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="text">
          <string>Check for Updates</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="moduleVersion_Combo">
+        <property name="geometry">
+         <rect>
+          <x>325</x>
+          <y>22</y>
+          <width>111</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Change the installed version to use when comparing with update version. Use to override installed version.</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="checkUpdateFrequency_Combo">
+        <property name="geometry">
+         <rect>
+          <x>90</x>
+          <y>22</y>
+          <width>111</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Select check for update frequency</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Never</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Once a day</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Once a week</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Once a month</string>
+         </property>
+        </item>
+       </widget>
+       <widget class="QLabel" name="frequency_lbl">
+        <property name="geometry">
+         <rect>
+          <x>16</x>
+          <y>23</y>
+          <width>61</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::NoContextMenu</enum>
+        </property>
+        <property name="text">
+         <string>Frequency</string>
         </property>
        </widget>
       </widget>
@@ -1068,11 +1133,6 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </widget>
-      <zorder>groupBoxUpdates</zorder>
-      <zorder>label_11</zorder>
-      <zorder>checkUpdateFrequency_Combo</zorder>
-      <zorder>line</zorder>
-      <zorder>groupBoxSearchDirs</zorder>
      </widget>
     </widget>
    </item>
