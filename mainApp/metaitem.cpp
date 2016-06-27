@@ -1858,39 +1858,45 @@ int MetaItem::okToInsertFinalModel()
     QString line;
     Meta content;
     Where here(gui->topLevelFile(),0);
-    here.lineNumber = gui->subFileSize(here.modelName); //start at bottom of file
-    here--;                                             //adjust to readline from zero-start index
+    here.lineNumber = gui->subFileSize(here.modelName);                 //start at bottom of file
+    here--;                                                             //adjust to readline using from zero-start index
 
-    for ( ; here >= 0; here--) {                        //scan backwards
+    for ( ; here >= 0; here--) {                                        //scan backwards
         line = gui->readLine(here);
         rc = content.parse(line,here);
 
-        if (rc == InsertRc) {                           //check if insert line is Insert Model
+        if (rc == InsertRc) {                                           //check if insert line is Insert Model
             QRegExp InsertFinalModel("^\\s*0\\s+!LPUB\\s+.*MODEL");
             if (line.contains(InsertFinalModel)){
 //                logInfo() << " \nModel detected at line: " << here.lineNumber;
-                return -1;                              //insert line exist so return -1;
+                return -1;                                              //insert line exist so return -1;
             }
             continue;
-        } else if (rc == StepGroupEndRc) {              //if Step Grpup, then there is no final model
+        } else if (rc == StepGroupEndRc) {                              //if Step Grpup, then there is no final model
 //            logInfo() << " \nOK to Insert Model after StepGroup at line: " << here.lineNumber;
-            return here.lineNumber;						//so return line number
-        } else {										//no Insert line encountered os check for non-zero line
+            return here.lineNumber;                                     //so return line number
+        } else {                                                        //no Insert or stepgroup line encountered os check for non-zero line
             QStringList tokens;
             split(line,tokens);
             bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
                  tokens[0] >= "1" && tokens[0] <= "5";
-            if (token_1_5) {                            //non-zero line detected so no back final model, return line number
-                Where walkForward = here;               //check if previous line was a STEP
-                walkForward++;
-                line = gui->readLine(walkForward);
-                rc = content.parse(line,walkForward);
-                if (rc == StepRc){
+            if (token_1_5) {                                            //non-zero line detected so no back final model
+                int fileSize = gui->subFileSize(here.modelName) - 1;    //adjust to readline using from zero-start index
+                if (here.lineNumber < (fileSize)) {                     //check if at end of file
+                    Where walkForward = here;
+                    walkForward++;
+                    line = gui->readLine(walkForward);
+                    rc = content.parse(line,walkForward);
+                    if (rc == StepRc){                                  //check if previous line was a STEP
 //                    logInfo() << " \nOK to Insert Model after STEP at line: " << here.lineNumber;
-                    return walkForward.lineNumber;
+                        return walkForward.lineNumber;                  // if previous line was a STEP line number after STEP
+                    } else {
+//                    logInfo() << " \nOK to Insert Model after Parts at line: " << here.lineNumber;
+                        return here.lineNumber;                         // else return line number
+                    }
                 } else {
 //                    logInfo() << " \nOK to Insert Model after Parts at line: " << here.lineNumber;
-                    return here.lineNumber;
+                    return here.lineNumber;                             // at last line so return line number
                 }
             }
         }

@@ -579,8 +579,15 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
         bool alreadyInserted = LDrawFile::contains(mpdName.toLower());
 
+        /* - if at start of file marker, populate mpdName
+         * - if at end of file marker, clear mpdName
+         */
         if (sof || eof) {
-
+            /* - if at end of file marker
+             * - insert items if mpdName not empty
+             * - as mpdName not empty, unofficial part = false
+             * - after insert, clear contents item
+             */
             if (! mpdName.isEmpty() && ! alreadyInserted) {
 //                logTrace() << "Inserted Subfile: " << mpdName;
                 insert(mpdName,contents,datetime,unofficialPart);
@@ -588,6 +595,10 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
             }
             contents.clear();
 
+            /* - if at start of file marker
+             * - set mpdName of new file
+             * - else if at end of file marker, clear mpdName
+             */
             if (sof) {
                 mpdName = sofRE.cap(1).toLower();
                 emit gui->messageSig(true, "Loading submodel " + mpdName);
@@ -596,6 +607,10 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
             }
 
         } else if ( ! mpdName.isEmpty() && smLine != "") {
+            /* - after start of file - mpdName not empty
+             * - if line contains unofficial tag set unofficial part = true
+             * - add line to contents
+             */
             if (isUnofficialFileType(smLine)) {
                 unofficialPart = true;
             }
