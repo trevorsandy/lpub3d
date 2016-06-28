@@ -38,6 +38,7 @@
 // System includes
 //==============================================================================
 
+#include <QJsonArray>
 #include <QJsonValue>
 #include <QJsonObject>
 #include <QMessageBox>
@@ -394,12 +395,73 @@ void Updater::onReply (QNetworkReply* reply) {
 
         } else {
 
-            m_openUrl = platform.value ("open-url").toString();
-            m_downloadUrl = platform.value ("download-url").toString();
-            m_latestVersion = platform.value ("latest-version").toString();
-            QString _changelogUrl = platform.value ("changelog-url").toString();
+            QString _changelogUrl;
+            bool _updateAvailable;
 
-            bool _updateAvailable = compare (latestVersion(), moduleVersion());
+            if (moduleVersion() == qApp->applicationVersion()) {
+                // we are looking to update the latest version
+
+                m_openUrl = platform.value ("open-url").toString();
+                m_downloadUrl = platform.value ("download-url").toString();
+                m_latestVersion = platform.value ("latest-version").toString();
+                _changelogUrl = platform.value ("changelog-url").toString();
+
+                _updateAvailable = compare (latestVersion(), moduleVersion());
+
+            } else {
+                // we are looking to update an alternate version
+
+                QMessageBox box;
+                box.setTextFormat (Qt::RichText);
+                box.setIcon (QMessageBox::Warning);
+                box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
+                box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+                box.setWindowTitle(tr ("Software Update"));
+                QString title = "<b> This is a rollback or reinstall update. </b>";
+                QString text = tr("Be sure you are comfortable with this type of update as some advanced, manual system configuration may be necessary.");
+
+                box.setText (title);
+                box.setInformativeText (text);
+
+                if (box.exec() == QMessageBox::Ok) {
+                    QStringList versions = platform.value ("available-versions").toString().split(",");
+                    QString latestVersion = platform.value ("latest-version").toString();
+
+                    // sort versions descending 0...10...
+                    std::sort(versions.begin(),versions.end());
+                    qDebug() << "Versions (sorted): " << versions;
+                    for (int i = 0; i < versions.size(); i++) {
+                        if (versions[i] == moduleVersion()) {
+                            _updateAvailable = true;
+                            int updateIndex = i;
+                            (updateIndex + 1) == versions.size() ? updateIndex = i : updateIndex = updateIndex + 1;
+                            qDebug() << "Update to version: " << versions[updateIndex];
+
+                            if (versions[updateIndex] == latestVersion){
+                                // Update to version is same as latest version - i.e. reinstall latest version
+
+                                m_openUrl = platform.value ("open-url").toString();
+                                m_downloadUrl = platform.value ("download-url").toString();
+                                m_latestVersion = platform.value ("latest-version").toString();
+                                _changelogUrl = platform.value ("changelog-url").toString();
+                            } else {
+                                // Update to version is othere than the latest version
+
+                                QJsonObject altVersion = platform.value(QString("alternate-version-%1").arg(versions[updateIndex])).toObject();
+                                if (altVersion.isEmpty()) {
+                                    showErrorMessage("Unable to retrieve version " + versions[updateIndex] + ". Version number not found.");
+                                    return;
+                                }
+                                m_openUrl = altVersion.value ("open-url").toString();
+                                m_downloadUrl = altVersion.value ("download-url").toString();
+                                m_latestVersion = altVersion.value ("latest-version").toString();
+                                _changelogUrl = altVersion.value ("changelog-url").toString();
+                            }
+                            break;
+                        }
+                    }
+                } else {return;}
+            }
 
             if (_updateAvailable) {
                 QNetworkAccessManager *_manager = new QNetworkAccessManager (this);
@@ -420,6 +482,7 @@ void Updater::onReply (QNetworkReply* reply) {
             QSettings Settings;
             Settings.setValue("Updates/LastCheck", QDateTime::currentDateTimeUtc());
         }
+
     } else {
         showErrorMessage("Error connecting to update server: " + reply->errorString());
     }
@@ -512,7 +575,7 @@ void Updater::setDownloadAvailable () {
     box.setIconPixmap (_icon);
     box.setTextFormat (Qt::RichText);
     box.setWindowTitle(tr ("Library Update"));
-    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint );
 
     QString title = "<b>" + tr ("Download %1?")
                                 .arg(downloadName()) + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>";
@@ -576,10 +639,18 @@ void Updater::showErrorMessage (QString error)
     {
       m_progressDialog->hide();
 
-      QString windowTitle  = isNotSoftwareUpdate() ? tr ("Library Update") : "Software Update";
-      QString text = isNotSoftwareUpdate() ? tr ("downloading %1") .arg(downloadName()) : "checking for update";
+      QMessageBox box;
+      box.setTextFormat (Qt::RichText);
+      box.setIcon (QMessageBox::Critical);
+      box.setStandardButtons (QMessageBox::Ok );
+      box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+      box.setWindowTitle(isNotSoftwareUpdate() ? tr ("Library Update") : tr ("Software Update"));
+      QString title = isNotSoftwareUpdate() ? "<b>" + tr ("An error occured while downloading %1") .arg(downloadName()) + "</b>" :
+                                              "<b> An error occured while checking for update. </b>";
+      QString text = tr("%1").arg(error);
 
-      QMessageBox::warning (NULL, windowTitle,
-                            tr ("An error occured while %1. \n %2").arg(text).arg(error));
+      box.setText (title);
+      box.setInformativeText (text);
+      box.exec();
     }
 }

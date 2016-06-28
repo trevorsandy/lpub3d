@@ -31,7 +31,8 @@
 #include "lpub.h"
 #include "version.h"
 
-QString PreferencesDialog::DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(qApp->applicationVersion());
+//QString PreferencesDialog::DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(qApp->applicationVersion());
+QString PreferencesDialog::DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
 
 PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     QDialog(_parent)
@@ -568,7 +569,7 @@ void PreferencesDialog::checkForUpdates () {
     bool showUpdateNotifications = ui.showUpdateNotifications_Chk->isChecked();
 
     /* Apply the settings */
-    DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(moduleVersion);
+//    DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(moduleVersion);
     if (m_updater->getModuleVersion(DEFS_URL) != moduleVersion)
         m_updater->setModuleVersion(DEFS_URL, moduleVersion);
     m_updater->setEnableDownloader(DEFS_URL, enableDownloader);

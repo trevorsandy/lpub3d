@@ -12,8 +12,9 @@ ECHO Build and create manual and automatic install distributions
 
 rem ---------------------------------------
 rem Change value to 1 to execute and 0 to ignore the respective command
-SET RUN_NSIS=1
-SET CLEANUP=1
+SET RUN_NSIS=0
+SET CLEANUP=0
+SET GENBUILDVER=0
 SET UCRT=0
 rem ---------------------------------------
 
@@ -87,6 +88,9 @@ SET VERSION=unknown
 SET VER_MAJOR=unknown
 SET VER_MINOR=unknown
 SET REVISION_CMS=unknown
+SET AVAILVERSIONS=unknown
+SET LASTVERSION=unknown
+SET ALTVERSION=unknown
 
 SET COMPANY=unknown
 SET COMMENTS=unknown
@@ -170,9 +174,9 @@ IF NOT EXIST "..\release\%VERSION%\Update\" (
 )
 
 ECHO. 													 			>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Copying change_log to media folder...    					>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Copying change_log_%VERSION% to media folder...    			>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
-ECHO - Copying change_log to media folder...
+ECHO - Copying change_log_%VERSION% to media folder...
 
 SET file=README.txt
 SET temp=temp.dat
@@ -186,55 +190,129 @@ FOR /F "tokens=*" %%i IN ('FINDSTR /n "^" "%temp%"') DO CALL :setversion %%i
 DEL %temp%
 CD /D ..\Win-setup\
 
-COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\Update\change_log_%BUILDVERSION%.txt /A						>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\Update\change_log_%VERSION%.txt /A							>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\Download\ /A													>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\ /A																	>>  ../release/LPub3D.Release.build.log.txt
 XCOPY /S /I /E /V /Y ..\docs\CREDITS.txt ..\release\docs\ /A													>>  ../release/LPub3D.Release.build.log.txt
 
 ECHO. 																>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Generating lpub3dupdates.json version input file...			>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Generating lastVersionInsert.txt input file...				>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
-ECHO - Generating lpub3dupdates.json version input file...
+ECHO - Generating lastVersionInsert.txt input file...
 
-SET updatesFile=..\release\json\lpub3dupdate_%VERSION%.json
+FOR /F "tokens=2*" %%i IN ('FINDSTR /c:"_LAST_VERSION" BuildVersions.txt') DO SET LASTVERSION=%%i
+FOR /F "tokens=2*" %%i IN ('FINDSTR /c:"_ALT_VERSION" BuildVersions.txt') DO SET ALTVERSION=%%i
+FOR /F "tokens=2*" %%i IN ('FINDSTR /c:"_AVAIL_VERSIONS" BuildVersions.txt') DO SET AVAILVERSIONS=%%i
+
+SET lastVersionInsertFile=..\release\json\lastVersionInsert.txt
+SET genLastVersionInsert=%lastVersionInsertFile% ECHO
+
+:GENERATE lastVersionInsert.txt file
+>%genLastVersionInsert%       "alternate-version-%LASTVERSION%": {
+>>%genLastVersionInsert%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%LASTVERSION%/",
+>>%genLastVersionInsert%         "latest-version": "%LASTVERSION%",
+>>%genLastVersionInsert%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LASTVERSION%.exe",
+>>%genLastVersionInsert%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LASTVERSION%.txt"
+>>%genLastVersionInsert%       },
+
+ECHO. 																>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Generating lpub3dupdates.json template file...				>>  ../release/LPub3D.Release.build.log.txt
+ECHO. 	
+ECHO - Generating lpub3dupdates.json template file...
+
+SET updatesFile=..\release\json\lpub3dupdates.json
 SET genLPub3DUpdates=%updatesFile% ECHO
 
-:GENERATE lpub3dupdates_(VERSION).json version input file
+:GENERATE lpub3dupdates.json template file
 >%genLPub3DUpdates% {
 >>%genLPub3DUpdates%   "_comment": "LPub3D lpub3dupdates.json generated on %DATETIMEf%",
 >>%genLPub3DUpdates%   "updates": {
 >>%genLPub3DUpdates%     "windows": {
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%VERSION%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-Update_%BUILDVERSION%.exe",
->>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%BUILDVERSION%.txt"
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-Update_%VERSION%.exe",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%VERSION%.txt",
+>>%genLPub3DUpdates%       "available-versions": "%VERSION%,%AVAILVERSIONS%",
+>>%genLPub3DUpdates%       "alternate-version-1.3.5": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/1.3.5/",
+>>%genLPub3DUpdates%      	 "latest-version": "1.3.5",
+>>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_1.3.5.exe",
+>>%genLPub3DUpdates%      	 "changelog-url": "http://lpub3d.sourceforge.net/change_log_1.3.5.txt"
+>>%genLPub3DUpdates%       },
+>>%genLPub3DUpdates%       "alternate-version-1.2.3": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/1.2.3/",
+>>%genLPub3DUpdates%      	 "latest-version": "1.2.3",
+>>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_1.2.3.exe",
+>>%genLPub3DUpdates%      	 "changelog-url": "http://lpub3d.sourceforge.net/change_log_1.2.3.txt"
+>>%genLPub3DUpdates%       },
+>>%genLPub3DUpdates%       "alternate-version-1.0.0": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/1.0.0/",
+>>%genLPub3DUpdates%      	 "latest-version": "1.0.0",
+>>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_1.0.0.exe",
+>>%genLPub3DUpdates%      	 "changelog-url": "http://lpub3d.sourceforge.net/change_log_1.0.0.txt"
+>>%genLPub3DUpdates%       }
 >>%genLPub3DUpdates%     },
 >>%genLPub3DUpdates%     "osx": {
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%VERSION%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-Update_%BUILDVERSION%.exe",
->>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%BUILDVERSION%.txt"
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-Update_%VERSION%.exe",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%VERSION%.txt",
+>>%genLPub3DUpdates%       "available-versions": ""  
 >>%genLPub3DUpdates%     },
 >>%genLPub3DUpdates%     "linux": {
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%VERSION%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-Update_%BUILDVERSION%.exe",
->>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%BUILDVERSION%.txt"
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-Update_%VERSION%.exe",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%VERSION%.txt",
+>>%genLPub3DUpdates%       "available-versions": ""
 >>%genLPub3DUpdates%     }
 >>%genLPub3DUpdates%   }
 >>%genLPub3DUpdates% }
 >>%genLPub3DUpdates%.
 
 ECHO. 													 			>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Copying lpub3dupdate_%VERSION%.json to media folder...    	>>  ../release/LPub3D.Release.build.log.txt
-ECHO. 	
-ECHO - Copying lpub3dupdate_%VERSION%.json to media folder...
+IF %GENBUILDVER% == 1 ECHO - Updating build versions input file... 	>>  ../release/LPub3D.Release.build.log.txt
+IF %GENBUILDVER% == 1 ECHO. 	
+IF %GENBUILDVER% == 1 ECHO - Upsdating build versions input file...
 
-COPY /V /Y ..\release\json\lpub3dupdate_%VERSION%.json ..\release\%VERSION%\Update\ /A							>>  ../release/LPub3D.Release.build.log.txt
+IF %GENBUILDVER% == 0 ECHO - Ignoring build versions input file... 	>>  ../release/LPub3D.Release.build.log.txt
+IF %GENBUILDVER% == 0 ECHO. 	
+IF %GENBUILDVER% == 0 ECHO - Ignoring build versions input file...
 
-ECHO. 																											>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Generating latest.txt version input file (backgward compatability)...   									>>  ../release/LPub3D.Release.build.log.txt
+IF %GENBUILDVER% == 1 SET BuildVersions=.\BuildVersions.txt
+IF %GENBUILDVER% == 1 SET genBuildVersions=%BuildVersions% ECHO
+
+:GENERATE BuildVersions.txt file
+IF %GENBUILDVER% == 1 >%genBuildVersions% _LAST_VERSION %VERSION%
+IF %GENBUILDVER% == 1 >>%genBuildVersions% _ALT_VERSION %LASTVERSION%
+IF %GENBUILDVER% == 1 >>%genBuildVersions% _AVAIL_VERSIONS %VERSION%,%AVAILVERSIONS%
+
+ECHO. 																>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Generating lpub3dupdates.json version input file...			>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
+ECHO - Generating lpub3dupdates.json version input file...
+
+(
+  FOR /F "tokens=*" %%i IN (..\release\json\lpub3dupdates.json) DO (
+    IF "%%i" EQU ""alternate-version-%ALTVERSION%": {" (
+      TYPE ..\release\json\lastVersionInsert.txt
+    )
+	ECHO %%i
+  )
+) >temp.txt
+MOVE /y temp.txt ..\release\json\lpub3dupdates.json					>>  ../release/LPub3D.Release.build.log.txt
+DEL /Q ..\release\json\lastVersionInsert.txt
+
+ECHO. 													 			>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Copying lpub3dupdats.json to media folder...    				>>  ../release/LPub3D.Release.build.log.txt
+ECHO. 	
+ECHO - Copying lpub3dupdates.json to media folder...
+
+COPY /V /Y ..\release\json\lpub3dupdates.json ..\release\%VERSION%\Update\ /A									>>  ../release/LPub3D.Release.build.log.txt
+
+ECHO.                                   																		>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Generating latest.txt version input file (backgward compatability)...                                    >>  ../release/LPub3D.Release.build.log.txt
+ECHO.   
 ECHO - Generating latest.txt version input file (backgward compatability)...
 
 SET latestFile=..\release\%VERSION%\Update\latest.txt
@@ -260,9 +338,6 @@ SET genVersion=%versionFile% ECHO
 >>%genVersion%.	
 >>%genVersion% !define Version "%VERSION%"
 >>%genVersion% ; ${Version}
->>%genVersion%.	
->>%genVersion% !define BuildVersion "%BUILDVERSION%"
->>%genVersion% ; ${BuildVersion}
 >>%genVersion%.	
 >>%genVersion% !define CompleteVersion "%VERSION%.%REVISION_CMS%.%BUILD%_%YEAR%%MONTH%%DAY%"
 >>%genVersion% ; ${CompleteVersion}
@@ -519,10 +594,22 @@ IF %CLEANUP% == 0 ECHO - Ignore remove %PRODUCT% %VERSION% build files...
 
 IF %CLEANUP% == 1 RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 								>>  ../release/LPub3D.Release.build.log.txt
 
-IF %RUN_NSIS% == 1 ECHO. 													 		>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated files to media folder...			>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO. 	
-IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated files to media folder...
+IF %RUN_NSIS% == 1 ECHO.												 																>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...										>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO. 																												>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...							>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO.	
+IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...		
+IF %RUN_NSIS% == 1 ECHO.	
+IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...	
+
+IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...									>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO. 																												>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...						>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO. 	
+IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...	
+IF %RUN_NSIS% == 0 ECHO. 			
+IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...	
 
 IF %RUN_NSIS% == 1 MOVE /Y ..\release\%DOWNLOADPRODUCT%.exe ..\release\%VERSION%\Download\												>>  ../release/LPub3D.Release.build.log.txt		
 IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster.exe ..\release\%VERSION%\Update\											>>  ../release/LPub3D.Release.build.log.txt		

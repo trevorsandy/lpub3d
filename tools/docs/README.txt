@@ -1,19 +1,19 @@
-LPub3D 2.0.3.722.2 
+LPub3D 2.0.3.727.12 
  
 Features and enhancements 
 ------------ 
--Change: Check for update settings are now enabled by default. Previously, it was necessary to configure update settings in the Preferences/Other tab before one could visually confirm an update check. (r722)
--Fix: Warnings are displayed when there are no unofficial subdirectories under the LDraw directory. (r723)
+-Change: Check for update settings are now enabled by default. Previously, it was necessary to configure update settings in the Preferences/Other tab before one could visually confirm an update check. (r722) 
+-Fix: Warnings are displayed when there are no unofficial subdirectories under the LDraw directory. (r723) 
  *When no search directories are defined (i.e. No Unofficial or Models directories exist) and the user opens the Preferences dialog, teh LDraw Content Search Directories dialog will validate an empty dialog with a warning that the 'entry' is an invalid search directory. In such case no warnings should be displayed. 
--Fix: Installation program presents options to delete 'old' library directory on new installation when no old directory existed. (r724)
- *Comparison of old and new are not the same evaluated to true. Comparison improved to check that old is actually a directory also.
--Change: Change Set Version (Installed 2.0.X) under Preferences/Other to dropdown list (r725)
- *Manage better the dialog entry. Restrict the entry to only valid update options. This feature will be extended in the future to allow flexible forward and backward update management.
--Fix: Crash when last line in main model of mpd file is a part type line - i.e. line starts with 1 to 5. (r726)
- *This behavior will be seen when the user loads a model file without the meta tag '0 STEP' or '0 NOFILE'.
--Fix: Export and PDF generation produces "Failed to create CSI" and does not produce model images in the generated document.(r727)
- *Temporary testing code blocked the creation of CSI images - my apoligies:-(
-
+-Fix: Installation program presents options to delete 'old' library directory on new installation when no old directory existed. (r724) 
+ *Comparison of old and new are not the same evaluated to true. Comparison improved to check that old is actually a directory also. 
+-Change: Preferences/Other/Check for updates/Version now presents all valid updatable versions in a dropdown list. (r725,r728) 
+ *Manage better the update dialog. Restrict entries to only valid update versions.
+-Fix: Crash when last line in main model of mpd file is a part type line - i.e. line starts with 1 to 5. (r726) 
+ *This behavior will be seen when the user loads a model file without the meta tag '0 STEP' or '0 NOFILE'. 
+-Fix: Export and PDF generation produces "Failed to create CSI" and does not produce model images in the generated document.(r727) 
+ *Temporary testing code blocked the creation of CSI images - my apoligies:-( 
+ 
 LPub3D 2.0.2.721.2 
  
 Features and enhancements 
