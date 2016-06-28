@@ -2,7 +2,7 @@
 Title Build and create manual and automatic LPub3D install distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June, 23, 2016
+rem  Last Update: June, 28, 2016
 rem  Copyright (c) 2016 by Trevor Sandy
 rem --
 SETLOCAL
@@ -12,9 +12,9 @@ ECHO Build and create manual and automatic install distributions
 
 rem ---------------------------------------
 rem Change value to 1 to execute and 0 to ignore the respective command
-SET RUN_NSIS=0
-SET CLEANUP=0
-SET GENBUILDVER=0
+SET RUN_NSIS=1
+SET CLEANUP=1
+SET GENBUILDVER=1
 SET UCRT=0
 rem ---------------------------------------
 
@@ -568,7 +568,8 @@ IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Manual Install Build... 	>>  ..\release\LP
 IF %RUN_NSIS% == 0 ECHO.
 IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Manual Install Build...
 
-IF %RUN_NSIS% == 1 "%NSISPath%\makensis.exe" LPub3DNoPack.nsi 						>> ..\release\LPub3D.Release.build.log.txt
+rem IF %RUN_NSIS% == 1 "%NSISPath%\makensis.exe" LPub3DNoPack.nsi 						>> ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 COPY /V /Y ..\release\%DOWNLOADPRODUCT%.exe ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe 							>>  ../release/LPub3D.Release.build.log.txt
 
 IF %RUN_NSIS% == 1 ECHO. 										>>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO - Finished NSIS Manual Install Build... >>  ..\release\LPub3D.Release.build.log.txt
@@ -612,7 +613,7 @@ IF %RUN_NSIS% == 0 ECHO.
 IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...	
 
 IF %RUN_NSIS% == 1 MOVE /Y ..\release\%DOWNLOADPRODUCT%.exe ..\release\%VERSION%\Download\												>>  ../release/LPub3D.Release.build.log.txt		
-IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster.exe ..\release\%VERSION%\Update\											>>  ../release/LPub3D.Release.build.log.txt		
+IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe ..\release\%VERSION%\Update\									>>  ../release/LPub3D.Release.build.log.txt		
 
 ECHO. 																>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Finished.													>>  ../release/LPub3D.Release.build.log.txt

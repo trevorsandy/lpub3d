@@ -402,9 +402,9 @@ void Updater::onReply (QNetworkReply* reply) {
                 // we are looking to update the latest version
 
                 m_openUrl = platform.value ("open-url").toString();
-                m_downloadUrl = platform.value ("download-url").toString();
+                m_downloadUrl = platform.value ("download-url-").toString();
                 m_latestVersion = platform.value ("latest-version").toString();
-                _changelogUrl = platform.value ("changelog-url").toString();
+                _changelogUrl = platform.value ("changelog-url-").toString();
 
                 _updateAvailable = compare (latestVersion(), moduleVersion());
 
@@ -441,9 +441,9 @@ void Updater::onReply (QNetworkReply* reply) {
                                 // Update to version is same as latest version - i.e. reinstall latest version
 
                                 m_openUrl = platform.value ("open-url").toString();
-                                m_downloadUrl = platform.value ("download-url").toString();
+                                m_downloadUrl = platform.value ("download-url-").toString();
                                 m_latestVersion = platform.value ("latest-version").toString();
-                                _changelogUrl = platform.value ("changelog-url").toString();
+                                _changelogUrl = platform.value ("changelog-url-").toString();
                             } else {
                                 // Update to version is othere than the latest version
 

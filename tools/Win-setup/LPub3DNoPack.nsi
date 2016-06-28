@@ -169,7 +169,7 @@
 Function .onInit 
 
   ;Hack to prevent startup crash - has something to do with Qt 5.6 - investigatig...
-   DeleteRegValue HKCU "Software\${Company}\${ProductName}\MainWindow"
+   DeleteRegKey HKCU "Software\${Company}\${ProductName}\MainWindow"
   
   ;Get Ldraw library folder and archive file paths from registry if available
    ReadRegStr $LDrawDirPath HKCU "Software\${Company}\${ProductName}\Settings" "LDrawDir"
