@@ -190,6 +190,7 @@ FOR /F "tokens=*" %%i IN ('FINDSTR /n "^" "%temp%"') DO CALL :setversion %%i
 DEL %temp%
 CD /D ..\Win-setup\
 
+COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\Update\change_log.txt /A										>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\Update\change_log_%VERSION%.txt /A							>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\Download\ /A													>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\ /A																	>>  ../release/LPub3D.Release.build.log.txt
@@ -230,8 +231,10 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%     "windows": {
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%VERSION%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-Update_%VERSION%.exe",
->>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%VERSION%.txt",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-Update.exe",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log.txt",
+>>%genLPub3DUpdates%       "download-url-": "http://lpub3d.sourceforge.net/LPub3D-Update_%VERSION%.exe",
+>>%genLPub3DUpdates%       "changelog-url-": "http://lpub3d.sourceforge.net/change_log_%VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%VERSION%,%AVAILVERSIONS%",
 >>%genLPub3DUpdates%       "alternate-version-1.3.5": {
 >>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/1.3.5/",
@@ -569,7 +572,8 @@ IF %RUN_NSIS% == 0 ECHO.
 IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Manual Install Build...
 
 rem IF %RUN_NSIS% == 1 "%NSISPath%\makensis.exe" LPub3DNoPack.nsi 						>> ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 COPY /V /Y ..\release\%DOWNLOADPRODUCT%.exe ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe 							>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 COPY /V /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe ..\release\%DOWNLOADPRODUCT%.exe  						>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 COPY /V /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe ..\release\%PRODUCT%-UpdateMaster.exe  					>>  ../release/LPub3D.Release.build.log.txt
 
 IF %RUN_NSIS% == 1 ECHO. 										>>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO - Finished NSIS Manual Install Build... >>  ..\release\LPub3D.Release.build.log.txt
@@ -614,6 +618,7 @@ IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %PRODUCT%-UpdateMaster_%VERSIO
 
 IF %RUN_NSIS% == 1 MOVE /Y ..\release\%DOWNLOADPRODUCT%.exe ..\release\%VERSION%\Download\												>>  ../release/LPub3D.Release.build.log.txt		
 IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe ..\release\%VERSION%\Update\									>>  ../release/LPub3D.Release.build.log.txt		
+IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster.exe ..\release\%VERSION%\Update\									>>  ../release/LPub3D.Release.build.log.txt		
 
 ECHO. 																>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Finished.													>>  ../release/LPub3D.Release.build.log.txt

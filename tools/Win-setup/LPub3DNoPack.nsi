@@ -310,7 +310,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   File "..\release\3rdParty\l3p1.4WinB\L3P.EXE"
   
   ;AppData setup
-  SetShellVarContext all
+  SetShellVarContext current
   !define INSTDIR_AppData "$LOCALAPPDATA\${Company}\${ProductName}"
   
   ;ldraw libraries
@@ -395,7 +395,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
   
     ;Create shortcuts
-	SetShellVarContext all
+	SetShellVarContext current
     CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
 	CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${ProductName}.lnk" "$INSTDIR\$FileName"
     CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall ${ProductName}.lnk" "$INSTDIR\Uninstall.exe"

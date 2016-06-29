@@ -1,4 +1,4 @@
-LPub3D 2.0.3.728.2 
+LPub3D 2.0.3.729.1 
  
 Features and enhancements 
 ------------ 
@@ -13,6 +13,8 @@ Features and enhancements
  *This behavior will be seen when the user loads a model file without the meta tag '0 STEP' or '0 NOFILE'. 
 -Fix: Export and PDF generation produces "Failed to create CSI" and does not produce model images in the generated document.(r727) 
  *Temporary testing code blocked the creation of CSI images - my apoligies:-( 
+-Fix: Data directory installed under Administrator profile instead of logged in (standard) user (r730)
+ *Change installation progrem to install under 'current' user versus previously defined 'all' users. Using 'all' users during installation, the data directory - which contain the archive libraries, logs, extras and other updatable data items - is written to the Administror's profile.
  
 LPub3D 2.0.2.721.2 
  
