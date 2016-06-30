@@ -2,6 +2,8 @@ LPub3D 2.0.4.730.2
  
 Features and enhancements 
 ------------  
+-Fix: Set progress dialog to nonmodal. (r732)
+ *Prevent the progress dialog from blocking input to other windows.
 -Fix: Data directory installed under Administrator AppData path instead of logged in user which is likely to be a standard user (r731) 
  *User data - LDraw archive libraries, logs, extras and other updatable data items - will be installed at initial application launch by default. Because Administrator privilates are required to install LPub3D, user data installed during installation will be deposited under the Administrator user's AppData path. This data will not be accessible to standard users. User data can be installed during application installation as a checked option. This option may be desirable if the logged in user installing LPub3D is also the Administrator. If user data is installed during installation, user data for standard users will be automatically created during initial application launch. On initial application launch, the standard user will be given the options to select, copy (from the installation directory) or download the LDraw archive libraries.
  

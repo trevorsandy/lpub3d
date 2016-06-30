@@ -23,7 +23,6 @@ ProgressDialog::ProgressDialog (QWidget *parent) : QDialog (parent), ui (new Ui:
     // Make the window look like a dialog
     QIcon _blank;
     setWindowIcon (_blank);
-    setWindowModality (Qt::WindowModal);
     setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     // Close dialog when cancel button is clicked
