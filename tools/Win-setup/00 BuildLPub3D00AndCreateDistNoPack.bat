@@ -13,8 +13,8 @@ ECHO Build and create manual and automatic install distributions
 rem ---------------------------------------
 rem Change value to 1 to execute and 0 to ignore the respective command
 SET RUN_NSIS=1
-SET CLEANUP=1
-SET GENBUILDVER=1
+SET CLEANUP=0
+SET GENBUILDVER=0
 SET UCRT=0
 rem ---------------------------------------
 

@@ -611,6 +611,7 @@ quazip/zip.h -text
 tools/Win-setup/00[!!-~]BuildLPub3D00AndCreateDistNoPack.bat -text
 tools/Win-setup/00[!!-~]BuildLPub3D01PackAndCreateDist.bat -text
 tools/Win-setup/00[!!-~]BuildLPub3D02CreateDistOnly.bat -text
+tools/Win-setup/BuildVersionsTemplate.txt -text
 tools/Win-setup/LPub3D.nsi -text
 tools/Win-setup/LPub3DNoPack.nsi -text
 tools/Win-setup/LPub3DViewer_LDrawunf_Archive_Generator.bat -text
@@ -620,6 +621,7 @@ tools/Win-setup/build_inc.bat -text
 tools/Win-setup/gplv3-127x51.png -text
 tools/Win-setup/nsisFunctions.nsh -text
 tools/Win-setup/setup.ico -text
+tools/Win-setup/un.EnumUsersReg.nsh -text
 tools/Win-setup/welcome.bmp -text
 tools/docs/COPYING.txt -text
 tools/docs/CREDITS.txt -text

@@ -1,4 +1,11 @@
-LPub3D 2.0.3.729.1 
+LPub3D 2.0.4.730.2 
+ 
+Features and enhancements 
+------------  
+-Fix: Data directory installed under Administrator AppData path instead of logged in user which is likely to be a standard user (r731) 
+ *User data - LDraw archive libraries, logs, extras and other updatable data items - will be installed at initial application launch by default. Because Administrator privilates are required to install LPub3D, user data installed during installation will be deposited under the Administrator user's AppData path. This data will not be accessible to standard users. User data can be installed during application installation as a checked option. This option may be desirable if the logged in user installing LPub3D is also the Administrator. If user data is installed during installation, user data for standard users will be automatically created during initial application launch. On initial application launch, the standard user will be given the options to select, copy (from the installation directory) or download the LDraw archive libraries.
+ 
+LPub3D 2.0.3.730.2 
  
 Features and enhancements 
 ------------ 
@@ -13,8 +20,6 @@ Features and enhancements
  *This behavior will be seen when the user loads a model file without the meta tag '0 STEP' or '0 NOFILE'. 
 -Fix: Export and PDF generation produces "Failed to create CSI" and does not produce model images in the generated document.(r727) 
  *Temporary testing code blocked the creation of CSI images - my apoligies:-( 
--Fix: Data directory installed under Administrator profile instead of logged in (standard) user (r730)
- *Change installation progrem to install under 'current' user versus previously defined 'all' users. Using 'all' users during installation, the data directory - which contain the archive libraries, logs, extras and other updatable data items - is written to the Administror's profile.
  
 LPub3D 2.0.2.721.2 
  

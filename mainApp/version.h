@@ -24,7 +24,7 @@
 // ~~~~~ Version info ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 #define VER_MAJOR                           2
 #define VER_MINOR                           0
-#define VER_SP                              3
+#define VER_SP                              4
 
 #define VER_BUILD_STR                       _BUILD_NUMBER
 #define VER_REVISION_STR                    _BUILD_REVISION
@@ -34,7 +34,7 @@
 #define VER_FILEVERSION_STR         		STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SP) "." VER_REVISION_STR "." VER_BUILD_STR "\0"
 #define VER_PRODUCTVERSION          		VER_MAJOR,VER_MINOR,VER_SP
 #define VER_PRODUCTVERSION_STR      		STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SP) "\0"
-#define VER_UPDATEABLE_VERSIONS_STR         "2.0.3,2.0.2,1.3.5,1.2.3,1.0.0"
+#define VER_UPDATEABLE_VERSIONS_STR         "2.0.4,2.0.3,1.3.5,1.2.3,1.0.0"
 #define VER_PRODUCTNAME_STR         		"LPub3D"
 #define VER_COMPANYNAME_STR         		"LPub3D Software"
 #define VER_FILEDESCRIPTION_STR     		"LPub3D - An LDraw Building Instruction Editor"
@@ -51,9 +51,17 @@
 #define VER_UPDATE_CHECK_URL        		"http://lpub3d.sourceforge.net/latest.txt"
 #define VER_DOWNLOAD_URL                    "http://lpub3d.sourceforge.net/" VER_PRODUCTNAME_STR "-UpdateMaster.exe"
 
+#define VER_FADESTEP_COLORPARTS_FILE		"fadeStepColorParts.lst"
+#define VER_FREEFOM_ANNOTATIONS_FILE		"freeformAnnotations.lst"
+#define VER_PDFPRINT_IMAGE_FILE				"PDFPrint.jpg"
+#define VER_PLI_MPD_FILE					"pli.mpd"
+#define VER_PLI_SUBSTITUTE_PARTS_FILE		"pliSubstituteParts.lst"
+#define VER_TITLE_ANNOTATIONS_FILE			"titleAnnotations.lst"
+
 #define VER_LDRAW_OFFICIAL_ARCHIVE          "complete.zip"
 #define VER_LDRAW_UNOFFICIAL_ARCHIVE        "ldrawunf.zip"
 #define VER_LPUB3D_UNOFFICIAL_ARCHIVE       "lpub3dldrawunf.zip"
+
 #define VER_UPDATE_CHECK_JSON_URL        	"http://lpub3d.sourceforge.net/lpub3dupdates.json"
 #define VER_OFFICIAL_LIBRARY_JSON_URL       "http://lpub3d.sourceforge.net/complete.json"
 #define VER_UNOFFICIAL_LIBRARY_JSON_URL     "http://lpub3d.sourceforge.net/lpub3dldrawunf.json"

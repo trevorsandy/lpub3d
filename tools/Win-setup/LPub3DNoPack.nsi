@@ -26,6 +26,10 @@
   Var /global PathsGrpBox
   Var /global BrowseLDraw
   Var /global LDrawText
+  Var /global InstallUserDataGrpBox
+  Var /global InstallUserDataChkBox
+  Var /global InstallUserDataLbl
+  Var /global nsDialogFilePathsPage_Font1
   
   Var /global nsDialogOverwriteConfigPage
   Var /global OverwriteMessagelbl
@@ -41,6 +45,7 @@
   Var /global OverwriteFreeformAnnotationsFile
   Var /global OverwriteSubstitutePartsFile
   Var /global OverwriteFadeStepColourPartsFile
+  Var /global InstallUserData
   
   ;new stuff
   Var /global LPub3DViewerLibFile
@@ -222,36 +227,36 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	File "${Win64BuildDir}\Qt5PrintSupport.dll"
 	File "${Win64BuildDir}\Qt5OpenGL.dll"
   ;New Stuff - Qt Libraries	
-	File "${Win64BuildDir}\libGLESV2.dll"
-	File "${Win64BuildDir}\libEGL.dll"
-	File "${Win64BuildDir}\opengl32sw.dll"
-	File "${Win64BuildDir}\d3dcompiler_47.dll"
+;*	File "${Win64BuildDir}\libGLESV2.dll"
+;*	File "${Win64BuildDir}\libEGL.dll"
+;*	File "${Win64BuildDir}\opengl32sw.dll"
+;*	File "${Win64BuildDir}\d3dcompiler_47.dll"
   ;New Stuff - Qt Plugins
-    CreateDirectory "$INSTDIR\bearer"
-    SetOutPath "$INSTDIR\bearer"
-	File "${Win64BuildDir}\bearer\qgenericbearer.dll"
-	File "${Win64BuildDir}\bearer\qnativewifibearer.dll"
-    CreateDirectory "$INSTDIR\iconengines"
-    SetOutPath "$INSTDIR\iconengines"
-	File "${Win64BuildDir}\iconengines\qsvgicon.dll"
-    CreateDirectory "$INSTDIR\imageformats"
-    SetOutPath "$INSTDIR\imageformats"
-	File "${Win64BuildDir}\imageformats\qdds.dll"
-	File "${Win64BuildDir}\imageformats\qgif.dll"
-	File "${Win64BuildDir}\imageformats\qicns.dll"
-	File "${Win64BuildDir}\imageformats\qico.dll"
-	File "${Win64BuildDir}\imageformats\qjpeg.dll"
-	File "${Win64BuildDir}\imageformats\qsvg.dll"
-	File "${Win64BuildDir}\imageformats\qtga.dll"
-	File "${Win64BuildDir}\imageformats\qtiff.dll"
-	File "${Win64BuildDir}\imageformats\qwbmp.dll"
-	File "${Win64BuildDir}\imageformats\qwebp.dll"
+;*    CreateDirectory "$INSTDIR\bearer"
+;*    SetOutPath "$INSTDIR\bearer"
+;*	File "${Win64BuildDir}\bearer\qgenericbearer.dll"
+;*	File "${Win64BuildDir}\bearer\qnativewifibearer.dll"
+;*    CreateDirectory "$INSTDIR\iconengines"
+;*   SetOutPath "$INSTDIR\iconengines"
+;*	File "${Win64BuildDir}\iconengines\qsvgicon.dll"
+;*    CreateDirectory "$INSTDIR\imageformats"
+;*    SetOutPath "$INSTDIR\imageformats"
+;*	File "${Win64BuildDir}\imageformats\qdds.dll"
+;*	File "${Win64BuildDir}\imageformats\qgif.dll"
+;*	File "${Win64BuildDir}\imageformats\qicns.dll"
+;*	File "${Win64BuildDir}\imageformats\qico.dll"
+;*	File "${Win64BuildDir}\imageformats\qjpeg.dll"
+;*	File "${Win64BuildDir}\imageformats\qsvg.dll"
+;*	File "${Win64BuildDir}\imageformats\qtga.dll"
+;*	File "${Win64BuildDir}\imageformats\qtiff.dll"
+;*	File "${Win64BuildDir}\imageformats\qwbmp.dll"
+;*	File "${Win64BuildDir}\imageformats\qwebp.dll"
     CreateDirectory "$INSTDIR\platforms"
     SetOutPath "$INSTDIR\platforms"
 	File "${Win64BuildDir}\platforms\qwindows.dll"
-    CreateDirectory "$INSTDIR\printsupport"
-    SetOutPath "$INSTDIR\printsupport"
-	File "${Win64BuildDir}\printsupport\windowsprintersupport.dll"
+;*    CreateDirectory "$INSTDIR\printsupport"
+;*    SetOutPath "$INSTDIR\printsupport"
+;*	File "${Win64BuildDir}\printsupport\windowsprintersupport.dll"
   ${Else}
 	File "${Win32BuildDir}\${ProductName}_x32.exe"
 	File "${Win32BuildDir}\quazip.dll"
@@ -263,36 +268,36 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	File "${Win32BuildDir}\Qt5PrintSupport.dll"
 	File "${Win32BuildDir}\Qt5OpenGL.dll"
   ;New Stuff - Qt Libraries
-	File "${Win32BuildDir}\libGLESV2.dll"  
-	File "${Win32BuildDir}\libEGL.dll"
-	File "${Win32BuildDir}\opengl32sw.dll"	
-	File "${Win32BuildDir}\d3dcompiler_47.dll"
+;*	File "${Win32BuildDir}\libGLESV2.dll"  
+;*	File "${Win32BuildDir}\libEGL.dll"
+;*	File "${Win32BuildDir}\opengl32sw.dll"	
+;*	File "${Win32BuildDir}\d3dcompiler_47.dll"
   ;New Stuff - Qt Plugins
-    CreateDirectory "$INSTDIR\bearer"
-    SetOutPath "$INSTDIR\bearer"
-	File "${Win32BuildDir}\bearer\qgenericbearer.dll"
-	File "${Win32BuildDir}\bearer\qnativewifibearer.dll"
-    CreateDirectory "$INSTDIR\iconengines"
-    SetOutPath "$INSTDIR\iconengines"
-	File "${Win32BuildDir}\iconengines\qsvgicon.dll"
-    CreateDirectory "$INSTDIR\imageformats"
-    SetOutPath "$INSTDIR\imageformats"
-	File "${Win32BuildDir}\imageformats\qdds.dll"
-	File "${Win32BuildDir}\imageformats\qgif.dll"
-	File "${Win32BuildDir}\imageformats\qicns.dll"
-	File "${Win32BuildDir}\imageformats\qico.dll"
-	File "${Win32BuildDir}\imageformats\qjpeg.dll"
-	File "${Win32BuildDir}\imageformats\qsvg.dll"
-	File "${Win32BuildDir}\imageformats\qtga.dll"
-	File "${Win32BuildDir}\imageformats\qtiff.dll"
-	File "${Win32BuildDir}\imageformats\qwbmp.dll"
-	File "${Win32BuildDir}\imageformats\qwebp.dll"
+;*    CreateDirectory "$INSTDIR\bearer"
+;*    SetOutPath "$INSTDIR\bearer"
+;*	File "${Win32BuildDir}\bearer\qgenericbearer.dll"
+;*	File "${Win32BuildDir}\bearer\qnativewifibearer.dll"
+;*    CreateDirectory "$INSTDIR\iconengines"
+;*    SetOutPath "$INSTDIR\iconengines"
+;*	File "${Win32BuildDir}\iconengines\qsvgicon.dll"
+;*    CreateDirectory "$INSTDIR\imageformats"
+;*    SetOutPath "$INSTDIR\imageformats"
+;*	File "${Win32BuildDir}\imageformats\qdds.dll"
+;*	File "${Win32BuildDir}\imageformats\qgif.dll"
+;*	File "${Win32BuildDir}\imageformats\qicns.dll"
+;*	File "${Win32BuildDir}\imageformats\qico.dll"
+;*	File "${Win32BuildDir}\imageformats\qjpeg.dll"
+;*	File "${Win32BuildDir}\imageformats\qsvg.dll"
+;*	File "${Win32BuildDir}\imageformats\qtga.dll"
+;*	File "${Win32BuildDir}\imageformats\qtiff.dll"
+;*	File "${Win32BuildDir}\imageformats\qwbmp.dll"
+;*	File "${Win32BuildDir}\imageformats\qwebp.dll"
     CreateDirectory "$INSTDIR\platforms"
     SetOutPath "$INSTDIR\platforms"
 	File "${Win32BuildDir}\platforms\qwindows.dll"
-    CreateDirectory "$INSTDIR\printsupport"
-    SetOutPath "$INSTDIR\printsupport"
-	File "${Win32BuildDir}\printsupport\windowsprintersupport.dll"	
+;*    CreateDirectory "$INSTDIR\printsupport"
+;*    SetOutPath "$INSTDIR\printsupport"
+;*	File "${Win32BuildDir}\printsupport\windowsprintersupport.dll"	
   ${EndIf}
   
   SetOutPath "$INSTDIR"
@@ -309,73 +314,88 @@ Section "${ProductName} (required)" SecMain${ProductName}
   SetOutPath "$INSTDIR\3rdParty\l3p1.4WinB" 
   File "..\release\3rdParty\l3p1.4WinB\L3P.EXE"
   
-  ;AppData setup
-  SetShellVarContext current
-  !define INSTDIR_AppData "$LOCALAPPDATA\${Company}\${ProductName}"
-  
-  ;ldraw libraries
-  CreateDirectory "${INSTDIR_AppData}\libraries"
-  
-  ${If} $OverwriteDeleteDirectory == 1
-	${If} $OverwriteMoveLibraries == 1
-		Call fnCopyLibraries
-	${Else}
-		Call fnInstallLibraries
-	${EndIf}
-	${If} ${DirExists} $LPub3DViewerLibPath
-		RMDir /r $LPub3DViewerLibPath
-	${EndIf}
-  ${Else}
-	Call fnInstallLibraries
-  ${EndIf}
-  
-  ;extras contents
-  CreateDirectory "${INSTDIR_AppData}\extras"
-  SetOutPath "${INSTDIR_AppData}\extras"
+  ;data depository folder
+  CreateDirectory "$INSTDIR\data"
+  SetOutPath "$INSTDIR\data"
   File "..\..\mainApp\extras\PDFPrint.jpg"
   File "..\..\mainApp\extras\pli.mpd"
-  
- ${If} $OverwriteTitleAnnotaitonsFile == 0
-  SetOverwrite off
   File "..\..\mainApp\extras\titleAnnotations.lst"
- ${Else}
-  SetOverwrite on
-  File "..\..\mainApp\extras\titleAnnotations.lst"
- ${EndIf}
- ${If} $OverwriteFreeformAnnotationsFile == 0
-  SetOverwrite off
   File "..\..\mainApp\extras\freeformAnnotations.lst"
- ${Else}
-  SetOverwrite on
-  File "..\..\mainApp\extras\freeformAnnotations.lst"
- ${EndIf}
- ${If} $OverwriteFadeStepColourPartsFile == 0
-  SetOverwrite off
   File "..\..\mainApp\extras\fadeStepColorParts.lst"
- ${Else} 
-  SetOverwrite on
-  File "..\..\mainApp\extras\fadeStepColorParts.lst"
- ${EndIf}
- ${If} $OverwriteSubstitutePartsFile == 0
-  SetOverwrite off
   File "..\..\mainApp\extras\pliSubstituteParts.lst"
- ${Else}
-  SetOverwrite on
-  File "..\..\mainApp\extras\pliSubstituteParts.lst"
- ${EndIf}
-  
+  File "..\release\libraries\complete.zip"
+  File "..\release\libraries\lpub3dldrawunf.zip"
+
   ;documents  
   CreateDirectory "$INSTDIR\docs"
   SetOutPath "$INSTDIR\docs"
   File "..\docs\COPYING.txt"
   File "..\docs\CREDITS.txt"
-  SetOutPath "$INSTDIR"
-  
+  SetOutPath "$INSTDIR"  
+
   ;Store installation folder
   WriteRegStr HKCU "Software\${Company}\${ProductName}\Installation" "InstallPath" $INSTDIR
   
-  ;Store/Update library folder
-  WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "PartsLibrary" "${INSTDIR_AppData}\libraries\complete.zip"
+  ;Use data setup
+  ${If} $InstallUserData == 1
+
+	  SetShellVarContext current
+	  !define INSTDIR_AppData "$LOCALAPPDATA\${Company}\${ProductName}"
+	  
+	  ;ldraw libraries
+	  CreateDirectory "${INSTDIR_AppData}\libraries"
+	  
+	  ${If} $OverwriteDeleteDirectory == 1
+		${If} $OverwriteMoveLibraries == 1
+			Call fnCopyLibraries
+		${Else}
+			Call fnInstallLibraries
+		${EndIf}
+		${If} ${DirExists} $LPub3DViewerLibPath
+			RMDir /r $LPub3DViewerLibPath
+		${EndIf}
+	  ${Else}
+		Call fnInstallLibraries
+	  ${EndIf}
+	  
+	  ;extras contents
+	  CreateDirectory "${INSTDIR_AppData}\extras"
+	  SetOutPath "${INSTDIR_AppData}\extras"
+	  File "..\..\mainApp\extras\PDFPrint.jpg"
+	  File "..\..\mainApp\extras\pli.mpd"
+	  
+	 ${If} $OverwriteTitleAnnotaitonsFile == 0
+	  SetOverwrite off
+	  File "..\..\mainApp\extras\titleAnnotations.lst"
+	 ${Else}
+	  SetOverwrite on
+	  File "..\..\mainApp\extras\titleAnnotations.lst"
+	 ${EndIf}
+	 ${If} $OverwriteFreeformAnnotationsFile == 0
+	  SetOverwrite off
+	  File "..\..\mainApp\extras\freeformAnnotations.lst"
+	 ${Else}
+	  SetOverwrite on
+	  File "..\..\mainApp\extras\freeformAnnotations.lst"
+	 ${EndIf}
+	 ${If} $OverwriteFadeStepColourPartsFile == 0
+	  SetOverwrite off
+	  File "..\..\mainApp\extras\fadeStepColorParts.lst"
+	 ${Else} 
+	  SetOverwrite on
+	  File "..\..\mainApp\extras\fadeStepColorParts.lst"
+	 ${EndIf}
+	 ${If} $OverwriteSubstitutePartsFile == 0
+	  SetOverwrite off
+	  File "..\..\mainApp\extras\pliSubstituteParts.lst"
+	 ${Else}
+	  SetOverwrite on
+	  File "..\..\mainApp\extras\pliSubstituteParts.lst"
+	 ${EndIf}
+	  
+	  ;Store/Update library folder
+	  WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "PartsLibrary" "${INSTDIR_AppData}\libraries\complete.zip" 
+  ${EndIf}
   
   ;Create uninstaller
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "DisplayIcon" '"$INSTDIR\$FileName"'  
@@ -395,7 +415,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
   
     ;Create shortcuts
-	SetShellVarContext current
+	SetShellVarContext all
     CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
 	CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${ProductName}.lnk" "$INSTDIR\$FileName"
     CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall ${ProductName}.lnk" "$INSTDIR\Uninstall.exe"
@@ -420,12 +440,15 @@ Function nsDialogShowCustomPage
 		Abort
 	${EndIf}
 
+	; custom font definition
+	CreateFont $nsDialogFilePathsPage_Font1 "Microsoft Sans Serif" "7.25" "400"
+	
     ; === grpBoxPaths (type: GroupBox) ===
-    ${NSD_CreateGroupBox} -0.66u 24u 297.52u 88u "Define LDraw Library Path"
+    ${NSD_CreateGroupBox} -0.66u 30.15u 297.52u 54.77u "Define LDraw Library Path"
 	Pop $PathsGrpBox
 	
 	; === HLine1 (type: HLine) ===
-    ${NSD_CreateHLine} 7.9u 89.85u 281.72u 1.23u "HLine"
+    ${NSD_CreateHLine} 7.9u 94.15u 281.72u 1.23u "HLine"
 
     ; === lblLDrawText (type: Label) ===
     ${NSD_CreateLabel} 7.9u 46.15u 228.41u 11.69u "Select LDraw Directory"	
@@ -435,10 +458,25 @@ Function nsDialogShowCustomPage
 	Pop $LDrawText
 
     ; === BrowseLDraw (type: Button) ===
-    ${NSD_CreateButton} 240.25u 59.69u 49.37u 14.15u "Browse"
+    ${NSD_CreateButton} 240.25u 58.46u 49.37u 14.15u "Browse"
 	Pop $BrowseLDraw
 
+    ; === InstallUserDataLbl (type: Label) ===
+    ${NSD_CreateLabel} 7.9u 10.46u 280.41u 14.15u ""
+    Pop $InstallUserDataLbl
+	SendMessage $InstallUserDataLbl ${WM_SETFONT} $nsDialogFilePathsPage_Font1 0
+    SetCtlColors $InstallUserDataLbl 0xFF0000 0xF0F0F0
+  
+	; === InstallUserDataGrpBox (type: GroupBox) ===
+	${NSD_CreateGroupBox} -0.66u 101.54u 297.52u 30.77u "User Data"
+	Pop $InstallUserDataGrpBox
+
+	; === InstallUserDataChkBox (type: Checkbox) ===
+	${NSD_CreateCheckbox} 7.9u 113.23u 280.41u 14.77u "Check to install user data now or uncheck to install at first application launch."
+	Pop $InstallUserDataChkBox
+  
 	${NSD_OnClick} $BrowseLDraw fnBrowseLDraw
+	${NSD_OnClick} $InstallUserDataChkBox fnInstallUserData
 	
  nsDialogs::Show
 
@@ -450,6 +488,17 @@ Function fnBrowseLDraw
   Pop $LDrawDirPath
   ${NSD_SetText} $LDrawText $LDrawDirPath
 
+FunctionEnd
+
+Function fnInstallUserData
+	Pop $InstallUserDataChkBox
+	${NSD_GetState} $InstallUserDataChkBox $InstallUserData
+	${If} $InstallUserData == 1
+	  ${NSD_SetText} $InstallUserDataLbl "NOTICE! Data created under Administrator user AppData path. Standard users will not have access."
+	${Else}
+	  ${NSD_SetText} $InstallUserDataLbl ""
+	${EndIf}
+	
 FunctionEnd
 
 Function nsDialogLeaveCustomPage
@@ -784,6 +833,8 @@ FunctionEnd
 ;--------------------------------
 ;Uninstaller Section
 
+!include "un.EnumUsersReg.nsh"
+
 Section "Uninstall"
 
 ; Remove files
@@ -801,27 +852,27 @@ Section "Uninstall"
   Delete "$INSTDIR\Qt5Widgets.dll"
   Delete "$INSTDIR\Qt5PrintSupport.dll"
   Delete "$INSTDIR\Qt5OpenGL.dll"
-  Delete "$INSTDIR\libGLESV2.dll"  
-  Delete "$INSTDIR\libEGL.dll"
-  Delete "$INSTDIR\opengl32sw.dll"	
-  Delete "$INSTDIR\d3dcompiler_47.dll"
+;*  Delete "$INSTDIR\libGLESV2.dll"  
+;*  Delete "$INSTDIR\libEGL.dll"
+;*  Delete "$INSTDIR\opengl32sw.dll"	
+;*  Delete "$INSTDIR\d3dcompiler_47.dll"
   Delete "$INSTDIR\Uninstall.exe"
   Delete "$INSTDIR\README.txt"
-  Delete "$INSTDIR\bearer\qgenericbearer.dll"
-  Delete "$INSTDIR\bearer\qnativewifibearer.dll"
-  Delete "$INSTDIR\iconengines\qsvgicon.dll"
-  Delete "$INSTDIR\imageformats\qdds.dll"
-  Delete "$INSTDIR\imageformats\qgif.dll"
-  Delete "$INSTDIR\imageformats\qicns.dll"
-  Delete "$INSTDIR\imageformats\qico.dll"
-  Delete "$INSTDIR\imageformats\qjpeg.dll"
-  Delete "$INSTDIR\imageformats\qsvg.dll"
-  Delete "$INSTDIR\imageformats\qtga.dll"
-  Delete "$INSTDIR\imageformats\qtiff.dll"
-  Delete "$INSTDIR\imageformats\qwbmp.dll"
-  Delete "$INSTDIR\imageformats\qwebp.dll"
+;*  Delete "$INSTDIR\bearer\qgenericbearer.dll"
+;*  Delete "$INSTDIR\bearer\qnativewifibearer.dll"
+;*  Delete "$INSTDIR\iconengines\qsvgicon.dll"
+;*  Delete "$INSTDIR\imageformats\qdds.dll"
+;*  Delete "$INSTDIR\imageformats\qgif.dll"
+;*  Delete "$INSTDIR\imageformats\qicns.dll"
+;*  Delete "$INSTDIR\imageformats\qico.dll"
+;*  Delete "$INSTDIR\imageformats\qjpeg.dll"
+;*  Delete "$INSTDIR\imageformats\qsvg.dll"
+;*  Delete "$INSTDIR\imageformats\qtga.dll"
+;*  Delete "$INSTDIR\imageformats\qtiff.dll"
+;*  Delete "$INSTDIR\imageformats\qwbmp.dll"
+;*  Delete "$INSTDIR\imageformats\qwebp.dll"
   Delete "$INSTDIR\platforms\qwindows.dll"
-  Delete "$INSTDIR\printsupport\windowsprintersupport.dll"  
+;*  Delete "$INSTDIR\printsupport\windowsprintersupport.dll"  
   Delete "$INSTDIR\docs\Credits.txt"
   Delete "$INSTDIR\docs\Copying.txt"
   Delete "$INSTDIR\docs\License.txt" 
@@ -829,14 +880,24 @@ Section "Uninstall"
   Delete "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win\LICENCE"
   Delete "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win\README.TXT" 
   Delete "$INSTDIR\3rdParty\l3p1.4WinB\L3P.EXE"
-  Delete "${INSTDIR_AppData}\extras\fadeStepColorParts.lst"
-  Delete "${INSTDIR_AppData}\extras\freeformAnnotations.lst"
-  Delete "${INSTDIR_AppData}\extras\titleAnnotations.lst"
-  Delete "${INSTDIR_AppData}\extras\pliSubstituteParts.lst"
-  Delete "${INSTDIR_AppData}\extras\pli.mpd"
-  Delete "${INSTDIR_AppData}\dump\minidump.dmp"
-  Delete "${INSTDIR_AppData}\libraries\complete.zip"
-  Delete "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip"
+  Delete "$INSTDIR\data\PDFPrint.jpg"
+  Delete "$INSTDIR\data\pli.mpd"
+  Delete "$INSTDIR\data\titleAnnotations.lst"
+  Delete "$INSTDIR\data\freeformAnnotations.lst"
+  Delete "$INSTDIR\data\fadeStepColorParts.lst"
+  Delete "$INSTDIR\data\pliSubstituteParts.lst"
+  Delete "$INSTDIR\data\complete.zip"
+  Delete "$INSTDIR\data\lpub3dldrawunf.zip"
+
+;*  Delete "${INSTDIR_AppData}\extras\fadeStepColorParts.lst"
+;*  Delete "${INSTDIR_AppData}\extras\freeformAnnotations.lst"
+;*  Delete "${INSTDIR_AppData}\extras\titleAnnotations.lst"
+;*  Delete "${INSTDIR_AppData}\extras\pliSubstituteParts.lst"
+;*  Delete "${INSTDIR_AppData}\extras\pli.mpd"
+;*  Delete "${INSTDIR_AppData}\extras\PDFPrint.jpg"  
+;*  Delete "${INSTDIR_AppData}\dump\minidump.dmp"
+;*  Delete "${INSTDIR_AppData}\libraries\complete.zip"
+;*  Delete "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip"
   
   !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
     
@@ -847,27 +908,33 @@ Section "Uninstall"
   Delete "$SMPROGRAMS\$StartMenuFolder\${ProductName}.lnk"
   Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall ${ProductName}.lnk"
 
+; Uninstall Users Data
+  ${un.EnumUsersReg} un.EraseAppDataCB temp.key
+	
 ; Remove directories used
   RMDir "$SMPROGRAMS\$StartMenuFolder"
-  RMDir "${INSTDIR_AppData}\libraries"  
-  RMDir "${INSTDIR_AppData}\extras"
-  RMDir "${INSTDIR_AppData}\dump"
-  RMDir /r "${INSTDIR_AppData}\cache"
-  RMDir /r "${INSTDIR_AppData}\logs"
-  RMDir "${INSTDIR_AppData}"
-  RMDir "$INSTDIR\bearer"
-  RMDir "$INSTDIR\iconengines"
-  RMDir "$INSTDIR\imageformats"
+
+;*  RMDir "${INSTDIR_AppData}\libraries"  
+;*  RMDir "${INSTDIR_AppData}\extras"
+;*  RMDir "${INSTDIR_AppData}\dump"
+;*  RMDir /r "${INSTDIR_AppData}\cache"
+;*  RMDir /r "${INSTDIR_AppData}\logs"
+;*  RMDir "${INSTDIR_AppData}"
+  
+;*  RMDir "$INSTDIR\bearer"
+;*  RMDir "$INSTDIR\iconengines"
+;*  RMDir "$INSTDIR\imageformats"
   RMDir "$INSTDIR\platforms"
-  RMDir "$INSTDIR\printsupport"
+;*  RMDir "$INSTDIR\printsupport"
   RMDir "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win"
   RMDir "$INSTDIR\3rdParty\l3p1.4WinB"
   RMDir "$INSTDIR\3rdParty"
   RMDir "$INSTDIR\docs"
+  RMDir "$INSTDIR\data"
   RMDir "$INSTDIR"
   
 ; Remove registry keys
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}"
+  DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}"
   DeleteRegKey HKCU "Software\${Company}\${ProductName}\Installation\StartMenuFolder"
   DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\LDrawDir"
   DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\LDSearchDirs"  
@@ -889,3 +956,10 @@ Section "Uninstall"
   NoErrorMsg: 
   
 SectionEnd
+
+Function "un.EraseAppDataCB"
+  Pop $0
+  ReadRegStr $0 HKU "$0\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "AppData"
+  RMDir /r /REBOOTOK "$0\${Company}"
+  
+FunctionEnd
