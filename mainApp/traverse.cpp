@@ -2324,6 +2324,7 @@ QStringList Gui::fadeStep(const QStringList &csiParts, const int &stepNum,  Wher
           fadeCsiParts  << csiLine;
         }
     } else {
+      ldrawFile.setFadePosition(current.modelName,csiParts.size());
       return csiParts;
     }
   ldrawFile.setFadePosition(current.modelName,fadeCsiParts.size());

@@ -2,6 +2,8 @@ LPub3D 2.0.4.732.15
  
 Features and enhancements 
 ------------ 
+-Fix: Fade steps skips the second step in a model. Fading starts on the third step. (r734)
+ *No fade parts index generated on the first step because nothing was faded; however, we still need an index to know where to start on the second step. Fade step routine fixed to generate an index as long as there are valid parts in the step.
 -Fix: Installer program configured to deposit a master copy of usder data (libraries, lists, etc...) in the installation root directory. (r733)
  *Allow user data creation at initial launch. Upon initial application launch, if user data does not exist, it will be created. This will address the issue of Windows standard users not having access to user data after installation. Additioinally, this design allows for multiple users on a single machine to have their individual user settings and data.
 -Fix: Set progress dialog to nonmodal. (r732) 
