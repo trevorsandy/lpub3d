@@ -84,6 +84,12 @@ Updater::Updater() {
     m_platform = "ios";
 #endif
 
+#if defined __MINGW32__
+    m_compiler = "mingw";
+#elif defined _MSC_VER
+    m_compiler = "MSVC";
+#endif
+
     m_updateRequest.setRawHeader("User-Agent","Mozilla Firefox");
 
     connect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancel()));
@@ -402,9 +408,13 @@ void Updater::onReply (QNetworkReply* reply) {
                 // we are looking to update the latest version
 
                 m_openUrl = platform.value ("open-url").toString();
-                m_downloadUrl = platform.value ("download-url-").toString();
+                if (m_compiler == "mingw")
+                    m_downloadUrl = platform.value ("download-url-mingw").toString();
+                else if (m_compiler == "MSVC")
+                    m_downloadUrl = platform.value ("download-url-").toString();
                 m_latestVersion = platform.value ("latest-version").toString();
                 _changelogUrl = platform.value ("changelog-url-").toString();
+                qDebug() << "LATEST m_compiler: " << m_compiler << " \nm_downloadUrl: " << m_downloadUrl;
 
                 _updateAvailable = compare (latestVersion(), moduleVersion());
 
@@ -441,9 +451,13 @@ void Updater::onReply (QNetworkReply* reply) {
                                 // Update to version is same as latest version - i.e. reinstall latest version
 
                                 m_openUrl = platform.value ("open-url").toString();
-                                m_downloadUrl = platform.value ("download-url-").toString();
+                                if (m_compiler == "mingw")
+                                    m_downloadUrl = platform.value ("download-url-mingw").toString();
+                                else if (m_compiler == "MSVC")
+                                    m_downloadUrl = platform.value ("download-url-").toString();
                                 m_latestVersion = platform.value ("latest-version").toString();
                                 _changelogUrl = platform.value ("changelog-url-").toString();
+                                qDebug() << "LATEST LOOKUP m_compiler: " << m_compiler << " \nm_downloadUrl: " << m_downloadUrl;
                             } else {
                                 // Update to version is othere than the latest version
 
@@ -453,9 +467,13 @@ void Updater::onReply (QNetworkReply* reply) {
                                     return;
                                 }
                                 m_openUrl = altVersion.value ("open-url").toString();
-                                m_downloadUrl = altVersion.value ("download-url").toString();
+                                if (m_compiler == "mingw")
+                                    m_downloadUrl = altVersion.value ("download-url-mingw").toString();
+                                else if (m_compiler == "MSVC")
+                                    m_downloadUrl = altVersion.value ("download-url").toString();
                                 m_latestVersion = altVersion.value ("latest-version").toString();
                                 _changelogUrl = altVersion.value ("changelog-url").toString();
+                                qDebug() << "ALTERNATE LOOKUP m_compiler: " << m_compiler << " \nm_downloadUrl: " << m_downloadUrl;
                             }
                             break;
                         }

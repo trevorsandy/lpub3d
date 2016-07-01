@@ -39,6 +39,7 @@ class Application : public QObject
 public:
     /// Creates the Application.
     Application(int& argc, char **argv);
+//    ~Application();
 
     /// Returns a pointer to the current Application instance;
     static Application* instance();

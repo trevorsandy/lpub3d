@@ -119,15 +119,19 @@
   
   ;These indented statements modify settings for MUI_PAGE_FINISH
   !define MUI_FINISHPAGE_NOAUTOCLOSE	
-;  !define MUI_FINISHPAGE_RUN "$FileName"
-;  !define MUI_FINISHPAGE_RUN_TEXT "Launch ${ProductName}"
-;  !define MUI_FINISHPAGE_RUN_NOTCHECKED
+  !define MUI_FINISHPAGE_RUN 
+  !define MUI_FINISHPAGE_RUN_NOTCHECKED
+  !define MUI_FINISHPAGE_RUN_TEXT "Launch ${ProductName}"
+  !define MUI_FINISHPAGE_RUN_FUNCTION "RunFunction"
+  
   !define MUI_FINISHPAGE_SHOWREADME "${ProductName}"
   !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
   !define MUI_FINISHPAGE_SHOWREADME_TEXT "Install Desktop Icon"
-  !define MUI_FINISHPAGE_SHOWREADME_FUNCTION desktopIcon
+  !define MUI_FINISHPAGE_SHOWREADME_FUNCTION "desktopIcon"
   !define MUI_FINISHPAGE_LINK "${CompanyURL}"
   !define MUI_FINISHPAGE_LINK_LOCATION "${CompanyURL}"
+  
+  !define MUI_PAGE_CUSTOMFUNCTION_SHOW FinishFunction
   !insertmacro MUI_PAGE_FINISH
   
   ;Uninstall pages
@@ -344,17 +348,15 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	  ;ldraw libraries
 	  CreateDirectory "${INSTDIR_AppData}\libraries"
 	  
-	  ${If} $DeleteOldUserDataDirectory == 1
-		${If} $CopyExistingUserDataLibraries == 1
-			Call fnCopyLibraries
-		${Else}
-			Call fnInstallLibraries
-		${EndIf}
-		${If} ${DirExists} $LPub3DViewerLibPath
-			RMDir /r $LPub3DViewerLibPath
-		${EndIf}
+	  ${If} $CopyExistingUserDataLibraries == 1
+		Call fnCopyLibraries
 	  ${Else}
 		Call fnInstallLibraries
+	  ${EndIf}
+	  
+	  ${If} $DeleteOldUserDataDirectory == 1
+		${AndIf} ${DirExists} $LPub3DViewerLibPath
+			RMDir /r $LPub3DViewerLibPath
 	  ${EndIf}
 	  
 	  ;extras contents
@@ -400,9 +402,9 @@ Section "${ProductName} (required)" SecMain${ProductName}
   
     ;Create shortcuts
 	SetShellVarContext all
-    CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
-	CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${ProductName}.lnk" "$INSTDIR\$FileName"
-    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall ${ProductName}.lnk" "$INSTDIR\Uninstall.exe"
+    CreateDirectory "$SMSTARTUP\$StartMenuFolder"
+	CreateShortCut "$SMSTARTUP\$StartMenuFolder\${ProductName}.lnk" "$INSTDIR\$FileName"
+    CreateShortCut "$SMSTARTUP\$StartMenuFolder\Uninstall ${ProductName}.lnk" "$INSTDIR\Uninstall.exe"
 	
   !insertmacro MUI_STARTMENU_WRITE_END
   
@@ -445,19 +447,19 @@ Function nsDialogShowCustomPage
 	Pop $BrowseLDraw
 
 	; === UserDataInstallChkBox (type: Checkbox) ===
-	${NSD_CreateCheckbox} 7.9u 62.15u 281.72u 14.77u "Check to install user data now or uncheck to install at first application launch."
+	${NSD_CreateCheckbox} 7.9u 62.15u 281.72u 14.77u "Check to install user data now or uncheck to install at first application launch"
 	Pop $UserDataInstallChkBox
 	
 	; === DeleteOldUserDataDirectoryChkBox (type: Checkbox) ===
-    ${NSD_CreateCheckbox} 7.9u 118.15u 143.49u 14.77u "Delete old user data directory"
+    ${NSD_CreateCheckbox} 7.9u 118.15u 143.49u 14.77u "Delete old archive library directory"
     Pop $DeleteOldUserDataDirectoryChkBox
   
     ; === OverwriteUserDataParamFilesChkBox (type: Checkbox) ===
-    ${NSD_CreateCheckbox} 7.9u 80.62u 135.59u 14.77u "Overwrite existing parameter files"
+    ${NSD_CreateCheckbox} 7.9u 80.62u 143.49u 14.77u "Overwrite existing parameter files"
     Pop $OverwriteUserDataParamFilesChkBox
 
     ; === CopyExistingUserDataLibrariesChkBox (type: Checkbox) ===
-    ${NSD_CreateCheckbox} 7.9u 99.08u 90.84u 14.77u "Use existing libraries"
+    ${NSD_CreateCheckbox} 7.9u 99.08u 143.49u 14.77u "Use existing LDraw archive libraries"
     Pop $CopyExistingUserDataLibrariesChkBox	
   
 	${NSD_OnClick} $BrowseLDraw fnBrowseLDraw	
@@ -577,7 +579,9 @@ Function fnShowUserDataLibraryManagement
   ${If} $LibrariesExist == 1	
  	ShowWindow $CopyExistingUserDataLibrariesChkBox ${SW_SHOW}
 	${NSD_Check} $CopyExistingUserDataLibrariesChkBox 
-	Call fnMoveLibrariesInfo
+	${If} $OldLibraryDirectoryExist == 1
+		Call fnMoveLibrariesInfo
+	${EndIf}
   ${Else}
 	ShowWindow $CopyExistingUserDataLibrariesChkBox ${SW_HIDE}
 	${NSD_Uncheck} $CopyExistingUserDataLibrariesChkBox
@@ -649,12 +653,16 @@ FunctionEnd
 
 Function fnCopyLibraries
 	SetOutPath "${INSTDIR_AppData}\libraries"
+	IfFileExists "${INSTDIR_AppData}\libraries\complete.zip" 0 +2
+	goto Next
 	IfFileExists "$LPub3DViewerLibPath\complete.zip" 0 install_new_off_Lib
 	CopyFiles "$LPub3DViewerLibPath\complete.zip" "${INSTDIR_AppData}\libraries\complete.zip"
 	goto Next
 	install_new_off_Lib:
 	File "..\release\libraries\complete.zip"
 	Next:
+	IfFileExists "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip" 0 +2
+	goto Finish
 	IfFileExists "$LPub3DViewerLibPath\ldrawunf.zip" 0 install_new_unoff_Lib
 	CopyFiles "$LPub3DViewerLibPath\ldrawunf.zip" "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip"
 	goto Finish
@@ -696,6 +704,24 @@ Function desktopIcon
     SetShellVarContext current
     CreateShortCut "$DESKTOP\${ProductName}.lnk" "$INSTDIR\$FileName"
 	
+FunctionEnd
+
+Function FinishFunction
+  
+  ShowWindow $mui.Finishpage.Run ${SW_HIDE}
+/*   ${If} $ParameterFilesExist == 1
+  ${OrIf} InstallUserData == 1
+    ShowWindow $mui.Finishpage.Run ${SW_SHOW}
+  ${Else}
+	ShowWindow $mui.Finishpage.Run ${SW_HIDE}
+  ${EndIf} */
+  
+FunctionEnd
+
+Function RunFunction
+  ; Insert application to run here!
+  Exec '"$INSTDIR\$FileName"'
+
 FunctionEnd
 
 ;--------------------------------
@@ -765,14 +791,11 @@ Section "Uninstall"
   SetShellVarContext current
   Delete "$DESKTOP\${ProductName}.lnk"
   SetShellVarContext all
-  Delete "$SMPROGRAMS\$StartMenuFolder\${ProductName}.lnk"
-  Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall ${ProductName}.lnk"
-
-; Uninstall Users Data
-  ${un.EnumUsersReg} un.EraseAppDataCB temp.key
+  Delete "$SMSTARTUP\$StartMenuFolder\${ProductName}.lnk"
+  Delete "$SMSTARTUP\$StartMenuFolder\Uninstall ${ProductName}.lnk"
 	
 ; Remove directories used
-  RMDir "$SMPROGRAMS\$StartMenuFolder"
+  RMDir "$SMSTARTUP\$StartMenuFolder"
 
   RMDir "$INSTDIR\bearer"
   RMDir "$INSTDIR\iconengines"
@@ -805,6 +828,9 @@ Section "Uninstall"
 	RMDir /r "${INSTDIR_AppData}\logs"
 	RMDir "${INSTDIR_AppData}"
   ${EndIf}
+  
+  ; Uninstall Users Data
+  ${un.EnumUsersReg} un.EraseAppDataCB temp.key
   
 ; Remove registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}"

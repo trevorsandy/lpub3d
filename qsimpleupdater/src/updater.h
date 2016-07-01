@@ -324,6 +324,7 @@ class QSU_DECL Updater : public QObject {
 
     QString m_openUrl;
     QString m_platform;
+    QString m_compiler;
     QString m_changelog;
     QString m_moduleName;
     QString m_downloadUrl;
