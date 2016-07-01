@@ -1107,9 +1107,6 @@ Gui::Gui()
 
     Preferences::getRequireds();
     Render::setRenderer(Preferences::preferredRenderer);
-    if (Preferences::preferredRenderer == "LDGLite")
-      partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
-
 }
 
 Gui::~Gui()
@@ -1151,8 +1148,10 @@ bool Gui::InitializeApp(int argc, char *argv[], const char* LibraryInstallPath, 
    */
   g_App = new lcApplication();
 
-  bool initialized = g_App->Initialize(argc, argv, LibraryInstallPath, LDrawPath, this);
+  if (Preferences::preferredRenderer == "LDGLite")
+    partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
 
+  bool initialized = g_App->Initialize(argc, argv, LibraryInstallPath, LDrawPath, this);
   if (initialized){
 
       gMainWindow->SetColorIndex(lcGetColorIndex(4));

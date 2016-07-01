@@ -601,7 +601,6 @@ int LDGLite::renderCsi(
   arguments << mf;                  // .png file name
   arguments << ldrName;             // csi.ldr (input file)
 
-  //qDebug() << "ldglite CLI Arguments: " << arguments;
   emit gui->messageSig(true, "Execute command: LDGLite render CSI.");
 
   QProcess    ldglite;
@@ -609,6 +608,10 @@ int LDGLite::renderCsi(
   env << "LDRAWDIR=" + Preferences::ldrawPath;
   if (!Preferences::ldgliteSearchDirs.isEmpty())
     env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
+
+//  qDebug() << "ldglite CLI Arguments: " << arguments;
+//  qDebug() << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
+
   ldglite.setEnvironment(env);
   ldglite.setWorkingDirectory(QDir::currentPath() + "/"+Paths::tmpDir);
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr");
@@ -684,7 +687,10 @@ int LDGLite::renderPli(
   env << "LDRAWDIR=" + Preferences::ldrawPath;
   if (!Preferences::ldgliteSearchDirs.isEmpty())
     env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
+
 //  qDebug() << "ldglite PLI Arguments: " << arguments;
+//  qDebug() << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
+
   ldglite.setEnvironment(env);
   ldglite.setWorkingDirectory(QDir::currentPath());
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr");
