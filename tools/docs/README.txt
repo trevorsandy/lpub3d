@@ -1,11 +1,13 @@
-LPub3D 2.0.4.730.2 
+LPub3D 2.0.4.732.15 
  
 Features and enhancements 
-------------  
--Fix: Set progress dialog to nonmodal. (r732)
- *Prevent the progress dialog from blocking input to other windows.
+------------ 
+-Fix: Installer program configured to deposit a master copy of usder data (libraries, lists, etc...) in the installation root directory. (r733)
+ *Allow user data creation at initial launch. Upon initial application launch, if user data does not exist, it will be created. This will address the issue of Windows standard users not having access to user data after installation. Additioinally, this design allows for multiple users on a single machine to have their individual user settings and data.
+-Fix: Set progress dialog to nonmodal. (r732) 
+ *Prevent the progress dialog from blocking input to other windows. 
 -Fix: Data directory installed under Administrator AppData path instead of logged in user which is likely to be a standard user (r731) 
- *User data - LDraw archive libraries, logs, extras and other updatable data items - will be installed at initial application launch by default. Because Administrator privilates are required to install LPub3D, user data installed during installation will be deposited under the Administrator user's AppData path. This data will not be accessible to standard users. User data can be installed during application installation as a checked option. This option may be desirable if the logged in user installing LPub3D is also the Administrator. If user data is installed during installation, user data for standard users will be automatically created during initial application launch. On initial application launch, the standard user will be given the options to select, copy (from the installation directory) or download the LDraw archive libraries.
+ *User data - LDraw archive libraries, logs, extras and other updatable data items - will be installed at initial application launch by default. Because Administrator privilates are required to install LPub3D, user data installed during installation will be deposited under the Administrator user's AppData path. This data will not be accessible to standard users. User data can be installed during application installation as a checked option. This option may be desirable if the logged in user installing LPub3D is also the Administrator. If user data is installed during installation, user data for standard users will be automatically created during initial application launch. On initial application launch, the standard user will be given the options to select, copy (from the installation directory) or download the LDraw archive libraries. (Known Issue: Standard user incons are not being generated at the moment. Also, The uninstall routine will not remove standard user data created at application startup. I'm still working on improving the deployment package to handle these items).
  
 LPub3D 2.0.3.730.2 
  
