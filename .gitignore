@@ -5,16 +5,4 @@ mainApp/build.h
 mainApp/images/Thumbs.db
 mainApp/partslist.cpp
 mainApp/partslist.h
-tools/release/*.aps
-tools/release/*.eto
-tools/release/*.moc
-tools/release/*.user
-tools/release/ClientBin
-tools/release/GeneratedArtifacts
-tools/release/GeneratedFiles
-tools/release/[Bb]in
-tools/release/[Dd]ebug
-tools/release/[Rr]elease
-tools/release/_Pvt_Extensions
-tools/release/build
-tools/release/obj
+/tools

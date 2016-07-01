@@ -2,6 +2,8 @@ LPub3D 2.0.4.732.15
  
 Features and enhancements 
 ------------ 
+-Fix: Search directories for LDGlite (LDSEARCHDIRS) not loaded as expected at startup (r735)
+ *Loading the LDGLite search directories at startup occurred out of order (before general search directories) so the LDGlite routine did not pass the conditional test to actually load search directories. This behavior would cause a crash if parts to be loaded were in the standard LDraw official or unofficial directories - for example under ..\Unofficial\myParts - and LDrawini was not in use. LDGLite would not be able to find the part and; consequently, would not be able to generate a part image.
 -Fix: Fade steps skips the second step in a model. Fading starts on the third step. (r734)
  *No fade parts index generated on the first step because nothing was faded; however, we still need an index to know where to start on the second step. Fade step routine fixed to generate an index as long as there are valid parts in the step.
 -Fix: Installer program configured to deposit a master copy of usder data (libraries, lists, etc...) in the installation root directory. (r733)

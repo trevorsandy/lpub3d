@@ -1,0 +1,19 @@
+{
+  "updates": {
+    "windows": {
+	  "download-name": "complete.zip",
+      "open-url": "http://www.ldraw.org/article/14",
+	  "download-url": "http://www.ldraw.org/library/updates/complete.zip"
+    },
+    "osx": {
+	  "download-name": "complete.zip",	
+      "open-url": "http://www.ldraw.org/article/14",
+	  "download-url": "http://www.ldraw.org/library/updates/complete.zip"
+    },
+    "linux": {
+	  "download-name": "complete.zip",	
+      "open-url": "http://www.ldraw.org/article/14",
+	  "download-url": "http://www.ldraw.org/library/updates/complete.zip"
+    }
+  }
+}

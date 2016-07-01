@@ -1,0 +1,19 @@
+{
+  "updates": {
+    "windows": {
+	  "download-name": "lpub3dldrawunf.zip",
+      "open-url": "http://www.ldraw.org/article/14",
+	  "download-url": "http://www.ldraw.org/library/unofficial/ldrawunf.zip"
+    },
+    "osx": {
+	  "download-name": "lpub3dldrawunf.zip",	
+      "open-url": "http://www.ldraw.org/article/14",
+	  "download-url": "http://www.ldraw.org/library/unofficial/ldrawunf.zip"
+    },
+    "linux": {
+	  "download-name": "lpub3dldrawunf.zip",	
+      "open-url": "http://www.ldraw.org/article/14",
+	  "download-url": "http://www.ldraw.org/library/unofficial/ldrawunf.zip"
+    }
+  }
+}

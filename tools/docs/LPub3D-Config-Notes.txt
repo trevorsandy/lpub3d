@@ -1,0 +1,530 @@
+FILES TO MODIFY FOR COMPILE:
+-MAN:leocad.pro	-Change name (leocadXXX.pro) and remark(#) lines 13 & 16 ('... += -wd4100', '... /INCREMENTAL') 
+-MAN:REPLACE '>>' with '> >': 
+	<T>> 
+	<lcVector3>> 
+	<lcMatrix33>> 
+	<lcVector4>> 
+	<float>> 
+	<QString, lcModel*>> 
+	<lcPiece*, lcStep>>
+-MAN:object.h <T>>
+-MAN:camera.h <lcVector3>>
+-MAN:piece.h  <lcVector3>>, <lcMatrix33>>, <lcVector4>>
+-MAN:light.h  <lcVector3>>, <lcVector4>>, <float>>
+-MAN:lc_qmodellistdialog.h/cpp <QString, lcModel*>>
+-MAN:project.cpp <QString, lcModel*>>
+-MAN:lc_model.h <lcPiece*, lcStep>>
+-MAN:lc_timelinewidget.cpp <lcPiece*, lcStep>>
+
+FILES TO MODIFY FOR RUN:
+-MAN:lc_profile.cpp	
+	-lcProfileEntry gProfileEntries(line 56, 58, 63, 65 )
+		UPDATE 'lcProfileEntry("Settings", "GridStuds", 0),'
+		UPDATE 'lcProfileEntry("Settings", "GridLines", 0),'
+		UPDATE 'lcProfileEntry("Settings", "CheckUpdates", 0),'
+		UPDATE 'lcProfileEntry("Settings", "PartsLibrary", "C:\\Users\\Trevor\\LDraw\\LeoCAD-Libraries\\Complete.zip"),'
+														   
+FILES TO PRESERVE DEV CONTENT:
+-MAN:05. common\lc_application.cpp  	(AA Message)
+-MAN:01. common\lc_commands.h/cpp 		(ROTSTEP)
+-MAN:02. common\lc_global.h			
+-MAN:03  common\lc_glwidget.h			(ROTSTEP)
+-MAN:04  common\lc_library.h/cpp	  	(ROTSTEP)
+-MAN:03. common\lc_mainwindow.h/cpp		(ROTSTEP)
+-MAN:04. common\lc_math.h/cpp			(ROTSTEP)
+-MAN:04. common\lc_model.h/cpp			(ROTSTEP)
+-MAN:05. common\lc_profile.cpp
+-MAN:08. common\project.cpp				(POVExport)
+-MAN:06. common\view.h/cpp				(ROTSTEP)
+-MAN:01. qt\lc_qaboutdialog.cpp
+-MAN:03. qt\lc_qpreferencedialog.cpp
+-MAN:04. qt\lc_qglwidget				(ROTSTEP)
+
+
+DEV INSTANCE UPDATES
+-MAN:-MAN:common\lc_global.h (Line 43)
+	#define LC_VERSION_BUILD "XXXX" 
+	
+-MAN:qt\lc_qaboutdialog.cpp 
+	-lcQAboutDialog::lcQAboutDialog(line 14)
+		'ui->version->setText(tr("LeoCAD Version %1 - Build %2").arg(QString::fromLatin1(LC_VERSION_TEXT))
+																.arg(QString::fromLatin1(LC_VERSION_BUILD)));'
+-MAN:common\lc_profile.cpp	
+	-lcProfileEntry gProfileEntries(line 65 )
+		RESTORE 'lcProfileEntry("Settings", "PartsLibrary", ""),'
+	
+-MAN:find and replace all ':/resources/' occurences with new path ':/lc_lib/resources/'
+
+SPECIFIC FILE UPDATES:	
+-MAN common\lc_model.h/cpp	
+	-enum lcRotateStepType(line 27)
+		enum lcRotateStepType
+		{
+			LC_ROTATESTEP_ABSOLUTE_ROTATION,
+			LC_ROTATESTEP_RELATIVE_ROTATION
+		};
+		
+	-enum lcTool(line 100)
+		LC_TOOL_ZOOM_REGION,
+		LC_TOOL_ROTATESTEP		(CHECK - THIS LINE HAD A COMMA - COULD AFFECT OTHER ITEMS)
+		
+	-(line 316)
+		void RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep);
+	-(line 317)
+		void ParseRotationLine(QTextStream& LineStream);
+		
+-MAN:common\lc_model.cpp add #include "lpub.h", "metaitem.h"  and the following function updates/addition
+
+	-lcModel::LoadLDraw (line 436)
+	        if (Token == QLatin1String("//"))
+            {
+                ParseRotationLine(LineStream);
+            }
+
+	-lcModel::RotateStepSelectedObjects(line 2304)
+		void lcModel::RotateStepSelectedObjects(lcRotateStepType RotateStepType, const lcVector3& RotateStep)   //TODO can probably drop 2nd variable
+		{
+			lcVector3 Center = GetFocusOrSelectionCenter();
+			lcVector3 Offset = RotateStep - Center;
+
+			lcVector3 rotateStep = Offset;
+			QString   rotationType;
+
+			int secondPos      = 1;
+			QString lineNumber = "-1";
+			QString model      = mProperties.mName;       //(lc_Model version)
+			model.replace(QRegExp("\\+")," ");
+			QStringList argv = model.split(QRegExp("\\s"));
+			if (argv.size() == 3)
+				lineNumber = argv[secondPos];
+
+			switch (RotateStepType)
+			{
+			case LC_ROTATESTEP_ABSOLUTE_ROTATION:
+				rotationType = "ABS";
+				break;
+			case LC_ROTATESTEP_RELATIVE_ROTATION:
+				rotationType = "REL";
+				break;
+			}
+
+			QString rotationValue("%1 %2 %3 %4 %5");
+			rotationValue = rotationValue.arg(lineNumber,
+											  QString::number(rotateStep[0], 'f', 2),
+											  QString::number(rotateStep[1], 'f', 2),
+											  QString::number(rotateStep[2], 'f', 2),
+											  rotationType);
+
+			MetaItem mi;
+
+			if (gui->getCurFile() != "") {
+				mi.writeRotateStep(rotationValue);
+			}
+
+			gMainWindow->UpdateAllViews();
+		}
+		
+	-lcModel::ParseRotationLine (line 2346)
+		void lcModel::ParseRotationLine(QTextStream& LineStream)
+		{
+			while (!LineStream.atEnd())
+			{
+				lcVector3 setToZero(0.0f, 0.0f, 0.0f);
+				lcVector3 stepRotation;
+				QString Token;
+				LineStream >> Token;
+
+				if (Token == QLatin1String("ROTSTEP")) {
+
+					LineStream >> Token;
+
+					if(Token == QLatin1String("REL"))
+						gMainWindow->SetRotateStepType(LC_ROTATESTEP_RELATIVE_ROTATION);
+					else if(Token == QLatin1String("ABS"))
+						gMainWindow->SetRotateStepType(LC_ROTATESTEP_ABSOLUTE_ROTATION);
+
+					LineStream >> stepRotation[0] >> stepRotation[1] >> stepRotation[2];
+					gui->SetStepRotationLine(stepRotation);
+					gui->UpdateStepRotation(setToZero);
+					//debug only...
+					//qDebug() << "STEP: " << mCurrentStep << " ROTATION: " << stepRotation[0] << " " << stepRotation[1] << " " << stepRotation[2];
+					//debug end
+					continue;
+				}
+			}
+		}
+	-lcModel::EndMouseTool(line 3341)
+		    case LC_TOOL_ROTATESTEP:
+			
+	-lcModel::UpdateInterface (line 3768)
+			gMainWindow->SetRotateStepType(gMainWindow->GetRotateStepType());
+			
+-MAN:common\lc_mainwindow.h
+	-lcRotateStepType GetRotateStepType (line 49)
+		lcRotateStepType GetRotateStepType() const
+		{
+			return mRotateStepType;
+		}
+
+	-(line 134)
+		void SetRotateStepType(lcRotateStepType RotateStepType);
+		
+	-(line 186)
+		lcVector3 GetRotateStepAmount();
+		
+	-(line 220)
+		lcRotateStepType mRotateStepType;
+		
+-MAN:common\lc_mainwindow.cpp add #include "lpub.h"
+	-lcMainWindow::lcMainWindow (line 32)
+		mRotateStepType = LC_ROTATESTEP_RELATIVE_ROTATION;
+		
+	-lcMainWindow::lcMainWindow (line 35)
+	    mTool = LC_TOOL_ROTATESTEP;
+		
+	-lcMainWindow::CreateActions (line 228)
+		QActionGroup *RotateStepTypeGroup = new QActionGroup(this);
+		for (int ActionIdx = LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION; ActionIdx <= LC_EDIT_ROTATESTEP_RELATIVE_ROTATION; ActionIdx++)
+		{
+			mActions[ActionIdx]->setCheckable(true);
+			RotateStepTypeGroup->addAction(mActions[ActionIdx]);
+		}	
+		
+	-lcMainWindow::CreateMenus (line 247)
+		QMenu* RotateStepMenu = new QMenu(tr("Step Rotation"), this);
+		RotateStepMenu->addAction(mActions[LC_EDIT_ROTATESTEP_RELATIVE_ROTATION]);
+		RotateStepMenu->addAction(mActions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION]);
+		mActions[LC_EDIT_ACTION_ROTATESTEP]->setMenu(RotateStepMenu);	
+	
+	-lcMainWindow::CreateMenus (Line 381)
+		/*** management - menus ***/ 
+		menuBar()->removeAction(FileMenu->menuAction());
+		menuBar()->removeAction(EditMenu->menuAction());
+		menuBar()->removeAction(PieceMenu->menuAction());
+		/*** management - menu actions ***/
+		StepMenu->removeAction(mActions[LC_VIEW_TIME_INSERT]);
+		StepMenu->removeAction(mActions[LC_VIEW_TIME_DELETE]);
+		ToolBarsMenu->removeAction(mStandardToolBar->toggleViewAction());
+		ToolBarsMenu->removeAction(mPartsToolBar->toggleViewAction());
+		ToolBarsMenu->removeAction(mPropertiesToolBar->toggleViewAction());
+		ToolBarsMenu->removeAction(mTimelineToolBar->toggleViewAction());
+		ToolBarsMenu->removeAction(mTimeToolBar->toggleViewAction());
+		ViewMenu->removeAction(mActions[LC_VIEW_FULLSCREEN]);
+		ModelMenu->removeAction(mActions[LC_MODEL_NEW]);
+		HelpMenu->removeAction(mActions[LC_HELP_HOMEPAGE]);
+		HelpMenu->removeAction(mActions[LC_HELP_EMAIL]);
+	#if !LC_DISABLE_UPDATE_CHECK
+		HelpMenu->removeAction(mActions[LC_HELP_UPDATES]);
+	#endif
+		/*** management - end ***/	
+
+	-lcMainWindow::CreateToolBars (line 498)
+		mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATESTEP]);
+		
+	-lcMainWindow::CreateToolBars (line 605)
+		/*** management - toolbars ***/
+		mTimeToolBar->setVisible(false);
+		mPartsToolBar->setVisible(false);
+		mPropertiesToolBar->setVisible(false);
+		mStandardToolBar->setVisible(false);
+		mTimelineToolBar->setVisible(false);
+
+		/*** management - toolbar actions ***/
+		mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_SELECT]);
+		mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_INSERT]);
+		mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_LIGHT]);
+		mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
+		mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_CAMERA]);
+		mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_MOVE]);
+		mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_ROTATE]);
+		mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_DELETE]);
+		mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_PAINT]);
+
+		foreach(QAction* tbAction, mToolsToolBar->actions())
+		{
+			if (tbAction->isSeparator()) {
+				mToolsToolBar->removeAction(tbAction);
+				break;      //remove first separator only
+			}
+		}
+		/*** management - end ***/
+
+	-lcMainWindow::closeEvent (line 658)
+		settings.beginGroup("Windows");
+			
+	-lcMainWindow::createPopupMenu (line 679)
+		/*** management - popupMenu ***/
+		Menu->removeAction(mStandardToolBar->toggleViewAction());
+		Menu->removeAction(mPartsToolBar->toggleViewAction());
+		Menu->removeAction(mPropertiesToolBar->toggleViewAction());
+		Menu->removeAction(mTimelineToolBar->toggleViewAction());
+		Menu->removeAction(mPartsToolBar->toggleViewAction());
+		Menu->removeAction(mTimeToolBar->toggleViewAction());
+		/*** management - end ***/
+		
+	-lcMainWindow::ResetCameras (line 1157)
+		gui->UpdateStepRotation(lcVector3(0.0f, 0.0f, 0.0f));
+	
+	-lcMainWindow::SetRotateStepType (line 1305)
+		void lcMainWindow::SetRotateStepType(lcRotateStepType RotateStepType)
+		{
+			mRotateStepType = RotateStepType;
+
+			const char* IconNames[] =
+			{
+				":/lc_lib/resources/edit_rotatestep_absolute_rotation.png",
+				":/lc_lib/resources/edit_rotatestep_relative_rotation.png"
+			};
+
+			if (RotateStepType >= 0 && RotateStepType <= 1)
+			{
+				mActions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION + RotateStepType]->setChecked(true);
+				mActions[LC_EDIT_ACTION_ROTATESTEP]->setIcon(QIcon(IconNames[RotateStepType]));
+			}
+		}
+		
+	-lcMainWindow::GetRotateStepAmount (line 1322)
+		lcVector3 lcMainWindow::GetRotateStepAmount()
+		{
+			lcVector3    rotateStep(0.0f, 0.0f, 0.0f);
+
+			rotateStep = gui->GetStepRotationStatus();
+
+			// DEBUG ONLY
+			QString rotDisplay("%1 %2 %3");
+			rotDisplay = rotDisplay.arg(QString::number(rotateStep[0], 'f', 2), QString::number(rotateStep[1], 'f', 2), QString::number(rotateStep[2], 'f', 2));
+			qDebug() << "2.ROTATION STEP CAPTURE: " << rotDisplay;
+			// END DEBUG
+
+			return rotateStep;
+		}
+	
+	-lcMainWindow::HandleCommand (line 2473)
+		case LC_EDIT_ACTION_ROTATESTEP:
+			SetTool(LC_TOOL_ROTATESTEP);
+			lcGetActiveModel()->RotateStepSelectedObjects(GetRotateStepType(), GetRotateStepAmount());
+			break;
+
+		case LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION:
+		case LC_EDIT_ROTATESTEP_RELATIVE_ROTATION:
+			SetRotateStepType((lcRotateStepType)(CommandId - LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION));
+			break;
+
+-MAN:common\view.h 
+	-enum lcTrackTool (line 44)
+		LC_TRACKTOOL_ZOOM_REGION,
+		LC_TRACKTOOL_ROTATESTEP
+			
+-MAN:common\view.cpp add #include "lpub.h"
+	-View::UpdateTrackTool(line 1891)
+		case LC_TOOL_ROTATESTEP:
+			NewTrackTool = LC_TRACKTOOL_ROTATESTEP;
+			break;	
+			
+	-View::StartTracking(line 2004)
+		case LC_TOOL_ROTATESTEP:
+		
+	-View::StopTracking(line 2087)
+		case LC_TOOL_ROTATESTEP:
+		break;
+		
+	-View::OnLeftButtonDown(line 2211)
+		case LC_TRACKTOOL_ROTATESTEP:
+		break;
+		
+	-View::OnRightButtonDown(line 2320)
+		case LC_TRACKTOOL_ROTATESTEP:
+		
+	-View::OnMouseMove(line 2346)
+		//    lcVector3 Rotation = lcMatrix44ToEulerAngles(mCamera->mWorldView);
+		//    Rotation *= LC_RTOD;
+		//    Rotation *= LC_DTOR;
+		
+	-View::OnMouseMove(line 2579) THIS HAS CHANGED!!!!
+		/*	** start rotstep update **
+			case LC_TRACKTOOL_ORBIT_X:
+				mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.0f);
+				break;
+			case LC_TRACKTOOL_ORBIT_Y:
+				mModel->UpdateOrbitTool(mCamera, 0.0f, 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
+				break;
+
+			case LC_TRACKTOOL_ORBIT_XY:
+				mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
+				break;
+		*/
+			case LC_TRACKTOOL_ORBIT_X:
+			case LC_TRACKTOOL_ORBIT_Y:
+				{
+
+					lcVector3 ScreenX = lcNormalize(lcCross(mCamera->mTargetPosition - mCamera->mPosition, mCamera->mUpVector));
+					lcVector3 ScreenY = mCamera->mUpVector;
+					lcVector3 Dir1;
+
+					switch (mTrackTool)
+					{
+					case LC_TRACKTOOL_ORBIT_X:
+						mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.0f);
+						Dir1 = lcVector3(1, 0, 0);
+						break;
+
+					case LC_TRACKTOOL_ORBIT_Y:
+						mModel->UpdateOrbitTool(mCamera, 0.0f, 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
+						Dir1 = lcVector3(0, 1, 0);
+						break;
+
+					default:
+						break;
+					}
+
+					lcVector3 MoveX, MoveY;
+
+					float dx1 = lcDot(ScreenX, Dir1);
+					float dy1 = lcDot(ScreenY, Dir1);
+
+					if (fabsf(dx1) > fabsf(dy1))
+					{
+						if (dx1 >= 0.0f)
+							MoveX = Dir1;
+						else
+							MoveX = -Dir1;
+
+						MoveY = lcVector3(0, 0, 0);
+					}
+					else
+					{
+						MoveX = lcVector3(0, 0, 0);
+
+						if (dy1 > 0.0f)
+							MoveY = Dir1;
+						else
+							MoveY = -Dir1;
+					}
+
+					MoveX *= 36.0f * (float)(mInputState.x - mMouseDownX) * MouseSensitivity;
+					MoveY *= 36.0f * (float)(mInputState.y - mMouseDownY) * MouseSensitivity;
+
+					gui->UpdateStepRotation(MoveX + MoveY);
+				}
+				break;
+
+			case LC_TRACKTOOL_ORBIT_XY:
+				{
+
+					mModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
+
+					lcVector3 ScreenZ = lcNormalize(mCamera->mTargetPosition - mCamera->mPosition);
+					lcVector3 ScreenX = lcCross(ScreenZ, mCamera->mUpVector);
+					lcVector3 ScreenY = mCamera->mUpVector;
+
+					lcVector3 MoveX = 36.0f * (float)(mInputState.x - mMouseDownX) * MouseSensitivity * ScreenX;
+					lcVector3 MoveY = 36.0f * (float)(mInputState.y - mMouseDownY) * MouseSensitivity * ScreenY;
+
+					gui->UpdateStepRotation(MoveX + MoveY);
+				}
+				break;
+
+			case LC_TRACKTOOL_ROLL:
+				mModel->UpdateRollTool(mCamera, 2.0f * MouseSensitivity * (mInputState.x - mMouseDownX) * LC_DTOR);
+				break;
+
+			case LC_TRACKTOOL_ZOOM_REGION:
+				Redraw();
+				break;
+			case LC_TRACKTOOL_ROTATESTEP:
+				break;
+			}
+		}	// ** end rotstep update **
+		
+-MAN:qt\lc_qglwidget
+	-lcGLWidget::ShowPopupMenu (line 49)
+		QMenu* rotateStepMenu = new QMenu("Step Rotation");
+		rotateStepMenu->addAction(actions[LC_EDIT_ROTATESTEP_RELATIVE_ROTATION]);
+		rotateStepMenu->addAction(actions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION]);
+		actions[LC_EDIT_ACTION_ROTATESTEP]->setMenu(rotateStepMenu);
+		tools->addSeparator();
+		tools->addAction(actions[LC_EDIT_ACTION_ROTATESTEP]);
+		
+	-lcGLWidget::ShowPopupMenu (line 56)
+		/*** management - popupMenu ***/
+		tools->removeAction(actions[LC_EDIT_ACTION_INSERT]);
+		tools->removeAction(actions[LC_EDIT_ACTION_LIGHT]);
+		tools->removeAction(actions[LC_EDIT_ACTION_SPOTLIGHT]);
+		tools->removeAction(actions[LC_EDIT_ACTION_CAMERA]);
+		tools->removeAction(actions[LC_EDIT_ACTION_MOVE]);
+		tools->removeAction(actions[LC_EDIT_ACTION_ROTATE]);
+		tools->removeAction(actions[LC_EDIT_ACTION_DELETE]);
+		tools->removeAction(actions[LC_EDIT_ACTION_PAINT]);	
+		/*** management - end ***/
+
+	-lcGLWidget::SetCursor (line 98)
+		const lcCursorInfo Cursors[LC_CURSOR_COUNT] =
+		{
+			{  0,  0, "" },                                   // LC_CURSOR_DEFAULT
+			{  8,  3, ":/lc_lib/resources/cursor_insert" },          // LC_CURSOR_BRICK
+			{ 15, 15, ":/lc_lib/resources/cursor_light" },           // LC_CURSOR_LIGHT
+			{  7, 10, ":/lc_lib/resources/cursor_spotlight" },       // LC_CURSOR_SPOTLIGHT
+			{ 15,  9, ":/lc_lib/resources/cursor_camera" },          // LC_CURSOR_CAMERA
+			{  0,  2, ":/lc_lib/resources/cursor_select" },          // LC_CURSOR_SELECT
+			{  0,  2, ":/lc_lib/resources/cursor_select_multiple" }, // LC_CURSOR_SELECT_GROUP
+			{ 15, 15, ":/lc_lib/resources/cursor_move" },            // LC_CURSOR_MOVE
+			{ 15, 15, ":/lc_lib/resources/cursor_rotate" },          // LC_CURSOR_ROTATE
+			{ 15, 15, ":/lc_lib/resources/cursor_rotatex" },         // LC_CURSOR_ROTATEX
+			{ 15, 15, ":/lc_lib/resources/cursor_rotatey" },         // LC_CURSOR_ROTATEY
+			{  0, 10, ":/lc_lib/resources/cursor_delete" },          // LC_CURSOR_DELETE
+			{ 14, 14, ":/lc_lib/resources/cursor_paint" },           // LC_CURSOR_PAINT
+			{ 15, 15, ":/lc_lib/resources/cursor_zoom" },            // LC_CURSOR_ZOOM
+			{  9,  9, ":/lc_lib/resources/cursor_zoom_region" },     // LC_CURSOR_ZOOM_REGION
+			{ 15, 15, ":/lc_lib/resources/cursor_pan" },             // LC_CURSOR_PAN
+			{ 15, 15, ":/lc_lib/resources/cursor_roll" },            // LC_CURSOR_ROLL
+			{ 15, 15, ":/lc_lib/resources/cursor_rotate_view" },     // LC_CURSOR_ROTATE_VIEW
+			{  0,  0, "" },
+		};
+	
+	-lcGLWidget::SetCursor (line 122)
+		//if (CursorType != LC_CURSOR_DEFAULT && CursorType < LC_CURSOR_COUNT)
+		if (CursorType != LC_CURSOR_DEFAULT && CursorType < LC_CURSOR_COUNT - 1)	
+	
+-MAN:qt\lc_qpreferencedialog
+	-lcQPreferencesDialog::lcQPreferencesDialog(line 71)
+		/*** management - preferences dialog ***/
+		ui->authorName->setDisabled(true);
+		ui->projectsFolder->setDisabled(true);
+		ui->projectsFolderBrowse->setDisabled(true);
+		ui->partsLibrary->setDisabled(true);
+		ui->partsLibraryBrowse->setDisabled(true);
+		ui->povrayExecutable->setDisabled(true);
+		ui->povrayExecutableBrowse->setDisabled(true);
+		ui->lgeoPath->setDisabled(true);
+		ui->lgeoPathBrowse->setDisabled(true);
+		ui->checkForUpdates->hide();
+		ui->label_10->hide();                   //label check for updates
+		ui->noRelativeSnap->hide();
+		ui->fixedDirectionKeys->hide();
+		ui->enableLighting->hide();
+		ui->tabCategories->setDisabled(true);
+		ui->tabKeyboard->setDisabled(true);
+		ui->tabWidget->removeTab(2);            //hide tabCategories
+		ui->tabWidget->removeTab(2);            //hide tabKeyboard
+		/*** management - end ***/
+
+-OPT:move content from qtmain.cpp to main.cpp (lpub version)
+-OPT:rebuild .pro file (new paths)
+-OPT:rebuild qrc file using new
+-OPT:add lcMainWindow declarations to lpub.h/cpp, main.cpp
+-OPT:update createDocWindow function with gMainWindow handle
+-OPT:metaitem.cpp		
+-OPT:lpub.h/cpp
+-OPT:main.cpp
+-OPT:render.h/cpp
+
+FILE TO REMOVE:
+-MAN:qt\qtmain.cpp (synch content with main.cpp)
+
+-GL_LIGHTING - Deprecated code remarked out
+	-lc_model.cpp 	1054
+	-view.cpp		418, 422, 445, 1434
+
+
+
