@@ -24,7 +24,7 @@
 // ~~~~~ Version info ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 #define VER_MAJOR                           2
 #define VER_MINOR                           0
-#define VER_SP                              4
+#define VER_SP                              5
 
 #define VER_BUILD_STR                       _BUILD_NUMBER
 #define VER_REVISION_STR                    _BUILD_REVISION
@@ -34,7 +34,7 @@
 #define VER_FILEVERSION_STR         		STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SP) "." VER_REVISION_STR "." VER_BUILD_STR "\0"
 #define VER_PRODUCTVERSION          		VER_MAJOR,VER_MINOR,VER_SP
 #define VER_PRODUCTVERSION_STR      		STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SP) "\0"
-#define VER_UPDATEABLE_VERSIONS_STR         "2.0.4,2.0.3,1.3.5,1.2.3,1.0.0"
+#define VER_UPDATEABLE_VERSIONS_STR         "2.0.5,2.0.4,1.3.5,1.2.3,1.0.0"
 #define VER_PRODUCTNAME_STR         		"LPub3D"
 #define VER_COMPANYNAME_STR         		"LPub3D Software"
 #define VER_FILEDESCRIPTION_STR     		"LPub3D - An LDraw Building Instruction Editor"
@@ -46,10 +46,6 @@
 #define VER_PUBLISHER_STR           		"Trevor SANDY"
 #define VER_PUBLISHER_EMAIL_STR     		"trevor.sandy@gmail.com"
 #define VER_PUBLISHER_SUPPORT_EMAIL_STR		"mailto:trevor.sandy@gmail.com?subject=LPub3D Version " VER_FILEVERSION_STR
-
-//obsolete
-#define VER_UPDATE_CHECK_URL        		"http://lpub3d.sourceforge.net/latest.txt"
-#define VER_DOWNLOAD_URL                    "http://lpub3d.sourceforge.net/" VER_PRODUCTNAME_STR "-UpdateMaster.exe"
 
 #define VER_FADESTEP_COLORPARTS_FILE		"fadeStepColorParts.lst"
 #define VER_FREEFOM_ANNOTATIONS_FILE		"freeformAnnotations.lst"
