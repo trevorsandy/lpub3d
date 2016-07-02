@@ -49,18 +49,15 @@
   Var /global LPub3DViewerLibFile
   Var /global LPub3DViewerLibPath
   
-  Var /global IsVC2015DistInstalled
-
-
-  
 ;--------------------------------
 ;General
  
   ;Installer name
-  Name "${ProductName}, Ver ${Version}, Rev ${BuildRevision}"
+  Name "${ProductName}, Ver ${Version}, Rev ${BuildRevision} (MinGW)"
 
   ; Changes the caption, default beeing 'Setup'
-  Caption "${ProductName} 32,64-bit Setup"
+  ; Caption "${ProductName} MinGW 32, 64-bit Setup"
+  Caption "${ProductName} 32-bit (MinGW) Setup"
   
   ; Rebrand bottom textrow
   BrandingText "${Company} Installer"
@@ -72,9 +69,9 @@
    
   ;The files to write
   !ifdef UpdateMaster
-  OutFile "..\release\${ProductName}-UpdateMaster_${Version}.exe"
+  OutFile "..\release\${ProductName}-UpdateMaster_${Version}_MinGW_x32.exe"
   !else
-  OutFile "..\release\${ProductName}-${CompleteVersion}.exe"
+  OutFile "..\release\${ProductName}-UpdateMaster_${Version}_MinGW_x32.exe"
   !endif
   
   ;Default installation folder
@@ -194,13 +191,16 @@ Function .onInit
 
   continue:
   ;Identify installation folder
-  ${If} ${RunningX64}
+/*   ${If} ${RunningX64}
 	StrCpy $FileName "${ProductName}_x64.exe"
 	StrCpy $INSTDIR "$PROGRAMFILES64\${ProductName}"
   ${Else}
 	StrCpy $FileName "${ProductName}_x32.exe"
 	StrCpy $INSTDIR "$PROGRAMFILES32\${ProductName}"
-  ${EndIf}
+  ${EndIf} */
+  
+  	StrCpy $FileName "${ProductName}_MinGW_x32.exe"
+	StrCpy $INSTDIR "$PROGRAMFILES32\${ProductName}"
     
 FunctionEnd
  
@@ -208,100 +208,92 @@ FunctionEnd
 ;Installer Sections
 
 Section "${ProductName} (required)" SecMain${ProductName}
-
-  ;Confirm VC++ 2015 Redistribution is installed
-  File "..\release\vcredist\vc_redist.x86.exe"
-  File "..\release\vcredist\vc_redist.x64.exe"
-  Call fnConfirmVC2015Redist
   
   ;install directory
   SetOutPath "$INSTDIR"
   
   ;executable requireds and readme
-  ${If} ${RunningX64}
-	File "${Win64BuildDir}\${ProductName}_x64.exe"
-	File "${Win64BuildDir}\quazip.dll"
-	File "${Win64BuildDir}\ldrawini.dll"
-	File "${Win64BuildDir}\Qt5Core.dll"
-	File "${Win64BuildDir}\Qt5Network.dll"
-	File "${Win64BuildDir}\Qt5Gui.dll"
-	File "${Win64BuildDir}\Qt5Widgets.dll"
-	File "${Win64BuildDir}\Qt5PrintSupport.dll"
-	File "${Win64BuildDir}\Qt5OpenGL.dll"
+/*   ${If} ${RunningX64}
+	File "${Win64BuildDir}\${ProductName}_MinGW_x64.exe"
+	File "${Win64MinGWBuildDir}\quazip.dll"
+	File "${Win64MinGWBuildDir}\ldrawini.dll"
+	File "${Win64MinGWBuildDir}\Qt5Core.dll"
+	File "${Win64MinGWBuildDir}\Qt5Network.dll"
+	File "${Win64MinGWBuildDir}\Qt5Gui.dll"
+	File "${Win64MinGWBuildDir}\Qt5Widgets.dll"
+	File "${Win64MinGWBuildDir}\Qt5PrintSupport.dll"
+	File "${Win64MinGWBuildDir}\Qt5OpenGL.dll"
   ;New Stuff - Qt Libraries	
-	File "${Win64BuildDir}\libGLESV2.dll"
-	File "${Win64BuildDir}\libEGL.dll"
-	File "${Win64BuildDir}\opengl32sw.dll"
-	File "${Win64BuildDir}\d3dcompiler_47.dll"
+	File "${Win64MinGWBuildDir}\libgcc_s_dw2-1.dll"
+	File "${Win64MinGWBuildDir}\libstdc++-6.dll"
+	File "${Win64MinGWBuildDir}\libwinpthread-1.dll"
   ;New Stuff - Qt Plugins
    CreateDirectory "$INSTDIR\bearer"
    SetOutPath "$INSTDIR\bearer"
-	File "${Win64BuildDir}\bearer\qgenericbearer.dll"
-	File "${Win64BuildDir}\bearer\qnativewifibearer.dll"
+	File "${Win64MinGWBuildDir}\bearer\qgenericbearer.dll"
+	File "${Win64MinGWBuildDir}\bearer\qnativewifibearer.dll"
    CreateDirectory "$INSTDIR\iconengines"
    SetOutPath "$INSTDIR\iconengines"
-	File "${Win64BuildDir}\iconengines\qsvgicon.dll"
+	File "${Win64MinGWBuildDir}\iconengines\qsvgicon.dll"
    CreateDirectory "$INSTDIR\imageformats"
    SetOutPath "$INSTDIR\imageformats"
-	File "${Win64BuildDir}\imageformats\qdds.dll"
-	File "${Win64BuildDir}\imageformats\qgif.dll"
-	File "${Win64BuildDir}\imageformats\qicns.dll"
-	File "${Win64BuildDir}\imageformats\qico.dll"
-	File "${Win64BuildDir}\imageformats\qjpeg.dll"
-	File "${Win64BuildDir}\imageformats\qsvg.dll"
-	File "${Win64BuildDir}\imageformats\qtga.dll"
-	File "${Win64BuildDir}\imageformats\qtiff.dll"
-	File "${Win64BuildDir}\imageformats\qwbmp.dll"
-	File "${Win64BuildDir}\imageformats\qwebp.dll"
+	File "${Win64MinGWBuildDir}\imageformats\qdds.dll"
+	File "${Win64MinGWBuildDir}\imageformats\qgif.dll"
+	File "${Win64MinGWBuildDir}\imageformats\qicns.dll"
+	File "${Win64MinGWBuildDir}\imageformats\qico.dll"
+	File "${Win64MinGWBuildDir}\imageformats\qjpeg.dll"
+	File "${Win64MinGWBuildDir}\imageformats\qsvg.dll"
+	File "${Win64MinGWBuildDir}\imageformats\qtga.dll"
+	File "${Win64MinGWBuildDir}\imageformats\qtiff.dll"
+	File "${Win64MinGWBuildDir}\imageformats\qwbmp.dll"
+	File "${Win64MinGWBuildDir}\imageformats\qwebp.dll"
    CreateDirectory "$INSTDIR\printsupport"
    SetOutPath "$INSTDIR\printsupport"
-	File "${Win64BuildDir}\printsupport\windowsprintersupport.dll"
-    CreateDirectory "$INSTDIR\platforms"
-    SetOutPath "$INSTDIR\platforms"
-	File "${Win64BuildDir}\platforms\qwindows.dll"
-  ${Else}
-	File "${Win32BuildDir}\${ProductName}_x32.exe"
-	File "${Win32BuildDir}\quazip.dll"
-	File "${Win32BuildDir}\ldrawini.dll"
-	File "${Win32BuildDir}\Qt5Core.dll"
-	File "${Win32BuildDir}\Qt5Network.dll"
-	File "${Win32BuildDir}\Qt5Gui.dll"
-	File "${Win32BuildDir}\Qt5Widgets.dll"
-	File "${Win32BuildDir}\Qt5PrintSupport.dll"
-	File "${Win32BuildDir}\Qt5OpenGL.dll"
+	File "${Win64MinGWBuildDir}\printsupport\windowsprintersupport.dll"
+   CreateDirectory "$INSTDIR\platforms"
+   SetOutPath "$INSTDIR\platforms"
+	File "${Win64MinGWBuildDir}\platforms\qwindows.dll"		
+  ${Else} */
+	File "${Win32MinGWBuildDir}\${ProductName}_MinGW_x32.exe"
+	File "${Win32MinGWBuildDir}\quazip.dll"
+	File "${Win32MinGWBuildDir}\ldrawini.dll"
+	File "${Win32MinGWBuildDir}\Qt5Core.dll"
+	File "${Win32MinGWBuildDir}\Qt5Network.dll"
+	File "${Win32MinGWBuildDir}\Qt5Gui.dll"
+	File "${Win32MinGWBuildDir}\Qt5Widgets.dll"
+	File "${Win32MinGWBuildDir}\Qt5PrintSupport.dll"
+	File "${Win32MinGWBuildDir}\Qt5OpenGL.dll"
   ;New Stuff - Qt Libraries
-	File "${Win32BuildDir}\libGLESV2.dll"  
-	File "${Win32BuildDir}\libEGL.dll"
-	File "${Win32BuildDir}\opengl32sw.dll"	
-	File "${Win32BuildDir}\d3dcompiler_47.dll"
+	File "${Win32MinGWBuildDir}\libgcc_s_dw2-1.dll"  
+	File "${Win32MinGWBuildDir}\libstdc++-6.dll"
+	File "${Win32MinGWBuildDir}\libwinpthread-1.dll"
   ;New Stuff - Qt Plugins
    CreateDirectory "$INSTDIR\bearer"
    SetOutPath "$INSTDIR\bearer"
-	File "${Win32BuildDir}\bearer\qgenericbearer.dll"
-	File "${Win32BuildDir}\bearer\qnativewifibearer.dll"
+	File "${Win32MinGWBuildDir}\bearer\qgenericbearer.dll"
+	File "${Win32MinGWBuildDir}\bearer\qnativewifibearer.dll"
    CreateDirectory "$INSTDIR\iconengines"
    SetOutPath "$INSTDIR\iconengines"
-	File "${Win32BuildDir}\iconengines\qsvgicon.dll"
+	File "${Win32MinGWBuildDir}\iconengines\qsvgicon.dll"
    CreateDirectory "$INSTDIR\imageformats"
    SetOutPath "$INSTDIR\imageformats"
-	File "${Win32BuildDir}\imageformats\qdds.dll"
-	File "${Win32BuildDir}\imageformats\qgif.dll"
-	File "${Win32BuildDir}\imageformats\qicns.dll"
-	File "${Win32BuildDir}\imageformats\qico.dll"
-	File "${Win32BuildDir}\imageformats\qjpeg.dll"
-	File "${Win32BuildDir}\imageformats\qsvg.dll"
-	File "${Win32BuildDir}\imageformats\qtga.dll"
-	File "${Win32BuildDir}\imageformats\qtiff.dll"
-	File "${Win32BuildDir}\imageformats\qwbmp.dll"
-	File "${Win32BuildDir}\imageformats\qwebp.dll"
+	File "${Win32MinGWBuildDir}\imageformats\qdds.dll"
+	File "${Win32MinGWBuildDir}\imageformats\qgif.dll"
+	File "${Win32MinGWBuildDir}\imageformats\qicns.dll"
+	File "${Win32MinGWBuildDir}\imageformats\qico.dll"
+	File "${Win32MinGWBuildDir}\imageformats\qjpeg.dll"
+	File "${Win32MinGWBuildDir}\imageformats\qsvg.dll"
+	File "${Win32MinGWBuildDir}\imageformats\qtga.dll"
+	File "${Win32MinGWBuildDir}\imageformats\qtiff.dll"
+	File "${Win32MinGWBuildDir}\imageformats\qwbmp.dll"
+	File "${Win32MinGWBuildDir}\imageformats\qwebp.dll"
    CreateDirectory "$INSTDIR\printsupport"
    SetOutPath "$INSTDIR\printsupport"
-	File "${Win32BuildDir}\printsupport\windowsprintersupport.dll"
-    CreateDirectory "$INSTDIR\platforms"
-    SetOutPath "$INSTDIR\platforms"
-	File "${Win32BuildDir}\platforms\qwindows.dll"
-	
-  ${EndIf}
+	File "${Win32MinGWBuildDir}\printsupport\windowsprintersupport.dll"
+   CreateDirectory "$INSTDIR\platforms"
+   SetOutPath "$INSTDIR\platforms"
+	File "${Win32MinGWBuildDir}\platforms\qwindows.dll" 
+  ; ${EndIf}
   
   SetOutPath "$INSTDIR"
   File "..\docs\README.txt"
@@ -672,33 +664,6 @@ Function fnCopyLibraries
 	
 FunctionEnd
 
-Function fnConfirmVC2015Redist
-	; Test if Visual Studio 2015 C++ Redistributables are installed
-	IfFileExists "$Windir\System32\vcruntime140.dll" +2 0
-	StrCpy $IsVC2015DistInstalled 0
-	${If} $IsVC2015DistInstalled == 0
-		;MessageBox MB_ICONEXCLAMATION "Note: Visual Studio 2015 VC++ Redistributable not found and will be installed!" IDOK 0
-		SetOutPath "$TEMP"
-		${If} ${RunningX64}
-			File "..\release\vcredist\vc_redist.x64.exe"
-			goto InstallVC2015x64Redist
-		${Else}
-			File "..\release\vcredist\vc_redist.x86.exe"
-			goto InstallVC2015x86Redist
-		${EndIf}		
-	${Else}
-		;MessageBox MB_ICONEXCLAMATION "Note: Visual Studio 2015 VC++ Redistributable found!" IDOK 0
-		goto Finish
-	${EndIf}
-	InstallVC2015x86Redist:
-	ExecWait '"$TEMP/vc_redist.x86.exe" /q' ; '/q' to install silently
-	goto Finish
-	InstallVC2015x64Redist:
-	ExecWait '"$TEMP/vc_redist.x64.exe" /q' 
-    Finish:
-	
-FunctionEnd
-
 Function desktopIcon
 
     SetShellVarContext current
@@ -732,28 +697,13 @@ FunctionEnd
 Section "Uninstall"
 
 ; Remove files
-  ${If} ${RunningX64}
+/*   ${If} ${RunningX64}
 	Delete "$INSTDIR\${ProductName}_x64.exe"
   ${Else}
 	Delete "$INSTDIR\${ProductName}_x32.exe"
-  ${EndIf}
-  
-  Delete "$INSTDIR\bearer\qgenericbearer.dll"
-  Delete "$INSTDIR\bearer\qnativewifibearer.dll"
-  Delete "$INSTDIR\iconengines\qsvgicon.dll"
-  Delete "$INSTDIR\imageformats\qdds.dll"
-  Delete "$INSTDIR\imageformats\qgif.dll"
-  Delete "$INSTDIR\imageformats\qicns.dll"
-  Delete "$INSTDIR\imageformats\qico.dll"
-  Delete "$INSTDIR\imageformats\qjpeg.dll"
-  Delete "$INSTDIR\imageformats\qsvg.dll"
-  Delete "$INSTDIR\imageformats\qtga.dll"
-  Delete "$INSTDIR\imageformats\qtiff.dll"
-  Delete "$INSTDIR\imageformats\qwbmp.dll"
-  Delete "$INSTDIR\imageformats\qwebp.dll"
-  Delete "$INSTDIR\printsupport\windowsprintersupport.dll"  
-  Delete "$INSTDIR\platforms\qwindows.dll"
-  
+  ${EndIf} */
+  Delete "$INSTDIR\${ProductName}_MinGW_x32.exe"
+ 
   Delete "$INSTDIR\docs\Credits.txt"
   Delete "$INSTDIR\docs\Copying.txt"
   Delete "$INSTDIR\docs\License.txt" 
@@ -778,10 +728,11 @@ Section "Uninstall"
   Delete "$INSTDIR\Qt5Widgets.dll"
   Delete "$INSTDIR\Qt5PrintSupport.dll"
   Delete "$INSTDIR\Qt5OpenGL.dll"
-  Delete "$INSTDIR\libGLESV2.dll"  
-  Delete "$INSTDIR\libEGL.dll"
-  Delete "$INSTDIR\opengl32sw.dll"	
-  Delete "$INSTDIR\d3dcompiler_47.dll"
+  Delete "$INSTDIR\libgcc_s_dw2-1.dll"  
+  Delete "$INSTDIR\libstdc++-6.dll"
+  Delete "$INSTDIR\libwinpthread-1.dll"
+  Delete "$INSTDIR\platforms\qwindows.dll"
+
   Delete "$INSTDIR\README.txt"
   Delete "$INSTDIR\Uninstall.exe"
 
@@ -797,12 +748,7 @@ Section "Uninstall"
 ; Remove directories used
   RMDir "$SMSTARTUP\$StartMenuFolder"
 
-  RMDir "$INSTDIR\bearer"
-  RMDir "$INSTDIR\iconengines"
-  RMDir "$INSTDIR\imageformats"
-  RMDir "$INSTDIR\printsupport"
   RMDir "$INSTDIR\platforms"
-  
   RMDir "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win"
   RMDir "$INSTDIR\3rdParty\l3p1.4WinB"
   RMDir "$INSTDIR\3rdParty"

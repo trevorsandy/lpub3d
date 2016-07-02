@@ -13,7 +13,7 @@ ECHO Build and create manual and automatic install distributions
 rem ---------------------------------------
 rem Change value to 1 to execute and 0 to ignore the respective command
 SET RUN_NSIS=1
-SET CLEANUP=0
+SET CLEANUP=1
 SET GENBUILDVER=0
 SET UCRT=0
 rem ---------------------------------------
@@ -43,6 +43,7 @@ SET Win64QuazipBuildFile="..\..\build\x64\Release\quazip.dll"
 SET Win64LdrawiniBuildFile="..\..\build\x64\Release\ldrawini.dll"
 
 SET Win32MinGwQtBinPath="C:\Qt\IDE\5.5\mingw492_32\bin"
+SET Win32MinGwQtPluginPath=C:\Qt\IDE\5.5\mingw492_32\plugins
 
 SET Win32QtBinPath=C:\Qt\IDE\5.6\msvc2015\bin
 SET Win32QtPluginPath=C:\Qt\IDE\5.6\msvc2015\plugins
@@ -419,6 +420,38 @@ COPY /V /Y %Win32MinGwQtBinPath%\Qt5OpenGL.dll ..\release\%VERSION%\%WIN32MINGWP
 COPY /V /Y %Win32MinGwQtBinPath%\Qt5PrintSupport.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\ /B        >>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win32MinGwQtBinPath%\Qt5Widgets.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\ /B             >>  ../release/LPub3D.Release.build.log.txt
 
+IF NOT EXIST "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\bearer\" (
+  MKDIR "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\bearer\"
+)
+IF NOT EXIST "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\iconengines\" (
+  MKDIR "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\iconengines\"
+)
+IF NOT EXIST "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\" (
+  MKDIR "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\"
+)
+IF NOT EXIST "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\platforms\" (
+  MKDIR "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\platforms\"
+)
+IF NOT EXIST "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\printsupport\" (
+  MKDIR "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\printsupport\"
+)
+
+COPY /V /Y %Win32MinGwQtPluginPath%\bearer\qgenericbearer.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\bearer\ /B  						>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32MinGwQtPluginPath%\bearer\qnativewifibearer.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\bearer\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32MinGwQtPluginPath%\iconengines\qsvgicon.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\iconengines\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qdds.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qgif.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qicns.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qico.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qjpeg.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qsvg.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qtga.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qtiff.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qwbmp.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qwebp.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32MinGwQtPluginPath%\platforms\qwindows.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\platforms\ /B  						>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32MinGwQtPluginPath%\printsupport\windowsprintersupport.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\printsupport\ /B  	>>  ../release/LPub3D.Release.build.log.txt
+
 ECHO. 																>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Copying %WIN32PRODUCTDIR% content to media folder...    		>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
@@ -678,11 +711,32 @@ IF %CLEANUP% == 1 RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%V
 rem IF %CLEANUP% == 1 RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 								>>  ../release/LPub3D.Release.build.log.txt
 
 IF %RUN_NSIS% == 1 ECHO.												 																>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%_MinGW_x32.exe to Download\ media folder...							>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO. 																												>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe to Update\ media folder...				>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO.	
+IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%_MinGW_x32.exe to Download\ media folder...		
+IF %RUN_NSIS% == 1 ECHO.	
+IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe to Update\ media folder...		
+
+IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %DOWNLOADPRODUCT%_MinGW_x32.exe to Download\ media folder...							>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO. 																												>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe to Update\ media folder...				>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO. 	
+IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %DOWNLOADPRODUCT%_MinGW_x32.exe to Download\ media folder...	
+IF %RUN_NSIS% == 0 ECHO. 			
+IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe to Update\ media folder...	
+
+IF %RUN_NSIS% == 1 MOVE /Y ..\release\%DOWNLOADPRODUCT%_MinGW_x32.exe ..\release\%VERSION%\Download\									>>  ../release/LPub3D.Release.build.log.txt		
+IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe ..\release\%VERSION%\Update\						>>  ../release/LPub3D.Release.build.log.txt		
+IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster_MinGW_x32.exe ..\release\%VERSION%\Update\									>>  ../release/LPub3D.Release.build.log.txt		
+
+IF %RUN_NSIS% == 1 ECHO.												 																>>  ../release/LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...										>>  ../release/LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO. 																												>>  ../release/LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...							>>  ../release/LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO.	
-IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...		
+IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...	
 IF %RUN_NSIS% == 1 ECHO.	
 IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...	
 
@@ -696,7 +750,7 @@ IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %PRODUCT%-UpdateMaster_%VERSIO
 
 IF %RUN_NSIS% == 1 MOVE /Y ..\release\%DOWNLOADPRODUCT%.exe ..\release\%VERSION%\Download\												>>  ../release/LPub3D.Release.build.log.txt		
 IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe ..\release\%VERSION%\Update\									>>  ../release/LPub3D.Release.build.log.txt		
-IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster.exe ..\release\%VERSION%\Update\									>>  ../release/LPub3D.Release.build.log.txt		
+IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster.exe ..\release\%VERSION%\Update\											>>  ../release/LPub3D.Release.build.log.txt		
 
 ECHO. 																>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Finished.													>>  ../release/LPub3D.Release.build.log.txt

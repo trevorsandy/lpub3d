@@ -613,6 +613,7 @@ tools/Win-setup/BuildVersionsTemplate.txt -text
 tools/Win-setup/Copyright-Source-Header.txt -text
 tools/Win-setup/EnumUsersReg.nsh -text
 tools/Win-setup/LDraw_Archive_Download.bat -text
+tools/Win-setup/LPub3DMinGWNoPack.nsi -text
 tools/Win-setup/LPub3DNoPack.nsi -text
 tools/Win-setup/LPub3DViewer_LDrawunf_Archive_Generator.bat -text
 tools/Win-setup/build_inc.bat -text
