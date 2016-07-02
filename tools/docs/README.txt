@@ -1,3 +1,9 @@
+LPub3D 2.0.2.740.1 
+ 
+Features and enhancements 
+------------ 
+-Fix: Automatically load ldglite during installation (r740)
+
 LPub3D 2.0.4.737.2 
  
 Features and enhancements 
