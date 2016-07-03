@@ -49,6 +49,7 @@
 
 #define VER_FADESTEP_COLORPARTS_FILE		"fadeStepColorParts.lst"
 #define VER_FREEFOM_ANNOTATIONS_FILE		"freeformAnnotations.lst"
+#define VER_EXTRAS_LDCONFIG_FILE            "LDConfig.ldr"
 #define VER_PDFPRINT_IMAGE_FILE				"PDFPrint.jpg"
 #define VER_PLI_MPD_FILE					"pli.mpd"
 #define VER_PLI_SUBSTITUTE_PARTS_FILE		"pliSubstituteParts.lst"

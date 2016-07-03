@@ -312,6 +312,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   ;data depository folder
   CreateDirectory "$INSTDIR\data"
   SetOutPath "$INSTDIR\data"
+  File "..\..\mainApp\extras\LDConfig.ldr"
   File "..\..\mainApp\extras\PDFPrint.jpg"
   File "..\..\mainApp\extras\pli.mpd"
   File "..\..\mainApp\extras\titleAnnotations.lst"
@@ -359,12 +360,14 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	  
 	 ${If} $OverwriteUserDataParamFiles == 0
 	  SetOverwrite off
+	  File "..\..\mainApp\extras\LDConfig.ldr"
 	  File "..\..\mainApp\extras\titleAnnotations.lst"
 	  File "..\..\mainApp\extras\freeformAnnotations.lst"
 	  File "..\..\mainApp\extras\fadeStepColorParts.lst"
 	  File "..\..\mainApp\extras\pliSubstituteParts.lst"
 	 ${Else}
 	  SetOverwrite on
+	  File "..\..\mainApp\extras\LDConfig.ldr"
 	  File "..\..\mainApp\extras\titleAnnotations.lst"
 	  File "..\..\mainApp\extras\freeformAnnotations.lst"
 	  File "..\..\mainApp\extras\fadeStepColorParts.lst"
@@ -763,7 +766,8 @@ Section "Uninstall"
 	Delete "${INSTDIR_AppData}\extras\titleAnnotations.lst"
 	Delete "${INSTDIR_AppData}\extras\pliSubstituteParts.lst"
 	Delete "${INSTDIR_AppData}\extras\pli.mpd"
-	Delete "${INSTDIR_AppData}\extras\PDFPrint.jpg"  
+	Delete "${INSTDIR_AppData}\extras\LDConfig.ldr"
+	Delete "${INSTDIR_AppData}\extras\PDFPrint.jpg"
 	Delete "${INSTDIR_AppData}\dump\minidump.dmp"
 	Delete "${INSTDIR_AppData}\libraries\complete.zip"
 	Delete "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip"  

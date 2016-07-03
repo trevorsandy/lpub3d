@@ -194,6 +194,7 @@ void Preferences::lpubPreferences()
 
         QFile::copy(lpub3dPath + "/data/" + VER_FADESTEP_COLORPARTS_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_FADESTEP_COLORPARTS_FILE));
         QFile::copy(lpub3dPath + "/data/" + VER_FREEFOM_ANNOTATIONS_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_FREEFOM_ANNOTATIONS_FILE));
+        QFile::copy(lpub3dPath + "/data/" + VER_EXTRAS_LDCONFIG_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_EXTRAS_LDCONFIG_FILE));
         QFile::copy(lpub3dPath + "/data/" + VER_PDFPRINT_IMAGE_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_PDFPRINT_IMAGE_FILE));
         QFile::copy(lpub3dPath + "/data/" + VER_PLI_MPD_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_PLI_MPD_FILE));
         QFile::copy(lpub3dPath + "/data/" + VER_PLI_SUBSTITUTE_PARTS_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_PLI_SUBSTITUTE_PARTS_FILE));

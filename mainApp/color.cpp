@@ -24,6 +24,7 @@
 #include <QTextStream>
 #include <QRegExp>
 #include "lpub_preferences.h"
+#include "QsLog.h"
 
 QHash<QString, QColor>  LDrawColor::name2color;
 QHash<QString, QString> LDrawColor::color2name;
@@ -38,22 +39,46 @@ LDrawColor::LDrawColor ()
 {
   name2color.clear();
   color2name.clear();
-  QString fileName(Preferences::ldrawPath + "/ldconfig.ldr");
-  QFile file(fileName);
+  QString ldrawFileName(Preferences::ldrawPath + "/ldconfig.ldr");
+  QFile file(ldrawFileName);
+  // try default location
   if (! file.open(QFile::ReadOnly | QFile::Text)) {
-      // try resource file
-      file.setFileName(":/resources/ldconfig.ldr");
+      QString extrasFileName(Preferences::lpubDataPath + "/extras/ldconfig.ldr");
+      file.setFileName(extrasFileName);
+      // try extras location
       if (! file.open(QFile::ReadOnly | QFile::Text)){
-          QMessageBox::warning(NULL,QMessageBox::tr("LDrawColor"),
-                               QMessageBox::tr("Cannot read disc file %1"
-                                               "\nor resource file %2\n"
-                                               "Last error was %3.")
-                               .arg(fileName)
-                               .arg(file.fileName())
-                               .arg(file.errorString()));
-          return;
-        }
+          file.setFileName(":/resources/ldconfig.ldr");
+          // try resource location
+          if (! file.open(QFile::ReadOnly | QFile::Text)){
+              QMessageBox::warning(NULL,QMessageBox::tr("LDrawColor"),
+                                   QMessageBox::tr("LDConfig load: Cannot read disc file %1,\ndisc file %2"
+                                                   "\nor resource file %3.")
+                                   .arg(ldrawFileName)
+                                   .arg(extrasFileName)
+                                   .arg(file.fileName()));
+              return;
+            } else
+              logTrace() << "LDConfig loaded from resource cache.";
+        } else
+          logTrace() << "LDConfig loaded from extras directory.";
     }
+
+//  QString fileName(Preferences::ldrawPath + "/ldconfig.ldr");
+//  QFile file(fileName);
+//  if (! file.open(QFile::ReadOnly | QFile::Text)) {
+//      // try resource file
+//      file.setFileName(":/resources/ldconfig.ldr");
+//      if (! file.open(QFile::ReadOnly | QFile::Text)){
+//          QMessageBox::warning(NULL,QMessageBox::tr("LDrawColor"),
+//                               QMessageBox::tr("Cannot read disc file %1"
+//                                               "\nor resource file %2\n"
+//                                               "Last error was %3.")
+//                               .arg(fileName)
+//                               .arg(file.fileName())
+//                               .arg(file.errorString()));
+//          return;
+//        }
+//    }
   QRegExp rx("^\\s*0\\s+!COLOUR\\s+(\\w+)\\s+"
              "CODE\\s+(\\d+)\\s+VALUE\\s+#([\\da-fA-F]+)");
   QTextStream in(&file);
