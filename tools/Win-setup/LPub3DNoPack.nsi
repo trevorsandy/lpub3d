@@ -405,9 +405,9 @@ Section "${ProductName} (required)" SecMain${ProductName}
   
     ;Create shortcuts
 	SetShellVarContext all
-    CreateDirectory "$SMSTARTUP\$StartMenuFolder"
-	CreateShortCut "$SMSTARTUP\$StartMenuFolder\${ProductName}.lnk" "$INSTDIR\$FileName"
-    CreateShortCut "$SMSTARTUP\$StartMenuFolder\Uninstall ${ProductName}.lnk" "$INSTDIR\Uninstall.exe"
+    CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
+	CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${ProductName}.lnk" "$INSTDIR\$FileName"
+    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall ${ProductName}.lnk" "$INSTDIR\Uninstall.exe"
 	
   !insertmacro MUI_STARTMENU_WRITE_END
   
@@ -794,11 +794,11 @@ Section "Uninstall"
   SetShellVarContext current
   Delete "$DESKTOP\${ProductName}.lnk"
   SetShellVarContext all
-  Delete "$SMSTARTUP\$StartMenuFolder\${ProductName}.lnk"
-  Delete "$SMSTARTUP\$StartMenuFolder\Uninstall ${ProductName}.lnk"
+  Delete "$SMPROGRAMS\$StartMenuFolder\${ProductName}.lnk"
+  Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall ${ProductName}.lnk"
 	
 ; Remove directories used
-  RMDir "$SMSTARTUP\$StartMenuFolder"
+  RMDir "$SMPROGRAMS\$StartMenuFolder"
 
   RMDir "$INSTDIR\bearer"
   RMDir "$INSTDIR\iconengines"
