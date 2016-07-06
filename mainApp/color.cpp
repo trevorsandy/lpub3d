@@ -63,22 +63,6 @@ LDrawColor::LDrawColor ()
           logTrace() << "LDConfig loaded from extras directory.";
     }
 
-//  QString fileName(Preferences::ldrawPath + "/ldconfig.ldr");
-//  QFile file(fileName);
-//  if (! file.open(QFile::ReadOnly | QFile::Text)) {
-//      // try resource file
-//      file.setFileName(":/resources/ldconfig.ldr");
-//      if (! file.open(QFile::ReadOnly | QFile::Text)){
-//          QMessageBox::warning(NULL,QMessageBox::tr("LDrawColor"),
-//                               QMessageBox::tr("Cannot read disc file %1"
-//                                               "\nor resource file %2\n"
-//                                               "Last error was %3.")
-//                               .arg(fileName)
-//                               .arg(file.fileName())
-//                               .arg(file.errorString()));
-//          return;
-//        }
-//    }
   QRegExp rx("^\\s*0\\s+!COLOUR\\s+(\\w+)\\s+"
              "CODE\\s+(\\d+)\\s+VALUE\\s+#([\\da-fA-F]+)");
   QTextStream in(&file);

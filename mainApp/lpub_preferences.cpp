@@ -124,7 +124,9 @@ void Preferences::lpubPreferences()
         QSettings Settings;
         QString const pos("pos");
         if (Settings.contains(QString("%1/%2").arg(MAINWINDOW,pos))) {
-            Settings.remove(QString("%1/%2").arg(SETTINGS,pos));
+            Settings.beginGroup(MAINWINDOW);
+            Settings.remove("");
+            Settings.endGroup();
         }
         // end cleanup
         
