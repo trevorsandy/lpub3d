@@ -84,6 +84,7 @@ class Preferences
     static bool    showAllNotifications;
     static bool    showUpdateNotifications;
     static bool    enableDownloader;
+    static bool    portableDistribution;
     static int     checkUpdateFrequency;
     static int     pageWidth;
     static int     pageHeight;

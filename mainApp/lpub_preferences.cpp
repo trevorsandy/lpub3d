@@ -96,6 +96,7 @@ bool    Preferences::enableDownloader           = true;
 bool    Preferences::ldrawiniFound              = false;
 bool    Preferences::fadeStepSettingChanged     = false;
 bool    Preferences::fadeStepColorChanged       = false;
+bool    Preferences::portableDistribution       = false;
 int     Preferences::checkUpdateFrequency       = 2;        //0=Never,1=Daily,2=Weekly,3=Monthly
 
 int     Preferences::pageHeight                 = 800;
@@ -114,11 +115,16 @@ void Preferences::lpubPreferences()
         cwd.cdUp(); //Contents
         cwd.cdUp(); //LPub3D.app
     }
+
     lpub3dPath = cwd.absolutePath();
 
-    if (QDir(lpub3dPath + "/extras").exists()) {
+    emit Application::instance()->splashMsgSig("5% - Initialize user data directory...");
 
-#ifdef Q_OS_WIN
+    if (QDir(lpub3dPath + "/extras").exists()) { // we have a portable distribution
+
+        portableDistribution = true;
+
+#ifdef Q_OS_WIN                                  // ... portable on Windows (macro)
 
         // TODO temporary: do some cleanup between version 1.3.5 and 2.0 - Qt4x and 5x
         QSettings Settings;
@@ -130,12 +136,10 @@ void Preferences::lpubPreferences()
         }
         // end cleanup
         
-        emit Application::instance()->splashMsgSig("5% - Initialize user data directory...");
-
         bool programFolder = QCoreApplication::applicationDirPath().contains("Program Files") ||
                 QCoreApplication::applicationDirPath().contains("Program Files (x86)");
 
-        if (programFolder) {
+        if (programFolder) {                     // ...installed in Program Folder directory
             // Get the application icon as a pixmap
             QPixmap _icon = QPixmap(":/icons/lpub96.png");
             QMessageBox box;
@@ -146,23 +150,33 @@ void Preferences::lpubPreferences()
             box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
             QString header  = "<b>" + QMessageBox::tr ("Data directory installation folder.") + "</b>";
-            QString body = QMessageBox::tr ("Would you like to create a folder outside the Program Files / (x86) directory?");
+            QString body = QMessageBox::tr ("Would you like to create a folder outside the Program Files / (x86) directory? \n"
+                                            "If you choose No, the data directory will automatically be created in the user's AppData directory.");
             QString detail = QMessageBox::tr ("It looks like this installation is a portable or packaged (i.e. AIOI) distribution \n"
                                               "of LPub3D installed under the system's Program Files/(x86) directory.\n\n"
                                               "Updatable data will not be able to be written to unless you modify\n"
                                               "user account access for this folder which is not recommended.\n\n"
                                               "You should consider changing the installation folder or placing\n"
                                               "the updatable data folder outside the Program Files/(x86) directory\n\n"
-                                              "Choose yes to continue and select a data folder outside Program Files/(x86).");
+                                              "Choose yes to continue and select a data folder outside Program Files/(x86).\n\n"
+                                              "If you choose No, the data directory will automatically be created in the user's AppData directory.");
             box.setText (header);
             box.setInformativeText (body);
             box.setDetailedText(detail);
             box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
             box.setDefaultButton   (QMessageBox::Yes);
 
-            if (box.exec() != QMessageBox::Yes) {
-                exit(-1);
-            } else {
+            if (box.exec() != QMessageBox::Yes) {   // user choose not to create user data direcory outside program folder, so create automatically
+
+                #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+                        QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+                        lpubDataPath = dataPathList.first();
+                #else
+                        lpubDataPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+                #endif
+
+            } else {                                // capture user's choice for user data directory
+
                 QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
                 lpubDataPath = dataPathList.first();
                 QString result = QFileDialog::getExistingDirectory(NULL,
@@ -173,11 +187,16 @@ void Preferences::lpubPreferences()
                 if (! result.isEmpty())
                     lpubDataPath = QDir::toNativeSeparators(result);
             }
-        }
-#endif
-        lpubDataPath = lpub3dPath;
 
-    } else {
+        } else {                                    // ...installed outside Program Folder directory
+
+            lpubDataPath = lpub3dPath;
+        }
+#else                                               // ...portable on other than Windows (macro)
+      lpubDataPath = lpub3dPath;
+#endif
+
+    } else {                                        // we havea an installed distribution
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
         QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
@@ -185,6 +204,7 @@ void Preferences::lpubPreferences()
 #else
         lpubDataPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 #endif
+
     }
 
     qDebug() << "LPub3D data path: " << lpubDataPath;
@@ -194,13 +214,15 @@ void Preferences::lpubPreferences()
         emit Application::instance()->splashMsgSig("5% - Initialize extras directory...");
         extrasDir.mkpath(".");
 
-        QFile::copy(lpub3dPath + "/data/" + VER_FADESTEP_COLORPARTS_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_FADESTEP_COLORPARTS_FILE));
-        QFile::copy(lpub3dPath + "/data/" + VER_FREEFOM_ANNOTATIONS_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_FREEFOM_ANNOTATIONS_FILE));
-        QFile::copy(lpub3dPath + "/data/" + VER_EXTRAS_LDCONFIG_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_EXTRAS_LDCONFIG_FILE));
-        QFile::copy(lpub3dPath + "/data/" + VER_PDFPRINT_IMAGE_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_PDFPRINT_IMAGE_FILE));
-        QFile::copy(lpub3dPath + "/data/" + VER_PLI_MPD_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_PLI_MPD_FILE));
-        QFile::copy(lpub3dPath + "/data/" + VER_PLI_SUBSTITUTE_PARTS_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_PLI_SUBSTITUTE_PARTS_FILE));
-        QFile::copy(lpub3dPath + "/data/" + VER_TITLE_ANNOTATIONS_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_TITLE_ANNOTATIONS_FILE));
+        QString location = QString("%1").arg((portableDistribution ? "/extras/" : "/data/"));
+
+        QFile::copy(lpub3dPath + location + VER_FADESTEP_COLORPARTS_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_FADESTEP_COLORPARTS_FILE));
+        QFile::copy(lpub3dPath + location + VER_FREEFOM_ANNOTATIONS_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_FREEFOM_ANNOTATIONS_FILE));
+        QFile::copy(lpub3dPath + location + VER_EXTRAS_LDCONFIG_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_EXTRAS_LDCONFIG_FILE));
+        QFile::copy(lpub3dPath + location + VER_PDFPRINT_IMAGE_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_PDFPRINT_IMAGE_FILE));
+        QFile::copy(lpub3dPath + location + VER_PLI_MPD_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_PLI_MPD_FILE));
+        QFile::copy(lpub3dPath + location + VER_PLI_SUBSTITUTE_PARTS_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_PLI_SUBSTITUTE_PARTS_FILE));
+        QFile::copy(lpub3dPath + location + VER_TITLE_ANNOTATIONS_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_TITLE_ANNOTATIONS_FILE));
 
     }
 }
@@ -360,7 +382,12 @@ void Preferences::lpub3dLibPreferences(bool force)
 
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,LPub3DLibKey))) {
         lpub3dLibFile = Settings.value(QString("%1/%2").arg(SETTINGS,LPub3DLibKey)).toString();
+    } else
+    if (portableDistribution) {
+        lpub3dLibFile = QString("%1/%2/%3").arg(lpubDataPath, "libraries", VER_LDRAW_OFFICIAL_ARCHIVE);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
     }
+
 
     if (!lpub3dLibFile.isEmpty() && ! force) {
         validFile.setFile(lpub3dLibFile);
@@ -419,8 +446,10 @@ void Preferences::lpub3dLibPreferences(bool force)
             if (!QDir(libraryDir).exists()){
                 libraryDir.mkpath(".");
 
-                QFile::copy(lpub3dPath + "/data/" + VER_LDRAW_OFFICIAL_ARCHIVE, QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_OFFICIAL_ARCHIVE));
-                QFile::copy(lpub3dPath + "/data/" + VER_LPUB3D_UNOFFICIAL_ARCHIVE, QString("%1/%2").arg(libraryDir.absolutePath(), VER_LPUB3D_UNOFFICIAL_ARCHIVE));
+                QString location = QString("%1").arg((portableDistribution ? "/libraries/" : "/data/"));
+
+                QFile::copy(lpub3dPath + location + VER_LDRAW_OFFICIAL_ARCHIVE, QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_OFFICIAL_ARCHIVE));
+                QFile::copy(lpub3dPath + location + VER_LPUB3D_UNOFFICIAL_ARCHIVE, QString("%1/%2").arg(libraryDir.absolutePath(), VER_LPUB3D_UNOFFICIAL_ARCHIVE));
 
                 lpub3dLibFile = QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_OFFICIAL_ARCHIVE);
                 Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
