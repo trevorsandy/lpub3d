@@ -63,7 +63,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.publishLogoPath->setText(                      Preferences::documentLogoFile);
   ui.authorName_Edit->setText(                      Preferences::defaultAuthor);
   ui.displayAllAttributes_Chk->setChecked(          Preferences::displayAllAttributes);
-  ui.generageCoverPages_Chk->setChecked(            Preferences::generageCoverPages);
+  ui.generateCoverPages_Chk->setChecked(            Preferences::generateCoverPages);
   ui.publishTOC_Chk->setChecked(                    Preferences::printDocumentTOC);
   ui.publishURL_Edit->setText(                      Preferences::defaultURL);
   ui.publishEmail_Edit->setText(                    Preferences::defaultEmail);
@@ -489,9 +489,9 @@ bool  PreferencesDialog::displayAllAttributes()
   return ui.displayAllAttributes_Chk->isChecked();
 }
 
-bool  PreferencesDialog::generageCoverPages()
+bool  PreferencesDialog::generateCoverPages()
 {
-  return ui.generageCoverPages_Chk->isChecked();
+  return ui.generateCoverPages_Chk->isChecked();
 }
 
 bool  PreferencesDialog::printDocumentTOC()

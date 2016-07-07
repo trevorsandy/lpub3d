@@ -84,7 +84,7 @@ bool    Preferences::enableDocumentLogo         = false;
 bool    Preferences::enableLDViewSingleCall     = true;
 bool    Preferences::useLDViewSingleCall        = false;
 bool    Preferences::displayAllAttributes       = false;
-bool    Preferences::generageCoverPages         = false;
+bool    Preferences::generateCoverPages         = false;
 bool    Preferences::printDocumentTOC           = false;
 //
 
@@ -914,12 +914,12 @@ void Preferences::publishingPreferences()
         displayAllAttributes = Settings.value(QString("%1/%2").arg(DEFAULTS,"DisplayAllAttributes")).toBool();
     }
 
-    if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"GenerageCoverPages"))) {
+    if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"generateCoverPages"))) {
         QVariant pValue(false);
-        generageCoverPages = false;
-        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"GenerageCoverPages"),pValue);
+        generateCoverPages = false;
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"generateCoverPages"),pValue);
     } else {
-        generageCoverPages = Settings.value(QString("%1/%2").arg(DEFAULTS,"GenerageCoverPages")).toBool();
+        generateCoverPages = Settings.value(QString("%1/%2").arg(DEFAULTS,"generateCoverPages")).toBool();
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"PrintDocumentTOC"))) {
@@ -1194,9 +1194,9 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DisplayAllAttributes"),displayAllAttributes);
         }
 
-        if (generageCoverPages != dialog->generageCoverPages()) {
-            generageCoverPages = dialog->generageCoverPages();
-            Settings.setValue(QString("%1/%2").arg(DEFAULTS,"GenerageCoverPages"),generageCoverPages);
+        if (generateCoverPages != dialog->generateCoverPages()) {
+            generateCoverPages = dialog->generateCoverPages();
+            Settings.setValue(QString("%1/%2").arg(DEFAULTS,"generateCoverPages"),generateCoverPages);
         }
 
         if (printDocumentTOC != dialog->printDocumentTOC()) {

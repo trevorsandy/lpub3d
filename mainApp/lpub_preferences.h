@@ -75,7 +75,7 @@ class Preferences
     static bool    enableLDViewSingleCall;
     static bool    useLDViewSingleCall;
     static bool    displayAllAttributes;
-    static bool    generageCoverPages;
+    static bool    generateCoverPages;
     static bool    printDocumentTOC;
     static bool    preferCentimeters;
     static bool    enableFadeStep;

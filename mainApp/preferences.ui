@@ -769,7 +769,7 @@
         </rect>
        </property>
       </widget>
-      <widget class="QCheckBox" name="generageCoverPages_Chk">
+      <widget class="QCheckBox" name="generateCoverPages_Chk">
        <property name="geometry">
         <rect>
          <x>251</x>
@@ -838,7 +838,7 @@
       <zorder>publishURL_Edit</zorder>
       <zorder>label_17</zorder>
       <zorder>publishEmail_Edit</zorder>
-      <zorder>generageCoverPages_Chk</zorder>
+      <zorder>generateCoverPages_Chk</zorder>
       <zorder>displayAllAttributes_Chk</zorder>
       <zorder>label_8</zorder>
       <zorder>authorName_Edit</zorder>

@@ -123,7 +123,7 @@ void Gui::appendCoverPage()
 
 void Gui::generateCoverPages()
 {
-    if (Preferences::generageCoverPages){
+    if (Preferences::generateCoverPages){
         MetaItem mi;
         if (!mi.frontCoverPageExist())
             mi.insertCoverPage();

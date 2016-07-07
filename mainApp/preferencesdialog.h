@@ -56,7 +56,7 @@ class PreferencesDialog : public QDialog
     QString const publishDescription();
     QStringList const searchDirSettings();
     bool          displayAllAttributes();
-    bool          generageCoverPages();
+    bool          generateCoverPages();
     bool          printDocumentTOC();
     bool          centimeters();
     bool          enableFadeStep();
