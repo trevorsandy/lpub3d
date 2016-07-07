@@ -1,7 +1,7 @@
 Note: Increment last version, and alt version to show the last two version (latest and last) followed by the last minor version for each minor version change
-next      version: 2.0.6
-current   version: 2.0.5
-all      versions: 2.0.5,2.0.4,1.3.5,1.2.3,1.0.0
-_LAST_VERSION 2.0.4
+next      version: 2.0.7
+current   version: 2.0.6
+all      versions: 2.0.6,2.0.5,1.3.5,1.2.3,1.0.0
+_LAST_VERSION 2.0.5
 _ALT_VERSION 1.3.5
-_AVAIL_VERSIONS 2.0.4,1.3.5,1.2.3,1.0.0
+_AVAIL_VERSIONS 2.0.5,1.3.5,1.2.3,1.0.0
