@@ -31,6 +31,7 @@
 #else
 #include <QtGui>
 #endif
+#include <QDesktopWidget>
 #include "parmshighlighter.h"
 #include "parmswindow.h"
 
@@ -55,7 +56,7 @@ ParmsWindow::ParmsWindow(QMainWindow *parent) :
 
     setCentralWidget(_textEdit);
 
-    resize(QSize(600, 800));
+    resize(QDesktopWidget().availableGeometry(this).size()*0.6);
 }
 
 void ParmsWindow::createActions()
@@ -271,6 +272,11 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
     }
 }
 
+/*
+ *
+ * Text Editor section
+ *
+ */
 
 TextEditor::TextEditor(QWidget *parent) :
     QPlainTextEdit(parent)
@@ -440,3 +446,4 @@ void TextEditor::findInTextPrevious()
   else
       labelMessage->clear();
 }
+

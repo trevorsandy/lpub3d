@@ -2,10 +2,12 @@ LPub3D 2.0.5.744.3
  
 Features and enhancements 
 ------------ 
+-Fix: setGeometry: Unable to set geometry 600x800 warning message (r749)
+ *Use QDesktopWidget.availableGeometry(this) setting
+-Fix: Parameter window highlighting part description containing '#' (r748)
+ *Highlight only lines where first character is '#';
 -Fix: Generate fade color parts list crash (r747)
  *Redesigned functionality to process parts from archive libraries versus disc directories
--Fix: Parameter window highlighting part description containing '#'
- *Highlight only lines where first character is '#'
 
 LPub3D 2.0.5.744.3 
  
