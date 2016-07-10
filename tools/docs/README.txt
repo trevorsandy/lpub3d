@@ -4,6 +4,8 @@ Features and enhancements
 ------------ 
 -Fix: Generate fade color parts list crash (r747)
  *Redesigned functionality to process parts from archive libraries versus disc directories
+-Fix: Parameter window highlighting part description containing '#'
+ *Highlight only lines where first character is '#'
 
 LPub3D 2.0.5.744.3 
  

@@ -1,7 +1,6 @@
 /****************************************************************************
 **
 ** Copyright (C) 2016 Trevor SANDY. All rights reserved.
-** Copyright (C) 2016 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -38,29 +37,11 @@ ParmsHighlighter::ParmsHighlighter(QTextDocument *parent)
 {
     HighlightingRule rule;
 
-    officialMetaFormat.setForeground(Qt::darkGreen);
-    officialMetaFormat.setFontWeight(QFont::Bold);
-
-    QStringList officialMetaPatterns;
-    officialMetaPatterns
-//       << "\\bFILE[^\n]*"
-       << "\\b//[^\n]*";
-
-    foreach (QString pattern, officialMetaPatterns) {
-        rule.pattern = QRegExp(pattern);
-        rule.format = officialMetaFormat;
-
-        highlightingRules.append(rule);
-    }
-
     LPubParmsFormat.setForeground(Qt::darkGreen);
     LPubParmsFormat.setFontWeight(QFont::Bold);
 
     QStringList LPubParmsPatterns;
-    LPubParmsPatterns
-//        << "\\bCUSTOM[^\n]*"
-        << "\\B#[^\n]*"
-           ;
+    LPubParmsPatterns << "^\\B#[^\n]*";
 
     foreach (QString pattern, LPubParmsPatterns) {
         rule.pattern = QRegExp(pattern);

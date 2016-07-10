@@ -779,7 +779,7 @@ bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
     // get part count
     emit progressResetSig();
     emit progressRangeSig(0, 0);
-    emit progressMessageSig("Generating" + library << "Colour Part List...");
+    emit progressMessageSig("Generating " + library + " Colour Part List...");
     int partCount = 0;
     for(bool f=zip.goToFirstFile(); f; f=zip.goToNextFile()) {
         if (zip.getCurrentFileName().toLower().split(".").last() != "dat") {
