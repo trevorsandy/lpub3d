@@ -852,7 +852,7 @@ private slots:
     void editFadeColourParts();
     void editPliBomSubstituteParts();
     void editLdrawIniFile();
-    void generageFadeColourPartsList();
+    void generateFadeColourPartsList();
 
     void toggleLCStatusBar();
     void showLCStatusMessage();

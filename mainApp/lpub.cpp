@@ -1174,20 +1174,20 @@ bool Gui::InitializeApp(int argc, char *argv[], const char* LibraryInstallPath, 
   return initialized;
 }
 
-void Gui::generageFadeColourPartsList()
+void Gui::generateFadeColourPartsList()
 {
     QMessageBox::StandardButton ret;
     ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
             tr("Generating the colour parts list may take a long time.\n"
                 "Are you sure you want to generate this list?"),
-            QMessageBox::Ok | QMessageBox::Discard | QMessageBox::Cancel);
-    if (ret == QMessageBox::Ok) {
+            QMessageBox::Yes | QMessageBox::Cancel);
+    if (ret == QMessageBox::Yes) {
 
         QThread *listThread   = new QThread();
         colourPartListWorker  = new ColourPartListWorker();
         colourPartListWorker->moveToThread(listThread);
 
-        connect(listThread,           SIGNAL(started()),                     colourPartListWorker, SLOT(scanDir()));
+        connect(listThread,           SIGNAL(started()),                     colourPartListWorker, SLOT(generateFadeColourPartsList()));
         connect(listThread,           SIGNAL(finished()),                              listThread, SLOT(deleteLater()));
         connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),             listThread, SLOT(quit()));
         connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),   colourPartListWorker, SLOT(deleteLater()));
@@ -1204,7 +1204,7 @@ void Gui::generageFadeColourPartsList()
 
         listThread->start();
 
-    } else if (ret == QMessageBox::Cancel) {
+    } else {
       return;
     }
 }
@@ -1652,9 +1652,9 @@ void Gui::createActions()
     editLdrawIniFileAct->setStatusTip(tr("Add/Edit LDraw.ini search directory entries"));
     connect(editLdrawIniFileAct, SIGNAL(triggered()), this, SLOT(editLdrawIniFile()));
 
-    generateFadeColourPartsAct = new QAction(QIcon(":/resources/generatefadeparts.png"),tr("Generage Fade Colour Parts List"), this);
-    generateFadeColourPartsAct->setStatusTip(tr("Generage list of all static coloured parts"));
-    connect(generateFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(generageFadeColourPartsList()));
+    generateFadeColourPartsAct = new QAction(QIcon(":/resources/generatefadeparts.png"),tr("Generate Fade Colour Parts List"), this);
+    generateFadeColourPartsAct->setStatusTip(tr("Generate list of all static coloured parts"));
+    connect(generateFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(generateFadeColourPartsList()));
 
     // Help
 

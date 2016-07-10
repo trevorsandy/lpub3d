@@ -23,8 +23,8 @@ class FadeStepColorParts
   private:
     static bool     				result;
     static QString     				empty;
-    static QString                              path;
-    static QMap<QString, QString>               fadeStepStaticColorParts;
+    static QString                  path;
+    static QMap<QString, QString>   fadeStepStaticColorParts;
   public:
     FadeStepColorParts();
     static const bool &isStaticColorPart(QString part);

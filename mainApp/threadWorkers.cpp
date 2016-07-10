@@ -275,9 +275,6 @@ void PartWorker::processFadeColourParts()
                   QString fileNameStr  = tokens[tokens.size()-1];
                   if (FadeStepColorParts::getStaticColorPartPath(fileNameStr)){
  //                     logInfo() << "01 SUBMIT COLOUR PART: " << QString("%1**%2").arg(tokens[tokens.size()-1]).arg(fileNameStr) << " Line: " << i ;
-                      //tokens[tokens.size()-1] = part name
-                      //fileNameStr             = absolute path file name
-
                       // create incremented number id for each directory
                       createFadePartContent(QString("%1**%2").arg(tokens[tokens.size()-1]).arg(fileNameStr));
                     }
@@ -611,7 +608,7 @@ void PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
 
   // Append fade parts to unofficial library for 3D Viewer's consumption
   QFileInfo libFileInfo(Preferences::lpub3dLibFile);
-  QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.absolutePath(),FILE_LPUB3D_UNOFFICIAL_ARCHIVE));
+  QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.absolutePath(),VER_LPUB3D_UNOFFICIAL_ARCHIVE));
 
   if (okToEmitToProgressBar()) {
       emit progressResetSig();
@@ -695,57 +692,59 @@ ColourPart::ColourPart(
 }
 
 ColourPartListWorker::ColourPartListWorker(QObject *parent) : QObject(parent)
-{_endThreadNowRequested = false; _cpLines = 0; _filePath = "";}
+{_endThreadNowRequested = false; _cpLines = 0;}
 
 
 /*
- * build colour part directory
+ * build colour part listing
  *
  */
 
-void ColourPartListWorker::scanDir()
+void ColourPartListWorker::generateFadeColourPartsList()
 {
-    QStringList partTypeDirs;
-    int dirCount = 0;
-
-    if (ldPartsDirs.loadLDrawSearchDirs("")){
-
-        StringList ldrawSearchDirs = ldPartsDirs.getLDrawSearchDirs();
-
-        qDebug() << "";
-
-        for (StringList::const_iterator it = ldrawSearchDirs.begin();
-             it != ldrawSearchDirs.end(); it++)
-          {
-            const char *dir = it->c_str();
-
-            partTypeDirs << QDir::toNativeSeparators(QString(dir));
-
-//            qDebug() << "LDRAW SEARCH DIR:  " << QString(dir);
-          }
-
-      } else {
-
-        //qDebug() << QString(tr("Failed to load search directories - ldPartsDirs.loadLDrawSearchDirs() returned false."));
-        emit messageSig(false, QString(tr("Failed to load search directories - ldPartsDirs.loadLDrawSearchDirs() returned false.")));
-      }
-
-    _timer.start();
-    emit progressBarInitSig();
-
-    fileSectionHeader(FADESTEP_INTRO_HEADER);
-    foreach (QString partTypeDir, partTypeDirs)
-      _fadeStepColourParts  << QString("# %1. %2").arg(dirCount++).arg(partTypeDir);
-    fileSectionHeader(FADESTEP_FILE_HEADER);
-
-    for (int d = 0; d < partTypeDirs.size() && !_endThreadNowRequested; d++) {
-        QDir dir(partTypeDirs[d]);
-        scanDir(dir);
+    // Archive library files
+    QStringList archiveFiles;
+    QFileInfo lpub3dLibFileInfo(QDir::toNativeSeparators(Preferences::lpub3dLibFile));
+    if (lpub3dLibFileInfo.exists()) {
+        archiveFiles << QString("%1/%2").arg(lpub3dLibFileInfo.absolutePath(),VER_LPUB3D_UNOFFICIAL_ARCHIVE);
+        //archiveFiles << lpub3dLibFileInfo.absoluteFilePath();
     }
 
-    colourChildren();
+    //library directories
+    QStringList partTypeDirs;
+    partTypeDirs << "p       Primatives";
+    partTypeDirs << "p/8     Primatives - Low Resolution";
+    partTypeDirs << "p/48    Primatives - High Resolution";
+    partTypeDirs << "parts   Parts";
+    partTypeDirs << "parts/s Sub-parts";
+
+    _timer.start();
+    _columnWidth = 0;
+    int libCount = 1;
+
+    fileSectionHeader(FADESTEP_INTRO_HEADER);
+    _fadeStepColourParts  << "# Archive Libraries:";
+    foreach (QString archiveFile, archiveFiles) {
+      QString library = archiveFile == lpub3dLibFileInfo.absoluteFilePath() ? "Official Library" : "Unofficial Library";
+      _fadeStepColourParts  << QString("# %1. %2: %3").arg(libCount++).arg(library).arg(archiveFile);
+    }
+    int dirCount = 1;
+    _fadeStepColourParts  << "";
+    _fadeStepColourParts  << "# Library Directories:";
+    foreach (QString partTypeDir, partTypeDirs){
+      _fadeStepColourParts  << QString("# %1. %2").arg(dirCount++).arg(partTypeDir);
+    }
+    fileSectionHeader(FADESTEP_FILE_HEADER);
+
+    emit progressBarInitSig();
+    foreach (QString archiveFile, archiveFiles) {
+        processArchiveParts(archiveFile);
+    }
+
+    processChildren();
 
     writeFadeFile();
+
     int secs = _timer.elapsed() / 1000;
     int mins = (secs / 60) % 60;
     int hours = (secs / 3600);
@@ -760,75 +759,93 @@ void ColourPartListWorker::scanDir()
     fileSectionHeader(FADESTEP_FILE_STATUS, QString("# %1").arg(fileStatus));
     bool appendFile = true;
     writeFadeFile(appendFile);
-    emit messageSig(true, fileStatus);
     emit removeProgressStatusSig();
     emit colourPartListFinishedSig();
+    emit messageSig(true, fileStatus);
 }
 
-void ColourPartListWorker::scanDir(QDir dir){
+bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
 
-    emit progressMessageSig("Generating Colour Part List");
-    dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
-    QStringList nameFilters;
-    nameFilters << "*.dat" << "*.DAT";
-    dir.setNameFilters(nameFilters);
+    QString library = archiveFile == QDir::toNativeSeparators(Preferences::lpub3dLibFile) ? "Official Library" : "Unofficial Library";
+    qDebug() << "processArchiveParts() Processing archive:" << library;
 
-    int dirFiles = 0;
-    QDirIterator it(dir, QDirIterator::Subdirectories);
-    while(it.hasNext() && !_endThreadNowRequested) {
-        it.next();
-        dirFiles++;
+    QuaZip zip(archiveFile);
+
+    if (!zip.open(QuaZip::mdUnzip)) {
+        logError() << QString("! zip.open(): %1 @ %2").arg(zip.getZipError()).arg(archiveFile);
+        return false;
     }
-    emit progressRangeSig(1, dirFiles);
 
-    int i = 1;
-    QDirIterator itDir(dir, QDirIterator::Subdirectories);
-
-    while(itDir.hasNext() && !_endThreadNowRequested) {
-
-        itDir.next();
-
-        //logInfo() << "Sending FILE to getParts: " << itDir.fileInfo().absoluteFilePath();
-        getParts(itDir.fileInfo());
-        //logTrace() << "Sending FILE to buildList: " << itDir.fileInfo().absoluteFilePath();
-        buildList(itDir.fileInfo());
-
-        emit progressSetValueSig(i++);
-
+    // get part count
+    emit progressResetSig();
+    emit progressRangeSig(0, 0);
+    emit progressMessageSig("Generating" + library << "Colour Part List...");
+    int partCount = 0;
+    for(bool f=zip.goToFirstFile(); f; f=zip.goToNextFile()) {
+        if (zip.getCurrentFileName().toLower().split(".").last() != "dat") {
+            continue;
+        } else {
+            partCount++;
+        }
     }
-    emit progressSetValueSig(dirFiles);
-}
+    qDebug() << "processArchiveParts() " << library << "count:" << partCount;
 
-void ColourPartListWorker::getParts(const QFileInfo &fileInfo)
-{
-    if(fileInfo.exists() && ! partAlreadyInList(fileInfo.absoluteFilePath())){
-        //logInfo() << "Part FOUND: " << fileInfo.absoluteFilePath();
-        QFile file(fileInfo.absoluteFilePath());
-        QString fileErrorString;
-        fileErrorString += file.errorString();
-        if (file.open(QFile::ReadOnly | QFile::Text)){
-            // read content
-            QTextStream in(&file);
-            while ( ! in.atEnd() && !_endThreadNowRequested) {
+    emit progressResetSig();
+    emit progressRangeSig(1, partCount);
+    partCount = 0;
+    for(bool f=zip.goToFirstFile(); f; f=zip.goToNextFile()) {
+
+        // set file and extract content
+        if (zip.getCurrentFileName().toLower().split(".").last() != "dat") {
+            continue;
+
+          } else {
+
+            //qDebug() << "processArchiveParts() Part:" << zip.getCurrentFileName();
+            emit progressSetValueSig(partCount++);
+
+            QByteArray qba;
+            QuaZipFile zipFile(&zip);
+            if (zipFile.open(QIODevice::ReadOnly)) {
+                qba = zipFile.readAll();
+                zipFile.close();
+            } else {
+                logError() << QString("Failed to OPEN Part file :%1").arg(zip.getCurrentFileName());
+                return false;
+            }
+
+            // convert to text stream and populate contents
+            QTextStream in(&qba);
+            while (! in.atEnd() && ! _endThreadNowRequested) {
                 QString line = in.readLine(0);
                 _partFileContents << line.toLower();
             }
             // add content to ColourParts map
-            insert(_partFileContents, fileInfo.absoluteFilePath(),-1);
+            insert(_partFileContents, zip.getCurrentFileName(),-1);
 
-        } else {
-            //logError() << QString("Failed to OPEN Part file :%1\n%2").arg(fileInfo.fileName()).arg(fileErrorString);
-            emit messageSig(false,QString("Failed to OPEN Part file :%1\n%2").arg(fileInfo.fileName()).arg(fileErrorString));
-            return;
+            // process file contents
+            QFileInfo fileInfo(zip.getCurrentFileName());
+            processFileContents(fileInfo);
+
         }
     }
-}
+    emit progressSetValueSig(partCount);
+    qDebug() << "processArchiveParts() Finished processing archive:" << library;
 
+    zip.close();
+
+    if (zip.getZipError() != UNZ_OK) {
+        logError() << QString("zip.close() zipError(): %1").arg(zip.getZipError());
+        return false;
+    }
+
+    return true;
+}
 
 /*
  * parse colour part file to determine childre parts with static colour.
  */
-void ColourPartListWorker::buildList(const QFileInfo &fileInfo){
+void ColourPartListWorker::processFileContents(const QFileInfo &fileInfo){
 
     QString materialColor  ="16";  // Internal Common Material Colour (main)
     QString edgeColor      ="24";  // Internal Common Material Color (edge)
@@ -863,33 +880,30 @@ void ColourPartListWorker::buildList(const QFileInfo &fileInfo){
                     fileName = fileInfo.fileName();
                     emit messageSig(false,QString("Part: %1 \nhas no 'Name:' attribute. Using file name instead.\n"
                                                   "You may want to update the part content and fade colour parts list.")
-                                    .arg(fileInfo.absoluteFilePath()));
+                                    .arg(fileInfo.fileName()));
                 }
-                fileEntry = QString("%1\t\t%2\t\t%3").arg(fileName).arg(fileInfo.absoluteFilePath()).arg(_partFileContents[0].remove(0,2));
-                remove(fileInfo.absoluteFilePath());
+                fileEntry = QString("%1:::%2").arg(fileName).arg(_partFileContents[0].remove(0,2));
+                remove(fileInfo.fileName());
                 break;
             }
         } // token size
     }
     _partFileContents.clear();
     if(hasColour) {
-        if (fileInfo.absolutePath() != _filePath){
-            fileSectionHeader(FADESTEP_COLOUR_PARTS_HEADER, QString("# in directory: %1").arg(fileInfo.absolutePath()));
-            _filePath = fileInfo.absolutePath();
-          }
         _cpLines++;
         _fadeStepColourParts  << fileEntry.toLower();
+        if (fileInfo.fileName().size() > _columnWidth)
+            _columnWidth = fileInfo.fileName().size();
         //logWarn() << "ADD COLOUR PART: " << fileEntry << " Colour: " << colour;
     }
 }
 
-void ColourPartListWorker::colourChildren(){
+void ColourPartListWorker::processChildren(){
 
     emit progressResetSig();
-    emit progressMessageSig("Generating Child Colour Part List");
+    emit progressMessageSig("Generating Child Colour Parts List...");
     emit progressRangeSig(1, _partList.size());
 
-    QString     filePath = "";
     for(int part = 0; part < _partList.size() && !_endThreadNowRequested; part++){
         QString     parentFileNameStr;
         bool        gotoMainLoop = false;
@@ -898,8 +912,6 @@ void ColourPartListWorker::colourChildren(){
         QMap<QString, ColourPart>::iterator ap = _colourParts.find(_partList[part]);
 
         if(ap != _colourParts.end()){
-
-            QFileInfo fadeFileInfo(ap.value()._fileNameStr);
 
             // process partWorker content
             for (int i = 0; i < ap.value()._contents.size() && !gotoMainLoop && !_endThreadNowRequested; i++) {
@@ -916,16 +928,13 @@ void ColourPartListWorker::colourChildren(){
                     // match partWorker file with fadeStepColourParts
                     for (int j = 0; j < _fadeStepColourParts.size() && !gotoMainLoop && !_endThreadNowRequested; ++j){
 
-                        if (_fadeStepColourParts.at(j).contains(childFileNameStr) && _fadeStepColourParts.at(j).contains(QRegExp("\\b"+childFileNameStr.replace("\\","\\\\")+"[^\n]*"))){
-                            //logTrace() << " CHILD FILE: " << childFileNameStr << " PARENT FILE: " << parentFileNameStr << " COLOUR FILE: "<<  _fadeStepColourParts.at(j);
-                            if (fadeFileInfo.absolutePath() != filePath){
-                                fileSectionHeader(FADESTEP_COLOUR_CHILDREN_PARTS_HEADER, QString("# in directory: %1").arg(fadeFileInfo.absolutePath()));
-                                filePath = fadeFileInfo.absolutePath();
-                              }
+                        if (_fadeStepColourParts.at(j).contains(childFileNameStr) && _fadeStepColourParts.at(j).contains(QRegExp("\\b"+childFileNameStr.replace("\\","\\\\")+"[^\n]*"))){                            
                             _cpLines++;
                             QString fileEntry;
-                            fileEntry = QString("%1\t\t%2\t\t%3").arg(parentFileNameStr).arg(fadeFileInfo.absoluteFilePath()).arg(ap.value()._contents[0].remove(0,2));
+                            fileEntry = QString("%1:::%2").arg(parentFileNameStr).arg(ap.value()._contents[0].remove(0,2));
                             _fadeStepColourParts  << fileEntry.toLower();
+                            if (childFileNameStr.size() > _columnWidth)
+                                _columnWidth = childFileNameStr.size();
                             //logInfo() << "ADD CHILD COLOUR PART: " << fileEntry;
                             gotoMainLoop = true;
                         }
@@ -940,28 +949,37 @@ void ColourPartListWorker::colourChildren(){
 
 void ColourPartListWorker::writeFadeFile(bool append){
     // change to insttall path
-    QFileInfo colourFileList(Preferences::fadeStepColorPartsFile);
+
     if (! _fadeStepColourParts.empty())
     {
         emit progressResetSig();
-        emit progressMessageSig("Writing Colour Part List");
-        emit progressRangeSig(1, _fadeStepColourParts.size());
+        emit progressMessageSig("Writing Colour Part List...");
+        emit progressRangeSig(0, 0);
 
+        QFileInfo colourFileList(Preferences::fadeStepColorPartsFile);
         QFile file(colourFileList.absoluteFilePath());
-     if ( ! file.open(append ? QFile::Append | QFile::Text : QFile::WriteOnly | QFile::Text)) {
-            //logError() << QString("Failed to OPEN colourFileList %1 for writing:\n%2").arg(file.fileName()).arg(file.errorString());
+        if ( ! file.open(append ? QFile::Append | QFile::Text : QFile::WriteOnly | QFile::Text)) {
+            qDebug() << QString("Failed to OPEN colourFileList %1 for writing:\n%2").arg(file.fileName()).arg(file.errorString());
             emit messageSig(false,QString("Failed to OPEN colourFileList %1 for writing:\n%2").arg(file.fileName()).arg(file.errorString()));
             return;
         }
         QTextStream out(&file);
         for (int i = 0; i < _fadeStepColourParts.size() && !_endThreadNowRequested; i++) {
-            emit progressSetValueSig(i);
             QString cpLine = _fadeStepColourParts[i];
-            out << cpLine << endl;
+            if (cpLine.section(":::",0,0).split(".").last() == "dat") {
+                QString partNumber = cpLine.section(":::",0,0);
+                QString partDescription = cpLine.section(":::",1,1);
+                out << left << qSetFieldWidth(_columnWidth+1) << partNumber << partDescription << qSetFieldWidth(0) << endl;
+            } else if (cpLine.section(":::",0,0) == "# Part ID (LDraw Part Name)"){
+                out << left << qSetFieldWidth(_columnWidth+1) << cpLine.section(":::",0,0) << cpLine.section(":::",1,1) << qSetFieldWidth(0) << endl;
+            } else {
+                out << cpLine << endl;
+            }
         }
-        _fadeStepColourParts.clear();
         file.close();
-        emit progressSetValueSig(_fadeStepColourParts.size());
+
+        qDebug() << "Colour parts lines written: " << _fadeStepColourParts.size();
+        _fadeStepColourParts.clear();
     }
 }
 
@@ -1024,12 +1042,12 @@ void ColourPartListWorker::fileSectionHeader(const int &option, const QString &h
         _fadeStepColourParts  << "# This file is automatically generated from Configuration=>Generate Fade Colour Parts List";
         _fadeStepColourParts  << "# However, it can also be modified manually from Configuration=>Edit Fade Colour Parts List";
         _fadeStepColourParts  << "";
-        _fadeStepColourParts  << "# Fade colour parts were generate from the following list of search directories:";
+        _fadeStepColourParts  << "# Fade colour parts were generated from the following list of libraries and directories:";
         _fadeStepColourParts  << "";
         break;
       case FADESTEP_FILE_HEADER:
         _fadeStepColourParts  << "";
-        _fadeStepColourParts  << "# Part ID (LDraw Name:)		Part Absolute File Path		Part Description (LDraw Description) - for reference only";
+        _fadeStepColourParts  << "# Part ID (LDraw Part Name):::Part Description (LDraw Description) - for reference only";
         _fadeStepColourParts  << "";
           break;
     case FADESTEP_COLOUR_PARTS_HEADER:

@@ -2,7 +2,8 @@ LPub3D 2.0.5.744.3
  
 Features and enhancements 
 ------------ 
-
+-Fix: Generate fade color parts list crash (r747)
+ *Redesigned functionality to process parts from archive libraries versus disc directories
 
 LPub3D 2.0.5.744.3 
  
@@ -11,7 +12,7 @@ Features and enhancements
 -Fix: Portable distribution create and populate user data directory when installed under Program Files/(x86) (r744) 
 -Fix: Revert to deposit LPub3D icons in Programs menu (versus startup menu) (r743) 
 -Fix: Remove MAINWINDOW registry group if exist (r742) 
- *I believe the settings in this group are contributing to the intermittent crash as startup. 
+ *I believe the settings in this group are contributing to the intermittent crash at startup. 
 -Fix: LDConfig load order; first, LDraw directory; second, extras directory; third, resource cache (r741) 
 -Fix: Automatically load ldglite during installation/application launch (r740) 
  

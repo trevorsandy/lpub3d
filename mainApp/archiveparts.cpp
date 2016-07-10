@@ -96,6 +96,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, const QSt
               QDir excludeUnoffPrimDir(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"));
               QDir excludeOffPartsDir(QString("%1/%2").arg(Preferences::ldrawPath).arg("parts"));
               QDir excludeOffPrimDir(QString("%1/%2").arg(Preferences::ldrawPath).arg("p"));
+
               if ((subDir == excludeUnoffPartsDir) || (subDir == excludeUnoffPrimDir) ||
                   (subDir == excludeOffPartsDir) || (subDir == excludeOffPrimDir)) {
                   //qDebug() << "SKIPPING " << subDir.absolutePath();

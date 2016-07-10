@@ -38,17 +38,18 @@ FadeStepColorParts::FadeStepColorParts()
             return;
         }
         QTextStream in(&file);
-        // ^^\\b([\\d\\w\\-\\_\\+\\\\.]+)\\b\\s*\\b([\\d\\w\\:\\/\\-\\_\\+\\\\.]+)\\b\\s*(.*)\\s*$   // QMap
-        // ^\\b([\\d\\w\\-\\_\\+\\\\.]+)\\b\\s*~*\\b(.*)\\b\\s*$"                                    // QString
 
-        QRegExp rx("^\\b([\\d\\w\\-\\_\\+\\\\.]+)\\b\\s*\\b([\\d\\w\\:\\/\\-\\_\\+\\\\.]+)\\b\\s*(.*)\\s*$");
-                while ( ! in.atEnd()) {
+        //QRegExp rx("^\\b([\\d\\w\\-\\_\\+\\\\.]+)\\b\\s*\\b([\\d\\w\\:\\/\\-\\_\\+\\\\.]+)\\b\\s*(.*)\\s*$"); // 3 groups (number, path, desc)
+        QRegExp rx("^\\b([\\d\\w\\-\\_\\+\\\\.]+)\\b\\s*(.*)\\s*$");    // 2 groups (number, desc)
+        while ( ! in.atEnd()) {
             QString sLine = in.readLine(0);
             if (sLine.contains(rx)) {
                 QString colorPartID = rx.cap(1);
-                QString colorPartPath = rx.cap(2);
-                fadeStepStaticColorParts.insert(colorPartID.toLower().trimmed(),colorPartPath.toLower().trimmed());
-                //qDebug() << "** Color Parts Loaded: " << colorPartID.toLower() << " Path: " << colorPartPath.toLower(); //TEST
+                //QString colorPartPath = rx.cap(2);
+                //fadeStepStaticColorParts.insert(colorPartID.toLower().trimmed(),colorPartPath.toLower().trimmed());
+                //qDebug() << "** Color Parts Loaded: " << colorPartID.toLower() << " Path: " << colorPartPath.toLower(); // OLD TEST
+                fadeStepStaticColorParts.insert(colorPartID.toLower().trimmed(),colorPartID.toLower().trimmed());
+                //qDebug() << "** Color Parts Loaded: " << colorPartID.toLower() << " Path: " << colorPartID.toLower(); //TEST
             }
         }
     }

@@ -253,7 +253,7 @@ public:
     QStringList                 _partList;
 
 public slots:
-     void                       scanDir();
+     void                       generateFadeColourPartsList();
      void                       requestEndThreadNow();
 
 signals:
@@ -287,22 +287,21 @@ private:
     QStringList               _emptyList;
     QString                   _emptyString;
     int                       _cpLines;
+    int                       _columnWidth;
 
     QStringList               _fadeStepColourParts;
     QStringList               _partFileContents;
     QElapsedTimer             _timer;
-    QString                   _filePath;
 
     LDPartsDirs                ldPartsDirs;                     // automatically load LDraw.ini parameters
 
-    void colourChildren();
+    void processChildren();
     void writeFadeFile(bool append = false);
 
-    void scanDir(             QDir dir);
-    void getParts(const  QFileInfo &fileInfo);
-    void buildList(const QFileInfo &fileInfo);
-    void fileSectionHeader(const          int &option,
-                           const QString      &heading = QString(""));
+    bool processArchiveParts(const QString &archiveFile);
+    void processFileContents(const QFileInfo &fileInfo);
+    void fileSectionHeader(const int &option,
+                           const QString &heading = "");
 
 };
 
