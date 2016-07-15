@@ -2545,7 +2545,7 @@ void PliAnnotationGui::gbToggled(bool toggled)
       titleAnnotationButton->setChecked(meta->titleAnnotation.value());
       freeformAnnotationButton->setChecked(meta->freeformAnnotation.value());
       titleAndFreeformAnnotationButton->setChecked(meta->titleAndFreeformAnnotation.value());
-  }
+    }
   displayModified = true;
 }
 
@@ -2559,7 +2559,6 @@ void PliAnnotationGui::apply(QString &topLevelFile)
       mi.setGlobalMeta(topLevelFile,&meta->titleAndFreeformAnnotation);
     }
 }
-
 
 /***********************************************************************
  *

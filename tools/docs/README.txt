@@ -2,6 +2,7 @@ LPub3D 2.0.5.744.3
  
 Features and enhancements 
 ------------ 
+-Fix: Title annotations displays when only Freeform annotation selected in setup preference (r751)
 -Fix: setGeometry: Unable to set geometry 600x800 warning message (r749)
  *Use QDesktopWidget.availableGeometry(this) setting
 -Fix: Parameter window highlighting part description containing '#' (r748)
