@@ -940,6 +940,7 @@ int Render::renderLDViewSCallCsi(
   }
   arguments = arguments + ldrNames;
 
+  //qDebug() << "LDView CSI Arguments: " << arguments;
   emit gui->messageSig(true, "Execute command: LDView render single call CSI.");
 
   QProcess    ldview;
@@ -1027,7 +1028,7 @@ int Render::renderLDViewSCallPli(
   }
   arguments = arguments + ldrNames;
 
-//  qDebug() << "LDView PLI Arguments: " << arguments;
+  //qDebug() << "LDView PLI Arguments: " << arguments;
   emit gui->messageSig(true, "Execute command: LDView render single call PLI.");
 
   QProcess    ldview;

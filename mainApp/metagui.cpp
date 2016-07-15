@@ -2545,24 +2545,18 @@ void PliAnnotationGui::gbToggled(bool toggled)
       titleAnnotationButton->setChecked(meta->titleAnnotation.value());
       freeformAnnotationButton->setChecked(meta->freeformAnnotation.value());
       titleAndFreeformAnnotationButton->setChecked(meta->titleAndFreeformAnnotation.value());
-    }
+  }
   displayModified = true;
 }
 
 void PliAnnotationGui::apply(QString &topLevelFile)
 {
   MetaItem mi;
-  if (titleModified) {
-      mi.setGlobalMeta(topLevelFile,&meta->titleAnnotation);
-    }
-  if (freeformModified) {
-      mi.setGlobalMeta(topLevelFile,&meta->freeformAnnotation);
-    }
-  if (titleAndFreeformModified) {
-      mi.setGlobalMeta(topLevelFile,&meta->titleAndFreeformAnnotation);
-    }
-  if (displayModified){
+  if (displayModified || titleModified || freeformModified || titleAndFreeformModified) {
       mi.setGlobalMeta(topLevelFile,&meta->display);
+      mi.setGlobalMeta(topLevelFile,&meta->titleAnnotation);
+      mi.setGlobalMeta(topLevelFile,&meta->freeformAnnotation);
+      mi.setGlobalMeta(topLevelFile,&meta->titleAndFreeformAnnotation);
     }
 }
 

@@ -31,7 +31,7 @@
 #else
 #include <QtGui>
 #endif
-#include <QDesktopWidget>
+//#include <QDesktopWidget>
 #include "parmshighlighter.h"
 #include "parmswindow.h"
 

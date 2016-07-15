@@ -20,6 +20,7 @@
 #else
 #include <QWidget>
 #endif
+#include <QDesktopWidget>
 #include <QSizePolicy>
 #include <QFileDialog>
 #include <QComboBox>
@@ -1948,12 +1949,9 @@ void Gui::readSettings()
 {
 //    QSettings Settings;
 //    Settings.beginGroup(MAINWINDOW);
-//    restoreState(Settings.value("State").toByteArray());
+    resize(QDesktopWidget().availableGeometry(this).size()*0.6);
 //    restoreGeometry(Settings.value("Geometry").toByteArray());
-//    QSize size = Settings.value("size", QSize(800, 600)).toSize();
-//    QPoint pos = Settings.value("pos", QPoint(200, 200)).toPoint();
-//    resize(size);
-//    move(pos);
+//    restoreState(Settings.value("State").toByteArray());
 //    Settings.endGroup();
 }
 
@@ -1963,7 +1961,5 @@ void Gui::writeSettings()
 //    Settings.beginGroup(MAINWINDOW);
 //    Settings.setValue("Geometry", saveGeometry());
 //    Settings.setValue("State", saveState());
-//    Settings.setValue("pos", pos());
-//    Settings.setValue("size", size());
 //    Settings.endGroup();
 }

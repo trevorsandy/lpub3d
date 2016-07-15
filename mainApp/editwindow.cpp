@@ -34,6 +34,7 @@
 #else
 #include <QtGui>
 #endif
+//#include <QDesktopWidget>
 #include "editwindow.h"
 #include "highlighter.h"
 #include "ldrawfiles.h"
@@ -59,7 +60,7 @@ EditWindow::EditWindow(QMainWindow *parent) :
 
     setCentralWidget(_textEdit);
 
-    resize(QSize(400, 300));
+    resize(QDesktopWidget().availableGeometry(this).size()*0.6);
 }
 
 void EditWindow::createActions()
