@@ -52,6 +52,7 @@ lcApplication::lcApplication()
 	mProject = NULL;
 	mLibrary = NULL;
 	mClipboard = NULL;
+    mLoadFile = NULL;
 
 	mPreferences.LoadDefaults();
 	partWorkerLDSearchDirs.ldsearchDirPreferences();
@@ -307,7 +308,7 @@ bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstal
 				printf("  -t, --to <time>: Sets the last frame or step to save pictures.\n");
 //				printf("  --highlight: Highlight pieces in the steps they appear.\n");
 				printf("  -wf, --export-wavefront <outfile.obj>: Exports the model to Wavefront format.\n");
-				printf("  -3ds, --export-3ds <outfile.3ds>: Exports the model to 3DS format.\n");
+                printf("  -3ds, --export-3ds <outfile.3ds>: Exports the model to 3DS format.\n");
 				printf("  \n");
 
 				return false;
@@ -318,6 +319,7 @@ bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstal
 		else
 		{
 			ProjectName = Param;
+            mLoadFile = Param;
 		}
 	}
 

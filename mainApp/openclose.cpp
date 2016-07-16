@@ -71,6 +71,23 @@ void Gui::openRecentFile()
   }
 }
 
+void Gui::loadFile(const QString &file)
+{
+    QString fileName = file;
+    QFileInfo info(fileName);
+    if (info.exists()) {
+        QDir::setCurrent(info.absolutePath());
+        openFile(fileName);
+        Paths::mkdirs();
+        displayPage();
+        enableActions();
+    } else {
+        QMessageBox::warning(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                             QMessageBox::tr("Unable to load file %1.")
+                             .arg(fileName));
+    }
+}
+
 void Gui::save()
 {
 #ifdef WATCHER
@@ -140,7 +157,7 @@ void Gui::saveAs()
     openFile(fileName);
     displayPage();
   } else {
-    QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
+    QMessageBox::warning(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
                               QMessageBox::tr("Invalid LDraw suffix %1.  File not saved.")
                                 .arg(suffix));
 

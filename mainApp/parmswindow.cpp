@@ -31,9 +31,11 @@
 #else
 #include <QtGui>
 #endif
-//#include <QDesktopWidget>
+#include <QDesktopWidget>
 #include "parmshighlighter.h"
 #include "parmswindow.h"
+#include "lpub_preferences.h"
+#include "lpub.h"
 
 
 ParmsWindow *parmsWindow;
@@ -255,20 +257,40 @@ void ParmsWindow::enableSave()
 void ParmsWindow::closeEvent(QCloseEvent *event)
 {
 
-  if (maybeSave()) {
-      event->accept();
+    if (maybeSave()) {
+        event->accept();
     } else {
-      event->ignore();
+        event->ignore();
     }
 
-  if (_parmsChanged){
+    if (_parmsChanged){
 
-      QMessageBox::information(NULL,
-                               QMessageBox::tr("%1 Editor")
-                               .arg(title),
-                               QMessageBox::tr("You must close and restart %1"
-                                               "\nfor changes to take effect.")
-                               .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+        bool fileLoaded = false;
+        if (!gui->getCurFile().isEmpty())
+            fileLoaded = true;
+
+        QMessageBox box;
+        box.setIcon (QMessageBox::Question);
+        box.setDefaultButton   (QMessageBox::Ok);
+        box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
+        box.setText (tr("You must close and restart %1\nfor changes to take effect.")
+                     .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+        box.setInformativeText (tr (fileLoaded ? "Click \"OK\" to close and restart %1" : "Click \"OK\" to close %1")
+                                .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+
+        if (box.exec() == QMessageBox::Ok) {
+            if (fileLoaded) {
+                QStringList args = QApplication::arguments();
+                args << tr ("%1").arg(gui->getCurFile());
+                args.removeFirst();
+                QProcess::startDetached(QApplication::applicationFilePath(), args);
+                qDebug() << "exe:" << QApplication::applicationFilePath() << ", args:" << args;
+            }
+            event->accept();
+            QCoreApplication::quit();
+        } else {
+            event->ignore();
+        }
     }
 }
 

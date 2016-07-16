@@ -1164,6 +1164,9 @@ bool Gui::InitializeApp(int argc, char *argv[], const char* LibraryInstallPath, 
 
       readSettings();
 
+      connect(this,           SIGNAL(loadFileSig(QString)),
+              this,           SLOT(  loadFile(QString)));
+
       connect(this,           SIGNAL(halt3DViewerSig(bool)),
               gMainWindow,    SLOT(  halt3DViewer   (bool)));
 

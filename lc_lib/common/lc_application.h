@@ -58,6 +58,7 @@ public:
 	lcPreferences mPreferences;
 	QByteArray mClipboard;
 	PartWorker partWorkerLDSearchDirs;  // part worker to process search directories and fade color parts
+    char *mLoadFile;
 
 protected:
 	void ParseIntegerArgument(int* CurArg, int argc, char* argv[], int* Value);

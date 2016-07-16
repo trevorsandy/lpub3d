@@ -65,6 +65,7 @@ const bool &PliSubstituteParts::hasSubstitutePart(QString part)
 const bool &PliSubstituteParts::getSubstitutePart(QString &part){
     if (substituteParts.contains(part.toLower().toLower().trimmed())) {
         part = substituteParts.value(part.toLower());
+        qDebug() << "Substitute Part: " << part;
         result = true;
         return result;
     } else {

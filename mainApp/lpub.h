@@ -685,6 +685,7 @@ public slots:
   void fileChanged(const QString &path);
 
   void processFadeColourParts();
+  void loadFile(const QString &file);
 
 signals:       
 
@@ -716,6 +717,7 @@ signals:
   void messageSig(bool  status, QString message);
 
   void requestEndThreadNowSig();
+  void loadFileSig(const QString &file);
 
 public:
   Page                  page;            // the abstract version of page contents

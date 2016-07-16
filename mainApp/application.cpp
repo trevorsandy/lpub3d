@@ -271,6 +271,11 @@ void Application::main()
   DoInitialUpdateCheck();
 #endif
 
+ if (g_App->mLoadFile != NULL){
+     QString loadFile = QString("%1").arg(g_App->mLoadFile);
+     emit gui->loadFileSig(loadFile);
+ }
+
 }
 
 int Application::run()

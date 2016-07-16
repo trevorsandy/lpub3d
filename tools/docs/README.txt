@@ -2,6 +2,9 @@ LPub3D 2.0.5.744.3
  
 Features and enhancements 
 ------------ 
+-Fix: Substitute parts use only file name; file path not required (r752)
+ *When editing substitute parts list, it is not necessary to enter the absolute file path for the substitute file.
+ Just entering the substitute file name will be sufficient.
 -Fix: Title annotations displays when only Freeform annotation selected in setup preference (r751)
 -Fix: setGeometry: Unable to set geometry 600x800 warning message (r749)
  *Use QDesktopWidget.availableGeometry(this) setting
