@@ -34,7 +34,6 @@
 #else
 #include <QtGui>
 #endif
-//#include <QDesktopWidget>
 #include "editwindow.h"
 #include "highlighter.h"
 #include "ldrawfiles.h"

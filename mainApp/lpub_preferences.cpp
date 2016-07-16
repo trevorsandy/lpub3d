@@ -127,13 +127,13 @@ void Preferences::lpubPreferences()
 #ifdef Q_OS_WIN                                  // ... portable on Windows (macro)
 
         // TODO temporary: do some cleanup between version 1.3.5 and 2.0 - Qt4x and 5x
-        QSettings Settings;
-        QString const pos("pos");
-        if (Settings.contains(QString("%1/%2").arg(MAINWINDOW,pos))) {
-            Settings.beginGroup(MAINWINDOW);
-            Settings.remove("");
-            Settings.endGroup();
-        }
+//        QSettings Settings;
+//        QString const pos("pos");
+//        if (Settings.contains(QString("%1/%2").arg(MAINWINDOW,pos))) {
+//            Settings.beginGroup(MAINWINDOW);
+//            Settings.remove("");
+//            Settings.endGroup();
+//        }
         // end cleanup
         
         bool programFolder = QCoreApplication::applicationDirPath().contains("Program Files") ||

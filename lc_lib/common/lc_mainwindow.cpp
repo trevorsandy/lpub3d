@@ -1,6 +1,5 @@
 #include "lc_global.h"
 #include "lc_mainwindow.h"
-//#include <QDesktopWidget>
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
 #include "lc_timelinewidget.h"
@@ -55,6 +54,9 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
   mLCStatusBar = new QStatusBar(this);
 
   gMainWindow = this;
+
+  resize(QDesktopWidget().availableGeometry(this).size()*0.6);
+  //resize(QSize(400, 300));
 
 }
 
@@ -121,8 +123,7 @@ void lcMainWindow::CreateWidgets()
   mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setDisabled(true);
   mActions[LC_EDIT_ACTION_ZOOM_REGION]->setDisabled(true);
 
-  //resize(QDesktopWidget().availableGeometry(this).size()*0.6);
-
+  resize(QSize(400, 300));
 }
 
 void lcMainWindow::CreateActions()

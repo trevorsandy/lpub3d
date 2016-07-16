@@ -321,9 +321,7 @@ void Pli::getAnnotate(
   bool freeform = pliMeta.annotation.freeformAnnotation.value();
   bool titleAndFreeform = pliMeta.annotation.titleAndFreeformAnnotation.value();
 
-  qDebug() << "Display:" << enable << ", Title:" << title << ", Freeform:" << freeform << ", Both:" << titleAndFreeform;
-
-  // pick up title description
+  // pick up annotations
   annotateStr = titleDescription(type);
 
   if(title || titleAndFreeform){

@@ -267,6 +267,8 @@ void Application::main()
 
   gui->show();
 
+  gui->sizeit();
+
 #if !LC_DISABLE_UPDATE_CHECK
   DoInitialUpdateCheck();
 #endif
@@ -300,6 +302,12 @@ int Application::run()
   {
     logError() << QString("Run: An unhandled exception has been thrown.");
   }
+
+  delete gMainWindow;
+  gMainWindow = NULL;
+
+  delete g_App;
+  g_App = NULL;
 
   logInfo() << QString("Run: Application terminated with return code %1.").arg(returnCode);
 
