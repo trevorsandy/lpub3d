@@ -820,7 +820,6 @@ void PlacementMeta::doc(QStringList &out, QString preamble)
 Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
 {
   Rc rc = FailureRc;
-
   if (argv.size() - index == 1) {
       if (argv[index] == "TRANS" || argv[index] == "TRANSPARENT") {
           _value[pushed].type = BackgroundData::BgTransparent;
@@ -853,36 +852,44 @@ Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
           rc = OkRc;
         }
     } else if (argv.size() - index == 9){
+
       if (argv[index] == "GRADIENT"){
 
-          bool ok[9];
+          bool ok[6];
+          bool pass = true;
           argv[index+1].toInt(&ok[0]);
           argv[index+2].toInt(&ok[1]);
           argv[index+3].toInt(&ok[2]);
-          argv[index+4].toInt(&ok[3]);
-          argv[index+5].toInt(&ok[4]);
-          argv[index+6].toInt(&ok[5]);
+          argv[index+4].toFloat(&ok[3]);
+          argv[index+5].toFloat(&ok[4]);
+          argv[index+6].toFloat(&ok[5]);
 
           const QStringList _gpoints = argv[index+7].split("|");
           QVector<QPointF> gpoints;
           Q_FOREACH(const QString &gpoint, _gpoints){
-              int x = gpoint.section(',',0,0).toInt(&ok[6]);
-              int y = gpoint.section(',',1,1).toInt(&ok[7]);
-              if (ok[6] && ok[7])
-                gpoints << QPointF(x, y);
+              bool ok[2];
+              int x = gpoint.section(',',0,0).toFloat(&ok[0]);
+              int y = gpoint.section(',',1,1).toFloat(&ok[1]);
+              if (ok[0] && ok[1])
+                  gpoints << QPointF(x, y);
+              else if (pass)
+                  pass = false;
             }
 
           const QStringList _gstops  = argv[index+8].split("|");
           QVector<QPair<qreal,QColor> > gstops;
           Q_FOREACH(const QString &_gstop, _gstops){
-              qreal point  = _gstop.section(',',0,0).toFloat(&ok[8]);
-              unsigned int rgba = _gstop.section(',',1,1).toUInt(&ok[9],16);
-              if (ok[8] && ok[9])
-                gstops.append(qMakePair(point, QColor::fromRgba(rgba)));
+              bool ok[2];
+              qreal point  = _gstop.section(',',0,0).toFloat(&ok[0]);
+              unsigned int rgba = _gstop.section(',',1,1).toUInt(&ok[1],16);
+              if (ok[0] && ok[1])
+                  gstops.append(qMakePair(point, QColor::fromRgba(rgba)));
+              else if (pass)
+                  pass = false;
             }
 
-          if (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] &&
-              ok[5] && ok[6] && ok[7] && ok[8] && ok[9]) {
+          if (ok[0] && ok[1] && ok[2] &&
+              ok[3] && ok[4] && ok[5] && pass) {
 
               int _gmode   = argv[index+1].toInt(&ok[0]);
               int _gspread = argv[index+2].toInt(&ok[1]);
