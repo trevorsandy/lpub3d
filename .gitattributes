@@ -258,10 +258,12 @@ ldrawini/ldrawini.c -text
 ldrawini/ldrawini.h -text
 ldrawini/ldrawini.pri -text
 ldrawini/ldrawini.pro -text
+ldrawini/ldrawini.vcxproj -text
 ldrawini/ldrawini_global.h -text
 ldrawini/ldrawinp.h -text
 mainApp/LPub.icns -text
 mainApp/LPub.ico -text
+mainApp/LPub3D.vcxproj -text
 mainApp/aboutdialog.cpp -text
 mainApp/aboutdialog.h -text
 mainApp/aboutdialog.ui -text
@@ -596,6 +598,7 @@ quazip/quazip.cpp -text
 quazip/quazip.h -text
 quazip/quazip.pri -text
 quazip/quazip.pro -text
+quazip/quazip.vcxproj -text
 quazip/quazip_global.h -text
 quazip/quazipdir.cpp -text
 quazip/quazipdir.h -text
