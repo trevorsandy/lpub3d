@@ -136,6 +136,7 @@
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SubSystem>Windows</SubSystem>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <Version>2.0</Version>
     </Link>
     <Midl>
       <DefaultCharType>Unsigned</DefaultCharType>
@@ -186,6 +187,7 @@ CALL build_inc.bat</Command>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SubSystem>Windows</SubSystem>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <Version>2.0</Version>
     </Link>
     <Midl>
       <DefaultCharType>Unsigned</DefaultCharType>
@@ -235,6 +237,7 @@ CALL build_inc.bat</Command>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SubSystem>Windows</SubSystem>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <Version>2.0</Version>
     </Link>
     <Midl>
       <DefaultCharType>Unsigned</DefaultCharType>
@@ -284,6 +287,7 @@ CALL build_inc.bat</Command>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SubSystem>Windows</SubSystem>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <Version>2.0</Version>
     </Link>
     <Midl>
       <DefaultCharType>Unsigned</DefaultCharType>
@@ -3779,36 +3783,36 @@ CALL build_inc.bat</Command>
     <CustomBuild Include="..\lc_lib\resources\leocad_fr.ts">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\lc_lib\resources\leocad_fr.ts;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\lc_lib\resources\leocad_fr.ts;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Qt/IDE/5.6/msvc2015_64/bin\lrelease.exe -silent ..\lc_lib\resources\leocad_fr.ts -qm ..\lc_lib\resources/leocad_fr.qm</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/Qt/IDE/5.6/msvc2015_64/bin\lrelease.exe -silent ..\lc_lib\resources\leocad_fr.ts -qm ..\lc_lib\resources/leocad_fr.qm</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Qt/IDE/5.6/msvc2015_64/bin\lrelease.exe</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/Qt/IDE/5.6/msvc2015_64/bin\lrelease.exe</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Qt/IDE/5.7/msvc2015_64/bin\lrelease.exe -silent ..\lc_lib\resources\leocad_fr.ts -qm ..\lc_lib\resources/leocad_fr.qm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/Qt/IDE/5.7/msvc2015_64/bin\lrelease.exe -silent ..\lc_lib\resources\leocad_fr.ts -qm ..\lc_lib\resources/leocad_fr.qm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Qt/IDE/5.7/msvc2015_64/bin\lrelease.exe</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/Qt/IDE/5.7/msvc2015/bin\lrelease.exe</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\lc_lib\resources\leocad_fr.qm;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\lc_lib\resources\leocad_fr.qm;%(Outputs)</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\lc_lib\resources\leocad_fr.ts;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\lc_lib\resources\leocad_fr.ts;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Qt/IDE/5.6/msvc2015_64/bin\lrelease.exe -silent ..\lc_lib\resources\leocad_fr.ts -qm ..\lc_lib\resources/leocad_fr.qm</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/Qt/IDE/5.6/msvc2015_64/bin\lrelease.exe -silent ..\lc_lib\resources\leocad_fr.ts -qm ..\lc_lib\resources/leocad_fr.qm</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Qt/IDE/5.6/msvc2015_64/bin\lrelease.exe</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/Qt/IDE/5.6/msvc2015_64/bin\lrelease.exe</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Qt/IDE/5.7/msvc2015_64/bin\lrelease.exe -silent ..\lc_lib\resources\leocad_fr.ts -qm ..\lc_lib\resources/leocad_fr.qm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/Qt/IDE/5.7/msvc2015_64/bin\lrelease.exe -silent ..\lc_lib\resources\leocad_fr.ts -qm ..\lc_lib\resources/leocad_fr.qm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Qt/IDE/5.7/msvc2015_64/bin\lrelease.exe</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/Qt/IDE/5.7/msvc2015/bin\lrelease.exe</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\lc_lib\resources\leocad_fr.qm;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\lc_lib\resources\leocad_fr.qm;%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\lc_lib\resources\leocad_pt.ts">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\lc_lib\resources\leocad_pt.ts;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\lc_lib\resources\leocad_pt.ts;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Qt/IDE/5.6/msvc2015_64/bin\lrelease.exe -silent ..\lc_lib\resources\leocad_pt.ts -qm ..\lc_lib\resources/leocad_pt.qm</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/Qt/IDE/5.6/msvc2015_64/bin\lrelease.exe -silent ..\lc_lib\resources\leocad_pt.ts -qm ..\lc_lib\resources/leocad_pt.qm</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Qt/IDE/5.6/msvc2015_64/bin\lrelease.exe</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/Qt/IDE/5.6/msvc2015_64/bin\lrelease.exe</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Qt/IDE/5.7/msvc2015_64/bin\lrelease.exe -silent ..\lc_lib\resources\leocad_pt.ts -qm ..\lc_lib\resources/leocad_pt.qm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/Qt/IDE/5.7/msvc2015/bin\lrelease.exe -silent ..\lc_lib\resources\leocad_pt.ts -qm ..\lc_lib\resources/leocad_pt.qm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Qt/IDE/5.7/msvc2015_64/bin\lrelease.exe</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/Qt/IDE/5.7/msvc2015/bin\lrelease.exe</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\lc_lib\resources\leocad_pt.qm;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\lc_lib\resources\leocad_pt.qm;%(Outputs)</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\lc_lib\resources\leocad_pt.ts;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\lc_lib\resources\leocad_pt.ts;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Qt/IDE/5.6/msvc2015_64/bin\lrelease.exe -silent ..\lc_lib\resources\leocad_pt.ts -qm ..\lc_lib\resources/leocad_pt.qm</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/Qt/IDE/5.6/msvc2015_64/bin\lrelease.exe -silent ..\lc_lib\resources\leocad_pt.ts -qm ..\lc_lib\resources/leocad_pt.qm</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Qt/IDE/5.6/msvc2015_64/bin\lrelease.exe</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/Qt/IDE/5.6/msvc2015_64/bin\lrelease.exe</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Qt/IDE/5.7/msvc2015_64/bin\lrelease.exe -silent ..\lc_lib\resources\leocad_pt.ts -qm ..\lc_lib\resources/leocad_pt.qm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/Qt/IDE/5.7/msvc2015/bin\lrelease.exe -silent ..\lc_lib\resources\leocad_pt.ts -qm ..\lc_lib\resources/leocad_pt.qm</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Qt/IDE/5.7/msvc2015_64/bin\lrelease.exe</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/Qt/IDE/5.7/msvc2015/bin\lrelease.exe</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\lc_lib\resources\leocad_pt.qm;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\lc_lib\resources\leocad_pt.qm;%(Outputs)</Outputs>
     </CustomBuild>
@@ -3820,7 +3824,7 @@ CALL build_inc.bat</Command>
   <ImportGroup Label="ExtensionTargets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties MocDir=".\build\$(PlatformName)\$(ConfigurationName)\.moc" UicDir=".\build\$(PlatformName)\$(ConfigurationName)\.ui" RccDir=".\build\$(PlatformName)\$(ConfigurationName)\.rcc" Qt5Version_x0020_Win32="Qt_MSVC_5.6.1_x86" Qt5Version_x0020_x64="Qt_MSVC_5.6.1_x64" />
+      <UserProperties MocDir=".\build\$(PlatformName)\$(ConfigurationName)\.moc" UicDir=".\build\$(PlatformName)\$(ConfigurationName)\.ui" RccDir=".\build\$(PlatformName)\$(ConfigurationName)\.rcc" Qt5Version_x0020_Win32="Qt_MSVC_5.7.0_x86" Qt5Version_x0020_x64="Qt_MSVC_5.7.0_x64" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

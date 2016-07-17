@@ -132,6 +132,7 @@
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SubSystem>Windows</SubSystem>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <Version>2.0</Version>
     </Link>
     <Midl>
       <DefaultCharType>Unsigned</DefaultCharType>
@@ -174,6 +175,7 @@
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SubSystem>Windows</SubSystem>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <Version>2.0</Version>
     </Link>
     <Midl>
       <DefaultCharType>Unsigned</DefaultCharType>
@@ -215,6 +217,7 @@
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SubSystem>Windows</SubSystem>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <Version>2.0</Version>
     </Link>
     <Midl>
       <DefaultCharType>Unsigned</DefaultCharType>
@@ -256,6 +259,7 @@
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SubSystem>Windows</SubSystem>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <Version>2.0</Version>
     </Link>
     <Midl>
       <DefaultCharType>Unsigned</DefaultCharType>
@@ -277,7 +281,7 @@
   <ImportGroup Label="ExtensionTargets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties UicDir=".\build\$(PlatformName)\$(ConfigurationName)\.ui" RccDir=".\build\$(PlatformName)\$(ConfigurationName)\.rcc" Qt5Version_x0020_Win32="Qt_MSVC_5.6.1_x86" Qt5Version_x0020_x64="Qt_MSVC_5.6.1_x64" />
+      <UserProperties UicDir=".\build\$(PlatformName)\$(ConfigurationName)\.ui" RccDir=".\build\$(PlatformName)\$(ConfigurationName)\.rcc" Qt5Version_x0020_Win32="Qt_MSVC_5.7.0_x86" Qt5Version_x0020_x64="Qt_MSVC_5.7.0_x64" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

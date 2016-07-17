@@ -15,7 +15,12 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include <locale.h>
+#ifdef _MSC_VER
+#include <QtZlib/zlib.h>
+#else
 #include <zlib.h>
+#endif
+
 
 #if MAX_MEM_LEVEL >= 8
 #  define DEF_MEM_LEVEL 8
