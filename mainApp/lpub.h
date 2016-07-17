@@ -930,14 +930,6 @@ private slots:
 
 public:
 
-    void sizeit()
-    {
-      QList<int> list;
-
-      list.append(centralWidget()->width()*3/4);
-      list.append(centralWidget()->width()/4);
-    }
-
   // Page size for pdf printing
   int bestPaperSizeOrientation(
     float widthMm,

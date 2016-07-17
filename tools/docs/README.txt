@@ -2,6 +2,8 @@ LPub3D 2.0.5.744.3
  
 Features and enhancements 
 ------------
+-Fix: Save and restore application window state and geometry (r755)
+ *Was causing crash on launch before update to Qt5.7. 
 -Fix: Application crash on launch(r754)
  *Update to Qt5.7 on MSVC2015 and MinGW5.3. There must have been a big, nasty bug in Qt 5.5/5.6 because the code that consistently generated the crash immediately resolved upon update to Qt5.7
 -Fix: Crash on application close on Windows7 (r753)

@@ -267,8 +267,6 @@ void Application::main()
 
   gui->show();
 
-  gui->sizeit();
-
 #if !LC_DISABLE_UPDATE_CHECK
   DoInitialUpdateCheck();
 #endif

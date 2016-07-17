@@ -66,6 +66,8 @@ private:
     void createActions();
     void createMenus();
     void createToolBars();
+    void readSettings();
+    void writeSettings();
 
     TextEditor       *_textEdit;
     bool              _parmsChanged;

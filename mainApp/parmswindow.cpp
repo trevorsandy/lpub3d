@@ -36,6 +36,7 @@
 #include "parmswindow.h"
 #include "lpub_preferences.h"
 #include "lpub.h"
+#include "name.h"
 
 
 ParmsWindow *parmsWindow;
@@ -58,7 +59,7 @@ ParmsWindow::ParmsWindow(QMainWindow *parent) :
 
     setCentralWidget(_textEdit);
 
-    resize(QDesktopWidget().availableGeometry(this).size()*0.6);
+    readSettings();
 }
 
 void ParmsWindow::createActions()
@@ -256,42 +257,59 @@ void ParmsWindow::enableSave()
 
 void ParmsWindow::closeEvent(QCloseEvent *event)
 {
+    if (maybeSave() || _parmsChanged ) {
+        writeSettings();
+        if (_parmsChanged){
+            bool fileLoaded = false;
+            if (!gui->getCurFile().isEmpty())
+                fileLoaded = true;
 
-    if (maybeSave()) {
+            QMessageBox box;
+            box.setIcon (QMessageBox::Question);
+            box.setDefaultButton   (QMessageBox::Ok);
+            box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
+            box.setText (tr("You must close and restart %1\nfor changes to take effect.")
+                         .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+            box.setInformativeText (tr (fileLoaded ? "Click \"OK\" to close and restart %1" : "Click \"OK\" to close %1")
+                                    .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+
+            if (box.exec() == QMessageBox::Ok) {
+                if (fileLoaded) {
+                    QStringList args = QApplication::arguments();
+                    args << tr ("%1").arg(gui->getCurFile());
+                    args.removeFirst();
+                    QProcess::startDetached(QApplication::applicationFilePath(), args);
+                    qDebug() << "exe:" << QApplication::applicationFilePath() << ", args:" << args;
+                }
+                event->accept();
+                QCoreApplication::quit();
+            }
+        }
         event->accept();
     } else {
         event->ignore();
     }
+}
 
-    if (_parmsChanged){
+void ParmsWindow::readSettings()
+{
+    QSettings Settings;
+    Settings.beginGroup(PARMSWINDOW);
+    restoreGeometry(Settings.value("Geometry").toByteArray());
+    restoreState(Settings.value("State").toByteArray());
+    QSize size = Settings.value("Size", QDesktopWidget().availableGeometry(this).size()*0.5).toSize();
+    resize(size);
+    Settings.endGroup();
+}
 
-        bool fileLoaded = false;
-        if (!gui->getCurFile().isEmpty())
-            fileLoaded = true;
-
-        QMessageBox box;
-        box.setIcon (QMessageBox::Question);
-        box.setDefaultButton   (QMessageBox::Ok);
-        box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
-        box.setText (tr("You must close and restart %1\nfor changes to take effect.")
-                     .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
-        box.setInformativeText (tr (fileLoaded ? "Click \"OK\" to close and restart %1" : "Click \"OK\" to close %1")
-                                .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
-
-        if (box.exec() == QMessageBox::Ok) {
-            if (fileLoaded) {
-                QStringList args = QApplication::arguments();
-                args << tr ("%1").arg(gui->getCurFile());
-                args.removeFirst();
-                QProcess::startDetached(QApplication::applicationFilePath(), args);
-                qDebug() << "exe:" << QApplication::applicationFilePath() << ", args:" << args;
-            }
-            event->accept();
-            QCoreApplication::quit();
-        } else {
-            event->ignore();
-        }
-    }
+void ParmsWindow::writeSettings()
+{
+    QSettings Settings;
+    Settings.beginGroup(PARMSWINDOW);
+    Settings.setValue("Geometry", saveGeometry());
+    Settings.setValue("State", saveState());
+    Settings.setValue("Size", size());
+    Settings.endGroup();
 }
 
 /*

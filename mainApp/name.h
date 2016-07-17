@@ -28,6 +28,7 @@ extern Gui *gui;
 #define POVRAY       "POVRay"
 #define SETTINGS     "Settings"
 #define MAINWINDOW   "MainWindow"
+#define PARMSWINDOW  "ParmsWindow"
 #define UPDATES      "Updates"
 
 // filenames
