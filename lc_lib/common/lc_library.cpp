@@ -15,11 +15,7 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include <locale.h>
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
-	#include <QtZlib/zlib.h>
-#else // not using Qt 5.6.0 or greater
-	#include <zlib.h>
-#endif
+#include <zlib.h>
 
 #if MAX_MEM_LEVEL >= 8
 #  define DEF_MEM_LEVEL 8

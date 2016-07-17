@@ -26,12 +26,8 @@ see quazip/(un)zip.h files for details. Basically it's the zlib license.
 */
 
 #include <QIODevice>
+#include <zlib.h>
 #include "quazip_global.h"
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
-    #include <QtZlib/zlib.h>
-#else // not using Qt 5.6.0
-    #include <zlib.h>
-#endif
 
 class QuaGzipFilePrivate;
 
