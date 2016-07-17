@@ -2,6 +2,8 @@ LPub3D 2.0.5.744.3
  
 Features and enhancements 
 ------------
+-Fix: Scale in Page Globals Setup dialog not working (r756)
+ *Cover Image and Logo double spin control not working. Issue corrected.
 -Fix: Save and restore application window state and geometry (r755)
  *Was causing crash on launch before update to Qt5.7. 
 -Fix: Application crash on launch(r754)

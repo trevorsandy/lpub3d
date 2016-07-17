@@ -390,10 +390,6 @@ private:
 //  QRadioButton   *tileRadio;
 //  QGroupBox      *gbFill;
   QGroupBox      *gbScale;
-
-  float           min;
-  float           max;
-  float           step;
   QLabel         *scale;
   QDoubleSpinBox *spin;
 

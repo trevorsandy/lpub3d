@@ -1221,8 +1221,8 @@ void PageAttributeTextGui::apply(
   hLayout->addWidget(scale);
 
   spin = new QDoubleSpinBox(parent);
-  spin->setRange(min,max);
-  spin->setSingleStep(step);
+  spin->setRange(meta->picScale._min,meta->picScale._max);
+  spin->setSingleStep(0.1);
   spin->setDecimals(6);
   spin->setValue(meta->picScale.value());
   connect(spin,SIGNAL(valueChanged(double)),
