@@ -290,18 +290,15 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
 QGradient RotateIconItem::setGradient(){
 
   BackgroundData backgroundData = background.value();
-
-  QGradient g;
   QPolygonF pts;
   QGradientStops stops;
-  QGradient::Spread spread;
-  QGradient::CoordinateMode mode;
 
   QSize gSize(backgroundData.gsize[0],backgroundData.gsize[1]);
 
     for (int i=0; i<backgroundData.gpoints.size(); i++)
       pts.append(backgroundData.gpoints.at(i));
 
+  QGradient::CoordinateMode mode = QGradient::LogicalMode;
   switch (backgroundData.gmode){
     case BackgroundData::LogicalMode:
       mode = QGradient::LogicalMode;
@@ -314,6 +311,7 @@ QGradient RotateIconItem::setGradient(){
     break;
     }
 
+  QGradient::Spread spread = QGradient::RepeatSpread;
   switch (backgroundData.gspread){
     case BackgroundData::PadSpread:
       spread = QGradient::PadSpread;
@@ -326,6 +324,7 @@ QGradient RotateIconItem::setGradient(){
     break;
     }
 
+  QGradient g = QLinearGradient(pts.at(0), pts.at(1));
   switch (backgroundData.gtype){
     case BackgroundData::LinearGradient:
       g = QLinearGradient(pts.at(0), pts.at(1));

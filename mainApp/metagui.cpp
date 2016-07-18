@@ -1705,18 +1705,15 @@ void BackgroundGui::setGradient(bool){
   bool ok = true;
 
   BackgroundData backgroundData = meta->value();
-
-  QGradient *g;
   QPolygonF pts;
   QGradientStops stops;
-  QGradient::Spread spread;
-  QGradient::CoordinateMode mode;
 
   QSize gSize(backgroundData.gsize[0],backgroundData.gsize[1]);
 
   for (int i=0; i<backgroundData.gpoints.size(); i++)
     pts.append(backgroundData.gpoints.at(i));
 
+  QGradient::CoordinateMode mode = QGradient::LogicalMode;
   switch (backgroundData.gmode){
     case BackgroundData::LogicalMode:
       mode = QGradient::LogicalMode;
@@ -1729,6 +1726,7 @@ void BackgroundGui::setGradient(bool){
     break;
     }
 
+  QGradient::Spread spread = QGradient::RepeatSpread;
   switch (backgroundData.gspread){
     case BackgroundData::PadSpread:
       spread = QGradient::PadSpread;
@@ -1741,6 +1739,7 @@ void BackgroundGui::setGradient(bool){
     break;
     }
 
+  QGradient *g = new QLinearGradient(pts.at(0), pts.at(1));;
   switch (backgroundData.gtype){
     case BackgroundData::LinearGradient:
       g = new QLinearGradient(pts.at(0), pts.at(1));
@@ -1751,7 +1750,7 @@ void BackgroundGui::setGradient(bool){
         if (line.length() > 132){
             line.setLength(132);
           }
-        g = new QRadialGradient(line.p1(),  qMin(gSize.width(), gSize.height()) / 3.0, line.p2());
+        g = new QRadialGradient(line.p1(), qMin(gSize.width(), gSize.height()) / 3.0, line.p2());
       }
     break;
     case BackgroundData::ConicalGradient:
@@ -2759,8 +2758,9 @@ int PageSizeGui::getTypeIndex(float &widthPg, float &heightPg){
 
 void PageSizeGui::typeChange(const QString &pageType){
 
-  float pageWidth, pageHeight;
-  bool  editLine;
+  float pageWidth = meta->value(0);
+  float pageHeight = meta->value(1);;
+  bool  editLine = true;
 
   qDebug() << "\nPage Type: " << pageType ;
 
@@ -2777,15 +2777,7 @@ void PageSizeGui::typeChange(const QString &pageType){
               break;
             }
         }
-
       editLine = false;
-
-    } else {
-
-      pageWidth  = meta->value(0);
-      pageHeight = meta->value(1);
-      editLine = true;
-
     }
 
   QString      string;
@@ -3028,8 +3020,9 @@ int SizeAndOrientationGui::getTypeIndex(float &widthPg, float &heightPg){
 
 void SizeAndOrientationGui::typeChange(const QString &pageType){
 
-  float pageWidth, pageHeight;
-  bool  editLine;
+    float pageWidth = smeta->value(0);
+    float pageHeight = smeta->value(1);;
+    bool  editLine = true;
 
   int size = pageType.indexOf(" (");
   QString newType = pageType.left(size);
@@ -3049,15 +3042,7 @@ void SizeAndOrientationGui::typeChange(const QString &pageType){
               break;
             }
         }
-
       editLine = false;
-
-    } else {
-
-      pageWidth  = smeta->value(0);
-      pageHeight = smeta->value(1);
-      editLine = true;
-
     }
 
   QString      string;

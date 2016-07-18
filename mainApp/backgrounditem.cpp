@@ -213,18 +213,15 @@ void PlacementBackgroundItem::setBackground(
 QGradient BackgroundItem::setGradient(){
 
   BackgroundData backgroundData = background.value();
-
-  QGradient g;
   QPolygonF pts;
   QGradientStops stops;
-  QGradient::Spread spread;
-  QGradient::CoordinateMode mode;
 
   QSize gSize(backgroundData.gsize[0],backgroundData.gsize[1]);
 
   for (int i=0; i<backgroundData.gpoints.size(); i++)
     pts.append(backgroundData.gpoints.at(i));
 
+  QGradient::CoordinateMode mode = QGradient::LogicalMode;
   switch (backgroundData.gmode){
     case BackgroundData::LogicalMode:
       mode = QGradient::LogicalMode;
@@ -237,6 +234,7 @@ QGradient BackgroundItem::setGradient(){
     break;
     }
 
+  QGradient::Spread spread = QGradient::RepeatSpread;
   switch (backgroundData.gspread){
     case BackgroundData::PadSpread:
       spread = QGradient::PadSpread;
@@ -247,8 +245,12 @@ QGradient BackgroundItem::setGradient(){
     case BackgroundData::ReflectSpread:
       spread = QGradient::ReflectSpread;
     break;
+    default:
+      spread = QGradient::RepeatSpread;
+    break;
     }
 
+  QGradient g = QLinearGradient(pts.at(0), pts.at(1));
   switch (backgroundData.gtype){
     case BackgroundData::LinearGradient:
       g = QLinearGradient(pts.at(0), pts.at(1));
@@ -259,7 +261,7 @@ QGradient BackgroundItem::setGradient(){
         if (line.length() > 132){
             line.setLength(132);
           }
-        g = QRadialGradient(line.p1(),  qMin(gSize.width(), gSize.height()) / 3.0, line.p2());
+        g = QRadialGradient(line.p1(), qMin(gSize.width(), gSize.height()) / 3.0, line.p2());
       }
     break;
     case BackgroundData::ConicalGradient:
