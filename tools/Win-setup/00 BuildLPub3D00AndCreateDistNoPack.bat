@@ -2,7 +2,7 @@
 Title Build and create manual and automatic LPub3D install distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 01, 2016
+rem  Last Update: July 18, 2016
 rem  Copyright (c) 2016 by Trevor Sandy
 rem --
 SETLOCAL
@@ -31,9 +31,9 @@ SET DeploymentAbsolutePath=C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub
 SET Win32LPub3DBuildFileAbsolutePath="C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D\build\Win32\Release\LPub3D.exe"
 SET Win64LPub3DBuildFileAbsolutePath="C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D\build\x64\Release\LPub3D.exe"
 
-SET Win32MinGwBuildFile="..\..\..\build-LPub3D-Desktop_Qt_5_5_1_MinGW_32bit-Release\mainApp\build\release\LPub3D.exe"
-SET Win32MinGwQuazipFile="..\..\..\build-LPub3D-Desktop_Qt_5_5_1_MinGW_32bit-Release\quazip\build\release\quazip.dll"
-SET Win32MinGwLdrawiniFile="..\..\..\build-LPub3D-Desktop_Qt_5_5_1_MinGW_32bit-Release\ldrawini\build\release\ldrawini.dll"
+SET Win32MinGwBuildFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_32bit-Release\mainApp\build\release\LPub3D.exe"
+SET Win32MinGwQuazipFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_32bit-Release\quazip\build\release\quazip.dll"
+SET Win32MinGwLdrawiniFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_32bit-Release\ldrawini\build\release\ldrawini.dll"
 
 SET Win32LPub3DBuildFile="..\..\build\Win32\Release\LPub3D.exe"
 SET Win32QuazipBuildFile="..\..\build\Win32\Release\quazip.dll"
@@ -42,14 +42,14 @@ SET Win64LPub3DBuildFile="..\..\build\x64\Release\LPub3D.exe"
 SET Win64QuazipBuildFile="..\..\build\x64\Release\quazip.dll"
 SET Win64LdrawiniBuildFile="..\..\build\x64\Release\ldrawini.dll"
 
-SET Win32MinGwQtBinPath="C:\Qt\IDE\5.5\mingw492_32\bin"
-SET Win32MinGwQtPluginPath=C:\Qt\IDE\5.5\mingw492_32\plugins
+SET Win32MinGwQtBinPath="C:\Qt\IDE\5.7\mingw53_32\bin"
+SET Win32MinGwQtPluginPath=C:\Qt\IDE\5.7\mingw53_32\plugins
 
-SET Win32QtBinPath=C:\Qt\IDE\5.6\msvc2015\bin
-SET Win32QtPluginPath=C:\Qt\IDE\5.6\msvc2015\plugins
+SET Win32QtBinPath=C:\Qt\IDE\5.7\msvc2015\bin
+SET Win32QtPluginPath=C:\Qt\IDE\5.7\msvc2015\plugins
 SET Win32DevKit10UCRTRedist=C:\Program Files (x86)\Windows Kits\10\redist\ucrt\DLLs\x86
-SET Win64QtBinPath=C:\Qt\IDE\5.6\msvc2015_64\bin
-SET Win64QtPluginPath=C:\Qt\IDE\5.6\msvc2015_64\plugins
+SET Win64QtBinPath=C:\Qt\IDE\5.7\msvc2015_64\bin
+SET Win64QtPluginPath=C:\Qt\IDE\5.7\msvc2015_64\plugins
 SET Win64DevKit10UCRTRedist=C:\Program Files (x86)\Windows Kits\10\redist\ucrt\DLLs\x64
 
 SET NSISPath=C:\Program Files (x86)\NSIS

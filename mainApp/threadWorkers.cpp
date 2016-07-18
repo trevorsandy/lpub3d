@@ -707,7 +707,7 @@ void ColourPartListWorker::generateFadeColourPartsList()
     QFileInfo lpub3dLibFileInfo(QDir::toNativeSeparators(Preferences::lpub3dLibFile));
     if (lpub3dLibFileInfo.exists()) {
         archiveFiles << QString("%1/%2").arg(lpub3dLibFileInfo.absolutePath(),VER_LPUB3D_UNOFFICIAL_ARCHIVE);
-        //archiveFiles << lpub3dLibFileInfo.absoluteFilePath();
+        archiveFiles << lpub3dLibFileInfo.absoluteFilePath();
     }
 
     //library directories
