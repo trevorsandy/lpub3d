@@ -2,7 +2,7 @@
 Title Build and create manual and automatic LPub3D install distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 18, 2016
+rem  Last Update: July 20, 2016
 rem  Copyright (c) 2016 by Trevor Sandy
 rem --
 SETLOCAL
@@ -17,6 +17,20 @@ SET CLEANUP=1
 SET GENBUILDVER=0
 SET UCRT=0
 rem ---------------------------------------
+
+ECHO - Run Parameters:      			   								>>  ..\release\LPub3D.Release.build.log.txt
+ECHO.
+ECHO  - RUN_NSIS=%RUN_NSIS%												>>  ..\release\LPub3D.Release.build.log.txt
+ECHO  - CLEANUP=%CLEANUP%												>>  ..\release\LPub3D.Release.build.log.txt
+ECHO  - GENBUILDVER=%GENBUILDVER%										>>  ..\release\LPub3D.Release.build.log.txt
+ECHO  - UCRT=%UCRT%														>>  ..\release\LPub3D.Release.build.log.txt
+
+ECHO - Run Parameters:
+ECHO.  	
+ECHO  - RUN_NSIS=%RUN_NSIS%	
+ECHO  - CLEANUP=%CLEANUP%		
+ECHO  - GENBUILDVER=%GENBUILDVER%
+ECHO  - UCRT=%UCRT%
 
 ECHO. 							                						>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 0 ECHO - Start NSIS test build process...      		>>  ..\release\LPub3D.Release.build.log.txt

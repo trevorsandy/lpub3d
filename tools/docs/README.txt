@@ -1,7 +1,7 @@
 LPub3D 2.0.7.762.3 
  
 Features and enhancements 
------------- 
+------------
 -Fix: Inconsistent fade behaviour when using BUFEXCHG parts and added parts in the same step (r764)
  *Behaviour previously used the size of the previous step's CSI to determine the fade position index of the current step in all cases. This approach could lead to an inconsistent fade position after retrieving a buffer - especially if additional parts were added to the step. Behaviour corrected to use the size of the previous buffer parts list (versus the CSI) to determine the current step's fade position when BUFEXCHG RETRIEVE meta command is used. This approach removes the necessity to follow the BUFEXCHG RETRIEVE meta command with a STEP/ROTSTEP meta command to properly process the fade sequence which will unnecessarily render the buffered component twice, in the buffered view and the modelled view, usually only the buffered view render is desired (that's why the assembly is buffered in the first place).
 -Fix: LDView single call render crash on multi-step page generation (763)

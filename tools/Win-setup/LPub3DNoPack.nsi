@@ -49,10 +49,6 @@
   Var /global LPub3DViewerLibFile
   Var /global LPub3DViewerLibPath
   
-  Var /global IsVC2015DistInstalled
-
-
-  
 ;--------------------------------
 ;General
  
@@ -210,8 +206,6 @@ FunctionEnd
 Section "${ProductName} (required)" SecMain${ProductName}
 
   ;Confirm VC++ 2015 Redistribution is installed
-  File "..\release\vcredist\vc_redist.x86.exe"
-  File "..\release\vcredist\vc_redist.x64.exe"
   Call fnConfirmVC2015Redist
   
   ;install directory
@@ -658,18 +652,22 @@ Function fnCopyLibraries
 	SetOutPath "${INSTDIR_AppData}\libraries"
 	IfFileExists "${INSTDIR_AppData}\libraries\complete.zip" 0 +2
 	goto Next
-	IfFileExists "$LPub3DViewerLibPath\complete.zip" 0 install_new_off_Lib
-	CopyFiles "$LPub3DViewerLibPath\complete.zip" "${INSTDIR_AppData}\libraries\complete.zip"
+	IfFileExists "$LPub3DViewerLibPath\complete.zip" 0 Install_new_off_Lib
+	${If} $OldLibraryDirectoryExist == 1 	
+		CopyFiles "$LPub3DViewerLibPath\complete.zip" "${INSTDIR_AppData}\libraries\complete.zip"
+	${EndIf}
 	goto Next
-	install_new_off_Lib:
+	Install_new_off_Lib:
 	File "..\release\libraries\complete.zip"
 	Next:
 	IfFileExists "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip" 0 +2
 	goto Finish
-	IfFileExists "$LPub3DViewerLibPath\ldrawunf.zip" 0 install_new_unoff_Lib
-	CopyFiles "$LPub3DViewerLibPath\ldrawunf.zip" "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip"
+	IfFileExists "$LPub3DViewerLibPath\ldrawunf.zip" 0 Install_new_unoff_Lib
+	${If} $OldLibraryDirectoryExist == 1 
+		CopyFiles "$LPub3DViewerLibPath\ldrawunf.zip" "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip"
+	${EndIf}
 	goto Finish
-	install_new_unoff_Lib:
+	Install_new_unoff_Lib:
 	File "..\release\libraries\lpub3dldrawunf.zip"	
 	Finish:
 	
@@ -677,27 +675,20 @@ FunctionEnd
 
 Function fnConfirmVC2015Redist
 	; Test if Visual Studio 2015 C++ Redistributables are installed
-	IfFileExists "$Windir\System32\vcruntime140.dll" +2 0
-	StrCpy $IsVC2015DistInstalled 0
-	${If} $IsVC2015DistInstalled == 0
-		;MessageBox MB_ICONEXCLAMATION "Note: Visual Studio 2015 VC++ Redistributable not found and will be installed!" IDOK 0
-		SetOutPath "$TEMP"
-		${If} ${RunningX64}
-			File "..\release\vcredist\vc_redist.x64.exe"
-			goto InstallVC2015x64Redist
-		${Else}
-			File "..\release\vcredist\vc_redist.x86.exe"
-			goto InstallVC2015x86Redist
-		${EndIf}		
-	${Else}
-		;MessageBox MB_ICONEXCLAMATION "Note: Visual Studio 2015 VC++ Redistributable found!" IDOK 0
-		goto Finish
-	${EndIf}
-	InstallVC2015x86Redist:
-	ExecWait '"$TEMP/vc_redist.x86.exe" /q' ; '/q' to install silently
+	IfFileExists "$SYSDIR\vcruntime140.dll" 0 InstallVC2015Redist
 	goto Finish
-	InstallVC2015x64Redist:
-	ExecWait '"$TEMP/vc_redist.x64.exe" /q' 
+	InstallVC2015Redist:
+	;MessageBox MB_ICONEXCLAMATION "Note: Visual Studio 2015 VC++ Redistributable not found and will be installed!" IDOK 0
+	SetOutPath "$TEMP"
+	${If} ${RunningX64}
+		File "..\release\vcredist\vc_redist.x64.exe"
+		ExecWait '"$TEMP/vc_redist.x64.exe" /q' ; '/q' to install silently
+		Delete "$TEMP\vc_redist.x64.exe"
+	${Else}
+		File "..\release\vcredist\vc_redist.x86.exe"
+		ExecWait '"$TEMP/vc_redist.x86.exe" /q' 
+		Delete "$TEMP\vc_redist.x86.exe"
+	${EndIf}		
     Finish:
 	
 FunctionEnd
