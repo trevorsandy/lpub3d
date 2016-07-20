@@ -67,7 +67,9 @@ void BackgroundItem::setBackground(
 
   pixmap->fill(Qt::transparent);
 
-  QPainter painter(pixmap);
+  // set painter and render hints (initialized with pixmap)
+  QPainter painter;
+  painter.begin(pixmap);
   painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
   painter.setRenderHints(QPainter::Antialiasing,true);
 
@@ -178,6 +180,8 @@ void BackgroundItem::setBackground(
     } else {
       painter.drawRect(prect);
     }
+
+  painter.end();
 
   setToolTip(toolTip);
   setFlag(QGraphicsItem::ItemIsSelectable,true);

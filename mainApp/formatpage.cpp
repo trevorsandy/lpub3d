@@ -1394,7 +1394,7 @@ int Gui::addGraphicsPageItems(
               for (int j = 0; j < range->list.size(); j++){
                   if (range->relativeType == RangeType) {
                       Step *step = dynamic_cast<Step *>(range->list[j]);
-                      if (step){
+                      if (step && step->relativeType == StepType){
                           step->csiPixmap.load(step->pngName);
                           step->csiPlacement.size[0] = step->csiPixmap.width();
                           step->csiPlacement.size[1] = step->csiPixmap.height();

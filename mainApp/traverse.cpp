@@ -569,7 +569,7 @@ int Gui::drawPage(LGraphicsView  *view,
             case BufferLoadRc:
               csiParts = bfx[curMeta.bfx.value()];
               ldrawFile.setFadePosition(current.modelName,csiParts.size());
-              //qDebug() << "Model Name" << current.modelName << ", bfx Set Fade Position:" << csiParts.size();
+              //qDebug() << "Model:" << current.modelName << ", Step:"  << stepNum << ", bfx Set Fade Position:" << csiParts.size();
               bfxLoad = true;
               break;
 
@@ -2280,7 +2280,8 @@ QStringList Gui::fadeStep(const QStringList &csiParts, const int &stepNum,  Wher
       QString fadeColor   = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
       QString edgeColor   = "24";  // Internal Common Material Color (edge)
       int  fadePosition   = ldrawFile.getFadePosition(current.modelName);
-      //qDebug() << "Model Name" << current.modelName << ", FadeStep Get Fade Position:" << fadePosition;
+      //qDebug() << "Model:" << current.modelName << ", Step:"  << stepNum << ", FadeStep Get Fade Position:" << fadePosition
+      //         << ", CSI Size:" << csiParts.size() << ", Model Size:"  << ldrawFile.size(current.modelName);
       QStringList argv;
 
       for (int index = 0; index < csiParts.size(); index++) {
