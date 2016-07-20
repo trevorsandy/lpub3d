@@ -1,10 +1,12 @@
-LPub3D 2.0.7.761.3 
+LPub3D 2.0.7.762.3 
  
 Features and enhancements 
 ------------ 
--Fix: Preference dialog version change log cleared on update check when there is no available update (r762)
- *If no update available, ignore updating the change log dialog
-
+-Fix: LDView single call render crash on multi-step page generation (763)
+ *Crash if multi-step page's steps contain more than PLI and CSI components. Corrected.
+-Fix: Preference dialog version change log cleared on update check when there is no available update (r762) 
+ *If no update available, ignore updating the change log dialog.
+ 
 LPub3D 2.0.6.761.3 
  
 Features and enhancements 

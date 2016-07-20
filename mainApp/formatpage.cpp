@@ -1387,40 +1387,42 @@ int Gui::addGraphicsPageItems(
 
       // LDView generate multistep pixamps
       if (renderer->useLDViewSCall() &&
-          page->list.size()) {
+              page->list.size()) {
           // Load images and set size
           for (int i = 0; i < page->list.size(); i++){
               Range *range = dynamic_cast<Range *>(page->list[i]);
               for (int j = 0; j < range->list.size(); j++){
                   if (range->relativeType == RangeType) {
                       Step *step = dynamic_cast<Step *>(range->list[j]);
-                      step->csiPixmap.load(step->pngName);
-                      step->csiPlacement.size[0] = step->csiPixmap.width();
-                      step->csiPlacement.size[1] = step->csiPixmap.height();
-                      for (int k = 0; k < step->list.size(); k++) {
-                          if (step->list[k]->relativeType == CalloutType) {
-                              Callout *callout = dynamic_cast<Callout *>(step->list[k]);
-                              if (callout) {
-                                  for (int l = 0; l < callout->list.size(); l++){
-                                      Range *range = dynamic_cast<Range *>(callout->list[l]);
-                                      for (int m = 0; m < range->list.size(); m++){
-                                          if (range->relativeType == RangeType) {
-                                              Step *step = dynamic_cast<Step *>(range->list[m]);
-                                              if (step){
-                                                  step->csiPixmap.load(step->pngName);
-                                                  step->csiPlacement.size[0] = step->csiPixmap.width();
-                                                  step->csiPlacement.size[1] = step->csiPixmap.height();
-                                                } // validate step (StepType) and process...
-                                            } // validate RangeType - to cast step
-                                        } // for each step within divided group...=>list[AbstractRangeElement]->StepType
-                                    } // for each divided group within callout...=>list[AbstractStepsElement]->RangeType
-                                } // validate callout
-                            } // validate calloutType
-                        } // for divided group within step...=>list[Steps]->CalloutType
-                    } // validate RangeType - to cast step
-                } // for each step within divided group...=>list[AbstractRangeElement]->StepType
-            } // for each divided group within page...=>list[AbstractStepsElement]->RangeType
-        }
+                      if (step){
+                          step->csiPixmap.load(step->pngName);
+                          step->csiPlacement.size[0] = step->csiPixmap.width();
+                          step->csiPlacement.size[1] = step->csiPixmap.height();
+                          for (int k = 0; k < step->list.size(); k++) {
+                              if (step->list[k]->relativeType == CalloutType) {
+                                  Callout *callout = dynamic_cast<Callout *>(step->list[k]);
+                                  if (callout) {
+                                      for (int l = 0; l < callout->list.size(); l++){
+                                          Range *range = dynamic_cast<Range *>(callout->list[l]);
+                                          for (int m = 0; m < range->list.size(); m++){
+                                              if (range->relativeType == RangeType) {
+                                                  Step *step = dynamic_cast<Step *>(range->list[m]);
+                                                  if (step){
+                                                      step->csiPixmap.load(step->pngName);
+                                                      step->csiPlacement.size[0] = step->csiPixmap.width();
+                                                      step->csiPlacement.size[1] = step->csiPixmap.height();
+                                                  } // validate step (StepType) and process...
+                                              } // validate RangeType - to cast step
+                                          } // for each step within divided group...=>list[AbstractRangeElement]->StepType
+                                      } // for each divided group within callout...=>list[AbstractStepsElement]->RangeType
+                                  } // validate callout
+                              } // validate calloutType
+                          } // for divided group within step...=>list[Steps]->CalloutType
+                      } // validate step (StepType) and process...
+                  } // validate RangeType - to cast step
+              } // for each step within divided group...=>list[AbstractRangeElement]->StepType
+          } // for each divided group within page...=>list[AbstractStepsElement]->RangeType
+      }
 
       PlacementData data = page->meta.LPub.multiStep.placement.value();
       page->placement.setValue(data);
