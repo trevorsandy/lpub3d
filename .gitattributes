@@ -549,7 +549,6 @@ qsimpleupdater/QSimpleUpdater.pri -text
 qsimpleupdater/doc/COPYING.md -text
 qsimpleupdater/doc/README.md -text
 qsimpleupdater/res/LPub96.png -text
-qsimpleupdater/res/Thumbs.db -text
 qsimpleupdater/res/qsu_resources.qrc -text
 qsimpleupdater/res/update.png -text
 qsimpleupdater/src/downloader.cpp -text

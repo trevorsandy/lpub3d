@@ -1,26 +1,35 @@
-LPub3D 2.0.5.744.3 
+LPub3D 2.0.7.761.3 
  
 Features and enhancements 
-------------
--Fix: Set radial and conical background gradient parse fail with 'Malformed background...' (r759)  
--Fix: Scale in Page Globals Setup dialog not working (r756)
- *Cover Image and Logo double spin control not working. Issue corrected.
--Fix: Save and restore application window state and geometry (r755)
- *Was causing crash on launch before update to Qt5.7. 
--Fix: Application crash on launch(r754)
- *Update to Qt5.7 on MSVC2015 and MinGW5.3. There must have been a big, nasty bug in Qt 5.5/5.6 because the code that consistently generated the crash immediately resolved upon update to Qt5.7
--Fix: Crash on application close on Windows7 (r753)
--Fix: Substitute parts use only file name; file path not required (r752)
- *When editing substitute parts list, it is not necessary to enter the absolute file path for the substitute file.
- Just entering the substitute file name will be sufficient.
--Fix: Title annotations displays when only Freeform annotation selected in setup preference (r751)
--Fix: setGeometry: Unable to set geometry 600x800 warning message (r749)
- *Use QDesktopWidget.availableGeometry(this) setting
--Fix: Parameter window highlighting part description containing '#' (r748)
- *Highlight only lines where first character is '#';
--Fix: Generate fade color parts list crash (r747)
- *Redesigned functionality to process parts from archive libraries versus disc directories
+------------ 
+-Fix: Preference dialog version change log cleared on update check when there is no available update (r762)
+ *If no update available, ignore updating the change log dialog
 
+LPub3D 2.0.6.761.3 
+ 
+Features and enhancements 
+------------ 
+-Fix: Set radial and conical background gradient parse fail with 'Malformed background...' (r759) 
+  *Parse fail for radial and conical gradient meta commands. Linear, radial and conical gradients are all now working as designed. 
+-Fix: Scale in Page Globals Setup dialog not working (r756) 
+ *Cover Image and Logo double spin control not working. Issue corrected. 
+-Fix: Save and restore application window state and geometry (r755) 
+ *Was causing crash on launch before update to Qt5.7. 
+-Fix: Application crash on launch (r754) 
+ *Update to Qt5.7 on MSVC2015 and MinGW5.3. There must have been a big, nasty bug in Qt 5.5/5.6 because the code that consistently generated the crash immediately resolved upon update to Qt5.7 
+-Fix: Crash on application close on Windows7 (r753) 
+ *Expected scoped pointer main window to destruct all children on close but it seems like 3d viewer application and mainwindow were not treated as children and were not deleted at application close by the scoped pointer on Windows7 machines. Manually delete 3D viewer application instance and mainwindow at LPub3D termination. 
+-Fix: Substitute parts use only file name; file path not required (r752) 
+ *When editing substitute parts list, it is not necessary to enter the absolute file path for the substitute file. Just entering the substitute file name will be sufficient. 
+-Fix: Title annotations displays when only Freeform annotation selected in setup preference (r751) 
+ *Logic processed title annotations when it should not have. Corrected. 
+-Fix: setGeometry: Unable to set geometry 600x800 warning message (r749) 
+ *Use QDesktopWidget.availableGeometry(this) setting to support single and multi-screen configurations. 
+-Fix: Parameter file edit window highlighting part description containing '#' (r748) 
+ *Highlight only lines where first character is '#'. 
+-Fix: Generate fade colour parts list crash (r747) 
+ *Redesigned functionality to process parts from archive libraries (unofficial and official) versus LDraw disc directories. This approach improves performance and reliability as all parts, including those from additional search directories, are collected in the archive libraries. Working with archive files is much faster than working with disc directories. 
+ 
 LPub3D 2.0.5.744.3 
  
 Features and enhancements 

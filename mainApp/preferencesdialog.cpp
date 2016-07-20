@@ -172,6 +172,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.moduleVersion_Combo->addItems(updatableVersions);
   ui.moduleVersion_Combo->setCurrentIndex(int(ui.moduleVersion_Combo->findText(version)));
 
+  ui.groupBoxChangeLog->setTitle(tr("Change Log for version %1").arg(version));
   QString readme = tr("%1/%2").arg(Preferences::lpub3dPath,"README.txt");
   QFile file(readme);
   if (! file.open(QFile::ReadOnly | QFile::Text)){
@@ -551,8 +552,10 @@ QStringList const PreferencesDialog::searchDirSettings()
 
 void PreferencesDialog::updateChangelog (QString url) {
     if (url == DEFS_URL) {
-        ui.groupBoxChangeLog->setTitle("Change Log - ");
-        ui.changeLog_txbr->setText (m_updater->getChangelog (url));
+        if (m_updater->getUpdateAvailable(url)) {
+            ui.groupBoxChangeLog->setTitle(tr("Change Log for version %1").arg(m_updater->getLatestVersion(url)));
+            ui.changeLog_txbr->setText (m_updater->getChangelog (url));
+        }
     }
 }
 

@@ -42,7 +42,7 @@ UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
     if (m_option == SoftwareUpdate) {
 //        DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(Preferences::moduleVersion);
         DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
-        applyGeneralSettings(DEFS_URL);
+        applyGeneralSettings (DEFS_URL);
         m_updater->checkForUpdates (DEFS_URL);      
     }
 
