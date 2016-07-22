@@ -210,7 +210,7 @@ void Gui::removeLPubFormatting()
 
 void Gui::displayPage()
 {
-  emit messageSig(true, "Processing display page...");
+  emit messageSig(true, "Processing page display...");
 
   if (macroNesting == 0) {
       clearPage(KpageView,KpageScene);
@@ -221,7 +221,7 @@ void Gui::displayPage()
       emit enable3DActionsSig();
       Step::refreshCsi = false; //reset
     }
-  emit messageSig(true,"Display page ready.");
+  emit messageSig(true,"Page display ready.");
 }
 
 /*

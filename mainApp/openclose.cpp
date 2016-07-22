@@ -30,6 +30,7 @@
 void Gui::open()
 {  
   if (maybeSave()) {
+    timer.start();
     QSettings Settings;
     QString modelDir;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"ProjectsPath"))) {
@@ -51,6 +52,7 @@ void Gui::open()
       openFile(fileName);
       displayPage();
       enableActions();
+      emit messageSig(true, "File loaded. " + elapsedTime(timer.elapsed()));
       return;
     }
   }
@@ -61,6 +63,7 @@ void Gui::openRecentFile()
 {
   QAction *action = qobject_cast<QAction *>(sender());
   if (action) {
+    timer.start();
     QString fileName = action->data().toString();
     QFileInfo info(fileName);
     QDir::setCurrent(info.absolutePath());
@@ -68,6 +71,7 @@ void Gui::openRecentFile()
     Paths::mkdirs();
     displayPage();
     enableActions();
+    emit messageSig(true, "File loaded. " + elapsedTime(timer.elapsed()));
   }
 }
 
@@ -76,11 +80,13 @@ void Gui::loadFile(const QString &file)
     QString fileName = file;
     QFileInfo info(fileName);
     if (info.exists()) {
+        timer.start();
         QDir::setCurrent(info.absolutePath());
         openFile(fileName);
         Paths::mkdirs();
         displayPage();
         enableActions();
+        emit messageSig(true, "File loaded. " + elapsedTime(timer.elapsed()));
     } else {
         QMessageBox::warning(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
                              QMessageBox::tr("Unable to load file %1.")
@@ -256,7 +262,7 @@ void Gui::openFile(QString &fileName)
   mpdCombo->setMaxCount(1000);
   mpdCombo->addItems(ldrawFile.subFileOrder());
   setCurrentFile(fileName);
-  emit messageSig(true, "Loading source display...");
+  emit messageSig(true, "Loading file editor display...");
   displayFile(&ldrawFile,ldrawFile.topLevelFile());
   undoStack->setClean();
   curFile = fileName;
@@ -355,3 +361,16 @@ void Gui::fileChanged(const QString &path)
   }
 }
 
+QString Gui::elapsedTime(const qint64 &time){
+
+    int secs = time / 1000;
+    int mins = (secs / 60) % 60;
+    secs = secs % 60;
+    int msecs = time % 1000;
+
+    return QString("Elapsed time is %1:%2:%3")
+    .arg(mins, 2, 10, QLatin1Char('0'))
+    .arg(secs,  2, 10, QLatin1Char('0'))
+    .arg(msecs,  3, 10, QLatin1Char('0'));
+
+}

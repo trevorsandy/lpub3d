@@ -525,6 +525,7 @@ public:
   void displayFile(LDrawFile *ldrawFile, const QString &modelName);
   void displayParmsFile(const QString &fileName);
   void halt3DViewer(bool b);
+  QString elapsedTime(const qint64 &time);
 
   int             maxPages;
   
@@ -734,13 +735,13 @@ private:
   LGraphicsView         *KpageView;       // the visual representation of the scene
   LDrawFile              ldrawFile;       // contains MPD or all files used in model
   QString                curFile;         // the file name for MPD, or top level file
+  QElapsedTimer          timer;           // measure elapsed time for slow functions
   QString                curSubFile;      // whats being displayed in the edit window
   EditWindow            *editWindow;      // the sub file editable by the user
   QProgressBar          *progressBar;        // left side progress bar
   QProgressBar          *progressBarPerm;    // Right side progress bar
   QLabel                *progressLabel;
   QLabel                *progressLabelPerm;  //
-  QElapsedTimer         *timer;               // measure elapsed time for slow functions
   UpdateCheck           *libraryDownload;     // download request
 
   FadeStepColorParts     fadeStepColorParts; // internal list of color parts to be processed for fade step.

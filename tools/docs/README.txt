@@ -1,9 +1,11 @@
-LPub3D 2.0.7.769.3 
+LPub3D 2.0.7.770.5 
  
 Features and enhancements 
 ------------ 
--Fix: Archive library copy function not working if [empty] library directoy exist (r770)
- *If user data libraries directory exist, library copy from installed base is ignored. This is an issue if there are no libraries in the library directory. The correct behaviour is to verify that libraries exist and copy if they don't.
+-Fix: Elapsed timer on file open (r771) 
+ *Display elapsed time to load a file. 
+-Fix: Archive library copy function not working if [empty] library directoy exist (r770) 
+ *If user data libraries directory exist, library copy from installed base is ignored. This is an issue if there are no libraries in the library directory. The correct behaviour is to verify that libraries exist and copy if they don't. 
 -Digitally sign LPub3D executable distributions (r769) 
  *Secure installation content and reduce the likelihood of triggering antivirus quarantine. 
 -Fix: Inconsistent fade behaviour when using BUFEXCHG parts and added parts in the same step (r764) 
