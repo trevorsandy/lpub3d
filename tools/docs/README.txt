@@ -2,6 +2,8 @@ LPub3D 2.0.7.766.3
  
 Features and enhancements 
 ------------ 
+-Digitally sign LPub3D executable distributions (r769)
+ *Secure installation content and reduce the likelihood of triggering antivirus quarantine.
 -Fix: Inconsistent fade behaviour when using BUFEXCHG parts and added parts in the same step (r764) 
  *Behaviour previously used the size of the previous step's CSI to determine the fade position index of the current step in all cases. This approach could lead to an inconsistent fade position after retrieving a buffer. Behaviour corrected to use the size of the previous buffer parts list (versus the CSI) to determine the current step's fade position when BUFEXCHG RETRIEVE meta command is used. This approach removes the necessity to follow the BUFEXCHG RETRIEVE meta command with a STEP/ROTSTEP meta command to process the fade sequence which will unnecessarily render the buffered items twice, in the buffered view and the modelled view. Usually only the buffered view render is desired in the current step (that's why the assembly is buffered in the first place) but the modelled view CSI should be carried forward to the next step. Here are two examples: 
  

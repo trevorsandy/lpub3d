@@ -627,6 +627,7 @@ tools/Win-setup/un.EnumUsersReg.nsh -text
 tools/Win-setup/welcome.bmp -text
 tools/cert/6f64ef1edb27e83c73f2c76b5b8a6854.cer -text
 tools/cert/6f64ef1edb27e83c73f2c76b5b8a6854.pem -text
+tools/cert/lpub3dPrivateKey.p12 -text
 tools/docs/COPYING.txt -text
 tools/docs/CREDITS.txt -text
 tools/docs/Copyright-Source-Header.txt -text

@@ -830,22 +830,15 @@ Section "Uninstall"
   
 ; Remove registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}"
-  
-  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Installation\StartMenuFolder"
-  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\LDrawDir"
-  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\LDSearchDirs"  
-  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\PartsLibrary"
-  ; DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\FadeStepColorPartsFile"
-  ; DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\PliSubstitutePartsFile"
-  ; DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\TitleAnnotationFile"
-  ; DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings\FreeFormAnnotationsFile"
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Defaults" 
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Installation"
   DeleteRegKey HKCU "Software\${Company}\${ProductName}\MainWindow"
-  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Defaults"
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\ParmsWindow"
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\POVRay" 
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings"  
   DeleteRegKey HKCU "Software\${Company}\${ProductName}\Updates"
-  DeleteRegKey HKCU "Software\${Company}\${ProductName}\POVRay"  
-  DeleteRegKey /ifempty HKCU "Software\${Company}\${ProductName}\Installation"
-  ; DeleteRegKey /ifempty HKCU "Software\${Company}\${ProductName}\Settings"
-  DeleteRegKey /ifempty HKCU "Software\${Company}\${ProductName}"
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}"
+  DeleteRegKey HKCU "Software\${Company}"
 
   IfFileExists "$INSTDIR" 0 NoErrorMsg
     MessageBox MB_ICONEXCLAMATION "Note: $INSTDIR could not be removed!" IDOK 0 ; skipped if file doesn't exist

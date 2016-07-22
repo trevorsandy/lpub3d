@@ -9,28 +9,44 @@ SETLOCAL
 @break off
 @color 0a
 ECHO Build and create manual and automatic install distributions
+ECHO.
 
-rem ---------------------------------------
-rem Change value to 1 to execute and 0 to ignore the respective command
 SET RUN_NSIS=1
+SET /p RUN_NSIS= - Run NSIS: Type 1 to run, 0 to ignore or 'Enter' to accept default [%RUN_NSIS%]: 
+IF %RUN_NSIS% == 0 (
+	SET SIGN_APP=0 
+	SET CREATE_PORTABLE=0
+	)
+IF %RUN_NSIS% == 1 (
+	SET SIGN_APP=1
+	SET CREATE_PORTABLE=1
+	SET /p SIGN_APP= - Code Signing: Type 1 to run, 0 to ignore or 'Enter' to accept default [%SIGN_APP%]: 
+	)
 SET CLEANUP=1
+SET /p CLEANUP= - Cleanup: Type 1 to run, 0 to ignore or 'Enter' to accept default [%CLEANUP%]: 
+
 SET GENBUILDVER=0
 SET UCRT=0
-rem ---------------------------------------
 
+ECHO.
+ECHO - You entered the following paramteres:
+ECHO.  	
+ECHO   RUN_NSIS=%RUN_NSIS%	
+IF %RUN_NSIS% == 1 ECHO   SIGN_APP=%SIGN_APP%
+ECHO   CLEANUP=%CLEANUP%
+ECHO.
+IF %RUN_NSIS% == 0 ECHO - This configuration will allow you to test your NSIS scripts.
+ECHO.
+ECHO - Press Enter to continue.
+PAUSE >NUL
+
+ECHO.																					>>  ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO - This configuration will allow you to test your NSIS scripts.	>>  ..\release\LPub3D.Release.build.log.txt
 ECHO - Run Parameters:      			   								>>  ..\release\LPub3D.Release.build.log.txt
 ECHO.
 ECHO  - RUN_NSIS=%RUN_NSIS%												>>  ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO  - SIGN_APP=%SIGN_APP%							>>  ..\release\LPub3D.Release.build.log.txt
 ECHO  - CLEANUP=%CLEANUP%												>>  ..\release\LPub3D.Release.build.log.txt
-ECHO  - GENBUILDVER=%GENBUILDVER%										>>  ..\release\LPub3D.Release.build.log.txt
-ECHO  - UCRT=%UCRT%														>>  ..\release\LPub3D.Release.build.log.txt
-
-ECHO - Run Parameters:
-ECHO.  	
-ECHO  - RUN_NSIS=%RUN_NSIS%	
-ECHO  - CLEANUP=%CLEANUP%		
-ECHO  - GENBUILDVER=%GENBUILDVER%
-ECHO  - UCRT=%UCRT%
 
 ECHO. 							                						>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 0 ECHO - Start NSIS test build process...      		>>  ..\release\LPub3D.Release.build.log.txt
@@ -66,8 +82,12 @@ SET Win64QtBinPath=C:\Qt\IDE\5.7\msvc2015_64\bin
 SET Win64QtPluginPath=C:\Qt\IDE\5.7\msvc2015_64\plugins
 SET Win64DevKit10UCRTRedist=C:\Program Files (x86)\Windows Kits\10\redist\ucrt\DLLs\x64
 
-SET NSISPath=C:\Program Files (x86)\NSIS
-SET VirtualBoxPath=C:\Program Files (x86)\Enigma Virtual Box
+SET SignToolExe="C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe"
+SET TimeStamp=http://timestamp.digicert.com
+SET Sha2=Sha256
+SET PKey="..\cert\lpub3dPrivateKey.p12"
+
+SET NSISExe="C:\Program Files (x86)\NSIS\makensis.exe"
 SET devRootPath="..\..\mainApp"
 
 SET zipWin64=C:\program files\7-zip
@@ -75,30 +95,100 @@ SET zipWin32=C:\Program Files (x86)\7-zip
 
 SET zipExe=unknown
 
-ECHO. 							                	>>  ..\release\LPub3D.Release.build.log.txt
-ECHO - Environment check...        			   		>>  ..\release\LPub3D.Release.build.log.txt
+ECHO. 							                		>>  ..\release\LPub3D.Release.build.log.txt
+ECHO - Environment check...        			   			>>  ..\release\LPub3D.Release.build.log.txt
 ECHO.
 ECHO - Environment check...
 
-IF EXIST "%zipWin64%" (
+IF %RUN_NSIS% == 0 GOTO MAIN
+
+IF EXIST "%NSISExe%" (
 	ECHO.
+    ECHO - NSIS executable at "%NSISExe%"
+	ECHO.												>>  ..\release\LPub3D.Release.build.log.txt
+    ECHO - NSIS executable at "%NSISExe%"				>>  ..\release\LPub3D.Release.build.log.txt
+    GOTO SIGN
+) 
+
+SET %RUN_NSIS%=0
+SET %SIGN_APP%=0
+SET %CREATE_PORTABLE%=0
+ECHO.
+ECHO NSIS exectutable not at path defined. Only NSIS test configuration will be produced.
+ECHO.																								>>  ..\release\LPub3D.Release.build.log.txt
+ECHO NSIS exectutable not at path defined. Only NSIS test configuration will be produced.			>>  ..\release\LPub3D.Release.build.log.txt
+GOTO MAIN
+
+:SIGN
+IF %SIGN_APP% == 0 GOTO CHK_ZIP
+
+IF EXIST "%SignToolExe%" (
+	ECHO.
+    ECHO - Signtool executable at "%SignToolExe%"
+	ECHO.												>>  ..\release\LPub3D.Release.build.log.txt
+    ECHO - Signtool executable at "%SignToolExe%"		>>  ..\release\LPub3D.Release.build.log.txt
+	ECHO.
+	SET /p PwD= - Type your code signing password: 
+	ECHO.
+	ECHO - Code signing password is %PwD%				
+	ECHO.												>>  ..\release\LPub3D.Release.build.log.txt
+	ECHO - Code signing password captured.				>>  ..\release\LPub3D.Release.build.log.txt
+    GOTO CHK_ZIP
+) 
+
+SET %SIGN_APP%=0
+ECHO.
+ECHO Signtool exectutable not at path defined. Code signing will be ignored.
+ECHO.																			>>  ..\release\LPub3D.Release.build.log.txt
+ECHO Signtool exectutable not at path defined. Code signing will be ignored.	>>  ..\release\LPub3D.Release.build.log.txt
+
+:CHK_ZIP
+IF EXIST "%zipWin64%" (
 	SET zipExe="%zipWin64%\7z.exe"
+	ECHO.	
     ECHO - Found zip exe at "%zipWin64%"
+	ECHO.																>>  ..\release\LPub3D.Release.build.log.txt
+    ECHO - Found zip exe at "%zipWin64%"								>>  ..\release\LPub3D.Release.build.log.txt
     GOTO MAIN
 ) 
 
 ECHO.
 
 IF EXIST "%zipWin32%" (
-	ECHO.
 	SET zipExe="%zipWin32%\7z.exe"
+	ECHO.
     ECHO - Found zip exe at "%zipWin32%"
+	ECHO.																>>  ..\release\LPub3D.Release.build.log.txt
+    ECHO - Found zip exe at "%zipWin32%"								>>  ..\release\LPub3D.Release.build.log.txt
     GOTO MAIN
 )
 
 ECHO.
-SET /p zipExe=Could not find any zip exectutable. You can manually enter a location: 
-SET /p OPTION=Zip exe at (%zipExe%) will be used to archive your library. Hit [1] to exit or enter to continue:
+
+IF NOT EXIST "%zipExe%" (
+	ECHO.																		>>  ..\release\LPub3D.Release.build.log.txt
+	ECHO Could not find any zip exectutable. Requested manual location entry.	>>  ..\release\LPub3D.Release.build.log.txt
+	SET /p zipExe=Could not find any zip exectutable. You can manually enter a location: 
+)
+
+IF EXIST "%zipExe%" (
+	ECHO.
+	ECHO Zip exe at (%zipExe%) will be used to archive your portable distributions.
+	ECHO.																			>>  ..\release\LPub3D.Release.build.log.txt 
+	ECHO Zip exe at (%zipExe%) will be used to archive your portable distributions	>>  ..\release\LPub3D.Release.build.log.txt 
+	SET /p OPTION= Type [1] to exit or Enter to continue:
+)
+
+IF NOT EXIST "%zipExe%" (
+	SET %CREATE_PORTABLE%=0
+	ECHO.
+	ECHO Could not find zip exectutable. Portable builds will be ignored.
+	ECHO.																		>>  ..\release\LPub3D.Release.build.log.txt
+	ECHO Could not find zip exectutable. Portable builds will be ignored.		>>  ..\release\LPub3D.Release.build.log.txt
+	GOTO MAIN
+)
+
+IF  %OPTION% == 1  ECHO Option to exit seleced, the script will terminate.      >>  ..\release\LPub3D.Release.build.log.tx
 IF  %OPTION% == 1  EXIT
 
 :MAIN
@@ -304,9 +394,9 @@ IF %GENBUILDVER% == 1 ECHO - Updating build versions input file... 	>>  ../relea
 IF %GENBUILDVER% == 1 ECHO. 	
 IF %GENBUILDVER% == 1 ECHO - Upsdating build versions input file...
 
-IF %GENBUILDVER% == 0 ECHO - Ignoring build versions input file... 	>>  ../release/LPub3D.Release.build.log.txt
+IF %GENBUILDVER% == 0 ECHO - Ignore build versions input file... 	>>  ../release/LPub3D.Release.build.log.txt
 IF %GENBUILDVER% == 0 ECHO. 	
-IF %GENBUILDVER% == 0 ECHO - Ignoring build versions input file...
+IF %GENBUILDVER% == 0 ECHO - Ignore build versions input file...
 
 IF %GENBUILDVER% == 1 SET BuildVersions=.\BuildVersions.txt
 IF %GENBUILDVER% == 1 SET genBuildVersions=%BuildVersions% ECHO
@@ -534,9 +624,9 @@ IF %UCRT% == 1 ECHO - Adding x86 UCRT Dlls...    		>>  ../release/LPub3D.Release
 IF %UCRT% == 1 ECHO. 	
 IF %UCRT% == 1 ECHO - Adding x86 UCRT Dlls...
 
-IF %UCRT% == 0 ECHO - Ignoring x86 UCRT Dlls...    		>>  ../release/LPub3D.Release.build.log.txt
+IF %UCRT% == 0 ECHO - Ignore x86 UCRT Dlls...    		>>  ../release/LPub3D.Release.build.log.txt
 IF %UCRT% == 0 ECHO. 	
-IF %UCRT% == 0 ECHO - Ignoring x86 UCRT Dlls...
+IF %UCRT% == 0 ECHO - Ignore x86 UCRT Dlls...
 
 IF %UCRT% == 1 COPY /V /Y "%Win32DevKit10UCRTRedist%\API-MS-WIN-CRT-FILESYSTEM-L1-1-0.DLL" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             >>  ../release/LPub3D.Release.build.log.txt
 IF %UCRT% == 1 COPY /V /Y "%Win32DevKit10UCRTRedist%\API-MS-WIN-CRT-STRING-L1-1-0.DLL" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             	>>  ../release/LPub3D.Release.build.log.txt
@@ -616,9 +706,9 @@ IF %UCRT% == 1 ECHO - Adding x64 UCRT Dlls...    		>>  ../release/LPub3D.Release
 IF %UCRT% == 1 ECHO. 	
 IF %UCRT% == 1 ECHO - Adding x64  UCRT Dlls...			
 
-IF %UCRT% == 0 ECHO - Ignoring x64 UCRT Dlls...    		>>  ../release/LPub3D.Release.build.log.txt
+IF %UCRT% == 0 ECHO - Ignore x64 UCRT Dlls...    		>>  ../release/LPub3D.Release.build.log.txt
 IF %UCRT% == 0 ECHO. 	
-IF %UCRT% == 0 ECHO - Ignoring x64 UCRT Dlls...
+IF %UCRT% == 0 ECHO - Ignore x64 UCRT Dlls...
 
 IF %UCRT% == 1 COPY /V /Y "%Win64DevKit10UCRTRedist%\API-MS-WIN-CRT-FILESYSTEM-L1-1-0.DLL" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B         >>  ../release/LPub3D.Release.build.log.txt
 IF %UCRT% == 1 COPY /V /Y "%Win64DevKit10UCRTRedist%\API-MS-WIN-CRT-STRING-L1-1-0.DLL" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B             >>  ../release/LPub3D.Release.build.log.txt
@@ -645,7 +735,7 @@ IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Update MinGW  Build... >>  ..\relea
 IF %RUN_NSIS% == 0 ECHO.
 IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Update MinGW  Build...
 
-IF %RUN_NSIS% == 1 "%NSISPath%\makensis.exe" /DUpdateMaster LPub3DMinGWNoPack.nsi 		>> ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 %NSISExe% /DUpdateMaster LPub3DMinGWNoPack.nsi 		>> ..\release\LPub3D.Release.build.log.txt
 
 IF %RUN_NSIS% == 1 ECHO. 											>>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO - Finished NSIS Master Update MinGW Build...>>  ..\release\LPub3D.Release.build.log.txt
@@ -661,7 +751,7 @@ IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Update Build...  	>>  ..\release\LP
 IF %RUN_NSIS% == 0 ECHO.
 IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Update Build...
 
-IF %RUN_NSIS% == 1 "%NSISPath%\makensis.exe" /DUpdateMaster LPub3DNoPack.nsi 		>> ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 %NSISExe% /DUpdateMaster LPub3DNoPack.nsi 		>> ..\release\LPub3D.Release.build.log.txt
 
 IF %RUN_NSIS% == 1 ECHO. 										>>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO - Finished NSIS Master Update 	Build...>>  ..\release\LPub3D.Release.build.log.txt
@@ -694,7 +784,6 @@ IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Manual Install Build... 	>>  ..\release\LP
 IF %RUN_NSIS% == 0 ECHO.
 IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Manual Install Build...
 
-rem IF %RUN_NSIS% == 1 "%NSISPath%\makensis.exe" LPub3DNoPack.nsi 						>> ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 COPY /V /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe ..\release\%DOWNLOADPRODUCT%.exe  						>>  ../release/LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 COPY /V /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe ..\release\%PRODUCT%-UpdateMaster.exe  					>>  ../release/LPub3D.Release.build.log.txt
 
@@ -703,14 +792,19 @@ IF %RUN_NSIS% == 1 ECHO - Finished NSIS Manual Install Build... >>  ..\release\L
 IF %RUN_NSIS% == 1 ECHO.
 IF %RUN_NSIS% == 1 ECHO - Finished NSIS Manual Install Build...
 
-IF %RUN_NSIS% == 1 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO - Creating portable media zip files...		      			>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO. 	
-IF %RUN_NSIS% == 1 ECHO - Creating portable media zip files...
+IF %CREATE_PORTABLE% == 1 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 1 ECHO - Create portable media zip files...		      				>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 1 ECHO. 	
+IF %CREATE_PORTABLE% == 1 ECHO - Create portable media zip files...
 
-IF %RUN_NSIS% == 1 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN32MINGWPRODUCTDIR%.zip ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\ 		>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN32PRODUCTDIR%.zip ..\release\%VERSION%\%WIN32PRODUCTDIR%\ 				>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN64PRODUCTDIR%.zip ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 				>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 0 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 0 ECHO - Ignore create portable media zip files...		      		>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 0 ECHO. 	
+IF %CREATE_PORTABLE% == 0 ECHO - Ignore create portable media zip files...
+
+IF %CREATE_PORTABLE% == 1 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN32MINGWPRODUCTDIR%.zip ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\ 	>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 1 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN32PRODUCTDIR%.zip ..\release\%VERSION%\%WIN32PRODUCTDIR%\ 				>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 1 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN64PRODUCTDIR%.zip ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 				>>  ../release/LPub3D.Release.build.log.txt
 
 ECHO. 																				>>  ../release/LPub3D.Release.build.log.txt
 IF %CLEANUP% == 1 ECHO - Remove %PRODUCT% %VERSION% build files...					>>  ../release/LPub3D.Release.build.log.txt
@@ -721,8 +815,7 @@ IF %CLEANUP% == 0 ECHO - Ignore remove %PRODUCT% %VERSION% build files...			>>  
 IF %CLEANUP% == 0 ECHO. 	
 IF %CLEANUP% == 0 ECHO - Ignore remove %PRODUCT% %VERSION% build files...
 
-IF %CLEANUP% == 1 RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\								>>  ../release/LPub3D.Release.build.log.txt
-rem IF %CLEANUP% == 1 RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 								>>  ../release/LPub3D.Release.build.log.txt
+IF %CLEANUP% == 1 RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\	>>  ../release/LPub3D.Release.build.log.txt
 
 IF %RUN_NSIS% == 1 ECHO.												 																>>  ../release/LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%_MinGW_x32.exe to Download\ media folder...							>>  ../release/LPub3D.Release.build.log.txt
@@ -733,13 +826,13 @@ IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%_MinGW_x32.exe 
 IF %RUN_NSIS% == 1 ECHO.	
 IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe to Update\ media folder...		
 
-IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %DOWNLOADPRODUCT%_MinGW_x32.exe to Download\ media folder...							>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %DOWNLOADPRODUCT%_MinGW_x32.exe to Download\ media folder...						>>  ../release/LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 0 ECHO. 																												>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe to Update\ media folder...				>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe to Update\ media folder...		>>  ../release/LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 0 ECHO. 	
-IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %DOWNLOADPRODUCT%_MinGW_x32.exe to Download\ media folder...	
+IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %DOWNLOADPRODUCT%_MinGW_x32.exe to Download\ media folder...	
 IF %RUN_NSIS% == 0 ECHO. 			
-IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe to Update\ media folder...	
+IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe to Update\ media folder...	
 
 IF %RUN_NSIS% == 1 MOVE /Y ..\release\%DOWNLOADPRODUCT%_MinGW_x32.exe ..\release\%VERSION%\Download\									>>  ../release/LPub3D.Release.build.log.txt		
 IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe ..\release\%VERSION%\Update\						>>  ../release/LPub3D.Release.build.log.txt		
@@ -754,17 +847,56 @@ IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%.exe to Downloa
 IF %RUN_NSIS% == 1 ECHO.	
 IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...	
 
-IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...									>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...								>>  ../release/LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 0 ECHO. 																												>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...						>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...					>>  ../release/LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 0 ECHO. 	
-IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...	
+IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...	
 IF %RUN_NSIS% == 0 ECHO. 			
-IF %RUN_NSIS% == 0 ECHO - Ignoring NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...	
+IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...	
 
 IF %RUN_NSIS% == 1 MOVE /Y ..\release\%DOWNLOADPRODUCT%.exe ..\release\%VERSION%\Download\												>>  ../release/LPub3D.Release.build.log.txt		
 IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe ..\release\%VERSION%\Update\									>>  ../release/LPub3D.Release.build.log.txt		
 IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster.exe ..\release\%VERSION%\Update\											>>  ../release/LPub3D.Release.build.log.txt		
+
+ECHO. 									   										>>  ..\release\LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 ECHO - Start Application Code Signing Build... 				>>  ..\release\LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 ECHO.
+IF %SIGN_APP% == 1 ECHO - Start Application Code Signing Build...
+
+IF %SIGN_APP% == 0 ECHO - Ignore Application Code Signing Build... 				>>  ..\release\LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 0 ECHO.
+IF %SIGN_APP% == 0 ECHO - Ignore Application Code Signing Build...
+
+rem IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%WIN32MINGWPRODUCTDIR%.zip 	>>  ../release/LPub3D.Release.build.log.txt
+rem IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%WIN32PRODUCTDIR%.zip			>>  ../release/LPub3D.Release.build.log.txt
+rem IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%WIN64PRODUCTDIR%.zip			>>  ../release/LPub3D.Release.build.log.txt
+
+IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%DOWNLOADPRODUCT%_MinGW_x32.exe				>>  ../release/LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe  	>>  ../release/LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_MinGW_x32.exe            	>>  ../release/LPub3D.Release.build.log.txt
+
+IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%DOWNLOADPRODUCT%.exe							>>  ../release/LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_%VERSION%.exe            	>>  ../release/LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster.exe                      	>>  ../release/LPub3D.Release.build.log.txt
+
+ECHO. 									   										>>  ..\release\LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 ECHO - Generating hash checksum listing... 					>>  ..\release\LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 ECHO.
+IF %SIGN_APP% == 1 ECHO - Generating hash checksum listing...
+
+IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Download\%DOWNLOADPRODUCT%_MinGW_x32.exe	SHA256				>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
+IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe SHA256 >>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
+IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_MinGW_x32.exe SHA256 			>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
+                                      
+IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Download\%DOWNLOADPRODUCT%.exe SHA256						>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
+IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_%VERSION%.exe SHA256  			>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
+IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster.exe SHA256  					>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
+
+ECHO. 									   											>>  ..\release\LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 ECHO - Finished Application Code Signing Build... 				>>  ..\release\LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 ECHO.
+IF %SIGN_APP% == 1 ECHO - Finished Application Code Signing Build...
 
 ECHO. 																>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Finished.													>>  ../release/LPub3D.Release.build.log.txt
