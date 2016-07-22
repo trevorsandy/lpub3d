@@ -1,57 +1,57 @@
-LPub3D 2.0.7.762.3 
+LPub3D 2.0.7.766.3 
  
 Features and enhancements 
-------------
--Fix: Inconsistent fade behaviour when using BUFEXCHG parts and added parts in the same step (r764)
- *Behaviour previously used the size of the previous step's CSI to determine the fade position index of the current step in all cases. This approach could lead to an inconsistent fade position after retrieving a buffer. Behaviour corrected to use the size of the previous buffer parts list (versus the CSI) to determine the current step's fade position when BUFEXCHG RETRIEVE meta command is used. This approach removes the necessity to follow the BUFEXCHG RETRIEVE meta command with a STEP/ROTSTEP meta command to process the fade sequence which will unnecessarily render the buffered items twice, in the buffered view and the modelled view. Usually only the buffered view render is desired in the current step (that's why the assembly is buffered in the first place) but the modelled view CSI should be carried forward to the next step. Here are two examples:
+------------ 
+-Fix: Inconsistent fade behaviour when using BUFEXCHG parts and added parts in the same step (r764) 
+ *Behaviour previously used the size of the previous step's CSI to determine the fade position index of the current step in all cases. This approach could lead to an inconsistent fade position after retrieving a buffer. Behaviour corrected to use the size of the previous buffer parts list (versus the CSI) to determine the current step's fade position when BUFEXCHG RETRIEVE meta command is used. This approach removes the necessity to follow the BUFEXCHG RETRIEVE meta command with a STEP/ROTSTEP meta command to process the fade sequence which will unnecessarily render the buffered items twice, in the buffered view and the modelled view. Usually only the buffered view render is desired in the current step (that's why the assembly is buffered in the first place) but the modelled view CSI should be carried forward to the next step. Here are two examples: 
  
- Example 1: No unbuffered parts in step 1, render buffered skeleton with arrow in step 1 but render only modelled skeleton faded and the current parts in step 2
-	0 !LPUB ASSEM MODEL_SCALE LOCAL  0.6500
-	0 BUFEXCHG A STORE
-	0 GHOST 1 0 201.2 -844.25 0 1 0 0 0 1 0 0 0 1 skeleton.ldr
-	0 BUFEXCHG B STORE
-	0 BUFEXCHG A RETRIEVE
-	0 !LPUB PART BEGIN IGN
-	0 GHOST 1 0 201.2 -960.25 0 1 0 0 0 1 0 0 0 1 skeleton.ldr
-	0 GHOST 1 4 -131.2 -216.25 -70 -1 0 0 0 1 0 0 0 -1 arrow88.dat
-	0 !LPUB PART  END
-	0 STEP
-	0 !LPUB PLI CONSTRAIN LOCAL HEIGHT 5.67
-	0 !LPUB PLI PLACEMENT LOCAL LEFT PAGE INSIDE 0.0115693 -0.118771
-	0 BUFEXCHG B RETRIEVE
-	1 0 -130 -232 -70 -1 0 0 0 1 0 0 0 -1 3069b.dat
-	1 0 -130 -232 70 -1 0 0 0 1 0 0 0 -1 3069b.dat
-	0 STEP
-	
- Example 2: Unbuffered (modelled) parts in step 1, render hobspine, crossbrace, and outerrib with arrow (buffered) in step 1 but exclude arrow and show faded, step 1 modelled parts plus current parts in step 2. Step 1 terminates with ROTSTEP
-	0 GHOST 1 0 0 0 0 1 0 0 0 1 0 0 0 1 hobspine.ldr
-	0 !LPUB CALLOUT BEGIN
-	0 !LPUB CALLOUT POINTER BOTTOM_LEFT 0.608 0.763 0
-	1 0 0 0 0 1 0 0 0 1 0 0 0 1 crossbrace.ldr
-	0 !LPUB CALLOUT PLACEMENT RIGHT ASSEM INSIDE 0.41159 0.062474
-	0 !LPUB CALLOUT END
-	0 BUFEXCHG A STORE
-	1 0 0 0 -40 1 0 0 0 1 0 0 0 1 outerrib.ldr
-	1 71 -70.196 804.976 -55 -0.924 -0.383 0 -0.383 0.924 0 0 0 -1 32123a.dat
-	1 71 -218.11 743.75 -55 -0.707 -0.707 0 -0.707 0.707 0 0 0 -1 32123a.dat
-	0 BUFEXCHG B STORE
-	0 BUFEXCHG A RETRIEVE
-	0 !LPUB PART BEGIN IGN
-	0 GHOST 1 0 0 0 -120 1 0 0 0 1 0 0 0 1 outerrib.ldr
-	0 GHOST 1 71 -70.196 804.976 -165 -0.924 -0.383 0 -0.383 0.924 0 0 0 -1 32123a.dat
-	0 GHOST 1 71 -218.11 743.75 -165 -0.707 -0.707 0 -0.707 0.707 0 0 0 -1 32123a.dat
-	0 GHOST 1 4 -70.196 804.976 -95 1.00023 0.000246369 0 0 0 -1 -0.000246369 1.00023 0 arrow88.dat
-	0 !LPUB PART END
-	0 ROTSTEP 0 75 0 ABS
-	0 BUFEXCHG B RETRIEVE
-	0 !LPUB PLI CONSTRAIN LOCAL HEIGHT 3.51333
-	1 0 -378.303 402.398 -50 0 1 0 -1 0 0 0 0 1 3460.dat
-	1 0 -378.303 402.398 50 0 1 0 -1 0 0 0 0 1 3460.dat
-	0 STEP
--Fix: LDView single call render crash on multi-step page generation (763)
- *Crash if multi-step page's steps contain more than PLI and CSI components. Corrected.
+ Example 1: No unbuffered parts in step 1, render buffered skeleton with arrow in step 1 but render only modelled skeleton faded and the current parts in step 2 
+	0 !LPUB ASSEM MODEL_SCALE LOCAL  0.6500 
+	0 BUFEXCHG A STORE 
+	0 GHOST 1 0 201.2 -844.25 0 1 0 0 0 1 0 0 0 1 skeleton.ldr 
+	0 BUFEXCHG B STORE 
+	0 BUFEXCHG A RETRIEVE 
+	0 !LPUB PART BEGIN IGN 
+	0 GHOST 1 0 201.2 -960.25 0 1 0 0 0 1 0 0 0 1 skeleton.ldr 
+	0 GHOST 1 4 -131.2 -216.25 -70 -1 0 0 0 1 0 0 0 -1 arrow88.dat 
+	0 !LPUB PART  END 
+	0 STEP 
+	0 !LPUB PLI CONSTRAIN LOCAL HEIGHT 5.67 
+	0 !LPUB PLI PLACEMENT LOCAL LEFT PAGE INSIDE 0.0115693 -0.118771 
+	0 BUFEXCHG B RETRIEVE 
+	1 0 -130 -232 -70 -1 0 0 0 1 0 0 0 -1 3069b.dat 
+	1 0 -130 -232 70 -1 0 0 0 1 0 0 0 -1 3069b.dat 
+	0 STEP 
+ 
+ Example 2: Unbuffered (modelled) parts in step 1, render hobspine, crossbrace, and outerrib with arrow (buffered) in step 1 but exclude arrow and show faded, step 1 modelled parts plus current parts in step 2. Step 1 terminates with ROTSTEP 
+	0 GHOST 1 0 0 0 0 1 0 0 0 1 0 0 0 1 hobspine.ldr 
+	0 !LPUB CALLOUT BEGIN 
+	0 !LPUB CALLOUT POINTER BOTTOM_LEFT 0.608 0.763 0 
+	1 0 0 0 0 1 0 0 0 1 0 0 0 1 crossbrace.ldr 
+	0 !LPUB CALLOUT PLACEMENT RIGHT ASSEM INSIDE 0.41159 0.062474 
+	0 !LPUB CALLOUT END 
+	0 BUFEXCHG A STORE 
+	1 0 0 0 -40 1 0 0 0 1 0 0 0 1 outerrib.ldr 
+	1 71 -70.196 804.976 -55 -0.924 -0.383 0 -0.383 0.924 0 0 0 -1 32123a.dat 
+	1 71 -218.11 743.75 -55 -0.707 -0.707 0 -0.707 0.707 0 0 0 -1 32123a.dat 
+	0 BUFEXCHG B STORE 
+	0 BUFEXCHG A RETRIEVE 
+	0 !LPUB PART BEGIN IGN 
+	0 GHOST 1 0 0 0 -120 1 0 0 0 1 0 0 0 1 outerrib.ldr 
+	0 GHOST 1 71 -70.196 804.976 -165 -0.924 -0.383 0 -0.383 0.924 0 0 0 -1 32123a.dat 
+	0 GHOST 1 71 -218.11 743.75 -165 -0.707 -0.707 0 -0.707 0.707 0 0 0 -1 32123a.dat 
+	0 GHOST 1 4 -70.196 804.976 -95 1.00023 0.000246369 0 0 0 -1 -0.000246369 1.00023 0 arrow88.dat 
+	0 !LPUB PART END 
+	0 ROTSTEP 0 75 0 ABS 
+	0 BUFEXCHG B RETRIEVE 
+	0 !LPUB PLI CONSTRAIN LOCAL HEIGHT 3.51333 
+	1 0 -378.303 402.398 -50 0 1 0 -1 0 0 0 0 1 3460.dat 
+	1 0 -378.303 402.398 50 0 1 0 -1 0 0 0 0 1 3460.dat 
+	0 STEP 
+-Fix: LDView single call render crash on multi-step page generation (763) 
+ *Crash if multi-step page's steps contain more than PLI and CSI components. Corrected. 
 -Fix: Preference dialog version change log cleared on update check when there is no available update (r762) 
- *If no update available, ignore updating the change log dialog.
+ *If no update available, ignore updating the change log dialog. 
  
 LPub3D 2.0.6.761.3 
  
