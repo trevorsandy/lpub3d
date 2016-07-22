@@ -217,145 +217,6 @@ void Preferences::lpubPreferences()
     }
 }
 
-void Preferences::ldrawPreferences(bool force)
-{
-    emit Application::instance()->splashMsgSig("10% - Locate LDraw directory...");
-
-    QSettings Settings;
-    QString const ldrawKey("LDrawDir");
-
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,ldrawKey))) {
-        ldrawPath = Settings.value(QString("%1/%2").arg(SETTINGS,ldrawKey)).toString();
-    }
-
-    if (! ldrawPath.isEmpty() && ! force) {
-        QDir ldrawDir(ldrawPath);
-
-        if (ldrawDir.exists()) {
-            return;
-        } else {
-            ldrawPath.clear();
-            Settings.remove(QString("%1/%2").arg(SETTINGS,ldrawKey));
-        }
-    }
-
-    if (ldrawPath.isEmpty() && ! force) {
-
-        ldrawPath = "c:\\LDraw";
-        QDir guesses;
-        guesses.setPath(ldrawPath);
-        if ( ! guesses.exists()) {
-            ldrawPath = "c:\\Program Files (x86)\\LDraw";
-            guesses.setPath(ldrawPath);
-            if ( ! guesses.exists()) {
-
-                ldrawPath = QFileDialog::getExistingDirectory(NULL,
-                                                              QFileDialog::tr("Locate LDraw Directory"),
-                                                              "/",
-                                                              QFileDialog::ShowDirsOnly |
-                                                              QFileDialog::DontResolveSymlinks);
-            }
-        }
-    }
-
-    if (! ldrawPath.isEmpty() && force){
-
-        QString result = QFileDialog::getExistingDirectory(NULL,
-                                                           QFileDialog::tr("Select LDraw Directory"),
-                                                           ldrawPath,
-                                                           QFileDialog::ShowDirsOnly |
-                                                           QFileDialog::DontResolveSymlinks);
-
-        if (! result.isEmpty())
-            ldrawPath = QDir::toNativeSeparators(result);
-    }
-
-    if (! ldrawPath.isEmpty()) {
-
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawKey),ldrawPath);
-
-    } else {
-
-        // This is temporary
-        QString question = QMessageBox::tr("You must enter your LDraw directory. \nDo you wish to continue?");
-        if (QMessageBox::question(NULL, "LDraw3D", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
-            exit(-1);
-
-         /* // future feature start
-        if (! lpub3dLibFile.isEmpty()) {
-
-            QPixmap _icon = QPixmap(":/icons/lpub96.png");
-            QMessageBox box;
-            box.setWindowIcon(QIcon());
-            box.setIconPixmap (_icon);
-            box.setTextFormat (Qt::RichText);
-            box.setWindowTitle(QMessageBox::tr ("LDraw Directory"));
-            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-
-            QString header  = "<b>" + QMessageBox::tr ("Enter your LDraw directory to manage custom parts!") + "</b>";
-            QString body = QMessageBox::tr ("Would you like to create an LDraw directory and Unofficial subdirectory?");
-            QString detail = QMessageBox::tr ("You did not enter your LDraw directory.\n"
-                                 "It is not mandatory as %1 uses built-in LDraw archive libraries.\n"
-                                 "However you will need to define an Unofficial subdirectory under an "
-                                 "LDraw directory to store your custom unofficial parts if you wish to "
-                                 "use these parts in your instructions.");
-            box.setText (header);
-            box.setInformativeText (body);
-            box.setDetailedText(detail);
-            box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
-            box.setDefaultButton   (QMessageBox::Yes);
-
-            if (box.exec() == QMessageBox::Yes) {
-
-                emit Application::instance()->splashMsgSig("10% - Create LDraw unofficial directory...");
-
-                QDir libraryDir(QString("%1/%2").arg(lpubDataPath,"libraries/ldraw/unofficial"));
-
-                if(!QDir(libraryDir).exists()) {
-
-                    box.setStandardButtons (QMessageBox::Close);
-
-                    if (libraryDir.mkpath(".")) {
-                      QString unofficialPath = libraryDir.absolutePath();
-                      libraryDir.cdUp();
-                      ldrawPath = libraryDir.absolutePath();
-                      Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawKey),ldrawPath);
-
-                      header  = "<b>" + QMessageBox::tr ("LDraw directory structure created!") + "</b>";
-                      body = QMessageBox::tr("Unofficial directory '%1' created\nunder LDraw path '%2'")
-                                             .arg(unofficialPath,ldrawPath);
-                      box.setText(header);
-                      box.setInformativeText(body);
-
-                      box.exec();
-                    } else {
-
-                      header  = "<b>" + QMessageBox::tr ("Failed to create LDraw directory structure!") + "</b>";
-                      body = QMessageBox::tr("Unable to create folder structure \n'%1' !")
-                                             .arg(libraryDir.absolutePath());
-
-                      box.setText(header);
-                      box.setInformativeText(body);
-
-                      box.exec();
-                    }
-                }
-              //TODO set default renderer to 3D Viewer once enabled
-            }
-        } else {
-            header  = "<b>" + QMessageBox::tr ("You did not enter your LDraw directory!") + "</b>";
-            body = QMessageBox::tr("Also, no LDraw archive library has been selected.\n\n"
-                                   "Do you wish to continue?");
-            box.setText(header);
-            box.setInformativeText(body);
-
-          if (box.exec() != QMessageBox::Yes)
-            exit(-1);
-        }
-        // future feature end */
-    }
-}
-
 void Preferences::lpub3dLibPreferences(bool force)
 {
     emit Application::instance()->splashMsgSig("15% - Locate LDraw archive libraries...");
@@ -418,14 +279,14 @@ void Preferences::lpub3dLibPreferences(bool force)
         QString detail = QMessageBox::tr ("You must select or create your LDraw library archive files.\n"
                                           "The location of your official archive file (complete.zip) should "
                                           "also have the unofficial archive file (lpub3dldrawunf.zip).\n"
-                                          "LDraw library archive files can be copied or downloaded to your '%1/%2'/ folder now.")
+                                          "LDraw library archive files can be copied, downloaded or selected to your '%1/%2/' folder now.")
                                           .arg(lpubDataPath, "libraries");
         box.setText (header);
         box.setInformativeText (body);
         box.setDetailedText(detail);                                                                                                                                  
         QAbstractButton* copyButton = box.addButton(QMessageBox::tr("Copy"),QMessageBox::YesRole);
-        QAbstractButton* selectButton = box.addButton(QMessageBox::tr("Select"),QMessageBox::YesRole);
         QAbstractButton* downloadButton = box.addButton(QMessageBox::tr("Download"),QMessageBox::YesRole);
+        QAbstractButton* selectButton = box.addButton(QMessageBox::tr("Select"),QMessageBox::YesRole);
         box.setStandardButtons (QMessageBox::Cancel);
         box.exec();
 
@@ -522,6 +383,71 @@ void Preferences::lpub3dLibPreferences(bool force)
         else {
             exit(-1);
         }
+    }
+}
+
+void Preferences::ldrawPreferences(bool force)
+{
+    emit Application::instance()->splashMsgSig("10% - Locate LDraw directory...");
+
+    QSettings Settings;
+    QString const ldrawKey("LDrawDir");
+
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,ldrawKey))) {
+        ldrawPath = Settings.value(QString("%1/%2").arg(SETTINGS,ldrawKey)).toString();
+    }
+
+    if (! ldrawPath.isEmpty() && ! force) {
+        QDir ldrawDir(ldrawPath);
+
+        if (ldrawDir.exists()) {
+            return;
+        } else {
+            ldrawPath.clear();
+            Settings.remove(QString("%1/%2").arg(SETTINGS,ldrawKey));
+        }
+    }
+
+    if (ldrawPath.isEmpty() && ! force) {
+
+        ldrawPath = "c:\\LDraw";
+        QDir guesses;
+        guesses.setPath(ldrawPath);
+        if ( ! guesses.exists()) {
+            ldrawPath = "c:\\Program Files (x86)\\LDraw";
+            guesses.setPath(ldrawPath);
+            if ( ! guesses.exists()) {
+
+                ldrawPath = QFileDialog::getExistingDirectory(NULL,
+                                                              QFileDialog::tr("Locate LDraw Directory"),
+                                                              "/",
+                                                              QFileDialog::ShowDirsOnly |
+                                                              QFileDialog::DontResolveSymlinks);
+            }
+        }
+    }
+
+    if (! ldrawPath.isEmpty() && force){
+
+        QString result = QFileDialog::getExistingDirectory(NULL,
+                                                           QFileDialog::tr("Select LDraw Directory"),
+                                                           ldrawPath,
+                                                           QFileDialog::ShowDirsOnly |
+                                                           QFileDialog::DontResolveSymlinks);
+
+        if (! result.isEmpty())
+            ldrawPath = QDir::toNativeSeparators(result);
+    }
+
+    if (! ldrawPath.isEmpty()) {
+
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawKey),ldrawPath);
+
+    } else {
+
+        QString question = QMessageBox::tr("You must enter your LDraw directory. \nDo you wish to continue?");
+        if (QMessageBox::question(NULL, "LDraw3D", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+            exit(-1);
     }
 }
 
