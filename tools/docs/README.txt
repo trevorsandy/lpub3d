@@ -1,12 +1,13 @@
-LPub3D 2.0.7.766.3 
+LPub3D 2.0.7.769.3 
  
 Features and enhancements 
 ------------ 
--Digitally sign LPub3D executable distributions (r769)
- *Secure installation content and reduce the likelihood of triggering antivirus quarantine.
+-Fix: Archive library copy function not working if [empty] library directoy exist (r770)
+ *If user data libraries directory exist, library copy from installed base is ignored. This is an issue if there are no libraries in the library directory. The correct behaviour is to verify that libraries exist and copy if they don't.
+-Digitally sign LPub3D executable distributions (r769) 
+ *Secure installation content and reduce the likelihood of triggering antivirus quarantine. 
 -Fix: Inconsistent fade behaviour when using BUFEXCHG parts and added parts in the same step (r764) 
  *Behaviour previously used the size of the previous step's CSI to determine the fade position index of the current step in all cases. This approach could lead to an inconsistent fade position after retrieving a buffer. Behaviour corrected to use the size of the previous buffer parts list (versus the CSI) to determine the current step's fade position when BUFEXCHG RETRIEVE meta command is used. This approach removes the necessity to follow the BUFEXCHG RETRIEVE meta command with a STEP/ROTSTEP meta command to process the fade sequence which will unnecessarily render the buffered items twice, in the buffered view and the modelled view. Usually only the buffered view render is desired in the current step (that's why the assembly is buffered in the first place) but the modelled view CSI should be carried forward to the next step. Here are two examples: 
- 
  Example 1: No unbuffered parts in step 1, render buffered skeleton with arrow in step 1 but render only modelled skeleton faded and the current parts in step 2 
 	0 !LPUB ASSEM MODEL_SCALE LOCAL  0.6500 
 	0 BUFEXCHG A STORE 
@@ -24,7 +25,6 @@ Features and enhancements
 	1 0 -130 -232 -70 -1 0 0 0 1 0 0 0 -1 3069b.dat 
 	1 0 -130 -232 70 -1 0 0 0 1 0 0 0 -1 3069b.dat 
 	0 STEP 
- 
  Example 2: Unbuffered (modelled) parts in step 1, render hobspine, crossbrace, and outerrib with arrow (buffered) in step 1 but exclude arrow and show faded, step 1 modelled parts plus current parts in step 2. Step 1 terminates with ROTSTEP 
 	0 GHOST 1 0 0 0 0 1 0 0 0 1 0 0 0 1 hobspine.ldr 
 	0 !LPUB CALLOUT BEGIN 

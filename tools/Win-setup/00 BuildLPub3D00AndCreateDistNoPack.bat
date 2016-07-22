@@ -2,7 +2,7 @@
 Title Build and create manual and automatic LPub3D install distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 20, 2016
+rem  Last Update: July 22, 2016
 rem  Copyright (c) 2016 by Trevor Sandy
 rem --
 SETLOCAL
@@ -12,14 +12,14 @@ ECHO Build and create manual and automatic install distributions
 ECHO.
 
 SET RUN_NSIS=1
+SET SIGN_APP=1
+SET CREATE_PORTABLE=1
 SET /p RUN_NSIS= - Run NSIS: Type 1 to run, 0 to ignore or 'Enter' to accept default [%RUN_NSIS%]: 
 IF %RUN_NSIS% == 0 (
-	SET SIGN_APP=0 
-	SET CREATE_PORTABLE=0
+   SET SIGN_APP=0 
+   SET CREATE_PORTABLE=0
 	)
-IF %RUN_NSIS% == 1 (
-	SET SIGN_APP=1
-	SET CREATE_PORTABLE=1
+IF %RUN_NSIS% == 1 (	
 	SET /p SIGN_APP= - Code Signing: Type 1 to run, 0 to ignore or 'Enter' to accept default [%SIGN_APP%]: 
 	)
 SET CLEANUP=1
@@ -42,11 +42,11 @@ PAUSE >NUL
 
 ECHO.																					>>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 0 ECHO - This configuration will allow you to test your NSIS scripts.	>>  ..\release\LPub3D.Release.build.log.txt
-ECHO - Run Parameters:      			   								>>  ..\release\LPub3D.Release.build.log.txt
+ECHO   Run Parameters:      			   								>>  ..\release\LPub3D.Release.build.log.txt
 ECHO.
-ECHO  - RUN_NSIS=%RUN_NSIS%												>>  ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO  - SIGN_APP=%SIGN_APP%							>>  ..\release\LPub3D.Release.build.log.txt
-ECHO  - CLEANUP=%CLEANUP%												>>  ..\release\LPub3D.Release.build.log.txt
+ECHO   RUN_NSIS=%RUN_NSIS%												>>  ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO   SIGN_APP=%SIGN_APP%							>>  ..\release\LPub3D.Release.build.log.txt
+ECHO   CLEANUP=%CLEANUP%												>>  ..\release\LPub3D.Release.build.log.txt
 
 ECHO. 							                						>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 0 ECHO - Start NSIS test build process...      		>>  ..\release\LPub3D.Release.build.log.txt
@@ -102,11 +102,11 @@ ECHO - Environment check...
 
 IF %RUN_NSIS% == 0 GOTO MAIN
 
-IF EXIST "%NSISExe%" (
+IF EXIST %NSISExe% (
 	ECHO.
-    ECHO - NSIS executable at "%NSISExe%"
+    ECHO - NSIS executable at %NSISExe%
 	ECHO.												>>  ..\release\LPub3D.Release.build.log.txt
-    ECHO - NSIS executable at "%NSISExe%"				>>  ..\release\LPub3D.Release.build.log.txt
+    ECHO - NSIS executable at %NSISExe%				>>  ..\release\LPub3D.Release.build.log.txt
     GOTO SIGN
 ) 
 
@@ -122,19 +122,27 @@ GOTO MAIN
 :SIGN
 IF %SIGN_APP% == 0 GOTO CHK_ZIP
 
-IF EXIST "%SignToolExe%" (
+SET PwD=unknown
+SET CHK_ZIP_GO=0
+IF EXIST %SignToolExe% (
 	ECHO.
-    ECHO - Signtool executable at "%SignToolExe%"
+    ECHO - Signtool executable at %SignToolExe%
 	ECHO.												>>  ..\release\LPub3D.Release.build.log.txt
-    ECHO - Signtool executable at "%SignToolExe%"		>>  ..\release\LPub3D.Release.build.log.txt
+    ECHO - Signtool executable at %SignToolExe%			>>  ..\release\LPub3D.Release.build.log.txt
 	ECHO.
-	SET /p PwD= - Type your code signing password: 
-	ECHO.
-	ECHO - Code signing password is %PwD%				
-	ECHO.												>>  ..\release\LPub3D.Release.build.log.txt
-	ECHO - Code signing password captured.				>>  ..\release\LPub3D.Release.build.log.txt
-    GOTO CHK_ZIP
+	SET /p PwD= - Type your code signing password [%PwD%]: 
+	SET CHK_ZIP_GO=1
 ) 
+
+ECHO.												>>  ..\release\LPub3D.Release.build.log.txt
+ECHO - Code signing password captured.				>>  ..\release\LPub3D.Release.build.log.txt
+ECHO.  	
+ECHO - Password entered is %PwD%	
+ECHO.
+ECHO - Press Enter to continue.
+PAUSE >NUL
+
+IF %CHK_ZIP_GO% == 1 GOTO CHK_ZIP
 
 SET %SIGN_APP%=0
 ECHO.
@@ -180,7 +188,7 @@ IF EXIST "%zipExe%" (
 )
 
 IF NOT EXIST "%zipExe%" (
-	SET %CREATE_PORTABLE%=0
+	SET CREATE_PORTABLE=0
 	ECHO.
 	ECHO Could not find zip exectutable. Portable builds will be ignored.
 	ECHO.																		>>  ..\release\LPub3D.Release.build.log.txt
@@ -729,11 +737,11 @@ ECHO - Finished copying content to media folder...
 IF %RUN_NSIS% == 1 ECHO. 								        	>>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO - Start NSIS Master Update MinGW Build...  	>>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO.
-IF %RUN_NSIS% == 1 ECHO - Start NSIS Master Update MinGW  Build...
+IF %RUN_NSIS% == 1 ECHO - Start NSIS Master Update MinGW Build...
 
-IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Update MinGW  Build... >>  ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Update MinGW Build... >>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 0 ECHO.
-IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Update MinGW  Build...
+IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Update MinGW Build...
 
 IF %RUN_NSIS% == 1 %NSISExe% /DUpdateMaster LPub3DMinGWNoPack.nsi 		>> ..\release\LPub3D.Release.build.log.txt
 
@@ -759,13 +767,13 @@ IF %RUN_NSIS% == 1 ECHO.
 IF %RUN_NSIS% == 1 ECHO - Finished NSIS Master Update  Build...
 
 ECHO. 									   								>>  ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO - Start NSIS Manual Install MinGW  Build... 	>>  ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO - Start NSIS Manual Install MinGW Build... 	>>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO.
-IF %RUN_NSIS% == 1 ECHO - Start NSIS Manual Install MinGW  Build...
+IF %RUN_NSIS% == 1 ECHO - Start NSIS Manual Install MinGW Build...
 
-IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Manual Install MinGW  Build... 	>>  ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Manual Install MinGW Build... 	>>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 0 ECHO.
-IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Manual Install MinGW  Build...
+IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Manual Install MinGW Build...
 
 IF %RUN_NSIS% == 1 COPY /V /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe ..\release\%DOWNLOADPRODUCT%_MinGW_x32.exe  						>>  ../release/LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 COPY /V /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe ..\release\%PRODUCT%-UpdateMaster_MinGW_x32.exe  					>>  ../release/LPub3D.Release.build.log.txt

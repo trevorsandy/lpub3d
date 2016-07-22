@@ -199,22 +199,35 @@ void Preferences::lpubPreferences()
 
     qDebug() << "LPub3D data path: " << lpubDataPath;
 
+    emit Application::instance()->splashMsgSig("5% - Initialize extras directory...");
     QDir extrasDir(lpubDataPath + "/extras");
-    if(!QDir(extrasDir).exists()){
-        emit Application::instance()->splashMsgSig("5% - Initialize extras directory...");
+    if(!QDir(extrasDir).exists())
         extrasDir.mkpath(".");
 
-        QString location = QString("%1").arg((portableDistribution ? "/extras/" : "/data/"));
+    QString location = QString("%1").arg((portableDistribution ? "/extras/" : "/data/"));
 
-        QFile::copy(lpub3dPath + location + VER_FADESTEP_COLORPARTS_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_FADESTEP_COLORPARTS_FILE));
-        QFile::copy(lpub3dPath + location + VER_FREEFOM_ANNOTATIONS_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_FREEFOM_ANNOTATIONS_FILE));
-        QFile::copy(lpub3dPath + location + VER_EXTRAS_LDCONFIG_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_EXTRAS_LDCONFIG_FILE));
-        QFile::copy(lpub3dPath + location + VER_PDFPRINT_IMAGE_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_PDFPRINT_IMAGE_FILE));
-        QFile::copy(lpub3dPath + location + VER_PLI_MPD_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_PLI_MPD_FILE));
-        QFile::copy(lpub3dPath + location + VER_PLI_SUBSTITUTE_PARTS_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_PLI_SUBSTITUTE_PARTS_FILE));
-        QFile::copy(lpub3dPath + location + VER_TITLE_ANNOTATIONS_FILE, QString("%1/%2").arg(extrasDir.absolutePath(), VER_TITLE_ANNOTATIONS_FILE));
-
-    }
+    QFileInfo paramFile;
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_FADESTEP_COLORPARTS_FILE));
+    if (!paramFile.exists())
+        QFile::copy(lpub3dPath + location + paramFile.fileName(), paramFile.absoluteFilePath());
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_FREEFOM_ANNOTATIONS_FILE));
+    if (!paramFile.exists())
+        QFile::copy(lpub3dPath + location + paramFile.fileName(), paramFile.absoluteFilePath());
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_EXTRAS_LDCONFIG_FILE));
+    if (!paramFile.exists())
+        QFile::copy(lpub3dPath + location + paramFile.fileName(), paramFile.absoluteFilePath());
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_PDFPRINT_IMAGE_FILE));
+    if (!paramFile.exists())
+        QFile::copy(lpub3dPath + location + paramFile.fileName(), paramFile.absoluteFilePath());
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_PLI_MPD_FILE));
+    if (!paramFile.exists())
+        QFile::copy(lpub3dPath + location + paramFile.fileName(), paramFile.absoluteFilePath());
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_PLI_SUBSTITUTE_PARTS_FILE));
+    if (!paramFile.exists())
+        QFile::copy(lpub3dPath + location + paramFile.fileName(), paramFile.absoluteFilePath());
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_TITLE_ANNOTATIONS_FILE));
+    if (!paramFile.exists())
+        QFile::copy(lpub3dPath + location + paramFile.fileName(), paramFile.absoluteFilePath());
 }
 
 void Preferences::lpub3dLibPreferences(bool force)
@@ -294,17 +307,21 @@ void Preferences::lpub3dLibPreferences(bool force)
             emit Application::instance()->splashMsgSig("15% - Copying archive libraries...");
 
             QDir libraryDir(QString("%1/%2").arg(lpubDataPath, "libraries"));
-            if (!QDir(libraryDir).exists()){
+            if (!QDir(libraryDir).exists())
                 libraryDir.mkpath(".");
 
-                QString location = QString("%1").arg((portableDistribution ? "/libraries/" : "/data/"));
+            QString location = QString("%1").arg((portableDistribution ? "/libraries/" : "/data/"));
 
-                QFile::copy(lpub3dPath + location + VER_LDRAW_OFFICIAL_ARCHIVE, QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_OFFICIAL_ARCHIVE));
-                QFile::copy(lpub3dPath + location + VER_LPUB3D_UNOFFICIAL_ARCHIVE, QString("%1/%2").arg(libraryDir.absolutePath(), VER_LPUB3D_UNOFFICIAL_ARCHIVE));
+            validFile.setFile(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_OFFICIAL_ARCHIVE));
+            if (!validFile.exists())
+                QFile::copy(lpub3dPath + location + validFile.fileName(), validFile.absoluteFilePath());
 
-                lpub3dLibFile = QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_OFFICIAL_ARCHIVE);
-                Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
-            }
+            lpub3dLibFile = validFile.absoluteFilePath();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
+
+            validFile.setFile(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LPUB3D_UNOFFICIAL_ARCHIVE));
+            if (!validFile.exists())
+                QFile::copy(lpub3dPath + location + validFile.fileName(), validFile.absoluteFilePath());
 
         } else
           if (box.clickedButton()==selectButton) {
@@ -384,6 +401,9 @@ void Preferences::lpub3dLibPreferences(bool force)
             exit(-1);
         }
     }
+
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,LPub3DLibKey)))
+        lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, Settings.value(QString("%1/%2").arg(SETTINGS,LPub3DLibKey)).toString());
 }
 
 void Preferences::ldrawPreferences(bool force)
@@ -897,8 +917,6 @@ void Preferences::viewerPreferences()
         lcSetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME, Settings.value(QString("%1/%2").arg(DEFAULTS,"Author")).toString());
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"ProjectsPath")))
         lcSetProfileString(LC_PROFILE_PROJECTS_PATH, Settings.value(QString("%1/%2").arg(SETTINGS,"ProjectsPath")).toString());
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,"PartsLibrary")))
-        lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, Settings.value(QString("%1/%2").arg(SETTINGS,"PartsLibrary")).toString());
     if (Settings.contains(QString("%1/%2").arg(POVRAY,"POVRayPath")))
         lcSetProfileString(LC_PROFILE_POVRAY_PATH, Settings.value(QString("%1/%2").arg(POVRAY,"POVRayPath")).toString());
     if (Settings.contains(QString("%1/%2").arg(POVRAY,"LGEOPath")))
