@@ -1,4 +1,5 @@
 ;LPub3D Setup Script
+;Last Update: August 01, 2016
 ;Copyright (C) 2016 by Trevor Sandy
 
 ;--------------------------------
@@ -362,6 +363,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	  
 	 ${If} $OverwriteUserDataParamFiles == 0
 	  SetOverwrite off
+	  !insertmacro BackupFile "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppData}\extras" "fadeStepColorParts.${MyTIMESTAMP}.bak"
 	  File "..\..\mainApp\extras\LDConfig.ldr"
 	  File "..\..\mainApp\extras\titleAnnotations.lst"
 	  File "..\..\mainApp\extras\freeformAnnotations.lst"

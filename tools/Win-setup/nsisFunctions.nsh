@@ -1,4 +1,5 @@
 ;LPub3D Setup Script - Utility Functions and Macros
+;Last Update: August 01, 2016
 ;Copyright (C) 2016 by Trevor Sandy
 
 ;--------------------------------
@@ -26,6 +27,49 @@
 	StrCmp $_LOGICLIB_TEMP "1" `${_t}` `${_f}`
 !macroend
 !define DirExists `"" DirExists`
+;--------------------------------
+; Backup and Restore Files Macros
+; Note: To use below macros, included this file 'nsisFunctions' to your .nsi file.
+; examples:!include "nsisFunctions.nsh"
+
+; Usage:
+; !insertmacro BackupFile "Dir with file in it" "File" "Backup to"
+; !insertmacro RestoreFile "Backup dir with file in it" "File" "Restore to"
+
+; Examples:
+; Section "Install Files"
+; #Backup old copy
+; !insertmacro BackupFile "$INSTDIR" "blah1.nsi" "$INSTDIR\nsi-backup"
+; #Install new copy
+;  File "/oname=$INSTDIR" "blah1.nsi"
+; SectionEnd
+ 
+; Section "Uninstall"
+; #Remove installed copy
+;  Delete "$INSTDIR\blah1.nsi"
+; #Restore old copy
+; !insertmacro RestoreFile "$INSTDIR\nsi-backup" "blah1.nsi" "$INSTDIR"
+; SectionEnd
+
+!macro BackupFile FILE_DIR FILE BACKUP_TO
+ IfFileExists "${BACKUP_TO}\*.*" +2
+  CreateDirectory "${BACKUP_TO}"
+ IfFileExists "${FILE_DIR}\${FILE}" 0 +2
+  Rename "${FILE_DIR}\${FILE}" "${BACKUP_TO}\${FILE}"
+!macroend
+
+!macro RestoreFile BUP_DIR FILE RESTORE_TO
+ IfFileExists "${BUP_DIR}\${FILE}" 0 +2
+  Rename "${BUP_DIR}\${FILE}" "${RESTORE_TO}\${FILE}"
+!macroend
+
+;--------------------------------
+; Date and time stamp
+; Examples
+; Name "MyApplicationName ${MyTIMESTAMP}"
+; OutFile "MyApplicationNameSetup-${MyTIMESTAMP}.exe"
+
+!define /date MyTIMESTAMP "%Y-%m-%d-%H-%M-%S"
 
 ;--------------------------------
 ; StrContains

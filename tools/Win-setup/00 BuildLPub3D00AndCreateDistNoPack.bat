@@ -2,7 +2,7 @@
 Title Build and create manual and automatic LPub3D install distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 22, 2016
+rem  Last Update: August 01, 2016
 rem  Copyright (c) 2016 by Trevor Sandy
 rem --
 SETLOCAL
@@ -876,9 +876,9 @@ IF %SIGN_APP% == 0 ECHO - Ignore Application Code Signing Build... 				>>  ..\re
 IF %SIGN_APP% == 0 ECHO.
 IF %SIGN_APP% == 0 ECHO - Ignore Application Code Signing Build...
 
-rem IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%WIN32MINGWPRODUCTDIR%.zip 	>>  ../release/LPub3D.Release.build.log.txt
-rem IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%WIN32PRODUCTDIR%.zip			>>  ../release/LPub3D.Release.build.log.txt
-rem IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%WIN64PRODUCTDIR%.zip			>>  ../release/LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%WIN32MINGWPRODUCTDIR%.zip 					>>  ../release/LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%WIN32PRODUCTDIR%.zip							>>  ../release/LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%WIN64PRODUCTDIR%.zip							>>  ../release/LPub3D.Release.build.log.txt
 
 IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%DOWNLOADPRODUCT%_MinGW_x32.exe				>>  ../release/LPub3D.Release.build.log.txt
 IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe  	>>  ../release/LPub3D.Release.build.log.txt
@@ -888,12 +888,16 @@ IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %
 IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_%VERSION%.exe            	>>  ../release/LPub3D.Release.build.log.txt
 IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster.exe                      	>>  ../release/LPub3D.Release.build.log.txt
 
-ECHO. 									   										>>  ..\release\LPub3D.Release.build.log.txt
-IF %SIGN_APP% == 1 ECHO - Generating hash checksum listing... 					>>  ..\release\LPub3D.Release.build.log.txt
+ECHO. 									   											>>  ..\release\LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 ECHO - Generating hash checksum listing... 						>>  ..\release\LPub3D.Release.build.log.txt
 IF %SIGN_APP% == 1 ECHO.
 IF %SIGN_APP% == 1 ECHO - Generating hash checksum listing...
 
-IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Download\%DOWNLOADPRODUCT%_MinGW_x32.exe	SHA256				>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
+IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Download\%WIN32MINGWPRODUCTDIR%.zip SHA256					>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
+IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Download\%WIN32PRODUCTDIR%.zip SHA256						>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
+IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Download\%WIN64PRODUCTDIR%.zip SHA256						>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
+
+IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Download\%DOWNLOADPRODUCT%_MinGW_x32.exe	SHA256				>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
 IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe SHA256 >>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
 IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_MinGW_x32.exe SHA256 			>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
                                       
