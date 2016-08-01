@@ -25,7 +25,7 @@ UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
     DEFS_URL        = "";
     m_latestVersion = "";
     m_changeLog     = "";
-    m_option = (int)data;
+    m_option = (intptr_t)data;
 
     m_updater = QSimpleUpdater::getInstance();
 
