@@ -69,6 +69,14 @@ static double pi = 4*atan(1.0);
 // the default camera distance for real size
 static float LduDistance = 10.0/tan(0.005*pi/180);
 
+// renderer timeout in milliseconds
+int rendererTimeout(){
+    if (Preferences::rendererTimeout == -1)
+        return -1;
+    else
+        return Preferences::rendererTimeout*60*1000;
+}
+
 QString fixupDirname(const QString &dirNameIn) {
 #ifdef __APPLE__
 	return dirNameIn;
@@ -333,7 +341,7 @@ int L3P::renderCsi(const QString     &addLine,
 	l3p.setStandardOutputFile(QDir::currentPath() + "/stdout");
 	qDebug() << qPrintable(Preferences::l3pExe + " " + arguments.join(" ")) << "\n";
 	l3p.start(Preferences::l3pExe,arguments);
-	if ( ! l3p.waitForFinished(6*60*1000)) {
+    if ( ! l3p.waitForFinished(rendererTimeout())) {
 		if (l3p.exitCode() != 0) {
 			QByteArray status = l3p.readAll();
 			QString str;
@@ -383,7 +391,7 @@ int L3P::renderCsi(const QString     &addLine,
 	povray.setStandardOutputFile(QDir::currentPath() + "/stdout-povray");
 	qDebug() << qPrintable(Preferences::povrayExe + " " + povArguments.join(" ")) << "\n";
 	povray.start(Preferences::povrayExe,povArguments);
-	if ( ! povray.waitForFinished(6*60*1000)) {
+    if ( ! povray.waitForFinished(rendererTimeout())) {
 		if (povray.exitCode() != 0) {
 			QByteArray status = povray.readAll();
 			QString str;
@@ -460,7 +468,7 @@ int L3P::renderPli(const QString &ldrName,
 	l3p.setStandardOutputFile(QDir::currentPath() + "/stdout");
 	qDebug() << qPrintable(Preferences::l3pExe + " " + arguments.join(" ")) << "\n";
 	l3p.start(Preferences::l3pExe,arguments);
-	if (! l3p.waitForFinished()) {
+    if (! l3p.waitForFinished()) {
 		if (l3p.exitCode()) {
 			QByteArray status = l3p.readAll();
 			QString str;
@@ -510,7 +518,7 @@ int L3P::renderPli(const QString &ldrName,
 	povray.setStandardOutputFile(QDir::currentPath() + "/stdout-povray");
 	qDebug() << qPrintable(Preferences::povrayExe + " " + povArguments.join(" ")) << "\n";
 	povray.start(Preferences::povrayExe,povArguments);
-	if ( ! povray.waitForFinished(6*60*1000)) {
+    if ( ! povray.waitForFinished(rendererTimeout())) {
 		if (povray.exitCode() != 0) {
 			QByteArray status = povray.readAll();
 			QString str;
@@ -617,7 +625,7 @@ int LDGLite::renderCsi(
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout");
   ldglite.start(Preferences::ldgliteExe,arguments);
-  if ( ! ldglite.waitForFinished(6*60*1000)) {
+  if ( ! ldglite.waitForFinished(rendererTimeout())) {
     if (ldglite.exitCode() != 0) {
       QByteArray status = ldglite.readAll();
       QString str;
@@ -807,7 +815,7 @@ int LDView::renderCsi(
   ldview.setWorkingDirectory(QDir::currentPath()+"/"+Paths::tmpDir);
   ldview.start(Preferences::ldviewExe,arguments);
 
-  if ( ! ldview.waitForFinished(6*60*1000)) {
+  if ( ! ldview.waitForFinished(rendererTimeout())) {
     if (ldview.exitCode() != 0 || 1) {
       QByteArray status = ldview.readAll();
       QString str;
@@ -904,6 +912,8 @@ int Render::renderLDViewSCallCsi(
         Meta        &meta)
 {
 
+  //logInfo() << "LDView SC CSI Renderer Timeout:" << rendererTimeout();
+
   int width = meta.LPub.page.size.valuePixels(0);
   int height = meta.LPub.page.size.valuePixels(1);
 
@@ -946,7 +956,7 @@ int Render::renderLDViewSCallCsi(
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath()+"/"+Paths::tmpDir);
   ldview.start(Preferences::ldviewExe,arguments);  
-  if ( ! ldview.waitForFinished(6*60*1000)) {
+  if ( ! ldview.waitForFinished(rendererTimeout())) {
     if (ldview.exitCode() != 0 || 1) {
       QByteArray status = ldview.readAll();
       QString str;
@@ -986,6 +996,8 @@ int Render::renderLDViewSCallPli(
   Meta    &meta,
   bool     bom)
 {
+
+  //logInfo() << "LDView SC PLI Renderer Timeout:" << rendererTimeout();
 
   PliMeta &pliMeta = bom ? meta.LPub.bom : meta.LPub.pli;
 
@@ -1034,7 +1046,7 @@ int Render::renderLDViewSCallPli(
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath());
   ldview.start(Preferences::ldviewExe,arguments);  
-  if ( ! ldview.waitForFinished()) {
+  if ( ! ldview.waitForFinished(rendererTimeout())) {
       if (ldview.exitCode() != 0) {
           QByteArray status = ldview.readAll();
           QString str;

@@ -66,6 +66,7 @@ class PreferencesDialog : public QDialog
     bool          enableDownloader();
     bool          showAllNotifications();
     int           checkUpdateFrequency();
+    int           rendererTimeout();
 
   public slots:
     void accept();

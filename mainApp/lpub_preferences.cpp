@@ -101,6 +101,7 @@ int     Preferences::checkUpdateFrequency       = 2;        //0=Never,1=Daily,2=
 
 int     Preferences::pageHeight                 = 800;
 int     Preferences::pageWidth                  = 600;
+int     Preferences::rendererTimeout            = 6;        // measured in seconds
 
 Preferences::Preferences()
 {
@@ -685,6 +686,15 @@ void Preferences::renderPreferences()
     } else {
         useLDViewSingleCall = false;
     }
+
+    //Renderer Timeout
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererTimeout"))) {
+        rendererTimeout = 6;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"RendererTimeout"),rendererTimeout);
+    } else {
+        rendererTimeout = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererTimeout")).toInt();
+    }
+
 }
 
 void Preferences::pliPreferences()
@@ -1030,6 +1040,11 @@ bool Preferences::getPreferences()
             } else {
                 Settings.remove(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"));
             }
+        }
+
+        if (rendererTimeout != dialog->rendererTimeout()) {
+            rendererTimeout = dialog->rendererTimeout();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"RendererTimeout"),rendererTimeout);
         }
 
         if (documentLogoFile != dialog->documentLogoFile()) {

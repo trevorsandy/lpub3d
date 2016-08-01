@@ -88,6 +88,7 @@ class Preferences
     static int     checkUpdateFrequency;
     static int     pageWidth;
     static int     pageHeight;
+    static int     rendererTimeout;
 
     virtual ~Preferences() {}
 };

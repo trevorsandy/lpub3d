@@ -72,6 +72,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.showUpdateNotifications_Chk->setChecked(       Preferences::showUpdateNotifications);
   ui.showAllNotificstions_Chk->setChecked(          Preferences::showAllNotifications);
   ui.checkUpdateFrequency_Combo->setCurrentIndex(   Preferences::checkUpdateFrequency);
+  ui.rendererTimeout->setValue(                     Preferences::rendererTimeout);
 
   //search directories
   QPalette palette;
@@ -538,6 +539,11 @@ bool PreferencesDialog::showAllNotifications()
 int PreferencesDialog::checkUpdateFrequency()
 {
   return ui.checkUpdateFrequency_Combo->currentIndex();
+}
+
+int PreferencesDialog::rendererTimeout()
+{
+  return ui.rendererTimeout->value();
 }
 
 QStringList const PreferencesDialog::searchDirSettings()
