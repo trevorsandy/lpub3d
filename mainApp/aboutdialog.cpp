@@ -125,7 +125,7 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
                                "</table>");
     QString BuildInfo = BuildInfoFormat.arg(QString::fromLatin1(VER_COMPILED_ON))
                                        .arg(QString::fromLatin1(VER_COMPILED_FOR))
-                                       .arg(QString::fromLatin1(VER_COMPILED_WITH))
+                                       .arg(QString::fromLatin1(VER_COMPILED_WITH).replace("qtver",qVersion()))
                                        .arg(QString("Qt %1").arg(qVersion()))
                                        .arg(QString::fromLatin1(VER_IDE))
                                        .arg(tr("%1 - Revision %2").arg(QString::fromLatin1(LC_VERSION_TEXT))
