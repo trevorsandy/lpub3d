@@ -34,6 +34,7 @@ public:
   static bool Archive(
       const QString &zipArchive,
       const QDir &dir,
+            QString &result,
       const QString &comment);
 
     static void RecurseAddDir(
