@@ -2,6 +2,8 @@ LPub3D 2.0.8.773.5
  
 Features and enhancements 
 ------------
+-Fix: Log all status entries (r779)
+ *Capture all status bar updates to the log files. Increase log file size to 5Mb rotating across 5 files. Log files located at <user>/AppData/Local/LPub3D Software/LPub3D/logs 
 -Fix: Backup parameter files during install (r778)
  *Backup user-editable parameter files that must be overwritten during installation of updates. This way, any additions created by the user will not be lost. However, it will be necessary to manually update the new parameter file with your additions.
 -Fix: Refactor fade step behaviour (r777)

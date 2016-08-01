@@ -9,7 +9,7 @@
 #undef logNotice
 #undef logDebug
 #undef logInfo
-#undef logWarn
+#undef logStatus
 #undef logError
 #undef logFatal
 
@@ -17,7 +17,7 @@
 #define logNotice() if (1) {} else qDebug()
 #define logDebug()  if (1) {} else qDebug()
 #define logInfo()  if (1) {} else qDebug()
-#define logWarn()  if (1) {} else qDebug()
+#define logStatus()  if (1) {} else qDebug()
 #define logError() if (1) {} else qDebug()
 #define logFatal() if (1) {} else qDebug()
 

@@ -35,7 +35,7 @@ enum Level
     NoticeLevel,
     DebugLevel,
     InfoLevel,
-    WarnLevel,
+    StatusLevel,
     ErrorLevel,
     FatalLevel,
     OffLevel

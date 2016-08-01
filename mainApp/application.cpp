@@ -168,7 +168,7 @@ void Application::initialize(int &argc, char **argv)
 
   // Create log destinations
   DestinationPtr fileDestination(DestinationFactory::MakeFileDestination(
-    sLogPath, EnableLogRotation, MaxSizeBytes(512), MaxOldLogCount(2)));
+    sLogPath, EnableLogRotation, MaxSizeBytes(5000000), MaxOldLogCount(5)));
   DestinationPtr debugDestination(
         DestinationFactory::MakeDebugOutputDestination());
 
@@ -184,7 +184,7 @@ void Application::initialize(int &argc, char **argv)
       logNotice() << "Here's a" << QString("Notice") << "message";
       logTrace()  << "Here's a" << QString("trace") << "message";
       logDebug()  << "Here's a" << static_cast<int>(QsLogging::DebugLevel) << "message";
-      logWarn()   << "Uh-oh!";
+      logStatus()   << "Uh-oh! - this level is not displayed in the console only the log";
       qDebug()    << "This message won't be picked up by the logger";
       logError()  << "An error has occurred";
       qWarning()  << "Neither will this one";

@@ -2133,7 +2133,7 @@ Rc MetaItem::scanBackward(
     QString line = gui->readLine(here);
     QStringList tokens;
 
-    logWarn() << "\n==SCAN BACKWARD READLINE==: "
+    logNotice() << "\n==SCAN BACKWARD READLINE==: "
               << " \nMask:StepRc = (1 << StepRc)|(1 << RotStepRc): "  << mask
               << " \nHere LINE:          " << here.lineNumber
               << " \nHere Model:         " << here.modelName
@@ -2145,7 +2145,7 @@ Rc MetaItem::scanBackward(
     if (isHeader(line)) {
       scanPastGlobal(here);
 
-      logWarn() << "\nIN SCAN BACKWARD AT HEADER: "
+      logNotice() << "\nIN SCAN BACKWARD AT HEADER: "
                 << " \nScanPastGlobal"
                 << " \nRETURN EndOfFileRc at line:"  << here.lineNumber
                    ;
@@ -2162,23 +2162,23 @@ Rc MetaItem::scanBackward(
       Rc rc = tmpMeta.parse(line,here);
 
       if (rc == InsertPageRc /*&& ((mask >> rc) & 1)*/) {
-          logWarn() << "\nIN SCAN BACKWARD AT INSERT PAGE: "
+          logNotice() << "\nIN SCAN BACKWARD AT INSERT PAGE: "
                     << " \nRETURN InsertRc at Line:"  << here.lineNumber
                        ;
          return rc;
 
       } else if (rc == InsertCoverPageRc /* && ((mask >> rc) & 1)*/) {
-          logWarn() << "\nIN SCAN BACKWARD AT INSERT COVER PAGE: "
+          logNotice() << "\nIN SCAN BACKWARD AT INSERT COVER PAGE: "
                     << " \nRETURN InsertRc at Line:"  << here.lineNumber
                        ;
          return rc;
 
       } else if (rc == StepRc || rc == RotStepRc) {
-          logWarn() << "\nIN SCAN BACKWARD AT STEP: "
+          logNotice() << "\nIN SCAN BACKWARD AT STEP: "
                     << " \nRc == StepRc || RotStep at Line:"  << here.lineNumber
                        ;
           if (((mask >> rc) & 1) && partsAdded) {
-              logWarn() << "\nIN SCAN BACKWARD AT STEP WITH PARTS: "
+              logNotice() << "\nIN SCAN BACKWARD AT STEP WITH PARTS: "
                         << " \nParts Added: " << partsAdded
                         << " \nRETURN StepRc|RotStepRc at Line:"  << here.lineNumber
                          ;
@@ -2186,7 +2186,7 @@ Rc MetaItem::scanBackward(
          }
         partsAdded = false;
       } else if (rc < ClearRc && ((mask >> rc) & 1)) {
-          logWarn() << "\nIN SCAN BACKWARD AT CLEAR: "
+          logNotice() << "\nIN SCAN BACKWARD AT CLEAR: "
                      << " \nRETURN ClearRc at Line:"  << here.lineNumber
                        ;
         return rc;

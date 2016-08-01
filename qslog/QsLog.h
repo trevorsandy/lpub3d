@@ -49,7 +49,7 @@
 #define QS_LOG_LCYAN      "\033[22;36m"
 #define QS_LOG_MAGENTA    "\033[22;35m"
 #define QS_LOG_LMAGENTA   "\033[01;35m"
-#define QS_LOG_NC 	  "\033[0m"
+#define QS_LOG_NC         "\033[0m"
 #define QS_LOG_BOLD       "\033[1m"
 #define QS_LOG_ULINE      "\033[4m"    //underline
 #define QS_LOG_BLINK      "\033[5m"
@@ -158,9 +158,9 @@ private:
    if( QsLogging::Logger::instance().loggingLevel() > QsLogging::InfoLevel ){} \
    else QsLogging::Logger::Helper(QsLogging::InfoLevel).stream() \
       << __FILE__ << '|' << Q_FUNC_INFO << '|' << __LINE__ << QS_LOG_SPLIT
-#define logWarn()  \
-   if( QsLogging::Logger::instance().loggingLevel() > QsLogging::WarnLevel ){} \
-   else QsLogging::Logger::Helper(QsLogging::WarnLevel).stream() \
+#define logStatus()  \
+   if( QsLogging::Logger::instance().loggingLevel() > QsLogging::StatusLevel ){} \
+   else QsLogging::Logger::Helper(QsLogging::StatusLevel).stream() \
       << __FILE__ << '|' << Q_FUNC_INFO << '|' << __LINE__ << QS_LOG_SPLIT
 #define logError() \
    if( QsLogging::Logger::instance().loggingLevel() > QsLogging::ErrorLevel ){} \

@@ -718,7 +718,7 @@ void PartWorker::remove(const QString &fileNameStr)
 
     _colourParts.erase(i);
     _partList.removeAll(fileNameStr.toLower());
-    //logWarn() << "REMOVE COLOUR PART: " << fileNameStr.toLower() << " from contents and _partList";
+    //logNotice() << "REMOVE COLOUR PART: " << fileNameStr.toLower() << " from contents and _partList";
   }
 }
 
@@ -1087,7 +1087,7 @@ void ColourPartListWorker::processFileContents(const QString &libFileName, const
         _fadeStepColourParts  << fileEntry.toLower();
         if (fileName.size() > _colWidthFileName)
             _colWidthFileName = fileName.size();
-        //logWarn() << "ADD COLOUR PART: " << fileName << " libFileName: " << libFileName << " Colour: " << colour;
+        //logNotice() << "ADD COLOUR PART: " << fileName << " libFileName: " << libFileName << " Colour: " << colour;
     }
 }
 
@@ -1230,7 +1230,7 @@ void ColourPartListWorker::remove(const QString &fileNameStr)
     if (i != _colourParts.end()) {
         _colourParts.erase(i);
         _partList.removeAll(fileNameStr.toLower());
-        //logWarn() << "REMOVE COLOUR PART: " << fileNameStr.toLower() << " from contents and _partList";
+        //logNotice() << "REMOVE COLOUR PART: " << fileNameStr.toLower() << " from contents and _partList";
     }
 }
 

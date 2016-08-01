@@ -610,6 +610,7 @@ public slots:
       }else{
           QMessageBox::warning(this,tr("LPub3D"),tr(message.toLatin1()));
       }
+      logStatus() << message;
   }
 
   void statusBarMsg(QString msg);

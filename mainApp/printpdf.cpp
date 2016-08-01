@@ -396,7 +396,7 @@ void Gui::printToPdfFile()
           if (m_cancelPrinting)
             break;
 
-          logWarn() << QString("Printing: page %1 of %2").arg(displayPageNum).arg(_maxPages);
+          logNotice() << QString("Printing: page %1 of %2").arg(displayPageNum).arg(_maxPages);
 
           m_progressDlgMessageLbl->setText(QString("Printing: page %1 of %2").arg(displayPageNum).arg(_maxPages));
           m_progressDlgProgressBar->setValue(displayPageNum);
@@ -444,7 +444,7 @@ void Gui::printToPdfFile()
 
           displayPageNum = printPage.toInt();
 
-          logWarn() << QString("Printing: page %1 of %2").arg(displayPageNum).arg(_maxPages);
+          logNotice() << QString("Printing: page %1 of %2").arg(displayPageNum).arg(_maxPages);
 
           m_progressDlgMessageLbl->setText(QString("Printing: page %1 of %2").arg(displayPageNum).arg(_maxPages));
           m_progressDlgProgressBar->setValue(_pageCount++);
@@ -654,7 +654,7 @@ void Gui::exportAs(QString &suffix)
           if (m_cancelPrinting)
             break;
 
-          logWarn() << QString("Exporting page: %1 of %2").arg(displayPageNum).arg(_maxPages);
+          logNotice() << QString("Exporting page: %1 of %2").arg(displayPageNum).arg(_maxPages);
 
           m_progressDlgMessageLbl->setText(QString("Exporting page: %1 of %2").arg(displayPageNum).arg(_maxPages));
           m_progressDlgProgressBar->setValue(displayPageNum);
@@ -707,7 +707,7 @@ void Gui::exportAs(QString &suffix)
 
           displayPageNum = printPage.toInt();
 
-          logWarn() << QString("Exporting: page range %1 of %2").arg(displayPageNum).arg(_maxPages);
+          logNotice() << QString("Exporting: page range %1 of %2").arg(displayPageNum).arg(_maxPages);
 
           m_progressDlgMessageLbl->setText(QString("Exporting: page range %1 of %2").arg(displayPageNum).arg(_maxPages));
           m_progressDlgProgressBar->setValue(_pageCount++);

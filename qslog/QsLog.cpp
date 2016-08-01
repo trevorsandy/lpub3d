@@ -45,7 +45,7 @@ static const char TraceString[] = "TRACE";
 static const char NoticeString[]= "NOTICE";
 static const char DebugString[] = "DEBUG";
 static const char InfoString[]  = "INFO ";
-static const char WarnString[]  = "WARN ";
+static const char StatusString[]  = "STATUS ";
 static const char ErrorString[] = "ERROR";
 static const char FatalString[] = "FATAL";
 
@@ -66,8 +66,8 @@ static const char* LevelToText(Level theLevel)
       return DebugString;
    case InfoLevel:
       return InfoString;
-   case WarnLevel:
-      return WarnString;
+   case StatusLevel:
+      return StatusString;
    case ErrorLevel:
       return ErrorString;
    case FatalLevel:
@@ -93,7 +93,7 @@ QString ColorizeLogOutput(Level theLevel, QString output)
       return QString("%1%2%3").arg(QS_LOG_BLUE).arg(output).arg(QS_LOG_NC);
    case InfoLevel:
       return QString("%1%2%3").arg(QS_LOG_GREEN).arg(output).arg(QS_LOG_NC);
-   case WarnLevel:
+   case StatusLevel:
       return QString("%1%2%3").arg(QS_LOG_YELLOW).arg(output).arg(QS_LOG_NC);
    case ErrorLevel:
       return QString("%1%2%3").arg(QS_LOG_RED).arg(output).arg(QS_LOG_NC);
@@ -131,7 +131,7 @@ public:
     QMutex logMutex;
     Level level;
     DestinationList destList;
-        bool includeLogLevel;
+    bool includeLogLevel;
 	bool includeTimeStamp;
 	bool includeLineNumber;
 	bool includeFileName;
@@ -157,7 +157,7 @@ void LogWriterRunnable::run()
 
 LoggerImpl::LoggerImpl()
     : level(InfoLevel)
-        , includeLogLevel(true)
+    , includeLogLevel(true)
 	, includeTimeStamp(true)
 	, includeLineNumber(true)
 	, includeFileName(true)
@@ -208,8 +208,8 @@ Level Logger::levelFromLogMessage(const QString& logMessage, bool* conversionSuc
         return DebugLevel;
     if (logMessage.startsWith(QLatin1String(InfoString)))
         return InfoLevel;
-    if (logMessage.startsWith(QLatin1String(WarnString)))
-        return WarnLevel;
+    if (logMessage.startsWith(QLatin1String(StatusString)))
+        return StatusLevel;
     if (logMessage.startsWith(QLatin1String(ErrorString)))
         return ErrorLevel;
     if (logMessage.startsWith(QLatin1String(FatalString)))
@@ -442,9 +442,11 @@ void Logger::write(const QString& colourMessage, const QString &plainMessage, Le
     QMutexLocker lock(&d->logMutex);
     for (DestinationList::iterator it = d->destList.begin(),
         endIt = d->destList.end();it != endIt;++it) {
-        (*it)->destType() != LogFile ?
-              (*it)->write(colourMessage, level) :
-              (*it)->write(plainMessage, level);
+        //if console, do not write status level
+        if ((*it)->destType() != LogFile && level != StatusLevel)
+            (*it)->write(colourMessage, level);
+        else if ((*it)->destType() == LogFile)
+            (*it)->write(plainMessage, level);
     }
 }
 
