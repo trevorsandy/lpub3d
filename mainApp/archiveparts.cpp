@@ -52,7 +52,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, QString &
       return false;
     }
 
-  // Create an array of objects consisting of QFileInfo
+  // Create an array of file objects consisting of QFileInfo
   QFileInfoList files;
   foreach (QString fileName, dirFileList) files << QFileInfo(fileName);
 
@@ -197,7 +197,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, QString &
 //  qDebug() << "PROCESSING DISK FILES FOR ARCHIVE";
   QFile inFile;
   QuaZipFile outFile(&zip);
-  bool partsAddedToArchive  = false;
+  int archivedPartCount = 0;
 
   char c;
   foreach(QFileInfo fileInfo, files) {
@@ -219,7 +219,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, QString &
       if (alreadyArchived)
         continue;
       else
-         partsAddedToArchive = true;
+         archivedPartCount++;
 
       int partsDirIndex    = fileInfo.absoluteFilePath().indexOf("/parts/",0,Qt::CaseInsensitive);
       int primDirIndex     = fileInfo.absoluteFilePath().indexOf("/p/",0,Qt::CaseInsensitive);
@@ -277,7 +277,6 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, QString &
       inFile.close();
     }
 
-  // + comment
   if (!comment.isEmpty())
     zip.setComment(comment);
 
@@ -288,11 +287,7 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, QString &
       return false;
     }
 
-  if (!partsAddedToArchive) {
-      result = QString("No parts to archive");
-      return false;
-  }
-
+  result = QString::number(archivedPartCount);
   return true;
 }
 
