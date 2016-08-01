@@ -36,6 +36,7 @@ public:
     static QString fadePrimDir;
     static QString fadePrim8Dir;
     static QString fadePrim48Dir;
+    static QStringList fadeDirs;
 };
 
 #endif

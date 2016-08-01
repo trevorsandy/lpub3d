@@ -2232,7 +2232,7 @@ QStringList Gui::fadeSubFile(const QStringList &contents, const QString &color)
               if (argv[1] != edgeColor){
                   argv[1] = fadeColor;}
               // process static colored parts
-              QString fileNameStr = argv[argv.size()-1];
+              QString fileNameStr = argv[argv.size()-1].toLower();
               if (FadeStepColorParts::isStaticColorPart(fileNameStr)){
                   fileNameStr = QDir::toNativeSeparators(fileNameStr.replace(".dat","-fade.dat"));
                 }
@@ -2294,7 +2294,7 @@ QStringList Gui::fadeStep(const QStringList &csiParts, const int &stepNum,  Wher
                   if (argv[1] != edgeColor){
                       argv[1] = fadeColor;}
                   // process color parts naming
-                  QString fileNameStr = argv[argv.size()-1];
+                  QString fileNameStr = argv[argv.size()-1].toLower();
 
                   emit messageSig(true, "Do fadeStep for " + fileNameStr);
 

@@ -57,11 +57,13 @@ public:
     QStringList _contents;                        // from retrieveContents
     QString     _fileNameStr;                     // from parseParent
     int         _partType;                        // from retrieveContent
+    bool        _unOff;
 
     ColourPart(
             const QStringList   &contents,        // file contents
             const QString       &fileNameStr,     // file name as defined in part content
-            const int           &partType);
+            const int           &partType,
+            const bool          &unOff);
 
     ~ColourPart()
     {
@@ -86,7 +88,8 @@ public:
     void insert(
             const QStringList   &contents,
             const QString       &fileNameStr,
-            const int           &partType);
+            const int           &partType,
+            const bool          &unOff);
 
     bool partAlreadyInList(
         const QString           &fileNameStr);
@@ -162,17 +165,20 @@ private:
     QStringList               _fadeStepColourParts;
     QStringList               _partFileContents;
     QStringList               _excludedSearchDirs;
+    QElapsedTimer             _timer;
 //    bool                      _partsArchived;
     bool                      _doFadeStep;
     bool                      _doReload;
     bool                      _didInitLDSearch;
     bool                      _resetSearchDirSettings;
+    int                       _fadedParts;
 
     LDPartsDirs                ldPartsDirs;                     // automatically load LDraw.ini parameters
     LDrawFile                  ldrawFile;                       // contains MPD or all files used in model
     ArchiveParts               archiveParts;                    // add contente to unofficial zip archive (for LeoCAD)
 
 
+    bool endThreadNotRequested(){ return ! _endThreadNowRequested;}
     QStringList contents(
         const QString       &fileNameStr);
 
@@ -186,15 +192,11 @@ private:
         const QString        &fileName,
         const QStringList    &fadePartContent);
 
-   void createFadePartFiles();                       // convert static color files // replace color code with fade color
+   bool createFadePartFiles();                       // convert static color files // replace color code with fade color
 
-   void createFadePartContent(                       // parse provided colour file to colour children
-       const QString         &fileNameComboStr);
-
-   void retrieveContent(                             // parse provided colour file to colour children
-             QStringList     &inputContents,
-       const QString         &fileAbsPathStr,
-       const QString         &fileNameStr);
+   // new
+   bool processColourParts(
+       const QStringList      &colourPartList);
 
    void processFadeColourPartsArchive(
        const QString         &comment,
@@ -205,7 +207,7 @@ private:
        const QString         &comment,
        bool                   silent = false);
 
-   void processPartsArchive(
+   bool processPartsArchive(
        const QStringList     &ldPartsDirs,
        const QString         &comment);
 
@@ -240,7 +242,8 @@ public:
     void insert(
             const QStringList   &contents,
             const QString       &fileNameStr,
-            const int           &partType);
+            const int           &partType,
+            const bool          &unOff);
 
     bool partAlreadyInList(
             const QString       &fileNameStr);
@@ -287,19 +290,21 @@ private:
     QStringList               _emptyList;
     QString                   _emptyString;
     int                       _cpLines;
-    int                       _columnWidth;
+    int                       _colWidthFileName;
 
     QStringList               _fadeStepColourParts;
     QStringList               _partFileContents;
     QElapsedTimer             _timer;
-
+    QString                   _filePath;
     LDPartsDirs                ldPartsDirs;                     // automatically load LDraw.ini parameters
 
+    bool endThreadNotRequested(){ return ! _endThreadNowRequested;}
     void processChildren();
     void writeFadeFile(bool append = false);
 
     bool processArchiveParts(const QString &archiveFile);
-    void processFileContents(const QFileInfo &fileInfo);
+    void processFileContents(const QString &libFileName,
+                             const bool       isUnOffLib);
     void fileSectionHeader(const int &option,
                            const QString &heading = "");
 

@@ -51,6 +51,8 @@ QString Paths::fadePrimDir;
 QString Paths::fadePrim8Dir;
 QString Paths::fadePrim48Dir;
 
+QStringList Paths::fadeDirs;
+
 
 void Paths::mkdirs(){
 
@@ -86,5 +88,7 @@ void Paths::mkfadedirs(){
       fadePrim8Dir  = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/p/8");
       fadePrim48Dir = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/p/48");
     }
+
+  fadeDirs << fadePartDir << fadeSubDir << fadePrimDir << fadePrim8Dir << fadePrim48Dir;
 }
 

@@ -1,3 +1,19 @@
+LPub3D 2.0.8.773.5 
+ 
+Features and enhancements 
+------------ 
+-Fix: Refactor fade step behaviour (r777)
+ *Update fadeStepColorParts.lst attributes to allow faster library parsing to generate static colour parts.
+ NOTE: FILE UPDATE REQUIRED. fadeStepColourParts.lst file updated with new required column so it is necessary to update your installed file. LPub3D will automatically backup and overwrite the existing file during installation.
+-Fix: Adjustable renderer process timeout (r776)
+ *All the user to manage the amount of time to keep alive the renderer process. The default is 6 minutes but can be changed between -1 which is run indefinitely and 99 minutes. For high definition using POV-Ray, rendering process time can eaisily exceed the default. This setting is located at Preferences=>Rendering=>Process timeout.
+-Fix: Reload archive libraries into memory (r775)
+ *On model file load, do not reload library if no new parts discovered. LPub3D sweeps the defined search directories upon file load. This update makes a little more efficient the load process.
+-Fix: Update aboutdialog display version of Qt (r774)
+ *Display version of Qt from the platform versus hard coded.
+-Fix: Compile on MinGW x64 (r773)
+ *Convert int to intptr.
+
 LPub3D 2.0.7.770.5 
  
 Features and enhancements 

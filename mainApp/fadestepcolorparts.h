@@ -28,7 +28,7 @@ class FadeStepColorParts
   public:
     FadeStepColorParts();
     static const bool &isStaticColorPart(QString part);
-    static const bool &getStaticColorPartPath(QString &part);
+    static const bool &getStaticColorPartInfo(QString &part);
     static const QString &staticColorPartPath(QString part);
 };
 
