@@ -365,11 +365,6 @@ void Logger::Helper::writeToLog()
 			append(levelName).
 			append(' ');
 	}
-	if (logger.includeTimestamp()) {
-		completePlainMessage.
-			append(QDateTime::currentDateTime().toString(fmtDateTime)).
-			append(' ');
-	}
 
 	if (logger.includeFileName()) {
 		completePlainMessage.
@@ -403,6 +398,18 @@ void Logger::Helper::writeToLog()
 			append(logger.colorizeOutput() ? ColorizeLogOutput(level,lineNumber) : lineNumber).
 			append(' ');
 	}
+
+    if (logger.includeTimestamp()) {
+        completeColorizedMessage.
+            append(QDateTime::currentDateTime().toString(fmtDateTime)).
+            append(' ');
+
+    }
+
+    // always add date time stamp to plain message
+    completePlainMessage.
+            prepend(' ').
+            prepend(QDateTime::currentDateTime().toString(fmtDateTime));
 
 	// marshal plain message for the log file - color codes are not human readable friendly.
 	completePlainMessage.append(buffer);

@@ -924,8 +924,7 @@ int Gui::drawPage(LGraphicsView  *view,
                           return rc;
                         }
 
-//                      qDebug() << Render::getRenderer()
-                      logTrace() << "\n" << Render::getRenderer()
+                      logTrace() << Render::getRenderer()
                                  << "CSI single call render took"
                                  << timer.elapsed() << "milliseconds"
                                  << "to render " << ldrStepFiles.size()
@@ -1104,8 +1103,7 @@ int Gui::drawPage(LGraphicsView  *view,
                               return rc;
                             }
 
-//                          qDebug() << Render::getRenderer()
-                          logTrace() << "\n" << Render::getRenderer()
+                          logTrace() << Render::getRenderer()
                                      << "CSI single call render took"
                                      << timer.elapsed() << "milliseconds"
                                      << "to render " << ldrStepFiles.size()

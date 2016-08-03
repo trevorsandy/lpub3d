@@ -36,7 +36,7 @@
 #define VER_PRODUCTVERSION_STR      		STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SP) "\0"
 #define VER_UPDATEABLE_VERSIONS_STR         "2.0.8,2.0.7,1.3.5,1.2.3,1.0.0"
 #define VER_PRODUCTNAME_STR         		"LPub3D"
-#define VER_COMPANYNAME_STR         		"LPub3D Software Hold"
+#define VER_COMPANYNAME_STR         		"LPub3D Software"
 #define VER_FILEDESCRIPTION_STR     		"LPub3D - An LDraw Building Instruction Editor"
 #define VER_INTERNALNAME_STR        		"bociphus"
 #define VER_LEGALCOPYRIGHT_STR      		"Copyright &copy; 2016 by Trevor SANDY"
@@ -71,7 +71,7 @@
     #define VER_COMPILED_ON                 "MSVC 2015"
     #define VER_COMPILED_FOR                "MS Windows 32bit, 64bit"
     #define VER_COMPILED_WITH               "(MSVC 2015 x86, x64)"
-    #define VER_IDE                         "Visual Studio 2015 v14.0.25123.00 Update 2"
+    #define VER_IDE                         "Visual Studio 2015 v14.0.25424.00 Update 3"
 #endif
 #ifdef __GNUC__
     #ifdef __MINGW64__

@@ -622,7 +622,7 @@
         <enum>Qt::PreventContextMenu</enum>
        </property>
        <property name="toolTip">
-        <string>Set the renderer 'wait for finish' process time in seconds. -1 will not timeout.</string>
+        <string>Set the renderer 'wait for finish' process time in minutes. -1 will not timeout.</string>
        </property>
        <property name="text">
         <string>Process timeout:</string>
@@ -638,7 +638,7 @@
         </rect>
        </property>
        <property name="toolTip">
-        <string>Set the renderer 'wait for finish' process time in seconds. -1 will not timeout.</string>
+        <string>Set the renderer 'wait for finish' process time in minutes. -1 will not timeout.</string>
        </property>
        <property name="minimum">
         <number>-1</number>

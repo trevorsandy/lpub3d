@@ -262,7 +262,7 @@ void Gui::openFile(QString &fileName)
   mpdCombo->setMaxCount(1000);
   mpdCombo->addItems(ldrawFile.subFileOrder());
   setCurrentFile(fileName);
-  emit messageSig(true, "Loading file editor display...");
+  emit messageSig(true, "Loading editor display...");
   displayFile(&ldrawFile,ldrawFile.topLevelFile());
   undoStack->setClean();
   curFile = fileName;
