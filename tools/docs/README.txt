@@ -1,8 +1,10 @@
 LPub3D 2.0.8.780.3 
  
 Features and enhancements 
------------- 
--Fix: Exclude fade directories from search directory list if fade step not enabled (r782)
+------------
+-Fix: Refactor loading model file into Ldraw editor window (r783)
+ *File load hangs for an unusual amount of time when loading a large model file. This behaviour appears usually when the LDraw editor tab is not in focus. If the file is loaded with the editor tab in focus, the file is loaded nominally.
+-Fix: Exclude fade directories from search directory list if fade step not enabled (r781)
  *Improve just a little bit the performance during model file load.
 -Fix: Refactor adding parts to archive library (r780) 
  *Improved logging detail and added checks to not submit an empty search directory. 

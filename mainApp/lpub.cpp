@@ -496,7 +496,8 @@ void Gui::displayFile(
   LDrawFile     *ldrawFile, 
   const QString &modelName)
 {
-//  if (force || modelName != curSubFile) {
+    displayFileSig(ldrawFile, modelName);
+    curSubFile = modelName;
     int currentIndex = 0;
     for (int i = 0; i < mpdCombo->count(); i++) {
       if (mpdCombo->itemText(i) == modelName) {
@@ -505,9 +506,6 @@ void Gui::displayFile(
       }
     }
     mpdCombo->setCurrentIndex(currentIndex);
-    curSubFile = modelName;
-    displayFileSig(ldrawFile, modelName);
-//  }
 }
 
 void Gui::displayParmsFile(
@@ -629,7 +627,6 @@ void Gui::mpdComboChanged(int index)
           displayPage();
           return;
         } else {
-
           // TODO add status bar message
           Where topOfSteps(newSubFile,0);
           curSubFile = newSubFile;
