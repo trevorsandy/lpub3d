@@ -165,6 +165,8 @@ private:
     QStringList               _fadeStepColourParts;
     QStringList               _partFileContents;
     QStringList               _excludedSearchDirs;
+    QString                   _fadePartDir;
+    QString                   _fadePrimDir;
     QElapsedTimer             _timer;
 //    bool                      _partsArchived;
     bool                      _doFadeStep;
