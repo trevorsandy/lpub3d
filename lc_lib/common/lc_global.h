@@ -38,7 +38,9 @@ typedef quintptr lcuintptr;
 
 #ifdef Q_OS_WIN
 #define snprintf _snprintf
+#ifndef _WIN64
 #define isnan _isnan
+#endif
 #if (_MSC_VER >= 1500)
 #define strcasecmp stricmp
 #define strncasecmp strnicmp

@@ -360,13 +360,14 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	  File "..\..\mainApp\extras\pli.mpd"
 	  
 	 ${If} $OverwriteUserDataParamFiles == 0
+	  !insertmacro BackupFile "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppData}\extras\fadeStepColorParts.${MyTIMESTAMP}.bak"
+	  SetOverwrite on
+	  File "..\..\mainApp\extras\fadeStepColorParts.lst"
 	  SetOverwrite off
-	  !insertmacro BackupFile "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppData}\extras" "fadeStepColorParts.${MyTIMESTAMP}.bak"
 	  File "..\..\mainApp\extras\LDConfig.ldr"
 	  File "..\..\mainApp\extras\titleAnnotations.lst"
 	  File "..\..\mainApp\extras\freeformAnnotations.lst"
 	  File "..\..\mainApp\extras\pliSubstituteParts.lst"
-	  File "..\..\mainApp\extras\fadeStepColorParts.lst"
 	 ${Else}
 	  SetOverwrite on
 	  File "..\..\mainApp\extras\LDConfig.ldr"
@@ -378,6 +379,11 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	  
 	  ;Store/Update library folder
 	  WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "PartsLibrary" "${INSTDIR_AppData}\libraries\complete.zip" 
+  ${Else} 
+	  SetOutPath "${INSTDIR_AppData}\extras"
+	  !insertmacro BackupFile "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppData}\extras\fadeStepColorParts.${MyTIMESTAMP}.bak"
+	  SetOverwrite on
+	  File "..\..\mainApp\extras\fadeStepColorParts.lst"	  
   ${EndIf}
   
   ;Create uninstaller

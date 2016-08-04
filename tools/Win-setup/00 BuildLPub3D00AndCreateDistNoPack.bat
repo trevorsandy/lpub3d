@@ -2,7 +2,7 @@
 Title Build and create manual and automatic LPub3D install distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: August 01, 2016
+rem  Last Update: August 03, 2016
 rem  Copyright (c) 2016 by Trevor Sandy
 rem --
 SETLOCAL
@@ -19,14 +19,13 @@ IF %RUN_NSIS% == 0 (
    SET SIGN_APP=0 
    SET CREATE_PORTABLE=0
 	)
-IF %RUN_NSIS% == 1 (	
+IF %RUN_NSIS% == 1 (						
 	SET /p SIGN_APP= - Code Signing: Type 1 to run, 0 to ignore or 'Enter' to accept default [%SIGN_APP%]: 
 	)
 SET CLEANUP=1
 SET /p CLEANUP= - Cleanup: Type 1 to run, 0 to ignore or 'Enter' to accept default [%CLEANUP%]: 
 
 SET GENBUILDVER=0
-SET UCRT=0
 
 ECHO.
 ECHO - You entered the following paramteres:
@@ -45,7 +44,7 @@ IF %RUN_NSIS% == 0 ECHO - This configuration will allow you to test your NSIS sc
 ECHO   Run Parameters:      			   								>>  ..\release\LPub3D.Release.build.log.txt
 ECHO.
 ECHO   RUN_NSIS=%RUN_NSIS%												>>  ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO   SIGN_APP=%SIGN_APP%							>>  ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO   SIGN_APP=%SIGN_APP%							>>  ..\release\LPub3D.Release.build.log.txt		
 ECHO   CLEANUP=%CLEANUP%												>>  ..\release\LPub3D.Release.build.log.txt
 
 ECHO. 							                						>  ..\release\LPub3D.Release.build.log.txt
@@ -57,30 +56,19 @@ IF %RUN_NSIS% == 1 ECHO - Start build process...      			   		>>  ..\release\LPu
 IF %RUN_NSIS% == 1 ECHO.
 IF %RUN_NSIS% == 1 ECHO - Start build process...
 
-SET DeploymentAbsolutePath=C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D\tools
-SET Win32LPub3DBuildFileAbsolutePath="C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D\build\Win32\Release\LPub3D.exe"
-SET Win64LPub3DBuildFileAbsolutePath="C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D\build\x64\Release\LPub3D.exe"
+SET Win32LPub3DBuildFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_32bit-Release\mainApp\build\release\LPub3D.exe"
+SET Win32QuazipBuildFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_32bit-Release\quazip\build\release\quazip.dll"
+SET Win32LdrawiniBuildFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_32bit-Release\ldrawini\build\release\ldrawini.dll"
 
-SET Win32MinGwBuildFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_32bit-Release\mainApp\build\release\LPub3D.exe"
-SET Win32MinGwQuazipFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_32bit-Release\quazip\build\release\quazip.dll"
-SET Win32MinGwLdrawiniFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_32bit-Release\ldrawini\build\release\ldrawini.dll"
+SET Win64LPub3DBuildFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_64bit-Release\mainApp\build\release\LPub3D.exe"
+SET Win64QuazipBuildFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_64bit-Release\quazip\build\release\quazip.dll"
+SET Win64LdrawiniBuildFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_64bit-Release\ldrawini\build\release\ldrawini.dll"
 
-SET Win32LPub3DBuildFile="..\..\build\Win32\Release\LPub3D.exe"
-SET Win32QuazipBuildFile="..\..\build\Win32\Release\quazip.dll"
-SET Win32LdrawiniBuildFile="..\..\build\Win32\Release\ldrawini.dll"
-SET Win64LPub3DBuildFile="..\..\build\x64\Release\LPub3D.exe"
-SET Win64QuazipBuildFile="..\..\build\x64\Release\quazip.dll"
-SET Win64LdrawiniBuildFile="..\..\build\x64\Release\ldrawini.dll"
+SET Win32QtBinPath=C:\Qt\IDE\5.7\mingw53_32\bin
+SET Win32QtPluginPath=C:\Qt\IDE\5.7\mingw53_32\plugins
 
-SET Win32MinGwQtBinPath="C:\Qt\IDE\5.7\mingw53_32\bin"
-SET Win32MinGwQtPluginPath=C:\Qt\IDE\5.7\mingw53_32\plugins
-
-SET Win32QtBinPath=C:\Qt\IDE\5.7\msvc2015\bin
-SET Win32QtPluginPath=C:\Qt\IDE\5.7\msvc2015\plugins
-SET Win32DevKit10UCRTRedist=C:\Program Files (x86)\Windows Kits\10\redist\ucrt\DLLs\x86
-SET Win64QtBinPath=C:\Qt\IDE\5.7\msvc2015_64\bin
-SET Win64QtPluginPath=C:\Qt\IDE\5.7\msvc2015_64\plugins
-SET Win64DevKit10UCRTRedist=C:\Program Files (x86)\Windows Kits\10\redist\ucrt\DLLs\x64
+SET Win64QtBinPath=C:\Msys2\Msys64\mingw64\bin
+SET Win64QtPluginPath=C:\Msys2\Msys64\mingw64\share\qt5\plugins
 
 SET SignToolExe="C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe"
 SET TimeStamp=http://timestamp.digicert.com
@@ -334,7 +322,6 @@ SET genLastVersionInsert=%lastVersionInsertFile% ECHO
 >>%genLastVersionInsert%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%LASTVERSION%/",
 >>%genLastVersionInsert%         "latest-version": "%LASTVERSION%",
 >>%genLastVersionInsert%         "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LASTVERSION%.exe",
->>%genLastVersionInsert%         "download-url-mingw": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LASTVERSION%_MinGW_x32.exe",
 >>%genLastVersionInsert%         "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LASTVERSION%.txt"
 >>%genLastVersionInsert%       },
 
@@ -356,7 +343,6 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster.exe",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log.txt",
 >>%genLPub3DUpdates%       "download-url-": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%VERSION%.exe",
->>%genLPub3DUpdates%       "download-url-mingw": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%VERSION%_MinGW_x32.exe",
 >>%genLPub3DUpdates%       "changelog-url-": "http://lpub3d.sourceforge.net/change_log_%VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%VERSION%,%AVAILVERSIONS%",
 >>%genLPub3DUpdates%       "alternate-version-1.3.5": {
@@ -469,9 +455,6 @@ SET genVersion=%versionFile% ECHO
 >>%genVersion% !define CompleteVersion "%VERSION%.%REVISION_CMS%.%BUILD%_%YEAR%%MONTH%%DAY%"
 >>%genVersion% ; ${CompleteVersion}
 >>%genVersion%.	
->>%genVersion% !define Win32MinGwBuildDir "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32" 
->>%genVersion% ; ${Win32MinGWBuildDir}
->>%genVersion%.	
 >>%genVersion% !define Win32BuildDir "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32" 
 >>%genVersion% ; ${Win32BuildDir}
 >>%genVersion%.
@@ -503,415 +486,240 @@ SET genVersion=%versionFile% ECHO
 >>%genVersion% ; ${SupportEmail}
 >>%genVersion%.
 
-ECHO. 																		>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Copying %WIN32MINGWPRODUCTDIR% content to media folder...    		>>  ../release/LPub3D.Release.build.log.txt
-ECHO. 	
-ECHO - Copying %WIN32MINGWPRODUCTDIR% content to media folder...
-
-XCOPY /S /I /E /V /Y %devRootPath%\extras ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\extras				>>  ../release/LPub3D.Release.build.log.txt
-XCOPY /S /I /E /V /Y ..\release\libraries ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\libraries				>>  ../release/LPub3D.Release.build.log.txt 
-XCOPY /S /I /E /V /Y ..\release\3rdParty ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\3rdParty				>>  ../release/LPub3D.Release.build.log.txt 
-XCOPY /S /I /E /V /Y ..\docs ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\docs								>>  ../release/LPub3D.Release.build.log.txt 
-XCOPY /S /I /E /V /Y ..\icons ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\icons								>>  ../release/LPub3D.Release.build.log.txt
-
-COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\ /A                          		>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\ /A                                        	  		>>  ../release/LPub3D.Release.build.log.txt
-
-COPY /V /Y %Win32MinGwBuildFile% ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\%PRODUCT%_MinGW_x32.exe /B		>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQuazipFile% ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\ /B                      		>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwLdrawiniFile% ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\ /B                    		>>  ../release/LPub3D.Release.build.log.txt
-
-COPY /V /Y "%Win32MinGwQtBinPath%\libgcc_s_dw2-1.dll" ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\ /B       >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y "%Win32MinGwQtBinPath%\libstdc++-6.dll" ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\ /B          >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y "%Win32MinGwQtBinPath%\libwinpthread-1.dll" ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\ /B      >>  ../release/LPub3D.Release.build.log.txt
-
-COPY /V /Y %Win32MinGwQtBinPath%\Qt5Core.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\ /B                >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtBinPath%\Qt5Gui.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\ /B                 >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtBinPath%\Qt5Network.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\ /B             >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtBinPath%\Qt5OpenGL.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\ /B              >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtBinPath%\Qt5PrintSupport.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\ /B        >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtBinPath%\Qt5Widgets.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\ /B             >>  ../release/LPub3D.Release.build.log.txt
-
-IF NOT EXIST "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\bearer\" (
-  MKDIR "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\bearer\"
-)
-IF NOT EXIST "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\iconengines\" (
-  MKDIR "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\iconengines\"
-)
-IF NOT EXIST "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\" (
-  MKDIR "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\"
-)
-IF NOT EXIST "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\platforms\" (
-  MKDIR "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\platforms\"
-)
-IF NOT EXIST "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\printsupport\" (
-  MKDIR "..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\printsupport\"
-)
-
-COPY /V /Y %Win32MinGwQtPluginPath%\bearer\qgenericbearer.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\bearer\ /B  						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtPluginPath%\bearer\qnativewifibearer.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\bearer\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtPluginPath%\iconengines\qsvgicon.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\iconengines\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qdds.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qgif.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qicns.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qico.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qjpeg.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qsvg.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qtga.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qtiff.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qwbmp.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtPluginPath%\imageformats\qwebp.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtPluginPath%\platforms\qwindows.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\platforms\ /B  						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32MinGwQtPluginPath%\printsupport\windowsprintersupport.dll ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\%PRODUCT%_MINGW_x32\printsupport\ /B  	>>  ../release/LPub3D.Release.build.log.txt
-
-ECHO. 																>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Copying %WIN32PRODUCTDIR% content to media folder...    		>>  ../release/LPub3D.Release.build.log.txt
+ECHO. 																																		>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Copying %WIN32PRODUCTDIR% content to media folder...    																				>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
 ECHO - Copying %WIN32PRODUCTDIR% content to media folder...
 
-XCOPY /S /I /E /V /Y %devRootPath%\extras ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\extras			>>  ../release/LPub3D.Release.build.log.txt
-XCOPY /S /I /E /V /Y ..\release\libraries ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\libraries		>>  ../release/LPub3D.Release.build.log.txt 
-XCOPY /S /I /E /V /Y ..\release\3rdParty ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\3rdParty			>>  ../release/LPub3D.Release.build.log.txt 
-XCOPY /S /I /E /V /Y ..\docs ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\docs							>>  ../release/LPub3D.Release.build.log.txt 
-XCOPY /S /I /E /V /Y ..\icons ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\icons						>>  ../release/LPub3D.Release.build.log.txt
+XCOPY /S /I /E /V /Y %devRootPath%\extras ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\extras											>>  ../release/LPub3D.Release.build.log.txt
+XCOPY /S /I /E /V /Y ..\release\libraries ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\libraries										>>  ../release/LPub3D.Release.build.log.txt 
+XCOPY /S /I /E /V /Y ..\release\3rdParty ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\3rdParty											>>  ../release/LPub3D.Release.build.log.txt 
+XCOPY /S /I /E /V /Y ..\docs ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\docs															>>  ../release/LPub3D.Release.build.log.txt 
+XCOPY /S /I /E /V /Y ..\icons ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\icons														>>  ../release/LPub3D.Release.build.log.txt
 
-COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /A                          >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32PRODUCTDIR%\ /A                                        >>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /A                          								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32PRODUCTDIR%\ /A                                        	  						>>  ../release/LPub3D.Release.build.log.txt
 
-COPY /V /Y %Win32LPub3DBuildFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\%PRODUCT%_x32.exe /B		>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QuazipBuildFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                      >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32LdrawiniBuildFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                    >>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32BuildFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\%PRODUCT%.exe /B												>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QuazipFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B                      										>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32LdrawiniFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B                    										>>  ../release/LPub3D.Release.build.log.txt
 
-COPY /V /Y %Win32QtBinPath%\Qt5Core.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtBinPath%\Qt5Gui.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                 >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtBinPath%\Qt5Network.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtBinPath%\Qt5OpenGL.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B              >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtBinPath%\Qt5PrintSupport.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B        >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtBinPath%\Qt5Widgets.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             >>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win32QtBinPath%\libgcc_s_dw2-1.dll" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B       								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win32QtBinPath%\libstdc++-6.dll" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B          								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win32QtBinPath%\libwinpthread-1.dll" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B      								>>  ../release/LPub3D.Release.build.log.txt
 
-COPY /V /Y %Win32QtBinPath%\libGLESV2.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             	>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtBinPath%\libEGL.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             	>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtBinPath%\opengl32sw.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y "C:\Program Files (x86)\Windows Kits\10\redist\D3D\x86\d3dcompiler_47.dll" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             		>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y "..\release\vcredist\vc_redist.x86.exe" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B     >>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtBinPath%\Qt5Core.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B                								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtBinPath%\Qt5Gui.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B                 								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtBinPath%\Qt5Network.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B             								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtBinPath%\Qt5OpenGL.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B              								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtBinPath%\Qt5PrintSupport.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B        								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtBinPath%\Qt5Widgets.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B             								>>  ../release/LPub3D.Release.build.log.txt
 
-IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\bearer\" (
-  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\bearer\"
+IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\bearer\" (
+  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\bearer\"
 )
-IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\iconengines\" (
-  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\iconengines\"
+IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\iconengines\" (
+  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\iconengines\"
 )
-IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\" (
-  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\"
+IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\" (
+  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\"
 )
-IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\platforms\" (
-  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\platforms\"
+IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\platforms\" (
+  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\platforms\"
 )
-IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\printsupport\" (
-  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\printsupport\"
+IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\printsupport\" (
+  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\printsupport\"
 )
 
-COPY /V /Y %Win32QtPluginPath%\bearer\qgenericbearer.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\bearer\ /B  						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\bearer\qnativewifibearer.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\bearer\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\iconengines\qsvgicon.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\iconengines\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qdds.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qgif.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qicns.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qico.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qjpeg.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qsvg.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qtga.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qtiff.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qwbmp.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qwebp.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\platforms\qwindows.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\platforms\ /B  						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\printsupport\windowsprintersupport.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\printsupport\ /B  	>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\bearer\qgenericbearer.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\bearer\ /B  						>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\bearer\qnativewifibearer.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\bearer\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\iconengines\qsvgicon.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\iconengines\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qdds.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qgif.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qicns.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qico.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qjpeg.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qsvg.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qtga.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qtiff.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qwbmp.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qwebp.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\platforms\qwindows.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\platforms\ /B  						>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\printsupport\windowsprintersupport.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\printsupport\ /B  	>>  ../release/LPub3D.Release.build.log.txt
 
-ECHO. 													>>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 ECHO - Adding x86 UCRT Dlls...    		>>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 ECHO. 	
-IF %UCRT% == 1 ECHO - Adding x86 UCRT Dlls...
-
-IF %UCRT% == 0 ECHO - Ignore x86 UCRT Dlls...    		>>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 0 ECHO. 	
-IF %UCRT% == 0 ECHO - Ignore x86 UCRT Dlls...
-
-IF %UCRT% == 1 COPY /V /Y "%Win32DevKit10UCRTRedist%\API-MS-WIN-CRT-FILESYSTEM-L1-1-0.DLL" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             >>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win32DevKit10UCRTRedist%\API-MS-WIN-CRT-STRING-L1-1-0.DLL" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             	>>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win32DevKit10UCRTRedist%\API-MS-WIN-CRT-STDIO-L1-1-0.DLL" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             		>>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win32DevKit10UCRTRedist%\API-MS-WIN-CRT-MATH-L1-1-0.DLL" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             		>>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win32DevKit10UCRTRedist%\API-MS-WIN-CRT-RUNTIME-L1-1-0.DLL" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             	>>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win32DevKit10UCRTRedist%\API-MS-WIN-CRT-HEAP-L1-1-0.DLL" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             		>>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win32DevKit10UCRTRedist%\API-MS-WIN-CRT-ENVIRONMENT-L1-1-0.DLL" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B            >>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win32DevKit10UCRTRedist%\API-MS-WIN-CRT-CONVERT-L1-1-0.DLL" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             	>>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win32DevKit10UCRTRedist%\API-MS-WIN-CRT-UTILITY-L1-1-0.DLL" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             	>>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win32DevKit10UCRTRedist%\API-MS-WIN-CRT-LOCALE-L1-1-0.DLL" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             	>>  ../release/LPub3D.Release.build.log.txt
-
-ECHO. 																>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Copying %WIN64PRODUCTDIR% content to media folder...    		>>  ../release/LPub3D.Release.build.log.txt
+ECHO. 																																		>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Copying %WIN64PRODUCTDIR% content to media folder...    																				>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
 ECHO - Copying %WIN64PRODUCTDIR% content to media folder...
 
-XCOPY /S /I /E /V /Y %devRootPath%\extras ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\extras			>>  ../release/LPub3D.Release.build.log.txt
-XCOPY /S /I /E /V /Y ..\release\libraries ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\libraries		>>  ../release/LPub3D.Release.build.log.txt
-XCOPY /S /I /E /V /Y ..\release\3rdParty ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\3rdParty			>>  ../release/LPub3D.Release.build.log.txt
-XCOPY /S /I /E /V /Y ..\docs ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\docs							>>  ../release/LPub3D.Release.build.log.txt 
-XCOPY /S /I /E /V /Y ..\icons ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\icons						>>  ../release/LPub3D.Release.build.log.txt
+XCOPY /S /I /E /V /Y %devRootPath%\extras ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\extras											>>  ../release/LPub3D.Release.build.log.txt
+XCOPY /S /I /E /V /Y ..\release\libraries ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\libraries										>>  ../release/LPub3D.Release.build.log.txt 
+XCOPY /S /I /E /V /Y ..\release\3rdParty ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\3rdParty											>>  ../release/LPub3D.Release.build.log.txt 
+XCOPY /S /I /E /V /Y ..\docs ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\docs															>>  ../release/LPub3D.Release.build.log.txt 
+XCOPY /S /I /E /V /Y ..\icons ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\icons														>>  ../release/LPub3D.Release.build.log.txt
 
-COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /A							>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN64PRODUCTDIR% /A											>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /A                          								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN64PRODUCTDIR%\ /A                                        	  						>>  ../release/LPub3D.Release.build.log.txt
 
-COPY /V /Y %Win64LPub3DBuildFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\%PRODUCT%_x64.exe /B		>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QuazipBuildFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64LdrawiniBuildFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64BuildFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\%PRODUCT%.exe /B												>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QuazipFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B                      										>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64LdrawiniFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B                    										>>  ../release/LPub3D.Release.build.log.txt
 
-COPY /V /Y %Win64QtBinPath%\Qt5Core.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B				>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtBinPath%\Qt5Gui.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtBinPath%\Qt5Network.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B				>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtBinPath%\Qt5OpenGL.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B				>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtBinPath%\Qt5PrintSupport.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B		>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtBinPath%\Qt5Widgets.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B				>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libgcc_s_dw2-1.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B       								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libstdc++-6.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B          								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libwinpthread-1.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B      								>>  ../release/LPub3D.Release.build.log.txt
 
-COPY /V /Y %Win64QtBinPath%\libGLESV2.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B             	>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtBinPath%\libEGL.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B             	>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtBinPath%\opengl32sw.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B             >>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y "C:\Program Files (x86)\Windows Kits\10\redist\D3D\x64\d3dcompiler_47.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B             	>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y "..\release\vcredist\vc_redist.x64.exe" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B   	>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtBinPath%\Qt5Core.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B                								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtBinPath%\Qt5Gui.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B                 								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtBinPath%\Qt5Network.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B             								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtBinPath%\Qt5OpenGL.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B              								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtBinPath%\Qt5PrintSupport.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B        								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtBinPath%\Qt5Widgets.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B             								>>  ../release/LPub3D.Release.build.log.txt
 
-IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\bearer\" (
-  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\bearer\"
+IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\bearer\" (
+  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\bearer\"
 )
-IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\iconengines\" (
-  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\iconengines\"
+IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\iconengines\" (
+  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\iconengines\"
 )
-IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\" (
-  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\"
+IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\" (
+  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\"
 )
-IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\platforms\" (
-  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\platforms\"
+IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\platforms\" (
+  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\platforms\"
 )
-IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\printsupport\" (
-  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\printsupport\"
+IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\printsupport\" (
+  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\printsupport\"
 )
-COPY /V /Y %Win64QtPluginPath%\bearer\qgenericbearer.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\bearer\ /B						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\bearer\qnativewifibearer.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\bearer\ /B						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\iconengines\qsvgicon.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\iconengines\ /B					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qdds.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qgif.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qicns.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qico.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qjpeg.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qsvg.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qtga.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qtiff.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qwbmp.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qwebp.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\platforms\qwindows.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\platforms\ /B						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\printsupport\windowsprintersupport.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\printsupport\ /B		>>  ../release/LPub3D.Release.build.log.txt
 
-ECHO. 													>>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 ECHO - Adding x64 UCRT Dlls...    		>>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 ECHO. 	
-IF %UCRT% == 1 ECHO - Adding x64  UCRT Dlls...			
+COPY /V /Y %Win64QtPluginPath%\bearer\qgenericbearer.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\bearer\ /B  						>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\bearer\qnativewifibearer.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\bearer\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\iconengines\qsvgicon.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\iconengines\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qdds.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qgif.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qicns.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qico.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qjpeg.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qsvg.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qtga.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qtiff.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qwbmp.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qwebp.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\platforms\qwindows.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\platforms\ /B  						>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\printsupport\windowsprintersupport.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\printsupport\ /B  	>>  ../release/LPub3D.Release.build.log.txt
 
-IF %UCRT% == 0 ECHO - Ignore x64 UCRT Dlls...    		>>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 0 ECHO. 	
-IF %UCRT% == 0 ECHO - Ignore x64 UCRT Dlls...
-
-IF %UCRT% == 1 COPY /V /Y "%Win64DevKit10UCRTRedist%\API-MS-WIN-CRT-FILESYSTEM-L1-1-0.DLL" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B         >>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win64DevKit10UCRTRedist%\API-MS-WIN-CRT-STRING-L1-1-0.DLL" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B             >>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win64DevKit10UCRTRedist%\API-MS-WIN-CRT-STDIO-L1-1-0.DLL" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B             	>>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win64DevKit10UCRTRedist%\API-MS-WIN-CRT-MATH-L1-1-0.DLL" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B             	>>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win64DevKit10UCRTRedist%\API-MS-WIN-CRT-RUNTIME-L1-1-0.DLL" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B            >>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win64DevKit10UCRTRedist%\API-MS-WIN-CRT-HEAP-L1-1-0.DLL" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B             	>>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win64DevKit10UCRTRedist%\API-MS-WIN-CRT-ENVIRONMENT-L1-1-0.DLL" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B        >>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win64DevKit10UCRTRedist%\API-MS-WIN-CRT-CONVERT-L1-1-0.DLL" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B            >>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win64DevKit10UCRTRedist%\API-MS-WIN-CRT-UTILITY-L1-1-0.DLL" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B            >>  ../release/LPub3D.Release.build.log.txt
-IF %UCRT% == 1 COPY /V /Y "%Win64DevKit10UCRTRedist%\API-MS-WIN-CRT-LOCALE-L1-1-0.DLL" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B             >>  ../release/LPub3D.Release.build.log.txt
-
-ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Finished copying content to media folder...     			>>  ../release/LPub3D.Release.build.log.txt
+ECHO. 																																		>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Finished copying content to media folder...     																						>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 
 ECHO - Finished copying content to media folder...
 
-IF %RUN_NSIS% == 1 ECHO. 								        	>>  ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO - Start NSIS Master Update MinGW Build...  	>>  ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO.
-IF %RUN_NSIS% == 1 ECHO - Start NSIS Master Update MinGW Build...
-
-IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Update MinGW Build... >>  ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 0 ECHO.
-IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Update MinGW Build...
-
-IF %RUN_NSIS% == 1 %NSISExe% /DUpdateMaster LPub3DMinGWNoPack.nsi 		>> ..\release\LPub3D.Release.build.log.txt
-
-IF %RUN_NSIS% == 1 ECHO. 											>>  ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO - Finished NSIS Master Update MinGW Build...>>  ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO.
-IF %RUN_NSIS% == 1 ECHO - Finished NSIS Master Update MinGW Build...
-
-IF %RUN_NSIS% == 1 ECHO. 								        >>  ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO - Start NSIS Master Update Build...  	>>  ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO. 								        																			>>  ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO - Start NSIS Master Update Build...  																				>>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO.
 IF %RUN_NSIS% == 1 ECHO - Start NSIS Master Update Build...
 
-IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Update Build...  	>>  ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Update Build...  																				>>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 0 ECHO.
 IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Update Build...
 
-IF %RUN_NSIS% == 1 %NSISExe% /DUpdateMaster LPub3DNoPack.nsi 		>> ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 %NSISExe% /DUpdateMaster LPub3DNoPack.nsi 																				>> ..\release\LPub3D.Release.build.log.txt
 
-IF %RUN_NSIS% == 1 ECHO. 										>>  ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO - Finished NSIS Master Update 	Build...>>  ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO. 																													>>  ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO - Finished NSIS Master Update 	Build...																			>>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO.
 IF %RUN_NSIS% == 1 ECHO - Finished NSIS Master Update  Build...
 
-ECHO. 									   								>>  ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO - Start NSIS Manual Install MinGW Build... 	>>  ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO.
-IF %RUN_NSIS% == 1 ECHO - Start NSIS Manual Install MinGW Build...
-
-IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Manual Install MinGW Build... 	>>  ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 0 ECHO.
-IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Manual Install MinGW Build...
-
-IF %RUN_NSIS% == 1 COPY /V /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe ..\release\%DOWNLOADPRODUCT%_MinGW_x32.exe  						>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 COPY /V /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe ..\release\%PRODUCT%-UpdateMaster_MinGW_x32.exe  					>>  ../release/LPub3D.Release.build.log.txt
-
-IF %RUN_NSIS% == 1 ECHO. 												>>  ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO - Finished NSIS Manual Install MinGW Build... 	>>  ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO.
-IF %RUN_NSIS% == 1 ECHO - Finished NSIS Manual Install MinGW Build...
-
-ECHO. 									   						>>  ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO - Start NSIS Manual Install Build... 	>>  ..\release\LPub3D.Release.build.log.txt
+ECHO. 									   																									>>  ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO - Start NSIS Manual Install Build... 																				>>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO.
 IF %RUN_NSIS% == 1 ECHO - Start NSIS Manual Install Build...
 
-IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Manual Install Build... 	>>  ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Manual Install Build... 																				>>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 0 ECHO.
 IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Manual Install Build...
 
-IF %RUN_NSIS% == 1 COPY /V /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe ..\release\%DOWNLOADPRODUCT%.exe  						>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 COPY /V /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe ..\release\%PRODUCT%-UpdateMaster.exe  					>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 COPY /V /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe ..\release\%DOWNLOADPRODUCT%.exe  							>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 COPY /V /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe ..\release\%PRODUCT%-UpdateMaster.exe  						>>  ../release/LPub3D.Release.build.log.txt
 
-IF %RUN_NSIS% == 1 ECHO. 										>>  ..\release\LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO - Finished NSIS Manual Install Build... >>  ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO. 																													>>  ..\release\LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO - Finished NSIS Manual Install Build... 																			>>  ..\release\LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO.
 IF %RUN_NSIS% == 1 ECHO - Finished NSIS Manual Install Build...
 
-IF %CREATE_PORTABLE% == 1 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
-IF %CREATE_PORTABLE% == 1 ECHO - Create portable media zip files...		      				>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 1 ECHO. 																											>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 1 ECHO - Create portable media zip files...		      																>>  ../release/LPub3D.Release.build.log.txt
 IF %CREATE_PORTABLE% == 1 ECHO. 	
 IF %CREATE_PORTABLE% == 1 ECHO - Create portable media zip files...
 
-IF %CREATE_PORTABLE% == 0 ECHO. 															>>  ../release/LPub3D.Release.build.log.txt
-IF %CREATE_PORTABLE% == 0 ECHO - Ignore create portable media zip files...		      		>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 0 ECHO. 																											>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 0 ECHO - Ignore create portable media zip files...		    														>>  ../release/LPub3D.Release.build.log.txt
 IF %CREATE_PORTABLE% == 0 ECHO. 	
 IF %CREATE_PORTABLE% == 0 ECHO - Ignore create portable media zip files...
 
-IF %CREATE_PORTABLE% == 1 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN32MINGWPRODUCTDIR%.zip ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\ 	>>  ../release/LPub3D.Release.build.log.txt
-IF %CREATE_PORTABLE% == 1 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN32PRODUCTDIR%.zip ..\release\%VERSION%\%WIN32PRODUCTDIR%\ 				>>  ../release/LPub3D.Release.build.log.txt
-IF %CREATE_PORTABLE% == 1 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN64PRODUCTDIR%.zip ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 				>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 1 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN32PRODUCTDIR%.zip ..\release\%VERSION%\%WIN32PRODUCTDIR%\ 		>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 1 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN64PRODUCTDIR%.zip ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 		>>  ../release/LPub3D.Release.build.log.txt
 
-ECHO. 																				>>  ../release/LPub3D.Release.build.log.txt
-IF %CLEANUP% == 1 ECHO - Remove %PRODUCT% %VERSION% build files...					>>  ../release/LPub3D.Release.build.log.txt
+ECHO. 																																		>>  ../release/LPub3D.Release.build.log.txt
+IF %CLEANUP% == 1 ECHO - Remove %PRODUCT% %VERSION% build files...																			>>  ../release/LPub3D.Release.build.log.txt
 IF %CLEANUP% == 1 ECHO. 	
 IF %CLEANUP% == 1 ECHO - Remove %PRODUCT% %VERSION% build files...
 
-IF %CLEANUP% == 0 ECHO - Ignore remove %PRODUCT% %VERSION% build files...			>>  ../release/LPub3D.Release.build.log.txt
+IF %CLEANUP% == 0 ECHO - Ignore remove %PRODUCT% %VERSION% build files...																	>>  ../release/LPub3D.Release.build.log.txt
 IF %CLEANUP% == 0 ECHO. 	
 IF %CLEANUP% == 0 ECHO - Ignore remove %PRODUCT% %VERSION% build files...
 
-IF %CLEANUP% == 1 RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ ..\release\%VERSION%\%WIN32MINGWPRODUCTDIR%\	>>  ../release/LPub3D.Release.build.log.txt
+IF %CLEANUP% == 1 RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 									>>  ../release/LPub3D.Release.build.log.txt	
 
-IF %RUN_NSIS% == 1 ECHO.												 																>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%_MinGW_x32.exe to Download\ media folder...							>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO. 																												>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe to Update\ media folder...				>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO.	
-IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%_MinGW_x32.exe to Download\ media folder...		
-IF %RUN_NSIS% == 1 ECHO.	
-IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe to Update\ media folder...		
-
-IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %DOWNLOADPRODUCT%_MinGW_x32.exe to Download\ media folder...						>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 0 ECHO. 																												>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe to Update\ media folder...		>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 0 ECHO. 	
-IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %DOWNLOADPRODUCT%_MinGW_x32.exe to Download\ media folder...	
-IF %RUN_NSIS% == 0 ECHO. 			
-IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe to Update\ media folder...	
-
-IF %RUN_NSIS% == 1 MOVE /Y ..\release\%DOWNLOADPRODUCT%_MinGW_x32.exe ..\release\%VERSION%\Download\									>>  ../release/LPub3D.Release.build.log.txt		
-IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe ..\release\%VERSION%\Update\						>>  ../release/LPub3D.Release.build.log.txt		
-IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster_MinGW_x32.exe ..\release\%VERSION%\Update\									>>  ../release/LPub3D.Release.build.log.txt		
-
-IF %RUN_NSIS% == 1 ECHO.												 																>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...										>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO. 																												>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...							>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO.												 																	>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...											>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO. 																													>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...								>>  ../release/LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO.	
 IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...	
 IF %RUN_NSIS% == 1 ECHO.	
 IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...	
 
-IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...								>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 0 ECHO. 																												>>  ../release/LPub3D.Release.build.log.txt
-IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...					>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...									>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO. 																													>>  ../release/LPub3D.Release.build.log.txt
+IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...						>>  ../release/LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 0 ECHO. 	
 IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...	
 IF %RUN_NSIS% == 0 ECHO. 			
 IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...	
 
-IF %RUN_NSIS% == 1 MOVE /Y ..\release\%DOWNLOADPRODUCT%.exe ..\release\%VERSION%\Download\												>>  ../release/LPub3D.Release.build.log.txt		
-IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe ..\release\%VERSION%\Update\									>>  ../release/LPub3D.Release.build.log.txt		
-IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster.exe ..\release\%VERSION%\Update\											>>  ../release/LPub3D.Release.build.log.txt		
+IF %RUN_NSIS% == 1 MOVE /Y ..\release\%DOWNLOADPRODUCT%.exe ..\release\%VERSION%\Download\													>>  ../release/LPub3D.Release.build.log.txt		
+IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe ..\release\%VERSION%\Update\										>>  ../release/LPub3D.Release.build.log.txt		
+IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster.exe ..\release\%VERSION%\Update\												>>  ../release/LPub3D.Release.build.log.txt		
 
-ECHO. 									   										>>  ..\release\LPub3D.Release.build.log.txt
-IF %SIGN_APP% == 1 ECHO - Start Application Code Signing Build... 				>>  ..\release\LPub3D.Release.build.log.txt
+ECHO. 									   																									>>  ..\release\LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 ECHO - Start Application Code Signing Build... 																			>>  ..\release\LPub3D.Release.build.log.txt
 IF %SIGN_APP% == 1 ECHO.
 IF %SIGN_APP% == 1 ECHO - Start Application Code Signing Build...
 
-IF %SIGN_APP% == 0 ECHO - Ignore Application Code Signing Build... 				>>  ..\release\LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 0 ECHO - Ignore Application Code Signing Build... 																			>>  ..\release\LPub3D.Release.build.log.txt
 IF %SIGN_APP% == 0 ECHO.
 IF %SIGN_APP% == 0 ECHO - Ignore Application Code Signing Build...
-
-IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%WIN32MINGWPRODUCTDIR%.zip 					>>  ../release/LPub3D.Release.build.log.txt
-IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%WIN32PRODUCTDIR%.zip							>>  ../release/LPub3D.Release.build.log.txt
-IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%WIN64PRODUCTDIR%.zip							>>  ../release/LPub3D.Release.build.log.txt
-
-IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%DOWNLOADPRODUCT%_MinGW_x32.exe				>>  ../release/LPub3D.Release.build.log.txt
-IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe  	>>  ../release/LPub3D.Release.build.log.txt
-IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_MinGW_x32.exe            	>>  ../release/LPub3D.Release.build.log.txt
 
 IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%DOWNLOADPRODUCT%.exe							>>  ../release/LPub3D.Release.build.log.txt
 IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_%VERSION%.exe            	>>  ../release/LPub3D.Release.build.log.txt
 IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster.exe                      	>>  ../release/LPub3D.Release.build.log.txt
 
-ECHO. 									   											>>  ..\release\LPub3D.Release.build.log.txt
-IF %SIGN_APP% == 1 ECHO - Generating hash checksum listing... 						>>  ..\release\LPub3D.Release.build.log.txt
+ECHO. 									   																									>>  ..\release\LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 ECHO - Generating hash checksum listing... 																				>>  ..\release\LPub3D.Release.build.log.txt
 IF %SIGN_APP% == 1 ECHO.
 IF %SIGN_APP% == 1 ECHO - Generating hash checksum listing...
-
-IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Download\%WIN32MINGWPRODUCTDIR%.zip SHA256					>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
-IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Download\%WIN32PRODUCTDIR%.zip SHA256						>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
-IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Download\%WIN64PRODUCTDIR%.zip SHA256						>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
-
-IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Download\%DOWNLOADPRODUCT%_MinGW_x32.exe	SHA256				>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
-IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_%VERSION%_MinGW_x32.exe SHA256 >>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
-IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_MinGW_x32.exe SHA256 			>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
                                       
 IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Download\%DOWNLOADPRODUCT%.exe SHA256						>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
 IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_%VERSION%.exe SHA256  			>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
 IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster.exe SHA256  					>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
 
-ECHO. 									   											>>  ..\release\LPub3D.Release.build.log.txt
-IF %SIGN_APP% == 1 ECHO - Finished Application Code Signing Build... 				>>  ..\release\LPub3D.Release.build.log.txt
+ECHO. 									   																									>>  ..\release\LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 ECHO - Finished Application Code Signing Build... 																		>>  ..\release\LPub3D.Release.build.log.txt
 IF %SIGN_APP% == 1 ECHO.
 IF %SIGN_APP% == 1 ECHO - Finished Application Code Signing Build...
 
-ECHO. 																>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Finished.													>>  ../release/LPub3D.Release.build.log.txt
+ECHO. 																																		>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Finished.																															>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
 ECHO - Finished.
 
