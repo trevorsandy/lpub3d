@@ -25,6 +25,7 @@
 #include <QUrl>
 #include <QProcess>
 #include <QErrorMessage>
+#include <algorithm>
 
 #include "lpub.h"
 
@@ -65,6 +66,12 @@ struct paperSizes {
 { QPrinter::Letter,     215.9,  279.4 },
 { QPrinter::Tabloid,    279.4,  431.8 },
 };
+
+// Compare two variants.
+bool lessThan(const int &v1, const int &v2)
+{
+    return v1 < v2;
+}
 
 int Gui::bestPaperSizeOrientation(
     float widthMm,
@@ -417,32 +424,33 @@ void Gui::printToPdfFile()
     } else {
 
       QStringList pageRanges = pageRangeText.split(",");
-      QStringList printPages;
+      QList<int> printPages;
       foreach(QString ranges,pageRanges){
           if (ranges.contains("-")){
               QStringList range = ranges.split("-");
               int minPage = range[0].toInt();
               int maxPage = range[1].toInt();
               for(int i = minPage; i <= maxPage; i++){
-                  printPages << QString("%1").arg(i);
+                  printPages.append(i);
                 }
             } else {
-              printPages << ranges;
+              printPages.append(ranges.toInt());
             }
         }
 
-      qSort(printPages.begin(),printPages.end());
-      _maxPages = printPages.last().toInt();
+      std::sort(printPages.begin(),printPages.end(),lessThan);
+
+      _maxPages = printPages.last();
 
        m_progressDlgProgressBar->setRange(1,printPages.count());
 
       int _pageCount = 0;
-      foreach(QString printPage,printPages){
+      foreach(int printPage,printPages){
 
           if (m_cancelPrinting)
             break;
 
-          displayPageNum = printPage.toInt();
+          displayPageNum = printPage;
 
           logNotice() << QString("Printing: page %1 of %2").arg(displayPageNum).arg(_maxPages);
 
@@ -680,32 +688,33 @@ void Gui::exportAs(QString &suffix)
     } else {
 
       QStringList pageRanges = pageRangeText.split(",");
-      QStringList printPages;
+      QList<int> printPages;
       foreach(QString ranges,pageRanges){
           if (ranges.contains("-")){
               QStringList range = ranges.split("-");
               int minPage = range[0].toInt();
               int maxPage = range[1].toInt();
               for(int i = minPage; i <= maxPage; i++){
-                  printPages << QString("%1").arg(i);
+                  printPages.append(i);
                 }
             } else {
-              printPages << ranges;
+              printPages.append(ranges.toInt());
             }
         }
 
-      qSort(printPages.begin(),printPages.end());
-      _maxPages = printPages.last().toInt();
+      std::sort(printPages.begin(),printPages.end(),lessThan);
+
+      _maxPages = printPages.last();
 
       m_progressDlgProgressBar->setRange(1,printPages.count());
 
       int _pageCount = 0;
-      foreach(QString printPage,printPages){
+      foreach(int printPage,printPages){
 
           if (m_cancelPrinting)
             break;
 
-          displayPageNum = printPage.toInt();
+          displayPageNum = printPage;
 
           logNotice() << QString("Exporting: page range %1 of %2").arg(displayPageNum).arg(_maxPages);
 
@@ -783,3 +792,4 @@ void Gui::exportAs(QString &suffix)
   emit messageSig(true,QString("Export as %1 cancelled.").arg(suffix.remove(".")));
 }
 }
+

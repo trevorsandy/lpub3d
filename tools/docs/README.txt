@@ -1,13 +1,15 @@
-LPub3D 2.0.8.780.3 
+LPub3D 2.0.8.784.2 
  
 Features and enhancements 
-------------
--Fix: Revert to MinGW distributions - for both x32 and x64 architectures (r784)
- *Discontinue all MSVC LPub3D distributions.
--Fix: Refactor loading model file into Ldraw editor window (r783)
- *File load hangs for an unusual amount of time when loading a large model file. This behaviour appears usually when the LDraw editor tab is not in focus. If the file is loaded with the editor tab in focus, the file is loaded nominally.
--Fix: Exclude fade directories from search directory list if fade step not enabled (r781)
- *Improve just a little bit the performance during model file load.
+------------ 
+-Fix: Print/export 'page range' option output incorrect (r785)
+ *For print/export option "All pages," images are generated in numerical order. However, for option "Page Range," images are generated in "alphabetical" order for lack of a better description. If one selects pages 1-115, the order the pages are generated is 1, 10, 100, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2, 20, ... The order is now as expected 1...10...100 etc...
+-Fix: Revert to MinGW distributions - for both x32 and x64 architectures (r784) 
+ *Discontinue all MSVC LPub3D distributions. 
+-Fix: Refactor loading model file into Ldraw editor window (r783) 
+ *File load hangs for an unusual amount of time when loading a large model file. This behaviour appears usually when the LDraw editor tab is not in focus. If the file is loaded with the editor tab in focus, the file is loaded nominally. 
+-Fix: Exclude fade directories from search directory list if fade step not enabled (r781) 
+ *Improve just a little bit the performance during model file load. 
 -Fix: Refactor adding parts to archive library (r780) 
  *Improved logging detail and added checks to not submit an empty search directory. 
 -Fix: Log all status entries add date time stamp (r779) 
