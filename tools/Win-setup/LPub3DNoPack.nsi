@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: August 01, 2016
+;Last Update: August 05, 2016
 ;Copyright (C) 2016 by Trevor Sandy
 
 ;--------------------------------
@@ -206,17 +206,16 @@ FunctionEnd
 
 Section "${ProductName} (required)" SecMain${ProductName}
 
-  ;Confirm VC++ 2015 Redistribution is installed
-  Call fnConfirmVC2015Redist
-  
   ;install directory
   SetOutPath "$INSTDIR"
   
   ;executable requireds and readme
   ${If} ${RunningX64}
 	File "${Win64BuildDir}\${ProductName}_x64.exe"
+	
 	File "${Win64BuildDir}\quazip.dll"
 	File "${Win64BuildDir}\ldrawini.dll"
+	
 	File "${Win64BuildDir}\Qt5Core.dll"
 	File "${Win64BuildDir}\Qt5Network.dll"
 	File "${Win64BuildDir}\Qt5Gui.dll"
@@ -224,10 +223,23 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	File "${Win64BuildDir}\Qt5PrintSupport.dll"
 	File "${Win64BuildDir}\Qt5OpenGL.dll"
   ;New Stuff - Qt Libraries	
-	File "${Win64BuildDir}\libGLESV2.dll"
-	File "${Win64BuildDir}\libEGL.dll"
-	File "${Win64BuildDir}\opengl32sw.dll"
-	File "${Win64BuildDir}\d3dcompiler_47.dll"
+	File "${Win64BuildDir}\libbz2-1.dll"
+	File "${Win64BuildDir}\libfreetype-6.dll"
+	File "${Win64BuildDir}\libgcc_s_seh-1.dll"
+	File "${Win64BuildDir}\libglib-2.0-0.dll"
+	File "${Win64BuildDir}\libgraphite2.dll"
+	File "${Win64BuildDir}\libharfbuzz-0.dll"
+	File "${Win64BuildDir}\libiconv-2.dll"
+	File "${Win64BuildDir}\libicudt57.dll"
+	File "${Win64BuildDir}\libicuin57.dll"
+	File "${Win64BuildDir}\libicuuc57.dll"
+	File "${Win64BuildDir}\libintl-8.dll"
+	File "${Win64BuildDir}\libpcre-1.dll"
+	File "${Win64BuildDir}\libpcre16-0.dll"
+	File "${Win64BuildDir}\libpng16-16.dll"
+	File "${Win64BuildDir}\libstdc++-6.dll"
+	File "${Win64BuildDir}\libwinpthread-1.dll"
+	File "${Win64BuildDir}\zlib1.dll"
   ;New Stuff - Qt Plugins
    CreateDirectory "$INSTDIR\bearer"
    SetOutPath "$INSTDIR\bearer"
@@ -256,8 +268,10 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	File "${Win64BuildDir}\platforms\qwindows.dll"
   ${Else}
 	File "${Win32BuildDir}\${ProductName}_x32.exe"
+	
 	File "${Win32BuildDir}\quazip.dll"
 	File "${Win32BuildDir}\ldrawini.dll"
+	
 	File "${Win32BuildDir}\Qt5Core.dll"
 	File "${Win32BuildDir}\Qt5Network.dll"
 	File "${Win32BuildDir}\Qt5Gui.dll"
@@ -265,10 +279,9 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	File "${Win32BuildDir}\Qt5PrintSupport.dll"
 	File "${Win32BuildDir}\Qt5OpenGL.dll"
   ;New Stuff - Qt Libraries
-	File "${Win32BuildDir}\libGLESV2.dll"  
-	File "${Win32BuildDir}\libEGL.dll"
-	File "${Win32BuildDir}\opengl32sw.dll"	
-	File "${Win32BuildDir}\d3dcompiler_47.dll"
+	File "${Win32BuildDir}\libgcc_s_dw2-1.dll"  
+	File "${Win32BuildDir}\libstdc++-6.dll"
+	File "${Win32BuildDir}\libwinpthread-1.dll"	
   ;New Stuff - Qt Plugins
    CreateDirectory "$INSTDIR\bearer"
    SetOutPath "$INSTDIR\bearer"
@@ -681,26 +694,6 @@ Function fnCopyLibraries
 	
 FunctionEnd
 
-Function fnConfirmVC2015Redist
-	; Test if Visual Studio 2015 C++ Redistributables are installed
-	IfFileExists "$SYSDIR\vcruntime140.dll" 0 InstallVC2015Redist
-	goto Finish
-	InstallVC2015Redist:
-	;MessageBox MB_ICONEXCLAMATION "Note: Visual Studio 2015 VC++ Redistributable not found and will be installed!" IDOK 0
-	SetOutPath "$TEMP"
-	${If} ${RunningX64}
-		File "..\release\vcredist\vc_redist.x64.exe"
-		ExecWait '"$TEMP/vc_redist.x64.exe" /q' ; '/q' to install silently
-		Delete "$TEMP\vc_redist.x64.exe"
-	${Else}
-		File "..\release\vcredist\vc_redist.x86.exe"
-		ExecWait '"$TEMP/vc_redist.x86.exe" /q' 
-		Delete "$TEMP\vc_redist.x86.exe"
-	${EndIf}		
-    Finish:
-	
-FunctionEnd
-
 Function desktopIcon
 
     SetShellVarContext current
@@ -774,16 +767,38 @@ Section "Uninstall"
   
   Delete "$INSTDIR\quazip.dll"
   Delete "$INSTDIR\ldrawini.dll"
+  
   Delete "$INSTDIR\Qt5Core.dll"
   Delete "$INSTDIR\Qt5Network.dll"
   Delete "$INSTDIR\Qt5Gui.dll"
   Delete "$INSTDIR\Qt5Widgets.dll"
   Delete "$INSTDIR\Qt5PrintSupport.dll"
   Delete "$INSTDIR\Qt5OpenGL.dll"
-  Delete "$INSTDIR\libGLESV2.dll"  
-  Delete "$INSTDIR\libEGL.dll"
-  Delete "$INSTDIR\opengl32sw.dll"	
-  Delete "$INSTDIR\d3dcompiler_47.dll"
+  
+  ${If} ${RunningX64}
+	Delete "$INSTDIR\libbz2-1.dll"
+	Delete "$INSTDIR\libfreetype-6.dll"
+	Delete "$INSTDIR\libgcc_s_seh-1.dll"
+	Delete "$INSTDIR\libglib-2.0-0.dll"
+	Delete "$INSTDIR\libgraphite2.dll"
+	Delete "$INSTDIR\libharfbuzz-0.dll"
+	Delete "$INSTDIR\libiconv-2.dll"
+	Delete "$INSTDIR\libicudt57.dll"
+	Delete "$INSTDIR\libicuin57.dll"
+	Delete "$INSTDIR\libicuuc57.dll"
+	Delete "$INSTDIR\libintl-8.dll"
+	Delete "$INSTDIR\libpcre-1.dll"
+	Delete "$INSTDIR\libpcre16-0.dll"
+	Delete "$INSTDIR\libpng16-16.dll"
+	Delete "$INSTDIR\libstdc++-6.dll"
+	Delete "$INSTDIR\libwinpthread-1.dll"
+	Delete "$INSTDIR\zlib1.dll"
+  ${Else}
+	Delete "$INSTDIR\libgcc_s_dw2-1.dll"  
+	Delete "$INSTDIR\libstdc++-6.dll"
+	Delete "$INSTDIR\libwinpthread-1.dll"
+  ${EndIf}
+    
   Delete "$INSTDIR\README.txt"
   Delete "$INSTDIR\Uninstall.exe"
 

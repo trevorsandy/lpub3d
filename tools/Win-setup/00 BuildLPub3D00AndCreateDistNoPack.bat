@@ -2,7 +2,7 @@
 Title Build and create manual and automatic LPub3D install distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: August 03, 2016
+rem  Last Update: August 05, 2016
 rem  Copyright (c) 2016 by Trevor Sandy
 rem --
 SETLOCAL
@@ -13,18 +13,19 @@ ECHO.
 
 SET RUN_NSIS=1
 SET SIGN_APP=1
+SET CLEANUP=1
 SET CREATE_PORTABLE=1
+
 SET /p RUN_NSIS= - Run NSIS: Type 1 to run, 0 to ignore or 'Enter' to accept default [%RUN_NSIS%]: 
 IF %RUN_NSIS% == 0 (
    SET SIGN_APP=0 
+   SET CLEANUP=0
    SET CREATE_PORTABLE=0
 	)
 IF %RUN_NSIS% == 1 (						
-	SET /p SIGN_APP= - Code Signing: Type 1 to run, 0 to ignore or 'Enter' to accept default [%SIGN_APP%]: 
+	SET /p SIGN_APP= - Code Signing: Type 1 to run, 0 to ignore or 'Enter' to accept default [%SIGN_APP%]:
+	SET /p CLEANUP= - Cleanup: Type 1 to run, 0 to ignore or 'Enter' to accept default [%CLEANUP%]: 
 	)
-SET CLEANUP=1
-SET /p CLEANUP= - Cleanup: Type 1 to run, 0 to ignore or 'Enter' to accept default [%CLEANUP%]: 
-
 SET GENBUILDVER=0
 
 ECHO.
@@ -32,8 +33,9 @@ ECHO - You entered the following paramteres:
 ECHO.  	
 ECHO   RUN_NSIS=%RUN_NSIS%	
 IF %RUN_NSIS% == 1 ECHO   SIGN_APP=%SIGN_APP%
-ECHO   CLEANUP=%CLEANUP%
+IF %RUN_NSIS% == 1 ECHO   CLEANUP=%CLEANUP%
 ECHO.
+IF %RUN_NSIS% == 0 ECHO - No cleanup will be performed.
 IF %RUN_NSIS% == 0 ECHO - This configuration will allow you to test your NSIS scripts.
 ECHO.
 ECHO - Press Enter to continue.
@@ -56,13 +58,13 @@ IF %RUN_NSIS% == 1 ECHO - Start build process...      			   		>>  ..\release\LPu
 IF %RUN_NSIS% == 1 ECHO.
 IF %RUN_NSIS% == 1 ECHO - Start build process...
 
-SET Win32LPub3DBuildFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_32bit-Release\mainApp\build\release\LPub3D.exe"
-SET Win32QuazipBuildFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_32bit-Release\quazip\build\release\quazip.dll"
-SET Win32LdrawiniBuildFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_32bit-Release\ldrawini\build\release\ldrawini.dll"
+SET Win32BuildFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_32bit-Release\mainApp\build\release\LPub3D.exe"
+SET Win32QuazipFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_32bit-Release\quazip\build\release\quazip.dll"
+SET Win32LdrawiniFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_32bit-Release\ldrawini\build\release\ldrawini.dll"
 
-SET Win64LPub3DBuildFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_64bit-Release\mainApp\build\release\LPub3D.exe"
-SET Win64QuazipBuildFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_64bit-Release\quazip\build\release\quazip.dll"
-SET Win64LdrawiniBuildFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_0_MinGW_64bit-Release\ldrawini\build\release\ldrawini.dll"
+SET Win64BuildFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_1_MinGW_64bit-Release\mainApp\build\release\LPub3D.exe"
+SET Win64QuazipFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_1_MinGW_64bit-Release\quazip\build\release\quazip.dll"
+SET Win64LdrawiniFile="..\..\..\build-LPub3D-Desktop_Qt_5_7_1_MinGW_64bit-Release\ldrawini\build\release\ldrawini.dll"
 
 SET Win32QtBinPath=C:\Qt\IDE\5.7\mingw53_32\bin
 SET Win32QtPluginPath=C:\Qt\IDE\5.7\mingw53_32\plugins
@@ -491,122 +493,136 @@ ECHO - Copying %WIN32PRODUCTDIR% content to media folder...    																	
 ECHO. 	
 ECHO - Copying %WIN32PRODUCTDIR% content to media folder...
 
-XCOPY /S /I /E /V /Y %devRootPath%\extras ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\extras											>>  ../release/LPub3D.Release.build.log.txt
-XCOPY /S /I /E /V /Y ..\release\libraries ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\libraries										>>  ../release/LPub3D.Release.build.log.txt 
-XCOPY /S /I /E /V /Y ..\release\3rdParty ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\3rdParty											>>  ../release/LPub3D.Release.build.log.txt 
-XCOPY /S /I /E /V /Y ..\docs ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\docs															>>  ../release/LPub3D.Release.build.log.txt 
-XCOPY /S /I /E /V /Y ..\icons ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\icons														>>  ../release/LPub3D.Release.build.log.txt
+XCOPY /S /I /E /V /Y %devRootPath%\extras ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\extras											>>  ../release/LPub3D.Release.build.log.txt
+XCOPY /S /I /E /V /Y ..\release\libraries ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\libraries										>>  ../release/LPub3D.Release.build.log.txt 
+XCOPY /S /I /E /V /Y ..\release\3rdParty ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\3rdParty											>>  ../release/LPub3D.Release.build.log.txt 
+XCOPY /S /I /E /V /Y ..\docs ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\docs															>>  ../release/LPub3D.Release.build.log.txt 
+XCOPY /S /I /E /V /Y ..\icons ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\icons														>>  ../release/LPub3D.Release.build.log.txt
 
-COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /A                          								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /A                          								>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32PRODUCTDIR%\ /A                                        	  						>>  ../release/LPub3D.Release.build.log.txt
 
-COPY /V /Y %Win32BuildFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\%PRODUCT%.exe /B												>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QuazipFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B                      										>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32LdrawiniFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B                    										>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32BuildFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\%PRODUCT%_x32.exe /B												>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QuazipFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                      										>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32LdrawiniFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                    										>>  ../release/LPub3D.Release.build.log.txt
 
-COPY /V /Y "%Win32QtBinPath%\libgcc_s_dw2-1.dll" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B       								>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y "%Win32QtBinPath%\libstdc++-6.dll" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B          								>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y "%Win32QtBinPath%\libwinpthread-1.dll" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B      								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win32QtBinPath%\libgcc_s_dw2-1.dll" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B       								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win32QtBinPath%\libstdc++-6.dll" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B          								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win32QtBinPath%\libwinpthread-1.dll" ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B      								>>  ../release/LPub3D.Release.build.log.txt
 
-COPY /V /Y %Win32QtBinPath%\Qt5Core.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B                								>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtBinPath%\Qt5Gui.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B                 								>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtBinPath%\Qt5Network.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B             								>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtBinPath%\Qt5OpenGL.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B              								>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtBinPath%\Qt5PrintSupport.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B        								>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtBinPath%\Qt5Widgets.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\ /B             								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtBinPath%\Qt5Core.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtBinPath%\Qt5Gui.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                 								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtBinPath%\Qt5Network.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtBinPath%\Qt5OpenGL.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B              								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtBinPath%\Qt5PrintSupport.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B        								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtBinPath%\Qt5Widgets.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B             								>>  ../release/LPub3D.Release.build.log.txt
 
-IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\bearer\" (
-  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\bearer\"
+IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\bearer\" (
+  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\bearer\"
 )
-IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\iconengines\" (
-  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\iconengines\"
+IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\iconengines\" (
+  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\iconengines\"
 )
-IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\" (
-  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\"
+IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\" (
+  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\"
 )
-IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\platforms\" (
-  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\platforms\"
+IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\platforms\" (
+  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\platforms\"
 )
-IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\printsupport\" (
-  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\printsupport\"
+IF NOT EXIST "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\printsupport\" (
+  MKDIR "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\printsupport\"
 )
 
-COPY /V /Y %Win32QtPluginPath%\bearer\qgenericbearer.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\bearer\ /B  						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\bearer\qnativewifibearer.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\bearer\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\iconengines\qsvgicon.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\iconengines\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qdds.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qgif.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qicns.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qico.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qjpeg.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qsvg.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qtga.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qtiff.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qwbmp.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\imageformats\qwebp.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\platforms\qwindows.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\platforms\ /B  						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win32QtPluginPath%\printsupport\windowsprintersupport.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%\printsupport\ /B  	>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\bearer\qgenericbearer.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\bearer\ /B  						>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\bearer\qnativewifibearer.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\bearer\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\iconengines\qsvgicon.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\iconengines\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qdds.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qgif.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qicns.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qico.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qjpeg.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qsvg.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qtga.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qtiff.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qwbmp.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\imageformats\qwebp.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\platforms\qwindows.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\platforms\ /B  						>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32QtPluginPath%\printsupport\windowsprintersupport.dll ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\printsupport\ /B  	>>  ../release/LPub3D.Release.build.log.txt
 
-ECHO. 																																		>>  ../release/LPub3D.Release.build.log.txt
-ECHO - Copying %WIN64PRODUCTDIR% content to media folder...    																				>>  ../release/LPub3D.Release.build.log.txt
+ECHO. 																																			>>  ../release/LPub3D.Release.build.log.txt
+ECHO - Copying %WIN64PRODUCTDIR% content to media folder...    																					>>  ../release/LPub3D.Release.build.log.txt
 ECHO. 	
 ECHO - Copying %WIN64PRODUCTDIR% content to media folder...
 
-XCOPY /S /I /E /V /Y %devRootPath%\extras ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\extras											>>  ../release/LPub3D.Release.build.log.txt
-XCOPY /S /I /E /V /Y ..\release\libraries ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\libraries										>>  ../release/LPub3D.Release.build.log.txt 
-XCOPY /S /I /E /V /Y ..\release\3rdParty ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\3rdParty											>>  ../release/LPub3D.Release.build.log.txt 
-XCOPY /S /I /E /V /Y ..\docs ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\docs															>>  ../release/LPub3D.Release.build.log.txt 
-XCOPY /S /I /E /V /Y ..\icons ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\icons														>>  ../release/LPub3D.Release.build.log.txt
+XCOPY /S /I /E /V /Y %devRootPath%\extras ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\extras											>>  ../release/LPub3D.Release.build.log.txt
+XCOPY /S /I /E /V /Y ..\release\libraries ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\libraries										>>  ../release/LPub3D.Release.build.log.txt 
+XCOPY /S /I /E /V /Y ..\release\3rdParty ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\3rdParty											>>  ../release/LPub3D.Release.build.log.txt 
+XCOPY /S /I /E /V /Y ..\docs ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\docs															>>  ../release/LPub3D.Release.build.log.txt 
+XCOPY /S /I /E /V /Y ..\icons ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\icons														>>  ../release/LPub3D.Release.build.log.txt
 
-COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /A                          								>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN64PRODUCTDIR%\ /A                                        	  						>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /A                          								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN64PRODUCTDIR%\ /A                                        	  							>>  ../release/LPub3D.Release.build.log.txt
 
-COPY /V /Y %Win64BuildFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\%PRODUCT%.exe /B												>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QuazipFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B                      										>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64LdrawiniFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B                    										>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64BuildFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\%PRODUCT%_x64.exe /B											>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QuazipFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B                      										>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64LdrawiniFile% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B                    										>>  ../release/LPub3D.Release.build.log.txt
 
-COPY /V /Y "%Win64QtBinPath%\libgcc_s_dw2-1.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B       								>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y "%Win64QtBinPath%\libstdc++-6.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B          								>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y "%Win64QtBinPath%\libwinpthread-1.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B      								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libbz2-1.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B       									>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libfreetype-6.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B       								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libgcc_s_seh-1.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B       							>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libglib-2.0-0.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B       								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libgraphite2.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B       								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libharfbuzz-0.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B       								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libiconv-2.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B       								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libicudt57.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B       								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libicuin57.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B       								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libicuuc57.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B       								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libintl-8.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B       									>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libpcre-1.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B       									>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libpcre16-0.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B       								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libpng16-16.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B       								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libstdc++-6.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B       								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\libwinpthread-1.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B       							>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y "%Win64QtBinPath%\zlib1.dll" ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B       										>>  ../release/LPub3D.Release.build.log.txt
 
-COPY /V /Y %Win64QtBinPath%\Qt5Core.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B                								>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtBinPath%\Qt5Gui.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B                 								>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtBinPath%\Qt5Network.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B             								>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtBinPath%\Qt5OpenGL.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B              								>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtBinPath%\Qt5PrintSupport.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B        								>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtBinPath%\Qt5Widgets.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\ /B             								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtBinPath%\Qt5Core.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B                								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtBinPath%\Qt5Gui.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B                 								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtBinPath%\Qt5Network.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B             								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtBinPath%\Qt5OpenGL.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B              								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtBinPath%\Qt5PrintSupport.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B        								>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtBinPath%\Qt5Widgets.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\ /B             								>>  ../release/LPub3D.Release.build.log.txt
 
-IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\bearer\" (
-  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\bearer\"
+IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\bearer\" (
+  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\bearer\"
 )
-IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\iconengines\" (
-  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\iconengines\"
+IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\iconengines\" (
+  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\iconengines\"
 )
-IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\" (
-  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\"
+IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\" (
+  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\"
 )
-IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\platforms\" (
-  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\platforms\"
+IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\platforms\" (
+  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\platforms\"
 )
-IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\printsupport\" (
-  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\printsupport\"
+IF NOT EXIST "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\printsupport\" (
+  MKDIR "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\printsupport\"
 )
 
-COPY /V /Y %Win64QtPluginPath%\bearer\qgenericbearer.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\bearer\ /B  						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\bearer\qnativewifibearer.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\bearer\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\iconengines\qsvgicon.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\iconengines\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qdds.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qgif.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qicns.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qico.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qjpeg.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qsvg.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qtga.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qtiff.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qwbmp.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\imageformats\qwebp.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\platforms\qwindows.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\platforms\ /B  						>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y %Win64QtPluginPath%\printsupport\windowsprintersupport.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%\printsupport\ /B  	>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\bearer\qgenericbearer.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\bearer\ /B  						>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\bearer\qnativewifibearer.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\bearer\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\iconengines\qsvgicon.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\iconengines\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qdds.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qgif.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qicns.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qico.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qjpeg.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qsvg.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qtga.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qtiff.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qwbmp.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\imageformats\qwebp.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\imageformats\ /B  					>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\platforms\qwindows.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\platforms\ /B  						>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win64QtPluginPath%\printsupport\windowsprintersupport.dll ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\printsupport\ /B  	>>  ../release/LPub3D.Release.build.log.txt
 
 ECHO. 																																		>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Finished copying content to media folder...     																						>>  ../release/LPub3D.Release.build.log.txt

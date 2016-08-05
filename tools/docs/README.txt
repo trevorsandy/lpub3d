@@ -1,9 +1,9 @@
-LPub3D 2.0.8.784.2 
+LPub3D 2.0.8.785.2 
  
 Features and enhancements 
 ------------ 
--Fix: Print/export 'page range' option output incorrect (r785)
- *For print/export option "All pages," images are generated in numerical order. However, for option "Page Range," images are generated in "alphabetical" order for lack of a better description. If one selects pages 1-115, the order the pages are generated is 1, 10, 100, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2, 20, ... The order is now as expected 1...10...100 etc...
+-Fix: Print/export 'page range' option output incorrect (r785) 
+ *For print/export option "All pages," images are generated in numerical order. However, for option "Page Range," images are generated in "alphabetical" order for lack of a better description. If one selects pages 1-115, the order the pages are generated is 1, 10, 100, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2, 20, ... The order is now as expected 1...10...100 etc... 
 -Fix: Revert to MinGW distributions - for both x32 and x64 architectures (r784) 
  *Discontinue all MSVC LPub3D distributions. 
 -Fix: Refactor loading model file into Ldraw editor window (r783) 
