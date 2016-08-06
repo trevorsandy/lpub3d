@@ -24,7 +24,7 @@
 // ~~~~~ Version info ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 #define VER_MAJOR                           2
 #define VER_MINOR                           0
-#define VER_SP                              8
+#define VER_SP                              9
 
 #define VER_BUILD_STR                       _BUILD_NUMBER
 #define VER_REVISION_STR                    _BUILD_REVISION
@@ -34,9 +34,9 @@
 #define VER_FILEVERSION_STR         		STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SP) "." VER_REVISION_STR "." VER_BUILD_STR "\0"
 #define VER_PRODUCTVERSION          		VER_MAJOR,VER_MINOR,VER_SP
 #define VER_PRODUCTVERSION_STR      		STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SP) "\0"
-#define VER_UPDATEABLE_VERSIONS_STR         "2.0.8,2.0.7,1.3.5,1.2.3,1.0.0"
+#define VER_UPDATEABLE_VERSIONS_STR         "2.0.9,2.0.8,1.3.5,1.2.3,1.0.0"
 #define VER_PRODUCTNAME_STR         		"LPub3D"
-#define VER_COMPANYNAME_STR         		"LPub3D Software"
+#define VER_COMPANYNAME_STR         		"LPub3D Software Hold"
 #define VER_FILEDESCRIPTION_STR     		"LPub3D - An LDraw Building Instruction Editor"
 #define VER_INTERNALNAME_STR        		"bociphus"
 #define VER_LEGALCOPYRIGHT_STR      		"Copyright &copy; 2016 by Trevor SANDY"

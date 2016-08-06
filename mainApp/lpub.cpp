@@ -1336,19 +1336,50 @@ bool Gui::aboutDialog()
 }
 
 void Gui::refreshLDrawUnoffParts(){
-
-    // Create an instance of update ldraw archive
+    // Download unofficial archive
+    emit messageSig(true,"Refresh LDraw Unofficial Library archive...");
+    UpdateCheck *libraryDownload;
+    QEventLoop *wait = new QEventLoop();
+    QString archivePath = tr("%1/%2").arg(Preferences::lpubDataPath, "libraries");
     libraryDownload = new UpdateCheck(this, (void*)LDrawUnofficialLibraryDownload);
-    libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), tr("%1/%2").arg(Preferences::lpubDataPath, "libraries"));
+    wait->connect(libraryDownload, SIGNAL(downloadFinished(QString,QString)), wait, SLOT(quit()));
+    libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), archivePath);
+    wait->exec();
 
+    // Extract archive
+    QString archive = tr("%1/%2").arg(archivePath).arg(FILE_LPUB3D_UNOFFICIAL_ARCHIVE);
+    QString destination = tr("%1/unofficial").arg(Preferences::ldrawPath);
+    QStringList result = JlCompress::extractDir(archive,destination);
+    if (result.isEmpty()){
+        emit messageSig(false,tr("Failed to extract %1 to %2").arg(archive).arg(destination));
+    } else {
+        QString message = tr("%1 Unofficial Library files extracted to %2").arg(result.size()).arg(destination);
+        emit messageSig(true,message);
+    }
 }
 
 void Gui::refreshLDrawOfficialParts(){
-
-    // Create an instance of update ldraw archive
+    // Download official archive
+    emit messageSig(true,"Refresh LDraw Official Library archive...");
+    UpdateCheck *libraryDownload;
+    QEventLoop *wait = new QEventLoop();
+    QString archivePath = tr("%1/%2").arg(Preferences::lpubDataPath, "libraries");
     libraryDownload = new UpdateCheck(this, (void*)LDrawOfficialLibraryDownload);
-    libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), tr("%1/%2").arg(Preferences::lpubDataPath, "libraries"));
+    wait->connect(libraryDownload, SIGNAL(downloadFinished(QString,QString)), wait, SLOT(quit()));
+    libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), archivePath);
+    wait->exec();
 
+    // Extract archive
+    QString archive = tr("%1/%2").arg(archivePath).arg(VER_LDRAW_OFFICIAL_ARCHIVE);
+    QString destination = Preferences::ldrawPath;
+    destination = destination.remove(destination.size() - 6,6);
+    QStringList result = JlCompress::extractDir(archive,destination);
+    if (result.isEmpty()){
+        emit messageSig(false,tr("Failed to extract %1 to %2/ldraw").arg(archive).arg(destination));
+    } else {
+        QString message = tr("%1 Official Library files extracted to %2/ldraw").arg(result.size()).arg(destination);
+        emit messageSig(true,message);
+    }
 }
 
 void Gui::updateCheck()

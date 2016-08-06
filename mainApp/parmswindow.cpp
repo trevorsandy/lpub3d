@@ -279,7 +279,7 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
                     args << tr ("%1").arg(gui->getCurFile());
                     args.removeFirst();
                     QProcess::startDetached(QApplication::applicationFilePath(), args);
-                    qDebug() << "exe:" << QApplication::applicationFilePath() << ", args:" << args;
+                    qDebug() << "Restarted LPub3D usng exe:" << QApplication::applicationFilePath() << ", args:" << args;
                 }
                 event->accept();
                 QCoreApplication::quit();

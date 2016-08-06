@@ -221,6 +221,8 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, QString &
       else
          archivedPartCount++;
 
+      logInfo() << QString("  %1 Archive part: %2").arg(archivedPartCount).arg(fileInfo.fileName());
+
       int partsDirIndex    = fileInfo.absoluteFilePath().indexOf("/parts/",0,Qt::CaseInsensitive);
       int primDirIndex     = fileInfo.absoluteFilePath().indexOf("/p/",0,Qt::CaseInsensitive);
 

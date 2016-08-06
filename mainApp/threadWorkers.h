@@ -130,6 +130,8 @@ public slots:
 
      void requestEndThreadNow();
 
+     void processFadePartsArchive();
+
 signals:
      void progressBarInitSig();
 

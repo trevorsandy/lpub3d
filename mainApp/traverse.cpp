@@ -273,12 +273,11 @@ int Gui::drawPage(LGraphicsView  *view,
   Rc gprc = OkRc;
   Rc rc;
 
-//  statusBar()->showMessage("Processing " + current.modelName);
-  emit messageSig(true, "Processing " + current.modelName);
-
   page.coverPage = false;
 
   QStringList calloutParts;
+
+  emit messageSig(true, "Processing draw page for " + current.modelName);
 
   /*
    * do until end of page
@@ -452,8 +451,6 @@ int Gui::drawPage(LGraphicsView  *view,
                   QStringList csiParts2;
 
                   QHash<QString, QStringList> calloutBfx;
-
-                  emit messageSig(true, "Processing draw page...");
 
                   int rc;
                   rc = drawPage(
@@ -1220,6 +1217,8 @@ int Gui::findPage(
 
   RotStepMeta saveRotStep = meta.rotStep;
 
+  emit messageSig(true, "Processing find page for " + current.modelName);
+
   for ( ;
         current.lineNumber < numLines;
         current.lineNumber++) {
@@ -1283,8 +1282,6 @@ int Gui::findPage(
                       // since rotsteps don't affect submodels
                       RotStepMeta saveRotStep2 = meta.rotStep;
                       meta.rotStep.clear();
-
-                      emit messageSig(true, "Processing find page...");
 
                       findPage(view,scene,pageNum,line,current2,isMirrored,meta,printing);
                       saveStepPageNum = stepPageNum;
@@ -1351,8 +1348,6 @@ int Gui::findPage(
 
                       QStringList pliParts;
 
-                      emit messageSig(true, "Processing draw page...");
-
                       (void) drawPage(view,
                                       scene,
                                       &page,
@@ -1409,8 +1404,6 @@ int Gui::findPage(
                           page.meta.rotStep = saveRotStep;
                           page.meta.rotStep = meta.rotStep;
                           QStringList pliParts;
-
-                          emit messageSig(true, "Processing draw page...");
 
                           (void) drawPage(view,
                                           scene,
@@ -1548,8 +1541,6 @@ int Gui::findPage(
 
           page.meta = saveMeta;
           QStringList pliParts;
-
-          emit messageSig(true, "Processing draw page...");
 
           (void) drawPage(view,
                           scene,
@@ -1974,7 +1965,7 @@ void Gui::drawPage(
   Meta    meta;
   firstStepPageNum = -1;
   lastStepPageNum = -1;
-  emit messageSig(true, "Processing find page...");
+
   findPage(view,scene,maxPages,empty,current,false,meta,printing);
   topOfPages.append(current);
   maxPages--;

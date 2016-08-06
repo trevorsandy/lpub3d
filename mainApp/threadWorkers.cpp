@@ -249,6 +249,24 @@ void PartWorker::processLDSearchDirParts(){
 /*
  * Create fade version of static colour part files.
  */
+void PartWorker::processFadePartsArchive(){
+    if (doFadeStep()) {
+        QStringList fadePartsDirs;
+        Paths::mkfadedirs();
+        foreach(QDir fadeDir, Paths::fadeDirs){
+            if(fadeDir.entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0)
+                fadePartsDirs << fadeDir.absolutePath();
+        }
+        if (fadePartsDirs.size() > 0) {
+            if (!processPartsArchive(fadePartsDirs, "colour fade")){
+                QString error = QString("Process fade parts archive failed!.");
+                emit messageSig(false,error);
+                logError() << error;
+            }
+        }
+    }
+}
+
 void PartWorker::processFadeColourParts()
 {
   if (doFadeStep()) {
@@ -268,12 +286,12 @@ void PartWorker::processFadeColourParts()
       ldrawFile = gui->getLDrawFile();
       // porcess top-level submodels
       emit progressRangeSig(1, ldrawFile._subFileOrder.size());
-      for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
+      for (int i = 0; i < ldrawFile._subFileOrder.size() && endThreadNotRequested(); i++) {
           QString subfileNameStr = ldrawFile._subFileOrder[i].toLower();
           contents = ldrawFile.contents(subfileNameStr);
           emit progressSetValueSig(i);
           logInfo() << "00 PROCESSING SUBFILE:" << subfileNameStr;
-          for (int i = 0; i < contents.size(); i++) {
+          for (int i = 0; i < contents.size() && endThreadNotRequested(); i++) {
               QString line = contents[i];
               QStringList tokens;
               split(line,tokens);
@@ -763,14 +781,14 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   // Append fade parts to unofficial library for 3D Viewer's consumption
   QFileInfo libFileInfo(Preferences::lpub3dLibFile);
   QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.absolutePath(),VER_LPUB3D_UNOFFICIAL_ARCHIVE));
-  QString returnMessage;
+  QString returnMessage = QString("Archiving %1 parts to : %2.").arg(comment,archiveFile);
+  logInfo() << QString("Archiving %1 parts to %2.").arg(comment,archiveFile);
+  logInfo() << (doFadeStep() ? QString("Fade Step is ON.") : QString("Fade Step is OFF."));
 
   if (okToEmitToProgressBar()) {
       emit progressResetSig();
-      emit progressMessageSig(QString("Archiving %1 parts.").arg(comment));
     } else {
       emit Application::instance()->splashMsgSig(QString("75% - Archiving %1 parts...").arg(comment));
-      logInfo() << QString("Archiving %1 parts to : %2.").arg(comment,archiveFile);
     }
 
   if (okToEmitToProgressBar())
@@ -781,7 +799,6 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   for (int i = 0; i < ldPartsDirs.size(); i++){
 
       QDir foo = ldPartsDirs[i];
-      //          qDebug() << QString(tr("ARCHIVING %1 DIR %2").arg(comment.toUpper()).arg(foo.absolutePath()));
 
       if (!archiveParts.Archive( archiveFile,
                                  foo.absolutePath(),
@@ -799,12 +816,15 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
       int partCount = returnMessage.toInt(&ok);
       QString breakdown;
       if (ok){
+//          breakdown = partCount == 1 && archivedPartCount == 0 ? tr("part") :
+//                      partCount != 1 && archivedPartCount == 0 ? tr("parts") :
+//                                                                 tr("[%1 + %2] parts").arg(archivedPartCount).arg(partCount);
+          archivedPartCount += partCount;
           breakdown = partCount == 1 && archivedPartCount == 0 ? tr("part") :
                       partCount != 1 && archivedPartCount == 0 ? tr("parts") :
-                                                                 tr("[%1 + %2] parts").arg(archivedPartCount).arg(partCount);
-          archivedPartCount += partCount;
+                                                                 tr("[Total %1] parts").arg(archivedPartCount);
       }
-      logInfo() << tr("Archived %1 %2 from %3").arg(archivedPartCount).arg(breakdown).arg(foo.absolutePath());
+      logInfo() << tr("Archived %1 %2 from %3").arg(partCount).arg(breakdown).arg(foo.absolutePath());
   }
 
   // Reload unofficial library parts into memory - only if initial library load already done !
@@ -831,12 +851,12 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   if (archivedPartCount > 0)
       returnMessage = tr("Finished. Archived and loaded %1 %2 parts into memory.").arg(archivedPartCount).arg(comment);
   else
-      returnMessage = tr("Finished. No %1 parts added.").arg(comment);
+      returnMessage = tr("Finished. No %1 parts archived.").arg(comment);
 
+  logInfo() << returnMessage;
   if (okToEmitToProgressBar()) {
-      emit progressMessageSig(returnMessage);
+      emit messageSig(true, returnMessage);
   } else {
-      logInfo() << returnMessage;
       emit Application::instance()->splashMsgSig(tr("80% - Finished archiving %1 parts.").arg(comment));
   }
   return true;

@@ -6,6 +6,8 @@ Features and enhancements
  *After archive library download, extract contents to defined LDraw disc library location. Archive libraries can be downloaded at application launch if no archive was found and at the tools menu where one can 'Refresh' the libraries at any time. The aim of this enhancement is to synchronize and automatically update both the archive and disc LDraw library content.
 -Fix: Move cache to root install folder for portable distributions (r788)
  *Allow all runtime components of portable distibuton to be contanied within the folder structure of the distribution.
+-Fix: Fade parts functionality update (r789)
+ *Update logging, archive fade parts after model file load as necessary - previously only updated on application launch.
  
 Features and enhancements 
 ------------ 
