@@ -607,10 +607,11 @@ public slots:
   void statusMessage(bool status, QString message){
       if (status){
           statusBarMsg(message);
+          logStatus() << message;
       }else{
           QMessageBox::warning(this,tr("LPub3D"),tr(message.toLatin1()));
-      }
-      logStatus() << message;
+          logError() << message;
+      }      
   }
 
   void statusBarMsg(QString msg);
@@ -686,6 +687,7 @@ public slots:
 
   void fileChanged(const QString &path);
 
+  void processFadePartsArchive();
   void processFadeColourParts();
   void loadFile(const QString &file);
 
@@ -743,7 +745,6 @@ private:
   QProgressBar          *progressBarPerm;    // Right side progress bar
   QLabel                *progressLabel;
   QLabel                *progressLabelPerm;  //
-  UpdateCheck           *libraryDownload;     // download request
 
   FadeStepColorParts     fadeStepColorParts; // internal list of color parts to be processed for fade step.
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts

@@ -29,6 +29,7 @@
 #include <QCloseEvent>
 #include <QUndoStack>
 #include <QTextStream>
+#include <JlCompress.h>
 #include "QPushButton"
 #include "QHBoxLayout"
 #include "QVBoxLayout"
@@ -926,33 +927,35 @@ void Gui::editLdrawIniFile()
 
 void Gui::preferences()
 {
-  bool useLDViewSCall= renderer->useLDViewSCall();
+    bool useLDViewSCall= renderer->useLDViewSCall();
 
-  if (Preferences::getPreferences()) {
+    if (Preferences::getPreferences()) {
 
-      Meta meta;
-      page.meta = meta;
+        Meta meta;
+        page.meta = meta;
 
-      Step::refreshCsi = true;
+        Step::refreshCsi = true;
 
-      if (!getCurFile().isEmpty()){
+        QString currentRenderer = Render::getRenderer();
+        Render::setRenderer(Preferences::preferredRenderer);
+        bool rendererChanged = Render::getRenderer() != currentRenderer;
+        bool fadeStepColorChanged = Preferences::fadeStepColorChanged && !Preferences::fadeStepSettingChanged;
+        bool useLDViewSCallChanged = useLDViewSCall != renderer->useLDViewSCall();
 
-          QString currentRenderer = Render::getRenderer();
-          Render::setRenderer(Preferences::preferredRenderer);
-          bool rendererChanged = Render::getRenderer() != currentRenderer;
-          bool fadeStepColorChanged = Preferences::fadeStepColorChanged && !Preferences::fadeStepSettingChanged;
-          bool useLDViewSCallChanged = useLDViewSCall != renderer->useLDViewSCall();
-
-          if (rendererChanged && Preferences::preferredRenderer == "LDGLite") {
-              partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
+        if (rendererChanged && Preferences::preferredRenderer == "LDGLite") {
+            partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
+        }
+        if (Preferences::fadeStepSettingChanged){
+            processFadePartsArchive();
+        }
+        if (!getCurFile().isEmpty()) {
+            if (Preferences::fadeStepSettingChanged){
+                clearImageModelCaches();
             }
-
-          if (Preferences::fadeStepSettingChanged){
-              clearImageModelCaches();
-            } else if (rendererChanged ||
-                       fadeStepColorChanged ||
-                       useLDViewSCallChanged){
-              clearAndRedrawPage();
+            if (rendererChanged ||
+                     fadeStepColorChanged ||
+                     useLDViewSCallChanged){
+                clearAndRedrawPage();
             }
         }
     }
@@ -1241,6 +1244,30 @@ void Gui::processFadeColourParts()
     }
 }
 
+void Gui::processFadePartsArchive()
+{
+  bool doFadeStep = (page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
+
+  if (doFadeStep) {
+
+      QThread *partThread  = new QThread();
+      partWorkerFadeColour = new PartWorker();
+      partWorkerFadeColour->moveToThread(partThread);
+
+      connect(partThread,           SIGNAL(started()),                partWorkerFadeColour, SLOT(processFadePartsArchive()));
+      connect(partThread,           SIGNAL(finished()),                         partThread, SLOT(deleteLater()));
+      connect(partWorkerFadeColour, SIGNAL(fadeColourFinishedSig()),            partThread, SLOT(quit()));
+      connect(partWorkerFadeColour, SIGNAL(fadeColourFinishedSig()),  partWorkerFadeColour, SLOT(deleteLater()));
+      connect(partWorkerFadeColour, SIGNAL(requestFinishSig()),                 partThread, SLOT(quit()));
+      connect(partWorkerFadeColour, SIGNAL(requestFinishSig()),       partWorkerFadeColour, SLOT(deleteLater()));
+      connect(this,                 SIGNAL(requestEndThreadNowSig()), partWorkerFadeColour, SLOT(requestEndThreadNow()));
+
+      connect(partWorkerFadeColour, SIGNAL(messageSig(bool,QString)),                 this, SLOT(statusMessage(bool,QString)));
+
+      partThread->start();
+    }
+}
+
 // left side progress bar
 void Gui::progressBarInit(){
     progressBar->setMaximumHeight(15);
@@ -1323,7 +1350,6 @@ void Gui::refreshLDrawOfficialParts(){
     libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), tr("%1/%2").arg(Preferences::lpubDataPath, "libraries"));
 
 }
-
 
 void Gui::updateCheck()
 {

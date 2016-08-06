@@ -2,8 +2,13 @@ LPub3D 2.0.8.785.2
  
 Features and enhancements 
 ------------ 
+-Fix: Extract archive library download (r787)
+ *After archive library download, extract contents to defined LDraw disc library location. Archive libraries can be downloaded at application launch if no archive was found and at the tools menu where one can 'Refresh' the libraries at any time. The aim of this enhancement is to synchronize and automatically update both the archive and disc LDraw library content.
+ 
+Features and enhancements 
+------------ 
 -Fix: Print/export 'page range' option output incorrect (r785) 
- *For print/export option "All pages," images are generated in numerical order. However, for option "Page Range," images are generated in "alphabetical" order for lack of a better description. If one selects pages 1-115, the order the pages are generated is 1, 10, 100, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2, 20, ... The order is now as expected 1...10...100 etc... 
+ *For print/export option "All pages," images are generated in numerical order. However, for option "Page Range," images are generated in "alphabetical" order for lack of a better description. If one selects pages 1-115, the order the pages are generated is 1, 10, 100, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2, 20... The order is now as expected 1...10...100 etc... 
 -Fix: Revert to MinGW distributions - for both x32 and x64 architectures (r784) 
  *Discontinue all MSVC LPub3D distributions. 
 -Fix: Refactor loading model file into Ldraw editor window (r783) 
@@ -20,7 +25,7 @@ Features and enhancements
  *Update fadeStepColorParts.lst attributes to allow faster library parsing to generate static colour parts. 
  NOTE: FILE UPDATE REQUIRED. fadeStepColourParts.lst file updated with new required column so it is necessary to update your installed file. LPub3D will automatically backup and overwrite the existing file during installation. 
 -Fix: Adjustable renderer process timeout (r776) 
- *All the user to manage the amount of time to keep alive the renderer process. The default is 6 minutes but can be changed between -1 which is run indefinitely and 99 minutes. For high definition using POV-Ray, rendering process time can easily exceed the default. This setting is located at Preferences= 
+ *All the user to manage the amount of time to keep alive the renderer process. The default is 6 minutes but can be changed between -1 which is run indefinitely and 99 minutes. For high definition using POV-Ray, rendering process time can easily exceed the default. This setting is located at Preferences/Rendering/Process timeout.
 -Fix: Reload archive libraries into memory (r775) 
  *On model file load, do not reload library if no new parts discovered. LPub3D sweeps the defined search directories upon file load. This update makes a little more efficient the load process. 
 -Fix: Update aboutdialog display version of Qt (r774) 
