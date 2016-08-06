@@ -34,12 +34,17 @@
 
 lcPiecesLibrary::lcPiecesLibrary()
 {
+
+    if (QDir(Preferences::lpub3dPath + "/extras").exists()) { // we have a portable distribution
+        mCachePath = Preferences::lpub3dPath + "/cache";
+    } else {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-	QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
-	mCachePath = cachePathList.first();
+        QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
+        mCachePath = cachePathList.first();
 #else
-	mCachePath  = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
+        mCachePath  = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
 #endif
+    }
 
 	QDir Dir;
 	Dir.mkpath(mCachePath);

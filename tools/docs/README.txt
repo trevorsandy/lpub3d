@@ -2,8 +2,10 @@ LPub3D 2.0.8.785.2
  
 Features and enhancements 
 ------------ 
--Fix: Extract archive library download (r787)
+-Fix: Extract archive library after download (r787)
  *After archive library download, extract contents to defined LDraw disc library location. Archive libraries can be downloaded at application launch if no archive was found and at the tools menu where one can 'Refresh' the libraries at any time. The aim of this enhancement is to synchronize and automatically update both the archive and disc LDraw library content.
+-Fix: Move cache to root install folder for portable distributions (r788)
+ *Allow all runtime components of portable distibuton to be contanied within the folder structure of the distribution.
  
 Features and enhancements 
 ------------ 
