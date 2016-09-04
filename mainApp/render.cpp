@@ -1179,7 +1179,8 @@ int Render::render3DCsi(
               }
 
             /* Set the CSI 3D ldr ROTSTEP on top-level content */
-            if ((rc = rotateParts(addLine, meta.rotStep, csi3DParts, csi3DName)) < 0) {
+            bool viewer = true;
+            if ((rc = rotateParts(addLine, meta.rotStep, csi3DParts, csi3DName, viewer)) < 0) {
                 QMessageBox::warning(NULL,
                                      QMessageBox::tr(VER_PRODUCTNAME_STR),
                                      QMessageBox::tr("3D-render rotate parts failed for: %1.")

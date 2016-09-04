@@ -55,7 +55,8 @@ public:
   int                    rotateParts(const QString &addLine,
                                       RotStepMeta &rotStep,
                                       const QStringList &parts,
-                                      QString &ldrName);
+                                      QString &ldrName,
+                                      bool viewer = false);
   int                    renderLDViewSCallCsi(const QStringList &,
                                      Meta &);
   int                    renderLDViewSCallPli(const QStringList &,

@@ -156,11 +156,13 @@ int Render::rotateParts(
   const QString     &addLine,
         RotStepMeta &rotStep,
   const QStringList &parts,
-        QString     &ldrName)
+        QString     &ldrName,
+        bool         viewer)
 {
   QStringList rotatedParts = parts;
 
-  rotateParts(addLine,rotStep,rotatedParts);
+  bool rotate = viewer ? false : true;
+  rotateParts(addLine,rotStep,rotatedParts,rotate);
 
   QFile file(ldrName);
   if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
