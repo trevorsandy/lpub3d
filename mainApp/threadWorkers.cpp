@@ -39,8 +39,8 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
   _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("P"));
   _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts"));
   _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"));
-  _fadePartDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/fade/parts"));
-  _fadePrimDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/fade/p"));
+  _fadePartDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg("fade/parts"));
+  _fadePrimDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg("fade/p"));
 
 }
 
@@ -828,6 +828,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   }
 
   // Reload unofficial library parts into memory - only if initial library load already done !
+  QString partsLabel = "parts";
   if (didInitLDSearch() && archivedPartCount > 0) {
 
       if (!g_App->mLibrary->ReloadUnoffLib()){
@@ -839,19 +840,20 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
           }
           return false;
       } else {
-          returnMessage = tr("Reloaded unofficial parts library into memory.").arg(archivedPartCount);
+          partsLabel = archivedPartCount == 1 ? "part" : "parts";
+          returnMessage = tr("Reloaded unofficial library into memory with %1 new %2.").arg(archivedPartCount).arg(partsLabel);
           if (okToEmitToProgressBar()) {
               emit messageSig(true,returnMessage);
           } else {
               logInfo() << returnMessage;
           }
       }
-  }
-
-  if (archivedPartCount > 0)
-      returnMessage = tr("Finished. Archived and loaded %1 %2 parts into memory.").arg(archivedPartCount).arg(comment);
-  else
+  } else  if (archivedPartCount > 0) {
+      partsLabel = archivedPartCount == 1 ? "part" : "parts";
+      returnMessage = tr("Finished. Archived and loaded %1 %2 %3 into memory.").arg(archivedPartCount).arg(comment).arg(partsLabel);
+  } else {
       returnMessage = tr("Finished. No %1 parts archived.").arg(comment);
+  }
 
   logInfo() << returnMessage;
   if (okToEmitToProgressBar()) {

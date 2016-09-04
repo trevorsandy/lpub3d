@@ -68,25 +68,25 @@ void Paths::mkdirs(){
 void Paths::mkfadedirs(){
 
   QDir dir;
-  fadePartDir = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade");
+  fadePartDir = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade");
   if(! dir.exists(fadePartDir)) {
       dir.mkdir(fadePartDir);
-      fadePartDir   = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/parts");
+      fadePartDir   = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/parts");
       dir.mkdir(fadePartDir);
-      fadeSubDir    = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/parts/s");
+      fadeSubDir    = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/parts/s");
       dir.mkdir(fadeSubDir);
-      fadePrimDir   = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/p");
+      fadePrimDir   = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/p");
       dir.mkdir(fadePrimDir);
-      fadePrim8Dir  = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/p/8");
+      fadePrim8Dir  = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/p/8");
       dir.mkdir(fadePrim8Dir);
-      fadePrim48Dir = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/p/48");
+      fadePrim48Dir = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/p/48");
       dir.mkdir(fadePrim48Dir);
     } else {
-      fadePartDir   = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/parts");
-      fadeSubDir    = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/parts/s");
-      fadePrimDir   = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/p");
-      fadePrim8Dir  = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/p/8");
-      fadePrim48Dir = QDir::toNativeSeparators(Preferences::ldrawPath + "/Unofficial/fade/p/48");
+      fadePartDir   = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/parts");
+      fadeSubDir    = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/parts/s");
+      fadePrimDir   = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/p");
+      fadePrim8Dir  = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/p/8");
+      fadePrim48Dir = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/p/48");
     }
 
   fadeDirs << fadePartDir << fadeSubDir << fadePrimDir << fadePrim8Dir << fadePrim48Dir;

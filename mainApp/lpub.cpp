@@ -688,7 +688,7 @@ void Gui::clearFadeCache()
                              QMessageBox::Ok | QMessageBox::Discard | QMessageBox::Cancel);
   if (ret == QMessageBox::Ok) {
 
-      QString dirName = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/fade"));
+      QString dirName = QDir::toNativeSeparators(QString("%1/fade").arg(Preferences::lpubDataPath));
 
       int count = 0;
       if (removeDir(count, dirName)){
@@ -1336,6 +1336,7 @@ bool Gui::aboutDialog()
 }
 
 void Gui::refreshLDrawUnoffParts(){
+
     // Download unofficial archive
     emit messageSig(true,"Refresh LDraw Unofficial Library archive...");
     UpdateCheck *libraryDownload;
@@ -1359,6 +1360,7 @@ void Gui::refreshLDrawUnoffParts(){
 }
 
 void Gui::refreshLDrawOfficialParts(){
+
     // Download official archive
     emit messageSig(true,"Refresh LDraw Official Library archive...");
     UpdateCheck *libraryDownload;
@@ -1380,7 +1382,9 @@ void Gui::refreshLDrawOfficialParts(){
         QString message = tr("%1 Official Library files extracted to %2/ldraw").arg(result.size()).arg(destination);
         emit messageSig(true,message);
     }
+
 }
+
 
 void Gui::updateCheck()
 {
