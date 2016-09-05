@@ -500,9 +500,9 @@ XCOPY /S /I /E /V /Y ..\docs ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x3
 XCOPY /S /I /E /V /Y ..\icons ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\icons														>>  ../release/LPub3D.Release.build.log.txt
 
 COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /A                          								>>  ../release/LPub3D.Release.build.log.txt
-COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32PRODUCTDIR%\ /A                                        	  						>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y ..\docs\README.txt ..\release\%VERSION%\%WIN32PRODUCTDIR%\ /A                                        	  							>>  ../release/LPub3D.Release.build.log.txt
 
-COPY /V /Y %Win32BuildFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\%PRODUCT%_x32.exe /B												>>  ../release/LPub3D.Release.build.log.txt
+COPY /V /Y %Win32BuildFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\%PRODUCT%_x32.exe /B											>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win32QuazipFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                      										>>  ../release/LPub3D.Release.build.log.txt
 COPY /V /Y %Win32LdrawiniFile% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\ /B                    										>>  ../release/LPub3D.Release.build.log.txt
 
@@ -662,30 +662,6 @@ IF %RUN_NSIS% == 1 ECHO - Finished NSIS Manual Install Build... 																
 IF %RUN_NSIS% == 1 ECHO.
 IF %RUN_NSIS% == 1 ECHO - Finished NSIS Manual Install Build...
 
-IF %CREATE_PORTABLE% == 1 ECHO. 																											>>  ../release/LPub3D.Release.build.log.txt
-IF %CREATE_PORTABLE% == 1 ECHO - Create portable media zip files...		      																>>  ../release/LPub3D.Release.build.log.txt
-IF %CREATE_PORTABLE% == 1 ECHO. 	
-IF %CREATE_PORTABLE% == 1 ECHO - Create portable media zip files...
-
-IF %CREATE_PORTABLE% == 0 ECHO. 																											>>  ../release/LPub3D.Release.build.log.txt
-IF %CREATE_PORTABLE% == 0 ECHO - Ignore create portable media zip files...		    														>>  ../release/LPub3D.Release.build.log.txt
-IF %CREATE_PORTABLE% == 0 ECHO. 	
-IF %CREATE_PORTABLE% == 0 ECHO - Ignore create portable media zip files...
-
-IF %CREATE_PORTABLE% == 1 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN32PRODUCTDIR%.zip ..\release\%VERSION%\%WIN32PRODUCTDIR%\ 		>>  ../release/LPub3D.Release.build.log.txt
-IF %CREATE_PORTABLE% == 1 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN64PRODUCTDIR%.zip ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 		>>  ../release/LPub3D.Release.build.log.txt
-
-ECHO. 																																		>>  ../release/LPub3D.Release.build.log.txt
-IF %CLEANUP% == 1 ECHO - Remove %PRODUCT% %VERSION% build files...																			>>  ../release/LPub3D.Release.build.log.txt
-IF %CLEANUP% == 1 ECHO. 	
-IF %CLEANUP% == 1 ECHO - Remove %PRODUCT% %VERSION% build files...
-
-IF %CLEANUP% == 0 ECHO - Ignore remove %PRODUCT% %VERSION% build files...																	>>  ../release/LPub3D.Release.build.log.txt
-IF %CLEANUP% == 0 ECHO. 	
-IF %CLEANUP% == 0 ECHO - Ignore remove %PRODUCT% %VERSION% build files...
-
-IF %CLEANUP% == 1 RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 									>>  ../release/LPub3D.Release.build.log.txt	
-
 IF %RUN_NSIS% == 1 ECHO.												 																	>>  ../release/LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...											>>  ../release/LPub3D.Release.build.log.txt
 IF %RUN_NSIS% == 1 ECHO. 																													>>  ../release/LPub3D.Release.build.log.txt
@@ -719,6 +695,8 @@ IF %SIGN_APP% == 0 ECHO - Ignore Application Code Signing Build...
 IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Download\%DOWNLOADPRODUCT%.exe							>>  ../release/LPub3D.Release.build.log.txt
 IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_%VERSION%.exe            	>>  ../release/LPub3D.Release.build.log.txt
 IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster.exe                      	>>  ../release/LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\%PRODUCT%_x32.exe       >>  ../release/LPub3D.Release.build.log.txt
+IF %SIGN_APP% == 1 %SignToolExe% sign /tr %TimeStamp% /td %Sha2% /fd %Sha2% /f %PKey% /p %PwD% ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\%PRODUCT%_x64.exe       >>  ../release/LPub3D.Release.build.log.txt
 
 ECHO. 									   																									>>  ..\release\LPub3D.Release.build.log.txt
 IF %SIGN_APP% == 1 ECHO - Generating hash checksum listing... 																				>>  ..\release\LPub3D.Release.build.log.txt
@@ -728,11 +706,37 @@ IF %SIGN_APP% == 1 ECHO - Generating hash checksum listing...
 IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Download\%DOWNLOADPRODUCT%.exe SHA256						>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
 IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_%VERSION%.exe SHA256  			>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
 IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster.exe SHA256  					>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
+IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x32\%PRODUCT%_x32.exe SHA256		>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
+IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x64\%PRODUCT%_x64.exe SHA256		>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
 
 ECHO. 									   																									>>  ..\release\LPub3D.Release.build.log.txt
 IF %SIGN_APP% == 1 ECHO - Finished Application Code Signing Build... 																		>>  ..\release\LPub3D.Release.build.log.txt
 IF %SIGN_APP% == 1 ECHO.
 IF %SIGN_APP% == 1 ECHO - Finished Application Code Signing Build...
+
+IF %CREATE_PORTABLE% == 1 ECHO. 																											>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 1 ECHO - Create portable media zip files...		      																>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 1 ECHO. 	
+IF %CREATE_PORTABLE% == 1 ECHO - Create portable media zip files...
+
+IF %CREATE_PORTABLE% == 0 ECHO. 																											>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 0 ECHO - Ignore create portable media zip files...		    														>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 0 ECHO. 	
+IF %CREATE_PORTABLE% == 0 ECHO - Ignore create portable media zip files...
+
+IF %CREATE_PORTABLE% == 1 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN32PRODUCTDIR%.zip ..\release\%VERSION%\%WIN32PRODUCTDIR%\ 		>>  ../release/LPub3D.Release.build.log.txt
+IF %CREATE_PORTABLE% == 1 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN64PRODUCTDIR%.zip ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 		>>  ../release/LPub3D.Release.build.log.txt
+
+ECHO. 																																		>>  ../release/LPub3D.Release.build.log.txt
+IF %CLEANUP% == 1 ECHO - Remove %PRODUCT% %VERSION% build files...																			>>  ../release/LPub3D.Release.build.log.txt
+IF %CLEANUP% == 1 ECHO. 	
+IF %CLEANUP% == 1 ECHO - Remove %PRODUCT% %VERSION% build files...
+
+IF %CLEANUP% == 0 ECHO - Ignore remove %PRODUCT% %VERSION% build files...																	>>  ../release/LPub3D.Release.build.log.txt
+IF %CLEANUP% == 0 ECHO. 	
+IF %CLEANUP% == 0 ECHO - Ignore remove %PRODUCT% %VERSION% build files...
+
+IF %CLEANUP% == 1 RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 									>>  ../release/LPub3D.Release.build.log.txt	
 
 ECHO. 																																		>>  ../release/LPub3D.Release.build.log.txt
 ECHO - Finished.																															>>  ../release/LPub3D.Release.build.log.txt

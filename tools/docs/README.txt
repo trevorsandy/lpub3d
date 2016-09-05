@@ -1,24 +1,23 @@
-LPub3D 2.0.8.785.2 
+LPub3D 2.0.9.791.2 
  
 Features and enhancements 
-------------
--Fix: Align 3Dviewer and rendered csi image rotation (r791)
- *The model loaded in the 3D viewer and its corresponding csi step image are now similarly rotated.
--Change: Move fade part files folder to lpub3d data directory - was previously under ldraw/unofficial directory (r790)
+------------ 
+-Fix: Align 3Dviewer and rendered csi image rotation (r791) 
+ *The model loaded in the 3D viewer and its corresponding csi step image are now similarly rotated. 
+-Change: Move fade part files folder to lpub3d data directory - was previously under ldraw/unofficial directory (r790) 
  *Remove potential conflict when ldraw disc library is located under Program Files(x86) or a user data directory which is different from the user LPub3D is installed under. For example, LPub3D may be installed under standard user 'foo' while the ldraw disc library is installed under user 'public' [or under Program Files (x86). In both cases, LPub3D will likely be blocked from creating fade part files under the ldraw directory - i.e. in Unofficial/fade. Moving the fade folders will ensure write access is always available as the fade part files folder will be under the LPub3D data directory (e.g. C:\Users\foo\AppData\Local\LPub3D Software\LPub3D\fade) 
- Note: If you are using an ldraw.ini configuratin file which include paths to the fade/parts and fade/p folders, you must update the paths accordingly. Here is an example of what the new paths should look like if you are running an installed disribution:
- [nn]=<HIDE>C:\Users\[userid]\AppData\Local\LPub3D Software\LPub3D\fade\p
- [nn]=<DEFPART>C:\Users\[userid]\AppData\Local\LPub3D Software\LPub3D\fade\parts
- 'nn' is the ldraw.ini incremented number associated with each directory entry.
--Fix: Fade parts functionality update (r789)
- *Update logging, archive fade parts after model file load as necessary - previously only updated on application launch.
--Fix: Move cache to root install folder for portable distributions (r788)
- *Allow all runtime components of portable distibuton to be contanied within the folder structure of the distribution.
--Fix: Extract archive library after download (r787)
- *After archive library download, extract contents to defined LDraw disc library location. Archive libraries can be downloaded at application launch if no archive was found and at the tools menu where one can 'Refresh' the libraries at any time. The aim of this enhancement is to synchronize and automatically update both the archive and disc LDraw library content.
+ Note: If you are using an ldraw.ini configuration file which include paths to the fade/parts and fade/p folders, you must update the paths accordingly. Here is an example of what the new paths should look like if you are running an installed distribution: 
+ C:\Users\[userid]\AppData\Local\LPub3D Software\LPub3D\fade\p 
+ C:\Users\[userid]\AppData\Local\LPub3D Software\LPub3D\fade\parts 
+-Fix: Fade parts functionality update (r789) 
+ *Update logging, archive fade parts after model file load as necessary - previously only updated on application launch. 
+-Fix: Move cache to root install folder for portable distributions (r788) 
+ *Allow all runtime components of portable distribution to be contained within the folder structure of the distribution. 
+-Fix: Extract archive library after download (r787) 
+ *After archive library download, extract contents to defined LDraw disc library location. Archive libraries can be downloaded at application launch if no archive was found and at the tools menu where one can 'Refresh' the libraries at any time. The aim of this enhancement is to synchronize and automatically update both the archive and disc LDraw library content. 
  
-LPub3D 2.0.8.785.2  
-
+LPub3D 2.0.8.785.2 
+ 
 Features and enhancements 
 ------------ 
 -Fix: Print/export 'page range' option output incorrect (r785) 
@@ -39,7 +38,7 @@ Features and enhancements
  *Update fadeStepColorParts.lst attributes to allow faster library parsing to generate static colour parts. 
  NOTE: FILE UPDATE REQUIRED. fadeStepColourParts.lst file updated with new required column so it is necessary to update your installed file. LPub3D will automatically backup and overwrite the existing file during installation. 
 -Fix: Adjustable renderer process timeout (r776) 
- *All the user to manage the amount of time to keep alive the renderer process. The default is 6 minutes but can be changed between -1 which is run indefinitely and 99 minutes. For high definition using POV-Ray, rendering process time can easily exceed the default. This setting is located at Preferences/Rendering/Process timeout.
+ *All the user to manage the amount of time to keep alive the renderer process. The default is 6 minutes but can be changed between -1 which is run indefinitely and 99 minutes. For high definition using POV-Ray, rendering process time can easily exceed the default. This setting is located at Preferences/Rendering/Process timeout. 
 -Fix: Reload archive libraries into memory (r775) 
  *On model file load, do not reload library if no new parts discovered. LPub3D sweeps the defined search directories upon file load. This update makes a little more efficient the load process. 
 -Fix: Update aboutdialog display version of Qt (r774) 
