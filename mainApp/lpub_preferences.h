@@ -37,6 +37,7 @@ class Preferences
     static void annotationPreferences();
     static void fadestepPreferences();
     static void publishingPreferences();
+    static void setLPub3DLoaded();
     static void getRequireds();
     static bool getPreferences();
 
@@ -85,6 +86,7 @@ class Preferences
     static bool    showUpdateNotifications;
     static bool    enableDownloader;
     static bool    portableDistribution;
+    static bool    lpub3dLoaded;
     static int     checkUpdateFrequency;
     static int     pageWidth;
     static int     pageHeight;

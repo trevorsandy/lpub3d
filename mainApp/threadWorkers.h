@@ -103,14 +103,6 @@ public:
         bool                     doFadeStep)
         {_doFadeStep           = doFadeStep;}
 
-    void setDidInitLDSearch(
-        bool                     initLDSearch)
-        {_didInitLDSearch      = initLDSearch;}
-
-    void setDoReloadUnoffLib(
-        bool                     doReload)
-        {_doReload             = doReload;}
-
     void resetSearchDirSettings()
         {_resetSearchDirSettings = true;
          ldsearchDirPreferences();}
@@ -172,8 +164,6 @@ private:
     QElapsedTimer             _timer;
 //    bool                      _partsArchived;
     bool                      _doFadeStep;
-    bool                      _doReload;
-    bool                      _didInitLDSearch;
     bool                      _resetSearchDirSettings;
     int                       _fadedParts;
 
@@ -218,14 +208,8 @@ private:
    bool doFadeStep()
       {return                _doFadeStep;}
 
-   bool doReloadUnoffLib()
-      {return                _doReload;}
-
-   bool didInitLDSearch()
-      {return                _didInitLDSearch;}
-
    bool okToEmitToProgressBar()
-      {return               (doFadeStep() || doReloadUnoffLib());}
+      {return               Preferences::lpub3dLoaded;}
 
 };
 

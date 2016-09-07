@@ -81,6 +81,7 @@ QString Preferences::plug                       = QString(QObject::trUtf8("Instr
                                                                QString::fromLatin1(VER_FILEVERSION_STR),
                                                                QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
 
+bool    Preferences::lpub3dLoaded               = false;
 bool    Preferences::enableDocumentLogo         = false;
 bool    Preferences::enableLDViewSingleCall     = true;
 bool    Preferences::useLDViewSingleCall        = false;
@@ -119,8 +120,6 @@ void Preferences::lpubPreferences()
     }
 
     lpub3dPath = cwd.absolutePath();
-
-    emit Application::instance()->splashMsgSig("5% - Initialize user data directory...");
 
     if (QDir(lpub3dPath + "/extras").exists()) { // we have a portable distribution
 
@@ -199,9 +198,8 @@ void Preferences::lpubPreferences()
 
     }
 
-    qDebug() << "LPub3D data path: " << lpubDataPath;
+    qDebug() << "LPub3D user data path: " << lpubDataPath;
 
-    emit Application::instance()->splashMsgSig("5% - Initialize extras directory...");
     QDir extrasDir(lpubDataPath + "/extras");
     if(!QDir(extrasDir).exists())
         extrasDir.mkpath(".");
@@ -431,7 +429,7 @@ void Preferences::lpub3dLibPreferences(bool force)
 
 void Preferences::ldrawPreferences(bool force)
 {
-    emit Application::instance()->splashMsgSig("10% - Locate LDraw directory...");
+    emit Application::instance()->splashMsgSig("15% - Locate LDraw directory...");
 
     QSettings Settings;
     QString const ldrawKey("LDrawDir");
@@ -1196,6 +1194,10 @@ void Preferences::getRequireds()
     if (preferredRenderer == "" && ! getPreferences()) {
         exit (-1);
     }
+}
+
+void Preferences::setLPub3DLoaded(){
+    lpub3dLoaded = true;
 }
 
 

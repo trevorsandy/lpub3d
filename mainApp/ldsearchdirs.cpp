@@ -67,7 +67,7 @@ bool LDSearchDirs::verifyLDrawDir(const char *value)
   return retValue;
 }
 
-// NOTE: static function. NOT USED
+// NOTE: static function. (NOT USED)
 bool LDSearchDirs::verifyExtraDir(const char *value)
 {
   char currentDir[1024];
@@ -380,7 +380,7 @@ bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbit
 
       qDebug() << "";
 
-      //process extra seach directories NOT USED
+      //process extra seach directories (NOT USED)
       bool found = false;
       for (StringList::const_iterator it = m_extraSearchDirs.begin(); !found &&
            it != m_extraSearchDirs.end(); it++)

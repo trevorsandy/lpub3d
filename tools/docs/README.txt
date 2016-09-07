@@ -1,4 +1,11 @@
-LPub3D 2.0.9.791.2 
+LPub3D 2.0.9.792.2 
+ 
+Features and enhancements 
+------------ 
+Fix: Fix search directories not added to LDSEARCHDIRS env variable.
+*LDSEARCHDIRS is used by LDGlite to process LPub3D extra search directories. 
+
+LPub3D 2.0.9.792.2 
  
 Features and enhancements 
 ------------ 

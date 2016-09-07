@@ -617,8 +617,9 @@ int LDGLite::renderCsi(
   if (!Preferences::ldgliteSearchDirs.isEmpty())
     env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
 
-//  qDebug() << "ldglite CLI Arguments: " << arguments;
-//  qDebug() << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
+//  logDebug() << "ldglite CSI Arguments:" << arguments;
+//  logDebug() << "LDSEARCHDIRS:" << Preferences::ldgliteSearchDirs;
+//  logDebug() << "ENV:" << env;
 
   ldglite.setEnvironment(env);
   ldglite.setWorkingDirectory(QDir::currentPath() + "/"+Paths::tmpDir);
