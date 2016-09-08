@@ -823,8 +823,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
               emit messageSig(false,returnMessage);
           else
               logError() << returnMessage;
-
-          return false;
+          continue;
       }
       bool ok;
       int partCount = returnMessage.toInt(&ok);

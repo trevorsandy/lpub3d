@@ -2,8 +2,15 @@ LPub3D 2.0.10.793.2
  
 Features and enhancements 
 ------------ 
+Fix: Archive parts terminates on empty search directory folder (r795)
+ *Replace return (terminate) with continue.
+
+LPub3D 2.0.10.793.2 
+ 
+Features and enhancements 
+------------ 
 Fix: Fix search directories not added to LDSEARCHDIRS env variable (r793) 
-*LDSEARCHDIRS is used by LDGlite to process LPub3D extra search directories. 
+ *LDSEARCHDIRS is used by LDGlite to process LPub3D extra search directories. 
  
 LPub3D 2.0.9.792.2 
  
