@@ -1080,7 +1080,6 @@ Gui::Gui()
     connect(this, SIGNAL(removeProgressPermStatusSig()),      this, SLOT(removeProgressPermStatus()));
 
     m_progressDialog = new ProgressDialog();
-    m_progressDialog->setWindowFlags(Qt::WindowStaysOnTopHint);
     m_progressDlgProgressBar = m_progressDialog->findChild<QProgressBar*>("progressBar");
     m_progressDlgMessageLbl  = m_progressDialog->findChild<QLabel*>("ui_progress_bar");
 

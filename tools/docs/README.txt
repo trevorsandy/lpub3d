@@ -2,6 +2,8 @@ LPub3D 2.0.11.793.2
  
 Features and enhancements 
 ------------ 
+Fix: Progress dialog always stays on top (r797)
+ *Proper modality behaviour restored.
 Fix: Print/Export banner (image) rotation broken (r796)
  *Banner rotation updated. Rotation broken by r791.
 Fix: Archive parts terminates on empty search directory folder (r795)
