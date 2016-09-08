@@ -623,6 +623,8 @@ tools/Win-setup/LPub3DViewer_LDrawunf_Archive_Generator.bat -text
 tools/Win-setup/build_inc.bat -text
 tools/Win-setup/build_json_insert.bat -text
 tools/Win-setup/nsisFunctions.nsh -text
+tools/Win-setup/printbanner-code.cpp -text
+tools/Win-setup/printbanner.ldr -text
 tools/Win-setup/setup.ico -text
 tools/Win-setup/un.EnumUsersReg.nsh -text
 tools/Win-setup/welcome.bmp -text
