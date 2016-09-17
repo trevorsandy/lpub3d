@@ -614,7 +614,7 @@ quazip/unzip.h -text
 quazip/zip.c -text
 quazip/zip.h -text
 tools/Win-setup/00[!!-~]BuildLPub3D00AndCreateDistNoPack.bat -text
-tools/Win-setup/BuildVersionsTemplate.txt -text
+tools/Win-setup/01[!!-~]BuildVersionsTemplate.txt -text
 tools/Win-setup/Copyright-Source-Header.txt -text
 tools/Win-setup/EnumUsersReg.nsh -text
 tools/Win-setup/LDraw_Archive_Download.bat -text
