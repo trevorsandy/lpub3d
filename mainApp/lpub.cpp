@@ -1186,6 +1186,8 @@ bool Gui::InitializeApp(int argc, char *argv[], const char* LibraryInstallPath, 
       connect(this,           SIGNAL(enable3DActionsSig()),
               gMainWindow,    SLOT(  enable3DActions()));
 
+      connect(this,           SIGNAL(disable3DActionsSig()),
+              gMainWindow,    SLOT(  disable3DActions()));
     }
 
   return initialized;

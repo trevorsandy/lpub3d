@@ -2,9 +2,9 @@ LPub3D 2.0.11.793.2
  
 Features and enhancements 
 ------------
-Fix: Close model file (r811)
+Fix: Close model file (r810)
  * Close model file and release all resources.
-Fix: LDraw editor comments not highlighted (r810)
+Fix: LDraw editor comments not highlighted (r809)
  * LDraw editor will now highlight LDraw line comments '//'. 
  Additionally, LDCad meta commands are also highlighted.
 Fix: Display part count (r809)

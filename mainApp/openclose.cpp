@@ -234,7 +234,7 @@ void Gui::closeModelFile(){
   //3D Viewer
   gMainWindow->NewProject();
   gMainWindow->UpdateAllViews();
-  gMainWindow->disable3DActions();
+  emit disable3DActionsSig();
   // Editor
   clearPage(KpageView,KpageScene);
   disableActions();
