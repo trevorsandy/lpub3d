@@ -2,6 +2,8 @@ LPub3D 2.0.11.793.2
  
 Features and enhancements 
 ------------
+Fix: Pdf preview progress bar (r803)
+ * Add progress bar to pdf preview dialogue. For large instruction documents it could be good to monitor the progress of the export process.
 Fix: Front and back cover page attribute placement (r802)
  * By default cover page attributes are placed relative to each other (with one anchor placed relative to the page) on the front and back cover pages. Independent page attributes are by default placed relative to the page. The new behaviour will break the dependency (placing the dependent attribute relative to the page) if the attribute depended upon is not respecting it's default placement relation (i.e. its relation has changed to page). I imagine this is more complex that it probably should be but the aim was to automatically place the attributes on model load so young/novice users would not have to fuss with even more complex configuration. 
  The quirk remaining is when you change placement relative on an attribute depended upon by another, the dependent attributes will obviously follow the position of the newly placed attribute. This may confuse users as it can be perceived as a bug. There are two ways around this when repositioning cover page attributes. One is to not change placement relation but use the drag functionality and; two, from thee bottom-up, set dependent attributes placement relation to page. 
@@ -174,8 +176,8 @@ Features and enhancements
 	0 STEP 
 -Fix: LDView single call render crash on multi-step page generation (763) 
  *Crash if multi-step page's steps contain more than PLI and CSI components. Corrected. 
--Fix: Preference dialog version change log cleared on update check when there is no available update (r762) 
- *If no update available, ignore updating the change log dialog. 
+-Fix: Preference dialogue version change log cleared on update check when there is no available update (r762) 
+ *If no update available, ignore updating the change log dialogue. 
  
 LPub3D 2.0.6.761.3 
  
@@ -183,7 +185,7 @@ Features and enhancements
 ------------ 
 -Fix: Set radial and conical background gradient parse fail with 'Malformed background...' (r759) 
   *Parse fail for radial and conical gradient meta commands. Linear, radial and conical gradients are all now working as designed. 
--Fix: Scale in Page Globals Setup dialog not working (r756) 
+-Fix: Scale in Page Globals Setup dialogue not working (r756) 
  *Cover Image and Logo double spin control not working. Issue corrected. 
 -Fix: Save and restore application window state and geometry (r755) 
  *Was causing crash on launch before update to Qt5.7. 
@@ -225,8 +227,8 @@ Features and enhancements
  *No fade parts index generated on the first step because nothing was faded; however, we still need an index to know where to start on the second step. Fade step routine fixed to generate an index as long as there are valid parts in the step. 
 -Fix: Installer program configured to deposit a master copy of usder data (libraries, lists, etc...) in the installation root directory. (r733) 
  *Allow user data creation at initial launch. Upon initial application launch, if user data does not exist, it will be created. This will address the issue of Windows standard users not having access to user data after installation. Additioinally, this design allows for multiple users on a single machine to have their individual user settings and data. 
--Fix: Set progress dialog to nonmodal. (r732) 
- *Prevent the progress dialog from blocking input to other windows. 
+-Fix: Set progress dialogue to nonmodal. (r732) 
+ *Prevent the progress dialogue from blocking input to other windows. 
 -Fix: Data directory installed under Administrator AppData path instead of logged in user which is likely to be a standard user (r731) 
  *User data - LDraw archive libraries, logs, extras and other updatable data items - will be installed at initial application launch by default. Because Administrator privilates are required to install LPub3D, user data installed during installation will be deposited under the Administrator user's AppData path. This data will not be accessible to standard users. User data can be installed during application installation as a checked option. This option may be desirable if the logged in user installing LPub3D is also the Administrator. If user data is installed during installation, user data for standard users will be automatically created during initial application launch. On initial application launch, the standard user will be given the options to select, copy (from the installation directory) or download the LDraw archive libraries. (Known Issue: Standard user incons are not being generated at the moment. Also, The uninstall routine will not remove standard user data created at application startup. I'm still working on improving the deployment package to handle these items). 
  
@@ -236,11 +238,11 @@ Features and enhancements
 ------------ 
 -Change: Check for update settings are now enabled by default. Previously, it was necessary to configure update settings in the Preferences/Other tab before one could visually confirm an update check. (r722) 
 -Fix: Warnings are displayed when there are no unofficial subdirectories under the LDraw directory. (r723) 
- *When no search directories are defined (i.e. No Unofficial or Models directories exist) and the user opens the Preferences dialog, teh LDraw Content Search Directories dialog will validate an empty dialog with a warning that the 'entry' is an invalid search directory. In such case no warnings should be displayed. 
+ *When no search directories are defined (i.e. No Unofficial or Models directories exist) and the user opens the Preferences dialogue, teh LDraw Content Search Directories dialogue will validate an empty dialogue with a warning that the 'entry' is an invalid search directory. In such case no warnings should be displayed. 
 -Fix: Installation program presents options to delete 'old' library directory on new installation when no old directory existed. (r724) 
  *Comparison of old and new are not the same evaluated to true. Comparison improved to check that old is actually a directory also. 
 -Change: Preferences/Other/Check for updates/Version now presents all valid updatable versions in a dropdown list. (r725,r728) 
- *Manage better the update dialog. Restrict entries to only valid update versions. 
+ *Manage better the update dialogue. Restrict entries to only valid update versions. 
 -Fix: Crash when last line in main model of mpd file is a part type line - i.e. line starts with 1 to 5. (r726) 
  *This behavior will be seen when the user loads a model file without the meta tag '0 STEP' or '0 NOFILE'. 
 -Fix: Export and PDF generation produces "Failed to create CSI" and does not produce model images in the generated document.(r727) 
@@ -254,7 +256,7 @@ Features and enhancements
  *Repackaged all distributions to incorporate all MSVC 2015 required dependency libraries. The Visual C++ Redistributable for Visual Studio 2015 is also included in the portable distributions. For the executable installation distribution, the installation program will check if the required libraries exist before silently installing the respective Visual C++ redistributable. 
  -Known Issue: Storing and retrieving the screen pos[ition], size, state and geometry settings appear to be causing intermittent crash on startup - at the end of the splash screen display. (r718/r719) 
  *This functionality has been disabled for the moment while I investigate. This unexpected behavior was introduced with the Qt5.6/MSVC 2015 development platform. The change you may notice is that the application no longer starts on the screen you last close it. Instead, it will will always start at the same location. While I have experienced this behavior on a multi-screen display configuraion, there are reports that this behavior also exist on single-screen displays. 
--Fix: Disable search directory validation in Preferences dialog - temporary workaround (r721) 
+-Fix: Disable search directory validation in Preferences dialogue - temporary workaround (r721) 
  *Warnings are displayed when there are no unofficial subdirectories under the LDraw directory. In such case no warnings should be displayed. 
  
 LPub3D 2.0.1.717.2 
@@ -262,14 +264,14 @@ LPub3D 2.0.1.717.2
 Features and enhancements 
 ------------ 
 -Fix: In support of archive library move to AppData (see r707), the installation process will delete the 'old' LDRaw library archive directory even if it is actually the new directory. For example this can be reproduced if one attempts to reinstall LPub3D where the actual 'old' directory would have been deleted during the initial installation. The installation will now compare the 'old' directory to the new one and present the user the option to delete if the comparison does not match. (r715) 
--Fix: At applicaton launch, the 'Check for updates' does not detect the installed version. As a result, if the user performs a check for update or update checks are set to automatic, the user is presented with a message dialog stating a new update version is available when in fact this is not the case. The correct message dialog is now presented. Runaway eventloop when newest version is same as installed version. (r716) 
+-Fix: At applicaton launch, the 'Check for updates' does not detect the installed version. As a result, if the user performs a check for update or update checks are set to automatic, the user is presented with a message dialogue stating a new update version is available when in fact this is not the case. The correct message dialogue is now presented. Runaway eventloop when newest version is same as installed version. (r716) 
  
 LPub3D 2.0.0.714.2 
  
 Features and enhancements 
 ------------ 
 -Up to 60 percent increase rendering speed with configuration to render multiple files using a single call to LDView. 
- *All PLI (part list/BOM) parts for a given step are rendered in a single call versus individually. For CSI (Step models), all multi-step images on a page are rendered in a single call including callout(s). Single step page images are rendered with a single call for all model images including those in callout(s). This new confiuration will default as checked in the preferences dialog. 
+ *All PLI (part list/BOM) parts for a given step are rendered in a single call versus individually. For CSI (Step models), all multi-step images on a page are rendered in a single call including callout(s). Single step page images are rendered with a single call for all model images including those in callout(s). This new confiuration will default as checked in the preferences dialogue. 
  *To achieve this behavior, input files (csi.ldr, pli.ldr) are now uniquely named because rendering multiple files is done by using -SaveSnapshots=1 instead of -SaveSnapshot=somefile.png and then listing all the LDR files at the end of the command line. There is no control over the output file names. Instead, LDView will automatically use the input base filename changing only the output filename extension from .ldr to .png. 
  *Enabling this feature is optonal and can be selected on the Configuration/Preferences/Rendering tab by checking the box 'Use multiple files single call rendering' in the 'LDView is installed' group box. LDView must be installed and configured to enable this option. 
  *Notice: As this feature required a significant rewrite of the core image generation logic, it is likely to generate some unexpected behavior as not every scenario has been tested. Please report any unexptected behavior. Contact details can be found under the Help/About menu. 
@@ -290,7 +292,7 @@ Features and enhancements
 -Add progress bar to mpd/ldr file load (r690) 
  *Users can now see the progress of loading models. This is particularly useful for large models or models which include a large number of lines due to generated flex-parts etc... 
 -Enable 'Use multiple files single call rendering' for LDView from Preferences/Rendering/LDView is installed/Use Multiple files single call rendering. (r687) 
- *LDView 'Single Call' rendering performance improvement can be selected or unselected from the preferences dialog. Although I tested the as many scenarios as I can think of. If this new feature encounters some unique model file configuration that causes unexpected behavior, the user can revert back to the legacy functionality if s/he so desire. 
+ *LDView 'Single Call' rendering performance improvement can be selected or unselected from the preferences dialogue. Although I tested the as many scenarios as I can think of. If this new feature encounters some unique model file configuration that causes unexpected behavior, the user can revert back to the legacy functionality if s/he so desire. 
 -Increase PLI (Part list/BOM) and CSI (Model) rendering speed with LDView using -SaveSnapshots=1 (r683/r684/r685) 
  *'Single Call' performance improvement for LDView 
 -Redesign software and library update functionality (r710) 
@@ -314,9 +316,9 @@ Features and enhancements
 -Disable Clear Cache menu button when no file is loaded (r686) 
  *Just a little poka yoke. The cache locations are specific to the file loaded, so it does not help to have this button active when no file is loaded. 
 -Force to empty the cache before creating a PDF (r654) 
- *Added option to empty the image ldr and image cache before printing. With this feature the user can select the option on the print configuration dialog to clear the cache and regenerate images as the print/export job executes. 
+ *Added option to empty the image ldr and image cache before printing. With this feature the user can select the option on the print configuration dialogue to clear the cache and regenerate images as the print/export job executes. 
 -Synchronize 'prev', 'next' and 'goto' page menu items (r653) 
- *User can enter directly any page number within range into the menu dialog. Clicking either the Previous or Next button will navigate to the page indicated regardless of if the page is the next increment backward (for Previous) or forward (for Next) or a page further backward or forward. The user can still hit the enter key to navigate to the indicated page - if not the current page of course. 
+ *User can enter directly any page number within range into the menu dialogue. Clicking either the Previous or Next button will navigate to the page indicated regardless of if the page is the next increment backward (for Previous) or forward (for Next) or a page further backward or forward. The user can still hit the enter key to navigate to the indicated page - if not the current page of course. 
 -Supress rotateIcon from CSI (model) item context menu if we have a callout and the callout assembled (r652) 
  *The menu option to insert a rotate step icon is not presented for assembled callouts. 
 -Select local page size and global and local page orientation - Portrait and Landscape (r518) 
@@ -334,7 +336,7 @@ Features and enhancements
 -Refactor: Update file load progress messages (r636) 
 -Refactor: Rearrange printToPdfFile page count (r632) 
 -Update: Clear 3D Window when there is no model to display - e.g. for cover or inserted pages (r701) 
--Update: Set download dialog header to Library Updater when downloading library - otherwise Software Updater (r700) 
+-Update: Set download dialogue header to Library Updater when downloading library - otherwise Software Updater (r700) 
 -Update: AboutDialog window recognizes and displays Win 10 and OSX El Capitan(r665/r668/r669) 
 -Update: ldglite hard-coded default directory setting to ldglite1.3.1(r623) 
 -Update: 3DViewer minifig settings moved to ini file - LeoCAD Changeset 1870 (r617x) 
@@ -388,7 +390,7 @@ Features and enhancements
 -Fix: Periodic crash when adding divider to multi-step page or callouts (r577) 
 -Fix: Periodic crash every time a second successive rotation icon is added to multi-step page (r577) 
 -Fix: If using LPub3D archive distribution (no installer), use distribution's extras folder instead of creating one in AppData (r579) 
--Fix: Print/export dialog progress bar (r585) 
+-Fix: Print/export dialogue progress bar (r585) 
 -Fix: Upon "Add assembled image to parent page" a rotation icon is added to the callout if rotation icons were present in the callout step(s). Assembled and rotated callouts will not display rotate icons on the parent page. Only unassembled callouts will display rotate icons if present in the callout step(s). (r587) 
 -Fix: 2 page refreshes when Parameters menu item is accpeted - only a single refresh needed. (r588) 
  
@@ -415,11 +417,11 @@ LPub3D 1.3.0.504.2
  
 Features and enhancements 
 ------------ 
--Add dialog to print or export to image all pages, current page and custom range of pages (e.g. 1,3,5,7-9) 
+-Add dialogue to print or export to image all pages, current page and custom range of pages (e.g. 1,3,5,7-9) 
 -Add ability to detect additional ldraw content search directories using ldrawini c api 
  I implemented the ldrawini c api to maintain compatability with LPub3D 3rd Party renderers - LDView, L3P(PovRay) and Ldglite. Additional directories must have either the same tree as LDraw Unofficial directory (i.e. parts and/or p subdirectories...) or alternatively, content can be deposited at the root of the additional directory (i.e. C:/ldrawFiles/*.dat). Content from all defined ldraw search directories are archived in the ldrawunf.zip archive and loaded into memory - enabling access to the 3DViewer. 
  If no ldraw.ini file is detected. LPub3D will automatically search all subdirectories under the ldraw/Unofficial directory - except directories p and parts. Unofficial subdirectories p and parts as well as official p and parts subdirectories are never searched because they are atomatically loaded during default behavior during startup. 
- There are 2 ways to define search directories: 1. using the Ldraw.ini file (there is now a menu button to edit the ldraw.ini file) and 2. editing the 'Ldraw Content Search Directories text edit dialog under the 'Other' tab in Preferences. If you are using an LDraw.ini file, the preferences dialog will be read only - you must use the menu edit button under 'Configurtion' to edit the ldraw.ini file. The ldraw.ini edit button only appears if a ldraw.ini file is detectec. If you are not using ldraw.ini, it is possible to add,remove and reset to the default search directories in the Preferences tab. 
+ There are 2 ways to define search directories: 1. using the Ldraw.ini file (there is now a menu button to edit the ldraw.ini file) and 2. editing the 'Ldraw Content Search Directories text edit dialogue under the 'Other' tab in Preferences. If you are using an LDraw.ini file, the preferences dialogue will be read only - you must use the menu edit button under 'Configurtion' to edit the ldraw.ini file. The ldraw.ini edit button only appears if a ldraw.ini file is detectec. If you are not using ldraw.ini, it is possible to add,remove and reset to the default search directories in the Preferences tab. 
  ldglite renderer updated with the ability to process additional directories beyond official/unofficial parts, p and Model. I implemented this 
  enhancement to allow all 3 LPub3D renderers(LDView, Ldglite, L3P/PoV Ray) the same functionality supporting additional ldraw content search directories. LPub3D now passes 2 env variables to ldglite - LDRAWDIR and LDSEARCHDIRS. LdView and L3P already uses the ldrawini.c library. They can also be configured to detect additional ldraw content search directories if no ldraw.ini file is configured. I also upgraded ldglite's openGL API from glut (deprecated) to freeglut 3.0 released in June 2015. Ldglite os not versioned at 1.3.0 (from 1.2.7). 
 -Add ability to manage additional ldraw content search directories whether using Ldraw.ini or not. 
@@ -464,7 +466,7 @@ Features and enhancements
  this routine however - especially with large complex models using in-lined unofficial parts that may not be in ldrawunf.zip 
 -CHANGE: Change 'Reset All Caches' to 'Reset Image and Model' Caches 
 -CHANGE: BOM default sort to sort by colour then size, previous default was size only (PLI default sort by size) 
--CHANGE: Change 'Update' tab in preferences dialog to 'Other'. 
+-CHANGE: Change 'Update' tab in preferences dialogue to 'Other'. 
  
 LPub3D 1.2.3.443.2 
 Features and enhancements 
@@ -500,8 +502,8 @@ Features and enhancements
 -Show progress bar during display page processing. 
 -Text entries can now accomodate quotes using escape character '\' - e.g. This \"Fat\" MOC 
  will display: This "Fat" MOC. Edits must always include the '\' escape character. 
--Fix: When changing the font on added text, the dialog starts with MS Shell Dlg 2 size 12. 
- The dialog now starts with display of the actual font perameters being changed. 
+-Fix: When changing the font on added text, the dialogue starts with MS Shell Dlg 2 size 12. 
+ The dialogue now starts with display of the actual font perameters being changed. 
 -Fix: Change to PLI Times Used attribue on multi-step page now affects only the selected step. 
  when use local option selected. 
 -Fix: Change to PLI Text Annotation attribue on multi-step page now affects only the selected step. 
@@ -525,7 +527,7 @@ Features and enhancements
 ------------ 
 -Enable/disable PLI annotations (Preference Dialog) 
 -Edit part title annotations 
--Fix: source URL on about dialog 
+-Fix: source URL on about dialogue 
 -Fix: .dat subFiles not processed for 3D viewer - causes abnormal end (expected 
  dat files to be treated as part and placed in Official/unofficial parts). 
  Dat subfiles are now treated same as mpd/ldr subfiles. 
@@ -660,8 +662,8 @@ Features and enhancements
 	0 STEP 
 -Fix: LDView single call render crash on multi-step page generation (763) 
  *Crash if multi-step page's steps contain more than PLI and CSI components. Corrected. 
--Fix: Preference dialog version change log cleared on update check when there is no available update (r762) 
- *If no update available, ignore updating the change log dialog. 
+-Fix: Preference dialogue version change log cleared on update check when there is no available update (r762) 
+ *If no update available, ignore updating the change log dialogue. 
  
 LPub3D 2.0.6.761.3 
  
@@ -669,7 +671,7 @@ Features and enhancements
 ------------ 
 -Fix: Set radial and conical background gradient parse fail with 'Malformed background...' (r759) 
   *Parse fail for radial and conical gradient meta commands. Linear, radial and conical gradients are all now working as designed. 
--Fix: Scale in Page Globals Setup dialog not working (r756) 
+-Fix: Scale in Page Globals Setup dialogue not working (r756) 
  *Cover Image and Logo double spin control not working. Issue corrected. 
 -Fix: Save and restore application window state and geometry (r755) 
  *Was causing crash on launch before update to Qt5.7. 
@@ -711,8 +713,8 @@ Features and enhancements
  *No fade parts index generated on the first step because nothing was faded; however, we still need an index to know where to start on the second step. Fade step routine fixed to generate an index as long as there are valid parts in the step. 
 -Fix: Installer program configured to deposit a master copy of usder data (libraries, lists, etc...) in the installation root directory. (r733) 
  *Allow user data creation at initial launch. Upon initial application launch, if user data does not exist, it will be created. This will address the issue of Windows standard users not having access to user data after installation. Additioinally, this design allows for multiple users on a single machine to have their individual user settings and data. 
--Fix: Set progress dialog to nonmodal. (r732) 
- *Prevent the progress dialog from blocking input to other windows. 
+-Fix: Set progress dialogue to nonmodal. (r732) 
+ *Prevent the progress dialogue from blocking input to other windows. 
 -Fix: Data directory installed under Administrator AppData path instead of logged in user which is likely to be a standard user (r731) 
  *User data - LDraw archive libraries, logs, extras and other updatable data items - will be installed at initial application launch by default. Because Administrator privilates are required to install LPub3D, user data installed during installation will be deposited under the Administrator user's AppData path. This data will not be accessible to standard users. User data can be installed during application installation as a checked option. This option may be desirable if the logged in user installing LPub3D is also the Administrator. If user data is installed during installation, user data for standard users will be automatically created during initial application launch. On initial application launch, the standard user will be given the options to select, copy (from the installation directory) or download the LDraw archive libraries. (Known Issue: Standard user incons are not being generated at the moment. Also, The uninstall routine will not remove standard user data created at application startup. I'm still working on improving the deployment package to handle these items). 
  
@@ -722,11 +724,11 @@ Features and enhancements
 ------------ 
 -Change: Check for update settings are now enabled by default. Previously, it was necessary to configure update settings in the Preferences/Other tab before one could visually confirm an update check. (r722) 
 -Fix: Warnings are displayed when there are no unofficial subdirectories under the LDraw directory. (r723) 
- *When no search directories are defined (i.e. No Unofficial or Models directories exist) and the user opens the Preferences dialog, teh LDraw Content Search Directories dialog will validate an empty dialog with a warning that the 'entry' is an invalid search directory. In such case no warnings should be displayed. 
+ *When no search directories are defined (i.e. No Unofficial or Models directories exist) and the user opens the Preferences dialogue, teh LDraw Content Search Directories dialogue will validate an empty dialogue with a warning that the 'entry' is an invalid search directory. In such case no warnings should be displayed. 
 -Fix: Installation program presents options to delete 'old' library directory on new installation when no old directory existed. (r724) 
  *Comparison of old and new are not the same evaluated to true. Comparison improved to check that old is actually a directory also. 
 -Change: Preferences/Other/Check for updates/Version now presents all valid updatable versions in a dropdown list. (r725,r728) 
- *Manage better the update dialog. Restrict entries to only valid update versions. 
+ *Manage better the update dialogue. Restrict entries to only valid update versions. 
 -Fix: Crash when last line in main model of mpd file is a part type line - i.e. line starts with 1 to 5. (r726) 
  *This behavior will be seen when the user loads a model file without the meta tag '0 STEP' or '0 NOFILE'. 
 -Fix: Export and PDF generation produces "Failed to create CSI" and does not produce model images in the generated document.(r727) 
@@ -740,7 +742,7 @@ Features and enhancements
  *Repackaged all distributions to incorporate all MSVC 2015 required dependency libraries. The Visual C++ Redistributable for Visual Studio 2015 is also included in the portable distributions. For the executable installation distribution, the installation program will check if the required libraries exist before silently installing the respective Visual C++ redistributable. 
  -Known Issue: Storing and retrieving the screen pos[ition], size, state and geometry settings appear to be causing intermittent crash on startup - at the end of the splash screen display. (r718/r719) 
  *This functionality has been disabled for the moment while I investigate. This unexpected behavior was introduced with the Qt5.6/MSVC 2015 development platform. The change you may notice is that the application no longer starts on the screen you last close it. Instead, it will will always start at the same location. While I have experienced this behavior on a multi-screen display configuraion, there are reports that this behavior also exist on single-screen displays. 
--Fix: Disable search directory validation in Preferences dialog - temporary workaround (r721) 
+-Fix: Disable search directory validation in Preferences dialogue - temporary workaround (r721) 
  *Warnings are displayed when there are no unofficial subdirectories under the LDraw directory. In such case no warnings should be displayed. 
  
 LPub3D 2.0.1.717.2 
@@ -748,14 +750,14 @@ LPub3D 2.0.1.717.2
 Features and enhancements 
 ------------ 
 -Fix: In support of archive library move to AppData (see r707), the installation process will delete the 'old' LDRaw library archive directory even if it is actually the new directory. For example this can be reproduced if one attempts to reinstall LPub3D where the actual 'old' directory would have been deleted during the initial installation. The installation will now compare the 'old' directory to the new one and present the user the option to delete if the comparison does not match. (r715) 
--Fix: At applicaton launch, the 'Check for updates' does not detect the installed version. As a result, if the user performs a check for update or update checks are set to automatic, the user is presented with a message dialog stating a new update version is available when in fact this is not the case. The correct message dialog is now presented. Runaway eventloop when newest version is same as installed version. (r716) 
+-Fix: At applicaton launch, the 'Check for updates' does not detect the installed version. As a result, if the user performs a check for update or update checks are set to automatic, the user is presented with a message dialogue stating a new update version is available when in fact this is not the case. The correct message dialogue is now presented. Runaway eventloop when newest version is same as installed version. (r716) 
  
 LPub3D 2.0.0.714.2 
  
 Features and enhancements 
 ------------ 
 -Up to 60 percent increase rendering speed with configuration to render multiple files using a single call to LDView. 
- *All PLI (part list/BOM) parts for a given step are rendered in a single call versus individually. For CSI (Step models), all multi-step images on a page are rendered in a single call including callout(s). Single step page images are rendered with a single call for all model images including those in callout(s). This new confiuration will default as checked in the preferences dialog. 
+ *All PLI (part list/BOM) parts for a given step are rendered in a single call versus individually. For CSI (Step models), all multi-step images on a page are rendered in a single call including callout(s). Single step page images are rendered with a single call for all model images including those in callout(s). This new confiuration will default as checked in the preferences dialogue. 
  *To achieve this behavior, input files (csi.ldr, pli.ldr) are now uniquely named because rendering multiple files is done by using -SaveSnapshots=1 instead of -SaveSnapshot=somefile.png and then listing all the LDR files at the end of the command line. There is no control over the output file names. Instead, LDView will automatically use the input base filename changing only the output filename extension from .ldr to .png. 
  *Enabling this feature is optonal and can be selected on the Configuration/Preferences/Rendering tab by checking the box 'Use multiple files single call rendering' in the 'LDView is installed' group box. LDView must be installed and configured to enable this option. 
  *Notice: As this feature required a significant rewrite of the core image generation logic, it is likely to generate some unexpected behavior as not every scenario has been tested. Please report any unexptected behavior. Contact details can be found under the Help/About menu. 
@@ -776,7 +778,7 @@ Features and enhancements
 -Add progress bar to mpd/ldr file load (r690) 
  *Users can now see the progress of loading models. This is particularly useful for large models or models which include a large number of lines due to generated flex-parts etc... 
 -Enable 'Use multiple files single call rendering' for LDView from Preferences/Rendering/LDView is installed/Use Multiple files single call rendering. (r687) 
- *LDView 'Single Call' rendering performance improvement can be selected or unselected from the preferences dialog. Although I tested the as many scenarios as I can think of. If this new feature encounters some unique model file configuration that causes unexpected behavior, the user can revert back to the legacy functionality if s/he so desire. 
+ *LDView 'Single Call' rendering performance improvement can be selected or unselected from the preferences dialogue. Although I tested the as many scenarios as I can think of. If this new feature encounters some unique model file configuration that causes unexpected behavior, the user can revert back to the legacy functionality if s/he so desire. 
 -Increase PLI (Part list/BOM) and CSI (Model) rendering speed with LDView using -SaveSnapshots=1 (r683/r684/r685) 
  *'Single Call' performance improvement for LDView 
 -Redesign software and library update functionality (r710) 
@@ -800,9 +802,9 @@ Features and enhancements
 -Disable Clear Cache menu button when no file is loaded (r686) 
  *Just a little poka yoke. The cache locations are specific to the file loaded, so it does not help to have this button active when no file is loaded. 
 -Force to empty the cache before creating a PDF (r654) 
- *Added option to empty the image ldr and image cache before printing. With this feature the user can select the option on the print configuration dialog to clear the cache and regenerate images as the print/export job executes. 
+ *Added option to empty the image ldr and image cache before printing. With this feature the user can select the option on the print configuration dialogue to clear the cache and regenerate images as the print/export job executes. 
 -Synchronize 'prev', 'next' and 'goto' page menu items (r653) 
- *User can enter directly any page number within range into the menu dialog. Clicking either the Previous or Next button will navigate to the page indicated regardless of if the page is the next increment backward (for Previous) or forward (for Next) or a page further backward or forward. The user can still hit the enter key to navigate to the indicated page - if not the current page of course. 
+ *User can enter directly any page number within range into the menu dialogue. Clicking either the Previous or Next button will navigate to the page indicated regardless of if the page is the next increment backward (for Previous) or forward (for Next) or a page further backward or forward. The user can still hit the enter key to navigate to the indicated page - if not the current page of course. 
 -Supress rotateIcon from CSI (model) item context menu if we have a callout and the callout assembled (r652) 
  *The menu option to insert a rotate step icon is not presented for assembled callouts. 
 -Select local page size and global and local page orientation - Portrait and Landscape (r518) 
@@ -820,7 +822,7 @@ Features and enhancements
 -Refactor: Update file load progress messages (r636) 
 -Refactor: Rearrange printToPdfFile page count (r632) 
 -Update: Clear 3D Window when there is no model to display - e.g. for cover or inserted pages (r701) 
--Update: Set download dialog header to Library Updater when downloading library - otherwise Software Updater (r700) 
+-Update: Set download dialogue header to Library Updater when downloading library - otherwise Software Updater (r700) 
 -Update: AboutDialog window recognizes and displays Win 10 and OSX El Capitan(r665/r668/r669) 
 -Update: ldglite hard-coded default directory setting to ldglite1.3.1(r623) 
 -Update: 3DViewer minifig settings moved to ini file - LeoCAD Changeset 1870 (r617x) 
@@ -874,7 +876,7 @@ Features and enhancements
 -Fix: Periodic crash when adding divider to multi-step page or callouts (r577) 
 -Fix: Periodic crash every time a second successive rotation icon is added to multi-step page (r577) 
 -Fix: If using LPub3D archive distribution (no installer), use distribution's extras folder instead of creating one in AppData (r579) 
--Fix: Print/export dialog progress bar (r585) 
+-Fix: Print/export dialogue progress bar (r585) 
 -Fix: Upon "Add assembled image to parent page" a rotation icon is added to the callout if rotation icons were present in the callout step(s). Assembled and rotated callouts will not display rotate icons on the parent page. Only unassembled callouts will display rotate icons if present in the callout step(s). (r587) 
 -Fix: 2 page refreshes when Parameters menu item is accpeted - only a single refresh needed. (r588) 
  
@@ -901,11 +903,11 @@ LPub3D 1.3.0.504.2
  
 Features and enhancements 
 ------------ 
--Add dialog to print or export to image all pages, current page and custom range of pages (e.g. 1,3,5,7-9) 
+-Add dialogue to print or export to image all pages, current page and custom range of pages (e.g. 1,3,5,7-9) 
 -Add ability to detect additional ldraw content search directories using ldrawini c api 
  I implemented the ldrawini c api to maintain compatability with LPub3D 3rd Party renderers - LDView, L3P(PovRay) and Ldglite. Additional directories must have either the same tree as LDraw Unofficial directory (i.e. parts and/or p subdirectories...) or alternatively, content can be deposited at the root of the additional directory (i.e. C:/ldrawFiles/*.dat). Content from all defined ldraw search directories are archived in the ldrawunf.zip archive and loaded into memory - enabling access to the 3DViewer. 
  If no ldraw.ini file is detected. LPub3D will automatically search all subdirectories under the ldraw/Unofficial directory - except directories p and parts. Unofficial subdirectories p and parts as well as official p and parts subdirectories are never searched because they are atomatically loaded during default behavior during startup. 
- There are 2 ways to define search directories: 1. using the Ldraw.ini file (there is now a menu button to edit the ldraw.ini file) and 2. editing the 'Ldraw Content Search Directories text edit dialog under the 'Other' tab in Preferences. If you are using an LDraw.ini file, the preferences dialog will be read only - you must use the menu edit button under 'Configurtion' to edit the ldraw.ini file. The ldraw.ini edit button only appears if a ldraw.ini file is detectec. If you are not using ldraw.ini, it is possible to add,remove and reset to the default search directories in the Preferences tab. 
+ There are 2 ways to define search directories: 1. using the Ldraw.ini file (there is now a menu button to edit the ldraw.ini file) and 2. editing the 'Ldraw Content Search Directories text edit dialogue under the 'Other' tab in Preferences. If you are using an LDraw.ini file, the preferences dialogue will be read only - you must use the menu edit button under 'Configurtion' to edit the ldraw.ini file. The ldraw.ini edit button only appears if a ldraw.ini file is detectec. If you are not using ldraw.ini, it is possible to add,remove and reset to the default search directories in the Preferences tab. 
  ldglite renderer updated with the ability to process additional directories beyond official/unofficial parts, p and Model. I implemented this 
  enhancement to allow all 3 LPub3D renderers(LDView, Ldglite, L3P/PoV Ray) the same functionality supporting additional ldraw content search directories. LPub3D now passes 2 env variables to ldglite - LDRAWDIR and LDSEARCHDIRS. LdView and L3P already uses the ldrawini.c library. They can also be configured to detect additional ldraw content search directories if no ldraw.ini file is configured. I also upgraded ldglite's openGL API from glut (deprecated) to freeglut 3.0 released in June 2015. Ldglite os not versioned at 1.3.0 (from 1.2.7). 
 -Add ability to manage additional ldraw content search directories whether using Ldraw.ini or not. 
@@ -950,7 +952,7 @@ Features and enhancements
  this routine however - especially with large complex models using in-lined unofficial parts that may not be in ldrawunf.zip 
 -CHANGE: Change 'Reset All Caches' to 'Reset Image and Model' Caches 
 -CHANGE: BOM default sort to sort by colour then size, previous default was size only (PLI default sort by size) 
--CHANGE: Change 'Update' tab in preferences dialog to 'Other'. 
+-CHANGE: Change 'Update' tab in preferences dialogue to 'Other'. 
  
 LPub3D 1.2.3.443.2 
 Features and enhancements 
@@ -986,8 +988,8 @@ Features and enhancements
 -Show progress bar during display page processing. 
 -Text entries can now accomodate quotes using escape character '\' - e.g. This \"Fat\" MOC 
  will display: This "Fat" MOC. Edits must always include the '\' escape character. 
--Fix: When changing the font on added text, the dialog starts with MS Shell Dlg 2 size 12. 
- The dialog now starts with display of the actual font perameters being changed. 
+-Fix: When changing the font on added text, the dialogue starts with MS Shell Dlg 2 size 12. 
+ The dialogue now starts with display of the actual font perameters being changed. 
 -Fix: Change to PLI Times Used attribue on multi-step page now affects only the selected step. 
  when use local option selected. 
 -Fix: Change to PLI Text Annotation attribue on multi-step page now affects only the selected step. 
@@ -1011,7 +1013,7 @@ Features and enhancements
 ------------ 
 -Enable/disable PLI annotations (Preference Dialog) 
 -Edit part title annotations 
--Fix: source URL on about dialog 
+-Fix: source URL on about dialogue 
 -Fix: .dat subFiles not processed for 3D viewer - causes abnormal end (expected 
  dat files to be treated as part and placed in Official/unofficial parts). 
  Dat subfiles are now treated same as mpd/ldr subfiles. 

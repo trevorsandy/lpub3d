@@ -970,12 +970,31 @@ void Gui::Print(QPrinter* Printer)
     QGraphicsScene scene;
     LGraphicsView view(&scene);
 
+    // initialize progress bar dialog
+    m_cancelPrinting = false;
+    m_progressDialog->setWindowTitle("Print pdf");
+    m_progressDialog->show();
+    m_progressDlgMessageLbl->setText("Printing...");
+
     for (int DocCopy = 0; DocCopy < DocCopies; DocCopy++)
     {
         int Page = FromPage;
 
+        m_progressDlgProgressBar->setRange(Page,ToPage);
+
         for (displayPageNum = Page; displayPageNum <= ToPage; displayPageNum++)
         {
+            if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || m_cancelPrinting)
+            {
+                // release 3D Viewer
+                halt3DViewer(false);
+
+                emit messageSig(true,QString("Printing terminated before completion."));
+                return;
+            }
+
+            m_progressDlgMessageLbl->setText(QString("Printing: page %1 of %2").arg(Page).arg(ToPage));
+            m_progressDlgProgressBar->setValue(Page);
 
             logNotice() << QString("Printing: page %1 of %2").arg(Page).arg(ToPage);
 
@@ -1007,10 +1026,12 @@ void Gui::Print(QPrinter* Printer)
 
             for (int PageCopy = 0; PageCopy < PageCopies; PageCopy++)
             {
-                if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error)
+                if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || m_cancelPrinting)
                 {
                     // release 3D Viewer
                     halt3DViewer(false);
+
+                    emit messageSig(true,QString("Printing terminated before completion."));
                     return;
                 }
 
@@ -1037,6 +1058,7 @@ void Gui::Print(QPrinter* Printer)
 
             Printer->newPage();
         }
+        m_progressDlgProgressBar->setValue(ToPage);
 
         if (DocCopy < DocCopies - 1) {
             Printer->newPage();
@@ -1049,6 +1071,12 @@ void Gui::Print(QPrinter* Printer)
     // return to whatever page we were viewing before output
     displayPageNum = savePageNumber;
     drawPage(KpageView,KpageScene,false);
+
+    // hide progress bar
+    m_progressDialog->hide();
+
+    emit messageSig(true,QString("Print to pdf completed."));
+
 }
 
 void Gui::ShowPrintDialog()
@@ -1090,5 +1118,49 @@ void Gui::TogglePrintPreview()
     QPrintPreviewDialog Preview(&Printer, this);
 
     connect(&Preview, SIGNAL(paintRequested(QPrinter*)), SLOT(Print(QPrinter*)));
+
     Preview.exec();
+
+//    QMessageBox box;
+//    box.setTextFormat (Qt::RichText);
+//    box.setIcon (QMessageBox::Information);
+//    box.setStandardButtons (QMessageBox::Close);
+//    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+//    box.setWindowTitle(tr ("Print Status"));
+
+//    //display completion message
+//    box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+//    box.setDefaultButton   (QMessageBox::Yes);
+
+//    QString title = "<b> Printing instructions. </b>";
+//    QString text = tr ("Your instruction document has finished printing.\n"
+//                       "Do you want to open this document ?\n %1").arg(fileName);
+
+//    box.setText (title);
+//    box.setInformativeText (text);
+
+//    if (box.exec() == QMessageBox::Yes) {
+//        QString CommandPath = fileName;
+//        QProcess *Process = new QProcess(this);
+//        Process->setWorkingDirectory(QDir::currentPath() + "/");
+//        Process->setNativeArguments(CommandPath);
+
+//#ifdef __APPLE__
+
+//        Process->execute(CommandPath);
+//        Process->waitForFinished();
+
+//        QProcess::ExitStatus Status = Process->exitStatus();
+
+//        if (Status != 0) {  // look for error
+//            QErrorMessage *m = new QErrorMessage(this);
+//            m->showMessage(QString("%1\n%2").arg("Failed to launch PDF document!").arg(CommandPath));
+//        }
+//#else
+//        QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+//#endif
+//        return;
+//    } else {
+//        return;
+//    }
 }
