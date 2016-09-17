@@ -80,12 +80,12 @@ void LDrawFile::empty()
   _subFiles.clear();
   _subFileOrder.clear();
   _mpd = false;
+  _pieces = 0;
 }
 
 /* Add a new subFile */
 
-void LDrawFile::insert(
-                      const QString &mcFileName,
+void LDrawFile::insert(const QString &mcFileName,
                       QStringList    &contents,
                       QDateTime      &datetime,
                       bool            unofficialPart,
@@ -456,12 +456,12 @@ void LDrawFile::loadFile(const QString &fileName)
     while ( ! in.atEnd()) {
         QString line = in.readLine(0);
         if (line.contains(sof)) {
-            logInfo() << QString("Importing MPD: %1").arg(line.remove("0 "));
+            logStatus() << QString("Loading MPD %1").arg(line.remove("0 "));
             mpd = true;
             break;
         }
         if (line.contains(part)) {
-            logInfo() << QString("Importing LDR: %1").arg(line.remove("0 "));
+            logStatus() << QString("Loading LDR %1").arg(line.remove("0 "));
             mpd = false;
             break;
         }
@@ -504,7 +504,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     QRegExp upAUT("^\\s*0\\s+AUTHOR(.*)|Author(.*)|author(.*)$");
     QRegExp upNAM("^\\s*0\\s+Name(.*)|name(.*)|NAME(.*)$");
     QRegExp upCAT("^\\s*0\\s+!CATEGORY(.*)|!Category(.*)|!category(.*)$");
-//    QRegExp upDAT("\\.dat|\\.DAT$");
 
     bool topLevelFileNotCaptured        = true;
     bool topLevelNameNotCaptured        = true;
@@ -623,7 +622,9 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
     emit gui->progressPermSetValueSig(stageContents.size());
     emit gui->removeProgressPermStatusSig();
-    emit gui->messageSig(true, QString("Model file loaded. Parts counted: %1.").arg(_pieces));
+    //emit gui->messageSig(true, QString("Model file loaded. Parts counted: %1.").arg(_pieces));
+
+    logStatus() << QString("MPD file %1 loaded. Part Count: %2").arg(fileName).arg(_pieces);
 
 //    logInfo() << "MPD File: "         << _file
 //              << ", Name: "           << _name
@@ -743,7 +744,8 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
       emit gui->progressPermSetValueSig(contents.size());
       emit gui->removeProgressPermStatusSig();
-      emit gui->messageSig(true, QString("Model file loaded. Parts counted: %1.").arg(_pieces));
+      //emit gui->messageSig(true, QString("Model file loaded. Parts counted: %1.").arg(_pieces));
+      logInfo() << QString("LDR file %1 loaded. Part Count: %2").arg(fileName).arg(_pieces);
 
 //      logInfo() << "LDR File: "         << _file
 //                << ", Name: "           << _name
@@ -953,35 +955,57 @@ bool LDrawFile::saveMPDFile(const QString &fileName)
     return true;
 }
 
-void LDrawFile::countParts(const QString &fileName, const int count){
+void LDrawFile::countParts(const QString &fileName){
 
-  logStatus() << QString("  Subfile: %1, Parts count: %2").arg(fileName).arg(count);
+  //logDebug() << QString("  Subfile: %1, Subfile Parts Count: %2").arg(fileName).arg(count);
+  logStatus() << QString("  Subfile: %1").arg(fileName);
+
+  int sfCount = 0;
+  bool doCountParts = true;
 
   QRegExp validEXT("\\.dat|\\.DAT|\\.ldr|\\.LDR|\\.mpd|\\.MPD$");
+
   QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(fileName.toLower());
   if (f != _subFiles.end()) {
       // get content size and reset numSteps
       int j = f->_contents.size();
+
       // process submodel content...
       for (int i = 0; i < j; i++) {
           QStringList tokens;
           QString line = f->_contents[i];
+
           split(line,tokens);
 
+          // interrogate each line
 //          if (tokens[0] != "1") {
 //              logNotice() << QString("     Line: [%1] %2").arg(fileName).arg(line);
 //            }
 
-          // interrogate each line
-          if (tokens.size() == 15 && tokens[0] == "1" && (tokens[14].contains(validEXT))){
+          if (tokens.size() == 5 &&
+              tokens[0] == "0" &&
+              (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+              tokens[2] == "PART" &&
+              tokens[3] == "BEGIN"  &&
+              tokens[4] == "IGN") {
+              doCountParts = false;
+            } else if (tokens.size() == 4 &&
+                       tokens[0] == "0" &&
+                       (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+                       tokens[2] == "PART"&&
+                       tokens[3] == "END") {
+              doCountParts = true;
+            }
+
+          if (doCountParts && tokens.size() == 15 && tokens[0] == "1" && (tokens[14].contains(validEXT))){
               bool containsSubFile = contains(tokens[14].toLower());
               if (containsSubFile) {
-                  countParts(tokens[14],_pieces);
+                  countParts(tokens[14]);
                 } else if (! ExcludedParts::hasExcludedPart(tokens[14])){
                   QFileInfo info(tokens[14]);
                   PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.baseName().toUpper().toLatin1().constData(), NULL, false);
                   if (pieceInfo && pieceInfo->IsPartType()) {
-                      _pieces++;
+                      _pieces++; sfCount++;
                       //logTrace() << QString(" Part Line: [%2] %3 ItemNo %1").arg(_pieces).arg(fileName).arg(line);
                       logStatus() << QString("ItemNo %1 [%2]").arg(_pieces).arg(tokens[14]);
                     }

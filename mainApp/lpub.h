@@ -481,6 +481,9 @@ public:
   {
     return ldrawFile.numSteps(modelName);
   }
+  int numParts(){
+    return ldrawFile.getPartCount();
+  }
   QString readLine(const Where &here);
 
   bool isSubmodel(const QString &modelName)

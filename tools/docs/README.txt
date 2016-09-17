@@ -2,6 +2,11 @@ LPub3D 2.0.11.793.2
  
 Features and enhancements 
 ------------
+Fix: LDraw editor comments not highlighted (r810)
+ * LDraw editor will now highlight LDraw line comments '//'. 
+ Additionally, LDCad meta commands are also highlighted.
+Fix: Display part count (r809)
+ * Part count displayed on status bar at file load.
 Fix: Page size display in Page Setup dialogue does not show accurate size (r808)
  * Conversion rounding error (between inches and centimetres) preventing the right page size index from being identified. Redesign to use single source (inches) converted dynamically between inches and centimetres when needed.
 Fix: Reload at file change prompt (r807)

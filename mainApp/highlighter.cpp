@@ -143,8 +143,28 @@ Highlighter::Highlighter(QTextDocument *parent)
         highlightingRules.append(rule);
     }
 
-    multiLineCommentFormat.setForeground(Qt::darkGreen);
+    LDCadMetaFormat.setFontWeight(QFont::Bold);
+    LDCadMetaFormat.setForeground(Qt::red);
 
+    QStringList LDCadMetaPatterns;
+    LDCadMetaPatterns
+        << "\\bLDCAD\\b[^\n]*"
+        << "\\b!LDCAD\\b[^\n]*";
+
+    foreach (QString pattern, LDCadMetaPatterns) {
+        rule.pattern = QRegExp(pattern);
+        rule.format = LDCadMetaFormat;
+
+        highlightingRules.append(rule);
+      }
+
+    LPubCommentFormat.setForeground(Qt::darkGreen);
+    rule.pattern = QRegExp("\\/\\/[^\n]*");
+    rule.format = LPubCommentFormat;
+    highlightingRules.append(rule);
+
+
+    multiLineCommentFormat.setForeground(Qt::darkGreen);
     commentStartExpression = QRegExp("\\bLPUB FOO BEGIN\\b+[^\n]*");
     commentEndExpression   = QRegExp("\\bLPUB FOO END\\b+[^\n]*");
 }

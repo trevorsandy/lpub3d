@@ -64,6 +64,8 @@ private:
     QTextCharFormat MLCadMetaFormat;
     QTextCharFormat LPubMetaFormat;
     QTextCharFormat LSynthMetaFormat;
+    QTextCharFormat LDCadMetaFormat;
+    QTextCharFormat LPubCommentFormat;
     QTextCharFormat multiLineCommentFormat;
 
 };

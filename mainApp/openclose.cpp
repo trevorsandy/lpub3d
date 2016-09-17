@@ -52,7 +52,9 @@ void Gui::open()
       openFile(fileName);
       displayPage();
       enableActions();
-      emit messageSig(true, "File loaded. " + elapsedTime(timer.elapsed()));
+      emit messageSig(true, QString("File loaded (%1 parts). %2")
+                      .arg(ldrawFile.getPartCount())
+                      .arg(elapsedTime(timer.elapsed())));
       return;
     }
   }
@@ -71,7 +73,9 @@ void Gui::openRecentFile()
     Paths::mkdirs();
     displayPage();
     enableActions();
-    emit messageSig(true, "File loaded. " + elapsedTime(timer.elapsed()));
+    emit messageSig(true, QString("File loaded (%1 parts). %2")
+                    .arg(ldrawFile.getPartCount())
+                    .arg(elapsedTime(timer.elapsed())));
   }
 }
 
@@ -86,7 +90,9 @@ void Gui::loadFile(const QString &file)
         Paths::mkdirs();
         displayPage();
         enableActions();
-        emit messageSig(true, "File loaded. " + elapsedTime(timer.elapsed()));
+        emit messageSig(true, QString("File loaded (%1 parts). %2")
+                        .arg(ldrawFile.getPartCount())
+                        .arg(elapsedTime(timer.elapsed())));
     } else {
         QMessageBox::warning(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
                              QMessageBox::tr("Unable to load file %1.")

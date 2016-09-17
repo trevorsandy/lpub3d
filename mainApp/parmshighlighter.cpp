@@ -39,19 +39,11 @@ ParmsHighlighter::ParmsHighlighter(QTextDocument *parent)
 
     LPubParmsFormat.setForeground(Qt::darkGreen);
     LPubParmsFormat.setFontWeight(QFont::Bold);
-
-    QStringList LPubParmsPatterns;
-    LPubParmsPatterns << "^\\B#[^\n]*";
-
-    foreach (QString pattern, LPubParmsPatterns) {
-        rule.pattern = QRegExp(pattern);
-        rule.format = LPubParmsFormat;
-
-        highlightingRules.append(rule);
-    }
+    rule.pattern = QRegExp("^\\B#[^\n]*");
+    rule.format = LPubParmsFormat;
+    highlightingRules.append(rule);
 
     multiLineCommentFormat.setForeground(Qt::darkGreen);
-
     commentStartExpression = QRegExp("\\b#\\b+[^\n]*");
     commentEndExpression   = QRegExp("\\#!\\b+[^\n]*");
 }

@@ -66,7 +66,7 @@ class LDrawSubFile {
       _unofficialPart = false;
     }
     LDrawSubFile(
-      const QStringList &contents,
+            const QStringList &contents,
             QDateTime   &datetime,
             bool         unofficialPart,
             bool         generated = false);
@@ -100,12 +100,16 @@ class LDrawFile {
     static QString              _category;
     static int                  _pieces;
 
+    int getPartCount(){
+      return _pieces;
+    }
+
     bool saveFile(const QString &fileName);
     bool saveMPDFile(const QString &filename);
     bool saveLDRFile(const QString &filename);
 
-    void insert(const QString     &fileName, 
-                      QStringList &contents, 
+    void insert(const QString     &fileName,
+                      QStringList &contents,
                       QDateTime   &datetime,
                       bool         unofficialPart,
                       bool         generated = false);
@@ -153,7 +157,7 @@ class LDrawFile {
     void setRendered(const QString &fileName, bool mirrored);
     bool rendered(const QString &fileName, bool mirrored);
     int instances(const QString &fileName, bool mirrored);
-    void countParts(const QString &fileName, const int count = 0);
+    void countParts(const QString &fileName);
     void countInstances();
     void countInstances(const QString &fileName, bool mirrored, const bool callout = false);
     bool changedSinceLastWrite(const QString &fileName);
