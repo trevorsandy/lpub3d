@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: August 05, 2016
+;Last Update: September 17, 2016
 ;Copyright (C) 2016 by Trevor Sandy
 
 ;--------------------------------
@@ -335,6 +335,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   File "..\..\mainApp\extras\freeformAnnotations.lst"
   File "..\..\mainApp\extras\fadeStepColorParts.lst"
   File "..\..\mainApp\extras\pliSubstituteParts.lst"
+  File "..\..\mainApp\extras\excludedParts.lst"
   File "..\release\libraries\complete.zip"
   File "..\release\libraries\lpub3dldrawunf.zip"
 
@@ -383,6 +384,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	  File "..\..\mainApp\extras\titleAnnotations.lst"
 	  File "..\..\mainApp\extras\freeformAnnotations.lst"
 	  File "..\..\mainApp\extras\pliSubstituteParts.lst"
+	  File "..\..\mainApp\extras\excludedParts.lst"
 	 ${Else}
 	  SetOverwrite on
 	  File "..\..\mainApp\extras\LDConfig.ldr"
@@ -390,6 +392,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	  File "..\..\mainApp\extras\freeformAnnotations.lst"
 	  File "..\..\mainApp\extras\fadeStepColorParts.lst"
 	  File "..\..\mainApp\extras\pliSubstituteParts.lst"
+	  File "..\..\mainApp\extras\excludedParts.lst"
 	 ${EndIf}
 	  
 	  ;Store/Update library folder
@@ -762,6 +765,7 @@ Section "Uninstall"
   Delete "$INSTDIR\data\freeformAnnotations.lst"
   Delete "$INSTDIR\data\fadeStepColorParts.lst"
   Delete "$INSTDIR\data\pliSubstituteParts.lst"
+  Delete "$INSTDIR\data\excludedParts.lst"
   Delete "$INSTDIR\data\complete.zip"
   Delete "$INSTDIR\data\lpub3dldrawunf.zip"
   
@@ -833,6 +837,7 @@ Section "Uninstall"
 	Delete "${INSTDIR_AppData}\extras\freeformAnnotations.lst"
 	Delete "${INSTDIR_AppData}\extras\titleAnnotations.lst"
 	Delete "${INSTDIR_AppData}\extras\pliSubstituteParts.lst"
+	Delete "${INSTDIR_AppData}\extras\excludedParts.lst"
 	Delete "${INSTDIR_AppData}\extras\pli.mpd"
 	Delete "${INSTDIR_AppData}\extras\PDFPrint.jpg"
 	Delete "${INSTDIR_AppData}\extras\LDConfig.ldr"

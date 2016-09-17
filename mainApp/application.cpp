@@ -22,7 +22,6 @@
 #include "resolution.h"
 #include "updatecheck.h"
 
-#include "QsLog.h"
 #include "QsLogDest.h"
 
 #ifdef Q_OS_WIN
@@ -128,22 +127,7 @@ Application* Application::instance()
 
 void Application::initialize(int &argc, char **argv)
 {
-  // splash
-  QPixmap pixmap(":/resources/LPub512Splash.png");
-  splash = new QSplashScreen(pixmap);
-
-  QFont splashFont;
-  splashFont.setFamily("Arial");
-  splashFont.setPixelSize(16);
-  splashFont.setStretch(130);
-
-  splash->setFont(splashFont);
-  splash->show();
-
-  logInfo() << QString("Initializing application.");
-
-  emit splashMsgSig("5% - Initializing application...");
-
+  // initialize directories
   Preferences::lpubPreferences();
 
   // initialize the logger
@@ -175,6 +159,22 @@ void Application::initialize(int &argc, char **argv)
   // set log destinations on the logger
   logger.addDestination(debugDestination);
   logger.addDestination(fileDestination);
+
+  logInfo() << QString("Initializing application.");
+
+  // splash
+  QPixmap pixmap(":/resources/LPub512Splash.png");
+  splash = new QSplashScreen(pixmap);
+
+  QFont splashFont;
+  splashFont.setFamily("Arial");
+  splashFont.setPixelSize(16);
+  splashFont.setStretch(130);
+
+  splash->setFont(splashFont);
+  splash->show();
+
+  emit splashMsgSig("5% - Initializing application...");
 
   // logging examples
   bool showLogExamples = false;
@@ -262,6 +262,7 @@ void Application::main()
 {
 
   emit splashMsgSig(QString("100% %1 loaded.").arg(VER_PRODUCTNAME_STR));
+  Preferences::setLPub3DLoaded();
 
   splash->finish(gui);
 

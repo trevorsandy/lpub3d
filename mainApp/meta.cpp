@@ -2927,7 +2927,7 @@ LPubMeta::LPubMeta() : BranchMeta()
   rotateIcon.placement.setValue(RightOutside,CsiType);
   stepNumber.placement.setValue(BottomLeftOutside,PageHeaderType);      // TopLeftInsideCorner,PageType
   stepNumber.color.setValue("black");
-  mergeInstanceCount.setValue(false);
+  mergeInstanceCount.setValue(true);
   // stepNumber - default
 }
 

@@ -1002,8 +1002,8 @@ void Gui::Print(QPrinter* Printer)
             drawPage(&view,&scene,true);
 
             // determine page orientation
-            bool  ls = page.meta.LPub.page.orientation.value() == Landscape;
-            logDebug() << QString("PAGE ORIENTATION %1").arg(ls? "Landscape":"Portrait");
+            //bool  ls = page.meta.LPub.page.orientation.value() == Landscape;
+            //logDebug() << QString("PAGE ORIENTATION %1").arg(ls? "Landscape":"Portrait");
 
             // determine size of output image, in pixels. dimension are inches * pixels per inch
             float pageWidthPx, pageHeightPx;

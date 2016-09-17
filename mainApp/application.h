@@ -26,6 +26,7 @@
 #include <string>
 #include <vector>
 
+#include "QsLog.h"
 #include "lc_global.h"
 
 /// The Application class is responsible for further initialization of the app
@@ -61,6 +62,7 @@ public slots:
     void splashMsg(QString message){
       splash->showMessage(QSplashScreen::tr(message.toLatin1().constData()),Qt::AlignBottom | Qt::AlignLeft, Qt::white);
 	  m_application.processEvents();
+      logStatus() << message;
     }
 
 signals:
