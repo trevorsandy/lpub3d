@@ -1875,7 +1875,7 @@ void Gui::createMenus()
 #endif
     exportMenu->setDisabled(true);
 
-    fileMenu->addAction(printToFileAct);
+    //fileMenu->addAction(printToFileAct);
     fileMenu->addAction(printToFilePreviewAct);
     fileMenu->addAction(printToPdfFileAct);
 
@@ -1977,7 +1977,7 @@ void Gui::createToolBars()
     fileToolBar->addAction(openAct);
     fileToolBar->addAction(saveAct);
 
-    fileToolBar->addAction(printToFileAct);
+    //fileToolBar->addAction(printToFileAct);
     fileToolBar->addAction(printToFilePreviewAct);
     fileToolBar->addAction(printToPdfFileAct);
 
