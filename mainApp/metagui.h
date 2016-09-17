@@ -925,7 +925,6 @@ public:
     QGroupBox              *parent = NULL);
   ~SizeAndOrientationGui() {}
 
-  int  getTypeIndex(float &widthPg, float &heightPg);
   void setEnabled(bool enabled);
 //  void updateWidthAndHeight();
 

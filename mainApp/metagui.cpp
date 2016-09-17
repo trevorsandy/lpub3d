@@ -67,8 +67,8 @@
 // page sizes in centimeters and inches
 struct pageSizeTypes {
     QString pageType;
-    float   pageWidthCm;
-    float   pageHeightCm;
+    float   pageWidthCm;    // not used
+    float   pageHeightCm;   // not used
     float   pageWidthIn;
     float   pageHeightIn;
 } pageSizeTypes[] = {
@@ -2631,7 +2631,7 @@ void PageOrientationGui::apply(QString &topLevelFile)
 
 /***********************************************************************
  *
- * Page Size
+ * Page Size NOT USED KO (using SizeAndOrientationGui instead)
  *
  **********************************************************************/
 
@@ -2902,18 +2902,46 @@ SizeAndOrientationGui::SizeAndOrientationGui(
 
   int   numPageTypes = sizeof(pageSizeTypes)/sizeof(pageSizeTypes[0]);
   bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
-
+  float typeWidth;
+  float typeHeight;
   typeCombo = new QComboBox(parent);
+  int typeIndex = -1;
+
   for (int i = 0; i < numPageTypes; i++) {
+
+      typeWidth  = dpi ? pageSizeTypes[i].pageWidthIn : inches2centimeters(pageSizeTypes[i].pageWidthIn);
+      typeHeight = dpi ? pageSizeTypes[i].pageHeightIn : inches2centimeters(pageSizeTypes[i].pageHeightIn);
+
+//      qDebug() << "\n" << pageSizeTypes[i].pageType << " @ index: " << i
+//               << "\nType: (" << QString::number(typeWidth, 'f', 3) << "x" <<  QString::number(typeHeight, 'f', 3) << ") "
+//               << "\nPage: (" <<  QString::number(pageWidth, 'f', 3) << "x" <<  QString::number(pageHeight, 'f', 3) << ")";
 
       QString type = QString("%1 (%2 x %3)")
           .arg(pageSizeTypes[i].pageType)
-          .arg((dpi ? pageSizeTypes[i].pageWidthIn : pageSizeTypes[i].pageWidthCm))
-          .arg((dpi ? pageSizeTypes[i].pageHeightIn : pageSizeTypes[i].pageHeightCm));
+          .arg(QString::number(typeWidth, 'f', 1))
+          .arg(QString::number(typeHeight, 'f', 1));
 
       typeCombo->addItem(type);
-  }
-  typeCombo->setCurrentIndex(int(getTypeIndex(pageWidth,pageHeight)));
+
+      if (typeIndex == -1 &&
+          (pageWidth == typeWidth) &&
+          (pageHeight == typeHeight)){
+          typeIndex = i;
+        }
+    }
+  if (typeIndex == -1) {
+
+      QString customType = QString("%1 (%2 x %3)")
+          .arg(pageSizeTypes[numPageTypes-1].pageType)
+          .arg(QString::number(pageWidth,'f',1))
+          .arg(QString::number(pageHeight,'f',1));
+      int lastItem = typeCombo->count() - 1;
+
+      typeCombo->removeItem(lastItem);
+      typeCombo->addItem(customType);
+      typeIndex = lastItem;
+    }
+  typeCombo->setCurrentIndex(typeIndex);
   connect(typeCombo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(  typeChange(             QString const &)));
   if (heading == "")
@@ -2984,39 +3012,6 @@ SizeAndOrientationGui::SizeAndOrientationGui(
 
 }
 
-int SizeAndOrientationGui::getTypeIndex(float &widthPg, float &heightPg){
-
-  bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
-  int  numPageTypes = sizeof(pageSizeTypes)/sizeof(pageSizeTypes[0]);
-  int index = -1;
-  QString pageWidth;
-  QString pageHeight;
-  QString typeWidth;
-  QString typeHeight;
-
-  for (int i = 0; i < numPageTypes; i++) {
-
-      pageWidth  = QString::number( widthPg,  'f', 1);
-      pageHeight = QString::number( heightPg, 'f', 1);
-      typeWidth  = QString::number((dpi ? pageSizeTypes[i].pageWidthIn : pageSizeTypes[i].pageWidthCm),  'f', 1);
-      typeHeight = QString::number((dpi ? pageSizeTypes[i].pageHeightIn : pageSizeTypes[i].pageHeightCm), 'f', 1);
-
-//      qDebug() << "\n" << pageSizeTypes[i].pageType << " @ index: " << i
-//               << "\nType: (" << typeWidth << "x" << typeHeight << ") "
-//               << "\nPage: (" << pageWidth << "x" << pageHeight << ")";
-
-      if ((pageWidth == typeWidth) && (pageHeight == typeHeight)){
-        index = i;
-        break;
-        }
-  }
-
-  if (index == -1)
-      index = typeCombo->count() - 1; // last index
-
-  return index;
-}
-
 void SizeAndOrientationGui::typeChange(const QString &pageType){
 
     float pageWidth = smeta->value(0);
@@ -3032,12 +3027,11 @@ void SizeAndOrientationGui::typeChange(const QString &pageType){
       bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
       int   numPageTypes = sizeof(pageSizeTypes)/sizeof(pageSizeTypes[0]);
 
-
       for (int i = 0; i < numPageTypes; i++) {
 
           if (newType == pageSizeTypes[i].pageType) {
-              pageWidth  = dpi ? pageSizeTypes[i].pageWidthIn : pageSizeTypes[i].pageWidthCm;
-              pageHeight = dpi ? pageSizeTypes[i].pageHeightIn : pageSizeTypes[i].pageHeightCm;
+              pageWidth  = dpi ? pageSizeTypes[i].pageWidthIn : inches2centimeters(pageSizeTypes[i].pageWidthIn);
+              pageHeight = dpi ? pageSizeTypes[i].pageHeightIn : inches2centimeters(pageSizeTypes[i].pageHeightIn);
               break;
             }
         }

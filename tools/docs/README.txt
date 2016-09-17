@@ -2,11 +2,13 @@ LPub3D 2.0.11.793.2
  
 Features and enhancements 
 ------------
-Fix: Reload at file change prompt (r806)
+Fix: Page size display in Page Setup dialogue does not show accurate size (r808)
+ * Conversion rounding error (between inches and centimetres) preventing the right page size index from being identified. Redesign to use single source (inches) converted dynamically between inches and centimetres when needed.
+Fix: Reload at file change prompt (r807)
  * Users are now prompted to reload the model file when the loaded file is changed by an external source. With this fix, one can model the same file with multiple applications at the same time.
-Fix: Configuration parameters editor extra prompt to save before close (r806)
+Fix: Configuration parameters editor extra prompt to save before close (r807)
  * LPub3D configuration file editor prompting to save changed content at the both the editor's window close and LPub3D main window close. This behaviour has been corrected to prompt only at editor window close.
-Fix: Part count gives wrong result. (r805)
+Fix: Part count gives wrong result. (r806)
  * Setting an automatic piece count gives wrong count most of the time in an MPD with multiple submodels and multiple usages of certain same submodels. This behaviour is now corrected. However,the user will have to play a role in configuring her model file to accurately reflect the part count expected. This will undoubtedly require moderate knowledge of LDraw and LPub3D format/logic semantics. The implemented part count capabilities will aim to minimize the intervention of the user but; ultimately, the strength of the part count will depend on the integrity of the model file.
  In LPub3D, three configuration patterns will determine if a part is counted:
  1. The part file must contain a well formed part <Type> declaration meta.
@@ -35,7 +37,7 @@ Fix: Part count gives wrong result. (r805)
  3. There is now a part exclusion list under the user data directory ...extras/excludedParts.lst.
  As with the other LPub3D lists, the part exclusion list can be edited from the configuration menu.
  The exclusion list is effective in the scenario where one is using dynamically generated parts such as hoses, string, rope etc... Segment parts, e.g. LSynth's LSXX.dat parts, stickers, LDCad template segments etc... can be excluded from the part count by placing them on the exclusion list.
-Fix: Submodel instance count reflects all the occurrences in the subfile on initial display (r804)
+Fix: Submodel instance count reflects all the occurrences in the subfile on initial display (r805)
  * An example: when a model has 4x the same submodel, but 2 of those are used in step 10 and the other 2 are used in step 20, LPub3D will create 1x the submodel building steps with a 4x next to it.
  LPub3D behaviour will now, optionally, display the submodel instance count reflecting only the number of instances used in the parent step. However, note that there is an efficiency trade-off to this change in the form of more redundant steps in your instructions. 
  For example, if I have 4 occurrences of a submodel in a 3-step model file and I consume 2 in step 1 and 1 each in steps 2 and 2, under the previous behaviour, you would indeed see 4 occurrences of the submodel on its last page - displayed while in parent step 1. The efficiency here is that for step 3 and 3 you will not again enter into the sub model's page(s) on the instructions because all 4 occurrences were already communicated to the user. LPub3D handles this by designating the submodel as being 'rendered' at the first occurrence for the entire model file. 
