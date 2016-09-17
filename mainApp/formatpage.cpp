@@ -83,7 +83,6 @@ class SubmodelInstanceCount : public NumberPlacementItem
   Page *page;
   
 public:
-  
   SubmodelInstanceCount(
       Page                *pageIn,
       NumberPlacementMeta &numberMetaIn,
@@ -92,8 +91,8 @@ public:
       QGraphicsItem       *parentIn)    {
     page = pageIn;
     QString toolTip("Times used - right-click to modify");
-    setAttributes(PageNumberType,
-                  SingleStepType,
+    setAttributes(SubmodelInstanceCountType,
+                  page->relativeType,
                   numberMetaIn,
                   formatIn,
                   valueIn,
@@ -108,35 +107,51 @@ protected:
 void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QString name = "Submodel";
+  QString name = "Submodel Instance Count";
 
   QAction *fontAction       = commonMenus.fontMenu(menu,name);
   QAction *colorAction      = commonMenus.colorMenu(menu,name);
   QAction *marginAction     = commonMenus.marginMenu(menu,name);
-  QAction *placementAction  = commonMenus.placementMenu(menu,name,"You can move this submodel count around");
+  QAction *placementAction  = commonMenus.placementMenu(menu,name,"You can move this submodel count around.");
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
-  if (selectedAction == fontAction) {
+  Where topOfSteps          = page->topOfSteps();
+  Where bottomOfSteps       = page->bottomOfSteps();
+  bool  useTop              = parentRelativeType != StepGroupType;
 
-      changeFont(page->topOfSteps(),page->bottomOfSteps(),&font);
+  if (selectedAction == NULL) {
+    return;
+  } else if (selectedAction == fontAction) {
+
+      changeFont(topOfSteps,
+                 bottomOfSteps,
+                &font,1,true,
+                 useTop);
 
     } else if (selectedAction == colorAction) {
 
-      changeColor(page->topOfSteps(),page->bottomOfSteps(),&color);
+      changeColor(topOfSteps,
+                  bottomOfSteps,
+                 &color,1,true,
+                  useTop);
 
     } else if (selectedAction == marginAction) {
 
-      changeMargins("Submodel Count Margins",
-                    page->topOfSteps(),page->bottomOfSteps(),
-                    &margin);
+      changeMargins(name + " Margins",
+                    topOfSteps,
+                    bottomOfSteps,
+                   &margin,
+                    useTop);
+
     } else if (selectedAction == placementAction) {
-      changePlacement(PageType,
+      changePlacement(parentRelativeType,
                       SubmodelInstanceCountType,
-                      "Submodel Count Placement",
-                      page->topOfSteps(),
-                      page->bottomOfSteps(),
-                      &placement);
+                      "Move " + name,
+                      topOfSteps,
+                      bottomOfSteps,
+                      &placement,
+                      useTop);
     }
 }
 
@@ -147,6 +162,10 @@ void SubmodelInstanceCount::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
 
       QPointF newPosition;
+
+      Where topOfSteps    = page->topOfSteps();
+      Where bottomOfSteps = page->bottomOfSteps();
+      bool  useTop        = parentRelativeType != StepGroupType;
 
       // back annotate the movement of the PLI into the LDraw file.
       newPosition = pos() - position;
@@ -161,7 +180,8 @@ void SubmodelInstanceCount::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
           placement.setValue(placementData);
 
-          changePlacementOffset(page->topOfSteps(),&placement,PageType);
+          changePlacementOffset(useTop ? topOfSteps:bottomOfSteps,
+                                &placement,StepNumberType);
         }
     }
 }
@@ -548,7 +568,48 @@ int Gui::addGraphicsPageItems(
 
               instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
 
+//              logDebug() << "TogglePageNumber:" << page->meta.LPub.page.togglePnPlacement.value();
+//              logDebug() << (page->meta.LPub.page.number.number % 2 ?
+//                                 tr("Page %1 is Even").arg(stepPageNum) :
+//                                 tr("Page %1 is Odd").arg(stepPageNum));
+//              logDebug() << "Placement: " << RectNames[page->meta.LPub.page.instanceCount.placement.value().rectPlacement]
+//                         << "(" << page->meta.LPub.page.instanceCount.placement.value().rectPlacement << ")" ;
+
               PlacementData placementData = instanceCount->placement.value();
+
+              if (placementData.relativeTo == PageNumberType &&
+                      page->meta.LPub.page.togglePnPlacement.value() &&
+                      ! (stepPageNum % 2 /* if page is odd */)) {
+                  switch (placementData.rectPlacement){
+                  case (TopLeftOutsideCorner):
+                      instanceCount->placement.setValue(TopRightOutsideCorner,PageNumberType);
+                      break;
+                  case (TopLeftOutside):
+                      instanceCount->placement.setValue(TopRightOutSide,PageNumberType);
+                      break;
+                  case (LeftTopOutside):
+                      instanceCount->placement.setValue(RightTopOutside,PageNumberType);
+                      break;
+                  case (LeftOutside):
+                      instanceCount->placement.setValue(RightOutside,PageNumberType);
+                      break;
+                  case (LeftBottomOutside):
+                      instanceCount->placement.setValue(RightBottomOutside,PageNumberType);
+                      break;
+                  case (BottomLeftOutsideCorner):
+                      instanceCount->placement.setValue(BottomRightOutsideCorner,PageNumberType);
+                      break;
+                  case (BottomLeftOutside):
+                      instanceCount->placement.setValue(BottomRightOutside,PageNumberType);
+                      break;
+                  default:
+                      instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
+                      break;
+                  }
+              } else {
+                  instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
+              }
+
               if (placementData.relativeTo == PageNumberType &&
                   page->meta.LPub.page.dpn.value()) {
                   pageNumber->placeRelative(instanceCount);

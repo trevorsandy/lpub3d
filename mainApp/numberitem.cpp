@@ -205,16 +205,12 @@ PageNumberItem::PageNumberItem(
 void PageNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-
-  PlacementData placementData = placement.value();
   QString pl = "Page Number";
-  QAction *placementAction  = menu.addAction(name);
-  placementAction->setWhatsThis(
-    commonMenus.naturalLanguagePlacementWhatsThis(PageNumberType,placementData,name));
 
   QAction *fontAction   = commonMenus.fontMenu(menu,pl);
   QAction *colorAction  = commonMenus.colorMenu(menu,pl);
   QAction *marginAction = commonMenus.marginMenu(menu,pl);
+  QAction *placementAction  = commonMenus.placementMenu(menu,pl,"You can move this Page Number item around.");
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 

@@ -2,8 +2,10 @@ LPub3D 2.0.11.793.2
  
 Features and enhancements 
 ------------ 
+Fix: Submodel instance count placement broken (r800)
+ *When using page number in alternate corners (like a book) the Submodel instance count is at the wrong place when it is on a odd page number on a single page submodel with a step group. Behaviour corrected and enhanced to detect when submodel instance count is on an odd or even page whereby the position is adjusted right or left of the step number accordingly. This automatic positioning is only available when the submodel instance count is placed relative to the page's step number - its default placement.
 Fix: Refactor fade directory logic (r799)
- * Process fade directories upon application launch and file load more efficiently and effectively.
+ *Process fade directories upon application launch and file load more efficiently and effectively.
 Fix: Progress dialogue always stays on top (r797)
  *Proper modality behaviour restored.
 Fix: Print/Export banner (image) rotation broken (r796)
