@@ -88,20 +88,31 @@ void PartWorker::ldsearchDirPreferences(){
       Paths::mkfadedirs();
   }
 
+  logInfo() << (doFadeStep() ? QString("Fade Step is ON.") : QString("Fade Step is OFF."));
+  logInfo() << QString("Renderer is %1").arg(Render::getRenderer());
+
   if (!Preferences::ldrawiniFound && !_resetSearchDirSettings &&
       Settings.contains(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey))) {    // ldrawini not found and not reset so load registry key
-      Preferences::ldSearchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey)).toStringList();
-      logStatus() << QString("ldraw.ini not found, loaded ldSearch directory from registry key");
+      logStatus() << QString("ldraw.ini not found, load ldSearch directories from registry key");
+      QStringList entries = Settings.value(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey)).toStringList();
+      foreach (QString entry, entries){
+          if (QDir(entry).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+              QString fadeDir = QDir::toNativeSeparators(entry.toLower());
+              if (!doFadeStep() && (fadeDir == _fadePartDir.toLower() || fadeDir == _fadePrimDir.toLower()))
+                  continue;
+              Preferences::ldSearchDirs << entry;
+              logStatus() << "Add search directory:" << entry;
+          } else {
+              logStatus() << "Search directory is empty and will be ignored:" << entry;
+          }
+      }
     } else if (loadLDrawSearchDirs()){                                        //ldraw.ini found or reset so load from disc file
       Settings.setValue(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey), Preferences::ldSearchDirs);
-      logStatus() << QString("either ldraw.ini found or search directory reset selected, load ldSearch directory from disc folder entries");
+      logStatus() << QString("Ldraw.ini found or search directory reset selected, load ldSearch directories from ldrawini defined or default entries");
     } else {
       Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
-      logStatus() << QString("Unable to load search directories.");
+      logError() << QString("Unable to load search directories.");
     }
-
-    logInfo() << (doFadeStep() ? QString("Fade Step is ON.") : QString("Fade Step is OFF."));
-    logInfo() << QString("Renderer is %1").arg(Render::getRenderer());
 }
 /*
  * Load LDraw search directories into Preferences.
@@ -151,11 +162,15 @@ bool PartWorker::loadLDrawSearchDirs(){
         if (!fadeDirsIncluded) {
             if (QDir(_fadePartDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
                 Preferences::ldSearchDirs << _fadePartDir;
-                logStatus() << "Add fade directory:" << _fadePartDir;
+                logStatus() << "Add fade part directory:" << _fadePartDir;
+            } else {
+                logStatus() << "Fade part directory is empty and will be ignored:" << _fadePartDir;
             }
             if (QDir(_fadePrimDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
                 Preferences::ldSearchDirs << _fadePrimDir;
-                logStatus() << "Add fade directory:" << _fadePrimDir;
+                logStatus() << "Add fade primitive directory:" << _fadePrimDir;
+            } else {
+                logStatus() << "Fade primitive directory is empty and will be ignored:" << _fadePrimDir;
             }
         }
         // Add subdirectories from Unofficial root directory
@@ -163,7 +178,7 @@ bool PartWorker::loadLDrawSearchDirs(){
             QDir unofficialDir(unofficialRootDir);
             // Get sub directories
             QStringList unofficialSubDirs = unofficialDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
-            logDebug() << "unofficialSubDirs:" << unofficialSubDirs;
+            //logDebug() << "unofficialSubDirs:" << unofficialSubDirs;
             if (unofficialSubDirs.count() > 0){
                 // Recurse unofficial subdirectories for excluded directories
                 foreach (QString unofficialSubDirName, unofficialSubDirs){
@@ -189,8 +204,12 @@ bool PartWorker::loadLDrawSearchDirs(){
                                 if (QDir(unofficialSubSubDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
                                     Preferences::ldSearchDirs << unofficialSubSubDir;
                                     logStatus() << "Add search directory:" << unofficialSubSubDir;
+                                } else {
+                                    logStatus() << "Search directory is empty and will be ignored:" << unofficialSubSubDir;
                                 }
                             }
+                        } else {
+                            logStatus() << "Search directory is empty and will be ignored:" << unofficialSubDir;
                         }
                     }
                 }
@@ -219,7 +238,7 @@ void PartWorker::populateLdgLiteSearchDirs(){
 
         emit Application::instance()->splashMsgSig("70% - LDGlite Search directories loading...");
         //logDebug() << "SEARCH DIRECTORIES TO PROCESS" << Preferences::ldSearchDirs ;
-        logInfo() << "LDGlite Search Directories...";
+        logStatus() << "LDGlite Search Directories...";
 
         // Define excluded directories
         QStringList ldgliteExcludedDirs = _excludedSearchDirs;
@@ -245,7 +264,9 @@ void PartWorker::populateLdgLiteSearchDirs(){
                     count++;
                     count > 1 ? Preferences::ldgliteSearchDirs.append(QString("|%1").arg(ldgliteSearchDir)):
                                 Preferences::ldgliteSearchDirs.append(ldgliteSearchDir);
-                    logInfo() << "Add ldglite search directory:" << ldgliteSearchDir;
+                    logStatus() << "Add ldglite search directory:" << ldgliteSearchDir;
+                }else {
+                    logStatus() << "Ldglite search directory is empty and will be ignored:" << ldgliteSearchDir;
                 }
             }
         }
@@ -267,11 +288,26 @@ void PartWorker::processLDSearchDirParts(){
  * Create fade version of static colour part files.
  */
 void PartWorker::processFadePartsArchive(){
+    setDoFadeStep((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep));
     if (doFadeStep()) {
         QStringList fadePartsDirs;
         foreach(QDir fadeDir, Paths::fadeDirs){
-            if(fadeDir.entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0)
+            if(fadeDir.entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
                 fadePartsDirs << fadeDir.absolutePath();
+
+                //add entry to search dirs if not already added
+                bool addToSearchDirs = false;
+                QString fadeEntry = QDir::toNativeSeparators(fadeDir.absolutePath());
+                foreach (QString searchEntry, Preferences::ldSearchDirs){
+                    addToSearchDirs = fadeEntry != searchEntry;
+                    if (!addToSearchDirs)
+                        break;
+                }
+                if (addToSearchDirs && (fadeEntry == _fadePartDir || fadeEntry == _fadePrimDir)){
+                    Preferences::ldSearchDirs << fadeEntry;
+                    logStatus() << "Add fade directory to ldSearchDirs:" << fadeEntry;
+                }
+            }
         }
         if (fadePartsDirs.size() > 0) {
             if (!processPartsArchive(fadePartsDirs, "colour fade")){
@@ -280,11 +316,21 @@ void PartWorker::processFadePartsArchive(){
                 logError() << error;
             }
         }
+    } else {
+        int i = 0;
+        foreach (QString searchEntry, Preferences::ldSearchDirs){
+            if (searchEntry == _fadePartDir || searchEntry == _fadePrimDir){
+                Preferences::ldSearchDirs.removeAt(i);
+                logStatus() << "Remove fade directory from ldSearchDirs:" << searchEntry;
+            }
+            i++;
+        }
     }
 }
 
 void PartWorker::processFadeColourParts()
 {
+  setDoFadeStep((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep));
   if (doFadeStep()) {
        _timer.start();
       _fadedParts = 0;

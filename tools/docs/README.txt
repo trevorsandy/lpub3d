@@ -2,7 +2,9 @@ LPub3D 2.0.11.793.2
  
 Features and enhancements 
 ------------ 
-Fix: Progress dialog always stays on top (r797)
+Fix: Refactor fade directory logic (r799)
+ * Process fade directories upon application launch and file load more efficiently and effectively.
+Fix: Progress dialogue always stays on top (r797)
  *Proper modality behaviour restored.
 Fix: Print/Export banner (image) rotation broken (r796)
  *Banner rotation updated. Rotation broken by r791.
