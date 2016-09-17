@@ -988,6 +988,7 @@ Gui::Gui()
     exportOption  = EXPORT_ALL_PAGES;
     exportType    = EXPORT_PDF;
     pageRangeText = displayPageNum;
+    mixedPageSize = false;
 
     editWindow    = new EditWindow(this);
     parmsWindow   = new ParmsWindow(this);
@@ -1468,7 +1469,19 @@ void Gui::createActions()
     printToPdfFileAct->setShortcut(tr("Ctrl+F"));
     printToPdfFileAct->setStatusTip(tr("Print your document to a pdf file"));
     printToPdfFileAct->setEnabled(false);
-    connect(printToPdfFileAct, SIGNAL(triggered()), this, SLOT(printToPdfDialog()));
+    connect(printToPdfFileAct, SIGNAL(triggered()), this, SLOT(printToPdfFileDialog()));
+
+    printToFileAct = new QAction(QIcon(":/resources/file_print.png"), tr("&Print..."), this);
+    printToFileAct->setShortcut(tr("Ctrl+P"));
+    printToFileAct->setStatusTip(tr("Print the current document"));
+    printToFileAct->setEnabled(false);
+    connect(printToFileAct, SIGNAL(triggered()), this, SLOT(ShowPrintDialog()));
+
+    printToFilePreviewAct = new QAction(QIcon(":/resources/file_print_preview.png"), tr("Print Pre&view..."), this);
+    printToFilePreviewAct->setShortcut(tr("Ctrl+F"));
+    printToFilePreviewAct->setStatusTip(tr("Preview the current document to be printed"));
+    printToFilePreviewAct->setEnabled(false);
+    connect(printToFilePreviewAct, SIGNAL(triggered()), this, SLOT(TogglePrintPreview()));
 
     exportPngAct = new QAction(QIcon(":/resources/exportpng.png"),tr("Export As &PNG Images"), this);
     exportPngAct->setShortcut(tr("Ctrl+Shift+P"));
@@ -1567,16 +1580,19 @@ void Gui::createActions()
     fitWidthAct = new QAction(QIcon(":/resources/fitWidth.png"), tr("Fit Width"), this);
     fitWidthAct->setShortcut(tr("Ctrl+W"));
     fitWidthAct->setStatusTip(tr("Fit document to width"));
+    fitWidthAct->setEnabled(false);
     connect(fitWidthAct, SIGNAL(triggered()), this, SLOT(fitWidth()));
 
     fitVisibleAct = new QAction(QIcon(":/resources/fitVisible.png"), tr("Fit Visible"), this);
     fitVisibleAct->setShortcut(tr("Ctrl+I"));
     fitVisibleAct->setStatusTip(tr("Fit document so whole page is visible"));
+    fitVisibleAct->setEnabled(false);
     connect(fitVisibleAct, SIGNAL(triggered()), this, SLOT(fitVisible()));
 
     actualSizeAct = new QAction(QIcon(":/resources/actual.png"),tr("Actual Size"), this);
     actualSizeAct->setShortcut(tr("Ctrl+A"));
     actualSizeAct->setStatusTip(tr("Show document actual size"));
+    actualSizeAct->setEnabled(false);
     connect(actualSizeAct, SIGNAL(triggered()), this, SLOT(actualSize()));
 
     // TESTING ONLY
@@ -1587,11 +1603,13 @@ void Gui::createActions()
     zoomInAct = new QAction(QIcon(":/resources/zoomin.png"), tr("&Zoom In"), this);
     zoomInAct->setShortcut(tr("Ctrl++"));
     zoomInAct->setStatusTip(tr("Zoom in"));
+    zoomInAct->setEnabled(false);
     connect(zoomInAct, SIGNAL(triggered()), this, SLOT(zoomIn()));
 
     zoomOutAct = new QAction(QIcon(":/resources/zoomout.png"),tr("Zoom &Out"),this);
     zoomOutAct->setShortcut(tr("Ctrl+-"));
     zoomOutAct->setStatusTip(tr("Zoom out"));
+    zoomOutAct->setEnabled(false);
     connect(zoomOutAct, SIGNAL(triggered()), this, SLOT(zoomOut()));
 
     // firstPage,lastPage,nextPage,previousPage
@@ -1599,21 +1617,25 @@ void Gui::createActions()
     firstPageAct = new QAction(QIcon(":/resources/first.png"),tr("First Page"), this);
     firstPageAct->setShortcut(tr("Ctrl+F"));
     firstPageAct->setStatusTip(tr("Go to first page of document"));
+    firstPageAct->setEnabled(false);
     connect(firstPageAct, SIGNAL(triggered()), this, SLOT(firstPage()));
 
     lastPageAct = new QAction(QIcon(":/resources/last.png"),tr("Last Page"), this);
     lastPageAct->setShortcut(tr("Ctrl+L"));
     lastPageAct->setStatusTip(tr("Go to last page of document"));
+    lastPageAct->setEnabled(false);
     connect(lastPageAct, SIGNAL(triggered()), this, SLOT(lastPage()));
 
     nextPageAct = new QAction(QIcon(":/resources/next.png"),tr("&Next Page"),this);
     nextPageAct->setShortcut(tr("Ctrl+N"));
     nextPageAct->setStatusTip(tr("Go to next page of document"));
+    nextPageAct->setEnabled(false);
     connect(nextPageAct, SIGNAL(triggered()), this, SLOT(nextPage()));
 
     previousPageAct = new QAction(QIcon(":/resources/prev.png"),tr("&Previous Page"),this);
     previousPageAct->setShortcut(tr("Ctrl+P"));
     previousPageAct->setStatusTip(tr("Go to previous page of document"));
+    previousPageAct->setEnabled(false);
     connect(previousPageAct, SIGNAL(triggered()), this, SLOT(prevPage()));
 
     QString pageString = "";
@@ -1623,6 +1645,7 @@ void Gui::createActions()
     setPageLineEdit->setMinimumSize(size);
     setPageLineEdit->setToolTip("Current Page Index");
     setPageLineEdit->setStatusTip("Enter index and hit enter to go to page");
+    setPageLineEdit->setEnabled(false);
     connect(setPageLineEdit, SIGNAL(returnPressed()), this, SLOT(setPage()));
 
     clearPLICacheAct = new QAction(QIcon(":/resources/clearplicache.png"),tr("Reset Parts Image Cache"), this);
@@ -1774,10 +1797,15 @@ void Gui::loadPages(){
 void Gui::enableActions()
 {
   saveAsAct->setEnabled(true);
+
   printToPdfFileAct->setEnabled(true);
+  printToFileAct->setEnabled(true);
+  printToFilePreviewAct->setEnabled(true);
+
   exportPngAct->setEnabled(true);
   exportJpgAct->setEnabled(true);
   exportBmpAct->setEnabled(true);
+
   pageSetupAct->setEnabled(true);
   assemSetupAct->setEnabled(true);
   pliSetupAct->setEnabled(true);
@@ -1786,13 +1814,30 @@ void Gui::enableActions()
   multiStepSetupAct->setEnabled(true);
   projectSetupAct->setEnabled(true);
   fadeStepSetupAct->setEnabled(true);
+
   addPictureAct->setEnabled(true);
   removeLPubFormattingAct->setEnabled(true);
+
   editTitleAnnotationsAct->setEnabled(true);
   editFreeFormAnnitationsAct->setEnabled(true);
   editFadeColourPartsAct->setEnabled(true);
   editPliBomSubstitutePartsAct->setEnabled(true);
+
+  setPageLineEdit->setEnabled(true);
+
+  firstPageAct->setEnabled(true);
+  lastPageAct->setEnabled(true);
+  nextPageAct->setEnabled(true);
+  previousPageAct->setEnabled(true);
+
+  fitWidthAct->setEnabled(true);
+  fitVisibleAct->setEnabled(true);
+  actualSizeAct->setEnabled(true);
+  zoomInAct->setEnabled(true);
+  zoomOutAct->setEnabled(true);
+
   cacheMenu->setEnabled(true);
+  exportMenu->setEnabled(true);
 }
 
 void Gui::enableActions2()
@@ -1825,12 +1870,15 @@ void Gui::createMenus()
     exportMenu->addAction(exportPngAct);
     exportMenu->addAction(exportJpgAct);
     exportMenu->addAction(exportBmpAct);
-
 #ifndef __APPLE__
     exportMenu->addAction(exportBmpAct);
 #endif
+    exportMenu->setDisabled(true);
 
+    fileMenu->addAction(printToFileAct);
+    fileMenu->addAction(printToFilePreviewAct);
     fileMenu->addAction(printToPdfFileAct);
+
     separatorAct = fileMenu->addSeparator();
     for (int i = 0; i < MaxRecentFiles; i++) {
       fileMenu->addAction(recentFilesActs[i]);
@@ -1928,6 +1976,9 @@ void Gui::createToolBars()
     fileToolBar->setObjectName("FileToolbar");
     fileToolBar->addAction(openAct);
     fileToolBar->addAction(saveAct);
+
+    fileToolBar->addAction(printToFileAct);
+    fileToolBar->addAction(printToFilePreviewAct);
     fileToolBar->addAction(printToPdfFileAct);
 
     editToolBar = addToolBar(tr("Edit"));

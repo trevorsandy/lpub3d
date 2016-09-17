@@ -64,25 +64,25 @@
 
 #include "gradients.h"
 
-// sizes in centimeters and inches
-struct pageTypes {
-  QString pageType;
-  float   pageWidthCm;
-  float   pageHeightCm;
-  float   pageWidthIn;
-  float   pageHeightIn;
-} pageTypes[] = {
-{"A0",         84.1,   118.9,    33.1,	  46.8},
-{"A1",         59.4,    84.1,    23.4,    33.1},
-{"A2",         42.0,    59.4,    16.5,    23.4},
-{"A3",         29.7,    42.0,    11.7,    16.5},
-{"A4",         21.0,    29.7,     8.3,    11.7},
-{"A5",         14.8,    21.0,     5.8,     8.3},
-{"A6",         10.5,    14.8,     4.1,     5.8},
-{"A7",          7.4,    10.5,     2.9,     4.1},
-{"A8",          5.2,     7.4,     2.0,     2.9},
-{"A9",          3.7,     5.2,     1.5,     2.0},
-{"A10",         2.6,     3.7,     1.0,     1.5},
+// page sizes in centimeters and inches
+struct pageSizeTypes {
+    QString pageType;
+    float   pageWidthCm;
+    float   pageHeightCm;
+    float   pageWidthIn;
+    float   pageHeightIn;
+} pageSizeTypes[] = {
+{"A0",        84.1,   118.9,    33.1,	 46.8},
+{"A1",        59.4,    84.1,    23.4,    33.1},
+{"A2",        42.0,    59.4,    16.5,    23.4},
+{"A3",        29.7,    42.0,    11.7,    16.5},
+{"A4",        21.0,    29.7,     8.3,    11.7},
+{"A5",        14.8,    21.0,     5.8,     8.3},
+{"A6",        10.5,    14.8,     4.1,     5.8},
+{"A7",         7.4,    10.5,     2.9,     4.1},
+{"A8",         5.2,     7.4,     2.0,     2.9},
+{"A9",         3.7,     5.2,     1.5,     2.0},
+{"A10",        2.6,     3.7,     1.0,     1.5},
 {"ArchA",     22.9,    30.5,     9.0,    12.0},
 {"ArchB",     30.5,    45.7,    12.0,    18.0},
 {"ArchC",     45.7,    61.0,    18.0,    24.0},
@@ -91,33 +91,32 @@ struct pageTypes {
 {"ArchE1",    76.2,   106.7,    30.0,    42.0},
 {"ArchE2",    66.0,    96.5,    26.0,    38.0},
 {"ArchE3",    68.6,    99.1,    27.0,    39.0},
-{"ANSI_C",     43.2,    55.9,    17.0,    22.0},
-{"ANSI_D",     55.9,    86.4,    22.0,    34.0},
-{"ANSI_E",     86.4 ,  111.8,    34.0,    44.0},
-{"B0",        141.4,   100.0,    55.7,    39.4},
-{"B1",        100.0,    70.7,    39.4,    27.8},
-{"B2",         70.7,    50.0,    27.8,    19.7},
-{"B3",         50.0,    35.3,    19.7,    13.9},
-{"B4",         35.3,    25.0,    13.9,     9.8},
-{"B5",         25.0,    17.6,     9.8,     6.9},
-{"B6",         17.6,    12.5,     6.9,     4.9},
-{"B7",         12.5,     8.8,     4.9,     3.5},
-{"B8",          8.8,     6.2,     3.5,     2.4},
-{"B9",          6.2,     4.4,     2.4,     1.7},
-{"B10",         4.4,     3.1,     1.7,     1.2},
-{"B1+",	      102.0,    72.0,    40.2,    28.3},
-{"B2+",	       72.0,    52.0,    28.3,    20.5},
-{"Comm10E",    10.47,   24.13,    4.125,   9.5},
-{"DLE",        10.0,    21.0,     3.9,	   8.2},
-{"Executive",  18.4,    26.7,     7.25,   10.5},
-{"Folio",      21.59,   33.02,    8.5,    13.0},
-{"Ledger",     43.2,    27.9,    17.0,    11.0},
-{"Legal",      21.59,   35.56,    8.5,    14.0},
-{"Letter",     21.6,    27.9,     8.0,    11.0},
-{"Tabloid",    27.9,    43.2,    11.0,    17.0},
-{"Custom",      0.1,     0.1,     0.1,     0.1},
+{"AnsiA",     21.6,    27.9,     8.5,    11.0},
+{"AnsiB",     43.2,    27.9,    17.0,    11.0},
+{"AnsiC",     43.2,    55.9,    17.0,    22.0},
+{"AnsiD",     55.9,    86.4,    22.0,    34.0},
+{"AnsiE",    86.4 ,   111.8,    34.0,    44.0},
+{"B0",       141.4,   100.0,    55.7,    39.4},
+{"B1",       100.0,    70.7,    39.4,    27.8},
+{"B2",        70.7,    50.0,    27.8,    19.7},
+{"B3",        50.0,    35.3,    19.7,    13.9},
+{"B4",        35.3,    25.0,    13.9,     9.8},
+{"B5",        25.0,    17.6,     9.8,     6.9},
+{"B6",        17.6,    12.5,     6.9,     4.9},
+{"B7",        12.5,     8.8,     4.9,     3.5},
+{"B8",         8.8,     6.2,     3.5,     2.4},
+{"B9",         6.2,     4.4,     2.4,     1.7},
+{"B10",        4.4,     3.1,     1.7,     1.2},
+{"Comm10E",  10.47,   24.13,   4.125,     9.5},
+{"DLE",       10.0,    21.0,     3.9,	  8.2},
+{"Executive", 18.4,    26.7,    7.25,    10.5},
+{"Folio",    21.59,   33.02,     8.5,    13.0},
+{"Ledger",    43.2,    27.9,    17.0,    11.0},
+{"Legal",    21.59,   35.56,     8.5,    14.0},
+{"Letter",    21.6,    27.9,     8.5,    11.0},
+{"Tabloid",   27.9,    43.2,    11.0,    17.0},
+{"Custom",     0.0,     0.0,     0.0,     0.0}
 };
-
 
 /***********************************************************************
  *
@@ -2666,17 +2665,17 @@ PageSizeGui::PageSizeGui(
   }
 
   /* page size */
-  int   numPageTypes = sizeof(pageTypes)/sizeof(pageTypes[0]);
+  int   numPageTypes = sizeof(pageSizeTypes)/sizeof(pageSizeTypes[0]);
 
   typeCombo = new QComboBox(parent);
   for (int i = 0; i < numPageTypes; i++) {
 
 //      QString type = QString("%1 (%2 x %3)")
-//          .arg(pageTypes[i].pageType)
-//          .arg((dpi ? pageTypes[i].pageWidthIn : pageTypes[i].pageWidthCm))
-//          .arg((dpi ? pageTypes[i].pageHeightIn : pageTypes[i].pageHeightCm));
+//          .arg(pageSizeTypes[i].pageType)
+//          .arg((dpi ? pageSizeTypes[i].pageWidthIn : pageSizeTypes[i].pageWidthCm))
+//          .arg((dpi ? pageSizeTypes[i].pageHeightIn : pageSizeTypes[i].pageHeightCm));
 
-      typeCombo->addItem(pageTypes[i].pageType);
+      typeCombo->addItem(pageSizeTypes[i].pageType);
   }
   float pageWidth = meta->value(0);
   float pageHeight = meta->value(1);
@@ -2728,7 +2727,7 @@ PageSizeGui::PageSizeGui(
 int PageSizeGui::getTypeIndex(float &widthPg, float &heightPg){
 
   bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
-  int   numPageTypes = sizeof(pageTypes)/sizeof(pageTypes[0]);
+  int   numPageTypes = sizeof(pageSizeTypes)/sizeof(pageSizeTypes[0]);
   int index = -1;
   QString pageWidth;
   QString pageHeight;
@@ -2738,10 +2737,10 @@ int PageSizeGui::getTypeIndex(float &widthPg, float &heightPg){
 
       pageWidth  = QString::number( widthPg,  'f', 1 /*meta->_precision*/ );
       pageHeight = QString::number( heightPg, 'f', 1 /*meta->_precision*/ );
-      typeWidth  = QString::number((dpi ? pageTypes[i].pageWidthIn : pageTypes[i].pageWidthCm),  'f', 1 /*meta->_precision*/ );
-      typeHeight = QString::number((dpi ? pageTypes[i].pageHeightIn : pageTypes[i].pageHeightCm), 'f', 1 /*meta->_precision*/ );
+      typeWidth  = QString::number((dpi ? pageSizeTypes[i].pageWidthIn : pageSizeTypes[i].pageWidthCm),  'f', 1 /*meta->_precision*/ );
+      typeHeight = QString::number((dpi ? pageSizeTypes[i].pageHeightIn : pageSizeTypes[i].pageHeightCm), 'f', 1 /*meta->_precision*/ );
 
-      qDebug() << "\n" << pageTypes[i].pageType << " @ index: " << i
+      qDebug() << "\n" << pageSizeTypes[i].pageType << " @ index: " << i
                << "\nType: (" << typeWidth << "x" << typeHeight << ") "
                << "\nPage: (" << pageWidth << "x" << pageHeight << ")";
 
@@ -2767,13 +2766,13 @@ void PageSizeGui::typeChange(const QString &pageType){
   if (pageType != "Custom") {
 
       bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
-      int   numPageTypes = sizeof(pageTypes)/sizeof(pageTypes[0]);
+      int   numPageTypes = sizeof(pageSizeTypes)/sizeof(pageSizeTypes[0]);
 
 
       for (int i = 0; i < numPageTypes; i++) {
-          if (pageType == pageTypes[i].pageType) {
-              pageWidth  = dpi ? pageTypes[i].pageWidthIn : pageTypes[i].pageWidthCm;
-              pageHeight = dpi ? pageTypes[i].pageHeightIn : pageTypes[i].pageHeightCm;
+          if (pageType == pageSizeTypes[i].pageType) {
+              pageWidth  = dpi ? pageSizeTypes[i].pageWidthIn : pageSizeTypes[i].pageWidthCm;
+              pageHeight = dpi ? pageSizeTypes[i].pageHeightIn : pageSizeTypes[i].pageHeightCm;
               break;
             }
         }
@@ -2901,16 +2900,16 @@ SizeAndOrientationGui::SizeAndOrientationGui(
 //                 " \nOrientation: " << ometa->value()
 //                 ;
 
-  int   numPageTypes = sizeof(pageTypes)/sizeof(pageTypes[0]);
+  int   numPageTypes = sizeof(pageSizeTypes)/sizeof(pageSizeTypes[0]);
   bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
 
   typeCombo = new QComboBox(parent);
   for (int i = 0; i < numPageTypes; i++) {
 
       QString type = QString("%1 (%2 x %3)")
-          .arg(pageTypes[i].pageType)
-          .arg((dpi ? pageTypes[i].pageWidthIn : pageTypes[i].pageWidthCm))
-          .arg((dpi ? pageTypes[i].pageHeightIn : pageTypes[i].pageHeightCm));
+          .arg(pageSizeTypes[i].pageType)
+          .arg((dpi ? pageSizeTypes[i].pageWidthIn : pageSizeTypes[i].pageWidthCm))
+          .arg((dpi ? pageSizeTypes[i].pageHeightIn : pageSizeTypes[i].pageHeightCm));
 
       typeCombo->addItem(type);
   }
@@ -2988,7 +2987,7 @@ SizeAndOrientationGui::SizeAndOrientationGui(
 int SizeAndOrientationGui::getTypeIndex(float &widthPg, float &heightPg){
 
   bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
-  int   numPageTypes = sizeof(pageTypes)/sizeof(pageTypes[0]);
+  int  numPageTypes = sizeof(pageSizeTypes)/sizeof(pageSizeTypes[0]);
   int index = -1;
   QString pageWidth;
   QString pageHeight;
@@ -2999,10 +2998,10 @@ int SizeAndOrientationGui::getTypeIndex(float &widthPg, float &heightPg){
 
       pageWidth  = QString::number( widthPg,  'f', 1);
       pageHeight = QString::number( heightPg, 'f', 1);
-      typeWidth  = QString::number((dpi ? pageTypes[i].pageWidthIn : pageTypes[i].pageWidthCm),  'f', 1);
-      typeHeight = QString::number((dpi ? pageTypes[i].pageHeightIn : pageTypes[i].pageHeightCm), 'f', 1);
+      typeWidth  = QString::number((dpi ? pageSizeTypes[i].pageWidthIn : pageSizeTypes[i].pageWidthCm),  'f', 1);
+      typeHeight = QString::number((dpi ? pageSizeTypes[i].pageHeightIn : pageSizeTypes[i].pageHeightCm), 'f', 1);
 
-//      qDebug() << "\n" << pageTypes[i].pageType << " @ index: " << i
+//      qDebug() << "\n" << pageSizeTypes[i].pageType << " @ index: " << i
 //               << "\nType: (" << typeWidth << "x" << typeHeight << ") "
 //               << "\nPage: (" << pageWidth << "x" << pageHeight << ")";
 
@@ -3031,14 +3030,14 @@ void SizeAndOrientationGui::typeChange(const QString &pageType){
 
   if (newType != "Custom") {
       bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
-      int   numPageTypes = sizeof(pageTypes)/sizeof(pageTypes[0]);
+      int   numPageTypes = sizeof(pageSizeTypes)/sizeof(pageSizeTypes[0]);
 
 
       for (int i = 0; i < numPageTypes; i++) {
 
-          if (newType == pageTypes[i].pageType) {
-              pageWidth  = dpi ? pageTypes[i].pageWidthIn : pageTypes[i].pageWidthCm;
-              pageHeight = dpi ? pageTypes[i].pageHeightIn : pageTypes[i].pageHeightCm;
+          if (newType == pageSizeTypes[i].pageType) {
+              pageWidth  = dpi ? pageSizeTypes[i].pageWidthIn : pageSizeTypes[i].pageWidthCm;
+              pageHeight = dpi ? pageSizeTypes[i].pageHeightIn : pageSizeTypes[i].pageHeightCm;
               break;
             }
         }

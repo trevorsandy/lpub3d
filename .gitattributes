@@ -407,6 +407,7 @@ mainApp/images/partslist.png -text
 mainApp/images/partslistsetup.png -text
 mainApp/images/paste.png -text
 mainApp/images/pdf_logo.png -text
+mainApp/images/pdf_print_preview.png -text
 mainApp/images/placement.png -text
 mainApp/images/pliannotation.png -text
 mainApp/images/plus.png -text
@@ -504,7 +505,7 @@ mainApp/pointeritem.h -text
 mainApp/preferences.ui -text
 mainApp/preferencesdialog.cpp -text
 mainApp/preferencesdialog.h -text
-mainApp/printpdf.cpp -text
+mainApp/printfile.cpp -text
 mainApp/projectglobals.cpp -text
 mainApp/range.cpp -text
 mainApp/range.h -text

@@ -32,6 +32,8 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
       ui->groupBoxPrintOptions->setTitle("Print to pdf options");
       ui->checkBoxResetCache->setText(tr("Reset all caches before printing pdf"));
       ui->checkBoxResetCache->setToolTip(tr("Check to clear all caches before printing pdf"));
+      ui->groupBoxMixedPageSize->setEnabled(true);
+      ui->checkBoxMixedPageSize->setChecked(true);
       break;
     case EXPORT_PNG:
       setWindowTitle(tr("Export as png"));
@@ -77,5 +79,9 @@ bool DialogExportPages::pageRange(){
 
 bool DialogExportPages::resetCache(){
   return ui->checkBoxResetCache->isChecked();
+}
+
+bool DialogExportPages::mixedPageSize(){
+    return ui->checkBoxMixedPageSize->isChecked();
 }
 

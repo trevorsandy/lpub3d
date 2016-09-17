@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>353</width>
-    <height>264</height>
+    <height>312</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>220</y>
+     <y>272</y>
      <width>331</width>
      <height>32</height>
     </rect>
@@ -36,7 +36,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>20</y>
+     <y>17</y>
      <width>331</width>
      <height>131</height>
     </rect>
@@ -139,7 +139,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>203</y>
+     <y>255</y>
      <width>331</width>
      <height>20</height>
     </rect>
@@ -152,7 +152,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>153</y>
+     <y>151</y>
      <width>331</width>
      <height>51</height>
     </rect>
@@ -174,6 +174,41 @@
     </property>
     <property name="text">
      <string>Reset all caches before content printing/export.</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBoxMixedPageSize">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>205</y>
+     <width>331</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Mixed Page Size or Orientation</string>
+   </property>
+   <widget class="QCheckBox" name="checkBoxMixedPageSize">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>291</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>To improve printing performance, Uncheck only if your document does Not contain mixed page size or orientation.  </string>
+    </property>
+    <property name="text">
+     <string>Run process for mixed page size or orientation.</string>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
     </property>
    </widget>
   </widget>

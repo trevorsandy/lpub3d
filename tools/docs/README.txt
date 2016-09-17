@@ -1,7 +1,13 @@
 LPub3D 2.0.11.793.2 
  
 Features and enhancements 
------------- 
+------------
+Fix: Disable appropriate UI menu items if no document loaded (r802)
+ * Improve user interface guidance and efficiency. The aim is to better automate the user experience.
+Fix: Mixed page size and orientation export - pdf, png etc... (r801)
+ * One is now able to modify both page size and orientation locally (within the document). This capability applies to both pdf and image exports.
+ Additionally, there is now the capability to preview your pdf output using the pdf preview menu item. Note that, as the preview dialogue was natively designed (by Qt) to support print preview, local size and orientation changes (mixed page size and orientation within the document) are not well supported. They will preview within the context of the original page size and orientation. If your document does not contain mixed page size or orientation then the pdf preview functionality should present without issue. 
+  Previously, LPub£D was using the default print engine (with pdf format output) which functions just as a physical printer. This means that as no one is likely to physically print different size pages during the same print run (at least not in standard printing), the pdf printer seemed unhappy when you try to switch page size while the printer is active. LPub3D now uses Qt's pdfWriter. Switching to the pdfWriter engine removes the limitation on both size and orientation while the 'printer' is active.
 Fix: Submodel instance count placement broken (r800)
  *When using page number in alternate corners (like a book) the Submodel instance count is at the wrong place when it is on a odd page number on a single page submodel with a step group. Behaviour corrected and enhanced to detect when submodel instance count is on an odd or even page whereby the position is adjusted right or left of the step number accordingly. This automatic positioning is only available when the submodel instance count is placed relative to the page's step number - its default placement.
 Fix: Refactor fade directory logic (r799)

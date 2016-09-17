@@ -388,6 +388,8 @@ public:
   }
 };
 
+
+
 const QString SortOptionName[SortByType] =
 {
     "Part Size",

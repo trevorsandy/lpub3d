@@ -2246,9 +2246,10 @@ void RotateIconMeta::init(BranchMeta *parent, QString name)
 
 PageMeta::PageMeta() : BranchMeta()
 {
-  size.setValuesInches(8.5f,11.0f);
+  size.setValuesInches(8.3f,11.7f);
   size.setRange(1,1000);
   size.setFormats(6,4,"9.9999");
+  sizeid.setValue("A4");
   orientation.setValue(Portrait);
 
   BorderData borderData;
@@ -2487,6 +2488,7 @@ void PageMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
   size.init               (this, "SIZE");
+  sizeid.init             (this, "SIZEID");
   orientation.init        (this, "ORIENTATION");
   margin.init             (this, "MARGINS");
   border.init             (this, "BORDER");
