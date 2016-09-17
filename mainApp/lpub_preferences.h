@@ -58,6 +58,7 @@ class Preferences
     static QString pliFile;
     static QString titleAnnotationsFile;
     static QString freeformAnnotationsFile;
+    static QString excludedPartsFile;
     static QString defaultAuthor;
     static QString defaultURL;
     static QString defaultEmail;

@@ -907,7 +907,12 @@ int Gui::drawPage(LGraphicsView  *view,
 
                   bool endOfSubmodel = stepNum >= ldrawFile.numSteps(current.modelName);;
 
-                  int  instances = ldrawFile.instances(current.modelName,isMirrored);
+                  // Get submodel instnce count
+                  int  instances = ldrawFile.instances(current.modelName, isMirrored);
+                  if (instances > 1 && ! steps->meta.LPub.mergeInstanceCount.value()) {
+                      MetaItem mi;
+                      instances = mi.countInstancesInStep(&steps->meta, current.modelName);
+                  }
 
                   emit messageSig(true, "Add graphics for multi-step page " + current.modelName);
 

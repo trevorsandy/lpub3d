@@ -868,6 +868,7 @@ private slots:
     void editFadeColourParts();
     void editPliBomSubstituteParts();
     void editLdrawIniFile();
+    void editExcludedParts();
     void generateFadeColourPartsList();
 
     void toggleLCStatusBar();
@@ -978,6 +979,7 @@ private:
   QMenu    *configMenu;
   QMenu    *helpMenu;
 
+  QMenu    *editorMenu;
   QMenu    *cacheMenu;
   QMenu    *exportMenu;
 
@@ -1062,6 +1064,7 @@ private:
   QAction *editTitleAnnotationsAct;
   QAction *editFadeColourPartsAct;
   QAction *editPliBomSubstitutePartsAct;
+  QAction *editExcludedPartsAct;
   QAction *editLdrawIniFileAct;
   QAction *generateFadeColourPartsAct;
 

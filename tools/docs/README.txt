@@ -2,6 +2,35 @@ LPub3D 2.0.11.793.2
  
 Features and enhancements 
 ------------
+Fix: Part count gives wrong result. (r805)
+ * Setting an automatic piece count gives wrong count most of the time in an MPD with multiple submodels and multiple usages of certain same submodels. This behaviour is now corrected. However,the user will have to play a role in configuring her model file to accurately reflect the part count expected. This will undoubtedly require moderate knowledge of LDraw and LPub3D format/logic semantics. The implemented part count capabilities will aim to minimize the intervention of the user but; ultimately, the strength of the part count will depend on the integrity of the model file.
+ In LPub3D, three configuration patterns will determine if a part is counted:
+ 1. The part file must contain a well formed part <Type> declaration meta.
+	Format:
+	0 !LDRAW_ORG <type> 
+	or
+	0 LDRAW_ORG <type>
+	or
+	0 Unofficial <type> // for this prefix <type> is defined as part
+	Where <type> is defined as part, unofficial_part or unofficial part.
+	Examples: 0 !LDRAW_ORG Part, 0 LDRAW_ORG unofficial_part, 0 LDRAW_ORG unofficial part, 0 unofficial part
+	Note that LPub3D does not look at the file extension to distinguish between types. Therefore, one could have a file named foo.mpd which will be identified as a part if the above meta declaration exist. Conversely, if no declaration is present, foo.dat or foo.ldr will not be identified as a part. This feature can be useful when defining helper parts. For example, leaving out the type declaration in the file uparrow.dat will allow the user to include it in their instructions with out it being counted as a part.
+ 2. Using the IGN (ignore) LPub meta will automatically exclude the part lines within from being counted.
+	For example:
+	0 !LPUB PART BEGIN IGN 
+	1 0 0 0 -120 1 0 0 0 1 0 0 0 1 outerrib.ldr
+	1 0 0 0 120 1 0 0 0 1 0 0 0 1 outerrib.ldr
+	1 71 -70.196 804.976 -165 -0.924 -0.383 0 -0.383 0.924 0 0 0 -1 32123a.dat
+	1 71 -218.11 743.75 -165 -0.707 -0.707 0 -0.707 0.707 0 0 0 -1 32123a.dat
+	1 71 -331.064 630.218 -165 -0.383 -0.924 0 -0.924 0.383 0 0 0 -1 32123a.dat
+	1 4 -392.285 322.436 75 -1.00023 -0.000246369 0 0 0 -1 0.000246369 -1.00023 0 arrow108.dat
+	1 4 -331.011 174.559 75 0 0 1 -0.999849 0 0 0 -0.999849 0 arrow108.dat
+	1 4 -217.888 61.481 75 0 0 1 -1.00023 0.000246369 0 -0.000246369 -1.00023 0 arrow108.dat
+	0 !LPUB PART END 
+	Note that parts in model subfiles within the IGN declaration will also be ignored.
+ 3. There is now a part exclusion list under the user data directory ...extras/excludedParts.lst.
+ As with the other LPub3D lists, the part exclusion list can be edited from the configuration menu.
+ The exclusion list is effective in the scenario where one is using dynamically generated parts such as hoses, string, rope etc... Segment parts, e.g. LSynth's LSXX.dat parts, stickers, LDCad template segments etc... can be excluded from the part count by placing them on the exclusion list.
 Fix: Submodel instance count reflects all the occurrences in the subfile on initial display (r804)
  * An example: when a model has 4x the same submodel, but 2 of those are used in step 10 and the other 2 are used in step 20, LPub3D will create 1x the submodel building steps with a 4x next to it.
  LPub3D behaviour will now, optionally, display the submodel instance count reflecting only the number of instances used in the parent step. However, note that there is an efficiency trade-off to this change in the form of more redundant steps in your instructions. 

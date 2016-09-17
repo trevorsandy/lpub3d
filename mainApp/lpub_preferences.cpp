@@ -60,6 +60,7 @@ QString Preferences::freeformAnnotationsFile;
 QString Preferences::fadeStepColor              = "Very_Light_Bluish_Gray";
 QString Preferences::pliSubstitutePartsFile;
 QString Preferences::fadeStepColorPartsFile;
+QString Preferences::excludedPartsFile;
 //page attributes dynamic
 QString Preferences::defaultAuthor;
 QString Preferences::defaultURL;
@@ -719,27 +720,38 @@ void Preferences::renderPreferences()
 
 void Preferences::pliPreferences()
 {
-    QSettings Settings;
-    pliFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliControl")).toString();
-    pliSubstitutePartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile")).toString();
+  bool allIsWell = true;
+  QSettings Settings;
+  pliFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliControl")).toString();
+  pliSubstitutePartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile")).toString();
+  excludedPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"ExlcudedPartsFile")).toString();
 
-    QFileInfo fileInfo(pliFile);
-    if (fileInfo.exists()) {
-        //return;
-    } else {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"PliControl"));
+  QFileInfo fileInfo(pliFile);
+  if (! fileInfo.exists()) {
+      Settings.remove(QString("%1/%2").arg(SETTINGS,"PliControl"));
+      allIsWell = false;
     }
 
-    QFileInfo pliSubstituteFileInfo(pliSubstitutePartsFile);
-    if (pliSubstituteFileInfo.exists()) {
-        return;
-    } else {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile"));
+  QFileInfo pliSubstituteFileInfo(pliSubstitutePartsFile);
+  if (! pliSubstituteFileInfo.exists()) {
+      Settings.remove(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile"));
+      allIsWell = false;
     }
+
+  QFileInfo excludeFileInfo(excludedPartsFile);
+  if (! excludeFileInfo.exists()) {
+      Settings.remove(QString("%1/%2").arg(SETTINGS,"ExlcudedPartsFile"));
+      allIsWell = false;
+    }
+
+  if (allIsWell)
+    return;
+
 #ifdef __APPLE__
 
     pliFile = QString("%1/%2").arg(lpubDataPath,"extras/pli.mpd");
     pliSubstitutePartsFile =  QString("%1/%2").arg(lpubDataPath,"extras/pliSubstituteParts.lst");
+    excludedPartsFile =  QString("%1/%2").arg(lpubDataPath,"extras/excludedParts.lst");
 
 #else
 
@@ -747,6 +759,7 @@ void Preferences::pliPreferences()
     //pliFile = "/extras/pli.mpd";
     pliFile = QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath,"extras/pli.mpd"));
     pliSubstitutePartsFile = QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath,"extras/pliSubstituteParts.lst"));
+    excludedPartsFile = QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath,"extras/excludedParts.lst"));
 
 #endif
 
@@ -754,16 +767,18 @@ void Preferences::pliPreferences()
     popPliFileInfo.setFile(pliFile);
     if (popPliFileInfo.exists()) {
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"PliControl"),pliFile);
-    } else {
-        //pliFile = "";
     }
 
     QFileInfo popPliSubstituteFileInfo(pliSubstitutePartsFile);
     popPliSubstituteFileInfo.setFile(pliSubstitutePartsFile);
     if (popPliSubstituteFileInfo.exists()) {
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile"),pliSubstitutePartsFile);
-    } else {
-        //pliSubstitutePartsFile = "";
+    }
+
+    QFileInfo popExlcudedFileInfo(excludedPartsFile);
+    popExlcudedFileInfo.setFile(excludedPartsFile);
+    if (popExlcudedFileInfo.exists()) {
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"ExlcudedPartsFile"),excludedPartsFile);
     }
 }
 
@@ -781,23 +796,26 @@ void Preferences::unitsPreferences()
 
 void Preferences::annotationPreferences()
 {
+    bool allIsWell = true;
     QSettings Settings;
     titleAnnotationsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"TitleAnnotationFile")).toString();
     freeformAnnotationsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"FreeFormAnnotationsFile")).toString();
 
     QFileInfo titleFileInfo(titleAnnotationsFile);
-    if (titleFileInfo.exists()) {
-        //return;
-    } else {
+    if (! titleFileInfo.exists()) {
         Settings.remove(QString("%1/%2").arg(SETTINGS,"TitleAnnotationFile"));
+        allIsWell = false;
     }
 
     QFileInfo freeformFileInfo(freeformAnnotationsFile);
-    if (freeformFileInfo.exists()) {
-        return;
-    } else {
+    if (! freeformFileInfo.exists()) {
         Settings.remove(QString("%1/%2").arg(SETTINGS,"FreeFormAnnotationsFile"));
+        allIsWell = false;
     }
+
+    if (allIsWell)
+      return;
+
 #ifdef __APPLE__
 
     titleAnnotationsFile    = QString("%1/%2").arg(lpubDataPath,"extras/titleAnnotations.lst");
@@ -815,16 +833,12 @@ void Preferences::annotationPreferences()
     popTitleFileInfo.setFile(titleAnnotationsFile);
     if (popTitleFileInfo.exists()) {
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"TitleAnnotationFile"),titleAnnotationsFile);
-    } else {
-        //titleAnnotationsFile = "";
     }
 
     QFileInfo popFreeFormFileInfo(freeformAnnotationsFile);
     popFreeFormFileInfo.setFile(freeformAnnotationsFile);
     if (popFreeFormFileInfo.exists()) {
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"FreeFormAnnotationsFile"),freeformAnnotationsFile);
-    } else {
-        //freeformAnnotationsFile = "";
     }
 }
 

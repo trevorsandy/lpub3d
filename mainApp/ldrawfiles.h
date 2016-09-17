@@ -39,6 +39,7 @@
 #include <QRegExp>
 #include <QHash>
 
+#include "excludedparts.h"
 #include "QsLog.h"
 
 extern QList<QRegExp> LDrawHeaderRegExp;
@@ -82,6 +83,8 @@ class LDrawFile {
     QString                     _emptyString;
     bool                        _mpd;
     static int                  _emptyInt;
+
+    ExcludedParts               excludedParts; // internal list of part count excluded parts
   public:
     LDrawFile();
     ~LDrawFile()
@@ -150,6 +153,7 @@ class LDrawFile {
     void setRendered(const QString &fileName, bool mirrored);
     bool rendered(const QString &fileName, bool mirrored);
     int instances(const QString &fileName, bool mirrored);
+    void countParts(const QString &fileName, const int count = 0);
     void countInstances();
     void countInstances(const QString &fileName, bool mirrored, const bool callout = false);
     bool changedSinceLastWrite(const QString &fileName);

@@ -442,6 +442,7 @@ void LDrawFile::loadFile(const QString &fileName)
     // get rid of what's there before we load up new stuff
 
     empty();
+    _pieces = 0;
     
     // allow files ldr suffix to allow for MPD
     
@@ -453,15 +454,17 @@ void LDrawFile::loadFile(const QString &fileName)
     QRegExp part("^\\s*1\\s+.*$");
 
     while ( ! in.atEnd()) {
-      const QString line = in.readLine(0);
-      if (line.contains(sof)) {
-        mpd = true;
-        break;
-      }
-      if (line.contains(part)) {
-        mpd = false;
-        break;
-      }
+        QString line = in.readLine(0);
+        if (line.contains(sof)) {
+            logInfo() << QString("Importing MPD: %1").arg(line.remove("0 "));
+            mpd = true;
+            break;
+        }
+        if (line.contains(part)) {
+            logInfo() << QString("Importing LDR: %1").arg(line.remove("0 "));
+            mpd = false;
+            break;
+        }
     }
     
     file.close();
@@ -501,7 +504,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     QRegExp upAUT("^\\s*0\\s+AUTHOR(.*)|Author(.*)|author(.*)$");
     QRegExp upNAM("^\\s*0\\s+Name(.*)|name(.*)|NAME(.*)$");
     QRegExp upCAT("^\\s*0\\s+!CATEGORY(.*)|!Category(.*)|!category(.*)$");
-    QRegExp upDAT("\\.dat|\\.DAT$");
+//    QRegExp upDAT("\\.dat|\\.DAT$");
 
     bool topLevelFileNotCaptured        = true;
     bool topLevelNameNotCaptured        = true;
@@ -510,7 +513,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     bool topLevelCategoryNotCaptured    = true;
     bool unofficialPart                 = false;
     int  descriptionLine                = 0;
-    int  pieces                         = 0;
 
     /* Read content into temperory content file the first time to put into fileList in order of
        appearance and stage for later processing */
@@ -535,13 +537,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
         QStringList tokens;        
         split(smLine,tokens);
-
-        if (tokens.size() == 15 && tokens[0] == "1" && tokens[14].contains(upDAT)){
-            QFileInfo info(tokens[14]);
-            PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.baseName().toUpper().toLatin1().constData(), NULL, false);
-            if (pieceInfo && pieceInfo->IsPartType())
-              pieces++;
-          }
 
         if (topLevelFileNotCaptured) {
             if (sof){
@@ -624,11 +619,11 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     }
 
     _mpd = true;
-    _pieces = pieces;
+    countParts(topLevelFile());
 
     emit gui->progressPermSetValueSig(stageContents.size());
     emit gui->removeProgressPermStatusSig();
-    emit gui->messageSig(true, "Model file loaded.");
+    emit gui->messageSig(true, QString("Model file loaded. Parts counted: %1.").arg(_pieces));
 
 //    logInfo() << "MPD File: "         << _file
 //              << ", Name: "           << _name
@@ -674,7 +669,6 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
       bool topLevelCategoryNotCaptured    = true;
       bool unofficialPart                 = true;
       int  descriptionLine                = 0;
-      int  pieces                         = 0;
 
       while ( ! in.atEnd()) {
         QString line = in.readLine(0);
@@ -695,68 +689,61 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
       for (int i = 0; i < contents.size(); i++) {
 
-        QString line = contents.at(i);
+          QString line = contents.at(i);
 
-        emit gui->progressPermSetValueSig(i);
+          emit gui->progressPermSetValueSig(i);
 
-        QStringList tokens;
-        split(line,tokens);
+          QStringList tokens;
+          split(line,tokens);
 
-        if (tokens.size() == 15 && tokens[0] == "1" && tokens[14].contains(upDAT)){
-            QFileInfo info(tokens[14]);
-            PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.baseName().toUpper().toLatin1().constData(), NULL, false);
-            if (pieceInfo && pieceInfo->IsPartType())
-              pieces++;
+          if (topLevelFileNotCaptured) {
+              if (line.contains(sofRE)){
+                  _file = sofRE.cap(1).replace(".ldr","");
+                  descriptionLine = i+1;      //next line will be description
+                  topLevelFileNotCaptured = false;
+              }
           }
 
-        if (topLevelFileNotCaptured) {
-            if (line.contains(sofRE)){
-                _file = sofRE.cap(1).replace(".ldr","");
-                descriptionLine = i+1;      //next line will be description
-                topLevelFileNotCaptured = false;
-            }
-        }
-
-        if (topLevelAuthorNotCaptured) {
-           if (line.contains(upAUT)) {
-               _author = upAUT.cap(1).replace(": ","");
-               topLevelAuthorNotCaptured = false;
-            }
-        }
-
-        if (topLevelNameNotCaptured) {
-            if (line.contains(upNAM)) {
-                _name = upNAM.cap(1).replace(": ","");
-                topLevelNameNotCaptured = false;
-            }
-        }
-
-        if (topLevelCategoryNotCaptured) {
-            if (line.contains(upCAT)) {
-                _category = upCAT.cap(1);
-                topLevelCategoryNotCaptured = false;
-            }
-        }
-
-        if (topLevelDescriptionNotCaptured && i == descriptionLine) {
-            _description = line;
-            topLevelDescriptionNotCaptured = false;
-        }
-
-        if (line[0] == '1' && tokens.size() == 15) {
-          const QString subModel = tokens[tokens.size()-1];
-          fullName = path + "/" + subModel;
-          if (QFile::exists(fullName)) {
-            loadLDRFile(path,subModel);
+          if (topLevelAuthorNotCaptured) {
+              if (line.contains(upAUT)) {
+                  _author = upAUT.cap(1).replace(": ","");
+                  topLevelAuthorNotCaptured = false;
+              }
           }
-        }
+
+          if (topLevelNameNotCaptured) {
+              if (line.contains(upNAM)) {
+                  _name = upNAM.cap(1).replace(": ","");
+                  topLevelNameNotCaptured = false;
+              }
+          }
+
+          if (topLevelCategoryNotCaptured) {
+              if (line.contains(upCAT)) {
+                  _category = upCAT.cap(1);
+                  topLevelCategoryNotCaptured = false;
+              }
+          }
+
+          if (topLevelDescriptionNotCaptured && i == descriptionLine) {
+              _description = line;
+              topLevelDescriptionNotCaptured = false;
+          }
+
+          if (line[0] == '1' && tokens.size() == 15) {
+              const QString subModel = tokens[tokens.size()-1];
+              fullName = path + "/" + subModel;
+              if (QFile::exists(fullName)) {
+                  loadLDRFile(path,subModel);
+              }
+          }
       }
       _mpd = false;
-      _pieces = pieces;
+      countParts(topLevelFile());
 
       emit gui->progressPermSetValueSig(contents.size());
       emit gui->removeProgressPermStatusSig();
-      emit gui->messageSig(true, "Model file loaded.");
+      emit gui->messageSig(true, QString("Model file loaded. Parts counted: %1.").arg(_pieces));
 
 //      logInfo() << "LDR File: "         << _file
 //                << ", Name: "           << _name
@@ -964,6 +951,44 @@ bool LDrawFile::saveMPDFile(const QString &fileName)
       }
     }
     return true;
+}
+
+void LDrawFile::countParts(const QString &fileName, const int count){
+
+  logStatus() << QString("  Subfile: %1, Parts count: %2").arg(fileName).arg(count);
+
+  QRegExp validEXT("\\.dat|\\.DAT|\\.ldr|\\.LDR|\\.mpd|\\.MPD$");
+  QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(fileName.toLower());
+  if (f != _subFiles.end()) {
+      // get content size and reset numSteps
+      int j = f->_contents.size();
+      // process submodel content...
+      for (int i = 0; i < j; i++) {
+          QStringList tokens;
+          QString line = f->_contents[i];
+          split(line,tokens);
+
+//          if (tokens[0] != "1") {
+//              logNotice() << QString("     Line: [%1] %2").arg(fileName).arg(line);
+//            }
+
+          // interrogate each line
+          if (tokens.size() == 15 && tokens[0] == "1" && (tokens[14].contains(validEXT))){
+              bool containsSubFile = contains(tokens[14].toLower());
+              if (containsSubFile) {
+                  countParts(tokens[14],_pieces);
+                } else if (! ExcludedParts::hasExcludedPart(tokens[14])){
+                  QFileInfo info(tokens[14]);
+                  PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.baseName().toUpper().toLatin1().constData(), NULL, false);
+                  if (pieceInfo && pieceInfo->IsPartType()) {
+                      _pieces++;
+                      //logTrace() << QString(" Part Line: [%2] %3 ItemNo %1").arg(_pieces).arg(fileName).arg(line);
+                      logStatus() << QString("ItemNo %1 [%2]").arg(_pieces).arg(tokens[14]);
+                    }
+                }
+            }
+        }
+    }
 }
 
 bool LDrawFile::saveLDRFile(const QString &fileName)

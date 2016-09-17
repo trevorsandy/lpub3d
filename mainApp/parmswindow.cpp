@@ -168,6 +168,8 @@ void ParmsWindow::displayParmsFile(
       title = "Fade Step Color Parts";
     else if (fileInfo.fileName() == "titleAnnotations.lst")
       title = "Title Annotation";
+    else if (fileInfo.fileName() == "excludedParts.lst")
+      title = "Excluded Parts";
     else //freeformAnnotations.lst
       title = "Freeform";
 

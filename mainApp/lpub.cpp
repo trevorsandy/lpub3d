@@ -916,6 +916,13 @@ void Gui::editPliBomSubstituteParts()
     parmsWindow->show();
 }
 
+void Gui::editExcludedParts()
+{
+    displayParmsFile(Preferences::excludedPartsFile);
+    parmsWindow->setWindowTitle(tr("Part Count Excluded Parts","Edit/add excluded parts"));
+    parmsWindow->show();
+}
+
 void Gui::editLdrawIniFile()
 {
   if (!Preferences::ldSearchDirs.isEmpty()) {
@@ -1738,6 +1745,10 @@ void Gui::createActions()
     editPliBomSubstitutePartsAct->setStatusTip(tr("Add/Edit the list of PLI/BOM substitute parts"));
     connect(editPliBomSubstitutePartsAct, SIGNAL(triggered()), this, SLOT(editPliBomSubstituteParts()));
 
+    editExcludedPartsAct = new QAction(QIcon(":/resources/editexcludedparts.png"),tr("Edit Part Count Excluded Parts List"), this);
+    editExcludedPartsAct->setStatusTip(tr("Add/Edit the list of part count excluded parts"));
+    connect(editExcludedPartsAct, SIGNAL(triggered()), this, SLOT(editExcludedParts()));
+
     editLdrawIniFileAct = new QAction(QIcon(":/resources/editinifile.png"),tr("Edit LDraw.ini"), this);
     editLdrawIniFileAct->setStatusTip(tr("Add/Edit LDraw.ini search directory entries"));
     connect(editLdrawIniFileAct, SIGNAL(triggered()), this, SLOT(editLdrawIniFile()));
@@ -1822,6 +1833,7 @@ void Gui::enableActions()
   editFreeFormAnnitationsAct->setEnabled(true);
   editFadeColourPartsAct->setEnabled(true);
   editPliBomSubstitutePartsAct->setEnabled(true);
+  editExcludedPartsAct->setEnabled(true);
 
   setPageLineEdit->setEnabled(true);
 
@@ -1919,9 +1931,9 @@ void Gui::createMenus()
     toolsMenu->addSeparator();
 
     cacheMenu = toolsMenu->addMenu("Reset Cache...");
+    cacheMenu->setIcon(QIcon(":/resources/resetcache.png"));
     toolsMenu->addAction(refreshLDrawUnoffPartsAct);
     toolsMenu->addAction(refreshLDrawOfficialPartsAct);
-    cacheMenu->setIcon(QIcon(":/resources/resetcache.png"));
     cacheMenu->addAction(clearImageModelCacheAct);
     cacheMenu->addAction(clearPLICacheAct);
     cacheMenu->addAction(clearCSICacheAct);
@@ -1941,12 +1953,16 @@ void Gui::createMenus()
 
     configMenu->addSeparator();
 
-    configMenu->addAction(editFadeColourPartsAct);
-    configMenu->addAction(editTitleAnnotationsAct);
-    configMenu->addAction(editFreeFormAnnitationsAct);
-    configMenu->addAction(editPliBomSubstitutePartsAct);
+    editorMenu = configMenu->addMenu("Edit Parameter Files...");
+    editorMenu->setIcon(QIcon(":/resources/editparameterfiles.png"));
+    editorMenu->addAction(editFadeColourPartsAct);
+    editorMenu->addAction(editTitleAnnotationsAct);
+    editorMenu->addAction(editFreeFormAnnitationsAct);
+    editorMenu->addAction(editPliBomSubstitutePartsAct);
+    editorMenu->addAction(editExcludedPartsAct);
     if (Preferences::ldrawiniFound) {
-      configMenu->addAction(editLdrawIniFileAct);}
+      editorMenu->addAction(editLdrawIniFileAct);}
+
     configMenu->addAction(generateFadeColourPartsAct);
 
     configMenu->addSeparator();
