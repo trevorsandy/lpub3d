@@ -1102,6 +1102,7 @@ Gui::Gui()
 #ifdef WATCHER
     connect(&watcher,       SIGNAL(fileChanged(const QString &)),
              this,          SLOT(  fileChanged(const QString &)));
+    changeAccepted = true;
 #endif
     setCurrentFile("");
 
@@ -1138,17 +1139,16 @@ void Gui::closeEvent(QCloseEvent *event)
 
   writeSettings();
 
-  if (maybeSave() /*&& gMainWindow->SaveProjectIfModified()*/) {
+  emit requestEndThreadNowSig();
 
+  if (parmsWindow->isVisible())
     parmsWindow->close();
 
-    emit requestEndThreadNowSig();
-
-    event->accept();
-  } else {
-    event->ignore();
-  }
-
+  if (maybeSave()) {
+      event->accept();
+    } else {
+      event->ignore();
+    }
 }
 
 bool Gui::InitializeApp(int argc, char *argv[], const char* LibraryInstallPath, const char* LDrawPath){

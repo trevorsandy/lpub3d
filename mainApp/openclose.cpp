@@ -349,12 +349,31 @@ void Gui::setCurrentFile(const QString &fileName)
 
 void Gui::fileChanged(const QString &path)
 {
-  QString msg = QString(tr("The file \"%1\" contents have changed.  Reload?"))
-                        .arg(path);
-  int ret = QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),msg,
-              QMessageBox::Apply | QMessageBox::No,
-              QMessageBox::Apply);
-  if (ret == QMessageBox::Apply) {
+  if (! changeAccepted)
+    return;
+
+  changeAccepted = false;
+
+  // Get the application icon as a pixmap
+  QPixmap _icon = QPixmap(":/icons/lpub96.png");
+  if (_icon.isNull())
+      _icon = QPixmap (":/icons/update.png");
+
+  QMessageBox box;
+  box.setWindowIcon(QIcon());
+  box.setIconPixmap (_icon);
+  box.setTextFormat (Qt::RichText);
+  box.setWindowTitle(tr ("%1 File Change").arg(VER_PRODUCTNAME_STR));
+  box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+  QString title = "<b>" + tr ("External change detected") + "</b>";
+  QString text = tr("\"%1\" contents were changed by an external source.  Reload?").arg(path);
+  box.setText (title);
+  box.setInformativeText (text);
+  box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
+  box.setDefaultButton   (QMessageBox::Yes);
+
+  if (box.exec() == QMessageBox::Yes) {
+    changeAccepted = true;
     QString fileName = path;
     openFile(fileName);
     drawPage(KpageView,KpageScene,false);

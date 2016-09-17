@@ -70,7 +70,8 @@ private:
     void writeSettings();
 
     TextEditor       *_textEdit;
-    bool              _parmsChanged;
+    bool              _fadeStepFile;
+    bool              _fileModified;
     QString           title;
     ParmsHighlighter *highlighter;
     QString           fileName;  // file currently being displayed
@@ -87,9 +88,6 @@ private:
     QAction  *delAct;
     QAction  *selAllAct;
     QAction  *findAct;
-
-signals:
-    bool fileModified(bool);
 
 private slots:
     void enableSave();

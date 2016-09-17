@@ -370,7 +370,9 @@
 #include "progress_dialog.h"
 #include "QsLog.h"
 
-
+#ifndef WATCHER
+#define WATCHER
+#endif
 
 class QString;
 class QSplitter;
@@ -765,9 +767,10 @@ private:
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
 
 #ifdef WATCHER
-  QFileSystemWatcher watcher;      // watch the file system for external
-                                   // changes to the ldraw files currently
-                                   // being edited
+  QFileSystemWatcher watcher;        // watch the file system for external
+                                     // changes to the ldraw files currently
+                                     // being edited
+  bool               changeAccepted; // don't throw another message unless existing was accepted
 #endif
 
   LDrawColor      ldrawColors;     // provides maps from ldraw color to RGB

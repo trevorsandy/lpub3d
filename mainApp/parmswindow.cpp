@@ -47,12 +47,13 @@ ParmsWindow::ParmsWindow(QMainWindow *parent) :
     parmsWindow  = this;
     parmsWindow->statusBar()->show();
 
-    _textEdit   = new TextEditor;
+    _textEdit     = new TextEditor;
+    _fadeStepFile = false;
+    _fileModified = false;
 
     highlighter = new ParmsHighlighter(_textEdit->document());
     _textEdit->setLineWrapMode(TextEditor::NoWrap);
     _textEdit->setUndoRedoEnabled(true);
-    _parmsChanged = false;
 
     createActions();
     createToolBars();
@@ -165,7 +166,10 @@ void ParmsWindow::displayParmsFile(
     if (fileInfo.fileName() == "pliSubstituteParts.lst")
       title = "PLI/BOM Substitute Parts";
     else if (fileInfo.fileName() == "fadeStepColorParts.lst")
-      title = "Fade Step Color Parts";
+      {
+        title = "Fade Step Color Parts";
+        _fadeStepFile = true;
+      }
     else if (fileInfo.fileName() == "titleAnnotations.lst")
       title = "Title Annotation";
     else if (fileInfo.fileName() == "excludedParts.lst")
@@ -238,10 +242,9 @@ bool ParmsWindow::saveFile()
         rc = writer.write(_textEdit->document());
 
         if (rc){
-            _parmsChanged = true;
             saveAct->setEnabled(false);
             _textEdit->document()->setModified(false);
-            emit fileModified(_textEdit->document()->isModified());
+            _fileModified = true;
             statusBar()->showMessage(tr("File saved"), 2000);
         }
     }
@@ -259,37 +262,48 @@ void ParmsWindow::enableSave()
 
 void ParmsWindow::closeEvent(QCloseEvent *event)
 {
-    if (maybeSave() || _parmsChanged ) {
-        writeSettings();
-        if (_parmsChanged){
-            bool fileLoaded = false;
-            if (!gui->getCurFile().isEmpty())
-                fileLoaded = true;
+  writeSettings();
 
-            QMessageBox box;
-            box.setIcon (QMessageBox::Question);
-            box.setDefaultButton   (QMessageBox::Ok);
-            box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
-            box.setText (tr("You must close and restart %1\nfor changes to take effect.")
-                         .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
-            box.setInformativeText (tr (fileLoaded ? "Click \"OK\" to close and restart %1" : "Click \"OK\" to close %1")
-                                    .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+  bool acceptEvent = false;
 
-            if (box.exec() == QMessageBox::Ok) {
-                if (fileLoaded) {
-                    QStringList args = QApplication::arguments();
-                    args << tr ("%1").arg(gui->getCurFile());
-                    args.removeFirst();
-                    QProcess::startDetached(QApplication::applicationFilePath(), args);
-                    qDebug() << "Restarted LPub3D usng exe:" << QApplication::applicationFilePath() << ", args:" << args;
-                }
-                event->accept();
-                QCoreApplication::quit();
+  if (maybeSave()) {
+      acceptEvent = true;
+    }
+
+  if (_fileModified){
+
+      bool fileLoaded = false;
+      if (!gui->getCurFile().isEmpty())
+        fileLoaded = true;
+
+      if (fileLoaded || _fadeStepFile) {
+
+          QMessageBox box;
+          box.setIcon (QMessageBox::Question);
+          box.setDefaultButton   (QMessageBox::Ok);
+          box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
+          box.setText (tr("You must close and restart %1\nfor changes to take effect.")
+                       .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+          box.setInformativeText (tr (fileLoaded ? "Click \"OK\" to close and restart %1" : "Click \"OK\" to close %1")
+                                  .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+
+          if (box.exec() == QMessageBox::Ok) {
+              QStringList args = QApplication::arguments();
+              args << tr ("%1").arg(fileLoaded ? gui->getCurFile() : QString());
+              args.removeFirst();
+              QProcess::startDetached(QApplication::applicationFilePath(), args);
+              logDebug() << "Restarted LPub3D usng exe:" << QApplication::applicationFilePath() << ", args:" << args;
+
+              event->accept();
+              QCoreApplication::quit();
             }
         }
-        event->accept();
+    }
+
+  if (acceptEvent){
+      event->accept();
     } else {
-        event->ignore();
+      event->ignore();
     }
 }
 

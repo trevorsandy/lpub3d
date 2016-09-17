@@ -2,6 +2,10 @@ LPub3D 2.0.11.793.2
  
 Features and enhancements 
 ------------
+Fix: Reload at file change prompt (r806)
+ * Users are now prompted to reload the model file when the loaded file is changed by an external source. With this fix, one can model the same file with multiple applications at the same time.
+Fix: Configuration parameters editor extra prompt to save before close (r806)
+ * LPub3D configuration file editor prompting to save changed content at the both the editor's window close and LPub3D main window close. This behaviour has been corrected to prompt only at editor window close.
 Fix: Part count gives wrong result. (r805)
  * Setting an automatic piece count gives wrong count most of the time in an MPD with multiple submodels and multiple usages of certain same submodels. This behaviour is now corrected. However,the user will have to play a role in configuring her model file to accurately reflect the part count expected. This will undoubtedly require moderate knowledge of LDraw and LPub3D format/logic semantics. The implemented part count capabilities will aim to minimize the intervention of the user but; ultimately, the strength of the part count will depend on the integrity of the model file.
  In LPub3D, three configuration patterns will determine if a part is counted:
