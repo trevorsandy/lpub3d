@@ -26,6 +26,7 @@
         <file alias="clearcsicache.png">images/clearcsicache.png</file>
         <file alias="clearcsi3dcache.png">images/clearcsi3dcache.png</file>
         <file alias="clearfadecache.png">images/clearfadecache.png</file>
+        <file alias="closemodelfile.png">images/closemodelfile.png</file>
         <file alias="contentspage.png">images/contentspage.png</file>
         <file alias="convertcallout.png">images/convertcallout.png</file>
         <file alias="copy.png">images/copy.png</file>

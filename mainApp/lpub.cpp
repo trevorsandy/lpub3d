@@ -1472,6 +1472,12 @@ void Gui::createActions()
     saveAsAct->setEnabled(false);
     connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
+    closeFileAct = new QAction(QIcon(":/resources/closemodelfile.png"), tr("&Close..."), this);
+    closeFileAct->setShortcut(tr("Ctrl+O"));
+    closeFileAct->setStatusTip(tr("Close an existing file"));
+    closeFileAct->setEnabled(false);
+    connect(closeFileAct, SIGNAL(triggered()), this, SLOT(closeModelFile()));
+
     printToPdfFileAct = new QAction(QIcon(":/resources/pdf_logo.png"), tr("Print to PDF &File"), this);
     printToPdfFileAct->setShortcut(tr("Ctrl+F"));
     printToPdfFileAct->setStatusTip(tr("Print your document to a pdf file"));
@@ -1808,6 +1814,7 @@ void Gui::loadPages(){
 void Gui::enableActions()
 {
   saveAsAct->setEnabled(true);
+  closeFileAct->setEnabled(true);
 
   printToPdfFileAct->setEnabled(true);
   printToFileAct->setEnabled(true);
@@ -1852,6 +1859,55 @@ void Gui::enableActions()
   exportMenu->setEnabled(true);
 }
 
+void Gui::disableActions()
+{
+  saveAsAct->setEnabled(false);
+  closeFileAct->setEnabled(false);
+
+  printToPdfFileAct->setEnabled(false);
+  printToFileAct->setEnabled(false);
+  printToFilePreviewAct->setEnabled(false);
+
+  exportPngAct->setEnabled(false);
+  exportJpgAct->setEnabled(false);
+  exportBmpAct->setEnabled(false);
+
+  pageSetupAct->setEnabled(false);
+  assemSetupAct->setEnabled(false);
+  pliSetupAct->setEnabled(false);
+  bomSetupAct->setEnabled(false);
+  calloutSetupAct->setEnabled(false);
+  multiStepSetupAct->setEnabled(false);
+  projectSetupAct->setEnabled(false);
+  fadeStepSetupAct->setEnabled(false);
+
+  addPictureAct->setEnabled(false);
+  removeLPubFormattingAct->setEnabled(false);
+
+  editTitleAnnotationsAct->setEnabled(false);
+  editFreeFormAnnitationsAct->setEnabled(false);
+  editFadeColourPartsAct->setEnabled(false);
+  editPliBomSubstitutePartsAct->setEnabled(false);
+  editExcludedPartsAct->setEnabled(false);
+
+  setPageLineEdit->setEnabled(false);
+
+  firstPageAct->setEnabled(false);
+  lastPageAct->setEnabled(false);
+  nextPageAct->setEnabled(false);
+  previousPageAct->setEnabled(false);
+
+  fitWidthAct->setEnabled(false);
+  fitVisibleAct->setEnabled(false);
+  actualSizeAct->setEnabled(false);
+  zoomInAct->setEnabled(false);
+  zoomOutAct->setEnabled(false);
+
+  cacheMenu->setEnabled(false);
+  exportMenu->setEnabled(false);
+
+}
+
 void Gui::enableActions2()
 {
     MetaItem mi;
@@ -1870,12 +1926,24 @@ void Gui::enableActions2()
     loadPages();
 }
 
+void Gui::disableActions2()
+{
+    insertCoverPageAct->setEnabled(false);
+    appendCoverPageAct->setEnabled(false);
+    insertNumberedPageAct->setEnabled(false);
+    appendNumberedPageAct->setEnabled(false);
+    deletePageAct->setEnabled(false);
+    addBomAct->setEnabled(false);
+    addTextAct->setEnabled(false);
+}
+
 void Gui::createMenus()
 {
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(openAct);
     fileMenu->addAction(saveAct);
     fileMenu->addAction(saveAsAct);
+    fileMenu->addAction(closeFileAct);
 
     exportMenu = fileMenu->addMenu("Export As...");
     exportMenu->setIcon(QIcon(":/resources/exportas.png"));

@@ -223,13 +223,24 @@ bool Gui::saveFile(const QString &fileName)
 void Gui::closeFile()
 {
   ldrawFile.empty();
-  undoStack->clear();
   editWindow->textEdit()->document()->clear();
   editWindow->textEdit()->document()->setModified(false);
   mpdCombo->setMaxCount(0);
   mpdCombo->setMaxCount(1000);
+  undoStack->clear();
 }
 
+void Gui::closeModelFile(){
+  //3D Viewer
+  gMainWindow->NewProject();
+  gMainWindow->UpdateAllViews();
+  gMainWindow->disable3DActions();
+  // Editor
+  clearPage(KpageView,KpageScene);
+  disableActions();
+  disableActions2();
+  closeFile();
+}
 /***************************************************************************
  * File opening closing stuff
  **************************************************************************/
