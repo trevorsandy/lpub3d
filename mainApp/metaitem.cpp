@@ -100,6 +100,58 @@ Rc MetaItem::scanBackwardStepGroup(Where &here)
   return scanBackward(here,StepMask|StepGroupMask);
 }
 
+/***********************************************************************
+ *
+ * tools
+ *
+ **********************************************************************/
+
+float determinant(
+  QStringList tokens)
+{
+
+  /* a  b  c
+     d  e  f
+     g  h  i */
+
+  float a = tokens[5].toFloat();
+  float b = tokens[6].toFloat();
+  float c = tokens[7].toFloat();
+  float d = tokens[8].toFloat();
+  float e = tokens[9].toFloat();
+  float f = tokens[10].toFloat();
+  float g = tokens[11].toFloat();
+  float h = tokens[12].toFloat();
+  float i = tokens[13].toFloat();
+
+  return (a*e*i + b*f*g + c*d*h) - (g*e*c + h*f*a + i*d*b);
+}
+
+bool equivalentAdds(
+  QString const &first,
+  QString const &second)
+{
+  QStringList firstTokens, secondTokens;
+  bool firstMirror, secondMirror;
+  float firstDet, secondDet;
+
+  split(first,firstTokens);
+  split(second,secondTokens);
+
+  firstDet = determinant(firstTokens);
+  secondDet = determinant(secondTokens);
+  firstMirror = firstDet < 0;
+  secondMirror = secondDet < 0;
+
+  return firstMirror == secondMirror && firstTokens[14] == secondTokens[14];
+}
+
+/***********************************************************************
+ *
+ * tools end
+ *
+ **********************************************************************/
+
 //   TOS                   EOS 
 //   STEP (END) BEGIN PART STEP (DIVIDER)         PART STEP END
 //   STEP (END) xxxxx PART STEP xxxxxxxxx         PART STEP xxx
@@ -155,6 +207,107 @@ int MetaItem::removeFirstStep(
     }
   }
   return sum;
+}
+
+int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
+
+    /* Scan the file and remove any multi-step stuff from the file
+       we're converting to callout*/
+
+    int   numLines;
+    Where walk(modelName,0);
+
+    /* submodelStack tells us where this submodel is referenced in the
+     parent file */
+
+    SubmodelStack tos = meta->submodelStack[meta->submodelStack.size() - 1];
+    Where step(tos.modelName,tos.lineNumber);
+
+    /* Now scan the lines following this line, to see if there is another
+   * submodel just like this one that needs to be added as multiplier.
+   *
+   * We also want to scan backward for the same submodel.
+   *
+   * In either direction, we need to stop on STEP/ROTSTEP.  We also need
+   * top stop on other sub-models, or mirror images of the same sub-model.
+   */
+
+  int instanceCount = 0;
+
+  QString firstLine;
+  Where lastInstance, firstInstance;
+
+  Where walkBack = step;
+  for (; walkBack.lineNumber >= 0; walkBack--) {
+    QString line = gui->readLine(walkBack);
+
+    if (isHeader(line)) {
+      break;
+    } else {
+      QStringList argv;
+      split(line,argv);
+      if (argv.size() >= 2 && argv[0] == "0") {
+        if (argv[1] == "STEP" || argv[1] == "ROTSTEP" ||
+            argv[1] == "LPUB" || argv[1] == "!LPUB") {
+          break;
+        }
+      } else if (argv.size() == 15 && argv[0] == "1") {
+        if (gui->isSubmodel(argv[14])) {
+          if (argv[14] == modelName) {
+            if (firstLine == "") {
+              firstLine = line;
+              firstInstance = walkBack;
+              lastInstance = walkBack;
+              ++instanceCount;
+            } else {
+              if (equivalentAdds(firstLine,line)) {
+                firstInstance = walkBack;
+                ++instanceCount;
+              } else {
+                break;
+              }
+            }
+          } else {
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  walk = step + 1;
+  numLines = gui->subFileSize(walk.modelName);
+  for ( ; walk.lineNumber < numLines; walk++) {
+    QString line = gui->readLine(walk);
+    QStringList argv;
+    split(line,argv);
+    if (argv.size() >= 2 && argv[0] == "0") {
+      if (argv[1] == "STEP" || argv[1] == "ROTSTEP" ||
+          argv[1] == "LPUB" || argv[1] == "!LPUB") {
+        break;
+      }
+    } else if (argv.size() == 15 && argv[0] == "1") {
+      if (gui->isSubmodel(argv[14])) {
+        if (argv[14] == modelName) {
+          if (firstLine == "") {
+            firstLine = line;
+            firstInstance = walk;
+            ++instanceCount;
+          } else {
+            if (equivalentAdds(firstLine,line)) {
+              lastInstance = walk;
+              ++instanceCount;
+            } else {
+              break;
+            }
+          }
+        } else {
+          break;
+        }
+      }
+    }
+  }
+  return instanceCount;
 }
 
 void MetaItem::addNextMultiStep(
@@ -2289,47 +2442,7 @@ int MetaItem::numSteps(QString modelName)
  * Callout tools
  *
  **********************************************************************/
- 
-float determinant(
-  QStringList tokens)
-{
-
-  /* a  b  c
-     d  e  f
-     g  h  i */
-    
-  float a = tokens[5].toFloat();
-  float b = tokens[6].toFloat();
-  float c = tokens[7].toFloat();
-  float d = tokens[8].toFloat();
-  float e = tokens[9].toFloat();
-  float f = tokens[10].toFloat();
-  float g = tokens[11].toFloat();
-  float h = tokens[12].toFloat();
-  float i = tokens[13].toFloat();
   
-  return (a*e*i + b*f*g + c*d*h) - (g*e*c + h*f*a + i*d*b);
-}
- 
-bool equivalentAdds(
-  QString const &first,
-  QString const &second)
-{
-  QStringList firstTokens, secondTokens;
-  bool firstMirror, secondMirror;
-  float firstDet, secondDet;
-  
-  split(first,firstTokens);
-  split(second,secondTokens);
-  
-  firstDet = determinant(firstTokens);
-  secondDet = determinant(secondTokens);
-  firstMirror = firstDet < 0;
-  secondMirror = secondDet < 0;
-  
-  return firstMirror == secondMirror && firstTokens[14] == secondTokens[14];
-}
-
 int MetaItem::nestCallouts(
   Meta  *meta,
   const QString &modelName,

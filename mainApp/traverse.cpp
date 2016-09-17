@@ -389,7 +389,7 @@ int Gui::drawPage(LGraphicsView  *view,
                 }
             }
 
-          /* if it is a sub-model, then process it */
+          /* if it is a sub-model (that's called out), then process it */
 
           if (ldrawFile.isSubmodel(type) && callout && ! noStep) {
 
@@ -397,6 +397,7 @@ int Gui::drawPage(LGraphicsView  *view,
 
 //              qDebug() << "CALLOUT MODE: " << (mode == CalloutBeginMeta::Unassembled ? "Unassembled" :
 //                                               mode == CalloutBeginMeta::Rotated ? "Rotated" : "Assembled");
+
               // If callout is rotated or assembled then suppress rotate icon
               supressRotateIcon = (mode == CalloutBeginMeta::Unassembled ? false : true);
 
@@ -1084,7 +1085,12 @@ int Gui::drawPage(LGraphicsView  *view,
 
                       bool endOfSubmodel = numSteps == 0 || stepNum >= numSteps;
 
+                      // Get submodel instnce count
                       int  instances = ldrawFile.instances(current.modelName, isMirrored);
+                      if (instances > 1 && ! steps->meta.LPub.mergeInstanceCount.value()) {
+                          MetaItem mi;
+                          instances = mi.countInstancesInStep(&steps->meta, current.modelName);
+                      }
 
                       emit messageSig(true, "Add graphics for single-step page.");
 
@@ -1163,7 +1169,7 @@ int Gui::drawPage(LGraphicsView  *view,
 }
 
 int Gui::findPage(
-    LGraphicsView  *view,
+	LGraphicsView  *view,
     QGraphicsScene *scene,
     int            &pageNum,
     QString const  &addLine,
@@ -1262,11 +1268,25 @@ int Gui::findPage(
               QString    type = token[token.size()-1];
 
               bool contains   = ldrawFile.isSubmodel(type);
-              bool rendered   = ldrawFile.rendered(type,ldrawFile.mirrored(token));
               CalloutBeginMeta::CalloutMode mode = meta.LPub.callout.begin.value();
 
-              if (contains && (!callout || (callout && mode != CalloutBeginMeta::Unassembled) )) {
+              // if submodel or callout treated as part (added to parent as assembled image)
+              if (contains && (!callout || (callout && mode != CalloutBeginMeta::Unassembled))) {
+
+                  bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token));
+                  if (! meta.LPub.mergeInstanceCount.value())
+                      rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token)) && stepNumber == renderStepNum;
+
+//                  logTrace() << QString("Submodel %1 in parent %4 at line %3, step %5 %2")
+//                                .arg(type)
+//                                .arg(rendered?"is RENDERED":"is not rendered.")
+//                                .arg(current.lineNumber).arg(current.modelName)
+//                                .arg(stepNumber);
+
                   if ( ! rendered && (! bfxStore2 || ! bfxParts.contains(token[1]+type))) {
+
+                      // store the step where the submodel is rendered for later comparison
+                      renderStepNum = stepNumber;
 
                       isMirrored = ldrawFile.mirrored(token);
 
@@ -1276,7 +1296,6 @@ int Gui::findPage(
                       Where current2(type,0);
 
                       ldrawFile.setModelStartPageNumber(current2.modelName,pageNum);
-                      //logTrace() << "SET Model: " << current2.modelName << " @ Page: " << pageNum;
 
                       // save rotStep, clear it, and restore it afterwards
                       // since rotsteps don't affect submodels
@@ -1292,6 +1311,7 @@ int Gui::findPage(
               if (bfxStore1) {
                   bfxParts << token[1]+type;
                 }
+
             } else if (partIgnore){
 
               if (tokens.size() == 15){
@@ -1375,6 +1395,7 @@ int Gui::findPage(
 
             case RotStepRc:
             case StepRc:
+
               if (partsAdded && ! noStep) {
                   stepNumber += ! coverPage && ! stepPage;
                   stepPageNum += ! coverPage && ! stepGroup;
@@ -1965,6 +1986,7 @@ void Gui::drawPage(
   Meta    meta;
   firstStepPageNum = -1;
   lastStepPageNum = -1;
+  renderStepNum = 0;
 
   findPage(view,scene,maxPages,empty,current,false,meta,printing);
   topOfPages.append(current);

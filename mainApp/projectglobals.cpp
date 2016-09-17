@@ -65,6 +65,12 @@ GlobalProjectDialog::GlobalProjectDialog(
   MetaGui *child = new ResolutionGui(&data->meta.LPub.resolution,box);
   data->children.append(child);
   
+  box = new QGroupBox("Submodel Instance Count");
+  layout->addWidget(box);
+  child = new CheckBoxGui("Consolidate submodel instance count.",&data->meta.LPub.mergeInstanceCount,box);
+  box->setToolTip("Consolidate submodel instance count at first occurrence in model.");
+  data->children.append(child);
+
 #if 0
 
   box = new QGroupBox("Renderer");

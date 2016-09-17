@@ -2145,6 +2145,7 @@ public:
   NoStepMeta            nostep;
   FadeStepMeta          fadeStep;
   RotateIconMeta        rotateIcon;
+  BoolMeta              mergeInstanceCount;
 
   LPubMeta();
   virtual ~LPubMeta() {}

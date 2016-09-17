@@ -87,6 +87,7 @@
         <file alias="partslistsetup.png">images/partslistsetup.png</file>
         <file alias="paste.png">images/paste.png</file>
         <file alias="pdf_logo.png">images/pdf_logo.png</file>
+        <file alias="pdf_print_preview.png">images/pdf_print_preview.png</file>
         <file alias="pliannotation.png">images/pliannotation.png</file>
         <file alias="plus.png">images/plus.png</file>
         <file alias="placement.png">images/placement.png</file>

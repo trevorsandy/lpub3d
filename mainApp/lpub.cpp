@@ -1477,7 +1477,7 @@ void Gui::createActions()
     printToFileAct->setEnabled(false);
     connect(printToFileAct, SIGNAL(triggered()), this, SLOT(ShowPrintDialog()));
 
-    printToFilePreviewAct = new QAction(QIcon(":/resources/file_print_preview.png"), tr("Print Pre&view..."), this);
+    printToFilePreviewAct = new QAction(QIcon(":/resources/pdf_print_preview.png"), tr("PDF Print Pre&view..."), this);
     printToFilePreviewAct->setShortcut(tr("Ctrl+F"));
     printToFilePreviewAct->setStatusTip(tr("Preview the current document to be printed"));
     printToFilePreviewAct->setEnabled(false);

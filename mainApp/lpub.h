@@ -737,6 +737,17 @@ public:
   ColourPartListWorker  *colourPartListWorker;    // create static colour parts list in separate thread
   ParmsWindow           *parmsWindow;             // the parametrer file editor
 
+protected:
+  // capture camera rotation from LeoCad module
+  lcVector3 mExistingRotStep;
+  lcVector3 mModelStepRotation;
+  float mRotStepAngleX;
+  float mRotStepAngleY;
+  float mRotStepAngleZ;
+
+  QMap<int, QPageLayout> pageLayouts;
+  QMap<int, FloatPairMeta> pageSizes;
+
 private:    
   QGraphicsScene        *KpageScene;      // top of displayed page's graphics items
   LGraphicsView         *KpageView;       // the visual representation of the scene
@@ -763,6 +774,7 @@ private:
 
   QUndoStack     *undoStack;       // the undo/redo stack
   int             macroNesting;
+  int             renderStepNum;    // at what step in the model is a submodel detected and rendered
 
   void countPages();
 
@@ -771,7 +783,7 @@ private:
   int findPage(                    // traverse the hierarchy until we get to the
     LGraphicsView  *view,          // page of interest, let traverse process the
     QGraphicsScene *scene,         // page, and then finish by counting the rest
-    int           &pageNum,        // of the pages
+    int           &pageNum,
     QString const &addLine,
     Where         &current,
     bool           mirrored,
@@ -1070,17 +1082,6 @@ private:
   QAction *recentFilesActs[MaxRecentFiles];
 
   QAction *updateApp;
-
-  // capture camera rotation from LeoCad module
-protected:
-  lcVector3 mExistingRotStep;
-  lcVector3 mModelStepRotation;
-  float mRotStepAngleX;
-  float mRotStepAngleY;
-  float mRotStepAngleZ;
-
-  QMap<int, QPageLayout> pageLayouts;
-  QMap<int, FloatPairMeta> pageSizes;
 
 };
 

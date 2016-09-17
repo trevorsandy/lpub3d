@@ -76,6 +76,7 @@ public:
   void deletePointer(          const Where &);
   void changeRotation(         const Where &);
 
+  int countInstancesInStep(     Meta *, const QString &);
   void addNextMultiStep(       const Where &topOfSteps, const Where &bottomOfSteps);
   void addPrevMultiStep(       const Where &topOfSteps, const Where &bottomOfSteps); 
   

@@ -2,6 +2,13 @@ LPub3D 2.0.11.793.2
  
 Features and enhancements 
 ------------
+Fix: Submodel instance count reflects all the occurrences in the subfile on initial display (r804)
+ * An example: when a model has 4x the same submodel, but 2 of those are used in step 10 and the other 2 are used in step 20, LPub3D will create 1x the submodel building steps with a 4x next to it.
+ LPub3D behaviour will now, optionally, display the submodel instance count reflecting only the number of instances used in the parent step. However, note that there is an efficiency trade-off to this change in the form of more redundant steps in your instructions. 
+ For example, if I have 4 occurrences of a submodel in a 3-step model file and I consume 2 in step 1 and 1 each in steps 2 and 2, under the previous behaviour, you would indeed see 4 occurrences of the submodel on its last page - displayed while in parent step 1. The efficiency here is that for step 3 and 3 you will not again enter into the sub model's page(s) on the instructions because all 4 occurrences were already communicated to the user. LPub3D handles this by designating the submodel as being 'rendered' at the first occurrence for the entire model file. 
+ For the new behaviour, the submodel is designated as 'rendered' at the first occurrence only for the step in which it is consumed. So subsequent occurrences in the same step will not enter into the submodel page(s). With the new behaviour, as LPub3D would only communicate 2 occurrences consumed in step 1, it will now be necessary to enter into the submodel page(s) on each step a submodel is consumed. This behaviour will not only communicate the remaining occurrences but it will also compel the user to navigate again and again the submodel's page(s). 
+ For small models this may not be an issue but for large models or models where a submodel is large and used in many steps, the instructions will be overwhelmed with redundant information.
+ To balance this trade-off, I have added an option switch under Project Setup to enable or disable the consolidation of submodel occurrences at the first occurrence of the submodel (by parent model of course) in the instructions.
 Fix: Pdf preview progress bar (r803)
  * Add progress bar to pdf preview dialogue. For large instruction documents it could be good to monitor the progress of the export process.
 Fix: Front and back cover page attribute placement (r802)
@@ -51,7 +58,7 @@ Fix: Front and back cover page attribute placement (r802)
 Fix: Disable appropriate UI menu items if no document loaded (r801)
  * Improve user interface guidance and efficiency. The aim is to better automate the user experience.
 Fix: Mixed page size and orientation export - pdf, png etc... (r801)
- * One is now able to modify both page size and orientation locally (within the document). This capability applies to both pdf and image exports.
+ * The feature to set local page orientation works on screen, but not in the output in PDF or PNG. One is now able to successfully change both page size and orientation locally (at individual page). This capability applies to both pdf and image exports.
  Additionally, there is now the capability to preview your pdf output using the pdf preview menu item. Note that, as the preview dialogue was natively designed (by Qt) to support print preview, local size and orientation changes (mixed page size and orientation within the document) are not well supported. They will preview within the context of the original page size and orientation. If your document does not contain mixed page size or orientation then the pdf preview functionality should present without issue. 
   Previously, LPub£D was using the default print engine (with pdf format output) which functions just as a physical printer. This means that as no one is likely to physically print different size pages during the same print run (at least not in standard printing), the pdf printer seemed unhappy when you try to switch page size while the printer is active. LPub3D now uses Qt's pdfWriter. Switching to the pdfWriter engine removes the limitation on both size and orientation while the 'printer' is active.
 Fix: Submodel instance count placement broken (r800)
