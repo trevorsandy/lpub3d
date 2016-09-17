@@ -245,7 +245,6 @@ HEADERS += \
     updatecheck.h \
     where.h \
     sizeandorientationdialog.h \
-    splashscreen.h \
     threadWorkers.h \
     version.h
 
@@ -321,7 +320,6 @@ SOURCES += \
     rx.cpp \
     scaledialog.cpp \
     sizeandorientationdialog.cpp \
-    splashscreen.cpp \
     step.cpp \
     textitem.cpp \
     threadWorkers.cpp \

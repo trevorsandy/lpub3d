@@ -2281,14 +2281,14 @@ PageMeta::PageMeta() : BranchMeta()
    *
    * Front Cover Default Attribute Placements
    *************************************
-   *   Logo (Top Left of Page)         *
+   *   Logo                            *  (Top Left of Page) [Independent]
    *                                   *
-   *   ModelName                       *  (Top of Title)
-   *   Title                           *  (Left Center of Page)
-   *   Author                          *  (Bottom of Title)
-   *   Pieces                          *  (Bottom of Author)
-   *   Model Description               *  (Bottom of Pieces)
-   *   Publsiher Description           *  (Bottom of Model Description)
+   *   ModelName                       *  (Top of Title) [Dependent]
+   *   Title                           *  (Left Center of Page) [Anchor]
+   *   Author                          *  (Bottom of Title) [Dependent]
+   *   Pieces                          *  (Bottom of Author) [Dependent]
+   *   Model Description               *  (Bottom of Pieces) [Dependent]
+   *   Publsiher Description           *  (Bottom of Model Description) [Dependent]
    *                                   *
    *************************************
 
@@ -2308,15 +2308,15 @@ PageMeta::PageMeta() : BranchMeta()
 
    * Back Cover Default Attribute Placements
    * **********************************
-   *               Logo               *  (Top of Page)
-   *  Title                           *  (Top of Author)
-   *  Author                          *  (Top of Copyright)
-   *  Copyright                       *  (Top of URL)
-   *  URL                             *  (Top of LEGO Disclaimer)
-   *  Email                           *
-   *  LEGO Disclaimer                 *  (Center of Page)
-   *  LPub3D Plug                     *  (Below LEGO Disclaimer)
-   *  LPub3D Plug Image               *  (Right of LPub3D Plug)
+   *               Logo               *  (Top of Page) [Independent]
+   *  Title                           *  (Center of Page) [Anchor]
+   *  Author                          *  (Bottom of Title) [Dependent]
+   *  Copyright                       *  (Bottom of Author) [Dependent]
+   *  URL                             *  (Bottom of Copyright) [Dependent]
+   *  Email                           *  (Bottom of URL) [Dependent]
+   *  LEGO Disclaimer                 *  (Bottom of Email) [Dependent]
+   *  LPub3D Plug                     *  (Bottom of LEGO Disclaimer)
+   *  LPub3D Plug Image               *  (Bottom of Page) [Independent]
    *                                  *
    ************************************
 

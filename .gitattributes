@@ -533,8 +533,6 @@ mainApp/scaledialog.cpp -text
 mainApp/scaledialog.h -text
 mainApp/sizeandorientationdialog.cpp -text
 mainApp/sizeandorientationdialog.h -text
-mainApp/splashscreen.cpp -text
-mainApp/splashscreen.h -text
 mainApp/step.cpp -text
 mainApp/step.h -text
 mainApp/textitem.cpp -text

@@ -942,15 +942,6 @@ private slots:
     void closeFile();
     void updateRecentFileActions();
 
-public:
-
-  // Page size for pdf printing
-  int bestPaperSizeOrientation(
-    float widthMm,
-    float heightMm,
-    QPrinter::PaperSize &paperSize,
-    QPrinter::Orientation &orientation);
-	
 private:
   /* Initialization stuff */
 

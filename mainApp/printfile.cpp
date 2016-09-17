@@ -602,294 +602,296 @@ void Gui::exportAsBmp()
 
 void Gui::exportAs(QString &suffix)
 {
-  int savePageNumber = displayPageNum;
+    int savePageNumber = displayPageNum;
 
-  if (exportOption == EXPORT_PAGE_RANGE) {
-      if(pageRangeText.isEmpty()){
-          QMessageBox::warning(NULL,
-                               tr("LPub3D"),
-                               tr("Custom page range is empty. You must enter a page range"));
-          return;
+    if (exportOption == EXPORT_PAGE_RANGE) {
+        if(pageRangeText.isEmpty()){
+            QMessageBox::warning(NULL,
+                                 tr("LPub3D"),
+                                 tr("Custom page range is empty. You must enter a page range"));
+            return;
         }
-      bool validEntry = true;
-      QString message;
-      QStringList pageRanges = pageRangeText.split(",");
-      foreach(QString ranges, pageRanges){
-          if (ranges.contains("-")){
-              bool ok[2];
-              QStringList range = ranges.split("-");
-              int minPage = range[0].toInt(&ok[0]);
-              int maxPage = range[1].toInt(&ok[1]);
-              if (!ok[0] || !ok[1] || (minPage > maxPage)){
-                  message = QString("%1-%2").arg(minPage).arg(maxPage);
-                  validEntry = false;
-                  break;
+        bool validEntry = true;
+        QString message;
+        QStringList pageRanges = pageRangeText.split(",");
+        foreach(QString ranges, pageRanges){
+            if (ranges.contains("-")){
+                bool ok[2];
+                QStringList range = ranges.split("-");
+                int minPage = range[0].toInt(&ok[0]);
+                int maxPage = range[1].toInt(&ok[1]);
+                if (!ok[0] || !ok[1] || (minPage > maxPage)){
+                    message = QString("%1-%2").arg(minPage).arg(maxPage);
+                    validEntry = false;
+                    break;
                 }
             } else {
-              bool ok;
-              int pageNum = ranges.toInt(&ok);
-              if (!ok){
-                  message = QString("%1").arg(pageNum);
-                  validEntry = false;
-                  break;
+                bool ok;
+                int pageNum = ranges.toInt(&ok);
+                if (!ok){
+                    message = QString("%1").arg(pageNum);
+                    validEntry = false;
+                    break;
                 }
             }
         }
-      if (! validEntry) {
-          QMessageBox::warning(NULL,
-                               tr("LPub3D"),
-                               tr("Invalid page number(s) %1 detected. You must enter valid page number(s).").arg(message));
-          return;
+        if (! validEntry) {
+            QMessageBox::warning(NULL,
+                                 tr("LPub3D"),
+                                 tr("Invalid page number(s) %1 detected. You must enter valid page number(s).").arg(message));
+            return;
         }
     }
 
-  // send signal to halt 3DViewer
-  halt3DViewer(true);
+    // send signal to halt 3DViewer
+    halt3DViewer(true);
 
-  // determine location to output images
-  QFileInfo fileInfo(curFile);
-  //QDir initialDirectory = fileInfo.dir();
-  QString baseName = fileInfo.baseName();
-  QString directoryName = QFileDialog::getExistingDirectory(
-        this,
-        tr("Save images to folder"), // needs translation! also, include suffix in here
-        QDir::currentPath(),
-        QFileDialog::ShowDirsOnly);
-  if (directoryName == "") {
-      // release 3D Viewer
-      halt3DViewer(false);
+    // determine location to output images
+    QFileInfo fileInfo(curFile);
+    //QDir initialDirectory = fileInfo.dir();
+    QString baseName = fileInfo.baseName();
+    QString directoryName = QFileDialog::getExistingDirectory(
+                this,
+                tr("Save images to folder"), // needs translation! also, include suffix in here
+                QDir::currentPath(),
+                QFileDialog::ShowDirsOnly);
+    if (directoryName == "") {
+        // release 3D Viewer
+        halt3DViewer(false);
 
-      return;
+        return;
     }
 
-  QGraphicsScene scene;
-  LGraphicsView view(&scene);
-  float pageWidthPx, pageHeightPx;
-  int _displayPageNum = 0;
-  int _maxPages       = 0;
+    QGraphicsScene scene;
+    LGraphicsView view(&scene);
+    float pageWidthPx, pageHeightPx;
+    int _displayPageNum = 0;
+    int _maxPages       = 0;
 
-  // Support transparency for formats that can handle it, but use white for those that can't.
-  QColor fillClear = (suffix.compare(".png", Qt::CaseInsensitive) == 0) ? Qt::transparent :  Qt::white;
+    // Support transparency for formats that can handle it, but use white for those that can't.
+    QColor fillClear = (suffix.compare(".png", Qt::CaseInsensitive) == 0) ? Qt::transparent :  Qt::white;
 
-  // initialize progress bar
-  m_cancelPrinting = false;
-  m_progressDialog->setWindowTitle(QString("Export as %1").arg(suffix));
-  m_progressDialog->show();
-  m_progressDlgMessageLbl->setText(QString("Exporting instructions to %1 format.").arg(suffix));
+    // initialize progress bar
+    m_cancelPrinting = false;
+    m_progressDialog->setWindowTitle(QString("Export as %1").arg(suffix));
+    m_progressDialog->show();
+    m_progressDlgMessageLbl->setText(QString("Exporting instructions to %1 format.").arg(suffix));
 
-  if (exportOption != EXPORT_PAGE_RANGE){
+    if (exportOption != EXPORT_PAGE_RANGE){
 
-      if(exportOption == EXPORT_ALL_PAGES){
-          _displayPageNum = 1;
-          _maxPages = maxPages;
+        if(exportOption == EXPORT_ALL_PAGES){
+            _displayPageNum = 1;
+            _maxPages = maxPages;
         }
 
-      if (exportOption == EXPORT_CURRENT_PAGE){
-          _displayPageNum = displayPageNum;
-          _maxPages       = displayPageNum;
+        if (exportOption == EXPORT_CURRENT_PAGE){
+            _displayPageNum = displayPageNum;
+            _maxPages       = displayPageNum;
         }
 
-      m_progressDlgProgressBar->setRange(1,_maxPages);
+        m_progressDlgProgressBar->setRange(1,_maxPages);
 
-      for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
+        for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
 
-          if (m_cancelPrinting)
-            break;
+            if (m_cancelPrinting)
+                break;
 
-          m_progressDlgMessageLbl->setText(QString("Exporting page: %1 of %2").arg(displayPageNum).arg(_maxPages));
-          m_progressDlgProgressBar->setValue(displayPageNum);
+            m_progressDlgMessageLbl->setText(QString("Exporting page: %1 of %2").arg(displayPageNum).arg(_maxPages));
+            m_progressDlgProgressBar->setValue(displayPageNum);
 
-          // render scene to capture page size
-          drawPage(&view,&scene,false);
+            // render scene to capture page size
+            drawPage(&view,&scene,false);
 
-          // determine size of output image, in pixels
-          GetPixelDimensions(pageWidthPx, pageHeightPx);
+            // determine size of output image, in pixels
+            GetPixelDimensions(pageWidthPx, pageHeightPx);
 
-          bool  ls = page.meta.LPub.page.orientation.value() == Landscape;
-          logNotice() << QString("Exporting page %3 of %4, size(in pixels) W %1 x H %2, orientation %5")
-                        .arg(pageWidthPx)
-                        .arg(pageHeightPx)
-                        .arg(displayPageNum)
-                        .arg(_maxPages)
-                        .arg(ls ? "Landscape" : "Portrait");
+            bool  ls = page.meta.LPub.page.orientation.value() == Landscape;
+            logNotice() << QString("Exporting page %3 of %4, size(in pixels) W %1 x H %2, orientation %5")
+                           .arg(pageWidthPx)
+                           .arg(pageHeightPx)
+                           .arg(displayPageNum)
+                           .arg(_maxPages)
+                           .arg(ls ? "Landscape" : "Portrait");
 
-          // paint to the image the scene we view
-          QImage image(pageWidthPx, pageHeightPx, QImage::Format_ARGB32);
-          QPainter painter;
-          painter.begin(&image);
+            // paint to the image the scene we view
+            QImage image(pageWidthPx, pageHeightPx, QImage::Format_ARGB32);
+            QPainter painter;
+            painter.begin(&image);
 
-          // set up the view
-          QRectF boundingRect(0.0,0.0,pageWidthPx,pageHeightPx);
-          QRect  bounding(0,0,pageWidthPx,pageHeightPx);
-          view.scale(1.0,1.0);
-          view.setMinimumSize(pageWidthPx, pageHeightPx);
-          view.setMaximumSize(pageWidthPx, pageHeightPx);
-          view.setGeometry(bounding);
-          view.setSceneRect(boundingRect);
-          view.setRenderHints(
-                QPainter::Antialiasing |
-                QPainter::TextAntialiasing |
-                QPainter::SmoothPixmapTransform);
-          view.centerOn(boundingRect.center());
+            // set up the view
+            QRectF boundingRect(0.0,0.0,pageWidthPx,pageHeightPx);
+            QRect  bounding(0,0,pageWidthPx,pageHeightPx);
+            view.scale(1.0,1.0);
+            view.setMinimumSize(pageWidthPx, pageHeightPx);
+            view.setMaximumSize(pageWidthPx, pageHeightPx);
+            view.setGeometry(bounding);
+            view.setSceneRect(boundingRect);
+            view.setRenderHints(
+                        QPainter::Antialiasing |
+                        QPainter::TextAntialiasing |
+                        QPainter::SmoothPixmapTransform);
+            view.centerOn(boundingRect.center());
 
-          // clear the pixels of the image, just in case the background is
-          // transparent or uses a PNG image with transparency. This will
-          // prevent rendered pixels from each page layering on top of each
-          // other.
-          image.fill(fillClear.Rgb);
-          // render this page
-          // scene.render instead of view.render resolves "warm up" issue
-          drawPage(&view,&scene,false);
-          scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
-          scene.render(&painter);
-          clearPage(&view,&scene);
-          // save the image to the selected directory
-          // internationalization of "_page_"?
-          QString pn = QString("%1") .arg(displayPageNum);
-          image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
+            // clear the pixels of the image, just in case the background is
+            // transparent or uses a PNG image with transparency. This will
+            // prevent rendered pixels from each page layering on top of each
+            // other.
+            image.fill(fillClear.Rgb);
+            // render this page
+            // scene.render instead of view.render resolves "warm up" issue
+            drawPage(&view,&scene,false);
+            scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
+            scene.render(&painter);
+            clearPage(&view,&scene);
+            // save the image to the selected directory
+            // internationalization of "_page_"?
+            QString pn = QString("%1") .arg(displayPageNum);
+            image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
 
-          painter.end();
+            painter.end();
         }
-      m_progressDlgProgressBar->setValue(_maxPages);
+        m_progressDlgProgressBar->setValue(_maxPages);
 
     } else {
 
-      QStringList pageRanges = pageRangeText.split(",");
-      QList<int> printPages;
-      foreach(QString ranges,pageRanges){
-          if (ranges.contains("-")){
-              QStringList range = ranges.split("-");
-              int minPage = range[0].toInt();
-              int maxPage = range[1].toInt();
-              for(int i = minPage; i <= maxPage; i++){
-                  printPages.append(i);
+        QStringList pageRanges = pageRangeText.split(",");
+        QList<int> printPages;
+        foreach(QString ranges,pageRanges){
+            if (ranges.contains("-")){
+                QStringList range = ranges.split("-");
+                int minPage = range[0].toInt();
+                int maxPage = range[1].toInt();
+                for(int i = minPage; i <= maxPage; i++){
+                    printPages.append(i);
                 }
             } else {
-              printPages.append(ranges.toInt());
+                printPages.append(ranges.toInt());
             }
         }
 
-      std::sort(printPages.begin(),printPages.end(),lessThan);
+        std::sort(printPages.begin(),printPages.end(),lessThan);
 
-      _maxPages = printPages.last();
+        _maxPages = printPages.last();
 
-      m_progressDlgProgressBar->setRange(1,printPages.count());
+        m_progressDlgProgressBar->setRange(1,printPages.count());
 
-      int _pageCount = 0;
-      foreach(int printPage,printPages){
+        int _pageCount = 0;
+        foreach(int printPage,printPages){
 
-          if (m_cancelPrinting)
-            break;
+            if (m_cancelPrinting)
+                break;
 
-          displayPageNum = printPage;
+            displayPageNum = printPage;
 
-          m_progressDlgMessageLbl->setText(QString("Exporting: page range %1 of %2").arg(displayPageNum).arg(_maxPages));
-          m_progressDlgProgressBar->setValue(_pageCount++);
+            m_progressDlgMessageLbl->setText(QString("Exporting: page range %1 of %2").arg(displayPageNum).arg(_maxPages));
+            m_progressDlgProgressBar->setValue(_pageCount++);
 
-          // render scene to capture page size
-          drawPage(&view,&scene,false);
+            // render scene to capture page size
+            drawPage(&view,&scene,false);
 
-          // determine size of output image, in pixels
-          GetPixelDimensions(pageWidthPx, pageHeightPx);
+            // determine size of output image, in pixels
+            GetPixelDimensions(pageWidthPx, pageHeightPx);
 
-          bool  ls = page.meta.LPub.page.orientation.value() == Landscape;
-          logNotice() << QString("Exporting page %3 of %4, size(in pixels) W %1 x H %2, orientation %5")
-                        .arg(pageWidthPx)
-                        .arg(pageHeightPx)
-                        .arg(displayPageNum)
-                        .arg(_maxPages)
-                        .arg(ls ? "Landscape" : "Portrait");
+            bool  ls = page.meta.LPub.page.orientation.value() == Landscape;
+            logNotice() << QString("Exporting page %3 of %4, size(in pixels) W %1 x H %2, orientation %5")
+                           .arg(pageWidthPx)
+                           .arg(pageHeightPx)
+                           .arg(displayPageNum)
+                           .arg(_maxPages)
+                           .arg(ls ? "Landscape" : "Portrait");
 
-          // paint to the image the scene we view
-          QImage image(pageWidthPx, pageHeightPx, QImage::Format_ARGB32);
-          QPainter painter;
-          painter.begin(&image);
+            // paint to the image the scene we view
+            QImage image(pageWidthPx, pageHeightPx, QImage::Format_ARGB32);
+            QPainter painter;
+            painter.begin(&image);
 
-          // set up the view
-          QRectF boundingRect(0.0,0.0,pageWidthPx,pageHeightPx);
-          QRect  bounding(0,0,pageWidthPx,pageHeightPx);
-          view.scale(1.0,1.0);
-          view.setMinimumSize(pageWidthPx, pageHeightPx);
-          view.setMaximumSize(pageWidthPx, pageHeightPx);
-          view.setGeometry(bounding);
-          view.setSceneRect(boundingRect);
-          view.setRenderHints(
-                QPainter::Antialiasing |
-                QPainter::TextAntialiasing |
-                QPainter::SmoothPixmapTransform);
-          view.centerOn(boundingRect.center());
+            // set up the view
+            QRectF boundingRect(0.0,0.0,pageWidthPx,pageHeightPx);
+            QRect  bounding(0,0,pageWidthPx,pageHeightPx);
+            view.scale(1.0,1.0);
+            view.setMinimumSize(pageWidthPx, pageHeightPx);
+            view.setMaximumSize(pageWidthPx, pageHeightPx);
+            view.setGeometry(bounding);
+            view.setSceneRect(boundingRect);
+            view.setRenderHints(
+                        QPainter::Antialiasing |
+                        QPainter::TextAntialiasing |
+                        QPainter::SmoothPixmapTransform);
+            view.centerOn(boundingRect.center());
 
-          // clear the pixels of the image, just in case the background is
-          // transparent or uses a PNG image with transparency. This will
-          // prevent rendered pixels from each page layering on top of each
-          // other.
-          image.fill(fillClear.Rgb);
-          // render this page
-          // scene.render instead of view.render resolves "warm up" issue
-          drawPage(&view,&scene,false);
-          scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
-          scene.render(&painter);
-          clearPage(&view,&scene);
-          // save the image to the selected directory
-          // internationalization of "_page_"?
-          QString pn = QString("%1") .arg(displayPageNum);
-          image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
+            // clear the pixels of the image, just in case the background is
+            // transparent or uses a PNG image with transparency. This will
+            // prevent rendered pixels from each page layering on top of each
+            // other.
+            image.fill(fillClear.Rgb);
+            // render this page
+            // scene.render instead of view.render resolves "warm up" issue
+            drawPage(&view,&scene,false);
+            scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
+            scene.render(&painter);
+            clearPage(&view,&scene);
+            // save the image to the selected directory
+            // internationalization of "_page_"?
+            QString pn = QString("%1") .arg(displayPageNum);
+            image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
 
-          painter.end();
+            painter.end();
         }
-       m_progressDlgProgressBar->setValue(printPages.count());
+        m_progressDlgProgressBar->setValue(printPages.count());
     }
 
-  // release 3D Viewer
-  halt3DViewer(false);
+    // release 3D Viewer
+    halt3DViewer(false);
 
-  // return to whatever page we were viewing before output
-  displayPageNum = savePageNumber;
-  drawPage(KpageView,KpageScene,false);
+    // return to whatever page we were viewing before output
+    displayPageNum = savePageNumber;
+    drawPage(KpageView,KpageScene,false);
 
-  // hide progress bar
-  m_progressDialog->hide();
+    // hide progress bar
+    m_progressDialog->hide();
 
-  if (!m_cancelPrinting) {
+    if (!m_cancelPrinting) {
 
-      emit messageSig(true,QString("Export as %1 completed.").arg(suffix.remove(".")));
+        emit messageSig(true,QString("Export as %1 completed.").arg(suffix.remove(".")));
 
-  //display completion message
-  QMessageBox::StandardButton ret;
-  ret = QMessageBox::information(this, tr(VER_PRODUCTNAME_STR),
-                                 tr("Your instruction document has finished printing.\n"
-                                    "Do you want to open the image folder ?\n %1").arg(directoryName),
-                                 QMessageBox::Yes| QMessageBox::Discard | QMessageBox::Cancel);
+        //display completion message
+        QMessageBox::StandardButton ret;
+        ret = QMessageBox::information(this, tr(VER_PRODUCTNAME_STR),
+                                       tr("Your instruction document has finished printing.\n"
+                                          "Do you want to open the image folder ?\n %1").arg(directoryName),
+                                       QMessageBox::Yes| QMessageBox::Discard | QMessageBox::Cancel);
 
-  if (ret == QMessageBox::Yes) {
-      QString CommandPath = directoryName;
-      QProcess *Process = new QProcess(this);
-      Process->setWorkingDirectory(QDir::currentPath() + "/");
-      Process->setNativeArguments(CommandPath);
+        if (ret == QMessageBox::Yes) {
+            QString CommandPath = directoryName;
+            QProcess *Process = new QProcess(this);
+            Process->setWorkingDirectory(QDir::currentPath() + "/");
+            Process->setNativeArguments(CommandPath);
 
 #ifdef __APPLE__
 
-      Process->execute(CommandPath);
-      Process->waitForFinished();
+            Process->execute(CommandPath);
+            Process->waitForFinished();
 
-      QProcess::ExitStatus Status = Process->exitStatus();
+            QProcess::ExitStatus Status = Process->exitStatus();
 
-      if (Status != 0) {  // look for error
-          QErrorMessage *m = new QErrorMessage(this);
-          m->showMessage(QString("%1\n%2").arg("Failed to open image folder!").arg(CommandPath));
-        }
+            if (Status != 0) {  // look for error
+                QErrorMessage *m = new QErrorMessage(this);
+                m->showMessage(QString("%1\n%2").arg("Failed to open image folder!").arg(CommandPath));
+            }
 #else
-      QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+            QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
 #endif
 
-      return;
-    } else if (ret == QMessageBox::Cancel) {
-      return;
+            return;
+        } else if (ret == QMessageBox::Cancel) {
+            return;
+        }
+    } else {
+        emit messageSig(true,QString("Export as %1 cancelled.").arg(suffix.remove(".")));
     }
-} else {
-  emit messageSig(true,QString("Export as %1 cancelled.").arg(suffix.remove(".")));
 }
-}
+
+//-----------------PRINT FUNCTIONS------------------------//
 
 void Gui::Print(QPrinter* Printer)
 {
@@ -942,7 +944,7 @@ void Gui::Print(QPrinter* Printer)
     halt3DViewer(true);
 
     // determine get orientation from print preview if requested
-    QPageLayout::Orientation layoutOrientation = Printer->pageLayout().orientation();
+    QPageLayout::Orientation previewOrientation = Printer->pageLayout().orientation();
 
     // determine the page size in inches. only concerned with inches because resolution() reports DPI
     qreal pageWidthIn, pageHeightIn;
@@ -958,10 +960,9 @@ void Gui::Print(QPrinter* Printer)
     if(ls){qreal temp = pageHeightIn; pageHeightIn = pageWidthIn; pageWidthIn = temp;}
 
     QPageSize pageSize(QSizeF(pageWidthIn,pageHeightIn),QPageSize::Inch,"",QPageSize::FuzzyOrientationMatch);
-    QPageLayout pageLayout(pageSize, layoutOrientation, QMarginsF(0,0,0,0),QPageLayout::Inch);
+    QPageLayout pageLayout(pageSize, previewOrientation, QMarginsF(0,0,0,0),QPageLayout::Inch);
     Printer->setPageLayout(pageLayout);
 
-    Printer->setPageMargins(0,0,0,0,QPrinter::Inch);
     Printer->setFullPage(true);
 
     // paint to the printer the scene we view
@@ -1021,8 +1022,9 @@ void Gui::Print(QPrinter* Printer)
 
                 // TODO: print header and footer
 
-                if (PageCopy < PageCopies - 1)
+                if (PageCopy < PageCopies - 1){
                     Printer->newPage();
+                }
             }
 
             if (Page == ToPage)
@@ -1036,8 +1038,9 @@ void Gui::Print(QPrinter* Printer)
             Printer->newPage();
         }
 
-        if (DocCopy < DocCopies - 1)
+        if (DocCopy < DocCopies - 1) {
             Printer->newPage();
+        }
     }
 
     // release 3D Viewer

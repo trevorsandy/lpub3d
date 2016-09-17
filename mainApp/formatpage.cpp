@@ -222,7 +222,6 @@ int Gui::addGraphicsPageItems(
 
   PageAttributeTextItem   *url;
   PageAttributeTextItem   *email;
-
   PageAttributeTextItem   *copyright;
   PageAttributeTextItem   *author;
 
@@ -234,9 +233,9 @@ int Gui::addGraphicsPageItems(
   PageAttributeTextItem   *piecesFront;
   //  PageAttributeTextItem   *categoryFront;
   PageAttributePixmapItem *pixmapLogoFront;
-  PageAttributePixmapItem *pixmapLogoBack;
   PageAttributePixmapItem *pixmapCoverImageFront;
 
+  PageAttributePixmapItem *pixmapLogoBack;
   PageAttributeTextItem   *titleBack;
   PageAttributeTextItem   *authorBack;
   PageAttributeTextItem   *copyrightBack;
@@ -388,22 +387,47 @@ int Gui::addGraphicsPageItems(
       plPage.placeRelative(pageNumber);
       pageNumber->setPos(pageNumber->loc[XX],pageNumber->loc[YY]);
 
+      //initialize Author
+      if (page->meta.LPub.page.author.display.value()) {
+          author               = new PageAttributeTextItem(page,page->meta.LPub.page.author,pageBg);
+          author->relativeType = PageAuthorType;
+          author->size[XX]     = (int) author->document()->size().width();
+          author->size[YY]     = (int) author->document()->size().height();
+      }
+
       if (! page->coverPage)
         {
 
-          // allocate QGraphicsTextItem for // url (Header/Footer) //~~~~~~~~~~~~~~~~
+          // URL,
           if (page->meta.LPub.page.url.display.value()) {
-
               url               = new PageAttributeTextItem(page,page->meta.LPub.page.url,pageBg);
               url->relativeType = PageURLType;
               url->size[XX]     = (int) url->document()->size().width();
               url->size[YY]     = (int) url->document()->size().height();
+          }
 
+          //Email
+          if (page->meta.LPub.page.email.display.value()){
+              email               = new PageAttributeTextItem(page,page->meta.LPub.page.email,pageBg);
+              email->relativeType = PageEmailType;
+              email->size[XX]     = (int) email->document()->size().width();
+              email->size[YY]     = (int) email->document()->size().height();
+          }
+
+          //Copyright
+          if (page->meta.LPub.page.copyright.display.value()){
+              copyright               = new PageAttributeTextItem(page,page->meta.LPub.page.copyright,pageBg);
+              copyright->relativeType = PageCopyrightType;
+              copyright->size[XX]     = (int) copyright->document()->size().width();
+              copyright->size[YY]     = (int) copyright->document()->size().height();
+          }
+
+          // allocate QGraphicsTextItem for // url (Header/Footer) //~~~~~~~~~~~~~~~~
+          if (page->meta.LPub.page.url.display.value()) {
+
+              // URL
               PlacementData pld = url->placement.value();
-              if (pld.relativeTo == PageType) {
-                  plPage.appendRelativeTo(url);
-                  plPage.placeRelative(url);
-                } else if (pld.relativeTo == PageHeaderType) {
+             if (pld.relativeTo == PageHeaderType) {
                   pageHeader.placeRelative(url);
                 } else if (pld.relativeTo == PageFooterType) {
                   pageFooter.placeRelative(url);
@@ -419,7 +443,6 @@ int Gui::addGraphicsPageItems(
                            page->meta.LPub.page.author.display.value()) {
                   author->placeRelative(url);
                 } else {
-                  url->placement.setValue(TopLeftInsideCorner,PageType);
                   plPage.appendRelativeTo(url);
                   plPage.placeRelative(url);
                 }
@@ -429,17 +452,9 @@ int Gui::addGraphicsPageItems(
           // allocate QGraphicsTextItem for // email (Header/Footer) //~~~~~~~~~~~~~~~~
           if (page->meta.LPub.page.email.display.value()) {
 
-
-              email               = new PageAttributeTextItem(page,page->meta.LPub.page.email,pageBg);
-              email->relativeType = PageEmailType;
-              email->size[XX]     = (int) email->document()->size().width();
-              email->size[YY]     = (int) email->document()->size().height();
-
+              //Email
               PlacementData pld = email->placement.value();
-              if (pld.relativeTo == PageType) {
-                  plPage.appendRelativeTo(email);
-                  plPage.placeRelative(email);
-                } else if (pld.relativeTo == PageHeaderType) {
+              if (pld.relativeTo == PageHeaderType) {
                   pageHeader.placeRelative(email);
                 } else if (pld.relativeTo == PageFooterType) {
                   pageFooter.placeRelative(email);
@@ -455,7 +470,6 @@ int Gui::addGraphicsPageItems(
                            page->meta.LPub.page.author.display.value()) {
                   author->placeRelative(email);
                 } else {
-                  email->placement.setValue(TopRightInsideCorner,PageType);
                   plPage.appendRelativeTo(email);
                   plPage.placeRelative(email);
                 }
@@ -465,16 +479,9 @@ int Gui::addGraphicsPageItems(
           // allocate QGraphicsTextItem for // author (Header/Footer) //~~~~~~~~~~~~~~~~
           if (page->meta.LPub.page.author.display.value()) {
 
-              author               = new PageAttributeTextItem(page,page->meta.LPub.page.author,pageBg);
-              author->relativeType = PageAuthorType;
-              author->size[XX]     = (int) author->document()->size().width();
-              author->size[YY]     = (int) author->document()->size().height();
-
+              // Author
               PlacementData pld = author->placement.value();
-              if (pld.relativeTo == PageType) {
-                  plPage.appendRelativeTo(author);
-                  plPage.placeRelative(author);
-                } else if (pld.relativeTo == PageHeaderType) {
+              if (pld.relativeTo == PageHeaderType) {
                   pageHeader.placeRelative(author);
                 } else if (pld.relativeTo == PageFooterType) {
                   pageFooter.placeRelative(author);
@@ -490,7 +497,6 @@ int Gui::addGraphicsPageItems(
                            page->meta.LPub.page.copyright.display.value()) {
                   copyright->placeRelative(author);
                 } else {
-                  author->placement.setValue(BottomRightInsideCorner,PageType);
                   plPage.appendRelativeTo(author);
                   plPage.placeRelative(author);
                 }
@@ -501,16 +507,9 @@ int Gui::addGraphicsPageItems(
           // allocate QGraphicsTextItem for // copyright (Header/Footer) //~~~~~~~~~~~~~~~~
           if (page->meta.LPub.page.copyright.display.value()) {
 
-              copyright               = new PageAttributeTextItem(page,page->meta.LPub.page.copyright,pageBg);
-              copyright->relativeType = PageCopyrightType;
-              copyright->size[XX]     = (int) copyright->document()->size().width();
-              copyright->size[YY]     = (int) copyright->document()->size().height();
-
+              //Copyright
               PlacementData pld = copyright->placement.value();
-              if (pld.relativeTo == PageType) {
-                  plPage.appendRelativeTo(copyright);
-                  plPage.placeRelative(copyright);
-                } else if (pld.relativeTo == PageHeaderType) {
+              if (pld.relativeTo == PageHeaderType) {
                   pageHeader.placeRelative(copyright);
                 } else if (pld.relativeTo == PageFooterType) {
                   pageFooter.placeRelative(copyright);
@@ -526,7 +525,6 @@ int Gui::addGraphicsPageItems(
                            page->meta.LPub.page.author.display.value()) {
                   author->placeRelative(copyright);
                 } else {
-                  copyright->placement.setValue(BottomLeftInsideCorner,PageType);
                   plPage.appendRelativeTo(copyright);
                   plPage.placeRelative(copyright);
                 }
@@ -721,6 +719,62 @@ int Gui::addGraphicsPageItems(
   // Process Front and Back Cover Pages - if selected
   if (page->coverPage && page->frontCover) {
 
+      bool enableTitleFront = page->meta.LPub.page.titleFront.display.value();
+      bool breakTitleFrontRelativeTo = false;
+      PlacementData titleFrontPld;
+      if (enableTitleFront) {
+
+          titleFront               = new PageAttributeTextItem(page,page->meta.LPub.page.titleFront,pageBg);
+          titleFront->relativeType = PageTitleType;
+          titleFront->size[XX]     = (int) titleFront->document()->size().width();
+          titleFront->size[YY]     = (int) titleFront->document()->size().height();
+
+          titleFrontPld = titleFront->placement.value();
+          breakTitleFrontRelativeTo = titleFrontPld.relativeTo != PageType;
+      }
+
+      bool enableAuthorFront = page->meta.LPub.page.authorFront.display.value();
+      bool breakAuthorFrontRelativeTo = false;
+      PlacementData authorFrontPld;
+      if (enableAuthorFront) {
+
+          authorFront               = new PageAttributeTextItem(page,page->meta.LPub.page.authorFront,pageBg);
+          authorFront->relativeType = PageAuthorType;
+          authorFront->size[XX]     = (int) authorFront->document()->size().width();
+          authorFront->size[YY]     = (int) authorFront->document()->size().height();
+
+          authorFrontPld = authorFront->placement.value();
+          breakAuthorFrontRelativeTo = authorFrontPld.relativeTo != PageTitleType;
+      }
+
+      bool enablePiecesFront = page->meta.LPub.page.pieces.display.value();
+      bool breakPiecesFrontRelativeTo = false;
+      PlacementData piecesFrontPld;
+      if (enablePiecesFront) {
+
+          piecesFront               = new PageAttributeTextItem(page,page->meta.LPub.page.pieces,pageBg);
+          piecesFront->relativeType = PagePiecesType;
+          piecesFront->size[XX]     = (int) piecesFront->document()->size().width();
+          piecesFront->size[YY]     = (int) piecesFront->document()->size().height();
+
+          piecesFrontPld = piecesFront->placement.value();
+          breakPiecesFrontRelativeTo = piecesFrontPld.relativeTo != PageAuthorType;
+      }
+
+      bool enableModelDescFront = page->meta.LPub.page.modelDesc.display.value();
+      bool breakModelDescFrontRelativeTo = false;
+      PlacementData modelDescFrontPld;
+      if (enableModelDescFront) {
+
+          modelDescFront               = new PageAttributeTextItem(page,page->meta.LPub.page.modelDesc,pageBg);
+          modelDescFront->relativeType = PageModelDescType;
+          modelDescFront->size[XX]     = (int) modelDescFront->document()->size().width();
+          modelDescFront->size[YY]     = (int) modelDescFront->document()->size().height();
+
+          modelDescFrontPld = modelDescFront->placement.value();
+          breakModelDescFrontRelativeTo = modelDescFrontPld.relativeTo != PagePiecesType;
+      }
+
       // allocate QGraphicsTextItem for // page Header (Front Cover) //~~~~~~~~~~~~~~~~
       pageHeader.relativeType   = PageHeaderType;
       pageHeader.placement      = page->meta.LPub.page.pageHeader.placement;
@@ -744,24 +798,13 @@ int Gui::addGraphicsPageItems(
       pageFooter.setPos(pageFooter.loc[XX],pageFooter.loc[YY]);
 
       // allocate QGraphicsTextItem for // title (Front Cover) //~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.titleFront.display.value()) {
+      if (enableTitleFront) {
 
-          titleFront               = new PageAttributeTextItem(page,page->meta.LPub.page.titleFront,pageBg);
-          titleFront->relativeType = PageTitleType;
-          titleFront->size[XX]     = (int) titleFront->document()->size().width();
-          titleFront->size[YY]     = (int) titleFront->document()->size().height();
+          plPage.appendRelativeTo(titleFront);
+          plPage.placeRelative(titleFront);
 
-          PlacementData pld = titleFront->placement.value();
-          if (pld.relativeTo == PageType) {
-              plPage.appendRelativeTo(titleFront);
-              plPage.placeRelative(titleFront);
-            } else {
-              titleFront->placement.setValue(LeftInside,PageType);
-              plPage.appendRelativeTo(titleFront);
-              plPage.placeRelative(titleFront);
-            }
           titleFront->setPos(titleFront->loc[XX],titleFront->loc[YY]);
-        }
+      }
 
       // allocate QGraphicsTextItem for // modelName (Front Cover) //~~~~~~~~~~~~~~~~
       if (page->meta.LPub.page.modelName.display.value()) {
@@ -772,14 +815,14 @@ int Gui::addGraphicsPageItems(
           modelNameFront->size[YY]     = (int) modelNameFront->document()->size().height();
 
           PlacementData pld = modelNameFront->placement.value();
-          if (pld.relativeTo == PageType) {
+          if (breakTitleFrontRelativeTo && pld.relativeTo == PageTitleType) {
+              modelNameFront->placement.setValue(RightInside,PageType);
               plPage.appendRelativeTo(modelNameFront);
               plPage.placeRelative(modelNameFront);
             } else if (pld.relativeTo == PageTitleType &&
                        page->meta.LPub.page.titleFront.display.value()) {
               titleFront->placeRelative(modelNameFront);
             } else {
-              modelNameFront->placement.setValue(LeftInside,PageType);
               plPage.appendRelativeTo(modelNameFront);
               plPage.placeRelative(modelNameFront);
             }
@@ -787,22 +830,17 @@ int Gui::addGraphicsPageItems(
         }
 
       // allocate QGraphicsTextItem for // author (Front Cover) //~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.authorFront.display.value()) {
+      if (enableAuthorFront) {
 
-          authorFront               = new PageAttributeTextItem(page,page->meta.LPub.page.authorFront,pageBg);
-          authorFront->relativeType = PageAuthorType;
-          authorFront->size[XX]     = (int) authorFront->document()->size().width();
-          authorFront->size[YY]     = (int) authorFront->document()->size().height();
-
-          PlacementData pld = authorFront->placement.value();
-          if (pld.relativeTo == PageType) {
+          authorFrontPld = authorFront->placement.value();
+          if (breakTitleFrontRelativeTo && authorFrontPld.relativeTo == PageTitleType) {
+              authorFront->placement.setValue(RightInside,PageType);
               plPage.appendRelativeTo(authorFront);
               plPage.placeRelative(authorFront);
-            } else if (pld.relativeTo == PageTitleType &&
+            } else if (authorFrontPld.relativeTo == PageTitleType &&
                        page->meta.LPub.page.titleFront.display.value()) {
               titleFront->placeRelative(authorFront);
             } else {
-              authorFront->placement.setValue(LeftInside,PageType);
               plPage.appendRelativeTo(authorFront);
               plPage.placeRelative(authorFront);
             }
@@ -810,41 +848,39 @@ int Gui::addGraphicsPageItems(
         }
 
       // allocate QGraphicsTextItem for // pieces (Front Cover) //~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.pieces.display.value()) {
+      if (enablePiecesFront) {
 
-          piecesFront               = new PageAttributeTextItem(page,page->meta.LPub.page.pieces,pageBg);
-          piecesFront->relativeType = PagePiecesType;
-          piecesFront->size[XX]     = (int) piecesFront->document()->size().width();
-          piecesFront->size[YY]     = (int) piecesFront->document()->size().height();
-
-          PlacementData pld = piecesFront->placement.value();
-          if (pld.relativeTo == PageType) {
+          piecesFrontPld = piecesFront->placement.value();
+          if (breakAuthorFrontRelativeTo && piecesFrontPld.relativeTo == PageAuthorType) {
+              piecesFront->placement.setValue(RightInside,PageType);
               plPage.appendRelativeTo(piecesFront);
               plPage.placeRelative(piecesFront);
-            } else if (pld.relativeTo == PageAuthorType &&
+            } else if (piecesFrontPld.relativeTo == PageAuthorType &&
                        page->meta.LPub.page.authorFront.display.value()) {
+              authorFront->appendRelativeTo(piecesFront);
               authorFront->placeRelative(piecesFront);
             } else {
-              piecesFront->placement.setValue(LeftInside,PageType);
               plPage.appendRelativeTo(piecesFront);
               plPage.placeRelative(piecesFront);
             }
           piecesFront->setPos(piecesFront->loc[XX],piecesFront->loc[YY]);
         }
       // allocate QGraphicsTextItem for // modelDesc (Front Cover) //~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.modelDesc.display.value()) {
+      if (enableModelDescFront) {
 
-          modelDescFront               = new PageAttributeTextItem(page,page->meta.LPub.page.modelDesc,pageBg);
-          modelDescFront->relativeType = PageModelDescType;
-          modelDescFront->size[XX]     = (int) modelDescFront->document()->size().width();
-          modelDescFront->size[YY]     = (int) modelDescFront->document()->size().height();
-
-          PlacementData pld = page->meta.LPub.page.modelDesc.placement.value();
-          if (pld.relativeTo == PagePiecesType &&
-              page->meta.LPub.page.pieces.display.value()) {
+          modelDescFrontPld = page->meta.LPub.page.modelDesc.placement.value();
+          if (breakPiecesFrontRelativeTo && modelDescFrontPld.relativeTo == PagePiecesType) {
+              modelDescFront->placement.setValue(RightInside,PageType);
+              plPage.appendRelativeTo(modelDescFront);
+              plPage.placeRelative(modelDescFront);
+          } else if (modelDescFrontPld.relativeTo == PagePiecesType &&
+                     page->meta.LPub.page.pieces.display.value()) {
               piecesFront->appendRelativeTo(modelDescFront);
               piecesFront->placeRelative(modelDescFront);
-            }
+          } else {
+              plPage.appendRelativeTo(modelDescFront);
+              plPage.placeRelative(modelDescFront);
+          }
           modelDescFront->setPos(modelDescFront->loc[XX],modelDescFront->loc[YY]);
         }
 
@@ -857,14 +893,15 @@ int Gui::addGraphicsPageItems(
           publishDescFront->size[YY]     = (int) publishDescFront->document()->size().height();
 
           PlacementData pld = publishDescFront->placement.value();
-          if (pld.relativeTo == PageType) {
+          if (breakModelDescFrontRelativeTo && pld.relativeTo == PageModelDescType) {
+              publishDescFront->placement.setValue(RightInside,PageType);
               plPage.appendRelativeTo(publishDescFront);
               plPage.placeRelative(publishDescFront);
             } else if (pld.relativeTo == PageModelDescType &&
                        page->meta.LPub.page.modelDesc.display.value()) {
+              modelDescFront->appendRelativeTo(publishDescFront);
               modelDescFront->placeRelative(publishDescFront);
             } else {
-              publishDescFront->placement.setValue(LeftInside,PageType);
               plPage.appendRelativeTo(publishDescFront);
               plPage.placeRelative(publishDescFront);
             }
@@ -918,11 +955,7 @@ int Gui::addGraphicsPageItems(
               int margin[2] = {0, 0};
 
               PlacementData pld = pixmapLogoFront->placement.value();
-              if (pld.relativeTo == PageType) {
-                  plPage.placeRelative(pixmapLogoFront, margin);
-                  pixmapLogoFront->relativeToSize[0] = plPage.size[XX];
-                  pixmapLogoFront->relativeToSize[1] = plPage.size[YY];
-                } else if (pld.relativeTo == PageHeaderType) {
+              if (pld.relativeTo == PageHeaderType) {
                   pageHeader.placeRelative(pixmapLogoFront, margin);
                   pixmapLogoFront->relativeToSize[0] = pageHeader.size[XX];
                   pixmapLogoFront->relativeToSize[1] = pageHeader.size[YY];
@@ -931,7 +964,6 @@ int Gui::addGraphicsPageItems(
                   pixmapLogoFront->relativeToSize[0] = pageFooter.size[XX];
                   pixmapLogoFront->relativeToSize[1] = pageFooter.size[YY];
                 } else {
-                  pixmapLogoFront->placement.setValue(TopLeftInsideCorner,PageType);
                   plPage.placeRelative(pixmapLogoFront, margin);
                   pixmapLogoFront->relativeToSize[0] = plPage.size[XX];
                   pixmapLogoFront->relativeToSize[1] = plPage.size[YY];
@@ -965,13 +997,8 @@ int Gui::addGraphicsPageItems(
 
               int margin[2] = {0, 0};
 
-              PlacementData pld = pixmapCoverImageFront->placement.value();
-              if (pld.relativeTo == PageType) {
-                  plPage.placeRelative(pixmapCoverImageFront, margin);
-                } else {
-                  pixmapCoverImageFront->placement.setValue(CenterCenter,PageType);
-                  plPage.placeRelative(pixmapCoverImageFront, margin);
-                }
+              plPage.placeRelative(pixmapCoverImageFront, margin);
+
               pixmapCoverImageFront->relativeToSize[0] = plPage.size[XX];
               pixmapCoverImageFront->relativeToSize[1] = plPage.size[YY];
               pixmapCoverImageFront->setPos(pixmapCoverImageFront->loc[XX],pixmapCoverImageFront->loc[YY]);
@@ -981,6 +1008,105 @@ int Gui::addGraphicsPageItems(
     }
 
   if (page->coverPage && page->backCover){
+
+      // reltaitve to checks
+      bool enableTitleBack = page->meta.LPub.page.titleBack.display.value();
+      bool breakTitleBackRelativeTo = false;
+      PlacementData titleBackPld;
+      if (enableTitleBack) {
+
+          titleBack               = new PageAttributeTextItem(page,page->meta.LPub.page.titleBack,pageBg);
+          titleBack->relativeType = PageTitleType;
+          titleBack->size[XX]     = (int) titleBack->document()->size().width();
+          titleBack->size[YY]     = (int) titleBack->document()->size().height();
+
+          titleBackPld = titleBack->placement.value();
+          breakTitleBackRelativeTo = titleBackPld.relativeTo != PageType;
+      }
+
+      bool enableAuthorBack = page->meta.LPub.page.authorBack.display.value();
+      bool breakAuthorBackRelativeTo = false;
+      PlacementData authorBackPld;
+      if (enableAuthorBack) {
+
+          authorBack               = new PageAttributeTextItem(page,page->meta.LPub.page.authorBack,pageBg);
+          authorBack->relativeType = PageAuthorType;
+          authorBack->size[XX]     = (int) authorBack->document()->size().width();
+          authorBack->size[YY]     = (int) authorBack->document()->size().height();
+
+          authorBackPld = authorBack->placement.value();
+          breakAuthorBackRelativeTo = authorBackPld.relativeTo != PageTitleType;
+      }
+
+      bool enableCopyrightBack = page->meta.LPub.page.modelDesc.display.value();
+      bool breakCopyrightBackRelativeTo = false;
+      PlacementData copyrightBackPld;
+      if (enableCopyrightBack) {
+
+          copyrightBack               = new PageAttributeTextItem(page,page->meta.LPub.page.copyrightBack,pageBg);
+          copyrightBack->relativeType = PageCopyrightType;
+          copyrightBack->size[XX]     = (int) copyrightBack->document()->size().width();
+          copyrightBack->size[YY]     = (int) copyrightBack->document()->size().height();
+
+          copyrightBackPld = copyrightBack->placement.value();
+          breakCopyrightBackRelativeTo = copyrightBackPld.relativeTo != PageAuthorType;
+      }
+
+      bool enableurlBack = page->meta.LPub.page.pieces.display.value();
+      bool breakURLBackRelativeTo = false;
+      PlacementData urlBackPld;
+      if (enableurlBack) {
+
+          urlBack               = new PageAttributeTextItem(page,page->meta.LPub.page.urlBack,pageBg);
+          urlBack->relativeType = PageURLType;
+          urlBack->size[XX]     = (int) urlBack->document()->size().width();
+          urlBack->size[YY]     = (int) urlBack->document()->size().height();
+
+          urlBackPld = urlBack->placement.value();
+          breakURLBackRelativeTo = urlBackPld.relativeTo != PageCopyrightType;
+      }
+
+      bool enableEmailBack = page->meta.LPub.page.pieces.display.value();
+      bool breakEmailBackRelativeTo = false;
+      PlacementData emailBackPld;
+      if (enableEmailBack) {
+
+          emailBack               = new PageAttributeTextItem(page,page->meta.LPub.page.emailBack,pageBg);
+          emailBack->relativeType = PageEmailType;
+          emailBack->size[XX]     = (int) emailBack->document()->size().width();
+          emailBack->size[YY]     = (int) emailBack->document()->size().height();
+
+          emailBackPld = emailBack->placement.value();
+          breakEmailBackRelativeTo = emailBackPld.relativeTo != PageURLType;
+      }
+
+      bool enableDisclaimerBack = page->meta.LPub.page.modelDesc.display.value();
+      bool breakDisclaimerBackRelativeTo = false;
+      PlacementData disclaimerBackPld;
+      if (enableDisclaimerBack) {
+
+          disclaimerBack               = new PageAttributeTextItem(page,page->meta.LPub.page.disclaimer,pageBg);
+          disclaimerBack->relativeType = PageDisclaimerType;
+          disclaimerBack->size[XX]     = (int) disclaimerBack->document()->size().width();
+          disclaimerBack->size[YY]     = (int) disclaimerBack->document()->size().height();
+
+          disclaimerBackPld = disclaimerBack->placement.value();
+          breakDisclaimerBackRelativeTo = disclaimerBackPld.relativeTo != PageEmailType;
+      }
+
+      bool enablePlugBack = page->meta.LPub.page.plug.display.value();
+      bool breakPlugBackRelativeTo = false;
+      PlacementData plugBackPld;
+      if (enablePlugBack) {
+
+          plugBack               = new PageAttributeTextItem(page,page->meta.LPub.page.plug,pageBg);
+          plugBack->relativeType = PagePlugType;
+          plugBack->size[XX]     = (int) plugBack->document()->size().width();
+          plugBack->size[YY]     = (int) plugBack->document()->size().height();
+
+          plugBackPld = plugBack->placement.value();
+          breakPlugBackRelativeTo = plugBackPld.relativeTo != PageDisclaimerType;
+      }
 
       // allocate QGraphicsTextItem for // page Header (Back Cover) //~~~~~~~~~~~~~~~~
       pageHeader.relativeType   = PageHeaderType;
@@ -1005,42 +1131,27 @@ int Gui::addGraphicsPageItems(
       pageFooter.setPos(pageFooter.loc[XX],pageFooter.loc[YY]);
 
       // allocate QGraphicsTextItem for // title (Back Cover) //~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.titleBack.display.value()) {
+      if (enableTitleBack) {
 
-          titleBack               = new PageAttributeTextItem(page,page->meta.LPub.page.titleBack,pageBg);
-          titleBack->relativeType = PageTitleType;
-          titleBack->size[XX]     = (int) titleBack->document()->size().width();
-          titleBack->size[YY]     = (int) titleBack->document()->size().height();
+          plPage.appendRelativeTo(titleBack);
+          plPage.placeRelative(titleBack);
 
-          PlacementData pld = page->meta.LPub.page.titleBack.placement.value();
-          if (pld.relativeTo == PageType) {
-              plPage.appendRelativeTo(titleBack);
-              plPage.placeRelative(titleBack);
-            } else {
-              titleBack->placement.setValue(CenterCenter,PageType);
-              plPage.appendRelativeTo(titleBack);
-              plPage.placeRelative(titleBack);
-            }
           titleBack->setPos(titleBack->loc[XX],titleBack->loc[YY]);
         }
 
       // allocate QGraphicsTextItem for // author (Back) //~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.authorBack.display.value()) {
+      if (enableAuthorBack) {
 
-          authorBack               = new PageAttributeTextItem(page,page->meta.LPub.page.authorBack,pageBg);
-          authorBack->relativeType = PageAuthorType;
-          authorBack->size[XX]     = (int) authorBack->document()->size().width();
-          authorBack->size[YY]     = (int) authorBack->document()->size().height();
-
-          PlacementData pld = authorBack->placement.value();
-          if (pld.relativeTo == PageType) {
+          authorBackPld = authorBack->placement.value();
+          if (breakTitleBackRelativeTo && authorBackPld.relativeTo == PageTitleType) {
+              authorBack->placement.setValue(CenterCenter,PageType);
               plPage.appendRelativeTo(authorBack);
               plPage.placeRelative(authorBack);
-            } else if (pld.relativeTo == PageTitleType &&
+            } else if (authorBackPld.relativeTo == PageTitleType &&
                        page->meta.LPub.page.titleBack.display.value()) {
+              titleBack->appendRelativeTo(authorBack);
               titleBack->placeRelative(authorBack);
             } else {
-              authorBack->placement.setValue(CenterCenter,PageType);
               plPage.appendRelativeTo(authorBack);
               plPage.placeRelative(authorBack);
             }
@@ -1048,22 +1159,18 @@ int Gui::addGraphicsPageItems(
         }
 
       // allocate QGraphicsTextItem for // copyright (Back) //~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.copyrightBack.display.value()) {
+      if (enableCopyrightBack) {
 
-          copyrightBack               = new PageAttributeTextItem(page,page->meta.LPub.page.copyrightBack,pageBg);
-          copyrightBack->relativeType = PageCopyrightType;
-          copyrightBack->size[XX]     = (int) copyrightBack->document()->size().width();
-          copyrightBack->size[YY]     = (int) copyrightBack->document()->size().height();
-
-          PlacementData pld = copyrightBack->placement.value();
-          if (pld.relativeTo == PageType) {
+          copyrightBackPld = copyrightBack->placement.value();
+          if (breakAuthorBackRelativeTo && copyrightBackPld.relativeTo == PageAuthorType) {
+              copyrightBack->placement.setValue(LeftInside,PageType);
               plPage.appendRelativeTo(copyrightBack);
               plPage.placeRelative(copyrightBack);
-            } else if (pld.relativeTo == PageAuthorType &&
+            } else if (copyrightBackPld.relativeTo == PageAuthorType &&
                        page->meta.LPub.page.authorBack.display.value()) {
+              authorBack->appendRelativeTo(copyrightBack);
               authorBack->placeRelative(copyrightBack);
             } else {
-              copyrightBack->placement.setValue(CenterCenter,PageType);
               plPage.appendRelativeTo(copyrightBack);
               plPage.placeRelative(copyrightBack);
             }
@@ -1071,22 +1178,18 @@ int Gui::addGraphicsPageItems(
         }
 
       // allocate QGraphicsTextItem for // url (Back) //~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.urlBack.display.value()) {
+      if (enableurlBack) {
 
-          urlBack               = new PageAttributeTextItem(page,page->meta.LPub.page.urlBack,pageBg);
-          urlBack->relativeType = PageURLType;
-          urlBack->size[XX]     = (int) urlBack->document()->size().width();
-          urlBack->size[YY]     = (int) urlBack->document()->size().height();
-
-          PlacementData pld = urlBack->placement.value();
-          if (pld.relativeTo == PageType) {
+          urlBackPld = urlBack->placement.value();
+          if (breakCopyrightBackRelativeTo && urlBackPld.relativeTo == PageCopyrightType) {
+              urlBack->placement.setValue(LeftInside,PageType);
               plPage.appendRelativeTo(urlBack);
               plPage.placeRelative(urlBack);
-            } else if (pld.relativeTo == PageCopyrightType &&
+            } else if (urlBackPld.relativeTo == PageCopyrightType &&
                        page->meta.LPub.page.copyrightBack.display.value()) {
+              copyrightBack->appendRelativeTo(urlBack);
               copyrightBack->placeRelative(urlBack);
             } else {
-              urlBack->placement.setValue(CenterCenter,PageType);
               plPage.appendRelativeTo(urlBack);
               plPage.placeRelative(urlBack);
             }
@@ -1094,22 +1197,18 @@ int Gui::addGraphicsPageItems(
         }
 
       // allocate QGraphicsTextItem for // emailBack (Back) //~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.emailBack.display.value()) {
+      if (enableEmailBack) {
 
-          emailBack               = new PageAttributeTextItem(page,page->meta.LPub.page.emailBack,pageBg);
-          emailBack->relativeType = PageEmailType;
-          emailBack->size[XX]     = (int) emailBack->document()->size().width();
-          emailBack->size[YY]     = (int) emailBack->document()->size().height();
-
-          PlacementData pld = emailBack->placement.value();
-          if (pld.relativeTo == PageType) {
+          emailBackPld = emailBack->placement.value();
+          if (breakURLBackRelativeTo && emailBackPld.relativeTo == PageURLType) {
+              emailBack->placement.setValue(RightInside,PageType);
               plPage.appendRelativeTo(emailBack);
               plPage.placeRelative(emailBack);
-            } else if (pld.relativeTo == PageURLType &&
+            } else if (emailBackPld.relativeTo == PageURLType &&
                        page->meta.LPub.page.urlBack.display.value()) {
+              urlBack->appendRelativeTo(emailBack);
               urlBack->placeRelative(emailBack);
             } else {
-              emailBack->placement.setValue(CenterCenter,PageType);
               plPage.appendRelativeTo(emailBack);
               plPage.placeRelative(emailBack);
             }
@@ -1117,22 +1216,18 @@ int Gui::addGraphicsPageItems(
         }
 
       // allocate QGraphicsTextItem for // disclaimer (Back Cover)//~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.disclaimer.display.value() ) {
+      if (enableDisclaimerBack) {
 
-          disclaimerBack               = new PageAttributeTextItem(page,page->meta.LPub.page.disclaimer,pageBg);
-          disclaimerBack->relativeType = PageDisclaimerType;
-          disclaimerBack->size[XX]     = (int) disclaimerBack->document()->size().width();
-          disclaimerBack->size[YY]     = (int) disclaimerBack->document()->size().height();
-
-          PlacementData pld = disclaimerBack->placement.value();
-          if (pld.relativeTo == PageType) {
+          disclaimerBackPld = disclaimerBack->placement.value();
+          if (breakEmailBackRelativeTo && disclaimerBackPld.relativeTo == PageEmailType) {
+              disclaimerBack->placement.setValue(RightInside,PageType);
               plPage.appendRelativeTo(disclaimerBack);
               plPage.placeRelative(disclaimerBack);
-            } else if (pld.relativeTo == PageEmailType &&
+            } else if (disclaimerBackPld.relativeTo == PageEmailType &&
                        page->meta.LPub.page.emailBack.display.value()) {
+              emailBack->appendRelativeTo(disclaimerBack);
               emailBack->placeRelative(disclaimerBack);
             } else {
-              disclaimerBack->placement.setValue(CenterCenter,PageType);
               plPage.appendRelativeTo(disclaimerBack);
               plPage.placeRelative(disclaimerBack);
             }
@@ -1140,22 +1235,18 @@ int Gui::addGraphicsPageItems(
         }
 
       // allocate QGraphicsTextItem for // plug (Back Cover)//~~~~~~~~~~~~~~~~
-      if (page->meta.LPub.page.plug.display.value() ) {
+      if (enablePlugBack) {
 
-          plugBack               = new PageAttributeTextItem(page,page->meta.LPub.page.plug,pageBg);
-          plugBack->relativeType = PagePlugType;
-          plugBack->size[XX]     = (int) plugBack->document()->size().width();
-          plugBack->size[YY]     = (int) plugBack->document()->size().height();
-
-          PlacementData pld = plugBack->placement.value();
-          if (pld.relativeTo == PageType) {
+          PlacementData plugBackPld = plugBack->placement.value();
+          if (breakDisclaimerBackRelativeTo && plugBackPld.relativeTo == PageDisclaimerType) {
+              plugBack->placement.setValue(RightInside,PageType);
               plPage.appendRelativeTo(plugBack);
               plPage.placeRelative(plugBack);
-            } else if (pld.relativeTo == PageDisclaimerType &&
+            } else if (plugBackPld.relativeTo == PageDisclaimerType &&
                        page->meta.LPub.page.disclaimer.display.value()) {
+              disclaimerBack->appendRelativeTo(plugBack);
               disclaimerBack->placeRelative(plugBack);
             } else {
-              plugBack->placement.setValue(CenterCenter,PageType);
               plPage.appendRelativeTo(plugBack);
               plPage.placeRelative(plugBack);
             }
@@ -1186,11 +1277,7 @@ int Gui::addGraphicsPageItems(
               int margin[2] = {0, 0};
 
               PlacementData pld = pixmapLogoBack->placement.value();
-              if (pld.relativeTo == PageType) {
-                  plPage.placeRelative(pixmapLogoBack, margin);
-                  pixmapLogoBack->relativeToSize[0] = plPage.size[XX];
-                  pixmapLogoBack->relativeToSize[1] = plPage.size[YY];
-                } else if (pld.relativeTo == PageHeaderType) {
+              if (pld.relativeTo == PageHeaderType) {
                   pageHeader.placeRelative(pixmapLogoBack, margin);
                   pixmapLogoBack->relativeToSize[0] = pageHeader.size[XX];
                   pixmapLogoBack->relativeToSize[1] = pageHeader.size[YY];
@@ -1199,7 +1286,6 @@ int Gui::addGraphicsPageItems(
                   pixmapLogoBack->relativeToSize[0] = pageFooter.size[XX];
                   pixmapLogoBack->relativeToSize[1] = pageFooter.size[YY];
                 } else {
-                  pixmapLogoBack->placement.setValue(TopInside,PageType);
                   plPage.placeRelative(pixmapLogoBack, margin);
                   pixmapLogoBack->relativeToSize[0] = plPage.size[XX];
                   pixmapLogoBack->relativeToSize[1] = plPage.size[YY];
@@ -1232,12 +1318,11 @@ int Gui::addGraphicsPageItems(
               int margin[2] = {0, 0};
 
               PlacementData pld = pixmapPlugImageBack->placement.value();
-              if (pld.relativeTo == PageType) {
+              if (breakPlugBackRelativeTo && pld.relativeTo == PagePlugType) {
                   plPage.placeRelative(pixmapPlugImageBack, margin);
                 } else if (pld.relativeTo == PagePlugType) {
                   plugBack->placeRelative(pixmapPlugImageBack, margin);
                 } else {
-                  pixmapLogoBack->placement.setValue(TopInside,PageType);
                   plPage.placeRelative(pixmapLogoBack, margin);
                 }
               pixmapPlugImageBack->setPos(pixmapPlugImageBack->loc[XX],pixmapPlugImageBack->loc[YY]);
@@ -1441,6 +1526,7 @@ int Gui::addGraphicsPageItems(
                 }
             }
         }
+
     } else {
 
       // qDebug() << "List relative type: " << RelNames[range->relativeType];

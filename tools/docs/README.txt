@@ -2,7 +2,51 @@ LPub3D 2.0.11.793.2
  
 Features and enhancements 
 ------------
-Fix: Disable appropriate UI menu items if no document loaded (r802)
+Fix: Front and back cover page attribute placement (r802)
+ * By default cover page attributes are placed relative to each other (with one anchor placed relative to the page) on the front and back cover pages. Independent page attributes are by default placed relative to the page. The new behaviour will break the dependency (placing the dependent attribute relative to the page) if the attribute depended upon is not respecting it's default placement relation (i.e. its relation has changed to page). I imagine this is more complex that it probably should be but the aim was to automatically place the attributes on model load so young/novice users would not have to fuss with even more complex configuration. 
+ The quirk remaining is when you change placement relative on an attribute depended upon by another, the dependent attributes will obviously follow the position of the newly placed attribute. This may confuse users as it can be perceived as a bug. There are two ways around this when repositioning cover page attributes. One is to not change placement relation but use the drag functionality and; two, from thee bottom-up, set dependent attributes placement relation to page. 
+ All attributes are optionally viewable. If a depended upon attribute is not visible, its dependant attribute is automatically placed relative to the page.
+ Here is the the placement relation table - any attribute not placed relative to the page is dependent:
+ 
+   * Front Cover Default Attribute Placements
+  *************************************
+  *   Logo                            *  (Top Left of Page) [Independent]
+  *                                   *
+  *   ModelName                       *  (Top of Title) [Dependent]
+  *   Title                           *  (Left Centre of Page) [Anchor]
+  *   Author                          *  (Bottom of Title) [Dependent]
+  *   Pieces                          *  (Bottom of Author) [Dependent]
+  *   Model Description               *  (Bottom of Pieces) [Dependent]
+  *   Publisher Description           *  (Bottom of Model Description) [Dependent]
+  *                                   *
+  *************************************
+
+  * Header/Footer Default Attribute Placements
+  * ***********************************
+  * URL (Top Left of Page)            Email (Top Right of Page)
+  * ***********************************
+  * *                                 *
+  * *                                 *
+  * *                                 *
+  * *                                 *
+  * ***********************************
+  * Copyright (Bottom Left of Page)   Author (Bottom Right of Page)
+  * ***********************************
+
+  * Back Cover Default Attribute Placements
+  * **********************************
+  *               Logo               *  (Top of Page) [Independent]
+  *  Title                           *  (Centre of Page) [Anchor]
+  *  Author                          *  (Bottom of Title) [Dependent]
+  *  Copyright                       *  (Bottom of Author) [Dependent]
+  *  URL                             *  (Bottom of Copyright) [Dependent]
+  *  Email                           *  (Bottom of URL) [Dependent]
+  *  LEGO Disclaimer                 *  (Bottom of Email) [Dependent]
+  *  LPub3D Plug                     *  (Bottom of LEGO Disclaimer)
+  *  LPub3D Plug Image               *  (Bottom of Page) [Independent]
+  *                                  *
+  ************************************
+Fix: Disable appropriate UI menu items if no document loaded (r801)
  * Improve user interface guidance and efficiency. The aim is to better automate the user experience.
 Fix: Mixed page size and orientation export - pdf, png etc... (r801)
  * One is now able to modify both page size and orientation locally (within the document). This capability applies to both pdf and image exports.
