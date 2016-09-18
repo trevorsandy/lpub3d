@@ -438,6 +438,7 @@ public:
   QString         pageRangeText;    // page range parameters
   bool            mixedPageSize;    // mixed page size and orientation
 
+  bool             m_previewRequest;
   bool             m_cancelPrinting; // cancel print job
   ProgressDialog  *m_progressDialog; // general use progress dialog
   QLabel          *m_progressDlgMessageLbl;
@@ -623,6 +624,7 @@ public slots:
 
   void statusBarMsg(QString msg);
 
+  void showPrintedFile();
   void showLine(const Where &topOfStep)
   {
     displayFile(&ldrawFile,topOfStep.modelName);
@@ -711,6 +713,8 @@ signals:
   void disable3DActionsSig();
 
   void halt3DViewerSig(bool b);
+  void hidePreviewDialogSig();
+  void showPrintedFileSig(int);
 
   // right side progress bar
  void progressBarInitSig();
@@ -759,6 +763,7 @@ private:
   LGraphicsView         *KpageView;       // the visual representation of the scene
   LDrawFile              ldrawFile;       // contains MPD or all files used in model
   QString                curFile;         // the file name for MPD, or top level file
+  QString                pdfPrintedFile;  // the print preview produced pdf file
   QElapsedTimer          timer;           // measure elapsed time for slow functions
   QString                curSubFile;      // whats being displayed in the edit window
   EditWindow            *editWindow;      // the sub file editable by the user
@@ -918,6 +923,7 @@ private slots:
     void zoomOut(LGraphicsView *view);
 
     void GetPixelDimensions(float &, float &);
+    bool validatePageRange();
 
     void ShowPrintDialog();
     bool printToPdfFileDialog();

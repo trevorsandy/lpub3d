@@ -1,119 +1,117 @@
-LPub3D 2.0.11.793.2 
+LPub3D 2.0.11.812.2 
  
 Features and enhancements 
-------------
-Fix: Close model file (r810)
- * Close model file and release all resources.
-Fix: LDraw editor comments not highlighted (r809)
+------------ 
+Fix: Close model file (r810) 
+ * Close model file and release all resources. 
+Fix: LDraw editor comments not highlighted (r809) 
  * LDraw editor will now highlight LDraw line comments '//'. 
- Additionally, LDCad meta commands are also highlighted.
-Fix: Display part count (r809)
- * Part count displayed on status bar at file load.
-Fix: Page size display in Page Setup dialogue does not show accurate size (r808)
- * Conversion rounding error (between inches and centimetres) preventing the right page size index from being identified. Redesign to use single source (inches) converted dynamically between inches and centimetres when needed.
-Fix: Reload at file change prompt (r807)
- * Users are now prompted to reload the model file when the loaded file is changed by an external source. With this fix, one can model the same file with multiple applications at the same time.
-Fix: Configuration parameters editor extra prompt to save before close (r807)
- * LPub3D configuration file editor prompting to save changed content at the both the editor's window close and LPub3D main window close. This behaviour has been corrected to prompt only at editor window close.
-Fix: Part count gives wrong result. (r806)
- * Setting an automatic piece count gives wrong count most of the time in an MPD with multiple submodels and multiple usages of certain same submodels. This behaviour is now corrected. However,the user will have to play a role in configuring her model file to accurately reflect the part count expected. This will undoubtedly require moderate knowledge of LDraw and LPub3D format/logic semantics. The implemented part count capabilities will aim to minimize the intervention of the user but; ultimately, the strength of the part count will depend on the integrity of the model file.
- In LPub3D, three configuration patterns will determine if a part is counted:
- 1. The part file must contain a well formed part <Type> declaration meta.
-	Format:
-	0 !LDRAW_ORG <type> 
-	or
-	0 LDRAW_ORG <type>
-	or
-	0 Unofficial <type> // for this prefix <type> is defined as part
-	Where <type> is defined as part, unofficial_part or unofficial part.
-	Examples: 0 !LDRAW_ORG Part, 0 LDRAW_ORG unofficial_part, 0 LDRAW_ORG unofficial part, 0 unofficial part
-	Note that LPub3D does not look at the file extension to distinguish between types. Therefore, one could have a file named foo.mpd which will be identified as a part if the above meta declaration exist. Conversely, if no declaration is present, foo.dat or foo.ldr will not be identified as a part. This feature can be useful when defining helper parts. For example, leaving out the type declaration in the file uparrow.dat will allow the user to include it in their instructions with out it being counted as a part.
- 2. Using the IGN (ignore) LPub meta will automatically exclude the part lines within from being counted.
-	For example:
+ Additionally, LDCad meta commands are also highlighted. 
+Fix: Display part count (r809) 
+ * Part count displayed on status bar at file load. 
+Fix: Page size display in Page Setup dialogue does not show accurate size (r808) 
+ * Conversion rounding error (between inches and centimetres) preventing the right page size index from being identified. Redesign to use single source (inches) converted dynamically between inches and centimetres when needed. 
+Fix: Reload at file change prompt (r807) 
+ * Users are now prompted to reload the model file when the loaded file is changed by an external source. With this fix, one can model the same file with multiple applications at the same time. 
+Fix: Configuration parameters editor extra prompt to save before close (r807) 
+ * LPub3D configuration file editor prompting to save changed content at the both the editor's window close and LPub3D main window close. This behaviour has been corrected to prompt only at editor window close. 
+Fix: Part count gives wrong result. (r806) 
+ * Setting an automatic piece count gives wrong count most of the time in an MPD with multiple submodels and multiple usages of certain same submodels. This behaviour is now corrected. However,the user will have to play a role in configuring her model file to accurately reflect the part count expected. This will undoubtedly require moderate knowledge of LDraw and LPub3D format/logic semantics. The implemented part count capabilities will aim to minimize the intervention of the user but; ultimately, the strength of the part count will depend on the integrity of the model file. 
+ In LPub3D, three configuration patterns will determine if a part is counted: 
+ 1. The part file must contain a well formed part 
+	Format: 
+	or 
+	or 
+	0 Unofficial  for this prefix  defined as part 
+	Where  defined as part, unofficial_part or unofficial part. 
+	Examples: 0 !LDRAW_ORG Part, 0 LDRAW_ORG unofficial_part, 0 LDRAW_ORG unofficial part, 0 unofficial part 
+	Note that LPub3D does not look at the file extension to distinguish between types. Therefore, one could have a file named foo.mpd which will be identified as a part if the above meta declaration exist. Conversely, if no declaration is present, foo.dat or foo.ldr will not be identified as a part. This feature can be useful when defining helper parts. For example, leaving out the type declaration in the file uparrow.dat will allow the user to include it in their instructions with out it being counted as a part. 
+ 2. Using the IGN (ignore) LPub meta will automatically exclude the part lines within from being counted. 
+	For example: 
 	0 !LPUB PART BEGIN IGN 
-	1 0 0 0 -120 1 0 0 0 1 0 0 0 1 outerrib.ldr
-	1 0 0 0 120 1 0 0 0 1 0 0 0 1 outerrib.ldr
-	1 71 -70.196 804.976 -165 -0.924 -0.383 0 -0.383 0.924 0 0 0 -1 32123a.dat
-	1 71 -218.11 743.75 -165 -0.707 -0.707 0 -0.707 0.707 0 0 0 -1 32123a.dat
-	1 71 -331.064 630.218 -165 -0.383 -0.924 0 -0.924 0.383 0 0 0 -1 32123a.dat
-	1 4 -392.285 322.436 75 -1.00023 -0.000246369 0 0 0 -1 0.000246369 -1.00023 0 arrow108.dat
-	1 4 -331.011 174.559 75 0 0 1 -0.999849 0 0 0 -0.999849 0 arrow108.dat
-	1 4 -217.888 61.481 75 0 0 1 -1.00023 0.000246369 0 -0.000246369 -1.00023 0 arrow108.dat
+	1 0 0 0 -120 1 0 0 0 1 0 0 0 1 outerrib.ldr 
+	1 0 0 0 120 1 0 0 0 1 0 0 0 1 outerrib.ldr 
+	1 71 -70.196 804.976 -165 -0.924 -0.383 0 -0.383 0.924 0 0 0 -1 32123a.dat 
+	1 71 -218.11 743.75 -165 -0.707 -0.707 0 -0.707 0.707 0 0 0 -1 32123a.dat 
+	1 71 -331.064 630.218 -165 -0.383 -0.924 0 -0.924 0.383 0 0 0 -1 32123a.dat 
+	1 4 -392.285 322.436 75 -1.00023 -0.000246369 0 0 0 -1 0.000246369 -1.00023 0 arrow108.dat 
+	1 4 -331.011 174.559 75 0 0 1 -0.999849 0 0 0 -0.999849 0 arrow108.dat 
+	1 4 -217.888 61.481 75 0 0 1 -1.00023 0.000246369 0 -0.000246369 -1.00023 0 arrow108.dat 
 	0 !LPUB PART END 
-	Note that parts in model subfiles within the IGN declaration will also be ignored.
- 3. There is now a part exclusion list under the user data directory ...extras/excludedParts.lst.
- As with the other LPub3D lists, the part exclusion list can be edited from the configuration menu.
- The exclusion list is effective in the scenario where one is using dynamically generated parts such as hoses, string, rope etc... Segment parts, e.g. LSynth's LSXX.dat parts, stickers, LDCad template segments etc... can be excluded from the part count by placing them on the exclusion list.
-Fix: Submodel instance count reflects all the occurrences in the subfile on initial display (r805)
- * An example: when a model has 4x the same submodel, but 2 of those are used in step 10 and the other 2 are used in step 20, LPub3D will create 1x the submodel building steps with a 4x next to it.
+	Note that parts in model subfiles within the IGN declaration will also be ignored. 
+ 3. There is now a part exclusion list under the user data directory ...extras/excludedParts.lst. 
+ As with the other LPub3D lists, the part exclusion list can be edited from the configuration menu. 
+ The exclusion list is effective in the scenario where one is using dynamically generated parts such as hoses, string, rope etc... Segment parts, e.g. LSynth's LSXX.dat parts, stickers, LDCad template segments etc... can be excluded from the part count by placing them on the exclusion list. 
+Fix: Submodel instance count reflects all the occurrences in the subfile on initial display (r805) 
+ * An example: when a model has 4x the same submodel, but 2 of those are used in step 10 and the other 2 are used in step 20, LPub3D will create 1x the submodel building steps with a 4x next to it. 
  LPub3D behaviour will now, optionally, display the submodel instance count reflecting only the number of instances used in the parent step. However, note that there is an efficiency trade-off to this change in the form of more redundant steps in your instructions. 
  For example, if I have 4 occurrences of a submodel in a 3-step model file and I consume 2 in step 1 and 1 each in steps 2 and 2, under the previous behaviour, you would indeed see 4 occurrences of the submodel on its last page - displayed while in parent step 1. The efficiency here is that for step 3 and 3 you will not again enter into the sub model's page(s) on the instructions because all 4 occurrences were already communicated to the user. LPub3D handles this by designating the submodel as being 'rendered' at the first occurrence for the entire model file. 
  For the new behaviour, the submodel is designated as 'rendered' at the first occurrence only for the step in which it is consumed. So subsequent occurrences in the same step will not enter into the submodel page(s). With the new behaviour, as LPub3D would only communicate 2 occurrences consumed in step 1, it will now be necessary to enter into the submodel page(s) on each step a submodel is consumed. This behaviour will not only communicate the remaining occurrences but it will also compel the user to navigate again and again the submodel's page(s). 
- For small models this may not be an issue but for large models or models where a submodel is large and used in many steps, the instructions will be overwhelmed with redundant information.
- To balance this trade-off, I have added an option switch under Project Setup to enable or disable the consolidation of submodel occurrences at the first occurrence of the submodel (by parent model of course) in the instructions.
-Fix: Pdf preview progress bar (r803)
- * Add progress bar to pdf preview dialogue. For large instruction documents it could be good to monitor the progress of the export process.
-Fix: Front and back cover page attribute placement (r802)
+ For small models this may not be an issue but for large models or models where a submodel is large and used in many steps, the instructions will be overwhelmed with redundant information. 
+ To balance this trade-off, I have added an option switch under Project Setup to enable or disable the consolidation of submodel occurrences at the first occurrence of the submodel (by parent model of course) in the instructions. 
+Fix: Pdf preview progress bar (r803) 
+ * Add progress bar to pdf preview dialogue. For large instruction documents it could be good to monitor the progress of the export process. 
+Fix: Front and back cover page attribute placement (r802) 
  * By default cover page attributes are placed relative to each other (with one anchor placed relative to the page) on the front and back cover pages. Independent page attributes are by default placed relative to the page. The new behaviour will break the dependency (placing the dependent attribute relative to the page) if the attribute depended upon is not respecting it's default placement relation (i.e. its relation has changed to page). I imagine this is more complex that it probably should be but the aim was to automatically place the attributes on model load so young/novice users would not have to fuss with even more complex configuration. 
  The quirk remaining is when you change placement relative on an attribute depended upon by another, the dependent attributes will obviously follow the position of the newly placed attribute. This may confuse users as it can be perceived as a bug. There are two ways around this when repositioning cover page attributes. One is to not change placement relation but use the drag functionality and; two, from thee bottom-up, set dependent attributes placement relation to page. 
- All attributes are optionally viewable. If a depended upon attribute is not visible, its dependant attribute is automatically placed relative to the page.
- Here is the the placement relation table - any attribute not placed relative to the page is dependent:
+ All attributes are optionally viewable. If a depended upon attribute is not visible, its dependant attribute is automatically placed relative to the page. 
+ Here is the the placement relation table - any attribute not placed relative to the page is dependent: 
  
-   * Front Cover Default Attribute Placements
-  *************************************
-  *   Logo                            *  (Top Left of Page) [Independent]
-  *                                   *
-  *   ModelName                       *  (Top of Title) [Dependent]
-  *   Title                           *  (Left Centre of Page) [Anchor]
-  *   Author                          *  (Bottom of Title) [Dependent]
-  *   Pieces                          *  (Bottom of Author) [Dependent]
-  *   Model Description               *  (Bottom of Pieces) [Dependent]
-  *   Publisher Description           *  (Bottom of Model Description) [Dependent]
-  *                                   *
-  *************************************
-
-  * Header/Footer Default Attribute Placements
-  * ***********************************
-  * URL (Top Left of Page)            Email (Top Right of Page)
-  * ***********************************
-  * *                                 *
-  * *                                 *
-  * *                                 *
-  * *                                 *
-  * ***********************************
-  * Copyright (Bottom Left of Page)   Author (Bottom Right of Page)
-  * ***********************************
-
-  * Back Cover Default Attribute Placements
-  * **********************************
-  *               Logo               *  (Top of Page) [Independent]
-  *  Title                           *  (Centre of Page) [Anchor]
-  *  Author                          *  (Bottom of Title) [Dependent]
-  *  Copyright                       *  (Bottom of Author) [Dependent]
-  *  URL                             *  (Bottom of Copyright) [Dependent]
-  *  Email                           *  (Bottom of URL) [Dependent]
-  *  LEGO Disclaimer                 *  (Bottom of Email) [Dependent]
-  *  LPub3D Plug                     *  (Bottom of LEGO Disclaimer)
-  *  LPub3D Plug Image               *  (Bottom of Page) [Independent]
-  *                                  *
-  ************************************
-Fix: Disable appropriate UI menu items if no document loaded (r801)
- * Improve user interface guidance and efficiency. The aim is to better automate the user experience.
-Fix: Mixed page size and orientation export - pdf, png etc... (r801)
- * The feature to set local page orientation works on screen, but not in the output in PDF or PNG. One is now able to successfully change both page size and orientation locally (at individual page). This capability applies to both pdf and image exports.
- Additionally, there is now the capability to preview your pdf output using the pdf preview menu item. Note that, as the preview dialogue was natively designed (by Qt) to support print preview, local size and orientation changes (mixed page size and orientation within the document) are not well supported. They will preview within the context of the original page size and orientation. If your document does not contain mixed page size or orientation then the pdf preview functionality should present without issue. 
-  Previously, LPub£D was using the default print engine (with pdf format output) which functions just as a physical printer. This means that as no one is likely to physically print different size pages during the same print run (at least not in standard printing), the pdf printer seemed unhappy when you try to switch page size while the printer is active. LPub3D now uses Qt's pdfWriter. Switching to the pdfWriter engine removes the limitation on both size and orientation while the 'printer' is active.
-Fix: Submodel instance count placement broken (r800)
- *When using page number in alternate corners (like a book) the Submodel instance count is at the wrong place when it is on a odd page number on a single page submodel with a step group. Behaviour corrected and enhanced to detect when submodel instance count is on an odd or even page whereby the position is adjusted right or left of the step number accordingly. This automatic positioning is only available when the submodel instance count is placed relative to the page's step number - its default placement.
-Fix: Refactor fade directory logic (r799)
- *Process fade directories upon application launch and file load more efficiently and effectively.
-Fix: Progress dialogue always stays on top (r797)
- *Proper modality behaviour restored.
-Fix: Print/Export banner (image) rotation broken (r796)
- *Banner rotation updated. Rotation broken by r791.
-Fix: Archive parts terminates on empty search directory folder (r795)
+   * Front Cover Default Attribute Placements 
+  ************************************* 
+  *   Logo                            *  (Top Left of Page) [Independent] 
+  *                                   * 
+  *   ModelName                       *  (Top of Title) [Dependent] 
+  *   Title                           *  (Left Centre of Page) [Anchor] 
+  *   Author                          *  (Bottom of Title) [Dependent] 
+  *   Pieces                          *  (Bottom of Author) [Dependent] 
+  *   Model Description               *  (Bottom of Pieces) [Dependent] 
+  *   Publisher Description           *  (Bottom of Model Description) [Dependent] 
+  *                                   * 
+  ************************************* 
+ 
+  * Header/Footer Default Attribute Placements 
+  * *********************************** 
+  * URL (Top Left of Page)            Email (Top Right of Page) 
+  * *********************************** 
+  * *                                 * 
+  * *                                 * 
+  * *                                 * 
+  * *                                 * 
+  * *********************************** 
+  * Copyright (Bottom Left of Page)   Author (Bottom Right of Page) 
+  * *********************************** 
+ 
+  * Back Cover Default Attribute Placements 
+  * ********************************** 
+  *               Logo               *  (Top of Page) [Independent] 
+  *  Title                           *  (Centre of Page) [Anchor] 
+  *  Author                          *  (Bottom of Title) [Dependent] 
+  *  Copyright                       *  (Bottom of Author) [Dependent] 
+  *  URL                             *  (Bottom of Copyright) [Dependent] 
+  *  Email                           *  (Bottom of URL) [Dependent] 
+  *  LEGO Disclaimer                 *  (Bottom of Email) [Dependent] 
+  *  LPub3D Plug                     *  (Bottom of LEGO Disclaimer) 
+  *  LPub3D Plug Image               *  (Bottom of Page) [Independent] 
+  *                                  * 
+  ************************************ 
+Fix: Disable appropriate UI menu items if no document loaded (r801) 
+ * Improve user interface guidance and efficiency. The aim is to better automate the user experience. 
+Fix: Mixed page size and orientation export - pdf, png etc... (r801) 
+ * The feature to set local page orientation works on screen, but not in the output in PDF or PNG. One is now able to successfully change both page size and orientation locally (at individual page). This capability applies to both pdf and image exports. 
+ Additionally, there is now the [experimental] capability to preview your pdf output using the pdf preview menu item. Note that the preview dialogue uses the Qt native print engine (with pdf format output) to support print preview so mixed page size and orientation within the preview document is not well supported. For the moment, mixed page size and orientation documents will preview using the only the original page size and orientation. Output will be cropped and formatted accordingly. If your document does not contain mixed page size or orientation then the print preview functionality should present as expected. Also, note that printing usually consumes quite a bit of memory so, at this time, printing very large graphic intensive documents may experience abnormal termination. 
+ Previously, LPub£D was using the default print engine (with pdf format output) which functions just as a physical printer. This means that as no one is likely to physically print different size pages during the same print run (at least not in standard printing), the pdf printer seemed unhappy when you try to switch page size while the printer is active. LPub3D now uses Qt's pdfWriter. Switching to the pdfWriter engine removes the limitation on both size and orientation while the 'printer' is active. 
+Fix: Submodel instance count placement broken (r800) 
+ *When using page number in alternate corners (like a book) the Submodel instance count is at the wrong place when it is on a odd page number on a single page submodel with a step group. Behaviour corrected and enhanced to detect when submodel instance count is on an odd or even page whereby the position is adjusted right or left of the step number accordingly. This automatic positioning is only available when the submodel instance count is placed relative to the page's step number - its default placement. 
+Fix: Refactor fade directory logic (r799) 
+ *Process fade directories upon application launch and file load more efficiently and effectively. 
+Fix: Progress dialogue always stays on top (r797) 
+ *Proper modality behaviour restored. 
+Fix: Print/Export banner (image) rotation broken (r796) 
+ *Banner rotation updated. Rotation broken by r791. 
+Fix: Archive parts terminates on empty search directory folder (r795) 
  *Replace return (terminate) with continue. 
-
+ 
 LPub3D 2.0.10.793.2 
  
 Features and enhancements 

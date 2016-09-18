@@ -26,14 +26,16 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
   ui->labelAllPages->setText(QString("1 to %1").arg(gui->maxPages));
   ui->labelCurrentPage->setText(QString("%1").arg(gui->displayPageNum));
 
+  bool preview = gui->m_previewRequest;
+
   switch(gui->exportType){
-    case EXPORT_PDF:
-      setWindowTitle(tr("Print to pdf"));
-      ui->groupBoxPrintOptions->setTitle("Print to pdf options");
-      ui->checkBoxResetCache->setText(tr("Reset all caches before printing pdf"));
-      ui->checkBoxResetCache->setToolTip(tr("Check to clear all caches before printing pdf"));
-      ui->groupBoxMixedPageSize->setEnabled(true);
-      ui->checkBoxMixedPageSize->setChecked(true);
+    case EXPORT_PDF:      
+      setWindowTitle(tr("%1 pdf").arg(preview ? "Preview":"Print to"));
+      ui->groupBoxPrintOptions->setTitle(tr("%1 options").arg(preview ? "Preview":"Print to pdf"));
+      ui->checkBoxResetCache->setText(tr("Reset all caches before %1 pdf").arg(preview ? "previewing":"printing"));
+      ui->checkBoxResetCache->setToolTip(tr("Check to clear all caches before %1 pdf").arg(preview ? "previewing":"printing"));
+      ui->groupBoxMixedPageSize->setEnabled(! preview);
+      ui->checkBoxMixedPageSize->setChecked(! preview);
       break;
     case EXPORT_PNG:
       setWindowTitle(tr("Export as png"));

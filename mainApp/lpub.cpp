@@ -996,6 +996,7 @@ Gui::Gui()
     exportType    = EXPORT_PDF;
     pageRangeText = displayPageNum;
     mixedPageSize = false;
+    m_previewRequest = false;
 
     editWindow    = new EditWindow(this);
     parmsWindow   = new ParmsWindow(this);

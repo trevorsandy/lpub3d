@@ -1397,7 +1397,7 @@ void lcMainWindow::SetLockZ(bool LockZ)
 
 void lcMainWindow::halt3DViewer(bool b){
 
-  qDebug() << "2. lcMainWindow (SLOT) halt3DViewer Status: " << b;
+  logStatus() << "2. lcMainWindow (SLOT) halt3DViewer Status: " << b;
 
   mHalt3DViewer = b;
 
