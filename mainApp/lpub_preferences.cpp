@@ -229,6 +229,9 @@ void Preferences::lpubPreferences()
     paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_TITLE_ANNOTATIONS_FILE));
     if (!paramFile.exists())
         QFile::copy(lpub3dPath + location + paramFile.fileName(), paramFile.absoluteFilePath());
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_EXCLUDED_PARTS_FILE));
+    if (!paramFile.exists())
+        QFile::copy(lpub3dPath + location + paramFile.fileName(), paramFile.absoluteFilePath());
 }
 
 void Preferences::lpub3dLibPreferences(bool force)

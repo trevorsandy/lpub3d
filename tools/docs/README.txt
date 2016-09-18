@@ -1,4 +1,4 @@
-LPub3D 2.0.11.812.2 
+LPub3D 2.0.11.813.2 
  
 Features and enhancements 
 ------------ 

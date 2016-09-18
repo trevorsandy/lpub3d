@@ -135,7 +135,8 @@ ECHO.
 ECHO -Finshed
 ECHO.
 ECHO -If everything went well then, Press any key to EXIT!
+%SystemRoot%\explorer.exe "C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D\tools\release\libraries\"
 PAUSE >NUL
 ENDLOCAL
-EXIT
+EXIT /b 0
 
