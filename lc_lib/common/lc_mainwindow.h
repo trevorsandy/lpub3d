@@ -219,9 +219,15 @@ public:
     QStatusBar* mLCStatusBar;
 
 public slots:
-    //inline void halt3DViewer(bool b){mHalt3DViewer = b;}
+    /*** LPub3D modification 222: - halt viewer ***/
     void halt3DViewer(bool b);
+    /*** LPub3D modification end ***/
+    /*** LPub3D modification 225: - enable actions ***/
     void enable3DActions();
+    /*** LPub3D modification end ***/
+    /*** LPub3D modification 228: - disable actions ***/
+    void disable3DActions();
+    /*** LPub3D modification end ***/
 
 protected slots:
 	void ClipboardChanged();

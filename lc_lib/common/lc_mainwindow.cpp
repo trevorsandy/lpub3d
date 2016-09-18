@@ -772,6 +772,32 @@ void lcMainWindow::enable3DActions(){
 
 }
 
+/*** LPub3D modification 775: - disable actions ***/
+void lcMainWindow::disable3DActions(){
+
+  //File
+  mActions[LC_FILE_SAVEAS]->setEnabled(false);
+  mActions[LC_FILE_SAVE_IMAGE]->setEnabled(false);
+  //Export
+  mActions[LC_FILE_EXPORT_3DS]->setEnabled(false);
+  mActions[LC_FILE_EXPORT_BRICKLINK]->setEnabled(false);
+  mActions[LC_FILE_EXPORT_CSV]->setEnabled(false);
+  mActions[LC_FILE_EXPORT_HTML]->setEnabled(false);
+  mActions[LC_FILE_EXPORT_POVRAY]->setEnabled(false);
+  mActions[LC_FILE_EXPORT_WAVEFRONT]->setEnabled(false);
+  //Tools
+  mActions[LC_EDIT_ROTATESTEP_RELATIVE_ROTATION]->setEnabled(false);
+  mActions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION]->setEnabled(false);
+  mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(false);
+  mActions[LC_EDIT_ACTION_SELECT]->setEnabled(false);
+  mActions[LC_EDIT_ACTION_ROTATE]->setEnabled(false);
+  mActions[LC_EDIT_ACTION_PAN]->setEnabled(false);
+  mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setEnabled(false);
+  mActions[LC_EDIT_ACTION_ZOOM_REGION]->setEnabled(false);
+
+}
+/*** LPub3D modification end ***/
+
 void lcMainWindow::CreateStatusBar()
 {
   setStatusBar(mLCStatusBar);
