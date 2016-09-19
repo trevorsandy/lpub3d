@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: September 19, 2016
+;Last Update: September 20, 2016
 ;Copyright (C) 2016 by Trevor Sandy
 
 ;--------------------------------
@@ -350,7 +350,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   WriteRegStr HKCU "Software\${Company}\${ProductName}\Installation" "InstallPath" $INSTDIR
   
   ;User data setup
-  ${If} $InstallUserData == 1
+  ${If} $InstallUserData == 1		# install user data
 
 	  SetShellVarContext current
 	  !define INSTDIR_AppData "$LOCALAPPDATA\${Company}\${ProductName}"
@@ -376,7 +376,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	  File "..\..\mainApp\extras\pli.mpd"
 	  
 	 ${If} $OverwriteUserDataParamFiles == 0
-	  IfFileExists "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" 0 +3
+	  IfFileExists "${INSTDIR_AppData}\extras\fadeStepColorParts.lst" 0 +2
 	  !insertmacro BackupFile "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppData}\extras\${ProductName}.${MyTIMESTAMP}.bak"
 	  SetOverwrite on
 	  File "..\..\mainApp\extras\fadeStepColorParts.lst"
@@ -398,6 +398,13 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	  
 	  ;Store/Update library folder
 	  WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "PartsLibrary" "${INSTDIR_AppData}\libraries\complete.zip" 
+	  
+  ${Else}				# do not install user data (backup and write new version of fadeStepColorParts.lst if already exist)
+  	  IfFileExists "${INSTDIR_AppData}\extras\fadeStepColorParts.lst" 0 DoNothing
+	  !insertmacro BackupFile "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppData}\extras\${ProductName}.${MyTIMESTAMP}.bak"
+	  SetOverwrite on
+	  File "..\..\mainApp\extras\fadeStepColorParts.lst"
+      DoNothing: 
   ${EndIf}
   
   ;Create uninstaller
