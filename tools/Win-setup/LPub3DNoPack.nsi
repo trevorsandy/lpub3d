@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: September 17, 2016
+;Last Update: September 19, 2016
 ;Copyright (C) 2016 by Trevor Sandy
 
 ;--------------------------------
@@ -349,7 +349,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   ;Store installation folder
   WriteRegStr HKCU "Software\${Company}\${ProductName}\Installation" "InstallPath" $INSTDIR
   
-  ;Use data setup
+  ;User data setup
   ${If} $InstallUserData == 1
 
 	  SetShellVarContext current
@@ -376,7 +376,8 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	  File "..\..\mainApp\extras\pli.mpd"
 	  
 	 ${If} $OverwriteUserDataParamFiles == 0
-	  !insertmacro BackupFile "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppData}\extras\fadeStepColorParts.${MyTIMESTAMP}.bak"
+	  IfFileExists "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" 0 +3
+	  !insertmacro BackupFile "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppData}\extras\${ProductName}.${MyTIMESTAMP}.bak"
 	  SetOverwrite on
 	  File "..\..\mainApp\extras\fadeStepColorParts.lst"
 	  SetOverwrite off
@@ -397,11 +398,6 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	  
 	  ;Store/Update library folder
 	  WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "PartsLibrary" "${INSTDIR_AppData}\libraries\complete.zip" 
-  ${Else} 
-      SetOutPath "${INSTDIR_AppData}\extras"
-	  !insertmacro BackupFile "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppData}\extras\fadeStepColorParts.${MyTIMESTAMP}.bak"
-	  SetOverwrite on
-	  File "..\..\mainApp\extras\fadeStepColorParts.lst"
   ${EndIf}
   
   ;Create uninstaller
@@ -420,6 +416,9 @@ Section "${ProductName} (required)" SecMain${ProductName}
   WriteUninstaller "$INSTDIR\Uninstall.exe"
 
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+  
+    ;set to install directory
+    SetOutPath "$INSTDIR"
   
     ;Create shortcuts
 	SetShellVarContext all
