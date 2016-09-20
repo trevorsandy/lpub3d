@@ -91,8 +91,8 @@ struct pageSizeTypes {
 {"ArchE1",    76.2,   106.7,    30.0,    42.0},
 {"ArchE2",    66.0,    96.5,    26.0,    38.0},
 {"ArchE3",    68.6,    99.1,    27.0,    39.0},
-{"AnsiA",     21.6,    27.9,     8.5,    11.0},
-{"AnsiB",     43.2,    27.9,    17.0,    11.0},
+//{"AnsiA",     21.6,    27.9,     8.5,    11.0},  // Defined as letter
+//{"AnsiB",     43.2,    27.9,    17.0,    11.0},  // Defined as Ledger/Tabloid
 {"AnsiC",     43.2,    55.9,    17.0,    22.0},
 {"AnsiD",     55.9,    86.4,    22.0,    34.0},
 {"AnsiE",    86.4 ,   111.8,    34.0,    44.0},
@@ -1260,7 +1260,7 @@ void PageAttributePictureGui::browsePicture(bool)
     gui,
     tr("Choose Picture File"),
     picture,
-    tr("Picture Files (*.png;*.jpg)"));
+    tr("Image Files (*.png *.jpg *.jpeg *.bmp)"));
   if (foo != "") {
     picture = foo;
     pictureEdit->setText(foo);

@@ -1,4 +1,11 @@
-LPub3D 2.0.11.814.5 
+LPub3D 2.0.12.816.2 
+ 
+Features and enhancements 
+------------ 
+Known Issue: Some JPEG-compressed images are not rendered when inserting this type of image (r818)
+ * This was a Qt bug claimed to be corrected in Qt 5.5.1 (LPub3D uses 5.7); however, the issue seem to persist in Qt 5.7 also. Not all jpg images fail to load. The issue appear to be related to JPeGs with broken EXIF headers only.
+
+LPub3D 2.0.11.816.2 
  
 Features and enhancements 
 ------------ 
@@ -18,12 +25,7 @@ Fix: Configuration parameters editor extra prompt to save before close (r807)
 Fix: Part count gives wrong result. (r806) 
  * Setting an automatic piece count gives wrong count most of the time in an MPD with multiple submodels and multiple usages of certain same submodels. This behaviour is now corrected. However,the user will have to play a role in configuring her model file to accurately reflect the part count expected. This will undoubtedly require moderate knowledge of LDraw and LPub3D format/logic semantics. The implemented part count capabilities will aim to minimize the intervention of the user but; ultimately, the strength of the part count will depend on the integrity of the model file. 
  In LPub3D, three configuration patterns will determine if a part is counted: 
- 1. The part file must contain a well formed part 
-	Format: 
-	or 
-	or 
-	0 Unofficial  for this prefix  defined as part 
-	Where  defined as part, unofficial_part or unofficial part. 
+ 1. The part file must contain a well formed part type meta. 
 	Examples: 0 !LDRAW_ORG Part, 0 LDRAW_ORG unofficial_part, 0 LDRAW_ORG unofficial part, 0 unofficial part 
 	Note that LPub3D does not look at the file extension to distinguish between types. Therefore, one could have a file named foo.mpd which will be identified as a part if the above meta declaration exist. Conversely, if no declaration is present, foo.dat or foo.ldr will not be identified as a part. This feature can be useful when defining helper parts. For example, leaving out the type declaration in the file uparrow.dat will allow the user to include it in their instructions with out it being counted as a part. 
  2. Using the IGN (ignore) LPub meta will automatically exclude the part lines within from being counted. 
