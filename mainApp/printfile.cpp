@@ -293,6 +293,8 @@ bool Gui::exportAsBmpDialog()
 
 void Gui::printToPdfFile()
 {
+  logDebug() << "Mixed Page Size: " << mixedPageSize;
+
   // store current display page number
   int savePageNumber = displayPageNum;
 
@@ -341,62 +343,138 @@ void Gui::printToPdfFile()
 
   // initialize progress bar dialog
   m_progressDialog->setWindowTitle("Print pdf");
-  m_progressDialog->show();
+
 
   if (mixedPageSize) {
-      logStatus() << "Processing mixed page size or orientation parameters...";
 
+      logStatus() << "Processing mixed page size or orientation parameters...";
+      m_progressDialog->show();
       m_progressDlgMessageLbl->setText("Capturing page layouts...");
 
-      // capture all pageLayout
-      _displayPageNum = 1;
-      _maxPages       = maxPages;
-      m_progressDlgProgressBar->setRange(1,_maxPages);
+      if (exportOption != EXPORT_PAGE_RANGE){
 
-      for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
-          if (! exporting()) {
-              m_progressDialog->hide();
-              displayPageNum = savePageNumber;
-              drawPage(KpageView,KpageScene,false);
-              emit messageSig(true,QString("Print to pdf terminated before completion."));
-              return;
+          if(exportOption == EXPORT_ALL_PAGES){
+              _displayPageNum = 1;
+              _maxPages = maxPages;
             }
-          // render this page - to capture display page layout and size
-          drawPage(&view,&scene,true);
-          pageLayouts.insert(displayPageNum, getPageLayout());
-          bool ls = getPageLayout().orientation() == QPageLayout::Landscape;
-          logStatus() << QString("Inserting itemNo %3 Page layout Orientation [%1] for page %2")
-                        .arg(ls ? "Landscape" : "Portrait")
-                        .arg(displayPageNum)
-                        .arg(displayPageNum);
 
-          // determine size of output image, in pixels. dimension are inches * pixels per inch
-          GetPixelDimensions(pageWidthPx, pageHeightPx);
-          FloatPairMeta pgSizeInPx;
-          pgSizeInPx.setValues(pageWidthPx, pageHeightPx);
-          pageSizes.insert(displayPageNum, pgSizeInPx);
-          logStatus() << QString("Inserting itemNo %4: Page size WidthPx %1 x HeigthPx %2 for page %3")
-                        .arg(QString::number(pgSizeInPx.value(0),'f',4),
-                             QString::number(pgSizeInPx.value(1),'f',4))
-                        .arg(displayPageNum)
-                        .arg(displayPageNum);
+          if (exportOption == EXPORT_CURRENT_PAGE){
+              _displayPageNum = displayPageNum;
+              _maxPages       = displayPageNum;
+            }
 
-          m_progressDlgMessageLbl->setText(QString("Capturing page layout %1 of %2").arg(displayPageNum).arg(_maxPages));
-          m_progressDlgProgressBar->setValue(displayPageNum);
-      }
-      clearPage(&view,&scene);
-      m_progressDlgProgressBar->setValue(_maxPages);
+          m_progressDlgProgressBar->setRange(1,_maxPages);
 
+          for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
+              if (! exporting()) {
+                  m_progressDialog->hide();
+                  displayPageNum = savePageNumber;
+                  drawPage(KpageView,KpageScene,false);
+                  emit messageSig(true,QString("Page layout capture terminated before completion."));
+                  return;
+                }
+              // render this page - to capture display page layout and size
+              drawPage(&view,&scene,true);
+              pageLayouts.insert(displayPageNum, getPageLayout());
+              bool ls = getPageLayout().orientation() == QPageLayout::Landscape;
+              logStatus() << QString("Inserting layout for page %2 of %3: Orientation [%1]")
+                             .arg(ls ? "Landscape" : "Portrait")
+                             .arg(displayPageNum)
+                             .arg(_maxPages);
+
+              // determine size of output image, in pixels. dimension are inches * pixels per inch
+              GetPixelDimensions(pageWidthPx, pageHeightPx);
+              FloatPairMeta pgSizeInPx;
+              pgSizeInPx.setValues(pageWidthPx, pageHeightPx);
+              pageSizes.insert(displayPageNum, pgSizeInPx);
+              logStatus() << QString("Inserting layout for page %3 of %4: WidthPx %1 x HeigthPx %2 ")
+                             .arg(QString::number(pgSizeInPx.value(0),'f',4),
+                                  QString::number(pgSizeInPx.value(1),'f',4))
+                             .arg(displayPageNum)
+                             .arg(_maxPages);
+
+              m_progressDlgMessageLbl->setText(QString("Capturing page layout %1 of %2").arg(displayPageNum).arg(_maxPages));
+              m_progressDlgProgressBar->setValue(displayPageNum);
+            }
+          m_progressDlgProgressBar->setValue(_maxPages);
+
+        } else {
+
+          QStringList pageRanges = pageRangeText.split(",");
+          QList<int> printPages;
+          foreach(QString ranges,pageRanges){
+              if (ranges.contains("-")){
+                  QStringList range = ranges.split("-");
+                  int minPage = range[0].toInt();
+                  int maxPage = range[1].toInt();
+                  for(int i = minPage; i <= maxPage; i++){
+                      printPages.append(i);
+                    }
+                } else {
+                  printPages.append(ranges.toInt());
+                }
+            }
+
+          std::sort(printPages.begin(),printPages.end(),lessThan);
+
+          m_progressDlgProgressBar->setRange(1,printPages.count());
+
+          int _pageCount = 0;
+          foreach(int printPage,printPages){
+
+              if (! exporting()) {
+                  m_progressDialog->hide();
+                  displayPageNum = savePageNumber;
+                  drawPage(KpageView,KpageScene,false);
+                  emit messageSig(true,QString("Page layout capture terminated before completion."));
+                  return;
+                }
+
+              displayPageNum = printPage;
+              m_progressDlgProgressBar->setValue(_pageCount++);
+
+              // render this page - to capture display page layout and size
+              drawPage(&view,&scene,true);
+              pageLayouts.insert(displayPageNum, getPageLayout());
+              bool ls = getPageLayout().orientation() == QPageLayout::Landscape;
+              logStatus() << QString("Inserting layout for page %2 of %3: Orientation [%1] Page Range %4")
+                             .arg(ls ? "Landscape" : "Portrait")
+                             .arg(displayPageNum)
+                             .arg(printPages.count())
+                             .arg(pageRanges.join(" "));
+
+              // determine size of output image, in pixels. dimension are inches * pixels per inch
+              GetPixelDimensions(pageWidthPx, pageHeightPx);
+              FloatPairMeta pgSizeInPx;
+              pgSizeInPx.setValues(pageWidthPx, pageHeightPx);
+              pageSizes.insert(displayPageNum, pgSizeInPx);
+              logStatus() << QString("Inserting layout for page %3 of %4: WidthPx %1 x HeigthPx %2 Page Range %5")
+                             .arg(QString::number(pgSizeInPx.value(0),'f',4),
+                                  QString::number(pgSizeInPx.value(1),'f',4))
+                             .arg(displayPageNum)
+                             .arg(printPages.count())
+                             .arg(pageRanges.join(" "));
+
+              m_progressDlgMessageLbl->setText(QString("Capturing page layout %1 of range %2").arg(displayPageNum).arg(pageRanges.join(" ")));
+              m_progressDlgProgressBar->setValue(displayPageNum);
+            }
+          m_progressDlgProgressBar->setValue(printPages.count());
+        }
       m_progressDlgProgressBar->reset();
+      clearPage(&view,&scene);
 
-  } else {
+    } else {
+
+      m_progressDialog->show();
 
       // determine size of output image, in pixels (global setting)
       GetPixelDimensions(pageWidthPx, pageHeightPx);
 
       // set page layout (global setting)
       pdfWriter.setPageLayout(getPageLayout());
-  }
+
+      clearPage(&view,&scene);
+    }
 
   // paint to the pdfWriter the scene we view
   QPainter painter;
@@ -472,8 +550,9 @@ void Gui::printToPdfFile()
 
           // prepare to render next page
           if(displayPageNum < _maxPages) {
-              if (mixedPageSize)
+              if (mixedPageSize) {
                   pdfWriter.setPageLayout(retrievePageLayout());
+                }
               pdfWriter.newPage();
             }
         }
@@ -514,7 +593,7 @@ void Gui::printToPdfFile()
 
           displayPageNum = printPage;
 
-          m_progressDlgMessageLbl->setText(QString("Printing page %1 of range %2").arg(displayPageNum).arg(pageRanges.join(" ")));
+          m_progressDlgMessageLbl->setText(QString("Printing page %1 of %2 for range %3").arg(displayPageNum).arg(printPages.count()).arg(pageRanges.join(" ")));
           m_progressDlgProgressBar->setValue(_pageCount++);
 
           if (mixedPageSize) {
@@ -524,12 +603,13 @@ void Gui::printToPdfFile()
           }
 
           bool  ls = page.meta.LPub.page.orientation.value() == Landscape;
-          logNotice() << QString("Printing page %3 of range %4, size(in pixels) W %1 x H %2, orientation %5")
+          logNotice() << QString("Printing page %3 of %6 for range %4, size(in pixels) W %1 x H %2, orientation %5")
                         .arg(pageWidthPx)
                         .arg(pageHeightPx)
                         .arg(displayPageNum)
                         .arg(pageRanges.join(" "))
-                        .arg(ls ? "Landscape" : "Portrait");
+                        .arg(ls ? "Landscape" : "Portrait")
+                        .arg(printPages.count());
 
           // set up the view
           QRectF boundingRect(0.0, 0.0, pageWidthPx, pageHeightPx);
@@ -544,7 +624,6 @@ void Gui::printToPdfFile()
                 QPainter::TextAntialiasing |
                 QPainter::SmoothPixmapTransform);
           view.centerOn(boundingRect.center());
-          clearPage(&view,&scene);
 
           // render this page
           drawPage(&view,&scene,true);
@@ -553,9 +632,10 @@ void Gui::printToPdfFile()
           clearPage(&view,&scene);
 
           // prepare to print another page
-          if(displayPageNum < _maxPages) {
-              if (mixedPageSize)
+          if(_pageCount < printPages.count()) {
+              if (mixedPageSize) {
                   pdfWriter.setPageLayout(retrievePageLayout());
+                }
               pdfWriter.newPage();
             }
         }
@@ -641,45 +721,6 @@ void Gui::exportAs(QString &suffix)
 {
   // store current display page number
     int savePageNumber = displayPageNum;
-
-//    if (exportOption == EXPORT_PAGE_RANGE) {
-//        if(pageRangeText.isEmpty()){
-//            QMessageBox::warning(NULL,
-//                                 tr("LPub3D"),
-//                                 tr("Custom page range is empty. You must enter a page range"));
-//            return;
-//        }
-//        bool validEntry = true;
-//        QString message;
-//        QStringList pageRanges = pageRangeText.split(",");
-//        foreach(QString ranges, pageRanges){
-//            if (ranges.contains("-")){
-//                bool ok[2];
-//                QStringList range = ranges.split("-");
-//                int minPage = range[0].toInt(&ok[0]);
-//                int maxPage = range[1].toInt(&ok[1]);
-//                if (!ok[0] || !ok[1] || (minPage > maxPage)){
-//                    message = QString("%1-%2").arg(minPage).arg(maxPage);
-//                    validEntry = false;
-//                    break;
-//                }
-//            } else {
-//                bool ok;
-//                int pageNum = ranges.toInt(&ok);
-//                if (!ok){
-//                    message = QString("%1").arg(pageNum);
-//                    validEntry = false;
-//                    break;
-//                }
-//            }
-//        }
-//        if (! validEntry) {
-//            QMessageBox::warning(NULL,
-//                                 tr("LPub3D"),
-//                                 tr("Invalid page number(s) %1 detected. You must enter valid page number(s).").arg(message));
-//            return;
-//        }
-//    }
 
     // send signal to halt 3DViewer
     setExportingSig(true);
@@ -1034,7 +1075,13 @@ void Gui::Print(QPrinter* Printer)
             {
               if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
                 {
+                  m_progressDialog->hide();
+                  displayPageNum = savePageNumber;
+                  drawPage(KpageView,KpageScene,false);
                   emit messageSig(true,QString("Printing terminated before completion."));
+                  if (preview){
+                      m_previewDialog = false;
+                    }
                   return;
                 }
 
@@ -1075,8 +1122,14 @@ void Gui::Print(QPrinter* Printer)
                 {
                   if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
                     {
+                      m_progressDialog->hide();
+                      displayPageNum = savePageNumber;
+                      drawPage(KpageView,KpageScene,false);
                       emit messageSig(true,QString("%1 terminated before completion.")
                                       .arg(preview ? "Preview" : "Printing"));
+                      if (preview){
+                          m_previewDialog = false;
+                        }
                       return;
                     }
 
@@ -1132,18 +1185,26 @@ void Gui::Print(QPrinter* Printer)
 
               if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
                 {
+                  m_progressDialog->hide();
+                  displayPageNum = savePageNumber;
+                  drawPage(KpageView,KpageScene,false);
                   emit messageSig(true,QString("Printing terminated before completion."));
+                  if (preview){
+                      m_previewDialog = false;
+                    }
                   return;
                 }
 
               displayPageNum = Page = printPage;
 
-              m_progressDlgMessageLbl->setText(QString("%3 page %1 of range %2 ").arg(Page).arg(pageRanges.join(" "))
-                                               .arg(preview ? "Previewing" : "Printing"));
+              m_progressDlgMessageLbl->setText(QString("%3 page %1 of %2 for range %3 ").arg(Page).arg(pageRanges.join(" "))
+                                               .arg(preview ? "Previewing" : "Printing")
+                                               .arg(printPages.count()));
               m_progressDlgProgressBar->setValue(_pageCount++);
 
-              logNotice() << QString("%3 page %1 of %2").arg(Page).arg(ToPage)
-                             .arg(preview ? "Previewing" : "Printing");
+              logNotice() << QString("%3 page %1 of %2 for range %3").arg(Page).arg(ToPage)
+                             .arg(preview ? "Previewing" : "Printing")
+                             .arg(printPages.count());
 
               // render this page to get specific page parameters
               drawPage(&view,&scene,true);
@@ -1175,8 +1236,14 @@ void Gui::Print(QPrinter* Printer)
                 {
                   if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
                     {
+                      m_progressDialog->hide();
+                      displayPageNum = savePageNumber;
+                      drawPage(KpageView,KpageScene,false);
                       emit messageSig(true,QString("%1 terminated before completion.")
                                       .arg(preview ? "Preview" : "Printing"));
+                      if (preview){
+                          m_previewDialog = false;
+                        }
                       return;
                     }
 
@@ -1286,6 +1353,7 @@ void Gui::TogglePrintPreview()
   m_previewDialog = true;
   if (! printToPdfFileDialog()) {
       logInfo() << "Print to pdf dialog returned false";
+      m_previewDialog = false;
       return;
     }
 

@@ -87,3 +87,9 @@ bool DialogExportPages::mixedPageSize(){
     return ui->checkBoxMixedPageSize->isChecked();
 }
 
+
+void DialogExportPages::on_lineEditPageRange_textChanged(const QString &arg1)
+{
+    ui->radioButtonPageRange->setChecked(true);
+}
+

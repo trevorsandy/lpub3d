@@ -37,6 +37,9 @@ public:
   bool mixedPageSize();
   QString const pageRangeText();
 
+private slots:
+  void on_lineEditPageRange_textChanged(const QString &arg1);
+
 private:
   Ui::DialogExportPages *ui;
 };

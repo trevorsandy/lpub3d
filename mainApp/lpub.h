@@ -345,13 +345,11 @@
 #include <QGraphicsView>
 #include <QDateTime>
 #include <QFileSystemWatcher>
-#include <QComboBox>
 #include <QPrinter>
 #include <QFile>
 #include <QProgressBar>
 #include <QElapsedTimer>
 #include <QPdfWriter>
-
 #include "color.h"
 #include "ranges.h"
 #include "ldrawfiles.h"
@@ -381,6 +379,7 @@ class QFrame;
 class QFileDialog;
 class QResizeEvent;
 class QLineEdit;
+class QComboBox;
 class QUndoStack;
 class QUndoCommand;
 

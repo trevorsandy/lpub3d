@@ -17,7 +17,8 @@
 
 #include <QFileDialog>
 #include <QDir>
-#include <QTextEdit>
+#include <QComboBox>
+#include <QLineEdit>
 #include <QUndoStack>
 #include <QSettings>
 
@@ -227,6 +228,9 @@ void Gui::closeFile()
   editWindow->textEdit()->document()->setModified(false);
   mpdCombo->setMaxCount(0);
   mpdCombo->setMaxCount(1000);
+  setGoToPageCombo->setMaxCount(0);
+  setGoToPageCombo->setMaxCount(1000);
+  setPageLineEdit->clear();
   undoStack->clear();
 }
 
