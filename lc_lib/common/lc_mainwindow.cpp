@@ -44,7 +44,6 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
   mLockY = false;
   mLockZ = false;
   mRelativeTransform = true;
-  mHalt3DViewer = false;
 
   memset(&mSearchOptions, 0, sizeof(mSearchOptions));
 
@@ -1423,11 +1422,9 @@ void lcMainWindow::SetLockZ(bool LockZ)
 
 void lcMainWindow::Halt3DViewer(bool b){
 
-  logStatus() << "2. lcMainWindow (SLOT) halt3DViewer Status: " << b;
+  logStatus() << "2. lcMainWindow (SLOT) Halt3DViewer Status: " << b;
 
-  mHalt3DViewer = b;
-
-  if(mHalt3DViewer){
+  if(b){
       mToolsToolBar->setEnabled(false);
       menuBar()->setEnabled(false);
     } else {
