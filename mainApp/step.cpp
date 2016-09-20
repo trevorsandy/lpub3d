@@ -262,7 +262,7 @@ int Step::createCsi(
       csiPlacement.size[1] = pixmap->height();
     }
 
-  if (! gMainWindow->GetHalt3DViewer()) {
+  if (! gui->exporting()) {
 
       int ln = top.lineNumber;                      // we need this to facilitate placing the ROTSTEP meta later on
       QString file3DNamekey = QString("%1_%2_%3%4") // File Name Format = csiName_sn_ln.ldr
@@ -288,7 +288,7 @@ int Step::createCsi(
 
 int Step::Load3DCsi(QString &csi3DName)
 {
-  if (! gMainWindow->GetHalt3DViewer()) {
+  if (! gui->exporting()) {
       return renderer->load3DCsiImage(csi3DName);
     } else {
       qDebug() << "3DViewer halted - rendering not allowed.";

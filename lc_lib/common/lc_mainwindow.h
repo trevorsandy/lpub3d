@@ -152,7 +152,6 @@ public:
 	void AddView(View* View);
 	void RemoveView(View* View);
 	void SetActiveView(View* ActiveView);
-	void UpdateAllViews();
 
 	void SetTool(lcTool Tool);
 	void SetTransformType(lcTransformType TransformType);
@@ -168,7 +167,6 @@ public:
 	void SetLockZ(bool LockZ);
 	void SetRelativeTransform(bool RelativeTransform);
 
-	void NewProject();
 	bool OpenProject(const QString& FileName);
 	void MergeProject();
 	bool SaveProject(const QString& FileName);
@@ -220,13 +218,12 @@ public:
 
 public slots:
     /*** LPub3D modification 222: - halt viewer ***/
-    void halt3DViewer(bool b);
-    /*** LPub3D modification end ***/
-    /*** LPub3D modification 225: - enable actions ***/
-    void enable3DActions();
-    /*** LPub3D modification end ***/
-    /*** LPub3D modification 228: - disable actions ***/
-    void disable3DActions();
+    void NewProject();
+    void UpdateAllViews();
+
+    void Halt3DViewer(bool b);
+    void Enable3DActions();
+    void Disable3DActions();
     /*** LPub3D modification end ***/
 
 protected slots:

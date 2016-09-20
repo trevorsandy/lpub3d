@@ -252,7 +252,7 @@ void Application::initialize(int &argc, char **argv)
 
   emit splashMsgSig("60% - 3D Viewer Mainwindow loading...");
 
-  if (!gui->InitializeApp(argc, argv, m_libPath, m_LDrawPath)) {
+  if (!gui->InitializeViewer(argc, argv, m_libPath, m_LDrawPath)) {
       logError() << QString("Unable to initialize 3D Viewer.");
     }
 

@@ -748,7 +748,7 @@ void lcMainWindow::CreateToolBars()
   /*** management - end ***/
 }
 
-void lcMainWindow::enable3DActions(){
+void lcMainWindow::Enable3DActions(){
 
   //File
   mActions[LC_FILE_SAVEAS]->setEnabled(true);
@@ -773,7 +773,7 @@ void lcMainWindow::enable3DActions(){
 }
 
 /*** LPub3D modification 775: - disable actions ***/
-void lcMainWindow::disable3DActions(){
+void lcMainWindow::Disable3DActions(){
 
   //File
   mActions[LC_FILE_SAVEAS]->setEnabled(false);
@@ -1421,7 +1421,7 @@ void lcMainWindow::SetLockZ(bool LockZ)
   UpdateLockSnap();
 }
 
-void lcMainWindow::halt3DViewer(bool b){
+void lcMainWindow::Halt3DViewer(bool b){
 
   logStatus() << "2. lcMainWindow (SLOT) halt3DViewer Status: " << b;
 

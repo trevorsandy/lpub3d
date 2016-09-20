@@ -232,8 +232,8 @@ void Gui::closeFile()
 
 void Gui::closeModelFile(){
   //3D Viewer
-  gMainWindow->NewProject();
-  gMainWindow->UpdateAllViews();
+  emit clearViewerWindowSig();
+  emit updateAllViewsSig();
   emit disable3DActionsSig();
   // Editor
   clearPage(KpageView,KpageScene);

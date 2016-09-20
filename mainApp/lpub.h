@@ -438,7 +438,7 @@ public:
   QString         pageRangeText;    // page range parameters
   bool            mixedPageSize;    // mixed page size and orientation
 
-  bool             m_previewRequest;
+  bool             m_previewDialog;
   bool             m_cancelPrinting; // cancel print job
   ProgressDialog  *m_progressDialog; // general use progress dialog
   QLabel          *m_progressDlgMessageLbl;
@@ -528,11 +528,10 @@ public:
   void beginMacro (QString name);
   void endMacro   ();
 
-  bool InitializeApp(int argc, char *argv[], const char* LibraryInstallPath, const char* LDrawPath);
+  bool InitializeViewer(int argc, char *argv[], const char* LibraryInstallPath, const char* LDrawPath);
 
   void displayFile(LDrawFile *ldrawFile, const QString &modelName);
   void displayParmsFile(const QString &fileName);
-  void halt3DViewer(bool b);
   QString elapsedTime(const qint64 &time);
 
   int             maxPages;
@@ -627,12 +626,16 @@ public slots:
   void showPrintedFile();
   void showLine(const Where &topOfStep)
   {
-    displayFile(&ldrawFile,topOfStep.modelName);
-    showLineSig(topOfStep.lineNumber);
+    if (! m_exportingContent) {
+        displayFile(&ldrawFile,topOfStep.modelName);
+        showLineSig(topOfStep.lineNumber);
+      }
   }
 
-  // cancel printing
-  void cancelPrinting(){m_cancelPrinting = true;}
+  void deployExportBanner(bool b);
+  void setExporting(bool b){ m_exportingContent = b;}
+  bool exporting() {return m_exportingContent;}
+  void cancelExporting(){m_exportingContent = false;}
 
   // left side progress bar
   void progressBarInit();
@@ -704,27 +707,29 @@ public slots:
 
 signals:       
 
-    /* tell the editor to display this file */
+  /* tell the editor to display this file */
 
   void displayFileSig(LDrawFile *ldrawFile, const QString &subFile);
-  void displayParmsFileSig(const QString &fileName);  
+  void displayParmsFileSig(const QString &fileName);
   void showLineSig(int lineNumber);
+
   void enable3DActionsSig();
   void disable3DActionsSig();
-
-  void halt3DViewerSig(bool b);
+  void updateAllViewsSig();
+  void clearViewerWindowSig();
+  void setExportingSig(bool b);
   void hidePreviewDialogSig();
   void showPrintedFileSig(int);
 
   // right side progress bar
- void progressBarInitSig();
- void progressMessageSig(const QString &text);
- void progressRangeSig(const int &min, const int &max);
- void progressSetValueSig(const int &value);
- void progressResetSig();
- void removeProgressStatusSig();
+  void progressBarInitSig();
+  void progressMessageSig(const QString &text);
+  void progressRangeSig(const int &min, const int &max);
+  void progressSetValueSig(const int &value);
+  void progressResetSig();
+  void removeProgressStatusSig();
 
-   // right side progress bar
+  // right side progress bar
   void progressBarPermInitSig();
   void progressPermMessageSig(const QString &text);
   void progressPermRangeSig(const int &min, const int &max);
@@ -774,6 +779,7 @@ private:
 
   FadeStepColorParts     fadeStepColorParts; // internal list of color parts to be processed for fade step.
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
+  bool                   m_exportingContent; // indicate export/pring underway
 
 #ifdef WATCHER
   QFileSystemWatcher watcher;        // watch the file system for external

@@ -2,6 +2,8 @@ LPub3D 2.0.12.816.2
  
 Features and enhancements 
 ------------ 
+Fix: Industrialize pdf print/export preview (r819)
+ * Remove [Experimental] status from pdf print preview. Implement prompt to open pdf file after printing. Fixed launching "Pdf print preview" menu item disables the "Print to Pdf file" menu item (nothing happens when you click the Print to Pdf file menu item). This behaviour occurs only after launching Pdf print preview requiring an application restart to clear the behaviour. 
 Known Issue: Some JPEG-compressed images are not rendered when inserting this type of image (r818)
  * This was a Qt bug claimed to be corrected in Qt 5.5.1 (LPub3D uses 5.7); however, the issue seem to persist in Qt 5.7 also. Not all jpg images fail to load. The issue appear to be related to JPeGs with broken EXIF headers only.
 

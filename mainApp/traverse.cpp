@@ -752,14 +752,16 @@ int Gui::drawPage(LGraphicsView  *view,
                     page.frontCover = false;
                   }
                 // nothing to display in 3D Window
-                gMainWindow->NewProject();
+                if (! printing)
+                  emit clearViewerWindowSig();
               }
             case InsertPageRc:
               {
                 partsAdded = true;
 
                 // nothing to display in 3D Window
-                gMainWindow->NewProject();
+                if (! printing)
+                  emit clearViewerWindowSig();
               }
               break;
 
@@ -800,6 +802,10 @@ int Gui::drawPage(LGraphicsView  *view,
                         partsAdded  = true; // OK, so this is a lie, but it works
                         modelDisplayPage  = true;
                       }
+                if (insertData.type == InsertData::InsertBom){
+                    // nothing to display in 3D Window
+                    if (! printing)
+                      emit clearViewerWindowSig();
                   }
               }
               break;
@@ -2177,10 +2183,11 @@ void Gui::writeToTmp()
   emit progressBarPermInitSig();
   emit progressPermRangeSig(1, ldrawFile._subFileOrder.size());
   emit progressPermMessageSig("Submodels...");
-  emit messageSig(true, "Writing submodels to temp directory");
+  emit messageSig(true, "Writing submodels to temp directory...");
 
   bool    doFadeStep  = (page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
   QString fadeColor   = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
+  bool upToDate = true;
 
   QStringList content;
 
@@ -2189,7 +2196,6 @@ void Gui::writeToTmp()
       QString fileName = ldrawFile._subFileOrder[i].toLower();
 
       emit progressPermSetValueSig(i);
-      emit messageSig(true, "Writing submodel to temp directory: " + fileName);
 
       if (doFadeStep) {
           QString fadeFileName = fileName;
@@ -2207,23 +2213,30 @@ void Gui::writeToTmp()
           content = ldrawFile.contents(fileName);
           if (ldrawFile.changedSinceLastWrite(fileName)) {
 
+              upToDate = false;
               writeToTmp(fileName,content);
               content = fadeSubFile(content,fadeColor);
+              emit messageSig(true, "Writing submodel to temp directory: " + fileName);
 
               /* Faded version of submodels */
               writeToTmp(fadeFileName,content);
+              emit messageSig(true, "Writing submodel to temp directory: " + fadeFileName);
+
             }
         } else {
 
           content = ldrawFile.contents(fileName);
           if (ldrawFile.changedSinceLastWrite(fileName)) {
+
+              upToDate = false;
               writeToTmp(fileName,content);
+             emit messageSig(true, "Writing submodel to temp directory: " + fileName);
             }
         }
     }
   emit progressPermSetValueSig(ldrawFile._subFileOrder.size());
   emit removeProgressPermStatusSig();
-  emit messageSig(true, "Submodels written to temp directory.");
+  emit messageSig(true, upToDate ? "No submodels written; temp directory up to date." : "Submodels written to temp directory.");
 }
 
 /*

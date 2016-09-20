@@ -26,7 +26,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
   ui->labelAllPages->setText(QString("1 to %1").arg(gui->maxPages));
   ui->labelCurrentPage->setText(QString("%1").arg(gui->displayPageNum));
 
-  bool preview = gui->m_previewRequest;
+  bool preview = gui->m_previewDialog;
 
   switch(gui->exportType){
     case EXPORT_PDF:      

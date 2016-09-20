@@ -207,7 +207,7 @@ bool Gui::printToPdfFileDialog()
           clearCSICache();
           //TODO add remove ldraw viewer content when move to 2.1
         }
-      if (! m_previewRequest){
+      if (! m_previewDialog){
           printToPdfFile();
         }
       return true;
@@ -297,7 +297,7 @@ void Gui::printToPdfFile()
   int savePageNumber = displayPageNum;
 
   // send signal to halt 3DViewer
-  halt3DViewer(true);
+  setExportingSig(true);
 
   // determine location for output file
   QFileInfo fileInfo(curFile);
@@ -310,7 +310,7 @@ void Gui::printToPdfFile()
 
   if (fileName == "") {
       // release 3D Viewer
-      halt3DViewer(false);
+      setExportingSig(false);
       return;
     }
 
@@ -340,7 +340,6 @@ void Gui::printToPdfFile()
   int _maxPages       = 0;
 
   // initialize progress bar dialog
-  m_cancelPrinting = false;
   m_progressDialog->setWindowTitle("Print pdf");
   m_progressDialog->show();
 
@@ -355,9 +354,12 @@ void Gui::printToPdfFile()
       m_progressDlgProgressBar->setRange(1,_maxPages);
 
       for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
-          if (m_cancelPrinting) {
-              halt3DViewer(false);
-              break;
+          if (! exporting()) {
+              m_progressDialog->hide();
+              displayPageNum = savePageNumber;
+              drawPage(KpageView,KpageScene,false);
+              emit messageSig(true,QString("Print to pdf terminated before completion."));
+              return;
             }
           // render this page - to capture display page layout and size
           drawPage(&view,&scene,true);
@@ -422,9 +424,13 @@ void Gui::printToPdfFile()
 
       for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
 
-          if (m_cancelPrinting) {
-              halt3DViewer(false);
-              break;
+          if (! exporting()) {
+              painter.end();
+              m_progressDialog->hide();
+              displayPageNum = savePageNumber;
+              drawPage(KpageView,KpageScene,false);
+              emit messageSig(true,QString("Print to pdf terminated before completion."));
+              return;
             }
 
           m_progressDlgMessageLbl->setText(QString("Printing page %1 of %2").arg(displayPageNum).arg(_maxPages));
@@ -497,9 +503,13 @@ void Gui::printToPdfFile()
       int _pageCount = 0;
       foreach(int printPage,printPages){
 
-          if (m_cancelPrinting) {
-              halt3DViewer(false);
-              break;
+          if (! exporting()) {
+              painter.end();
+              m_progressDialog->hide();
+              displayPageNum = savePageNumber;
+              drawPage(KpageView,KpageScene,false);
+              emit messageSig(true,QString("Print to pdf terminated before completion."));
+              return;
             }
 
           displayPageNum = printPage;
@@ -555,7 +565,7 @@ void Gui::printToPdfFile()
   painter.end();
 
   // release 3D Viewer
-  halt3DViewer(false);
+  setExportingSig(false);
 
   // return to whatever page we were viewing before output
   displayPageNum = savePageNumber;
@@ -577,7 +587,7 @@ void Gui::printToPdfFile()
       box.setWindowTitle(tr ("Print pdf"));
 
       //display completion message
-      QString title = "<b> Printing instructions to pdf. </b>";
+      QString title = "<b> Print to pdf completed. </b>";
       QString text = tr ("Your instruction document has finished printing.\n"
                         "Do you want to open this document ?\n %1").arg(fileName);
 
@@ -677,7 +687,7 @@ void Gui::exportAs(QString &suffix)
 //    }
 
     // send signal to halt 3DViewer
-    halt3DViewer(true);
+    setExportingSig(true);
 
     // determine location to output images
     QFileInfo fileInfo(curFile);
@@ -690,8 +700,7 @@ void Gui::exportAs(QString &suffix)
                 QFileDialog::ShowDirsOnly);
     if (directoryName == "") {
         // release 3D Viewer
-        halt3DViewer(false);
-
+        setExportingSig(false);
         return;
     }
 
@@ -705,7 +714,6 @@ void Gui::exportAs(QString &suffix)
     QColor fillClear = (suffix.compare(".png", Qt::CaseInsensitive) == 0) ? Qt::transparent :  Qt::white;
 
     // initialize progress bar
-    m_cancelPrinting = false;
     m_progressDialog->setWindowTitle(QString("Export as %1").arg(suffix));
     m_progressDialog->show();
     m_progressDlgMessageLbl->setText(QString("Exporting instructions to %1 format.").arg(suffix));
@@ -726,9 +734,12 @@ void Gui::exportAs(QString &suffix)
 
         for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
 
-            if (m_cancelPrinting) {
-                halt3DViewer(false);
-                break;
+            if (! exporting()) {
+                m_progressDialog->hide();
+                displayPageNum = savePageNumber;
+                drawPage(KpageView,KpageScene,false);
+                emit messageSig(true,QString("Export terminated before completion."));
+                return;
               }
 
             m_progressDlgMessageLbl->setText(QString("Exporting page: %1 of %2").arg(displayPageNum).arg(_maxPages));
@@ -811,8 +822,12 @@ void Gui::exportAs(QString &suffix)
         int _pageCount = 0;
         foreach(int printPage,printPages){
 
-            if (m_cancelPrinting)
-                break;
+            if (! exporting())
+              m_progressDialog->hide();
+              displayPageNum = savePageNumber;
+              drawPage(KpageView,KpageScene,false);
+              emit messageSig(true,QString("Export terminated before completion."));
+              return;
 
             displayPageNum = printPage;
 
@@ -874,7 +889,7 @@ void Gui::exportAs(QString &suffix)
     }
 
     // release 3D Viewer
-    halt3DViewer(false);
+    setExportingSig(false);
 
     // return to whatever page we were viewing before output
     displayPageNum = savePageNumber;
@@ -883,45 +898,40 @@ void Gui::exportAs(QString &suffix)
     // hide progress bar
     m_progressDialog->hide();
 
-    if (!m_cancelPrinting) {
+    emit messageSig(true,QString("Export as %1 completed.").arg(suffix.remove(".")));
 
-        emit messageSig(true,QString("Export as %1 completed.").arg(suffix.remove(".")));
+    //display completion message
+    QMessageBox::StandardButton ret;
+    ret = QMessageBox::information(this, tr(VER_PRODUCTNAME_STR),
+                                   tr("Your instruction document has finished printing.\n"
+                                      "Do you want to open the image folder ?\n %1").arg(directoryName),
+                                   QMessageBox::Yes| QMessageBox::Discard | QMessageBox::Cancel);
 
-        //display completion message
-        QMessageBox::StandardButton ret;
-        ret = QMessageBox::information(this, tr(VER_PRODUCTNAME_STR),
-                                       tr("Your instruction document has finished printing.\n"
-                                          "Do you want to open the image folder ?\n %1").arg(directoryName),
-                                       QMessageBox::Yes| QMessageBox::Discard | QMessageBox::Cancel);
-
-        if (ret == QMessageBox::Yes) {
-            QString CommandPath = directoryName;
-            QProcess *Process = new QProcess(this);
-            Process->setWorkingDirectory(QDir::currentPath() + "/");
-            Process->setNativeArguments(CommandPath);
+    if (ret == QMessageBox::Yes) {
+        QString CommandPath = directoryName;
+        QProcess *Process = new QProcess(this);
+        Process->setWorkingDirectory(QDir::currentPath() + "/");
+        Process->setNativeArguments(CommandPath);
 
 #ifdef __APPLE__
 
-            Process->execute(CommandPath);
-            Process->waitForFinished();
+        Process->execute(CommandPath);
+        Process->waitForFinished();
 
-            QProcess::ExitStatus Status = Process->exitStatus();
+        QProcess::ExitStatus Status = Process->exitStatus();
 
-            if (Status != 0) {  // look for error
-                QErrorMessage *m = new QErrorMessage(this);
-                m->showMessage(QString("%1\n%2").arg("Failed to open image folder!").arg(CommandPath));
-            }
+        if (Status != 0) {  // look for error
+            QErrorMessage *m = new QErrorMessage(this);
+            m->showMessage(QString("%1\n%2").arg("Failed to open image folder!").arg(CommandPath));
+          }
 #else
-            QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+        QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
 #endif
 
-            return;
-        } else if (ret == QMessageBox::Cancel) {
-            return;
-        }
-    } else {
-        emit messageSig(true,QString("Export as %1 cancelled.").arg(suffix.remove(".")));
-    }
+        return;
+      } else if (ret == QMessageBox::Cancel) {
+        return;
+      }
 }
 
 //-----------------PRINT FUNCTIONS------------------------//
@@ -978,7 +988,7 @@ void Gui::Print(QPrinter* Printer)
     }
 
   // send signal to halt 3DViewer
-  halt3DViewer(true);
+  setExportingSig(true);
 
   // determine get orientation from print preview if requested
   QPageLayout::Orientation previewOrientation = Printer->pageLayout().orientation();
@@ -1008,7 +1018,6 @@ void Gui::Print(QPrinter* Printer)
   LGraphicsView view(&scene);
 
   // initialize progress bar dialog
-  m_cancelPrinting = false;
   m_progressDialog->setWindowTitle(preview ? "Preview pdf" : "Preview pdf" /* Print pdf */);  //Hack
   m_progressDialog->show();
   m_progressDlgMessageLbl->setText(preview ? "Generating preview..." : "Printing...");
@@ -1028,11 +1037,8 @@ void Gui::Print(QPrinter* Printer)
 
           for (displayPageNum = Page; displayPageNum <= ToPage; displayPageNum++)
             {
-              if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || m_cancelPrinting)
+              if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
                 {
-                  // release 3D Viewer
-                  halt3DViewer(false);
-
                   emit messageSig(true,QString("Printing terminated before completion."));
                   return;
                 }
@@ -1072,11 +1078,8 @@ void Gui::Print(QPrinter* Printer)
 
               for (int PageCopy = 0; PageCopy < PageCopies; PageCopy++)
                 {
-                  if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || m_cancelPrinting)
+                  if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
                     {
-                      // release 3D Viewer
-                      halt3DViewer(false);
-
                       emit messageSig(true,QString("%1 terminated before completion.")
                                       .arg(preview ? "Preview" : "Printing"));
                       return;
@@ -1132,11 +1135,8 @@ void Gui::Print(QPrinter* Printer)
 
           foreach(int printPage,printPages){
 
-              if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || m_cancelPrinting)
+              if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
                 {
-                  // release 3D Viewer
-                  halt3DViewer(false);
-
                   emit messageSig(true,QString("Printing terminated before completion."));
                   return;
                 }
@@ -1178,11 +1178,8 @@ void Gui::Print(QPrinter* Printer)
 
               for (int PageCopy = 0; PageCopy < PageCopies; PageCopy++)
                 {
-                  if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || m_cancelPrinting)
+                  if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
                     {
-                      // release 3D Viewer
-                      halt3DViewer(false);
-
                       emit messageSig(true,QString("%1 terminated before completion.")
                                       .arg(preview ? "Preview" : "Printing"));
                       return;
@@ -1211,7 +1208,7 @@ void Gui::Print(QPrinter* Printer)
     }
 
   // release 3D Viewer
-  halt3DViewer(false);
+  setExportingSig(false);
 
   // return to whatever page we were viewing before output
   displayPageNum = savePageNumber;
@@ -1224,13 +1221,13 @@ void Gui::Print(QPrinter* Printer)
 
   if (preview){
       // reset
-      m_previewRequest = false;
+      m_previewDialog = false;
     }
 }
 
 void Gui::showPrintedFile(){
 
-  if (! pdfPrintedFile.isEmpty() && ! m_cancelPrinting){
+  if (! pdfPrintedFile.isEmpty()){
 
       QMessageBox box;
       box.setTextFormat (Qt::RichText);
@@ -1243,7 +1240,7 @@ void Gui::showPrintedFile(){
       box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
       box.setDefaultButton   (QMessageBox::Yes);
 
-      QString title = "<b> Printing instructions. </b>";
+      QString title = "<b> Print to pdf completed. </b>";
       QString text = tr ("Your instruction document has finished printing.\n"
                          "Do you want to open this document ?\n %1").arg(pdfPrintedFile);
 
@@ -1292,7 +1289,7 @@ void Gui::ShowPrintDialog()
 
 void Gui::TogglePrintPreview()
 {
-  m_previewRequest = true;
+  m_previewDialog = true;
   if (! printToPdfFileDialog()) {
       logInfo() << "Print to pdf dialog returned false";
       return;
@@ -1324,7 +1321,14 @@ void Gui::TogglePrintPreview()
 
   connect(&Preview, SIGNAL(paintRequested(QPrinter*)),          SLOT(Print(QPrinter*)));
   connect(this,     SIGNAL(hidePreviewDialogSig()),   &Preview, SLOT(hide()));
-  //connect(&Preview, SIGNAL(accepted()),             this,    SLOT(showPrintedFile());
 
-  Preview.exec();
+  int rc = Preview.exec();
+
+  logStatus() << "Pdf print preview result is" << (rc == 1 ? pdfPrintedFile + " printed" : "preview only");  // 0=preview only, 1=print output
+
+  if (rc == 1) {
+      showPrintedFile();
+    }
+
+  m_previewDialog = false;
 }
