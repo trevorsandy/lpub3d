@@ -796,6 +796,7 @@ int LDView::renderCsi(
   arguments << "-UseSpecular=0";
   arguments << "-LightVector=0,1,1";
   arguments << "-SaveActualSize=0";
+  arguments << "-SnapshotSuffix=.png";
   arguments << w;
   arguments << h;
   arguments << s;
@@ -873,6 +874,7 @@ int LDView::renderPli(
   arguments << "-UseSpecular=0";
   arguments << "-LightVector=0,1,1";
   arguments << "-SaveActualSize=0";
+  arguments << "-SnapshotSuffix=.png";
   arguments << w;
   arguments << h;
   arguments << s;
@@ -938,6 +940,7 @@ int Render::renderLDViewSCallCsi(
   arguments << "-UseSpecular=0";
   arguments << "-LightVector=0,1,1";
   arguments << "-SaveActualSize=0";
+  arguments << "-SnapshotSuffix=.png";
   arguments << w;
   arguments << h;
   arguments << s;
@@ -1027,6 +1030,7 @@ int Render::renderLDViewSCallPli(
   arguments << "-UseSpecular=0";
   arguments << "-LightVector=0,1,1";
   arguments << "-SaveActualSize=0";
+  arguments << "-SnapshotSuffix=.png";
   arguments << w;
   arguments << h;
   arguments << s;
