@@ -802,6 +802,7 @@ int Gui::drawPage(LGraphicsView  *view,
                         partsAdded  = true; // OK, so this is a lie, but it works
                         modelDisplayPage  = true;
                       }
+                  }
                 if (insertData.type == InsertData::InsertBom){
                     // nothing to display in 3D Window
                     if (! printing)

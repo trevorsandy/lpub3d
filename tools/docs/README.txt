@@ -3,7 +3,7 @@ LPub3D 2.0.12.816.2
 Features and enhancements 
 ------------ 
 Fix: LDView SnapshotSuffix to persist .png image generation (r820)
- * As designed, LDView will use the last "Save as type" parameter set in the Save Snapshot dialogue for command line exports. I've added the command parameter -SnapshotSuffix=.png to force png image output in situation the user changes the LDView save as type from .png (e.g. exports a shapshot in .jpg format) while working outside of LPub3D.
+ * As designed, LDView will use the last "Save as type" parameter set in the Save Snapshot dialogue for command line exports. I've added the command parameter -SnapshotSuffix=.png to force png image output in situation the user changes the LDView save as type from .png (e.g. exports a snapshot in .jpg format) while working outside of LPub3D.
 Fix: Industrialize pdf print/export preview (r819)
  * Remove [Experimental] status from pdf print preview. Implement prompt to open pdf file after printing. Fixed launching "Pdf print preview" menu item disables the "Print to Pdf file" menu item (nothing happens when you click the Print to Pdf file menu item). This behaviour occurs only after launching Pdf print preview requiring an application restart to clear the behaviour. Fixed print banner removed after the first printed/exported page.
 Known Issue: Some JPEG-compressed images are not rendered when inserting this type of image (r818)

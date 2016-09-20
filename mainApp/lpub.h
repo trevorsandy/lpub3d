@@ -439,7 +439,6 @@ public:
   bool            mixedPageSize;    // mixed page size and orientation
 
   bool             m_previewDialog;
-  bool             m_cancelPrinting; // cancel print job
   ProgressDialog  *m_progressDialog; // general use progress dialog
   QLabel          *m_progressDlgMessageLbl;
   QProgressBar    *m_progressDlgProgressBar;
