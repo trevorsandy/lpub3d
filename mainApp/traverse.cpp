@@ -345,6 +345,7 @@ int Gui::drawPage(LGraphicsView  *view,
               && ! partIgnore
               && ! synthBegin) {
               QString colorType = color+type;
+
               if (! isSubmodel(type) || curMeta.LPub.pli.includeSubs.value()) {
 
                   /*  check if substitute part exist and replace */
@@ -390,7 +391,7 @@ int Gui::drawPage(LGraphicsView  *view,
                 }
             }
 
-          /* if it is a sub-model (that's called out), then process it */
+          /* if it is a sub-model, then process it */
 
           if (ldrawFile.isSubmodel(type) && callout && ! noStep) {
 
@@ -407,6 +408,7 @@ int Gui::drawPage(LGraphicsView  *view,
 
               QString thisType = type;
 
+              //t.s. Callout here (actually treated like sort of a submodel)
               if (mode != CalloutBeginMeta::Unassembled) {
                   /* So, we process callouts in-line, not when we finally hit the STEP or
              ROTSTEP that ends this processing, but for ASSEMBLED or ROTATED
@@ -909,11 +911,6 @@ int Gui::drawPage(LGraphicsView  *view,
 
                   showLine(steps->topOfSteps());
 
-                  Page *page = dynamic_cast<Page *>(steps);                  
-                  if (page) {
-                      page->inserts = inserts;
-                    }
-
                   bool endOfSubmodel = stepNum >= ldrawFile.numSteps(current.modelName);;
 
                   // Get submodel instnce count
@@ -922,6 +919,12 @@ int Gui::drawPage(LGraphicsView  *view,
                       MetaItem mi;
                       instances = mi.countInstancesInStep(&steps->meta, current.modelName);
                   }
+
+                  Page *page = dynamic_cast<Page *>(steps);
+                  if (page) {
+                      page->inserts = inserts;
+                      page->instances = instances;
+                    }
 
                   emit messageSig(true, "Add graphics for multi-step page " + current.modelName);
 
@@ -945,7 +948,7 @@ int Gui::drawPage(LGraphicsView  *view,
                                  << "step group on page" << stepPageNum << ".";
                     }
 
-                  addGraphicsPageItems(steps, coverPage, endOfSubmodel,instances, view, scene, printing);
+                  addGraphicsPageItems(steps, coverPage, endOfSubmodel, view, scene, printing);
 
                   return HitEndOfPage;
                 }
@@ -1021,7 +1024,7 @@ int Gui::drawPage(LGraphicsView  *view,
                       pliPerStep = true;
                     } else if (calledOut && steps->meta.LPub.callout.pli.perStep.value()) {
                       pliPerStep = true;
-                    } else if ( ! multiStep && ! calledOut) {
+                    } else if ( ! multiStep && ! calledOut && steps->meta.LPub.stepPli.perStep.value()) {
                       pliPerStep = true;
                     } else {
                       pliPerStep = false;
@@ -1107,6 +1110,32 @@ int Gui::drawPage(LGraphicsView  *view,
                           instances = mi.countInstancesInStep(&steps->meta, current.modelName);
                       }
 
+                      Page *page = dynamic_cast<Page *>(steps);
+                      if (page && instances > 1) {
+                          page->instances = instances;
+
+                          if (! steps->meta.LPub.stepPli.perStep.value()) {
+
+                              PlacementType relativeType = SingleStepType;
+
+                              QStringList instancesPliParts;
+                              if (pliParts.size() > 0) {
+                                  for (int index = 0; index < pliParts.size(); index++) {
+                                      QString pliLine = pliParts[index];
+                                      for (int i = 0; i < instances; i++) {
+                                          instancesPliParts << pliLine;
+                                        }
+                                    }
+                                }
+
+                              step->pli.setParts(instancesPliParts,steps->meta);
+                              instancesPliParts.clear();
+                              pliParts.clear();
+
+                              step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
+                            }
+                        }
+
                       emit messageSig(true, "Add graphics for single-step page.");
 
                       if (renderer->useLDViewSCall() && ldrStepFiles.size() > 0){
@@ -1130,7 +1159,7 @@ int Gui::drawPage(LGraphicsView  *view,
                                      << "single step on page" << stepPageNum << ".";
                         }
 
-                      addGraphicsPageItems(steps,coverPage, endOfSubmodel,instances,view,scene,printing);
+                      addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,printing);
                       stepPageNum += ! coverPage;
                       steps->setBottomOfSteps(current);
 

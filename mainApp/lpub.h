@@ -835,7 +835,6 @@ private:
     Steps          *steps,         // a graphics view
     bool            coverPage,
     bool            endOfSubmodel,
-    int             instances,
     LGraphicsView  *view,
     QGraphicsScene *scene,
     bool            printing);

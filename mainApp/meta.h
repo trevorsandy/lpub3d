@@ -108,6 +108,8 @@ enum Rc {
          SynthBeginRc,
          SynthEndRc,
 
+         StepPliPerStepRc,
+
          ResolutionRc,
          
          IncludeRc,
@@ -1503,6 +1505,21 @@ public:
 
 /*------------------------*/
 
+class StepPliMeta : public BranchMeta
+{
+public:
+  BoolMeta        perStep;
+  StepPliMeta();
+  StepPliMeta(const StepPliMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~StepPliMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
 class NumberMeta : public BranchMeta
 {
 public:
@@ -2284,6 +2301,7 @@ public:
   FadeStepMeta          fadeStep;
   RotateIconMeta        rotateIcon;
   BoolMeta              mergeInstanceCount;
+  StepPliMeta           stepPli;
 
   LPubMeta();
   virtual ~LPubMeta() {}

@@ -2023,7 +2023,6 @@ int MetaItem::okToInsertFinalModel()
     for ( ; here >= 0; here--) {                                        //scan backwards
         line = gui->readLine(here);
         rc = content.parse(line,here);
-
         if (rc == InsertFinalModelRc) {                                 //check if insert final model
           logStatus() << "Final model detected at line: " << here.lineNumber;
             return -1;
@@ -2062,8 +2061,8 @@ int MetaItem::okToInsertFinalModel()
 
 void MetaItem::insertFinalModel(int atLine)
 {
-  QString pageMeta  = QString("0 !LPUB INSERT PAGE");
   QString modelMeta = QString("0 !LPUB INSERT MODEL");
+  QString pageMeta  = QString("0 !LPUB INSERT PAGE");
 
   if (atLine == -1){
     return;
@@ -2073,72 +2072,54 @@ void MetaItem::insertFinalModel(int atLine)
 
   beginMacro("insertFinalModel");
   appendMeta(here,step);
-  appendMeta(here+1,pageMeta);
-  appendMeta(here+2,modelMeta);
+  appendMeta(here+1,modelMeta);
+  appendMeta(here+2,pageMeta);
+  logStatus() << "Final model inserted at lines:" << here.lineNumber << "to" << here.lineNumber+2 ;
   endMacro();
 }
 
 void MetaItem::deleteFinalModel(){
 
-  Where here(gui->topLevelFile(),0);                   //start at bottom of file
-  here.lineNumber = gui->subFileSize(here.modelName);
+  int maxLines;
+  Where here(gui->topLevelFile(),0);                             //start at bottom of file
+  here.lineNumber = maxLines = gui->subFileSize(here.modelName);
   here--;
+
+  Where finalModelLine;
+  Where stopAtThisLine;
 
   Rc rc;
   Meta meta;
   bool foundFinalModel = false;
-  for (; here >=0; here--) {                            //scan backwards until Model
+  for (; here >=0; here--) {                                    //scan backwards until Model
       QString line = gui->readLine(here);
       rc = meta.parse(line,here);
-      if (rc == InsertFinalModelRc) {
-          foundFinalModel = true;                       //model found so continue backwards 1 line for Model's begin STEP
-          logStatus() << "Final model detected at line: " << here.lineNumber;;
-          continue;
-        } else
-        if (foundFinalModel && rc == StepRc){   //at STEP...
-            Where walk = here;                           //delete each line (starting with STEP) until line before next step or step group
-            for(; walk >=0; walk++){
-                QString line = gui->readLine(walk);
-                rc = meta.parse(line,here);
-                if(rc != StepRc || rc != StepGroupBeginRc){
-                    beginMacro("deleteFinalModel");
-                    deleteMeta(walk);
-                    endMacro();
-                  } else {
-                    break;
-                  }
-              }
-            break;
-          } else
-          if (foundFinalModel && rc == StepGroupEndRc){
-              Where walk = here++;                         //delete each line (starting after STEP GROUP END) until next STEP line
-              for(; walk >=0; walk++){
-                  QString line = gui->readLine(walk);
-                  rc = meta.parse(line,here);
-                  if(rc != StepGroupBeginRc){
-                      beginMacro("deleteFinalModel");
-                      deleteMeta(walk);
-                      endMacro();
-                    } else if (rc == StepRc){             //delete next STEP then break
-                      beginMacro("deleteFinalModel");
-                      deleteMeta(walk);
-                      endMacro();
-                      break;
-                    } else {
-                      break;
-                    }
-                }
-              break;
-            } else {
-              QStringList tokens;
-              split(line,tokens);
-              bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
-                  tokens[0] >= "1" && tokens[0] <= "5";
-               QRegExp rx("^\\s*0\\s+!*(?:LDRAW_ORG|LPUB)[^\n]*");
-              if (token_1_5 || line.contains(rx)) {                              //non-zero line detected so break
-                  break;
+      if (rc == InsertFinalModelRc) {                           //model found so locate position of page insert line
+          foundFinalModel  = true;
+          finalModelLine   = here;                              //mark line as starting point for deletion
+          if ((here.lineNumber + 1) < maxLines) {               //check if line before is page insert and adjust starting point for deletion
+              Where lineBefore = here+1;
+              line = gui->readLine(lineBefore);
+              rc = meta.parse(line,lineBefore);
+              if (rc == InsertPageRc) {
+                  finalModelLine = lineBefore;                  //adjust starting point for deletion
                 }
             }
+          logStatus() << "Final model detected at line: " << here.lineNumber;
+          continue;
+        }
+      else
+      if (foundFinalModel && rc == StepRc){                     //at at models's STEP ...
+          stopAtThisLine = here - 1;
+          Where walk = finalModelLine;
+          for (; walk > stopAtThisLine.lineNumber ; walk-- ){   //remove lines between model insert and model insert step
+              beginMacro("deleteFinalModel");
+              logStatus() << "Deleting inserted final model line No" << walk.lineNumber << " in " << walk.modelName;
+              deleteMeta(walk);
+              endMacro();
+            }
+          break;
+        }
     }
 }
 

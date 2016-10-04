@@ -204,7 +204,6 @@ int Gui::addGraphicsPageItems(
     Steps          *steps,
     bool            coverPage,
     bool            endOfSubmodel,
-    int             instances,
     LGraphicsView  *view,
     QGraphicsScene *scene,
     bool            printing)
@@ -532,12 +531,12 @@ int Gui::addGraphicsPageItems(
 
       // allocate QGraphicsTextItem for instance number
 
-      if (endOfSubmodel && instances > 1) {
+      if (endOfSubmodel && page->instances > 1) {
           instanceCount = new SubmodelInstanceCount(
                 page,
                 page->meta.LPub.page.instanceCount,
                 "x%d ",
-                instances,
+                page->instances,
                 pageBg);
 
           /*

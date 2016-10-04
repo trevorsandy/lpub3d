@@ -1,7 +1,11 @@
 LPub3D 2.0.13.823.2 
  
 Features and enhancements 
------------- 
+------------
+Fix: Inconsistency between part counts in submodels and part counts in call-outs where multiple instances are involved (r829)
+ * For submodels, the PLI part counts reflect only one instance of the submodel, even if multiple instances are used in the same step. The instance count is correct, and the BOM has the correct total number of parts. With this update, sub-model pages displaying instance count now have a context menu option to display parts per step/page or not (total parts consumed by the number of instances indicated.
+ Previously, for callouts, you have the options (see context menu) to display parts list per callout (one instance) or not. When you select no parts list per callout, the PLI will show all the parts consumed by the total number of instances in the callout. If you choose parts list per callout, the PLI is moved to the callout and only the parts for a single occurrence of the callout is shown. The idea here is if you have 5 occurrences of the called out assembly, you'll need 5x the parts total, but only 1x parts are shown to indicate what you need to build an instance of the called out assembly.
+ On sub-model pages displaying the instance count, there is only one behaviour for PLI counts (the most intuitive) which is to display the parts list per step. This is intuitive because the primary role of the PLI is to show what you'll need to build an occurrence of the step shown - it is not the intention to mimic the BoM. Nevertheless, I added a context menu item to not display parts list per step and instead display total parts consumed by the number of occurrences of the submodel in the parent submodel/step.
 Fix: Page size and orientation processing update (r826)
  * Further industrialization of the print/export module. This update streamlines the process and realizes some performance gains. There are some key changes. Notably, page orientation and page size are now mutually exclusive. This means when switching from Portrait to Landscape, accompanying the orientation meta with a transposed page size meta no longer required or managed. Here is an illustration:
  Previous behaviour when editing a page size change required the following meta commands:

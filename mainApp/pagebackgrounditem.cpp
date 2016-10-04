@@ -81,12 +81,13 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   // figure out if first step step number is greater than 1
 
-  QAction *addNextAction = NULL;
-  QAction *addPrevAction = NULL;
-  QAction *calloutAction = NULL;
-  QAction *assembledAction = NULL;
-  QAction *ignoreAction = NULL;
-  QAction *partAction = NULL;
+  QAction *addNextAction    = NULL;
+  QAction *addPrevAction    = NULL;
+  QAction *calloutAction    = NULL;
+  QAction *assembledAction  = NULL;
+  QAction *ignoreAction     = NULL;
+  QAction *partAction       = NULL;
+  QAction *perStepAction    = NULL;
 
   QAction *backgroundAction = NULL;
   QAction *sizeAndOrientationAction = NULL;
@@ -153,6 +154,15 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         }
     }
 
+  if (page->instances > 1) {
+      QString m_name = "Step";
+      if (page->meta.LPub.stepPli.perStep.value()) {
+          perStepAction = commonMenus.noPartsList(menu,m_name);
+        } else {
+          perStepAction = commonMenus.partsList(menu,m_name);
+        }
+    }
+
   backgroundAction = commonMenus.backgroundMenu(menu,name);
 
   sizeAndOrientationAction = menu.addAction("Change Page Size or Orientation");
@@ -198,7 +208,11 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         }
     }
 
-  if (selectedAction == backgroundAction) {
+  if (selectedAction == perStepAction) {
+      changeBool(page->top,
+                 page->bottom,
+                 &page->meta.LPub.stepPli.perStep,true,0,false,false);
+    } else if (selectedAction == backgroundAction) {
       changeBackground("Page Background",
                        page->top,
                        page->bottom,

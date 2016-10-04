@@ -1881,6 +1881,19 @@ void CalloutPliMeta::init(BranchMeta *parent, QString name)
 
 /* ------------------ */ 
 
+StepPliMeta::StepPliMeta() : BranchMeta()
+{
+  perStep.setValue(true);
+}
+
+void StepPliMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  perStep.init  (this,"PER_STEP");
+}
+
+/* ------------------ */
+
 void PliBeginMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
@@ -2528,7 +2541,7 @@ PageMeta::PageMeta() : BranchMeta()
 void PageMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  size.init               (this, "SIZE");
+  size.init               (this, "SIZE", PageSizeRc);
   orientation.init        (this, "ORIENTATION");
   margin.init             (this, "MARGINS");
   border.init             (this, "BORDER");
@@ -2969,6 +2982,7 @@ LPubMeta::LPubMeta() : BranchMeta()
   rotateIcon.placement.setValue(RightOutside,CsiType);
   stepNumber.placement.setValue(BottomLeftOutside,PageHeaderType);      // TopLeftInsideCorner,PageType
   stepNumber.color.setValue("black");
+
   mergeInstanceCount.setValue(true);
   // stepNumber - default
 }
@@ -2984,7 +2998,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   pli                    .init(this,"PLI");
   bom                    .init(this,"BOM");
   remove                 .init(this,"REMOVE");
-  reserve                .init(this,"RESERVE", ReserveSpaceRc);
+  reserve                .init(this,"RESERVE",ReserveSpaceRc);
   partSub                .init(this,"PART");
   resolution             .init(this,"RESOLUTION");
   insert                 .init(this,"INSERT");
@@ -2993,6 +3007,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   fadeStep               .init(this,"FADE_STEP");
   rotateIcon             .init(this,"ROTATE_ICON");
   mergeInstanceCount     .init(this,"CONSOLIDATE_INSTANCE_COUNT");
+  stepPli                .init(this,"STEP_PLI");
   reserve.setRange(0.0,1000000.0);
 }
 
