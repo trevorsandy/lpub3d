@@ -1236,7 +1236,6 @@ int Gui::findPage(
   bool newPageSize= false;
   bool newPageSizeGlobal=true;
   PgSizeData pageSize;
-  int newPageIndex = 1;
 
   QStringList bfxParts;
   QStringList saveBfxParts;
@@ -1604,9 +1603,9 @@ int Gui::findPage(
                 pageSize.sizeH      = meta.LPub.page.size.valueInches(1);
                 pageSize.sizeID     = meta.LPub.page.size.valueSizeID();
                 pageSize.orientation= pageSizes[DEF_SIZE].orientation;
-//                logNotice() << "1. New Page Number Detected        PageNum:" << pageNum
-//                            << "W:" << pageSize.sizeW << "H:"    << pageSize.sizeH
-//                            << "ID:" << pageSize.sizeID;
+                logNotice() << "1. Page Number Entry Detected        PageNum:" << pageNum
+                            << "W:" << pageSize.sizeW << "H:"    << pageSize.sizeH
+                            << "ID:" << pageSize.sizeID;
               }
               break;
             case PageOrientationRc:
@@ -1621,8 +1620,8 @@ int Gui::findPage(
               pageSize.sizeH      = pageSizes[DEF_SIZE].sizeH;
               pageSize.sizeID     = pageSizes[DEF_SIZE].sizeID;
               pageSize.orientation= meta.LPub.page.orientation.value();
-//              logNotice() << "2. New Page Orientation Detected   PageNum:" << pageNum
-//                          << "O:" << (pageSize.orientation == Portrait ? "Portrait" : "Landscape");
+              logNotice() << "2. Page Orientation Entry Detected   PageNum:" << pageNum
+                          << "O:" << (pageSize.orientation == Portrait ? "Portrait" : "Landscape");
               }
               break;
             case NoStepRc:
@@ -1645,11 +1644,11 @@ int Gui::findPage(
               // insert new page size
               pageSizes.remove(newPageIndex);
               pageSizes.insert(newPageIndex,pageSize);
-//              logTrace() << "3. Inserting NEW page size info at  PageIndex:" << newPageIndex
-//                         << "W:"  << pageSize.sizeW << "H:"    << pageSize.sizeH
-//                         << "O:"  << (pageSize.orientation == Portrait ? "Portrait" : "Landscape")
-//                         << "ID:" << pageSize.sizeID;
-            } else /* if (newPageIndex != 0) */ {
+              logNotice() << "3. Inserting NEW page size info at  PageIndex:" << newPageIndex
+                          << "W:"  << pageSize.sizeW << "H:"    << pageSize.sizeH
+                          << "O:"  << (pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                          << "ID:" << pageSize.sizeID;
+            } else {
               //insert default page size
               pageSizes.remove(newPageIndex);
               pageSizes.insert(newPageIndex,pageSizes[DEF_SIZE]);
@@ -2102,6 +2101,7 @@ void Gui::drawPage(
   pageSize.sizeID     = meta.LPub.page.size.valueSizeID();
   pageSize.orientation= meta.LPub.page.orientation.value();
   pageSizes.insert(DEF_SIZE,pageSize);
+  newPageIndex        = 1;
 //  logTrace() << "0. Inserting new page size info at  PageNum:" << DEF_SIZE
 //             << "W:"  << pageSize.sizeW << "H:"    << pageSize.sizeH
 //             << "O:"  << (pageSize.orientation == Portrait ? "Portrait" : "Landscape")

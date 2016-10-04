@@ -756,9 +756,7 @@ protected:
   float mRotStepAngleY;
   float mRotStepAngleZ;
 
-  QMap<int, QPageLayout>   pageLayouts;
-  QMap<int, FloatPairMeta> m_pageSizes;
-  QMap<int, PgSizeData>  pageSizes;
+  QMap<int, PgSizeData>  pageSizes;       // page size and orientation object
 
 private:    
   QGraphicsScene        *KpageScene;      // top of displayed page's graphics items
@@ -777,6 +775,7 @@ private:
   FadeStepColorParts     fadeStepColorParts; // internal list of color parts to be processed for fade step.
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
   bool                   m_exportingContent; // indicate export/pring underway
+  int                    newPageIndex;       // used to support page size and orientation counting
 
 #ifdef WATCHER
   QFileSystemWatcher watcher;        // watch the file system for external
