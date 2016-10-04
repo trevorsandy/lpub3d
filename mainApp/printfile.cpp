@@ -347,7 +347,7 @@ void Gui::printToPdfFile()
 
   if (mixedPageSize) {
 
-      logStatus() << "Processing mixed page size or orientation parameters...";
+      logStatus() << "Processing mixed page size for orientation parameters...";
       m_progressDialog->show();
       m_progressDlgMessageLbl->setText("Capturing page layouts...");
 
@@ -801,6 +801,7 @@ void Gui::exportAs(QString &suffix)
             painter.begin(&image);
 
             // set up the view
+             clearPage(&view,&scene);
             QRectF boundingRect(0.0,0.0,pageWidthPx,pageHeightPx);
             QRect  bounding(0,0,pageWidthPx,pageHeightPx);
             view.scale(1.0,1.0);
@@ -856,14 +857,16 @@ void Gui::exportAs(QString &suffix)
         m_progressDlgProgressBar->setRange(1,printPages.count());
 
         int _pageCount = 0;
+
         foreach(int printPage,printPages){
 
-            if (! exporting())
-              m_progressDialog->hide();
-              displayPageNum = savePageNumber;
-              drawPage(KpageView,KpageScene,false);
-              emit messageSig(true,QString("Export terminated before completion."));
-              return;
+            if (! exporting()) {
+                m_progressDialog->hide();
+                displayPageNum = savePageNumber;
+                drawPage(KpageView,KpageScene,false);
+                emit messageSig(true,QString("Export terminated before completion."));
+                return;
+              }
 
             displayPageNum = printPage;
 
@@ -890,6 +893,7 @@ void Gui::exportAs(QString &suffix)
             painter.begin(&image);
 
             // set up the view
+            clearPage(&view,&scene);
             QRectF boundingRect(0.0,0.0,pageWidthPx,pageHeightPx);
             QRect  bounding(0,0,pageWidthPx,pageHeightPx);
             view.scale(1.0,1.0);

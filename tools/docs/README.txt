@@ -1,4 +1,12 @@
-LPub3D 2.0.12.822.2 
+LPub3D 2.0.13.823.2 
+ 
+Features and enhancements 
+------------ 
+		
+Fix: The PNG output of a model with various page orientations is not correct(r824)
+ * Cleared page buffer before rendering each page. Also corrected a typo causing page range to sometimes not work for image exports.
+
+LPub3D 2.0.12.823.2 
  
 Features and enhancements 
 ------------ 
