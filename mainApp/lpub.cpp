@@ -93,7 +93,7 @@ void clearCsiCache()
 
 void clearCsi3dCache()
 {
-    gui->clearCSI3DCache();
+    gui->clearTempCache();
 }
 
 void clearAndRedrawPage()
@@ -637,7 +637,7 @@ void Gui::mpdComboChanged(int index)
 }
 
 
-void Gui::clearImageModelCaches()
+void Gui::clearAllCaches()
 {
     if (getCurFile().isEmpty()) {
         statusBarMsg("A model must be open to reset its caches - no action taken.");
@@ -646,7 +646,7 @@ void Gui::clearImageModelCaches()
 
        clearPLICache();
        clearCSICache();
-       clearCSI3DCache();
+       clearTempCache();
 
        //reload current model file
        openFile(curFile);
@@ -665,13 +665,13 @@ void Gui::clearAndRedrawPage()
 
        clearPLICache();
        clearCSICache();
-       clearCSI3DCache();
+       clearTempCache();
        displayPage();
 
        QObject *obj = sender();
        if (obj == editWindow)
          statusBarMsg("Page regenerated.");
-       else if (obj == clearImageModelCacheAct)
+       else if (obj == clearAllCachesAct)
          statusBarMsg("Assembly, Parts and 3D content caches reset.");
        else
          statusBarMsg("All content reset.");
@@ -765,7 +765,7 @@ void Gui::clearCSICache()
     statusBarMsg(QString("Assembly content cache cleaned. %1 items removed.").arg(count));
 }
 
-void Gui::clearCSI3DCache()
+void Gui::clearTempCache()
 {
     if (getCurFile().isEmpty()) {
         statusBarMsg("A model must be open to clean its 3D cache - no action taken.");
@@ -959,7 +959,7 @@ void Gui::preferences()
         }
         if (!getCurFile().isEmpty()) {
             if (Preferences::fadeStepSettingChanged){
-                clearImageModelCaches();
+                clearAllCaches();
             }
             if (rendererChanged ||
                      fadeStepColorChanged ||
@@ -991,8 +991,9 @@ Gui::Gui()
     exportOption  = EXPORT_ALL_PAGES;
     exportType    = EXPORT_PDF;
     pageRangeText = displayPageNum;
+    m_previewDialog    = false;
     m_exportingContent = false;
-    m_previewDialog = false;
+
 
     editWindow    = new EditWindow(this);
     parmsWindow   = new ParmsWindow(this);
@@ -1667,13 +1668,13 @@ void Gui::createActions()
     clearCSICacheAct->setStatusTip(tr("Reset the assembly image cache"));
     connect(clearCSICacheAct, SIGNAL(triggered()), this, SLOT(clearCSICache()));
 
-    clearCSI3DCacheAct = new QAction(QIcon(":/resources/clearcsi3dcache.png"),tr("Reset 3D Viewer Model Cache"), this);
-    clearCSI3DCacheAct->setStatusTip(tr("Reset the 3D viewer image cache"));
-    connect(clearCSI3DCacheAct, SIGNAL(triggered()), this, SLOT(clearCSI3DCache()));
+    clearTempCacheAct = new QAction(QIcon(":/resources/clearcsi3dcache.png"),tr("Reset Temp File Cache"), this);
+    clearTempCacheAct->setStatusTip(tr("Reset the Temp file and 3D viewer image cache"));
+    connect(clearTempCacheAct, SIGNAL(triggered()), this, SLOT(clearTempCache()));
 
-    clearImageModelCacheAct = new QAction(QIcon(":/resources/clearimagemodelcache.png"),tr("Reset Image and 3D Model Caches"), this);
-    clearImageModelCacheAct->setStatusTip(tr("Reset all image and model caches"));
-    connect(clearImageModelCacheAct, SIGNAL(triggered()), this, SLOT(clearImageModelCaches()));
+    clearAllCachesAct = new QAction(QIcon(":/resources/clearimagemodelcache.png"),tr("Reset All Caches"), this);
+    clearAllCachesAct->setStatusTip(tr("Reset temp file, image and model caches"));
+    connect(clearAllCachesAct, SIGNAL(triggered()), this, SLOT(clearAllCaches()));
 
     clearFadeCacheAct = new QAction(QIcon(":/resources/clearfadecache.png"),tr("Reset Fade Files Cache"), this);
     clearFadeCacheAct->setStatusTip(tr("Reset the fade part files cache"));
@@ -2000,10 +2001,10 @@ void Gui::createMenus()
     cacheMenu->setIcon(QIcon(":/resources/resetcache.png"));
     toolsMenu->addAction(refreshLDrawUnoffPartsAct);
     toolsMenu->addAction(refreshLDrawOfficialPartsAct);
-    cacheMenu->addAction(clearImageModelCacheAct);
+    cacheMenu->addAction(clearAllCachesAct);
     cacheMenu->addAction(clearPLICacheAct);
     cacheMenu->addAction(clearCSICacheAct);
-    cacheMenu->addAction(clearCSI3DCacheAct);
+    cacheMenu->addAction(clearTempCacheAct);
     cacheMenu->addAction(clearFadeCacheAct);
     cacheMenu->setDisabled(true);
 

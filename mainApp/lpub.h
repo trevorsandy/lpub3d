@@ -686,8 +686,8 @@ public slots:
 
   void clearPLICache();
   void clearCSICache();
-  void clearCSI3DCache();
-  void clearImageModelCaches();
+  void clearTempCache();
+  void clearAllCaches();
   void clearFadeCache();
   bool removeDir(int &count,const QString &dirName);
 
@@ -1054,11 +1054,11 @@ private:
   QComboBox*setGoToPageCombo;
 
   // manage Caches
-  QAction  *clearImageModelCacheAct;
+  QAction  *clearAllCachesAct;
 
   QAction  *clearPLICacheAct;
   QAction  *clearCSICacheAct;
-  QAction  *clearCSI3DCacheAct;
+  QAction  *clearTempCacheAct;
   QAction  *clearFadeCacheAct;
 
   QAction  *refreshLDrawUnoffPartsAct;

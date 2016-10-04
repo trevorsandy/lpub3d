@@ -2,6 +2,8 @@ LPub3D 2.0.13.823.2
  
 Features and enhancements 
 ------------
+Fix: Prompt search directory settings reset (r831)
+ * Prompt to inform that the search directories have been reset after the search directory reset button is clicked. Restarting LPub3D is not required. Also changed menu items "Reset 3D Viewer Model Cache" to "Change Temp File Cache" and "Reset Image and Model Caches" to "Reset All Caches".
 Fix: Inconsistency between part counts in submodels and part counts in call-outs where multiple instances are involved (r829)
  * For submodels, the PLI part counts reflect only one instance of the submodel, even if multiple instances are used in the same step. The instance count is correct, and the BOM has the correct total number of parts. With this update, sub-model pages displaying instance count now have a context menu option to display parts per step/page or not (total parts consumed by the number of instances indicated.
  Previously, for callouts, you have the options (see context menu) to display parts list per callout (one instance) or not. When you select no parts list per callout, the PLI will show all the parts consumed by the total number of instances in the callout. If you choose parts list per callout, the PLI is moved to the callout and only the parts for a single occurrence of the callout is shown. The idea here is if you have 5 occurrences of the called out assembly, you'll need 5x the parts total, but only 1x parts are shown to indicate what you need to build an instance of the called out assembly.
