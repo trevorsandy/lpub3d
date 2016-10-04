@@ -85,7 +85,7 @@ void lcGLWidget::ShowPopupMenu()
 	popup->addAction(actions[LC_VIEW_SPLIT_HORIZONTAL]);
 	popup->addAction(actions[LC_VIEW_SPLIT_VERTICAL]);
 	popup->addAction(actions[LC_VIEW_REMOVE_VIEW]);
-	popup->addAction(actions[LC_VIEW_RESET_VIEWS]);
+//	popup->addAction(actions[LC_VIEW_RESET_VIEWS]);
 
 	popup->exec(QCursor::pos());
 }
