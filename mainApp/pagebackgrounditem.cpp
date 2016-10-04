@@ -77,7 +77,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
   QString name = "Page";
-  bool fullContextMenu = page->list.size() && ! page->modelDisplayPage;
+  bool fullContextMenu = page->list.size() && ! page->modelDisplayStep;
 
   // figure out if first step step number is greater than 1
 

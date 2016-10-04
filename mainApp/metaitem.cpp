@@ -2018,13 +2018,9 @@ int MetaItem::okToInsertFinalModel()
         line = gui->readLine(here);
         rc = content.parse(line,here);
 
-        if (rc == InsertRc) {                                           //check if insert line is Insert Model
-            QRegExp InsertFinalModel("^\\s*0\\s+!LPUB\\s+.*MODEL");
-            if (line.contains(InsertFinalModel)){
-//                logInfo() << " \nModel detected at line: " << here.lineNumber;
-                return -1;                                              //insert line exist so return -1;
-            }
-            continue;
+        if (rc == InsertFinalModelRc) {                                 //check if insert final model
+          logStatus() << "Final model detected at line: " << here.lineNumber;
+            return -1;
         } else if (rc == StepGroupEndRc) {                              //if Step Grpup, then there is no final model
 //            logInfo() << " \nOK to Insert Model after StepGroup at line: " << here.lineNumber;
             return here.lineNumber;                                     //so return line number
@@ -2078,47 +2074,65 @@ void MetaItem::insertFinalModel(int atLine)
 
 void MetaItem::deleteFinalModel(){
 
-  Where here(gui->topLevelFile(),0);
+  Where here(gui->topLevelFile(),0);                   //start at bottom of file
   here.lineNumber = gui->subFileSize(here.modelName);
   here--;
-  logTrace() << " In delete Final Model: ";
+
   Rc rc;
   Meta meta;
   bool foundFinalModel = false;
   for (; here >=0; here--) {                            //scan backwards until Model
       QString line = gui->readLine(here);
       rc = meta.parse(line,here);
-      if (rc == InsertRc) {
-          QRegExp InsertFinalModel("^\\s*0\\s+!LPUB\\s+.*MODEL");
-          if (line.contains(InsertFinalModel)){
-              foundFinalModel = true;
-              continue;                               //model found so continue backwards until Model's begin STEP
-            }
-        } else if (foundFinalModel && rc == StepRc){   //at STEP...
-          Where walk = here;                           //delete each line until at Model's end Step
-          for(; walk >=0; walk++){
-              QString line = gui->readLine(walk);
-              rc = meta.parse(line,here);
-              if(rc != StepRc){
-                  beginMacro("deleteFinalModel");
-                  deleteMeta(walk);
-                  endMacro();
-                } else {
+      if (rc == InsertFinalModelRc) {
+          foundFinalModel = true;                       //model found so continue backwards 1 line for Model's begin STEP
+          logStatus() << "Final model detected at line: " << here.lineNumber;;
+          continue;
+        } else
+        if (foundFinalModel && rc == StepRc){   //at STEP...
+            Where walk = here;                           //delete each line (starting with STEP) until line before next step or step group
+            for(; walk >=0; walk++){
+                QString line = gui->readLine(walk);
+                rc = meta.parse(line,here);
+                if(rc != StepRc || rc != StepGroupBeginRc){
+                    beginMacro("deleteFinalModel");
+                    deleteMeta(walk);
+                    endMacro();
+                  } else {
+                    break;
+                  }
+              }
+            break;
+          } else
+          if (foundFinalModel && rc == StepGroupEndRc){
+              Where walk = here++;                         //delete each line (starting after STEP GROUP END) until next STEP line
+              for(; walk >=0; walk++){
+                  QString line = gui->readLine(walk);
+                  rc = meta.parse(line,here);
+                  if(rc != StepGroupBeginRc){
+                      beginMacro("deleteFinalModel");
+                      deleteMeta(walk);
+                      endMacro();
+                    } else if (rc == StepRc){             //delete next STEP then break
+                      beginMacro("deleteFinalModel");
+                      deleteMeta(walk);
+                      endMacro();
+                      break;
+                    } else {
+                      break;
+                    }
+                }
+              break;
+            } else {
+              QStringList tokens;
+              split(line,tokens);
+              bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
+                  tokens[0] >= "1" && tokens[0] <= "5";
+               QRegExp rx("^\\s*0\\s+!*(?:LDRAW_ORG|LPUB)[^\n]*");
+              if (token_1_5 || line.contains(rx)) {                              //non-zero line detected so break
                   break;
                 }
             }
-          break;
-        } else if (rc == StepGroupEndRc){
-          break;
-        } else {
-          QStringList tokens;
-          split(line,tokens);
-          bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
-              tokens[0] >= "1" && tokens[0] <= "5";
-          if (token_1_5) {                              //non-zero line detected so break
-              break;
-            }
-        }
     }
 }
 

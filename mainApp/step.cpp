@@ -72,6 +72,7 @@ Step::Step(
   submodelLevel             = _meta.submodelStack.size();
   stepNumber.number         =  num;             // record step number
 
+  modelDisplayStep      = false;
   relativeType              = StepType;
   csiPlacement.relativeType = CsiType;
   stepNumber.relativeType   = StepNumberType;
@@ -172,9 +173,11 @@ int Step::createCsi(
     Meta              &meta)
 {
   qreal       modelScale = meta.LPub.assem.modelScale.value();
-  int         sn = stepNumber.number;
+  QString     mdStepNum = QString("%1_fm").arg(stepNumber.number);
+  QString     sn = QString("%1").arg(modelDisplayStep ? mdStepNum : QString::number(stepNumber.number));
   bool        csiExist = false;
   ldrName.clear();
+
 
   // 1 color x y z a b c d e f g h i foo.dat
   // 0 1     2 3 4 5 6 7 8 9 0 1 2 3 4
@@ -213,6 +216,7 @@ int Step::createCsi(
     }
 
   // generate CSI file as appropriate
+
   if ( ! csiExist || csiOutOfDate ) {
 
       int rc;

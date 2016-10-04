@@ -261,7 +261,6 @@ int Gui::drawPage(LGraphicsView  *view,
   int         numLines    = ldrawFile.size(current.modelName);
   bool        firstStep   = true;
   bool        noStep      = false;
-  bool        modelDisplayPage  = false;
   bool        rotateIcon  = false;
 
   steps->isMirrored = isMirrored;
@@ -536,8 +535,6 @@ int Gui::drawPage(LGraphicsView  *view,
               global = false;
             }
 
-          QString part;
-
           if (gprc == EndOfFileRc) {
               rc = gprc;
             } else {
@@ -737,19 +734,46 @@ int Gui::drawPage(LGraphicsView  *view,
                 }
               break;
 
+            case InsertFinalModelRc:
+              {
+                if (curMeta.LPub.fadeStep.fadeStep.value()){
+                    // this is not a step but it's necessary to use the step object to place the model
+                    // increment the step number down - so basically use previous number for step
+                    // do this before creating the step so we can use in the file name during
+                    // csi generation to indicate this step file is not an actual step - just a model display
+                    stepNum--;
+                    if (step == NULL) {
+                        if (range == NULL) {
+                            range = newRange(steps,calledOut);
+                            steps->append(range);
+                          }
+                        step = new Step(topOfStep,
+                                        range,
+                                        stepNum,
+                                        curMeta,
+                                        calledOut,
+                                        multiStep);
+
+                        step->modelDisplayStep = true;
+
+                        range->append(step);
+                      }
+                    //partsAdded = true;
+                  }
+              }
+              break;
+
             case InsertCoverPageRc:
               {
                 coverPage = true;
                 page.coverPage = true;
-                QRegExp frontCoverPage("^\\s*0\\s+!LPUB\\s+.*FRONT");
                 QRegExp backCoverPage("^\\s*0\\s+!LPUB\\s+.*BACK");
-                if (line.contains(frontCoverPage)){
-                    page.frontCover = true;
-                    page.backCover  = false;
-                  }
                 if (line.contains(backCoverPage)){
                     page.backCover  = true;
                     page.frontCover = false;
+                  } else {
+                    page.frontCover = true;
+                    page.backCover  = false;
                   }
                 // nothing to display in 3D Window
                 if (! printing)
@@ -772,35 +796,12 @@ int Gui::drawPage(LGraphicsView  *view,
 
                 if (insertData.type == InsertData::InsertRotateIcon) { // indicate that we have a rotate icon for this step
 
-//                   qDebug() << "CALLED OUT: " << calledOut << " SUPRESS ROTATE ICON: " << supressRotateIcon;
+ //                   qDebug() << "CALLED OUT: " << calledOut << " SUPRESS ROTATE ICON: " << supressRotateIcon;
 
-                  if (calledOut && supressRotateIcon) {
-                      rotateIcon = false;
-                    } else {
-                      rotateIcon = true;
-                    }
-                }
-
-                if (insertData.type == InsertData::InsertFinalModel){
-
-                    if (curMeta.LPub.fadeStep.fadeStep.value()){
-                        // this is not a step but it's necessary to use the step object to place the model
-                        if (step == NULL) {
-                            if (range == NULL) {
-                                range = newRange(steps,calledOut);
-                                steps->append(range);
-                              }
-                            stepNum = NOSTEPNUMBER; //send special value so csiitem can supress some context menu items
-                            step = new Step(topOfStep,
-                                            range,
-                                            stepNum,
-                                            curMeta,
-                                            calledOut,
-                                            multiStep);
-                            range->append(step);
-                          }
-                        partsAdded  = true; // OK, so this is a lie, but it works
-                        modelDisplayPage  = true;
+                    if (calledOut && supressRotateIcon) {
+                        rotateIcon = false;
+                      } else {
+                        rotateIcon = true;
                       }
                   }
                 if (insertData.type == InsertData::InsertBom){
@@ -943,7 +944,7 @@ int Gui::drawPage(LGraphicsView  *view,
                                  << "step group on page" << stepPageNum << ".";
                     }
 
-                  addGraphicsPageItems(steps, coverPage, modelDisplayPage, endOfSubmodel,instances, view, scene, printing);
+                  addGraphicsPageItems(steps, coverPage, endOfSubmodel,instances, view, scene, printing);
 
                   return HitEndOfPage;
                 }
@@ -960,7 +961,7 @@ int Gui::drawPage(LGraphicsView  *view,
             case StepRc:
 
               // special case of no parts added, but BFX load and not NOSTEP
-              if ( ! partsAdded && bfxLoad && ! noStep) {
+              if (! partsAdded && bfxLoad && ! noStep) {
                   if (step == NULL) {
                       if (range == NULL) {
                           range = newRange(steps,calledOut);
@@ -1029,6 +1030,7 @@ int Gui::drawPage(LGraphicsView  *view,
                       Page *page = dynamic_cast<Page *>(steps);
                       if (page) {
                           page->inserts = inserts;
+                          page->modelDisplayStep = step->modelDisplayStep;
                         }
 
                       if (pliPerStep) {
@@ -1055,7 +1057,7 @@ int Gui::drawPage(LGraphicsView  *view,
 
                       int rc = step->createCsi(
                             isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                            saveCsiParts = modelDisplayPage ? csiParts : fadeStep(csiParts, stepNum, current),
+                            saveCsiParts = fadeStep(csiParts, step->modelDisplayStep ? -1 : stepNum, current),
                             &step->csiPixmap,
                             steps->meta);
 
@@ -1127,7 +1129,7 @@ int Gui::drawPage(LGraphicsView  *view,
                                      << "single step on page" << stepPageNum << ".";
                         }
 
-                      addGraphicsPageItems(steps,coverPage,modelDisplayPage, endOfSubmodel,instances,view,scene,printing);
+                      addGraphicsPageItems(steps,coverPage, endOfSubmodel,instances,view,scene,printing);
                       stepPageNum += ! coverPage;
                       steps->setBottomOfSteps(current);
 
@@ -2317,7 +2319,7 @@ QStringList Gui::fadeStep(const QStringList &csiParts, const int &stepNum,  Wher
       for (int index = 0; index < csiParts.size(); index++) {
 
           QString csiLine = csiParts[index];
-          if ((index + 1) <= fadePosition) {
+          if ((index + 1) <= fadePosition) {  // write fade with stuff
               split(csiLine, argv);
               if (argv.size() == 15 && argv[0] == "1") {
                   // update fade colour

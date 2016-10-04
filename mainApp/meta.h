@@ -73,6 +73,7 @@ enum Rc {
          InsertRc,
          InsertPageRc,
          InsertCoverPageRc,
+         InsertFinalModelRc,
 
          ClearRc,
          BufferStoreRc,

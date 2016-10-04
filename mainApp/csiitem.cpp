@@ -84,8 +84,9 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QString name = "Step";
 
   MetaItem mi;
-  int numSteps = mi.numSteps(step->top.modelName);
-  bool fullContextMenu = step->stepNumber.number != NOSTEPNUMBER;
+  int numSteps          = mi.numSteps(step->top.modelName);
+  bool fullContextMenu  = step->modelDisplayStep == false;
+
   Boundary boundary = step->boundary();
 
   QAction *addNextAction = NULL;
@@ -99,7 +100,8 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     }
 
   QAction *addPrevAction = NULL;
-  if ( step->stepNumber.number > 1 &&
+  if ( fullContextMenu  &&
+       step->stepNumber.number > 1 &&
        (parentRelativeType == SingleStepType ||
         (parentRelativeType == StepGroupType && (boundary & StartOfSteps)))) {
       addPrevAction = menu.addAction("Add Previous Step");
@@ -180,7 +182,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     }
 
   QAction *placementAction = NULL;
-  if (parentRelativeType == SingleStepType) {
+  if (fullContextMenu  && parentRelativeType == SingleStepType) {
       placementAction = menu.addAction("Move This Step");
       placementAction->setIcon(QIcon(":/resources/placement.png"));
       placementAction->setWhatsThis(
@@ -242,7 +244,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         }
     }
 
-  QAction *noStepAction = menu.addAction(fullContextMenu ? "Don't Show This Page" : "Don't Show This Step");
+  QAction *noStepAction = menu.addAction(fullContextMenu ? "Don't Show This Page" : "Don't Show This Final Model");
   noStepAction->setIcon(QIcon(":/resources/display.png"));
 
   QAction *selectedAction = menu.exec(event->screenPos());

@@ -39,8 +39,6 @@
 #include "csiitem.h"
 #include "callout.h"
 
-#define NOSTEPNUMBER -3
-
 class Meta;
 class Callout;
 class Range;
@@ -65,13 +63,14 @@ class Step : public AbstractRangeElement
     int                   submodelLevel;
     bool                  pliPerStep;
     bool                  csiOutOfDate;
+    bool                  modelDisplayStep;
     static bool           refreshCsi;
     PlacementMeta         placement;
     QString               ldrName;
     QString               pngName;
     QString               csi3DName;
     PlacementHeader       pageHeader;
-    PlacementFooter       pageFooter;  
+    PlacementFooter       pageFooter;
 
     QString               foo;
 
@@ -91,7 +90,6 @@ class Step : public AbstractRangeElement
       list.append(callout);
       callout->parentStep = this;
     }
-    
     Step  *nextStep();
     Range *range();
 

@@ -203,7 +203,6 @@ void SubmodelInstanceCount::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 int Gui::addGraphicsPageItems(
     Steps          *steps,
     bool            coverPage,
-    bool            modelDisplayPage,
     bool            endOfSubmodel,
     int             instances,
     LGraphicsView  *view,
@@ -277,9 +276,6 @@ int Gui::addGraphicsPageItems(
 
   // pW = page->meta.LPub.page.size.valuePixels(0);
   // pH = page->meta.LPub.page.size.valuePixels(1);
-
-  if (modelDisplayPage)
-    page->modelDisplayPage = true;
 
   pageBg = new PageBackgroundItem(page, pW, pH);
 
@@ -705,10 +701,6 @@ int Gui::addGraphicsPageItems(
                 page->pli.relativeToSize[0] = plPage.size[XX];
                 page->pli.relativeToSize[1] = plPage.size[YY];
               }
-              break;
-            case InsertData::InsertFinalModel:
-              break;
-            case InsertData::InsertCoverPage:
               break;
             case InsertData::InsertRotateIcon:
               break;
@@ -1458,7 +1450,7 @@ int Gui::addGraphicsPageItems(
 
                   // allocate QGraphicsTextItem for step number
 
-                  if ( ! step->onlyChild() && ! modelDisplayPage) {
+                  if ( ! step->onlyChild() && ! step->modelDisplayStep) {
                       StepNumberItem *stepNumber =
                           new StepNumberItem(step,
                                              page->relativeType,

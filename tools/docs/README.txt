@@ -2,8 +2,24 @@ LPub3D 2.0.13.823.2
  
 Features and enhancements 
 ------------ 
-		
-Fix: The PNG output of a model with various page orientations is not correct(r824)
+Fix: Expand INSERT MODEL meta command behaviour (r825)
+ * LPUb3D will process multiple INSERT MODEL commands rendering the CSI content as appropriate used within a set of instructions that use part fading.  For example, if the model includes different attachments, and the editor would like to include a non-faded image of the entire model with each attachment. Here is an example of he proper command sequence when used in conjunction with BUFEXCHG: 
+    0 BUFEXCHG B STORE
+	0 //...				    default model content...
+	0 STEP
+	0 BUFEXCHG B RETRIEVE
+	0 BUFEXCHG A STORE
+	1 0 445 -46 -10 1 0 0 0 1 0 0 0 1 attachment1.ldr
+	0 STEP
+	0 !LPUB INSERT MODEL
+	0 !LPUB INSERT PAGE
+	0 STEP
+	0 BUFEXCHG A RETRIEVE
+	1 0 0 0 0 1 0 0 0 1 0 0 0 1 attachment2.ldr
+	0 //STEP			    These last 3 lines are optional when editing the model file. 
+	0 //!LPUB INSERT MODEL	If they don't exist and fade step is ON, they will be automatically created by LPub3D    
+	0 //!LPUB INSERT PAGE
+Fix: The PNG output of a model with various page orientations is not correct (r824)
  * Cleared page buffer before rendering each page. Also corrected a typo causing page range to sometimes not work for image exports.
 
 LPub3D 2.0.12.823.2 

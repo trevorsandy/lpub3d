@@ -835,7 +835,6 @@ private:
   int addGraphicsPageItems(        // this converts the abstract page into
     Steps          *steps,         // a graphics view
     bool            coverPage,
-    bool            modelDisplayPage,
     bool            endOfSubmodel,
     int             instances,
     LGraphicsView  *view,
