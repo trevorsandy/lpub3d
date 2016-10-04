@@ -1277,36 +1277,42 @@ void MetaItem::changeSizeAndOrientation(
   QString              title,
   const Where         &topOfStep,
   const Where         &bottomOfStep,
-  UnitsMeta           *smeta,
+  PageSizeMeta        *smeta,
   PageOrientationMeta *ometa,
   bool                 useTop,
   int                  append,
   bool                 local)
 {
-  float values[2];
 
-  values[0]   = smeta->value(0);
-  values[1]   = smeta->value(1);
+  PgSizeData sdata;
+  sdata.sizeW  = smeta->value(0);
+  sdata.sizeH  = smeta->value(1);
+  sdata.sizeID = smeta->valueSizeID();
 
   OrientationEnc orientation;
   orientation = ometa->value();
 
   bool ok;
-  ok = SizeAndOrientationDialog::getSizeAndOrientation(values,orientation,title,gui);
+  ok = SizeAndOrientationDialog::getSizeAndOrientation(sdata,orientation,title,gui);
 
   if (ok) {
+      if (orientation != ometa->value()) {
+//          logDebug() << " SIZE (dialog return): Orientation: " << (orientation == Portrait ? "Portrait" : "Landscape");
+          ometa->setValue(orientation);
+          setMeta(topOfStep,bottomOfStep,ometa,useTop,append,local);
+        }
 
-      logDebug() << " SIZE (dialog return): Orientation: " << (orientation == Portrait ? "Portrait" : "Landscape");
-      ometa->setValue(orientation);
-      setMeta(topOfStep,bottomOfStep,ometa,useTop,append,local);
+      if (sdata.sizeW != smeta->value(0) || sdata.sizeID != smeta->valueSizeID() || sdata.sizeH != smeta->value(1)) {
+//          logDebug() << " SIZE (dialog return): Width: " << smeta->value(0) << " Height: " << smeta->value(1) << " SizeID: " << smeta->valueSizeID();
 
-      logDebug() << " SIZE (dialog return): Width: " << smeta->value(0) << " Height: " << smeta->value(1);
-      smeta->setValue(0,values[0]);
-      smeta->setValue(1,values[1]);
-      setMeta(topOfStep,bottomOfStep,smeta,useTop,append,local);
-
-  }
+          smeta->setValue(0,sdata.sizeW);
+          smeta->setValue(1,sdata.sizeH);
+          smeta->setValueSizeID(sdata.sizeID);
+          setMeta(topOfStep,bottomOfStep,smeta,useTop,append,local);
+        }
+    }
 }
+
 /*
 void MetaItem::changePageSize(
   QString         title,
@@ -2067,8 +2073,8 @@ void MetaItem::insertFinalModel(int atLine)
 
   beginMacro("insertFinalModel");
   appendMeta(here,step);
-  appendMeta(here,pageMeta);
-  appendMeta(here,modelMeta);
+  appendMeta(here+1,pageMeta);
+  appendMeta(here+2,modelMeta);
   endMacro();
 }
 

@@ -64,7 +64,6 @@ class Step : public AbstractRangeElement
     bool                  pliPerStep;
     bool                  csiOutOfDate;
     bool                  modelDisplayStep;
-    static bool           refreshCsi;
     PlacementMeta         placement;
     QString               ldrName;
     QString               pngName;

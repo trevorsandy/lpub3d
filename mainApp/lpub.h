@@ -403,9 +403,8 @@ class LGraphicsView;
 class PageBackgroundItem;
 
 enum traverseRc { HitEndOfPage = 1 };
-
+enum Dimensions {Pixels = 0, Inches};
 enum FitMode { FitNone, FitWidth, FitVisible, FitTwoPages, FitContinuousScroll };
-
 enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
 enum ExportType { EXPORT_PDF, EXPORT_PNG, EXPORT_JPG, EXPORT_BMP };
 
@@ -435,7 +434,6 @@ public:
   int             exportType;       // export Type
   int             exportOption;     // export Option
   QString         pageRangeText;    // page range parameters
-  bool            mixedPageSize;    // mixed page size and orientation
 
   bool             m_previewDialog;
   ProgressDialog  *m_progressDialog; // general use progress dialog
@@ -758,8 +756,9 @@ protected:
   float mRotStepAngleY;
   float mRotStepAngleZ;
 
-  QMap<int, QPageLayout> pageLayouts;
-  QMap<int, FloatPairMeta> pageSizes;
+  QMap<int, QPageLayout>   pageLayouts;
+  QMap<int, FloatPairMeta> m_pageSizes;
+  QMap<int, PgSizeData>  pageSizes;
 
 private:    
   QGraphicsScene        *KpageScene;      // top of displayed page's graphics items
@@ -925,7 +924,7 @@ private slots:
     void zoomIn(LGraphicsView *view);
     void zoomOut(LGraphicsView *view);
 
-    void GetPixelDimensions(float &, float &);
+    void getPageSize(float &, float &, int d = Pixels);
     bool validatePageRange();
 
     void ShowPrintDialog();
@@ -943,9 +942,9 @@ private slots:
     void exportAsJpg();
     void exportAsBmp();
 
-    QPageLayout getPageLayout();
-    QPageLayout retrievePageLayout();
-    FloatPairMeta retrievePageSize();
+    OrientationEnc getPageOrientation(bool nextPage = false);
+    QPageLayout getPageLayout(bool nextPage = false);
+    bool getMixedPageSizeStatus();
 
     void closeEvent(QCloseEvent *event);
 

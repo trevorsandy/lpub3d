@@ -96,7 +96,7 @@ GlobalPageDialog::GlobalPageDialog(
 //  data->children.append(child);
 
   bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
-  QString header = (dpi ? "Size and Orientation (In) " : "Size and Orientation (Cm)" );
+  QString header = (dpi ? "Size and Orientation (Inches) " : "Size and Orientation (Centimeters)" );
 
   box = new QGroupBox(tr("%1").arg(header));
   grid->addWidget(box,0,0);

@@ -48,6 +48,7 @@ class QString;
 class QHBoxLayout;
 class LeafMeta;
 class UnitsMeta;
+class PageSizeMeta;
 
 class MetaGui  : public QWidget
 {
@@ -875,7 +876,7 @@ public:
 
   PageSizeGui(
     QString const           &heading,
-    UnitsMeta              *_meta,
+    PageSizeMeta           *_meta,
     QGroupBox              *parent = NULL);
   ~PageSizeGui() {}
 
@@ -892,7 +893,7 @@ public:
 private:
   float                   w;
   float                   h;
-  UnitsMeta              *meta;
+  PageSizeMeta           *meta;
   QLabel                 *label;
   QGroupBox              *size;
 
@@ -920,7 +921,7 @@ public:
 
   SizeAndOrientationGui(
     QString const           &heading,
-    UnitsMeta              *_smeta,
+    PageSizeMeta           *_smeta,
     PageOrientationMeta    *_ometa,
     QGroupBox              *parent = NULL);
   ~SizeAndOrientationGui() {}
@@ -930,12 +931,17 @@ public:
 
   virtual void apply(QString &topLevelFile);
 
+  bool isModified(){
+    modified = sizeModified || orientationModified;
+    return modified;
+  }
+
 private:
-//  bool                    sizeModified;
-//  bool                    orientationModified;
+  bool                    sizeModified;
+  bool                    orientationModified;
   float                   w;
   float                   h;
-  UnitsMeta              *smeta;
+  PageSizeMeta           *smeta;
   PageOrientationMeta    *ometa;
   QLabel                 *label;
   QRadioButton           *portraitRadio;

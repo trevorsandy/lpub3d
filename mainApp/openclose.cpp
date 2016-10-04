@@ -231,6 +231,7 @@ void Gui::closeFile()
   setGoToPageCombo->setMaxCount(0);
   setGoToPageCombo->setMaxCount(1000);
   setPageLineEdit->clear();
+  pageSizes.clear();
   undoStack->clear();
 }
 

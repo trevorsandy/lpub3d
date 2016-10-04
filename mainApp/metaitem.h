@@ -174,7 +174,7 @@ public:
   void changeSizeAndOrientation(QString,
                         const Where &,
                         const Where &,
-                        UnitsMeta *,
+                        PageSizeMeta   *,
                         PageOrientationMeta *,
                         bool  useTop = true,
                         int   append = 1,

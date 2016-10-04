@@ -220,7 +220,6 @@ void Gui::displayPage()
       enableActions2();
 
       emit enable3DActionsSig();
-      Step::refreshCsi = false; //reset
     }
   emit messageSig(true,"Page display ready.");
 }
@@ -940,8 +939,6 @@ void Gui::preferences()
         Meta meta;
         page.meta = meta;
 
-        Step::refreshCsi = true;
-
         QString currentRenderer = Render::getRenderer();
         Render::setRenderer(Preferences::preferredRenderer);
         bool rendererChanged = Render::getRenderer() != currentRenderer;
@@ -994,10 +991,8 @@ Gui::Gui()
     exportOption  = EXPORT_ALL_PAGES;
     exportType    = EXPORT_PDF;
     pageRangeText = displayPageNum;
-    mixedPageSize = false;
     m_exportingContent = false;
     m_previewDialog = false;
-
 
     editWindow    = new EditWindow(this);
     parmsWindow   = new ParmsWindow(this);

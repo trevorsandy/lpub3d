@@ -42,7 +42,8 @@ enum AllocEnc {
 
 enum OrientationEnc {
   Portrait = 0,
-  Landscape
+  Landscape,
+  InvalidOrientation
 };
 
 enum RectPlacement{
@@ -228,6 +229,32 @@ class BuffExchgData
 public:
   QString buffer;
   QString type;
+};
+
+class PgSizeData
+{
+public:
+  float   sizeW;
+  float   sizeH;
+  QString sizeID;
+  OrientationEnc orientation;
+  PgSizeData(){
+    sizeW       = 0;
+    sizeH       = 0;
+    orientation = Portrait;
+  }
+};
+
+class PageSizeData{
+public:
+//  OrientationEnc orientation; //future use
+  float          pagesize[2][2];
+  QString        sizeid;
+  PageSizeData(){
+//    orientation = Portrait;
+    pagesize[0][0] = 0;
+    pagesize[0][1] = 0;
+  }
 };
 
 class InsertData

@@ -54,11 +54,11 @@ public:
   virtual ~PageSizeDialog();
 
   static bool getPageSize(
-    float           goods[],
+    float          goods[],
     QString        name,
     QWidget       *parent = 0);
 
-    UnitsMeta       meta;
+    PageSizeMeta   meta;
 
 public slots:
   void accept();

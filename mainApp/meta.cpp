@@ -334,7 +334,7 @@ int UnitsMeta::valuePixels(int which)
 QString UnitsMeta::format(bool local, bool global)
 {
   QString foo;
-  foo = QString("%1 %2")
+  foo = QString("%1 %2 %3")
       .arg(valueInches(0),_fieldWidth,'f',_precision)
       .arg(valueInches(1),_fieldWidth,'f',_precision);
   return LeafMeta::format(local,global,foo);
@@ -1435,7 +1435,7 @@ Rc PageOrientationMeta::parse(QStringList &argv, int index, Where &here)
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
       type[pushed] = OrientationEnc(tokenMap[argv[index]]);
       _here[pushed] = here;
-      return OkRc;
+      return PageOrientationRc;
     }
   if (reportErrors) {
       QMessageBox::warning(NULL,
@@ -1444,6 +1444,7 @@ Rc PageOrientationMeta::parse(QStringList &argv, int index, Where &here)
     }
   return FailureRc;
 }
+
 QString PageOrientationMeta::format(bool local, bool global)
 {
   QString foo;
@@ -1457,6 +1458,62 @@ QString PageOrientationMeta::format(bool local, bool global)
 void PageOrientationMeta::doc(QStringList &out, QString preamble)
 {
   out << preamble + " (PORTRAIT|LANDSCAPE)";
+}
+
+/* ------------------ */
+
+void PageSizeMeta::init(
+    BranchMeta *parent,
+    const QString name,
+    Rc _rc)
+{
+  AbstractMeta::init(parent,name);
+  rc = _rc;
+}
+Rc PageSizeMeta::parse(QStringList &argv, int index,Where &here)
+{
+  if (argv.size() - index >= 2) {
+      bool ok[2];
+      float v0 = argv[index  ].toFloat(&ok[0]);
+      float v1 = argv[index+1].toFloat(&ok[1]);
+      if (ok[0] && ok[1]) {
+          if (v0 < _min || v0 > _max ||
+              v1 < _min || v1 > _max) {
+              return RangeErrorRc;
+            }
+          _value[pushed].pagesize[pushed][0] = v0;
+          _value[pushed].pagesize[pushed][1] = v1;
+
+
+          if (argv.size() - index == 3) {
+              _value[pushed].sizeid = argv[index+2];
+            } else {
+              _value[pushed].sizeid = "Custom";
+            }
+          _here[pushed] = here;
+          return PageSizeRc;
+        }
+    }
+
+  if (reportErrors) {
+      QMessageBox::warning(NULL,
+                           QMessageBox::tr("LPub3D"),
+                           QMessageBox::tr("Expected two floating point numbers and a string but got \"%1\" \"%2\" %3") .arg(argv[index]) .arg(argv[index+1]) .arg(argv.join(" ")));
+    }
+
+  return FailureRc;
+}
+QString PageSizeMeta::format(bool local, bool global)
+{
+  QString foo = QString("%1 %2")
+      .arg(_value[pushed].pagesize[pushed][0],_fieldWidth,'f',_precision)
+      .arg(_value[pushed].pagesize[pushed][1],_fieldWidth,'f',_precision)
+      .arg(_value[pushed].sizeid);
+  return LeafMeta::format(local,global,foo);
+}
+void PageSizeMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " <float> <float> <page size id>";
 }
 
 /* ------------------ */
@@ -2233,7 +2290,7 @@ PageMeta::PageMeta() : BranchMeta()
   size.setValuesInches(8.3f,11.7f);
   size.setRange(1,1000);
   size.setFormats(6,4,"9.9999");
-  sizeid.setValue("A4");
+  size.setValueSizeID("A4");
   orientation.setValue(Portrait);
 
   BorderData borderData;
@@ -2472,7 +2529,6 @@ void PageMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
   size.init               (this, "SIZE");
-  sizeid.init             (this, "SIZEID");
   orientation.init        (this, "ORIENTATION");
   margin.init             (this, "MARGINS");
   border.init             (this, "BORDER");

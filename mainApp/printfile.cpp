@@ -39,80 +39,169 @@ bool lessThan(const int &v1, const int &v2)
     return v1 < v2;
 }
 
-QPageLayout Gui::getPageLayout(){
-    // determine page orientation
-    bool  ls = page.meta.LPub.page.orientation.value() == Landscape;
-    QPageLayout::Orientation layoutOrientation = ls ? QPageLayout::Landscape : QPageLayout::Portrait;
-    // determine the page size in inches. only concerned with inches because resolution() reports DPI
-    qreal pageWidthIn, pageHeightIn;
-    if (page.meta.LPub.resolution.type() == DPI) {
-        pageWidthIn = page.meta.LPub.page.size.value(0);
-        pageHeightIn = page.meta.LPub.page.size.value(1);
-    } else {
-        pageWidthIn = centimeters2inches(page.meta.LPub.page.size.value(0));
-        pageHeightIn = centimeters2inches(page.meta.LPub.page.size.value(1));
-    }
-    // switch because we always want to send portrait width x height to the printer
-    if(ls){qreal temp = pageHeightIn; pageHeightIn = pageWidthIn; pageWidthIn = temp;}
-    QPageSize pageSize(QSizeF(pageWidthIn,pageHeightIn),QPageSize::Inch,"",QPageSize::FuzzyMatch);
+QPageLayout Gui::getPageLayout(bool nextPage){
 
-    return QPageLayout(pageSize, layoutOrientation, QMarginsF(0,0,0,0));
+  int pageNum = displayPageNum;
+  if (nextPage && displayPageNum < maxPages){
+      pageNum = displayPageNum + 1;            //next page
+    }
+
+
+  QMap<int,PgSizeData>::iterator i = pageSizes.find(pageNum);
+  if (i != pageSizes.end()){
+
+      // determine page orientation
+      bool  ls = i.value().orientation == Landscape;
+      QPageLayout::Orientation layoutOrientation = ls ? QPageLayout::Landscape : QPageLayout::Portrait;
+      // determine the page size in inches. only concerned with inches because resolution() reports DPI
+      qreal pageWidthIn, pageHeightIn;
+      pageWidthIn  = i.value().sizeW;
+      pageHeightIn = i.value().sizeH;
+
+      // switch back orientation because we always want to send portrait width x height to the printer
+      //if(ls){qreal temp = pageHeightIn; pageHeightIn = pageWidthIn; pageWidthIn = temp;}
+      QPageSize pageSize(QSizeF(pageWidthIn,pageHeightIn),QPageSize::Inch,"",QPageSize::FuzzyMatch);
+
+//      logDebug() << QString("         PAGE %5 SIZE LAYOUT - WidthIn: %1 x HeightIn: %2 Orientation: %3 DPx: %4 CurPage: %6")
+//                    .arg(QString::number(pageWidthIn,'f',4),
+//                         QString::number(pageHeightIn,'f',4))
+//                    .arg(layoutOrientation == QPageLayout::Landscape ? "Landscape":"Portrait")
+//                    .arg(page.meta.LPub.resolution.type() == DPI ? "DPI":"DPCM")
+//                    .arg(pageNum).arg(displayPageNum);
+
+      return QPageLayout(pageSize, layoutOrientation, QMarginsF(0,0,0,0));
+    }
+
+  emit messageSig(false,tr("Could not load page %1 layout parameters.").arg(pageNum));
+  return QPageLayout();
 }
 
-QPageLayout Gui::retrievePageLayout(){
-    QMap<int,QPageLayout>::iterator i = pageLayouts.find(displayPageNum +1); // next page
-    if (i != pageLayouts.end()){
-//        bool ls = i.value().orientation() == QPageLayout::Landscape ;
-//        logDebug() << QString("Returning itemNo %3 Page layout Orientation [%1] for page %2")
-//                      .arg(ls ? "Landscape" : "Portrait")
-//                      .arg(displayPageNum + 1)
-//                      .arg(displayPageNum + 1);
-        return i.value();
-    } else {
-        emit messageSig(false,tr("Could not find page %1 layout parameters.").arg(displayPageNum + 1));
-    }
-    return  QPageLayout();
-}
-
-FloatPairMeta Gui::retrievePageSize(){
-    QMap<int,FloatPairMeta>::iterator i = pageSizes.find(displayPageNum);   // same page
-    if (i != pageSizes.end()){
-//        logDebug() << QString("Returning itemNo %4: Page size WidthPx %1 x HeigthPx %2 for page %3")
-//                      .arg(QString::number(i.value().value(0),'f',4),
-//                           QString::number(i.value().value(1),'f',4))
-//                      .arg(displayPageNum)
-//                      .arg(displayPageNum);
-        return i.value();
-    } else {
-        emit messageSig(false,tr("Could not find page %1 size parameters.").arg(displayPageNum));
-    }
-    return FloatPairMeta();
-}
-
-void Gui::GetPixelDimensions(float &pixelWidth, float &pixelHeight)
+void Gui::getPageSize(float &pageWidth, float &pageHeight,int d)
 {
-  float pageWidthIn, pageHeightIn;
+  QMap<int,PgSizeData>::iterator i = pageSizes.find(displayPageNum);   // this page
+  if (i != pageSizes.end()){
 
-  // only concerned with inches because resolution() reports DPI
-  if (page.meta.LPub.resolution.type() == DPI) {
-      pageWidthIn = page.meta.LPub.page.size.value(0);
-      pageHeightIn = page.meta.LPub.page.size.value(1);
+      float pageWidthIn, pageHeightIn;
+
+      // only concerned with inches because resolution() reports DPI
+      pageWidthIn = i.value().sizeW;
+      pageHeightIn = i.value().sizeH;
+
+      // switch orientation if landscape
+      if (i.value().orientation == Landscape){
+          pageWidthIn = i.value().sizeH;
+          pageHeightIn= i.value().sizeW;
+        }
+
+      if (d == Pixels) {
+          // pixel dimension are inches * pixels per inch
+          pageWidth  = int((pageWidthIn * resolution()) + 0.5);
+          pageHeight = int((pageHeightIn * resolution()) + 0.5);
+        } else {
+          pageWidth  = pageWidthIn;
+          pageHeight = pageHeightIn;
+        }
+
+//      logDebug() << QString("  PAGE %6 SIZE PIXELS - WidthIn: %3 x HeightIn: %4 << WidthPx: %1 x HeightPx: %2 DPx: %5 CurPage: %6")
+//                    .arg(QString::number(pageWidth,'f',0),
+//                         QString::number(pageHeight,'f',0),
+//                         QString::number(pageWidthIn,'f',4),
+//                         QString::number(pageHeightIn,'f',4))
+//                    .arg(page.meta.LPub.resolution.type() == DPI ? "DPI":"DPCM")
+//                    .arg(displayPageNum);
+
     } else {
-      pageWidthIn = centimeters2inches(page.meta.LPub.page.size.value(0));
-      pageHeightIn = centimeters2inches(page.meta.LPub.page.size.value(1));
+      emit messageSig(false,tr("Could not load page %1 size parameters.").arg(displayPageNum));
+    }
+}
+
+OrientationEnc Gui::getPageOrientation(bool nextPage)
+{
+  int pageNum = displayPageNum;
+  if (nextPage && displayPageNum < maxPages){
+      pageNum = displayPageNum + 1;            //next page
     }
 
-  // pixel dimension are inches * pixels per inch
-  pixelWidth = int((pageWidthIn * resolution()) + 0.5);
-  pixelHeight = int((pageHeightIn * resolution()) + 0.5);
+  QMap<int,PgSizeData>::iterator i = pageSizes.find(pageNum);   // this page
+  if (i != pageSizes.end()){
 
-//  logDebug() << QString("PAGE SIZE:  WidthIn %3 x HeightIn %4 << pageWidthPx %1px X pageHeightPx %2px %5")
-//                .arg(QString::number(pixelWidth,'f',4),
-//                     QString::number(pixelHeight,'f',4),
-//                     QString::number(pageWidthIn,'f',4),
-//                     QString::number(pageHeightIn,'f',4))
-//                .arg(page.meta.LPub.resolution.type() == DPI ? "Default dots = DPI":"Default dots = DPCM");
+//      bool  ls = i.value().orientation == Landscape;
+//      logDebug() << QString("PAGE %2 ORIENTATION - %1 CurPage: %3")
+//                    .arg(ls ? "Landscape":"Portrait")
+//                    .arg(pageNum).arg(displayPageNum);
 
+      return i.value().orientation;
+    }
+  emit messageSig(false,tr("Could not load page %1 orientaiton parameter.").arg(pageNum));
+  return InvalidOrientation;
+}
+
+bool Gui::getMixedPageSizeStatus(){
+
+  QMessageBox box;
+  box.setTextFormat (Qt::RichText);
+  box.setStandardButtons (QMessageBox::Close);
+  box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+  box.setWindowTitle(tr ("Print Preview"));
+
+  QString title;
+  QString text, text1, text2;
+
+
+
+  text1 = tr ("Your document has orientation (Portrait/Landscape) changes \n"
+              "The print preview dialog will not correctly display\n"
+              "orientation changes but these changes will correctly\n"
+              "applied to your exported pdf document.\n\n");
+
+  text2 = tr ("Your document has page size changes (A4, A5, Letter,...)\n"
+              "LPub3D print preview will not correctly display or\n"
+              "export different pages sizes. This is a limitation\n"
+              "of the underlying development platform. You can export\n"
+              "a mixed size and orientation document using the pdf\n"
+              "or image (PNG, JPG, BMP) export functions.\n");
+
+  QString sizeID             = pageSizes[0].sizeID;
+  OrientationEnc orientation = pageSizes[0].orientation;
+  bool orientation_warning   = false;
+  bool size_warning          = false;
+  bool double_warning        = false;
+  int key;
+
+  foreach(key,pageSizes.keys()){
+
+      if (pageSizes[key].orientation != orientation && orientation_warning != true) {
+          orientation_warning = true;
+          text = text1;
+          title = "<b> Mixed page orientation detected. </b>";
+          box.setIcon (QMessageBox::Information);
+        }
+
+      if (pageSizes[key].sizeID != sizeID && size_warning != true) {
+          size_warning = true;
+          text = text2;
+          title = "<b> Mixed page size detected. </b>";
+          box.setIcon (QMessageBox::Warning);
+        }
+
+      if (orientation_warning && size_warning) {
+          double_warning = true;
+          text = text1 + text2;
+          title = "<b> Mixed page size and orientation detected. </b>";
+          box.setIcon (QMessageBox::Warning);
+          break;
+        }
+    }
+
+  box.setText (title);
+  box.setInformativeText (text);
+
+  box.exec();
+
+  if (orientation_warning || size_warning || double_warning)
+    return false;
+  else
+    return true;
 }
 
 bool Gui::validatePageRange(){
@@ -199,9 +288,6 @@ bool Gui::printToPdfFileDialog()
               return false;
             }
         }
-      if(dialog->mixedPageSize()){
-          mixedPageSize = dialog->mixedPageSize();
-      }
       if(dialog->resetCache()){
           clearPLICache();
           clearCSICache();
@@ -293,7 +379,6 @@ bool Gui::exportAsBmpDialog()
 
 void Gui::printToPdfFile()
 {
-  logDebug() << "Mixed Page Size: " << mixedPageSize;
 
   // store current display page number
   int savePageNumber = displayPageNum;
@@ -327,12 +412,41 @@ void Gui::printToPdfFile()
       fileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".pdf";
     }
 
+  QMessageBox box;
+  box.setTextFormat (Qt::RichText);
+  box.setIcon (QMessageBox::Critical);
+  box.setStandardButtons (QMessageBox::Retry | QMessageBox::Abort);
+  box.setDefaultButton   (QMessageBox::Retry);
+  box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+  box.setWindowTitle(tr ("Print pdf"));
+
+  // check if file open by another program
+  QFile printFile(fileName);
+  if ( ! printFile.open(QFile::ReadWrite)) {
+
+      QString title = "<b> Cannot open file. </b>";
+      QString text = tr ("Cannot open %1 for writing:\n%2")
+          .arg(fileName)
+          .arg(printFile.errorString());
+
+      box.setText (title);
+      box.setInformativeText (text);
+
+      if (box.exec() == QMessageBox::Retry){
+          if ( ! printFile.open(QFile::ReadWrite))
+            return;
+        } else {
+          // release 3D Viewer
+          setExportingSig(false);
+          return;
+        }
+    }
+
   // determine size of output pages, in pixels
   float pageWidthPx, pageHeightPx;
 
   // create a PDF pdfWriter
   QPdfWriter pdfWriter(fileName);
-  pdfWriter.setPageLayout(getPageLayout());
 
   // instantiate the scene and view
   QGraphicsScene scene;
@@ -343,142 +457,12 @@ void Gui::printToPdfFile()
 
   // initialize progress bar dialog
   m_progressDialog->setWindowTitle("Print pdf");
+  m_progressDialog->show();
 
 
-  if (mixedPageSize) {
-
-      logStatus() << "Processing mixed page size for orientation parameters...";
-      m_progressDialog->show();
-      m_progressDlgMessageLbl->setText("Capturing page layouts...");
-
-      if (exportOption != EXPORT_PAGE_RANGE){
-
-          if(exportOption == EXPORT_ALL_PAGES){
-              _displayPageNum = 1;
-              _maxPages = maxPages;
-            }
-
-          if (exportOption == EXPORT_CURRENT_PAGE){
-              _displayPageNum = displayPageNum;
-              _maxPages       = displayPageNum;
-            }
-
-          m_progressDlgProgressBar->setRange(1,_maxPages);
-
-          for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
-              if (! exporting()) {
-                  m_progressDialog->hide();
-                  displayPageNum = savePageNumber;
-                  drawPage(KpageView,KpageScene,false);
-                  emit messageSig(true,QString("Page layout capture terminated before completion."));
-                  return;
-                }
-              // render this page - to capture display page layout and size
-              drawPage(&view,&scene,true);
-              pageLayouts.insert(displayPageNum, getPageLayout());
-              bool ls = getPageLayout().orientation() == QPageLayout::Landscape;
-              logStatus() << QString("Inserting layout for page %2 of %3: Orientation [%1]")
-                             .arg(ls ? "Landscape" : "Portrait")
-                             .arg(displayPageNum)
-                             .arg(_maxPages);
-
-              // determine size of output image, in pixels. dimension are inches * pixels per inch
-              GetPixelDimensions(pageWidthPx, pageHeightPx);
-              FloatPairMeta pgSizeInPx;
-              pgSizeInPx.setValues(pageWidthPx, pageHeightPx);
-              pageSizes.insert(displayPageNum, pgSizeInPx);
-              logStatus() << QString("Inserting layout for page %3 of %4: WidthPx %1 x HeigthPx %2 ")
-                             .arg(QString::number(pgSizeInPx.value(0),'f',4),
-                                  QString::number(pgSizeInPx.value(1),'f',4))
-                             .arg(displayPageNum)
-                             .arg(_maxPages);
-
-              m_progressDlgMessageLbl->setText(QString("Capturing page layout %1 of %2").arg(displayPageNum).arg(_maxPages));
-              m_progressDlgProgressBar->setValue(displayPageNum);
-            }
-          m_progressDlgProgressBar->setValue(_maxPages);
-
-        } else {
-
-          QStringList pageRanges = pageRangeText.split(",");
-          QList<int> printPages;
-          foreach(QString ranges,pageRanges){
-              if (ranges.contains("-")){
-                  QStringList range = ranges.split("-");
-                  int minPage = range[0].toInt();
-                  int maxPage = range[1].toInt();
-                  for(int i = minPage; i <= maxPage; i++){
-                      printPages.append(i);
-                    }
-                } else {
-                  printPages.append(ranges.toInt());
-                }
-            }
-
-          std::sort(printPages.begin(),printPages.end(),lessThan);
-
-          m_progressDlgProgressBar->setRange(1,printPages.count());
-
-          int _pageCount = 0;
-          foreach(int printPage,printPages){
-
-              if (! exporting()) {
-                  m_progressDialog->hide();
-                  displayPageNum = savePageNumber;
-                  drawPage(KpageView,KpageScene,false);
-                  emit messageSig(true,QString("Page layout capture terminated before completion."));
-                  return;
-                }
-
-              displayPageNum = printPage;
-              m_progressDlgProgressBar->setValue(_pageCount++);
-
-              // render this page - to capture display page layout and size
-              drawPage(&view,&scene,true);
-              pageLayouts.insert(displayPageNum, getPageLayout());
-              bool ls = getPageLayout().orientation() == QPageLayout::Landscape;
-              logStatus() << QString("Inserting layout for page %2 of %3: Orientation [%1] Page Range %4")
-                             .arg(ls ? "Landscape" : "Portrait")
-                             .arg(displayPageNum)
-                             .arg(printPages.count())
-                             .arg(pageRanges.join(" "));
-
-              // determine size of output image, in pixels. dimension are inches * pixels per inch
-              GetPixelDimensions(pageWidthPx, pageHeightPx);
-              FloatPairMeta pgSizeInPx;
-              pgSizeInPx.setValues(pageWidthPx, pageHeightPx);
-              pageSizes.insert(displayPageNum, pgSizeInPx);
-              logStatus() << QString("Inserting layout for page %3 of %4: WidthPx %1 x HeigthPx %2 Page Range %5")
-                             .arg(QString::number(pgSizeInPx.value(0),'f',4),
-                                  QString::number(pgSizeInPx.value(1),'f',4))
-                             .arg(displayPageNum)
-                             .arg(printPages.count())
-                             .arg(pageRanges.join(" "));
-
-              m_progressDlgMessageLbl->setText(QString("Capturing page layout %1 of range %2").arg(displayPageNum).arg(pageRanges.join(" ")));
-              m_progressDlgProgressBar->setValue(displayPageNum);
-            }
-          m_progressDlgProgressBar->setValue(printPages.count());
-        }
-      m_progressDlgProgressBar->reset();
-      clearPage(&view,&scene);
-
-    } else {
-
-      m_progressDialog->show();
-
-      // determine size of output image, in pixels (global setting)
-      GetPixelDimensions(pageWidthPx, pageHeightPx);
-
-      // set page layout (global setting)
-      pdfWriter.setPageLayout(getPageLayout());
-
-      clearPage(&view,&scene);
-    }
-
-  // paint to the pdfWriter the scene we view
-  QPainter painter;
-  painter.begin(&pdfWriter);
+//  // paint to the pdfWriter the scene we view
+//  QPainter painter;
+//  painter.begin(&pdfWriter);
 
   // reset page indicators
   _displayPageNum = 0;
@@ -499,6 +483,14 @@ void Gui::printToPdfFile()
         }
 
       m_progressDlgProgressBar->setRange(1,_maxPages);
+      // set displayPageNum so we can send the correct index to retrieve page size data
+      displayPageNum = _displayPageNum;
+      // set initial page layout
+      pdfWriter.setPageLayout(getPageLayout());
+
+      // paint to the pdfWriter the scene we view
+      QPainter painter;
+      painter.begin(&pdfWriter);
 
       for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
 
@@ -514,14 +506,10 @@ void Gui::printToPdfFile()
           m_progressDlgMessageLbl->setText(QString("Printing page %1 of %2").arg(displayPageNum).arg(_maxPages));
           m_progressDlgProgressBar->setValue(displayPageNum);
 
-          if (mixedPageSize) {
-              // determine size of output image, in pixels
-              pageWidthPx  = retrievePageSize().value(0);
-              pageHeightPx = retrievePageSize().value(1);
-          }
+          getPageSize(pageWidthPx, pageHeightPx);
 
-          bool  ls = page.meta.LPub.page.orientation.value() == Landscape;
-          logNotice() << QString("Exporting page %3 of %4, size(in pixels) W %1 x H %2, orientation %5")
+          bool  ls = getPageOrientation() == Landscape;
+          logNotice() << QString("                  Exporting page %3 of %4, size(pixels) W %1 x H %2, orientation %5")
                         .arg(pageWidthPx)
                         .arg(pageHeightPx)
                         .arg(displayPageNum)
@@ -541,6 +529,7 @@ void Gui::printToPdfFile()
                 QPainter::TextAntialiasing |
                 QPainter::SmoothPixmapTransform);
           view.centerOn(boundingRect.center());
+          clearPage(&view,&scene);
 
           // render this page
           drawPage(&view,&scene,true);
@@ -550,12 +539,12 @@ void Gui::printToPdfFile()
 
           // prepare to render next page
           if(displayPageNum < _maxPages) {
-              if (mixedPageSize) {
-                  pdfWriter.setPageLayout(retrievePageLayout());
-                }
+              bool nextPage = true;
+              pdfWriter.setPageLayout(getPageLayout(nextPage));
               pdfWriter.newPage();
             }
         }
+      painter.end();
       m_progressDlgProgressBar->setValue(_maxPages);
 
     } else {
@@ -580,6 +569,16 @@ void Gui::printToPdfFile()
        m_progressDlgProgressBar->setRange(1,printPages.count());
 
       int _pageCount = 0;
+
+      // set displayPageNum so we can send the correct index to retrieve page size data
+      displayPageNum = printPages.first();
+      // set initial page layout
+      pdfWriter.setPageLayout(getPageLayout());
+
+      // paint to the pdfWriter the scene we view
+      QPainter painter;
+      painter.begin(&pdfWriter);
+
       foreach(int printPage,printPages){
 
           if (! exporting()) {
@@ -596,13 +595,10 @@ void Gui::printToPdfFile()
           m_progressDlgMessageLbl->setText(QString("Printing page %1 of %2 for range %3").arg(displayPageNum).arg(printPages.count()).arg(pageRanges.join(" ")));
           m_progressDlgProgressBar->setValue(_pageCount++);
 
-          if (mixedPageSize) {
-              // determine size of output image, in pixels
-              pageWidthPx  = retrievePageSize().value(0);
-              pageHeightPx = retrievePageSize().value(1);
-          }
+          // determine size of output image, in pixels
+          getPageSize(pageWidthPx, pageHeightPx);
 
-          bool  ls = page.meta.LPub.page.orientation.value() == Landscape;
+          bool  ls = getPageOrientation() == Landscape;
           logNotice() << QString("Printing page %3 of %6 for range %4, size(in pixels) W %1 x H %2, orientation %5")
                         .arg(pageWidthPx)
                         .arg(pageHeightPx)
@@ -624,6 +620,7 @@ void Gui::printToPdfFile()
                 QPainter::TextAntialiasing |
                 QPainter::SmoothPixmapTransform);
           view.centerOn(boundingRect.center());
+          clearPage(&view,&scene);
 
           // render this page
           drawPage(&view,&scene,true);
@@ -633,16 +630,16 @@ void Gui::printToPdfFile()
 
           // prepare to print another page
           if(_pageCount < printPages.count()) {
-              if (mixedPageSize) {
-                  pdfWriter.setPageLayout(retrievePageLayout());
-                }
+              displayPageNum = printPages.at(_pageCount);
+              pdfWriter.setPageLayout(getPageLayout());
               pdfWriter.newPage();
             }
         }
+      painter.end();
       m_progressDlgProgressBar->setValue(printPages.count());
     }
 
-  painter.end();
+//  painter.end();
 
   // release 3D Viewer
   setExportingSig(false);
@@ -656,13 +653,9 @@ void Gui::printToPdfFile()
 
   emit messageSig(true,QString("Print to pdf completed."));
 
-  QMessageBox box;
-  box.setTextFormat (Qt::RichText);
   box.setIcon (QMessageBox::Information);
   box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
   box.setDefaultButton   (QMessageBox::Yes);
-  box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-  box.setWindowTitle(tr ("Print pdf"));
 
   //display completion message
   QString title = "<b> Print to pdf completed. </b>";
@@ -778,17 +771,14 @@ void Gui::exportAs(QString &suffix)
                 return;
               }
 
-            m_progressDlgMessageLbl->setText(QString("Exporting page: %1 of %2").arg(displayPageNum).arg(_maxPages));
+            m_progressDlgMessageLbl->setText(QString("Exporting image: %1 of %2").arg(displayPageNum).arg(_maxPages));
             m_progressDlgProgressBar->setValue(displayPageNum);
 
-            // render scene to capture page size
-            drawPage(&view,&scene,false);
-
             // determine size of output image, in pixels
-            GetPixelDimensions(pageWidthPx, pageHeightPx);
+            getPageSize(pageWidthPx, pageHeightPx);
 
-            bool  ls = page.meta.LPub.page.orientation.value() == Landscape;
-            logNotice() << QString("Exporting page %3 of %4, size(in pixels) W %1 x H %2, orientation %5")
+            bool  ls = getPageOrientation() == Landscape;
+            logNotice() << QString("Exporting image %3 of %4, size(in pixels) W %1 x H %2, orientation %5")
                            .arg(pageWidthPx)
                            .arg(pageHeightPx)
                            .arg(displayPageNum)
@@ -800,8 +790,6 @@ void Gui::exportAs(QString &suffix)
             QPainter painter;
             painter.begin(&image);
 
-            // set up the view
-             clearPage(&view,&scene);
             QRectF boundingRect(0.0,0.0,pageWidthPx,pageHeightPx);
             QRect  bounding(0,0,pageWidthPx,pageHeightPx);
             view.scale(1.0,1.0);
@@ -814,6 +802,7 @@ void Gui::exportAs(QString &suffix)
                         QPainter::TextAntialiasing |
                         QPainter::SmoothPixmapTransform);
             view.centerOn(boundingRect.center());
+            clearPage(&view,&scene);
 
             // clear the pixels of the image, just in case the background is
             // transparent or uses a PNG image with transparency. This will
@@ -870,17 +859,14 @@ void Gui::exportAs(QString &suffix)
 
             displayPageNum = printPage;
 
-            m_progressDlgMessageLbl->setText(QString("Exporting page %1 of range %2").arg(displayPageNum).arg(pageRanges.join(" ")));
+            m_progressDlgMessageLbl->setText(QString("Exporting image %1 of range %2").arg(displayPageNum).arg(pageRanges.join(" ")));
             m_progressDlgProgressBar->setValue(_pageCount++);
 
-            // render scene to capture page size
-            drawPage(&view,&scene,false);
-
             // determine size of output image, in pixels
-            GetPixelDimensions(pageWidthPx, pageHeightPx);
+            getPageSize(pageWidthPx, pageHeightPx);
 
-            bool  ls = page.meta.LPub.page.orientation.value() == Landscape;
-            logNotice() << QString("Exporting page %3 of range %4, size(in pixels) W %1 x H %2, orientation %5")
+            bool  ls = getPageOrientation() == Landscape;
+            logNotice() << QString("Exporting image %3 of range %4, size(in pixels) W %1 x H %2, orientation %5")
                            .arg(pageWidthPx)
                            .arg(pageHeightPx)
                            .arg(displayPageNum)
@@ -892,8 +878,6 @@ void Gui::exportAs(QString &suffix)
             QPainter painter;
             painter.begin(&image);
 
-            // set up the view
-            clearPage(&view,&scene);
             QRectF boundingRect(0.0,0.0,pageWidthPx,pageHeightPx);
             QRect  bounding(0,0,pageWidthPx,pageHeightPx);
             view.scale(1.0,1.0);
@@ -906,7 +890,7 @@ void Gui::exportAs(QString &suffix)
                         QPainter::TextAntialiasing |
                         QPainter::SmoothPixmapTransform);
             view.centerOn(boundingRect.center());
-
+            clearPage(&view,&scene);
             // clear the pixels of the image, just in case the background is
             // transparent or uses a PNG image with transparency. This will
             // prevent rendered pixels from each page layering on top of each
@@ -1030,27 +1014,12 @@ void Gui::Print(QPrinter* Printer)
   // send signal to halt 3DViewer
   setExportingSig(true);
 
-  // determine get orientation from print preview if requested
-  QPageLayout::Orientation previewOrientation = Printer->pageLayout().orientation();
-
-  // determine the page size in inches. only concerned with inches because resolution() reports DPI
-  qreal pageWidthIn, pageHeightIn;
-  if (page.meta.LPub.resolution.type() == DPI) {
-      pageWidthIn = page.meta.LPub.page.size.value(0);
-      pageHeightIn = page.meta.LPub.page.size.value(1);
-    } else {
-      pageWidthIn = centimeters2inches(page.meta.LPub.page.size.value(0));
-      pageHeightIn = centimeters2inches(page.meta.LPub.page.size.value(1));
-    }
-  // switch sizes if landscape because we always want to send portrait width x height to the printer
-  bool  ls = page.meta.LPub.page.orientation.value() == Landscape;
-  if(ls){qreal temp = pageHeightIn; pageHeightIn = pageWidthIn; pageWidthIn = temp;}
-
-  QPageSize pageSize(QSizeF(pageWidthIn,pageHeightIn),QPageSize::Inch,"",QPageSize::FuzzyOrientationMatch);
-  QPageLayout pageLayout(pageSize, previewOrientation, QMarginsF(0,0,0,0),QPageLayout::Inch);
-  Printer->setPageLayout(pageLayout);
-
   Printer->setFullPage(true);
+
+  // set displayPageNum so we can send the correct index to retrieve page size data
+  displayPageNum = FromPage;
+  // set initial page layout using first page as default
+  Printer->setPageLayout(getPageLayout());
 
   // paint to the printer the scene we view
   QPainter Painter(Printer);
@@ -1093,19 +1062,18 @@ void Gui::Print(QPrinter* Printer)
                                                .arg(preview ? "Previewing" : "Printing"));
               m_progressDlgProgressBar->setValue(Page);
 
-              logNotice() << QString("%3 page %1 of %2").arg(Page).arg(ToPage)
-                             .arg(preview ? "Previewing" : "Printing");
-
-              // render this page to get specific page parameters
-              drawPage(&view,&scene,true);
-
-              // determine page orientation
-              //bool  ls = page.meta.LPub.page.orientation.value() == Landscape;
-              //logDebug() << QString("PAGE ORIENTATION %1").arg(ls? "Landscape":"Portrait");
-
               // determine size of output image, in pixels. dimension are inches * pixels per inch
               float pageWidthPx, pageHeightPx;
-              GetPixelDimensions(pageWidthPx, pageHeightPx);
+              getPageSize(pageWidthPx, pageHeightPx);
+
+              bool  ls = getPageOrientation() == Landscape;
+              logNotice() << QString("%6 page %3 of %4, size(in pixels) W %1 x H %2, orientation %5")
+                                       .arg(pageWidthPx)
+                                       .arg(pageHeightPx)
+                                       .arg(displayPageNum)
+                                       .arg(ToPage)
+                                       .arg(ls ? "Landscape" : "Portrait")
+                                       .arg(preview ? "Previewing" : "Printing");
 
               // set up the view
               QRectF boundingRect(0.0, 0.0, pageWidthPx, pageHeightPx);
@@ -1158,6 +1126,9 @@ void Gui::Print(QPrinter* Printer)
               else
                 Page--;
 
+              bool nextPage = true;
+              QPageLayout::Orientation pageOrientation = getPageOrientation(nextPage) == Landscape ? QPageLayout::Landscape : QPageLayout::Portrait;
+              Printer->setPageOrientation(pageOrientation);
               Printer->newPage();
             }
         } else {
@@ -1206,20 +1177,19 @@ void Gui::Print(QPrinter* Printer)
                                                .arg(printPages.count()));
               m_progressDlgProgressBar->setValue(_pageCount++);
 
-              logNotice() << QString("%3 page %1 of %2 for range %3").arg(Page).arg(ToPage)
-                             .arg(preview ? "Previewing" : "Printing")
-                             .arg(printPages.count());
-
-              // render this page to get specific page parameters
-              drawPage(&view,&scene,true);
-
-              // determine page orientation
-              //bool  ls = page.meta.LPub.page.orientation.value() == Landscape;
-              //logDebug() << QString("PAGE ORIENTATION %1").arg(ls? "Landscape":"Portrait");
-
               // determine size of output image, in pixels. dimension are inches * pixels per inch
               float pageWidthPx, pageHeightPx;
-              GetPixelDimensions(pageWidthPx, pageHeightPx);
+              getPageSize(pageWidthPx, pageHeightPx);
+
+              bool  ls = getPageOrientation() == Landscape;
+              logNotice() << QString("%6 page %3 of %4, size(pixels) W %1 x H %2, orientation %5 for range %7")
+                                       .arg(pageWidthPx)
+                                       .arg(pageHeightPx)
+                                       .arg(Page)
+                                       .arg(printPages.count())
+                                       .arg(ls ? "Landscape" : "Portrait")
+                                       .arg(preview ? "Previewing" : "Printing")
+                                       .arg(pageRanges.join(" "));
 
               // set up the view
               QRectF boundingRect(0.0, 0.0, pageWidthPx, pageHeightPx);
@@ -1263,6 +1233,9 @@ void Gui::Print(QPrinter* Printer)
                       Printer->newPage();
                     }
                 }
+              bool nextPage = true;
+              QPageLayout::Orientation pageOrientation = getPageOrientation(nextPage) == Landscape ? QPageLayout::Landscape : QPageLayout::Portrait;
+              Printer->setPageOrientation(pageOrientation);
               Printer->newPage();
             }
         }
@@ -1355,6 +1328,9 @@ void Gui::ShowPrintDialog()
 void Gui::TogglePrintPreview()
 {
   m_previewDialog = true;
+
+  getMixedPageSizeStatus();
+
   if (! printToPdfFileDialog()) {
       logInfo() << "Print to pdf dialog returned false";
       m_previewDialog = false;

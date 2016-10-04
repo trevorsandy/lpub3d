@@ -38,20 +38,31 @@ PageAttributePixmapItem::PageAttributePixmapItem(
   size[1]           = pixmap.height()*pageAttributePictureMeta.picScale.value();
   parentRelativeType= page->relativeType;
 
-  switch(relativeType){
-  case PageDocumentLogoType:
+//  switch(relativeType){
+//  case PageDocumentLogoType:
+//      name    = "Logo";
+//      setToolTip("Logo - right-click to modify");
+//      break;
+//  case PageCoverImageType:
+//      name    = "Cover Image";
+//      setToolTip("Cover Image - right-click to modify");
+//      break;
+//  case PagePlugImageType:
+//      name    = "Plug Image";
+//      setToolTip("Plug Image - right-click to modify");
+//      break;
+//  }
+
+  if (relativeType == PageDocumentLogoType ) {
       name    = "Logo";
       setToolTip("Logo - right-click to modify");
-      break;
-  case PageCoverImageType:
+    } else if (relativeType == PageCoverImageType) {
       name    = "Cover Image";
       setToolTip("Cover Image - right-click to modify");
-      break;
-  case PagePlugImageType:
+    } else if (relativeType == PagePlugImageType) {
       name    = "Plug Image";
       setToolTip("Plug Image - right-click to modify");
-      break;
-  }
+    }
 
   setZValue(500);
   setParentItem(parent);

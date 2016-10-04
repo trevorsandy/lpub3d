@@ -2,6 +2,22 @@ LPub3D 2.0.13.823.2
  
 Features and enhancements 
 ------------ 
+Fix: Page size and orientation processing update (r826)
+ * Further industrialization of the print/export module. This update streamlines the process and realizes some performance gains. There are some key changes. Notably, page orientation and page size are now mutually exclusive. This means when switching from Portrait to Landscape, accompanying the orientation meta with a transposed page size meta no longer required or managed. Here is an illustration:
+ Previous behaviour when editing a page size change required the following meta commands:
+ 0 STEP
+ 0 !LPUB PAGE ORIENTATION LOCAL LANDSCAPE
+ 0 !LPUB PAGE SIZE LOCAL 11.0000 8.5000
+ Note that the page width and height have been transposed. Going forward, transposition of the page width and height when switching from Portrait to Landscape is automatically managed by LPub3D so, for the used only the orientation change meta is required. If the user is only interested in changing the orientation, the proper meta command going forward will be:
+ 0 STEP
+ 0 !LPUB PAGE ORIENTATION LOCAL LANDSCAPE
+ Additionally, to help with accurately displaying the page size identifier, the standard identifier is now appended to the page size meta command. For example:
+ 0 !LPUB PAGE SIZE 8.5000 14.0000 Legal
+ 0 !LPUB PAGE SIZE LOCAL 8.5000 11.0000 Letter
+ 0 !LPUB PAGE SIZE LOCAL 5.8000 8.3000 A5
+ 0 !LPUB PAGE SIZE LOCAL 5.8000 8.3000 Custom   // if not identifier provided
+ If the identifier is not present, the "Custom" along with the width and height values will automatically be displayed in the Page Setup dialogue and Size/Orientation change context menu dialogue. With an identifier, you will see the identifier and the width and height values.
+ Thirdly, the print/export function no longer needs to parse the model file to capture, in advance, page sizes. This capture is done during the existing page parse and load functions and is exposed to the print routines. This change was necessary to better enable mixed-size page export/printing where it is necessary to 'look ahead' to get the next page's size and orientation parameters in order to configure the printer engine before processing the page. 
 Fix: Expand INSERT MODEL meta command behaviour (r825)
  * LPUb3D will process multiple INSERT MODEL commands rendering the CSI content as appropriate used within a set of instructions that use part fading.  For example, if the model includes different attachments, and the editor would like to include a non-faded image of the entire model with each attachment. Here is an example of he proper command sequence when used in conjunction with BUFEXCHG: 
     0 BUFEXCHG B STORE

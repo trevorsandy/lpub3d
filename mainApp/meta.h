@@ -37,6 +37,7 @@
 #ifndef META_H
 #define META_H
 
+#include <QPageLayout>
 #include <QString>
 #include <QStringList>
 #include <QList>
@@ -92,6 +93,9 @@ enum Rc {
 
          BomBeginIgnRc,
          BomEndRc,
+
+         PageOrientationRc,
+         PageSizeRc,
 
          ReserveSpaceRc,
          PictureAsStep,
@@ -462,6 +466,97 @@ public:
   virtual void doc(QStringList &out, QString preamble);
 };
 
+/* This leaf class is used for strings */
+
+class StringMeta : public RcMeta {
+private:
+protected:
+  QString _value[2];
+  QString delim;
+
+public:
+  QString value()
+  {
+    return _value[pushed];
+  }
+  void setValue(QString value)
+  {
+    _value[pushed] = value;
+  }
+  StringMeta() : RcMeta()
+  {
+  }
+  StringMeta(const StringMeta &rhs) : RcMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+    delim     = rhs.delim;
+  }
+  virtual ~StringMeta() {}
+  virtual void    init(BranchMeta *parent,
+                    QString name,
+                    Rc _rc=OkRc,
+                    QString _delim="\"");
+  virtual Rc parse(QStringList &argv, int index, Where &here);
+          QString format(bool,bool);
+  void    pop()
+  {
+    if (pushed) {
+      _value[1].clear();
+      pushed = 0;
+    }
+  }
+
+  virtual void doc(QStringList &out, QString preamble);
+};
+
+/* This leaf class is for multiple strings */
+
+class StringListMeta : public RcMeta {
+public:
+  QStringList _value[2];
+  QString     delim;
+  QString value(int i)
+  {
+    if (i >= _value[pushed].size()) {
+      i = _value[pushed].size() - 1;
+    }
+    if (i >= 0) {
+      return _value[pushed][i];
+    } else {
+      return "";
+    }
+  }
+  void setValue(QString value)
+  {
+    _value[0] << value;
+  }
+  StringListMeta() : RcMeta()
+  {
+  }
+  StringListMeta(const StringListMeta &rhs) : RcMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+    delim     = rhs.delim;
+  }
+  virtual ~StringListMeta() {}
+  virtual void init(BranchMeta *parent,
+                    QString name,
+                    Rc _rc=OkRc,
+                    QString _delim = "\"");
+  virtual Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  void    pop()
+  {
+    if (pushed) {
+      _value[1].clear();
+      pushed = 0;
+    }
+  }
+  virtual void doc(QStringList &out, QString preamble);
+};
+
 /*
  * This leaf meta is used when using real world measuring units
  */
@@ -505,7 +600,7 @@ public:
   QString format(bool, bool);
   virtual ~UnitMeta() {}
 };
-  
+
 class UnitsMeta : public FloatPairMeta {
 private:
 public:
@@ -518,6 +613,7 @@ public:
     }
     return t;
   }
+
   virtual void setValue(int which, float value)
   {
     if (resolutionType() == DPCM) {
@@ -525,6 +621,7 @@ public:
     }
     _value[pushed][which] = value;
   }
+
   virtual void setValuesFoo(float v1, float v2)
   {
     if (resolutionType() == DPCM) {
@@ -564,7 +661,140 @@ public:
   virtual ~UnitsMeta() {}
   virtual QString format(bool,bool);
 };
-  
+
+/*
+ * This meta parses page size keywords
+ */
+
+class PageSizeMeta : public RcMeta
+{
+protected:
+  PageSizeData _value[2];
+  float        _min,_max;
+  bool         _default;
+public:
+  int          _fieldWidth;
+  int          _precision;
+  QString      _inputMask;
+  PageSizeMeta()
+  {
+    _value[0].pagesize[0][0] = 0;
+    _value[0].pagesize[0][1] = 0;
+    _value[0].sizeid         = "A4";
+//    _value[0].orientation    = Portrait;
+    _min = 0;
+    _max = 0;
+    _fieldWidth = 6;
+    _precision  = 4;
+    _inputMask  = "9.9999";
+    _default    = true;
+  }
+  PageSizeMeta(const PageSizeMeta &rhs) : RcMeta(rhs)
+  {
+    _value[0].pagesize[0][0] = rhs._value[0].pagesize[0][0];
+    _value[0].pagesize[0][1] = rhs._value[0].pagesize[0][1];
+    _value[0].pagesize[1][0] = rhs._value[0].pagesize[1][0];
+    _value[0].pagesize[1][1] = rhs._value[0].pagesize[1][1];
+    _value[0].sizeid         = rhs._value[0].sizeid;
+//    _value[0].orientation    = rhs._value[0].orientation;
+    _value[1].pagesize[0][0] = rhs._value[1].pagesize[0][0];
+    _value[1].pagesize[0][1] = rhs._value[1].pagesize[0][1];
+    _value[1].pagesize[1][0] = rhs._value[1].pagesize[1][0];
+    _value[1].pagesize[1][1] = rhs._value[1].pagesize[1][1];
+    _value[1].sizeid         = rhs._value[1].sizeid;
+//    _value[1].orientation    = rhs._value[1].orientation;
+    _min                     = rhs._min;
+    _max                     = rhs._max;
+    _fieldWidth              = rhs._fieldWidth;
+    _precision               = rhs._precision;
+    _inputMask               = rhs._inputMask;
+  }
+  //page size specific
+  virtual void setValueSizeID(QString v3) {
+    _value[pushed].sizeid     = v3;
+    _default                  = false;
+  }
+  virtual QString valueSizeID() {
+    return _value[pushed].sizeid;
+  }
+  virtual void setValuesAll(float v1, float v2, QString v3){
+    _value[pushed].pagesize[pushed][0] = v1;
+    _value[pushed].pagesize[pushed][1] = v2;
+    _value[pushed].sizeid              = v3;
+    _default                           = false;
+  }
+  //unitMeta inherited
+  virtual float value(int which)
+  {
+    float t = _value[pushed].pagesize[pushed][which];
+
+    if (resolutionType() == DPCM) {
+        t = inches2centimeters(t);
+      }
+    return t;
+  }
+  virtual void setValue(int which, float value)
+  {
+    if (resolutionType() == DPCM) {
+        value = centimeters2inches(value);
+      }
+    _value[pushed].pagesize[pushed][which] = value;
+    _default                               = false;
+  }
+  virtual float valueInches(int which)
+  {
+    return _value[pushed].pagesize[pushed][which];
+  }
+  virtual void setValueInches(int which, float value)
+  {
+    _value[pushed].pagesize[pushed][which] = value;
+    _default                               = false;
+  }
+  virtual void setValuesInches(float v1, float v2)
+  {
+    _value[pushed].pagesize[pushed][0] = v1;
+    _value[pushed].pagesize[pushed][1] = v2;
+    _default                           = false;
+  }
+  virtual int valuePixels(int which)
+  {
+    float t = _value[pushed].pagesize[pushed][which];
+    float r = resolution();
+
+    return int(t*r);
+  }
+  // formatting
+  void setRange(
+      float min,
+      float max)
+  {
+    _min = min;
+    _max = max;
+  }
+  void setFormats(
+      int fieldWidth,
+      int precision,
+      QString inputMask)
+  {
+    _fieldWidth = fieldWidth;
+    _precision  = precision;
+    _inputMask  = inputMask;
+  }
+  bool isDefault()
+  {
+    return _default;
+  }
+  virtual ~PageSizeMeta() {}
+  virtual void    init(BranchMeta *parent,
+                       const QString name,
+                       Rc _rc=OkRc);
+  virtual Rc parse(QStringList &argv, int index, Where &here);
+  virtual QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
+/* ------------------ */
+
 class MarginsMeta : public UnitsMeta {
 private:
 public:
@@ -579,98 +809,6 @@ public:
     _inputMask = "9.9999";
   }
   virtual ~MarginsMeta() {}
-};
-
-
-/* This leaf class is used for strings */
-
-class StringMeta : public RcMeta {
-private:
-protected:
-  QString _value[2];
-  QString delim;
-  
-public:
-  QString value()
-  {
-    return _value[pushed];
-  }
-  void setValue(QString value)
-  {
-    _value[pushed] = value;
-  }
-  StringMeta() : RcMeta()
-  {
-  }
-  StringMeta(const StringMeta &rhs) : RcMeta(rhs)
-  {
-    _value[0] = rhs._value[0];
-    _value[1] = rhs._value[1];
-    delim     = rhs.delim;
-  }
-  virtual ~StringMeta() {}
-  virtual void    init(BranchMeta *parent,
-                    QString name, 
-                    Rc _rc=OkRc, 
-                    QString _delim="\"");
-  virtual Rc parse(QStringList &argv, int index, Where &here);
-          QString format(bool,bool);
-  void    pop() 
-  { 
-    if (pushed) {
-      _value[1].clear(); 
-      pushed = 0;
-    }
-  }
-
-  virtual void doc(QStringList &out, QString preamble);
-};
-
-/* This leaf class is for multiple strings */
-
-class StringListMeta : public RcMeta {
-public:
-  QStringList _value[2];
-  QString     delim;
-  QString value(int i)
-  {
-    if (i >= _value[pushed].size()) {
-      i = _value[pushed].size() - 1;
-    }
-    if (i >= 0) {
-      return _value[pushed][i];
-    } else {
-      return "";
-    }
-  }
-  void setValue(QString value)
-  {
-    _value[0] << value;
-  }
-  StringListMeta() : RcMeta()
-  { 
-  }
-  StringListMeta(const StringListMeta &rhs) : RcMeta(rhs)
-  {
-    _value[0] = rhs._value[0];
-    _value[1] = rhs._value[1];
-    delim     = rhs.delim;
-  }
-  virtual ~StringListMeta() {}
-  virtual void init(BranchMeta *parent,
-                    QString name,
-                    Rc _rc=OkRc, 
-                    QString _delim = "\"");
-  virtual Rc parse(QStringList &argv, int index, Where &here);
-  QString format(bool,bool);
-  void    pop() 
-  { 
-    if (pushed) {
-      _value[1].clear(); 
-      pushed = 0;
-    }
-  }
-  virtual void doc(QStringList &out, QString preamble);
 };
 
 /* This leaf class is used for fonts */
@@ -1873,8 +2011,7 @@ class PageMeta : public BranchMeta
 public:
   // top    == top of page
   // bottom == bottom of page
-  UnitsMeta                 size;
-  StringMeta                sizeid;
+  PageSizeMeta              size;
   PageOrientationMeta       orientation;
   MarginsMeta               margin;
   BorderMeta                border;

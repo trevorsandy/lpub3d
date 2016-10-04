@@ -30,7 +30,7 @@
 #include "lpub.h"
 
 SizeAndOrientationDialog::SizeAndOrientationDialog(
-  float            sgoods[2],
+  PgSizeData    &sgoods,
   OrientationEnc  &ogoods,
   QString         _name,
   QWidget         *parent)
@@ -40,16 +40,17 @@ SizeAndOrientationDialog::SizeAndOrientationDialog(
 
   smeta.setRange(1,1000);
   smeta.setFormats(6,4,"9.9999");
+  smeta.setValue(0,sgoods.sizeW);
+  smeta.setValue(1,sgoods.sizeH);
+  smeta.setValueSizeID(sgoods.sizeID);
 
-  smeta.setValue(0,sgoods[0]);
-  smeta.setValue(1,sgoods[1]);
   ometa.setValue(ogoods);
 
   QVBoxLayout *layout = new QVBoxLayout(this);
   setLayout(layout);
 
   bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
-  QString header = (dpi ? "Size and Orientation (In) " : "Size and Orientation (Cm)" );
+  QString header = (dpi ? "Size and Orientation (Inches) " : "Size and Orientation (Centimeters)");
 
   QGroupBox *box = new QGroupBox(header,this);
   layout->addWidget(box);
@@ -75,7 +76,7 @@ SizeAndOrientationDialog::~SizeAndOrientationDialog()
 }
 
 bool SizeAndOrientationDialog::getSizeAndOrientation(
-  float           sgoods[2],
+  PgSizeData   &sgoods,
   OrientationEnc &ogoods,
   QString         name,
   QWidget        *parent)
@@ -85,9 +86,11 @@ bool SizeAndOrientationDialog::getSizeAndOrientation(
   bool ok = dialog->exec() == QDialog::Accepted;
   if (ok) {
 
-    sgoods[0] = dialog->smeta.value(0);
-    sgoods[1] = dialog->smeta.value(1);
+    sgoods.sizeW = dialog->smeta.value(0);
+    sgoods.sizeH = dialog->smeta.value(1);
+    sgoods.sizeID= dialog->smeta.valueSizeID();
     ogoods = dialog->ometa.value();
+//    logDebug() << " SIZE TX(dialog return): Width: " << dialog->smeta.value(0) << " Height: " << dialog->smeta.value(1) << " SizeID: " << dialog->smeta.valueSizeID();
 
   }
   return ok;
@@ -95,7 +98,7 @@ bool SizeAndOrientationDialog::getSizeAndOrientation(
 
 void SizeAndOrientationDialog::accept()
 {
-  if (sizeAndOrientation->modified) {
+  if (sizeAndOrientation->isModified()) {
     QDialog::accept();
   } else {
     QDialog::reject();

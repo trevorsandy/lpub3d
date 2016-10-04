@@ -48,8 +48,6 @@
 #include "paths.h"
 #include "ldrawfiles.h"
 
-bool Step::refreshCsi(true);  //detect preference dialog updates
-
 /*********************************************************************
  *
  * Create a new step and remember the meta-command state at the time
@@ -210,7 +208,7 @@ int Step::createCsi(
       QDateTime lastModified = QFileInfo(pngName).lastModified();
       QStringList stack = submodelStack();
       stack << parent->modelName();
-      if ( ! isOlder(stack,lastModified) || refreshCsi) {
+      if ( ! isOlder(stack,lastModified)) {
           csiOutOfDate = true;
         }
     }
