@@ -1009,7 +1009,7 @@ void LDrawFile::countParts(const QString &fileName){
                       //logTrace() << QString(" Part Line: [%2] %3 ItemNo %1").arg(_pieces).arg(fileName).arg(line);
                       logStatus() << QString("ItemNo %1 [%2]").arg(_pieces).arg(tokens[14]);
                     } else {
-                      logError() << QString("Item [%1] is not a part in the LPub3D archives.\n%2\n%3")
+                      logNotice() << QString("Item [%1] not in the LPub3D archives. %2 %3")
                                     .arg(tokens[14])
                                     .arg(QString("%1/%2/%3").arg(Preferences::lpubDataPath, "libraries", VER_LPUB3D_UNOFFICIAL_ARCHIVE))
                                     .arg(QString("%1/%2/%3").arg(Preferences::lpubDataPath, "libraries", VER_LDRAW_OFFICIAL_ARCHIVE));

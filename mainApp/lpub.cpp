@@ -54,6 +54,7 @@
 #include "lc_profile.h"
 
 #include "application.h"
+#include <ui_progress_dialog.h>
 
 //**
 
@@ -967,14 +968,9 @@ void Gui::preferences()
                 clearAndRedrawPage();
             }
         }
-
-        qDebug() << "Preferences Fired !!!";
-
+        // set logging options
         using namespace QsLogging;
-
         Logger& logger = Logger::instance();
-
-        // set default log options
         if (Preferences::logging) {
             if (Preferences::logLevels){
 
@@ -1141,7 +1137,7 @@ Gui::Gui()
     connect(undoStack,      SIGNAL(cleanChanged(bool)),
             this,           SLOT(  cleanChanged(bool)));
 
-    connect(this, SIGNAL(messageSig(bool,QString)),              this, SLOT(statusMessage(bool,QString)));
+    connect(this, SIGNAL(messageSig(bool,QString)),           this, SLOT(statusMessage(bool,QString)));
 
     connect(this, SIGNAL(progressBarInitSig()),               this, SLOT(progressBarInit()));
     connect(this, SIGNAL(progressMessageSig(QString)),        this, SLOT(progressBarSetText(QString)));
@@ -1157,9 +1153,9 @@ Gui::Gui()
     connect(this, SIGNAL(progressPermResetSig()),             this, SLOT(progressBarPermReset()));
     connect(this, SIGNAL(removeProgressPermStatusSig()),      this, SLOT(removeProgressPermStatus()));
 
-    m_progressDialog = new ProgressDialog();
-    m_progressDlgProgressBar = m_progressDialog->findChild<QProgressBar*>("progressBar");
-    m_progressDlgMessageLbl  = m_progressDialog->findChild<QLabel*>("ui_progress_bar");
+    m_progressDialog         = new ProgressDialog();
+    m_progressDlgProgressBar = m_progressDialog->findChild<QProgressBar*>("progressDlgProgressBar");
+    m_progressDlgMessageLbl  = m_progressDialog->findChild<QLabel*>("progressDlgMessageLbl");
 
     connect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
 

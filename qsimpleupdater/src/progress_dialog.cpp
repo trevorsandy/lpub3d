@@ -26,7 +26,7 @@ ProgressDialog::ProgressDialog (QWidget *parent) : QDialog (parent), ui (new Ui:
     setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     // Close dialog when cancel button is clicked
-    connect (ui->ui_cancel_button, SIGNAL (clicked()), this, SLOT (cancel()));
+    connect (ui->progressDlgCancelBtn, SIGNAL (clicked()), this, SLOT (cancel()));
 }
 
 ProgressDialog::~ProgressDialog()
@@ -42,5 +42,5 @@ void ProgressDialog::cancel (void)
 
 void ProgressDialog::setDownloadInfo () {
     setWindowTitle(tr("Library Update"));
-    ui->ui_progress_bar->setText(tr("Retrieving download..."));
+    ui->progressDlgMessageLbl->setText(tr("Retrieving download..."));
 }

@@ -43,14 +43,14 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QLabel" name="ui_progress_bar">
+       <widget class="QLabel" name="progressDlgMessageLbl">
         <property name="text">
          <string>Checking for updates...</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QProgressBar" name="progressBar">
+       <widget class="QProgressBar" name="progressDlgProgressBar">
         <property name="minimumSize">
          <size>
           <width>250</width>
@@ -100,7 +100,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="ui_cancel_button">
+          <widget class="QPushButton" name="progressDlgCancelBtn">
            <property name="text">
             <string>Cancel</string>
            </property>

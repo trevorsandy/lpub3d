@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: September 20, 2016
+;Last Update: October 06, 2016
 ;Copyright (C) 2016 by Trevor Sandy
 
 ;--------------------------------
@@ -866,6 +866,7 @@ Section "Uninstall"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}"
   DeleteRegKey HKCU "Software\${Company}\${ProductName}\Defaults" 
   DeleteRegKey HKCU "Software\${Company}\${ProductName}\Installation"
+  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Logging"
   DeleteRegKey HKCU "Software\${Company}\${ProductName}\MainWindow"
   DeleteRegKey HKCU "Software\${Company}\${ProductName}\ParmsWindow"
   DeleteRegKey HKCU "Software\${Company}\${ProductName}\POVRay" 

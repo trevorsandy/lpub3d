@@ -59,7 +59,6 @@ QPageLayout Gui::getPageLayout(bool nextPage){
       pageHeightIn = i.value().sizeH;
 
       // switch back orientation because we always want to send portrait width x height to the printer
-      //if(ls){qreal temp = pageHeightIn; pageHeightIn = pageWidthIn; pageWidthIn = temp;}
       QPageSize pageSize(QSizeF(pageWidthIn,pageHeightIn),QPageSize::Inch,"",QPageSize::FuzzyMatch);
 
 //      logDebug() << QString("         PAGE %5 SIZE LAYOUT - WidthIn: %1 x HeightIn: %2 Orientation: %3 DPx: %4 CurPage: %6")
@@ -136,14 +135,9 @@ OrientationEnc Gui::getPageOrientation(bool nextPage)
   return InvalidOrientation;
 }
 
-bool Gui::getMixedPageSizeStatus(){
+void Gui::checkMixedPageSizeStatus(){
 
   QMessageBox box;
-  box.setTextFormat (Qt::RichText);
-  box.setStandardButtons (QMessageBox::Close);
-  box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-  box.setWindowTitle(tr ("Print Preview"));
-
   QString title;
   QString text, text1, text2;
 
@@ -193,15 +187,18 @@ bool Gui::getMixedPageSizeStatus(){
         }
     }
 
-  box.setText (title);
-  box.setInformativeText (text);
+  if (orientation_warning || size_warning || double_warning) {
 
-  box.exec();
+      box.setTextFormat (Qt::RichText);
+      box.setStandardButtons (QMessageBox::Close);
+      box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+      box.setWindowTitle(tr ("Print Preview"));
 
-  if (orientation_warning || size_warning || double_warning)
-    return false;
-  else
-    return true;
+      box.setText (title);
+      box.setInformativeText (text);
+
+      box.exec();
+    }
 }
 
 bool Gui::validatePageRange(){
@@ -211,7 +208,7 @@ bool Gui::validatePageRange(){
   box.setIcon (QMessageBox::Information);
   box.setStandardButtons (QMessageBox::Close);
   box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-  box.setWindowTitle(tr ("Print pdf"));
+  box.setWindowTitle(tr ("Page Range"));
 
   QString title;
   QString text;
@@ -219,7 +216,7 @@ bool Gui::validatePageRange(){
   if(pageRangeText.isEmpty()){
 
       title = "<b> Empty page range. </b>";
-      text = tr ("Custom page range is empty. You must enter a page range");
+      text = tr ("You must enter a page range");
 
       box.setText (title);
       box.setInformativeText (text);
@@ -459,11 +456,6 @@ void Gui::printToPdfFile()
   m_progressDialog->setWindowTitle("Print pdf");
   m_progressDialog->show();
 
-
-//  // paint to the pdfWriter the scene we view
-//  QPainter painter;
-//  painter.begin(&pdfWriter);
-
   // reset page indicators
   _displayPageNum = 0;
   _maxPages       = 0;
@@ -505,6 +497,7 @@ void Gui::printToPdfFile()
 
           m_progressDlgMessageLbl->setText(QString("Printing page %1 of %2").arg(displayPageNum).arg(_maxPages));
           m_progressDlgProgressBar->setValue(displayPageNum);
+          QApplication::processEvents();
 
           getPageSize(pageWidthPx, pageHeightPx);
 
@@ -594,6 +587,7 @@ void Gui::printToPdfFile()
 
           m_progressDlgMessageLbl->setText(QString("Printing page %1 of %2 for range %3").arg(displayPageNum).arg(printPages.count()).arg(pageRanges.join(" ")));
           m_progressDlgProgressBar->setValue(_pageCount++);
+          QApplication::processEvents();
 
           // determine size of output image, in pixels
           getPageSize(pageWidthPx, pageHeightPx);
@@ -638,8 +632,6 @@ void Gui::printToPdfFile()
       painter.end();
       m_progressDlgProgressBar->setValue(printPages.count());
     }
-
-//  painter.end();
 
   // release 3D Viewer
   setExportingSig(false);
@@ -713,249 +705,261 @@ void Gui::exportAsBmp()
 void Gui::exportAs(QString &suffix)
 {
   // store current display page number
-    int savePageNumber = displayPageNum;
+  int savePageNumber = displayPageNum;
 
-    // send signal to halt 3DViewer
-    setExportingSig(true);
+  // send signal to halt 3DViewer
+  setExportingSig(true);
 
-    // determine location to output images
-    QFileInfo fileInfo(curFile);
-    //QDir initialDirectory = fileInfo.dir();
-    QString baseName = fileInfo.baseName();
-    QString directoryName = QFileDialog::getExistingDirectory(
-                this,
-                tr("Save images to folder"), // needs translation! also, include suffix in here
-                QDir::currentPath(),
-                QFileDialog::ShowDirsOnly);
-    if (directoryName == "") {
-        // release 3D Viewer
-        setExportingSig(false);
-        return;
+  // determine location to output images
+  QFileInfo fileInfo(curFile);
+  //QDir initialDirectory = fileInfo.dir();
+  QString baseName = fileInfo.baseName();
+  QString directoryName = QFileDialog::getExistingDirectory(
+        this,
+        tr("Save images to folder"), // needs translation! also, include suffix in here
+        QDir::currentPath(),
+        QFileDialog::ShowDirsOnly);
+  if (directoryName == "") {
+      // release 3D Viewer
+      setExportingSig(false);
+      return;
     }
 
-    QGraphicsScene scene;
-    LGraphicsView view(&scene);
-    float pageWidthPx, pageHeightPx;
-    int _displayPageNum = 0;
-    int _maxPages       = 0;
+  QGraphicsScene scene;
+  LGraphicsView view(&scene);
+  float pageWidthPx, pageHeightPx;
+  int _displayPageNum = 0;
+  int _maxPages       = 0;
 
-    // Support transparency for formats that can handle it, but use white for those that can't.
-    QColor fillClear = (suffix.compare(".png", Qt::CaseInsensitive) == 0) ? Qt::transparent :  Qt::white;
+  // Support transparency for formats that can handle it, but use white for those that can't.
+  QColor fillClear = (suffix.compare(".png", Qt::CaseInsensitive) == 0) ? Qt::transparent :  Qt::white;
 
-    // initialize progress bar
-    m_progressDialog->setWindowTitle(QString("Export as %1").arg(suffix));
-    m_progressDialog->show();
-    m_progressDlgMessageLbl->setText(QString("Exporting instructions to %1 format.").arg(suffix));
+  // initialize progress bar
+  m_progressDialog->setWindowTitle(QString("Export as %1").arg(suffix));
+  m_progressDialog->show();
+  m_progressDlgMessageLbl->setText(QString("Exporting instructions to %1 format.").arg(suffix));
 
-    if (exportOption != EXPORT_PAGE_RANGE){
+  if (exportOption != EXPORT_PAGE_RANGE){
 
-        if(exportOption == EXPORT_ALL_PAGES){
-            _displayPageNum = 1;
-            _maxPages = maxPages;
+      if(exportOption == EXPORT_ALL_PAGES){
+          _displayPageNum = 1;
+          _maxPages = maxPages;
         }
 
-        if (exportOption == EXPORT_CURRENT_PAGE){
-            _displayPageNum = displayPageNum;
-            _maxPages       = displayPageNum;
+      if (exportOption == EXPORT_CURRENT_PAGE){
+          _displayPageNum = displayPageNum;
+          _maxPages       = displayPageNum;
         }
 
-        m_progressDlgProgressBar->setRange(1,_maxPages);
+      m_progressDlgProgressBar->setRange(1,_maxPages);
 
-        for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
+      for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
 
-            if (! exporting()) {
-                m_progressDialog->hide();
-                displayPageNum = savePageNumber;
-                drawPage(KpageView,KpageScene,false);
-                emit messageSig(true,QString("Export terminated before completion."));
-                return;
-              }
+          if (! exporting()) {
+              m_progressDialog->hide();
+              displayPageNum = savePageNumber;
+              drawPage(KpageView,KpageScene,false);
+              emit messageSig(true,QString("Export terminated before completion."));
+              return;
+            }
 
-            m_progressDlgMessageLbl->setText(QString("Exporting image: %1 of %2").arg(displayPageNum).arg(_maxPages));
-            m_progressDlgProgressBar->setValue(displayPageNum);
+          m_progressDlgMessageLbl->setText(QString("Exporting image: %1 of %2").arg(displayPageNum).arg(_maxPages));
+          m_progressDlgProgressBar->setValue(displayPageNum);
+          QApplication::processEvents();
 
-            // determine size of output image, in pixels
-            getPageSize(pageWidthPx, pageHeightPx);
+          // determine size of output image, in pixels
+          getPageSize(pageWidthPx, pageHeightPx);
 
-            bool  ls = getPageOrientation() == Landscape;
-            logNotice() << QString("Exporting image %3 of %4, size(in pixels) W %1 x H %2, orientation %5")
-                           .arg(pageWidthPx)
-                           .arg(pageHeightPx)
-                           .arg(displayPageNum)
-                           .arg(_maxPages)
-                           .arg(ls ? "Landscape" : "Portrait");
+          bool  ls = getPageOrientation() == Landscape;
+          logNotice() << QString("Exporting image %3 of %4, size(in pixels) W %1 x H %2, orientation %5")
+                         .arg(pageWidthPx)
+                         .arg(pageHeightPx)
+                         .arg(displayPageNum)
+                         .arg(_maxPages)
+                         .arg(ls ? "Landscape" : "Portrait");
 
-            // paint to the image the scene we view
-            QImage image(pageWidthPx, pageHeightPx, QImage::Format_ARGB32);
-            QPainter painter;
-            painter.begin(&image);
+          // paint to the image the scene we view
+          QImage image(pageWidthPx, pageHeightPx, QImage::Format_ARGB32);
+          QPainter painter;
+          painter.begin(&image);
 
-            QRectF boundingRect(0.0,0.0,pageWidthPx,pageHeightPx);
-            QRect  bounding(0,0,pageWidthPx,pageHeightPx);
-            view.scale(1.0,1.0);
-            view.setMinimumSize(pageWidthPx, pageHeightPx);
-            view.setMaximumSize(pageWidthPx, pageHeightPx);
-            view.setGeometry(bounding);
-            view.setSceneRect(boundingRect);
-            view.setRenderHints(
-                        QPainter::Antialiasing |
-                        QPainter::TextAntialiasing |
-                        QPainter::SmoothPixmapTransform);
-            view.centerOn(boundingRect.center());
-            clearPage(&view,&scene);
+          QRectF boundingRect(0.0,0.0,pageWidthPx,pageHeightPx);
+          QRect  bounding(0,0,pageWidthPx,pageHeightPx);
+          view.scale(1.0,1.0);
+          view.setMinimumSize(pageWidthPx, pageHeightPx);
+          view.setMaximumSize(pageWidthPx, pageHeightPx);
+          view.setGeometry(bounding);
+          view.setSceneRect(boundingRect);
+          view.setRenderHints(
+                QPainter::Antialiasing |
+                QPainter::TextAntialiasing |
+                QPainter::SmoothPixmapTransform);
+          view.centerOn(boundingRect.center());
+          clearPage(&view,&scene);
 
-            // clear the pixels of the image, just in case the background is
-            // transparent or uses a PNG image with transparency. This will
-            // prevent rendered pixels from each page layering on top of each
-            // other.
-            image.fill(fillClear.Rgb);
-            // render this page
-            // scene.render instead of view.render resolves "warm up" issue
-            drawPage(&view,&scene,false);
-            scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
-            scene.render(&painter);
-            clearPage(&view,&scene);
-            // save the image to the selected directory
-            // internationalization of "_page_"?
-            QString pn = QString("%1") .arg(displayPageNum);
-            image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
+          // clear the pixels of the image, just in case the background is
+          // transparent or uses a PNG image with transparency. This will
+          // prevent rendered pixels from each page layering on top of each
+          // other.
+          image.fill(fillClear.Rgb);
+          // render this page
+          // scene.render instead of view.render resolves "warm up" issue
+          drawPage(&view,&scene,false);
+          scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
+          scene.render(&painter);
+          clearPage(&view,&scene);
+          // save the image to the selected directory
+          // internationalization of "_page_"?
+          QString pn = QString("%1") .arg(displayPageNum);
+          image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
 
-            painter.end();
+          painter.end();
         }
-        m_progressDlgProgressBar->setValue(_maxPages);
+      m_progressDlgProgressBar->setValue(_maxPages);
 
     } else {
 
-        QStringList pageRanges = pageRangeText.split(",");
-        QList<int> printPages;
-        foreach(QString ranges,pageRanges){
-            if (ranges.contains("-")){
-                QStringList range = ranges.split("-");
-                int minPage = range[0].toInt();
-                int maxPage = range[1].toInt();
-                for(int i = minPage; i <= maxPage; i++){
-                    printPages.append(i);
+      QStringList pageRanges = pageRangeText.split(",");
+      QList<int> printPages;
+      foreach(QString ranges,pageRanges){
+          if (ranges.contains("-")){
+              QStringList range = ranges.split("-");
+              int minPage = range[0].toInt();
+              int maxPage = range[1].toInt();
+              for(int i = minPage; i <= maxPage; i++){
+                  printPages.append(i);
                 }
             } else {
-                printPages.append(ranges.toInt());
+              printPages.append(ranges.toInt());
             }
         }
 
-        std::sort(printPages.begin(),printPages.end(),lessThan);
+      std::sort(printPages.begin(),printPages.end(),lessThan);
 
-        m_progressDlgProgressBar->setRange(1,printPages.count());
+      m_progressDlgProgressBar->setRange(1,printPages.count());
 
-        int _pageCount = 0;
+      int _pageCount = 0;
 
-        foreach(int printPage,printPages){
+      foreach(int printPage,printPages){
 
-            if (! exporting()) {
-                m_progressDialog->hide();
-                displayPageNum = savePageNumber;
-                drawPage(KpageView,KpageScene,false);
-                emit messageSig(true,QString("Export terminated before completion."));
-                return;
-              }
+          if (! exporting()) {
+              m_progressDialog->hide();
+              displayPageNum = savePageNumber;
+              drawPage(KpageView,KpageScene,false);
+              emit messageSig(true,QString("Export terminated before completion."));
+              return;
+            }
 
-            displayPageNum = printPage;
+          displayPageNum = printPage;
 
-            m_progressDlgMessageLbl->setText(QString("Exporting image %1 of range %2").arg(displayPageNum).arg(pageRanges.join(" ")));
-            m_progressDlgProgressBar->setValue(_pageCount++);
+          m_progressDlgMessageLbl->setText(QString("Exporting image %1 of range %2").arg(displayPageNum).arg(pageRanges.join(" ")));
+          m_progressDlgProgressBar->setValue(_pageCount++);
+          QApplication::processEvents();
 
-            // determine size of output image, in pixels
-            getPageSize(pageWidthPx, pageHeightPx);
+          // determine size of output image, in pixels
+          getPageSize(pageWidthPx, pageHeightPx);
 
-            bool  ls = getPageOrientation() == Landscape;
-            logNotice() << QString("Exporting image %3 of range %4, size(in pixels) W %1 x H %2, orientation %5")
-                           .arg(pageWidthPx)
-                           .arg(pageHeightPx)
-                           .arg(displayPageNum)
-                           .arg(pageRanges.join(" "))
-                           .arg(ls ? "Landscape" : "Portrait");
+          bool  ls = getPageOrientation() == Landscape;
+          logNotice() << QString("Exporting image %3 of range %4, size(in pixels) W %1 x H %2, orientation %5")
+                         .arg(pageWidthPx)
+                         .arg(pageHeightPx)
+                         .arg(displayPageNum)
+                         .arg(pageRanges.join(" "))
+                         .arg(ls ? "Landscape" : "Portrait");
 
-            // paint to the image the scene we view
-            QImage image(pageWidthPx, pageHeightPx, QImage::Format_ARGB32);
-            QPainter painter;
-            painter.begin(&image);
+          // paint to the image the scene we view
+          QImage image(pageWidthPx, pageHeightPx, QImage::Format_ARGB32);
+          QPainter painter;
+          painter.begin(&image);
 
-            QRectF boundingRect(0.0,0.0,pageWidthPx,pageHeightPx);
-            QRect  bounding(0,0,pageWidthPx,pageHeightPx);
-            view.scale(1.0,1.0);
-            view.setMinimumSize(pageWidthPx, pageHeightPx);
-            view.setMaximumSize(pageWidthPx, pageHeightPx);
-            view.setGeometry(bounding);
-            view.setSceneRect(boundingRect);
-            view.setRenderHints(
-                        QPainter::Antialiasing |
-                        QPainter::TextAntialiasing |
-                        QPainter::SmoothPixmapTransform);
-            view.centerOn(boundingRect.center());
-            clearPage(&view,&scene);
-            // clear the pixels of the image, just in case the background is
-            // transparent or uses a PNG image with transparency. This will
-            // prevent rendered pixels from each page layering on top of each
-            // other.
-            image.fill(fillClear.Rgb);
-            // render this page
-            // scene.render instead of view.render resolves "warm up" issue
-            drawPage(&view,&scene,false);
-            scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
-            scene.render(&painter);
-            clearPage(&view,&scene);
-            // save the image to the selected directory
-            // internationalization of "_page_"?
-            QString pn = QString("%1") .arg(displayPageNum);
-            image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
+          QRectF boundingRect(0.0,0.0,pageWidthPx,pageHeightPx);
+          QRect  bounding(0,0,pageWidthPx,pageHeightPx);
+          view.scale(1.0,1.0);
+          view.setMinimumSize(pageWidthPx, pageHeightPx);
+          view.setMaximumSize(pageWidthPx, pageHeightPx);
+          view.setGeometry(bounding);
+          view.setSceneRect(boundingRect);
+          view.setRenderHints(
+                QPainter::Antialiasing |
+                QPainter::TextAntialiasing |
+                QPainter::SmoothPixmapTransform);
+          view.centerOn(boundingRect.center());
+          clearPage(&view,&scene);
+          // clear the pixels of the image, just in case the background is
+          // transparent or uses a PNG image with transparency. This will
+          // prevent rendered pixels from each page layering on top of each
+          // other.
+          image.fill(fillClear.Rgb);
+          // render this page
+          // scene.render instead of view.render resolves "warm up" issue
+          drawPage(&view,&scene,false);
+          scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
+          scene.render(&painter);
+          clearPage(&view,&scene);
+          // save the image to the selected directory
+          // internationalization of "_page_"?
+          QString pn = QString("%1") .arg(displayPageNum);
+          image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
 
-            painter.end();
+          painter.end();
         }
-        m_progressDlgProgressBar->setValue(printPages.count());
+      m_progressDlgProgressBar->setValue(printPages.count());
     }
 
-    // release 3D Viewer
-    setExportingSig(false);
+  // release 3D Viewer
+  setExportingSig(false);
 
-    // return to whatever page we were viewing before output
-    displayPageNum = savePageNumber;
-    drawPage(KpageView,KpageScene,false);
+  // return to whatever page we were viewing before output
+  displayPageNum = savePageNumber;
+  drawPage(KpageView,KpageScene,false);
 
-    // hide progress bar
-    m_progressDialog->hide();
+  // hide progress bar
+  m_progressDialog->hide();
 
-    emit messageSig(true,QString("Export as %1 completed.").arg(suffix.remove(".")));
+  emit messageSig(true,QString("Export as %1 completed.").arg(suffix.remove(".")));
 
-    //display completion message
-    QMessageBox::StandardButton ret;
-    ret = QMessageBox::information(this, tr(VER_PRODUCTNAME_STR),
-                                   tr("Your instruction document has finished printing.\n"
-                                      "Do you want to open the image folder ?\n %1").arg(directoryName),
-                                   QMessageBox::Yes| QMessageBox::Discard | QMessageBox::Cancel);
+  //display completion message
+  QMessageBox box;
+  box.setTextFormat (Qt::RichText);
+  box.setIcon (QMessageBox::Information);
+  box.setStandardButtons (QMessageBox::Yes| QMessageBox::No);
+  box.setDefaultButton   (QMessageBox::Yes);
+  box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+  box.setWindowTitle(tr ("Export %1").arg(suffix.remove(".")));
 
-    if (ret == QMessageBox::Yes) {
-        QString CommandPath = directoryName;
-        QProcess *Process = new QProcess(this);
-        Process->setWorkingDirectory(QDir::currentPath() + "/");
-        Process->setNativeArguments(CommandPath);
+  QString title = "<b> Export " + suffix.remove(".") + " completed. </b>";
+  QString text = tr ("Your instruction document images are finished exporting.\n"
+                     "Do you want to open the image folder ?\n %1")
+                     .arg(directoryName);
+
+  box.setText (title);
+  box.setInformativeText (text);
+
+  if (box.exec() == QMessageBox::Yes){
+      QString CommandPath = directoryName;
+      QProcess *Process = new QProcess(this);
+      Process->setWorkingDirectory(QDir::currentPath() + "/");
+      Process->setNativeArguments(CommandPath);
 
 #ifdef __APPLE__
 
-        Process->execute(CommandPath);
-        Process->waitForFinished();
+      Process->execute(CommandPath);
+      Process->waitForFinished();
 
-        QProcess::ExitStatus Status = Process->exitStatus();
+      QProcess::ExitStatus Status = Process->exitStatus();
 
-        if (Status != 0) {  // look for error
-            QErrorMessage *m = new QErrorMessage(this);
-            m->showMessage(QString("%1\n%2").arg("Failed to open image folder!").arg(CommandPath));
-          }
+      if (Status != 0) {  // look for error
+          QErrorMessage *m = new QErrorMessage(this);
+          m->showMessage(QString("%1\n%2").arg("Failed to open image folder!").arg(CommandPath));
+        }
 #else
-        QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+      QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
 #endif
 
-        return;
-      } else if (ret == QMessageBox::Cancel) {
-        return;
-      }
+      return;
+    } else {
+      return;
+    }
 }
 
 //-----------------PRINT FUNCTIONS------------------------//
@@ -1061,6 +1065,7 @@ void Gui::Print(QPrinter* Printer)
               m_progressDlgMessageLbl->setText(QString("%3 page %1 of %2").arg(Page).arg(ToPage)
                                                .arg(preview ? "Previewing" : "Printing"));
               m_progressDlgProgressBar->setValue(Page);
+              QApplication::processEvents();
 
               // determine size of output image, in pixels. dimension are inches * pixels per inch
               float pageWidthPx, pageHeightPx;
@@ -1172,10 +1177,13 @@ void Gui::Print(QPrinter* Printer)
 
               displayPageNum = Page = printPage;
 
-              m_progressDlgMessageLbl->setText(QString("%3 page %1 of %2 for range %3 ").arg(Page).arg(pageRanges.join(" "))
+              m_progressDlgMessageLbl->setText(QString("%1 page %2 of %3 for range %4 ")
                                                .arg(preview ? "Previewing" : "Printing")
-                                               .arg(printPages.count()));
+                                               .arg(Page)
+                                               .arg(printPages.count())
+                                               .arg(pageRanges.join(" ")));
               m_progressDlgProgressBar->setValue(_pageCount++);
+              QApplication::processEvents();
 
               // determine size of output image, in pixels. dimension are inches * pixels per inch
               float pageWidthPx, pageHeightPx;
@@ -1328,11 +1336,8 @@ void Gui::ShowPrintDialog()
 void Gui::TogglePrintPreview()
 {
   m_previewDialog = true;
-
-  getMixedPageSizeStatus();
-
-  if (! printToPdfFileDialog()) {
-      logInfo() << "Print to pdf dialog returned false";
+  checkMixedPageSizeStatus();
+  if (! printToPdfFileDialog()){
       m_previewDialog = false;
       return;
     }

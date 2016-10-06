@@ -622,7 +622,7 @@ public slots:
   void showPrintedFile();
   void showLine(const Where &topOfStep)
   {
-    if (! m_exportingContent) {
+    if (! exporting()) {
         displayFile(&ldrawFile,topOfStep.modelName);
         showLineSig(topOfStep.lineNumber);
       }
@@ -942,7 +942,7 @@ private slots:
 
     OrientationEnc getPageOrientation(bool nextPage = false);
     QPageLayout getPageLayout(bool nextPage = false);
-    bool getMixedPageSizeStatus();
+    void checkMixedPageSizeStatus();
 
     void closeEvent(QCloseEvent *event);
 

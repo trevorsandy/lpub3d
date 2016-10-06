@@ -2119,7 +2119,9 @@ void Gui::drawPage(
   maxPages--;
 
   QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
-  setPageLineEdit->setText(string);
+  if (! exporting())
+    setPageLineEdit->setText(string);
+
   QApplication::restoreOverrideCursor();
 }
 
@@ -2295,9 +2297,11 @@ void Gui::writeToTmp(const QString &fileName,
 
 void Gui::writeToTmp()
 {
-  emit progressBarPermInitSig();
-  emit progressPermRangeSig(1, ldrawFile._subFileOrder.size());
-  emit progressPermMessageSig("Submodels...");
+  if (! exporting()) {
+      emit progressBarPermInitSig();
+      emit progressPermRangeSig(1, ldrawFile._subFileOrder.size());
+      emit progressPermMessageSig("Submodels...");
+    }
   emit messageSig(true, "Writing submodels to temp directory...");
 
   bool    doFadeStep  = (page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
@@ -2310,7 +2314,8 @@ void Gui::writeToTmp()
 
       QString fileName = ldrawFile._subFileOrder[i].toLower();
 
-      emit progressPermSetValueSig(i);
+      if (! exporting())
+        emit progressPermSetValueSig(i);
 
       if (doFadeStep) {
           QString fadeFileName = fileName;
@@ -2349,8 +2354,10 @@ void Gui::writeToTmp()
             }
         }
     }
-  emit progressPermSetValueSig(ldrawFile._subFileOrder.size());
-  emit removeProgressPermStatusSig();
+  if (! exporting()) {
+      emit progressPermSetValueSig(ldrawFile._subFileOrder.size());
+      emit removeProgressPermStatusSig();
+    }
   emit messageSig(true, upToDate ? "No submodels written; temp directory up to date." : "Submodels written to temp directory.");
 }
 
