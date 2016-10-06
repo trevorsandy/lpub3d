@@ -74,6 +74,34 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.checkUpdateFrequency_Combo->setCurrentIndex(   Preferences::checkUpdateFrequency);
   ui.rendererTimeout->setValue(                     Preferences::rendererTimeout);
 
+  ui.loggingGrpBox->setChecked(                     Preferences::logging);
+  ui.logPathEdit->setText(                          Preferences::logPath);
+
+  ui.includeLogLevelBox->setChecked(                Preferences::includeLogLevel);
+  ui.includeTimestampBox->setChecked(               Preferences::includeTimestamp);
+  ui.includeLineNumberBox->setChecked(              Preferences::includeLineNumber);
+  ui.includeFileNameBox->setChecked(                Preferences::includeFileName);
+  ui.includeFunctionBox->setChecked(                Preferences::includeFunction);
+
+  ui.logLevelGrpBox->setChecked(                    Preferences::logLevel);
+  ui.logLevelsGrpBox->setChecked(                   Preferences::logLevels);
+
+  QStringList logLevels = tr(VER_LOGGING_LEVELS_STR).split(",");
+  ui.logLevelCombo->addItems(logLevels);
+  ui.logLevelCombo->setCurrentIndex(int(ui.logLevelCombo->findText(Preferences::loggingLevel)));
+
+  ui.debugLevelBox->setChecked(                    Preferences::debugLevel);
+  ui.traceLevelBox->setChecked(                    Preferences::traceLevel);
+  ui.noticeLevelBox->setChecked(                   Preferences::noticeLevel);
+  ui.infoLevelBox->setChecked(                     Preferences::infoLevel);
+  ui.statusLevelBox->setChecked(                   Preferences::statusLevel);
+  ui.errorLevelBox->setChecked(                    Preferences::errorLevel);
+  ui.fatalLevelBox->setChecked(                    Preferences::fatalLevel);
+
+  ui.includeAllLogAttribBox->setChecked(           Preferences::includeAllLogAttributes);
+  ui.allLogLevelsBox->setChecked(                  Preferences::allLogLevels);
+  ui.logValiationLbl->hide();
+
   //search directories
   QPalette palette;
   palette.setColor(QPalette::Base,Qt::lightGray);
@@ -185,6 +213,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
       }
   }
   /* QSimpleUpdater end */
+
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -559,6 +588,111 @@ int PreferencesDialog::rendererTimeout()
   return ui.rendererTimeout->value();
 }
 
+bool PreferencesDialog::includeLogLevel()
+{
+  return ui.includeLogLevelBox->isChecked();
+}
+bool PreferencesDialog::includeTimestamp()
+{
+  return ui.includeTimestampBox->isChecked();
+}
+bool PreferencesDialog::includeLineNumber()
+{
+  return ui.includeLineNumberBox->isChecked();
+}
+bool PreferencesDialog::includeFileName()
+{
+  return ui.includeFileNameBox->isChecked();
+}
+bool PreferencesDialog::includeFunction()
+{
+  return ui.includeFunctionBox->isChecked();
+}
+bool PreferencesDialog::includeAllLogAttrib()
+{
+  return ui.includeAllLogAttribBox->isChecked();
+}
+bool PreferencesDialog::loggingGrpBox()
+{
+  return ui.loggingGrpBox->isChecked(); //offlevel
+}
+bool PreferencesDialog::logLevelGrpBox()
+{
+  return ui.logLevelGrpBox->isChecked();
+}
+const QString PreferencesDialog::logLevelCombo()
+{
+  return ui.logLevelCombo->currentText();
+}
+bool PreferencesDialog::logLevelsGrpBox()
+{
+  return ui.logLevelsGrpBox->isChecked();
+}
+bool PreferencesDialog::debugLevel()
+{
+  return ui.debugLevelBox->isChecked();
+}
+bool PreferencesDialog::traceLevel()
+{
+  return ui.traceLevelBox->isChecked();
+}
+bool PreferencesDialog::noticeLevel()
+{
+  return ui.noticeLevelBox->isChecked();
+}
+bool PreferencesDialog::infoLevel()
+{
+  return ui.infoLevelBox->isChecked();
+}
+bool PreferencesDialog::statusLevel()
+{
+  return ui.statusLevelBox->isChecked();
+}
+bool PreferencesDialog::errorLevel()
+{
+  return ui.errorLevelBox->isChecked();
+}
+bool PreferencesDialog::fatalLevel()
+{
+  return ui.fatalLevelBox->isChecked();
+}
+bool PreferencesDialog::allLogLevels()
+{
+  return ui.allLogLevelsBox->isChecked();
+}
+
+void PreferencesDialog::on_includeAllLogAttribBox_clicked(bool checked)
+{
+  ui.includeLogLevelBox->setChecked(checked);
+  ui.includeTimestampBox->setChecked(checked);
+  ui.includeLineNumberBox->setChecked(checked);
+  ui.includeFileNameBox->setChecked(checked);
+  ui.includeFunctionBox->setChecked(checked);
+}
+
+void PreferencesDialog::on_allLogLevelsBox_clicked(bool checked)
+{
+  ui.debugLevelBox->setChecked(checked);
+  ui.traceLevelBox->setChecked(checked);
+  ui.noticeLevelBox->setChecked(checked);
+  ui.infoLevelBox->setChecked(checked);
+  ui.statusLevelBox->setChecked(checked);
+  ui.errorLevelBox->setChecked(checked);
+  ui.fatalLevelBox->setChecked(checked);
+}
+
+void PreferencesDialog::on_logLevelsGrpBox_clicked(bool checked)
+{
+  ui.logValiationLbl->hide();
+  ui.statusLevelBox->setChecked(checked);
+  ui.logLevelGrpBox->setChecked(!checked);
+}
+void PreferencesDialog::on_logLevelGrpBox_clicked(bool checked)
+{
+  ui.logValiationLbl->hide();
+  ui.logLevelsGrpBox->setChecked(!checked);
+}
+
 QStringList const PreferencesDialog::searchDirSettings()
 {
     QString textEditContents = ui.textEditSearchDirs->toPlainText();
@@ -584,34 +718,62 @@ QString const PreferencesDialog::moduleVersion()
 }
 
 void PreferencesDialog::checkForUpdates () {
-    /* Get settings from the UI */
-    QString moduleVersion = ui.moduleVersion_Combo->currentText();
-    bool enableDownloader = ui.enableDownloader_Chk->isChecked();
-    bool showAllNotifications = ui.showAllNotificstions_Chk->isChecked();
-    bool showUpdateNotifications = ui.showUpdateNotifications_Chk->isChecked();
+  /* Get settings from the UI */
+  QString moduleVersion = ui.moduleVersion_Combo->currentText();
+  bool enableDownloader = ui.enableDownloader_Chk->isChecked();
+  bool showAllNotifications = ui.showAllNotificstions_Chk->isChecked();
+  bool showUpdateNotifications = ui.showUpdateNotifications_Chk->isChecked();
 
-    /* Apply the settings */
-//    DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(moduleVersion);
-    if (m_updater->getModuleVersion(DEFS_URL) != moduleVersion)
-        m_updater->setModuleVersion(DEFS_URL, moduleVersion);
-    m_updater->setEnableDownloader(DEFS_URL, enableDownloader);
-    m_updater->setShowAllNotifications(DEFS_URL, showAllNotifications);
-    m_updater->setShowUpdateNotifications (DEFS_URL, showUpdateNotifications);
+  /* Apply the settings */
+  //    DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(moduleVersion);
+  if (m_updater->getModuleVersion(DEFS_URL) != moduleVersion)
+    m_updater->setModuleVersion(DEFS_URL, moduleVersion);
+  m_updater->setEnableDownloader(DEFS_URL, enableDownloader);
+  m_updater->setShowAllNotifications(DEFS_URL, showAllNotifications);
+  m_updater->setShowUpdateNotifications (DEFS_URL, showUpdateNotifications);
 
-    /* Check for updates */
-    m_updater->checkForUpdates (DEFS_URL);
+  /* Check for updates */
+  m_updater->checkForUpdates (DEFS_URL);
 }
 
 void PreferencesDialog::accept(){
+  bool missingParms = false;
     if(ui.preferredRenderer->count() == 0 || ui.ldrawPath->text().isEmpty()){
+        missingParms = true;
         if (ui.preferredRenderer->count() == 0){
             ui.ldglitePath->setPlaceholderText("At lease one renderer must be defined");
             ui.ldviewPath->setPlaceholderText("At lease one renderer must be defined");
             ui.povrayPath->setPlaceholderText("At lease one renderer must be defined");
             ui.l3pPath->setPlaceholderText("Reqired if POV-Ray defined");
         }
+      }
+    if (ui.includesGrpBox->isChecked() &&
+        ! ui.includeLogLevelBox->isChecked() &&
+        ! ui.includeTimestampBox->isChecked() &&
+        ! ui.includeLineNumberBox->isChecked() &&
+        ! ui.includeFileNameBox->isChecked() &&
+        ! ui.includeFunctionBox->isChecked()){
+        missingParms = true;
+        ui.logValiationLbl->show();
+        ui.logValiationLbl->setText("At lease one attribute must be included.");
+        ui.logValiationLbl->setStyleSheet("QLabel { background-color : red; color : blue; }");
+      }
+    if (ui.logLevelsGrpBox->isChecked() &&
+        ! ui.fatalLevelBox->isChecked() &&
+        ! ui.errorLevelBox->isChecked() &&
+        ! ui.statusLevelBox->isChecked() &&
+        ! ui.infoLevelBox->isChecked() &&
+        ! ui.noticeLevelBox->isChecked() &&
+        ! ui.traceLevelBox->isChecked() &&
+        ! ui.debugLevelBox->isChecked()){
+        missingParms = true;
+        ui.logValiationLbl->show();
+        ui.logValiationLbl->setText("At lease one logging level must be selected.");
+        ui.logValiationLbl->setStyleSheet("QLabel { background-color : red; color : blue; }");
+      }
+    if (missingParms){
         if (QMessageBox::Yes == QMessageBox::question(this, "Close Dialog?",
-                              "Required settings are missing, Are you sure you want to exit?",
+                              "Required settings are missing.\n Are you sure you want to exit?",
                               QMessageBox::Yes|QMessageBox::No)){
             QDialog::reject(); //keep open
         }
@@ -623,5 +785,3 @@ void PreferencesDialog::accept(){
 void PreferencesDialog::cancel(){
   QDialog::reject();
 }
-
-

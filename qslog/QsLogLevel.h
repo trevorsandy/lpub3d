@@ -31,14 +31,14 @@ namespace QsLogging
 
 enum Level
 {
-    TraceLevel = 0,
-    NoticeLevel,
-    DebugLevel,
-    InfoLevel,
-    StatusLevel,
-    ErrorLevel,
-    FatalLevel,
-    OffLevel
+  StatusLevel = 0,
+  InfoLevel,
+  TraceLevel,
+  DebugLevel,
+  NoticeLevel,
+  ErrorLevel,
+  FatalLevel,
+  OffLevel
 };
 
 }

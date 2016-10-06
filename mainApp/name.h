@@ -30,6 +30,7 @@ extern Gui *gui;
 #define MAINWINDOW   "MainWindow"
 #define PARMSWINDOW  "ParmsWindow"
 #define UPDATES      "Updates"
+#define LOGGING      "Logging"
 
 // filenames
 #define URL_LDRAW_UNOFFICIAL_ARCHIVE      "http://www.ldraw.org/library/unofficial/ldrawunf.zip"

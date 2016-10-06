@@ -81,6 +81,8 @@ QString Preferences::plug                       = QString(QObject::trUtf8("Instr
                                                           .arg(QString::fromLatin1(VER_PRODUCTNAME_STR),
                                                                QString::fromLatin1(VER_FILEVERSION_STR),
                                                                QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
+QString Preferences::logPath;
+QString Preferences::loggingLevel;               // string
 
 bool    Preferences::lpub3dLoaded               = false;
 bool    Preferences::enableDocumentLogo         = false;
@@ -89,7 +91,27 @@ bool    Preferences::useLDViewSingleCall        = false;
 bool    Preferences::displayAllAttributes       = false;
 bool    Preferences::generateCoverPages         = false;
 bool    Preferences::printDocumentTOC           = false;
-//
+
+bool    Preferences::includeLogLevel            = false;
+bool    Preferences::includeTimestamp           = false;
+bool    Preferences::includeLineNumber          = false;
+bool    Preferences::includeFileName            = false;
+bool    Preferences::includeFunction            = false;
+
+bool    Preferences::debugLevel                 = false;
+bool    Preferences::traceLevel                 = false;
+bool    Preferences::noticeLevel                = false;
+bool    Preferences::infoLevel                  = false;
+bool    Preferences::statusLevel                = false;
+bool    Preferences::errorLevel                 = false;
+bool    Preferences::fatalLevel                 = false;
+
+bool    Preferences::includeAllLogAttributes    = false;
+bool    Preferences::allLogLevels               = false;
+
+bool    Preferences::logLevel                   = false;
+bool    Preferences::logging                    = false;   // logging on/off offLevel (grp box)
+bool    Preferences::logLevels                  = false;   // individual logging levels (grp box)
 
 bool    Preferences::enableFadeStep             = false;
 bool    Preferences::preferCentimeters          = true;
@@ -108,6 +130,163 @@ int     Preferences::rendererTimeout            = 6;        // measured in secon
 
 Preferences::Preferences()
 {
+}
+
+void Preferences::loggingPreferences()
+{
+  // define log path
+  QString lpubDataPath = Preferences::lpubDataPath;
+  QDir logDir(lpubDataPath+"/logs");
+  if(!QDir(logDir).exists())
+    logDir.mkpath(".");
+  Preferences::logPath = QDir(logDir).filePath(QString("%1%2").arg(VER_PRODUCTNAME_STR).arg("Log.txt"));
+
+  QSettings Settings;
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeLogLevel"))) {
+          QVariant uValue(true);
+          includeLogLevel = true;
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeLogLevel"),uValue);
+  } else {
+          includeLogLevel = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeLogLevel")).toBool();
+  }
+
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeTimestamp"))) {
+          QVariant uValue(false);
+          includeTimestamp = false;
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeTimestamp"),uValue);
+  } else {
+          includeTimestamp = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeTimestamp")).toBool();
+  }
+
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeFileName"))) {
+          QVariant uValue(false);
+          includeFileName = false;
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeFileName"),uValue);
+  } else {
+          includeFileName = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeFileName")).toBool();
+  }
+
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeLineNumber"))) {
+          QVariant uValue(true);
+          includeLineNumber = true;
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeLineNumber"),uValue);
+  } else {
+          includeLineNumber = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeLineNumber")).toBool();
+  }
+
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeFunction"))) {
+          QVariant uValue(true);
+          includeFunction = true;
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeFunction"),uValue);
+  } else {
+          includeFunction = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeFunction")).toBool();
+  }
+
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeAllLogAttributes"))) {
+          QVariant uValue(false);
+          includeAllLogAttributes = false;
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeAllLogAttributes"),uValue);
+  } else {
+          includeAllLogAttributes = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeAllLogAttributes")).toBool();
+  }
+
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"Logging "))) {
+          QVariant uValue(true);
+          logging = true;
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"Logging "),uValue);
+  } else {
+          logging = Settings.value(QString("%1/%2").arg(LOGGING,"Logging ")).toBool();
+  }
+
+  // log levels combo
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"LoggingLevel"))) {
+         QVariant uValue("STATUS");
+          loggingLevel = "STATUS";
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"LoggingLevel"),uValue);
+  } else {
+          loggingLevel = Settings.value(QString("%1/%2").arg(LOGGING,"LoggingLevel")).toString();
+  }
+  // log levels group box
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"LogLevel"))) {
+          QVariant uValue(true);
+          logLevel = true;
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"LogLevel"),uValue);
+  } else {
+          logLevel = Settings.value(QString("%1/%2").arg(LOGGING,"LogLevel")).toBool();
+  }
+
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"LogLevels"))) {
+          QVariant uValue(false);
+          logLevels = false;
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"LogLevels"),uValue);
+  } else {
+          logLevels = Settings.value(QString("%1/%2").arg(LOGGING,"LogLevels")).toBool();
+  }
+
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"DebugLevel"))) {
+          QVariant uValue(false);
+          debugLevel = false;
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"DebugLevel"),uValue);
+  } else {
+          debugLevel = Settings.value(QString("%1/%2").arg(LOGGING,"DebugLevel")).toBool();
+  }
+
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"TraceLevel"))) {
+          QVariant uValue(false);
+          traceLevel = false;
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"TraceLevel"),uValue);
+  } else {
+          traceLevel = Settings.value(QString("%1/%2").arg(LOGGING,"TraceLevel")).toBool();
+  }
+
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"NoticeLevel"))) {
+          QVariant uValue(false);
+          noticeLevel = false;
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"NoticeLevel"),uValue);
+  } else {
+          noticeLevel = Settings.value(QString("%1/%2").arg(LOGGING,"NoticeLevel")).toBool();
+  }
+
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"InfoLevel"))) {
+          QVariant uValue(false);
+          infoLevel = false;
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"InfoLevel"),uValue);
+  } else {
+          infoLevel = Settings.value(QString("%1/%2").arg(LOGGING,"InfoLevel")).toBool();
+  }
+
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"StatusLevel"))) {
+          QVariant uValue(false);
+          statusLevel = false;
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"StatusLevel"),uValue);
+  } else {
+          statusLevel = Settings.value(QString("%1/%2").arg(LOGGING,"StatusLevel")).toBool();
+  }
+
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"ErrorLevel"))) {
+          QVariant uValue(false);
+          errorLevel = false;
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"ErrorLevel"),uValue);
+  } else {
+          errorLevel = Settings.value(QString("%1/%2").arg(LOGGING,"ErrorLevel")).toBool();
+  }
+
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"FatalLevel"))) {
+          QVariant uValue(false);
+          fatalLevel = false;
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"FatalLevel"),uValue);
+  } else {
+          fatalLevel = Settings.value(QString("%1/%2").arg(LOGGING,"FatalLevel")).toBool();
+  }
+
+  if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"AllLogLevels"))) {
+          QVariant uValue(false);
+          allLogLevels = false;
+          Settings.setValue(QString("%1/%2").arg(LOGGING,"AllLogLevels"),uValue);
+  } else {
+          allLogLevels = Settings.value(QString("%1/%2").arg(LOGGING,"AllLogLevels")).toBool();
+  }
+
 }
 
 void Preferences::lpubPreferences()
@@ -1198,6 +1377,108 @@ bool Preferences::getPreferences()
 
         if (moduleVersion != dialog->moduleVersion()){
             moduleVersion = dialog->moduleVersion();
+        }
+
+        if (includeLogLevel != dialog->includeLogLevel())
+        {
+                includeLogLevel = dialog->includeLogLevel();
+                Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeLogLevel"),includeLogLevel);
+        }
+
+        if (includeTimestamp != dialog->includeTimestamp())
+        {
+                includeTimestamp = dialog->includeTimestamp();
+                Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeTimestamp"),includeTimestamp);
+        }
+
+        if (includeLineNumber != dialog->includeLineNumber())
+        {
+                includeLineNumber = dialog->includeLineNumber();
+                Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeLineNumber"),includeLineNumber);
+        }
+
+        if (includeFileName != dialog->includeFileName())
+        {
+                includeFileName = dialog->includeFileName();
+                Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeFileName"),includeFileName);
+        }
+
+        if (includeAllLogAttributes != dialog->includeAllLogAttrib())
+        {
+                includeAllLogAttributes = dialog->includeAllLogAttrib();
+                Settings.setValue(QString("%1/%2").arg(LOGGING,"IncludeAllLogAttributes"),includeAllLogAttributes);
+        }
+
+        if (logging != dialog->loggingGrpBox())
+        {
+                logging = dialog->loggingGrpBox();
+                Settings.setValue(QString("%1/%2").arg(LOGGING,"Logging"),logging);
+        }
+
+        if (loggingLevel != dialog->logLevelCombo())
+        {
+                loggingLevel = dialog->logLevelCombo();
+                Settings.setValue(QString("%1/%2").arg(LOGGING,"LoggingLevel"),loggingLevel);
+        }
+
+        if (logLevel != dialog->logLevelGrpBox())
+        {
+                logLevel = dialog->logLevelGrpBox();
+                Settings.setValue(QString("%1/%2").arg(LOGGING,"LogLevel"),logLevel);
+        }
+
+        if (logLevels != dialog->logLevelsGrpBox())
+        {
+                logLevels = dialog->logLevelsGrpBox();
+                Settings.setValue(QString("%1/%2").arg(LOGGING,"LogLevels"),logLevels);
+        }
+
+        if (debugLevel != dialog->debugLevel())
+        {
+                debugLevel = dialog->debugLevel();
+                Settings.setValue(QString("%1/%2").arg(LOGGING,"DebugLevel"),debugLevel);
+        }
+
+        if (traceLevel != dialog->traceLevel())
+        {
+                traceLevel = dialog->traceLevel();
+                Settings.setValue(QString("%1/%2").arg(LOGGING,"TraceLevel"),traceLevel);
+        }
+
+        if (noticeLevel != dialog->noticeLevel())
+        {
+                noticeLevel = dialog->noticeLevel();
+                Settings.setValue(QString("%1/%2").arg(LOGGING,"NoticeLevel"),noticeLevel);
+        }
+
+        if (infoLevel != dialog->infoLevel())
+        {
+                infoLevel = dialog->infoLevel();
+                Settings.setValue(QString("%1/%2").arg(LOGGING,"InfoLevel"),infoLevel);
+        }
+
+        if (statusLevel != dialog->statusLevel())
+        {
+                statusLevel = dialog->statusLevel();
+                Settings.setValue(QString("%1/%2").arg(LOGGING,"StatusLevel"),statusLevel);
+        }
+
+        if (errorLevel != dialog->errorLevel())
+        {
+                errorLevel = dialog->errorLevel();
+                Settings.setValue(QString("%1/%2").arg(LOGGING,"ErrorLevel"),errorLevel);
+        }
+
+        if (fatalLevel != dialog->fatalLevel())
+        {
+                fatalLevel = dialog->fatalLevel();
+                Settings.setValue(QString("%1/%2").arg(LOGGING,"FatalLevel"),fatalLevel);
+        }
+
+        if (allLogLevels != dialog->allLogLevels())
+        {
+                allLogLevels = dialog->allLogLevels();
+                Settings.setValue(QString("%1/%2").arg(LOGGING,"AllLogLevels"),allLogLevels);
         }
 
         return true;

@@ -2,6 +2,8 @@ LPub3D 2.0.13.823.2
  
 Features and enhancements 
 ------------
+Fix: Logging options added to Preferences (r832)
+ * Select logged attributes and logging levels.
 Fix: Prompt search directory settings reset (r831)
  * Prompt to inform that the search directories have been reset after the search directory reset button is clicked. Restarting LPub3D is not required. Also changed menu items "Reset 3D Viewer Model Cache" to "Change Temp File Cache" and "Reset Image and Model Caches" to "Reset All Caches".
 Fix: Inconsistency between part counts in submodels and part counts in call-outs where multiple instances are involved (r829)

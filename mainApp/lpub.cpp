@@ -967,6 +967,69 @@ void Gui::preferences()
                 clearAndRedrawPage();
             }
         }
+
+        qDebug() << "Preferences Fired !!!";
+
+        using namespace QsLogging;
+
+        Logger& logger = Logger::instance();
+
+        // set default log options
+        if (Preferences::logging) {
+            if (Preferences::logLevels){
+
+                logger.setLoggingLevels();
+                logger.setDebugLevel(Preferences::debugLevel);
+                logger.setTraceLevel(Preferences::traceLevel);
+                logger.setNoticeLevel(Preferences::noticeLevel);
+                logger.setInfoLevel(Preferences::infoLevel);
+                logger.setStatusLevel(Preferences::statusLevel);
+                logger.setErrorLevel(Preferences::errorLevel);
+                logger.setFatalLevel(Preferences::fatalLevel);
+
+              } else if (Preferences::logLevel){
+
+                bool ok;
+                Level logLevel = logger.fromLevelString(Preferences::loggingLevel,&ok);
+                if (!ok)
+                  QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                        QMessageBox::tr("Failed to set log level %1.\n"
+                                                        "Logging is off - level set to OffLevel")
+                                        .arg(Preferences::loggingLevel));
+                logger.setLoggingLevel(logLevel);
+              }
+
+            logger.setIncludeLogLevel(Preferences::includeLogLevel);
+            logger.setIncludeTimestamp(Preferences::includeTimestamp);
+            logger.setIncludeLineNumber(Preferences::includeLineNumber);
+            logger.setIncludeFileName(Preferences::includeFileName);
+            logger.setIncludeFunctionInfo(Preferences::includeFunction);
+
+            // logging examples
+            bool showLogExamples = false;
+            if (showLogExamples){
+                logStatus() << "[Pref] Uh-oh! - this level is not displayed in the console only the log";
+                logInfo()   << "[Pref] LPub3D logging reloaded";
+                logInfo()   << "[Pref] Built with Qt" << QT_VERSION_STR << "running on" << qVersion();
+                logTrace()  << "[Pref] Here's a" << QString("trace") << "message";
+                logDebug()  << "[Pref] Here's a" << static_cast<int>(QsLogging::DebugLevel) << "message";
+                logNotice() << "[Pref] Here's a" << QString("Notice") << "message";
+                qDebug()    << "[Pref] This message won't be picked up by the logger";
+                logError()  << "[Pref] An error has occurred";
+                qWarning()  << "[Pref] Neither will this one";
+                logFatal()  << "[Pref] Fatal error!";
+
+                Level level = logger.loggingLevel();
+                logger.setLoggingLevel(QsLogging::OffLevel);
+                for (int i = 0;i < 10;++i) {
+                    logError() << QString::fromUtf8("[Pref] This message should not be visible");
+                }
+                logger.setLoggingLevel(level);
+            } // end init logging
+
+          } else {
+            logger.setLoggingLevel(OffLevel);
+          }
     }
 }
 

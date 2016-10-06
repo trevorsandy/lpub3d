@@ -131,34 +131,81 @@ void Application::initialize(int &argc, char **argv)
   Preferences::lpubPreferences();
 
   // initialize the logger
+  Preferences::loggingPreferences();
+
   using namespace QsLogging;
 
   Logger& logger = Logger::instance();
 
   // set default log options
-  logger.setLoggingLevel(TraceLevel);
-  logger.setIncludeLogLevel(true);
-  logger.setIncludeTimestamp(false);
-  logger.setIncludeLineNumber(true);
-  logger.setIncludeFileName(true);
-  logger.setColorizeFunctionInfo(true); //default should be false
-  logger.setColorizeOutput(true);       //default should be false
-  // define log path
-  QString lpubDataPath = Preferences::lpubDataPath;
-  QDir logDir(lpubDataPath+"/logs");
-  if(!QDir(logDir).exists())
-    logDir.mkpath(".");
-  const QString sLogPath(QDir(logDir).filePath(QString("%1%2").arg(VER_PRODUCTNAME_STR).arg("Log.txt")));
+  if (Preferences::logging) {
+      if (Preferences::logLevels){
 
-  // Create log destinations
-  DestinationPtr fileDestination(DestinationFactory::MakeFileDestination(
-    sLogPath, EnableLogRotation, MaxSizeBytes(5000000), MaxOldLogCount(5)));
-  DestinationPtr debugDestination(
-        DestinationFactory::MakeDebugOutputDestination());
+          logger.setLoggingLevels();
+          logger.setDebugLevel( Preferences::debugLevel);
+          logger.setTraceLevel( Preferences::traceLevel);
+          logger.setNoticeLevel(Preferences::noticeLevel);
+          logger.setInfoLevel(  Preferences::infoLevel);
+          logger.setStatusLevel(Preferences::statusLevel);
+          logger.setErrorLevel( Preferences::errorLevel);
+          logger.setFatalLevel( Preferences::fatalLevel);
 
-  // set log destinations on the logger
-  logger.addDestination(debugDestination);
-  logger.addDestination(fileDestination);
+        } else if (Preferences::logLevel){
+
+          bool ok;
+          Level logLevel = logger.fromLevelString(Preferences::loggingLevel,&ok);
+          if (!ok)
+            QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                  QMessageBox::tr("Failed to set log level %1.\n"
+                                                  "Logging is off - level set to OffLevel")
+                                  .arg(Preferences::loggingLevel));
+          logger.setLoggingLevel(logLevel);
+        }
+
+      logger.setIncludeLogLevel(    Preferences::includeLogLevel);
+      logger.setIncludeTimestamp(   Preferences::includeTimestamp);
+      logger.setIncludeLineNumber(  Preferences::includeLineNumber);
+      logger.setIncludeFileName(    Preferences::includeFileName);
+      logger.setIncludeFunctionInfo(Preferences::includeFunction);
+
+      logger.setColorizeFunctionInfo(true);
+      logger.setColorizeOutput(true);
+
+      // Create log destinations
+      DestinationPtr fileDestination(DestinationFactory::MakeFileDestination(
+        Preferences::logPath, EnableLogRotation, MaxSizeBytes(5000000), MaxOldLogCount(5)));
+      DestinationPtr debugDestination(
+            DestinationFactory::MakeDebugOutputDestination());
+
+      // set log destinations on the logger
+      logger.addDestination(debugDestination);
+      logger.addDestination(fileDestination);
+
+      // logging examples
+      bool showLogExamples = false;
+      if (showLogExamples){
+          logStatus() << "Uh-oh! - this level is not displayed in the console only the log";
+          logInfo()   << "LPub3D started";
+          logInfo()   << "Built with Qt" << QT_VERSION_STR << "running on" << qVersion();
+          logTrace()  << "Here's a" << QString("trace") << "message";
+          logDebug()  << "Here's a" << static_cast<int>(QsLogging::DebugLevel) << "message";
+          logNotice() << "Here's a" << QString("Notice") << "message";
+          qDebug()    << "This message won't be picked up by the logger";
+          logError()  << "An error has occurred";
+          qWarning()  << "Neither will this one";
+          logFatal()  << "Fatal error!";
+
+          Level level = logger.loggingLevel();
+          logger.setLoggingLevel(QsLogging::OffLevel);
+          for (int i = 0;i < 10;++i) {
+              logError() << QString::fromUtf8("this message should not be visible");
+          }
+          logger.setLoggingLevel(level);
+      } // end init logging
+
+    } else {
+      logger.setLoggingLevel(OffLevel);
+    }
 
   logInfo() << QString("Initializing application.");
 
@@ -175,27 +222,6 @@ void Application::initialize(int &argc, char **argv)
   splash->show();
 
   emit splashMsgSig("5% - Initializing application...");
-
-  // logging examples
-  bool showLogExamples = false;
-  if (showLogExamples){
-      logInfo()   << "LPub3D started";
-      logInfo()   << "Built with Qt" << QT_VERSION_STR << "running on" << qVersion();
-      logNotice() << "Here's a" << QString("Notice") << "message";
-      logTrace()  << "Here's a" << QString("trace") << "message";
-      logDebug()  << "Here's a" << static_cast<int>(QsLogging::DebugLevel) << "message";
-      logStatus()   << "Uh-oh! - this level is not displayed in the console only the log";
-      qDebug()    << "This message won't be picked up by the logger";
-      logError()  << "An error has occurred";
-      qWarning()  << "Neither will this one";
-      logFatal()  << "Fatal error!";
-
-      logger.setLoggingLevel(QsLogging::OffLevel);
-      for (int i = 0;i < 10;++i) {
-          logError() << QString::fromUtf8("this message should not be visible");
-      }
-      logger.setLoggingLevel(QsLogging::TraceLevel);
-  } // end init logging
 
   emit splashMsgSig("10% - Preferences loading...");
 

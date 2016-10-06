@@ -38,6 +38,7 @@ class Preferences
     static void fadestepPreferences();
     static void publishingPreferences();
     static void setLPub3DLoaded();
+    static void loggingPreferences();
     static void getRequireds();
     static bool getPreferences();
 
@@ -71,6 +72,8 @@ class Preferences
     static QString ldrawiniFile;
     static QString ldgliteSearchDirs;
     static QString moduleVersion;
+    static QString logPath;
+    static QString loggingLevel;
     static QStringList ldSearchDirs;
     static bool    ldrawiniFound;
     static bool    enableDocumentLogo;
@@ -88,6 +91,28 @@ class Preferences
     static bool    enableDownloader;
     static bool    portableDistribution;
     static bool    lpub3dLoaded;
+
+    static bool    includeLogLevel;
+    static bool    includeTimestamp;
+    static bool    includeLineNumber;
+    static bool    includeFileName;
+    static bool    includeFunction;
+
+    static bool    debugLevel;
+    static bool    traceLevel;
+    static bool    noticeLevel;
+    static bool    infoLevel;
+    static bool    statusLevel;
+    static bool    errorLevel;
+    static bool    fatalLevel;
+
+    static bool    includeAllLogAttributes;
+    static bool    allLogLevels;
+
+    static bool    logging;       // logging on/off offLevel (grp box)
+    static bool    logLevel;      // log level combo (grp box)
+    static bool    logLevels;     // individual logging levels (grp box)
+
     static int     checkUpdateFrequency;
     static int     pageWidth;
     static int     pageHeight;

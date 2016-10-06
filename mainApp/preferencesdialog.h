@@ -54,6 +54,7 @@ class PreferencesDialog : public QDialog
     QString const defaultEmail();
     QString const documentLogoFile();
     QString const publishDescription();
+    QString const logLevelCombo();
     QStringList const searchDirSettings();
     bool          displayAllAttributes();
     bool          generateCoverPages();
@@ -67,6 +68,26 @@ class PreferencesDialog : public QDialog
     bool          showAllNotifications();
     int           checkUpdateFrequency();
     int           rendererTimeout();
+
+    bool          includeLogLevel();
+    bool          includeTimestamp();
+    bool          includeLineNumber();
+    bool          includeFileName();
+    bool          includeFunction();
+    bool          includeAllLogAttrib();
+
+    bool          loggingGrpBox();
+    bool          logLevelGrpBox();
+    bool          logLevelsGrpBox();
+
+    bool          debugLevel();
+    bool          traceLevel();
+    bool          noticeLevel();
+    bool          infoLevel();
+    bool          statusLevel();
+    bool          errorLevel();
+    bool          fatalLevel();
+    bool          allLogLevels();
 
   public slots:
     void accept();
@@ -89,7 +110,10 @@ class PreferencesDialog : public QDialog
     void updateChangelog (QString url);
     void checkForUpdates();
 
-
+    void on_includeAllLogAttribBox_clicked(bool checked);
+    void on_allLogLevelsBox_clicked(bool checked);
+    void on_logLevelsGrpBox_clicked(bool checked);
+    void on_logLevelGrpBox_clicked(bool checked);
 
 private:
     Ui::PreferencesDialog ui;

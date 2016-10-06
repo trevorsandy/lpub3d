@@ -28,7 +28,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -886,6 +886,390 @@
       <zorder>displayAllAttributes_Chk</zorder>
       <zorder>label_8</zorder>
       <zorder>authorName_Edit</zorder>
+     </widget>
+     <widget class="QWidget" name="tabLogging">
+      <attribute name="title">
+       <string>Logging</string>
+      </attribute>
+      <widget class="QGroupBox" name="loggingGrpBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>451</width>
+         <height>421</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Uncheck to disable logging</string>
+       </property>
+       <property name="title">
+        <string>Logging</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <widget class="QLabel" name="label_11">
+        <property name="geometry">
+         <rect>
+          <x>12</x>
+          <y>32</y>
+          <width>55</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Log Path</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="logPathEdit">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>70</x>
+          <y>29</y>
+          <width>371</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Log file path</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QGroupBox" name="includesGrpBox">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>88</y>
+          <width>431</width>
+          <height>111</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Attributes to include in log output. Select all that apply</string>
+        </property>
+        <property name="title">
+         <string>Includes</string>
+        </property>
+        <widget class="QCheckBox" name="includeLogLevelBox">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>19</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Include the level of logging</string>
+         </property>
+         <property name="text">
+          <string>Logging Level</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="includeTimestampBox">
+         <property name="geometry">
+          <rect>
+           <x>260</x>
+           <y>19</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Include the timestamp of the logged message</string>
+         </property>
+         <property name="text">
+          <string>Timestamp</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="includeLineNumberBox">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>49</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Include the log message class line number</string>
+         </property>
+         <property name="text">
+          <string>Line Number</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="includeFileNameBox">
+         <property name="geometry">
+          <rect>
+           <x>260</x>
+           <y>49</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Include the class name that generated the log message</string>
+         </property>
+         <property name="text">
+          <string>Class Name</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="includeFunctionBox">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>79</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Include the log message class function</string>
+         </property>
+         <property name="text">
+          <string>Function</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="includeAllLogAttribBox">
+         <property name="geometry">
+          <rect>
+           <x>260</x>
+           <y>79</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Include the class name that generated the log message</string>
+         </property>
+         <property name="text">
+          <string>All Includes</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QGroupBox" name="logLevelsGrpBox">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>267</y>
+          <width>431</width>
+          <height>141</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Select individual logging levels as needed. </string>
+        </property>
+        <property name="title">
+         <string>Individual Logging Levels</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <widget class="QCheckBox" name="fatalLevelBox">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>20</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Log Fatal messages</string>
+         </property>
+         <property name="text">
+          <string>Fatal</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="noticeLevelBox">
+         <property name="geometry">
+          <rect>
+           <x>260</x>
+           <y>20</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Log Notice messages</string>
+         </property>
+         <property name="text">
+          <string>Notice</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="traceLevelBox">
+         <property name="geometry">
+          <rect>
+           <x>260</x>
+           <y>50</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Log Trace messages</string>
+         </property>
+         <property name="text">
+          <string>Trace</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="errorLevelBox">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>50</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Log Error messages</string>
+         </property>
+         <property name="text">
+          <string>Error</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="debugLevelBox">
+         <property name="geometry">
+          <rect>
+           <x>260</x>
+           <y>80</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Log Debug messages</string>
+         </property>
+         <property name="text">
+          <string>Debug</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="statusLevelBox">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>80</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Log Status messages</string>
+         </property>
+         <property name="text">
+          <string>Status</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="allLogLevelsBox">
+         <property name="geometry">
+          <rect>
+           <x>260</x>
+           <y>110</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Log all messages</string>
+         </property>
+         <property name="text">
+          <string>All Levels</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="infoLevelBox">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>110</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Log Information messages</string>
+         </property>
+         <property name="text">
+          <string>Information</string>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QGroupBox" name="logLevelGrpBox">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>206</y>
+          <width>431</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Select logging level as needed. Levels below the selected level will also be logged.</string>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="title">
+         <string>Logging Level</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <widget class="QComboBox" name="logLevelCombo">
+         <property name="geometry">
+          <rect>
+           <x>132</x>
+           <y>17</y>
+           <width>141</width>
+           <height>22</height>
+          </rect>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QLabel" name="logValiationLbl">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>60</y>
+          <width>421</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </widget>
      </widget>
      <widget class="QWidget" name="tabOther">
       <attribute name="title">

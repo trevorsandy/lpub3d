@@ -67,6 +67,7 @@ public:
   static Logger& instance();
   static void destroyInstance();
   static Level levelFromLogMessage(const QString& logMessage, bool* conversionSucceeded = 0);
+  static Level fromLevelString(const QString& string, bool* conversionSucceeded = 0);
 
   ~Logger();
 
@@ -74,8 +75,12 @@ public:
   void addDestination(DestinationPtr destination);
   //! Logging at a level < 'newLevel' will be ignored
   void setLoggingLevel(Level newLevel);
+  //! Use one or more logging levels
+  void setLoggingLevels();
   //! The default level is INFO
   Level loggingLevel() const;
+  //! Returns logging level if enabled
+  bool loggingLevel(Level thisLevel);
   //! Set to false to disable timestamp inclusion in log messages
   void setIncludeTimestamp(bool e);
   //! Default value is true.
@@ -85,7 +90,7 @@ public:
   //! Default value is true.
   bool includeLineNumber() const;
   //! Set to false to disable function informatino inclusion in log messages
-  void setIncludeFunctionInfo(bool e);
+  void setIncludeFunctionInfo(bool l);
   //! Default value is true.
   bool includeFunctionInfo() const;
   //! Set to false to disable file name inclusion in log messages
@@ -104,6 +109,20 @@ public:
   void setColorizeFunctionInfo(bool l);
   //! Default value is true.
   bool colorizeFunctionInfo() const;
+  //! Set to true to enable Debug log level
+  void setDebugLevel(bool l);
+  //! Set to true to enable Trace log level
+  void setTraceLevel(bool l);
+  //! Set to true to enable Notice log level
+  void setNoticeLevel(bool l);
+  //! Set to true to enable Info log level
+  void setInfoLevel(bool l);
+  //! Set to true to enable Status log level
+  void setStatusLevel(bool l);
+  //! Set to true to enable Error log level
+  void setErrorLevel(bool l);
+  //! Set to true to enable Fatal log level
+  void setFatalLevel(bool l);
 
   //! The helper forwards the streaming to QDebug and builds the final
   //! log message.
@@ -143,6 +162,36 @@ private:
 
 //! in the log output.
 #define logTrace() \
+   if( QsLogging::Logger::instance().loggingLevel(QsLogging::TraceLevel) ) \
+         QsLogging::Logger::Helper(QsLogging::TraceLevel).stream() \
+     << __FILE__ << '|' << Q_FUNC_INFO << '|' << __LINE__ << QS_LOG_SPLIT
+#define logNotice() \
+   if( QsLogging::Logger::instance().loggingLevel(QsLogging::NoticeLevel) ) \
+     QsLogging::Logger::Helper(QsLogging::NoticeLevel).stream() \
+     << __FILE__ << '|' << Q_FUNC_INFO << '|' << __LINE__ << QS_LOG_SPLIT
+#define logDebug() \
+   if( QsLogging::Logger::instance().loggingLevel(QsLogging::DebugLevel) ) \
+     QsLogging::Logger::Helper(QsLogging::DebugLevel).stream() \
+     << __FILE__ << '|' << Q_FUNC_INFO << '|' << __LINE__ << QS_LOG_SPLIT
+#define logInfo()  \
+   if( QsLogging::Logger::instance().loggingLevel(QsLogging::InfoLevel) ) \
+     QsLogging::Logger::Helper(QsLogging::InfoLevel).stream() \
+     << __FILE__ << '|' << Q_FUNC_INFO << '|' << __LINE__ << QS_LOG_SPLIT
+#define logStatus()  \
+   if( QsLogging::Logger::instance().loggingLevel(QsLogging::StatusLevel) ) \
+     QsLogging::Logger::Helper(QsLogging::StatusLevel).stream() \
+     << __FILE__ << '|' << Q_FUNC_INFO << '|' << __LINE__ << QS_LOG_SPLIT
+#define logError() \
+   if( QsLogging::Logger::instance().loggingLevel(QsLogging::ErrorLevel) ) \
+     QsLogging::Logger::Helper(QsLogging::ErrorLevel).stream() \
+     << __FILE__ << '|' << Q_FUNC_INFO << '|' << __LINE__ << QS_LOG_SPLIT
+#define logFatal() \
+   if( QsLogging::Logger::instance().loggingLevel(QsLogging::FatalLevel) ) \
+     QsLogging::Logger::Helper(QsLogging::FatalLevel).stream() \
+     << __FILE__ << '|' << Q_FUNC_INFO << '|' << __LINE__ << QS_LOG_SPLIT
+
+/*
+#define logTrace() \
    if( QsLogging::Logger::instance().loggingLevel() > QsLogging::TraceLevel ){} \
    else QsLogging::Logger::Helper(QsLogging::TraceLevel).stream() \
       << __FILE__ << '|' << Q_FUNC_INFO << '|' << __LINE__ << QS_LOG_SPLIT
@@ -169,6 +218,7 @@ private:
 #define logFatal() \
    QsLogging::Logger::Helper(QsLogging::FatalLevel).stream() \
       << __FILE__ << '|' << Q_FUNC_INFO << '|' << __LINE__ << QS_LOG_SPLIT
+*/
 
 #ifdef QS_LOG_DISABLE
 #include "QsLogDisableForThisFile.h"
