@@ -1602,10 +1602,10 @@ int Gui::findPage(
                 pageSize.sizeW      = meta.LPub.page.size.valueInches(0);
                 pageSize.sizeH      = meta.LPub.page.size.valueInches(1);
                 pageSize.sizeID     = meta.LPub.page.size.valueSizeID();
-                pageSize.orientation= pageSizes[DEF_SIZE].orientation;
-                logNotice() << "1. Page Number Entry Detected        PageNum:" << pageNum
-                            << "W:" << pageSize.sizeW << "H:"    << pageSize.sizeH
-                            << "ID:" << pageSize.sizeID;
+                pageSize.orientation= meta.LPub.page.orientation.value();
+                logTrace() << "1. Page Size entry detected            PageNum:  " << pageNum
+                           << "W:" << pageSize.sizeW << "H:"    << pageSize.sizeH
+                           << "              ID:" << pageSize.sizeID;
               }
               break;
             case PageOrientationRc:
@@ -1616,12 +1616,15 @@ int Gui::findPage(
                   newPageSizeGlobal = false;
                 }
               newPageIndex        = pageNum;
-              pageSize.sizeW      = pageSizes[DEF_SIZE].sizeW;
-              pageSize.sizeH      = pageSizes[DEF_SIZE].sizeH;
-              pageSize.sizeID     = pageSizes[DEF_SIZE].sizeID;
+              if (pageSize.sizeW == 0)
+                pageSize.sizeW  = pageSizes[DEF_SIZE].sizeW;
+              if (pageSize.sizeH == 0)
+                pageSize.sizeH  = pageSizes[DEF_SIZE].sizeH;
+              if (pageSize.sizeID.isEmpty())
+                pageSize.sizeID = pageSizes[DEF_SIZE].sizeID;
               pageSize.orientation= meta.LPub.page.orientation.value();
-              logNotice() << "2. Page Orientation Entry Detected   PageNum:" << pageNum
-                          << "O:" << (pageSize.orientation == Portrait ? "Portrait" : "Landscape");
+              logTrace() << "2. Page Orientation entry detected     PageNum:  " << pageNum
+                         << "               O:" << (pageSize.orientation == Portrait ? "Portrait" : "Landscape");
               }
               break;
             case NoStepRc:
@@ -1640,19 +1643,23 @@ int Gui::findPage(
               if (newPageSizeGlobal) {
                   pageSizes.remove(DEF_SIZE);
                   pageSizes.insert(DEF_SIZE,pageSize);
+                  logTrace() << "3. Inserting Default page size info at PageIndex:" << newPageIndex
+                             << "W:"  << pageSize.sizeW << "H:"    << pageSize.sizeH
+                             << "O:"  <<(pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                             << "ID:" << pageSize.sizeID;
                 }
               // insert new page size
               pageSizes.remove(newPageIndex);
               pageSizes.insert(newPageIndex,pageSize);
-              logNotice() << "3. Inserting NEW page size info at  PageIndex:" << newPageIndex
-                          << "W:"  << pageSize.sizeW << "H:"    << pageSize.sizeH
-                          << "O:"  << (pageSize.orientation == Portrait ? "Portrait" : "Landscape")
-                          << "ID:" << pageSize.sizeID;
+              logTrace() << "3. Inserting Page size info at         PageIndex:" << newPageIndex
+                         << "W:"  << pageSize.sizeW << "H:"    << pageSize.sizeH
+                         << "O:"  <<(pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                         << "ID:" << pageSize.sizeID;
             } else {
               //insert default page size
               pageSizes.remove(newPageIndex);
               pageSizes.insert(newPageIndex,pageSizes[DEF_SIZE]);
-//              logTrace() << "3. Inserting DEF page size info at  PageIndex:" << newPageIndex
+//              logTrace() << "3. Inserting Default Page size info at    PageIndex:" << newPageIndex
 //                         << "W:"  << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
 //                         << "O:"  << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
 //                         << "ID:" << pageSizes[DEF_SIZE].sizeID;

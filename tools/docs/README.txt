@@ -10,24 +10,26 @@ Fix: Inconsistency between part counts in submodels and part counts in call-outs
  * For submodels, the PLI part counts reflect only one instance of the submodel, even if multiple instances are used in the same step. The instance count is correct, and the BOM has the correct total number of parts. With this update, sub-model pages displaying instance count now have a context menu option to display parts per step/page or not (total parts consumed by the number of instances indicated.
  Previously, for callouts, you have the options (see context menu) to display parts list per callout (one instance) or not. When you select no parts list per callout, the PLI will show all the parts consumed by the total number of instances in the callout. If you choose parts list per callout, the PLI is moved to the callout and only the parts for a single occurrence of the callout is shown. The idea here is if you have 5 occurrences of the called out assembly, you'll need 5x the parts total, but only 1x parts are shown to indicate what you need to build an instance of the called out assembly.
  On sub-model pages displaying the instance count, there is only one behaviour for PLI counts (the most intuitive) which is to display the parts list per step. This is intuitive because the primary role of the PLI is to show what you'll need to build an occurrence of the step shown - it is not the intention to mimic the BoM. Nevertheless, I added a context menu item to not display parts list per step and instead display total parts consumed by the number of occurrences of the submodel in the parent submodel/step.
-Fix: Page size and orientation processing update (r826)
+Fix: Page size and orientation processing update (r826/833)
  * Further industrialization of the print/export module. This update streamlines the process and realizes some performance gains. There are some key changes. Notably, page orientation and page size are now mutually exclusive. This means when switching from Portrait to Landscape, accompanying the orientation meta with a transposed page size meta no longer required or managed. Here is an illustration:
  Previous behaviour when editing a page size change required the following meta commands:
  0 STEP
  0 !LPUB PAGE ORIENTATION LOCAL LANDSCAPE
  0 !LPUB PAGE SIZE LOCAL 11.0000 8.5000
- Note that the page width and height have been transposed. Going forward, transposition of the page width and height when switching from Portrait to Landscape is automatically managed by LPub3D so, for the used only the orientation change meta is required. If the user is only interested in changing the orientation, the proper meta command going forward will be:
+ Note that the page width and height have been transposed. Going forward, transposition of the page width and height when switching from Portrait to Landscape is automatically managed by LPub3D. 
+ NOTE: This update is NOT backward compatable. An accompanying transposed page size meta to indicate the switch from portrait to landscape as shown above will be treated as a new page size meta for that page. Consequently, using this meta to 'switch' orientation will actually result in NOT switching the orientation as LPub3D will automatically switch again the switched page size meta.
+ If the user is only interested in changing the orientation, the proper meta command going forward will be:
  0 STEP
  0 !LPUB PAGE ORIENTATION LOCAL LANDSCAPE
- Additionally, to help with accurately displaying the page size identifier, the standard identifier is now appended to the page size meta command. For example:
+ To help with accurately displaying the page size identifier in the setup and context menus, the standard page identifier is now appended to the page size meta command. For example:
  0 !LPUB PAGE SIZE 8.5000 14.0000 Legal
  0 !LPUB PAGE SIZE LOCAL 8.5000 11.0000 Letter
  0 !LPUB PAGE SIZE LOCAL 5.8000 8.3000 A5
- 0 !LPUB PAGE SIZE LOCAL 5.8000 8.3000 Custom   // if not identifier provided
- If the identifier is not present, the "Custom" along with the width and height values will automatically be displayed in the Page Setup dialogue and Size/Orientation change context menu dialogue. With an identifier, you will see the identifier and the width and height values.
- Thirdly, the print/export function no longer needs to parse the model file to capture, in advance, page sizes. This capture is done during the existing page parse and load functions and is exposed to the print routines. This change was necessary to better enable mixed-size page export/printing where it is necessary to 'look ahead' to get the next page's size and orientation parameters in order to configure the printer engine before processing the page. 
+ 0 !LPUB PAGE SIZE LOCAL 5.8678 8.3456 Custom  
+ Along with the width and height values, if the page size is non-standard, the identifier "Custom" will be automatically used. Additionally if an identifier is not present, the identifier "Custom" will automatically used. The page identifier is displayed in the Page Setup dialogue and Size/Orientation change context menu dialogue.
+ Also, the LPub3D print/export function no longer needs to parse the model file to capture, in advance, page sizes. This capture is performed during the existing page parse and load functions and is exposed to the print routines during printing/exporting. This change was necessary to better enable mixed-size page export/printing where it is necessary to 'look ahead' to get the next page's size and orientation parameters in order to configure the printer engine before processing the page. 
 Fix: Expand INSERT MODEL meta command behaviour (r825)
- * LPUb3D will process multiple INSERT MODEL commands rendering the CSI content as appropriate used within a set of instructions that use part fading.  For example, if the model includes different attachments, and the editor would like to include a non-faded image of the entire model with each attachment. Here is an example of he proper command sequence when used in conjunction with BUFEXCHG: 
+ * When using part fading LPUb3D will now process multiple INSERT MODEL commands rendering the CSI content at each command.  For example, if the instruction document includes different model attachments, the editor can now include a non-faded image of the entire model with each attachment. Here is an example of he proper command sequence when used in conjunction with BUFEXCHG: 
     0 BUFEXCHG B STORE
 	0 //...				    default model content...
 	0 STEP
