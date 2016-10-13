@@ -334,7 +334,7 @@ int UnitsMeta::valuePixels(int which)
 QString UnitsMeta::format(bool local, bool global)
 {
   QString foo;
-  foo = QString("%1 %2 %3")
+  foo = QString("%1 %2")
       .arg(valueInches(0),_fieldWidth,'f',_precision)
       .arg(valueInches(1),_fieldWidth,'f',_precision);
   return LeafMeta::format(local,global,foo);
@@ -1505,7 +1505,7 @@ Rc PageSizeMeta::parse(QStringList &argv, int index,Where &here)
 }
 QString PageSizeMeta::format(bool local, bool global)
 {
-  QString foo = QString("%1 %2")
+  QString foo = QString("%1 %2 %3")
       .arg(_value[pushed].pagesize[pushed][0],_fieldWidth,'f',_precision)
       .arg(_value[pushed].pagesize[pushed][1],_fieldWidth,'f',_precision)
       .arg(_value[pushed].sizeid);
