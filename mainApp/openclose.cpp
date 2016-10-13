@@ -396,9 +396,14 @@ void Gui::fileChanged(const QString &path)
 
   if (box.exec() == QMessageBox::Yes) {
     changeAccepted = true;
+    int goToPage = displayPageNum;
     QString fileName = path;
     openFile(fileName);
-    drawPage(KpageView,KpageScene,false);
+    displayPageNum = goToPage;
+    displayPage();
+
+    QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+    setPageLineEdit->setText(string);
   }
 }
 

@@ -372,7 +372,6 @@ void Gui::setGoToPage(int index)
       if (goToPageNum != displayPageNum) {
           displayPageNum = goToPageNum;
           displayPage();
-          return;
         }
     }
 
