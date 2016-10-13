@@ -448,6 +448,8 @@ public:
   Where &topOfPage();
   Where &bottomOfPage();
 
+  static int pageSize(LPubMeta &, int which);  // flip orientation for landscape
+
   void    changePageNum(int offset)
   {
     displayPageNum += offset;
@@ -775,7 +777,8 @@ private:
   FadeStepColorParts     fadeStepColorParts; // internal list of color parts to be processed for fade step.
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
   bool                   m_exportingContent; // indicate export/pring underway
-  int                    newPageIndex;       // used to support page size and orientation counting
+
+  QString                newPageSubModel;    // used to support page size and orientation counting
 
 #ifdef WATCHER
   QFileSystemWatcher watcher;        // watch the file system for external
@@ -922,7 +925,7 @@ private slots:
     void zoomIn(LGraphicsView *view);
     void zoomOut(LGraphicsView *view);
 
-    void getPageSize(float &, float &, int d = Pixels);
+    void getPrintPageSize(float &, float &, int d = Pixels);
     bool validatePageRange();
 
     void ShowPrintDialog();

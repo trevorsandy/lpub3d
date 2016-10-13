@@ -48,6 +48,7 @@
 #include <QGradient>
 #include "placement.h"
 #include "metaitem.h"
+#include "name.h"
 
 class BackgroundItem : public QGraphicsPixmapItem, public MetaItem   
 { 
@@ -60,8 +61,7 @@ public:
   int             submodelLevel;
   PlacementType   parentRelativeType;
 
-  BackgroundItem()
-  {}
+  BackgroundItem(){}
 
   void setBackground(
       QPixmap         *pixmap,
@@ -100,6 +100,8 @@ public:
       StringListMeta  &subModelColor,
       int              submodelLevel,
       QString         &toolTip);
+
+  int pageSizeP(int which);
 
 protected: 
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);

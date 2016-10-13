@@ -622,7 +622,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
     emit gui->progressPermSetValueSig(stageContents.size());
     emit gui->removeProgressPermStatusSig();
-    //emit gui->messageSig(true, QString("Model file loaded. Parts counted: %1.").arg(_pieces));
+    emit gui->messageSig(true, QString("Model file loaded."));
 
     logStatus() << QString("MPD file %1 loaded. Part Count: %2").arg(fileName).arg(_pieces);
 

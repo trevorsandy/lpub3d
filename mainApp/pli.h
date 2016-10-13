@@ -144,6 +144,8 @@ class Pli : public Placement {
     QList<QString>           sortedKeys;
     Annotations              annotations;        // this is an internal list of title and custom part annotations
 
+    int pageSizeP(Meta *, int which);
+
   public:
     PlacementType      parentRelativeType;
     bool               perStep;

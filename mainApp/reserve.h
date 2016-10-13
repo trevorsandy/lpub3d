@@ -34,6 +34,7 @@
 #include "meta.h"
 #include "where.h"
 #include "range_element.h"
+#include "lpub.h"
 
 class Reserve : public AbstractRangeElement {
   public:
@@ -49,11 +50,25 @@ class Reserve : public AbstractRangeElement {
       space = meta.reserve.value();
       relativeType = ReserveType;
       if (meta.multiStep.alloc.value() == Horizontal) {
-        setSize(int(meta.page.size.valuePixels(0) * space + 0.5),0);
+          setSize(int(gui->pageSize(meta, 0) * space + 0.5),0);
+//          setSize(int(pageSize(meta, 0) * space + 0.5),0);
       } else {
-        setSize(0,int(meta.page.size.valuePixels(1) * space + 0.5));
+        setSize(0,int(gui->pageSize(meta, 1) * space + 0.5));
+//          setSize(0,int(pageSize(meta, 1) * space + 0.5));
       }
     }
+
+//    int pageSize(LPubMeta &meta, int which){
+//      int _size;
+
+//      // flip orientation for landscape
+//      if (meta.page.orientation.value() == Landscape){
+//          which = 0 ? _size = 1 : _size = 0;
+//        } else {
+//          _size = which;
+//        }
+//      return meta.page.size.valuePixels(_size);
+//    }
 };
 
 #endif

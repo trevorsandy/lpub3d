@@ -109,6 +109,18 @@ void clearAndRedrawPage()
  *
  ***************************************************************************/
 
+int Gui::pageSize(LPubMeta &meta, int which){
+  int _size;
+
+  // flip orientation for landscape
+  if (meta.page.orientation.value() == Landscape){
+      which == 0 ? _size = 1 : _size = 0;
+    } else {
+      _size = which;
+    }
+  return meta.page.size.valuePixels(_size);
+}
+
 void Gui::insertCoverPage()
 {
   MetaItem mi;
@@ -378,7 +390,7 @@ void Gui::fitWidth(
 {
   view->scale(1.0,1.0);
 
-  QRectF rect(0,0,page.meta.LPub.page.size.valuePixels(0),page.meta.LPub.page.size.valuePixels(1));
+  QRectF rect(0,0,pageSize(page.meta.LPub, 0),pageSize(page.meta.LPub, 1));
 
   QRectF unity = view->matrix().mapRect(QRectF(0,0,1,1));
   view->scale(1/unity.width(), 1 / unity.height());
@@ -403,7 +415,7 @@ void Gui::fitVisible(
 {
   view->scale(1.0,1.0);
 
-  QRectF rect(0,0,page.meta.LPub.page.size.valuePixels(0),page.meta.LPub.page.size.valuePixels(1));
+  QRectF rect(0,0,pageSize(page.meta.LPub, 0),pageSize(page.meta.LPub, 1));
 
   QRectF unity = view->matrix().mapRect(QRectF(0,0,1,1));
   view->scale(1/unity.width(), 1 / unity.height());

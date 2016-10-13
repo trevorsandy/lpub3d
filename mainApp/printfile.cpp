@@ -58,7 +58,7 @@ QPageLayout Gui::getPageLayout(bool nextPage){
       pageWidthIn  = i.value().sizeW;
       pageHeightIn = i.value().sizeH;
 
-      // switch back orientation because we always want to send portrait width x height to the printer
+      // we always want to send portrait width x height to the printer
       QPageSize pageSize(QSizeF(pageWidthIn,pageHeightIn),QPageSize::Inch,"",QPageSize::FuzzyMatch);
 
 //      logDebug() << QString("         PAGE %5 SIZE LAYOUT - WidthIn: %1 x HeightIn: %2 Orientation: %3 DPx: %4 CurPage: %6")
@@ -75,7 +75,7 @@ QPageLayout Gui::getPageLayout(bool nextPage){
   return QPageLayout();
 }
 
-void Gui::getPageSize(float &pageWidth, float &pageHeight,int d)
+void Gui::getPrintPageSize(float &pageWidth, float &pageHeight,int d)
 {
   QMap<int,PgSizeData>::iterator i = pageSizes.find(displayPageNum);   // this page
   if (i != pageSizes.end()){
@@ -83,13 +83,13 @@ void Gui::getPageSize(float &pageWidth, float &pageHeight,int d)
       float pageWidthIn, pageHeightIn;
 
       // only concerned with inches because resolution() reports DPI
-      pageWidthIn = i.value().sizeW;
+      pageWidthIn  = i.value().sizeW;
       pageHeightIn = i.value().sizeH;
 
-      // switch orientation if landscape
+      // flip orientation for printing landscape
       if (i.value().orientation == Landscape){
-          pageWidthIn = i.value().sizeH;
-          pageHeightIn= i.value().sizeW;
+          pageWidthIn  = i.value().sizeH;
+          pageHeightIn = i.value().sizeW;
         }
 
       if (d == Pixels) {
@@ -449,6 +449,13 @@ void Gui::printToPdfFile()
   QGraphicsScene scene;
   LGraphicsView view(&scene);
 
+  // initialize page sizes
+  logStatus() << "INITIALIZE PAGE SIZES START ---->>>>";
+  displayPageNum = 0;
+  drawPage(&view,&scene,true);
+  clearPage(&view,&scene);
+  logStatus() << "INITIALIZE PAGE SIZES END  ----<<<<";
+
   int _displayPageNum = 0;
   int _maxPages       = 0;
 
@@ -499,7 +506,7 @@ void Gui::printToPdfFile()
           m_progressDlgProgressBar->setValue(displayPageNum);
           QApplication::processEvents();
 
-          getPageSize(pageWidthPx, pageHeightPx);
+          getPrintPageSize(pageWidthPx, pageHeightPx);
 
           bool  ls = getPageOrientation() == Landscape;
           logNotice() << QString("                  Exporting page %3 of %4, size(pixels) W %1 x H %2, orientation %5")
@@ -590,7 +597,7 @@ void Gui::printToPdfFile()
           QApplication::processEvents();
 
           // determine size of output image, in pixels
-          getPageSize(pageWidthPx, pageHeightPx);
+          getPrintPageSize(pageWidthPx, pageHeightPx);
 
           bool  ls = getPageOrientation() == Landscape;
           logNotice() << QString("Printing page %3 of %6 for range %4, size(in pixels) W %1 x H %2, orientation %5")
@@ -731,6 +738,11 @@ void Gui::exportAs(QString &suffix)
   int _displayPageNum = 0;
   int _maxPages       = 0;
 
+  // initialize page sizes
+  displayPageNum = 1;
+  drawPage(&view,&scene,true);
+  clearPage(&view,&scene);
+
   // Support transparency for formats that can handle it, but use white for those that can't.
   QColor fillClear = (suffix.compare(".png", Qt::CaseInsensitive) == 0) ? Qt::transparent :  Qt::white;
 
@@ -768,7 +780,7 @@ void Gui::exportAs(QString &suffix)
           QApplication::processEvents();
 
           // determine size of output image, in pixels
-          getPageSize(pageWidthPx, pageHeightPx);
+          getPrintPageSize(pageWidthPx, pageHeightPx);
 
           bool  ls = getPageOrientation() == Landscape;
           logNotice() << QString("Exporting image %3 of %4, size(in pixels) W %1 x H %2, orientation %5")
@@ -857,7 +869,7 @@ void Gui::exportAs(QString &suffix)
           QApplication::processEvents();
 
           // determine size of output image, in pixels
-          getPageSize(pageWidthPx, pageHeightPx);
+          getPrintPageSize(pageWidthPx, pageHeightPx);
 
           bool  ls = getPageOrientation() == Landscape;
           logNotice() << QString("Exporting image %3 of range %4, size(in pixels) W %1 x H %2, orientation %5")
@@ -1030,6 +1042,11 @@ void Gui::Print(QPrinter* Printer)
   QGraphicsScene scene;
   LGraphicsView view(&scene);
 
+  // initialize page sizes
+  displayPageNum = 1;
+  drawPage(&view,&scene,true);
+  clearPage(&view,&scene);
+
   // initialize progress bar dialog
   m_progressDialog->setWindowTitle(preview ? "Preview pdf" : "Preview pdf" /* Print pdf */);  //Hack
   m_progressDialog->show();
@@ -1069,7 +1086,7 @@ void Gui::Print(QPrinter* Printer)
 
               // determine size of output image, in pixels. dimension are inches * pixels per inch
               float pageWidthPx, pageHeightPx;
-              getPageSize(pageWidthPx, pageHeightPx);
+              getPrintPageSize(pageWidthPx, pageHeightPx);
 
               bool  ls = getPageOrientation() == Landscape;
               logNotice() << QString("%6 page %3 of %4, size(in pixels) W %1 x H %2, orientation %5")
@@ -1187,7 +1204,7 @@ void Gui::Print(QPrinter* Printer)
 
               // determine size of output image, in pixels. dimension are inches * pixels per inch
               float pageWidthPx, pageHeightPx;
-              getPageSize(pageWidthPx, pageHeightPx);
+              getPrintPageSize(pageWidthPx, pageHeightPx);
 
               bool  ls = getPageOrientation() == Landscape;
               logNotice() << QString("%6 page %3 of %4, size(pixels) W %1 x H %2, orientation %5 for range %7")

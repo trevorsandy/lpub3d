@@ -314,8 +314,20 @@ void PlacementBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
       // back annotate the movement of the PLI into the LDraw file.
       newPosition = pos() - position;
       PlacementData placementData = placement.value();
-      placementData.offsets[0] += newPosition.x()/meta->LPub.page.size.valuePixels(0);
-      placementData.offsets[1] += newPosition.y()/meta->LPub.page.size.valuePixels(1);
+      placementData.offsets[0] += newPosition.x()/pageSizeP(0);
+      placementData.offsets[1] += newPosition.y()/pageSizeP(1);
       placement.setValue(placementData);
     }
+}
+
+int PlacementBackgroundItem::pageSizeP(int which){
+ int _size;
+
+ // flip orientation for landscape
+ if (meta->LPub.page.orientation.value() == Landscape){
+     which == 0 ? _size = 1 : _size = 0;
+   } else {
+     _size = which;
+   }
+ return meta->LPub.page.size.valuePixels(_size);
 }

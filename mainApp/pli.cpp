@@ -119,6 +119,18 @@ float PliPart::maxMargin()
   return margin1;
 }
 
+int Pli::pageSizeP(Meta *meta, int which){
+  int _size;
+
+  // flip orientation for landscape
+  if (meta->LPub.page.orientation.value() == Landscape){
+      which == 0 ? _size = 1 : _size = 0;
+    } else {
+      _size = which;
+    }
+  return meta->LPub.page.size.valuePixels(_size);
+}
+
 QString Pli::partLine(QString &line, Where &here, Meta & /*meta*/)
 {
   return line + QString(";%1;%2").arg(here.modelName).arg(here.lineNumber);
@@ -162,7 +174,7 @@ void Pli::setParts(
           // assemble image name key
           QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7")
               .arg(key)
-              .arg(meta.LPub.page.size.valuePixels(0))
+              .arg(gui->pageSize(meta.LPub, 0))
               .arg(resolution())
               .arg(resolutionType() == DPI ? "DPI" : "DPCM")
               .arg(modelScale)
@@ -431,7 +443,7 @@ int Pli::createPartImage(
 
   QString key = QString("%1_%2_%3_%4_%5_%6_%7")
       .arg(partialKey)
-      .arg(meta->LPub.page.size.valuePixels(0))
+      .arg(pageSizeP(meta, 0))
       .arg(resolution())
       .arg(resolutionType() == DPI ? "DPI" : "DPCM")
       .arg(modelScale)
@@ -505,7 +517,7 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames) {
                                QMessageBox::tr("Render failed for Pli images."));
           return -1;
         }
-      logTrace() << Render::getRenderer()
+      logStatus() << Render::getRenderer()
                  << "PLI single call render took"
                  << timer.elapsed() << "milliseconds"
                  << "to render "<< ldrNames.size()  << (ldrNames.size() > 1 ? "images" : "image")

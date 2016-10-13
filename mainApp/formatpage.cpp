@@ -258,18 +258,11 @@ int Gui::addGraphicsPageItems(
   int pW, pH;
 
   if (printing) {
-      // orientation already flipped for landscape by the print functions
       pW = view->maximumWidth();
       pH = view->maximumHeight();
     } else {
-      // flip orientation for landscape view
-      if (page->meta.LPub.page.orientation.value() == Landscape){
-          pW = page->meta.LPub.page.size.valuePixels(1);
-          pH = page->meta.LPub.page.size.valuePixels(0);
-        } else {
-          pW = page->meta.LPub.page.size.valuePixels(0);
-          pH = page->meta.LPub.page.size.valuePixels(1);
-        }
+      pW = pageSize(page->meta.LPub, 0);
+      pH = pageSize(page->meta.LPub, 1);
     }
 
 //  logDebug() << QString("  DRAW PAGE %3 SIZE PIXELS - WidthPx: %1 x HeightPx: %2 CurPage: %3")
@@ -1614,13 +1607,9 @@ int Gui::addGraphicsPageItems(
       if (page->meta.LPub.page.background.value().type != BackgroundData::BgTransparent)
         pageBg->setGraphicsEffect(bodyShadow);
 
-      view->horizontalScrollBar()->setRange(0,int(page->meta.LPub.page.size.valuePixels(0)));
-      view->verticalScrollBar()->setRange(0,int(page->meta.LPub.page.size.valuePixels(1)));
+      view->horizontalScrollBar()->setRange(0,int(pageSize(page->meta.LPub, 0)));
+      view->verticalScrollBar()->setRange(  0,int(pageSize(page->meta.LPub, 1)));
 
-      if (page->meta.LPub.page.orientation.value() == Landscape) {
-          view->horizontalScrollBar()->setRange(0,int(page->meta.LPub.page.size.valuePixels(1)));
-          view->verticalScrollBar()->setRange(0,int(page->meta.LPub.page.size.valuePixels(0)));
-        }
     }
 
   scene->addItem(pageBg);

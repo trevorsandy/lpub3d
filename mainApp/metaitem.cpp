@@ -2026,6 +2026,8 @@ int MetaItem::okToInsertFinalModel()
         if (rc == InsertFinalModelRc) {                                 //check if insert final model
           logStatus() << "Final model detected at line: " << here.lineNumber;
             return -1;
+        } else if (! Preferences::enableFadeStep) {                     //if not enable fadestep, no final model, just return 1 and finish.
+            return 0;
         } else if (rc == StepGroupEndRc) {                              //if Step Grpup, then there is no final model
 //            logInfo() << " \nOK to Insert Model after StepGroup at line: " << here.lineNumber;
             return here.lineNumber;                                     //so return line number
