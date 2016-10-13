@@ -454,6 +454,7 @@ void Gui::printToPdfFile()
   displayPageNum = 0;
   drawPage(&view,&scene,true);
   clearPage(&view,&scene);
+  displayPageNum = savePageNumber;
   logStatus() << "INITIALIZE PAGE SIZES END  ----<<<<";
 
   int _displayPageNum = 0;
@@ -739,9 +740,10 @@ void Gui::exportAs(QString &suffix)
   int _maxPages       = 0;
 
   // initialize page sizes
-  displayPageNum = 1;
+  displayPageNum = 0;
   drawPage(&view,&scene,true);
   clearPage(&view,&scene);
+  displayPageNum = savePageNumber;
 
   // Support transparency for formats that can handle it, but use white for those that can't.
   QColor fillClear = (suffix.compare(".png", Qt::CaseInsensitive) == 0) ? Qt::transparent :  Qt::white;
@@ -1030,22 +1032,26 @@ void Gui::Print(QPrinter* Printer)
   // send signal to halt 3DViewer
   setExportingSig(true);
 
-  Printer->setFullPage(true);
-
-  // set displayPageNum so we can send the correct index to retrieve page size data
-  displayPageNum = FromPage;
-  // set initial page layout using first page as default
-  Printer->setPageLayout(getPageLayout());
-
-  // paint to the printer the scene we view
-  QPainter Painter(Printer);
   QGraphicsScene scene;
   LGraphicsView view(&scene);
 
   // initialize page sizes
-  displayPageNum = 1;
+  displayPageNum = 0;
   drawPage(&view,&scene,true);
   clearPage(&view,&scene);
+  displayPageNum = savePageNumber;
+
+  // print over the entire page
+  Printer->setFullPage(true);
+
+  // set displayPageNum so we can send the correct index to retrieve page size data
+  displayPageNum = FromPage;
+
+  // set initial page layout using first page as default
+  Printer->setPageLayout(getPageLayout());
+
+  // paint to the printer
+  QPainter Painter(Printer);
 
   // initialize progress bar dialog
   m_progressDialog->setWindowTitle(preview ? "Preview pdf" : "Preview pdf" /* Print pdf */);  //Hack
