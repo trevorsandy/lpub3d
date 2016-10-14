@@ -145,18 +145,6 @@ QString LDrawFile::topLevelFile()
   }
 }
 
-/* return the last fade position value */
-
-int LDrawFile::getFadePosition(const QString &mcFileName)
-{
-  QString fileName = mcFileName.toLower();
-  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
-  if (i != _subFiles.end()) {
-    return i.value()._fadePosition;
-  }
-  return 0;
-}
-
 /* return the number of steps within the file */
 
 int LDrawFile::numSteps(const QString &mcFileName)
@@ -259,6 +247,32 @@ void LDrawFile::setContents(const QString     &mcFileName,
   }
 }
 
+void LDrawFile::setModelStartPageNumber(const QString     &mcFileName,
+                 const int &startPageNumber)
+{
+  QString fileName = mcFileName.toLower();
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+
+  if (i != _subFiles.end()) {
+    i.value()._modified = true;
+    //i.value()._datetime = QDateTime::currentDateTime();
+    i.value()._startPageNumber = startPageNumber;
+    //i.value()._changedSinceLastWrite = true; // remarked on build 491 28/12/2015
+  }
+}
+
+/* return the last fade position value */
+
+int LDrawFile::getFadePosition(const QString &mcFileName)
+{
+  QString fileName = mcFileName.toLower();
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+  if (i != _subFiles.end()) {
+    return i.value()._fadePosition;
+  }
+  return 0;
+}
+
 void LDrawFile::setFadePosition(const QString     &mcFileName,
                  const int &fadePosition)
 {
@@ -273,17 +287,13 @@ void LDrawFile::setFadePosition(const QString     &mcFileName,
   }
 }
 
-void LDrawFile::setModelStartPageNumber(const QString     &mcFileName,
-                 const int &startPageNumber)
-{
-  QString fileName = mcFileName.toLower();
-  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+/* set all fade positions to 0 */
 
-  if (i != _subFiles.end()) {
-    i.value()._modified = true;
-    //i.value()._datetime = QDateTime::currentDateTime();
-    i.value()._startPageNumber = startPageNumber;
-    //i.value()._changedSinceLastWrite = true; // remarked on build 491 28/12/2015
+void LDrawFile::clearFadePositions()
+{
+  QString key;
+  foreach(key,_subFiles.keys()) {
+    _subFiles[key]._fadePosition = 0;
   }
 }
 

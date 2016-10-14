@@ -123,6 +123,7 @@ class LDrawFile {
     void setFadePosition(const QString &mcFileName,
                          const int     &fadePosition);
     int getFadePosition(const QString &mcFileName);
+    void clearFadePositions();
     void setModelStartPageNumber(const QString &mcFileName,
                          const int     &startPageNumber);
     int getModelStartPageNumber(const QString &mcFileName);

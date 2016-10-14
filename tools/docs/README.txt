@@ -2,9 +2,11 @@ LPub3D 2.0.14.838.2
  
 Features and enhancements 
 ------------ 
-Fix: Image banner removed from viewer window before export is finished (r840)
+Fix: Fade position lost on page refresh (r842)
+ * Refresh page (in the LDraw editor) and closing the preference dialogue will refresh the loaded model file after which the fade position is lost and the entire first step on the page is incorrectly faded. This behaviour has been corrected.
 Fix: INSERT MODEL meta places meta in the wrong place (r841)
  * When there are steps after the last part-added step, the INSERT MODEL meta added by LPub3D is placed after the STEP meta instead of before it. 
+Fix: Image banner removed from viewer window before export is finished (r840)
 
 LPub3D 2.0.14.838.2 
  

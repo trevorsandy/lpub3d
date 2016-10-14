@@ -1404,6 +1404,7 @@ int Gui::findPage(
                       saveRotStep = meta.rotStep;
                     } else if (pageNum == displayPageNum) {
                       csiParts.clear();
+                      saveFadePosition = saveCsiParts.size();
                       stepPageNum = saveStepPageNum;
                       if (pageNum == 1) {
                           page.meta = meta;
@@ -1498,6 +1499,7 @@ int Gui::findPage(
                   if ( ! stepGroup) {
                       if (pageNum == displayPageNum) {
                           csiParts.clear();
+                          saveFadePosition = saveCsiParts.size();
                           stepPageNum = saveStepPageNum;
                           if (pageNum == 1) {
                               page.meta = meta;
@@ -1722,6 +1724,7 @@ int Gui::findPage(
   if (partsAdded && ! noStep) {
       if (pageNum == displayPageNum) {
 
+          saveFadePosition = saveCsiParts.size();
           page.meta = saveMeta;
           QStringList pliParts;
 
@@ -2176,15 +2179,16 @@ void Gui::drawPage(
   ldrawFile.countInstances();
   writeToTmp();
   Where       current(ldrawFile.topLevelFile(),0);
-  maxPages = 1;
+  maxPages    = 1;
   stepPageNum = 1;
   ldrawFile.setModelStartPageNumber(current.modelName,maxPages);
   //logTrace() << "SET INITIAL Model: " << current.modelName << " @ Page: " << maxPages;
   QString empty;
   Meta    meta;
   firstStepPageNum = -1;
-  lastStepPageNum = -1;
-  renderStepNum = 0;
+  lastStepPageNum  = -1;
+  renderStepNum    = 0;
+  saveFadePosition = 0;
 
   if (exporting()) {
       PgSizeData pageSize;
@@ -2517,7 +2521,11 @@ QStringList Gui::fadeStep(const QStringList &csiParts, const int &stepNum,  Wher
 
       QString fadeColor   = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
       QString edgeColor   = "24";  // Internal Common Material Color (edge)
+
       int  fadePosition   = ldrawFile.getFadePosition(current.modelName);
+      if (fadePosition == 0 && saveFadePosition > 0)
+        fadePosition = saveFadePosition;
+
       //qDebug() << "Model:" << current.modelName << ", Step:"  << stepNum << ", FadeStep Get Fade Position:" << fadePosition
       //         << ", CSI Size:" << csiParts.size() << ", Model Size:"  << ldrawFile.size(current.modelName);
       QStringList argv;

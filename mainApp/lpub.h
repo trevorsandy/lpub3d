@@ -425,7 +425,8 @@ public:
   int             stepPageNum;     // the number displayed on the page
   int             saveStepPageNum;
   int             firstStepPageNum;
-  int             lastStepPageNum; 
+  int             lastStepPageNum;
+  int             saveFadePosition; // indicate the fade step position.
   QList<Where>    topOfPages;
 
   int             boms;            // the number of pli BOMs in the document
@@ -691,9 +692,8 @@ public slots:
   void clearTempCache();
   void clearAllCaches();
   void clearFadeCache();
-  bool removeDir(int &count,const QString &dirName);
-
   void clearAndRedrawPage();
+  bool removeDir(int &count,const QString &dirName);
 
   void fileChanged(const QString &path);
 

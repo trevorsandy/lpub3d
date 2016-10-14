@@ -678,6 +678,10 @@ void Gui::clearAndRedrawPage()
        clearPLICache();
        clearCSICache();
        clearTempCache();
+
+       if (Preferences::enableFadeStep)
+         ldrawFile.clearFadePositions();
+
        displayPage();
 
        QObject *obj = sender();
