@@ -779,7 +779,7 @@ int Gui::drawPage(LGraphicsView  *view,
                     page.backCover  = false;
                   }
                 // nothing to display in 3D Window
-                if (! printing)
+                if (! exporting())
                   emit clearViewerWindowSig();
               }
             case InsertPageRc:
@@ -787,7 +787,7 @@ int Gui::drawPage(LGraphicsView  *view,
                 partsAdded = true;
 
                 // nothing to display in 3D Window
-                if (! printing)
+                if (! exporting())
                   emit clearViewerWindowSig();
               }
               break;
@@ -809,7 +809,7 @@ int Gui::drawPage(LGraphicsView  *view,
                   }
                 if (insertData.type == InsertData::InsertBom){
                     // nothing to display in 3D Window
-                    if (! printing)
+                    if (! exporting())
                       emit clearViewerWindowSig();
                   }
               }

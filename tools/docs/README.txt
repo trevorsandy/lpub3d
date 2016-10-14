@@ -2,6 +2,12 @@ LPub3D 2.0.14.838.2
  
 Features and enhancements 
 ------------ 
+Fix: Image banner removed from viewer window before export is finished (r840)
+
+LPub3D 2.0.14.838.2 
+ 
+Features and enhancements 
+------------ 
 Fix: File reload after external source change breaks page drop-down combo dialogue(r837) 
  * When a file is reloaded after being changed by an external source, the drop-down menu for selecting a page doesn't work until after navigating using another method. 
 Fix: Image orientation does not conform when page orientation changed to Landscape (r836) 
