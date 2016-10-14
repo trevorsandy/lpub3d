@@ -3,6 +3,8 @@ LPub3D 2.0.14.838.2
 Features and enhancements 
 ------------ 
 Fix: Image banner removed from viewer window before export is finished (r840)
+Fix: INSERT MODEL meta places meta in the wrong place (r841)
+ * When there are steps after the last part-added step, the INSERT MODEL meta added by LPub3D is placed after the STEP meta instead of before it. 
 
 LPub3D 2.0.14.838.2 
  

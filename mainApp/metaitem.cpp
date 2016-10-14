@@ -2028,30 +2028,26 @@ int MetaItem::okToInsertFinalModel()
             return -1;
         } else if (! Preferences::enableFadeStep) {                     //if not enable fadestep, no final model, just return 1 and finish.
             return 0;
-        } else if (rc == StepGroupEndRc) {                              //if Step Grpup, then there is no final model
-//            logInfo() << " \nOK to Insert Model after StepGroup at line: " << here.lineNumber;
+        } else if (rc == StepGroupEndRc) {                              //if Step Group, then there is no final model
             return here.lineNumber;                                     //so return line number
-        } else {                                                        //no Insert or stepgroup line encountered os check for non-zero line
+        } else {                                                        // else keep walking back until 1_5 line
             QStringList tokens;
             split(line,tokens);
             bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
                  tokens[0] >= "1" && tokens[0] <= "5";
             if (token_1_5) {                                            //non-zero line detected so no back final model
-                int fileSize = gui->subFileSize(here.modelName) - 1;    //adjust to readline using from zero-start index
+                int fileSize = gui->subFileSize(here.modelName) - 1;
                 if (here.lineNumber < (fileSize)) {                     //check if at end of file
-                    Where walkForward = here;
-                    walkForward++;
-                    line = gui->readLine(walkForward);
-                    rc = content.parse(line,walkForward);
+                    Where stepForward = here;
+                    stepForward++;
+                    line = gui->readLine(stepForward);
+                    rc = content.parse(line,stepForward);
                     if (rc == StepRc){                                  //check if previous line was a STEP
-//                    logInfo() << " \nOK to Insert Model after STEP at line: " << here.lineNumber;
-                        return walkForward.lineNumber;                  // if previous line was a STEP line number after STEP
+                        return stepForward.lineNumber;                  // if previous line was a STEP line number after STEP
                     } else {
-//                    logInfo() << " \nOK to Insert Model after Parts at line: " << here.lineNumber;
                         return here.lineNumber;                         // else return line number
                     }
                 } else {
-//                    logInfo() << " \nOK to Insert Model after Parts at line: " << here.lineNumber;
                     return here.lineNumber;                             // at last line so return line number
                 }
             }
@@ -2071,12 +2067,24 @@ void MetaItem::insertFinalModel(int atLine)
   }
 
   Where here(gui->topLevelFile(),atLine);
+  QString line = gui->readLine(here);
+
+  Rc rc;
+  Meta meta;
+  rc = meta.parse(line,here);
 
   beginMacro("insertFinalModel");
-  appendMeta(here,step);
-  appendMeta(here+1,modelMeta);
-  appendMeta(here+2,pageMeta);
-  logStatus() << "Final model inserted at lines:" << here.lineNumber << "to" << here.lineNumber+2 ;
+  if (rc == StepRc) {
+      insertMeta(here,step);
+      appendMeta(here,modelMeta);
+      appendMeta(here+1,pageMeta);
+      logStatus() << "Final model inserted at lines:" << here.lineNumber << "to" << here.lineNumber+1 ;
+    } else {
+      appendMeta(here,step);
+      appendMeta(here+1,modelMeta);
+      appendMeta(here+2,pageMeta);
+      logStatus() << "Final model inserted at lines:" << here.lineNumber << "to" << here.lineNumber+2 ;
+    }
   endMacro();
 }
 
