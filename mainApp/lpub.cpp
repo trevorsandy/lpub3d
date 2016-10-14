@@ -661,7 +661,9 @@ void Gui::clearAllCaches()
        clearTempCache();
 
        //reload current model file
+       int savePage = displayPageNum;
        openFile(curFile);
+       displayPageNum = savePage;
        displayPage();
        enableActions();
 
