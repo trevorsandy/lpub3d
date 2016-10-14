@@ -1,14 +1,14 @@
-LPub3D 2.0.13.834.2 
+LPub3D 2.0.14.838.2 
  
 Features and enhancements 
-------------
-Fix: File reload after external source change breaks page drop-down combo dialogue(r837)
+------------ 
+Fix: File reload after external source change breaks page drop-down combo dialogue(r837) 
  * When a file is reloaded after being changed by an external source, the drop-down menu for selecting a page doesn't work until after navigating using another method. 
-Fix: Image orientation does not conform when page orientation changed to Landscape (r836)
- * Image generation was not inheriting the proper page size values.
-Fix: Extra characters "%3" in margin meta and page size meta does not display the page size identifier(r835)
- * Oops, allocated the page size identifier variable to the wrong meta - should have been allocated to page size meta instead of units meta (units meta is used for setting the margin). Consequently, the page size meta is missing the size identifier (A4, Letter, etc...) because the place-holder to pass the variable is not there. This must have happened during the patch process from the maintenance branch because it did not present during my tests. Both issues are now corrected.
-
+Fix: Image orientation does not conform when page orientation changed to Landscape (r836) 
+ * Image generation was not inheriting the proper page size values. 
+Fix: Extra characters "%3" in margin meta and page size meta does not display the page size identifier(r835) 
+ * Oops, allocated the page size identifier variable to the wrong meta - should have been allocated to page size meta instead of units meta (units meta is used for setting the margin). Consequently, the page size meta is missing the size identifier (A4, Letter, etc...) because the place-holder to pass the variable is not there. This must have happened during the patch process from the maintenance branch because it did not present during my tests. Both issues are now corrected. 
+ 
 LPub3D 2.0.13.834.2 
  
 Features and enhancements 
