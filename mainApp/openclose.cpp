@@ -401,9 +401,6 @@ void Gui::fileChanged(const QString &path)
     openFile(fileName);
     displayPageNum = goToPage;
     displayPage();
-
-    QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
-    setPageLineEdit->setText(string);
   }
 }
 
