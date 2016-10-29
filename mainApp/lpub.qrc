@@ -22,6 +22,7 @@
         <file alias="changeshape.png">images/changeshape.png</file>
         <file alias="clearcache.png">images/clearcache.png</file>
         <file alias="clearimagemodelcache.png">images/clearimagemodelcache.png</file>
+        <file alias="clearpagecache.png">images/clearpagecache.png</file>
         <file alias="clearplicache.png">images/clearplicache.png</file>
         <file alias="clearcsicache.png">images/clearcsicache.png</file>
         <file alias="clearcsi3dcache.png">images/clearcsi3dcache.png</file>

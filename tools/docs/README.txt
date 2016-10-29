@@ -2,6 +2,9 @@ LPub3D 2.0.14.838.2
  
 Features and enhancements 
 ------------
+Fix: Clear page cache (r844)
+ * Page context menu item "Clear Page Cache." Clear CSI .png (assembly) and .ldr (temp) files for the current page. 
+ This function will not clear PLI (parts) content.
 Fix: On clear all caches LPub3D returns to first page (r843)
  * LPub3D will return to the page on which it was when clear all caches launched. 
 Fix: Fade position lost on page refresh (r842)

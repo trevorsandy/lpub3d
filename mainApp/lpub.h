@@ -515,6 +515,11 @@ public:
     writeToTmp();
   }
 
+  void clearFadePositions()
+  {
+    ldrawFile.clearFadePositions();
+  }
+
   LDrawFile getLDrawFile()
   {
       return ldrawFile;
@@ -693,6 +698,7 @@ public slots:
   void clearAllCaches();
   void clearFadeCache();
   void clearAndRedrawPage();
+  void clearPageCache(PlacementType relativeType, Page *page);
   bool removeDir(int &count,const QString &dirName);
 
   void fileChanged(const QString &path);

@@ -77,15 +77,16 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   // figure out if first step step number is greater than 1
 
-  QAction *addNextAction    = NULL;
-  QAction *addPrevAction    = NULL;
-  QAction *calloutAction    = NULL;
-  QAction *assembledAction  = NULL;
-  QAction *ignoreAction     = NULL;
-  QAction *partAction       = NULL;
-  QAction *perStepAction    = NULL;
+  QAction *addNextAction        = NULL;
+  QAction *addPrevAction        = NULL;
+  QAction *calloutAction        = NULL;
+  QAction *assembledAction      = NULL;
+  QAction *ignoreAction         = NULL;
+  QAction *partAction           = NULL;
+  QAction *perStepAction        = NULL;
+  QAction *clearPageCacheAction = NULL;
 
-  QAction *backgroundAction = NULL;
+  QAction *backgroundAction     = NULL;
   QAction *sizeAndOrientationAction = NULL;
 
   Step    *lastStep = NULL;
@@ -148,6 +149,9 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                                    "and the submodel is displayed as a part in the parent step's "
                                    "part list image.");
         }
+      clearPageCacheAction = menu.addAction("Clear Page Cache");
+      clearPageCacheAction->setIcon(QIcon(":/resources/clearpagecache.png"));
+      clearPageCacheAction->setWhatsThis("Clear the CSI image and ldr cache files for this page.");
     }
 
   if (page->instances > 1) {
@@ -201,6 +205,8 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
           addNextMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps());
         } else if (selectedAction == addPrevAction) {
           addPrevMultiStep(firstStep->topOfSteps(),firstStep->bottomOfSteps());
+        } else if (selectedAction == clearPageCacheAction){
+          gui->clearPageCache(relativeType,page);
         }
     }
 
