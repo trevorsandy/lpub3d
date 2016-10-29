@@ -149,9 +149,9 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                                    "and the submodel is displayed as a part in the parent step's "
                                    "part list image.");
         }
-      clearPageCacheAction = menu.addAction("Clear Page Cache");
+      clearPageCacheAction = menu.addAction("Reset Page Assembly Image Cache");
       clearPageCacheAction->setIcon(QIcon(":/resources/clearpagecache.png"));
-      clearPageCacheAction->setWhatsThis("Clear the CSI image and ldr cache files for this page.");
+      clearPageCacheAction->setWhatsThis("Reset the CSI image and ldr cache files for this page.");
     }
 
   if (page->instances > 1) {
@@ -206,7 +206,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         } else if (selectedAction == addPrevAction) {
           addPrevMultiStep(firstStep->topOfSteps(),firstStep->bottomOfSteps());
         } else if (selectedAction == clearPageCacheAction){
-          gui->clearPageCache(relativeType,page);
+          gui->clearPageCSICache(relativeType,page);
         }
     }
 

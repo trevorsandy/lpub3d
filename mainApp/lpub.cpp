@@ -859,7 +859,37 @@ bool Gui::removeDir(int &count, const QString & dirName)
     return result;
 }
 
-void Gui::clearPageCache(PlacementType relativeType,Page *page){
+void Gui::clearStepCSICache(QString &pngName){
+  QString tmpDirName   = QDir::currentPath() + "/" + Paths::tmpDir;
+  QString assemDirName = QDir::currentPath() + "/" + Paths::assemDir;
+  QFileInfo fileInfo(pngName);
+  QFile file(assemDirName + "/" + fileInfo.fileName());
+  if (!file.remove()) {
+      QMessageBox::critical(NULL,
+                            QMessageBox::tr("LPub3D"),
+                            QMessageBox::tr("Unable to remove %1")
+                            .arg(assemDirName + "/" + fileInfo.fileName()));
+    }
+  QString ldrName;
+  if (renderer->useLDViewSCall()){
+      ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
+    } else {
+      ldrName = tmpDirName + "/csi.ldr";
+    }
+  file.setFileName(ldrName);
+  if (!file.remove()) {
+      QMessageBox::critical(NULL,
+                            QMessageBox::tr("LPub3D"),
+                            QMessageBox::tr("Unable to remeove %1")
+                            .arg(ldrName));
+    }
+  if (Preferences::enableFadeStep) {
+      clearFadePositions();
+    }
+  displayPage();
+}
+
+void Gui::clearPageCSICache(PlacementType relativeType,Page *page){
 
   // Capture ldr and image names
   if (page->list.size()) {

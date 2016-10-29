@@ -2,11 +2,13 @@ LPub3D 2.0.14.838.2
  
 Features and enhancements 
 ------------
-Fix: Clear page cache (r844)
- * Page context menu item "Clear Page Cache." Clear CSI .png (assembly) and .ldr (temp) files for the current page. 
- This function will not clear PLI (parts) content.
-Fix: On clear all caches LPub3D returns to first page (r843)
- * LPub3D will return to the page on which it was when clear all caches launched. 
+Fix: Reset step cache (r845)
+ * CSI (assembly) context menu item "Reset Step Assembly Image Cache." Clear and regenerate CSI .png (assembly) and .ldr (temp) files for the selected step. This context menu is only displayed for multi-step pages allowing the editor to refresh a specific CSI image on the page.
+Fix: Reset page cache (r844)
+ * Page context menu item "Reset Page Assembly Image Cache." Clear and regenerate CSI .png (assembly) and .ldr (temp) files for all assemblies on the current page. 
+ This function will not reset PLI (parts) content.
+Fix: On reset all caches LPub3D returns to first page (r843)
+ * LPub3D will return to the page on which it was when reset all caches launched. 
 Fix: Fade position lost on page refresh (r842)
  * Refresh page (in the LDraw editor) and closing the preference dialogue will refresh the loaded model file after which the fade position is lost and the entire first step on the page is incorrectly faded. This behaviour has been corrected.
 Fix: INSERT MODEL meta places meta in the wrong place (r841)

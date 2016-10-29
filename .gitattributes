@@ -353,6 +353,7 @@ mainApp/images/clearfadecache.png -text
 mainApp/images/clearimagemodelcache.png -text
 mainApp/images/clearpagecache.png -text svneol=unset#application/octet-stream
 mainApp/images/clearplicache.png -text
+mainApp/images/clearstepcache.png -text
 mainApp/images/closemodelfile.png -text
 mainApp/images/contentspage.png -text
 mainApp/images/convertcallout.png -text

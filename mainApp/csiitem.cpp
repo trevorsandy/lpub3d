@@ -121,6 +121,13 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         }
     }
 
+  QAction *clearStepCacheAction = NULL;
+  if (parentRelativeType == StepGroupType){
+      clearStepCacheAction = menu.addAction("Reset Step Assembly Image Cache");
+      clearStepCacheAction->setIcon(QIcon(":/resources/clearstepcache.png"));
+      clearStepCacheAction->setWhatsThis("Clear the CSI image and ldr cache files for this step.");
+    }
+
   QAction *movePrevAction = NULL;
   QAction *moveNextAction = NULL;
   QAction *addDividerAction = NULL;
@@ -334,11 +341,11 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                     topOfStep,
                     bottomOfStep,
                     margins);
+    } else if (selectedAction == clearStepCacheAction) {
+      gui->clearStepCSICache(step->pngName);
     } else if (selectedAction == noStepAction) {
       appendMeta(topOfStep,"0 !LPUB NOSTEP");
-    }
-
-  if (selectedAction == insertRotateIconAction && fullContextMenu) {
+    } else if (selectedAction == insertRotateIconAction && fullContextMenu) {
       appendMeta(topOfStep,"0 !LPUB INSERT ROTATE_ICON OFFSET 0.5 0.5");
     }
 
