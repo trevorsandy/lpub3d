@@ -46,10 +46,9 @@ void Gui::open()
       modelDir,
       tr("LDraw Files (*.DAT;*.LDR;*.MPD;*.dat;*.ldr;*.mpd)"));
 
-    QFileInfo info(fileName);
-
-    if (!fileName.isEmpty()) {
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,"ProjectsPath"),info.path());
+    QFileInfo fileInfo(fileName);
+    if (fileInfo.exists()) {
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,"ProjectsPath"),fileInfo.path());
       openFile(fileName);
       displayPage();
       enableActions();
@@ -60,6 +59,32 @@ void Gui::open()
     }
   }
   return;
+}
+
+void Gui::openDropFile(QString &fileName){
+
+  if (maybeSave()) {
+      timer.start();
+      QFileInfo fileInfo(fileName);
+      QString extension = fileInfo.suffix().toLower();
+      bool ldr, mpd, dat;
+      ldr = extension == "ldr";
+      mpd = extension == "mpd";
+      dat = extension == "dat";
+      if (fileInfo.exists() && (ldr || mpd || dat)) {
+          QSettings Settings;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,"ProjectsPath"),fileInfo.path());
+          openFile(fileName);
+          displayPage();
+          enableActions();
+          emit messageSig(true, QString("File loaded (%1 parts). %2")
+                          .arg(ldrawFile.getPartCount())
+                          .arg(elapsedTime(timer.elapsed())));
+        } else {
+          emit messageSig(false, QString("File not supported!\n%1")
+                          .arg(fileName));
+        }
+    }
 }
 
 void Gui::openRecentFile()
@@ -403,6 +428,49 @@ void Gui::fileChanged(const QString &path)
     displayPage();
   }
 }
+
+//void Gui::dropEvent(QDropEvent* event)
+//{
+//  const QMimeData* mimeData = event->mimeData();
+
+//  if (mimeData->hasUrls()) {
+
+//      QList<QUrl> urlList = mimeData->urls();
+
+//      // load only the first file in the list;
+//      QString fileName = urlList.at(0).toLocalFile();
+
+//      if (urlList.size() > 1) {
+//          QMessageBox::warning(NULL,
+//                               QMessageBox::tr(VER_PRODUCTNAME_STR),
+//                               QMessageBox::tr("%1 files selected.\nOnly file %2 will be opened.")
+//                               .arg(urlList.size())
+//                               .arg(fileName));
+//        }
+
+//      openDropFile(fileName);
+//      event->acceptProposedAction();
+//    }
+//}
+
+//void Gui::dragEnterEvent(QDragEnterEvent* event)
+//{
+//  if (event->mimeData()->hasUrls()) {
+//      event->acceptProposedAction();
+//    }
+//}
+
+//void Gui::dragMoveEvent(QDragMoveEvent* event)
+//{
+//  if (event->mimeData()->hasUrls()) {
+//      event->acceptProposedAction();
+//    }
+//}
+
+//void Gui::dragLeaveEvent(QDragLeaveEvent* event)
+//{
+//  event->accept();
+//}
 
 QString Gui::elapsedTime(const qint64 &time){
 

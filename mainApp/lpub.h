@@ -592,7 +592,6 @@ public:
 
   //**
 
-
 public slots:
 
   /* The undoStack needs access to these */
@@ -635,6 +634,8 @@ public slots:
         showLineSig(topOfStep.lineNumber);
       }
   }
+
+  void openDropFile(QString &fileName);
 
   void deployExportBanner(bool b);
   void setExporting(bool b){ m_exportingContent = b;}
@@ -758,6 +759,13 @@ public:
   ParmsWindow           *parmsWindow;             // the parametrer file editor
 
 protected:
+
+  // drag and drop
+//  void dragMoveEvent( QDragMoveEvent  *event);
+//  void dragEnterEvent(QDragEnterEvent *event);
+//  void dragLeaveEvent(QDragLeaveEvent *event);
+//  void dropEvent(     QDropEvent      *event);
+
   // capture camera rotation from LeoCad module
   lcVector3 mExistingRotStep;
   lcVector3 mModelStepRotation;
@@ -1117,12 +1125,27 @@ private:
 
 extern class Gui *gui;
 
+#include <QDragEnterEvent>
+#include <QDragLeaveEvent>
+#include <QDragMoveEvent>
+#include <QDropEvent>
+#include <QMimeData>
+#include <QUrl>
+#include <QList>
+
+class QDragEnterEvent;
+class QDragMoveEvent;
+class QDragLeaveEvent;
+class QMimeData;
+class QUrl;
+
 class LGraphicsView : public QGraphicsView
 {
 public:
   //LGraphicsView();
   LGraphicsView(QGraphicsScene *scene)
   {
+    setAcceptDrops(true);
     setScene(scene);
     pageBackgroundItem = NULL;
   }
@@ -1131,7 +1154,41 @@ public:
   PageBackgroundItem *pageBackgroundItem;
 
 protected:
-    
+
+  // drag and drop
+  void dragMoveEvent(QDragMoveEvent *event){
+    if (event->mimeData()->hasUrls()) {
+        event->acceptProposedAction();
+      }
+  }
+
+  void dragEnterEvent(QDragEnterEvent *event){
+    if (event->mimeData()->hasUrls()) {
+        event->acceptProposedAction();
+      }
+  }
+
+  void dragLeaveEvent(QDragLeaveEvent *event){
+    event->accept();
+  }
+
+  void dropEvent(QDropEvent *event){
+    const QMimeData* mimeData = event->mimeData();
+    if (mimeData->hasUrls()) {
+        QList<QUrl> urlList = mimeData->urls();
+        QString fileName = urlList.at(0).toLocalFile();   // load the first file only
+        if (urlList.size() > 1) {
+            QMessageBox::warning(NULL,
+                                 QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                 QMessageBox::tr("%1 files selected.\nOnly file %2 will be opened.")
+                                 .arg(urlList.size())
+                                 .arg(fileName));
+          }
+        gui->openDropFile(fileName);
+        event->acceptProposedAction();
+      }
+  }
+
   void resizeEvent(QResizeEvent * /* unused */)
   {
     if (pageBackgroundItem) {
