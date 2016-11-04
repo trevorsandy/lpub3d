@@ -1,29 +1,36 @@
-LPub3D 2.0.14.838.2 
+LPub3D 2.0.15.846.2 
  
 Features and enhancements 
-------------
-Fix: Reset step cache (r845)
- * CSI (assembly) context menu item "Reset Step Assembly Image Cache." Clear and regenerate CSI .png (assembly) and .ldr (temp) files for the selected step. This context menu is only displayed for multi-step pages allowing the editor to refresh a specific CSI image on the page.
-Fix: Reset page cache (r844)
- * Page context menu item "Reset Page Assembly Image Cache." Clear and regenerate CSI .png (assembly) and .ldr (temp) files for all assemblies on the current page. 
- This function will not reset PLI (parts) content.
-Fix: On reset all caches LPub3D returns to first page (r843)
- * LPub3D will return to the page on which it was when reset all caches launched. 
-Fix: Fade position lost on page refresh (r842)
- * Refresh page (in the LDraw editor) and closing the preference dialogue will refresh the loaded model file after which the fade position is lost and the entire first step on the page is incorrectly faded. This behaviour has been corrected.
-Fix: INSERT MODEL meta places meta in the wrong place (r841)
- * When there are steps after the last part-added step, the INSERT MODEL meta added by LPub3D is placed after the STEP meta instead of before it. 
-Fix: Image banner removed from viewer window before export is finished (r840)
+------------ 
+Fix: Drag and drop model file (r848)
+ * Open model file using drag and drop. Note that only one file at a time can be opened so dragging and dropping multiple files will only open the first file in in the list of selected files.
 
+LPub3D 2.0.15.846.2 
+ 
+Features and enhancements 
+------------ 
+Fix: Reset step cache (r845) 
+ * CSI (assembly) context menu item "Reset Step Assembly Image Cache." Clear and regenerate CSI .png (assembly) and .ldr (temp) files for the selected step. This context menu is only displayed for multi-step pages allowing the editor to refresh a specific CSI image on the page. 
+Fix: Reset page cache (r844) 
+ * Page context menu item "Reset Page Assembly Image Cache." Clear and regenerate CSI .png (assembly) and .ldr (temp) files for all assemblies on the current page. 
+ This function will not reset PLI (parts) content. 
+Fix: On reset all caches LPub3D returns to first page (r843) 
+ * LPub3D will return to the page on which it was when reset all caches launched. 
+Fix: Fade position lost on page refresh (r842) 
+ * Refresh page (in the LDraw editor) and closing the preference dialogue will refresh the loaded model file after which the fade position is lost and the entire first step on the page is incorrectly faded. This behaviour has been corrected. 
+Fix: INSERT MODEL meta places meta in the wrong place (r841) 
+ * When there are steps after the last part-added step, the INSERT MODEL meta added by LPub3D is placed after the STEP meta instead of before it. 
+Fix: Image banner removed from viewer window before export is finished (r840) 
+ 
 LPub3D 2.0.14.838.2 
  
 Features and enhancements 
-------------
+------------ 
 Fix: File reload after external source change breaks page drop-down combo dialogue(r837) 
  * When a file is reloaded after being changed by an external source, the drop-down menu for selecting a page doesn't work until after navigating using another method. 
 Fix: Image orientation does not conform when page orientation changed to Landscape (r836) 
  * Image generation was not inheriting the proper page size values. 
-Fix: Extra characters "%3" in margin meta and page size meta does not display the page size identifier(r835) 
+Fix: Extra characters "" in margin meta and page size meta does not display the page size identifier(r835) 
  * Oops, allocated the page size identifier variable to the wrong meta - should have been allocated to page size meta instead of units meta (units meta is used for setting the margin). Consequently, the page size meta is missing the size identifier (A4, Letter, etc...) because the place-holder to pass the variable is not there. This must have happened during the patch process from the maintenance branch because it did not present during my tests. Both issues are now corrected. 
  
 LPub3D 2.0.13.834.2 
