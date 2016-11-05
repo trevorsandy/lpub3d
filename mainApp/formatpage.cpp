@@ -273,19 +273,6 @@ int Gui::addGraphicsPageItems(
   view->pageBackgroundItem = pageBg;
   pageBg->setPos(0,0);
 
-  // set Background
-  QPixmap *pixmapBg = new QPixmap(pW,pH);
-  QString toolTip("Page background - right-click to modify");
-  pageBg->setBackground(pixmapBg,
-                        PageType,
-                        &page->meta,
-                        page->meta.LPub.page.background,
-                        page->meta.LPub.page.border,
-                        page->meta.LPub.page.margin,
-                        page->meta.LPub.page.subModelColor,
-                        page->meta.submodelStack.size() + 1,
-                        toolTip);
-
   // Set up the placement aspects of the page in the Qt space
 
   plPage.relativeType = PageType;

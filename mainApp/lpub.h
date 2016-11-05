@@ -759,13 +759,6 @@ public:
   ParmsWindow           *parmsWindow;             // the parametrer file editor
 
 protected:
-
-  // drag and drop
-//  void dragMoveEvent( QDragMoveEvent  *event);
-//  void dragEnterEvent(QDragEnterEvent *event);
-//  void dragLeaveEvent(QDragLeaveEvent *event);
-//  void dropEvent(     QDropEvent      *event);
-
   // capture camera rotation from LeoCad module
   lcVector3 mExistingRotStep;
   lcVector3 mModelStepRotation;

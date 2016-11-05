@@ -4,6 +4,8 @@ Features and enhancements
 ------------ 
 Fix: Drag and drop model file (r848)
  * Open model file using drag and drop. Note that only one file at a time can be opened so dragging and dropping multiple files will only open the first file in in the list of selected files.
+Fix: Page movable and selectable in the graphics scene (r849)
+ * Page is now fixed and cannot be selected within the graphics scene.
 
 LPub3D 2.0.15.846.2 
  
