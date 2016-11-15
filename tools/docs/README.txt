@@ -6,6 +6,8 @@ Fix: Drag and drop model file (r848)
  * Open model file using drag and drop. Note that only one file at a time can be opened so dragging and dropping multiple files will only open the first file in in the list of selected files.
 Fix: Page movable and selectable in the graphics scene (r849)
  * Page is now fixed and cannot be selected within the graphics scene.
+Fix: The step number is slightly off of the page when using default settings (r849)
+ * Page header and footer width is now matched with the size and orientation of the displayed page. One can also change the "Relative To" settings from header/footer to page using the context menu/Move Step Number dialogue.
 
 LPub3D 2.0.15.846.2 
  

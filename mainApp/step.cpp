@@ -1028,7 +1028,7 @@ void Step::placeit(
   csiPlacement.loc[y] = origins[TblCsi] + (rows[TblCsi] - csiPlacement.size[y])/2;
   pli.loc[y]          = origins[pli.tbl[y]];
   stepNumber.loc[y]   = origins[stepNumber.tbl[y]];
-  rotateIcon.loc[y]= origins[rotateIcon.tbl[y]];
+  rotateIcon.loc[y]   = origins[rotateIcon.tbl[y]];
 
   switch (y) {
     case XX:

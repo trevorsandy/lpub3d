@@ -282,13 +282,21 @@ int Gui::addGraphicsPageItems(
   plPage.loc[XX] = 0;
   plPage.loc[YY] = 0;
 
-  // Set up page footer
+  // Set up page header and footer //~~~~~~~~~~~~~~~~
+  pageHeader.relativeType   = PageHeaderType;
+  pageHeader.placement      = page->meta.LPub.page.pageHeader.placement;
+  pageHeader.size[XX]       = page->meta.LPub.page.pageHeader.size.valuePixels(XX); // Width
+  pageHeader.size[YY]       = page->meta.LPub.page.pageHeader.size.valuePixels(YY); // Height
+  if (pageHeader.placement.value().relativeTo == plPage.relativeType) {
+      plPage.placeRelative(&pageHeader);
+      plPage.appendRelativeTo(&pageHeader);
+    }
+  pageHeader.setPos(pageHeader.loc[XX],pageHeader.loc[YY]);
 
   pageFooter.relativeType   = PageFooterType;
   pageFooter.placement      = page->meta.LPub.page.pageFooter.placement;
-  pageFooter.size[XX]       = page->meta.LPub.page.pageFooter.size.valuePixels(XX);
-  pageFooter.size[YY]       = page->meta.LPub.page.pageFooter.size.valuePixels(YY);
-
+  pageFooter.size[XX]       = page->meta.LPub.page.pageFooter.size.valuePixels(XX); // Width
+  pageFooter.size[YY]       = page->meta.LPub.page.pageFooter.size.valuePixels(YY); // Height
   if (pageFooter.placement.value().relativeTo == plPage.relativeType) {
       plPage.placeRelative(&pageFooter);
       plPage.appendRelativeTo(&pageFooter);
@@ -745,28 +753,6 @@ int Gui::addGraphicsPageItems(
           breakModelDescFrontRelativeTo = modelDescFrontPld.relativeTo != PagePiecesType;
       }
 
-      // allocate QGraphicsTextItem for // page Header (Front Cover) //~~~~~~~~~~~~~~~~
-      pageHeader.relativeType   = PageHeaderType;
-      pageHeader.placement      = page->meta.LPub.page.pageHeader.placement;
-      pageHeader.size[XX]       = page->meta.LPub.page.pageHeader.size.valuePixels(XX);
-      pageHeader.size[YY]       = page->meta.LPub.page.pageHeader.size.valuePixels(YY);
-      if (pageHeader.placement.value().relativeTo == plPage.relativeType) {
-          plPage.placeRelative(&pageHeader);
-          plPage.appendRelativeTo(&pageHeader);
-        }
-      pageHeader.setPos(pageHeader.loc[XX],pageHeader.loc[YY]);
-
-      // allocate QGraphicsTextItem for // page Footer (Front Cover) //~~~~~~~~~~~~~~~~
-      pageFooter.relativeType   = PageFooterType;
-      pageFooter.placement      = page->meta.LPub.page.pageFooter.placement;
-      pageFooter.size[XX]       = page->meta.LPub.page.pageFooter.size.valuePixels(XX);
-      pageFooter.size[YY]       = page->meta.LPub.page.pageFooter.size.valuePixels(YY);
-      if (pageFooter.placement.value().relativeTo == plPage.relativeType) {
-          plPage.placeRelative(&pageFooter);
-          plPage.appendRelativeTo(&pageFooter);
-        }
-      pageFooter.setPos(pageFooter.loc[XX],pageFooter.loc[YY]);
-
       // allocate QGraphicsTextItem for // title (Front Cover) //~~~~~~~~~~~~~~~~
       if (enableTitleFront) {
 
@@ -1077,28 +1063,6 @@ int Gui::addGraphicsPageItems(
           plugBackPld = plugBack->placement.value();
           breakPlugBackRelativeTo = plugBackPld.relativeTo != PageDisclaimerType;
       }
-
-      // allocate QGraphicsTextItem for // page Header (Back Cover) //~~~~~~~~~~~~~~~~
-      pageHeader.relativeType   = PageHeaderType;
-      pageHeader.placement      = page->meta.LPub.page.pageHeader.placement;
-      pageHeader.size[XX]       = page->meta.LPub.page.pageHeader.size.valuePixels(XX);
-      pageHeader.size[YY]       = page->meta.LPub.page.pageHeader.size.valuePixels(YY);
-      if (pageHeader.placement.value().relativeTo == plPage.relativeType) {
-          plPage.placeRelative(&pageHeader);
-          plPage.appendRelativeTo(&pageHeader);
-        }
-      pageHeader.setPos(pageHeader.loc[XX],pageHeader.loc[YY]);
-
-      // allocate QGraphicsTextItem for // page Footer (Back Cover) //~~~~~~~~~~~~~~~~
-      pageFooter.relativeType   = PageFooterType;
-      pageFooter.placement      = page->meta.LPub.page.pageFooter.placement;
-      pageFooter.size[XX]       = page->meta.LPub.page.pageFooter.size.valuePixels(XX);
-      pageFooter.size[YY]       = page->meta.LPub.page.pageFooter.size.valuePixels(YY);
-      if (pageFooter.placement.value().relativeTo == plPage.relativeType) {
-          plPage.placeRelative(&pageFooter);
-          plPage.appendRelativeTo(&pageFooter);
-        }
-      pageFooter.setPos(pageFooter.loc[XX],pageFooter.loc[YY]);
 
       // allocate QGraphicsTextItem for // title (Back Cover) //~~~~~~~~~~~~~~~~
       if (enableTitleBack) {
@@ -1444,6 +1408,7 @@ int Gui::addGraphicsPageItems(
                     } else if (step->pli.background) {
                       step->pli.background->setFlag(QGraphicsItem::ItemIsMovable,false);
                     }
+                  qDebug() << "Stop Here";
 
                   // foreach callout
 

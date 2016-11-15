@@ -278,6 +278,18 @@ int Gui::drawPage(LGraphicsView  *view,
 
   QStringList calloutParts;
 
+  // set page header/footer width
+  float pW;
+  if (callout){
+      pW = callout->meta.LPub.page.size.value(0);
+      callout->meta.LPub.page.pageHeader.size.setValue(0,pW);
+      callout->meta.LPub.page.pageFooter.size.setValue(0,pW);
+    } else {
+      pW = steps->meta.LPub.page.size.value(0);
+      steps->meta.LPub.page.pageHeader.size.setValue(0,pW);
+      steps->meta.LPub.page.pageFooter.size.setValue(0,pW);
+    }
+
   emit messageSig(true, "Processing draw page for " + current.modelName);
 
   /*

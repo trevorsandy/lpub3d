@@ -76,9 +76,12 @@ GlobalPageDialog::GlobalPageDialog(
   QWidget        *widget      = new QWidget();
   QWidget        *childwidget;
 
+  float pW                       = data->meta.LPub.page.size.value(0);
   PageMeta       *pageMeta       = &data->meta.LPub.page;
   PageHeaderMeta *pageHeaderMeta = &data->meta.LPub.page.pageHeader;
+  pageHeaderMeta->size.setValue(0, pW);
   PageFooterMeta *pageFooterMeta = &data->meta.LPub.page.pageFooter;
+  pageFooterMeta->size.setValue(0, pW);
 
   setLayout(layout);
   layout->addWidget(tab);

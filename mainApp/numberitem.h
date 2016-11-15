@@ -97,24 +97,24 @@ public:
   NumberPlacementItem();
   
   NumberPlacementItem(
-    PlacementType  relativeType,
-    PlacementType  parentRelativeType,
-    NumberPlacementMeta    &number,
-    const char    *format,
-    int            _value,
-    QString       &toolTip,
-    QGraphicsItem *parent,
-    QString        name = "");
+    PlacementType         relativeType,
+    PlacementType         parentRelativeType,
+    NumberPlacementMeta  &number,
+    const char           *format,
+    int                   value,
+    QString              &toolTip,
+    QGraphicsItem        *parent,
+    QString               name = "");
 
   void setAttributes(
-    PlacementType  relativeType,
-    PlacementType  parentRelativeType,
+    PlacementType        relativeType,
+    PlacementType        parentRelativeType,
     NumberPlacementMeta &number,
-    const char    *format,
-    int            _value,
-    QString       &toolTip,
-    QGraphicsItem *parent,
-    QString        name = "");
+    const char          *format,
+    int                  value,
+    QString             &toolTip,
+    QGraphicsItem       *parent,
+    QString              name = "");
 
   void setFlags( GraphicsItemFlag flag, bool value)
   {

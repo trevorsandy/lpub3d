@@ -2004,7 +2004,7 @@ void PageAttributePictureMeta::init(
 PageHeaderMeta::PageHeaderMeta() : BranchMeta()
 {
   placement.setValue(TopInside,PageType);
-  size.setValuesInches(8.5f,0.3f);
+  size.setValuesInches(8.3f,0.3f);
   size.setRange(.1,1000);
   size.setFormats(6,4,"9.9999");
 }
@@ -2021,7 +2021,7 @@ void PageHeaderMeta::init(BranchMeta *parent, QString name)
 PageFooterMeta::PageFooterMeta() : BranchMeta()
 {
   placement.setValue(BottomInside,PageType);
-  size.setValuesInches(8.5f,0.3f);
+  size.setValuesInches(8.3f,0.3f);
   size.setRange(.1,1000);
   size.setFormats(6,4,"9.9999");
 }

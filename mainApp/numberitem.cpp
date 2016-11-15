@@ -113,43 +113,43 @@ NumberPlacementItem::NumberPlacementItem()
 }
 
 NumberPlacementItem::NumberPlacementItem(
-  PlacementType  _relativeType,
-  PlacementType  _parentRelativeType,
+  PlacementType        _relativeType,
+  PlacementType        _parentRelativeType,
   NumberPlacementMeta &_number,
-  const char    *_format,
-  int            _value,
-  QString       &toolTip,
-  QGraphicsItem *_parent,
-  QString        _name)
+  const char          *_format,
+  int                  _value,
+  QString             &_toolTip,
+  QGraphicsItem       *_parent,
+  QString              _name)
 {
   setAttributes(_relativeType,
                 _parentRelativeType,
                 _number,
                 _format,
                 _value,
-                toolTip,
+                _toolTip,
                 _parent,
                 _name);
 }
 
 void NumberPlacementItem::setAttributes(
-  PlacementType  _relativeType,
-  PlacementType  _parentRelativeType,
+  PlacementType        _relativeType,
+  PlacementType        _parentRelativeType,
   NumberPlacementMeta &_number,
-  const char    *_format,
-  int            _value,
-  QString       &toolTip,
-  QGraphicsItem *_parent,
-  QString        _name)
+  const char          *_format,
+  int                  _value,
+  QString             &_toolTip,
+  QGraphicsItem       *_parent,
+  QString              _name)
 {
-  relativeType = _relativeType;
+  relativeType       = _relativeType;
   parentRelativeType = _parentRelativeType;
-  font         =  _number.font;
-  color        =  _number.color;
-  margin       =  _number.margin;
-  placement    =  _number.placement;
-  value        =  _value;
-  name         =  _name;
+  font               = _number.font;
+  color              = _number.color;
+  margin             = _number.margin;
+  placement          = _number.placement;
+  value              = _value;
+  name               = _name;
 
   QFont qfont;
   qfont.fromString(_number.font.valueFoo());
@@ -160,7 +160,7 @@ void NumberPlacementItem::setAttributes(
   setPlainText(foo);
   setDefaultTextColor(LDrawColor::color(color.value()));
 
-  setToolTip(toolTip);
+  setToolTip(_toolTip);
   setParentItem(_parent);
 }
 
@@ -284,24 +284,24 @@ void PageNumberItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 }
 
 StepNumberItem::StepNumberItem(
-  Step          *_step,
-  PlacementType  parentRelativeType,
-  NumberPlacementMeta    &_number,
-  const char    *_format,
-  int            _value,
-  QGraphicsItem *_parent,
-  QString         name)
+  Step                *_step,
+  PlacementType        _parentRelativeType,
+  NumberPlacementMeta &_number,
+  const char          *_format,
+  int                  _value,
+  QGraphicsItem       *_parent,
+  QString              _name)
 {
   step = _step;
-  QString toolTip("Step Number - right-click to modify");
+  QString _toolTip("Step Number - right-click to modify");
   setAttributes(StepNumberType,
-                parentRelativeType,
+                _parentRelativeType,
                 _number,
                 _format,
                 _value,
-                toolTip,
+                _toolTip,
                 _parent,
-                 name);
+                _name);
 }
 
 void StepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
