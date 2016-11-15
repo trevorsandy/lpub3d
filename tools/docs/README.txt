@@ -2,6 +2,8 @@ LPub3D 2.0.16.849.1
  
 Features and enhancements 
 ------------ 
+Fix: Refresh open model file when preference changes (r852)
+ * Refresh open model file when "display all page attributes" and "generate cover pages" preference settings have changed.
 Fix: Unable to create a new line in text items - e.g. Model Description (r851)
  * It is now possible to split text in text boxes and all editable page attributes - e.g. model description, LEGO disclaimer etc... When you select a text item, the cursor is placed at the very beginning of the dialogue. Use your arrow keys to move the cursor to the desired position of the dialogue.
  To split a line simply hit the "enter" key on your keyboard. It is also possible to create a new line by inserting inserting the newline characters \n.  

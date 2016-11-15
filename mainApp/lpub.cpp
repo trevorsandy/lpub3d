@@ -1162,7 +1162,9 @@ void Gui::editLdrawIniFile()
 
 void Gui::preferences()
 {
-    bool useLDViewSCall= renderer->useLDViewSCall();
+    bool useLDViewSCall       = renderer->useLDViewSCall();
+    bool displayAllAttributes = Preferences::displayAllAttributes;
+    bool generateCoverPages   = Preferences::generateCoverPages;
 
     if (Preferences::getPreferences()) {
 
@@ -1171,9 +1173,11 @@ void Gui::preferences()
 
         QString currentRenderer = Render::getRenderer();
         Render::setRenderer(Preferences::preferredRenderer);
-        bool rendererChanged = Render::getRenderer() != currentRenderer;
-        bool fadeStepColorChanged = Preferences::fadeStepColorChanged && !Preferences::fadeStepSettingChanged;
-        bool useLDViewSCallChanged = useLDViewSCall != renderer->useLDViewSCall();
+        bool rendererChanged           = Render::getRenderer() != currentRenderer;
+        bool fadeStepColorChanged      = Preferences::fadeStepColorChanged && !Preferences::fadeStepSettingChanged;
+        bool useLDViewSCallChanged     = useLDViewSCall != renderer->useLDViewSCall();
+        bool displayAttributesChanged  = Preferences::displayAllAttributes != displayAllAttributes;
+        bool generateCoverPagesChanged = Preferences::generateCoverPages   != generateCoverPages;
 
         if (Preferences::fadeStepSettingChanged){
             logInfo() << (Preferences::enableFadeStep ? QString("Fade Step is ON.") : QString("Fade Step is OFF."));
@@ -1191,9 +1195,11 @@ void Gui::preferences()
             if (Preferences::fadeStepSettingChanged){
                 clearAllCaches();
             }
-            if (rendererChanged ||
-                     fadeStepColorChanged ||
-                     useLDViewSCallChanged){
+            if (rendererChanged           ||
+                fadeStepColorChanged      ||
+                useLDViewSCallChanged     ||
+                displayAttributesChanged  ||
+                generateCoverPagesChanged){
                 clearAndRedrawPage();
             }
         }
