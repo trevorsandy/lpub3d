@@ -2,12 +2,16 @@ LPub3D 2.0.16.849.1
  
 Features and enhancements 
 ------------ 
-Fix: Drag and drop model file (r848)
- * Open model file using drag and drop. Note that only one file at a time can be opened so dragging and dropping multiple files will only open the first file in in the list of selected files.
+Fix: Unable to create a new line in text items - e.g. Model Description (r851)
+ * It is now possible to split text in text boxes and all editable page attributes - e.g. model description, LEGO disclaimer etc... When you select a text item, the cursor is placed at the very beginning of the dialogue. Use your arrow keys to move the cursor to the desired position of the dialogue.
+ To split a line simply hit the "enter" key on your keyboard. It is also possible to create a new line by inserting inserting the newline characters \n.  
+ One can also add "quoted texts" in test items. Just like adding a new line, simply type " before and after the content you wish to quote. It is not necessary to enter an escape character \ but entering an escape character before the \" is also supported.
+Fix: The step number is slightly off of the page when using default settings (r850)
+ * Page header and footer width is now matched with the size and orientation of the displayed page. One can also change the "Relative To" settings from header/footer to page using the context menu/Move Step Number dialogue. For example, the step number on single step pages default placement is relative to the invisible page header - which can be managed in the page setup dialogue. Alternatively, step number placement on a single step page can be set relative to the page using the context menu as described earlier.
 Fix: Page movable and selectable in the graphics scene (r849)
  * Page is now fixed and cannot be selected within the graphics scene.
-Fix: The step number is slightly off of the page when using default settings (r849)
- * Page header and footer width is now matched with the size and orientation of the displayed page. One can also change the "Relative To" settings from header/footer to page using the context menu/Move Step Number dialogue.
+Fix: Drag and drop model file (r848)
+ * Open model file using drag and drop. Note that only one file at a time can be opened so dragging and dropping multiple files will only open the first file in in the list of selected files.
 
 LPub3D 2.0.15.846.2 
  

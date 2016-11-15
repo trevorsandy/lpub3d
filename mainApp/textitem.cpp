@@ -24,6 +24,43 @@
 #include <QColor>
 #include <QColorDialog>
 
+TextItem::TextItem(
+  InsertMeta meta,
+  QGraphicsItem *parent) :  meta(meta)
+{
+  InsertData data = meta.value();
+  setParentItem(parent);
+
+  QString fontString = data.textFont;
+  if (fontString.length() == 0) {
+    fontString = "Arial,48,-1,255,75,0,0,0,0,0";
+  }
+
+  QFont font;
+  font.fromString(fontString);
+  setFont(font);
+
+  QColor color(data.textColor);
+  setDefaultTextColor(color);
+
+  QRegExp rx("\\\\n");
+  QStringList list = data.text.split(rx);
+  QString string = list.join("\n");
+
+  QRegExp rx2("\\\\""");
+  QStringList list2 = string.split(rx2);
+  QString string2 = list2.join("""");
+
+  setPlainText(string2);
+
+  setTextInteractionFlags(Qt::TextEditorInteraction);
+
+  setFlag(QGraphicsItem::ItemIsMovable);
+  setFlag(QGraphicsItem::ItemIsSelectable);
+  setZValue(1000);
+  margin.setValues(0.0,0.0);
+}
+
 void TextItem::contextMenuEvent(
   QGraphicsSceneContextMenuEvent *event)
 {
@@ -94,7 +131,6 @@ void TextItem::contextMenuEvent(
   }
 }
 
-
 void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
   position = pos();
@@ -128,17 +164,23 @@ void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     calcOffsets(pld,insertData.offsets,topLeft,size);
 
-    QRegExp rx("\\n");
-    QStringList list = toPlainText().split(rx);
-    insertData.text = list.join("\\n");
+//    QRegExp rx("\\n");
+//    QStringList list = toPlainText().split(rx);
 
-    meta.setValue(insertData);
+//    QStringList list2;
+//    foreach (QString string, list){
+//      string.replace("\"","\\\"");
+//      list2 << string;
+//      }
 
-    beginMacro(QString("MoveText"));
+//    insertData.text = list2.join("\\n");
+//    meta.setValue(insertData);
 
-    changeInsertOffset(&meta);
+//    beginMacro(QString("MoveText"));
 
-    endMacro();
+//    changeInsertOffset(&meta);
+
+//    endMacro();
   }
 }
 
@@ -151,15 +193,23 @@ void TextItem::focusInEvent(QFocusEvent *event)
 void TextItem::focusOutEvent(QFocusEvent *event)
 {
   QGraphicsTextItem::focusOutEvent(event);
-  // change meta
 
   if (textChanged) {
     InsertData insertData = meta.value();
-    QStringList list = toPlainText().split("\n");
-    insertData.text = list.join("\\n");
+
+    QRegExp rx("\\n");
+    QStringList list = toPlainText().split(rx);
+
+    QStringList list2;
+    foreach (QString string, list){
+      string.replace("\"","\\\"");
+      list2 << string;
+      }
+
+    insertData.text = list2.join("\\n");
     meta.setValue(insertData);
 
-    beginMacro(QString("Edit"));
+    beginMacro(QString("EditText"));
     changeInsertOffset(&meta);
     endMacro();
   }
@@ -170,6 +220,7 @@ void TextItem::keyPressEvent(QKeyEvent *event)
   textChanged = true;
   QGraphicsTextItem::keyPressEvent(event);
 }
+
 void TextItem::keyReleaseEvent(QKeyEvent *event)
 {
   textChanged = true;

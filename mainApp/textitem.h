@@ -46,40 +46,7 @@ public:
   }
   TextItem(
     InsertMeta meta,
-    QGraphicsItem *parent) :  meta(meta)
-  {
-    InsertData data = meta.value();
-    setParentItem(parent);
-
-    QString fontString = data.textFont;
-    if (fontString.length() == 0) {
-      fontString = "Arial,48,-1,255,75,0,0,0,0,0";
-    }
-
-    QFont font;
-    font.fromString(fontString);
-    setFont(font);
-
-    QColor color(data.textColor);
-    setDefaultTextColor(color);
-
-    QRegExp rx("\\\\n");
-    QStringList list = data.text.split(rx);
-    QString string = list.join("\n");
-
-    QRegExp rx2("\\\\""");
-    QStringList list2 = string.split(rx2);
-    QString string2 = list2.join("""");
-
-    setPlainText(string2);
-
-    setTextInteractionFlags(Qt::TextEditorInteraction);
-
-    setFlag(QGraphicsItem::ItemIsMovable);
-    setFlag(QGraphicsItem::ItemIsSelectable);
-    setZValue(1000);
-    margin.setValues(0.0,0.0);
-  }
+    QGraphicsItem *parent);
 
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent * /* event */);

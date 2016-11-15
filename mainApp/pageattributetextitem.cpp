@@ -48,21 +48,31 @@ void PageAttributeTextItem::setAttributes(
     content               = _pageAttributeText.content;
     name                  = _name;
 
+    setParentItem(_parent);
+
     QFont qfont;
     qfont.fromString(_pageAttributeText.textFont.valueFoo());
     setFont(qfont);
 
-    QString text;
+    QColor color(LDrawColor::color(textColor.value()));
+    setDefaultTextColor(color);
+
     QRegExp rx("\\\\n");
     QStringList list = content.value().split(rx);
-    text = list.join("\n");
-    setPlainText(text);
-    setDefaultTextColor(LDrawColor::color(textColor.value()));
+    QString  text = list.join("\n");
+
+    QRegExp rx2("\\\\""");
+    QStringList list2 = text.split(rx2);
+    QString text2 = list2.join("""");
+
+    setPlainText(text2);
+
     setTextInteractionFlags(Qt::TextEditorInteraction);
 
+    setFlag(QGraphicsItem::ItemIsMovable);
+    setFlag(QGraphicsItem::ItemIsSelectable);
     setToolTip(_toolTip);
     setZValue(1000);
-    setParentItem(_parent);
 }
 
 PageAttributeTextItem::PageAttributeTextItem(
@@ -128,9 +138,9 @@ PageAttributeTextItem::PageAttributeTextItem(
       break;
   }
 
-  //relativeType  = PageTitleType;
-  setFlag(QGraphicsItem::ItemIsMovable,true);
-  setFlag(QGraphicsItem::ItemIsSelectable,true);
+//  relativeType  = PageTitleType;
+//  setFlag(QGraphicsItem::ItemIsMovable,true);
+//  setFlag(QGraphicsItem::ItemIsSelectable,true);
 
   setAttributes(_pageAttributeText.type,
                  page->relativeType,
@@ -285,70 +295,70 @@ void PageAttributeTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   }
 }
 
+void PageAttributeTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+  positionChanged = false;
+  position = pos();
+  QGraphicsItem::mousePressEvent(event);
+}
+
+void PageAttributeTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+    positionChanged = true;
+  }
+  QGraphicsItem::mouseMoveEvent(event);
+}
+
 void PageAttributeTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
   QGraphicsItem::mouseReleaseEvent(event);
 
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable/* && positionChanged */)) {
 
-    QPointF newPosition;
+      QPointF newPosition;
 
-    Where topOfSteps    = page->topOfSteps();
-    Where bottomOfSteps = page->bottomOfSteps();
-    bool  useTop        = parentRelativeType != StepGroupType;
+      Where topOfSteps    = page->topOfSteps();
+      Where bottomOfSteps = page->bottomOfSteps();
+      bool  useTop        = parentRelativeType != StepGroupType;
 
-    newPosition = pos() - position;
+      newPosition = pos() - position;
 
-    if (newPosition.x() || newPosition.y()) {
+      if (newPosition.x() || newPosition.y()) {
 
-      positionChanged = true;
+          positionChanged = true;
 
-      PlacementData placementData = placement.value();
-      placementData.offsets[0] += newPosition.x()/relativeToSize[0];
-      placementData.offsets[1] += newPosition.y()/relativeToSize[1];
-      placement.setValue(placementData);
+          PlacementData placementData = placement.value();
+          placementData.offsets[0] += newPosition.x()/relativeToSize[0];
+          placementData.offsets[1] += newPosition.y()/relativeToSize[1];
+          placement.setValue(placementData);
 
-      logInfo() << "\nDRAG TEXT- "
-                << "\nPAGE- "
-                << (useTop ? " \nSingle-Step Page" : " \nMulti-Step Page")
-                << "\nPAGE WHERE -                  "
-                << " \nPage TopOf (Model Name):     " << topOfSteps.modelName
-                << " \nPage TopOf (Line Number):    " << topOfSteps.lineNumber
-                << " \nPage BottomOf (Model Name):  " << bottomOfSteps.modelName
-                << " \nPage BottomOf (Line Number): " << bottomOfSteps.lineNumber
-                << "\nUSING PLACEMENT DATA -        "
-                << " \nPlacement:                   " << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
-                << " \nJustification:               " << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
-                << " \nPreposition:                 " << PrepNames[placement.value().preposition]   << " (" << placement.value().justification << ")"
-                << " \nRelativeTo:                  " << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
-                << " \nRectPlacement:               " << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
-                << " \nOffset[0]:                   " << placement.value().offsets[0]
-                << " \nOffset[1]:                   " << placement.value().offsets[1]
-                << "\nOTHER DATA -                  "
-                << " \nRelativeType:                " << RelNames[relativeType]       << " (" << relativeType << ")"
-                << " \nParentRelativeType:          " << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
-                ;
+          logInfo() << "\nDRAG TEXT- "
+                    << "\nPAGE- "
+                    << (useTop ? " \nSingle-Step Page" : " \nMulti-Step Page")
+                    << "\nPAGE WHERE -                  "
+                    << " \nPage TopOf (Model Name):     " << topOfSteps.modelName
+                    << " \nPage TopOf (Line Number):    " << topOfSteps.lineNumber
+                    << " \nPage BottomOf (Model Name):  " << bottomOfSteps.modelName
+                    << " \nPage BottomOf (Line Number): " << bottomOfSteps.lineNumber
+                    << "\nUSING PLACEMENT DATA -        "
+                    << " \nPlacement:                   " << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
+                    << " \nJustification:               " << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
+                    << " \nPreposition:                 " << PrepNames[placement.value().preposition]   << " (" << placement.value().justification << ")"
+                    << " \nRelativeTo:                  " << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
+                    << " \nRectPlacement:               " << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
+                    << " \nOffset[0]:                   " << placement.value().offsets[0]
+                    << " \nOffset[1]:                   " << placement.value().offsets[1]
+                    << "\nOTHER DATA -                  "
+                    << " \nRelativeType:                " << RelNames[relativeType]       << " (" << relativeType << ")"
+                    << " \nParentRelativeType:          " << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
+                       ;
 
-      changePlacementOffset(useTop ? topOfSteps : bottomOfSteps,
-                           &placement,
-                            relativeType);
+          changePlacementOffset( useTop ? topOfSteps : bottomOfSteps,
+                                &placement,
+                                 relativeType);
+        }
     }
-  }
-}
-
-void PageAttributeTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-  QGraphicsItem::mousePressEvent(event);
-  positionChanged = false;
-  position = pos();
-}
-
-void PageAttributeTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-  QGraphicsItem::mouseMoveEvent(event);
-  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
-    positionChanged = true;
-  }
 }
 
 void PageAttributeTextItem::focusInEvent(QFocusEvent *event)
@@ -363,13 +373,22 @@ void PageAttributeTextItem::focusOutEvent(QFocusEvent *event)
   QGraphicsTextItem::focusOutEvent(event);
 
   if (textValueChanged) {
-    QStringList list = toPlainText().split("\n");
-    content.setValue(list.join("\\n"));
+      Where topLevelFile = page->topOfSteps();
 
-    MetaItem mi;
-    Where topLevelFile = page->topOfSteps();
-    mi.setGlobalMeta(topLevelFile.modelName,&content);
+      QRegExp rx("\\n");
+      QStringList list = toPlainText().split(rx);
 
+      QStringList list2;
+      foreach (QString string, list){
+        string.replace("\"","\\\"");
+        list2 << string;
+        }
+
+      content.setValue(list2.join("\\n"));
+
+      beginMacro(QString("EditTextAttribute"));
+      setGlobalMeta(topLevelFile.modelName,&content);
+      endMacro();
   }
 }
 
@@ -378,6 +397,7 @@ void PageAttributeTextItem::keyPressEvent(QKeyEvent *event)
   textValueChanged = true;
   QGraphicsTextItem::keyPressEvent(event);
 }
+
 void PageAttributeTextItem::keyReleaseEvent(QKeyEvent *event)
 {
   textValueChanged = true;

@@ -402,7 +402,8 @@ void StringMeta::init(
 Rc StringMeta::parse(QStringList &argv, int index,Where &here)
 {
   if (argv.size() - index == 1) {
-      _value[pushed] = argv[index].replace("\\""","""");
+      //_value[pushed] = argv[index].replace("\\""","""");
+      _value[pushed] = argv[index];
       _here[pushed] = here;
       return rc;
     }
@@ -1705,7 +1706,8 @@ QString InsertMeta::format(bool local, bool global)
     }
 
   if (_value.offsets[0] || _value.offsets[1]) {
-      foo += QString(" OFFSET %1 %2") .arg(_value.offsets[0])
+      foo += QString(" OFFSET %1 %2")
+          .arg(_value.offsets[0])
           .arg(_value.offsets[1]);
     }
 

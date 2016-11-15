@@ -1408,7 +1408,6 @@ int Gui::addGraphicsPageItems(
                     } else if (step->pli.background) {
                       step->pli.background->setFlag(QGraphicsItem::ItemIsMovable,false);
                     }
-                  qDebug() << "Stop Here";
 
                   // foreach callout
 
