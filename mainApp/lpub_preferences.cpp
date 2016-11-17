@@ -470,8 +470,20 @@ void Preferences::lpub3dLibPreferences(bool force)
         box.setWindowTitle(QMessageBox::tr ("Library Selection"));
         box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-        QString header = "<b>" + QMessageBox::tr ("No LDraw library defined!") + "</b>";
-        QString body   = QMessageBox::tr ("Would you like to select, copy or download the libraries?");
+        bool archivesExist;
+        QString location = portableDistribution ? "/libraries/" : "/data/";
+        validFile.setFile(lpub3dPath + location + VER_LDRAW_OFFICIAL_ARCHIVE);
+        archivesExist = validFile.exists();
+
+        QString header = "<b>" + QMessageBox::tr ("No LDraw library archive defined!") + "</b>";
+        QString body;
+        if (! archivesExist)
+          body = QMessageBox::tr ("Note: The LDraw library archives are not provided and <u>must be downloaded</u> - or selected.\n"
+                                  "Would you like to download or select the library archives?");
+        else
+          body = QMessageBox::tr ("Note: The LDraw library archives are provided and <u>can be copied</u>.\n"
+                                  "Would you like to copy, download or select, the library archives?");
+
         QString detail = QMessageBox::tr ("You must select or create your LDraw library archive files.\n"
                                           "The location of your official archive file (complete.zip) should "
                                           "also have the unofficial archive file (lpub3dldrawunf.zip).\n"
@@ -479,8 +491,11 @@ void Preferences::lpub3dLibPreferences(bool force)
                                           .arg(lpubDataPath, "libraries");
         box.setText (header);
         box.setInformativeText (body);
-        box.setDetailedText(detail);                                                                                                                                  
-        QAbstractButton* copyButton = box.addButton(QMessageBox::tr("Copy"),QMessageBox::YesRole);
+        box.setDetailedText(detail);
+
+        QAbstractButton* copyButton;
+        if (archivesExist)
+          copyButton = box.addButton(QMessageBox::tr("Copy"),QMessageBox::YesRole);
         QAbstractButton* downloadButton = box.addButton(QMessageBox::tr("Download"),QMessageBox::YesRole);
         QAbstractButton* selectButton = box.addButton(QMessageBox::tr("Select"),QMessageBox::YesRole);
         box.setStandardButtons (QMessageBox::Cancel);
@@ -493,7 +508,7 @@ void Preferences::lpub3dLibPreferences(bool force)
             if (!QDir(libraryDir).exists())
                 libraryDir.mkpath(".");
 
-            QString location = QString("%1").arg((portableDistribution ? "/libraries/" : "/data/"));
+            //QString location = QString("%1").arg((portableDistribution ? "/libraries/" : "/data/"));
 
             validFile.setFile(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_OFFICIAL_ARCHIVE));
             if (!validFile.exists())
@@ -518,11 +533,14 @@ void Preferences::lpub3dLibPreferences(bool force)
                 lpub3dLibFile = dlgGetFileName.selectedFiles().at(0);
                 Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
             } else {
-                Settings.remove(QString("%1/%2").arg(SETTINGS, LPub3DLibKey));
-                body = QMessageBox::tr ("Selection cancelled.");
-                body.append("\nThe application will terminate.");
 
-                box.removeButton(copyButton);
+                Settings.remove(QString("%1/%2").arg(SETTINGS, LPub3DLibKey));
+                body = QMessageBox::tr ("<u>Selection cancelled</u>.\n"
+                                        "The application will terminate.");
+
+                if (archivesExist)
+                  box.removeButton(copyButton);
+
                 box.removeButton(selectButton);
                 box.removeButton(downloadButton);
                 box.setStandardButtons (QMessageBox::Close);

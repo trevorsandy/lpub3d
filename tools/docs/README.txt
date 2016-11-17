@@ -2,6 +2,8 @@ LPub3D 2.0.16.849.1
  
 Features and enhancements 
 ------------
+Fix: Prompt to download LDraw archive when archive not provided (r854)
+ * When a portable distribution of LPub3D (e.g. when distributed in AIOI) does not include the LDraw archive libraries, LPub3D will prompt the installation user to download or select the LDraw library archives if they are not detected. This update allows portable distributions of LPub3D to exclude the official and unofficial LDraw library archive files. Note that if a portable distribution includes only the official LDraw library archive (complete.zip), LPub3D will automatically build the library archive (lpub3dldrawunf.zip) file from the LDraw\unofficial directory; however, subdirectory parts and p will be ignored so the build unofficial library archive will NOT contain the default unofficial library parts. To update the unofficial library archive file under the scenario, select Tools/Refresh LDraw Unofficial Parts from the LPub3D menubar.
 Fix: Cover page attributes displayed outside of page (r853)
  * Page attributes placed outside of page when displaying individual attributes. Attributes on both front and back cover pages were experiencing this behaviour. The behaviour is now corrected. Refer to features and enhancements for LPub3D 2.0.11.816.2  to review additional details on manipulating page attributes.
 Fix: Refresh open model file when preference changes (r852)
