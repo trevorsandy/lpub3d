@@ -164,23 +164,23 @@ void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     calcOffsets(pld,insertData.offsets,topLeft,size);
 
-//    QRegExp rx("\\n");
-//    QStringList list = toPlainText().split(rx);
+    QRegExp rx("\\n");
+    QStringList list = toPlainText().split(rx);
 
-//    QStringList list2;
-//    foreach (QString string, list){
-//      string.replace("\"","\\\"");
-//      list2 << string;
-//      }
+    QStringList list2;
+    foreach (QString string, list){
+      string.replace("\"","\\\"");
+      list2 << string;
+      }
 
-//    insertData.text = list2.join("\\n");
-//    meta.setValue(insertData);
+    insertData.text = list2.join("\\n");
+    meta.setValue(insertData);
 
-//    beginMacro(QString("MoveText"));
+    beginMacro(QString("MoveText"));
 
-//    changeInsertOffset(&meta);
+    changeInsertOffset(&meta);
 
-//    endMacro();
+    endMacro();
   }
 }
 
