@@ -174,7 +174,7 @@ void Pli::setParts(
           // assemble image name key
           QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7")
               .arg(key)
-              .arg(gui->pageSize(meta.LPub, 0))
+              .arg(gui->pageSize(meta.LPub.page, 0))
               .arg(resolution())
               .arg(resolutionType() == DPI ? "DPI" : "DPCM")
               .arg(modelScale)

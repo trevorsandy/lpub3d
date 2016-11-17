@@ -190,7 +190,7 @@ int Step::createCsi(
   QString key = QString("%1_%2_%3_%4_%5_%6")
       .arg(csiName()+orient)
       .arg(sn)
-      .arg(gui->pageSize(meta.LPub, 0))
+      .arg(gui->pageSize(meta.LPub.page, 0))
       .arg(resolution())
       .arg(resolutionType() == DPI ? "DPI" : "DPCM")
       .arg(modelScale);
@@ -786,7 +786,7 @@ int  y)// accumulate sub-col margin widths here
         case Bottom:
           tsize = csiPlacement.size[XX];
           pli.sizePli(ConstrainData::PliConstrainWidth,tsize);
-          if (pli.size[YY] > gui->pageSize(gui->page.meta.LPub, YY)/3) {
+          if (pli.size[YY] > gui->pageSize(gui->page.meta.LPub.page, YY)/3) {
               pli.sizePli(ConstrainData::PliConstrainArea,tsize);
             }
           break;
@@ -794,7 +794,7 @@ int  y)// accumulate sub-col margin widths here
         case Right:
           tsize = csiPlacement.size[YY];
           pli.sizePli(ConstrainData::PliConstrainHeight,tsize);
-          if (pli.size[XX] > gui->pageSize(gui->page.meta.LPub, XX)/3) {
+          if (pli.size[XX] > gui->pageSize(gui->page.meta.LPub.page, XX)/3) {
               pli.sizePli(ConstrainData::PliConstrainArea,tsize);
             }
           break;

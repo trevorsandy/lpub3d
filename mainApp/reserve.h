@@ -50,24 +50,22 @@ class Reserve : public AbstractRangeElement {
       space = meta.reserve.value();
       relativeType = ReserveType;
       if (meta.multiStep.alloc.value() == Horizontal) {
-          setSize(int(gui->pageSize(meta, 0) * space + 0.5),0);
-//          setSize(int(pageSize(meta, 0) * space + 0.5),0);
+          setSize(int(gui->pageSize(meta.page, 0) * space + 0.5),0);
       } else {
-        setSize(0,int(gui->pageSize(meta, 1) * space + 0.5));
-//          setSize(0,int(pageSize(meta, 1) * space + 0.5));
+        setSize(0,int(gui->pageSize(meta.page, 1) * space + 0.5));
       }
     }
 
-//    int pageSize(LPubMeta &meta, int which){
+//    int pageSize(PageMeta &meta, int which){
 //      int _size;
 
 //      // flip orientation for landscape
-//      if (meta.page.orientation.value() == Landscape){
+//      if (meta.orientation.value() == Landscape){
 //          which = 0 ? _size = 1 : _size = 0;
 //        } else {
 //          _size = which;
 //        }
-//      return meta.page.size.valuePixels(_size);
+//      return meta.size.valuePixels(_size);
 //    }
 };
 

@@ -236,8 +236,8 @@ int Gui::addGraphicsPageItems(
       pW = view->maximumWidth();
       pH = view->maximumHeight();
     } else {
-      pW = pageSize(page->meta.LPub, 0);
-      pH = pageSize(page->meta.LPub, 1);
+      pW = pageSize(page->meta.LPub.page, 0);
+      pH = pageSize(page->meta.LPub.page, 1);
     }
 
 //  logDebug() << QString("  DRAW PAGE %3 SIZE PIXELS - WidthPx: %1 x HeightPx: %2 CurPage: %3")
@@ -1568,8 +1568,8 @@ int Gui::addGraphicsPageItems(
       if (page->meta.LPub.page.background.value().type != BackgroundData::BgTransparent)
         pageBg->setGraphicsEffect(bodyShadow);
 
-      view->horizontalScrollBar()->setRange(0,int(pageSize(page->meta.LPub, 0)));
-      view->verticalScrollBar()->setRange(  0,int(pageSize(page->meta.LPub, 1)));
+      view->horizontalScrollBar()->setRange(0,int(pageSize(page->meta.LPub.page, 0)));
+      view->verticalScrollBar()->setRange(  0,int(pageSize(page->meta.LPub.page, 1)));
 
     }
 

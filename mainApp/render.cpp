@@ -250,7 +250,7 @@ float stdCameraDistance(Meta &meta, float scale) {
 	onexone  = 20*meta.LPub.resolution.ldu(); // size of 1x1 in units
 	onexone *= meta.LPub.resolution.value();  // size of 1x1 in pixels
 	onexone *= scale;
-	factor   = gui->pageSize(meta.LPub, 0)/onexone; // in pixels;
+	factor   = gui->pageSize(meta.LPub.page, 0)/onexone; // in pixels;
 	
 	return factor*LduDistance;
 }
@@ -302,8 +302,8 @@ int L3P::renderCsi(const QString     &addLine,
 	bool hasLGEO = Preferences::lgeoPath != "";
 	
 	int cd = cameraDistance(meta, meta.LPub.assem.modelScale.value());
-	int width  = gui->pageSize(meta.LPub, 0);
-	int height = gui->pageSize(meta.LPub, 1);
+	int width  = gui->pageSize(meta.LPub.page, 0);
+	int height = gui->pageSize(meta.LPub.page, 1);
 	float ar = width/(float)height;
 	
 	QString cg = QString("-cg0.0,0.0,%1").arg(cd);
@@ -416,8 +416,8 @@ int L3P::renderPli(const QString &ldrName,
 	
 	QString povName = ldrName +".pov";
 	
-	int width  = gui->pageSize(meta.LPub, 0);
-	int height = gui->pageSize(meta.LPub, 1);
+	int width  = gui->pageSize(meta.LPub.page, 0);
+	int height = gui->pageSize(meta.LPub.page, 1);
 	float ar = width/(float)height;
 	
 	/* determine camera distance */
@@ -571,8 +571,8 @@ int LDGLite::renderCsi(
 
   int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value());
 
-  int width  = gui->pageSize(meta.LPub, 0);
-  int height = gui->pageSize(meta.LPub, 1);
+  int width  = gui->pageSize(meta.LPub.page, 0);
+  int height = gui->pageSize(meta.LPub.page, 1);
 
   QString v  = QString("-v%1,%2")   .arg(width)
                                     .arg(height);
@@ -648,8 +648,8 @@ int LDGLite::renderPli(
   Meta    &meta,
   bool     bom)
 {
-  int width  = gui->pageSize(meta.LPub, 0);
-  int height = gui->pageSize(meta.LPub, 1);
+  int width  = gui->pageSize(meta.LPub.page, 0);
+  int height = gui->pageSize(meta.LPub.page, 1);
 
   /* determine camera distance */
 
@@ -776,8 +776,8 @@ int LDView::renderCsi(
   QStringList arguments;
 
   int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
-  int width  = gui->pageSize(meta.LPub, 0);
-  int height = gui->pageSize(meta.LPub, 1);
+  int width  = gui->pageSize(meta.LPub.page, 0);
+  int height = gui->pageSize(meta.LPub.page, 1);
 
   QString w  = QString("-SaveWidth=%1") .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
@@ -838,8 +838,8 @@ int LDView::renderPli(
   Meta    &meta,
   bool     bom)
 {
-  int width  = gui->pageSize(meta.LPub, 0);
-  int height = gui->pageSize(meta.LPub, 1);
+  int width  = gui->pageSize(meta.LPub.page, 0);
+  int height = gui->pageSize(meta.LPub.page, 1);
 
   QFileInfo fileInfo(ldrName);
 
@@ -917,8 +917,8 @@ int Render::renderLDViewSCallCsi(
 
   //logInfo() << "LDView SC CSI Renderer Timeout:" << rendererTimeout();
 
-  int width  = gui->pageSize(meta.LPub, 0);
-  int height = gui->pageSize(meta.LPub, 1);
+  int width  = gui->pageSize(meta.LPub.page, 0);
+  int height = gui->pageSize(meta.LPub.page, 1);
 
   /* determine camera distance */
 
@@ -1005,8 +1005,8 @@ int Render::renderLDViewSCallPli(
 
   PliMeta &pliMeta = bom ? meta.LPub.bom : meta.LPub.pli;
 
-  int width  = gui->pageSize(meta.LPub, 0);
-  int height = gui->pageSize(meta.LPub, 1);
+  int width  = gui->pageSize(meta.LPub.page, 0);
+  int height = gui->pageSize(meta.LPub.page, 1);
 
   /* determine camera distance */
 

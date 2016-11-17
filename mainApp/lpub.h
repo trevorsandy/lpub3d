@@ -449,7 +449,7 @@ public:
   Where &topOfPage();
   Where &bottomOfPage();
 
-  static int pageSize(LPubMeta &, int which);  // flip orientation for landscape
+  static int pageSize(PageMeta  &, int which);  // flip orientation for landscape
 
   void    changePageNum(int offset)
   {

@@ -280,12 +280,15 @@ int Gui::drawPage(LGraphicsView  *view,
 
   // set page header/footer width
   float pW;
+  int which;
   if (callout){
-      pW = callout->meta.LPub.page.size.value(0);
+      which = callout->meta.LPub.page.orientation.value() == Landscape ? 1 : 0;
+      pW = callout->meta.LPub.page.size.value(which);
       callout->meta.LPub.page.pageHeader.size.setValue(0,pW);
       callout->meta.LPub.page.pageFooter.size.setValue(0,pW);
     } else {
-      pW = steps->meta.LPub.page.size.value(0);
+      which = steps->meta.LPub.page.orientation.value() == Landscape ? 1 : 0;
+      pW = steps->meta.LPub.page.size.value(which);
       steps->meta.LPub.page.pageHeader.size.setValue(0,pW);
       steps->meta.LPub.page.pageFooter.size.setValue(0,pW);
     }

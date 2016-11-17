@@ -254,8 +254,8 @@ void CalloutBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
       }
       PlacementData placementData = placement.value();
 
-      float w = delta.x()/gui->pageSize(callout->meta.LPub, 0);
-      float h = delta.y()/gui->pageSize(callout->meta.LPub, 1);
+      float w = delta.x()/gui->pageSize(callout->meta.LPub.page, 0);
+      float h = delta.y()/gui->pageSize(callout->meta.LPub.page, 1);
 
       if (placementData.relativeTo == CsiType) {
         w = delta.x()/csiRect.width();
