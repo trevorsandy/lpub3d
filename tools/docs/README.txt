@@ -1,7 +1,9 @@
 LPub3D 2.0.16.849.1 
  
 Features and enhancements 
------------- 
+------------
+Fix: Cover page attributes displayed outside of page (r853)
+ * Page attributes placed outside of page when displaying individual attributes. Attributes on both front and back cover pages were experiencing this behaviour. The behaviour is now corrected. Refer to features and enhancements for LPub3D 2.0.11.816.2  to review additional details on manipulating page attributes.
 Fix: Refresh open model file when preference changes (r852)
  * Refresh open model file when "display all page attributes" and "generate cover pages" preference settings have changed.
 Fix: Unable to create a new line in text items - e.g. Model Description (r851)
@@ -233,21 +235,23 @@ Fix: Submodel instance count reflects all the occurrences in the subfile on init
 Fix: Pdf preview progress bar (r803) 
  * Add progress bar to pdf preview dialogue. For large instruction documents it could be good to monitor the progress of the export process. 
 Fix: Front and back cover page attribute placement (r802) 
- * By default cover page attributes are placed relative to each other (with one anchor placed relative to the page) on the front and back cover pages. Independent page attributes are by default placed relative to the page. The new behaviour will break the dependency (placing the dependent attribute relative to the page) if the attribute depended upon is not respecting it's default placement relation (i.e. its relation has changed to page). I imagine this is more complex that it probably should be but the aim was to automatically place the attributes on model load so young/novice users would not have to fuss with even more complex configuration. 
- The quirk remaining is when you change placement relative on an attribute depended upon by another, the dependent attributes will obviously follow the position of the newly placed attribute. This may confuse users as it can be perceived as a bug. There are two ways around this when repositioning cover page attributes. One is to not change placement relation but use the drag functionality and; two, from thee bottom-up, set dependent attributes placement relation to page. 
- All attributes are optionally viewable. If a depended upon attribute is not visible, its dependant attribute is automatically placed relative to the page. 
- Here is the the placement relation table - any attribute not placed relative to the page is dependent: 
+ * By default cover page attributes are placed relative to each other (with one anchor placed relative to the page) on the front and back cover pages. Independent page attributes are by default placed relative to the page. The new behaviour will break the dependency (placing the dependent attribute relative to the page) if the attribute depended upon is not respecting its default relative to placement (e.g. ModelName relationTo has changed from Title to Page). I imagine this is more complex that it probably should be but the aim was to automatically place the attributes on model load so young/novice users would not have to fuss with even more complex configuration. 
+ The quirk remaining is when you change placement relative on an attribute depended upon by another, the dependent attributes will obviously follow the position of the newly placed attribute. This may confuse users as it can be perceived as a bug. There are two ways around this when repositioning cover page attributes. The first way is to not change relative to placement, instead use the drag functionality to reposition the attribute and; the second way is starting from the bottom and working upward, set the dependent attribute(s) placement relative to the page using the Move "attribute name" context menu. 
+ All attributes are optionally displayed. If a depended upon attribute display is false, its dependant attribute is automatically placed relative to the page. 
+ Here is the the placement relativeTo table - any attribute not placed relative to the page is dependent: 
  
    * Front Cover Default Attribute Placements 
   ************************************* 
-  *   Logo                            *  (Top Left of Page) [Independent] 
+  *               Logo                *  (Bottom of Header) [Independent] 
   *                                   * 
-  *   ModelName                       *  (Top of Title) [Dependent] 
-  *   Title                           *  (Left Centre of Page) [Anchor] 
+  *   ModelName                       *  (Top Left of Title) [Dependent] 
+  *   Title                           *  (Left of Page) [Anchor] 
   *   Author                          *  (Bottom of Title) [Dependent] 
   *   Pieces                          *  (Bottom of Author) [Dependent] 
   *   Model Description               *  (Bottom of Pieces) [Dependent] 
   *   Publisher Description           *  (Bottom of Model Description) [Dependent] 
+  * 								  *
+  *            Cover Image            *  (Centre of page) [Independent]  
   *                                   * 
   ************************************* 
  
@@ -260,7 +264,7 @@ Fix: Front and back cover page attribute placement (r802)
   * *                                 * 
   * *                                 * 
   * *********************************** 
-  * Copyright (Bottom Left of Page)   Author (Bottom Right of Page) 
+  * Copyright (Bottom Left of Page)   Author (Left Bottom of PageNumber) 
   * *********************************** 
  
   * Back Cover Default Attribute Placements 

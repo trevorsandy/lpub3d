@@ -2337,14 +2337,16 @@ PageMeta::PageMeta() : BranchMeta()
    *
    * Front Cover Default Attribute Placements
    *************************************
-   *   Logo                            *  (Top Left of Page) [Independent]
+   *   Logo                            *  (Bottom of Header) [Independent]
    *                                   *
-   *   ModelName                       *  (Top of Title) [Dependent]
-   *   Title                           *  (Left Center of Page) [Anchor]
-   *   Author                          *  (Bottom of Title) [Dependent]
-   *   Pieces                          *  (Bottom of Author) [Dependent]
-   *   Model Description               *  (Bottom of Pieces) [Dependent]
-   *   Publsiher Description           *  (Bottom of Model Description) [Dependent]
+   *   ModelName                       *  (Top Left of Title) [Dependent]
+   *   Title                           *  (Left of Page) [Anchor]
+   *   Author                          *  (Bottom Left of Title) [Dependent]
+   *   Pieces                          *  (Bottom Left of Author) [Dependent]
+   *   Model Description               *  (Bottom Left of Pieces) [Dependent]
+   *   Publsiher Description           *  (Bottom Left of Model Description) [Dependent]
+   *
+   *   Cover Image                     *  (Center of page) [Independent]
    *                                   *
    *************************************
 
@@ -2358,29 +2360,29 @@ PageMeta::PageMeta() : BranchMeta()
    * *                                 *
    * *                                 *
    * ***********************************
-   * Copyright (Bottom Left of Page)   Author (Bottom Right of Page)
+   * Copyright (Bottom Left of Page)   Author (Left Bottom of PageNumber)
    * ***********************************
 
 
    * Back Cover Default Attribute Placements
    * **********************************
-   *               Logo               *  (Top of Page) [Independent]
+   *  Logo                            *  (Bottom of Header) [Independent]
+   *                                  *
    *  Title                           *  (Center of Page) [Anchor]
    *  Author                          *  (Bottom of Title) [Dependent]
    *  Copyright                       *  (Bottom of Author) [Dependent]
    *  URL                             *  (Bottom of Copyright) [Dependent]
    *  Email                           *  (Bottom of URL) [Dependent]
    *  LEGO Disclaimer                 *  (Bottom of Email) [Dependent]
-   *  LPub3D Plug                     *  (Bottom of LEGO Disclaimer)
-   *  LPub3D Plug Image               *  (Bottom of Page) [Independent]
+   *  LPub3D Plug                     *  (Bottom of LEGO Disclaimer) [Dependent]
+   *  LPub3D Plug Image               *  (Bottom of Plug) [Dependent]
    *                                  *
    ************************************
-
 
    * Page Attribute relative Tos
    *
    *  FRONT COVER PAGE
-   *  documentLogoFront.placement  (BottomLeftOutside,  PageHeaderType)
+   *  documentLogoFront.placement  (BottomOutside,      PageHeaderType)
    *  modelName.placement          (TopLeftOutside,	PageTitleType)
    *  titleFront.placement         (LeftInside,         PageType)
    *  authorFront.placement        (BottomLeftOutside,	PageTitleType)
@@ -2400,28 +2402,23 @@ PageMeta::PageMeta() : BranchMeta()
    *  plugImage.placement          (BottomOutside,	PagePlugType)
    *
    *  HEADER
-   *  url.placement                (TopLeftInsideCorner,	PageType)
-   *  email.placement		   (TopRightInsideCorner,	PageType)
+   *  url.placement                (TopLeftInsideCorner,	 PageType)
+   *  email.placement		   (TopRightInsideCorner,	 PageType)
    *
    *  FOOTER
    *  copyright.placement	   (BottomLeftInsideCorner,      PageType)
    *  author.placement		   (LeftBottomOutside,     PageNumberType)
    *
    *  NOT PLACED
-   *  category                     (TopLeftInsideCorner,       PageType)
+   *  category                     (TopLeftInsideCorner,         PageType)
    */
 
-  //model titleFront text
-  titleFront.placement.setValue(LeftInside,PageType);
-  titleFront.type = PageTitleType;
-  titleFront.textFont.setValuePoints("Arial,32,-1,255,75,0,0,0,0,0");
-  titleFront.setValue(LDrawFile::_file);
+  // FRONT COVER PAGE
 
-  //model titleBack text
-  titleBack.placement.setValue(CenterCenter,PageType);
-  titleBack.type = PageTitleType;
-  titleBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  titleBack.setValue(LDrawFile::_file);
+  //publisher documentLogoFront IMAGE
+  documentLogoFront.placement.setValue(BottomOutside,PageHeaderType);
+  documentLogoFront.type = PageDocumentLogoType;
+  documentLogoFront.file.setValue(Preferences::documentLogoFile);
 
   //model id/name text
   modelName.placement.setValue(TopLeftOutside,PageTitleType);
@@ -2429,23 +2426,17 @@ PageMeta::PageMeta() : BranchMeta()
   modelName.textFont.setValuePoints("Arial,20,-1,255,75,0,0,0,0,0");
   modelName.setValue(LDrawFile::_name);
 
+  //model titleFront text
+  titleFront.placement.setValue(LeftInside,PageType);
+  titleFront.type = PageTitleType;
+  titleFront.textFont.setValuePoints("Arial,32,-1,255,75,0,0,0,0,0");
+  titleFront.setValue(LDrawFile::_file);
+
   //publisher authorFront text
   authorFront.placement.setValue(BottomLeftOutside,PageTitleType);
   authorFront.type = PageAuthorType;
   authorFront.textFont.setValuePoints("Arial,20,-1,255,75,0,0,0,0,0");
   authorFront.setValue(QString("Model instructions by %1").arg(Preferences::defaultAuthor));
-
-  //publisher authorBack text
-  authorBack.placement.setValue(BottomOutside,PageTitleType);
-  authorBack.type = PageAuthorType;
-  authorBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  authorBack.setValue(QString("Model instructions by %1").arg(Preferences::defaultAuthor));
-
-  //publisher author text
-  author.placement.setValue(LeftBottomOutside,PageNumberType);
-  author.type = PageAuthorType;
-  author.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  author.setValue(Preferences::defaultAuthor);
 
   //model number of pieces text
   pieces.placement.setValue(BottomLeftOutside,PageAuthorType);
@@ -2465,17 +2456,17 @@ PageMeta::PageMeta() : BranchMeta()
   publishDesc.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   publishDesc.setValue(Preferences::publishDescription);
 
+  //publisher cover IMAGE
+  coverImage.placement.setValue(CenterCenter,PageType);
+  coverImage.type = PageCoverImageType;
+
+  // CONTENT (HEADER/FOOTER) PAGES
+
   //publisher url text
   url.placement.setValue(TopLeftInsideCorner,PageType);
   url.type = PageURLType;
   url.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   url.setValue(Preferences::defaultURL);
-
-  //publisher urlBack text
-  urlBack.placement.setValue(BottomOutside,PageCopyrightType);
-  urlBack.type = PageURLType;
-  urlBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  urlBack.setValue(Preferences::defaultURL);
 
   //publisher email text
   email.placement.setValue(TopRightInsideCorner,PageType);
@@ -2483,17 +2474,37 @@ PageMeta::PageMeta() : BranchMeta()
   email.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   email.setValue(Preferences::defaultEmail);
 
-  //publisher emailBack text
-  emailBack.placement.setValue(BottomOutside,PageURLType);
-  emailBack.type = PageEmailType;
-  emailBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  emailBack.setValue(Preferences::defaultEmail);
-
   //publisher copyright text
   copyright.placement.setValue(BottomLeftInsideCorner,PageType);
   copyright.type = PageCopyrightType;
   copyright.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   copyright.setValue(Preferences::copyright + " by " + Preferences::defaultAuthor);
+
+  //publisher author text
+  author.placement.setValue(LeftBottomOutside,PageNumberType);
+  author.type = PageAuthorType;
+  author.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  author.setValue(Preferences::defaultAuthor);
+
+  // BACK COVER PAGE
+
+  //publisher documentLogoBack IMAGE
+  documentLogoBack.placement.setValue(BottomOutside,PageHeaderType);
+  documentLogoBack.picScale.setValue(0.5);
+  documentLogoBack.type = PageDocumentLogoType;
+  documentLogoBack.file.setValue(Preferences::documentLogoFile);
+
+  //model titleBack text
+  titleBack.placement.setValue(CenterCenter,PageType);
+  titleBack.type = PageTitleType;
+  titleBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  titleBack.setValue(LDrawFile::_file);
+
+  //publisher authorBack text
+  authorBack.placement.setValue(BottomOutside,PageTitleType);
+  authorBack.type = PageAuthorType;
+  authorBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  authorBack.setValue(QString("Model instructions by %1").arg(Preferences::defaultAuthor));
 
   //publisher copyrightBack text
   copyrightBack.placement.setValue(BottomOutside,PageAuthorType);
@@ -2501,11 +2512,17 @@ PageMeta::PageMeta() : BranchMeta()
   copyrightBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   copyrightBack.setValue(Preferences::copyright);
 
-  //plug text
-  plug.placement.setValue(BottomOutside,PageDisclaimerType);
-  plug.type = PagePlugType;
-  plug.textFont.setValuePoints("Arial,16,-1,255,75,0,0,0,0,0");
-  plug.setValue(Preferences::plug);
+  //publisher urlBack text
+  urlBack.placement.setValue(BottomOutside,PageCopyrightType);
+  urlBack.type = PageURLType;
+  urlBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  urlBack.setValue(Preferences::defaultURL);
+
+  //publisher emailBack text
+  emailBack.placement.setValue(BottomOutside,PageURLType);
+  emailBack.type = PageEmailType;
+  emailBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
+  emailBack.setValue(Preferences::defaultEmail);
 
   //disclaimer text
   disclaimer.placement.setValue(BottomOutside,PageEmailType);
@@ -2513,20 +2530,11 @@ PageMeta::PageMeta() : BranchMeta()
   disclaimer.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   disclaimer.setValue(Preferences::disclaimer);
 
-  //publisher cover IMAGE
-  coverImage.placement.setValue(CenterCenter,PageType);
-  coverImage.type = PageCoverImageType;
-
-  //publisher documentLogoFront IMAGE
-  documentLogoFront.placement.setValue(BottomLeftOutside,PageHeaderType);
-  documentLogoFront.type = PageDocumentLogoType;
-  documentLogoFront.file.setValue(Preferences::documentLogoFile);
-
-  //publisher documentLogoBack IMAGE
-  documentLogoBack.placement.setValue(BottomOutside,PageHeaderType);
-  documentLogoBack.picScale.setValue(0.5);
-  documentLogoBack.type = PageDocumentLogoType;
-  documentLogoBack.file.setValue(Preferences::documentLogoFile);
+  //plug text
+  plug.placement.setValue(BottomOutside,PageDisclaimerType);
+  plug.type = PagePlugType;
+  plug.textFont.setValuePoints("Arial,16,-1,255,75,0,0,0,0,0");
+  plug.setValue(Preferences::plug);
 
   //plug IMAGE
   plugImage.placement.setValue(BottomOutside,PagePlugType);

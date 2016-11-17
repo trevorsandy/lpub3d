@@ -121,10 +121,9 @@ Step::Step(
       pli.placement           = _meta.LPub.pli.placement;
       rotateIcon.placement    = _meta.LPub.rotateIcon.placement;
       rotateIcon.margin       = _meta.LPub.rotateIcon.margin;
+      stepNumber.placement    = _meta.LPub.stepNumber.placement;
       stepNumber.font         = _meta.LPub.stepNumber.font.valueFoo();
       stepNumber.color        = _meta.LPub.stepNumber.color.value();
-      stepNumber.margin       = _meta.LPub.stepNumber.margin;
-      stepNumber.placement    = _meta.LPub.stepNumber.placement;
       stepNumber.margin       = _meta.LPub.stepNumber.margin;
       pliPerStep              = false;
     }

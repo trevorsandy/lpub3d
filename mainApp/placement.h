@@ -291,16 +291,32 @@ class PlacementNum : public Placement {
 class PlacementHeader : public Placement,
                         public QGraphicsPixmapItem {
 public:
-    PlacementHeader()
+    PlacementHeader(){}
+    PlacementHeader(
+        PageHeaderMeta &_pageHeaderMeta,
+        QGraphicsItem  *_parent)
     {
+      relativeType = PageHeaderType;
+      placement    = _pageHeaderMeta.placement;
+      size[XX]     = _pageHeaderMeta.size.valuePixels(0);
+      size[YY]     = _pageHeaderMeta.size.valuePixels(1);
+      setParentItem(_parent);
     }
 };
 
 class PlacementFooter : public Placement ,
                         public QGraphicsPixmapItem {
 public:
-    PlacementFooter()
+    PlacementFooter(){}
+    PlacementFooter(
+        PageFooterMeta &_pageFooterMeta,
+        QGraphicsItem  *_parent)
     {
+      relativeType = PageFooterType;
+      placement    = _pageFooterMeta.placement;
+      size[XX]     = _pageFooterMeta.size.valuePixels(0);
+      size[YY]     = _pageFooterMeta.size.valuePixels(1);
+      setParentItem(_parent);
     }
 };
 
