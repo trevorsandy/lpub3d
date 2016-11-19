@@ -360,6 +360,7 @@
 #include "FadeStepColorParts.h"
 #include "plisubstituteparts.h"
 #include "dialogexportpages.h"
+#include "numberitem.h"
 
 //** 3D
 #include "lc_math.h"
@@ -848,6 +849,15 @@ private:
     LGraphicsView  *view,
     QGraphicsScene *scene,
     bool            printing);
+
+  int addPageAttributes(
+    Page                *page,
+    PageBackgroundItem  *pageBg,
+    PlacementHeader     *pageHeader,
+    PlacementFooter     *pageFooter,
+    PageNumberItem      *pageNumber,
+    Placement           &plPage
+      );
 
   int getBOMParts(
     Where        current,

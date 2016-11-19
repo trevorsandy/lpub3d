@@ -84,7 +84,7 @@ const int PlacementDialog::relativeToOks[NumRelatives] =
   /*  5 Callout 		Callout	*/Page | Csi | Pli      | Sn           | ph | pf,
   /*  6 PageNum 		Pn      */Page | Csi | Pli | Pn | Sn | Callout | ph | pf,
 
-  /*  7 title           tt		*/Page ,
+  /*  7 title           tt		*/Page,
   /*  8 modelName       mnt		*/Page                                                                          |tt,
   /*  9 author          at		*/Page             | Pn                | ph | pf | tt |      ct | et | urlt,
   /* 10 url 			urlt	*/Page             | Pn                | ph | pf      | at | ct | et,
@@ -96,13 +96,13 @@ const int PlacementDialog::relativeToOks[NumRelatives] =
   /* 16 pieces          pt		*/Page                                                | at,
   /* 17 plug            plt		*/Page                                                                          | dt,
   /* 18 category        cat		*/Page,
-  /* 19 documentLogo	dlt     */Page                                 | ph | pf,
+  /* 19 documentLogo	dlt             */Page                                 | ph | pf,
   /* 20 coverImage  	cit		*/Page,
-  /* 21 plugImage       pit		*/Page                                                                          | plt,
+  /* 21 plugImage       pit		*/Page                                      | pf                                | plt,
   /* 22 pageHeader      ph		*/Page,
   /* 23 pageFooter      pf		*/Page,
-  /* 24 SingleStep              */Page | Csi,
-  /* 25 SubmodelIns             */Page | Csi | Pli | Pn | Sn
+  /* 24 SingleStep                      */Page | Csi,
+  /* 25 SubmodelIns                     */Page | Csi | Pli | Pn | Sn
 };
 //front cover options             Page     | ph | pf | tt | at                  | mnt | pt | mdt | pdt | dlt,
 //back  cover options             Page     | ph | pf | tt | at | ct | et | urlt |                      | dlt | dt | plt | pit,
