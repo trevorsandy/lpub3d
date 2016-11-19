@@ -75,19 +75,19 @@ QString labels[5][5] =
 };
 
 const int PlacementDialog::relativeToOks[NumRelatives] =
-{ //                    	      Page | Csi | Pli | Pn | Sn | Callout | ph | pf | Ms
-  /*  0 Page 		  	page 	*/0,
+{ //                    	          Page | Csi | Pli | Pn | Sn | Callout | ph | pf | Ms
+  /*  0 Page 		page         	*/0,
   /*  1 Csi (assem) 	Csi		*/Page,
   /*  2 MultiStep       Ms 		*/Page       | Pli,
-  /*  3 StepNum 		Sn      */Page | Csi | Pli                     | ph | pf,
-  /*  4 Pli 			Pli     */Page | Csi            | Sn,
-  /*  5 Callout 		Callout	*/Page | Csi | Pli      | Sn           | ph | pf,
-  /*  6 PageNum 		Pn      */Page | Csi | Pli | Pn | Sn | Callout | ph | pf,
+  /*  3 StepNum 	Sn              */Page | Csi | Pli                     | ph | pf,
+  /*  4 Pli 		Pli             */Page | Csi            | Sn,
+  /*  5 Callout 	Callout         */Page | Csi | Pli      | Sn           | ph | pf,
+  /*  6 PageNum 	Pn              */Page | Csi | Pli | Pn | Sn | Callout | ph | pf,
 
   /*  7 title           tt		*/Page,
   /*  8 modelName       mnt		*/Page                                                                          |tt,
   /*  9 author          at		*/Page             | Pn                | ph | pf | tt |      ct | et | urlt,
-  /* 10 url 			urlt	*/Page             | Pn                | ph | pf      | at | ct | et,
+  /* 10 url 		urlt            */Page             | Pn                | ph | pf      | at | ct | et,
   /* 11 modelDesc       mdt		*/Page                                                                          | pt,
   /* 12 publishDesc 	pdt		*/Page                                                                          | mdt,
   /* 13 copyright       ct		*/Page             | Pn                | ph | pf      | at |      et | urlt,
@@ -95,50 +95,50 @@ const int PlacementDialog::relativeToOks[NumRelatives] =
   /* 15 disclaimer  	dt		*/Page                                                          | et,
   /* 16 pieces          pt		*/Page                                                | at,
   /* 17 plug            plt		*/Page                                                                          | dt,
-  /* 18 category        cat		*/Page,
+  /* 18 SubmodelIns     sic             */Page | Csi | Pli | Pn | Sn,
   /* 19 documentLogo	dlt             */Page                                 | ph | pf,
   /* 20 coverImage  	cit		*/Page,
   /* 21 plugImage       pit		*/Page                                      | pf                                | plt,
   /* 22 pageHeader      ph		*/Page,
   /* 23 pageFooter      pf		*/Page,
   /* 24 SingleStep                      */Page | Csi,
-  /* 25 SubmodelIns                     */Page | Csi | Pli | Pn | Sn
+  /* 25 category        cat		*/Page
 };
-//front cover options             Page     | ph | pf | tt | at                  | mnt | pt | mdt | pdt | dlt,
-//back  cover options             Page     | ph | pf | tt | at | ct | et | urlt |                      | dlt | dt | plt | pit,
+//front cover options   Page     | ph | pf | tt | at                  | mnt | pt | mdt | pdt | dlt,
+//back  cover options   Page     | ph | pf | tt | at | ct | et | urlt |                      | dlt | dt | plt | pit,
 
 const int PlacementDialog::prepositionOks[NumRelatives] = // indexed by them
 {
-    /*  0 Page */        InsideOk,
-    /*  1 Csi */         InsideOk|OutsideOk,
-    /*  2 MultiStep */   OutsideOk,
-    /*  3 StepNum */     OutsideOk,
-    /*  4 Pli */         OutsideOk,
-    /*  5 Callout */     OutsideOk,
-    /*  6 PageNum */     OutsideOk,
+    /*  0 Page */                    InsideOk,
+    /*  1 Csi */                     InsideOk|OutsideOk,
+    /*  2 MultiStep */               OutsideOk,
+    /*  3 StepNum */                 OutsideOk,
+    /*  4 Pli */                     OutsideOk,
+    /*  5 Callout */                 OutsideOk,
+    /*  6 PageNum */                 OutsideOk,
 
-    /*  7 title */       OutsideOk,
-    /*  8 modelName */   OutsideOk,
-    /*  9 author */      OutsideOk,
-    /* 10 url */         OutsideOk,
-    /* 11 modelDesc */   OutsideOk,
-    /* 12 publishDesc */ OutsideOk,
-    /* 13 copyright */   OutsideOk,
-    /* 14 email */       OutsideOk,
-    /* 15 disclaimer */  OutsideOk,
-    /* 16 pieces */      OutsideOk,
-    /* 17 plug */        OutsideOk,
-    /* 18 category */    OutsideOk,
-    /* 19 documentLogo */OutsideOk,
-    /* 20 coverImage */  OutsideOk,
-    /* 21 plugImage */   OutsideOk,
-    /* 22 pageHeader */  InsideOk|OutsideOk,
-    /* 23 pageFooter */  InsideOk|OutsideOk
+    /*  7 title */                   OutsideOk,
+    /*  8 modelName */               OutsideOk,
+    /*  9 author */                  OutsideOk,
+    /* 10 url */                     OutsideOk,
+    /* 11 modelDesc */               OutsideOk,
+    /* 12 publishDesc */             OutsideOk,
+    /* 13 copyright */               OutsideOk,
+    /* 14 email */                   OutsideOk,
+    /* 15 disclaimer */              OutsideOk,
+    /* 16 pieces */                  OutsideOk,
+    /* 17 plug */                    OutsideOk,
+    /* 18 Submodel Instance Count */ OutsideOk,
+    /* 19 documentLogo */            OutsideOk,
+    /* 20 coverImage */              OutsideOk,
+    /* 21 plugImage */               OutsideOk,
+    /* 22 pageHeader */              InsideOk|OutsideOk,
+    /* 23 pageFooter */              InsideOk|OutsideOk
 };
 
 const QString relativeNames[NumRelatives] =
 {
-  "Page",        				// 0 page
+  "Page",        		// 0 page
   "Assem",                      // 1 Csi
   "Step Group",                 // 2 Ms
   "Step Number",                // 3 Sn
@@ -157,7 +157,7 @@ const QString relativeNames[NumRelatives] =
   "Disclaimer",                 //15 dt
   "Pieces",                     //16 pt
   "Plug",                       //17 plt
-  "Category",                   //18 cat
+  "Submodel Instance Count",    //18 sic
   "Logo",                       //19 dlt
   "Cover Image",                //20 cit
   "Plug Image",                 //21 pit
@@ -165,15 +165,15 @@ const QString relativeNames[NumRelatives] =
   "Page Footer",                //23 pf
 
   "Single Step",                //24
-  "Submodel Instance Count",    //25
+  "Category",                   //25 cat
 
-  "Step",                       //27
-  "Range",                      //28
-  "Reserve",                    //29
-  "BOM",                        //24
+  "Step",                       //26
+  "Range",                      //27
+  "Reserve",                    //28
+  "BOM",                        //29
   "Cover Page",                 //30
   "Rotate Icon"                 //31
-};                              //33 NumRelatives
+};                              //32 NumRelatives
 
 QString PlacementDialog::relativeToName(
   int relativeTo)

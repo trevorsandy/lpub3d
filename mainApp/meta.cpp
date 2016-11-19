@@ -565,7 +565,7 @@ QString relativeNames[] =
   "PAGE","ASSEM","MULTI_STEP","STEP_NUMBER","PLI","CALLOUT","PAGE_NUMBER",
   "DOCUMENT_TITLE","MODEL_ID","DOCUMENT_AUTHOR","PUBLISH_URL","MODEL_DESCRIPTION",
   "PUBLISH_DESCRIPTION","PUBLISH_COPYRIGHT","PUBLISH_EMAIL","LEGO_DISCLAIMER",
-  "MODEL_PIECES","APP_PLUG","MODEL_CATEGORY","DOCUMENT_LOGO","DOCUMENT_COVER_IMAGE",
+  "MODEL_PIECES","APP_PLUG","SUBMODEL_INST_COUNT","DOCUMENT_LOGO","DOCUMENT_COVER_IMAGE",
   "APP_PLUG_IMAGE","PAGE_HEADER","PAGE_FOOTER","ROTATE_ICON"
 };
 
@@ -3117,12 +3117,13 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       tokenMap["LEGO_DISCLAIMER"]    	= PageDisclaimerType;
       tokenMap["MODEL_PIECES"]    	= PagePiecesType;
       tokenMap["APP_PLUG"]    		= PagePlugType;
-      tokenMap["MODEL_CATEGORY"]    	= PageCategoryType;
+      tokenMap["SUBMODEL_INST_COUNT"]   = SubmodelInstanceCountType;
       tokenMap["DOCUMENT_LOGO"]    	= PageDocumentLogoType;
       tokenMap["DOCUMENT_COVER_IMAGE"]  = PageCoverImageType;
       tokenMap["APP_PLUG_IMAGE"]    	= PagePlugImageType;
       tokenMap["PAGE_HEADER"]    	= PageHeaderType;
       tokenMap["PAGE_FOOTER"]    	= PageFooterType;
+      tokenMap["MODEL_CATEGORY"]    	= PageCategoryType;
 
       tokenMap["AREA"]         = ConstrainData::PliConstrainArea;
       tokenMap["SQUARE"]       = ConstrainData::PliConstrainSquare;

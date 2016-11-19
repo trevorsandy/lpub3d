@@ -131,22 +131,22 @@ enum PlacementType {          //  placement dialog codes:
   PageDisclaimerType,         //15 dt
   PagePiecesType,             //16 pt
   PagePlugType,               //17 plt
-  PageCategoryType,           //18 cat
+  SubmodelInstanceCountType,  //18 sic
   PageDocumentLogoType,       //19 dlt
   PageCoverImageType,         //20 cit
   PagePlugImageType,          //21 pit
   PageHeaderType,             //22 ph
   PageFooterType,             //23 pf
-  RotateIconType,             //24
 
-  SingleStepType,             //25
-  SubmodelInstanceCountType,  //26
+  SingleStepType,             //24
+  PageCategoryType,           //25 cat
 
-  StepType,                   //27
-  RangeType,                  //28
-  ReserveType,                //29
-  BomType,                    //31
-  CoverPageType,              //31
+  StepType,                   //26
+  RangeType,                  //27
+  ReserveType,                //28
+  BomType,                    //29
+  CoverPageType,              //30
+  RotateIconType,             //31
   NumRelatives                //32
 };
 
@@ -477,22 +477,22 @@ const QString RelNames[NumRelatives] =
    "PageDisclaimerType",	 //15 dt
    "PagePiecesType",		 //16 pt
    "PagePlugType",		 //17 plt
-   "PageCategoryType",		 //18 cat
+   "SubmodelInstanceCountType",  //18 sic
    "PageDocumentLogoType",	 //19 dlt
    "PageCoverImageType",	 //20 cit
    "PagePlugImageType",		 //21 pit
    "PageHeaderType",             //22 ph
    "PageFooterType",             //23 pf
-   "RotateIconType",             //24
 
-   "SingleStepType",             //25
-   "SubmodelInstanceCountType",  //26
+   "SingleStepType",             //24
+   "PageCategoryType",		 //25 cat
 
-   "StepType",                   //27
-   "RangeType",                  //28
-   "ReserveType",                //29
-   "BomType",                    //30
-   "CoverPageType"               //31
+   "StepType",                   //26
+   "RangeType",                  //27
+   "ReserveType",                //28
+   "BomType",                    //29
+   "CoverPageType"               //30
+   "RotateIconType",             //31
 
 }; //NumRelatives"               //32
 
