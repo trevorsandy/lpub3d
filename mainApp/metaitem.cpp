@@ -1972,35 +1972,45 @@ void MetaItem::insertText()
 {
   bool ok;
   QString text = QInputDialog::getText(NULL, QInputDialog::tr("Text"),
-                                             QInputDialog::tr("Input:"),
-                                             QLineEdit::Normal,
-                                             QString(""), &ok);
+                                       QInputDialog::tr("Input:"),
+                                       QLineEdit::Normal,
+                                       QString(""), &ok);
   if (ok && !text.isEmpty()) {
-    QString meta = QString("0 !LPUB INSERT TEXT \"%1\" \"%2\" \"%3\"") .arg(text) .arg("Arial,36,-1,255,75,0,0,0,0,0") .arg("Black");
-    Where topOfStep;
 
-    bool multiStep = false;
+      QRegExp rx("\\n");
+      QStringList list = text.split(rx);
 
-    Steps *steps = dynamic_cast<Steps *>(&gui->page);
-    if (steps && steps->list.size() > 0) {
-      if (steps->list.size() > 1) {
-        multiStep = true;
-      } else {
-        Range *range = dynamic_cast<Range *>(steps->list[0]);
-        if (range && range->list.size() > 1) {
-          multiStep = true;
+      QStringList list2;
+      foreach (QString string, list){
+          string.replace("\"","\\\"");
+          list2 << string;
         }
-      }
-    }
 
-    if (multiStep) {
-      topOfStep = steps->bottomOfSteps();
-    } else {
-      topOfStep = gui->topOfPages[gui->displayPageNum-1];
-      scanPastGlobal(topOfStep);
+      QString meta = QString("0 !LPUB INSERT TEXT \"%1\" \"%2\" \"%3\"") .arg(list2.join("\\n")) .arg("Arial,36,-1,255,75,0,0,0,0,0") .arg("Black");
+      Where topOfStep;
+
+      bool multiStep = false;
+
+      Steps *steps = dynamic_cast<Steps *>(&gui->page);
+      if (steps && steps->list.size() > 0) {
+          if (steps->list.size() > 1) {
+              multiStep = true;
+            } else {
+              Range *range = dynamic_cast<Range *>(steps->list[0]);
+              if (range && range->list.size() > 1) {
+                  multiStep = true;
+                }
+            }
+        }
+
+      if (multiStep) {
+          topOfStep = steps->bottomOfSteps();
+        } else {
+          topOfStep = gui->topOfPages[gui->displayPageNum-1];
+          scanPastGlobal(topOfStep);
+        }
+      appendMeta(topOfStep,meta);
     }
-    appendMeta(topOfStep,meta);
-  }
 }
 
 void MetaItem::insertBOM()
