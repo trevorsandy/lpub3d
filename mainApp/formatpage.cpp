@@ -619,7 +619,7 @@ int Gui::addGraphicsPageItems(
 
 
 
-                  // add the PLI graphically to the scene
+                  // add the PLI graphically to the scene                  
 
                   step->pli.addPli(step->submodelLevel, pageBg);
 
