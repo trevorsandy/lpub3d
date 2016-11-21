@@ -229,7 +229,8 @@ Range *newRange(
   return range;
 }
 
-int Gui::drawPage(LGraphicsView  *view,
+int Gui::drawPage(
+    LGraphicsView  *view,
     QGraphicsScene *scene,
     Steps          *steps,
     int             stepNum,
@@ -926,7 +927,7 @@ int Gui::drawPage(LGraphicsView  *view,
 
                   showLine(steps->topOfSteps());
 
-                  bool endOfSubmodel = stepNum >= ldrawFile.numSteps(current.modelName);;
+                  bool endOfSubmodel = stepNum - 1 >= ldrawFile.numSteps(current.modelName);
 
                   // Get submodel instnce count
                   int  instances = ldrawFile.instances(current.modelName, isMirrored);

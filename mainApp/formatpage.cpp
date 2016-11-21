@@ -338,7 +338,7 @@ int Gui::addGraphicsPageItems(
       pageNumber->setPos(pageNumber->loc[XX],pageNumber->loc[YY]);
     }
 
-  // if this page contains the last step of the page,
+  // if this page contains the last step of the submodel,
   // and instance is > 1 then display instance
 
   // allocate QGraphicsTextItem for instance number
