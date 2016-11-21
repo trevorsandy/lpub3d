@@ -1233,6 +1233,7 @@ int Gui::findPage(
     int            &pageNum,      //maxPages
     QString const  &addLine,
     Where          &current,
+    PgSizeData     &pageSize,
     bool            isMirrored,
     Meta            meta,
     bool            printing)
@@ -1247,9 +1248,8 @@ int Gui::findPage(
   bool noStep     = false;
   bool noStep2    = false;
   bool stepGroupBfxStore2 = false;
-
-  bool newPageSizeGlobal = false;
-  PgSizeData pageSize;
+  bool pageSizeUpdate     = false;
+  bool pageSizeLocal      = true;
 
   QStringList bfxParts;
   QStringList saveBfxParts;
@@ -1363,11 +1363,31 @@ int Gui::findPage(
                       // since rotsteps don't affect submodels
                       RotStepMeta saveRotStep2 = meta.rotStep;
                       meta.rotStep.clear();
+                      PgSizeData pageSize2;
+                      if (exporting()) {
+                          // save current pagesize
+                          pageSize2  = pageSizes[DEF_SIZE];
+//                          logDebug() << "SM: Saving    Default Page size info at PageNumber:" << pageNum
+//                                     << "W:"    << pageSize2.sizeW << "H:"    << pageSize2.sizeH
+//                                     << "O:"    <<(pageSize2.orientation == Portrait ? "Portrait" : "Landscape")
+//                                     << "ID:"   << pageSize2.sizeID
+//                                     << "Model:" << current.modelName;
+                        }
 
-                      findPage(view,scene,pageNum,line,current2,isMirrored,meta,printing);
+                      findPage(view,scene,pageNum,line,current2,pageSize,isMirrored,meta,printing);
                       saveStepPageNum = stepPageNum;
                       meta.submodelStack.pop_back();
-                      meta.rotStep = saveRotStep2; // restore old rotstep
+                      meta.rotStep = saveRotStep2;    // restore old rotstep
+                      if (exporting()) {
+                          // restore default page size
+                          pageSizes.remove(DEF_SIZE);
+                          pageSizes.insert(DEF_SIZE,pageSize2);
+//                          logDebug() << "SM: Restoring Default Page size info at PageNumber:" << pageNum
+//                                     << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
+//                                     << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
+//                                     << "ID:"   << pageSizes[DEF_SIZE].sizeID
+//                                     << "Model:" << current.modelName;
+                        }
                     }
                 }
               if (bfxStore1) {
@@ -1450,37 +1470,35 @@ int Gui::findPage(
                       saveCsiParts.clear();
                     }
                   if (exporting()) {
-//                      logDebug() << "STEP GROUP--"
-//                                 << "Processing pageNum:" << pageNum
-//                                 << "Current ModelName:"  << current.modelName;
                       // clear page size
                       pageSizes.remove(pageNum);
-                      if (newPageSubModel == current.modelName && ! pageSize.empty) {
-                          // reset global default page size
-                          if (newPageSizeGlobal) {
+                      if (pageSizeUpdate) {
+                          pageSizeUpdate = false;
+                          if (! pageSizeLocal) {
+                              pageSizeLocal = true;
+                              // update default page size
                               pageSizes.remove(DEF_SIZE);
                               pageSizes.insert(DEF_SIZE,pageSize);
-//                              logTrace() << "3. Inserting Global  page size info at PageNumber:" << pageNum
-//                                         << "W:"  << pageSize.sizeW << "H:"    << pageSize.sizeH
-//                                         << "O:"  <<(pageSize.orientation == Portrait ? "Portrait" : "Landscape")
-//                                         << "ID:" << pageSize.sizeID
+//                              logDebug() << "SG: Updating  Default Page size info at PageNumber:" << pageNum
+//                                         << "W:"    << pageSize.sizeW << "H:"    << pageSize.sizeH
+//                                         << "O:"    <<(pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+//                                         << "ID:"   << pageSize.sizeID
 //                                         << "Model:" << current.modelName;
                             }
                           // insert new page size
                           pageSizes.insert(pageNum,pageSize);
-//                          logTrace() << "3. Inserting Page size info at         PageNumber:" << pageNum
-//                                     << "W:"  << pageSize.sizeW << "H:"    << pageSize.sizeH
-//                                     << "O:"  <<(pageSize.orientation == Portrait ? "Portrait" : "Landscape")
-//                                     << "ID:" << pageSize.sizeID
+//                          logTrace() << "SG: Inserting New Page size info     at PageNumber:" << pageNum
+//                                     << "W:"    << pageSize.sizeW << "H:"    << pageSize.sizeH
+//                                     << "O:"    <<(pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+//                                     << "ID:"   << pageSize.sizeID
 //                                     << "Model:" << current.modelName;
-                          newPageSubModel   = current.modelName;
                         } else {
-                          //insert default page size
+                          // insert default page size
                           pageSizes.insert(pageNum,pageSizes[DEF_SIZE]);
-//                          logTrace() << "3. Inserting Default Page size info at        PageNumber:" << pageNum
-//                                     << "W:"  << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
-//                                     << "O:"  << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
-//                                     << "ID:" << pageSizes[DEF_SIZE].sizeID
+//                          logTrace() << "SG: Inserting Default Page size info at PageNumber:" << pageNum
+//                                     << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
+//                                     << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
+//                                     << "ID:"   << pageSizes[DEF_SIZE].sizeID
 //                                     << "Model:" << current.modelName;
                         }
                     } // exporting
@@ -1544,17 +1562,16 @@ int Gui::findPage(
                           saveCsiParts.clear();
                         }
                       if (exporting()) {
-//                          logDebug() << "STEP--      "
-//                                     << "Processing pageNum:" << pageNum
-//                                     << "Current ModelName:"  << current.modelName;
                           // clear page size
                           pageSizes.remove(pageNum);
-                          if (newPageSubModel == current.modelName && ! pageSize.empty) {
-                              // reset global default page size
-                              if (newPageSizeGlobal) {
+                          if (pageSizeUpdate) {
+                              pageSizeUpdate = false;
+                              if (! pageSizeLocal) {
+                                  pageSizeLocal = true;
+                                  // update default page size
                                   pageSizes.remove(DEF_SIZE);
                                   pageSizes.insert(DEF_SIZE,pageSize);
-//                                  logTrace() << "3. Inserting Global  page size info at PageNumber:" << pageNum
+//                                  logDebug() << "ST: Updating  Default Page size info at PageNumber:" << pageNum
 //                                             << "W:"    << pageSize.sizeW << "H:"    << pageSize.sizeH
 //                                             << "O:"    <<(pageSize.orientation == Portrait ? "Portrait" : "Landscape")
 //                                             << "ID:"   << pageSize.sizeID
@@ -1562,15 +1579,15 @@ int Gui::findPage(
                                 }
                               // insert new page size
                               pageSizes.insert(pageNum,pageSize);
-//                              logTrace() << "3. Inserting Page size info at         PageNumber:" << pageNum
+//                              logTrace() << "ST: Inserting New Page size info     at PageNumber:" << pageNum
 //                                         << "W:"    << pageSize.sizeW << "H:"    << pageSize.sizeH
 //                                         << "O:"    <<(pageSize.orientation == Portrait ? "Portrait" : "Landscape")
 //                                         << "ID:"   << pageSize.sizeID
 //                                         << "Model:" << current.modelName;
-                              newPageSubModel   = current.modelName;
                             } else {
+                              // insert default page size
                               pageSizes.insert(pageNum,pageSizes[DEF_SIZE]);
-//                              logTrace() << "3. Inserting Default Page size info at        PageNumber:" << pageNum
+//                              logTrace() << "ST: Inserting Default Page size info at PageNumber:" << pageNum
 //                                         << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
 //                                         << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
 //                                         << "ID:"   << pageSizes[DEF_SIZE].sizeID
@@ -1680,13 +1697,12 @@ int Gui::findPage(
               {
                 if (exporting()) {
                     QRegExp rxLocal("^\\s*0\\s+!LPUB\\s+PAGE\\s+SIZE\\s+LOCAL");
-                    newPageSizeGlobal   = line.contains(rxLocal) ? true : false;
-                    newPageSubModel     = current.modelName;
-                    pageSize.sizeW      = meta.LPub.page.size.valueInches(0);
-                    pageSize.sizeH      = meta.LPub.page.size.valueInches(1);
-                    pageSize.sizeID     = meta.LPub.page.size.valueSizeID();
-                    pageSize.empty      = false;
-//                    logTrace() << "1. Page Size entry detected            PageNum:  " << pageNum
+                    pageSizeUpdate  = true;
+                    pageSizeLocal   = line.contains(rxLocal) ? true : false;
+                    pageSize.sizeW  = meta.LPub.page.size.valueInches(0);
+                    pageSize.sizeH  = meta.LPub.page.size.valueInches(1);
+                    pageSize.sizeID = meta.LPub.page.size.valueSizeID();
+//                    logTrace() << "New Page Size entry detected         at PageNumber:" << pageNum
 //                               << "W:"    << pageSize.sizeW << "H:"    << pageSize.sizeH
 //                               << "              ID:" << pageSize.sizeID
 //                               << "Model:" << current.modelName;
@@ -1697,8 +1713,8 @@ int Gui::findPage(
               {
                 if (exporting()){
                     QRegExp rxLocal("^\\s*0\\s+!LPUB\\s+PAGE\\s+ORIENTATION\\s+LOCAL");
-                    newPageSizeGlobal   = line.contains(rxLocal) ? true : false;
-                    newPageSubModel     = current.modelName;
+                    pageSizeUpdate      = true;
+                    pageSizeLocal       = line.contains(rxLocal) ? true : false;
                     if (pageSize.sizeW == 0)
                       pageSize.sizeW    = pageSizes[DEF_SIZE].sizeW;
                     if (pageSize.sizeH == 0)
@@ -1706,8 +1722,7 @@ int Gui::findPage(
                     if (pageSize.sizeID.isEmpty())
                       pageSize.sizeID   = pageSizes[DEF_SIZE].sizeID;
                     pageSize.orientation= meta.LPub.page.orientation.value();
-                    pageSize.empty      = false;
-//                    logTrace() << "2. Page Orientation entry detected     PageNum:  " << pageNum
+//                    logTrace() << "New Page Orientation  entry detected at PageNumber:" << pageNum
 //                               << "               O:" << (pageSize.orientation == Portrait ? "Portrait" : "Landscape")
 //                               << "Model:" << current.modelName;
                   }
@@ -1748,17 +1763,16 @@ int Gui::findPage(
                           ldrStepFiles);
         }
       if (exporting()) {
-//          logDebug() << "PAGE--      "
-//                     << "Processing pageNum:" << pageNum
-//                     << "Current ModelName:"  << current.modelName;
           // clear page size
           pageSizes.remove(pageNum);
-          if (newPageSubModel == current.modelName && ! pageSize.empty) {
-              // reset global default page size
-              if (newPageSizeGlobal) {
+          if (pageSizeUpdate) {
+              pageSizeUpdate = false;
+              if (! pageSizeLocal) {
+                  pageSizeLocal = true;
+                  // update default page size
                   pageSizes.remove(DEF_SIZE);
                   pageSizes.insert(DEF_SIZE,pageSize);
-//                  logTrace() << "3. Inserting Global  page size info at PageNumber:" << pageNum
+//                  logDebug() << "PG: Updating  Default Page size info at PageNumber:" << pageNum
 //                             << "W:"    << pageSize.sizeW << "H:"    << pageSize.sizeH
 //                             << "O:"    <<(pageSize.orientation == Portrait ? "Portrait" : "Landscape")
 //                             << "ID:"   << pageSize.sizeID
@@ -1766,16 +1780,15 @@ int Gui::findPage(
                 }
               // insert new page size
               pageSizes.insert(pageNum,pageSize);
-//              logTrace() << "3. Inserting Page size info at         PageNumber:" << pageNum
+//              logTrace() << "PG: Inserting New Page size info     at PageNumber:" << pageNum
 //                         << "W:"    << pageSize.sizeW << "H:"    << pageSize.sizeH
 //                         << "O:"    <<(pageSize.orientation == Portrait ? "Portrait" : "Landscape")
 //                         << "ID:"   << pageSize.sizeID
 //                         << "Model:" << current.modelName;
-              newPageSubModel   = current.modelName;
             } else {
-              //insert default page size
+              // insert default page size
               pageSizes.insert(pageNum,pageSizes[DEF_SIZE]);
-//              logTrace() << "3. Inserting Default Page size info at        PageNumber:" << pageNum
+//              logTrace() << "PG: Inserting Default Page size info at PageNumber:" << pageNum
 //                         << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
 //                         << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
 //                         << "ID:"   << pageSizes[DEF_SIZE].sizeID
@@ -2155,8 +2168,9 @@ void Gui::countPages()
       maxPages         = 1;
       Meta meta;
       QString empty;
+      PgSizeData empty1;
       stepPageNum = 1;
-      findPage(KpageView,KpageScene,maxPages,empty,current,false,meta,false);
+      findPage(KpageView,KpageScene,maxPages,empty,current,empty1,false,meta,false);
       topOfPages.append(current);
       maxPages--;
 
@@ -2193,13 +2207,12 @@ void Gui::drawPage(
   renderStepNum    = 0;
   saveFadePosition = 0;
 
+  PgSizeData pageSize;
   if (exporting()) {
-      PgSizeData pageSize;
       pageSize.sizeW      = meta.LPub.page.size.valueInches(0);
       pageSize.sizeH      = meta.LPub.page.size.valueInches(1);
       pageSize.sizeID     = meta.LPub.page.size.valueSizeID();
       pageSize.orientation= meta.LPub.page.orientation.value();
-      newPageSubModel     = current.modelName;
       pageSizes.insert(     DEF_SIZE,pageSize);
 //      logTrace() << "0. Inserting INIT page size info at  PageNum:" << DEF_SIZE
 //                 << "W:"  << pageSize.sizeW << "H:"    << pageSize.sizeH
@@ -2208,7 +2221,7 @@ void Gui::drawPage(
 //                 << "Model:" << current.modelName;
     }
 
-  findPage(view,scene,maxPages,empty,current,false,meta,printing);
+  findPage(view,scene,maxPages,empty,current,pageSize,false,meta,printing);
   topOfPages.append(current);
   maxPages--;
 

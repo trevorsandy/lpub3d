@@ -2,7 +2,7 @@ LPub3D 2.0.16.858.2
  
 Features and enhancements 
 ------------ 
-Fix: Empty output after export to pdf or images (r861)
+Fix: Empty output after export to pdf or images (r861/r862)
  * The page size was not captured during export (pdf or images) unless an explicit definition of the page size meta is present in the model file. This behaviour is now corrected. 
 Fix: When page number is not displayed submodel instance count is also not displayed (r860)
  * Instance count is by default placed relative to page number so by default, if page number is not displayed then instance count is also not displayed. This behaviour is now changed to automatically set the instance count relative to to page if the page number is not displayed.

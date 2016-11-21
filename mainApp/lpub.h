@@ -787,8 +787,6 @@ private:
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
   bool                   m_exportingContent; // indicate export/pring underway
 
-  QString                newPageSubModel;    // used to support page size and orientation counting
-
 #ifdef WATCHER
   QFileSystemWatcher watcher;        // watch the file system for external
                                      // changes to the ldraw files currently
@@ -806,12 +804,13 @@ private:
 
   void skipHeader(Where &current);
 
-  int findPage(                    // traverse the hierarchy until we get to the
+  int findPage(// traverse the hierarchy until we get to the
     LGraphicsView  *view,          // page of interest, let traverse process the
     QGraphicsScene *scene,         // page, and then finish by counting the rest
     int           &pageNum,
     QString const &addLine,
     Where         &current,
+    PgSizeData    &pageSize,
     bool           mirrored,
     Meta           meta,
     bool           printing);

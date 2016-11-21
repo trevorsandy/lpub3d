@@ -238,12 +238,10 @@ public:
   float   sizeH;
   QString sizeID;
   OrientationEnc orientation;
-  bool    empty;
   PgSizeData(){
     sizeW       = 0;
     sizeH       = 0;
     orientation = Portrait;
-    empty       = true;
   }
 };
 
