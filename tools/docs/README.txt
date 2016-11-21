@@ -2,10 +2,17 @@ LPub3D 2.0.16.858.2
  
 Features and enhancements 
 ------------ 
-Fix: Empty output after export to pdf or images (r861/r862)
- * The page size was not captured during export (pdf or images) unless an explicit definition of the page size meta is present in the model file. This behaviour is now corrected. 
-Fix: When page number is not displayed submodel instance count is also not displayed (r860)
- * Instance count is by default placed relative to page number so by default, if page number is not displayed then instance count is also not displayed. This behaviour is now changed to automatically set the instance count relative to to page if the page number is not displayed.
+Fix: Inconsistent page size/orientation transition (r862)
+ * Size and orientation transition is inconsistent between the editor and export for mixed orientation output. Editor and export page orientation corrected to behave the same. Here are some notes to describe how to use the different metas:
+ - Use the page context menu to set size and/or orientation to ensure proper meta command syntax.
+ - GLOBAL (e.g 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword should only be used at the header of the top level model file - if you are manually adding meta commands in the LDraw editor.
+ - LOCAL (e.g 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword will scope the meta command to only the current step - if you are manually adding meta commands in the LDraw editor..
+ - When the LOCAL keyword is absent (e.g. 0 !LPUB PAGE ORIENTATION PORTRAIT), the meta command takes on the same behaviour as if the GLOBAL keyword is used - i.e. the meta command takes on a global scope from the point where it is used - unless it is superseded by a new meta command.
+ - When manually setting size and/or orientation on a child submodel (i.e. using the LDraw editor), place your command in the child submodel instead of placing it in the parent model. For MULTI_STEP(s), place the size orientation at the bottom of the MULTI_STEP - just before 0 !LPUB MULTI_STEP END. 
+Fix: Empty output after export to pdf or images (r861)
+ * The page size was not captured during export (pdf or images) unless an explicit definition of the page size meta command is present in the model file (e.g. 0 !LPUB PAGE SIZE GLOBAL 8.5000 11.0000 Letter). This behaviour is now corrected. 
+Fix: When page number is not displayed, the submodel instance count is also not displayed (r860)
+ * Instance count is by default placed relative to page number so, by default, if page number is not displayed then instance count is also not displayed. This behaviour is now changed to automatically set the instance count relative to the page if the page number is not displayed. As a result, the instance count will display regardless of the display status of the page number.
  
 LPub3D 2.0.16.858.2 
  
