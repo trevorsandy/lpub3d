@@ -467,7 +467,31 @@ void PartWorker::processFadeColourParts()
                   fadePartsDirs << fadeDir.absolutePath();
           }
 
+          // remove Duplicates
+          fadePartsDirs = fadePartsDirs.toSet().toList();
+
           if (_fadedParts > 0 && fadePartsDirs.size() > 0) {
+              // transfer to ldSearchDirs
+              bool fadeDirsIncluded = false;
+              foreach (QString entry, Preferences::ldSearchDirs){
+                  QString entryDir = QDir::toNativeSeparators(entry.toLower());
+                  // check if fade directories included
+                  foreach(QString fadePartDir, fadePartsDirs) {
+                      if (!fadeDirsIncluded){
+                          fadeDirsIncluded = (entryDir.toLower() == fadePartDir.toLower());
+                        }
+                    }
+                }
+              // If not included add fade directories and update registry
+              if (!fadeDirsIncluded){
+                  foreach(QString fadePartDir, fadePartsDirs) {
+                      Preferences::ldSearchDirs << QDir::toNativeSeparators(fadePartDir);
+                      logDebug() << "Add fade part directory:" << fadePartDir;
+                    }
+                  QSettings Settings;
+                  Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
+                }
+              // Process archive files
               if (!processPartsArchive(fadePartsDirs, "colour fade")){
                   QString error = QString("Process fade parts archive failed!.");
                   emit messageSig(false,error);
@@ -475,7 +499,7 @@ void PartWorker::processFadeColourParts()
                   emit removeProgressStatusSig();
                   emit fadeColourFinishedSig();
                   return;
-              }
+              }            
           }
       }
 

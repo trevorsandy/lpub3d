@@ -5,7 +5,8 @@ Features and enhancements
 Fix: Instance count placement when page number not displayed (r874)
  * Instance count is placed relative to page number by default. When page number is not displayed, LPub3D will re-assign the instance count to any or the four page attributes, url, email, copyright, and author (default) displayed at the left bottom area of the page. If no page attributes are displayed, the instance count is assigned to the bottom left inside corner of the page.
 Fix: Fade part not displayed in assembly image (r872)
- * The faded part is not rendered or displayed in the CSI step image. The non-faded part occurrence is rendered successfully and the faded part is displayed in the viewer.The problem persists after regenerating fade parts and clearing the cache. In some scenarios, particularly when LPub3D is launched with fade=Off and then fade is set to fade=ON using in the Preferences menu, it is possible that the fade directory is not communicated to the renderer so no fade part image is rendered. This behaviour has been corrected.
+ * The faded part is not rendered or displayed in the CSI step image. The non-faded part occurrence is rendered successfully and the faded part is displayed in the viewer.The problem persists after regenerating fade parts and clearing the cache. In some scenarios, particularly when LPub3D is launched with fade=Off and then fade is set to fade=ON using the Preferences menu after a model file is loaded, it is possible that the fade directory is not communicated to the renderer so no fade part image is rendered. This behaviour has been corrected.
+ With the updated behaviour, the fade search directories are updated on any change to the Fade Step check-box in the Preferences General tab. If the fade step is set to ON, fade directory with part file content will be added to the search directory. When fade step is set to OFF, the fade directory will be removed. 
 Fix: True page background transparency (r871)
  * When the page background is set the true transparent, it is not possible to display the background context menu so many page functions will not be accessible. To accommodate true transparency and enable the available page editing functions, when a page background is set to "none(transparent)" by the user, the page is set to white with alpha=1 during page editing but switched to true transparent for exporting/printing. This way, the user will have the ability to manipulate the page components while editing the document.
 Fix: Previewing the current page (single page) produces a blank page (r870)
@@ -29,7 +30,7 @@ LPub3D 2.0.17.863.2
 Features and enhancements 
 ------------ 
 Fix: Inconsistent page size/orientation transition (r862) 
- * Size and orientation transition is inconsistent between the editor and export for mixed orientation output. Editor and export page orientation corrected to behave the same. Here are some notes to describe how to use the different metas: 
+ * Size and orientation transition is inconsistent between the editor and export for mixed orientation output. Editor and export page orientation corrected to behave the same. Here are some notes to describe how to use the different meta commands: 
  - Use the page context menu to set size and/or orientation to ensure proper meta command syntax. 
  - GLOBAL (e.g 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword should only be used at the header of the top level model file - if you are manually adding meta commands in the LDraw editor. 
  - LOCAL (e.g 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword will scope the meta command to only the current step - if you are manually adding meta commands in the LDraw editor.. 
