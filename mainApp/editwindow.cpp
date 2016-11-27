@@ -82,6 +82,11 @@ void EditWindow::createActions()
                               "selection"));
     connect(pasteAct, SIGNAL(triggered()), _textEdit, SLOT(paste()));
 
+    findAct = new QAction(QIcon(":/resources/find.png"), tr("&Find"), this);
+    findAct->setShortcut(tr("Ctrl+F"));
+    findAct->setStatusTip(tr("Find object "));
+    connect(findAct, SIGNAL(triggered()), _textEdit, SLOT(findDialog()));
+
     redrawAct = new QAction(QIcon(":/resources/redraw.png"), tr("&Redraw"), this);
     redrawAct->setShortcut(tr("Ctrl+R"));
     redrawAct->setStatusTip(tr("Redraw page"));
@@ -102,6 +107,7 @@ void EditWindow::createActions()
     delAct->setEnabled(false);
     redrawAct->setEnabled(false);
     selAllAct->setEnabled(false);
+    findAct->setEnabled(false);
     connect(_textEdit, SIGNAL(copyAvailable(bool)),
             cutAct,    SLOT(setEnabled(bool)));
     connect(_textEdit, SIGNAL(copyAvailable(bool)),
@@ -118,6 +124,7 @@ void EditWindow::createToolBars()
     editToolBar->addAction(cutAct);
     editToolBar->addAction(copyAct);
     editToolBar->addAction(pasteAct);
+    editToolBar->addAction(findAct);
     editToolBar->addAction(delAct);
     editToolBar->addAction(redrawAct);
 }
@@ -219,6 +226,7 @@ void EditWindow::displayFile(
 
   selAllAct->setEnabled(true);
   redrawAct->setEnabled(true);
+  findAct->setEnabled(true);
 
 }
 // Jaco is trying to get the edit window to resize...
@@ -241,7 +249,7 @@ QTextEditor::QTextEditor(QWidget *parent) :
     connect(this->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(updateLineNumberArea/*_2*/(int)));
     connect(this, SIGNAL(textChanged()), this, SLOT(updateLineNumberArea()));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateLineNumberArea()));
-    //connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
+    //connect(this, SIGNAL(selectionChanged()), this, SLOT(highlightCurrentLine()));
 
     updateLineNumberAreaWidth(0);
     //highlightCurrentLine();
@@ -402,4 +410,86 @@ void QTextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
         ++blockNumber;
     }
 
+}
+
+void QTextEditor::findDialog(){
+
+    popUp = new QWidget;
+    popUp->setWindowTitle("Find");
+
+    layout = new QGridLayout;
+
+    buttonFind  = new QPushButton("Find");
+    buttonFindNext = new QPushButton("Find Next");
+    buttonFindPrevious = new QPushButton("Find Previous");
+    buttonFindClear = new QPushButton("Clear");
+
+    connect(buttonFind, SIGNAL(clicked()), this,SLOT(findInText()));
+    connect(buttonFindNext,SIGNAL(clicked()),this,SLOT(findInTextNext()));
+    connect(buttonFindPrevious,SIGNAL(clicked()),this,SLOT(findInTextPrevious()));
+    connect(buttonFindClear, SIGNAL(clicked()), this, SLOT(findClear()));
+
+    QTextCursor cursor = textCursor();
+    cursor.select(QTextCursor::WordUnderCursor);
+
+    textFind    = new QLineEdit;
+    textFind->setMinimumWidth(250);
+    textFind->setText(cursor.selectedText());
+
+    labelMessage = new QLabel;
+    labelMessage->setMinimumWidth(250);
+
+    layout->addWidget(textFind,0,0,1,4);
+
+    layout->addWidget(buttonFind,1,0,1,1);
+    layout->addWidget(buttonFindNext,1,1,1,1);
+    layout->addWidget(buttonFindPrevious,1,2,1,1);
+    layout->addWidget(buttonFindClear,1,3,1,1);
+    layout->addWidget(labelMessage,2,0,1,4);
+
+    popUp->setLayout(layout);
+    popUp->resize(300,50);
+
+    popUp->show();
+
+}
+
+void QTextEditor::findInText(){
+    //Set Cursor position to the start of document
+    //to let find() method make search in whole text,
+    //otherwise it search from cursor position to the end.
+    moveCursor(QTextCursor::Start);
+    if (!find(textFind->text()))
+        labelMessage->setText("Did not find the text '" + textFind->text() + "'");
+    else
+        labelMessage->clear();
+}
+
+void QTextEditor::findInTextNext()
+{
+  if(buttonFindPrevious->isEnabled() == false)
+  {
+      moveCursor(QTextCursor::Start);
+  }
+
+  if(find(textFind->text()))
+  {
+      buttonFindPrevious->setEnabled(true);
+      labelMessage->clear();
+  } else {
+      labelMessage->setText("No more items.");
+  }
+}
+
+void QTextEditor::findInTextPrevious()
+{
+  if(! find(textFind->text(), QTextDocument::FindBackward))
+      labelMessage->setText("No more items.");
+  else
+      labelMessage->clear();
+}
+
+void QTextEditor::findClear(){
+  textFind->clear();
+  labelMessage->clear();
 }

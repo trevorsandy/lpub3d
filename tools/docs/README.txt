@@ -2,10 +2,12 @@ LPub3D 2.0.18.864.2
  
 Features and enhancements 
 ------------ 
+Fix: Find button in LDraw editor (r867)
+ * Find button added to LDraw editor. The find dialogue will open with the word currently under the cursor. Therefore, an efficient use pattern is to place the cursor above the word you wish to search and click the search button.
 Fix: Display message for mixed page size and orientation (r866)
- * When previewing a pdf export, the user has to option to present or suppress the message indicating there are different orientations and/or sizes in the preview. The Qt print preview does not play well with mixed pages sizes. This message informs the user of this fact.
+ * When previewing a pdf export, the user has to option to present or suppress the message indicating there are different orientations and/or sizes in the preview. The Qt print preview does not play well with mixed pages sizes. This message informs the user of this fact. Additional Cleanup.
 Fix: Misplaced submodel occurrence (r865)
- * When a submodel ends with a single step and the next to the last step is a multi-step, the submodel occurrence number (if used more than 1x in the parent model) is placed both at the multi-step and the last step in the child model. Under this scenario, the corrected behaviour places the occurrence number only at the last step. Cleanup.
+ * When a submodel ends with a single step and the next to the last step is a multi-step, the submodel occurrence number (if used more than 1x in the parent model) is placed both at the multi-step and the last step in the child model. Under this scenario, the corrected behaviour places the occurrence number only at the last step.
 
 LPub3D 2.0.17.863.2 
  

@@ -119,6 +119,7 @@ public:
     QPushButton *buttonFind;
     QPushButton *buttonFindNext;
     QPushButton *buttonFindPrevious;
+    QPushButton *buttonFindClear;
     QGridLayout *layout;
     QWidget     *popUp;
 
@@ -133,6 +134,7 @@ private slots:
     void findInText();
     void findInTextNext();
     void findInTextPrevious();
+    void findClear();
 
 private:
     QWidget *lineNumberArea;

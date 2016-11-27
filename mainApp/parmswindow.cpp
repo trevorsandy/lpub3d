@@ -443,23 +443,30 @@ void TextEditor::findDialog(){
     buttonFind  = new QPushButton("Find");
     buttonFindNext = new QPushButton("Find Next");
     buttonFindPrevious = new QPushButton("Find Previous");
+    buttonFindClear = new QPushButton("Clear");
 
     connect(buttonFind, SIGNAL(clicked()), this,SLOT(findInText()));
     connect(buttonFindNext,SIGNAL(clicked()),this,SLOT(findInTextNext()));
     connect(buttonFindPrevious,SIGNAL(clicked()),this,SLOT(findInTextPrevious()));
+    connect(buttonFindClear, SIGNAL(clicked()), this, SLOT(findClear()));
+
+    QTextCursor cursor = textCursor();
+    cursor.select(QTextCursor::WordUnderCursor);
 
     textFind    = new QLineEdit;
     textFind->setMinimumWidth(250);
 
     labelMessage = new QLabel;
     labelMessage->setMinimumWidth(250);
+    textFind->setText(cursor.selectedText());
 
-    layout->addWidget(textFind,0,0,1,3);
+    layout->addWidget(textFind,0,0,1,4);
 
     layout->addWidget(buttonFind,1,0,1,1);
     layout->addWidget(buttonFindNext,1,1,1,1);
     layout->addWidget(buttonFindPrevious,1,2,1,1);
-    layout->addWidget(labelMessage,2,0,1,3);
+    layout->addWidget(buttonFindClear,1,3,1,1);
+    layout->addWidget(labelMessage,2,0,1,4);
 
     popUp->setLayout(layout);
     popUp->resize(300,50);
@@ -503,3 +510,7 @@ void TextEditor::findInTextPrevious()
       labelMessage->clear();
 }
 
+void TextEditor::findClear(){
+  textFind->clear();
+  labelMessage->clear();
+}

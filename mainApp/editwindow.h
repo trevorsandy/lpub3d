@@ -75,6 +75,7 @@ private:
     QAction  *redrawAct;
     QAction  *delAct;
     QAction  *selAllAct;
+    QAction  *findAct;
 
 signals:
     void contentsChange(const QString &, int position, int charsRemoved, const QString &charsAdded);
@@ -109,20 +110,29 @@ public:
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int getFirstVisibleBlockId();
     int lineNumberAreaWidth();
-
-signals:
+    QLineEdit   *textFind;
+    QLabel      *labelMessage;
+    QPushButton *buttonFind;
+    QPushButton *buttonFindNext;
+    QPushButton *buttonFindPrevious;
+    QPushButton *buttonFindClear;
+    QGridLayout *layout;
+    QWidget     *popUp;
 
 
 public slots:
-
     void resizeEvent(QResizeEvent *e);
 
 private slots:
-
     void updateLineNumberAreaWidth(int newBlockCount);
     void updateLineNumberArea(QRectF /*rect_f*/);
     void updateLineNumberArea(int /*slider_pos*/);
-    void updateLineNumberArea();
+    void updateLineNumberArea(); 
+    void findDialog();
+    void findInText();
+    void findInTextNext();
+    void findInTextPrevious();
+    void findClear();
 
 private:
 
