@@ -126,6 +126,12 @@ class Downloader : public QWidget {
     ///
     void downloadFinished (const QString& url, const QString& filepath);
 
+    ///
+    /// Emitted when the download was cancelled before completion.
+    /// You can use this to signal downstream functions.
+    ///
+    void downloadCancelled();
+
   private:
     uint m_startTime;
     QString m_filePath;

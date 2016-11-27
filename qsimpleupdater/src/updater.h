@@ -268,6 +268,18 @@ class QSU_DECL Updater : public QObject {
     ///
     void changeLogReplyFinished();
 
+    ///
+    /// Emitted when the download was cancelled before completion.
+    /// You can use this to signal downstream functions.
+    ///
+    void downloadCancelled();
+
+    ///
+    /// Emitted when the progress is cancelled.
+    /// You can use this to signal downstream functions.
+    ///
+    void checkingCancelled();
+
   private slots:
     ///
     /// Reads and analyzes the downloaded update definition.

@@ -532,21 +532,21 @@ void Gui::deployExportBanner(bool b)
 {
 
   if (b) {
-      QString printBanner, imageFile;
+      QString exportBanner, imageFile;
 
 #ifdef __APPLE__
 
-      printBanner = QString("%1/%2").arg(Preferences::lpubDataPath,"extras/printbanner.ldr");
+      exportBanner = QString("%1/%2").arg(Preferences::lpubDataPath,"extras/printbanner.ldr");
       imageFile = QString("%1/%2").arg(Preferences::lpubDataPath,"extras/PDFPrint.jpg");
 
 #else
 
-      printBanner = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath,"extras/printbanner.ldr"));
+      exportBanner = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath,"extras/printbanner.ldr"));
       imageFile = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath,"extras/PDFPrint.jpg"));
 
 #endif
 
-      installExportBanner(exportType, printBanner,imageFile);
+      installExportBanner(exportType, exportBanner,imageFile);
     }
 }
 /*-----------------------------------------------------------------------------*/
@@ -604,7 +604,7 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
     if ( ! ldrFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
         QMessageBox::warning(NULL,
                              tr("LPub3D"),
-                             tr("Cannot open Print Banner file %1 for writing:\n%2")
+                             tr("Cannot open Export Banner file %1 for writing:\n%2")
                              .arg(printFile)
                              .arg(ldrFile.errorString()));
         return false;
@@ -1279,6 +1279,7 @@ Gui::Gui()
     Preferences::renderPreferences();
     Preferences::lgeoPreferences();
     Preferences::publishingPreferences();
+    Preferences::exportPreferences();
 
     displayPageNum = 1;
 
@@ -1771,23 +1772,23 @@ void Gui::createActions()
     closeFileAct->setEnabled(false);
     connect(closeFileAct, SIGNAL(triggered()), this, SLOT(closeModelFile()));
 
-    printToPdfFileAct = new QAction(QIcon(":/resources/pdf_logo.png"), tr("Print to PDF &File"), this);
-    printToPdfFileAct->setShortcut(tr("Ctrl+F"));
-    printToPdfFileAct->setStatusTip(tr("Print your document to a pdf file"));
-    printToPdfFileAct->setEnabled(false);
-    connect(printToPdfFileAct, SIGNAL(triggered()), this, SLOT(printToPdfFileDialog()));
-
     printToFileAct = new QAction(QIcon(":/resources/file_print.png"), tr("&Print..."), this);
     printToFileAct->setShortcut(tr("Ctrl+P"));
     printToFileAct->setStatusTip(tr("Print the current document"));
     printToFileAct->setEnabled(false);
     connect(printToFileAct, SIGNAL(triggered()), this, SLOT(ShowPrintDialog()));
 
-    printToFilePreviewAct = new QAction(QIcon(":/resources/pdf_print_preview.png"), tr("PDF Print Pre&view..."), this);
-    printToFilePreviewAct->setShortcut(tr("Ctrl+F"));
-    printToFilePreviewAct->setStatusTip(tr("Preview the current document to be printed"));
-    printToFilePreviewAct->setEnabled(false);
-    connect(printToFilePreviewAct, SIGNAL(triggered()), this, SLOT(TogglePrintPreview()));
+    exportAsPdfPreviewAct = new QAction(QIcon(":/resources/pdf_print_preview.png"), tr("PDF Export Pre&view..."), this);
+    exportAsPdfPreviewAct->setShortcut(tr("Ctrl+F"));
+    exportAsPdfPreviewAct->setStatusTip(tr("Preview the current document to be printed"));
+    exportAsPdfPreviewAct->setEnabled(false);
+    connect(exportAsPdfPreviewAct, SIGNAL(triggered()), this, SLOT(TogglePrintPreview()));
+
+    exportAsPdfAct = new QAction(QIcon(":/resources/pdf_logo.png"), tr("Export to PDF &File"), this);
+    exportAsPdfAct->setShortcut(tr("Ctrl+F"));
+    exportAsPdfAct->setStatusTip(tr("Export your document to a pdf file"));
+    exportAsPdfAct->setEnabled(false);
+    connect(exportAsPdfAct, SIGNAL(triggered()), this, SLOT(exportAsPdfDialog()));
 
     exportPngAct = new QAction(QIcon(":/resources/exportpng.png"),tr("Export As &PNG Images"), this);
     exportPngAct->setShortcut(tr("Ctrl+Shift+P"));
@@ -2109,9 +2110,9 @@ void Gui::enableActions()
   saveAsAct->setEnabled(true);
   closeFileAct->setEnabled(true);
 
-  printToPdfFileAct->setEnabled(true);
+  exportAsPdfAct->setEnabled(true);
   printToFileAct->setEnabled(true);
-  printToFilePreviewAct->setEnabled(true);
+  exportAsPdfPreviewAct->setEnabled(true);
 
   exportPngAct->setEnabled(true);
   exportJpgAct->setEnabled(true);
@@ -2157,9 +2158,9 @@ void Gui::disableActions()
   saveAsAct->setEnabled(false);
   closeFileAct->setEnabled(false);
 
-  printToPdfFileAct->setEnabled(false);
+  exportAsPdfAct->setEnabled(false);
   printToFileAct->setEnabled(false);
-  printToFilePreviewAct->setEnabled(false);
+  exportAsPdfPreviewAct->setEnabled(false);
 
   exportPngAct->setEnabled(false);
   exportJpgAct->setEnabled(false);
@@ -2249,8 +2250,8 @@ void Gui::createMenus()
     exportMenu->setDisabled(true);
 
     //fileMenu->addAction(printToFileAct);
-    fileMenu->addAction(printToFilePreviewAct);
-    fileMenu->addAction(printToPdfFileAct);
+    fileMenu->addAction(exportAsPdfPreviewAct);
+    fileMenu->addAction(exportAsPdfAct);
 
     separatorAct = fileMenu->addSeparator();
     for (int i = 0; i < MaxRecentFiles; i++) {
@@ -2355,8 +2356,8 @@ void Gui::createToolBars()
     fileToolBar->addAction(saveAct);
 
     //fileToolBar->addAction(printToFileAct);
-    fileToolBar->addAction(printToFilePreviewAct);
-    fileToolBar->addAction(printToPdfFileAct);
+    fileToolBar->addAction(exportAsPdfPreviewAct);
+    fileToolBar->addAction(exportAsPdfAct);
 
     editToolBar = addToolBar(tr("Edit"));
     editToolBar->setObjectName("EditToolbar");

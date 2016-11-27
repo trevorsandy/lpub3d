@@ -73,7 +73,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
   QString name = "Page";
-  bool fullContextMenu = page->list.size() && ! page->modelDisplayStep;
+  bool fullContextMenu = page->list.size() && ! page->modelDisplayOnlyStep;
 
   // figure out if first step step number is greater than 1
 
@@ -98,9 +98,8 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
           AbstractRangeElement *rangeElement = range->list[range->list.size()-1];
           if (rangeElement->relativeType == StepType) {
               lastStep = dynamic_cast<Step *> (rangeElement);
-              MetaItem mi;
-              int numSteps = mi.numSteps(lastStep->topOfStep().modelName);
-              if (lastStep->stepNumber.number != numSteps) {
+              int numOfSteps = numSteps(lastStep->topOfStep().modelName);
+              if (lastStep->stepNumber.number != numOfSteps) {
                   addNextAction = menu.addAction("Add Next Step");
                   addNextAction->setIcon(QIcon(":/resources/nextstep.png"));
                   addNextAction->setWhatsThis("Add Next Step:\n Add the first step of the next page to this page\n");

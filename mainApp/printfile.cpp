@@ -17,7 +17,7 @@
 
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
-
+#include <QSettings>
 #include <QPainter>
 #include <QPrinter>
 #include <QFileInfo>
@@ -75,7 +75,7 @@ QPageLayout Gui::getPageLayout(bool nextPage){
   return QPageLayout();
 }
 
-void Gui::getPrintPageSize(float &pageWidth, float &pageHeight,int d)
+void Gui::getExportPageSize(float &pageWidth, float &pageHeight,int d)
 {
   QMap<int,PgSizeData>::iterator i = pageSizes.find(displayPageNum);   // this page
   if (i != pageSizes.end()){
@@ -86,7 +86,7 @@ void Gui::getPrintPageSize(float &pageWidth, float &pageHeight,int d)
       pageWidthIn  = i.value().sizeW;
       pageHeightIn = i.value().sizeH;
 
-      // flip orientation for printing landscape
+      // flip orientation for exporting landscape
       if (i.value().orientation == Landscape){
           pageWidthIn  = i.value().sizeH;
           pageHeightIn = i.value().sizeW;
@@ -141,49 +141,132 @@ void Gui::checkMixedPageSizeStatus(){
   QString title;
   QString text, text1, text2;
 
-
-
-  text1 = tr ("Your document has orientation (Portrait/Landscape) changes \n"
-              "The print preview dialog will not correctly display\n"
-              "orientation changes but these changes will correctly\n"
-              "applied to your exported pdf document.\n\n");
+  text1 = tr ("Your document has page orientation changes (Portrait/Landscape)\n"
+              "The export preview dialog will not correctly display\n"
+              "orientation changes but will correctly\n"
+              "apply them to your exported pdf document.\n\n");
 
   text2 = tr ("Your document has page size changes (A4, A5, Letter,...)\n"
-              "LPub3D print preview will not correctly display or\n"
+              "The export preview dialog will not correctly display or\n"
               "export different pages sizes. This is a limitation\n"
-              "of the underlying development platform. You can export\n"
-              "a mixed size and orientation document using the pdf\n"
-              "or image (PNG, JPG, BMP) export functions.\n");
+              "of the underlying LPub3D development platform. You can export\n"
+              "a mixed size and orientation document using the Export pdf\n"
+              "or image (PNG, JPG, BMP) functions.\n");
 
-  QString sizeID             = pageSizes[0].sizeID;
-  OrientationEnc orientation = pageSizes[0].orientation;
+  float pageWidthIn          = pageSizes[DEF_SIZE].sizeW;
+  float pageHeightIn         = pageSizes[DEF_SIZE].sizeH;
+  QString sizeID             = pageSizes[DEF_SIZE].sizeID;
+  OrientationEnc orientation = pageSizes[DEF_SIZE].orientation;
   bool orientation_warning   = false;
   bool size_warning          = false;
   bool double_warning        = false;
   int key;
 
-  foreach(key,pageSizes.keys()){
+  if (exportOption == EXPORT_PAGE_RANGE){
 
-      if (pageSizes[key].orientation != orientation && orientation_warning != true) {
-          orientation_warning = true;
-          text = text1;
-          title = "<b> Mixed page orientation detected. </b>";
-          box.setIcon (QMessageBox::Information);
+      QStringList pageRanges = pageRangeText.split(",");
+      QList<int> printPages;
+      foreach(QString ranges,pageRanges){
+          if (ranges.contains("-")){
+              QStringList range = ranges.split("-");
+              int minPage = range[0].toInt();
+              int maxPage = range[1].toInt();
+              for(int i = minPage; i <= maxPage; i++){
+                  printPages.append(i);
+                }
+            } else {
+              printPages.append(ranges.toInt());
+            }
         }
 
-      if (pageSizes[key].sizeID != sizeID && size_warning != true) {
-          size_warning = true;
-          text = text2;
-          title = "<b> Mixed page size detected. </b>";
-          box.setIcon (QMessageBox::Warning);
+      if (printPages.size() > 1){
+
+          bool defaultSizesUpdated = false;
+
+          foreach(key,printPages) {
+
+              QMap<int,PgSizeData>::iterator i = pageSizes.find(key);   // this page
+              if (i != pageSizes.end()){
+
+//                  logDebug() << QString("%6 page %3 of %4, size(Inches) W %1 x H %2, ID %8, orientation %5 for range %7")
+//                                           .arg(pageSizes[key].sizeW)
+//                                           .arg(pageSizes[key].sizeH)
+//                                           .arg(key)
+//                                           .arg(printPages.count())
+//                                           .arg(pageSizes[key].orientation == Landscape ? "Landscape" : "Portrait")
+//                                           .arg("Checking")
+//                                           .arg(pageRanges.join(" "))
+//                                           .arg(pageSizes[key].sizeID);
+
+                  if (! defaultSizesUpdated) {
+                      pageWidthIn  = pageSizes[key].sizeW;
+                      pageHeightIn = pageSizes[key].sizeH;
+                      sizeID       = pageSizes[key].sizeID;
+                      orientation  = pageSizes[key].orientation;
+                      defaultSizesUpdated = true;
+                      continue;
+                    }
+
+                  if (pageSizes[key].orientation != orientation && orientation_warning != true) {
+                      orientation_warning = true;
+                      text = text1;
+                      title = "<b> Mixed page orientation detected. </b>";
+                      box.setIcon (QMessageBox::Information);
+                    }
+
+                  if ((pageSizes[key].sizeID != sizeID      ||
+                       pageSizes[key].sizeW  != pageWidthIn ||
+                       pageSizes[key].sizeH  != pageHeightIn) && size_warning != true) {
+                      size_warning = true;
+                      text = text2;
+                      title = "<b> Mixed page size detected. </b>";
+                      box.setIcon (QMessageBox::Warning);
+                    }
+
+                  if (orientation_warning && size_warning) {
+                      double_warning = true;
+                      text = text1 + text2;
+                      title = "<b> Mixed page size and orientation detected. </b>";
+                      box.setIcon (QMessageBox::Warning);
+                      break;
+                    }
+                }
+            }
         }
 
-      if (orientation_warning && size_warning) {
-          double_warning = true;
-          text = text1 + text2;
-          title = "<b> Mixed page size and orientation detected. </b>";
-          box.setIcon (QMessageBox::Warning);
-          break;
+    } else if (exportOption == EXPORT_ALL_PAGES) {
+
+//      logDebug() << QString("Default  page         size(Inches) W %1 x H %2, ID %3, orientation %4")
+//                               .arg(pageSizes[DEF_SIZE].sizeW)
+//                               .arg(pageSizes[DEF_SIZE].sizeH)
+//                               .arg(pageSizes[DEF_SIZE].sizeID)
+//                               .arg(pageSizes[DEF_SIZE].orientation == Landscape ? "Landscape" : "Portrait");
+
+      foreach(key,pageSizes.keys()){
+
+          if (pageSizes[key].orientation != orientation && orientation_warning != true) {
+              orientation_warning = true;
+              text = text1;
+              title = "<b> Mixed page orientation detected. </b>";
+              box.setIcon (QMessageBox::Information);
+            }
+
+          if ((pageSizes[key].sizeID != sizeID      ||
+               pageSizes[key].sizeW  != pageWidthIn ||
+               pageSizes[key].sizeH  != pageHeightIn) && size_warning != true) {
+              size_warning = true;
+              text = text2;
+              title = "<b> Mixed page size detected. </b>";
+              box.setIcon (QMessageBox::Warning);
+            }
+
+          if (orientation_warning && size_warning) {
+              double_warning = true;
+              text = text1 + text2;
+              title = "<b> Mixed page size and orientation detected. </b>";
+              box.setIcon (QMessageBox::Warning);
+              break;
+            }
         }
     }
 
@@ -192,7 +275,7 @@ void Gui::checkMixedPageSizeStatus(){
       box.setTextFormat (Qt::RichText);
       box.setStandardButtons (QMessageBox::Close);
       box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-      box.setWindowTitle(tr ("Print Preview"));
+      box.setWindowTitle(tr ("Export Preview"));
 
       box.setText (title);
       box.setInformativeText (text);
@@ -267,9 +350,25 @@ bool Gui::validatePageRange(){
   return true;
 }
 
-bool Gui::printToPdfFileDialog()
+void Gui::exportAsPdfDialog(){
+  exportAsDialog(EXPORT_PDF);
+}
+
+void Gui::exportAsPngDialog(){
+  exportAsDialog(EXPORT_PNG);
+}
+
+void Gui::exportAsJpgDialog(){
+  exportAsDialog(EXPORT_JPG);
+}
+
+void Gui::exportAsBmpDialog(){
+  exportAsDialog(EXPORT_BMP);
+}
+
+bool Gui::exportAsDialog(ExportType t)
 {
-  exportType = EXPORT_PDF;
+  exportType = t;
   DialogExportPages *dialog = new DialogExportPages();
   if (dialog->exec() == QDialog::Accepted) {
       if(dialog->allPages()){
@@ -284,6 +383,12 @@ bool Gui::printToPdfFileDialog()
           if (! validatePageRange()){
               return false;
             }
+        }
+      QSettings Settings;
+      if (Preferences::ignoreMixedPageSizesMsg != dialog->ignoreMixedPageSizesMsg())
+        {
+          Preferences::ignoreMixedPageSizesMsg = dialog->ignoreMixedPageSizesMsg();
+          Settings.setValue(QString("%1/%2").arg(DEFAULTS,"IgnoreMixedPageSizesMsg "),Preferences::ignoreMixedPageSizesMsg);
         }
       if(dialog->resetCache()){
           clearPLICache();
@@ -291,7 +396,14 @@ bool Gui::printToPdfFileDialog()
           //TODO add remove ldraw viewer content when move to 2.1
         }
       if (! m_previewDialog){
-          printToPdfFile();
+          if (t == EXPORT_PDF)
+            exportAsPdf();
+          else if (t == EXPORT_PNG)
+            exportAsPng();
+          else if (t == EXPORT_JPG)
+            exportAsJpg();
+          else
+            exportAsBmp();
         }
       return true;
     } else {
@@ -299,82 +411,7 @@ bool Gui::printToPdfFileDialog()
     }
 }
 
-bool Gui::exportAsPngDialog()
-{
-  exportType = EXPORT_PNG;
-  DialogExportPages *dialog = new DialogExportPages();
-  if (dialog->exec() == QDialog::Accepted) {
-      if(dialog->allPages()){
-          exportOption = EXPORT_ALL_PAGES;
-        } else
-      if(dialog->currentPage()){
-          exportOption = EXPORT_CURRENT_PAGE;
-        } else
-      if(dialog->pageRange()){
-          exportOption  = EXPORT_PAGE_RANGE;
-          pageRangeText = dialog->pageRangeText();
-          if (! validatePageRange()){
-              return false;
-            }
-        }
-      exportAsPng();
-      return true;
-    } else {
-      return false;
-    }
-}
-
-bool Gui::exportAsJpgDialog()
-{
-  exportType = EXPORT_JPG;
-  DialogExportPages *dialog = new DialogExportPages();
-  if (dialog->exec() == QDialog::Accepted) {
-      if(dialog->allPages()){
-          exportOption = EXPORT_ALL_PAGES;
-        } else
-      if(dialog->currentPage()){
-          exportOption = EXPORT_CURRENT_PAGE;
-        } else
-      if(dialog->pageRange()){
-          exportOption  = EXPORT_PAGE_RANGE;
-          pageRangeText = dialog->pageRangeText();
-          if (! validatePageRange()){
-              return false;
-            }
-        }
-      exportAsJpg();
-      return true;
-    } else {
-      return false;
-    }
-}
-
-bool Gui::exportAsBmpDialog()
-{
-  exportType = EXPORT_BMP;
-  DialogExportPages *dialog = new DialogExportPages();
-  if (dialog->exec() == QDialog::Accepted) {
-      if(dialog->allPages()){
-          exportOption = EXPORT_ALL_PAGES;
-        } else
-      if(dialog->currentPage()){
-          exportOption = EXPORT_CURRENT_PAGE;
-        } else
-      if(dialog->pageRange()){
-          exportOption  = EXPORT_PAGE_RANGE;
-          pageRangeText = dialog->pageRangeText();
-          if (! validatePageRange()){
-              return false;
-            }
-        }
-      exportAsBmp();
-      return true;
-    } else {
-      return false;
-    }
-}
-
-void Gui::printToPdfFile()
+void Gui::exportAsPdf()
 {
 
   // store current display page number
@@ -388,7 +425,7 @@ void Gui::printToPdfFile()
   QString baseName = fileInfo.baseName();
   QString fileName = QFileDialog::getSaveFileName(
         this,
-        tr("Print File Name"),
+        tr("Export File Name"),
         QDir::currentPath() + "/" + baseName,
         tr("PDF (*.pdf)"));
 
@@ -415,7 +452,7 @@ void Gui::printToPdfFile()
   box.setStandardButtons (QMessageBox::Retry | QMessageBox::Abort);
   box.setDefaultButton   (QMessageBox::Retry);
   box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-  box.setWindowTitle(tr ("Print pdf"));
+  box.setWindowTitle(tr ("Export pdf"));
 
   // check if file open by another program
   QFile printFile(fileName);
@@ -461,14 +498,14 @@ void Gui::printToPdfFile()
   int _maxPages       = 0;
 
   // initialize progress bar dialog
-  m_progressDialog->setWindowTitle("Print pdf");
+  m_progressDialog->setWindowTitle("Export pdf");
   m_progressDialog->show();
 
   // reset page indicators
   _displayPageNum = 0;
   _maxPages       = 0;
 
-  m_progressDlgMessageLbl->setText("Printing instructions to pdf...");
+  m_progressDlgMessageLbl->setText("Exporting instructions to pdf...");
 
   if (exportOption != EXPORT_PAGE_RANGE){
 
@@ -499,15 +536,15 @@ void Gui::printToPdfFile()
               m_progressDialog->hide();
               displayPageNum = savePageNumber;
               drawPage(KpageView,KpageScene,false);
-              emit messageSig(true,QString("Print to pdf terminated before completion."));
+              emit messageSig(true,QString("Export to pdf terminated before completion."));
               return;
             }
 
-          m_progressDlgMessageLbl->setText(QString("Printing page %1 of %2").arg(displayPageNum).arg(_maxPages));
+          m_progressDlgMessageLbl->setText(QString("Exporting page %1 of %2").arg(displayPageNum).arg(_maxPages));
           m_progressDlgProgressBar->setValue(displayPageNum);
           QApplication::processEvents();
 
-          getPrintPageSize(pageWidthPx, pageHeightPx);
+          getExportPageSize(pageWidthPx, pageHeightPx);
 
           bool  ls = getPageOrientation() == Landscape;
           logNotice() << QString("                  Exporting page %3 of %4, size(pixels) W %1 x H %2, orientation %5")
@@ -587,21 +624,21 @@ void Gui::printToPdfFile()
               m_progressDialog->hide();
               displayPageNum = savePageNumber;
               drawPage(KpageView,KpageScene,false);
-              emit messageSig(true,QString("Print to pdf terminated before completion."));
+              emit messageSig(true,QString("Export to pdf terminated before completion."));
               return;
             }
 
           displayPageNum = printPage;
 
-          m_progressDlgMessageLbl->setText(QString("Printing page %1 of %2 for range %3").arg(displayPageNum).arg(printPages.count()).arg(pageRanges.join(" ")));
+          m_progressDlgMessageLbl->setText(QString("Exporting page %1 of %2 for range %3").arg(displayPageNum).arg(printPages.count()).arg(pageRanges.join(" ")));
           m_progressDlgProgressBar->setValue(_pageCount++);
           QApplication::processEvents();
 
           // determine size of output image, in pixels
-          getPrintPageSize(pageWidthPx, pageHeightPx);
+          getExportPageSize(pageWidthPx, pageHeightPx);
 
           bool  ls = getPageOrientation() == Landscape;
-          logNotice() << QString("Printing page %3 of %6 for range %4, size(in pixels) W %1 x H %2, orientation %5")
+          logNotice() << QString("Exporting page %3 of %6 for range %4, size(in pixels) W %1 x H %2, orientation %5")
                         .arg(pageWidthPx)
                         .arg(pageHeightPx)
                         .arg(displayPageNum)
@@ -630,7 +667,7 @@ void Gui::printToPdfFile()
           scene.render(&painter);
           clearPage(&view,&scene);
 
-          // prepare to print another page
+          // prepare to export another page
           if(_pageCount < printPages.count()) {
               displayPageNum = printPages.at(_pageCount);
               pdfWriter.setPageLayout(getPageLayout());
@@ -651,15 +688,15 @@ void Gui::printToPdfFile()
   // hide progress bar
   m_progressDialog->hide();
 
-  emit messageSig(true,QString("Print to pdf completed."));
+  emit messageSig(true,QString("Export to pdf completed."));
 
   box.setIcon (QMessageBox::Information);
   box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
   box.setDefaultButton   (QMessageBox::Yes);
 
   //display completion message
-  QString title = "<b> Print to pdf completed. </b>";
-  QString text = tr ("Your instruction document has finished printing.\n"
+  QString title = "<b> Export to pdf completed. </b>";
+  QString text = tr ("Your instruction document has finished exporting.\n"
                      "Do you want to open this document ?\n %1").arg(fileName);
 
   box.setText (title);
@@ -709,7 +746,6 @@ void Gui::exportAsBmp()
   exportAs(suffix);
 }
 
-
 void Gui::exportAs(QString &suffix)
 {
   // store current display page number
@@ -746,7 +782,8 @@ void Gui::exportAs(QString &suffix)
   displayPageNum = savePageNumber;
 
   // Support transparency for formats that can handle it, but use white for those that can't.
-  QColor fillClear = (suffix.compare(".png", Qt::CaseInsensitive) == 0) ? Qt::transparent :  Qt::white;
+  //QColor fillClear = (suffix.compare(".png", Qt::CaseInsensitive) == 0) ? Qt::transparent :  Qt::white;
+  QColor::Spec fillClear = QColor((suffix.compare(".png", Qt::CaseInsensitive) == 0) ? Qt::transparent :  Qt::white).Rgb;
 
   // initialize progress bar
   m_progressDialog->setWindowTitle(QString("Export as %1").arg(suffix));
@@ -782,7 +819,7 @@ void Gui::exportAs(QString &suffix)
           QApplication::processEvents();
 
           // determine size of output image, in pixels
-          getPrintPageSize(pageWidthPx, pageHeightPx);
+          getExportPageSize(pageWidthPx, pageHeightPx);
 
           bool  ls = getPageOrientation() == Landscape;
           logNotice() << QString("Exporting image %3 of %4, size(in pixels) W %1 x H %2, orientation %5")
@@ -815,7 +852,8 @@ void Gui::exportAs(QString &suffix)
           // transparent or uses a PNG image with transparency. This will
           // prevent rendered pixels from each page layering on top of each
           // other.
-          image.fill(fillClear.Rgb);
+          //image.fill(fillClear.Rgb);
+          image.fill(fillClear);
           // render this page
           // scene.render instead of view.render resolves "warm up" issue
           drawPage(&view,&scene,false);
@@ -871,7 +909,7 @@ void Gui::exportAs(QString &suffix)
           QApplication::processEvents();
 
           // determine size of output image, in pixels
-          getPrintPageSize(pageWidthPx, pageHeightPx);
+          getExportPageSize(pageWidthPx, pageHeightPx);
 
           bool  ls = getPageOrientation() == Landscape;
           logNotice() << QString("Exporting image %3 of range %4, size(in pixels) W %1 x H %2, orientation %5")
@@ -903,7 +941,8 @@ void Gui::exportAs(QString &suffix)
           // transparent or uses a PNG image with transparency. This will
           // prevent rendered pixels from each page layering on top of each
           // other.
-          image.fill(fillClear.Rgb);
+          //image.fill(fillClear.Rgb);
+          image.fill(fillClear);
           // render this page
           // scene.render instead of view.render resolves "warm up" issue
           drawPage(&view,&scene,false);
@@ -978,7 +1017,7 @@ void Gui::exportAs(QString &suffix)
 
 //-----------------PRINT FUNCTIONS------------------------//
 
-void Gui::Print(QPrinter* Printer)
+void Gui::PrintPdf(QPrinter* Printer)
 {
   QObject *previewDialog  = qobject_cast<QPrintPreviewDialog *>(sender());
   bool preview = previewDialog ? false /* true */ : false;  //Hack
@@ -1041,7 +1080,10 @@ void Gui::Print(QPrinter* Printer)
   clearPage(&view,&scene);
   displayPageNum = savePageNumber;
 
-  // print over the entire page
+  // check if mixed page size and orientation
+  checkMixedPageSizeStatus();
+
+  // export over the entire page
   Printer->setFullPage(true);
 
   // set displayPageNum so we can send the correct index to retrieve page size data
@@ -1054,9 +1096,9 @@ void Gui::Print(QPrinter* Printer)
   QPainter Painter(Printer);
 
   // initialize progress bar dialog
-  m_progressDialog->setWindowTitle(preview ? "Preview pdf" : "Preview pdf" /* Print pdf */);  //Hack
+  m_progressDialog->setWindowTitle(preview ? "Preview pdf" : "Preview pdf" /* Export pdf */);  //Hack
   m_progressDialog->show();
-  m_progressDlgMessageLbl->setText(preview ? "Generating preview..." : "Printing...");
+  m_progressDlgMessageLbl->setText(preview ? "Generating preview..." : "Exporting...");
 
   for (int DocCopy = 0; DocCopy < DocCopies; DocCopy++)
     {
@@ -1078,7 +1120,7 @@ void Gui::Print(QPrinter* Printer)
                   m_progressDialog->hide();
                   displayPageNum = savePageNumber;
                   drawPage(KpageView,KpageScene,false);
-                  emit messageSig(true,QString("Printing terminated before completion."));
+                  emit messageSig(true,QString("Exporting terminated before completion."));
                   if (preview){
                       m_previewDialog = false;
                     }
@@ -1086,13 +1128,13 @@ void Gui::Print(QPrinter* Printer)
                 }
 
               m_progressDlgMessageLbl->setText(QString("%3 page %1 of %2").arg(Page).arg(ToPage)
-                                               .arg(preview ? "Previewing" : "Printing"));
+                                               .arg(preview ? "Preview" : "Exporting"));
               m_progressDlgProgressBar->setValue(Page);
               QApplication::processEvents();
 
               // determine size of output image, in pixels. dimension are inches * pixels per inch
               float pageWidthPx, pageHeightPx;
-              getPrintPageSize(pageWidthPx, pageHeightPx);
+              getExportPageSize(pageWidthPx, pageHeightPx);
 
               bool  ls = getPageOrientation() == Landscape;
               logNotice() << QString("%6 page %3 of %4, size(in pixels) W %1 x H %2, orientation %5")
@@ -1101,7 +1143,7 @@ void Gui::Print(QPrinter* Printer)
                                        .arg(displayPageNum)
                                        .arg(ToPage)
                                        .arg(ls ? "Landscape" : "Portrait")
-                                       .arg(preview ? "Previewing" : "Printing");
+                                       .arg(preview ? "Preview" : "Exporting");
 
               // set up the view
               QRectF boundingRect(0.0, 0.0, pageWidthPx, pageHeightPx);
@@ -1126,7 +1168,7 @@ void Gui::Print(QPrinter* Printer)
                       displayPageNum = savePageNumber;
                       drawPage(KpageView,KpageScene,false);
                       emit messageSig(true,QString("%1 terminated before completion.")
-                                      .arg(preview ? "Preview" : "Printing"));
+                                      .arg(preview ? "Preview" : "Exporting"));
                       if (preview){
                           m_previewDialog = false;
                         }
@@ -1139,7 +1181,7 @@ void Gui::Print(QPrinter* Printer)
                   scene.render(&Painter);
                   clearPage(&view,&scene);
 
-                  // TODO: print header and footer
+                  // TODO: export header and footer
 
                   if (PageCopy < PageCopies - 1){
                       Printer->newPage();
@@ -1191,7 +1233,7 @@ void Gui::Print(QPrinter* Printer)
                   m_progressDialog->hide();
                   displayPageNum = savePageNumber;
                   drawPage(KpageView,KpageScene,false);
-                  emit messageSig(true,QString("Printing terminated before completion."));
+                  emit messageSig(true,QString("Exporting terminated before completion."));
                   if (preview){
                       m_previewDialog = false;
                     }
@@ -1201,7 +1243,7 @@ void Gui::Print(QPrinter* Printer)
               displayPageNum = Page = printPage;
 
               m_progressDlgMessageLbl->setText(QString("%1 page %2 of %3 for range %4 ")
-                                               .arg(preview ? "Previewing" : "Printing")
+                                               .arg(preview ? "Preview" : "Exporting")
                                                .arg(Page)
                                                .arg(printPages.count())
                                                .arg(pageRanges.join(" ")));
@@ -1210,7 +1252,7 @@ void Gui::Print(QPrinter* Printer)
 
               // determine size of output image, in pixels. dimension are inches * pixels per inch
               float pageWidthPx, pageHeightPx;
-              getPrintPageSize(pageWidthPx, pageHeightPx);
+              getExportPageSize(pageWidthPx, pageHeightPx);
 
               bool  ls = getPageOrientation() == Landscape;
               logNotice() << QString("%6 page %3 of %4, size(pixels) W %1 x H %2, orientation %5 for range %7")
@@ -1219,7 +1261,7 @@ void Gui::Print(QPrinter* Printer)
                                        .arg(Page)
                                        .arg(printPages.count())
                                        .arg(ls ? "Landscape" : "Portrait")
-                                       .arg(preview ? "Previewing" : "Printing")
+                                       .arg(preview ? "Preview" : "Exporting")
                                        .arg(pageRanges.join(" "));
 
               // set up the view
@@ -1245,7 +1287,7 @@ void Gui::Print(QPrinter* Printer)
                       displayPageNum = savePageNumber;
                       drawPage(KpageView,KpageScene,false);
                       emit messageSig(true,QString("%1 terminated before completion.")
-                                      .arg(preview ? "Preview" : "Printing"));
+                                      .arg(preview ? "Preview" : "Exporting"));
                       if (preview){
                           m_previewDialog = false;
                         }
@@ -1258,7 +1300,7 @@ void Gui::Print(QPrinter* Printer)
                   scene.render(&Painter);
                   clearPage(&view,&scene);
 
-                  // TODO: print header and footer
+                  // TODO: export header and footer
 
                   if (PageCopy < PageCopies - 1){
                       Printer->newPage();
@@ -1287,7 +1329,7 @@ void Gui::Print(QPrinter* Printer)
   // hide progress bar
   m_progressDialog->hide();
 
-  emit messageSig(true,QString("%1 completed.").arg(preview ? "Preview" : "Print to pdf"));
+  emit messageSig(true,QString("%1 completed.").arg(preview ? "Preview" : "Export to pdf"));
 
   if (preview){
       m_previewDialog = false;
@@ -1303,14 +1345,14 @@ void Gui::showPrintedFile(){
       box.setIcon (QMessageBox::Information);
       box.setStandardButtons (QMessageBox::Close);
       box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-      box.setWindowTitle(tr ("Print Status"));
+      box.setWindowTitle(tr ("Export Status"));
 
       //display completion message
       box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
       box.setDefaultButton   (QMessageBox::Yes);
 
-      QString title = "<b> Print to pdf completed. </b>";
-      QString text = tr ("Your instruction document has finished printing.\n"
+      QString title = "<b> Export to pdf completed. </b>";
+      QString text = tr ("Your instruction document has finished exporting.\n"
                          "Do you want to open this document ?\n %1").arg(pdfPrintedFile);
 
       box.setText (title);
@@ -1353,14 +1395,14 @@ void Gui::ShowPrintDialog()
     QPrintDialog PrintDialog(&Printer, this);
 
     if (PrintDialog.exec() == QDialog::Accepted)
-        Print(&Printer);
+        PrintPdf(&Printer);
 }
 
 void Gui::TogglePrintPreview()
 {
   m_previewDialog = true;
-  checkMixedPageSizeStatus();
-  if (! printToPdfFileDialog()){
+
+  if (! exportAsDialog(EXPORT_PDF)){
       m_previewDialog = false;
       return;
     }
@@ -1389,12 +1431,12 @@ void Gui::TogglePrintPreview()
 
   QPrintPreviewDialog Preview(&Printer, this);
 
-  connect(&Preview, SIGNAL(paintRequested(QPrinter*)),          SLOT(Print(QPrinter*)));
+  connect(&Preview, SIGNAL(paintRequested(QPrinter*)),          SLOT(PrintPdf(QPrinter*)));
   connect(this,     SIGNAL(hidePreviewDialogSig()),   &Preview, SLOT(hide()));
 
   int rc = Preview.exec();
 
-  logStatus() << "Pdf print preview result is" << (rc == 1 ? pdfPrintedFile + " printed" : "preview only");  // 0=preview only, 1=print output
+  logStatus() << "Pdf export preview result is" << (rc == 1 ? pdfPrintedFile + " exported" : "preview only");  // 0=preview only, 1=export output
 
   if (rc == 1) {
       showPrintedFile();

@@ -303,6 +303,12 @@ class QSU_DECL QSimpleUpdater : public QObject {
     ///
     void downloadFinished (const QString& url, const QString& filepath);
 
+    ///
+    /// Emitted when the update or download is cancelled.
+    /// You can use this to signal downstream functions.
+    ///
+    void cancel();
+
   protected:
     ~QSimpleUpdater();
 

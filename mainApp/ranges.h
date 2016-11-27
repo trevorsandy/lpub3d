@@ -99,14 +99,14 @@ class Page : public Steps {
     bool coverPage;
     bool frontCover;
     bool backCover;
-    bool modelDisplayStep;
+    bool modelDisplayOnlyStep;
     int  instances;
     Page()
     {
       coverPage           = false;
       frontCover          = false;
       backCover           = false;
-      modelDisplayStep    = false;
+      modelDisplayOnlyStep         = false;
       instances           = 1;
     }
     
@@ -125,7 +125,7 @@ class Page : public Steps {
       coverPage           = false;
       frontCover          = false;
       backCover           = false;
-      modelDisplayStep    = false;
+      modelDisplayOnlyStep         = false;
       instances           = 1;
       for (int i = 0; i < insertPixmaps.size(); i++) {
         InsertPixmapItem *pixmap = insertPixmaps[i];

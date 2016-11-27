@@ -647,7 +647,7 @@ int Gui::addGraphicsPageItems(
 
                   // allocate QGraphicsTextItem for step number
 
-                  if ( ! step->onlyChild() && ! step->modelDisplayStep) {
+                  if (! step->onlyChild() || ! step->displayModelOnlyStep()) {
                       StepNumberItem *stepNumber =
                           new StepNumberItem(step,
                                              page->relativeType,
@@ -850,40 +850,48 @@ int Gui::addPageAttributes(
     {
       // Initializations ...
 
-      PageAttributeTextItem   *url;
-      PageAttributeTextItem   *email;
-      PageAttributeTextItem   *copyright;
-      PageAttributeTextItem   *author;
+      PageAttributeTextItem   *url       = new PageAttributeTextItem(page,page->meta.LPub.page.url,pageBg);
+      PageAttributeTextItem   *email     = new PageAttributeTextItem(page,page->meta.LPub.page.email,pageBg);
+      PageAttributeTextItem   *copyright = new PageAttributeTextItem(page,page->meta.LPub.page.copyright,pageBg);
+      PageAttributeTextItem   *author    = new PageAttributeTextItem(page,page->meta.LPub.page.author,pageBg);
       bool displayPageNumber = page->meta.LPub.page.dpn.value();
 
       //  Content Page URL,
       bool displayURL       = page->meta.LPub.page.url.display.value();
       if (displayURL) {
-          url               = new PageAttributeTextItem(page,page->meta.LPub.page.url,pageBg);
           url->size[XX]     = (int) url->document()->size().width();
           url->size[YY]     = (int) url->document()->size().height();
-      }
+      } else {
+          delete url;
+          url               = NULL;
+        }
       //  Content Page Email
       bool displayEmail       = page->meta.LPub.page.email.display.value();
       if (displayEmail){
-          email               = new PageAttributeTextItem(page,page->meta.LPub.page.email,pageBg);
           email->size[XX]     = (int) email->document()->size().width();
           email->size[YY]     = (int) email->document()->size().height();
-      }
+      }else {
+          delete email;
+          email               = NULL;
+        }
       //  Content Page Copyright
       bool displayCopyright       = page->meta.LPub.page.copyright.display.value();
       if (displayCopyright){
-          copyright               = new PageAttributeTextItem(page,page->meta.LPub.page.copyright,pageBg);
           copyright->size[XX]     = (int) copyright->document()->size().width();
           copyright->size[YY]     = (int) copyright->document()->size().height();
-      }
+      }else {
+          delete copyright;
+          copyright               = NULL;
+        }
       //  Content Page Author
       bool displayAuthor       = page->meta.LPub.page.author.display.value();
       if (displayAuthor) {
-          author               = new PageAttributeTextItem(page,page->meta.LPub.page.author,pageBg);
           author->size[XX]     = (int) author->document()->size().width();
           author->size[YY]     = (int) author->document()->size().height();
-      }
+      }else {
+          delete author;
+          author               = NULL;
+        }
 
       // Allocations...
 
@@ -1024,36 +1032,40 @@ int Gui::addPageAttributes(
   if (page->coverPage && page->frontCover) {
 
       // Initializations...
-      PageAttributeTextItem   *titleFront;
-      PageAttributeTextItem   *modelNameFront;
-      PageAttributeTextItem   *authorFront;
-      PageAttributeTextItem   *piecesFront;
-      PageAttributeTextItem   *modelDescFront;
-      PageAttributeTextItem   *publishDescFront;
+      PageAttributeTextItem   *titleFront            = new PageAttributeTextItem(page,page->meta.LPub.page.titleFront,pageBg);
+      PageAttributeTextItem   *modelNameFront        = new PageAttributeTextItem(page,page->meta.LPub.page.modelName,pageBg);
+      PageAttributeTextItem   *authorFront           = new PageAttributeTextItem(page,page->meta.LPub.page.authorFront,pageBg);
+      PageAttributeTextItem   *piecesFront           = new PageAttributeTextItem(page,page->meta.LPub.page.pieces,pageBg);
+      PageAttributeTextItem   *modelDescFront        = new PageAttributeTextItem(page,page->meta.LPub.page.modelDesc,pageBg);
+      PageAttributeTextItem   *publishDescFront      = new PageAttributeTextItem(page,page->meta.LPub.page.publishDesc,pageBg);
       PageAttributePixmapItem *pixmapLogoFront;
       PageAttributePixmapItem *pixmapCoverImageFront;
-      //PageAttributeTextItem   *categoryFront;
+      //PageAttributeTextItem   *categoryFront       = new PageAttributeTextItem(page,page->meta.LPub.page.category,pageBg);
 
       // Front Cover Title
       bool displayTitleFront         = page->meta.LPub.page.titleFront.display.value();
       bool breakTitleFrontRelativeTo = false;
       PlacementData titleFrontPld;
-      if (displayTitleFront) {
-          titleFront               = new PageAttributeTextItem(page,page->meta.LPub.page.titleFront,pageBg);
-          titleFront->size[XX]     = (int) titleFront->document()->size().width();
-          titleFront->size[YY]     = (int) titleFront->document()->size().height();
+      if (displayTitleFront) {          
+          titleFront->size[XX]       = (int) titleFront->document()->size().width();
+          titleFront->size[YY]       = (int) titleFront->document()->size().height();
           titleFrontPld = titleFront->placement.value();
-          breakTitleFrontRelativeTo = titleFrontPld.relativeTo != PageType;
-      }
+          breakTitleFrontRelativeTo  = titleFrontPld.relativeTo != PageType;
+      } else {
+          delete titleFront;
+          titleFront                 = NULL;
+        }
 
       // Front Cover Model Name
-      bool displayModelNameFront          = page->meta.LPub.page.modelName.display.value();
+      bool displayModelNameFront       = page->meta.LPub.page.modelName.display.value();
       PlacementData modelNameFrontPld;
       if (displayModelNameFront){
-          modelNameFront               = new PageAttributeTextItem(page,page->meta.LPub.page.modelName,pageBg);
           modelNameFront->size[XX]     = (int) modelNameFront->document()->size().width();
           modelNameFront->size[YY]     = (int) modelNameFront->document()->size().height();
           modelNameFrontPld = modelNameFront->placement.value();
+        } else {
+          delete modelNameFront;
+          modelNameFront               = NULL;
         }
 
        // Front Cover Author
@@ -1061,59 +1073,69 @@ int Gui::addPageAttributes(
       bool breakAuthorFrontRelativeTo = false;
       PlacementData authorFrontPld;
       if (displayAuthorFront) {
-          authorFront               = new PageAttributeTextItem(page,page->meta.LPub.page.authorFront,pageBg);
-          authorFront->size[XX]     = (int) authorFront->document()->size().width();
-          authorFront->size[YY]     = (int) authorFront->document()->size().height();
+          authorFront->size[XX]       = (int) authorFront->document()->size().width();
+          authorFront->size[YY]       = (int) authorFront->document()->size().height();
           authorFrontPld = authorFront->placement.value();
-          breakAuthorFrontRelativeTo = authorFrontPld.relativeTo != PageTitleType;
-      }
+          breakAuthorFrontRelativeTo  = authorFrontPld.relativeTo != PageTitleType;
+      } else {
+          delete authorFront;
+          authorFront                 = NULL;
+        }
 
       // Front Page Pieces Count
       bool displayPiecesFront         = page->meta.LPub.page.pieces.display.value();
       bool breakPiecesFrontRelativeTo = false;
       PlacementData piecesFrontPld;
       if (displayPiecesFront) {
-          piecesFront               = new PageAttributeTextItem(page,page->meta.LPub.page.pieces,pageBg);
-          piecesFront->size[XX]     = (int) piecesFront->document()->size().width();
-          piecesFront->size[YY]     = (int) piecesFront->document()->size().height();
+          piecesFront->size[XX]       = (int) piecesFront->document()->size().width();
+          piecesFront->size[YY]       = (int) piecesFront->document()->size().height();
           piecesFrontPld = piecesFront->placement.value();
-          breakPiecesFrontRelativeTo = piecesFrontPld.relativeTo != PageAuthorType;
-      }
+          breakPiecesFrontRelativeTo  = piecesFrontPld.relativeTo != PageAuthorType;
+      } else {
+          delete  piecesFront;
+          piecesFront                 = NULL;
+        }
 
       // Front Page Model Description,
       bool displayModelDescFront         = page->meta.LPub.page.modelDesc.display.value();
       bool breakModelDescFrontRelativeTo = false;
       PlacementData modelDescFrontPld;
       if (displayModelDescFront) {
-          modelDescFront               = new PageAttributeTextItem(page,page->meta.LPub.page.modelDesc,pageBg);
-          modelDescFront->size[XX]     = (int) modelDescFront->document()->size().width();
-          modelDescFront->size[YY]     = (int) modelDescFront->document()->size().height();
+          modelDescFront->size[XX]       = (int) modelDescFront->document()->size().width();
+          modelDescFront->size[YY]       = (int) modelDescFront->document()->size().height();
           modelDescFrontPld = modelDescFront->placement.value();
-          breakModelDescFrontRelativeTo = modelDescFrontPld.relativeTo != PagePiecesType;
-      }
+          breakModelDescFrontRelativeTo  = modelDescFrontPld.relativeTo != PagePiecesType;
+      } else {
+          delete modelDescFront;
+          modelDescFront                 = NULL;
+        }
 
       // Front Page Publish Description,
-      bool displayPublishDescFront         = page->meta.LPub.page.publishDesc.display.value();
+      bool displayPublishDescFront       = page->meta.LPub.page.publishDesc.display.value();
       PlacementData publishDescFrontPld;
       if (displayPublishDescFront) {
-          publishDescFront               = new PageAttributeTextItem(page,page->meta.LPub.page.publishDesc,pageBg);
           publishDescFront->size[XX]     = (int) publishDescFront->document()->size().width();
           publishDescFront->size[YY]     = (int) publishDescFront->document()->size().height();
           publishDescFrontPld = publishDescFront->placement.value();
-      }
+      } else {
+          delete publishDescFront;
+          publishDescFront               = NULL;
+        }
 
       // Front Page Category,
-      /* bool displayCategoryFront         = page->meta.LPub.page.category.display.value();
+      /* bool displayCategoryFront      = page->meta.LPub.page.category.display.value();
       bool breakCategoryFrontRelativeTo = false;
       PlacementData categoryFrontPld;
       if (displayCategoryFront) {
-          categoryFront               = new PageAttributeTextItem(page,page->meta.LPub.page.category,pageBg);
-          categoryFront->size[XX]     = (int) categoryFront->document()->size().width();
-          categoryFront->size[YY]     = (int) categoryFront->document()->size().height();
+          categoryFront->size[XX]       = (int) categoryFront->document()->size().width();
+          categoryFront->size[YY]       = (int) categoryFront->document()->size().height();
 
           categoryFrontPld = categoryFront->placement.value();
-          breakCategoryFrontRelativeTo = categoryFrontPld.relativeTo != PagePiecesType;
-      } */
+          breakCategoryFrontRelativeTo  = categoryFrontPld.relativeTo != PagePiecesType;
+      } else {
+          delete  categoryFront;
+          categoryFront                 = NULL;
+        } */
 
       // Front Cover Document Logo
       bool displayDocumentLogoFront  = page->meta.LPub.page.documentLogoFront.display.value();
@@ -1308,13 +1330,13 @@ int Gui::addPageAttributes(
   if (page->coverPage && page->backCover){
 
       // Initializations...
-      PageAttributeTextItem   *titleBack;
-      PageAttributeTextItem   *authorBack;
-      PageAttributeTextItem   *copyrightBack;
-      PageAttributeTextItem   *urlBack;
-      PageAttributeTextItem   *emailBack;
-      PageAttributeTextItem   *disclaimerBack;
-      PageAttributeTextItem   *plugBack;
+      PageAttributeTextItem   *titleBack          = new PageAttributeTextItem(page,page->meta.LPub.page.titleBack,pageBg);
+      PageAttributeTextItem   *authorBack         = new PageAttributeTextItem(page,page->meta.LPub.page.authorBack,pageBg);
+      PageAttributeTextItem   *copyrightBack      = new PageAttributeTextItem(page,page->meta.LPub.page.copyrightBack,pageBg);
+      PageAttributeTextItem   *urlBack            = new PageAttributeTextItem(page,page->meta.LPub.page.urlBack,pageBg);
+      PageAttributeTextItem   *emailBack          = new PageAttributeTextItem(page,page->meta.LPub.page.emailBack,pageBg);
+      PageAttributeTextItem   *disclaimerBack     = new PageAttributeTextItem(page,page->meta.LPub.page.disclaimer,pageBg);
+      PageAttributeTextItem   *plugBack           = new PageAttributeTextItem(page,page->meta.LPub.page.plug,pageBg);;
       PageAttributePixmapItem *pixmapLogoBack;
       PageAttributePixmapItem *pixmapPlugImageBack;
 
@@ -1322,84 +1344,98 @@ int Gui::addPageAttributes(
       bool displayTitleBack = page->meta.LPub.page.titleBack.display.value();
       bool breakTitleBackRelativeTo = false;
       PlacementData titleBackPld;
-      if (displayTitleBack) {
-          titleBack               = new PageAttributeTextItem(page,page->meta.LPub.page.titleBack,pageBg);
+      if (displayTitleBack) {    
           titleBack->size[XX]     = (int) titleBack->document()->size().width();
           titleBack->size[YY]     = (int) titleBack->document()->size().height();
 
           titleBackPld = titleBack->placement.value();
           breakTitleBackRelativeTo = titleBackPld.relativeTo != PageType;
-      }
+      } else {
+          delete titleBack;
+          titleBack               = NULL;
+        }
 
       // Back Cover Author
       bool displayAuthorBack = page->meta.LPub.page.authorBack.display.value();
       bool breakAuthorBackRelativeTo = false;
       PlacementData authorBackPld;
       if (displayAuthorBack) {
-          authorBack               = new PageAttributeTextItem(page,page->meta.LPub.page.authorBack,pageBg);
           authorBack->size[XX]     = (int) authorBack->document()->size().width();
           authorBack->size[YY]     = (int) authorBack->document()->size().height();
           authorBackPld = authorBack->placement.value();
           breakAuthorBackRelativeTo = authorBackPld.relativeTo != PageTitleType;
-      }
+      } else {
+          delete authorBack;
+          authorBack               = NULL;
+        }
 
       // Back Cover Copyright
       bool displayCopyrightBack = page->meta.LPub.page.copyrightBack.display.value();
       bool breakCopyrightBackRelativeTo = false;
       PlacementData copyrightBackPld;
       if (displayCopyrightBack) {
-          copyrightBack               = new PageAttributeTextItem(page,page->meta.LPub.page.copyrightBack,pageBg);
           copyrightBack->size[XX]     = (int) copyrightBack->document()->size().width();
           copyrightBack->size[YY]     = (int) copyrightBack->document()->size().height();
           copyrightBackPld = copyrightBack->placement.value();
           breakCopyrightBackRelativeTo = copyrightBackPld.relativeTo != PageAuthorType;
-      }
+      } else {
+          delete copyrightBack;
+          copyrightBack               = NULL;
+        }
 
       // Back Cover URL
       bool displayUrlBack = page->meta.LPub.page.urlBack.display.value();
       bool breakURLBackRelativeTo = false;
       PlacementData urlBackPld;
       if (displayUrlBack) {
-          urlBack               = new PageAttributeTextItem(page,page->meta.LPub.page.urlBack,pageBg);
           urlBack->size[XX]     = (int) urlBack->document()->size().width();
           urlBack->size[YY]     = (int) urlBack->document()->size().height();
           urlBackPld = urlBack->placement.value();
           breakURLBackRelativeTo = urlBackPld.relativeTo != PageCopyrightType;
-      }
+      } else {
+          delete urlBack;
+          urlBack               = NULL;
+        }
 
       // Back Cover Email
       bool displayEmailBack = page->meta.LPub.page.emailBack.display.value();
       bool breakEmailBackRelativeTo = false;
       PlacementData emailBackPld;
       if (displayEmailBack) {
-          emailBack               = new PageAttributeTextItem(page,page->meta.LPub.page.emailBack,pageBg);
           emailBack->size[XX]     = (int) emailBack->document()->size().width();
           emailBack->size[YY]     = (int) emailBack->document()->size().height();
           emailBackPld = emailBack->placement.value();
           breakEmailBackRelativeTo = emailBackPld.relativeTo != PageURLType;
-      }
+      } else {
+          delete emailBack;
+          emailBack               = NULL;
+        }
 
       // Back Cover Disclaimer
       bool displayDisclaimerBack = page->meta.LPub.page.disclaimer.display.value();
       bool breakDisclaimerBackRelativeTo = false;
       PlacementData disclaimerBackPld;
       if (displayDisclaimerBack) {
-          disclaimerBack               = new PageAttributeTextItem(page,page->meta.LPub.page.disclaimer,pageBg);
           disclaimerBack->size[XX]     = (int) disclaimerBack->document()->size().width();
           disclaimerBack->size[YY]     = (int) disclaimerBack->document()->size().height();
           disclaimerBackPld = disclaimerBack->placement.value();
           breakDisclaimerBackRelativeTo = disclaimerBackPld.relativeTo != PageEmailType;
-      }
+      } else {
+          delete disclaimerBack;
+          disclaimerBack               = NULL;
+        }
 
       // Back Cover Plug
       bool displayPlugBack = page->meta.LPub.page.plug.display.value();
       PlacementData plugBackPld;
       if (displayPlugBack) {
-          plugBack               = new PageAttributeTextItem(page,page->meta.LPub.page.plug,pageBg);
           plugBack->size[XX]     = (int) plugBack->document()->size().width();
           plugBack->size[YY]     = (int) plugBack->document()->size().height();
           plugBackPld = plugBack->placement.value();
-      }
+      } else {
+          delete plugBack;
+          plugBack               = NULL;
+        }
 
       // Back Cover DocumentLogo
       bool displayDocumentLogoBack = page->meta.LPub.page.documentLogoBack.display.value();

@@ -2,8 +2,10 @@ LPub3D 2.0.18.864.2
  
 Features and enhancements 
 ------------ 
-Fix: Misplaced submodel occurrence (r864)
- * When a submodel ends with a single step and the next to the last step is a multi-step, the submodel occurrence number (if used more than 1x in the parent model) is placed both at the multi-step and the last step in the child model. Under this scenario, the corrected behaviour places the occurrence number only at the last step. 
+Fix: Display message for mixed page size and orientation (r866)
+ * When previewing a pdf export, the user has to option to present or suppress the message indicating there are different orientations and/or sizes in the preview. The Qt print preview does not play well with mixed pages sizes. This message informs the user of this fact.
+Fix: Misplaced submodel occurrence (r865)
+ * When a submodel ends with a single step and the next to the last step is a multi-step, the submodel occurrence number (if used more than 1x in the parent model) is placed both at the multi-step and the last step in the child model. Under this scenario, the corrected behaviour places the occurrence number only at the last step. Cleanup.
 
 LPub3D 2.0.17.863.2 
  
@@ -606,8 +608,8 @@ Features and enhancements
 -Add Rotate Icon - indicate that the builder should "flip" the model 
 -Add line type attribute to border configuration 
  0=none,1=solid,2=dash,3=dot,4=dashDot,5=dashDotDot. So an old meta line like this: 
- 0 
- 0 LPUB PLI BORDER GLOBAL ROUND 1 Black 0 15 MARGINS 0.472439 0.07 
+ 0 !LPUB PLI BORDER GLOBAL ROUND Black 0 15 MARGINS 0.472439 0.07 should be updated to this: 
+ 0 !LPUB PLI BORDER GLOBAL ROUND 1 Black 0 15 MARGINS 0.472439 0.07 
 -Add PLI/BOM part substitution - substitute modeled part in PLI/BOM with alternate 
  This feature is useful when you have a modeled part (e.g. Power Functions Light) that will 
  take alot of space in the BOM/PLI, you can substitute the modeled version with an alternate 

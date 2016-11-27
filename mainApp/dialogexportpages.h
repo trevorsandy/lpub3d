@@ -16,7 +16,6 @@
 #define DIALOGEXPORTPAGES_H
 
 #include <QDialog>
-#include "lpub.h"
 
 namespace Ui {
   class DialogExportPages;
@@ -34,6 +33,7 @@ public:
   bool currentPage();
   bool pageRange();
   bool resetCache();
+  bool ignoreMixedPageSizesMsg();
   QString const pageRangeText();
 
 private slots:

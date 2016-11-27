@@ -373,6 +373,10 @@
 #define WATCHER
 #endif
 
+#ifndef DEF_SIZE
+#define DEF_SIZE 0
+#endif
+
 class QString;
 class QSplitter;
 class QGraphicsScene;
@@ -942,23 +946,22 @@ private slots:
     void zoomIn(LGraphicsView *view);
     void zoomOut(LGraphicsView *view);
 
-    void getPrintPageSize(float &, float &, int d = Pixels);
+    void getExportPageSize(float &, float &, int d = Pixels);
     bool validatePageRange();
 
     void ShowPrintDialog();
-    bool printToPdfFileDialog();
-
-    void Print(QPrinter* Printer);
-    void printToPdfFile();
-
-    bool exportAsPngDialog();
-    bool exportAsJpgDialog();
-    bool exportAsBmpDialog();
+    void PrintPdf(QPrinter* Printer);
 
     void exportAs(QString &);
+    void exportAsPdf();
     void exportAsPng();
     void exportAsJpg();
     void exportAsBmp();
+    bool exportAsDialog(ExportType t);
+    void exportAsPdfDialog();
+    void exportAsPngDialog();
+    void exportAsJpgDialog();
+    void exportAsBmpDialog();
 
     OrientationEnc getPageOrientation(bool nextPage = false);
     QPageLayout getPageLayout(bool nextPage = false);
@@ -1033,9 +1036,9 @@ private:
   QAction  *saveAct;
   QAction  *saveAsAct;
   QAction  *closeFileAct;
-  QAction  *printToPdfFileAct;
+  QAction  *exportAsPdfAct;
   QAction  *printToFileAct;
-  QAction  *printToFilePreviewAct;
+  QAction  *exportAsPdfPreviewAct;
   QAction  *exportPngAct;
   QAction  *exportJpgAct;
   QAction  *exportBmpAct;

@@ -63,7 +63,7 @@ class Step : public AbstractRangeElement
     int                   submodelLevel;
     bool                  pliPerStep;
     bool                  csiOutOfDate;
-    bool                  modelDisplayStep;
+    bool                  modelDisplayOnlyStep;
     PlacementMeta         placement;
     QString               ldrName;
     QString               pngName;
@@ -89,6 +89,11 @@ class Step : public AbstractRangeElement
       list.append(callout);
       callout->parentStep = this;
     }
+
+    bool displayModelOnlyStep(){
+      return ! modelDisplayOnlyStep;
+    }
+
     Step  *nextStep();
     Range *range();
 

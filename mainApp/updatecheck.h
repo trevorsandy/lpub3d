@@ -40,17 +40,24 @@ public:
 
     void requestDownload(const QString& url, const QString& localPath);
     QString getDEFS_URL(){return DEFS_URL;}
+    bool getCancel(){return m_cancel;}
 
 signals:
    void checkingFinished (const QString& url);
    void downloadFinished (const QString& url, const QString& filepath);
+   void cancel();
 
 public slots:
    void updateChangelog (const QString& url);
+   void setCancel(){
+     m_cancel = true;
+     emit cancel();
+   }
 
 private:
    void applyGeneralSettings (const QString& url);
 
+    bool                     m_cancel;
     int                      m_option;
 
     QString                  DEFS_URL;

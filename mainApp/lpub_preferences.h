@@ -37,8 +37,10 @@ class Preferences
     static void annotationPreferences();
     static void fadestepPreferences();
     static void publishingPreferences();
-    static void setLPub3DLoaded();
     static void loggingPreferences();
+    static void exportPreferences();
+
+    static void setLPub3DLoaded();
     static void getRequireds();
     static bool getPreferences();
 
@@ -97,6 +99,8 @@ class Preferences
     static bool    includeLineNumber;
     static bool    includeFileName;
     static bool    includeFunction;
+
+    static bool    ignoreMixedPageSizesMsg;
 
     static bool    debugLevel;
     static bool    traceLevel;

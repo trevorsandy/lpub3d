@@ -78,8 +78,10 @@ Downloader::Downloader (QWidget* parent) : QWidget (parent) {
 //==============================================================================
 
 Downloader::~Downloader() {
-    delete m_ui;
+  delete m_ui;
+  if (m_reply)
     delete m_reply;
+  if (m_manager)
     delete m_manager;
 }
 
@@ -251,7 +253,10 @@ void Downloader::cancelDownload() {
 
         if (box.exec() == QMessageBox::Yes) {
             hide();
+            disconnect(m_reply, SIGNAL (finished()),
+                     this,      SLOT (onDownloadFinished()));
             m_reply->abort();
+            emit downloadCancelled();
         }
     }
 

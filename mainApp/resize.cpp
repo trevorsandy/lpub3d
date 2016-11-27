@@ -298,7 +298,6 @@ void InsertPixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   }
 
   if (selectedAction == deleteAction) {
-    MetaItem mi;
-    mi.deleteMeta(insertMeta.here());
+      deleteMeta(insertMeta.here());
   }
 }

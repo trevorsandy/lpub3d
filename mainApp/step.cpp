@@ -70,7 +70,7 @@ Step::Step(
   submodelLevel             = _meta.submodelStack.size();
   stepNumber.number         =  num;             // record step number
 
-  modelDisplayStep      = false;
+  modelDisplayOnlyStep               = false;
   relativeType              = StepType;
   csiPlacement.relativeType = CsiType;
   stepNumber.relativeType   = StepNumberType;
@@ -146,7 +146,6 @@ Step::~Step() {
   list.clear();
   pli.clear();
 }
-
 Step *Step::nextStep()
 {
   const AbstractRangeElement *re = dynamic_cast<const AbstractRangeElement *>(this);
@@ -171,7 +170,7 @@ int Step::createCsi(
 {
   qreal       modelScale = meta.LPub.assem.modelScale.value();
   QString     mdStepNum = QString("%1_fm").arg(stepNumber.number);
-  QString     sn = QString("%1").arg(modelDisplayStep ? mdStepNum : QString::number(stepNumber.number));
+  QString     sn = QString("%1").arg(modelDisplayOnlyStep ? mdStepNum : QString::number(stepNumber.number));
   bool        csiExist = false;
   ldrName.clear();
 

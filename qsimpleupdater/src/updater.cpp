@@ -90,6 +90,8 @@ Updater::Updater() {
 
     connect (m_downloader, SIGNAL (downloadFinished (QString, QString)),
              this,         SIGNAL (downloadFinished (QString, QString)));
+    connect (m_downloader, SIGNAL (downloadCancelled()),
+             this,         SIGNAL (downloadCancelled()));
     connect (m_manager,    SIGNAL (finished (QNetworkReply*)),
              this,           SLOT (onReply  (QNetworkReply*)));
 }
@@ -99,7 +101,11 @@ Updater::Updater() {
 //==============================================================================
 
 Updater::~Updater() {
-    delete m_downloader;
+  delete m_progressDialog;
+  if (m_downloader)
+    m_downloader->deleteLater();
+  if (m_manager)
+    m_manager->deleteLater();
 }
 
 //==============================================================================
@@ -623,6 +629,7 @@ bool Updater::compare (const QString& x, const QString& y) {
 void Updater::cancel (void)
 {
     m_manager->disconnect();
+    emit checkingCancelled();
 }
 
 //==============================================================================

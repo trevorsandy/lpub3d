@@ -14,6 +14,8 @@
 
 #include "dialogexportpages.h"
 #include "ui_dialogexportpages.h"
+#include "lpub_preferences.h"
+#include "lpub.h"
 
 DialogExportPages::DialogExportPages(QWidget *parent) :
   QDialog(parent),
@@ -21,19 +23,27 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
 {
   ui->setupUi(this);
 
+  bool preview = gui->m_previewDialog;
+
+  if (! preview || gui->exportType != EXPORT_PDF) {
+      ui->groupBoxMixedPageSizes->setVisible(false);
+      this->resize(350,260);
+      ui->line->setGeometry(10,203,331,20);
+      ui->buttonBoxExportPages->setGeometry(10,220,331,32);
+    } else {
+      ui->checkBoxIgnoreMixedPageSizes->setChecked(Preferences::ignoreMixedPageSizesMsg);
+    }
   ui->radioButtonAllPages->setChecked(true);
   ui->checkBoxResetCache->setChecked(false);
   ui->labelAllPages->setText(QString("1 to %1").arg(gui->maxPages));
   ui->labelCurrentPage->setText(QString("%1").arg(gui->displayPageNum));
 
-  bool preview = gui->m_previewDialog;
-
   switch(gui->exportType){
     case EXPORT_PDF:      
-      setWindowTitle(tr("%1 pdf").arg(preview ? "Preview":"Print to"));
-      ui->groupBoxPrintOptions->setTitle(tr("%1 options").arg(preview ? "Preview":"Print to pdf"));
-      ui->checkBoxResetCache->setText(tr("Reset all caches before %1 pdf").arg(preview ? "previewing":"printing"));
-      ui->checkBoxResetCache->setToolTip(tr("Check to clear all caches before %1 pdf").arg(preview ? "previewing":"printing"));
+      setWindowTitle(tr("%1 pdf").arg(preview ? "Preview":"Export to"));
+      ui->groupBoxPrintOptions->setTitle(tr("%1 options").arg(preview ? "Preview":"Export to pdf"));
+      ui->checkBoxResetCache->setText(tr("Reset all caches before %1 pdf").arg(preview ? "previewing":"exporting"));
+      ui->checkBoxResetCache->setToolTip(tr("Check to clear all caches before %1 pdf").arg(preview ? "previewing":"exporting"));
       break;
     case EXPORT_PNG:
       setWindowTitle(tr("Export as png"));
@@ -79,6 +89,10 @@ bool DialogExportPages::pageRange(){
 
 bool DialogExportPages::resetCache(){
   return ui->checkBoxResetCache->isChecked();
+}
+
+bool DialogExportPages::ignoreMixedPageSizesMsg(){
+  return ui->checkBoxIgnoreMixedPageSizes->isChecked();
 }
 
 void DialogExportPages::on_lineEditPageRange_textChanged(const QString &arg1)

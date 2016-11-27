@@ -83,15 +83,14 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QMenu menu;
   QString name = "Step";
 
-  MetaItem mi;
-  int numSteps          = mi.numSteps(step->top.modelName);
-  bool fullContextMenu  = step->modelDisplayStep == false;
+  int numOfSteps          = numSteps(step->top.modelName);
+  bool fullContextMenu  = ! step->modelDisplayOnlyStep;
 
   Boundary boundary = step->boundary();
 
   QAction *addNextAction = NULL;
   if (fullContextMenu  &&
-      step->stepNumber.number != numSteps &&
+      step->stepNumber.number != numOfSteps &&
       (parentRelativeType == SingleStepType ||
        (parentRelativeType == StepGroupType &&  (boundary & EndOfSteps)))) {
       addNextAction = menu.addAction("Add Next Step");

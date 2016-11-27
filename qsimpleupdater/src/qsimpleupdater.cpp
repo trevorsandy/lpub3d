@@ -285,6 +285,11 @@ Updater* QSimpleUpdater::getUpdater (const QString& url) const {
                  this,    SIGNAL (checkingFinished (QString)));
         connect (updater, SIGNAL (downloadFinished (QString, QString)),
                  this,    SIGNAL (downloadFinished (QString, QString)));
+        connect (updater, SIGNAL (downloadCancelled ()),
+                 this,    SIGNAL (cancel ()));
+        connect (updater, SIGNAL (checkingCancelled ()),
+                 this,    SIGNAL (cancel ()));
+
     }
 
     return UPDATERS.at (URLS.indexOf (url));
