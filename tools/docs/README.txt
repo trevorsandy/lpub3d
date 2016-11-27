@@ -2,6 +2,8 @@ LPub3D 2.0.18.864.2
  
 Features and enhancements 
 ------------ 
+Fix: Page size precision to 4 decimal places (r869)
+ *  When using some page sizes (e.g. A4), there was a thin white band at the right/bottom edge of the generated PDF pages when the background is set to colour or image. This issue resulted from using incorrect page sizes. The correct page size in inches sometimes require 4 digits of precision but were rounded to only 1 digit. All page sizes have been set to 4 digits of precision.
 Fix: Border meta automatically updated to LPub3D format (r868)
  * LPub3D will automatically detect and update a LPub border meta to the LPub3D format which adds a line type attribute to the meta command. The previous behaviour would display an error format message prompting the user to correct the meta. The default line type set during automatic update is 1=solid.
  Line types are  0=none,1=solid,2=dash,3=dot,4=dashDot,5=dashDotDot. An LPub meta line like this: 

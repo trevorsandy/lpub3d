@@ -2332,7 +2332,7 @@ void RotateIconMeta::init(BranchMeta *parent, QString name)
 
 PageMeta::PageMeta() : BranchMeta()
 {
-  size.setValuesInches(8.3f,11.7f);
+  size.setValuesInches(8.2677f,11.6929f);
   size.setRange(1,1000);
   size.setFormats(6,4,"9.9999");
   size.setValueSizeID("A4");
