@@ -1046,17 +1046,21 @@ QString BackgroundMeta::text()
 Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
 {
   Rc rc = FailureRc;
-
-  if (argv[index] == "NONE" && argv.size() - index >= 1) {
+  bool newFormat   = false;
+  if (argv.size() - index >= 1) {
+      argv[index+1].toInt(&newFormat);
+    }
+  if (argv[index] == "NONE") {
       _value[pushed].type = BorderData::BdrNone;
-      bool ok;
-      argv[index+1].toInt(&ok);
-      if (ok){
-         _value[pushed].line = setBorderLine(argv[index+1]);
-         index++;
-         rc = OkRc;
+      if (newFormat){
+          _value[pushed].line = setBorderLine(argv[index+1]);
+        } else {
+          _value[pushed].line = BorderData::BdrLnSolid;
         }
-    } else if (argv[index] == "SQUARE" && argv.size() - index >= 4) {
+      index++;
+      rc = OkRc;
+    } else if (newFormat && argv[index] == "SQUARE" && argv.size() - index >= 4) {
+      rc = FailureRc;
       bool ok[2];
       argv[index+1].toInt(&ok[0]);
       argv[index+3].toFloat(&ok[1]);
@@ -1068,7 +1072,20 @@ Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
           index += 4;
           rc = OkRc;
         }
-    } else if (argv[index] == "ROUND" && argv.size() - index >= 5) {
+    } else if (argv[index] == "SQUARE" && argv.size() - index >= 3) {
+      rc = FailureRc;
+      bool ok;
+      argv[index+2].toFloat(&ok);
+      if (ok) {
+          _value[pushed].type  = BorderData::BdrSquare;
+          _value[pushed].line  = BorderData::BdrLnSolid;
+          _value[pushed].color = argv[index+1];
+          _value[pushed].thickness = argv[index+2].toFloat(&ok);
+          index += 3;
+          rc = OkRc;
+        }
+    } else if (newFormat && argv[index] == "ROUND" && argv.size() - index >= 5) {
+      rc = FailureRc;
       bool ok[3];
       argv[index+1].toInt(&ok[0]);
       argv[index+3].toFloat(&ok[1]);
@@ -1082,8 +1099,21 @@ Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
           index += 5;
           rc = OkRc;
         }
+    } else if (argv[index] == "ROUND" && argv.size() - index >= 4) {
+      rc = FailureRc;
+      bool ok[2];
+      argv[index+2].toFloat(&ok[0]);
+      argv[index+3].toInt(&ok[1]);
+      if (ok[0] && ok[1]) {
+          _value[pushed].type  = BorderData::BdrRound;
+          _value[pushed].line  = BorderData::BdrLnSolid;
+          _value[pushed].color = argv[index+1];
+          _value[pushed].thickness = argv[index+2].toFloat(&ok[0]);
+          _value[pushed].radius    = argv[index+3].toInt(&ok[0]);
+          index += 4;
+          rc = OkRc;
+        }
     }
-
   if (rc == OkRc && argv.size() - index == 3) {
       if (argv[index] == "MARGINS") {
           bool ok[2];

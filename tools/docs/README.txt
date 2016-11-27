@@ -2,6 +2,11 @@ LPub3D 2.0.18.864.2
  
 Features and enhancements 
 ------------ 
+Fix: Border meta automatically updated to LPub3D format (r868)
+ * LPub3D will automatically detect and update a LPub border meta to the LPub3D format which adds a line type attribute to the meta command. The previous behaviour would display an error format message prompting the user to correct the meta. The default line type set during automatic update is 1=solid.
+ Line types are  0=none,1=solid,2=dash,3=dot,4=dashDot,5=dashDotDot. An LPub meta line like this: 
+ 0 !LPUB PLI BORDER GLOBAL ROUND Black 0 15 MARGINS 0.472439 0.07 will be automatically updated to this: 
+ 0 !LPUB PLI BORDER GLOBAL ROUND 1 Black 0 15 MARGINS 0.472439 0.07
 Fix: Find button in LDraw editor (r867)
  * Find button added to LDraw editor. The find dialogue will open with the word currently under the cursor. Therefore, an efficient use pattern is to place the cursor above the word you wish to search and click the search button.
 Fix: Display message for mixed page size and orientation (r866)
