@@ -1553,26 +1553,21 @@ void Gui::processFadeColourParts()
 
 void Gui::processFadePartsArchive()
 {
-  bool doFadeStep = (page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
+  QThread *partThread  = new QThread();
+  partWorkerFadeColour = new PartWorker();
+  partWorkerFadeColour->moveToThread(partThread);
 
-  if (doFadeStep) {
+  connect(partThread,           SIGNAL(started()),                partWorkerFadeColour, SLOT(processFadePartsArchive()));
+  connect(partThread,           SIGNAL(finished()),                         partThread, SLOT(deleteLater()));
+  connect(partWorkerFadeColour, SIGNAL(fadeColourFinishedSig()),            partThread, SLOT(quit()));
+  connect(partWorkerFadeColour, SIGNAL(fadeColourFinishedSig()),  partWorkerFadeColour, SLOT(deleteLater()));
+  connect(partWorkerFadeColour, SIGNAL(requestFinishSig()),                 partThread, SLOT(quit()));
+  connect(partWorkerFadeColour, SIGNAL(requestFinishSig()),       partWorkerFadeColour, SLOT(deleteLater()));
+  connect(this,                 SIGNAL(requestEndThreadNowSig()), partWorkerFadeColour, SLOT(requestEndThreadNow()));
 
-      QThread *partThread  = new QThread();
-      partWorkerFadeColour = new PartWorker();
-      partWorkerFadeColour->moveToThread(partThread);
+  connect(partWorkerFadeColour, SIGNAL(messageSig(bool,QString)),                 this, SLOT(statusMessage(bool,QString)));
 
-      connect(partThread,           SIGNAL(started()),                partWorkerFadeColour, SLOT(processFadePartsArchive()));
-      connect(partThread,           SIGNAL(finished()),                         partThread, SLOT(deleteLater()));
-      connect(partWorkerFadeColour, SIGNAL(fadeColourFinishedSig()),            partThread, SLOT(quit()));
-      connect(partWorkerFadeColour, SIGNAL(fadeColourFinishedSig()),  partWorkerFadeColour, SLOT(deleteLater()));
-      connect(partWorkerFadeColour, SIGNAL(requestFinishSig()),                 partThread, SLOT(quit()));
-      connect(partWorkerFadeColour, SIGNAL(requestFinishSig()),       partWorkerFadeColour, SLOT(deleteLater()));
-      connect(this,                 SIGNAL(requestEndThreadNowSig()), partWorkerFadeColour, SLOT(requestEndThreadNow()));
-
-      connect(partWorkerFadeColour, SIGNAL(messageSig(bool,QString)),                 this, SLOT(statusMessage(bool,QString)));
-
-      partThread->start();
-    }
+  partThread->start();
 }
 
 // left side progress bar

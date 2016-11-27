@@ -1287,10 +1287,12 @@ bool Preferences::getPreferences()
             if (! dialog->searchDirSettings().isEmpty()){
                 ldSearchDirs.clear();
                 QString unoffDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial"));
+                QString fadeDirPath  = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg("fade"));
                 QString modelsDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("MODELS"));
                 foreach (QString dirPath, dialog->searchDirSettings()) {
                     QDir searchDir(dirPath);
-                    if (!searchDir.exists() || (dirPath.size() > 1 && !dirPath.toLower().contains(unoffDirPath.toLower()) && dirPath.toLower() != modelsDirPath.toLower())){
+                    bool invalidSearchDir = dirPath.contains(unoffDirPath.toLower()) && !dirPath.contains(fadeDirPath.toLower());
+                    if (!searchDir.exists() || (dirPath.size() > 1 && invalidSearchDir && dirPath.toLower() != modelsDirPath.toLower())){
                         QMessageBox::warning(NULL,
                                              QMessageBox::tr("LPub3D"),
                                              QMessageBox::tr("%1 is not a valid directory.\nAdded directories must be under the Unofficial directory. This path will not be saved.")
@@ -1548,7 +1550,5 @@ void Preferences::getRequireds()
 void Preferences::setLPub3DLoaded(){
     lpub3dLoaded = true;
 }
-
-
 
 

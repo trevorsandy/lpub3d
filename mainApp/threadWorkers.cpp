@@ -47,7 +47,12 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
  */
 void PartWorker::ldsearchDirPreferences(){
 
-  emit Application::instance()->splashMsgSig("70% - Search directory preferences loading...");
+  if (!_resetSearchDirSettings) {
+      emit Application::instance()->splashMsgSig("70% - Search directory preferences loading...");
+    } else {
+      logInfo() << "Reset search directories...";
+      logInfo() << "Reset - search directory preferences loading...";
+    }
 
   QSettings Settings;
   QString const LdrawiniFilePathKey("LDrawIniFile");
@@ -119,113 +124,116 @@ void PartWorker::ldsearchDirPreferences(){
  */
 bool PartWorker::loadLDrawSearchDirs(){
 
-    emit Application::instance()->splashMsgSig("70% - Search directories loading...");
+  if (!_resetSearchDirSettings) {
+      emit Application::instance()->splashMsgSig("70% - Search directories loading...");
+    } else {
+      logInfo() << "Reset - search directories loading...";
+    }
 
-    StringList ldrawSearchDirs;
-    if (ldPartsDirs.loadLDrawSearchDirs("")){
-        ldrawSearchDirs = ldPartsDirs.getLDrawSearchDirs();
-        Preferences::ldSearchDirs.clear();
-        bool foundUnofficialRootDir = false;
-        bool fadeDirsIncluded = false;
-        QString unofficialRootDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial"));
-        for (StringList::const_iterator it = ldrawSearchDirs.begin();
-             it != ldrawSearchDirs.end(); it++)
+  setDoFadeStep((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep));
+  StringList  ldrawSearchDirs;
+  if (ldPartsDirs.loadLDrawSearchDirs("")){
+      ldrawSearchDirs = ldPartsDirs.getLDrawSearchDirs();
+      Preferences::ldSearchDirs.clear();
+      bool foundUnofficialRootDir = false;
+      bool fadeDirsIncluded = false;
+      QString unofficialRootDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial"));
+      for (StringList::const_iterator it = ldrawSearchDirs.begin();
+           it != ldrawSearchDirs.end(); it++)
         {
-            const char *dir = it->c_str();
-            QString ldrawSearchDir = QString(dir);
-            // check for Unofficial root directory
-            if (!foundUnofficialRootDir)
-                foundUnofficialRootDir = ldrawSearchDir.toLower() == unofficialRootDir.toLower();
+          const char *dir = it->c_str();
+          QString ldrawSearchDir = QString(dir);
+          // check for Unofficial root directory
+          if (!foundUnofficialRootDir)
+            foundUnofficialRootDir = ldrawSearchDir.toLower() == unofficialRootDir.toLower();
 
-            bool excludeSearchDir = false;
-            foreach (QString excludedDir, _excludedSearchDirs){
-                if ((excludeSearchDir =
-                     ldrawSearchDir.toLower().contains(excludedDir.toLower()))) {
-                    break;
+          bool excludeSearchDir = false;
+          foreach (QString excludedDir, _excludedSearchDirs){
+              if ((excludeSearchDir =
+                   ldrawSearchDir.toLower().contains(excludedDir.toLower()))) {
+                  break;
                 }
             }
-            if (! excludeSearchDir){
-                // check if empty
-                if (QDir(ldrawSearchDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
-                    Preferences::ldSearchDirs << ldrawSearchDir;
-                    logStatus() << "Add search directory:" << ldrawSearchDir;
+          if (! excludeSearchDir){
+              // check if empty
+              if (QDir(ldrawSearchDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+                  Preferences::ldSearchDirs << ldrawSearchDir;
+                  logStatus() << "Add search directory:" << ldrawSearchDir;
                 }
             }
-            // Check if fade directories included
-            setDoFadeStep((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep));
-            if (doFadeStep() && !fadeDirsIncluded){
-                fadeDirsIncluded = (ldrawSearchDir.toLower() == _fadePartDir.toLower() ||
-                                    ldrawSearchDir.toLower() == _fadePrimDir.toLower());
+          // Check if fade directories included
+          if (doFadeStep() && !fadeDirsIncluded){
+              fadeDirsIncluded = (ldrawSearchDir.toLower() == _fadePartDir.toLower() ||
+                                  ldrawSearchDir.toLower() == _fadePrimDir.toLower());
             }
         }
-        // If fade step enabled but fade directories not defined in ldSearchDirs, add fade directories
-        if (!fadeDirsIncluded) {
-            if (QDir(_fadePartDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
-                Preferences::ldSearchDirs << _fadePartDir;
-                logStatus() << "Add fade part directory:" << _fadePartDir;
+      // If fade step enabled but fade directories not defined in ldSearchDirs, add fade directories
+      if (doFadeStep() && !fadeDirsIncluded) {
+          if (QDir(_fadePartDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+              Preferences::ldSearchDirs << _fadePartDir;
+              logStatus() << "Add fade part directory:" << _fadePartDir;
             } else {
-                logStatus() << "Fade part directory is empty and will be ignored:" << _fadePartDir;
+              logStatus() << "Fade part directory is empty and will be ignored:" << _fadePartDir;
             }
-            if (QDir(_fadePrimDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
-                Preferences::ldSearchDirs << _fadePrimDir;
-                logStatus() << "Add fade primitive directory:" << _fadePrimDir;
+          if (QDir(_fadePrimDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+              Preferences::ldSearchDirs << _fadePrimDir;
+              logStatus() << "Add fade primitive directory:" << _fadePrimDir;
             } else {
-                logStatus() << "Fade primitive directory is empty and will be ignored:" << _fadePrimDir;
+              logStatus() << "Fade primitive directory is empty and will be ignored:" << _fadePrimDir;
             }
         }
-        // Add subdirectories from Unofficial root directory
-        if (foundUnofficialRootDir) {
-            QDir unofficialDir(unofficialRootDir);
-            // Get sub directories
-            QStringList unofficialSubDirs = unofficialDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
-            //logDebug() << "unofficialSubDirs:" << unofficialSubDirs;
-            if (unofficialSubDirs.count() > 0){
-                // Recurse unofficial subdirectories for excluded directories
-                foreach (QString unofficialSubDirName, unofficialSubDirs){
-                    // Exclude invalid directories
-                    bool excludeSearchDir = false;
-                    QString unofficialSubDir = QDir::toNativeSeparators(QString("%1/%2").arg(unofficialRootDir).arg(unofficialSubDirName));
-                    foreach (QString excludedDir, _excludedSearchDirs){
-                        if ((excludeSearchDir =
-                             unofficialSubDir.toLower() == excludedDir.toLower())) {
-                            break;
+      // Add subdirectories from Unofficial root directory
+      if (foundUnofficialRootDir) {
+          QDir unofficialDir(unofficialRootDir);
+          // Get sub directories
+          QStringList unofficialSubDirs = unofficialDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
+          //logDebug() << "unofficialSubDirs:" << unofficialSubDirs;
+          if (unofficialSubDirs.count() > 0){
+              // Recurse unofficial subdirectories for excluded directories
+              foreach (QString unofficialSubDirName, unofficialSubDirs){
+                  // Exclude invalid directories
+                  bool excludeSearchDir = false;
+                  QString unofficialSubDir = QDir::toNativeSeparators(QString("%1/%2").arg(unofficialRootDir).arg(unofficialSubDirName));
+                  foreach (QString excludedDir, _excludedSearchDirs){
+                      if ((excludeSearchDir =
+                           unofficialSubDir.toLower() == excludedDir.toLower())) {
+                          break;
                         }
                     }
-                    if (!excludeSearchDir){
-                        // check if empty
-                        if (QDir(unofficialSubDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
-                            Preferences::ldSearchDirs << unofficialSubDir;
-                            logStatus() << "Add search directory:" << unofficialSubDir;
+                  if (!excludeSearchDir){
+                      // check if empty
+                      if (QDir(unofficialSubDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+                          Preferences::ldSearchDirs << unofficialSubDir;
+                          logStatus() << "Add search directory:" << unofficialSubDir;
                         } else if (QDir(unofficialSubDir).entryInfoList(QDir::Dirs|QDir::NoSymLinks).count() > 0) {
-                            QDir subSubDir(unofficialSubDir);
-                            QStringList subSubDirs = subSubDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
-                            foreach (QString subSubDirName, subSubDirs){
-                                QString unofficialSubSubDir = QDir::toNativeSeparators(QString("%1/%2").arg(unofficialSubDir).arg(subSubDirName));
-                                if (QDir(unofficialSubSubDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
-                                    Preferences::ldSearchDirs << unofficialSubSubDir;
-                                    logStatus() << "Add search directory:" << unofficialSubSubDir;
+                          QDir subSubDir(unofficialSubDir);
+                          QStringList subSubDirs = subSubDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
+                          foreach (QString subSubDirName, subSubDirs){
+                              QString unofficialSubSubDir = QDir::toNativeSeparators(QString("%1/%2").arg(unofficialSubDir).arg(subSubDirName));
+                              if (QDir(unofficialSubSubDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+                                  Preferences::ldSearchDirs << unofficialSubSubDir;
+                                  logStatus() << "Add search directory:" << unofficialSubSubDir;
                                 } else {
-                                    logStatus() << "Search directory is empty and will be ignored:" << unofficialSubSubDir;
+                                  logStatus() << "Search directory is empty and will be ignored:" << unofficialSubSubDir;
                                 }
                             }
                         } else {
-                            logStatus() << "Search directory is empty and will be ignored:" << unofficialSubDir;
+                          logStatus() << "Search directory is empty and will be ignored:" << unofficialSubDir;
                         }
                     }
                 }
             }
         }
 
-        if (_resetSearchDirSettings) {
-            logInfo() << "Reset search directories...";
-            processLDSearchDirParts();
+      if (_resetSearchDirSettings) {
+          processLDSearchDirParts();
         }
 
     } else {
-        logError() << "ldPartsDirs.loadLDrawSearchDirs("") failed.";
-        return false;
+      logError() << "ldPartsDirs.loadLDrawSearchDirs("") failed.";
+      return false;
     }
-    return true;
+  return true;
 }
 
 /* Add qualified search directories to LDSEARCHDIRS string
@@ -277,35 +285,35 @@ void PartWorker::populateLdgLiteSearchDirs(){
  * Process LDraw search directories part files.
  */
 void PartWorker::processLDSearchDirParts(){
-
   if (Preferences::ldSearchDirs.size() > 0)
     processPartsArchive(Preferences::ldSearchDirs, "search directory");
- // qDebug() << "\nFinished Processing Search Directory Parts.";
-
- }
+  // qDebug() << "\nFinished Processing Search Directory Parts.";
+}
 
 /*
  * Create fade version of static colour part files.
  */
 void PartWorker::processFadePartsArchive(){
-    setDoFadeStep((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep));
-    if (doFadeStep()) {
-        QStringList fadePartsDirs;
-        foreach(QDir fadeDir, Paths::fadeDirs){
-            if(fadeDir.entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
-                fadePartsDirs << fadeDir.absolutePath();
+  bool updateLDSearchDirSettings = false;
+  setDoFadeStep((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep));
+  if (doFadeStep()) {
+      QStringList fadePartsDirs;
+      foreach(QDir fadeDir, Paths::fadeDirs){
+          if(fadeDir.entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+              fadePartsDirs << fadeDir.absolutePath();
 
-                //add entry to search dirs if not already added
-                bool addToSearchDirs = false;
-                QString fadeEntry = QDir::toNativeSeparators(fadeDir.absolutePath());
-                foreach (QString searchEntry, Preferences::ldSearchDirs){
-                    addToSearchDirs = fadeEntry != searchEntry;
-                    if (!addToSearchDirs)
-                        break;
+              //add entry to search dirs if not already added
+              bool addToSearchDirs = false;
+              QString fadeEntry = QDir::toNativeSeparators(fadeDir.absolutePath());
+              foreach (QString searchEntry, Preferences::ldSearchDirs){
+                  addToSearchDirs = fadeEntry != searchEntry;
+                  if (!addToSearchDirs)
+                    break;
                 }
-                if (addToSearchDirs && (fadeEntry == _fadePartDir || fadeEntry == _fadePrimDir)){
-                    Preferences::ldSearchDirs << fadeEntry;
-                    logStatus() << "Add fade directory to ldSearchDirs:" << fadeEntry;
+              if (addToSearchDirs && (fadeEntry == _fadePartDir || fadeEntry == _fadePrimDir)){
+                  Preferences::ldSearchDirs << fadeEntry;
+                  updateLDSearchDirSettings = true;
+                  logStatus() << "Add fade directory to ldSearchDirs:" << fadeEntry;
                 }
             }
         }
@@ -321,10 +329,17 @@ void PartWorker::processFadePartsArchive(){
         foreach (QString searchEntry, Preferences::ldSearchDirs){
             if (searchEntry == _fadePartDir || searchEntry == _fadePrimDir){
                 Preferences::ldSearchDirs.removeAt(i);
+                updateLDSearchDirSettings = true;
                 logStatus() << "Remove fade directory from ldSearchDirs:" << searchEntry;
             }
             i++;
         }
+
+    }
+
+  if (updateLDSearchDirSettings){
+      QSettings Settings;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
     }
 }
 

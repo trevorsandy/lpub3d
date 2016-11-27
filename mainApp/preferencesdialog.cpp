@@ -394,29 +394,28 @@ void PreferencesDialog::on_browsePublishLogo_clicked()
 
 void PreferencesDialog::on_pushButtonReset_clicked()
 {
-  if (!ui.textEditSearchDirs->toPlainText().isEmpty()) {
+  QMessageBox box;
+  box.setIcon (QMessageBox::Question);
+  box.setWindowTitle(tr ("Reset Search Directories?"));
+  box.setDefaultButton   (QMessageBox::Yes);
+  box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+  box.setText (tr("This action will reset your search directory settings to the LPub3D default.\n"
+                  "Are you sure you want to continue? "));
 
-      QMessageBox box;
-      box.setIcon (QMessageBox::Question);
-      box.setWindowTitle(tr ("Reset Search Directories?"));
-      box.setDefaultButton   (QMessageBox::Yes);
-      box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
-      box.setText (tr("This action will reset your search directory settings to the LPub3D default.\n"
-                      "Are you sure you want to continue? "));
+  if (box.exec() == QMessageBox::Yes) {
 
-      if (box.exec() == QMessageBox::Yes) {
+      // get enable fade step setting
+      Preferences::enableFadeStep = ui.fadeStepBox->isChecked();
+      partWorkerLDSearchDirs.resetSearchDirSettings();
+      ui.textEditSearchDirs->clear();
+      foreach (QString iniFilePath, Preferences::ldSearchDirs)
+        ui.textEditSearchDirs->append(iniFilePath);
 
-          partWorkerLDSearchDirs.resetSearchDirSettings();
-          ui.textEditSearchDirs->clear();
-          foreach (QString iniFilePath, Preferences::ldSearchDirs)
-              ui.textEditSearchDirs->append(iniFilePath);
-
-          box.setIcon (QMessageBox::Information);
-          box.setStandardButtons (QMessageBox::Ok);
-          box.setText( tr("Search directories have been reset with %1 entries.").arg(Preferences::ldSearchDirs.size()));
-          emit gui->messageSig(true,box.text());
-          box.exec();
-        }
+      box.setIcon (QMessageBox::Information);
+      box.setStandardButtons (QMessageBox::Ok);
+      box.setText( tr("Search directories have been reset with %1 entries.").arg(Preferences::ldSearchDirs.size()));
+      emit gui->messageSig(true,box.text());
+      box.exec();
     }
 }
 
@@ -427,7 +426,7 @@ void PreferencesDialog::on_checkForUpdates_btn_clicked()
 
 void PreferencesDialog::pushButtonReset_SetState()
 {
-  ui.pushButtonReset->setEnabled(!ui.textEditSearchDirs->toPlainText().isEmpty());
+  ui.pushButtonReset->setEnabled(true);
 }
 
 QString const PreferencesDialog::ldrawPath()

@@ -2,6 +2,8 @@ LPub3D 2.0.18.864.2
  
 Features and enhancements 
 ------------ 
+Fix: Fade part not displayed in assembly image (r872)
+ * The faded part is not rendered or displayed in the CSI step image. The non-faded part occurrence is rendered successfully and the faded part is displayed in the viewer.The problem persists after regenerating fade parts and clearing the cache. In some scenarios, particularly when LPub3D is launched with fade=Off and then fade is set to fade=ON using in the Preferences menu, it is possible that the fade directory is not communicated to the renderer so no fade part image is rendered. This behaviour has been corrected.
 Fix: True page background transparency (r871)
  * When the page background is set the true transparent, it is not possible to display the background context menu so many page functions will not be accessible. To accommodate true transparency and enable the available page editing functions, when a page background is set to "none(transparent)" by the user, the page is set to white with alpha=1 during page editing but switched to true transparent for exporting/printing. This way, the user will have the ability to manipulate the page components while editing the document.
 Fix: Previewing the current page (single page) produces a blank page (r870)
