@@ -1,7 +1,9 @@
 LPub3D 2.0.18.864.2 
  
 Features and enhancements 
------------- 
+------------
+Fix: Instance count placement when page number not displayed (r874)
+ * Instance count is placed relative to page number by default. When page number is not displayed, LPub3D will re-assign the instance count to any or the four page attributes, url, email, copyright, and author (default) displayed at the left bottom area of the page. If no page attributes are displayed, the instance count is assigned to the bottom left inside corner of the page.
 Fix: Fade part not displayed in assembly image (r872)
  * The faded part is not rendered or displayed in the CSI step image. The non-faded part occurrence is rendered successfully and the faded part is displayed in the viewer.The problem persists after regenerating fade parts and clearing the cache. In some scenarios, particularly when LPub3D is launched with fade=Off and then fade is set to fade=ON using in the Preferences menu, it is possible that the fade directory is not communicated to the renderer so no fade part image is rendered. This behaviour has been corrected.
 Fix: True page background transparency (r871)

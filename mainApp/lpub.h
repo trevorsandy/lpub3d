@@ -853,12 +853,21 @@ private:
     QGraphicsScene *scene,
     bool            printing);
 
-  int addPageAttributes(
+  int addContentPageAttributes(
     Page                *page,
     PageBackgroundItem  *pageBg,
     PlacementHeader     *pageHeader,
     PlacementFooter     *pageFooter,
     PageNumberItem      *pageNumber,
+    Placement           &plPage,
+    bool                 endOfSubmodel = false
+      );
+
+  int addCoverPageAttributes(
+    Page                *page,
+    PageBackgroundItem  *pageBg,
+    PlacementHeader     *pageHeader,
+    PlacementFooter     *pageFooter,
     Placement           &plPage
       );
 

@@ -272,6 +272,7 @@ int Gui::addGraphicsPageItems(
   plPage.loc[YY] = 0;
 
   // Set up page header and footer //~~~~~~~~~~~~~~~~
+
   pageHeader = new PlacementHeader(page->meta.LPub.page.pageHeader,pageBg);
   if (pageHeader->placement.value().relativeTo == plPage.relativeType) {
       plPage.placeRelative(pageHeader);
@@ -285,6 +286,10 @@ int Gui::addGraphicsPageItems(
       plPage.appendRelativeTo(pageFooter);
     }
   pageFooter->setPos(pageFooter->loc[XX],pageFooter->loc[YY]);
+
+  // Process Cover Page Attriutes
+
+  addCoverPageAttributes(page,pageBg,pageHeader,pageFooter,plPage);
 
   // Display the page number and instance count
 
@@ -439,29 +444,15 @@ int Gui::addGraphicsPageItems(
             }
         }
 
-    } else if (endOfSubmodel && page->instances > 1 && ! coverPage) {
+      // Process Content Page Attriutes - with page number
 
-      instanceCount = new SubmodelInstanceCount(
-            page,
-            page->meta.LPub.page.instanceCount,
-            "x%d ",
-            page->instances,
-            pageBg);
+      addContentPageAttributes(page,pageBg,pageHeader,pageFooter,pageNumber,plPage,false);
 
-      if (instanceCount) {
-          instanceCount->setSize(int(instanceCount->document()->size().width()),
-                                 int(instanceCount->document()->size().height()));
-          instanceCount->loc[XX] = 0;
-          instanceCount->loc[YY] = 0;
-          instanceCount->tbl[0] = 0;
-          instanceCount->tbl[1] = 0;
+    } else {
 
-          instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
-          instanceCount->placement.setValue(BottomRightInsideCorner,PageType);
-          plPage.placeRelative(instanceCount);
-        }
+      // Process Content Page Attriutes - without page number and end of submodel
 
-      instanceCount->setPos(instanceCount->loc[XX],instanceCount->loc[YY]);
+      addContentPageAttributes(page,pageBg,pageHeader,pageFooter,NULL,plPage,endOfSubmodel);
     }
 
   /* Create any graphics items in the insert list */
@@ -556,9 +547,6 @@ int Gui::addGraphicsPageItems(
             }
         }
     }
-
-  // Process Page Attriutes
-  addPageAttributes(page,pageBg,pageHeader,pageFooter,pageNumber,plPage);
 
   // If the page contains a single step then process it here
   if (page->relativeType == SingleStepType && page->list.size()) {
@@ -875,15 +863,15 @@ int Gui::addGraphicsPageItems(
   return 0;
 }
 
-int Gui::addPageAttributes(
+int Gui::addContentPageAttributes(
     Page                *page,
     PageBackgroundItem  *pageBg,
     PlacementHeader     *pageHeader,
     PlacementFooter     *pageFooter,
     PageNumberItem      *pageNumber,
-    Placement           &plPage)
+    Placement           &plPage,
+    bool                 endOfSubmodel)
 {
-
   // Content Page Initializations and Allocations...
   if (! page->coverPage)
     {
@@ -900,7 +888,7 @@ int Gui::addPageAttributes(
       if (displayURL) {
           url->size[XX]     = (int) url->document()->size().width();
           url->size[YY]     = (int) url->document()->size().height();
-      } else {
+        } else {
           delete url;
           url               = NULL;
         }
@@ -909,7 +897,7 @@ int Gui::addPageAttributes(
       if (displayEmail){
           email->size[XX]     = (int) email->document()->size().width();
           email->size[YY]     = (int) email->document()->size().height();
-      }else {
+        }else {
           delete email;
           email               = NULL;
         }
@@ -918,7 +906,7 @@ int Gui::addPageAttributes(
       if (displayCopyright){
           copyright->size[XX]     = (int) copyright->document()->size().width();
           copyright->size[YY]     = (int) copyright->document()->size().height();
-      }else {
+        }else {
           delete copyright;
           copyright               = NULL;
         }
@@ -927,7 +915,7 @@ int Gui::addPageAttributes(
       if (displayAuthor) {
           author->size[XX]     = (int) author->document()->size().width();
           author->size[YY]     = (int) author->document()->size().height();
-      }else {
+        }else {
           delete author;
           author               = NULL;
         }
@@ -1065,8 +1053,120 @@ int Gui::addPageAttributes(
             }
           author->setPos(author->loc[XX],author->loc[YY]);
         }
-    }
 
+      // Place insance count if end of submodel
+
+      if (endOfSubmodel && page->instances > 1) {
+
+          SubmodelInstanceCount   *instanceCount;
+
+          instanceCount = new SubmodelInstanceCount(
+                page,
+                page->meta.LPub.page.instanceCount,
+                "x%d ",
+                page->instances,
+                pageBg);
+
+          if (instanceCount) {
+              instanceCount->setSize(int(instanceCount->document()->size().width()),
+                                     int(instanceCount->document()->size().height()));
+              instanceCount->loc[XX] = 0;
+              instanceCount->loc[YY] = 0;
+              instanceCount->tbl[0] = 0;
+              instanceCount->tbl[1] = 0;
+
+              instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
+
+              if (displayAuthor){
+                  PlacementData pld = author->placement.value();
+                  if ((pld.rectPlacement == TopLeftOutsideCorner     ||
+                       pld.rectPlacement == TopLeftOutside           ||
+                       pld.rectPlacement == TopOutside               ||
+                       pld.rectPlacement == LeftTopOutside           ||
+                       pld.rectPlacement == LeftOutside              ||
+                       pld.rectPlacement == LeftBottomOutside       ) &&
+                     ((pld.relativeTo    == PageNumberType          )||
+                      (pld.rectPlacement == BottomRightInsideCorner  &&
+                       pld.relativeTo    == PageType)))
+                    {
+                      instanceCount->placement.setValue(TopOutside,PageAuthorType);
+                      author->appendRelativeTo(instanceCount);
+                      author->placeRelative(instanceCount);
+
+                    }
+                }
+              if (displayEmail){
+                  PlacementData pld = email->placement.value();
+                  if ((pld.rectPlacement == TopLeftOutsideCorner     ||
+                       pld.rectPlacement == TopLeftOutside           ||
+                       pld.rectPlacement == TopOutside               ||
+                       pld.rectPlacement == LeftTopOutside           ||
+                       pld.rectPlacement == LeftOutside              ||
+                       pld.rectPlacement == LeftBottomOutside       ) &&
+                     ((pld.relativeTo    == PageNumberType          )||
+                      (pld.rectPlacement == BottomRightInsideCorner  &&
+                       pld.relativeTo    == PageType)))
+                    {
+                      instanceCount->placement.setValue(TopOutside,PageEmailType);
+                      email->appendRelativeTo(instanceCount);
+                      email->placeRelative(instanceCount);
+                    }
+                }
+              if (displayURL){
+                  PlacementData pld = url->placement.value();
+                  if ((pld.rectPlacement == TopLeftOutsideCorner     ||
+                       pld.rectPlacement == TopLeftOutside           ||
+                       pld.rectPlacement == TopOutside               ||
+                       pld.rectPlacement == LeftTopOutside           ||
+                       pld.rectPlacement == LeftOutside              ||
+                       pld.rectPlacement == LeftBottomOutside       ) &&
+                     ((pld.relativeTo    == PageNumberType          )||
+                      (pld.rectPlacement == BottomRightInsideCorner  &&
+                       pld.relativeTo    == PageType)))
+                    {
+                      instanceCount->placement.setValue(TopOutside,PageURLType);
+                      url->appendRelativeTo(instanceCount);
+                      url->placeRelative(instanceCount);
+                    }
+                }
+              if (displayCopyright){
+                  PlacementData pld = copyright->placement.value();
+                  if ((pld.rectPlacement == TopLeftOutsideCorner     ||
+                       pld.rectPlacement == TopLeftOutside           ||
+                       pld.rectPlacement == TopOutside               ||
+                       pld.rectPlacement == LeftTopOutside           ||
+                       pld.rectPlacement == LeftOutside              ||
+                       pld.rectPlacement == LeftBottomOutside       ) &&
+                     ((pld.relativeTo    == PageNumberType          )||
+                      (pld.rectPlacement == BottomRightInsideCorner  &&
+                       pld.relativeTo    == PageType)))
+                    {
+                      instanceCount->placement.setValue(TopOutside,PageCopyrightType);
+                      copyright->appendRelativeTo(instanceCount);
+                      copyright->placeRelative(instanceCount);
+                    }
+                }
+              else
+                {
+                  instanceCount->placement.setValue(BottomRightInsideCorner,PageType);
+                  plPage.appendRelativeTo(instanceCount);
+                  plPage.placeRelative(instanceCount);
+                }
+            }
+
+          instanceCount->setPos(instanceCount->loc[XX],instanceCount->loc[YY]);
+        }
+    }
+  return 0;
+}
+
+int Gui::addCoverPageAttributes(
+    Page                *page,
+    PageBackgroundItem  *pageBg,
+    PlacementHeader     *pageHeader,
+    PlacementFooter     *pageFooter,
+    Placement           &plPage)
+{
   // Front Cover Page Initializations and Allocations...
   if (page->coverPage && page->frontCover) {
 
