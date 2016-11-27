@@ -93,24 +93,54 @@ void PartWorker::ldsearchDirPreferences(){
       Paths::mkfadedirs();
   }
 
-  logInfo() << (doFadeStep() ? QString("Fade Step is ON.") : QString("Fade Step is OFF."));
+  logInfo() << (doFadeStep() ? QString("Search Dir Preferences - Fade Step is ON.") : QString("Search Dir Preferences - Fade Step is OFF."));
   logInfo() << QString("Renderer is %1").arg(Render::getRenderer());
 
   if (!Preferences::ldrawiniFound && !_resetSearchDirSettings &&
       Settings.contains(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey))) {    // ldrawini not found and not reset so load registry key
       logStatus() << QString("ldraw.ini not found, load ldSearch directories from registry key");
       QStringList entries = Settings.value(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey)).toStringList();
+      bool fadeDirsIncluded = false;
       foreach (QString entry, entries){
           if (QDir(entry).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+              // Skip fade directory if not doFadeStep
               QString fadeDir = QDir::toNativeSeparators(entry.toLower());
               if (!doFadeStep() && (fadeDir == _fadePartDir.toLower() || fadeDir == _fadePrimDir.toLower()))
                   continue;
+
+              // If doFadeStep, check if fade directories included
+              if (doFadeStep() && !fadeDirsIncluded){
+                  fadeDirsIncluded = (fadeDir.toLower() == _fadePartDir.toLower() ||
+                                      fadeDir.toLower() == _fadePrimDir.toLower());
+                }
               Preferences::ldSearchDirs << entry;
               logStatus() << "Add search directory:" << entry;
           } else {
               logStatus() << "Search directory is empty and will be ignored:" << entry;
           }
       }
+      // If fade step enabled but fade directories not defined in ldSearchDirs, add fade directories
+      if (doFadeStep() && !fadeDirsIncluded) {
+          if (QDir(_fadePartDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+              Preferences::ldSearchDirs << _fadePartDir;
+              fadeDirsIncluded = true;
+              logStatus() << "Add fade part directory:" << _fadePartDir;
+            } else {
+              logStatus() << "Fade part directory is empty and will be ignored:" << _fadePartDir;
+            }
+          if (QDir(_fadePrimDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+              Preferences::ldSearchDirs << _fadePrimDir;
+              fadeDirsIncluded = true;
+              logStatus() << "Add fade primitive directory:" << _fadePrimDir;
+            } else {
+              logStatus() << "Fade primitive directory is empty and will be ignored:" << _fadePrimDir;
+            }
+          // update the registry if fade directory included
+          if (fadeDirsIncluded){
+              QSettings Settings;
+              Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
+            }
+        }
     } else if (loadLDrawSearchDirs()){                                        //ldraw.ini found or reset so load from disc file
       Settings.setValue(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey), Preferences::ldSearchDirs);
       logStatus() << QString("Ldraw.ini found or search directory reset selected, load ldSearch directories from ldrawini defined or default entries");
@@ -297,6 +327,7 @@ void PartWorker::processFadePartsArchive(){
   bool updateLDSearchDirSettings = false;
   setDoFadeStep((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep));
   if (doFadeStep()) {
+      Paths::mkfadedirs();
       QStringList fadePartsDirs;
       foreach(QDir fadeDir, Paths::fadeDirs){
           if(fadeDir.entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
@@ -336,7 +367,7 @@ void PartWorker::processFadePartsArchive(){
         }
 
     }
-
+  // update the registry
   if (updateLDSearchDirSettings){
       QSettings Settings;
       Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);

@@ -1180,7 +1180,7 @@ void Gui::preferences()
         bool generateCoverPagesChanged = Preferences::generateCoverPages   != generateCoverPages;
 
         if (Preferences::fadeStepSettingChanged){
-            logInfo() << (Preferences::enableFadeStep ? QString("Fade Step is ON.") : QString("Fade Step is OFF."));
+            logInfo() << (Preferences::enableFadeStep ? QString("Gui Preferences - Fade Step is ON.") : QString("Gui Preferences - Fade Step is OFF."));
             processFadePartsArchive();
         }
         if (fadeStepColorChanged){
