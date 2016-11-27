@@ -243,7 +243,21 @@ int Gui::addGraphicsPageItems(
 //  logDebug() << QString("  DRAW PAGE %3 SIZE PIXELS - WidthPx: %1 x HeightPx: %2 CurPage: %3")
 //                .arg(QString::number(pW), QString::number(pH)).arg(stepPageNum);
 
-  pageBg = new PageBackgroundItem(page, pW, pH);
+  if (page->meta.LPub.page.background.value().type == BackgroundData::BgTransparent && ! exporting()){
+      BorderData borderData = page->meta.LPub.page.border.value();
+      if (borderData.useDefault) {
+          borderData.type      = BorderData::BdrSquare;
+          borderData.line      = BorderData::BdrLnDash;
+          borderData.color     = "#535559";
+          borderData.thickness = DEFAULT_THICKNESS;
+          borderData.radius    = 0;
+          borderData.margin[0] = DEFAULT_MARGIN;
+          borderData.margin[1] = DEFAULT_MARGIN;
+          page->meta.LPub.page.border.setValueInches(borderData);
+        }
+    }
+
+  pageBg = new PageBackgroundItem(page, pW, pH, exporting());
 
   view->pageBackgroundItem = pageBg;
   pageBg->setPos(0,0);

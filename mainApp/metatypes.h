@@ -137,15 +137,15 @@ enum PlacementType {          //  placement dialog codes:
   PagePlugImageType,          //21 pit
   PageHeaderType,             //22 ph
   PageFooterType,             //23 pf
-  PageCategoryType,           //25 cat
-  RotateIconType,             //31
-  BomType,                    //29
+  PageCategoryType,           //24 cat
+  RotateIconType,             //25 Ri
+  BomType,                    //26
 
-  SingleStepType,             //24
-  StepType,                   //26
-  RangeType,                  //27
-  ReserveType,                //28
-  CoverPageType,              //30
+  SingleStepType,             //27
+  StepType,                   //28
+  RangeType,                  //29
+  ReserveType,                //30
+  CoverPageType,              //31
 
   NumRelatives                //32
 };
@@ -313,9 +313,9 @@ public:
 
   BackgroundData()
   {
-    type = BgTransparent;
-    stretch = false;
-    string = "";
+    type     = BgTransparent;
+    stretch  = false;
+    string   = "";
     //gradient initialization
     gmode    = LogicalMode;
     gspread  = RepeatSpread;
@@ -357,16 +357,18 @@ public:
   float   radius;     // in units
   float   margin[2];  // in units
   int     line;
+  bool    useDefault;
   
   BorderData()
   {
-    thickness = 0.125;
-    margin[0] = 0;
-    margin[1] = 0;
-    radius = 15;
-    type = BdrNone;
-    line = BdrLnNone;
-    color = "Black";
+    thickness  = 0.125;
+    margin[0]  = 0;
+    margin[1]  = 0;
+    radius     = 15;
+    type       = BdrNone;
+    line       = BdrLnNone;
+    color      = "Black";
+    useDefault = true;
   }
 };
 
@@ -412,8 +414,6 @@ public:
     margin[1] = 0;
   }
 };
-
-
 
 const QString SortOptionName[SortByType] =
 {
@@ -483,15 +483,15 @@ const QString RelNames[NumRelatives] =
    "PagePlugImageType",		 //21 pit
    "PageHeaderType",             //22 ph
    "PageFooterType",             //23 pf
-   "PageCategoryType",		 //25 cat
-   "RotateIconType",             //31
-   "BomType",                    //29
+   "PageCategoryType",		 //24 cat
+   "RotateIconType",             //25
+   "BomType",                    //26
 
-   "SingleStepType",             //24
-   "StepType",                   //26
-   "RangeType",                  //27
-   "ReserveType",                //28 
-   "CoverPageType"               //30
+   "SingleStepType",             //27
+   "StepType",                   //28
+   "RangeType",                  //29
+   "ReserveType",                //30
+   "CoverPageType"               //31
 }; //NumRelatives"               //32
 
 const QString PlacNames[NumPlacements] =

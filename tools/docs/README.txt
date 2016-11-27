@@ -2,6 +2,8 @@ LPub3D 2.0.18.864.2
  
 Features and enhancements 
 ------------ 
+Fix: True page background transparency (r871)
+ * When the page background is set the true transparent, it is not possible to display the background context menu so many page functions will not be accessible. To accommodate true transparency and enable the available page editing functions, when a page background is set to "none(transparent)" by the user, the page is set to white with alpha=1 during page editing but switched to true transparent for exporting/printing. This way, the user will have the ability to manipulate the page components while editing the document.
 Fix: Previewing the current page (single page) produces a blank page (r870)
  * This behaviour has been corrected.
 Fix: Page size precision to 4 decimal places (r869)

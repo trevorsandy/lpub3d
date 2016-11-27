@@ -1131,6 +1131,7 @@ Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
         }
     }
   if (rc == OkRc) {
+      _value[pushed].useDefault = false;
       _here[pushed] = here;
     }
   return rc;

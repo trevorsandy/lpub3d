@@ -47,14 +47,15 @@ void BackgroundItem::setBackground(
     MarginsMeta     &_margin,
     StringListMeta  &_subModel,
     int              _submodelLevel,
-    QString          &toolTip)
+    QString          &toolTip,
+    bool             _exporting)
 {
-  meta          =  _meta;
-  background    =  _background;
-  border        =  _border;
-  margin        =  _margin;
-  subModelColor =  _subModel;
-  submodelLevel =  _submodelLevel;
+  meta               =  _meta;
+  background         =  _background;
+  border             =  _border;
+  margin             =  _margin;
+  subModelColor      =  _subModel;
+  submodelLevel      =  _submodelLevel;
   parentRelativeType = _parentRelativeType;
 
   BorderData     borderData     = _border.valuePixels();
@@ -108,9 +109,13 @@ void BackgroundItem::setBackground(
       break;
     case BackgroundData::BgTransparent:
       {
-        QColor backgroundColor = Qt::white;
-        backgroundColor.setAlpha(1);
-        brushColor = backgroundColor /*Qt::transparent*/;
+        if (_exporting) {
+            brushColor = Qt::transparent;
+          } else {
+            QColor backgroundColor = Qt::white;
+            backgroundColor.setAlpha(1);
+            brushColor = backgroundColor;
+          }
       }
       break;
     case BackgroundData::BgGradient:

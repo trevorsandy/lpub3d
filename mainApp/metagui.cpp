@@ -2040,7 +2040,6 @@ void BorderGui::enable()
     break;
     }
 }
-
 void BorderGui::typeChange(QString const &type)
 {
   BorderData border = meta->value();
@@ -2057,7 +2056,6 @@ void BorderGui::typeChange(QString const &type)
   enable();
   modified = true;
 }
-
 void BorderGui::lineChange(QString const &line)
 {
   BorderData border = meta->value();
@@ -2080,7 +2078,6 @@ void BorderGui::lineChange(QString const &line)
   enable();
   modified = true;
 }
-
 void BorderGui::browseColor(bool)
 {
   BorderData border = meta->value();
@@ -2108,14 +2105,6 @@ void BorderGui::radiusChange(int value)
   meta->setValue(border);
   modified = true;
 }
-
-void BorderGui::apply(QString &modelName)
-{
-  if (modified) {
-    MetaItem mi;
-    mi.setGlobalMeta(modelName,meta);
-  }
-}
 void BorderGui::marginXChange(
   QString const &string)
 {
@@ -2131,6 +2120,14 @@ void BorderGui::marginYChange(
   border.margin[1] = string.toFloat();
   meta->setValue(border);
   modified = true;
+}
+
+void BorderGui::apply(QString &modelName)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
+  }
 }
 
 /***********************************************************************

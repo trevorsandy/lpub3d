@@ -72,7 +72,8 @@ public:
       MarginsMeta     &margin,
       StringListMeta  &subModelColor,
       int              submodelLevel,
-      QString         &toolTip);
+      QString         &toolTip,
+      bool             exporting = false);
 
 private: 
   QGradient setGradient();

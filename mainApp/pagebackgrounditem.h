@@ -45,7 +45,8 @@ class PageBackgroundItem : public BackgroundItem
         PageBackgroundItem(
           Page   *_page,
           int     width,
-          int     height);
+          int     height,
+          bool    _exporting = false);
 
     ~PageBackgroundItem()
     {

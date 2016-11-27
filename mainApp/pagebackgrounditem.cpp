@@ -42,7 +42,8 @@
 PageBackgroundItem::PageBackgroundItem(
   Page   *_page,
   int     width,
-  int     height)
+  int     height,
+  bool    _exporting)
 {
   page = _page;
 
@@ -60,7 +61,8 @@ PageBackgroundItem::PageBackgroundItem(
                 page->meta.LPub.page.margin,
                 page->meta.LPub.page.subModelColor,
                 page->meta.submodelStack.size(),
-                toolTip);
+                toolTip,
+                _exporting);
 
   setPixmap(*pixmap);
   setFlag(QGraphicsItem::ItemIsSelectable,false);
@@ -86,6 +88,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *perStepAction        = NULL;
   QAction *clearPageCacheAction = NULL;
 
+  QAction *borderAction         = NULL;
   QAction *backgroundAction     = NULL;
   QAction *sizeAndOrientationAction = NULL;
 
@@ -168,6 +171,10 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   sizeAndOrientationAction->setIcon(QIcon(":/resources/pagesizeandorientation.png"));
   sizeAndOrientationAction->setWhatsThis("Change the page size and orientation");
 
+  if(page->meta.LPub.page.background.value().type == BackgroundData::BgTransparent) {
+      borderAction = commonMenus.borderMenu(menu,name);
+    }
+
   QAction *selectedAction     = menu.exec(event->screenPos());
 
   if (selectedAction == NULL) {
@@ -213,6 +220,11 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       changeBool(page->top,
                  page->bottom,
                  &page->meta.LPub.stepPli.perStep,true,0,false,false);
+    } else if (selectedAction == borderAction) {
+      changeBorder("Border",
+                   page->top,
+                   page->bottom,
+                   &page->meta.LPub.page.border);
     } else if (selectedAction == backgroundAction) {
       changeBackground("Page Background",
                        page->top,
