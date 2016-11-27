@@ -566,7 +566,7 @@ QString relativeNames[] =
   "DOCUMENT_TITLE","MODEL_ID","DOCUMENT_AUTHOR","PUBLISH_URL","MODEL_DESCRIPTION",
   "PUBLISH_DESCRIPTION","PUBLISH_COPYRIGHT","PUBLISH_EMAIL","LEGO_DISCLAIMER",
   "MODEL_PIECES","APP_PLUG","SUBMODEL_INST_COUNT","DOCUMENT_LOGO","DOCUMENT_COVER_IMAGE",
-  "APP_PLUG_IMAGE","PAGE_HEADER","PAGE_FOOTER","ROTATE_ICON"
+  "APP_PLUG_IMAGE","PAGE_HEADER","PAGE_FOOTER","MODEL_CATEGORY","ROTATE_ICON"
 };
 
 PlacementMeta::PlacementMeta() : LeafMeta()
@@ -603,7 +603,7 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
                         "DOCUMENT_TITLE|MODEL_ID|DOCUMENT_AUTHOR|PUBLISH_URL|MODEL_DESCRIPTION|"
                         "PUBLISH_DESCRIPTION|PUBLISH_COPYRIGHT|PUBLISH_EMAIL|LEGO_DISCLAIMER|"
                         "MODEL_PIECES|APP_PLUG|MODEL_CATEGORY|DOCUMENT_LOGO|DOCUMENT_COVER_IMAGE|"
-                        "APP_PLUG_IMAGE|PAGE_HEADER|PAGE_FOOTER|ROTATE_ICON)$";
+                        "APP_PLUG_IMAGE|PAGE_HEADER|PAGE_FOOTER|MODEL_CATEGORY|ROTATE_ICON)$";
 
   _placementR    = _value[pushed].rectPlacement;
   _relativeTo    = _value[pushed].relativeTo;
@@ -3154,6 +3154,7 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       tokenMap["PAGE_HEADER"]    	= PageHeaderType;
       tokenMap["PAGE_FOOTER"]    	= PageFooterType;
       tokenMap["MODEL_CATEGORY"]    	= PageCategoryType;
+      tokenMap["ROTATE_ICON"]           = RotateIconType;
 
       tokenMap["AREA"]         = ConstrainData::PliConstrainArea;
       tokenMap["SQUARE"]       = ConstrainData::PliConstrainSquare;
@@ -3169,7 +3170,6 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
 
       tokenMap["SORT_BY"]       = SortByType;
       tokenMap["ANNOTATION"]    = AnnotationType;
-      tokenMap["ROTATE_ICON"]   = RotateIconType;
     }
 }
 

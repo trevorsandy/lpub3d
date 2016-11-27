@@ -1019,8 +1019,7 @@ void Gui::exportAs(QString &suffix)
 
 void Gui::PrintPdf(QPrinter* Printer)
 {
-  QObject *previewDialog  = qobject_cast<QPrintPreviewDialog *>(sender());
-  bool preview = previewDialog ? false /* true */ : false;  //Hack
+  bool preview = false /* m_previewDialog */;  //Hack
   emit hidePreviewDialogSig();
 
   /*
@@ -1078,7 +1077,6 @@ void Gui::PrintPdf(QPrinter* Printer)
   displayPageNum = 0;
   drawPage(&view,&scene,true);
   clearPage(&view,&scene);
-  displayPageNum = savePageNumber;
 
   // check if mixed page size and orientation
   checkMixedPageSizeStatus();
@@ -1109,6 +1107,11 @@ void Gui::PrintPdf(QPrinter* Printer)
       if (exportOption != EXPORT_PAGE_RANGE){
 
           if (exportOption == EXPORT_CURRENT_PAGE){
+              // reset display page from saved page
+              displayPageNum = savePageNumber;
+              // reset page layout using display page
+              Printer->setPageLayout(getPageLayout());
+              // set range to display page
               Page   = displayPageNum;
               ToPage = displayPageNum;
             }

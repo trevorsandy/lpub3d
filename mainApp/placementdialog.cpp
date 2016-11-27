@@ -101,8 +101,9 @@ const int PlacementDialog::relativeToOks[NumRelatives] =
   /* 21 plugImage       pit		*/Page                                      | pf                                | plt,
   /* 22 pageHeader      ph		*/Page,
   /* 23 pageFooter      pf		*/Page,
-  /* 24 SingleStep                      */Page | Csi,
-  /* 25 category        cat		*/Page
+  /* 25 Category        cat             */Page             | Pn                | ph | pf | tt |      ct | et | urlt,
+  /* 31 Rotate Icon     ri              */Page | Csi | Pli      | Sn
+  /* 29 Bom                              /Page,                                | ph | pf */
 };
 //front cover options   Page     | ph | pf | tt | at                  | mnt | pt | mdt | pdt | dlt,
 //back  cover options   Page     | ph | pf | tt | at | ct | et | urlt |                      | dlt | dt | plt | pit,
@@ -134,6 +135,9 @@ const int PlacementDialog::prepositionOks[NumRelatives] = // indexed by them
     /* 21 plugImage */               OutsideOk,
     /* 22 pageHeader */              InsideOk|OutsideOk,
     /* 23 pageFooter */              InsideOk|OutsideOk
+    /* 25 Category                   OutsideOk,
+     * 31 Rotate Icon                OutsideOk,
+     * 29 Bom                        OutsideOk*/
 };
 
 const QString relativeNames[NumRelatives] =
@@ -163,17 +167,16 @@ const QString relativeNames[NumRelatives] =
   "Plug Image",                 //21 pit
   "Page Header",                //22 ph
   "Page Footer",                //23 pf
+  "Category",                   //25 cat
+  "Rotate Icon",                //31
+  "BOM",                        //29
 
   "Single Step",                //24
-  "Category",                   //25 cat
-
   "Step",                       //26
   "Range",                      //27
   "Reserve",                    //28
-  "BOM",                        //29
-  "Cover Page",                 //30
-  "Rotate Icon"                 //31
-};                              //32 NumRelatives
+  "Cover Page"                  //30
+};//NumRelatives                //32
 
 QString PlacementDialog::relativeToName(
   int relativeTo)
@@ -335,16 +338,17 @@ PlacementDialog::PlacementDialog(
 
   for (int i = 0; i < NumRelatives; i++) {
 //debug
-//    logNotice() << "\n POPULATE PLACEMENT COMBO"
-//                << "\n    Index: " << i   <<      " Bits: " << QString::number(i,2)
-//                << "\n      Oks: " << oks <<      " Bits: " << QString::number(oks,2)
-//                << "\n (1 << i): " << (1 << i) << " Bits: " << QString::number((1 << i),2)
-//                   ;
+    logNotice() << "\n POPULATE PLACEMENT COMBO" << RelNames[i]
+                << "\n            Index:" << i        << "Binary: " << QString::number(i,2)
+                << "\n              Oks:" << oks      << "Binary: " << QString::number(oks,2)
+                << "\n (1 << i) Decimal:" << (1 << i) << "Binary: " << QString::number((1 << i),2)
+                << "\n     Shift 1 left:" << i << "times"
+                   ;
 //end debug
     if (oks & (1 << i)) {
 //debug
-//    qDebug() << " MATCH: " << i << " " << oks << " " << (1 << i)
-//                 ;
+    qDebug() << " MATCH: " << i << " " << oks << " " << (1 << i)
+                 ;
 //end debug
       combo->addItem(relativeNames[i]);
       if (i == goods->relativeTo) {

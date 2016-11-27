@@ -137,16 +137,16 @@ enum PlacementType {          //  placement dialog codes:
   PagePlugImageType,          //21 pit
   PageHeaderType,             //22 ph
   PageFooterType,             //23 pf
+  PageCategoryType,           //25 cat
+  RotateIconType,             //31
+  BomType,                    //29
 
   SingleStepType,             //24
-  PageCategoryType,           //25 cat
-
   StepType,                   //26
   RangeType,                  //27
   ReserveType,                //28
-  BomType,                    //29
   CoverPageType,              //30
-  RotateIconType,             //31
+
   NumRelatives                //32
 };
 
@@ -483,17 +483,15 @@ const QString RelNames[NumRelatives] =
    "PagePlugImageType",		 //21 pit
    "PageHeaderType",             //22 ph
    "PageFooterType",             //23 pf
+   "PageCategoryType",		 //25 cat
+   "RotateIconType",             //31
+   "BomType",                    //29
 
    "SingleStepType",             //24
-   "PageCategoryType",		 //25 cat
-
    "StepType",                   //26
    "RangeType",                  //27
-   "ReserveType",                //28
-   "BomType",                    //29
+   "ReserveType",                //28 
    "CoverPageType"               //30
-   "RotateIconType",             //31
-
 }; //NumRelatives"               //32
 
 const QString PlacNames[NumPlacements] =

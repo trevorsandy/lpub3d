@@ -78,10 +78,11 @@ public:
   enum PrepositionMask { InsideOk = 128, OutsideOk = 256 };
 
   enum RelativeTos 
-    { Page = 1 ,   Csi = 2,     Ms  = 4,      Sn  = 8,      Pli  = 16,     Callout = 32,
-      Pn  = 64,    tt  = 128,   mnt = 256,    at  = 512,    urlt = 1024,   mdt = 2048,
-      pdt = 4096,  ct  = 8192,  et  = 16384,  dt  = 32768,  pt   = 65536,  plt = 131072,
-      sic = 262144,dlt = 524288,cit = 1048576,pit = 2097152,ph   = 4194304,pf  = 8388608
+    { Page = 1 ,       Csi = 2,      Ms  = 4,        Sn = 8,        Pli = 16,      Callout = 32,
+        Pn = 64,       tt  = 128,    mnt = 256,      at = 512,     urlt = 1024,        mdt = 2048,
+       pdt = 4096,     ct  = 8192,   et  = 16384,    dt = 32768,     pt = 65536,       plt = 131072,
+       sic = 262144,   dlt = 524288, cit = 1048576, pit = 2097152,   ph = 4194304,      pf = 8388608,
+        ri = 16777216 // plus 5 more
     };
 
   RelativeTos currentRelativeType;

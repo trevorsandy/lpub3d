@@ -2,6 +2,8 @@ LPub3D 2.0.18.864.2
  
 Features and enhancements 
 ------------ 
+Fix: Previewing the current page (single page) produces a blank page (r870)
+ * This behaviour has been corrected.
 Fix: Page size precision to 4 decimal places (r869)
  *  When using some page sizes (e.g. A4), there was a thin white band at the right/bottom edge of the generated PDF pages when the background is set to colour or image. This issue resulted from using incorrect page sizes. The correct page size in inches sometimes require 4 digits of precision but were rounded to only 1 digit. All page sizes have been set to 4 digits of precision.
 Fix: Border meta automatically updated to LPub3D format (r868)
