@@ -286,7 +286,8 @@ int Gui::addGraphicsPageItems(
     }
   pageFooter->setPos(pageFooter->loc[XX],pageFooter->loc[YY]);
 
-  // Display a page number?
+  // Display the page number and instance count
+
   bool displayPageNumber = page->meta.LPub.page.dpn.value();
   if (displayPageNumber && ! coverPage) {
 
@@ -350,14 +351,95 @@ int Gui::addGraphicsPageItems(
       plPage.appendRelativeTo(pageNumber);
       plPage.placeRelative(pageNumber);
       pageNumber->setPos(pageNumber->loc[XX],pageNumber->loc[YY]);
-    }
 
-  // if this page contains the last step of the submodel,
-  // and instance is > 1 then display instance
+      // if this page contains the last step of the submodel,
+      // and instance is > 1 then display instance
 
-  // allocate QGraphicsTextItem for instance number
+      // allocate QGraphicsTextItem for instance number
 
-  if (endOfSubmodel && page->instances > 1) {
+      if (endOfSubmodel && page->instances > 1) {
+
+          instanceCount = new SubmodelInstanceCount(
+                page,
+                page->meta.LPub.page.instanceCount,
+                "x%d ",
+                page->instances,
+                pageBg);
+
+          /*
+       * To make mousemove always know how to calculate offset, I modified
+       * SubmodelInstanceClass to be derived from Placement.  The relativeToSize
+       * offset calculation are in Placement.
+       *
+       * The offset calculation works great, but we end up with a problem
+       * SubmodelInstanceCount gets placement from NumberPlacementItem, and
+       * placement from Placement.  To work around this, I had to hack (and I mean
+       * ugly) SubmodelInstanceCount to Placement.
+       */
+
+          if (instanceCount) {
+              instanceCount->setSize(int(instanceCount->document()->size().width()),
+                                     int(instanceCount->document()->size().height()));
+              instanceCount->loc[XX] = 0;
+              instanceCount->loc[YY] = 0;
+              instanceCount->tbl[0] = 0;
+              instanceCount->tbl[1] = 0;
+
+              instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
+
+    //              logDebug() << "TogglePageNumber:" << page->meta.LPub.page.togglePnPlacement.value();
+    //              logDebug() << (page->meta.LPub.page.number.number % 2 ?
+    //                                 tr("Page %1 is Even").arg(stepPageNum) :
+    //                                 tr("Page %1 is Odd").arg(stepPageNum));
+    //              logDebug() << "Placement: " << RectNames[page->meta.LPub.page.instanceCount.placement.value().rectPlacement]
+    //                         << "(" << page->meta.LPub.page.instanceCount.placement.value().rectPlacement << ")" ;
+
+              PlacementData placementData = instanceCount->placement.value();
+
+              if (placementData.relativeTo == PageNumberType) {
+
+                  if (page->meta.LPub.page.togglePnPlacement.value() &&
+                      ! (stepPageNum % 2 /* if page is odd */)) {
+                      switch (placementData.rectPlacement){
+                      case (TopLeftOutsideCorner):
+                          instanceCount->placement.setValue(TopRightOutsideCorner,PageNumberType);
+                          break;
+                      case (TopLeftOutside):
+                          instanceCount->placement.setValue(TopRightOutSide,PageNumberType);
+                          break;
+                      case (LeftTopOutside):
+                          instanceCount->placement.setValue(RightTopOutside,PageNumberType);
+                          break;
+                      case (LeftOutside):
+                          instanceCount->placement.setValue(RightOutside,PageNumberType);
+                          break;
+                      case (LeftBottomOutside):
+                          instanceCount->placement.setValue(RightBottomOutside,PageNumberType);
+                          break;
+                      case (BottomLeftOutsideCorner):
+                          instanceCount->placement.setValue(BottomRightOutsideCorner,PageNumberType);
+                          break;
+                      case (BottomLeftOutside):
+                          instanceCount->placement.setValue(BottomRightOutside,PageNumberType);
+                          break;
+                      default:
+                          instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
+                          break;
+                      }
+                    } else {
+                      instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
+                    }
+                  pageNumber->placeRelative(instanceCount);
+                } else {
+                  instanceCount->placement.setValue(BottomRightInsideCorner,PageType);
+                  plPage.placeRelative(instanceCount);
+                }
+
+              instanceCount->setPos(instanceCount->loc[XX],instanceCount->loc[YY]);
+            }
+        }
+
+    } else if (endOfSubmodel && page->instances > 1 && ! coverPage) {
 
       instanceCount = new SubmodelInstanceCount(
             page,
@@ -365,17 +447,6 @@ int Gui::addGraphicsPageItems(
             "x%d ",
             page->instances,
             pageBg);
-
-      /*
-   * To make mousemove always know how to calculate offset, I modified
-   * SubmodelInstanceClass to be derived from Placement.  The relativeToSize
-   * offset calculation are in Placement.
-   *
-   * The offset calculation works great, but we end up with a problem
-   * SubmodelInstanceCount gets placement from NumberPlacementItem, and
-   * placement from Placement.  To work around this, I had to hack (and I mean
-   * ugly) SubmodelInstanceCount to Placement.
-   */
 
       if (instanceCount) {
           instanceCount->setSize(int(instanceCount->document()->size().width()),
@@ -386,57 +457,11 @@ int Gui::addGraphicsPageItems(
           instanceCount->tbl[1] = 0;
 
           instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
-
-//              logDebug() << "TogglePageNumber:" << page->meta.LPub.page.togglePnPlacement.value();
-//              logDebug() << (page->meta.LPub.page.number.number % 2 ?
-//                                 tr("Page %1 is Even").arg(stepPageNum) :
-//                                 tr("Page %1 is Odd").arg(stepPageNum));
-//              logDebug() << "Placement: " << RectNames[page->meta.LPub.page.instanceCount.placement.value().rectPlacement]
-//                         << "(" << page->meta.LPub.page.instanceCount.placement.value().rectPlacement << ")" ;
-
-          PlacementData placementData = instanceCount->placement.value();
-
-          if (displayPageNumber && placementData.relativeTo == PageNumberType) {
-
-              if (page->meta.LPub.page.togglePnPlacement.value() &&
-                  ! (stepPageNum % 2 /* if page is odd */)) {
-                  switch (placementData.rectPlacement){
-                  case (TopLeftOutsideCorner):
-                      instanceCount->placement.setValue(TopRightOutsideCorner,PageNumberType);
-                      break;
-                  case (TopLeftOutside):
-                      instanceCount->placement.setValue(TopRightOutSide,PageNumberType);
-                      break;
-                  case (LeftTopOutside):
-                      instanceCount->placement.setValue(RightTopOutside,PageNumberType);
-                      break;
-                  case (LeftOutside):
-                      instanceCount->placement.setValue(RightOutside,PageNumberType);
-                      break;
-                  case (LeftBottomOutside):
-                      instanceCount->placement.setValue(RightBottomOutside,PageNumberType);
-                      break;
-                  case (BottomLeftOutsideCorner):
-                      instanceCount->placement.setValue(BottomRightOutsideCorner,PageNumberType);
-                      break;
-                  case (BottomLeftOutside):
-                      instanceCount->placement.setValue(BottomRightOutside,PageNumberType);
-                      break;
-                  default:
-                      instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
-                      break;
-                  }
-                } else {
-                  instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
-                }
-              pageNumber->placeRelative(instanceCount);
-            } else {
-              instanceCount->placement.setValue(BottomRightInsideCorner,PageType);
-              plPage.placeRelative(instanceCount);
-            }
-
-          instanceCount->setPos(instanceCount->loc[XX],instanceCount->loc[YY]);
+          instanceCount->placement.setValue(BottomRightInsideCorner,PageType);
+          plPage.placeRelative(instanceCount);
         }
+
+      instanceCount->setPos(instanceCount->loc[XX],instanceCount->loc[YY]);
     }
 
   /* Create any graphics items in the insert list */
