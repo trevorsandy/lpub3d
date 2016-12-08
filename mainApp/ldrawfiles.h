@@ -130,7 +130,7 @@ class LDrawFile {
     void subFileLevels(QStringList &contents, int &level);
     void loadFile(const QString &fileName);
     void loadMPDFile(const QString &fileName, QDateTime &datetime);
-    void loadLDRFile(const QString &path, const QString &fileName);
+    void loadLDRFile(const QString &path, const QString &fileName, bool topLevel = true);
     QStringList subFileOrder();
     
     QString readLine(const QString &fileName, int lineNumber);

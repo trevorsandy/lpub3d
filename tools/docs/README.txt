@@ -1,30 +1,37 @@
-LPub3D 2.0.18.864.2 
+LPub3D 2.0.19.877.2 
  
 Features and enhancements 
-------------
-Fix: Instance count placement when page number not displayed (r874)
- * Instance count is placed relative to page number by default. When page number is not displayed, LPub3D will re-assign the instance count to any or the four page attributes, url, email, copyright, and author (default) displayed at the left bottom area of the page. If no page attributes are displayed, the instance count is assigned to the bottom left inside corner of the page.
-Fix: Fade part not displayed in assembly image (r872)
- * The faded part is not rendered or displayed in the CSI step image. The non-faded part occurrence is rendered successfully and the faded part is displayed in the viewer.The problem persists after regenerating fade parts and clearing the cache. In some scenarios, particularly when LPub3D is launched with fade=Off and then fade is set to fade=ON using the Preferences menu after a model file is loaded, it is possible that the fade directory is not communicated to the renderer so no fade part image is rendered. This behaviour has been corrected.
+------------ 
+Fix: Callout not displayed and part count incorrect when loading a model using multiple and separate ldr-format files (r877)
+ * These behaviours were introduced in LPub3D 2.0.0. The immediate work around is to merge the files into a single MPD-format file. However, these behaviours are now corrected.
+
+LPub3D 2.0.18.876.2 
+ 
+Features and enhancements 
+------------ 
+Fix: Instance count placement when page number not displayed (r874) 
+ * Instance count is placed relative to page number by default. When page number is not displayed, LPub3D will re-assign the instance count to any or the four page attributes, url, email, copyright, and author (default) displayed at the left bottom area of the page. If no page attributes are displayed, the instance count is assigned to the bottom left inside corner of the page. 
+Fix: Fade part not displayed in assembly image (r872) 
+ * The faded part is not rendered or displayed in the CSI step image. The non-faded part occurrence is rendered successfully and the faded part is displayed in the viewer.The problem persists after regenerating fade parts and clearing the cache. In some scenarios, particularly when LPub3D is launched with fade=Off and then fade is set to fade=ON using the Preferences menu after a model file is loaded, it is possible that the fade directory is not communicated to the renderer so no fade part image is rendered. This behaviour has been corrected. 
  With the updated behaviour, the fade search directories are updated on any change to the Fade Step check-box in the Preferences General tab. If the fade step is set to ON, fade directory with part file content will be added to the search directory. When fade step is set to OFF, the fade directory will be removed. 
-Fix: True page background transparency (r871)
- * When the page background is set the true transparent, it is not possible to display the background context menu so many page functions will not be accessible. To accommodate true transparency and enable the available page editing functions, when a page background is set to "none(transparent)" by the user, the page is set to white with alpha=1 during page editing but switched to true transparent for exporting/printing. This way, the user will have the ability to manipulate the page components while editing the document.
-Fix: Previewing the current page (single page) produces a blank page (r870)
- * This behaviour has been corrected.
-Fix: Page size precision to 4 decimal places (r869)
- *  When using some page sizes (e.g. A4), there was a thin white band at the right/bottom edge of the generated PDF pages when the background is set to colour or image. This issue resulted from using incorrect page sizes. The correct page size in inches sometimes require 4 digits of precision but were rounded to only 1 digit. All page sizes have been set to 4 digits of precision.
-Fix: Border meta automatically updated to LPub3D format (r868)
- * LPub3D will automatically detect and update a LPub border meta to the LPub3D format which adds a line type attribute to the meta command. The previous behaviour would display an error format message prompting the user to correct the meta. The default line type set during automatic update is 1=solid.
+Fix: True page background transparency (r871) 
+ * When the page background is set the true transparent, it is not possible to display the background context menu so many page functions will not be accessible. To accommodate true transparency and enable the available page editing functions, when a page background is set to "none(transparent)" by the user, the page is set to white with alpha=1 during page editing but switched to true transparent for exporting/printing. This way, the user will have the ability to manipulate the page components while editing the document. 
+Fix: Previewing the current page (single page) produces a blank page (r870) 
+ * This behaviour has been corrected. 
+Fix: Page size precision to 4 decimal places (r869) 
+ *  When using some page sizes (e.g. A4), there was a thin white band at the right/bottom edge of the generated PDF pages when the background is set to colour or image. This issue resulted from using incorrect page sizes. The correct page size in inches sometimes require 4 digits of precision but were rounded to only 1 digit. All page sizes have been set to 4 digits of precision. 
+Fix: Border meta automatically updated to LPub3D format (r868) 
+ * LPub3D will automatically detect and update a LPub border meta to the LPub3D format which adds a line type attribute to the meta command. The previous behaviour would display an error format message prompting the user to correct the meta. The default line type set during automatic update is 1=solid. 
  Line types are  0=none,1=solid,2=dash,3=dot,4=dashDot,5=dashDotDot. An LPub meta line like this: 
  0 !LPUB PLI BORDER GLOBAL ROUND Black 0 15 MARGINS 0.472439 0.07 will be automatically updated to this: 
- 0 !LPUB PLI BORDER GLOBAL ROUND 1 Black 0 15 MARGINS 0.472439 0.07
-Fix: Find button in LDraw editor (r867)
- * Find button added to LDraw editor. The find dialogue will open with the word currently under the cursor. Therefore, an efficient use pattern is to place the cursor above the word you wish to search and click the search button.
-Fix: Display message for mixed page size and orientation (r866)
- * When previewing a pdf export, the user has to option to present or suppress the message indicating there are different orientations and/or sizes in the preview. The Qt print preview does not play well with mixed pages sizes. This message informs the user of this fact. Additional Cleanup.
-Fix: Misplaced submodel occurrence (r865)
- * When a submodel ends with a single step and the next to the last step is a multi-step, the submodel occurrence number (if used more than 1x in the parent model) is placed both at the multi-step and the last step in the child model. Under this scenario, the corrected behaviour places the occurrence number only at the last step.
-
+ 0 !LPUB PLI BORDER GLOBAL ROUND 1 Black 0 15 MARGINS 0.472439 0.07 
+Fix: Find button in LDraw editor (r867) 
+ * Find button added to LDraw editor. The find dialogue will open with the word currently under the cursor. Therefore, an efficient use pattern is to place the cursor above the word you wish to search and click the search button. 
+Fix: Display message for mixed page size and orientation (r866) 
+ * When previewing a pdf export, the user has to option to present or suppress the message indicating there are different orientations and/or sizes in the preview. The Qt print preview does not play well with mixed pages sizes. This message informs the user of this fact. Additional Cleanup. 
+Fix: Misplaced submodel occurrence (r865) 
+ * When a submodel ends with a single step and the next to the last step is a multi-step, the submodel occurrence number (if used more than 1x in the parent model) is placed both at the multi-step and the last step in the child model. Under this scenario, the corrected behaviour places the occurrence number only at the last step. 
+ 
 LPub3D 2.0.17.863.2 
  
 Features and enhancements 

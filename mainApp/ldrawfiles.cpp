@@ -466,12 +466,10 @@ void LDrawFile::loadFile(const QString &fileName)
     while ( ! in.atEnd()) {
         QString line = in.readLine(0);
         if (line.contains(sof)) {
-            logStatus() << QString("Loading MPD %1").arg(line.remove("0 "));
             mpd = true;
             break;
         }
         if (line.contains(part)) {
-            logStatus() << QString("Loading LDR %1").arg(line.remove("0 "));
             mpd = false;
             break;
         }
@@ -481,15 +479,32 @@ void LDrawFile::loadFile(const QString &fileName)
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
     
+    QFileInfo fileInfo(fileName);
     if (mpd) {
       QDateTime datetime = QFileInfo(fileName).lastModified();
       loadMPDFile(fileName,datetime);
     } else {
-      QFileInfo fileInfo(fileName);
       loadLDRFile(fileInfo.absolutePath(),fileInfo.fileName());
     }
     
     QApplication::restoreOverrideCursor();
+
+    countParts(topLevelFile());
+
+    emit gui->messageSig(true, QString("%1 model file %2 loaded. Count %3 parts")
+                                       .arg(mpd ? "MPD" : "LDR")
+                                       .arg(fileInfo.fileName())
+                                       .arg(_pieces));
+
+//    logInfo() << (mpd ? "MPD" : "LDR")
+//              << " File:"         << _file
+//              << ", Name:"        << _name
+//              << ", Author:"      << _author
+//              << ", Description:" << _description
+//              << ", Category:"    << _category
+//              << ", Pieces:"      << _pieces
+//                 ;
+
 }
 
 void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
@@ -504,6 +519,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
         return;
     }
 
+    QFileInfo   fileInfo(fileName);
     QTextStream in(&file);
     QStringList stageContents;
     QStringList contents;
@@ -533,7 +549,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     emit gui->progressBarPermInitSig();
     emit gui->progressPermRangeSig(1, stageContents.size());
     emit gui->progressPermMessageSig("Processing...");
-    emit gui->messageSig(true, "Loading mpd model file.");
+    emit gui->messageSig(true, "Loading MPD model file " + fileInfo.fileName() + "...");
 
     for (int i = 0; i < stageContents.size(); i++) {
 
@@ -594,6 +610,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
              */
             if (! mpdName.isEmpty() && ! alreadyInserted) {
 //                logTrace() << "Inserted Subfile: " << mpdName;
+                emit gui->messageSig(true, QString("MPD submodel '" + mpdName + "' loaded."));
                 insert(mpdName,contents,datetime,unofficialPart);
                 unofficialPart = false;
             }
@@ -605,14 +622,14 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
              */
             if (sof) {
                 mpdName = sofRE.cap(1).toLower();
-                emit gui->messageSig(true, "Loading submodel " + mpdName);
+                emit gui->messageSig(true, "Loading MPD submodel '" + mpdName + "'...");
             } else {
                 mpdName.clear();
             }
 
         } else if ( ! mpdName.isEmpty() && smLine != "") {
             /* - after start of file - mpdName not empty
-             * - if line contains unofficial tag set unofficial part = true
+             * - if line contains unofficial part/subpart/shortcut/primitive/alias tag set unofficial part = true
              * - add line to contents
              */
             if (isUnofficialFileType(smLine)) {
@@ -628,24 +645,12 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     }
 
     _mpd = true;
-    countParts(topLevelFile());
 
     emit gui->progressPermSetValueSig(stageContents.size());
     emit gui->removeProgressPermStatusSig();
-    emit gui->messageSig(true, QString("Model file loaded."));
-
-    logStatus() << QString("MPD file %1 loaded. Part Count: %2").arg(fileName).arg(_pieces);
-
-//    logInfo() << "MPD File: "         << _file
-//              << ", Name: "           << _name
-//              << ", Author: "         << _author
-//              << ", Description: "    << _description
-//              << ", Pieces: "         << _pieces
-//              << ", Category: "       << _category
-//                 ;
 }
 
-void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
+void LDrawFile::loadLDRFile(const QString &path, const QString &fileName, bool topLevel)
 {
     if (_subFiles[fileName]._contents.isEmpty()) {
 
@@ -667,29 +672,31 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
       QTextStream in(&file);
       QStringList contents;
 
-      QRegExp sofRE("^\\s*0\\s+FILE\\s+(.*)$");
-      QRegExp upAUT("^\\s*0\\s+AUTHOR(.*)|Author(.*)|author(.*)$");
       QRegExp upNAM("^\\s*0\\s+Name(.*)|name(.*)|NAME(.*)$");
+      QRegExp upAUT("^\\s*0\\s+AUTHOR(.*)|Author(.*)|author(.*)$");
       QRegExp upCAT("^\\s*0\\s+!CATEGORY(.*)|!Category(.*)|!category(.*)$");
-      QRegExp upDAT("\\.dat|\\.DAT$");
 
-      bool topLevelFileNotCaptured        = true;
+      bool topLevelDescriptionNotCaptured = true;
       bool topLevelNameNotCaptured        = true;
       bool topLevelAuthorNotCaptured      = true;
-      bool topLevelDescriptionNotCaptured = true;
       bool topLevelCategoryNotCaptured    = true;
-      bool unofficialPart                 = true;
+      bool unofficialPart                 = false;
       int  descriptionLine                = 0;
 
       while ( ! in.atEnd()) {
-        QString line = in.readLine(0);
-        contents << line;
-      }
+          QString line = in.readLine(0);
+          if (isHeader(line) && isUnofficialFileType(line)) {
+              unofficialPart = true;
+            }
+          contents << line;
+        }
+
+      QString fileType = topLevel ? "model" : "submodel";
 
       emit gui->progressBarPermInitSig();
       emit gui->progressPermRangeSig(1, contents.size());
       emit gui->progressPermMessageSig("Processing...");
-      emit gui->messageSig(true, "Loading ldr model file.");
+      emit gui->messageSig(true, "Loading LDR " + fileType + " file '" + fileName + "'...");
 
       QDateTime datetime = QFileInfo(fullName).lastModified();
     
@@ -707,63 +714,48 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
           QStringList tokens;
           split(line,tokens);
 
-          if (topLevelFileNotCaptured) {
-              if (line.contains(sofRE)){
-                  _file = sofRE.cap(1).replace(".ldr","");
-                  descriptionLine = i+1;      //next line will be description
-                  topLevelFileNotCaptured = false;
-              }
-          }
+          if (topLevel) {
 
-          if (topLevelAuthorNotCaptured) {
-              if (line.contains(upAUT)) {
-                  _author = upAUT.cap(1).replace(": ","");
-                  topLevelAuthorNotCaptured = false;
-              }
-          }
+              if (topLevelDescriptionNotCaptured && i == descriptionLine) {
+                  _description = line;
+                  topLevelDescriptionNotCaptured = false;
+                }
 
-          if (topLevelNameNotCaptured) {
-              if (line.contains(upNAM)) {
-                  _name = upNAM.cap(1).replace(": ","");
-                  topLevelNameNotCaptured = false;
-              }
-          }
+              if (topLevelNameNotCaptured) {
+                  if (line.contains(upNAM)) {
+                      _name = upNAM.cap(1).replace(": ","");
+                      topLevelNameNotCaptured = false;
+                    }
+                }
 
-          if (topLevelCategoryNotCaptured) {
-              if (line.contains(upCAT)) {
-                  _category = upCAT.cap(1);
-                  topLevelCategoryNotCaptured = false;
-              }
-          }
+              if (topLevelAuthorNotCaptured) {
+                  if (line.contains(upAUT)) {
+                      _author = upAUT.cap(1).replace(": ","");
+                      topLevelAuthorNotCaptured = false;
+                    }
+                }
 
-          if (topLevelDescriptionNotCaptured && i == descriptionLine) {
-              _description = line;
-              topLevelDescriptionNotCaptured = false;
-          }
+              if (topLevelCategoryNotCaptured) {
+                  if (line.contains(upCAT)) {
+                      _category = upCAT.cap(1);
+                      topLevelCategoryNotCaptured = false;
+                    }
+                }
+            }
 
           if (line[0] == '1' && tokens.size() == 15) {
               const QString subModel = tokens[tokens.size()-1];
               fullName = path + "/" + subModel;
               if (QFile::exists(fullName)) {
-                  loadLDRFile(path,subModel);
-              }
-          }
+                  loadLDRFile(path,subModel,false);
+                }
+            }
       }
       _mpd = false;
-      countParts(topLevelFile());
 
       emit gui->progressPermSetValueSig(contents.size());
       emit gui->removeProgressPermStatusSig();
-      //emit gui->messageSig(true, QString("Model file loaded. Parts counted: %1.").arg(_pieces));
-      logInfo() << QString("LDR file %1 loaded. Part Count: %2").arg(fileName).arg(_pieces);
-
-//      logInfo() << "LDR File: "         << _file
-//                << ", Name: "           << _name
-//                << ", Author: "         << _author
-//                << ", Description: "    << _description
-//                << ", Pieces: "         << _pieces
-//                << ", Category: "       << _category
-//                   ;
+      emit gui->messageSig(true, QString("LDR model file '" + fileName + "' loaded."));
     }
 }
 
@@ -968,7 +960,7 @@ bool LDrawFile::saveMPDFile(const QString &fileName)
 void LDrawFile::countParts(const QString &fileName){
 
   //logDebug() << QString("  Subfile: %1, Subfile Parts Count: %2").arg(fileName).arg(count);
-  logStatus() << QString("  Subfile: %1").arg(fileName);
+  logStatus() << QString("Processing subfile '%1'").arg(fileName);
 
   int sfCount = 0;
   bool doCountParts = true;
