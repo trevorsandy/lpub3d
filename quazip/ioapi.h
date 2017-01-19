@@ -49,7 +49,7 @@
 	#ifdef _MSC_VER
 		#include <QtZlib/zlib.h>
 	#else // not using MSVC
-		#include <zlib.h>
+        #include <zlib.h>
 	#endif 
 #else // not using Qt 5.0.0 or greater
 #include "zlib.h"

@@ -47,6 +47,7 @@ MOC_DIR = $$DESTDIR/.moc
 
 # Input
 include(quazip.pri)
+include(../LPub3DPlatformSpecific.pri)
 
 unix:!symbian {
     headers.path=$$PREFIX/include/quazip
