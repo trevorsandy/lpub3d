@@ -209,6 +209,12 @@ macx {
     library.files += extras/complete.zip
     library.path = Contents/Resources
 
+    libquazip.files += $$DESTDIR/../../../quazip/build/release/libquazip.1.dylib
+    libquazip.path = Contents/Libs
+
+    libldrawini.files += $$DESTDIR/../../../ldrawini/build/release/libldrawini.1.dylib
+    libldrawini.path = Contents/Libs
+
     QMAKE_BUNDLE_DATA += \
         document_icon \
         document_readme \
@@ -221,7 +227,10 @@ macx {
         pli_orientation \
         pli_substitution_parts \
         unofficial_library \
-        library
+        library \
+        libquazip \
+        libldrawini
+
 }
 
 #~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

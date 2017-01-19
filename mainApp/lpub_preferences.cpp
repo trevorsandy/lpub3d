@@ -295,7 +295,6 @@ void Preferences::loggingPreferences()
 void Preferences::lpubPreferences()
 {    
     QDir cwd(QDir::currentPath());
-
     qDebug() << qPrintable(QString("Starting Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
 
 #ifdef Q_OS_MAC
@@ -305,9 +304,17 @@ void Preferences::lpubPreferences()
         cwd.cdUp(); //LPub3D.app
         cwd.cdUp(); //<Root of install path>
     }
-    lpub3dMacResourcePath = QString("%1/LPub3D.app/Contents/Resources").arg(cwd.absolutePath());
 
+    lpub3dMacResourcePath = QString("%1/LPub3D.app/Contents/Resources").arg(cwd.absolutePath());
     qDebug() << qPrintable(QString("Ending Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
+
+    QDir dir(QCoreApplication::applicationDirPath());
+    //qDebug() << qPrintable(QString("Application DirPath (%1)").arg(QCoreApplication::applicationDirPath()));
+    dir.cdUp();
+    dir.cd("Libs");
+    QCoreApplication::setLibraryPaths(QStringList(dir.absolutePath()));
+    //qDebug() << qPrintable(QString("Application \"Libs\" Path (%1)").arg(dir.absolutePath()));
+
 #endif
 
     lpub3dPath = cwd.absolutePath();
@@ -399,7 +406,7 @@ void Preferences::lpubPreferences()
 #ifdef Q_OS_WIN
     location = QString("%1").arg((portableDistribution ? "/extras/" : "/data/"));
 #elif defined Q_OS_MAC
-    location = QString("%1/").arg(lpub3dMacResourcePath);
+    location = QString("%1/").arg(lpub3dMacResourcePath.right(lpub3dMacResourcePath.trimmed().size() - lpub3dPath.trimmed().size()));
 #else
     //TODO Linxu Path
 #endif
@@ -477,57 +484,23 @@ void Preferences::lpub3dLibPreferences(bool force)
     }
 
     if (! lpub3dLibFile.isEmpty()) {
-        Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
-    }
-    else {
-#ifdef Q_OS_MAC
-   Application::instance()->splash->hide();
-#endif
-        QPixmap _icon = QPixmap(":/icons/lpub96.png");
-        QMessageBox box;
-        box.setWindowIcon(QIcon());
-        box.setIconPixmap (_icon);
-        box.setTextFormat (Qt::RichText);
-        box.setWindowTitle(QMessageBox::tr ("Library Selection"));
-        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-        QAbstractButton* copyButton     = box.addButton(QMessageBox::tr("Copy"),QMessageBox::YesRole);
-        QAbstractButton* downloadButton = box.addButton(QMessageBox::tr("Download"),QMessageBox::YesRole);
-        QAbstractButton* selectButton   = box.addButton(QMessageBox::tr("Select"),QMessageBox::YesRole);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
+
+    } else {
 
         QString location;
-    #ifdef Q_OS_WIN
+#ifdef Q_OS_WIN
         location = QString("%1").arg((portableDistribution ? "/extras/" : "/data/"));
-    #elif defined Q_OS_MAC
-        location = QString("%1/").arg(lpub3dMacResourcePath);
-    #else
+#elif defined Q_OS_MAC
+        location = QString("%1/").arg(lpub3dMacResourcePath.right(lpub3dMacResourcePath.trimmed().size() - lpub3dPath.trimmed().size()));
+#else
         // TODO Linux path
-    #endif
+#endif
         validFile.setFile(lpub3dPath + location + VER_LDRAW_OFFICIAL_ARCHIVE);
         bool archivesExist = validFile.exists();
 
-        QString header = "<b>" + QMessageBox::tr ("No LDraw library archive defined!") + "</b>";
-        QString body;
         if (archivesExist) {
-            body = QMessageBox::tr ("Note: The LDraw library archives are provided and <u>can be copied</u>.\n"
-                                    "Would you like to copy, download or select, the library archives?");
-          } else {
-            box.removeButton(copyButton);
-            body = QMessageBox::tr ("Note: The LDraw library archives are not provided and <u>must be downloaded</u> - or selected.\n"
-                                    "Would you like to download or select the library archives?");
-          }
-        QString detail = QMessageBox::tr ("You must select or create your LDraw library archive files.\n"
-                                          "The location of your official archive file (complete.zip) should "
-                                          "also have the unofficial archive file (lpub3dldrawunf.zip).\n"
-                                          "LDraw library archive files can be copied, downloaded or selected to your '%1/%2/' folder now.")
-                                          .arg(lpubDataPath, "libraries");
-        box.setText (header);
-        box.setInformativeText (body);
-        box.setDetailedText(detail);    
-        box.setStandardButtons (QMessageBox::Cancel);
-        box.exec();
-
-        if (box.clickedButton()==copyButton) {
             emit Application::instance()->splashMsgSig("15% - Copying archive libraries...");
 
             QDir libraryDir(QString("%1/%2").arg(lpubDataPath, "libraries"));
@@ -545,133 +518,172 @@ void Preferences::lpub3dLibPreferences(bool force)
             if (!validFile.exists())
                 QFile::copy(lpub3dPath + location + validFile.fileName(), validFile.absoluteFilePath());
 
-        } else
-          if (box.clickedButton()==selectButton) {
-            emit Application::instance()->splashMsgSig("15% - Selecting archive libraries...");
+        } else {
 
-            QFileDialog dlgGetFileName(NULL,QFileDialog::tr("Select LDraw Library Archive "));
-            dlgGetFileName.setDirectory(lpubDataPath);
-            dlgGetFileName.setNameFilter(filter);
-
-            if (dlgGetFileName.exec() == QFileDialog::Accepted) {
-                lpub3dLibFile = dlgGetFileName.selectedFiles().at(0);
-                Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
-            } else {
-
-                Settings.remove(QString("%1/%2").arg(SETTINGS, LPub3DLibKey));
-                body = QMessageBox::tr ("<u>Selection cancelled</u>.\n"
-                                        "The application will terminate.");
-                if (archivesExist) {
-                    box.removeButton(copyButton);
-                  }
-                box.removeButton(selectButton);
-                box.removeButton(downloadButton);
-                box.setStandardButtons (QMessageBox::Close);
-                box.setText(header);
-                box.setInformativeText(body);
-
-                box.exec();
-                lpub3dLibFile.clear();
-
-                exit(-1);
-            }
-
-        } else
-          if (box.clickedButton()==downloadButton) {
-
-            emit Application::instance()->splashMsgSig("15% - Downloading archive libraries...");
-
-            QDir libraryDir(QString("%1/%2").arg(lpubDataPath, "libraries"));
-            if (!QDir(libraryDir).exists())
-                libraryDir.mkpath(".");
-
-            UpdateCheck *libraryDownload;
-            QEventLoop  *wait = new QEventLoop();
-            libraryDownload  = new UpdateCheck(NULL, (void*)LDrawOfficialLibraryDirectDownload);
-            wait->connect(libraryDownload, SIGNAL(downloadFinished(QString,QString)), wait, SLOT(quit()));
-            wait->connect(libraryDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
-            libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), libraryDir.absolutePath());
-            wait->exec(); 
-            if (libraryDownload->getCancel()) {
-                body = QMessageBox::tr ("<u>Official LDraw archive download cancelled</u>.\n"
-                                        "The application will terminate.");
-                box.removeButton(selectButton);
-                box.removeButton(downloadButton);
-                box.setStandardButtons (QMessageBox::Close);
-                box.setText(header);
-                box.setInformativeText(body);
-                box.exec();
-
-                exit(-1);
-              }
-            libraryDownload  = new UpdateCheck(NULL, (void*)LDrawUnofficialLibraryDirectDownload);
-            wait->connect(libraryDownload, SIGNAL(downloadFinished(QString,QString)), wait, SLOT(quit()));
-            wait->connect(libraryDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
-            libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), libraryDir.absolutePath());
-            wait->exec();
-            if (libraryDownload->getCancel()) {
-                body = QMessageBox::tr ("<u>Unofficial LDraw archive download cancelled</u>.\n"
-                                        "The application will continue; however, your LDraw archives\n"
-                                        "will not contain unofficial LDraw parts or primitives.");
-                box.removeButton(selectButton);
-                box.removeButton(downloadButton);
-                box.setStandardButtons (QMessageBox::Close);
-                box.setText(header);
-                box.setInformativeText(body);
-                box.exec();
-              }
-
-            lpub3dLibFile = QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_OFFICIAL_ARCHIVE));
-            validFile.setFile(lpub3dLibFile);
-            if (validFile.exists()) {
-                Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
-                QString destination = Preferences::ldrawPath;
-                destination = destination.remove(destination.size() - 6,6);
-                QStringList result = JlCompress::extractDir(validFile.absoluteFilePath(),destination);
-                if (result.isEmpty()){
-                    logError() << QString("Failed to extract %1 to %2/ldraw").arg(validFile.absoluteFilePath()).arg(destination);
-                } else {
-                    QString message = QMessageBox::tr("%1 Official Library files extracted to %2/ldraw").arg(result.size()).arg(destination);
-                    logInfo() << message;
-                }
-                validFile.setFile(QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_UNOFFICIAL_ARCHIVE)));
-                if (validFile.exists()) {
-                    QString destination = QMessageBox::tr("%1/unofficial").arg(Preferences::ldrawPath);
-                    QStringList result = JlCompress::extractDir(validFile.absoluteFilePath(),destination);
-                    if (result.isEmpty()){
-                        logError() << QString("Failed to extract %1 to %2").arg(validFile.absoluteFilePath()).arg(destination);
-                    } else {
-                        QString message = QMessageBox::tr("%1 Unofficial Library files extracted to %2").arg(result.size()).arg(destination);
-                        logInfo() << message;
-                    }
-                }
-            }
-            else {
-                Settings.remove(QString("%1/%2").arg(SETTINGS, LPub3DLibKey));
-                validFile.setFile(QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_UNOFFICIAL_ARCHIVE)));
-                if (!validFile.exists()) {
-                    body = QMessageBox::tr ("Required archive files %1 and\n%2 does not exist.").arg(lpub3dLibFile, validFile.absoluteFilePath());
-                } else {
-                    body = QMessageBox::tr ("Required archive file %1 does not exist.").arg(lpub3dLibFile);
-                }
-                body.append("\nThe application will terminate.");
-
-                box.setStandardButtons (QMessageBox::Close);
-                box.setText(header);
-                box.setInformativeText(body);
-
-                box.exec();
-                lpub3dLibFile.clear();
-
-                exit(-1);
-            }
-        }
-        else {
-            exit(-1);
-        }
 #ifdef Q_OS_MAC
-    Application::instance()->splash->show();
+            if (! lpub3dLoaded && Application::instance()->splash->isVisible())
+                Application::instance()->splash->hide();
 #endif
+            QPixmap _icon = QPixmap(":/icons/lpub96.png");
+            QMessageBox box;
+            box.setWindowIcon(QIcon());
+            box.setIconPixmap (_icon);
+            box.setTextFormat (Qt::RichText);
+            box.setWindowTitle(QMessageBox::tr ("Library Selection"));
+            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+
+            QAbstractButton* downloadButton = box.addButton(QMessageBox::tr("Download"),QMessageBox::YesRole);
+            QAbstractButton* selectButton   = box.addButton(QMessageBox::tr("Select"),QMessageBox::YesRole);
+
+            QString header = "<b>" + QMessageBox::tr ("No LDraw library archive defined!") + "</b>";
+            QString body = QMessageBox::tr ("Note: The LDraw library archives are not provided and <u>must be downloaded</u> - or selected.\n"
+                                        "Would you like to download or select the library archives?");
+            QString detail = QMessageBox::tr ("You must select or create your LDraw library archive files.\n"
+                                              "The location of your official archive file (complete.zip) should "
+                                              "also have the unofficial archive file (lpub3dldrawunf.zip).\n"
+                                              "LDraw library archive files can be copied, downloaded or selected to your '%1/%2/' folder now.")
+                                              .arg(lpubDataPath, "libraries");
+            box.setText (header);
+            box.setInformativeText (body);
+            box.setDetailedText(detail);
+            box.setStandardButtons (QMessageBox::Cancel);
+            box.exec();
+
+            if (box.clickedButton()==selectButton) {
+                emit Application::instance()->splashMsgSig("15% - Selecting archive libraries...");
+
+                QFileDialog dlgGetFileName(NULL,QFileDialog::tr("Select LDraw Library Archive "));
+                dlgGetFileName.setDirectory(lpubDataPath);
+                dlgGetFileName.setNameFilter(filter);
+
+                if (dlgGetFileName.exec() == QFileDialog::Accepted) {
+                    lpub3dLibFile = dlgGetFileName.selectedFiles().at(0);
+                    Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
+
+                } else {
+
+                    Settings.remove(QString("%1/%2").arg(SETTINGS, LPub3DLibKey));
+                    body = QMessageBox::tr ("<u>Selection cancelled</u>.\n"
+                                            "The application will terminate.");
+                    box.removeButton(selectButton);
+                    box.removeButton(downloadButton);
+                    box.setStandardButtons (QMessageBox::Close);
+                    box.setText(header);
+                    box.setInformativeText(body);
+
+                    box.exec();
+                    lpub3dLibFile.clear();
+
+                    exit(-1);
+                }
+
+            } else
+                if (box.clickedButton()==downloadButton) {
+
+                    emit Application::instance()->splashMsgSig("15% - Downloading archive libraries...");
+
+                    QDir libraryDir(QString("%1/%2").arg(lpubDataPath, "libraries"));
+                    if (!QDir(libraryDir).exists())
+                        libraryDir.mkpath(".");
+
+                    UpdateCheck *libraryDownload;
+                    QEventLoop  *wait = new QEventLoop();
+                    libraryDownload  = new UpdateCheck(NULL, (void*)LDrawOfficialLibraryDirectDownload);
+                    wait->connect(libraryDownload, SIGNAL(downloadFinished(QString,QString)), wait, SLOT(quit()));
+                    wait->connect(libraryDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
+                    libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), libraryDir.absolutePath());
+                    wait->exec();
+                    if (libraryDownload->getCancel()) {
+                        body = QMessageBox::tr ("<u>Official LDraw archive download cancelled</u>.\n"
+                                                "The application will terminate.");
+                        box.removeButton(selectButton);
+                        box.removeButton(downloadButton);
+                        box.setStandardButtons (QMessageBox::Close);
+                        box.setText(header);
+                        box.setInformativeText(body);
+                        box.exec();
+
+                        exit(-1);
+                    }
+                    libraryDownload  = new UpdateCheck(NULL, (void*)LDrawUnofficialLibraryDirectDownload);
+                    wait->connect(libraryDownload, SIGNAL(downloadFinished(QString,QString)), wait, SLOT(quit()));
+                    wait->connect(libraryDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
+                    libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), libraryDir.absolutePath());
+                    wait->exec();
+                    if (libraryDownload->getCancel()) {
+                        body = QMessageBox::tr ("<u>Unofficial LDraw archive download cancelled</u>.\n"
+                                                "The application will continue; however, your LDraw archives\n"
+                                                "will not contain unofficial LDraw parts or primitives.");
+                        box.removeButton(selectButton);
+                        box.removeButton(downloadButton);
+                        box.setStandardButtons (QMessageBox::Close);
+                        box.setText(header);
+                        box.setInformativeText(body);
+                        box.exec();
+                    }
+
+                    lpub3dLibFile = QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_OFFICIAL_ARCHIVE));
+                    validFile.setFile(lpub3dLibFile);
+                    if (validFile.exists()) {
+                        Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
+                        QString destination = Preferences::ldrawPath;
+                        QString message;
+                        if (!destination.isEmpty()) {
+                            destination = destination.remove(destination.size() - 6,6);
+                            QStringList result = JlCompress::extractDir(validFile.absoluteFilePath(),destination);
+                            if (result.isEmpty()){
+                                logError() << QString("Failed to extract %1 to %2/ldraw").arg(validFile.absoluteFilePath()).arg(destination);
+                            } else {
+                                message = QMessageBox::tr("%1 Official Library files extracted to %2/ldraw").arg(result.size()).arg(destination);
+                                logInfo() << message;
+                            }
+                            validFile.setFile(QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_UNOFFICIAL_ARCHIVE)));
+                            if (validFile.exists()) {
+                                QString destination = QMessageBox::tr("%1/unofficial").arg(Preferences::ldrawPath);
+                                QStringList result = JlCompress::extractDir(validFile.absoluteFilePath(),destination);
+                                if (result.isEmpty()){
+                                    logError() << QString("Failed to extract %1 to %2").arg(validFile.absoluteFilePath()).arg(destination);
+                                } else {
+                                    message = QMessageBox::tr("%1 Unofficial Library files extracted to %2").arg(result.size()).arg(destination);
+                                    logInfo() << message;
+                                }
+                            }
+                        } else {
+                            message = QMessageBox::tr("Cannot extract downloaded LDraw library archives, ibrary path is not defined!");
+                            logError() << message;
+                        }
+
+                    } else {
+
+                        Settings.remove(QString("%1/%2").arg(SETTINGS, LPub3DLibKey));
+                        validFile.setFile(QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_UNOFFICIAL_ARCHIVE)));
+                        if (!validFile.exists()) {
+                            body = QMessageBox::tr ("Required archive files %1 and\n%2 does not exist.").arg(lpub3dLibFile, validFile.absoluteFilePath());
+                        } else {
+                            body = QMessageBox::tr ("Required archive file %1 does not exist.").arg(lpub3dLibFile);
+                        }
+                        body.append("\nThe application will terminate.");
+
+                        box.setStandardButtons (QMessageBox::Close);
+                        box.setText(header);
+                        box.setInformativeText(body);
+
+                        box.exec();
+                        lpub3dLibFile.clear();
+
+                        exit(-1);
+                    }
+
+                } else {
+
+                    exit(-1);
+
+                }
+#ifdef Q_OS_MAC
+            if (! lpub3dLoaded && Application::instance()->splash->isHidden())
+                Application::instance()->splash->show();
+#endif
+        }
     }
 
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,LPub3DLibKey)))
@@ -714,6 +726,8 @@ void Preferences::ldrawPreferences(bool force)
 #ifdef Q_OS_WIN
             ldrawPath = "c:\\Program Files (x86)\\LDraw";
 #elif defined Q_OS_MAC
+            if (! lpub3dLoaded && Application::instance()->splash->isVisible())
+                Application::instance()->splash->hide();
             //TODO MAC PATH
 #else
             //Linux Path
@@ -732,7 +746,7 @@ void Preferences::ldrawPreferences(bool force)
 
     if (! ldrawPath.isEmpty() && force){
 #ifdef Q_OS_MAC
-        if (Application::instance()->splash->isVisible())
+        if (! lpub3dLoaded && Application::instance()->splash->isVisible())
             Application::instance()->splash->hide();
 #endif
         QString result = QFileDialog::getExistingDirectory(NULL,
@@ -740,10 +754,6 @@ void Preferences::ldrawPreferences(bool force)
                                                            ldrawPath,
                                                            QFileDialog::ShowDirsOnly |
                                                            QFileDialog::DontResolveSymlinks);
-#ifdef Q_OS_MAC
-        if (Application::instance()->splash->isHidden())
-            Application::instance()->splash->show();
-#endif
         if (! result.isEmpty())
             ldrawPath = QDir::toNativeSeparators(result);
     }
@@ -758,6 +768,10 @@ void Preferences::ldrawPreferences(bool force)
         if (QMessageBox::question(NULL, "LDraw3D", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
             exit(-1);
     }
+#ifdef Q_OS_MAC
+        if (! lpub3dLoaded && Application::instance()->splash->isHidden())
+            Application::instance()->splash->show();
+#endif
 }
 
 void Preferences::lpub3dUpdatePreferences(){
