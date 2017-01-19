@@ -1409,6 +1409,7 @@ Gui::Gui()
 
     fitMode = FitVisible;
 
+// TODO Confirm qt_mac_set_native_menubar(bool) is not needed since Qt 5.6
 #ifdef __APPLE__
     extern void qt_mac_set_native_menubar(bool);
     qt_mac_set_native_menubar(true);

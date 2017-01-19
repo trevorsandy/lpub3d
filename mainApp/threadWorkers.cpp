@@ -16,7 +16,7 @@
 #include <QString>
 
 #include "threadworkers.h"
-#include "LDrawIni.h"
+#include "ldrawini.h"
 #include "step.h"
 #include "paths.h"
 #include "lpub.h"

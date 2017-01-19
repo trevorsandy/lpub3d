@@ -280,6 +280,11 @@ void PreferencesDialog::on_browseLDView_clicked()
                                                   filter);
 
     if (!result.isEmpty()) {
+#ifndef Q_OS_WIN
+        // force use command line-only "ldview" (not "LDView") if not using Windows
+        QFileInfo resultInfo(result);
+        result = QString("%1/%2").arg(resultInfo.absolutePath()).arg(resultInfo.fileName().toLower());
+#endif
         result = QDir::toNativeSeparators(result);
         ui.ldviewPath->setText(result);
         int ldviewIndex = ui.preferredRenderer->findText("LDView");

@@ -18,7 +18,7 @@
 #include <QMenu>
 #include <QGraphicsSceneContextMenuEvent>
 
-#include "pageattributeTextitem.h"
+#include "pageattributetextitem.h"
 #include "metatypes.h"
 #include "color.h"
 #include "scaledialog.h"

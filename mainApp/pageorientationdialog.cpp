@@ -26,7 +26,7 @@
 #include <QGroupBox>
 #include <QDialogButtonBox>
 
-#include "pageOrientationdialog.h"
+#include "pageorientationdialog.h"
 #include "metagui.h"
 
 PageOrientationDialog::PageOrientationDialog(

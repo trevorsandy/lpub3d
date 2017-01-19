@@ -19,5 +19,4 @@ mainApp.depends = quazip
 mainApp.depends = ldrawini
 
 RESOURCES += \
-    res/su_resources.qrc
-
+    qsimpleupdater/res/qsu_resources.qrc

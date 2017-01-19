@@ -14,9 +14,10 @@
 
 #include <QtOpenGL>
 #include <QSysInfo>
-
+#ifdef Q_OS_WIN
 #include <windows.h>
 #include <tchar.h>
+#endif
 #include <QtCore/QSysInfo>
 
 #include "aboutdialog.h"
@@ -137,7 +138,7 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     QString osPlatform;
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
     int OS = checkOS();
     if (OS == Win_64)
         osPlatform   = "64-bit system";
@@ -146,14 +147,16 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
     else if (OS == OsOther)
         osPlatform  = "Other Operating System";
     else if (OS == OsError)
-        osPlatform  = "Error encountered";
+        osPlatform  = "Error encountered";   
     else
-        osPlatform = "Cannot determine system";
-#endif
-#ifdef Q_OS_MAC
+      osPlatform = "Cannot determine system";
+#elif defined(Q_OS_MACX)
     osPlatform = QSysInfo::currentCpuArchitecture();
+#elif defined(Q_OS_LINUX)
+    osPlatform = QSysInfo::currentCpuArchitecture();
+#else
+    osPlatform = "Cannot determine system";
 #endif
-    //TODO add Linus check
 
     QString OsInfoFormat = tr("<table style=""width:100%"">"
                               "<tr>"
@@ -304,10 +307,12 @@ QString AboutDialog::osName()
     default: return "OS X";
   }
   #endif
+#else
+   return QSysInfo::productVersion();
 #endif
- //TODO add Linux Check
 }
 
+#ifdef Q_OS_WIN
 OsType AboutDialog::checkOS()
 {
 #ifndef Q_OS_WIN32
@@ -329,7 +334,6 @@ OsType AboutDialog::checkOS()
     if (!IsWow64Process(GetCurrentProcess(), &is64)) return OsError; // The check has failed.
     return is64 ? Win_64 : Win_32;
 #endif
-
 }
-
+#endif
 

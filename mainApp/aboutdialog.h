@@ -16,7 +16,9 @@
 #define _ABOUTDIALOG_H_
 
 #include <QDialog>
+#ifdef Q_OS_WIN
 #include <windows.h>
+#endif
 
 
 namespace Ui {
@@ -24,7 +26,9 @@ class AboutDialog;
 }
 
 typedef enum { Win_64, Win_32, OsError, OsOther } OsType;
+#ifdef Q_OS_WIN
 typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+#endif
 
 class AboutDialog : public QDialog
 {

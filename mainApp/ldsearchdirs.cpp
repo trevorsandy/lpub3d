@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 #include "ldsearchdirs.h"
-#include "LDrawIni.h"
+#include "ldrawini.h"
 #include "threadworkers.h"
 #include "lpub_preferences.h"
 

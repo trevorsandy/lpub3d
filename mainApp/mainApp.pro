@@ -37,9 +37,9 @@ greaterThan(QT_MAJOR_VERSION, 4): LIBS += -lz
 greaterThan(QT_MAJOR_VERSION, 4): LIBS += -lopengl32
 
 } else {
-        PRECOMPILED_HEADER += ../lc_lib/common/lc_global.h
-        LIBS += -lz
-        QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
+    PRECOMPILED_HEADER += ../lc_lib/common/lc_global.h
+    LIBS += -lz
+    QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -171,9 +171,10 @@ macx {
 }
 
 #~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-include(../lc_lib/Lc_Lib.pri)
+include(../lc_lib/lc_lib.pri)
 include(../qslog/QsLog.pri)
 include(../qsimpleupdater/QSimpleUpdater.pri)
+include(../LPub3DPlatformSpecific.pri)
 
 HEADERS += \
     aboutdialog.h \
@@ -243,10 +244,10 @@ HEADERS += \
     scaledialog.h \
     step.h \
     textitem.h \
+    threadworkers.h \
     updatecheck.h \
     where.h \
     sizeandorientationdialog.h \
-    threadWorkers.h \
     version.h
 
 SOURCES += \
@@ -323,7 +324,7 @@ SOURCES += \
     sizeandorientationdialog.cpp \
     step.cpp \
     textitem.cpp \
-    threadWorkers.cpp \
+    threadworkers.cpp \
     traverse.cpp \
     updatecheck.cpp \
     undoredo.cpp

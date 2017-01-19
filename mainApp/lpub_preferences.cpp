@@ -464,6 +464,9 @@ void Preferences::lpub3dLibPreferences(bool force)
         Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
     }
     else {
+#ifdef Q_OS_MAC
+   Application::instance()->splash->hide();
+#endif
         QPixmap _icon = QPixmap(":/icons/lpub96.png");
         QMessageBox box;
         box.setWindowIcon(QIcon());
@@ -643,6 +646,9 @@ void Preferences::lpub3dLibPreferences(bool force)
         else {
             exit(-1);
         }
+#ifdef Q_OS_MAC
+    Application::instance()->splash->show();
+#endif
     }
 
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,LPub3DLibKey)))
@@ -691,13 +697,17 @@ void Preferences::ldrawPreferences(bool force)
     }
 
     if (! ldrawPath.isEmpty() && force){
-
+#ifdef Q_OS_MAC
+   Application::instance()->splash->hide();
+#endif
         QString result = QFileDialog::getExistingDirectory(NULL,
                                                            QFileDialog::tr("Select LDraw Directory"),
                                                            ldrawPath,
                                                            QFileDialog::ShowDirsOnly |
                                                            QFileDialog::DontResolveSymlinks);
-
+#ifdef Q_OS_MAC
+    Application::instance()->splash->show();
+#endif
         if (! result.isEmpty())
             ldrawPath = QDir::toNativeSeparators(result);
     }

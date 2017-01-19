@@ -1830,7 +1830,7 @@ void BackgroundGui::browsePicture(bool)
     gui,
     tr("Choose Picture File"),
     picture,
-    tr("Picture Files (*.png;*.jpg)"));
+    tr("Image Files (*.png *.jpg *.jpeg *.bmp)"));
   if (foo != "") {
     picture = foo;
     background.string = foo;

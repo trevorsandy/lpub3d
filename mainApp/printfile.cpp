@@ -706,10 +706,11 @@ void Gui::exportAsPdf()
       QString CommandPath = fileName;
       QProcess *Process = new QProcess(this);
       Process->setWorkingDirectory(QDir::currentPath() + "/");
+
+#ifdef Q_OS_WIN
       Process->setNativeArguments(CommandPath);
-
-#ifdef __APPLE__
-
+      QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+#else
       Process->execute(CommandPath);
       Process->waitForFinished();
 
@@ -719,8 +720,6 @@ void Gui::exportAsPdf()
           QErrorMessage *m = new QErrorMessage(this);
           m->showMessage(QString("%1\n%2").arg("Failed to launch PDF document!").arg(CommandPath));
         }
-#else
-      QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
 #endif
       return;
     } else {
@@ -992,10 +991,11 @@ void Gui::exportAs(QString &suffix)
       QString CommandPath = directoryName;
       QProcess *Process = new QProcess(this);
       Process->setWorkingDirectory(QDir::currentPath() + "/");
+
+#ifdef Q_OS_WIN
       Process->setNativeArguments(CommandPath);
-
-#ifdef __APPLE__
-
+      QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+#else
       Process->execute(CommandPath);
       Process->waitForFinished();
 
@@ -1005,10 +1005,7 @@ void Gui::exportAs(QString &suffix)
           QErrorMessage *m = new QErrorMessage(this);
           m->showMessage(QString("%1\n%2").arg("Failed to open image folder!").arg(CommandPath));
         }
-#else
-      QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
 #endif
-
       return;
     } else {
       return;
@@ -1365,10 +1362,10 @@ void Gui::showPrintedFile(){
           QString CommandPath = pdfPrintedFile;
           QProcess *Process = new QProcess(this);
           Process->setWorkingDirectory(QDir::currentPath() + "/");
+#ifdef Q_OS_WIN
           Process->setNativeArguments(CommandPath);
-
-#ifdef __APPLE__
-
+          QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+#else
           Process->execute(CommandPath);
           Process->waitForFinished();
 
@@ -1378,8 +1375,6 @@ void Gui::showPrintedFile(){
               QErrorMessage *m = new QErrorMessage(this);
               m->showMessage(QString("%1\n%2").arg("Failed to launch PDF document!").arg(CommandPath));
             }
-#else
-          QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
 #endif
           return;
         } else {

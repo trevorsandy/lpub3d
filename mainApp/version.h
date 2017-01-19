@@ -37,7 +37,7 @@
 #define VER_UPDATEABLE_VERSIONS_STR         "2.0.20,2.0.19,1.3.5,1.2.3,1.0.0"
 #define VER_LOGGING_LEVELS_STR              "STATUS,INFO,TRACE,DEBUG,NOTICE,ERROR,FATAL,OFF"
 #define VER_PRODUCTNAME_STR         		"LPub3D"
-#define VER_COMPANYNAME_STR         		"LPub3D Software"
+#define VER_COMPANYNAME_STR         		"LPub3D Software Hold"
 #define VER_FILEDESCRIPTION_STR     		"LPub3D - An LDraw Building Instruction Editor"
 #define VER_INTERNALNAME_STR        		"bociphus"
 #define VER_LEGALCOPYRIGHT_STR      		"Copyright &copy; 2016 by Trevor SANDY"
@@ -70,23 +70,39 @@
 #define VER_COMPANYDOMAIN_STR       		"http://sourceforge.net/projects/lpub3d/"
 
 #ifdef __GNUC__
-    #ifdef __MINGW64__
-        #define VER_COMPILED_ON             "MinGW (i686-6.1.0 64bit) Windows"
-        #define VER_COMPILED_FOR            "MS Windows 64bit"
-        #define VER_COMPILED_WITH           "Qt qtver (MinGW 64bit)"
-        #define VER_IDE                     "Qt Creator 4.0.3 on Qt 5.7.0 (MSVC 2013, x32)"
-    #else
-        #define VER_COMPILED_ON             "MinGW (i686-5.3.0 32bit) Windows"
-        #define VER_COMPILED_FOR            "MS Windows 32bit, 64bit"
-        #define VER_COMPILED_WITH           "Qt qtver (MinGW 32bit)"
-        #define VER_IDE                     "Qt Creator 4.0.3 on Qt 5.7.0 (MSVC 2013, x32)"
-    #endif
-#endif
-#ifdef _MSC_VER
-    #define VER_COMPILED_ON                 "MSVC 2015"
-    #define VER_COMPILED_FOR                "MS Windows 32bit, 64bit"
-    #define VER_COMPILED_WITH               "(MSVC 2015 x86, x64)"
-    #define VER_IDE                         "Visual Studio 2015 v14.0.25424.00 Update 3"
+  #ifdef __MINGW64__
+    #define VER_COMPILED_ON             "MinGW (i686-6.1.0 64bit) Windows"
+    #define VER_COMPILED_FOR            "MS Windows 64bit"
+    #define VER_COMPILED_WITH           "Qt qtver (MinGW 64bit)"
+    #define VER_IDE                     "Qt Creator 4.1.0 on Qt 5.7.0 (MSVC 2013, x32)"
+  #elif __MINGW32__
+    #define VER_COMPILED_ON             "MinGW (i686-5.3.0 32bit) Windows"
+    #define VER_COMPILED_FOR            "MS Windows 32bit, 64bit"
+    #define VER_COMPILED_WITH           "Qt qtver (MinGW 32bit)"
+    #define VER_IDE                     "Qt Creator 4.1.0 on Qt 5.7.0 (MSVC 2013, x32)"
+  #elif _MSC_VER
+    #define VER_COMPILED_ON             "MSVC 2015"
+    #define VER_COMPILED_FOR            "MS Windows 32bit, 64bit"
+    #define VER_COMPILED_WITH           "(MSVC 2015 x86, x64)"
+    #define VER_IDE                     "Visual Studio 2015 v14.0.25424.00 Update 3"
+  #elif __APPLE__
+    #define VER_COMPILED_ON             "Clang (x86 64bit) Apple"
+    #define VER_COMPILED_FOR            "Apple OSX"
+    #define VER_COMPILED_WITH           "Qt qtver (Clang 64bit)"
+    #define VER_IDE                     "Qt Creator 4.1.0 on Qt 5.7.0 (Clang 7.0, x64)"
+  #elif __linux__
+    #define VER_COMPILED_ON             "GCC (4.5.8 20150623) CentOS7"
+    #define VER_COMPILED_FOR            "Linux"
+    #define VER_COMPILED_WITH           "Qt qtver (GCC)"
+    #define VER_IDE                     "Qt Creator 4.1.0 on Qt 5.7.0"
+  #elif defined(_POSIX_VERSION)
+    #define VER_COMPILED_ON             "POSIX"
+    #define VER_COMPILED_FOR            "POSIX"
+    #define VER_COMPILED_WITH           "Qt qtver (GCC)"
+    #define VER_IDE                     "Qt Creator 4.1.0 on Qt 5.7.0"
+  #else
+  #   error "Unknown compiler"
+  #endif
 #endif
 
 #endif // VERSION_H

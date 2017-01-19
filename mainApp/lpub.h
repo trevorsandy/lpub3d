@@ -357,7 +357,7 @@
 #include "aboutdialog.h"
 #include "version.h"
 #include "threadworkers.h"
-#include "FadeStepColorParts.h"
+#include "fadestepcolorparts.h"
 #include "plisubstituteparts.h"
 #include "dialogexportpages.h"
 #include "numberitem.h"

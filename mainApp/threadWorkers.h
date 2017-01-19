@@ -24,7 +24,7 @@
 
 #include "lpub_preferences.h"
 #include "ldrawfiles.h"
-#include "FadeStepColorParts.h"
+#include "fadestepcolorparts.h"
 #include "archiveparts.h"
 #include "version.h"
 #include "ldsearchdirs.h"

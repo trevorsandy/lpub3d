@@ -1061,7 +1061,8 @@ bool LDrawFile::saveLDRFile(const QString &fileName)
 
 bool LDrawFile::changedSinceLastWrite(const QString &fileName)
 {
-  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+  QString mcFileName = fileName.toLower();
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(mcFileName);
   if (i != _subFiles.end()) {
     bool value = i.value()._changedSinceLastWrite;
     i.value()._changedSinceLastWrite = false;
