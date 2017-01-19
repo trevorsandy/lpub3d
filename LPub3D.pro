@@ -20,5 +20,10 @@ mainApp.depends = ldrawini
 
 RESOURCES += \
     qsimpleupdater/res/qsu_resources.qrc \
-    mainApp/lpub.qrc
+    mainApp/lpub3d.qrc
 
+CONFIG(debug, debug|release) {
+    message("~~~ LPUB3D DEBUG build ~~~")
+} else {
+    message("~~~ LPUB3D RELEASE build ~~~")
+}
