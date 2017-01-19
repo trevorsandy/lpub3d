@@ -11,17 +11,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ioapi.h"
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-	#ifdef _MSC_VER
-		#include <QtZlib/zlib.h>
-	#else // not using MSVC
-		#include <zlib.h>
-	#endif
-#else // not using Qt 5.0.0 or greater
-#include "zlib.h"
-#endif
 
+#include "zlib.h"
+#include "ioapi.h"
 #include "quazip_global.h"
 #include <QIODevice>
 #if (QT_VERSION >= 0x050100)
@@ -83,6 +75,7 @@ ZPOS64_T call_ztell64 (const zlib_filefunc64_32_def* pfilefunc,voidpf filestream
     }
 }
 
+/// @cond internal
 struct QIODevice_descriptor {
     // Position only used for writing to sequential devices.
     qint64 pos;
@@ -90,6 +83,7 @@ struct QIODevice_descriptor {
         pos(0)
     {}
 };
+/// @endcond
 
 voidpf ZCALLBACK qiodevice_open_file_func (
    voidpf opaque,

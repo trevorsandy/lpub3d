@@ -23,15 +23,8 @@ see quazip/(un)zip.h files for details. Basically it's the zlib license.
 */
 
 #include "quacrc32.h"
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-	#ifdef _MSC_VER
-		#include <QtZlib/zlib.h>
-	#else // not using MSVC
-		#include <zlib.h>
-	#endif
-#else // not using Qt 5.0.0 or greater
+
 #include "zlib.h"
-#endif
 
 QuaCrc32::QuaCrc32()
 {

@@ -26,12 +26,9 @@ see quazip/(un)zip.h files for details. Basically it's the zlib license.
 */
 
 #include <QIODevice>
-#ifdef _MSC_VER
-#include <QtZlib/zlib.h>
-#else
-#include <zlib.h>
-#endif
 #include "quazip_global.h"
+
+#include <zlib.h>
 
 class QuaZIODevicePrivate;
 
@@ -90,6 +87,10 @@ public:
   QIODevice *getIoDevice() const;
   /// Returns true.
   virtual bool isSequential() const;
+  /// Returns true iff the end of the compressed stream is reached.
+  virtual bool atEnd() const;
+  /// Returns the number of the bytes buffered.
+  virtual qint64 bytesAvailable() const;
 protected:
   /// Implementation of QIODevice::readData().
   virtual qint64 readData(char *data, qint64 maxSize);

@@ -22,37 +22,53 @@ QT -= gui
 # And so on.
 
 win32 {
+
     QMAKE_EXT_OBJ = .obj
     CONFIG += windows
     CONFIG += debug_and_release	
+greaterThan(QT_MAJOR_VERSION, 4): LIBS += -lz
+
 }
 
-LIBS += -lz
-
-# This one handles dllimport/dllexport directives.
-DEFINES += QUAZIP_BUILD
-
-# You'll need to define this one manually if using a build system other
-# than qmake or using QuaZIP sources directly in your project.
-CONFIG(staticlib): DEFINES += QUAZIP_STATIC
 CONFIG(debug, debug|release) {
+        message("~~~ QUAZIP DEBUG build ~~~")
         DESTDIR = build/debug
+        mac: TARGET = $$join(TARGET,,,_debug) 
+        win32: TARGET = $$join(TARGET,,,d)
 } else {
+        message("~~~ QUAZIP RELEASE build ~~~")
         DESTDIR = build/release
 }
 
 OBJECTS_DIR = $$DESTDIR/.obj
 MOC_DIR = $$DESTDIR/.moc
 
+# You'll need to define this one manually if using a build system other
+# than qmake or using QuaZIP sources directly in your project.
+# Be sure to add CONFIG+=staticlib in Additional Arguments of qmake build steps
+CONFIG(staticlib): DEFINES += QUAZIP_STATIC
+staticlib {
+    message("~~~ QUAZIP STATIC build ~~~")
+    CONFIG += staticlib # this is needed if you create a static library
+} else {
+    # This one handles dllimport/dllexport directives.
+    message("~~~ QUAZIP SHARED build ~~~")
+    DEFINES += QUAZIP_BUILD
+}
+
 # Input
 include(quazip.pri)
 include(../LPub3DPlatformSpecific.pri)
+
 
 unix:!symbian {
     headers.path=$$PREFIX/include/quazip
     headers.files=$$HEADERS
     target.path=$$PREFIX/lib/$${LIB_ARCH}
     INSTALLS += headers target
+
+    OBJECTS_DIR=.obj
+    MOC_DIR=.moc
 	
 }
 

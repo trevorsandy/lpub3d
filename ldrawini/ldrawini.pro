@@ -19,22 +19,26 @@ macx {
 
 }
 
-# This one handles dllimport/dllexport directive
-
-DEFINES += LDRAWINI_BUILD
-
-# You'll need to define this one manually if using a build system other
-# than qmake or using LDrawIni sources directly in your project.
-
-CONFIG(staticlib): DEFINES += LDRAWINI_STATIC
 CONFIG(debug, debug|release) {
+        message("~~~ LDRAWINI DEBUG build ~~~")
         DESTDIR = build/debug
 } else {
+        message("~~~ LDRAWINI RELEASE build ~~~")
         DESTDIR = build/release
 }
 
 OBJECTS_DIR = $$DESTDIR/.obj
 MOC_DIR = $$DESTDIR/.moc
+
+# To enable static builds,
+# be sure to add CONFIG+=staticlib in Additional Arguments of qmake build steps
+staticlib {
+    message("~~~ LDRAWINI STATIC build ~~~")
+    CONFIG += staticlib # this is needed if you create a static library
+} else {
+    # This one handles dllimport/dllexport directives.
+    message("~~~ LDRAWINI SHARED build ~~~")
+}
 
 # Input
 include(ldrawini.pri)
@@ -44,8 +48,7 @@ unix:!symbian {
     headers.path=$$PREFIX/include/ldrawini
     headers.files=$$HEADERS
     target.path=$$PREFIX/lib/$${LIB_ARCH}
-    INSTALLS += headers target
-	
+    INSTALLS += headers target	
 }
 
 win32 {

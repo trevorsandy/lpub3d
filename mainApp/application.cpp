@@ -230,6 +230,7 @@ void Application::initialize(int &argc, char **argv)
   // Preferences
   Preferences::ldrawPreferences(false);
   Preferences::lpub3dLibPreferences(false);
+  //Preferences::ldrawPreferences(false);
 
   emit splashMsgSig("10% - Preferences loading...");
 

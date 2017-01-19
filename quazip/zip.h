@@ -53,16 +53,7 @@ extern "C" {
 //#define HAVE_BZIP2
 
 #ifndef _ZLIB_H
-  #include <QtGlobal>
-  #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-        #ifdef _MSC_VER
-		#include <QtZlib/zlib.h>
-	#else // not using MSVC
-		#include <zlib.h>
-	#endif 
-  #else // not using Qt 5.0.0 or greater
-  #include "zlib.h"
-  #endif
+#include "zlib.h"
 #endif
 
 #ifndef _ZLIBIOAPI_H

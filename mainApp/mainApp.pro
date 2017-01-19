@@ -35,7 +35,7 @@ win32 {
     win32:RC_FILE = lpub3d.rc
     PRECOMPILED_SOURCE = ../lc_lib/common/lc_global.cpp
     CONFIG += windows
-    CONFIG += debug_and_release
+#    CONFIG += debug_and_release
     LIBS += -ladvapi32 -lshell32
 greaterThan(QT_MAJOR_VERSION, 4): LIBS += -lz
 greaterThan(QT_MAJOR_VERSION, 4): LIBS += -lopengl32
@@ -91,16 +91,14 @@ unix:!macx {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 CONFIG(debug, debug|release) {
-        message("~~~ DEBUG build ~~~")
-        #CONFIG += shared
+        message("~~~ MAIN_APP DEBUG build ~~~")
         DESTDIR = build/debug
         LIBS += -L$$DESTDIR/../../../quazip/build/debug -lquazip
         LIBS += -L$$DESTDIR/../../../ldrawini/build/debug -lldrawini
-}
-
-CONFIG(release, debug|release) {
-        message("~~~ RELEASE build ~~~")
-        #CONFIG += static
+        mac: TARGET = $$join(TARGET,,,_debug)
+        win32: TARGET = $$join(TARGET,,,d)
+} else {
+        message("~~~ MAIN_APP RELEASE build ~~~")
         DESTDIR = build/release
         LIBS += -L$$DESTDIR/../../../quazip/build/release -lquazip
         LIBS += -L$$DESTDIR/../../../ldrawini/build/release -lldrawini
@@ -108,11 +106,14 @@ CONFIG(release, debug|release) {
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-static { # everything in these brackets takes effect with CONFIG += static
-    CONFIG += static staticlib
+static { # everything below takes effect with CONFIG ''= static
+    CONFIG+= static
+    LIBS += -static
     DEFINES += STATIC
-    mac: TARGET = $$join(TARGET,,,_static)
-    win32: TARGET = $$join(TARGET,,,static_)
+    DEFINES += QUAZIP_STATIC # this is so the compiler can detect quazip static
+    message("~~~ MAIN_APP STATIC build ~~~") # this is for information, that the static build is done
+    mac: TARGET = $$join(TARGET,,,_static) #this adds an _static in the end, so you can seperate static build from non static build
+    win32: TARGET = $$join(TARGET,,,s) #this adds an s in the end, so you can seperate static build from non static build
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -135,13 +136,10 @@ unix:!macx {
         isEmpty(MIME_DIR):MIME_DIR = $$INSTALL_PREFIX/share/mime/packages
         isEmpty(MIME_ICON_DIR):MIME_ICON_DIR = $$INSTALL_PREFIX/share/icons/hicolor/scalable/mimetypes
 
-        isEmpty(RESOURCE_DIR):RESOURCE_DIR = $$INSTALL_PREFIX/share/lpub3d
-        isEmpty(LIBS_DIR):LIBS_DIR = $$INSTALL_PREFIX/lib
-
         target.path = $$BIN_DIR
 
         docs.path = $$DOCS_DIR
-        docs.files += docs/README.txt
+        docs.files += docs/README.txt docs/CREDITS.txt docs/COPYING.txt
 
         man.path = $$MAN_DIR
         man.files += lpub3d.1
@@ -150,7 +148,7 @@ unix:!macx {
         desktop.files += lpub3d.desktop
 
         icon.path = $$ICON_DIR
-        icon.files += images/lpub3d.png
+        icon.files += lpub3d.png
 
         mime.path = $$MIME_DIR
         mime.files += lpub3d.xml
@@ -158,68 +156,7 @@ unix:!macx {
         mime_icon.path = $$MIME_ICON_DIR
         mime_icon.files += images/lpub3d.svg
 
-        document_readme.path = $$RESOURCE_DIR
-        document_readme.files += docs/README.txt
-
-        document_credits.path = $$RESOURCE_DIR
-        document_credits.files += docs/CREDITS.txt
-
-        document_copying.path = $$RESOURCE_DIR
-        document_copying.files += docs/COPYING.txt
-
-        excluded_parts.path = $$RESOURCE_DIR
-        excluded_parts.files += extras/excludedParts.lst
-
-        fadestep_color_parts.path = $$RESOURCE_DIR
-        fadestep_color_parts.files += extras/fadeStepColorParts.lst
-
-        pli_freeform_annotations.path = $$RESOURCE_DIR
-        pli_freeform_annotations.files += extras/freeformAnnotations.lst
-
-        pli_title_annotations.path = $$RESOURCE_DIR
-        pli_title_annotations.files += extras/titleAnnotations.lst
-
-        pli_orientation.path = $$RESOURCE_DIR
-        pli_orientation.files += extras/pli.mpd
-
-        pli_substitute_parts.path = $$RESOURCE_DIR
-        pli_substitute_parts.files += extras/pliSubstituteParts.lst
-
-        ldraw_unofficial_library.path = $$RESOURCE_DIR
-        ldraw_unofficial_library.files += extras/lpub3dldrawunf.zip
-
-        ldraw_library.path = $$RESOURCE_DIR
-        ldraw_library.files += extras/complete.zip
-
-        CONFIG(release, debug|release) {
-            libquazip.path = $$LIBS_DIR
-            libquazip.files += $$DESTDIR/../../../quazip/build/release/libquazip.SO*
-
-            libldrawini.path = $$LIBS_DIR
-            libldrawini.files += $$DESTDIR/../../../ldrawini/build/release/libldrawini.SO*
-        }
-
-        INSTALLS += \
-            target \
-            docs \
-            man \
-            desktop \
-            icon \
-            mime \
-            mime_icon \
-            document_readme \
-            document_credits \
-            document_copying \
-            excluded_parts \
-            fadestep_color_parts \
-            pli_freeform_annotations \
-            pli_title_annotations \
-            pli_orientation \
-            pli_substitute_parts \
-            ldraw_unofficial_library \
-            ldraw_library \
-            libquazip \
-            libldrawini
+        INSTALLS += target docs man desktop icon mime mime_icon
 
         DEFINES += LC_INSTALL_PREFIX=\\\"$$INSTALL_PREFIX\\\"
 
@@ -229,11 +166,6 @@ unix:!macx {
 
         !isEmpty(LDRAW_LIBRARY_PATH) {
                 DEFINES += LC_LDRAW_LIBRARY_PATH=\\\"$$LDRAW_LIBRARY_PATH\\\"
-        }
-
-#        isEmpty(IDE_LAUNCH):IDE_LAUNCH = 1
-        !isEmpty(IDE_LAUNCH) {
-                DEFINES += IDE_LAUNCH
         }
 }
 
@@ -245,7 +177,7 @@ macx {
     document_icon.files += lpub3d_document.icns
     document_icon.path = Contents/Resources
 
-    document_readme.files += docs/README.txt
+    document_readme.files += doc/README.txt
     document_readme.path = Contents/Resources
 
     document_credits.files += docs/CREDITS.txt
@@ -260,51 +192,41 @@ macx {
     fadestep_color_parts.files += extras/fadeStepColorParts.lst
     fadestep_color_parts.path = Contents/Resources
 
-    pli_freeform_annotations.files += extras/freeformAnnotations.lst
-    pli_freeform_annotations.path = Contents/Resources
+    freeform_annotations.files += extras/freeformAnnotations.lst
+    freeform_annotations.path = Contents/Resources
 
-    pli_title_annotations.files += extras/titleAnnotations.lst
-    pli_title_annotations.path = Contents/Resources
+    title_annotations.files += extras/titleAnnotations.lst
+    title_annotations.path = Contents/Resources
 
     pli_orientation.files += extras/pli.mpd
     pli_orientation.path = Contents/Resources
 
-    pli_substitute_parts.files += extras/pliSubstituteParts.lst
-    pli_substitute_parts.path = Contents/Resources
+    pli_substitution_parts += extras/pliSubstituteParts.lst
+    pli_substitution_parts = Contents/Resources
 
-    ldraw_unofficial_library.files += extras/lpub3dldrawunf.zip
-    ldraw_unofficial_library.path = Contents/Resources
+    unofficial_library.files += extras/lpub3dldrawunf.zip
+    unofficial_library.path = Contents/Resources
 
-    ldraw_library.files += extras/complete.zip
-    ldraw_library.path = Contents/Resources
-
-    CONFIG(release, debug|release) {
-        libquazip.files += $$DESTDIR/../../../quazip/build/release/libquazip.1.dylib
-        libquazip.path = Contents/Libs
-
-        libldrawini.files += $$DESTDIR/../../../ldrawini/build/release/libldrawini.1.dylib
-        libldrawini.path = Contents/Libs
-    }
+    library.files += extras/complete.zip
+    library.path = Contents/Resources
 
     QMAKE_BUNDLE_DATA += \
         document_icon \
-        document_readme \
-        document_credits \
-        document_copying \
         excluded_parts \
         fadestep_color_parts \
-        pli_freeform_annotations \
-        pli_title_annotations \
+        freeform_annotations \
+        title_annotations \
         pli_orientation \
-        pli_substitute_parts \
-        ldraw_unofficial_library \
-        ldraw_library \
-        libquazip \
-        libldrawini
-
+        pli_substitution_parts \
+        unofficial_library \
+        library
 }
 
 #~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#include(../ldrawini/ldrawini.pri)
+#include(../quazip/quazip.pri)
+
 include(../lc_lib/lc_lib.pri)
 include(../qslog/QsLog.pri)
 include(../qsimpleupdater/QSimpleUpdater.pri)
