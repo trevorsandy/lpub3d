@@ -26,6 +26,7 @@ MOC_DIR = $$DESTDIR/.moc
 
 # Input
 include(QsLog.pri)
+include(../LPub3DPlatformSpecific.pri)
 
 unix:!symbian {
 
