@@ -123,20 +123,25 @@ bool lcApplication::LoadPiecesLibrary(const char* LibPath, const char* LibraryIn
 	if (mLibrary == NULL)
 		mLibrary = new lcPiecesLibrary();
 
-	if (LibPath && LibPath[0])
+    if (LibPath && LibPath[0]) {
+        logDebug() << QString("LoadPiecesLibrary loaded with LibPath=%1").arg(LibPath);
 		return mLibrary->Load(LibPath);
+    }
 
 	char* EnvPath = getenv("LEOCAD_LIB");
 
 	if (EnvPath && EnvPath[0])
 	{
+        logDebug() << QString("LoadPiecesLibrary loaded with EnvPath=%1").arg(EnvPath);
 		return mLibrary->Load(EnvPath);
 	}
 
 	QString CustomPath = lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
 
-	if (!CustomPath.isEmpty())
+    if (!CustomPath.isEmpty()) {
+        logDebug() << QString("LoadPiecesLibrary loaded with DefaultPath=%1").arg(CustomPath);
 		return mLibrary->Load(CustomPath.toLatin1().constData()); // todo: qstring
+    }
 
 	if (LibraryInstallPath && LibraryInstallPath[0])
 	{
@@ -153,6 +158,7 @@ bool lcApplication::LoadPiecesLibrary(const char* LibPath, const char* LibraryIn
 		if (mLibrary->Load(LibraryPath))
 		{
 			mLibrary->SetOfficialPieces();
+            logDebug() << QString("LoadPiecesLibrary loaded with LibraryInstallPath=%1").arg(LibraryInstallPath);
 			return true;
 		}
 	}
@@ -168,6 +174,7 @@ bool lcApplication::LoadPiecesLibrary(const char* LibPath, const char* LibraryIn
 			strcat(LibraryPath, "/");
 
 		if (mLibrary->Load(LibraryPath))
+            logDebug() << QString("LoadPiecesLibrary loaded with LDrawPath=%1").arg(LDrawPath);
 			return true;
 	}
 

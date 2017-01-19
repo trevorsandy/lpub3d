@@ -1,7 +1,7 @@
 #ifndef _LC_QGLWIDGET_H_
 #define _LC_QGLWIDGET_H_
 
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+#if QT_VERSION >= QT_VERSION_CHECK(5,4,0)
 #include <QOpenGLWidget>
 #else
 #include <QGLWidget>

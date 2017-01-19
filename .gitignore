@@ -1,3 +1,12 @@
+# files without extension
+*      
+!/**/    
+!*.*
+
+# Compiled source
+*.com
+*.class
+
 # Compiled Object files
 *.slo
 *.lo
@@ -28,6 +37,30 @@
 *.out
 *.app
 
+# Packages
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
 # Ldraw Libraries
 builds/ldrawlibraries/*
 
@@ -44,8 +77,16 @@ builds/runtime/*
 builds/windows/setup/archives/*
 
 # Dynamic files
-mainApp/build.h
-qsimpleupdater/res/Thumbs.db
-mainApp/images/Thumbs.db
+build.h
+
+# Qt Creator generated files
 *.user
+
+# Tools
 tools/*
+
+# Models
+models/*
+
+# Patches
+patches/*

@@ -872,12 +872,16 @@ void lcCamera::Orbit(float DistanceX, float DistanceY, const lcVector3& CenterPo
 	lcVector3 FrontVector(mPosition - mTargetPosition);
 
 	lcVector3 Z(lcNormalize(lcVector3(FrontVector[0], FrontVector[1], 0)));
-//#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-//	if (std::isnan(Z[0]) || std::isnan(Z[1]))
-//#else
-	if (isnan(Z[0]) || isnan(Z[1]))
-//#endif
+	
+#ifdef Q_OS_WIN
+        // replaced in LPu3DNext with: qIsNaN(Z[0]) || qIsNaN(Z[1])
+        if (isnan(Z[0]) || isnan(Z[1]))
+#else
+        if (std::isnan(Z[0]) || std::isnan(Z[1]))
+#endif
+	{
 		Z = lcNormalize(lcVector3(mUpVector[0], mUpVector[1], 0));
+	}
 
 	if (mUpVector[2] < 0)
 	{

@@ -8,6 +8,8 @@ bool gSupportsFramebufferObjectEXT;
 bool gSupportsAnisotropic;
 GLfloat gMaxAnisotropy;
 
+#ifdef LC_LOAD_GLEXTENSIONS
+
 PFNGLBINDBUFFERARBPROC lcBindBufferARB;
 PFNGLDELETEBUFFERSARBPROC lcDeleteBuffersARB;
 PFNGLGENBUFFERSARBPROC lcGenBuffersARB;
@@ -112,6 +114,8 @@ PFNGLUNIFORMMATRIX4FVPROC lcUniformMatrix4fv;
 PFNGLVALIDATEPROGRAMPROC lcValidateProgram;
 PFNGLVERTEXATTRIBPOINTERPROC lcVertexAttribPointer;
 
+#endif
+
 static bool lcIsGLExtensionSupported(const GLubyte* Extensions, const char* Name)
 {
 	const GLubyte* Start;
@@ -142,11 +146,18 @@ static bool lcIsGLExtensionSupported(const GLubyte* Extensions, const char* Name
 	return false;
 }
 
-#ifndef QT_NO_DEBUG
+#if !defined(QT_NO_DEBUG) && defined(GL_ARB_debug_output)
 
 static void APIENTRY lcGLDebugCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, GLsizei Length, const GLchar* Message, GLvoid* UserParam)
 {
-	qDebug() << Message;
+  Q_UNUSED(Source);
+  Q_UNUSED(Type);
+  Q_UNUSED(Id);
+  Q_UNUSED(Severity);
+  Q_UNUSED(Length);
+  Q_UNUSED(UserParam);
+
+  qDebug() << Message;
 }
 
 #endif
@@ -160,7 +171,8 @@ void lcInitializeGLExtensions(const QGLContext* Context)
 	if (Version)
 		sscanf((const char*)Version, "%d.%d", &VersionMajor, &VersionMinor);
 
-#ifndef QT_NO_DEBUG
+#if !defined(QT_NO_DEBUG) && defined(GL_ARB_debug_output)
+
 	if (lcIsGLExtensionSupported(Extensions, "GL_KHR_debug"))
 	{
 		PFNGLDEBUGMESSAGECALLBACKARBPROC DebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKARBPROC)Context->getProcAddress("glDebugMessageCallback");
@@ -188,6 +200,7 @@ void lcInitializeGLExtensions(const QGLContext* Context)
 	// todo: check gl version and use core functions instead
 	if (lcIsGLExtensionSupported(Extensions, "GL_ARB_vertex_buffer_object"))
 	{
+#ifdef LC_LOAD_GLEXTENSIONS
 		lcBindBufferARB = (PFNGLBINDBUFFERARBPROC)Context->getProcAddress("glBindBufferARB");
 		lcDeleteBuffersARB = (PFNGLDELETEBUFFERSARBPROC)Context->getProcAddress("glDeleteBuffersARB");
 		lcGenBuffersARB = (PFNGLGENBUFFERSARBPROC)Context->getProcAddress("glGenBuffersARB");
@@ -199,13 +212,14 @@ void lcInitializeGLExtensions(const QGLContext* Context)
 		lcUnmapBufferARB = (PFNGLUNMAPBUFFERARBPROC)Context->getProcAddress("glUnmapBufferARB");
 		lcGetBufferParameterivARB = (PFNGLGETBUFFERPARAMETERIVARBPROC)Context->getProcAddress("glGetBufferParameterivARB");
 		lcGetBufferPointervARB = (PFNGLGETBUFFERPOINTERVARBPROC)Context->getProcAddress("glGetBufferPointervARB");
-
+#endif
 		gSupportsVertexBufferObject = true;
 	}
 
 	// todo: check gl version
 	if (lcIsGLExtensionSupported(Extensions, "GL_ARB_framebuffer_object"))
 	{
+#ifdef LC_LOAD_GLEXTENSIONS
 		lcIsRenderbuffer = (PFNGLISRENDERBUFFERPROC)Context->getProcAddress("glIsRenderbuffer");
 		lcBindRenderbuffer = (PFNGLBINDRENDERBUFFERPROC)Context->getProcAddress("glBindRenderbuffer");
 		lcDeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSPROC)Context->getProcAddress("glDeleteRenderbuffers");
@@ -226,12 +240,13 @@ void lcInitializeGLExtensions(const QGLContext* Context)
 		lcBlitFramebuffer = (PFNGLBLITFRAMEBUFFERPROC)Context->getProcAddress("glBlitFramebuffer");
 		lcRenderbufferStorageMultisample = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC)Context->getProcAddress("glRenderbufferStorageMultisample");
 		lcFramebufferTextureLayer = (PFNGLFRAMEBUFFERTEXTURELAYERARBPROC)Context->getProcAddress("glFramebufferTextureLayer");
-
+#endif
 		gSupportsFramebufferObjectARB = true;
 	}
 
 	if (lcIsGLExtensionSupported(Extensions, "GL_EXT_framebuffer_object"))
 	{
+#ifdef LC_LOAD_GLEXTENSIONS
 		lcIsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC)Context->getProcAddress("glIsRenderbufferEXT");
 		lcBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC)Context->getProcAddress("glBindRenderbufferEXT");
 		lcDeleteRenderbuffersEXT = (PFNGLDELETERENDERBUFFERSEXTPROC)Context->getProcAddress("glDeleteRenderbuffersEXT");
@@ -249,7 +264,7 @@ void lcInitializeGLExtensions(const QGLContext* Context)
 		lcFramebufferRenderbufferEXT = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC)Context->getProcAddress("glFramebufferRenderbufferEXT");
 		lcGetFramebufferAttachmentParameterivEXT = (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC)Context->getProcAddress("glGetFramebufferAttachmentParameterivEXT");
 		lcGenerateMipmapEXT = (PFNGLGENERATEMIPMAPEXTPROC)Context->getProcAddress("glGenerateMipmapEXT");
-
+#endif
 		gSupportsFramebufferObjectEXT = true;
 	}
 
@@ -261,6 +276,7 @@ void lcInitializeGLExtensions(const QGLContext* Context)
 
 	if (VersionMajor >= 2 && (GLSLMajor > 1 || (GLSLMajor == 1 && GLSLMinor >= 10)))
 	{
+ #ifdef LC_LOAD_GLEXTENSIONS
 		lcAttachShader = (PFNGLATTACHSHADERPROC)Context->getProcAddress("glAttachShader");
 		lcBindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)Context->getProcAddress("glBindAttribLocation");
 		lcCompileShader = (PFNGLCOMPILESHADERPROC)Context->getProcAddress("glCompileShader");
@@ -313,7 +329,7 @@ void lcInitializeGLExtensions(const QGLContext* Context)
 		lcUniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)Context->getProcAddress("glUniformMatrix4fv");
 		lcValidateProgram = (PFNGLVALIDATEPROGRAMPROC)Context->getProcAddress("glValidateProgram");
 		lcVertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)Context->getProcAddress("glVertexAttribPointer");
-
+#endif
 		gSupportsShaderObjects = true;
 	}
 }
