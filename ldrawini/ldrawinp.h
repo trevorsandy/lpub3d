@@ -17,7 +17,14 @@ adopt the changes for the benefit of other users.                            */
 #ifndef LDRAWINP_INCLUDED
 #define LDRAWINP_INCLUDED
 
-#include "ldrawini_global.h"
+/* Hide curly brackets {} in defines to avoid Beautifier indenting whole file */
+#ifdef __cplusplus
+#define LDRAWINI_BEGIN_STDC extern "C" {
+#define LDRAWINI_END_STDC   }
+#else
+#define LDRAWINI_BEGIN_STDC
+#define LDRAWINI_END_STDC
+#endif
 
 LDRAWINI_BEGIN_STDC
 
@@ -29,7 +36,7 @@ struct LDrawIniPrivateDataS
 };
 
 /* Returns 1 if OK, 0 if Section/Key not found or error */
-LDINIEXPORT int LDrawIniReadIniFile(const char *IniFile,
+int LDrawIniReadIniFile(const char *IniFile,
                         const char *Section, const char *Key,
                         char *Str, int sizeofStr);
 
@@ -37,7 +44,7 @@ LDINIEXPORT int LDrawIniReadIniFile(const char *IniFile,
 Parse SymbolicSearchDir into Result
 Returns 1 if OK, 0 on error.
 */
-LDINIEXPORT int LDrawIniParseSymbolicSearchDir(struct LDrawSearchDirS * Result,
+int LDrawIniParseSymbolicSearchDir(struct LDrawSearchDirS * Result,
                                    const char *SymbolicSearchDir,
                                    const char *LDrawDir,
                                    const char *ModelDir,

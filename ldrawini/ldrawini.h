@@ -20,7 +20,22 @@ adopt the changes for the benefit of other users.                            */
 #ifndef LDRAWINI_INCLUDED
 #define LDRAWINI_INCLUDED
 
-#include "ldrawini_global.h"
+/* Hide curly brackets {} in defines to avoid Beautifier indenting whole file */
+#ifdef __cplusplus
+#define LDRAWINI_BEGIN_STDC extern "C" {
+#define LDRAWINI_END_STDC   }
+typedef bool LDrawIniBoolT;
+#else
+#define LDRAWINI_BEGIN_STDC
+#define LDRAWINI_END_STDC
+typedef char LDrawIniBoolT;
+#ifndef false
+#define false 0
+#endif
+#ifndef true
+#define true (!false)
+#endif
+#endif
 
 LDRAWINI_BEGIN_STDC
 
@@ -76,7 +91,7 @@ If all is OK then a pointer to struct LDrawIniS is returned.
 You should then call LDrawIniComputeRealDirs to obtain the search dirs.
 Remember to free the struct by calling LDrawIniFree.
 */
-LDINIEXPORT struct LDrawIniS *LDrawIniGet(const char *LDrawDir,
+struct LDrawIniS *LDrawIniGet(const char *LDrawDir,
                               const char *LDrawDirOrigin,
                               int *ErrorCode);
 /*
@@ -94,7 +109,7 @@ then the function is unnecessary. File case fixing is relevant later
 when finding parts. However, may also be necessary for testing
 typical LDrawDir locations.
 */
-LDINIEXPORT void LDrawIniSetFileCaseCallback(LDrawIniFileCaseCallbackF FileCaseCallback);
+void LDrawIniSetFileCaseCallback(LDrawIniFileCaseCallbackF FileCaseCallback);
 /*
 Compute Real Dirs by substituting <LDRAWDIR> and <MODELDIR> in
 the Symbolic Dirs read from the env vars or ini files.
@@ -103,7 +118,7 @@ If AddTrailingSlash is true then the search dirs will have a slash/backslash app
 If ModelPath is NULL then search dir <MODELDIR> is skipped.
 Returns 1 if OK, 0 on error
 */
-LDINIEXPORT int LDrawIniComputeRealDirs(struct LDrawIniS * LDrawIni,
+int LDrawIniComputeRealDirs(struct LDrawIniS * LDrawIni,
                             int OnlyValidDirs,
                             int AddTrailingSlash,
                             const char *ModelPath);
@@ -112,12 +127,12 @@ Reset search dirs to default if LDrawSearch is NULL
 or to the dirs specified in LDrawSearch delimited by |.
 Returns 1 if OK, 0 on error
 */
-LDINIEXPORT int LDrawIniResetSearchDirs(struct LDrawIniS * LDrawIni,
+int LDrawIniResetSearchDirs(struct LDrawIniS * LDrawIni,
                             const char *LDrawSearch);
 /*
 Free the LDrawIni data
 */
-LDINIEXPORT void LDrawIniFree(struct LDrawIniS * LDrawIni);
+void LDrawIniFree(struct LDrawIniS * LDrawIni);
 
 /*
 Read Section/Key value.
@@ -130,7 +145,7 @@ If IniFile is an empty string it is assumed to be a buffer of size sizeofIniFile
 which will receive the path of the inifile actually read.
 Returns 1 if OK, 0 if Section/Key not found or error
 */
-LDINIEXPORT int LDrawIniReadSectionKey(struct LDrawIniS * LDrawIni,
+int LDrawIniReadSectionKey(struct LDrawIniS * LDrawIni,
                            const char *Section, const char *Key,
                            char *Str, int sizeofStr,
                            char *IniFile, int sizeofIniFile);

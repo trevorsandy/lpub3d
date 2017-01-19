@@ -12,6 +12,13 @@ win32 {
     CONFIG += debug_and_release	
 }
 
+macx {
+
+    QMAKE_CXXFLAGS += -F/System/Library/Frameworks
+    LIBS += -framework CoreFoundation
+
+}
+
 # This one handles dllimport/dllexport directive
 
 DEFINES += LDRAWINI_BUILD
@@ -31,6 +38,7 @@ MOC_DIR = $$DESTDIR/.moc
 
 # Input
 include(ldrawini.pri)
+include(../LPub3DPlatformSpecific.pri)
 
 unix:!symbian {
     headers.path=$$PREFIX/include/ldrawini
