@@ -91,7 +91,7 @@
     #define VER_COMPILED_WITH           "Qt qtver (Clang 64bit)"
     #define VER_IDE                     "Qt Creator 4.1.0 on Qt 5.7.0 (Clang 7.0, x64)"
   #elif __linux__
-    #define VER_COMPILED_ON             "GCC (4.5.8 20150623) CentOS7"
+    #define VER_COMPILED_ON             "GCC (4.5.8 20150623)"
     #define VER_COMPILED_FOR            "Linux"
     #define VER_COMPILED_WITH           "Qt qtver (GCC)"
     #define VER_IDE                     "Qt Creator 4.1.0 on Qt 5.7.0"

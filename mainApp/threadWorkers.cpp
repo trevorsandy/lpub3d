@@ -33,10 +33,10 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
   _endThreadNowRequested  = false;
 
   _excludedSearchDirs << ".";
-  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("PARTS"));
-  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("P"));
-  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts"));
-  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"));
+  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("parts"));
+  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("p"));
+  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial/parts"));
+  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial/p"));
   _fadePartDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg("fade/parts"));
   _fadePrimDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg("fade/p"));
 
@@ -167,7 +167,7 @@ bool PartWorker::loadLDrawSearchDirs(){
       Preferences::ldSearchDirs.clear();
       bool foundUnofficialRootDir = false;
       bool fadeDirsIncluded = false;
-      QString unofficialRootDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial"));
+      QString unofficialRootDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial"));
       for (StringList::const_iterator it = ldrawSearchDirs.begin();
            it != ldrawSearchDirs.end(); it++)
         {
@@ -280,9 +280,9 @@ void PartWorker::populateLdgLiteSearchDirs(){
 
         // Define excluded directories
         QStringList ldgliteExcludedDirs = _excludedSearchDirs;
-        ldgliteExcludedDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("MODELS"))
-                            << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial"))
-                            << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/LSynth"));
+        ldgliteExcludedDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("models"))
+                            << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial"))
+                            << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial/lsynth"));
         // Clear directories
         Preferences::ldgliteSearchDirs.clear();
         int count = 0;                    // set delimeter from 2nd entry

@@ -24,7 +24,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="../../mainApp/lpub.qrc">:/resources/icon64.png</pixmap>
+          <pixmap resource="../../mainApp/lpub3d.qrc">:/resources/icon64.png</pixmap>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -114,7 +114,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../mainApp/lpub.qrc"/>
+  <include location="../../mainApp/lpub3d.qrc"/>
  </resources>
  <connections>
   <connection>

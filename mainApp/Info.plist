@@ -21,7 +21,8 @@
 			<key>CFBundleTypeMIMETypes</key>
 			<array>
 				<string>application/x-ldraw</string>
-				<string>application/x-multi-part-ldraw</string>
+                                <string>application/x-multipart-ldraw</string>
+                                <string>application/x-multi-part-ldraw</string>
 			</array>
 			<key>CFBundleTypeName</key>
 			<string>LDraw Document</string>

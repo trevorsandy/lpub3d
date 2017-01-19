@@ -9,7 +9,8 @@ win32 {
 
     QMAKE_EXT_OBJ = .obj
     CONFIG += windows
-    CONFIG += debug_and_release	
+    CONFIG += debug_and_release
+
 }
 
 macx {
@@ -20,23 +21,24 @@ macx {
 }
 
 CONFIG(debug, debug|release) {
-        message("~~~ LDRAWINI DEBUG build ~~~")
-        DESTDIR = build/debug
+    message("~~~ LDRAWINI DEBUG build ~~~")
+    DESTDIR = build/debug
+    mac: TARGET = $$join(TARGET,,,_debug)
+    win32: TARGET = $$join(TARGET,,,d)
 } else {
-        message("~~~ LDRAWINI RELEASE build ~~~")
-        DESTDIR = build/release
+    message("~~~ LDRAWINI RELEASE build ~~~")
+    DESTDIR = build/release
 }
 
 OBJECTS_DIR = $$DESTDIR/.obj
 MOC_DIR = $$DESTDIR/.moc
+QMAKE_EXT_CPP = .c
 
-# To enable static builds,
+# Indicate build type,
 # be sure to add CONFIG+=staticlib in Additional Arguments of qmake build steps
 staticlib {
     message("~~~ LDRAWINI STATIC build ~~~")
-    CONFIG += staticlib # this is needed if you create a static library
 } else {
-    # This one handles dllimport/dllexport directives.
     message("~~~ LDRAWINI SHARED build ~~~")
 }
 
@@ -45,19 +47,25 @@ include(ldrawini.pri)
 include(../LPub3DPlatformSpecific.pri)
 
 unix:!symbian {
-    headers.path=$$PREFIX/include/ldrawini
+    isEmpty(PREFIX):PREFIX = /usr
+    contains(QT_ARCH, x86_64){
+        LIB_ARCH = x86_64-linux-gnu
+    } else {
+        LIB_ARCH = i386-linux-gnu
+    }
+    headers.path=$$PREFIX/include
     headers.files=$$HEADERS
-    target.path=$$PREFIX/lib/$${LIB_ARCH}
-    INSTALLS += headers target	
+    target.path=$$PREFIX/lib/$$LIB_ARCH
+    INSTALLS += headers target
+#    message("~~~ LDRAWINI LIB DEST: $$target.path ~~~")
+
 }
 
 win32 {
-    headers.path=$$PREFIX/include/ldrawini
+    headers.path=$$PREFIX/include
     headers.files=$$HEADERS
     target.path=$$PREFIX/lib
     INSTALLS += headers target
     # workaround for qdatetime.h macro bug
     DEFINES += NOMINMAX
 }
-
-

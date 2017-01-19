@@ -26,18 +26,18 @@ win32 {
     QMAKE_EXT_OBJ = .obj
     CONFIG += windows
     CONFIG += debug_and_release	
-greaterThan(QT_MAJOR_VERSION, 4): LIBS += -lz
+    greaterThan(QT_MAJOR_VERSION, 4): LIBS += -lz
 
 }
 
 CONFIG(debug, debug|release) {
-        message("~~~ QUAZIP DEBUG build ~~~")
-        DESTDIR = build/debug
-        mac: TARGET = $$join(TARGET,,,_debug) 
-        win32: TARGET = $$join(TARGET,,,d)
+    message("~~~ QUAZIP DEBUG build ~~~")
+    DESTDIR = build/debug
+    mac: TARGET = $$join(TARGET,,,_debug) 
+    win32: TARGET = $$join(TARGET,,,d)
 } else {
-        message("~~~ QUAZIP RELEASE build ~~~")
-        DESTDIR = build/release
+    message("~~~ QUAZIP RELEASE build ~~~")
+    DESTDIR = build/release
 }
 
 OBJECTS_DIR = $$DESTDIR/.obj
@@ -49,7 +49,6 @@ MOC_DIR = $$DESTDIR/.moc
 CONFIG(staticlib): DEFINES += QUAZIP_STATIC
 staticlib {
     message("~~~ QUAZIP STATIC build ~~~")
-    CONFIG += staticlib # this is needed if you create a static library
 } else {
     # This one handles dllimport/dllexport directives.
     message("~~~ QUAZIP SHARED build ~~~")
@@ -60,20 +59,23 @@ staticlib {
 include(quazip.pri)
 include(../LPub3DPlatformSpecific.pri)
 
-
 unix:!symbian {
-    headers.path=$$PREFIX/include/quazip
+    isEmpty(PREFIX):PREFIX = /usr
+    contains(QT_ARCH, x86_64){
+	LIB_ARCH = x86_64-linux-gnu
+    } else {
+	LIB_ARCH = i386-linux-gnu
+    }
+    headers.path=$$PREFIX/include
     headers.files=$$HEADERS
-    target.path=$$PREFIX/lib/$${LIB_ARCH}
+    target.path=$$PREFIX/lib/$$LIB_ARCH
     INSTALLS += headers target
-
-    OBJECTS_DIR=.obj
-    MOC_DIR=.moc
+#    message("~~~ QUAZIP LIB DEST: $$target.path ~~~")
 	
 }
 
 win32 {
-    headers.path=$$PREFIX/include/quazip
+    headers.path=$$PREFIX/include
     headers.files=$$HEADERS
     target.path=$$PREFIX/lib
     INSTALLS += headers target

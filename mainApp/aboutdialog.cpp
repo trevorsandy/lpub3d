@@ -209,7 +209,7 @@ void AboutDialog::showReadmeDetails(bool clicked){
 #ifdef Q_OS_WIN
     readmeFile = QString("%1/%2").arg(Preferences::lpub3dPath).arg("README.txt");
 #else
-    readmeFile = QString("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dMacResourcePath).arg("README.txt");
+    readmeFile = QString("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dResourcePath).arg("README.txt");
 #endif
 
     QFile file(readmeFile);
@@ -243,7 +243,7 @@ void AboutDialog::showCreditDetails(bool clicked){
 #ifdef Q_OS_WIN
     creditsFile = QString("%1/%2").arg(Preferences::lpub3dPath).arg("docs/CREDITS.txt");
 #else
-    creditsFile = QString("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dMacResourcePath).arg("CREDITS.txt");
+    creditsFile = QString("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dResourcePath).arg("CREDITS.txt");
 #endif
     QFile file(creditsFile);
     if (! file.open(QFile::ReadOnly | QFile::Text)) {

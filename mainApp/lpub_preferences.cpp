@@ -25,7 +25,6 @@
 #include <QMessageBox>
 #include <QDate>
 #include <JlCompress.h>
-
 #include "lpub_preferences.h"
 #include "ui_preferences.h"
 #include "preferencesdialog.h"
@@ -47,7 +46,7 @@ QString Preferences::ldrawPath                  = "";
 QString Preferences::lpub3dLibFile              = "";
 QString Preferences::lgeoPath;
 QString Preferences::lpub3dPath                 = ".";
-QString Preferences::lpub3dMacResourcePath      = ".";
+QString Preferences::lpub3dResourcePath      = ".";
 QString Preferences::lpubDataPath               = ".";
 QString Preferences::lpubExtrasPath             = ".";
 QString Preferences::ldgliteExe;
@@ -307,22 +306,21 @@ void Preferences::lpubPreferences()
     }
     qDebug() << qPrintable(QString("OSX Ending Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
 
-    lpub3dMacResourcePath = QString("LPub3D.app/Contents/Resources");
+    lpub3dResourcePath = QString("LPub3D.app/Contents/Resources");
 
 #elif defined Q_OS_LINUX
 
-    #ifdef IDE_LAUNCH
-        lpub3dMacResourcePath = QString("resourcedata");
+    #ifdef X11_BINARY_BUILD
+        lpub3dResourcePath = QString("doc");                // Standard User
     #else
-        //lpub3dMacResourcePath = QString("../share/lpub3d");                   // Elevated Rights Install
-        lpub3dMacResourcePath = QString("../.lpub3dres");                       // Standard User
+        lpub3dResourcePath = QString("../share/lpub3d");    // Elevated Rights Install
     #endif
-    //qDebug() << QString("lpub3dMacResourcePath [RESOURCE_DIR] (%1)").arg(lpub3dMacResourcePath);
+    //qDebug() << QString("lpub3dResourcePath [RESOURCE_DIR] (%1)").arg(lpub3dResourcePath);
 #endif
 
     lpub3dPath = cwd.absolutePath();
 
-#ifdef Q_OS_WIN //... portable on Windows (macro)
+#ifdef Q_OS_WIN //... portable on Windows
 
     if (QDir(lpub3dPath + "/extras").exists()) { // we have a portable distribution
 
@@ -388,16 +386,23 @@ void Preferences::lpubPreferences()
 
     } else {                                        // we havea an installed distribution
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-        QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-        lpubDataPath = dataPathList.first();
-#else
-        lpubDataPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-#endif
+    #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+            QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+            lpubDataPath = dataPathList.first();
+    #else
+            lpubDataPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+    #endif
 
     }
 
-#else // ...other than Windows (macro)
+#elif defined Q_OS_LINUX // ...linux
+
+     if (QDir(lpub3dPath + "/extras").exists()) { // we have a portable distribution
+
+            portableDistribution = true;
+            lpubDataPath = lpub3dPath;
+
+         } else {                                        // we havea an installed distribution
 
     #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
             QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
@@ -406,6 +411,15 @@ void Preferences::lpubPreferences()
             lpubDataPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
     #endif
 
+         }
+
+#else  // ...OSX
+    #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+            QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+            lpubDataPath = dataPathList.first();
+    #else
+            lpubDataPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+    #endif
 #endif
 
     qDebug() << "LPub3D User Data Path: " << lpubDataPath;
@@ -418,7 +432,7 @@ void Preferences::lpubPreferences()
 #ifdef Q_OS_WIN
     location = QString("%1").arg((portableDistribution ? "/extras/" : "/data/"));
 #else
-    location = QString("/%1/").arg(lpub3dMacResourcePath);
+    location = QString("/%1/").arg(lpub3dResourcePath);
 #endif
 
     QFileInfo paramFile;
@@ -464,16 +478,16 @@ void Preferences::lpub3dLibPreferences(bool force)
 
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,LPub3DLibKey))) {
         lpub3dLibFile = Settings.value(QString("%1/%2").arg(SETTINGS,LPub3DLibKey)).toString();
-    } else
-    if (portableDistribution) {
+    } else {
         lpub3dLibFile = QString("%1/%2/%3").arg(lpubDataPath, "libraries", VER_LDRAW_OFFICIAL_ARCHIVE);
         Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
     }
 
-    if (!lpub3dLibFile.isEmpty() && ! force) {
+    if (! lpub3dLibFile.isEmpty() && ! force) {
         validFile.setFile(lpub3dLibFile);
 
         if (validFile.exists()) {
+            lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, Settings.value(QString("%1/%2").arg(SETTINGS,LPub3DLibKey)).toString());
             return;
         }
         else {
@@ -492,17 +506,20 @@ void Preferences::lpub3dLibPreferences(bool force)
             lpub3dLibFile = QDir::toNativeSeparators(result);
     }
 
+
     if (! lpub3dLibFile.isEmpty()) {
 
         Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
 
     } else {
 
+        // lets go look for the archive files...
+
         QString location;
 #ifdef Q_OS_WIN
-        location = QString("%1").arg((portableDistribution ? "/extras/" : "/data/"));
+    location = QString("%1").arg((portableDistribution ? "/extras/" : "/data/"));
 #else
-        location = QString("/%1/").arg(lpub3dMacResourcePath);
+    location = QString("/%1/").arg(lpub3dResourcePath);
 #endif
         validFile.setFile(lpub3dPath + location + VER_LDRAW_OFFICIAL_ARCHIVE);
         bool archivesExist = validFile.exists();
@@ -510,10 +527,10 @@ void Preferences::lpub3dLibPreferences(bool force)
 //        QMessageBox::information(NULL,
 //                                 QMessageBox::tr("LPub3D"),
 //                                 QMessageBox::tr("lpub3dPath (%1)\n\n"
-//                                                 "lpub3dMacResourcePath [location] (%2)\n\n"
+//                                                 "lpub3dResourcePath [location] (%2)\n\n"
 //                                                 "Full (%3)")
 //                                                 .arg(lpub3dPath)
-//                                                 .arg(lpub3dMacResourcePath)
+//                                                 .arg(lpub3dResourcePath)
 //                                                 .arg(lpub3dPath + location + VER_LDRAW_OFFICIAL_ARCHIVE));
 
         if (archivesExist) {
@@ -1372,9 +1389,9 @@ bool Preferences::getPreferences()
         if (ldSearchDirs != dialog->searchDirSettings()) {
             if (! dialog->searchDirSettings().isEmpty()){
                 ldSearchDirs.clear();
-                QString unoffDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial"));
+                QString unoffDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial"));
                 QString fadeDirPath  = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg("fade"));
-                QString modelsDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("MODELS"));
+                QString modelsDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("models"));
                 foreach (QString dirPath, dialog->searchDirSettings()) {
                     QDir searchDir(dirPath);
                     bool invalidSearchDir = dirPath.contains(unoffDirPath.toLower()) && !dirPath.contains(fadeDirPath.toLower());

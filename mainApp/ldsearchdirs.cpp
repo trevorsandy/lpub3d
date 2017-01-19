@@ -344,9 +344,11 @@ bool LDPartsDirs::initLDrawSearchDirs()
 
 bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbitrary file name
 {
+  bool retValue = false;
+
   if (!initLDrawSearchDirs()) {
       qDebug() << "Could not initialize LDrawini ";
-      return false;
+      return retValue;
     }
 
   if (sm_lDrawIni)
@@ -356,7 +358,7 @@ bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbit
 
   if (!strlen(lDrawDir()))
     {
-      return false;
+      return retValue;
     }
   // end initialize
 
@@ -394,16 +396,14 @@ bool LDPartsDirs::loadLDrawSearchDirs(const char *filename) //send default arbit
               found = true;
             }
         }
-
-      chdir(Preferences::lpub3dPath.toLatin1().constData());
-
-      return true;
+      retValue = chdir(Preferences::lpub3dPath.toLatin1().constData()) == 0;
     }
+
 
   // The ancestor map has done its job; may as well free up the memory it
   // was using.
   m_ancestorMap.clear();
-  return true;
+  return retValue;
 }
 
 

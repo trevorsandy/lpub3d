@@ -1,12 +1,20 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
 	<mime-type type="application/x-ldraw">
 		<comment>LDraw File</comment>
 		<glob pattern="*.ldr"/>
+                <glob pattern="*.LDR" />
 		<glob pattern="*.dat"/>
+                <glob pattern="*.DAT"/>
 	</mime-type>
 	<mime-type type="application/x-multi-part-ldraw">
 		<comment>Multi-part LDraw File</comment>
 		<glob pattern="*.mpd"/>
+                <glob pattern="*.MPD" />
 	</mime-type>
+        <mime-type type="application/x-multipart-ldraw">
+                <comment>Multi-part LDraw File</comment>
+                <glob pattern="*.mpd"/>
+                <glob pattern="*.MPD" />
+        </mime-type>
 </mime-info>

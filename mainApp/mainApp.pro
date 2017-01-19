@@ -15,49 +15,51 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
-INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../quazip ../ldrawini
 
-macx {
-    CONFIG += precompile_header c++11
+# If quazip is alredy installed you can suppress building it again by
+# adding CONFIG+=quazipnobuild to the qmake arguments
+# You may have to update the include statements at archiveparts.h, lpub.h and lpub_preferences.cpp
+quazipnobuild {
+     INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../ldrawini
 } else {
-    lessThan(QT_MAJOR_VERSION, 5): CONFIG += precompile_header c++11
-    greaterThan(QT_MAJOR_VERSION, 4): CONFIG += precompile_header
+     INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../ldrawini ../quazip
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+CONFIG += precompile_header
+PRECOMPILED_HEADER += ../lc_lib/common/lc_global.h
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
+
 win32 {
 
-    PRECOMPILED_HEADER += ../lc_lib/common/lc_global.h
-    QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
     DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
     QMAKE_EXT_OBJ = .obj
     win32:RC_FILE = lpub3d.rc
     PRECOMPILED_SOURCE = ../lc_lib/common/lc_global.cpp
     CONFIG += windows
-#    CONFIG += debug_and_release
     LIBS += -ladvapi32 -lshell32
-greaterThan(QT_MAJOR_VERSION, 4): LIBS += -lz
-greaterThan(QT_MAJOR_VERSION, 4): LIBS += -lopengl32
+    greaterThan(QT_MAJOR_VERSION, 4): LIBS += -lz -lopengl32
 
 } else {
-    PRECOMPILED_HEADER += ../lc_lib/common/lc_global.h
+
     LIBS += -lz
-    QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
+    quazipnobuild: LIBS += -lquazip
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-lessThan(QT_MAJOR_VERSION, 5) {
-        unix {
-                GCC_VERSION = $$system(g++ -dumpversion)
-                greaterThan(GCC_VERSION, 4.6) {
-                        QMAKE_CXXFLAGS += -std=c++11
-                } else {
-                        QMAKE_CXXFLAGS += -std=c++0x
-                }
-             }
-}
+CONFIG += c++11
+
+unix {
+    GCC_VERSION = $$system(g++ -dumpversion)
+    greaterThan(GCC_VERSION, 4.6) {
+        QMAKE_CXXFLAGS += -std=c++11
+    } else {
+        QMAKE_CXXFLAGS += -std=c++0x
+    }
+ }
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -91,29 +93,29 @@ unix:!macx {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 CONFIG(debug, debug|release) {
-        message("~~~ MAIN_APP DEBUG build ~~~")
-        DESTDIR = build/debug
-        LIBS += -L$$DESTDIR/../../../quazip/build/debug -lquazip
-        LIBS += -L$$DESTDIR/../../../ldrawini/build/debug -lldrawini
-        mac: TARGET = $$join(TARGET,,,_debug)
-        win32: TARGET = $$join(TARGET,,,d)
+    message("~~~ LPUB3D (MAIN_APP) DEBUG build ~~~")
+    DESTDIR = build/debug
+    LIBS += -L$$DESTDIR/../../../ldrawini/build/debug -lldrawini
+    !quazipnobuild: LIBS += -L$$DESTDIR/../../../quazip/build/debug -lquazip
+    macx: TARGET = $$join(TARGET,,,_debug)
+    win32: TARGET = $$join(TARGET,,,d)
 } else {
-        message("~~~ MAIN_APP RELEASE build ~~~")
-        DESTDIR = build/release
-        LIBS += -L$$DESTDIR/../../../quazip/build/release -lquazip
-        LIBS += -L$$DESTDIR/../../../ldrawini/build/release -lldrawini
+    message("~~~ LPUB3D (MAIN_APP) RELEASE build ~~~")
+    DESTDIR = build/release
+    LIBS += -L$$DESTDIR/../../../ldrawini/build/release -lldrawini
+    !quazipnobuild: LIBS += -L$$DESTDIR/../../../quazip/build/release -lquazip
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-static { # everything below takes effect with CONFIG ''= static
+static {                                     # everything below takes effect with CONFIG ''= static
     CONFIG+= static
     LIBS += -static
     DEFINES += STATIC
-    DEFINES += QUAZIP_STATIC # this is so the compiler can detect quazip static
-    message("~~~ MAIN_APP STATIC build ~~~") # this is for information, that the static build is done
-    mac: TARGET = $$join(TARGET,,,_static) #this adds an _static in the end, so you can seperate static build from non static build
-    win32: TARGET = $$join(TARGET,,,s) #this adds an s in the end, so you can seperate static build from non static build
+    DEFINES += QUAZIP_STATIC                 # this is so the compiler can detect quazip static
+    message("~~~ LPUB3D (MAIN_APP) STATIC build ~~~") # this is for information, that the static build is done
+    macx: TARGET = $$join(TARGET,,,_static)  # this adds an _static in the end, so you can seperate static build from non static build
+    win32: TARGET = $$join(TARGET,,,s)       # this adds an s in the end, so you can seperate static build from non static build
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -127,6 +129,18 @@ UI_DIR      = $$DESTDIR/.ui
 
 unix:!macx {
 
+        binarybuild {
+            # To build a binary distribution that will not require elevated rights to install,
+            # pass CONFIG+=binarybuild to qmake (i.e. in QtCreator, set in qmake Additional Arguments)
+            # The installer which uses Qt installer framework can be found in the "builds" source folder.
+            # This macro is used to properly load parameter files on initial launch
+            DEFINES += X11_BINARY_BUILD
+            # Linker flag setting to properly direct LPub3D to ldrawini and quazip shared libraries.
+            # This setting assumes these libraries are deposited at <exe location>/lib by the installer.
+            QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/lib\'"
+        }
+
+        # These settings are used for package distributions that will require elevated rights to install
         isEmpty(INSTALL_PREFIX):INSTALL_PREFIX = /usr
         isEmpty(BIN_DIR):BIN_DIR = $$INSTALL_PREFIX/bin
         isEmpty(DOCS_DIR):DOCS_DIR = $$INSTALL_PREFIX/share/doc/lpub3d
@@ -135,6 +149,7 @@ unix:!macx {
         isEmpty(DESKTOP_DIR):DESKTOP_DIR = $$INSTALL_PREFIX/share/applications
         isEmpty(MIME_DIR):MIME_DIR = $$INSTALL_PREFIX/share/mime/packages
         isEmpty(MIME_ICON_DIR):MIME_ICON_DIR = $$INSTALL_PREFIX/share/icons/hicolor/scalable/mimetypes
+        isEmpty(RESOURCE_DIR):RESOURCE_DIR = $$INSTALL_PREFIX/share/lpub3d
 
         target.path = $$BIN_DIR
 
@@ -148,7 +163,7 @@ unix:!macx {
         desktop.files += lpub3d.desktop
 
         icon.path = $$ICON_DIR
-        icon.files += lpub3d.png
+        icon.files += images/lpub3d.png
 
         mime.path = $$MIME_DIR
         mime.files += lpub3d.xml
@@ -156,7 +171,57 @@ unix:!macx {
         mime_icon.path = $$MIME_ICON_DIR
         mime_icon.files += images/lpub3d.svg
 
-        INSTALLS += target docs man desktop icon mime mime_icon
+        document_readme.path = $$RESOURCE_DIR
+        document_readme.files += doc/README.txt
+
+        document_credits.path = $$RESOURCE_DIR
+        document_credits.files += docs/CREDITS.txt
+
+        document_copying.path = $$RESOURCE_DIR
+        document_copying.files += docs/COPYING.txt
+
+        excluded_parts.path = $$RESOURCE_DIR
+        excluded_parts.files += extras/excludedParts.lst
+
+        fadestep_color_parts.path = $$RESOURCE_DIR
+        fadestep_color_parts.files += extras/fadeStepColorParts.lst
+
+        freeform_annotations.path = $$RESOURCE_DIR
+        freeform_annotations.files += extras/freeformAnnotations.lst
+
+        title_annotations.path = $$RESOURCE_DIR
+        title_annotations.files += extras/titleAnnotations.lst
+
+        pli_orientation.path = $$RESOURCE_DIR
+        pli_orientation.files += extras/pli.mpd
+
+        pli_substitution_parts.path = $$RESOURCE_DIR
+        pli_substitution_parts.files += extras/pliSubstituteParts.lst
+
+        # Disable these archive libraries and the user will be prompted to
+        # select or download the ldraw archive (.zip) libraries on initial application launch
+        ldraw_unofficial_library.path = $$RESOURCE_DIR
+        ldraw_unofficial_library.files += extras/lpub3dldrawunf.zip
+
+        ldraw_library.path = $$RESOURCE_DIR
+        ldraw_library.files += extras/complete.zip
+
+        INSTALLS += \
+        target \
+        docs \
+        man \
+        desktop \
+        icon\
+        mime\
+        mime_icon \
+        excluded_parts \
+        fadestep_color_parts \
+        freeform_annotations \
+        title_annotations \
+        pli_orientation \
+        pli_substitution_parts \
+        ldraw_unofficial_library \
+        ldraw_library
 
         DEFINES += LC_INSTALL_PREFIX=\\\"$$INSTALL_PREFIX\\\"
 
@@ -204,11 +269,11 @@ macx {
     pli_substitution_parts += extras/pliSubstituteParts.lst
     pli_substitution_parts = Contents/Resources
 
-    unofficial_library.files += extras/lpub3dldrawunf.zip
-    unofficial_library.path = Contents/Resources
+    ldraw_unofficial_library.files += extras/lpub3dldrawunf.zip
+    ldraw_unofficial_library.path = Contents/Resources
 
-    library.files += extras/complete.zip
-    library.path = Contents/Resources
+    ldraw_library.files += extras/complete.zip
+    ldraw_library.path = Contents/Resources
 
     QMAKE_BUNDLE_DATA += \
         document_icon \
@@ -218,14 +283,11 @@ macx {
         title_annotations \
         pli_orientation \
         pli_substitution_parts \
-        unofficial_library \
-        library
+        ldraw_unofficial_library \
+        ldraw_library
 }
 
 #~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-#include(../ldrawini/ldrawini.pri)
-#include(../quazip/quazip.pri)
 
 include(../lc_lib/lc_lib.pri)
 include(../qslog/QsLog.pri)
@@ -394,7 +456,8 @@ OTHER_FILES += \
     Info.plist \
     lpub3d.desktop \
     lpub3d.rc \
-    lpub3d.xml
+    lpub3d.xml \
+    lpub3d.sh
 
 RESOURCES += \
     lpub3d.qrc
@@ -408,5 +471,3 @@ DISTFILES += \
 
 #message(FINAL CONFIG:)
 #message($$CONFIG)
-
-

@@ -16,7 +16,6 @@
 #define ARCHIVEPARTS_H
 
 #include <QObject>
-
 #include "quazip.h"
 #include "quazipfile.h"
 #include "quazipdir.h"

@@ -91,8 +91,8 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, QString &
               QDir subDir(QString("%1/%2").arg(dir.absolutePath()).arg(subDirName));
               //qDebug() << "---PROCESSING FIRST LEVEL SUBDIR:  " << subDir.absolutePath();
 
-              QDir excludeUnoffPartsDir(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts"));
-              QDir excludeUnoffPrimDir(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"));
+              QDir excludeUnoffPartsDir(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial/parts"));
+              QDir excludeUnoffPrimDir(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial/p"));
               QDir excludeOffPartsDir(QString("%1/%2").arg(Preferences::ldrawPath).arg("parts"));
               QDir excludeOffPrimDir(QString("%1/%2").arg(Preferences::ldrawPath).arg("p"));
 
@@ -365,10 +365,10 @@ bool ArchiveParts::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDi
 /* Recursively searches for all files on the disk \ a, and adds to the list of \ b */
 void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
 
-  QString offPartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("PARTS"));
-  QString offPrimsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("P"));
-  QString unoffPartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/parts"));
-  QString unoffPrimsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("Unofficial/p"));
+  QString offPartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("parts"));
+  QString offPrimsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("p"));
+  QString unoffPartsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial/parts"));
+  QString unoffPrimsDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial/p"));
 
   QStringList qsl = dir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
 
