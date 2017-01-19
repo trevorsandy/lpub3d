@@ -50,7 +50,7 @@
 #include "lc_mainwindow.h"
 //**
 
-#ifndef __APPLE__
+#ifdef Q_OS_WIN
 #include <windows.h>
 #endif
 
@@ -78,9 +78,7 @@ static int rendererTimeout(){
 }
 
 QString fixupDirname(const QString &dirNameIn) {
-#ifdef __APPLE__
-	return dirNameIn;
-#else
+#ifdef Q_OS_WIN
 	long     length = 0;
     TCHAR*   buffer = NULL;
 //  30/11/2014 Generating "invalid conversion from const ushort to const wchar" compile error:
@@ -110,7 +108,9 @@ QString fixupDirname(const QString &dirNameIn) {
 	QString dirNameOut = QString::fromWCharArray(buffer);
     
     delete [] buffer;
-	return dirNameOut;
+        return dirNameOut;
+#else
+        return dirNameIn;
 #endif
 }
 
@@ -121,7 +121,7 @@ QString const Render::getRenderer()
   } else if (renderer == &ldview){
     return "LDView";
   } else {
-	  return "L3P";
+    return "POVRay";
   }
 }
 
@@ -339,7 +339,9 @@ int L3P::renderCsi(const QString     &addLine,
 	l3p.setWorkingDirectory(QDir::currentPath() +"/"+Paths::tmpDir);
 	l3p.setStandardErrorFile(QDir::currentPath() + "/stderr");
 	l3p.setStandardOutputFile(QDir::currentPath() + "/stdout");
-	qDebug() << qPrintable(Preferences::l3pExe + " " + arguments.join(" ")) << "\n";
+
+    //qDebug() << qPrintable("LP3 CSI Arguments: " + Preferences::l3pExe + " " + arguments.join(" ")) << "\n";
+
 	l3p.start(Preferences::l3pExe,arguments);
     if ( ! l3p.waitForFinished(rendererTimeout())) {
 		if (l3p.exitCode() != 0) {
@@ -365,12 +367,15 @@ int L3P::renderCsi(const QString     &addLine,
 	povArguments << H;
 	povArguments << USE_ALPHA;
 	if(hasLGEO){
-		QString lgeoLg = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/lg")));
-		QString lgeoAr = QString("+L%2").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/ar")));
+        QString lgeoLg  = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/lg")));
+        QString lgeoAr  = QString("+L%2").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/ar")));
+        QString lgeoStl = QString("+L%2").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/stl")));
 		povArguments << lgeoLg;
 		povArguments << lgeoAr;
+        if (QDir(lgeoStl).exists())
+            povArguments << lgeoStl;
 	}
-#ifndef __APPLE__
+#ifdef Q_OS_WIN
 	povArguments << "/EXIT";
 #endif
 	
@@ -389,7 +394,9 @@ int L3P::renderCsi(const QString     &addLine,
 	povray.setWorkingDirectory(QDir::currentPath()+"/"+Paths::tmpDir);
 	povray.setStandardErrorFile(QDir::currentPath() + "/stderr-povray");
 	povray.setStandardOutputFile(QDir::currentPath() + "/stdout-povray");
-	qDebug() << qPrintable(Preferences::povrayExe + " " + povArguments.join(" ")) << "\n";
+
+    //qDebug() << qPrintable("POV-Ray CSI Arguments: " + Preferences::povrayExe + " " + povArguments.join(" ")) << "\n";
+
 	povray.start(Preferences::povrayExe,povArguments);
     if ( ! povray.waitForFinished(rendererTimeout())) {
 		if (povray.exitCode() != 0) {
@@ -466,7 +473,9 @@ int L3P::renderPli(const QString &ldrName,
 	l3p.setWorkingDirectory(QDir::currentPath());
 	l3p.setStandardErrorFile(QDir::currentPath() + "/stderr");
 	l3p.setStandardOutputFile(QDir::currentPath() + "/stdout");
-	qDebug() << qPrintable(Preferences::l3pExe + " " + arguments.join(" ")) << "\n";
+
+    //qDebug() << qPrintable("LP3 PLI Arguments: " + Preferences::l3pExe + " " + arguments.join(" ")) << "\n";
+
 	l3p.start(Preferences::l3pExe,arguments);
     if (! l3p.waitForFinished()) {
 		if (l3p.exitCode()) {
@@ -492,12 +501,15 @@ int L3P::renderPli(const QString &ldrName,
 	povArguments << H;
 	povArguments << USE_ALPHA;
 	if(hasLGEO){
-		QString lgeoLg = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/lg")));
-		QString lgeoAr = QString("+L%2").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/ar")));
-		povArguments << lgeoLg;
-		povArguments << lgeoAr;
+        QString lgeoLg  = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/lg")));
+        QString lgeoAr  = QString("+L%2").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/ar")));
+        QString lgeoStl = QString("+L%2").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/stl")));
+        povArguments << lgeoLg;
+        povArguments << lgeoAr;
+        if (QDir(lgeoStl).exists())
+            povArguments << lgeoStl;
 	}
-#ifndef __APPLE__
+#ifdef Q_OS_WIN
 	povArguments << "/EXIT";
 #endif
 	
@@ -516,7 +528,9 @@ int L3P::renderPli(const QString &ldrName,
 	povray.setWorkingDirectory(QDir::currentPath()+"/"+Paths::tmpDir);
 	povray.setStandardErrorFile(QDir::currentPath() + "/stderr-povray");
 	povray.setStandardOutputFile(QDir::currentPath() + "/stdout-povray");
-	qDebug() << qPrintable(Preferences::povrayExe + " " + povArguments.join(" ")) << "\n";
+
+    //qDebug() << qPrintable("POV-Ray PLI Arguments: " + Preferences::povrayExe + " " + povArguments.join(" ")) << "\n";
+
 	povray.start(Preferences::povrayExe,povArguments);
     if ( ! povray.waitForFinished(rendererTimeout())) {
 		if (povray.exitCode() != 0) {
@@ -614,17 +628,22 @@ int LDGLite::renderCsi(
   QProcess    ldglite;
   QStringList env = QProcess::systemEnvironment();
   env << "LDRAWDIR=" + Preferences::ldrawPath;
-  if (!Preferences::ldgliteSearchDirs.isEmpty())
-    env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
+  //logDebug() << qPrintable("LDRAWDIR=" + Preferences::ldrawPath);
 
-//  logDebug() << "ldglite CSI Arguments:" << arguments;
-//  logDebug() << "LDSEARCHDIRS:" << Preferences::ldgliteSearchDirs;
-//  logDebug() << "ENV:" << env;
+  if (!Preferences::ldgliteSearchDirs.isEmpty()) {
+    env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
+    //logDebug() << qPrintable("LDSEARCHDIRS: " + Preferences::ldgliteSearchDirs);
+  }
 
   ldglite.setEnvironment(env);
+  //logDebug() << qPrintable("ENV: " + env);
+
   ldglite.setWorkingDirectory(QDir::currentPath() + "/"+Paths::tmpDir);
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout");
+
+  //qDebug() << qPrintable("LDGLite CSI Arguments: " + Preferences::ldgliteExe + " " + arguments.join(" ")) << "\n";
+
   ldglite.start(Preferences::ldgliteExe,arguments);
   if ( ! ldglite.waitForFinished(rendererTimeout())) {
     if (ldglite.exitCode() != 0) {
@@ -694,16 +713,20 @@ int LDGLite::renderPli(
   QProcess    ldglite;
   QStringList env = QProcess::systemEnvironment();
   env << "LDRAWDIR=" + Preferences::ldrawPath;
-  if (!Preferences::ldgliteSearchDirs.isEmpty())
-    env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
+  //logDebug() << qPrintable("LDRAWDIR=" + Preferences::ldrawPath);
 
-//  qDebug() << "ldglite PLI Arguments: " << arguments;
-//  qDebug() << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
+  if (!Preferences::ldgliteSearchDirs.isEmpty()){
+    env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
+    //logDebug() << qPrintable("LDSEARCHDIRS: " + Preferences::ldgliteSearchDirs);
+  }
 
   ldglite.setEnvironment(env);
   ldglite.setWorkingDirectory(QDir::currentPath());
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout");
+
+  //qDebug() << qPrintable("LDGLite PLI Arguments: " + Preferences::ldgliteExe + " " + arguments.join(" ")) << "\n";
+
   ldglite.start(Preferences::ldgliteExe,arguments);
   if (! ldglite.waitForFinished()) {
     if (ldglite.exitCode()) {
@@ -787,6 +810,9 @@ int LDView::renderCsi(
 
   arguments << CA;
   arguments << cg;
+#ifndef Q_OS_WIN
+  arguments << QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
+#endif
   arguments << "-SaveAlpha=1";
   arguments << "-AutoCrop=1";
   arguments << "-ShowHighlightLines=1";
@@ -815,8 +841,10 @@ int LDView::renderCsi(
   QProcess    ldview;
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath()+"/"+Paths::tmpDir);
-  ldview.start(Preferences::ldviewExe,arguments);
 
+  //qDebug() << qPrintable("LDView (Native) CSI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+
+  ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished(rendererTimeout())) {
     if (ldview.exitCode() != 0 || 1) {
       QByteArray status = ldview.readAll();
@@ -865,6 +893,9 @@ int LDView::renderPli(
   QStringList arguments;
   arguments << CA;
   arguments << cg;
+#ifndef Q_OS_WIN
+  arguments << QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
+#endif
   arguments << "-SaveAlpha=1";
   arguments << "-AutoCrop=1";
   arguments << "-ShowHighlightLines=1";
@@ -888,12 +919,14 @@ int LDView::renderPli(
   }
   arguments << ldrName;
 
-  //qDebug() << "LDView (Native) PLI Arguments: " << arguments;
   emit gui->messageSig(true, "Execute command: LDView render PLI.");
 
   QProcess    ldview;
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath());
+
+  //qDebug() << qPrintable("LDView (Native) PLI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished()) {
     if (ldview.exitCode() != 0) {
@@ -931,6 +964,9 @@ int Render::renderLDViewSCallCsi(
   QStringList arguments;
   arguments << CA;
   arguments << cg;
+#ifndef Q_OS_WIN
+  arguments << QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
+#endif
   arguments << "-SaveAlpha=1";
   arguments << "-AutoCrop=1";
   arguments << "-ShowHighlightLines=1";
@@ -959,6 +995,9 @@ int Render::renderLDViewSCallCsi(
   QProcess    ldview;
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath()+"/"+Paths::tmpDir);
+
+  //qDebug() << qPrintable("LDView (Single Call) CSI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+
   ldview.start(Preferences::ldviewExe,arguments);  
   if ( ! ldview.waitForFinished(rendererTimeout())) {
     if (ldview.exitCode() != 0 || 1) {
@@ -1021,6 +1060,9 @@ int Render::renderLDViewSCallPli(
   QStringList arguments;
   arguments << CA;
   arguments << cg;
+#ifndef Q_OS_WIN
+  arguments << QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
+#endif
   arguments << "-SaveAlpha=1";
   arguments << "-AutoCrop=1";
   arguments << "-ShowHighlightLines=1";
@@ -1044,12 +1086,14 @@ int Render::renderLDViewSCallPli(
   }
   arguments = arguments + ldrNames;
 
-//  qDebug() << "LDView PLI Arguments: " << arguments;
   emit gui->messageSig(true, "Execute command: LDView render single call PLI.");
 
   QProcess    ldview;
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath());
+
+  //qDebug() << qPrintable("LDView (Single Call) PLI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+
   ldview.start(Preferences::ldviewExe,arguments);  
   if ( ! ldview.waitForFinished(rendererTimeout())) {
       if (ldview.exitCode() != 0) {
@@ -1162,7 +1206,7 @@ int Render::render3DCsi(
 
                         if (! alreadyInserted){
                             alreadyInserted = false;
-                            csiSubModels << type;
+                            csiSubModels << type.toLower();
                           }
                       }
                   }
