@@ -1336,7 +1336,7 @@ Gui::Gui()
     emit Application::instance()->splashMsgSig("50% - Mainwindow initializing...");
 
     createActions();
-    createMenus();
+    createEditorMenus();
     createToolBars();
 //    createStatusBar();
 
@@ -1468,6 +1468,8 @@ bool Gui::InitializeViewer(int argc, char *argv[], const char* LibraryInstallPat
       gMainWindow->SetColorIndex(lcGetColorIndex(4));
       gMainWindow->UpdateRecentFiles();
 
+      create3DViewerMenus();
+      createHelpMenu();
       createStatusBar();
       createDockWindows();
       toggleLCStatusBar();
@@ -2055,7 +2057,7 @@ void Gui::createActions()
 
     // Help
 
-    aboutAct = new QAction(QIcon(":/resources/LPub32.png"),tr("&About"), this);
+    aboutAct = new QAction(QIcon(":/resources/LPub32.png"),tr("&About %1...").arg(VER_PRODUCTNAME_STR), this);
     aboutAct->setStatusTip(tr("Show the application's About box"));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(aboutDialog()));
 
@@ -2227,7 +2229,7 @@ void Gui::disableActions2()
     addTextAct->setEnabled(false);
 }
 
-void Gui::createMenus()
+void Gui::createEditorMenus()
 {
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(openAct);
@@ -2271,6 +2273,11 @@ void Gui::createMenus()
     editMenu->addAction(addBomAct);
     editMenu->addAction(removeLPubFormattingAct);
 
+    editMenu->addSeparator();
+
+    QMenu* ToolBarMenu = editMenu->addMenu(tr("Editor T&oolbar"));
+    ToolBarMenu->addAction(editWindow->editToolBar->toggleViewAction());
+
     viewMenu = menuBar()->addMenu(tr("&View"));
     viewMenu->addAction(fitWidthAct);
     viewMenu->addAction(fitVisibleAct);
@@ -2308,9 +2315,7 @@ void Gui::createMenus()
     configMenu->addAction(multiStepSetupAct);
     configMenu->addAction(projectSetupAct);
     configMenu->addAction(fadeStepSetupAct);
-
     configMenu->addSeparator();
-
     editorMenu = configMenu->addMenu("Edit Parameter Files...");
     editorMenu->setIcon(QIcon(":/resources/editparameterfiles.png"));
     editorMenu->addAction(editFadeColourPartsAct);
@@ -2320,28 +2325,76 @@ void Gui::createMenus()
     editorMenu->addAction(editExcludedPartsAct);
     if (Preferences::ldrawiniFound) {
       editorMenu->addAction(editLdrawIniFileAct);}
-
     configMenu->addAction(generateFadeColourPartsAct);
-
     configMenu->addSeparator();
-
     configMenu->addAction(preferencesAct);
+}
 
-    helpMenu = menuBar()->addMenu(tr("&Help"));
+void Gui::create3DViewerMenus(){
 
-    helpMenu->addAction(aboutAct);
+  QMenu* CameraMenu = new QMenu(tr("C&ameras"), this);
+  CameraMenu->addAction(gMainWindow->mActions[LC_VIEW_CAMERA_NONE]);
+  for (int actionIdx = LC_VIEW_CAMERA_FIRST; actionIdx <= LC_VIEW_CAMERA_LAST; actionIdx++)
+    CameraMenu->addAction(gMainWindow->mActions[actionIdx]);
+  CameraMenu->addSeparator();
+  CameraMenu->addAction(gMainWindow->mActions[LC_VIEW_CAMERA_RESET]);
 
-    // Begin Jaco's code
+  QMenu* ViewMenu = menuBar()->addMenu(tr("&3DViewer"));
+  ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_PREFERENCES]);
+  ViewMenu->addSeparator();
+  ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
+  ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
 
-    helpMenu->addAction(onlineManualAct);
+  QMenu* ViewpointsMenu = ViewMenu->addMenu(tr("&Viewpoints"));
+  ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]);
+  ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK]);
+  ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_LEFT]);
+  ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_RIGHT]);
+  ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]);
+  ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]);
+  ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]);
+  ViewMenu->addMenu(CameraMenu);
 
-    // End Jaco's code
+  QMenu* PerspectiveMenu = ViewMenu->addMenu(tr("Projection"));
+  PerspectiveMenu->addAction(gMainWindow->mActions[LC_VIEW_PROJECTION_PERSPECTIVE]);
+  PerspectiveMenu->addAction(gMainWindow->mActions[LC_VIEW_PROJECTION_ORTHO]);
+  ViewMenu->addSeparator();
+  ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_SPLIT_HORIZONTAL]);
+  ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_SPLIT_VERTICAL]);
+  ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_REMOVE_VIEW]);
+  ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_RESET_VIEWS]);
+  ViewMenu->addSeparator();
 
-    helpMenu->addAction(metaAct);
+  QMenu* ToolBarMenu = ViewMenu->addMenu(tr("T&oolbar"));
+  ToolBarMenu->addAction(gMainWindow->mToolsToolBar->toggleViewAction());
 
+  QMenu* FileMenuShort = menuBar()->addMenu(tr("&Step"));
+  FileMenuShort->addAction(gMainWindow->mActions[LC_FILE_SAVEAS]);
+  FileMenuShort->addAction(gMainWindow->mActions[LC_FILE_SAVE_IMAGE]);
+
+  QMenu* ExportMenuShort = FileMenuShort->addMenu(tr("&Export Step As..."));
+  ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_3DS]);
+  ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_BRICKLINK]);
+  ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_CSV]);
+  ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_HTML]);
+  ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_POVRAY]);
+  ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]);
+}
+
+void Gui::createHelpMenu(){
+  helpMenu = menuBar()->addMenu(tr("&Help"));
 #if !DISABLE_UPDATE_CHECK
-    helpMenu->addAction(updateApp);
+  helpMenu->addAction(updateApp);
 #endif
+  // Begin Jaco's code
+  helpMenu->addAction(onlineManualAct);
+  // End Jaco's code
+  helpMenu->addAction(metaAct);
+  helpMenu->addSeparator();
+  // About Editor
+  helpMenu->addAction(aboutAct);
+  // About 3D Viewer
+  helpMenu->addAction(gMainWindow->mActions[LC_HELP_ABOUT]);
 }
 
 void Gui::createToolBars()

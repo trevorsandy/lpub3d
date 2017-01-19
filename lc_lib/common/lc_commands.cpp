@@ -1309,7 +1309,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	// LC_HELP_ABOUT
 	{
 		"Help.About",
-		QT_TRANSLATE_NOOP("Menu", "&About..."),
+		QT_TRANSLATE_NOOP("Menu", "&About LeoCAD..."),
 		QT_TRANSLATE_NOOP("Status", "Display program version number and system information"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	}

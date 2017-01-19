@@ -200,6 +200,7 @@
         <file alias="file_print_preview.png">../lc_lib/resources/file_print_preview.png</file>
         <file alias="file_save.png">../lc_lib/resources/file_save.png</file>
         <file alias="help_email.png">../lc_lib/resources/help_email.png</file>
+        <file alias="leocad32.png">../lc_lib/resources/leocad32.png</file>
         <file alias="help_homepage.png">../lc_lib/resources/help_homepage.png</file>
         <file alias="icon64.png">../lc_lib/resources/icon64.png</file>
         <file alias="leocad.icns">../lc_lib/resources/leocad.icns</file>

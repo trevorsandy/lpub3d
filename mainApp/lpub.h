@@ -1007,7 +1007,9 @@ private:
   /* Initialization stuff */
 
   void createActions();
-  void createMenus();
+  void createEditorMenus();
+  void create3DViewerMenus();
+  void createHelpMenu();
   void createToolBars();
   void createStatusBar();
   void createDockWindows();

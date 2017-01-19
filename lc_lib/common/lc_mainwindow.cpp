@@ -54,9 +54,6 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
 
   gMainWindow = this;
 
-  resize(QDesktopWidget().availableGeometry(this).size()*0.6);
-  //resize(QSize(400, 300));
-
 }
 
 lcMainWindow::~lcMainWindow()
@@ -122,7 +119,7 @@ void lcMainWindow::CreateWidgets()
   mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setDisabled(true);
   mActions[LC_EDIT_ACTION_ZOOM_REGION]->setDisabled(true);
 
-  resize(QSize(400, 300));
+  resize(QDesktopWidget().availableGeometry(this).size()*0.6);
 }
 
 void lcMainWindow::CreateActions()
@@ -259,7 +256,7 @@ void lcMainWindow::CreateActions()
   mActions[LC_VIEW_TIME_ADD_KEYS]->setIcon(QIcon(":/resources/time_add_keys.png"));
   mActions[LC_HELP_HOMEPAGE]->setIcon(QIcon(":/resources/help_homepage.png"));
   mActions[LC_HELP_EMAIL]->setIcon(QIcon(":/resources/help_email.png"));
-
+  mActions[LC_HELP_ABOUT]->setIcon(QIcon(":/resources/leocad32.png"));
   mActions[LC_EDIT_LOCK_X]->setCheckable(true);
   mActions[LC_EDIT_LOCK_Y]->setCheckable(true);
   mActions[LC_EDIT_LOCK_Z]->setCheckable(true);
@@ -378,6 +375,7 @@ void lcMainWindow::CreateMenus()
   FileMenu->addAction(mActions[LC_FILE_SAVE]);
   FileMenu->addAction(mActions[LC_FILE_SAVEAS]);
   FileMenu->addAction(mActions[LC_FILE_SAVE_IMAGE]);
+
   QMenu* ExportMenu = FileMenu->addMenu(tr("&Export"));
   ExportMenu->addAction(mActions[LC_FILE_EXPORT_3DS]);
   ExportMenu->addAction(mActions[LC_FILE_EXPORT_BRICKLINK]);
@@ -420,6 +418,7 @@ void lcMainWindow::CreateMenus()
   ViewMenu->addSeparator();
   ViewMenu->addAction(mActions[LC_VIEW_ZOOM_EXTENTS]);
   ViewMenu->addAction(mActions[LC_VIEW_LOOK_AT]);
+
   QMenu* ViewpointsMenu = ViewMenu->addMenu(tr("&Viewpoints"));
   ViewpointsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_FRONT]);
   ViewpointsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_BACK]);
@@ -429,9 +428,11 @@ void lcMainWindow::CreateMenus()
   ViewpointsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_BOTTOM]);
   ViewpointsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
   ViewMenu->addMenu(CameraMenu);
+
   QMenu* PerspectiveMenu = ViewMenu->addMenu(tr("Projection"));
   PerspectiveMenu->addAction(mActions[LC_VIEW_PROJECTION_PERSPECTIVE]);
   PerspectiveMenu->addAction(mActions[LC_VIEW_PROJECTION_ORTHO]);
+
   QMenu* StepMenu = ViewMenu->addMenu(tr("Ste&p"));
   StepMenu->addAction(mActions[LC_VIEW_TIME_FIRST]);
   StepMenu->addAction(mActions[LC_VIEW_TIME_PREVIOUS]);
@@ -446,6 +447,7 @@ void lcMainWindow::CreateMenus()
   ViewMenu->addAction(mActions[LC_VIEW_REMOVE_VIEW]);
   ViewMenu->addAction(mActions[LC_VIEW_RESET_VIEWS]);
   ViewMenu->addSeparator();
+
   QMenu* ToolBarsMenu = ViewMenu->addMenu(tr("T&oolbars"));
   ToolBarsMenu->addAction(mPartsToolBar->toggleViewAction());
   ToolBarsMenu->addAction(mPropertiesToolBar->toggleViewAction());
@@ -491,26 +493,36 @@ void lcMainWindow::CreateMenus()
   HelpMenu->addSeparator();
   HelpMenu->addAction(mActions[LC_HELP_ABOUT]);
 
-  /*** management - menus ***/
-  menuBar()->removeAction(FileMenu->menuAction());
-  menuBar()->removeAction(EditMenu->menuAction());
-  menuBar()->removeAction(PieceMenu->menuAction());
-  menuBar()->removeAction(ModelMenu->menuAction());
-  ViewMenu->removeAction(StepMenu->menuAction());
-  /*** management - menu actions ***/
+  // Disable 3D Viewer menus
+  // *** management - menus *** /
   ToolBarsMenu->removeAction(mStandardToolBar->toggleViewAction());
   ToolBarsMenu->removeAction(mPartsToolBar->toggleViewAction());
   ToolBarsMenu->removeAction(mPropertiesToolBar->toggleViewAction());
   ToolBarsMenu->removeAction(mTimelineToolBar->toggleViewAction());
   ToolBarsMenu->removeAction(mTimeToolBar->toggleViewAction());
-  ViewMenu->removeAction(mActions[LC_VIEW_FULLSCREEN]);
-  HelpMenu->removeAction(mActions[LC_HELP_HOMEPAGE]);
-  HelpMenu->removeAction(mActions[LC_HELP_EMAIL]);
-#if !LC_DISABLE_UPDATE_CHECK
-  HelpMenu->removeAction(mActions[LC_HELP_UPDATES]);
-#endif
-  /*** management - end ***/
+  ToolBarsMenu->removeAction(mToolsToolBar->toggleViewAction());
 
+//  ViewMenu->removeAction(mActions[LC_VIEW_FULLSCREEN]);
+//  HelpMenu->removeAction(mActions[LC_HELP_HOMEPAGE]);
+//  HelpMenu->removeAction(mActions[LC_HELP_EMAIL]);
+//#if !LC_DISABLE_UPDATE_CHECK
+//  HelpMenu->removeAction(mActions[LC_HELP_UPDATES]);
+//#endif
+
+  FileMenu->removeAction(ExportMenu->menuAction());
+  menuBar()->removeAction(FileMenu->menuAction());
+  menuBar()->removeAction(EditMenu->menuAction());
+  menuBar()->removeAction(PieceMenu->menuAction());
+  menuBar()->removeAction(ModelMenu->menuAction());
+  menuBar()->removeAction(FileMenuShort->menuAction());
+  ViewMenu->removeAction(StepMenu->menuAction());
+  ViewMenu->removeAction(CameraMenu->menuAction());
+  ViewMenu->removeAction(ViewpointsMenu->menuAction());
+  ViewMenu->removeAction(PerspectiveMenu->menuAction());
+  menuBar()->removeAction(ViewMenu->menuAction());
+  menuBar()->removeAction(HelpMenu->menuAction());
+
+  // *** management - end *** /
 }
 
 void lcMainWindow::CreateToolBars()
@@ -813,8 +825,6 @@ void lcMainWindow::CreateStatusBar()
 
   //	  mStatusTimeLabel = new QLabel();
   //    mLCStatusBar->addPermanentWidget(mStatusTimeLabel);
-
-
 }
 
 void lcMainWindow::closeEvent(QCloseEvent *event)

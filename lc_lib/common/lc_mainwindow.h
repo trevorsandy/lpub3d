@@ -209,7 +209,8 @@ public:
 	lcSearchOptions mSearchOptions;
 	QAction* mActions[LC_NUM_COMMANDS];
 
-    QStatusBar* mLCStatusBar;
+	QStatusBar* mLCStatusBar;
+	QToolBar* mToolsToolBar;
 
 public slots:
     /*** LPub3D modification 222: - halt viewer ***/
@@ -264,7 +265,7 @@ protected:
 	QAction* mActionFileRecentSeparator;
 
 	QToolBar* mStandardToolBar;
-	QToolBar* mToolsToolBar;
+	//QToolBar* mToolsToolBar;
 	QToolBar* mTimeToolBar;
 	QDockWidget* mPartsToolBar;
 	QDockWidget* mPropertiesToolBar;
@@ -282,8 +283,9 @@ protected:
 
 	QLabel* mStatusBarLabel;
 	QLabel* mStatusSnapLabel;
-//  QLabel* mStatusPositionLabel;       //remarked at LPub3D Rev 244 build 05
+//      QLabel* mStatusPositionLabel;       //remarked at LPub3D Rev 244 build 05
 //	QLabel* mStatusTimeLabel;
+
 };
 
 extern class lcMainWindow* gMainWindow;

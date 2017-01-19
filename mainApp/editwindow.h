@@ -55,6 +55,7 @@ class EditWindow : public QMainWindow
 
 public:
     explicit EditWindow(QMainWindow *parent = 0);
+    QToolBar *editToolBar;
 
 protected:
 
@@ -68,7 +69,6 @@ private:
     QString       fileName;    // of file currently being displayed
 
     QMenu    *editMenu;
-    QToolBar *editToolBar;
     QAction  *cutAct;
     QAction  *copyAct;
     QAction  *pasteAct;
