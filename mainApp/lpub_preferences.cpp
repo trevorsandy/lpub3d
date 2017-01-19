@@ -299,12 +299,14 @@ void Preferences::lpubPreferences()
     qDebug() << qPrintable(QString("Starting Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
 
 #ifdef Q_OS_MAC
+
     if (cwd.dirName() == "MacOS") {
         cwd.cdUp(); //Contents
         cwd.cdUp(); //LPub3D.app
         cwd.cdUp(); //<Root of install path>
     }
     lpub3dMacResourcePath = QString("%1/LPub3D.app/Contents/Resources").arg(cwd.absolutePath());
+
     qDebug() << qPrintable(QString("Ending Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
 #endif
 

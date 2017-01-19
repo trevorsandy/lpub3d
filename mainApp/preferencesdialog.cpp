@@ -746,6 +746,54 @@ void PreferencesDialog::checkForUpdates () {
 
 void PreferencesDialog::accept(){
   bool missingParms = false;
+  QFileInfo fileInfo;
+
+  bool l3pExists = false;
+  if (!ui.l3pPath->text().isEmpty() && (ui.l3pPath->text() != Preferences::l3pExe)) {
+      fileInfo.setFile(ui.l3pPath->text());
+      l3pExists = fileInfo.exists();
+      if (!l3pExists)
+          emit gui->messageSig(false,QString("L3P path entered is not valid: %1").arg(ui.l3pPath->text()));
+  }
+  bool povRayExists = false;
+  if (!ui.povrayPath->text().isEmpty() && (ui.povrayPath->text() != Preferences::povrayExe)){
+      fileInfo.setFile(ui.povrayPath->text());
+      povRayExists &= fileInfo.exists();
+      if (!povRayExists)
+          emit gui->messageSig(false,QString("POV-Ray path entered is not valid: %1").arg(ui.povrayPath->text()));
+  }
+  if (l3pExists && povRayExists) {
+      Preferences::l3pExe    = ui.l3pPath->text();
+      Preferences::povrayExe = ui.povrayPath->text();
+      ui.preferredRenderer->addItem("POV-Ray");
+  }
+  if (!ui.ldglitePath->text().isEmpty() && (ui.ldglitePath->text() != Preferences::ldgliteExe)) {
+      fileInfo.setFile(ui.ldglitePath->text());
+      bool ldgliteExists = fileInfo.exists();
+      if (ldgliteExists) {
+          Preferences::ldgliteExe = ui.ldglitePath->text();
+          ui.preferredRenderer->addItem("LDGLite");
+      } else {
+          emit gui->messageSig(false,QString("LDGLite path entered is not valid: %1").arg(ui.ldglitePath->text()));
+      }
+  }
+  if (!ui.ldviewPath->text().isEmpty() && (ui.ldviewPath->text() != Preferences::ldviewExe)) {
+      QString ldviewPath = ui.ldviewPath->text();
+#ifndef Q_OS_LINUX
+      fileInfo.setFile(ldviewPath);
+#else
+      // force use command line-only "ldview" (not "LDView") if not using Windows
+      QFileInfo info(ldviewPath);
+      fileInfo.setFile(QString("%1/%2").arg(info.absolutePath()).arg(info.fileName.toLower()));
+#endif
+      bool ldviewExists = fileInfo.exists();
+      if (ldviewExists) {
+          Preferences::ldviewExe = ldviewPath;
+          ui.preferredRenderer->addItem("LDView");
+      } else {
+          emit gui->messageSig(false,QString("LDView path entered is not valid: %1").arg(ui.ldviewPath->text()));
+      }
+  }
     if(ui.preferredRenderer->count() == 0 || ui.ldrawPath->text().isEmpty()){
         missingParms = true;
         if (ui.preferredRenderer->count() == 0){
@@ -753,6 +801,7 @@ void PreferencesDialog::accept(){
             ui.ldviewPath->setPlaceholderText("At lease one renderer must be defined");
             ui.povrayPath->setPlaceholderText("At lease one renderer must be defined");
             ui.l3pPath->setPlaceholderText("Reqired if POV-Ray defined");
+            ui.ldrawPath->setPlaceholderText("LDRaw path must be defined");
         }
       }
     if (ui.includesGrpBox->isChecked() &&
