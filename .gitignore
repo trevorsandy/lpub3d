@@ -1,9 +1,51 @@
-/lpub.pro.user
-/lpub410.pro.user
-/lpubv.pro
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Ldraw Libraries
+builds/ldrawlibraries/*
+
+# Signing certs
+builds/cert/*
+
+# Sourceforge.net source
+builds/source/*
+
+# Runtime stuff
+builds/runtime/*
+
+# Windows setup archives
+builds/windows/setup/archives/*
+
+# Dynamic files
 mainApp/build.h
-mainApp/images/Thumbs.db
-mainApp/partslist.cpp
-mainApp/partslist.h
 qsimpleupdater/res/Thumbs.db
-/tools
+mainApp/images/Thumbs.db
+*.user
+tools/*
