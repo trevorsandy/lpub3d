@@ -47,6 +47,7 @@ QString Preferences::ldrawPath                  = "";
 QString Preferences::lpub3dLibFile              = "";
 QString Preferences::lgeoPath;
 QString Preferences::lpub3dPath                 = ".";
+QString Preferences::lpub3dMacResourcePath      = ".";
 QString Preferences::lpubDataPath               = ".";
 QString Preferences::lpubExtrasPath             = ".";
 QString Preferences::ldgliteExe;
@@ -295,11 +296,17 @@ void Preferences::lpubPreferences()
 {    
     QDir cwd(QDir::currentPath());
 
+    qDebug() << qPrintable(QString("Starting Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
+
+#ifdef Q_OS_MAC
     if (cwd.dirName() == "MacOS") {
-        cwd.cdUp(); //MacOS
         cwd.cdUp(); //Contents
         cwd.cdUp(); //LPub3D.app
+        cwd.cdUp(); //<Root of install path>
     }
+    lpub3dMacResourcePath = QString("%1/LPub3D.app/Contents/Resources").arg(cwd.absolutePath());
+    qDebug() << qPrintable(QString("Ending Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
+#endif
 
     lpub3dPath = cwd.absolutePath();
 
@@ -386,7 +393,14 @@ void Preferences::lpubPreferences()
     if(!QDir(extrasDir).exists())
         extrasDir.mkpath(".");
 
-    QString location = QString("%1").arg((portableDistribution ? "/extras/" : "/data/"));
+    QString location;
+#ifdef Q_OS_WIN
+    location = QString("%1").arg((portableDistribution ? "/extras/" : "/data/"));
+#elif defined Q_OS_MAC
+    location = QString("%1/").arg(lpub3dMacResourcePath);
+#else
+    //TODO Linxu Path
+#endif
 
     QFileInfo paramFile;
     paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_FADESTEP_COLORPARTS_FILE));
@@ -479,7 +493,14 @@ void Preferences::lpub3dLibPreferences(bool force)
         QAbstractButton* downloadButton = box.addButton(QMessageBox::tr("Download"),QMessageBox::YesRole);
         QAbstractButton* selectButton   = box.addButton(QMessageBox::tr("Select"),QMessageBox::YesRole);
 
-        QString location = portableDistribution ? "/libraries/" : "/data/";
+        QString location;
+    #ifdef Q_OS_WIN
+        location = QString("%1").arg((portableDistribution ? "/extras/" : "/data/"));
+    #elif defined Q_OS_MAC
+        location = QString("%1/").arg(lpub3dMacResourcePath);
+    #else
+        // TODO Linux path
+    #endif
         validFile.setFile(lpub3dPath + location + VER_LDRAW_OFFICIAL_ARCHIVE);
         bool archivesExist = validFile.exists();
 
@@ -678,12 +699,23 @@ void Preferences::ldrawPreferences(bool force)
     }
 
     if (ldrawPath.isEmpty() && ! force) {
-
+#ifdef Q_OS_WIN
         ldrawPath = "c:\\LDraw";
+#elif defined Q_OS_MAC
+        ldrawPath = "~/Library/Ldraw";
+#else
+        //TODO Linux Path
+#endif
         QDir guesses;
         guesses.setPath(ldrawPath);
         if ( ! guesses.exists()) {
+#ifdef Q_OS_WIN
             ldrawPath = "c:\\Program Files (x86)\\LDraw";
+#elif defined Q_OS_MAC
+            //TODO MAC PATH
+#else
+            //Linux Path
+#endif
             guesses.setPath(ldrawPath);
             if ( ! guesses.exists()) {
 
@@ -698,7 +730,8 @@ void Preferences::ldrawPreferences(bool force)
 
     if (! ldrawPath.isEmpty() && force){
 #ifdef Q_OS_MAC
-   Application::instance()->splash->hide();
+        if (Application::instance()->splash->isVisible())
+            Application::instance()->splash->hide();
 #endif
         QString result = QFileDialog::getExistingDirectory(NULL,
                                                            QFileDialog::tr("Select LDraw Directory"),
@@ -706,7 +739,8 @@ void Preferences::ldrawPreferences(bool force)
                                                            QFileDialog::ShowDirsOnly |
                                                            QFileDialog::DontResolveSymlinks);
 #ifdef Q_OS_MAC
-    Application::instance()->splash->show();
+        if (Application::instance()->splash->isHidden())
+            Application::instance()->splash->show();
 #endif
         if (! result.isEmpty())
             ldrawPath = QDir::toNativeSeparators(result);
@@ -785,10 +819,13 @@ void Preferences::renderPreferences()
 #ifdef Q_OS_WIN
     QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/ldglite1.3.1_2g2x_Win/ldglite.exe"));
     QFileInfo l3pInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/l3p1.4WinB/L3P.EXE"));
+#elif defined Q_OS_MAC
+    QFileInfo ldgliteInfo(QString("%1").arg("/Applications/ldglite.app/Contents/MacOS/ldglite_2g2x"));
+    QFileInfo ldviewInfo(QString("%1").arg("/Applications/LDView.app/Contents/MacOS/LDView"));
+    QFileInfo l3pInfo(QString("%1").arg("/Applications/l3p"));
+    QFileInfo povrayInfo(QString("%1").arg("/Applications/Pov-Ray"));
 #else
-    //TODO
-    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/ldglite1.3.1_2g2x_Mac/ldglite.exe"));
-    QFileInfo l3pInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/l3p1.4/L3P.EXE"));
+    // TODO Linux Path
 #endif
 
     QSettings Settings;
@@ -835,6 +872,15 @@ void Preferences::renderPreferences()
             ldviewInstalled = false;
         }
     } else {
+#ifdef Q_OS_MAC
+        if (ldviewInfo.exists()) {
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,ldviewPathKey),ldviewInfo.absoluteFilePath());
+            ldviewInstalled = true;
+            ldviewExe = ldviewInfo.absoluteFilePath();
+        } else {
+            Settings.remove(QString("%1/%2").arg(SETTINGS,ldviewPathKey));
+        }
+#endif
         ldviewInstalled = false;
     }
 
@@ -856,6 +902,15 @@ void Preferences::renderPreferences()
             povRayInstalled = false;
         }
     } else {
+#ifdef Q_OS_MAC
+        if (povrayInfo.exists()) {
+            Settings.setValue(QString("%1/%2").arg(POVRAY,povrayPathKey),povrayInfo.absoluteFilePath());
+            povRayInstalled = true;
+            povrayExe = povrayInfo.absoluteFilePath();
+        } else {
+            Settings.remove(QString("%1/%2").arg(POVRAY,povrayPathKey));
+        }
+#endif
         povRayInstalled = false;
     }
 
@@ -904,7 +959,7 @@ void Preferences::renderPreferences()
 
     if (preferredRenderer == "") {
         if (ldviewInstalled && ldgliteInstalled) {
-            preferredRenderer = povRayInstalled? "POV-Ray" : "LDGLite";
+            preferredRenderer = povRayInstalled ? "POV-Ray" : "LDGLite";
         } else if (povRayInstalled) {
             preferredRenderer = "POV-Ray";
         } else if (ldviewInstalled) {

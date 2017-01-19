@@ -176,7 +176,7 @@ macx {
     document_icon.files += lpub3d_document.icns
     document_icon.path = Contents/Resources
 
-    document_readme.files += doc/README.txt
+    document_readme.files += docs/README.txt
     document_readme.path = Contents/Resources
 
     document_credits.files += docs/CREDITS.txt
@@ -211,6 +211,9 @@ macx {
 
     QMAKE_BUNDLE_DATA += \
         document_icon \
+        document_readme \
+        document_credits \
+        document_copying \
         excluded_parts \
         fadestep_color_parts \
         freeform_annotations \

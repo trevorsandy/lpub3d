@@ -116,6 +116,10 @@ Application::Application(int &argc, char **argv)
   QCoreApplication::setApplicationName(VER_PRODUCTNAME_STR);
   QCoreApplication::setApplicationVersion(VER_PRODUCTVERSION_STR);
 
+#ifdef Q_OS_MAC
+  QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
+#endif
+
   connect(this, SIGNAL(splashMsgSig(QString)), this, SLOT(splashMsg(QString)));
 
 }

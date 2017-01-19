@@ -2280,7 +2280,7 @@ void Gui::createMenus()
 
     toolsMenu->addSeparator();
 
-    cacheMenu = toolsMenu->addMenu("Reset Cache...");
+    cacheMenu = toolsMenu->addMenu("Reset Cache");
     cacheMenu->setIcon(QIcon(":/resources/resetcache.png"));
     toolsMenu->addAction(refreshLDrawUnoffPartsAct);
     toolsMenu->addAction(refreshLDrawOfficialPartsAct);
@@ -2301,7 +2301,7 @@ void Gui::createMenus()
     configMenu->addAction(projectSetupAct);
     configMenu->addAction(fadeStepSetupAct);
     configMenu->addSeparator();
-    editorMenu = configMenu->addMenu("Edit Parameter Files...");
+    editorMenu = configMenu->addMenu("Edit Parameter Files");
     editorMenu->setIcon(QIcon(":/resources/editparameterfiles.png"));
     editorMenu->addAction(editFadeColourPartsAct);
     editorMenu->addAction(editTitleAnnotationsAct);
@@ -2359,7 +2359,7 @@ void Gui::createMenus()
     FileMenuShort->addAction(gMainWindow->mActions[LC_FILE_SAVEAS]);
     FileMenuShort->addAction(gMainWindow->mActions[LC_FILE_SAVE_IMAGE]);
 
-    ExportMenuShort = FileMenuShort->addMenu(tr("&Export Step As..."));
+    ExportMenuShort = FileMenuShort->addMenu(tr("&Export Step As"));
     ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_3DS]);
     ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_BRICKLINK]);
     ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_CSV]);
