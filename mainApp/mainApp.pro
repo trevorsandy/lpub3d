@@ -15,14 +15,20 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
-
+INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../ldrawini
 # If quazip is alredy installed you can suppress building it again by
 # adding CONFIG+=quazipnobuild to the qmake arguments
-# You may have to update the include statements at archiveparts.h, lpub.h and lpub_preferences.cpp
+# Update the quazip header path if not installed at default location below
 quazipnobuild {
-     INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../ldrawini
+    INCLUDEPATH += /usr/include/quazip
 } else {
-     INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../ldrawini ../quazip
+    INCLUDEPATH += ../quazip
+}
+
+macx {
+    CONFIG += c++11
+} else {
+    lessThan(QT_MAJOR_VERSION, 5): CONFIG += c++11
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -44,43 +50,23 @@ win32 {
 } else {
 
     LIBS += -lz
+    # Use installed quazip library
     quazipnobuild: LIBS += -lquazip
+
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-CONFIG += c++11
-
-unix {
-    GCC_VERSION = $$system(g++ -dumpversion)
-    greaterThan(GCC_VERSION, 4.6) {
-        QMAKE_CXXFLAGS += -std=c++11
-    } else {
-        QMAKE_CXXFLAGS += -std=c++0x
-    }
- }
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-isEmpty(QMAKE_LRELEASE) {
-        win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\\lrelease.exe
-        else:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
-        unix {
-                !exists($$QMAKE_LRELEASE) { QMAKE_LRELEASE = lrelease-qt4 }
+lessThan(QT_MAJOR_VERSION, 5) {
+    unix {
+        GCC_VERSION = $$system(g++ -dumpversion)
+        greaterThan(GCC_VERSION, 4.6) {
+            QMAKE_CXXFLAGS += -std=c++11
         } else {
-                !exists($$QMAKE_LRELEASE) { QMAKE_LRELEASE = lrelease }
+            QMAKE_CXXFLAGS += -std=c++0x
         }
+     }
 }
-
-TSFILES = ../lc_lib/resources/leocad_fr.ts ../lc_lib/resources/leocad_pt.ts
-lrelease.input = TSFILES
-lrelease.output = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
-lrelease.commands = $$QMAKE_LRELEASE -silent ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
-lrelease.CONFIG += no_link target_predeps
-QMAKE_EXTRA_COMPILERS += lrelease
-
-system($$QMAKE_LRELEASE -silent $$TSFILES)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -91,16 +77,18 @@ unix:!macx {
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Note on x11 platforms you also pre-install install quazip ($ sudo apt-get install libquazip-dev)
+# If quazip is already installed, set CONFIG+=quazipnobuld to use installed library
 
 CONFIG(debug, debug|release) {
-    message("~~~ LPUB3D (MAIN_APP) DEBUG build ~~~")
+    message("~~~ MAIN_APP DEBUG build ~~~")
     DESTDIR = build/debug
     LIBS += -L$$DESTDIR/../../../ldrawini/build/debug -lldrawini
     !quazipnobuild: LIBS += -L$$DESTDIR/../../../quazip/build/debug -lquazip
     macx: TARGET = $$join(TARGET,,,_debug)
     win32: TARGET = $$join(TARGET,,,d)
 } else {
-    message("~~~ LPUB3D (MAIN_APP) RELEASE build ~~~")
+    message("~~~ MAIN_APP RELEASE build ~~~")
     DESTDIR = build/release
     LIBS += -L$$DESTDIR/../../../ldrawini/build/release -lldrawini
     !quazipnobuild: LIBS += -L$$DESTDIR/../../../quazip/build/release -lquazip
@@ -109,11 +97,11 @@ CONFIG(debug, debug|release) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 static {                                     # everything below takes effect with CONFIG ''= static
+    message("~~~ MAIN_APP STATIC build ~~~") # this is for information, that the static build is done
     CONFIG+= static
     LIBS += -static
     DEFINES += STATIC
     DEFINES += QUAZIP_STATIC                 # this is so the compiler can detect quazip static
-    message("~~~ LPUB3D (MAIN_APP) STATIC build ~~~") # this is for information, that the static build is done
     macx: TARGET = $$join(TARGET,,,_static)  # this adds an _static in the end, so you can seperate static build from non static build
     win32: TARGET = $$join(TARGET,,,s)       # this adds an s in the end, so you can seperate static build from non static build
 }
@@ -136,9 +124,17 @@ unix:!macx {
             # This macro is used to properly load parameter files on initial launch
             DEFINES += X11_BINARY_BUILD
             # Linker flag setting to properly direct LPub3D to ldrawini and quazip shared libraries.
-            # This setting assumes these libraries are deposited at <exe location>/lib by the installer.
+            # This setting assumes dependent libraries are deposited at <exe location>/lib by the installer.
             QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/lib\'"
-        }
+        } else {
+            # For compiled builds on unix set C++11 standard appropriately
+	    GCC_VERSION = $$system(g++ -dumpversion)
+	    greaterThan(GCC_VERSION, 4.6) {
+		QMAKE_CXXFLAGS += -std=c++11
+	    } else {
+		QMAKE_CXXFLAGS += -std=c++0x
+	    }
+	}
 
         # These settings are used for package distributions that will require elevated rights to install
         isEmpty(INSTALL_PREFIX):INSTALL_PREFIX = /usr
@@ -471,3 +467,5 @@ DISTFILES += \
 
 #message(FINAL CONFIG:)
 #message($$CONFIG)
+
+

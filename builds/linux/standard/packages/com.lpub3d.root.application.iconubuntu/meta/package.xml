@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<Package>
+    <DisplayName>LPub3D Icons - Ubuntu </DisplayName>
+    <Description>LPub3D Application Icons - openSUSE </Description>
+    <Version>1.0.0</Version>
+    <ReleaseDate>2016-12-31</ReleaseDate>
+    <Default>true</Default>
+    <Script>installscript.js</Script>
+</Package>

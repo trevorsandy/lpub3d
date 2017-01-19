@@ -153,7 +153,7 @@ bool lcPiecesLibrary::Load(const char* LibraryPath)
 	{
 		lcMemFile ColorFile;
 
-		if (!mZipFiles[LC_ZIPFILE_OFFICIAL]->ExtractFile("ldraw/ldconfig.ldr", ColorFile) || !lcLoadColorFile(ColorFile))
+        if (!mZipFiles[LC_ZIPFILE_OFFICIAL]->ExtractFile("ldraw/LDConfig.ldr", ColorFile) || !lcLoadColorFile(ColorFile))
 			lcLoadDefaultColors();
 
 		strcpy(mLibraryPath, LibraryPath);

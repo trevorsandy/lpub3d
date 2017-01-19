@@ -311,9 +311,9 @@ void Preferences::lpubPreferences()
 #elif defined Q_OS_LINUX
 
     #ifdef X11_BINARY_BUILD
-        lpub3dResourcePath = QString("doc");                // Standard User
+        lpub3dResourcePath = QString("doc");                    // Standard User Rights Install
     #else
-        lpub3dResourcePath = QString("../share/lpub3d");    // Elevated Rights Install
+        lpub3dResourcePath = QString("../share/doc/lpub3d");    // Elevated User Rights Install
     #endif
     //qDebug() << QString("lpub3dResourcePath [RESOURCE_DIR] (%1)").arg(lpub3dResourcePath);
 #endif

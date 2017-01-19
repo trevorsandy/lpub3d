@@ -392,12 +392,12 @@ static void FreeSymbolicDirs(struct LDrawIniS * LDrawIni)
 static const char *GetDefaultLDrawSearch(void)
 {
    return "<MODELDIR>"
-   "|<HIDE><DEFPRIM><LDRAWDIR>\\P"
-   "|<DEFPART><LDRAWDIR>\\PARTS"
-   "|<LDRAWDIR>\\MODELS"
-   "|<UNOFFIC><HIDE><DEFPRIM><LDRAWDIR>\\Unofficial\\P"
-   "|<UNOFFIC><DEFPART><LDRAWDIR>\\Unofficial\\PARTS"
-   "|<UNOFFIC><HIDE><DEFPRIM><LDRAWDIR>\\Unofficial";
+   "|<HIDE><DEFPRIM><LDRAWDIR>\\p"
+   "|<DEFPART><LDRAWDIR>\\parts"
+   "|<LDRAWDIR>\\models"
+   "|<UNOFFIC><HIDE><DEFPRIM><LDRAWDIR>\\unofficial\\p"
+   "|<UNOFFIC><DEFPART><LDRAWDIR>\\unofficial\\parts"
+   "|<UNOFFIC><HIDE><DEFPRIM><LDRAWDIR>\\unofficial";
 }
 
 /* Returns 1 if OK, 0 on error */

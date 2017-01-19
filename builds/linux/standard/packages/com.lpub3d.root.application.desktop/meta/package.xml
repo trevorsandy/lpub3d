@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<Package>
+    <DisplayName>LPub3D Desktop File</DisplayName>
+    <Description>Desktop initialization file.</Description>
+    <Version>1.0.0</Version>
+    <ReleaseDate>2016-12-31</ReleaseDate>
+    <Default>true</Default>
+    <Script>installscript.js</Script>
+</Package>

@@ -1,0 +1,297 @@
+
+//_____________ BUILD REDHAT/SUSE RPM PACKAGE________________//
+// Create working directories manually
+// enter directory
+$ cd ~/
+// create tree [one-time only]
+$ rpmdev-setuptree 
+// copy spec ot SPECS/
+$ cp ~/rpmbuild/SOURCES/lpub3d/builds/linux/obs/lpub3d.spec ../SPECS/
+// check spec
+$ cat ../SPECS/lpub3d.spec
+
+// enter SOURCES directory
+$ cd rpmbuild/SOURCES
+// download source
+$ git clone http://trevor-laptop:7990/scm/lt/lpub3d_x11.git
+// change folder name
+$ mv lpub3d_x11 lpub3d
+// tar the source
+$ tar -czvf lpub3d.tar.gz lpub3d \
+      --exclude="lpub3d/tools" \
+      --exclude="lpub3d/builds/linux/standard" \
+      --exclude="lpub3d/builds/osx" \
+      --exclude="lpub3d/.git" \
+      --exclude="lpub3d/LPub3D.pro.user" \
+      --exclude="lpub3d/LPub3Dx11.pro.user" \
+      --exclude="lpub3d/.gitignore"
+// remove cloned repository from SOURCES/
+$ rm -rf lpub3d
+// build the RPM package (success = 'exit 0')
+$ cd ../SPECS
+$ rpmbuild -v -bb lpub3d.spec
+
+
+//_____________ BUILD UBUNTU/DEBIAN 'DEB' PACKAGE________________//
+// LPub3D requires Qt5 to build successfully so you must have this version of Qt or higher installed and configured in QtChooser. 
+// I used Qt 5.5.1. On Ubuntu, if Qt5 is not already bundled in your environment, you can install using $ sudo apt-get install qtbase5-dev
+// Enter directory
+$ cd ~/debbuild
+// download source
+$ mkdir upstream
+$ cd upstream
+// download source
+$ git clone http://trevor-laptop:7990/scm/lt/lpub3d_x11.git
+// create working tar
+$ tar -czvf lpub3d-release.tar.gz lpub3d \
+      --exclude="lpub3d/tools" \
+      --exclude="lpub3d/builds/linux/standard" \
+      --exclude="lpub3d/builds/osx" \
+      --exclude="lpub3d/.git" \
+      --exclude="lpub3d/LPub3D.pro.user" \
+      --exclude="lpub3d/LPub3Dx11.pro.user" \
+      --exclude="lpub3d/.gitignore
+// change directory
+$ cd ../
+// create package: Name, Version, Path to tarball
+$ bzr dh-make lpub3d 2.0.20 upstream/lpub3d-release.tar.gz
+// delete unneeded debian example files
+$ cd lpub3d/debian
+$ rm *ex *EX
+// edit/copy debian build files as necessary
+$ cp -rf ~/projects/lpub3d_x11/builds/linux/obs/debian/* .
+// add format to package source
+$ bzr add source/format
+// test build the package
+$ bzr builddeb -- -us -uc
+// review lintian report
+...see output
+// rebuild packaging [if needed] - using 'nc' no clean
+$ bzr builddeb -- -nc -us -uc
+// view contents
+$ cd ../../
+$ lesspipe lpub3d_2.0.20-0ubuntu1_amd64.deb
+// install the package
+$ sudo dpkg --install lpub3d_2.0.20-0ubuntu1_amd64.deb
+// If you get the response 
+//	dpkg: error processing archive lpub3d_2.0.20-0ubuntu1_amd64.deb (--install):
+//	 trying to overwrite '<file>', which is also in package <package>
+//	dpkg-deb: error: subprocess paste was killed by signal (Broken pipe)
+// run the command:
+$ sudo dpkg -i --force-overwrite lpub3d_2.0.20-0ubuntu1_amd64.deb
+// check all is well by running:
+$ sudo apt-get -f install
+// lauch LPub3D
+$ lpub3d
+// uninstall
+$ apt-get remove lpub3d
+
+//_____________ BUILD UBUNTU/DEBIAN 'DEB' PACKAGE - backup________________//
+// LPub3D requires Qt5 to build successfully so you must have this version of Qt or higher installed and configured in QtChooser. 
+// I used Qt 5.5.1. On Ubuntu, if Qt5 is not already bundled in your environment, you can install using $ sudo apt-get install qtbase5-dev
+// Enter directory
+$ cd ~/Builds
+// download source
+$ git clone http://trevor-laptop:7990/scm/lt/lpub3d_x11.git
+// add LDraw archive libraries
+$ cd lpub3d_x11/mainApp/extras
+$ wget http://www.ldraw.org/library/updates/complete.zip
+$ wget http://www.ldraw.org/library/unofficial/ldrawunf.zip
+$ ls
+$ mv ldrawunf.zip lpub3dldrawunf.zip
+$ cd ../../tools/setup
+// run qmake (to configure), manually for each package
+$ ./genmakefiles.sh
+$ cd ../../
+// Tar the source
+$ mkdir upstream
+$ tar -czvf upstream/lpub3d-2.0.20.tar.gz lpub3d_x11 \
+      --exclude "lpub3d_x11/tools" \
+      --exclude "lpub3d_x11/mainApp/extras/complete.zip" \
+      --exclude "lpub3d_x11/mainApp/extras/lpub3dldrawunf.zip" \
+      --exclude "lpub3d_x11/builds/linux/standard" \
+      --exclude "lpub3d_x11/builds/osx" \
+      --exclude "lpub3d_x11/.git" \
+      --exclude "lpub3d_x11/LPub3D.pro.user" \
+      --exclude "lpub3d_x11/LPub3Dx11.pro.user" \
+      --exclude "lpub3d_x11/.gitignore"
+// create package: Name, Version, Path to tarball
+$ bzr dh-make lpub3d 2.0.20 upstream/lpub3d-2.0.20.tar.gz
+// delete unneeded debian example files
+$ cd lpub3d/debian
+$ rm *ex *EX
+// edit debian build files as necessary
+...see examples
+// add format to package source
+$ bzr add source/format
+// test build the package
+$ bzr builddeb -- -us -uc
+// review lintian report
+...see output
+// rebuild packaging [if needed] - using 'nc' no clean
+$ bzr builddeb -- -nc -us -uc
+// view contents
+$ cd ../../
+$ lesspipe lpub3d_2.0.20-0ubuntu1_amd64.deb
+// install the package
+$ sudo dpkg --install lpub3d_2.0.20-0ubuntu1_amd64.deb
+// If you get the response 
+//	dpkg: error processing archive lpub3d_2.0.20-0ubuntu1_amd64.deb (--install):
+//	 trying to overwrite '<file>', which is also in package <package>
+//	dpkg-deb: error: subprocess paste was killed by signal (Broken pipe)
+// run the command:
+$ sudo dpkg -i --force-overwrite lpub3d_2.0.20-0ubuntu1_amd64.deb
+// check all is well by running:
+$ sudo apt-get -f install
+// lauch LPub3D
+$ lpub3d
+// uninstall
+$ apt-get remove lpub3d
+
+//_____________ VIEW DEB FILE CONTENTS________________//
+$ lesspipe lpub3d_2.0.20-0ubuntu1_amd64.deb
+lpub3d_2.0.20-0ubuntu1_amd64.deb:
+ new debian package, version 2.0.
+ size 43144808 bytes: control archive=2311 bytes.
+    1365 bytes,    22 lines      control              
+    2693 bytes,    40 lines      md5sums              
+      40 bytes,     2 lines      shlibs               
+      60 bytes,     2 lines      triggers             
+ Package: lpub3d
+ Version: 2.0.20-0ubuntu1
+ Architecture: amd64
+ Maintainer: Trevor SANDY <trevor.sandy@gmail.com>
+ Installed-Size: 48346
+ Depends: libc6 (>= 2.14), libgcc1 (>= 1:3.0), libgl1-mesa-glx | libgl1, libqt5core5a (>= 5.5.0), libqt5gui5 (>= 5.3.0) | libqt5gui5-gles (>= 5.3.0), libqt5network5 (>= 5.0.2), libqt5opengl5 (>= 5.0.2) | libqt5opengl5-gles (>= 5.0.2), libqt5printsupport5 (>= 5.0.2), libqt5widgets5 (>= 5.2.0), libstdc++6 (>= 5.2), zlib1g (>= 1:1.1.4)
+ Section: graphics
+ Priority: optional
+ Homepage: http://lpub3d.sourceforge.net/
+ Description: LDraw™ editor for LEGO® style digital building instructions.
+  LPub3D is an Open Source WYSIWYG editing application for creating
+  LEGO® style digital building instructions. LPub3D is developed and
+  maintained by Trevor SANDY. It uses the LDraw parts library, the
+  most comprehensive library of digital Open Source LEGO® bricks
+  available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model
+  file formats. LPub3D is available for free under the GNU Public License v3
+  and works on Windows, Linux and OSX Operating Systems.
+  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
+  LeoCAD© 2015 Leonardo Zide.and additional third party components.
+  LEGO® is a trademark of the LEGO Group of companies which does not
+  sponsor, authorize or endorse this application.
+  © 2015-2017 Trevor SANDY
+
+*** Contents:
+drwxr-xr-x root/root         0 2017-01-14 06:48 ./
+drwxr-xr-x root/root         0 2017-01-14 06:45 ./usr/
+drwxr-xr-x root/root         0 2017-01-14 06:45 ./usr/share/
+drwxr-xr-x root/root         0 2017-01-14 06:45 ./usr/share/applications/
+-rw-r--r-- root/root       627 2017-01-14 06:39 ./usr/share/applications/lpub3d.desktop
+drwxr-xr-x root/root         0 2017-01-14 06:48 ./usr/share/lpub3d/
+-rwxr-xr-x root/root      1648 2017-01-14 02:56 ./usr/share/lpub3d/excludedParts.lst
+-rw-r--r-- root/root   5799903 2017-01-14 06:45 ./usr/share/lpub3d/lpub3dldrawunf.zip
+-rwxr-xr-x root/root    584275 2017-01-14 02:56 ./usr/share/lpub3d/fadeStepColorParts.lst
+-rwxr-xr-x root/root      7329 2017-01-14 02:56 ./usr/share/lpub3d/titleAnnotations.lst
+-rwxr-xr-x root/root     26271 2017-01-14 02:56 ./usr/share/lpub3d/pli.mpd
+-rw-r--r-- root/root  35576412 2017-01-14 06:48 ./usr/share/lpub3d/complete.zip
+-rwxr-xr-x root/root       989 2017-01-14 02:56 ./usr/share/lpub3d/pliSubstituteParts.lst
+-rwxr-xr-x root/root      1168 2017-01-14 02:56 ./usr/share/lpub3d/freeformAnnotations.lst
+drwxr-xr-x root/root         0 2017-01-14 06:48 ./usr/share/pixmaps/
+-rw-r--r-- root/root      5153 2017-01-14 06:48 ./usr/share/pixmaps/lpub3d.png
+drwxr-xr-x root/root         0 2017-01-14 06:45 ./usr/share/mime/
+drwxr-xr-x root/root         0 2017-01-14 06:45 ./usr/share/mime/packages/
+-rw-r--r-- root/root       757 2017-01-14 02:56 ./usr/share/mime/packages/lpub3d.xml
+drwxr-xr-x root/root         0 2017-01-14 06:45 ./usr/share/doc/
+drwxr-xr-x root/root         0 2017-01-14 06:48 ./usr/share/doc/lpub3d/
+-rw-r--r-- root/root       140 2017-01-12 22:14 ./usr/share/doc/lpub3d/README.Debian
+-rw-r--r-- root/root       175 2017-01-12 22:14 ./usr/share/doc/lpub3d/changelog.Debian.gz
+-rw-r--r-- root/root      1104 2017-01-14 02:56 ./usr/share/doc/lpub3d/CREDITS.txt
+-rw-r--r-- root/root      1062 2017-01-12 23:07 ./usr/share/doc/lpub3d/copyright
+-rw-r--r-- root/root     25815 2017-01-14 02:56 ./usr/share/doc/lpub3d/README.txt.gz
+-rw-r--r-- root/root     12306 2017-01-14 02:56 ./usr/share/doc/lpub3d/COPYING.txt.gz
+drwxr-xr-x root/root         0 2017-01-14 06:45 ./usr/share/man/
+drwxr-xr-x root/root         0 2017-01-14 06:48 ./usr/share/man/man1/
+-rw-r--r-- root/root      2036 2017-01-14 06:45 ./usr/share/man/man1/lpub3d.1.gz
+drwxr-xr-x root/root         0 2017-01-14 06:45 ./usr/share/icons/
+drwxr-xr-x root/root         0 2017-01-14 06:45 ./usr/share/icons/hicolor/
+drwxr-xr-x root/root         0 2017-01-14 06:45 ./usr/share/icons/hicolor/scalable/
+drwxr-xr-x root/root         0 2017-01-14 06:45 ./usr/share/icons/hicolor/scalable/mimetypes/
+-rw-r--r-- root/root    103699 2017-01-14 02:56 ./usr/share/icons/hicolor/scalable/mimetypes/lpub3d.svg
+drwxr-xr-x root/root         0 2017-01-14 06:48 ./usr/bin/
+-rwxr-xr-x root/root   6929184 2017-01-14 06:48 ./usr/bin/lpub3d
+drwxr-xr-x root/root         0 2017-01-14 06:45 ./usr/include/
+-rw-r--r-- root/root      6566 2017-01-14 02:56 ./usr/include/ldrawini.h
+drwxr-xr-x root/root         0 2017-01-14 06:45 ./usr/include/quazip/
+-rw-r--r-- root/root      8523 2017-01-14 02:56 ./usr/include/quazip/quazipdir.h
+-rw-r--r-- root/root      4943 2017-01-14 02:56 ./usr/include/quazip/crypt.h
+-rw-r--r-- root/root     20475 2017-01-14 02:56 ./usr/include/quazip/quazipfile.h
+-rw-r--r-- root/root      3522 2017-01-14 02:56 ./usr/include/quazip/quaziodevice.h
+-rw-r--r-- root/root     17685 2017-01-14 02:56 ./usr/include/quazip/unzip.h
+-rw-r--r-- root/root      8324 2017-01-14 02:56 ./usr/include/quazip/JlCompress.h
+-rw-r--r-- root/root      1797 2017-01-14 02:56 ./usr/include/quazip/quazip_global.h
+-rw-r--r-- root/root      1513 2017-01-14 02:56 ./usr/include/quazip/quaadler32.h
+-rw-r--r-- root/root      8585 2017-01-14 02:56 ./usr/include/quazip/quazipnewinfo.h
+-rw-r--r-- root/root     25878 2017-01-14 02:56 ./usr/include/quazip/quazip.h
+-rw-r--r-- root/root      2364 2017-01-14 02:56 ./usr/include/quazip/quachecksum32.h
+-rw-r--r-- root/root      3791 2017-01-14 02:56 ./usr/include/quazip/quagzipfile.h
+-rw-r--r-- root/root      6214 2017-01-14 02:56 ./usr/include/quazip/quazipfileinfo.h
+-rw-r--r-- root/root     16829 2017-01-14 02:56 ./usr/include/quazip/zip.h
+-rw-r--r-- root/root      7343 2017-01-14 02:56 ./usr/include/quazip/ioapi.h
+-rw-r--r-- root/root      1430 2017-01-14 02:56 ./usr/include/quazip/quacrc32.h
+-rw-r--r-- root/root      2083 2017-01-14 02:56 ./usr/include/ldrawinp.h
+drwxr-xr-x root/root         0 2017-01-14 06:45 ./usr/lib/
+drwxr-xr-x root/root         0 2017-01-14 06:48 ./usr/lib/x86_64-linux-gnu/
+-rw-r--r-- root/root     14392 2017-01-14 06:48 ./usr/lib/x86_64-linux-gnu/libldrawini.so.1.0.0
+-rw-r--r-- root/root    209488 2017-01-14 06:48 ./usr/lib/x86_64-linux-gnu/libquazip.so.1.0.0
+lrwxrwxrwx root/root         0 2017-01-14 06:45 ./usr/lib/x86_64-linux-gnu/libquazip.so.1 -> libquazip.so.1.0.0
+lrwxrwxrwx root/root         0 2017-01-14 06:45 ./usr/lib/x86_64-linux-gnu/libldrawini.so -> libldrawini.so.1.0.0
+lrwxrwxrwx root/root         0 2017-01-14 06:45 ./usr/lib/x86_64-linux-gnu/libquazip.so -> libquazip.so.1.0.0
+lrwxrwxrwx root/root         0 2017-01-14 06:45 ./usr/lib/x86_64-linux-gnu/libquazip.so.1.0 -> libquazip.so.1.0.0
+lrwxrwxrwx root/root         0 2017-01-14 06:45 ./usr/lib/x86_64-linux-gnu/libldrawini.so.1 -> libldrawini.so.1.0.0
+lrwxrwxrwx root/root         0 2017-01-14 06:45 ./usr/lib/x86_64-linux-gnu/libldrawini.so.1.0 -> libldrawini.so.1.0.0
+
+//_____________ BUILD FROM LOCAL SOURCE________________//
+// LPub3D requires Qt 5 to build successfully so you must have this version of Qt or higher installed and configured in QtChooser. 
+// I used Qt 5.5.1. If Qt5 is not already bundled in your environment, you can install using $ sudo apt-get install qtbase5-dev (Ubuntu) 
+// download source
+$ git clone http://trevor-laptop:7990/scm/lt/lpub3d_x11.git
+// add LDraw archive libraries
+$ cd lpub3d_x11/mainApp/extras
+$ wget http://www.ldraw.org/library/updates/complete.zip
+$ wget http://www.ldraw.org/library/unofficial/ldrawunf.zip
+$ ls
+$ mv ldrawunf.zip lpub3dldrawunf.zip
+$ cd ../../
+$ qmake -qt=qt5 CONFIG+=deb
+$ make clean
+$ cd ldrawini
+$ qmake -qt=qt5 CONFIG+=deb
+$ make clean
+$ cd ../
+$ make
+$ sudo make install
+$ lpub3d
+
+//_____________ BUILD SPECIFIC COMMIT________________//
+// Start in AltBuild directory
+$ cd AltBuld
+// Clone git master branch
+$ git clone http://trevor-laptop:7990/scm/lt/lpub3d_x11.git
+// Enter directory
+$ cd lpub3d_x11
+// Create archive from specific commit
+$ git archive --format zip --output /home/trevor/AltBuild/lpub3dx11.zip 9579d513dbb
+// Back to AltBuild directory
+$ ../
+// Unzip archive to directory of same name
+$ unzip lpub3dx11 -d lpub3dx11
+// Enter directory
+$ cd lpub3dx11
+// Delete zip archive
+$ rm -r ../lpub3dx11.zip
+
+//_____________ QT CHOOSER________________//
+$ qtchooser -run-tool=qmake -qt=qt5
+   qtchooser: could not exec '/usr/lib/x86_64-linux-gnu/qt5/bin/qmake': No such file or directory
+$ sudo apt-get install qtbase5-dev
+$ qmake -qt=qt5
+$ make clean

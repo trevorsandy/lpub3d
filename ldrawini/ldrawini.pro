@@ -48,16 +48,31 @@ include(../LPub3DPlatformSpecific.pri)
 
 unix:!symbian {
     isEmpty(PREFIX):PREFIX = /usr
-    contains(QT_ARCH, x86_64){
-        LIB_ARCH = x86_64-linux-gnu
-    } else {
-        LIB_ARCH = i386-linux-gnu
-    }
     headers.path=$$PREFIX/include
     headers.files=$$HEADERS
-    target.path=$$PREFIX/lib/$$LIB_ARCH
-    INSTALLS += headers target
-#    message("~~~ LDRAWINI LIB DEST: $$target.path ~~~")
+    deb {
+        contains(QT_ARCH, x86_64){
+            LIB_ARCH = x86_64-linux-gnu
+        } else {
+            LIB_ARCH = i386-linux-gnu
+        }
+        target.path=$$PREFIX/lib/$$LIB_ARCH
+        message("~~~ LDRAWINI DEB LIB ~~~")
+    }
+    rpm {
+        contains(QT_ARCH, x86_64){
+            target.path=$$PREFIX/lib64
+        } else {
+            target.path=$$PREFIX/lib32
+        }
+        message("~~~ LDRAWINI RPM LIB ~~~")
+    } else {
+        target.path=$$PREFIX/lib
+        message("~~~ LDRAWINI LIB ~~~")
+    }
+    INSTALLS += target
+    libheaders: INSTALLS += headers
+    libheaders: message("~~~ INSTALL LDRAWINI LIB HEADERS ~~~")
 
 }
 

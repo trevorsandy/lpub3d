@@ -61,32 +61,34 @@
 ehthumbs.db
 Thumbs.db
 
-# Ldraw Libraries
-builds/ldrawlibraries/*
-
-# Signing certs
-builds/cert/*
-
-# Sourceforge.net source
-builds/source/*
-
-# Runtime stuff
-builds/runtime/*
-
-# Windows setup archives
-builds/windows/setup/archives/*
-
 # Dynamic files
 build.h
 
 # Qt Creator generated files
 *.user
 
+# Sourceforge.net source
+builds/source/*
+
+# Signing certs
+builds/utilities/cert/*
+
+# Ldraw Libraries
+builds/utilities/ldrawlibraries/*
+
+# Models
+builds/utilities/models/*
+
+# Runtime stuff
+builds/windows/runtime/*
+
+# Windows setup archives
+builds/windows/archives/*
+
 # Tools
 tools/*
 
-# Models
-models/*
+
 
 # Patches
 patches/*

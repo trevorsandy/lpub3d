@@ -351,7 +351,7 @@ bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstal
 			                         "Please visit http://www.leocad.org for information on how to download and install a library."));
 	}
 
-	gMainWindow->CreateWidgets();
+    gMainWindow->CreateWidgets();
 
 	// Create a new project.
 	Project* NewProject = new Project();

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>LPub3D</DisplayName>
+    <Description>An LDraw Building Instruction Editor</Description>
+    <Version>2.0.20</Version>
+    <ReleaseDate>2016-12-28</ReleaseDate>
+    <Licenses>
+        <License name="GNU GENERAL PUBLIC LICENSE Version 3" file="gpl3.txt" />
+    </Licenses>
+    <Default>script</Default>
+    <Script>installscript.js</Script>
+    <UserInterfaces>
+	<UserInterface>installpathwidget.ui</UserInterface>
+    </UserInterfaces>
+    <Name>com.lpub3d.root.application</Name>
+    <ForcedInstallation>true</ForcedInstallation>
+</Package>

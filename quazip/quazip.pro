@@ -25,7 +25,7 @@ win32 {
 
     QMAKE_EXT_OBJ = .obj
     CONFIG += windows
-    CONFIG += debug_and_release	
+    CONFIG += debug_and_release
     greaterThan(QT_MAJOR_VERSION, 4): LIBS += -lz
 
 }
@@ -33,7 +33,7 @@ win32 {
 CONFIG(debug, debug|release) {
     message("~~~ QUAZIP DEBUG build ~~~")
     DESTDIR = build/debug
-    mac: TARGET = $$join(TARGET,,,_debug) 
+    mac: TARGET = $$join(TARGET,,,_debug)
     win32: TARGET = $$join(TARGET,,,d)
 } else {
     message("~~~ QUAZIP RELEASE build ~~~")
@@ -61,24 +61,41 @@ include(../LPub3DPlatformSpecific.pri)
 
 unix:!symbian {
     isEmpty(PREFIX):PREFIX = /usr
-    contains(QT_ARCH, x86_64){
-	LIB_ARCH = x86_64-linux-gnu
-    } else {
-	LIB_ARCH = i386-linux-gnu
-    }
-    headers.path=$$PREFIX/include
+    headers.path=$$PREFIX/include/quazip
     headers.files=$$HEADERS
-    target.path=$$PREFIX/lib/$$LIB_ARCH
-    INSTALLS += headers target
-#    message("~~~ QUAZIP LIB DEST: $$target.path ~~~")
-	
+    deb {
+        contains(QT_ARCH, x86_64){
+            LIB_ARCH = x86_64-linux-gnu
+        } else {
+            LIB_ARCH = i386-linux-gnu
+        }
+        target.path=$$PREFIX/lib/$$LIB_ARCH
+        message("~~~ QUAZIP DEB LIB ~~~")
+    }
+    rpm {
+        contains(QT_ARCH, x86_64){
+            target.path=$$PREFIX/lib64
+        } else {
+            target.path=$$PREFIX/lib32
+        }
+        message("~~~ QUAZIP RPM LIB ~~~")
+    } else {
+        target.path=$$PREFIX/lib
+        message("~~~ QUAZIP LIB ~~~")
+    }
+    INSTALLS += target
+    libheaders: INSTALLS += headers
+    libheaders: message("~~~ INSTALL QUAZIP LIB HEADERS ~~~")
+
 }
 
 win32 {
-    headers.path=$$PREFIX/include
+    headers.path=$$PREFIX/include/quazip
     headers.files=$$HEADERS
     target.path=$$PREFIX/lib
-    INSTALLS += headers target
+    INSTALLS += target
+    libheaders: INSTALLS += headers
+    libheaders: message("~~~ INSTALL LDRAWINI LIB HEADERS ~~~")
     # workaround for qdatetime.h macro bug
     DEFINES += NOMINMAX
 }
@@ -105,8 +122,10 @@ symbian {
     #Export headers to SDK Epoc32/include directory
     exportheaders.sources = $$HEADERS
     exportheaders.path = quazip
-    for(header, exportheaders.sources) {
-        BLD_INF_RULES.prj_exports += "$$header $$exportheaders.path/$$basename(header)"
+    libheaders {
+        for(header, exportheaders.sources) {
+            BLD_INF_RULES.prj_exports += "$$header $$exportheaders.path/$$basename(header)"
+        }
     }
 }
 

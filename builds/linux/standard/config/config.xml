@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>LPub3D</Name>
+    <Version>2.0.20</Version>
+    <Title>LPub3D Installer</Title>
+    <Publisher>LPub3D Software</Publisher>
+    <ProductUrl>http://sourceforge.net/projects/lpub3d/</ProductUrl>
+    <InstallerWindowIcon>lpub3d</InstallerWindowIcon>
+    <InstallerApplicationIcon>lpub3d</InstallerApplicationIcon>
+    <TargetDir>@HomeDir@/lpub3d</TargetDir>
+    <RunProgram>@TargetDir@/app/lpub3d</RunProgram>
+    <RunProgramDescription>Launch LPub3D</RunProgramDescription>
+    <AdminTargetDir>@RootDir@/opt/lpub3d</AdminTargetDir>
+    <MaintenanceToolName>LPub3DMaintenanceTool</MaintenanceToolName>
+    <WizardStyle>Modern</WizardStyle>
+</Installer>
