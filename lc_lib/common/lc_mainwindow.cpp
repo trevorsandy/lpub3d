@@ -22,8 +22,7 @@
 
 lcMainWindow* gMainWindow;
 
-lcMainWindow::lcMainWindow(QMainWindow *parent) :
-  QMainWindow(parent)
+lcMainWindow::lcMainWindow()
 {
   memset(mActions, 0, sizeof(mActions));
 
@@ -330,11 +329,30 @@ void lcMainWindow::CreateActions()
       RotateStepTypeGroup->addAction(mActions[ActionIdx]);
     }
 
+#ifdef Q_OS_MAC
+  mActions[LC_FILE_EXIT]->setMenuRole(QAction::NoRole);
+  mActions[LC_VIEW_PREFERENCES]->setMenuRole(QAction::NoRole);
+  mActions[LC_HELP_ABOUT]->setMenuRole(QAction::NoRole);
+#endif
+
   UpdateShortcuts();
 }
 
 void lcMainWindow::CreateMenus()
 {
+
+#ifdef Q_OS_MAC
+  menuBar()->setNativeMenuBar(false);
+
+  QMenu* FileMenu = menuBar()->addMenu(tr("&File"));
+  FileMenu->addAction(mActions[LC_FILE_NEW]);
+  mActionFileRecentSeparator = FileMenu->addSeparator();
+  FileMenu->addAction(mActions[LC_FILE_EXIT]);
+
+  menuBar()->removeAction(FileMenu->menuAction());
+#endif
+
+   /*
   QMenu* TransformMenu = new QMenu(tr("Transform"), this);
   TransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_RELATIVE_TRANSLATION]);
   TransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION]);
@@ -346,26 +364,6 @@ void lcMainWindow::CreateMenus()
   RotateStepMenu->addAction(mActions[LC_EDIT_ROTATESTEP_RELATIVE_ROTATION]);
   RotateStepMenu->addAction(mActions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION]);
   mActions[LC_EDIT_ACTION_ROTATESTEP]->setMenu(RotateStepMenu);
-
-  QMenu* CameraMenu = new QMenu(tr("C&ameras"), this);
-  CameraMenu->addAction(mActions[LC_VIEW_CAMERA_NONE]);
-
-  for (int actionIdx = LC_VIEW_CAMERA_FIRST; actionIdx <= LC_VIEW_CAMERA_LAST; actionIdx++)
-    CameraMenu->addAction(mActions[actionIdx]);
-
-  CameraMenu->addSeparator();
-  CameraMenu->addAction(mActions[LC_VIEW_CAMERA_RESET]);
-
-  QMenu* FileMenuShort = menuBar()->addMenu(tr("&Step"));
-  FileMenuShort->addAction(mActions[LC_FILE_SAVEAS]);
-  FileMenuShort->addAction(mActions[LC_FILE_SAVE_IMAGE]);
-  QMenu* ExportMenuShort = FileMenuShort->addMenu(tr("&Export"));
-  ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_3DS]);
-  ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_BRICKLINK]);
-  ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_CSV]);
-  ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_HTML]);
-  ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_POVRAY]);
-  ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_WAVEFRONT]);
 
   QMenu* FileMenu = menuBar()->addMenu(tr("&File"));
   FileMenu->addAction(mActions[LC_FILE_NEW]);
@@ -395,6 +393,18 @@ void lcMainWindow::CreateMenus()
   mActionFileRecentSeparator = FileMenu->addSeparator();
   FileMenu->addAction(mActions[LC_FILE_EXIT]);
 
+  // LPub3D Step Menu
+  QMenu* FileMenuShort = menuBar()->addMenu(tr("&Step"));
+  FileMenuShort->addAction(mActions[LC_FILE_SAVEAS]);
+  FileMenuShort->addAction(mActions[LC_FILE_SAVE_IMAGE]);
+  QMenu* ExportMenuShort = FileMenuShort->addMenu(tr("&Export"));
+  ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_3DS]);
+  ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_BRICKLINK]);
+  ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_CSV]);
+  ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_HTML]);
+  ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_POVRAY]);
+  ExportMenuShort->addAction(mActions[LC_FILE_EXPORT_WAVEFRONT]);
+
   QMenu* EditMenu = menuBar()->addMenu(tr("&Edit"));
   EditMenu->addAction(mActions[LC_EDIT_UNDO]);
   EditMenu->addAction(mActions[LC_EDIT_REDO]);
@@ -412,6 +422,15 @@ void lcMainWindow::CreateMenus()
   EditMenu->addAction(mActions[LC_EDIT_SELECT_NONE]);
   EditMenu->addAction(mActions[LC_EDIT_SELECT_INVERT]);
   EditMenu->addAction(mActions[LC_EDIT_SELECT_BY_NAME]);
+
+  QMenu* CameraMenu = new QMenu(tr("C&ameras"), this);
+  CameraMenu->addAction(mActions[LC_VIEW_CAMERA_NONE]);
+
+  for (int actionIdx = LC_VIEW_CAMERA_FIRST; actionIdx <= LC_VIEW_CAMERA_LAST; actionIdx++)
+    CameraMenu->addAction(mActions[actionIdx]);
+
+  CameraMenu->addSeparator();
+  CameraMenu->addAction(mActions[LC_VIEW_CAMERA_RESET]);
 
   QMenu* ViewMenu = menuBar()->addMenu(tr("&View"));
   ViewMenu->addAction(mActions[LC_VIEW_PREFERENCES]);
@@ -500,29 +519,23 @@ void lcMainWindow::CreateMenus()
   ToolBarsMenu->removeAction(mPropertiesToolBar->toggleViewAction());
   ToolBarsMenu->removeAction(mTimelineToolBar->toggleViewAction());
   ToolBarsMenu->removeAction(mTimeToolBar->toggleViewAction());
-  ToolBarsMenu->removeAction(mToolsToolBar->toggleViewAction());
-
-//  ViewMenu->removeAction(mActions[LC_VIEW_FULLSCREEN]);
-//  HelpMenu->removeAction(mActions[LC_HELP_HOMEPAGE]);
-//  HelpMenu->removeAction(mActions[LC_HELP_EMAIL]);
-//#if !LC_DISABLE_UPDATE_CHECK
-//  HelpMenu->removeAction(mActions[LC_HELP_UPDATES]);
-//#endif
+  ToolBarsMenu->removeAction(mToolsToolBar->toggleViewAction());        // Un-remark to use in LPub3D
 
   FileMenu->removeAction(ExportMenu->menuAction());
   menuBar()->removeAction(FileMenu->menuAction());
+  menuBar()->removeAction(FileMenuShort->menuAction());                 // Un-remark to use in LPub3D
   menuBar()->removeAction(EditMenu->menuAction());
   menuBar()->removeAction(PieceMenu->menuAction());
   menuBar()->removeAction(ModelMenu->menuAction());
-  menuBar()->removeAction(FileMenuShort->menuAction());
-  ViewMenu->removeAction(StepMenu->menuAction());
-  ViewMenu->removeAction(CameraMenu->menuAction());
-  ViewMenu->removeAction(ViewpointsMenu->menuAction());
-  ViewMenu->removeAction(PerspectiveMenu->menuAction());
-  menuBar()->removeAction(ViewMenu->menuAction());
-  menuBar()->removeAction(HelpMenu->menuAction());
 
+  ViewMenu->removeAction(StepMenu->menuAction());
+  ViewMenu->removeAction(CameraMenu->menuAction());                     // Un-remark to use in LPub3D
+  ViewMenu->removeAction(ViewpointsMenu->menuAction());                 // Un-remark to use in LPub3D
+  ViewMenu->removeAction(PerspectiveMenu->menuAction());                // Un-remark to use in LPub3D
+  menuBar()->removeAction(ViewMenu->menuAction());                      // Un-remark to use in LPub3D
+  menuBar()->removeAction(HelpMenu->menuAction());                      // Un-remark to use in LPub3D
   // *** management - end *** /
+   */
 }
 
 void lcMainWindow::CreateToolBars()
@@ -780,7 +793,24 @@ void lcMainWindow::Enable3DActions(){
   mActions[LC_EDIT_ACTION_PAN]->setEnabled(true);
   mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setEnabled(true);
   mActions[LC_EDIT_ACTION_ZOOM_REGION]->setEnabled(true);
-
+  //View
+  mActions[LC_VIEW_ZOOM_EXTENTS]->setEnabled(true);
+  mActions[LC_VIEW_LOOK_AT]->setEnabled(true);
+  mActions[LC_VIEW_SPLIT_HORIZONTAL]->setEnabled(true);
+  mActions[LC_VIEW_SPLIT_VERTICAL]->setEnabled(true);
+  mActions[LC_VIEW_REMOVE_VIEW]->setEnabled(true);
+  mActions[LC_VIEW_RESET_VIEWS]->setEnabled(true);
+  mActions[LC_VIEW_VIEWPOINT_FRONT]->setEnabled(true);
+  mActions[LC_VIEW_VIEWPOINT_BACK]->setEnabled(true);
+  mActions[LC_VIEW_VIEWPOINT_LEFT]->setEnabled(true);
+  mActions[LC_VIEW_VIEWPOINT_RIGHT]->setEnabled(true);
+  mActions[LC_VIEW_VIEWPOINT_TOP]->setEnabled(true);
+  mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setEnabled(true);
+  mActions[LC_VIEW_VIEWPOINT_HOME]->setEnabled(true);
+  mActions[LC_VIEW_CAMERA_NONE]->setEnabled(true);
+  mActions[LC_VIEW_CAMERA_RESET]->setEnabled(true);
+  mActions[LC_VIEW_PROJECTION_PERSPECTIVE]->setEnabled(true);
+  mActions[LC_VIEW_PROJECTION_ORTHO]->setEnabled(true);
 }
 
 /*** LPub3D modification 775: - disable actions ***/
@@ -805,7 +835,24 @@ void lcMainWindow::Disable3DActions(){
   mActions[LC_EDIT_ACTION_PAN]->setEnabled(false);
   mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setEnabled(false);
   mActions[LC_EDIT_ACTION_ZOOM_REGION]->setEnabled(false);
-
+  //Viewer
+  mActions[LC_VIEW_ZOOM_EXTENTS]->setEnabled(false);
+  mActions[LC_VIEW_LOOK_AT]->setEnabled(false);
+  mActions[LC_VIEW_SPLIT_HORIZONTAL]->setEnabled(false);
+  mActions[LC_VIEW_SPLIT_VERTICAL]->setEnabled(false);
+  mActions[LC_VIEW_REMOVE_VIEW]->setEnabled(false);
+  mActions[LC_VIEW_RESET_VIEWS]->setEnabled(false);
+  mActions[LC_VIEW_VIEWPOINT_FRONT]->setEnabled(false);
+  mActions[LC_VIEW_VIEWPOINT_BACK]->setEnabled(false);
+  mActions[LC_VIEW_VIEWPOINT_LEFT]->setEnabled(false);
+  mActions[LC_VIEW_VIEWPOINT_RIGHT]->setEnabled(false);
+  mActions[LC_VIEW_VIEWPOINT_TOP]->setEnabled(false);
+  mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setEnabled(false);
+  mActions[LC_VIEW_VIEWPOINT_HOME]->setEnabled(false);
+  mActions[LC_VIEW_CAMERA_NONE]->setEnabled(false);
+  mActions[LC_VIEW_CAMERA_RESET]->setEnabled(false);
+  mActions[LC_VIEW_PROJECTION_PERSPECTIVE]->setEnabled(false);
+  mActions[LC_VIEW_PROJECTION_ORTHO]->setEnabled(false);
 }
 /*** LPub3D modification end ***/
 
@@ -1918,8 +1965,9 @@ void lcMainWindow::UpdateRecentFiles()
       else
         Action->setVisible(false);
     }
-
-  mActionFileRecentSeparator->setVisible(!mRecentFiles[0].isEmpty());
+#ifdef Q_OS_MAC
+   mActionFileRecentSeparator->setVisible(!mRecentFiles[0].isEmpty());
+#endif
 }
 
 void lcMainWindow::UpdateShortcuts()

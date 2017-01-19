@@ -34,7 +34,7 @@ class lcMainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	explicit lcMainWindow(QMainWindow *parent = 0);
+	explicit lcMainWindow();
 	~lcMainWindow();
 
 	void CreateWidgets();
@@ -265,7 +265,6 @@ protected:
 	QAction* mActionFileRecentSeparator;
 
 	QToolBar* mStandardToolBar;
-	//QToolBar* mToolsToolBar;
 	QToolBar* mTimeToolBar;
 	QDockWidget* mPartsToolBar;
 	QDockWidget* mPropertiesToolBar;

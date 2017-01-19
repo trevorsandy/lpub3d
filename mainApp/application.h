@@ -17,6 +17,7 @@
 #include <QScopedPointer>
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 #include <QtWidgets/QApplication>
+#include <QException>
 #include <QtWidgets>
 #else
 #include <QApplication>
@@ -28,6 +29,12 @@
 
 #include "QsLog.h"
 #include "lc_global.h"
+
+class InitException: public QException
+{
+public:
+    void raise() const {throw InitException{};}
+};
 
 /// The Application class is responsible for further initialization of the app
 /// and provides acessors to the current instance and internal resources. It
@@ -76,16 +83,6 @@ private:
     /// Current application instance
     static Application* m_instance;
 
-    /// Current application instance
-#if defined(Q_OS_WIN)
-    char m_libPath[LC_MAXPATH];
-#else
-    const char* m_libPath;
-#endif
-
-    /// Current application instance
-    const char* m_LDrawPath;
-
 };
 
 /// ENTRY_POINT is a macro that implements the main function.
@@ -97,7 +94,7 @@ private:
         { \
             app->initialize(argc, argv); \
         } \
-        catch(const std::exception& ex) \
+        catch(const InitException &ex) \
         { \
            qDebug() << QString("Could not initialize the application."); \
         } \

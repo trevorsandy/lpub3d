@@ -230,8 +230,8 @@ void Gui::displayPage()
       clearPage(KpageView,KpageScene);
       page.coverPage = false;
       drawPage(KpageView,KpageScene,false);
-      enableActions2();
 
+      enableActions2();
       emit enable3DActionsSig();
     }
   emit messageSig(true,"Page display ready.");
@@ -1274,7 +1274,7 @@ void Gui::preferences()
 
 Gui::Gui()
 {
-    emit Application::instance()->splashMsgSig("40% - Mainwindow defaults loading...");
+    emit Application::instance()->splashMsgSig(QString("35% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 
     Preferences::renderPreferences();
     Preferences::lgeoPreferences();
@@ -1333,18 +1333,6 @@ Gui::Gui()
     mExistingRotStep = lcVector3(0.0f, 0.0f, 0.0f);
     mModelStepRotation = lcVector3(0.0f, 0.0f, 0.0f);
 
-    emit Application::instance()->splashMsgSig("50% - Mainwindow initializing...");
-
-    createActions();
-    createEditorMenus();
-    createToolBars();
-//    createStatusBar();
-
-//    createDockWindows();
-//    toggleLCStatusBar();
-
-//    readSettings();
-
     undoStack = new QUndoStack();
     macroNesting = 0;
 
@@ -1400,25 +1388,11 @@ Gui::Gui()
              this,          SLOT(  fileChanged(const QString &)));
     changeAccepted = true;
 #endif
-    setCurrentFile("");
-
-// Jaco: This sets the initial size of the main window
-//    resize(QSize(1000, 600));  // moved to readSettings() r602
 
     gui = this;
 
     fitMode = FitVisible;
 
-// TODO Confirm qt_mac_set_native_menubar(bool) is not needed since Qt 5.6
-#ifdef __APPLE__
-    extern void qt_mac_set_native_menubar(bool);
-    qt_mac_set_native_menubar(true);
-#endif
-
-    emit Application::instance()->splashMsgSig("60% - Mainwindow renderer loading...");
-
-    Preferences::getRequireds();
-    Render::setRenderer(Preferences::preferredRenderer);
 }
 
 Gui::~Gui()
@@ -1448,44 +1422,39 @@ void Gui::closeEvent(QCloseEvent *event)
     }
 }
 
-bool Gui::InitializeViewer(int argc, char *argv[], const char* LibraryInstallPath, const char* LDrawPath){
+void Gui::initialize()
+{
 
-  /* load sequence
-   * lc_application::LoadDefaults
-   * lc_application::ldsearchDirPreferences()
-   * lc_application::Initialize()
-   * lc_application::LoadPiecesLibrary()
-   *
-   */
-  g_App = new lcApplication();
+  emit Application::instance()->splashMsgSig(QString("85% - %1 initialization...").arg(VER_PRODUCTNAME_STR));
+
+  connect(this,       SIGNAL(loadFileSig(QString)),      this,        SLOT(loadFile(QString)));
+  connect(this,       SIGNAL(setExportingSig(bool)),     this,        SLOT(deployExportBanner(bool)));
+  connect(this,       SIGNAL(setExportingSig(bool)),     gMainWindow, SLOT(Halt3DViewer(bool)));
+  connect(this,       SIGNAL(enable3DActionsSig()),      gMainWindow, SLOT(Enable3DActions()));
+  connect(this,       SIGNAL(disable3DActionsSig()),     gMainWindow, SLOT(Disable3DActions()));
+  connect(this,       SIGNAL(updateAllViewsSig()),       gMainWindow, SLOT(UpdateAllViews()));
+  connect(this,       SIGNAL(clearViewerWindowSig()),    gMainWindow, SLOT(NewProject()));
 
   if (Preferences::preferredRenderer == "LDGLite")
     partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
 
-  bool initialized = g_App->Initialize(argc, argv, LibraryInstallPath, LDrawPath, this);
-  if (initialized){
+  emit Application::instance()->splashMsgSig(QString("90% - %1 widgets loading...").arg(VER_PRODUCTNAME_STR));
 
-      gMainWindow->SetColorIndex(lcGetColorIndex(4));
-      gMainWindow->UpdateRecentFiles();
+  createActions();
+  createMenus();
+  createToolBars();
+  createStatusBar();
+  createDockWindows();
+  toggleLCStatusBar();
 
-      create3DViewerMenus();
-      createHelpMenu();
-      createStatusBar();
-      createDockWindows();
-      toggleLCStatusBar();
+  emit disable3DActionsSig();
+  setCurrentFile("");
 
-      readSettings();
+  Preferences::getRequireds();
+  Render::setRenderer(Preferences::preferredRenderer);
 
-      connect(this,       SIGNAL(loadFileSig(QString)),      this,        SLOT(loadFile(QString)));
-      connect(this,       SIGNAL(setExportingSig(bool)),     this,        SLOT(deployExportBanner(bool)));
-      connect(this,       SIGNAL(setExportingSig(bool)),     gMainWindow, SLOT(Halt3DViewer(bool)));
-      connect(this,       SIGNAL(enable3DActionsSig()),      gMainWindow, SLOT(Enable3DActions()));
-      connect(this,       SIGNAL(disable3DActionsSig()),     gMainWindow, SLOT(Disable3DActions()));
-      connect(this,       SIGNAL(updateAllViewsSig()),       gMainWindow, SLOT(UpdateAllViews()));
-      connect(this,       SIGNAL(clearViewerWindowSig()),    gMainWindow, SLOT(NewProject()));
-    }
+  readSettings();
 
-  return initialized;
 }
 
 void Gui::generateFadeColourPartsList()
@@ -2149,6 +2118,11 @@ void Gui::enableActions()
 
   cacheMenu->setEnabled(true);
   exportMenu->setEnabled(true);
+
+  CameraMenu->setEnabled(true);
+  ViewpointsMenu->setEnabled(true);
+  PerspectiveMenu->setEnabled(true);
+  ExportMenuShort->setEnabled(true);
 }
 
 void Gui::disableActions()
@@ -2198,6 +2172,11 @@ void Gui::disableActions()
   cacheMenu->setEnabled(false);
   exportMenu->setEnabled(false);
 
+  CameraMenu->setEnabled(false);
+  ViewpointsMenu->setEnabled(false);
+  PerspectiveMenu->setEnabled(false);
+  ExportMenuShort->setEnabled(false);
+
 }
 
 void Gui::enableActions2()
@@ -2229,8 +2208,10 @@ void Gui::disableActions2()
     addTextAct->setEnabled(false);
 }
 
-void Gui::createEditorMenus()
+void Gui::createMenus()
 {
+  // Editor Menus
+
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(openAct);
     fileMenu->addAction(saveAct);
@@ -2242,7 +2223,7 @@ void Gui::createEditorMenus()
     exportMenu->addAction(exportPngAct);
     exportMenu->addAction(exportJpgAct);
     exportMenu->addAction(exportBmpAct);
-#ifndef __APPLE__
+#ifdef Q_OS_WIN
     exportMenu->addAction(exportBmpAct);
 #endif
     exportMenu->setDisabled(true);
@@ -2275,8 +2256,8 @@ void Gui::createEditorMenus()
 
     editMenu->addSeparator();
 
-    QMenu* ToolBarMenu = editMenu->addMenu(tr("Editor T&oolbar"));
-    ToolBarMenu->addAction(editWindow->editToolBar->toggleViewAction());
+    QMenu* ToolBarEditorMenu = editMenu->addMenu(tr("Editor T&oolbar"));
+    ToolBarEditorMenu->addAction(editWindow->editToolBar->toggleViewAction());
 
     viewMenu = menuBar()->addMenu(tr("&View"));
     viewMenu->addAction(fitWidthAct);
@@ -2328,73 +2309,76 @@ void Gui::createEditorMenus()
     configMenu->addAction(generateFadeColourPartsAct);
     configMenu->addSeparator();
     configMenu->addAction(preferencesAct);
-}
 
-void Gui::create3DViewerMenus(){
+   // 3DViewer Menus
 
-  QMenu* CameraMenu = new QMenu(tr("C&ameras"), this);
-  CameraMenu->addAction(gMainWindow->mActions[LC_VIEW_CAMERA_NONE]);
-  for (int actionIdx = LC_VIEW_CAMERA_FIRST; actionIdx <= LC_VIEW_CAMERA_LAST; actionIdx++)
-    CameraMenu->addAction(gMainWindow->mActions[actionIdx]);
-  CameraMenu->addSeparator();
-  CameraMenu->addAction(gMainWindow->mActions[LC_VIEW_CAMERA_RESET]);
+    CameraMenu = new QMenu(tr("C&ameras"), this);
+    CameraMenu->addAction(gMainWindow->mActions[LC_VIEW_CAMERA_NONE]);
+    for (int actionIdx = LC_VIEW_CAMERA_FIRST; actionIdx <= LC_VIEW_CAMERA_LAST; actionIdx++)
+      CameraMenu->addAction(gMainWindow->mActions[actionIdx]);
+    CameraMenu->addSeparator();
+    CameraMenu->addAction(gMainWindow->mActions[LC_VIEW_CAMERA_RESET]);
+    CameraMenu->setDisabled(true);
 
-  QMenu* ViewMenu = menuBar()->addMenu(tr("&3DViewer"));
-  ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_PREFERENCES]);
-  ViewMenu->addSeparator();
-  ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
-  ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
+    ViewMenu = menuBar()->addMenu(tr("&3D Viewer"));
+    ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_PREFERENCES]);
+    ViewMenu->addSeparator();
+    ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
+    ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
 
-  QMenu* ViewpointsMenu = ViewMenu->addMenu(tr("&Viewpoints"));
-  ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]);
-  ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK]);
-  ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_LEFT]);
-  ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_RIGHT]);
-  ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]);
-  ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]);
-  ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]);
-  ViewMenu->addMenu(CameraMenu);
+    ViewpointsMenu = ViewMenu->addMenu(tr("&Viewpoints"));
+    ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]);
+    ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK]);
+    ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_LEFT]);
+    ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_RIGHT]);
+    ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]);
+    ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]);
+    ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]);
+    ViewpointsMenu->setDisabled(true);
+    ViewMenu->addMenu(CameraMenu);
 
-  QMenu* PerspectiveMenu = ViewMenu->addMenu(tr("Projection"));
-  PerspectiveMenu->addAction(gMainWindow->mActions[LC_VIEW_PROJECTION_PERSPECTIVE]);
-  PerspectiveMenu->addAction(gMainWindow->mActions[LC_VIEW_PROJECTION_ORTHO]);
-  ViewMenu->addSeparator();
-  ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_SPLIT_HORIZONTAL]);
-  ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_SPLIT_VERTICAL]);
-  ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_REMOVE_VIEW]);
-  ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_RESET_VIEWS]);
-  ViewMenu->addSeparator();
+    PerspectiveMenu = ViewMenu->addMenu(tr("Projection"));
+    PerspectiveMenu->addAction(gMainWindow->mActions[LC_VIEW_PROJECTION_PERSPECTIVE]);
+    PerspectiveMenu->addAction(gMainWindow->mActions[LC_VIEW_PROJECTION_ORTHO]);
+    PerspectiveMenu->setDisabled(true);
+    ViewMenu->addSeparator();
+    ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_SPLIT_HORIZONTAL]);
+    ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_SPLIT_VERTICAL]);
+    ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_REMOVE_VIEW]);
+    ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_RESET_VIEWS]);
+    ViewMenu->addSeparator();
 
-  QMenu* ToolBarMenu = ViewMenu->addMenu(tr("T&oolbar"));
-  ToolBarMenu->addAction(gMainWindow->mToolsToolBar->toggleViewAction());
+    QMenu* ToolBarViewerMenu = ViewMenu->addMenu(tr("T&oolbar"));
+    ToolBarViewerMenu->addAction(gMainWindow->mToolsToolBar->toggleViewAction());
 
-  QMenu* FileMenuShort = menuBar()->addMenu(tr("&Step"));
-  FileMenuShort->addAction(gMainWindow->mActions[LC_FILE_SAVEAS]);
-  FileMenuShort->addAction(gMainWindow->mActions[LC_FILE_SAVE_IMAGE]);
+    FileMenuShort = menuBar()->addMenu(tr("&Step"));
+    FileMenuShort->addAction(gMainWindow->mActions[LC_FILE_SAVEAS]);
+    FileMenuShort->addAction(gMainWindow->mActions[LC_FILE_SAVE_IMAGE]);
 
-  QMenu* ExportMenuShort = FileMenuShort->addMenu(tr("&Export Step As..."));
-  ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_3DS]);
-  ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_BRICKLINK]);
-  ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_CSV]);
-  ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_HTML]);
-  ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_POVRAY]);
-  ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]);
-}
+    ExportMenuShort = FileMenuShort->addMenu(tr("&Export Step As..."));
+    ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_3DS]);
+    ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_BRICKLINK]);
+    ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_CSV]);
+    ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_HTML]);
+    ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_POVRAY]);
+    ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]);
+    ExportMenuShort->setDisabled(true);
 
-void Gui::createHelpMenu(){
-  helpMenu = menuBar()->addMenu(tr("&Help"));
+    // Help Menus
+
+    helpMenu = menuBar()->addMenu(tr("&Help"));
 #if !DISABLE_UPDATE_CHECK
-  helpMenu->addAction(updateApp);
+    helpMenu->addAction(updateApp);
 #endif
-  // Begin Jaco's code
-  helpMenu->addAction(onlineManualAct);
-  // End Jaco's code
-  helpMenu->addAction(metaAct);
-  helpMenu->addSeparator();
-  // About Editor
-  helpMenu->addAction(aboutAct);
-  // About 3D Viewer
-  helpMenu->addAction(gMainWindow->mActions[LC_HELP_ABOUT]);
+    // Begin Jaco's code
+    helpMenu->addAction(onlineManualAct);
+    // End Jaco's code
+    helpMenu->addAction(metaAct);
+    helpMenu->addSeparator();
+    // About Editor
+    helpMenu->addAction(aboutAct);
+    // About 3D Viewer
+    helpMenu->addAction(gMainWindow->mActions[LC_HELP_ABOUT]);
 }
 
 void Gui::createToolBars()

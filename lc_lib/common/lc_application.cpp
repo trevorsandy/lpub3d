@@ -17,7 +17,7 @@ lcApplication* g_App;
 
 void lcPreferences::LoadDefaults()
 {
-	emit Application::instance()->splashMsgSig("65% - Viewer defaults loading...");
+	emit Application::instance()->splashMsgSig("25% - 3D Viewer window defaults loading...");
 
 	mFixedAxes = lcGetProfileInt(LC_PROFILE_FIXED_AXES);
 	mMouseSensitivity = lcGetProfileInt(LC_PROFILE_MOUSE_SENSITIVITY);
@@ -49,13 +49,12 @@ void lcPreferences::SaveDefaults()
 
 lcApplication::lcApplication()
 {
-	mProject = NULL;
-	mLibrary = NULL;
-	mClipboard = NULL;
-    mLoadFile = NULL;
+  mProject = NULL;
+  mLibrary = NULL;
+  mClipboard = NULL;
+  mLoadFile = NULL;
 
-	mPreferences.LoadDefaults();
-	partWorkerLDSearchDirs.ldsearchDirPreferences();
+  mPreferences.LoadDefaults();
 }
 
 lcApplication::~lcApplication()
@@ -115,10 +114,12 @@ void lcApplication::GetFileList(const char* Path, lcArray<String>& FileList)
 
 bool lcApplication::LoadPiecesLibrary(const char* LibPath, const char* LibraryInstallPath, const char* LDrawPath)
 {
+        // load search directories
+        partWorkerLDSearchDirs.ldsearchDirPreferences();
         // process search directories to update library archive
         partWorkerLDSearchDirs.processLDSearchDirParts();
 
-	emit Application::instance()->splashMsgSig("90% - Libraries loading...");
+        emit Application::instance()->splashMsgSig("80% - Archive libraries loading...");
 
 	if (mLibrary == NULL)
 		mLibrary = new lcPiecesLibrary();
@@ -213,7 +214,7 @@ void lcApplication::ParseStringArgument(int* CurArg, int argc, char* argv[], cha
 	}
 }
 
-bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstallPath, const char* LDrawPath, QMainWindow *parent)
+bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstallPath, const char* LDrawPath)
 {
 	char* LibPath = NULL;
 
@@ -231,7 +232,7 @@ bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstal
 	char* SaveWavefrontName = NULL;
 	char* Save3DSName = NULL;
 
-	emit Application::instance()->splashMsgSig("70% - Viewer window defaults loading...");
+	emit Application::instance()->splashMsgSig("45% - 3D Viewer widgets loading...");
 
 	// Parse the command line arguments.
 	for (int i = 1; i < argc; i++)
@@ -330,7 +331,7 @@ bool lcApplication::Initialize(int argc, char* argv[], const char* LibraryInstal
 		}
 	}
 
-	gMainWindow = new lcMainWindow(parent);
+	gMainWindow = new lcMainWindow();
 	lcLoadDefaultKeyboardShortcuts();
 
 	// Load all parts

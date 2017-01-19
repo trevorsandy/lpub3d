@@ -48,7 +48,7 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
 void PartWorker::ldsearchDirPreferences(){
 
   if (!_resetSearchDirSettings) {
-      emit Application::instance()->splashMsgSig("70% - Search directory preferences loading...");
+      emit Application::instance()->splashMsgSig("50% - Search directory preferences loading...");
     } else {
       logInfo() << "Reset search directories...";
       logInfo() << "Reset - search directory preferences loading...";
@@ -155,7 +155,7 @@ void PartWorker::ldsearchDirPreferences(){
 bool PartWorker::loadLDrawSearchDirs(){
 
   if (!_resetSearchDirSettings) {
-      emit Application::instance()->splashMsgSig("70% - Search directories loading...");
+      emit Application::instance()->splashMsgSig("60% - Search directories loading...");
     } else {
       logInfo() << "Reset - search directories loading...";
     }
@@ -274,7 +274,7 @@ bool PartWorker::loadLDrawSearchDirs(){
 void PartWorker::populateLdgLiteSearchDirs(){
     if (Preferences::preferredRenderer == "LDGLite" && !Preferences::ldSearchDirs.isEmpty()){
 
-        emit Application::instance()->splashMsgSig("70% - LDGlite Search directories loading...");
+        emit Application::instance()->splashMsgSig("85% - LDGlite Search directories loading...");
         //logDebug() << "SEARCH DIRECTORIES TO PROCESS" << Preferences::ldSearchDirs ;
         logStatus() << "LDGlite Search Directories...";
 
@@ -918,7 +918,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   if (okToEmitToProgressBar()) {
       emit progressResetSig();
     } else {
-      emit Application::instance()->splashMsgSig(QString("75% - Archiving %1 parts...").arg(comment));
+      emit Application::instance()->splashMsgSig(QString("60% - Archiving %1 parts...").arg(comment));
     }
 
   if (okToEmitToProgressBar())
@@ -988,7 +988,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   if (okToEmitToProgressBar()) {
       emit messageSig(true, returnMessage);
   } else {
-      emit Application::instance()->splashMsgSig(tr("80% - Finished archiving %1 parts.").arg(comment));
+      emit Application::instance()->splashMsgSig(tr("70% - Finished archiving %1 parts.").arg(comment));
   }
   return true;
 }

@@ -247,11 +247,12 @@ void Application::initialize(int &argc, char **argv)
   m_application.installTranslator(&Translator);
 
 #if defined(Q_OS_WIN)
-  char *ptr;
-  strcpy(m_libPath, argv[0]);
-  ptr = strrchr(m_libPath,'\\');
+  char libPath[LC_MAXPATH], *ptr;
+  strcpy(libPath, argv[0]);
+  ptr = strrchr(libPath,'\\');
   if (ptr)
     *(++ptr) = 0;
+
   lcSehInit();
 #elif defined(Q_OS_MAC)
   QDir bundlePath = QDir(QCoreApplication::applicationDirPath());
@@ -259,35 +260,60 @@ void Application::initialize(int &argc, char **argv)
   bundlePath.cdUp();
   bundlePath = QDir::cleanPath(bundlePath.absolutePath() + "/Contents/lc_lib/Resources/");
   QByteArray pathArray = bundlePath.absolutePath().toLocal8Bit();
-  m_libPath = pathArray.data();
+  const char* libPath = pathArray.data();
 #else
-  m_libPath = LC_INSTALL_PREFIX "/share/lpub3d/";
+  const char* libPath = LC_INSTALL_PREFIX "/share/lpub3d/";
 #endif
 
 #ifdef LC_LDRAW_LIBRARY_PATH
-  m_LDrawPath = LC_LDRAW_LIBRARY_PATH;
+  const char* LDrawPath = LC_LDRAW_LIBRARY_PATH;
 #else
-  m_LDrawPath = NULL;
+  const char* LDrawPath = NULL;
 #endif
+
+  /* load sequence
+   * lc_application::LoadDefaults                  (g_App)
+   * Gui::gui                                      (gui)
+   * lc_application::lcInitialize()                (g_App->Initialize)
+   * lcInitialize::LoadPiecesLibrary()             (g_App->Initialize)
+   * LoadPiecesLibrary::ldsearchDirPreferences()   (g_App->Initialize)
+   * LoadPiecesLibrary::ldsearchDirPreferences()   (g_App->Initialize)
+   * lcInitialize::CreateWidgets() [Menus]         (g_App->Initialize)
+   * Gui::guiInitialize()                          (gui->Initialize)
+   * guiInitialize::populateLdgLiteSearchDirs()    (gui->Initialize)
+   * guiInitialize::createMenus    [Menus]         (gui->Initialize)
+   */
 
   logInfo() << QString("-Initialize: New gui instance created.");
 
-  emit splashMsgSig(QString("30% - %1 Mainwindow loading...").arg(VER_PRODUCTNAME_STR));
+  emit splashMsgSig("20% - 3D Viewer window loading...");
+
+  g_App = new lcApplication();
+
+  emit splashMsgSig(QString("30% - %1 window loading...").arg(VER_PRODUCTNAME_STR));
 
   gui = new Gui();
 
-  emit splashMsgSig("60% - 3D Viewer Mainwindow loading...");
+  emit splashMsgSig(QString("40% - 3D Viewer initialization..."));
 
-  if (!gui->InitializeViewer(argc, argv, m_libPath, m_LDrawPath)) {
+  if (g_App->Initialize(argc, argv,libPath, LDrawPath)) {
+
+      gui->initialize();
+      gMainWindow->SetColorIndex(lcGetColorIndex(4));
+      gMainWindow->UpdateRecentFiles();
+
+    } else {
+
       logError() << QString("Unable to initialize 3D Viewer.");
-    }
+      throw InitException{};
 
+    }
 }
 
 void Application::main()
 {
 
-  emit splashMsgSig(QString("100% %1 loaded.").arg(VER_PRODUCTNAME_STR));
+  emit splashMsgSig(QString("100% - %1 loaded.").arg(VER_PRODUCTNAME_STR));
   Preferences::setLPub3DLoaded();
 
   splash->finish(gui);
@@ -333,6 +359,9 @@ int Application::run()
 
   delete g_App;
   g_App = NULL;
+
+  delete gui;
+  gui = NULL;
 
   logInfo() << QString("Run: Application terminated with return code %1.").arg(returnCode);
 

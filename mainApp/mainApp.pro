@@ -17,8 +17,12 @@ DEPENDPATH += .
 INCLUDEPATH += .
 INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../quazip ../ldrawini
 
-lessThan(QT_MAJOR_VERSION, 5): CONFIG += precompile_header c++11
-greaterThan(QT_MAJOR_VERSION, 4): CONFIG += precompile_header
+macx {
+    CONFIG += precompile_header c++11
+} else {
+    lessThan(QT_MAJOR_VERSION, 5): CONFIG += precompile_header c++11
+    greaterThan(QT_MAJOR_VERSION, 4): CONFIG += precompile_header
+}
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -28,7 +32,7 @@ win32 {
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
     DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
     QMAKE_EXT_OBJ = .obj
-    win32:RC_FILE = lpub.rc
+    win32:RC_FILE = lpub3d.rc
     PRECOMPILED_SOURCE = ../lc_lib/common/lc_global.cpp
     CONFIG += windows
     CONFIG += debug_and_release
@@ -123,7 +127,7 @@ UI_DIR      = $$DESTDIR/.ui
 unix:!macx {
         isEmpty(INSTALL_PREFIX):INSTALL_PREFIX = /usr
         isEmpty(BIN_DIR):BIN_DIR = $$INSTALL_PREFIX/bin
-        isEmpty(DOCS_DIR):DOCS_DIR = $$INSTALL_PREFIX/share/doc/leocad
+        isEmpty(DOCS_DIR):DOCS_DIR = $$INSTALL_PREFIX/share/doc/lpub3d
         isEmpty(ICON_DIR):ICON_DIR = $$INSTALL_PREFIX/share/pixmaps
         isEmpty(MAN_DIR):MAN_DIR = $$INSTALL_PREFIX/share/man/man1
         isEmpty(DESKTOP_DIR):DESKTOP_DIR = $$INSTALL_PREFIX/share/applications
@@ -134,15 +138,15 @@ unix:!macx {
         docs.path = $$DOCS_DIR
         docs.files = docs/README.txt docs/CREDITS.txt docs/COPYING.txt
         man.path = $$MAN_DIR
-        man.files = leocad.1
+        man.files = lpub3d.1
         desktop.path = $$DESKTOP_DIR
-        desktop.files = qt/leocad.desktop
+        desktop.files = lpub3d.desktop
         icon.path = $$ICON_DIR
-        icon.files = leocad.png
+        icon.files = lpub3d.png
         mime.path = $$MIME_DIR
-        mime.files = qt/leocad.xml
+        mime.files = lpub3d.xml
         mime_icon.path = $$MIME_ICON_DIR
-        mime_icon.files = ../lc_lib/resources/application-vnd.leocad.svg
+        mime_icon.files = /images/lpub3d.svg
 
         INSTALLS += target docs man desktop icon mime mime_icon
 
@@ -159,15 +163,55 @@ unix:!macx {
 
 macx {
 
-    ICON = LPub.icns
-    QMAKE_INFO_PLIST = ../lc_lib/qt/Info.plist
+    ICON = lpub3d.icns
+    QMAKE_INFO_PLIST = Info.plist
 
-    document_icon.files += ../lc_lib/resources/leocad_document.icns
+    document_icon.files += lpub3d.icns
     document_icon.path = Contents/Resources
-    library.files += ../lc_lib/library.bin
+
+    document_readme.files += doc/README.txt
+    document_readme.path = Contents/Resources
+
+    document_credits.files += docs/CREDITS.txt
+    document_credits.path = Contents/Resources
+
+    document_copying.files += docs/COPYING.txt
+    document_copying.path = Contents/Resources
+
+    exlcuded_parts.files += extras/excludedParts.lst
+    excluded_parts.path = Contents/Resources
+
+    fadestep_color_parts.files += extras/fadeStepColorParts.lst
+    fadestep_color_parts.path = Contents/Resources
+
+    freeform_annotations.files += extras/freeformAnnotations.lst
+    freeform_annotations.path = Contents/Resources
+
+    title_annotations.files += extras/titleAnnotations.lst
+    title_annotations.path = Contents/Resources
+
+    pli_orientaiton.files += extras/pli.mpd
+    pli_orientation.path = Contents/Resources
+
+    pli_substitution_parts += extras/pliSubstituteParts.lst
+    pli_substitution_parts = Contents/Resources
+
+    unofficial_library.files += extras/lpub3dldrawunf.zip
+    unofficial_library.path = Contents/Resources
+
+    library.files += extras/complete.zip
     library.path = Contents/Resources
 
-    QMAKE_BUNDLE_DATA += document_icon library
+    QMAKE_BUNDLE_DATA += \
+        document_icon \
+        exlcuded_parts \
+        fadestep_color_parts \
+        freeform_annotations \
+        title_annotations \
+        pli_orientaiton \
+        pli_substitution_parts \
+        unofficial_library \
+        library
 }
 
 #~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -335,10 +379,16 @@ FORMS += \
     dialogexportpages.ui
 
 OTHER_FILES += \
-    lpub.rc
+    Info.plist \
+    lpub3d.desktop \
+    lpub3d.rc \
+    lpub3d.xml
 
 RESOURCES += \
-    lpub.qrc
+    lpub3d.qrc
+
+DISTFILES += \
+    lpub3d.icns
 
 !win32 {
     TRANSLATIONS = ../lc_lib/resources/leocad_pt.ts
@@ -346,3 +396,5 @@ RESOURCES += \
 
 #message(FINAL CONFIG:)
 #message($$CONFIG)
+
+

@@ -1,0 +1,49 @@
+The following people have contributed to components used in LPub3D:
+
+LPub3D
+Trevor Sandy <trevor.sandy@gmail.com>
+
+LPub
+Author:
+Kevin Clague <kevin.clague@gmail.com>
+
+Contributors (in alphabetical order):
+Daniele Benedettelli
+
+LeoCAD
+Author:
+Leonardo Zide <leozide@gmail.com>
+
+LeoCAD 3D Viewer:
+Trevor Sandy <trevor.sandy@gmail.com>
+
+Contributions (in alphabetical order):
+Christian Höltje <docwhat@gerf.org>
+David Paleino <dapal@debian.org>
+Hubert Figuiere <hub@figuiere.net>
+Joerg Scheurich <rusmufti@helpdesk.bera.rus.uni-stuttgart.de>
+Nicolas Guilbert <nicolas@ange.dk>
+Nicolas Schodet <nico-leocad@ni.fr.eu.org>
+Pat Mahoney <pat7@gmx.net>
+Petter Reinholdtsen <pere@hungry.com>
+Renaud Breard <renaud@islande.net>
+Rodney Rushing <leocad.reg@yenandjen.com>
+Torbjörn Söderstedt <torbjrn@gmail.com>
+
+qSLog
+razvanpetru
+
+QuaZip
+Sergey A. Tachenov
+
+QSimpleUpdater
+Alex Spataru
+
+Ldglite
+Don Heyse <dheyse@hotmail.com>
+
+LDView (ldraw.ini snippits)
+Travis Cobb <ldview@gmail.com>
+
+L3P / LDraw.ini / ldglite
+Lars C. Hassing <delete.lars.three@words.hassings.dk>

@@ -537,7 +537,7 @@ public:
   void beginMacro (QString name);
   void endMacro   ();
 
-  bool InitializeViewer(int argc, char *argv[], const char* LibraryInstallPath, const char* LDrawPath);
+  void initialize();
 
   void displayFile(LDrawFile *ldrawFile, const QString &modelName);
   void displayParmsFile(const QString &fileName);
@@ -1007,9 +1007,7 @@ private:
   /* Initialization stuff */
 
   void createActions();
-  void createEditorMenus();
-  void create3DViewerMenus();
-  void createHelpMenu();
+  void createMenus();
   void createToolBars();
   void createStatusBar();
   void createDockWindows();
@@ -1032,6 +1030,16 @@ private:
   QMenu    *editorMenu;
   QMenu    *cacheMenu;
   QMenu    *exportMenu;
+
+  // 3D Viewer Menus
+  QMenu* ViewMenu;
+  QMenu* FileMenuShort;
+
+  QMenu* CameraMenu;
+  QMenu* ViewpointsMenu;
+  QMenu* PerspectiveMenu;
+  QMenu* ExportMenuShort;
+
 
 
   QToolBar *fileToolBar;
