@@ -14,7 +14,7 @@
 				<string>mpd</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-                        <string>lpub3d.icns</string>
+                        <string>lpub3d_document.icns</string>
 			<key>CFBundleTypeMIMETypes</key>
 			<array>
 				<string>application/x-ldraw</string>

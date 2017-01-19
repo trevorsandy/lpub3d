@@ -1422,6 +1422,13 @@ void Gui::closeEvent(QCloseEvent *event)
     }
 }
 
+void Gui::getRequireds(){
+
+    Preferences::getRequireds();
+    Render::setRenderer(Preferences::preferredRenderer);
+
+}
+
 void Gui::initialize()
 {
 
@@ -1449,9 +1456,6 @@ void Gui::initialize()
 
   emit disable3DActionsSig();
   setCurrentFile("");
-
-  Preferences::getRequireds();
-  Render::setRenderer(Preferences::preferredRenderer);
 
   readSettings();
 

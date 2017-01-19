@@ -125,6 +125,7 @@ UI_DIR      = $$DESTDIR/.ui
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 unix:!macx {
+
         isEmpty(INSTALL_PREFIX):INSTALL_PREFIX = /usr
         isEmpty(BIN_DIR):BIN_DIR = $$INSTALL_PREFIX/bin
         isEmpty(DOCS_DIR):DOCS_DIR = $$INSTALL_PREFIX/share/doc/lpub3d
@@ -135,18 +136,24 @@ unix:!macx {
         isEmpty(MIME_ICON_DIR):MIME_ICON_DIR = $$INSTALL_PREFIX/share/icons/hicolor/scalable/mimetypes
 
         target.path = $$BIN_DIR
+
         docs.path = $$DOCS_DIR
-        docs.files = docs/README.txt docs/CREDITS.txt docs/COPYING.txt
+        docs.files += docs/README.txt docs/CREDITS.txt docs/COPYING.txt
+
         man.path = $$MAN_DIR
-        man.files = lpub3d.1
+        man.files += lpub3d.1
+
         desktop.path = $$DESKTOP_DIR
-        desktop.files = lpub3d.desktop
+        desktop.files += lpub3d.desktop
+
         icon.path = $$ICON_DIR
-        icon.files = lpub3d.png
+        icon.files += lpub3d.png
+
         mime.path = $$MIME_DIR
-        mime.files = lpub3d.xml
+        mime.files += lpub3d.xml
+
         mime_icon.path = $$MIME_ICON_DIR
-        mime_icon.files = /images/lpub3d.svg
+        mime_icon.files += images/lpub3d.svg
 
         INSTALLS += target docs man desktop icon mime mime_icon
 
@@ -166,7 +173,7 @@ macx {
     ICON = lpub3d.icns
     QMAKE_INFO_PLIST = Info.plist
 
-    document_icon.files += lpub3d.icns
+    document_icon.files += lpub3d_document.icns
     document_icon.path = Contents/Resources
 
     document_readme.files += doc/README.txt
@@ -178,7 +185,7 @@ macx {
     document_copying.files += docs/COPYING.txt
     document_copying.path = Contents/Resources
 
-    exlcuded_parts.files += extras/excludedParts.lst
+    excluded_parts.files += extras/excludedParts.lst
     excluded_parts.path = Contents/Resources
 
     fadestep_color_parts.files += extras/fadeStepColorParts.lst
@@ -190,7 +197,7 @@ macx {
     title_annotations.files += extras/titleAnnotations.lst
     title_annotations.path = Contents/Resources
 
-    pli_orientaiton.files += extras/pli.mpd
+    pli_orientation.files += extras/pli.mpd
     pli_orientation.path = Contents/Resources
 
     pli_substitution_parts += extras/pliSubstituteParts.lst
@@ -204,11 +211,11 @@ macx {
 
     QMAKE_BUNDLE_DATA += \
         document_icon \
-        exlcuded_parts \
+        excluded_parts \
         fadestep_color_parts \
         freeform_annotations \
         title_annotations \
-        pli_orientaiton \
+        pli_orientation \
         pli_substitution_parts \
         unofficial_library \
         library
@@ -388,7 +395,7 @@ RESOURCES += \
     lpub3d.qrc
 
 DISTFILES += \
-    lpub3d.icns
+    lpub3d_document.icns
 
 !win32 {
     TRANSLATIONS = ../lc_lib/resources/leocad_pt.ts

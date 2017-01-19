@@ -223,11 +223,12 @@ void Application::initialize(int &argc, char **argv)
 
   emit splashMsgSig("5% - Initializing application...");
 
-  emit splashMsgSig("10% - Preferences loading...");
-
   // Preferences
   Preferences::lpub3dLibPreferences(false);
   Preferences::ldrawPreferences(false);
+
+  emit splashMsgSig("10% - Preferences loading...");
+
   Preferences::lpub3dUpdatePreferences();
 
   Preferences::unitsPreferences();
@@ -293,6 +294,8 @@ void Application::initialize(int &argc, char **argv)
   emit splashMsgSig(QString("30% - %1 window loading...").arg(VER_PRODUCTNAME_STR));
 
   gui = new Gui();
+
+  gui->getRequireds();
 
   emit splashMsgSig(QString("40% - 3D Viewer initialization..."));
 

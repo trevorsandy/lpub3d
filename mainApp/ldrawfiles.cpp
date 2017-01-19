@@ -1010,11 +1010,13 @@ void LDrawFile::countParts(const QString &fileName){
                       _pieces++; sfCount++;
                       //logTrace() << QString(" Part Line: [%2] %3 ItemNo %1").arg(_pieces).arg(fileName).arg(line);
                       logStatus() << QString("ItemNo %1 [%2]").arg(_pieces).arg(tokens[14]);
+                    } else if (lcGetPiecesLibrary()->IsPrimitive(info.baseName().toUpper().toLatin1().constData())) {
+                      logNotice() << QString("Item [%1] is a primitive type").arg(tokens[14]);
                     } else {
-                      logNotice() << QString("Item [%1] not in the LPub3D archives. %2 %3")
-                                    .arg(tokens[14])
-                                    .arg(QString("%1/%2/%3").arg(Preferences::lpubDataPath, "libraries", VER_LPUB3D_UNOFFICIAL_ARCHIVE))
-                                    .arg(QString("%1/%2/%3").arg(Preferences::lpubDataPath, "libraries", VER_LDRAW_OFFICIAL_ARCHIVE));
+                      logNotice() << QString("Item [%1] not found in LPub3D archives. %2 %3")
+                          .arg(tokens[14])
+                          .arg(QString("%1/%2/%3").arg(Preferences::lpubDataPath, "libraries", VER_LPUB3D_UNOFFICIAL_ARCHIVE))
+                          .arg(QString("%1/%2/%3").arg(Preferences::lpubDataPath, "libraries", VER_LDRAW_OFFICIAL_ARCHIVE));
                     }
                 }
             }

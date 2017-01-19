@@ -537,6 +537,7 @@ public:
   void beginMacro (QString name);
   void endMacro   ();
 
+  void getRequireds();
   void initialize();
 
   void displayFile(LDrawFile *ldrawFile, const QString &modelName);

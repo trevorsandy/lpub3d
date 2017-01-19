@@ -31,6 +31,7 @@
 #define LC_LIBRARY_CACHE_VERSION   0x0104
 #define LC_LIBRARY_CACHE_ARCHIVE   0x0001
 #define LC_LIBRARY_CACHE_DIRECTORY 0x0002
+#define LC_LIBRARY_PART_TYPE       1
 
 lcPiecesLibrary::lcPiecesLibrary()
 {
@@ -164,9 +165,10 @@ bool lcPiecesLibrary::Load(const char* LibraryPath)
 		strcpy(UnofficialFileName, mLibraryPath);
 		strcat(UnofficialFileName, FILE_LPUB3D_UNOFFICIAL_ARCHIVE);
 
-		OpenArchive(UnofficialFileName, LC_ZIPFILE_UNOFFICIAL);
+		if (!OpenArchive(UnofficialFileName, LC_ZIPFILE_UNOFFICIAL))
+		  UnofficialFileName[0] = 0;
 
-		ReadArchiveDescriptionsAndPartTypes(LibraryPath, UnofficialFileName);
+		ReadArchiveDescriptions(LibraryPath, UnofficialFileName);
 	}
 	else
 	{
@@ -261,6 +263,7 @@ bool lcPiecesLibrary::OpenArchive(lcFile* File, const char* FileName, lcZipFileT
 				*Dst = 0;
 				strncpy(Texture->mName, Name + 21, sizeof(Texture->mName));
 				Texture->mName[sizeof(Texture->mName) - 1] = 0;
+
 			}
 
 			continue;
@@ -290,6 +293,8 @@ bool lcPiecesLibrary::OpenArchive(lcFile* File, const char* FileName, lcZipFileT
 
 					strncpy(Info->m_strName, Name, sizeof(Info->m_strName));
 					Info->m_strName[sizeof(Info->m_strName) - 1] = 0;
+					Info->m_iPartType = LC_LIBRARY_PART_TYPE;
+
 				}
 
 				Info->SetZipFile(ZipFileType, FileIdx);
@@ -321,32 +326,32 @@ bool lcPiecesLibrary::OpenArchive(lcFile* File, const char* FileName, lcZipFileT
 }
 
 
-void lcPiecesLibrary::ReadArchiveDescriptionsAndPartTypes(const QString& OfficialFileName, const QString& UnofficialFileName)
+void lcPiecesLibrary::ReadArchiveDescriptions(const QString& OfficialFileName, const QString& UnofficialFileName)
 {
-        // define part types
-        char* pt01 = (char *)"!LDRAW_ORG Part";
-        char* pt02 = (char *)"!LDRAW_ORG Unofficial Part";
-        char* pt03 = (char *)"!LDRAW_ORG Unofficial_Part";
-        char* pt04 = (char *)"!LDRAW_ORG Shortcut";
-        char* pt05 = (char *)"!LDRAW_ORG Unofficial Shortcut";
-        char* pt06 = (char *)"!LDRAW_ORG Unofficial_Shortcut";
-        char* pt07 = (char *)"!LDRAW_ORG Part Alias";
-        char* pt08 = (char *)"!LDRAW_ORG Unofficial Part Alias";
-        char* pt09 = (char *)"!LDRAW_ORG Unofficial_Part Alias";
-        char* pt10 = (char *)"!LDRAW_ORG Shortcut Alias";
-        char* pt11 = (char *)"!LDRAW_ORG Unofficial Shortcut Alias";
-        char* pt12 = (char *)"!LDRAW_ORG Unofficial_Shortcut Alias";
-        char* pt13 = (char *)"PART";
-        char* pt14 = (char *)"UNOFFICIAL PART";
-        char* partTypes[] = {pt01,pt02,pt03,pt04,pt05,pt06,pt07,pt08,pt09,pt10,pt11,pt12,pt13,pt14};
-
 	QFileInfo OfficialInfo(OfficialFileName);
 	QFileInfo UnofficialInfo(UnofficialFileName);
-	
+
 	mArchiveCheckSum[0] = OfficialInfo.size();
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	mArchiveCheckSum[1] = OfficialInfo.lastModified().toMSecsSinceEpoch();
-	mArchiveCheckSum[2] = UnofficialInfo.size();
-	mArchiveCheckSum[3] = UnofficialInfo.lastModified().toMSecsSinceEpoch();
+#else
+	mArchiveCheckSum[1] = OfficialInfo.lastModified().toTime_t();
+#endif
+	if (!UnofficialFileName.isEmpty())
+	{
+		mArchiveCheckSum[2] = UnofficialInfo.size();
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+		mArchiveCheckSum[3] = UnofficialInfo.lastModified().toMSecsSinceEpoch();
+#else
+		mArchiveCheckSum[3] = UnofficialInfo.lastModified().toTime_t();
+#endif
+	}
+	else
+	{
+		mArchiveCheckSum[2] = 0;
+		mArchiveCheckSum[3] = 0;
+	}
+
 
 	QString IndexFileName = QFileInfo(QDir(mCachePath), QLatin1String("index")).absoluteFilePath();
 
@@ -358,10 +363,6 @@ void lcPiecesLibrary::ReadArchiveDescriptionsAndPartTypes(const QString& Officia
 		{
 			PieceInfo* Info = mPieces[PieceInfoIndex];
 
-                        //If piece is not an archive (zip file) piece (i.e. it's a Model); skip.
-                        if(Info->mZipFileIndex < 0)
-                            continue;
-
 			mZipFiles[Info->mZipFileType]->ExtractFile(Info->mZipFileIndex, PieceFile, 256);
 			PieceFile.Seek(0, SEEK_END);
 			PieceFile.WriteU8(0);
@@ -369,19 +370,6 @@ void lcPiecesLibrary::ReadArchiveDescriptionsAndPartTypes(const QString& Officia
 			char* Src = (char*)PieceFile.mBuffer + 2;
 			char* Dst = Info->m_strDescription;
 
-			// Check part type; update info if is part
-			unsigned int  i;
-			//printf("\nSOURCE: mBuffer - (%s)\n",Src);
-			for (i = 0; i < sizeof(partTypes) / sizeof(char *); i++)
-			{
-				char *partPtr = strstr(Src, partTypes[i]);
-				if (partPtr){ // piece is part type so set info_partType to 1
-					Info->m_iPartType = 1;
-					break;
-				}
-			}
-
-			// Read description
 			for (;;)
 			{
 				if (*Src != '\r' && *Src != '\n' && *Src && Dst - Info->m_strDescription < (int)sizeof(Info->m_strDescription) - 1)
@@ -393,7 +381,6 @@ void lcPiecesLibrary::ReadArchiveDescriptionsAndPartTypes(const QString& Officia
 				*Dst = 0;
 				break;
 			}
-
 		}
 
 		SaveCacheIndex(IndexFileName);
@@ -2465,7 +2452,7 @@ bool lcPiecesLibrary::ReloadUnoffLib()
 
     //load unofficial library content
     if (OpenArchive(mUnofficialFileName, LC_ZIPFILE_UNOFFICIAL)){
-        ReadArchiveDescriptionsAndPartTypes(mLibraryFileName, mUnofficialFileName);
+        ReadArchiveDescriptions(mLibraryFileName, mUnofficialFileName);
     } else
         return false;
 
