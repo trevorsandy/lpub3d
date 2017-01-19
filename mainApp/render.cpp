@@ -340,7 +340,7 @@ int L3P::renderCsi(const QString     &addLine,
 	l3p.setStandardErrorFile(QDir::currentPath() + "/stderr");
 	l3p.setStandardOutputFile(QDir::currentPath() + "/stdout");
 
-    qDebug() << qPrintable("LP3 CSI Arguments: " + Preferences::l3pExe + " " + arguments.join(" ")) << "\n";
+   //qDebug() << qPrintable("LP3 CSI Arguments: " + Preferences::l3pExe + " " + arguments.join(" ")) << "\n";
 
 	l3p.start(Preferences::l3pExe,arguments);
     if ( ! l3p.waitForFinished(rendererTimeout())) {
@@ -397,7 +397,7 @@ int L3P::renderCsi(const QString     &addLine,
 	povray.setStandardErrorFile(QDir::currentPath() + "/stderr-povray");
 	povray.setStandardOutputFile(QDir::currentPath() + "/stdout-povray");
 
-    qDebug() << qPrintable("POV-Ray CSI Arguments: " + Preferences::povrayExe + " " + povArguments.join(" ")) << "\n";
+    //qDebug() << qPrintable("POV-Ray CSI Arguments: " + Preferences::povrayExe + " " + povArguments.join(" ")) << "\n";
 
 	povray.start(Preferences::povrayExe,povArguments);
     if ( ! povray.waitForFinished(rendererTimeout())) {
@@ -476,7 +476,7 @@ int L3P::renderPli(const QString &ldrName,
 	l3p.setStandardErrorFile(QDir::currentPath() + "/stderr");
 	l3p.setStandardOutputFile(QDir::currentPath() + "/stdout");
 
-    qDebug() << qPrintable("LP3 PLI Arguments: " + Preferences::l3pExe + " " + arguments.join(" ")) << "\n";
+    //qDebug() << qPrintable("LP3 PLI Arguments: " + Preferences::l3pExe + " " + arguments.join(" ")) << "\n";
 
 	l3p.start(Preferences::l3pExe,arguments);
     if (! l3p.waitForFinished()) {
@@ -533,7 +533,7 @@ int L3P::renderPli(const QString &ldrName,
 	povray.setStandardErrorFile(QDir::currentPath() + "/stderr-povray");
 	povray.setStandardOutputFile(QDir::currentPath() + "/stdout-povray");
 
-    qDebug() << qPrintable("POV-Ray PLI Arguments: " + Preferences::povrayExe + " " + povArguments.join(" ")) << "\n";
+    //qDebug() << qPrintable("POV-Ray PLI Arguments: " + Preferences::povrayExe + " " + povArguments.join(" ")) << "\n";
 
 	povray.start(Preferences::povrayExe,povArguments);
     if ( ! povray.waitForFinished(rendererTimeout())) {
@@ -646,7 +646,7 @@ int LDGLite::renderCsi(
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout");
 
-  qDebug() << qPrintable("LDGLite CSI Arguments: " + Preferences::ldgliteExe + " " + arguments.join(" ")) << "\n";
+  //qDebug() << qPrintable("LDGLite CSI Arguments: " + Preferences::ldgliteExe + " " + arguments.join(" ")) << "\n";
 
   ldglite.start(Preferences::ldgliteExe,arguments);
   if ( ! ldglite.waitForFinished(rendererTimeout())) {
@@ -729,7 +729,7 @@ int LDGLite::renderPli(
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout");
 
-  qDebug() << qPrintable("LDGLite PLI Arguments: " + Preferences::ldgliteExe + " " + arguments.join(" ")) << "\n";
+  //qDebug() << qPrintable("LDGLite PLI Arguments: " + Preferences::ldgliteExe + " " + arguments.join(" ")) << "\n";
 
   ldglite.start(Preferences::ldgliteExe,arguments);
   if (! ldglite.waitForFinished()) {
@@ -846,7 +846,7 @@ int LDView::renderCsi(
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath()+"/"+Paths::tmpDir);
 
-  qDebug() << qPrintable("LDView (Native) CSI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  //qDebug() << qPrintable("LDView (Native) CSI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
 
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished(rendererTimeout())) {
@@ -885,7 +885,7 @@ int LDView::renderPli(
 
   int cd = cameraDistance(meta,pliMeta.modelScale.value())*1700/1000;
 
-  qDebug() << "LDView (Native) Camera Distance: " << cd;
+  //qDebug() << "LDView (Native) Camera Distance: " << cd;
 
   QString cg = QString("-cg%1,%2,%3") .arg(pliMeta.angle.value(0))
                                       .arg(pliMeta.angle.value(1))
@@ -929,7 +929,7 @@ int LDView::renderPli(
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath());
 
-  qDebug() << qPrintable("LDView (Native) PLI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  //qDebug() << qPrintable("LDView (Native) PLI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
 
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished()) {
@@ -1000,7 +1000,7 @@ int Render::renderLDViewSCallCsi(
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath()+"/"+Paths::tmpDir);
 
-  qDebug() << qPrintable("LDView (Single Call) CSI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  //qDebug() << qPrintable("LDView (Single Call) CSI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
 
   ldview.start(Preferences::ldviewExe,arguments);  
   if ( ! ldview.waitForFinished(rendererTimeout())) {
@@ -1096,7 +1096,7 @@ int Render::renderLDViewSCallPli(
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath());
 
-  qDebug() << qPrintable("LDView (Single Call) PLI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  //qDebug() << qPrintable("LDView (Single Call) PLI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
 
   ldview.start(Preferences::ldviewExe,arguments);  
   if ( ! ldview.waitForFinished(rendererTimeout())) {

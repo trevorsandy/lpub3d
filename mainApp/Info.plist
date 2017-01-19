@@ -10,11 +10,14 @@
 			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>ldr</string>
+				<string>LDR</string>
 				<string>dat</string>
+				<string>DAT</string>
 				<string>mpd</string>
+				<string>MPD</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-                        <string>lpub3d_document.icns</string>
+			<string>lpub3d_document.icns</string>
 			<key>CFBundleTypeMIMETypes</key>
 			<array>
 				<string>application/x-ldraw</string>
@@ -29,11 +32,11 @@
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
-        <string>lpub3d</string>
+	<string>lpub3d</string>
 	<key>CFBundleIconFile</key>
-        <string>lpub3d.icns</string>
+	<string>lpub3d.icns</string>
 	<key>CFBundleIdentifier</key>
-        <string>com.trevorsandy.lpub3d</string>
+	<string>com.trevorsandy.lpub3d</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
@@ -41,11 +44,11 @@
 	<key>CFBundleSignature</key>
 	<string>LCAD</string>
 	<key>CFBundleVersion</key>
-        <string>2.1.20</string>
+	<string>2.1.20</string>
 	<key>CFBundleDisplayName</key>
-        <string>LPub3D</string>
+	<string>LPub3D</string>
 	<key>CFBundleName</key>
-        <string>LPub3D</string>
+	<string>LPub3D</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>

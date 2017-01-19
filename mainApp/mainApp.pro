@@ -135,10 +135,13 @@ unix:!macx {
         isEmpty(MIME_DIR):MIME_DIR = $$INSTALL_PREFIX/share/mime/packages
         isEmpty(MIME_ICON_DIR):MIME_ICON_DIR = $$INSTALL_PREFIX/share/icons/hicolor/scalable/mimetypes
 
+        isEmpty(RESOURCE_DIR):RESOURCE_DIR = $$INSTALL_PREFIX/share/lpub3d
+        isEmpty(LIBS_DIR):LIBS_DIR = $$INSTALL_PREFIX/lib
+
         target.path = $$BIN_DIR
 
         docs.path = $$DOCS_DIR
-        docs.files += docs/README.txt docs/CREDITS.txt docs/COPYING.txt
+        docs.files += docs/README.txt
 
         man.path = $$MAN_DIR
         man.files += lpub3d.1
@@ -147,7 +150,7 @@ unix:!macx {
         desktop.files += lpub3d.desktop
 
         icon.path = $$ICON_DIR
-        icon.files += lpub3d.png
+        icon.files += images/lpub3d.png
 
         mime.path = $$MIME_DIR
         mime.files += lpub3d.xml
@@ -155,7 +158,68 @@ unix:!macx {
         mime_icon.path = $$MIME_ICON_DIR
         mime_icon.files += images/lpub3d.svg
 
-        INSTALLS += target docs man desktop icon mime mime_icon
+        document_readme.path = $$RESOURCE_DIR
+        document_readme.files += docs/README.txt
+
+        document_credits.path = $$RESOURCE_DIR
+        document_credits.files += docs/CREDITS.txt
+
+        document_copying.path = $$RESOURCE_DIR
+        document_copying.files += docs/COPYING.txt
+
+        excluded_parts.path = $$RESOURCE_DIR
+        excluded_parts.files += extras/excludedParts.lst
+
+        fadestep_color_parts.path = $$RESOURCE_DIR
+        fadestep_color_parts.files += extras/fadeStepColorParts.lst
+
+        pli_freeform_annotations.path = $$RESOURCE_DIR
+        pli_freeform_annotations.files += extras/freeformAnnotations.lst
+
+        pli_title_annotations.path = $$RESOURCE_DIR
+        pli_title_annotations.files += extras/titleAnnotations.lst
+
+        pli_orientation.path = $$RESOURCE_DIR
+        pli_orientation.files += extras/pli.mpd
+
+        pli_substitute_parts.path = $$RESOURCE_DIR
+        pli_substitute_parts.files += extras/pliSubstituteParts.lst
+
+        ldraw_unofficial_library.path = $$RESOURCE_DIR
+        ldraw_unofficial_library.files += extras/lpub3dldrawunf.zip
+
+        ldraw_library.path = $$RESOURCE_DIR
+        ldraw_library.files += extras/complete.zip
+
+        CONFIG(release, debug|release) {
+            libquazip.path = $$LIBS_DIR
+            libquazip.files += $$DESTDIR/../../../quazip/build/release/libquazip.SO*
+
+            libldrawini.path = $$LIBS_DIR
+            libldrawini.files += $$DESTDIR/../../../ldrawini/build/release/libldrawini.SO*
+        }
+
+        INSTALLS += \
+            target \
+            docs \
+            man \
+            desktop \
+            icon \
+            mime \
+            mime_icon \
+            document_readme \
+            document_credits \
+            document_copying \
+            excluded_parts \
+            fadestep_color_parts \
+            pli_freeform_annotations \
+            pli_title_annotations \
+            pli_orientation \
+            pli_substitute_parts \
+            ldraw_unofficial_library \
+            ldraw_library \
+            libquazip \
+            libldrawini
 
         DEFINES += LC_INSTALL_PREFIX=\\\"$$INSTALL_PREFIX\\\"
 
@@ -165,6 +229,11 @@ unix:!macx {
 
         !isEmpty(LDRAW_LIBRARY_PATH) {
                 DEFINES += LC_LDRAW_LIBRARY_PATH=\\\"$$LDRAW_LIBRARY_PATH\\\"
+        }
+
+#        isEmpty(IDE_LAUNCH):IDE_LAUNCH = 1
+        !isEmpty(IDE_LAUNCH) {
+                DEFINES += IDE_LAUNCH
         }
 }
 
@@ -191,29 +260,31 @@ macx {
     fadestep_color_parts.files += extras/fadeStepColorParts.lst
     fadestep_color_parts.path = Contents/Resources
 
-    freeform_annotations.files += extras/freeformAnnotations.lst
-    freeform_annotations.path = Contents/Resources
+    pli_freeform_annotations.files += extras/freeformAnnotations.lst
+    pli_freeform_annotations.path = Contents/Resources
 
-    title_annotations.files += extras/titleAnnotations.lst
-    title_annotations.path = Contents/Resources
+    pli_title_annotations.files += extras/titleAnnotations.lst
+    pli_title_annotations.path = Contents/Resources
 
     pli_orientation.files += extras/pli.mpd
     pli_orientation.path = Contents/Resources
 
-    pli_substitution_parts += extras/pliSubstituteParts.lst
-    pli_substitution_parts = Contents/Resources
+    pli_substitute_parts.files += extras/pliSubstituteParts.lst
+    pli_substitute_parts.path = Contents/Resources
 
-    unofficial_library.files += extras/lpub3dldrawunf.zip
-    unofficial_library.path = Contents/Resources
+    ldraw_unofficial_library.files += extras/lpub3dldrawunf.zip
+    ldraw_unofficial_library.path = Contents/Resources
 
-    library.files += extras/complete.zip
-    library.path = Contents/Resources
+    ldraw_library.files += extras/complete.zip
+    ldraw_library.path = Contents/Resources
 
-    libquazip.files += $$DESTDIR/../../../quazip/build/release/libquazip.1.dylib
-    libquazip.path = Contents/Libs
+    CONFIG(release, debug|release) {
+        libquazip.files += $$DESTDIR/../../../quazip/build/release/libquazip.1.dylib
+        libquazip.path = Contents/Libs
 
-    libldrawini.files += $$DESTDIR/../../../ldrawini/build/release/libldrawini.1.dylib
-    libldrawini.path = Contents/Libs
+        libldrawini.files += $$DESTDIR/../../../ldrawini/build/release/libldrawini.1.dylib
+        libldrawini.path = Contents/Libs
+    }
 
     QMAKE_BUNDLE_DATA += \
         document_icon \
@@ -222,12 +293,12 @@ macx {
         document_copying \
         excluded_parts \
         fadestep_color_parts \
-        freeform_annotations \
-        title_annotations \
+        pli_freeform_annotations \
+        pli_title_annotations \
         pli_orientation \
-        pli_substitution_parts \
-        unofficial_library \
-        library \
+        pli_substitute_parts \
+        ldraw_unofficial_library \
+        ldraw_library \
         libquazip \
         libldrawini
 

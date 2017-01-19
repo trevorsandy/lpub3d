@@ -125,7 +125,7 @@ bool lcApplication::LoadPiecesLibrary(const char* LibPath, const char* LibraryIn
 		mLibrary = new lcPiecesLibrary();
 
     if (LibPath && LibPath[0]) {
-        logDebug() << QString("LoadPiecesLibrary loaded with LibPath=%1").arg(LibPath);
+        //logDebug() << QString("LoadPiecesLibrary loaded with LibPath=%1").arg(LibPath);
 		return mLibrary->Load(LibPath);
     }
 
@@ -133,14 +133,14 @@ bool lcApplication::LoadPiecesLibrary(const char* LibPath, const char* LibraryIn
 
 	if (EnvPath && EnvPath[0])
 	{
-        logDebug() << QString("LoadPiecesLibrary loaded with EnvPath=%1").arg(EnvPath);
+        //logDebug() << QString("LoadPiecesLibrary loaded with EnvPath=%1").arg(EnvPath);
 		return mLibrary->Load(EnvPath);
 	}
 
 	QString CustomPath = lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
 
     if (!CustomPath.isEmpty()) {
-        logDebug() << QString("LoadPiecesLibrary loaded with DefaultPath=%1").arg(CustomPath);
+        //logDebug() << QString("LoadPiecesLibrary loaded with DefaultPath=%1").arg(CustomPath);
 		return mLibrary->Load(CustomPath.toLatin1().constData()); // todo: qstring
     }
 
@@ -159,7 +159,7 @@ bool lcApplication::LoadPiecesLibrary(const char* LibPath, const char* LibraryIn
 		if (mLibrary->Load(LibraryPath))
 		{
 			mLibrary->SetOfficialPieces();
-            logDebug() << QString("LoadPiecesLibrary loaded with LibraryInstallPath=%1").arg(LibraryInstallPath);
+            //logDebug() << QString("LoadPiecesLibrary loaded with LibraryInstallPath=%1").arg(LibraryInstallPath);
 			return true;
 		}
 	}
@@ -175,7 +175,7 @@ bool lcApplication::LoadPiecesLibrary(const char* LibPath, const char* LibraryIn
 			strcat(LibraryPath, "/");
 
 		if (mLibrary->Load(LibraryPath))
-            logDebug() << QString("LoadPiecesLibrary loaded with LDrawPath=%1").arg(LDrawPath);
+            //logDebug() << QString("LoadPiecesLibrary loaded with LDrawPath=%1").arg(LDrawPath);
 			return true;
 	}
 

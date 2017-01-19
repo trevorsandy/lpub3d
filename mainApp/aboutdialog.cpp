@@ -203,17 +203,15 @@ AboutDialog::~AboutDialog()
 }
 
 void AboutDialog::showReadmeDetails(bool clicked){
-    clicked = clicked;
+    Q_UNUSED(clicked);
     //populate readme
     QString readmeFile;
 #ifdef Q_OS_WIN
     readmeFile = QString("%1/%2").arg(Preferences::lpub3dPath).arg("README.txt");
-#elif defined Q_OS_MAC
-    readmeFile = QString("%1/%2").arg(Preferences::lpub3dMacResourcePath).arg("README.txt");
 #else
-    // TODO define Linux Path
-    readmeFile = QString("%1/%2").arg(Preferences::lpub3dPath).arg("README.txt");
+    readmeFile = QString("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dMacResourcePath).arg("README.txt");
 #endif
+
     QFile file(readmeFile);
     if (! file.open(QFile::ReadOnly | QFile::Text)) {
         content = QString("Failed to open Readme file: \n%1:\n%2")
@@ -239,16 +237,13 @@ void AboutDialog::showReadmeDetails(bool clicked){
 }
 
 void AboutDialog::showCreditDetails(bool clicked){
-    clicked = clicked;
+    Q_UNUSED(clicked);
     //populate credits
     QString creditsFile;
 #ifdef Q_OS_WIN
     creditsFile = QString("%1/%2").arg(Preferences::lpub3dPath).arg("docs/CREDITS.txt");
-#elif defined Q_OS_MAC
-    creditsFile = QString("%1/%2").arg(Preferences::lpub3dMacResourcePath).arg("docs/CREDITS.txt");
 #else
-    // TODO define Linux Path
-    creditsFile = QString("%1/%2").arg(Preferences::lpub3dPath).arg("/docs/CREDITS.txt");
+    creditsFile = QString("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dMacResourcePath).arg("CREDITS.txt");
 #endif
     QFile file(creditsFile);
     if (! file.open(QFile::ReadOnly | QFile::Text)) {
