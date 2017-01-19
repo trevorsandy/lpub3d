@@ -22,13 +22,12 @@ QT -= gui
 # And so on.
 
 win32 {
-
     QMAKE_EXT_OBJ = .obj
     CONFIG += windows
     CONFIG += debug_and_release	
-greaterThan(QT_MAJOR_VERSION, 4): LIBS += -lz
-
 }
+
+LIBS += -lz
 
 # This one handles dllimport/dllexport directives.
 DEFINES += QUAZIP_BUILD
