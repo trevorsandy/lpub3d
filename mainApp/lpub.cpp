@@ -1733,49 +1733,50 @@ void Gui::createActions()
     saveAct->setEnabled(false);
     connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
 
-    saveAsAct = new QAction(QIcon(":/resources/saveas.png"),tr("Save &As..."), this);
+    saveAsAct = new QAction(QIcon(":/resources/saveas.png"),tr("Save A&s..."), this);
+    saveAsAct->setShortcut(tr("Ctrl+Shift+S"));
     saveAsAct->setStatusTip(tr("Save the document under a new name"));
     saveAsAct->setEnabled(false);
     connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
-    closeFileAct = new QAction(QIcon(":/resources/closemodelfile.png"), tr("&Close..."), this);
+    closeFileAct = new QAction(QIcon(":/resources/closemodelfile.png"), tr("Cl&ose..."), this);
     closeFileAct->setShortcut(tr("Ctrl+O"));
     closeFileAct->setStatusTip(tr("Close an existing file"));
     closeFileAct->setEnabled(false);
     connect(closeFileAct, SIGNAL(triggered()), this, SLOT(closeModelFile()));
 
     printToFileAct = new QAction(QIcon(":/resources/file_print.png"), tr("&Print..."), this);
-    printToFileAct->setShortcut(tr("Ctrl+P"));
+    printToFileAct->setShortcut(tr("Ctrl+T"));
     printToFileAct->setStatusTip(tr("Print the current document"));
     printToFileAct->setEnabled(false);
     connect(printToFileAct, SIGNAL(triggered()), this, SLOT(ShowPrintDialog()));
 
-    exportAsPdfPreviewAct = new QAction(QIcon(":/resources/pdf_print_preview.png"), tr("PDF Export Pre&view..."), this);
-    exportAsPdfPreviewAct->setShortcut(tr("Ctrl+F"));
+    exportAsPdfPreviewAct = new QAction(QIcon(":/resources/pdf_print_preview.png"), tr("PDF Export Preview..."), this);
+    exportAsPdfPreviewAct->setShortcut(tr("Alt+P"));
     exportAsPdfPreviewAct->setStatusTip(tr("Preview the current document to be printed"));
     exportAsPdfPreviewAct->setEnabled(false);
     connect(exportAsPdfPreviewAct, SIGNAL(triggered()), this, SLOT(TogglePrintPreview()));
 
     exportAsPdfAct = new QAction(QIcon(":/resources/pdf_logo.png"), tr("Export to PDF &File"), this);
-    exportAsPdfAct->setShortcut(tr("Ctrl+F"));
+    exportAsPdfAct->setShortcut(tr("Alt+F"));
     exportAsPdfAct->setStatusTip(tr("Export your document to a pdf file"));
     exportAsPdfAct->setEnabled(false);
     connect(exportAsPdfAct, SIGNAL(triggered()), this, SLOT(exportAsPdfDialog()));
 
-    exportPngAct = new QAction(QIcon(":/resources/exportpng.png"),tr("Export As &PNG Images"), this);
-    exportPngAct->setShortcut(tr("Ctrl+Shift+P"));
+    exportPngAct = new QAction(QIcon(":/resources/exportpng.png"),tr("Export As P&NG Images"), this);
+    exportPngAct->setShortcut(tr("Alt+N"));
     exportPngAct->setStatusTip(tr("Export your document as a sequence of PNG images"));
     exportPngAct->setEnabled(false);
     connect(exportPngAct, SIGNAL(triggered()), this, SLOT(exportAsPngDialog()));
 
     exportJpgAct = new QAction(QIcon(":/resources/exportjpeg.png"),tr("Export As &JPEG Images"), this);
-    exportJpgAct->setShortcut(tr("Ctrl+J"));
+    exportJpgAct->setShortcut(tr("Alt+J"));
     exportJpgAct->setStatusTip(tr("Export your document as a sequence of JPEG images"));
     exportJpgAct->setEnabled(false);
     connect(exportJpgAct, SIGNAL(triggered()), this, SLOT(exportAsJpgDialog()));
 
     exportBmpAct = new QAction(QIcon(":/resources/exportbmp.png"),tr("Export As &Bitmap Images"), this);
-    exportBmpAct->setShortcut(tr("Ctrl+B"));
+    exportBmpAct->setShortcut(tr("Alt+B"));
     exportBmpAct->setStatusTip(tr("Export your document as a sequence of bitmap images"));
     exportBmpAct->setEnabled(false);
     connect(exportBmpAct, SIGNAL(triggered()), this, SLOT(exportAsBmpDialog()));
@@ -1856,20 +1857,20 @@ void Gui::createActions()
 
     // fitWidth,fitVisible,actualSize
 
-    fitWidthAct = new QAction(QIcon(":/resources/fitWidth.png"), tr("Fit Width"), this);
-    fitWidthAct->setShortcut(tr("Ctrl+W"));
+    fitWidthAct = new QAction(QIcon(":/resources/fitWidth.png"), tr("Fit &Width"), this);
+    fitWidthAct->setShortcut(tr("Alt+W"));
     fitWidthAct->setStatusTip(tr("Fit document to width"));
     fitWidthAct->setEnabled(false);
     connect(fitWidthAct, SIGNAL(triggered()), this, SLOT(fitWidth()));
 
-    fitVisibleAct = new QAction(QIcon(":/resources/fitVisible.png"), tr("Fit Visible"), this);
-    fitVisibleAct->setShortcut(tr("Ctrl+I"));
+    fitVisibleAct = new QAction(QIcon(":/resources/fitVisible.png"), tr("Fit &Visible"), this);
+    fitVisibleAct->setShortcut(tr("Alt+V"));
     fitVisibleAct->setStatusTip(tr("Fit document so whole page is visible"));
     fitVisibleAct->setEnabled(false);
     connect(fitVisibleAct, SIGNAL(triggered()), this, SLOT(fitVisible()));
 
-    actualSizeAct = new QAction(QIcon(":/resources/actual.png"),tr("Actual Size"), this);
-    actualSizeAct->setShortcut(tr("Ctrl+A"));
+    actualSizeAct = new QAction(QIcon(":/resources/actual.png"),tr("&Actual Size"), this);
+    actualSizeAct->setShortcut(tr("Alt+A"));
     actualSizeAct->setStatusTip(tr("Show document actual size"));
     actualSizeAct->setEnabled(false);
     connect(actualSizeAct, SIGNAL(triggered()), this, SLOT(actualSize()));
@@ -1894,7 +1895,7 @@ void Gui::createActions()
     // firstPage,lastPage,nextPage,previousPage
 
     firstPageAct = new QAction(QIcon(":/resources/first.png"),tr("First Page"), this);
-    firstPageAct->setShortcut(tr("Ctrl+F"));
+    firstPageAct->setShortcut(tr("Ctrl+P"));
     firstPageAct->setStatusTip(tr("Go to first page of document"));
     firstPageAct->setEnabled(false);
     connect(firstPageAct, SIGNAL(triggered()), this, SLOT(firstPage()));
@@ -1912,7 +1913,7 @@ void Gui::createActions()
     connect(nextPageAct, SIGNAL(triggered()), this, SLOT(nextPage()));
 
     previousPageAct = new QAction(QIcon(":/resources/prev.png"),tr("&Previous Page"),this);
-    previousPageAct->setShortcut(tr("Ctrl+P"));
+    previousPageAct->setShortcut(tr("Ctrl+E"));
     previousPageAct->setStatusTip(tr("Go to previous page of document"));
     previousPageAct->setEnabled(false);
     connect(previousPageAct, SIGNAL(triggered()), this, SLOT(prevPage()));

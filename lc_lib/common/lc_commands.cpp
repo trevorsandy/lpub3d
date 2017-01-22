@@ -9,14 +9,14 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		"File.New",
 		QT_TRANSLATE_NOOP("Menu", "&New"),
 		QT_TRANSLATE_NOOP("Status", "Create a new project"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+N")
+		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_FILE_OPEN
 	{
 		"File.Open",
 		QT_TRANSLATE_NOOP("Menu", "&Open..."),
 		QT_TRANSLATE_NOOP("Status", "Open an existing project"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+O")
+		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_FILE_MERGE
 	{
@@ -30,14 +30,14 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		"File.Save",
 		QT_TRANSLATE_NOOP("Menu", "&Save"),
 		QT_TRANSLATE_NOOP("Status", "Save the active project"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+S")
+		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_FILE_SAVEAS
 	{
 		"File.SaveAs",
 		QT_TRANSLATE_NOOP("Menu", "Save &As..."),
 		QT_TRANSLATE_NOOP("Status", "Save the active project with a new name"),
-		QT_TRANSLATE_NOOP("Shortcut", "")
+		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+Alt+S")
 	},
 	// LC_FILE_SAVE_IMAGE
 	{
@@ -149,42 +149,42 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		"Edit.Undo",
 		QT_TRANSLATE_NOOP("Menu", "&Undo"),
 		QT_TRANSLATE_NOOP("Status", "Undo the last action"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+Z")
+		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+Shift+Z")
 	},
 	// LC_EDIT_REDO
 	{
 		"Edit.Redo",
 		QT_TRANSLATE_NOOP("Menu", "&Redo"),
 		QT_TRANSLATE_NOOP("Status", "Redo the previously undone action"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+Y")
+		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+Shift+Y")
 	},
 	// LC_EDIT_CUT
 	{
 		"Edit.Cut",
 		QT_TRANSLATE_NOOP("Menu", "Cu&t"),
 		QT_TRANSLATE_NOOP("Status", "Cut the selection and put it on the Clipboard"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+X")
+		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_EDIT_COPY
 	{
 		"Edit.Copy",
 		QT_TRANSLATE_NOOP("Menu", "&Copy"),
 		QT_TRANSLATE_NOOP("Status", "Copy the selection and put it on the Clipboard"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+C")
+		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+Shift+C")
 	},
 	// LC_EDIT_PASTE
 	{
 		"Edit.Paste",
 		QT_TRANSLATE_NOOP("Menu", "&Paste"),
 		QT_TRANSLATE_NOOP("Status", "Insert Clipboard contents"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+V")
+		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_EDIT_FIND
 	{
 		"Edit.Find",
 		QT_TRANSLATE_NOOP("Menu", "&Find..."),
 		QT_TRANSLATE_NOOP("Status", "Find object"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+F")
+		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+Shift+F")
 	},
 	// LC_EDIT_FIND_NEXT
 	{
@@ -205,7 +205,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		"Edit.SelectAll",
 		QT_TRANSLATE_NOOP("Menu", "Select &All"),
 		QT_TRANSLATE_NOOP("Status", "Select all pieces in the project"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+A")
+		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+Shift+A")
 	},
 	// LC_EDIT_SELECT_NONE
 	{
@@ -219,7 +219,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		"Edit.SelectInvert",
 		QT_TRANSLATE_NOOP("Menu", "Select &Invert"),
 		QT_TRANSLATE_NOOP("Status", "Invert the current selection set"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+I")
+		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+Shift+I")
 	},
 	// LC_EDIT_SELECT_BY_NAME
 	{
@@ -618,14 +618,14 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		"Edit.Tool.ZoomRegion",
 		QT_TRANSLATE_NOOP("Menu", "Zoom Region"),
 		QT_TRANSLATE_NOOP("Status", "Zoom into a region of the screen"),
-		QT_TRANSLATE_NOOP("Shortcut", "")
+		QT_TRANSLATE_NOOP("Shortcut", "Shift+G")
 	},
     // LC_EDIT_ACTION_ROTATESTEP
     {
         "Edit.Tool.RotateStep",
         QT_TRANSLATE_NOOP("Menu", "Insert ROTSTEP"),
         QT_TRANSLATE_NOOP("Status", "Insert or update LPub ROTSTEP meta"),
-        QT_TRANSLATE_NOOP("Shortcut", "")
+        QT_TRANSLATE_NOOP("Shortcut", "Shift+O")
     },
     // LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION
     {
@@ -1073,14 +1073,14 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		"Piece.Group",
 		QT_TRANSLATE_NOOP("Menu", "&Group..."),
 		QT_TRANSLATE_NOOP("Status", "Group selected pieces together"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+G")
+		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_PIECE_UNGROUP
 	{
 		"Piece.Ungroup",
 		QT_TRANSLATE_NOOP("Menu", "&Ungroup"),
 		QT_TRANSLATE_NOOP("Status", "Ungroup selected group"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+U")
+		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_PIECE_GROUP_ADD
 	{
@@ -1115,21 +1115,21 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		"Piece.HideUnselected",
 		QT_TRANSLATE_NOOP("Menu", "Hide &Unselected"),
 		QT_TRANSLATE_NOOP("Status", "Hide objects that are not selected"),
-		QT_TRANSLATE_NOOP("Shortcut", "")
+		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+Shift+H")
 	},
 	// LC_PIECE_UNHIDE_SELECTED
 	{
 		"Piece.UnhideSelected",
 		QT_TRANSLATE_NOOP("Menu", "&Unhide Selected"),
 		QT_TRANSLATE_NOOP("Status", "Show hidden objects that are selected"),
-		QT_TRANSLATE_NOOP("Shortcut", "")
+		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+Shift+U")
 	},
 	// LC_PIECE_UNHIDE_ALL
 	{
 		"Piece.UnhideAll",
 		QT_TRANSLATE_NOOP("Menu", "U&nhide All"),
 		QT_TRANSLATE_NOOP("Status", "Show all hidden objects"),
-		QT_TRANSLATE_NOOP("Shortcut", "")
+		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+U")
 	},
 	// LC_PIECE_SHOW_EARLIER
 	{

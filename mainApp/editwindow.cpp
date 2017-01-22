@@ -415,7 +415,7 @@ void QTextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 void QTextEditor::findDialog(){
 
     popUp = new QWidget;
-    popUp->setWindowTitle("Find");
+    popUp->setWindowTitle("LDraw File Editor Find");
 
     layout = new QGridLayout;
 

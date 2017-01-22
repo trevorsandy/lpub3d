@@ -58,7 +58,7 @@ class ParmsWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    ParmsWindow(QMainWindow *parent = 0);
+  ParmsWindow(QMainWindow *parent = 0);
 
 protected:
 
@@ -100,6 +100,7 @@ public slots:
 
 public:
     TextEditor *textEdit() { return _textEdit; }
+    void setWindowTitle(const QString &title);
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -122,6 +123,7 @@ public:
     QPushButton *buttonFindClear;
     QGridLayout *layout;
     QWidget     *popUp;
+    QString     windowTitle;
 
 protected:
     void resizeEvent(QResizeEvent *event);

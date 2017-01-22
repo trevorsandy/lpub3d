@@ -318,6 +318,11 @@ void ParmsWindow::readSettings()
     Settings.endGroup();
 }
 
+void ParmsWindow::setWindowTitle(const QString &title){
+    QMainWindow::setWindowTitle(title);
+
+    _textEdit->windowTitle = title;
+}
 void ParmsWindow::writeSettings()
 {
     QSettings Settings;
@@ -436,7 +441,7 @@ void TextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 void TextEditor::findDialog(){
 
     popUp = new QWidget;
-    popUp->setWindowTitle("Find");
+    popUp->setWindowTitle(tr("%1 Find").arg(windowTitle));
 
     layout = new QGridLayout;
 
