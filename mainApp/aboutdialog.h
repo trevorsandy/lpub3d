@@ -39,7 +39,7 @@ private slots:
     void showCreditDetails(bool);
 
 public:
-	explicit AboutDialog(QWidget *parent, void *data);
+        explicit AboutDialog(QWidget *parent);
     QString osName();
     QPushButton *detailsButton;
     QPushButton *creditsButton;

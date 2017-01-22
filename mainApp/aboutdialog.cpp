@@ -27,7 +27,7 @@
 #include "lc_global.h"
 #include "lpub_preferences.h"
  
-AboutDialog::AboutDialog(QWidget *parent, void *data) :
+AboutDialog::AboutDialog(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::AboutDialog)
 {
@@ -36,9 +36,11 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
     ui->contentGroupBox->hide();
 
     ui->version->setTextFormat(Qt::RichText);
-    ui->version->setText(tr("Version <b>%1</b> Revision <b>%2</b> Build <b>%3</b>").arg(QString::fromLatin1(VER_PRODUCTVERSION_STR))
-                                                                                   .arg(QString::fromLatin1(VER_REVISION_STR))
-                                                                                   .arg(QString::fromLatin1(VER_BUILD_STR)));
+    ui->version->setText(tr("Version <b>%1</b> Revision <b>%2</b> Build <b>%3</b> Hash <b>%4</b>")
+                         .arg(QString::fromLatin1(VER_PRODUCTVERSION_STR))
+                         .arg(QString::fromLatin1(VER_REVISION_STR))
+                         .arg(QString::fromLatin1(VER_BUILD_STR))
+                         .arg(QString::fromLatin1(VER_SHA_HASH_STR)));
     ui->description->setTextFormat(Qt::RichText);
     ui->description->setText(tr("<p><b>%1</b> is an LDraw&trade; building instruction editor.<br><br>"
                                 "%2</p>").arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
@@ -57,8 +59,8 @@ AboutDialog::AboutDialog(QWidget *parent, void *data) :
                                          "<b>%1</b> is a free WYSIWYG editing application for<br>"
                                          "creating LEGO&copy; style digital building instructions<br>"
                                          "for LDraw&trade; based digital models.<br><br>"
-                                         "%1 is a major refresh of Kevin Clague's LPub&copy;<br>"
-                                         "incorporating LeoCAD&copy; to render 3D visualization.<br>"
+                                         "%1 uses source code from Kevin Clague's LPub&copy;<br>"
+                                         ", LeoCAD&copy; and other 3rd party contributors.<br>"
                                        "</td>"
                                        "<td valign=\"middle\">"
                                          "<a href=\"%5\"><img src=\":/resources/gplv3.png\"></a>"

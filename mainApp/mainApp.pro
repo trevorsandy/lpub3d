@@ -297,6 +297,7 @@ include(../lc_lib/lc_lib.pri)
 include(../qslog/QsLog.pri)
 include(../qsimpleupdater/QSimpleUpdater.pri)
 include(../LPub3DPlatformSpecific.pri)
+include(../gitversion.pri)
 
 HEADERS += \
     aboutdialog.h \
@@ -306,7 +307,6 @@ HEADERS += \
     backgrounddialog.h \
     backgrounditem.h \
     borderdialog.h \
-    build.h \
     callout.h \
     calloutbackgrounditem.h \
     color.h \
@@ -469,11 +469,6 @@ RESOURCES += \
 DISTFILES += \
     lpub3d_document.icns
 
-!win32 {
-    TRANSLATIONS = ../lc_lib/resources/leocad_pt.ts
-}
-
-#message(FINAL CONFIG:)
 #message($$CONFIG)
 
 

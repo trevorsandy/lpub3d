@@ -14,26 +14,19 @@
 
 #ifndef VERSION_H
 #define VERSION_H
-// ~~~~~ local includes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-#include "build.h"
 
 // ~~~~~ predefines ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 #define STR(x)   #x
 #define STRING(x)  STR(x)
 
 // ~~~~~ Version info ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-#define VER_MAJOR                           2
-#define VER_MINOR                           0
-#define VER_SP                              19
 
-#define VER_BUILD_STR                       _BUILD_NUMBER
-#define VER_REVISION_STR                    _BUILD_REVISION
-#define VER_BUILDDATE_STR                   _BUILD_DATE
+#define VER_BUILDDATE_STR                   DATE_YY " " DATE_MM " " DATE_DD " " BUILD_TIME "\0"
 
 #define VER_FILEVERSION             		VER_MAJOR,VER_MINOR,VER_SP,VER_REVISION_STR,VER_BUILD_STR
 #define VER_FILEVERSION_STR         		STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SP) "." VER_REVISION_STR "." VER_BUILD_STR "\0"
 #define VER_PRODUCTVERSION          		VER_MAJOR,VER_MINOR,VER_SP
-#define VER_PRODUCTVERSION_STR      		STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SP) "\0"
+#define VER_PRODUCTVERSION_STR      		VER_MAJOR "." VER_MINOR "." VER_SP "\0"
 #define VER_UPDATEABLE_VERSIONS_STR         "2.0.20,2.0.19,1.3.5,1.2.3,1.0.0"
 #define VER_LOGGING_LEVELS_STR              "STATUS,INFO,TRACE,DEBUG,NOTICE,ERROR,FATAL,OFF"
 #define VER_PRODUCTNAME_STR         		"LPub3D"
