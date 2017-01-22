@@ -1610,7 +1610,7 @@ QApplication::processEvents();
 
 bool Gui::aboutDialog()
 {
-    AboutDialog Dialog(this, NULL);
+    AboutDialog Dialog(this);
     return Dialog.exec() == QDialog::Accepted;
 }
 
