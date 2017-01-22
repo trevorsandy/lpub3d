@@ -83,8 +83,16 @@ unix:!macx {
 CONFIG(debug, debug|release) {
     message("~~~ MAIN_APP DEBUG build ~~~")
     DESTDIR = build/debug
-    LIBS += -L$$DESTDIR/../../../ldrawini/build/debug -lldrawini
-    !quazipnobuild: LIBS += -L$$DESTDIR/../../../quazip/build/debug -lquazip
+    macx {
+        LDRAWINILIB = ldrawini_debug
+        QUAZIPLIB = quazip_debug
+    }
+    win32 {
+        LDRAWINILIB = ldrawinid
+        QUAZIPLIB = quazipd
+    }
+    LIBS += -L$$DESTDIR/../../../ldrawini/build/debug -l$$LDRAWINILIB
+    !quazipnobuild: LIBS += -L$$DESTDIR/../../../quazip/build/debug -l$$QUAZIPLIB
     macx: TARGET = $$join(TARGET,,,_debug)
     win32: TARGET = $$join(TARGET,,,d)
 } else {

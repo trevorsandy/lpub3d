@@ -884,10 +884,10 @@ void Preferences::renderPreferences()
     QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/ldglite1.3.1_2g2x_Win/ldglite.exe"));
     QFileInfo l3pInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/l3p1.4WinB/L3P.exe"));
     #ifdef _WIN64
-        QFileInfo ldviewInfo(QString().arg("C:/Program Files/LDView/LDView64.exe"));
+        QFileInfo ldviewInfo(QString("%1").arg("C:/Program Files/LDView/LDView64.exe"));
         QFileInfo povrayInfo(QString("%1").arg("C:/Program Files/POV-Ray/v3.7/bin/povengine32.exe"));
     #else
-        QFileInfo ldviewInfo(QString().arg("C:/Program Files (x86)/LDView/LDView32.exe"));
+        QFileInfo ldviewInfo(QString("%1").arg("C:/Program Files (x86)/LDView/LDView32.exe"));
         QFileInfo povrayInfo(QString("%1").arg("C:/Program Files (x86)/POV-Ray/v3.7/bin/povengine64.exe"));
     #endif
 #elif defined Q_OS_MAC
