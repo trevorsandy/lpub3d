@@ -82,6 +82,7 @@ unix:!macx {
 
 CONFIG(debug, debug|release) {
     message("~~~ MAIN_APP DEBUG build ~~~")
+    DEFINES += QT_DEBUG_MODE
     DESTDIR = build/debug
     macx {
         LDRAWINILIB = ldrawini_debug
@@ -143,6 +144,10 @@ unix:!macx {
 		QMAKE_CXXFLAGS += -std=c++0x
 	    }
 	}
+
+        deb: DEFINES += DEB_DISTRO
+        rpm: DEFINES += RPM_DISTRO
+        arch: DEFINES += ARCH_DISTRO
 
         # These settings are used for package distributions that will require elevated rights to install
         isEmpty(INSTALL_PREFIX):INSTALL_PREFIX = /usr

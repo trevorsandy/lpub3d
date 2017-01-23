@@ -33,28 +33,28 @@ GIT_VERSION ~= s/-/"."
 GIT_VERSION ~= s/g/""
 GIT_VERSION ~= s/v/""
 
-# Separate the build number into major, minor and service pack
+# Separate the build number into major, minor and service pack etc.
 VER_MAJOR = $$section(GIT_VERSION, ., 0, 0)
 VER_MINOR = $$section(GIT_VERSION, ., 1, 1)
 VER_SP = $$section(GIT_VERSION, ., 2, 2)
-
-VER_BUILD_STR = $$section(GIT_VERSION, ., 3, 3)
+VER_REVISION_STR = $$section(GIT_VERSION, ., 3, 3)
 VER_SHA_HASH_STR = $$section(GIT_VERSION, ., 4, 4)
-VER_REVISION_STR = $$section(GIT_VERSION, ., 5, 5)
+VER_BUILD_STR = $$section(GIT_VERSION, ., 5, 5)
 #message("GIT_VERSION PROCESSED:" $$GIT_VERSION)
 
 # Here we process the build date
 win32 {
     BUILD_DATE = $$system( date /t )
-    BUILD_TIME = $$system( time /t )
+    BUILD_TIME = $$system( echo %time% )
 } else {
-    BUILD_DATE = $$system( date "+%d/%m/%Y_%H:%M:%S" )
-    BUILD_TIME = $$section(BUILD_DATE, _, 1, 1)
+    BUILD_DATE = $$system( date "+%d/%m/%Y/%H:%M:%S" )
+    BUILD_TIME = $$section(BUILD_DATE, /, 3, 3)
 }
+# Separate the date into hours, minutes, seconds etc.
 DATE_DD = $$section(BUILD_DATE, /, 0, 0)
 DATE_MM = $$section(BUILD_DATE, /, 1, 1)
 DATE_YY = $$section(BUILD_DATE, /, 2, 2)
-#message("VER_BUILDDATE_STR:" $$VER_BUILDDATE_STR ) # output the current time
+#message("BUILD_TIME:" $$BUILD_TIME ) # output the current time
 
 # Now we are ready to pass parsed version to Qt
 VERSION = $$GIT_VERSION
@@ -87,3 +87,13 @@ macx {
     INFO_PLIST_PATH = $$shell_quote($${OUT_PWD}/$${TARGET}.app/Contents/Info.plist)
     QMAKE_POST_LINK += /usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $${VERSION}\" $${INFO_PLIST_PATH}
 }
+
+win32 {
+   BUILD_INFO = $$PWD/builds/windows/setup/versioninfo.txt
+   BUILD_INFO ~= s,/,\\,g
+   COMMAND = \"$$VER_MAJOR $$VER_MINOR $$VER_SP $$VER_REVISION_STR $$VER_BUILD_STR\",\"$$DATE_YY $$DATE_MM $$DATE_DD $$BUILD_TIME\"
+   QMAKE_POST_LINK += $$quote(cmd /c echo $$shell_quote$${COMMAND} > $$shell_quote$${BUILD_INFO})
+   #message($$quote(cmd /c echo $$shell_quote$${COMMAND} > $$shell_quote$${BUILD_INFO}))
+   message($${COMMAND})
+}
+
