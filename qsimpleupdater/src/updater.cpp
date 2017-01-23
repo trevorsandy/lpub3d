@@ -77,7 +77,13 @@ Updater::Updater() {
 #elif defined Q_OS_MAC
     m_platform = "osx";
 #elif defined Q_OS_LINUX
-    m_platform = "linux";
+  #if defined DEB_DISTRO
+      m_platform = "linux-deb"
+  #elif defined RPM_DISTRO
+      m_platform = "linux-rpm"
+  #elif defined ARCH_DISTO
+      m_platform = "linux-arch"
+  #endif
 #elif defined Q_OS_ANDROID
     m_platform = "android";
 #elif defined Q_OS_IOS
@@ -407,9 +413,14 @@ void Updater::onReply (QNetworkReply* reply) {
             if (moduleVersion() == qApp->applicationVersion()) {
                 // we are looking to update the latest version
                 m_openUrl = platform.value ("open-url").toString();
-                m_downloadUrl = platform.value ("download-url-").toString();
                 m_latestVersion = platform.value ("latest-version").toString();
+#if defined Q_OS_WIN  //backward compatabiltiy for Windows only
+                m_downloadUrl = platform.value ("download-url-").toString();
                 _changelogUrl = platform.value ("changelog-url-").toString();
+#else
+                m_downloadUrl = platform.value ("download-url").toString();
+                _changelogUrl = platform.value ("changelog-url").toString();
+#endif
                 _updateAvailable = compare (latestVersion(), moduleVersion());
 
             } else {
@@ -444,9 +455,14 @@ void Updater::onReply (QNetworkReply* reply) {
                             if (versions[updateIndex] == latestVersion){
                                 // Update to version is same as latest version - i.e. reinstall latest version
                                 m_openUrl = platform.value ("open-url").toString();
-                                m_downloadUrl = platform.value ("download-url-").toString();
                                 m_latestVersion = platform.value ("latest-version").toString();
+#if defined Q_OS_WIN  //backward compatabiltiy for Windows only
+                                m_downloadUrl = platform.value ("download-url-").toString();                               
                                 _changelogUrl = platform.value ("changelog-url-").toString();
+#else
+                                m_downloadUrl = platform.value ("download-url").toString();
+                                _changelogUrl = platform.value ("changelog-url").toString();
+#endif
                             } else {
                                 // Update to version is othere than the latest version
                                 QJsonObject altVersion = platform.value(QString("alternate-version-%1").arg(versions[updateIndex])).toObject();

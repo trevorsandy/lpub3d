@@ -23,44 +23,49 @@
 
 #define VER_BUILDDATE_STR                   DATE_YY " " DATE_MM " " DATE_DD " " BUILD_TIME "\0"
 
-#define VER_FILEVERSION             		VER_MAJOR,VER_MINOR,VER_SP,VER_REVISION_STR,VER_BUILD_STR
-#define VER_FILEVERSION_STR         		STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SP) "." VER_REVISION_STR "." VER_BUILD_STR "\0"
-#define VER_PRODUCTVERSION          		VER_MAJOR,VER_MINOR,VER_SP
-#define VER_PRODUCTVERSION_STR      		VER_MAJOR "." VER_MINOR "." VER_SP "\0"
-#define VER_UPDATEABLE_VERSIONS_STR         "2.0.20,2.0.19,1.3.5,1.2.3,1.0.0"
+#define VER_FILEVERSION                     VER_MAJOR,VER_MINOR,VER_SP,VER_REVISION_STR,VER_BUILD_STR
+#define VER_FILEVERSION_STR                 STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SP) "." VER_REVISION_STR "." VER_BUILD_STR "\0"
+#define VER_PRODUCTVERSION                  VER_MAJOR,VER_MINOR,VER_SP
+#define VER_PRODUCTVERSION_STR              VER_MAJOR "." VER_MINOR "." VER_SP "\0"
+#define VER_UPDATEABLE_VERSIONS_STR         "2.0.19,2.0.18,1.3.5,1.2.3,1.0.0"
 #define VER_LOGGING_LEVELS_STR              "STATUS,INFO,TRACE,DEBUG,NOTICE,ERROR,FATAL,OFF"
-#define VER_PRODUCTNAME_STR         		"LPub3D"
-#define VER_COMPANYNAME_STR         		"LPub3D Software Maint"
-#define VER_FILEDESCRIPTION_STR     		"LPub3D - An LDraw Building Instruction Editor"
-#define VER_INTERNALNAME_STR        		"bociphus"
-#define VER_LEGALCOPYRIGHT_STR      		"Copyright &copy; 2015 - 2017 by Trevor SANDY"
-#define VER_LEGALTRADEMARKS1_STR    		"All Rights Reserved"
-#define VER_LEGALTRADEMARKS2_STR    		VER_LEGALTRADEMARKS1_STR
-#define VER_ORIGINALFILENAME_STR    		"LPub3D.exe"
-#define VER_PUBLISHER_STR           		"Trevor SANDY"
-#define VER_PUBLISHER_EMAIL_STR     		"trevor.sandy@gmail.com"
-#define VER_PUBLISHER_SUPPORT_EMAIL_STR		"mailto:trevor.sandy@gmail.com?subject=LPub3D Version " VER_FILEVERSION_STR
+#define VER_PRODUCTNAME_STR                 "LPub3D"
+#ifdef QT_DEBUG_MODE
+  #define COMPANYNAME_STR                   "LPub3D Software Maint"
+#else
+  #define COMPANYNAME_STR                   "LPub3D Software"
+#endif
+#define VER_COMPANYNAME_STR                 COMPANYNAME_STR
+#define VER_FILEDESCRIPTION_STR             "LPub3D - An LDraw Building Instruction Editor"
+#define VER_INTERNALNAME_STR                "bociphus"
+#define VER_LEGALCOPYRIGHT_STR              "Copyright &copy; 2015 - 2017 by Trevor SANDY"
+#define VER_LEGALTRADEMARKS1_STR            "All Rights Reserved"
+#define VER_LEGALTRADEMARKS2_STR            VER_LEGALTRADEMARKS1_STR
+#define VER_ORIGINALFILENAME_STR            "LPub3D.exe"
+#define VER_PUBLISHER_STR                   "Trevor SANDY"
+#define VER_PUBLISHER_EMAIL_STR             "trevor.sandy@gmail.com"
+#define VER_PUBLISHER_SUPPORT_EMAIL_STR     "mailto:trevor.sandy@gmail.com?subject=LPub3D Version " VER_FILEVERSION_STR
 
-#define VER_FADESTEP_COLORPARTS_FILE		"fadeStepColorParts.lst"
-#define VER_FREEFOM_ANNOTATIONS_FILE		"freeformAnnotations.lst"
+#define VER_FADESTEP_COLORPARTS_FILE        "fadeStepColorParts.lst"
+#define VER_FREEFOM_ANNOTATIONS_FILE        "freeformAnnotations.lst"
 #define VER_EXTRAS_LDCONFIG_FILE            "LDConfig.ldr"
-#define VER_PDFPRINT_IMAGE_FILE				"PDFPrint.jpg"
-#define VER_PLI_MPD_FILE					"pli.mpd"
-#define VER_PLI_SUBSTITUTE_PARTS_FILE		"pliSubstituteParts.lst"
-#define VER_TITLE_ANNOTATIONS_FILE			"titleAnnotations.lst"
+#define VER_PDFPRINT_IMAGE_FILE             "PDFPrint.jpg"
+#define VER_PLI_MPD_FILE                    "pli.mpd"
+#define VER_PLI_SUBSTITUTE_PARTS_FILE       "pliSubstituteParts.lst"
+#define VER_TITLE_ANNOTATIONS_FILE          "titleAnnotations.lst"
 #define VER_EXCLUDED_PARTS_FILE             "excludedParts.lst"
 
 #define VER_LDRAW_OFFICIAL_ARCHIVE          "complete.zip"
 #define VER_LDRAW_UNOFFICIAL_ARCHIVE        "ldrawunf.zip"
 #define VER_LPUB3D_UNOFFICIAL_ARCHIVE       "lpub3dldrawunf.zip"
 
-#define VER_UPDATE_CHECK_JSON_URL        	"http://lpub3d.sourceforge.net/lpub3dupdates.json"
+#define VER_UPDATE_CHECK_JSON_URL           "http://lpub3d.sourceforge.net/lpub3dupdates.json"
 #define VER_OFFICIAL_LIBRARY_JSON_URL       "http://lpub3d.sourceforge.net/complete.json"
 #define VER_UNOFFICIAL_LIBRARY_JSON_URL     "http://lpub3d.sourceforge.net/lpub3dldrawunf.json"
 #define VER_CHANGE_LOG_URL                  "http://lpub3d.sourceforge.net/change_log.txt"
 
-#define VER_SOURCE_URL              		"http://sourceforge.net/p/lpub3d/code/"
-#define VER_COMPANYDOMAIN_STR       		"http://sourceforge.net/projects/lpub3d/"
+#define VER_SOURCE_URL                      "http://sourceforge.net/p/lpub3d/code/"
+#define VER_COMPANYDOMAIN_STR               "http://sourceforge.net/projects/lpub3d/"
 
 #ifdef __GNUC__
   #ifdef __MINGW64__

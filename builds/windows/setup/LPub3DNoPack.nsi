@@ -54,7 +54,7 @@
 ;General
  
   ;Installer name
-  Name "${ProductName}, Ver ${Version}, Rev ${BuildRevision}"
+  Name "${ProductName} v${Version} Rev ${BuildRevision} Build ${BuildNumber}"
 
   ; Changes the caption, default beeing 'Setup'
   Caption "${ProductName} 32,64-bit Setup"
@@ -99,7 +99,7 @@
 
   !define MUI_WELCOMEFINISHPAGE_BITMAP "welcome.bmp"
   !insertmacro MUI_PAGE_WELCOME
-  !insertmacro MUI_PAGE_LICENSE "..\docs\Copying.txt"
+  !insertmacro MUI_PAGE_LICENSE "..\..\..\mainApp\docs\COPYING.txt"
   !insertmacro MUI_PAGE_DIRECTORY
   
   ;Custom page, Initialize library settings for smoother install.
@@ -159,9 +159,6 @@
 ;Initialize install directory 
  
 Function .onInit 
-
-  ;Hack to prevent startup crash - has something to do with Qt 5.6 - investigatig...
-  ; DeleteRegKey HKCU "Software\${Company}\${ProductName}\MainWindow"
   
   ;Initialize user data vars
   Call fnInitializeUserDataVars
@@ -185,7 +182,7 @@ Function .onInit
   StrCpy $LibrariesExist 1
   
   next:
-  ;Verify if paramter files are installed - just check one
+  ;Verify if parameter files are installed - just check one
   IfFileExists $ParameterFile 0 continue
   StrCpy $ParameterFilesExist 1  
 
@@ -312,38 +309,38 @@ Section "${ProductName} (required)" SecMain${ProductName}
   ${EndIf}
   
   SetOutPath "$INSTDIR"
-  File "..\docs\README.txt"
+  File "..\..\..\mainApp\docs\README.txt"
   
   ;3rd party renderer utility - LdgLite
   CreateDirectory "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win"
   SetOutPath "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win"
-  File "..\release\3rdParty\ldglite1.3.1_2g2x_Win\ldglite.exe"
-  File "..\release\3rdParty\ldglite1.3.1_2g2x_Win\LICENCE"
-  File "..\release\3rdParty\ldglite1.3.1_2g2x_Win\README.TXT" 
+  File "..\3rdParty\ldglite1.3.1_2g2x_Win\ldglite.exe"
+  File "..\3rdParty\ldglite1.3.1_2g2x_Win\LICENCE"
+  File "..\3rdParty\ldglite1.3.1_2g2x_Win\README.TXT" 
   ;3rd party renderer utility - L3P
   CreateDirectory "$INSTDIR\3rdParty\l3p1.4WinB"
   SetOutPath "$INSTDIR\3rdParty\l3p1.4WinB" 
-  File "..\release\3rdParty\l3p1.4WinB\L3P.EXE"
+  File "..\3rdParty\l3p1.4WinB\L3P.EXE"
   
   ;data depository folder
   CreateDirectory "$INSTDIR\data"
   SetOutPath "$INSTDIR\data"
-  File "..\..\mainApp\extras\LDConfig.ldr"
-  File "..\..\mainApp\extras\PDFPrint.jpg"
-  File "..\..\mainApp\extras\pli.mpd"
-  File "..\..\mainApp\extras\titleAnnotations.lst"
-  File "..\..\mainApp\extras\freeformAnnotations.lst"
-  File "..\..\mainApp\extras\fadeStepColorParts.lst"
-  File "..\..\mainApp\extras\pliSubstituteParts.lst"
-  File "..\..\mainApp\extras\excludedParts.lst"
-  File "..\release\libraries\complete.zip"
-  File "..\release\libraries\lpub3dldrawunf.zip"
+  File "..\..\..\mainApp\extras\LDConfig.ldr"
+  File "..\..\..\mainApp\extras\PDFPrint.jpg"
+  File "..\..\..\mainApp\extras\pli.mpd"
+  File "..\..\..\mainApp\extras\titleAnnotations.lst"
+  File "..\..\..\mainApp\extras\freeformAnnotations.lst"
+  File "..\..\..\mainApp\extras\fadeStepColorParts.lst"
+  File "..\..\..\mainApp\extras\pliSubstituteParts.lst"
+  File "..\..\..\mainApp\extras\excludedParts.lst"
+  File "..\..\utilities\ldrawlibraries\complete.zip"
+  File "..\..\utilities\ldrawlibraries\lpub3dldrawunf.zip"
 
   ;documents  
   CreateDirectory "$INSTDIR\docs"
   SetOutPath "$INSTDIR\docs"
-  File "..\docs\COPYING.txt"
-  File "..\docs\CREDITS.txt"
+  File "..\..\..\mainApp\docs\COPYING.txt"
+  File "..\..\..\mainApp\docs\CREDITS.txt"
   SetOutPath "$INSTDIR"  
 
   ;Store installation folder
@@ -372,28 +369,28 @@ Section "${ProductName} (required)" SecMain${ProductName}
 	  ;extras contents
 	  CreateDirectory "${INSTDIR_AppData}\extras"
 	  SetOutPath "${INSTDIR_AppData}\extras"
-	  File "..\..\mainApp\extras\PDFPrint.jpg"
-	  File "..\..\mainApp\extras\pli.mpd"
+	  File "..\..\..\mainApp\extras\PDFPrint.jpg"
+	  File "..\..\..\mainApp\extras\pli.mpd"
 	  
 	 ${If} $OverwriteUserDataParamFiles == 0
 	  IfFileExists "${INSTDIR_AppData}\extras\fadeStepColorParts.lst" 0 +2
 	  !insertmacro BackupFile "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppData}\extras\${ProductName}.${MyTIMESTAMP}.bak"
 	  SetOverwrite on
-	  File "..\..\mainApp\extras\fadeStepColorParts.lst"
+	  File "..\..\..\mainApp\extras\fadeStepColorParts.lst"
 	  SetOverwrite off
-	  File "..\..\mainApp\extras\LDConfig.ldr"
-	  File "..\..\mainApp\extras\titleAnnotations.lst"
-	  File "..\..\mainApp\extras\freeformAnnotations.lst"
-	  File "..\..\mainApp\extras\pliSubstituteParts.lst"
-	  File "..\..\mainApp\extras\excludedParts.lst"
+	  File "..\..\..\mainApp\extras\LDConfig.ldr"
+	  File "..\..\..\mainApp\extras\titleAnnotations.lst"
+	  File "..\..\..\mainApp\extras\freeformAnnotations.lst"
+	  File "..\..\..\mainApp\extras\pliSubstituteParts.lst"
+	  File "..\..\..\mainApp\extras\excludedParts.lst"
 	 ${Else}
 	  SetOverwrite on
-	  File "..\..\mainApp\extras\LDConfig.ldr"
-	  File "..\..\mainApp\extras\titleAnnotations.lst"
-	  File "..\..\mainApp\extras\freeformAnnotations.lst"
-	  File "..\..\mainApp\extras\fadeStepColorParts.lst"
-	  File "..\..\mainApp\extras\pliSubstituteParts.lst"
-	  File "..\..\mainApp\extras\excludedParts.lst"
+	  File "..\..\..\mainApp\extras\LDConfig.ldr"
+	  File "..\..\..\mainApp\extras\titleAnnotations.lst"
+	  File "..\..\..\mainApp\extras\freeformAnnotations.lst"
+	  File "..\..\..\mainApp\extras\fadeStepColorParts.lst"
+	  File "..\..\..\mainApp\extras\pliSubstituteParts.lst"
+	  File "..\..\..\mainApp\extras\excludedParts.lst"
 	 ${EndIf}
 	  
 	  ;Store/Update library folder
@@ -403,7 +400,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   	  IfFileExists "${INSTDIR_AppData}\extras\fadeStepColorParts.lst" 0 DoNothing
 	  !insertmacro BackupFile "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppData}\extras\${ProductName}.${MyTIMESTAMP}.bak"
 	  SetOverwrite on
-	  File "..\..\mainApp\extras\fadeStepColorParts.lst"
+	  File "..\..\..\mainApp\extras\fadeStepColorParts.lst"
       DoNothing: 
   ${EndIf}
   
@@ -673,8 +670,8 @@ FunctionEnd
 
 Function fnInstallLibraries
 	SetOutPath "${INSTDIR_AppData}\libraries"
-	File "..\release\libraries\complete.zip"
-	File "..\release\libraries\lpub3dldrawunf.zip"
+	File "..\..\utilities\ldrawlibraries\complete.zip"
+	File "..\..\utilities\ldrawlibraries\lpub3dldrawunf.zip"
 	
 FunctionEnd
 
@@ -688,7 +685,7 @@ Function fnCopyLibraries
 	${EndIf}
 	goto Next
 	Install_new_off_Lib:
-	File "..\release\libraries\complete.zip"
+	File "..\..\utilities\ldrawlibraries\complete.zip"
 	Next:
 	IfFileExists "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip" 0 +2
 	goto Finish
@@ -698,7 +695,7 @@ Function fnCopyLibraries
 	${EndIf}
 	goto Finish
 	Install_new_unoff_Lib:
-	File "..\release\libraries\lpub3dldrawunf.zip"	
+	File "..\..\utilities\ldrawlibraries\lpub3dldrawunf.zip"	
 	Finish:
 	
 FunctionEnd

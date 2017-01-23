@@ -10,8 +10,8 @@ SETLOCAL
 @color 0a
 @cls
 
-rem Alt path (from within Win-setup): ..\release\libraries\
-SET OutputPATH=..\release\libraries\
+rem Alt path (from within Win-setup): ..\..\utilities\ldrawlibraries\
+SET OutputPATH=..\..\utilities\ldrawlibraries\
 rem SET OutputPATH=%~dp0
 
 SET OfficialCONTENT=complete.zip
@@ -135,7 +135,7 @@ ECHO.
 ECHO -Finshed
 ECHO.
 ECHO -If everything went well then, Press any key to EXIT!
-%SystemRoot%\explorer.exe "C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D\tools\release\libraries\"
+%SystemRoot%\explorer.exe "C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D\builds\utilities\ldrawlibraries\"
 PAUSE >NUL
 ENDLOCAL
 EXIT /b 0
