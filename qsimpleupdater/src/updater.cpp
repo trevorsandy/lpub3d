@@ -78,11 +78,11 @@ Updater::Updater() {
     m_platform = "osx";
 #elif defined Q_OS_LINUX
   #if defined DEB_DISTRO
-      m_platform = "linux-deb"
+      m_platform = "linux-deb";
   #elif defined RPM_DISTRO
-      m_platform = "linux-rpm"
+      m_platform = "linux-rpm";
   #elif defined ARCH_DISTO
-      m_platform = "linux-arch"
+      m_platform = "linux-arch";
   #endif
 #elif defined Q_OS_ANDROID
     m_platform = "android";
