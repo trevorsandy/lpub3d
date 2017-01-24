@@ -581,6 +581,12 @@ void lcMainWindow::CreateToolBars()
   AngleAction->setIcon(QIcon(":/resources/edit_snap_angle.png"));
   AngleAction->setMenu(SnapAngleMenu);
 
+  QMenu* RotateStepMenu = new QMenu(tr("Step Rotation"), this);
+  RotateStepMenu->addAction(mActions[LC_EDIT_ROTATESTEP_RELATIVE_ROTATION]);
+  RotateStepMenu->addAction(mActions[LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION]);
+
+  mActions[LC_EDIT_ACTION_ROTATESTEP]->setMenu(RotateStepMenu);
+
   mStandardToolBar = addToolBar(tr("Standard"));
   mStandardToolBar->setObjectName("StandardToolbar");
   mStandardToolBar->addAction(mActions[LC_FILE_NEW]);

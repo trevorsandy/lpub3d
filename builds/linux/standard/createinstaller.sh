@@ -149,8 +149,8 @@ rm -rf "$BUILD_PATH/p3"
 
 echo “16 of 17 Building installer...”
 # Create installer binary
-$INSTALL_FRAMEWORK/binarycreator -c "config/config.xml" -p packages "/home/trevor/Downloads/LPub3D_X11_$APP_VERSION"
-echo “17 of 17 Installer LPub3D_X11_$APP_VERSION was successfully compiled!”
+$INSTALL_FRAMEWORK/binarycreator -c "config/config.xml" -p packages "/home/trevor/Downloads/LPub3D-UpdateMaster_$APP_VERSION"
+echo “17 of 17 Installer LPub3D-UpdateMaster_$APP_VERSION was successfully compiled!”
 
 echo “Finished.”
 

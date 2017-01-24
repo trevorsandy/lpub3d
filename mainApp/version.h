@@ -64,7 +64,8 @@
 #define VER_UNOFFICIAL_LIBRARY_JSON_URL     "http://lpub3d.sourceforge.net/lpub3dldrawunf.json"
 #define VER_CHANGE_LOG_URL                  "http://lpub3d.sourceforge.net/change_log.txt"
 
-#define VER_SOURCE_URL                      "http://sourceforge.net/p/lpub3d/code/"
+#define VER_SOURCE_SF_URL                   "http://sourceforge.net/p/lpub3d/code/"
+#define VER_SOURCE_GITHUB_URL               "https://github.com/trevorsandy/lpub3d/master"
 #define VER_COMPANYDOMAIN_STR               "http://sourceforge.net/projects/lpub3d/"
 
 #ifdef __GNUC__

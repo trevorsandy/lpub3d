@@ -59,8 +59,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                          "<b>%1</b> is a free WYSIWYG editing application for<br>"
                                          "creating LEGO&copy; style digital building instructions<br>"
                                          "for LDraw&trade; based digital models.<br><br>"
-                                         "%1 uses source code from Kevin Clague's LPub&copy;<br>"
-                                         ", LeoCAD&copy; and other 3rd party contributors.<br>"
+                                         "%1 uses components from LPub&copy;,<br>"
+                                         "LeoCAD&copy; and other 3rd party contributors.<br>"
                                        "</td>"
                                        "<td valign=\"middle\">"
                                          "<a href=\"%5\"><img src=\":/resources/gplv3.png\"></a>"
@@ -78,6 +78,10 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                      "</tr>"
                                      "<tr>"
                                        "<td>Source:</td>"
+                                       "<td><a href=\"%5\">%5</a></td>"
+                                     "</tr>"
+                                     "<tr>"
+                                       "<td>Source:</td>"
                                        "<td><a href=\"%2\">%2</a></td>"
                                      "</tr>"
                                   "</table>"
@@ -85,10 +89,11 @@ AboutDialog::AboutDialog(QWidget *parent) :
                              "</tr>"
                              "</table>");
     QString About = AboutFormat.arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
-                               .arg(QString::fromLatin1(VER_SOURCE_URL))
+                               .arg(QString::fromLatin1(VER_SOURCE_SF_URL))
                                .arg(QString::fromLatin1(VER_PUBLISHER_SUPPORT_EMAIL_STR))
                                .arg(QString::fromLatin1(VER_PUBLISHER_EMAIL_STR))
-                               .arg(QString("http://www.gnu.org/licenses/gpl-3.0.html"));
+                               .arg(QString("http://www.gnu.org/licenses/gpl-3.0.html"))
+                               .arg(QString::fromLatin1(VER_SOURCE_GITHUB_URL));
 
     ui->AppInfo->setTextFormat(Qt::RichText);
     ui->AppInfo->setOpenExternalLinks(true);
