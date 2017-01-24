@@ -60,8 +60,8 @@ Fix: Enable and correct menu shortcuts.  [48ca363]
 	
   3D Viewer Menu
  	Insert ROTSTEP		= Shift+O
-	ROTSTEP Absolute	= Shift+A
-	ROTSTEP Relative	= Shift+R
+	ROTSTEP Absolute	= Shift+B
+	ROTSTEP Relative	= Shift+E
 	Select 				= Shift+S
 	Zoom				= Shift+Z		
 	Zoom Region 		= Shift+G
