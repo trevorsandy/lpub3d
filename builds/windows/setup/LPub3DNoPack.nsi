@@ -530,7 +530,7 @@ Function nsDialogLeaveCustomPage
    
   ;Validate the LDraw Directory path
   ${If} ${DirExists} $LDrawDirPath
-    ; Update the registry wiht the LDraw Directory path.
+    ; Update the registry with the LDraw Directory path.
 	WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "LDrawDir" $LDrawDirPath
 	Goto Continue
   ${Else}
