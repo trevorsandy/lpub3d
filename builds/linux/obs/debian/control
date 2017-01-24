@@ -1,0 +1,24 @@
+Source: lpub3d
+Section: graphics
+Priority: optional
+Maintainer: Trevor SANDY <trevor.sandy@gmail.com>
+Build-Depends: debhelper (>=7.0.0), qtbase5-dev, qt5-qmake, libc6 (>= 2.14), libgcc1 (>= 1:3.0), libgl1-mesa-glx | libgl1, libqt5core5a (>= 5.5.0), libqt5gui5 (>= 5.3.0) | libqt5gui5-gles (>= 5.3.0), libqt5network5 (>= 5.0.2), libqt5opengl5 (>= 5.0.2) | libqt5opengl5-gles (>= 5.0.2), libqt5printsupport5 (>= 5.0.2), libqt5widgets5 (>= 5.2.0), libstdc++6 (>= 5.2), zlib1g (>= 1:1.1.4)
+Standards-Version: 3.9.7
+Homepage: https://github.com/trevorsandy/lpub3d/
+
+Package: lpub3d
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: LDraw™ editor for LEGO® style digital building instructions.
+ LPub3D is an Open Source WYSIWYG editing application for creating 
+ LEGO® style digital building instructions. LPub3D is developed and 
+ maintained by Trevor SANDY. It uses the LDraw™ parts library, the 
+ most comprehensive library of digital Open Source LEGO® bricks 
+ available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model 
+ file formats. LPub3D is available for free under the GNU Public License v3 
+ and runs on Windows, Linux and OSX Operating Systems.
+ Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, 
+ LeoCAD© 2015 Leonardo Zide.and additional third party components.
+ LEGO® is a trademark of the LEGO Group of companies which does not 
+ sponsor, authorize or endorse this application.
+ © 2015-2017 Trevor SANDY

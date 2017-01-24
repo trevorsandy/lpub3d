@@ -1,0 +1,45 @@
+# Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
+pkgname=lpub3d
+pkgver=2.0.20
+pkgrel=1
+pkgdesc="An LDraw Building Instruction Editor"
+url="https://github.com/trevorsandy/lpub3d.git"
+arch=('x86_64' 'i686')
+license=('GPL3')
+depends=('qt5-base' 'qt5-tools')
+makedepends=()
+conflicts=()
+replaces=()
+backup=()
+source=("lpub3d-git.tar.gz")
+md5sums=(SKIP)
+
+prepare() {
+  cd ${srcdir}/lpub3d-git
+  
+  # get ldraw archive libraries
+  wget --directory-prefix=${srcdir}/lpub3d-git/mainApp/extras \
+  		http://www.ldraw.org/library/updates/complete.zip
+  wget --directory-prefix=${srcdir}/lpub3d-git/mainApp/extras \
+  		http://www.ldraw.org/library/unofficial/ldrawunf.zip
+  mv ${srcdir}/lpub3d-git/mainApp/extras/ldrawunf.zip \
+     ${srcdir}/lpub3d-git/mainApp/extras/lpub3dldrawunf.zip
+# cp -f ~/projects/data/libraries/complete.zip ${srcdir}/lpub3d-git/mainApp/extras
+# cp -f ~/projects/data/libraries/lpub3dldrawunf.zip ${srcdir}/lpub3d-git/mainApp/extras
+
+  # use Qt5
+  export QT_SELECT = qt5
+  if [ -x /usr/bin/qmake ] ; then qmake ; 
+  elif [ -x /usr/bin/qmake-qt5 ] ; then qmake-qt5 ; fi
+}
+
+build() {
+  make clean
+  make
+}
+ 
+package() {
+  cd "${srcdir}/lpub3d-git"
+  make DESTDIR=${pkgdir} install 
+}
+ 

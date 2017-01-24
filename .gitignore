@@ -1,7 +1,7 @@
 # files without extension
-*      
-!/**/    
-!*.*
+# *      
+# !/**/    
+# !*.*
 
 # Compiled source
 *.com
