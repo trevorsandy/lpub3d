@@ -46,7 +46,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 Last Update: January 23, 2017
 Copyright (c) 2015 - 2017 by Trevor SANDY
 
-[icon]:				https://github.com/trevorsandy/lpub3d/master/mainApp/images/lpub3d128.png
-[changelog]			https://github.com/trevorsandy/lpub3d/master/mainApp/docs/README.txt
-[credits]			https://github.com/trevorsandy/lpub3d/master/mainApp/docs/CREDITS.txt
-[downloads]			https://sourceforge.net/projects/lpub3d/files/
+[icon]:				https://github.com/trevorsandy/lpub3d/blob/master/mainApp/images/lpub3d128.png
+[changelog]:		https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/README.txt
+[credits]:			https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/CREDITS.txt
+[downloads]:		https://sourceforge.net/projects/lpub3d/files/
