@@ -14,7 +14,7 @@
 - [ ] download source
 `$ git clone https://github.com/trevorsandy/lpub3d.git`
 - [ ] create working tarball
-`$ tar -czvf lpub3d-git.tar.gz lpub3d \
+`$ tar -czvf lpub3d.git.tar.gz lpub3d \
       --exclude="lpub3d/builds/linux/standard" \
       --exclude="lpub3d/builds/osx" \
       --exclude="lpub3d/.git" \
@@ -26,7 +26,7 @@
 - [ ] change directory
 `$ cd ../`
 - [ ] create package: Name, Version, Path to tarball
-`$ bzr dh-make lpub3d 2.0.20 upstream/lpub3d-git.tar.gz`
+`$ bzr dh-make lpub3d 2.0.20 upstream/lpub3d.git.tar.gz`
 - [ ] delete unneeded debian example files
 `$ cd lpub3d/debian`
 `$ rm *ex *EX`
@@ -77,7 +77,7 @@
 - [ ] check spec file and update app version
 `$ cat ../SPECS/lpub3d.spec`
 - [ ] create working tarball
-`$ tar -czvf lpub3d-git.tar.gz lpub3d \
+`$ tar -czvf lpub3d.git.tar.gz lpub3d \
       --exclude="lpub3d/builds/linux/standard" \
       --exclude="lpub3d/builds/osx" \
       --exclude="lpub3d/.git" \
@@ -88,7 +88,9 @@
       --exclude="lpub3d/.gitignore"`
 - [ ] remove cloned repository from SOURCES/
 `$ rm -rf lpub3d`
-- [ ] build the RPM package (success = 'exit 0')
+- [ ] build and sign the RPM package (success = 'exit 0')
 `$ cd ../SPECS`
-`$ rpmbuild -v -ba lpub3d.spec`
+`$ rpmbuild -v -ba --sign lpub3d.spec`
+**NOTE** *for details on how to sign an RPM package with GPG key
+ see https://gist.github.com/fernandoaleman/1376730*
 - [ ] Have a :beer:
