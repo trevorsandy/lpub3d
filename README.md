@@ -1,5 +1,8 @@
 ![Icon][icon]
 #LPub3D
+
+LDraw™ editor for LEGO® style digital building instructions.
+
 **LPub3D** is an Open Source WYSIWYG editing application for creating LEGO® style digital building instructions. 
 LPub3D is developed and maintained by Trevor SANDY. It uses the LDraw parts library, the most comprehensive 
 library of digital Open Source LEGO® bricks available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model file formats. 
@@ -15,7 +18,7 @@ LPub3D runs on Debian, Red Hat and Arch derived Linux distros, Mac OSX and Windo
  - [Credits][credits]
  
 ### License
-LPub3D is available for free under the GNU Public License version 3.0 (GPLv3) and 
+LPub3D is available for free under the [GNU Public License version 3.0 (GPLv3)][copying]. 
 
 ### Disclaimer
 LEGO® is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this application.
@@ -46,7 +49,8 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 Last Update: January 23, 2017
 Copyright (c) 2015 - 2017 by Trevor SANDY
 
-[icon]:				https://github.com/trevorsandy/lpub3d/blob/master/mainApp/images/lpub3d128.png
+[icon]:			https://github.com/trevorsandy/lpub3d/blob/master/mainApp/images/lpub3d128.png
 [changelog]:		https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/README.txt
-[credits]:			https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/CREDITS.txt
+[credits]:		https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/CREDITS.txt
+[copying]:		https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/COPYING.txt
 [downloads]:		https://sourceforge.net/projects/lpub3d/files/
