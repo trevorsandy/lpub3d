@@ -1,3 +1,83 @@
+LPub3D 2.0.20.25.560 
+ 
+Features and enhancements 
+------------ 
+Fix: Introducing LPub3D ports for Linux (Debian, Red Hat and Arch based distros) and Mac (OSX). [0853680]
+ * LPub3D is now available across Windows, Linux and Mac platforms. The LPub3D package can be accessed via direct download from sourceforge.net and is available in .dmg (OSX), .rpm (Red Hat)
+   .deb (Debian) and .pkg.tar.xz (Arch) formats. Additionally, LPub3D can be built directly from source with the provided .spec, Debian configuration files or PKGBUILD build
+   configuration files. LPub3D source for building Linux distros is available at https://github.com/trevorsandy/lpub3d; LPub3D source also remains available at http://sourceforge.net/p/lpub3d/code/. 
+   Finally, LPub3D is available on openSUSE Build Service at https://software.opensuse.org/download.html?project=home:trevorsandy&package=lpub3d.
+Fix: When the preferred renderer is manually typed into the preference dialogue, it is not validated upon exit of the preferences dialogue.  [44548f4]
+ * This behaviour has been corrected. Manually entered preferred render path is validated when the preference dialogue is closed.
+Fix: Automatically load LDraw archive libraries on initial application launch. [ff06bc9]
+ * To further improve the user experience at initial application launch. When LPub3D is loaded for the first time, it there are no archive libraries in at the user's application data path. LPub3D will automatically install the libraries packaged in the distribution.
+Fix: Update QuaZip library to v0.7.2
+ * Improve robustness.
+Fix: Enable and correct menu shortcuts.  [48ca363]
+ * LPub3D menu item keyboard shortcuts have been repositioned to allow both Editor, and 3DViewer's short cuts to reside on the main menu tool-bar. This redesign allows for more seamless integration on OSX and some Linux distros - e.g. Debian.
+   Additionally, all available LPub3D menu item short cuts are now enabled. Here are the new mappings:
+   
+   Main Page Design
+	Open 				= Ctrl+O 
+	Save 				= Ctrl+S 
+	Print File 			= Ctrl+T	(Currently Disabled)
+	CloseFile 			= Ctrl+X 
+	First Page 			= Ctrl+P 
+	Last Page 			= Ctrl+L 
+	Previous Page 		= Ctrl+E 
+	Next Page 			= Ctrl+N 
+	Export Bmp 			= Alt+B 
+	Export Png 			= Alt+N 
+	Export Pdf 			= Alt+F 
+	Export Pdf Preview 	= Alt+P 
+	Export Jpg 			= Alt+J 
+	Fit Page Width		= Alt+W 
+	Fit Page Visible	= Alt+V 
+	Actual Size			= Alt+A 
+	Redo 				= Ctrl+Y	(Also affects LDraw Editor Menu)
+	Undo 				= Ctrl+Z 	(Also affects LDraw Editor Menu)
+	Exit Application	= Ctrl+Q 
+ 
+  LDraw Editor Menu
+	Cut     			= Ctrl+X
+	Paste     			= Ctrl+V
+	Copy     			= Ctrl+C
+	Select All			= Ctrl+A
+	Redraw     			= Ctrl+R
+	Find     			= Ctrl+F
+	Delete     			= DEL
+
+  Parameter Editor Menu
+	Cut     			= Ctrl+X
+	Paste     			= Ctrl+V
+	Copy     			= Ctrl+C
+	Select All 			= Ctrl+A
+	Save     			= Ctrl+S
+	Find     			= Ctrl+F
+	Delete     			= DEL
+	Undo     			= Ctrl+Z
+	Redo     			= Ctrl+Y
+	
+  3D Viewer Menu
+ 	Insert ROTSTEP
+	Select 
+	Zoom
+	Zoom Region 		= Shift+G
+	Rotate Step  		= Shift+O
+	Rotate Camera View
+	Pan
+	Select Invert  		= Ctrl+Shift+I
+	Save As		  		= Ctrl+Alt+S
+	Find  				= Ctrl+Shift+F
+	Copy  				= Ctrl+Shift+C
+	Select All  		= Ctrl+Shift+A
+	Hide Selected  		= Ctrl+H
+	Hide Unselected		= Ctrl+Shift+H
+	Unhide All 	 		= Ctrl+U
+	Unhide Selected  	= Ctrl+Shift+U
+	Undo  				= Ctrl+Shift+Y
+	Redo  				= Ctrl+Shift+Z
+
 LPub3D 2.0.19.25.560 
  
 Features and enhancements 
@@ -15,7 +95,7 @@ Fix: Fade part not displayed in assembly image (r872)
  * The faded part is not rendered or displayed in the CSI step image. The non-faded part occurrence is rendered successfully and the faded part is displayed in the viewer.The problem persists after regenerating fade parts and clearing the cache. In some scenarios, particularly when LPub3D is launched with fade=Off and then fade is set to fade=ON using the Preferences menu after a model file is loaded, it is possible that the fade directory is not communicated to the renderer so no fade part image is rendered. This behaviour has been corrected. 
  With the updated behaviour, the fade search directories are updated on any change to the Fade Step check-box in the Preferences General tab. If the fade step is set to ON, fade directory with part file content will be added to the search directory. When fade step is set to OFF, the fade directory will be removed. 
 Fix: True page background transparency (r871) 
- * When the page background is set the true transparent, it is not possible to display the background context menu so many page functions will not be accessible. To accommodate true transparency and enable the available page editing functions, when a page background is set to "none(transparent)" by the user, the page is set to white with alpha=1 during page editing but switched to true transparent for exporting/printing. This way, the user will have the ability to manipulate the page components while editing the document. 
+ * When the page background is set the true transparent, it is not possible to display the background context menu so many page functions will not be accessible. To accommodate true transparency and enable the available page editing functions, when a page background is set to none(transparent) by the user, the page is set to white with alpha=1 during page editing but switched to true transparent for exporting/printing. This way, the user will have the ability to manipulate the page components while editing the document. 
 Fix: Previewing the current page (single page) produces a blank page (r870) 
  * This behaviour has been corrected. 
 Fix: Page size precision to 4 decimal places (r869) 
@@ -42,7 +122,7 @@ Fix: Inconsistent page size/orientation transition (r862)
  - GLOBAL (e.g 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword should only be used at the header of the top level model file - if you are manually adding meta commands in the LDraw editor. 
  - LOCAL (e.g 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword will scope the meta command to only the current step - if you are manually adding meta commands in the LDraw editor.. 
  - When the LOCAL keyword is absent (e.g. 0 !LPUB PAGE ORIENTATION PORTRAIT), the meta command takes on the same behaviour as if the GLOBAL keyword is used - i.e. the meta command takes on a global scope from the point where it is used - unless it is superseded by a new meta command. 
- - When manually setting size and/or orientation on a child submodel (i.e. using the LDraw editor), place your command in the child submodel instead of placing it in the parent model. For MULTI_STEP(s), place the size orientation at the bottom of the MULTI_STEP - just before 0 !LPUB MULTI_STEP END. 
+ - When manually setting size and/or orientation on a child submodel (i.e. using the LDraw editor), place your command in the child submodel instead of placing it in the parent model. For MULTI STEP(s), place the size orientation at the bottom of the MULTI STEP - just before 0 !LPUB MULTI STEP END. 
 Fix: Empty output after export to pdf or images (r861) 
  * The page size was not captured during export (pdf or images) unless an explicit definition of the page size meta command is present in the model file (e.g. 0 !LPUB PAGE SIZE GLOBAL 8.5000 11.0000 Letter). This behaviour is now corrected. 
 Fix: When page number is not displayed, the submodel instance count is also not displayed (r860) 
@@ -57,13 +137,13 @@ Fix: Prompt to download LDraw archive when archive not provided (r856)
 Fix: Cover page attributes displayed outside of page (r853) 
  * Page attributes placed outside of page when displaying individual attributes. Attributes on both front and back cover pages were experiencing this behaviour. The behaviour is now corrected. Refer to features and enhancements for LPub3D 2.0.11.816.2  to review additional details on manipulating page attributes. 
 Fix: Refresh open model file when preference changes (r852) 
- * Refresh open model file when "display all page attributes" and "generate cover pages" preference settings have changed. 
+ * Refresh open model file when display all page attributes and generate cover pages preference settings have changed. 
 Fix: Unable to create a new line in text items - e.g. Model Description (r851) 
  * It is now possible to split text in text boxes and all editable page attributes - e.g. model description, LEGO disclaimer etc... When you select a text item, the cursor is placed at the very beginning of the dialogue. Use your arrow keys to move the cursor to the desired position of the dialogue. 
- To split a line simply hit the "enter" key on your keyboard. It is also possible to create a new line by inserting inserting the newline characters \n. 
- One can also add "quoted texts" in test items. Just like adding a new line, simply type " before and after the content you wish to quote. It is not necessary to enter an escape character \ but entering an escape character before the \" is also supported. 
+ To split a line simply hit the enter key on your keyboard. It is also possible to create a new line by inserting inserting the newline characters \n. 
+ One can also add quoted texts in test items. Just like adding a new line, simply type  before and after the content you wish to quote. It is not necessary to enter an escape character \ but entering an escape character before the \ is also supported. 
 Fix: The step number is slightly off of the page when using default settings (r850) 
- * Page header and footer width is now matched with the size and orientation of the displayed page. One can also change the "Relative To" settings from header/footer to page using the context menu/Move Step Number dialogue. For example, the step number on single step pages default placement is relative to the invisible page header - which can be managed in the page setup dialogue. Alternatively, step number placement on a single step page can be set relative to the page using the context menu as described earlier. 
+ * Page header and footer width is now matched with the size and orientation of the displayed page. One can also change the Relative To settings from header/footer to page using the context menu/Move Step Number dialogue. For example, the step number on single step pages default placement is relative to the invisible page header - which can be managed in the page setup dialogue. Alternatively, step number placement on a single step page can be set relative to the page using the context menu as described earlier. 
 Fix: Page movable and selectable in the graphics scene (r849) 
  * Page is now fixed and cannot be selected within the graphics scene. 
 Fix: Drag and drop model file (r848) 
@@ -74,9 +154,9 @@ LPub3D 2.0.15.846.2
 Features and enhancements 
 ------------ 
 Fix: Reset step cache (r845) 
- * CSI (assembly) context menu item "Reset Step Assembly Image Cache." Clear and regenerate CSI .png (assembly) and .ldr (temp) files for the selected step. This context menu is only displayed for multi-step pages allowing the editor to refresh a specific CSI image on the page. 
+ * CSI (assembly) context menu item Reset Step Assembly Image Cache. Clear and regenerate CSI .png (assembly) and .ldr (temp) files for the selected step. This context menu is only displayed for multi-step pages allowing the editor to refresh a specific CSI image on the page. 
 Fix: Reset page cache (r844) 
- * Page context menu item "Reset Page Assembly Image Cache." Clear and regenerate CSI .png (assembly) and .ldr (temp) files for all assemblies on the current page. 
+ * Page context menu item Reset Page Assembly Image Cache. Clear and regenerate CSI .png (assembly) and .ldr (temp) files for all assemblies on the current page. 
  This function will not reset PLI (parts) content. 
 Fix: On reset all caches LPub3D returns to first page (r843) 
  * LPub3D will return to the page on which it was when reset all caches launched. 
@@ -94,7 +174,7 @@ Fix: File reload after external source change breaks page drop-down combo dialog
  * When a file is reloaded after being changed by an external source, the drop-down menu for selecting a page doesn't work until after navigating using another method. 
 Fix: Image orientation does not conform when page orientation changed to Landscape (r836) 
  * Image generation was not inheriting the proper page size values. 
-Fix: Extra characters "" in margin meta and page size meta does not display the page size identifier(r835) 
+Fix: Extra characters  in margin meta and page size meta does not display the page size identifier(r835) 
  * Oops, allocated the page size identifier variable to the wrong meta - should have been allocated to page size meta instead of units meta (units meta is used for setting the margin). Consequently, the page size meta is missing the size identifier (A4, Letter, etc...) because the place-holder to pass the variable is not there. This must have happened during the patch process from the maintenance branch because it did not present during my tests. Both issues are now corrected. 
  
 LPub3D 2.0.13.834.2 
@@ -104,7 +184,7 @@ Features and enhancements
 Fix: Logging options added to Preferences (r832) 
  * Select logged attributes and logging levels. 
 Fix: Prompt search directory settings reset (r831) 
- * Prompt to inform that the search directories have been reset after the search directory reset button is clicked. Restarting LPub3D is not required. Also changed menu items "Reset 3D Viewer Model Cache" to "Change Temp File Cache" and "Reset Image and Model Caches" to "Reset All Caches". 
+ * Prompt to inform that the search directories have been reset after the search directory reset button is clicked. Restarting LPub3D is not required. Also changed menu items Reset 3D Viewer Model Cache to Change Temp File Cache and Reset Image and Model Caches to Reset All Caches. 
 Fix: Inconsistency between part counts in submodels and part counts in call-outs where multiple instances are involved (r829) 
  * For submodels, the PLI part counts reflect only one instance of the submodel, even if multiple instances are used in the same step. The instance count is correct, and the BOM has the correct total number of parts. With this update, sub-model pages displaying instance count now have a context menu option to display parts per step/page or not (total parts consumed by the number of instances indicated. 
  Previously, for callouts, you have the options (see context menu) to display parts list per callout (one instance) or not. When you select no parts list per callout, the PLI will show all the parts consumed by the total number of instances in the callout. If you choose parts list per callout, the PLI is moved to the callout and only the parts for a single occurrence of the callout is shown. The idea here is if you have 5 occurrences of the called out assembly, you'll need 5x the parts total, but only 1x parts are shown to indicate what you need to build an instance of the called out assembly. 
@@ -125,7 +205,7 @@ Fix: Page size and orientation processing update (r826/833)
  0 LPUB PAGE SIZE LOCAL 8.5000 11.0000 Letter 
  0 LPUB PAGE SIZE LOCAL 5.8000 8.3000 A5 
  0 LPUB PAGE SIZE LOCAL 5.8678 8.3456 Custom 
- Along with the width and height values, if the page size is non-standard, the identifier "Custom" will be automatically used. Additionally if an identifier is not present, the identifier "Custom" will automatically used. The page identifier is displayed in the Page Setup dialogue and Size/Orientation change context menu dialogue. 
+ Along with the width and height values, if the page size is non-standard, the identifier Custom will be automatically used. Additionally if an identifier is not present, the identifier Custom will automatically used. The page identifier is displayed in the Page Setup dialogue and Size/Orientation change context menu dialogue. 
  Also, the LPub3D print/export function no longer needs to parse the model file to capture, in advance, page sizes. This capture is performed during the existing page parse and load functions and is exposed to the print routines during printing/exporting. This change was necessary to better enable mixed-size page export/printing where it is necessary to 'look ahead' to get the next page's size and orientation parameters in order to configure the printer engine before processing the page. 
 Fix: Expand INSERT MODEL meta command behaviour (r825) 
  * When using part fading LPUb3D will now process multiple INSERT MODEL commands rendering the CSI content at each command.  For example, if the instruction document includes different model attachments, the editor can now include a non-faded image of the entire model with each attachment. Here is an example of he proper command sequence when used in conjunction with BUFEXCHG: 
@@ -152,9 +232,9 @@ LPub3D 2.0.12.823.2
 Features and enhancements 
 ------------ 
 Fix: LDView SnapshotSuffix to persist .png image generation (r820) 
- * As designed, LDView will use the last "Save as type" parameter set in the Save Snapshot dialogue for command line exports. I've added the command parameter -SnapshotSuffix=.png to force png image output in situation the user changes the LDView save as type from .png (e.g. exports a snapshot in .jpg format) while working outside of LPub3D. 
+ * As designed, LDView will use the last Save as type parameter set in the Save Snapshot dialogue for command line exports. I've added the command parameter -SnapshotSuffix=.png to force png image output in situation the user changes the LDView save as type from .png (e.g. exports a snapshot in .jpg format) while working outside of LPub3D. 
 Fix: Industrialize pdf print/export preview dialogue(r819) 
- * Remove [Experimental] status from pdf print preview. Implement prompt to open pdf file after printing. Fixed launching "Pdf print preview" menu item disables the "Print to Pdf file" menu item (nothing happens when you click the Print to Pdf file menu item). This behaviour occurs only after launching Pdf print preview requiring an application restart to clear the behaviour. Fixed viewer print banner removed after the first printed/exported page. 
+ * Remove [Experimental] status from pdf print preview. Implement prompt to open pdf file after printing. Fixed launching Pdf print preview menu item disables the Print to Pdf file menu item (nothing happens when you click the Print to Pdf file menu item). This behaviour occurs only after launching Pdf print preview requiring an application restart to clear the behaviour. Fixed viewer print banner removed after the first printed/exported page. 
 Known Issue: Some JPEG-compressed images types are not rendered as inserted image (r818) 
  * This was a Qt bug claimed to be corrected in Qt 5.5.1 (LPub3D uses 5.7); however, the issue seem to persist in Qt 5.7 also. Not all jpg images fail to load. The issue appear to be related to JPeGs with broken EXIF headers only. 
  
@@ -176,10 +256,10 @@ Fix: Reload at file change prompt (r807)
 Fix: Configuration parameters editor extra prompt to save before close (r807) 
  * LPub3D configuration file editor prompting to save changed content at the both the editor's window close and LPub3D main window close. This behaviour has been corrected to prompt only at editor window close. 
 Fix: Part count gives wrong result. (r806) 
- * Setting an automatic piece count gives wrong count most of the time in an MPD with multiple submodels and multiple usages of certain same submodels. This behaviour is now corrected. However,the user will have to play a role in configuring her model file to accurately reflect the part count expected. This will undoubtedly require moderate knowledge of LDraw and LPub3D format/logic semantics. The implemented part count capabilities will aim to minimize the intervention of the user but; ultimately, the strength of the part count will depend on the integrity of the model file. 
+ * Setting an automatic count gives wrong count most of the time in an MPD with multiple submodels and multiple usages of certain same submodels. This behaviour is now corrected. However,the user will have to play a role in configuring her model file to accurately reflect the part count expected. This will undoubtedly require moderate knowledge of LDraw and LPub3D format/logic semantics. The implemented part count capabilities will aim to minimize the intervention of the user but; ultimately, the strength of the part count will depend on the integrity of the model file. 
  In LPub3D, three configuration patterns will determine if a part is counted: 
  1. The part file must contain a well formed part type meta. 
-	Examples: 0 LDRAW_ORG Part, 0 LDRAW_ORG unofficial_part, 0 LDRAW_ORG unofficial part, 0 unofficial part 
+	Examples: 0 LDRAW ORG Part, 0 LDRAW ORG unofficial part, 0 LDRAW ORG unofficial part, 0 unofficial part 
 	Note that LPub3D does not look at the file extension to distinguish between types. Therefore, one could have a file named foo.mpd which will be identified as a part if the above meta declaration exist. Conversely, if no declaration is present, foo.dat or foo.ldr will not be identified as a part. This feature can be useful when defining helper parts. For example, leaving out the type declaration in the file uparrow.dat will allow the user to include it in their instructions with out it being counted as a part. 
  2. Using the IGN (ignore) LPub meta will automatically exclude the part lines within from being counted. 
 	For example: 
@@ -208,7 +288,7 @@ Fix: Pdf preview progress bar (r803)
  * Add progress bar to pdf preview dialogue. For large instruction documents it could be good to monitor the progress of the export process. 
 Fix: Front and back cover page attribute placement (r802) 
  * By default cover page attributes are placed relative to each other (with one anchor placed relative to the page) on the front and back cover pages. Independent page attributes are by default placed relative to the page. The new behaviour will break the dependency (placing the dependent attribute relative to the page) if the attribute depended upon is not respecting its default relative to placement (e.g. ModelName relationTo has changed from Title to Page). I imagine this is more complex that it probably should be but the aim was to automatically place the attributes on model load so young/novice users would not have to fuss with even more complex configuration. 
- The quirk remaining is when you change placement relative on an attribute depended upon by another, the dependent attributes will obviously follow the position of the newly placed attribute. This may confuse users as it can be perceived as a bug. There are two ways around this when repositioning cover page attributes. The first way is to not change relative to placement, instead use the drag functionality to reposition the attribute and; the second way is starting from the bottom and working upward, set the dependent attribute(s) placement relative to the page using the Move "attribute name" context menu. 
+ The quirk remaining is when you change placement relative on an attribute depended upon by another, the dependent attributes will obviously follow the position of the newly placed attribute. This may confuse users as it can be perceived as a bug. There are two ways around this when repositioning cover page attributes. The first way is to not change relative to placement, instead use the drag functionality to reposition the attribute and; the second way is starting from the bottom and working upward, set the dependent attribute(s) placement relative to the page using the Move attribute name context menu. 
  All attributes are optionally displayed. If a depended upon attribute display is false, its dependant attribute is automatically placed relative to the page. 
  Here is the the placement relativeTo table - any attribute not placed relative to the page is dependent: 
  
@@ -299,7 +379,7 @@ LPub3D 2.0.8.785.2
 Features and enhancements 
 ------------ 
 -Fix: Print/export 'page range' option output incorrect (r785) 
- *For print/export option "All pages," images are generated in numerical order. However, for option "Page Range," images are generated in "alphabetical" order for lack of a better description. If one selects pages 1-115, the order the pages are generated is 1, 10, 100, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2, 20... The order is now as expected 1...10...100 etc... 
+ *For print/export option All pages, images are generated in numerical order. However, for option Page Range, images are generated in alphabetical order for lack of a better description. If one selects pages 1-115, the order the pages are generated is 1, 10, 100, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2, 20... The order is now as expected 1...10...100 etc... 
 -Fix: Revert to MinGW distributions - for both x32 and x64 architectures (r784) 
  *Discontinue all MSVC LPub3D distributions. 
 -Fix: Refactor loading model file into Ldraw editor window (r783) 
@@ -337,7 +417,7 @@ Features and enhancements
 -Fix: Inconsistent fade behaviour when using BUFEXCHG parts and added parts in the same step (r764) 
  *Behaviour previously used the size of the previous step's CSI to determine the fade position index of the current step in all cases. This approach could lead to an inconsistent fade position after retrieving a buffer. Behaviour corrected to use the size of the previous buffer parts list (versus the CSI) to determine the current step's fade position when BUFEXCHG RETRIEVE meta command is used. This approach removes the necessity to follow the BUFEXCHG RETRIEVE meta command with a STEP/ROTSTEP meta command to process the fade sequence which will unnecessarily render the buffered items twice, in the buffered view and the modelled view. Usually only the buffered view render is desired in the current step (that's why the assembly is buffered in the first place) but the modelled view CSI should be carried forward to the next step. Here are two examples: 
  Example 1: No unbuffered parts in step 1, render buffered skeleton with arrow in step 1 but render only modelled skeleton faded and the current parts in step 2 
-	0 LPUB ASSEM MODEL_SCALE LOCAL  0.6500 
+	0 LPUB ASSEM MODEL SCALE LOCAL  0.6500 
 	0 BUFEXCHG A STORE 
 	0 GHOST 1 0 201.2 -844.25 0 1 0 0 0 1 0 0 0 1 skeleton.ldr 
 	0 BUFEXCHG B STORE 
@@ -356,7 +436,7 @@ Features and enhancements
  Example 2: Unbuffered (modelled) parts in step 1, render hobspine, crossbrace, and outerrib with arrow (buffered) in step 1 but exclude arrow and show faded, step 1 modelled parts plus current parts in step 2. Step 1 terminates with ROTSTEP 
 	0 GHOST 1 0 0 0 0 1 0 0 0 1 0 0 0 1 hobspine.ldr 
 	0 LPUB CALLOUT BEGIN 
-	0 LPUB CALLOUT POINTER BOTTOM_LEFT 0.608 0.763 0 
+	0 LPUB CALLOUT POINTER BOTTOM LEFT 0.608 0.763 0 
 	1 0 0 0 0 1 0 0 0 1 0 0 0 1 crossbrace.ldr 
 	0 LPUB CALLOUT PLACEMENT RIGHT ASSEM INSIDE 0.41159 0.062474 
 	0 LPUB CALLOUT END 
@@ -403,7 +483,7 @@ Features and enhancements
  *Logic processed title annotations when it should not have. Corrected. 
 -Fix: setGeometry: Unable to set geometry 600x800 warning message (r749) 
  *Use QDesktopWidget.availableGeometry(this) setting to support single and multi-screen configurations. 
--Fix: Parameter file edit window highlighting part description containing '#' (r748) 
+-Fix: Parameter file window highlighting part description containing '#' (r748) 
  *Highlight only lines where first character is '#'. 
 -Fix: Generate fade colour parts list crash (r747) 
  *Redesigned functionality to process parts from archive libraries (unofficial and official) versus LDraw disc directories. This approach improves performance and reliability as all parts, including those from additional search directories, are collected in the archive libraries. Working with archive files is much faster than working with disc directories. 
@@ -449,7 +529,7 @@ Features and enhancements
  *Manage better the update dialogue. Restrict entries to only valid update versions. 
 -Fix: Crash when last line in main model of mpd file is a part type line - i.e. line starts with 1 to 5. (r726) 
  *This behaviour will be seen when the user loads a model file without the meta tag '0 STEP' or '0 NOFILE'. 
--Fix: Export and PDF generation produces "Failed to create CSI" and does not produce model images in the generated document.(r727) 
+-Fix: Export and PDF generation produces Failed to create CSI and does not produce model images in the generated document.(r727) 
  *Temporary testing code blocked the creation of CSI images - my apologies:-( 
  
 LPub3D 2.0.2.721.2 
@@ -530,11 +610,11 @@ Features and enhancements
  below - obviously selecting your own size values and orientation. 
  0 LPUB PAGE SIZE GLOBAL 8.2677 11.6929 
  0 LPUB PAGE ORIENTATION GLOBAL PORTRAIT 
--Change: Page background context menu rearranged. "Change page background" and "Change Page Size or Orientation" now appear at the end of the menu list because they are likely to be least often used. (r641) 
+-Change: Page background context menu rearranged. Change page background and Change Page Size or Orientation now appear at the end of the menu list because they are likely to be least often used. (r641) 
 -Change: Point online manual to LPub3D content - was previously pointing to legacy LPub (r517) 
 -Refactor: Move library archives to AppData stabilization and robustness (r711) 
 -Refactor: Optimize fadeStep routines; change LDView logging details (r695) 
--Refactor: Replace 0x050000 with QT_VERSION_CHECK(5,0,0) (r660) 
+-Refactor: Replace 0x050000 with QT VERSION CHECK(5,0,0) (r660) 
 -Refactor: Remove stretch/tile logic from coverImage management (r659) 
 -Refactor: Update CSI image mousePressEvent logic. (r640) 
 -Refactor: Update file load progress messages (r636) 
@@ -557,11 +637,11 @@ Features and enhancements
 -Fix: When a CALLOUT allocation is changed, if you right-click a model in the callout and not the callout itself, the ALLOC meta is placed after the CALLOUT END and has no effect - meta appended but should be inserted (r650) 
 -Fix: Converting an assembly to a part results in a parse error when there are spaces in the file name (r649) 
 -Fix: If a divided STEP GROUP allocation is changed from vertical (Display as columns - default) to horizontal (Display as rows), selecting again Display as columns has no effect - meta appended but should be replaced (r648) 
--Fix: When the "Redraw" icon is clicked on the LDraw File Editor window, the file editor resizes to 255x190 pixels (r647) 
+-Fix: When the Redraw icon is clicked on the LDraw File Editor window, the file editor resizes to 255x190 pixels (r647) 
 -Fix: Split BOM duplicates one part onto current and subsequent BOM pages (r646) 
 -Fix: Inserting a front cover page when the current first page is a multi step page (r645) 
 -Fix: Bug when using callouts in Multistep sequences. When you place your callout right from assembly, it appears on the left side. When you place your callout bottom, it appears on the top. (r643) 
--Fix: wrong text when you export to PNG the window title says "Print to pdf" (r638) 
+-Fix: wrong text when you export to PNG the window title says Print to pdf (r638) 
 -Fix: When publishing instructions with the option 0 LPUB PAGE BACKGROUND TRANSPARENT a drop shadow layer was added (r637) 
 -Fix: Remove -w1 from default ldglite parms (r629) 
 -Fix: Periodic multi-step crash - 3DViewer image file line number mismatch (r628) 
@@ -594,7 +674,7 @@ Fix: Fade part not displayed in assembly image (r872)
  * The faded part is not rendered or displayed in the CSI step image. The non-faded part occurrence is rendered successfully and the faded part is displayed in the viewer.The problem persists after regenerating fade parts and clearing the cache. In some scenarios, particularly when LPub3D is launched with fade=Off and then fade is set to fade=ON using the Preferences menu after a model file is loaded, it is possible that the fade directory is not communicated to the renderer so no fade part image is rendered. This behaviour has been corrected. 
  With the updated behaviour, the fade search directories are updated on any change to the Fade Step check-box in the Preferences General tab. If the fade step is set to ON, fade directory with part file content will be added to the search directory. When fade step is set to OFF, the fade directory will be removed. 
 Fix: True page background transparency (r871) 
- * When the page background is set the true transparent, it is not possible to display the background context menu so many page functions will not be accessible. To accommodate true transparency and enable the available page editing functions, when a page background is set to "none(transparent)" by the user, the page is set to white with alpha=1 during page editing but switched to true transparent for exporting/printing. This way, the user will have the ability to manipulate the page components while editing the document. 
+ * When the page background is set the true transparent, it is not possible to display the background context menu so many page functions will not be accessible. To accommodate true transparency and enable the available page editing functions, when a page background is set to none(transparent) by the user, the page is set to white with alpha=1 during page editing but switched to true transparent for exporting/printing. This way, the user will have the ability to manipulate the page components while editing the document. 
 Fix: Previewing the current page (single page) produces a blank page (r870) 
  * This behaviour has been corrected. 
 Fix: Page size precision to 4 decimal places (r869) 
@@ -631,7 +711,7 @@ Fix: Fade part not displayed in assembly image (r872)
  * The faded part is not rendered or displayed in the CSI step image. The non-faded part occurrence is rendered successfully and the faded part is displayed in the viewer.The problem persists after regenerating fade parts and clearing the cache. In some scenarios, particularly when LPub3D is launched with fade=Off and then fade is set to fade=ON using the Preferences menu after a model file is loaded, it is possible that the fade directory is not communicated to the renderer so no fade part image is rendered. This behaviour has been corrected. 
  With the updated behaviour, the fade search directories are updated on any change to the Fade Step check-box in the Preferences General tab. If the fade step is set to ON, fade directory with part file content will be added to the search directory. When fade step is set to OFF, the fade directory will be removed. 
 Fix: True page background transparency (r871) 
- * When the page background is set the true transparent, it is not possible to display the background context menu so many page functions will not be accessible. To accommodate true transparency and enable the available page editing functions, when a page background is set to "none(transparent)" by the user, the page is set to white with alpha=1 during page editing but switched to true transparent for exporting/printing. This way, the user will have the ability to manipulate the page components while editing the document. 
+ * When the page background is set the true transparent, it is not possible to display the background context menu so many page functions will not be accessible. To accommodate true transparency and enable the available page editing functions, when a page background is set to none(transparent) by the user, the page is set to white with alpha=1 during page editing but switched to true transparent for exporting/printing. This way, the user will have the ability to manipulate the page components while editing the document. 
 Fix: Previewing the current page (single page) produces a blank page (r870) 
  * This behaviour has been corrected. 
 Fix: Page size precision to 4 decimal places (r869) 
@@ -658,7 +738,7 @@ Fix: Inconsistent page size/orientation transition (r862)
  - GLOBAL (e.g 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword should only be used at the header of the top level model file - if you are manually adding meta commands in the LDraw editor. 
  - LOCAL (e.g 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword will scope the meta command to only the current step - if you are manually adding meta commands in the LDraw editor.. 
  - When the LOCAL keyword is absent (e.g. 0 !LPUB PAGE ORIENTATION PORTRAIT), the meta command takes on the same behaviour as if the GLOBAL keyword is used - i.e. the meta command takes on a global scope from the point where it is used - unless it is superseded by a new meta command. 
- - When manually setting size and/or orientation on a child submodel (i.e. using the LDraw editor), place your command in the child submodel instead of placing it in the parent model. For MULTI_STEP(s), place the size orientation at the bottom of the MULTI_STEP - just before 0 !LPUB MULTI_STEP END. 
+ - When manually setting size and/or orientation on a child submodel (i.e. using the LDraw editor), place your command in the child submodel instead of placing it in the parent model. For MULTI STEP(s), place the size orientation at the bottom of the MULTI STEP - just before 0 !LPUB MULTI STEP END. 
 Fix: Empty output after export to pdf or images (r861) 
  * The page size was not captured during export (pdf or images) unless an explicit definition of the page size meta command is present in the model file (e.g. 0 !LPUB PAGE SIZE GLOBAL 8.5000 11.0000 Letter). This behaviour is now corrected. 
 Fix: When page number is not displayed, the submodel instance count is also not displayed (r860) 
@@ -673,13 +753,13 @@ Fix: Prompt to download LDraw archive when archive not provided (r856)
 Fix: Cover page attributes displayed outside of page (r853) 
  * Page attributes placed outside of page when displaying individual attributes. Attributes on both front and back cover pages were experiencing this behaviour. The behaviour is now corrected. Refer to features and enhancements for LPub3D 2.0.11.816.2  to review additional details on manipulating page attributes. 
 Fix: Refresh open model file when preference changes (r852) 
- * Refresh open model file when "display all page attributes" and "generate cover pages" preference settings have changed. 
+ * Refresh open model file when display all page attributes and generate cover pages preference settings have changed. 
 Fix: Unable to create a new line in text items - e.g. Model Description (r851) 
  * It is now possible to split text in text boxes and all editable page attributes - e.g. model description, LEGO disclaimer etc... When you select a text item, the cursor is placed at the very beginning of the dialogue. Use your arrow keys to move the cursor to the desired position of the dialogue. 
- To split a line simply hit the "enter" key on your keyboard. It is also possible to create a new line by inserting inserting the newline characters \n. 
- One can also add "quoted texts" in test items. Just like adding a new line, simply type " before and after the content you wish to quote. It is not necessary to enter an escape character \ but entering an escape character before the \" is also supported. 
+ To split a line simply hit the enter key on your keyboard. It is also possible to create a new line by inserting inserting the newline characters \n. 
+ One can also add quoted texts in test items. Just like adding a new line, simply type  before and after the content you wish to quote. It is not necessary to enter an escape character \ but entering an escape character before the \ is also supported. 
 Fix: The step number is slightly off of the page when using default settings (r850) 
- * Page header and footer width is now matched with the size and orientation of the displayed page. One can also change the "Relative To" settings from header/footer to page using the context menu/Move Step Number dialogue. For example, the step number on single step pages default placement is relative to the invisible page header - which can be managed in the page setup dialogue. Alternatively, step number placement on a single step page can be set relative to the page using the context menu as described earlier. 
+ * Page header and footer width is now matched with the size and orientation of the displayed page. One can also change the Relative To settings from header/footer to page using the context menu/Move Step Number dialogue. For example, the step number on single step pages default placement is relative to the invisible page header - which can be managed in the page setup dialogue. Alternatively, step number placement on a single step page can be set relative to the page using the context menu as described earlier. 
 Fix: Page movable and selectable in the graphics scene (r849) 
  * Page is now fixed and cannot be selected within the graphics scene. 
 Fix: Drag and drop model file (r848) 
@@ -690,9 +770,9 @@ LPub3D 2.0.15.846.2
 Features and enhancements 
 ------------ 
 Fix: Reset step cache (r845) 
- * CSI (assembly) context menu item "Reset Step Assembly Image Cache." Clear and regenerate CSI .png (assembly) and .ldr (temp) files for the selected step. This context menu is only displayed for multi-step pages allowing the editor to refresh a specific CSI image on the page. 
+ * CSI (assembly) context menu item Reset Step Assembly Image Cache. Clear and regenerate CSI .png (assembly) and .ldr (temp) files for the selected step. This context menu is only displayed for multi-step pages allowing the editor to refresh a specific CSI image on the page. 
 Fix: Reset page cache (r844) 
- * Page context menu item "Reset Page Assembly Image Cache." Clear and regenerate CSI .png (assembly) and .ldr (temp) files for all assemblies on the current page. 
+ * Page context menu item Reset Page Assembly Image Cache. Clear and regenerate CSI .png (assembly) and .ldr (temp) files for all assemblies on the current page. 
  This function will not reset PLI (parts) content. 
 Fix: On reset all caches LPub3D returns to first page (r843) 
  * LPub3D will return to the page on which it was when reset all caches launched. 
@@ -710,7 +790,7 @@ Fix: File reload after external source change breaks page drop-down combo dialog
  * When a file is reloaded after being changed by an external source, the drop-down menu for selecting a page doesn't work until after navigating using another method. 
 Fix: Image orientation does not conform when page orientation changed to Landscape (r836) 
  * Image generation was not inheriting the proper page size values. 
-Fix: Extra characters "" in margin meta and page size meta does not display the page size identifier(r835) 
+Fix: Extra characters  in margin meta and page size meta does not display the page size identifier(r835) 
  * Oops, allocated the page size identifier variable to the wrong meta - should have been allocated to page size meta instead of units meta (units meta is used for setting the margin). Consequently, the page size meta is missing the size identifier (A4, Letter, etc...) because the place-holder to pass the variable is not there. This must have happened during the patch process from the maintenance branch because it did not present during my tests. Both issues are now corrected. 
  
 LPub3D 2.0.13.834.2 
@@ -720,7 +800,7 @@ Features and enhancements
 Fix: Logging options added to Preferences (r832) 
  * Select logged attributes and logging levels. 
 Fix: Prompt search directory settings reset (r831) 
- * Prompt to inform that the search directories have been reset after the search directory reset button is clicked. Restarting LPub3D is not required. Also changed menu items "Reset 3D Viewer Model Cache" to "Change Temp File Cache" and "Reset Image and Model Caches" to "Reset All Caches". 
+ * Prompt to inform that the search directories have been reset after the search directory reset button is clicked. Restarting LPub3D is not required. Also changed menu items Reset 3D Viewer Model Cache to Change Temp File Cache and Reset Image and Model Caches to Reset All Caches. 
 Fix: Inconsistency between part counts in submodels and part counts in call-outs where multiple instances are involved (r829) 
  * For submodels, the PLI part counts reflect only one instance of the submodel, even if multiple instances are used in the same step. The instance count is correct, and the BOM has the correct total number of parts. With this update, sub-model pages displaying instance count now have a context menu option to display parts per step/page or not (total parts consumed by the number of instances indicated. 
  Previously, for callouts, you have the options (see context menu) to display parts list per callout (one instance) or not. When you select no parts list per callout, the PLI will show all the parts consumed by the total number of instances in the callout. If you choose parts list per callout, the PLI is moved to the callout and only the parts for a single occurrence of the callout is shown. The idea here is if you have 5 occurrences of the called out assembly, you'll need 5x the parts total, but only 1x parts are shown to indicate what you need to build an instance of the called out assembly. 
@@ -741,7 +821,7 @@ Fix: Page size and orientation processing update (r826/833)
  0 LPUB PAGE SIZE LOCAL 8.5000 11.0000 Letter 
  0 LPUB PAGE SIZE LOCAL 5.8000 8.3000 A5 
  0 LPUB PAGE SIZE LOCAL 5.8678 8.3456 Custom 
- Along with the width and height values, if the page size is non-standard, the identifier "Custom" will be automatically used. Additionally if an identifier is not present, the identifier "Custom" will automatically used. The page identifier is displayed in the Page Setup dialogue and Size/Orientation change context menu dialogue. 
+ Along with the width and height values, if the page size is non-standard, the identifier Custom will be automatically used. Additionally if an identifier is not present, the identifier Custom will automatically used. The page identifier is displayed in the Page Setup dialogue and Size/Orientation change context menu dialogue. 
  Also, the LPub3D print/export function no longer needs to parse the model file to capture, in advance, page sizes. This capture is performed during the existing page parse and load functions and is exposed to the print routines during printing/exporting. This change was necessary to better enable mixed-size page export/printing where it is necessary to 'look ahead' to get the next page's size and orientation parameters in order to configure the printer engine before processing the page. 
 Fix: Expand INSERT MODEL meta command behaviour (r825) 
  * When using part fading LPUb3D will now process multiple INSERT MODEL commands rendering the CSI content at each command.  For example, if the instruction document includes different model attachments, the editor can now include a non-faded image of the entire model with each attachment. Here is an example of he proper command sequence when used in conjunction with BUFEXCHG: 
@@ -768,9 +848,9 @@ LPub3D 2.0.12.823.2
 Features and enhancements 
 ------------ 
 Fix: LDView SnapshotSuffix to persist .png image generation (r820) 
- * As designed, LDView will use the last "Save as type" parameter set in the Save Snapshot dialogue for command line exports. I've added the command parameter -SnapshotSuffix=.png to force png image output in situation the user changes the LDView save as type from .png (e.g. exports a snapshot in .jpg format) while working outside of LPub3D. 
+ * As designed, LDView will use the last Save as type parameter set in the Save Snapshot dialogue for command line exports. I've added the command parameter -SnapshotSuffix=.png to force png image output in situation the user changes the LDView save as type from .png (e.g. exports a snapshot in .jpg format) while working outside of LPub3D. 
 Fix: Industrialize pdf print/export preview dialogue(r819) 
- * Remove [Experimental] status from pdf print preview. Implement prompt to open pdf file after printing. Fixed launching "Pdf print preview" menu item disables the "Print to Pdf file" menu item (nothing happens when you click the Print to Pdf file menu item). This behaviour occurs only after launching Pdf print preview requiring an application restart to clear the behaviour. Fixed viewer print banner removed after the first printed/exported page. 
+ * Remove [Experimental] status from pdf print preview. Implement prompt to open pdf file after printing. Fixed launching Pdf print preview menu item disables the Print to Pdf file menu item (nothing happens when you click the Print to Pdf file menu item). This behaviour occurs only after launching Pdf print preview requiring an application restart to clear the behaviour. Fixed viewer print banner removed after the first printed/exported page. 
 Known Issue: Some JPEG-compressed images types are not rendered as inserted image (r818) 
  * This was a Qt bug claimed to be corrected in Qt 5.5.1 (LPub3D uses 5.7); however, the issue seem to persist in Qt 5.7 also. Not all jpg images fail to load. The issue appear to be related to JPeGs with broken EXIF headers only. 
  
@@ -792,10 +872,10 @@ Fix: Reload at file change prompt (r807)
 Fix: Configuration parameters editor extra prompt to save before close (r807) 
  * LPub3D configuration file editor prompting to save changed content at the both the editor's window close and LPub3D main window close. This behaviour has been corrected to prompt only at editor window close. 
 Fix: Part count gives wrong result. (r806) 
- * Setting an automatic piece count gives wrong count most of the time in an MPD with multiple submodels and multiple usages of certain same submodels. This behaviour is now corrected. However,the user will have to play a role in configuring her model file to accurately reflect the part count expected. This will undoubtedly require moderate knowledge of LDraw and LPub3D format/logic semantics. The implemented part count capabilities will aim to minimize the intervention of the user but; ultimately, the strength of the part count will depend on the integrity of the model file. 
+ * Setting an automatic count gives wrong count most of the time in an MPD with multiple submodels and multiple usages of certain same submodels. This behaviour is now corrected. However,the user will have to play a role in configuring her model file to accurately reflect the part count expected. This will undoubtedly require moderate knowledge of LDraw and LPub3D format/logic semantics. The implemented part count capabilities will aim to minimize the intervention of the user but; ultimately, the strength of the part count will depend on the integrity of the model file. 
  In LPub3D, three configuration patterns will determine if a part is counted: 
  1. The part file must contain a well formed part type meta. 
-	Examples: 0 LDRAW_ORG Part, 0 LDRAW_ORG unofficial_part, 0 LDRAW_ORG unofficial part, 0 unofficial part 
+	Examples: 0 LDRAW ORG Part, 0 LDRAW ORG unofficial part, 0 LDRAW ORG unofficial part, 0 unofficial part 
 	Note that LPub3D does not look at the file extension to distinguish between types. Therefore, one could have a file named foo.mpd which will be identified as a part if the above meta declaration exist. Conversely, if no declaration is present, foo.dat or foo.ldr will not be identified as a part. This feature can be useful when defining helper parts. For example, leaving out the type declaration in the file uparrow.dat will allow the user to include it in their instructions with out it being counted as a part. 
  2. Using the IGN (ignore) LPub meta will automatically exclude the part lines within from being counted. 
 	For example: 
@@ -824,7 +904,7 @@ Fix: Pdf preview progress bar (r803)
  * Add progress bar to pdf preview dialogue. For large instruction documents it could be good to monitor the progress of the export process. 
 Fix: Front and back cover page attribute placement (r802) 
  * By default cover page attributes are placed relative to each other (with one anchor placed relative to the page) on the front and back cover pages. Independent page attributes are by default placed relative to the page. The new behaviour will break the dependency (placing the dependent attribute relative to the page) if the attribute depended upon is not respecting its default relative to placement (e.g. ModelName relationTo has changed from Title to Page). I imagine this is more complex that it probably should be but the aim was to automatically place the attributes on model load so young/novice users would not have to fuss with even more complex configuration. 
- The quirk remaining is when you change placement relative on an attribute depended upon by another, the dependent attributes will obviously follow the position of the newly placed attribute. This may confuse users as it can be perceived as a bug. There are two ways around this when repositioning cover page attributes. The first way is to not change relative to placement, instead use the drag functionality to reposition the attribute and; the second way is starting from the bottom and working upward, set the dependent attribute(s) placement relative to the page using the Move "attribute name" context menu. 
+ The quirk remaining is when you change placement relative on an attribute depended upon by another, the dependent attributes will obviously follow the position of the newly placed attribute. This may confuse users as it can be perceived as a bug. There are two ways around this when repositioning cover page attributes. The first way is to not change relative to placement, instead use the drag functionality to reposition the attribute and; the second way is starting from the bottom and working upward, set the dependent attribute(s) placement relative to the page using the Move attribute name context menu. 
  All attributes are optionally displayed. If a depended upon attribute display is false, its dependant attribute is automatically placed relative to the page. 
  Here is the the placement relativeTo table - any attribute not placed relative to the page is dependent: 
  
@@ -915,7 +995,7 @@ LPub3D 2.0.8.785.2
 Features and enhancements 
 ------------ 
 -Fix: Print/export 'page range' option output incorrect (r785) 
- *For print/export option "All pages," images are generated in numerical order. However, for option "Page Range," images are generated in "alphabetical" order for lack of a better description. If one selects pages 1-115, the order the pages are generated is 1, 10, 100, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2, 20... The order is now as expected 1...10...100 etc... 
+ *For print/export option All pages, images are generated in numerical order. However, for option Page Range, images are generated in alphabetical order for lack of a better description. If one selects pages 1-115, the order the pages are generated is 1, 10, 100, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2, 20... The order is now as expected 1...10...100 etc... 
 -Fix: Revert to MinGW distributions - for both x32 and x64 architectures (r784) 
  *Discontinue all MSVC LPub3D distributions. 
 -Fix: Refactor loading model file into Ldraw editor window (r783) 
@@ -953,7 +1033,7 @@ Features and enhancements
 -Fix: Inconsistent fade behaviour when using BUFEXCHG parts and added parts in the same step (r764) 
  *Behaviour previously used the size of the previous step's CSI to determine the fade position index of the current step in all cases. This approach could lead to an inconsistent fade position after retrieving a buffer. Behaviour corrected to use the size of the previous buffer parts list (versus the CSI) to determine the current step's fade position when BUFEXCHG RETRIEVE meta command is used. This approach removes the necessity to follow the BUFEXCHG RETRIEVE meta command with a STEP/ROTSTEP meta command to process the fade sequence which will unnecessarily render the buffered items twice, in the buffered view and the modelled view. Usually only the buffered view render is desired in the current step (that's why the assembly is buffered in the first place) but the modelled view CSI should be carried forward to the next step. Here are two examples: 
  Example 1: No unbuffered parts in step 1, render buffered skeleton with arrow in step 1 but render only modelled skeleton faded and the current parts in step 2 
-	0 LPUB ASSEM MODEL_SCALE LOCAL  0.6500 
+	0 LPUB ASSEM MODEL SCALE LOCAL  0.6500 
 	0 BUFEXCHG A STORE 
 	0 GHOST 1 0 201.2 -844.25 0 1 0 0 0 1 0 0 0 1 skeleton.ldr 
 	0 BUFEXCHG B STORE 
@@ -972,7 +1052,7 @@ Features and enhancements
  Example 2: Unbuffered (modelled) parts in step 1, render hobspine, crossbrace, and outerrib with arrow (buffered) in step 1 but exclude arrow and show faded, step 1 modelled parts plus current parts in step 2. Step 1 terminates with ROTSTEP 
 	0 GHOST 1 0 0 0 0 1 0 0 0 1 0 0 0 1 hobspine.ldr 
 	0 LPUB CALLOUT BEGIN 
-	0 LPUB CALLOUT POINTER BOTTOM_LEFT 0.608 0.763 0 
+	0 LPUB CALLOUT POINTER BOTTOM LEFT 0.608 0.763 0 
 	1 0 0 0 0 1 0 0 0 1 0 0 0 1 crossbrace.ldr 
 	0 LPUB CALLOUT PLACEMENT RIGHT ASSEM INSIDE 0.41159 0.062474 
 	0 LPUB CALLOUT END 
@@ -1019,7 +1099,7 @@ Features and enhancements
  *Logic processed title annotations when it should not have. Corrected. 
 -Fix: setGeometry: Unable to set geometry 600x800 warning message (r749) 
  *Use QDesktopWidget.availableGeometry(this) setting to support single and multi-screen configurations. 
--Fix: Parameter file edit window highlighting part description containing '#' (r748) 
+-Fix: Parameter file window highlighting part description containing '#' (r748) 
  *Highlight only lines where first character is '#'. 
 -Fix: Generate fade colour parts list crash (r747) 
  *Redesigned functionality to process parts from archive libraries (unofficial and official) versus LDraw disc directories. This approach improves performance and reliability as all parts, including those from additional search directories, are collected in the archive libraries. Working with archive files is much faster than working with disc directories. 
@@ -1065,7 +1145,7 @@ Features and enhancements
  *Manage better the update dialogue. Restrict entries to only valid update versions. 
 -Fix: Crash when last line in main model of mpd file is a part type line - i.e. line starts with 1 to 5. (r726) 
  *This behaviour will be seen when the user loads a model file without the meta tag '0 STEP' or '0 NOFILE'. 
--Fix: Export and PDF generation produces "Failed to create CSI" and does not produce model images in the generated document.(r727) 
+-Fix: Export and PDF generation produces Failed to create CSI and does not produce model images in the generated document.(r727) 
  *Temporary testing code blocked the creation of CSI images - my apologies:-( 
  
 LPub3D 2.0.2.721.2 
@@ -1146,11 +1226,11 @@ Features and enhancements
  below - obviously selecting your own size values and orientation. 
  0 LPUB PAGE SIZE GLOBAL 8.2677 11.6929 
  0 LPUB PAGE ORIENTATION GLOBAL PORTRAIT 
--Change: Page background context menu rearranged. "Change page background" and "Change Page Size or Orientation" now appear at the end of the menu list because they are likely to be least often used. (r641) 
+-Change: Page background context menu rearranged. Change page background and Change Page Size or Orientation now appear at the end of the menu list because they are likely to be least often used. (r641) 
 -Change: Point online manual to LPub3D content - was previously pointing to legacy LPub (r517) 
 -Refactor: Move library archives to AppData stabilization and robustness (r711) 
 -Refactor: Optimize fadeStep routines; change LDView logging details (r695) 
--Refactor: Replace 0x050000 with QT_VERSION_CHECK(5,0,0) (r660) 
+-Refactor: Replace 0x050000 with QT VERSION CHECK(5,0,0) (r660) 
 -Refactor: Remove stretch/tile logic from coverImage management (r659) 
 -Refactor: Update CSI image mousePressEvent logic. (r640) 
 -Refactor: Update file load progress messages (r636) 
@@ -1173,11 +1253,11 @@ Features and enhancements
 -Fix: When a CALLOUT allocation is changed, if you right-click a model in the callout and not the callout itself, the ALLOC meta is placed after the CALLOUT END and has no effect - meta appended but should be inserted (r650) 
 -Fix: Converting an assembly to a part results in a parse error when there are spaces in the file name (r649) 
 -Fix: If a divided STEP GROUP allocation is changed from vertical (Display as columns - default) to horizontal (Display as rows), selecting again Display as columns has no effect - meta appended but should be replaced (r648) 
--Fix: When the "Redraw" icon is clicked on the LDraw File Editor window, the file editor resizes to 255x190 pixels (r647) 
+-Fix: When the Redraw icon is clicked on the LDraw File Editor window, the file editor resizes to 255x190 pixels (r647) 
 -Fix: Split BOM duplicates one part onto current and subsequent BOM pages (r646) 
 -Fix: Inserting a front cover page when the current first page is a multi step page (r645) 
 -Fix: Bug when using callouts in Multistep sequences. When you place your callout right from assembly, it appears on the left side. When you place your callout bottom, it appears on the top. (r643) 
--Fix: wrong text when you export to PNG the window title says "Print to pdf" (r638) 
+-Fix: wrong text when you export to PNG the window title says Print to pdf (r638) 
 -Fix: When publishing instructions with the option 0 LPUB PAGE BACKGROUND TRANSPARENT a drop shadow layer was added (r637) 
 -Fix: Remove -w1 from default ldglite parms (r629) 
 -Fix: Periodic multi-step crash - 3DViewer image file line number mismatch (r628) 
@@ -1210,7 +1290,7 @@ Fix: Fade part not displayed in assembly image (r872)
  * The faded part is not rendered or displayed in the CSI step image. The non-faded part occurrence is rendered successfully and the faded part is displayed in the viewer.The problem persists after regenerating fade parts and clearing the cache. In some scenarios, particularly when LPub3D is launched with fade=Off and then fade is set to fade=ON using the Preferences menu after a model file is loaded, it is possible that the fade directory is not communicated to the renderer so no fade part image is rendered. This behaviour has been corrected. 
  With the updated behaviour, the fade search directories are updated on any change to the Fade Step check-box in the Preferences General tab. If the fade step is set to ON, fade directory with part file content will be added to the search directory. When fade step is set to OFF, the fade directory will be removed. 
 Fix: True page background transparency (r871) 
- * When the page background is set the true transparent, it is not possible to display the background context menu so many page functions will not be accessible. To accommodate true transparency and enable the available page editing functions, when a page background is set to "none(transparent)" by the user, the page is set to white with alpha=1 during page editing but switched to true transparent for exporting/printing. This way, the user will have the ability to manipulate the page components while editing the document. 
+ * When the page background is set the true transparent, it is not possible to display the background context menu so many page functions will not be accessible. To accommodate true transparency and enable the available page editing functions, when a page background is set to none(transparent) by the user, the page is set to white with alpha=1 during page editing but switched to true transparent for exporting/printing. This way, the user will have the ability to manipulate the page components while editing the document. 
 Fix: Previewing the current page (single page) produces a blank page (r870) 
  * This behaviour has been corrected. 
 Fix: Page size precision to 4 decimal places (r869) 
@@ -1237,7 +1317,7 @@ Fix: Inconsistent page size/orientation transition (r862)
  - GLOBAL (e.g 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword should only be used at the header of the top level model file - if you are manually adding meta commands in the LDraw editor. 
  - LOCAL (e.g 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword will scope the meta command to only the current step - if you are manually adding meta commands in the LDraw editor.. 
  - When the LOCAL keyword is absent (e.g. 0 !LPUB PAGE ORIENTATION PORTRAIT), the meta command takes on the same behaviour as if the GLOBAL keyword is used - i.e. the meta command takes on a global scope from the point where it is used - unless it is superseded by a new meta command. 
- - When manually setting size and/or orientation on a child submodel (i.e. using the LDraw editor), place your command in the child submodel instead of placing it in the parent model. For MULTI_STEP(s), place the size orientation at the bottom of the MULTI_STEP - just before 0 !LPUB MULTI_STEP END. 
+ - When manually setting size and/or orientation on a child submodel (i.e. using the LDraw editor), place your command in the child submodel instead of placing it in the parent model. For MULTI STEP(s), place the size orientation at the bottom of the MULTI STEP - just before 0 !LPUB MULTI STEP END. 
 Fix: Empty output after export to pdf or images (r861) 
  * The page size was not captured during export (pdf or images) unless an explicit definition of the page size meta command is present in the model file (e.g. 0 !LPUB PAGE SIZE GLOBAL 8.5000 11.0000 Letter). This behaviour is now corrected. 
 Fix: When page number is not displayed, the submodel instance count is also not displayed (r860) 
@@ -1252,13 +1332,13 @@ Fix: Prompt to download LDraw archive when archive not provided (r856)
 Fix: Cover page attributes displayed outside of page (r853) 
  * Page attributes placed outside of page when displaying individual attributes. Attributes on both front and back cover pages were experiencing this behaviour. The behaviour is now corrected. Refer to features and enhancements for LPub3D 2.0.11.816.2  to review additional details on manipulating page attributes. 
 Fix: Refresh open model file when preference changes (r852) 
- * Refresh open model file when "display all page attributes" and "generate cover pages" preference settings have changed. 
+ * Refresh open model file when display all page attributes and generate cover pages preference settings have changed. 
 Fix: Unable to create a new line in text items - e.g. Model Description (r851) 
  * It is now possible to split text in text boxes and all editable page attributes - e.g. model description, LEGO disclaimer etc... When you select a text item, the cursor is placed at the very beginning of the dialogue. Use your arrow keys to move the cursor to the desired position of the dialogue. 
- To split a line simply hit the "enter" key on your keyboard. It is also possible to create a new line by inserting inserting the newline characters \n. 
- One can also add "quoted texts" in test items. Just like adding a new line, simply type " before and after the content you wish to quote. It is not necessary to enter an escape character \ but entering an escape character before the \" is also supported. 
+ To split a line simply hit the enter key on your keyboard. It is also possible to create a new line by inserting inserting the newline characters \n. 
+ One can also add quoted texts in test items. Just like adding a new line, simply type  before and after the content you wish to quote. It is not necessary to enter an escape character \ but entering an escape character before the \ is also supported. 
 Fix: The step number is slightly off of the page when using default settings (r850) 
- * Page header and footer width is now matched with the size and orientation of the displayed page. One can also change the "Relative To" settings from header/footer to page using the context menu/Move Step Number dialogue. For example, the step number on single step pages default placement is relative to the invisible page header - which can be managed in the page setup dialogue. Alternatively, step number placement on a single step page can be set relative to the page using the context menu as described earlier. 
+ * Page header and footer width is now matched with the size and orientation of the displayed page. One can also change the Relative To settings from header/footer to page using the context menu/Move Step Number dialogue. For example, the step number on single step pages default placement is relative to the invisible page header - which can be managed in the page setup dialogue. Alternatively, step number placement on a single step page can be set relative to the page using the context menu as described earlier. 
 Fix: Page movable and selectable in the graphics scene (r849) 
  * Page is now fixed and cannot be selected within the graphics scene. 
 Fix: Drag and drop model file (r848) 
@@ -1269,9 +1349,9 @@ LPub3D 2.0.15.846.2
 Features and enhancements 
 ------------ 
 Fix: Reset step cache (r845) 
- * CSI (assembly) context menu item "Reset Step Assembly Image Cache." Clear and regenerate CSI .png (assembly) and .ldr (temp) files for the selected step. This context menu is only displayed for multi-step pages allowing the editor to refresh a specific CSI image on the page. 
+ * CSI (assembly) context menu item Reset Step Assembly Image Cache. Clear and regenerate CSI .png (assembly) and .ldr (temp) files for the selected step. This context menu is only displayed for multi-step pages allowing the editor to refresh a specific CSI image on the page. 
 Fix: Reset page cache (r844) 
- * Page context menu item "Reset Page Assembly Image Cache." Clear and regenerate CSI .png (assembly) and .ldr (temp) files for all assemblies on the current page. 
+ * Page context menu item Reset Page Assembly Image Cache. Clear and regenerate CSI .png (assembly) and .ldr (temp) files for all assemblies on the current page. 
  This function will not reset PLI (parts) content. 
 Fix: On reset all caches LPub3D returns to first page (r843) 
  * LPub3D will return to the page on which it was when reset all caches launched. 
@@ -1289,7 +1369,7 @@ Fix: File reload after external source change breaks page drop-down combo dialog
  * When a file is reloaded after being changed by an external source, the drop-down menu for selecting a page doesn't work until after navigating using another method. 
 Fix: Image orientation does not conform when page orientation changed to Landscape (r836) 
  * Image generation was not inheriting the proper page size values. 
-Fix: Extra characters "" in margin meta and page size meta does not display the page size identifier(r835) 
+Fix: Extra characters  in margin meta and page size meta does not display the page size identifier(r835) 
  * Oops, allocated the page size identifier variable to the wrong meta - should have been allocated to page size meta instead of units meta (units meta is used for setting the margin). Consequently, the page size meta is missing the size identifier (A4, Letter, etc...) because the place-holder to pass the variable is not there. This must have happened during the patch process from the maintenance branch because it did not present during my tests. Both issues are now corrected. 
  
 LPub3D 2.0.13.834.2 
@@ -1299,7 +1379,7 @@ Features and enhancements
 Fix: Logging options added to Preferences (r832) 
  * Select logged attributes and logging levels. 
 Fix: Prompt search directory settings reset (r831) 
- * Prompt to inform that the search directories have been reset after the search directory reset button is clicked. Restarting LPub3D is not required. Also changed menu items "Reset 3D Viewer Model Cache" to "Change Temp File Cache" and "Reset Image and Model Caches" to "Reset All Caches". 
+ * Prompt to inform that the search directories have been reset after the search directory reset button is clicked. Restarting LPub3D is not required. Also changed menu items Reset 3D Viewer Model Cache to Change Temp File Cache and Reset Image and Model Caches to Reset All Caches. 
 Fix: Inconsistency between part counts in submodels and part counts in call-outs where multiple instances are involved (r829) 
  * For submodels, the PLI part counts reflect only one instance of the submodel, even if multiple instances are used in the same step. The instance count is correct, and the BOM has the correct total number of parts. With this update, sub-model pages displaying instance count now have a context menu option to display parts per step/page or not (total parts consumed by the number of instances indicated. 
  Previously, for callouts, you have the options (see context menu) to display parts list per callout (one instance) or not. When you select no parts list per callout, the PLI will show all the parts consumed by the total number of instances in the callout. If you choose parts list per callout, the PLI is moved to the callout and only the parts for a single occurrence of the callout is shown. The idea here is if you have 5 occurrences of the called out assembly, you'll need 5x the parts total, but only 1x parts are shown to indicate what you need to build an instance of the called out assembly. 
@@ -1320,7 +1400,7 @@ Fix: Page size and orientation processing update (r826/833)
  0 LPUB PAGE SIZE LOCAL 8.5000 11.0000 Letter 
  0 LPUB PAGE SIZE LOCAL 5.8000 8.3000 A5 
  0 LPUB PAGE SIZE LOCAL 5.8678 8.3456 Custom 
- Along with the width and height values, if the page size is non-standard, the identifier "Custom" will be automatically used. Additionally if an identifier is not present, the identifier "Custom" will automatically used. The page identifier is displayed in the Page Setup dialogue and Size/Orientation change context menu dialogue. 
+ Along with the width and height values, if the page size is non-standard, the identifier Custom will be automatically used. Additionally if an identifier is not present, the identifier Custom will automatically used. The page identifier is displayed in the Page Setup dialogue and Size/Orientation change context menu dialogue. 
  Also, the LPub3D print/export function no longer needs to parse the model file to capture, in advance, page sizes. This capture is performed during the existing page parse and load functions and is exposed to the print routines during printing/exporting. This change was necessary to better enable mixed-size page export/printing where it is necessary to 'look ahead' to get the next page's size and orientation parameters in order to configure the printer engine before processing the page. 
 Fix: Expand INSERT MODEL meta command behaviour (r825) 
  * When using part fading LPUb3D will now process multiple INSERT MODEL commands rendering the CSI content at each command.  For example, if the instruction document includes different model attachments, the editor can now include a non-faded image of the entire model with each attachment. Here is an example of he proper command sequence when used in conjunction with BUFEXCHG: 
@@ -1347,9 +1427,9 @@ LPub3D 2.0.12.823.2
 Features and enhancements 
 ------------ 
 Fix: LDView SnapshotSuffix to persist .png image generation (r820) 
- * As designed, LDView will use the last "Save as type" parameter set in the Save Snapshot dialogue for command line exports. I've added the command parameter -SnapshotSuffix=.png to force png image output in situation the user changes the LDView save as type from .png (e.g. exports a snapshot in .jpg format) while working outside of LPub3D. 
+ * As designed, LDView will use the last Save as type parameter set in the Save Snapshot dialogue for command line exports. I've added the command parameter -SnapshotSuffix=.png to force png image output in situation the user changes the LDView save as type from .png (e.g. exports a snapshot in .jpg format) while working outside of LPub3D. 
 Fix: Industrialize pdf print/export preview dialogue(r819) 
- * Remove [Experimental] status from pdf print preview. Implement prompt to open pdf file after printing. Fixed launching "Pdf print preview" menu item disables the "Print to Pdf file" menu item (nothing happens when you click the Print to Pdf file menu item). This behaviour occurs only after launching Pdf print preview requiring an application restart to clear the behaviour. Fixed viewer print banner removed after the first printed/exported page. 
+ * Remove [Experimental] status from pdf print preview. Implement prompt to open pdf file after printing. Fixed launching Pdf print preview menu item disables the Print to Pdf file menu item (nothing happens when you click the Print to Pdf file menu item). This behaviour occurs only after launching Pdf print preview requiring an application restart to clear the behaviour. Fixed viewer print banner removed after the first printed/exported page. 
 Known Issue: Some JPEG-compressed images types are not rendered as inserted image (r818) 
  * This was a Qt bug claimed to be corrected in Qt 5.5.1 (LPub3D uses 5.7); however, the issue seem to persist in Qt 5.7 also. Not all jpg images fail to load. The issue appear to be related to JPeGs with broken EXIF headers only. 
 LPub3D 2.0.19.25.560 
@@ -1369,7 +1449,7 @@ Fix: Fade part not displayed in assembly image (r872)
  * The faded part is not rendered or displayed in the CSI step image. The non-faded part occurrence is rendered successfully and the faded part is displayed in the viewer.The problem persists after regenerating fade parts and clearing the cache. In some scenarios, particularly when LPub3D is launched with fade=Off and then fade is set to fade=ON using the Preferences menu after a model file is loaded, it is possible that the fade directory is not communicated to the renderer so no fade part image is rendered. This behaviour has been corrected. 
  With the updated behaviour, the fade search directories are updated on any change to the Fade Step check-box in the Preferences General tab. If the fade step is set to ON, fade directory with part file content will be added to the search directory. When fade step is set to OFF, the fade directory will be removed. 
 Fix: True page background transparency (r871) 
- * When the page background is set the true transparent, it is not possible to display the background context menu so many page functions will not be accessible. To accommodate true transparency and enable the available page editing functions, when a page background is set to "none(transparent)" by the user, the page is set to white with alpha=1 during page editing but switched to true transparent for exporting/printing. This way, the user will have the ability to manipulate the page components while editing the document. 
+ * When the page background is set the true transparent, it is not possible to display the background context menu so many page functions will not be accessible. To accommodate true transparency and enable the available page editing functions, when a page background is set to none(transparent) by the user, the page is set to white with alpha=1 during page editing but switched to true transparent for exporting/printing. This way, the user will have the ability to manipulate the page components while editing the document. 
 Fix: Previewing the current page (single page) produces a blank page (r870) 
  * This behaviour has been corrected. 
 Fix: Page size precision to 4 decimal places (r869) 
@@ -1396,7 +1476,7 @@ Fix: Inconsistent page size/orientation transition (r862)
  - GLOBAL (e.g 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword should only be used at the header of the top level model file - if you are manually adding meta commands in the LDraw editor. 
  - LOCAL (e.g 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword will scope the meta command to only the current step - if you are manually adding meta commands in the LDraw editor.. 
  - When the LOCAL keyword is absent (e.g. 0 !LPUB PAGE ORIENTATION PORTRAIT), the meta command takes on the same behaviour as if the GLOBAL keyword is used - i.e. the meta command takes on a global scope from the point where it is used - unless it is superseded by a new meta command. 
- - When manually setting size and/or orientation on a child submodel (i.e. using the LDraw editor), place your command in the child submodel instead of placing it in the parent model. For MULTI_STEP(s), place the size orientation at the bottom of the MULTI_STEP - just before 0 !LPUB MULTI_STEP END. 
+ - When manually setting size and/or orientation on a child submodel (i.e. using the LDraw editor), place your command in the child submodel instead of placing it in the parent model. For MULTI STEP(s), place the size orientation at the bottom of the MULTI STEP - just before 0 !LPUB MULTI STEP END. 
 Fix: Empty output after export to pdf or images (r861) 
  * The page size was not captured during export (pdf or images) unless an explicit definition of the page size meta command is present in the model file (e.g. 0 !LPUB PAGE SIZE GLOBAL 8.5000 11.0000 Letter). This behaviour is now corrected. 
 Fix: When page number is not displayed, the submodel instance count is also not displayed (r860) 
@@ -1411,13 +1491,13 @@ Fix: Prompt to download LDraw archive when archive not provided (r856)
 Fix: Cover page attributes displayed outside of page (r853) 
  * Page attributes placed outside of page when displaying individual attributes. Attributes on both front and back cover pages were experiencing this behaviour. The behaviour is now corrected. Refer to features and enhancements for LPub3D 2.0.11.816.2  to review additional details on manipulating page attributes. 
 Fix: Refresh open model file when preference changes (r852) 
- * Refresh open model file when "display all page attributes" and "generate cover pages" preference settings have changed. 
+ * Refresh open model file when display all page attributes and generate cover pages preference settings have changed. 
 Fix: Unable to create a new line in text items - e.g. Model Description (r851) 
  * It is now possible to split text in text boxes and all editable page attributes - e.g. model description, LEGO disclaimer etc... When you select a text item, the cursor is placed at the very beginning of the dialogue. Use your arrow keys to move the cursor to the desired position of the dialogue. 
- To split a line simply hit the "enter" key on your keyboard. It is also possible to create a new line by inserting inserting the newline characters \n. 
- One can also add "quoted texts" in test items. Just like adding a new line, simply type " before and after the content you wish to quote. It is not necessary to enter an escape character \ but entering an escape character before the \" is also supported. 
+ To split a line simply hit the enter key on your keyboard. It is also possible to create a new line by inserting inserting the newline characters \n. 
+ One can also add quoted texts in test items. Just like adding a new line, simply type  before and after the content you wish to quote. It is not necessary to enter an escape character \ but entering an escape character before the \ is also supported. 
 Fix: The step number is slightly off of the page when using default settings (r850) 
- * Page header and footer width is now matched with the size and orientation of the displayed page. One can also change the "Relative To" settings from header/footer to page using the context menu/Move Step Number dialogue. For example, the step number on single step pages default placement is relative to the invisible page header - which can be managed in the page setup dialogue. Alternatively, step number placement on a single step page can be set relative to the page using the context menu as described earlier. 
+ * Page header and footer width is now matched with the size and orientation of the displayed page. One can also change the Relative To settings from header/footer to page using the context menu/Move Step Number dialogue. For example, the step number on single step pages default placement is relative to the invisible page header - which can be managed in the page setup dialogue. Alternatively, step number placement on a single step page can be set relative to the page using the context menu as described earlier. 
 Fix: Page movable and selectable in the graphics scene (r849) 
  * Page is now fixed and cannot be selected within the graphics scene. 
 Fix: Drag and drop model file (r848) 
@@ -1428,9 +1508,9 @@ LPub3D 2.0.15.846.2
 Features and enhancements 
 ------------ 
 Fix: Reset step cache (r845) 
- * CSI (assembly) context menu item "Reset Step Assembly Image Cache." Clear and regenerate CSI .png (assembly) and .ldr (temp) files for the selected step. This context menu is only displayed for multi-step pages allowing the editor to refresh a specific CSI image on the page. 
+ * CSI (assembly) context menu item Reset Step Assembly Image Cache. Clear and regenerate CSI .png (assembly) and .ldr (temp) files for the selected step. This context menu is only displayed for multi-step pages allowing the editor to refresh a specific CSI image on the page. 
 Fix: Reset page cache (r844) 
- * Page context menu item "Reset Page Assembly Image Cache." Clear and regenerate CSI .png (assembly) and .ldr (temp) files for all assemblies on the current page. 
+ * Page context menu item Reset Page Assembly Image Cache. Clear and regenerate CSI .png (assembly) and .ldr (temp) files for all assemblies on the current page. 
  This function will not reset PLI (parts) content. 
 Fix: On reset all caches LPub3D returns to first page (r843) 
  * LPub3D will return to the page on which it was when reset all caches launched. 
@@ -1448,7 +1528,7 @@ Fix: File reload after external source change breaks page drop-down combo dialog
  * When a file is reloaded after being changed by an external source, the drop-down menu for selecting a page doesn't work until after navigating using another method. 
 Fix: Image orientation does not conform when page orientation changed to Landscape (r836) 
  * Image generation was not inheriting the proper page size values. 
-Fix: Extra characters "" in margin meta and page size meta does not display the page size identifier(r835) 
+Fix: Extra characters  in margin meta and page size meta does not display the page size identifier(r835) 
  * Oops, allocated the page size identifier variable to the wrong meta - should have been allocated to page size meta instead of units meta (units meta is used for setting the margin). Consequently, the page size meta is missing the size identifier (A4, Letter, etc...) because the place-holder to pass the variable is not there. This must have happened during the patch process from the maintenance branch because it did not present during my tests. Both issues are now corrected. 
  
 LPub3D 2.0.13.834.2 
@@ -1458,7 +1538,7 @@ Features and enhancements
 Fix: Logging options added to Preferences (r832) 
  * Select logged attributes and logging levels. 
 Fix: Prompt search directory settings reset (r831) 
- * Prompt to inform that the search directories have been reset after the search directory reset button is clicked. Restarting LPub3D is not required. Also changed menu items "Reset 3D Viewer Model Cache" to "Change Temp File Cache" and "Reset Image and Model Caches" to "Reset All Caches". 
+ * Prompt to inform that the search directories have been reset after the search directory reset button is clicked. Restarting LPub3D is not required. Also changed menu items Reset 3D Viewer Model Cache to Change Temp File Cache and Reset Image and Model Caches to Reset All Caches. 
 Fix: Inconsistency between part counts in submodels and part counts in call-outs where multiple instances are involved (r829) 
  * For submodels, the PLI part counts reflect only one instance of the submodel, even if multiple instances are used in the same step. The instance count is correct, and the BOM has the correct total number of parts. With this update, sub-model pages displaying instance count now have a context menu option to display parts per step/page or not (total parts consumed by the number of instances indicated. 
  Previously, for callouts, you have the options (see context menu) to display parts list per callout (one instance) or not. When you select no parts list per callout, the PLI will show all the parts consumed by the total number of instances in the callout. If you choose parts list per callout, the PLI is moved to the callout and only the parts for a single occurrence of the callout is shown. The idea here is if you have 5 occurrences of the called out assembly, you'll need 5x the parts total, but only 1x parts are shown to indicate what you need to build an instance of the called out assembly. 
@@ -1479,7 +1559,7 @@ Fix: Page size and orientation processing update (r826/833)
  0 LPUB PAGE SIZE LOCAL 8.5000 11.0000 Letter 
  0 LPUB PAGE SIZE LOCAL 5.8000 8.3000 A5 
  0 LPUB PAGE SIZE LOCAL 5.8678 8.3456 Custom 
- Along with the width and height values, if the page size is non-standard, the identifier "Custom" will be automatically used. Additionally if an identifier is not present, the identifier "Custom" will automatically used. The page identifier is displayed in the Page Setup dialogue and Size/Orientation change context menu dialogue. 
+ Along with the width and height values, if the page size is non-standard, the identifier Custom will be automatically used. Additionally if an identifier is not present, the identifier Custom will automatically used. The page identifier is displayed in the Page Setup dialogue and Size/Orientation change context menu dialogue. 
  Also, the LPub3D print/export function no longer needs to parse the model file to capture, in advance, page sizes. This capture is performed during the existing page parse and load functions and is exposed to the print routines during printing/exporting. This change was necessary to better enable mixed-size page export/printing where it is necessary to 'look ahead' to get the next page's size and orientation parameters in order to configure the printer engine before processing the page. 
 Fix: Expand INSERT MODEL meta command behaviour (r825) 
  * When using part fading LPUb3D will now process multiple INSERT MODEL commands rendering the CSI content at each command.  For example, if the instruction document includes different model attachments, the editor can now include a non-faded image of the entire model with each attachment. Here is an example of he proper command sequence when used in conjunction with BUFEXCHG: 
@@ -1506,9 +1586,9 @@ LPub3D 2.0.12.823.2
 Features and enhancements 
 ------------ 
 Fix: LDView SnapshotSuffix to persist .png image generation (r820) 
- * As designed, LDView will use the last "Save as type" parameter set in the Save Snapshot dialogue for command line exports. I've added the command parameter -SnapshotSuffix=.png to force png image output in situation the user changes the LDView save as type from .png (e.g. exports a snapshot in .jpg format) while working outside of LPub3D. 
+ * As designed, LDView will use the last Save as type parameter set in the Save Snapshot dialogue for command line exports. I've added the command parameter -SnapshotSuffix=.png to force png image output in situation the user changes the LDView save as type from .png (e.g. exports a snapshot in .jpg format) while working outside of LPub3D. 
 Fix: Industrialize pdf print/export preview dialogue(r819) 
- * Remove [Experimental] status from pdf print preview. Implement prompt to open pdf file after printing. Fixed launching "Pdf print preview" menu item disables the "Print to Pdf file" menu item (nothing happens when you click the Print to Pdf file menu item). This behaviour occurs only after launching Pdf print preview requiring an application restart to clear the behaviour. Fixed viewer print banner removed after the first printed/exported page. 
+ * Remove [Experimental] status from pdf print preview. Implement prompt to open pdf file after printing. Fixed launching Pdf print preview menu item disables the Print to Pdf file menu item (nothing happens when you click the Print to Pdf file menu item). This behaviour occurs only after launching Pdf print preview requiring an application restart to clear the behaviour. Fixed viewer print banner removed after the first printed/exported page. 
 Known Issue: Some JPEG-compressed images types are not rendered as inserted image (r818) 
  * This was a Qt bug claimed to be corrected in Qt 5.5.1 (LPub3D uses 5.7); however, the issue seem to persist in Qt 5.7 also. Not all jpg images fail to load. The issue appear to be related to JPeGs with broken EXIF headers only. 
  
@@ -1530,10 +1610,10 @@ Fix: Reload at file change prompt (r807)
 Fix: Configuration parameters editor extra prompt to save before close (r807) 
  * LPub3D configuration file editor prompting to save changed content at the both the editor's window close and LPub3D main window close. This behaviour has been corrected to prompt only at editor window close. 
 Fix: Part count gives wrong result. (r806) 
- * Setting an automatic piece count gives wrong count most of the time in an MPD with multiple submodels and multiple usages of certain same submodels. This behaviour is now corrected. However,the user will have to play a role in configuring her model file to accurately reflect the part count expected. This will undoubtedly require moderate knowledge of LDraw and LPub3D format/logic semantics. The implemented part count capabilities will aim to minimize the intervention of the user but; ultimately, the strength of the part count will depend on the integrity of the model file. 
+ * Setting an automatic count gives wrong count most of the time in an MPD with multiple submodels and multiple usages of certain same submodels. This behaviour is now corrected. However,the user will have to play a role in configuring her model file to accurately reflect the part count expected. This will undoubtedly require moderate knowledge of LDraw and LPub3D format/logic semantics. The implemented part count capabilities will aim to minimize the intervention of the user but; ultimately, the strength of the part count will depend on the integrity of the model file. 
  In LPub3D, three configuration patterns will determine if a part is counted: 
  1. The part file must contain a well formed part type meta. 
-	Examples: 0 LDRAW_ORG Part, 0 LDRAW_ORG unofficial_part, 0 LDRAW_ORG unofficial part, 0 unofficial part 
+	Examples: 0 LDRAW ORG Part, 0 LDRAW ORG unofficial part, 0 LDRAW ORG unofficial part, 0 unofficial part 
 	Note that LPub3D does not look at the file extension to distinguish between types. Therefore, one could have a file named foo.mpd which will be identified as a part if the above meta declaration exist. Conversely, if no declaration is present, foo.dat or foo.ldr will not be identified as a part. This feature can be useful when defining helper parts. For example, leaving out the type declaration in the file uparrow.dat will allow the user to include it in their instructions with out it being counted as a part. 
  2. Using the IGN (ignore) LPub meta will automatically exclude the part lines within from being counted. 
 	For example: 
@@ -1562,7 +1642,7 @@ Fix: Pdf preview progress bar (r803)
  * Add progress bar to pdf preview dialogue. For large instruction documents it could be good to monitor the progress of the export process. 
 Fix: Front and back cover page attribute placement (r802) 
  * By default cover page attributes are placed relative to each other (with one anchor placed relative to the page) on the front and back cover pages. Independent page attributes are by default placed relative to the page. The new behaviour will break the dependency (placing the dependent attribute relative to the page) if the attribute depended upon is not respecting its default relative to placement (e.g. ModelName relationTo has changed from Title to Page). I imagine this is more complex that it probably should be but the aim was to automatically place the attributes on model load so young/novice users would not have to fuss with even more complex configuration. 
- The quirk remaining is when you change placement relative on an attribute depended upon by another, the dependent attributes will obviously follow the position of the newly placed attribute. This may confuse users as it can be perceived as a bug. There are two ways around this when repositioning cover page attributes. The first way is to not change relative to placement, instead use the drag functionality to reposition the attribute and; the second way is starting from the bottom and working upward, set the dependent attribute(s) placement relative to the page using the Move "attribute name" context menu. 
+ The quirk remaining is when you change placement relative on an attribute depended upon by another, the dependent attributes will obviously follow the position of the newly placed attribute. This may confuse users as it can be perceived as a bug. There are two ways around this when repositioning cover page attributes. The first way is to not change relative to placement, instead use the drag functionality to reposition the attribute and; the second way is starting from the bottom and working upward, set the dependent attribute(s) placement relative to the page using the Move attribute name context menu. 
  All attributes are optionally displayed. If a depended upon attribute display is false, its dependant attribute is automatically placed relative to the page. 
  Here is the the placement relativeTo table - any attribute not placed relative to the page is dependent: 
  
@@ -1653,7 +1733,7 @@ LPub3D 2.0.8.785.2
 Features and enhancements 
 ------------ 
 -Fix: Print/export 'page range' option output incorrect (r785) 
- *For print/export option "All pages," images are generated in numerical order. However, for option "Page Range," images are generated in "alphabetical" order for lack of a better description. If one selects pages 1-115, the order the pages are generated is 1, 10, 100, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2, 20... The order is now as expected 1...10...100 etc... 
+ *For print/export option All pages, images are generated in numerical order. However, for option Page Range, images are generated in alphabetical order for lack of a better description. If one selects pages 1-115, the order the pages are generated is 1, 10, 100, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2, 20... The order is now as expected 1...10...100 etc... 
 -Fix: Revert to MinGW distributions - for both x32 and x64 architectures (r784) 
  *Discontinue all MSVC LPub3D distributions. 
 -Fix: Refactor loading model file into Ldraw editor window (r783) 
@@ -1691,7 +1771,7 @@ Features and enhancements
 -Fix: Inconsistent fade behaviour when using BUFEXCHG parts and added parts in the same step (r764) 
  *Behaviour previously used the size of the previous step's CSI to determine the fade position index of the current step in all cases. This approach could lead to an inconsistent fade position after retrieving a buffer. Behaviour corrected to use the size of the previous buffer parts list (versus the CSI) to determine the current step's fade position when BUFEXCHG RETRIEVE meta command is used. This approach removes the necessity to follow the BUFEXCHG RETRIEVE meta command with a STEP/ROTSTEP meta command to process the fade sequence which will unnecessarily render the buffered items twice, in the buffered view and the modelled view. Usually only the buffered view render is desired in the current step (that's why the assembly is buffered in the first place) but the modelled view CSI should be carried forward to the next step. Here are two examples: 
  Example 1: No unbuffered parts in step 1, render buffered skeleton with arrow in step 1 but render only modelled skeleton faded and the current parts in step 2 
-	0 LPUB ASSEM MODEL_SCALE LOCAL  0.6500 
+	0 LPUB ASSEM MODEL SCALE LOCAL  0.6500 
 	0 BUFEXCHG A STORE 
 	0 GHOST 1 0 201.2 -844.25 0 1 0 0 0 1 0 0 0 1 skeleton.ldr 
 	0 BUFEXCHG B STORE 
@@ -1710,7 +1790,7 @@ Features and enhancements
  Example 2: Unbuffered (modelled) parts in step 1, render hobspine, crossbrace, and outerrib with arrow (buffered) in step 1 but exclude arrow and show faded, step 1 modelled parts plus current parts in step 2. Step 1 terminates with ROTSTEP 
 	0 GHOST 1 0 0 0 0 1 0 0 0 1 0 0 0 1 hobspine.ldr 
 	0 LPUB CALLOUT BEGIN 
-	0 LPUB CALLOUT POINTER BOTTOM_LEFT 0.608 0.763 0 
+	0 LPUB CALLOUT POINTER BOTTOM LEFT 0.608 0.763 0 
 	1 0 0 0 0 1 0 0 0 1 0 0 0 1 crossbrace.ldr 
 	0 LPUB CALLOUT PLACEMENT RIGHT ASSEM INSIDE 0.41159 0.062474 
 	0 LPUB CALLOUT END 
@@ -1757,7 +1837,7 @@ Features and enhancements
  *Logic processed title annotations when it should not have. Corrected. 
 -Fix: setGeometry: Unable to set geometry 600x800 warning message (r749) 
  *Use QDesktopWidget.availableGeometry(this) setting to support single and multi-screen configurations. 
--Fix: Parameter file edit window highlighting part description containing '#' (r748) 
+-Fix: Parameter file window highlighting part description containing '#' (r748) 
  *Highlight only lines where first character is '#'. 
 -Fix: Generate fade colour parts list crash (r747) 
  *Redesigned functionality to process parts from archive libraries (unofficial and official) versus LDraw disc directories. This approach improves performance and reliability as all parts, including those from additional search directories, are collected in the archive libraries. Working with archive files is much faster than working with disc directories. 
@@ -1803,7 +1883,7 @@ Features and enhancements
  *Manage better the update dialogue. Restrict entries to only valid update versions. 
 -Fix: Crash when last line in main model of mpd file is a part type line - i.e. line starts with 1 to 5. (r726) 
  *This behaviour will be seen when the user loads a model file without the meta tag '0 STEP' or '0 NOFILE'. 
--Fix: Export and PDF generation produces "Failed to create CSI" and does not produce model images in the generated document.(r727) 
+-Fix: Export and PDF generation produces Failed to create CSI and does not produce model images in the generated document.(r727) 
  *Temporary testing code blocked the creation of CSI images - my apologies:-( 
  
 LPub3D 2.0.2.721.2 
@@ -1884,11 +1964,11 @@ Features and enhancements
  below - obviously selecting your own size values and orientation. 
  0 LPUB PAGE SIZE GLOBAL 8.2677 11.6929 
  0 LPUB PAGE ORIENTATION GLOBAL PORTRAIT 
--Change: Page background context menu rearranged. "Change page background" and "Change Page Size or Orientation" now appear at the end of the menu list because they are likely to be least often used. (r641) 
+-Change: Page background context menu rearranged. Change page background and Change Page Size or Orientation now appear at the end of the menu list because they are likely to be least often used. (r641) 
 -Change: Point online manual to LPub3D content - was previously pointing to legacy LPub (r517) 
 -Refactor: Move library archives to AppData stabilization and robustness (r711) 
 -Refactor: Optimize fadeStep routines; change LDView logging details (r695) 
--Refactor: Replace 0x050000 with QT_VERSION_CHECK(5,0,0) (r660) 
+-Refactor: Replace 0x050000 with QT VERSION CHECK(5,0,0) (r660) 
 -Refactor: Remove stretch/tile logic from coverImage management (r659) 
 -Refactor: Update CSI image mousePressEvent logic. (r640) 
 -Refactor: Update file load progress messages (r636) 
@@ -1911,11 +1991,11 @@ Features and enhancements
 -Fix: When a CALLOUT allocation is changed, if you right-click a model in the callout and not the callout itself, the ALLOC meta is placed after the CALLOUT END and has no effect - meta appended but should be inserted (r650) 
 -Fix: Converting an assembly to a part results in a parse error when there are spaces in the file name (r649) 
 -Fix: If a divided STEP GROUP allocation is changed from vertical (Display as columns - default) to horizontal (Display as rows), selecting again Display as columns has no effect - meta appended but should be replaced (r648) 
--Fix: When the "Redraw" icon is clicked on the LDraw File Editor window, the file editor resizes to 255x190 pixels (r647) 
+-Fix: When the Redraw icon is clicked on the LDraw File Editor window, the file editor resizes to 255x190 pixels (r647) 
 -Fix: Split BOM duplicates one part onto current and subsequent BOM pages (r646) 
 -Fix: Inserting a front cover page when the current first page is a multi step page (r645) 
 -Fix: Bug when using callouts in Multistep sequences. When you place your callout right from assembly, it appears on the left side. When you place your callout bottom, it appears on the top. (r643) 
--Fix: wrong text when you export to PNG the window title says "Print to pdf" (r638) 
+-Fix: wrong text when you export to PNG the window title says Print to pdf (r638) 
 -Fix: When publishing instructions with the option 0 LPUB PAGE BACKGROUND TRANSPARENT a drop shadow layer was added (r637) 
 -Fix: Remove -w1 from default ldglite parms (r629) 
 -Fix: Periodic multi-step crash - 3DViewer image file line number mismatch (r628) 
@@ -1948,7 +2028,7 @@ Fix: Fade part not displayed in assembly image (r872)
  * The faded part is not rendered or displayed in the CSI step image. The non-faded part occurrence is rendered successfully and the faded part is displayed in the viewer.The problem persists after regenerating fade parts and clearing the cache. In some scenarios, particularly when LPub3D is launched with fade=Off and then fade is set to fade=ON using the Preferences menu after a model file is loaded, it is possible that the fade directory is not communicated to the renderer so no fade part image is rendered. This behaviour has been corrected. 
  With the updated behaviour, the fade search directories are updated on any change to the Fade Step check-box in the Preferences General tab. If the fade step is set to ON, fade directory with part file content will be added to the search directory. When fade step is set to OFF, the fade directory will be removed. 
 Fix: True page background transparency (r871) 
- * When the page background is set the true transparent, it is not possible to display the background context menu so many page functions will not be accessible. To accommodate true transparency and enable the available page editing functions, when a page background is set to "none(transparent)" by the user, the page is set to white with alpha=1 during page editing but switched to true transparent for exporting/printing. This way, the user will have the ability to manipulate the page components while editing the document. 
+ * When the page background is set the true transparent, it is not possible to display the background context menu so many page functions will not be accessible. To accommodate true transparency and enable the available page editing functions, when a page background is set to none(transparent) by the user, the page is set to white with alpha=1 during page editing but switched to true transparent for exporting/printing. This way, the user will have the ability to manipulate the page components while editing the document. 
 Fix: Previewing the current page (single page) produces a blank page (r870) 
  * This behaviour has been corrected. 
 Fix: Page size precision to 4 decimal places (r869) 
@@ -1975,7 +2055,7 @@ Fix: Inconsistent page size/orientation transition (r862)
  - GLOBAL (e.g 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword should only be used at the header of the top level model file - if you are manually adding meta commands in the LDraw editor. 
  - LOCAL (e.g 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword will scope the meta command to only the current step - if you are manually adding meta commands in the LDraw editor.. 
  - When the LOCAL keyword is absent (e.g. 0 !LPUB PAGE ORIENTATION PORTRAIT), the meta command takes on the same behaviour as if the GLOBAL keyword is used - i.e. the meta command takes on a global scope from the point where it is used - unless it is superseded by a new meta command. 
- - When manually setting size and/or orientation on a child submodel (i.e. using the LDraw editor), place your command in the child submodel instead of placing it in the parent model. For MULTI_STEP(s), place the size orientation at the bottom of the MULTI_STEP - just before 0 !LPUB MULTI_STEP END. 
+ - When manually setting size and/or orientation on a child submodel (i.e. using the LDraw editor), place your command in the child submodel instead of placing it in the parent model. For MULTI STEP(s), place the size orientation at the bottom of the MULTI STEP - just before 0 !LPUB MULTI STEP END. 
 Fix: Empty output after export to pdf or images (r861) 
  * The page size was not captured during export (pdf or images) unless an explicit definition of the page size meta command is present in the model file (e.g. 0 !LPUB PAGE SIZE GLOBAL 8.5000 11.0000 Letter). This behaviour is now corrected. 
 Fix: When page number is not displayed, the submodel instance count is also not displayed (r860) 
@@ -1990,13 +2070,13 @@ Fix: Prompt to download LDraw archive when archive not provided (r856)
 Fix: Cover page attributes displayed outside of page (r853) 
  * Page attributes placed outside of page when displaying individual attributes. Attributes on both front and back cover pages were experiencing this behaviour. The behaviour is now corrected. Refer to features and enhancements for LPub3D 2.0.11.816.2  to review additional details on manipulating page attributes. 
 Fix: Refresh open model file when preference changes (r852) 
- * Refresh open model file when "display all page attributes" and "generate cover pages" preference settings have changed. 
+ * Refresh open model file when display all page attributes and generate cover pages preference settings have changed. 
 Fix: Unable to create a new line in text items - e.g. Model Description (r851) 
  * It is now possible to split text in text boxes and all editable page attributes - e.g. model description, LEGO disclaimer etc... When you select a text item, the cursor is placed at the very beginning of the dialogue. Use your arrow keys to move the cursor to the desired position of the dialogue. 
- To split a line simply hit the "enter" key on your keyboard. It is also possible to create a new line by inserting inserting the newline characters \n. 
- One can also add "quoted texts" in test items. Just like adding a new line, simply type " before and after the content you wish to quote. It is not necessary to enter an escape character \ but entering an escape character before the \" is also supported. 
+ To split a line simply hit the enter key on your keyboard. It is also possible to create a new line by inserting inserting the newline characters \n. 
+ One can also add quoted texts in test items. Just like adding a new line, simply type  before and after the content you wish to quote. It is not necessary to enter an escape character \ but entering an escape character before the \ is also supported. 
 Fix: The step number is slightly off of the page when using default settings (r850) 
- * Page header and footer width is now matched with the size and orientation of the displayed page. One can also change the "Relative To" settings from header/footer to page using the context menu/Move Step Number dialogue. For example, the step number on single step pages default placement is relative to the invisible page header - which can be managed in the page setup dialogue. Alternatively, step number placement on a single step page can be set relative to the page using the context menu as described earlier. 
+ * Page header and footer width is now matched with the size and orientation of the displayed page. One can also change the Relative To settings from header/footer to page using the context menu/Move Step Number dialogue. For example, the step number on single step pages default placement is relative to the invisible page header - which can be managed in the page setup dialogue. Alternatively, step number placement on a single step page can be set relative to the page using the context menu as described earlier. 
 Fix: Page movable and selectable in the graphics scene (r849) 
  * Page is now fixed and cannot be selected within the graphics scene. 
 Fix: Drag and drop model file (r848) 
@@ -2007,9 +2087,9 @@ LPub3D 2.0.15.846.2
 Features and enhancements 
 ------------ 
 Fix: Reset step cache (r845) 
- * CSI (assembly) context menu item "Reset Step Assembly Image Cache." Clear and regenerate CSI .png (assembly) and .ldr (temp) files for the selected step. This context menu is only displayed for multi-step pages allowing the editor to refresh a specific CSI image on the page. 
+ * CSI (assembly) context menu item Reset Step Assembly Image Cache. Clear and regenerate CSI .png (assembly) and .ldr (temp) files for the selected step. This context menu is only displayed for multi-step pages allowing the editor to refresh a specific CSI image on the page. 
 Fix: Reset page cache (r844) 
- * Page context menu item "Reset Page Assembly Image Cache." Clear and regenerate CSI .png (assembly) and .ldr (temp) files for all assemblies on the current page. 
+ * Page context menu item Reset Page Assembly Image Cache. Clear and regenerate CSI .png (assembly) and .ldr (temp) files for all assemblies on the current page. 
  This function will not reset PLI (parts) content. 
 Fix: On reset all caches LPub3D returns to first page (r843) 
  * LPub3D will return to the page on which it was when reset all caches launched. 
@@ -2027,7 +2107,7 @@ Fix: File reload after external source change breaks page drop-down combo dialog
  * When a file is reloaded after being changed by an external source, the drop-down menu for selecting a page doesn't work until after navigating using another method. 
 Fix: Image orientation does not conform when page orientation changed to Landscape (r836) 
  * Image generation was not inheriting the proper page size values. 
-Fix: Extra characters "" in margin meta and page size meta does not display the page size identifier(r835) 
+Fix: Extra characters  in margin meta and page size meta does not display the page size identifier(r835) 
  * Oops, allocated the page size identifier variable to the wrong meta - should have been allocated to page size meta instead of units meta (units meta is used for setting the margin). Consequently, the page size meta is missing the size identifier (A4, Letter, etc...) because the place-holder to pass the variable is not there. This must have happened during the patch process from the maintenance branch because it did not present during my tests. Both issues are now corrected. 
  
 LPub3D 2.0.13.834.2 
@@ -2037,7 +2117,7 @@ Features and enhancements
 Fix: Logging options added to Preferences (r832) 
  * Select logged attributes and logging levels. 
 Fix: Prompt search directory settings reset (r831) 
- * Prompt to inform that the search directories have been reset after the search directory reset button is clicked. Restarting LPub3D is not required. Also changed menu items "Reset 3D Viewer Model Cache" to "Change Temp File Cache" and "Reset Image and Model Caches" to "Reset All Caches". 
+ * Prompt to inform that the search directories have been reset after the search directory reset button is clicked. Restarting LPub3D is not required. Also changed menu items Reset 3D Viewer Model Cache to Change Temp File Cache and Reset Image and Model Caches to Reset All Caches. 
 Fix: Inconsistency between part counts in submodels and part counts in call-outs where multiple instances are involved (r829) 
  * For submodels, the PLI part counts reflect only one instance of the submodel, even if multiple instances are used in the same step. The instance count is correct, and the BOM has the correct total number of parts. With this update, sub-model pages displaying instance count now have a context menu option to display parts per step/page or not (total parts consumed by the number of instances indicated. 
  Previously, for callouts, you have the options (see context menu) to display parts list per callout (one instance) or not. When you select no parts list per callout, the PLI will show all the parts consumed by the total number of instances in the callout. If you choose parts list per callout, the PLI is moved to the callout and only the parts for a single occurrence of the callout is shown. The idea here is if you have 5 occurrences of the called out assembly, you'll need 5x the parts total, but only 1x parts are shown to indicate what you need to build an instance of the called out assembly. 
@@ -2058,7 +2138,7 @@ Fix: Page size and orientation processing update (r826/833)
  0 LPUB PAGE SIZE LOCAL 8.5000 11.0000 Letter 
  0 LPUB PAGE SIZE LOCAL 5.8000 8.3000 A5 
  0 LPUB PAGE SIZE LOCAL 5.8678 8.3456 Custom 
- Along with the width and height values, if the page size is non-standard, the identifier "Custom" will be automatically used. Additionally if an identifier is not present, the identifier "Custom" will automatically used. The page identifier is displayed in the Page Setup dialogue and Size/Orientation change context menu dialogue. 
+ Along with the width and height values, if the page size is non-standard, the identifier Custom will be automatically used. Additionally if an identifier is not present, the identifier Custom will automatically used. The page identifier is displayed in the Page Setup dialogue and Size/Orientation change context menu dialogue. 
  Also, the LPub3D print/export function no longer needs to parse the model file to capture, in advance, page sizes. This capture is performed during the existing page parse and load functions and is exposed to the print routines during printing/exporting. This change was necessary to better enable mixed-size page export/printing where it is necessary to 'look ahead' to get the next page's size and orientation parameters in order to configure the printer engine before processing the page. 
 Fix: Expand INSERT MODEL meta command behaviour (r825) 
  * When using part fading LPUb3D will now process multiple INSERT MODEL commands rendering the CSI content at each command.  For example, if the instruction document includes different model attachments, the editor can now include a non-faded image of the entire model with each attachment. Here is an example of he proper command sequence when used in conjunction with BUFEXCHG: 
@@ -2085,9 +2165,9 @@ LPub3D 2.0.12.823.2
 Features and enhancements 
 ------------ 
 Fix: LDView SnapshotSuffix to persist .png image generation (r820) 
- * As designed, LDView will use the last "Save as type" parameter set in the Save Snapshot dialogue for command line exports. I've added the command parameter -SnapshotSuffix=.png to force png image output in situation the user changes the LDView save as type from .png (e.g. exports a snapshot in .jpg format) while working outside of LPub3D. 
+ * As designed, LDView will use the last Save as type parameter set in the Save Snapshot dialogue for command line exports. I've added the command parameter -SnapshotSuffix=.png to force png image output in situation the user changes the LDView save as type from .png (e.g. exports a snapshot in .jpg format) while working outside of LPub3D. 
 Fix: Industrialize pdf print/export preview dialogue(r819) 
- * Remove [Experimental] status from pdf print preview. Implement prompt to open pdf file after printing. Fixed launching "Pdf print preview" menu item disables the "Print to Pdf file" menu item (nothing happens when you click the Print to Pdf file menu item). This behaviour occurs only after launching Pdf print preview requiring an application restart to clear the behaviour. Fixed viewer print banner removed after the first printed/exported page. 
+ * Remove [Experimental] status from pdf print preview. Implement prompt to open pdf file after printing. Fixed launching Pdf print preview menu item disables the Print to Pdf file menu item (nothing happens when you click the Print to Pdf file menu item). This behaviour occurs only after launching Pdf print preview requiring an application restart to clear the behaviour. Fixed viewer print banner removed after the first printed/exported page. 
 Known Issue: Some JPEG-compressed images types are not rendered as inserted image (r818) 
  * This was a Qt bug claimed to be corrected in Qt 5.5.1 (LPub3D uses 5.7); however, the issue seem to persist in Qt 5.7 also. Not all jpg images fail to load. The issue appear to be related to JPeGs with broken EXIF headers only. 
  
@@ -2109,10 +2189,10 @@ Fix: Reload at file change prompt (r807)
 Fix: Configuration parameters editor extra prompt to save before close (r807) 
  * LPub3D configuration file editor prompting to save changed content at the both the editor's window close and LPub3D main window close. This behaviour has been corrected to prompt only at editor window close. 
 Fix: Part count gives wrong result. (r806) 
- * Setting an automatic piece count gives wrong count most of the time in an MPD with multiple submodels and multiple usages of certain same submodels. This behaviour is now corrected. However,the user will have to play a role in configuring her model file to accurately reflect the part count expected. This will undoubtedly require moderate knowledge of LDraw and LPub3D format/logic semantics. The implemented part count capabilities will aim to minimize the intervention of the user but; ultimately, the strength of the part count will depend on the integrity of the model file. 
+ * Setting an automatic count gives wrong count most of the time in an MPD with multiple submodels and multiple usages of certain same submodels. This behaviour is now corrected. However,the user will have to play a role in configuring her model file to accurately reflect the part count expected. This will undoubtedly require moderate knowledge of LDraw and LPub3D format/logic semantics. The implemented part count capabilities will aim to minimize the intervention of the user but; ultimately, the strength of the part count will depend on the integrity of the model file. 
  In LPub3D, three configuration patterns will determine if a part is counted: 
  1. The part file must contain a well formed part type meta. 
-	Examples: 0 LDRAW_ORG Part, 0 LDRAW_ORG unofficial_part, 0 LDRAW_ORG unofficial part, 0 unofficial part 
+	Examples: 0 LDRAW ORG Part, 0 LDRAW ORG unofficial part, 0 LDRAW ORG unofficial part, 0 unofficial part 
 	Note that LPub3D does not look at the file extension to distinguish between types. Therefore, one could have a file named foo.mpd which will be identified as a part if the above meta declaration exist. Conversely, if no declaration is present, foo.dat or foo.ldr will not be identified as a part. This feature can be useful when defining helper parts. For example, leaving out the type declaration in the file uparrow.dat will allow the user to include it in their instructions with out it being counted as a part. 
  2. Using the IGN (ignore) LPub meta will automatically exclude the part lines within from being counted. 
 	For example: 
@@ -2141,7 +2221,7 @@ Fix: Pdf preview progress bar (r803)
  * Add progress bar to pdf preview dialogue. For large instruction documents it could be good to monitor the progress of the export process. 
 Fix: Front and back cover page attribute placement (r802) 
  * By default cover page attributes are placed relative to each other (with one anchor placed relative to the page) on the front and back cover pages. Independent page attributes are by default placed relative to the page. The new behaviour will break the dependency (placing the dependent attribute relative to the page) if the attribute depended upon is not respecting its default relative to placement (e.g. ModelName relationTo has changed from Title to Page). I imagine this is more complex that it probably should be but the aim was to automatically place the attributes on model load so young/novice users would not have to fuss with even more complex configuration. 
- The quirk remaining is when you change placement relative on an attribute depended upon by another, the dependent attributes will obviously follow the position of the newly placed attribute. This may confuse users as it can be perceived as a bug. There are two ways around this when repositioning cover page attributes. The first way is to not change relative to placement, instead use the drag functionality to reposition the attribute and; the second way is starting from the bottom and working upward, set the dependent attribute(s) placement relative to the page using the Move "attribute name" context menu. 
+ The quirk remaining is when you change placement relative on an attribute depended upon by another, the dependent attributes will obviously follow the position of the newly placed attribute. This may confuse users as it can be perceived as a bug. There are two ways around this when repositioning cover page attributes. The first way is to not change relative to placement, instead use the drag functionality to reposition the attribute and; the second way is starting from the bottom and working upward, set the dependent attribute(s) placement relative to the page using the Move attribute name context menu. 
  All attributes are optionally displayed. If a depended upon attribute display is false, its dependant attribute is automatically placed relative to the page. 
  Here is the the placement relativeTo table - any attribute not placed relative to the page is dependent: 
  
@@ -2232,7 +2312,7 @@ LPub3D 2.0.8.785.2
 Features and enhancements 
 ------------ 
 -Fix: Print/export 'page range' option output incorrect (r785) 
- *For print/export option "All pages," images are generated in numerical order. However, for option "Page Range," images are generated in "alphabetical" order for lack of a better description. If one selects pages 1-115, the order the pages are generated is 1, 10, 100, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2, 20... The order is now as expected 1...10...100 etc... 
+ *For print/export option All pages, images are generated in numerical order. However, for option Page Range, images are generated in alphabetical order for lack of a better description. If one selects pages 1-115, the order the pages are generated is 1, 10, 100, 11, 12, 13, 14, 15, 16, 17, 18, 19, 2, 20... The order is now as expected 1...10...100 etc... 
 -Fix: Revert to MinGW distributions - for both x32 and x64 architectures (r784) 
  *Discontinue all MSVC LPub3D distributions. 
 -Fix: Refactor loading model file into Ldraw editor window (r783) 
@@ -2270,7 +2350,7 @@ Features and enhancements
 -Fix: Inconsistent fade behaviour when using BUFEXCHG parts and added parts in the same step (r764) 
  *Behaviour previously used the size of the previous step's CSI to determine the fade position index of the current step in all cases. This approach could lead to an inconsistent fade position after retrieving a buffer. Behaviour corrected to use the size of the previous buffer parts list (versus the CSI) to determine the current step's fade position when BUFEXCHG RETRIEVE meta command is used. This approach removes the necessity to follow the BUFEXCHG RETRIEVE meta command with a STEP/ROTSTEP meta command to process the fade sequence which will unnecessarily render the buffered items twice, in the buffered view and the modelled view. Usually only the buffered view render is desired in the current step (that's why the assembly is buffered in the first place) but the modelled view CSI should be carried forward to the next step. Here are two examples: 
  Example 1: No unbuffered parts in step 1, render buffered skeleton with arrow in step 1 but render only modelled skeleton faded and the current parts in step 2 
-	0 LPUB ASSEM MODEL_SCALE LOCAL  0.6500 
+	0 LPUB ASSEM MODEL SCALE LOCAL  0.6500 
 	0 BUFEXCHG A STORE 
 	0 GHOST 1 0 201.2 -844.25 0 1 0 0 0 1 0 0 0 1 skeleton.ldr 
 	0 BUFEXCHG B STORE 
@@ -2289,7 +2369,7 @@ Features and enhancements
  Example 2: Unbuffered (modelled) parts in step 1, render hobspine, crossbrace, and outerrib with arrow (buffered) in step 1 but exclude arrow and show faded, step 1 modelled parts plus current parts in step 2. Step 1 terminates with ROTSTEP 
 	0 GHOST 1 0 0 0 0 1 0 0 0 1 0 0 0 1 hobspine.ldr 
 	0 LPUB CALLOUT BEGIN 
-	0 LPUB CALLOUT POINTER BOTTOM_LEFT 0.608 0.763 0 
+	0 LPUB CALLOUT POINTER BOTTOM LEFT 0.608 0.763 0 
 	1 0 0 0 0 1 0 0 0 1 0 0 0 1 crossbrace.ldr 
 	0 LPUB CALLOUT PLACEMENT RIGHT ASSEM INSIDE 0.41159 0.062474 
 	0 LPUB CALLOUT END 
@@ -2336,7 +2416,7 @@ Features and enhancements
  *Logic processed title annotations when it should not have. Corrected. 
 -Fix: setGeometry: Unable to set geometry 600x800 warning message (r749) 
  *Use QDesktopWidget.availableGeometry(this) setting to support single and multi-screen configurations. 
--Fix: Parameter file edit window highlighting part description containing '#' (r748) 
+-Fix: Parameter file window highlighting part description containing '#' (r748) 
  *Highlight only lines where first character is '#'. 
 -Fix: Generate fade colour parts list crash (r747) 
  *Redesigned functionality to process parts from archive libraries (unofficial and official) versus LDraw disc directories. This approach improves performance and reliability as all parts, including those from additional search directories, are collected in the archive libraries. Working with archive files is much faster than working with disc directories. 
@@ -2382,7 +2462,7 @@ Features and enhancements
  *Manage better the update dialogue. Restrict entries to only valid update versions. 
 -Fix: Crash when last line in main model of mpd file is a part type line - i.e. line starts with 1 to 5. (r726) 
  *This behaviour will be seen when the user loads a model file without the meta tag '0 STEP' or '0 NOFILE'. 
--Fix: Export and PDF generation produces "Failed to create CSI" and does not produce model images in the generated document.(r727) 
+-Fix: Export and PDF generation produces Failed to create CSI and does not produce model images in the generated document.(r727) 
  *Temporary testing code blocked the creation of CSI images - my apologies:-( 
  
 LPub3D 2.0.2.721.2 
@@ -2463,11 +2543,11 @@ Features and enhancements
  below - obviously selecting your own size values and orientation. 
  0 LPUB PAGE SIZE GLOBAL 8.2677 11.6929 
  0 LPUB PAGE ORIENTATION GLOBAL PORTRAIT 
--Change: Page background context menu rearranged. "Change page background" and "Change Page Size or Orientation" now appear at the end of the menu list because they are likely to be least often used. (r641) 
+-Change: Page background context menu rearranged. Change page background and Change Page Size or Orientation now appear at the end of the menu list because they are likely to be least often used. (r641) 
 -Change: Point online manual to LPub3D content - was previously pointing to legacy LPub (r517) 
 -Refactor: Move library archives to AppData stabilization and robustness (r711) 
 -Refactor: Optimize fadeStep routines; change LDView logging details (r695) 
--Refactor: Replace 0x050000 with QT_VERSION_CHECK(5,0,0) (r660) 
+-Refactor: Replace 0x050000 with QT VERSION CHECK(5,0,0) (r660) 
 -Refactor: Remove stretch/tile logic from coverImage management (r659) 
 -Refactor: Update CSI image mousePressEvent logic. (r640) 
 -Refactor: Update file load progress messages (r636) 
@@ -2490,11 +2570,11 @@ Features and enhancements
 -Fix: When a CALLOUT allocation is changed, if you right-click a model in the callout and not the callout itself, the ALLOC meta is placed after the CALLOUT END and has no effect - meta appended but should be inserted (r650) 
 -Fix: Converting an assembly to a part results in a parse error when there are spaces in the file name (r649) 
 -Fix: If a divided STEP GROUP allocation is changed from vertical (Display as columns - default) to horizontal (Display as rows), selecting again Display as columns has no effect - meta appended but should be replaced (r648) 
--Fix: When the "Redraw" icon is clicked on the LDraw File Editor window, the file editor resizes to 255x190 pixels (r647) 
+-Fix: When the Redraw icon is clicked on the LDraw File Editor window, the file editor resizes to 255x190 pixels (r647) 
 -Fix: Split BOM duplicates one part onto current and subsequent BOM pages (r646) 
 -Fix: Inserting a front cover page when the current first page is a multi step page (r645) 
 -Fix: Bug when using callouts in Multistep sequences. When you place your callout right from assembly, it appears on the left side. When you place your callout bottom, it appears on the top. (r643) 
--Fix: wrong text when you export to PNG the window title says "Print to pdf" (r638) 
+-Fix: wrong text when you export to PNG the window title says Print to pdf (r638) 
 -Fix: When publishing instructions with the option 0 LPUB PAGE BACKGROUND TRANSPARENT a drop shadow layer was added (r637) 
 -Fix: Remove -w1 from default ldglite parms (r629) 
 -Fix: Periodic multi-step crash - 3DViewer image file line number mismatch (r628) 
@@ -2528,7 +2608,7 @@ Features and enhancements
 -Fix: Periodic crash every time a second successive rotation icon is added to multi-step page (r577) 
 -Fix: If using LPub3D archive distribution (no installer), use distribution's extras folder instead of creating one in AppData (r579) 
 -Fix: Print/export dialogue progress bar (r585) 
--Fix: Upon "Add assembled image to parent page" a rotation icon is added to the callout if rotation icons were present in the callout step(s). Assembled and rotated callouts will not display rotate icons on the parent page. Only unassembled callouts will display rotate icons if present in the callout step(s). (r587) 
+-Fix: Upon Add assembled image to parent page a rotation icon is added to the callout if rotation icons were present in the callout step(s). Assembled and rotated callouts will not display rotate icons on the parent page. Only unassembled callouts will display rotate icons if present in the callout step(s). (r587) 
 -Fix: 2 page refreshes when Parameters menu item is accepted - only a single refresh needed. (r588) 
  
 LPub3D 1.3.2.563.5 
@@ -2537,8 +2617,8 @@ Features and enhancements
 ------------ 
 -Fix: PLI Parts annotation restored to short value (r555) 
 -Fix: Control manual page number entry. (r562) 
--Fix: Remove silent_alloc which would trap the Callout meta LPUB CALLOUT HORIZONTAL/VERTICAL and throw a parse error. 
- However silent_alloc was not fully implemented and does not serve any current purpose. 
+-Fix: Remove silent alloc which would trap the Callout meta LPUB CALLOUT HORIZONTAL/VERTICAL and throw a parse error. 
+ However silent alloc was not fully implemented and does not serve any current purpose. 
  The correct meta to allocate a Callout Horizontally or Vertically is LPUB CALLOUT ALLOC HORIZONTAL/VERTICAL (r563) 
  
 LPub3D 1.3.1.516.3 
@@ -2558,12 +2638,12 @@ Features and enhancements
 -Add ability to detect additional ldraw content search directories using ldrawini c api 
  I implemented the ldrawini c api to maintain compatability with LPub3D 3rd Party renderers - LDView, L3P(PovRay) and Ldglite. Additional directories must have either the same tree as LDraw Unofficial directory (i.e. parts and/or p subdirectories...) or alternatively, content can be deposited at the root of the additional directory (i.e. C:/ldrawFiles/*.dat). Content from all defined ldraw search directories are archived in the ldrawunf.zip archive and loaded into memory - enabling access to the 3DViewer. 
  If no ldraw.ini file is detected. LPub3D will automatically search all subdirectories under the ldraw/Unofficial directory - except directories p and parts. Unofficial subdirectories p and parts as well as official p and parts subdirectories are never searched because they are aromatically loaded during default behaviour during startup. 
- There are 2 ways to define search directories: 1. using the Ldraw.ini file (there is now a menu button to edit the ldraw.ini file) and 2. editing the 'Ldraw Content Search Directories text edit dialogue under the 'Other' tab in Preferences. If you are using an LDraw.ini file, the preferences dialogue will be read only - you must use the menu edit button under 'Configuration' to edit the ldraw.ini file. The ldraw.ini edit button only appears if a ldraw.ini file is detected. If you are not using ldraw.ini, it is possible to add,remove and reset to the default search directories in the Preferences tab. 
+ There are 2 ways to define search directories: 1. using the Ldraw.ini file (there is now a menu button to the ldraw.ini file) and 2. editing the 'Ldraw Content Search Directories text dialogue under the 'Other' tab in Preferences. If you are using an LDraw.ini file, the preferences dialogue will be read only - you must use the menu button under 'Configuration' to the ldraw.ini file. The ldraw.ini button only appears if a ldraw.ini file is detected. If you are not using ldraw.ini, it is possible to add,remove and reset to the default search directories in the Preferences tab. 
  ldglite renderer updated with the ability to process additional directories beyond official/unofficial parts, p and Model. I implemented this 
  enhancement to allow all 3 LPub3D renderers(LDView, Ldglite, L3P/PoV Ray) the same functionality supporting additional ldraw content search directories. LPub3D now passes 2 env variables to ldglite - LDRAWDIR and LDSEARCHDIRS. LdView and L3P already uses the ldrawini.c library. They can also be configured to detect additional ldraw content search directories if no ldraw.ini file is configured. I also upgraded ldglite's openGL API from glut (deprecated) to freeglut 3.0 released in June 2015. Ldglite os not versioned at 1.3.0 (from 1.2.7). 
 -Add ability to manage additional ldraw content search directories whether using Ldraw.ini or not. 
- If not using Ldraw.ini file, automatically detected search directories are limited to those under the Unofficial directory. The user has the abilty to exclude and reset search directories within this edit list. Unofficial P and Parts directories are automatically excluded from the search directory list as they are loaded automatically by the application. 
--Add Rotate Icon - indicate that the builder should "flip" the model 
+ If not using Ldraw.ini file, automatically detected search directories are limited to those under the Unofficial directory. The user has the abilty to exclude and reset search directories within this list. Unofficial P and Parts directories are automatically excluded from the search directory list as they are loaded automatically by the application. 
+-Add Rotate Icon - indicate that the builder should flip the model 
 -Add line type attribute to border configuration 
  0=none,1=solid,2=dash,3=dot,4=dashDot,5=dashDotDot. So an old meta line like this: 
  0 !LPUB PLI BORDER GLOBAL ROUND Black 0 15 MARGINS 0.472439 0.07 should be updated to this: 
@@ -2573,7 +2653,7 @@ Features and enhancements
  take alot of space in the BOM/PLI, you can substitute the modeled version with an alternate 
  representation that is suitable for the PLI/BOM view. This feature is complementary to LDCad's 
  template functionality which allows you to model adjustable parts as needed. To use this 
- functionality, simply edit the substitution list from Configuration= BOM/PLI Substitute Parts List 
+ functionality, simply the substitution list from Configuration= BOM/PLI Substitute Parts List 
 -Add LDCad PART/UNOFFICIAL PART meta to recognize LDCad template generated parts 
 -Add gradients to background options 
 -Add Change local page background - colour, gradient, picture, submodel, none 
@@ -2613,8 +2693,8 @@ Features and enhancements
 LPub3D 1.2.2.442.3 
 Features and enhancements 
 ------------ 
--Fix: Update fade parts "failed to archive..." error messages 
--Fix: Change fade step color from "Fade Step Setup" menu writes the correct meta command 
+-Fix: Update fade parts failed to archive... error messages 
+-Fix: Change fade step color from Fade Step Setup menu writes the correct meta command 
  but color does not change when steps generated. 
  
 LPub3D 1.2.1.437.2 
@@ -2637,8 +2717,8 @@ Features and enhancements
  part description. 
 -Go To Page navigation combo box - allow page navigation using drop-down box. 
 -Show progress bar during display page processing. 
--Text entries can now accommodate quotes using escape character '\' - e.g. This \"Fat\" MOC 
- will display: This "Fat" MOC. Edits must always include the '\' escape character. 
+-Text entries can now accommodate quotes using escape character '\' - e.g. This \Fat\ MOC 
+ will display: This Fat MOC. Edits must always include the '\' escape character. 
 -Fix: When changing the font on added text, the dialogue starts with MS Shell Dlg 2 size 12. 
  The dialogue now starts with display of the actual font parameters being changed. 
 -Fix: Change to PLI Times Used attribute on multi-step page now affects only the selected step. 
@@ -2663,13 +2743,13 @@ LPub3D 1.1.0.370.2
 Features and enhancements 
 ------------ 
 -Enable/disable PLI annotations (Preference Dialogue) 
--Edit part title annotations 
+-part title annotations 
 -Fix: source URL on about dialogue 
 -Fix: .dat subFiles not processed for 3D viewer - causes abnormal end (expected 
  dat files to be treated as part and placed in Official/unofficial parts). 
  Dat subfiles are now treated same as mpd/ldr subfiles. 
  
--CHANGE: isSubmodel check no longer observes meta LDRAW_ORG as Submodel=False 
+-CHANGE: isSubmodel check no longer observes meta LDRAW ORG as Submodel=False 
  
 -KNOWN ISSUE: When an image (e.g. logo) is placed bottom left or bottom right 
  right of the page header, dragging the image produces unexpected placement - the same 
