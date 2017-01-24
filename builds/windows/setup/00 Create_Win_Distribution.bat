@@ -462,13 +462,13 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%     "linux-arch": {
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%VERSION%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-Update_%VERSION%.tar.gz",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-Update_%VERSION%.pkg.tar.xz",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%VERSION%,%AVAILVERSIONS_X11%",
 >>%genLPub3DUpdates%       "alternate-version-2.0.20": {
 >>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/2.0.20/",
 >>%genLPub3DUpdates%      	 "latest-version": "2.0.20",
->>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_2.0.20.tar.gz",
+>>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_2.0.20.pkg.tar.xz",
 >>%genLPub3DUpdates%      	 "changelog-url": "http://lpub3d.sourceforge.net/change_log_2.0.20.txt"
 >>%genLPub3DUpdates%       }
 >>%genLPub3DUpdates%     }

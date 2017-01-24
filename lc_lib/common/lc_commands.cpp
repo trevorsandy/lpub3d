@@ -624,7 +624,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
     {
         "Edit.Tool.RotateStep",
         QT_TRANSLATE_NOOP("Menu", "Insert ROTSTEP"),
-        QT_TRANSLATE_NOOP("Status", "Insert or update LPub ROTSTEP meta"),
+        QT_TRANSLATE_NOOP("Status", "Insert or update ROTSTEP meta"),
         QT_TRANSLATE_NOOP("Shortcut", "Shift+O")
     },
     // LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION
@@ -632,14 +632,14 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
         "Edit.RotateStepAbsoluteRotation",
         QT_TRANSLATE_NOOP("Menu", "Set Absolute Rotation"),
         QT_TRANSLATE_NOOP("Status", "Switch to absolute rotation mode when applying step rotation"),
-        QT_TRANSLATE_NOOP("Shortcut", "")
+        QT_TRANSLATE_NOOP("Shortcut", "Shift+B")
     },
     // LC_EDIT_ROTATESTEP_RELATIVE_ROTATION
     {
         "Edit.RotateStepRelativeRotation",
         QT_TRANSLATE_NOOP("Menu", "Set Relative Rotation"),
         QT_TRANSLATE_NOOP("Status", "Switch to relative rotation mode when applying step rotation"),
-        QT_TRANSLATE_NOOP("Shortcut", "")
+        QT_TRANSLATE_NOOP("Shortcut", "Shift+E")
     },
 	// LC_EDIT_CANCEL
 	{

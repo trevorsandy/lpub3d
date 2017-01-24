@@ -1,3 +1,84 @@
+LPub3D 2.0.20.25.560 
+ 
+Features and enhancements 
+------------ 
+Fix: Introducing LPub3D ports for Linux (Debian, Red Hat and Arch based distros) and Mac (OSX). [0853680]
+ * LPub3D is now available across Windows, Linux and Mac platforms. The LPub3D package can be accessed via direct download from sourceforge.net and is available in .dmg (OSX), .rpm (Red Hat)
+   .deb (Debian) and .pkg.tar.xz (Arch) formats. Additionally, LPub3D can be built directly from source with the provided .spec, Debian configuration files or PKGBUILD build
+   configuration files. LPub3D source for building Linux distros is available at https://github.com/trevorsandy/lpub3d; LPub3D source also remains available at http://sourceforge.net/p/lpub3d/code/. 
+   Finally, LPub3D is available on openSUSE Build Service at https://software.opensuse.org/download.html?project=home:trevorsandy&package=lpub3d.
+Fix: When the preferred renderer is manually typed into the preference dialogue, it is not validated upon exit of the preferences dialogue.  [44548f4]
+ * This behaviour has been corrected. Manually entered preferred render path is validated when the preference dialogue is closed.
+Fix: Automatically load LDraw archive libraries on initial application launch. [ff06bc9]
+ * To further improve the user experience at initial application launch. When LPub3D is loaded for the first time, it there are no archive libraries in at the user's application data path. LPub3D will automatically install the libraries packaged in the distribution.
+Fix: Update QuaZip library to v0.7.2
+ * Improve robustness.
+Fix: Enable and correct menu shortcuts.  [48ca363]
+ * LPub3D menu item keyboard shortcuts have been repositioned to allow both Editor, and 3DViewer's short cuts to reside on the main menu tool-bar. This redesign allows for more seamless integration on OSX and some Linux distros - e.g. Debian.
+   Additionally, all available LPub3D menu item short cuts are now enabled. Here are the new mappings:
+   
+   Main Page Design
+	Open 				= Ctrl+O 
+	Save 				= Ctrl+S 
+	Print File 			= Ctrl+T	(Currently Disabled)
+	CloseFile 			= Ctrl+X 
+	First Page 			= Ctrl+P 
+	Last Page 			= Ctrl+L 
+	Previous Page 		= Ctrl+E 
+	Next Page 			= Ctrl+N 
+	Export Bmp 			= Alt+B 
+	Export Png 			= Alt+N 
+	Export Pdf 			= Alt+F 
+	Export Pdf Preview 	= Alt+P 
+	Export Jpg 			= Alt+J 
+	Fit Page Width		= Alt+W 
+	Fit Page Visible	= Alt+V 
+	Actual Size			= Alt+A 
+	Redo 				= Ctrl+Y	(Also affects LDraw Editor Menu)
+	Undo 				= Ctrl+Z 	(Also affects LDraw Editor Menu)
+	Exit Application	= Ctrl+Q 
+ 
+  LDraw Editor Menu
+	Cut     			= Ctrl+X
+	Paste     			= Ctrl+V
+	Copy     			= Ctrl+C
+	Select All			= Ctrl+A
+	Redraw     			= Ctrl+R
+	Find     			= Ctrl+F
+	Delete     			= DEL
+
+  Parameter Editor Menu
+	Cut     			= Ctrl+X
+	Paste     			= Ctrl+V
+	Copy     			= Ctrl+C
+	Select All 			= Ctrl+A
+	Save     			= Ctrl+S
+	Find     			= Ctrl+F
+	Undo     			= Ctrl+Z
+	Redo     			= Ctrl+Y
+	Delete     			= DEL
+	
+  3D Viewer Menu
+ 	Insert ROTSTEP		= Shift+O
+	ROTSTEP Absolute	= Shift+A
+	ROTSTEP Relative	= Shift+R
+	Select 				= Shift+S
+	Zoom				= Shift+Z		
+	Zoom Region 		= Shift+G
+	Rotate Camera View	= Shift+T
+	Pan					= Shift+P
+	Select Invert  		= Ctrl+Shift+I
+	Save As		  		= Ctrl+Alt+S
+	Find  				= Ctrl+Shift+F
+	Copy  				= Ctrl+Shift+C
+	Select All  		= Ctrl+Shift+A
+	Hide Selected  		= Ctrl+H
+	Hide Unselected		= Ctrl+Shift+H
+	Unhide All 	 		= Ctrl+U
+	Unhide Selected  	= Ctrl+Shift+U
+	Undo  				= Ctrl+Shift+Y
+	Redo  				= Ctrl+Shift+Z
+
 LPub3D 2.0.19.25.560 
  
 Features and enhancements 

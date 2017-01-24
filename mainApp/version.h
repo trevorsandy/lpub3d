@@ -27,7 +27,7 @@
 #define VER_FILEVERSION_STR                 STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SP) "." VER_REVISION_STR "." VER_BUILD_STR "\0"
 #define VER_PRODUCTVERSION                  VER_MAJOR,VER_MINOR,VER_SP
 #define VER_PRODUCTVERSION_STR              VER_MAJOR "." VER_MINOR "." VER_SP "\0"
-#define VER_UPDATEABLE_VERSIONS_STR         "2.0.19,2.0.18,1.3.5,1.2.3,1.0.0"
+#define VER_UPDATEABLE_VERSIONS_STR         "2.0.20,2.0.19,1.3.5,1.2.3,1.0.0"
 #define VER_LOGGING_LEVELS_STR              "STATUS,INFO,TRACE,DEBUG,NOTICE,ERROR,FATAL,OFF"
 #define VER_PRODUCTNAME_STR                 "LPub3D"
 #ifdef QT_DEBUG_MODE
@@ -64,7 +64,8 @@
 #define VER_UNOFFICIAL_LIBRARY_JSON_URL     "http://lpub3d.sourceforge.net/lpub3dldrawunf.json"
 #define VER_CHANGE_LOG_URL                  "http://lpub3d.sourceforge.net/change_log.txt"
 
-#define VER_SOURCE_URL                      "http://sourceforge.net/p/lpub3d/code/"
+#define VER_SOURCE_SF_URL                   "http://sourceforge.net/p/lpub3d/code/"
+#define VER_SOURCE_GITHUB_URL               "https://github.com/trevorsandy/lpub3d/master"
 #define VER_COMPANYDOMAIN_STR               "http://sourceforge.net/projects/lpub3d/"
 
 #ifdef __GNUC__

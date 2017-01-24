@@ -31,7 +31,7 @@ Rodney Rushing <leocad.reg@yenandjen.com>
 Torbjörn Söderstedt <torbjrn@gmail.com>
 
 qSLog
-razvanpetru
+Razvan Petru
 
 QuaZip
 Sergey A. Tachenov
@@ -47,3 +47,9 @@ Travis Cobb <ldview@gmail.com>
 
 L3P / LDraw.ini / ldglite
 Lars C. Hassing <delete.lars.three@words.hassings.dk>
+
+Linux Open Build Service
+Peter Bartfai <pbartfai@stardust.hu>
+
+Linux Porting
+Milan Vancura
