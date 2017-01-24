@@ -79,7 +79,8 @@ unix:!symbian {
             target.path=$$PREFIX/lib32
         }
         message("~~~ QUAZIP RPM LIB ~~~")
-    } else {
+    }
+    !deb:!rpm {
         target.path=$$PREFIX/lib
         message("~~~ QUAZIP LIB ~~~")
     }
@@ -99,7 +100,6 @@ win32 {
     # workaround for qdatetime.h macro bug
     DEFINES += NOMINMAX
 }
-
 
 symbian {
 
