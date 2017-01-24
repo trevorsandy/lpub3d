@@ -145,7 +145,7 @@ if [ -f lpub3d-*.tar.gz ] ; then
 	mvlpub3d-*.tar.gz lpub3d	
 else
 	ls
-	git clone https://github.com/trevorsandy/lpub3d/master lpub3d
+	git clone https://github.com/trevorsandy/lpub3d.git lpub3d
 	tar -czvf lpub3d.tar.gz lpub3d \
 	  --exclude="lpub3d/tools" \
 	  --exclude="lpub3d/builds/linux/standard" \
