@@ -46,7 +46,7 @@ staticlib {
 include(ldrawini.pri)
 include(../LPub3DPlatformSpecific.pri)
 
-unix:!symbian {
+unix {
     isEmpty(PREFIX):PREFIX = /usr
     headers.path=$$PREFIX/include
     headers.files=$$HEADERS
@@ -66,7 +66,8 @@ unix:!symbian {
             target.path=$$PREFIX/lib32
         }
         message("~~~ LDRAWINI RPM LIB ~~~")
-    } else {
+    }
+    !deb:!rpm {
         target.path=$$PREFIX/lib
         message("~~~ LDRAWINI LIB ~~~")
     }
