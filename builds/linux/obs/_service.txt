@@ -1,6 +1,6 @@
 <services>
   <service name="tar_scm">
-    <param name="url">https://github.com/trevorsandy/lpub3d/master</param>
+    <param name="url">https://github.com/trevorsandy/lpub3d.git</param>
     <param name="scm">git</param>
     <param name="exclude">.git</param>
     <param name="version">git-master</param>
