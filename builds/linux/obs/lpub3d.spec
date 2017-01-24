@@ -81,13 +81,13 @@ Icon: lpub3d.xpm
 Summary: An LDraw Building Instruction Editor
 Version: 2.0.20
 Release: 1%{?dist}
-URL: https://github.com/trevorsandy/lpub3d
+URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
 Packager: %packer
 BuildRoot: %{_builddir}/%{name}
 BuildArch: %{_arch}
 Requires: unzip 
-Source0: lpub3d.tar.gz
+Source0: lpub3d.git.tar.gz
 
 %if 0%{?UBUNTU_DEVENV}
 Requires: qtbase5-dev qt5-qmake rpm
