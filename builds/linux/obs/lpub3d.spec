@@ -81,7 +81,7 @@ Icon: lpub3d.xpm
 Summary: An LDraw Building Instruction Editor
 Version: 2.0.20
 Release: 1%{?dist}
-URL: http://lpub3d.sourceforge.net
+URL: https://github.com/trevorsandy/lpub3d
 Vendor: Trevor SANDY
 Packager: %packer
 BuildRoot: %{_builddir}/%{name}
@@ -145,7 +145,7 @@ if [ -f lpub3d-*.tar.gz ] ; then
 	mvlpub3d-*.tar.gz lpub3d	
 else
 	ls
-	git clone -b x11 http://git.code.sf.net/p/lpub3d/code lpub3d
+	git clone https://github.com/trevorsandy/lpub3d/master lpub3d
 	tar -czvf lpub3d.tar.gz lpub3d \
 	  --exclude="lpub3d/tools" \
 	  --exclude="lpub3d/builds/linux/standard" \
