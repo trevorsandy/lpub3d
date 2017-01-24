@@ -21,6 +21,7 @@ QT -= gui
 # 2.0, VERSION to 2.0.0.
 # And so on.
 
+
 win32 {
 
     QMAKE_EXT_OBJ = .obj
@@ -33,7 +34,7 @@ win32 {
 CONFIG(debug, debug|release) {
     message("~~~ QUAZIP DEBUG build ~~~")
     DESTDIR = build/debug
-    mac: TARGET = $$join(TARGET,,,_debug)
+#    mac: TARGET = $$join(TARGET,,,_debug)
     win32: TARGET = $$join(TARGET,,,d)
 } else {
     message("~~~ QUAZIP RELEASE build ~~~")

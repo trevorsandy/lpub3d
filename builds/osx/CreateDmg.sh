@@ -1,6 +1,6 @@
 #!/bin/bash
 # To run: ./CreateDmg.sh [<version>]
-LOG_DIR=/Users/trevorsandy/Projects/LPub3D_X11/builds
+LOG_DIR=/Users/trevorsandy/Projects/LPub3D/builds/osx
 
 echo “Start” > $LOG_DIR/CreateDmg.log
 echo “Automate the linking of LPub3D additional libraries ldrawini and quazip and production of the LPub3D dmg” >> $LOG_DIR/CreateDmg.log
@@ -31,8 +31,8 @@ else
  APP_VERSION="$1"
 fi
 
-echo “6a. Set dmg file working directory - LPub3D_X11/builds” >> $LOG_DIR/CreateDmg.log
-cd /Users/trevorsandy/Projects/LPub3D_X11/builds
+echo “6a. Set dmg file working directory - LPub3D/builds/osx” >> $LOG_DIR/CreateDmg.log
+cd /Users/trevorsandy/Projects/LPub3D/builds/osx
 if [ -f LPub3D_$APP_VERSION.dmg ]
 then
  echo “6b. Remove old dmg file” >> $LOG_DIR/CreateDmg.log
@@ -40,6 +40,6 @@ then
 fi
 
 echo “6c. Create dmg file” >> $LOG_DIR/CreateDmg.log
-/usr/local/bin/appdmg lpub3d.json /Users/trevorsandy/Downloads/LPub3D_$APP_VERSION.dmg
+/usr/local/bin/appdmg lpub3d.json /Users/trevorsandy/Projects/LPub3D/builds/osx/release/LPub3D_$APP_VERSION.dmg
 
 echo “End!” >> $LOG_DIR/CreateDmg.log
