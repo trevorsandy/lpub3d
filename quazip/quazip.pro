@@ -31,6 +31,8 @@ win32 {
 
 }
 
+macx: LIBS += -lz
+
 CONFIG(debug, debug|release) {
     message("~~~ QUAZIP DEBUG build ~~~")
     DESTDIR = build/debug

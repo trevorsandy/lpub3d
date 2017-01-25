@@ -85,7 +85,7 @@ DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
 # This will rewrite Info.plist with full version
 macx {
     INFO_PLIST_PATH = $$shell_quote($${OUT_PWD}/$${TARGET}.app/Contents/Info.plist)
-    QMAKE_POST_LINK += /usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $${VERSION}\" $${INFO_PLIST_PATH}
+    QMAKE_POST_LINK += /usr/libexec/PlistBuddy -c \"Set :CFBundleGetInfoString $${VERSION}\" $${INFO_PLIST_PATH}
 }
 
 win32 {
