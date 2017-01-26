@@ -14,6 +14,7 @@ LPub3D runs on Debian, Red Hat and Arch derived Linux distros, Mac OSX and Windo
 
 ### Quick Links
  - [Downloads][downloads]
+ - [Build from source][buildfromsource]
  - [Change log][changelog]
  - [Credits][credits]
  
@@ -54,3 +55,4 @@ Copyright (c) 2015 - 2017 by Trevor SANDY
 [credits]:		https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/CREDITS.txt
 [copying]:		https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/COPYING.txt
 [downloads]:		https://sourceforge.net/projects/lpub3d/files/
+[buildfromsource]:	https://github.com/trevorsandy/lpub3d/blob/master/builds/utilities/README.md
