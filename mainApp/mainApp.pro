@@ -251,7 +251,7 @@ macx {
     document_icon.files += lpub3d_document.icns
     document_icon.path = Contents/Resources
 
-    document_readme.files += doc/README.txt
+    document_readme.files += docs/README.txt
     document_readme.path = Contents/Resources
 
     document_credits.files += docs/CREDITS.txt
@@ -284,16 +284,30 @@ macx {
     ldraw_library.files += extras/complete.zip
     ldraw_library.path = Contents/Resources
 
+    CONFIG(release, debug|release) {
+        libquazip.files += $$DESTDIR/../../../quazip/build/release/libquazip.1.dylib
+        libquazip.path = Contents/Libs
+
+        libldrawini.files += $$DESTDIR/../../../ldrawini/build/release/libldrawini.1.dylib
+        libldrawini.path = Contents/Libs
+    }
+
     QMAKE_BUNDLE_DATA += \
         document_icon \
+        document_readme \
+        document_credits \
+        document_copying \
         excluded_parts \
         fadestep_color_parts \
-        freeform_annotations \
-        title_annotations \
+        pli_freeform_annotations \
+        pli_title_annotations \
         pli_orientation \
-        pli_substitution_parts \
+        pli_substitute_parts \
         ldraw_unofficial_library \
-        ldraw_library
+        ldraw_library \
+        libquazip \
+        libldrawini
+
 }
 
 #~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
