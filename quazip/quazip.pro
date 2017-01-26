@@ -36,7 +36,7 @@ macx: LIBS += -lz
 CONFIG(debug, debug|release) {
     message("~~~ QUAZIP DEBUG build ~~~")
     DESTDIR = build/debug
-#    mac: TARGET = $$join(TARGET,,,_debug)
+    mac: TARGET = $$join(TARGET,,,_debug)
     win32: TARGET = $$join(TARGET,,,d)
 } else {
     message("~~~ QUAZIP RELEASE build ~~~")
