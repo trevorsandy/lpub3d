@@ -66,9 +66,9 @@ temp.txt
 build.h
 AppVersion.nsh
 BuildVersions.txt
-SignApps.bat
 lpub3dupdates.json
 versioninfo.txt
+builds/windows/setup/SignApps.bat
 
 
 # Qt Creator generated files
