@@ -11,35 +11,34 @@ makedepends=()
 conflicts=()
 replaces=()
 backup=()
-source=("lpub3d-git.tar.gz")
+source=("lpub3d.git.tar.gz")
 md5sums=(SKIP)
+#md5sums=('3655b7d456a2b1eba85cbb2d220ff8f3')
 
 prepare() {
-  cd ${srcdir}/lpub3d-git
+  cd ${srcdir}/lpub3d
   
   # get ldraw archive libraries
-  wget --directory-prefix=${srcdir}/lpub3d-git/mainApp/extras \
+  wget --directory-prefix=${srcdir}/lpub3d/mainApp/extras \
   		http://www.ldraw.org/library/updates/complete.zip
-  wget --directory-prefix=${srcdir}/lpub3d-git/mainApp/extras \
+  wget --directory-prefix=${srcdir}/lpub3d/mainApp/extras \
   		http://www.ldraw.org/library/unofficial/ldrawunf.zip
-  mv ${srcdir}/lpub3d-git/mainApp/extras/ldrawunf.zip \
-     ${srcdir}/lpub3d-git/mainApp/extras/lpub3dldrawunf.zip
-# cp -f ~/projects/data/libraries/complete.zip ${srcdir}/lpub3d-git/mainApp/extras
-# cp -f ~/projects/data/libraries/lpub3dldrawunf.zip ${srcdir}/lpub3d-git/mainApp/extras
+  mv ${srcdir}/lpub3d/mainApp/extras/ldrawunf.zip \
+     ${srcdir}/lpub3d/mainApp/extras/lpub3dldrawunf.zip
 
   # use Qt5
-  export QT_SELECT = qt5
+  export QT_SELECT=qt5
   if [ -x /usr/bin/qmake ] ; then qmake ; 
   elif [ -x /usr/bin/qmake-qt5 ] ; then qmake-qt5 ; fi
 }
 
 build() {
+  cd ${srcdir}/lpub3d
   make clean
   make
 }
  
 package() {
-  cd "${srcdir}/lpub3d-git"
-  make DESTDIR=${pkgdir} install 
+  cd "${srcdir}/lpub3d"
+  make INSTALL_ROOT=${pkgdir} install 
 }
- 
