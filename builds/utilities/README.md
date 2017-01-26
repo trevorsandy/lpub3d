@@ -1,21 +1,20 @@
 ### ___________ BUILD FROM SOURCE INSTRUCTIONS  ___________
 
-If you would like to compile LPub3D, these notes might help you.
+If you would like to create your own LPub3D install package, these notes might be helpful.
 
 #### ___________ MAC: BUILD OSX ‘DMG’ PACKAGE ___________
 
-**NOTE** *CreateDmg.sh uses a non-native 3-rd party application to perform final packaging tasks*
-  *https://github.com/LinusU/node-appdmg.git supports automated dmg packaging.
+**NOTE** *The build script CreateDmg.sh uses the non-native 3-rd party application [node-appdmg][appdmg] to perform final packaging tasks. If you will use the steps below to build LPub3D for OSX, be sure to install node-appdmg prior.*
 
 - [ ] 1. enter executable directory
-$ cd ~/Projects/lpub3d/builds/osx
+`$ cd ~/Projects/lpub3d/builds/osx`
 - [ ] 2. execute package script
-$ ./CreateDmg.sh [<version>]
+`$ ./CreateDmg.sh <version>`
 
 
-**NOTE** *For Linux Distributions, LPub3D requires Qt5 to build successfully so you must have this*
- *version of Qt or higher installed and configured in QtChooser. I used Qt 5.5.1. On Ubuntu, if Qt5*
- *is not already bundled in your environment, you can install using `$ sudo apt-get install qtbase5-dev`.*
+**NOTE** *For Linux Distributions, LPub3D requires Qt5 to build successfully so you must have this
+version of Qt or higher installed and configured in QtChooser. I used Qt 5.5.1. On Ubuntu, if Qt5
+is not already bundled in your environment, you can install using* `$ sudo apt-get install qtbase5-dev`.
 
 #### ___________ LINUX: BUILD UBUNTU/DEBIAN 'DEB' PACKAGE ___________
 
@@ -27,15 +26,17 @@ $ ./CreateDmg.sh [<version>]
 - [ ] 3. download source
 `$ git clone https://github.com/trevorsandy/lpub3d.git`
 - [ ] 4. create working tarball
-`$ tar -czvf lpub3d.git.tar.gz lpub3d \
-      --exclude="lpub3d/builds/linux/standard" \
-      --exclude="lpub3d/builds/osx" \
-      --exclude="lpub3d/.git" \
-	  --exclude="lpub3d/.gitattributes" \
-      --exclude="lpub3d/LPub3D.pro.user" \
-	  --exclude="lpub3d/README.md" \
-	  --exclude="lpub3d/_config.yml" \
-      --exclude="lpub3d/.gitignore"`
+```sh
+$ tar -czvf lpub3d.git.tar.gz lpub3d \
+        --exclude="lpub3d/builds/linux/standard" \
+        --exclude="lpub3d/builds/osx" \
+        --exclude="lpub3d/.git" \
+        --exclude="lpub3d/.gitattributes" \
+        --exclude="lpub3d/LPub3D.pro.user" \
+        --exclude="lpub3d/README.md" \
+        --exclude="lpub3d/_config.yml" \
+        --exclude="lpub3d/.gitignore"
+```
 - [ ] 5. change directory
 `$ cd ../`
 - [ ] 6. create package: Name, Version, Path to tarball
@@ -90,15 +91,17 @@ $ ./CreateDmg.sh [<version>]
 - [ ] 7. check spec file and update app version
 `$ cat ../SPECS/lpub3d.spec`
 - [ ] 8. create working tarball
-`$ tar -czvf lpub3d.git.tar.gz lpub3d \
-      --exclude="lpub3d/builds/linux/standard" \
-      --exclude="lpub3d/builds/osx" \
-      --exclude="lpub3d/.git" \
-	  --exclude="lpub3d/.gitattributes" \
-      --exclude="lpub3d/LPub3D.pro.user" \
-	  --exclude="lpub3d/README.md" \
-	  --exclude="lpub3d/_config.yml" \	  
-      --exclude="lpub3d/.gitignore"`
+```sh
+$ tar -czvf lpub3d.git.tar.gz lpub3d \
+        --exclude="lpub3d/builds/linux/standard" \
+        --exclude="lpub3d/builds/osx" \
+        --exclude="lpub3d/.git" \
+        --exclude="lpub3d/.gitattributes" \
+        --exclude="lpub3d/LPub3D.pro.user" \
+        --exclude="lpub3d/README.md" \
+        --exclude="lpub3d/_config.yml" \
+        --exclude="lpub3d/.gitignore"
+```
 - [ ] 9. remove cloned repository from SOURCES/
 `$ rm -rf lpub3d`
 - [ ] 10. build and sign the RPM package (success = 'exit 0')
@@ -107,3 +110,5 @@ $ ./CreateDmg.sh [<version>]
 **NOTE** *for details on how to sign an RPM package with GPG key
  see https://gist.github.com/fernandoaleman/1376720*
 - [ ] 11. have a :beer:
+
+[appdmg]: https://github.com/LinusU/node-appdmg
