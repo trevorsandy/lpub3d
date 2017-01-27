@@ -9,18 +9,20 @@ If you would like to create your own LPub3D install package, these notes might b
 
 - [ ] 1. enter executable directory
 `$ cd ~/Projects/lpub3d/builds/osx`
+- [ ] 2. enable execute permissions on packaging script
+`$ chmod 755 CreateDmg.sh`
 - [ ] 2. execute package script
-`$ ./CreateDmg.sh 2.0.20`
-- [ ] 3. install the package
+`$ ./CreateDmg.sh`
+- [ ] 3. install the package availavble in ./release directory
 - [ ] 4. have a :beer:
 
 **NOTE** *For Linux Distributions, LPub3D requires Qt5 to build successfully so you must have this
 version of Qt or higher installed and configured in QtChooser. I used Qt 5.5.1. On Ubuntu, if Qt5
 is not already bundled in your environment, you can install using:*
-	DEB package: 		`$ sudo apt-get install qtbase5-dev`
-	RPM package: 		`$ sudo yum install qt5-qtbase-devel`
-	PKG.TAR.XZ package: 	`$ sudo pacman -S qt5-base qt5-tools` *(not required because makepkg flat will automatically download package dependencies.)*
-
+- DEB package: 		`$ sudo apt-get install qtbase5-dev`
+- RPM package: 		`$ sudo yum install qt5-qtbase-devel`
+- PKG.TAR.XZ package: 	`$ sudo pacman -S qt5-base qt5-tools` *(not required because makepkg flat will automatically download package dependencies.)*
+	
 *Source signing in the steps below uses* [GnuPG][gnupg] *also known as GPG.*
 
 *The 'DEB' packaging steps below uses* [Bazaar][bazzar] *version control.*
