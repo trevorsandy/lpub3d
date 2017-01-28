@@ -73,6 +73,8 @@
         <file alias="insertpage.png">images/insertpage.png</file>
         <file alias="lpub3d.png">images/lpub3d.png</file>
         <file alias="lpub3d.icns">lpub3d.icns</file>
+        <file alias="ldraw_document.icns">ldraw_document.icns</file>
+        <file alias="lpub3d_document.icns">lpub3d_document.icns</file>
         <file alias="lpub3d.ico">lpub3d.ico</file>
         <file alias="LPub64.png">images/LPub64.png</file>
         <file alias="LPub64.ico">images/LPub64.ico</file>

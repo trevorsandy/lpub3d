@@ -38,9 +38,9 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     QDialog(_parent)
 {
   ui.setupUi(this);
-  
+
   QString ldrawPath = Preferences::ldrawPath;
-  
+
   if (ldrawPath.isEmpty()) {
     ldrawPath = ".";
   }
@@ -109,7 +109,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.lineEditIniFile->setReadOnly(true);
   if (Preferences::ldrawiniFound) {
       ui.lineEditIniFile->setText(QString("Using LDraw.ini File: %1").arg(Preferences::ldrawiniFile));
-      ui.pushButtonReset->hide();   
+      ui.pushButtonReset->hide();
       ui.textEditSearchDirs->setReadOnly(true);
       ui.textEditSearchDirs->setPalette(palette);
       ui.textEditSearchDirs->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
@@ -134,30 +134,30 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   ui.preferredRenderer->setMaxCount(0);
   ui.preferredRenderer->setMaxCount(3);
-	
-	QFileInfo fileInfo(Preferences::l3pExe);
+
+    QFileInfo fileInfo(Preferences::l3pExe);
     int povRayIndex = ui.preferredRenderer->count();
     bool povRayExists = fileInfo.exists();
-	fileInfo.setFile(Preferences::povrayExe);
+    fileInfo.setFile(Preferences::povrayExe);
     povRayExists &= fileInfo.exists();
     if (povRayExists) {
         ui.preferredRenderer->addItem("POV-Ray");
-	}
-	
+    }
+
   fileInfo.setFile(Preferences::ldgliteExe);
   int ldgliteIndex = ui.preferredRenderer->count();
   bool ldgliteExists = fileInfo.exists();
   if (ldgliteExists) {
     ui.preferredRenderer->addItem("LDGLite");
   }
-  
+
   fileInfo.setFile(Preferences::ldviewExe);
   int ldviewIndex = ui.preferredRenderer->count();
   bool ldviewExists = fileInfo.exists();
   if (ldviewExists) {
     ui.preferredRenderer->addItem("LDView");
   }
-  
+
   if (Preferences::preferredRenderer == "LDView" && ldviewExists) {
     ui.preferredRenderer->setCurrentIndex(ldviewIndex);
     ui.preferredRenderer->setEnabled(true);
@@ -166,7 +166,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     ui.preferredRenderer->setEnabled(true);
   }  else if (Preferences::preferredRenderer == "POV-Ray" && povRayExists) {
       ui.preferredRenderer->setCurrentIndex(povRayIndex);
-	  ui.preferredRenderer->setEnabled(true);
+      ui.preferredRenderer->setEnabled(true);
   } else {
     ui.preferredRenderer->setEnabled(false);
   }
@@ -214,9 +214,11 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   }
   /* QSimpleUpdater end */
 
-#ifndef Q_OS_WIN
-  ui.groupBoxUpdates->setEnabled(false);
-#endif
+  /* temperory turn off check for updates on mac/linux
+  #ifndef Q_OS_WIN
+    ui.groupBoxUpdates->setEnabled(false);
+  #endif
+  */
 
 }
 
@@ -250,11 +252,11 @@ void PreferencesDialog::on_browseLGEO_clicked()
     if (!result.isEmpty()) {
             ui.lgeoPath->setText(QDir::toNativeSeparators(result));
             ui.lgeoBox->setChecked(true);
-		}
+        }
 }
 
 void PreferencesDialog::on_browsePli_clicked()
-{        
+{
 #ifdef Q_OS_WIN
     QString filter(tr("LDraw (*.mpd;*.dat;*.ldr);;All Files (*.*)"));
 #else
@@ -272,7 +274,7 @@ void PreferencesDialog::on_browsePli_clicked()
 }
 
 void PreferencesDialog::on_browseLDView_clicked()
-{     
+{
 #ifdef Q_OS_WIN
     QString filter(tr("Executable Files (*.exe);;All Files (*.*)"));
 #else
@@ -306,7 +308,7 @@ void PreferencesDialog::on_browseLDView_clicked()
 }
 
 void PreferencesDialog::on_browseLDGLite_clicked()
-{           
+{
 #ifdef Q_OS_WIN
     QString filter(tr("Executable Files (*.exe);;All Files (*.*)"));
 #else
@@ -331,7 +333,7 @@ void PreferencesDialog::on_browseLDGLite_clicked()
 }
 
 void PreferencesDialog::on_browseL3P_clicked()
-{                  
+{
 #ifdef Q_OS_WIN
     QString filter(tr("Executable Files (*.exe);;All Files (*.*)"));
 #else
@@ -387,7 +389,7 @@ void PreferencesDialog::on_browsePOVRAY_clicked()
 }
 
 void PreferencesDialog::on_browsePublishLogo_clicked()
-{        
+{
 #ifdef Q_OS_WIN
     QString filter(tr("Logo (*.png);;All Files (*.*)"));
 #else
@@ -450,9 +452,9 @@ QString const PreferencesDialog::ldrawPath()
 QString const PreferencesDialog::lgeoPath()
 {
     if (ui.POVRayBox->isChecked() && ui.lgeoBox->isChecked()){
-		return ui.lgeoPath->displayText();
-	}
-	return "";
+        return ui.lgeoPath->displayText();
+    }
+    return "";
 }
 
 QString const PreferencesDialog::pliFile()
@@ -467,7 +469,7 @@ QString const PreferencesDialog::ldviewExe()
 {
   if (ui.ldviewBox->isChecked()) {
     return ui.ldviewPath->displayText();
-  } 
+  }
   return "";
 }
 
@@ -478,22 +480,22 @@ QString const PreferencesDialog::ldgliteExe()
   if (ui.ldgliteBox->isChecked()) {
     return ui.ldglitePath->displayText();
   }
-	return "";
+    return "";
 }
 
 QString const PreferencesDialog::povrayExe()
 {
     if (ui.POVRayBox->isChecked()) {
-		return ui.povrayPath->displayText();
-	}
-	return "";
+        return ui.povrayPath->displayText();
+    }
+    return "";
 }
 QString const PreferencesDialog::l3pExe()
 {
     if (ui.POVRayBox->isChecked()) {
-		return ui.l3pPath->displayText();
-	}
-	return "";
+        return ui.l3pPath->displayText();
+    }
+    return "";
 }
 
 QString const PreferencesDialog::preferredRenderer()

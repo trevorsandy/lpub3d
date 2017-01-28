@@ -248,7 +248,7 @@ macx {
     ICON = lpub3d.icns
     QMAKE_INFO_PLIST = Info.plist
 
-    document_icon.files += lpub3d_document.icns
+    document_icon.files += ldraw_document.icns
     document_icon.path = Contents/Resources
 
     document_readme.files += docs/README.txt
@@ -480,13 +480,23 @@ OTHER_FILES += \
     lpub3d.desktop \
     lpub3d.rc \
     lpub3d.xml \
-    lpub3d.sh
+    lpub3d.sh \
+    ../builds/linux/obs/_service \
+    ../builds/linux/obs/lpub3d.spec \
+    ../builds/linux/obs/PKGBUILD \
+    ../builds/linux/obs/debian/rules \
+    ../builds/linux/obs/debian/control \
+    ../builds/linux/obs/_service \
+    ../builds/windows/setup/LPub3DNoPack.nsi \
+    ../builds/windows/setup/nsisFunctions.nsh \
+    ../builds/osx/CreateDmg.sh
 
 RESOURCES += \
     lpub3d.qrc
 
 DISTFILES += \
-    lpub3d_document.icns
+    ldraw_document.icns \
+    ../builds/windows/setup/CreateExe.bat
 
 #message($$CONFIG)
 

@@ -14,7 +14,7 @@ BASE_GIT_COMMAND = git --git-dir $$shell_quote$$PWD/.git --work-tree $$shell_quo
 # Trying to get version from git tag / revision
 GIT_VERSION = $$system($$BASE_GIT_COMMAND describe --long 2> $$NULL_DEVICE)
 
-# Check if we only have hash without version number
+# Check if we only have hash without version number (i.e. not version tag found)
 !contains(GIT_VERSION,\d+\.\d+\.\d+) {
     # If there is nothing we simply use version defined manually
     isEmpty(GIT_VERSION) {
@@ -27,8 +27,9 @@ GIT_VERSION = $$system($$BASE_GIT_COMMAND describe --long 2> $$NULL_DEVICE)
         GIT_VERSION = g$$GIT_VERSION-$$GIT_COMMIT_COUNT
     }
 }
+#message("GIT_VERSION:" $$GIT_VERSION)
 
-# Turns describe output like 0.1.5-42-g652c397 into "0.1.5.42.652c397"
+# Convert output from gv2.0.20-37-ge99beed-600 into "gv2.0.20.37.ge99beed.600"
 GIT_VERSION ~= s/-/"."
 GIT_VERSION ~= s/g/""
 GIT_VERSION ~= s/v/""
@@ -56,13 +57,6 @@ DATE_MM = $$section(BUILD_DATE, /, 1, 1)
 DATE_YY = $$section(BUILD_DATE, /, 2, 2)
 #message("BUILD_TIME:" $$BUILD_TIME ) # output the current time
 
-# Now we are ready to pass parsed version to Qt
-VERSION = $$GIT_VERSION
-win32 { # On windows version can only be numerical so remove commit hash
-   VERSION ~= s/\.\d+\.[a-f0-9]{6,}//
-}
-#message("VERSION PROCESSED (win32):" $$VERSION)
-
 # Adding C preprocessor #DEFINE so we can use it in C++ code
 # also here we want full version on every system so using
 # _VER_MAJOR, _VER_MINOR, _VER_SVCPK, _BUILD_NUMBER,
@@ -81,19 +75,34 @@ DEFINES += VER_SHA_HASH_STR=\\\"$$VER_SHA_HASH_STR\\\"
 DEFINES += VER_REVISION_STR=\\\"$$VER_REVISION_STR\\\"
 DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
 
-# By default Qt only uses major and minor version for Info.plist on Mac.
-# This will rewrite Info.plist with full version
-#macx {
-#    INFO_PLIST_PATH = $$shell_quote($${OUT_PWD}/$${TARGET}.app/Contents/Info.plist)
-#    QMAKE_POST_LINK += /usr/libexec/PlistBuddy -c \"Set :CFBundleGetInfoString $${VERSION}\" $${INFO_PLIST_PATH}
-#}
+# Now we are ready to pass parsed version to Qt
 
+win32 { # On windows remove commit hash
+   VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_SP
+   #message("VERSION (win32):" $$VERSION)
+}
+
+# On Mac, update Info.plist with full version
+macx {
+    INFO_PLIST_FILE = $$PWD/mainApp/Info.plist
+    PLIST_COMMAND = /usr/libexec/PlistBuddy -c
+    VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_SP
+    RESULT = $$system( $$PLIST_COMMAND \"Set :CFBundleShortVersionString $${VERSION}\" $$shell_quote($${INFO_PLIST_FILE}) )
+    RESULT = $$system( $$PLIST_COMMAND \"Set :CFBundleVersion $${VER_BUILD_STR}\" $$shell_quote($${INFO_PLIST_FILE}) )
+    RESULT = $$system( $$PLIST_COMMAND \"Set :com.trevorsandy.lpub3d.GitSHA $${VER_SHA_HASH_STR}\" $$shell_quote($${INFO_PLIST_FILE}) )
+}
+
+# On linux, update version information in build
+unix {
+
+}
+
+# On Windows generate input file to be consumed by build script
 win32 {
    BUILD_INFO = $$PWD/builds/windows/setup/versioninfo.txt
    BUILD_INFO ~= s,/,\\,g
    COMMAND = \"$$VER_MAJOR $$VER_MINOR $$VER_SP $$VER_REVISION_STR $$VER_BUILD_STR\",\"$$DATE_YY $$DATE_MM $$DATE_DD $$BUILD_TIME\"
    QMAKE_POST_LINK += $$quote(cmd /c echo $$shell_quote$${COMMAND} > $$shell_quote$${BUILD_INFO})
    #message($$quote(cmd /c echo $$shell_quote$${COMMAND} > $$shell_quote$${BUILD_INFO}))
-   message($${COMMAND})
 }
 

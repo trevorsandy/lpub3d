@@ -4,28 +4,61 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
+	<key>CFBundleDisplayName</key>
+	<string>LPub3D</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>ldr</string>
-				<string>LDR</string>
 				<string>dat</string>
-				<string>DAT</string>
-				<string>mpd</string>
-				<string>MPD</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>lpub3d_document.icns</string>
+			<string>ldraw_document.icns</string>
 			<key>CFBundleTypeMIMETypes</key>
 			<array>
 				<string>application/x-ldraw</string>
-                                <string>application/x-multipart-ldraw</string>
-                                <string>application/x-multi-part-ldraw</string>
 			</array>
 			<key>CFBundleTypeName</key>
-			<string>LDraw Document</string>
+			<string>LDraw Part File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>ldr</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>ldraw_document.icns</string>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>application/x-ldraw</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>LDraw Model File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>mpd</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>ldraw_document.icns</string>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>application/x-ldraw</string>
+				<string>application/x-multipart-ldraw</string>
+				<string>application/x-multi-part-ldraw</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>LDraw Multi-Part Model File</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSTypeIsPackage</key>
@@ -40,17 +73,106 @@
 	<string>com.trevorsandy.lpub3d</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleSignature</key>
-	<string>LCAD</string>
-	<key>CFBundleVersion</key>
-	<string>2.1.20</string>
-	<key>CFBundleDisplayName</key>
-	<string>LPub3D</string>
 	<key>CFBundleName</key>
 	<string>LPub3D</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.0</string>
+	<key>CFBundleSignature</key>
+	<string>LPUB3DCAD</string>
+	<key>CFBundleSupportedPlatforms</key>
+	<array>
+		<string>MacOSX</string>
+	</array>
+	<key>CFBundleVersion</key>
+	<string></string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright © 2015 - 2017 Trevor SANDY</string>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSSupportsSuddenTermination</key>
+	<string>YES</string>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>org.ldraw.dat</string>
+				<string>public.plain-text</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>LDraw Part</string>
+			<key>UTTypeIconFile</key>
+			<string>ldraw_document.icns</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.trevorsandy.lpub3d</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>dat</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>application/x-ldraw</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>org.ldraw.ldr</string>
+				<string>public.plain-text</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>LDraw Model</string>
+			<key>UTTypeIconFile</key>
+			<string>ldraw_document.icns</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.trevorsandy.lpub3d</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>ldr</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>application/x-ldraw</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>org.ldraw.mpd</string>
+				<string>public.plain-text</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>LDraw Multi-Part Model</string>
+			<key>UTTypeIconFile</key>
+			<string>ldraw_document.icns</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.trevorsandy.lpub3d</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>mpd</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>application/x-ldraw</string>
+					<string>application/x-multipart-ldraw</string>
+					<string>application/x-multi-part-ldraw</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
+	<key>com.trevorsandy.lpub3d.GitSHA</key>
+	<string></string>
 </dict>
 </plist>
