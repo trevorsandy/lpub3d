@@ -489,6 +489,7 @@ OTHER_FILES += \
     lpub3d.rc \
     lpub3d.xml \
     lpub3d.sh \
+    lpub3d.1 \
     ../builds/linux/CreateRpm.sh \
     ../builds/linux/CreateDeb.sh \
     ../builds/linux/CreatePkg.sh \

@@ -2782,16 +2782,24 @@ Features and enhancements
  
 About LPub3D 
 ------------ 
-LPub3D is a WYSIWYG editing application for creating LEGO style digital building instructions. 
-It is available for free under the GNU Public License v3 and works on the Windows 
-Operating Systems. Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, 
-LeoCAD© 2015 Leonardo Zide.and additional third party components. 
+LPub3D is an Open Source WYSIWYG editing application for creating
+LEGO® style digital building instructions. LPub3D is developed and
+maintained by Trevor SANDY. It uses the LDraw™ parts library, the
+most comprehensive library of digital Open Source LEGO® bricks
+available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model
+file formats. LPub3D is available for free under the GNU Public License v3
+and runs on Windows, Linux and OSX Operating Systems.
+Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
+LeoCAD© 2015 Leonardo Zide.and additional third party components.
+LEGO® is a trademark of the LEGO Group of companies which does not
+sponsor, authorize or endorse this application.
+© 2015-2017 Trevor SANDY
  
 Installation 
 ------------ 
 You can download the latest version of LPub3D from 
-https://sourceforge.net/projects/lpub3d 
- 
+https://sourceforge.net/projects/lpub3d
+
 It's recommended that you install the latest drivers for your video card 
 since LPub3D uses LeoCAD which uses OpenGL to take advantage of hardware 
 acceleration for rendering. 
@@ -2799,3 +2807,27 @@ acceleration for rendering.
 - LPub3D for Windows: 
 Download LPub3D to your computer, double click on the 
 icon to launch the installer and follow the instructions. 
+
+- LPub3D for Mac (OSX):
+Download LPub3D .dmg package, mount and follow instructions.
+
+- LPub3D for Debian (deb) Linux distro
+Download LPub3D .deb package and execute $ sudo dpkg -r <lpub3d .deb distro>
+
+- LPub3D for Arch (pkg.tar.xz) Linux distro
+Download LPub3D .pkg.tar.xz package and execute $ sudo pacman -S <lpub3d .pkg.tar.xz distro>
+
+- LPub3D for Red Hat/Fedora (rpm) Linux distro
+Download LPub3D .rpm package and execute $ sudo rpm -U <lpub3d .pkg.tar.xz distro>
+
+- LPub3D build from source
+You can build LPub3D from source code available on GitHub
+https://github.com/trevorsandy/lpub3d
+
+Under lpub3d/builds/, packaging scripts folders /linux, windows/setup, and /osx.
+Build scripts are identified by Create<arch>.sh [.bat for windows] where
+<arch>=Win,Deb,Rpm,Pkg,Dmg.
+
+You many simply download and execute a build script using $ chmod 755 <scrpt>; ./<script>
+
+Additional details are available at https://github.com/trevorsandy/lpub3d
