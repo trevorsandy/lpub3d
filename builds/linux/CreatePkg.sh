@@ -68,7 +68,7 @@ makepkg -s
 
 cd ../PKG
 DISTRO_FILE=`ls *.pkg.tar.xz`
-if [ -f ${DISTRO_FILE} ] && [ -z ${DISTRO_FILE} ]
+if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
     IFS=- read NAME VERSION BUILD ARCH_EXTENSION <<< ${DISTRO_FILE}
 

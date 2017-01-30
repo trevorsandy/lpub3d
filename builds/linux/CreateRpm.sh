@@ -78,7 +78,7 @@ rpmbuild -v -ba --sign lpub3d.spec
 
 cd ../RPMS/x86_64
 DISTRO_FILE=`ls *.rpm`
-if [ -f ${DISTRO_FILE} ] && [ -z ${DISTRO_FILE} ]
+if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
     echo "10. create update and download files" >> $LOG
     IFS=- read NAME VERSION ARCH_EXTENSION <<< ${DISTRO_FILE}

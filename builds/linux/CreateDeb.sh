@@ -78,7 +78,7 @@ echo "10. build and sign application" >> $LOG
 
 cd ../../
 DISTRO_FILE=`ls *.deb`
-if [ -f ${DISTRO_FILE} ] && [ -z ${DISTRO_FILE} ]
+if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
     echo "11. create update and download files" >> $LOG
     IFS=- read NAME_VERSION ARCH_EXTENSION <<< ${DISTRO_FILE}
