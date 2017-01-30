@@ -10,6 +10,8 @@
 #
 
 # set OBS environment
+DATE_COMMAND=`date "+%a\ %b\ %d\ %Y"`
+
 %if "%{vendor}" == "obs://build.opensuse.org/home:trevorsandy"
 %define OBS 1
 %endif
@@ -205,6 +207,5 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/ldconfig
 
 %changelog
-DATE_COMMAND=`date "+%a\ %b\ %d\ %Y"`
 * ${DATE_COMMAND} - trevor.dot.sandy.at.gmail.dot.com {X.XX.XX.XXX}
 - LPub3D Linux package release

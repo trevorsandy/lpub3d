@@ -16,14 +16,12 @@ else
     rm -rf rpmbuild
     mkdir rpmbuild
 fi
+
 cd rpmbuild
-for i in {BUILD,RPMS,SOURCES,SPECS,SRPMS,tmp}
-    if [ ! -d "$i" ]
-    then
-        mkdir "$i"
-    fi
-done
-cd rpmbuild/SOURCES
+
+/usr/bin/rpmdev-setuptree
+
+cd SOURCES
 
 echo "2. download source" >> $LOG
 git clone https://github.com/trevorsandy/lpub3d.git
@@ -71,12 +69,12 @@ then
 else
     echo "Error: Cannot read ${SFILE}"
 fi
-rm ${TFILE}
 
 echo "9. build and sign the RPM package (success = 'exit 0')" >> $LOG
+# Using the '--sign' flag requires rpm-sign package 
 rpmbuild -v -ba --sign lpub3d.spec
 
-cd ../RPMS/x86_64
+#cd ../RPMS/x86_64
 DISTRO_FILE=`ls *.rpm`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then

@@ -125,7 +125,7 @@ $ tar -czvf lpub3d.git.tar.gz lpub3d \
 - [ ] 2. create directory tree BUILD, BUILDROOT, RPMS, SOURCES, SPECS, SRPMS [one-time only]
 `$ rpmdev-setuptree`
 - [ ] 3. enter SOURCES directory
-`$ cd rpmbuild/SOURCES`
+`$ cd SOURCES`
 - [ ] 4. download source
 `$ git clone https://github.com/trevorsandy/lpub3d.git`
 - [ ] 5. copy xpm icon to SOURCES/
