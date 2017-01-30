@@ -78,7 +78,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                      "</tr>"
                                      "<tr>"
                                        "<td>Source:</td>"
-                                       "<td><a href=\"%5\">%5</a></td>"
+                                       "<td><a href=\"%6\">%6</a></td>"
                                      "</tr>"
                                      "<tr>"
                                        "<td>Source:</td>"
