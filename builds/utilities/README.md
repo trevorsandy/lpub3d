@@ -121,7 +121,7 @@ $ tar -czvf lpub3d.git.tar.gz lpub3d \
 #### ___________ LINUX: BUILD REDHAT/SUSE 'RPM' PACKAGE ___________
 
 - [ ] 1. enter directory
-`$ cd ~/`
+`$ cd ~/rpmbuild`
 - [ ] 2. create directory tree BUILD, BUILDROOT, RPMS, SOURCES, SPECS, SRPMS [one-time only]
 `$ rpmdev-setuptree`
 - [ ] 3. enter SOURCES directory

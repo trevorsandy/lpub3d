@@ -242,14 +242,15 @@ ECHO - Setting up release variables...          	>>  %BuildLog%
 ECHO.
 ECHO - Setting up release variables...
 
-CD /D %HOME%
-FOR /f "tokens=1 delims=," %%i IN (versioninfo.txt) DO SET VERSION_INPUT=%%i
+CD /D "%HOME%../../utilities"
+SET VERSION_INFO="version_info_win.txt"
+FOR /f "tokens=1 delims=," %%i IN (%VERSION_INFO%) DO SET VERSION_INPUT=%%i
 FOR /f "tokens=1" %%i IN (%VERSION_INPUT%) DO SET VER_MAJOR=%%i
 FOR /f "tokens=2" %%i IN (%VERSION_INPUT%) DO SET VER_MINOR=%%i
 FOR /f "tokens=3" %%i IN (%VERSION_INPUT%) DO SET VER_SP=%%i
 FOR /f "tokens=4" %%i IN (%VERSION_INPUT%) DO SET VER_REVISION=%%i
 FOR /f "tokens=5" %%i IN (%VERSION_INPUT%) DO SET VER_BUILD=%%i
-FOR /f "tokens=2 delims=," %%i IN (versioninfo.txt) DO SET DATETIME_INPUT=%%i
+FOR /f "tokens=2 delims=," %%i IN (%VERSION_INFO%) DO SET DATETIME_INPUT=%%i
 FOR /f "tokens=1" %%i IN (%DATETIME_INPUT%) DO SET YEAR=%%i
 FOR /f "tokens=2" %%i IN (%DATETIME_INPUT%) DO SET MONTH=%%i
 FOR /f "tokens=3" %%i IN (%DATETIME_INPUT%) DO SET DAY=%%i

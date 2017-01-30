@@ -76,33 +76,32 @@ DEFINES += VER_REVISION_STR=\\\"$$VER_REVISION_STR\\\"
 DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
 
 # Now we are ready to pass parsed version to Qt
-
-win32 { # On windows remove commit hash
-   VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_SP
-   #message("VERSION (win32):" $$VERSION)
-}
-
-# On Mac, update Info.plist with full version
-macx {
-    INFO_PLIST_FILE = $$PWD/mainApp/Info.plist
-    PLIST_COMMAND = /usr/libexec/PlistBuddy -c
-    VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_SP
-    RESULT = $$system( $$PLIST_COMMAND \"Set :CFBundleShortVersionString $${VERSION}\" $$shell_quote($${INFO_PLIST_FILE}) )
-    RESULT = $$system( $$PLIST_COMMAND \"Set :CFBundleVersion $${VER_BUILD_STR}\" $$shell_quote($${INFO_PLIST_FILE}) )
-    RESULT = $$system( $$PLIST_COMMAND \"Set :com.trevorsandy.lpub3d.GitSHA $${VER_SHA_HASH_STR}\" $$shell_quote($${INFO_PLIST_FILE}) )
-}
-
-# On linux, update version information in build
-unix {
-
-}
+VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_SP
 
 # On Windows generate input file to be consumed by build script
 win32 {
-   BUILD_INFO = $$PWD/builds/windows/setup/versioninfo.txt
-   BUILD_INFO ~= s,/,\\,g
+   VERSION_INFO = $$PWD/builds/utilities/version_info_win.txt
+   VERSION_INFO ~= s,/,\\,g
    COMMAND = \"$$VER_MAJOR $$VER_MINOR $$VER_SP $$VER_REVISION_STR $$VER_BUILD_STR\",\"$$DATE_YY $$DATE_MM $$DATE_DD $$BUILD_TIME\"
-   QMAKE_POST_LINK += $$quote(cmd /c echo $$shell_quote$${COMMAND} > $$shell_quote$${BUILD_INFO})
-   #message($$quote(cmd /c echo $$shell_quote$${COMMAND} > $$shell_quote$${BUILD_INFO}))
+   QMAKE_POST_LINK += $$quote(cmd /c echo $$shell_quote$${COMMAND} > $$shell_quote$${VERSION_INFO} )
+   #message($$quote(cmd /c echo $$shell_quote$${COMMAND} > $$shell_quote$${VERSION_INFO}))
+
+} else { # On linux, update version information in build
+
+    VERSION_INFO = $$PWD/builds/utilities/version_info_unix
+    CONDITION_COMMAND = if [ ! -f $$shell_quote($${VERSION_INFO}) ]; then touch $$shell_quote($${VERSION_INFO}); fi
+    ECHO_COMMAND = \"$$VERSION-$$VER_REVISION_STR-$$VER_BUILD_STR-$$VER_SHA_HASH_STR\"
+    RESULT = $$system( $$CONDITION_COMMAND )
+    RESULT = $$system( echo $$shell_quote$${ECHO_COMMAND} > $$shell_quote($${VERSION_INFO}) )
+
+    # On Mac, update Info.plist with full version
+    macx {
+        INFO_PLIST_FILE = $$PWD/mainApp/Info.plist
+        PLIST_COMMAND = /usr/libexec/PlistBuddy -c
+        RESULT = $$system( $$PLIST_COMMAND \"Set :CFBundleShortVersionString $${VERSION}\" $$shell_quote($${INFO_PLIST_FILE}) )
+        RESULT = $$system( $$PLIST_COMMAND \"Set :CFBundleVersion $${VER_BUILD_STR}\" $$shell_quote($${INFO_PLIST_FILE}) )
+        RESULT = $$system( $$PLIST_COMMAND \"Set :com.trevorsandy.lpub3d.GitSHA $${VER_SHA_HASH_STR}\" $$shell_quote($${INFO_PLIST_FILE}) )
+    }
+
 }
 

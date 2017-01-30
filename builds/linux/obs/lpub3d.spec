@@ -79,7 +79,7 @@ License: GPLv3+
 Name: lpub3d
 Icon: lpub3d.xpm
 Summary: An LDraw Building Instruction Editor
-Version: 2.0.20
+Version: {X.XX.XX.XXX}
 Release: 1%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -205,5 +205,6 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/ldconfig
 
 %changelog
-* Sun Jan 15 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20
-- Initial release
+DATE_COMMAND=`date "+%a\ %b\ %d\ %Y"`
+* ${DATE_COMMAND} - trevor.dot.sandy.at.gmail.dot.com {X.XX.XX.XXX}
+- LPub3D Linux package release

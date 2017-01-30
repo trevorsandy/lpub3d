@@ -67,9 +67,7 @@ build.h
 AppVersion.nsh
 BuildVersions.txt
 lpub3dupdates.json
-versioninfo.txt
 builds/windows/setup/SignApps.bat
-
 
 # Qt Creator generated files
 *.user
@@ -89,6 +87,9 @@ builds/utilities/models/*
 # Releases
 builds/windows/release/*
 builds/osx/release/*
+builds/linux/debbuild/*
+builds/linux/rpmbuild/*
+builds/linux/pkgbuild/*
 
 # Runtime stuff
 builds/windows/runtime/*

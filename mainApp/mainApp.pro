@@ -177,8 +177,14 @@ unix:!macx {
         mime.path = $$MIME_DIR
         mime.files += lpub3d.xml
 
-        mime_icon.path = $$MIME_ICON_DIR
-        mime_icon.files += images/lpub3d.svg
+        mime_ldraw_icon.path = $$MIME_ICON_DIR
+        mime_ldraw_icon.files += images/x-ldraw.svg
+
+        mime_multi_part_ldraw_icon.path = $$MIME_ICON_DIR
+        mime_multi_part_ldraw_icon.files += images/x-multi-part-ldraw.svg
+
+        mime_multipart_ldraw_icon.path = $$MIME_ICON_DIR
+        mime_multipart_ldraw_icon.files += images/x-multipart-ldraw.svg
 
         document_readme.path = $$RESOURCE_DIR
         document_readme.files += doc/README.txt
@@ -222,7 +228,9 @@ unix:!macx {
         desktop \
         icon\
         mime\
-        mime_icon \
+        mime_ldraw_icon \
+        mime_multi_part_ldraw_icon \
+        mime_multipart_ldraw_icon \
         excluded_parts \
         fadestep_color_parts \
         freeform_annotations \
@@ -481,15 +489,22 @@ OTHER_FILES += \
     lpub3d.rc \
     lpub3d.xml \
     lpub3d.sh \
+    ../builds/linux/CreateRpm.sh \
+    ../builds/linux/CreateDeb.sh \
+    ../builds/linux/CreatePkg.sh \
     ../builds/linux/obs/_service \
     ../builds/linux/obs/lpub3d.spec \
     ../builds/linux/obs/PKGBUILD \
     ../builds/linux/obs/debian/rules \
     ../builds/linux/obs/debian/control \
     ../builds/linux/obs/_service \
+    ../builds/windows/setup/CreateExe.bat \
     ../builds/windows/setup/LPub3DNoPack.nsi \
     ../builds/windows/setup/nsisFunctions.nsh \
-    ../builds/osx/CreateDmg.sh
+    ../builds/osx/CreateDmg.sh \
+    ../builds/utilities/README.md \
+    ../README.md \
+    ../.gitignore
 
 RESOURCES += \
     lpub3d.qrc
