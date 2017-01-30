@@ -5,8 +5,7 @@
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
 
-LOG=CreateDmg.log
-WORK_DIR=`pwd`
+LOG=`pwd`/CreateDmg.log
 BUILD_DATE=`date "+%Y%m%d"`
 
 if [ "$1" = "" ]
@@ -90,3 +89,4 @@ echo "Download file: LPub3D_${APP_VERSION_LONG}_osx.dmg" >> $LOG
 cp -R release/UpdateMaster_${APP_VERSION}_osx.dmg release/LPub3D_${APP_VERSION_LONG}_osx.dmg
 
 echo "Finished!" >> $LOG
+mv ../CreateDeb.log CreateDeb.log

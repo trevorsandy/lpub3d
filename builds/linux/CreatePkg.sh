@@ -5,8 +5,7 @@
 # $ chmod 755 CreatePkg.sh
 # $ ./CreatePkg.sh
 
-LOG=CreatePkg.log
-WORK_DIR=`pwd`
+LOG=`pwd`/CreatePkg.log
 BUILD_DATE=`date "+%Y%m%d"`
 
 if [ "$1" = "" ]
@@ -25,6 +24,10 @@ if [ ! -d pkgbuild ]
 then
     mkdir pkgbuild
     mkdir pkgbuild/upstream
+else
+   rm -rf pkgbuild
+   mkdir pkgbuild
+   mkdir pkgbuild/upstream
 fi
 cd pkgbuild/upstream
 
@@ -63,8 +66,8 @@ echo "6. create package" >> $LOG
 makepkg -s
 
 cd ../PKG
-DISTRO_FILE=`find -name "*.pkg.tar.xz"`
-if [ -f ${DISTRO_FILE} ]
+DISTRO_FILE=`ls *.pkg.tar.xz`
+if [ -f ${DISTRO_FILE} ] && [ -z ${DISTRO_FILE} ]
 then
     IFS=- read NAME VERSION BUILD ARCH_EXTENSION <<< ${DISTRO_FILE}
 
@@ -74,8 +77,11 @@ then
     echo "8. create update and download files" >> $LOG
     cp -f ${DISTRO_FILE} "lpub3d-${APP_VERSION_LONG}_${BUILD}_${ARCH_EXTENSION}"
     mv ${DISTRO_FILE} "UpdateMaster_${APP_VERSION}_${BUILD}_${ARCH_EXTENSION}"
-    echo "  Update file: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}" >> $LOG
-    echo "Download file: UpdateMaster_${APP_VERSION}_${ARCH_EXTENSION}" >> $LOG
+    echo "Download file: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}" >> $LOG
+    echo "  Update file: UpdateMaster_${APP_VERSION}_${ARCH_EXTENSION}" >> $LOG
+else
+    echo "7. package file not found." >> $LOG
 fi
 
 echo "Finished!" >> $LOG
+mv ../CreateDeb.log CreateDeb.log

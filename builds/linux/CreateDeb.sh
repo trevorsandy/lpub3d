@@ -5,8 +5,7 @@
 # $ chmod 755 CreateDeb.sh
 # $ ./CreateDeb.sh
 
-LOG=CreateDeb.log
-WORK_DIR=`pwd`
+LOG=`pwd`/CreateDeb.log
 BUILD_DATE=`date "+%Y%m%d"`
 
 if [ "$1" = "" ]
@@ -25,6 +24,10 @@ if [ ! -d debbuild ]
 then
     mkdir debbuild
     mkdir debbuild/upstream
+else
+   rm -rf debbuild
+   mkdir debbuild
+   mkdir debbuild/upstream
 fi
 cd debbuild/upstream
 
@@ -54,7 +57,7 @@ echo "6. copy standard config files" >> $LOG
 cp -rf ../../upstream/lpub3d/builds/linux/obs/debian/* .
 
 echo "7. update change log" >> $LOG
-DATE_COMMAND=`date "+%a,\ %b\ %d\ %Y\ %H:%M:%S\ +hhmm"`
+DATE_COMMAND=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
 cat <<EOF >changelog
 lpub3d (${APP_VERSION}-0ubuntu1) trusty; urgency=medium
 
@@ -62,24 +65,29 @@ lpub3d (${APP_VERSION}-0ubuntu1) trusty; urgency=medium
 
  -- Trevor SANDY <trevor.sandy@gmail.com>  ${DATE_COMMAND}
 EOF
-cd ${WORK_DIR}
 
 echo "8. add format to package and commit package source" >> $LOG
 /usr/bin/bzr add source/format
-/usr/bin/bzr commit -m "Packaging commit for lpub3d ${APP_VERSION}."
+#/usr/bin/bzr commit -m "Packaging commit for lpub3d ${APP_VERSION}."
 
 echo "9. build and sign application" >> $LOG
-bzr builddeb -S
+/usr/bin/bzr builddeb -- -us -uc
+# sign package - can be removed if signing is not needed
+/usr/bin/bzr builddeb -S
 
-echo "10. create update and download files" >> $LOG
-DISTRO_FILE=`find -name "*.deb"`
-if [ -f ${DISTRO_FILE} ]
+cd ../../
+DISTRO_FILE=`ls *.deb`
+if [ -f ${DISTRO_FILE} ] && [ -z ${DISTRO_FILE} ]
 then
+    echo "10. create update and download files" >> $LOG
     IFS=- read NAME_VERSION ARCH_EXTENSION <<< ${DISTRO_FILE}
     cp -rf ${DISTRO_FILE} "lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}"
     mv ${DISTRO_FILE} "UpdateMaster_${APP_VERSION}_${ARCH_EXTENSION}"
-    echo "  Update file: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}" >> $LOG
-    echo "Download file: UpdateMaster_${APP_VERSION}_${ARCH_EXTENSION}" >> $LOG
+    echo "Download file: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}" >> $LOG
+    echo "  Update file: UpdateMaster_${APP_VERSION}_${ARCH_EXTENSION}" >> $LOG
+else
+    echo "10. package file not found." >> $LOG
 fi
 
 echo "Finished!" >> $LOG
+mv ../CreateDeb.log CreateDeb.log

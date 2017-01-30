@@ -5,8 +5,7 @@
 # $ chmod 755 CreateRpm.sh
 # $ ./CreateRpm.sh
 
-LOG=CreateRpm.log
-WORK_DIR=`pwd`
+LOG=`pwd`/CreateRpm.log
 BUILD_DATE=`date "+%Y%m%d"`
 
 if [ "$1" = "" ]
@@ -23,6 +22,9 @@ fi
 echo "1. create RPM build working directories" >> $LOG
 if [ ! -d rpmbuild ]
 then
+    mkdir rpmbuild
+else
+    rm -rf rpmbuild
     mkdir rpmbuild
 fi
 cd rpmbuild
@@ -73,16 +75,19 @@ rm ${TFILE}
 echo "8. build and sign the RPM package (success = 'exit 0')" >> $LOG
 rpmbuild -v -ba --sign lpub3d.spec
 
-echo "9. create update and download files" >> $LOG
 cd ../RPMS/x86_64
-DISTRO_FILE=`find -name "*.rpm"`
-if [ -f ${DISTRO_FILE} ]
+DISTRO_FILE=`ls *.rpm`
+if [ -f ${DISTRO_FILE} ] && [ -z ${DISTRO_FILE} ]
 then
+    echo "9. create update and download files" >> $LOG
     IFS=- read NAME VERSION ARCH_EXTENSION <<< ${DISTRO_FILE}
     cp -f ${DISTRO_FILE} "lpub3d-${APP_VERSION_LONG}_${ARCH_EXTENSION}"
     mv ${DISTRO_FILE} "UpdateMaster_${APP_VERSION}_${ARCH_EXTENSION}"
-    echo "  Update file: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}" >> $LOG
-    echo "Download file: UpdateMaster_${APP_VERSION}_${ARCH_EXTENSION}" >> $LOG
+    echo "Download file: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}" >> $LOG
+    echo "  Update file: UpdateMaster_${APP_VERSION}_${ARCH_EXTENSION}" >> $LOG
+else
+    echo "9. package file not found." >> $LOG
 fi
 
 echo "Finished!" >> $LOG
+mv ../CreateDeb.log CreateDeb.log
