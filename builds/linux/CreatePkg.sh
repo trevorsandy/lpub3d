@@ -1,23 +1,12 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update 28 January 2017
+# Last Update 30 January 2017
 # To run:
 # $ chmod 755 CreatePkg.sh
 # $ ./CreatePkg.sh
 
 LOG=`pwd`/CreatePkg.log
 BUILD_DATE=`date "+%Y%m%d"`
-
-if [ "$1" = "" ]
-then
- PROJECT_VERSION=`cat ../utilities/version_info_unix`
- IFS=- read VERSION REVISION BUILD SHA_HASH <<< ${PROJECT_VERSION}
- APP_VERSION=UpdateMaster_${VERSION}"."${BUILD}
- APP_VERSION_LONG=${VERSION}"."${REVISION}"."${BUILD}_${BUILD_DATE}
-else
- APP_VERSION=UpdateMaster"_"$1
- APP_VERSION_LONG=$1"_"${BUILD_DATE}
-fi
 
 echo "1. create PKG working directories" >> $LOG
 if [ ! -d pkgbuild ]
@@ -34,7 +23,19 @@ cd pkgbuild/upstream
 echo "2. download source" >> $LOG
 git clone https://github.com/trevorsandy/lpub3d.git
 
-echo "3. create tarball" >> $LOG
+echo "3. capture version info" >> $LOG
+if [ "$1" = "" ]
+then
+ PROJECT_VERSION=`cat "lpub3d/builds/utilities/version_info_unix"`
+ IFS=- read VERSION REVISION BUILD SHA_HASH <<< ${PROJECT_VERSION}
+ APP_VERSION=${VERSION}"."${BUILD}
+ APP_VERSION_LONG=${VERSION}"."${REVISION}"."${BUILD}_${BUILD_DATE}
+else
+ APP_VERSION=$1
+ APP_VERSION_LONG=$1"_"${BUILD_DATE}
+fi
+
+echo "4. create tarball" >> $LOG
 tar -czvf ../lpub3d.git.tar.gz \
         --exclude="lpub3d/builds/linux/standard" \
         --exclude="lpub3d/builds/osx" \
@@ -46,10 +47,10 @@ tar -czvf ../lpub3d.git.tar.gz \
         --exclude="lpub3d/.gitignore" lpub3d
 cd ../
 
-echo "4. copy PKGBUILD" >> $LOG
+echo "5. copy PKGBUILD" >> $LOG
 cp -f lpub3d/builds/linux/obs/PKGBUILD .
 
-echo "5. update spec version" >> $LOG
+echo "6. update spec version" >> $LOG
 cd ../SPECS
 OLD="{X.XX.XX.XXX}"
 SFILE="PKGBUILD"
@@ -62,7 +63,7 @@ else
 fi
 rm ${TFILE}
 
-echo "6. create package" >> $LOG
+echo "7. create package" >> $LOG
 makepkg -s
 
 cd ../PKG
@@ -71,16 +72,16 @@ if [ -f ${DISTRO_FILE} ] && [ -z ${DISTRO_FILE} ]
 then
     IFS=- read NAME VERSION BUILD ARCH_EXTENSION <<< ${DISTRO_FILE}
 
-    echo "7. sign package" >> $LOG
+    echo "8. sign package" >> $LOG
     gpg --detach-sign ${DISTRO_FILE}
 
-    echo "8. create update and download files" >> $LOG
+    echo "9. create update and download files" >> $LOG
     cp -f ${DISTRO_FILE} "lpub3d-${APP_VERSION_LONG}_${BUILD}_${ARCH_EXTENSION}"
     mv ${DISTRO_FILE} "UpdateMaster_${APP_VERSION}_${BUILD}_${ARCH_EXTENSION}"
     echo "Download file: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}" >> $LOG
     echo "  Update file: UpdateMaster_${APP_VERSION}_${ARCH_EXTENSION}" >> $LOG
 else
-    echo "7. package file not found." >> $LOG
+    echo "8. package file not found." >> $LOG
 fi
 
 echo "Finished!" >> $LOG
