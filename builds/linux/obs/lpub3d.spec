@@ -10,8 +10,6 @@
 #
 
 # set OBS environment
-DATE_COMMAND=`date "+%a\ %b\ %d\ %Y"`
-
 %if "%{vendor}" == "obs://build.opensuse.org/home:trevorsandy"
 %define OBS 1
 %endif
@@ -58,6 +56,9 @@ DATE_COMMAND=`date "+%a\ %b\ %d\ %Y"`
 
 # packer's identification
 %define packer %(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)
+
+# date time
+%define datetime %(`date "+%a %b %d %Y"`)
 
 # distro group settings
 %if 0%{?suse_version} || 0%{?sles_version}
@@ -205,7 +206,5 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/ldconfig
 %postun
 /sbin/ldconfig
-
-%changelog
-* ${DATE_COMMAND} - trevor.dot.sandy.at.gmail.dot.com {X.XX.XX.XXX}
+* %{datetime} - trevor.dot.sandy.at.gmail.dot.com {X.XX.XX.XXX}
 - LPub3D Linux package release

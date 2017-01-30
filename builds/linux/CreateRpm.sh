@@ -5,22 +5,23 @@
 # $ chmod 755 CreateRpm.sh
 # $ ./CreateRpm.sh
 
-LOG=`pwd`/CreateRpm.log
+WORK_DIR=`pwd`
+LOG=%{WORK_DIR}/CreateRpm.log
 BUILD_DATE=`date "+%Y%m%d"`
 
 echo "1. create RPM build working directories" >> $LOG
 if [ ! -d rpmbuild ]
 then
     mkdir rpmbuild
-else
-    rm -rf rpmbuild
-    mkdir rpmbuild
 fi
-
 cd rpmbuild
-
-/usr/bin/rpmdev-setuptree
-
+for i in {BUILD,RPMS,SRPMS,SOURCES,SPECS}
+do
+    if [ ! -d "$i" ]
+    then
+        mkdir "$i"
+    fi
+done
 cd SOURCES
 
 echo "2. download source" >> $LOG
@@ -71,10 +72,9 @@ else
 fi
 
 echo "9. build and sign the RPM package (success = 'exit 0')" >> $LOG
-# Using the '--sign' flag requires rpm-sign package 
-rpmbuild -v -ba --sign lpub3d.spec
+rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -v -ba --sign lpub3d.spec
 
-#cd ../RPMS/x86_64
+cd ../RPMS/x86_64
 DISTRO_FILE=`ls *.rpm`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
