@@ -6,7 +6,7 @@
 # $ ./CreateRpm.sh
 
 WORK_DIR=`pwd`
-LOG=%{WORK_DIR}/CreateRpm.log
+LOG=${WORK_DIR}/CreateRpm.log
 BUILD_DATE=`date "+%Y%m%d"`
 
 echo "1. create RPM build working directories" >> $LOG
@@ -89,4 +89,4 @@ else
 fi
 
 echo "Finished!" >> $LOG
-mv ../CreateDeb.log CreateDeb.log
+mv ${WORK_DIR}/CreateDeb.log ${WORK_DIR}/rpmbuild/CreateDeb.log
