@@ -48,12 +48,6 @@
 %define dist centos
 %endif
 
-# disable before release
-%define UBUNTU_DEVENV 1
-%if 0%{?UBUNTU_DEVENV}
-	%define dist devenv
-%endif
-
 # packer's identification
 %define packer %(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)
 
@@ -71,10 +65,10 @@ Group: Graphics
 License: GPL-3.0+
 BuildRequires: fdupes
 %endif
-%if 0%{?UBUNTU_DEVENV} || 0%{?fedora} || 0%{?centos_version}
+%if 0%{0%{?fedora} || 0%{?centos_version}
 Group: Amusements/Graphics
 %endif
-%if 0%{?UBUNTU_DEVENV} || 0%{?mdkversion} || 0%{?rhel_version} || 0%{?fedora} || 0%{?centos_version} || 0%{?scientificlinux_version}
+%if 0%{0%{?mdkversion} || 0%{?rhel_version} || 0%{?fedora} || 0%{?centos_version} || 0%{?scientificlinux_version}
 License: GPLv3+
 %endif
 
@@ -91,10 +85,6 @@ BuildRoot: %{_builddir}/%{name}
 BuildArch: %{_arch}
 Requires: unzip 
 Source0: lpub3d.git.tar.gz
-
-%if 0%{?UBUNTU_DEVENV}
-Requires: qtbase5-dev qt5-qmake rpm
-%endif
 
 # package requirements
 %if 0%{?fedora} || 0%{?rhel_version} || 0%{?centos_version} || 0%{?scientificlinux_version}
