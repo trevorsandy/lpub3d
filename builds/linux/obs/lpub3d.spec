@@ -68,10 +68,10 @@ Group: Graphics
 License: GPL-3.0+
 BuildRequires: fdupes
 %endif
-%if 0%{0%{?fedora} || 0%{?centos_version}
+%if 0%{?fedora} || 0%{?centos_version}
 Group: Amusements/Graphics
 %endif
-%if 0%{0%{?mdkversion} || 0%{?rhel_version} || 0%{?fedora} || 0%{?centos_version} || 0%{?scientificlinux_version}
+%if 0%{?mdkversion} || 0%{?rhel_version} || 0%{?fedora} || 0%{?centos_version} || 0%{?scientificlinux_version}
 License: GPLv3+
 %endif
 
