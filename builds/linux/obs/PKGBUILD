@@ -13,7 +13,6 @@ replaces=()
 backup=()
 source=("lpub3d.git.tar.gz")
 md5sums=(SKIP)
-#md5sums=('3655b7d456a2b1eba85cbb2d220ff8f3')
 
 prepare() {
   cd ${srcdir}/lpub3d

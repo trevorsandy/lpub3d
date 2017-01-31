@@ -72,24 +72,21 @@ else
     echo "Error: Cannot read ${SFILE}"
 fi
 
-echo "9. build and sign the RPM package (success = 'exit 0')" >> $LOG
+echo "9. build the RPM package (success = 'exit 0')" >> $LOG
 rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -v -ba lpub3d.spec
 
-echo "10. sign package" >> $LOG
 cd ../RPMS/x86_64
-rpm --addsign *.rpm
-
 DISTRO_FILE=`find -name "lpub3d-${APP_VERSION}*.rpm"`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "11. create update and download files" >> $LOG
+    echo "10. create update and download files" >> $LOG
     IFS=- read NAME VERSION ARCH_EXTENSION <<< ${DISTRO_FILE}
     cp -f ${DISTRO_FILE} "lpub3d-${APP_VERSION_LONG}_${ARCH_EXTENSION}"
     mv ${DISTRO_FILE} "UpdateMaster_${APP_VERSION}_${ARCH_EXTENSION}"
     echo "Download file: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}" >> $LOG
     echo "  Update file: UpdateMaster_${APP_VERSION}_${ARCH_EXTENSION}" >> $LOG
 else
-    echo "11. package file not found." >> $LOG
+    echo "10. package file not found." >> $LOG
 fi
 
 echo "Finished!" >> $LOG

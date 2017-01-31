@@ -153,7 +153,6 @@ else
 fi
 
 %prep
-echo "Date and time %{datetime}"
 %autosetup -n %{name}
 
 %build
