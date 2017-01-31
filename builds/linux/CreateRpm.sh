@@ -63,22 +63,21 @@ rm -rf lpub3d
 echo "8. update spec version and date time" >> $LOG
 cd ../SPECS
 VPATTERN="{X.XX.XX.XXX}"
-DTPATTERN="{DAY.MONTH.DD.YYYY}"
 SFILE="lpub3d.spec"
 TFILE="/tmp/out.tmp.$$"
 if [ -f ${SFILE} -a -r ${SFILE} ]
 then
-    sed -e "s/${VPATTERN}/${APP_VERSION}/g;s/${DTPATTERN}/${CHANGE_DATE}/g" "${SFILE}" > "${TFILE}" && mv "${TFILE}" "${SFILE}"
+	sed "s/${VPATTERN}/${APP_VERSION}/g" "${SFILE}" > "${TFILE}" && mv "${TFILE}" "${SFILE}"
 else
     echo "Error: Cannot read ${SFILE}"
 fi
 
 echo "9. build and sign the RPM package (success = 'exit 0')" >> $LOG
-rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -ba lpub3d.spec
+rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -v -ba lpub3d.spec
 
 echo "10. sign package" >> $LOG
 cd ../RPMS/x86_64
-rpm --addsign *.rmp
+rpm --addsign *.rpm
 
 DISTRO_FILE=`find -name "lpub3d-${APP_VERSION}*.rpm"`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]

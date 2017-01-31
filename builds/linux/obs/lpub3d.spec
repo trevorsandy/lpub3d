@@ -2,12 +2,15 @@
 # spec file for package lpub3d
 #
 # Copyright © 2017 Trevor SANDY
-# Adapted from RPM Spec file examples by Thomas Baumgart and Peter Bartfai
+# Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
 #
 # please send bugfixes or comments to Trevor SANDY <trevor.sandy@gmail.com>
 #
+
+# date time
+%global datetime %(echo `date "+%a %b %d %Y"`)
 
 # set OBS environment
 %if "%{vendor}" == "obs://build.opensuse.org/home:trevorsandy"
@@ -50,9 +53,6 @@
 
 # packer's identification
 %define packer %(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)
-
-# date time
-%define datetime {DAY.MONTH.DD.YYYY}
 
 # version number
 %define version {X.XX.XX.XXX}
@@ -153,6 +153,7 @@ else
 fi
 
 %prep
+echo "Date and time %{datetime}"
 %autosetup -n %{name}
 
 %build
