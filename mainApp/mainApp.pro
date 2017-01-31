@@ -147,7 +147,7 @@ unix:!macx {
 
         deb: DEFINES += DEB_DISTRO
         rpm: DEFINES += RPM_DISTRO
-        arch: DEFINES += ARCH_DISTRO
+        pkg: DEFINES += PKG_DISTRO
 
         # These settings are used for package distributions that will require elevated rights to install
         isEmpty(INSTALL_PREFIX):INSTALL_PREFIX = /usr
@@ -162,64 +162,55 @@ unix:!macx {
 
         target.path = $$BIN_DIR
 
-        docs.path = $$DOCS_DIR
         docs.files += docs/README.txt docs/CREDITS.txt docs/COPYING.txt
+        docs.path = $$DOCS_DIR
 
-        man.path = $$MAN_DIR
         man.files += lpub3d.1
+        man.path = $$MAN_DIR
 
-        desktop.path = $$DESKTOP_DIR
         desktop.files += lpub3d.desktop
+        desktop.path = $$DESKTOP_DIR
 
-        icon.path = $$ICON_DIR
         icon.files += images/lpub3d.png
+        icon.path = $$ICON_DIR
 
-        mime.path = $$MIME_DIR
         mime.files += lpub3d.xml
+        mime.path = $$MIME_DIR
 
-        mime_ldraw_icon.path = $$MIME_ICON_DIR
         mime_ldraw_icon.files += images/x-ldraw.svg
+        mime_ldraw_icon.path = $$MIME_ICON_DIR
 
-        mime_multi_part_ldraw_icon.path = $$MIME_ICON_DIR
         mime_multi_part_ldraw_icon.files += images/x-multi-part-ldraw.svg
+        mime_multi_part_ldraw_icon.path = $$MIME_ICON_DIR
 
-        mime_multipart_ldraw_icon.path = $$MIME_ICON_DIR
         mime_multipart_ldraw_icon.files += images/x-multipart-ldraw.svg
+        mime_multipart_ldraw_icon.path = $$MIME_ICON_DIR
 
-        document_readme.path = $$RESOURCE_DIR
-        document_readme.files += doc/README.txt
-
-        document_credits.path = $$RESOURCE_DIR
-        document_credits.files += docs/CREDITS.txt
-
-        document_copying.path = $$RESOURCE_DIR
-        document_copying.files += docs/COPYING.txt
-
-        excluded_parts.path = $$RESOURCE_DIR
         excluded_parts.files += extras/excludedParts.lst
+        excluded_parts.path = $$RESOURCE_DIR
 
-        fadestep_color_parts.path = $$RESOURCE_DIR
         fadestep_color_parts.files += extras/fadeStepColorParts.lst
+        fadestep_color_parts.path = $$RESOURCE_DIR
 
-        freeform_annotations.path = $$RESOURCE_DIR
         freeform_annotations.files += extras/freeformAnnotations.lst
+        freeform_annotations.path = $$RESOURCE_DIR
 
-        title_annotations.path = $$RESOURCE_DIR
         title_annotations.files += extras/titleAnnotations.lst
+        title_annotations.path = $$RESOURCE_DIR
 
-        pli_orientation.path = $$RESOURCE_DIR
         pli_orientation.files += extras/pli.mpd
+        pli_orientation.path = $$RESOURCE_DIR
 
-        pli_substitution_parts.path = $$RESOURCE_DIR
         pli_substitution_parts.files += extras/pliSubstituteParts.lst
+        pli_substitution_parts.path = $$RESOURCE_DIR
 
         # Disable these archive libraries and the user will be prompted to
         # select or download the ldraw archive (.zip) libraries on initial application launch
-        ldraw_unofficial_library.path = $$RESOURCE_DIR
         ldraw_unofficial_library.files += extras/lpub3dldrawunf.zip
+        ldraw_unofficial_library.path = $$RESOURCE_DIR
 
-        ldraw_library.path = $$RESOURCE_DIR
         ldraw_library.files += extras/complete.zip
+        ldraw_library.path = $$RESOURCE_DIR
 
         INSTALLS += \
         target \

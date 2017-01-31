@@ -218,19 +218,28 @@ void Downloader::installUpdate() {
     box.setIcon (QMessageBox::Question);
     box.setDefaultButton   (QMessageBox::Ok);
     box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
+#ifdef Q_OS_WIN
     box.setText ("<b>" +
-                 tr ("To install the update, you may need to "
-                     "quit %1.").arg(moduleName())
+                 tr ("To install the update, you may need to quit %1.").arg(moduleName())
                  + "</b>");
     box.setInformativeText (tr ("Click \"OK\" to begin installing the %1 update").arg(moduleName()));
+#else
+    box.setText ("<b>" +
+                 tr ("You must quit %1, go to the download location and follow your"
+                     " platform's procedures to install the update.").arg(moduleName())
+                 + "</b>");
 
+    box.setInformativeText (tr ("Click \"OK\" to close %1.").arg(moduleName()));
+#endif
     if (box.exec() == QMessageBox::Ok) {
         if (!useCustomInstallProcedures()) {
+
+#ifdef Q_OS_WIN
             openDownload();
+#endif
             qApp->closeAllWindows();
         }
     }
-
     else {
         m_ui->openButton->setEnabled (true);
         m_ui->openButton->setVisible (true);

@@ -341,6 +341,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   SetOutPath "$INSTDIR\docs"
   File "..\..\..\mainApp\docs\COPYING.txt"
   File "..\..\..\mainApp\docs\CREDITS.txt"
+  File "..\..\..\mainApp\docs\README.txt"
   SetOutPath "$INSTDIR"  
 
   ;Store installation folder
@@ -755,9 +756,9 @@ Section "Uninstall"
   Delete "$INSTDIR\printsupport\windowsprintersupport.dll"  
   Delete "$INSTDIR\platforms\qwindows.dll"
   
-  Delete "$INSTDIR\docs\Credits.txt"
-  Delete "$INSTDIR\docs\Copying.txt"
-  Delete "$INSTDIR\docs\License.txt" 
+  Delete "$INSTDIR\docs\CREDITS.txt"
+  Delete "$INSTDIR\docs\COPYING.txt"
+  Delete "$INSTDIR\docs\README.txt"
   Delete "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win\ldglite.exe"
   Delete "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win\LICENCE"
   Delete "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win\README.TXT" 

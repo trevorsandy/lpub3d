@@ -55,7 +55,8 @@ class Preferences
     static QString povrayExe;
     static QString preferredRenderer;
     static QString lpub3dPath;
-    static QString lpub3dResourcePath;
+    static QString lpub3dExtrasResourcePath;
+    static QString lpub3dDocsResourcePath;
     static QString fadeStepColor;
     static QString pliSubstitutePartsFile;
     static QString fadeStepColorPartsFile;

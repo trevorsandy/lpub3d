@@ -46,7 +46,8 @@ QString Preferences::ldrawPath                  = "";
 QString Preferences::lpub3dLibFile              = "";
 QString Preferences::lgeoPath;
 QString Preferences::lpub3dPath                 = ".";
-QString Preferences::lpub3dResourcePath      = ".";
+QString Preferences::lpub3dExtrasResourcePath   = ".";
+QString Preferences::lpub3dDocsResourcePath     = ".";
 QString Preferences::lpubDataPath               = ".";
 QString Preferences::lpubExtrasPath             = ".";
 QString Preferences::ldgliteExe;
@@ -306,16 +307,20 @@ void Preferences::lpubPreferences()
     }
     qDebug() << qPrintable(QString("OSX Ending Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
 
-    lpub3dResourcePath = QString("LPub3D.app/Contents/Resources");
+    lpub3dExtrasResourcePath = QString("LPub3D.app/Contents/Resources");
+    lpub3dDocsResourcePath   = lpub3dExtrasResourcePath;
 
 #elif defined Q_OS_LINUX
 
-    #ifdef X11_BINARY_BUILD
-        lpub3dResourcePath = QString("doc");                    // Standard User Rights Install
-    #else
-        lpub3dResourcePath = QString("../share/doc/lpub3d");    // Elevated User Rights Install
+    #ifdef X11_BINARY_BUILD                                         // Standard User Rights Install
+        lpub3dDocsResourcePath   = QString("doc");
+    #else                                                           // Elevated User Rights Install
+        lpub3dDocsResourcePath   = QString("../share/doc/lpub3d");
+        lpub3dExtrasResourcePath = QString("../share/lpub3d");      // Elevated User Rights Install
+
+        //qDebug() << QString("lpub3dExtrasResourcePath (%1)").arg(lpub3dExtrasResourcePath);
     #endif
-    //qDebug() << QString("lpub3dResourcePath [RESOURCE_DIR] (%1)").arg(lpub3dResourcePath);
+    //qDebug() << QString("lpub3dDocsResourcePath (%1)").arg(lpub3dDocsResourcePath);
 #endif
 
     lpub3dPath = cwd.absolutePath();
@@ -395,25 +400,7 @@ void Preferences::lpubPreferences()
 
     }
 
-#elif defined Q_OS_LINUX // ...linux
-
-     if (QDir(lpub3dPath + "/extras").exists()) { // we have a portable distribution
-
-            portableDistribution = true;
-            lpubDataPath = lpub3dPath;
-
-         } else {                                        // we havea an installed distribution
-
-    #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-            QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-            lpubDataPath = dataPathList.first();
-    #else
-            lpubDataPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-    #endif
-
-         }
-
-#else  // ...OSX
+#else  // ...Linux or OSX
     #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
             QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
             lpubDataPath = dataPathList.first();
@@ -432,7 +419,7 @@ void Preferences::lpubPreferences()
 #ifdef Q_OS_WIN
     location = QString("%1").arg((portableDistribution ? "/extras/" : "/data/"));
 #else
-    location = QString("/%1/").arg(lpub3dResourcePath);
+    location = QString("/%1/").arg(lpub3dExtrasResourcePath);
 #endif
 
     QFileInfo paramFile;
@@ -519,7 +506,7 @@ void Preferences::lpub3dLibPreferences(bool force)
 #ifdef Q_OS_WIN
     location = QString("%1").arg((portableDistribution ? "/extras/" : "/data/"));
 #else
-    location = QString("/%1/").arg(lpub3dResourcePath);
+    location = QString("/%1/").arg(lpub3dExtrasResourcePath);
 #endif
         validFile.setFile(lpub3dPath + location + VER_LDRAW_OFFICIAL_ARCHIVE);
         bool archivesExist = validFile.exists();
@@ -527,10 +514,10 @@ void Preferences::lpub3dLibPreferences(bool force)
 //        QMessageBox::information(NULL,
 //                                 QMessageBox::tr("LPub3D"),
 //                                 QMessageBox::tr("lpub3dPath (%1)\n\n"
-//                                                 "lpub3dResourcePath [location] (%2)\n\n"
+//                                                 "lpub3dExtrasResourcePath [location] (%2)\n\n"
 //                                                 "Full (%3)")
 //                                                 .arg(lpub3dPath)
-//                                                 .arg(lpub3dResourcePath)
+//                                                 .arg(lpub3dExtrasResourcePath)
 //                                                 .arg(lpub3dPath + location + VER_LDRAW_OFFICIAL_ARCHIVE));
 
         if (archivesExist) {

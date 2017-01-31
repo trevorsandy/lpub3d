@@ -78,21 +78,27 @@ DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
 # Now we are ready to pass parsed version to Qt
 VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_SP
 
+# Update the version number file for win/unix during build
+VERSION_INFO_WIN = $$PWD/builds/utilities/version_info_win.txt
+VERSION_INFO_UNIX = $$PWD/builds/utilities/version_info_unix
+COMMAND_WIN = \"$$VER_MAJOR $$VER_MINOR $$VER_SP $$VER_REVISION_STR $$VER_BUILD_STR\",\"$$DATE_YY $$DATE_MM $$DATE_DD $$BUILD_TIME\"
+COMMAND_UNIX = \"$$VERSION-$$VER_REVISION_STR-$$VER_BUILD_STR-$$VER_SHA_HASH_STR\"
 # On Windows generate input file to be consumed by build script
 win32 {
-   VERSION_INFO = $$PWD/builds/utilities/version_info_win.txt
-   VERSION_INFO ~= s,/,\\,g
-   COMMAND = \"$$VER_MAJOR $$VER_MINOR $$VER_SP $$VER_REVISION_STR $$VER_BUILD_STR\",\"$$DATE_YY $$DATE_MM $$DATE_DD $$BUILD_TIME\"
-   QMAKE_POST_LINK += $$quote(cmd /c echo $$shell_quote$${COMMAND} > $$shell_quote$${VERSION_INFO} )
-   #message($$quote(cmd /c echo $$shell_quote$${COMMAND} > $$shell_quote$${VERSION_INFO}))
+   VERSION_INFO_WIN ~= s,/,\\,g
+   VERSION_INFO_UNIX ~= s,/,\\,g
+   RESULT = $$system(cmd /c echo $$shell_quote$${COMMAND_WIN} > $$shell_quote$${VERSION_INFO_WIN} )
+   RESULT = $$system(cmd /c echo $$shell_quote$${COMMAND_UNIX} > $$shell_quote$${VERSION_INFO_UNIX} )
+   #message($$quote(cmd /c echo $$shell_quote$${COMMAND_WIN} > $$shell_quote$${VERSION_INFO_WIN}))
+   #message($$quote(cmd /c echo $$shell_quote$${COMMAND_UNIX} > $$shell_quote$${VERSION_INFO_UNIX}))
 
 } else { # On linux, update version information in build
-
-    VERSION_INFO = $$PWD/builds/utilities/version_info_unix
-    CONDITION_COMMAND = if [ ! -f $$shell_quote($${VERSION_INFO}) ]; then touch $$shell_quote($${VERSION_INFO}); fi
-    ECHO_COMMAND = \"$$VERSION-$$VER_REVISION_STR-$$VER_BUILD_STR-$$VER_SHA_HASH_STR\"
-    RESULT = $$system( $$CONDITION_COMMAND )
-    RESULT = $$system( echo $$shell_quote$${ECHO_COMMAND} > $$shell_quote($${VERSION_INFO}) )
+    TOUCH_FILE_COMMAND_UNIX = if [ ! -f $$shell_quote($${VERSION_INFO_UNIX}) ]; then touch $$shell_quote($${VERSION_INFO_UNIX}); fi
+    TOUCH_FILE_COMMAND_WIN = if [ ! -f $$shell_quote($${VERSION_INFO_WIN}) ]; then touch $$shell_quote($${VERSION_INFO_WIN}); fi
+    RESULT = $$system( $$TOUCH_FILE_COMMAND_UNIX )
+    RESULT = $$system( $$TOUCH_FILE_COMMAND_WIN )
+    RESULT = $$system( echo $$shell_quote$${COMMAND_UNIX} > $$shell_quote($${VERSION_INFO_UNIX}) )
+    RESULT = $$system( echo $$shell_quote$${COMMAND_WIN} > $$shell_quote($${VERSION_INFO_WIN}) )
 
     # On Mac, update Info.plist with full version
     macx {

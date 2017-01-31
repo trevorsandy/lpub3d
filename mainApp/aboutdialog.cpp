@@ -213,11 +213,8 @@ void AboutDialog::showReadmeDetails(bool clicked){
     Q_UNUSED(clicked);
     //populate readme
     QString readmeFile;
-#ifdef Q_OS_WIN
-    readmeFile = QString("%1/%2").arg(Preferences::lpub3dPath).arg("README.txt");
-#else
-    readmeFile = QString("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dResourcePath).arg("README.txt");
-#endif
+
+    readmeFile = QString("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dDocsResourcePath).arg("README.txt");
 
     QFile file(readmeFile);
     if (! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -247,11 +244,9 @@ void AboutDialog::showCreditDetails(bool clicked){
     Q_UNUSED(clicked);
     //populate credits
     QString creditsFile;
-#ifdef Q_OS_WIN
-    creditsFile = QString("%1/%2").arg(Preferences::lpub3dPath).arg("docs/CREDITS.txt");
-#else
-    creditsFile = QString("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dResourcePath).arg("CREDITS.txt");
-#endif
+
+    creditsFile = QString("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dDocsResourcePath).arg("CREDITS.txt");
+
     QFile file(creditsFile);
     if (! file.open(QFile::ReadOnly | QFile::Text)) {
         content = QString("Failed to open Credits file: \n%1:\n%2")

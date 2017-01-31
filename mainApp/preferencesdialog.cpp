@@ -202,7 +202,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.moduleVersion_Combo->setCurrentIndex(int(ui.moduleVersion_Combo->findText(version)));
 
   ui.groupBoxChangeLog->setTitle(tr("Change Log for version %1").arg(version));
-  QString readme = tr("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dResourcePath).arg("README.txt");
+  QString readme = tr("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dDocsResourcePath).arg("README.txt");
   QFile file(readme);
   if (! file.open(QFile::ReadOnly | QFile::Text)){
       ui.changeLog_txbr->setText(tr("Failed to open %1\n%2").arg(readme,file.errorString()));

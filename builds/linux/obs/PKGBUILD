@@ -27,8 +27,11 @@ prepare() {
 
   # use Qt5
   export QT_SELECT=qt5
-  if [ -x /usr/bin/qmake ] ; then qmake ; 
-  elif [ -x /usr/bin/qmake-qt5 ] ; then qmake-qt5 ; fi
+  if [ -x /usr/bin/qmake ] ; then                      \
+      qmake -makefile CONFIG+=release CONFIG+=pkg;     \
+  elif [ -x /usr/bin/qmake-qt5 ] ; then                \
+      qmake-qt5 -makefile CONFIG+=release CONFIG+=pkg; \
+  fi ;
 }
 
 build() {

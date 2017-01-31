@@ -36,6 +36,7 @@ then
  APP_VERSION=${VERSION}"."${BUILD}
  APP_VERSION_LONG=${VERSION}"."${REVISION}"."${BUILD}_${BUILD_DATE}
 else
+ VERSION=$1
  APP_VERSION=$1
  APP_VERSION_LONG=$1"_"${BUILD_DATE}
 fi
@@ -81,10 +82,12 @@ if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
     echo "10. create update and download files" >> $LOG
     IFS=- read NAME VERSION ARCH_EXTENSION <<< ${DISTRO_FILE}
+
     cp -f ${DISTRO_FILE} "lpub3d-${APP_VERSION_LONG}_${ARCH_EXTENSION}"
-    mv ${DISTRO_FILE} "UpdateMaster_${APP_VERSION}_${ARCH_EXTENSION}"
     echo "Download file: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}" >> $LOG
-    echo "  Update file: UpdateMaster_${APP_VERSION}_${ARCH_EXTENSION}" >> $LOG
+
+    mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
+    echo "  Update file: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}" >> $LOG
 else
     echo "10. package file not found." >> $LOG
 fi

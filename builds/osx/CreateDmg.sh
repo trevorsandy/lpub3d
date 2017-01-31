@@ -1,11 +1,12 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update 27 January 2017
+# Last Update 30 January 2017
 # To run:
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
 
-LOG=`pwd`/CreateDmg.log
+WORK_DIR=`pwd`
+LOG="${WORK_DIR}/CreateDmg.log"
 BUILD_DATE=`date "+%Y%m%d"`
 
 if [ "$1" = "" ]
@@ -15,7 +16,8 @@ then
  APP_VERSION=${VERSION}"."${BUILD}
  APP_VERSION_LONG=${VERSION}"."${REVISION}"."${BUILD}_${BUILD_DATE}
 else
- APP_VERSION=UpdateMaster"_"$1
+ VERSION=$1
+ APP_VERSION=$1
  APP_VERSION_LONG=$1"_"${BUILD_DATE}
 fi
 
@@ -75,7 +77,7 @@ echo "7. Cleanup" >> $LOG
 rm -R LPub3D.app
 rm lpub3d.icns README.txt lpub3d.json lpub3dbkg.png
 
-echo "  Update file: UpdateMaster_${APP_VERSION}_osx.dmg" >> $LOG
+echo "  Update file: LPub3D-UpdateMaster_${VERSION}_osx.dmg" >> $LOG
 if [ -d release ]
 then
     rm -R release
@@ -83,10 +85,10 @@ then
 else
     mkdir release
 fi
-/usr/local/bin/appdmg lpub3d.json release/UpdateMaster_${APP_VERSION}_osx.dmg
+/usr/local/bin/appdmg lpub3d.json release/LPub3D-UpdateMaster_${VERSION}_osx.dmg
 
 echo "Download file: LPub3D_${APP_VERSION_LONG}_osx.dmg" >> $LOG
-cp -R release/UpdateMaster_${APP_VERSION}_osx.dmg release/LPub3D_${APP_VERSION_LONG}_osx.dmg
+cp -R release/LPub3D-UpdateMaster_${VERSION}_osx.dmg release/LPub3D_${APP_VERSION_LONG}_osx.dmg
 
 echo "Finished!" >> $LOG
-mv ../CreateDeb.log CreateDeb.log
+mv $LOG "${WORK_DIR}/CreateDeb.log"

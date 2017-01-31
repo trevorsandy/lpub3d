@@ -172,10 +172,10 @@ mv $RPM_BUILD_DIR/lpub3d/mainApp/extras/ldrawunf.zip 		 \
 export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC"
 %endif
 %endif
-if which qmake-qt5 >/dev/null 2>/dev/null ; then 		\
-    qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm; \
+if which qmake-qt5 >/dev/null 2>/dev/null ; then 	      \
+    qmake-qt5 -makefile -nocache CONFIG+=release CONFIG+=rpm; \
 else													\
-    qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm; 	\
+    qmake -makefile -nocache CONFIG+=release CONFIG+=rpm;     \
 fi ;													\
 make clean
 make %{?_smp_mflags}

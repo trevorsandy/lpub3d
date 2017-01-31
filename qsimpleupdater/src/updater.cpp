@@ -81,8 +81,8 @@ Updater::Updater() {
       m_platform = "linux-deb";
   #elif defined RPM_DISTRO
       m_platform = "linux-rpm";
-  #elif defined ARCH_DISTO
-      m_platform = "linux-arch";
+  #elif defined PKG_DISTRO
+      m_platform = "linux-pkg";
   #endif
 #elif defined Q_OS_ANDROID
     m_platform = "android";
@@ -414,6 +414,7 @@ void Updater::onReply (QNetworkReply* reply) {
                 // we are looking to update the latest version
                 m_openUrl = platform.value ("open-url").toString();
                 m_latestVersion = platform.value ("latest-version").toString();
+
 #if defined Q_OS_WIN  //backward compatabiltiy for Windows only
                 m_downloadUrl = platform.value ("download-url-").toString();
                 _changelogUrl = platform.value ("changelog-url-").toString();
@@ -456,6 +457,7 @@ void Updater::onReply (QNetworkReply* reply) {
                                 // Update to version is same as latest version - i.e. reinstall latest version
                                 m_openUrl = platform.value ("open-url").toString();
                                 m_latestVersion = platform.value ("latest-version").toString();
+
 #if defined Q_OS_WIN  //backward compatabiltiy for Windows only
                                 m_downloadUrl = platform.value ("download-url-").toString();                               
                                 _changelogUrl = platform.value ("changelog-url-").toString();
