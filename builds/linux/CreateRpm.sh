@@ -75,7 +75,7 @@ echo "9. build and sign the RPM package (success = 'exit 0')" >> $LOG
 rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -v -ba --sign lpub3d.spec
 
 cd ../RPMS/x86_64
-DISTRO_FILE=`ls *.rpm`
+DISTRO_FILE=`find -name "lpub3d-${APP_VERSION}*.rpm"`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
     echo "10. create update and download files" >> $LOG
@@ -89,4 +89,4 @@ else
 fi
 
 echo "Finished!" >> $LOG
-mv ${WORK_DIR}/CreateDeb.log ${WORK_DIR}/rpmbuild/CreateDeb.log
+mv ${WORK_DIR}/CreateRpm.log ${WORK_DIR}/rpmbuild/CreateRpm.log

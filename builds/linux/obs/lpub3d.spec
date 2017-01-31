@@ -54,6 +54,9 @@
 # date time
 %define datetime %(`date "+%a %b %d %Y"`)
 
+# version number
+%define version {X.XX.XX.XXX}
+
 # distro group settings
 %if 0%{?suse_version} || 0%{?sles_version}
 Group: Productivity/Graphics/Viewers
@@ -76,7 +79,7 @@ License: GPLv3+
 Name: lpub3d
 Icon: lpub3d.xpm
 Summary: An LDraw Building Instruction Editor
-Version: {X.XX.XX.XXX}
+Version: %{version}
 Release: 1%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -196,5 +199,7 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/ldconfig
 %postun
 /sbin/ldconfig
-* %{datetime} - trevor.dot.sandy.at.gmail.dot.com {X.XX.XX.XXX}
-- LPub3D Linux package release
+
+%changelog
+* %{datetime} - trevor.dot.sandy.at.gmail.dot.com %{version}
+- LPub3D Linux package (rpm) release
