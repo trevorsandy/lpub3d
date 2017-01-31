@@ -8,6 +8,7 @@
 WORK_DIR=`pwd`
 LOG="${WORK_DIR}/CreateRpm.log"
 BUILD_DATE=`date "+%Y%m%d"`
+CHANGE_DATE=`date "+%a %b %d %Y"`
 
 echo "1. create RPM build working directories" >> $LOG
 if [ ! -d rpmbuild ]
@@ -67,7 +68,7 @@ SFILE="lpub3d.spec"
 TFILE="/tmp/out.tmp.$$"
 if [ -f ${SFILE} -a -r ${SFILE} ]
 then
-    sed -e "s/${VPATTERN}/${APP_VERSION}/g;s/${DTPATTERN}/${APP_VERSION}/g" "${SFILE}" > "${TFILE}" && mv "${TFILE}" "${SFILE}"
+    sed -e "s/${VPATTERN}/${APP_VERSION}/g;s/${DTPATTERN}/${CHANGE_DATE}/g" "${SFILE}" > "${TFILE}" && mv "${TFILE}" "${SFILE}"
 else
     echo "Error: Cannot read ${SFILE}"
 fi
