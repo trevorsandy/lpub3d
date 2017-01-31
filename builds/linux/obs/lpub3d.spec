@@ -52,7 +52,7 @@
 %define packer %(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)
 
 # date time
-%define datetime %(`date "+%a %b %d %Y"`)
+%define datetime {DAY.MONTH.DD.YYYY}
 
 # version number
 %define version {X.XX.XX.XXX}
