@@ -6,7 +6,7 @@
 # $ ./CreateRpm.sh
 
 WORK_DIR=`pwd`
-LOG=${WORK_DIR}/CreateRpm.log
+LOG="${WORK_DIR}/CreateRpm.log"
 BUILD_DATE=`date "+%Y%m%d"`
 
 echo "1. create RPM build working directories" >> $LOG
@@ -72,7 +72,7 @@ else
 fi
 
 echo "9. build and sign the RPM package (success = 'exit 0')" >> $LOG
-rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -v -ba lpub3d.spec
+rpmbuild --define '_topdir ${WORK_DIR}/rpmbuild' -ba lpub3d.spec
 
 echo "10. sign package" >> $LOG
 cd ../RPMS/x86_64
@@ -92,4 +92,4 @@ else
 fi
 
 echo "Finished!" >> $LOG
-mv $LOG ${WORK_DIR}/rpmbuild/CreateRpm.log
+mv $LOG "${WORK_DIR}/rpmbuild/CreateRpm.log"
