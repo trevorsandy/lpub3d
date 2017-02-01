@@ -2,7 +2,7 @@
 Title Create archive packaged and windows installer LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: January 23, 2017
+rem  Last Update: January 31, 2017
 rem  Copyright (c) 2015 - 2017 by Trevor Sandy
 rem --
 SETLOCAL
@@ -39,20 +39,8 @@ IF %RUN_NSIS% == 1 (
 	ECHO.
 	SET /p CLEANUP= - Cleanup: Type 1 to run, 0 to ignore or 'Enter' to accept default [%CLEANUP%]: 
 	)
-ECHO.
-ECHO - You entered the following build options:
-ECHO.  	
-ECHO   RUN_NSIS=%RUN_NSIS%	
-IF %RUN_NSIS% == 1 ECHO   SIGN_APP=%SIGN_APP%
-IF %RUN_NSIS% == 1 ECHO   CLEANUP=%CLEANUP%
-IF %RUN_NSIS% == 0 ECHO - No cleanup will be performed.
-IF %RUN_NSIS% == 0 ECHO - This configuration will allow you to test your NSIS scripts.
-ECHO.
-ECHO - Press Enter to continue.
-PAUSE >NUL
-
 ECHO.																					>>  %BuildLog%
-ECHO - Confirmed build options:															>>  %BuildLog%
+ECHO - Selected build options:															>>  %BuildLog%
 ECHO.  		
 IF %RUN_NSIS% == 0 ECHO - This configuration will allow you to test your NSIS scripts.	>>  %BuildLog%																			>>  %BuildLog%
 IF %RUN_NSIS% == 1 ECHO   RUN_NSIS [Yes]												>>  %BuildLog%
@@ -62,7 +50,7 @@ IF %RUN_NSIS% == 0 ECHO   RUN_NSIS [No]													>>  %BuildLog%
 IF %SIGN_APP% == 0 ECHO   SIGN_APP [No]													>>  %BuildLog%
 IF %CLEANUP% == 0 ECHO   CLEANUP [No]													>>  %BuildLog%
 ECHO.
-ECHO - Confirmed build options:
+ECHO - Selected build options:
 ECHO.  	
 IF %RUN_NSIS% == 0 ECHO - This configuration will allow you to test your NSIS scripts.
 IF %RUN_NSIS% == 1 ECHO   RUN_NSIS [Yes]
@@ -241,9 +229,9 @@ SET REVISION_FILE=unknown
 SET SUPPORT_EMAIL=unknown
 
 ECHO. 							                	>>  %BuildLog%
-ECHO - Setting up release variables...          	>>  %BuildLog%
+ECHO - Setting up release build parameters...          	>>  %BuildLog%
 ECHO.
-ECHO - Setting up release variables...
+ECHO - Setting up release build parameters...
 
 CD /D %utilitiesPath%
 
@@ -330,6 +318,10 @@ ECHO   WIN32PRODUCTDIR....[%WIN32PRODUCTDIR%]
 ECHO   WIN64PRODUCTDIR....[%WIN64PRODUCTDIR%]
 
 CD /D %HOME%
+
+ECHO.
+ECHO - If parameters are OK press Enter to continue.
+PAUSE >NUL
 
 ECHO. 													 			>>  %BuildLog%
 ECHO - Delete old media content and create new folders  			>>  %BuildLog%

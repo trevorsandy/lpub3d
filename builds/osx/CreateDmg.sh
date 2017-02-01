@@ -91,4 +91,3 @@ echo "Download file: LPub3D_${APP_VERSION_LONG}_osx.dmg" >> $LOG
 cp -R release/LPub3D-UpdateMaster_${VERSION}_osx.dmg release/LPub3D_${APP_VERSION_LONG}_osx.dmg
 
 echo "Finished!" >> $LOG
-mv $LOG "${WORK_DIR}/CreateDeb.log"

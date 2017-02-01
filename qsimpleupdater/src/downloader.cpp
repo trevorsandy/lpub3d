@@ -224,12 +224,20 @@ void Downloader::installUpdate() {
                  + "</b>");
     box.setInformativeText (tr ("Click \"OK\" to begin installing the %1 update").arg(moduleName()));
 #else
+    QString dlPath("download");
+    if (! m_filePath.isEmpty()){
+        QFileInfo dlContent;
+        dlContent.setFile(m_filePath);
+        dlPath = dlContent.dir().dirName();
+      }
     box.setText ("<b>" +
-                 tr ("You must quit %1, go to the download location and follow your"
-                     " platform's procedures to install the update.").arg(moduleName())
+                 tr ("You must quit %1, go to the %2 directory and follow your"
+                     " platform's procedures to install the update.")
+                        .arg(moduleName())
+                        .arg(dlPath)
                  + "</b>");
 
-    box.setInformativeText (tr ("Click \"OK\" to close %1.").arg(moduleName()));
+    box.setInformativeText (tr ("Click \"OK\" to close %1. or \"Cancel\" to continue.").arg(moduleName()));
 #endif
     if (box.exec() == QMessageBox::Ok) {
         if (!useCustomInstallProcedures()) {
@@ -241,10 +249,12 @@ void Downloader::installUpdate() {
         }
     }
     else {
+#ifdef Q_OS_WIN
         m_ui->openButton->setEnabled (true);
         m_ui->openButton->setVisible (true);
         m_ui->timeLabel->setText (tr ("Click the \"Open\" button to "
                                       "apply the update"));
+#endif
     }
 }
 
@@ -293,8 +303,19 @@ void Downloader::onDownloadFinished() {
     if (!data.isEmpty()) {
         QStringList list = m_reply->url().toString().split ("/");
         QString downloadContent = QString("%1/%2").arg(localDownloadPath(),downloadName());
-        QFile file (isNotSoftwareUpdate() ? downloadContent : QDir::tempPath() + "/" + list.at (list.count() - 1));
 
+#ifdef Q_OS_WIN
+        QFile file (isNotSoftwareUpdate() ? downloadContent : QDir::tempPath() + "/" + list.at (list.count() - 1));
+#else
+        QString downloadDataPath;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+        QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DownloadLocation);
+        downloadDataPath = dataPathList.first();
+#else
+        downloadDataPath = QDesktopServices::storageLocation(QDesktopServices::DownloadLocation);
+#endif
+        QFile file (isNotSoftwareUpdate() ? downloadContent : downloadDataPath + "/" + list.at (list.count() - 1));
+#endif
         if (file.open (QIODevice::WriteOnly)) {
             file.write (data);
             file.close();

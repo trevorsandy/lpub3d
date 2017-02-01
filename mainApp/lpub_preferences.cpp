@@ -321,6 +321,10 @@ void Preferences::lpubPreferences()
         //qDebug() << QString("lpub3dExtrasResourcePath (%1)").arg(lpub3dExtrasResourcePath);
     #endif
     //qDebug() << QString("lpub3dDocsResourcePath (%1)").arg(lpub3dDocsResourcePath);
+
+#elif defined Q_OS_WIN
+    lpub3dDocsResourcePath   = QString("docs");
+
 #endif
 
     lpub3dPath = cwd.absolutePath();

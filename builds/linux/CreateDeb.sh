@@ -75,8 +75,6 @@ echo "9. add format to package and commit package source" >> $LOG
 
 echo "10. build and sign application" >> $LOG
 /usr/bin/bzr builddeb -- -us -uc
-# sign package - can be removed if signing is not needed
-/usr/bin/bzr builddeb -S
 
 cd ../../
 DISTRO_FILE=`ls *.deb`
@@ -95,4 +93,4 @@ else
 fi
 
 echo "Finished!" >> $LOG
-mv $LOG "${WORK_DIR}/CreateDeb.log"
+mv $LOG "${WORK_DIR}/debbuild/CreateDeb.log"

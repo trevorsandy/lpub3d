@@ -1,4 +1,4 @@
-LPub3D 2.0.20.0.627 
+LPub3D 2.0.20.2.629 
  
 Features and enhancements 
 ------------ 

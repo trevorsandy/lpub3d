@@ -42,7 +42,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
                          .arg(QString::fromLatin1(VER_BUILD_STR))
                          .arg(QString::fromLatin1(VER_SHA_HASH_STR)));
     ui->description->setTextFormat(Qt::RichText);
-    ui->description->setText(tr("<p><b>%1</b> is an LDraw&trade; building instruction editor.<br><br>"
+    ui->description->setText(tr("<p><b>%1</b> an LDraw&trade; building instruction editor.<br><br>"
                                 "%2</p>").arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
                                              .arg(QString::fromLatin1(VER_LEGALCOPYRIGHT_STR)));
 

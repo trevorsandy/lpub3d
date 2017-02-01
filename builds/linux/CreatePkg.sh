@@ -68,7 +68,7 @@ then
     echo "8. create update and download files" >> $LOG
     IFS=- read NAME VERSION BUILD ARCH_EXTENSION <<< ${DISTRO_FILE}
     cp -f ${DISTRO_FILE} "lpub3d-${APP_VERSION_LONG}_${BUILD}_${ARCH_EXTENSION}"
-    echo "Download file: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}" >> $LOG
+    echo "Download file: lpub3d_${APP_VERSION_LONG}_${BUILD}_${ARCH_EXTENSION}" >> $LOG
 
     mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
     echo "  Update file: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}" >> $LOG

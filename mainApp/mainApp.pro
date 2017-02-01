@@ -145,6 +145,8 @@ unix:!macx {
 	    }
 	}
 
+        # These defines point LPub3D to the architecture appropriate content
+        # when performing 'check for update' download and installation
         deb: DEFINES += DEB_DISTRO
         rpm: DEFINES += RPM_DISTRO
         pkg: DEFINES += PKG_DISTRO
