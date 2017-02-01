@@ -102,6 +102,9 @@ SET Sha2=Sha256
 SET PKey="..\..\utilities\cert\lpub3dPrivateKey.p12"
 
 SET NSISExe="C:\Program Files (x86)\NSIS\makensis.exe"
+
+SET utilitiesPath="..\..\utilities"
+SET setupPath="..\windows\setup"
 SET devRootPath="..\..\..\mainApp"
 
 SET zipWin64=C:\program files\7-zip
@@ -144,14 +147,14 @@ IF EXIST %SignToolExe% (
     ECHO - Signtool executable found at %SignToolExe%	>>  %BuildLog%
 	ECHO.
     ECHO - Signtool executable found at %SignToolExe%
-	FOR /f %%i IN (../../utilities/cert/certcredentials.txt) DO SET PwD=%%i
+	FOR /f %%i IN (../../utilities/cert/credentials.txt) DO SET PwD=%%i
 	SET CHK_ZIP_GO=1
 ) 
 
 ECHO.												>>  %BuildLog%
 ECHO - Code signing password captured.				>>  %BuildLog%	
 ECHO.							
-ECHO - Code signing password captured.						
+ECHO - Code signing password is %PWD%.						
 
 IF %CHK_ZIP_GO% == 1 GOTO CHK_ZIP
 
@@ -242,22 +245,25 @@ ECHO - Setting up release variables...          	>>  %BuildLog%
 ECHO.
 ECHO - Setting up release variables...
 
-CD /D "%HOME%../../utilities"
-SET VERSION_INFO="version_info_win.txt"
-FOR /f "tokens=1 delims=," %%i IN (%VERSION_INFO%) DO SET VERSION_INPUT=%%i
+CD /D %utilitiesPath%
+
+SET VERSION_INFO_FILE=version_info_win.txt
+FOR /f "tokens=1 delims=," %%i IN (%VERSION_INFO_FILE%) DO SET VERSION_INPUT=%%i
 FOR /f "tokens=1" %%i IN (%VERSION_INPUT%) DO SET VER_MAJOR=%%i
 FOR /f "tokens=2" %%i IN (%VERSION_INPUT%) DO SET VER_MINOR=%%i
 FOR /f "tokens=3" %%i IN (%VERSION_INPUT%) DO SET VER_SP=%%i
 FOR /f "tokens=4" %%i IN (%VERSION_INPUT%) DO SET VER_REVISION=%%i
 FOR /f "tokens=5" %%i IN (%VERSION_INPUT%) DO SET VER_BUILD=%%i
-FOR /f "tokens=2 delims=," %%i IN (%VERSION_INFO%) DO SET DATETIME_INPUT=%%i
+FOR /f "tokens=2 delims=," %%i IN (%VERSION_INFO_FILE%) DO SET DATETIME_INPUT=%%i
 FOR /f "tokens=1" %%i IN (%DATETIME_INPUT%) DO SET YEAR=%%i
 FOR /f "tokens=2" %%i IN (%DATETIME_INPUT%) DO SET MONTH=%%i
 FOR /f "tokens=3" %%i IN (%DATETIME_INPUT%) DO SET DAY=%%i
 FOR /f "tokens=4" %%i IN (%DATETIME_INPUT%) DO SET TIME=%%i
 
+CD /D %setupPath%
 CD /D %devRootPath%
-FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_COMPANYNAME_STR" version.h') DO SET COMPANY=%%i %%j
+
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_COMPANYNAME_BLD_STR" version.h') DO SET COMPANY=%%i %%j
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PRODUCTNAME_STR" version.h') DO SET PRODUCT=%%i
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_ORIGINALFILENAME_STR" version.h') DO SET FILENAME=%%i
 FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PUBLISHER_STR" version.h') DO SET PUBLISHER=%%i %%j
@@ -283,6 +289,8 @@ SET DOWNLOADPRODUCT=%PRODUCT%-%FULLVERSION%
 SET WIN32PRODUCTDIR=%PRODUCT%_x32-%FULLVERSION%
 SET WIN64PRODUCTDIR=%PRODUCT%_x64-%FULLVERSION%
 
+ECHO.
+ECHO   VERSION_INFO_FILE..[%VERSION_INFO_FILE%]
 ECHO.
 ECHO   VERSION_INPUT......[%VERSION_INPUT%]
 ECHO   DATETIME_INPUT.....[%DATETIME_INPUT%]
@@ -320,7 +328,7 @@ ECHO   FULLVERSION........[%FULLVERSION%]
 ECHO   DOWNLOADPRODUCT....[%DOWNLOADPRODUCT%]]
 ECHO   WIN32PRODUCTDIR....[%WIN32PRODUCTDIR%]
 ECHO   WIN64PRODUCTDIR....[%WIN64PRODUCTDIR%]
-		
+
 CD /D %HOME%
 
 ECHO. 													 			>>  %BuildLog%

@@ -80,7 +80,7 @@ VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_SP
 
 # Update the version number file for win/unix during build
 VERSION_INFO_WIN = $$PWD/builds/utilities/version_info_win.txt
-VERSION_INFO_UNIX = $$PWD/builds/utilities/version_info_unix
+VERSION_INFO_UNIX = $$PWD/builds/utilities/version_info_posix
 COMMAND_WIN = \"$$VER_MAJOR $$VER_MINOR $$VER_SP $$VER_REVISION_STR $$VER_BUILD_STR\",\"$$DATE_YY $$DATE_MM $$DATE_DD $$BUILD_TIME\"
 COMMAND_UNIX = \"$$VERSION-$$VER_REVISION_STR-$$VER_BUILD_STR-$$VER_SHA_HASH_STR\"
 # On Windows generate input file to be consumed by build script

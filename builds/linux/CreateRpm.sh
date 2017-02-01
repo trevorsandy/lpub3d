@@ -31,8 +31,8 @@ git clone https://github.com/trevorsandy/lpub3d.git
 echo "3. capture version info" >> $LOG
 if [ "$1" = "" ]
 then
- PROJECT_VERSION=`cat "lpub3d/builds/utilities/version_info_unix"`
- IFS=- read VERSION REVISION BUILD SHA_HASH <<< ${PROJECT_VERSION}
+ PROJECT_VERSION=`cat "lpub3d/builds/utilities/version_info_posix"`
+ IFS=- read VERSION REVISION BUILD SHA_HASH <<< ${PROJECT_VERSION//'"'}
  APP_VERSION=${VERSION}"."${BUILD}
  APP_VERSION_LONG=${VERSION}"."${REVISION}"."${BUILD}_${BUILD_DATE}
 else

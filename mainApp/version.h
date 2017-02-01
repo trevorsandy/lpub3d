@@ -36,6 +36,7 @@
   #define COMPANYNAME_STR                   "LPub3D Software"
 #endif
 #define VER_COMPANYNAME_STR                 COMPANYNAME_STR
+#define VER_COMPANYNAME_BLD_STR             "LPub3D Software"
 #define VER_COMAPNYNAME_INSTALLER_STR       "LPub3D Software"
 #define VER_FILEDESCRIPTION_STR             "LPub3D - An LDraw Building Instruction Editor"
 #define VER_INTERNALNAME_STR                "bociphus"

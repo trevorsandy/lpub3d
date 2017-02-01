@@ -60,14 +60,16 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+.gitignore.autosave
 
 # Build generated files
-temp.txt
-build.h
-AppVersion.nsh
-BuildVersions.txt
-lpub3dupdates.json
+mainApp/temp.txt
+mainApp/build.h
+mainApp/docs/temp.txt
+builds/utilities/json/lpub3dupdates.json
+builds/windows/setup/AppVersion.nsh
 builds/windows/setup/SignApps.bat
+builds/windows/setup/BuildVersions.txt
 
 # Qt Creator generated files
 *.user
@@ -85,8 +87,8 @@ builds/utilities/ldrawlibraries/*
 builds/utilities/models/*
 
 # Releases
-builds/windows/release/*
 builds/osx/release/*
+builds/windows/release/*
 builds/linux/debbuild/*
 builds/linux/rpmbuild/*
 builds/linux/pkgbuild/*

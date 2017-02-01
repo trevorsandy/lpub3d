@@ -11,8 +11,8 @@ BUILD_DATE=`date "+%Y%m%d"`
 
 if [ "$1" = "" ]
 then
- PROJECT_VERSION=`cat ../utilities/version_info_unix`
- IFS=- read VERSION REVISION BUILD SHA_HASH <<< ${PROJECT_VERSION}
+ PROJECT_VERSION=`cat ../utilities/version_info_posix`
+ IFS=- read VERSION REVISION BUILD SHA_HASH <<< ${PROJECT_VERSION//'"'}
  APP_VERSION=${VERSION}"."${BUILD}
  APP_VERSION_LONG=${VERSION}"."${REVISION}"."${BUILD}_${BUILD_DATE}
 else
