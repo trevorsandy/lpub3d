@@ -31,6 +31,8 @@
 #include "lpub.h"
 #include "version.h"
 
+
+
 //QString PreferencesDialog::DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(qApp->applicationVersion());
 QString PreferencesDialog::DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
 
@@ -132,6 +134,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   connect(ui.textEditSearchDirs, SIGNAL(textChanged()),this, SLOT(pushButtonReset_SetState()));
   //end search dirs
 
+
   ui.preferredRenderer->setMaxCount(0);
   ui.preferredRenderer->setMaxCount(3);
 
@@ -197,7 +200,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
            this,        SLOT (updateChangelog  (QString)));
 
   QString version = qApp->applicationVersion();
-  QStringList updatableVersions = tr(VER_UPDATEABLE_VERSIONS_STR).split(",");
+  //QStringList updatableVersions = tr(VER_UPDATEABLE_VERSIONS_STR).split(",");
+  QStringList updatableVersions = Preferences::availableVersions.split(",");
   ui.moduleVersion_Combo->addItems(updatableVersions);
   ui.moduleVersion_Combo->setCurrentIndex(int(ui.moduleVersion_Combo->findText(version)));
 
@@ -748,6 +752,7 @@ void PreferencesDialog::checkForUpdates () {
 
   /* Check for updates */
   m_updater->checkForUpdates (DEFS_URL);
+
 }
 
 void PreferencesDialog::accept(){

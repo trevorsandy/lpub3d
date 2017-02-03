@@ -12,6 +12,7 @@ adopt the changes for the benefit of other users.                            */
 050527 lch Added defines LDRAWINI_BEGIN_STDC/LDRAWINI_END_STDC for extern "C"
 080412 lch Added LDrawIniSetFileCaseCallback from Travis Cobbs
 080910 lch Try typical locations for LDrawDir and see if they have P and PARTS
+160801 tds Added "ldraw\unofficial\" to GetDefaultLDrawSearch (for LPub3D)
 ******************************************************************************/
 
 #ifndef LDRAWINP_INCLUDED

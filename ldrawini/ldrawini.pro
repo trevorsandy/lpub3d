@@ -3,7 +3,15 @@ CONFIG += qt warn_on
 QT -= gui
 
 # The ABI version.
-!win32:VERSION = 1.0.0
+# Version format is year.month.day.patch
+win32: VERSION = 16.1.8.0  # major.minor.patch.build
+else: VERSION = 16.1.8     # major.minor.patch
+
+contains(QT_ARCH, x86_64) {
+    ARCH = 64
+} else {
+    ARCH = 32
+}
 
 win32 {
 
@@ -11,23 +19,30 @@ win32 {
     CONFIG += windows
     CONFIG += debug_and_release
 
+    QMAKE_TARGET_COMPANY = "Lars C. Hassing"
+    QMAKE_TARGET_DESCRIPTION = "LDrawDir and SearchDirs API"
+    QMAKE_TARGET_COPYRIGHT = "Copyright (c) 2004-2008  Lars C. Hassing"
+    QMAKE_TARGET_PRODUCT = "LDrawIni ($$ARCH-bit)"
 }
 
 macx {
-
     QMAKE_CXXFLAGS += -F/System/Library/Frameworks
     LIBS += -framework CoreFoundation
-
 }
+
+CONFIG += skip_target_version_ext
+unix:!macx: TARGET = ldrawini
+else: TARGET = LDrawIni
 
 CONFIG(debug, debug|release) {
     message("~~~ LDRAWINI DEBUG build ~~~")
-    DESTDIR = build/debug
-    mac: TARGET = $$join(TARGET,,,_debug)
-    win32: TARGET = $$join(TARGET,,,d)
+    DESTDIR = debug
+    mac: TARGET = $$join(TARGET,,,_debug161)
+    win32: TARGET = $$join(TARGET,,,d161)
 } else {
     message("~~~ LDRAWINI RELEASE build ~~~")
-    DESTDIR = build/release
+    DESTDIR = release
+    TARGET = $$join(TARGET,,,161)
 }
 
 OBJECTS_DIR = $$DESTDIR/.obj
@@ -51,25 +66,16 @@ unix {
     headers.path=$$PREFIX/include
     headers.files=$$HEADERS
     deb {
-        contains(QT_ARCH, x86_64){
-            LIB_ARCH = x86_64-linux-gnu
-        } else {
-            LIB_ARCH = i386-linux-gnu
-        }
-        target.path=$$PREFIX/lib/$$LIB_ARCH
-        message("~~~ LDRAWINI DEB LIB ~~~")
+        target.path=$$PREFIX/lib/$$QT_ARCH-linux-gnu
+        message("~~~ LDRAWINI DEB $$ARCH-bit LIB ~~~")
     }
     rpm {
-        contains(QT_ARCH, x86_64){
-            target.path=$$PREFIX/lib64
-        } else {
-            target.path=$$PREFIX/lib32
-        }
-        message("~~~ LDRAWINI RPM LIB ~~~")
+        target.path=$$PREFIX/lib$$ARCH
+        message("~~~ LDRAWINI RPM $$ARCH-bit LIB ~~~")
     }
     !deb:!rpm {
         target.path=$$PREFIX/lib
-        message("~~~ LDRAWINI LIB ~~~")
+        message("~~~ LDRAWINI $$ARCH-bit LIB ~~~")
     }
     INSTALLS += target
     libheaders: INSTALLS += headers

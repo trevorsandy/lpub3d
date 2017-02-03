@@ -24,7 +24,6 @@
   Var /global nsDialogFilePathsPage
   Var /global nsDialogFilePathsPage_Font1
   Var /global StartMenuFolder
-  Var /global FileName
   Var /global LDrawDirPath
   Var /global BrowseLDraw
   Var /global LDrawText
@@ -188,14 +187,15 @@ Function .onInit
 
   continue:
   ;Identify installation folder
-  ${If} ${RunningX64}
-	StrCpy $FileName "${ProductName}_x64.exe"
-	StrCpy $INSTDIR "$PROGRAMFILES64\${ProductName}"
+  ${If} ${DirExists} $LDrawDirPath
+	StrCpy $INSTDIR $LDrawDirPath
   ${Else}
-	StrCpy $FileName "${ProductName}_x32.exe"
-	StrCpy $INSTDIR "$PROGRAMFILES32\${ProductName}"
+	${If} ${RunningX64}
+	  StrCpy $INSTDIR "$PROGRAMFILES64\${ProductName}"
+	${Else}
+	  StrCpy $INSTDIR "$PROGRAMFILES32\${ProductName}"
+	${EndIf}
   ${EndIf}
-    
 FunctionEnd
  
 ;--------------------------------
@@ -208,10 +208,18 @@ Section "${ProductName} (required)" SecMain${ProductName}
   
   ;executable requireds and readme
   ${If} ${RunningX64}
-	File "${Win64BuildDir}\${ProductName}_x64.exe"
+	; delete files with old names if exist
+	IfFileExists "${ProductName}_x64.exe" 0
+	Delete "${ProductName}_x64.exe"
+	IfFileExists "quazip.dll" 0
+	Delete "quazip.dll"
+	IfFileExists "ldrawini.dll" 0
+	Delete "ldrawini.dll"
 	
-	File "${Win64BuildDir}\quazip.dll"
-	File "${Win64BuildDir}\ldrawini.dll"
+  ;Deposit new files...	
+	File "${Win64BuildDir}\${LPub3DBuildFile}"
+	File "${Win64BuildDir}\${QuaZIPBuildFile}"
+	File "${Win64BuildDir}\${LDrawIniBuildFile}"
 	
 	File "${Win64BuildDir}\Qt5Core.dll"
 	File "${Win64BuildDir}\Qt5Network.dll"
@@ -263,11 +271,21 @@ Section "${ProductName} (required)" SecMain${ProductName}
     CreateDirectory "$INSTDIR\platforms"
     SetOutPath "$INSTDIR\platforms"
 	File "${Win64BuildDir}\platforms\qwindows.dll"
-  ${Else}
-	File "${Win32BuildDir}\${ProductName}_x32.exe"
 	
-	File "${Win32BuildDir}\quazip.dll"
-	File "${Win32BuildDir}\ldrawini.dll"
+  ${Else}
+  
+  ;Delete files with old names if exist
+	IfFileExists "${ProductName}_x32.exe" 0
+	Delete "${ProductName}_x32.exe"
+	IfFileExists "quazip.dll" 0
+	Delete "quazip.dll"
+	IfFileExists "ldrawini.dll" 0
+	Delete "ldrawini.dll"
+	
+  ;Deposit new files...
+	File "${Win32BuildDir}\${LPub3DBuildFile}"
+	File "${Win32BuildDir}\${QuaZIPBuildFile}"
+	File "${Win32BuildDir}\${LDrawIniBuildFile}"
 	
 	File "${Win32BuildDir}\Qt5Core.dll"
 	File "${Win32BuildDir}\Qt5Network.dll"
@@ -406,7 +424,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
   ${EndIf}
   
   ;Create uninstaller
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "DisplayIcon" '"$INSTDIR\$FileName"'  
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "DisplayIcon" '"$INSTDIR\${LPub3DBuildFile}"'  
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "DisplayName" "${ProductName}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "DisplayVersion" "${Version}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "Publisher" "${Publisher}"
@@ -428,7 +446,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
     ;Create shortcuts
 	SetShellVarContext all
     CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
-	CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${ProductName}.lnk" "$INSTDIR\$FileName"
+	CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${ProductName}.lnk" "$INSTDIR\${LPub3DBuildFile}"
     CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall ${ProductName}.lnk" "$INSTDIR\Uninstall.exe"
 	
   !insertmacro MUI_STARTMENU_WRITE_END
@@ -704,7 +722,7 @@ FunctionEnd
 Function desktopIcon
 
     SetShellVarContext current
-    CreateShortCut "$DESKTOP\${ProductName}.lnk" "$INSTDIR\$FileName"
+    CreateShortCut "$DESKTOP\${ProductName}.lnk" "$INSTDIR\${LPub3DBuildFile}"
 	
 FunctionEnd
 
@@ -722,7 +740,7 @@ FunctionEnd
 
 Function RunFunction
   ; Insert application to run here!
-  Exec '"$INSTDIR\$FileName"'
+  Exec '"$INSTDIR\${LPub3DBuildFile}"'
 
 FunctionEnd
 
@@ -734,11 +752,9 @@ FunctionEnd
 Section "Uninstall"
 
 ; Remove files
-  ${If} ${RunningX64}
-	Delete "$INSTDIR\${ProductName}_x64.exe"
-  ${Else}
-	Delete "$INSTDIR\${ProductName}_x32.exe"
-  ${EndIf}
+  Delete "$INSTDIR\${LPub3DBuildFile}"
+  Delete "$INSTDIR\${QuaZIPBuildFile}"
+  Delete "$INSTDIR\${LDrawIniBuildFile}"
   
   Delete "$INSTDIR\bearer\qgenericbearer.dll"
   Delete "$INSTDIR\bearer\qnativewifibearer.dll"
@@ -772,10 +788,7 @@ Section "Uninstall"
   Delete "$INSTDIR\data\excludedParts.lst"
   Delete "$INSTDIR\data\complete.zip"
   Delete "$INSTDIR\data\lpub3dldrawunf.zip"
-  
-  Delete "$INSTDIR\quazip.dll"
-  Delete "$INSTDIR\ldrawini.dll"
-  
+    
   Delete "$INSTDIR\Qt5Core.dll"
   Delete "$INSTDIR\Qt5Network.dll"
   Delete "$INSTDIR\Qt5Gui.dll"

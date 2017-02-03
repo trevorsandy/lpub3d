@@ -142,6 +142,12 @@ class QSU_DECL Updater : public QObject {
     QString moduleVersion() const;
 
     ///
+    /// Returns the available versions for download, which is
+    /// automatically retrieved at application startup.
+    ///
+    QString availableVersions() const;
+
+    ///
     /// Returns \c true if the downloader will not attempt to install the
     /// downloaded file.
     ///
@@ -161,6 +167,12 @@ class QSU_DECL Updater : public QObject {
     /// latest version and the download links
     ///
     void checkForUpdates();
+
+    ///
+    /// Downloads the update definitions file and analyzes it to determine the
+    /// available versions version for the platform
+    ///
+    void getAvailableVersions();
 
     ///
     /// Changes the \a url from where we download the update definitions
@@ -304,6 +316,16 @@ class QSU_DECL Updater : public QObject {
     void setDownloadAvailable ();
 
     ///
+    /// Set the version request to true
+    ///
+    bool versionsRequested();
+
+    ///
+    /// Set the version request to false
+    ///
+    void versionsRequestServed();
+
+    ///
     /// Disconnects the network access manager when the user
     /// clicks on the "cancel" button in the progress dialog.
     ///
@@ -333,6 +355,7 @@ class QSU_DECL Updater : public QObject {
     bool m_enableDownloader;
     bool m_directDownload;
     bool m_promptedDownload;
+    bool m_versionsRequest;
 
     QString m_openUrl;
     QString m_platform;
@@ -341,6 +364,7 @@ class QSU_DECL Updater : public QObject {
     QString m_downloadUrl;
     QString m_downloadName;
     QString m_moduleVersion;
+    QString m_availableVersions;
     QString m_latestVersion;
     QString m_localDownloadPath;
 

@@ -10,6 +10,8 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     QT *= printsupport
 }
 
+include(../gitversion.pri)
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 TARGET +=
@@ -33,6 +35,12 @@ macx {
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+contains(QT_ARCH, x86_64) {
+    ARCH = 64
+} else {
+    ARCH = 32
+}
+
 CONFIG += precompile_header
 PRECOMPILED_HEADER += ../lc_lib/common/lc_global.h
 QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
@@ -41,11 +49,17 @@ win32 {
 
     DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
     QMAKE_EXT_OBJ = .obj
-    win32:RC_FILE = lpub3d.rc
     PRECOMPILED_SOURCE = ../lc_lib/common/lc_global.cpp
     CONFIG += windows
     LIBS += -ladvapi32 -lshell32
     greaterThan(QT_MAJOR_VERSION, 4): LIBS += -lz -lopengl32
+
+    QMAKE_TARGET_COMPANY = "LPub3D Software"
+    QMAKE_TARGET_DESCRIPTION = "An LDraw Building Instruction Editor."
+    QMAKE_TARGET_COPYRIGHT = "Copyright (c) 2015-2017 Trevor SANDY"
+    QMAKE_TARGET_PRODUCT = "LPub3D ($$ARCH-bit)"
+    RC_LANG = "English (United Kingdom)"
+    RC_ICONS = "lpub3d.ico"
 
 } else {
 
@@ -70,11 +84,8 @@ lessThan(QT_MAJOR_VERSION, 5) {
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-unix:!macx {
-        TARGET = lpub3d
-} else {
-        TARGET = LPub3D
-}
+unix:!macx: TARGET = lpub3d
+else: TARGET = LPub3D
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Note on x11 platforms you also pre-install install quazip ($ sudo apt-get install libquazip-dev)
@@ -83,24 +94,35 @@ unix:!macx {
 CONFIG(debug, debug|release) {
     message("~~~ MAIN_APP DEBUG build ~~~")
     DEFINES += QT_DEBUG_MODE
-    DESTDIR = build/debug
+    DESTDIR = debug
     macx {
-        LDRAWINILIB = ldrawini_debug
-        QUAZIPLIB = quazip_debug
+        LDRAWINI_LIB = LDrawIni_debug161
+        QUAZIP_LIB = QuaZIP_debug07
     }
     win32 {
-        LDRAWINILIB = ldrawinid
-        QUAZIPLIB = quazipd
+        LDRAWINI_LIB = LDrawInid161
+        QUAZIP_LIB = QuaZIPd07
     }
-    LIBS += -L$$DESTDIR/../../../ldrawini/build/debug -l$$LDRAWINILIB
-    !quazipnobuild: LIBS += -L$$DESTDIR/../../../quazip/build/debug -l$$QUAZIPLIB
-    macx: TARGET = $$join(TARGET,,,_debug)
-    win32: TARGET = $$join(TARGET,,,d)
+    unix:!macx {
+        LDRAWINI_LIB = ldrawinid161
+        QUAZIP_LIB = quazipd07
+    }
+    LIBS += -L$$DESTDIR/../../ldrawini/debug -l$$LDRAWINI_LIB
+    !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/debug -l$$QUAZIP_LIB
+
+    macx: TARGET = $$join(TARGET,,,_debug$$VER_MAJOR$$VER_MINOR)
+    win32: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
 } else {
     message("~~~ MAIN_APP RELEASE build ~~~")
-    DESTDIR = build/release
-    LIBS += -L$$DESTDIR/../../../ldrawini/build/release -lldrawini
-    !quazipnobuild: LIBS += -L$$DESTDIR/../../../quazip/build/release -lquazip
+    DESTDIR = release
+    unix:!macx {
+        LIBS += -L$$DESTDIR/../../ldrawini/release -lldrawini161
+        !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/release -lquazip07
+    } else {
+        LIBS += -L$$DESTDIR/../../ldrawini/release -lLDrawIni161
+        !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/release -lQuaZIP07
+    }
+    TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -147,6 +169,8 @@ unix:!macx {
 
         # These defines point LPub3D to the architecture appropriate content
         # when performing 'check for update' download and installation
+        # Don't forget to set CONFIG+=<deb|rpm|pkg> accordingly if NOT using
+        # the accompanying build scripts - CreateDeb.sh, CreateRpm.sh or CreatePkg.sh
         deb: DEFINES += DEB_DISTRO
         rpm: DEFINES += RPM_DISTRO
         pkg: DEFINES += PKG_DISTRO
@@ -286,10 +310,10 @@ macx {
     ldraw_library.path = Contents/Resources
 
     CONFIG(release, debug|release) {
-        libquazip.files += $$DESTDIR/../../../quazip/build/release/libquazip.1.dylib
+        libquazip.files += $$DESTDIR/../../../quazip/release/libQuaZip161.1.dylib
         libquazip.path = Contents/Libs
 
-        libldrawini.files += $$DESTDIR/../../../ldrawini/build/release/libldrawini.1.dylib
+        libldrawini.files += $$DESTDIR/../../../ldrawini/release/libLDrawIni07.1.dylib
         libldrawini.path = Contents/Libs
     }
 
@@ -311,13 +335,14 @@ macx {
 
 }
 
-#~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~ includes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 include(../lc_lib/lc_lib.pri)
 include(../qslog/QsLog.pri)
 include(../qsimpleupdater/QSimpleUpdater.pri)
 include(../LPub3DPlatformSpecific.pri)
-include(../gitversion.pri)
+
+#~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 HEADERS += \
     aboutdialog.h \
@@ -479,7 +504,6 @@ FORMS += \
 OTHER_FILES += \
     Info.plist \
     lpub3d.desktop \
-    lpub3d.rc \
     lpub3d.xml \
     lpub3d.sh \
     lpub3d.1 \
@@ -496,6 +520,7 @@ OTHER_FILES += \
     ../builds/windows/setup/LPub3DNoPack.nsi \
     ../builds/windows/setup/nsisFunctions.nsh \
     ../builds/osx/CreateDmg.sh \
+    ../builds/utilities/Copyright-Source-Headers.txt \
     ../builds/utilities/README.md \
     ../README.md \
     ../.gitignore

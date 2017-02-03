@@ -15,6 +15,7 @@ adopt the changes for the benefit of other users.                            */
 080412 lch Added LDrawIniSetFileCaseCallback from Travis Cobbs
 080910 lch Try typical locations for LDrawDir and see if they have P and PARTS
 080915 lch Added LDrawDirOrigin and SearchDirsOrigin
+160801 tds Added "ldraw\unofficial\" to GetDefaultLDrawSearch (for LPub3D)
 ******************************************************************************/
 
 #ifndef LDRAWINI_INCLUDED

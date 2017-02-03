@@ -156,6 +156,14 @@ QString QSimpleUpdater::getModuleVersion (const QString& url) const {
 }
 
 //==============================================================================
+// QSimpleUpdater::getAvailableVersions
+//==============================================================================
+
+QString QSimpleUpdater::getAvailableVersions (const QString& url) const {
+    return getUpdater (url)->availableVersions();
+}
+
+//==============================================================================
 // QSimpleUpdater::usesCustomInstallProcedures
 //==============================================================================
 

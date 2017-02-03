@@ -28,7 +28,7 @@ cd SOURCES
 echo "2. download source" >> $LOG
 git clone https://github.com/trevorsandy/lpub3d.git
 
-echo "3. capture version info" >> $LOG
+echo "3. update version info" >> $LOG
 if [ "$1" = "" ]
 then
  PROJECT_VERSION=`cat "lpub3d/builds/utilities/version_info_posix"`
@@ -40,7 +40,28 @@ else
  APP_VERSION=$1
  APP_VERSION_LONG=$1"_"${BUILD_DATE}
 fi
-
+if [ ! ${APP_VERSION} = "" ]
+then
+ IFS=. read VER_MAJOR VER_MINOR <<< ${APP_VERSION}
+ APP_VER=${VER_MAJOR}${VER_MINOR}
+fi
+VPATTERN="{XX}"
+SFILE="lpub3d/mainApp/lpub3d.desktop"
+TFILE="/tmp/out.tmp.$$"
+if [ -f ${SFILE} -a -r ${SFILE} ]
+then
+    sed "s/${VPATTERN}/${APP_VER}/g" "${SFILE}" > "${TFILE}" && mv "${TFILE}" "${SFILE}"
+else
+    echo "Error: Cannot read ${SFILE}"
+fi
+SFILE="lpub3d/mainApp/lpub3d.1"
+TFILE="/tmp/out.tmp.$$"
+if [ -f ${SFILE} -a -r ${SFILE} ]
+then
+    sed "s/${VPATTERN}/${APP_VER}/g" "${SFILE}" > "${TFILE}" && mv "${TFILE}" "${SFILE}"
+else
+    echo "Error: Cannot read ${SFILE}"
+fi
 echo "4. create tarball" >> $LOG
 tar -czvf lpub3d.git.tar.gz lpub3d \
         --exclude="lpub3d/builds/linux/standard" \
@@ -84,10 +105,10 @@ then
     IFS=- read NAME VERSION ARCH_EXTENSION <<< ${DISTRO_FILE}
 
     cp -f ${DISTRO_FILE} "lpub3d-${APP_VERSION_LONG}_${ARCH_EXTENSION}"
-    echo "Download file: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}" >> $LOG
+    echo "    Download file: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}" >> $LOG
 
     mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
-    echo "  Update file: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}" >> $LOG
+    echo "      Update file: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}" >> $LOG
 else
     echo "10. package file not found." >> $LOG
 fi

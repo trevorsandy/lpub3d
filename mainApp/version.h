@@ -19,34 +19,30 @@
 #define STR(x)   #x
 #define STRING(x)  STR(x)
 
-// ~~~~~ Version info ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+// ~~~~~ Generic Version info ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
-#define VER_BUILDDATE_STR                   DATE_YY " " DATE_MM " " DATE_DD " " BUILD_TIME "\0"
-
-#define VER_FILEVERSION                     VER_MAJOR,VER_MINOR,VER_SP,VER_REVISION_STR,VER_BUILD_STR
-#define VER_FILEVERSION_STR                 STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_SP) "." VER_REVISION_STR "." VER_BUILD_STR "\0"
-#define VER_PRODUCTVERSION                  VER_MAJOR,VER_MINOR,VER_SP
-#define VER_PRODUCTVERSION_STR              VER_MAJOR "." VER_MINOR "." VER_SP "\0"
-#define VER_UPDATEABLE_VERSIONS_STR         "2.0.20,2.0.19,1.3.5,1.2.3,1.0.0"
-#define VER_LOGGING_LEVELS_STR              "STATUS,INFO,TRACE,DEBUG,NOTICE,ERROR,FATAL,OFF"
+#define VER_BUILDDATE_STR                   DATE_YY " " DATE_MM " " DATE_DD " " BUILD_TIME
+#define VER_PRODUCTVERSION_STR              VER_MAJOR "." VER_MINOR "." VER_PATCH
 #define VER_PRODUCTNAME_STR                 "LPub3D"
+#define VER_COMPANYNAME_BLD_STR             "LPub3D Software"
+#define VER_FILEDESCRIPTION_STR             "LPub3D - An LDraw &trade; Building Instruction Editor"
+#define VER_LEGALCOPYRIGHT_STR              "Copyright &copy; 2015 - 2017 by Trevor SANDY"
+#define VER_LEGALTRADEMARKS1_STR            "All Rights Reserved"
+#define VER_LEGALTRADEMARKS2_STR            VER_LEGALTRADEMARKS1_STR
+#define VER_PUBLISHER_STR                   "Trevor SANDY"
+#define VER_PUBLISHER_EMAIL_STR             "trevor.sandy@gmail.com"
+#define VER_FILEVERSION_STR                 STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_PATCH) "." VER_REVISION_STR "." VER_BUILD_STR
+#define VER_PUBLISHER_SUPPORT_EMAIL_STR     "mailto:trevor.sandy@gmail.com?subject=LPub3D Version " VER_FILEVERSION_STR
 #ifdef QT_DEBUG_MODE
   #define COMPANYNAME_STR                   "LPub3D Software Maint"
 #else
   #define COMPANYNAME_STR                   "LPub3D Software"
 #endif
 #define VER_COMPANYNAME_STR                 COMPANYNAME_STR
-#define VER_COMPANYNAME_BLD_STR             "LPub3D Software"
-#define VER_COMAPNYNAME_INSTALLER_STR       "LPub3D Software"
-#define VER_FILEDESCRIPTION_STR             "LPub3D - An LDraw Building Instruction Editor"
-#define VER_INTERNALNAME_STR                "bociphus"
-#define VER_LEGALCOPYRIGHT_STR              "Copyright &copy; 2015 - 2017 by Trevor SANDY"
-#define VER_LEGALTRADEMARKS1_STR            "All Rights Reserved"
-#define VER_LEGALTRADEMARKS2_STR            VER_LEGALTRADEMARKS1_STR
-#define VER_ORIGINALFILENAME_STR            "LPub3D.exe"
-#define VER_PUBLISHER_STR                   "Trevor SANDY"
-#define VER_PUBLISHER_EMAIL_STR             "trevor.sandy@gmail.com"
-#define VER_PUBLISHER_SUPPORT_EMAIL_STR     "mailto:trevor.sandy@gmail.com?subject=LPub3D Version " VER_FILEVERSION_STR
+
+// ~~~~~~ Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+#define VER_LOGGING_LEVELS_STR              "STATUS,INFO,TRACE,DEBUG,NOTICE,ERROR,FATAL,OFF"
 
 #define VER_FADESTEP_COLORPARTS_FILE        "fadeStepColorParts.lst"
 #define VER_FREEFOM_ANNOTATIONS_FILE        "freeformAnnotations.lst"
@@ -67,8 +63,8 @@
 #define VER_CHANGE_LOG_URL                  "http://lpub3d.sourceforge.net/change_log.txt"
 
 #define VER_SOURCE_SF_URL                   "http://sourceforge.net/p/lpub3d/code/"
-#define VER_SOURCE_GITHUB_URL               "https://github.com/trevorsandy/lpub3d/"
 #define VER_COMPANYDOMAIN_STR               "http://sourceforge.net/projects/lpub3d/"
+#define VER_SOURCE_GITHUB_URL               "https://github.com/trevorsandy/lpub3d/"
 
 #ifdef __GNUC__
   #ifdef __MINGW64__
@@ -105,6 +101,5 @@
   #   error "Unknown compiler"
   #endif
 #endif
-
 
 #endif // VERSION_H

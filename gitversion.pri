@@ -37,7 +37,7 @@ GIT_VERSION ~= s/v/""
 # Separate the build number into major, minor and service pack etc.
 VER_MAJOR = $$section(GIT_VERSION, ., 0, 0)
 VER_MINOR = $$section(GIT_VERSION, ., 1, 1)
-VER_SP = $$section(GIT_VERSION, ., 2, 2)
+VER_PATCH = $$section(GIT_VERSION, ., 2, 2)
 VER_REVISION_STR = $$section(GIT_VERSION, ., 3, 3)
 VER_SHA_HASH_STR = $$section(GIT_VERSION, ., 4, 4)
 VER_BUILD_STR = $$section(GIT_VERSION, ., 5, 5)
@@ -63,7 +63,7 @@ DATE_YY = $$section(BUILD_DATE, /, 2, 2)
 # _HASH_SUFFIX, _BUILD_REVISION, _BUILD_DATE, GIT_VERSION
 DEFINES += VER_MAJOR=\\\"$$VER_MAJOR\\\"
 DEFINES += VER_MINOR=\\\"$$VER_MINOR\\\"
-DEFINES += VER_SP=\\\"$$VER_SP\\\"
+DEFINES += VER_PATCH=\\\"$$VER_PATCH\\\"
 
 DEFINES += BUILD_TIME=\\\"$$BUILD_TIME\\\"
 DEFINES += DATE_YY=\\\"$$DATE_YY\\\"
@@ -76,12 +76,12 @@ DEFINES += VER_REVISION_STR=\\\"$$VER_REVISION_STR\\\"
 DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
 
 # Now we are ready to pass parsed version to Qt
-VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_SP
+VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_PATCH
 
 # Update the version number file for win/unix during build
 VERSION_INFO_WIN = $$PWD/builds/utilities/version_info_win.txt
 VERSION_INFO_UNIX = $$PWD/builds/utilities/version_info_posix
-COMMAND_WIN = \"$$VER_MAJOR $$VER_MINOR $$VER_SP $$VER_REVISION_STR $$VER_BUILD_STR\",\"$$DATE_YY $$DATE_MM $$DATE_DD $$BUILD_TIME\"
+COMMAND_WIN = \"$$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION_STR $$VER_BUILD_STR\",\"$$DATE_YY $$DATE_MM $$DATE_DD $$BUILD_TIME\"
 COMMAND_UNIX = \"$$VERSION-$$VER_REVISION_STR-$$VER_BUILD_STR-$$VER_SHA_HASH_STR\"
 # On Windows generate input file to be consumed by build script
 win32 {
@@ -100,10 +100,12 @@ win32 {
     RESULT = $$system( echo $$shell_quote$${COMMAND_UNIX} > $$shell_quote($${VERSION_INFO_UNIX}) )
     RESULT = $$system( echo $$shell_quote$${COMMAND_WIN} > $$shell_quote($${VERSION_INFO_WIN}) )
 
-    # On Mac, update Info.plist with full version
+    # On Mac, update Info.plist with executable name which includes version details and full version
     macx {
+        EXECUTABLE = LPub3D$${VER_MAJOR}$${VER_MINOR}
         INFO_PLIST_FILE = $$PWD/mainApp/Info.plist
         PLIST_COMMAND = /usr/libexec/PlistBuddy -c
+        RESULT = $$system( $$PLIST_COMMAND \"Set :CFBundleExecutable $${EXECUTABLE}\" $$shell_quote($${INFO_PLIST_FILE}) )
         RESULT = $$system( $$PLIST_COMMAND \"Set :CFBundleShortVersionString $${VERSION}\" $$shell_quote($${INFO_PLIST_FILE}) )
         RESULT = $$system( $$PLIST_COMMAND \"Set :CFBundleVersion $${VER_BUILD_STR}\" $$shell_quote($${INFO_PLIST_FILE}) )
         RESULT = $$system( $$PLIST_COMMAND \"Set :com.trevorsandy.lpub3d.GitSHA $${VER_SHA_HASH_STR}\" $$shell_quote($${INFO_PLIST_FILE}) )

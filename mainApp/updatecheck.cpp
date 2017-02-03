@@ -146,3 +146,14 @@ void DoInitialUpdateCheck()
 
     new UpdateCheck(NULL, (void*)SoftwareUpdate);
 }
+
+AvailableVersions::AvailableVersions()
+{
+	DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
+	Preferences::availableVersions = m_updater->getAvailableVersions(DEFS_URL);
+}
+
+AvailableVersions::~AvailableVersions(){
+    if(m_updater)
+        m_updater->deleteLater();
+}

@@ -82,6 +82,7 @@ QString Preferences::plug                       = QString(QObject::trUtf8("Instr
                                                           .arg(QString::fromLatin1(VER_PRODUCTNAME_STR),
                                                                QString::fromLatin1(VER_FILEVERSION_STR),
                                                                QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
+QString Preferences::availableVersions; //          = qApp->applicationVersion();
 QString Preferences::logPath;
 QString Preferences::loggingLevel;               // string
 

@@ -45,6 +45,7 @@ If not, I don't know who wrote it.
 080701 lch Travis Cobbs found leak when LDrawIniComputeRealDirs gives 0 dirs
 080910 lch Try typical locations for LDrawDir and see if they have P and PARTS
 080915 lch Added LDrawDirOrigin and SearchDirsOrigin
+160801 tds Added "ldraw\unofficial\" to GetDefaultLDrawSearch (for LPub3D)
 ******************************************************************************/
 
 /*
@@ -822,8 +823,8 @@ int LDrawIniParseSymbolicSearchDir(struct LDrawSearchDirS * Result,
                                    const char *ModelDir,
                                    const char *HomeDir)
 {
-   const char    *s;
-   const char    *t;
+   const  char    *s;
+   const  char    *t;
    char          *Dir;
    int            Flags;
    int            OldLen;

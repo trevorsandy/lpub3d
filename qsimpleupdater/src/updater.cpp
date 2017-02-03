@@ -65,6 +65,7 @@ Updater::Updater() {
     m_directDownload = false;
     m_promptedDownload = false;
     m_isNotSoftwareUpdate = false;
+    m_versionsRequest = false;
     m_moduleName = qApp->applicationName();
     m_moduleVersion = qApp->applicationVersion();
 
@@ -235,6 +236,14 @@ QString Updater::moduleVersion() const {
 }
 
 //==============================================================================
+// Updater::moduleVersion
+//==============================================================================
+
+QString Updater::availableVersions() const {
+    return m_moduleVersion;
+}
+
+//==============================================================================
 // Updater::useCustomInstallProcedures
 //==============================================================================
 
@@ -355,6 +364,32 @@ void Updater::setModuleVersion (const QString& version) {
 }
 
 //==============================================================================
+// Updater::getAvailableVersions
+//==============================================================================
+
+void Updater::getAvailableVersions() {
+    versionsRequested();
+    m_updateRequest.setUrl(QUrl(url()));
+    m_manager->get(m_updateRequest);
+}
+
+//==============================================================================
+// Updater::versionsRequested
+//==============================================================================
+
+bool Updater::versionsRequested() {
+    return m_versionsRequest = true;
+}
+
+//==============================================================================
+// Updater::versionsRequestServed
+//==============================================================================
+
+void Updater::versionsRequestServed() {
+    m_versionsRequest = false;
+}
+
+//==============================================================================
 // Updater::checkForUpdates
 //==============================================================================
 
@@ -386,6 +421,16 @@ void Updater::onReply (QNetworkReply* reply) {
 
         QJsonObject updates = document.object().value ("updates").toObject();
         QJsonObject platform = updates.value (platformKey()).toObject();
+
+        if (versionsRequested()){
+            if (! platform.isEmpty()) {
+                m_availableVersions = platform.value ("available-versions").toString();
+              } else {
+                m_availableVersions = qApp->applicationVersion();
+              }
+            versionsRequestServed();
+            return;
+          }
 
         if (directDownload()) {
 

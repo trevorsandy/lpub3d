@@ -141,6 +141,11 @@ class QSU_DECL QSimpleUpdater : public QObject {
     QString getModuleVersion (const QString& url) const;
 
     ///
+    /// Returns the available versions registered for the platform \c url
+    ///
+    QString getAvailableVersions (const QString& url) const;
+
+    ///
     /// Returns \c true if the downloader will not attempt to install the
     /// downloaded file.
     ///

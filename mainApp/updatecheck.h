@@ -66,4 +66,14 @@ private:
     QSimpleUpdater          *m_updater;
 };
 
+class AvailableVersions : public QObject
+{
+            Q_OBJECT
+public:
+    AvailableVersions();
+    ~AvailableVersions();
+private:
+    QString                  DEFS_URL;
+    QSimpleUpdater          *m_updater;
+};
 #endif // UPDATECHECK_H

@@ -1669,7 +1669,12 @@ void Gui::updateCheck()
 {
     // Create an instance of update check
     new UpdateCheck(this, (void*)SoftwareUpdate);
+}
 
+void Gui::getAvailableVersions()
+{
+    // Create an updater instance to populate available versions
+    new AvailableVersions();
 }
 
 // Begin Jaco's code

@@ -78,6 +78,7 @@ class Preferences
     static QString moduleVersion;
     static QString logPath;
     static QString loggingLevel;
+    static QString availableVersions;
     static QStringList ldSearchDirs;
     static bool    ldrawiniFound;
     static bool    enableDocumentLogo;
