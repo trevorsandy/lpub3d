@@ -42,7 +42,7 @@ CONFIG(debug, debug|release) {
 } else {
     message("~~~ LDRAWINI RELEASE build ~~~")
     DESTDIR = release
-    TARGET = $$join(TARGET,,,161)
+    win32: TARGET = $$join(TARGET,,,161)
 }
 
 OBJECTS_DIR = $$DESTDIR/.obj

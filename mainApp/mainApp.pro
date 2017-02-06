@@ -116,11 +116,16 @@ CONFIG(debug, debug|release) {
     message("~~~ MAIN_APP RELEASE build ~~~")
     DESTDIR = release
     unix:!macx {
-        LIBS += -L$$DESTDIR/../../ldrawini/release -lldrawini161
-        !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/release -lquazip07
+        LIBS += -L$$DESTDIR/../../ldrawini/release -lldrawini
+        !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/release -lquazip
     } else {
-        LIBS += -L$$DESTDIR/../../ldrawini/release -lLDrawIni161
-        !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/release -lQuaZIP07
+		macx {
+			LIBS += -L$$DESTDIR/../../ldrawini/release -lLDrawIni161
+			!quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/release -lQuaZIP07		
+		} else {
+			LIBS += -L$$DESTDIR/../../ldrawini/release -lLDrawIni161
+			!quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/release -lQuaZIP07		
+		}
     }
     TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
 }

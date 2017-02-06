@@ -137,8 +137,9 @@ BuildRequires: -post-build-checks
  sponsor, authorize or endorse this application.
  © 2015-2017 Trevor SANDY
 
+%prep
 if [ -f lpub3d-*.tar.gz ] ; then 
-	mvlpub3d-*.tar.gz lpub3d	
+	mv lpub3d-*.tar.gz lpub3d	
 else
 	ls
 	git clone https://github.com/trevorsandy/lpub3d.git lpub3d
@@ -151,8 +152,6 @@ else
 	  --exclude="lpub3d/LPub3Dx11.pro.user" \
 	  --exclude="lpub3d/.gitignore"
 fi
-
-%prep
 %autosetup -n %{name}
 
 %build

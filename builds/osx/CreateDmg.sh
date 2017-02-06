@@ -30,18 +30,15 @@ then
      OLDIFS=$IFS
      IFS='-'
      [ ! -f ${PROJECT_VERSION} ] && { echo "${PROJECT_VERSION} file not found"; exit 99; }
-     while read S_VERSION S_REVISION S_BUILD S_SHA_HASH 
+     while read S_VERSION REVISION BUILD S_SHA_HASH 
      do 
         VERSION=${S_VERSION//'"'}
-        APP_VERSION=${S_VERSION//'"'}"."${S_BUILD}
-        APP_VERSION_LONG=${S_VERSION//'"'}"."${S_REVISION}"."${S_BUILD}_${BUILD_DATE}
-        echo "BUILD_DATE.........${BUILD_DATE}"
-        echo "APP_VERSION_LONG...${APP_VERSION_LONG}"
-        echo "APP_VERSION .......${APP_VERSION}"
-        echo "VERSION............${S_VERSION//'"'}"
-        echo "REVISION...........${S_REVISION}"
-        echo "BUILD..............${S_BUILD}"
-        echo "SHA_HASH...........${S_SHA_HASH}"
+        APP_VERSION=${VERSION}"."${BUILD}
+        APP_VERSION_LONG=${VERSION}"."${REVISION}"."${BUILD}_${BUILD_DATE}
+		echo "S_VERSION..........${S_VERSION}"
+        echo "REVISION...........${REVISION}"
+        echo "BUILD..............${BUILD}"
+        echo "SHA_HASH...........${S_SHA_HASH//'"'}"
      done < ${PROJECT_VERSION}
      IFS=$OLDIFS
 else
@@ -49,6 +46,22 @@ else
      APP_VERSION=$1
      APP_VERSION_LONG=$1"_"${BUILD_DATE}
 fi
+echo "BUILD_DATE.........${BUILD_DATE}"
+echo "VERSION............${VERSION}"		
+echo "APP_VERSION .......${APP_VERSION}"		
+echo "APP_VERSION_LONG...${APP_VERSION_LONG}"
+OLDIFS=$IFS
+IFS='.'
+while read read VER_MAJOR VER_MINOR VER_PACK VER_BUILD 
+do 
+	 VER_SUFFIX=${VER_MAJOR}${VER_MINOR}
+	 echo "VER_MAJOR..........${VER_MAJOR}"
+	 echo "VER_MINOR..........${VER_MINOR}"
+	 echo "VER_PACK...........${VER_PACK}"
+	 echo "VER_BUILD..........${VER_BUILD}"
+	 echo "VER_SUFFIX.........${VER_SUFFIX}"
+done < ${APP_VERSION}
+IFS=$OLDIFS
 
 echo "4. get ldraw archive libraries" >> $LOG
 curl "http://www.ldraw.org/library/updates/complete.zip" -o "mainApp/extras/complete.zip"
@@ -62,28 +75,29 @@ make
 
 echo "7. copy LPub3D bundle components" >> $LOG
 cd builds/osx
-if [ -d LPub3D.app ]
+LPUB3D_APP=LPub3D${VER_SUFFIX}.app
+if [ -d ${LPUB3D_APP} ]
 then
-    rm -R LPub3D.app
+    rm -R ${LPUB3D_APP}
 fi
 cp ../../mainApp/lpub3d.icns .
 cp ../utilities/icons/lpub3dbkg.png .
-cp -R ../../mainApp/release/LPub3D.app .
+cp -R ../../mainApp/release/${LPUB3D_APP} .
 
 echo "8. install library links" >> $LOG
-/usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni161.1.dylib LPub3D.app/Contents/Libs/libLDrawIni161.1.dylib
-/usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP07.1.dylib LPub3D.app/Contents/Libs/libQuaZIP07.1.dylib
+/usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni161.1.dylib ${LPUB3D_APP}/Contents/Libs/libLDrawIni161.1.dylib
+/usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP07.1.dylib ${LPUB3D_APP}/Contents/Libs/libQuaZIP07.1.dylib
 
 echo "9. change mapping to LPub3D" >> $LOG
-/usr/bin/install_name_tool -change libLDrawIni161.1.dylib @executable_path/../Libs/libLDrawIni161.1.dylib LPub3D.app/Contents/MacOS/LPub3D
-/usr/bin/install_name_tool -change libQuaZIP07.1.dylib @executable_path/../Libs/libQuaZIP07.1.dylib LPub3D.app/Contents/MacOS/LPub3D
+/usr/bin/install_name_tool -change libLDrawIni161.1.dylib @executable_path/../Libs/libLDrawIni161.1.dylib ${LPUB3D_APP}/Contents/MacOS/LPub3D
+/usr/bin/install_name_tool -change libQuaZIP07.1.dylib @executable_path/../Libs/libQuaZIP07.1.dylib ${LPUB3D_APP}/Contents/MacOS/LPub3D
 
 echo "10. bundle LPub3D" >> $LOG
-macdeployqt LPub3D.app -verbose=1 -executable=LPub3D.app/Contents/MacOS/LPub3D -always-overwrite
+macdeployqt ${LPUB3D_APP} -verbose=1 -executable=${LPUB3D_APP}/Contents/MacOS/LPub3D -always-overwrite
 
 echo "11. change library dependency mapping" >> $LOG
-/usr/bin/install_name_tool -change libLDrawIni161.1.dylib @executable_path/../Libs/libLDrawIni161.1.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
-/usr/bin/install_name_tool -change libQuaZIP07.1.dylib @executable_path/../Libs/libQuaZIP07.1.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
+/usr/bin/install_name_tool -change libLDrawIni161.1.dylib @executable_path/../Libs/libLDrawIni161.1.dylib ${LPUB3D_APP}/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
+/usr/bin/install_name_tool -change libQuaZIP07.1.dylib @executable_path/../Libs/libQuaZIP07.1.dylib ${LPUB3D_APP}/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 
 echo "12. generate lpub3d.json and README.txt" >> $LOG
 cat <<EOF >lpub3d.json
@@ -93,7 +107,7 @@ cat <<EOF >lpub3d.json
   "background": "lpub3dbkg.png",
   "contents": [
     { "x": 448, "y": 344, "type": "link", "path": "/Applications" },
-    { "x": 192, "y": 344, "type": "file", "path": "LPub3D.app" },
+    { "x": 192, "y": 344, "type": "file", "path": "${LPUB3D_APP}" },
     { "x": 512, "y": 128, "type": "file", "path": "README.txt" },
     { "x": 512, "y": 900, "type": "position", "path": ".VolumeIcon.icns" }
   ]
@@ -125,7 +139,7 @@ echo "      Update file: LPub3D-UpdateMaster_${VERSION}_osx.dmg" >> $LOG
 cp "${DMGDIR}/LPub3D-UpdateMaster_${VERSION}_osx.dmg" "${DMGDIR}/LPub3D-UpdateMaster_${VERSION}_osx.dmg"
 
 echo "14. cleanup" >> $LOG
-rm -R LPub3D.app
+rm -R ${LPUB3D_APP}
 rm lpub3d.icns README.txt lpub3d.json lpub3dbkg.png
 
 echo "Finished!" >> $LOG

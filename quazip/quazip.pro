@@ -55,7 +55,7 @@ CONFIG(debug, debug|release) {
 } else {
     message("~~~ QUAZIP RELEASE build ~~~")
     DESTDIR = release
-    TARGET = $$join(TARGET,,,07)
+    win32: TARGET = $$join(TARGET,,,07)
 }
 
 OBJECTS_DIR = $$DESTDIR/.obj
@@ -83,15 +83,15 @@ unix:!symbian {
     headers.files=$$HEADERS
     deb {
         target.path=$$PREFIX/lib/$$QT_ARCH-linux-gnu
-        message("~~~ LDRAWINI DEB $$ARCH-bit LIB ~~~")
+        message("~~~ QUAZIP DEB $$ARCH-bit LIB ~~~")
     }
     rpm {
         target.path=$$PREFIX/lib$$ARCH
-        message("~~~ LDRAWINI RPM $$ARCH-bit LIB ~~~")
+        message("~~~ QUAZIP RPM $$ARCH-bit LIB ~~~")
     }
     !deb:!rpm {
         target.path=$$PREFIX/lib
-        message("~~~ LDRAWINI $$ARCH-bit LIB ~~~")
+        message("~~~ QUAZIP $$ARCH-bit LIB ~~~")
     }
     INSTALLS += target
     libheaders: INSTALLS += headers
@@ -105,7 +105,7 @@ win32 {
     target.path=$$PREFIX/lib
     INSTALLS += target
     libheaders: INSTALLS += headers
-    libheaders: message("~~~ INSTALL LDRAWINI LIB HEADERS ~~~")
+    libheaders: message("~~~ INSTALL QUAZIP LIB HEADERS ~~~")
     # workaround for qdatetime.h macro bug
     DEFINES += NOMINMAX
 }
