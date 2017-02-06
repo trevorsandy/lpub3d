@@ -57,7 +57,7 @@ SFILE="lpub3d/mainApp/lpub3d.desktop"
 TFILE="/tmp/out.tmp.$$"
 if [ -f ${SFILE} -a -r ${SFILE} ]
 then
-    sed "s/${VPATTERN}/${APP_VER}/g" "${SFILE}" > "${TFILE}" && mv "${TFILE}" "${SFILE}"
+    sed "s/${VPATTERN}/${VER_SUFFIX}/g" "${SFILE}" > "${TFILE}" && mv "${TFILE}" "${SFILE}"
 else
     echo "Error: Cannot read ${SFILE}"
 fi
@@ -65,7 +65,7 @@ SFILE="lpub3d/mainApp/lpub3d.1"
 TFILE="/tmp/out.tmp.$$"
 if [ -f ${SFILE} -a -r ${SFILE} ]
 then
-    sed "s/${VPATTERN}/${APP_VER}/g" "${SFILE}" > "${TFILE}" && mv "${TFILE}" "${SFILE}"
+    sed "s/${VPATTERN}/${VER_SUFFIX}/g" "${SFILE}" > "${TFILE}" && mv "${TFILE}" "${SFILE}"
 else
     echo "Error: Cannot read ${SFILE}"
 fi

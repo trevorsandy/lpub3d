@@ -38,4 +38,4 @@ clean:
 
 	dh_clean
 	
-.PHONY: build clean configure
+.PHONY: configure build clean

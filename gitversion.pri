@@ -1,6 +1,17 @@
 # If there is no version tag in git this one will be used
 VERSION = 1.0.0
 
+# Default location of Git directory
+exists($$PWD/.git) {
+    GIT_DIR=$$PWD/.git
+    message(GIT_DIR $$GIT_DIR)
+}
+# Location of Git directory when building pkg and deb packages
+exists($$PWD/../upstream/lpub3d/.git) {
+    GIT_DIR=$$PWD/../upstream/lpub3d/.git
+    message(GIT_DIR $$GIT_DIR)
+}
+
 # Need to discard STDERR so get path to NULL device
 win32 {
     NULL_DEVICE = NUL # Windows doesn't have /dev/null but has NUL
@@ -9,7 +20,7 @@ win32 {
 }
 
 # Need to call git with manually specified paths to repository
-BASE_GIT_COMMAND = git --git-dir $$shell_quote$$PWD/.git --work-tree $$shell_quote$$PWD
+BASE_GIT_COMMAND = git --git-dir $$shell_quote$$GIT_DIR --work-tree $$shell_quote$$PWD
 
 # Trying to get version from git tag / revision
 GIT_VERSION = $$system($$BASE_GIT_COMMAND describe --long 2> $$NULL_DEVICE)
