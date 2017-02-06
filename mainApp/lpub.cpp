@@ -1671,12 +1671,6 @@ void Gui::updateCheck()
     new UpdateCheck(this, (void*)SoftwareUpdate);
 }
 
-void Gui::getAvailableVersions()
-{
-    // Create an updater instance to populate available versions
-    new AvailableVersions();
-}
-
 // Begin Jaco's code
 // Danny: web url changed, as it pointed nowhere
 

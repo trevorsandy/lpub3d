@@ -126,6 +126,11 @@ class QSU_DECL QSimpleUpdater : public QObject {
     QString getLatestVersion (const QString& url) const;
 
     ///
+    /// Returns the latest version online
+    ///
+    QString getAvailableVersions (const QString& url) const;
+
+    ///
     /// Returns the platform of the updater with the given \c url.
     ///
     QString getPlatformKey (const QString& url) const;
@@ -139,11 +144,6 @@ class QSU_DECL QSimpleUpdater : public QObject {
     /// Returns the application version registered for the given \c url
     ///
     QString getModuleVersion (const QString& url) const;
-
-    ///
-    /// Returns the available versions registered for the platform \c url
-    ///
-    QString getAvailableVersions (const QString& url) const;
 
     ///
     /// Returns \c true if the downloader will not attempt to install the
@@ -167,6 +167,11 @@ class QSU_DECL QSimpleUpdater : public QObject {
     /// (e.g. plugins) that can be updated separately.
     ///
     void checkForUpdates (const QString& url);
+
+    ///
+    /// Returns the available versions registered for the platform \c url
+    ///
+    void retrieveAvailableVersions (const QString& url) const;
 
     ///
     /// Changes the platform key which we use to get version data and download

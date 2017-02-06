@@ -661,9 +661,6 @@ public slots:
   void progressBarPermSetValue(int value);
   void progressBarPermReset();
 
-  // populate available versions
-  void getAvailableVersions();
-
   void removeProgressStatus(){
       statusBar()->removeWidget(progressBar);
       statusBar()->removeWidget(progressLabel);

@@ -145,7 +145,7 @@ class QSU_DECL Updater : public QObject {
     /// Returns the available versions for download, which is
     /// automatically retrieved at application startup.
     ///
-    QString availableVersions() const;
+    QString getAvailableVersions() const;
 
     ///
     /// Returns \c true if the downloader will not attempt to install the
@@ -172,7 +172,7 @@ class QSU_DECL Updater : public QObject {
     /// Downloads the update definitions file and analyzes it to determine the
     /// available versions version for the platform
     ///
-    void getAvailableVersions();
+    void retrieveAvailableVersions();
 
     ///
     /// Changes the \a url from where we download the update definitions

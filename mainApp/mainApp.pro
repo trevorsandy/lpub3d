@@ -104,8 +104,8 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = QuaZIPd07
     }
     unix:!macx {
-        LDRAWINI_LIB = ldrawinid161
-        QUAZIP_LIB = quazipd07
+        LDRAWINI_LIB = ldrawinid
+        QUAZIP_LIB = quazipd
     }
     LIBS += -L$$DESTDIR/../../ldrawini/debug -l$$LDRAWINI_LIB
     !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/debug -l$$QUAZIP_LIB

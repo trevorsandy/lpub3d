@@ -147,10 +147,34 @@ void DoInitialUpdateCheck()
     new UpdateCheck(NULL, (void*)SoftwareUpdate);
 }
 
-AvailableVersions::AvailableVersions()
+void GetAvailableVersions(){
+  new AvailableVersions(NULL);
+}
+
+AvailableVersions::AvailableVersions(QObject *parent) : QObject(parent)
 {
-	DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
-	Preferences::availableVersions = m_updater->getAvailableVersions(DEFS_URL);
+  DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
+  m_updater = QSimpleUpdater::getInstance();
+  m_updater->setModuleVersion(DEFS_URL, qApp->applicationVersion());
+  m_updater->setEnableDownloader(DEFS_URL, false);
+  m_updater->setShowAllNotifications(DEFS_URL, false);
+  m_updater->setShowUpdateNotifications (DEFS_URL, false);
+
+  connect (m_updater, SIGNAL (checkingFinished (QString)),
+           this,      SLOT (setAvailableVersions (QString)));
+
+  m_updater->retrieveAvailableVersions(DEFS_URL);
+}
+
+void AvailableVersions::setAvailableVersions(const QString &url){
+  if (url == DEFS_URL) {
+      QString versions = m_updater->getAvailableVersions(DEFS_URL);
+      if (! versions.isEmpty())
+        Preferences::availableVersions = versions;
+      else
+        Preferences::availableVersions = qApp->applicationVersion();
+    } else
+      qDebug() << QString("bad DEFS_URL %1").arg(DEFS_URL);
 }
 
 AvailableVersions::~AvailableVersions(){

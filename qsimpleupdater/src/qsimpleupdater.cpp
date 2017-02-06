@@ -132,6 +132,14 @@ QString QSimpleUpdater::getLatestVersion (const QString& url) const {
 }
 
 //==============================================================================
+// QSimpleUpdater::getLatestVersion
+//==============================================================================
+
+QString QSimpleUpdater::getAvailableVersions (const QString& url) const {
+    return getUpdater (url)->getAvailableVersions();
+}
+
+//==============================================================================
 // QSimpleUpdater::getPlatformKey
 //==============================================================================
 
@@ -156,11 +164,11 @@ QString QSimpleUpdater::getModuleVersion (const QString& url) const {
 }
 
 //==============================================================================
-// QSimpleUpdater::getAvailableVersions
+// QSimpleUpdater::retrieveAvailableVersions
 //==============================================================================
 
-QString QSimpleUpdater::getAvailableVersions (const QString& url) const {
-    return getUpdater (url)->availableVersions();
+void QSimpleUpdater::retrieveAvailableVersions (const QString& url) const {
+    getUpdater (url)->retrieveAvailableVersions();
 }
 
 //==============================================================================

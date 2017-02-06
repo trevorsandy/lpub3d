@@ -1,22 +1,27 @@
 # If there is no version tag in git this one will be used
 VERSION = 1.0.0
 
-# Default location of Git directory
-exists($$PWD/.git) {
-    GIT_DIR=$$PWD/.git
-    message(GIT_DIR $$GIT_DIR)
-}
-# Location of Git directory when building pkg and deb packages
-exists($$PWD/../upstream/lpub3d/.git) {
-    GIT_DIR=$$PWD/../upstream/lpub3d/.git
-    message(GIT_DIR $$GIT_DIR)
-}
-
 # Need to discard STDERR so get path to NULL device
 win32 {
     NULL_DEVICE = NUL # Windows doesn't have /dev/null but has NUL
 } else {
     NULL_DEVICE = /dev/null
+}
+
+# Default location of Git directory
+exists($$PWD/.git) {
+    GIT_DIR=$$PWD/.git
+    message(GIT_DIR $$GIT_DIR)
+}
+# Location of Git directory when building pkg package
+exists($$PWD/../upstream/lpub3d/.git) {
+    GIT_DIR=$$PWD/../upstream/lpub3d/.git
+    message(GIT_DIR $$GIT_DIR)
+}
+# Location of Git directory when building deb package
+exists($$PWD/../../upstream/lpub3d/.git) {
+    GIT_DIR=$$PWD/../../upstream/lpub3d/.git
+    message(GIT_DIR $$GIT_DIR)
 }
 
 # Need to call git with manually specified paths to repository

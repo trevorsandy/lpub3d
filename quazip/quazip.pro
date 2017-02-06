@@ -52,6 +52,7 @@ CONFIG(debug, debug|release) {
     DESTDIR = debug
     mac: TARGET = $$join(TARGET,,,_debug07)
     win32: TARGET = $$join(TARGET,,,d07)
+    unix:!macx: TARGET = $$join(TARGET,,,d)
 } else {
     message("~~~ QUAZIP RELEASE build ~~~")
     DESTDIR = release

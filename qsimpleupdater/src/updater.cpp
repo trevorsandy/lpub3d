@@ -57,6 +57,7 @@ Updater::Updater() {
     m_downloadUrl = "";
     m_downloadName = "";
     m_latestVersion = "";
+    m_availableVersions = "";
     m_localDownloadPath = "";
     m_showUpdateNotifications = true;
     m_showAllNotifications = true;
@@ -236,11 +237,11 @@ QString Updater::moduleVersion() const {
 }
 
 //==============================================================================
-// Updater::moduleVersion
+// Updater::getAvailableVersions
 //==============================================================================
 
-QString Updater::availableVersions() const {
-    return m_moduleVersion;
+QString Updater::getAvailableVersions() const {
+    return m_availableVersions;
 }
 
 //==============================================================================
@@ -364,10 +365,10 @@ void Updater::setModuleVersion (const QString& version) {
 }
 
 //==============================================================================
-// Updater::getAvailableVersions
+// Updater::retrieveAvailableVersions
 //==============================================================================
 
-void Updater::getAvailableVersions() {
+void Updater::retrieveAvailableVersions() {
     versionsRequested();
     m_updateRequest.setUrl(QUrl(url()));
     m_manager->get(m_updateRequest);
@@ -425,10 +426,9 @@ void Updater::onReply (QNetworkReply* reply) {
         if (versionsRequested()){
             if (! platform.isEmpty()) {
                 m_availableVersions = platform.value ("available-versions").toString();
-              } else {
-                m_availableVersions = qApp->applicationVersion();
               }
             versionsRequestServed();
+            emit checkingFinished (url());
             return;
           }
 

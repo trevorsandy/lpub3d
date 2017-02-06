@@ -326,6 +326,8 @@ void Application::main()
 
   splash->finish(gui);
 
+  GetAvailableVersions();
+
   gui->show();
 
 #if !LC_DISABLE_UPDATE_CHECK

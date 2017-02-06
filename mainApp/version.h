@@ -25,7 +25,7 @@
 #define VER_PRODUCTVERSION_STR              VER_MAJOR "." VER_MINOR "." VER_PATCH
 #define VER_PRODUCTNAME_STR                 "LPub3D"
 #define VER_COMPANYNAME_BLD_STR             "LPub3D Software"
-#define VER_FILEDESCRIPTION_STR             "LPub3D - An LDraw &trade; Building Instruction Editor"
+#define VER_FILEDESCRIPTION_STR             "LPub3D - An LDraw Building Instruction Editor"
 #define VER_LEGALCOPYRIGHT_STR              "Copyright &copy; 2015 - 2017 by Trevor SANDY"
 #define VER_LEGALTRADEMARKS1_STR            "All Rights Reserved"
 #define VER_LEGALTRADEMARKS2_STR            VER_LEGALTRADEMARKS1_STR

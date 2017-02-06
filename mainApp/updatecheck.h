@@ -29,6 +29,7 @@ enum updateType{
 };
 
 void DoInitialUpdateCheck();
+void GetAvailableVersions();
 
 class UpdateCheck : public QObject
 {
@@ -70,8 +71,10 @@ class AvailableVersions : public QObject
 {
             Q_OBJECT
 public:
-    AvailableVersions();
+    AvailableVersions(QObject *parent);
     ~AvailableVersions();
+public slots:
+    void setAvailableVersions(const QString& url);
 private:
     QString                  DEFS_URL;
     QSimpleUpdater          *m_updater;

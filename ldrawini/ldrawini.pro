@@ -39,6 +39,7 @@ CONFIG(debug, debug|release) {
     DESTDIR = debug
     mac: TARGET = $$join(TARGET,,,_debug161)
     win32: TARGET = $$join(TARGET,,,d161)
+    unix:!macx: TARGET = $$join(TARGET,,,d)
 } else {
     message("~~~ LDRAWINI RELEASE build ~~~")
     DESTDIR = release
