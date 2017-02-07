@@ -6,10 +6,14 @@
 # $ ./CreateDeb.sh
 
 WORK_DIR=`pwd`
-LOG="${WORK_DIR}/CreateDeb.log"
 BUILD_DATE=`date "+%Y%m%d"`
+# logging stuff
+LOG="${WORK_DIR}/CreateDeb.log"
+exec > >(tee -a ${LOG} )
+exec 2> >(tee -a ${LOG} >&2)
 
-echo "1. create DEB working directories" >> $LOG
+echo "Start..."
+echo "1. create DEB working directories"
 if [ ! -d debbuild ]
 then
     mkdir debbuild
@@ -21,10 +25,10 @@ else
 fi
 cd debbuild/upstream
 
-echo "2. download source" >> $LOG
+echo "2. download source"
 git clone https://github.com/trevorsandy/lpub3d.git
 
-echo "3. capture version info" >> $LOG
+echo "3. capture version info"
 # - get version info
 if [ "$1" = "" ]
 then
@@ -74,7 +78,7 @@ else
     echo "Error: Cannot read ${SFILE}"
 fi
 
-echo "4. create tarball" >> $LOG
+echo "4. create tarball"
 tar -czvf lpub3d.git.tar.gz lpub3d \
         --exclude="lpub3d/builds/linux/standard" \
         --exclude="lpub3d/builds/osx" \
@@ -86,17 +90,17 @@ tar -czvf lpub3d.git.tar.gz lpub3d \
         --exclude="lpub3d/.gitignore"
 cd ../
 
-echo "5. create package config: Name, Version, Path to tarball" >> $LOG
+echo "5. create package config: Name, Version, Path to tarball"
 /usr/bin/bzr dh-make lpub3d ${APP_VERSION} upstream/lpub3d.git.tar.gz
 
-echo "6. delete unneeded config files" >> $LOG
+echo "6. delete unneeded config files"
 cd lpub3d/debian
 rm *ex *EX changelog
 
-echo "7. copy standard config files" >> $LOG
+echo "7. copy standard config files"
 cp -rf ../../upstream/lpub3d/builds/linux/obs/debian/* .
 
-echo "8. update change log" >> $LOG
+echo "8. update change log"
 DATE_COMMAND=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
 cat <<EOF >changelog
 lpub3d (${APP_VERSION}-0ubuntu1) trusty; urgency=medium
@@ -106,28 +110,28 @@ lpub3d (${APP_VERSION}-0ubuntu1) trusty; urgency=medium
  -- Trevor SANDY <trevor.sandy@gmail.com>  ${DATE_COMMAND}
 EOF
 
-echo "9. add format to package and commit package source" >> $LOG
+echo "9. add format to package and commit package source"
 /usr/bin/bzr add source/format
 #/usr/bin/bzr commit -m "Packaging commit for lpub3d ${APP_VERSION}."
 
-echo "10. build and sign application" >> $LOG
+echo "10. build and sign application"
 /usr/bin/bzr builddeb -- -us -uc
 
 cd ../../
 DISTRO_FILE=`ls *.deb`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "11. create update and download files" >> $LOG
+    echo "11. create update and download files"
     IFS=- read NAME_VERSION ARCH_EXTENSION <<< ${DISTRO_FILE}
 
     cp -rf ${DISTRO_FILE} "lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}"
-    echo "    Download file: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}" >> $LOG
+    echo "    Download file: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}"
 
     mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
-    echo "      Update file: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}" >> $LOG
+    echo "      Update file: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
 else
-    echo "11. package file not found." >> $LOG
+    echo "11. package file not found."
 fi
 
-echo "Finished!" >> $LOG
+echo "Finished!"
 mv $LOG "${WORK_DIR}/debbuild/CreateDeb.log"

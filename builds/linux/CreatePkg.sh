@@ -6,10 +6,14 @@
 # $ ./CreatePkg.sh
 
 WORK_DIR=`pwd`
-LOG="${WORK_DIR}/CreatePkg.log"
 BUILD_DATE=`date "+%Y%m%d"`
+# logging stuff
+LOG="${WORK_DIR}/CreatePkg.log"
+exec > >(tee -a ${LOG} )
+exec 2> >(tee -a ${LOG} >&2)
 
-echo "1. create PKG working directories" >> $LOG
+echo "Start..."
+echo "1. create PKG working directories"
 if [ ! -d pkgbuild ]
 then
     mkdir pkgbuild
@@ -17,10 +21,10 @@ then
 fi
 cd pkgbuild/upstream
 
-echo "2. download source" >> $LOG
+echo "2. download source"
 git clone https://github.com/trevorsandy/lpub3d.git
 
-echo "3. update version info" >> $LOG
+echo "3. update version info"
 # - get version info
 if [ "$1" = "" ]
 then
@@ -70,7 +74,7 @@ else
     echo "Error: Cannot read ${SFILE}"
 fi
 
-echo "4. create tarball" >> $LOG
+echo "4. create tarball"
 tar -czvf ../lpub3d.git.tar.gz \
         --exclude="lpub3d/builds/linux/standard" \
         --exclude="lpub3d/builds/osx" \
@@ -81,10 +85,10 @@ tar -czvf ../lpub3d.git.tar.gz \
         --exclude="lpub3d/_config.yml" \
         --exclude="lpub3d/.gitignore" lpub3d
 
-echo "5. copy PKGBUILD" >> $LOG
+echo "5. copy PKGBUILD"
 cp -f lpub3d/builds/linux/obs/PKGBUILD ../
 
-echo "6. update PKGBUILD version" >> $LOG
+echo "6. update PKGBUILD version"
 cd ../
 VPATTERN="{X.XX.XX.XXX}"
 SFILE="PKGBUILD"
@@ -96,22 +100,22 @@ else
     echo "Error: Cannot read ${SFILE}"
 fi
 
-echo "7. create package" >> $LOG
+echo "7. create package"
 makepkg -s
 
 DISTRO_FILE=`ls lpub3d-${APP_VERSION}*.pkg.tar.xz`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "8. create update and download files" >> $LOG
+    echo "8. create update and download files"
     IFS=- read NAME VERSION BUILD ARCH_EXTENSION <<< ${DISTRO_FILE}
     cp -f ${DISTRO_FILE} "lpub3d-${APP_VERSION_LONG}_${BUILD}_${ARCH_EXTENSION}"
-    echo "    Download file: lpub3d_${APP_VERSION_LONG}_${BUILD}_${ARCH_EXTENSION}" >> $LOG
+    echo "    Download file: lpub3d_${APP_VERSION_LONG}_${BUILD}_${ARCH_EXTENSION}"
 
     mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
-    echo "      Update file: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}" >> $LOG
+    echo "      Update file: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
 else
-    echo "8. package file not found." >> $LOG
+    echo "8. package file not found."
 fi
 
-echo "Finished!" >> $LOG
+echo "Finished!"
 mv $LOG "${WORK_DIR}/pkgbuild/CreatePkg.log"

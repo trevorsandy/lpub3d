@@ -111,7 +111,6 @@ CONFIG(debug, debug|release) {
     LIBS += -L$$DESTDIR/../../ldrawini/debug -l$$LDRAWINI_LIB
     !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/debug -l$$QUAZIP_LIB
     # executable target name
-    macx: TARGET = $$join(TARGET,,,_debug$$VER_MAJOR$$VER_MINOR)
     win32: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
 } else {
     message("~~~ MAIN_APP RELEASE build ~~~")
@@ -318,20 +317,10 @@ macx {
     CONFIG(release, debug|release) {
         libquazip.files += \
             $$DESTDIR/../../quazip/release/libQuaZIP.0.dylib
-
-#            $$DESTDIR/../../quazip/release/libQuaZIP.dylib \
-#            $$DESTDIR/../../quazip/release/libQuaZIP.0.dylib \
-#            $$DESTDIR/../../quazip/release/libQuaZIP.0.7.dylib \
-#            $$DESTDIR/../../quazip/release/libQuaZIP.0.7.2.dylib
         libquazip.path = Contents/Libs
 
         libldrawini.files += \
             $$DESTDIR/../../ldrawini/release/libLDrawIni.16.dylib
-
-#            $$DESTDIR/../../ldrawini/release/libLDrawIni.dylib \
-#            $$DESTDIR/../../ldrawini/release/libLDrawIni.16.dylib \
-#            $$DESTDIR/../../ldrawini/release/libLDrawIni.16.1.dylib \
-#            $$DESTDIR/../../ldrawini/release/libLDrawIni.16.1.8.dylib
         libldrawini.path = Contents/Libs
     }
 

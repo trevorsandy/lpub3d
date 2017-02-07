@@ -6,11 +6,15 @@
 # $ ./CreateRpm.sh
 
 WORK_DIR=`pwd`
-LOG="${WORK_DIR}/CreateRpm.log"
 BUILD_DATE=`date "+%Y%m%d"`
 CHANGE_DATE=`date "+%a %b %d %Y"`
+# logging stuff
+LOG="${WORK_DIR}/CreateRpm.log"
+exec > >(tee -a ${LOG} )
+exec 2> >(tee -a ${LOG} >&2)
 
-echo "1. create RPM build working directories" >> $LOG
+echo "Start..."
+echo "1. create RPM build working directories"
 if [ ! -d rpmbuild ]
 then
     mkdir rpmbuild
@@ -25,10 +29,10 @@ do
 done
 cd SOURCES
 
-echo "2. download source" >> $LOG
+echo "2. download source"
 git clone https://github.com/trevorsandy/lpub3d.git
 
-echo "3. update version info" >> $LOG
+echo "3. update version info"
 # - get version info
 if [ "$1" = "" ]
 then
@@ -79,7 +83,7 @@ else
     echo "Error: Cannot read ${SFILE}"
 fi
 
-echo "4. create tarball" >> $LOG
+echo "4. create tarball"
 tar -czvf lpub3d.git.tar.gz lpub3d \
         --exclude="lpub3d/builds/linux/standard" \
         --exclude="lpub3d/builds/osx" \
@@ -90,16 +94,16 @@ tar -czvf lpub3d.git.tar.gz lpub3d \
         --exclude="lpub3d/_config.yml" \
         --exclude="lpub3d/.gitignore"
 
-echo "5. copy xpm icon to SOURCES/" >> $LOG
+echo "5. copy xpm icon to SOURCES/"
 cp -f lpub3d/mainApp/images/lpub3d.xpm .
 
-echo "6. copy spec to SPECS/" >> $LOG
+echo "6. copy spec to SPECS/"
 cp -f lpub3d/builds/linux/obs/lpub3d.spec ../SPECS/
 
-echo "7. remove cloned repository from SOURCES/" >> $LOG
+echo "7. remove cloned repository from SOURCES/"
 #rm -rf lpub3d
 
-echo "8. update spec version and date time" >> $LOG
+echo "8. update spec version and date time"
 cd ../SPECS
 VPATTERN="{X.XX.XX.XXX}"
 SFILE="lpub3d.spec"
@@ -111,24 +115,24 @@ else
     echo "Error: Cannot read ${SFILE}"
 fi
 
-echo "9. build the RPM package (success = 'exit 0')" >> $LOG
+echo "9. build the RPM package (success = 'exit 0')"
 rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -v -ba lpub3d.spec
 
 cd ../RPMS/x86_64
 DISTRO_FILE=`find -name "lpub3d-${APP_VERSION}*.rpm"`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "10. create update and download files" >> $LOG
+    echo "10. create update and download files"
     IFS=- read NAME VERSION ARCH_EXTENSION <<< ${DISTRO_FILE}
 
     cp -f ${DISTRO_FILE} "lpub3d-${APP_VERSION_LONG}_${ARCH_EXTENSION}"
-    echo "    Download file: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}" >> $LOG
+    echo "    Download file: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}"
 
     mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
-    echo "      Update file: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}" >> $LOG
+    echo "      Update file: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
 else
-    echo "10. package file not found." >> $LOG
+    echo "10. package file not found."
 fi
 
-echo "Finished!" >> $LOG
+echo "Finished!"
 mv $LOG "${WORK_DIR}/rpmbuild/CreateRpm.log"
