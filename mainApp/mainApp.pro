@@ -127,7 +127,7 @@ CONFIG(debug, debug|release) {
             !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/release -lQuaZIP
         }
     }
-    TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
+    !macx: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -514,6 +514,7 @@ OTHER_FILES += \
     lpub3d.xml \
     lpub3d.sh \
     lpub3d.1 \
+    ../builds/osx/CreateDmg.sh \
     ../builds/linux/CreateRpm.sh \
     ../builds/linux/CreateDeb.sh \
     ../builds/linux/CreatePkg.sh \
@@ -526,7 +527,6 @@ OTHER_FILES += \
     ../builds/windows/setup/CreateExe.bat \
     ../builds/windows/setup/LPub3DNoPack.nsi \
     ../builds/windows/setup/nsisFunctions.nsh \
-    ../builds/osx/CreateDmg.sh \
     ../builds/utilities/Copyright-Source-Headers.txt \
     ../builds/utilities/README.md \
     ../README.md \
@@ -536,8 +536,7 @@ RESOURCES += \
     lpub3d.qrc
 
 DISTFILES += \
-    ldraw_document.icns \
-    ../builds/windows/setup/CreateExe.bat
+    ldraw_document.icns
 
 #message($$CONFIG)
 
