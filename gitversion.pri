@@ -118,10 +118,8 @@ win32 {
 
     # On Mac, update Info.plist with executable name which includes version details and full version
     macx {
-        EXECUTABLE = LPub3D$${VER_MAJOR}$${VER_MINOR}
         INFO_PLIST_FILE = $$PWD/mainApp/Info.plist
         PLIST_COMMAND = /usr/libexec/PlistBuddy -c
-        RESULT = $$system( $$PLIST_COMMAND \"Set :CFBundleExecutable $${EXECUTABLE}\" $$shell_quote($${INFO_PLIST_FILE}) )
         RESULT = $$system( $$PLIST_COMMAND \"Set :CFBundleShortVersionString $${VERSION}\" $$shell_quote($${INFO_PLIST_FILE}) )
         RESULT = $$system( $$PLIST_COMMAND \"Set :CFBundleVersion $${VER_BUILD_STR}\" $$shell_quote($${INFO_PLIST_FILE}) )
         RESULT = $$system( $$PLIST_COMMAND \"Set :com.trevorsandy.lpub3d.GitSHA $${VER_SHA_HASH_STR}\" $$shell_quote($${INFO_PLIST_FILE}) )

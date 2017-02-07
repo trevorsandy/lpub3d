@@ -66,7 +66,7 @@
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
-	<string>LPub3D10</string>
+        <string>LPub3D</string>
 	<key>CFBundleIconFile</key>
 	<string>lpub3d.icns</string>
 	<key>CFBundleIdentifier</key>
