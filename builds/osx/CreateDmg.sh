@@ -5,13 +5,12 @@
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
 
+WORK_DIR=`pwd`
+BUILD_DATE=`date "+%Y%m%d"`
 # logging stuff
 LOG="${WORK_DIR}/CreateDmg.log"
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
-
-WORK_DIR=`pwd`
-BUILD_DATE=`date "+%Y%m%d"`
 
 echo "Start"
 export PATH=~/Qt/IDE/5.7/clang_64:~/Qt/IDE/5.7/clang_64/bin:$PATH
@@ -24,6 +23,10 @@ fi
 cd dmgbuild
 
 echo "2. download source"
+if [ -d lpub3d ]
+then
+    rm -rf lpub3d
+fi
 git clone https://github.com/trevorsandy/lpub3d.git
 
 echo "3. capture version and date info"
@@ -39,7 +42,6 @@ then
         VERSION=${S_VERSION//'"'}
         APP_VERSION=${VERSION}"."${BUILD}
         APP_VERSION_LONG=${VERSION}"."${REVISION}"."${BUILD}_${BUILD_DATE}
-		echo "S_VERSION..........${S_VERSION}"
         echo "REVISION...........${REVISION}"
         echo "BUILD..............${BUILD}"
         echo "SHA_HASH...........${S_SHA_HASH//'"'}"
@@ -90,39 +92,39 @@ cp -R ../../mainApp/release/${LPUB3D_APP} .
 
 echo "8. install library links"
 #/usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.dylib ${LPUB3D_APP}/Contents/Libs/libLDrawIni.dylib
-#/usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib ${LPUB3D_APP}/Contents/Libs/libLDrawIni.16.dylib
+/usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib ${LPUB3D_APP}/Contents/Libs/libLDrawIni.16.dylib
 #/usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.1.dylib ${LPUB3D_APP}/Contents/Libs/libLDrawIni.16.1.dylib
-/usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.1.8.dylib ${LPUB3D_APP}/Contents/Libs/libLDrawIni.16.1.8.dylib
+#/usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.1.8.dylib ${LPUB3D_APP}/Contents/Libs/libLDrawIni.16.1.8.dylib
 
 #/usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.dylib ${LPUB3D_APP}/Contents/Libs/libQuaZIP.dylib
-#/usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.0.dylib ${LPUB3D_APP}/Contents/Libs/libQuaZIP.0.dylib
+/usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.0.dylib ${LPUB3D_APP}/Contents/Libs/libQuaZIP.0.dylib
 #/usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.0.7.dylib ${LPUB3D_APP}/Contents/Libs/libQuaZIP.0.7.dylib
-/usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.0.7.2.dylib ${LPUB3D_APP}/Contents/Libs/libQuaZIP.0.7.2.dylib
+#/usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.0.7.2.dylib ${LPUB3D_APP}/Contents/Libs/libQuaZIP.0.7.2.dylib
 
 echo "9. change mapping to LPub3D"
 #/usr/bin/install_name_tool -change libLDrawIni.dylib @executable_path/../Libs/libLDrawIni.dylib ${LPUB3D_APP}/Contents/MacOS/LPub3D${VER_SUFFIX}
-#/usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib ${LPUB3D_APP}/Contents/MacOS/LPub3D${VER_SUFFIX}
+/usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib ${LPUB3D_APP}/Contents/MacOS/LPub3D${VER_SUFFIX}
 #/usr/bin/install_name_tool -change libLDrawIni.16.1.dylib @executable_path/../Libs/libLDrawIni.16.1.dylib ${LPUB3D_APP}/Contents/MacOS/LPub3D${VER_SUFFIX}
-/usr/bin/install_name_tool -change libLDrawIni.16.1.8.dylib @executable_path/../Libs/libLDrawIni.16.1.8.dylib ${LPUB3D_APP}/Contents/MacOS/LPub3D${VER_SUFFIX}
+#/usr/bin/install_name_tool -change libLDrawIni.16.1.8.dylib @executable_path/../Libs/libLDrawIni.16.1.8.dylib ${LPUB3D_APP}/Contents/MacOS/LPub3D${VER_SUFFIX}
 
 #/usr/bin/install_name_tool -change libQuaZIP.dylib @executable_path/../Libs/libQuaZIP.dylib ${LPUB3D_APP}/Contents/MacOS/LPub3D${VER_SUFFIX}
-#/usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib ${LPUB3D_APP}/Contents/MacOS/LPub3D${VER_SUFFIX}
+/usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib ${LPUB3D_APP}/Contents/MacOS/LPub3D${VER_SUFFIX}
 #/usr/bin/install_name_tool -change libQuaZIP.0.7.dylib @executable_path/../Libs/libQuaZIP.0.7.dylib ${LPUB3D_APP}/Contents/MacOS/LPub3D${VER_SUFFIX}
-/usr/bin/install_name_tool -change libQuaZIP.0.7.2.dylib @executable_path/../Libs/libQuaZIP.0.7.2.dylib ${LPUB3D_APP}/Contents/MacOS/LPub3D${VER_SUFFIX}
+#/usr/bin/install_name_tool -change libQuaZIP.0.7.2.dylib @executable_path/../Libs/libQuaZIP.0.7.2.dylib ${LPUB3D_APP}/Contents/MacOS/LPub3D${VER_SUFFIX}
 
 echo "10. bundle LPub3D"
 macdeployqt ${LPUB3D_APP} -verbose=1 -executable=${LPUB3D_APP}/Contents/MacOS/LPub3D${VER_SUFFIX} -always-overwrite
 
 echo "11. change library dependency mapping"
 #/usr/bin/install_name_tool -change libLDrawIni.dylib @executable_path/../Libs/libLDrawIni.dylib ${LPUB3D_APP}/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
-#/usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib ${LPUB3D_APP}/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
+/usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib ${LPUB3D_APP}/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 #/usr/bin/install_name_tool -change libLDrawIni.16.1.dylib @executable_path/../Libs/libLDrawIni.16.1.dylib ${LPUB3D_APP}/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
-/usr/bin/install_name_tool -change libLDrawIni.16.1.8.dylib @executable_path/../Libs/libLDrawIni.16.1.8.dylib ${LPUB3D_APP}/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
+#/usr/bin/install_name_tool -change libLDrawIni.16.1.8.dylib @executable_path/../Libs/libLDrawIni.16.1.8.dylib ${LPUB3D_APP}/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 
 #/usr/bin/install_name_tool -change libQuaZIP.dylib @executable_path/../Libs/libQuaZIP.dylib ${LPUB3D_APP}/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
-#/usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib ${LPUB3D_APP}/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
+/usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib ${LPUB3D_APP}/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 #/usr/bin/install_name_tool -change libQuaZIP.0.7.dylib @executable_path/../Libs/libQuaZIP.0.7.dylib ${LPUB3D_APP}/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
-/usr/bin/install_name_tool -change libQuaZIP.0.7.2.dylib @executable_path/../Libs/libQuaZIP.0.7.2.dylib ${LPUB3D_APP}/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
+#/usr/bin/install_name_tool -change libQuaZIP.0.7.2.dylib @executable_path/../Libs/libQuaZIP.0.7.2.dylib ${LPUB3D_APP}/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 
 echo "12. generate lpub3d.json and README.txt"
 cat <<EOF >lpub3d.json
