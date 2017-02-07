@@ -52,16 +52,16 @@ echo "APP_VERSION .......${APP_VERSION}"
 echo "APP_VERSION_LONG...${APP_VERSION_LONG}"
 OLDIFS=$IFS
 IFS='.'
-while read read VER_MAJOR VER_MINOR VER_PACK VER_BUILD 
-do 
-	 VER_SUFFIX=${VER_MAJOR}${VER_MINOR}
-	 echo "VER_MAJOR..........${VER_MAJOR}"
-	 echo "VER_MINOR..........${VER_MINOR}"
-	 echo "VER_PACK...........${VER_PACK}"
-	 echo "VER_BUILD..........${VER_BUILD}"
-	 echo "VER_SUFFIX.........${VER_SUFFIX}"
-done < ${APP_VERSION}
+read VER_MAJOR VER_MINOR VER_PACK VER_BUILD <<EOF
+${APP_VERSION}
+EOF
 IFS=$OLDIFS
+VER_SUFFIX=${VER_MAJOR}${VER_MINOR}
+echo "VER_MAJOR..........${VER_MAJOR}"
+echo "VER_MINOR..........${VER_MINOR}"
+echo "VER_PACK...........${VER_PACK}"
+echo "VER_BUILD..........${VER_BUILD}"
+echo "VER_SUFFIX.........${VER_SUFFIX}"
 
 echo "4. get ldraw archive libraries" >> $LOG
 curl "http://www.ldraw.org/library/updates/complete.zip" -o "mainApp/extras/complete.zip"
