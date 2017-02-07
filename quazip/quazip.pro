@@ -50,13 +50,13 @@ else: TARGET = QuaZIP
 CONFIG(debug, debug|release) {
     message("~~~ QUAZIP DEBUG build ~~~")
     DESTDIR = debug
-    macx: TARGET = $$join(TARGET,,,_debug07)
+    macx: TARGET = $$join(TARGET,,,_debug)
     win32: TARGET = $$join(TARGET,,,d07)
     unix:!macx: TARGET = $$join(TARGET,,,d)
 } else {
     message("~~~ QUAZIP RELEASE build ~~~")
     DESTDIR = release
-    win32:macx: TARGET = $$join(TARGET,,,07)
+    win32: TARGET = $$join(TARGET,,,07)
 }
 
 OBJECTS_DIR = $$DESTDIR/.obj

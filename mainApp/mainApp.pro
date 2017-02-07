@@ -96,8 +96,8 @@ CONFIG(debug, debug|release) {
     DEFINES += QT_DEBUG_MODE
     DESTDIR = debug
     macx {
-        LDRAWINI_LIB = LDrawIni_debug161
-        QUAZIP_LIB = QuaZIP_debug07
+        LDRAWINI_LIB = LDrawIni_debug
+        QUAZIP_LIB = QuaZIP_debug
     }
     win32 {
         LDRAWINI_LIB = LDrawInid161
@@ -107,9 +107,10 @@ CONFIG(debug, debug|release) {
         LDRAWINI_LIB = ldrawinid
         QUAZIP_LIB = quazipd
     }
+    # library target name
     LIBS += -L$$DESTDIR/../../ldrawini/debug -l$$LDRAWINI_LIB
     !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/debug -l$$QUAZIP_LIB
-
+    # executable target name
     macx: TARGET = $$join(TARGET,,,_debug$$VER_MAJOR$$VER_MINOR)
     win32: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
 } else {
@@ -119,9 +120,13 @@ CONFIG(debug, debug|release) {
         LIBS += -L$$DESTDIR/../../ldrawini/release -lldrawini
         !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/release -lquazip
     } else {
-
-        LIBS += -L$$DESTDIR/../../ldrawini/release -lLDrawIni161
-        !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/release -lQuaZIP07
+        win32 {
+            LIBS += -L$$DESTDIR/../../ldrawini/release -lLDrawIni161
+            !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/release -lQuaZIP07
+        } else {
+            LIBS += -L$$DESTDIR/../../ldrawini/release -lLDrawIni
+            !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/release -lQuaZIP
+        }
     }
     TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
 }
@@ -311,10 +316,18 @@ macx {
     ldraw_library.path = Contents/Resources
 
     CONFIG(release, debug|release) {
-        libquazip.files += $$DESTDIR/../../../quazip/release/libQuaZip161.1.dylib
+        libquazip.files += \
+#            $$DESTDIR/../../quazip/release/libQuaZIP.dylib \
+#            $$DESTDIR/../../quazip/release/libQuaZIP.0.dylib \
+#            $$DESTDIR/../../quazip/release/libQuaZIP.0.7.dylib \
+            $$DESTDIR/../../quazip/release/libQuaZIP.0.7.2.dylib
         libquazip.path = Contents/Libs
 
-        libldrawini.files += $$DESTDIR/../../../ldrawini/release/libLDrawIni07.1.dylib
+        libldrawini.files += \
+#            $$DESTDIR/../../ldrawini/release/libLDrawIni.dylib \
+#            $$DESTDIR/../../ldrawini/release/libLDrawIni.16.dylib \
+#            $$DESTDIR/../../ldrawini/release/libLDrawIni.16.1.dylib \
+            $$DESTDIR/../../ldrawini/release/libLDrawIni.16.1.8.dylib
         libldrawini.path = Contents/Libs
     }
 

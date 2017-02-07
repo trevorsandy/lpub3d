@@ -37,13 +37,13 @@ else: TARGET = LDrawIni
 CONFIG(debug, debug|release) {
     message("~~~ LDRAWINI DEBUG build ~~~")
     DESTDIR = debug
-    macx: TARGET = $$join(TARGET,,,_debug161)
+    macx: TARGET = $$join(TARGET,,,_debug)
     win32: TARGET = $$join(TARGET,,,d161)
     unix:!macx: TARGET = $$join(TARGET,,,d)
 } else {
     message("~~~ LDRAWINI RELEASE build ~~~")
     DESTDIR = release
-    win32:macx: TARGET = $$join(TARGET,,,161)
+    win32: TARGET = $$join(TARGET,,,161)
 }
 
 OBJECTS_DIR = $$DESTDIR/.obj
