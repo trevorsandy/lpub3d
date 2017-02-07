@@ -804,9 +804,33 @@ void Preferences::ldrawPreferences(bool force)
 
     } else {
 
-        QString question = QMessageBox::tr("You must enter your LDraw directory. \nDo you wish to continue?");
-        if (QMessageBox::question(NULL, "LDraw3D", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+        QPixmap _icon = QPixmap(":/icons/lpub96.png");
+        QMessageBox box;
+        box.setWindowIcon(QIcon());
+        box.setIconPixmap (_icon);
+        box.setTextFormat (Qt::RichText);
+        box.setWindowTitle(QMessageBox::tr ("LDraw Directory"));
+        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+
+        QString header = "<b>" + QMessageBox::tr ("No LDraw library defined!") + "</b>";
+        QString body = QMessageBox::tr ("You must enter your LDraw library path. \nDo you wish to continue?");
+        QString detail = QMessageBox::tr ("The LDraw library is required by the LPub3D renderer(s)."
+                                          "If an LDraw library is not defined, the renderer will not"
+                                          "be able to find the parts and primitives needed to render images.");
+
+        box.setText (header);
+        box.setInformativeText (body);
+        box.setDetailedText(detail);
+        box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+
+        if (box.exec() != QMessageBox::Yes) {
+
             exit(-1);
+
+        } else {
+
+            ldrawPreferences(false);
+        }
     }
 #ifdef Q_OS_MAC
         if (! lpub3dLoaded && Application::instance()->splash->isHidden())

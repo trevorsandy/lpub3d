@@ -39,7 +39,7 @@ LDrawColor::LDrawColor ()
 {
   name2color.clear();
   color2name.clear();
-  QString ldrawFileName(Preferences::ldrawPath + "/ldconfig.ldr");
+  QString ldrawFileName(Preferences::ldrawPath + "/LDConfig.ldr");
   QFile file(ldrawFileName);
   // try default location
   if (! file.open(QFile::ReadOnly | QFile::Text)) {
