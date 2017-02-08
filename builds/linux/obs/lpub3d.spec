@@ -76,7 +76,7 @@ License: GPLv3+
 %endif
 
 # package attributes
-Name: LPub3D
+Name: lpub3d
 Icon: lpub3d.xpm
 Summary: An LDraw Building Instruction Editor
 Version: %{version}
