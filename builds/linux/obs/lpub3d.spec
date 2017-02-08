@@ -76,7 +76,7 @@ License: GPLv3+
 %endif
 
 # package attributes
-Name: lpub3d
+Name: LPub3D
 Icon: lpub3d.xpm
 Summary: An LDraw Building Instruction Editor
 Version: %{version}
@@ -138,20 +138,6 @@ BuildRequires: -post-build-checks
  © 2015-2017 Trevor SANDY
 
 %prep
-if [ -f lpub3d-*.tar.gz ] ; then 
-	mv lpub3d-*.tar.gz lpub3d	
-else
-	ls
-	git clone https://github.com/trevorsandy/lpub3d.git lpub3d
-	tar -czvf lpub3d.tar.gz lpub3d \
-	  --exclude="lpub3d/tools" \
-	  --exclude="lpub3d/builds/linux/standard" \
-	  --exclude="lpub3d/builds/osx" \
-	  --exclude="lpub3d/.git" \
-	  --exclude="lpub3d/LPub3D.pro.user" \
-	  --exclude="lpub3d/LPub3Dx11.pro.user" \
-	  --exclude="lpub3d/.gitignore"
-fi
 %autosetup -n %{name}
 
 %build

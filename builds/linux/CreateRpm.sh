@@ -84,7 +84,7 @@ else
 fi
 
 echo "4. create tarball"
-tar -czvf lpub3d.git.tar.gz lpub3d \
+tar -czvf lpub3d.git.tar.gz \
         --exclude="lpub3d/builds/linux/standard" \
         --exclude="lpub3d/builds/osx" \
         --exclude="lpub3d/.git" \
@@ -92,7 +92,7 @@ tar -czvf lpub3d.git.tar.gz lpub3d \
         --exclude="lpub3d/LPub3D.pro.user" \
         --exclude="lpub3d/README.md" \
         --exclude="lpub3d/_config.yml" \
-        --exclude="lpub3d/.gitignore"
+        --exclude="lpub3d/.gitignore" lpub3d
 
 echo "5. copy xpm icon to SOURCES/"
 cp -f lpub3d/mainApp/images/lpub3d.xpm .
@@ -101,7 +101,7 @@ echo "6. copy spec to SPECS/"
 cp -f lpub3d/builds/linux/obs/lpub3d.spec ../SPECS/
 
 echo "7. remove cloned repository from SOURCES/"
-#rm -rf lpub3d
+rm -rf lpub3d
 
 echo "8. update spec version and date time"
 cd ../SPECS
