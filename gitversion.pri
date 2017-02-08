@@ -11,17 +11,22 @@ win32 {
 # Default location of Git directory
 exists($$PWD/.git) {
     GIT_DIR=$$PWD/.git
-    message(GIT_DIR $$GIT_DIR)
+    message(~~~ GIT_DIR [DEFAULT] $$GIT_DIR)
 }
 # Location of Git directory when building pkg package
 exists($$PWD/../upstream/lpub3d/.git) {
     GIT_DIR=$$PWD/../upstream/lpub3d/.git
-    message(GIT_DIR $$GIT_DIR)
+    message(~~~ GIT_DIR [PKG] $$GIT_DIR)
+}
+# Location of Git directory when building rpm package
+exists($$PWD/../../SOURCES/lpub3d/.git) {
+    GIT_DIR=$$PWD/../../SOURCES/lpub3d/.git
+    message(~~~ GIT_DIR [RPM] $$GIT_DIR)
 }
 # Location of Git directory when building deb package
 exists($$PWD/../../upstream/lpub3d/.git) {
     GIT_DIR=$$PWD/../../upstream/lpub3d/.git
-    message(GIT_DIR $$GIT_DIR)
+    message(~~~ GIT_DIR [DEB] $$GIT_DIR)
 }
 
 # Need to call git with manually specified paths to repository
