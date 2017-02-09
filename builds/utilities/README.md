@@ -1,161 +1,94 @@
 ### ___________ BUILDING LPUB3D FROM SOURCE ___________
 
-If you would like to create your own LPub3D install package, these notes might be helpful.
+If you prefer to create your own LPub3D install package, these notes might be helpful.
 
-**NOTE** *LPub3D requires Qt5 to build successfully so you must have this version of Qt or higher installed. If Qt5 is not already bundled in your environment, you can install using:*
+**Cross-platform Dependencies** *LPub3D requires Qt5. You can install, if not available, using:*
 - DMG package: 		Download and install Qt from [Qt website][qtwebsite]
-- DEB package: 		`$ sudo apt-get install qtbase5-dev`
-- RPM package: 		`$ sudo yum install qt5-qtbase-devel`
-- PKG.TAR.XZ package: 	`$ sudo pacman -S qt5-base qt5-tools` *(not required because makepkg flag will automatically download package dependencies.)*
+- DEB package: 		`$ sudo apt-get install qtbase5-dev qt5-qmake`
+- RPM package: 		`$ sudo dnf install qt5-qtbase-devel`
+- PKG.TAR.XZ package: 	`$ sudo pacman -S qt5-base qt5-tools` *(not required, dependencies automatically downloaded.)*
 
-*Source signing in the steps below uses* [GnuPG][gnupg] *also known as GPG.*
-
-*The 'DEB' packaging steps below uses* [Bazaar][bazzar] *version control.*
+*Additional dependencies include:*
+- git
 
 #### ___________ MAC: BUILD OSX ‘DMG’ PACKAGE ___________
 
-**NOTE** *The build script CreateDmg.sh uses the non-native 3-rd party application [node-appdmg][appdmg] to perform final packaging tasks. If you will use the steps below to build LPub3D for OSX, be sure to install node-appdmg prior.*
+**Platform-specific Dependencies:**
+- [Xcode][xcode]
+- [Homebrew][homebrew]          `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
+- [node-appdmg][appdmg]         `npm install -g appdmg`
 
 - [ ] 1. enter directory
-`$ cd ~/Projects/lpub3d/builds/osx`
-- [ ] 2. enable execute permissions on packaging script
+`$ cd ~/`
+- [ ] 2. get [CreateDmg.sh][createdmg] packaging script
+`$ curl "https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/osx/CreateDmg.sh" -o "CreateDmg.sh"`
+- [ ] 3. enable execute permissions
 `$ chmod 755 CreateDmg.sh`
-- [ ] 2. execute package script
+- [ ] 4. execute package script
 `$ ./CreateDmg.sh`
-- [ ] 3. install the package availavble in ./release directory
-- [ ] 4. have a :beer:
-
+- [ ] 5. mount and install either package availavble in ./dmgbuild/DMGS/LPub3D_2.0.20.0.645_20170208_osx.dmg
+- [ ] 6. have a :beer:
 
 #### ___________ LINUX: BUILD ARCH 'PKG.TAR.XZ' PACKAGE ___________
 
-- [ ] 1. enter directory
-`$ cd ~/pkgbuild`
-- [ ] 2. make extraction and src directories [one-time only]
-`$ mkdir upstream`
-`$ cd upstream`
-- [ ] 3. download source
-`$ git clone https://github.com/trevorsandy/lpub3d.git`
-- [ ] 4. create working tarball
-```sh
-$ tar -czvf ../lpub3d.git.tar.gz \
-        --exclude="lpub3d/builds/linux/standard" \
-        --exclude="lpub3d/builds/osx" \
-        --exclude="lpub3d/.git" \
-        --exclude="lpub3d/.gitattributes" \
-        --exclude="lpub3d/LPub3D.pro.user" \
-        --exclude="lpub3d/README.md" \
-        --exclude="lpub3d/_config.yml" \
-        --exclude="lpub3d/.gitignore" lpub3d
-```
-- [ ] 5. change directory
-`$ cd ../`
-- [ ] 6. copy PKGBUILD
-`$ cp upstream/lpub3d/builds/linux/obs/PKGBUILD .`
-- [ ] 7. create package, use '-s' flag to enabe automatic dependency handling
-`$ makepkg -s`
-- [ ] 8. sign package
-`$ gpg --detach-sign lpub3d-2.0.20-1-x86_64.pkg.tar.xz`
-- [ ] 9. install package
-`$ pacman -U lpub3d-2.0.20-1-x86_64.pkg.tar.xz`
-- [ ] 10. have a :beer:
+**Platform-specific Dependencies:**
 
+- [ ] 1. enter directory
+`$ cd ~/`
+- [ ] 2. get [CreatePkg.sh][createpkg] packaging script
+`$  wget https://raw.github.com/trevorsandy/lpub3d/master/builds/linux/CreatePkg.sh`
+- [ ] 3. enable execute permissions
+`$ chmod 755 CreatePkg.sh`
+- [ ] 4. execute package script
+`$ ./CreatePkg.sh`
+- [ ] 5. install either package availavble in ./pkgbuild
+`$ sudo pacman -U pkgbuild/lpub3d-2.0.20.0.645_20170208_1_x86_64.pkg.tar.xz`
+- [ ] 6. have a :beer:
 
 #### ___________ LINUX: BUILD UBUNTU/DEBIAN 'DEB' PACKAGE ___________
 
-- [ ] 1. enter directory
-`$ cd ~/debbuild`
-- [ ] 2. make extraction directory [one-time only]
-`$ mkdir upstream`
-`$ cd upstream`
-- [ ] 3. download source
-`$ git clone https://github.com/trevorsandy/lpub3d.git`
-- [ ] 4. create working tarball
-```sh
-$ tar -czvf lpub3d.git.tar.gz lpub3d \
-        --exclude="lpub3d/builds/linux/standard" \
-        --exclude="lpub3d/builds/osx" \
-        --exclude="lpub3d/.git" \
-        --exclude="lpub3d/.gitattributes" \
-        --exclude="lpub3d/LPub3D.pro.user" \
-        --exclude="lpub3d/README.md" \
-        --exclude="lpub3d/_config.yml" \
-        --exclude="lpub3d/.gitignore"
-```
-- [ ] 5. change directory
-`$ cd ../`
-- [ ] 6. create package: Name, Version, Path to tarball
-`$ bzr dh-make lpub3d 2.0.20 upstream/lpub3d.git.tar.gz`
-- [ ] 7. delete unneeded debian example files
-`$ cd lpub3d/debian`
-`$ rm *ex *EX`
-- [ ] 8. edit/copy debian build files as necessary - update app version
-`$ cp -rf ../../upstream/lpub3d/builds/linux/obs/debian/* .`
-- [ ] 9. add format to package source
-`$ bzr add source/format`
-- [ ] 10. test build the package
-`$ bzr builddeb -- -us -uc`
-- [ ] 11. review lintian report
-  ...
-- [ ] 12. rebuild package [if needed] - using 'nc' no clean
-`$ bzr builddeb -- -nc -us -uc`
-- [ ] 13. view contents
-`$ cd ../../`
-`$ lesspipe lpub3d_2.0.20-0ubuntu1_amd64.deb`
-- [ ] 14. install the package
-`$ sudo dpkg --install lpub3d_2.0.20-0ubuntu1_amd64.deb`
-- [ ] 15. check all is well by running:
-`$ sudo apt-get -f install`
-- [ ] 17. launch LPub3D
-`$ lpub3d`
-- [ ] 18. uninstall
-`$ sudo apt-get remove lpub3d`
-- [ ] 19. sign build
-`$ cd lpub3d/debian`
-`$ bzr builddeb -S`
-- [ ] 20. test build in clean environment
-`$ cd ../../build-area`
-`$ pbuilder-dist trusty build lpub3d_2.0.20-0ubuntu1.dsc`
-- [ ] 21. have a :beer:
+**Platform-specific Dependencies:**
+- [Bazaar][bazzar]        `$ sudo apt-get install bzr-builddeb`
+- dh-make                 `$ sudo apt-get install dh-make`
 
+- [ ] 1. enter directory
+`$ cd ~/`
+- [ ] 2. get [CreateDeb.sh][createdeb] packaging script
+`$  wget https://raw.github.com/trevorsandy/lpub3d/master/builds/linux/CreateDeb.sh`
+- [ ] 3. enable execute permissions
+`$ chmod 755 CreateDeb.sh`
+- [ ] 4. execute package script
+`$ ./CreateDeb.sh`
+- [ ] 5. install either package availavble in ./debbuild
+`$ sudo dpkg --install debbuild/lpub3d_2.0.20.0.645_20170208_0ubuntu1_amd64.deb`
+- [ ] 6. have a :beer:
 
 #### ___________ LINUX: BUILD REDHAT/SUSE 'RPM' PACKAGE ___________
 
-- [ ] 1. enter directory
-`$ cd ~/rpmbuild`
-- [ ] 2. create directory tree BUILD, BUILDROOT, RPMS, SOURCES, SPECS, SRPMS [one-time only]
-`$ rpmdev-setuptree`
-- [ ] 3. enter SOURCES directory
-`$ cd SOURCES`
-- [ ] 4. download source
-`$ git clone https://github.com/trevorsandy/lpub3d.git`
-- [ ] 5. copy xpm icon to SOURCES/
-`$ cp ~/rpmbuild/SOURCES/lpub3d/mainApp/images/lpub3d.xpm .`
-- [ ] 6. copy spec to SPECS/
-`$ cp ~/rpmbuild/SOURCES/lpub3d/builds/linux/obs/lpub3d.spec ../SPECS/`
-- [ ] 7. check spec file and update app version
-`$ cat ../SPECS/lpub3d.spec`
-- [ ] 8. create working tarball
-```sh
-$ tar -czvf lpub3d.git.tar.gz lpub3d \
-        --exclude="lpub3d/builds/linux/standard" \
-        --exclude="lpub3d/builds/osx" \
-        --exclude="lpub3d/.git" \
-        --exclude="lpub3d/.gitattributes" \
-        --exclude="lpub3d/LPub3D.pro.user" \
-        --exclude="lpub3d/README.md" \
-        --exclude="lpub3d/_config.yml" \
-        --exclude="lpub3d/.gitignore"
-```
-- [ ] 9. remove cloned repository from SOURCES/
-`$ rm -rf lpub3d`
-- [ ] 10. build and sign the RPM package (success = 'exit 0')
-`$ cd ../SPECS`
-`$ rpmbuild -v -ba --sign lpub3d.spec`
-**NOTE** *for details on how to sign an RPM package with GPG key
- see https://gist.github.com/fernandoaleman/1376720*
-- [ ] 11. have a :beer:
+**Platform-specific Dependencies:**
+- qca                   `sudo dnf install qca`
+- zlib-devel            `sudo dnf install zlib-devel`
+- gnu-free-sans-fonts   `sudo dnf install gnu-free-sans-fonts`
 
+- [ ] 1. enter directory
+`$ cd ~/`
+- [ ] 2. get [CreateRpm.sh][createrpm] packaging script
+`$  wget https://raw.github.com/trevorsandy/lpub3d/master/builds/linux/CreateRpm.sh`
+- [ ] 3. enable execute permissions
+`$ chmod 755 CreateRpm.sh`
+- [ ] 4. execute package script
+`$ ./CreateRpm.sh`
+- [ ] 5. install either package availavble in ./rpmbuild/RPMS/x86_64
+`$ sudo rpm -U rpmbuild/RPMS/x86_64/lpub3d-2.0.20.0.645_20170208_1fedora.x86_64.rpm`
+- [ ] 6. have a :beer:
+
+[xcode]:        https://developer.apple.com/xcode/downloads/
+[homebrew]:     brew.sh
 [appdmg]: 	https://github.com/LinusU/node-appdmg
-[gnupg]: 	https://www.gnupg.org
 [bazzar]: 	bazaar.canonical.com/en/
 [qtwebsite]:    https://www.qt.io/download/
+
+[createdmg]:		https://github.com/trevorsandy/lpub3d/blob/master/builds/osx/CreateDmg.sh
+[createrpm]:		https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreateRpm.sh
+[createpkg]:		https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreatePkg.sh
+[createdeb]:		https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreateDeb.sh
