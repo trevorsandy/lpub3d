@@ -2,22 +2,23 @@
 
 If you prefer to create your own LPub3D install package, these notes might be helpful.
 
-**Cross-platform Dependencies** *LPub3D requires Qt5. You can install, if not available, using:*
-- DMG package: 		Download and install Qt from [Qt website][qtwebsite]
-- DEB package: 		`$ sudo apt-get install qtbase5-dev qt5-qmake`
-- RPM package: 		`$ sudo dnf install qt5-qtbase-devel`
-- PKG.TAR.XZ package: 	`$ sudo pacman -S qt5-base qt5-tools` *(not required, dependencies automatically downloaded.)*
+**Cross-platform Dependencies:** *LPub3D requires Qt5. You can install, if not available, using:*
+* DMG package: 		Download and install Qt from [Qt website][qtwebsite]
+* DEB package: 		`$ sudo apt-get install qtbase5-dev qt5-qmake`
+* RPM package: 		`$ sudo dnf install qt5-qtbase-devel`
+* PKG.TAR.XZ package: 	`$ sudo pacman -S qt5-base qt5-tools` *(not required, dependencies automatically downloaded.)*
 
 *Additional dependencies include:*
-- git
+*  Git
 
 #### ___________ MAC: BUILD OSX ‘DMG’ PACKAGE ___________
 
 **Platform-specific Dependencies:**
-- [Xcode][xcode]
-- [Homebrew][homebrew]          `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
-- [node-appdmg][appdmg]         `npm install -g appdmg`
+*  [Xcode][xcode]:
+*  [Homebrew][homebrew]:         `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
+*  [node-appdmg][appdmg]:        `npm install -g appdmg`
 
+**Steps**
 - [ ] 1. enter directory
 `$ cd ~/`
 - [ ] 2. get [CreateDmg.sh][createdmg] packaging script
@@ -33,6 +34,7 @@ If you prefer to create your own LPub3D install package, these notes might be he
 
 **Platform-specific Dependencies:**
 
+**Steps**
 - [ ] 1. enter directory
 `$ cd ~/`
 - [ ] 2. get [CreatePkg.sh][createpkg] packaging script
@@ -48,9 +50,10 @@ If you prefer to create your own LPub3D install package, these notes might be he
 #### ___________ LINUX: BUILD UBUNTU/DEBIAN 'DEB' PACKAGE ___________
 
 **Platform-specific Dependencies:**
-- [Bazaar][bazzar]        `$ sudo apt-get install bzr-builddeb`
-- dh-make                 `$ sudo apt-get install dh-make`
+*  [Bazaar][bazzar]:       `$ sudo apt-get install bzr-builddeb`
+*  dh-make:                `$ sudo apt-get install dh-make`
 
+**Steps**
 - [ ] 1. enter directory
 `$ cd ~/`
 - [ ] 2. get [CreateDeb.sh][createdeb] packaging script
@@ -63,13 +66,14 @@ If you prefer to create your own LPub3D install package, these notes might be he
 `$ sudo dpkg --install debbuild/lpub3d_2.0.20.0.645_20170208_0ubuntu1_amd64.deb`
 - [ ] 6. have a :beer:
 
-#### ___________ LINUX: BUILD REDHAT/SUSE 'RPM' PACKAGE ___________
+#### ___________ LINUX: BUILD REDHAT/FEDORA/SUSE 'RPM' PACKAGE ___________
 
 **Platform-specific Dependencies:**
-- qca                   `sudo dnf install qca`
-- zlib-devel            `sudo dnf install zlib-devel`
-- gnu-free-sans-fonts   `sudo dnf install gnu-free-sans-fonts`
+*  qca:                  `sudo dnf install qca`
+*  zlib-devel:           `sudo dnf install zlib-devel`
+*  gnu-free-sans-fonts:  `sudo dnf install gnu-free-sans-fonts`
 
+**Steps**
 - [ ] 1. enter directory
 `$ cd ~/`
 - [ ] 2. get [CreateRpm.sh][createrpm] packaging script
@@ -83,11 +87,10 @@ If you prefer to create your own LPub3D install package, these notes might be he
 - [ ] 6. have a :beer:
 
 [xcode]:        https://developer.apple.com/xcode/downloads/
-[homebrew]:     brew.sh
-[appdmg]: 	https://github.com/LinusU/node-appdmg
-[bazzar]: 	bazaar.canonical.com/en/
+[homebrew]:     http://brew.sh
+[appdmg]: 	    https://github.com/LinusU/node-appdmg
+[bazzar]: 	    bazaar.canonical.com/en/
 [qtwebsite]:    https://www.qt.io/download/
-
 [createdmg]:		https://github.com/trevorsandy/lpub3d/blob/master/builds/osx/CreateDmg.sh
 [createrpm]:		https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreateRpm.sh
 [createpkg]:		https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreatePkg.sh
