@@ -2,7 +2,7 @@
 Title Create archive packaged and windows installer LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: February 02, 2017
+rem  Last Update: February 08, 2017
 rem  Copyright (c) 2015 - 2017 by Trevor Sandy
 rem --
 SETLOCAL
@@ -48,7 +48,7 @@ IF %RUN_NSIS% == 1 (
 ECHO.																					>>  %BuildLog%
 ECHO - Selected build options:															>>  %BuildLog%
 ECHO.  		
-IF %RUN_NSIS% == 0 ECHO - This configuration will allow you to test your NSIS scripts.	>>  %BuildLog%																			>>  %BuildLog%
+IF %RUN_NSIS% == 0 ECHO - This configuration will allow you to test your NSIS scripts.	>>  %BuildLog%
 IF %RUN_NSIS% == 1 ECHO   RUN_NSIS [Yes]												>>  %BuildLog%
 IF %SIGN_APP% == 1 ECHO   SIGN_APP [Yes]												>>  %BuildLog%
 IF %CLEANUP% == 1 ECHO   CLEANUP  [Yes]													>>  %BuildLog%
@@ -375,10 +375,21 @@ IF NOT EXIST "..\release\%VERSION%\Update\" (
   MKDIR "..\release\%VERSION%\Update\"
 )
 
+IF %RUN_NSIS% == 1 ECHO. 											>>  %BuildLog%
+IF %RUN_NSIS% == 1 ECHO - Download LDraw archive libraries...    	>>  %BuildLog%
+IF %RUN_NSIS% == 1 ECHO. 	
+IF %RUN_NSIS% == 1 ECHO - Download LDraw archive libraries...
+IF %RUN_NSIS% == 0 ECHO. 											>>  %BuildLog%
+IF %RUN_NSIS% == 0 ECHO - Skipping library download...    			>>  %BuildLog%
+IF %RUN_NSIS% == 0 ECHO. 	
+IF %RUN_NSIS% == 0 ECHO - Skipping library download...
+
+IF %RUN_NSIS% == 1 CALL :LDrawArchiveLibraryDownload
+
 ECHO. 													 			>>  %BuildLog%
 ECHO - Copying change_log_%VERSION% to media folder...    			>>  %BuildLog%
 ECHO. 	
-ECHO - Copying change_log_%VERSION% to media folder...
+ECHO - Copying change_log_%VERSION% to media folder... 
 
 SET file=README.txt
 SET temp=temp.dat
@@ -627,7 +638,7 @@ ECHO - Generating AppVersion.nsh build input script...   			>>  %BuildLog%
 ECHO. 	
 ECHO - Generating AppVersion.nsh build input script...
 
-SET versionFile=.\AppVersion.nsh
+SET versionFile=bin\AppVersion.nsh
 SET genVersion=%versionFile% ECHO
 
 :GENERATE AppVersion.nsh NSIS build input file
@@ -643,10 +654,10 @@ SET genVersion=%versionFile% ECHO
 >>%genVersion% !define CompleteVersion "%VERSION%.%VER_REVISION%.%VER_BUILD%_%YEAR%%MONTH%%DAY%"
 >>%genVersion% ; ${CompleteVersion}
 >>%genVersion%.	
->>%genVersion% !define Win32BuildDir "..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x86" 
+>>%genVersion% !define Win32BuildDir "..\..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x86" 
 >>%genVersion% ; ${Win32BuildDir}
 >>%genVersion%.
->>%genVersion% !define Win64BuildDir "..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x86_64" 
+>>%genVersion% !define Win64BuildDir "..\..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x86_64" 
 >>%genVersion% ; ${Win64BuildDir}
 >>%genVersion%.
 >>%genVersion% !define LPub3DBuildFile "%LPUB3D_BUILD_FILE%"
@@ -830,7 +841,7 @@ IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Update Build...  																		
 IF %RUN_NSIS% == 0 ECHO.
 IF %RUN_NSIS% == 0 ECHO - Ignore NSIS Master Update Build...
 
-IF %RUN_NSIS% == 1 %NSISExe% /DUpdateMaster LPub3DNoPack.nsi 																				>> %BuildLog%
+IF %RUN_NSIS% == 1 %NSISExe% /DUpdateMaster bin\LPub3DNoPack.nsi 																				>> %BuildLog%
 
 IF %RUN_NSIS% == 1 ECHO. 																													>>  %BuildLog%
 IF %RUN_NSIS% == 1 ECHO - Finished NSIS Master Update 	Build...																			>>  %BuildLog%
@@ -949,5 +960,162 @@ SETLOCAL enableDelayedExpansion
 SET "ln=!ln:*:=!"
 IF %n%==%targetln% (ECHO %productversion% >> %file%) ELSE ECHO(!ln! >> %file%
 REM IF %n%==%targetln% (ECHO %productversion% >> %file%) ELSE ECHO %* >> %file%
+ENDLOCAL
+EXIT /b 0
+
+:LDrawArchiveLibraryDownload
+ECHO. 																		>>  %BuildLog%
+ECHO - Prepare BATCH to VBS to Web Content Downloader...					>>  %BuildLog%
+ECHO. 
+ECHO - Prepare BATCH to VBS to Web Content Downloader...
+
+SET OfficialCONTENT=complete.zip
+SET UnofficialCONTENT=ldrawunf.zip
+SET Lpub3dCONTENT=lpub3dldrawunf.zip
+SET OutputPATH=..\..\utilities\ldrawlibraries\
+
+IF NOT EXIST "%TEMP%\$" (
+  MD "%TEMP%\$"
+)
+
+SET vbs=WebContentDownload.vbs
+SET t=%TEMP%\$\%vbs% ECHO
+
+IF EXIST %TEMP%\$\%vbs% (
+ DEL %TEMP%\$\%vbs%
+)
+
+:WEB CONTENT SAVE-AS Download-- VBS
+>%t% Option Explicit
+>>%t% On Error Resume Next
+>>%t%.
+>>%t% Dim args, http, fileSystem, adoStream, url, target, status
+>>%t%.
+>>%t% Set args = Wscript.Arguments
+>>%t% Set http = CreateObject("WinHttp.WinHttpRequest.5.1")
+>>%t% url = args(0)
+>>%t% target = args(1)
+>>%t% WScript.Echo "- Getting '" ^& target ^& "' from '" ^& url ^& "'...", vbLF
+>>%t%.
+>>%t% http.Open "GET", url, False
+>>%t% http.Send
+>>%t% status = http.Status
+>>%t%.
+>>%t% If status ^<^> 200 Then
+>>%t% WScript.Echo "- FAILED to download: HTTP Status " ^& status, vbLF
+>>%t% WScript.Quit 1
+>>%t% End If
+>>%t%.
+>>%t% Set adoStream = CreateObject("ADODB.Stream")
+>>%t% adoStream.Open
+>>%t% adoStream.Type = 1
+>>%t% adoStream.Write http.ResponseBody
+>>%t% adoStream.Position = 0
+>>%t%.
+>>%t% Set fileSystem = CreateObject("Scripting.FileSystemObject")
+>>%t% If fileSystem.FileExists(target) Then fileSystem.DeleteFile target
+>>%t% If Err.Number ^<^> 0 Then
+>>%t%   WScript.Echo "- Error - CANNOT DELETE: '" ^& target ^& "', " ^& Err.Description
+>>%t%   WScript.Echo " The file may be in use by another process.", vbLF
+>>%t%   adoStream.Close
+>>%t%   Err.Clear
+>>%t% Else
+>>%t%  adoStream.SaveToFile target
+>>%t%  adoStream.Close
+>>%t%  WScript.Echo "- Download successful!"
+>>%t% End If
+>>%t%.
+>>%t% 'WebContentDownload.vbs
+>>%t% 'Title: BATCH to VBS to Web Content Downloader
+>>%t% 'CMD ^> cscript //Nologo %TEMP%\$\%vbs% WebNAME WebCONTENT
+>>%t% 'VBS Created on %date% at %time%
+>>%t%.
+
+ECHO.																		>>  %BuildLog%
+ECHO - VBS file "%vbs%" is done compiling.									>>  %BuildLog%
+ECHO.
+ECHO - VBS file "%vbs%" is done compiling.
+ECHO.																		>>  %BuildLog%
+ECHO - LDraw archive library download path: %OutputPATH%.					>>  %BuildLog%
+ECHO.
+ECHO - LDraw archive library download path: %OutputPATH%.
+
+SET LibraryOPTION=Unofficial
+SET WebCONTENT="%~dp0%UnofficialCONTENT%"
+SET WebNAME=http://www.ldraw.org/library/unofficial/ldrawunf.zip
+
+ECHO.																		>>  %BuildLog%
+ECHO - Download LDraw %LibraryOPTION% library archive...					>>  %BuildLog%
+ECHO.
+ECHO - Download LDraw %LibraryOPTION% library archive...
+
+ECHO.																		>>  %BuildLog%
+ECHO - Web URL: "%WebNAME%" 												>>  %BuildLog%
+ECHO.																		>>  %BuildLog%
+ECHO - Download file: %WebCONTENT%											>>  %BuildLog%
+ECHO.
+ECHO - Web URL: "%WebNAME%" 
+ECHO.
+ECHO - Download file: %WebCONTENT%
+
+IF EXIST %WebCONTENT% (
+ DEL %WebCONTENT%
+)
+
+rem @ECHO on
+ECHO.
+cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+IF "%LibraryOPTION%" EQU "Unofficial" (
+	ECHO.																					>>  %BuildLog%
+	ECHO - Rename file %UnofficialCONTENT% to %Lpub3dCONTENT% and move to %outputPath%		>>  %BuildLog%
+	ECHO.
+	ECHO - Rename file %UnofficialCONTENT% to %Lpub3dCONTENT% and move to %outputPath% 			
+	REN %UnofficialCONTENT% %Lpub3dCONTENT%									
+	MOVE /y .\%Lpub3dCONTENT% %outputPath%									>>  %BuildLog%
+)
+ECHO.																		>>  %BuildLog%
+ECHO - LDraw archive library %UnofficialCONTENT% downloaded					>>  %BuildLog%
+ECHO.
+ECHO - LDraw archive library %UnofficialCONTENT% downloaded
+
+SET LibraryOPTION=Official
+SET WebCONTENT="%~dp0%OfficialCONTENT%"
+SET WebNAME=http://www.ldraw.org/library/updates/complete.zip
+
+ECHO.																		>>  %BuildLog%
+ECHO - Download LDraw %LibraryOPTION% library archive...					>>  %BuildLog%
+ECHO.
+ECHO - Download LDraw %LibraryOPTION% library archive...
+
+ECHO.																		>>  %BuildLog%
+ECHO - Web URL: "%WebNAME%" 												>>  %BuildLog%
+ECHO.																		>>  %BuildLog%
+ECHO - Download file: %WebCONTENT%											>>  %BuildLog%
+ECHO.
+ECHO - Web URL: "%WebNAME%" 
+ECHO.
+ECHO - Download file: %WebCONTENT%
+
+IF EXIST %WebCONTENT% (
+ DEL %WebCONTENT%
+)
+
+rem @ECHO on
+ECHO.
+cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+ECHO.																		>>  %BuildLog%
+ECHO - Move file %OfficialCONTENT% to %outputPath%							>>  %BuildLog%
+ECHO.
+ECHO - Move file %OfficialCONTENT% to %outputPath% 
+MOVE /y .\%OfficialCONTENT% %outputPath%									>>  %BuildLog%
+
+ECHO.																		>>  %BuildLog%
+ECHO - LDraw archive library %OfficialCONTENT% downloaded					>>  %BuildLog%
+ECHO.																		>>  %BuildLog%
+ECHO - LDraw archive libraries download finshed								>>  %BuildLog%
+ECHO.
+ECHO - LDraw archive library %OfficialCONTENT% downloaded
+ECHO.
+ECHO - LDraw archive libraries download finshed
 ENDLOCAL
 EXIT /b 0

@@ -1,4 +1,4 @@
-### ___________ BUILDING LPUB3D FROM SOURCE ___________
+### ___________ BUILDING LPUB3D PACKAGE FROM SOURCE ___________
 
 If you prefer to create your own LPub3D install package, these notes might be helpful.
 
@@ -18,7 +18,7 @@ If you prefer to create your own LPub3D install package, these notes might be he
 *  [Homebrew][homebrew]:         `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
 *  [node-appdmg][appdmg]:        `npm install -g appdmg`
 
-**Steps**
+**Steps:**
 - [ ] 1. enter directory
 `$ cd ~/`
 - [ ] 2. get [CreateDmg.sh][createdmg] packaging script
@@ -34,7 +34,7 @@ If you prefer to create your own LPub3D install package, these notes might be he
 
 **Platform-specific Dependencies:**
 
-**Steps**
+**Steps:**
 - [ ] 1. enter directory
 `$ cd ~/`
 - [ ] 2. get [CreatePkg.sh][createpkg] packaging script
@@ -53,7 +53,7 @@ If you prefer to create your own LPub3D install package, these notes might be he
 *  [Bazaar][bazzar]:       `$ sudo apt-get install bzr-builddeb`
 *  dh-make:                `$ sudo apt-get install dh-make`
 
-**Steps**
+**Steps:**
 - [ ] 1. enter directory
 `$ cd ~/`
 - [ ] 2. get [CreateDeb.sh][createdeb] packaging script
@@ -73,7 +73,7 @@ If you prefer to create your own LPub3D install package, these notes might be he
 *  zlib-devel:           `sudo dnf install zlib-devel`
 *  gnu-free-sans-fonts:  `sudo dnf install gnu-free-sans-fonts`
 
-**Steps**
+**Steps:**
 - [ ] 1. enter directory
 `$ cd ~/`
 - [ ] 2. get [CreateRpm.sh][createrpm] packaging script
@@ -88,10 +88,10 @@ If you prefer to create your own LPub3D install package, these notes might be he
 
 [xcode]:        https://developer.apple.com/xcode/downloads/
 [homebrew]:     http://brew.sh
-[appdmg]: 	    https://github.com/LinusU/node-appdmg
-[bazzar]: 	    bazaar.canonical.com/en/
+[appdmg]: 	https://github.com/LinusU/node-appdmg
+[bazzar]: 	bazaar.canonical.com/en/
 [qtwebsite]:    https://www.qt.io/download/
-[createdmg]:		https://github.com/trevorsandy/lpub3d/blob/master/builds/osx/CreateDmg.sh
-[createrpm]:		https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreateRpm.sh
-[createpkg]:		https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreatePkg.sh
-[createdeb]:		https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreateDeb.sh
+[createdmg]:    https://github.com/trevorsandy/lpub3d/blob/master/builds/osx/CreateDmg.sh
+[createrpm]:	https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreateRpm.sh
+[createpkg]:	https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreatePkg.sh
+[createdeb]:	https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreateDeb.sh

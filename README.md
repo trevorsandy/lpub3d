@@ -20,11 +20,11 @@ Distribution Package | Platform
 [Win Zip Archive 32bit][zip_x86] | Windows (Portable)
 [Win Zip Archive 64bit][zip_x86_64] | Windows (Portable)
 [PKG.tar.xz Package 64bit][pkg_x86_64] | Arch Linux...
-[RPM Package 64bit][rpm_x86_64] | Red Hat/Fedora/SUSE...
-[DEB Package 64bit][deb_x86_64] | Ubuntu/Debian...
+[RPM Package 64bit][rpm_x86_64] | Red Hat/Fedora/SUSE Linux...
+[DEB Package 64bit][deb_x86_64] | Ubuntu/Debian Linux...
 
 ### Quick Links
- - [Build from source][buildfromsource]
+ - [Build LPub3D package from source][buildfromsource]
  - [Change log][changelog]
  - [Credits][credits]
  
@@ -57,7 +57,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 	- Automated installer and portable distributions available
 	- Full capabilities to build from source or Build Service
 	
-Last Update: January 23, 2017
+Last Update: February 09, 2017
 Copyright (c) 2015 - 2017 by Trevor SANDY
 
 [icon]:			https://github.com/trevorsandy/lpub3d/blob/master/mainApp/images/lpub3d128.png
