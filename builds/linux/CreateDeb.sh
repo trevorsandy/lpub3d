@@ -100,9 +100,8 @@ tar zxf lpub3d_${APP_VERSION}.orig.tar.gz
 mv lpub3d ${SOURCE_DIR}
 
 echo "6. get LDraw archive libraries" 
-wget --directory-prefix=${SOURCE_DIR}/mainApp/extras http://www.ldraw.org/library/unofficial/ldrawunf.zip
-mv ${SOURCE_DIR}/mainApp/extras/ldrawunf.zip ${SOURCE_DIR}/mainApp/extras/lpub3dldrawunf.zip
-wget --directory-prefix=${SOURCE_DIR}/mainApp/extras http://www.ldraw.org/library/updates/complete.zip
+if [ ! -f lpub3dldrawunf.zip ] ; then wget -N http://www.ldraw.org/library/unofficial/ldrawunf.zip ; mv ldrawunf.zip lpub3dldrawunf.zip ; fi
+if [ ! -f complete.zip ] ; then wget -N http://www.ldraw.org/library/updates/complete.zip ; fi
 
 echo "7. copy debian configuration directory"
 cp -rf ${SOURCE_DIR}/builds/linux/obs/debian ${SOURCE_DIR}
