@@ -144,8 +144,8 @@ BuildRequires: -post-build-checks
 export QT_SELECT=qt5
 
 # get ldraw archive libraries
-LD_OFF_LIB="../SOURCES/complete.zip"
-LD_UNOFF_LIB="../SOURCES/lpub3dldrawunf.zip"
+LD_OFF_LIB="../../SOURCES/complete.zip"
+LD_UNOFF_LIB="../../SOURCES/lpub3dldrawunf.zip"
 if [ -f ${LD_OFF_LIB} ] ; then              \
       cp ${LD_OFF_LIB} mainApp/extras ;     \
 else
