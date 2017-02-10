@@ -18,19 +18,23 @@ prepare() {
   cd ${srcdir}/lpub3d
   
   # get ldraw archive libraries
-  wget --directory-prefix=${srcdir}/lpub3d/mainApp/extras \
-  		http://www.ldraw.org/library/updates/complete.zip
-  wget --directory-prefix=${srcdir}/lpub3d/mainApp/extras \
-  		http://www.ldraw.org/library/unofficial/ldrawunf.zip
-  mv ${srcdir}/lpub3d/mainApp/extras/ldrawunf.zip \
-     ${srcdir}/lpub3d/mainApp/extras/lpub3dldrawunf.zip
+  if [ -f ../complete.zip ] ; then                     \
+       cp ../complete.zip mainApp/extras ;             \
+  else
+       echo "complete.zip not found!" ;                \
+  fi ;
+  if [ -f ../lpub3dldrawunf.zip ] ; then               \
+       cp ../lpub3dldrawunf.zip mainApp/extras ;       \
+  else
+       echo "lpub3dldrawunf.zip not found!" ;          \
+  fi ;
 
   # use Qt5
   export QT_SELECT=qt5
   if [ -x /usr/bin/qmake ] ; then                      \
-      qmake -makefile CONFIG+=release CONFIG+=pkg;     \
+      qmake -makefile CONFIG+=release CONFIG+=pkg ;    \
   elif [ -x /usr/bin/qmake-qt5 ] ; then                \
-      qmake-qt5 -makefile CONFIG+=release CONFIG+=pkg; \
+      qmake-qt5 -makefile CONFIG+=release CONFIG+=pkg ;\
   fi ;
 }
 
@@ -41,6 +45,6 @@ build() {
 }
  
 package() {
-  cd "${srcdir}/lpub3d"
+  cd ${srcdir}/lpub3d
   make INSTALL_ROOT=${pkgdir} install 
 }

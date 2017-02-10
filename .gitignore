@@ -67,9 +67,7 @@ mainApp/temp.txt
 mainApp/build.h
 mainApp/docs/temp.txt
 builds/utilities/json/lpub3dupdates.json
-builds/windows/setup/AppVersion.nsh
-builds/windows/setup/SignApps.bat
-builds/windows/setup/BuildVersions.txt
+builds/windows/setup/bin/AppVersion.nsh
 
 # Qt Creator generated files
 *.user
@@ -87,7 +85,6 @@ builds/utilities/ldrawlibraries/*
 builds/utilities/models/*
 
 # Releases
-builds/osx/release/*
 builds/osx/dmgbuilds/*
 builds/windows/release/*
 builds/linux/debbuild/*

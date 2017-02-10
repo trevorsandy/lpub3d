@@ -144,13 +144,19 @@ BuildRequires: -post-build-checks
 export QT_SELECT=qt5
 
 # get ldraw archive libraries
-wget --directory-prefix=$RPM_BUILD_DIR/lpub3d/mainApp/extras \
-		http://www.ldraw.org/library/updates/complete.zip
-wget --directory-prefix=$RPM_BUILD_DIR/lpub3d/mainApp/extras \
-		http://www.ldraw.org/library/unofficial/ldrawunf.zip
-mv $RPM_BUILD_DIR/lpub3d/mainApp/extras/ldrawunf.zip 		 \
-   $RPM_BUILD_DIR/lpub3d/mainApp/extras/lpub3dldrawunf.zip
-	
+LD_OFF_LIB="../SOURCES/complete.zip"
+LD_UNOFF_LIB="../SOURCES/lpub3dldrawunf.zip"
+if [ -f ${LD_OFF_LIB} ] ; then              \
+      cp ${LD_OFF_LIB} mainApp/extras ;     \
+else
+      echo "complete.zip not found!" ;      \
+fi ;
+if [ -f ${LD_UNOFF_LIB} ] ; then            \
+      cp ${LD_UNOFF_LIB} mainApp/extras ;   \
+else
+      echo "lpub3dldrawunf.zip not found!" ;\
+fi ;
+
 # use Qt5
 %if 0%{?fedora}==23
 %ifarch x86_64

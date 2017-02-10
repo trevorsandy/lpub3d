@@ -100,21 +100,30 @@ else
     echo "Error: Cannot read ${SFILE}"
 fi
 
-echo "7. create package"
+echo "7. get LDraw archive libraries"
+if [ ! -f lpub3dldrawunf.zip ] ; then                               \
+     wget -N http://www.ldraw.org/library/unofficial/ldrawunf.zip ; \
+     mv ldrawunf.zip lpub3dldrawunf.zip ;                           \
+fi ;
+if [ ! -f complete.zip ] ; then                                     \
+     wget -N http://www.ldraw.org/library/updates/complete.zip ;    \
+fi ;
+
+echo "8. build application package"
 makepkg -s
 
 DISTRO_FILE=`ls lpub3d-${APP_VERSION}*.pkg.tar.xz`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "8. create update and download files"
+    echo "9. create update and download packages"
     IFS=- read NAME VERSION BUILD ARCH_EXTENSION <<< ${DISTRO_FILE}
     cp -f ${DISTRO_FILE} "lpub3d-${APP_VERSION_LONG}_${BUILD}_${ARCH_EXTENSION}"
-    echo "    Download file: lpub3d_${APP_VERSION_LONG}_${BUILD}_${ARCH_EXTENSION}"
+    echo "    Download package: lpub3d_${APP_VERSION_LONG}_${BUILD}_${ARCH_EXTENSION}"
 
     mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
-    echo "      Update file: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
+    echo "      Update package: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
 else
-    echo "8. package file not found."
+    echo "9. package ${DISTRO_FILE} not found."
 fi
 
 echo "Finished!"
