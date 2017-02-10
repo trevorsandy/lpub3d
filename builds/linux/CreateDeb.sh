@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update 30 January 2017
+# Last Update 10 February 2017
 # To run:
 # $ chmod 755 CreateDeb.sh
 # $ ./CreateDeb.sh
@@ -47,9 +47,11 @@ else
  APP_VERSION=$1
  APP_VERSION_LONG=$1"_"${BUILD_DATE}
 fi
+SOURCE_DIR=lpub3d-${APP_VERSION}
 echo "BUILD_DATE........${BUILD_DATE}"
 echo "APP_VERSION.......${APP_VERSION}"
 echo "APP_VERSION_LONG..${APP_VERSION_LONG}"
+echo "SOURCE_DIR........${SOURCE_DIR}"
 # - populate VER_SUFFIX variable
 if [ ! ${APP_VERSION} = "" ]
 then
@@ -61,7 +63,7 @@ then
  echo "VER_BUILD.........${VER_BUILD}"
  echo "VER_SUFFIX........${VER_SUFFIX}"
 fi
-# - update desktop configuration file with version number
+# - update desktop configuration - add version suffix
 VPATTERN="{XX}"
 SFILE="lpub3d/mainApp/lpub3d.desktop"
 TFILE="/tmp/out.tmp.$$"
@@ -71,6 +73,7 @@ then
 else
     echo "Error: Cannot read ${SFILE}"
 fi
+# - update man page - add version suffix
 SFILE="lpub3d/mainApp/lpub3d.1"
 TFILE="/tmp/out.tmp.$$"
 if [ -f ${SFILE} -a -r ${SFILE} ]
@@ -80,9 +83,8 @@ else
     echo "Error: Cannot read ${SFILE}"
 fi
 
-echo "5. create cleaned tarball"
-#tar -czvf lpub3d.git.tar.gz lpub3d \
-tar -czvf ../lpub3d.git.tar.gz lpub3d \
+echo "4. create cleaned tarball"
+tar -czvf ../lpub3d_${APP_VERSION}.orig.tar.gz lpub3d \
         --exclude="lpub3d/builds/linux/standard" \
         --exclude="lpub3d/builds/osx" \
         --exclude="lpub3d/.git" \
@@ -91,21 +93,22 @@ tar -czvf ../lpub3d.git.tar.gz lpub3d \
         --exclude="lpub3d/README.md" \
         --exclude="lpub3d/_config.yml" \
         --exclude="lpub3d/.gitignore"
-
-echo "4. untar cleaned tarball"
+		
+echo "5. create soruce directory ${SOURCE_DIR}"
 cd ../
-tar zxf lpub3d.git.tar.gz
+tar zxf lpub3d_${APP_VERSION}.orig.tar.gz
+mv lpub3d ${SOURCE_DIR}
 
-echo "4. get LDraw archive libraries" 
-wget --directory-prefix=lpub3d/mainApp/extras http://www.ldraw.org/library/unofficial/ldrawunf.zip
-mv lpub3d/ainApp/extras/ldrawunf.zip lpub3d/mainApp/extras/lpub3dldrawunf.zip
-wget --directory-prefix=lpub3d/mainApp/extras http://www.ldraw.org/library/updates/complete.zip
+echo "6. get LDraw archive libraries" 
+wget --directory-prefix=${SOURCE_DIR}/mainApp/extras http://www.ldraw.org/library/unofficial/ldrawunf.zip
+mv ${SOURCE_DIR}/mainApp/extras/ldrawunf.zip ${SOURCE_DIR}/mainApp/extras/lpub3dldrawunf.zip
+wget --directory-prefix=${SOURCE_DIR}/mainApp/extras http://www.ldraw.org/library/updates/complete.zip
 
-echo "6. copy debian configuration directory"
-cp -rf lpub3d/builds/linux/obs/debian lpub3d
-cd lpub3d/debian
+echo "7. copy debian configuration directory"
+cp -rf ${SOURCE_DIR}/builds/linux/obs/debian ${SOURCE_DIR}
+cd ${SOURCE_DIR}/debian
 
-echo "7. generate change log"
+echo "8. generate change log"
 if [ -d changelog ]
 then
 	rm changelog
@@ -118,24 +121,25 @@ lpub3d (${APP_VERSION}-0ubuntu1) trusty; urgency=medium
  -- Trevor SANDY <trevor.sandy@gmail.com>  ${DATE_COMMAND}
 EOF
 
-echo "10. build application"
+echo "9. build application package"
 cd ../
+chmod 755 debian/rules
 /usr/bin/dpkg-buildpackage -us -uc
 
 cd ../
 DISTRO_FILE=`ls *.deb`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "11. create update and download files"
+    echo "10. create update and download packages"
     IFS=- read NAME_VERSION ARCH_EXTENSION <<< ${DISTRO_FILE}
 
     cp -rf ${DISTRO_FILE} "lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}"
-    echo "    Download file: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}"
+    echo "    Download package: lpub3d_${APP_VERSION_LONG}_${ARCH_EXTENSION}"
 
     mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
-    echo "      Update file: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
+    echo "      Update package: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
 else
-    echo "11. package file not found"
+    echo "10. package ${DISTRO_FILE} not found"
 fi
 
 echo "Finished!"
