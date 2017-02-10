@@ -18,13 +18,13 @@ prepare() {
   cd ${srcdir}/lpub3d
   
   # get ldraw archive libraries
-  if [ -f ../../complete.zip ] ; then                     \
-       cp ../../complete.zip mainApp/extras ;             \
+  if [ -f ../../complete.zip ] ; then                  \
+       cp ../../complete.zip mainApp/extras ;          \
   else
        echo "complete.zip not found!" ;                \
   fi ;
-  if [ -f ../../lpub3dldrawunf.zip ] ; then               \
-       cp ../../lpub3dldrawunf.zip mainApp/extras ;       \
+  if [ -f ../../lpub3dldrawunf.zip ] ; then            \
+       cp ../../lpub3dldrawunf.zip mainApp/extras ;    \
   else
        echo "lpub3dldrawunf.zip not found!" ;          \
   fi ;
