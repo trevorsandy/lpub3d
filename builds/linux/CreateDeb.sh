@@ -5,9 +5,11 @@
 # $ chmod 755 CreateDeb.sh
 # $ ./CreateDeb.sh
 
-WORK_DIR=`pwd`
 BUILD_DATE=`date "+%Y%m%d"`
+DATE_COMMAND=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
+
 # logging stuff
+WORK_DIR=`pwd`
 LOG="${WORK_DIR}/CreateDeb.log"
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
@@ -78,8 +80,9 @@ else
     echo "Error: Cannot read ${SFILE}"
 fi
 
-echo "4. create tarball"
-tar -czvf lpub3d.git.tar.gz lpub3d \
+echo "5. create cleaned tarball"
+#tar -czvf lpub3d.git.tar.gz lpub3d \
+tar -czvf ../lpub3d.git.tar.gz lpub3d \
         --exclude="lpub3d/builds/linux/standard" \
         --exclude="lpub3d/builds/osx" \
         --exclude="lpub3d/.git" \
@@ -88,20 +91,25 @@ tar -czvf lpub3d.git.tar.gz lpub3d \
         --exclude="lpub3d/README.md" \
         --exclude="lpub3d/_config.yml" \
         --exclude="lpub3d/.gitignore"
+
+echo "4. untar cleaned tarball"
 cd ../
+tar zxf lpub3d.git.tar.gz
 
-echo "5. create package config: Name, Version, Path to tarball"
-/usr/bin/bzr dh-make lpub3d ${APP_VERSION} upstream/lpub3d.git.tar.gz
+echo "4. get LDraw archive libraries" 
+wget --directory-prefix=lpub3d/mainApp/extras http://www.ldraw.org/library/unofficial/ldrawunf.zip
+mv lpub3d/ainApp/extras/ldrawunf.zip lpub3d/mainApp/extras/lpub3dldrawunf.zip
+wget --directory-prefix=lpub3d/mainApp/extras http://www.ldraw.org/library/updates/complete.zip
 
-echo "6. delete unneeded config files"
+echo "6. copy debian configuration directory"
+cp -rf lpub3d/builds/linux/obs/debian lpub3d
 cd lpub3d/debian
-rm *ex *EX changelog
 
-echo "7. copy standard config files"
-cp -rf ../../upstream/lpub3d/builds/linux/obs/debian/* .
-
-echo "8. update change log"
-DATE_COMMAND=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
+echo "7. generate change log"
+if [ -d changelog ]
+then
+	rm changelog
+fi
 cat <<EOF >changelog
 lpub3d (${APP_VERSION}-0ubuntu1) trusty; urgency=medium
 
@@ -110,14 +118,11 @@ lpub3d (${APP_VERSION}-0ubuntu1) trusty; urgency=medium
  -- Trevor SANDY <trevor.sandy@gmail.com>  ${DATE_COMMAND}
 EOF
 
-echo "9. add format to package and commit package source"
-/usr/bin/bzr add source/format
-#/usr/bin/bzr commit -m "Packaging commit for lpub3d ${APP_VERSION}."
+echo "10. build application"
+cd ../
+/usr/bin/dpkg-buildpackage -us -uc
 
-echo "10. build and sign application"
-/usr/bin/bzr builddeb -- -us -uc
-
-cd ../../
+cd ../
 DISTRO_FILE=`ls *.deb`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
@@ -130,7 +135,7 @@ then
     mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
     echo "      Update file: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
 else
-    echo "11. package file not found."
+    echo "11. package file not found"
 fi
 
 echo "Finished!"

@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: lpub3d
-Source: http://sourceforge.net/p/lpub3d/code/
+Source: https://github.com/trevorsandy/lpub3d
 
 Files: *
 Copyright: 2015 - 2017 Trevor SANDY <trevor.sandy@gmail.com>

@@ -15,11 +15,6 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Start custom configuration command
-	# 1. Get ldraw archive libraries
-	wget --directory-prefix=$(CURDIR)/mainApp/extras http://www.ldraw.org/library/unofficial/ldrawunf.zip
-	mv $(CURDIR)/mainApp/extras/ldrawunf.zip $(CURDIR)/mainApp/extras/lpub3dldrawunf.zip
-	wget --directory-prefix=$(CURDIR)/mainApp/extras http://www.ldraw.org/library/updates/complete.zip
-	# 2. Run qmake with deb option and clean
 override_dh_auto_configure:
 	if [ `uname -m` = "x86_64" ] ; then      \
 		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb; \

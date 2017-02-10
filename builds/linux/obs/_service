@@ -1,8 +1,15 @@
 <services>
   <service name="tar_scm">
-    <param name="url">https://github.com/trevorsandy/lpub3d.git</param>
+    <param name="url">git://github.com/trevorsandy/lpub3d</param>
     <param name="scm">git</param>
+    <param name="exclude">builds/linux/standard</param>
+    <param name="exclude">builds/osx</param>
+    <param name="exclude">.gitignore</param>	  
+    <param name="exclude">.gitattributes</param>
     <param name="exclude">.git</param>
+    <param name="exclude">LPub3D.pro.user</param>
+    <param name="exclude">README.md</param>
+    <param name="exclude">_config.yml</param>		  
     <param name="version">git-master</param>
     <param name="versionformat">git</param>
     <param name="filename">lpub3d</param>
@@ -10,5 +17,15 @@
   <service name="recompress">
     <param name="file">*.tar</param>
     <param name="compression">gz</param>
+  </service>
+  <service name="download_url">
+    <param name="protocol">http</param>
+    <param name="host">www.ldraw.org</param>
+    <param name="path">/library/updates/complete.zip</param>
+  </service>
+  <service name="download_url">
+    <param name="protocol">http</param>
+    <param name="host">www.ldraw.org</param>
+    <param name="path">/library/unofficial/ldrawunf.zip</param>
   </service>
 </services>

@@ -3,13 +3,15 @@
 If you prefer to create your own LPub3D install package, these notes might be helpful.
 
 **Cross-platform Dependencies:** *LPub3D requires Qt5. You can install, if not available, using:*
-* DMG package: 		Download and install Qt from [Qt website][qtwebsite]
+* DMG package: 		Download and install [Qt][qtwebsite] ([CreateDmg.sh][createdmg] assumes Qt 5.7 installed at ~/Qt/IDE/5.7)
 * DEB package: 		`$ sudo apt-get install qtbase5-dev qt5-qmake`
 * RPM package: 		`$ sudo dnf install qt5-qtbase-devel`
 * PKG.TAR.XZ package: 	`$ sudo pacman -S qt5-base qt5-tools` *(not required, dependencies automatically downloaded.)*
 
 *Additional dependencies include:*
-*  Git
+* git
+* tar
+* wget
 
 #### ___________ MAC: BUILD OSX ‘DMG’ PACKAGE ___________
 
@@ -27,7 +29,7 @@ If you prefer to create your own LPub3D install package, these notes might be he
 `$ chmod 755 CreateDmg.sh`
 - [ ] 4. execute package script
 `$ ./CreateDmg.sh`
-- [ ] 5. mount and install either package availavble in ./dmgbuild/DMGS/LPub3D_2.0.20.0.645_20170208_osx.dmg
+- [ ] 5. mount and install package ./dmgbuild/DMGS/LPub3D_2.0.20.0.645_20170208_osx.dmg
 - [ ] 6. have a :beer:
 
 #### ___________ LINUX: BUILD ARCH 'PKG.TAR.XZ' PACKAGE ___________
@@ -43,15 +45,14 @@ If you prefer to create your own LPub3D install package, these notes might be he
 `$ chmod 755 CreatePkg.sh`
 - [ ] 4. execute package script
 `$ ./CreatePkg.sh`
-- [ ] 5. install either package availavble in ./pkgbuild
+- [ ] 5. install package availavble in ./pkgbuild
 `$ sudo pacman -U pkgbuild/lpub3d-2.0.20.0.645_20170208_1_x86_64.pkg.tar.xz`
 - [ ] 6. have a :beer:
 
 #### ___________ LINUX: BUILD UBUNTU/DEBIAN 'DEB' PACKAGE ___________
 
 **Platform-specific Dependencies:**
-*  [Bazaar][bazzar]:       `$ sudo apt-get install bzr-builddeb`
-*  dh-make:                `$ sudo apt-get install dh-make`
+*  build-essential:       `$ sudo apt-get install build-essential`
 
 **Steps:**
 - [ ] 1. enter directory
@@ -62,7 +63,7 @@ If you prefer to create your own LPub3D install package, these notes might be he
 `$ chmod 755 CreateDeb.sh`
 - [ ] 4. execute package script
 `$ ./CreateDeb.sh`
-- [ ] 5. install either package availavble in ./debbuild
+- [ ] 5. install package availavble in ./debbuild
 `$ sudo dpkg --install debbuild/lpub3d_2.0.20.0.645_20170208_0ubuntu1_amd64.deb`
 - [ ] 6. have a :beer:
 
@@ -82,14 +83,13 @@ If you prefer to create your own LPub3D install package, these notes might be he
 `$ chmod 755 CreateRpm.sh`
 - [ ] 4. execute package script
 `$ ./CreateRpm.sh`
-- [ ] 5. install either package availavble in ./rpmbuild/RPMS/x86_64
+- [ ] 5. install either availavble in ./rpmbuild/RPMS/x86_64
 `$ sudo rpm -U rpmbuild/RPMS/x86_64/lpub3d-2.0.20.0.645_20170208_1fedora.x86_64.rpm`
 - [ ] 6. have a :beer:
 
 [xcode]:        https://developer.apple.com/xcode/downloads/
 [homebrew]:     http://brew.sh
-[appdmg]: 	https://github.com/LinusU/node-appdmg
-[bazzar]: 	bazaar.canonical.com/en/
+[appdmg]: 		https://github.com/LinusU/node-appdmg
 [qtwebsite]:    https://www.qt.io/download/
 [createdmg]:    https://github.com/trevorsandy/lpub3d/blob/master/builds/osx/CreateDmg.sh
 [createrpm]:	https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreateRpm.sh
