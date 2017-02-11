@@ -14,6 +14,26 @@
     <param name="versionformat">git</param>
     <param name="filename">lpub3d</param>
   </service>
+  <service name="extract_file">
+      <param name="archive">*.tar</param>
+      <param name="files">*/builds/linux/obs/debian/compat</param>
+      <param name="outfilename">debian.compat</param>
+  </service>
+  <service name="extract_file">
+      <param name="archive">*.tar</param>
+      <param name="files">*/builds/linux/obs/debian/changelog</param>
+      <param name="outfilename">debian.changelog</param>
+  </service>
+  <service name="extract_file">
+      <param name="archive">*.tar</param>
+      <param name="files">*/builds/linux/obs/debian/control</param>
+      <param name="outfilename">debian.control</param>
+  </service>
+    <service name="extract_file">
+      <param name="archive">*.tar</param>
+      <param name="files">*/builds/linux/obs/debian/rules</param>
+      <param name="outfilename">debian.rules</param>
+  </service>
   <service name="recompress">
     <param name="file">*.tar</param>
     <param name="compression">gz</param>
