@@ -163,10 +163,13 @@ fi ;
 export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC"
 %endif
 %endif
+%ifarch x86_64
+export QMAKE_EXTRA_OPT=CONFIG+=rpm
+%endif
 if which qmake-qt5 >/dev/null 2>/dev/null ; then 		            \
-    qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm ;\
+    qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release $QMAKE_EXTRA_OPT ;\
 else													\
-    qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm ;    \
+    qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release $QMAKE_EXTRA_OPT ;    \
 fi ;													\
 make clean
 make %{?_smp_mflags}
