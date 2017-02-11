@@ -24,7 +24,7 @@ else:VERSION = 0.7.2    # major.minor.patch
 contains(QT_ARCH, x86_64) {
     ARCH = 64
 } else {
-    ARCH = 32
+    !rpm: ARCH = 32
 }
 
 win32 {
