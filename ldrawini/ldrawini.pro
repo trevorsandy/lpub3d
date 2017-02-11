@@ -72,7 +72,11 @@ unix {
     }
     rpm {
         target.path=$$PREFIX/lib$$ARCH
-        message("~~~ LDRAWINI RPM $$ARCH-bit LIB ~~~")
+        equals (ARCH, 64) {
+            message("~~~ LDRAWINI RPM $$ARCH-bit LIB ~~~")
+        } else {
+            message("~~~ LDRAWINI RPM 32-bit LIB ~~~")
+        }
     }
     !deb:!rpm {
         target.path=$$PREFIX/lib
