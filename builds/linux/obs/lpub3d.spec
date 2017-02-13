@@ -31,28 +31,25 @@
 %endif
 
 %if 0%{?fedora}
-%define dist fedora
+%define dist fc
 %endif
 
 %if 0%{?mdkversion}
-%define dist manmdriva
+%define dist mdk
 %endif
 
 %if 0%{?scientificlinux_version}
-%define dist scientific
+%define dist scl
 %endif
 
 %if 0%{?rhel_version}
-%define dist redhat
+%define dist rhel
 %endif
 
 %if 0%{?centos_ver}
 %define centos_version %{centos_ver}00
-%define dist centos
+%define dist cos
 %endif
-
-# packer's identification
-%define packer %(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)
 
 # sources
 Source10: lpub3d.spec.git.version
@@ -74,6 +71,10 @@ Group: Amusements/Graphics
 %if 0%{?mdkversion} || 0%{?rhel_version} || 0%{?fedora} || 0%{?centos_version} || 0%{?scientificlinux_version}
 License: GPLv3+
 %endif
+
+# packer's identification
+BuildRequires: finger
+%define packer %(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)
 
 # package attributes
 Name: lpub3d

@@ -75,9 +75,9 @@ Updater::Updater() {
     m_manager = new QNetworkAccessManager();
 
 #if defined Q_OS_WIN
-    m_platform = "windows";
+    m_platform = "windows-exe";
 #elif defined Q_OS_MAC
-    m_platform = "osx";
+    m_platform = "osx-dmg";
 #elif defined Q_OS_LINUX
   #if defined DEB_DISTRO
       m_platform = "linux-deb";
@@ -497,22 +497,18 @@ void Updater::onReply (QNetworkReply* reply) {
                             int updateIndex = i;
                             (updateIndex + 1) == versions.size() ? updateIndex = i : updateIndex = updateIndex + 1;
                             qDebug() << "Update to version: " << versions[updateIndex];
-
                             if (versions[updateIndex] == latestVersion){
                                 // Update to version is same as latest version - i.e. reinstall latest version
                                 m_openUrl = platform.value ("open-url").toString();
                                 m_latestVersion = platform.value ("latest-version").toString();
-
-#if defined Q_OS_WIN  //backward compatabiltiy for Windows only
-                                m_downloadUrl = platform.value ("download-url-").toString();                               
-                                _changelogUrl = platform.value ("changelog-url-").toString();
-#else
                                 m_downloadUrl = platform.value ("download-url").toString();
                                 _changelogUrl = platform.value ("changelog-url").toString();
-#endif
                             } else {
                                 // Update to version is othere than the latest version
-                                QJsonObject altVersion = platform.value(QString("alternate-version-%1").arg(versions[updateIndex])).toObject();
+                                QString distro_suffix = m_platform.section("-",1,1);
+                                QJsonObject altVersion = platform.value(QString("alternate-version-%1-%2")
+                                                                        .arg(versions[updateIndex])
+                                                                        .arg(distro_suffix)).toObject();
                                 if (altVersion.isEmpty()) {
                                     showErrorMessage("Unable to retrieve version " + versions[updateIndex] + ". Version number not found.");
                                     return;

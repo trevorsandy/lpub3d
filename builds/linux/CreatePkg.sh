@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update 30 January 2017
+# Last Update 13 February 2017
 # To run:
 # $ chmod 755 CreatePkg.sh
 # $ ./CreatePkg.sh
@@ -8,6 +8,7 @@
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 WORK_DIR=`pwd`
 BUILD_DATE=`date "+%Y%m%d"`
+
 # logging stuff
 LOG="${WORK_DIR}/$ME.log"
 exec > >(tee -a ${LOG} )
@@ -37,7 +38,7 @@ else
     echo "$ME terminated!"
     exit 1
 fi
-read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION  VER_BUILD VER_SHA_HASH VER_REST <<< ${VERSION_INFO//'"'}
+read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH VER_REST <<< ${VERSION_INFO//'"'}
 VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
 APP_VERSION=${VERSION}"."${VER_BUILD}
 APP_VERSION_LONG=${VERSION}"."${VER_REVISION}"."${VER_BUILD}_${BUILD_DATE}
@@ -72,8 +73,7 @@ cd ../
 echo "6. get LDraw archive libraries"
 if [ ! -f lpub3dldrawunf.zip ]
 then
-     wget -N http://www.ldraw.org/library/unofficial/ldrawunf.zip
-     mv ldrawunf.zip lpub3dldrawunf.zip
+     wget -N -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
 fi
 if [ ! -f complete.zip ]
 then

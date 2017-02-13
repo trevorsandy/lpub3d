@@ -26,11 +26,15 @@ SET CREATE_PORTABLE=1
 SET VERSION_INPUT="0 0 0 0 0"
 SET DATETIME_INPUT="0000 00 00 00:00:00.00"
 
-SET AVAILABLE_VERS_EXE=2.0.19,1.3.5,1.2.3,1.0.0
-SET AVAILABLE_VERS_DMG=2.0.19
-SET AVAILABLE_VERS_DEB=2.0.19
-SET AVAILABLE_VERS_RPM=2.0.19
-SET AVAILABLE_VERS_PKG=2.0.19
+SET ALT_VER_01=2.0.20
+SET ALT_VER_02=unknown
+SET ALT_VER_03=unknown
+
+SET AVAILABLE_VERS_EXE=%ALT_VER_01%,1.3.5,1.2.3,1.0.0
+SET AVAILABLE_VERS_DMG=%ALT_VER_01%
+SET AVAILABLE_VERS_DEB=%ALT_VER_01%
+SET AVAILABLE_VERS_RPM=%ALT_VER_01%
+SET AVAILABLE_VERS_PKG=%ALT_VER_01%
 
 ECHO.
 SET /p RUN_NSIS= - Run NSIS: Type 1 to run, 0 to ignore or 'Enter' to accept default [%RUN_NSIS%]: 
@@ -424,7 +428,7 @@ SET lastVersionInsert_ExeFile=..\..\utilities\json\lastVersionInsert_Exe.txt
 SET genlastVersionInsert_Exe=%lastVersionInsert_ExeFile% ECHO
 
 :GENERATE lastVersionInsert_Exe.txt file
->%genlastVersionInsert_Exe% "alternate-version-%LAST_VER_EXE%": {
+>%genlastVersionInsert_Exe% "alternate-version-%LAST_VER_EXE%-exe": {
 >>%genlastVersionInsert_Exe%   "open-url": "https://sourceforge.net/projects/lpub3d/files/%LAST_VER_EXE%/",
 >>%genlastVersionInsert_Exe%   "latest-version": "%LAST_VER_EXE%",
 >>%genlastVersionInsert_Exe%   "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LAST_VER_EXE%.exe",
@@ -440,7 +444,7 @@ SET lastVersionInsert_DmgFile=..\..\utilities\json\lastVersionInsert_Dmg.txt
 SET genlastVersionInsert_Dmg=%lastVersionInsert_DmgFile% ECHO
 
 :GENERATE lastVersionInsert_Dmg.txt file
->%genlastVersionInsert_Dmg% "alternate-version-%LAST_VER_DMG%": {
+>%genlastVersionInsert_Dmg% "alternate-version-%LAST_VER_DMG%-dmg": {
 >>%genlastVersionInsert_Dmg%   "open-url": "https://sourceforge.net/projects/lpub3d/files/%LAST_VER_DMG%/",
 >>%genlastVersionInsert_Dmg%   "latest-version": "%LAST_VER_DMG%",
 >>%genlastVersionInsert_Dmg%   "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LAST_VER_DMG%_osx.dmg",
@@ -456,7 +460,7 @@ SET lastVersionInsert_DebFile=..\..\utilities\json\lastVersionInsert_Deb.txt
 SET genlastVersionInsert_Deb=%lastVersionInsert_DebFile% ECHO
 
 :GENERATE lastVersionInsert_Deb.txt file
->%genlastVersionInsert_Deb% "alternate-version-%LAST_VER_DEB%": {
+>%genlastVersionInsert_Deb% "alternate-version-%LAST_VER_DEB%-deb": {
 >>%genlastVersionInsert_Deb%   "open-url": "https://sourceforge.net/projects/lpub3d/files/%LAST_VER_DEB%/",
 >>%genlastVersionInsert_Deb%   "latest-version": "%LAST_VER_DEB%",
 >>%genlastVersionInsert_Deb%   "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LAST_VER_DEB%_0ubuntu1_amd64.deb",
@@ -472,10 +476,10 @@ SET lastVersionInsert_RpmFile=..\..\utilities\json\lastVersionInsert_Rpm.txt
 SET genlastVersionInsert_Rpm=%lastVersionInsert_RpmFile% ECHO
 
 :GENERATE lastVersionInsert_Rpm.txt file
->%genlastVersionInsert_Rpm% "alternate-version-%LAST_VER_RPM%": {
+>%genlastVersionInsert_Rpm% "alternate-version-%LAST_VER_RPM%-rpm": {
 >>%genlastVersionInsert_Rpm%   "open-url": "https://sourceforge.net/projects/lpub3d/files/%LAST_VER_RPM%/",
 >>%genlastVersionInsert_Rpm%   "latest-version": "%LAST_VER_RPM%",
->>%genlastVersionInsert_Rpm%   "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LAST_VER_RPM%_1fedora.x86_64.rpm",
+>>%genlastVersionInsert_Rpm%   "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LAST_VER_RPM%_1fc.x86_64.rpm",
 >>%genlastVersionInsert_Rpm%   "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LAST_VER_RPM%.txt"
 >>%genlastVersionInsert_Rpm% },
 
@@ -488,7 +492,7 @@ SET lastVersionInsert_PkgFile=..\..\utilities\json\lastVersionInsert_Pkg.txt
 SET genlastVersionInsert_Pkg=%lastVersionInsert_PkgFile% ECHO
 
 :GENERATE lastVersionInsert_Pkg.txt file
->%genlastVersionInsert_Pkg% "alternate-version-%LAST_VER_PKG%": {
+>%genlastVersionInsert_Pkg% "alternate-version-%LAST_VER_PKG%-pkg": {
 >>%genlastVersionInsert_Pkg%   "open-url": "https://sourceforge.net/projects/lpub3d/files/%LAST_VER_PKG%/",
 >>%genlastVersionInsert_Pkg%   "latest-version": "%LAST_VER_PKG%",
 >>%genlastVersionInsert_Pkg%   "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LAST_VER_PKG%_x86_64.pkg.tar.xz",
@@ -512,8 +516,6 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "latest-version": "%VERSION%",
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster.exe",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log.txt",
->>%genLPub3DUpdates%       "download-url-": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%VERSION%.exe",
->>%genLPub3DUpdates%       "changelog-url-": "http://lpub3d.sourceforge.net/change_log_%VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%VERSION%,%AVAILABLE_VERS_EXE%",
 >>%genLPub3DUpdates%       "alternate-version-1.3.5": {
 >>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/1.3.5/",
@@ -533,44 +535,70 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_1.0.0.exe",
 >>%genLPub3DUpdates%      	 "changelog-url": "http://lpub3d.sourceforge.net/change_log_1.0.0.txt"
 >>%genLPub3DUpdates%       }
+>>%genLPub3DUpdates%     "windows-exe": {
+>>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VERSION%/",
+>>%genLPub3DUpdates%       "latest-version": "%VERSION%",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster.exe",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log.txt",
+>>%genLPub3DUpdates%       "download-url-": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%VERSION%.exe",
+>>%genLPub3DUpdates%       "changelog-url-": "http://lpub3d.sourceforge.net/change_log_%VERSION%.txt",
+>>%genLPub3DUpdates%       "available-versions": "%VERSION%,%AVAILABLE_VERS_EXE%",
+>>%genLPub3DUpdates%       "alternate-version-1.3.5-exe": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/1.3.5/",
+>>%genLPub3DUpdates%      	 "latest-version": "1.3.5",
+>>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_1.3.5.exe",
+>>%genLPub3DUpdates%      	 "changelog-url": "http://lpub3d.sourceforge.net/change_log_1.3.5.txt"
+>>%genLPub3DUpdates%       },
+>>%genLPub3DUpdates%       "alternate-version-1.2.3-exe": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/1.2.3/",
+>>%genLPub3DUpdates%      	 "latest-version": "1.2.3",
+>>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_1.2.3.exe",
+>>%genLPub3DUpdates%      	 "changelog-url": "http://lpub3d.sourceforge.net/change_log_1.2.3.txt"
+>>%genLPub3DUpdates%       },
+>>%genLPub3DUpdates%       "alternate-version-1.0.0-exe": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/1.0.0/",
+>>%genLPub3DUpdates%      	 "latest-version": "1.0.0",
+>>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_1.0.0.exe",
+>>%genLPub3DUpdates%      	 "changelog-url": "http://lpub3d.sourceforge.net/change_log_1.0.0.txt"
+>>%genLPub3DUpdates%       }
 >>%genLPub3DUpdates%     },
->>%genLPub3DUpdates%     "osx": {
+>>%genLPub3DUpdates%     "osx-dmg": {
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%VERSION%",
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%VERSION%_osx.dmg",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%VERSION%,%AVAILABLE_VERS_DMG%",  
->>%genLPub3DUpdates%       "alternate-version-2.0.19": {
->>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/2.0.19/",
->>%genLPub3DUpdates%      	 "latest-version": "2.0.19",
->>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_2.0.19_osx.dmg",
->>%genLPub3DUpdates%      	 "changelog-url": "http://lpub3d.sourceforge.net/change_log_2.0.19.txt"
+>>%genLPub3DUpdates%       "alternate-version-%ALT_VER_01%-dmg": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALT_VER_01%/",
+>>%genLPub3DUpdates%      	 "latest-version": "%ALT_VER_01%",
+>>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALT_VER_01%_osx.dmg",
+>>%genLPub3DUpdates%      	 "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALT_VER_01%.txt"
 >>%genLPub3DUpdates%       }
 >>%genLPub3DUpdates%     },
 >>%genLPub3DUpdates%     "linux-deb": {
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%VERSION%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%VERSION%_0ubuntu1_amd64.deb",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%VERSION%_amd64.deb",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%VERSION%,%AVAILABLE_VERS_DEB%",
->>%genLPub3DUpdates%       "alternate-version-2.0.19": {
->>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/2.0.19/",
->>%genLPub3DUpdates%      	 "latest-version": "2.0.19",
->>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_2.0.19_0ubuntu1_amd64.deb",
->>%genLPub3DUpdates%      	 "changelog-url": "http://lpub3d.sourceforge.net/change_log_2.0.19.txt"
+>>%genLPub3DUpdates%       "alternate-version-%ALT_VER_01%-deb": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALT_VER_01%/",
+>>%genLPub3DUpdates%      	 "latest-version": "%ALT_VER_01%",
+>>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALT_VER_01%_amd64.deb",
+>>%genLPub3DUpdates%      	 "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALT_VER_01%.txt"
 >>%genLPub3DUpdates%       }
 >>%genLPub3DUpdates%     },
 >>%genLPub3DUpdates%     "linux-rpm": {
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%VERSION%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%VERSION%_1fedora.x86_64.rpm",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%VERSION%_1fc.x86_64.rpm",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%VERSION%,%AVAILABLE_VERS_DEB%",
->>%genLPub3DUpdates%       "alternate-version-2.0.19": {
->>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/2.0.19/",
->>%genLPub3DUpdates%      	 "latest-version": "2.0.19",
->>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_2.0.19_1fedora.x86_64.rpm",
->>%genLPub3DUpdates%      	 "changelog-url": "http://lpub3d.sourceforge.net/change_log_2.0.19.txt"
+>>%genLPub3DUpdates%       "alternate-version-%ALT_VER_01%-rpm": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALT_VER_01%/",
+>>%genLPub3DUpdates%      	 "latest-version": "%ALT_VER_01%",
+>>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALT_VER_01%_1fc.x86_64.rpm",
+>>%genLPub3DUpdates%      	 "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALT_VER_01%.txt"
 >>%genLPub3DUpdates%       }
 >>%genLPub3DUpdates%     },
 >>%genLPub3DUpdates%     "linux-pkg": {
@@ -579,11 +607,11 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%VERSION%_x86_64.pkg.tar.xz",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%VERSION%,%AVAILABLE_VERS_DEB%",
->>%genLPub3DUpdates%       "alternate-version-2.0.19": {
->>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/2.0.19/",
->>%genLPub3DUpdates%      	 "latest-version": "2.0.19",
->>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_2.0.19_x86_64.pkg.tar.xz",
->>%genLPub3DUpdates%      	 "changelog-url": "http://lpub3d.sourceforge.net/change_log_2.0.19.txt"
+>>%genLPub3DUpdates%       "alternate-version-%ALT_VER_01%-pkg": {
+>>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALT_VER_01%/",
+>>%genLPub3DUpdates%      	 "latest-version": "%ALT_VER_01%",
+>>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALT_VER_01%_x86_64.pkg.tar.xz",
+>>%genLPub3DUpdates%      	 "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALT_VER_01%.txt"
 >>%genLPub3DUpdates%       }
 >>%genLPub3DUpdates%     }
 >>%genLPub3DUpdates%   }

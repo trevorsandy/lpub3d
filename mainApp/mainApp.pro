@@ -185,7 +185,7 @@ unix:!macx {
         update_config_files {
             # Pass CONFIG+=update_package_files to qmake (i.e. in QtCreator, set in qmake Additional Arguments)
             # to update application version in lpub3d.desktop (desktop configuration file), lpub3d.1 (man page)
-            # This flag will also add version number and  to packaging configuration files PKGBUILD, changelog and
+            # This flag will also add the version number to packaging configuration files PKGBUILD, changelog and
             # lpub3d.spec depending on which build is being performed.
             CONFIG(release, debug|release) {
                 message(~~~ UPDATE LINUX PACKAGE CONFIG FILES)

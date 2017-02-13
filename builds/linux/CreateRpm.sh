@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update 30 January 2017
+# Last Update 13 February 2017
 # To run:
 # $ chmod 755 CreateRpm.sh
 # $ ./CreateRpm.sh
@@ -9,6 +9,7 @@ ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 WORK_DIR=`pwd`
 BUILD_DATE=`date "+%Y%m%d"`
 CHANGE_DATE=`date "+%a %b %d %Y"`
+
 # logging stuff
 LOG="${WORK_DIR}/$ME.log"
 exec > >(tee -a ${LOG} )
@@ -36,8 +37,7 @@ git clone https://github.com/trevorsandy/lpub3d.git
 echo "3. get LDraw archive libraries"
 if [ ! -f lpub3dldrawunf.zip ]
 then
-     wget -N http://www.ldraw.org/library/unofficial/ldrawunf.zip
-     mv ldrawunf.zip lpub3dldrawunf.zip
+     wget -N -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
 fi
 if [ ! -f complete.zip ]
 then
@@ -56,7 +56,7 @@ else
     echo "$ME terminated!"
     exit 1
 fi
-read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION  VER_BUILD VER_SHA_HASH VER_REST <<< ${VERSION_INFO//'"'}
+read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH VER_REST <<< ${VERSION_INFO//'"'}
 VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
 APP_VERSION=${VERSION}"."${VER_BUILD}
 APP_VERSION_LONG=${VERSION}"."${VER_REVISION}"."${VER_BUILD}_${BUILD_DATE}
@@ -84,20 +84,24 @@ tar -czvf lpub3d-git.tar.gz \
         --exclude="lpub3d/_config.yml" \
         --exclude="lpub3d/.gitignore" lpub3d
 
-echo "6. copy xpm icon to SOURCES/"
+echo "6. copy lpub3d.git.version to SOURCES"
+cp -f lpub3d/builds/linux/obs/lpub3d.spec.git.version .
+
+echo "7. copy xpm icon to SOURCES/"
 cp -f lpub3d/mainApp/images/lpub3d.xpm .
 
-echo "7. copy spec to SPECS/"
-cp -f lpub3d/builds/linux/obs/lpub3d.spec ../SPECS/
+echo "8. copy spec to SPECS/"
+cp -f lpub3d/builds/linux/obs/lpub3d.spec ../SPECS
 
-echo "8. build the RPM package (success = 'exit 0')"
+echo "9. build the RPM package (success = 'exit 0')"
+cd ../SPECS
 rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -v -ba lpub3d.spec
 
 cd ../RPMS/x86_64
 DISTRO_FILE=`find -name "lpub3d-${APP_VERSION}*.rpm"`
 if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
 then
-    echo "9. create update and download packages"
+    echo "10. create update and download packages"
     IFS=- read NAME VERSION ARCH_EXTENSION <<< ${DISTRO_FILE}
 
     cp -f ${DISTRO_FILE} "lpub3d-${APP_VERSION_LONG}_${ARCH_EXTENSION}"
@@ -106,7 +110,7 @@ then
     mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
     echo "      Update package: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
 else
-    echo "9. package ${DISTRO_FILE} not found."
+    echo "10. package ${DISTRO_FILE} not found."
 fi
 
 echo "11. remove cloned lpub3d repository from SOURCES/ and BUILD/"
