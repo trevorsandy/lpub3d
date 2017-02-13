@@ -46,7 +46,7 @@ LDView (ldraw.ini snippits)
 Travis Cobb <ldview@gmail.com>
 
 L3P / LDraw.ini / ldglite
-Lars C. Hassing <delete.lars.three@words.hassings.dk>
+Lars C. Hassing <SP.lars@AM.hassings.dk>
 
 Linux Open Build Service
 Peter Bartfai <pbartfai@stardust.hu>

@@ -23,11 +23,11 @@
 
 # define distributions
 %if 0%{?suse_version}
-%define dist opensuse
+%define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
 %endif
 
 %if 0%{?sles_version}
-%define dist suse
+%define dist .SUSE%(echo %{sles_version} | sed 's/0$//')
 %endif
 
 %if 0%{?fedora}
@@ -54,8 +54,8 @@
 # packer's identification
 %define packer %(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)
 
-# version number
-%define version {X.XX.XX.XXX}
+# sources
+Source10: lpub3d.spec.git.version
 
 # distro group settings
 %if 0%{?suse_version} || 0%{?sles_version}
@@ -79,7 +79,7 @@ License: GPLv3+
 Name: lpub3d
 Icon: lpub3d.xpm
 Summary: An LDraw Building Instruction Editor
-Version: %{version}
+Version: %(tr -d '\n' < %{SOURCE10})
 Release: 1%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -87,11 +87,14 @@ Packager: %packer
 BuildRoot: %{_builddir}/%{name}
 BuildArch: %{_arch}
 Requires: unzip 
-Source0: lpub3d.git.tar.gz
+Source0: lpub3d-git.tar.gz
 
 # package requirements
 %if 0%{?fedora} || 0%{?rhel_version} || 0%{?centos_version} || 0%{?scientificlinux_version}
 BuildRequires: qt5-qtbase-devel
+%if 0%{?fedora}
+BuildRequires: qt5-linguist
+%endif
 %if 0%{?OBS}!=1
 BuildRequires: git
 %endif
@@ -146,15 +149,15 @@ export QT_SELECT=qt5
 # get ldraw archive libraries
 LD_OFF_LIB="../../SOURCES/complete.zip"
 LD_UNOFF_LIB="../../SOURCES/lpub3dldrawunf.zip"
-if [ -f ${LD_OFF_LIB} ] ; then              \
-      cp ${LD_OFF_LIB} mainApp/extras ;     \
+if [ -f ${LD_OFF_LIB} ] ; then 
+      cp ${LD_OFF_LIB} mainApp/extras
 else
-      echo "complete.zip not found!" ;      \
-fi ;
-if [ -f ${LD_UNOFF_LIB} ] ; then            \
-      cp ${LD_UNOFF_LIB} mainApp/extras ;   \
+      echo "complete.zip not found!" 
+fi
+if [ -f ${LD_UNOFF_LIB} ] ; then
+      cp ${LD_UNOFF_LIB} mainApp/extras
 else
-      echo "lpub3dldrawunf.zip not found!" ;\
+      echo "lpub3dldrawunf.zip not found!"
 fi ;
 
 # use Qt5
@@ -163,11 +166,11 @@ fi ;
 export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC"
 %endif
 %endif
-if which qmake-qt5 >/dev/null 2>/dev/null ; then 		            \
-    qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm ;\
-else													\
-    qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm ;    \
-fi ;													\
+if which qmake-qt5 >/dev/null 2>/dev/null ; then 
+    qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm 
+else
+    qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm
+fi 
 make clean
 make %{?_smp_mflags}
 
@@ -194,3 +197,4 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * %{datetime} - trevor.dot.sandy.at.gmail.dot.com %{version}
 - LPub3D Linux package (rpm) release
+

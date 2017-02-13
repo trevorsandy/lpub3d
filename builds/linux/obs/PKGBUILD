@@ -1,6 +1,6 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
 pkgname=lpub3d
-pkgver={X.XX.XX.XXX}
+pkgver=2.0.20.663
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d.git"
@@ -11,40 +11,53 @@ makedepends=()
 conflicts=()
 replaces=()
 backup=()
-source=("lpub3d.git.tar.gz")
-md5sums=(SKIP)
+source=("lpub3d-git.tar.gz" "complete.zip" "lpub3dldrawunf.zip")
+noextract=("complete.zip" "lpub3dldrawunf.zip")
+md5sums=(SKIP SKIP SKIP)
 
 prepare() {
-  cd ${srcdir}/lpub3d
-  
-  # get ldraw archive libraries
-  if [ -f ../../complete.zip ] ; then                  \
-       cp ../../complete.zip mainApp/extras ;          \
-  else
-       echo "complete.zip not found!" ;                \
-  fi ;
-  if [ -f ../../lpub3dldrawunf.zip ] ; then            \
-       cp ../../lpub3dldrawunf.zip mainApp/extras ;    \
-  else
-       echo "lpub3dldrawunf.zip not found!" ;          \
-  fi ;
+	if [ -d ${srcdir}/lpub3d ] ; then
+		cd ${srcdir}/lpub3d
+	elif [ -d ${srcdir}/lpub3d-git ] ; then
+		cd ${srcdir}/lpub3d-git
+	fi
 
-  # use Qt5
-  export QT_SELECT=qt5
-  if [ -x /usr/bin/qmake ] ; then                      \
-      qmake -makefile CONFIG+=release CONFIG+=pkg ;    \
-  elif [ -x /usr/bin/qmake-qt5 ] ; then                \
-      qmake-qt5 -makefile CONFIG+=release CONFIG+=pkg ;\
-  fi ;
+	# get ldraw archive libraries
+	if [ -f ../../complete.zip ] ; then
+		cp ../../complete.zip mainApp/extras
+	else
+		echo "complete.zip not found!"
+	fi
+	if [ -f ../../lpub3dldrawunf.zip ] ; then
+		cp ../../lpub3dldrawunf.zip mainApp/extras
+	else
+		echo "lpub3dldrawunf.zip not found!"
+	fi
+
+	# use Qt5
+	export QT_SELECT=qt5
+	if [ -x /usr/bin/qmake ] ; then
+		qmake -makefile CONFIG+=release CONFIG+=pkg
+	elif [ -x /usr/bin/qmake-qt5 ] ; then
+		qmake-qt5 -makefile CONFIG+=release CONFIG+=pkg
+	fi
 }
 
 build() {
-  cd ${srcdir}/lpub3d
-  make clean
-  make
+	if [ -d ${srcdir}/lpub3d ] ; then
+		cd ${srcdir}/lpub3d
+	elif [ -d ${srcdir}/lpub3d-git ] ; then
+		cd ${srcdir}/lpub3d-git
+	fi
+	make clean
+	make
 }
- 
+
 package() {
-  cd ${srcdir}/lpub3d
-  make INSTALL_ROOT=${pkgdir} install 
+	if [ -d ${srcdir}/lpub3d ] ; then
+		cd ${srcdir}/lpub3d
+	elif [ -d ${srcdir}/lpub3d-git ] ; then
+		cd ${srcdir}/lpub3d-git
+	fi
+	make INSTALL_ROOT=${pkgdir} install
 }

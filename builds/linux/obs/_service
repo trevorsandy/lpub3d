@@ -1,9 +1,12 @@
 <services>
   <service name="tar_scm">
+    <summary>Create a tar ball from SCM (git) repository</summary>
+    <description>This service uses a scm client to checkout lpub3d source from github.</description>
     <param name="url">git://github.com/trevorsandy/lpub3d</param>
     <param name="scm">git</param>
     <param name="exclude">builds/linux/standard</param>
     <param name="exclude">builds/osx</param>
+    <param name="exclude">.travis.yml</param>
     <param name="exclude">.gitignore</param>	  
     <param name="exclude">.gitattributes</param>
     <param name="exclude">.git</param>
@@ -13,6 +16,42 @@
     <param name="version">git-master</param>
     <param name="versionformat">git</param>
     <param name="filename">lpub3d</param>
+  </service>
+  <service name="extract_file">
+      <summary>Extract files from archive</summary>
+      <description>This service is used to extract and rename debian files tar or zip archive.</description>
+      <param name="archive">*.tar</param>
+      <param name="files">*/builds/linux/obs/debian/compat</param>
+      <param name="outfilename">debian.compat</param>
+  </service>
+  <service name="extract_file">
+      <param name="archive">*.tar</param>
+      <param name="files">*/builds/linux/obs/debian/changelog</param>
+      <param name="outfilename">debian.changelog</param>
+  </service>
+  <service name="extract_file">
+      <param name="archive">*.tar</param>
+      <param name="files">*/builds/linux/obs/debian/control</param>
+      <param name="outfilename">debian.control</param>
+  </service>
+  <service name="extract_file">
+      <param name="archive">*.tar</param>
+      <param name="files">*/builds/linux/obs/debian/rules</param>
+      <param name="outfilename">debian.rules</param>
+  </service>
+  <service name="extract_file">
+      <param name="archive">*.tar</param>
+      <param name="files">*/builds/linux/obs/debian/copyright</param>
+      <param name="outfilename">debian.copyright</param>
+  </service>
+  <service name="extract_file">
+      <param name="archive">*.tar</param>
+      <param name="files">*/builds/linux/obs/debian/lpub3d_2.0.20.645-0ubuntu1.dsc
+                          */builds/linux/obs/lpub3d.spec
+                          */builds/linux/obs/PKGBUILD
+                          */builds/linux/obs/lpub3d.spec.git.version
+                          */mainApp/images/lpub3d.xpm
+      </param>
   </service>
   <service name="recompress">
     <param name="file">*.tar</param>
@@ -27,5 +66,6 @@
     <param name="protocol">http</param>
     <param name="host">www.ldraw.org</param>
     <param name="path">/library/unofficial/ldrawunf.zip</param>
+    <param name="filename">lpub3dldrawunf.zip</param>
   </service>
 </services>

@@ -10,37 +10,37 @@ export QT_SELECT=qt5
 
 %:
 	dh $@
-	
+
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Start custom configuration command
-	if [ -f ../complete.zip ] ; then				\
-		cp ../complete.zip mainApp/extras ;			\
+	if [ -f ../complete.zip ] ; then
+		cp ../complete.zip mainApp/extras
 	else
-		echo "complete.zip not found!" ;			\
-	fi ;
-	if [ -f ../lpub3dldrawunf.zip ] ; then			\
-		cp ../lpub3dldrawunf.zip mainApp/extras ;	\
+		echo "complete.zip not found!"
+	fi
+	if [ -f ../lpub3dldrawunf.zip ] ; then
+		cp ../lpub3dldrawunf.zip mainApp/extras
 	else
-		echo "lpub3dldrawunf.zip not found!" ;		\
-	fi ;
+		echo "lpub3dldrawunf.zip not found!"
+	fi
 override_dh_auto_configure:
-	if [ `uname -m` = "x86_64" ] ; then				\
-		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb;	\
-	else											\
-		/usr/lib/i386-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb;		\
-	fi ;											\
+	if [ `uname -m` = "x86_64" ] ; then
+		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb
+	else
+		/usr/lib/i386-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb
+	fi
 	# End custom configuration command
 	touch configure-stamp
-	
+
 build: configure-stamp
-	
+
 clean:
 	dh_testdir
 	dh_testroot
 	rm -f configure-stamp
 
 	dh_clean
-	
+
 .PHONY: configure build clean

@@ -5,14 +5,15 @@
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
 
+ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 WORK_DIR=`pwd`
 BUILD_DATE=`date "+%Y%m%d"`
 # logging stuff
-LOG="${WORK_DIR}/CreateDmg.log"
+LOG="${WORK_DIR}/$ME.log"
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
 
-echo "Start..."
+echo "Start $ME..."
 export PATH=~/Qt/IDE/5.7/clang_64:~/Qt/IDE/5.7/clang_64/bin:$PATH
 
 echo "1. create DMG build working directory"
@@ -31,31 +32,32 @@ git clone https://github.com/trevorsandy/lpub3d.git
 
 echo "3. capture version and date info"
 cd lpub3d
-if [ "$1" = "" ]
+#         1 2  3  4   5       6    7  8  9       10
+# format "2 0 20 17 663 410fdd7 2017 02 12 19:50:21"
+FILE="lpub3d/builds/utilities/version.info"
+if [ -f ${FILE} -a -r ${FILE} ]
 then
-     PROJECT_VERSION="builds/utilities/version_info_posix"
-     OLDIFS=$IFS
-     IFS='-'
-     [ ! -f ${PROJECT_VERSION} ] && { echo "${PROJECT_VERSION} file not found"; exit 99; }
-     while read S_VERSION REVISION BUILD S_SHA_HASH 
-     do 
-        VERSION=${S_VERSION//'"'}
-        APP_VERSION=${VERSION}"."${BUILD}
-        APP_VERSION_LONG=${VERSION}"."${REVISION}"."${BUILD}_${BUILD_DATE}
-        echo "REVISION...........${REVISION}"
-        echo "BUILD..............${BUILD}"
-        echo "SHA_HASH...........${S_SHA_HASH//'"'}"
-     done < ${PROJECT_VERSION}
-     IFS=$OLDIFS
+    VERSION_INFO=`cat ${FILE}`
 else
-     VERSION=$1
-     APP_VERSION=$1
-     APP_VERSION_LONG=$1"_"${BUILD_DATE}
+    echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
+    echo "$ME terminated!"
+    exit 1
 fi
-echo "BUILD_DATE.........${BUILD_DATE}"
-echo "VERSION............${VERSION}"		
-echo "APP_VERSION .......${APP_VERSION}"		
-echo "APP_VERSION_LONG...${APP_VERSION_LONG}"
+read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION  VER_BUILD VER_SHA_HASH VER_REST <<< ${VERSION_INFO//'"'}
+VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
+APP_VERSION=${VERSION}"."${VER_BUILD}
+APP_VERSION_LONG=${VERSION}"."${VER_REVISION}"."${VER_BUILD}_${BUILD_DATE}
+echo "WORK_DIR..........${WORK_DIR}"
+echo "VER_MAJOR.........${VER_MAJOR}"
+echo "VER_MINOR.........${VER_MINOR}"
+echo "VER_PATCH.........${VER_PATCH}"
+echo "VER_REVISION......${VER_REVISION}"
+echo "VER_BUILD.........${VER_BUILD}"
+echo "VER_SHA_HASH......${VER_SHA_HASH}"
+echo "VERSION...........${VERSION}"
+echo "APP_VERSION.......${APP_VERSION}"
+echo "APP_VERSION_LONG..${APP_VERSION_LONG}"
+echo "BUILD_DATE........${BUILD_DATE}"
 
 echo "4. get ldraw archive libraries"
 curl "http://www.ldraw.org/library/updates/complete.zip" -o "mainApp/extras/complete.zip"
@@ -135,5 +137,5 @@ echo "14. cleanup"
 rm -R LPub3D.app
 rm lpub3d.icns README.txt lpub3d.json lpub3dbkg.png
 
-echo "Finished!"
-mv $LOG "${WORK_DIR}/dmgbuild/CreateDmg.log"
+echo "$ME Finished!"
+mv $LOG "${WORK_DIR}/dmgbuild/$ME.log"

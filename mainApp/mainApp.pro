@@ -153,6 +153,15 @@ UI_DIR      = $$DESTDIR/.ui
 
 unix:!macx {
 
+        # These defines point LPub3D to the architecture appropriate content
+        # when performing 'check for update' download and installation
+        # Don't forget to set CONFIG+=<deb|rpm|pkg> accordingly if NOT using
+        # the accompanying build scripts - CreateDeb.sh, CreateRpm.sh or CreatePkg.sh
+        deb: PACKAGE_TYPE = DEB_DISTRO
+        rpm: PACKAGE_TYPE = RPM_DISTRO
+        pkg: PACKAGE_TYPE = PKG_DISTRO
+        !isEmpty(PACKAGE_TYPE): DEFINES += $$PACKAGE_TYPE
+
         binarybuild {
             # To build a binary distribution that will not require elevated rights to install,
             # pass CONFIG+=binarybuild to qmake (i.e. in QtCreator, set in qmake Additional Arguments)
@@ -162,6 +171,7 @@ unix:!macx {
             # Linker flag setting to properly direct LPub3D to ldrawini and quazip shared libraries.
             # This setting assumes dependent libraries are deposited at <exe location>/lib by the installer.
             QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/lib\'"
+
         } else {
             # For compiled builds on unix set C++11 standard appropriately
 	    GCC_VERSION = $$system(g++ -dumpversion)
@@ -172,13 +182,23 @@ unix:!macx {
 	    }
 	}
 
-        # These defines point LPub3D to the architecture appropriate content
-        # when performing 'check for update' download and installation
-        # Don't forget to set CONFIG+=<deb|rpm|pkg> accordingly if NOT using
-        # the accompanying build scripts - CreateDeb.sh, CreateRpm.sh or CreatePkg.sh
-        deb: DEFINES += DEB_DISTRO
-        rpm: DEFINES += RPM_DISTRO
-        pkg: DEFINES += PKG_DISTRO
+        update_config_files {
+            # Pass CONFIG+=update_package_files to qmake (i.e. in QtCreator, set in qmake Additional Arguments)
+            # to update application version in lpub3d.desktop (desktop configuration file), lpub3d.1 (man page)
+            # This flag will also add version number and  to packaging configuration files PKGBUILD, changelog and
+            # lpub3d.spec depending on which build is being performed.
+            CONFIG(release, debug|release) {
+                message(~~~ UPDATE LINUX PACKAGE CONFIG FILES)
+                COMMAND_TARGET = $$_PRO_FILE_PWD_/../builds/utilities/update-config-files.sh
+                CHMOD = chmod 755 $$COMMAND_TARGET
+                COMMAND = $$COMMAND_TARGET $$_PRO_FILE_PWD_
+                QMAKE_POST_LINK += $$escape_expand(\n\t)  \
+                                   $$shell_quote$${CHMOD} \
+                                   $$escape_expand(\n\t)  \
+                                   $$shell_quote$${COMMAND}
+            }
+
+        }
 
         # These settings are used for package distributions that will require elevated rights to install
         isEmpty(INSTALL_PREFIX):INSTALL_PREFIX = /usr
@@ -523,14 +543,17 @@ OTHER_FILES += \
     ../builds/linux/obs/PKGBUILD \
     ../builds/linux/obs/debian/rules \
     ../builds/linux/obs/debian/control \
+    ../builds/linux/obs/debian/copyright \
     ../builds/linux/obs/_service \
     ../builds/windows/setup/CreateExe.bat \
     ../builds/windows/setup/LPub3DNoPack.nsi \
     ../builds/windows/setup/nsisFunctions.nsh \
     ../builds/utilities/Copyright-Source-Headers.txt \
+    ../builds/utilities/update-config-files.sh \
     ../builds/utilities/README.md \
     ../README.md \
-    ../.gitignore
+    ../.gitignore \
+    ../.travis.yml
 
 RESOURCES += \
     lpub3d.qrc

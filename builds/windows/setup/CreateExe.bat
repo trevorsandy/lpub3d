@@ -222,6 +222,12 @@ SET VER_MINOR=unknown
 SET VER_BUILD=unknown
 SET VER_PATCH=unknown
 SET VER_REVISION=unknown
+SET VER_SHA_HASH=unknown
+
+SET YEAR=unknown
+SET MONTH=unknown
+SET DAY=unknown
+SET TIME=unknown
 
 SET COMPANY=unknown
 SET COMMENTS=unknown
@@ -251,18 +257,18 @@ ECHO - Setting up release build parameters...
 
 CD /D %utilitiesPath%
 
-SET VERSION_INFO_FILE=version_info_win.txt
-FOR /f "tokens=1 delims=," %%i IN (%VERSION_INFO_FILE%) DO SET VERSION_INPUT=%%i
-FOR /f "tokens=1" %%i IN (%VERSION_INPUT%) DO SET VER_MAJOR=%%i
-FOR /f "tokens=2" %%i IN (%VERSION_INPUT%) DO SET VER_MINOR=%%i
-FOR /f "tokens=3" %%i IN (%VERSION_INPUT%) DO SET VER_PATCH=%%i
-FOR /f "tokens=4" %%i IN (%VERSION_INPUT%) DO SET VER_REVISION=%%i
-FOR /f "tokens=5" %%i IN (%VERSION_INPUT%) DO SET VER_BUILD=%%i
-FOR /f "tokens=2 delims=," %%i IN (%VERSION_INFO_FILE%) DO SET DATETIME_INPUT=%%i
-FOR /f "tokens=1" %%i IN (%DATETIME_INPUT%) DO SET YEAR=%%i
-FOR /f "tokens=2" %%i IN (%DATETIME_INPUT%) DO SET MONTH=%%i
-FOR /f "tokens=3" %%i IN (%DATETIME_INPUT%) DO SET DAY=%%i
-FOR /f "tokens=4" %%i IN (%DATETIME_INPUT%) DO SET TIME=%%i
+SET VERSION_INFO_FILE=version.info
+FOR /f "tokens=1" %%i IN (%VERSION_INFO_FILE%) DO SET VER_MAJOR=%%i
+FOR /f "tokens=2" %%i IN (%VERSION_INFO_FILE%) DO SET VER_MINOR=%%i
+FOR /f "tokens=3" %%i IN (%VERSION_INFO_FILE%) DO SET VER_PATCH=%%i
+FOR /f "tokens=4" %%i IN (%VERSION_INFO_FILE%) DO SET VER_REVISION=%%i
+FOR /f "tokens=5" %%i IN (%VERSION_INFO_FILE%) DO SET VER_BUILD=%%i
+FOR /f "tokens=6" %%i IN (%VERSION_INFO_FILE%) DO SET VER_SHA_HASH=%%i
+
+FOR /f "tokens=7" %%i IN (%VERSION_INFO_FILE%) DO SET YEAR=%%i
+FOR /f "tokens=8" %%i IN (%VERSION_INFO_FILE%) DO SET MONTH=%%i
+FOR /f "tokens=9" %%i IN (%VERSION_INFO_FILE%) DO SET DAY=%%i
+FOR /f "tokens=10" %%i IN (%VERSION_INFO_FILE%) DO SET TIME=%%i
 
 CD /D %setupPath%
 CD /D %devRootPath%
@@ -310,6 +316,7 @@ ECHO   VER_MINOR...........[%VER_MINOR%]
 ECHO   VER_PATCH...........[%VER_PATCH%]
 ECHO   VER_REVISION........[%VER_REVISION%]
 ECHO   VER_BUILD...........[%VER_BUILD%]
+ECHO   VER_SHA_HASH........[%VER_SHA_HASH%]
 ECHO.                    
 ECHO   YEAR................[%YEAR%]
 ECHO   MONTH...............[%MONTH%]
