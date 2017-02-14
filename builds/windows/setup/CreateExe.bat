@@ -2,7 +2,7 @@
 Title Create archive packaged and windows installer LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: February 08, 2017
+rem  Last Update: February 14, 2017
 rem  Copyright (c) 2015 - 2017 by Trevor Sandy
 rem --
 SETLOCAL
@@ -479,7 +479,7 @@ SET genlastVersionInsert_Rpm=%lastVersionInsert_RpmFile% ECHO
 >%genlastVersionInsert_Rpm% "alternate-version-%LAST_VER_RPM%-rpm": {
 >>%genlastVersionInsert_Rpm%   "open-url": "https://sourceforge.net/projects/lpub3d/files/%LAST_VER_RPM%/",
 >>%genlastVersionInsert_Rpm%   "latest-version": "%LAST_VER_RPM%",
->>%genlastVersionInsert_Rpm%   "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LAST_VER_RPM%_1fc.x86_64.rpm",
+>>%genlastVersionInsert_Rpm%   "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LAST_VER_RPM%_fc.x86_64.rpm",
 >>%genlastVersionInsert_Rpm%   "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LAST_VER_RPM%.txt"
 >>%genlastVersionInsert_Rpm% },
 
@@ -591,13 +591,13 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%     "linux-rpm": {
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%VERSION%",
->>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%VERSION%_1fc.x86_64.rpm",
+>>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%VERSION%_fc.x86_64.rpm",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%VERSION%.txt",
 >>%genLPub3DUpdates%       "available-versions": "%VERSION%,%AVAILABLE_VERS_DEB%",
 >>%genLPub3DUpdates%       "alternate-version-%ALT_VER_01%-rpm": {
 >>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALT_VER_01%/",
 >>%genLPub3DUpdates%      	 "latest-version": "%ALT_VER_01%",
->>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALT_VER_01%_1fc.x86_64.rpm",
+>>%genLPub3DUpdates%      	 "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%ALT_VER_01%_fc.x86_64.rpm",
 >>%genLPub3DUpdates%      	 "changelog-url": "http://lpub3d.sourceforge.net/change_log_%ALT_VER_01%.txt"
 >>%genLPub3DUpdates%       }
 >>%genLPub3DUpdates%     },

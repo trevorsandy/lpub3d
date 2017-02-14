@@ -12,15 +12,6 @@
 # date time
 %global datetime %(echo `date "+%a %b %d %Y"`)
 
-# set OBS environment
-%if "%{vendor}" == "obs://build.opensuse.org/home:trevorsandy"
-%define OBS 1
-%endif
-
-%if "%{vendor}" == "obs://private/home:trevorsandy"
-%define OBS 1
-%endif
-
 # define distributions
 %if 0%{?suse_version}
 %define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
@@ -51,9 +42,6 @@
 %define dist cos
 %endif
 
-# sources
-Source10: lpub3d.spec.git.version
-
 # distro group settings
 %if 0%{?suse_version} || 0%{?sles_version}
 Group: Productivity/Graphics/Viewers
@@ -72,19 +60,37 @@ Group: Amusements/Graphics
 License: GPLv3+
 %endif
 
-# packer's identification
+# define git version string from source
+Source10: lpub3d.spec.git.version
+%define gitversion %(tr -d '\n' < %{SOURCE10})
+
+# set packing platform
+%if "0%{?vendor}"
+%define obsurl obs://build.opensuse.org/home:
+%define obsurlprivate obs://private/home:
+%define packingplatform %(if [[ "%{vendor}" == *"%{obsurl}"* ]] || [[ "%{vendor}" == *"%{obsurlprivate}"* ]]; then echo "OpenSUSE OBS"; else echo "$HOSTNAME [`uname`]"; fi)
+%if "%{packingplatform}" == "OpenSUSE OBS"
+%define OBS 1
+%endif
+%endif
+
+# set packer
+%if 0%{?OBS}
+%define distpacker "abuild"
+%else
 BuildRequires: finger
-%define packer %(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)
+%define distpacker "%(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)"
+%endif
 
 # package attributes
 Name: lpub3d
 Icon: lpub3d.xpm
 Summary: An LDraw Building Instruction Editor
-Version: %(tr -d '\n' < %{SOURCE10})
-Release: 1%{?dist}
+Version: %{gitversion}
+Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
-Packager: %packer
+Packager: %{distpacker}
 BuildRoot: %{_builddir}/%{name}
 BuildArch: %{_arch}
 Requires: unzip 
@@ -142,21 +148,36 @@ BuildRequires: -post-build-checks
  © 2015-2017 Trevor SANDY
 
 %prep
-%autosetup -n %{name}
+{ set +x; } 2>/dev/null
+echo Target...................%{_target}
+echo Target Vendor............%{_target_vendor}
+echo Target CPU...............%{_target_cpu}
+echo Name.....................%{name}
+echo Summary..................%{summary}
+echo Version..................%{version}
+echo Vendor...................%{vendor}
+echo Release..................%{release}
+echo Packager.................%{distpacker}
+echo Source0..................%{SOURCE0}
+echo Source10.................%{SOURCE10}
+echo Packing Platform.........%{packingplatform}
+echo Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm
+{ set -x; } 2>/dev/null
+%setup -q -n %{name}-git
 
 %build
 export QT_SELECT=qt5
 
 # get ldraw archive libraries
-LD_OFF_LIB="../../SOURCES/complete.zip"
-LD_UNOFF_LIB="../../SOURCES/lpub3dldrawunf.zip"
-if [ -f ${LD_OFF_LIB} ] ; then 
-      cp ${LD_OFF_LIB} mainApp/extras
+LDrawLibOffical="../../SOURCES/complete.zip"
+LDrawLibUnofficial="../../SOURCES/lpub3dldrawunf.zip"
+if [ -f ${LDrawLibOffical} ] ; then 
+      cp ${LDrawLibOffical} mainApp/extras
 else
       echo "complete.zip not found!" 
 fi
-if [ -f ${LD_UNOFF_LIB} ] ; then
-      cp ${LD_UNOFF_LIB} mainApp/extras
+if [ -f ${LDrawLibUnofficial} ] ; then
+      cp ${LDrawLibUnofficial} mainApp/extras
 else
       echo "lpub3dldrawunf.zip not found!"
 fi ;

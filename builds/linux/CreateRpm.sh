@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update 13 February 2017
+# Last Update 14 February 2017
 # To run:
 # $ chmod 755 CreateRpm.sh
 # $ ./CreateRpm.sh
@@ -30,9 +30,11 @@ do
     fi
 done
 cd SOURCES
+WORK_DIR=lpub3d-git
 
 echo "2. download source"
 git clone https://github.com/trevorsandy/lpub3d.git
+mv lpub3d ${WORK_DIR}
 
 echo "3. get LDraw archive libraries"
 if [ ! -f lpub3dldrawunf.zip ]
@@ -47,7 +49,7 @@ fi
 echo "4. update version info"
 #         1 2  3  4   5       6    7  8  9       10
 # format "2 0 20 17 663 410fdd7 2017 02 12 19:50:21"
-FILE="lpub3d/builds/utilities/version.info"
+FILE="${WORK_DIR}/builds/utilities/version.info"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     VERSION_INFO=`cat ${FILE}`
@@ -56,7 +58,7 @@ else
     echo "$ME terminated!"
     exit 1
 fi
-read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH VER_REST <<< ${VERSION_INFO//'"'}
+read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION  VER_BUILD VER_SHA_HASH VER_REST <<< ${VERSION_INFO//'"'}
 VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
 APP_VERSION=${VERSION}"."${VER_BUILD}
 APP_VERSION_LONG=${VERSION}"."${VER_REVISION}"."${VER_BUILD}_${BUILD_DATE}
@@ -71,28 +73,31 @@ echo "VERSION...........${VERSION}"
 echo "APP_VERSION.......${APP_VERSION}"
 echo "APP_VERSION_LONG..${APP_VERSION_LONG}"
 echo "BUILD_DATE........${BUILD_DATE}"
+echo "WORK_DIR..........${WORK_DIR}"
 
-echo "5. create tarball"
-tar -czvf lpub3d-git.tar.gz \
-        --exclude="lpub3d/builds/linux/standard" \
-        --exclude="lpub3d/builds/osx" \
-        --exclude="lpub3d/.travis.yml" \
-        --exclude="lpub3d/.git" \
-        --exclude="lpub3d/.gitattributes" \
-        --exclude="lpub3d/LPub3D.pro.user" \
-        --exclude="lpub3d/README.md" \
-        --exclude="lpub3d/_config.yml" \
-        --exclude="lpub3d/.gitignore" lpub3d
+echo "5. copy lpub3d.git.version to SOURCES"
+cp -f ${WORK_DIR}/builds/linux/obs/lpub3d.spec.git.version .
 
-echo "6. copy lpub3d.git.version to SOURCES"
-cp -f lpub3d/builds/linux/obs/lpub3d.spec.git.version .
+echo "6. copy xpm icon to SOURCES/"
+cp -f ${WORK_DIR}/mainApp/images/lpub3d.xpm .
 
-echo "7. copy xpm icon to SOURCES/"
-cp -f lpub3d/mainApp/images/lpub3d.xpm .
+echo "7. copy spec to SPECS/"
+cp -f ${WORK_DIR}/builds/linux/obs/lpub3d.spec ../SPECS
 
-echo "8. copy spec to SPECS/"
-cp -f lpub3d/builds/linux/obs/lpub3d.spec ../SPECS
-
+echo "8. create tarball"
+tar -czvf ${WORK_DIR}.tar.gz \
+        --exclude="${WORK_DIR}/builds/linux/standard" \
+        --exclude="${WORK_DIR}/builds/windows" \
+        --exclude="${WORK_DIR}/builds/osx" \
+        --exclude="${WORK_DIR}/lc_lib/tools" \
+        --exclude="${WORK_DIR}/.travis.yml" \
+        --exclude="${WORK_DIR}/.git" \
+        --exclude="${WORK_DIR}/.gitattributes" \
+        --exclude="${WORK_DIR}/LPub3D.pro.user" \
+        --exclude="${WORK_DIR}/README.md" \
+        --exclude="${WORK_DIR}/_config.yml" \
+        --exclude="${WORK_DIR}/.gitignore" ${WORK_DIR}
+		
 echo "9. build the RPM package (success = 'exit 0')"
 cd ../SPECS
 rpmbuild --define "_topdir ${WORK_DIR}/rpmbuild" -v -ba lpub3d.spec
@@ -114,7 +119,7 @@ else
 fi
 
 echo "11. remove cloned lpub3d repository from SOURCES/ and BUILD/"
-rm -rf ../../SOURCES/lpub3d ../../BUILD/lpub3d
+rm -rf ../../SOURCES/${WORK_DIR} ../../BUILD/${WORK_DIR}
 
 echo "$ME Finished!"
 mv $LOG "${WORK_DIR}/rpmbuild/$ME.log"

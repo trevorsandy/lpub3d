@@ -1,12 +1,20 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update 12 February 2017
+# Last Update 14 February 2017
 # This script is automatically executed by qmake from mainApp.pro
 
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 BUILD_DATE=`date "+%Y%m%d"`
 CHANGE_DATE=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
 WORK_DIR=`pwd`
+
+# updated line numbers - change if you modify respective file
+desktopLn1=10
+manPageLn1=61
+pkgBuildLn1=3
+debDscLn1=5
+rpmSpecLn1=unknown
+
 if [ "$1" = "" ]
 then
         echo "Error: Did not receive required argument _PRO_FILE_PWD_"
@@ -60,7 +68,7 @@ echo "2. update desktop configuration - add version suffix"
 FILE="$PWD/lpub3d.desktop"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
-        sed -i "10s/.*/Exec=lpub3d${APP_VER_SUFFIX} %f/" "${FILE}"
+        sed -i "${desktopLn1}s/.*/Exec=lpub3d${APP_VER_SUFFIX} %f/" "${FILE}"
 else
         echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
 fi
@@ -69,7 +77,7 @@ echo "3. update man page - add version suffix"
 FILE="$PWD/lpub3d.1"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
-        sed -i "61s/.*/     \/usr\/bin\/lpub3d${APP_VER_SUFFIX}/" "${FILE}"
+        sed -i "${manPageLn1}s/.*/     \/usr\/bin\/lpub3d${APP_VER_SUFFIX}/" "${FILE}"
 else
         echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
 fi
@@ -78,7 +86,7 @@ echo "4. update PKGBUILD - add version"
 FILE="$PWD/../builds/linux/obs/PKGBUILD"
 if [ -f ${FILE} -a -r ${FILE} ] || [ -f ${SBFILE=} -a -r ${SBFILE} ]
 then
-        sed -i "3s/.*/pkgver=${APP_VERSION}/" "${FILE}"
+        sed -i "${pkgBuildLn1}s/.*/pkgver=${APP_VERSION}/" "${FILE}"
 else
         echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
 fi
@@ -101,7 +109,7 @@ echo "6. update lpub3d.dsc - add version"
 FILE="$PWD/../builds/linux/obs/debian/lpub3d.dsc"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
-        sed -i "5s/.*/Version: ${APP_VERSION}/" "${FILE}"
+        sed -i "${debDscLn1}s/.*/Version: ${APP_VERSION}/" "${FILE}"
 else
         echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
 fi

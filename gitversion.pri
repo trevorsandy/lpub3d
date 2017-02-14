@@ -118,8 +118,8 @@ VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_PATCH
 
 # Update the version number file for win/unix during build
 VERSION_INFO_FILE = $$PWD/builds/utilities/version.info
-VERSION_INFO =  \"$$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION_STR $$VER_BUILD_STR \
-                  $$VER_SHA_HASH_STR $$DATE_YY $$DATE_MM $$DATE_DD $$BUILD_TIME\"
+VERSION_INFO = $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION_STR $$VER_BUILD_STR \
+               $$VER_SHA_HASH_STR $$DATE_YY $$DATE_MM $$DATE_DD $$BUILD_TIME
 message(~~~ VERSION_INFO: $$VERSION_INFO)
 
 # Generate version input file to be consumed by build scripts
