@@ -544,6 +544,7 @@ OTHER_FILES += \
     ../builds/linux/obs/debian/rules \
     ../builds/linux/obs/debian/control \
     ../builds/linux/obs/debian/copyright \
+    ../builds/linux/obs/debian/lpub3d.dsc \
     ../builds/linux/obs/_service \
     ../builds/windows/setup/CreateExe.bat \
     ../builds/windows/setup/LPub3DNoPack.nsi \
