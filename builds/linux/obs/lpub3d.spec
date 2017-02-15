@@ -164,7 +164,7 @@ echo Source10.................%{SOURCE10}
 echo Service Provider.........%{serviceprovider}
 echo Packing Platform.........%{packingplatform}
 echo Change Date..............%{changedate}
-echo OpenBuildService Flat....%{OBS}
+echo OpenBuildService Flag....%{OBS}
 echo Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm
 { set -x; } 2>/dev/null
 %setup -q -n %{name}-git
