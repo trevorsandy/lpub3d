@@ -10,7 +10,7 @@
 #
 
 # date time
-%global datetime %(echo `date "+%a %b %d %Y"`)
+%global changedate %(echo `date "+%a %b %d %Y"`)
 
 # define distributions
 %if 0%{?suse_version}
@@ -66,10 +66,11 @@ Source10: lpub3d.spec.git.version
 
 # set packing platform
 %if "0%{?vendor}"
+%define serviceprovider "%{vendor}"
 %define obsurl obs://build.opensuse.org/home:
 %define obsurlprivate obs://private/home:
-%define packingplatform %(if [[ "%{vendor}" == *"%{obsurl}"* ]] || [[ "%{vendor}" == *"%{obsurlprivate}"* ]]; then echo "OpenSUSE OBS"; else echo "$HOSTNAME [`uname`]"; fi)
-%if "%{packingplatform}" == "OpenSUSE OBS"
+%define packingplatform %(if [[ "%{vendor}" == *"%{obsurl}"* ]] || [[ "%{vendor}" == *"%{obsurlprivate}"* ]]; then echo "openSUSE OBS"; else echo "$HOSTNAME [`uname`]"; fi)
+%if "%{packingplatform}" == "openSUSE OBS"
 %define OBS 1
 %endif
 %endif
@@ -160,7 +161,9 @@ echo Release..................%{release}
 echo Packager.................%{distpacker}
 echo Source0..................%{SOURCE0}
 echo Source10.................%{SOURCE10}
+echo Service Provider.........%{serviceprovider}
 echo Packing Platform.........%{packingplatform}
+echo Change Date..............%{datetime}
 echo Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm
 { set -x; } 2>/dev/null
 %setup -q -n %{name}-git
@@ -217,6 +220,6 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/ldconfig
 
 %changelog
-* %{datetime} - trevor.dot.sandy.at.gmail.dot.com %{version}
+* %{changedate} - trevor.dot.sandy.at.gmail.dot.com %{version}
 - LPub3D Linux package (rpm) release
 

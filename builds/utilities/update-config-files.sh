@@ -31,7 +31,7 @@ fi
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
 
-echo "Start $ME..."
+echo "Start $ME execution..."
 echo "1. capture version info"
 FILE="$PWD/../builds/utilities/version.info"
 if [ -f ${FILE} -a -r ${FILE} ]
@@ -123,3 +123,4 @@ fi
 cat <<EOF >${FILE}
 ${APP_VERSION}
 EOF
+echo "$ME execution finshed."

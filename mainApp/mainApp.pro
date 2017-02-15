@@ -150,17 +150,15 @@ RCC_DIR     = $$DESTDIR/.qrc
 UI_DIR      = $$DESTDIR/.ui
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 unix:!macx {
 
-        # These defines point LPub3D to the architecture appropriate content
-        # when performing 'check for update' download and installation
-        # Don't forget to set CONFIG+=<deb|rpm|pkg> accordingly if NOT using
-        # the accompanying build scripts - CreateDeb.sh, CreateRpm.sh or CreatePkg.sh
-        deb: PACKAGE_TYPE = DEB_DISTRO
-        rpm: PACKAGE_TYPE = RPM_DISTRO
-        pkg: PACKAGE_TYPE = PKG_DISTRO
-        !isEmpty(PACKAGE_TYPE): DEFINES += $$PACKAGE_TYPE
+        # For compiled builds on unix set C++11 standard appropriately
+        GCC_VERSION = $$system(g++ -dumpversion)
+        greaterThan(GCC_VERSION, 4.6) {
+            QMAKE_CXXFLAGS += -std=c++11
+        } else {
+            QMAKE_CXXFLAGS += -std=c++0x
+        }
 
         binarybuild {
             # To build a binary distribution that will not require elevated rights to install,
@@ -172,33 +170,16 @@ unix:!macx {
             # This setting assumes dependent libraries are deposited at <exe location>/lib by the installer.
             QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/lib\'"
 
-        } else {
-            # For compiled builds on unix set C++11 standard appropriately
-	    GCC_VERSION = $$system(g++ -dumpversion)
-	    greaterThan(GCC_VERSION, 4.6) {
-		QMAKE_CXXFLAGS += -std=c++11
-	    } else {
-		QMAKE_CXXFLAGS += -std=c++0x
-	    }
-	}
-
-        update_config_files {
-            # Pass CONFIG+=update_package_files to qmake (i.e. in QtCreator, set in qmake Additional Arguments)
-            # to update application version in lpub3d.desktop (desktop configuration file), lpub3d.1 (man page)
-            # This flag will also add the version number to packaging configuration files PKGBUILD, changelog and
-            # lpub3d.spec depending on which build is being performed.
-            CONFIG(release, debug|release) {
-                message(~~~ UPDATE LINUX PACKAGE CONFIG FILES)
-                COMMAND_TARGET = $$_PRO_FILE_PWD_/../builds/utilities/update-config-files.sh
-                CHMOD = chmod 755 $$COMMAND_TARGET
-                COMMAND = $$COMMAND_TARGET $$_PRO_FILE_PWD_
-                QMAKE_POST_LINK += $$escape_expand(\n\t)  \
-                                   $$shell_quote$${CHMOD} \
-                                   $$escape_expand(\n\t)  \
-                                   $$shell_quote$${COMMAND}
-            }
-
         }
+
+        # These defines point LPub3D to the architecture appropriate content
+        # when performing 'check for update' download and installation
+        # Don't forget to set CONFIG+=<deb|rpm|pkg> accordingly if NOT using
+        # the accompanying build scripts - CreateDeb.sh, CreateRpm.sh or CreatePkg.sh
+        deb: PACKAGE_TYPE = DEB_DISTRO
+        rpm: PACKAGE_TYPE = RPM_DISTRO
+        pkg: PACKAGE_TYPE = PKG_DISTRO
+        !isEmpty(PACKAGE_TYPE): DEFINES += $$PACKAGE_TYPE
 
         # These settings are used for package distributions that will require elevated rights to install
         isEmpty(INSTALL_PREFIX):INSTALL_PREFIX = /usr

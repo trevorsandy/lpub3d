@@ -2,7 +2,7 @@ Format: 3.0 (quilt)
 Source: lpub3d
 Binary: lpub3d
 Architecture: any
-Version: 2.0.20.663
+Version: 2.0.20.669
 Maintainer: Trevor SANDY <trevor.sandy@gmail.com>
 Homepage: https://trevorsandy.github.io/lpub3d/
 Standards-Version: 3.9.7
