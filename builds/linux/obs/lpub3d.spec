@@ -66,9 +66,9 @@ Source10: lpub3d.spec.git.version
 
 # set packing platform
 %if "0%{?vendor}"
-%define serviceprovider "%{vendor}"
 %define obsurl obs://build.opensuse.org/home:
 %define obsurlprivate obs://private/home:
+%define serviceprovider %(echo "%{vendor}")
 %define packingplatform %(if [[ "%{vendor}" == *"%{obsurl}"* ]] || [[ "%{vendor}" == *"%{obsurlprivate}"* ]]; then echo "openSUSE OBS"; else echo "$HOSTNAME [`uname`]"; fi)
 %if "%{packingplatform}" == "openSUSE OBS"
 %define OBS 1
@@ -77,7 +77,7 @@ Source10: lpub3d.spec.git.version
 
 # set packer
 %if 0%{?OBS}
-%define distpacker "abuild"
+%define distpacker "openSUSE OBS [abuild]"
 %else
 BuildRequires: finger
 %define distpacker "%(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)"
@@ -124,13 +124,13 @@ BuildRequires: qca, gnu-free-sans-fonts
 %if 0%{?suse_version} 
 BuildRequires: libqt5-qtbase-devel, zlib-devel
 %if 0%{?OBS}
-BuildRequires: -post-build-checks
+#BuildRequires: -post-build-checks
 %endif
 %endif
 
 %if 0%{?sles_version}
 %if 0%{?OBS}
-BuildRequires: -post-build-checks
+#BuildRequires: -post-build-checks
 %endif
 %endif
 
@@ -163,7 +163,8 @@ echo Source0..................%{SOURCE0}
 echo Source10.................%{SOURCE10}
 echo Service Provider.........%{serviceprovider}
 echo Packing Platform.........%{packingplatform}
-echo Change Date..............%{datetime}
+echo Change Date..............%{changedate}
+echo OpenBuildService Flat....%{OBS}
 echo Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm
 { set -x; } 2>/dev/null
 %setup -q -n %{name}-git
