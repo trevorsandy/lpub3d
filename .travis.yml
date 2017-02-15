@@ -57,9 +57,9 @@ install:
     fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then 
       wget https://github.com/trevorsandy/lpub3d/releases/download/v2.0.0/test001.zip -O complete.zip;
-      cp -rf complete.zip /Users/travis/build/trevorsandy/lpub3d/mainApp/extras
+      mv complete.zip /Users/travis/build/trevorsandy/lpub3d/mainApp/extras/complete.zip;
       wget https://github.com/trevorsandy/lpub3d/releases/download/v2.0.0/test002.zip -O lpub3dldrawunf.zip;
-      cp -rf /Users/travis/build/trevorsandy/lpub3d/mainApp/extras
+      mv lpub3dldrawunf.zip /Users/travis/build/trevorsandy/lpub3d/mainApp/extras/lpub3dldrawunf.zip;
     fi
     
 script:
