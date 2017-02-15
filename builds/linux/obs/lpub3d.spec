@@ -110,7 +110,7 @@ BuildRequires: gcc-c++, make
 
 %if 0%{?fedora}
 %if 0%{?OBS}
-BuildRequires: samba4-libs
+#BuildRequires: samba4-libs
 %if 0%{?fedora_version}==22
 BuildRequires: qca
 %endif
