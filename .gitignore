@@ -85,7 +85,13 @@ builds/utilities/ldrawlibraries/*
 # Models
 builds/utilities/models/*
 
-# Releases
+# Releases/builds
+mainApp/release/*
+mainApp/debug/*
+ldrawini/release/*
+ldrawini/debug/*
+quazip/release/*
+quazip/debug/*
 builds/osx/dmgbuilds/*
 builds/windows/release/*
 builds/linux/debbuild/*
