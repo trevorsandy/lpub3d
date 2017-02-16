@@ -160,7 +160,9 @@ AboutDialog::AboutDialog(QWidget *parent) :
 #elif defined(Q_OS_MACX)
     osPlatform = QSysInfo::currentCpuArchitecture();
 #elif defined(Q_OS_LINUX)
+#if QT_VERSION >= QT_VERSION_CHECK(5,4,0)
     osPlatform = QSysInfo::currentCpuArchitecture();
+#endif
 #else
     osPlatform = "Cannot determine system";
 #endif
@@ -321,7 +323,11 @@ QString AboutDialog::osName()
   }
   #endif
 #else
+#if QT_VERSION >= QT_VERSION_CHECK(5,4,0)
    return QSysInfo::productVersion();
+#else
+   return "unknown";
+#endif
 #endif
 }
 
