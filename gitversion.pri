@@ -142,42 +142,33 @@ VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_PATCH
                            $$escape_expand(\n\t)  \
                            echo $$shell_quote$${RPM_SPEC_VERSION} > $$shell_quote$${RPM_SPEC_VERSION_FILE}
 
-        # Pass CONFIG+=update_package_files to qmake (i.e. in QtCreator, set in qmake Additional Arguments)
-        # to update the application version in lpub3d.desktop (desktop configuration file), lpub3d.1 (man page)
-        # for linux platforms and the Info.plist for mac osx.
+        # On Mac update the Info.plist with version major, version minor, build and add git hash
+        macx {
+            CONFIG(release, debug|release) {
+                message(~~~ UPDATE MAC OSX INFO.PLIST)
+                INFO_PLIST_FILE = $$shell_quote($${PWD}/mainApp/Info.plist)
+                PLIST_COMMAND = /usr/libexec/PlistBuddy -c
+                QMAKE_POST_LINK += $$escape_expand(\n\t)   \
+                                   $$PLIST_COMMAND \"Set :CFBundleShortVersionString $${VERSION}\" $${INFO_PLIST_FILE}  \
+                                   $$escape_expand(\n\t)   \
+                                   $$PLIST_COMMAND \"Set :CFBundleVersion $${VER_BUILD_STR}\" $${INFO_PLIST_FILE} \
+                                   $$escape_expand(\n\t)   \
+                                   $$PLIST_COMMAND \"Set :com.trevorsandy.lpub3d.GitSHA $${VER_SHA_HASH_STR}\" $${INFO_PLIST_FILE}
+            }
+        }
+        # On Linux, update the application version in lpub3d.desktop (desktop configuration file), lpub3d.1 (man page)
         # This flag will also add the version number to packaging configuration files PKGBUILD, changelog and
         # lpub3d.spec depending on which build is being performed.
-        update_config_files {
-            # On Mac, update Info.plist with executable name which includes version details and full version
-            macx {
-#               INFO_PLIST_FILE = $$PWD/mainApp/Info.plist
-#               PLIST_COMMAND = /usr/libexec/PlistBuddy -c
-#               RESULT = $$system( $$PLIST_COMMAND \"Set :CFBundleShortVersionString $${VERSION}\" $$shell_quote($${INFO_PLIST_FILE}) )
-#               RESULT = $$system( $$PLIST_COMMAND \"Set :CFBundleVersion $${VER_BUILD_STR}\" $$shell_quote($${INFO_PLIST_FILE}) )
-#               RESULT = $$system( $$PLIST_COMMAND \"Set :com.trevorsandy.lpub3d.GitSHA $${VER_SHA_HASH_STR}\" $$shell_quote($${INFO_PLIST_FILE}) )
-                CONFIG(release, debug|release) {
-                    INFO_PLIST_FILE = $$shell_quote($${OUT_PWD}/$${TARGET}.app/Contents/Info.plist)
-                    PLIST_COMMAND = /usr/libexec/PlistBuddy -c
-                    QMAKE_POST_LINK += $$escape_expand(\n\t)   \
-                                       $$PLIST_COMMAND \"Set :CFBundleShortVersionString $${VERSION}\" $${INFO_PLIST_FILE}  \
-                                       $$escape_expand(\n\t)   \
-                                       $$PLIST_COMMAND \"Set :CFBundleVersion $${VER_BUILD_STR}\" $${INFO_PLIST_FILE} \
-                                       $$escape_expand(\n\t)   \
-                                       $$PLIST_COMMAND \"Set :com.trevorsandy.lpub3d.GitSHA $${VER_SHA_HASH_STR}\" $${INFO_PLIST_FILE}
-                }
-            }
-            # On Linux, run the update-config-files shell script to update version in configuration files
-            unix:!macx {
-                CONFIG(release, debug|release) {
-                    message(~~~ UPDATE LINUX PACKAGE CONFIG FILES)
-                    COMMAND_TARGET = $$PWD/builds/utilities/update-config-files.sh
-                    CHMOD = chmod 755 $$COMMAND_TARGET
-                    COMMAND = $$COMMAND_TARGET $$_PRO_FILE_PWD_
-                    QMAKE_POST_LINK += $$escape_expand(\n\t)  \
-                                       $$shell_quote$${CHMOD} \
-                                       $$escape_expand(\n\t)  \
-                                       $$shell_quote$${COMMAND}
-                }
+        unix:!macx: {
+            CONFIG(release, debug|release) {
+                message(~~~ UPDATE LINUX PACKAGE CONFIG FILES)
+                COMMAND_TARGET = $$PWD/builds/utilities/update-config-files.sh
+                CHMOD = chmod 755 $$COMMAND_TARGET
+                COMMAND = $$COMMAND_TARGET $$_PRO_FILE_PWD_
+                QMAKE_POST_LINK += $$escape_expand(\n\t)  \
+                                   $$shell_quote$${CHMOD} \
+                                   $$escape_expand(\n\t)  \
+                                   $$shell_quote$${COMMAND}
             }
         }
     }
