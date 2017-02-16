@@ -34,7 +34,7 @@ echo "3. capture version and date info"
 cd lpub3d
 #         1 2  3  4   5       6    7  8  9       10
 # format "2 0 20 17 663 410fdd7 2017 02 12 19:50:21"
-FILE="lpub3d/builds/utilities/version.info"
+FILE="builds/utilities/version.info"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     VERSION_INFO=`cat ${FILE}`
