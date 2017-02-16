@@ -218,17 +218,17 @@ unix:!macx {
         mime_multipart_ldraw_icon.files += images/x-multipart-ldraw.svg
         mime_multipart_ldraw_icon.path = $$MIME_ICON_DIR
 
-        excluded_parts.files += extras/excludedParts.lst
-        excluded_parts.path = $$RESOURCE_DIR
+        excluded_count_parts.files += extras/excludedParts.lst
+        excluded_count_parts.path = $$RESOURCE_DIR
 
         fadestep_color_parts.files += extras/fadeStepColorParts.lst
         fadestep_color_parts.path = $$RESOURCE_DIR
 
-        freeform_annotations.files += extras/freeformAnnotations.lst
-        freeform_annotations.path = $$RESOURCE_DIR
+        pli_freeform_annotations.files += extras/freeformAnnotations.lst
+        pli_freeform_annotations.path = $$RESOURCE_DIR
 
-        title_annotations.files += extras/titleAnnotations.lst
-        title_annotations.path = $$RESOURCE_DIR
+        pli_title_annotations.files += extras/titleAnnotations.lst
+        pli_title_annotations.path = $$RESOURCE_DIR
 
         pli_orientation.files += extras/pli.mpd
         pli_orientation.path = $$RESOURCE_DIR
@@ -241,8 +241,8 @@ unix:!macx {
         ldraw_unofficial_library.files += extras/lpub3dldrawunf.zip
         ldraw_unofficial_library.path = $$RESOURCE_DIR
 
-        ldraw_library.files += extras/complete.zip
-        ldraw_library.path = $$RESOURCE_DIR
+        ldraw_official_library.files += extras/complete.zip
+        ldraw_official_library.path = $$RESOURCE_DIR
 
         INSTALLS += \
         target \
@@ -254,14 +254,14 @@ unix:!macx {
         mime_ldraw_icon \
         mime_multi_part_ldraw_icon \
         mime_multipart_ldraw_icon \
-        excluded_parts \
+        excluded_count_parts \
         fadestep_color_parts \
-        freeform_annotations \
-        title_annotations \
+        pli_freeform_annotations \
+        pli_title_annotations \
         pli_orientation \
         pli_substitution_parts \
         ldraw_unofficial_library \
-        ldraw_library
+        ldraw_official_library
 
         DEFINES += LC_INSTALL_PREFIX=\\\"$$INSTALL_PREFIX\\\"
 
@@ -291,29 +291,29 @@ macx {
     document_copying.files += docs/COPYING.txt
     document_copying.path = Contents/Resources
 
-    excluded_parts.files += extras/excludedParts.lst
-    excluded_parts.path = Contents/Resources
+    excluded_count_parts.files += extras/excludedParts.lst
+    excluded_count_parts.path = Contents/Resources
 
     fadestep_color_parts.files += extras/fadeStepColorParts.lst
     fadestep_color_parts.path = Contents/Resources
 
-    freeform_annotations.files += extras/freeformAnnotations.lst
-    freeform_annotations.path = Contents/Resources
+    pli_freeform_annotations.files += extras/freeformAnnotations.lst
+    pli_freeform_annotations.path = Contents/Resources
 
-    title_annotations.files += extras/titleAnnotations.lst
-    title_annotations.path = Contents/Resources
+    pli_title_annotations.files += extras/titleAnnotations.lst
+    pli_title_annotations.path = Contents/Resources
 
     pli_orientation.files += extras/pli.mpd
     pli_orientation.path = Contents/Resources
 
-    pli_substitution_parts += extras/pliSubstituteParts.lst
-    pli_substitution_parts = Contents/Resources
+    pli_substitution_parts.files += extras/pliSubstituteParts.lst
+    pli_substitution_parts.path = Contents/Resources
 
     ldraw_unofficial_library.files += extras/lpub3dldrawunf.zip
     ldraw_unofficial_library.path = Contents/Resources
 
-    ldraw_library.files += extras/complete.zip
-    ldraw_library.path = Contents/Resources
+    ldraw_official_library.files += extras/complete.zip
+    ldraw_official_library.path = Contents/Resources
 
     CONFIG(release, debug|release) {
         libquazip.files += \
@@ -330,14 +330,14 @@ macx {
         document_readme \
         document_credits \
         document_copying \
-        excluded_parts \
+        excluded_count_parts \
         fadestep_color_parts \
         pli_freeform_annotations \
         pli_title_annotations \
         pli_orientation \
-        pli_substitute_parts \
+        pli_substitution_parts \
         ldraw_unofficial_library \
-        ldraw_library \
+        ldraw_official_library \
         libquazip \
         libldrawini
 
