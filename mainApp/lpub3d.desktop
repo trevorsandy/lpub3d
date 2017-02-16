@@ -11,6 +11,6 @@ Exec=lpub3d20 %f
 Terminal=false
 Type=Application
 Icon=lpub3d
-MimeType=application/x-ldraw;application/x-multi-part-ldraw;application/x-multipart-ldraw
+MimeType=application/x-ldraw;application/x-multi-part-ldraw;application/x-multipart-ldraw;
 Categories=Graphics;3DGraphics;Education;Application;Amusement;Publishing;Engineering;
 Keywords=;Instructions;CAD;LEGO;LDraw;Renderer;Editor;
