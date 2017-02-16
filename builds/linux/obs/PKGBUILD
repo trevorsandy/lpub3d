@@ -1,6 +1,6 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
 pkgname=lpub3d
-pkgver=2.0.20.679
+pkgver=2.0.20.683
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d.git"
@@ -16,25 +16,20 @@ noextract=("complete.zip" "lpub3dldrawunf.zip")
 md5sums=(SKIP SKIP SKIP)
 
 prepare() {
-	if [ -d ${srcdir}/lpub3d ] ; then
-		cd ${srcdir}/lpub3d
-	elif [ -d ${srcdir}/lpub3d-git ] ; then
-		cd ${srcdir}/lpub3d-git
+	cd ${pkgname}-git
+	# copy ldraw archive libraries
+	if [ -f ../complete.zip ] ; then
+		cp ../complete.zip mainApp/extras
+	else
+		echo "complete.zip not found here `pwd`"
+	fi
+	if [ -f ../lpub3dldrawunf.zip ] ; then
+		cp ../lpub3dldrawunf.zip mainApp/extras
+	else
+		echo "lpub3dldrawunf.zip not found here `pwd`"
 	fi
 
-	# get ldraw archive libraries
-	if [ -f ../../complete.zip ] ; then
-		cp ../../complete.zip mainApp/extras
-	else
-		echo "complete.zip not found!"
-	fi
-	if [ -f ../../lpub3dldrawunf.zip ] ; then
-		cp ../../lpub3dldrawunf.zip mainApp/extras
-	else
-		echo "lpub3dldrawunf.zip not found!"
-	fi
-
-	# use Qt5
+	# Qt5 configure
 	export QT_SELECT=qt5
 	if [ -x /usr/bin/qmake ] ; then
 		qmake -makefile CONFIG+=release CONFIG+=pkg
@@ -44,20 +39,12 @@ prepare() {
 }
 
 build() {
-	if [ -d ${srcdir}/lpub3d ] ; then
-		cd ${srcdir}/lpub3d
-	elif [ -d ${srcdir}/lpub3d-git ] ; then
-		cd ${srcdir}/lpub3d-git
-	fi
+	cd ${pkgname}-git
 	make clean
 	make
 }
 
 package() {
-	if [ -d ${srcdir}/lpub3d ] ; then
-		cd ${srcdir}/lpub3d
-	elif [ -d ${srcdir}/lpub3d-git ] ; then
-		cd ${srcdir}/lpub3d-git
-	fi
+	cd ${pkgname}-git
 	make INSTALL_ROOT=${pkgdir} install
 }

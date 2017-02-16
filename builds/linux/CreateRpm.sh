@@ -6,12 +6,12 @@
 # $ ./CreateRpm.sh
 
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
-WORK_DIR=`pwd`
+CWD=`pwd`
 BUILD_DATE=`date "+%Y%m%d"`
 CHANGE_DATE=`date "+%a %b %d %Y"`
 
 # logging stuff
-LOG="${WORK_DIR}/$ME.log"
+LOG="${CWD}/$ME.log"
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
 
@@ -54,7 +54,7 @@ if [ -f ${FILE} -a -r ${FILE} ]
 then
     VERSION_INFO=`cat ${FILE}`
 else
-    echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
+    echo "Error: Cannot read ${FILE} from $(echo `pwd`)"
     echo "$ME terminated!"
     exit 1
 fi
@@ -122,4 +122,4 @@ echo "11. remove cloned lpub3d repository from SOURCES/ and BUILD/"
 rm -rf ../../SOURCES/${WORK_DIR} ../../BUILD/${WORK_DIR}
 
 echo "$ME Finished!"
-mv $LOG "${WORK_DIR}/rpmbuild/$ME.log"
+mv $LOG "${CWD}/rpmbuild/$ME.log"

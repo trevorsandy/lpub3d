@@ -1,16 +1,16 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update 13 February 2017
+# Last Update 15 February 2017
 # To run:
 # $ chmod 755 CreatePkg.sh
 # $ ./CreatePkg.sh
 
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
-WORK_DIR=`pwd`
+CWD=`pwd`
 BUILD_DATE=`date "+%Y%m%d"`
 
 # logging stuff
-LOG="${WORK_DIR}/$ME.log"
+LOG="${CWD}/$ME.log"
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
 
@@ -22,19 +22,21 @@ then
     mkdir pkgbuild/upstream
 fi
 cd pkgbuild/upstream
+WORK_DIR=lpub3d-git
 
 echo "2. download source"
 git clone https://github.com/trevorsandy/lpub3d.git
+mv lpub3d ${WORK_DIR}
 
 echo "3. update version info"
 #         1 2  3  4   5       6    7  8  9       10
 # format "2 0 20 17 663 410fdd7 2017 02 12 19:50:21"
-FILE="lpub3d/builds/utilities/version.info"
+FILE="${WORK_DIR}/builds/utilities/version.info"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     VERSION_INFO=`cat ${FILE}`
 else
-    echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
+    echo "Error: Cannot read ${FILE} from $(echo `pwd`)"
     echo "$ME terminated!"
     exit 1
 fi
@@ -55,19 +57,21 @@ echo "APP_VERSION_LONG..${APP_VERSION_LONG}"
 echo "BUILD_DATE........${BUILD_DATE}"
 
 echo "4. create tarball"
-tar -czvf ../lpub3d.git.tar.gz \
-        --exclude="lpub3d/builds/linux/standard" \
-        --exclude="lpub3d/builds/osx" \
-        --exclude="lpub3d/.travis.yml" \
-        --exclude="lpub3d/.git" \
-        --exclude="lpub3d/.gitattributes" \
-        --exclude="lpub3d/LPub3D.pro.user" \
-        --exclude="lpub3d/README.md" \
-        --exclude="lpub3d/_config.yml" \
-        --exclude="lpub3d/.gitignore" lpub3d
+tar -czvf ../${WORK_DIR}.tar.gz \
+        --exclude="${WORK_DIR}/builds/linux/standard" \
+        --exclude="${WORK_DIR}/builds/windows" \
+        --exclude="${WORK_DIR}/builds/osx" \
+        --exclude="${WORK_DIR}/lc_lib/tools" \
+        --exclude="${WORK_DIR}/.travis.yml" \
+        --exclude="${WORK_DIR}/.git" \
+        --exclude="${WORK_DIR}/.gitattributes" \
+        --exclude="${WORK_DIR}/LPub3D.pro.user" \
+        --exclude="${WORK_DIR}/README.md" \
+        --exclude="${WORK_DIR}/_config.yml" \
+        --exclude="${WORK_DIR}/.gitignore" ${WORK_DIR}
 
 echo "5. copy PKGBUILD"
-cp -f lpub3d/builds/linux/obs/PKGBUILD ../
+cp -f ${WORK_DIR}/builds/linux/obs/PKGBUILD ../
 cd ../
 
 echo "6. get LDraw archive libraries"
@@ -98,4 +102,4 @@ else
 fi
 
 echo "$ME Finished!"
-mv $LOG "${WORK_DIR}/pkgbuild/$ME.log"
+mv $LOG "${CWD}/pkgbuild/$ME.log"

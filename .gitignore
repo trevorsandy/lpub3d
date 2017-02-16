@@ -98,6 +98,11 @@ builds/linux/debbuild/*
 builds/linux/rpmbuild/*
 builds/linux/pkgbuild/*
 
+# Makefiles
+mainApp/Makefile
+ldrawini/Makefile
+quazip/Makefile
+
 # Runtime stuff
 builds/windows/runtime/*
 
