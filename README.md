@@ -69,7 +69,7 @@ Copyright (c) 2015 - 2017 by Trevor SANDY
 [pkg_x86_64]:		https://sourceforge.net/projects/lpub3d/files/2.0.20/lpub3d-2.0.20.0.645_20170208_1_x86_64.pkg.tar.xz/download
 [rpm_x86_64]: 		https://sourceforge.net/projects/lpub3d/files/2.0.20/lpub3d-2.0.20.0.645_20170208_1fedora.x86_64.rpm/download
 [deb_x86_64]: 		https://sourceforge.net/projects/lpub3d/files/2.0.20/lpub3d_2.0.20.0.645_20170208_0ubuntu1_amd64.deb/download
-[dmg_x86_64]: 		https://sourceforge.net/projects/lpub3d/files/2.0.20/LPub3D_2.0.20.0.645_20170208_osx.dmg/download
+[dmg_x86_64]: 		https://sourceforge.net/projects/lpub3d/files/2.0.20/LPub3D_2.0.20.0.679_20170216_osx.dmg/download
 [exe]: 			https://sourceforge.net/projects/lpub3d/files/2.0.20/LPub3D-2.0.20.0.645_20170208.exe/download
 [zip_x86]: 		https://sourceforge.net/projects/lpub3d/files/2.0.20/LPub3D_x86-2.0.20.0.645_20170208.zip/download
 [zip_x86_64]: 		https://sourceforge.net/projects/lpub3d/files/2.0.20/LPub3D_x86_64-2.0.20.0.645_20170208.zip/download	

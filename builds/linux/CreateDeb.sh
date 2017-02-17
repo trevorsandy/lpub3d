@@ -19,13 +19,13 @@ echo "1. create DEB working directories"
 if [ ! -d debbuild ]
 then
     mkdir debbuild
-    mkdir debbuild/upstream
+    mkdir debbuild/SOURCES
 else
    rm -rf debbuild
    mkdir debbuild
-   mkdir debbuild/upstream
+   mkdir debbuild/SOURCES
 fi
-cd debbuild/upstream
+cd debbuild/SOURCES
 
 echo "2. download source"
 git clone https://github.com/trevorsandy/lpub3d.git
@@ -60,25 +60,21 @@ echo "BUILD_DATE........${BUILD_DATE}"
 
 SOURCE_DIR=lpub3d-${APP_VERSION}
 echo "SOURCE_DIR........${SOURCE_DIR}"
-
-echo "4. create cleaned tarball"
-tar -czvf ../lpub3d_${APP_VERSION}.orig.tar.gz lpub3d \
-        --exclude="lpub3d/builds/linux/standard" \
-        --exclude="lpub3d/builds/osx" \
-        --exclude="lpub3d/.travis.yml" \
-        --exclude="lpub3d/.git" \
-        --exclude="lpub3d/.gitattributes" \
-        --exclude="lpub3d/LPub3D.pro.user" \
-        --exclude="lpub3d/README.md" \
-        --exclude="lpub3d/_config.yml" \
-        --exclude="lpub3d/.gitignore"
-		
-echo "5. create soruce directory ${SOURCE_DIR}"
-cd ../
-tar zxf lpub3d_${APP_VERSION}.orig.tar.gz
 mv lpub3d ${SOURCE_DIR}
 
-echo "6. get LDraw archive libraries"
+echo "4. create cleaned tarball lpub3d_${APP_VERSION}.orig.tar.gz using ${SOURCE_DIR}/"
+tar -czvf ../lpub3d_${APP_VERSION}.orig.tar.gz ${SOURCE_DIR} \
+        --exclude="${SOURCE_DIR}/builds/linux/standard" \
+        --exclude="${SOURCE_DIR}/builds/osx" \
+        --exclude="${SOURCE_DIR}/.travis.yml" \
+        --exclude="${SOURCE_DIR}/.git" \
+        --exclude="${SOURCE_DIR}/.gitattributes" \
+        --exclude="${SOURCE_DIR}/LPub3D.pro.user" \
+        --exclude="${SOURCE_DIR}/README.md" \
+        --exclude="${SOURCE_DIR}/_config.yml" \
+        --exclude="${SOURCE_DIR}/.gitignore"
+
+echo "5. get LDraw archive libraries"
 if [ ! -f lpub3dldrawunf.zip ]
 then
      wget -N -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
@@ -87,6 +83,10 @@ if [ ! -f complete.zip ]
 then
      wget -N http://www.ldraw.org/library/updates/complete.zip
 fi
+
+echo "6. create soruce directory ${SOURCE_DIR}"
+cd ../
+tar zxf lpub3d_${APP_VERSION}.orig.tar.gz
 
 echo "7. copy debian configuration directory"
 cp -rf ${SOURCE_DIR}/builds/linux/obs/debian ${SOURCE_DIR}

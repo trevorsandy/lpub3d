@@ -14,22 +14,20 @@ export QT_SELECT=qt5
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
-	
+
 	# Start custom configuration command
-	LDrawLibOffical="../SOURCES/complete.zip"
-	LDrawLibUnofficial="../SOURCES/lpub3dldrawunf.zip"	
-	if [ -f ${LDrawLibOffical} ] ; then 			\
-		cp ${LDrawLibOffical} mainApp/extras ; 		\
+	if [ -f ../SOURCES/complete.zip ] ; then 				\
+		cp ../SOURCES/complete.zip mainApp/extras ; 		\
 	else \
-		echo "complete.zip not found!" ; 			\
+		echo "complete.zip not found!" ; 					\
 	fi
-	if [ -f ${LDrawLibUnofficial} ] ; then 			\
-		cp ${LDrawLibUnofficial} mainApp/extras ; 	\
+	if [ -f ../SOURCES/lpub3dldrawunf.zip ] ; then 			\
+		cp ../SOURCES/lpub3dldrawunf.zip mainApp/extras ; 	\
 	else \
-		echo "lpub3dldrawunf.zip not found!" ; 		\
+		echo "lpub3dldrawunf.zip not found!" ; 				\
 	fi
 override_dh_auto_configure:
-	if [ `uname -m` = "x86_64" ] ; then				\
+	if [ `uname -m` = "x86_64" ] ; then						\
 		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb ;	\
 	else \
 		/usr/lib/i386-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb ; 	\
