@@ -215,9 +215,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/pixmaps/*
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*
-%{_datadir}/icons/hicolor/
-%{_datadir}/icons/hicolor/scalable/
-%{_datadir}/icons/hicolor/scalable/mimetypes/
+%dir %{_datadir}/icons/hicolor/
+%dir %{_datadir}/icons/hicolor/scalable/
+%dir %{_datadir}/icons/hicolor/scalable/mimetypes/
 %attr(644,-,-) %{_datadir}/icons/hicolor/scalable/mimetypes/*
 %{_datadir}/lpub3d
 %doc %{_docdir}/lpub3d
