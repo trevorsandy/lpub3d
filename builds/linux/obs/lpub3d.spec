@@ -212,13 +212,16 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %{_bindir}/*
 %{_libdir}/*
-%{_datadir}/*
+%{_datadir}/pixmaps/*
+%{_datadir}/mime/packages/*
+%{_datadir}/applications/*
+%attr(644,-,-) %{_datadir}/icons/hicolor/scalable/mimetypes/*
+%{_datadir}/lpub3d
+%doc %{_docdir}/lpub3d
 %{_mandir}/man1/*
 
-%post
-/sbin/ldconfig
-%postun
-/sbin/ldconfig
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
 
 %changelog
 * %{changedate} - trevor.dot.sandy.at.gmail.dot.com %{version}
