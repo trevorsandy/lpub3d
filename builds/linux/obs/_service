@@ -44,16 +44,6 @@
   </service>
   <service name="extract_file">
       <param name="archive">*.tar</param>
-      <param name="files">*/builds/linux/obs/debian/source/format</param>
-      <param name="outfilename">debian.source.format</param>
-  </service>  
-   <service name="extract_file">
-      <param name="archive">*.tar</param>
-      <param name="files">*/builds/linux/obs/debian/source/include-binaries</param>
-      <param name="outfilename">debian.source.include-binaries</param>
-  </service> 
-  <service name="extract_file">
-      <param name="archive">*.tar</param>
       <param name="files">*/builds/linux/obs/debian/lpub3d.dsc
                           */builds/linux/obs/lpub3d.spec
                           */builds/linux/obs/lpub3d.spec.git.version

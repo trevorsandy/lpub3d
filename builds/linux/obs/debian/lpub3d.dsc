@@ -1,4 +1,4 @@
-Format: 3.0 (quilt)
+Format: 1.0
 Source: lpub3d
 Binary: lpub3d
 Architecture: any

@@ -176,14 +176,14 @@ export QT_SELECT=qt5
 LDrawLibOffical="../../SOURCES/complete.zip"
 LDrawLibUnofficial="../../SOURCES/lpub3dldrawunf.zip"
 if [ -f ${LDrawLibOffical} ] ; then 
-      cp ${LDrawLibOffical} mainApp/extras
+	cp ${LDrawLibOffical} mainApp/extras
 else
-      echo "complete.zip not found!" 
+	echo "complete.zip not found!" 
 fi
 if [ -f ${LDrawLibUnofficial} ] ; then
-      cp ${LDrawLibUnofficial} mainApp/extras
+	cp ${LDrawLibUnofficial} mainApp/extras
 else
-      echo "lpub3dldrawunf.zip not found!"
+	echo "lpub3dldrawunf.zip not found!"
 fi ;
 
 # use Qt5
@@ -193,9 +193,9 @@ export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC"
 %endif
 %endif
 if which qmake-qt5 >/dev/null 2>/dev/null ; then 
-    qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm 
+	qmake-qt5 -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm 
 else
-    qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm
+	qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=rpm
 fi 
 make clean
 make %{?_smp_mflags}

@@ -36,7 +36,7 @@ if [ -f ${FILE} -a -r ${FILE} ]
 then
     VERSION_INFO=`cat ${FILE}`
 else
-    echo "Error: Cannot read ${FILE} from $(echo `pwd`)"
+    echo "Error: Cannot read ${FILE} from `pwd`"
     echo "$ME terminated!"
     exit 1
 fi
