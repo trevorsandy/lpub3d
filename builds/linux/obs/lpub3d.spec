@@ -147,6 +147,28 @@ BuildRequires: libqt5-qtbase-devel, zlib-devel
  LEGO® is a trademark of the LEGO Group of companies which does not 
  sponsor, authorize or endorse this application.
  © 2015-2017 Trevor SANDY
+ 
+%package ldrawini
+Requires: lpub3d
+Summary: LDrawDir and SearchDirs API
+Group: Graphics
+Provides: ldrawini
+
+%description ldrawini
+ This package provides an API to resolve LDrawDir (directory path
+ to LDraw parts library), and SearchDirs (LPub3D additional parts
+ search paths).
+
+%package quazip
+Requires: lpub3d
+Summary: Qt C++ wrapper over Gilles Vollant's ZIP/UNZIP
+Group: Graphics
+Provides: quazip
+
+%description: quazip
+ This package provides a comprehensive range of archiving and
+ unarchiving functions.
+
 
 %prep
 { set +x; } 2>/dev/null
@@ -211,7 +233,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %endif
 %{_bindir}/*
-%{_libdir}/*
 %{_datadir}/pixmaps/*
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*
@@ -222,6 +243,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/lpub3d
 %doc %{_docdir}/lpub3d
 %{_mandir}/man1/*
+
+%files ldrawini
+%{_libdir}/libldrawini.so.16.1.8
+
+%files quazip
+%{_libdir}/libquazip.so.0.7.2
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
