@@ -244,10 +244,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %files ldrawini
-%{_libdir}/libldrawini.so.16.1.8
+%{_libdir}/libldrawini.*
 
 %files quazip
-%{_libdir}/libquazip.so.0.7.2
+%{_libdir}/libquazip.*
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
