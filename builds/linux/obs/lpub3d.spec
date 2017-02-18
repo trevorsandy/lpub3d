@@ -112,15 +112,12 @@ BuildRequires: gcc-c++, make
 %endif
 
 %if 0%{?fedora}
-#%if 0%{?OBS}
-#BuildRequires: samba4-libs
 %if 0%{?fedora_version}==22
 BuildRequires: qca
 %endif
 %if 0%{?fedora_version}==23
 BuildRequires: qca, gnu-free-sans-fonts
 %endif
-#%endif
 %endif
 
 %if 0%{?suse_version} 
@@ -226,7 +223,7 @@ make %{?_smp_mflags}
 
 %install
 make INSTALL_ROOT=%buildroot install
-%fdupes -s %{buildroot}/%{_iconsdir}/hicolor/scalable/mimetypes/
+%fdupes -s %{buildroot}/%{_iconsdir}/hicolor/scalable/mimetypes
 
 %clean
 rm -rf $RPM_BUILD_ROOT
