@@ -97,7 +97,6 @@ Packager: %{distpacker}
 BuildRoot: %{_builddir}/%{name}
 BuildArch: %{_arch}
 Requires: unzip 
-BuildRequires: fdupes
 Source0: lpub3d-git.tar.gz
 
 # package requirements
@@ -168,7 +167,7 @@ Summary: Qt C++ wrapper over Gilles Vollant's ZIP/UNZIP
 Group: Graphics
 Provides: quazip
 
-%description: quazip
+%description quazip
  This package provides a comprehensive range of archiving and
  unarchiving functions.
 
