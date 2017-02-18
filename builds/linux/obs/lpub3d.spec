@@ -223,7 +223,6 @@ make %{?_smp_mflags}
 
 %install
 make INSTALL_ROOT=%buildroot install
-%fdupes -s %{buildroot}/%{_iconsdir}/hicolor/scalable/mimetypes
 
 %clean
 rm -rf $RPM_BUILD_ROOT
