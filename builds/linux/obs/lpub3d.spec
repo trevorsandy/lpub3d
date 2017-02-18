@@ -83,6 +83,8 @@ BuildRequires: finger
 %define distpacker "%(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)"
 %endif
 
+%define _iconsdir	%{_datadir}/icons
+
 # package attributes
 Name: lpub3d
 Icon: lpub3d.xpm
@@ -95,6 +97,7 @@ Packager: %{distpacker}
 BuildRoot: %{_builddir}/%{name}
 BuildArch: %{_arch}
 Requires: unzip 
+BuildRequires: fdupes
 Source0: lpub3d-git.tar.gz
 
 # package requirements
@@ -224,6 +227,7 @@ make %{?_smp_mflags}
 
 %install
 make INSTALL_ROOT=%buildroot install
+%fdupes -s %{buildroot}/%{_iconsdir}/hicolor/scalable/mimetypes/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -236,10 +240,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/pixmaps/*
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*
-%dir %{_datadir}/icons/hicolor/
-%dir %{_datadir}/icons/hicolor/scalable/
-%dir %{_datadir}/icons/hicolor/scalable/mimetypes/
-%attr(644,-,-) %{_datadir}/icons/hicolor/scalable/mimetypes/*
+%dir %{_iconsdir}/hicolor/
+%dir %{_iconsdir}/hicolor/scalable/
+%dir %{_iconsdir}/hicolor/scalable/mimetypes/
+%attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*
 %{_datadir}/lpub3d
 %doc %{_docdir}/lpub3d
 %{_mandir}/man1/*
