@@ -147,27 +147,26 @@ BuildRequires: libqt5-qtbase-devel, zlib-devel
  sponsor, authorize or endorse this application.
  © 2015-2017 Trevor SANDY
  
-%package ldrawini
-Requires: lpub3d
-Summary: LDrawDir and SearchDirs API
-Group: Graphics
-Provides: ldrawini
+#%package ldrawini
+#Requires: lpub3d
+#Summary: LDrawDir and SearchDirs API
+#Group: Graphics
+#Provides: ldrawini
 
-%description ldrawini
- This package provides an API to resolve LDrawDir (directory path
- to LDraw parts library), and SearchDirs (LPub3D additional parts
- search paths).
+#%description ldrawini
+# This package provides an API to resolve LDrawDir (directory path
+# to LDraw parts library), and SearchDirs (LPub3D additional parts
+# search paths).
 
-%package quazip
-Requires: lpub3d
-Summary: Qt C++ wrapper over Gilles Vollant ZIP/UNZIP
-Group: Graphics
-Provides: quazip
+#%package quazip
+#Requires: lpub3d
+#Summary: Qt C++ wrapper over Gilles Vollant ZIP/UNZIP
+#Group: Graphics
+#Provides: quazip
 
-%description quazip
- This package provides a comprehensive range of archiving and
- unarchiving functions.
-
+#%description quazip
+# This package provides a comprehensive range of archiving and
+# unarchiving functions.
 
 %prep
 { set +x; } 2>/dev/null
@@ -232,6 +231,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %endif
 %{_bindir}/*
+%{_libdir}/*
 %{_datadir}/pixmaps/*
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*
@@ -243,11 +243,11 @@ rm -rf $RPM_BUILD_ROOT
 %doc %{_docdir}/lpub3d
 %{_mandir}/man1/*
 
-%files ldrawini
-%{_libdir}/libldrawini.*
+#%files ldrawini
+#%{_libdir}/libldrawini.*
 
-%files quazip
-%{_libdir}/libquazip.*
+#%files quazip
+#%{_libdir}/libquazip.*
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
