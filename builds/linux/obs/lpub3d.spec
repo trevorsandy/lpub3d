@@ -83,7 +83,7 @@ BuildRequires: finger
 %define distpacker "%(finger -lp `echo "$USER"` | head -n 1 | cut -d: -f 3)"
 %endif
 
-%define _iconsdir	%{_datadir}/icons
+%define _iconsdir %{_datadir}/icons
 
 # package attributes
 Name: lpub3d
