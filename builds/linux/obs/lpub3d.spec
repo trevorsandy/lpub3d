@@ -213,13 +213,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/pixmaps/*
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*
+%{_datadir}/lpub3d
 %dir %{_iconsdir}/hicolor/
 %dir %{_iconsdir}/hicolor/scalable/
 %dir %{_iconsdir}/hicolor/scalable/mimetypes/
 %attr(644,-,-) %{_iconsdir}/hicolor/scalable/mimetypes/*
-%{_datadir}/lpub3d
-%doc %{_docdir}/lpub3d
-%{_mandir}/man1/*
+%attr(644,-,-) %doc %{_docdir}/lpub3d
+%attr(644,-,-) %{_mandir}/man1/*
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig

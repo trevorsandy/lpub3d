@@ -69,11 +69,10 @@ install:
   - # wget http://www.ldraw.org/library/updates/complete.zip;
   - # wget http://www.ldraw.org/library/unofficial/ldrawunf.zip;
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-      pwd;
       wget https://github.com/trevorsandy/lpub3d/releases/download/v2.0.0/test001.zip -O complete.zip;
-      mv complete.zip /lpub3d/mainApp/extras/complete.zip;
+      mv complete.zip mainApp/extras/complete.zip;
       wget https://github.com/trevorsandy/lpub3d/releases/download/v2.0.0/test002.zip -O lpub3dldrawunf.zip;
-      mv lpub3dldrawunf.zip /lpub3d/mainApp/extras/lpub3dldrawunf.zip;
+      mv lpub3dldrawunf.zip mainApp/extras/lpub3dldrawunf.zip;
     fi
 
 script:
