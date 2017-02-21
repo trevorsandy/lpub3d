@@ -311,10 +311,7 @@ SET SUPPORT_EMAIL=%SUPPORT_EMAIL% %BUILDVERSION%
 
 ECHO.
 ECHO   VERSION_INFO_FILE...[%VERSION_INFO_FILE%]
-ECHO.                    
-ECHO   VERSION_INPUT.......[%VERSION_INPUT%]
-ECHO   DATETIME_INPUT......[%DATETIME_INPUT%]
-ECHO.                    
+ECHO.                                        
 ECHO   VER_MAJOR...........[%VER_MAJOR%]
 ECHO   VER_MINOR...........[%VER_MINOR%]
 ECHO   VER_PATCH...........[%VER_PATCH%]
@@ -401,17 +398,6 @@ ECHO. 													 			>>  %BuildLog%
 ECHO - Copying change_log_%VERSION% to media folder...    			>>  %BuildLog%
 ECHO. 	
 ECHO - Copying change_log_%VERSION% to media folder... 
-
-SET file=README.txt
-SET temp=temp.dat
-SET targetln=1
-SET productversion=%PRODUCT% %BUILDVERSION%
-SET n=0
-
-CD /D ..\..\..\mainApp\docs\
-RENAME %file% %temp%
-FOR /F "tokens=*" %%i IN ('FINDSTR /n "^" "%temp%"') DO CALL :SetVersion %%i
-DEL %temp%
 
 CD /D %HOME%
 COPY /V /Y %devRootPath%\docs\README.txt ..\release\%VERSION%\Update\change_log.txt /A									>>  %BuildLog%
@@ -985,16 +971,6 @@ ECHO.
 ECHO If everything went well Press any key to EXIT!
 %SystemRoot%\explorer.exe "C:\Users\Trevor\Downloads\LEGO\LPub\project\LPub\LPub3D\builds\windows\release\%VERSION%"
 PAUSE >NUL
-ENDLOCAL
-EXIT /b 0
-
-:SetVersion
-SET /a n+=1
-SET "ln=%*"
-SETLOCAL enableDelayedExpansion
-SET "ln=!ln:*:=!"
-IF %n%==%targetln% (ECHO %productversion% >> %file%) ELSE ECHO(!ln! >> %file%
-REM IF %n%==%targetln% (ECHO %productversion% >> %file%) ELSE ECHO %* >> %file%
 ENDLOCAL
 EXIT /b 0
 

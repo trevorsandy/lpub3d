@@ -9,9 +9,6 @@
 # please send bugfixes or comments to Trevor SANDY <trevor.sandy@gmail.com>
 #
 
-# date time
-%global changedate %(echo `date "+%a %b %d %Y"`)
-
 # define distributions
 %if 0%{?suse_version}
 %define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
@@ -147,27 +144,6 @@ BuildRequires: libqt5-qtbase-devel, zlib-devel
  sponsor, authorize or endorse this application.
  © 2015-2017 Trevor SANDY
  
-#%package ldrawini
-#Requires: lpub3d
-#Summary: LDrawDir and SearchDirs API
-#Group: Graphics
-#Provides: ldrawini
-
-#%description ldrawini
-# This package provides an API to resolve LDrawDir (directory path
-# to LDraw parts library), and SearchDirs (LPub3D additional parts
-# search paths).
-
-#%package quazip
-#Requires: lpub3d
-#Summary: Qt C++ wrapper over Gilles Vollant ZIP/UNZIP
-#Group: Graphics
-#Provides: quazip
-
-#%description quazip
-# This package provides a comprehensive range of archiving and
-# unarchiving functions.
-
 %prep
 { set +x; } 2>/dev/null
 echo Target...................%{_target}
@@ -183,7 +159,6 @@ echo Source0..................%{SOURCE0}
 echo Source10.................%{SOURCE10}
 echo Service Provider.........%{serviceprovider}
 echo Packing Platform.........%{packingplatform}
-echo Change Date..............%{changedate}
 echo OpenBuildService Flag....%{OBS}
 echo Build Package............%{name}-%{version}-%{release}-%{_arch}.rpm
 { set -x; } 2>/dev/null
@@ -222,6 +197,9 @@ make %{?_smp_mflags}
 
 %install
 make INSTALL_ROOT=%buildroot install
+%if 0%{?suse_version} || 0%{?sles_version}
+%fdupes %{buildroot}/%{_iconsdir}
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -243,16 +221,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc %{_docdir}/lpub3d
 %{_mandir}/man1/*
 
-#%files ldrawini
-#%{_libdir}/libldrawini.*
-
-#%files quazip
-#%{_libdir}/libquazip.*
-
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
 %changelog
-* %{changedate} - trevor.dot.sandy.at.gmail.dot.com %{version}
+* Tue Feb 21 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.706
 - LPub3D Linux package (rpm) release
-

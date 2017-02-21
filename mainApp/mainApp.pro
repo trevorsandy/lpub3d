@@ -88,7 +88,7 @@ unix:!macx: TARGET = lpub3d
 else: TARGET = LPub3D
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Note on x11 platforms you also pre-install install quazip ($ sudo apt-get install libquazip-dev)
+# Note on x11 platforms you can also pre-install install quazip ($ sudo apt-get install libquazip-dev)
 # If quazip is already installed, set CONFIG+=quazipnobuld to use installed library
 
 CONFIG(debug, debug|release) {
@@ -132,7 +132,7 @@ CONFIG(debug, debug|release) {
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-static {                                     # everything below takes effect with CONFIG ''= static
+static {                                      # everything below takes effect with CONFIG ''= static
     message("~~~ MAIN_APP STATIC build ~~~") # this is for information, that the static build is done
     CONFIG+= static
     LIBS += -static
@@ -181,6 +181,9 @@ unix:!macx {
         pkg: PACKAGE_TYPE = PKG_DISTRO
         !isEmpty(PACKAGE_TYPE): DEFINES += $$PACKAGE_TYPE
 
+        MAN_PAGE = lpub3d$$VER_MAJOR$$VER_MINOR
+        MAN_PAGE = $$join(MAN_PAGE,,,.1)
+		
         # These settings are used for package distributions that will require elevated rights to install
         isEmpty(INSTALL_PREFIX):INSTALL_PREFIX = /usr
         isEmpty(BIN_DIR):BIN_DIR = $$INSTALL_PREFIX/bin
@@ -190,14 +193,14 @@ unix:!macx {
         isEmpty(DESKTOP_DIR):DESKTOP_DIR = $$INSTALL_PREFIX/share/applications
         isEmpty(MIME_DIR):MIME_DIR = $$INSTALL_PREFIX/share/mime/packages
         isEmpty(MIME_ICON_DIR):MIME_ICON_DIR = $$INSTALL_PREFIX/share/icons/hicolor/scalable/mimetypes
-        isEmpty(RESOURCE_DIR):RESOURCE_DIR = $$INSTALL_PREFIX/share/lpub3d
+        isEmpty(RESOURCE_DIR):RESOURCE_DIR = $$INSTALL_PREFIX/share/lpub3d	
 
         target.path = $$BIN_DIR
 
         docs.files += docs/README.txt docs/CREDITS.txt docs/COPYING.txt
         docs.path = $$DOCS_DIR
-
-        man.files += lpub3d.1
+		
+        man.files += $$MAN_PAGE
         man.path = $$MAN_DIR
 
         desktop.files += lpub3d.desktop
@@ -514,7 +517,7 @@ OTHER_FILES += \
     lpub3d.desktop \
     lpub3d.xml \
     lpub3d.sh \
-    lpub3d.1 \
+    $$MAN_PAGE \
     ../builds/osx/CreateDmg.sh \
     ../builds/linux/CreateRpm.sh \
     ../builds/linux/CreateDeb.sh \
@@ -532,6 +535,7 @@ OTHER_FILES += \
     ../builds/windows/setup/nsisFunctions.nsh \
     ../builds/utilities/Copyright-Source-Headers.txt \
     ../builds/utilities/update-config-files.sh \
+    ../builds/utilities/update-config-files.bat \
     ../builds/utilities/README.md \
     ../README.md \
     ../.gitignore \

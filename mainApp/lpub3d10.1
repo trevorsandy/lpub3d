@@ -1,0 +1,113 @@
+LPUB3D(1)                     User Manuals                    LPUB3D(1)
+
+NAME
+     lpub3d \- An LDraw Building Instructions Editor
+
+SYNOPSIS
+     lpub3d
+
+DESCRIPTION
+     LPub3D is an Open Source WYSIWYG editing application for creating LEGO® style digital building instructions.
+     LPub3D is developed and maintained by Trevor SANDY. It uses the LDraw parts library, the most comprehensive
+     library of digital Open Source LEGO® bricks available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model file formats.
+     LPub3D is available for free under the GNU Public License v3 and works on the Windows Operating Systems.
+
+     Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2015 Leonardo Zide, and additional third party components.
+
+     LEGO®is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this application
+
+OPTIONS
+     LPub3D does not currently have any runtime options.
+     However when building LPub3D from source, two options are available:
+        1. CONFIG+=quazipnobuild - Use this option to suppress LPub3D source automatically building the quazip shared library.
+        This option is useful when the quazip shared library is already present in the build environment. Please note that you must
+        ensure the existing library header files are in the location expected by LPub3D (see mainApp.pro).
+        2. CONFIG+=binarybuild - This option is used when building a packaged distribution of LPub3D using QtInstallerFramework
+        (see builds directory in LPub3D source for details)
+
+FILES
+     Note: library paths below illustrate Debinan/Ubuntu distros. For RH/Fedora, paths are '/usr/lib64/...' and '/usr/lib/...' for Arch.
+
+     /etc/lpub3d.conf
+          The system wide configuration file. 
+		  
+     ~/.config/LPub3D Software/LPub3D.conf
+          Per  user  configuration  file. LPub3D settings and directory paths
+
+     ~/.local/share/LPub3D Software/LPub3D/extras/excludedParts.lst
+     ~/.local/share/LPub3D Software/LPub3D/extras/fadeStepColorPart.lst
+     ~/.local/share/LPub3D Software/LPub3D/extras/freeformAnnotations.lst
+     ~/.local/share/LPub3D Software/LPub3D/extras/pli.mpd
+     ~/.local/share/LPub3D Software/LPub3D/extras/pliSubstituteParts.lst
+     ~/.local/share/LPub3D Software/LPub3D/extras/titleannotations.lst
+          Parameter files for LDraw parts manipulation within LPub3D
+
+     ~/.local/share/LPub3D Software/LPub3D/libraries/complete.zip
+          LDraw official parts archive. LPub3D loads this library into memory.
+          It does not load library content from the ldraw disc directory
+
+    ~/.local/share/LPub3D Software/LPub3D/libraries/lpub3dldrawunf.zip
+          All unofficial LDraw parts including those from the LDraw unofficial library.
+          This archive also contains unofficial parts found in subdirectories under LDraw
+          unofficial disc directory. At LPub3D startup, all defined unofficial part directories
+          are identified and their parts are added to this archive before loading into memory.
+          Note that the 'parts' and 'p' LDraw unofficial disc directories are excluded from the
+          list of directories searched. So if you place your unofficial parts under the unofficial
+          disc directory, place them in a different subdirectory (e.g. /unofficial/mycustomparts/).
+
+     ~/.local/share/LPub3D Software/LPub3D/logs/LPub3DLog.txt
+          Logging files. There can be up to 4 files. Files are cycled when the size reaches 4MB.
+
+     /usr/bin/lpub3d20
+          Application executable
+
+     /usr/lib/x86_64-linux-gnu/libldrawini.so
+	 /usr/lib/x86_64-linux-gnu/libldrawini.so.16
+	 /usr/lib/x86_64-linux-gnu/libldrawini.so.16.1
+	 /usr/lib/x86_64-linux-gnu/libldrawini.so.16.1.8
+          Ldrawini shared library. API for accessing LDrawIni settngs. (see news.lugnet.com/cad/dev/?n=9630)
+          This library is used by LPub3D to detect additional LDraw part directories whereby a user
+          can have more than one LDraw disc directories
+
+     /usr/lib/x86_64-linux-gnu/libquazip.so
+	 /usr/lib/x86_64-linux-gnu/libquazip.so.0
+	 /usr/lib/x86_64-linux-gnu/libquazip.so.0.7
+	 /usr/lib/x86_64-linux-gnu/libquazip.so.0.7.2
+          Quazip library used to archive unofficial parts (update the lpub3dldrawunf.zip) and to
+          expand downloaded libraries into the default LDraw disc directory whereby allowing the uset
+          update their LDraw disc library from within LPub3D
+
+     /usr/share/doc/lpub3d/README.txt
+     /usr/share/doc/lpub3d/CREDITS.txt
+     /usr/share/doc/lpub3d/COPYING.txt
+          LPub3D release notes, contributor and conponent owner credits and license file
+
+     /usr/share/man/man1/lpub3d.1
+          This file
+
+     /usr/share/applications/lpub3d.desktop
+          LPub3D desktop entry specification
+
+     /usr/share/mime/packages/lpub3d.xml
+          LPub3D mime specification. Associate .mpd, .ldr, .dat extension LDraw files
+
+     /usr/share/icons/hicolor/scalable/mimetypes/lpub3d.svg
+          Mime icon
+
+
+ENVIRONMENT
+     LC_DISABLE_UPDATE_CHECK If set the update check will be disabled. 
+
+DIAGNOSTICS
+     Check application logs for details
+
+BUGS
+     No known bugs.
+
+AUTHOR
+     Trevor SANDY <trevor dot sandy at gmail dot com>
+	 
+SEE ALSO
+     N/A
+
+Linux                Last change: JANUARY 2017                    LPUB3D(1)

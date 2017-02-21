@@ -28,6 +28,7 @@ before_install:
   - if [[ "$QT_BASE" = "55" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt551-trusty -y; fi
   - if [ "$QT_BASE" = "56" ]; then sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y; fi
   - if [[ "$QT_BASE" = "57" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt571-trusty -y; fi
+  - if [[ "$QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt58-trusty -y; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then 
       sudo apt-get update -qq;
     else
@@ -55,11 +56,23 @@ install:
         brew link --force qt5;
       fi
     fi
+  - if [ "$QT_BASE" = "58" ]; then
+      if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+        sudo apt-get install -qq qt58base; source /opt/qt58/bin/qt58-env.sh;
+      else
+        brew install qt5;
+        brew link --force qt5;
+      fi
+    fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then 
+      # Acutal LDraw archive libraries are disabled with test files used for 'make' only compilation.
+      # Enable actual archives if you will run 'make install'
+      # wget http://www.ldraw.org/library/updates/complete.zip;
       wget https://github.com/trevorsandy/lpub3d/releases/download/v2.0.0/test001.zip -O complete.zip;
-      mv complete.zip /Users/travis/build/trevorsandy/lpub3d/mainApp/extras/complete.zip;
+      mv complete.zip ~/lpub3d/mainApp/extras/complete.zip;
+      # wget http://www.ldraw.org/library/unofficial/ldrawunf.zip;
       wget https://github.com/trevorsandy/lpub3d/releases/download/v2.0.0/test002.zip -O lpub3dldrawunf.zip;
-      mv lpub3dldrawunf.zip /Users/travis/build/trevorsandy/lpub3d/mainApp/extras/lpub3dldrawunf.zip;
+      mv lpub3dldrawunf.zip ~/lpub3d/mainApp/extras/lpub3dldrawunf.zip;
     fi
     
 script:

@@ -1,4 +1,4 @@
-LPub3D 2.0.20.0.645 
+LPub3D 2.0.20.60.706 (21 02 2017 09:31:46)
  
 Features and enhancements 
 ------------ 

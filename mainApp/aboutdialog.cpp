@@ -138,7 +138,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                        .arg(QString::fromLatin1(VER_IDE))
                                        .arg(tr("%1 - Revision %2").arg(QString::fromLatin1(LC_VERSION_TEXT))
                                                                   .arg(QString::fromLatin1(LC_VERSION_BUILD)))
-                                       .arg(QString::fromLatin1(VER_BUILDDATE_STR));
+                                       .arg(QString::fromLatin1(VER_COMPILE_DATE_STR));
 
     ui->BuildInfo->setTextFormat(Qt::RichText);
     ui->BuildInfo->setText(BuildInfo);

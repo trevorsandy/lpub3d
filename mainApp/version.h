@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
 **
 ** Copyright (C) 2015 - 2017 Trevor SANDY. All rights reserved.
 **
@@ -21,7 +21,7 @@
 
 // ~~~~~ Generic Version info ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
-#define VER_BUILDDATE_STR                   DATE_YY " " DATE_MM " " DATE_DD " " BUILD_TIME
+#define VER_COMPILE_DATE_STR                DATE_YY " " DATE_MM " " DATE_DD " " BUILD_TIME
 #define VER_PRODUCTVERSION_STR              VER_MAJOR "." VER_MINOR "." VER_PATCH
 #define VER_PRODUCTNAME_STR                 "LPub3D"
 #define VER_COMPANYNAME_BLD_STR             "LPub3D Software"

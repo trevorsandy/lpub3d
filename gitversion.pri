@@ -35,8 +35,8 @@ equals(GIT_DIR, undefined) {
     GIT_VERSION = $$cat($$GIT_DIR, lines)
     message(~~~ GIT_DIR [UNDEFINED, USING VERSION_INFO] $$GIT_DIR)
 
-    #                      1 2  3  4   5       6    7  8  9          10
-    #                into  2 0 20 17 663 410fdd7 2017 02 11 21:52:51.77
+    #                      1 2  3  4   5       6
+    #                      2 0 20 17 663 410fdd7
     GIT_VERSION ~= s/\\\"/""
     #message(~~~ GIT_VERSION: $$GIT_VERSION)
 
@@ -117,59 +117,49 @@ DEFINES += VER_REVISION_STR=\\\"$$VER_REVISION_STR\\\"
 VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_PATCH
 
 # Update the version number file for win/unix during build
-!equals(GIT_DIR, undefined) {
+# Generate git version data to the input files indicated. Input files are consumed during the
+# build process to set the version informatio for LPub3D executable, its libraries (ldrawini and quazip)
+# Update the application version in lpub3d.desktop (desktop configuration file), lpub3d.1 (man page)
+# This flag will also add the version number to packaging configuration files PKGBUILD, changelog and
+# lpub3d.spec depending on which build is being performed.
+VERSION_INFO_FILE = $$PWD/builds/utilities/version.info
+VERSION_INFO_COMMAND = $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION_STR $$VER_BUILD_STR $$VER_SHA_HASH_STR
+RPM_SPEC_VERSION_FILE = $$PWD/builds/linux/obs/lpub3d.spec.git.version
+RPM_SPEC_VERSION_COMMAND = $$VERSION"."$$VER_BUILD_STR
+message(~~~ VERSION_INFO: $$VERSION_INFO_COMMAND)
 
-    # Generate git version data to the input files indicated. Input files are consumed during the
-    # build process to set the version informatio for LPub3D executable, its libraries (ldrawini and quazip)
-    VERSION_INFO_FILE = $$PWD/builds/utilities/version.info
-    VERSION_INFO = $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION_STR $$VER_BUILD_STR \
-                   $$VER_SHA_HASH_STR $$DATE_YY $$DATE_MM $$DATE_DD $$BUILD_TIME
-    RPM_SPEC_VERSION_FILE = $$PWD/builds/linux/obs/lpub3d.spec.git.version
-    RPM_SPEC_VERSION = $$VERSION"."$$VER_BUILD_STR
-    message(~~~ VERSION_INFO: $$VERSION_INFO)
+win32 {
+    CONFIG_FILES_COMMAND = $$PWD/builds/utilities/update-config-files.bat $$_PRO_FILE_PWD_
+    VERSION_INFO_FILE ~= s,/,\\,g
+    QMAKE_POST_LINK += $$escape_expand(\n\t)  \
+                       cmd /c echo $$shell_quote$${VERSION_INFO_COMMAND} > $$shell_quote$${VERSION_INFO_FILE} \
+                       $$escape_expand(\n\t)  \
+                       cmd /c echo $$shell_quote$${RPM_SPEC_VERSION_COMMAND} > $$shell_quote$${RPM_SPEC_VERSION_FILE} \
+                       $$escape_expand(\n\t)  \
+                       $$shell_quote$${CONFIG_FILES_COMMAND}
 
-    win32 {
-        VERSION_INFO_FILE ~= s,/,\\,g
-        QMAKE_POST_LINK += $$escape_expand(\n\t)  \
-                           cmd /c echo $$shell_quote$${VERSION_INFO} > $$shell_quote$${VERSION_INFO_FILE} \
-                           $$escape_expand(\n\t)  \
-                           cmd /c echo $$shell_quote$${RPM_SPEC_VERSION} > $$shell_quote$${RPM_SPEC_VERSION_FILE}
+} else {
+    CONFIG_FILES_TARGET = $$PWD/builds/utilities/update-config-files.sh 
+    CONFIG_FILES_COMMAND = $$CONFIG_FILES_TARGET $$_PRO_FILE_PWD_
+    CHMOD_COMMAND = chmod 755 $$CONFIG_FILES_TARGET
+    QMAKE_POST_LINK += $$escape_expand(\n\t)  \
+                       echo $$shell_quote$${VERSION_INFO_COMMAND} > $$shell_quote$${VERSION_INFO_FILE} \
+                       $$escape_expand(\n\t)  \
+                       echo $$shell_quote$${RPM_SPEC_VERSION_COMMAND} > $$shell_quote$${RPM_SPEC_VERSION_FILE} \
+                       $$escape_expand(\n\t)  \
+                       $$shell_quote$${CHMOD_COMMAND} \
+                       $$escape_expand(\n\t)  \
+                       $$shell_quote$${CONFIG_FILES_COMMAND}
 
-    } else {
-
-        QMAKE_POST_LINK += $$escape_expand(\n\t)  \
-                           echo $$shell_quote$${VERSION_INFO} > $$shell_quote$${VERSION_INFO_FILE} \
-                           $$escape_expand(\n\t)  \
-                           echo $$shell_quote$${RPM_SPEC_VERSION} > $$shell_quote$${RPM_SPEC_VERSION_FILE}
-
-        # On Mac update the Info.plist with version major, version minor, build and add git hash
-        macx {
-            CONFIG(release, debug|release) {
-                message(~~~ UPDATE MAC OSX INFO.PLIST)
-                INFO_PLIST_FILE = $$shell_quote($${PWD}/mainApp/Info.plist)
-                PLIST_COMMAND = /usr/libexec/PlistBuddy -c
-                QMAKE_POST_LINK += $$escape_expand(\n\t)   \
-                                   $$PLIST_COMMAND \"Set :CFBundleShortVersionString $${VERSION}\" $${INFO_PLIST_FILE}  \
-                                   $$escape_expand(\n\t)   \
-                                   $$PLIST_COMMAND \"Set :CFBundleVersion $${VER_BUILD_STR}\" $${INFO_PLIST_FILE} \
-                                   $$escape_expand(\n\t)   \
-                                   $$PLIST_COMMAND \"Set :com.trevorsandy.lpub3d.GitSHA $${VER_SHA_HASH_STR}\" $${INFO_PLIST_FILE}
-            }
-        }
-        # On Linux, update the application version in lpub3d.desktop (desktop configuration file), lpub3d.1 (man page)
-        # This flag will also add the version number to packaging configuration files PKGBUILD, changelog and
-        # lpub3d.spec depending on which build is being performed.
-        unix:!macx: {
-            CONFIG(release, debug|release) {
-                message(~~~ UPDATE LINUX PACKAGE CONFIG FILES)
-                COMMAND_TARGET = $$PWD/builds/utilities/update-config-files.sh
-                CHMOD = chmod 755 $$COMMAND_TARGET
-                COMMAND = $$COMMAND_TARGET $$_PRO_FILE_PWD_
-                QMAKE_POST_LINK += $$escape_expand(\n\t)  \
-                                   $$shell_quote$${CHMOD} \
-                                   $$escape_expand(\n\t)  \
-                                   $$shell_quote$${COMMAND}
-            }
-        }
+    # On Mac update the Info.plist with version major, version minor, build and add git hash
+    macx {
+        INFO_PLIST_FILE = $$shell_quote($${PWD}/mainApp/Info.plist)
+        PLIST_COMMAND = /usr/libexec/PlistBuddy -c
+        QMAKE_POST_LINK += $$escape_expand(\n\t)   \
+                           $$PLIST_COMMAND \"Set :CFBundleShortVersionString $${VERSION}\" $${INFO_PLIST_FILE}  \
+                           $$escape_expand(\n\t)   \
+                           $$PLIST_COMMAND \"Set :CFBundleVersion $${VER_BUILD_STR}\" $${INFO_PLIST_FILE} \
+                           $$escape_expand(\n\t)   \
+                           $$PLIST_COMMAND \"Set :com.trevorsandy.lpub3d.GitSHA $${VER_SHA_HASH_STR}\" $${INFO_PLIST_FILE}
     }
 }
