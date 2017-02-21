@@ -349,14 +349,6 @@ void Updater::setDownloadName (const QString& name) {
 }
 
 //==============================================================================
-// Updater::setUseCustomInstallProcedures
-//==============================================================================
-
-void Updater::setUseCustomInstallProcedures (const bool& custom) {
-    m_downloader->setUseCustomInstallProcedures (custom);
-}
-
-//==============================================================================
 // Updater::setModuleVersion
 //==============================================================================
 
@@ -365,11 +357,27 @@ void Updater::setModuleVersion (const QString& version) {
 }
 
 //==============================================================================
+// Updater::setUseCustomInstallProcedures
+//==============================================================================
+
+void Updater::setUseCustomInstallProcedures (const bool& custom) {
+    m_downloader->setUseCustomInstallProcedures (custom);
+}
+
+//==============================================================================
+// Updater::setVersionsRequested
+//==============================================================================
+
+void Updater::setVersionsRequested(const bool& version) {
+    m_versionsRequest = version;
+}
+
+//==============================================================================
 // Updater::retrieveAvailableVersions
 //==============================================================================
 
 void Updater::retrieveAvailableVersions() {
-    versionsRequested();
+    setVersionsRequested(true);
     m_updateRequest.setUrl(QUrl(url()));
     m_manager->get(m_updateRequest);
 }
@@ -379,16 +387,9 @@ void Updater::retrieveAvailableVersions() {
 //==============================================================================
 
 bool Updater::versionsRequested() {
-    return m_versionsRequest = true;
+    return m_versionsRequest;
 }
 
-//==============================================================================
-// Updater::versionsRequestServed
-//==============================================================================
-
-void Updater::versionsRequestServed() {
-    m_versionsRequest = false;
-}
 
 //==============================================================================
 // Updater::checkForUpdates
@@ -427,7 +428,7 @@ void Updater::onReply (QNetworkReply* reply) {
             if (! platform.isEmpty()) {
                 m_availableVersions = platform.value ("available-versions").toString();
               }
-            versionsRequestServed();
+            setVersionsRequested(false);
             emit checkingFinished (url());
             return;
           }
@@ -504,7 +505,7 @@ void Updater::onReply (QNetworkReply* reply) {
                                 m_downloadUrl = platform.value ("download-url").toString();
                                 _changelogUrl = platform.value ("changelog-url").toString();
                             } else {
-                                // Update to version is othere than the latest version
+                                // Update to version is other than the latest version
                                 QString distro_suffix = m_platform.section("-",1,1);
                                 QJsonObject altVersion = platform.value(QString("alternate-version-%1-%2")
                                                                         .arg(versions[updateIndex])

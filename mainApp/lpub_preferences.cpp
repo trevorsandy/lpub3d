@@ -652,9 +652,10 @@ void Preferences::lpub3dLibPreferences(bool force)
                     if (validFile.exists()) {
                         Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
                         QString destination = Preferences::ldrawPath;
-                        QString message;
+                        QString message;                        
                         if (!destination.isEmpty()) {
                             destination = destination.remove(destination.size() - 6,6);
+#ifdef Q_OS_WIN
                             QStringList result = JlCompress::extractDir(validFile.absoluteFilePath(),destination);
                             if (result.isEmpty()){
                                 logError() << QString("Failed to extract %1 to %2/ldraw").arg(validFile.absoluteFilePath()).arg(destination);
@@ -662,9 +663,16 @@ void Preferences::lpub3dLibPreferences(bool force)
                                 message = QMessageBox::tr("%1 Official Library files extracted to %2/ldraw").arg(result.size()).arg(destination);
                                 logInfo() << message;
                             }
+#else
+                            QMessageBox::information(NULL,
+                            QMessageBox::tr(VER_PRODUCTNAME_STR),
+                            QMessageBox::tr("It is recommended to extract the updated Official archive library "
+                                            "%1 to your LDraw library %2/ldraw").arg(validFile.absoluteFilePath()).arg(destination));
+#endif
                             validFile.setFile(QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_UNOFFICIAL_ARCHIVE)));
-                            if (validFile.exists()) {
+                            if (validFile.exists()) {                                
                                 QString destination = QMessageBox::tr("%1/unofficial").arg(Preferences::ldrawPath);
+#ifdef Q_OS_WIN
                                 QStringList result = JlCompress::extractDir(validFile.absoluteFilePath(),destination);
                                 if (result.isEmpty()){
                                     logError() << QString("Failed to extract %1 to %2").arg(validFile.absoluteFilePath()).arg(destination);
@@ -672,6 +680,12 @@ void Preferences::lpub3dLibPreferences(bool force)
                                     message = QMessageBox::tr("%1 Unofficial Library files extracted to %2").arg(result.size()).arg(destination);
                                     logInfo() << message;
                                 }
+#else
+                                QMessageBox::information(NULL,
+                                QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                QMessageBox::tr("It is recommended to extract the updated unofficial archive library "
+                                                "%1 to your LDraw library %2").arg(validFile.absoluteFilePath()).arg(destination));
+#endif
                             }
                         } else {
                             message = QMessageBox::tr("Cannot extract downloaded LDraw library archives, ibrary path is not defined!");

@@ -310,6 +310,10 @@ class QSU_DECL Updater : public QObject {
     void setUpdateAvailable (const bool& available);
 
     ///
+    /// Set the version request flag
+    ///
+    void setVersionsRequested(const bool& available);
+
     /// Shows notification and initializes the
     /// internal downloader for content downloads.
     ///
@@ -319,11 +323,6 @@ class QSU_DECL Updater : public QObject {
     /// Set the version request to true
     ///
     bool versionsRequested();
-
-    ///
-    /// Set the version request to false
-    ///
-    void versionsRequestServed();
 
     ///
     /// Disconnects the network access manager when the user

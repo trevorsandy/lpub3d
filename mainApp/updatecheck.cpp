@@ -173,8 +173,8 @@ void AvailableVersions::setAvailableVersions(const QString &url){
         Preferences::availableVersions = versions;
       else
         Preferences::availableVersions = qApp->applicationVersion();
-    } else
-      qDebug() << QString("bad DEFS_URL %1").arg(DEFS_URL);
+    } //else
+      //qDebug() << QString("bad DEFS_URL %1").arg(DEFS_URL);
 }
 
 AvailableVersions::~AvailableVersions(){

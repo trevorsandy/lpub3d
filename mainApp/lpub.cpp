@@ -1629,6 +1629,7 @@ void Gui::refreshLDrawUnoffParts(){
     // Extract archive
     QString archive = tr("%1/%2").arg(archivePath).arg(FILE_LPUB3D_UNOFFICIAL_ARCHIVE);
     QString destination = tr("%1/unofficial").arg(Preferences::ldrawPath);
+#ifdef Q_OS_WIN
     QStringList result = JlCompress::extractDir(archive,destination);
     if (result.isEmpty()){
         emit messageSig(false,tr("Failed to extract %1 to %2").arg(archive).arg(destination));
@@ -1636,6 +1637,12 @@ void Gui::refreshLDrawUnoffParts(){
         QString message = tr("%1 Unofficial Library files extracted to %2").arg(result.size()).arg(destination);
         emit messageSig(true,message);
     }
+#else
+    QMessageBox::information(NULL,
+    QMessageBox::tr(VER_PRODUCTNAME_STR),
+    QMessageBox::tr("It is recommended to extract the updated unofficial archive library "
+                    "%1 to your LDraw library %2").arg(archive).arg(destination));
+#endif
 }
 
 void Gui::refreshLDrawOfficialParts(){
@@ -1654,6 +1661,7 @@ void Gui::refreshLDrawOfficialParts(){
     QString archive = tr("%1/%2").arg(archivePath).arg(VER_LDRAW_OFFICIAL_ARCHIVE);
     QString destination = Preferences::ldrawPath;
     destination = destination.remove(destination.size() - 6,6);
+#ifdef Q_OS_WIN
     QStringList result = JlCompress::extractDir(archive,destination);
     if (result.isEmpty()){
         emit messageSig(false,tr("Failed to extract %1 to %2/ldraw").arg(archive).arg(destination));
@@ -1661,7 +1669,12 @@ void Gui::refreshLDrawOfficialParts(){
         QString message = tr("%1 Official Library files extracted to %2/ldraw").arg(result.size()).arg(destination);
         emit messageSig(true,message);
     }
-
+#else
+    QMessageBox::information(NULL,
+    QMessageBox::tr(VER_PRODUCTNAME_STR),
+    QMessageBox::tr("It is recommended to extract the updated Official archive library "
+                    "%1 to your LDraw library %2/ldraw").arg(archive).arg(destination));
+#endif
 }
 
 
