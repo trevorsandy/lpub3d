@@ -22,8 +22,8 @@
 %define dist fc
 %endif
 
-%if 0%{?mdkversion}
-%define dist mdk
+%if 0%{?mageia}
+%define dist mag
 %endif
 
 %if 0%{?scientificlinux_version}
@@ -43,7 +43,7 @@
 %if 0%{?suse_version} || 0%{?sles_version}
 Group: Productivity/Graphics/Viewers
 %endif
-%if 0%{?mdkversion} || 0%{?rhel_version} 
+%if 0%{?mageia} || 0%{?rhel_version}
 Group: Graphics
 %endif
 %if 0%{?suse_version} || 0%{?sles_version}
@@ -53,7 +53,7 @@ BuildRequires: fdupes
 %if 0%{?fedora} || 0%{?centos_version}
 Group: Amusements/Graphics
 %endif
-%if 0%{?mdkversion} || 0%{?rhel_version} || 0%{?fedora} || 0%{?centos_version} || 0%{?scientificlinux_version}
+%if 0%{?mageia} || 0%{?rhel_version} || 0%{?fedora} || 0%{?centos_version} || 0%{?scientificlinux_version}
 License: GPLv3+
 %endif
 
@@ -73,7 +73,7 @@ Source10: lpub3d.spec.git.version
 %endif
 
 # set packer
-%if 0%{?OBS}
+%if 0%{?OBS}==1
 %define distpacker "openSUSE OBS [abuild]"
 %else
 BuildRequires: finger
@@ -90,9 +90,7 @@ Version: %{gitversion}
 Release: %{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
-Packager: %{distpacker}
 BuildRoot: %{_builddir}/%{name}
-BuildArch: %{_arch}
 Requires: unzip 
 Source0: lpub3d-git.tar.gz
 
@@ -106,6 +104,11 @@ BuildRequires: qt5-linguist
 BuildRequires: git
 %endif
 BuildRequires: gcc-c++, make
+%endif 
+
+%if 0%{?mageia}
+BuildRequires: qtbase5-devel
+BuildRequires: sane-backends-iscan
 %endif
 
 %if 0%{?fedora}
@@ -119,15 +122,6 @@ BuildRequires: qca, gnu-free-sans-fonts
 
 %if 0%{?suse_version} 
 BuildRequires: libqt5-qtbase-devel, zlib-devel
-%if 0%{?OBS}
-#BuildRequires: -post-build-checks
-%endif
-%endif
-
-%if 0%{?sles_version}
-%if 0%{?OBS}
-#BuildRequires: -post-build-checks
-%endif
 %endif
 
 %description
@@ -154,7 +148,7 @@ echo Summary..................%{summary}
 echo Version..................%{version}
 echo Vendor...................%{vendor}
 echo Release..................%{release}
-echo Packager.................%{distpacker}
+echo Distribution packer......%{distpacker}
 echo Source0..................%{SOURCE0}
 echo Source10.................%{SOURCE10}
 echo Service Provider.........%{serviceprovider}
@@ -225,5 +219,5 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %changelog
-* Tue Feb 21 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.710
+* Thu Feb 23 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.711
 - LPub3D Linux package (rpm) release

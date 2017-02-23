@@ -75,7 +75,7 @@ fi
 echo "3. update man page - add version suffix"
 FILE="$PWD/docs/lpub3d.1"
 LineToReplace=61
-if [ ! -f ${FILE} ]
+if [ -f ${FILE} -a -r ${FILE} ]
 then  
         sed -i "${LineToReplace}s/.*/     \/usr\/bin\/lpub3d${APP_VER_SUFFIX}/" "${FILE}"
 else
@@ -128,7 +128,7 @@ fi
 
 echo "8. update lpub3d.spec - add app version and change date"
 FILE="$PWD/../builds/linux/obs/lpub3d.spec"
-LineToReplace=228
+LineToReplace=222
 if [ -f ${FILE} -a -r ${FILE} ]
 then
         sed -i "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${APP_VERSION}/" "${FILE}"

@@ -94,18 +94,16 @@ MOVE /Y %FILE%.new %FILE%     >>		%LOG%
 ECHO  3. update man page - add version suffix 	>>   %LOG%
 ECHO  3. update man page - add version suffix
 SET FILE="%PWD%\docs\lpub3d%APP_VER_SUFFIX%.1"
-IF NOT EXIST %FILE% (
-  SET /a LineToReplace=61
-  SET "Replacement=     /usr/bin/lpub3d%APP_VER_SUFFIX%"
-  (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%FILE%"') DO (
-    SET "Line=%%b"
-    IF %%a equ %LineToReplace% SET "Line=%Replacement%"
-      SETLOCAL ENABLEDELAYEDEXPANSION
-      ECHO(!Line!
-      ENDLOCAL
-  ))>"%FILE%.new"
-  MOVE /Y %FILE%.new %FILE%     >>		%LOG%
-)
+SET /a LineToReplace=61
+SET "Replacement=     /usr/bin/lpub3d%APP_VER_SUFFIX%"
+(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%FILE%"') DO (
+  SET "Line=%%b"
+  IF %%a equ %LineToReplace% SET "Line=%Replacement%"
+    SETLOCAL ENABLEDELAYEDEXPANSION
+    ECHO(!Line!
+    ENDLOCAL
+))>"%FILE%.new"
+MOVE /Y %FILE%.new %FILE%     >>		%LOG%
 
 ECHO  4. update PKGBUILD - add app version 	>>   %LOG%
 ECHO  4. update PKGBUILD - add app version
@@ -164,7 +162,7 @@ MOVE /Y %FILE%.new %FILE%     >>		%LOG%
 ECHO  8. update lpub3d.spec - add app version and change date 	>>   %LOG%
 ECHO  8. update lpub3d.spec - add app version and change date
 SET FILE="%PWD%\..\builds\linux\obs\lpub3d.spec"
-SET /a LineToReplace=226
+SET /a LineToReplace=222
 SET "Replacement=* %CHANGE_DATE% - trevor.dot.sandy.at.gmail.dot.com %APP_VERSION%"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%FILE%"') DO (
   SET "Line=%%b"
