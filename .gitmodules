@@ -1,0 +1,3 @@
+[submodule "ldglite"]
+	path = ldglite
+	url = https://github.com/trevorsandy/ldglite.git
