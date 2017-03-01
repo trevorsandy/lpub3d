@@ -160,6 +160,8 @@ win32 {
                            $$escape_expand(\n\t)   \
                            $$PLIST_COMMAND \"Set :CFBundleVersion $${VER_BUILD_STR}\" $${INFO_PLIST_FILE} \
                            $$escape_expand(\n\t)   \
+                           $$PLIST_COMMAND \"Set :CFBundleGetInfoString LPub3D $${VERSION} https://github.com/trevorsandy/lpub3d\" $${INFO_PLIST_FILE} \
+                           $$escape_expand(\n\t)   \
                            $$PLIST_COMMAND \"Set :com.trevorsandy.lpub3d.GitSHA $${VER_SHA_HASH_STR}\" $${INFO_PLIST_FILE}
     }
 }

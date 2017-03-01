@@ -19,7 +19,7 @@ fi
 PWD=$1
 
 # logging stuff
-LOG="$PWD/../builds/utilities/update-config-files.log"
+LOG="$PWD/../builds/utilities/$ME.log"
 if [ -f ${LOG} -a -r ${LOG} ]
 then
         rm ${LOG}

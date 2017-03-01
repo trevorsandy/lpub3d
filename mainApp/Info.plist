@@ -71,6 +71,8 @@
 	<string>lpub3d.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.trevorsandy.lpub3d</string>
+        <key>CFBundleGetInfoString</key>
+        <string>LPub3D 1.0.0 https://github.com/trevorsandy/lpub3d</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -88,7 +90,7 @@
 	<key>CFBundleVersion</key>
 	<string></string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2015 - 2017 Trevor SANDY</string>
+        <string>Copyright © 2015-2017 Trevor SANDY</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>

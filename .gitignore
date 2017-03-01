@@ -92,7 +92,7 @@ ldrawini/release/*
 ldrawini/debug/*
 quazip/release/*
 quazip/debug/*
-builds/osx/dmgbuilds/*
+builds/macx/dmgbuilds/*
 builds/windows/release/*
 builds/linux/debbuild/*
 builds/linux/rpmbuild/*

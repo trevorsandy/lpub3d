@@ -1,0 +1,1938 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html;charset=iso-8859-1"/>
+<title>LDView change history</title>
+<style type="text/css"><!--
+body
+{
+	margin: 20px;
+	background-color: #F8F8F8;
+	text-color: #000000;
+	font-family: helvetica, arial, sans-serif;
+}
+a:link
+{
+	color: #808080;
+}
+a:visited
+{
+	color: #505050;
+}
+a:active
+{
+	color: #0080d0;
+}
+table
+{
+	border-collapse: collapse;
+	border: 2px solid #000000;
+	margin-bottom: 8px;
+	width: 100%;
+}
+table th
+{
+	background-color: #0080D0;
+	font-size: 130%;
+	font-weight: bold;
+	color: #FFFFFF;
+	text-align: left;
+	padding-left: 10px;
+	border-color: #000000;
+}
+table td
+{
+	padding: 4px;
+	vertical-align: top;
+	border-color: #000000;
+}
+table td.NoWrap
+{
+	white-space: nowrap;
+}
+b.Bigger
+{
+	font-size: 150%;
+}
+img.SFLogo
+{
+	border-width: 0;
+	float: right;
+}
+p.FinePrint
+{
+	font-size: 75%;
+}
+--></style></head>
+<body>
+<h2>Change history</h2>
+<p></p>
+
+
+<table border="1">
+
+<tr>
+<th>
+Version
+</th>
+<th colspan="2">
+Changes
+</th>
+</tr>
+
+<tr><td class="NoWrap" align="right">
+<b class="Bigger">4.3</b><br/>
+(?? ???, 20??)
+</td>
+<td colspan="2">
+<b>Additions</b>
+<ul>
+<li>Added support for command line exports.</li>
+<li>Added ability to specify an alternate LDConfig.ldr file on the command
+line.</li>
+<li>Added support for -IniFile=&lt;path&gt; on the command line.</li>
+<li>Added Keep Right Side Up feature to Mac version.</li>
+</ul>
+<b>Updates</b>
+<ul>
+<li>Updated Mac, Qt, and OSMesa versions to optionally show errors and warnings
+when used to generate snapshots or perform exports from the command line.</li>
+</ul>
+<b>Bug Fixes</b>
+<ul>
+<li>Fixed crash when loading a file that contained a spherical texmap.</li>
+<li>Fixed "Extra search directories" to work again.</li>
+<li>Fixed OSMesa version to work properly on case-sensitive file systems.</li>
+<li>Various fixes of memory leaks and potential (unlikely) crashes based on
+output from the Xcode static analyzer.</li>
+<li>Fixed Windows screen saver to use the LDraw directory set in the main
+application.</li>
+</ul>
+</td></tr>
+
+<tr><td class="NoWrap" align="right">
+<b class="Bigger">4.2</b><br/>
+(09 Jul, 2016)
+</td>
+<td colspan="2">
+<b>Additions</b>
+<ul>
+<li>Added support for blue neutral faces for BFC.</li>
+<li>Added "Right Side Up" feature, along with "Keep Right Side Up" setting while
+in fly-through mode.</li>
+<li>Added support for menu item images in Windows on OSes prior to Windows
+Vista.  (Menu item images already worked on Vista and later.)</li>
+<li>Added scale selection to STL export.  (Previously it was always cm.)</li>
+<li>Updated Mac version to support pinch gesture for zooming and three-finger
+swipe gesture for panning.</li>
+<li>Added support of 
+<a href="https://build.opensuse.org/package/show?package=LDView&project=home%3Apbartfai">
+openSUSE Build Service</a>.</li>
+</ul>
+<b>Updates</b>
+<ul>
+<li>Updated "Random colors" setting to avoid BFC face highlight colors enabled
+under BFC (green front faces, red back faces, and blue neutral faces), but only
+if they are enabled.</li>
+<li>Updated transparency sorting to use less memory during initialization.</li>
+<li>Updated highlighting in the model tree to work better on sub-geometry of the
+selected line that has hard-coded colors (not color 16).</li>
+<li>Updated HTML Parts List for improved printing.</li>
+<li>Disable transparency when one or more of the red back faces, green front
+faces, or blue neutral faces options is enabled, and BFC is enabled.</li>
+<li>Update POV export to improve generated file.</li>
+<li>Updated code to be compatible with Qt 5.x</li>
+<li>No longer require BASE install package on initial LDraw library install,
+since it is no longer present in ptreleases.cgi.</li>
+</ul>
+<b>Bug Fixes</b>
+<ul>
+<li>Fixed crash when taking a snapshot using a video card without Frame Buffer
+Object support.</li>
+<li>Fixed detection of LDConfig.ldr on case-sensitive file systems (Linux).</li>
+<li>Fixed zoom to fit to ignore conditional control points when they aren't set
+to be drawn.</li>
+<li>Fixed rare bug where a recent filename getting truncated to fit in the menu
+could cause memory corruption.</li>
+<li>Fixed crash related to BFC INVERTNEXT.</li>
+<li>Fixed menu item images when running in Vista and later with visual styles in
+LDView disabled.</li>
+<li>Fixed crash in POV export when triangles or quads were in the file with
+points less than .001 LDraw Units apart (but greater than 0 units).</li>
+<li>Fixed bug where sloped LGEO bricks would use the _slope version of the color
+even if it was a color not directly supported by LGEO, and therefore without a
+corresponding _slope color definition.  This would result in a POV error.</li>
+<li>Fixed 3DS export to properly handle BFC INVERTNEXT.</li>
+<li>Fixed STL export problem where some colored geomtry would not be
+exported.</li>
+<li>Fixed command line snapshot generation to pay attention to the Extra Search
+Directories set via the UI.</li>
+<li>Fixed seams in POV export to not fail for parts that are as thin as or
+thinner than the seam width (like stickers).</li>
+<li>Fixed autocrop to generate a 1x1 pixel image when all pixels in the image
+match the background color.  Previousy, it didn't crop at all.</li>
+<li>Fixed 3DS exporter to use object names that don't have too many
+characters.</li>
+<li>Fixed position of pneumatic pistons on 8464.mpd to correct for their origin
+having changed before they became official parts.</li>
+<li>Fixed uninitialized variable that sometimes prevented steps from
+working.</li>
+<li>Fixed Show All/Show None buttons on Mac version to not skip the last error
+type, and to repopulate the error list based on the new selected errors.</li>
+<li>Fixed 3DS exporter creating files that are way bigger than needed.</li>
+</ul>
+</td></tr>
+
+<tr><td class="NoWrap" align="right">
+<b class="Bigger">4.1</b><br/>
+(03 Dec, 2009)
+</td>
+<td colspan="2">
+<b>Additions</b>
+<ul>
+<li>Added curve smoothing option for POV-Ray exports.</li>
+<li>Added ability to highlight the geometry represented by currently selected
+line(s) in the model tree. (Note that multiple selection in the model tree is
+only supported on the Mac.)</li>
+<li>Added status bar to model tree showing the filename and line number of the
+currently selected line.</li>
+<li>Added ability to randomize colors (useful for part authoring).</li>
+<li>Added view mode toggle to default toolbar (Windows and Mac only).</li>
+<li>Added toolbar customization, along with the ability to put a lot of LDView
+functionality on the toolbar (Windows and Mac only).</li>
+<li>Added OK and Cancel buttons to the MPD dialog.  Hitting OK causes the
+selected sub-model to remain selection after the dialog is dismissed.</li>
+<li>Added remote control support to Windows version, so other programs can
+make LDView perform certain functions.</li>
+<li>Added "Overwrite existing snapshot" option to Parts List dialog when
+"Show model" is checked.</li>
+<li>Added 3D-Studio export.</li>
+<li>Added ability to specify step from the command line.</li>
+<li>Added ability to specify MPD sub-model name from the command line.</li>
+<li>Added "Automatic" aspect ratio setting for POV exports.</li>
+<li>Added new !LDVIEW BBOX_IGNORE meta command, to allow you to specify parts of
+the model that LDView should ignore during bounding box calculations.  That way,
+the default zoom and zoom to fit can be tighter.</li>
+<li>Add support for "ri" and "r" ring primitives.</li>
+<li>Add support for "r" torus primitives.</li>
+<li>Added 64-bit version of the Windows Explorer thumbnail generator plugin, so
+thumbnail generation can now be performed on 64-bit versions of Windows.</li>
+<li>Added 64-bit Ubuntu package.</li>
+</ul>
+<b>Updates</b>
+<ul>
+<li>Updated Linux version to use Qt 4.4/4.5 instead of Qt 3.3.</li>
+<li>Removed BFC and Show Axes from the default toolbar (Windows and Mac
+only).</li>
+<li>Updated examine/fly-through status bar icons.</li>
+<li>Changed the Model Bounding Box feature to be a toggle.</li>
+<li>Updated full screen mode to not change the display settings if the requested
+display mode matches the current display mode.</li>
+<li>Updated snapshot save to include MPD sub-model name as part of the default
+filename if an MPD sub-model is selected.</li>
+<li>Updated LGEO POV export to use LGEO studs even on non-LGEO parts.</li>
+<li>Updated automatic part downloading to improve its performance.</li>
+<li>Updates library update check to scan all existing part files to determine
+the latest update already installed, instead of trying to figure this out based
+on the contents of files in the models directory.</li>
+<li>Updated handling of quads with colinear points to split the quad into two
+triangles at the colinear point in order to avoid T-Junctions.</li>
+<li>Improved detection of what version of the parts library is installed.</li>
+</ul>
+<b>Bug Fixes</b>
+<ul>
+<li>Fixed problem that caused the view mode icon to show up in the wrong part
+of the status bar sometimes, and show the lat/lon when in fly-through mode.</li>
+<li>Fixed crash when loading a part with "Part Bounding Boxes Only"
+ enabled.</li>
+<li>Fixed resize grip on Model Tree dialog to not disappear immediately after
+hiding the options.</li>
+<li>Fixed bug that caused a crash any time you tried to bring up the screensaver
+settings.</li>
+<li>Fixed full screen support when used on a second monitor.</li>
+<li>Fixed POV export to not apply seams to sub-parts of parts.</li>
+<li>Fixed bug that caused the step in the toolbar to not update if you changed
+steps while the model was rotating on its own.</li>
+<li>Stop applying seams to parts that have been transformed non-uniformly.  This
+was causing significant problems with flex tubes, which are stretched to
+arbitrary lengths.  The excessive stretching messed up the seam calculation,
+causing them to be way too short.</li>
+<li>Fixed primitive substitution with 48-segment torus primitives to extract the
+proper angle from the filename, instead of 3 times the proper angle.</li>
+<li>Fixed steps on toolbar when number of steps is more than 100.</li>
+<li>Fixed ring primitive substitution to support n-16rinx.dat files.</li>
+<li>Fixed opaque dithered extended colors to not be transparent.</li>
+<li>Fixed problem when a new preference set was selected via Apply (not OK) and
+the new pref set has a different FSAA state than the previous one.</li>
+<li>Fixed it to give an error if the latest update currently installed doesn't
+show up on ldraw.org's ptreleases.cgi script.</li>
+<li>Fixed Windows Explorer thumbnail generator plugin to not skip some LDraw
+files.</li>
+<li>Fixed uninstall to perform a reboot if uninstalling the Windows Explorer
+thumbnail generator plugin, which often fails to properly uninstall without a
+reboot.</li>
+<li>Fixed final conditional line in cyls2 primitive substitution to not be
+wrong when "Curve Quality" is set to anything other than its default value.</li>
+<li>Fixed "Check for Library Updates" to properly deal with recent part
+libaries.</li>
+</ul>
+</td></tr>
+
+<tr><td class="NoWrap" align="right">
+<b class="Bigger">4.0.1</b><br/>
+(08 Feb, 2009)
+</td>
+<td colspan="2">
+<b>Bug Fixes</b>
+<ul>
+<li>Fixed official part detection for parts in 2008-1 LDraw library update.</li>
+<li>Fixed generation of conditional lines on full tori to not produce invalid
+lines.</li>
+<li>Fixed problem that caused invalid lighting with certain rare sub-model
+matrices.</li>
+</ul>
+</td></tr>
+
+<tr><td class="NoWrap" align="right">
+<b class="Bigger">4.0</b><br/>
+(05 Jan, 2009)
+</td>
+<td colspan="2">
+<b>Additions</b><br/>
+<ul>
+<li>New Cocoa-based LDView for the Mac.</li>
+<li>Added basic support for steps.</li>
+<li>Added export feature to convert LDraw files into other file formats.
+Currently POV-Ray and Stereo Lithography file formats are supported.</li>
+<li>Added Model Tree dialog (drawer in Cocoa version) to show a tree with all
+the data from the model.</li>
+<li>Added MPD model selection to show sub-models inside MPD models.</li>
+<li>Added new latitude/longitude rotation mode.</li>
+<li>Added dialog to set the latitude/longitude.  (This does not require you to
+be in the new latitude/longitude rotation mode.)</li>
+<li>Added support for multiple processors, and multi-core processors.
+Transparency sorting and conditional line calculations now happen in background
+threads when LDView is run on a computer with more than one processor core.</li>
+<li>Added option to show the coordinate axes for the model, originating at the
+model's origin.</li>
+<li>Added support for JPEG snapshots.  The default JPEG settings are set using
+rarely-used JPEG compression options that result in much better quality for
+computer-generated imagery than is typically achieved with image tools.
+(Specifically, LDView uses the 4:4:4 JPEG color sub-sampling by default.)</li>
+<li>Added Bounding Box dialog that shows the minimum and maximum coordinates of
+the bounding box for the model, and draws that bounding box.</li>
+<li>Added view mode that only shows part bounding boxes.</li>
+<li>Added support for rotation in examine mode with the arrow keys on the
+keyboard.</li>
+<li>Added steps to m6459.ldr sample model.</li>
+<li>Added -SaveSnapshots command line option to allow multiple snapshots to be
+saved at once from the command line.</li>
+<li>Added "Transparent background" and "Auto-crop" to the snapshot saving UI.
+(Previously, these options were only available via manual registry entries or
+command line parameters.)</li>
+<li>Added ability to set the 3D portion of the LDView window to various sizes
+with standard aspect ratios.</li>
+<li>Added ability to use the current LDView aspect ratio in the POV-Ray camera
+info command.</li>
+<li>Added ability to control the default directory where snapshots and part
+lists get saved.  Choices are in the model directory, the most recently used
+directory for the given file type, or a specified directory.</li>
+<li>Added support for Black_Edge color definition.  Add a color to your
+ldconfig.ldr with Black_Edge as its color name (case doesn't matter), and
+LDView will use the given color for its black edge lines (assuming that
+"Process ldconfig.ldr is checked in the general prefs.)</li>
+<li>Added icons from toolbar to corresponding menu items when running in Windows
+Vista.</li>
+</ul>
+<b>Updates</b><br/>
+<ul>
+<li>Decreased the amount of time needed to make certain preference changes (for
+example, toggling edge lines).</li>
+<li>Greatly improved the output quality of "Transparent background" snapshots
+when antialiased lines are enabled.</li>
+<li>Changed snapshot rendering in Windows to do software rendering directly to
+an in-memory bitmap when the Pixel Buffer OpenGL extension is unavailable or
+disabled.  Previously, it rendered into the window, which caused a window to
+appear for command line snapshot renders.</li>
+<li>Changed the default setting for conditional lines from off to on.  Note that
+since edge lines default to off, this won't be seen until the first time edge
+lines are enabled.</li>
+<li>Changed the default setting for seams to on.</li>
+<li>Rotated 8464.mpd sample model 180 degrees so that it faces forward in the
+default viewing angle.</li>
+<li>Updated the toolbar to have smaller buttons in Windows XP and Windows
+Vista.</li>
+<li>Changed "Always black" edges to be truly black, instead of whatever color
+was assigned to color code 0.</li>
+<li>Updated "Always black" edges to use gray when used on dark colors, isntead
+of black.</li>
+</ul>
+<b>Bug Fixes</b>
+<ul>
+<li>Fixed Windows version so that switching to full screen doesn't trigger a
+full model reload.</li>
+<li>Fixed handling of shift key when moving via the keyboard in fly-through
+mode.</li>
+<li>Fixed check boxes in group box titles in preferences to only show underlines
+under mnemonic characters when appropriate when running with themes
+enabled.</li>
+<li>Fixed bug where mouse control got messed up badly if you used
+&lt;Alt&gt;&lt;Tab&gt; to switch to another program while dragging with the
+mouse in LDView.</li>
+<li>Don't show model load failure error message if the user cancels the model
+load.</li>
+<li>Fixed bug that sometimes caused a vertical line to appear on the left edge
+of large snapshots.</li>
+<li>Fixed handling of transparent and invisible LDLite color codes.</li>
+<li>Fixed Errors &amp; Warnings Dialog on Windows verison to show the proper
+error and warning counts when the dialog isn't shown automatically.</li>
+<li>Fixed lock up when "Show View Info" was selected in Windows while themodel
+was spinning.</li>
+<li>Diable Open Model toolbar button during load.  Using it would result in a
+crash.</li>
+<li>Fixed bug where hitting escape during load didn't work in Windows Vista
+(and maybe other versions of Windows also).</li>
+<li>Fixed bug where changing to a new LDraw directory would still give you a
+message that the LDraw directory could not be found.</li>
+<li>Fixed primitive substitution to work with primitives in the Unofficial/p
+directory.</li>
+<li>Fixed primitive substitution for 3-8ndis primitive.</li>
+<li>Fixed fly-through speed to be dependent of FPS, so that having a super
+high FPS doesn't produce super fast fly-through.</li>
+<li>Fixed primitive substitution to work better with curve smoothing with
+cone, sphere, and torus primitives.</li>
+<li>Fixed problem with condtional lines showing up when they weren't supposed to
+when their control points went outside of the view frustum.</li>
+</ul>
+</td></tr>
+
+<tr><td class="NoWrap" align="right">
+<b class="Bigger">3.2</b><br/>
+(20 Aug, 2007)
+</td>
+<td colspan="2">
+<b>Additions</b><br/>
+<ul>
+<li>Added ability to generate an HTML parts list of your model.</li>
+<li>Added ability to set the direction that the light source points, both with
+predefined light directions in the Preferences Dialog, and by holding down
+Shift and dragging with the mouse.</li>
+<li>Added support for light.dat files in LDraw models.  Unless disabled, these
+will generate point light sources in the scene, up to a total of 8 lights.</li>
+<li>Added ability to use LDView to generate thumbnails of .ldr and .mpd files in
+Windows Explorer and Gnome Nautilus.</li>
+<li>Made it so dragging with the middle mouse button pans (in addition to
+the existing dragging with the left mouse button while holding down
+Control).</li>
+<li>Added support for anisotropic filtering on video cards that support it.</li>
+<li>Added scroll wheel support to QT version.</li>
+<li>Added BFC toolbar button to QT version.</li>
+<li>Added support for the new !ldraw_org meta-statement to be used in the next
+official parts release.</li>
+</ul>
+<b>Updates</b><br/>
+<ul>
+<li>Made it so that settings specified on the command line don't get saved as if
+they had been specified in the UI.  (For example, -WindowWidth=320 on the
+command line would result in LDView launching with a window width of 320 the
+next time it was run.)</li>
+<li>Updated Zoom to Fit command so that the model remaines auto-centered after
+using it.</li>
+<li>Moved Errors &amp; Warnings, Show View Info, and Show POV-Ray Camera Info to
+a new Tools menu.</li>
+<li>Made it so only the main row of an error entry is bold.  Sub-rows are now
+non-bold.</li>
+<li>Made it so that transparency values of 240 and above are considered opaque.
+This was done to get rid of ugly artifacts that show up on the glow-in-the-dark
+color, which has a transparency value of 250.</li>
+</ul>
+<b>Bug Fixes</b>
+<ul>
+<li>Fixed bug in error reporting that would lead to a crash when the model file
+has a really long line.</li>
+<li>Fixed command line processing of -SaveSnapshot so that it doesn't generate a
+blank snapshot.</li>
+<li>Fixed bug that caused the LDView screensaver to crash when you tried to
+bring up its settings.</li>
+<li>Fixed bug where some models would be clipped after a Zoom to Fit.</li>
+<li>Fixed bug where the Errors &amp; Warnings window would sporadically not draw
+correctly after being resized.</li>
+<li>Fixed cutaway wireframe causing one entire eye image to be drawn in
+wireframe when stereo is enabled.</li>
+<li>Fixed tiled snapshot saves to not ignore the SaveAlpha setting.</li>
+<li>Fixed -cg option to support the optional radius portion.</li>
+<li>Fixed tiled snapshot saves when PBuffer isn't available to make the image
+size an even multiple of the number of tiles used.  It already did this with
+PBuffer snapshots.  With non-PBuffer snapshots, you ended up with a border
+(usually black) on the top and right sides of the image.</li>
+<li>Fixed display glitch in Windows versions when switching the viewing angle
+via the toolbar.  Switching the viewing angle via the main menu still has the
+display glitch.</li>
+<li>Fixed command line snapshot saves to pay attention to the file extension of
+the snapshot file specified on the command line, instead of using the
+SaveImageType setting.</li>
+<li>Fixed crash when LDView encounters two LDraw files that refer to each other.
+It now generates an error and skips the child model's reference to its
+ancestor model.</li>
+</ul>
+</td></tr>
+
+<tr><td class="NoWrap" align="right">
+<b class="Bigger">3.1</b><br/>
+(09 Oct, 2006)
+</td>
+<td colspan="2">
+<b>Additions</b><br/>
+<ul>
+<li>Added automatic download of the LDraw parts library.</li>
+<li>Added automatic updating of the LDraw parts library.</li>
+<li>Added automatic downloading of unofficial parts from the LDraw.org Parts
+Tracker.</li>
+<li>Added ability to generate a POV-Ray camera section based on the current view
+in LDView.</li>
+<li>Added warning for parts that have been renamed.</li>
+<li>Added warning for usage of automatically downloaded unofficial parts.</li>
+<li>Added full snapshot support to the Linux version.</li>
+<li>Added printing support to Linux version.</li>
+<li>Added option to the Windows installer to open .ldr and .mpd files with
+LDView.</li>
+</ul>
+<b>Updates</b><br/>
+<ul>
+<li>Updated <i>m6459.ldr</i> sample model to no longer contain renamed
+parts.</li>
+<li>Updated generation of new triangles and lines from quads and triangles that
+contain identical or co-linear vertices to use the original text from the file
+to generate the new primitives, instead of using text generated based on
+rounding of the numbers.</li>
+<li>Updated the warning messages generated in the above case to also use the
+text from the file, instead of rounding the numbers.</li>
+<li>Renamed the Error window to <i>Errors &amp; Warnings</i>.</li>
+<li>Updated Windows version to disable more menu items when there's no model
+loaded.</li>
+</ul>
+<b>Bug Fixes</b>
+<ul>
+<li>Fixed handling of 12-bit dithered transparent direct colors.</li>
+<li>Fixed crash that occurred when one of the numeric parameters was missing
+from a line-type 1 line that referenced a filename that began with a number
+(such as a part).</li>
+<li>Fixed LDView so that it gives you an error if you select a file from the
+recent files list, and the file no longer exists.</li>
+</ul>
+</td></tr>
+
+<tr><td class="NoWrap" align="right">
+<b class="Bigger">3.0</b><br/>
+(13 Dec, 2005)
+</td>
+<td colspan="2">
+<b>Additions</b><br/>
+<ul>
+<li>Completely new rendering engine, written from scratch.  This allows for
+the following enhancements that would have been very difficult before:
+<ul>
+<li>Significantly reduced memory usage on large models.  Measured reduction on
+Orion Pobursky's Imperial Star Destroyer model with all settings set to default:
+86%.  The same, but with LDView 3's <i>Memory usage</i> setting set to Low: 90%.
+(Note that these are <i>reductions</i> of and 86% and 90%, respectively, meaning
+LDView 3 requires 16% the memory LDView 2.1.01 requires on that model with
+default settings.)</li>
+<li>Significantly reduced load time on large models.</li>
+<li>BFC (Back Face Culling) support.</li>
+<li>BFC verification support (red back faces and/or green front faces).</li>
+<li>Potentially faster rendering.  (Actual speed differences vary significantly
+based on video hardware and what settings are set.)</li>
+<!--<li>Support for steps (not implemented yet, but coming).</li>-->
+</ul></li>
+<li>Added a toolbar (which can of course be disabled if desired).</li>
+<li>Added support for translation DLLs.</li>
+<li>Added a distinction between errors and warnings.</li>
+<li>Added detection of more problems and potential problems with model files,
+leading to more errors and warnings.</li>
+<li>Added support for making the default color transparent.  (Primarily useful
+for part authors.)</li>
+<li>Added direct access to the help file to the Linux version.</li>
+<li>Added primitive substitution support for full-circle versions of new torus
+primitives.</li>
+<li>Added primitive substitution support for chord primitives.</li>
+<li>Added context-sensitive help to the save snapshot dialog.</li>
+<li>Added workaround for snapshot corruption that was happening on some video
+cards (<i>Don't use Pixel Buffer</i> option during snapshot save).</li>
+<li>Added Memory usage option to allow LDView to conserve even more memory.
+(This comes at the possible expense of speed.  However, if you're swapping when
+the <i>Memory usage</i> setting is set to High, and not swapping when it's set
+to Low, then Low will be faster.)</li>
+<li>Added support for LDraw search directory list in ldraw.ini using Lars
+ Hassing's LDrawIni code.</li>
+<li>Added support for spaces in submodel filenames.  (Generates a warning.)</li>
+<li>Added extra command line parsing for use when using LDView as a renderer
+from LPub.</li>
+<li>Added detection of primitive comment so that primitive detection can work on
+primitives outside the ldraw\p directory.</li>
+<li>Added support for automatic cropping of images (via the command line only;
+no UI at this time.</li>
+<li>Added new sample model created by Peter Bartfai: 8464.mpd.</li>
+</ul>
+<b>Updates</b><br/>
+<ul>
+<li>Rearranged items in the File menu.</li>
+<li>Revamped error dialog box.</li>
+<li>Removed the recompile requirement for P-Buffer snapshots.</li>
+<li>Updated primitive substitution support to also substitute primitives in the
+p/48 directory.</li>
+<li>Updated text of check buttons in group box titles of preferences to match
+the color of other group box titles when run in Windows XP with themes
+enabled.</li>
+<li>Improved sorting of transparent substituted primitives.</li>
+<li>Updated color handling to match LDraw's behavior for unknown colors.</li>
+</ul>
+<br/>
+<b>Bug Fixes</b>
+<ul>
+<li>Fixed transparent extended colors so they work.</li>
+<li>Fixed snapshot saving to always redraw the model after the snapshot
+save.</li>
+<li>Fixed maximum depth of cutaway mode.</li>
+<li>Fixed default zoom for tall windows.</li>
+<li>Fixed zoom-to-fit with wide edge lines and wide wireframe lines.</li>
+<li>Fixed panning to be usable over the entire supported field-of-view
+range.</li>
+<li>Fixed problem in OpenGL driver information dialog that would cause a crash
+on some video cards.</li>
+<li>Fixed problem that caused the delete button not to be enabled after a single
+directory was added to the extra search directories list.</li>
+<li>Fixed smoothing to not smooth across sharp angles.</li>
+<li>Fixed auto-calculated extension for BMP snapshots when the save snapshot
+series option wasn't enabled.</li>
+<li>Fixed zooming with the mouse wheel.</li>
+<li>Fixed seams to not double-shrink parts that are referenced from other
+parts.</li>
+<li>Fixed clipping problem that sometimes showed up in fly-through mode.</li>
+<li>Fixed command line parsing problem that could cause LDView to crash.</li>
+<li>Fixed command line parsing problem that could cause LDView to incorrectly
+miss an LDraw file specified on the command line.</li>
+<li>Fixed problem that caused subfiles in an MPD file with a backslash (\) in
+their filename not to load.</li>
+<li>Fixed problem that prevented screensaver settings from sticking when a
+preference set was selected in the screensaver.</li>
+<li>Fixed problem that prevented status bar from being visible when LDView was
+started up maximized.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+<b class="Bigger">2.1.01</b><br/>
+(10 Jul, 2004)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Re-introduced co-linear point detection in quads.  I discovered that my
+previous belief that there was a legitimate use for them was flawed.</li>
+<li>Added ability to the screen saver to have it randomly choose a preference
+set each time it runs.  It should be noted that the preference set
+includes the screen saver file or directory selection, so you can have
+individual models display with particular settings if you want.</li>
+<li>Added support for snapshots up to 9999x9999 on any video card by using
+tiling to construct images bigger than would otherwise be supported.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Updated line drawing when antialiased lines are enabled to get rid of
+artifacts around some edge lines of transparent colors.  This has the
+(somewhat undesirable) side-effect of making edge lines around transparent
+shapes less distinct.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug Fixes</b>
+</td>
+<td><ul>
+<li>Fixed Zoom to Fit to work properly after panning the view.</li>
+<li>Fixed hidden line removal when sorting of transparent shapes isn't
+enabled.</li>
+<li>Fixed problem that caused LDView to lock up if the background color or
+default color was chosen without a model loaded.</li>
+<li>Fixed preference set deletion.  It had no permanent effect before.</li>
+<li>Fixed zoom to fit so that it works when stereo viewing is enabled.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+<b class="Bigger">2.1</b><br/>
+(03 Jan, 2004)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added Zoom to Fit command, as well as Zoom to Fit option during snapshot
+saving.  This uses the auto camera positioning algorithm from L3P (which was
+graciously provided to me by Lars Hassing).</li>
+<li>Added ability to remove hidden lines from wireframe mode.</li>
+<li>Added ability to change the default viewing angle, and added the ability to
+get to the original isometric viewing angle if you change the default one.</li>
+<li>Added ability to specify a view matrix on the command line.</li>
+<li>Added ability to specify the camera's latitude and longitude on the
+command line (similar to L3P's -cg command line option).</li>
+<li>Added ability to modify the default zoom level on the command line.</li>
+<li>Added menu command to show information about the current view and copy it
+to the clipboard in a format suitable for use on the command line.</li>
+<li>Added ability to control the field of view.</li>
+<li>Added documentation for the -SaveSnapshot command line option.</li>
+<li>Added support for ldconfig.ldr.</li>
+<li>Added support for custom colors inside model files (as well as inside
+ldconfig.ldr) using the 0 COLOR meta-command.</li>
+<li>Added ability to specify extra part/sub-model search directories.</li>
+<li>Added an optional work-around for a problem that sometimes prevented
+Windows 98 systems from going into power save mode when LDView was used as a
+screen saver.</li>
+<li>Added context-sensitive help to screen saver settings.</li>
+<li>Added ability to screen saver to select a directory and have a random model
+from that directory picked each time the screen saver runs.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Updated fly controls to deal with FOV changes.  They won't work quite as
+well at extreme FOV settings, but they should still be usable.</li>
+<li>Removed Default from Viewing Angles menu.  It was redundant, since it did
+the same thing as the Reset View command, and likely more confusing than
+useful.</li>
+<li>Improved transparent shape sorting performance.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug Fixes</b>
+</td>
+<td><ul>
+<li>Fixed precision in error window to prevent excessive rounding of the
+displayed values (note that the actual values were never rounded).</li>
+<li>Added missing documentation for HiResPrimitives registry/command line
+setting.</li>
+<li>Added code to prevent multiple copies of the LDView screen saver from
+running simultaneously.  This shouldn't be necessary, but since I received a
+report in Windows 98SE indicating about 50 copies of the LDView screen saver, it
+is obviously useful as a safety measure.</li>
+<li>Added code to allow power save mode to work in Windows 98 when using LDView
+as a screen saver.  As with the multiple copies problem, this shouldn't be
+necessary, but it appears to be (at least on some systems).</li>
+<li>Fixed -SaveSnapshot to handle relative paths correctly for the image
+filename.</li>
+<li>Fixed -SaveAlpha to work again.  It was broken at some point.</li>
+<li>Fixed the Reset functionality of each preference page to work properly.</li>
+<li>Fixed status bar to continue to correctly display the FPS after you switch
+FSAA modes.</li>
+<li>Removed detection and handling of co-linear points in quads.  There is
+a legitimate reason to have a quad that degenerates into a triangle; it can
+prevent seams from being visible in certain circumstances.</li>
+<li>Fixed SaveSnapshot so that it now only loads the model once; previously it
+would load it and then immediately reload it, doubling the load time.</li>
+<li>Fixed default camera zoom level to be the correct value, instead of a loose
+approximation that occasionally resulted in clipping.</li>
+<li>Fixed FOV calculation when the window is taller than it is wide.</li>
+<li>Fixed command line parsing to properly handle quotes around a filename
+specified as part of an option.</li>
+<li>Fixed jerkiness in fly-through mode after setting preferences.</li>
+<li>Fixed screen saver so it correctly automatically finds the LDView help file
+when you use context help (as long as LDView has been run at least once from its
+installed directory.</li>
+<li>Fixed screen saver so that when you hit the Reset button on the Screen
+Saver settings tab, the Apply button is enabled.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="1" align="right">
+<b class="Bigger">2.0.3</b><br/>
+(07 Oct, 2003)
+</td>
+<td align="right">
+<b>Bug Fixes</b>
+</td>
+<td><ul>
+<li>Fixed Open File dialog on pre-Windows 2000 machines.  (This was broken by
+my Windows XP changes in 2.0.2.)</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+<b class="Bigger">2.0.2</b><br/>
+(03 Oct, 2003)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added support for Windows XP visual styles.  LDView now uses the currently
+selected visual style when running in Windows XP.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Updated status bar progress bar to look OK in both Windows XP style and
+classic style.</li>
+<li>Changed OpenGL initialization failure message to be more user-friendly, and
+updated it to exit when an OpenGL initialization failure occurs.</li>
+<li>Removed special handling of 4-4con12.dat file, now that the original
+messed up file (radius 1, instead of 12) is no longer supported by the parts
+library.</li>
+<li>Cleaned up color handling, as well as changing the definition of a few
+colors.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug Fixes</b>
+</td>
+<td><ul>
+<li>Fixed <i>Show all</i> and <i>Show control points</i> under <i>Conditional
+lines</i> in the <i>Edge Lines</i> box of the <i>Geometry</i> preferences tab
+to have proper default values and reset properly.</li>
+<li>Fixed startup routine to not show a window when generating an image based
+on the command line on computers with the PBuffer extension.  (Computers wihout
+the PBuffer extension require the window to be opened in order to render the
+image.)  This worked in the past, and was broken by another bug fix.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+<b class="Bigger">2.0.1</b><br/>
+(23 Aug, 2003)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added support for arbitrary FSAA modes.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Updated direction of mirroring of stud logos based on empirical evidence
+that the original direction was less often appealing.</li>
+<li>Changed general preferences tab to handle arbitrary FSAA modes.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug Fixes</b>
+</td>
+<td><ul>
+<li>Fixed problem that caused certain keyboard shortcuts (including F5-reload)
+to crash LDView on some systems.</li>
+<li>Fixed bug in part detection that resulted in not recognizing certain files
+as parts even though they had the appropriate comment.</li>
+<li>Fixed part scaling to skip parts with one or more dimensions that are zero.
+This caused a divide by zero, which resulted in an infinite scale factor.</li>
+<li>Fixed part detection not to falsely recognize subparts as parts.</li>
+<li>Fixed OpenGL error that always showed up on non-nVidia video cards.</li>
+<li>Fixed changing FSAA mode on ATI video cards.  There appears to be a bug in
+the ATI drivers that prevented changes from one mode to another from working
+properly.  I added code to work around this.</li>
+<li>Fixed font rendering on ATI video cards with FSAA enabled.</li>
+<li>Fixed con0 primitive substitution to stop producing a dark result.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" align="right">
+<b class="Bigger">2.0</b><br/>
+(01 Jun, 2003)
+</td>
+<td align="right">
+<b>Bug Fixes</b>
+</td>
+<td><ul>
+<li>Fixed edge line thickness to be correct in wireframe mode.  Before, edge
+lines were drawn using the thickness setting for wireframe lines when drawing
+in wireframe mode.</li>
+<li>Fixed smoothing and seam width to work properly on mirrored parts.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+1.9.11<br/>
+(06 Apr, 2003)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added ability to have LDView draw just edge lines, with hidden line removal
+by default, or no hidden line removal when in wireframe mode.</li>
+<li>Added ShowAllType5 and ShowType5ControlPoints settings to the Preferences
+panel so that they can be changed from inside LDView.  (Before, you had to
+either specify them on the command line or modify the registry.)</li>
+<li>Added support for hi-res (48-sided) primitives.  This only currently has
+an effect when primitive substitution is disabled, since all of the current
+hi-res primitives are supported by primitive substitution.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Updated "new" torus primitive substitution to treat size fractions of nnnn
+to be n / 9, instead of nnnn / 10000.  This means that 3333 correctly gets
+interpreted as 1/3.</li>
+<li>Sped up curve smoothing (significantly, in certain situations).</li>
+<li>Updated recent file tracking to not include files with a ".tmp" extension.
+This was done primarily to prevent LDraw Design Pad temp files from cluttering
+up the recent files list.  It seems safe to assume that if a file has a ".tmp"
+extension, it's a temporary file, and shouldn't go in the recent files
+list.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug Fixes</b>
+</td>
+<td><ul>
+<li>Fixed Antialiased Lines settings to also antialias conditional edge
+lines.</li>
+<li>Fixed bug in MPD-handling code that caused incorrect rendering of MPD files
+that contained repeat copies of a subfile.</li>
+<li>Fixed bug that the model didn't draw completely correctly if loaded in
+wireframe mode and then switched to display in non-wireframe mode.
+Unfortunately, the fix requires reloading the model when switching wireframe
+mode on and off.</li>
+<li>Fixed default custom colors in the color chooser to work in Windows XP.  It
+wasn't working at all before (and may have been broken in Windows NT/2000 as
+well).</li>
+<li>Fixed screen saver browse file button to include .ldr files in the default
+file types.</li>
+<li>Fixed bug in curve smoothing algorithm that caused certain edges to be
+smoothed that shouldn't have been.  This can actually make some parts look
+worse, but every one I can find that got worse isn't modeled correctly.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+1.9.10<br/>
+(16 Mar, 2003)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added ability to assign hot keys to preference sets.</li>
+<li>Added six preset viewing angles (front, back, left, right, top, and
+bottom) in addition to the pre-existing default viewing angle.</li>
+<li>Added optional installation of screen saver to install program.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Updated screen saver to not allow task switching in 95/98/Me when waiting
+for a password.  I can't really test this, as I no longer have a 95/98/Me
+machine.  If it doesn't work properly, it could potentially require a hard
+reset.</li>
+<li>Updated setup when "High quality" is selected for edge lines to hopefully
+produce acceptable results across a wider range of hardware.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug Fixes</b>
+</td>
+<td><ul>
+<li>Fixed primitive substitution to correctly support the new con0 cone
+primitives.  They aren't the same shape as the other cone primitives that all
+have a hole in the middle, and ended up rendering incorrectly.</li>
+<li>Fixed intermittent crash in Windows XP when the Preferences panel is
+dismissed.</li>
+<li>Fixed status bar to update properly in Windows XP.  It wasn't displaying the
+FPS due to updates not being drawn while the model was spinning.</li>
+<li>Fixed interaction between status bar and window size so that window stays
+a consistent size after switching to and from fullscreen mode, and between
+multiple runs of LDView, whether or not the status bar is visible.</li>
+<li>Fixed screen saver mode to hopefully work properly again.  It has been
+completly broken for a while now.</li>
+<li>Fixed window activation problems that caused LDView not to be activated when
+it was run, and when switching to and from fullscreen mode.</li>
+<li>Fixed problem that caused errors to be added to the error log for studs
+that don't have a low-res version when LDView is set to use low-res studs.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+1.9.9<br/>
+(12 Jan, 2003)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added primitive substitution support for n-16 versions of some
+primitives.  Due to their current absence from the released parts library,
+this has perforce received limited testing.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Updated many of the settings to be global.  The preference set feature
+added in 1.9.8 now mostly only effects the settings in the Preferences
+panel.</li>
+<li>Changed from ZIP-based distribution to executable installer.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug Fixes</b>
+</td>
+<td><ul>
+<li>Fixed the help documentation to contain recently added but undocumented
+registry/command line options.</li>
+<li>Fixed bug which caused a crash when loading a model that doesn't reference
+any other models (such as a primitive).</li>
+<li>Fixed smoothing of curves.  (It was broken completely in 1.9.8.)</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+1.9.8<br/>
+(29 Nov, 2002)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added support for multiple named sets of preferences.</li>
+<li>Added examine/fly-through mode indicator icon to taskbar.</li>
+<li>Added support for gray rubber (color 375).  I made it <b>significantly</b>
+less shiny when specular lighting is enabled.  (There is no visual difference
+when specular lighting is disabled.)</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Enhanced the performance of the Windows version slightly by disabling
+compiler support for structured exception handling (which I don't use).</li>
+<li>Decreased memory usage in certain situations.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug Fixes</b>
+</td>
+<td><ul>
+<li>Fixed finding the help files when run from the command line.  As far as I
+know, this always worked in Windows 98, but sometimes failed in other
+Windows OSes.</li>
+<li>Fixed window close button (X) on preferences panel so that it actually
+closes the window now.</li>
+<li>Fixed problem that caused relative paths to not work on the command
+line.</li>
+<li>Fixed problem that allowed relative paths to end up in the recent files list
+and not work.</li>
+<li>Fixed black rubber support broken in version 1.9.7.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+1.9.7<br/>
+(09 Sep, 2002)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Created a version using QT.  This was developed in Linux, but should work in
+any Unix-like operating system with OpenGL and QT support and a 32-bit compiler.
+(I can almost guarantee it won't work if compiled with a 64-bit compiler.)
+RedHat 7.3-compatible Linux binaries available for download.</li>
+<li>Added a status bar (which can be hidden).</li>
+<li>Added Fly-through Mode.</li>
+<li>Added unique specular properties to gold, chrome, and the electrical contact
+color to try to better convey their metallic nature.  They still aren't
+reflective, but they are now more shiny.</li>
+<li>Added support for BaseDirectory setting in [LDraw] section of
+ldraw.ini.</li>
+<li>Added a menu item to allow you to manually change the LDraw directory once
+it has been chosen for the first time.  This is only useful when the old
+directory still exists, because LDView checks for it every time it runs and
+automatically prompts you if it goes away.</li>
+<li>Added "Always on Top" menu item to the View menu to make LDView a topmost
+window.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Increased the maximum curve quality to 12, twice the previous maximum of
+6.</li>
+<li>Got rid of progress panel, and instead show progress in the new status bar.
+Canceling a load can now be accomplished either by hitting escape or selecting
+the <i>Cancel Load</i> item on the file menu.  Even when the status bar is set
+to be hidden, it is shown during image loads to show progress.  Hopefully this
+change will remove the image load problems that showed up to varying extents on
+varying hardware (particularly for those people who had no problems in LDView
+version 1.0).</li>
+<li>Updated to display FPS in the status bar if the status bar is visible and
+FPS are set to be displayed in the preferences.  FPS is displayed as before
+when the status bar is not visible (including in full-screen mode).</li>
+<li>Updated OpenGL Driver Info window to be resizable, and added a status bar
+listing the number of extensions and WGL extensions.</li>
+<li>Incorporated font texture and stud texture into executable, thus removing
+those two files from the distribution.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug Fixes</b>
+</td>
+<td><ul>
+<li>Fixed bug in MPD parsing that caused LDView to crash when one of the MPD
+pieces was marked as a part, and that piece was scaled non-uniformly.</li>
+<li>Fixed bug that caused unix-format MPD files not to parse properly.</li>
+<li>Fixed bug that made it so that changing the specular preference had no
+effect if <i>Alternate lighting</i> was checked.</li>
+<li>Fixed bug that caused in-frame FPS text to be drawn half its normal width
+when stereo viewing was enabled.</li>
+<li>Fixed bug that caused the field of view to be greater than 180 degrees with
+a really tall skinny window (thus inverting the model).  If your screen
+resolution was 1600x1200 or lower, you had to be in stereo mode in order to
+witness this bug.</li>
+<li>Fixed field of view calculation for tall skinny windows to come closer to
+preserving the model's scale (instead of shrinking the model down to
+nothing).  This fix probably removes the need for the field of view cap fix
+above, but it was done separately.</li>
+<li>Fixed bug that caused wireframe cutaway in tall skinny windows to draw the
+wireframe portion with the wrong field of view (making the wireframe portion too
+big).</li>
+<li>Fixed a (minor, one-time) memory leak in the OpenGL Driver Info panel.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+1.9.6<br/>
+(04 Aug, 2002)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added support for antialiased lines.</li>
+<li>Added support for file type meta-command to force recognition of a file as a
+part, even if it isn't in the parts directory.  This mainly effects seams and
+smooth curves.</li>
+<li>Added ability to copy the text from the currently selected error in the
+error window to the Windows clipboard.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Updated OpenGL Driver info to all be consolidated into one panel (in a format
+that can be copied to the clipboard).</li>
+<li>Updated Font texture to a better looking font.  (Well, I think it looks
+better, but since I constructed it myself about 10 years ago, I guess I'm
+biased.)</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug Fixes</b>
+</td>
+<td><ul>
+<li>Fixed color bug that caused some submodels to be drawn in the default color,
+instead of their correct color.</li>
+<li>Fixed problem with texture-based font rendering.</li>
+<li>Fixed problem that caused an OpenGL error to show up in the error panel on
+hardware without the FSAA multisample OpenGL extension.</li>
+<li>Fixed the high quality edge lines option to work on all hardware, and
+changed it to be on by default.</li>
+<li>Fixed bugs which caused nothing to be drawn after switching to fullscreen,
+or changing the antialiasing mode.</li>
+<li>Fixed bug in OpenGL mode selection code that probably resulted in random
+mode selection failures, as well as possible crashes.  This should only have
+effected antialiased modes and snapshots.</li>
+<li>Fixed bug in alternate lighting setup that sometimes caused it to be slower
+than it should have been.  This also sometimes slowed down lighting when
+specular was enabled.</li>
+<li>Fixed bug that caused cancelation during model compilation to fail and put
+LDView into a state where you could still rotate the model, but not access any
+of the menus, or even exit.</li>
+<li>Fixed bug that caused colored geometry to disappear (permanently) when a
+snapshot was taken in Windows.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="2" align="right">
+1.9.5<br/>
+(26 May, 2002)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added support for smooth shaded curves, using the presense of Type 5 lines
+as an indicator of a curved surface.  Thanks to Martijn Zwaal for the basis
+of the algorithm used to implement this feature.</li>
+<li>Added experimental support for the use of the alpha channel in PNG snapshots
+to produce a transparent background.  Currently only accessible via the command
+line or registry with the SaveAlpha setting.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug Fixes</b>
+</td>
+<td><ul>
+<li>Fixed bug introduced in 1.9.4 which prevented you from viewing any models
+when LDView was started with a maximized window.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+1.9.4<br/>
+(10 May, 2002)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added support for Type 5 lines (conditional edge lines).  Implemented
+primarily by Don Heyse using experience/code from LdGLite.</li>
+<li>Added conditional lines to substituted primitives.</li>
+<li>Added ability to set preferences on the command line.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Sped up drawing of non-compiled elements (sorted transparent shapes and the
+new Type 5 lines).</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug fixes</b>
+</td>
+<td><ul>
+<li>Fixed possible bug where some sorted transparent shapes might have drawn in
+the wrong color.</li>
+<li>Fixed font corruption after some snapshot saves.</li>
+<li>Fixed problem where Ctrl+S didn't work until after you looked at the file
+menu.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+1.9.3<br/>
+(13 Apr, 2002)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added ability to select the default color.  I expect this is most useful for
+part authors, but at least some models use color 16.</li>
+<li>Added ability to reset each of the preferences pages back to their default
+values.</li>
+<li>Added detection and handling of co-linear points in triangles and
+quads.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Updated error window to be displayed after an automatic reload.  Note that
+certain preference changes can change the errors that are generated, since some
+of the error checking is the result of certain preference settings.</li>
+<li>Updated the default custom colors to be the first 16 LDraw colors.  This
+makes the new default color feature easier to use.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug fixes</b>
+</td>
+<td><ul>
+<li>Fixed edge line color for default-colored parts.  Before, the default color
+was always 7 (light gray), but 7 was also being used for the edge lines.  Color
+8 is now used by default.  If the default color is changed, an appropriate
+highlight color is used (usually black).</li>
+<li>Fixed all discovered memory leaks.</li>
+<li>Fixed recent files to show up in file menu after switching back from
+fullscreen mode.</li>
+<li>Fixed FPS display to hopefully work in all configurations by using a
+texture mapped font.</li>
+<li>Fixed FPS to not be fuzzy when an enhanced FSAA mode is used (as long as
+vsync is enabled).</li>
+<li>Fixed screen saver mode to cover the taskbar when it isn't set to auto
+hide.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+1.9.2<br/>
+(19 Feb, 2002)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added ability to texture map a logo onto studs.</li>
+<li>Added ability to have the cutaway portion display as wireframe.</li>
+<li>Added experimental screen saver support.</li>
+<li>Added support for BMP snapshots.</li>
+<li>Added disclaimer to About box and Readme.txt.</li>
+<li>Added new lighting setup that improves performance on some/all video cards
+when specular is disabled.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Updated preferences to make room for extra primitive substitution settings
+by adding a new tab and moving primitive-based preferences to the new tab.</li>
+<li>Updated all lines to be opaque to make edge lines show up on transparent
+pieces.</li>
+<li>Updated the recent files list to include full paths up to 250 pixels wide,
+and put ellipses into paths that are too long to fit.</li>
+<li>Updated source to compile with standard glext.h and wglext.h header files
+from www.opengl.org.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug fixes</b>
+</td>
+<td><ul>
+<li>Fixed line widths to apply when the program is started, instead of only
+after they are changed.</li>
+<li>Fixed "Always black" preference on Geometry tab to be in the correct spot
+in the tab order for keyboard navigation.</li>
+<li>Fixed snapshot saves to update the filename immediately when you change the
+number of digits.</li>
+<li>Fixed minimum near clipping plane calculation to be based on the size of
+the model so that edge lines don't "pop" when you zoom super close using the
+ZoomMax registry setting.</li>
+<li>Fixed Reset View to reset the near and far clipping planes immediately,
+so that you can see the entire model without having to first move your
+mouse.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+1.9.1<br/>
+(27 Jan, 2002)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added support for panning the camera.</li>
+<li>Added setting to always use black for edge lines.  This is most useful for
+part authors to be able to see the edge lines better.</li>
+<li>Added setting to control the curve quality of primitive substitution.  The
+minimum value produces 8-sided circles; the maximum produces 48-sided
+circles.</li>
+<li>Added primitive substitution support for new torus primitives.</li>
+<li>Added primitive substitution support for "ndis" (not-disk) primitives.
+This is necessary for curve quality to work well.</li>
+<li>Added progress panel during PNG file creation.  This is especially useful
+for high-resolution files.  Hitting cancel cancels the save and deletes the
+incomplete PNG file.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Renamed m6459.dat to m6459.ldr like it was supposed to be named in
+v1.9.</li>
+<li>Updated default zoom level to slightly higher.  In all but the most extreme
+circumstances, the model will still never go outside the window borders at this
+zoom level.</li>
+<li>Updated to disable seam width setting if seams are disabled.</li>
+<li>Updated primitive substitution to parse primitive names in a more generic
+fashion.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug fixes</b>
+</td>
+<td><ul>
+<li>Fixed error window to update when the model is reloaded (either manually
+or automatically via polling).</li>
+<li>Fixed background color chooser dialog to be a child of the preferences
+panel.</li>
+<li>Fixed problem where canceling the preferences wouldn't fully reset the
+background color, seam width, FSAA mode and stereo mode.</li>
+<li>Fixed the preferences dialog to properly free up the resources it allocates
+when opened.</li>
+<li>Fixed seam width adjustment to work again.</li>
+<li>Fixed it so that menus will work when the model is spinning and animated
+menus are enabled in Windows.  The spinning now pauses when you go to select
+from a menu.</li>
+<li>Fixed drag/drop support so that dropped files update the most recent open
+directory and show up on the recent files list.</li>
+<li>Fixed image save with dimensions that are too large to display the
+appropriate error message.</li>
+<li>Fixed print progress panel to stop it from flickering, and changed text
+from "Printing..." to "Printing Model.".</li>
+<li>Fixed primitive substitution to get rid of false positives.</li>
+<li>Fixed serious memory leaks introduced in version 1.9.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+1.9<br/>
+(10 Jan, 2002)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added this HTML file to distribution as a replacement for History.txt.</li>
+<li>Added support for full-scene antialiasing (FSAA).</li>
+<li>Added printing support.</li>
+<li>Added stereoscopic 3D support.</li>
+<li>Added ability to save PNG snapshots.</li>
+<li>Added support for LDLite direct colors and L3P/L3Lab 24-bit colors.</li>
+<li>Added context-sensitive help for all preferences.</li>
+<li>Added recent files list.</li>
+<li>Added support for .ldr as a standard LDraw file extension.</li>
+<li>Added error panel to display errors encountered when loading a model.
+Added an option to automatically display this panel after loading a model if
+errors are detected during the load.</li>
+<li>Added progress panel with cancel button while model is loading,
+compiling, or printing.</li>
+<li>Added option to sort transparent polygons.  This produces a more correct
+rendering, but can slow things down.  The sorting is not correct 100% of the
+time yet.</li>
+<li>Added menu item to the View menu to reset the view back to the orientation
+that is displayed when a model is first loaded.</li>
+<li>Added sample file (m6459.dat) to distribution.</li>
+<li>Added ability to set maximum zoom level.  (Suggested and demoed by
+Carsten Schmitz.)  Currently requires Registry editing.</li>
+<li>Added version resource to executable.</li>
+<li>Added WGL Extensions menu item to Help->OpenGL Info submenu.</li>
+<li>Added release dates to this document.</li>
+<li>Added releases prior to 0.5.1 to this document</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Updated preferences to be in a tabbed format.</li>
+<li>Updated check which prevents seam creation to have more loose check to
+better allow for round-off.</li>
+<li>Updated internal model representation to facilitate (among other things)
+the sorting of transparent polygons.</li>
+<li>Updated this document to be in table format.</li>
+<li>Updated About Box to include "Thanks to" section.</li>
+<li>Updated date format in About Box to "DD Mon, YYYY" format.</li>
+<li>Updated high quality lines to only be available when Edge Lines are
+enabled.</li>
+<li>Updated so lighting settings are only available when lighting is
+enabled.</li>
+<li>Updated so wireframe fog is only available when wireframe is enabled.</li>
+<li>Updated to statically link against my own libraries, so TCFoundation.dll and
+CUI.dll are no longer necessary.</li>
+<li>Removed code which prevents any axis from being scaled to 0.</li>
+<li>Updated to decrease the size of the model when the window is made narrower
+than its height.  This is particularly useful when Stereo is enabled, as the
+two views are often taller than they are wide.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug fixes</b>
+</td>
+<td><ul>
+<li>Fixed panels so that escape triggers the cancel button.</li>
+<li>Fixed typo (missing space) in message when selecting the LDRAW
+directory.</li>
+<li>Fixed color bug where white shapes would not alway display in the correct
+color. (Found and fixed by Carsten Schmitz.)</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+<b class="Bigger">1.0</b><br/>
+(17 Oct, 2000)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added check box to enable/disable seams, so you don't have to drop them all
+the way down to 0.00 to disable them.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Changed "High quality studs" option to "Low quality studs (faster)", and
+inverted the logic behind the check-box accordingly.</li>
+<li>Made capitilization of preferences options consistent.</li>
+<li>Made minor modifications to Help.html.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug fixes</b>
+</td>
+<td><ul>
+<li>Fixed command line parsing to work when the filename has quotes around
+it.</li>
+<li>Fixed command line parsing to not blow up when the file and/or directory
+cannot be found.</li>
+<li>Fixed polling code to work in Windows 95.  (I accidentally used a function
+originally that didn't exist in 95.)</li>
+<li>Fixed primitive substitution bug where enabling seams was producing
+incorrect surface normals.</li>
+<li>Fixed part-determination for seams to allow part names which end with a
+letter.  I incorrectly thought that these would all be sub-parts.  I now
+determine whether it is a subpart based on whether its parent model is a
+part.</li>
+<li>Fixed it to get the ldraw dir out of the registry when you specify a file on
+the command line.</li>
+<li>Fixed seam code to shrink a part even when it is the main file which is
+opened.  (This has extremely marginal value, but is more cosistent.)</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+0.9.1<br/>
+(06 Oct, 2000)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added File->Reload menu item (F5) to reload the current model.</li>
+<li>Added Polling menu with options to automatically reload the current model
+when the file is changed by some other program.</li>
+<li>Added ellipses (...) to menu items which open panels.</li>
+<li>Added the ablity to do cut-aways by moving the near clipping plane away from
+the camera.</li>
+<li>Added Help->Contents menu item to display Help.html in your web
+browser.</li>
+<li>Added documentation for all the menu items.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Moved the Help menu back over with the other menu items to be consistent
+with other Windows apps.</li>
+<li>Changed it so that it displays a directory tree if it cannot determine your
+LDraw directory (instead of forcing you to type in the path).</li>
+<li>Converted the README.TXT file to HTML and renamed it to Help.html.  In
+addition to the conversion to HTML and enhancements in formatting, I also
+improved the content somewhat.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug fixes</b>
+</td>
+<td><ul>
+<li>Fixed the frame rate calculation to be more accurate.</li>
+<li>Fixed zoom speed to be consistent across models of different sizes.</li>
+<li>Fixed startup code to correctly maximize the window if it was maximized when
+you last exited.  This worked at one point, but became broken.</li>
+<li>Fixed it to search the MODELS subdirectory of the LDRAW directory when
+looking for a part.</li>
+<li>Fixed it so that when fullscreen mode fails, it switches back to windowed
+mode gracefully after presenting the error panel (instead of waiting for you to
+switch back manually, then crashing without restoring the video mode).</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+0.9<br/>
+(25 Sep, 2000)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added sphere primitive substitution.  This was--<b>by far</b>--the hardest
+primitive substitution.  Unlike the other primitive substitutions, the sphere
+primitive substitution results in a different set of polygons being drawn.  The
+sphere that LDView creates is made up of 16 triangles, unlike the standard
+sphere primitive, which is made up of 9 quads and 4 triangles.</li>
+<li>Added support for black rubber (color 256).  I made it <b>significantly</b>
+less shiny when specular lighting is enabled.  (There is no visual difference
+when specular lighting is disabled.)</li>
+<li>Added support for stipple transparency.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Changed it so only the OpenGL window has a private device context.  This is
+much more in keeping with standard Win32 programming guidelines.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug fixes</b>
+</td>
+<td><ul>
+<li>Fixed NT bug where the video mode list would have a bunch of repeats for
+each resolution (one for each refresh rate at that resolution, I think).</li>
+<li>Fixed bug where background color button would not show the currently
+selected color if you used Ctrl+Shift+P to bring up the preferences panel for
+the first time.</li>
+<li>Fixed bug where concave polygons with non-winding points would cause a
+crash.  I definitely fixed the crash; I think I fixed it so that they will
+actually draw correctly as well.</li>
+<li>Fixed possible bug in substituted primitive color setting.  I never saw the
+problem exhibit itself, but the code seemed wrong.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+0.7.5<br/>
+(08-Sep, 2000)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added primitive substitution option.  This produces higher quality output,
+as well as slightly enhanced performance.  I have created substitutions for the
+following primitives:
+<ul>
+<li>Low-res Studs (Standard Studs are made up of other primitives.)</li>
+<li>Cylinders</li>
+<li>Sloped Cylinders</li>
+<li>Torus</li>
+<li>Cones</li>
+<li>Disks (no visual difference)</li>
+<li>Rings (no visual difference)</li>
+<li>Edges (no visual difference)</li>
+</ul></li>
+<li>Added support for concave quads (it now splits them into two
+triangles).</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Optimized model-loading to decrease load time somewhat (only really
+noticeable on really large models).</li>
+<li>Updated Open Panel to be owned by main window.  This was required to allow
+it to work in fullscreen mode.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug fixes</b>
+</td>
+<td><ul>
+<li>Fixed command line file opening to switch to the directory containing the
+model so that if it references other sub-models it will still work.</li>
+<li>Fixed drag and drop to change to the dropped file's directory so that models
+with subparts will work.</li>
+<li>Fixed bug in which color wasn't initialized properly always, resulting in
+incorrect colors sometimes.</li>
+<li>Fixed keyboard shortcuts (Ctrl+O, Ctrl+Q, Ctrl+Shift+P, etc).  Although I
+believe they worked when I originally added them, they have been broken for
+awhile now.  Note that these work while in fullscreen mode on some video cards,
+so you can now change options and open a new file without having to switch back
+to windowed mode (assuming you remember Ctrl+O and Ctrl+Shift+P).</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+0.7<br/>
+(29 Aug, 2000)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added fullscreen support.</li>
+<li>Added mouse scroll-wheel support for zooming.</li>
+<li>Added ability to specify a file on the command line so you can use LDView as
+your default DAT/MPD file viewer and/or drop files on the program to launch
+with that file.</li>
+<li>Added ability to drag and drop files onto the program window to have them
+opened.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Enhanced zooming to slow down when up close and speed up when far away.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug fixes</b>
+</td>
+<td><ul>
+<li>Fixed bug with color choice where if you canceled the preferences panel
+while choosing a color, it would crash.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="2" align="right">
+0.6.4<br/>
+(16 Aug, 2000)
+</td>
+<td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Performed significant code rearrangement and cleanup in the model code.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug fixes</b>
+</td>
+<td><ul>
+<li>Fixed MPD parsing bug which would cause a crash with some MPD files.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="1" align="right">
+0.6.3<br/>
+(13 Aug, 2000)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added OK/Cancel/Apply to Preferences, and made it so that preference changes
+don't go into effect until either OK or Apply is hit.  All options now go into
+effect immediately thereafter.  (You no longer have to reload the model after
+changing certain options.)</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="2" align="right">
+0.6.2<br/>
+(29 Jun, 2000)
+</td>
+<td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Updated bounding box code to use my own matrix multiply routine (instead of
+the OpenGL matrix multiply).  The rest of the code was already using my
+routine. These matrix multiplications are all pre-processing, not
+real-time.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug fixes</b>
+</td>
+<td><ul>
+<li>Fixed problems with device context and OpenGL context handling.  This will
+hopefully make it run again on non-nVidia hardware.  It definitely works again
+with the Microsoft software renderer.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="1" align="right">
+0.6.1<br/>
+(27 Jun, 2000)
+</td>
+<td align="right">
+<b>Bug fixes</b>
+</td>
+<td><ul>
+<li>Fixed registry bug introduced in v0.6 which prevented settings from being
+saved in NT.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+0.6<br/>
+(25 Jun, 2000)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added ability to put seams between pieces (ala L3P).</li>
+<li>Added edge line support (with toggle).</li>
+<li>Added high-quality mode for lines (with toggle)--uses glPolygonOffset to
+move all filled shapes (triangles and quads) away from the viewer by a little
+bit.</li>
+<li>Added ability to turn off lighting (useful with edge lines turned on).</li>
+<li>Added subdued lighting mode (with toggle), which is about halfway in
+between the standard lighting mode and no lighting.</li>
+<li>Added wireframe support (with toggle).
+<ul>
+<li>Added support for fog in wireframe mode (with toggle).</li>
+</ul></li>
+<li>Added asterisk to all the preferences that require the model to be
+reloaded.  Put note at the bottom of the panel explaining.</li>
+<li>Added OpenGL Driver Info submenu to help menu:
+<ul>
+<li>Vendor</li>
+<li>Renderer</li>
+<li>Version</li>
+<li>Extensions</li>
+</ul></li>
+<li>Added release date to About box.</li>
+<li>Added code to changed the mouse cursor to a wait cursor while the model is
+loading.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Renamed from L3DView to LDView (to avoid confusion with L3P/L3Lab).
+<ul>
+<li>Updated Icon to reflect new name.</li>
+<li>Updated About Box to reflect new name.</li>
+<li>Updated About menu item to reflect new name.</li>
+<li>Updated Preferences panel to reflect new name.</li>
+<li>Changed registry key that preferences are stored under to reflect new name.
+This change causes settings from previous versions to be lost.</li>
+<li>Updated code so that anything visible to the user reflects the new
+name.</li>
+</ul></li>
+<li>Completely rearranged preferences panel to handle all the new options.</li>
+<li>Added panel to prompt for LDraw directory the first time LDView is run, if
+it is not found in either C:\LDRAW or in the LDRAWDIR environment
+variable.</li>
+<li>Since the old registry settings were lost due to the rename, I
+reorganized my registry settings.
+<ul>
+<li>Added support to my convenience class for sub-folders in the registry.</li>
+<li>Changed my main registry path to
+<tt>HKEY_CURRENT_USER\Software\Travis Cobbs\LDView</tt>.</li>
+<li>Moved all my custom color registry entries to CustomColors sub-folder.</li>
+</ul></li>
+<li>Changed initial viewpoint to be at a better angle.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug fixes</b>
+</td>
+<td><ul>
+<li>Fixed initial window title to be LDView (it used to say 'Model
+Viewer').</li>
+<li>Fixed Z-buffer noise fix.  (My original fix offset the polygons in the
+wrong direction.)</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="3" align="right">
+0.5.2<br/>
+(21 Jun, 2000)<br/>
+(late PM)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Initial source release</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Updates</b>
+</td>
+<td><ul>
+<li>Project/Source cleanup for source release.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug fixes</b>
+</td>
+<td><ul>
+<li>Fixed FPS to display in black when background color is light.</li>
+<li>Fixed a few DC-related issues (? not positive they were actually
+broken).</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="2" align="right">
+0.5.1<br/>
+(21 Jun, 2000)<br/>
+(early AM)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added background color setting.</li>
+<li>Added option to turn off specular lighting (shininess).</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug fixes</b>
+</td>
+<td><ul>
+<li>Fixed Z-buffer noise with transparent pieces.</li>
+<li>Fixed color when drawing parts all by themselves.  Now draw the part using
+color 7.</li>
+</ul></td></tr>
+
+<tr><td class="NoWrap" rowspan="2" align="right">
+0.5<br/>
+(18 Jun, 2000)
+</td>
+<td align="right">
+<b>Additions</b>
+</td>
+<td><ul>
+<li>Added Menu Bar:
+<ul>
+<li>File
+<ul>
+<li>Open</li>
+<li>Exit</li>
+</ul></li>
+<li>Edit
+<ul>
+<li>Preferences</li>
+</ul></li>
+<li>Help
+<ul>
+<li>About</li>
+</ul></li>
+</ul></li>
+<li>Added ability to open a different model without having to exit.</li>
+<li>Added preferences panel with the following settings:
+<ul>
+<li>High quality lighting</li>
+<li>Use flat shading</li>
+<li>Use high quality studs</li>
+<li>Show frame rate</li>
+</ul></li>
+<li>Added About Box.</li>
+<li>Added code to remember window size between runs (including when
+maximized).</li>
+<li>Added code to remember which directory you last opened a file from.</li>
+<li>Added support for all the colors listed in the FAQ.</li>
+<li>Added support for colors used by MLCad which are not in the FAQ.</li>
+<li>Set a minimum window size to 320x240 internal dimensions.</li>
+</ul></td></tr>
+
+<tr><td align="right">
+<b>Bug fixes</b>
+</td>
+<td><ul>
+<li>Fixed RGB values of existing colors to match FAQ.</li>
+<li>Fixed lots of memory leaks (which did not really have any effect due to the
+fact that you could only view a single model).</li>
+<li>Fixed bug in which the same file could get closed multiple times, resulting
+in crash (also did not show up due to one-model limit).</li>
+<li>Removed a some code that was left over from a previous project.  This is
+why the main executable is actually smaller than the previous version.</li>
+</ul></td></tr>
+
+
+<tr><td class="NoWrap" rowspan="1" align="right">
+0.1<br/>
+(03 Jun, 2000)
+</td>
+<td colspan="2">
+Initial release.
+</td>
+</tr>
+</table>
+<p>
+<a href="https://github.com/"><img src="GitHub_Logo_Small.png" width="125" height="34" border="0" alt="GitHub Logo" align="right" /></a>
+</p>
+<p>
+<A HREF="https://tcobbs.github.io/ldview/"><B>LDView</B> home</A>
+</p>
+<p>
+If you have any comments, questions, or suggestions, please e-mail me at
+<a href="mailto:ldview@gmail.com">ldview@gmail.com</a>.
+</p>
+<p>
+LDView and this web page are both Copyright &copy; 2016 Travis Cobbs and
+Peter Bartfai.
+</p>
+<p class="FinePrint">
+LEGO&#174; and the LEGO logo are registered trademarks of The Lego Group, which
+does not sponsor, endorse, or authorize this site.  You can find the official
+LEGO website at <a href="http://www.lego.com/">http://www.lego.com</a>.
+</p>
+</body>
+</html>

@@ -5,7 +5,7 @@
     <param name="exclude">lc_lib/tools</param>
     <param name="exclude">builds/linux/standard</param>
     <param name="exclude">builds/windows</param>
-    <param name="exclude">builds/osx</param>
+    <param name="exclude">builds/macx</param>
     <param name="exclude">.travis.yml</param>
     <param name="exclude">.gitignore</param>	  
     <param name="exclude">.gitattributes</param>

@@ -70,7 +70,7 @@ echo "6. build source"
 make
 
 echo "7. copy LPub3D bundle components"
-cd builds/osx
+cd builds/macx
 if [ -d LPub3D.app ]
 then
     rm -R LPub3D.app
