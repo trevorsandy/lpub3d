@@ -108,7 +108,14 @@ BuildRequires: gcc-c++, make
 
 %if 0%{?mageia}
 BuildRequires: qtbase5-devel
+%if 0%{?OBS}
 BuildRequires: sane-backends-iscan
+%ifarch x86_64
+BuildRequires: lib64proxy-webkit
+%else
+BuildRequires: libproxy-webkit
+%endif
+%endif
 %endif
 
 %if 0%{?fedora}
