@@ -23,7 +23,8 @@
 %endif
 
 %if 0%{?mageia}
-%define dist mag
+%define dist .mga%{mgaversion}
+%define distsuffix .mga%{mgaversion}
 %endif
 
 %if 0%{?scientificlinux_version}
@@ -62,14 +63,12 @@ Source10: lpub3d.spec.git.version
 %define gitversion %(tr -d '\n' < %{SOURCE10})
 
 # set packing platform
-%if "0%{?vendor}"
-%define obsurl obs://build.opensuse.org/home:
-%define obsurlprivate obs://private/home:
 %define serviceprovider %(echo "%{vendor}")
-%define packingplatform %(if [[ "%{vendor}" == *"%{obsurl}"* ]] || [[ "%{vendor}" == *"%{obsurlprivate}"* ]]; then echo "openSUSE OBS"; else echo "$HOSTNAME [`uname`]"; fi)
-%if "%{packingplatform}" == "openSUSE OBS"
+%if %(if [[ "%{vendor}" == obs://* ]]; then echo 1; else echo 0; fi)
 %define OBS 1
-%endif
+%define packingplatform "openSUSE OBS"
+%else
+%define packingplatform %(echo "$HOSTNAME [`uname`]")
 %endif
 
 # set packer
@@ -92,6 +91,7 @@ URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
 BuildRoot: %{_builddir}/%{name}
 Requires: unzip 
+BuildRequires: freeglut-devel
 Source0: lpub3d-git.tar.gz
 
 # package requirements
@@ -106,9 +106,23 @@ BuildRequires: git
 BuildRequires: gcc-c++, make
 %endif 
 
+%if 0%{?fedora} || 0%{?centos_version} || 0%{?scientificlinux_version}
+BuildRequires: mesa-libOSMesa-devel
+%endif
+
 %if 0%{?mageia}
 BuildRequires: qtbase5-devel
-BuildRequires: sane-backends-iscan
+%ifarch x86_64
+BuildRequires: lib64osmesa-devel
+%if 0%{?OBS}
+BuildRequires: lib64sane1, lib64proxy-webkit,
+%endif
+%else
+BuildRequires: libosmesa-devel
+%if 0%{?OBS}
+BuildRequires: libsane1, libproxy-webkit, 
+%endif
+%endif
 %endif
 
 %if 0%{?fedora}
@@ -120,8 +134,25 @@ BuildRequires: qca, gnu-free-sans-fonts
 %endif
 %endif
 
+%if 0%{?OBS}
+%if 0%{?fedora_version}==25
+BuildRequires: llvm-libs
+%endif
+%endif
+
+%if 0%{?rhel_version} || 0%{?centos_version}
+BuildRequires: libXext-devel
+%endif
+
 %if 0%{?suse_version} 
 BuildRequires: libqt5-qtbase-devel, zlib-devel
+%if 0%{?OBS}
+BuildRequires: -post-build-checks
+%endif
+%endif
+
+%if 0%{?suse_version} > 1300
+BuildRequires: Mesa-devel
 %endif
 
 %description
