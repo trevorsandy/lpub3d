@@ -114,3 +114,9 @@ tools/*
 
 # Patches
 patches/*
+
+# Makefiles
+Makefile
+ldrawini/Makefile
+mainApp/Makefile
+quazip/Makefile
