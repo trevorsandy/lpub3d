@@ -81,7 +81,7 @@ ECHO  2. update desktop configuration - add version suffix 	>>   %LOG%
 ECHO  2. update desktop configuration - add version suffix
 SET FILE="%PWD%\lpub3d.desktop"
 SET /a LineToReplace=10
-SET "Replacement=Exec=lpub3d%APP_VER_SUFFIX% %f/"
+SET "Replacement=Exec=lpub3d%APP_VER_SUFFIX% %%f"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%FILE%"') DO (
   SET "Line=%%b"
   IF %%a equ %LineToReplace% SET "Line=%Replacement%"
@@ -109,7 +109,7 @@ ECHO  4. update PKGBUILD - add app version 	>>   %LOG%
 ECHO  4. update PKGBUILD - add app version
 SET FILE="%PWD%\..\builds\linux\obs\PKGBUILD"
 SET /a LineToReplace=3
-SET "Replacement=Exec=lpub3d%APP_VER_SUFFIX% %f/"
+SET "Replacement=Exec=lpub3d%APP_VER_SUFFIX% %%f"
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%FILE%"') DO (
   SET "Line=%%b"
   IF %%a equ %LineToReplace% SET "Line=%Replacement%"
