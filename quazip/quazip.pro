@@ -37,7 +37,7 @@ win32 {
     QMAKE_TARGET_COMPANY = "Sergey A. Tachenov"
     QMAKE_TARGET_DESCRIPTION = "C++ wrapper over Gilles Vollant's ZIP/UNZIP"
     QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2005-2014 Sergey A. Tachenov"
-    QMAKE_TARGET_PRODUCT = "QuaZIP ($$ARCH-bit)"
+    QMAKE_TARGET_PRODUCT = "QuaZIP ($$join(ARCH,,,bit))"
 
 }
 
@@ -84,19 +84,19 @@ unix:!symbian {
     headers.files=$$HEADERS
     deb {
         target.path=$$PREFIX/lib/$$QT_ARCH-linux-gnu
-        message("~~~ QUAZIP DEB $$ARCH-bit LIB ~~~")
+        message("~~~ QUAZIP DEB $$join(ARCH,,,bit) LIB ~~~")
     }
     rpm {
         target.path=$$PREFIX/lib$$ARCH
         equals (ARCH, 64) {
-            message("~~~ QUAZIP RPM $$ARCH-bit LIB ~~~")
+            message("~~~ QUAZIP RPM $$join(ARCH,,,bit) LIB ~~~")
         } else {
-            message("~~~ QUAZIP RPM 32-bit LIB ~~~")
+            message("~~~ QUAZIP RPM 32bit LIB ~~~")
         }
     }
     !deb:!rpm {
         target.path=$$PREFIX/lib
-        message("~~~ QUAZIP $$ARCH-bit LIB ~~~")
+        message("~~~ QUAZIP $$join(ARCH,,,bit) LIB ~~~")
     }
     INSTALLS += target
     libheaders: INSTALLS += headers
@@ -105,14 +105,8 @@ unix:!symbian {
 }
 
 win32 {
-    headers.path=$$PREFIX/include/quazip
-    headers.files=$$HEADERS
-    target.path=$$PREFIX/lib
+    target.path=$$DESTDIR/../../../LPub3D/builds/windows/setup/libs/$$join(ARCH,,,bit)
     INSTALLS += target
-    libheaders: INSTALLS += headers
-    libheaders: message("~~~ INSTALL QUAZIP LIB HEADERS ~~~")
-    # workaround for qdatetime.h macro bug
-    DEFINES += NOMINMAX
 }
 
 symbian {

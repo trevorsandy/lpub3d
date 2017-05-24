@@ -22,7 +22,7 @@ win32 {
     QMAKE_TARGET_COMPANY = "Lars C. Hassing"
     QMAKE_TARGET_DESCRIPTION = "LDrawDir and SearchDirs API"
     QMAKE_TARGET_COPYRIGHT = "Copyright (c) 2004-2008  Lars C. Hassing"
-    QMAKE_TARGET_PRODUCT = "LDrawIni ($$ARCH-bit)"
+    QMAKE_TARGET_PRODUCT = "LDrawIni ($$join(ARCH,,,bit))"
 }
 
 macx {
@@ -68,19 +68,19 @@ unix {
     headers.files=$$HEADERS
     deb {
         target.path=$$PREFIX/lib/$$QT_ARCH-linux-gnu
-        message("~~~ LDRAWINI DEB $$ARCH-bit LIB ~~~")
+        message("~~~ LDRAWINI DEB $$join(ARCH,,,bit) LIB ~~~")
     }
     rpm {
         target.path=$$PREFIX/lib$$ARCH
         equals (ARCH, 64) {
-            message("~~~ LDRAWINI RPM $$ARCH-bit LIB ~~~")
+            message("~~~ LDRAWINI RPM $$join(ARCH,,,bit) LIB ~~~")
         } else {
-            message("~~~ LDRAWINI RPM 32-bit LIB ~~~")
+            message("~~~ LDRAWINI RPM 32bit LIB ~~~")
         }
     }
     !deb:!rpm {
         target.path=$$PREFIX/lib
-        message("~~~ LDRAWINI $$ARCH-bit LIB ~~~")
+        message("~~~ LDRAWINI $$join(ARCH,,,bit) LIB ~~~")
     }
     INSTALLS += target
     libheaders: INSTALLS += headers
@@ -89,10 +89,6 @@ unix {
 }
 
 win32 {
-    headers.path=$$PREFIX/include
-    headers.files=$$HEADERS
-    target.path=$$PREFIX/lib
-    INSTALLS += headers target
-    # workaround for qdatetime.h macro bug
-    DEFINES += NOMINMAX
+    target.path=$$DESTDIR/../../../LPub3D/builds/windows/setup/libs/$$join(ARCH,,,bit)
+    INSTALLS += target
 }
