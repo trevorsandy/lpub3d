@@ -99,6 +99,22 @@ DATE_MM = $$section(BUILD_DATE, /, 1, 1)
 DATE_YY = $$section(BUILD_DATE, /, 2, 2)
 #message("BUILD_TIME:" $$BUILD_TIME ) # output the current time
 
+win32 {
+# C preprocessor #DEFINE to use in C++ code
+DEFINES += VER_MAJOR=\"$$VER_MAJOR\"
+DEFINES += VER_MINOR=\"$$VER_MINOR\"
+DEFINES += VER_PATCH=\"$$VER_PATCH\"
+
+DEFINES += BUILD_TIME=\"$$BUILD_TIME\"
+DEFINES += DATE_YY=\"$$DATE_YY\"
+DEFINES += DATE_MM=\"$$DATE_MM\"
+DEFINES += DATE_DD=\"$$DATE_DD\"
+
+DEFINES += VER_BUILD_STR=\"$$VER_BUILD_STR\"
+DEFINES += VER_SHA_HASH_STR=\"$$VER_SHA_HASH_STR\"
+DEFINES += VER_REVISION_STR=\"$$VER_REVISION_STR\"
+} else {
+
 # C preprocessor #DEFINE to use in C++ code
 DEFINES += VER_MAJOR=\\\"$$VER_MAJOR\\\"
 DEFINES += VER_MINOR=\\\"$$VER_MINOR\\\"
@@ -115,7 +131,7 @@ DEFINES += VER_REVISION_STR=\\\"$$VER_REVISION_STR\\\"
 
 # Now we are ready to pass parsed version to Qt
 VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_PATCH
-
+}
 # Update the version number file for win/unix during build
 # Generate git version data to the input files indicated. Input files are consumed during the
 # build process to set the version informatio for LPub3D executable, its libraries (ldrawini and quazip)
