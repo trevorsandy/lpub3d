@@ -1,0 +1,18 @@
+ version: 2.0.20.{build}
+ 
+ environment:
+   matrix:
+    - name: win32
+      platform: x86
+      qt: 5.7\mingw53_32
+ 
+ init:
+  - set PATH=C:\Qt\%qt%\bin;%PATH%
+  - set PATH=C:\Qt\Tools\mingw53_32\bin;%PATH%
+  - set PATH=C:\MinGW\bin;%PATH%
+  - set LIBRARY_PATH=c:/msys64/mingw32/lib;%LIBRARY_PATH%
+  
+ install:
+  - qmake -v
+  - qmake INCLUDEPATH+=c:\msys64\mingw32\include
+  - mingw32-make
