@@ -20,12 +20,6 @@ matrix:
     env:
      - QT_BASE=57
 
-addons:
-  apt:
-    packages:
-    - freeglut3-dev
-    - libOSMesa-dev
-
 before_install:
 
   - if [ "$QT_BASE" = "52" ]; then sudo add-apt-repository ppa:beineri/opt-qt521-trusty -y; fi
