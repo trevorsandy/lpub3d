@@ -151,14 +151,22 @@ UI_DIR      = $$DESTDIR/.ui
 
 #~~file distributions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Use this switch to enable/disable copying/install of distribution files.
-# Note that library and executables are always copied/installed
-# To enable set CONFIG += docopyfiles
-!contains(CONFIG, docopyfiles): CONFIG += undef
+# Use this switch to enable/disable copying/install of 3rd party executables, documentation and resources.
+# To copy 3rd party executables set CONFIG+=copy3rdexe. Default is enabled.
+!contains(CONFIG, copy3rdexe): CONFIG += copy3rdexe
+# To copy 3rd party documents and resources set CONFIG+=copy3rdfiles. Default is disabled.
+!contains(CONFIG, copy3rdfiles): CONFIG +=
+# You can optionally stage 3rd party executables, documentation and resources as source files in the LPub3D source.
+# To stage 3rd party executables, documentation and resources, set CONFIG+=stage3rdsource, Default is disabled.
+!contains(CONFIG, stage3rdcontent): CONFIG +=
+# To install 3rd party executables, documents and resources from staged content, set CONFIG+=install3rdfrmstage, Default is disabled.
+!contains(CONFIG, install3rdfrmstage): CONFIG +=
+# To install 3rd party executables, documents and resources from its repo, set CONFIG+=install3rdfrmrepo, Default is enabled.
+!contains(CONFIG, install3rdfrmrepo): CONFIG += install3rdfrmrepo
 
-include(winfiledistro.pri)
-include(unixfiledistro.pri)
-include(macfiledistro.pri)
+win32:include(winfiledistro.pri)
+unix:!macx:include(linuxfiledistro.pri)
+macx:include(macfiledistro.pri)
 
 #~~ includes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
