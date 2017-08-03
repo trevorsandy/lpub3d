@@ -133,7 +133,7 @@ unix:!macx {
     #
     # source directories
     isEmpty(THIRD_PARTY_SRC):THIRD_PARTY_SRC = $$_PRO_FILE_PWD_/../../lpub3d_linux_3rdparty
-    isEmpty(THIRD_PARTY_STG):THIRD_PARTY_STG = $$_PRO_FILE_PWD_/../builds/3rdParty
+    isEmpty(THIRD_PARTY_STG):THIRD_PARTY_STG = $$_PRO_FILE_PWD_/../builds/3rdParty/linux
 
     stage3rdcontent {
 

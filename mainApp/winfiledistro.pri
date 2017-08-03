@@ -19,7 +19,7 @@ win32:stage3rdcontent {
     #
     # source directories
     isEmpty(THIRD_PARTY_SRC):THIRD_PARTY_SRC = $$_PRO_FILE_PWD_/../../lpub3d_windows_3rdparty
-    isEmpty(THIRD_PARTY_STG):THIRD_PARTY_STG = $$_PRO_FILE_PWD_/../builds/3rdParty
+    isEmpty(THIRD_PARTY_STG):THIRD_PARTY_STG = $$_PRO_FILE_PWD_/../builds/3rdParty/Windows
 
     isEmpty(LDGLITE_EXE):LDGLITE_EXE       = $$THIRD_PARTY_SRC/bin/ldglite-1.3/$$QT_ARCH/ldglite.exe
     equals (ARCH, 64) {
