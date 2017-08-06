@@ -936,13 +936,13 @@ void Preferences::renderPreferences()
     QFileInfo povrayInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_POVRAY "/bin/lpub3d_trace_cui64.exe"));
   #endif
 #elif defined Q_OS_MAC
-    QString lpub3d3rdPartyContent      = QString("%1/%2").arg(lpub3dPath).arg("LPub3D.app/Contents/3rdParty");
+    QString lpub3d3rdPartyContent = QString("%1/%2").arg(lpub3dPath).arg("LPub3D.app/Contents/3rdParty");
 
     QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDGLITE "/bin/ldglite"));
     QFileInfo ldviewInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDVIEW "/bin/LDView"));
     QFileInfo povrayInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_POVRAY "/bin/lpub3d_trace_cui"));
 #else
-    QString lpub3d3rdPartyContentPath  = QString("%1/%2").arg(lpub3dPath).arg("../share/lpub3d/3rdParty");
+    QString lpub3d3rdPartyContent = QString("%1/%2").arg(lpub3dPath).arg("../share/lpub3d/3rdParty");
 
     QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDGLITE "/bin/ldglite"));
     QFileInfo ldviewInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDVIEW "/bin/LDView"));
