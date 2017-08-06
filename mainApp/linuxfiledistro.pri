@@ -138,9 +138,9 @@ unix:!macx {
     stage3rdcontent {
 
         # source directories
-        isEmpty(LDGLITE_EXE):LDGLITE_EXE   = $$THIRD_PARTY_SRC/bin/ldglite-1.3/$$QT_ARCH/ldglite
-        isEmpty(LDVIEW_EXE):LDVIEW_EXE     = $$THIRD_PARTY_SRC/bin/ldview-4.3/$$QT_ARCH/ldview
-        isEmpty(RAYTRACE_EXE):RAYTRACE_EXE = $$THIRD_PARTY_SRC/bin/lpub3d_trace_cui-3.7.2/$$QT_ARCH/lpub3d_trace_cui
+        isEmpty(LDGLITE_EXE):LDGLITE_EXE   = $$THIRD_PARTY_SRC/$$VER_LDGLITE/bin/$$QT_ARCH/ldglite
+        isEmpty(LDVIEW_EXE):LDVIEW_EXE     = $$THIRD_PARTY_SRC/$$VER_LDVIEW/bin/$$QT_ARCH/ldview
+        isEmpty(RAYTRACE_EXE):RAYTRACE_EXE = $$THIRD_PARTY_SRC/$$VER_POVRAY_SRC/bin/$$QT_ARCH/lpub3d_trace_cui
 
         include(stage3rdpartycontent.pri)
     }
@@ -148,47 +148,47 @@ unix:!macx {
     install3rdfrmrepo {
 
         # source directories
-        isEmpty(LDGLITE_INS_EXE):LDGLITE_INS_EXE   = $$THIRD_PARTY_SRC/bin/ldglite-1.3/$$QT_ARCH/ldglite
-        isEmpty(LDVIEW_INS_EXE):LDVIEW_INS_EXE     = $$THIRD_PARTY_SRC/bin/ldview-4.3/$$QT_ARCH/ldview
-        isEmpty(RAYTRACE_INS_EXE):RAYTRACE_INS_EXE = $$THIRD_PARTY_SRC/bin/lpub3d_trace_cui-3.7.2/$$QT_ARCH/lpub3d_trace_cui
+        isEmpty(LDGLITE_INS_EXE):LDGLITE_INS_EXE   = $$THIRD_PARTY_SRC/$$VER_LDGLITE/bin/$$QT_ARCH/ldglite
+        isEmpty(LDVIEW_INS_EXE):LDVIEW_INS_EXE     = $$THIRD_PARTY_SRC/$$VER_LDVIEW/bin/$$QT_ARCH/ldview
+        isEmpty(RAYTRACE_INS_EXE):RAYTRACE_INS_EXE = $$THIRD_PARTY_SRC/$$VER_POVRAY_SRC/bin/$$QT_ARCH/lpub3d_trace_cui
 
-        isEmpty(LDGLITE_INS_DOC):LDGLITE_INS_DOC   = $$THIRD_PARTY_SRC/docs/ldglite-1.3
-        isEmpty(LDVIEW_INS_DOC):LDVIEW_INS_DOC     = $$THIRD_PARTY_SRC/docs/ldview-4.3
-        isEmpty(RAYTRACE_INS_DOC):RAYTRACE_INS_DOC = $$THIRD_PARTY_SRC/docs/lpub3d_trace_cui-3.7.2
+        isEmpty(LDGLITE_INS_DOC):LDGLITE_INS_DOC   = $$THIRD_PARTY_SRC/$$VER_LDGLITE/docs
+        isEmpty(LDVIEW_INS_DOC):LDVIEW_INS_DOC     = $$THIRD_PARTY_SRC/$$VER_LDVIEW/docs
+        isEmpty(RAYTRACE_INS_DOC):RAYTRACE_INS_DOC = $$THIRD_PARTY_SRC/$$VER_POVRAY_SRC/docs
 
-        isEmpty(LDGLITE_INS_RES):LDGLITE_INS_RES   = $$THIRD_PARTY_SRC/resources/ldglite-1.3
-        isEmpty(LDVIEW_INS_RES):LDVIEW_INS_RES     = $$THIRD_PARTY_SRC/resources/ldview-4.3
-        isEmpty(RAYTRACE_INS_RES):RAYTRACE_INS_RES = $$THIRD_PARTY_SRC/resources/lpub3d_trace_cui-3.7.2
+        isEmpty(LDGLITE_INS_RES):LDGLITE_INS_RES   = $$THIRD_PARTY_SRC/$$VER_LDGLITE/resources
+        isEmpty(LDVIEW_INS_RES):LDVIEW_INS_RES     = $$THIRD_PARTY_SRC/$$VER_LDVIEW/resources
+        isEmpty(RAYTRACE_INS_RES):RAYTRACE_INS_RES = $$THIRD_PARTY_SRC/$$VER_POVRAY_SRC/resources
 
     } else:install3rdfrmstage {
 
         # stage directories
-        isEmpty(LDGLITE_INS_EXE):LDGLITE_INS_EXE   = $$THIRD_PARTY_STG/bin/ldglite-1.3/$$QT_ARCH/ldglite
-        isEmpty(LDVIEW_INS_EXE):LDVIEW_INS_EXE     = $$THIRD_PARTY_STG/bin/ldview-4.3/$$QT_ARCH/ldview
-        isEmpty(RAYTRACE_INS_EXE):RAYTRACE_INS_EXE = $$THIRD_PARTY_STG/bin/lpub3d_trace_cui-3.7.2/$$QT_ARCH/lpub3d_trace_cui
+        isEmpty(LDGLITE_INS_EXE):LDGLITE_INS_EXE   = $$THIRD_PARTY_STG/$$VER_LDGLITE/bin/$$QT_ARCH/ldglite
+        isEmpty(LDVIEW_INS_EXE):LDVIEW_INS_EXE     = $$THIRD_PARTY_STG/$$VER_LDVIEW/bin/$$QT_ARCH/ldview
+        isEmpty(RAYTRACE_INS_EXE):RAYTRACE_INS_EXE = $$THIRD_PARTY_STG/$$VER_POVRAY_SRC/bin/$$QT_ARCH/lpub3d_trace_cui
 
-        isEmpty(LDGLITE_INS_DOC):LDGLITE_INS_DOC   = $$THIRD_PARTY_STG/docs/ldglite-1.3
-        isEmpty(LDVIEW_INS_DOC):LDVIEW_INS_DOC     = $$THIRD_PARTY_STG/docs/ldview-4.3
-        isEmpty(RAYTRACE_INS_DOC):RAYTRACE_INS_DOC = $$THIRD_PARTY_STG/docs/lpub3d_trace_cui-3.7.2
+        isEmpty(LDGLITE_INS_DOC):LDGLITE_INS_DOC   = $$THIRD_PARTY_STG/$$VER_LDGLITE/docs
+        isEmpty(LDVIEW_INS_DOC):LDVIEW_INS_DOC     = $$THIRD_PARTY_STG/$$VER_LDVIEW/docs
+        isEmpty(RAYTRACE_INS_DOC):RAYTRACE_INS_DOC = $$THIRD_PARTY_STG/$$VER_POVRAY_SRC/docs
 
-        isEmpty(LDGLITE_INS_RES):LDGLITE_INS_RES   = $$THIRD_PARTY_STG/resources/ldglite-1.3
-        isEmpty(LDVIEW_INS_RES):LDVIEW_INS_RES     = $$THIRD_PARTY_STG/resources/ldview-4.3
-        isEmpty(RAYTRACE_INS_RES):RAYTRACE_INS_RES = $$THIRD_PARTY_STG/resources/lpub3d_trace_cui-3.7.2
+        isEmpty(LDGLITE_INS_RES):LDGLITE_INS_RES   = $$THIRD_PARTY_STG/$$VER_LDGLITE/resources
+        isEmpty(LDVIEW_INS_RES):LDVIEW_INS_RES     = $$THIRD_PARTY_STG/$$VER_LDVIEW/resources
+        isEmpty(RAYTRACE_INS_RES):RAYTRACE_INS_RES = $$THIRD_PARTY_STG/$$VER_POVRAY_SRC/resources
     }
 
     INSTALL = $$find(CONFIG, install3rdfrm.*)
     !isEmpty(INSTALL) {
 
-        # install directories
-        isEmpty(LDGLITE_INS_DIR):LDGLITE_INS_DIR           = $$SHARE_DIR/lpub3d/3rdParty/bin
-        isEmpty(LDGLITE_INS_DOC_DIR):LDGLITE_INS_DOC_DIR   = $$SHARE_DIR/doc/lpub3d/3rdParty/ldglite-1.3
-        isEmpty(LDGLITE_INS_RES_DIR):LDGLITE_INS_RES_DIR   = $$SHARE_DIR/lpub3d/3rdParty/ldglite-1.3
-        isEmpty(LDVIEW_INS_DIR):LDVIEW_INS_DIR             = $$SHARE_DIR/lpub3d/3rdParty/bin
-        isEmpty(LDVIEW_INS_RES_DIR):LDVIEW_INS_RES_DIR     = $$SHARE_DIR/lpub3d/3rdParty/ldview-4.3
-        isEmpty(LDVIEW_INS_DOC_DIR):LDVIEW_INS_DOC_DIR     = $$SHARE_DIR/doc/lpub3d/3rdParty/ldview-4.3
-        isEmpty(RAYTRACE_INS_DIR):RAYTRACE_INS_DIR         = $$SHARE_DIR/lpub3d/3rdParty/bin
-        isEmpty(RAYTRACE_INS_DOC_DIR):RAYTRACE_INS_DOC_DIR = $$SHARE_DIR/doc/lpub3d/lpub3d_trace_cui-3.7.2
-        isEmpty(RAYTRACE_INS_RES_DIR):RAYTRACE_INS_RES_DIR = $$SHARE_DIR/lpub3d/3rdParty/lpub3d_trace_cui-3.7.2
+        # installed data directories
+        isEmpty(LDGLITE_INS_DIR):LDGLITE_INS_DIR           = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDGLITE/bin
+        isEmpty(LDGLITE_INS_DOC_DIR):LDGLITE_INS_DOC_DIR   = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDGLITE/doc
+        isEmpty(LDGLITE_INS_RES_DIR):LDGLITE_INS_RES_DIR   = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDGLITE/resources
+        isEmpty(LDVIEW_INS_DIR):LDVIEW_INS_DIR             = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDVIEW/bin
+        isEmpty(LDVIEW_INS_RES_DIR):LDVIEW_INS_RES_DIR     = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDVIEW/resources
+        isEmpty(LDVIEW_INS_DOC_DIR):LDVIEW_INS_DOC_DIR     = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDVIEW/doc
+        isEmpty(RAYTRACE_INS_DIR):RAYTRACE_INS_DIR         = $$SHARE_DIR/lpub3d/3rdParty/$$VER_POVRAY/bin
+        isEmpty(RAYTRACE_INS_DOC_DIR):RAYTRACE_INS_DOC_DIR = $$SHARE_DIR/lpub3d/3rdParty/$$VER_POVRAY/doc
+        isEmpty(RAYTRACE_INS_RES_DIR):RAYTRACE_INS_RES_DIR = $$SHARE_DIR/lpub3d/3rdParty/$$VER_POVRAY/resources
 
         include(install3rdpartycontent.pri)
     }

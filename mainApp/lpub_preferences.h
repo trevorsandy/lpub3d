@@ -51,7 +51,6 @@ class Preferences
     static QString lpubExtrasPath;
     static QString ldgliteExe;
     static QString ldviewExe;
-    static QString l3pExe;
     static QString povrayExe;
     static QString preferredRenderer;
     static QString lpub3dPath;
@@ -80,6 +79,11 @@ class Preferences
     static QString loggingLevel;
     static QString availableVersions;
     static QStringList ldSearchDirs;
+    static QString ldviewIni;
+    static QString ldviewPOVIni;
+    static QString povrayIni;
+    static QString povrayInc;
+    static QString povrayScene;
     static bool    ldrawiniFound;
     static bool    enableDocumentLogo;
     static bool    enableLDViewSingleCall;
@@ -96,6 +100,7 @@ class Preferences
     static bool    enableDownloader;
     static bool    portableDistribution;
     static bool    lpub3dLoaded;
+    static bool    lgeoStlLib;
 
     static bool    includeLogLevel;
     static bool    includeTimestamp;

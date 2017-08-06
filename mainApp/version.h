@@ -40,6 +40,18 @@
 #endif
 #define VER_COMPANYNAME_STR                 COMPANYNAME_STR
 
+// ~~~~~~ 3rdParty Applications ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+#define VER_LDVIEW                          "ldview-4.3"
+#define VER_LDGLITE                         "ldglite-1.3"
+#define VER_POVRAY                          "lpub3d_trace_cui-3.7"
+
+#define VER_LDVIEW_INI_FILE                 "ldview.ini"      // LDView renderer ini settings
+#define VER_LDVIEW_POV_INI_FILE             "ldviewPOV.ini"   // POV file generation ini settings
+#define VER_POVRAY_INI_FILE                 "povray.ini"      // Only used to validate directory
+#define VER_POVRAY_INC_FILE                 "consts.inc"      // Only used to validate directory
+#define VER_POVRAY_SCENE_FILE               "index.htm"       // Only used to validate directory
+#define VER_POVRAY_CONF_FILE                "povray.conf"
+
 // ~~~~~~ Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 #define VER_LOGGING_LEVELS_STR              "STATUS,INFO,TRACE,DEBUG,NOTICE,ERROR,FATAL,OFF"

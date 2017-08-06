@@ -1,28 +1,24 @@
 # Stage 3rd party executables, documentation and resources as source files in the LPub3D source.
 
 # source directories
-isEmpty(LDGLITE_DOC):LDGLITE_DOC   = $$THIRD_PARTY_SRC/docs/ldglite-1.3
-isEmpty(LDVIEW_DOC):LDVIEW_DOC     = $$THIRD_PARTY_SRC/docs/LDView-4.3
-isEmpty(RAYTRACE_DOC):RAYTRACE_DOC = $$THIRD_PARTY_SRC/docs/lpub3d_trace_cui-3.7.2
+isEmpty(LDGLITE_DOC):LDGLITE_DOC   = $$THIRD_PARTY_SRC/$$VER_LDGLITE/docs
+isEmpty(LDVIEW_DOC):LDVIEW_DOC     = $$THIRD_PARTY_SRC/$$VER_LDVIEW/docs
+isEmpty(RAYTRACE_DOC):RAYTRACE_DOC = $$THIRD_PARTY_SRC/$$VER_POVRAY_SRC/docs
 
-isEmpty(LDGLITE_RES):LDGLITE_RES   = $$THIRD_PARTY_SRC/resources/ldglite-1.3
-isEmpty(LDVIEW_RES):LDVIEW_RES     = $$THIRD_PARTY_SRC/resources/LDView-4.3
-isEmpty(RAYTRACE_RES):RAYTRACE_RES = $$THIRD_PARTY_SRC/resources/lpub3d_trace_cui-3.7.2
+isEmpty(LDGLITE_RES):LDGLITE_RES   = $$THIRD_PARTY_SRC/$$VER_LDGLITE/resources
+isEmpty(LDVIEW_RES):LDVIEW_RES     = $$THIRD_PARTY_SRC/$$VER_LDVIEW/resources
+isEmpty(RAYTRACE_RES):RAYTRACE_RES = $$THIRD_PARTY_SRC/$$VER_POVRAY_SRC/resources
 
 # stage directories
-isEmpty(BIN_DIR):BIN_DIR                 = $$THIRD_PARTY_STG/bin
-isEmpty(DOCS_DIR):DOCS_DIR               = $$THIRD_PARTY_STG/docs
-isEmpty(RESOURCE_DIR):RESOURCE_DIR       = $$THIRD_PARTY_STG/resources
-
-isEmpty(LDGLITE_DIR):LDGLITE_DIR           = $$BIN_DIR/ldglite-1.3/$$QT_ARCH
-isEmpty(LDGLITE_DOC_DIR):LDGLITE_DOC_DIR   = $$DOCS_DIR/ldglite-1.3
-isEmpty(LDGLITE_RES_DIR):LDGLITE_RES_DIR   = $$RESOURCE_DIR/ldglite-1.3
-isEmpty(LDVIEW_DIR):LDVIEW_DIR             = $$BIN_DIR/ldview-4.3/$$QT_ARCH
-isEmpty(LDVIEW_DOC_DIR):LDVIEW_DOC_DIR     = $$DOCS_DIR/ldview-4.3
-isEmpty(LDVIEW_RES_DIR):LDVIEW_RES_DIR     = $$RESOURCE_DIR/ldview-4.3
-isEmpty(RAYTRACE_DIR):RAYTRACE_DIR         = $$BIN_DIR/lpub3d_trace_cui-3.7.2/$$QT_ARCH
-isEmpty(RAYTRACE_DOC_DIR):RAYTRACE_DOC_DIR = $$DOCS_DIR/lpub3d_trace_cui-3.7.2
-isEmpty(RAYTRACE_RES_DIR):RAYTRACE_RES_DIR = $$RESOURCE_DIR/lpub3d_trace_cui-3.7.2
+isEmpty(LDGLITE_DIR):LDGLITE_DIR           = $$THIRD_PARTY_STG/$$VER_LDGLITE/bin/$$QT_ARCH
+isEmpty(LDGLITE_DOC_DIR):LDGLITE_DOC_DIR   = $$THIRD_PARTY_STG/$$VER_LDGLITE/docs
+isEmpty(LDGLITE_RES_DIR):LDGLITE_RES_DIR   = $$THIRD_PARTY_STG/$$VER_LDGLITE/resources
+isEmpty(LDVIEW_DIR):LDVIEW_DIR             = $$THIRD_PARTY_STG/$$VER_LDVIEW/bin/$$QT_ARCH
+isEmpty(LDVIEW_DOC_DIR):LDVIEW_DOC_DIR     = $$THIRD_PARTY_STG/$$VER_LDVIEW/docs
+isEmpty(LDVIEW_RES_DIR):LDVIEW_RES_DIR     = $$THIRD_PARTY_STG/$$VER_LDVIEW/resources
+isEmpty(RAYTRACE_DIR):RAYTRACE_DIR         = $$THIRD_PARTY_STG/$$VER_POVRAY_SRC/bin/$$QT_ARCH
+isEmpty(RAYTRACE_DOC_DIR):RAYTRACE_DOC_DIR = $$THIRD_PARTY_STG/$$VER_POVRAY_SRC/docs
+isEmpty(RAYTRACE_RES_DIR):RAYTRACE_RES_DIR = $$THIRD_PARTY_STG/$$VER_POVRAY_SRC/resources
 
 # renderer executables
 CONFIG(release, debug|release) {
@@ -81,10 +77,10 @@ raytracer_docs.files += \
         $$RAYTRACE_DOC/LICENSE.txt
 raytracer_docs.path = $$RAYTRACE_DOC_DIR
 
-raytracer_resources_conf.files += \
-        $$RAYTRACE_RES/conf/povray.conf \
-        $$RAYTRACE_RES/conf/povray.ini
-raytracer_resources_conf.path = $$RAYTRACE_RES_DIR\conf
+raytracer_resources_config.files += \
+        $$RAYTRACE_RES/config/povray.conf \
+        $$RAYTRACE_RES/config/povray.ini
+raytracer_resources_config.path = $$RAYTRACE_RES_DIR\config
 
 raytracer_resources_ini.files += \
         $$RAYTRACE_RES/ini/allanim.ini \
@@ -181,7 +177,7 @@ ldglite_resources \
 ldview_docs \
 ldview_resources \
 raytracer_docs \
-raytracer_resources_conf \
+raytracer_resources_config \
 raytracer_resources_ini \
 raytracer_resources_include
 

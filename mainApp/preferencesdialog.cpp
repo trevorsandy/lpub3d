@@ -52,11 +52,11 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.pliBox->setChecked(                            Preferences::pliFile != "");
   ui.ldglitePath->setText(                          Preferences::ldgliteExe);
   ui.ldgliteBox->setChecked(                        Preferences::ldgliteExe != "");
-  ui.l3pPath->setText(                              Preferences::l3pExe);
   ui.povrayPath->setText(                           Preferences::povrayExe);
-  ui.POVRayBox->setChecked(                         Preferences::l3pExe != "" && Preferences::povrayExe != "");
+  ui.POVRayBox->setChecked(                         Preferences::povrayExe != "");
   ui.lgeoPath->setText(                             Preferences::lgeoPath);
   ui.lgeoBox->setChecked(                           Preferences::lgeoPath != "");
+  ui.lgeoStlLibLbl->setText(                        Preferences::lgeoStlLib ? DURAT_LGEO_STL_LIB_INFO : "");
   ui.ldviewPath->setText(                           Preferences::ldviewExe);
   ui.ldviewBox->setChecked(                         Preferences::ldviewExe != "");
   ui.ldviewSingleCall_Chk->setChecked(              Preferences::enableLDViewSingleCall && Preferences::ldviewExe != "");
@@ -138,13 +138,12 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.preferredRenderer->setMaxCount(0);
   ui.preferredRenderer->setMaxCount(3);
 
-    QFileInfo fileInfo(Preferences::l3pExe);
-    int povRayIndex = ui.preferredRenderer->count();
-    bool povRayExists = fileInfo.exists();
-    fileInfo.setFile(Preferences::povrayExe);
-    povRayExists &= fileInfo.exists();
-    if (povRayExists) {
-        ui.preferredRenderer->addItem("POV-Ray");
+  QFileInfo fileInfo(Preferences::povrayExe);
+  int povRayIndex = ui.preferredRenderer->count();
+  bool povRayExists = fileInfo.exists();
+  povRayExists &= fileInfo.exists();
+  if (povRayExists) {
+      ui.preferredRenderer->addItem("POVRay");
     }
 
   fileInfo.setFile(Preferences::ldgliteExe);
@@ -167,7 +166,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   } else if (Preferences::preferredRenderer == "LDGLite" && ldgliteExists) {
     ui.preferredRenderer->setCurrentIndex(ldgliteIndex);
     ui.preferredRenderer->setEnabled(true);
-  }  else if (Preferences::preferredRenderer == "POV-Ray" && povRayExists) {
+  }  else if (Preferences::preferredRenderer == "POVRay" && povRayExists) {
       ui.preferredRenderer->setCurrentIndex(povRayIndex);
       ui.preferredRenderer->setEnabled(true);
   } else {
@@ -336,34 +335,6 @@ void PreferencesDialog::on_browseLDGLite_clicked()
     }
 }
 
-void PreferencesDialog::on_browseL3P_clicked()
-{
-#ifdef Q_OS_WIN
-    QString filter(tr("Executable Files (*.exe);;All Files (*.*)"));
-#else
-    QString filter(tr("All Files (*.*)"));
-#endif
-
-    QString result = QFileDialog::getOpenFileName(this, tr("Locate L3P Executable"),
-                                                  ui.l3pPath->text().isEmpty() ? Preferences::lpub3dPath : ui.l3pPath->text(),
-                                                  filter);
-
-    if (!result.isEmpty()) {
-        result = QDir::toNativeSeparators(result);
-        ui.l3pPath->setText(result);
-        QFileInfo povRayInfo(ui.povrayPath->text());
-        if (povRayInfo.exists()) {
-            int povRayIndex = ui.preferredRenderer->findText("POV-Ray");
-            if (povRayIndex < 0) {
-                ui.preferredRenderer->addItem("POV-Ray");
-            }
-            ui.preferredRenderer->setEnabled(true);
-        }
-        ui.POVRayBox->setChecked(povRayInfo.exists());
-        ui.RenderMessage->setText("");
-    }
-}
-
 void PreferencesDialog::on_browsePOVRAY_clicked()
 {
 #ifdef Q_OS_WIN
@@ -373,21 +344,18 @@ void PreferencesDialog::on_browsePOVRAY_clicked()
 #endif
 
     QString result = QFileDialog::getOpenFileName(this, tr("Locate POV-Ray Executable"),
-                                                  ui.povrayPath->text(),
+                                                  ui.povrayPath->text().isEmpty() ? Preferences::lpub3dPath : ui.povrayPath->text(),
                                                   filter);
 
     if (!result.isEmpty()) {
         result = QDir::toNativeSeparators(result);
         ui.povrayPath->setText(result);
-        QFileInfo l3pInfo(ui.l3pPath->text());
-        if (l3pInfo.exists()) {
-            int povRayIndex = ui.preferredRenderer->findText("POV-Ray");
-            if (povRayIndex < 0) {
-                ui.preferredRenderer->addItem("POV-Ray");
-            }
-            ui.preferredRenderer->setEnabled(true);
+        int povRayIndex = ui.preferredRenderer->findText("POVRay");
+        if (povRayIndex < 0) {
+            ui.preferredRenderer->addItem("POVRay");
         }
-        ui.POVRayBox->setChecked(l3pInfo.exists());
+        ui.preferredRenderer->setEnabled(true);
+        ui.POVRayBox->setChecked(true);
         ui.RenderMessage->setText("");
     }
 }
@@ -477,8 +445,6 @@ QString const PreferencesDialog::ldviewExe()
   return "";
 }
 
-
-
 QString const PreferencesDialog::ldgliteExe()
 {
   if (ui.ldgliteBox->isChecked()) {
@@ -491,13 +457,6 @@ QString const PreferencesDialog::povrayExe()
 {
     if (ui.POVRayBox->isChecked()) {
         return ui.povrayPath->displayText();
-    }
-    return "";
-}
-QString const PreferencesDialog::l3pExe()
-{
-    if (ui.POVRayBox->isChecked()) {
-        return ui.l3pPath->displayText();
     }
     return "";
 }
@@ -759,24 +718,15 @@ void PreferencesDialog::accept(){
     bool missingParms = false;
     QFileInfo fileInfo;
 
-    bool l3pExists = false;
-    if (!ui.l3pPath->text().isEmpty() && (ui.l3pPath->text() != Preferences::l3pExe)) {
-        fileInfo.setFile(ui.l3pPath->text());
-        l3pExists = fileInfo.exists();
-        if (!l3pExists)
-            emit gui->messageSig(false,QString("L3P path entered is not valid: %1").arg(ui.l3pPath->text()));
-    }
-    bool povRayExists = false;
     if (!ui.povrayPath->text().isEmpty() && (ui.povrayPath->text() != Preferences::povrayExe)){
         fileInfo.setFile(ui.povrayPath->text());
-        povRayExists &= fileInfo.exists();
-        if (!povRayExists)
+        bool povRayExists = fileInfo.exists();
+        if (povRayExists) {
+            Preferences::povrayExe = ui.povrayPath->text();
+            ui.preferredRenderer->addItem("POVRay");
+        } else {
             emit gui->messageSig(false,QString("POV-Ray path entered is not valid: %1").arg(ui.povrayPath->text()));
-    }
-    if (l3pExists && povRayExists) {
-        Preferences::l3pExe    = ui.l3pPath->text();
-        Preferences::povrayExe = ui.povrayPath->text();
-        ui.preferredRenderer->addItem("POV-Ray");
+        }
     }
     if (!ui.ldglitePath->text().isEmpty() && (ui.ldglitePath->text() != Preferences::ldgliteExe)) {
         fileInfo.setFile(ui.ldglitePath->text());
@@ -811,7 +761,6 @@ void PreferencesDialog::accept(){
             ui.ldglitePath->setPlaceholderText("At lease one renderer must be defined");
             ui.ldviewPath->setPlaceholderText("At lease one renderer must be defined");
             ui.povrayPath->setPlaceholderText("At lease one renderer must be defined");
-            ui.l3pPath->setPlaceholderText("Reqired if POV-Ray defined");
             ui.ldrawPath->setPlaceholderText("LDRaw path must be defined");
         }
       }

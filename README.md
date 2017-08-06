@@ -1,5 +1,5 @@
 ![Icon][icon]
-#LPub3D  [![Build Status][travis-badge]][travis] [![GitHub release][gh-rel-badge]][gh-rel]
+# LPub3D  [![Build Status][travis-badge]][travis] [![GitHub release][gh-rel-badge]][gh-rel]
 
 LDraw™ editor for LEGO® style digital building instructions.
 
@@ -32,8 +32,8 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 	- Sort PLI/BOM by part size, colour and category
 	- "Go To" page navigation and submodel display via drop-down dialogue
 	- Automatically generate formatted cover pages
-	- Multiple renderers (LDGlite, LDView and POV-Ray/L3P)
-	- POV-Ray/L3P high-quality rendered instructions
+        - Multiple renderers (LDGlite, LDView and POV-Ray)
+        - POV-Ray high-quality rendered instructions
 	- LGEO high-quality rendering library support
 	- Customizable content page header and footer
 	- Text and picture (e.g. logo) front and back page attributes

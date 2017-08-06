@@ -51,7 +51,7 @@ copy3rdfiles {
             $$LDVIEW_INS_RES/LDViewCustomIni \
             $$LDVIEW_INS_RES/8464.mpd \
             $$LDVIEW_INS_RES/m6459.ldr
-    ldview_ins_resources.path = $$LDVIEW_INS_RES_DIR
+    ldview_ins_resources.path = $$LDVIEW_INS_RES_DIR\ini
 
     # raytracer (povray) content
     raytracer_ins_docs.files += \
@@ -62,10 +62,10 @@ copy3rdfiles {
             $$RAYTRACE_INS_DOC/LICENSE.txt
     raytracer_ins_docs.path = $$RAYTRACE_INS_DOC_DIR
 
-    raytracer_resources_conf.files += \
-            $$RAYTRACE_INS_RES/conf/povray.conf \
-            $$RAYTRACE_INS_RES/conf/povray.ini
-    raytracer_ins_resources_conf.path = $$RAYTRACE_INS_RES_DIR\conf
+    raytracer_resources_config.files += \
+            $$RAYTRACE_INS_RES/config/povray.conf \
+            $$RAYTRACE_INS_RES/config/povray.ini
+    raytracer_ins_resources_config.path = $$RAYTRACE_INS_RES_DIR\config
 
     raytracer_ins_resources_ini.files += \
             $$RAYTRACE_INS_RES/ini/allanim.ini \
@@ -162,7 +162,7 @@ copy3rdfiles {
     ldview_ins_docs \
     ldview_ins_resources \
     raytracer_ins_docs \
-    raytracer_ins_resources_conf \
+    raytracer_ins_resources_config \
     raytracer_ins_resources_ini \
     raytracer_ins_resources_include
 }

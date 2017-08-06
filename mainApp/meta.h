@@ -2087,7 +2087,6 @@ public:
   FloatMeta     modelScale;
   StringMeta    ldviewParms;
   StringMeta    ldgliteParms;
-  StringMeta    l3pParms;
   StringMeta    povrayParms;
   BoolMeta      showStepNumber;
 
@@ -2125,7 +2124,6 @@ public:
   StringListMeta    subModelFontColor;
   StringMeta        ldviewParms;
   StringMeta        ldgliteParms;
-  StringMeta        l3pParms;
   StringMeta        povrayParms;
   BoolMeta          pack;
   BoolMeta          sort;

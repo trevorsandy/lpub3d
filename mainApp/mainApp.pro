@@ -44,7 +44,7 @@ contains(QT_ARCH, x86_64) {
 
 CONFIG += precompile_header
 PRECOMPILED_HEADER += ../lc_lib/common/lc_global.h
-QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter -Winvalid-pch
 
 win32 {
 
@@ -164,9 +164,14 @@ UI_DIR      = $$DESTDIR/.ui
 # To install 3rd party executables, documents and resources from its repo, set CONFIG+=install3rdfrmrepo, Default is enabled.
 !contains(CONFIG, install3rdfrmrepo): CONFIG += install3rdfrmrepo
 
+VER_LDVIEW      = ldview-4.3
+VER_LDGLITE     = ldglite-1.3
+VER_POVRAY      = lpub3d_trace_cui-3.7
+VER_POVRAY_SRC  = lpub3d_trace_cui-3.7.2
+
 win32:include(winfiledistro.pri)
+macx:include(macosfiledistro.pri)
 unix:!macx:include(linuxfiledistro.pri)
-macx:include(macfiledistro.pri)
 
 #~~ includes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -340,10 +345,11 @@ OTHER_FILES += \
     lpub3d.xml \
     lpub3d.sh \
     $$MAN_PAGE \
-    ../builds/3rdParty/resources/ldview-4.3/ldview.ini \
-    ../builds/3rdParty/resources/ldview-4.3/ldviewrc \
-    ../builds/3rdParty/resources/lpub3d-trace-3.7.2/windows/povray.conf \
-    ../builds/3rdParty/resources/lpub3d-trace-3.7.2/windows/povray.ini \
+    ../builds/3rdParty/resources/$$VER_LDVIEW/ini/ldview.ini \
+    ../builds/3rdParty/resources/$$VER_LDVIEW/ini/ldviewPOV.ini \
+    ../builds/3rdParty/resources/ldview-4.3/ini/ldviewrc \
+    ../builds/3rdParty/resources/lpub3d-trace-3.7.2/conf/povray.conf \
+    ../builds/3rdParty/resources/lpub3d-trace-3.7.2/conf/povray.ini \
     ../builds/macx/CreateDmg.sh \
     ../builds/linux/CreateRpm.sh \
     ../builds/linux/CreateDeb.sh \

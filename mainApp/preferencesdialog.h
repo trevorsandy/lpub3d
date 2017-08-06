@@ -42,7 +42,6 @@ class PreferencesDialog : public QDialog
     QString const ldrawPath();
     QString const lgeoPath();
     QString const pliFile();
-    QString const l3pExe();
     QString const povrayExe();
     QString const ldgliteExe();
     QString const ldviewExe();
@@ -66,6 +65,7 @@ class PreferencesDialog : public QDialog
     bool          showUpdateNotifications();
     bool          enableDownloader();
     bool          showAllNotifications();
+    bool          lgeoStlLib();
     int           checkUpdateFrequency();
     int           rendererTimeout();
 
@@ -97,7 +97,6 @@ class PreferencesDialog : public QDialog
     void on_browseLDraw_clicked();
     void on_browseLGEO_clicked();
     void on_browsePli_clicked();
-    void on_browseL3P_clicked();
     void on_browsePOVRAY_clicked();
     void on_browseLDView_clicked();
     void on_browseLDGLite_clicked();

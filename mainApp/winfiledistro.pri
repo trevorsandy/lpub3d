@@ -21,13 +21,13 @@ win32:stage3rdcontent {
     isEmpty(THIRD_PARTY_SRC):THIRD_PARTY_SRC = $$_PRO_FILE_PWD_/../../lpub3d_windows_3rdparty
     isEmpty(THIRD_PARTY_STG):THIRD_PARTY_STG = $$_PRO_FILE_PWD_/../builds/3rdParty/Windows
 
-    isEmpty(LDGLITE_EXE):LDGLITE_EXE       = $$THIRD_PARTY_SRC/bin/ldglite-1.3/$$QT_ARCH/ldglite.exe
+    isEmpty(LDGLITE_EXE):LDGLITE_EXE       = $$THIRD_PARTY_SRC/$$VER_LDGLITE/bin/$$QT_ARCH/ldglite.exe
     equals (ARCH, 64) {
-        isEmpty(LDVIEW_EXE):LDVIEW_EXE     = $$THIRD_PARTY_SRC/bin/LDView-4.3/$$QT_ARCH/LDView$$join(ARCH,,,.exe)
-        isEmpty(RAYTRACE_EXE):RAYTRACE_EXE = $$THIRD_PARTY_SRC/bin/lpub3d_trace_cui-3.7.2/$$QT_ARCH/lpub3d_trace_cui$$join(ARCH,,,.exe)
+        isEmpty(LDVIEW_EXE):LDVIEW_EXE     = $$THIRD_PARTY_SRC/$$VER_LDVIEW/bin/$$QT_ARCH/LDView$$join(ARCH,,,.exe)
+        isEmpty(RAYTRACE_EXE):RAYTRACE_EXE = $$THIRD_PARTY_SRC/$$VER_POVRAY_SRC/bin/$$QT_ARCH/lpub3d_trace_cui$$join(ARCH,,,.exe)
     } else {
-        isEmpty(LDVIEW_EXE):LDVIEW_EXE     = $$THIRD_PARTY_SRC/bin/LDView-4.3/$$QT_ARCH/LDView.exe
-        isEmpty(RAYTRACE_EXE):RAYTRACE_EXE = $$THIRD_PARTY_SRC/bin/lpub3d_trace_cui-3.7.2/$$QT_ARCH/lpub3d_trace_cui$$join(ARCH,,,.exe)
+        isEmpty(LDVIEW_EXE):LDVIEW_EXE     = $$THIRD_PARTY_SRC/$$VER_LDVIEW/bin/$$QT_ARCH/LDView.exe
+        isEmpty(RAYTRACE_EXE):RAYTRACE_EXE = $$THIRD_PARTY_SRC/$$VER_POVRAY_SRC/bin/$$QT_ARCH/lpub3d_trace_cui$$join(ARCH,,,.exe)
     }
 
     include(stage3rdpartycontent.pri)
