@@ -17,7 +17,6 @@ unix:!macx {
         # Linker flag setting to properly direct LPub3D to ldrawini and quazip shared libraries.
         # This setting assumes dependent libraries are deposited at <exe location>/lib by the installer.
         QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/lib\'"
-
     }
 
     # These defines point LPub3D to the architecture appropriate content
@@ -114,6 +113,16 @@ unix:!macx {
     ldraw_unofficial_library \
     ldraw_official_library
 
+    DEFINES += LC_INSTALL_PREFIX=\\\"$$INSTALL_PREFIX\\\"
+
+    !isEmpty(DISABLE_UPDATE_CHECK) {
+            DEFINES += LC_DISABLE_UPDATE_CHECK=$$DISABLE_UPDATE_CHECK
+    }
+
+    !isEmpty(LDRAW_LIBRARY_PATH) {
+            DEFINES += LC_LDRAW_LIBRARY_PATH=\\\"$$LDRAW_LIBRARY_PATH\\\"
+    }
+
     # The package distribution settings below requires a specific dev env configuration.
     # Basically, if you create a projects folder e.g. c:\Users\<user>\Projects and
     # clone the listed GitHub repos under the Projects folder, your dev env will
@@ -176,8 +185,8 @@ unix:!macx {
         isEmpty(RAYTRACE_INS_RES):RAYTRACE_INS_RES = $$THIRD_PARTY_STG/$$VER_POVRAY_SRC/resources
     }
 
-    INSTALL = $$find(CONFIG, install3rdfrm.*)
-    !isEmpty(INSTALL) {
+    3RD_INSTALL = $$find(CONFIG, install3rdfrm.*)
+    !isEmpty(3RD_INSTALL) {
 
         # installed data directories
         isEmpty(LDGLITE_INS_DIR):LDGLITE_INS_DIR           = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDGLITE/bin
@@ -191,15 +200,5 @@ unix:!macx {
         isEmpty(RAYTRACE_INS_RES_DIR):RAYTRACE_INS_RES_DIR = $$SHARE_DIR/lpub3d/3rdParty/$$VER_POVRAY/resources
 
         include(install3rdpartycontent.pri)
-    }
-
-    DEFINES += LC_INSTALL_PREFIX=\\\"$$INSTALL_PREFIX\\\"
-
-    !isEmpty(DISABLE_UPDATE_CHECK) {
-            DEFINES += LC_DISABLE_UPDATE_CHECK=$$DISABLE_UPDATE_CHECK
-    }
-
-    !isEmpty(LDRAW_LIBRARY_PATH) {
-            DEFINES += LC_LDRAW_LIBRARY_PATH=\\\"$$LDRAW_LIBRARY_PATH\\\"
     }
 }

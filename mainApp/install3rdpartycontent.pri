@@ -48,10 +48,16 @@ copy3rdfiles {
     ldview_ins_docs.path = $$LDVIEW_INS_DOC_DIR
 
     ldview_ins_resources.files += \
-            $$LDVIEW_INS_RES/LDViewCustomIni \
+            $$LDVIEW_INS_RES/ldviewrc.sample \
             $$LDVIEW_INS_RES/8464.mpd \
             $$LDVIEW_INS_RES/m6459.ldr
-    ldview_ins_resources.path = $$LDVIEW_INS_RES_DIR\ini
+    ldview_ins_resources.path = $$LDVIEW_INS_RES_DIR
+
+    ldview_ins_resources_config.files += \
+            $$LDVIEW_INS_RES/config/LDViewCustomIni \
+            $$LDVIEW_INS_RES/config/ldview.ini \
+            $$LDVIEW_INS_RES/config/ldviewPOV.ini
+    ldview_ins_resources_config.path = $$LDVIEW_INS_RES_DIR\config
 
     # raytracer (povray) content
     raytracer_ins_docs.files += \
@@ -161,6 +167,7 @@ copy3rdfiles {
     ldglite_ins_resources \
     ldview_ins_docs \
     ldview_ins_resources \
+    ldview_ins_resources_config \
     raytracer_ins_docs \
     raytracer_ins_resources_config \
     raytracer_ins_resources_ini \

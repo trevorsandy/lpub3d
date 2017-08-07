@@ -1,5 +1,5 @@
     # These settings are used for package distribution
-win32:stage3rdcontent {
+win32{
     # The Windows package distribution settings below requires a specific dev env configuration.
     # Basically, if you create a projects folder e.g. c:\Users\<user>\Projects and
     # clone the listed GitHub repos under the Projects folder, your dev env will
@@ -29,7 +29,6 @@ win32:stage3rdcontent {
         isEmpty(LDVIEW_EXE):LDVIEW_EXE     = $$THIRD_PARTY_SRC/$$VER_LDVIEW/bin/$$QT_ARCH/LDView.exe
         isEmpty(RAYTRACE_EXE):RAYTRACE_EXE = $$THIRD_PARTY_SRC/$$VER_POVRAY_SRC/bin/$$QT_ARCH/lpub3d_trace_cui$$join(ARCH,,,.exe)
     }
-
-    include(stage3rdpartycontent.pri)
+    stage3rdcontent: include(stage3rdpartycontent.pri)
 
 }

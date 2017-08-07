@@ -945,15 +945,15 @@ void Preferences::renderPreferences()
     QString lpub3d3rdPartyContent = QString("%1/%2").arg(lpub3dPath).arg("../share/lpub3d/3rdParty");
 
     QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDGLITE "/bin/ldglite"));
-    QFileInfo ldviewInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDVIEW "/bin/LDView"));
+    QFileInfo ldviewInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDVIEW "/bin/ldview"));
     QFileInfo povrayInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_POVRAY "/bin/lpub3d_trace_cui"));
 #endif
 
     logInfo() << "Image renderers...";
-    logInfo() << QString("LDView             : %1").arg(ldviewInfo.absoluteFilePath());
-    logInfo() << QString("POVRay             : %1").arg(povrayInfo.absoluteFilePath());
-    logInfo() << QString("LDGLIte            : %1").arg(ldgliteInfo.absoluteFilePath());
-    logInfo() << "Renerer configuration files...";
+    logInfo() << QString("LDView             : %1").arg(ldviewInfo.exists() ? ldviewInfo.absoluteFilePath() : "Not found");
+    logInfo() << QString("POVRay             : %1").arg(povrayInfo.exists() ? povrayInfo.absoluteFilePath() : "Not found");
+    logInfo() << QString("LDGLIte            : %1").arg(ldgliteInfo.exists() ? ldgliteInfo.absoluteFilePath() : "Not found");
+    logInfo() << "Renderer configuration files...";
 
     // Copy required config and ini resource files to application data directory
     QString lpub3d3rdPartyConfigDir = QString("%1/%2").arg(lpubDataPath).arg("3rdParty");
@@ -979,13 +979,13 @@ void Preferences::renderPreferences()
         resourceFile.absoluteDir().mkpath(resourceFile.absolutePath());
         QFile::copy(lpub3d3rdPartyContent + "/" VER_POVRAY "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
     }
-    logInfo() << QString("POVRay conf file   : %1").arg(resourceFile.absoluteFilePath());
+    logInfo() << QString("POVRay conf file   : %1").arg(resourceFile.exists() ? resourceFile.absoluteFilePath() : "Not found");
     resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY "/config" ,VER_POVRAY_INI_FILE));
     if (!resourceFile.exists()){
         resourceFile.absoluteDir().mkpath(resourceFile.absolutePath());
         QFile::copy(lpub3d3rdPartyContent + "/" VER_POVRAY "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
     }
-    logInfo() << QString("POVRay ini file    : %1").arg(resourceFile.absoluteFilePath());
+    logInfo() << QString("POVRay ini file    : %1").arg(resourceFile.exists() ? resourceFile.absoluteFilePath() : "Not found");
 
     // Populate POVRay Library paths
     resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyContent, VER_POVRAY "/resources/ini" ,VER_POVRAY_INI_FILE));
@@ -1000,11 +1000,11 @@ void Preferences::renderPreferences()
     if (resourceFile.exists())
       povrayScene = resourceFile.absolutePath();
 
-    logInfo() << QString("LDView ini file    : %1").arg(ldviewIni);
-    logInfo() << QString("LDViewPOV ini file : %1").arg(ldviewPOVIni);
-    logInfo() << QString("POVRay ini path    : %1").arg(povrayIni);
-    logInfo() << QString("POVRay include path: %1").arg(povrayInc);
-    logInfo() << QString("POVRay scene path  : %1").arg(povrayScene);
+    logInfo() << QString("LDView ini file    : %1").arg(ldviewIni.isEmpty() ? "Not found" : ldviewIni);
+    logInfo() << QString("LDViewPOV ini file : %1").arg(ldviewPOVIni.isEmpty() ? "Not found" : ldviewPOVIni);
+    logInfo() << QString("POVRay ini path    : %1").arg(povrayIni.isEmpty() ? "Not found" : povrayIni);
+    logInfo() << QString("POVRay include path: %1").arg(povrayInc.isEmpty() ? "Not found" : povrayInc);
+    logInfo() << QString("POVRay scene path  : %1").arg(povrayScene.isEmpty() ? "Not found" : povrayScene);
 
     /* Find LDGLite's installation status */
 

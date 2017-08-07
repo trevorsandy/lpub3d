@@ -150,19 +150,23 @@ RCC_DIR     = $$DESTDIR/.qrc
 UI_DIR      = $$DESTDIR/.ui
 
 #~~file distributions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# Use this switch to enable/disable copying/install of 3rd party executables, documentation and resources.
-# To copy 3rd party executables set CONFIG+=copy3rdexe. Default is enabled.
-!contains(CONFIG, copy3rdexe): CONFIG += copy3rdexe
-# To copy 3rd party documents and resources set CONFIG+=copy3rdfiles. Default is disabled.
-!contains(CONFIG, copy3rdfiles): CONFIG +=
-# You can optionally stage 3rd party executables, documentation and resources as source files in the LPub3D source.
-# To stage 3rd party executables, documentation and resources, set CONFIG+=stage3rdsource, Default is disabled.
+# Use this switch to stage 3rd party executables, documentation and resources as source files in the LPub3D source.
+# For example, if you intend to build from source in the cloud. Note: You must statge the content before pushing
+#  to your cloud build service.
+# To stage 3rd party executables, documentation and resources, set CONFIG+=stage3rdcontent, Default is disabled.
 !contains(CONFIG, stage3rdcontent): CONFIG +=
+
+# Use these switches to enable/disable copying/install of 3rd party executables, documentation and resources.
+# For example, if you are building from source locally and have downloaded the 3party source repos.
+# To copy 3rd party executables during install, set CONFIG+=copy3rdexe. Default is enabled.
+!contains(CONFIG, copy3rdexe): CONFIG += copy3rdexe
+# To copy 3rd party documents and resources during install, set CONFIG+=copy3rdfiles. Default is disabled.
+!contains(CONFIG, copy3rdfiles): CONFIG +=
+
+# To install 3rd party executables, documents and resources from its source repo, set CONFIG+=install3rdfrmrepo, Default is enabled.
+!contains(CONFIG, install3rdfrmrepo): CONFIG += install3rdfrmrepo
 # To install 3rd party executables, documents and resources from staged content, set CONFIG+=install3rdfrmstage, Default is disabled.
 !contains(CONFIG, install3rdfrmstage): CONFIG +=
-# To install 3rd party executables, documents and resources from its repo, set CONFIG+=install3rdfrmrepo, Default is enabled.
-!contains(CONFIG, install3rdfrmrepo): CONFIG += install3rdfrmrepo
 
 VER_LDVIEW      = ldview-4.3
 VER_LDGLITE     = ldglite-1.3
