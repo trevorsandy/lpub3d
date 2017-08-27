@@ -103,8 +103,9 @@ mainApp/Makefile
 ldrawini/Makefile
 quazip/Makefile
 
-# Runtime stuff
-builds/windows/runtime/*
+# Build artefacts
+builds/windows/release/*
+builds/windows/libs/*
 
 # Windows setup archives
 builds/windows/archives/*

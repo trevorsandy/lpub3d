@@ -38,8 +38,10 @@ macx {
 
 contains(QT_ARCH, x86_64) {
     ARCH = 64
+    STG_ARCH = x86_64
 } else {
     ARCH = 32
+    STG_ARCH = x86
 }
 
 CONFIG += precompile_header
@@ -86,6 +88,7 @@ lessThan(QT_MAJOR_VERSION, 5) {
 
 unix:!macx: TARGET = lpub3d
 else: TARGET = LPub3D
+STG_TARGET   = $$TARGET
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Note on x11 platforms you can also pre-install install quazip ($ sudo apt-get install libquazip-dev)
@@ -150,28 +153,20 @@ RCC_DIR     = $$DESTDIR/.qrc
 UI_DIR      = $$DESTDIR/.ui
 
 #~~file distributions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Use this switch to stage 3rd party executables, documentation and resources as source files in the LPub3D source.
-# For example, if you intend to build from source in the cloud. Note: You must statge the content before pushing
-#  to your cloud build service.
-# To stage 3rd party executables, documentation and resources, set CONFIG+=stage3rdcontent, Default is disabled.
-!contains(CONFIG, stage3rdcontent): CONFIG +=
-
 # Use these switches to enable/disable copying/install of 3rd party executables, documentation and resources.
 # For example, if you are building from source locally and have downloaded the 3party source repos.
 # To copy 3rd party executables during install, set CONFIG+=copy3rdexe. Default is enabled.
 !contains(CONFIG, copy3rdexe): CONFIG += copy3rdexe
-# To copy 3rd party documents and resources during install, set CONFIG+=copy3rdfiles. Default is disabled.
-!contains(CONFIG, copy3rdfiles): CONFIG +=
-
-# To install 3rd party executables, documents and resources from its source repo, set CONFIG+=install3rdfrmrepo, Default is enabled.
-!contains(CONFIG, install3rdfrmrepo): CONFIG += install3rdfrmrepo
-# To install 3rd party executables, documents and resources from staged content, set CONFIG+=install3rdfrmstage, Default is disabled.
-!contains(CONFIG, install3rdfrmstage): CONFIG +=
+# To copy 3rd party for executable configuration file(s) during install, set CONFIG+=copy3rdexeconfig. Default is enabled.
+!contains(CONFIG, copy3rdexeconfig): CONFIG += copy3rdexeconfig
+# To copy 3rd party documents and resources during install, set CONFIG+=copy3rdcontent. Default is disabled.
+!contains(CONFIG, copy3rdcontent): CONFIG +=
+# To stage 3rd party executables, documentation and resources, set CONFIG+=stagewindistcontent, Default is disabled.
+!contains(CONFIG, stagewindistcontent): CONFIG += stagewindistcontent
 
 VER_LDVIEW      = ldview-4.3
 VER_LDGLITE     = ldglite-1.3
 VER_POVRAY      = lpub3d_trace_cui-3.7
-VER_POVRAY_SRC  = lpub3d_trace_cui-3.7.2
 
 win32:include(winfiledistro.pri)
 macx:include(macosfiledistro.pri)

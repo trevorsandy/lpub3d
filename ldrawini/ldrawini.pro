@@ -9,8 +9,10 @@ else: VERSION = 16.1.8     # major.minor.patch
 
 contains(QT_ARCH, x86_64) {
     ARCH = 64
+    STG_ARCH = x86_64
 } else {
     !rpm: ARCH = 32
+    STG_ARCH = x86
 }
 
 win32 {
@@ -89,6 +91,6 @@ unix {
 }
 
 win32 {
-    target.path=$$DESTDIR/../../../LPub3D/builds/windows/setup/libs/$$join(ARCH,,,bit)
+    target.path=$$DESTDIR/../../../LPub3D/builds/windows/libs/$$STG_ARCH
     INSTALLS += target
 }
