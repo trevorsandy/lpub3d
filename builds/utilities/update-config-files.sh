@@ -9,6 +9,7 @@ CHANGE_DATE=`date +%a\ %b\ %d\ %Y`
 DATE_TIME=`date +%d\ %m\ %Y\ %H:%M:%S`
 BUILD_DATE=`date "+%Y%m%d"`
 WORK_DIR=`pwd`
+OS=`uname`
 
 if [ "$1" = "" ]
 then
@@ -67,7 +68,11 @@ FILE="$PWD/lpub3d.desktop"
 LineToReplace=10
 if [ -f ${FILE} -a -r ${FILE} ]
 then
+    if [ "$OS" = Darwin ]; then
+        sed -i "" "${LineToReplace}s/.*/Exec=lpub3d${APP_VER_SUFFIX} %f/" "${FILE}"
+    else
         sed -i "${LineToReplace}s/.*/Exec=lpub3d${APP_VER_SUFFIX} %f/" "${FILE}"
+    fi
 else
         echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
 fi
@@ -77,7 +82,11 @@ FILE="$PWD/docs/lpub3d.1"
 LineToReplace=61
 if [ -f ${FILE} -a -r ${FILE} ]
 then  
+    if [ "$OS" = Darwin ]; then
+        sed -i "" "${LineToReplace}s/.*/     \/usr\/bin\/lpub3d${APP_VER_SUFFIX}/" "${FILE}"
+    else
         sed -i "${LineToReplace}s/.*/     \/usr\/bin\/lpub3d${APP_VER_SUFFIX}/" "${FILE}"
+    fi
 else
         echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
 fi
@@ -87,7 +96,11 @@ FILE="$PWD/../builds/linux/obs/PKGBUILD"
 LineToReplace=3
 if [ -f ${FILE} -a -r ${FILE} ]
 then
+    if [ "$OS" = Darwin ]; then
+        sed -i "" "${LineToReplace}s/.*/pkgver=${APP_VERSION}/" "${FILE}"
+    else
         sed -i "${LineToReplace}s/.*/pkgver=${APP_VERSION}/" "${FILE}"
+    fi
 else
         echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
 fi
@@ -111,7 +124,11 @@ FILE="$PWD/../builds/linux/obs/debian/lpub3d.dsc"
 LineToReplace=5
 if [ -f ${FILE} -a -r ${FILE} ]
 then
+    if [ "$OS" = Darwin ]; then
+        sed -i "" "${LineToReplace}s/.*/Version: ${APP_VERSION}/" "${FILE}"
+    else
         sed -i "${LineToReplace}s/.*/Version: ${APP_VERSION}/" "${FILE}"
+    fi
 else
         echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
 fi
@@ -121,7 +138,11 @@ FILE="$PWD/docs/README.txt"
 LineToReplace=1
 if [ -f ${FILE} -a -r ${FILE} ]
 then
+    if [ "$OS" = Darwin ]; then
+        sed -i "" "${LineToReplace}s/.*/LPub3D ${BUILDVERSION}/" "${FILE}"
+    else
         sed -i "${LineToReplace}s/.*/LPub3D ${BUILDVERSION}/" "${FILE}"
+    fi
 else
         echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
 fi
@@ -131,7 +152,11 @@ FILE="$PWD/../builds/linux/obs/lpub3d.spec"
 LineToReplace=222
 if [ -f ${FILE} -a -r ${FILE} ]
 then
+    if [ "$OS" = Darwin ]; then
+        sed -i "" "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${APP_VERSION}/" "${FILE}"
+    else
         sed -i "${LineToReplace}s/.*/* ${CHANGE_DATE} - trevor.dot.sandy.at.gmail.dot.com ${APP_VERSION}/" "${FILE}"
+    fi
 else
         echo "Error: Cannot read ${FILE} from ${WORK_DIR}"
 fi

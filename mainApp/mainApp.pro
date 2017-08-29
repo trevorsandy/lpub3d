@@ -378,6 +378,16 @@ RESOURCES += \
 DISTFILES += \
     ldraw_document.icns
 
+# Suppress warnings
+macx {
+QMAKE_CFLAGS_WARN_ON += -Wall -W \
+    -Wno-overloaded-virtual \
+    -Wno-deprecated-declarations \
+    -Wno-sometimes-uninitialized \
+    -Wself-assign \
+    -Wunused-result
+}
+QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
 #message($$CONFIG)
 
 

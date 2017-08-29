@@ -13,7 +13,8 @@ copy3rdexe {
         raytracer_ins.files += $$RAYTRACE_INS_EXE
         raytracer_ins.path = $$RAYTRACE_INS_DIR
 
-        INSTALLS += \
+        macx: QMAKE_BUNDLE_DATA += \
+        else: INSTALLS += \
         ldglite_ins \
         ldview_ins \
         raytracer_ins
@@ -37,12 +38,15 @@ copy3rdexeconfig {
         $$LDVIEW_INS_RES/config/LDViewCustomini
     ldview_ins_resources_config.path = $$LDVIEW_INS_RES_DIR\config
 
-        INSTALLS += \
+        macx: QMAKE_BUNDLE_DATA += \
+        else: INSTALLS += \
         raytracer_ins_resources_config \
         ldview_ins_resources_config
 }
 
 copy3rdcontent {
+    win32: EXT = .txt
+    else: EXT =
 
     # ldglite content
     ldglite_ins_docs.files += \
@@ -66,14 +70,14 @@ copy3rdcontent {
         $$LDVIEW_INS_RES/8464.mpd \
         $$LDVIEW_INS_RES/m6459.ldr \
         $$LDVIEW_INS_RES/LGEO.xml
-    ldview_ins_resources.path = $$LDVIEW_INS_RES_DIR\ini
+    ldview_ins_resources.path = $$LDVIEW_INS_RES_DIR
 
     raytracer_ins_docs.files += \
-        $$RAYTRACE_INS_DOC/help/povray37.chm \
-        $$RAYTRACE_INS_DOC/AUTHORS.txt \
-        $$RAYTRACE_INS_DOC/ChangeLog.txt \
-        $$RAYTRACE_INS_DOC/CUI_README.txt \
-        $$RAYTRACE_INS_DOC/LICENSE.txt
+        $$RAYTRACE_INS_DOC/AUTHORS$$EXT \
+        $$RAYTRACE_INS_DOC/ChangeLog$$EXT \
+        $$RAYTRACE_INS_DOC/CUI_README$$EXT \
+        $$RAYTRACE_INS_DOC/LICENSE$$EXT \
+        $$RAYTRACE_INS_DOC/NEWS$$EXT
     raytracer_ins_docs.path = $$RAYTRACE_INS_DOC_DIR
 
     raytracer_ins_resources_ini.files += \
@@ -165,7 +169,8 @@ copy3rdcontent {
         $$RAYTRACE_INS_RES/include/woods.inc
     raytracer_ins_resources_include.path = $$RAYTRACE_INS_RES_DIR\include
 
-    INSTALLS += \
+    macx: QMAKE_BUNDLE_DATA += \
+    else: INSTALLS += \
     ldglite_ins_docs \
     ldglite_ins_resources \
     ldview_ins_docs \
@@ -173,4 +178,13 @@ copy3rdcontent {
     raytracer_ins_docs \
     raytracer_ins_resources_ini \
     raytracer_ins_resources_include
+
+    win32 {
+        raytracer_win_ins_docs.files += \
+          $$RAYTRACE_INS_DOC/help/povray37.chm
+        raytracer_win_ins_docs.path = $$RAYTRACE_INS_DOC_DIR
+
+        INSTALLS += \
+        raytracer_win_ins_docs
+    }
 }

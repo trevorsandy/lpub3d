@@ -88,7 +88,7 @@ macx {
     #
     # source path
     isEmpty(THIRD_PARTY_SRC):THIRD_PARTY_SRC = $$_PRO_FILE_PWD_/../../lpub3d_macos_3rdparty
-    message("~~~ INSTALL FROM REPO $$THIRD_PARTY_SRC ~~~")
+    message("~~~ INSTALL 3RD PARTY APPS FROM REPO $$THIRD_PARTY_SRC ~~~")
 
     # source executables - 3rd party components
     isEmpty(LDGLITE_INS_EXE):LDGLITE_INS_EXE   = $$THIRD_PARTY_SRC/$$VER_LDGLITE/bin/$$QT_ARCH/ldglite
@@ -105,16 +105,17 @@ macx {
     isEmpty(RAYTRACE_INS_RES):RAYTRACE_INS_RES = $$THIRD_PARTY_SRC/$$VER_POVRAY/resources
 
     # installed data directories - 3rd party components
-    isEmpty(LDGLITE_DIR):LDGLITE_DIR           = Contents/3rdParty/$$VER_LDGLITE/bin
-    isEmpty(LDGLITE_DOC_DIR):LDGLITE_DOC_DIR   = Contents/3rdParty/$$VER_LDGLITE/docs
-    isEmpty(LDGLITE_RES_DIR):LDGLITE_RES_DIR   = Contents/3rdParty/$$VER_LDGLITE/resources
-    isEmpty(LDVIEW_DIR):LDVIEW_DIR             = Contents/3rdParty/$$VER_LDVIEW/bin
-    isEmpty(LDVIEW_DOC_DIR):LDVIEW_DOC_DIR     = Contents/3rdParty/$$VER_LDVIEW/docs
-    isEmpty(LDVIEW_RES_DIR):LDVIEW_RES_DIR     = Contents/3rdParty/$$VER_LDVIEW/resources
-    isEmpty(RAYTRACE_DIR):RAYTRACE_DIR         = Contents/3rdParty/$$VER_POVRAY/bin
-    isEmpty(RAYTRACE_DOC_DIR):RAYTRACE_DOC_DIR = Contents/3rdParty/$$VER_POVRAY/docs
-    isEmpty(RAYTRACE_RES_DIR):RAYTRACE_RES_DIR = Contents/3rdParty/$$VER_POVRAY/resources
+    isEmpty(LDGLITE_INS_DIR):LDGLITE_INS_DIR           = Contents/3rdParty/$$VER_LDGLITE/bin
+    isEmpty(LDGLITE_INS_DOC_DIR):LDGLITE_INS_DOC_DIR   = Contents/3rdParty/$$VER_LDGLITE/docs
+    isEmpty(LDGLITE_INS_RES_DIR):LDGLITE_INS_RES_DIR   = Contents/3rdParty/$$VER_LDGLITE/resources
+    isEmpty(LDVIEW_INS_DIR):LDVIEW_INS_DIR             = Contents/3rdParty/$$VER_LDVIEW/bin
+    isEmpty(LDVIEW_INS_DOC_DIR):LDVIEW_INS_DOC_DIR     = Contents/3rdParty/$$VER_LDVIEW/docs
+    isEmpty(LDVIEW_INS_RES_DIR):LDVIEW_INS_RES_DIR     = Contents/3rdParty/$$VER_LDVIEW/resources
+    isEmpty(RAYTRACE_INS_DIR):RAYTRACE_INS_DIR         = Contents/3rdParty/$$VER_POVRAY/bin
+    isEmpty(RAYTRACE_INS_DOC_DIR):RAYTRACE_INS_DOC_DIR = Contents/3rdParty/$$VER_POVRAY/docs
+    isEmpty(RAYTRACE_INS_RES_DIR):RAYTRACE_INS_RES_DIR = Contents/3rdParty/$$VER_POVRAY/resources
 
     # install 3rd party content
+    CONFIG += copy3rdcontent
     include(install3rdpartycontent.pri)
 }
