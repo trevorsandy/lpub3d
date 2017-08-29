@@ -219,7 +219,7 @@ else
 fi 
 make clean
 make %{?_smp_mflags}
-* Wed May 24 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.717
+* Wed Aug 30 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.728
 %install
 make INSTALL_ROOT=%buildroot install
 %if 0%{?suse_version} || 0%{?sles_version}
