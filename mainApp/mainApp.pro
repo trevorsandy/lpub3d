@@ -379,15 +379,23 @@ DISTFILES += \
     ldraw_document.icns
 
 # Suppress warnings
-macx {
 QMAKE_CFLAGS_WARN_ON += -Wall -W \
-    -Wno-overloaded-virtual \
     -Wno-deprecated-declarations \
+    -Wno-unused-parameter \
+    -Wno-sign-compare
+macx {
+QMAKE_CFLAGS_WARN_ON += \
+    -Wno-overloaded-virtual \
+
     -Wno-sometimes-uninitialized \
-    -Wself-assign \
-    -Wunused-result
+    -Wno-self-assign \
+    -Wno-unused-result
+} else {
+QMAKE_CFLAGS_WARN_ON += \
+    -Wno-strict-aliasing
 }
 QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
+
 #message($$CONFIG)
 
 
