@@ -386,7 +386,6 @@ QMAKE_CFLAGS_WARN_ON += -Wall -W \
 macx {
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-overloaded-virtual \
-
     -Wno-sometimes-uninitialized \
     -Wno-self-assign \
     -Wno-unused-result
