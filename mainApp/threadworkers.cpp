@@ -459,7 +459,7 @@ void PartWorker::processFadeColourParts()
           createFadePartFiles();
 
           // Append fade parts to unofficial library for LeoCAD's consumption
-          if(!fadePartsDirs.size() == 0){
+          if(fadePartsDirs.size() != 0){
               fadePartsDirs.empty();
           }
           foreach(QDir fadeDir, Paths::fadeDirs){

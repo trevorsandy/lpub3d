@@ -802,3 +802,4 @@ void PreferencesDialog::accept(){
 void PreferencesDialog::cancel(){
   QDialog::reject();
 }
+

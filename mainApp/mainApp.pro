@@ -358,13 +358,13 @@ OTHER_FILES += \
     ../builds/linux/obs/debian/lpub3d.dsc \
     ../builds/linux/obs/_service \
     ../builds/windows/CreateExe.bat \
-    ../builds/windows/nsh/LPub3DNoPack.nsi \
-    ../builds/windows/nsh/nsisFunctions.nsh \
     ../builds/utilities/Copyright-Source-Headers.txt \
     ../builds/utilities/update-config-files.sh \
     ../builds/utilities/update-config-files.bat \
     ../builds/utilities/dmg-utils/dmg-license.py \
     ../builds/utilities/dmg-utils/template.appplescript \
+    ../builds/utilities/nsis-scripts/LPub3DNoPack.nsi \
+    ../builds/utilities/nsis-scripts/nsisFunctions.nsh \
     ../builds/utilities/create-dmg \
     ../builds/utilities/README.md \
     ../README.md \

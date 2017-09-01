@@ -94,3 +94,8 @@ win32 {
     target.path=$$DESTDIR/../../../LPub3D/builds/windows/libs/$$STG_ARCH
     INSTALLS += target
 }
+
+# Suppress warnings
+QMAKE_CFLAGS_WARN_ON += -Wall -W \
+    -Wno-sign-compare
+QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}

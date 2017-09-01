@@ -902,22 +902,25 @@ void Preferences::lgeoPreferences()
 {
   logInfo() << "LGEO library status...";
   QSettings Settings;
-  QString lgeoDirKey("LGEOPath");
+  QString const lgeoDirKey("LGEOPath");
+  QString lgeoDir = "";
   if (Settings.contains(QString("%1/%2").arg(POVRAY,lgeoDirKey))){
-      QString lgeoDir = Settings.value(QString("%1/%2").arg(POVRAY,lgeoDirKey)).toString();
-      QDir lgeoInfo(lgeoDir);
-      if (lgeoInfo.exists()) {
-          lgeoPath = lgeoDir;
-          logInfo() << QString("LGEO library path  : %1").arg(lgeoInfo.absolutePath());
-           /* Durat's lgeo stl library Check */
-          QDir lgeoStlLibInfo(lgeoPath + "/stl");
-          lgeoStlLib = lgeoStlLibInfo.exists();
-          if (lgeoStlLib)
-            logInfo() << QString("Durat's Stl library: %1").arg(lgeoStlLibInfo.absolutePath());
-        } else {
-          Settings.remove(QString("%1/%2").arg(POVRAY,lgeoDirKey));
-          logInfo() << QString("LGEO library path  : Not found");
-        }
+      lgeoDir = Settings.value(QString("%1/%2").arg(POVRAY,lgeoDirKey)).toString();
+  } else { // check in ldraw directory path for lgeo
+      lgeoDir = ldrawPath + "/lgeo";
+  }
+  QDir lgeoDirInfo(lgeoDir);
+  if (lgeoDirInfo.exists()) {
+      lgeoPath = lgeoDir;
+      logInfo() << QString("LGEO library path  : %1").arg(lgeoDirInfo.absolutePath());
+       /* Durat's lgeo stl library Check */
+      QDir lgeoStlLibInfo(lgeoPath + "/stl");
+      lgeoStlLib = lgeoStlLibInfo.exists();
+      if (lgeoStlLib)
+        logInfo() << QString("Durat's Stl library: %1").arg(lgeoStlLibInfo.absolutePath());
+    } else {
+      Settings.remove(QString("%1/%2").arg(POVRAY,lgeoDirKey));
+      logInfo() << QString("LGEO library path  : Not found");
     }
 }
 
