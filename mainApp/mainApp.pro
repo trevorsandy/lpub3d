@@ -344,12 +344,8 @@ OTHER_FILES += \
     lpub3d.xml \
     lpub3d.sh \
     $$MAN_PAGE \
-    ../builds/3rdParty/resources/$$VER_LDVIEW/ini/ldview.ini \
-    ../builds/3rdParty/resources/$$VER_LDVIEW/ini/ldviewPOV.ini \
-    ../builds/3rdParty/resources/ldview-4.3/ini/ldviewrc \
-    ../builds/3rdParty/resources/lpub3d-trace-3.7.2/conf/povray.conf \
-    ../builds/3rdParty/resources/lpub3d-trace-3.7.2/conf/povray.ini \
     ../builds/macx/CreateDmg.sh \
+    ../builds/macx/CreateDmgAlt.sh \
     ../builds/linux/CreateRpm.sh \
     ../builds/linux/CreateDeb.sh \
     ../builds/linux/CreatePkg.sh \
@@ -361,12 +357,15 @@ OTHER_FILES += \
     ../builds/linux/obs/debian/copyright \
     ../builds/linux/obs/debian/lpub3d.dsc \
     ../builds/linux/obs/_service \
-    ../builds/windows/setup/CreateExe.bat \
-    ../builds/windows/setup/LPub3DNoPack.nsi \
-    ../builds/windows/setup/nsisFunctions.nsh \
+    ../builds/windows/CreateExe.bat \
+    ../builds/windows/nsh/LPub3DNoPack.nsi \
+    ../builds/windows/nsh/nsisFunctions.nsh \
     ../builds/utilities/Copyright-Source-Headers.txt \
     ../builds/utilities/update-config-files.sh \
     ../builds/utilities/update-config-files.bat \
+    ../builds/utilities/dmg-utils/dmg-license.py \
+    ../builds/utilities/dmg-utils/template.appplescript \
+    ../builds/utilities/create-dmg \
     ../builds/utilities/README.md \
     ../README.md \
     ../.gitignore \

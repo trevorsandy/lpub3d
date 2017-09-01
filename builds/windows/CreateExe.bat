@@ -5,6 +5,10 @@ rem  Trevor SANDY <trevor.sandy@gmail.com>
 rem  Last Update: February 14, 2017
 rem  Copyright (c) 2015 - 2017 by Trevor Sandy
 rem --
+ECHO TODO - new LPub3D renderer features may require one-time registry updates on Windows
+ECHO TODO - source directories have changed see .mainApp.pro for details
+ECHO TODO - script dir moved to utilities and renamed ( from ./scripts to ../utilities/nsis-scripts)
+exit
 SETLOCAL
 @break off
 @color 0a
@@ -16,7 +20,7 @@ SET BuildLog=..\release\LPub3D.Release.build.log.txt
 ECHO.																			>    %BuildLog%
 ECHO Create archive packaged and windows installer LPub3D distributions			>>   %BuildLog%
 ECHO.
-ECHO Create archive packaged and windows installer LPub3D distributions			
+ECHO Create archive packaged and windows installer LPub3D distributions
 
 SET HOME=%cd%
 SET RUN_NSIS=1
@@ -37,21 +41,21 @@ SET AVAILABLE_VERS_RPM=%ALT_VER_01%
 SET AVAILABLE_VERS_PKG=%ALT_VER_01%
 
 ECHO.
-SET /p RUN_NSIS= - Run NSIS: Type 1 to run, 0 to ignore or 'Enter' to accept default [%RUN_NSIS%]: 
+SET /p RUN_NSIS= - Run NSIS: Type 1 to run, 0 to ignore or 'Enter' to accept default [%RUN_NSIS%]:
 IF %RUN_NSIS% == 0 (
-   SET SIGN_APP=0 
+   SET SIGN_APP=0
    SET CLEANUP=0
    SET CREATE_PORTABLE=0
 	)
 IF %RUN_NSIS% == 1 (
-	ECHO.						
+	ECHO.
 	SET /p SIGN_APP= - Code Signing: Type 1 to run, 0 to ignore or 'Enter' to accept default [%SIGN_APP%]:
 	ECHO.
-	SET /p CLEANUP= - Cleanup: Type 1 to run, 0 to ignore or 'Enter' to accept default [%CLEANUP%]: 
+	SET /p CLEANUP= - Cleanup: Type 1 to run, 0 to ignore or 'Enter' to accept default [%CLEANUP%]:
 	)
 ECHO.																					>>  %BuildLog%
 ECHO - Selected build options:															>>  %BuildLog%
-ECHO.  		
+ECHO.
 IF %RUN_NSIS% == 0 ECHO - This configuration will allow you to test your NSIS scripts.	>>  %BuildLog%
 IF %RUN_NSIS% == 1 ECHO   RUN_NSIS [Yes]												>>  %BuildLog%
 IF %SIGN_APP% == 1 ECHO   SIGN_APP [Yes]												>>  %BuildLog%
@@ -61,12 +65,12 @@ IF %SIGN_APP% == 0 ECHO   SIGN_APP [No]													>>  %BuildLog%
 IF %CLEANUP% == 0 ECHO   CLEANUP  [No]													>>  %BuildLog%
 ECHO.
 ECHO - Selected build options:
-ECHO.  	
+ECHO.
 IF %RUN_NSIS% == 0 ECHO - This configuration will allow you to test your NSIS scripts.
 IF %RUN_NSIS% == 1 ECHO   RUN_NSIS [Yes]
 IF %SIGN_APP% == 1 ECHO   SIGN_APP [Yes]
 IF %CLEANUP% == 1 ECHO   CLEANUP  [Yes]
-IF %RUN_NSIS% == 0 ECHO   RUN_NSIS [No]	
+IF %RUN_NSIS% == 0 ECHO   RUN_NSIS [No]
 IF %SIGN_APP% == 0 ECHO   SIGN_APP [No]
 IF %CLEANUP% == 0 ECHO   CLEANUP  [No]
 
@@ -126,7 +130,7 @@ IF EXIST %NSISExe% (
 	ECHO.												>>  %BuildLog%
     ECHO - NSIS executable found at %NSISExe%			>>  %BuildLog%
     GOTO SIGN
-) 
+)
 
 SET %RUN_NSIS%=0
 SET %SIGN_APP%=0
@@ -150,12 +154,12 @@ IF EXIST %SignToolExe% (
     ECHO - Signtool executable found at %SignToolExe%
 	FOR /f %%i IN (../../utilities/cert/credentials.txt) DO SET PwD=%%i
 	SET CHK_ZIP_GO=1
-) 
+)
 
 ECHO.												>>  %BuildLog%
-ECHO - Code signing password captured.				>>  %BuildLog%	
-ECHO.							
-ECHO - Code signing password is %PWD%.						
+ECHO - Code signing password captured.				>>  %BuildLog%
+ECHO.
+ECHO - Code signing password is %PWD%.
 
 IF %CHK_ZIP_GO% == 1 GOTO CHK_ZIP
 
@@ -170,17 +174,17 @@ IF EXIST "%zipWin64%" (
 	SET zipExe="%zipWin64%\7z.exe"
 	ECHO.																		>>  %BuildLog%
     ECHO - Zip exectutable found at "%zipWin64%"								>>  %BuildLog%
-	ECHO.	
+	ECHO.
     ECHO - Zip exectutable found at "%zipWin64%"
     GOTO MAIN
-) 
+)
 
 ECHO.
 
 IF EXIST "%zipWin32%" (
 	SET zipExe="%zipWin32%\7z.exe"
 	ECHO.																		>>  %BuildLog%
-    ECHO - Zip exectutable found at "%zipWin32%"								>>  %BuildLog%	
+    ECHO - Zip exectutable found at "%zipWin32%"								>>  %BuildLog%
 	ECHO.
     ECHO - Zip exectutable found at "%zipWin32%"
     GOTO MAIN
@@ -191,14 +195,14 @@ ECHO.
 IF NOT EXIST "%zipExe%" (
 	ECHO.																		>>  %BuildLog%
 	ECHO Could not find zip executable. Requested manual location entry.		>>  %BuildLog%
-	ECHO.																		
-	ECHO Could not find zip executable. Requested manual location entry.	
-	SET /p zipExe=Could not find any zip executable. You can manually enter a location: 
+	ECHO.
+	ECHO Could not find zip executable. Requested manual location entry.
+	SET /p zipExe=Could not find any zip executable. You can manually enter a location:
 )
 
 IF EXIST "%zipExe%" (
-	ECHO.																					>>  %BuildLog% 
-	ECHO Zip exectutable at (%zipExe%) will be used to archive your portable distributions	>>  %BuildLog% 
+	ECHO.																					>>  %BuildLog%
+	ECHO Zip exectutable at (%zipExe%) will be used to archive your portable distributions	>>  %BuildLog%
 	ECHO.
 	ECHO Zip exectutable at (%zipExe%) will be used to archive your portable distributions.
 	SET OPTION=1
@@ -311,20 +315,20 @@ SET SUPPORT_EMAIL=%SUPPORT_EMAIL% %BUILDVERSION%
 
 ECHO.
 ECHO   VERSION_INFO_FILE...[%VERSION_INFO_FILE%]
-ECHO.                                        
+ECHO.
 ECHO   VER_MAJOR...........[%VER_MAJOR%]
 ECHO   VER_MINOR...........[%VER_MINOR%]
 ECHO   VER_PATCH...........[%VER_PATCH%]
 ECHO   VER_REVISION........[%VER_REVISION%]
 ECHO   VER_BUILD...........[%VER_BUILD%]
 ECHO   VER_SHA_HASH........[%VER_SHA_HASH%]
-ECHO.                    
+ECHO.
 ECHO   YEAR................[%YEAR%]
 ECHO   MONTH...............[%MONTH%]
 ECHO   DAY.................[%DAY%]
 ECHO   TIME................[%TIME%]
 ECHO   DATETIME............[%DATETIME%]
-ECHO.                    
+ECHO.
 ECHO   COMPANY.............[%COMPANY%]
 ECHO   PRODUCT.............[%PRODUCT%]
 ECHO   LPUB3D_BUILD_FILE...[%LPUB3D_BUILD_FILE%]
@@ -332,19 +336,19 @@ ECHO   PUBLISHER...........[%PUBLISHER%]
 ECHO   COMPANYURL..........[%COMPANYURL%]
 ECHO   SUPPORT_EMAIL.......[%SUPPORT_EMAIL%]
 ECHO   COMMENTS............[%COMMENTS%]
-ECHO.                    
+ECHO.
 ECHO   VERSION.............[%VERSION%]
 ECHO   BUILDVERSION........[%BUILDVERSION%]
 ECHO   FULLVERSION.........[%FULLVERSION%]
 ECHO   DOWNLOADPRODUCT.....[%DOWNLOADPRODUCT%]]
 ECHO   WIN32PRODUCTDIR.....[%WIN32PRODUCTDIR%]
 ECHO   WIN64PRODUCTDIR.....[%WIN64PRODUCTDIR%]
-ECHO.                     
+ECHO.
 ECHO   ALT_VER_EXE.........[%ALT_VER_EXE%]
 ECHO   ALT_VER_DMG.........[%ALT_VER_DMG%]
 ECHO   ALT_VER_DEB.........[%ALT_VER_DEB%]
 ECHO   ALT_VER_RPM.........[%ALT_VER_RPM%]
-ECHO   ALT_VER_PKG.........[%ALT_VER_PKG%]                 
+ECHO   ALT_VER_PKG.........[%ALT_VER_PKG%]
 ECHO   LAST_VER_EXE........[%LAST_VER_EXE%]
 ECHO   LAST_VER_DMG........[%LAST_VER_DMG%]
 ECHO   LAST_VER_DEB........[%LAST_VER_DEB%]
@@ -364,7 +368,7 @@ PAUSE >NUL
 
 ECHO. 													 			>>  %BuildLog%
 ECHO - Delete old media content and create new folders  			>>  %BuildLog%
-ECHO. 	
+ECHO.
 ECHO - Delete old media content and create new folders...
 
 IF EXIST "..\release\%VERSION%" (
@@ -385,19 +389,19 @@ IF NOT EXIST "..\release\%VERSION%\Update\" (
 
 IF %RUN_NSIS% == 1 ECHO. 											>>  %BuildLog%
 IF %RUN_NSIS% == 1 ECHO - Download LDraw archive libraries...    	>>  %BuildLog%
-IF %RUN_NSIS% == 1 ECHO. 	
+IF %RUN_NSIS% == 1 ECHO.
 IF %RUN_NSIS% == 1 ECHO - Download LDraw archive libraries...
 IF %RUN_NSIS% == 0 ECHO. 											>>  %BuildLog%
 IF %RUN_NSIS% == 0 ECHO - Skipping library download...    			>>  %BuildLog%
-IF %RUN_NSIS% == 0 ECHO. 	
+IF %RUN_NSIS% == 0 ECHO.
 IF %RUN_NSIS% == 0 ECHO - Skipping library download...
 
 IF %RUN_NSIS% == 1 CALL :LDrawArchiveLibraryDownload
 
 ECHO. 													 			>>  %BuildLog%
 ECHO - Copying change_log_%VERSION% to media folder...    			>>  %BuildLog%
-ECHO. 	
-ECHO - Copying change_log_%VERSION% to media folder... 
+ECHO.
+ECHO - Copying change_log_%VERSION% to media folder...
 
 CD /D %HOME%
 COPY /V /Y %devRootPath%\docs\README.txt ..\release\%VERSION%\Update\change_log.txt /A									>>  %BuildLog%
@@ -407,7 +411,7 @@ COPY /V /Y %devRootPath%\docs\README.txt ..\release\ /A																	>>  %Bui
 
 ECHO. 																>>  %BuildLog%
 ECHO - Generating lastVersionInsert_Exe.txt input file...			>>  %BuildLog%
-ECHO. 	
+ECHO.
 ECHO - Generating lastVersionInsert_Exe.txt input file...
 
 SET lastVersionInsert_ExeFile=..\..\utilities\json\lastVersionInsert_Exe.txt
@@ -423,7 +427,7 @@ SET genlastVersionInsert_Exe=%lastVersionInsert_ExeFile% ECHO
 
 ECHO. 																>>  %BuildLog%
 ECHO - Generating lastVersionInsert_Dmg.txt input file...			>>  %BuildLog%
-ECHO. 	
+ECHO.
 ECHO - Generating lastVersionInsert_Dmg.txt input file...
 
 SET lastVersionInsert_DmgFile=..\..\utilities\json\lastVersionInsert_Dmg.txt
@@ -439,7 +443,7 @@ SET genlastVersionInsert_Dmg=%lastVersionInsert_DmgFile% ECHO
 
 ECHO. 																>>  %BuildLog%
 ECHO - Generating lastVersionInsert_Deb.txt input file...			>>  %BuildLog%
-ECHO. 	
+ECHO.
 ECHO - Generating lastVersionInsert_Deb.txt input file...
 
 SET lastVersionInsert_DebFile=..\..\utilities\json\lastVersionInsert_Deb.txt
@@ -455,7 +459,7 @@ SET genlastVersionInsert_Deb=%lastVersionInsert_DebFile% ECHO
 
 ECHO. 																>>  %BuildLog%
 ECHO - Generating lastVersionInsert_Rpm.txt input file...			>>  %BuildLog%
-ECHO. 	
+ECHO.
 ECHO - Generating lastVersionInsert_Rpm.txt input file...
 
 SET lastVersionInsert_RpmFile=..\..\utilities\json\lastVersionInsert_Rpm.txt
@@ -471,7 +475,7 @@ SET genlastVersionInsert_Rpm=%lastVersionInsert_RpmFile% ECHO
 
 ECHO. 																>>  %BuildLog%
 ECHO - Generating lastVersionInsert_Pkg.txt input file...			>>  %BuildLog%
-ECHO. 	
+ECHO.
 ECHO - Generating lastVersionInsert_Pkg.txt input file...
 
 SET lastVersionInsert_PkgFile=..\..\utilities\json\lastVersionInsert_Pkg.txt
@@ -487,7 +491,7 @@ SET genlastVersionInsert_Pkg=%lastVersionInsert_PkgFile% ECHO
 
 ECHO. 																>>  %BuildLog%
 ECHO - Generating lpub3dupdates.json template file...				>>  %BuildLog%
-ECHO. 	
+ECHO.
 ECHO - Generating lpub3dupdates.json template file...
 
 SET updatesFile=..\..\utilities\json\lpub3dupdates.json
@@ -553,7 +557,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "latest-version": "%VERSION%",
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%VERSION%_osx.dmg",
 >>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%VERSION%.txt",
->>%genLPub3DUpdates%       "available-versions": "%VERSION%,%AVAILABLE_VERS_DMG%",  
+>>%genLPub3DUpdates%       "available-versions": "%VERSION%,%AVAILABLE_VERS_DMG%",
 >>%genLPub3DUpdates%       "alternate-version-%ALT_VER_01%-dmg": {
 >>%genLPub3DUpdates%         "open-url": "https://sourceforge.net/projects/lpub3d/files/%ALT_VER_01%/",
 >>%genLPub3DUpdates%      	 "latest-version": "%ALT_VER_01%",
@@ -606,7 +610,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 
 ECHO. 																>>  %BuildLog%
 ECHO - Generating lpub3dupdates.json version input file...			>>  %BuildLog%
-ECHO. 	
+ECHO.
 ECHO - Generating lpub3dupdates.json version input file...
 
 (
@@ -616,16 +620,16 @@ ECHO - Generating lpub3dupdates.json version input file...
     )
     IF "%%i" EQU ""alternate-version-%ALT_VER_DMG%": {" (
       TYPE ..\..\utilities\json\lastVersionInsert_Dmg.txt
-    )	
+    )
     IF "%%i" EQU ""alternate-version-%ALT_VER_DEB%": {" (
       TYPE ..\..\utilities\json\lastVersionInsert_Deb.txt
-    )	
+    )
     IF "%%i" EQU ""alternate-version-%ALT_VER_RPM%": {" (
       TYPE ..\..\utilities\json\lastVersionInsert_Rpm.txt
-    )	
+    )
     IF "%%i" EQU ""alternate-version-%ALT_VER_PKG%": {" (
       TYPE ..\..\utilities\json\lastVersionInsert_Pkg.txt
-    )	
+    )
 	ECHO %%i
   )
 ) >temp.txt
@@ -638,47 +642,47 @@ DEL /Q ..\..\utilities\json\lastVersionInsert_Pkg.txt
 
 ECHO. 													 			>>  %BuildLog%
 ECHO - Copying lpub3dupdats.json to media folder...    				>>  %BuildLog%
-ECHO. 	
+ECHO.
 ECHO - Copying lpub3dupdates.json to media folder...
 
 COPY /V /Y ..\..\utilities\json\lpub3dupdates.json ..\release\%VERSION%\Update\ /A						>>  %BuildLog%
 
 ECHO.                                   																>>  %BuildLog%
 ECHO - Generating latest.txt version input file (backgward compatability)...                            >>  %BuildLog%
-ECHO.   
+ECHO.
 ECHO - Generating latest.txt version input file (backgward compatability)...
 
 SET latestFile=..\release\%VERSION%\Update\latest.txt
 SET genLatest=%latestFile% ECHO
 
 :GENERATE latest.txt file
->%genLatest% %VERSION% 
+>%genLatest% %VERSION%
 
 ECHO. 																>>  %BuildLog%
 ECHO - Generating AppVersion.nsh build input script...   			>>  %BuildLog%
-ECHO. 	
+ECHO.
 ECHO - Generating AppVersion.nsh build input script...
 
 SET versionFile=bin\AppVersion.nsh
 SET genVersion=%versionFile% ECHO
 
 :GENERATE AppVersion.nsh NSIS build input file
->%genVersion% !define Company %COMPANY% 
->>%genVersion% ; ${Company} 	
->>%genVersion%.	
->>%genVersion% !define ProductName "%PRODUCT%" 
+>%genVersion% !define Company %COMPANY%
+>>%genVersion% ; ${Company}
+>>%genVersion%.
+>>%genVersion% !define ProductName "%PRODUCT%"
 >>%genVersion% ; ${ProductName}
->>%genVersion%.	
+>>%genVersion%.
 >>%genVersion% !define Version "%VERSION%"
 >>%genVersion% ; ${Version}
->>%genVersion%.	
+>>%genVersion%.
 >>%genVersion% !define CompleteVersion "%VERSION%.%VER_REVISION%.%VER_BUILD%_%YEAR%%MONTH%%DAY%"
 >>%genVersion% ; ${CompleteVersion}
->>%genVersion%.	
->>%genVersion% !define Win32BuildDir "..\..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x86" 
+>>%genVersion%.
+>>%genVersion% !define Win32BuildDir "..\..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x86"
 >>%genVersion% ; ${Win32BuildDir}
 >>%genVersion%.
->>%genVersion% !define Win64BuildDir "..\..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x86_64" 
+>>%genVersion% !define Win64BuildDir "..\..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x86_64"
 >>%genVersion% ; ${Win64BuildDir}
 >>%genVersion%.
 >>%genVersion% !define LPub3DBuildFile "%LPUB3D_BUILD_FILE%"
@@ -689,23 +693,23 @@ SET genVersion=%versionFile% ECHO
 >>%genVersion%.
 >>%genVersion% !define LDrawIniBuildFile "%LDRAWINI_BUILD_FILE%"
 >>%genVersion% ; ${LDrawIniBuildFile}
->>%genVersion%.	
->>%genVersion% !define BuildRevision "%VER_REVISION%" 
+>>%genVersion%.
+>>%genVersion% !define BuildRevision "%VER_REVISION%"
 >>%genVersion% ; ${BuildRevision}
->>%genVersion%.	
->>%genVersion% !define BuildNumber "%VER_BUILD%" 
+>>%genVersion%.
+>>%genVersion% !define BuildNumber "%VER_BUILD%"
 >>%genVersion% ; ${BuildNumber}
->>%genVersion%.	
->>%genVersion% !define BuildDate "%DATETIME%" 
+>>%genVersion%.
+>>%genVersion% !define BuildDate "%DATETIME%"
 >>%genVersion% ; ${BuildDate}
->>%genVersion%.	
->>%genVersion% !define Publisher %PUBLISHER% 
+>>%genVersion%.
+>>%genVersion% !define Publisher %PUBLISHER%
 >>%genVersion% ; ${Publisher}
->>%genVersion%.	
->>%genVersion% !define CompanyURL %COMPANYURL% 
+>>%genVersion%.
+>>%genVersion% !define CompanyURL %COMPANYURL%
 >>%genVersion% ; ${CompanyURL}
 >>%genVersion%.
->>%genVersion% !define Comments %COMMENTS% 
+>>%genVersion% !define Comments %COMMENTS%
 >>%genVersion% ; ${Comments}
 >>%genVersion%.
 >>%genVersion% !define SupportEmail %SUPPORT_EMAIL% %VERSION%.%VER_REVISION%.%VER_BUILD%_%YEAR%%MONTH%%DAY%"
@@ -714,13 +718,13 @@ SET genVersion=%versionFile% ECHO
 
 ECHO. 																																			>>  %BuildLog%
 ECHO - Copying %WIN32PRODUCTDIR% content to media folder...    																					>>  %BuildLog%
-ECHO. 	
+ECHO.
 ECHO - Copying %WIN32PRODUCTDIR% content to media folder...
 
 XCOPY /S /I /E /V /Y %devRootPath%\extras ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x86\extras											>>  %BuildLog%
-XCOPY /S /I /E /V /Y ..\..\utilities\ldrawlibraries ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x86\libraries								>>  %BuildLog% 
-XCOPY /S /I /E /V /Y ..\3rdParty ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x86\3rdParty													>>  %BuildLog% 
-XCOPY /S /I /E /V /Y %devRootPath%\docs ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x86\docs												>>  %BuildLog% 
+XCOPY /S /I /E /V /Y ..\..\utilities\ldrawlibraries ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x86\libraries								>>  %BuildLog%
+XCOPY /S /I /E /V /Y ..\3rdParty ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x86\3rdParty													>>  %BuildLog%
+XCOPY /S /I /E /V /Y %devRootPath%\docs ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x86\docs												>>  %BuildLog%
 XCOPY /S /I /E /V /Y ..\..\utilities\icons ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x86\icons											>>  %BuildLog%
 
 COPY /V /Y %devRootPath%\docs\README.txt ..\release\%VERSION%\%WIN32PRODUCTDIR%\%PRODUCT%_x86\ /A                          						>>  %BuildLog%
@@ -775,13 +779,13 @@ COPY /V /Y %Win32QtPluginPath%\printsupport\windowsprintersupport.dll ..\release
 
 ECHO. 																																			>>  %BuildLog%
 ECHO - Copying %WIN64PRODUCTDIR% content to media folder...    																					>>  %BuildLog%
-ECHO. 	
+ECHO.
 ECHO - Copying %WIN64PRODUCTDIR% content to media folder...
 
 XCOPY /S /I /E /V /Y %devRootPath%\extras ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x86_64\extras										>>  %BuildLog%
-XCOPY /S /I /E /V /Y ..\..\utilities\ldrawlibraries ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x86_64\libraries							>>  %BuildLog% 
-XCOPY /S /I /E /V /Y ..\3rdParty ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x86_64\3rdParty												>>  %BuildLog% 
-XCOPY /S /I /E /V /Y %devRootPath%\docs ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x86_64\docs											>>  %BuildLog% 
+XCOPY /S /I /E /V /Y ..\..\utilities\ldrawlibraries ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x86_64\libraries							>>  %BuildLog%
+XCOPY /S /I /E /V /Y ..\3rdParty ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x86_64\3rdParty												>>  %BuildLog%
+XCOPY /S /I /E /V /Y %devRootPath%\docs ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x86_64\docs											>>  %BuildLog%
 XCOPY /S /I /E /V /Y ..\..\utilities\icons ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x86_64\icons										>>  %BuildLog%
 
 COPY /V /Y %devRootPath%\docs\README.txt ..\release\%VERSION%\%WIN64PRODUCTDIR%\%PRODUCT%_x86_64\ /A                          					>>  %BuildLog%
@@ -850,7 +854,7 @@ COPY /V /Y %Win64QtPluginPath%\printsupport\windowsprintersupport.dll ..\release
 
 ECHO. 																																		>>  %BuildLog%
 ECHO - Finished copying content to media folder...     																						>>  %BuildLog%
-ECHO. 
+ECHO.
 ECHO - Finished copying content to media folder...
 
 IF %RUN_NSIS% == 1 ECHO. 								        																			>>  %BuildLog%
@@ -890,22 +894,22 @@ IF %RUN_NSIS% == 1 ECHO.												 																	>>  %BuildLog%
 IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...											>>  %BuildLog%
 IF %RUN_NSIS% == 1 ECHO. 																													>>  %BuildLog%
 IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...								>>  %BuildLog%
-IF %RUN_NSIS% == 1 ECHO.	
-IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...	
-IF %RUN_NSIS% == 1 ECHO.	
-IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...	
+IF %RUN_NSIS% == 1 ECHO.
+IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...
+IF %RUN_NSIS% == 1 ECHO.
+IF %RUN_NSIS% == 1 ECHO - Moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...
 
 IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...									>>  %BuildLog%
 IF %RUN_NSIS% == 0 ECHO. 																													>>  %BuildLog%
 IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...						>>  %BuildLog%
-IF %RUN_NSIS% == 0 ECHO. 	
-IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...	
-IF %RUN_NSIS% == 0 ECHO. 			
-IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...	
+IF %RUN_NSIS% == 0 ECHO.
+IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %DOWNLOADPRODUCT%.exe to Download\ media folder...
+IF %RUN_NSIS% == 0 ECHO.
+IF %RUN_NSIS% == 0 ECHO - Ignore moving NSIS-generated %PRODUCT%-UpdateMaster_%VERSION%.exe to Update\ media folder...
 
-IF %RUN_NSIS% == 1 MOVE /Y ..\release\%DOWNLOADPRODUCT%.exe ..\release\%VERSION%\Download\													>>  %BuildLog%		
-IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe ..\release\%VERSION%\Update\										>>  %BuildLog%		
-IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster.exe ..\release\%VERSION%\Update\												>>  %BuildLog%		
+IF %RUN_NSIS% == 1 MOVE /Y ..\release\%DOWNLOADPRODUCT%.exe ..\release\%VERSION%\Download\													>>  %BuildLog%
+IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster_%VERSION%.exe ..\release\%VERSION%\Update\										>>  %BuildLog%
+IF %RUN_NSIS% == 1 MOVE /Y ..\release\%PRODUCT%-UpdateMaster.exe ..\release\%VERSION%\Update\												>>  %BuildLog%
 
 ECHO. 									   																									>>  %BuildLog%
 IF %SIGN_APP% == 1 ECHO - Start Application Code Signing Build... 																			>>  %BuildLog%
@@ -926,7 +930,7 @@ ECHO. 									   																									>>  %BuildLog%
 IF %SIGN_APP% == 1 ECHO - Generating hash checksum listing... 																				>>  %BuildLog%
 IF %SIGN_APP% == 1 ECHO.
 IF %SIGN_APP% == 1 ECHO - Generating hash checksum listing...
-                                      
+
 IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Download\%DOWNLOADPRODUCT%.exe SHA256							>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
 IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster_%VERSION%.exe SHA256  				>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
 IF %SIGN_APP% == 1 CertUtil -hashfile ..\release\%VERSION%\Update\%PRODUCT%-UpdateMaster.exe SHA256  						>>  ../release/%VERSION%\Download\LPub3D.%VERSION%.Checksums.txt
@@ -940,12 +944,12 @@ IF %SIGN_APP% == 1 ECHO - Finished Application Code Signing Build...
 
 IF %CREATE_PORTABLE% == 1 ECHO. 																											>>  %BuildLog%
 IF %CREATE_PORTABLE% == 1 ECHO - Create portable media zip files...		      																>>  %BuildLog%
-IF %CREATE_PORTABLE% == 1 ECHO. 	
+IF %CREATE_PORTABLE% == 1 ECHO.
 IF %CREATE_PORTABLE% == 1 ECHO - Create portable media zip files...
 
 IF %CREATE_PORTABLE% == 0 ECHO. 																											>>  %BuildLog%
 IF %CREATE_PORTABLE% == 0 ECHO - Ignore create portable media zip files...		    														>>  %BuildLog%
-IF %CREATE_PORTABLE% == 0 ECHO. 	
+IF %CREATE_PORTABLE% == 0 ECHO.
 IF %CREATE_PORTABLE% == 0 ECHO - Ignore create portable media zip files...
 
 IF %CREATE_PORTABLE% == 1 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN32PRODUCTDIR%.zip ..\release\%VERSION%\%WIN32PRODUCTDIR%\ 		>>  %BuildLog%
@@ -953,18 +957,18 @@ IF %CREATE_PORTABLE% == 1 %zipExe% a -tzip ..\release\%VERSION%\Download\%WIN64P
 
 ECHO. 																																		>>  %BuildLog%
 IF %CLEANUP% == 1 ECHO - Remove %PRODUCT% %VERSION% build files...																			>>  %BuildLog%
-IF %CLEANUP% == 1 ECHO. 	
+IF %CLEANUP% == 1 ECHO.
 IF %CLEANUP% == 1 ECHO - Remove %PRODUCT% %VERSION% build files...
 
 IF %CLEANUP% == 0 ECHO - Ignore remove %PRODUCT% %VERSION% build files...																	>>  %BuildLog%
-IF %CLEANUP% == 0 ECHO. 	
+IF %CLEANUP% == 0 ECHO.
 IF %CLEANUP% == 0 ECHO - Ignore remove %PRODUCT% %VERSION% build files...
 
-IF %CLEANUP% == 1 RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 									>>  %BuildLog%	
+IF %CLEANUP% == 1 RD /Q /S ..\release\%VERSION%\%WIN32PRODUCTDIR%\ ..\release\%VERSION%\%WIN64PRODUCTDIR%\ 									>>  %BuildLog%
 
 ECHO. 																																		>>  %BuildLog%
 ECHO - Finished.																															>>  %BuildLog%
-ECHO. 	
+ECHO.
 ECHO - Finished.
 
 ECHO.
@@ -977,7 +981,7 @@ EXIT /b 0
 :LDrawArchiveLibraryDownload
 ECHO. 																		>>  %BuildLog%
 ECHO - Prepare BATCH to VBS to Web Content Downloader...					>>  %BuildLog%
-ECHO. 
+ECHO.
 ECHO - Prepare BATCH to VBS to Web Content Downloader...
 
 SET OfficialCONTENT=complete.zip
@@ -1065,7 +1069,7 @@ ECHO - Web URL: "%WebNAME%" 												>>  %BuildLog%
 ECHO.																		>>  %BuildLog%
 ECHO - Download file: %WebCONTENT%											>>  %BuildLog%
 ECHO.
-ECHO - Web URL: "%WebNAME%" 
+ECHO - Web URL: "%WebNAME%"
 ECHO.
 ECHO - Download file: %WebCONTENT%
 
@@ -1080,8 +1084,8 @@ IF "%LibraryOPTION%" EQU "Unofficial" (
 	ECHO.																					>>  %BuildLog%
 	ECHO - Rename file %UnofficialCONTENT% to %Lpub3dCONTENT% and move to %outputPath%		>>  %BuildLog%
 	ECHO.
-	ECHO - Rename file %UnofficialCONTENT% to %Lpub3dCONTENT% and move to %outputPath% 			
-	REN %UnofficialCONTENT% %Lpub3dCONTENT%									
+	ECHO - Rename file %UnofficialCONTENT% to %Lpub3dCONTENT% and move to %outputPath%
+	REN %UnofficialCONTENT% %Lpub3dCONTENT%
 	MOVE /y .\%Lpub3dCONTENT% %outputPath%									>>  %BuildLog%
 )
 ECHO.																		>>  %BuildLog%
@@ -1103,7 +1107,7 @@ ECHO - Web URL: "%WebNAME%" 												>>  %BuildLog%
 ECHO.																		>>  %BuildLog%
 ECHO - Download file: %WebCONTENT%											>>  %BuildLog%
 ECHO.
-ECHO - Web URL: "%WebNAME%" 
+ECHO - Web URL: "%WebNAME%"
 ECHO.
 ECHO - Download file: %WebCONTENT%
 
@@ -1117,7 +1121,7 @@ cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
 ECHO.																		>>  %BuildLog%
 ECHO - Move file %OfficialCONTENT% to %outputPath%							>>  %BuildLog%
 ECHO.
-ECHO - Move file %OfficialCONTENT% to %outputPath% 
+ECHO - Move file %OfficialCONTENT% to %outputPath%
 MOVE /y .\%OfficialCONTENT% %outputPath%									>>  %BuildLog%
 
 ECHO.																		>>  %BuildLog%
