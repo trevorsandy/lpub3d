@@ -147,8 +147,8 @@ win32: stagewindistcontent {
     copy3rdexeconfig {
 
         raytracer_stg_resources_config.files += \
-            $$RAYTRACE_INS_RES/config/povray.conf \
-            $$RAYTRACE_INS_RES/config/povray.ini
+            $$RAYTRACE_INS_RES/config/$$QT_ARCH/povray.conf \
+            $$RAYTRACE_INS_RES/config/$$QT_ARCH/povray.ini
         raytracer_stg_resources_config.path = $$RAYTRACE_STG_RES_DIR\config
 
         ldview_stg_resources_config.files += \

@@ -26,12 +26,11 @@ win32 {
 
     # source executables - 3rd party components
     isEmpty(LDGLITE_INS_EXE):LDGLITE_INS_EXE        = $$THIRD_PARTY_SRC/$$VER_LDGLITE/bin/$$QT_ARCH/ldglite.exe
+    isEmpty(RAYTRACE_INS_EXE):RAYTRACE_INS_EXE      = $$THIRD_PARTY_SRC/$$VER_POVRAY/bin/$$QT_ARCH/lpub3d_trace_cui$$join(ARCH,,,.exe)
     equals (ARCH, 64) {
         isEmpty(LDVIEW_INS_EXE):LDVIEW_INS_EXE      = $$THIRD_PARTY_SRC/$$VER_LDVIEW/bin/$$QT_ARCH/LDView$$join(ARCH,,,.exe)
-        isEmpty(RAYTRACE_INS_EXE):RAYTRACE_INS_EXE  = $$THIRD_PARTY_SRC/$$VER_POVRAY/bin/$$QT_ARCH/lpub3d_trace_cui$$join(ARCH,,,.exe)
     } else {
         isEmpty(LDVIEW_INS_EXE):LDVIEW_INS_EXE      = $$THIRD_PARTY_SRC/$$VER_LDVIEW/bin/$$QT_ARCH/LDView.exe
-        isEmpty(RAYTRACE_INS_EXE):RAYTRACE_INS_EXE  = $$THIRD_PARTY_SRC/$$VER_POVRAY/bin/$$QT_ARCH/lpub3d_trace_cui$$join(ARCH,,,.exe)
     }
 
     # source directories - 3rd party components

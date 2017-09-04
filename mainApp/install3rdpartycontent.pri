@@ -13,12 +13,17 @@ copy3rdexe {
         raytracer_ins.files += $$RAYTRACE_INS_EXE
         raytracer_ins.path = $$RAYTRACE_INS_DIR
 
-        macx: QMAKE_BUNDLE_DATA += \
-        else: INSTALLS += \
-        ldglite_ins \
-        ldview_ins \
-        raytracer_ins
-
+        macx{
+            QMAKE_BUNDLE_DATA += \
+            ldglite_ins \
+            ldview_ins \
+            raytracer_ins
+        } else {
+            INSTALLS += \
+            ldglite_ins \
+            ldview_ins \
+            raytracer_ins
+        }
     }
     CONFIG(debug, debug|release) {
          message("~~~ DEBUG BUILD - 3RD PARTY EXE'S NOT INSTALLED ~~~")
@@ -27,9 +32,15 @@ copy3rdexe {
 
 copy3rdexeconfig {
 
-    raytracer_ins_resources_config.files += \
-        $$RAYTRACE_INS_RES/config/povray.conf \
-        $$RAYTRACE_INS_RES/config/povray.ini
+    win32 {
+        raytracer_ins_resources_config.files += \
+            $$RAYTRACE_INS_RES/config/$$QT_ARCH/povray.ini \
+            $$RAYTRACE_INS_RES/config/$$QT_ARCH/povray.conf
+    } else {
+        raytracer_ins_resources_config.files += \
+            $$RAYTRACE_INS_RES/config/povray.ini \
+            $$RAYTRACE_INS_RES/config/povray.conf
+    }
     raytracer_ins_resources_config.path = $$RAYTRACE_INS_RES_DIR\config
 
     ldview_ins_resources_config.files += \
@@ -38,10 +49,15 @@ copy3rdexeconfig {
         $$LDVIEW_INS_RES/config/LDViewCustomini
     ldview_ins_resources_config.path = $$LDVIEW_INS_RES_DIR\config
 
-        macx: QMAKE_BUNDLE_DATA += \
-        else: INSTALLS += \
-        raytracer_ins_resources_config \
-        ldview_ins_resources_config
+        macx{
+            QMAKE_BUNDLE_DATA += \
+            raytracer_ins_resources_config \
+            ldview_ins_resources_config
+        } else {
+            INSTALLS += \
+            raytracer_ins_resources_config \
+            ldview_ins_resources_config
+        }
 }
 
 copy3rdcontent {
@@ -169,16 +185,25 @@ copy3rdcontent {
         $$RAYTRACE_INS_RES/include/woods.inc
     raytracer_ins_resources_include.path = $$RAYTRACE_INS_RES_DIR\include
 
-    macx: QMAKE_BUNDLE_DATA += \
-    else: INSTALLS += \
-    ldglite_ins_docs \
-    ldglite_ins_resources \
-    ldview_ins_docs \
-    ldview_ins_resources \
-    raytracer_ins_docs \
-    raytracer_ins_resources_ini \
-    raytracer_ins_resources_include
-
+    macx {
+        QMAKE_BUNDLE_DATA += \
+        ldglite_ins_docs \
+        ldglite_ins_resources \
+        ldview_ins_docs \
+        ldview_ins_resources \
+        raytracer_ins_docs \
+        raytracer_ins_resources_ini \
+        raytracer_ins_resources_include
+    } else {
+        INSTALLS += \
+        ldglite_ins_docs \
+        ldglite_ins_resources \
+        ldview_ins_docs \
+        ldview_ins_resources \
+        raytracer_ins_docs \
+        raytracer_ins_resources_ini \
+        raytracer_ins_resources_include
+    }
     win32 {
         raytracer_win_ins_docs.files += \
           $$RAYTRACE_INS_DOC/help/povray37.chm

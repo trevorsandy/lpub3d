@@ -166,7 +166,7 @@ UI_DIR      = $$DESTDIR/.ui
 
 VER_LDVIEW      = ldview-4.3
 VER_LDGLITE     = ldglite-1.3
-VER_POVRAY      = lpub3d_trace_cui-3.7
+VER_POVRAY      = lpub3d_trace_cui-3.8
 
 win32:include(winfiledistro.pri)
 macx:include(macosfiledistro.pri)
