@@ -915,6 +915,10 @@ private slots:
     void editPliBomSubstituteParts();
     void editLdrawIniFile();
     void editExcludedParts();
+    void editLdviewIni();
+    void editLdviewPovIni();
+    void editPovrayIni();
+    void editPovrayConf();
     void generateFadeColourPartsList();
 
     void toggleLCStatusBar();
@@ -1126,6 +1130,10 @@ private:
   QAction *editPliBomSubstitutePartsAct;
   QAction *editExcludedPartsAct;
   QAction *editLdrawIniFileAct;
+  QAction *editLdviewIniAct;
+  QAction *editLdviewPovIniAct;
+  QAction *editPovrayIniAct;
+  QAction *editPovrayConfAct;
   QAction *generateFadeColourPartsAct;
 
   // help

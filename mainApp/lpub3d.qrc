@@ -53,6 +53,8 @@
         <file alias="emailproblempackage.png">images/emailproblempackage.png</file>
         <file alias="editexcludedparts.png">images/editexcludedparts.png</file>
         <file alias="editparameterfiles.png">images/editparameterfiles.png</file>
+        <file alias="editldviewconf.png">images/editldviewconf.png</file>
+        <file alias="editpovrayconf.png">images/editpovrayconf.png</file>
         <file alias="exit.png">images/exit.png</file>
         <file alias="exportas.png">images/exportas.png</file>
         <file alias="exportbmp.png">images/exportbmp.png</file>

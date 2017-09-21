@@ -52,11 +52,13 @@ QString Preferences::lpubDataPath               = ".";
 QString Preferences::lpubExtrasPath             = ".";
 QString Preferences::ldgliteExe;
 QString Preferences::ldviewExe;
+QString Preferences::povrayConf;
+QString Preferences::povrayIni;
 QString Preferences::ldviewIni;
 QString Preferences::ldviewPOVIni;
-QString Preferences::povrayIni;
-QString Preferences::povrayInc;
-QString Preferences::povrayScene;
+QString Preferences::povrayIniPath;
+QString Preferences::povrayIncPath;
+QString Preferences::povrayScenePath;
 QString Preferences::povrayExe;
 QString Preferences::preferredRenderer;
 QString Preferences::pliFile;
@@ -967,7 +969,8 @@ void Preferences::renderPreferences()
         QFile::copy(lpub3d3rdPartyContent + "/" VER_LDVIEW "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
     }
     if (resourceFile.exists())
-      ldviewIni = resourceFile.absoluteFilePath(); // populate file path
+      ldviewIni = resourceFile.absoluteFilePath(); // populate ldview ini file
+    logInfo() << QString("LDView ini file    : %1").arg(ldviewIni.isEmpty() ? "Not found" : ldviewIni);
 
     resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW "/config" ,VER_LDVIEW_POV_INI_FILE));
     if (!resourceFile.exists()) {
@@ -975,39 +978,42 @@ void Preferences::renderPreferences()
         QFile::copy(lpub3d3rdPartyContent + "/" VER_LDVIEW "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
     }
     if (resourceFile.exists())
-      ldviewPOVIni = resourceFile.absoluteFilePath(); // populate file path
+      ldviewPOVIni = resourceFile.absoluteFilePath(); // populate ldview pov ini file
+    logInfo() << QString("LDViewPOV ini file : %1").arg(ldviewPOVIni.isEmpty() ? "Not found" : ldviewPOVIni);
 
     resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY "/config" ,VER_POVRAY_CONF_FILE));
     if (!resourceFile.exists()) {
         resourceFile.absoluteDir().mkpath(resourceFile.absolutePath());
         QFile::copy(lpub3d3rdPartyContent + "/" VER_POVRAY "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
     }
-    logInfo() << QString("POVRay conf file   : %1").arg(resourceFile.exists() ? resourceFile.absoluteFilePath() : "Not found");
+    if (resourceFile.exists())
+      povrayConf = resourceFile.absoluteFilePath();     // populate povray conf file
+    logInfo() << QString("POVRay conf file   : %1").arg(povrayConf.isEmpty() ? "Not found" : povrayConf);
+
     resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY "/config" ,VER_POVRAY_INI_FILE));
     if (!resourceFile.exists()){
         resourceFile.absoluteDir().mkpath(resourceFile.absolutePath());
         QFile::copy(lpub3d3rdPartyContent + "/" VER_POVRAY "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
     }
-    logInfo() << QString("POVRay ini file    : %1").arg(resourceFile.exists() ? resourceFile.absoluteFilePath() : "Not found");
+    if (resourceFile.exists())
+      povrayIni = resourceFile.absoluteFilePath();     // populate povray ini file
+    logInfo() << QString("POVRay conf file   : %1").arg(povrayIni.isEmpty() ? "Not found" : povrayIni);
 
     // Populate POVRay Library paths
     resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyContent, VER_POVRAY "/resources/ini" ,VER_POVRAY_INI_FILE));
     if (resourceFile.exists())
-      povrayIni = resourceFile.absolutePath();
+      povrayIniPath = resourceFile.absolutePath();
+    logInfo() << QString("POVRay ini path    : %1").arg(povrayIniPath.isEmpty() ? "Not found" : povrayIniPath);
 
     resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyContent, VER_POVRAY "/resources/include" ,VER_POVRAY_INC_FILE));
     if (resourceFile.exists())
-      povrayInc = resourceFile.absolutePath();
+      povrayIncPath = resourceFile.absolutePath();
+    logInfo() << QString("POVRay include path: %1").arg(povrayIncPath.isEmpty() ? "Not found" : povrayIncPath);
 
     resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyContent, VER_POVRAY "/resources/scenes" ,VER_POVRAY_SCENE_FILE));
     if (resourceFile.exists())
-      povrayScene = resourceFile.absolutePath();
-
-    logInfo() << QString("LDView ini file    : %1").arg(ldviewIni.isEmpty() ? "Not found" : ldviewIni);
-    logInfo() << QString("LDViewPOV ini file : %1").arg(ldviewPOVIni.isEmpty() ? "Not found" : ldviewPOVIni);
-    logInfo() << QString("POVRay ini path    : %1").arg(povrayIni.isEmpty() ? "Not found" : povrayIni);
-    logInfo() << QString("POVRay include path: %1").arg(povrayInc.isEmpty() ? "Not found" : povrayInc);
-    logInfo() << QString("POVRay scene path  : %1").arg(povrayScene.isEmpty() ? "Not found" : povrayScene);
+      povrayScenePath = resourceFile.absolutePath();
+    logInfo() << QString("POVRay scene path  : %1").arg(povrayScenePath.isEmpty() ? "Not found" : povrayScenePath);
 
     /* Find LDGLite's installation status */
 
@@ -1155,37 +1161,36 @@ void Preferences::renderPreferences()
     } else {
         rendererTimeout = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererTimeout")).toInt();
     }
-
 }
 
 void Preferences::pliPreferences()
 {
-  bool allIsWell = true;
-  QSettings Settings;
-  pliFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliControl")).toString();
-  pliSubstitutePartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile")).toString();
-  excludedPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"ExlcudedPartsFile")).toString();
+    bool allIsWell = true;
+    QSettings Settings;
+    pliFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliControl")).toString();
+    pliSubstitutePartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile")).toString();
+    excludedPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"ExlcudedPartsFile")).toString();
 
-  QFileInfo fileInfo(pliFile);
-  if (! fileInfo.exists()) {
-      Settings.remove(QString("%1/%2").arg(SETTINGS,"PliControl"));
-      allIsWell = false;
-    }
+    QFileInfo fileInfo(pliFile);
+    if (! fileInfo.exists()) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,"PliControl"));
+        allIsWell = false;
+      }
 
-  QFileInfo pliSubstituteFileInfo(pliSubstitutePartsFile);
-  if (! pliSubstituteFileInfo.exists()) {
-      Settings.remove(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile"));
-      allIsWell = false;
-    }
+    QFileInfo pliSubstituteFileInfo(pliSubstitutePartsFile);
+    if (! pliSubstituteFileInfo.exists()) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile"));
+        allIsWell = false;
+      }
 
-  QFileInfo excludeFileInfo(excludedPartsFile);
-  if (! excludeFileInfo.exists()) {
-      Settings.remove(QString("%1/%2").arg(SETTINGS,"ExlcudedPartsFile"));
-      allIsWell = false;
-    }
+    QFileInfo excludeFileInfo(excludedPartsFile);
+    if (! excludeFileInfo.exists()) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,"ExlcudedPartsFile"));
+        allIsWell = false;
+      }
 
-  if (allIsWell)
-    return;
+    if (allIsWell)
+      return;
 
     pliFile = QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath,"extras/pli.mpd"));
     pliSubstitutePartsFile = QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath,"extras/pliSubstituteParts.lst"));

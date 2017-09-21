@@ -79,11 +79,13 @@ class Preferences
     static QString loggingLevel;
     static QString availableVersions;
     static QStringList ldSearchDirs;
+    static QString povrayConf;
+    static QString povrayIni;
     static QString ldviewIni;
     static QString ldviewPOVIni;
-    static QString povrayIni;
-    static QString povrayInc;
-    static QString povrayScene;
+    static QString povrayIniPath;
+    static QString povrayIncPath;
+    static QString povrayScenePath;
     static bool    ldrawiniFound;
     static bool    enableDocumentLogo;
     static bool    enableLDViewSingleCall;

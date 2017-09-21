@@ -307,8 +307,8 @@ int POVRay::renderCsi(
 
   bool hasSTL       = Preferences::lgeoStlLib;
   bool hasLGEO      = Preferences::lgeoPath != "";
-  bool hasPOVRayIni = Preferences::povrayIni != "";
-  bool hasPOVRayInc = Preferences::povrayInc != "";
+  bool hasPOVRayIni = Preferences::povrayIniPath != "";
+  bool hasPOVRayInc = Preferences::povrayIncPath != "";
   bool hasLDViewIni = Preferences::ldviewPOVIni != "";
 
   QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
@@ -372,11 +372,11 @@ int POVRay::renderCsi(
   povArguments << H;
   povArguments << USE_ALPHA;
   if(hasPOVRayInc){
-      QString povinc = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayInc)));
+      QString povinc = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIncPath)));
       povArguments << povinc;
   }
   if(hasPOVRayIni){
-      QString povini = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIni)));
+      QString povini = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIniPath)));
       povArguments << povini;
   }
   if(hasLGEO){
@@ -444,8 +444,8 @@ int POVRay::renderPli(
 
   bool hasSTL       = Preferences::lgeoStlLib;
   bool hasLGEO      = Preferences::lgeoPath != "";
-  bool hasPOVRayIni = Preferences::povrayIni != "";
-  bool hasPOVRayInc = Preferences::povrayInc != "";
+  bool hasPOVRayIni = Preferences::povrayIniPath != "";
+  bool hasPOVRayInc = Preferences::povrayIncPath != "";
   bool hasLDViewIni = Preferences::ldviewPOVIni != "";
 
   //qDebug() << "LDView (Native) Camera Distance: " << cd;
@@ -513,11 +513,11 @@ int POVRay::renderPli(
   povArguments << H;
   povArguments << USE_ALPHA;
   if(hasPOVRayInc){
-      QString povinc = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayInc)));
+      QString povinc = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIncPath)));
       povArguments << povinc;
   }
   if(hasPOVRayIni){
-      QString povini = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIni)));
+      QString povini = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIniPath)));
       povArguments << povini;
   }
   if(hasLGEO){
