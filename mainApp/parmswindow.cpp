@@ -174,8 +174,16 @@ void ParmsWindow::displayParmsFile(
       title = "Title Annotation";
     else if (fileInfo.fileName() == "excludedParts.lst")
       title = "Excluded Parts";
-    else //freeformAnnotations.lst
+    else if(fileInfo.fileName() == "freeformAnnotations.lst") //freeformAnnotations.lst
       title = "Freeform";
+    else if (fileInfo.fileName() == "ldview.ini")
+      title = "LDView ini";
+    else if (fileInfo.fileName() == "ldviewPOV.ini")
+      title = "LDView Raytracer ini";
+    else if (fileInfo.fileName() == "povray.ini")
+      title = "Raytracer (POV-Ray) ini";
+    else    //povray.conf
+      title = "Raytracer (POV-Ray) conf";
 
     if (! file.open(QIODevice::ReadOnly | QIODevice::Text)){
         QMessageBox::warning(NULL,
@@ -272,11 +280,19 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
 
   if (_fileModified){
 
+      // is there anything loaded - to take advantage of our change?
       bool fileLoaded = false;
       if (!gui->getCurFile().isEmpty())
         fileLoaded = true;
+      // these files do not affect LPub3D (they affect the renderers only) so no restart needed
+      bool restartRequired = true;
+      if (title == "LDView ini" ||
+          title == "LDView Raytracer ini" ||
+          title == "Raytracer (POV-Ray) ini" ||
+          title == "Raytracer (POV-Ray) conf")
+        restartRequired = false;
 
-      if (fileLoaded || _fadeStepFile) {
+      if ((fileLoaded || _fadeStepFile) && restartRequired) {
 
           QMessageBox box;
           box.setIcon (QMessageBox::Question);

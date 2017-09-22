@@ -131,6 +131,7 @@ class Preferences
     static int     pageWidth;
     static int     pageHeight;
     static int     rendererTimeout;
+    static bool    povrayDisplay;
 
     virtual ~Preferences() {}
 };

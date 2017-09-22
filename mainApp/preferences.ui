@@ -320,9 +320,9 @@
        <property name="geometry">
         <rect>
          <x>16</x>
-         <y>259</y>
+         <y>255</y>
          <width>441</width>
-         <height>170</height>
+         <height>181</height>
         </rect>
        </property>
        <property name="title">
@@ -338,8 +338,8 @@
         <property name="geometry">
          <rect>
           <x>15</x>
-          <y>35</y>
-          <width>304</width>
+          <y>54</y>
+          <width>412</width>
           <height>20</height>
          </rect>
         </property>
@@ -347,23 +347,23 @@
        <widget class="QPushButton" name="browsePOVRAY">
         <property name="geometry">
          <rect>
-          <x>330</x>
-          <y>30</y>
+          <x>334</x>
+          <y>20</y>
           <width>93</width>
-          <height>28</height>
+          <height>20</height>
          </rect>
         </property>
         <property name="text">
-         <string>Change...</string>
+         <string>hidden</string>
         </property>
        </widget>
        <widget class="QGroupBox" name="lgeoBox">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>70</y>
+          <y>86</y>
           <width>421</width>
-          <height>91</height>
+          <height>81</height>
          </rect>
         </property>
         <property name="toolTip">
@@ -382,8 +382,8 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>55</y>
-           <width>300</width>
+           <y>45</y>
+           <width>301</width>
            <height>20</height>
           </rect>
          </property>
@@ -398,9 +398,9 @@
          <property name="geometry">
           <rect>
            <x>320</x>
-           <y>50</y>
+           <y>28</y>
            <width>93</width>
-           <height>28</height>
+           <height>38</height>
           </rect>
          </property>
          <property name="toolTip">
@@ -417,7 +417,7 @@
          <property name="geometry">
           <rect>
            <x>13</x>
-           <y>30</y>
+           <y>20</y>
            <width>301</width>
            <height>16</height>
           </rect>
@@ -427,14 +427,33 @@
          </property>
         </widget>
        </widget>
+       <widget class="QCheckBox" name="povrayDisplay_Chk">
+        <property name="geometry">
+         <rect>
+          <x>19</x>
+          <y>23</y>
+          <width>256</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Display image during rendering</string>
+        </property>
+        <property name="statusTip">
+         <string>Check to enable display window during image Raytracer rendering</string>
+        </property>
+        <property name="text">
+         <string>Display image during rendering</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QGroupBox" name="ldgliteBox">
        <property name="geometry">
         <rect>
          <x>15</x>
-         <y>165</y>
+         <y>171</y>
          <width>441</width>
-         <height>78</height>
+         <height>71</height>
         </rect>
        </property>
        <property name="title">
@@ -450,8 +469,8 @@
         <property name="geometry">
          <rect>
           <x>15</x>
-          <y>35</y>
-          <width>304</width>
+          <y>34</y>
+          <width>412</width>
           <height>20</height>
          </rect>
         </property>
@@ -459,14 +478,14 @@
        <widget class="QPushButton" name="browseLDGLite">
         <property name="geometry">
          <rect>
-          <x>330</x>
-          <y>31</y>
+          <x>334</x>
+          <y>8</y>
           <width>93</width>
-          <height>28</height>
+          <height>20</height>
          </rect>
         </property>
         <property name="text">
-         <string>Change...</string>
+         <string>hidden</string>
         </property>
        </widget>
       </widget>
@@ -474,7 +493,7 @@
        <property name="geometry">
         <rect>
          <x>15</x>
-         <y>60</y>
+         <y>67</y>
          <width>441</width>
          <height>91</height>
         </rect>
@@ -493,7 +512,7 @@
          <rect>
           <x>15</x>
           <y>56</y>
-          <width>304</width>
+          <width>412</width>
           <height>20</height>
          </rect>
         </property>
@@ -501,14 +520,14 @@
        <widget class="QPushButton" name="browseLDView">
         <property name="geometry">
          <rect>
-          <x>330</x>
-          <y>52</y>
-          <width>91</width>
-          <height>28</height>
+          <x>334</x>
+          <y>28</y>
+          <width>93</width>
+          <height>20</height>
          </rect>
         </property>
         <property name="text">
-         <string>Change...</string>
+         <string>hidden</string>
         </property>
        </widget>
        <widget class="QCheckBox" name="ldviewSingleCall_Chk">

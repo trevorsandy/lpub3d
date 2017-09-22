@@ -31,8 +31,6 @@
 #include "lpub.h"
 #include "version.h"
 
-
-
 //QString PreferencesDialog::DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(qApp->applicationVersion());
 QString PreferencesDialog::DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
 
@@ -46,6 +44,15 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   if (ldrawPath.isEmpty()) {
     ldrawPath = ".";
   }
+
+  // hide 3rd party applicaton browse buttons
+  ui.browseLDGLite->hide();
+  ui.browseLDView->hide();
+  ui.browsePOVRAY->hide();
+  // set 3rd party application dialogs to read-only
+  ui.ldglitePath->setReadOnly(true);
+  ui.ldviewPath->setReadOnly(true);
+  ui.povrayPath->setReadOnly(true);
 
   ui.ldrawPath->setText(                            ldrawPath);
   ui.pliName->setText(                              Preferences::pliFile);
@@ -75,6 +82,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.showAllNotificstions_Chk->setChecked(          Preferences::showAllNotifications);
   ui.checkUpdateFrequency_Combo->setCurrentIndex(   Preferences::checkUpdateFrequency);
   ui.rendererTimeout->setValue(                     Preferences::rendererTimeout);
+  ui.povrayDisplay_Chk->setChecked(                 Preferences::povrayDisplay);
 
   ui.loggingGrpBox->setChecked(                     Preferences::logging);
   ui.logPathEdit->setText(                          Preferences::logPath);
@@ -133,7 +141,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   connect(ui.textEditSearchDirs, SIGNAL(textChanged()),this, SLOT(pushButtonReset_SetState()));
   //end search dirs
-
 
   ui.preferredRenderer->setMaxCount(0);
   ui.preferredRenderer->setMaxCount(3);
@@ -276,90 +283,6 @@ void PreferencesDialog::on_browsePli_clicked()
     }
 }
 
-void PreferencesDialog::on_browseLDView_clicked()
-{
-#ifdef Q_OS_WIN
-    QString filter(tr("Executable Files (*.exe);;All Files (*.*)"));
-#else
-    QString filter(tr("All Files (*.*)"));
-#endif
-
-    QString result = QFileDialog::getOpenFileName(this, tr("Locate LDView Executable"),
-                                                  ui.ldviewPath->text(),
-                                                  filter);
-
-    if (!result.isEmpty()) {
-        QFileInfo resultInfo(result);
-#ifdef Q_OS_LINUX
-        // force use command line-only "ldview" (not "LDView") if not using Windows
-        result = QString("%1/%2").arg(resultInfo.absolutePath()).arg(resultInfo.fileName().toLower());
-#elif defined Q_OS_MAC
-        // access command line inside the LDView.app wrapper
-        result = QString("%1/%2").arg(resultInfo.absoluteFilePath()).arg("Contents/MacOS/LDView");
-#endif
-
-        result = QDir::toNativeSeparators(result);
-        ui.ldviewPath->setText(result);
-        int ldviewIndex = ui.preferredRenderer->findText("LDView");
-        if (ldviewIndex < 0) {
-            ui.preferredRenderer->addItem("LDView");
-        }
-        ui.preferredRenderer->setEnabled(true);
-        ui.ldviewBox->setChecked(true);
-        ui.RenderMessage->setText("");
-    }
-}
-
-void PreferencesDialog::on_browseLDGLite_clicked()
-{
-#ifdef Q_OS_WIN
-    QString filter(tr("Executable Files (*.exe);;All Files (*.*)"));
-#else
-    QString filter(tr("All Files (*.*)"));
-#endif
-
-    QString result = QFileDialog::getOpenFileName(this, tr("Locate LDGLite Executable"),
-                                                  ui.ldglitePath->text().isEmpty() ? Preferences::lpub3dPath : ui.ldglitePath->text(),
-                                                  filter);
-
-    if (!result.isEmpty()) {
-        result = QDir::toNativeSeparators(result);
-        ui.ldglitePath->setText(result);
-        int ldgliteIndex = ui.preferredRenderer->findText("LDGLite");
-        if (ldgliteIndex < 0) {
-            ui.preferredRenderer->addItem("LDGLite");
-        }
-        ui.preferredRenderer->setEnabled(true);
-        ui.ldgliteBox->setChecked(true);
-        ui.RenderMessage->setText("");
-    }
-}
-
-void PreferencesDialog::on_browsePOVRAY_clicked()
-{
-#ifdef Q_OS_WIN
-    QString filter(tr("Executable Files (*.exe);;All Files (*.*)"));
-#else
-    QString filter(tr("All Files (*.*)"));
-#endif
-
-    QString result = QFileDialog::getOpenFileName(this, tr("Locate POV-Ray Executable"),
-                                                  ui.povrayPath->text().isEmpty() ? Preferences::lpub3dPath : ui.povrayPath->text(),
-                                                  filter);
-
-    if (!result.isEmpty()) {
-        result = QDir::toNativeSeparators(result);
-        ui.povrayPath->setText(result);
-        int povRayIndex = ui.preferredRenderer->findText("POVRay");
-        if (povRayIndex < 0) {
-            ui.preferredRenderer->addItem("POVRay");
-        }
-        ui.preferredRenderer->setEnabled(true);
-        ui.POVRayBox->setChecked(true);
-        ui.RenderMessage->setText("");
-    }
-}
-
 void PreferencesDialog::on_browsePublishLogo_clicked()
 {
 #ifdef Q_OS_WIN
@@ -467,6 +390,11 @@ QString const PreferencesDialog::preferredRenderer()
     return ui.preferredRenderer->currentText();
   }
   return "";
+}
+
+bool PreferencesDialog::povrayDisplay()
+{
+       return ui.povrayDisplay_Chk->isChecked();
 }
 
 QString const PreferencesDialog::fadeStepColor()
@@ -803,3 +731,45 @@ void PreferencesDialog::cancel(){
   QDialog::reject();
 }
 
+
+void PreferencesDialog::on_ldviewBox_clicked(bool checked)
+{
+  if (! checked) {
+      QMessageBox box;
+      box.setIcon (QMessageBox::Information);
+      box.setStandardButtons (QMessageBox::Ok);
+      box.setWindowTitle(tr ("LDView Settings?"));
+      box.setText (tr("LDView renderer settings are automatically set at application startup.\n"
+                      "Changes will be reset at next application start? "));
+      emit gui->messageSig(true,box.text());
+      box.exec();
+    }
+}
+
+void PreferencesDialog::on_ldgliteBox_clicked(bool checked)
+{
+    if (! checked) {
+        QMessageBox box;
+        box.setIcon (QMessageBox::Information);
+        box.setStandardButtons (QMessageBox::Ok);
+        box.setWindowTitle(tr ("LDGLite Settings?"));
+        box.setText (tr("LDGLite renderer settings are automatically set at application startup.\n"
+                        "Changes will be reset at next application start? "));
+        emit gui->messageSig(true,box.text());
+        box.exec();
+    }
+}
+
+void PreferencesDialog::on_POVRayBox_clicked(bool checked)
+{
+  if (! checked) {
+      QMessageBox box;
+      box.setIcon (QMessageBox::Information);
+      box.setStandardButtons (QMessageBox::Ok);
+      box.setWindowTitle(tr ("Raytracer (POV-Ray) Settings?"));
+      box.setText (tr("Raytracer (POV-Ray) renderer settings are automatically set at application startup.\n"
+                      "Changes will be reset at next application start? "));
+      emit gui->messageSig(true,box.text());
+      box.exec();
+  }
+}

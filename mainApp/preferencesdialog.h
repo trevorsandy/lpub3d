@@ -66,8 +66,9 @@ class PreferencesDialog : public QDialog
     bool          enableDownloader();
     bool          showAllNotifications();
     bool          lgeoStlLib();
+    bool          povrayDisplay();
     int           checkUpdateFrequency();
-    int           rendererTimeout();
+    int           rendererTimeout();   
 
     bool          includeLogLevel();
     bool          includeTimestamp();
@@ -97,9 +98,6 @@ class PreferencesDialog : public QDialog
     void on_browseLDraw_clicked();
     void on_browseLGEO_clicked();
     void on_browsePli_clicked();
-    void on_browsePOVRAY_clicked();
-    void on_browseLDView_clicked();
-    void on_browseLDGLite_clicked();
     void on_browsePublishLogo_clicked();
     void on_pushButtonReset_clicked();
     void on_checkForUpdates_btn_clicked();
@@ -113,6 +111,10 @@ class PreferencesDialog : public QDialog
     void on_allLogLevelsBox_clicked(bool checked);
     void on_logLevelsGrpBox_clicked(bool checked);
     void on_logLevelGrpBox_clicked(bool checked);
+
+    void on_ldviewBox_clicked(bool checked);
+    void on_ldgliteBox_clicked(bool checked);
+    void on_POVRayBox_clicked(bool checked);
 
 private:
     Ui::PreferencesDialog ui;

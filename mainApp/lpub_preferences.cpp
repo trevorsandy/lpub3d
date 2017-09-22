@@ -133,6 +133,8 @@ bool    Preferences::ldrawiniFound              = false;
 bool    Preferences::fadeStepSettingChanged     = false;
 bool    Preferences::fadeStepColorChanged       = false;
 bool    Preferences::portableDistribution       = false;
+bool    Preferences::povrayDisplay              = false;
+
 int     Preferences::checkUpdateFrequency       = 0;        //0=Never,1=Daily,2=Weekly,3=Monthly
 
 int     Preferences::pageHeight                 = 800;
@@ -928,11 +930,13 @@ void Preferences::lgeoPreferences()
 
 void Preferences::renderPreferences()
 {
-/* Set 3rdParty content locations */
-#ifdef Q_OS_WIN
-  QString lpub3d3rdPartyContent = QString("%1/%2").arg(lpub3dPath).arg("3rdParty");
+/* Set 3rdParty application locations */
 
-  QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDGLITE "/bin/ldglite.exe"));
+   logInfo() << "Image renderers...";
+#ifdef Q_OS_WIN
+    QString lpub3d3rdPartyContent = QString("%1/%2").arg(lpub3dPath).arg("3rdParty");
+
+    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDGLITE "/bin/ldglite.exe"));
   #ifdef __i386__
     QFileInfo ldviewInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDVIEW "/bin/LDView.exe"));
     QFileInfo povrayInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_POVRAY "/bin/lpub3d_trace_cui32.exe"));
@@ -954,10 +958,113 @@ void Preferences::renderPreferences()
     QFileInfo povrayInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_POVRAY "/bin/lpub3d_trace_cui"));
 #endif
 
-    logInfo() << "Image renderers...";
-    logInfo() << QString("LDView             : %1").arg(ldviewInfo.exists() ? ldviewInfo.absoluteFilePath() : "Not found");
-    logInfo() << QString("POVRay             : %1").arg(povrayInfo.exists() ? povrayInfo.absoluteFilePath() : "Not found");
+    /* 3rd Party application installation status */
+
+    bool    ldgliteInstalled = false;
+    bool    ldviewInstalled = false;
+    bool    povRayInstalled = false;
+
+    // LDGLite EXE
+    if (ldgliteInfo.exists()) {
+      ldgliteInstalled = true;
+      ldgliteExe = ldgliteInfo.absoluteFilePath();
+    }
     logInfo() << QString("LDGLIte            : %1").arg(ldgliteInfo.exists() ? ldgliteInfo.absoluteFilePath() : "Not found");
+
+    // LDView EXE
+    if (ldviewInfo.exists()) {
+      ldviewInstalled = true;
+      ldviewExe = ldviewInfo.absoluteFilePath();
+    }
+    logInfo() << QString("LDView             : %1").arg(ldviewInfo.exists() ? ldviewInfo.absoluteFilePath() : "Not found");
+
+    // POV-Ray EXE
+    if (povrayInfo.exists()) {
+      povRayInstalled = true;
+      povrayExe = povrayInfo.absoluteFilePath();
+    }
+    logInfo() << QString("POVRay             : %1").arg(povrayInfo.exists() ? povrayInfo.absoluteFilePath() : "Not found");
+
+    /* Find out if we have a valid preferred renderer */
+
+    QSettings Settings;
+
+    QString const preferredRendererKey("PreferredRenderer");
+
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,preferredRendererKey))) {
+        preferredRenderer = Settings.value(QString("%1/%2").arg(SETTINGS,preferredRendererKey)).toString();
+        if (preferredRenderer == "LDGLite") {
+            if ( ! ldgliteInstalled)  {
+                preferredRenderer.clear();
+                Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
+            }
+        } else if (preferredRenderer == "LDView") {
+            if ( ! ldviewInstalled) {
+                preferredRenderer.clear();
+                Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
+            }
+        } else if (preferredRenderer == "POVRay") {
+            if ( ! povRayInstalled) {
+                preferredRenderer.clear();
+                Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
+            }
+        }
+    }
+
+    if (preferredRenderer == "") {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
+
+        if (ldviewInstalled && ldgliteInstalled) {
+            preferredRenderer = povRayInstalled ? "POVRay" : "LDView";
+        } else if (povRayInstalled) {
+            preferredRenderer = "POVRay";
+        } else if (ldviewInstalled) {
+            preferredRenderer = "LDView";
+        } else if (ldgliteInstalled) {
+            preferredRenderer = "LDGLite";
+        }
+    } else {
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,preferredRendererKey),preferredRenderer);
+    }
+
+    /* Set use multiple files single call rendering option */
+
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"))) {
+        QVariant eValue(false);
+        if (preferredRenderer == "LDView") {
+            enableLDViewSingleCall = true;
+        } else {
+            enableLDViewSingleCall = false;
+        }
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"),eValue);
+    } else {
+        enableLDViewSingleCall = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall")).toBool();
+    }
+
+    if (preferredRenderer == "LDView" && enableLDViewSingleCall) {
+        useLDViewSingleCall = true;
+    } else {
+        useLDViewSingleCall = false;
+    }
+
+    //Renderer Timeout
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererTimeout"))) {
+        rendererTimeout = 6;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"RendererTimeout"),rendererTimeout);
+    } else {
+        rendererTimeout = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererTimeout")).toInt();
+    }
+
+    // display povray image during rendering
+    QString const povrayDisplayKey("PovRayDisplay");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayDisplayKey))) {
+            QVariant uValue(false);
+            povrayDisplay = false;
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,povrayDisplayKey),uValue);
+    } else {
+            povrayDisplay = Settings.value(QString("%1/%2").arg(SETTINGS,povrayDisplayKey)).toBool();
+    }
+
     logInfo() << "Renderer configuration files...";
 
     // Copy required config and ini resource files to application data directory
@@ -1014,153 +1121,6 @@ void Preferences::renderPreferences()
     if (resourceFile.exists())
       povrayScenePath = resourceFile.absolutePath();
     logInfo() << QString("POVRay scene path  : %1").arg(povrayScenePath.isEmpty() ? "Not found" : povrayScenePath);
-
-    /* Find LDGLite's installation status */
-
-    QSettings Settings;
-
-    bool    ldgliteInstalled;
-    QString const ldglitePathKey("LDGLite");
-    QString ldglitePath;
-
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,ldglitePathKey))) {
-        ldglitePath = Settings.value(QString("%1/%2").arg(SETTINGS,ldglitePathKey)).toString();
-        QFileInfo info(ldglitePath);
-        if (info.exists()) {
-            ldgliteInstalled = true;
-            ldgliteExe = ldglitePath;
-        } else {
-            Settings.remove(QString("%1/%2").arg(SETTINGS,ldglitePathKey));
-            ldgliteInstalled = false;
-        }
-    } else if (ldgliteInfo.exists()) {
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,ldglitePathKey),ldgliteInfo.absoluteFilePath());
-        ldgliteInstalled = true;
-        ldgliteExe = ldgliteInfo.absoluteFilePath();
-    } else {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,ldglitePathKey));
-        ldgliteInstalled = false;
-    }
-
-    /* Find LDView's installation status */
-
-    bool    ldviewInstalled;
-    QString const ldviewPathKey("LDView");
-    QString ldviewPath;
-
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,ldviewPathKey))) {
-        ldviewPath = Settings.value(QString("%1/%2").arg(SETTINGS,ldviewPathKey)).toString();
-        QFileInfo info(ldviewPath);
-        if (info.exists()) {
-            ldviewInstalled = true;
-            ldviewExe = ldviewPath;
-        } else {
-            Settings.remove(QString("%1/%2").arg(SETTINGS,ldviewPathKey));
-            ldviewInstalled = false;
-        }
-    } else if (ldviewInfo.exists()) {
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,ldviewPathKey),ldviewInfo.absoluteFilePath());
-        ldviewInstalled = true;
-        ldviewExe = ldviewInfo.absoluteFilePath();
-    } else {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,ldviewPathKey));
-        ldviewInstalled = false;
-    }
-
-    /* Find POV-Ray's installation status */
-
-    bool    povRayInstalled;
-    QString const povrayPathKey("POVRayPath");
-    QString povrayPath;
-
-    if (Settings.contains(QString("%1/%2").arg(POVRAY,povrayPathKey))) {
-        povrayPath = Settings.value(QString("%1/%2").arg(POVRAY,povrayPathKey)).toString();
-        QFileInfo info(povrayPath);
-        if (info.exists()) {
-            povRayInstalled = true;
-            povrayExe = povrayPath;
-        } else {
-            Settings.remove(QString("%1/%2").arg(POVRAY,povrayPathKey));
-            povRayInstalled = false;
-        }
-    } else if (povrayInfo.exists()) {
-        Settings.setValue(QString("%1/%2").arg(POVRAY,povrayPathKey),povrayInfo.absoluteFilePath());
-        povRayInstalled = true;
-        povrayExe = povrayInfo.absoluteFilePath();
-    } else {
-        Settings.remove(QString("%1/%2").arg(POVRAY,povrayPathKey));
-        povRayInstalled = false;
-    }
-
-    /* Find out if we have a valid preferred renderer */
-
-    QString const preferredRendererKey("PreferredRenderer");
-
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,preferredRendererKey))) {
-        preferredRenderer = Settings.value(QString("%1/%2").arg(SETTINGS,preferredRendererKey)).toString();
-        if (preferredRenderer == "LDGLite") {
-            if ( ! ldgliteInstalled)  {
-                preferredRenderer.clear();
-                Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
-            }
-        } else if (preferredRenderer == "LDView") {
-            if ( ! ldviewInstalled) {
-                preferredRenderer.clear();
-                Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
-            }
-        } else if (preferredRenderer == "POVRay") {
-            if ( ! povRayInstalled) {
-                preferredRenderer.clear();
-                Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
-            }
-        }
-    }
-
-    if (preferredRenderer == "") {
-        if (ldviewInstalled && ldgliteInstalled) {
-            preferredRenderer = povRayInstalled ? "POVRay" : "LDView";
-        } else if (povRayInstalled) {
-            preferredRenderer = "POVRay";
-        } else if (ldviewInstalled) {
-            preferredRenderer = "LDView";
-        } else if (ldgliteInstalled) {
-            preferredRenderer = "LDGLite";
-        }
-    }
-
-    if (preferredRenderer == "") {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
-    } else {
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,preferredRendererKey),preferredRenderer);
-    }
-
-    /* Set use multiple files single call rendering option */
-
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"))) {
-        QVariant eValue(false);
-        if (preferredRenderer == "LDView") {
-            enableLDViewSingleCall = true;
-        } else {
-            enableLDViewSingleCall = false;
-        }
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"),eValue);
-    } else {
-        enableLDViewSingleCall = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall")).toBool();
-    }
-
-    if (preferredRenderer == "LDView" && enableLDViewSingleCall) {
-        useLDViewSingleCall = true;
-    } else {
-        useLDViewSingleCall = false;
-    }
-
-    //Renderer Timeout
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererTimeout"))) {
-        rendererTimeout = 6;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"RendererTimeout"),rendererTimeout);
-    } else {
-        rendererTimeout = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererTimeout")).toInt();
-    }
 }
 
 void Preferences::pliPreferences()
@@ -1384,14 +1344,16 @@ void Preferences::publishingPreferences()
 
 void Preferences::viewerPreferences()
 {
+
     QSettings Settings;
+
+    if (!povrayExe.isEmpty())
+      lcSetProfileString(LC_PROFILE_POVRAY_PATH, Settings.value(povrayExe).toString());
 
     if (Settings.contains(QString("%1/%2").arg(DEFAULTS,"Author")))
         lcSetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME, Settings.value(QString("%1/%2").arg(DEFAULTS,"Author")).toString());
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"ProjectsPath")))
         lcSetProfileString(LC_PROFILE_PROJECTS_PATH, Settings.value(QString("%1/%2").arg(SETTINGS,"ProjectsPath")).toString());
-    if (Settings.contains(QString("%1/%2").arg(POVRAY,"POVRayPath")))
-        lcSetProfileString(LC_PROFILE_POVRAY_PATH, Settings.value(QString("%1/%2").arg(POVRAY,"POVRayPath")).toString());
     if (Settings.contains(QString("%1/%2").arg(POVRAY,"LGEOPath")))
         lcSetProfileString(LC_PROFILE_POVRAY_LGEO_PATH, Settings.value(QString("%1/%2").arg(POVRAY,"LGEOPath")).toString());
 }
@@ -1425,12 +1387,12 @@ bool Preferences::getPreferences()
             }
         }
 
-        if (povrayExe != dialog->povrayExe()) {
-            povrayExe = dialog->povrayExe();
-            if (povrayExe == "") {
-                Settings.remove(QString("%1/%2").arg(POVRAY,"POVRayPath"));
+        if (preferredRenderer != dialog->preferredRenderer()) {
+            preferredRenderer = dialog->preferredRenderer();
+            if (preferredRenderer == "") {
+                Settings.remove(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"));
             } else {
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"POVRayPath"),povrayExe);
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"),preferredRenderer);
             }
         }
 
@@ -1443,31 +1405,10 @@ bool Preferences::getPreferences()
             }
         }
 
-        if (ldgliteExe != dialog->ldgliteExe()) {
-            ldgliteExe = dialog->ldgliteExe();
-            if (ldgliteExe == "") {
-                Settings.remove(QString("%1/%2").arg(SETTINGS,"LDGLite"));
-            } else {
-                Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDGLite"),ldgliteExe);
-            }
-        }
-
-        if (ldviewExe != dialog->ldviewExe()) {
-            ldviewExe = dialog->ldviewExe();
-            if (ldviewExe == "") {
-                Settings.remove(QString("%1/%2").arg(SETTINGS,"LDView"));
-            } else {
-                Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDView"),ldviewExe);
-            }
-        }
-
-        if (preferredRenderer != dialog->preferredRenderer()) {
-            preferredRenderer = dialog->preferredRenderer();
-            if (preferredRenderer == "") {
-                Settings.remove(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"));
-            } else {
-                Settings.setValue(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"),preferredRenderer);
-            }
+        if (povrayDisplay != dialog->povrayDisplay())
+        {
+                povrayDisplay = dialog->povrayDisplay();
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovRayDisplay"),povrayDisplay);
         }
 
         if (ldSearchDirs != dialog->searchDirSettings()) {

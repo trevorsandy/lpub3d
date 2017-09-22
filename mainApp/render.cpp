@@ -361,6 +361,12 @@ int POVRay::renderCsi(
     }
 
   QStringList povArguments;
+  if (Preferences::povrayDisplay){
+      povArguments << QString("+d");
+  } else {
+      povArguments << QString("-d");
+  }
+
   QString O = QString("+O%1").arg(fixupDirname(QDir::toNativeSeparators(pngName)));
   QString I = QString("+I%1").arg(fixupDirname(QDir::toNativeSeparators(povName)));
   QString W = QString("+W%1").arg(width);
@@ -502,6 +508,12 @@ int POVRay::renderPli(
     }
 
   QStringList povArguments;
+  if (Preferences::povrayDisplay){
+      povArguments << QString("+d");
+  } else {
+      povArguments << QString("-d");
+  }
+
   QString O = QString("+O%1").arg(fixupDirname(QDir::toNativeSeparators(pngName)));
   QString I = QString("+I%1").arg(fixupDirname(QDir::toNativeSeparators(povName)));
   QString W = QString("+W%1").arg(width);
