@@ -846,6 +846,8 @@ private:
             QPixmap            *pixmap,
             Meta               &meta);
 
+  int addStepImageGraphics(Step    *step); //recurse the step's model to add images.
+
   int addGraphicsPageItems(        // this converts the abstract page into
     Steps          *steps,         // a graphics view
     bool            coverPage,

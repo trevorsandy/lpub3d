@@ -556,32 +556,10 @@ int Gui::addGraphicsPageItems(
               Step *step = dynamic_cast<Step *>(range->list[0]);
               if (step && step->relativeType == StepType) {
 
-                  // populate page pixmaps - of using LDView Single Call
+                  // populate page pixmaps - when using LDView Single Call
 
                   if (renderer->useLDViewSCall()){
-                      step->csiPixmap.load(step->pngName);
-                      step->csiPlacement.size[0] = step->csiPixmap.width();
-                      step->csiPlacement.size[1] = step->csiPixmap.height();
-                      for (int k = 0; k < step->list.size(); k++) {
-                          if (step->list[k]->relativeType == CalloutType) {
-                              Callout *callout = dynamic_cast<Callout *>(step->list[k]);
-                              if (callout) {
-                                  for (int l = 0; l < callout->list.size(); l++){
-                                      Range *range = dynamic_cast<Range *>(callout->list[l]);
-                                      for (int m = 0; m < range->list.size(); m++){
-                                          if (range->relativeType == RangeType) {
-                                              Step *step = dynamic_cast<Step *>(range->list[m]);
-                                              if (step){
-                                                  step->csiPixmap.load(step->pngName);
-                                                  step->csiPlacement.size[0] = step->csiPixmap.width();
-                                                  step->csiPlacement.size[1] = step->csiPixmap.height();
-                                                } // validate step (StepType) and process...
-                                            } // validate RangeType - to cast step
-                                        } // for each step within divided group...=>list[AbstractRangeElement]->StepType
-                                    } // for each divided group within callout...=>list[AbstractStepsElement]->RangeType
-                                } // validate callout
-                            } // validate calloutType
-                        } // for divided group within step...=>list[Steps]->CalloutType
+                      addStepImageGraphics(step);
                     }
 
                   // add the step number
@@ -635,7 +613,6 @@ int Gui::addGraphicsPageItems(
                         } // if callout
                     } // callouts
 
-
                   if (step->pli.placement.value().relativeTo == CsiType) {
                       step->csiItem->placeRelative(&step->pli);
                     }
@@ -643,8 +620,6 @@ int Gui::addGraphicsPageItems(
                   // place the CSI relative to the entire step's box
                   step->csiItem->setPos(step->csiItem->loc[XX],
                                         step->csiItem->loc[YY]);
-
-
 
                   // add the PLI graphically to the scene                  
 
@@ -750,42 +725,20 @@ int Gui::addGraphicsPageItems(
 
       // LDView generate multistep pixamps
       if (renderer->useLDViewSCall() &&
-              page->list.size()) {
-          // Load images and set size
+          page->list.size()) {
           for (int i = 0; i < page->list.size(); i++){
               Range *range = dynamic_cast<Range *>(page->list[i]);
               for (int j = 0; j < range->list.size(); j++){
                   if (range->relativeType == RangeType) {
                       Step *step = dynamic_cast<Step *>(range->list[j]);
                       if (step && step->relativeType == StepType){
-                          step->csiPixmap.load(step->pngName);
-                          step->csiPlacement.size[0] = step->csiPixmap.width();
-                          step->csiPlacement.size[1] = step->csiPixmap.height();
-                          for (int k = 0; k < step->list.size(); k++) {
-                              if (step->list[k]->relativeType == CalloutType) {
-                                  Callout *callout = dynamic_cast<Callout *>(step->list[k]);
-                                  if (callout) {
-                                      for (int l = 0; l < callout->list.size(); l++){
-                                          Range *range = dynamic_cast<Range *>(callout->list[l]);
-                                          for (int m = 0; m < range->list.size(); m++){
-                                              if (range->relativeType == RangeType) {
-                                                  Step *step = dynamic_cast<Step *>(range->list[m]);
-                                                  if (step){
-                                                      step->csiPixmap.load(step->pngName);
-                                                      step->csiPlacement.size[0] = step->csiPixmap.width();
-                                                      step->csiPlacement.size[1] = step->csiPixmap.height();
-                                                  } // validate step (StepType) and process...
-                                              } // validate RangeType - to cast step
-                                          } // for each step within divided group...=>list[AbstractRangeElement]->StepType
-                                      } // for each divided group within callout...=>list[AbstractStepsElement]->RangeType
-                                  } // validate callout
-                              } // validate calloutType
-                          } // for divided group within step...=>list[Steps]->CalloutType
-                      } // validate step (StepType) and process...
-                  } // validate RangeType - to cast step
-              } // for each step within divided group...=>list[AbstractRangeElement]->StepType
-          } // for each divided group within page...=>list[AbstractStepsElement]->RangeType
-      }
+                          // Load images and set size
+                          addStepImageGraphics(step);
+                      } // 1.4 validate if relativeType is StepType - to add image, check for Callout
+                  } // 1.3 validate if relativeType is RangeType - to cast as Step
+              } // 1.2 for each list-item (Step) within a Range...=>list[AbstractRangeElement]->StepType
+          } // 1.1 for each list-item (Range) within a Page...=>list[AbstractStepsElement]->RangeType
+      } // 1.0 Page
 
       PlacementData data = page->meta.LPub.multiStep.placement.value();
       page->placement.setValue(data);
@@ -849,7 +802,6 @@ int Gui::addGraphicsPageItems(
 
   view->setSceneRect(pageBg->sceneBoundingRect());
 
-
   if (printing) {
       view->fitInView(0,0,pW,pH);
     } else if (fitMode == FitWidth) {
@@ -861,6 +813,36 @@ int Gui::addGraphicsPageItems(
   page->relativeType = SingleStepType;
   statusBarMsg("");
   return 0;
+}
+
+/*
+ * Add step image graphics
+ * This function recurses the step's model to add images.
+ * Call only if using LDView Single Call (useLDViewsCall=true)
+ */
+int Gui::addStepImageGraphics(Step *step) {
+  int retVal = 0;
+  step->csiPixmap.load(step->pngName);
+  step->csiPlacement.size[0] = step->csiPixmap.width();
+  step->csiPlacement.size[1] = step->csiPixmap.height();
+  // process callout's step(s) image(s)
+  for (int k = 0; k < step->list.size(); k++) {
+      if (step->list[k]->relativeType == CalloutType) {
+          Callout *callout = dynamic_cast<Callout *>(step->list[k]);
+          for (int l = 0; l < callout->list.size(); l++){
+              Range *range = dynamic_cast<Range *>(callout->list[l]);
+              for (int m = 0; m < range->list.size(); m++){
+                  if (range->relativeType == RangeType) {
+                      Step *step = dynamic_cast<Step *>(range->list[m]);
+                      if (step && step->relativeType == StepType){
+                          addStepImageGraphics(step);
+                      } // 1.6 validate if Step relativeType is StepType - to add image, check for Callout
+                  } // 1.5 validate if Range relativeType is RangeType - to cast as Step
+              } // 1.4 for each Step list-item within a Range...=>list[AbstractRangeElement]->StepType
+          } // 1.3 for each Range list-item within a Callout...=>list[AbstractStepsElement]->RangeType
+      } // 1.2 validate if relativeType is CalloutType - to cast as Callout...
+  } // 1.1 for each Callout list-item within a Step...=>list[Steps]->CalloutType
+  return retVal;
 }
 
 int Gui::addContentPageAttributes(
