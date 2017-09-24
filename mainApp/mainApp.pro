@@ -154,15 +154,30 @@ UI_DIR      = $$DESTDIR/.ui
 
 #~~file distributions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Use these switches to enable/disable copying/install of 3rd party executables, documentation and resources.
-# For example, if you are building from source locally and have downloaded the 3party source repos.
 # To copy 3rd party executables during install, set CONFIG+=copy3rdexe. Default is enabled.
-!contains(CONFIG, copy3rdexe): CONFIG += copy3rdexe
+!contains(CONFIG, copy3rdexe): CONFIG +=
 # To copy 3rd party for executable configuration file(s) during install, set CONFIG+=copy3rdexeconfig. Default is enabled.
-!contains(CONFIG, copy3rdexeconfig): CONFIG += copy3rdexeconfig
+!contains(CONFIG, copy3rdexeconfig): CONFIG +=
 # To copy 3rd party documents and resources during install, set CONFIG+=copy3rdcontent. Default is disabled.
 !contains(CONFIG, copy3rdcontent): CONFIG +=
 # To stage 3rd party executables, documentation and resources, set CONFIG+=stagewindistcontent, Default is disabled.
-!contains(CONFIG, stagewindistcontent): CONFIG += stagewindistcontent
+!contains(CONFIG, stagewindistcontent): CONFIG +=
+# Download 3rd party repository when required
+if(copy3rdexe|copy3rdexeconfig|copy3rdcontent|stagewindistcontent) {
+    unix:!macx:REPO = lpub3d_linux_3rdparty
+    macx:REPO       = lpub3d_macos_3rdparty
+    win32:REPO      = lpub3d_windows_3rdparty
+    !exists($$_PRO_FILE_PWD_/../../$$REPO/.gitignore) {
+        MESSAGE = GIT REPOSITORY $$REPO was not found. It will be downloaded.
+        GITHUB_URL = https://github.com/trevorsandy
+        QMAKE_POST_LINK += $$escape_expand(\n\t) \
+                           echo $$shell_quote$${MESSAGE} \
+                           $$escape_expand(\n\t) \
+                           cd $$_PRO_FILE_PWD_/../../ \
+                           $$escape_expand(\n\t) \
+                           git clone $${GITHUB_URL}/$${REPO}.git
+    }
+}
 
 VER_LDVIEW      = ldview-4.3
 VER_LDGLITE     = ldglite-1.3
