@@ -128,6 +128,7 @@
         <file alias="treataspart.png">images/treataspart.png</file>
         <file alias="unpackcallout.png">images/unpackcallout.png</file>
         <file alias="unrotate.png">images/unrotate.png</file>
+        <file alias="viewlog.png">images/viewlog.png</file>
         <file alias="zoomin.png">images/zoomin.png</file>
         <file alias="zoomout.png">images/zoomout.png</file>
         <file alias="action_delete_16.png">../lc_lib/resources/action_delete_16.png</file>

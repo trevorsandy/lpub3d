@@ -152,7 +152,7 @@ void Preferences::loggingPreferences()
   QDir logDir(lpubDataPath+"/logs");
   if(!QDir(logDir).exists())
     logDir.mkpath(".");
-  Preferences::logPath = QDir(logDir).filePath(QString("%1%2").arg(VER_PRODUCTNAME_STR).arg("Log.txt"));
+  Preferences::logPath = QDir(logDir).filePath(QString("%1Log.txt").arg(VER_PRODUCTNAME_STR));
 
   QSettings Settings;
   if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeLogLevel"))) {

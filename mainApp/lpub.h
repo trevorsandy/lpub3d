@@ -922,6 +922,7 @@ private slots:
     void editPovrayIni();
     void editPovrayConf();
     void generateFadeColourPartsList();
+    void viewLog();
 
     void toggleLCStatusBar();
     void showLCStatusMessage();
@@ -1154,7 +1155,8 @@ private:
   enum { MaxRecentFiles = 8 };
   QAction *recentFilesActs[MaxRecentFiles];
 
-  QAction *updateApp;
+  QAction *updateAppAct;
+  QAction *viewLogAct;
 
 };
 

@@ -1189,6 +1189,13 @@ void Gui::editPovrayConf()
     parmsWindow->show();
 }
 
+void Gui::viewLog()
+{
+    displayParmsFile(Preferences::logPath);
+    parmsWindow->setWindowTitle(tr(VER_PRODUCTNAME_STR " log",VER_PRODUCTNAME_STR " logs"));
+    parmsWindow->show();
+}
+
 void Gui::preferences()
 {
     bool useLDViewSCall       = renderer->useLDViewSCall();
@@ -2104,9 +2111,13 @@ void Gui::createActions()
     metaAct->setStatusTip(tr("Save a list of the known LPub meta commands to a file"));
     connect(metaAct, SIGNAL(triggered()), this, SLOT(meta()));
 
-    updateApp = new QAction(QIcon(":/resources/softwareupdate.png"),tr("Check for &Updates..."), this);
-    updateApp->setStatusTip(tr("Check if a newer LPub3D version is available for download"));
-    connect(updateApp, SIGNAL(triggered()), this, SLOT(updateCheck()));
+    updateAppAct = new QAction(QIcon(":/resources/softwareupdate.png"),tr("Check for &Updates..."), this);
+    updateAppAct->setStatusTip(tr("Check if a newer version of  %1 is available for download").arg(VER_PRODUCTNAME_STR));
+    connect(updateAppAct, SIGNAL(triggered()), this, SLOT(updateCheck()));
+
+    viewLogAct = new QAction(QIcon(":/resources/viewlog.png"),tr("View %1 log").arg(VER_PRODUCTNAME_STR), this);
+    viewLogAct->setStatusTip(tr("View %1 log").arg(VER_PRODUCTNAME_STR));
+    connect(viewLogAct, SIGNAL(triggered()), this, SLOT(viewLog()));
 }
 
 void Gui::loadPages(){
@@ -2443,8 +2454,9 @@ void Gui::createMenus()
     // Help Menus
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu->addAction(viewLogAct);
 #if !DISABLE_UPDATE_CHECK
-    helpMenu->addAction(updateApp);
+    helpMenu->addAction(updateAppAct);
 #endif
     // Begin Jaco's code
     helpMenu->addAction(onlineManualAct);
