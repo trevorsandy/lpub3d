@@ -367,8 +367,8 @@ int POVRay::renderCsi(
       povArguments << QString("-d");
   }
 
-  QString O = QString("+O%1").arg(fixupDirname(QDir::toNativeSeparators(pngName)));
-  QString I = QString("+I%1").arg(fixupDirname(QDir::toNativeSeparators(povName)));
+  QString O = QString("+O\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(pngName)));
+  QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
   QString W = QString("+W%1").arg(width);
   QString H = QString("+H%1").arg(height);
 
@@ -378,20 +378,20 @@ int POVRay::renderCsi(
   povArguments << H;
   povArguments << USE_ALPHA;
   if(hasPOVRayInc){
-      QString povinc = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIncPath)));
+      QString povinc = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIncPath)));
       povArguments << povinc;
   }
   if(hasPOVRayIni){
-      QString povini = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIniPath)));
+      QString povini = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIniPath)));
       povArguments << povini;
   }
   if(hasLGEO){
-      QString lgeoLg = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/lg")));
-      QString lgeoAr = QString("+L%2").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/ar")));
+      QString lgeoLg = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/lg")));
+      QString lgeoAr = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/ar")));
       povArguments << lgeoLg;
       povArguments << lgeoAr;
       if (hasSTL){
-          QString lgeoStl = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/stl")));
+          QString lgeoStl = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/stl")));
           povArguments << lgeoStl;
         }
     }
@@ -514,8 +514,8 @@ int POVRay::renderPli(
       povArguments << QString("-d");
   }
 
-  QString O = QString("+O%1").arg(fixupDirname(QDir::toNativeSeparators(pngName)));
-  QString I = QString("+I%1").arg(fixupDirname(QDir::toNativeSeparators(povName)));
+  QString O = QString("+O\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(pngName)));
+  QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
   QString W = QString("+W%1").arg(width);
   QString H = QString("+H%1").arg(height);
 
@@ -525,20 +525,20 @@ int POVRay::renderPli(
   povArguments << H;
   povArguments << USE_ALPHA;
   if(hasPOVRayInc){
-      QString povinc = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIncPath)));
+      QString povinc = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIncPath)));
       povArguments << povinc;
   }
   if(hasPOVRayIni){
-      QString povini = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIniPath)));
+      QString povini = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIniPath)));
       povArguments << povini;
   }
   if(hasLGEO){
-      QString lgeoLg = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/lg")));
-      QString lgeoAr = QString("+L%2").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/ar")));
+      QString lgeoLg = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/lg")));
+      QString lgeoAr = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/ar")));
       povArguments << lgeoLg;
       povArguments << lgeoAr;
       if (hasSTL){
-          QString lgeoStl = QString("+L%1").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/stl")));
+          QString lgeoStl = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::lgeoPath + "/stl")));
           povArguments << lgeoStl;
         }
     }
@@ -671,7 +671,7 @@ int LDGLite::renderCsi(
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr-ldglite");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout-ldglite");
 
-  //qDebug() << qPrintable("LDGLite CSI Arguments: " + Preferences::ldgliteExe + " " + arguments.join(" ")) << "\n";
+  qDebug() << qPrintable("LDGLite CSI Arguments: " + Preferences::ldgliteExe + " " + arguments.join(" ")) << "\n";
 
   ldglite.start(Preferences::ldgliteExe,arguments);
   if ( ! ldglite.waitForFinished(rendererTimeout())) {
@@ -754,7 +754,7 @@ int LDGLite::renderPli(
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr-ldglite");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout-ldglite");
 
-  //qDebug() << qPrintable("LDGLite PLI Arguments: " + Preferences::ldgliteExe + " " + arguments.join(" ")) << "\n";
+  qDebug() << qPrintable("LDGLite PLI Arguments: " + Preferences::ldgliteExe + " " + arguments.join(" ")) << "\n";
 
   ldglite.start(Preferences::ldgliteExe,arguments);
   if (! ldglite.waitForFinished()) {
@@ -866,7 +866,7 @@ int LDView::renderCsi(
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
   ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
 
-  //qDebug() << qPrintable("LDView (Native) CSI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  qDebug() << qPrintable("LDView (Native) CSI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
 
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished(rendererTimeout())) {
@@ -1007,7 +1007,7 @@ int Render::renderLDViewSCallCsi(
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
   ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldivew");
 
-  //qDebug() << qPrintable("LDView (Single Call) CSI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  qDebug() << qPrintable("LDView (Single Call) CSI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
 
   ldview.start(Preferences::ldviewExe,arguments);  
   if ( ! ldview.waitForFinished(rendererTimeout())) {
