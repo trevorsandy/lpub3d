@@ -93,8 +93,8 @@ void Gui::openRecentFile()
   if (action) {
     timer.start();
     QString fileName = action->data().toString();
-    QFileInfo info(fileName);
-    QDir::setCurrent(info.absolutePath());
+    QFileInfo fileInfo(fileName);
+    QDir::setCurrent(fileInfo.absolutePath());
     openFile(fileName);
     Paths::mkdirs();
     displayPage();
@@ -358,6 +358,7 @@ void Gui::updateRecentFileActions()
       QString text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
       recentFilesActs[i]->setText(text);
       recentFilesActs[i]->setData(files[i]);
+      recentFilesActs[i]->setStatusTip(fileInfo.absoluteFilePath());
       recentFilesActs[i]->setVisible(true);
     }
     for (int j = numRecentFiles; j < MaxRecentFiles; j++) {
