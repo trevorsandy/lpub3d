@@ -63,8 +63,8 @@ class QDialogButtonBox;
  *   ---+-----------+---
  *   B/L|B:L B:C B:R|B/R
  *
- * TL,T-L=Top Left
- * BL,B-L=Bottom Left
+ *   TL,T-L=Top Left
+ *   BL,B-L=Bottom Left
  */
 
 class PlacementDialog : public QDialog
