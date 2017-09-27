@@ -1326,8 +1326,8 @@ Gui::Gui()
     m_exportingContent = false;
 
 
-    editWindow    = new EditWindow(this);
-    parmsWindow   = new ParmsWindow(this);
+    editWindow    = new EditWindow(this);  // remove inheritance 'this' to independently manage window
+    parmsWindow   = new ParmsWindow();
 
     KpageScene    = new QGraphicsScene(this);
     KpageScene->setBackgroundBrush(Qt::lightGray);

@@ -37,6 +37,10 @@
 #include <QMainWindow>
 #include <QTextCursor>
 
+#ifndef WATCHER
+#define WATCHER
+#endif
+
 class QPlainTextEdit;
 class LDrawFile;
 class ParmsHighlighter;
@@ -81,6 +85,7 @@ private:
     QToolBar *editToolBar;
     QToolBar *undoRedoToolBar;
     QAction  *openAct;
+    QAction  *refreshAct;
     QAction  *cutAct;
     QAction  *copyAct;
     QAction  *pasteAct;
@@ -94,9 +99,10 @@ private:
 
 private slots:
     void openFile();
+    void refreshFile();
     void enableSave();
     void toggleClear();
-    void viewLogPreferences();
+    void viewLogWindowSettings();
     bool maybeSave();
     bool saveFile();
     bool saveCopyAsFile();

@@ -72,6 +72,12 @@ void ParmsWindow::createActions()
 
     connect(openAct, SIGNAL(triggered()), this, SLOT(openFile()));
 
+    refreshAct = new QAction(QIcon(":/resources/redraw.png"), tr("&Refresh file"), this);
+    refreshAct->setShortcut(tr("Ctrl+O"));
+    refreshAct->setStatusTip(tr("Reload the current file to see updated content"));
+
+    connect(refreshAct, SIGNAL(triggered()), this, SLOT(refreshFile()));
+
     cutAct = new QAction(QIcon(":/resources/cut.png"), tr("Cu&t"), this);
     cutAct->setShortcut(tr("Ctrl+X"));
     cutAct->setStatusTip(tr("Cut the current selection's contents to the "
@@ -130,6 +136,7 @@ void ParmsWindow::createActions()
     connect(redoAct, SIGNAL(triggered()), _textEdit, SLOT(redo()));
 
     openAct->setVisible(false);
+    refreshAct->setVisible(false);
 
     saveAct->setEnabled(false);
     cutAct->setEnabled(false);
@@ -163,6 +170,7 @@ void ParmsWindow::createToolBars()
     editToolBar->addAction(copyAct);
     editToolBar->addAction(pasteAct);
     editToolBar->addAction(findAct);
+    editToolBar->addAction(refreshAct);
     editToolBar->addAction(delAct);
 
     undoRedoToolBar = addToolBar(tr("Undo Redo"));
@@ -177,8 +185,11 @@ void ParmsWindow::displayParmsFile(
     // Automatically hide open file action - set only for logs
     if (openAct->isVisible())
       openAct->setVisible(false);
+    if (refreshAct->isVisible())
+      refreshAct->setVisible(false);
 
     fileName = _fileName;
+
     QFile file(fileName);
     QFileInfo fileInfo(file.fileName());
 
@@ -213,47 +224,47 @@ void ParmsWindow::displayParmsFile(
     }
     else if (fileInfo.fileName() == QString("%1Log.txt").arg(VER_PRODUCTNAME_STR)) {
       title = QString("%1 Log").arg(VER_PRODUCTNAME_STR);
-      viewLogPreferences();
+      viewLogWindowSettings();
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == "stderr-povray") {
       title = "Standard error - Raytracer";
-      viewLogPreferences();
+      viewLogWindowSettings();
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == "stdout-povray") {
       title = "Standard output - Raytracer";
-      viewLogPreferences();
+      viewLogWindowSettings();
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == "stderr-ldglite") {
       title = "Standard error - LDGlite";
-      viewLogPreferences();
+      viewLogWindowSettings();
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == "stdout-ldglite") {
       title = "Standard output - LDGLite";
-      viewLogPreferences();
+      viewLogWindowSettings();
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == "stderr-ldviewpov") {
       title = "Standard error - LDView (Raytracer)";
-      viewLogPreferences();
+      viewLogWindowSettings();
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == "stdout-ldviewpov") {
       title = "Standard output - LDView (Raytracer)";
-      viewLogPreferences();
+      viewLogWindowSettings();
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == "stderr-ldview") {
       title = "Standard error - LDView";
-      viewLogPreferences();
+      viewLogWindowSettings();
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == "stdout-ldview") {
       title = "Standard output - LDView";
-      viewLogPreferences();
+      viewLogWindowSettings();
       _restartRequired = false;
     } else {
       title = fileInfo.fileName();
@@ -382,6 +393,7 @@ bool ParmsWindow::saveCopyAsFile()
     setWindowFilePath(fileName);
 
     statusBar()->showMessage(tr("File %1 saved").arg(fileSaveName), 2000);
+
     return true;
 }
 
@@ -409,6 +421,13 @@ void ParmsWindow::openFile()
     }
 }
 
+void ParmsWindow::refreshFile(){
+  QFileInfo fileInfo(fileName);
+  if (fileInfo.exists())
+    displayParmsFile(fileName);
+  _textEdit->moveCursor(QTextCursor::End);
+}
+
 void ParmsWindow::toggleClear(){
   if (_textEdit->document()->isModified())
     {
@@ -418,11 +437,13 @@ void ParmsWindow::toggleClear(){
     }
 }
 
-void ParmsWindow::viewLogPreferences(){
+void ParmsWindow::viewLogWindowSettings(){
   // customize the menu for logging
 
   if (! openAct->isVisible())
     openAct->setVisible(true);
+  if (! refreshAct->isVisible())
+    refreshAct->setVisible(true);
 
   disconnect(delAct, SIGNAL(triggered()),
              _textEdit, SLOT(cut()));
