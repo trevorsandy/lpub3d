@@ -26,7 +26,7 @@ copy3rdexe {
         }
     }
     CONFIG(debug, debug|release) {
-         message("~~~ DEBUG BUILD - 3RD PARTY EXE'S NOT INSTALLED ~~~")
+         message("~~~ DEBUG BUILD - 3RD PARTY EXE'S WILL NOT BE INSTALLED ~~~")
     }
 }
 
