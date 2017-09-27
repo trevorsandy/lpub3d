@@ -627,9 +627,7 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
 
 void Gui::mpdComboChanged(int index)
 {
-  index = index;
   QString newSubFile = mpdCombo->currentText();
-
   if (curSubFile != newSubFile) {
       int modelPageNum = ldrawFile.getModelStartPageNumber(newSubFile);
       logInfo() << "SELECT Model: " << newSubFile << " @ Page: " << modelPageNum;
@@ -637,16 +635,15 @@ void Gui::mpdComboChanged(int index)
       if (displayPageNum != modelPageNum && modelPageNum != 0) {
           displayPageNum  = modelPageNum;
           displayPage();
-          return;
         } else {
           // TODO add status bar message
           Where topOfSteps(newSubFile,0);
           curSubFile = newSubFile;
           displayFileSig(&ldrawFile, curSubFile);
           showLineSig(topOfSteps.lineNumber);
-          return;
         }
     }
+  mpdCombo->setCurrentIndex(index);
 }
 
 

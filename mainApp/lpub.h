@@ -1152,7 +1152,7 @@ private:
   QAction  *metaAct;
   QAction  *separatorAct;
 
-  enum { MaxRecentFiles = 10 };
+  enum { MaxRecentFiles = 8 };
   QAction *recentFilesActs[MaxRecentFiles];
 
   QAction *updateAppAct;
