@@ -54,13 +54,13 @@ equals(GIT_DIR, undefined) {
     BASE_GIT_COMMAND = git --git-dir $$shell_quote$$GIT_DIR --work-tree $$shell_quote$$PWD
 
     # Trying to get version from git tag / revision
-    GIT_VERSION = $$system($$BASE_GIT_COMMAND describe --long 2> $$NULL_DEVICE)
+    GIT_VERSION = $$system($$BASE_GIT_COMMAND describe --tags --long 2> $$NULL_DEVICE)
 
     # Check if we only have hash without version number (i.e. not version tag found)
     !contains(GIT_VERSION,\d+\.\d+\.\d+) {
         # If there is nothing we simply use version defined manually
         isEmpty(GIT_VERSION) {
-            GIT_VERSION = $$VERSION
+            GIT_VERSION = $${VERSION}-00-00000000-000
         } else { # otherwise construct proper git describe string
             GIT_COMMIT_COUNT = $$system($$BASE_GIT_COMMAND rev-list HEAD --count 2> $$NULL_DEVICE)
             isEmpty(GIT_COMMIT_COUNT) {
@@ -85,7 +85,8 @@ equals(GIT_DIR, undefined) {
     VER_SHA_HASH_STR = $$section(GIT_VERSION, ., 4, 4)
     VER_BUILD_STR = $$section(GIT_VERSION, ., 5, 5)
 }
-# Here we process the build date
+
+# Here we process the build date and time
 win32 {
     BUILD_DATE = $$system( date /t )
     BUILD_TIME = $$system( echo %time% )
@@ -93,11 +94,21 @@ win32 {
     BUILD_DATE = $$system( date "+%d/%m/%Y/%H:%M:%S" )
     BUILD_TIME = $$section(BUILD_DATE, /, 3, 3)
 }
-# Separate the date into hours, minutes, seconds etc.
-DATE_DD = $$section(BUILD_DATE, /, 0, 0)
-DATE_MM = $$section(BUILD_DATE, /, 1, 1)
-DATE_YY = $$section(BUILD_DATE, /, 2, 2)
-#message("BUILD_TIME:" $$BUILD_TIME ) # output the current time
+#message(~~~ DEBUG ~~ BUILD_DATE: $$BUILD_DATE) # output the current date
+#message(~~~ DEBUG ~~ BUILD_TIME: $$BUILD_TIME) # output the current time
+
+# Separate the date into day month, year.
+av_win {
+    # AppVeyor CI uses date format 'Day MM/DD/YY'
+    BUILD_DATE ~= s/[\sA-Za-z\s]/""
+    DATE_MM = $$section(BUILD_DATE, /, 0, 0)
+    DATE_DD = $$section(BUILD_DATE, /, 1, 1)
+    DATE_YY = $$section(BUILD_DATE, /, 2, 2)
+} else {
+    DATE_DD = $$section(BUILD_DATE, /, 0, 0)
+    DATE_MM = $$section(BUILD_DATE, /, 1, 1)
+    DATE_YY = $$section(BUILD_DATE, /, 2, 2)
+}
 
 # C preprocessor #DEFINE to use in C++ code
 DEFINES += VER_MAJOR=\\\"$$VER_MAJOR\\\"
@@ -129,17 +140,24 @@ RPM_SPEC_VERSION_COMMAND = $$VERSION"."$$VER_BUILD_STR
 message(~~~ VERSION_INFO: $$VERSION_INFO_COMMAND)
 
 win32 {
-    CONFIG_FILES_COMMAND = $$PWD/builds/utilities/update-config-files.bat $$_PRO_FILE_PWD_
-    VERSION_INFO_FILE ~= s,/,\\,g
-    QMAKE_POST_LINK += $$escape_expand(\n\t)  \
-                       cmd /c echo $$shell_quote$${VERSION_INFO_COMMAND} > $$shell_quote$${VERSION_INFO_FILE} \
-                       $$escape_expand(\n\t)  \
-                       cmd /c echo $$shell_quote$${RPM_SPEC_VERSION_COMMAND} > $$shell_quote$${RPM_SPEC_VERSION_FILE} \
-                       $$escape_expand(\n\t)  \
-                       $$shell_quote$${CONFIG_FILES_COMMAND}
+    av_win {
+        BUILD_DATE_TIME_COMMAND = $$DATE_DD"-"$$DATE_MM"-"$$DATE_YY $$BUILD_TIME
+        COMPLETION_COMMAND = LPub3D Build $$VERSION_INFO_COMMAND $$BUILD_DATE_TIME_COMMAND Finished.
+        QMAKE_POST_LINK += cmd /c echo $$shell_quote$${COMPLETION_COMMAND}
+    } else {
+        # this doesn't seem to work on AppVeyor and we really don't need most of it anyway
+        CONFIG_FILES_COMMAND = $$PWD/builds/utilities/update-config-files.bat $$_PRO_FILE_PWD_
+        VERSION_INFO_FILE ~= s,/,\\,g
+        QMAKE_POST_LINK += $$escape_expand(\n\t)  \
+                           cmd /c echo $$shell_quote$${VERSION_INFO_COMMAND} > $$shell_quote$${VERSION_INFO_FILE} \
+                           $$escape_expand(\n\t)  \
+                           cmd /c echo $$shell_quote$${RPM_SPEC_VERSION_COMMAND} > $$shell_quote$${RPM_SPEC_VERSION_FILE} \
+                           $$escape_expand(\n\t)  \
+                           $$shell_quote$${CONFIG_FILES_COMMAND}
+    }
 
 } else {
-    CONFIG_FILES_TARGET = $$PWD/builds/utilities/update-config-files.sh 
+    CONFIG_FILES_TARGET = $$PWD/builds/utilities/update-config-files.sh
     CONFIG_FILES_COMMAND = $$CONFIG_FILES_TARGET $$_PRO_FILE_PWD_
     CHMOD_COMMAND = chmod 755 $$CONFIG_FILES_TARGET
     QMAKE_POST_LINK += $$escape_expand(\n\t)  \

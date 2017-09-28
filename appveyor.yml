@@ -1,0 +1,32 @@
+version: 2.0.20.av.{build}
+
+branches:
+  only:
+   - integrate-renderers
+
+clone_folder: c:\projects\lpub3d
+clone_depth: 5
+
+skip_tags: true
+
+build: off
+
+matrix:
+  fast_finish: true
+
+environment:
+  cibuild: av_win
+  matrix:
+   - name: $(cibuild)32bit
+     platform: x64
+     configuration: Release
+     qtbase: 5.9.1\mingw53_32
+     qtmingw: Tools\mingw530_32
+
+init:
+ - set PATH=C:\Qt\%qtbase%\bin;C:\Qt\%qtmingw%\bin;%PATH%
+
+install:
+ - qmake -v
+ - qmake CONFIG+=$(cibuild)
+ - mingw32-make

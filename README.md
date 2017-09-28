@@ -1,5 +1,5 @@
 ![Icon][icon]
-# LPub3D  [![Build Status][travis-badge]][travis] [![GitHub release][gh-rel-badge]][gh-rel]
+# LPub3D  [![Build Status][travis-badge]][travis] [![AppVeyor Build Status][appveyor-badge]][appveyor][![GitHub release][gh-rel-badge]][gh-rel]
 
 LDraw™ editor for LEGO® style digital building instructions.
 
@@ -56,5 +56,7 @@ Copyright (c) 2015 - 2017 by Trevor SANDY
 
 [travis]:          	https://travis-ci.org/trevorsandy/lpub3d
 [travis-badge]:    	https://travis-ci.org/trevorsandy/lpub3d.svg?branch=master
+[appveyor-badge]:   https://img.shields.io/appveyor/ci/trevorsandy/lpub3d-av.svg
+[appveyor]:         https://ci.appveyor.com/project/trevorsandy/lpub3d-av
 [gh-rel]:          	https://github.com/trevorsandy/lpub3d/releases/latest
 [gh-rel-badge]:    	https://img.shields.io/github/release/trevorsandy/lpub3d.svg

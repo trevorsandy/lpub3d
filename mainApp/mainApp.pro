@@ -384,7 +384,8 @@ OTHER_FILES += \
     ../builds/utilities/README.md \
     ../README.md \
     ../.gitignore \
-    ../.travis.yml
+    ../.travis.yml \
+    ../appveyor.yml
 
 RESOURCES += \
     lpub3d.qrc
