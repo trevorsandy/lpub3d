@@ -1,32 +1,182 @@
-version: 2.0.20.av.{build}
+version: 'LPub3D-AV-{build}'
+
+clone_folder: c:\projects\lpub3d
+# skip automatic cloning because we want restore cached items first
+clone_script: echo skip
+
+# we're caching 3rd party apps (image renderers), and qt5 for x86_64
+# we also cache compiled items so builds will be faster when there is
+# minimal change to the source.
+cache:
+  - 'C:\projects\$(librepo)'
+  - 'mainApp\Makefile'
+  - 'mainApp\Makefile.Release'
+  - 'mainApp\LPub3D10_resource.rc'
+  - 'mainApp\object_script.LPub3D10.Release'
+  - 'mainApp\Makefile.Debug'
+  - 'mainApp\LPub3Dd10_resource.rc'
+  - 'mainApp\object_script.LPub3Dd10.Debug'
+  - 'mainApp\$(configuration)'
+  - 'ldrawini\Makefile'
+  - 'ldrawini\Makefile.Release'
+  - 'ldrawini\LDrawIni161_resource.rc'
+  - 'ldrawini\Makefile.Debug'
+  - 'ldrawini\LDrawInid161_resource.rc'
+  - 'ldrawini\$(configuration)'
+  - 'quazip\Makefile'
+  - 'quazip\Makefile.Release'
+  - 'quazip\QuaZIP07_resource.rc'
+  - 'quazip\object_script.QuaZIP07.Release'
+  - 'quazip\Makefile.Debug'
+  - 'quazip\QuaZIPd07_resource.rc'
+  - 'quazip\object_script.QuaZIPd07.Debug'
+  - 'quazip\$(configuration)'
 
 branches:
   only:
+   - master
    - integrate-renderers
 
-clone_folder: c:\projects\lpub3d
-clone_depth: 5
+platform: x64
 
-skip_tags: true
-
-build: off
+configuration: release
 
 matrix:
   fast_finish: true
 
+# we're building both x86 and x86_64 target architectures
+# we must also setup the x86_64 Qt5 build environment for MinGW
+# the matrix block below must always play the x86_64 build last
+# in order to preserve the artifact pakcaging logic described later
 environment:
   cibuild: av_win
+  lp3d_target: builds\windows\$(configuration)
+  lp3d_x86prepackage: LPub3D-x86-AV-$(APPVEYOR_BUILD_NUMBER).zip
+  qtlibs: mingw-w64-x86_64-qt5-5.9.1-1-any.pkg.tar.xz
+  iculibs: mingw-w64-x86_64-icu-58.2-2-any.pkg.tar.xz
+  librepo: lpub3d_windows_3rdparty
+  librepodir: /c/projects/$(librepo)
   matrix:
-   - name: $(cibuild)32bit
-     platform: x64
-     configuration: Release
-     qtbase: 5.9.1\mingw53_32
-     qtmingw: Tools\mingw530_32
+  - target_arch: x86
+    qtpath: C:\Qt\5.9.1\mingw53_32\bin;C:\Qt\Tools\mingw530_32\bin
+  - target_arch: x86_64
+    qtpath: C:\msys64\MINGW64\bin;C:\msys64\usr\bin
 
+# The iex PS script genertes remote-desktop credentials useful for debugging
 init:
- - set PATH=C:\Qt\%qtbase%\bin;C:\Qt\%qtmingw%\bin;%PATH%
+ - SET PATH=%qtpath%;%PATH%
+ - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
+# This is where we install Qt5 for x86_64 builds along with ICU v58. The source for these items are cached but if not then they are
+# downloded. After building out the dev env, we proceed to fetch the commit that fired off the AppVeyor build.
+# We don't use git clone because the 'clone_directory' is not empty (restored cached components were added in previous steps) - so the
+# git clone command will fail. Instead we use fetch and checkout to pretty much replicate the same behaviour as the default git clone.
+# This includes setting the cline depth and fetching the tree commit
 install:
+ - bash -lc "if ! test -d ${librepodir}; then git clone https://github.com/trevorsandy/${librepo}.git ${librepodir} && echo ${librepo} cloned; fi"
+ - if %target_arch%==x86_64 bash -lc "cd ${librepodir}/qt-5.9.1-1-release; pacman -U --needed --noconfirm ${qtlibs} ${iculibs}"
+ - git init %APPVEYOR_BUILD_FOLDER%
+ - cd %APPVEYOR_BUILD_FOLDER%
+ - git remote add origin https://github.com/%APPVEYOR_REPO_NAME%.git
+ - git fetch -q --depth=100 origin +%APPVEYOR_REPO_BRANCH%
+ - git checkout -qf %APPVEYOR_REPO_COMMIT%
+
+# this script is a work-around to combine both the x86 and x86_64 build targets into a single artifact. we then run
+# the NSIS packaging script against the archive creating a single installer for both architectures.
+# this script is only run on the 2nd of the two jobs, 32 and 64bit respectively, performing the combine function
+before_build:
+ - ps: |
+      If ($env:target_arch -eq "x86_64")
+      {
+          Write-Output "Restoring $env:lp3d_target build folder from artifact..."
+
+          $apiUrl = 'https://ci.appveyor.com/api'
+          $token = 'h2o1p08rkt8jgen5f0ke'
+          $headers = @{
+            "Authorization" = "Bearer $token"
+            "Content-type" = "application/json"
+          }
+
+          $accountName = $env:APPVEYOR_ACCOUNT_NAME
+          $projectSlug = $env:APPVEYOR_PROJECT_SLUG
+
+          # using clone folder
+          $downloadLocation = $env:APPVEYOR_BUILD_FOLDER
+          Write-Output "Var downloadLocation     = $downloadLocation"
+
+          # get project with last build details
+          $project = Invoke-RestMethod -Method Get -Uri "$apiUrl/projects/$accountName/$projectSlug" -Headers $headers
+
+          # get this job id
+          $jobId = $project.build.jobs[0].jobId
+
+          # get job artifacts
+          $artifacts = Invoke-RestMethod -Method Get -Uri "$apiUrl/buildjobs/$jobId/artifacts" -Headers $headers
+
+          # $artifactFileName = 'MyWebApp.zip'
+          $artifactFileName = $artifacts[0].fileName
+          Write-Output "Var artifactFileName     = $artifactFileName"
+
+          # artifact will be downloaded as
+          $localArtifactArchive = "$downloadLocation/$artifactFileName"
+          Write-Output "Var localArtifactArchive = $localArtifactArchive"
+
+          # download artifact
+          Invoke-RestMethod -Method Get -Uri "$apiUrl/buildjobs/$jobId/artifacts/$artifactFileName" `
+          -OutFile $localArtifactArchive -Headers @{ "Authorization" = "Bearer $token" }
+
+          # extract artifact
+          if (-not (Test-Path $localArtifactArchive)) {
+            Write-Output "Error artifact $localArtifactArchive not found"
+          } else {
+            Write-Output "Extracting artifact $localArtifactArchive ..."
+            & 7z.exe x $localArtifactArchive "-o$downloadLocation" | Select-String -Pattern '(^Extracting)|(^Everything)' -CaseSensitive
+            $CheckArtifactDir = $downloadLocation+"\builds\windows\"+$env:Configuration
+            & Write-Output "Var CheckArtifactDir     = $CheckArtifactDir"
+            if (-not (Test-Path $CheckArtifactDir)) {
+              Write-Output "Error expanding $localArtifactArchive, $CheckArtifactDir not found"
+            } else {
+              Write-Output "Build folder $env:lp3d_target artifact restored"
+            }
+          }
+        }
+
+# regular make stuff here. CONFIG+=stagewindistcontent us used by qmake to
+# generate the install Makefile logic which stages the distro files so
+# this flat and make install must be run to complete the build process
+build_script:
  - qmake -v
- - qmake CONFIG+=$(cibuild)
+ - qmake "CONFIG+=%cibuild%" "CONFIG+=%configuration%" "CONFIG+=stagewindistcontent"
  - mingw32-make
+ - mingw32-make install
+
+# Vars used to construct artifact names and artifact creation.
+after_build:
+ - IF %target_arch%==x86_64 builds\windows\CreateExe.bat
+ - ps: $env:LP3D_AV_VERSION = (Get-Content $env:APPVEYOR_BUILD_FOLDER\av.version.info -TotalCount 1).trim()
+ - ps: $env:LP3D_AV_PACKAGE = "LPub3D-Any-$env:LP3D_AV_VERSION"
+ - ps: $env:LP3D_AV_TARGET = "builds\windows\$env:Configuration\$env:LP3D_AV_PACKAGE"
+ - ps: $env:LP3D_AV_DOWNLOAD_TARGET = "$env:LP3D_AV_TARGET\LPub3D_Download"
+ - ps: $env:LP3D_AV_UPDATE_TARGET = "$env:LP3D_AV_TARGET\LPub3D_Update"
+ - ps: $env:LP3D_AV_BUILD_VERSION = $env:LP3D_AV_VERSION.split('_')[0]
+ - ps: $env:LP3D_AV_BUILD_DATE = $env:LP3D_AV_VERSION.split('_')[1]
+ - ps: $env:LP3D_AV_VERSION_SHORT = For ($i=0; $i -le 2; $i++) {$env:LP3D_AV_VERSION.split('.')[$i]}
+ - ps: Get-ChildItem Env:LP3D_AV_*
+ - ps: If ($env:target_arch -eq "x86") {7z a $env:lp3d_x86prepackage $env:lp3d_target | Select-String -Pattern '(^Creating)|(^Everything)' -CaseSensitive; Push-AppveyorArtifact $env:lp3d_x86prepackage}
+ - ps: If ($env:target_arch -eq "x86_64") {$root = Resolve-Path .\$env:LP3D_AV_DOWNLOAD_TARGET; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName LPub3D-download-package }}
+ - ps: If ($env:target_arch -eq "x86_64") {$root = Resolve-Path .\$env:LP3D_AV_UPDATE_TARGET; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName LPub3D-update-package }}
+
+# for the moment we only deploy to github. I'll setup a sourceforge deployment scheme
+# at some point going forward
+deploy:
+ - provider: GitHub
+   description: ''
+   auth_token:
+     secure: rnf4qpF81ISjm8q13OgkAaoKZReXpjODhU9fbGFMhMydHrda1ezLubGXRU9OKGu4
+   artifact: LPub3D-download-package
+   prerelease: true
+   force_update: true
+   on:
+    branch: master
+    target_arch: x86_64
+    appveyor_repo_tag: true

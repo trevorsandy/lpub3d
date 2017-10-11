@@ -41,13 +41,13 @@ copy3rdexeconfig {
             $$RAYTRACE_INS_RES/config/povray.ini \
             $$RAYTRACE_INS_RES/config/povray.conf
     }
-    raytracer_ins_resources_config.path = $$RAYTRACE_INS_RES_DIR\config
+    raytracer_ins_resources_config.path = $$RAYTRACE_INS_RES_DIR/config
 
     ldview_ins_resources_config.files += \
         $$LDVIEW_INS_RES/config/ldview.ini \
         $$LDVIEW_INS_RES/config/ldviewPOV.ini \
         $$LDVIEW_INS_RES/config/LDViewCustomini
-    ldview_ins_resources_config.path = $$LDVIEW_INS_RES_DIR\config
+    ldview_ins_resources_config.path = $$LDVIEW_INS_RES_DIR/config
 
         macx{
             QMAKE_BUNDLE_DATA += \
@@ -114,7 +114,7 @@ copy3rdcontent {
         $$RAYTRACE_INS_RES/ini/tgafli.ini \
         $$RAYTRACE_INS_RES/ini/zipflc.ini \
         $$RAYTRACE_INS_RES/ini/zipfli.ini
-    raytracer_ins_resources_ini.path = $$RAYTRACE_INS_RES_DIR\ini
+    raytracer_ins_resources_ini.path = $$RAYTRACE_INS_RES_DIR/ini
 
     raytracer_ins_resources_include.files += \
         $$RAYTRACE_INS_RES/include/arrays.inc \
@@ -183,7 +183,7 @@ copy3rdcontent {
         $$RAYTRACE_INS_RES/include/whiteash.map \
         $$RAYTRACE_INS_RES/include/woodmaps.inc \
         $$RAYTRACE_INS_RES/include/woods.inc
-    raytracer_ins_resources_include.path = $$RAYTRACE_INS_RES_DIR\include
+    raytracer_ins_resources_include.path = $$RAYTRACE_INS_RES_DIR/include
 
     macx {
         QMAKE_BUNDLE_DATA += \

@@ -83,12 +83,12 @@
     #define VER_COMPILED_ON             "MinGW (i686-7.2.0 64bit) Windows"
     #define VER_COMPILED_FOR            "MS Windows 64bit"
     #define VER_COMPILED_WITH           "Qt qtver (MinGW 64bit)"
-    #define VER_IDE                     "Qt Creator 4.4.0 on Qt 5.9.1 (MSVC 2015, x32)"
+    #define VER_IDE                     "Qt Creator 4.4.1 on Qt 5.9.2 (MSVC 2015, x32)"
   #elif __MINGW32__
     #define VER_COMPILED_ON             "MinGW (i686-5.3.0 32bit) Windows"
     #define VER_COMPILED_FOR            "MS Windows 32bit, 64bit"
     #define VER_COMPILED_WITH           "Qt qtver (MinGW 32bit)"
-    #define VER_IDE                     "Qt Creator 4.4.0 on Qt 5.9.1 (MSVC 2015, x32)"
+    #define VER_IDE                     "Qt Creator 4.4.1 on Qt 5.9.2 (MSVC 2015, x32)"
   #elif _MSC_VER
     #define VER_COMPILED_ON             "MSVC 2015"
     #define VER_COMPILED_FOR            "MS Windows 32bit, 64bit"
@@ -103,12 +103,12 @@
     #define VER_COMPILED_ON             "GCC (5.4.1 20160904)"
     #define VER_COMPILED_FOR            "Linux"
     #define VER_COMPILED_WITH           "Qt qtver (GCC)"
-    #define VER_IDE                     "Qt Creator 4.4.0 on Qt 5.9.1 (GCC 5.3.1, x64)"
+    #define VER_IDE                     "Qt Creator 4.4.1 on Qt 5.9.2 (GCC 5.3.1, x64)"
   #elif defined(_POSIX_VERSION)
     #define VER_COMPILED_ON             "POSIX"
     #define VER_COMPILED_FOR            "POSIX"
     #define VER_COMPILED_WITH           "Qt qtver (GCC)"
-    #define VER_IDE                     "Qt Creator 4.4.0 on Qt 5.9.1 (GCC 5.3.1, x64)"
+    #define VER_IDE                     "Qt Creator 4.4.1 on Qt 5.9.2 (GCC 5.3.1, x64)"
   #else
   #   error "Unknown compiler"
   #endif

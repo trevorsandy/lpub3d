@@ -67,7 +67,7 @@ mainApp/temp.txt
 mainApp/build.h
 mainApp/docs/temp.txt
 builds/utilities/json/lpub3dupdates.json
-builds/windows/setup/bin/AppVersion.nsh
+builds/utilities/nsis-scripts/AppVersion.nsh
 builds/utilities/update-config-files.log
 
 # Qt Creator generated files

@@ -66,13 +66,13 @@ win32 {
         isEmpty(LPUB3D_STG_PRODUCT):LPUB3D_STG_PRODUCT = $$STG_TARGET
         isEmpty(LPUB3D_STG_VERSION):LPUB3D_STG_VERSION = $$VERSION
         isEmpty(LPUB3D_STG_FULLVER):LPUB3D_STG_FULLVER = $$VERSION"."$$VER_REVISION_STR"."$$VER_BUILD_STR"_"$$DATE_YY$$DATE_MM$$DATE_DD
-        isEmpty(LPUB3D_STG_DIRNAME):LPUB3D_STG_DIRNAME = $$LPUB3D_STG_PRODUCT"_"$$STG_ARCH"-"$$LPUB3D_STG_FULLVER
+        isEmpty(LPUB3D_STG_DIRNAME):LPUB3D_STG_DIRNAME = $$LPUB3D_STG_PRODUCT"-Any-"$$LPUB3D_STG_FULLVER
 
         # stage directories - lpub3d contentt
-        isEmpty(LPUB3D_STAGE):LPUB3D_STAGE              = $$_PRO_FILE_PWD_/../builds/Windows
+        isEmpty(LPUB3D_STAGE):LPUB3D_STAGE              = $$_PRO_FILE_PWD_/../builds/windows
         isEmpty(LPUB3D_STG_EXTRAS):LPUB3D_STG_EXTRAS    = $$_PRO_FILE_PWD_/extras
         isEmpty(LPUB3D_STG_DOCS):LPUB3D_STG_DOCS        = $$_PRO_FILE_PWD_/docs
-        isEmpty(LPUB3D_STG_LIBS):LPUB3D_STG_LIBS        = $$LPUB3D_STAGE/libs/$$STG_ARCH
+        isEmpty(LPUB3D_STG_LIBS):LPUB3D_STG_LIBS        = $$_PRO_FILE_PWD_/../
 
         # stage directories
         isEmpty(LPUB3D_STG_PATH):LPUB3D_STG_PATH        = $$LPUB3D_STAGE/$$DIST/$$LPUB3D_STG_DIRNAME/$$LPUB3D_STG_PRODUCT"_"$$STG_ARCH

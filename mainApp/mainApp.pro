@@ -154,28 +154,34 @@ UI_DIR      = $$DESTDIR/.ui
 
 #~~file distributions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Use these switches to enable/disable copying/install of 3rd party executables, documentation and resources.
-# To copy 3rd party executables during install, set CONFIG+=copy3rdexe. Default is enabled.
+# e.g. $ qmake "CONFIG+=copy3rdexe" "CONFIG+=copy3rdexeconfig" "CONFIG+=copy3rdcontent" "CONFIG+=stagewindistcontent"
+# or you can hard code here:
+# Copy 3rd party executables
 !contains(CONFIG, copy3rdexe): CONFIG +=
-# To copy 3rd party for executable configuration file(s) during install, set CONFIG+=copy3rdexeconfig. Default is enabled.
+# Copy 3rd party for executable configuration file(s)
 !contains(CONFIG, copy3rdexeconfig): CONFIG +=
-# To copy 3rd party documents and resources during install, set CONFIG+=copy3rdcontent. Default is disabled.
+# Copy 3rd party documents and resources
 !contains(CONFIG, copy3rdcontent): CONFIG +=
-# To stage 3rd party executables, documentation and resources, set CONFIG+=stagewindistcontent, Default is disabled.
+# Stage 3rd party executables, documentation and resources (Windows builds Only)
 !contains(CONFIG, stagewindistcontent): CONFIG +=
+
 # Download 3rd party repository when required
 if(copy3rdexe|copy3rdexeconfig|copy3rdcontent|stagewindistcontent) {
     unix:!macx:REPO = lpub3d_linux_3rdparty
     macx:REPO       = lpub3d_macos_3rdparty
     win32:REPO      = lpub3d_windows_3rdparty
     !exists($$_PRO_FILE_PWD_/../../$$REPO/.gitignore) {
-        MESSAGE = GIT REPOSITORY $$REPO was not found. It will be downloaded.
+        REPO_NOT_FOUND_MSG = GIT REPOSITORY $$REPO was not found. It will be downloaded.
+        REPO_DOWNLOADED_MSG = GIT REPOSITORY $$REPO downloaded.
         GITHUB_URL = https://github.com/trevorsandy
         QMAKE_POST_LINK += $$escape_expand(\n\t) \
-                           echo $$shell_quote$${MESSAGE} \
+                           echo $$shell_quote$${REPO_NOT_FOUND_MSG} \
                            $$escape_expand(\n\t) \
                            cd $$_PRO_FILE_PWD_/../../ \
                            $$escape_expand(\n\t) \
-                           git clone $${GITHUB_URL}/$${REPO}.git
+                           git clone $${GITHUB_URL}/$${REPO}.git \
+                           $$escape_expand(\n\t) \
+                           echo $$shell_quote$${REPO_DOWNLOADED_MSG}
     }
 }
 
