@@ -54,20 +54,20 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 Copyright (c) 2015 - 2017 by Trevor SANDY
 
 [icon]:			https://github.com/trevorsandy/lpub3d/blob/master/mainApp/images/lpub3d128.png
-[changelog]:	https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/README.txt
+[changelog]:	        https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/README.txt
 [credits]:		https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/CREDITS.txt
 [copying]:		https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/COPYING.txt
 [buildfromsource]:	https://github.com/trevorsandy/lpub3d/blob/master/builds/utilities/README.md
 
-[travis-badge]:    	https://travis-ci.org/trevorsandy/master.svg?label=TravisCI
-[travis-url]:       https://travis-ci.org/trevorsandy/lpub3d
-[appveyor-badge]:   https://img.shields.io/appveyor/ci/trevorsandy/master.svg?label=AppVeyor
-[appveyor-url]:     https://ci.appveyor.com/project/trevorsandy/lpub3d
+[travis-badge]:    	https://travis-ci.org/trevorsandy/lpub3d.svg?branch=master
+[travis-url]:           https://travis-ci.org/trevorsandy/lpub3d
+[appveyor-badge]:       https://ci.appveyor.com/api/projects/status/afokvktsfh7kqnkn?svg=true
+[appveyor-url]:         https://ci.appveyor.com/project/trevorsandy/lpub3d
 [gh-rel-badge]:    	https://img.shields.io/github/release/trevorsandy/lpub3d.svg
-[gh-rel-url]:       https://github.com/trevorsandy/lpub3d/releases/latest
+[gh-rel-url]:           https://github.com/trevorsandy/lpub3d/releases/latest
 
-[sf-dt-badge]:      https://img.shields.io/sourceforge/dt/lpub3d.svg
-[sf-dt-badge-url]:  https://sourceforge.net/projects/lpub3d
+[sf-dt-badge]:          https://img.shields.io/sourceforge/dt/lpub3d.svg
+[sf-dt-badge-url]:      https://sourceforge.net/projects/lpub3d
 
-[maintained-badge]: https://img.shields.io/maintenance/yes/2017.svg
+[maintained-badge]:     https://img.shields.io/maintenance/yes/2017.svg
 
