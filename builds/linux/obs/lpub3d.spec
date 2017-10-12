@@ -100,7 +100,7 @@ BuildRequires: qt5-qtbase-devel
 %if 0%{?fedora}
 BuildRequires: qt5-linguist
 %endif
-%if 0%{?OBS}!=1
+%if 0%{?OBS}=1
 BuildRequires: git
 %endif
 BuildRequires: gcc-c++, make
@@ -198,12 +198,12 @@ LDrawLibUnofficial="../../SOURCES/lpub3dldrawunf.zip"
 if [ -f ${LDrawLibOffical} ] ; then 
 	cp ${LDrawLibOffical} mainApp/extras
 else
-	echo "complete.zip not found!" 
+	echo "complete.zip not found" 
 fi
 if [ -f ${LDrawLibUnofficial} ] ; then
 	cp ${LDrawLibUnofficial} mainApp/extras
 else
-	echo "lpub3dldrawunf.zip not found!"
+	echo "lpub3dldrawunf.zip not found"
 fi ;
 
 # use Qt5
@@ -219,7 +219,7 @@ else
 fi 
 make clean
 make %{?_smp_mflags}
-* Wed Aug 30 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.728
+* Thu Oct 12 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.752
 %install
 make INSTALL_ROOT=%buildroot install
 %if 0%{?suse_version} || 0%{?sles_version}

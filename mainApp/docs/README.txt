@@ -1,4 +1,4 @@
-LPub3D 2.0.20.82.728 (30 08 2017 00:39:18)
+LPub3D 2.0.20.106.752 (12 10 2017 01:54:05)
  
 Features and enhancements 
 ------------ 
@@ -103,8 +103,8 @@ Fix: Page size precision to 4 decimal places (r869)
 Fix: Border meta automatically updated to LPub3D format (r868) 
  * LPub3D will automatically detect and update a LPub border meta to the LPub3D format which adds a line type attribute to the meta command. The previous behaviour would display an error format message prompting the user to correct the meta. The default line type set during automatic update is 1=solid. 
  Line types are  0=none,1=solid,2=dash,3=dot,4=dashDot,5=dashDotDot. An LPub meta line like this: 
- 0 !LPUB PLI BORDER GLOBAL ROUND Black 0 15 MARGINS 0.472439 0.07 will be automatically updated to this: 
- 0 !LPUB PLI BORDER GLOBAL ROUND 1 Black 0 15 MARGINS 0.472439 0.07 
+ 0  
+ 0 LPUB PLI BORDER GLOBAL ROUND 1 Black 0 15 MARGINS 0.472439 0.07 
 Fix: Find button in LDraw editor (r867) 
  * Find button added to LDraw editor. The find dialogue will open with the word currently under the cursor. Therefore, an efficient use pattern is to place the cursor above the word you wish to search and click the search button. 
 Fix: Display message for mixed page size and orientation (r866) 
@@ -119,12 +119,12 @@ Features and enhancements
 Fix: Inconsistent page size/orientation transition (r862) 
  * Size and orientation transition is inconsistent between the editor and export for mixed orientation output. Editor and export page orientation corrected to behave the same. Here are some notes to describe how to use the different meta commands: 
  - Use the page context menu to set size and/or orientation to ensure proper meta command syntax. 
- - GLOBAL (e.g 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword should only be used at the header of the top level model file - if you are manually adding meta commands in the LDraw editor. 
- - LOCAL (e.g 0 !LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword will scope the meta command to only the current step - if you are manually adding meta commands in the LDraw editor.. 
- - When the LOCAL keyword is absent (e.g. 0 !LPUB PAGE ORIENTATION PORTRAIT), the meta command takes on the same behaviour as if the GLOBAL keyword is used - i.e. the meta command takes on a global scope from the point where it is used - unless it is superseded by a new meta command. 
- - When manually setting size and/or orientation on a child submodel (i.e. using the LDraw editor), place your command in the child submodel instead of placing it in the parent model. For MULTI_STEP(s), place the size orientation at the bottom of the MULTI_STEP - just before 0 !LPUB MULTI_STEP END. 
+ - GLOBAL (e.g 0 LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword should only be used at the header of the top level model file - if you are manually adding meta commands in the LDraw editor. 
+ - LOCAL (e.g 0 LPUB PAGE ORIENTATION GLOBAL PORTRAIT) meta keyword will scope the meta command to only the current step - if you are manually adding meta commands in the LDraw editor.. 
+ - When the LOCAL keyword is absent (e.g. 0 LPUB PAGE ORIENTATION PORTRAIT), the meta command takes on the same behaviour as if the GLOBAL keyword is used - i.e. the meta command takes on a global scope from the point where it is used - unless it is superseded by a new meta command. 
+ - When manually setting size and/or orientation on a child submodel (i.e. using the LDraw editor), place your command in the child submodel instead of placing it in the parent model. For MULTI_STEP(s), place the size orientation at the bottom of the MULTI_STEP - just before 0 LPUB MULTI_STEP END. 
 Fix: Empty output after export to pdf or images (r861) 
- * The page size was not captured during export (pdf or images) unless an explicit definition of the page size meta command is present in the model file (e.g. 0 !LPUB PAGE SIZE GLOBAL 8.5000 11.0000 Letter). This behaviour is now corrected. 
+ * The page size was not captured during export (pdf or images) unless an explicit definition of the page size meta command is present in the model file (e.g. 0 LPUB PAGE SIZE GLOBAL 8.5000 11.0000 Letter). This behaviour is now corrected. 
 Fix: When page number is not displayed, the submodel instance count is also not displayed (r860) 
  * Instance count is by default placed relative to page number so, by default, if page number is not displayed then instance count is also not displayed. This behaviour is now changed to automatically set the instance count relative to the page if the page number is not displayed. As a result, the instance count will display regardless of the display status of the page number. 
  
@@ -713,8 +713,8 @@ Features and enhancements
 -Add Rotate Icon - indicate that the builder should "flip" the model 
 -Add line type attribute to border configuration 
  0=none,1=solid,2=dash,3=dot,4=dashDot,5=dashDotDot. So an old meta line like this: 
- 0 !LPUB PLI BORDER GLOBAL ROUND Black 0 15 MARGINS 0.472439 0.07 should be updated to this: 
- 0 !LPUB PLI BORDER GLOBAL ROUND 1 Black 0 15 MARGINS 0.472439 0.07 
+ 0  
+ 0 LPUB PLI BORDER GLOBAL ROUND 1 Black 0 15 MARGINS 0.472439 0.07 
 -Add PLI/BOM part substitution - substitute modeled part in PLI/BOM with alternate 
  This feature is useful when you have a modeled part (e.g. Power Functions Light) that will 
  take alot of space in the BOM/PLI, you can substitute the modeled version with an alternate 
