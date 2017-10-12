@@ -78,7 +78,7 @@ install:
  - git init %APPVEYOR_BUILD_FOLDER%
  - cd %APPVEYOR_BUILD_FOLDER%
  - git remote add origin https://github.com/%APPVEYOR_REPO_NAME%.git
- - git fetch -q --depth=100 origin +%APPVEYOR_REPO_BRANCH%
+ - git fetch -q --depth=200 origin +%APPVEYOR_REPO_BRANCH%
  - git checkout -qf %APPVEYOR_REPO_COMMIT%
 
 # this script is a work-around to combine both the x86 and x86_64 build targets into a single artifact. we then run
