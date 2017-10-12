@@ -52,7 +52,13 @@ QString Preferences::lpubDataPath               = ".";
 QString Preferences::lpubExtrasPath             = ".";
 QString Preferences::ldgliteExe;
 QString Preferences::ldviewExe;
-QString Preferences::l3pExe;
+QString Preferences::povrayConf;
+QString Preferences::povrayIni;
+QString Preferences::ldviewIni;
+QString Preferences::ldviewPOVIni;
+QString Preferences::povrayIniPath;
+QString Preferences::povrayIncPath;
+QString Preferences::povrayScenePath;
 QString Preferences::povrayExe;
 QString Preferences::preferredRenderer;
 QString Preferences::pliFile;
@@ -86,6 +92,7 @@ QString Preferences::plug                       = QString(QObject::trUtf8("Instr
 QString Preferences::logPath;
 QString Preferences::loggingLevel;               // string
 
+bool    Preferences::lgeoStlLib                 = false;
 bool    Preferences::lpub3dLoaded               = false;
 bool    Preferences::enableDocumentLogo         = false;
 bool    Preferences::enableLDViewSingleCall     = true;
@@ -126,7 +133,9 @@ bool    Preferences::ldrawiniFound              = false;
 bool    Preferences::fadeStepSettingChanged     = false;
 bool    Preferences::fadeStepColorChanged       = false;
 bool    Preferences::portableDistribution       = false;
-int     Preferences::checkUpdateFrequency       = 2;        //0=Never,1=Daily,2=Weekly,3=Monthly
+bool    Preferences::povrayDisplay              = false;
+
+int     Preferences::checkUpdateFrequency       = 0;        //0=Never,1=Daily,2=Weekly,3=Monthly
 
 int     Preferences::pageHeight                 = 800;
 int     Preferences::pageWidth                  = 600;
@@ -143,7 +152,7 @@ void Preferences::loggingPreferences()
   QDir logDir(lpubDataPath+"/logs");
   if(!QDir(logDir).exists())
     logDir.mkpath(".");
-  Preferences::logPath = QDir(logDir).filePath(QString("%1%2").arg(VER_PRODUCTNAME_STR).arg("Log.txt"));
+  Preferences::logPath = QDir(logDir).filePath(QString("%1Log.txt").arg(VER_PRODUCTNAME_STR));
 
   QSettings Settings;
   if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"IncludeLogLevel"))) {
@@ -301,10 +310,10 @@ void Preferences::lpubPreferences()
 #ifdef Q_OS_MAC
 
     qDebug() << qPrintable(QString("OSX Starting Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
-    if (cwd.dirName() == "MacOS") {
-        cwd.cdUp(); //Contents
-        cwd.cdUp(); //LPub3D.app
-        cwd.cdUp(); //<Root of install path>
+    if (cwd.dirName() == "MacOS") {   // MacOS/LPub3D20 (app bundle executable)
+        cwd.cdUp();                   // Contents/      (app bundle contents)
+        cwd.cdUp();                   // LPub3D.app/    (app bundle)
+        cwd.cdUp();                   // Applications/  (app bundle installation path root)
     }
     qDebug() << qPrintable(QString("OSX Ending Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
 
@@ -349,7 +358,7 @@ void Preferences::lpubPreferences()
             box.setWindowTitle(QMessageBox::tr ("Installation"));
             box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-            QString header  = "<b>" + QMessageBox::tr ("Data directory installation folder.") + "</b>";
+            QString header  = "<b> " + QMessageBox::tr ("Data directory installation folder.") + "</b>";
             QString body = QMessageBox::tr ("Would you like to create a folder outside the Program Files / (x86) directory? \n"
                                             "If you choose No, the data directory will automatically be created in the user's AppData directory.");
             QString detail = QMessageBox::tr ("It looks like this installation is a portable or packaged (i.e. AIOI) distribution \n"
@@ -414,6 +423,7 @@ void Preferences::lpubPreferences()
     #endif
 #endif
 
+    qDebug() << "LPub3D Root Path:      " << lpub3dPath;
     qDebug() << "LPub3D User Data Path: " << lpubDataPath;
 
     QDir extrasDir(lpubDataPath + "/extras");
@@ -560,7 +570,7 @@ void Preferences::lpub3dLibPreferences(bool force)
             QAbstractButton* downloadButton = box.addButton(QMessageBox::tr("Download"),QMessageBox::YesRole);
             QAbstractButton* selectButton   = box.addButton(QMessageBox::tr("Select"),QMessageBox::YesRole);
 
-            QString header = "<b>" + QMessageBox::tr ("No LDraw library archive defined!") + "</b>";
+            QString header = "<b> " + QMessageBox::tr ("No LDraw library archive defined!") + "</b>";
             QString body = QMessageBox::tr ("Note: The LDraw library archives are not provided and <u>must be downloaded</u> - or selected.\n"
                                         "Would you like to download or select the library archives?");
             QString detail = QMessageBox::tr ("You must select or create your LDraw library archive files.\n"
@@ -686,10 +696,16 @@ void Preferences::lpub3dLibPreferences(bool force)
                                 QMessageBox::tr("It is recommended to extract the updated unofficial archive library "
                                                 "%1 to your LDraw library %2").arg(validFile.absoluteFilePath()).arg(destination));
 #endif
-                            }
+                            } else {
+                                message = QMessageBox::tr ("Required archive file %1 does not exist.").arg(validFile.absoluteFilePath());
+                                logError() << message;
+                              }
                         } else {
+#ifdef Q_OS_WIN
                             message = QMessageBox::tr("Cannot extract downloaded LDraw library archives, ibrary path is not defined!");
                             logError() << message;
+#endif
+                            ;
                         }
 
                     } else {
@@ -790,12 +806,109 @@ void Preferences::ldrawPreferences(bool force)
 
                 if ( ! QDir(ldrawPath.trimmed()).exists()) {
 
-                    ldrawPath = QFileDialog::getExistingDirectory(NULL,
-                                                                  QFileDialog::tr("Locate LDraw Directory"),
-                                                                  "/",
-                                                                  QFileDialog::ShowDirsOnly |
-                                                                  QFileDialog::DontResolveSymlinks);
-                }
+                    QPixmap _icon = QPixmap(":/icons/lpub96.png");
+                    QMessageBox box;
+                    box.setWindowIcon(QIcon());
+                    box.setIconPixmap (_icon);
+                    box.setTextFormat (Qt::RichText);
+                    box.setWindowTitle(QMessageBox::tr ("LDraw Library"));
+                    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+
+                    QAbstractButton* extractButton = box.addButton(QMessageBox::tr("Extract Archive"),QMessageBox::YesRole);
+                    QAbstractButton* selectButton  = box.addButton(QMessageBox::tr("Select Folder"),QMessageBox::YesRole);
+
+                    QString header = "<b> " + QMessageBox::tr ("LDraw library folder not detected!") + "</b>";
+                    QString body = QMessageBox::tr ("Note: You may select the LDraw folder or extract it from the available archive libraries.\n"
+                                                    "Would you like to extract or select the library archives?");
+                    QString detail = QMessageBox::tr ("You must select or extract your LDraw library folder.\n"
+                                                      "It is possible create your library folder from the official archive file (complete.zip) "
+                                                      "and the unofficial archive file (lpub3dldrawunf.zip).\n"
+                                                      "The extracted library folder will be located at '%1/%2/'").arg(lpubDataPath, "ldraw");
+                    box.setText (header);
+                    box.setInformativeText (body);
+                    box.setDetailedText(detail);
+                    box.setStandardButtons (QMessageBox::Cancel);
+                    box.exec();
+
+                    if (box.clickedButton()==selectButton) {
+                        emit Application::instance()->splashMsgSig("15% - Selecting LDraw folder...");
+
+                        ldrawPath = QFileDialog::getExistingDirectory(NULL,
+                                                                      QFileDialog::tr("Select LDraw libray folder"),
+                                                                      "/",
+                                                                      QFileDialog::ShowDirsOnly |
+                                                                      QFileDialog::DontResolveSymlinks);
+
+                        if (! ldrawPath.isEmpty()) {
+
+                            Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawKey),ldrawPath);
+
+                          }
+
+                      } else
+                      if (box.clickedButton()==extractButton) {
+                          emit Application::instance()->splashMsgSig("15% - Extracting LDraw [ this may take some time ]...");
+
+                          QFileInfo validFile;
+                          QDir libraryDir(QString("%1/%2").arg(lpubDataPath, "libraries"));
+                          ldrawPath = QString("%1/%2/").arg(lpubDataPath, "ldraw");
+                          validFile.setFile(QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_OFFICIAL_ARCHIVE)));
+                          if (validFile.exists()) {
+                              Settings.setValue(QString("%1/%2").arg(SETTINGS, ldrawKey), lpub3dLibFile);
+                              QString destination = ldrawPath;
+                              QString message;
+                              if (!destination.isEmpty()) {
+                                  destination = destination.remove(destination.size() - 6,6);
+
+                                  QStringList result = JlCompress::extractDir(validFile.absoluteFilePath(),destination);
+                                  if (result.isEmpty()){
+                                      logError() << QString("Failed to extract %1 to %2/ldraw").arg(validFile.absoluteFilePath()).arg(destination);
+                                    } else {
+                                      message = QMessageBox::tr("%1 Official Library files extracted to %2/ldraw").arg(result.size()).arg(destination);
+                                      logInfo() << message;
+                                    }
+
+                                  validFile.setFile(QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LPUB3D_UNOFFICIAL_ARCHIVE)));
+                                  if (validFile.exists()) {
+                                      QString destination = QMessageBox::tr("%1/unofficial").arg(Preferences::ldrawPath);
+                                      QStringList result = JlCompress::extractDir(validFile.absoluteFilePath(),destination);
+                                      if (result.isEmpty()){
+                                          logError() << QString("Failed to extract %1 to %2").arg(validFile.absoluteFilePath()).arg(destination);
+                                        } else {
+                                          message = QMessageBox::tr("%1 Unofficial Library files extracted to %2").arg(result.size()).arg(destination);
+                                          logInfo() << message;
+                                        }
+                                    } else {
+                                      message = QMessageBox::tr ("Required archive file %1 does not exist.").arg(validFile.absoluteFilePath());
+                                      logError() << message;
+                                    }
+                                } else {
+                                  message = QMessageBox::tr("Cannot extract LDraw library archives, library path is not defined!");
+                                  logError() << message;
+                                }
+
+                            } else {
+
+                              Settings.remove(QString("%1/%2").arg(SETTINGS, ldrawKey));
+                              validFile.setFile(QDir::toNativeSeparators(QString("%1/%2").arg(libraryDir.absolutePath(), VER_LDRAW_UNOFFICIAL_ARCHIVE)));
+                              if (!validFile.exists()) {
+                                  body = QMessageBox::tr ("Required archive files %1 and\n%2 does not exist.").arg(lpub3dLibFile, validFile.absoluteFilePath());
+                                } else {
+                                  body = QMessageBox::tr ("Required archive file %1 does not exist.").arg(lpub3dLibFile);
+                                }
+                              body.append("\nThe application will terminate.");
+
+                              box.setStandardButtons (QMessageBox::Close);
+                              box.setText(header);
+                              box.setInformativeText(body);
+
+                              box.exec();
+                              ldrawPath.clear();
+                            }
+                        } else {
+                          ldrawPath.clear();
+                        }
+                  }
             }
         }
     }
@@ -826,7 +939,7 @@ void Preferences::ldrawPreferences(bool force)
         box.setWindowTitle(QMessageBox::tr ("LDraw Directory"));
         box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-        QString header = "<b>" + QMessageBox::tr ("No LDraw library defined!") + "</b>";
+        QString header = "<b> " + QMessageBox::tr ("No LDraw library defined!") + "</b>";
         QString body = QMessageBox::tr ("You must enter your LDraw library path. \nDo you wish to continue?");
         QString detail = QMessageBox::tr ("The LDraw library is required by the LPub3D renderer(s)."
                                           "If an LDraw library is not defined, the renderer will not"
@@ -894,142 +1007,90 @@ void Preferences::lpub3dUpdatePreferences(){
 
 void Preferences::lgeoPreferences()
 {
-    QSettings Settings;
-    QString lgeoDirKey("LGEOPath");
-    QString lgeoDir;
-    if (Settings.contains(QString("%1/%2").arg(POVRAY,lgeoDirKey))){
-        lgeoDir = Settings.value(QString("%1/%2").arg(POVRAY,lgeoDirKey)).toString();
-        QFileInfo info(lgeoDir);
-        if (info.exists()) {
-            lgeoPath = lgeoDir;
-        } else {
-            Settings.remove(QString("%1/%2").arg(POVRAY,lgeoDirKey));
-        }
+  logInfo() << "LGEO library status...";
+  QSettings Settings;
+  QString const lgeoDirKey("LGEOPath");
+  QString lgeoDir = "";
+  if (Settings.contains(QString("%1/%2").arg(POVRAY,lgeoDirKey))){
+      lgeoDir = Settings.value(QString("%1/%2").arg(POVRAY,lgeoDirKey)).toString();
+  } else { // check in ldraw directory path for lgeo
+      lgeoDir = ldrawPath + "/lgeo";
+  }
+  QDir lgeoDirInfo(lgeoDir);
+  if (lgeoDirInfo.exists()) {
+      lgeoPath = lgeoDir;
+      logInfo() << QString("LGEO library path  : %1").arg(lgeoDirInfo.absolutePath());
+       /* Durat's lgeo stl library Check */
+      QDir lgeoStlLibInfo(lgeoPath + "/stl");
+      lgeoStlLib = lgeoStlLibInfo.exists();
+      if (lgeoStlLib)
+        logInfo() << QString("Durat's Stl library: %1").arg(lgeoStlLibInfo.absolutePath());
+    } else {
+      Settings.remove(QString("%1/%2").arg(POVRAY,lgeoDirKey));
+      logInfo() << QString("LGEO library path  : Not found");
     }
 }
 
 void Preferences::renderPreferences()
 {
+/* Set 3rdParty application locations */
+
+   logInfo() << "Image renderers...";
 #ifdef Q_OS_WIN
-    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/ldglite1.3.1_2g2x_Win/ldglite.exe"));
-    QFileInfo l3pInfo(QString("%1/%2").arg(lpub3dPath).arg("3rdParty/l3p1.4WinB/L3P.exe"));
-    #ifdef _WIN64
-        QFileInfo ldviewInfo(QString("%1").arg("C:/Program Files/LDView/LDView64.exe"));
-        QFileInfo povrayInfo(QString("%1").arg("C:/Program Files/POV-Ray/v3.7/bin/povengine32.exe"));
-    #else
-        QFileInfo ldviewInfo(QString("%1").arg("C:/Program Files (x86)/LDView/LDView32.exe"));
-        QFileInfo povrayInfo(QString("%1").arg("C:/Program Files (x86)/POV-Ray/v3.7/bin/povengine64.exe"));
-    #endif
+    QString lpub3d3rdPartyContent = QString("%1/%2").arg(lpub3dPath).arg("3rdParty");
+
+    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDGLITE "/bin/ldglite.exe"));
+  #ifdef __i386__
+    QFileInfo ldviewInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDVIEW "/bin/LDView.exe"));
+    QFileInfo povrayInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_POVRAY "/bin/lpub3d_trace_cui32.exe"));
+  #elif defined __x86_64__
+    QFileInfo ldviewInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDVIEW "/bin/LDView64.exe"));
+    QFileInfo povrayInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_POVRAY "/bin/lpub3d_trace_cui64.exe"));
+  #endif
 #elif defined Q_OS_MAC
-    QFileInfo ldgliteInfo(QString("%1").arg("/Applications/ldglite.app/Contents/MacOS/ldglite_2g2x"));
-    QFileInfo ldviewInfo(QString("%1").arg("/Applications/LDView.app/Contents/MacOS/LDView"));
-    QFileInfo l3pInfo(QString("%1").arg("/Applications/l3p"));
-    QFileInfo povrayInfo(QString("%1").arg("/Applications/Pov-Ray"));
+    QString lpub3d3rdPartyContent = QString("%1/%2").arg(lpub3dPath).arg("LPub3D.app/Contents/3rdParty");
+
+    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDGLITE "/bin/ldglite"));
+    QFileInfo ldviewInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDVIEW "/bin/LDView"));
+    QFileInfo povrayInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_POVRAY "/bin/lpub3d_trace_cui"));
 #else
-    QFileInfo ldgliteInfo(QString("%1").arg("/usr/bin/ldglite"));
-    QFileInfo ldviewInfo(QString("%1").arg("/usr/bin/ldview"));
-    QFileInfo l3pInfo(QString("%1").arg("/usr/local/bin/l3p"));
-    QFileInfo povrayInfo(QString("%1").arg("/usr/local/bin/povray"));
+    QString lpub3d3rdPartyContent = QString("%1/%2").arg(lpub3dPath).arg("../share/lpub3d/3rdParty");
+
+    QFileInfo ldgliteInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDGLITE "/bin/ldglite"));
+    QFileInfo ldviewInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_LDVIEW "/bin/ldview"));
+    QFileInfo povrayInfo(QString("%1/%2").arg(lpub3d3rdPartyContent).arg(VER_POVRAY "/bin/lpub3d_trace_cui"));
 #endif
 
-    QSettings Settings;
+    /* 3rd Party application installation status */
 
-    /* Find LDGLite's installation status */
+    bool    ldgliteInstalled = false;
+    bool    ldviewInstalled = false;
+    bool    povRayInstalled = false;
 
-    bool    ldgliteInstalled;
-    QString const ldglitePathKey("LDGLite");
-    QString ldglitePath;
-
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,ldglitePathKey))) {
-        ldglitePath = Settings.value(QString("%1/%2").arg(SETTINGS,ldglitePathKey)).toString();
-        QFileInfo info(ldglitePath);
-        if (info.exists()) {
-            ldgliteInstalled = true;
-            ldgliteExe = ldglitePath;
-        } else {
-            Settings.remove(QString("%1/%2").arg(SETTINGS,ldglitePathKey));
-            ldgliteInstalled = false;
-        }
-    } else if (ldgliteInfo.exists()) {
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,ldglitePathKey),ldgliteInfo.absoluteFilePath());
-        ldgliteInstalled = true;
-        ldgliteExe = ldgliteInfo.absoluteFilePath();
-    } else {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,ldglitePathKey));
-        ldgliteInstalled = false;
+    // LDGLite EXE
+    if (ldgliteInfo.exists()) {
+      ldgliteInstalled = true;
+      ldgliteExe = ldgliteInfo.absoluteFilePath();
     }
+    logInfo() << QString("LDGLIte            : %1").arg(ldgliteInfo.exists() ? ldgliteInfo.absoluteFilePath() : "Not found");
 
-    /* Find LDView's installation status */
-
-    bool    ldviewInstalled;
-    QString const ldviewPathKey("LDView");
-    QString ldviewPath;
-
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,ldviewPathKey))) {
-        ldviewPath = Settings.value(QString("%1/%2").arg(SETTINGS,ldviewPathKey)).toString();
-        QFileInfo info(ldviewPath);
-        if (info.exists()) {
-            ldviewInstalled = true;
-            ldviewExe = ldviewPath;
-        } else {
-            Settings.remove(QString("%1/%2").arg(SETTINGS,ldviewPathKey));
-            ldviewInstalled = false;
-        }
-    } else if (ldviewInfo.exists()) {
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,ldviewPathKey),ldviewInfo.absoluteFilePath());
-        ldviewInstalled = true;
-        ldviewExe = ldviewInfo.absoluteFilePath();
-    } else {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,ldviewPathKey));
-        ldviewInstalled = false;
+    // LDView EXE
+    if (ldviewInfo.exists()) {
+      ldviewInstalled = true;
+      ldviewExe = ldviewInfo.absoluteFilePath();
     }
+    logInfo() << QString("LDView             : %1").arg(ldviewInfo.exists() ? ldviewInfo.absoluteFilePath() : "Not found");
 
-    /* Find POV-Ray's installation status */
-
-    bool    povRayInstalled;
-    QString const povrayPathKey("POVRayPath");
-    QString const l3pPathKey("L3P");
-    QString povrayPath, l3pPath;
-
-    if (Settings.contains(QString("%1/%2").arg(POVRAY,povrayPathKey))) {
-        povrayPath = Settings.value(QString("%1/%2").arg(POVRAY,povrayPathKey)).toString();
-        QFileInfo info(povrayPath);
-        if (info.exists()) {
-            povRayInstalled = true;
-            povrayExe = povrayPath;
-        } else {
-            Settings.remove(QString("%1/%2").arg(POVRAY,povrayPathKey));
-            povRayInstalled = false;
-        }
-    } else if (povrayInfo.exists()) {
-        Settings.setValue(QString("%1/%2").arg(POVRAY,povrayPathKey),povrayInfo.absoluteFilePath());
-        povRayInstalled = true;
-        povrayExe = povrayInfo.absoluteFilePath();
-    } else {
-        Settings.remove(QString("%1/%2").arg(POVRAY,povrayPathKey));
-        povRayInstalled = false;
+    // POV-Ray EXE
+    if (povrayInfo.exists()) {
+      povRayInstalled = true;
+      povrayExe = povrayInfo.absoluteFilePath();
     }
-
-    if (Settings.contains(QString("%1/%2").arg(POVRAY,l3pPathKey))) {
-        l3pPath = Settings.value(QString("%1/%2").arg(POVRAY,l3pPathKey)).toString();
-        QFileInfo info(l3pPath);
-        if (info.exists()) {
-            povRayInstalled &= true;
-            l3pExe = l3pPath;
-        } else {
-            Settings.remove(QString("%1/%2").arg(POVRAY,l3pPathKey));
-            povRayInstalled &= false;
-        }
-    } else if (l3pInfo.exists()) {
-        Settings.setValue(QString("%1/%2").arg(POVRAY,l3pPathKey),l3pInfo.absoluteFilePath());
-        povRayInstalled &= true;
-        l3pExe = l3pInfo.absoluteFilePath();
-    } else {
-        Settings.remove(QString("%1/%2").arg(POVRAY,l3pPathKey));
-        povRayInstalled &= false;
-    }
+    logInfo() << QString("POVRay             : %1").arg(povrayInfo.exists() ? povrayInfo.absoluteFilePath() : "Not found");
 
     /* Find out if we have a valid preferred renderer */
+
+    QSettings Settings;
 
     QString const preferredRendererKey("PreferredRenderer");
 
@@ -1045,7 +1106,7 @@ void Preferences::renderPreferences()
                 preferredRenderer.clear();
                 Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
             }
-        } else if (preferredRenderer == "POV-Ray") {
+        } else if (preferredRenderer == "POVRay") {
             if ( ! povRayInstalled) {
                 preferredRenderer.clear();
                 Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
@@ -1054,24 +1115,23 @@ void Preferences::renderPreferences()
     }
 
     if (preferredRenderer == "") {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
+
         if (ldviewInstalled && ldgliteInstalled) {
-            preferredRenderer = povRayInstalled ? "POV-Ray" : "LDView";
+            preferredRenderer = povRayInstalled ? "POVRay" : "LDView";
         } else if (povRayInstalled) {
-            preferredRenderer = "POV-Ray";
+            preferredRenderer = "POVRay";
         } else if (ldviewInstalled) {
             preferredRenderer = "LDView";
         } else if (ldgliteInstalled) {
             preferredRenderer = "LDGLite";
         }
-    }
-
-    if (preferredRenderer == "") {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
     } else {
         Settings.setValue(QString("%1/%2").arg(SETTINGS,preferredRendererKey),preferredRenderer);
     }
 
     /* Set use multiple files single call rendering option */
+
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"))) {
         QVariant eValue(false);
         if (preferredRenderer == "LDView") {
@@ -1098,36 +1158,102 @@ void Preferences::renderPreferences()
         rendererTimeout = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererTimeout")).toInt();
     }
 
+    // display povray image during rendering
+    QString const povrayDisplayKey("PovRayDisplay");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayDisplayKey))) {
+            QVariant uValue(false);
+            povrayDisplay = false;
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,povrayDisplayKey),uValue);
+    } else {
+            povrayDisplay = Settings.value(QString("%1/%2").arg(SETTINGS,povrayDisplayKey)).toBool();
+    }
+
+    logInfo() << "Renderer configuration files...";
+
+    // Copy required config and ini resource files to application data directory
+    QString lpub3d3rdPartyConfigDir = QString("%1/%2").arg(lpubDataPath).arg("3rdParty");
+    QFileInfo resourceFile;
+    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW "/config" ,VER_LDVIEW_INI_FILE));
+    if (!resourceFile.exists()){
+        resourceFile.absoluteDir().mkpath(resourceFile.absolutePath());
+        QFile::copy(lpub3d3rdPartyContent + "/" VER_LDVIEW "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
+    }
+    if (resourceFile.exists())
+      ldviewIni = resourceFile.absoluteFilePath(); // populate ldview ini file
+    logInfo() << QString("LDView ini file    : %1").arg(ldviewIni.isEmpty() ? "Not found" : ldviewIni);
+
+    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW "/config" ,VER_LDVIEW_POV_INI_FILE));
+    if (!resourceFile.exists()) {
+        resourceFile.absoluteDir().mkpath(resourceFile.absolutePath());
+        QFile::copy(lpub3d3rdPartyContent + "/" VER_LDVIEW "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
+    }
+    if (resourceFile.exists())
+      ldviewPOVIni = resourceFile.absoluteFilePath(); // populate ldview pov ini file
+    logInfo() << QString("LDViewPOV ini file : %1").arg(ldviewPOVIni.isEmpty() ? "Not found" : ldviewPOVIni);
+
+    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY "/config" ,VER_POVRAY_CONF_FILE));
+    if (!resourceFile.exists()) {
+        resourceFile.absoluteDir().mkpath(resourceFile.absolutePath());
+        QFile::copy(lpub3d3rdPartyContent + "/" VER_POVRAY "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
+    }
+    if (resourceFile.exists())
+      povrayConf = resourceFile.absoluteFilePath();     // populate povray conf file
+    logInfo() << QString("POVRay conf file   : %1").arg(povrayConf.isEmpty() ? "Not found" : povrayConf);
+
+    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY "/config" ,VER_POVRAY_INI_FILE));
+    if (!resourceFile.exists()){
+        resourceFile.absoluteDir().mkpath(resourceFile.absolutePath());
+        QFile::copy(lpub3d3rdPartyContent + "/" VER_POVRAY "/resources/config/" + resourceFile.fileName(), resourceFile.absoluteFilePath());
+    }
+    if (resourceFile.exists())
+      povrayIni = resourceFile.absoluteFilePath();     // populate povray ini file
+    logInfo() << QString("POVRay conf file   : %1").arg(povrayIni.isEmpty() ? "Not found" : povrayIni);
+
+    // Populate POVRay Library paths
+    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyContent, VER_POVRAY "/resources/ini" ,VER_POVRAY_INI_FILE));
+    if (resourceFile.exists())
+      povrayIniPath = resourceFile.absolutePath();
+    logInfo() << QString("POVRay ini path    : %1").arg(povrayIniPath.isEmpty() ? "Not found" : povrayIniPath);
+
+    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyContent, VER_POVRAY "/resources/include" ,VER_POVRAY_INC_FILE));
+    if (resourceFile.exists())
+      povrayIncPath = resourceFile.absolutePath();
+    logInfo() << QString("POVRay include path: %1").arg(povrayIncPath.isEmpty() ? "Not found" : povrayIncPath);
+
+    resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyContent, VER_POVRAY "/resources/scenes" ,VER_POVRAY_SCENE_FILE));
+    if (resourceFile.exists())
+      povrayScenePath = resourceFile.absolutePath();
+    logInfo() << QString("POVRay scene path  : %1").arg(povrayScenePath.isEmpty() ? "Not found" : povrayScenePath);
 }
 
 void Preferences::pliPreferences()
 {
-  bool allIsWell = true;
-  QSettings Settings;
-  pliFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliControl")).toString();
-  pliSubstitutePartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile")).toString();
-  excludedPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"ExlcudedPartsFile")).toString();
+    bool allIsWell = true;
+    QSettings Settings;
+    pliFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliControl")).toString();
+    pliSubstitutePartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile")).toString();
+    excludedPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"ExlcudedPartsFile")).toString();
 
-  QFileInfo fileInfo(pliFile);
-  if (! fileInfo.exists()) {
-      Settings.remove(QString("%1/%2").arg(SETTINGS,"PliControl"));
-      allIsWell = false;
-    }
+    QFileInfo fileInfo(pliFile);
+    if (! fileInfo.exists()) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,"PliControl"));
+        allIsWell = false;
+      }
 
-  QFileInfo pliSubstituteFileInfo(pliSubstitutePartsFile);
-  if (! pliSubstituteFileInfo.exists()) {
-      Settings.remove(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile"));
-      allIsWell = false;
-    }
+    QFileInfo pliSubstituteFileInfo(pliSubstitutePartsFile);
+    if (! pliSubstituteFileInfo.exists()) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile"));
+        allIsWell = false;
+      }
 
-  QFileInfo excludeFileInfo(excludedPartsFile);
-  if (! excludeFileInfo.exists()) {
-      Settings.remove(QString("%1/%2").arg(SETTINGS,"ExlcudedPartsFile"));
-      allIsWell = false;
-    }
+    QFileInfo excludeFileInfo(excludedPartsFile);
+    if (! excludeFileInfo.exists()) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,"ExlcudedPartsFile"));
+        allIsWell = false;
+      }
 
-  if (allIsWell)
-    return;
+    if (allIsWell)
+      return;
 
     pliFile = QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath,"extras/pli.mpd"));
     pliSubstitutePartsFile = QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath,"extras/pliSubstituteParts.lst"));
@@ -1321,14 +1447,16 @@ void Preferences::publishingPreferences()
 
 void Preferences::viewerPreferences()
 {
+
     QSettings Settings;
+
+    if (!povrayExe.isEmpty())
+      lcSetProfileString(LC_PROFILE_POVRAY_PATH, Settings.value(povrayExe).toString());
 
     if (Settings.contains(QString("%1/%2").arg(DEFAULTS,"Author")))
         lcSetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME, Settings.value(QString("%1/%2").arg(DEFAULTS,"Author")).toString());
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"ProjectsPath")))
         lcSetProfileString(LC_PROFILE_PROJECTS_PATH, Settings.value(QString("%1/%2").arg(SETTINGS,"ProjectsPath")).toString());
-    if (Settings.contains(QString("%1/%2").arg(POVRAY,"POVRayPath")))
-        lcSetProfileString(LC_PROFILE_POVRAY_PATH, Settings.value(QString("%1/%2").arg(POVRAY,"POVRayPath")).toString());
     if (Settings.contains(QString("%1/%2").arg(POVRAY,"LGEOPath")))
         lcSetProfileString(LC_PROFILE_POVRAY_LGEO_PATH, Settings.value(QString("%1/%2").arg(POVRAY,"LGEOPath")).toString());
 }
@@ -1362,21 +1490,12 @@ bool Preferences::getPreferences()
             }
         }
 
-        if (l3pExe != dialog->l3pExe()) {
-            l3pExe = dialog->l3pExe();
-            if (l3pExe == "") {
-                Settings.remove(QString("%1/%2").arg(POVRAY,"L3P"));
+        if (preferredRenderer != dialog->preferredRenderer()) {
+            preferredRenderer = dialog->preferredRenderer();
+            if (preferredRenderer == "") {
+                Settings.remove(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"));
             } else {
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"L3P"),l3pExe);
-            }
-        }
-
-        if (povrayExe != dialog->povrayExe()) {
-            povrayExe = dialog->povrayExe();
-            if (povrayExe == "") {
-                Settings.remove(QString("%1/%2").arg(POVRAY,"POVRayPath"));
-            } else {
-                Settings.setValue(QString("%1/%2").arg(POVRAY,"POVRayPath"),povrayExe);
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"),preferredRenderer);
             }
         }
 
@@ -1389,31 +1508,10 @@ bool Preferences::getPreferences()
             }
         }
 
-        if (ldgliteExe != dialog->ldgliteExe()) {
-            ldgliteExe = dialog->ldgliteExe();
-            if (ldgliteExe == "") {
-                Settings.remove(QString("%1/%2").arg(SETTINGS,"LDGLite"));
-            } else {
-                Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDGLite"),ldgliteExe);
-            }
-        }
-
-        if (ldviewExe != dialog->ldviewExe()) {
-            ldviewExe = dialog->ldviewExe();
-            if (ldviewExe == "") {
-                Settings.remove(QString("%1/%2").arg(SETTINGS,"LDView"));
-            } else {
-                Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDView"),ldviewExe);
-            }
-        }
-
-        if (preferredRenderer != dialog->preferredRenderer()) {
-            preferredRenderer = dialog->preferredRenderer();
-            if (preferredRenderer == "") {
-                Settings.remove(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"));
-            } else {
-                Settings.setValue(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"),preferredRenderer);
-            }
+        if (povrayDisplay != dialog->povrayDisplay())
+        {
+                povrayDisplay = dialog->povrayDisplay();
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovRayDisplay"),povrayDisplay);
         }
 
         if (ldSearchDirs != dialog->searchDirSettings()) {

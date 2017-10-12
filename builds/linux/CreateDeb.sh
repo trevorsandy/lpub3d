@@ -65,7 +65,7 @@ mv lpub3d ${SOURCE_DIR}
 echo "4. create cleaned tarball lpub3d_${APP_VERSION}.orig.tar.gz using ${SOURCE_DIR}/"
 tar -czvf ../lpub3d_${APP_VERSION}.orig.tar.gz ${SOURCE_DIR} \
         --exclude="${SOURCE_DIR}/builds/linux/standard" \
-        --exclude="${SOURCE_DIR}/builds/osx" \
+        --exclude="${SOURCE_DIR}/builds/macx" \
         --exclude="${SOURCE_DIR}/.travis.yml" \
         --exclude="${SOURCE_DIR}/.git" \
         --exclude="${SOURCE_DIR}/.gitattributes" \

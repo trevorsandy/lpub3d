@@ -846,6 +846,8 @@ private:
             QPixmap            *pixmap,
             Meta               &meta);
 
+  int addStepImageGraphics(Step    *step); //recurse the step's model to add images.
+
   int addGraphicsPageItems(        // this converts the abstract page into
     Steps          *steps,         // a graphics view
     bool            coverPage,
@@ -915,7 +917,12 @@ private slots:
     void editPliBomSubstituteParts();
     void editLdrawIniFile();
     void editExcludedParts();
+    void editLdviewIni();
+    void editLdviewPovIni();
+    void editPovrayIni();
+    void editPovrayConf();
     void generateFadeColourPartsList();
+    void viewLog();
 
     void toggleLCStatusBar();
     void showLCStatusMessage();
@@ -1126,6 +1133,10 @@ private:
   QAction *editPliBomSubstitutePartsAct;
   QAction *editExcludedPartsAct;
   QAction *editLdrawIniFileAct;
+  QAction *editLdviewIniAct;
+  QAction *editLdviewPovIniAct;
+  QAction *editPovrayIniAct;
+  QAction *editPovrayConfAct;
   QAction *generateFadeColourPartsAct;
 
   // help
@@ -1144,7 +1155,8 @@ private:
   enum { MaxRecentFiles = 8 };
   QAction *recentFilesActs[MaxRecentFiles];
 
-  QAction *updateApp;
+  QAction *updateAppAct;
+  QAction *viewLogAct;
 
 };
 

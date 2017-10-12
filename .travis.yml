@@ -4,6 +4,9 @@ dist: trusty
 
 cache: ccache
 
+git:
+  depth: 200
+
 notifications:
   email:
     on_success: never
@@ -68,11 +71,11 @@ install:
   - # Use actual archives if you will run 'make install'
   - # wget http://www.ldraw.org/library/updates/complete.zip;
   - # wget http://www.ldraw.org/library/unofficial/ldrawunf.zip;
+  - # cwd is 'lpub3d' so move downloads accordingly
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-      wget https://github.com/trevorsandy/lpub3d/releases/download/v2.0.0/test001.zip -O complete.zip;
-      mv complete.zip mainApp/extras/complete.zip;
-      wget https://github.com/trevorsandy/lpub3d/releases/download/v2.0.0/test002.zip -O lpub3dldrawunf.zip;
-      mv lpub3dldrawunf.zip mainApp/extras/lpub3dldrawunf.zip;
+      wget https://github.com/trevorsandy/lpub3d/releases/download/v2.0.0/test001.zip -O mainApp/extras/complete.zip;
+      wget https://github.com/trevorsandy/lpub3d/releases/download/v2.0.0/test002.zip -O mainApp/extras/lpub3dldrawunf.zip;
+      git clone https://github.com/trevorsandy/lpub3d_macos_3rdparty.git ../lpub3d_macos_3rdparty;
     fi
 
 script:

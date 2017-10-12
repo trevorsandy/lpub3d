@@ -84,13 +84,13 @@ protected:
 
 extern Render *renderer;
 
-class L3P : public Render
+class POVRay : public Render
 {
 public:
-  L3P() {}
-  virtual ~L3P() {}
+  POVRay() {}
+  virtual ~POVRay() {}
   virtual int renderCsi(const QString &,  const QStringList &, const QString &, Meta &);
-  virtual int renderPli(                  const QString &,     const QString &, Meta &, bool bom);
+  virtual int renderPli(                  const QString     &, const QString &, Meta &, bool bom);
   virtual float cameraDistance(Meta &meta, float);
 };
 

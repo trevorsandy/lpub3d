@@ -17,7 +17,8 @@ include(../gitversion.pri)
 TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
-INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../ldrawini
+INCLUDEPATH += ../lc_lib/common ../lc_lib/qt ../ldrawini ../ldglite
+
 # If quazip is alredy installed you can suppress building it again by
 # adding CONFIG+=quazipnobuild to the qmake arguments
 # Update the quazip header path if not installed at default location below
@@ -37,13 +38,15 @@ macx {
 
 contains(QT_ARCH, x86_64) {
     ARCH = 64
+    STG_ARCH = x86_64
 } else {
     ARCH = 32
+    STG_ARCH = x86
 }
 
 CONFIG += precompile_header
 PRECOMPILED_HEADER += ../lc_lib/common/lc_global.h
-QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter -Winvalid-pch
 
 win32 {
 
@@ -57,7 +60,7 @@ win32 {
     QMAKE_TARGET_COMPANY = "LPub3D Software"
     QMAKE_TARGET_DESCRIPTION = "An LDraw Building Instruction Editor."
     QMAKE_TARGET_COPYRIGHT = "Copyright (c) 2015-2017 Trevor SANDY"
-    QMAKE_TARGET_PRODUCT = "LPub3D ($$ARCH-bit)"
+    QMAKE_TARGET_PRODUCT = "LPub3D ($$join(ARCH,,,bit))"
     RC_LANG = "English (United Kingdom)"
     RC_ICONS = "lpub3d.ico"
 
@@ -66,7 +69,6 @@ win32 {
     LIBS += -lz
     # Use installed quazip library
     quazipnobuild: LIBS += -lquazip
-
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -86,6 +88,7 @@ lessThan(QT_MAJOR_VERSION, 5) {
 
 unix:!macx: TARGET = lpub3d
 else: TARGET = LPub3D
+STG_TARGET   = $$TARGET
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Note on x11 platforms you can also pre-install install quazip ($ sudo apt-get install libquazip-dev)
@@ -132,7 +135,7 @@ CONFIG(debug, debug|release) {
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-static {                                      # everything below takes effect with CONFIG ''= static
+static {                                     # everything below takes effect with CONFIG ''= static
     message("~~~ MAIN_APP STATIC build ~~~") # this is for information, that the static build is done
     CONFIG+= static
     LIBS += -static
@@ -149,202 +152,46 @@ MOC_DIR     = $$DESTDIR/.moc
 RCC_DIR     = $$DESTDIR/.qrc
 UI_DIR      = $$DESTDIR/.ui
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-unix:!macx {
+#~~file distributions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Use these switches to enable/disable copying/install of 3rd party executables, documentation and resources.
+# e.g. $ qmake "CONFIG+=copy3rdexe" "CONFIG+=copy3rdexeconfig" "CONFIG+=copy3rdcontent" "CONFIG+=stagewindistcontent"
+# or you can hard code here:
+# Copy 3rd party executables
+!contains(CONFIG, copy3rdexe): CONFIG +=
+# Copy 3rd party for executable configuration file(s)
+!contains(CONFIG, copy3rdexeconfig): CONFIG +=
+# Copy 3rd party documents and resources
+!contains(CONFIG, copy3rdcontent): CONFIG +=
+# Stage 3rd party executables, documentation and resources (Windows builds Only)
+!contains(CONFIG, stagewindistcontent): CONFIG +=
 
-        # For compiled builds on unix set C++11 standard appropriately
-        GCC_VERSION = $$system(g++ -dumpversion)
-        greaterThan(GCC_VERSION, 4.6) {
-            QMAKE_CXXFLAGS += -std=c++11
-        } else {
-            QMAKE_CXXFLAGS += -std=c++0x
-        }
-
-        binarybuild {
-            # To build a binary distribution that will not require elevated rights to install,
-            # pass CONFIG+=binarybuild to qmake (i.e. in QtCreator, set in qmake Additional Arguments)
-            # The installer which uses Qt installer framework can be found in the "builds" source folder.
-            # This macro is used to properly load parameter files on initial launch
-            DEFINES += X11_BINARY_BUILD
-            # Linker flag setting to properly direct LPub3D to ldrawini and quazip shared libraries.
-            # This setting assumes dependent libraries are deposited at <exe location>/lib by the installer.
-            QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/lib\'"
-
-        }
-
-        # These defines point LPub3D to the architecture appropriate content
-        # when performing 'check for update' download and installation
-        # Don't forget to set CONFIG+=<deb|rpm|pkg> accordingly if NOT using
-        # the accompanying build scripts - CreateDeb.sh, CreateRpm.sh or CreatePkg.sh
-        deb: PACKAGE_TYPE = DEB_DISTRO
-        rpm: PACKAGE_TYPE = RPM_DISTRO
-        pkg: PACKAGE_TYPE = PKG_DISTRO
-        !isEmpty(PACKAGE_TYPE): DEFINES += $$PACKAGE_TYPE
-
-        MAN_PAGE = lpub3d$$VER_MAJOR$$VER_MINOR
-        MAN_PAGE = $$join(MAN_PAGE,,,.1)
-		
-        # These settings are used for package distributions that will require elevated rights to install
-        isEmpty(INSTALL_PREFIX):INSTALL_PREFIX = /usr
-        isEmpty(BIN_DIR):BIN_DIR = $$INSTALL_PREFIX/bin
-        isEmpty(DOCS_DIR):DOCS_DIR = $$INSTALL_PREFIX/share/doc/lpub3d
-        isEmpty(ICON_DIR):ICON_DIR = $$INSTALL_PREFIX/share/pixmaps
-        isEmpty(MAN_DIR):MAN_DIR = $$INSTALL_PREFIX/share/man/man1
-        isEmpty(DESKTOP_DIR):DESKTOP_DIR = $$INSTALL_PREFIX/share/applications
-        isEmpty(MIME_DIR):MIME_DIR = $$INSTALL_PREFIX/share/mime/packages
-        isEmpty(MIME_ICON_DIR):MIME_ICON_DIR = $$INSTALL_PREFIX/share/icons/hicolor/scalable/mimetypes
-        isEmpty(RESOURCE_DIR):RESOURCE_DIR = $$INSTALL_PREFIX/share/lpub3d	
-
-        target.path = $$BIN_DIR
-
-        docs.files += docs/README.txt docs/CREDITS.txt docs/COPYING.txt
-        docs.path = $$DOCS_DIR
-		
-        man.files += $$MAN_PAGE
-        man.path = $$MAN_DIR
-
-        desktop.files += lpub3d.desktop
-        desktop.path = $$DESKTOP_DIR
-
-        icon.files += images/lpub3d.png
-        icon.path = $$ICON_DIR
-
-        mime.files += lpub3d.xml
-        mime.path = $$MIME_DIR
-
-        mime_ldraw_icon.files += images/x-ldraw.svg
-        mime_ldraw_icon.path = $$MIME_ICON_DIR
-
-        mime_multi_part_ldraw_icon.files += images/x-multi-part-ldraw.svg
-        mime_multi_part_ldraw_icon.path = $$MIME_ICON_DIR
-
-        mime_multipart_ldraw_icon.files += images/x-multipart-ldraw.svg
-        mime_multipart_ldraw_icon.path = $$MIME_ICON_DIR
-
-        excluded_count_parts.files += extras/excludedParts.lst
-        excluded_count_parts.path = $$RESOURCE_DIR
-
-        fadestep_color_parts.files += extras/fadeStepColorParts.lst
-        fadestep_color_parts.path = $$RESOURCE_DIR
-
-        pli_freeform_annotations.files += extras/freeformAnnotations.lst
-        pli_freeform_annotations.path = $$RESOURCE_DIR
-
-        pli_title_annotations.files += extras/titleAnnotations.lst
-        pli_title_annotations.path = $$RESOURCE_DIR
-
-        pli_orientation.files += extras/pli.mpd
-        pli_orientation.path = $$RESOURCE_DIR
-
-        pli_substitution_parts.files += extras/pliSubstituteParts.lst
-        pli_substitution_parts.path = $$RESOURCE_DIR
-
-        # Disable these archive libraries and the user will be prompted to
-        # select or download the ldraw archive (.zip) libraries on initial application launch
-        ldraw_unofficial_library.files += extras/lpub3dldrawunf.zip
-        ldraw_unofficial_library.path = $$RESOURCE_DIR
-
-        ldraw_official_library.files += extras/complete.zip
-        ldraw_official_library.path = $$RESOURCE_DIR
-
-        INSTALLS += \
-        target \
-        docs \
-        man \
-        desktop \
-        icon\
-        mime\
-        mime_ldraw_icon \
-        mime_multi_part_ldraw_icon \
-        mime_multipart_ldraw_icon \
-        excluded_count_parts \
-        fadestep_color_parts \
-        pli_freeform_annotations \
-        pli_title_annotations \
-        pli_orientation \
-        pli_substitution_parts \
-        ldraw_unofficial_library \
-        ldraw_official_library
-
-        DEFINES += LC_INSTALL_PREFIX=\\\"$$INSTALL_PREFIX\\\"
-
-        !isEmpty(DISABLE_UPDATE_CHECK) {
-                DEFINES += LC_DISABLE_UPDATE_CHECK=$$DISABLE_UPDATE_CHECK
-        }
-
-        !isEmpty(LDRAW_LIBRARY_PATH) {
-                DEFINES += LC_LDRAW_LIBRARY_PATH=\\\"$$LDRAW_LIBRARY_PATH\\\"
-        }
-}
-
-macx {
-
-    ICON = lpub3d.icns
-    QMAKE_INFO_PLIST = Info.plist
-
-    document_icon.files += ldraw_document.icns
-    document_icon.path = Contents/Resources
-
-    document_readme.files += docs/README.txt
-    document_readme.path = Contents/Resources
-
-    document_credits.files += docs/CREDITS.txt
-    document_credits.path = Contents/Resources
-
-    document_copying.files += docs/COPYING.txt
-    document_copying.path = Contents/Resources
-
-    excluded_count_parts.files += extras/excludedParts.lst
-    excluded_count_parts.path = Contents/Resources
-
-    fadestep_color_parts.files += extras/fadeStepColorParts.lst
-    fadestep_color_parts.path = Contents/Resources
-
-    pli_freeform_annotations.files += extras/freeformAnnotations.lst
-    pli_freeform_annotations.path = Contents/Resources
-
-    pli_title_annotations.files += extras/titleAnnotations.lst
-    pli_title_annotations.path = Contents/Resources
-
-    pli_orientation.files += extras/pli.mpd
-    pli_orientation.path = Contents/Resources
-
-    pli_substitution_parts.files += extras/pliSubstituteParts.lst
-    pli_substitution_parts.path = Contents/Resources
-
-    ldraw_unofficial_library.files += extras/lpub3dldrawunf.zip
-    ldraw_unofficial_library.path = Contents/Resources
-
-    ldraw_official_library.files += extras/complete.zip
-    ldraw_official_library.path = Contents/Resources
-
-    CONFIG(release, debug|release) {
-        libquazip.files += \
-            $$DESTDIR/../../quazip/release/libQuaZIP.0.dylib
-        libquazip.path = Contents/Libs
-
-        libldrawini.files += \
-            $$DESTDIR/../../ldrawini/release/libLDrawIni.16.dylib
-        libldrawini.path = Contents/Libs
+# Download 3rd party repository when required
+if(copy3rdexe|copy3rdexeconfig|copy3rdcontent|stagewindistcontent) {
+    unix:!macx:REPO = lpub3d_linux_3rdparty
+    macx:REPO       = lpub3d_macos_3rdparty
+    win32:REPO      = lpub3d_windows_3rdparty
+    !exists($$_PRO_FILE_PWD_/../../$$REPO/.gitignore) {
+        REPO_NOT_FOUND_MSG = GIT REPOSITORY $$REPO was not found. It will be downloaded.
+        REPO_DOWNLOADED_MSG = GIT REPOSITORY $$REPO downloaded.
+        GITHUB_URL = https://github.com/trevorsandy
+        QMAKE_POST_LINK += $$escape_expand(\n\t) \
+                           echo $$shell_quote$${REPO_NOT_FOUND_MSG} \
+                           $$escape_expand(\n\t) \
+                           cd $$_PRO_FILE_PWD_/../../ \
+                           $$escape_expand(\n\t) \
+                           git clone $${GITHUB_URL}/$${REPO}.git \
+                           $$escape_expand(\n\t) \
+                           echo $$shell_quote$${REPO_DOWNLOADED_MSG}
     }
-
-    QMAKE_BUNDLE_DATA += \
-        document_icon \
-        document_readme \
-        document_credits \
-        document_copying \
-        excluded_count_parts \
-        fadestep_color_parts \
-        pli_freeform_annotations \
-        pli_title_annotations \
-        pli_orientation \
-        pli_substitution_parts \
-        ldraw_unofficial_library \
-        ldraw_official_library \
-        libquazip \
-        libldrawini
-
 }
+
+VER_LDVIEW      = ldview-4.3
+VER_LDGLITE     = ldglite-1.3
+VER_POVRAY      = lpub3d_trace_cui-3.8
+
+win32:include(winfiledistro.pri)
+macx:include(macosfiledistro.pri)
+unix:!macx:include(linuxfiledistro.pri)
 
 #~~ includes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -518,7 +365,8 @@ OTHER_FILES += \
     lpub3d.xml \
     lpub3d.sh \
     $$MAN_PAGE \
-    ../builds/osx/CreateDmg.sh \
+    ../builds/macx/CreateDmg.sh \
+    ../builds/macx/CreateDmgAlt.sh \
     ../builds/linux/CreateRpm.sh \
     ../builds/linux/CreateDeb.sh \
     ../builds/linux/CreatePkg.sh \
@@ -530,22 +378,43 @@ OTHER_FILES += \
     ../builds/linux/obs/debian/copyright \
     ../builds/linux/obs/debian/lpub3d.dsc \
     ../builds/linux/obs/_service \
-    ../builds/windows/setup/CreateExe.bat \
-    ../builds/windows/setup/LPub3DNoPack.nsi \
-    ../builds/windows/setup/nsisFunctions.nsh \
+    ../builds/windows/CreateExe.bat \
     ../builds/utilities/Copyright-Source-Headers.txt \
     ../builds/utilities/update-config-files.sh \
     ../builds/utilities/update-config-files.bat \
+    ../builds/utilities/dmg-utils/dmg-license.py \
+    ../builds/utilities/dmg-utils/template.appplescript \
+    ../builds/utilities/nsis-scripts/LPub3DNoPack.nsi \
+    ../builds/utilities/nsis-scripts/nsisFunctions.nsh \
+    ../builds/utilities/create-dmg \
     ../builds/utilities/README.md \
     ../README.md \
     ../.gitignore \
-    ../.travis.yml
+    ../.travis.yml \
+    ../appveyor.yml
 
 RESOURCES += \
     lpub3d.qrc
 
 DISTFILES += \
     ldraw_document.icns
+
+# Suppress warnings
+QMAKE_CFLAGS_WARN_ON += -Wall -W \
+    -Wno-deprecated-declarations \
+    -Wno-unused-parameter \
+    -Wno-sign-compare
+macx {
+QMAKE_CFLAGS_WARN_ON += \
+    -Wno-overloaded-virtual \
+    -Wno-sometimes-uninitialized \
+    -Wno-self-assign \
+    -Wno-unused-result
+} else {
+QMAKE_CFLAGS_WARN_ON += \
+    -Wno-strict-aliasing
+}
+QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
 
 #message($$CONFIG)
 

@@ -40,6 +40,18 @@
 #endif
 #define VER_COMPANYNAME_STR                 COMPANYNAME_STR
 
+// ~~~~~~ 3rdParty Applications ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+#define VER_LDVIEW                          "ldview-4.3"
+#define VER_LDGLITE                         "ldglite-1.3"
+#define VER_POVRAY                          "lpub3d_trace_cui-3.8"
+
+#define VER_LDVIEW_INI_FILE                 "ldview.ini"      // LDView renderer ini settings
+#define VER_LDVIEW_POV_INI_FILE             "ldviewPOV.ini"   // POV file generation ini settings
+#define VER_POVRAY_INI_FILE                 "povray.ini"      // Only used to validate directory
+#define VER_POVRAY_INC_FILE                 "consts.inc"      // Only used to validate directory
+#define VER_POVRAY_SCENE_FILE               "index.htm"       // Only used to validate directory
+#define VER_POVRAY_CONF_FILE                "povray.conf"
+
 // ~~~~~~ Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 #define VER_LOGGING_LEVELS_STR              "STATUS,INFO,TRACE,DEBUG,NOTICE,ERROR,FATAL,OFF"
@@ -68,15 +80,15 @@
 
 #ifdef __GNUC__
   #ifdef __MINGW64__
-    #define VER_COMPILED_ON             "MinGW (i686-6.1.0 64bit) Windows"
+    #define VER_COMPILED_ON             "MinGW (i686-7.2.0 64bit) Windows"
     #define VER_COMPILED_FOR            "MS Windows 64bit"
     #define VER_COMPILED_WITH           "Qt qtver (MinGW 64bit)"
-    #define VER_IDE                     "Qt Creator 4.1.0 on Qt 5.7.0 (MSVC 2013, x32)"
+    #define VER_IDE                     "Qt Creator 4.4.1 on Qt 5.9.2 (MSVC 2015, x32)"
   #elif __MINGW32__
     #define VER_COMPILED_ON             "MinGW (i686-5.3.0 32bit) Windows"
     #define VER_COMPILED_FOR            "MS Windows 32bit, 64bit"
     #define VER_COMPILED_WITH           "Qt qtver (MinGW 32bit)"
-    #define VER_IDE                     "Qt Creator 4.1.0 on Qt 5.7.0 (MSVC 2013, x32)"
+    #define VER_IDE                     "Qt Creator 4.4.1 on Qt 5.9.2 (MSVC 2015, x32)"
   #elif _MSC_VER
     #define VER_COMPILED_ON             "MSVC 2015"
     #define VER_COMPILED_FOR            "MS Windows 32bit, 64bit"
@@ -88,15 +100,15 @@
     #define VER_COMPILED_WITH           "Qt qtver (Clang 64bit)"
     #define VER_IDE                     "Qt Creator 4.1.0 on Qt 5.7.0 (Clang 7.0, x64)"
   #elif __linux__
-    #define VER_COMPILED_ON             "GCC (4.5.8 20150623)"
+    #define VER_COMPILED_ON             "GCC (5.4.1 20160904)"
     #define VER_COMPILED_FOR            "Linux"
     #define VER_COMPILED_WITH           "Qt qtver (GCC)"
-    #define VER_IDE                     "Qt Creator 4.1.0 on Qt 5.7.0"
+    #define VER_IDE                     "Qt Creator 4.4.1 on Qt 5.9.2 (GCC 5.3.1, x64)"
   #elif defined(_POSIX_VERSION)
     #define VER_COMPILED_ON             "POSIX"
     #define VER_COMPILED_FOR            "POSIX"
     #define VER_COMPILED_WITH           "Qt qtver (GCC)"
-    #define VER_IDE                     "Qt Creator 4.1.0 on Qt 5.7.0"
+    #define VER_IDE                     "Qt Creator 4.4.1 on Qt 5.9.2 (GCC 5.3.1, x64)"
   #else
   #   error "Unknown compiler"
   #endif

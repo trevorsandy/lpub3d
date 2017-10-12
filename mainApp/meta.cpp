@@ -2630,7 +2630,6 @@ AssemMeta::AssemMeta() : BranchMeta()
   modelScale.setValue(1.0);
   ldgliteParms.setValue("-fh"); // change removed -w1 duplicate on 01-25-16 v1.3.3 r578
   ldviewParms.setValue("");
-  l3pParms.setValue("-q4 -sw2");
   povrayParms.setValue("+A");
   showStepNumber.setValue(true);
 }
@@ -2642,7 +2641,6 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   modelScale.init    (this,"MODEL_SCALE");
   ldviewParms.init   (this,"LDGLITE_PARMS");
   ldgliteParms.init  (this,"LDVIEW_PARMS");
-  l3pParms .init     (this,"L3P_PARMS");
   povrayParms .init  (this,"POVRAY_PARMS");
   showStepNumber.init(this,"SHOW_STEP_NUMBER");
 }
@@ -2674,7 +2672,6 @@ PliMeta::PliMeta() : BranchMeta()
   show.setValue(true);
   ldgliteParms.setValue("-fh -w1");
   ldviewParms.setValue("");
-  l3pParms.setValue("-q4 -sw2");
   povrayParms.setValue("+A");
   includeSubs.setValue(false);
   subModelColor.setValue("#ffffff");
@@ -2709,7 +2706,6 @@ void PliMeta::init(BranchMeta *parent, QString name)
   show            .init(this,"SHOW");
   ldviewParms     .init(this,"LDVIEW_PARMS");
   ldgliteParms    .init(this,"LDGLITE_PARMS");
-  l3pParms        .init(this,"L3P_PARMS");
   povrayParms     .init(this,"POVRAY_PARMS");
   includeSubs     .init(this,"INCLUDE_SUBMODELS");
   subModelColor   .init(this,"SUBMODEL_BACKGROUND_COLOR");
@@ -2748,7 +2744,6 @@ BomMeta::BomMeta() : PliMeta()
   show.setValue(true);
   ldgliteParms.setValue("-fh -w1");
   ldviewParms.setValue("");
-  l3pParms.setValue("-q4 -sw2");
   povrayParms.setValue("+A");
   includeSubs.setValue(false);
   subModelColor.setValue("#ffffff");
@@ -2783,7 +2778,6 @@ void BomMeta::init(BranchMeta *parent, QString name)
   show            .init(this,"SHOW");
   ldviewParms     .init(this,"LDVIEW_PARMS");
   ldgliteParms    .init(this,"LDGLITE_PARMS");
-  l3pParms        .init(this,"L3P_PARMS");
   povrayParms     .init(this,"POVRAY_PARMS");
   includeSubs     .init(this,"INCLUDE_SUBMODELS");
   subModelColor   .init(this,"SUBMODEL_BACKGROUND_COLOR");

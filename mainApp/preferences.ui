@@ -28,7 +28,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>4</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -302,7 +302,12 @@
        </property>
        <item>
         <property name="text">
-         <string>L3P</string>
+         <string>LDView</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>POVRay</string>
         </property>
        </item>
        <item>
@@ -310,19 +315,14 @@
          <string>LDGLite</string>
         </property>
        </item>
-       <item>
-        <property name="text">
-         <string>LDView</string>
-        </property>
-       </item>
       </widget>
       <widget class="QGroupBox" name="POVRayBox">
        <property name="geometry">
         <rect>
          <x>16</x>
-         <y>260</y>
+         <y>255</y>
          <width>441</width>
-         <height>170</height>
+         <height>181</height>
         </rect>
        </property>
        <property name="title">
@@ -334,25 +334,12 @@
        <property name="checked">
         <bool>false</bool>
        </property>
-       <widget class="QLabel" name="label_3">
-        <property name="geometry">
-         <rect>
-          <x>15</x>
-          <y>29</y>
-          <width>51</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>POV-Ray</string>
-        </property>
-       </widget>
        <widget class="QLineEdit" name="povrayPath">
         <property name="geometry">
          <rect>
-          <x>74</x>
-          <y>29</y>
-          <width>251</width>
+          <x>15</x>
+          <y>54</y>
+          <width>412</width>
           <height>20</height>
          </rect>
         </property>
@@ -360,23 +347,23 @@
        <widget class="QPushButton" name="browsePOVRAY">
         <property name="geometry">
          <rect>
-          <x>335</x>
-          <y>24</y>
+          <x>334</x>
+          <y>20</y>
           <width>93</width>
-          <height>28</height>
+          <height>20</height>
          </rect>
         </property>
         <property name="text">
-         <string>Browse...</string>
+         <string>hidden</string>
         </property>
        </widget>
        <widget class="QGroupBox" name="lgeoBox">
         <property name="geometry">
          <rect>
-          <x>12</x>
-          <y>94</y>
+          <x>10</x>
+          <y>86</y>
           <width>421</width>
-          <height>64</height>
+          <height>81</height>
          </rect>
         </property>
         <property name="toolTip">
@@ -391,83 +378,82 @@
         <property name="checked">
          <bool>false</bool>
         </property>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="0">
-          <widget class="QLineEdit" name="lgeoPath">
-           <property name="minimumSize">
-            <size>
-             <width>200</width>
-             <height>0</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QPushButton" name="browseLGEO">
-           <property name="toolTip">
-            <string>Use directory dialog to find LGEO directory</string>
-           </property>
-           <property name="whatsThis">
-            <string>This lets you find the LGEO directory</string>
-           </property>
-           <property name="text">
-            <string>Browse...</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QLineEdit" name="lgeoPath">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>45</y>
+           <width>301</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="browseLGEO">
+         <property name="geometry">
+          <rect>
+           <x>320</x>
+           <y>28</y>
+           <width>93</width>
+           <height>38</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Use directory dialog to find LGEO directory</string>
+         </property>
+         <property name="whatsThis">
+          <string>This lets you find the LGEO directory</string>
+         </property>
+         <property name="text">
+          <string>Browse...</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="lgeoStlLibLbl">
+         <property name="geometry">
+          <rect>
+           <x>13</x>
+           <y>20</y>
+           <width>301</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Durat's Stl library availability notice</string>
+         </property>
+        </widget>
        </widget>
-       <widget class="QPushButton" name="browseL3P">
+       <widget class="QCheckBox" name="povrayDisplay_Chk">
         <property name="geometry">
          <rect>
-          <x>335</x>
-          <y>59</y>
-          <width>93</width>
-          <height>28</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Browse...</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="l3pPath">
-        <property name="geometry">
-         <rect>
-          <x>74</x>
-          <y>63</y>
-          <width>251</width>
+          <x>19</x>
+          <y>23</y>
+          <width>256</width>
           <height>20</height>
          </rect>
         </property>
-       </widget>
-       <widget class="QLabel" name="label_7">
-        <property name="geometry">
-         <rect>
-          <x>15</x>
-          <y>65</y>
-          <width>31</width>
-          <height>16</height>
-         </rect>
+        <property name="toolTip">
+         <string>Display image during rendering</string>
+        </property>
+        <property name="statusTip">
+         <string>Check to enable display window during image Raytracer rendering</string>
         </property>
         <property name="text">
-         <string>L3P</string>
+         <string>Display image during rendering</string>
         </property>
        </widget>
-       <zorder>povrayPath</zorder>
-       <zorder>browsePOVRAY</zorder>
-       <zorder>lgeoBox</zorder>
-       <zorder>browseL3P</zorder>
-       <zorder>l3pPath</zorder>
-       <zorder>label_3</zorder>
-       <zorder>label_7</zorder>
       </widget>
       <widget class="QGroupBox" name="ldgliteBox">
        <property name="geometry">
         <rect>
-         <x>16</x>
-         <y>55</y>
+         <x>15</x>
+         <y>171</y>
          <width>441</width>
-         <height>78</height>
+         <height>71</height>
         </rect>
        </property>
        <property name="title">
@@ -479,25 +465,12 @@
        <property name="checked">
         <bool>false</bool>
        </property>
-       <widget class="QLabel" name="label">
-        <property name="geometry">
-         <rect>
-          <x>12</x>
-          <y>36</y>
-          <width>51</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Name</string>
-        </property>
-       </widget>
        <widget class="QLineEdit" name="ldglitePath">
         <property name="geometry">
          <rect>
-          <x>66</x>
-          <y>35</y>
-          <width>261</width>
+          <x>15</x>
+          <y>34</y>
+          <width>412</width>
           <height>20</height>
          </rect>
         </property>
@@ -505,14 +478,14 @@
        <widget class="QPushButton" name="browseLDGLite">
         <property name="geometry">
          <rect>
-          <x>336</x>
-          <y>31</y>
+          <x>334</x>
+          <y>8</y>
           <width>93</width>
-          <height>28</height>
+          <height>20</height>
          </rect>
         </property>
         <property name="text">
-         <string>Browse...</string>
+         <string>hidden</string>
         </property>
        </widget>
       </widget>
@@ -520,7 +493,7 @@
        <property name="geometry">
         <rect>
          <x>15</x>
-         <y>150</y>
+         <y>67</y>
          <width>441</width>
          <height>91</height>
         </rect>
@@ -534,25 +507,12 @@
        <property name="checked">
         <bool>false</bool>
        </property>
-       <widget class="QLabel" name="label_2">
-        <property name="geometry">
-         <rect>
-          <x>12</x>
-          <y>58</y>
-          <width>25</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Name</string>
-        </property>
-       </widget>
        <widget class="QLineEdit" name="ldviewPath">
         <property name="geometry">
          <rect>
-          <x>64</x>
+          <x>15</x>
           <y>56</y>
-          <width>261</width>
+          <width>412</width>
           <height>20</height>
          </rect>
         </property>
@@ -560,22 +520,22 @@
        <widget class="QPushButton" name="browseLDView">
         <property name="geometry">
          <rect>
-          <x>336</x>
-          <y>52</y>
+          <x>334</x>
+          <y>28</y>
           <width>93</width>
-          <height>28</height>
+          <height>20</height>
          </rect>
         </property>
         <property name="text">
-         <string>Browse...</string>
+         <string>hidden</string>
         </property>
        </widget>
        <widget class="QCheckBox" name="ldviewSingleCall_Chk">
         <property name="geometry">
          <rect>
-          <x>64</x>
+          <x>15</x>
           <y>26</y>
-          <width>261</width>
+          <width>256</width>
           <height>20</height>
          </rect>
         </property>
@@ -1385,8 +1345,8 @@
             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
@@ -1567,6 +1527,7 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <resources>
+  <include location="lpub3d.qrc"/>
   <include location="lpub3d.qrc"/>
  </resources>
  <connections>

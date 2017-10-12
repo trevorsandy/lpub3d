@@ -42,6 +42,7 @@ extern Gui *gui;
 
 
 #define FILE_LDRAW_LDCONFIG               "ldconfig.ldr"
+#define DURAT_LGEO_STL_LIB_INFO           "Durat's LGEO Stl library is available"
 
 
 #endif

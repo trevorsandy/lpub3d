@@ -80,7 +80,7 @@ const  QList<int> PlacementDialog::relativeToOks[NumRelatives] =
   /*  1 Csi (assem) 	Csi		*/{Page},
   /*  2 MultiStep       Ms 		*/{Page       , Pli},
   /*  3 StepNum 	Sn              */{Page , Csi , Pli                     , ph , pf},
-  /*  4 Pli 		Pli             */{Page , Csi            , Sn},
+  /*  4 Pli 		Pli             */{Page , Csi            , Sn           , ph , pf},
   /*  5 Callout 	Callout         */{Page , Csi , Pli      , Sn           , ph , pf},
   /*  6 PageNum 	Pn              */{Page , Csi , Pli , Pn , Sn , Callout , ph , pf},
 
@@ -277,10 +277,10 @@ PlacementDialog::PlacementDialog(
     case StepType:                                  //parent type
       switch (placedType) {
         case PartsListType:             //placed type
-          oks << Page << Csi << Sn;
+          oks << Page << Csi << Sn << ph << pf;
         break;
         case StepNumberType:            //placed type
-          oks << Page << Csi << Pli << ph;
+          oks << Page << Csi << Pli << ph << pf;
         break;
         case CalloutType:               //placed type
           oks << Page << Csi << Sn << Pli;

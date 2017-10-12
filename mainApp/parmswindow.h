@@ -37,6 +37,10 @@
 #include <QMainWindow>
 #include <QTextCursor>
 
+#ifndef WATCHER
+#define WATCHER
+#endif
+
 class QPlainTextEdit;
 class LDrawFile;
 class ParmsHighlighter;
@@ -72,6 +76,7 @@ private:
     TextEditor       *_textEdit;
     bool              _fadeStepFile;
     bool              _fileModified;
+    bool              _restartRequired;
     QString           title;
     ParmsHighlighter *highlighter;
     QString           fileName;  // file currently being displayed
@@ -79,10 +84,13 @@ private:
     QMenu    *editMenu;
     QToolBar *editToolBar;
     QToolBar *undoRedoToolBar;
+    QAction  *openAct;
+    QAction  *refreshAct;
     QAction  *cutAct;
     QAction  *copyAct;
     QAction  *pasteAct;
     QAction  *saveAct;
+    QAction  *saveCopyAsAct;
     QAction  *undoAct;
     QAction  *redoAct;
     QAction  *delAct;
@@ -90,9 +98,14 @@ private:
     QAction  *findAct;
 
 private slots:
+    void openFile();
+    void refreshFile();
     void enableSave();
+    void toggleClear();
+    void viewLogWindowSettings();
     bool maybeSave();
     bool saveFile();
+    bool saveCopyAsFile();
     void closeEvent(QCloseEvent *event);
 
 public slots:

@@ -627,9 +627,7 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
 
 void Gui::mpdComboChanged(int index)
 {
-  index = index;
   QString newSubFile = mpdCombo->currentText();
-
   if (curSubFile != newSubFile) {
       int modelPageNum = ldrawFile.getModelStartPageNumber(newSubFile);
       logInfo() << "SELECT Model: " << newSubFile << " @ Page: " << modelPageNum;
@@ -637,16 +635,15 @@ void Gui::mpdComboChanged(int index)
       if (displayPageNum != modelPageNum && modelPageNum != 0) {
           displayPageNum  = modelPageNum;
           displayPage();
-          return;
         } else {
           // TODO add status bar message
           Where topOfSteps(newSubFile,0);
           curSubFile = newSubFile;
           displayFileSig(&ldrawFile, curSubFile);
           showLineSig(topOfSteps.lineNumber);
-          return;
         }
     }
+  mpdCombo->setCurrentIndex(index);
 }
 
 
@@ -1161,6 +1158,41 @@ void Gui::editLdrawIniFile()
     }
 }
 
+void Gui::editLdviewIni()
+{
+    displayParmsFile(Preferences::ldviewIni);
+    parmsWindow->setWindowTitle(tr("Edit LDView ini","Edit LDView ini "));
+    parmsWindow->show();
+}
+
+void Gui::editLdviewPovIni()
+{
+    displayParmsFile(Preferences::ldviewPOVIni);
+    parmsWindow->setWindowTitle(tr("Edit LDView raytracer ini","Edit LDView raytracer ini"));
+    parmsWindow->show();
+}
+
+void Gui::editPovrayIni()
+{
+    displayParmsFile(Preferences::povrayIni);
+    parmsWindow->setWindowTitle(tr("Edit Raytracer ini","Edit Raytracer ini"));
+    parmsWindow->show();
+}
+
+void Gui::editPovrayConf()
+{
+    displayParmsFile(Preferences::povrayConf);
+    parmsWindow->setWindowTitle(tr("Edit Raytracer file access conf","Edit Raytracer file access conf"));
+    parmsWindow->show();
+}
+
+void Gui::viewLog()
+{
+    displayParmsFile(Preferences::logPath);
+    parmsWindow->setWindowTitle(tr(VER_PRODUCTNAME_STR " log",VER_PRODUCTNAME_STR " logs"));
+    parmsWindow->show();
+}
+
 void Gui::preferences()
 {
     bool useLDViewSCall       = renderer->useLDViewSCall();
@@ -1291,8 +1323,8 @@ Gui::Gui()
     m_exportingContent = false;
 
 
-    editWindow    = new EditWindow(this);
-    parmsWindow   = new ParmsWindow(this);
+    editWindow    = new EditWindow(this);  // remove inheritance 'this' to independently manage window
+    parmsWindow   = new ParmsWindow();
 
     KpageScene    = new QGraphicsScene(this);
     KpageScene->setBackgroundBrush(Qt::lightGray);
@@ -2038,6 +2070,22 @@ void Gui::createActions()
     editLdrawIniFileAct->setStatusTip(tr("Add/Edit LDraw.ini search directory entries"));
     connect(editLdrawIniFileAct, SIGNAL(triggered()), this, SLOT(editLdrawIniFile()));
 
+    editLdviewIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView ini configuration file"), this);
+    editLdviewIniAct->setStatusTip(tr("Edit LDView ini configuration file"));
+    connect(editLdviewIniAct, SIGNAL(triggered()), this, SLOT(editLdviewIni()));
+
+    editLdviewPovIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView raytracer image configuration file"), this);
+    editLdviewPovIniAct->setStatusTip(tr("Edit LDView raytracer image configuration file"));
+    connect(editLdviewPovIniAct, SIGNAL(triggered()), this, SLOT(editLdviewPovIni()));
+
+    editPovrayIniAct = new QAction(QIcon(":/resources/editpovrayconf.png"),tr("Edit Raytracer (POV-Ray) ini configuration file"), this);
+    editPovrayIniAct->setStatusTip(tr("Edit Raytracer (POV-Ray) ini configuration file"));
+    connect(editPovrayIniAct, SIGNAL(triggered()), this, SLOT(editPovrayIni()));
+
+    editPovrayConfAct = new QAction(QIcon(":/resources/editpovrayconf.png"),tr("Edit Raytracer (POV-Ray) file access configuration file"), this);
+    editPovrayConfAct->setStatusTip(tr("Edit Raytracer (POV-Ray) file access configuration file"));
+    connect(editPovrayConfAct, SIGNAL(triggered()), this, SLOT(editPovrayConf()));
+
     generateFadeColourPartsAct = new QAction(QIcon(":/resources/generatefadeparts.png"),tr("Generate Fade Colour Parts List"), this);
     generateFadeColourPartsAct->setStatusTip(tr("Generate list of all static coloured parts"));
     connect(generateFadeColourPartsAct, SIGNAL(triggered()), this, SLOT(generateFadeColourPartsList()));
@@ -2060,9 +2108,13 @@ void Gui::createActions()
     metaAct->setStatusTip(tr("Save a list of the known LPub meta commands to a file"));
     connect(metaAct, SIGNAL(triggered()), this, SLOT(meta()));
 
-    updateApp = new QAction(QIcon(":/resources/softwareupdate.png"),tr("Check for &Updates..."), this);
-    updateApp->setStatusTip(tr("Check if a newer LPub3D version is available for download"));
-    connect(updateApp, SIGNAL(triggered()), this, SLOT(updateCheck()));
+    updateAppAct = new QAction(QIcon(":/resources/softwareupdate.png"),tr("Check for &Updates..."), this);
+    updateAppAct->setStatusTip(tr("Check if a newer version of  %1 is available for download").arg(VER_PRODUCTNAME_STR));
+    connect(updateAppAct, SIGNAL(triggered()), this, SLOT(updateCheck()));
+
+    viewLogAct = new QAction(QIcon(":/resources/viewlog.png"),tr("View %1 log").arg(VER_PRODUCTNAME_STR), this);
+    viewLogAct->setStatusTip(tr("View %1 log").arg(VER_PRODUCTNAME_STR));
+    connect(viewLogAct, SIGNAL(triggered()), this, SLOT(viewLog()));
 }
 
 void Gui::loadPages(){
@@ -2120,6 +2172,10 @@ void Gui::enableActions()
   editFadeColourPartsAct->setEnabled(true);
   editPliBomSubstitutePartsAct->setEnabled(true);
   editExcludedPartsAct->setEnabled(true);
+  editLdviewIniAct->setEnabled(true);
+  editLdviewPovIniAct->setEnabled(true);
+  editPovrayIniAct->setEnabled(true);
+  editPovrayConfAct->setEnabled(true);
 
   setPageLineEdit->setEnabled(true);
 
@@ -2173,6 +2229,10 @@ void Gui::disableActions()
   editFadeColourPartsAct->setEnabled(false);
   editPliBomSubstitutePartsAct->setEnabled(false);
   editExcludedPartsAct->setEnabled(false);
+  editLdviewIniAct->setEnabled(false);
+  editLdviewPovIniAct->setEnabled(false);
+  editPovrayIniAct->setEnabled(false);
+  editPovrayConfAct->setEnabled(false);
 
   setPageLineEdit->setEnabled(false);
 
@@ -2322,8 +2382,14 @@ void Gui::createMenus()
     editorMenu->addAction(editFreeFormAnnitationsAct);
     editorMenu->addAction(editPliBomSubstitutePartsAct);
     editorMenu->addAction(editExcludedPartsAct);
-    if (Preferences::ldrawiniFound) {
-      editorMenu->addAction(editLdrawIniFileAct);}
+    if (Preferences::ldrawiniFound){
+      editorMenu->addAction(editLdrawIniFileAct);
+    }
+    editorMenu->addSeparator();
+    editorMenu->addAction(editLdviewIniAct);
+    editorMenu->addAction(editLdviewPovIniAct);
+    editorMenu->addAction(editPovrayIniAct);
+    editorMenu->addAction(editPovrayConfAct);
     configMenu->addAction(generateFadeColourPartsAct);
     configMenu->addSeparator();
     configMenu->addAction(preferencesAct);
@@ -2385,8 +2451,9 @@ void Gui::createMenus()
     // Help Menus
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu->addAction(viewLogAct);
 #if !DISABLE_UPDATE_CHECK
-    helpMenu->addAction(updateApp);
+    helpMenu->addAction(updateAppAct);
 #endif
     // Begin Jaco's code
     helpMenu->addAction(onlineManualAct);

@@ -67,7 +67,7 @@ mainApp/temp.txt
 mainApp/build.h
 mainApp/docs/temp.txt
 builds/utilities/json/lpub3dupdates.json
-builds/windows/setup/bin/AppVersion.nsh
+builds/utilities/nsis-scripts/AppVersion.nsh
 builds/utilities/update-config-files.log
 
 # Qt Creator generated files
@@ -92,7 +92,7 @@ ldrawini/release/*
 ldrawini/debug/*
 quazip/release/*
 quazip/debug/*
-builds/osx/dmgbuilds/*
+builds/macx/dmgbuilds/*
 builds/windows/release/*
 builds/linux/debbuild/*
 builds/linux/rpmbuild/*
@@ -103,8 +103,9 @@ mainApp/Makefile
 ldrawini/Makefile
 quazip/Makefile
 
-# Runtime stuff
-builds/windows/runtime/*
+# Build artefacts
+builds/windows/release/*
+builds/windows/libs/*
 
 # Windows setup archives
 builds/windows/archives/*

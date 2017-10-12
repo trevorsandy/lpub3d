@@ -39,7 +39,7 @@ ParmsHighlighter::ParmsHighlighter(QTextDocument *parent)
 
     LPubParmsFormat.setForeground(Qt::darkGreen);
     LPubParmsFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("^\\B#[^\n]*");
+    rule.pattern = QRegExp("[#|;][^\n]*");
     rule.format = LPubParmsFormat;
     highlightingRules.append(rule);
 

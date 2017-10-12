@@ -88,7 +88,7 @@ echo "8. create tarball"
 tar -czvf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/builds/linux/standard" \
         --exclude="${WORK_DIR}/builds/windows" \
-        --exclude="${WORK_DIR}/builds/osx" \
+        --exclude="${WORK_DIR}/builds/macx" \
         --exclude="${WORK_DIR}/lc_lib/tools" \
         --exclude="${WORK_DIR}/.travis.yml" \
         --exclude="${WORK_DIR}/.git" \

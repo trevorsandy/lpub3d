@@ -23,7 +23,8 @@
 %endif
 
 %if 0%{?mageia}
-%define dist mag
+%define dist .mga%{mgaversion}
+%define distsuffix .mga%{mgaversion}
 %endif
 
 %if 0%{?scientificlinux_version}
@@ -62,14 +63,12 @@ Source10: lpub3d.spec.git.version
 %define gitversion %(tr -d '\n' < %{SOURCE10})
 
 # set packing platform
-%if "0%{?vendor}"
-%define obsurl obs://build.opensuse.org/home:
-%define obsurlprivate obs://private/home:
 %define serviceprovider %(echo "%{vendor}")
-%define packingplatform %(if [[ "%{vendor}" == *"%{obsurl}"* ]] || [[ "%{vendor}" == *"%{obsurlprivate}"* ]]; then echo "openSUSE OBS"; else echo "$HOSTNAME [`uname`]"; fi)
-%if "%{packingplatform}" == "openSUSE OBS"
+%if %(if [[ "%{vendor}" == obs://* ]]; then echo 1; else echo 0; fi)
 %define OBS 1
-%endif
+%define packingplatform "openSUSE OBS"
+%else
+%define packingplatform %(echo "$HOSTNAME [`uname`]")
 %endif
 
 # set packer
@@ -92,6 +91,7 @@ URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
 BuildRoot: %{_builddir}/%{name}
 Requires: unzip 
+BuildRequires: freeglut-devel
 Source0: lpub3d-git.tar.gz
 
 # package requirements
@@ -100,11 +100,15 @@ BuildRequires: qt5-qtbase-devel
 %if 0%{?fedora}
 BuildRequires: qt5-linguist
 %endif
-%if 0%{?OBS}!=1
+%if 0%{?OBS}=1
 BuildRequires: git
 %endif
 BuildRequires: gcc-c++, make
 %endif 
+
+%if 0%{?fedora} || 0%{?centos_version} || 0%{?scientificlinux_version}
+BuildRequires: mesa-libOSMesa-devel
+%endif
 
 %if 0%{?mageia}
 BuildRequires: qtbase5-devel
@@ -127,8 +131,25 @@ BuildRequires: qca, gnu-free-sans-fonts
 %endif
 %endif
 
+%if 0%{?OBS}
+%if 0%{?fedora_version}==25
+BuildRequires: llvm-libs
+%endif
+%endif
+
+%if 0%{?rhel_version} || 0%{?centos_version}
+BuildRequires: libXext-devel
+%endif
+
 %if 0%{?suse_version} 
 BuildRequires: libqt5-qtbase-devel, zlib-devel
+%if 0%{?OBS}
+BuildRequires: -post-build-checks
+%endif
+%endif
+
+%if 0%{?suse_version} > 1300
+BuildRequires: Mesa-devel
 %endif
 
 %description
@@ -174,12 +195,12 @@ LDrawLibUnofficial="../../SOURCES/lpub3dldrawunf.zip"
 if [ -f ${LDrawLibOffical} ] ; then 
 	cp ${LDrawLibOffical} mainApp/extras
 else
-	echo "complete.zip not found!" 
+	echo "complete.zip not found" 
 fi
 if [ -f ${LDrawLibUnofficial} ] ; then
 	cp ${LDrawLibUnofficial} mainApp/extras
 else
-	echo "lpub3dldrawunf.zip not found!"
+	echo "lpub3dldrawunf.zip not found"
 fi ;
 
 # use Qt5
@@ -195,7 +216,7 @@ else
 fi 
 make clean
 make %{?_smp_mflags}
-
+* Thu Oct 12 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.752
 %install
 make INSTALL_ROOT=%buildroot install
 %if 0%{?suse_version} || 0%{?sles_version}
@@ -226,5 +247,5 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %changelog
-* Thu Feb 23 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.711
+* Wed Mar 01 2017 - trevor.dot.sandy.at.gmail.dot.com 2.0.20.714
 - LPub3D Linux package (rpm) release

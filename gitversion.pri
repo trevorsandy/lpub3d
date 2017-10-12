@@ -1,5 +1,7 @@
 # If there is no version tag in git this one will be used
 VERSION = 1.0.0
+# Past versions available for automatic install
+PAST_VERSIONS = 1.3.5,1.2.3,1.0.0
 
 # Need to discard STDERR so get path to NULL device
 win32 {
@@ -60,7 +62,7 @@ equals(GIT_DIR, undefined) {
     !contains(GIT_VERSION,\d+\.\d+\.\d+) {
         # If there is nothing we simply use version defined manually
         isEmpty(GIT_VERSION) {
-            GIT_VERSION = $$VERSION
+            GIT_VERSION = $${VERSION}-00-00000000-000
         } else { # otherwise construct proper git describe string
             GIT_COMMIT_COUNT = $$system($$BASE_GIT_COMMAND rev-list HEAD --count 2> $$NULL_DEVICE)
             isEmpty(GIT_COMMIT_COUNT) {
@@ -84,8 +86,29 @@ equals(GIT_DIR, undefined) {
     VER_REVISION_STR = $$section(GIT_VERSION, ., 3, 3)
     VER_SHA_HASH_STR = $$section(GIT_VERSION, ., 4, 4)
     VER_BUILD_STR = $$section(GIT_VERSION, ., 5, 5)
+
+    # get previous versions from git tag / revision
+    PREV_GIT_TAG = $$system($$BASE_GIT_COMMAND describe --abbrev=0 2> $$NULL_DEVICE)
+    # set the number of previous versions to capture start with the last version and increment backward
+    for(_VER, $$list(1)) {
+        greaterThan(_VER, 1){
+            win32:PREV_GIT_TAG_KEY = $$join(PREV_GIT_TAG,,,^^)
+            else: PREV_GIT_TAG_KEY = $$join(PREV_GIT_TAG,,,^)
+        }
+        PREV_GIT_TAG = $$system($$BASE_GIT_COMMAND describe --abbrev=0 $$PREV_GIT_TAG_KEY 2> $$NULL_DEVICE)
+        AVAILABLE_VERSIONS += $$PREV_GIT_TAG,
+        AVAILABLE_VERSIONS ~= s/v/""
+    }
+    # If there is nothing we simply use version defined manually
+    isEmpty(AVAILABLE_VERSIONS) {
+        AVAILABLE_VERSIONS = $${VERSION}
+    }
+    # Add past versions
+    AVAILABLE_VERSIONS = $$join(AVAILABLE_VERSIONS,,,$$PAST_VERSIONS)
+    message(~~~ AVAILABLE_VERSIONS: $$AVAILABLE_VERSIONS)
 }
-# Here we process the build date
+
+# Here we process the build date and time
 win32 {
     BUILD_DATE = $$system( date /t )
     BUILD_TIME = $$system( echo %time% )
@@ -93,11 +116,21 @@ win32 {
     BUILD_DATE = $$system( date "+%d/%m/%Y/%H:%M:%S" )
     BUILD_TIME = $$section(BUILD_DATE, /, 3, 3)
 }
-# Separate the date into hours, minutes, seconds etc.
-DATE_DD = $$section(BUILD_DATE, /, 0, 0)
-DATE_MM = $$section(BUILD_DATE, /, 1, 1)
-DATE_YY = $$section(BUILD_DATE, /, 2, 2)
-#message("BUILD_TIME:" $$BUILD_TIME ) # output the current time
+#message(~~~ DEBUG ~~ BUILD_DATE: $$BUILD_DATE) # output the current date
+#message(~~~ DEBUG ~~ BUILD_TIME: $$BUILD_TIME) # output the current time
+
+# Separate the date into day month, year.
+av_win {
+    # AppVeyor CI uses date format 'Day MM/DD/YY'
+    BUILD_DATE ~= s/[\sA-Za-z\s]/""
+    DATE_MM = $$section(BUILD_DATE, /, 0, 0)
+    DATE_DD = $$section(BUILD_DATE, /, 1, 1)
+    DATE_YY = $$section(BUILD_DATE, /, 2, 2)
+} else {
+    DATE_DD = $$section(BUILD_DATE, /, 0, 0)
+    DATE_MM = $$section(BUILD_DATE, /, 1, 1)
+    DATE_YY = $$section(BUILD_DATE, /, 2, 2)
+}
 
 # C preprocessor #DEFINE to use in C++ code
 DEFINES += VER_MAJOR=\\\"$$VER_MAJOR\\\"
@@ -122,34 +155,50 @@ VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_PATCH
 # Update the application version in lpub3d.desktop (desktop configuration file), lpub3d.1 (man page)
 # This flag will also add the version number to packaging configuration files PKGBUILD, changelog and
 # lpub3d.spec depending on which build is being performed.
-VERSION_INFO_FILE = $$PWD/builds/utilities/version.info
-VERSION_INFO_COMMAND = $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION_STR $$VER_BUILD_STR $$VER_SHA_HASH_STR
-RPM_SPEC_VERSION_FILE = $$PWD/builds/linux/obs/lpub3d.spec.git.version
-RPM_SPEC_VERSION_COMMAND = $$VERSION"."$$VER_BUILD_STR
-message(~~~ VERSION_INFO: $$VERSION_INFO_COMMAND)
+message(~~~ VERSION_INFO: $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION_STR $$VER_BUILD_STR $$VER_SHA_HASH_STR)
+COMPLETION_COMMAND = LPub3D Build Finished.
 
 win32 {
-    CONFIG_FILES_COMMAND = $$PWD/builds/utilities/update-config-files.bat $$_PRO_FILE_PWD_
-    VERSION_INFO_FILE ~= s,/,\\,g
+    # Update config parameters
+    # 1. Present working directory [_PRO_FILE_PWD_]
+    # 2. Major version             [VER_MAJOR]
+    # 3. Minor version             [VER_MINOR]
+    # 4. Patch version             [VER_PATCH]
+    # 5. Revision                  [VER_REVISION_STR]
+    # 6. Build number              [VER_BUILD_STR]
+    # 7. Git sha hash (short)      [VER_SHA_HASH_STR]
+    # 8. Available past versions   [AVAILABLE_VERSIONS]
+    CONFIG_FILES_COMMAND = $$PWD/builds/utilities/update-config-files.bat
     QMAKE_POST_LINK += $$escape_expand(\n\t)  \
-                       cmd /c echo $$shell_quote$${VERSION_INFO_COMMAND} > $$shell_quote$${VERSION_INFO_FILE} \
-                       $$escape_expand(\n\t)  \
-                       cmd /c echo $$shell_quote$${RPM_SPEC_VERSION_COMMAND} > $$shell_quote$${RPM_SPEC_VERSION_FILE} \
-                       $$escape_expand(\n\t)  \
-                       $$shell_quote$${CONFIG_FILES_COMMAND}
+                       $$shell_quote$${CONFIG_FILES_COMMAND} \
+                       $$shell_quote$$_PRO_FILE_PWD_ \
+                       $${VER_MAJOR} \
+                       $${VER_MINOR} \
+                       $${VER_PATCH} \
+                       $${VER_REVISION_STR} \
+                       $${VER_BUILD_STR} \
+                       $${VER_SHA_HASH_STR} \
+                       $${AVAILABLE_VERSIONS} \
+                       $$escape_expand(\n\t) \
+                       echo $$shell_quote$${COMPLETION_COMMAND}
 
 } else {
-    CONFIG_FILES_TARGET = $$PWD/builds/utilities/update-config-files.sh 
-    CONFIG_FILES_COMMAND = $$CONFIG_FILES_TARGET $$_PRO_FILE_PWD_
+    CONFIG_FILES_TARGET = $$PWD/builds/utilities/update-config-files.sh
+    CONFIG_FILES_COMMAND = $$CONFIG_FILES_TARGET
     CHMOD_COMMAND = chmod 755 $$CONFIG_FILES_TARGET
     QMAKE_POST_LINK += $$escape_expand(\n\t)  \
-                       echo $$shell_quote$${VERSION_INFO_COMMAND} > $$shell_quote$${VERSION_INFO_FILE} \
-                       $$escape_expand(\n\t)  \
-                       echo $$shell_quote$${RPM_SPEC_VERSION_COMMAND} > $$shell_quote$${RPM_SPEC_VERSION_FILE} \
-                       $$escape_expand(\n\t)  \
                        $$shell_quote$${CHMOD_COMMAND} \
                        $$escape_expand(\n\t)  \
-                       $$shell_quote$${CONFIG_FILES_COMMAND}
+                       $$shell_quote$${CONFIG_FILES_COMMAND} \
+                       $$shell_quote$$_PRO_FILE_PWD_ \
+                       $${VER_MAJOR} \
+                       $${VER_MINOR} \
+                       $${VER_PATCH} \
+                       $${VER_REVISION_STR} \
+                       $${VER_BUILD_STR} \
+                       $${VER_SHA_HASH_STR} \
+                       $$escape_expand(\n\t)  \
+                       echo $$shell_quote$${COMPLETION_COMMAND}
 
     # On Mac update the Info.plist with version major, version minor, build and add git hash
     macx {
@@ -159,6 +208,8 @@ win32 {
                            $$PLIST_COMMAND \"Set :CFBundleShortVersionString $${VERSION}\" $${INFO_PLIST_FILE}  \
                            $$escape_expand(\n\t)   \
                            $$PLIST_COMMAND \"Set :CFBundleVersion $${VER_BUILD_STR}\" $${INFO_PLIST_FILE} \
+                           $$escape_expand(\n\t)   \
+                           $$PLIST_COMMAND \"Set :CFBundleGetInfoString LPub3D $${VERSION} https://github.com/trevorsandy/lpub3d\" $${INFO_PLIST_FILE} \
                            $$escape_expand(\n\t)   \
                            $$PLIST_COMMAND \"Set :com.trevorsandy.lpub3d.GitSHA $${VER_SHA_HASH_STR}\" $${INFO_PLIST_FILE}
     }

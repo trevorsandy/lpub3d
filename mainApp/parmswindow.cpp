@@ -47,9 +47,10 @@ ParmsWindow::ParmsWindow(QMainWindow *parent) :
     parmsWindow  = this;
     parmsWindow->statusBar()->show();
 
-    _textEdit     = new TextEditor;
-    _fadeStepFile = false;
-    _fileModified = false;
+    _textEdit        = new TextEditor;
+    _fadeStepFile    = false;
+    _fileModified    = false;
+    _restartRequired = true;
 
     highlighter = new ParmsHighlighter(_textEdit->document());
     _textEdit->setLineWrapMode(TextEditor::NoWrap);
@@ -65,6 +66,18 @@ ParmsWindow::ParmsWindow(QMainWindow *parent) :
 
 void ParmsWindow::createActions()
 {
+    openAct = new QAction(QIcon(":/resources/open.png"), tr("&Open Stderr or Stdout log"), this);
+    openAct->setShortcut(tr("Ctrl+O"));
+    openAct->setStatusTip(tr("Open stdout or stderr log file for loaded model"));
+
+    connect(openAct, SIGNAL(triggered()), this, SLOT(openFile()));
+
+    refreshAct = new QAction(QIcon(":/resources/redraw.png"), tr("&Refresh file"), this);
+    refreshAct->setShortcut(tr("Ctrl+O"));
+    refreshAct->setStatusTip(tr("Reload the current file to see updated content"));
+
+    connect(refreshAct, SIGNAL(triggered()), this, SLOT(refreshFile()));
+
     cutAct = new QAction(QIcon(":/resources/cut.png"), tr("Cu&t"), this);
     cutAct->setShortcut(tr("Ctrl+X"));
     cutAct->setStatusTip(tr("Cut the current selection's contents to the "
@@ -93,6 +106,10 @@ void ParmsWindow::createActions()
     saveAct->setStatusTip(tr("Save the document to disk"));
     connect(saveAct, SIGNAL(triggered()), this, SLOT(saveFile()));
 
+    saveCopyAsAct = new QAction(QIcon(":/resources/saveas.png"), tr("Save Copy &As"), this);
+    saveCopyAsAct->setStatusTip(tr("Save a copy of the document as... to disk"));
+    connect(saveCopyAsAct, SIGNAL(triggered()), this, SLOT(saveCopyAsFile()));
+
     delAct = new QAction(QIcon(":/resources/delete.png"), tr("&Delete"), this);
     delAct->setShortcut(tr("DEL"));
     delAct->setStatusTip(tr("Delete the selection"));
@@ -118,6 +135,9 @@ void ParmsWindow::createActions()
     redoAct->setEnabled(false);
     connect(redoAct, SIGNAL(triggered()), _textEdit, SLOT(redo()));
 
+    openAct->setVisible(false);
+    refreshAct->setVisible(false);
+
     saveAct->setEnabled(false);
     cutAct->setEnabled(false);
     copyAct->setEnabled(false);
@@ -142,12 +162,15 @@ void ParmsWindow::createToolBars()
 {
     editToolBar = addToolBar(tr("Edit"));
     editToolBar->setObjectName("EditToolbar");
+    editToolBar->addAction(openAct);
     editToolBar->addAction(saveAct);
+    editToolBar->addAction(saveCopyAsAct);
     editToolBar->addAction(selAllAct);
     editToolBar->addAction(cutAct);
     editToolBar->addAction(copyAct);
     editToolBar->addAction(pasteAct);
     editToolBar->addAction(findAct);
+    editToolBar->addAction(refreshAct);
     editToolBar->addAction(delAct);
 
     undoRedoToolBar = addToolBar(tr("Undo Redo"));
@@ -159,7 +182,14 @@ void ParmsWindow::createToolBars()
 void ParmsWindow::displayParmsFile(
   const QString &_fileName)
 {
+    // Automatically hide open file action - set only for logs
+    if (openAct->isVisible())
+      openAct->setVisible(false);
+    if (refreshAct->isVisible())
+      refreshAct->setVisible(false);
+
     fileName = _fileName;
+
     QFile file(fileName);
     QFileInfo fileInfo(file.fileName());
 
@@ -174,8 +204,72 @@ void ParmsWindow::displayParmsFile(
       title = "Title Annotation";
     else if (fileInfo.fileName() == "excludedParts.lst")
       title = "Excluded Parts";
-    else //freeformAnnotations.lst
+    else if (fileInfo.fileName() == "freeformAnnotations.lst")
       title = "Freeform";
+    else if (fileInfo.fileName() == "ldview.ini") {
+      title = "LDView ini";
+      _restartRequired = false;
+    }
+    else if (fileInfo.fileName() == "ldviewPOV.ini") {
+      title = "LDView Raytracer ini";
+      _restartRequired = false;
+    }
+    else if (fileInfo.fileName() == "povray.ini") {
+      title = "Raytracer (POV-Ray) ini";
+      _restartRequired = false;
+    }
+    else if (fileInfo.fileName() == "povray.conf") {
+      title = "Raytracer (POV-Ray) conf";
+      _restartRequired = false;
+    }
+    else if (fileInfo.fileName() == QString("%1Log.txt").arg(VER_PRODUCTNAME_STR)) {
+      title = QString("%1 Log").arg(VER_PRODUCTNAME_STR);
+      viewLogWindowSettings();
+      _restartRequired = false;
+    }
+    else if (fileInfo.fileName() == "stderr-povray") {
+      title = "Standard error - Raytracer";
+      viewLogWindowSettings();
+      _restartRequired = false;
+    }
+    else if (fileInfo.fileName() == "stdout-povray") {
+      title = "Standard output - Raytracer";
+      viewLogWindowSettings();
+      _restartRequired = false;
+    }
+    else if (fileInfo.fileName() == "stderr-ldglite") {
+      title = "Standard error - LDGlite";
+      viewLogWindowSettings();
+      _restartRequired = false;
+    }
+    else if (fileInfo.fileName() == "stdout-ldglite") {
+      title = "Standard output - LDGLite";
+      viewLogWindowSettings();
+      _restartRequired = false;
+    }
+    else if (fileInfo.fileName() == "stderr-ldviewpov") {
+      title = "Standard error - LDView (Raytracer)";
+      viewLogWindowSettings();
+      _restartRequired = false;
+    }
+    else if (fileInfo.fileName() == "stdout-ldviewpov") {
+      title = "Standard output - LDView (Raytracer)";
+      viewLogWindowSettings();
+      _restartRequired = false;
+    }
+    else if (fileInfo.fileName() == "stderr-ldview") {
+      title = "Standard error - LDView";
+      viewLogWindowSettings();
+      _restartRequired = false;
+    }
+    else if (fileInfo.fileName() == "stdout-ldview") {
+      title = "Standard output - LDView";
+      viewLogWindowSettings();
+      _restartRequired = false;
+    } else {
+      title = fileInfo.fileName();
+      _restartRequired = false;
+    }
 
     if (! file.open(QIODevice::ReadOnly | QIODevice::Text)){
         QMessageBox::warning(NULL,
@@ -189,16 +283,23 @@ void ParmsWindow::displayParmsFile(
     }
 
     QTextStream ss(&file);
-
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+#endif
     _textEdit->blockSignals(true);
     _textEdit->setPlainText(ss.readAll());
     _textEdit->blockSignals(false);
     _textEdit->document()->setModified(false);
 
     file.close();
+#ifndef QT_NO_CURSOR
+    QApplication::restoreOverrideCursor();
+#endif
 
     selAllAct->setEnabled(true);
     findAct->setEnabled(true);
+
+    statusBar()->showMessage(tr("File %1 loaded").arg(fileInfo.fileName()), 2000);
 }
 
 bool ParmsWindow::maybeSave()
@@ -235,7 +336,7 @@ bool ParmsWindow::saveFile()
                                  QMessageBox::tr("Cannot write file %1:\n%2.")
                                  .arg(fileName)
                                  .arg(file.errorString()));
-            return ! rc;
+            return rc;
         }
 
         QTextDocumentWriter writer(fileName, "plaintext");
@@ -252,12 +353,110 @@ bool ParmsWindow::saveFile()
   return rc;
 }
 
+bool ParmsWindow::saveCopyAsFile()
+{
+    bool rc = false;
+    // provide a file name
+    QFileInfo fileInfo(fileName);
+    QString fileSaveName = QString("%1_%2.txt").arg(fileInfo.baseName()).arg(QDateTime::currentDateTime().toString(QLatin1String("yyyyMMdd-hhmmsszzz")));
+    QString filter(QFileDialog::tr("All Files (*.*)"));
+    QString saveCopyAsFileName = QFileDialog::getSaveFileName(NULL,
+                                 QFileDialog::tr("Save %1 log").arg(VER_PRODUCTNAME_STR),
+                                 fileSaveName,
+                                 filter);
+    if (saveCopyAsFileName.isEmpty())
+      return rc;
+
+    QFile file(saveCopyAsFileName);
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+        QMessageBox::warning(this, tr("Application"),
+                             tr("Cannot write file %1:\n%2.")
+                             .arg(QDir::toNativeSeparators(saveCopyAsFileName),
+                                  file.errorString()));
+        return rc;
+    }
+
+    QTextStream out(&file);
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+#endif
+    out << _textEdit->toPlainText();
+#ifndef QT_NO_CURSOR
+    QApplication::restoreOverrideCursor();
+#endif
+
+    _textEdit->document()->setModified(false);
+    setWindowModified(false);
+
+    if (fileName.isEmpty())
+        fileName = "untitled.txt";
+    setWindowFilePath(fileName);
+
+    statusBar()->showMessage(tr("File %1 saved").arg(fileSaveName), 2000);
+
+    return true;
+}
+
 void ParmsWindow::enableSave()
 {
   if (_textEdit->document()->isModified())
     {
       saveAct->setEnabled(true);
     }
+}
+
+void ParmsWindow::openFile()
+{
+    QFileInfo fileInfo(gui->getCurFile());
+    qDebug() << fileInfo.absoluteFilePath();
+    QString filter(QFileDialog::tr("stderr (stderr-*);;stdout (stdout-*)"));
+    if (maybeSave()) {
+        QString fileName = QFileDialog::getOpenFileName(NULL,
+                           QFileDialog::tr("Select stderr or stdout file"),
+                           fileInfo.absolutePath(),
+                           filter);
+
+        if (!fileName.isEmpty())
+            displayParmsFile(fileName);
+    }
+}
+
+void ParmsWindow::refreshFile(){
+  QFileInfo fileInfo(fileName);
+  if (fileInfo.exists())
+    displayParmsFile(fileName);
+  _textEdit->moveCursor(QTextCursor::End);
+}
+
+void ParmsWindow::toggleClear(){
+  if (_textEdit->document()->isModified())
+    {
+      delAct->setEnabled(true);
+    } else {
+      delAct->setEnabled(false);
+    }
+}
+
+void ParmsWindow::viewLogWindowSettings(){
+  // customize the menu for logging
+
+  if (! openAct->isVisible())
+    openAct->setVisible(true);
+  if (! refreshAct->isVisible())
+    refreshAct->setVisible(true);
+
+  disconnect(delAct, SIGNAL(triggered()),
+             _textEdit, SLOT(cut()));
+  disconnect(_textEdit, SIGNAL(copyAvailable(bool)),
+             delAct,   SLOT(setEnabled(bool)));
+  connect(delAct, SIGNAL(triggered()),
+          _textEdit, SLOT(clear()));
+  connect(_textEdit, SIGNAL(textChanged()),
+           this,     SLOT(toggleClear()));
+  delAct->setEnabled(true);
+  delAct->setIconText(tr("&Clear"));
+  delAct->setStatusTip(tr("Clear the %1 log. This action cannot be undone.").arg(VER_PRODUCTNAME_STR));
+  pasteAct->setVisible(false);
 }
 
 void ParmsWindow::closeEvent(QCloseEvent *event)
@@ -272,11 +471,11 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
 
   if (_fileModified){
 
+      // is there anything loaded - to take advantage of our change?
       bool fileLoaded = false;
       if (!gui->getCurFile().isEmpty())
         fileLoaded = true;
-
-      if (fileLoaded || _fadeStepFile) {
+      if ((fileLoaded || _fadeStepFile) && _restartRequired) {
 
           QMessageBox box;
           box.setIcon (QMessageBox::Question);

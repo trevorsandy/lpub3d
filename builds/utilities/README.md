@@ -24,7 +24,7 @@ If you prefer to create your own LPub3D install package, these notes might be he
 - [ ] 1. enter directory
 `$ cd ~/`
 - [ ] 2. get [CreateDmg.sh][createdmg] packaging script
-`$ curl "https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/osx/CreateDmg.sh" -o "CreateDmg.sh"`
+`$ curl "https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/macx/CreateDmg.sh" -o "CreateDmg.sh"`
 - [ ] 3. enable execute permissions
 `$ chmod 755 CreateDmg.sh`
 - [ ] 4. execute package script
@@ -91,7 +91,7 @@ If you prefer to create your own LPub3D install package, these notes might be he
 [homebrew]:     http://brew.sh
 [appdmg]: 		https://github.com/LinusU/node-appdmg
 [qtwebsite]:    https://www.qt.io/download/
-[createdmg]:    https://github.com/trevorsandy/lpub3d/blob/master/builds/osx/CreateDmg.sh
+[createdmg]:    https://github.com/trevorsandy/lpub3d/blob/master/builds/macx/CreateDmg.sh
 [createrpm]:	https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreateRpm.sh
 [createpkg]:	https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreatePkg.sh
 [createdeb]:	https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreateDeb.sh
