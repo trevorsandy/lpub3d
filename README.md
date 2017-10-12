@@ -1,5 +1,6 @@
 ![Icon][icon]
-# LPub3D  [![Build Status][travis-badge]][travis-url]
+# LPub3D  
+[![Build Status][travis-badge]][travis-url]
 [![AppVeyor Build Status][appveyor-badge]][appveyor-url]
 [![GitHub release][gh-rel-badge]][gh-rel-url]
 [![Sourceforge Total Downloads][sf-dt-badge]][sf-dt-badge-url]
@@ -58,9 +59,9 @@ Copyright (c) 2015 - 2017 by Trevor SANDY
 [copying]:		https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/COPYING.txt
 [buildfromsource]:	https://github.com/trevorsandy/lpub3d/blob/master/builds/utilities/README.md
 
-[travis-badge]:    	https://travis-ci.org/trevorsandy/lpub3d.svg?branch=master
-[travis-url]:          	https://travis-ci.org/trevorsandy/lpub3d
-[appveyor-badge]:   https://img.shields.io/appveyor/ci/trevorsandy/lpub3d.svg
+[travis-badge]:    	https://travis-ci.org/trevorsandy/master.svg?label=TravisCI
+[travis-url]:       https://travis-ci.org/trevorsandy/lpub3d
+[appveyor-badge]:   https://img.shields.io/appveyor/ci/trevorsandy/master.svg?label=AppVeyor
 [appveyor-url]:     https://ci.appveyor.com/project/trevorsandy/lpub3d
 [gh-rel-badge]:    	https://img.shields.io/github/release/trevorsandy/lpub3d.svg
 [gh-rel-url]:       https://github.com/trevorsandy/lpub3d/releases/latest
