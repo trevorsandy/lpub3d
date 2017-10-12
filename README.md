@@ -59,9 +59,9 @@ Copyright (c) 2015 - 2017 by Trevor SANDY
 [copying]:		https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/COPYING.txt
 [buildfromsource]:	https://github.com/trevorsandy/lpub3d/blob/master/builds/utilities/README.md
 
-[travis-badge]:    	https://travis-ci.org/trevorsandy/lpub3d.svg?branch=master
+[travis-badge]:    	https://img.shields.io/travis/trevorsandy/lpub3d.svg?label=travis
 [travis-url]:           https://travis-ci.org/trevorsandy/lpub3d
-[appveyor-badge]:       https://ci.appveyor.com/api/projects/status/afokvktsfh7kqnkn?svg=true
+[appveyor-badge]:       https://img.shields.io/appveyor/ci/trevorsandy/lpub3d.svg?label=appveyor
 [appveyor-url]:         https://ci.appveyor.com/project/trevorsandy/lpub3d
 [gh-rel-badge]:    	https://img.shields.io/github/release/trevorsandy/lpub3d.svg
 [gh-rel-url]:           https://github.com/trevorsandy/lpub3d/releases/latest
