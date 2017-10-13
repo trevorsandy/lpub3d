@@ -72,14 +72,13 @@ init:
 # git clone command will fail. Instead we use fetch and checkout to pretty much replicate the same behaviour as the default git clone.
 # This includes setting the clone depth, and fetching the last commit and previous tags
 install:
- - bash -lc "if ! test -d ${librepodir}; then git clone https://github.com/trevorsandy/${librepo}.git ${librepodir} && echo ${librepo} cloned; fi"
- - if %target_arch%==x86_64 bash -lc "cd ${librepodir}/qt-5.9.1-1-release; pacman -U --needed --noconfirm ${qtlibs} ${iculibs}"
  - git init %APPVEYOR_BUILD_FOLDER%
  - cd %APPVEYOR_BUILD_FOLDER%
  - git remote add origin https://github.com/%APPVEYOR_REPO_NAME%.git
  - git fetch -qfup --depth=200 origin +%APPVEYOR_REPO_BRANCH% +refs/tags/*:refs/tags/*
- - git fetch --tags
  - git checkout -qf %APPVEYOR_REPO_COMMIT%
+ - bash -lc "if ! test -d ${librepodir}; then git clone https://github.com/trevorsandy/${librepo}.git ${librepodir} && echo ${librepo} cloned; fi"
+ - if %target_arch%==x86_64 bash -lc "cd ${librepodir}/qt-5.9.1-1-release; pacman -U --needed --noconfirm ${qtlibs} ${iculibs}"
 
 # this script is a work-around to combine both the x86 and x86_64 build targets into a single artifact. we then run
 # the NSIS packaging script against the archive creating a single installer for both architectures.
@@ -88,58 +87,59 @@ before_build:
  - ps: |
       If ($env:target_arch -eq "x86_64")
       {
-          Write-Output "Restoring $env:lp3d_target build folder from artifact..."
+        Write-Output "Restoring $env:lp3d_target build folder from artifact..."
 
-          $apiUrl = 'https://ci.appveyor.com/api'
-          $token = 'h2o1p08rkt8jgen5f0ke'
-          $headers = @{
-            "Authorization" = "Bearer $token"
-            "Content-type" = "application/json"
-          }
+        $apiUrl = 'https://ci.appveyor.com/api'
+        $token = 'h2o1p08rkt8jgen5f0ke'
+        $headers = @{
+          "Authorization" = "Bearer $token"
+          "Content-type" = "application/json"
+        }
 
-          $accountName = $env:APPVEYOR_ACCOUNT_NAME
-          $projectSlug = $env:APPVEYOR_PROJECT_SLUG
+        $accountName = $env:APPVEYOR_ACCOUNT_NAME
+        $projectSlug = $env:APPVEYOR_PROJECT_SLUG
 
-          # using clone folder
-          $downloadLocation = $env:APPVEYOR_BUILD_FOLDER
-          Write-Output "Var downloadLocation     = $downloadLocation"
+        # using clone folder
+        $downloadLocation = $env:APPVEYOR_BUILD_FOLDER
+        Write-Output "Var downloadLocation     = $downloadLocation"
 
-          # get project with last build details
-          $project = Invoke-RestMethod -Method Get -Uri "$apiUrl/projects/$accountName/$projectSlug" -Headers $headers
+        # get project with last build details
+        $project = Invoke-RestMethod -Method Get -Uri "$apiUrl/projects/$accountName/$projectSlug" -Headers $headers
 
-          # get this job id
-          $jobId = $project.build.jobs[0].jobId
+        # get this job id
+        $jobId = $project.build.jobs[0].jobId
 
-          # get job artifacts
-          $artifacts = Invoke-RestMethod -Method Get -Uri "$apiUrl/buildjobs/$jobId/artifacts" -Headers $headers
+        # get job artifacts
+        $artifacts = Invoke-RestMethod -Method Get -Uri "$apiUrl/buildjobs/$jobId/artifacts" -Headers $headers
 
-          # $artifactFileName = 'MyWebApp.zip'
-          $artifactFileName = $artifacts[0].fileName
-          Write-Output "Var artifactFileName     = $artifactFileName"
+        # $artifactFileName = 'MyWebApp.zip'
+        $artifactFileName = $artifacts[0].fileName
+        Write-Output "Var artifactFileName     = $artifactFileName"
 
-          # artifact will be downloaded as
-          $localArtifactArchive = "$downloadLocation/$artifactFileName"
-          Write-Output "Var localArtifactArchive = $localArtifactArchive"
+        # artifact will be downloaded as
+        $localArtifactArchive = "$downloadLocation/$artifactFileName"
+        Write-Output "Var localArtifactArchive = $localArtifactArchive"
 
-          # download artifact
-          Invoke-RestMethod -Method Get -Uri "$apiUrl/buildjobs/$jobId/artifacts/$artifactFileName" `
-          -OutFile $localArtifactArchive -Headers @{ "Authorization" = "Bearer $token" }
+        # download artifact
+        Invoke-RestMethod -Method Get -Uri "$apiUrl/buildjobs/$jobId/artifacts/$artifactFileName" `
+        -OutFile $localArtifactArchive -Headers @{ "Authorization" = "Bearer $token" }
 
-          # extract artifact
-          if (-not (Test-Path $localArtifactArchive)) {
-            Write-Output "Error artifact $localArtifactArchive not found"
+        # extract artifact
+        if (-not (Test-Path $localArtifactArchive)) {
+          Write-Output "Error artifact $localArtifactArchive not found"
+        } else {
+          Write-Output "Extracting artifact $localArtifactArchive ..."
+          & 7z.exe x $localArtifactArchive "-o$downloadLocation" | Select-String -Pattern '(^Extracting)|(^Everything)' -CaseSensitive
+          $CheckArtifactDir = $downloadLocation+"\builds\windows\"+$env:Configuration
+          & Write-Output "Var CheckArtifactDir     = $CheckArtifactDir"
+          if (-not (Test-Path $CheckArtifactDir)) {
+            Write-Output "Error expanding $localArtifactArchive, $CheckArtifactDir not found"
           } else {
-            Write-Output "Extracting artifact $localArtifactArchive ..."
-            & 7z.exe x $localArtifactArchive "-o$downloadLocation" | Select-String -Pattern '(^Extracting)|(^Everything)' -CaseSensitive
-            $CheckArtifactDir = $downloadLocation+"\builds\windows\"+$env:Configuration
-            & Write-Output "Var CheckArtifactDir     = $CheckArtifactDir"
-            if (-not (Test-Path $CheckArtifactDir)) {
-              Write-Output "Error expanding $localArtifactArchive, $CheckArtifactDir not found"
-            } else {
-              Write-Output "Build folder $env:lp3d_target artifact restored"
-            }
+            Write-Output "Build folder $env:lp3d_target artifact restored"
           }
         }
+      }
+ - ps: cd "$env:APPVEYOR_BUILD_FOLDER"
 
 # regular make stuff here. CONFIG+=stagewindistcontent us used by qmake to
 # generate the install Makefile logic which stages the distro files so
