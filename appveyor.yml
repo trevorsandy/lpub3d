@@ -11,11 +11,11 @@ cache:
   - 'C:\projects\$(librepo)'
   - 'mainApp\Makefile'
   - 'mainApp\Makefile.Release'
-  - 'mainApp\LPub3D10_resource.rc'
-  - 'mainApp\object_script.LPub3D10.Release'
+  - 'mainApp\LPub3D20_resource.rc'
+  - 'mainApp\object_script.LPub3D20.Release'
   - 'mainApp\Makefile.Debug'
-  - 'mainApp\LPub3Dd10_resource.rc'
-  - 'mainApp\object_script.LPub3Dd10.Debug'
+  - 'mainApp\LPub3Dd20_resource.rc'
+  - 'mainApp\object_script.LPub3Dd20.Debug'
   - 'mainApp\$(configuration)'
   - 'ldrawini\Makefile'
   - 'ldrawini\Makefile.Release'
@@ -78,6 +78,7 @@ install:
  - cd %APPVEYOR_BUILD_FOLDER%
  - git remote add origin https://github.com/%APPVEYOR_REPO_NAME%.git
  - git fetch -qfup --depth=200 origin +%APPVEYOR_REPO_BRANCH% +refs/tags/*:refs/tags/*
+ - git fetch --tags
  - git checkout -qf %APPVEYOR_REPO_COMMIT%
 
 # this script is a work-around to combine both the x86 and x86_64 build targets into a single artifact. we then run
