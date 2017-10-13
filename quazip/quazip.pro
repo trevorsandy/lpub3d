@@ -106,11 +106,6 @@ unix:!symbian {
 
 }
 
-win32 {
-    target.path=$$DESTDIR/../../../LPub3D/builds/windows/libs/$$STG_ARCH
-    INSTALLS += target
-}
-
 symbian {
 
     # Note, on Symbian you may run into troubles with LGPL.

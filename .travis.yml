@@ -17,21 +17,29 @@ matrix:
   - os: linux
     compiler: gcc
     env:
-     - QT_BASE=57
+     - QT_BASE=59
   - os: osx
     compiler: clang
     env:
-     - QT_BASE=57
+     - QT_BASE=59
 
 before_install:
-
-  - if [ "$QT_BASE" = "52" ]; then sudo add-apt-repository ppa:beineri/opt-qt521-trusty -y; fi
-  - if [ "$QT_BASE" = "53" ]; then sudo add-apt-repository ppa:beineri/opt-qt532-trusty -y; fi
-  - if [ "$QT_BASE" = "54" ]; then sudo add-apt-repository ppa:beineri/opt-qt542-trusty -y; fi
+  # Skip build if the commit message contains [skip travis] or [travis skip]
+  - >
+      echo "$TRAVIS_COMMIT_MESSAGE"
+      | grep -E  '\[(skip travis|travis skip)\]'
+      && echo "[skip travis] detected, exiting."
+      && exit 0
+  # Add private qt repositories
+  - if [[ "$QT_BASE" = "52" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt521-trusty -y; fi
+  - if [[ "$QT_BASE" = "53" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt532-trusty -y; fi
+  - if [[ "$QT_BASE" = "54" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt542-trusty -y; fi
   - if [[ "$QT_BASE" = "55" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt551-trusty -y; fi
-  - if [ "$QT_BASE" = "56" ]; then sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y; fi
+  - if [[ "$QT_BASE" = "56" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y; fi
   - if [[ "$QT_BASE" = "57" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt571-trusty -y; fi
-  - if [[ "$QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt58-trusty -y; fi
+  - if [[ "$QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt58-trusty  -y; fi
+  - if [[ "$QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt59-trusty  -y; fi
+  # Update repository index
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       sudo apt-get update -qq;
     else
@@ -39,43 +47,29 @@ before_install:
     fi
 
 install:
-  - if [ "$QT_BASE" = "52" ]; then sudo apt-get install -qq qt52base; source /opt/qt52/bin/qt52-env.sh; fi
-  - if [ "$QT_BASE" = "53" ]; then sudo apt-get install -qq qt53base; source /opt/qt53/bin/qt53-env.sh; fi
-  - if [ "$QT_BASE" = "54" ]; then sudo apt-get install -qq qt54base; source /opt/qt54/bin/qt54-env.sh; fi
-  - if [ "$QT_BASE" = "55" ]; then
-      if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-        sudo apt-get install -qq qt55base; source /opt/qt55/bin/qt55-env.sh;
-      else
+  # Install qt5 on Linux
+  - if [[ "$QT_BASE" = "52" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo apt-get install -qq qt52base; source /opt/qt52/bin/qt52-env.sh; fi
+  - if [[ "$QT_BASE" = "53" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo apt-get install -qq qt53base; source /opt/qt53/bin/qt53-env.sh; fi
+  - if [[ "$QT_BASE" = "54" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo apt-get install -qq qt54base; source /opt/qt54/bin/qt54-env.sh; fi
+  - if [[ "$QT_BASE" = "55" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo apt-get install -qq qt55base; source /opt/qt55/bin/qt55-env.sh; fi
+  - if [[ "$QT_BASE" = "56" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo apt-get install -qq qt56base; source /opt/qt56/bin/qt56-env.sh; fi
+  - if [[ "$QT_BASE" = "57" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo apt-get install -qq qt57base; source /opt/qt57/bin/qt57-env.sh; fi
+  - if [[ "$QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" ]]; thne sudo apt-get install -qq qt58base; source /opt/qt58/bin/qt58-env.sh; fi
+  - if [[ "$QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo apt-get install -qq qt59base; source /opt/qt59/bin/qt59-env.sh; fi
+  # Install qt5 on MacOS
+  # Download ldraw library archive. For testing you can use dummy archives at:
+  #   wget https://github.com/trevorsandy/lpub3d/releases/download/v2.0.0/test001.zip -O mainApp/extras/complete.zip;
+  #   wget https://github.com/trevorsandy/lpub3d/releases/download/v2.0.0/test002.zip -O mainApp/extras/lpub3dldrawunf.zip;
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+      if [ "$QT_BASE" = "55" ]; then
         brew install qt55;
         brew link --force qt55;
-      fi
-    fi
-  - if [ "$QT_BASE" = "56" ]; then sudo apt-get install -qq qt56base; source /opt/qt56/bin/qt56-env.sh; fi
-  - if [ "$QT_BASE" = "57" ]; then
-      if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-        sudo apt-get install -qq qt57base; source /opt/qt57/bin/qt57-env.sh;
       else
         brew install qt5;
         brew link --force qt5;
       fi
-    fi
-  - if [ "$QT_BASE" = "58" ]; then
-      if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-        sudo apt-get install -qq qt58base; source /opt/qt58/bin/qt58-env.sh;
-      else
-        brew install qt5;
-        brew link --force qt5;
-      fi
-    fi
-  - # Acutal LDraw archive libraries are disabled with test files used for 'make' only compilation.
-  - # Use actual archives if you will run 'make install'
-  - # wget http://www.ldraw.org/library/updates/complete.zip;
-  - # wget http://www.ldraw.org/library/unofficial/ldrawunf.zip;
-  - # cwd is 'lpub3d' so move downloads accordingly
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-      wget https://github.com/trevorsandy/lpub3d/releases/download/v2.0.0/test001.zip -O mainApp/extras/complete.zip;
-      wget https://github.com/trevorsandy/lpub3d/releases/download/v2.0.0/test002.zip -O mainApp/extras/lpub3dldrawunf.zip;
-      git clone https://github.com/trevorsandy/lpub3d_macos_3rdparty.git ../lpub3d_macos_3rdparty;
+      wget http://www.ldraw.org/library/updates/complete.zip -O mainApp/extras/complete.zip;
+      wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;
     fi
 
 script:

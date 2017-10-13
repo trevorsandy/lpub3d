@@ -1,7 +1,9 @@
 # If there is no version tag in git this one will be used
 VERSION = 1.0.0
-# Past versions available for automatic install
+# Past versions available for automatic install (static list)
 PAST_VERSIONS = 1.3.5,1.2.3,1.0.0
+# Previous tags to capture (array)
+_TAGS = $$list(1)
 
 # Need to discard STDERR so get path to NULL device
 win32 {
@@ -33,9 +35,9 @@ exists($$PWD/../../upstream/lpub3d/.git) {
 }
 # No .git location found, use input file (for Build Service)
 equals(GIT_DIR, undefined) {
-    GIT_DIR = $$PWD/builds/utilities/version.info
-    GIT_VERSION = $$cat($$GIT_DIR, lines)
-    message(~~~ GIT_DIR [UNDEFINED, USING VERSION_INFO] $$GIT_DIR)
+    GIT_VER_FILE = $$PWD/builds/utilities/version.info
+    GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
+    message(~~~ GIT_DIR [UNDEFINED, USING VERSION_INFO] $$GIT_VER_FILE)
 
     #                      1 2  3  4   5       6
     #                      2 0 20 17 663 410fdd7
@@ -49,6 +51,9 @@ equals(GIT_DIR, undefined) {
     VER_REVISION_STR = $$section(GIT_VERSION, " ", 3, 3)
     VER_BUILD_STR = $$section(GIT_VERSION, " ", 4, 4)
     VER_SHA_HASH_STR = $$section(GIT_VERSION, " ", 5, 5)
+
+    AVAILABLE_VERSIONS = $$section(GIT_VERSION, " ", 0, 2)
+    AVAILABLE_VERSIONS ~= s/\./" "
 
 } else {
 
@@ -87,25 +92,22 @@ equals(GIT_DIR, undefined) {
     VER_SHA_HASH_STR = $$section(GIT_VERSION, ., 4, 4)
     VER_BUILD_STR = $$section(GIT_VERSION, ., 5, 5)
 
-    # get previous versions from git tag / revision
+    # Get previous versions from git tag / revision
     PREV_GIT_TAG = $$system($$BASE_GIT_COMMAND describe --abbrev=0 2> $$NULL_DEVICE)
-    # set the number of previous versions to capture start with the last version and increment backward
-    for(_VER, $$list(1)) {
-        greaterThan(_VER, 1){
+    for(_TAG, $$_TAGS) {
+        greaterThan(_TAG, 1) {
             win32:PREV_GIT_TAG_KEY = $$join(PREV_GIT_TAG,,,^^)
             else: PREV_GIT_TAG_KEY = $$join(PREV_GIT_TAG,,,^)
         }
         PREV_GIT_TAG = $$system($$BASE_GIT_COMMAND describe --abbrev=0 $$PREV_GIT_TAG_KEY 2> $$NULL_DEVICE)
-        AVAILABLE_VERSIONS += $$PREV_GIT_TAG,
-        AVAILABLE_VERSIONS ~= s/v/""
+        !isEmpty(PREV_GIT_TAG) {
+            AVAILABLE_VERSIONS += $$PREV_GIT_TAG,
+            AVAILABLE_VERSIONS ~= s/v/""
+        }
     }
-    # If there is nothing we simply use version defined manually
     isEmpty(AVAILABLE_VERSIONS) {
-        AVAILABLE_VERSIONS = $${VERSION}
+         AVAILABLE_VERSIONS = $${VERSION},
     }
-    # Add past versions
-    AVAILABLE_VERSIONS = $$join(AVAILABLE_VERSIONS,,,$$PAST_VERSIONS)
-    message(~~~ AVAILABLE_VERSIONS: $$AVAILABLE_VERSIONS)
 }
 
 # Here we process the build date and time
@@ -120,7 +122,7 @@ win32 {
 #message(~~~ DEBUG ~~ BUILD_TIME: $$BUILD_TIME) # output the current time
 
 # Separate the date into day month, year.
-av_win {
+appveyor_ci {
     # AppVeyor CI uses date format 'Day MM/DD/YY'
     BUILD_DATE ~= s/[\sA-Za-z\s]/""
     DATE_MM = $$section(BUILD_DATE, /, 0, 0)
@@ -149,6 +151,9 @@ DEFINES += VER_REVISION_STR=\\\"$$VER_REVISION_STR\\\"
 # Now we are ready to pass parsed version to Qt
 VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_PATCH
 
+# Append static past versions
+AVAILABLE_VERSIONS = $$join(AVAILABLE_VERSIONS,,,$$PAST_VERSIONS)
+
 # Update the version number file for win/unix during build
 # Generate git version data to the input files indicated. Input files are consumed during the
 # build process to set the version informatio for LPub3D executable, its libraries (ldrawini and quazip)
@@ -156,6 +161,7 @@ VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_PATCH
 # This flag will also add the version number to packaging configuration files PKGBUILD, changelog and
 # lpub3d.spec depending on which build is being performed.
 message(~~~ VERSION_INFO: $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION_STR $$VER_BUILD_STR $$VER_SHA_HASH_STR)
+message(~~~ AVAILABLE_VERSIONS: $$AVAILABLE_VERSIONS)
 COMPLETION_COMMAND = LPub3D Build Finished.
 
 win32 {

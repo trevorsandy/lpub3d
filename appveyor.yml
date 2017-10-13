@@ -1,41 +1,40 @@
 version: 'LPub3D-AV-{build}'
 
 clone_folder: c:\projects\lpub3d
-# skip automatic cloning because we want restore cached items first
+# skip automatic cloning because we want restore cached items in the clone directory first
 clone_script: echo skip
 
 # we're caching 3rd party apps (image renderers), and qt5 for x86_64
-# we also cache compiled items so builds will be faster when there is
+# we also cache previously compiled items to speed up build time when there is
 # minimal change to the source.
 cache:
   - 'C:\projects\$(librepo)'
-  #- 'mainApp\Makefile'
-  #- 'mainApp\Makefile.Release'
-  #- 'mainApp\LPub3D10_resource.rc'
-  #- 'mainApp\object_script.LPub3D10.Release'
-  #- 'mainApp\Makefile.Debug'
-  #- 'mainApp\LPub3Dd10_resource.rc'
-  #- 'mainApp\object_script.LPub3Dd10.Debug'
-  #- 'mainApp\$(configuration)'
-  #- 'ldrawini\Makefile'
-  #- 'ldrawini\Makefile.Release'
-  #- 'ldrawini\LDrawIni161_resource.rc'
-  #- 'ldrawini\Makefile.Debug'
-  #- 'ldrawini\LDrawInid161_resource.rc'
-  #- 'ldrawini\$(configuration)'
-  #- 'quazip\Makefile'
-  #- 'quazip\Makefile.Release'
-  #- 'quazip\QuaZIP07_resource.rc'
-  #- 'quazip\object_script.QuaZIP07.Release'
-  #- 'quazip\Makefile.Debug'
-  #- 'quazip\QuaZIPd07_resource.rc'
-  #- 'quazip\object_script.QuaZIPd07.Debug'
-  #- 'quazip\$(configuration)'
+  - 'mainApp\Makefile'
+  - 'mainApp\Makefile.Release'
+  - 'mainApp\LPub3D10_resource.rc'
+  - 'mainApp\object_script.LPub3D10.Release'
+  - 'mainApp\Makefile.Debug'
+  - 'mainApp\LPub3Dd10_resource.rc'
+  - 'mainApp\object_script.LPub3Dd10.Debug'
+  - 'mainApp\$(configuration)'
+  - 'ldrawini\Makefile'
+  - 'ldrawini\Makefile.Release'
+  - 'ldrawini\LDrawIni161_resource.rc'
+  - 'ldrawini\Makefile.Debug'
+  - 'ldrawini\LDrawInid161_resource.rc'
+  - 'ldrawini\$(configuration)'
+  - 'quazip\Makefile'
+  - 'quazip\Makefile.Release'
+  - 'quazip\QuaZIP07_resource.rc'
+  - 'quazip\object_script.QuaZIP07.Release'
+  - 'quazip\Makefile.Debug'
+  - 'quazip\QuaZIPd07_resource.rc'
+  - 'quazip\object_script.QuaZIPd07.Debug'
+  - 'quazip\$(configuration)'
 
 branches:
   only:
    - master
-   - integrate-renderers
 
 platform: x64
 
@@ -49,7 +48,7 @@ matrix:
 # the matrix block below must always play the x86_64 build last
 # in order to preserve the artifact pakcaging logic described later
 environment:
-  cibuild: av_win
+  cibuild: appveyor_ci
   lp3d_target: builds\windows\$(configuration)
   lp3d_x86prepackage: LPub3D-x86-AV-$(APPVEYOR_BUILD_NUMBER).zip
   qtlibs: mingw-w64-x86_64-qt5-5.9.1-1-any.pkg.tar.xz
@@ -71,14 +70,14 @@ init:
 # downloded. After building out the dev env, we proceed to fetch the commit that fired off the AppVeyor build.
 # We don't use git clone because the 'clone_directory' is not empty (restored cached components were added in previous steps) - so the
 # git clone command will fail. Instead we use fetch and checkout to pretty much replicate the same behaviour as the default git clone.
-# This includes setting the cline depth and fetching the tree commit
+# This includes setting the clone depth, and fetching the last commit and previous tags
 install:
  - bash -lc "if ! test -d ${librepodir}; then git clone https://github.com/trevorsandy/${librepo}.git ${librepodir} && echo ${librepo} cloned; fi"
  - if %target_arch%==x86_64 bash -lc "cd ${librepodir}/qt-5.9.1-1-release; pacman -U --needed --noconfirm ${qtlibs} ${iculibs}"
  - git init %APPVEYOR_BUILD_FOLDER%
  - cd %APPVEYOR_BUILD_FOLDER%
  - git remote add origin https://github.com/%APPVEYOR_REPO_NAME%.git
- - git fetch -q --depth=200 origin +%APPVEYOR_REPO_BRANCH%
+ - git fetch -qfup --depth=200 origin +%APPVEYOR_REPO_BRANCH% +refs/tags/*:refs/tags/*
  - git checkout -qf %APPVEYOR_REPO_COMMIT%
 
 # this script is a work-around to combine both the x86 and x86_64 build targets into a single artifact. we then run
