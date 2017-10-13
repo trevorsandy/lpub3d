@@ -8,7 +8,7 @@ clone_script: echo skip
 # we also cache previously compiled items to speed up build time when there is
 # minimal change to the source.
 cache:
-  - 'C:\projects\$(librepo)'
+  - 'C:\projects\$(lp3d_librepo)'
   # - 'mainApp\Makefile'
   # - 'mainApp\Makefile.Release'
   # - 'mainApp\LPub3D20_resource.rc'
@@ -48,22 +48,23 @@ matrix:
 # the matrix block below must always play the x86_64 build last
 # in order to preserve the artifact pakcaging logic described later
 environment:
-  cibuild: appveyor_ci
+  lp3d_build: appveyor_ci
+  lp3d_job2arch: x86
   lp3d_target: builds\windows\$(configuration)
-  lp3d_x86prepackage: LPub3D-x86-AV-$(APPVEYOR_BUILD_NUMBER).zip
-  qtlibs: mingw-w64-x86_64-qt5-5.9.1-1-any.pkg.tar.xz
-  iculibs: mingw-w64-x86_64-icu-58.2-2-any.pkg.tar.xz
-  librepo: lpub3d_windows_3rdparty
-  librepodir: /c/projects/$(librepo)
+  lp3d_job1package: LPub3D-Job1-AV-$(APPVEYOR_BUILD_NUMBER).zip
+  lp3d_qtlibs: mingw-w64-x86_64-qt5-5.9.1-1-any.pkg.tar.xz
+  lp3d_iculibs: mingw-w64-x86_64-icu-58.2-2-any.pkg.tar.xz
+  lp3d_librepo: lpub3d_windows_3rdparty
+  lp3d_librepodir: /c/projects/$(lp3d_librepo)
   matrix:
-  - target_arch: x86
-    qtpath: C:\Qt\5.9.1\mingw53_32\bin;C:\Qt\Tools\mingw530_32\bin
-  - target_arch: x86_64
-    qtpath: C:\msys64\MINGW64\bin;C:\msys64\usr\bin
+  - lp3d_target_arch: x86_64
+    lp3d_qtpath: C:\msys64\MINGW64\bin;C:\msys64\usr\bin
+  - lp3d_target_arch: x86
+    lp3d_qtpath: C:\Qt\5.9.1\mingw53_32\bin;C:\Qt\Tools\mingw530_32\bin
 
 # The iex PS script genertes remote-desktop credentials useful for debugging
 init:
- - SET PATH=%qtpath%;%PATH%
+ - SET PATH=%lp3d_qtpath%;%PATH%
  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 # This is where we install Qt5 for x86_64 builds along with ICU v58. The source for these items are cached but if not then they are
@@ -77,15 +78,15 @@ install:
  - git remote add origin https://github.com/%APPVEYOR_REPO_NAME%.git
  - git fetch -qfup --depth=200 origin +%APPVEYOR_REPO_BRANCH% +refs/tags/*:refs/tags/*
  - git checkout -qf %APPVEYOR_REPO_COMMIT%
- - bash -lc "if ! test -d ${librepodir}; then git clone https://github.com/trevorsandy/${librepo}.git ${librepodir} && echo ${librepo} cloned; fi"
- - if %target_arch%==x86_64 bash -lc "cd ${librepodir}/qt-5.9.1-1-release; pacman -U --needed --noconfirm ${qtlibs} ${iculibs}"
+ - bash -lc "if ! test -d ${lp3d_librepodir}; then git clone https://github.com/trevorsandy/${lp3d_librepo}.git ${lp3d_librepodir} && echo ${lp3d_librepo} cloned; fi"
+ - if %lp3d_target_arch%==x86_64 bash -lc "cd ${lp3d_librepodir}/qt-5.9.1-1-release; pacman -U --needed --noconfirm ${lp3d_qtlibs} ${lp3d_iculibs}"
 
 # this script is a work-around to combine both the x86 and x86_64 build targets into a single artifact. we then run
 # the NSIS packaging script against the archive creating a single installer for both architectures.
-# this script is only run on the 2nd of the two jobs, 32 and 64bit respectively, performing the combine function
+# this script is only run on the 2nd of the two jobs (job2).
 before_build:
  - ps: |
-      If ($env:target_arch -eq "x86_64")
+      If ($env:lp3d_target_arch -eq $env:lp3d_job2arch)
       {
         Write-Output "Restoring $env:lp3d_target build folder from artifact..."
 
@@ -140,19 +141,20 @@ before_build:
         }
       }
  - ps: cd "$env:APPVEYOR_BUILD_FOLDER"
+ - ps: Get-ChildItem Env:lp3d_*
 
 # regular make stuff here. CONFIG+=stagewindistcontent us used by qmake to
 # generate the install Makefile logic which stages the distro files so
 # this flat and make install must be run to complete the build process
 build_script:
  - qmake -v
- - qmake "CONFIG+=%cibuild%" "CONFIG+=%configuration%" "CONFIG+=stagewindistcontent"
+ - qmake "CONFIG+=%lp3d_build%" "CONFIG+=%configuration%" "CONFIG+=stagewindistcontent"
  - mingw32-make
  - mingw32-make install
 
 # Vars used to construct artifact names and artifact creation.
 after_build:
- - IF %target_arch%==x86_64 builds\windows\CreateExe.bat
+ - IF %lp3d_target_arch%==%lp3d_job2arch% builds\windows\CreateExe.bat
  - ps: $env:LP3D_AV_VERSION = (Get-Content $env:APPVEYOR_BUILD_FOLDER\av.version.info -TotalCount 1).trim()
  - ps: $env:LP3D_AV_PACKAGE = "LPub3D-Any-$env:LP3D_AV_VERSION"
  - ps: $env:LP3D_AV_TARGET = "builds\windows\$env:Configuration\$env:LP3D_AV_PACKAGE"
@@ -162,9 +164,9 @@ after_build:
  - ps: $env:LP3D_AV_BUILD_DATE = $env:LP3D_AV_VERSION.split('_')[1]
  - ps: $env:LP3D_AV_VERSION_SHORT = For ($i=0; $i -le 2; $i++) {$env:LP3D_AV_VERSION.split('.')[$i]}
  - ps: Get-ChildItem Env:LP3D_AV_*
- - ps: If ($env:target_arch -eq "x86") {7z a $env:lp3d_x86prepackage $env:lp3d_target | Select-String -Pattern '(^Creating)|(^Everything)' -CaseSensitive; Push-AppveyorArtifact $env:lp3d_x86prepackage}
- - ps: If ($env:target_arch -eq "x86_64") {$root = Resolve-Path .\$env:LP3D_AV_DOWNLOAD_TARGET; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName LPub3D-download-package }}
- - ps: If ($env:target_arch -eq "x86_64") {$root = Resolve-Path .\$env:LP3D_AV_UPDATE_TARGET; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName LPub3D-update-package }}
+ - ps: If ($env:lp3d_target_arch -ne $env:lp3d_job2arch) {7z a $env:lp3d_job1package $env:lp3d_target | Select-String -Pattern '(^Creating)|(^Everything)' -CaseSensitive; Push-AppveyorArtifact $env:lp3d_job1package}
+ - ps: If ($env:lp3d_target_arch -eq $env:lp3d_job2arch) {$root = Resolve-Path .\$env:LP3D_AV_DOWNLOAD_TARGET; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName LPub3D-download-package }}
+ - ps: If ($env:lp3d_target_arch -eq $env:lp3d_job2arch) {$root = Resolve-Path .\$env:LP3D_AV_UPDATE_TARGET; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName LPub3D-update-package }}
 
 # for the moment we only deploy to github. I'll setup a sourceforge deployment scheme
 # at some point going forward
@@ -178,5 +180,5 @@ deploy:
    force_update: true
    on:
     branch: master
-    target_arch: x86_64
+    lp3d_target_arch: '$(lp3d_job2arch)'
     appveyor_repo_tag: true
