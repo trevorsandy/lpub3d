@@ -2,7 +2,7 @@ Source: lpub3d
 Section: graphics
 Priority: optional
 Maintainer: Trevor SANDY <trevor.sandy@gmail.com>
-Build-Depends: debhelper (>= 4.1.16), qtbase5-dev, qt5-qmake, libqt5opengl5-dev, libgl1-mesa-dev, libpng-dev, libjpeg-dev, zlib1g-dev freeglut3-dev
+Build-Depends: debhelper (>= 4.1.16), qtbase5-dev, qt5-qmake, libqt5opengl5-dev, libgl1-mesa-dev, libpng-dev, libjpeg-dev, zlib1g-dev, freeglut3-dev
 Standards-Version: 3.9.7
 Homepage: https://trevorsandy.github.io/lpub3d/
 
