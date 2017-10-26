@@ -40,7 +40,7 @@ If you prefer to create your own LPub3D install package, these notes might be he
 - [ ] 1. enter directory
 `$ cd ~/`
 - [ ] 2. get [CreatePkg.sh][createpkg] packaging script
-`$  wget https://raw.github.com/trevorsandy/lpub3d/master/builds/linux/CreatePkg.sh`
+`$  wget https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/linux/CreatePkg.sh`
 - [ ] 3. enable execute permissions
 `$ chmod 755 CreatePkg.sh`
 - [ ] 4. execute package script
@@ -58,7 +58,7 @@ If you prefer to create your own LPub3D install package, these notes might be he
 - [ ] 1. enter directory
 `$ cd ~/`
 - [ ] 2. get [CreateDeb.sh][createdeb] packaging script
-`$  wget https://raw.github.com/trevorsandy/lpub3d/master/builds/linux/CreateDeb.sh`
+`$  wget https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/linux/CreateDeb.sh`
 - [ ] 3. enable execute permissions
 `$ chmod 755 CreateDeb.sh`
 - [ ] 4. execute package script
@@ -78,7 +78,7 @@ If you prefer to create your own LPub3D install package, these notes might be he
 - [ ] 1. enter directory
 `$ cd ~/`
 - [ ] 2. get [CreateRpm.sh][createrpm] packaging script
-`$  wget https://raw.github.com/trevorsandy/lpub3d/master/builds/linux/CreateRpm.sh`
+`$  wget https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/linux/CreateRpm.sh`
 - [ ] 3. enable execute permissions
 `$ chmod 755 CreateRpm.sh`
 - [ ] 4. execute package script
