@@ -29,27 +29,27 @@ LPub3D is available for free under the [GNU Public License version 3.0 (GPLv3)][
 LEGO® is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this application.
 
 ### Features
-	- Integrated 3D Viewer powered by LeoCAD
-	- Set ROTSTEP (step rotation) meta using 3D Viewer
-	- Fade previous step's parts (Fadestep)
-	- Unlimited part list (PLI) annotations
-	- Split the BOM (divide parts over number of BOM occurrences)
-	- Sort PLI/BOM by part size, colour and category
-	- "Go To" page navigation and submodel display via drop-down dialogue
-	- Automatically generate formatted cover pages
-        - Multiple renderers (LDGlite, LDView and POV-Ray)
-        - POV-Ray high-quality rendered instructions
-	- LGEO high-quality rendering library support
-	- Customizable content page header and footer
-	- Text and picture (e.g. logo) front and back page attributes
-	- Print/Export preview
-	- PDF, PNG, JPG and BMP export formats
-	- Standard and custom page size options
-	- On demand, software and LDraw archive library updates
-	- All features from legacy LPub - enhanced and stabilized
-	- Linux, Mac OSX and Microsoft Windows distributions
-	- Automated installer and portable distributions available
-	- Full capabilities to build from source or Build Service
+ - Integrated 3D Viewer powered by LeoCAD
+ - Set ROTSTEP (step rotation) meta using 3D Viewer
+ - Fade previous step's parts (Fadestep)
+ - Unlimited part list (PLI) annotations
+ - Split the BOM (divide parts over number of BOM occurrences)
+ - Sort PLI/BOM by part size, colour and category
+ - "Go To" page navigation and submodel display via drop-down dialogue
+ - Automatically generate formatted cover pages
+ - Multiple renderers (LDGlite, LDView and POV-Ray)
+ - POV-Ray high-quality rendered instructions
+ - LGEO high-quality rendering library support
+ - Customizable content page header and footer
+ - Text and picture (e.g. logo) front and back page attributes
+ - Print/Export preview
+ - PDF, PNG, JPG and BMP export formats
+ - Standard and custom page size options
+ - On demand, software and LDraw archive library updates
+ - All features from legacy LPub - enhanced and stabilized
+ - Linux, Mac OSX and Microsoft Windows distributions
+ - Automated installer and portable distributions available
+ - Full capabilities to build from source or Build Service
 	
 Copyright (c) 2015 - 2017 by Trevor SANDY
 
