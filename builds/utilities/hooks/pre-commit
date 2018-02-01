@@ -1,0 +1,79 @@
+#!/bin/bash
+#
+# This commit-msg hook updates the LPub3D version information when
+# [build pkg*] or [deploy pkg*] is detected in the commit message.
+#
+#  Trevor SANDY <trevor.sandy@gmail.com>
+#  Last Update: December 31, 2017
+#  Copyright (c) 2017 - 2018 by Trevor SANDY
+#
+## Automatically generate git revision info
+##
+## Setup
+## '>' denotes a new line
+## cd to your git repository and type:
+## $ cat << pbEOF >.git/hooks/pre-commit
+## > #!/bin/sh
+## > ./builds/utilities/hooks/pre-commit                                   # location of pre-commit script in your source repository
+## > pbEOF
+## $
+##
+## Ignore Increment:
+##   In instances where you do NOT want the version info incremented,
+##   add the environment variable doIncrement=no to your git call.
+##   e.g. $ env doIncrement=no git commit -m "Message - 00 [ci skip].
+##   This is useful on the first commit after you change the
+##   major/minor/patch version number for example.
+#
+##
+## Manual execution:
+#   If you wish to execute without sending valid-format commit message
+#   ./builds/utilities/hooks/pre-commit -f
+##
+exec 1>&2
+# to disable or run from command line, set default to 'no'
+increment_version=${doIncrement:-yes}
+commitmsg=".git/COMMIT_EDITMSG"
+# trigger if [build pkg*] or [deploy pkg*] exist in commit message
+cat "$commitmsg" | grep -qE '\[build pkg.*\]' && update_config_files=yes || \
+[ "$1" = "-f" ] && update_config_files=yes || update_config_files=no
+if test x"$update_config_files" = x"yes"; then
+  tag_long=`git describe --tags --long`
+  tag_short=`git describe --tags --abbrev=0`
+  commit_count=`git rev-list HEAD --count`
+  sha_hash_short=`git rev-parse --short HEAD`
+
+  valid_commit="yes"
+  if test x"`git diff HEAD --name-only`" = x""; then valid_commit="no"; fi
+
+  tmp1=${tag_long#*-}                                     # remove everything before and including "-"
+  revision=${tmp1%-*}                                     # remove everything after and including "-"
+  tmp1=${tag_short//./" "}                                # replace . with " "
+  version_=${tmp1/v/}                                     # replace v with ""
+  tmp1=${version_#*_}                                     # remove everything before and including "_" if exist
+  if test "$tmp1" != "$version_"; then suffix=${tmp1}; fi # check if ver_tmp not same as version_ - suffix exist
+  if test -n "$suffix"; then version_=${version_%_*}; fi  # remove everything after and including "_" - suffix exist
+  read major minor patch <<< ${version_}
+
+  echo "0. Incrementing Git version info..."
+  echo "   To disable, use: 'doIncrement=FALSE git commit -m \"Commit Message\"'"
+  echo "   Old_revision...........$revision"
+  echo "   Old_build (count)......$commit_count"
+  echo "   Increment version......$increment_version"
+  if test x"$increment_version" = x"yes" && test x"$valid_commit" = x"yes"; then ((revision++)); ((commit_count++)); fi
+
+  working_dir=$PWD/mainApp; export OBS=true
+  chmod +x builds/utilities/update-config-files.sh
+  ./builds/utilities/update-config-files.sh ${working_dir} $major $minor $patch $revision $commit_count $sha_hash_short $suffix
+
+  git add builds/utilities/version.info
+  git add mainApp/docs/lpub3d${major}${minor}.1
+  git add mainApp/docs/README.txt
+  git add mainApp/lpub3d.desktop
+  git add mainApp/lpub3d.appdata.xml
+
+  git add builds/linux/obs/alldeps/PKGBUILD
+  git add builds/linux/obs/alldeps/lpub3d.spec
+  git add builds/linux/obs/alldeps/debian/changelog
+  git add builds/linux/obs/alldeps/debian/lpub3d.dsc
+fi

@@ -2,7 +2,7 @@ Source: lpub3d
 Section: graphics
 Priority: optional
 Maintainer: Trevor SANDY <trevor.sandy@gmail.com>
-Build-Depends: debhelper (>= 4.1.16), qtbase5-dev, qt5-qmake, libqt5opengl5-dev, libgl1-mesa-dev, libpng-dev, libjpeg-dev, zlib1g-dev freeglut3-dev
+Build-Depends: debhelper (>= 4.1.16), qtbase5-dev, qt5-qmake, libqt5opengl5-dev, libgl1-mesa-dev, libpng-dev, libjpeg-dev, zlib1g-dev, unzip
 Standards-Version: 3.9.7
 Homepage: https://trevorsandy.github.io/lpub3d/
 
@@ -10,15 +10,16 @@ Package: lpub3d
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: LDraw™ editor for LEGO® style digital building instructions.
- LPub3D is an Open Source WYSIWYG editing application for creating 
- LEGO® style digital building instructions. LPub3D is developed and 
- maintained by Trevor SANDY. It uses the LDraw™ parts library, the 
- most comprehensive library of digital Open Source LEGO® bricks 
- available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model 
- file formats. LPub3D is available for free under the GNU Public License v3 
- and runs on Windows, Linux and OSX Operating Systems.
- Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, 
+ LPub3D is an Open Source WYSIWYG editing application for creating
+ LEGO® style digital building instructions. LPub3D is developed and
+ maintained by Trevor SANDY. It uses the LDraw™ parts library, the
+ most comprehensive library of digital Open Source LEGO® bricks
+ available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model
+ file formats. LPub3D is available for free under the GNU Public License v3
+ and runs on Windows, Linux and macOS Operating Systems.
+ LPub3D is also available as a Linux 'no-install', multi-platform AppImage.
+ Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
  LeoCAD© 2015 Leonardo Zide.and additional third party components.
- LEGO® is a trademark of the LEGO Group of companies which does not 
+ LEGO® is a trademark of the LEGO Group of companies which does not
  sponsor, authorize or endorse this application.
- © 2015-2017 Trevor SANDY
+ © 2015-2018 Trevor SANDY

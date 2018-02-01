@@ -1,6 +1,6 @@
 ;LPub3D Setup Script
 ;Last Update: October 10, 2017
-;Copyright (C) 2016 - 2017 by Trevor Sandy
+;Copyright (C) 2016 - 2018 by Trevor SANDY
 
 ;--------------------------------
 ;Include Modern UI
@@ -223,7 +223,7 @@ Section "${ProductName} (required)" SecMain${ProductName}
 ;generated define statements
 
   ; Add files to be installed.
-  !include "lpub3BuildFiles.nsh"
+  !include "LPub3DInstallFiles.nsh"
 
   ;Store installation folder
   WriteRegStr HKCU "Software\${Company}\${ProductName}\Installation" "InstallPath" $INSTDIR
@@ -615,76 +615,9 @@ FunctionEnd
 
 Section "Uninstall"
 
-; Remove files
-  Delete "$INSTDIR\${LPub3DBuildFile}"
-  Delete "$INSTDIR\${QuaZIPBuildFile}"
-  Delete "$INSTDIR\${LDrawIniBuildFile}"
+; Files to be uninstalled.
+!include "LPub3DUninstallFiles.nsh"
 
-  Delete "$INSTDIR\bearer\qgenericbearer.dll"
-  Delete "$INSTDIR\bearer\qnativewifibearer.dll"
-  Delete "$INSTDIR\iconengines\qsvgicon.dll"
-  Delete "$INSTDIR\imageformats\qdds.dll"
-  Delete "$INSTDIR\imageformats\qgif.dll"
-  Delete "$INSTDIR\imageformats\qicns.dll"
-  Delete "$INSTDIR\imageformats\qico.dll"
-  Delete "$INSTDIR\imageformats\qjpeg.dll"
-  Delete "$INSTDIR\imageformats\qsvg.dll"
-  Delete "$INSTDIR\imageformats\qtga.dll"
-  Delete "$INSTDIR\imageformats\qtiff.dll"
-  Delete "$INSTDIR\imageformats\qwbmp.dll"
-  Delete "$INSTDIR\imageformats\qwebp.dll"
-  Delete "$INSTDIR\printsupport\windowsprintersupport.dll"
-  Delete "$INSTDIR\platforms\qwindows.dll"
-
-  Delete "$INSTDIR\docs\CREDITS.txt"
-  Delete "$INSTDIR\docs\COPYING.txt"
-  Delete "$INSTDIR\docs\README.txt"
-  Delete "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win\ldglite.exe"
-  Delete "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win\LICENCE"
-  Delete "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win\README.TXT"
-  Delete "$INSTDIR\3rdParty\l3p1.4WinB\L3P.EXE"
-  Delete "$INSTDIR\data\PDFPrint.jpg"
-  Delete "$INSTDIR\data\pli.mpd"
-  Delete "$INSTDIR\data\titleAnnotations.lst"
-  Delete "$INSTDIR\data\freeformAnnotations.lst"
-  Delete "$INSTDIR\data\fadeStepColorParts.lst"
-  Delete "$INSTDIR\data\pliSubstituteParts.lst"
-  Delete "$INSTDIR\data\excludedParts.lst"
-  Delete "$INSTDIR\data\complete.zip"
-  Delete "$INSTDIR\data\lpub3dldrawunf.zip"
-
-  Delete "$INSTDIR\Qt5Core.dll"
-  Delete "$INSTDIR\Qt5Network.dll"
-  Delete "$INSTDIR\Qt5Gui.dll"
-  Delete "$INSTDIR\Qt5Widgets.dll"
-  Delete "$INSTDIR\Qt5PrintSupport.dll"
-  Delete "$INSTDIR\Qt5OpenGL.dll"
-
-  ${If} ${RunningX64}
-	Delete "$INSTDIR\libbz2-1.dll"
-	Delete "$INSTDIR\libfreetype-6.dll"
-	Delete "$INSTDIR\libgcc_s_seh-1.dll"
-	Delete "$INSTDIR\libglib-2.0-0.dll"
-	Delete "$INSTDIR\libgraphite2.dll"
-	Delete "$INSTDIR\libharfbuzz-0.dll"
-	Delete "$INSTDIR\libiconv-2.dll"
-	Delete "$INSTDIR\libicudt57.dll"
-	Delete "$INSTDIR\libicuin57.dll"
-	Delete "$INSTDIR\libicuuc57.dll"
-	Delete "$INSTDIR\libintl-8.dll"
-	Delete "$INSTDIR\libpcre-1.dll"
-	Delete "$INSTDIR\libpcre16-0.dll"
-	Delete "$INSTDIR\libpng16-16.dll"
-	Delete "$INSTDIR\libstdc++-6.dll"
-	Delete "$INSTDIR\libwinpthread-1.dll"
-	Delete "$INSTDIR\zlib1.dll"
-  ${Else}
-	Delete "$INSTDIR\libgcc_s_dw2-1.dll"
-	Delete "$INSTDIR\libstdc++-6.dll"
-	Delete "$INSTDIR\libwinpthread-1.dll"
-  ${EndIf}
-
-  Delete "$INSTDIR\README.txt"
   Delete "$INSTDIR\Uninstall.exe"
 
   !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
@@ -696,23 +629,13 @@ Section "Uninstall"
   Delete "$SMPROGRAMS\$StartMenuFolder\${ProductName}.lnk"
   Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall ${ProductName}.lnk"
 
-; Remove directories used
+; Remove start-menu folder
   RMDir "$SMPROGRAMS\$StartMenuFolder"
 
-  RMDir "$INSTDIR\bearer"
-  RMDir "$INSTDIR\iconengines"
-  RMDir "$INSTDIR\imageformats"
-  RMDir "$INSTDIR\printsupport"
-  RMDir "$INSTDIR\platforms"
-
-  RMDir "$INSTDIR\3rdParty\ldglite1.3.1_2g2x_Win"
-  RMDir "$INSTDIR\3rdParty\l3p1.4WinB"
-  RMDir "$INSTDIR\3rdParty"
-  RMDir "$INSTDIR\docs"
-  RMDir "$INSTDIR\data"
+; Remove install folder
   RMDir /r "$INSTDIR"
 
-    ;Use data uninstall
+  ;Use data uninstall
   ${If} $InstallUserData == 1
 	Delete "${INSTDIR_AppData}\extras\fadeStepColorParts.lst"
 	Delete "${INSTDIR_AppData}\extras\freeformAnnotations.lst"
@@ -722,15 +645,22 @@ Section "Uninstall"
 	Delete "${INSTDIR_AppData}\extras\pli.mpd"
 	Delete "${INSTDIR_AppData}\extras\PDFPrint.jpg"
 	Delete "${INSTDIR_AppData}\extras\LDConfig.ldr"
-	Delete "${INSTDIR_AppData}\dump\minidump.dmp"
 	Delete "${INSTDIR_AppData}\libraries\complete.zip"
 	Delete "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip"
+  Delete "${INSTDIR_AppData}\dump\minidump.dmp"
+  Delete "${INSTDIR_AppData}\3rdParty\${LDViewDir}\config\ldview.ini"
+  Delete "${INSTDIR_AppData}\3rdParty\${LDViewDir}\config\ldviewPOV.ini"
+  Delete "${INSTDIR_AppData}\3rdParty\${LDViewDir}\config\LDViewCustomini"
+  Delete "${INSTDIR_AppData}\3rdParty\${LPub3D_TraceDir}\config\povray.conf"
+  Delete "${INSTDIR_AppData}\3rdParty\${LPub3D_TraceDir}\config\povray.ini"
 
 	RMDir "${INSTDIR_AppData}\libraries"
 	RMDir "${INSTDIR_AppData}\extras"
 	RMDir "${INSTDIR_AppData}\dump"
 	RMDir /r "${INSTDIR_AppData}\cache"
 	RMDir /r "${INSTDIR_AppData}\logs"
+  RMDir /r "${INSTDIR_AppData}\fade"
+  RMDir /r "${INSTDIR_AppData}\3rdParty"
 	RMDir "${INSTDIR_AppData}"
   ${EndIf}
 

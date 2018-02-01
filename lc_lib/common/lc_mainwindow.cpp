@@ -2565,6 +2565,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
     case LC_HELP_ABOUT:
       DoDialog(LC_DIALOG_ABOUT, NULL);
+      break;
 
     case LC_VIEW_TIME_ADD_KEYS:
       SetAddKeys(!GetAddKeys());

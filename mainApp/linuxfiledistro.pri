@@ -1,4 +1,5 @@
 unix:!macx {
+    DIST_TARGET = $$lower($$DIST_TARGET)
 
     # For compiled builds on unix set C++11 standard appropriately
     GCC_VERSION = $$system(g++ -dumpversion)
@@ -22,43 +23,53 @@ unix:!macx {
     # These defines point LPub3D to the architecture appropriate content
     # when performing 'check for update' download and installation
     # Don't forget to set CONFIG+=<deb|rpm|pkg> accordingly if NOT using
-    # the accompanying build scripts - CreateDeb.sh, CreateRpm.sh or CreatePkg.sh
+    # the accompanying rules config at builds/linux/obs/rules
     deb: PACKAGE_TYPE = DEB_DISTRO
     rpm: PACKAGE_TYPE = RPM_DISTRO
     pkg: PACKAGE_TYPE = PKG_DISTRO
+    api: PACKAGE_TYPE = API_DISTRO
     !isEmpty(PACKAGE_TYPE): DEFINES += $$PACKAGE_TYPE
 
-    MAN_PAGE = lpub3d$$VER_MAJOR$$VER_MINOR
+    MAN_PAGE = $$DIST_TARGET$$VER_MAJOR$$VER_MINOR
     MAN_PAGE = $$join(MAN_PAGE,,,.1)
 
     # These settings are used for package distributions that will require elevated rights to install
     isEmpty(INSTALL_PREFIX):INSTALL_PREFIX = /usr
     isEmpty(SHARE_DIR):SHARE_DIR = $$INSTALL_PREFIX/share
 
-    isEmpty(BIN_DIR):BIN_DIR               = $$SHARE_DIR/bin
-    isEmpty(DOCS_DIR):DOCS_DIR             = $$SHARE_DIR/doc/lpub3d
+    isEmpty(BIN_DIR):BIN_DIR               = $$INSTALL_PREFIX/bin
+
+    isEmpty(DOCS_DIR):DOCS_DIR             = $$SHARE_DIR/doc/$$DIST_TARGET
     isEmpty(ICON_DIR):ICON_DIR             = $$SHARE_DIR/pixmaps
+    isEmpty(APPDATA_DIR):APPDATA_DIR       = $$SHARE_DIR/metainfo
     isEmpty(MAN_DIR):MAN_DIR               = $$SHARE_DIR/man/man1
     isEmpty(DESKTOP_DIR):DESKTOP_DIR       = $$SHARE_DIR/applications
     isEmpty(MIME_DIR):MIME_DIR             = $$SHARE_DIR/mime/packages
     isEmpty(MIME_ICON_DIR):MIME_ICON_DIR   = $$SHARE_DIR/icons/hicolor/scalable/mimetypes
-    isEmpty(RESOURCE_DIR):RESOURCE_DIR     = $$SHARE_DIR/lpub3d
+    isEmpty(RESOURCE_DIR):RESOURCE_DIR     = $$SHARE_DIR/$$DIST_TARGET
 
     target.path = $$BIN_DIR
 
     docs.files += docs/README.txt docs/CREDITS.txt docs/COPYING.txt
     docs.path = $$DOCS_DIR
 
-    man.files += $$MAN_PAGE
+    man.files += docs/$$MAN_PAGE
     man.path = $$MAN_DIR
 
-    desktop.files += lpub3d.desktop
+    #desktop.files += lpub3d.desktop#
+    desktop.files += $$join(DIST_TARGET,,,.desktop)
     desktop.path = $$DESKTOP_DIR
 
-    icon.files += images/lpub3d.png
+    #appdata.files += lpub3d.appdata.xml
+    appdata.files += $$join(DIST_TARGET,,,.appdata.xml)
+    appdata.path = $$APPDATA_DIR
+
+    #icon.files += images/lpub3d.png
+    icon.files += images/$$join(DIST_TARGET,,,.png)
     icon.path = $$ICON_DIR
 
-    mime.files += lpub3d.xml
+    #mime.files += lpub3d.xml
+    mime.files += $$join(DIST_TARGET,,,.xml)
     mime.path = $$MIME_DIR
 
     mime_ldraw_icon.files += images/x-ldraw.svg
@@ -99,6 +110,7 @@ unix:!macx {
     docs \
     man \
     desktop \
+    appdata \
     icon\
     mime\
     mime_ldraw_icon \
@@ -141,8 +153,7 @@ unix:!macx {
     # Additionally, when using QtCreator be sure 'Shadow Build' is enabled.
     #
     # source path
-    isEmpty(THIRD_PARTY_SRC):THIRD_PARTY_SRC = $$_PRO_FILE_PWD_/../../lpub3d_linux_3rdparty
-    message("~~~ INSTALL FROM REPO $$THIRD_PARTY_SRC ~~~")
+    isEmpty(THIRD_PARTY_SRC):THIRD_PARTY_SRC = $$THIRD_PARTY_DIST_DIR_PATH
 
     # source executables - 3rd party components
     isEmpty(LDGLITE_INS_EXE):LDGLITE_INS_EXE   = $$THIRD_PARTY_SRC/$$VER_LDGLITE/bin/$$QT_ARCH/ldglite
@@ -158,17 +169,22 @@ unix:!macx {
     isEmpty(LDVIEW_INS_RES):LDVIEW_INS_RES     = $$THIRD_PARTY_SRC/$$VER_LDVIEW/resources
     isEmpty(RAYTRACE_INS_RES):RAYTRACE_INS_RES = $$THIRD_PARTY_SRC/$$VER_POVRAY/resources
 
+    # installed data directories - 3rd party renderer executables
+    isEmpty(THIRD_PARTY_EXE_DIR):THIRD_PARTY_EXE_DIR   = /opt/$$DIST_TARGET
+    isEmpty(LDGLITE_INS_DIR):LDGLITE_INS_DIR           = $$THIRD_PARTY_EXE_DIR/3rdParty/$$VER_LDGLITE/bin
+    isEmpty(LDVIEW_INS_DIR):LDVIEW_INS_DIR             = $$THIRD_PARTY_EXE_DIR/3rdParty/$$VER_LDVIEW/bin
+    isEmpty(RAYTRACE_INS_DIR):RAYTRACE_INS_DIR         = $$THIRD_PARTY_EXE_DIR/3rdParty/$$VER_POVRAY/bin
+
     # installed data directories - 3rd party components
-    isEmpty(LDGLITE_INS_DIR):LDGLITE_INS_DIR           = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDGLITE/bin
-    isEmpty(LDGLITE_INS_DOC_DIR):LDGLITE_INS_DOC_DIR   = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDGLITE/doc
-    isEmpty(LDGLITE_INS_RES_DIR):LDGLITE_INS_RES_DIR   = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDGLITE/resources
-    isEmpty(LDVIEW_INS_DIR):LDVIEW_INS_DIR             = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDVIEW/bin
-    isEmpty(LDVIEW_INS_RES_DIR):LDVIEW_INS_RES_DIR     = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDVIEW/resources
-    isEmpty(LDVIEW_INS_DOC_DIR):LDVIEW_INS_DOC_DIR     = $$SHARE_DIR/lpub3d/3rdParty/$$VER_LDVIEW/doc
-    isEmpty(RAYTRACE_INS_DIR):RAYTRACE_INS_DIR         = $$SHARE_DIR/lpub3d/3rdParty/$$VER_POVRAY/bin
-    isEmpty(RAYTRACE_INS_DOC_DIR):RAYTRACE_INS_DOC_DIR = $$SHARE_DIR/lpub3d/3rdParty/$$VER_POVRAY/doc
-    isEmpty(RAYTRACE_INS_RES_DIR):RAYTRACE_INS_RES_DIR = $$SHARE_DIR/lpub3d/3rdParty/$$VER_POVRAY/resources
+    isEmpty(LDGLITE_INS_DOC_DIR):LDGLITE_INS_DOC_DIR   = $$RESOURCE_DIR/3rdParty/$$VER_LDGLITE/doc
+    isEmpty(LDGLITE_INS_RES_DIR):LDGLITE_INS_RES_DIR   = $$RESOURCE_DIR/3rdParty/$$VER_LDGLITE/resources
+    isEmpty(LDVIEW_INS_DOC_DIR):LDVIEW_INS_DOC_DIR     = $$RESOURCE_DIR/3rdParty/$$VER_LDVIEW/doc
+    isEmpty(LDVIEW_INS_RES_DIR):LDVIEW_INS_RES_DIR     = $$RESOURCE_DIR/3rdParty/$$VER_LDVIEW/resources
+    isEmpty(RAYTRACE_INS_DOC_DIR):RAYTRACE_INS_DOC_DIR = $$RESOURCE_DIR/3rdParty/$$VER_POVRAY/doc
+    isEmpty(RAYTRACE_INS_RES_DIR):RAYTRACE_INS_RES_DIR = $$RESOURCE_DIR/3rdParty/$$VER_POVRAY/resources
 
     # install 3rd party content
     include(install3rdpartycontent.pri)
+    # install local libraries - used for RHEL builds
+    include(locallibsdistro.pri)
 }

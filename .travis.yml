@@ -2,77 +2,115 @@ language: cpp
 sudo: required
 dist: trusty
 
-cache: ccache
-
 git:
   depth: 200
+
+cache:
+  ccache: true
+  directories:
+  - ${LP3D_LDRAW_DIR}
+  - ${LP3D_DIST_DIR_BASE}
+
+env:
+  global:
+    - LP3D_QT_BASE=59
+    - LP3D_LDRAW_DIR=${HOME}/ldraw
+    - LP3D_BUILD_FOLDER=${TRAVIS_BUILD_DIR}
+    - LP3D_RELEASES_DIR=${LP3D_BUILD_FOLDER}/builds/releases
+    - LP3D_LOGS_DIR=${LP3D_RELEASES_DIR}/logs
+    - LP3D_UPDATE_ASSETS=${LP3D_RELEASES_DIR}/updates
+    - LP3D_DOWNLOAD_ASSETS=${LP3D_RELEASES_DIR}/downloads
+    - LP3D_3RD_BUILD_FOLDER=${LP3D_BUILD_FOLDER}/..
+    - LP3D_DIST_DIR_BASE=${LP3D_3RD_BUILD_FOLDER}/lpub3d_3rdparty_base
+    - LP3D_COMPOSE_DIR=builds/linux/docker-compose
+    - LP3D_CI_DIR=builds/utilities/ci
+    - LP3D_SECURE_DIR=builds/utilities/ci/secure
+    - LP3D_CI_SCRIPT_DIR=builds/utilities/ci/travis
+    - LP3D_DROPBOX_RELEASES_DIR=travis-ci/releases
+    - LP3D_DROPBOX_LOGS_DIR=${LP3D_DROPBOX_RELEASES_DIR}/logs
+    - LP3D_DROPBOX_UPDATES_DIR=${LP3D_DROPBOX_RELEASES_DIR}/updates
+    - LP3D_DROPBOX_DOWNLOADS_DIR=${LP3D_DROPBOX_RELEASES_DIR}/downloads
+    - LP3D_RELEASE_LABEL="LPub3D $(date +'%d.%m.%Y')"
+
+addons:
+  ssh_known_hosts: trevorsandy@frs.sourceforge.net
+
+stages:
+  - name: Prepare Release Storage
+    if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
+  - name: Build and Package
+  - name: Compile Source
+    if: tag IS blank
+  - name: GitHub and Sourceforge Deploy
+    if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
+
+before_install:
+  - source ${LP3D_CI_SCRIPT_DIR}/before_install
+
+install:
+  - source ${LP3D_CI_SCRIPT_DIR}/install
+
+script:
+  - source ${LP3D_CI_SCRIPT_DIR}/script
+
+after_script:
+  - source ${LP3D_CI_SCRIPT_DIR}/after_script
+
+jobs:
+ fast_finish: true
+ include:
+  - stage: Prepare Release Storage
+    env: LP3D_DEPLOY_PACKAGES=true
+    os: linux
+    compiler: gcc
+    script: source ${LP3D_CI_SCRIPT_DIR}/prepare_store
+  - stage: Build and Package
+    env: LP3D_BUILD_ARCH2017=true
+    os: linux
+    compiler: gcc
+  - stage: Build and Package
+    env: LP3D_BUILD_FEDORA25=true
+    os: linux
+    compiler: gcc
+  - stage: Build and Package
+    env: LP3D_BUILD_XENIAL=true
+    os: linux
+    compiler: gcc
+  - stage: Build and Package
+    env: LP3D_BUILD_APPIMAGE=true
+    os: linux
+    compiler: gcc
+  - stage: Build and Package
+    env: LP3D_BUILD_MACOS=true
+    os: osx
+    compiler: clang
+  - stage: Compile Source
+    env: LP3D_COMPILE_SOURCE=true
+    os: linux
+    compiler: gcc
+  - stage: Compile Source
+    env: LP3D_COMPILE_SOURCE=true
+    os: osx
+    compiler: clang
+  - stage: GitHub and Sourceforge Deploy
+    env: LP3D_DEPLOY_PACKAGES=true
+    script: source ${LP3D_CI_SCRIPT_DIR}/releases
+    deploy:
+      provider: releases
+      name: $LP3D_RELEASE_LABEL
+      body: 'LPub3D - An LDraw™ editor for LEGO® style digital building instructions.'
+      api_key:
+        secure: GRl0LOJ8M5ow1qik8t2+tJsqMDo53v/TRfxprWg5C+3DR3ny/CgR5mODMtpR4LgSyMeD5yhGovxHAbzgUyutne9PT0BagI8zdt/ZMqcLnvPQyzJlhfy3t2TVcJRoVXcoUUF0ZJHrpr9WD8C7xnjMp7w/j+HThQuX+8CD3gCwZhYkDRuNgtJY/PT+nwITjC4WJuF0xxYOyLJROebQZ1LJ24HY0zVtg+JJZPslkQHgoBg/ozO8JNXgYaYe3VgcyQSnUMqE/SjMBGYMR9RlNwYXCJLeYHiY3fej33z7UPZOH/kPQ8RhKpJi9qqOTtYj38dTxmpiJjOJ4SyeKXvsyymc5ekwSdlJe6rVWKKAXFMegH/4i3Nk8HKmfxMPLklprusFEMQo2CdA5UeNRuWJ/HfDpywbQwFLC6ThNZcS6wqOqf2Rzy6QRNFWlH9eJoiSMyQRVTFGwQ3bf2MXXJSloFuxRpGYoejWt36O+rNZnTR6+Xz1r2KyaaFizCGen082klzmfdoCl0mh+m9Jix7ypzgNBKISFI5DTbjr6Qt+D5dVdp5PWGBAbhTd6JtcG64P9fDUWq5X9ypFj6Jb1626sHFlYQKCSX+lEpjbd4UTSbTxO35NMTO1g90xKMJeIpvsCwm9DcWl+jGmt9cwSHxTQuWkeEaUcoywYvA4kTjIpDuIaR8=
+      file_glob: true
+      file: $LP3D_DOWNLOAD_ASSETS/*
+      overwrite: true
+      skip_cleanup: true
+      on:
+        repo: trevorsandy/lpub3d
+        branch: $TRAVIS_BRANCH
+        condition: $LP3D_DEPLOY_PKG = yes
 
 notifications:
   email:
     on_success: never
     on_failure: always
-
-matrix:
- include:
-  - os: linux
-    compiler: gcc
-    env:
-     - QT_BASE=59
-  - os: osx
-    compiler: clang
-    env:
-     - QT_BASE=59
-
-before_install:
-  # Skip build if the commit message contains [skip travis] or [travis skip]
-  - >
-      echo "$TRAVIS_COMMIT_MESSAGE"
-      | grep -E  '\[(skip travis|travis skip)\]'
-      && echo "[skip travis] detected, exiting."
-      && exit 0
-  # Add private qt repositories
-  - if [[ "$QT_BASE" = "52" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt521-trusty -y; fi
-  - if [[ "$QT_BASE" = "53" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt532-trusty -y; fi
-  - if [[ "$QT_BASE" = "54" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt542-trusty -y; fi
-  - if [[ "$QT_BASE" = "55" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt551-trusty -y; fi
-  - if [[ "$QT_BASE" = "56" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y; fi
-  - if [[ "$QT_BASE" = "57" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt571-trusty -y; fi
-  - if [[ "$QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt58-trusty  -y; fi
-  - if [[ "$QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo add-apt-repository ppa:beineri/opt-qt59-trusty  -y; fi
-  # Update repository index
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      sudo apt-get update -qq;
-    else
-      brew update;
-    fi
-
-install:
-  # Install qt5 on Linux
-  - if [[ "$QT_BASE" = "52" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo apt-get install -qq qt52base; source /opt/qt52/bin/qt52-env.sh; fi
-  - if [[ "$QT_BASE" = "53" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo apt-get install -qq qt53base; source /opt/qt53/bin/qt53-env.sh; fi
-  - if [[ "$QT_BASE" = "54" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo apt-get install -qq qt54base; source /opt/qt54/bin/qt54-env.sh; fi
-  - if [[ "$QT_BASE" = "55" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo apt-get install -qq qt55base; source /opt/qt55/bin/qt55-env.sh; fi
-  - if [[ "$QT_BASE" = "56" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo apt-get install -qq qt56base; source /opt/qt56/bin/qt56-env.sh; fi
-  - if [[ "$QT_BASE" = "57" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo apt-get install -qq qt57base; source /opt/qt57/bin/qt57-env.sh; fi
-  - if [[ "$QT_BASE" = "58" && "$TRAVIS_OS_NAME" = "linux" ]]; thne sudo apt-get install -qq qt58base; source /opt/qt58/bin/qt58-env.sh; fi
-  - if [[ "$QT_BASE" = "59" && "$TRAVIS_OS_NAME" = "linux" ]]; then sudo apt-get install -qq qt59base; source /opt/qt59/bin/qt59-env.sh; fi
-  # Install qt5 on MacOS
-  # Download ldraw library archive. For testing you can use dummy archives at:
-  #   wget https://github.com/trevorsandy/lpub3d/releases/download/v2.0.0/test001.zip -O mainApp/extras/complete.zip;
-  #   wget https://github.com/trevorsandy/lpub3d/releases/download/v2.0.0/test002.zip -O mainApp/extras/lpub3dldrawunf.zip;
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-      if [ "$QT_BASE" = "55" ]; then
-        brew install qt55;
-        brew link --force qt55;
-      else
-        brew install qt5;
-        brew link --force qt5;
-      fi
-      wget http://www.ldraw.org/library/updates/complete.zip -O mainApp/extras/complete.zip;
-      wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;
-    fi
-
-script:
-  - qmake -v
-  - qmake -r
-  - make

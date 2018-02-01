@@ -1,41 +1,49 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
 pkgname=lpub3d
-Exec=lpub3d20 %f
+pkgver=2.1.0.313
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d.git"
 arch=('x86_64' 'i686')
 license=('GPL3')
-depends=('freeglut' 'qt5-base' 'qt5-tools')
-makedepends=()
+depends=('qt5-base' 'libpng')
+makedepends=('unzip' 'qt5-tools')
 conflicts=()
 replaces=()
 backup=()
-source=("lpub3d-git.tar.gz" "complete.zip" "lpub3dldrawunf.zip")
-noextract=("complete.zip" "lpub3dldrawunf.zip")
-md5sums=(SKIP SKIP SKIP)
+source=("lpub3d-git.tar.gz" "complete.zip" "lpub3dldrawunf.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz")
+noextract=("complete.zip" "lpub3dldrawunf.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz")
+md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP)
 
 prepare() {
+	# loc = ../src
+	echo "  -> Current working directory: $PWD"
+	export WD=$PWD
 	cd ${pkgname}-git
-	# copy ldraw archive libraries
+	chmod +x builds/utilities/CreateRenderers.sh && \
+	./builds/utilities/CreateRenderers.sh
+	# loc = ../src/${pkgname}-git
+	echo "  -> Current working directory: $PWD"
 	if [ -f ../complete.zip ] ; then
 		cp ../complete.zip mainApp/extras
+		echo "LDraw archive library complete.zip copied"
 	else
-		echo "complete.zip not found here `pwd`"
+		echo "complete.zip not found at $PWD"
 	fi
 	if [ -f ../lpub3dldrawunf.zip ] ; then
 		cp ../lpub3dldrawunf.zip mainApp/extras
+		echo "LDraw archive library lpub3dldrawunf.zip copied"
 	else
-		echo "lpub3dldrawunf.zip not found here `pwd`"
+		echo "lpub3dldrawunf.zip not found at $PWD"
 	fi
-
-	# Qt5 configure
 	export QT_SELECT=qt5
+	export LP3D_BUILD_PKG=yes
 	if [ -x /usr/bin/qmake ] ; then
-		qmake -makefile CONFIG+=release CONFIG+=pkg
+		QMAKE_EXEC=qmake
 	elif [ -x /usr/bin/qmake-qt5 ] ; then
-		qmake-qt5 -makefile CONFIG+=release CONFIG+=pkg
+		QMAKE_EXEC=qmake-qt5
 	fi
+	${QMAKE_EXEC} -makefile CONFIG+=release CONFIG-=debug_and_release CONFIG+=pkg
 }
 
 build() {

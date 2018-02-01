@@ -22,8 +22,8 @@ RESOURCES += \
     qsimpleupdater/res/qsu_resources.qrc \
     mainApp/lpub3d.qrc
 
-CONFIG(debug, debug|release) {
-    message("~~~ LPUB3D DEBUG build ~~~")
-} else {
-    message("~~~ LPUB3D RELEASE build ~~~")
-}
+contains(QT_ARCH, x86_64):    ARCH = 64
+else:                         ARCH = 32
+CONFIG(debug, debug|release): BUILD = Debug Build
+else:	                      BUILD = Release Build
+message("~~~ LPUB3D $$join(ARCH,,,bit) $${BUILD} ~~~")

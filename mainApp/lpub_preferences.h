@@ -1,7 +1,7 @@
 /**************************************************************************** 
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2017 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2018 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -42,9 +42,11 @@ class Preferences
 
     static void setLPub3DLoaded();
     static void getRequireds();
+    static void setLDViewSearchPaths(bool);
     static bool getPreferences();
 
     static QString ldrawPath;
+    static QString altLDConfigPath;
     static QString lpub3dLibFile;
     static QString lgeoPath;
     static QString lpubDataPath;

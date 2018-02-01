@@ -1,0 +1,55 @@
+#!/bin/bash
+#
+# Travis build [after_script] procedures
+#
+#  Trevor SANDY <trevor.sandy@gmail.com>
+#  Last Update: January 31, 2018
+#  Copyright (c) 2017 - 2018 by Trevor SANDY
+#
+cd $LP3D_BUILD_FOLDER
+
+# Gather up and move build artefacts and logs to releases directory
+if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_COMPILE_SOURCE" = "" && "$LP3D_DEPLOY_PACKAGES" = "" ]]; then
+  if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+    if [ "$LP3D_BUILD_ARCH2017" = "true" ]; then
+      file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.xz -type f);
+      file_UPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-UpdateMaster_${LP3D_VERSION}*.pkg.tar.xz -type f);
+    fi;
+    if [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
+      file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.rpm -type f);
+      file_UPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-UpdateMaster_${LP3D_VERSION}*.rpm -type f);
+    fi;
+    if [ "$LP3D_BUILD_XENIAL" = "true" ]; then
+      file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.deb -type f);
+      file_UPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-UpdateMaster_${LP3D_VERSION}*.deb -type f);
+    fi;
+    file_Logs=$(find $LP3D_COMPOSE_DIR -name *.log -type f);
+  fi;
+  if [ "$LP3D_BUILD_MACOS" = "true" ]; then
+    file_DPkg=$(find $DmgBuildPath/DMGS -name LPub3D-${LP3D_APP_VERSION_LONG}*.dmg -type f);
+    file_UPkg=$(find $DmgBuildPath/DMGS -name LPub3D-UpdateMaster_${LP3D_VERSION}*.dmg -type f);
+    file_Logs=$(find $DmgBuildPath -name *.log -type f);
+  fi;
+  if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
+    file_DPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage -type f);
+    file_UPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-UpdateMaster_${LP3D_VERSION}*.AppImage -type f);
+    file_Logs=$(find $WD -name *.log -type f);
+  fi;
+  cp -f $file_Logs $LP3D_LOGS_DIR;
+  cp -f $file_UPkg $LP3D_UPDATE_ASSETS;
+  cp -f $file_DPkg $LP3D_DOWNLOAD_ASSETS;
+  echo "Release Files:" && find $LP3D_RELEASES_DIR -type f;
+  # Upload assets to Dropbox for temp storage
+  if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
+    if [ -f "/tmp/.dropbox_oauth" ]; then
+      chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
+      ./"${LP3D_CI_DIR}/dropbox_uploader.sh" mkdir "$LP3D_DROPBOX_RELEASES_DIR";
+      ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_LOGS_DIR" "$LP3D_DROPBOX_RELEASES_DIR"/;
+      ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_UPDATE_ASSETS" "$LP3D_DROPBOX_RELEASES_DIR"/;
+      ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_DOWNLOAD_ASSETS" "$LP3D_DROPBOX_RELEASES_DIR"/;
+      ./"${LP3D_CI_DIR}/dropbox_uploader.sh" list "$LP3D_DROPBOX_RELEASES_DIR";
+    else
+      echo "ERROR - /tmp/.dropbox_oauth token file not found - cannot perform upload";
+    fi;
+  fi;
+fi

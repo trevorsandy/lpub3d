@@ -77,7 +77,7 @@ Updater::Updater() {
 #if defined Q_OS_WIN
     m_platform = "windows-exe";
 #elif defined Q_OS_MAC
-    m_platform = "osx-dmg";
+    m_platform = "macos-dmg";
 #elif defined Q_OS_LINUX
   #if defined DEB_DISTRO
       m_platform = "linux-deb";
@@ -85,6 +85,8 @@ Updater::Updater() {
       m_platform = "linux-rpm";
   #elif defined PKG_DISTRO
       m_platform = "linux-pkg";
+  #elif defined API_DISTRO
+      m_platform = "linux-api";
   #endif
 #elif defined Q_OS_ANDROID
     m_platform = "android";
@@ -460,14 +462,8 @@ void Updater::onReply (QNetworkReply* reply) {
                 // we are looking to update the latest version
                 m_openUrl = platform.value ("open-url").toString();
                 m_latestVersion = platform.value ("latest-version").toString();
-
-#if defined Q_OS_WIN  //backward compatabiltiy for Windows only
-                m_downloadUrl = platform.value ("download-url-").toString();
-                _changelogUrl = platform.value ("changelog-url-").toString();
-#else
                 m_downloadUrl = platform.value ("download-url").toString();
                 _changelogUrl = platform.value ("changelog-url").toString();
-#endif
                 _updateAvailable = compare (latestVersion(), moduleVersion());
 
             } else {
@@ -606,12 +602,12 @@ void Updater::setUpdateAvailable (const bool& available) {
                 m_downloader->startDownload (downloadUrl());
 
             else
-                QDesktopServices::openUrl (QUrl (downloadUrl())); 
+                QDesktopServices::openUrl (QUrl (downloadUrl()));
         }
     }
 
     else if (showAllNotifications()) {
-        box.setStandardButtons (QMessageBox::Close);        
+        box.setStandardButtons (QMessageBox::Close);
         box.setText ("<b>" + tr ("You are up-to-date!") +
                      "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>");
         box.setInformativeText (

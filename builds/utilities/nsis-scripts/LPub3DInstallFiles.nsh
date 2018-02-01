@@ -1,6 +1,6 @@
-;LPub3D Setup Script
-;Last Update: October 10, 2017
-;Copyright (C) 2016 - 2017 by Trevor Sandy
+;LPub3D Install Files Script Include
+;Last Update: January 24, 2018
+;Copyright (C) 2016 - 2018 by Trevor SANDY
 
 StrCmp ${UniversalBuild} "1" 0 SingleArchitectureBuild
   ; universal architecture (x86, x86_64)
@@ -14,8 +14,7 @@ ${If} ${RunningX64}
 	IfFileExists "ldrawini.dll" 0
 	Delete "ldrawini.dll"
 
-  ;Deposit new files...
-	;File "${Win64BuildDir}\${LPub3D64bitBuildFile}"
+  ;Deposit new 64bit files...
 	File "${Win64BuildDir}\${LPub3DBuildFile}"
 	File "${Win64BuildDir}\${QuaZIPBuildFile}"
 	File "${Win64BuildDir}\${LDrawIniBuildFile}"
@@ -54,7 +53,6 @@ ${If} ${RunningX64}
 	File "${Win64BuildDir}\iconengines\qsvgicon.dll"
   CreateDirectory "$INSTDIR\imageformats"
   SetOutPath "$INSTDIR\imageformats"
-	;File "${Win64BuildDir}\imageformats\qdds.dll"
 	File "${Win64BuildDir}\imageformats\qgif.dll"
 	File "${Win64BuildDir}\imageformats\qicns.dll"
 	File "${Win64BuildDir}\imageformats\qico.dll"
@@ -105,7 +103,7 @@ ${Else}
 	IfFileExists "ldrawini.dll" 0
 	Delete "ldrawini.dll"
 
-	;Deposit new files...
+	;Deposit new 32bit files...
 	;File "${Win32BuildDir}\${LPub3D32bitBuildFile}"
 	File "${Win32BuildDir}\${LPub3DBuildFile}"
 	File "${Win32BuildDir}\${QuaZIPBuildFile}"
@@ -322,8 +320,7 @@ CreateDirectory "$INSTDIR\3rdParty\${LDGliteDir}\doc"
 SetOutPath "$INSTDIR\3rdParty\${LDGliteDir}\doc"
 File "${WinBuildDir}\3rdParty\${LDGliteDir}\doc\LICENCE"
 File "${WinBuildDir}\3rdParty\${LDGliteDir}\doc\README.TXT"
-SetOutPath "$INSTDIR\3rdParty\${LDGliteDir}\resources"
-File "${WinBuildDir}\3rdParty\${LDGliteDir}\resources\set-ldrawdir.command"
+
 ;3rd party renderer utility - LDView
 CreateDirectory "$INSTDIR\3rdParty\${LDViewDir}\doc"
 SetOutPath "$INSTDIR\3rdParty\${LDViewDir}\doc"

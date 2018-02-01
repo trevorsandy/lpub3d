@@ -39,7 +39,8 @@ typedef quintptr lcuintptr;
 #ifdef Q_OS_WIN
 #define snprintf _snprintf
 #ifndef _WIN64
-#define isnan _isnan
+// rem 08/12/17 - 'error: 'std::_isnan' has not been declared' error on MinGW Qt32bit built from source
+// #define isnan _isnan
 #endif
 #if (_MSC_VER >= 1500)
 #define strcasecmp stricmp

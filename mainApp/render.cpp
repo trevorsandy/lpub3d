@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2017 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2018 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -649,6 +649,10 @@ int LDGLite::renderCsi(
     }
   }
 
+  if (!Preferences::altLDConfigPath.isEmpty()) {
+    arguments << "=" + Preferences::altLDConfigPath;
+    //logDebug() << qPrintable("=" + Preferences::altLDConfigPath);
+  }
   arguments << mf;                  // .png file name
   arguments << ldrName;             // csi.ldr (input file)
 
@@ -733,6 +737,10 @@ int LDGLite::renderPli(
 	  if (list[i] != "" && list[i] != " ") {
       arguments << list[i];
 	  }
+  }
+  if (!Preferences::altLDConfigPath.isEmpty()) {
+    arguments << "=" + Preferences::altLDConfigPath;
+    //logDebug() << qPrintable("=" + Preferences::altLDConfigPath);
   }
   arguments << mf;
   arguments << ldrName;
@@ -856,6 +864,10 @@ int LDView::renderCsi(
       arguments << list[i];
     }
   }
+  if (!Preferences::altLDConfigPath.isEmpty()) {
+    arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+    //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
+  }
   arguments << ldrName;
 
   emit gui->messageSig(true, "Execute command: LDView render CSI.");
@@ -930,6 +942,10 @@ int LDView::renderPli(
     if (list[i] != "" && list[i] != " ") {
       arguments << list[i];
     }
+  }
+  if (!Preferences::altLDConfigPath.isEmpty()) {
+    arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+    //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
   }
   arguments << ldrName;
 

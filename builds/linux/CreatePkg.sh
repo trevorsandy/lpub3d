@@ -1,105 +1,141 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update 15 February 2017
+# Last Update January 24 2018
 # To run:
-# $ chmod 755 CreatePkg.sh
-# $ ./CreatePkg.sh
+# $ chmod 755 CreateDeb.sh
+# $ [options] && ./builds/linux/CreatePkg.sh
+# [options]:
+#  - export DOCKER=true (if using Docker image)
+#  - export OBS=false (if building locally)
+# NOTE: elevated access required for apt-get install, execute with sudo
+# or enable user with no password sudo if running noninteractive - see
+# docker-compose/dockerfiles for script example of sudo, no password user.
+
+# Capture elapsed time - reset BASH time counter
+SECONDS=0
+FinishElapsedTime() {
+  # Elapsed execution time
+  ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+  echo "----------------------------------------------------"
+  echo "$ME Finished!"
+  echo "$ELAPSED"
+  echo "----------------------------------------------------"
+}
 
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
-BUILD_DATE=`date "+%Y%m%d"`
+export OBS=false # OpenSUSE Build Service flag must be set for CreateRenderers.sh - called by PKGBUILD
 
-# logging stuff
-LOG="${CWD}/$ME.log"
+echo "Start $ME execution at $CWD..."
+
+# Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
+LPUB3D="${LPUB3D:-lpub3d}"
+echo "   LPUB3D SOURCE DIR......${LPUB3D}"
+
+# tell curl to be silent, continue downloads and follow redirects
+curlopts="-sL -C -"
+
+# logging stuff - increment log file name
+f="${CWD}/$ME"
+ext=".log"
+if [[ -e "$f$ext" ]] ; then
+  i=1
+  f="${f%.*}";
+  while [[ -e "${f}_${i}${ext}" ]]; do
+    let i++
+  done
+  f="${f}_${i}${ext}"
+else
+  f="${f}${ext}"
+fi
+# output log file
+LOG="$f"
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
 
-echo "Start $ME..."
-echo "1. create PKG working directories"
-if [ ! -d pkgbuild ]
+echo "1. create PKG working directories in pkgbuild/"
+if [ ! -d pkgbuild/upstream ]
 then
-    mkdir pkgbuild
-    mkdir pkgbuild/upstream
+  mkdir -p pkgbuild/upstream
 fi
+
 cd pkgbuild/upstream
-WORK_DIR=lpub3d-git
 
-echo "2. download source"
-git clone https://github.com/trevorsandy/lpub3d.git
-mv lpub3d ${WORK_DIR}
+echo "2. download ${LPUB3D}/ to upstream/"
+git clone https://github.com/trevorsandy/${LPUB3D}.git
 
-echo "3. update version info"
-#         1 2  3  4   5       6    7  8  9       10
-# format "2 0 20 17 663 410fdd7 2017 02 12 19:50:21"
-FILE="${WORK_DIR}/builds/utilities/version.info"
-if [ -f ${FILE} -a -r ${FILE} ]
-then
-    VERSION_INFO=`cat ${FILE}`
-else
-    echo "Error: Cannot read ${FILE} from `pwd`"
-    echo "$ME terminated!"
-    exit 1
-fi
-read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION VER_BUILD VER_SHA_HASH <<< ${VERSION_INFO//'"'}
-VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
-APP_VERSION=${VERSION}"."${VER_BUILD}
-APP_VERSION_LONG=${VERSION}"."${VER_REVISION}"."${VER_BUILD}_${BUILD_DATE}
-echo "WORK_DIR..........${WORK_DIR}"
-echo "VER_MAJOR.........${VER_MAJOR}"
-echo "VER_MINOR.........${VER_MINOR}"
-echo "VER_PATCH.........${VER_PATCH}"
-echo "VER_REVISION......${VER_REVISION}"
-echo "VER_BUILD.........${VER_BUILD}"
-echo "VER_SHA_HASH......${VER_SHA_HASH}"
-echo "VERSION...........${VERSION}"
-echo "APP_VERSION.......${APP_VERSION}"
-echo "APP_VERSION_LONG..${APP_VERSION_LONG}"
-echo "BUILD_DATE........${BUILD_DATE}"
+_PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
+source ${LPUB3D}/builds/utilities/update-config-files.sh
 
-echo "4. create tarball"
-tar -czvf ../${WORK_DIR}.tar.gz \
+echo "3. move ${LPUB3D}/ to ${LPUB3D}-git/ in upstream/"
+WORK_DIR=${LPUB3D}-git
+mv -f ${LPUB3D} ${WORK_DIR}
+
+echo "4. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/"
+tar -czf ../${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/builds/linux/standard" \
         --exclude="${WORK_DIR}/builds/windows" \
         --exclude="${WORK_DIR}/builds/macx" \
         --exclude="${WORK_DIR}/lc_lib/tools" \
         --exclude="${WORK_DIR}/.travis.yml" \
-        --exclude="${WORK_DIR}/.git" \
         --exclude="${WORK_DIR}/.gitattributes" \
         --exclude="${WORK_DIR}/LPub3D.pro.user" \
         --exclude="${WORK_DIR}/README.md" \
         --exclude="${WORK_DIR}/_config.yml" \
-        --exclude="${WORK_DIR}/.gitignore" ${WORK_DIR}
+        --exclude="${WORK_DIR}/.gitignore" \
+        --exclude="${WORK_DIR}/appveyor.yml" ${WORK_DIR}
 
 echo "5. copy PKGBUILD"
 cp -f ${WORK_DIR}/builds/linux/obs/PKGBUILD ../
 cd ../
 
-echo "6. get LDraw archive libraries"
+echo "6. download LDraw archive libraries to pkgbuild/"
 if [ ! -f lpub3dldrawunf.zip ]
 then
-     wget -N -O lpub3dldrawunf.zip http://www.ldraw.org/library/unofficial/ldrawunf.zip
+    curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o lpub3dldrawunf.zip
 fi
 if [ ! -f complete.zip ]
 then
-     wget -N http://www.ldraw.org/library/updates/complete.zip
+    curl -O $curlopts http://www.ldraw.org/library/updates/complete.zip
 fi
 
-echo "7. build application package"
-makepkg -s
+# download 3rd party packages defined as source in PKGBUILD
+echo "7. copy 3rd party source to pkgbuild/"
+for buildDir in ldglite ldview povray; do
+  case ${buildDir} in
+  ldglite)
+    curlCommand="https://github.com/trevorsandy/ldglite/archive/master.tar.gz"
+    ;;
+  ldview)
+    curlCommand="https://github.com/trevorsandy/ldview/archive/qmake-build.tar.gz"
+    ;;
+  povray)
+    curlCommand="https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz"
+    ;;
+  esac
+  if [ ! -f ${buildDir}.tar.gz ]; then
+    Info "`echo ${buildDir} | awk '{print toupper($0)}'` tarball ${buildDir}.tar.gz does not exist. Downloading..."
+    curl $curlopts -o ${buildDir}.tar.gz ${curlCommand}
+  fi
+done
 
-DISTRO_FILE=`ls lpub3d-${APP_VERSION}*.pkg.tar.xz`
-if [ -f ${DISTRO_FILE} ] && [ ! -z ${DISTRO_FILE} ]
+echo "8. build application package"
+makepkg --syncdeps --noconfirm --needed
+
+DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.pkg.tar.xz`
+if [ -f ${DISTRO_FILE} ]
 then
-    echo "8. create update and download packages"
-    IFS=- read NAME VERSION BUILD ARCH_EXTENSION <<< ${DISTRO_FILE}
-    cp -f ${DISTRO_FILE} "lpub3d-${APP_VERSION_LONG}_${BUILD}_${ARCH_EXTENSION}"
-    echo "    Download package: lpub3d_${APP_VERSION_LONG}_${BUILD}_${ARCH_EXTENSION}"
+    echo "9. create update and download packages"
+    IFS=- read PKG_NAME PKG_VERSION BUILD PKG_EXTENSION <<< ${DISTRO_FILE}
 
-    mv ${DISTRO_FILE} "LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
-    echo "      Update package: LPub3D-UpdateMaster_${VERSION}_${ARCH_EXTENSION}"
+    cp -f ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}-${PKG_EXTENSION}"
+    echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}-${PKG_EXTENSION}"
+
+    mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_VERSION}-${PKG_EXTENSION}"
+    echo "    Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}-${PKG_EXTENSION}"
 else
-    echo "8. package ${DISTRO_FILE} not found."
+    echo "9. package ${DISTRO_FILE} not found."
 fi
 
-echo "$ME Finished!"
-mv $LOG "${CWD}/pkgbuild/$ME.log"
+# Elapsed execution time
+FinishElapsedTime

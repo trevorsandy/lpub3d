@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2017 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2018 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -56,6 +56,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   ui.ldrawPath->setText(                            ldrawPath);
   ui.pliName->setText(                              Preferences::pliFile);
+  ui.altLDConfigPath->setText(                      Preferences::altLDConfigPath);
+  ui.altLDConfigBox->setChecked(                    Preferences::altLDConfigPath != "");
   ui.pliBox->setChecked(                            Preferences::pliFile != "");
   ui.ldglitePath->setText(                          Preferences::ldgliteExe);
   ui.ldgliteBox->setChecked(                        Preferences::ldgliteExe != "");
@@ -125,7 +127,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
       ui.textEditSearchDirs->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
       ui.textEditSearchDirs->setToolTip("Read only list of LDraw.ini search directories.");
     } else {
-      ui.textEditSearchDirs->setToolTip("Editable list of search directories.");
+      ui.textEditSearchDirs->setToolTip("Editable list of search directories - add or edit search paths");
       ui.textEditSearchDirs->setStatusTip("Added directories must be under the Unofficial directory.");
       ui.lineEditIniFile->setText(tr("%1")
                                   .arg(Preferences::ldSearchDirs.size() == 0 ?
@@ -135,9 +137,9 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     }
 
   if (Preferences::ldSearchDirs.size() > 0){
-      foreach (QString iniFilePath, Preferences::ldSearchDirs)
-        ui.textEditSearchDirs->append(iniFilePath);
-    }
+      foreach (QString searchDir, Preferences::ldSearchDirs)
+        ui.textEditSearchDirs->append(searchDir);
+  }
 
   connect(ui.textEditSearchDirs, SIGNAL(textChanged()),this, SLOT(pushButtonReset_SetState()));
   //end search dirs
@@ -252,6 +254,25 @@ void PreferencesDialog::on_browseLDraw_clicked()
   ui.ldrawPath->setText(Preferences::ldrawPath);
 }
 
+void PreferencesDialog::on_browseAltLDConfig_clicked()
+{
+#ifdef Q_OS_WIN
+    QString filter(tr("LDraw (*.ldr);;All Files (*.*)"));
+#else
+    QString filter(tr("All Files (*.*)"));
+#endif
+
+    QString result = QFileDialog::getOpenFileName(this, tr("Select LDRaw LDConfig file"),
+                                                  ui.altLDConfigPath->text().isEmpty() ? Preferences::ldrawPath : ui.altLDConfigPath->text(),
+                                                  filter);
+
+    if (!result.isEmpty()) {
+        result = QDir::toNativeSeparators(result);
+        ui.altLDConfigPath->setText(result);
+        ui.altLDConfigBox->setChecked(true);
+    }
+}
+
 void PreferencesDialog::on_browseLGEO_clicked()
 {
 
@@ -318,8 +339,8 @@ void PreferencesDialog::on_pushButtonReset_clicked()
       Preferences::enableFadeStep = ui.fadeStepBox->isChecked();
       partWorkerLDSearchDirs.resetSearchDirSettings();
       ui.textEditSearchDirs->clear();
-      foreach (QString iniFilePath, Preferences::ldSearchDirs)
-        ui.textEditSearchDirs->append(iniFilePath);
+      foreach (QString searchDir, Preferences::ldSearchDirs)
+        ui.textEditSearchDirs->append(searchDir);
 
       box.setIcon (QMessageBox::Information);
       box.setStandardButtons (QMessageBox::Ok);
@@ -342,6 +363,14 @@ void PreferencesDialog::pushButtonReset_SetState()
 QString const PreferencesDialog::ldrawPath()
 {
   return ui.ldrawPath->displayText();
+}
+
+QString const PreferencesDialog::altLDConfigPath()
+{
+  if (ui.altLDConfigBox->isChecked()) {
+    return ui.altLDConfigPath->displayText();
+  }
+  return "";
 }
 
 QString const PreferencesDialog::lgeoPath()
@@ -771,5 +800,23 @@ void PreferencesDialog::on_POVRayBox_clicked(bool checked)
                       "Changes will be reset at next application start? "));
       emit gui->messageSig(true,box.text());
       box.exec();
+  }
+}
+
+void PreferencesDialog::on_altLDConfigBox_clicked(bool checked)
+{
+  if (! checked && ! ui.altLDConfigPath->text().isEmpty()) {
+    QMessageBox box;
+    box.setIcon (QMessageBox::Warning);
+    box.setStandardButtons (QMessageBox::Yes|QMessageBox::Cancel);
+    box.setWindowTitle(tr ("Alternate LDConfig File"));
+    box.setText (tr("This action will remove %1 from your settings.\n"
+                    "Are you sure you want to continue? ")
+                    .arg(ui.altLDConfigPath->text()));
+    emit gui->messageSig(true,box.text());
+    if (box.exec() == QMessageBox::Yes) {
+      ui.altLDConfigPath->clear();
+      ui.altLDConfigBox->setChecked(false);
+    }
   }
 }

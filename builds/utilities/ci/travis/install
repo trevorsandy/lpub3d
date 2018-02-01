@@ -1,0 +1,125 @@
+#!/bin/bash
+#
+# Travis-ci build [install] procedures
+#
+#  Trevor SANDY <trevor.sandy@gmail.com>
+#  Last Update: January 12, 2018
+#  Copyright (c) 2017 - 2018 by Trevor SANDY
+#
+cd $LP3D_BUILD_FOLDER
+
+# source update_config_files.sh"
+_PRO_FILE_PWD_=$PWD/mainApp;
+source builds/utilities/update-config-files.sh
+# Install qt5 on Linux
+if [[ "$TRAVIS_OS_NAME" = "linux" && (("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || \
+     ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true")) && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
+  if [ "$LP3D_QT_BASE" = "52" ]; then sudo apt-get install -qq qt52base; source /opt/qt52/bin/qt52-env.sh; fi;
+  if [ "$LP3D_QT_BASE" = "53" ]; then sudo apt-get install -qq qt53base; source /opt/qt53/bin/qt53-env.sh; fi;
+  if [ "$LP3D_QT_BASE" = "54" ]; then sudo apt-get install -qq qt54base; source /opt/qt54/bin/qt54-env.sh; fi;
+  if [ "$LP3D_QT_BASE" = "55" ]; then sudo apt-get install -qq qt55base; source /opt/qt55/bin/qt55-env.sh; fi;
+  if [ "$LP3D_QT_BASE" = "56" ]; then sudo apt-get install -qq qt56base; source /opt/qt56/bin/qt56-env.sh; fi;
+  if [ "$LP3D_QT_BASE" = "57" ]; then sudo apt-get install -qq qt57base; source /opt/qt57/bin/qt57-env.sh; fi;
+  if [ "$LP3D_QT_BASE" = "58" ]; then sudo apt-get install -qq qt58base; source /opt/qt58/bin/qt58-env.sh; fi;
+  if [ "$LP3D_QT_BASE" = "59" ]; then sudo apt-get install -qq qt59base; source /opt/qt59/bin/qt59-env.sh; fi;
+fi
+# Setup 3rd party base distribution directory
+if [ ! -d "$LP3D_DIST_DIR_BASE" ]; then
+  mkdir -p "$LP3D_DIST_DIR_BASE";
+  if test -d "$LP3D_DIST_DIR_BASE"; then echo "Created 3rd party base dir $LP3D_DIST_DIR_BASE"; fi;
+else
+  echo "Using cached 3rd party base dir $LP3D_DIST_DIR_BASE";
+fi
+# Setup ldraw parts library directory
+if [ ! -d "$LP3D_LDRAW_DIR" ]; then
+  mkdir -p "$LP3D_LDRAW_DIR";
+  if test -d "$LP3D_LDRAW_DIR"; then echo "Created LDraw library $LP3D_LDRAW_DIR"; fi;
+else
+  echo "Using cached LDraw library $LP3D_LDRAW_DIR";
+fi
+# Setup releases directory
+if [ ! -d "$LP3D_RELEASES_DIR" ]; then
+  mkdir -p "${LP3D_RELEASES_DIR}/updates";
+  mkdir -p "${LP3D_RELEASES_DIR}/downloads";
+  mkdir -p "${LP3D_RELEASES_DIR}/logs";
+  if test -d "$LP3D_RELEASES_DIR"; then echo "Created release directory $LP3D_RELEASES_DIR"; fi;
+else
+  echo "Using cached release directory $LP3D_RELEASES_DIR";
+fi
+# Install qt5 on MacOS, download LDraw library archive files, and setup macos 3rd party distribution directory
+if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+  if [[ ("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_MACOS" = "true") ]]; then
+    if [ "$LP3D_QT_BASE" = "55" ]; then
+      brew install qt55;
+      brew link --force qt55;
+    else
+      brew install qt5;
+      brew link --force qt5;
+    fi;
+    wget http://www.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras;
+    wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;
+    if [ ! -d ${HOME}/Library/ldraw ]; then
+      ln -sf "$LP3D_LDRAW_DIR" "${HOME}/Library/ldraw" &&
+      if test -d "${HOME}/Library/ldraw"; then echo "$LP3D_LDRAW_DIR linked to ${HOME}/Library/ldraw"; fi;
+    fi;
+    if [ "$LP3D_BUILD_PKG" = "yes" ]; then
+      [ ! -d "../dmgbuild" ] && mkdir -p ../dmgbuild;
+      export DmgBuildPath=$(cd ../ && echo "$PWD/dmgbuild");
+    fi;
+  fi;
+fi
+# Update docker-engine, docker-compose and define release folder path
+if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+  if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_BUILD_APPIMAGE" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
+    curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" | sudo apt-key add -;
+    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable";
+    sudo apt-get update -qq;
+    sudo apt-get -y install docker-ce;
+    docker version;
+    export DOCKER_COMPOSE_VERSION=1.18.0-rc2;
+    sudo rm /usr/local/bin/docker-compose;
+    curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose;
+    chmod +x docker-compose;
+    sudo mv docker-compose /usr/local/bin;
+    docker-compose version;
+  fi;
+  if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
+    [ ! -d "../appimagebuild" ] && mkdir -p ../appimagebuild;
+    export AppImageBuildPath=$(cd ../ && echo "$PWD/appimagebuild");
+  fi;
+fi
+# setup linux platform-specific 3rd party distribution directory
+if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
+  if [ "$LP3D_BUILD_ARCH2017" = "true" ]; then
+    LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/arch;
+  elif [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
+    LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/fedora;
+  elif [ "$LP3D_BUILD_XENIAL" = "true" ]; then
+    LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/debian;
+  elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
+    LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/macos;
+  else
+    LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/trusty;
+  fi;
+  if [ ! -d "${LP3D_DIST_DIR_PATH}" ]; then
+    mkdir -p "${LP3D_DIST_DIR_PATH}";
+  fi;
+  # Manage 3rd party repository cache - deleting a component will trigger that component's rebuild
+  if [ -n "$LP3D_BUILD_3RD" ]; then
+    LP3D_LDGLITE_DIR=${LP3D_DIST_DIR_PATH}/ldglite-1.3;
+    LP3D_LDVIEW_DIR=${LP3D_DIST_DIR_PATH}/ldview-4.3;
+    LP3D_POVRAY_DIR=${LP3D_DIST_DIR_PATH}/lpub3d_trace_cui-3.8;
+    if [[ "$LP3D_BUILD_LDGLITE" = 1 && -d "$LP3D_LDGLITE_DIR" ]]; then
+      sudo rm -rf "$LP3D_LDGLITE_DIR" && echo "cached $LP3D_LDGLITE_DIR deleted";
+    fi;
+    if [[ "$LP3D_BUILD_LDVIEW" = 1 && -d "$LP3D_LDVIEW_DIR" ]]; then
+      sudo rm -rf "$LP3D_LDVIEW_DIR" && echo "cached $LP3D_LDVIEW_DIR deleted";
+    fi;
+    if [[ "$LP3D_BUILD_POVRAY" = 1 && -d "$LP3D_POVRAY_DIR" ]]; then
+      sudo rm -rf "$LP3D_POVRAY_DIR" && echo "cached $LP3D_POVRAY_DIR deleted";
+    fi;
+  fi;
+fi
+# List global and local 'LP3D_*' environment variables - use 'env' for 'exported' variables
+echo && echo "LP3D* environment variables:" && compgen -v | grep LP3D_ | while read line; do echo $line=${!line};done
+

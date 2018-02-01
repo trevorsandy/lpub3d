@@ -2,12 +2,12 @@
 
 # Create a read-only disk image of the contents of a folder
 # Trevor SANDY
-# Last Update 30 August 2017
+# Last Update December 12 2017
 
-set -e;
+set -e
 
 function pure_version() {
-  echo '1.0.0.3'
+  echo '1.0.0.4'
 }
 
 function version() {
@@ -24,6 +24,8 @@ function usage() {
   echo "      set volume name (displayed in the Finder sidebar and window title)"
   echo "  --volicon icon.icns"
   echo "      set volume icon"
+  echo "  --dmgicon pic.png"
+  echo "      set dmg file icon (create dmg icon from png file)"
   echo "  --background pic.png"
   echo "      set folder background image (provide png, gif, jpg)"
   echo "  --window-pos x y"
@@ -67,6 +69,10 @@ while test "${1:0:1}" = "-"; do
     --volicon)
       VOLUME_ICON_FILE="$2"
       echo "    __VOLUME_ICON_FILE................: ${VOLUME_ICON_FILE}"
+      shift; shift;;
+    --dmgicon)
+      DMG_ICON_FILE="$2"
+      echo "    __DMG_ICON_FILE...................: ${DMG_ICON_FILE}"
       shift; shift;;
     --background)
       BACKGROUND_FILE="$2"
@@ -168,7 +174,7 @@ echo "    __AUX_PATH........................: ${AUX_PATH}"
 # Create the image
 echo "Creating disk image..."
 test -f "${DMG_TEMP_NAME}" && rm -f "${DMG_TEMP_NAME}"
-ACTUAL_SIZE=`du -sm "$SRC_FOLDER" | sed -e 's/	.*//g'`
+ACTUAL_SIZE=`du -sm "$SRC_FOLDER" | sed -e 's/[[:space:]].*//g'`
 DISK_IMAGE_SIZE=$(expr $ACTUAL_SIZE + 20)
 hdiutil create -srcfolder "$SRC_FOLDER" -volname "${VOLUME_NAME}" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -size ${DISK_IMAGE_SIZE}m "${DMG_TEMP_NAME}"
 
@@ -248,11 +254,23 @@ echo "Compressing disk image..."
 hdiutil convert "${DMG_TEMP_NAME}" -format UDZO -imagekey zlib-level=9 -o "${DMG_DIR}/${DMG_NAME}"
 rm -f "${DMG_TEMP_NAME}"
 
-# adding EULA resources
-if [ ! -z "${EULA_RSRC}" -a "${EULA_RSRC}" != "-null-" ]; then
-  echo "adding EULA resources..."
-  REZ_PATH=$(xcrun --find Rez)
-  "${AUX_PATH}/dmg-license.py" --rez "${REZ_PATH}" "${DMG_DIR}/${DMG_NAME}" "${EULA_RSRC}"
+# set the dmg file icon
+if ! test -z "$DMG_ICON_FILE"; then
+  echo "adding dmg file icon from ${DMG_ICON_FILE}..."
+  chmod +x "${AUX_PATH}/dmg-fileicon"
+  "${AUX_PATH}/dmg-fileicon" set "${DMG_DIR}/${DMG_NAME}" "${DMG_ICON_FILE}"
+fi
+
+# checking for Rez.
+REZ_PATH=$(xcrun --find Rez)
+if [ -n $REZ_PATH ]; then
+  # adding EULA resources
+  if [ ! -z "${EULA_RSRC}" -a "${EULA_RSRC}" != "-null-" ]; then
+    echo "adding EULA resources..."
+    "${AUX_PATH}/dmg-license.py" --rez "${REZ_PATH}" "${DMG_DIR}/${DMG_NAME}" "${EULA_RSRC}"
+  fi
+else
+  echo "Warning - could not find 'Rez' developer tool - EULA was not set."
 fi
 
 if [ ! -z "${NOINTERNET}" -a "${NOINTERNET}" == 1 ]; then

@@ -3,32 +3,31 @@ The following people have contributed to components used in LPub3D:
 LPub3D
 Trevor Sandy <trevor.sandy@gmail.com>
 
-LPub
+LDGLite (LDGLite 1.3.3 - 32bit and 64bit ports adapted for LPub3D)
+Trevor Sandy <trevor.sandy@gmail.com>
+
+LDView-OSMesa-CUI (LDView 4.3 Qmake build specifically adapted for LPub3D)
+Trevor Sandy <trevor.sandy@gmail.com>
+
+LPub3D RayTrace-CUI (POV-Ray 3.8 specifically adapted for LPub3D)
+Trevor Sandy <trevor.sandy@gmail.com>
+
+LeoCAD 3D Viewer (LeoCAD version 0.82.1 Rev 1867 specifically adapted for LPub3D)
+Trevor Sandy <trevor.sandy@gmail.com>
+
+LPub4
 Author:
 Kevin Clague <kevin.clague@gmail.com>
 
-Contributors (in alphabetical order):
-Daniele Benedettelli
+LDGlite (< 1.3.2)
+Don Heyse <dheyse@hotmail.com>
 
-LeoCAD
-Author:
-Leonardo Zide <leozide@gmail.com>
+LDView
+Travis Cobb <ldview@gmail.com>
+Peter Bartfai <pbartfai@stardust.hu>
 
-LeoCAD 3D Viewer:
-Trevor Sandy <trevor.sandy@gmail.com>
-
-Contributions (in alphabetical order):
-Christian Höltje <docwhat@gerf.org>
-David Paleino <dapal@debian.org>
-Hubert Figuiere <hub@figuiere.net>
-Joerg Scheurich <rusmufti@helpdesk.bera.rus.uni-stuttgart.de>
-Nicolas Guilbert <nicolas@ange.dk>
-Nicolas Schodet <nico-leocad@ni.fr.eu.org>
-Pat Mahoney <pat7@gmx.net>
-Petter Reinholdtsen <pere@hungry.com>
-Renaud Breard <renaud@islande.net>
-Rodney Rushing <leocad.reg@yenandjen.com>
-Torbjörn Söderstedt <torbjrn@gmail.com>
+POV-Ray
+Persistence of Vision Raytracer Pty. Ltd.
 
 qSLog
 Razvan Petru
@@ -39,17 +38,27 @@ Sergey A. Tachenov
 QSimpleUpdater
 Alex Spataru
 
-Ldglite
-Don Heyse <dheyse@hotmail.com>
-
-LDView (ldraw.ini snippits)
-Travis Cobb <ldview@gmail.com>
-
-L3P / LDraw.ini / ldglite
+LDraw.ini / ldglite
 Lars C. Hassing <SP.lars@AM.hassings.dk>
 
-Linux Open Build Service
+LeoCAD
+Author:
+Leonardo Zide <leozide@gmail.com>
+
+Linux Open Build Service scripts
 Peter Bartfai <pbartfai@stardust.hu>
 
-Linux Porting
+Other Contributors (in alphabetical order):
+Daniele Benedettelli
+
+Dropbox Uploader script
+Andrea Fabrizi <andrea.fabrizi@gmail.com>
+
+Dmg fileicon script
+Michael Klement <mklement0@gmail.com>
+
+Dmg License script
+Jared Hobbs
+
+Linux Porting suggestion
 Milan Vancura

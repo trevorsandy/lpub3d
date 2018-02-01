@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2017 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2018 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -1309,8 +1309,8 @@ Gui::Gui()
 {
     emit Application::instance()->splashMsgSig(QString("35% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 
-    Preferences::renderPreferences();
     Preferences::lgeoPreferences();
+    Preferences::renderPreferences();
     Preferences::publishingPreferences();
     Preferences::exportPreferences();
 
@@ -2074,8 +2074,8 @@ void Gui::createActions()
     editLdviewIniAct->setStatusTip(tr("Edit LDView ini configuration file"));
     connect(editLdviewIniAct, SIGNAL(triggered()), this, SLOT(editLdviewIni()));
 
-    editLdviewPovIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView raytracer image configuration file"), this);
-    editLdviewPovIniAct->setStatusTip(tr("Edit LDView raytracer image configuration file"));
+    editLdviewPovIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView Raytracer (POV-Ray) image configuration file"), this);
+    editLdviewPovIniAct->setStatusTip(tr("Edit LDView Raytracer (POV-Ray) image configuration file"));
     connect(editLdviewPovIniAct, SIGNAL(triggered()), this, SLOT(editLdviewPovIni()));
 
     editPovrayIniAct = new QAction(QIcon(":/resources/editpovrayconf.png"),tr("Edit Raytracer (POV-Ray) ini configuration file"), this);

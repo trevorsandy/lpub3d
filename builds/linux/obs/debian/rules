@@ -1,12 +1,18 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-# Copyright 2017 Trevor SANDY
+# Copyright 2017-2018 Trevor SANDY
 
 # output every command that modifies files on the build system.
-export DH_VERBOSE = 1
+export DH_VERBOSE=1
 
 # use Qt5
 export QT_SELECT=qt5
+
+# for 3rd party apps install
+export LP3D_BUILD_PKG=yes
+
+# get target arch
+LP3D_TARGET_ARCH=`uname -m`
 
 %:
 	dh $@
@@ -15,32 +21,57 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 
-	# Start custom configuration command
-	if [ -f ../SOURCES/complete.zip ] ; then 				\
-		cp ../SOURCES/complete.zip mainApp/extras ; 		\
+	# Start custom configuration commands
+	echo "Current working directory: `pwd`"
+	if [ -f ../SOURCES/complete.zip ]; then \
+		cp ../SOURCES/complete.zip mainApp/extras && echo "LDraw archive library complete.zip copied to $$(readlink -e mainApp/extras)"; \
+		cp ../SOURCES/complete.zip ../ &&	echo "LDraw archive library complete.zip copied to $$(readlink -e ../)"; \
 	else \
-		echo "complete.zip not found!" ; 					\
+		echo "LDraw archive library complete.zip not found at $$(readlink -e ../SOURCES)!"; \
 	fi
-	if [ -f ../SOURCES/lpub3dldrawunf.zip ] ; then 			\
-		cp ../SOURCES/lpub3dldrawunf.zip mainApp/extras ; 	\
+	if [ -f ../SOURCES/lpub3dldrawunf.zip ]; then \
+		cp ../SOURCES/lpub3dldrawunf.zip mainApp/extras && echo "LDraw archive library lpub3dldrawunf.zip copied to $$(readlink -e mainApp/extras)"; \
 	else \
-		echo "lpub3dldrawunf.zip not found!" ; 				\
+		echo "LDraw archive library lpub3dldrawunf.zip not found at $$(readlink -e ../SOURCES)!"; \
 	fi
+	for TarballFile in \
+		../SOURCES/ldglite.tar.gz \
+		../SOURCES/ldview.tar.gz \
+		../SOURCES/povray.tar.gz; do \
+		if [ -f "$${TarballFile}" ]; then \
+			mv -f $${TarballFile} ../ && echo "$$(basename $${TarballFile}) copied to $$(readlink -e ../)"; \
+		fi; \
+	done
+	BINARY_FILE_PATH=$$(readlink -e ../)
+	BINARY_FILE_LIST=builds/linux/obs/debian/source/include-binaries; \
+	sed -i -e "s/__path__/$${BINARY_FILE_PATH}/g" "$${BINARY_FILE_LIST}" \
+		   -e "s/__arch__/${LP3D_TARGET_ARCH}/g" "$${BINARY_FILE_LIST}"; \
+	echo "Updated `pwd`/$${BINARY_FILE_LIST}:\n`cat $${BINARY_FILE_LIST}`"
+	# build 3rd-party renderers
+	export WD=$$(readlink -e ../); \
+	chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 override_dh_auto_configure:
-	if [ `uname -m` = "x86_64" ] ; then						\
-		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb ;	\
+	if [ "${LP3D_TARGET_ARCH}" = "x86_64" ]; then \
+		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -v; \
+		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=deb; \
 	else \
-		/usr/lib/i386-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=deb ; 	\
+		/usr/lib/i386-linux-gnu/qt5/bin/qmake -v; \
+		/usr/lib/i386-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=deb; \
 	fi
-	# End custom configuration command
+	# End custom configuration commands
 	touch configure-stamp
 
 build: configure-stamp
+
+# override and shut down shared library dependency checks
+override_dh_shlibdeps:
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
 
 clean:
 	dh_testdir
 	dh_testroot
 	rm -f configure-stamp
+	dh_lintian
 
 	dh_clean
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 - 2017 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2018 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -148,6 +148,9 @@ void PartWorker::ldsearchDirPreferences(){
       Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
       logError() << QString("Unable to load search directories.");
     }
+    // Set ldview search directories
+    Preferences::setLDViewSearchPaths(true);
+    Preferences::setLDViewSearchPaths(false);
 }
 /*
  * Load LDraw search directories into Preferences.

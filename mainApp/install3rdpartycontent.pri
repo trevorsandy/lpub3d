@@ -1,9 +1,19 @@
 # install 3rd party executables, documents and resources
+if (copy3rdexe|copy3rdexeconfig|copy3rdcontent) {
+    win32: THIRD_PARTY_DEST = $$LPUB3D_INS_CONTENT_PATH
+     macx: THIRD_PARTY_DEST = $$DESTDIR/$${TARGET}.app/Contents/3rdParty
+    message("~~~ 3RD_INSTALL FROM REPO $$THIRD_PARTY_SRC ~~~")
+    unix:!macx {
+        THIRD_PARTY_DEST = $$RESOURCE_DIR/3rdParty
+        message("~~~ 3RD_INSTALL TO EXE DEST $$THIRD_PARTY_EXE_DIR/3rdParty ~~~")
+    }
+    message("~~~ 3RD_INSTALL TO DEST $$THIRD_PARTY_DEST ~~~")
+}
 
 copy3rdexe {
-
     # renderer executables
     CONFIG(release, debug|release) {
+        message("~~~ RELEASE BUILD - 3RD PARTY EXECUTABLES WILL BE INSTALLED ~~~")
         ldglite_ins.files += $$LDGLITE_INS_EXE
         ldglite_ins.path = $$LDGLITE_INS_DIR
 
@@ -25,13 +35,11 @@ copy3rdexe {
             raytracer_ins
         }
     }
-    CONFIG(debug, debug|release) {
-         message("~~~ DEBUG BUILD - 3RD PARTY EXE'S WILL NOT BE INSTALLED ~~~")
-    }
+    CONFIG(debug, debug|release): message("~~~ 3RD PARTY EXECUTABLES WILL NOT BE INSTALLED ~~~")
 }
 
 copy3rdexeconfig {
-
+    message("~~~ 3RD PARTY EXECUTABLE CONFIG FILES WILL BE INSTALLED ~~~")
     win32 {
         raytracer_ins_resources_config.files += \
             $$RAYTRACE_INS_RES/config/$$QT_ARCH/povray.ini \
@@ -49,7 +57,7 @@ copy3rdexeconfig {
         $$LDVIEW_INS_RES/config/LDViewCustomini
     ldview_ins_resources_config.path = $$LDVIEW_INS_RES_DIR/config
 
-        macx{
+        macx {
             QMAKE_BUNDLE_DATA += \
             raytracer_ins_resources_config \
             ldview_ins_resources_config
@@ -61,6 +69,7 @@ copy3rdexeconfig {
 }
 
 copy3rdcontent {
+    message("~~~ 3RD PARTY RESOURCES AND DOCUMENTATION WILL BE INSTALLED ~~~")
     win32: EXT = .txt
     else: EXT =
 
@@ -70,9 +79,11 @@ copy3rdcontent {
         $$LDGLITE_INS_DOC/LICENCE
     ldglite_ins_docs.path = $$LDGLITE_INS_DOC_DIR
 
-    ldglite_ins_resources.files += \
-        $$LDGLITE_INS_RES/set-ldrawdir.command
-    ldglite_ins_resources.path = $$LDGLITE_INS_RES_DIR
+    macx {
+        ldglite_ins_resources.files += \
+            $$LDGLITE_INS_RES/set-ldrawdir.command
+        ldglite_ins_resources.path = $$LDGLITE_INS_RES_DIR
+    }
 
     # ldview contnet
     ldview_ins_docs.files += \
@@ -197,7 +208,6 @@ copy3rdcontent {
     } else {
         INSTALLS += \
         ldglite_ins_docs \
-        ldglite_ins_resources \
         ldview_ins_docs \
         ldview_ins_resources \
         raytracer_ins_docs \

@@ -1,0 +1,93 @@
+#!/bin/bash
+#
+# Travis build [before_install] procedures
+#
+#  Trevor SANDY <trevor.sandy@gmail.com>
+#  Last Update: January 12, 2017
+#  Copyright (c) 2017 - 2018 by Trevor SANDY
+#
+
+# Skip build if the commit message contains [skip travis] or [travis skip]
+echo "$TRAVIS_COMMIT_MESSAGE" | awk '{print tolower($0)}' | grep -E '\[(skip travis|travis skip)\]' \
+&& echo "[skip travis] detected, exiting." \
+&& exit 0 || true
+
+# Build package if commit message contains [build pkg]
+echo "$TRAVIS_COMMIT_MESSAGE" | awk '{print tolower($0)}' | grep -E '\[build pkg.*\]' \
+&& export LP3D_BUILD_PKG=yes \
+&& echo "[build pkg] detected." || true
+
+# Deploy package if pushed tag exists and has a valid format (vN.N.N[_A])
+# Automatically deploy to GitHub Release and Sourceforge.net.
+# Skip Sourceforge.net if git annotation contains [skip sfr]
+LP3D_VALID_DEPLOY_TAG=$(echo "$TRAVIS_TAG" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')
+if [ "$LP3D_VALID_DEPLOY_TAG" = "yes" ]; then
+  echo "Deploy tag detected.";
+  echo "Deploy tag is $TRAVIS_TAG.";
+  echo "Deploy branch is $TRAVIS_BRANCH.";
+  export LP3D_BUILD_PKG=yes;
+  export LP3D_DEPLOY_PKG=yes;
+  echo $(git tag -l -n $TRAVIS_TAG | awk '{print tolower($0)}') | grep -E '\[skip sfr\]' \
+  && export LP3D_SKIP_SF_DEPLOY=yes \
+  && echo "Skip Sourceforge deploy detected." || true;
+elif [ -n "$TRAVIS_TAG" ]; then
+  echo "WARNING - Tag $TRAVIS_TAG detected but is not a valid Deploy Tag. Deploy ingored.";
+fi
+
+# Add private qt repositories
+if [[ "$TRAVIS_OS_NAME" = "linux" && (("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || \
+     ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true")) && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
+  if [ "$LP3D_QT_BASE" = "52" ]; then sudo add-apt-repository ppa:beineri/opt-qt521-trusty -y; fi;
+  if [ "$LP3D_QT_BASE" = "53" ]; then sudo add-apt-repository ppa:beineri/opt-qt532-trusty -y; fi;
+  if [ "$LP3D_QT_BASE" = "54" ]; then sudo add-apt-repository ppa:beineri/opt-qt542-trusty -y; fi;
+  if [ "$LP3D_QT_BASE" = "55" ]; then sudo add-apt-repository ppa:beineri/opt-qt551-trusty -y; fi;
+  if [ "$LP3D_QT_BASE" = "56" ]; then sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y; fi;
+  if [ "$LP3D_QT_BASE" = "57" ]; then sudo add-apt-repository ppa:beineri/opt-qt571-trusty -y; fi;
+  if [ "$LP3D_QT_BASE" = "58" ]; then sudo add-apt-repository ppa:beineri/opt-qt58-trusty  -y; fi;
+  if [ "$LP3D_QT_BASE" = "59" ]; then sudo add-apt-repository ppa:beineri/opt-qt593-trusty -y; fi;
+fi
+# Parse the commit message for 3rd party build override. As 3rd party items are not expected to change often
+# we cache them to speed up the build. If/when it is necessary to build one of the items, we signa with 1 in the commit message.
+# The format is [build pkg 1 1 1] to build all 3rd party itmes. The first position is LDGlite, the second is LDView and the
+# third is LPub3D_Trace (POV-Ray). Alternatively you may choose to build only one of the items in which case the settings would
+# be ...1 0 0 to only build LDGlite. It is also possible to override the cache when just compiling the source by entering
+# 'build 3rdpkg 1 1 1' in the commit message.
+if [ "$LP3D_BUILD_PKG" = "yes" ]; then
+  LP3D_BUILD_3RD=$(echo "$TRAVIS_COMMIT_MESSAGE" | sed -n -e 's/^.*build pkg //p' -e 's/^.*deploy pkg //p' | sed 's/].*//g');
+elif [ "$LP3D_COMPILE_SOURCE" = "true" ]; then
+  LP3D_BUILD_3RD=$(echo "$TRAVIS_COMMIT_MESSAGE" | sed -n -e 's/^.*build 3rdpkg //p');
+fi;
+if [ -n "$LP3D_BUILD_3RD" ]; then
+  export LP3D_BUILD_LDGLITE=$(echo "$LP3D_BUILD_3RD" | cut -d' ' -f 1);
+  export LP3D_BUILD_LDVIEW=$(echo "$LP3D_BUILD_3RD" | cut -d' ' -f 2);
+  export LP3D_BUILD_POVRAY=$(echo "$LP3D_BUILD_3RD" | cut -d' ' -f 3);
+fi
+# Update repository index and download package build dependencies if required
+if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+  if [[ (("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true")) && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
+    sudo apt-get update -qq;
+  fi;
+  export LP3D_DIST_DIR=lpub3d_linux_3rdparty;
+else
+  if [[ "$LP3D_COMPILE_SOURCE" = "true" && "$LP3D_BUILD_PKG" = "" ]]; then
+    brew install ccache;
+    LP3D_EXP_CCACHE_PATH=true;
+  fi;
+  if [[ "$LP3D_BUILD_MACOS" = "true" && "$LP3D_BUILD_PKG" = "yes" ]]; then
+    brew install ccache openexr sdl2 tinyxml gl2ps libtiff libjpeg minizip;
+    LP3D_EXP_CCACHE_PATH=true;
+  fi;
+  if [ "$LP3D_EXP_CCACHE_PATH" = "true" ]; then
+    export PATH="/usr/local/opt/ccache/libexec:$PATH";
+  fi
+  export LP3D_DIST_DIR=lpub3d_macos_3rdparty;
+fi
+# Decrypt and extract encrypted files
+if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
+  [ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || openssl aes-256-cbc -K $encrypted_ad0a5b26bc84_key -iv $encrypted_ad0a5b26bc84_iv -in ${LP3D_SECURE_DIR}/.secrets.tar.enc -out /tmp/.secrets.tar -d;
+  if [ -f "/tmp/.secrets.tar" ]; then
+    echo "Extracting secrets..." && tar xvf /tmp/.secrets.tar -C /tmp/;
+  else
+    echo "ERROR - /tmp/.secrets.tar file not found - cannot perform secure transfers";
+  fi;
+fi

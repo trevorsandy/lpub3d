@@ -1,27 +1,30 @@
 <services>
   <service name="tar_scm">
-    <param name="url">git://github.com/trevorsandy/lpub3d</param>
-    <param name="scm">git</param>
-    <param name="exclude">lc_lib/tools</param>
-    <param name="exclude">builds/linux/standard</param>
-    <param name="exclude">builds/windows</param>
-    <param name="exclude">builds/macx</param>
-    <param name="exclude">.travis.yml</param>
-    <param name="exclude">.gitignore</param>	  
-    <param name="exclude">.gitattributes</param>
-    <param name="exclude">.git</param>
-    <param name="exclude">LPub3D.pro.user</param>
-    <param name="exclude">README.md</param>
-    <param name="exclude">_config.yml</param>		  
-    <param name="version">git-master</param>
-    <param name="versionformat">git</param>
-    <param name="filename">lpub3d</param>
+      <param name="url">git://github.com/trevorsandy/lpub3d</param>
+      <param name="scm">git</param>
+      <param name="exclude">lc_lib/tools</param>
+      <param name="exclude">builds/utilities/cert</param>
+      <param name="exclude">builds/utilities/ci</param>
+      <param name="exclude">builds/utilities/dmg-utils</param>
+      <param name="exclude">builds/utilities/hooks</param>
+      <param name="exclude">builds/utilities/json</param>
+      <param name="exclude">builds/utilities/nsis-scripts</param>
+      <param name="exclude">builds/linux/docker-compose</param>
+      <param name="exclude">builds/linux/standard</param>
+      <param name="exclude">builds/windows</param>
+      <param name="exclude">builds/macx</param>
+      <param name="exclude">.travis.yml</param>
+      <param name="exclude">.gitignore</param>
+      <param name="exclude">.gitattributes</param>
+      <param name="exclude">.git</param>
+      <param name="exclude">LPub3D.pro.user</param>
+      <param name="exclude">README.md</param>
+      <param name="exclude">_config.yml</param>
+      <param name="exclude">appveyor.yml</param>
+      <param name="version">git-master</param>
+      <param name="versionformat">git</param>
+      <param name="filename">lpub3d</param>
   </service>
-  <service name="extract_file">
-      <param name="archive">*.tar</param>
-      <param name="files">*/builds/linux/obs/debian/changelog</param>
-      <param name="outfilename">debian.changelog</param>
-  </service>  
   <service name="extract_file">
       <param name="archive">*.tar</param>
       <param name="files">*/builds/linux/obs/debian/compat</param>
@@ -29,14 +32,19 @@
   </service>
   <service name="extract_file">
       <param name="archive">*.tar</param>
-      <param name="files">*/builds/linux/obs/debian/control</param>
-      <param name="outfilename">debian.control</param>
+      <param name="files">*/builds/linux/obs/debian/copyright</param>
+      <param name="outfilename">debian.copyright</param>
   </service>
   <service name="extract_file">
       <param name="archive">*.tar</param>
-      <param name="files">*/builds/linux/obs/debian/copyright</param>
-      <param name="outfilename">debian.copyright</param>
-  </service>  
+      <param name="files">*/builds/linux/obs/debian/postrm</param>
+      <param name="outfilename">debian.postrm</param>
+  </service>
+  <service name="extract_file">
+      <param name="archive">*.tar</param>
+      <param name="files">*/builds/linux/obs/debian/postinst</param>
+      <param name="outfilename">debian.postinst</param>
+  </service>
   <service name="extract_file">
       <param name="archive">*.tar</param>
       <param name="files">*/builds/linux/obs/debian/rules</param>
@@ -44,11 +52,27 @@
   </service>
   <service name="extract_file">
       <param name="archive">*.tar</param>
-      <param name="files">*/builds/linux/obs/debian/lpub3d.dsc
-                          */builds/linux/obs/lpub3d.spec
-                          */builds/linux/obs/lpub3d.spec.git.version
-                          */mainApp/images/lpub3d.xpm
-						  */builds/linux/obs/PKGBUILD
+      <param name="files">*/builds/linux/obs/alldeps/debian/changelog</param>
+      <param name="outfilename">debian.changelog</param>
+  </service>
+  <service name="extract_file">
+      <param name="archive">*.tar</param>
+      <param name="files">*/builds/linux/obs/alldeps/debian/control</param>
+      <param name="outfilename">debian.control</param>
+  </service>
+  <service name="extract_file">
+      <param name="archive">*.tar</param>
+      <param name="files">*/builds/linux/obs/debian/source/format</param>
+      <param name="outfilename">debian.source.format</param>
+  </service>
+  <service name="extract_file">
+      <param name="archive">*.tar</param>
+      <param name="files">*/mainApp/images/lpub3d.xpm
+                          */builds/linux/obs/lpub3d-rpmlintrc
+                          */builds/linux/obs/alldeps/appimage.yml
+                          */builds/linux/obs/alldeps/debian/lpub3d.dsc
+                          */builds/linux/obs/alldeps/lpub3d.spec
+                          */builds/linux/obs/alldeps/PKGBUILD
       </param>
   </service>
   <service name="recompress">
@@ -56,14 +80,56 @@
     <param name="compression">gz</param>
   </service>
   <service name="download_url">
-    <param name="protocol">http</param>
-    <param name="host">www.ldraw.org</param>
-    <param name="path">/library/updates/complete.zip</param>
+    <param name="protocol">https</param>
+    <param name="host">github.com</param>
+    <param name="path">/trevorsandy/ldview/archive/qmake-build.tar.gz</param>
+    <param name="filename">ldview.tar.gz</param>
   </service>
   <service name="download_url">
-    <param name="protocol">http</param>
-    <param name="host">www.ldraw.org</param>
-    <param name="path">/library/unofficial/ldrawunf.zip</param>
-    <param name="filename">lpub3dldrawunf.zip</param>
+    <param name="protocol">https</param>
+    <param name="host">github.com</param>
+    <param name="path">/trevorsandy/ldglite/archive/master.tar.gz</param>
+    <param name="filename">ldglite.tar.gz</param>
+  </service>
+  <service name="download_url">
+    <param name="protocol">https</param>
+    <param name="host">github.com</param>
+    <param name="path">/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz</param>
+    <param name="filename">povray.tar.gz</param>
+  </service>
+  <service name="download_url">
+    <param name="protocol">https</param>
+    <param name="host">github.com</param>
+    <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/qt5-5.9.3-gcc_64-el.tar.gz</param>
+    <param name="filename">qt5-5.9.3-gcc_64-el.tar.gz</param>
+  </service>
+  <service name="download_url">
+    <param name="protocol">https</param>
+    <param name="host">github.com</param>
+    <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/locallibs.el.x86_64.tar.gz</param>
+    <param name="filename">locallibs.el.x86_64.tar.gz</param>
+  </service>
+  <service name="download_url">
+   <param name="protocol">http</param>
+   <param name="host">www.ldraw.org</param>
+   <param name="path">/library/unofficial/ldrawunf.zip</param>
+   <param name="filename">lpub3dldrawunf.zip</param>
+  </service>
+  <service name="download_url">
+   <param name="protocol">http</param>
+   <param name="host">www.ldraw.org</param>
+   <param name="path">/library/updates/complete.zip</param>
+  </service>
+  <service name="download_url">
+   <param name="protocol">ftp</param>
+   <param name="host">ftp.freedesktop.org</param>
+   <param name="path">/pub/mesa/mesa-17.2.6.tar.gz</param>
+   <param name="filename">mesa-17.2.6.tar.gz</param>
+  </service>
+  <service name="download_url">
+   <param name="protocol">ftp</param>
+   <param name="host">ftp.freedesktop.org</param>
+   <param name="path">/pub/mesa/glu/glu-9.0.0.tar.bz2</param>
+   <param name="filename">glu-9.0.0.tar.bz2</param>
   </service>
 </services>

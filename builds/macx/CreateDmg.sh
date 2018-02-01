@@ -1,157 +1,238 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update 28 August 2017
+# Last Update January 25, 2017
 # To run:
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
 
+# Capture elapsed time - reset BASH time counter
+SECONDS=0
+FinishElapsedTime() {
+  # Elapsed execution time
+  ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+  echo "----------------------------------------------------"
+  echo "$ME Finished!"
+  echo "$ELAPSED"
+  echo "----------------------------------------------------"
+}
+
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
-BUILD_DATE=`date "+%Y%m%d"`
-# logging stuff
-# increment log file name
-f="${CWD}/$ME"
-ext=".log"
-if [[ -e "$f$ext" ]] ; then
+
+echo "Start $ME execution at $CWD..."
+
+# Fake realpath
+realpath() {
+  OURPWD=$PWD
+  cd "$(dirname "$1")"
+  LINK=$(readlink "$(basename "$1")")
+  while [ "$LINK" ]; do
+    cd "$(dirname "$LINK")"
+    LINK=$(readlink "$(basename "$1")")
+  done
+  REALPATH_="$PWD/$(basename "$1")"
+  cd "$OURPWD"
+  echo "$REALPATH_"
+}
+
+# Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
+LPUB3D="${LPUB3D:-lpub3d}"
+echo && echo "   LPUB3D SOURCE DIR......[$(realpath .)]"
+if [ "$BUILD_OPT" = "compile" ]; then
+  echo "   BUILD OPTION...........[comple only]"
+else
+  echo "   BUILD OPTION...........[build package]"
+fi
+
+# tell curl to be silent, continue downloads and follow redirects
+curlopts="-sL -C -"
+
+# when running locally, use this block...
+if [ "${TRAVIS}" != "true"  ]; then
+  # logging stuff
+  # increment log file name
+  f="${CWD}/$ME"
+  ext=".log"
+  if [[ -e "$f$ext" ]] ; then
     i=1
     f="${f%.*}";
     while [[ -e "${f}_${i}${ext}" ]]; do
-        let i++
+      let i++
     done
     f="${f}_${i}${ext}"
+  else
+    f="${f}${ext}"
+  fi
+  # output log file
+  LOG="$f"
+  exec > >(tee -a ${LOG} )
+  exec 2> >(tee -a ${LOG} >&2)
+
+  # use this instance of Qt if exist - this entry is my dev machine, change accordingly
+  if [ "${TRAVIS}" != "true" ]; then
+    if [ -d ~/Qt/IDE/5.10.0/clang_64 ]; then
+      export PATH=~/Qt/IDE/5.10.0/clang_64:~/Qt/IDE/5.10.0/clang_64/bin:$PATH
+    else
+      echo "PATH not udpated with Qt location, could not find ${HOME}/Qt/IDE/5.9/clang_64"
+    fi
+  fi
+
+  echo
+  echo "Enter d to download LPub3D source or any key to"
+  echo "skip download and use existing source if available."
+  read -n 1 -p "Do you want to continue with this option? : " getsource
+
 else
-   f="${f}${ext}"
+  # For Travis CI, use this block (script called from clone directory - lpub3d)
+  # getsource = downloaded source variable; 'c' = copy flag, 'd' = download flag
+  getsource=c
+  # move outside clone directory (lpub3d)/
+  cd ../
 fi
-# output log file
-LOG="$f"
-exec > >(tee -a ${LOG} )
-exec 2> >(tee -a ${LOG} >&2)
 
-echo "Start $ME..."
-export PATH=~/Qt/IDE/5.7/clang_64:~/Qt/IDE/5.7/clang_64/bin:$PATH
-
-echo
-echo "Enter n to download source or any key "
-echo "to use existing source if available."
-read -n 1 -p "Do you want to continue with these options? : " input
-echo
-
-echo "1. create DMG build working directory"
+echo "-  create DMG build working directory $(realpath dmgbuild/)..."
 if [ ! -d dmgbuild ]
 then
-    mkdir dmgbuild
+  mkdir dmgbuild
 fi
+
 cd dmgbuild
 
-if [ ! -d lpub3d_macos_3rdparty ]
+if [ "$getsource" = "d" ] || [ "$getsource" = "D" ]
 then
-    echo "2a. download lpub3d 3rd party renderers"
-    git clone https://github.com/trevorsandy/lpub3d_macos_3rdparty.git
+  echo "-  you selected download LPub3D source."
+  echo "-  cloning ${LPUB3D}/ to $(realpath dmgbuild/)..."
+  if [ -d ${LPUB3D} ]; then
+    rm -rf ${LPUB3D}
+  fi
+  git clone https://github.com/trevorsandy/${LPUB3D}.git
+elif [ "$getsource" = "c" ] || [ "$getsource" = "C" ] || [ ! -d ${LPUB3D} ]
+then
+  echo "-  copying ${LPUB3D}/ to $(realpath dmgbuild/)..."
+  if [ ! -d ../${LPUB3D} ]; then
+    echo "-  NOTICE - Could not find folder $(realpath ../${LPUB3D}/)"
+    if [ -d ${LPUB3D} ]; then
+       rm -rf ${LPUB3D}
+    fi
+    echo "-  cloning ${LPUB3D}/ to $(realpath dmgbuild/)..."
+    git clone https://github.com/trevorsandy/${LPUB3D}.git
   else
-    echo "2a. renderer folder exist. skipping download"
-fi
-
-if [ -d lpub3d ] && [ "$input" = "n" ] || [ "$input" = "N" ]
-then
-    echo "2b. download lpub3d source"
-    rm -rf lpub3d
-    git clone https://github.com/trevorsandy/lpub3d.git
-  else
-    echo "2b. lpubsource exist skipping download"
-fi
-
-echo "2c. checkout integrate-renderers"
-cd lpub3d
-## TEMPERARY ##
-#git checkout integrate-renderers
-
-echo "3. capture version and date info"
-#         1 2  3  4   5       6    7  8  9       10
-# format "2 0 20 17 663 410fdd7 2017 02 12 19:50:21"
-FILE="builds/utilities/version.info"
-if [ -f ${FILE} -a -r ${FILE} ]
-then
-    VERSION_INFO=`cat ${FILE}`
+    cp -rf ../${LPUB3D}/ ./${LPUB3D}/
+  fi
 else
-    echo "Error: Cannot read ${FILE} from `pwd`"
-    echo "$ME terminated!"
-    exit 1
+  echo "-  ${LPUB3D}/ exist. skipping download"
 fi
-read VER_MAJOR VER_MINOR VER_PATCH VER_REVISION  VER_BUILD VER_SHA_HASH <<< ${VERSION_INFO//'"'}
-VERSION=${VER_MAJOR}"."${VER_MINOR}"."${VER_PATCH}
-APP_VERSION=${VERSION}"."${VER_BUILD}
-APP_VERSION_LONG=${VERSION}"."${VER_REVISION}"."${VER_BUILD}_${BUILD_DATE}
-#echo "WORK_DIR..........${WORK_DIR}"
-echo "VER_MAJOR.........${VER_MAJOR}"
-echo "VER_MINOR.........${VER_MINOR}"
-echo "VER_PATCH.........${VER_PATCH}"
-echo "VER_REVISION......${VER_REVISION}"
-echo "VER_BUILD.........${VER_BUILD}"
-echo "VER_SHA_HASH......${VER_SHA_HASH}"
-echo "VERSION...........${VERSION}"
-echo "APP_VERSION.......${APP_VERSION}"
-echo "APP_VERSION_LONG..${APP_VERSION_LONG}"
-echo "BUILD_DATE........${BUILD_DATE}"
+
+echo "-  source update_config_files.sh..." && echo
+_PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
+source ${LPUB3D}/builds/utilities/update-config-files.sh
+SOURCE_DIR=${LPUB3D}-${LP3D_VERSION}
+
+# set pwd before entering lpub3d root directory
+export OBS=false; export WD=$PWD; export LPUB3D=${LPUB3D}
+
+echo "-  execute CreateRenderers from $(realpath ${LPUB3D}/)..."
+cd ${LPUB3D}
+
+chmod +x builds/utilities/CreateRenderers.sh
+./builds/utilities/CreateRenderers.sh
 
 if [ ! -f "mainApp/extras/complete.zip" ]
 then
-  echo "4a. get ldraw official library archive"
-  curl "http://www.ldraw.org/library/updates/complete.zip" -o "mainApp/extras/complete.zip"
+  if [ -f "${HOME}/Library/complete.zip" ]
+  then
+    echo "-  copy ldraw official library archive from ${HOME}/Library/ to $(realpath mainApp/extras/)..."
+    cp -f "${HOME}/Library/complete.zip" "mainApp/extras/complete.zip"
+  else
+    echo "-  download ldraw official library archive to $(realpath mainApp/extras/)..."
+    curl $curlopts http://www.ldraw.org/library/updates/complete.zip -o mainApp/extras/complete.zip
+  fi
+else
+  echo "-  ldraw official library exist. skipping download"
 fi
 if [ ! -f "mainApp/extras/lpub3dldrawunf.zip" ]
 then
-  echo "4b. get ldraw unofficial library archive"
-  curl "http://www.ldraw.org/library/unofficial/ldrawunf.zip" -o "mainApp/extras/lpub3dldrawunf.zip"
+  echo "-  download ldraw unofficial library archive to $(realpath mainApp/extras/)..."
+  curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o mainApp/extras/lpub3dldrawunf.zip
+else
+  echo "-  ldraw unofficial library exist. skipping download"
 fi
 
-echo "5. configure source"
-qmake LPub3D.pro -spec macx-clang CONFIG+=x86_64 && /usr/bin/make qmake_all
+echo && echo "-  configure and build source from $(realpath .)..."
+#qmake LPub3D.pro -spec macx-clang CONFIG+=x86_64 /usr/bin/make qmake_all
+echo && qmake -v && echo
+qmake CONFIG+=x86_64 CONFIG+=release CONFIG-=debug_and_release CONFIG+=dmg
+/usr/bin/make
 
-echo "6. build source"
-make
+# Check if build is OK or stop and return error.
+if test $(uname -m) = x86_64; then release="64bit_release"; else release="32bit_release"; fi
+if [ ! -d "mainApp/$release/LPub3D.app" ]; then
+  echo "ERROR - build output at $(realpath mainApp/$release/LPub3D.app/) not found."
+  ElapsedTime
+  exit 1
+# Stop here if we are only compiling
+elif [ "$BUILD_OPT" = "compile" ]; then
+  ElapsedTime
+  exit 0
+else
+  # run otool -L on LPub3D.ap
+  echo && echo "otool -L check LPub3D.app/Contents/MacOS/LPub3D..." && \
+  otool -L mainApp/$release/LPub3D.app/Contents/MacOS/LPub3D 2>/dev/null || \
+  Info "ERROR - otool -L check LPub3D.app/Contents/MacOS/LPub3D - failed."
+fi
 
-echo "7. copy LPub3D bundle components"
+# create dmg environment - begin #
+#
 cd builds/macx
-if [ -d LPub3D.app ]
-then
-    rm -R LPub3D.app
-fi
-cp ../../mainApp/lpub3d.icns .
-cp ../utilities/icons/lpub3dbkg.png .
-cp -R ../../mainApp/release/LPub3D.app .
 
-echo "8. install library links"
+echo "- copy ${LPUB3D} bundle components to $(realpath .)..."
+cp -rf ../../mainApp/$release/LPub3D.app .
+cp -f ../utilities/icons/lpub3d.icns .
+cp -f ../utilities/icons/setup.png .
+cp -f ../utilities/icons/lpub3dbkg.png .
+cp -f ../../mainApp/docs/COPYING_BRIEF .COPYING
+
+echo "- set scrpt permissions..."
+chmod +x ../utilities/create-dmg
+chmod +x ../utilities/dmg-utils/dmg-license.py
+
+echo "- install library links..."
 /usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Libs/libLDrawIni.16.dylib
 /usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Libs/libQuaZIP.0.dylib
 
-echo "9. change mapping to LPub3D"
+echo "- change mapping to LPub3D..."
 /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/MacOS/LPub3D
 /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/MacOS/LPub3D
 
-echo "10. bundle LPub3D"
+echo "- bundle LPub3D..."
 macdeployqt LPub3D.app -verbose=1 -executable=LPub3D.app/Contents/MacOS/LPub3D -always-overwrite
 
-echo "11. change library dependency mapping"
+echo "- change library dependency mapping..."
 /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 
-echo "12. generate lpub3d.json and README.txt"
-cat <<EOF >lpub3d.json
-{
-  "title": "LPub3D ${APP_VERSION}",
-  "icon": "lpub3d.icns",
-  "background": "lpub3dbkg.png",
-  "contents": [
-    { "x": 448, "y": 344, "type": "link", "path": "/Applications" },
-    { "x": 192, "y": 344, "type": "file", "path": "LPub3D.app" },
-    { "x": 512, "y": 128, "type": "file", "path": "README.txt" },
-    { "x": 512, "y": 900, "type": "position", "path": ".VolumeIcon.icns" }
-  ]
-}
-EOF
+echo "- setup dmg source dir $(realpath DMGSRC/)..."
+if [ -d DMGSRC ]
+then
+  rm -f -R DMGSRC
+fi
+mkdir DMGSRC
 
-cat <<EOF >README.txt
-Thank you for installing LPub3D v${APP_VERSION} for OSX".
+echo "- move LPub3D.app to $(realpath DMGSRC/)..."
+mv -f LPub3D.app DMGSRC/LPub3D.app
+
+echo "- setup dmg output directory $(realpath ../../../DMGS/)..."
+DMGDIR=../../../DMGS
+if [ -d ${DMGDIR} ]
+then
+  rm -f -R ${DMGDIR}
+fi
+mkdir -p ${DMGDIR}
+
+# pos: builds/macx
+echo "- generate README file and dmg make script..."
+cat <<EOF >README
+Thank you for installing LPub3D v${APP_VERSION} for macOS".
 
 Drag the LPub3D Application icon to the Applications folder.
 
@@ -159,24 +240,49 @@ After installation, remove the mounted LPub3D disk image by dragging it to the T
 
 Cheers,
 EOF
+echo "- generate makedmg script..."
+cat <<EOF >makedmg
+#!/bin/bash
+../utilities/create-dmg \\
+--volname "LPub3D Installer" \\
+--volicon "lpub3d.icns" \\
+--dmgicon "setup.png" \\
+--background "lpub3dbkg.png" \\
+--icon-size 90 \\
+--text-size 10 \\
+--window-pos 200 120 \\
+--window-size 640 480 \\
+--icon LPub3D.app 192 344 \\
+--hide-extension LPub3D.app \\
+--custom-icon Readme README 512 128 \\
+--app-drop-link 448 344 \\
+--eula .COPYING \\
+"${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg" \\
+DMGSRC/
+EOF
 
-echo "13. create dmg packages"
-DMGDIR=../../../DMGS
-if [ -d ${DMGDIR} ]
-then
-    rm -R ${DMGDIR}
+echo "- create dmg packages in $(realpath $DMGDIR/)..."
+if [ -d DMGSRC/LPub3D.app ]; then
+   chmod +x makedmg && ./makedmg
+else
+  echo "- Could not find LPub3D.app at $(realpath DMGSRC/)"
+  echo "- $ME Failed."
+  ElapsedTime
+  exit 1
 fi
 
-mkdir ${DMGDIR}
-echo "    Download package: LPub3D_${APP_VERSION_LONG}_osx.dmg"
-/usr/local/bin/appdmg lpub3d.json "${DMGDIR}/LPub3D_${APP_VERSION_LONG}_osx.dmg"
+if [ -f "${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg" ]; then
+  cp -f "${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg" "${DMGDIR}/LPub3D-UpdateMaster_${LP3D_VERSION}-macos.dmg"
+  echo "      Download package..: LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg"
+  echo "      Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}-macos.dmg"
 
-echo "      Update package: LPub3D-UpdateMaster_${VERSION}_osx.dmg"
-cp "${DMGDIR}/LPub3D_${APP_VERSION_LONG}_osx.dmg" "${DMGDIR}/LPub3D-UpdateMaster_${VERSION}_osx.dmg"
+  echo "- cleanup..."
+  rm -f -R DMGSRC
+  rm -f lpub3d.icns lpub3dbkg.png setup.png README .COPYING makedmg
+else
+  echo "- ${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg was not found."
+  echo "- $ME Failed."
+fi
 
-echo "14. cleanup"
-rm -R LPub3D.app
-rm lpub3d.icns README.txt lpub3d.json lpub3dbkg.png
-
-echo "$ME Finished!"
-# mv $LOG "${CWD}/dmgbuild/$ME.log"
+# Elapsed execution time
+FinishElapsedTime

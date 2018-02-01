@@ -1,16 +1,17 @@
 macx {
 
-    ICON = lpub3d.icns
+    #ICON = lpub3d.icns
+    ICON = $$lower($$join(DIST_TARGET,,,.icns))
     QMAKE_INFO_PLIST = Info.plist
 
     # libraries
     CONFIG(release, debug|release) {
         libquazip.files += \
-            $$DESTDIR/../../quazip/release/libQuaZIP.0.dylib
+            $$DESTDIR/../../quazip/$$join(ARCH,,,bit_release)/libQuaZIP.0.dylib
         libquazip.path = Contents/Libs
 
         libldrawini.files += \
-            $$DESTDIR/../../ldrawini/release/libLDrawIni.16.dylib
+            $$DESTDIR/../../ldrawini/$$join(ARCH,,,bit_release)/libLDrawIni.16.dylib
         libldrawini.path = Contents/Libs
 
         QMAKE_BUNDLE_DATA += \
@@ -87,8 +88,7 @@ macx {
     # Additionally, when using QtCreator be sure 'Shadow Build' is enabled.
     #
     # source path
-    isEmpty(THIRD_PARTY_SRC):THIRD_PARTY_SRC = $$_PRO_FILE_PWD_/../../lpub3d_macos_3rdparty
-    message("~~~ INSTALL 3RD PARTY APPS FROM REPO $$THIRD_PARTY_SRC ~~~")
+    isEmpty(THIRD_PARTY_SRC):THIRD_PARTY_SRC = $$THIRD_PARTY_DIST_DIR_PATH
 
     # source executables - 3rd party components
     isEmpty(LDGLITE_INS_EXE):LDGLITE_INS_EXE   = $$THIRD_PARTY_SRC/$$VER_LDGLITE/bin/$$QT_ARCH/ldglite

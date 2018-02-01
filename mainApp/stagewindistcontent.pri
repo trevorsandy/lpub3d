@@ -6,11 +6,13 @@ win32: stagewindistcontent {
     # 32bit and 64bit
     target.path = $$LPUB3D_STG_PATH
 
+    # On Windows we continue to build dynamic (.dll) libs for LDrawini and QuaZip
+    # because - for the life of me - I can't get statically built libs to link:-(
     lpub3d_libs.files += \
-        $$LPUB3D_STG_LIBS/ldrawini/$$DIST/LDrawIni161.dll
+        $$LPUB3D_STG_LIBS/ldrawini/$$join(ARCH,,,bit_$$DIST)/LDrawIni161.dll
     !quazipnobuild {
         lpub3d_libs.files += \
-            $$LPUB3D_STG_LIBS/quazip/$$DIST/QuaZIP07.dll
+            $$LPUB3D_STG_LIBS/quazip/$$join(ARCH,,,bit_$$DIST)/QuaZIP07.dll
     }
     lpub3d_libs.path = $$LPUB3D_STG_PATH
 
@@ -122,171 +124,179 @@ win32: stagewindistcontent {
 
     # stage 3rd party executables, documents and resources
 
-    # renderer executables
-    CONFIG(release, debug|release) {
-        release: message("~~~ RELEASE BUILD - 3RD PARTY EXEs STAGED TO: $$LPUB3D_STG_3RD_PATH ~~~")
-        ldglite_stg.files += $$LDGLITE_INS_EXE
-        ldglite_stg.path = $$LDGLITE_STG_DIR
+    stage3rdexe {
+        # renderer executables
+        CONFIG(release, debug|release) {
+            release: message("~~~ RELEASE BUILD - 3RD PARTY EXEs STAGED TO: $$LPUB3D_STG_3RD_PATH ~~~")
+            ldglite_stg.files += $$LDGLITE_INS_EXE
+            ldglite_stg.path = $$LDGLITE_STG_DIR
 
-        ldview_stg.files += $$LDVIEW_INS_EXE
-        ldview_stg.path = $$LDVIEW_STG_DIR
+            ldview_stg.files += $$LDVIEW_INS_EXE
+            ldview_stg.path = $$LDVIEW_STG_DIR
 
-        raytracer_stg.files += $$RAYTRACE_INS_EXE
-        raytracer_stg.path = $$RAYTRACE_STG_DIR
+            raytracer_stg.files += $$RAYTRACE_INS_EXE
+            raytracer_stg.path = $$RAYTRACE_STG_DIR
+
+            INSTALLS += \
+            ldglite_stg \
+            ldview_stg \
+            raytracer_stg
+
+        }
+        CONFIG(debug, debug|release): message("~~~ 3RD PARTY EXECUTABLES WILL NOT BE STAGED ~~~")
+    }
+
+    stage3rdexeconfig {
+        message("~~~ 3RD PARTY EXECUTABLE CONFIG FILES WILL BE STAGED ~~~")
+        # renderer configuration
+        raytracer_stg_resources_config.files += \
+            $$RAYTRACE_INS_RES/config/$$QT_ARCH/povray.conf \
+            $$RAYTRACE_INS_RES/config/$$QT_ARCH/povray.ini
+        raytracer_stg_resources_config.path = $$RAYTRACE_STG_RES_DIR/config
+
+        ldview_stg_resources_config.files += \
+            $$LDVIEW_INS_RES/config/ldview.ini \
+            $$LDVIEW_INS_RES/config/ldviewPOV.ini \
+            $$LDVIEW_INS_RES/config/LDViewCustomini
+        ldview_stg_resources_config.path = $$LDVIEW_STG_RES_DIR/config
 
         INSTALLS += \
-        ldglite_stg \
-        ldview_stg \
-        raytracer_stg
-
+        raytracer_stg_resources_config \
+        ldview_stg_resources_config
     }
-    debug: message("~~~ DEBUG BUILD - 3RD PARTY EXEs NOT STAGED ~~~")
 
-    # renderer configuration
-    raytracer_stg_resources_config.files += \
-        $$RAYTRACE_INS_RES/config/$$QT_ARCH/povray.conf \
-        $$RAYTRACE_INS_RES/config/$$QT_ARCH/povray.ini
-    raytracer_stg_resources_config.path = $$RAYTRACE_STG_RES_DIR/config
+    stage3rdcontent {
+        message("~~~ 3RD PARTY RESOURCES AND DOCUMENTATION WILL BE STAGED ~~~")
+        # renderer content and documentation
 
-    ldview_stg_resources_config.files += \
-        $$LDVIEW_INS_RES/config/ldview.ini \
-        $$LDVIEW_INS_RES/config/ldviewPOV.ini \
-        $$LDVIEW_INS_RES/config/LDViewCustomini
-    ldview_stg_resources_config.path = $$LDVIEW_STG_RES_DIR/config
+        # ldglite content
+        ldglite_stg_docs.files += \
+            $$LDGLITE_INS_DOC/README.TXT \
+            $$LDGLITE_INS_DOC/LICENCE
+        ldglite_stg_docs.path = $$LDGLITE_STG_DOC_DIR
 
-    INSTALLS += \
-    raytracer_stg_resources_config \
-    ldview_stg_resources_config
+        ldglite_stg_resources.files += \
+            $$LDGLITE_INS_RES/set-ldrawdir.command
+        ldglite_stg_resources.path = $$LDGLITE_STG_RES_DIR
 
-    # renderer content and documentation
+        # ldview contnet
+        ldview_stg_docs.files += \
+            $$LDVIEW_INS_DOC/ChangeHistory.html \
+            $$LDVIEW_INS_DOC/Help.html \
+            $$LDVIEW_INS_DOC/License.txt \
+            $$LDVIEW_INS_DOC/Readme.txt
+        ldview_stg_docs.path = $$LDVIEW_STG_DOC_DIR
 
-    # ldglite content
-    ldglite_stg_docs.files += \
-        $$LDGLITE_INS_DOC/README.TXT \
-        $$LDGLITE_INS_DOC/LICENCE
-    ldglite_stg_docs.path = $$LDGLITE_STG_DOC_DIR
+        ldview_stg_resources.files += \
+            $$LDVIEW_INS_RES/8464.mpd \
+            $$LDVIEW_INS_RES/m6459.ldr \
+            $$LDVIEW_INS_RES/LGEO.xml
+        ldview_stg_resources.path = $$LDVIEW_STG_RES_DIR
 
-    ldglite_stg_resources.files += \
-        $$LDGLITE_INS_RES/set-ldrawdir.command
-    ldglite_stg_resources.path = $$LDGLITE_STG_RES_DIR
+        raytracer_stg_docs.files += \
+            $$RAYTRACE_INS_DOC/help/povray37.chm \
+            $$RAYTRACE_INS_DOC/AUTHORS.txt \
+            $$RAYTRACE_INS_DOC/ChangeLog.txt \
+            $$RAYTRACE_INS_DOC/CUI_README.txt \
+            $$RAYTRACE_INS_DOC/LICENSE.txt
+        raytracer_stg_docs.path = $$RAYTRACE_STG_DOC_DIR
 
-    # ldview contnet
-    ldview_stg_docs.files += \
-        $$LDVIEW_INS_DOC/ChangeHistory.html \
-        $$LDVIEW_INS_DOC/Help.html \
-        $$LDVIEW_INS_DOC/License.txt \
-        $$LDVIEW_INS_DOC/Readme.txt
-    ldview_stg_docs.path = $$LDVIEW_STG_DOC_DIR
+        raytracer_stg_resources_ini.files += \
+            $$RAYTRACE_INS_RES/ini/allanim.ini \
+            $$RAYTRACE_INS_RES/ini/allstill.ini \
+            $$RAYTRACE_INS_RES/ini/low.ini \
+            $$RAYTRACE_INS_RES/ini/pngflc.ini \
+            $$RAYTRACE_INS_RES/ini/pngfli.ini \
+            $$RAYTRACE_INS_RES/ini/povray.ini \
+            $$RAYTRACE_INS_RES/ini/quickres.ini \
+            $$RAYTRACE_INS_RES/ini/res120.ini \
+            $$RAYTRACE_INS_RES/ini/res1k.ini \
+            $$RAYTRACE_INS_RES/ini/res320.ini \
+            $$RAYTRACE_INS_RES/ini/res640.ini \
+            $$RAYTRACE_INS_RES/ini/res800.ini \
+            $$RAYTRACE_INS_RES/ini/slow.ini \
+            $$RAYTRACE_INS_RES/ini/tgaflc.ini \
+            $$RAYTRACE_INS_RES/ini/tgafli.ini \
+            $$RAYTRACE_INS_RES/ini/zipflc.ini \
+            $$RAYTRACE_INS_RES/ini/zipfli.ini
+        raytracer_stg_resources_ini.path = $$RAYTRACE_STG_RES_DIR/ini
 
-    ldview_stg_resources.files += \
-        $$LDVIEW_INS_RES/8464.mpd \
-        $$LDVIEW_INS_RES/m6459.ldr \
-        $$LDVIEW_INS_RES/LGEO.xml
-    ldview_stg_resources.path = $$LDVIEW_STG_RES_DIR
+        raytracer_stg_resources_include.files += \
+            $$RAYTRACE_INS_RES/include/arrays.inc \
+            $$RAYTRACE_INS_RES/include/ash.map \
+            $$RAYTRACE_INS_RES/include/benediti.map \
+            $$RAYTRACE_INS_RES/include/bubinga.map \
+            $$RAYTRACE_INS_RES/include/bumpmap_.png \
+            $$RAYTRACE_INS_RES/include/cedar.map \
+            $$RAYTRACE_INS_RES/include/chars.inc \
+            $$RAYTRACE_INS_RES/include/colors.inc \
+            $$RAYTRACE_INS_RES/include/colors_ral.inc \
+            $$RAYTRACE_INS_RES/include/consts.inc \
+            $$RAYTRACE_INS_RES/include/crystal.ttf \
+            $$RAYTRACE_INS_RES/include/cyrvetic.ttf \
+            $$RAYTRACE_INS_RES/include/debug.inc \
+            $$RAYTRACE_INS_RES/include/finish.inc \
+            $$RAYTRACE_INS_RES/include/fract003.png \
+            $$RAYTRACE_INS_RES/include/functions.inc \
+            $$RAYTRACE_INS_RES/include/glass.inc \
+            $$RAYTRACE_INS_RES/include/glass_old.inc \
+            $$RAYTRACE_INS_RES/include/golds.inc \
+            $$RAYTRACE_INS_RES/include/ior.inc \
+            $$RAYTRACE_INS_RES/include/logo.inc \
+            $$RAYTRACE_INS_RES/include/makegrass.inc \
+            $$RAYTRACE_INS_RES/include/marbteal.map \
+            $$RAYTRACE_INS_RES/include/math.inc \
+            $$RAYTRACE_INS_RES/include/meshmaker.inc \
+            $$RAYTRACE_INS_RES/include/metals.inc \
+            $$RAYTRACE_INS_RES/include/Mount1.png \
+            $$RAYTRACE_INS_RES/include/Mount2.png \
+            $$RAYTRACE_INS_RES/include/mtmand.pot \
+            $$RAYTRACE_INS_RES/include/mtmandj.png \
+            $$RAYTRACE_INS_RES/include/orngwood.map \
+            $$RAYTRACE_INS_RES/include/pinkmarb.map \
+            $$RAYTRACE_INS_RES/include/plasma2.png \
+            $$RAYTRACE_INS_RES/include/plasma3.png \
+            $$RAYTRACE_INS_RES/include/povlogo.ttf \
+            $$RAYTRACE_INS_RES/include/povmap.png \
+            $$RAYTRACE_INS_RES/include/rad_def.inc \
+            $$RAYTRACE_INS_RES/include/rand.inc \
+            $$RAYTRACE_INS_RES/include/rdgranit.map \
+            $$RAYTRACE_INS_RES/include/screen.inc \
+            $$RAYTRACE_INS_RES/include/shapes.inc \
+            $$RAYTRACE_INS_RES/include/shapes2.inc \
+            $$RAYTRACE_INS_RES/include/shapes3.inc \
+            $$RAYTRACE_INS_RES/include/shapesq.inc \
+            $$RAYTRACE_INS_RES/include/shapes_old.inc \
+            $$RAYTRACE_INS_RES/include/skies.inc \
+            $$RAYTRACE_INS_RES/include/spiral.df3 \
+            $$RAYTRACE_INS_RES/include/stage1.inc \
+            $$RAYTRACE_INS_RES/include/stars.inc \
+            $$RAYTRACE_INS_RES/include/stdcam.inc \
+            $$RAYTRACE_INS_RES/include/stdinc.inc \
+            $$RAYTRACE_INS_RES/include/stoneold.inc \
+            $$RAYTRACE_INS_RES/include/stones.inc \
+            $$RAYTRACE_INS_RES/include/stones1.inc \
+            $$RAYTRACE_INS_RES/include/stones2.inc \
+            $$RAYTRACE_INS_RES/include/strings.inc \
+            $$RAYTRACE_INS_RES/include/sunpos.inc \
+            $$RAYTRACE_INS_RES/include/teak.map \
+            $$RAYTRACE_INS_RES/include/test.png \
+            $$RAYTRACE_INS_RES/include/textures.inc \
+            $$RAYTRACE_INS_RES/include/timrom.ttf \
+            $$RAYTRACE_INS_RES/include/transforms.inc \
+            $$RAYTRACE_INS_RES/include/ttffonts.cat \
+            $$RAYTRACE_INS_RES/include/whiteash.map \
+            $$RAYTRACE_INS_RES/include/woodmaps.inc \
+            $$RAYTRACE_INS_RES/include/woods.inc
+        raytracer_stg_resources_include.path = $$RAYTRACE_STG_RES_DIR/include
 
-    raytracer_stg_docs.files += \
-        $$RAYTRACE_INS_DOC/help/povray37.chm \
-        $$RAYTRACE_INS_DOC/AUTHORS.txt \
-        $$RAYTRACE_INS_DOC/ChangeLog.txt \
-        $$RAYTRACE_INS_DOC/CUI_README.txt \
-        $$RAYTRACE_INS_DOC/LICENSE.txt
-    raytracer_stg_docs.path = $$RAYTRACE_STG_DOC_DIR
-
-    raytracer_stg_resources_ini.files += \
-        $$RAYTRACE_INS_RES/ini/allanim.ini \
-        $$RAYTRACE_INS_RES/ini/allstill.ini \
-        $$RAYTRACE_INS_RES/ini/low.ini \
-        $$RAYTRACE_INS_RES/ini/pngflc.ini \
-        $$RAYTRACE_INS_RES/ini/pngfli.ini \
-        $$RAYTRACE_INS_RES/ini/povray.ini \
-        $$RAYTRACE_INS_RES/ini/quickres.ini \
-        $$RAYTRACE_INS_RES/ini/res120.ini \
-        $$RAYTRACE_INS_RES/ini/res1k.ini \
-        $$RAYTRACE_INS_RES/ini/res320.ini \
-        $$RAYTRACE_INS_RES/ini/res640.ini \
-        $$RAYTRACE_INS_RES/ini/res800.ini \
-        $$RAYTRACE_INS_RES/ini/slow.ini \
-        $$RAYTRACE_INS_RES/ini/tgaflc.ini \
-        $$RAYTRACE_INS_RES/ini/tgafli.ini \
-        $$RAYTRACE_INS_RES/ini/zipflc.ini \
-        $$RAYTRACE_INS_RES/ini/zipfli.ini
-    raytracer_stg_resources_ini.path = $$RAYTRACE_STG_RES_DIR/ini
-
-    raytracer_stg_resources_include.files += \
-        $$RAYTRACE_INS_RES/include/arrays.inc \
-        $$RAYTRACE_INS_RES/include/ash.map \
-        $$RAYTRACE_INS_RES/include/benediti.map \
-        $$RAYTRACE_INS_RES/include/bubinga.map \
-        $$RAYTRACE_INS_RES/include/bumpmap_.png \
-        $$RAYTRACE_INS_RES/include/cedar.map \
-        $$RAYTRACE_INS_RES/include/chars.inc \
-        $$RAYTRACE_INS_RES/include/colors.inc \
-        $$RAYTRACE_INS_RES/include/colors_ral.inc \
-        $$RAYTRACE_INS_RES/include/consts.inc \
-        $$RAYTRACE_INS_RES/include/crystal.ttf \
-        $$RAYTRACE_INS_RES/include/cyrvetic.ttf \
-        $$RAYTRACE_INS_RES/include/debug.inc \
-        $$RAYTRACE_INS_RES/include/finish.inc \
-        $$RAYTRACE_INS_RES/include/fract003.png \
-        $$RAYTRACE_INS_RES/include/functions.inc \
-        $$RAYTRACE_INS_RES/include/glass.inc \
-        $$RAYTRACE_INS_RES/include/glass_old.inc \
-        $$RAYTRACE_INS_RES/include/golds.inc \
-        $$RAYTRACE_INS_RES/include/ior.inc \
-        $$RAYTRACE_INS_RES/include/logo.inc \
-        $$RAYTRACE_INS_RES/include/makegrass.inc \
-        $$RAYTRACE_INS_RES/include/marbteal.map \
-        $$RAYTRACE_INS_RES/include/math.inc \
-        $$RAYTRACE_INS_RES/include/meshmaker.inc \
-        $$RAYTRACE_INS_RES/include/metals.inc \
-        $$RAYTRACE_INS_RES/include/Mount1.png \
-        $$RAYTRACE_INS_RES/include/Mount2.png \
-        $$RAYTRACE_INS_RES/include/mtmand.pot \
-        $$RAYTRACE_INS_RES/include/mtmandj.png \
-        $$RAYTRACE_INS_RES/include/orngwood.map \
-        $$RAYTRACE_INS_RES/include/pinkmarb.map \
-        $$RAYTRACE_INS_RES/include/plasma2.png \
-        $$RAYTRACE_INS_RES/include/plasma3.png \
-        $$RAYTRACE_INS_RES/include/povlogo.ttf \
-        $$RAYTRACE_INS_RES/include/povmap.png \
-        $$RAYTRACE_INS_RES/include/rad_def.inc \
-        $$RAYTRACE_INS_RES/include/rand.inc \
-        $$RAYTRACE_INS_RES/include/rdgranit.map \
-        $$RAYTRACE_INS_RES/include/screen.inc \
-        $$RAYTRACE_INS_RES/include/shapes.inc \
-        $$RAYTRACE_INS_RES/include/shapes2.inc \
-        $$RAYTRACE_INS_RES/include/shapes3.inc \
-        $$RAYTRACE_INS_RES/include/shapesq.inc \
-        $$RAYTRACE_INS_RES/include/shapes_old.inc \
-        $$RAYTRACE_INS_RES/include/skies.inc \
-        $$RAYTRACE_INS_RES/include/spiral.df3 \
-        $$RAYTRACE_INS_RES/include/stage1.inc \
-        $$RAYTRACE_INS_RES/include/stars.inc \
-        $$RAYTRACE_INS_RES/include/stdcam.inc \
-        $$RAYTRACE_INS_RES/include/stdinc.inc \
-        $$RAYTRACE_INS_RES/include/stoneold.inc \
-        $$RAYTRACE_INS_RES/include/stones.inc \
-        $$RAYTRACE_INS_RES/include/stones1.inc \
-        $$RAYTRACE_INS_RES/include/stones2.inc \
-        $$RAYTRACE_INS_RES/include/strings.inc \
-        $$RAYTRACE_INS_RES/include/sunpos.inc \
-        $$RAYTRACE_INS_RES/include/teak.map \
-        $$RAYTRACE_INS_RES/include/test.png \
-        $$RAYTRACE_INS_RES/include/textures.inc \
-        $$RAYTRACE_INS_RES/include/timrom.ttf \
-        $$RAYTRACE_INS_RES/include/transforms.inc \
-        $$RAYTRACE_INS_RES/include/ttffonts.cat \
-        $$RAYTRACE_INS_RES/include/whiteash.map \
-        $$RAYTRACE_INS_RES/include/woodmaps.inc \
-        $$RAYTRACE_INS_RES/include/woods.inc
-    raytracer_stg_resources_include.path = $$RAYTRACE_STG_RES_DIR/include
-
-    INSTALLS += \
-    ldglite_stg_docs \
-    ldglite_stg_resources \
-    ldview_stg_docs \
-    ldview_stg_resources \
-    raytracer_stg_docs \
-    raytracer_stg_resources_ini \
-    raytracer_stg_resources_include
+        INSTALLS += \
+        ldglite_stg_docs \
+        ldglite_stg_resources \
+        ldview_stg_docs \
+        ldview_stg_resources \
+        raytracer_stg_docs \
+        raytracer_stg_resources_ini \
+        raytracer_stg_resources_include
+    }
 }

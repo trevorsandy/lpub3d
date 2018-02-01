@@ -1,0 +1,28 @@
+version: '3'
+services:
+  archlinux:
+    image: "trevorsandy/lpub3d:archlinux"
+    build:
+      context: ./dockerfiles
+      dockerfile: Dockerfile-cibuild-archlinux
+    volumes:
+     - .:/buildpkg
+     - ./lpub3d_linux_3rdparty:/user/pkgbuild/src/lpub3d_linux_3rdparty
+
+  fedora_25:
+    image: "trevorsandy/lpub3d:fedora_25"
+    build:
+      context: ./dockerfiles
+      dockerfile: Dockerfile-cibuild-fedora_25
+    volumes:
+     - .:/buildpkg
+     - ./lpub3d_linux_3rdparty:/user/rpmbuild/BUILD/lpub3d_linux_3rdparty
+
+  ubuntu_xenial:
+    image: "trevorsandy/lpub3d:ubuntu_xenial"
+    build:
+      context: ./dockerfiles
+      dockerfile: Dockerfile-cibuild-ubuntu_xenial
+    volumes:
+     - .:/buildpkg
+     - ./lpub3d_linux_3rdparty:/user/debbuild/lpub3d_linux_3rdparty
