@@ -1,45 +1,109 @@
-LPub3D 2.0.20.122.768 (01 02 2018 02:37:02)
+LPub3D 2.1.0.0.769 (02 02 2018 19:50:26)
 
 Features and enhancements
 ------------
-Version 2.1.0 presents a significant update to LPub3D. Most notably is the tight intgegration of its supported renderers - LDView, LDGLite and LPub3D-Trace (POV-Ray clone). These applications are now bundled within LPub3D - they are actually built from source as part of the LPub3D build process. In addition to tighter integration, the LPub3D renderers have been enhanced and updated to better support LPub3D across all supported platforms. Following are some of the capabiities available in the versions of LDGLite, LDView and LPub3D-Trace (POV-Ray) that are specifically implemented to enhance the user's experience editing and generating digital build instructions.
+Version 2.1.0 presents a significant update to LPub3D. Most notably is the tight integration of its supported renderers - LDView, LDGLite and LPub3D-Trace (POV-Ray clone). These applications are now bundled within LPub3D - they are actually built from source as part of the LPub3D build process. In addition to tighter integration, the LPub3D renderers have been enhanced and updated to better support LPub3D across all supported platforms. Following are some of the capabilities available in the versions of LDGLite, LDView and LPub3D-Trace (POV-Ray) that are specifically implemented to enhance the user's experience editing and generating digital build instructions.
 
 Enhancement: A custom LDraw library LDConfig file can can now be passed to LDGlite and LDView via the renderer command call. Of course it was always possible to customize the default LDConfig but doing so had the risk of overwriting your settings with a new update. With this capability, you can choose where you want to store your modified LDConfig.ldr file and use the LPub3D preferences dialogue to set it path for LDView and LDGLite.
 
 Enhancement: All the renderer configuration files are accessible and configurable from the LPub3D user interface. Moreover, all configuration settings only affect LPub3D's renderer instances so if you have LDView installed on your system, it will not be affected by the settings you configure in LPub3D. Here is a summary of the configuration files:
-	LDGLite - LDConfig.ldr: LDraw part colour codes [Default locaiton: LDraw/LDConfig.ldr]
-	LDView - LDConfig.ldr: LDraw part colour codes [Default locaiton: LDraw/LDConfig.ldr]
-	LDView - ldview.ini: Image generation settings [Default locations: 
+	LDGLite - LDConfig.ldr: LDraw part colour codes [Default location: LDraw/LDConfig.ldr]
+	LDView - LDConfig.ldr: LDraw part colour codes [Default location: LDraw/LDConfig.ldr]
+	LDView - ldview.ini: Image generation settings [Default locations:
 	  Linux - ~/.local/share/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldview.ini
 	  macOS -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldview.ini
 	  Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/ldview-4.3/config/ldview.ini]
-	LDView - ldviewPOVini: POV file generation settings [Default locaitons:
+	LDView - ldviewPOVini: POV file generation settings [Default locations:
 	  Linux - ~/.local/share/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldviewPOV.ini
 	  macOS -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldviewPOV.ini
 	  Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/ldview-4.3/config/ldviewPOV.ini]
-	LPub3D-Trace (POV-Ray) - povray.conf: Security settings and authorized search paths [Default locaitons:
+	LPub3D-Trace (POV-Ray) - povray.conf: Security settings and authorized search paths [Default locations:
 	  Linux - ~/.local/share/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.conf
 	  macOS -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.conf
 	  Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.conf]
-	LPub3D-Trace (POV-Ray) - povray.ini: Image generation settings and #include file search paths [Default locaitons:
+	LPub3D-Trace (POV-Ray) - povray.ini: Image generation settings and #include file search paths [Default locations:
 	  Linux - ~/.local/share/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.ini
 	  macOS -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.ini
 	  Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.ini]
+When setting of modifying render config file settings, it is helpful to know the settings that are automatically managed by the LPub3D renderer module. These settings for the most part are the dynamic parameters produced with the image (PLI or CSI) being rendered and; therefore, are not suited to being set in a config file. Other settings in the render module are static and will not benefit, actually changing them will harm the behaviour of LPub3D, from modification in the config files. The settings, listed by renderer, managed by the LPub3D render module are:
+	LDView [image generation and .pov file generation settings]
+	Flags:
+		CA - camera angle
+		-cg0.0,0.0,cd - Camera globe,Camera distance [cg set to zeros for CSI, pli angles (x,y) for PLI]
+		-SaveWidth - Image width
+		-SaveHeight - Image height
+		-ExportFile - Export file [-ExportSuffix not required, taken from export file extension]
+		-LDrawDir - LDraw parts library path
+		-IniFile - LDView ini file  [If Ini file exist, so if ini file removed, LDView defaults are used]
+		-LDConfig - Alternate LDConfig file [If alternate LDConfig designated in Preferences]
+	Logs:   [LDView does not produce any reasonably actionable stderr or stdout details]
+		stderr-ldview - error output log file [image generation]
+		stdout-ldview - standard output log file [image generation]
+		stderr-ldviewpov - error output log file [.pov file generation]
+		stdout-ldviewpov - standard output log file [.pov file generation]
+	LDView-Single-Call [image generation]
+	Flags:
+		CA - camera angle
+		-cg0.0,0.0,cd - Camera globe,Camera distance [cg set to zeros for CSI, pli angles (x,y) for PLI]
+		-SaveWidth - Image width
+		-SaveHeight - Image height
+		-SaveSnapShots=1 [processing multiple files at a time, save each output file as input file name without extension]
+		-SnapshotSuffix=.png [file extension required because we're processing multiple files at a time]
+		-LDrawDir - LDraw parts library path
+		-IniFile - LDView ini file  [If Ini file exist, so if ini file removed, LDView defaults are used]
+		-LDConfig - Alternate LDConfig file [If alternate LDConfig designated in Preferences]
+	Logs:   [LDView does not produce any reasonably actionable stderr or stdout details]
+		stderr-ldview - error output log file [image generation]
+		stdout-ldview - standard output log file [image generation]
+	POVRay
+	Flags:
+		+-d - Display Windows [Experimental - Add or remove SDL image progress display windows]
+		+I - Input file
+		+O - Output file
+		+W - Image width
+		+H - Image height
+		USE_ALPHA
+	Libs:        [Note: LGEO root path is hard-coded to "LDraw path"/lgeo]
+		-IniPath	 [POV-Ray include files path]
+		-LgeoLGPath  [LGEO LG sub-directory path]
+		-LgeoARPath  [LGEO AR sub-directory path]
+		-LgeoSTLPath [LDGO STL sub-directory path - Durats LGEO stl library]
+	Logs:
+		stderr-povray - error output log file
+		stdout-povray - standard output log file
+	LDGLite
+	Flags:
+		-l3 - Use L3 parser
+		-i2 - Out image type is .png
+		-CA - Camera angel
+		-cg0.0,0.0,cd - Camera globe,Camera distance [cg set to zeros for CSI, pli angles (x,y) for PLI]
+		-j - perspective projection
+		-v"Width","Height" - Image display width (X) and height (Y)
+		-o0,-"Height"/6 - Change the centre width (X) across and height (Y) down
+		-W"Line Thickness" - Line thickness, image resolution/150.5
+		="LDConfig" - Alternate LDConfig file [If alternate LDConfig designated in Preferences]
+	Environment Variables:
+		LDRAWDIR="Ldraw path" - LDraw parts library path
+		LDSEARCHDIRS="additional search directory paths" - Pipe (|) delimited single string of search directory paths
+	Logs:
+		stderr-ldglite - error output log file
+		stdout-ldglite - standard output log file
 
-Enhancement: View and edit renderer configuration files. This capability is accessible from the menubar and empowers the user with the virtually limnitless ability to configure each renderer. Keep in mind that thease files will affect the performance and quality of your rendered images so it is understood that if you choose to modify these files, you must know what you are doing.
+Enhancement: View and edit renderer configuration files. This capability is accessible from the menu bar and empowers the user with the virtually limitless ability to configure each renderer. Keep in mind that these files will affect the performance and quality of your rendered images so it is understood that if you choose to modify these files, you must know what you are doing.
 
 Enhancement: LPub3D-Trace (POV-Ray) render progress display is available across all platforms. This feature is optional and can be turned on in the renderer preference dialogue. Note that this feature is still experimental on macOS
 
-Enhancement: It is no longer necessary to manage renderer paths in the preference dialog. LPub3D renderers (LDGLite, LDView and LPub3D-Trace) are now automatically configured at application startup. As the renderers and now bundled with LPub3D, their locations are fixed and known to the application. Therefore, renderer location configuration is prefefined and managed within LPub3D.
+Enhancement: It is no longer necessary to manage renderer paths in the preference dialogue. LPub3D renderers (LDGLite, LDView and LPub3D-Trace) are now automatically configured at application start-up. As the renderers and now bundled with LPub3D, their locations are fixed and known to the application. Therefore, renderer location configuration is predefined and managed within LPub3D.
 
-Feature: View log files. It is now possible to view logged output for LPub3D and its integrated renderers - LDGLite and LPub3D-Trace. LDView does not produce any disernable logging so there's nothing to view for this renderer.
+Feature: View log files. It is now possible to view logged output for LPub3D and its integrated renderers - LDGLite and LPub3D-Trace. LDView does not produce any discernible logging so there's nothing to view for this renderer.
 
-Feature: Automatically detect and configure 
-Fix: preference settings not preserved on macOS - When application is closed, the configured preference settings are not preserved. On subsequent, applicaiton launch, the prefrence revert to the default configuration. This behaviour no longer presents on macOS.
+Feature: Detect and configure LGEO library including Damien Roux's (Darats) STL objects. LGEO is a library of high-quality POV-Ray object definitions which describes LDraw parts. In order to automatically detect the LGEO library it be placed inside the LDraw library - for example "LDraw Path"/lgeo. Furthermore, to include Darats' STL objects, they must exist in a sub-folder named "stl" - so an example for STL objects would be "LDraw Path"/lgeo/stl. With these settings in place, LPub3d will automatically detect the LGEO paths and include them in the POV-Ray configuration file settings.
 
-Fix: Step number placement - page metas (step number, pli, csi, callout etc...) are placed relative to one or more other metas. For example, the step number meta can be placed relative to the pli (default placement), the csi, page header, page footer or the page. If one were to move a meta depended on by another, the 'other' meta would also move which would lead to unexpected behaviour. The proper way to move a meta is to first move its dependant mata(s) to another dependency. Dependencies can be seen in 'Move...' dialogue available via the context menu. Use the 'Relative To...' dropdown dialogue to see the available metas the given meta can be placed relative to.
+Fix: preference settings not preserved on macOS - When application is closed, the configured preference settings are not preserved. On subsequent, application launch, the preference revert to the default configuration. This behaviour no longer presents on macOS.
 
-Fix: POV-Ray rendering with space in file name or path. LPub3D-Trace (customized verion of POV-Ray) supports spaces in the file name or path.
+Fix: Step number placement - page metas (step number, pli, csi, callout etc.) are placed relative to one or more other metas. For example, the step number meta can be placed relative to the pli (default placement), the csi, page header, page footer or the page. If one were to move a meta depended on by another, the 'other' meta would also move which would lead to unexpected behaviour. The proper way to move a meta is to first move its dependant ma ta(s) to another dependency. Dependencies can be seen in 'Move...' dialogue available via the context menu. Use the 'Relative To...' drop-down dialogue to see the available metas the given meta can be placed relative to.
+
+Fix: POV-Ray rendering with space in file name or path. LPub3D-Trace (customized version of POV-Ray) supports spaces in the file name or path.
 
 Fix: POV-Ray very slow in version 2.0.19. Although I could not reproduce this behaviour, it is worthwhile to note that LPub3D-Trace, an updated and better integrated version of POV-Ray, consistently yields better performance that the Off-the-shelf version. Moreover, LPub3D-Trace offers automatic configuration with the capability to implement the full compliment of custom configuration available to POV-Ray.
 
@@ -47,15 +111,17 @@ Fix: Callout within a callout. This capability was not available when using 'sin
 
 Fix: 'Current Submodel' MPD-combo-dropdown current index not set when changed.
 
-Enhancement: The entire DevOp process has been moved to a cloud and container enabled architecture allowing platorm-independent development, build and release across all major operating systems including macOS, Linux, Windows and the newly available AppImage 'no-install' application bundle distribution. Following is summary of each meaningful applciation correction and or enhancement.
+Change: L3P 3rd party application removed. The L3P module which carried the function of preparing the .pov files for POV-Ray was removed from the LPub3D bundle. The .pov file generation functionality is now performed by LDView.
 
-Integrate 3rd party renderers - LDGlite, LDView and LPub3D-Trace (POV-Ray). To well deliver this capability, LPub3D 2.1.0 implements a major 'build, packaging and deployment' redesign to maximize use of cloud infrastructure and services. The end-to-end build, packaging and deployment process is now fully automted and 100% cloud enabled - using Travis-CI for Linux and macOS artefacts, and AppVeyor for Microsoft. All Linux distro are built via Docker containerization on Travis-CI.
+Enhancement: The entire DevOp process has been moved to a cloud and container enabled architecture allowing platform-independent development, build and release across all major operating systems including macOS, Linux, Windows and the newly available AppImage 'no-install' application bundle distribution. Following is summary of each meaningful application correction and or enhancement.
 
-Along with the core LPub3D source, LDGlite, LDView and LPub3D-Trace (POV-Ray) are compiled from source during the build process. While this approach adds material time to the build process, it ensures all dependencies are properly addressed during Linux and macOS builds. The end result is a complete and consistent solution package across all supported Linux, macOS and Microsoft platforms where a single install will account for all the required LPub3D commpnents needed to deliver the full compliment of LPub3D capabilities.
+Integrate 3rd party renderers - LDGlite, LDView and LPub3D-Trace (POV-Ray). To well deliver this capability, LPub3D 2.1.0 implements a major 'build, packaging and deployment' redesign to maximize use of cloud infrastructure and services. The end-to-end build, packaging and deployment process is now fully automated and 100% cloud enabled - using Travis-CI for Linux and macOS artefacts, and AppVeyor for Microsoft. All Linux distro are built via Docker containerization on Travis-CI.
 
-In addition to tight integration, the LPub3D renderers have been adapted with additional capabilites specifically designed to work with LPub3D. Enhancements were carefully designed to allow maximum compatability with their original upstream source to ensure upstream enhancements, fixes and progressions are effiiciently integrated into the LPub3d-specific branches.
+Along with the core LPub3D source, LDGlite, LDView and LPub3D-Trace (POV-Ray) are compiled from source during the build process. While this approach adds material time to the build process, it ensures all dependencies are properly addressed during Linux and macOS builds. The end result is a complete and consistent solution package across all supported Linux, macOS and Microsoft platforms where a single install will account for all the required LPub3D components needed to deliver the full compliment of LPub3D capabilities.
 
-LPub3D is availabe as an AppImage distribution. AppImage is a format for distributing portable software on Linux without needing superuser permissions to install the application.
+In addition to tight integration, the LPub3D renderers have been adapted with additional capabilities specifically designed to work with LPub3D. Enhancements were carefully designed to allow maximum compatibility with their original upstream source to ensure upstream enhancements, fixes and progressions are efficiently integrated into the LPub3d-specific branches.
+
+LPub3D is available as an AppImage distribution. AppImage is a format for distributing portable software on Linux without needing superuser permissions to install the application.
 
 LPub3D is now at GitHub. Distributed version control and source code management will allow better collaboration, contribution, issue management, and continuous release updates. The LPub3D GitHub repository is https://github.com/trevorsandy/lpub3d. I did not forget Soruceforge.net. we are also still there at https://sourceforge.net/projects/lpub3d.
 

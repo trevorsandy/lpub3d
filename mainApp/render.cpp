@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -92,7 +92,7 @@ QString fixupDirname(const QString &dirNameIn) {
 		qDebug() << "Couldn't get length of short path name, trying long path name\n";
 		return dirNameIn;
 	}
-// Dynamically allocate the correct size 
+// Dynamically allocate the correct size
 // (terminating null char was included in length)
 
     buffer = new TCHAR[length];
@@ -106,7 +106,7 @@ QString fixupDirname(const QString &dirNameIn) {
 	}
 
 	QString dirNameOut = QString::fromWCharArray(buffer);
-    
+
     delete [] buffer;
         return dirNameOut;
 #else
@@ -147,9 +147,9 @@ void clipImage(QString const &pngName){
 	//printf("\n");
 	QImage toClip(QDir::toNativeSeparators(pngName));
 	QRect clipBox = toClip.rect();
-	
+
 	//printf("clipping %s from %d x %d at (%d,%d)\n",qPrintable(QDir::toNativeSeparators(pngName)),clipBox.width(),clipBox.height(),clipBox.x(),clipBox.y());
-	
+
 	int x,y;
 	int initLeft = clipBox.left();
 	int initTop = clipBox.top();
@@ -171,10 +171,10 @@ void clipImage(QString const &pngName){
 			break;
 		}
 	}
-	
+
 	//printf("clipped to %d x %d at (%d,%d)\n",clipBox.width(),clipBox.height(),clipBox.x(),clipBox.y());
-	
-	
+
+
 	initLeft = clipBox.left();
 	for(x = initRight; x >= initLeft; x--){
 		for(y = initTop; y < initBottom; y++){
@@ -192,9 +192,9 @@ void clipImage(QString const &pngName){
 			break;
 		}
 	}
-	
+
 	//printf("clipped to %d x %d at (%d,%d)\n",clipBox.width(),clipBox.height(),clipBox.x(),clipBox.y());
-	
+
 	initRight = clipBox.right();
 	for(y = initTop; y < initBottom; y++){
 		for(x = initLeft; x < initRight; x++){
@@ -212,9 +212,9 @@ void clipImage(QString const &pngName){
 			break;
 		}
 	}
-	
+
 	//printf("clipped to %d x %d at (%d,%d)\n",clipBox.width(),clipBox.height(),clipBox.x(),clipBox.y());
-	
+
 	initTop = clipBox.top();
 	for(y = initBottom; y >= initTop; y--){
 		for(x = initLeft; x < initRight; x++){
@@ -232,9 +232,9 @@ void clipImage(QString const &pngName){
 			break;
 		}
 	}
-	
+
 	//printf("clipped to %d x %d at (%d,%d)\n\n",clipBox.width(),clipBox.height(),clipBox.x(),clipBox.y());
-	
+
 	QImage clipped = toClip.copy(clipBox);
 	//toClip.save(QDir::toNativeSeparators(pngName+"-orig.png"));
 	clipped.save(QDir::toNativeSeparators(pngName));
@@ -244,14 +244,14 @@ void clipImage(QString const &pngName){
 float stdCameraDistance(Meta &meta, float scale) {
 	float onexone;
 	float factor;
-	
+
 	// Do the math in pixels
-	
+
 	onexone  = 20*meta.LPub.resolution.ldu(); // size of 1x1 in units
 	onexone *= meta.LPub.resolution.value();  // size of 1x1 in pixels
 	onexone *= scale;
 	factor   = gui->pageSize(meta.LPub.page, 0)/onexone; // in pixels;
-	
+
 	return factor*LduDistance;
 }
 
@@ -335,8 +335,14 @@ int POVRay::renderCsi(
   for (int i = 0; i < list.size(); i++) {
       if (list[i] != "" && list[i] != " ") {
           arguments << list[i];
-        }
-    }
+      }
+  }
+
+  if (!Preferences::altLDConfigPath.isEmpty()) {
+    arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+    //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
+  }
+
   arguments << ldrName;
 
   emit gui->messageSig(true, "POVRay render CSI...");
@@ -482,8 +488,14 @@ int POVRay::renderPli(
   for (int i = 0; i < list.size(); i++) {
       if (list[i] != "" && list[i] != " ") {
           arguments << list[i];
-        }
-    }
+      }
+  }
+
+  if (!Preferences::altLDConfigPath.isEmpty()) {
+    arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+    //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
+  }
+
   arguments << ldrName; //SUSPECT !!! (SHOULD ALSO HAVE povName ?? )
 
   emit gui->messageSig(true, "POVRay render PLI...");
@@ -609,7 +621,7 @@ int LDGLite::renderCsi(
 	}
 
   /* determine camera distance */
-  
+
   QStringList arguments;
 
   int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value());
@@ -621,7 +633,7 @@ int LDGLite::renderCsi(
                                     .arg(height);
   QString o  = QString("-o0,-%1")   .arg(height/6);
   QString mf = QString("-mF%1")     .arg(pngName);
-  
+
   int lineThickness = resolution()/150+0.5;
   if (lineThickness == 0) {
     lineThickness = 1;
@@ -693,7 +705,7 @@ int LDGLite::renderCsi(
   return 0;
 }
 
-  
+
 int LDGLite::renderPli(
   const QString &ldrName,
   const QString &pngName,
@@ -744,7 +756,7 @@ int LDGLite::renderPli(
   }
   arguments << mf;
   arguments << ldrName;
-  
+
   emit gui->messageSig(true, "Execute command: LDGLite render PLI.");
 
   QProcess    ldglite;
@@ -792,9 +804,9 @@ int LDGLite::renderPli(
  * 0.5   34x22   36x22                             1074x744   1376x949  0.28
  * 0.6   40x27   40x28                             1288x892
  * 0.7   46x31   48x32                            1502x1040
- * 0.8   54x35   56x37                          
+ * 0.8   54x35   56x37
  * 0.9   60x40   60x41
- * 1.0   66x44   68x46       310x135  400x175 0.29 
+ * 1.0   66x44   68x46       310x135  400x175 0.29
  * 1.1   72x48
  * 1.2   80x53
  * 1.3   86x57
@@ -805,7 +817,7 @@ int LDGLite::renderPli(
  * 3.0  197x131 200x134      930x404 1169x522
  * 4.0  262x174 268x178     1238x539 1592x697 0.29
  * 5.0  328x217 332x223     1548x673
- * 
+ *
  *
  **************************************************************************/
 
@@ -829,7 +841,6 @@ int LDView::renderCsi(
   if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrName)) < 0) {
       return rc;
     }
-
 
   /* determine camera distance */
   int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
@@ -864,6 +875,7 @@ int LDView::renderCsi(
       arguments << list[i];
     }
   }
+
   if (!Preferences::altLDConfigPath.isEmpty()) {
     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
@@ -871,7 +883,7 @@ int LDView::renderCsi(
   arguments << ldrName;
 
   emit gui->messageSig(true, "Execute command: LDView render CSI.");
-  
+
   QProcess    ldview;
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath() + "/" + Paths::tmpDir);
@@ -943,6 +955,7 @@ int LDView::renderPli(
       arguments << list[i];
     }
   }
+
   if (!Preferences::altLDConfigPath.isEmpty()) {
     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
@@ -1013,6 +1026,11 @@ int Render::renderLDViewSCallCsi(
       arguments << list[i];
     }
   }
+
+  if (!Preferences::altLDConfigPath.isEmpty()) {
+    arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+    //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
+  }
   arguments = arguments + ldrNames;
 
   emit gui->messageSig(true, "Execute command: LDView (Single Call) render CSI.");
@@ -1025,7 +1043,7 @@ int Render::renderLDViewSCallCsi(
 
   qDebug() << qPrintable("LDView (Single Call) CSI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
 
-  ldview.start(Preferences::ldviewExe,arguments);  
+  ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished(rendererTimeout())) {
     if (ldview.exitCode() != 0 || 1) {
       QByteArray status = ldview.readAll();
@@ -1102,6 +1120,11 @@ int Render::renderLDViewSCallPli(
       arguments << list[i];
     }
   }
+
+  if (!Preferences::altLDConfigPath.isEmpty()) {
+    arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+    //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
+  }
   arguments = arguments + ldrNames;
 
   emit gui->messageSig(true, "Execute command: LDView (Single Call) render PLI.");
@@ -1114,7 +1137,7 @@ int Render::renderLDViewSCallPli(
 
   qDebug() << qPrintable("LDView (Single Call) PLI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
 
-  ldview.start(Preferences::ldviewExe,arguments);  
+  ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished(rendererTimeout())) {
       if (ldview.exitCode() != 0) {
           QByteArray status = ldview.readAll();

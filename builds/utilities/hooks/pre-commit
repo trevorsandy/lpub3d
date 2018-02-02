@@ -4,7 +4,7 @@
 # [build pkg*] or [deploy pkg*] is detected in the commit message.
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 31, 2017
+#  Last Update: February 02, 2017
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 ## Automatically generate git revision info
@@ -20,31 +20,43 @@
 ##
 ## Ignore Increment:
 ##   In instances where you do NOT want the version info incremented,
-##   add the environment variable doIncrement=no to your git call.
-##   e.g. $ env doIncrement=no git commit -m "Message - 00 [ci skip].
+##   add the environment variable inc_rev=no to your git call.
+##   e.g. $ env inc_rev=no git commit -m "Message - 00 [ci skip].
 ##   This is useful on the first commit after you change the
 ##   major/minor/patch version number for example.
 #
+# Environment Vars:
+##  - inc_rev: increment revision [Default=yes]
+##  - inc_cnt: increment commit count [Default=yes]
+##  - force:   force setting OBS config file configuration [Default=no]
+#
+# Flags:
+##  -f: force setting OBS config file configuration
 ##
-## Manual execution:
+## Manual execution examples:
 #   If you wish to execute without sending valid-format commit message
 #   ./builds/utilities/hooks/pre-commit -f
+#   env inc_rev=no force=yes ./builds/utilities/hooks/pre-commit
 ##
 exec 1>&2
 # to disable or run from command line, set default to 'no'
-increment_version=${doIncrement:-yes}
+increment_revision=${inc_rev:-yes}
+increment_commitcount=${inc_cnt:-yes}
+force_config=${force:-no}
 commitmsg=".git/COMMIT_EDITMSG"
+
 # trigger if [build pkg*] or [deploy pkg*] exist in commit message
 cat "$commitmsg" | grep -qE '\[build pkg.*\]' && update_config_files=yes || \
-[ "$1" = "-f" ] && update_config_files=yes || update_config_files=no
-if test x"$update_config_files" = x"yes"; then
+[ "$force_config" = "yes" ] && update_config_files=yes || \
+[ "$1" = "-f" ] && update_config_files=yes || \
+update_config_files=no
+
+if test x"$update_config_files" = x"yes" && \
+  test x"$(git diff HEAD --name-only)" != x""; then
   tag_long=`git describe --tags --long`
   tag_short=`git describe --tags --abbrev=0`
   commit_count=`git rev-list HEAD --count`
   sha_hash_short=`git rev-parse --short HEAD`
-
-  valid_commit="yes"
-  if test x"`git diff HEAD --name-only`" = x""; then valid_commit="no"; fi
 
   tmp1=${tag_long#*-}                                     # remove everything before and including "-"
   revision=${tmp1%-*}                                     # remove everything after and including "-"
@@ -56,11 +68,16 @@ if test x"$update_config_files" = x"yes"; then
   read major minor patch <<< ${version_}
 
   echo "0. Incrementing Git version info..."
-  echo "   To disable, use: 'doIncrement=FALSE git commit -m \"Commit Message\"'"
-  echo "   Old_revision...........$revision"
-  echo "   Old_build (count)......$commit_count"
-  echo "   Increment version......$increment_version"
-  if test x"$increment_version" = x"yes" && test x"$valid_commit" = x"yes"; then ((revision++)); ((commit_count++)); fi
+  echo "   Old revision............$revision"
+  echo "   Old commit count........$commit_count"
+  echo "   Increment revision......$increment_revision"
+  echo "   Increment commit count..$increment_commitcount"
+
+  if test x"$increment_revision" = x"yes"; then ((revision++)); fi
+  if test x"$increment_commitcount" = x"yes"; then ((commit_count++)); fi
+
+  echo "   New revision............$revision"
+  echo "   New commit count........$commit_count"
 
   working_dir=$PWD/mainApp; export OBS=true
   chmod +x builds/utilities/update-config-files.sh

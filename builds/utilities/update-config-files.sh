@@ -125,7 +125,6 @@ LP3D_APP_VERSION=${LP3D_VERSION}"."${LP3D_VER_BUILD}
 LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${LP3D_VER_REVISION}"."${LP3D_VER_BUILD}_${LP3D_BUILD_DATE}
 LP3D_APP_VERSION_TAG="v"${LP3D_VERSION}
 
-
 Info "   LPUB3D_DIR.............${LPUB3D}"
 Info "   UPDATE_OBS_CONFIG......${UPDATE_OBS_CONFIG}"
 Info "   GIT_DEPTH..............${GIT_DEPTH}"
@@ -173,6 +172,24 @@ then
     fi
 fi
 
+# generate version.info file
+FILE="$LP3D_UTIL_DIR/version.info"
+if [ -f ${FILE} -a -r ${FILE} ]
+then
+    rm ${FILE}
+fi
+cat <<EOF >${FILE}
+${LP3D_VERSION_INFO}
+EOF
+
+if [ -f "${FILE}" ];
+then
+    Info "2. create version.info    - insert version info   [$FILE]";
+else
+    Info "   ERROR - version info   - file not found";
+fi
+
+# -----
 FILE="$LP3D_PWD/docs/README.txt"
 Info "3. update README.txt      - build version         [$FILE]"
 LineToReplace=1                  # LPub3D 2.0.21.59.126...
@@ -199,24 +216,6 @@ then
     if test -n "$LP3D_VER_SUFFIX"; then export LP3D_VER_SUFFIX=$LP3D_VER_SUFFIX; fi
 fi
 
-# generate version.info file
-FILE="$LP3D_UTIL_DIR/version.info"
-if [ -f ${FILE} -a -r ${FILE} ]
-then
-    rm ${FILE}
-fi
-cat <<EOF >${FILE}
-${LP3D_VERSION_INFO}
-EOF
-
-if [ -f "${FILE}" ];
-then
-    Info "   create version.info    - insert version info   [$FILE]";
-else
-    Info "   ERROR - version info   - file not found";
-fi
-
-# -----
 FILE="$LP3D_PWD/lpub3d.desktop"
 Info "4. update desktop config  - add version suffix    [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
@@ -297,7 +296,7 @@ else
 fi
 
 FILE="$LP3D_CONFIG_DIR/${LPUB3D}.spec"
-Info "9. update ${LPUB3D}.spec  - add version and date  [$FILE]"
+Info "9. update ${LPUB3D}.spec     - add version and date  [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -314,7 +313,7 @@ else
 fi
 
 FILE="$LP3D_CONFIG_DIR/debian/${LPUB3D}.dsc"
-Info "10.update ${LPUB3D}.dsc   - add version           [$FILE]"
+Info "10.update ${LPUB3D}.dsc      - add version           [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
