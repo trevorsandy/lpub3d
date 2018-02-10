@@ -60,5 +60,8 @@ Michael Klement <mklement0@gmail.com>
 Dmg License script
 Jared Hobbs
 
+NsisMultiUser Plugin <https://github.com/Drizin/NsisMultiUser>
+Ricardo Drizin, Alex Mitev
+
 Linux Porting suggestion
 Milan Vancura

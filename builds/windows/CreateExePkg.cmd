@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: January 31, 2018
+rem  Last Update: February 09, 2018
 rem  Copyright (c) 2015 - 2018 by Trevor SANDY
 rem --
 SETLOCAL
@@ -50,19 +50,23 @@ IF "%APPVEYOR%" EQU "True" (
 IF %AUTO% NEQ 1 (
   ECHO.
   SET /p RUN_NSIS= - Run NSIS? Type 1 to run, 0 to ignore or 'Enter' to accept default [%RUN_NSIS%]:
-  IF %RUN_NSIS% EQU 0 (
-     SET SIGN_APP=0
-     SET CREATE_PORTABLE=0
-  )
   IF %RUN_NSIS% EQU 1 (
     ECHO.
     SET /p SIGN_APP= - Code Sign? Type 1 to sign exes', 0 to ignore or 'Enter' to accept default [%SIGN_APP%]:
   )
   ECHO.
   SET /p TEST_APPVEYOR= - Test APPVEYOR Build? Type 1 to run test build, 0 to ignore or 'Enter' to accept default [%TEST_APPVEYOR%]:
-  IF %TEST_APPVEYOR% EQU 1 (
-    SET APPVEYOR=True
-  )
+)
+IF %RUN_NSIS% EQU 0 (
+  SET SIGN_APP=0
+  SET CREATE_PORTABLE=0
+)
+IF %TEST_APPVEYOR% EQU 1 (
+  SET APPVEYOR=True
+  SET build=release
+  SET APPVEYOR_BUILD_FOLDER=%USERPROFILE%
+  SET APPVEYOR_REPO_BRANCH=master
+  FOR /F "usebackq delims==" %%G IN (`git rev-parse HEAD`) DO SET APPVEYOR_REPO_COMMIT=%%G
 )
 
 ECHO.
@@ -94,8 +98,8 @@ SET SignToolExe="C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe"
 SET utilitiesPath=..\utilities
 SET devRootPath=..\..\mainApp
 
-REM SET LDRAWINI_BUILD_FILE=LDrawIni161.dll
-REM SET QUAZIP_BUILD_FILE=QuaZIP07.dll
+SET LDRAWINI_BUILD_FILE=LDrawIni161.dll
+SET QUAZIP_BUILD_FILE=QuaZIP07.dll
 
 SET LDGLITE_DIR=ldglite-1.3
 SET LDVIEW_DIR=ldview-4.3
@@ -229,6 +233,8 @@ ECHO.
 ECHO - Setting up release build parameters...
 
 CD /D "%utilitiesPath%"
+
+SET LP3D_ICON_DIR=%CD%\icons
 
 CALL update-config-files.bat %_PRO_FILE_PWD_%
 
@@ -385,7 +391,7 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
   ECHO.
   ECHO   LP3D_ARCH......................[%LP3D_ARCH%]
   ECHO   PKG_DISTRO_DIR.................[%PKG_DISTRO_DIR%]
-  CALL :COPYCHANGELOG
+  CALL :COPYFILES
   IF %RUN_NSIS% == 1 CALL :DOWNLOADLDRAWLIBS
   IF %RUN_NSIS% == 1 CALL :GENERATENSISPARAMS
   IF %RUN_NSIS% == 1 CALL :NSISBUILD
@@ -403,7 +409,7 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
     ECHO.
     ECHO   LP3D_ARCH......................[%%A]
     ECHO   PKG_DISTRO_DIR.................[%LP3D_PRODUCT%_%%A]
-    CALL :COPYCHANGELOG
+    CALL :COPYFILES
   )
   IF %RUN_NSIS% == 1 CALL :DOWNLOADLDRAWLIBS
   IF %RUN_NSIS% == 1 CALL :GENERATENSISPARAMS
@@ -425,7 +431,7 @@ IF %AUTO% NEQ 1 (
 
 GOTO :END
 
-:COPYCHANGELOG
+:COPYFILES
 REM Product Full Version Format:
 REM Product _ Version . Revision . Build _ Date YYYYMMDD
 REM LPub3D  _ 2.0.20  . 106      . 752   _ 20170929
@@ -452,6 +458,13 @@ REM pwd = windows/release/LP3D_PRODUCT_DIR
 COPY /V /Y %PKG_DISTRO_DIR%\docs\README.txt %PKG_UPDATE_DIR%\change_log.txt /A | findstr /i /v /r /c:"copied\>"
 COPY /V /Y %PKG_DISTRO_DIR%\docs\README.txt %PKG_UPDATE_DIR%\change_log_%LP3D_VERSION%.txt /A | findstr /i /v /r /c:"copied\>"
 COPY /V /Y %PKG_DISTRO_DIR%\docs\README.txt %PKG_DOWNLOAD_DIR%\ /A | findstr /i /v /r /c:"copied\>"
+
+IF EXIST %PKG_DISTRO_DIR%\docs\COPYING_BRIEF (
+  ECHO.
+  ECHO - Set license file name...
+
+  MOVE /Y %PKG_DISTRO_DIR%\docs\COPYING_BRIEF %PKG_DISTRO_DIR%\docs\COPYING.txt | findstr /i /v /r /c:"moved\>"
+)
 EXIT /b
 
 REM AppVersion.nsh pwd = builds\utilities\nsis-scripts
@@ -463,7 +476,10 @@ SET versionFile=..\..\..\utilities\nsis-scripts\AppVersion.nsh
 SET genVersion=%versionFile% ECHO
 
 :GENERATE AppVersion.nsh NSIS build parameters file
->%genVersion% !define Company %LP3D_COMPANY%
+>%genVersion% !define IconDir "%LP3D_ICON_DIR%"
+>>%genVersion% ; ${IconDir}
+>>%genVersion%.
+>>%genVersion% !define Company %LP3D_COMPANY%
 >>%genVersion% ; ${Company}
 >>%genVersion%.
 >>%genVersion% !define ProductName "%LP3D_PRODUCT%"
@@ -471,6 +487,12 @@ SET genVersion=%versionFile% ECHO
 >>%genVersion%.
 >>%genVersion% !define Version "%LP3D_VERSION%"
 >>%genVersion% ; ${Version}
+>>%genVersion%.
+>>%genVersion% !define VersionMajor "%LP3D_VER_MAJOR%"
+>>%genVersion% ; ${VersionMajor}
+>>%genVersion%.
+>>%genVersion% !define VersionMinor "%LP3D_VER_MINOR%"
+>>%genVersion% ; ${VersionMinor}
 >>%genVersion%.
 >>%genVersion% !define CompleteVersion "%LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD%_%LP3D_YEAR%%LP3D_MONTH%%LP3D_DAY%"
 >>%genVersion% ; ${CompleteVersion}
@@ -495,7 +517,7 @@ SET genVersion=%versionFile% ECHO
 IF %UNIVERSAL_BUILD% EQU 1 (
 >>%genVersion%.
 >>%genVersion% !define WinBuildDir "..\..\windows\release\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_x86_64"
->>%genVersion% ; ${WinBuildDir} - non-binary file location - using x86_64 loc for each arche
+>>%genVersion% ; ${WinBuildDir} - non-binary file location - using x86_64 loc for each arch
 >>%genVersion%.
 >>%genVersion% !define Win64BuildDir "..\..\windows\release\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_x86_64"
 >>%genVersion% ; ${Win64BuildDir}

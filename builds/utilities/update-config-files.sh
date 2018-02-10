@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 31, 2018
+# Last Update February 10, 2018
 # This script is automatically executed by qmake from mainApp.pro
 # It is also called by other config scripts accordingly
 #
@@ -205,6 +205,30 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
+FILE="$LP3D_PWD/../README.md"
+Info "4. update README.md       - add version           [$FILE]"
+SFReplacement="\[sfreleases\]:          https:\/\/sourceforge.net\/projects\/lpub3d\/files"
+WinReplacement="\[windows-url\]:         https:\/\/github.com\/trevorsandy\/lpub3d\/releases\/download\/v${LP3D_VERSION}"
+MacReplacement="\[macos-url\]:           https:\/\/github.com\/trevorsandy\/lpub3d\/releases\/download\/v${LP3D_VERSION}"
+ApImgReplacement="\[appimage-url\]:        https:\/\/github.com\/trevorsandy\/lpub3d\/releases\/download\/v${LP3D_VERSION}"
+if [ -f ${FILE} -a -r ${FILE} ]
+then
+    if [ "$LP3D_OS" = Darwin ]
+    then
+        sed -i "" -e "s/^\[sfreleases\]:.*/${SFReplacement}\/${LP3D_VERSION}/" "${FILE}" \
+                  -e "s/^\[windows-url\]:.*/${WinReplacement}\/${LP3D_APP_VERSION_LONG}.exe/" "${FILE}" \
+                  -e "s/^\[macos-url\]:.*/${MacReplacement}\/${LP3D_APP_VERSION_LONG}-macos.dmg/" "${FILE}" \
+                  -e "s/^\[appimage-url\]:.*/${ApImgReplacement}\/${LP3D_APP_VERSION_LONG}-x86_64.AppImage/" "${FILE}"
+    else
+        sed -i    -e "s/^\[sfreleases\]:.*/${SFReplacement}\/${LP3D_VERSION}/" "${FILE}" \
+                  -e "s/^\[windows-url\]:.*/${WinReplacement}\/${LP3D_APP_VERSION_LONG}.exe/" "${FILE}" \
+                  -e "s/^\[macos-url\]:.*/${MacReplacement}\/${LP3D_APP_VERSION_LONG}-macos.dmg/" "${FILE}" \
+                  -e "s/^\[appimage-url\]:.*/${ApImgReplacement}\/${LP3D_APP_VERSION_LONG}-x86_64.AppImage/" "${FILE}"
+    fi
+else
+    Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
+fi
+
 if [ "${CONTINUOUS_INTEGRATION}" = "true" ];
 then
     # Stop at the end of this block during Travis-CI builds
@@ -217,7 +241,7 @@ then
 fi
 
 FILE="$LP3D_PWD/lpub3d.desktop"
-Info "4. update desktop config  - add version suffix    [$FILE]"
+Info "5. update desktop config  - add version suffix    [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -231,7 +255,7 @@ else
 fi
 
 FILE="$LP3D_PWD/lpub3d.appdata.xml"
-Info "5. update appdata info    - add version and date  [$FILE]"
+Info "6. update appdata info    - add version and date  [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -245,7 +269,7 @@ else
 fi
 
 FILE="$LP3D_PWD/docs/lpub3d${LP3D_APP_VER_SUFFIX}.1"
-Info "6. update man page        - add version suffix    [$FILE]"
+Info "7. update man page        - add version suffix    [$FILE]"
 FILE_TEMPLATE=`ls $LP3D_PWD/docs/lpub3d.*`
 if [ -f ${FILE_TEMPLATE} ];
 then
@@ -268,7 +292,7 @@ else
 fi
 
 FILE="$LP3D_CONFIG_DIR/debian/changelog"
-Info "7. create changelog       - add version and date  [$FILE]"
+Info "8. create changelog       - add version and date  [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     rm ${FILE}
@@ -282,7 +306,7 @@ ${LPUB3D} (${LP3D_APP_VERSION}) debian; urgency=medium
 EOF
 
 FILE="$LP3D_CONFIG_DIR/PKGBUILD"
-Info "8. update PKGBUILD        - add version           [$FILE]"
+Info "9. update PKGBUILD        - add version           [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -296,7 +320,7 @@ else
 fi
 
 FILE="$LP3D_CONFIG_DIR/${LPUB3D}.spec"
-Info "9. update ${LPUB3D}.spec     - add version and date  [$FILE]"
+Info "10.update ${LPUB3D}.spec     - add version and date  [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -313,7 +337,7 @@ else
 fi
 
 FILE="$LP3D_CONFIG_DIR/debian/${LPUB3D}.dsc"
-Info "10.update ${LPUB3D}.dsc      - add version           [$FILE]"
+Info "11.update ${LPUB3D}.dsc      - add version           [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]

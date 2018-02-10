@@ -1,529 +1,759 @@
 ;LPub3D Setup Script
-;Last Update: October 10, 2017
+;Last Update: February 07, 2018
 ;Copyright (C) 2016 - 2018 by Trevor SANDY
 
-;--------------------------------
-;Include Modern UI
+; Install LPub3D and pre-packaged renderers.
 
-  !include "MUI2.nsh"
-  !include "x64.nsh"
+!addplugindir /x86-ansi ".\Plugins\x86-ansi"
+!addplugindir /x86-unicode ".\Plugins\x86-unicode"
+!addincludedir ".\Include"
 
-;--------------------------------
-;Utility functions and macros
-  !include "nsisFunctions.nsh"
+;!include MUI.nsh
+; OR
+!include MUI2.nsh
+!include UAC.nsh
+!include NsisMultiUser.nsh
+!include LogicLib.nsh
+!include Registry.nsh
+!include Utils.nsh
+
 ;--------------------------------
 ;generated define statements
+!include AppVersion.nsh
 
-  ; Include app version details.
-  !include "AppVersion.nsh"
+Var /global CPUArch
+Var /global X64Flag
+Var /global StartMenuFolder
+Var /global CaptionMessage
+Var /global GetInstalledSize.total
 
-;Variables
+;Custom page variables
+Var /global nsDialogFilePathsPage
+Var /global nsDialogFilePathsPage_Font1
 
-  ;sow custom page
-  Var /global nsDialogFilePathsPage
-  Var /global nsDialogFilePathsPage_Font1
-  Var /global StartMenuFolder
-  Var /global LDrawDirPath
-  Var /global BrowseLDraw
-  Var /global LDrawText
+Var /global LDrawDirPath
+Var /global BrowseLDraw
+Var /global LDrawText
 
-  Var /global ParameterFile
-  Var /global InstallUserData
+Var /global ParameterFile
+Var /global InstallUserData
 
-  Var /global UserDataLbl
-  Var /global UserDataInstallChkBox
+Var /global UserDataLbl
+Var /global UserDataInstallChkBox
 
-  Var /global DeleteOldUserDataDirectoryChkBox
-  Var /global CopyExistingUserDataLibrariesChkBox
-  Var /global OverwriteUserDataParamFilesChkBox
+Var /global DeleteOldUserDataDirectoryChkBox
+Var /global CopyExistingUserDataLibrariesChkBox
+Var /global OverwriteUserDataParamFilesChkBox
 
-  Var /global DeleteOldUserDataDirectory
-  Var /global CopyExistingUserDataLibraries
-  Var /global OverwriteUserDataParamFiles
+Var /global DeleteOldUserDataDirectory
+Var /global CopyExistingUserDataLibraries
+Var /global OverwriteUserDataParamFiles
 
-  Var /global LibrariesExist
-  Var /global ParameterFilesExist
-  Var /global OldLibraryDirectoryExist
+Var /global LibrariesExist
+Var /global ParameterFilesExist
+Var /global OldLibraryDirectoryExist
 
-  Var /global LPub3DViewerLibFile
-  Var /global LPub3DViewerLibPath
+Var /global LPub3DViewerLibFile
+Var /global LPub3DViewerLibPath
 
-  Var /global CaptionMessage
+!define PRODUCT_NAME "${ProductName}" ; name of the application as displayed to the user
+!define PROGEXE "${LPub3DBuildFile}" ; main application filename
+!define COMPANY_NAME "${Company}" ; company, used for registry tree hierarchy
+!define SINGLE_INSTANCE_ID "${COMPANY_NAME} ${PRODUCT_NAME} Unique ID" ; do not change this between program versions!
+!define LICENSE_FILE "COPYING.txt" ; license file, optional
+!define README_FILE "README.txt" ; readme file, optional
+!define PUBLISHER_NAME "${Publisher}"
+!define COMPANY_URL "${CompanyURL}"
+!define SUPPORT_EMAIL "${SupportEmail}"
+!define VERSION_MAJOR "${VersionMajor}"
+!define VERSION_MINOR "${VersionMinor}"
+!define MIN_WIN_VER "XP"
+!define PLATFORM "$CPUArch"
 
-;--------------------------------
-;General
+; NsisMultiUser optional defines
+!define MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS 0
+!define MULTIUSER_INSTALLMODE_ALLOW_ELEVATION 1
+!define MULTIUSER_INSTALLMODE_ALLOW_ELEVATION_IF_SILENT 0
+!define MULTIUSER_INSTALLMODE_DEFAULT_ALLUSERS 1
+!define MULTIUSER_INSTALLMODE_64_BIT $X64Flag
+!define MULTIUSER_INSTALLMODE_DISPLAYNAME "${PRODUCT_NAME} ${VERSION} ${PLATFORM}"
 
-  ;Installer name
-  Name "${ProductName} v${Version} Rev ${BuildRevision} Build ${BuildNumber}"
+; Set LPub3D user data path
+!define INSTDIR_AppData "$LOCALAPPDATA\${COMPANY_NAME}\${PRODUCT_NAME}"
 
-  ; Set caption to var that willb set with function .onInit
-  Caption $CaptionMessage
+; Installer Attributes
+Name "${PRODUCT_NAME} ${VERSION} Rev ${BuildRevision} Build ${BuildNumber} ${PLATFORM}"
+Caption $CaptionMessage
+Icon "..\icons\setup.ico"
+UninstallIcon "..\icons\setup.ico"
+BrandingText "©2018 ${COMPANY_NAME}"
+!ifdef UpdateMaster
+  OutFile "${OutFileDir}\${PRODUCT_NAME}-UpdateMaster_${VERSION}.exe"
+!else
+  OutFile "${OutFileDir}\${PRODUCT_NAME}-${CompleteVersion}.exe"
+!endif
 
-  ; Rebrand bottom textrow
-  BrandingText "${Company} Installer"
+AllowSkipFiles off
+SetOverwrite on ; (default setting) set to on except for where it is manually switched off
+ShowInstDetails hide ; Show install details (show|hide|nevershow)
+SetCompressor /SOLID lzma
 
-  ; Show install details (show|hide|nevershow)
-  ShowInstDetails hide
+; Pages
+!define MUI_ICON "..\icons\setup.ico"
+!define MUI_UNICON "..\icons\setup.ico"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "..\icons\welcome.bmp"
 
-  SetCompressor /SOLID lzma
+!define MUI_ABORTWARNING ; Show a confirmation when cancelling the installation
 
-  ;pwd = builds\utilities\nsis-scripts
-  ;The files to write
-  !ifdef UpdateMaster
-  OutFile "${OutFileDir}\${ProductName}-UpdateMaster_${Version}.exe"
-  !else
-  OutFile "${OutFileDir}\${ProductName}-${CompleteVersion}.exe"
+!define MUI_PAGE_CUSTOMFUNCTION_PRE PageWelcomeLicensePre
+!insertmacro MUI_PAGE_WELCOME
+
+!ifdef LICENSE_FILE
+  !define MUI_PAGE_CUSTOMFUNCTION_PRE PageWelcomeLicensePre
+  !insertmacro MUI_PAGE_LICENSE "${WinBuildDir}\docs\${LICENSE_FILE}"
+!endif
+
+!define MUI_PAGE_CUSTOMFUNCTION_PRE PageReadmePre
+!define MUI_PAGE_HEADER_TEXT "Readme File"
+!define MUI_PAGE_HEADER_SUBTEXT "Please review the readme file before installing ${PRODUCT_NAME} ${VERSION} ${PLATFORM}."
+!define MUI_LICENSEPAGE_TEXT_TOP "Press Page Down to see the rest of the readme file."
+!define MUI_LICENSEPAGE_TEXT_BOTTOM "When you have finished reading, click on Next to continue the installation."
+!insertmacro MUI_PAGE_LICENSE "${WinBuildDir}\docs\${README_FILE}"
+
+!define MULTIUSER_INSTALLMODE_CHANGE_MODE_FUNCTION PageInstallModeChangeMode
+!insertmacro MULTIUSER_PAGE_INSTALLMODE
+
+!define MUI_COMPONENTSPAGE_SMALLDESC
+!insertmacro MUI_PAGE_COMPONENTS
+
+!define MUI_PAGE_CUSTOMFUNCTION_PRE PageDirectoryPre
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW PageDirectoryShow
+!insertmacro MUI_PAGE_DIRECTORY
+
+;Custom page, Initialize library settings for smoother install.
+Page custom nsDialogShowCustomPage nsDialogLeaveCustomPage
+
+!define MUI_STARTMENUPAGE_NODISABLE ; Do not display the checkbox to disable the creation of Start Menu shortcuts
+!define MUI_STARTMENUPAGE_DEFAULTFOLDER "${PRODUCT_NAME}"
+!define MUI_STARTMENUPAGE_REGISTRY_ROOT "SHCTX" ; writing to $StartMenuFolder happens in MUI_STARTMENU_WRITE_END, so it's safe to use "SHCTX" here
+!define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+!define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "StartMenuFolder"
+!define MUI_PAGE_CUSTOMFUNCTION_PRE PageStartMenuPre
+!insertmacro MUI_PAGE_STARTMENU "" "$StartMenuFolder"
+
+!insertmacro MUI_PAGE_INSTFILES
+
+!define MUI_FINISHPAGE_NOAUTOCLOSE
+!define MUI_FINISHPAGE_RUN
+!define MUI_FINISHPAGE_RUN_FUNCTION PageFinishRun
+!define MUI_FINISHPAGE_LINK "${CompanyURL}"
+!define MUI_FINISHPAGE_LINK_LOCATION "${CompanyURL}"
+!insertmacro MUI_PAGE_FINISH
+
+!include Uninstall.nsh
+
+!insertmacro MUI_LANGUAGE "English" ; Set languages (first is default language) - must be inserted after all pages
+
+;Language strings
+LangString CUST_PAGE_TITLE ${LANG_ENGLISH} "LDraw Library"
+LangString CUST_PAGE_SUBTITLE ${LANG_ENGLISH} "Enter path for your LDraw directory and select user data options"
+LangString CUST_PAGE_OVERWRITE_TITLE ${LANG_ENGLISH} "Overwrite Configuration Files"
+LangString CUST_PAGE_OVERWRITE_SUBTITLE ${LANG_ENGLISH} "Check the box next to the configuration file you would like to overwrite."
+
+;backup legacy registry key
+!insertmacro COPY_REGISTRY_KEY
+
+InstType "Typical"
+InstType "Minimal"
+InstType "Full"
+
+Section "Core Files (required)" SectionCoreFiles
+  SectionIn 1 2 3 RO
+
+  ; if there's an installed version, uninstall it first (I chose not to start the uninstaller silently, so that user sees what failed)
+  ; if both per-user and per-machine versions are installed, unistall the one that matches $MultiUser.InstallMode
+  StrCpy $0 ""
+  ${if} $HasCurrentModeInstallation == 1
+    StrCpy $0 "$MultiUser.InstallMode"
+  ${else}
+    !if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} == 0
+      ${if} $HasPerMachineInstallation == 1
+        StrCpy $0 "AllUsers" ; if there's no per-user installation, but there's per-machine installation, uninstall it
+      ${elseif} $HasPerUserInstallation == 1
+        StrCpy $0 "CurrentUser" ; if there's no per-machine installation, but there's per-user installation, uninstall it
+      ${endif}
+    !endif
+  ${endif}
+
+  ;Machine installation returned null so check nstallation folder for legacy installs
+  StrCpy $4 ""
+  ${if} "$0" == ""
+    ReadRegStr $PerMachineInstallationFolder HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Installation" "InstallPath"
+    IfFileExists "$PerMachineInstallationFolder\Uninstall.exe" 0 End
+    StrCpy $PerMachineUninstallString "$PerMachineInstallationFolder\Uninstall.exe"
+    StrCpy $0 "AllUsers"
+    StrCpy $4 1
+    End:
+  ${endif}
+
+  ;Remove previous installation
+  ${if} "$0" != ""
+    ${if} $0 == "AllUsers"
+      StrCpy $1 "$PerMachineUninstallString"
+      StrCpy $3 "$PerMachineInstallationFolder"
+    ${else}
+      StrCpy $1 "$PerUserUninstallString"
+      StrCpy $3 "$PerUserInstallationFolder"
+    ${endif}
+    ${if} ${silent}
+      StrCpy $2 "/S"
+    ${else}
+      StrCpy $2 ""
+    ${endif}
+    DetailPrint "UninstallString $1$\nInstallationFolder $3"
+
+    ; Legacy installs will delete everything on Uninstall so ackup user data and registry keys
+    ${if} $4 == 1
+      !insertmacro BackupFolder "${INSTDIR_AppData}" "$LOCALAPPDATA\temp\${PRODUCT_NAME}"
+      ${COPY_REGISTRY_KEY} HKCU "Software\${COMPANY_NAME}" HKCU "Software\LPUB3D_BACKUP\${COMPANY_NAME}"
+      ; manually copy uninstaller to temp dir so it can be deleted in the install folder
+      InitPluginsDir
+      CreateDirectory "$pluginsdir\uninst"
+      CopyFiles /SILENT /FILESONLY "$PerUserInstallationFolder\Uninstall.exe" "$pluginsdir\uninst\Uninstall.exe"
+      StrCpy $1 "$pluginsdir\uninst\Uninstall.exe"
+    ${endif}
+
+    HideWindow
+    ClearErrors
+    StrCpy $0 0
+    DetailPrint "Uninstall Command: ExecWait '$1 /SS $2 _?=$3'"
+    ExecWait '$1 /SS $2 _?=$3' $0 ; $1 is quoted in registry; the _? param stops the uninstaller from copying itself to the temporary directory, which is the only way for ExecWait to work
+
+    ${if} ${errors} ; stay in installer
+      SetErrorLevel 2 ; Installation aborted by script
+      BringToFront
+      Abort "Error executing uninstaller."
+    ${else}
+      ${Switch} $0
+        ${Case} 0 ; uninstaller completed successfully - continue with installation
+          BringToFront
+          ${Break}
+        ${Case} 1 ; Installation aborted by user (cancel button)
+        ${Case} 2 ; Installation aborted by script
+          SetErrorLevel $0
+          Quit ; uninstaller was started, but completed with errors - Quit installer
+        ${Default} ; all other error codes - uninstaller could not start, elevate, etc. - Abort installer
+          SetErrorLevel $0
+          BringToFront
+          Abort "Error executing uninstaller."
+      ${EndSwitch}
+    ${endif}
+
+    ; Restore legacy user data and registry keys
+    ${if} $4 == 1
+      !insertmacro RestoreFolder "$LOCALAPPDATA\temp\${PRODUCT_NAME}" "${INSTDIR_AppData}"
+      ${COPY_REGISTRY_KEY} HKCU "Software\LPUB3D_BACKUP\${COMPANY_NAME}" HKCU "Software\${COMPANY_NAME}"
+      ; Cleanup legacy user data backup
+      DeleteRegKey HKCU "Software\LPUB3D_BACKUP\${COMPANY_NAME}"
+      ; Cleanup unused registry values
+      DeleteRegKey HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Installation"
+      DeleteRegValue HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\POVRay" "L3P"
+      DeleteRegValue HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\POVRay" "POVRayFileGenerator"
+      DeleteRegValue HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "LDGLite"
+      DeleteRegValue HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "LDView"
+      DeleteRegValue HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "POVRay"
+      ; Cleanup erroneously deposited legacy files
+      Delete "$PerMachineInstallationFolder\fadeStepColorParts.lst"
+    ${endif}
+
+    Delete "$2\${UNINSTALL_FILENAME}" ; the uninstaller doesn't delete itself when not copied to the temp directory
+    RMDir "$2"
+  ${endif}
+
+  SetOutPath $INSTDIR
+  ; Write uninstaller and registry uninstall info as the first step,
+  ; so that the user has the option to run the uninstaller if sth. goes wrong
+  WriteUninstaller "${UNINSTALL_FILENAME}"
+  !insertmacro MULTIUSER_RegistryAddInstallInfo ; add registry keys
+
+  ; Core files to be installed.
+  !include "LPub3DInstallFiles.nsh"
+
+  !ifdef LICENSE_FILE
+    File "${WinBuildDir}\docs\${LICENSE_FILE}"
   !endif
 
-  ;Default installation folder
-  InstallDir "$INSTDIR"
+  ;User data setup
+  ${If} $InstallUserData == 1       # install user data
 
-  ;Check if installation directory registry key exist
-  ;Get installation folder from registry if available
-  InstallDirRegKey HKCU "Software\${Company}\${ProductName}\Installation" "InstallPath"
+    ;ldraw libraries - user data location
+    CreateDirectory "${INSTDIR_AppData}\libraries"
 
-  Icon "..\icons\setup.ico"
+    ${If} $CopyExistingUserDataLibraries == 1
+      Call fnCopyLibraries
+    ${Else}
+      Call fnInstallLibraries
+    ${EndIf}
 
-  !define MUI_ICON "..\icons\setup.ico"
-  !define MUI_UNICON "..\icons\setup.ico"
+    ${If} $DeleteOldUserDataDirectory == 1
+      ${AndIf} ${DirExists} $LPub3DViewerLibPath
+          RMDir /r $LPub3DViewerLibPath
+    ${EndIf}
 
-  ; Execution level
-  RequestExecutionLevel admin
+    ;extras contents
+    CreateDirectory "${INSTDIR_AppData}\extras"
+    SetOutPath "${INSTDIR_AppData}\extras"
+    File "${WinBuildDir}\extras\PDFPrint.jpg"
+    File "${WinBuildDir}\extras\pli.mpd"
 
-;--------------------------------
-;Interface Settings
+    ${If} $OverwriteUserDataParamFiles == 0
+      ; Always overwrite fadeStepColorParts.lst but backup first
+      IfFileExists "${INSTDIR_AppData}\extras\fadeStepColorParts.lst" 0 +2
+      !insertmacro BackupFile "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppData}\extras\${PRODUCT_NAME}.${MyTIMESTAMP}.bak"
+      SetOverwrite on
+      File "${WinBuildDir}\extras\fadeStepColorParts.lst"
+      SetOverwrite off
+      File "${WinBuildDir}\extras\excludedParts.lst"
+      File "${WinBuildDir}\extras\freeformAnnotations.lst"
+      File "${WinBuildDir}\extras\LDConfig.ldr"
+      File "${WinBuildDir}\extras\pli.mpd"
+      File "${WinBuildDir}\extras\pliSubstituteParts.lst"
+      File "${WinBuildDir}\extras\titleAnnotations.lst"
+    ${Else}
+      SetOverwrite on
+      File "${WinBuildDir}\extras\excludedParts.lst"
+      File "${WinBuildDir}\extras\fadeStepColorParts.lst"
+      File "${WinBuildDir}\extras\freeformAnnotations.lst"
+      File "${WinBuildDir}\extras\LDConfig.ldr"
+      File "${WinBuildDir}\extras\pli.mpd"
+      File "${WinBuildDir}\extras\pliSubstituteParts.lst"
+      File "${WinBuildDir}\extras\titleAnnotations.lst"
+    ${EndIf}
 
-  !define MUI_ABORTWARNING
+    ;Store/Update library folder
+    WriteRegStr HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "PartsLibrary" "${INSTDIR_AppData}\libraries\complete.zip"
 
-;--------------------------------
-;Pages
+  ${Else}               # do not install user data (backup and write new version of fadeStepColorParts.lst if already exist)
+    IfFileExists "${INSTDIR_AppData}\extras\fadeStepColorParts.lst" 0 GoToEnd
+    !insertmacro BackupFile "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppData}\extras\${PRODUCT_NAME}.${MyTIMESTAMP}.bak"
+    SetOutPath "${INSTDIR_AppData}\extras"
+    SetOverwrite on
+    File "${WinBuildDir}\extras\fadeStepColorParts.lst"
+    GoToEnd:
+  ${EndIf}
 
-  !define MUI_WELCOMEFINISHPAGE_BITMAP "..\icons\welcome.bmp"
-  !insertmacro MUI_PAGE_WELCOME
-  !insertmacro MUI_PAGE_LICENSE "${WinBuildDir}\docs\COPYING.txt"
-  !insertmacro MUI_PAGE_DIRECTORY
+  ; Add size for user applicaiton data
+  AddSize 50
+SectionEnd
 
-  ;Custom page, Initialize library settings for smoother install.
-  Page custom nsDialogShowCustomPage nsDialogLeaveCustomPage
+Section "Documentation" SectionDocumentation
+  SectionIn 1 3
 
-  ;Start Menu Folder Page Configuration
-  !define MUI_STARTMENUPAGE_DEFAULTFOLDER "${ProductName}"
-  !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU"
-  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\${Company}\${ProductName}\Installation"
-  !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "StartMenuFolder"
-  !insertmacro MUI_PAGE_STARTMENU Application $StartMenuFolder
+  SetOutPath $INSTDIR
+  File "${WinBuildDir}\docs\${README_FILE}"
 
-  !insertmacro MUI_PAGE_INSTFILES
+SectionEnd
 
-  ;These indented statements modify settings for MUI_PAGE_FINISH
-  !define MUI_FINISHPAGE_NOAUTOCLOSE
-  !define MUI_FINISHPAGE_RUN
-  !define MUI_FINISHPAGE_RUN_NOTCHECKED
-  !define MUI_FINISHPAGE_RUN_TEXT "Launch ${ProductName}"
-  !define MUI_FINISHPAGE_RUN_FUNCTION "RunFunction"
+SectionGroup /e "Integration" SectionGroupIntegration
 
-  !define MUI_FINISHPAGE_SHOWREADME "${ProductName}"
-  !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
-  !define MUI_FINISHPAGE_SHOWREADME_TEXT "Install Desktop Icon"
-  !define MUI_FINISHPAGE_SHOWREADME_FUNCTION "desktopIcon"
-  !define MUI_FINISHPAGE_LINK "${CompanyURL}"
-  !define MUI_FINISHPAGE_LINK_LOCATION "${CompanyURL}"
+Section "Program Group" SectionProgramGroup
+  SectionIn 1 3
 
-  !define MUI_PAGE_CUSTOMFUNCTION_SHOW FinishFunction
-  !insertmacro MUI_PAGE_FINISH
+  !insertmacro MUI_STARTMENU_WRITE_BEGIN ""
 
-  ;Uninstall pages
-  !define MUI_UNWELCOMEFINISHPAGE_BITMAP "..\icons\welcome.bmp"
-  !define MUI_FINISHPAGE_LINK "${CompanyURL}"
-  !define MUI_FINISHPAGE_LINK_LOCATION "${CompanyURL}"
-  !insertmacro MUI_UNPAGE_WELCOME
-  !insertmacro MUI_UNPAGE_CONFIRM
-  !insertmacro MUI_UNPAGE_INSTFILES
-  !insertmacro MUI_UNPAGE_FINISH
+    CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
+    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
 
-;--------------------------------
-;Languages
+    !ifdef LICENSE_FILE
+      CreateShortCut "$SMPROGRAMS\$StartMenuFolder\License Agreement.lnk" "$INSTDIR\${LICENSE_FILE}"
+    !endif
+    ${if} $MultiUser.InstallMode == "AllUsers"
+      CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\${UNINSTALL_FILENAME}" "/allusers"
+    ${else}
+      CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall (current user).lnk" "$INSTDIR\${UNINSTALL_FILENAME}" "/currentuser"
+    ${endif}
 
-  !insertmacro MUI_LANGUAGE "English"
+  !insertmacro MUI_STARTMENU_WRITE_END
+SectionEnd
 
-;--------------------------------
-;Descriptions
+Section "Dektop Icon" SectionDesktopIcon
+  SectionIn 1 3
 
-  ;Language strings
-  LangString CUST_PAGE_TITLE ${LANG_ENGLISH} "LDraw Library"
-  LangString CUST_PAGE_SUBTITLE ${LANG_ENGLISH} "Enter path for your LDraw directory and select user data options"
+  CreateShortCut "$DESKTOP\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
+SectionEnd
 
-  LangString CUST_PAGE_OVERWRITE_TITLE ${LANG_ENGLISH} "Overwrite Configuration Files"
-  LangString CUST_PAGE_OVERWRITE_SUBTITLE ${LANG_ENGLISH} "Check the box next to the configuration file you would like to overwrite."
+Section /o "Start Menu Icon" SectionStartMenuIcon
+  SectionIn 3
 
-;--------------------------------
-;Initialize install directory
+  CreateShortCut "$STARTMENU\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
+SectionEnd
 
+Section /o "Quick Launch" SectionQuickLaunchIcon
+  SectionIn 3
+
+  ; The QuickLaunch is always only for the current user
+  CreateShortCut "$QUICKLAUNCH\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
+SectionEnd
+SectionGroupEnd
+
+Section "-Write Install Size" ; hidden section, write install size as the final step
+;Get installed size
+  Call GetInstalledSize
+  pop $0
+  !insertmacro MULTIUSER_RegistryAddInstallSizeInfo $0
+SectionEnd
+
+; Modern install component descriptions
+!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+  !insertmacro MUI_DESCRIPTION_TEXT ${SectionCoreFiles} "Core files requred to run ${PRODUCT_NAME}."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SectionDocumentation} "README file for ${PRODUCT_NAME}."
+
+  !insertmacro MUI_DESCRIPTION_TEXT ${SectionGroupIntegration} "Select how to integrate the program in Windows."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SectionProgramGroup} "Create a ${PRODUCT_NAME} program group under Start Menu > Programs."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SectionDesktopIcon} "Create ${PRODUCT_NAME} icon on the Desktop."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SectionStartMenuIcon} "Create ${PRODUCT_NAME} icon in the Start Menu."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SectionQuickLaunchIcon} "Create ${PRODUCT_NAME} icon in Quick Launch."
+!insertmacro MUI_FUNCTION_DESCRIPTION_END
+
+; Callbacks
 Function .onInit
+   ${If} ${RunningX64}
+     StrCpy $X64Flag 1
+     StrCpy $CPUArch "Win64"
+   ${Else}
+     StrCpy $X64Flag 0
+     StrCpy $CPUArch "Win32"
+   ${EndIf}
+
+  !insertmacro CheckPlatform ${PLATFORM}
+  !insertmacro CheckMinWinVer ${MIN_WIN_VER}
+  ${ifnot} ${UAC_IsInnerInstance}
+    !insertmacro CheckSingleInstance "${SINGLE_INSTANCE_ID}"
+  ${endif}
+
+  !insertmacro MULTIUSER_INIT
+
+  !define /ifndef GetInstalledSize.total 0
 
   ; Set caption according to architecture
   StrCmp ${UniversalBuild} "1" 0 SignleArchBuild
-  StrCpy $CaptionMessage "${ProductName} 32,64bit Setup"
+  StrCpy $CaptionMessage "${PRODUCT_NAME} 32,64bit Setup"
   GoTo InitDataVars
 
   SignleArchBuild:
   StrCmp ${ArchExt} "x64" 0 +2
-  StrCpy $CaptionMessage "${ProductName} 64bit Setup"
-  StrCpy $CaptionMessage "${ProductName} 32bit Setup"
+  StrCpy $CaptionMessage "${PRODUCT_NAME} 64bit Setup"
+  StrCpy $CaptionMessage "${PRODUCT_NAME} 32bit Setup"
 
   InitDataVars:
   ;Initialize user data vars
   Call fnInitializeUserDataVars
 
-  ;Get Ldraw library folder and archive file paths from registry if available
-   ReadRegStr $LDrawDirPath HKCU "Software\${Company}\${ProductName}\Settings" "LDrawDir"
-   ReadRegStr $LPub3DViewerLibFile HKCU "Software\${Company}\${ProductName}\Settings" "PartsLibrary"
-   ReadRegStr $ParameterFile HKCU "Software\${Company}\${ProductName}\Settings" "TitleAnnotationFile"
+  ;Get Ldraw library folder, archive file paths, and uninstall string from registry if available
+  ReadRegStr $LDrawDirPath HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "LDrawDir"
+  ReadRegStr $LPub3DViewerLibFile HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "PartsLibrary"
+  ReadRegStr $ParameterFile HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "TitleAnnotationFile"
 
   ;Verify old library directory exist - and is not the same as new library directory
-   Push $LPub3DViewerLibFile
-   Call fnGetParent
-   Pop $R0
-   StrCpy $LPub3DViewerLibPath $R0
+  Push $LPub3DViewerLibFile
+  Call fnGetParent
+  Pop $R0
+  StrCpy $LPub3DViewerLibPath $R0
   ${If} ${DirExists} $LPub3DViewerLibPath
-	Call fnVerifyDeleteDirectory
+    Call fnVerifyDeleteDirectory
   ${EndIf}
 
   ;Verify if library files are installed - just check one
-  IfFileExists $LPub3DViewerLibFile 0 next
+  IfFileExists $LPub3DViewerLibFile 0 checkParamFiles
   StrCpy $LibrariesExist 1
 
-  next:
+  checkParamFiles:
   ;Verify if parameter files are installed - just check one
-  IfFileExists $ParameterFile 0 continue
+  IfFileExists $ParameterFile 0 finished
   StrCpy $ParameterFilesExist 1
 
-  continue:
-  ;Identify installation folder
-  ${If} ${DirExists} $LDrawDirPath
-	StrCpy $INSTDIR $LDrawDirPath
-  ${Else}
-	${If} ${RunningX64}
-	  StrCpy $INSTDIR "$PROGRAMFILES64\${ProductName}"
-	${Else}
-	  StrCpy $INSTDIR "$PROGRAMFILES32\${ProductName}"
-	${EndIf}
-  ${EndIf}
+  finished:
+FunctionEnd
+
+Function PageWelcomeLicensePre
+  ${if} $InstallShowPagesBeforeComponents == 0
+    Abort ; don't display the Welcome and License pages for the inner instance
+  ${endif}
+FunctionEnd
+
+Function PageReadmePre
+  ${if} $InstallShowPagesBeforeComponents == 0
+    Abort ; don't display the Readme page for the inner instance
+  ${endif}
+  GetDlgItem $0 $HWNDPARENT 1
+  SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^NextBtn)" ;Change 'I Agree' button to 'Next'
+FunctionEnd
+
+Function PageInstallModeChangeMode
+  !insertmacro MUI_STARTMENU_GETFOLDER "" $StartMenuFolder
+FunctionEnd
+
+Function PageDirectoryPre
+  GetDlgItem $0 $HWNDPARENT 1
+  ${if} ${SectionIsSelected} ${SectionProgramGroup}
+    SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^NextBtn)" ; this is not the last page before installing
+  ${else}
+    SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^InstallBtn)" ; this is the last page before installing
+  ${endif}
+FunctionEnd
+
+Function PageDirectoryShow
+  ${if} $CmdLineDir != ""
+    FindWindow $R1 "#32770" "" $HWNDPARENT
+
+    GetDlgItem $0 $R1 1019 ; Directory edit
+    SendMessage $0 ${EM_SETREADONLY} 1 0 ; read-only is better than disabled, as user can copy contents
+
+    GetDlgItem $0 $R1 1001 ; Browse button
+    EnableWindow $0 0
+  ${endif}
+FunctionEnd
+
+Function PageStartMenuPre
+  ${ifnot} ${SectionIsSelected} ${SectionProgramGroup}
+    Abort ; don't display this dialog if SectionProgramGroup is not selected
+  ${endif}
+FunctionEnd
+
+Function PageFinishRun
+  ; the installer might exit too soon before the application starts and it loses the right to be the foreground window and starts in the background
+  ; however, if there's no active window when the application starts, it will become the active window, so we hide the installer
+  HideWindow
+  ; the installer will show itself again quickly before closing (w/o Taskbar button), we move it offscreen
+  !define SWP_NOSIZE 0x0001
+  !define SWP_NOZORDER 0x0004
+  System::Call "User32::SetWindowPos(i, i, i, i, i, i, i) b ($HWNDPARENT, 0, -1000, -1000, 0, 0, ${SWP_NOZORDER}|${SWP_NOSIZE})"
+
+  !insertmacro UAC_AsUser_ExecShell "open" "$INSTDIR\${PROGEXE}" "" "$INSTDIR" ""
+FunctionEnd
+
+Function .onInstFailed
+  MessageBox MB_ICONSTOP "${PRODUCT_NAME} ${VERSION} could not be fully installed.$\r$\nPlease, restart Windows and run the setup program again." /SD IDOK
+FunctionEnd
+
+; Return on top of stack the total size of the selected (installed) sections, formated as DWORD
+; Assumes no more than 256 sections are defined
+Function GetInstalledSize
+  Push $0
+  Push $1
+  StrCpy $GetInstalledSize.total 0
+  ${ForEach} $1 0 256 + 1
+    ${if} ${SectionIsSelected} $1
+      SectionGetSize $1 $0
+      IntOp $GetInstalledSize.total $GetInstalledSize.total + $0
+    ${Endif}
+
+    ; Error flag is set when an out-of-bound section is referenced
+    ${if} ${errors}
+      ${break}
+    ${Endif}
+  ${Next}
+
+  ClearErrors
+  Pop $1
+  Pop $0
+  IntFmt $GetInstalledSize.total "0x%08X" $GetInstalledSize.total
+  Push $GetInstalledSize.total
 FunctionEnd
 
 ;--------------------------------
-;Installer Sections
-
-Section "${ProductName} (required)" SecMain${ProductName}
-
-  ;install directory
-  SetOutPath "$INSTDIR"
-
-;--------------------------------
-;generated define statements
-
-  ; Add files to be installed.
-  !include "LPub3DInstallFiles.nsh"
-
-  ;Store installation folder
-  WriteRegStr HKCU "Software\${Company}\${ProductName}\Installation" "InstallPath" $INSTDIR
-
-  ;User data setup
-  ${If} $InstallUserData == 1		# install user data
-
-	  SetShellVarContext current
-	  !define INSTDIR_AppData "$LOCALAPPDATA\${Company}\${ProductName}"
-
-	  ;ldraw libraries - user data location
-	  CreateDirectory "${INSTDIR_AppData}\libraries"
-
-	  ${If} $CopyExistingUserDataLibraries == 1
-		Call fnCopyLibraries
-	  ${Else}
-		Call fnInstallLibraries
-	  ${EndIf}
-
-	  ${If} $DeleteOldUserDataDirectory == 1
-		${AndIf} ${DirExists} $LPub3DViewerLibPath
-			RMDir /r $LPub3DViewerLibPath
-	  ${EndIf}
-
-	  ;extras contents
-	  CreateDirectory "${INSTDIR_AppData}\extras"
-	  SetOutPath "${INSTDIR_AppData}\extras"
-	  File "${WinBuildDir}\extras\PDFPrint.jpg"
-	  File "${WinBuildDir}\extras\pli.mpd"
-
-	 ${If} $OverwriteUserDataParamFiles == 0
-	  IfFileExists "${INSTDIR_AppData}\extras\fadeStepColorParts.lst" 0 +2
-	  !insertmacro BackupFile "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppData}\extras\${ProductName}.${MyTIMESTAMP}.bak"
-	  SetOverwrite on
-	  File "${WinBuildDir}\extras\fadeStepColorParts.lst"
-	  SetOverwrite off
-	  File "${WinBuildDir}\extras\LDConfig.ldr"
-	  File "${WinBuildDir}\extras\titleAnnotations.lst"
-	  File "${WinBuildDir}\extras\freeformAnnotations.lst"
-	  File "${WinBuildDir}\extras\pliSubstituteParts.lst"
-	  File "${WinBuildDir}\extras\excludedParts.lst"
-	 ${Else}
-	  SetOverwrite on
-	  File "${WinBuildDir}\extras\LDConfig.ldr"
-	  File "${WinBuildDir}\extras\titleAnnotations.lst"
-	  File "${WinBuildDir}\extras\freeformAnnotations.lst"
-	  File "${WinBuildDir}\extras\fadeStepColorParts.lst"
-	  File "${WinBuildDir}\extras\pliSubstituteParts.lst"
-	  File "${WinBuildDir}\extras\excludedParts.lst"
-	 ${EndIf}
-
-	  ;Store/Update library folder
-	  WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "PartsLibrary" "${INSTDIR_AppData}\libraries\complete.zip"
-
-  ${Else}				# do not install user data (backup and write new version of fadeStepColorParts.lst if already exist)
-  	  IfFileExists "${INSTDIR_AppData}\extras\fadeStepColorParts.lst" 0 DoNothing
-	  !insertmacro BackupFile "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppData}\extras\${ProductName}.${MyTIMESTAMP}.bak"
-	  SetOverwrite on
-	  File "${WinBuildDir}\extras\fadeStepColorParts.lst"
-      DoNothing:
-  ${EndIf}
-
-  ;Create uninstaller
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "DisplayIcon" '"$INSTDIR\${LPub3DBuildFile}"'
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "DisplayName" "${ProductName}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "DisplayVersion" "${Version}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "Publisher" "${Publisher}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "URLInfoAbout" "${CompanyURL}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "URLUpdateInfo" "${CompanyURL}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "HelpLink" "${SupportEmail}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "Comments" "${Comments}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "UninstallString" '"$INSTDIR\Uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "EstimatedSize" 106000
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "NoModify" 1
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}" "NoRepair" 1
-  WriteUninstaller "$INSTDIR\Uninstall.exe"
-
-  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
-
-    ;set to install directory
-    SetOutPath "$INSTDIR"
-
-    ;Create shortcuts
-	SetShellVarContext all
-    CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
-	CreateShortCut "$SMPROGRAMS\$StartMenuFolder\${ProductName}.lnk" "$INSTDIR\${LPub3DBuildFile}"
-    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall ${ProductName}.lnk" "$INSTDIR\Uninstall.exe"
-
-  !insertmacro MUI_STARTMENU_WRITE_END
-
-SectionEnd
-
-;--------------------------------
 ;Custom nsDialogFilePathsPage to Capture Libraries
-
 Function nsDialogShowCustomPage
-
   ;Display the InstallOptions nsDialogFilePathsPage
   !insertmacro MUI_HEADER_TEXT $(CUST_PAGE_TITLE) $(CUST_PAGE_SUBTITLE)
 
   #Create nsDialogFilePathsPage and quit if error
-	nsDialogs::Create 1018
-	Pop $nsDialogFilePathsPage
+  nsDialogs::Create 1018
+  Pop $nsDialogFilePathsPage
 
-	${If} $nsDialogFilePathsPage == error
-		Abort
-	${EndIf}
+  ${If} $nsDialogFilePathsPage == error
+      Abort
+  ${EndIf}
 
-	; custom font definition
-	CreateFont $nsDialogFilePathsPage_Font1 "Microsoft Sans Serif" "7.25" "400"
+  ; custom font definition
+  CreateFont $nsDialogFilePathsPage_Font1 "Microsoft Sans Serif" "7.25" "400"
 
-    ; === UserDataLbl (type: Label) ===
-    ${NSD_CreateLabel} 7.9u 0.62u 280.41u 14.15u ""
-    Pop $UserDataLbl
-	SendMessage $UserDataLbl ${WM_SETFONT} $nsDialogFilePathsPage_Font1 0
-    SetCtlColors $UserDataLbl 0xFF0000 0xF0F0F0
+  ; === UserDataLbl (type: Label) ===
+  ${NSD_CreateLabel} 7.9u 0.62u 280.41u 14.15u ""
+  Pop $UserDataLbl
+  SendMessage $UserDataLbl ${WM_SETFONT} $nsDialogFilePathsPage_Font1 0
+  SetCtlColors $UserDataLbl 0xFF0000 0xF0F0F0
 
-    ; === grpBoxPaths (type: GroupBox) ===
-    ${NSD_CreateGroupBox} 7.9u 21.54u 281.72u 35.08u "Define LDraw Library Path"
+  ; === grpBoxPaths (type: GroupBox) ===
+  ${NSD_CreateGroupBox} 7.9u 16.62u 281.72u 35.08u "Define LDraw Library Path"
 
-    ; === LDrawText (type: Text) ===
-    ${NSD_CreateText} 17.11u 35.08u 213.92u 12.31u "$LDrawDirPath"
-	Pop $LDrawText
+  ; === LDrawText (type: Text) ===
+  ${NSD_CreateText} 17.11u 30.15u 213.92u 12.31u "$LDrawDirPath"
+  Pop $LDrawText
 
-    ; === BrowseLDraw (type: Button) ===
-    ${NSD_CreateButton} 234.99u 33.85u 49.37u 14.15u "Browse"
-	Pop $BrowseLDraw
+  ; === BrowseLDraw (type: Button) ===
+  ${NSD_CreateButton} 234.99u 28.92u 49.37u 14.15u "Browse"
+  Pop $BrowseLDraw
 
-	; === UserDataInstallChkBox (type: Checkbox) ===
-	${NSD_CreateCheckbox} 7.9u 62.15u 281.72u 14.77u "Check to install user data now or uncheck to install at first application launch"
-	Pop $UserDataInstallChkBox
+  ; === UserDataInstallChkBox (type: Checkbox) ===
+  ${NSD_CreateCheckbox} 17.11u 67.08u 267.24u 14.77u "Check to install user data now or uncheck to install at first application launch"
+  Pop $UserDataInstallChkBox
 
-	; === DeleteOldUserDataDirectoryChkBox (type: Checkbox) ===
-    ${NSD_CreateCheckbox} 7.9u 118.15u 143.49u 14.77u "Delete old archive library directory"
-    Pop $DeleteOldUserDataDirectoryChkBox
+  ; === DeleteOldUserDataDirectoryChkBox (type: Checkbox) ===
+  ${NSD_CreateCheckbox} 17.11u 108.31u 134.28u 14.77u "Delete old archive library directory"
+  Pop $DeleteOldUserDataDirectoryChkBox
 
-    ; === OverwriteUserDataParamFilesChkBox (type: Checkbox) ===
-    ${NSD_CreateCheckbox} 7.9u 80.62u 143.49u 14.77u "Overwrite existing parameter files"
-    Pop $OverwriteUserDataParamFilesChkBox
+  ; === OverwriteUserDataParamFilesChkBox (type: Checkbox) ===
+  ${NSD_CreateCheckbox} 17.11u 80.62u 134.28u 14.77u "Overwrite existing parameter files"
+  Pop $OverwriteUserDataParamFilesChkBox
 
-    ; === CopyExistingUserDataLibrariesChkBox (type: Checkbox) ===
-    ${NSD_CreateCheckbox} 7.9u 99.08u 143.49u 14.77u "Use existing LDraw archive libraries"
-    Pop $CopyExistingUserDataLibrariesChkBox
+  ; === CopyExistingUserDataLibrariesChkBox (type: Checkbox) ===
+  ${NSD_CreateCheckbox} 17.11u 94.15u 134.28u 14.77u "Use existing LDraw archive libraries"
+  Pop $CopyExistingUserDataLibrariesChkBox
 
-	${NSD_OnClick} $BrowseLDraw fnBrowseLDraw
-	${NSD_OnClick} $UserDataInstallChkBox fnInstallUserData
-	${NSD_OnClick} $DeleteOldUserDataDirectoryChkBox fnDeleteOldUserDataDirectory
-	${NSD_OnClick} $OverwriteUserDataParamFilesChkBox fnOverwriteUserDataParamFiles
-	${NSD_OnClick} $CopyExistingUserDataLibrariesChkBox fnCopyExistingUserDataLibraries
+  ; === grpBoxUserDataOptions (type: GroupBox) ===
+  ${NSD_CreateGroupBox} 7.9u 55.38u 281.72u 77.54u "User Data Options"
 
-	Call fnShowUserDataLibraryDelete
-	Call fnShowUserDataParamFilesManagement
-	Call fnShowUserDataLibraryManagement
+  ${NSD_OnClick} $BrowseLDraw fnBrowseLDraw
+  ${NSD_OnClick} $UserDataInstallChkBox fnInstallUserData
+  ${NSD_OnClick} $DeleteOldUserDataDirectoryChkBox fnDeleteOldUserDataDirectory
+  ${NSD_OnClick} $OverwriteUserDataParamFilesChkBox fnOverwriteUserDataParamFiles
+  ${NSD_OnClick} $CopyExistingUserDataLibrariesChkBox fnCopyExistingUserDataLibraries
 
- nsDialogs::Show
+  Call fnShowUserDataLibraryDelete
+  Call fnShowUserDataParamFilesManagement
+  Call fnShowUserDataLibraryManagement
 
+  nsDialogs::Show
 FunctionEnd
 
 Function fnBrowseLDraw
-
   nsDialogs::SelectFolderDialog "Select LDraw Directory" $LDrawDirPath
   Pop $LDrawDirPath
   ${NSD_SetText} $LDrawText $LDrawDirPath
-
 FunctionEnd
 
 Function fnInstallUserData
-	Pop $UserDataInstallChkBox
-	${NSD_GetState} $UserDataInstallChkBox $InstallUserData
-	${If} $InstallUserData == 1
-	  Call fnUserDataInfo
-	${Else}
-	  ${NSD_SetText} $UserDataLbl ""
-	${EndIf}
-
+  Pop $UserDataInstallChkBox
+  ${NSD_GetState} $UserDataInstallChkBox $InstallUserData
+  ${If} $InstallUserData == 1
+    Call fnUserDataInfo
+  ${Else}
+    ${NSD_SetText} $UserDataLbl ""
+  ${EndIf}
 FunctionEnd
 
 Function nsDialogLeaveCustomPage
-
-   ;Validate InstallUserData
-   ${NSD_GetState} $UserDataInstallChkBox $InstallUserData
-   ${NSD_GetState} $DeleteOldUserDataDirectoryChkBox $DeleteOldUserDataDirectory
-   ${NSD_GetState} $OverwriteUserDataParamFilesChkBox $OverwriteUserDataParamFiles
-   ${NSD_GetState} $CopyExistingUserDataLibrariesChkBox $CopyExistingUserDataLibraries
-   ;MessageBox MB_ICONEXCLAMATION "InstallUserData (nsDialogLeaveCustomPage) = $InstallUserData" IDOK 0
+  ;Validate InstallUserData
+  ${NSD_GetState} $UserDataInstallChkBox $InstallUserData
+  ${NSD_GetState} $DeleteOldUserDataDirectoryChkBox $DeleteOldUserDataDirectory
+  ${NSD_GetState} $OverwriteUserDataParamFilesChkBox $OverwriteUserDataParamFiles
+  ${NSD_GetState} $CopyExistingUserDataLibrariesChkBox $CopyExistingUserDataLibraries
+  ;MessageBox MB_ICONEXCLAMATION "InstallUserData (nsDialogLeaveCustomPage) = $InstallUserData" IDOK 0
 
   ;Validate the LDraw Directory path
   ${If} ${DirExists} $LDrawDirPath
     ; Update the registry with the LDraw Directory path.
-	WriteRegStr HKCU "Software\${Company}\${ProductName}\Settings" "LDrawDir" $LDrawDirPath
-	Goto Continue
+    WriteRegStr HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "LDrawDir" $LDrawDirPath
+    Goto Continue
   ${Else}
-    MessageBox MB_ICONEXCLAMATION|MB_YESNO "You did not enter a valid LDraw Directory. Do you want to continue?" IDNO Terminate
-	Goto Continue
+    MessageBox MB_ICONEXCLAMATION|MB_YESNO "A valid LDraw Directory was not detected.$\r$\nDo you want to continue?" IDYES Continue
+    Abort
   ${EndIf}
-  Terminate:
-  Abort
+
   Continue:
 FunctionEnd
 
 Function fnDeleteOldUserDataDirectory
-	Pop $DeleteOldUserDataDirectoryChkBox
-	${NSD_GetState} $DeleteOldUserDataDirectoryChkBox $DeleteOldUserDataDirectory
-    ${If} $DeleteOldUserDataDirectory == 1
-		${NSD_GetState} $CopyExistingUserDataLibrariesChkBox $CopyExistingUserDataLibraries
-		${If} $CopyExistingUserDataLibraries <> 1
-			Call fnDeleteDirectoryWarning
-		${EndIf}
-	${Else}
-		${NSD_GetState} $CopyExistingUserDataLibrariesChkBox $CopyExistingUserDataLibraries
-		${If} $CopyExistingUserDataLibraries == 1
-			Call fnMoveLibrariesInfo
-		${Else}
-			${NSD_SetText} $UserDataLbl ""
-		${EndIf}
-	${EndIf}
-
+  Pop $DeleteOldUserDataDirectoryChkBox
+  ${NSD_GetState} $DeleteOldUserDataDirectoryChkBox $DeleteOldUserDataDirectory
+  ${If} $DeleteOldUserDataDirectory == 1
+    ${NSD_GetState} $CopyExistingUserDataLibrariesChkBox $CopyExistingUserDataLibraries
+    ${If} $CopyExistingUserDataLibraries <> 1
+      Call fnDeleteDirectoryWarning
+    ${EndIf}
+  ${Else}
+    ${NSD_GetState} $CopyExistingUserDataLibrariesChkBox $CopyExistingUserDataLibraries
+    ${If} $CopyExistingUserDataLibraries == 1
+      Call fnMoveLibrariesInfo
+    ${Else}
+      ${NSD_SetText} $UserDataLbl ""
+    ${EndIf}
+  ${EndIf}
 FunctionEnd
 
 Function fnCopyExistingUserDataLibraries
-	Pop $CopyExistingUserDataLibrariesChkBox
-	${NSD_GetState} $CopyExistingUserDataLibrariesChkBox $CopyExistingUserDataLibraries
-    ${If} $CopyExistingUserDataLibraries == 1
-		Call fnMoveLibrariesInfo
-	${Else}
-		${NSD_GetState} $DeleteOldUserDataDirectoryChkBox $DeleteOldUserDataDirectory
-		${If} $DeleteOldUserDataDirectory == 1
-			Call fnDeleteDirectoryWarning
-		${Else}
-			${NSD_SetText} $UserDataLbl ""
-		${EndIf}
-	${EndIf}
-
+  Pop $CopyExistingUserDataLibrariesChkBox
+  ${NSD_GetState} $CopyExistingUserDataLibrariesChkBox $CopyExistingUserDataLibraries
+  ${If} $CopyExistingUserDataLibraries == 1
+    Call fnMoveLibrariesInfo
+  ${Else}
+    ${NSD_GetState} $DeleteOldUserDataDirectoryChkBox $DeleteOldUserDataDirectory
+    ${If} $DeleteOldUserDataDirectory == 1
+      Call fnDeleteDirectoryWarning
+    ${Else}
+      ${NSD_SetText} $UserDataLbl ""
+    ${EndIf}
+  ${EndIf}
 FunctionEnd
 
 Function fnOverwriteUserDataParamFiles
-	Pop $OverwriteUserDataParamFilesChkBox
-	${NSD_GetState} $OverwriteUserDataParamFilesChkBox $OverwriteUserDataParamFiles
-    ${If} $OverwriteUserDataParamFiles == 1
-		Call fnWarning
-	${Else}
-		${NSD_SetText} $UserDataLbl ""
-	${EndIf}
-
+  Pop $OverwriteUserDataParamFilesChkBox
+  ${NSD_GetState} $OverwriteUserDataParamFilesChkBox $OverwriteUserDataParamFiles
+  ${If} $OverwriteUserDataParamFiles == 1
+    Call fnWarning
+  ${Else}
+    ${NSD_SetText} $UserDataLbl ""
+  ${EndIf}
 FunctionEnd
 
 Function fnShowUserDataParamFilesManagement
   ${If} $ParameterFilesExist == 1
-	ShowWindow $UserDataInstallChkBox ${SW_HIDE}
-	ShowWindow $OverwriteUserDataParamFilesChkBox ${SW_SHOW}
+    ShowWindow $UserDataInstallChkBox ${SW_HIDE}
+    ShowWindow $OverwriteUserDataParamFilesChkBox ${SW_SHOW}
   ${Else}
     ShowWindow $UserDataInstallChkBox ${SW_SHOW}
-	ShowWindow $OverwriteUserDataParamFilesChkBox ${SW_HIDE}
+    ShowWindow $OverwriteUserDataParamFilesChkBox ${SW_HIDE}
   ${EndIf}
-
 FunctionEnd
 
 Function fnShowUserDataLibraryManagement
   ${If} $LibrariesExist == 1
- 	ShowWindow $CopyExistingUserDataLibrariesChkBox ${SW_SHOW}
-	${NSD_Check} $CopyExistingUserDataLibrariesChkBox
-	${If} $OldLibraryDirectoryExist == 1
-		Call fnMoveLibrariesInfo
-	${EndIf}
+    ShowWindow $CopyExistingUserDataLibrariesChkBox ${SW_SHOW}
+    ${NSD_Check} $CopyExistingUserDataLibrariesChkBox
+    ${If} $OldLibraryDirectoryExist == 1
+      Call fnMoveLibrariesInfo
+    ${EndIf}
   ${Else}
-	ShowWindow $CopyExistingUserDataLibrariesChkBox ${SW_HIDE}
-	${NSD_Uncheck} $CopyExistingUserDataLibrariesChkBox
+    ShowWindow $CopyExistingUserDataLibrariesChkBox ${SW_HIDE}
+    ${NSD_Uncheck} $CopyExistingUserDataLibrariesChkBox
   ${EndIf}
-
 FunctionEnd
 
 Function fnShowUserDataLibraryDelete
   ${If} $OldLibraryDirectoryExist == 1
-	ShowWindow $DeleteOldUserDataDirectoryChkBox ${SW_SHOW}
-	${NSD_Check} $DeleteOldUserDataDirectoryChkBox
+    ShowWindow $DeleteOldUserDataDirectoryChkBox ${SW_SHOW}
+    ${NSD_Check} $DeleteOldUserDataDirectoryChkBox
   ${Else}
-	ShowWindow $DeleteOldUserDataDirectoryChkBox ${SW_HIDE}
-	${NSD_Uncheck} $DeleteOldUserDataDirectoryChkBox
+    ShowWindow $DeleteOldUserDataDirectoryChkBox ${SW_HIDE}
+    ${NSD_Uncheck} $DeleteOldUserDataDirectoryChkBox
   ${EndIf}
-
 FunctionEnd
 
 Function fnWarning
     ${NSD_SetText} $UserDataLbl "WARNING! You will overwrite your custom settings."
-
 FunctionEnd
 
 Function fnUserDataInfo
-    	  ${NSD_SetText} $UserDataLbl "NOTICE! Data created under Administrator user AppData path. Standard users will not have access."
-
+          ${NSD_SetText} $UserDataLbl "NOTICE! Data created under Administrator user AppData path. Standard users will not have access."
 FunctionEnd
 
 Function fnMoveLibrariesInfo
-    ${NSD_SetText} $UserDataLbl "INFO: LDraw library archives will be moved to a new directory:$\r$\n'$LOCALAPPDATA\${Company}\${ProductName}\libraries'."
-
+    ${NSD_SetText} $UserDataLbl "INFO: LDraw library archives will be moved to a new directory:$\r$\n'$LOCALAPPDATA\${COMPANY_NAME}\${PRODUCT_NAME}\libraries'."
 FunctionEnd
 
 Function fnDeleteDirectoryWarning
     ${NSD_SetText} $UserDataLbl "WARNING! Current libraries will be deleted. Check Use existing libraries to preserve."
-
 FunctionEnd
 
 Function fnInitializeUserDataVars
@@ -535,12 +765,11 @@ Function fnInitializeUserDataVars
 
   StrCpy $LibrariesExist 0
   StrCpy $ParameterFilesExist 0
-
 FunctionEnd
 
 Function fnVerifyDeleteDirectory
   StrCpy $OldLibraryDirectoryExist 0
-  ${StrContains} $0 "$LOCALAPPDATA\${Company}\${ProductName}\libraries" $LPub3DViewerLibPath
+  ${StrContains} $0 "$LOCALAPPDATA\${COMPANY_NAME}\${PRODUCT_NAME}\libraries" $LPub3DViewerLibPath
     StrCmp $0 "" doNotMatch
     StrCpy $OldLibraryDirectoryExist 1
     Goto Finish
@@ -550,146 +779,33 @@ Function fnVerifyDeleteDirectory
     ;MessageBox MB_ICONEXCLAMATION "fnVerifyDeleteDirectory LibrariesExist = $LibrariesExist$\r$\nCompare this: ($LOCALAPPDATA\${Company}\${ProductName}\libraries)$\r$\nto ($LPub3DViewerLibPath)" IDOK 0
 FunctionEnd
 
-; NOTE: new source location is windows/release/PRODUCT_DIR
 Function fnInstallLibraries
-	SetOutPath "${INSTDIR_AppData}\libraries"
+  SetOutPath "${INSTDIR_AppData}\libraries"
   File "${WinBuildDir}\extras\complete.zip"
   File "${WinBuildDir}\extras\lpub3dldrawunf.zip"
-
 FunctionEnd
 
 Function fnCopyLibraries
-	SetOutPath "${INSTDIR_AppData}\libraries"
-	IfFileExists "${INSTDIR_AppData}\libraries\complete.zip" 0 +2
-	goto Next
-	IfFileExists "$LPub3DViewerLibPath\complete.zip" 0 Install_new_off_Lib
-	${If} $OldLibraryDirectoryExist == 1
-		CopyFiles "$LPub3DViewerLibPath\complete.zip" "${INSTDIR_AppData}\libraries\complete.zip"
-	${EndIf}
-	goto Next
-	Install_new_off_Lib:
+    SetOutPath "${INSTDIR_AppData}\libraries"
+    IfFileExists "${INSTDIR_AppData}\libraries\complete.zip" 0 +2
+    goto Next
+    IfFileExists "$LPub3DViewerLibPath\complete.zip" 0 Install_new_off_Lib
+    ${If} $OldLibraryDirectoryExist == 1
+        CopyFiles "$LPub3DViewerLibPath\complete.zip" "${INSTDIR_AppData}\libraries\complete.zip"
+    ${EndIf}
+    goto Next
+    Install_new_off_Lib:
   File "${WinBuildDir}\extras\complete.zip"
-	Next:
-	IfFileExists "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip" 0 +2
-	goto Finish
-	IfFileExists "$LPub3DViewerLibPath\ldrawunf.zip" 0 Install_new_unoff_Lib
-	${If} $OldLibraryDirectoryExist == 1
-		CopyFiles "$LPub3DViewerLibPath\ldrawunf.zip" "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip"
-	${EndIf}
-	goto Finish
-	Install_new_unoff_Lib:
+    Next:
+    IfFileExists "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip" 0 +2
+    goto Finish
+    IfFileExists "$LPub3DViewerLibPath\ldrawunf.zip" 0 Install_new_unoff_Lib
+    ${If} $OldLibraryDirectoryExist == 1
+        CopyFiles "$LPub3DViewerLibPath\ldrawunf.zip" "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip"
+    ${EndIf}
+    goto Finish
+    Install_new_unoff_Lib:
   File "${WinBuildDir}\extras\lpub3dldrawunf.zip"
-	Finish:
-
+    Finish:
 FunctionEnd
 
-Function desktopIcon
-
-    SetShellVarContext current
-    CreateShortCut "$DESKTOP\${ProductName}.lnk" "$INSTDIR\${LPub3DBuildFile}"
-
-FunctionEnd
-
-Function FinishFunction
-
-  ShowWindow $mui.Finishpage.Run ${SW_HIDE}
-/*   ${If} $ParameterFilesExist == 1
-  ${OrIf} InstallUserData == 1
-    ShowWindow $mui.Finishpage.Run ${SW_SHOW}
-  ${Else}
-	ShowWindow $mui.Finishpage.Run ${SW_HIDE}
-  ${EndIf} */
-
-FunctionEnd
-
-Function RunFunction
-  ; Insert application to run here!
-  Exec '"$INSTDIR\${LPub3DBuildFile}"'
-
-FunctionEnd
-
-;--------------------------------
-;Uninstaller Section
-
-!include "un.EnumUsersReg.nsh"
-
-Section "Uninstall"
-
-; Files to be uninstalled.
-!include "LPub3DUninstallFiles.nsh"
-
-  Delete "$INSTDIR\Uninstall.exe"
-
-  !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
-
-; Remove shortcuts
-  SetShellVarContext current
-  Delete "$DESKTOP\${ProductName}.lnk"
-  SetShellVarContext all
-  Delete "$SMPROGRAMS\$StartMenuFolder\${ProductName}.lnk"
-  Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall ${ProductName}.lnk"
-
-; Remove start-menu folder
-  RMDir "$SMPROGRAMS\$StartMenuFolder"
-
-; Remove install folder
-  RMDir /r "$INSTDIR"
-
-  ;Use data uninstall
-  ${If} $InstallUserData == 1
-	Delete "${INSTDIR_AppData}\extras\fadeStepColorParts.lst"
-	Delete "${INSTDIR_AppData}\extras\freeformAnnotations.lst"
-	Delete "${INSTDIR_AppData}\extras\titleAnnotations.lst"
-	Delete "${INSTDIR_AppData}\extras\pliSubstituteParts.lst"
-	Delete "${INSTDIR_AppData}\extras\excludedParts.lst"
-	Delete "${INSTDIR_AppData}\extras\pli.mpd"
-	Delete "${INSTDIR_AppData}\extras\PDFPrint.jpg"
-	Delete "${INSTDIR_AppData}\extras\LDConfig.ldr"
-	Delete "${INSTDIR_AppData}\libraries\complete.zip"
-	Delete "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip"
-  Delete "${INSTDIR_AppData}\dump\minidump.dmp"
-  Delete "${INSTDIR_AppData}\3rdParty\${LDViewDir}\config\ldview.ini"
-  Delete "${INSTDIR_AppData}\3rdParty\${LDViewDir}\config\ldviewPOV.ini"
-  Delete "${INSTDIR_AppData}\3rdParty\${LDViewDir}\config\LDViewCustomini"
-  Delete "${INSTDIR_AppData}\3rdParty\${LPub3D_TraceDir}\config\povray.conf"
-  Delete "${INSTDIR_AppData}\3rdParty\${LPub3D_TraceDir}\config\povray.ini"
-
-	RMDir "${INSTDIR_AppData}\libraries"
-	RMDir "${INSTDIR_AppData}\extras"
-	RMDir "${INSTDIR_AppData}\dump"
-	RMDir /r "${INSTDIR_AppData}\cache"
-	RMDir /r "${INSTDIR_AppData}\logs"
-  RMDir /r "${INSTDIR_AppData}\fade"
-  RMDir /r "${INSTDIR_AppData}\3rdParty"
-	RMDir "${INSTDIR_AppData}"
-  ${EndIf}
-
-  ; Uninstall Users Data
-  ${un.EnumUsersReg} un.EraseAppDataCB temp.key
-
-; Remove registry keys
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ProductName}"
-  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Defaults"
-  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Installation"
-  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Logging"
-  DeleteRegKey HKCU "Software\${Company}\${ProductName}\MainWindow"
-  DeleteRegKey HKCU "Software\${Company}\${ProductName}\ParmsWindow"
-  DeleteRegKey HKCU "Software\${Company}\${ProductName}\POVRay"
-  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Settings"
-  DeleteRegKey HKCU "Software\${Company}\${ProductName}\Updates"
-  DeleteRegKey HKCU "Software\${Company}\${ProductName}"
-  DeleteRegKey HKCU "Software\${Company}"
-
-  IfFileExists "$INSTDIR" 0 NoErrorMsg
-    MessageBox MB_ICONEXCLAMATION "Note: $INSTDIR could not be removed!" IDOK 0 ; skipped if file doesn't exist
-  NoErrorMsg:
-
-SectionEnd
-
-Function "un.EraseAppDataCB"
- Pop $0
- ReadRegStr $0 HKU "$0\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "AppData"
- ;RMDir /r /REBOOTOK "$0\${Company}"
-  RMDir /r "$0\${Company}"
-
-FunctionEnd

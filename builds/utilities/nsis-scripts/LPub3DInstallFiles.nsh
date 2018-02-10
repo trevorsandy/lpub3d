@@ -1,177 +1,215 @@
 ;LPub3D Install Files Script Include
-;Last Update: January 24, 2018
+;Last Update: February 07, 2018
 ;Copyright (C) 2016 - 2018 by Trevor SANDY
 
 StrCmp ${UniversalBuild} "1" 0 SingleArchitectureBuild
-  ; universal architecture (x86, x86_64)
-  ;executable requireds and readme
+; Universal architecture (x86, x86_64)
+; First, delete files with old names if exist
+IfFileExists "quazip.dll" 0 DeleteLdrawini
+Delete "quazip.dll"
+DeleteLdrawini:
+IfFileExists "ldrawini.dll" 0 ContinueInstall
+Delete "ldrawini.dll"
+ContinueInstall:
+;executable requireds and readme
 ${If} ${RunningX64}
-	; delete files with old names if exist
-	IfFileExists "${ProductName}_${ArchExt}.exe" 0
-	Delete "${ProductName}_${ArchExt}.exe"
-	IfFileExists "quazip.dll" 0
-	Delete "quazip.dll"
-	IfFileExists "ldrawini.dll" 0
-	Delete "ldrawini.dll"
+    ; delete files with old names if exist
+    IfFileExists "${ProductName}_${ArchExt}.exe" 0 ContinueX64Install
+    Delete "${ProductName}_${ArchExt}.exe"
+    ContinueX64Install:
 
-  ;Deposit new 64bit files...
-	File "${Win64BuildDir}\${LPub3DBuildFile}"
-	File "${Win64BuildDir}\${QuaZIPBuildFile}"
-	File "${Win64BuildDir}\${LDrawIniBuildFile}"
+    ;Deposit new 64bit files...
+    File "${Win64BuildDir}\${LPub3DBuildFile}"
+    File "${Win64BuildDir}\${QuaZIPBuildFile}"
+    File "${Win64BuildDir}\${LDrawIniBuildFile}"
 
-	File "${Win64BuildDir}\Qt5Core.dll"
-	File "${Win64BuildDir}\Qt5Network.dll"
-	File "${Win64BuildDir}\Qt5Gui.dll"
-	File "${Win64BuildDir}\Qt5Widgets.dll"
-	File "${Win64BuildDir}\Qt5PrintSupport.dll"
-	File "${Win64BuildDir}\Qt5OpenGL.dll"
-  ;New Stuff - Qt Libraries
-	File "${Win64BuildDir}\libbz2-1.dll"
-	File "${Win64BuildDir}\libfreetype-6.dll"
-	File "${Win64BuildDir}\libgcc_s_seh-1.dll"
-	File "${Win64BuildDir}\libglib-2.0-0.dll"
-	File "${Win64BuildDir}\libgraphite2.dll"
-	File "${Win64BuildDir}\libharfbuzz-0.dll"
-	File "${Win64BuildDir}\libiconv-2.dll"
-	File "${Win64BuildDir}\libicudt58.dll"
-	File "${Win64BuildDir}\libicuin58.dll"
-	File "${Win64BuildDir}\libicuuc58.dll"
-	File "${Win64BuildDir}\libintl-8.dll"
-	File "${Win64BuildDir}\libpcre-1.dll"
-	File "${Win64BuildDir}\libpcre16-0.dll"
-	File "${Win64BuildDir}\libpng16-16.dll"
-	File "${Win64BuildDir}\libstdc++-6.dll"
-	File "${Win64BuildDir}\libwinpthread-1.dll"
-	File "${Win64BuildDir}\zlib1.dll"
-  ;New Stuff - Qt Plugins
-  CreateDirectory "$INSTDIR\bearer"
-  SetOutPath "$INSTDIR\bearer"
-	File "${Win64BuildDir}\bearer\qgenericbearer.dll"
-	File "${Win64BuildDir}\bearer\qnativewifibearer.dll"
-  CreateDirectory "$INSTDIR\iconengines"
-  SetOutPath "$INSTDIR\iconengines"
-	File "${Win64BuildDir}\iconengines\qsvgicon.dll"
-  CreateDirectory "$INSTDIR\imageformats"
-  SetOutPath "$INSTDIR\imageformats"
-	File "${Win64BuildDir}\imageformats\qgif.dll"
-	File "${Win64BuildDir}\imageformats\qicns.dll"
-	File "${Win64BuildDir}\imageformats\qico.dll"
-	File "${Win64BuildDir}\imageformats\qjpeg.dll"
-	File "${Win64BuildDir}\imageformats\qsvg.dll"
-	File "${Win64BuildDir}\imageformats\qtga.dll"
-	File "${Win64BuildDir}\imageformats\qtiff.dll"
-	File "${Win64BuildDir}\imageformats\qwbmp.dll"
-	File "${Win64BuildDir}\imageformats\qwebp.dll"
-  CreateDirectory "$INSTDIR\printsupport"
-  SetOutPath "$INSTDIR\printsupport"
-	File "${Win64BuildDir}\printsupport\windowsprintersupport.dll"
-  CreateDirectory "$INSTDIR\platforms"
-  SetOutPath "$INSTDIR\platforms"
-	File "${Win64BuildDir}\platforms\qwindows.dll"
+    File "${Win64BuildDir}\Qt5Core.dll"
+    File "${Win64BuildDir}\Qt5Gui.dll"
+    File "${Win64BuildDir}\Qt5Network.dll"
+    File "${Win64BuildDir}\Qt5OpenGL.dll"
+    File "${Win64BuildDir}\Qt5PrintSupport.dll"
+    File "${Win64BuildDir}\Qt5Widgets.dll"
 
-	;3rd party renderer utility - LdgLite
-	CreateDirectory "$INSTDIR\3rdParty\${LDGliteDir}\bin"
-	SetOutPath "$INSTDIR\3rdParty\${LDGliteDir}\bin"
-	File "${Win64BuildDir}\3rdParty\${LDGliteDir}\bin\${LDGliteExe}.exe"
+    ;New Stuff - Qt Libraries
+    File "${Win64BuildDir}\libbz2-1.dll"
+    File "${Win64BuildDir}\libfreetype-6.dll"
+    File "${Win64BuildDir}\libgcc_s_seh-1.dll"
+    File "${Win64BuildDir}\libglib-2.0-0.dll"
+    File "${Win64BuildDir}\libgraphite2.dll"
+    File "${Win64BuildDir}\libharfbuzz-0.dll"
+    File "${Win64BuildDir}\libiconv-2.dll"
+    File "${Win64BuildDir}\libicudt58.dll"
+    File "${Win64BuildDir}\libicuin58.dll"
+    File "${Win64BuildDir}\libicuuc58.dll"
+    File "${Win64BuildDir}\libintl-8.dll"
+    File "${Win64BuildDir}\libpcre-1.dll"
+    File "${Win64BuildDir}\libpcre2-16-0.dll"
+    File "${Win64BuildDir}\libpng16-16.dll"
+    File "${Win64BuildDir}\libstdc++-6.dll"
+    File "${Win64BuildDir}\libwinpthread-1.dll"
+    File "${Win64BuildDir}\zlib1.dll"
 
-	;3rd party renderer utility - LDView
-	CreateDirectory "$INSTDIR\3rdParty\${LDViewDir}\bin"
-	SetOutPath "$INSTDIR\3rdParty\${LDViewDir}\bin"
-	File "${Win64BuildDir}\3rdParty\${LDViewDir}\bin\${LDViewExe}64.exe"
-	CreateDirectory "$INSTDIR\3rdParty\${LDViewDir}\resources\config"
-	SetOutPath "$INSTDIR\3rdParty\${LDViewDir}\resources\config"
-	File "${Win64BuildDir}\3rdParty\${LDViewDir}\resources\config\ldview.ini"
-	File "${Win64BuildDir}\3rdParty\${LDViewDir}\resources\config\ldviewPOV.ini"
-	File "${Win64BuildDir}\3rdParty\${LDViewDir}\resources\config\LDViewCustomini"
+    ;New Stuff - Qt Plugins
+    CreateDirectory "$INSTDIR\bearer"
+    SetOutPath "$INSTDIR\bearer"
+    File "${Win64BuildDir}\bearer\qgenericbearer.dll"
+    File "${Win64BuildDir}\bearer\qnativewifibearer.dll"
+    CreateDirectory "$INSTDIR\iconengines"
+    SetOutPath "$INSTDIR\iconengines"
+    File "${Win64BuildDir}\iconengines\qsvgicon.dll"
+    CreateDirectory "$INSTDIR\imageformats"
+    SetOutPath "$INSTDIR\imageformats"
+    File "${Win64BuildDir}\imageformats\qgif.dll"
+    File "${Win64BuildDir}\imageformats\qicns.dll"
+    File "${Win64BuildDir}\imageformats\qico.dll"
+    File "${Win64BuildDir}\imageformats\qjpeg.dll"
+    File "${Win64BuildDir}\imageformats\qsvg.dll"
+    File "${Win64BuildDir}\imageformats\qtga.dll"
+    File "${Win64BuildDir}\imageformats\qtiff.dll"
+    File "${Win64BuildDir}\imageformats\qwbmp.dll"
+    File "${Win64BuildDir}\imageformats\qwebp.dll"
+    CreateDirectory "$INSTDIR\printsupport"
+    SetOutPath "$INSTDIR\printsupport"
+    File "${Win64BuildDir}\printsupport\windowsprintersupport.dll"
+    CreateDirectory "$INSTDIR\platforms"
+    SetOutPath "$INSTDIR\platforms"
+    File "${Win64BuildDir}\platforms\qwindows.dll"
 
-	;3rd party renderer utility - LPub3D_Trace
-	CreateDirectory "$INSTDIR\3rdParty\${LPub3D_TraceDir}\bin"
-	SetOutPath "$INSTDIR\3rdParty\${LPub3D_TraceDir}\bin"
-	File "${Win64BuildDir}\3rdParty\${LPub3D_TraceDir}\bin\${LPub3D_TraceExe}64.exe"
-	CreateDirectory "$INSTDIR\3rdParty\${LPub3D_TraceDir}\resources\config"
-	SetOutPath "$INSTDIR\3rdParty\${LPub3D_TraceDir}\resources\config"
-	File "${Win64BuildDir}\3rdParty\${LPub3D_TraceDir}\resources\config\povray.conf"
-	File "${Win64BuildDir}\3rdParty\${LPub3D_TraceDir}\resources\config\povray.ini"
+    ;3rd party renderer utility - LdgLite
+    CreateDirectory "$INSTDIR\3rdParty\${LDGliteDir}\bin"
+    SetOutPath "$INSTDIR\3rdParty\${LDGliteDir}\bin"
+    File "${Win64BuildDir}\3rdParty\${LDGliteDir}\bin\${LDGliteExe}.exe"
 
+    ;3rd party renderer utility - LDView
+    CreateDirectory "$INSTDIR\3rdParty\${LDViewDir}\bin"
+    SetOutPath "$INSTDIR\3rdParty\${LDViewDir}\bin"
+    File "${Win64BuildDir}\3rdParty\${LDViewDir}\bin\${LDViewExe}64.exe"
+    CreateDirectory "$INSTDIR\3rdParty\${LDViewDir}\resources\config"
+    SetOutPath "$INSTDIR\3rdParty\${LDViewDir}\resources\config"
+    ${If} $OverwriteUserDataParamFiles == 0
+     SetOverwrite off
+    ${EndIf}
+    File "${Win64BuildDir}\3rdParty\${LDViewDir}\resources\config\ldview.ini"
+    File "${Win64BuildDir}\3rdParty\${LDViewDir}\resources\config\ldviewPOV.ini"
+    File "${Win64BuildDir}\3rdParty\${LDViewDir}\resources\config\LDViewCustomini"
+    ${If} $OverwriteUserDataParamFiles == 0
+     SetOverwrite on
+    ${EndIf}
+    ;3rd party renderer utility - LPub3D_Trace
+    CreateDirectory "$INSTDIR\3rdParty\${LPub3D_TraceDir}\bin"
+    SetOutPath "$INSTDIR\3rdParty\${LPub3D_TraceDir}\bin"
+    File "${Win64BuildDir}\3rdParty\${LPub3D_TraceDir}\bin\${LPub3D_TraceExe}64.exe"
+    CreateDirectory "$INSTDIR\3rdParty\${LPub3D_TraceDir}\resources\config"
+    SetOutPath "$INSTDIR\3rdParty\${LPub3D_TraceDir}\resources\config"
+    ${If} $OverwriteUserDataParamFiles == 0
+     SetOverwrite off
+    ${EndIf}
+    File "${Win64BuildDir}\3rdParty\${LPub3D_TraceDir}\resources\config\povray.conf"
+    File "${Win64BuildDir}\3rdParty\${LPub3D_TraceDir}\resources\config\povray.ini"
+    ${If} $OverwriteUserDataParamFiles == 0
+     SetOverwrite on
+    ${EndIf}
 ${Else}
 
-	; delete files with old names if exist
-	IfFileExists "${ProductName}_${ArchExt}.exe" 0
-	Delete "${ProductName}_${ArchExt}.exe"
-	IfFileExists "quazip.dll" 0
-	Delete "quazip.dll"
-	IfFileExists "ldrawini.dll" 0
-	Delete "ldrawini.dll"
+    ; delete files with old names if exist
+    IfFileExists "${ProductName}_${ArchExt}.exe" 0 ContinueX32Install
+    Delete "${ProductName}_${ArchExt}.exe"
+    ContinueX32Install:
 
-	;Deposit new 32bit files...
-	;File "${Win32BuildDir}\${LPub3D32bitBuildFile}"
-	File "${Win32BuildDir}\${LPub3DBuildFile}"
-	File "${Win32BuildDir}\${QuaZIPBuildFile}"
-	File "${Win32BuildDir}\${LDrawIniBuildFile}"
+    ;Deposit new 32bit files...
+    ;File "${Win32BuildDir}\${LPub3D32bitBuildFile}"
+    File "${Win32BuildDir}\${LPub3DBuildFile}"
+    File "${Win32BuildDir}\${QuaZIPBuildFile}"
+    File "${Win32BuildDir}\${LDrawIniBuildFile}"
 
-	File "${Win32BuildDir}\Qt5Core.dll"
-	File "${Win32BuildDir}\Qt5Network.dll"
-	File "${Win32BuildDir}\Qt5Gui.dll"
-	File "${Win32BuildDir}\Qt5Widgets.dll"
-	File "${Win32BuildDir}\Qt5PrintSupport.dll"
-	File "${Win32BuildDir}\Qt5OpenGL.dll"
+    File "${Win32BuildDir}\Qt5Core.dll"
+    File "${Win32BuildDir}\Qt5Gui.dll"
+    File "${Win32BuildDir}\Qt5Network.dll"
+    File "${Win32BuildDir}\Qt5OpenGL.dll"
+    File "${Win32BuildDir}\Qt5PrintSupport.dll"
+    File "${Win32BuildDir}\Qt5Widgets.dll"
 
-	;New Stuff - Qt Libraries
-	File "${Win32BuildDir}\libgcc_s_dw2-1.dll"
-	File "${Win32BuildDir}\libstdc++-6.dll"
-	File "${Win32BuildDir}\libwinpthread-1.dll"
+    ;New Stuff - Qt Libraries
+    File "${Win32BuildDir}\libbz2-1.dll"
+    File "${Win32BuildDir}\libfreetype-6.dll"
+    File "${Win32BuildDir}\libgcc_s_dw2-1.dll"
+    File "${Win32BuildDir}\libglib-2.0-0.dll"
+    File "${Win32BuildDir}\libgraphite2.dll"
+    File "${Win32BuildDir}\libharfbuzz-0.dll"
+    File "${Win32BuildDir}\libiconv-2.dll"
+    File "${Win32BuildDir}\libicudt58.dll"
+    File "${Win32BuildDir}\libicuin58.dll"
+    File "${Win32BuildDir}\libicuuc58.dll"
+    File "${Win32BuildDir}\libintl-8.dll"
+    File "${Win32BuildDir}\libpcre-1.dll"
+    File "${Win32BuildDir}\libpcre2-16-0.dll"
+    File "${Win32BuildDir}\libpng16-16.dll"
+    File "${Win32BuildDir}\libstdc++-6.dll"
+    File "${Win32BuildDir}\libwinpthread-1.dll"
+    File "${Win32BuildDir}\zlib1.dll"
 
-	;New Stuff - Qt Plugins
-	CreateDirectory "$INSTDIR\bearer"
-	SetOutPath "$INSTDIR\bearer"
-	File "${Win32BuildDir}\bearer\qgenericbearer.dll"
-	File "${Win32BuildDir}\bearer\qnativewifibearer.dll"
-	CreateDirectory "$INSTDIR\iconengines"
-	SetOutPath "$INSTDIR\iconengines"
-	File "${Win32BuildDir}\iconengines\qsvgicon.dll"
-	CreateDirectory "$INSTDIR\imageformats"
-	SetOutPath "$INSTDIR\imageformats"
-	;File "${Win32BuildDir}\imageformats\qdds.dll"
-	File "${Win32BuildDir}\imageformats\qgif.dll"
-	File "${Win32BuildDir}\imageformats\qicns.dll"
-	File "${Win32BuildDir}\imageformats\qico.dll"
-	File "${Win32BuildDir}\imageformats\qjpeg.dll"
-	File "${Win32BuildDir}\imageformats\qsvg.dll"
-	File "${Win32BuildDir}\imageformats\qtga.dll"
-	File "${Win32BuildDir}\imageformats\qtiff.dll"
-	File "${Win32BuildDir}\imageformats\qwbmp.dll"
-	File "${Win32BuildDir}\imageformats\qwebp.dll"
-	CreateDirectory "$INSTDIR\printsupport"
-	SetOutPath "$INSTDIR\printsupport"
-	File "${Win32BuildDir}\printsupport\windowsprintersupport.dll"
-	CreateDirectory "$INSTDIR\platforms"
-	SetOutPath "$INSTDIR\platforms"
-	File "${Win32BuildDir}\platforms\qwindows.dll"
+    ;New Stuff - Qt Plugins
+    CreateDirectory "$INSTDIR\bearer"
+    SetOutPath "$INSTDIR\bearer"
+    File "${Win32BuildDir}\bearer\qgenericbearer.dll"
+    File "${Win32BuildDir}\bearer\qnativewifibearer.dll"
+    CreateDirectory "$INSTDIR\iconengines"
+    SetOutPath "$INSTDIR\iconengines"
+    File "${Win32BuildDir}\iconengines\qsvgicon.dll"
+    CreateDirectory "$INSTDIR\imageformats"
+    SetOutPath "$INSTDIR\imageformats"
+    ;File "${Win32BuildDir}\imageformats\qdds.dll"
+    File "${Win32BuildDir}\imageformats\qgif.dll"
+    File "${Win32BuildDir}\imageformats\qicns.dll"
+    File "${Win32BuildDir}\imageformats\qico.dll"
+    File "${Win32BuildDir}\imageformats\qjpeg.dll"
+    File "${Win32BuildDir}\imageformats\qsvg.dll"
+    File "${Win32BuildDir}\imageformats\qtga.dll"
+    File "${Win32BuildDir}\imageformats\qtiff.dll"
+    File "${Win32BuildDir}\imageformats\qwbmp.dll"
+    File "${Win32BuildDir}\imageformats\qwebp.dll"
+    CreateDirectory "$INSTDIR\printsupport"
+    SetOutPath "$INSTDIR\printsupport"
+    File "${Win32BuildDir}\printsupport\windowsprintersupport.dll"
+    CreateDirectory "$INSTDIR\platforms"
+    SetOutPath "$INSTDIR\platforms"
+    File "${Win32BuildDir}\platforms\qwindows.dll"
 
-	;3rd party renderer utility - LdgLite
-	CreateDirectory "$INSTDIR\3rdParty\${LDGliteDir}\bin"
-	SetOutPath "$INSTDIR\3rdParty\${LDGliteDir}\bin"
-	File "${Win32BuildDir}\3rdParty\${LDGliteDir}\bin\${LDGliteExe}.exe"
+    ;3rd party renderer utility - LdgLite
+    CreateDirectory "$INSTDIR\3rdParty\${LDGliteDir}\bin"
+    SetOutPath "$INSTDIR\3rdParty\${LDGliteDir}\bin"
+    File "${Win32BuildDir}\3rdParty\${LDGliteDir}\bin\${LDGliteExe}.exe"
 
-	;3rd party renderer utility - LDView
-	CreateDirectory "$INSTDIR\3rdParty\${LDViewDir}\bin"
-	SetOutPath "$INSTDIR\3rdParty\${LDViewDir}\bin"
-	File "${Win32BuildDir}\3rdParty\${LDViewDir}\bin\${LDViewExe}.exe"
-	CreateDirectory "$INSTDIR\3rdParty\${LDViewDir}\resources\config"
-	SetOutPath "$INSTDIR\3rdParty\${LDViewDir}\resources\config"
-	File "${Win32BuildDir}\3rdParty\${LDViewDir}\resources\config\ldview.ini"
-	File "${Win32BuildDir}\3rdParty\${LDViewDir}\resources\config\ldviewPOV.ini"
-	File "${Win32BuildDir}\3rdParty\${LDViewDir}\resources\config\LDViewCustomini"
+    ;3rd party renderer utility - LDView
+    CreateDirectory "$INSTDIR\3rdParty\${LDViewDir}\bin"
+    SetOutPath "$INSTDIR\3rdParty\${LDViewDir}\bin"
+    File "${Win32BuildDir}\3rdParty\${LDViewDir}\bin\${LDViewExe}.exe"
+    CreateDirectory "$INSTDIR\3rdParty\${LDViewDir}\resources\config"
+    SetOutPath "$INSTDIR\3rdParty\${LDViewDir}\resources\config"
+    ${If} $OverwriteUserDataParamFiles == 0
+     SetOverwrite off
+    ${EndIf}
+    File "${Win32BuildDir}\3rdParty\${LDViewDir}\resources\config\ldview.ini"
+    File "${Win32BuildDir}\3rdParty\${LDViewDir}\resources\config\ldviewPOV.ini"
+    File "${Win32BuildDir}\3rdParty\${LDViewDir}\resources\config\LDViewCustomini"
+    ${If} $OverwriteUserDataParamFiles == 0
+     SetOverwrite on
+    ${EndIf}
 
-	;3rd party renderer utility - LPub3D_Trace
-	CreateDirectory "$INSTDIR\3rdParty\${LPub3D_TraceDir}\bin"
-	SetOutPath "$INSTDIR\3rdParty\${LPub3D_TraceDir}\bin"
-	File "${Win32BuildDir}\3rdParty\${LPub3D_TraceDir}\bin\${LPub3D_TraceExe}32.exe"
-	CreateDirectory "$INSTDIR\3rdParty\${LPub3D_TraceDir}\resources\config"
-	SetOutPath "$INSTDIR\3rdParty\${LPub3D_TraceDir}\resources\config"
-	File "${Win32BuildDir}\3rdParty\${LPub3D_TraceDir}\resources\config\povray.conf"
-	File "${Win32BuildDir}\3rdParty\${LPub3D_TraceDir}\resources\config\povray.ini"
-
+    ;3rd party renderer utility - LPub3D_Trace
+    CreateDirectory "$INSTDIR\3rdParty\${LPub3D_TraceDir}\bin"
+    SetOutPath "$INSTDIR\3rdParty\${LPub3D_TraceDir}\bin"
+    File "${Win32BuildDir}\3rdParty\${LPub3D_TraceDir}\bin\${LPub3D_TraceExe}32.exe"
+    CreateDirectory "$INSTDIR\3rdParty\${LPub3D_TraceDir}\resources\config"
+    SetOutPath "$INSTDIR\3rdParty\${LPub3D_TraceDir}\resources\config"
+    ${If} $OverwriteUserDataParamFiles == 0
+     SetOverwrite off
+    ${EndIf}
+    File "${Win32BuildDir}\3rdParty\${LPub3D_TraceDir}\resources\config\povray.conf"
+    File "${Win32BuildDir}\3rdParty\${LPub3D_TraceDir}\resources\config\povray.ini"
+    ${If} $OverwriteUserDataParamFiles == 0
+     SetOverwrite on
+    ${EndIf}
 ${EndIf}
 
 Goto DocumentsAndExtras
@@ -303,6 +341,7 @@ File "${WinBuildDir}\extras\freeformAnnotations.lst"
 File "${WinBuildDir}\extras\fadeStepColorParts.lst"
 File "${WinBuildDir}\extras\pliSubstituteParts.lst"
 File "${WinBuildDir}\extras\excludedParts.lst"
+
 ;ldraw libraries - data/portable location
 File "${WinBuildDir}\extras\complete.zip"
 File "${WinBuildDir}\extras\lpub3dldrawunf.zip"
@@ -426,3 +465,4 @@ File "${WinBuildDir}\3rdParty\${LPub3D_TraceDir}\resources\ini\tgaflc.ini"
 File "${WinBuildDir}\3rdParty\${LPub3D_TraceDir}\resources\ini\tgafli.ini"
 File "${WinBuildDir}\3rdParty\${LPub3D_TraceDir}\resources\ini\zipflc.ini"
 File "${WinBuildDir}\3rdParty\${LPub3D_TraceDir}\resources\ini\zipfli.ini"
+SetOutPath "$INSTDIR"

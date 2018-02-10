@@ -1,4 +1,4 @@
-LPub3D 2.1.0.0.770 (02 02 2018 21:51:44)
+LPub3D 2.1.0.0.772 (10 02 2018 23:55:17)
 
 Features and enhancements
 ------------
@@ -95,9 +95,11 @@ Enhancement: LPub3D-Trace (POV-Ray) render progress display is available across 
 
 Enhancement: It is no longer necessary to manage renderer paths in the preference dialogue. LPub3D renderers (LDGLite, LDView and LPub3D-Trace) are now automatically configured at application start-up. As the renderers and now bundled with LPub3D, their locations are fixed and known to the application. Therefore, renderer location configuration is predefined and managed within LPub3D.
 
-Feature: View log files. It is now possible to view logged output for LPub3D and its integrated renderers - LDGLite and LPub3D-Trace. LDView does not produce any discernible logging so there's nothing to view for this renderer.
+Enhancement: View log files. It is now possible to view logged output for LPub3D and its integrated renderers - LDGLite and LPub3D-Trace. LDView does not produce any discernible logging so there's nothing to view for this renderer.
 
-Feature: Detect and configure LGEO library including Damien Roux's (Darats) STL objects. LGEO is a library of high-quality POV-Ray object definitions which describes LDraw parts. In order to automatically detect the LGEO library it be placed inside the LDraw library - for example "LDraw Path"/lgeo. Furthermore, to include Darats' STL objects, they must exist in a sub-folder named "stl" - so an example for STL objects would be "LDraw Path"/lgeo/stl. With these settings in place, LPub3d will automatically detect the LGEO paths and include them in the POV-Ray configuration file settings.
+Enhancement: Detect and configure LGEO library including Damien Roux's (Darats) STL objects. LGEO is a library of high-quality POV-Ray object definitions which describes LDraw parts. In order to automatically detect the LGEO library it be placed inside the LDraw library - for example "LDraw Path"/lgeo. Furthermore, to include Darats' STL objects, they must exist in a sub-folder named "stl" - so an example for STL objects would be "LDraw Path"/lgeo/stl. With these settings in place, LPub3d will automatically detect the LGEO paths and include them in the POV-Ray configuration file settings.
+
+Enhancement: Windows multi-user installation. Multi-user installation allows "per-user" (no admin required) and "per-machine" (asks elevation only when necessary) installations. Per-user installations install folder is located at %USERPROFILE%\Local\AppData and installation registry keys at HKCU Software\LPub3D and HKCU Software\Microsoft\Windows\CurrentVersion\Uninstall\LPub3D respectively. The per-machine inistallations install folder is located at Program Files [x86_64] or Program Files (x86) [i686] while installation registry keys are written to HKLM Software\LPub3D and HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall\LPub3D. For both pre-user and per-machine installs, LPUb3D configuration registry keys are written to HKCU Software\LPub3D Software\LPub3D while configuration data is written to %USERPROFILE%\Local\AppData\LPub3D Software\LPub3D. See https://github.com/Drizin/NsisMultiUser/blob/master/README.md for technical details.
 
 Fix: preference settings not preserved on macOS - When application is closed, the configured preference settings are not preserved. On subsequent, application launch, the preference revert to the default configuration. This behaviour no longer presents on macOS.
 
@@ -109,7 +111,13 @@ Fix: POV-Ray very slow in version 2.0.19. Although I could not reproduce this be
 
 Fix: Callout within a callout. This capability was not available when using 'single call rendering' - submitting all the images on a page in a single call to LDView versus a call for each image. The image marshalling logic has been redesigned to manage any level of depth between a page and it's elements. Thus, the new behaviour now supports virtually endless callouts within callouts.
 
-Fix: 'Current Submodel' MPD-combo-dropdown current index not set when changed.
+Fix: 'Current Submodel' MPD-combo-dropdown current index not set when changed. This behaviour has been corrected.
+
+Fix: Incorrect default install path shown when installing LPub3D. The LDraw library path is presented as the install to folder. This behaviour has been corrected.
+
+Fix: LPub3D 'Check for Updates' function does not do anything when clicked. There is a brief flash of the progress bar but that's it. This behaviour has been corrected in v2.1.0; however, as the error is in the already released v2.0.20, users will still be impacted by this abnormal behaviour when they attempt to upgrade from within LPub3D. See Known Issues below.
+
+Known Issue: LPub3D v2.0.20.0.645_20170208 check for updates function is broken. Therefore, it is not possible to upgrade from the within LPub3D. If upgrading from v2.0.20, you must manually download and install LPub3D v2.1.0 - https://sourceforge.net/projects/lpub3d/files/2.1.0.
 
 Change: L3P 3rd party application removed. The L3P module which carried the function of preparing the .pov files for POV-Ray was removed from the LPub3D bundle. The .pov file generation functionality is now performed by LDView.
 

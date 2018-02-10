@@ -55,12 +55,14 @@ OTHER_FILES += \
 ../builds/utilities/mesa/Mesa.spec \
 ../builds/utilities/mesa/osmesa-config \
 ../builds/utilities/nsis-scripts/AppVersion.nsh \
-../builds/utilities/nsis-scripts/EnumUsersReg.nsh \
+../builds/utilities/nsis-scripts/Include/NsisMultiUser.nsh \
+../builds/utilities/nsis-scripts/Include/Registry.nsh \
+../builds/utilities/nsis-scripts/Include/UAC.nsh \
+../builds/utilities/nsis-scripts/Include/Utils.nsh \
 ../builds/utilities/nsis-scripts/LPub3DInstallFiles.nsh \
 ../builds/utilities/nsis-scripts/LPub3DNoPack.nsi \
 ../builds/utilities/nsis-scripts/LPub3DUninstallFiles.nsh \
-../builds/utilities/nsis-scripts/nsisFunctions.nsh \
-../builds/utilities/nsis-scripts/un.EnumUsersReg.nsh \
+../builds/utilities/nsis-scripts/Uninstall.nsh \
 ../builds/utilities/README.md \
 ../builds/utilities/set-ldrawdir.command \
 ../builds/utilities/update-config-files.bat \

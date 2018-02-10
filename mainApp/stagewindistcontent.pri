@@ -51,10 +51,27 @@ win32: stagewindistcontent {
         $$[QT_INSTALL_BINS]/Qt5Network.dll \
         $$[QT_INSTALL_BINS]/Qt5OpenGL.dll \
         $$[QT_INSTALL_BINS]/Qt5PrintSupport.dll \
-        $$[QT_INSTALL_BINS]/Qt5Widgets.dll \
-        $$[QT_INSTALL_BINS]/libstdc++-6.dll \
-        $$[QT_INSTALL_BINS]/libwinpthread-1.dll
+        $$[QT_INSTALL_BINS]/Qt5Widgets.dll
     lpub3d_bins_qtlibs.path = $$LPUB3D_STG_PATH
+
+    lpub3d_bins_additional_libs.files += \
+        $$[QT_INSTALL_BINS]/libbz2-1.dll \
+        $$[QT_INSTALL_BINS]/libfreetype-6.dll \
+        $$[QT_INSTALL_BINS]/libglib-2.0-0.dll \
+        $$[QT_INSTALL_BINS]/libgraphite2.dll \
+        $$[QT_INSTALL_BINS]/libharfbuzz-0.dll \
+        $$[QT_INSTALL_BINS]/libiconv-2.dll \
+        $$[QT_INSTALL_BINS]/libicudt58.dll \
+        $$[QT_INSTALL_BINS]/libicuin58.dll \
+        $$[QT_INSTALL_BINS]/libicuuc58.dll \
+        $$[QT_INSTALL_BINS]/libintl-8.dll \
+        $$[QT_INSTALL_BINS]/libpcre-1.dll \
+        $$[QT_INSTALL_BINS]/libpcre2-16-0.dll \
+        $$[QT_INSTALL_BINS]/libpng16-16.dll \
+        $$[QT_INSTALL_BINS]/libstdc++-6.dll \
+        $$[QT_INSTALL_BINS]/libwinpthread-1.dll \
+        $$[QT_INSTALL_BINS]/zlib1.dll
+    lpub3d_bins_additional_libs.path = $$LPUB3D_STG_PATH
 
     lpub3d_extras.files += \
         $$LPUB3D_STG_EXTRAS/excludedParts.lst \
@@ -71,7 +88,7 @@ win32: stagewindistcontent {
     lpub3d_extras.path = $$LPUB3D_STG_PATH/extras
 
     lpub3d_docs.files += \
-        $$LPUB3D_STG_DOCS/COPYING.txt \
+        $$LPUB3D_STG_DOCS/COPYING_BRIEF \
         $$LPUB3D_STG_DOCS/CREDITS.txt \
         $$LPUB3D_STG_DOCS/README.txt
     lpub3d_docs.path = $$LPUB3D_STG_PATH/docs
@@ -85,6 +102,7 @@ win32: stagewindistcontent {
         lpub3d_plugin_platforms \
         lpub3d_plugin_printsupport \
         lpub3d_bins_qtlibs \
+        lpub3d_bins_additional_libs \
         lpub3d_extras \
         lpub3d_docs
 
@@ -92,21 +110,7 @@ win32: stagewindistcontent {
     contains (STG_ARCH, x86_64) {
 
         lpub3d_bins_qtlibs_x86_64.files += \
-            $$[QT_INSTALL_BINS]/libbz2-1.dll \
-            $$[QT_INSTALL_BINS]/libfreetype-6.dll \
-            $$[QT_INSTALL_BINS]/libgcc_s_seh-1.dll \
-            $$[QT_INSTALL_BINS]/libglib-2.0-0.dll \
-            $$[QT_INSTALL_BINS]/libgraphite2.dll \
-            $$[QT_INSTALL_BINS]/libharfbuzz-0.dll \
-            $$[QT_INSTALL_BINS]/libiconv-2.dll \
-            $$[QT_INSTALL_BINS]/libicudt58.dll \
-            $$[QT_INSTALL_BINS]/libicuin58.dll \
-            $$[QT_INSTALL_BINS]/libicuuc58.dll \
-            $$[QT_INSTALL_BINS]/libintl-8.dll \
-            $$[QT_INSTALL_BINS]/libpcre-1.dll \
-            $$[QT_INSTALL_BINS]/libpcre16-0.dll \
-            $$[QT_INSTALL_BINS]/libpng16-16.dll \
-            $$[QT_INSTALL_BINS]/zlib1.dll
+            $$[QT_INSTALL_BINS]/libgcc_s_seh-1.dll
         lpub3d_bins_qtlibs_x86_64.path = $$LPUB3D_STG_PATH
 
         INSTALLS += \

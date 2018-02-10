@@ -176,8 +176,16 @@ after_build:
         builds\utilities\ci\set_ps_vars.ps1
         Get-ChildItem Env:* -Include ("LP3D_BUILD_*","LP3D_VERSION*","LP3D_APP_*") | Sort-Object name
         write-host "`n"
-        $root = Resolve-Path .\${env:LP3D_DOWNLOAD_ASSETS}; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-download-package }
-        $root = Resolve-Path .\${env:LP3D_UPDATE_ASSETS};   [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-update-package }
+        if (${env:LP3D_DOWNLOAD_ASSETS}) {
+          $root = Resolve-Path .\${env:LP3D_DOWNLOAD_ASSETS}; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-download-package }
+        } Else {
+          Write-Error -Message "env var LP3D_DOWNLOAD_ASSETS is null." -ErrorAction Stop
+        }
+        if (${env:LP3D_UPDATE_ASSETS}) {
+          $root = Resolve-Path .\${env:LP3D_UPDATE_ASSETS};   [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-update-package }
+        } Else {
+          Write-Error -Message "env var LP3D_UPDATE_ASSETS is null." -ErrorAction Stop
+        }
         If ($env:LP3D_DEPLOY_PKG -eq $true) {
           write-host "`n"
           If ((git tag -l -n $env:APPVEYOR_REPO_TAG_NAME) -NotLike "*skip sfr*") {

@@ -14,7 +14,8 @@
 ## cd to your git repository and type:
 ## $ cat << pbEOF >.git/hooks/pre-commit
 ## > #!/bin/sh
-## > ./builds/utilities/hooks/pre-commit                                   # location of pre-commit script in your source repository
+## > # Confirm master branch and set location of pre-commit script in your source repository
+## > [ "$(git rev-parse --abbrev-ref HEAD)" = "master" ] && ./builds/utilities/hooks/pre-commit || true
 ## > pbEOF
 ## $
 ##
@@ -88,6 +89,7 @@ if test x"$update_config_files" = x"yes" && \
   git add mainApp/docs/README.txt
   git add mainApp/lpub3d.desktop
   git add mainApp/lpub3d.appdata.xml
+  git add README.md
 
   git add builds/linux/obs/alldeps/PKGBUILD
   git add builds/linux/obs/alldeps/lpub3d.spec
