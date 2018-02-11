@@ -261,9 +261,9 @@ if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
     then
-        sed -i "" "s/    <release version=.*/    <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\"/" "${FILE}"
+        sed -i "" "s/    <release version=.*/    <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\">/" "${FILE}"
     else
-        sed -i "s/    <release version=.*/    <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\"/" "${FILE}"
+        sed -i "s/    <release version=.*/    <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\">/" "${FILE}"
     fi
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"

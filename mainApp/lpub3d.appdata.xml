@@ -22,7 +22,7 @@
 	   sponsor, authorize or endorse this application.
 	   © 2015-2018 Trevor SANDY
 ​    </p>
-​  </description> 
+​  </description>
 ​
 ​  <launchable type="desktop-id">lpub3d.desktop</launchable>
 ​
@@ -44,15 +44,15 @@
 ​  <url type="homepage">https://github.com/trevorsandy/lpub3d</url>
 
   <developer_name>Trevor SANDY</developer_name>
-  
+
   <update_contact>trevor.sandy.at.gmail.com</update_contact>
-  
+
 ​  <provides>
 ​    <binary>lpub3d</binary>
 ​  </provides>
 ​
 ​  <releases>
-​    <release version="2.1.0.773" date="2018-02-11"
+​    <release version="2.1.0.774" date="2018-02-11">
 ​      <description>
 ​        <p>LPub3D Linux package</p>
 ​      </description>
