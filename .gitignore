@@ -20,7 +20,7 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
+#*.dll
 
 # Fortran module files
 *.mod
@@ -115,3 +115,6 @@ tools/*
 
 # Patches
 patches/*
+
+# Logs
+*.log
