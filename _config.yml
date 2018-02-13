@@ -1,1 +1,18 @@
-theme: jekyll-theme-dinky
+# Config settings
+title: LPub3D
+theme: jekyll-theme-minimal
+timezone: Europe/Paris
+permalink: none
+
+# Build settings
+exclude:
+  - Gemfile
+  - Gemfile.lock
+
+defaults:
+  - scope:
+      path: "/assets/images"
+      path: "/assets/images/slider"
+    values:
+      image: true
+
