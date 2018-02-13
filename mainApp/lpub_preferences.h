@@ -45,6 +45,8 @@ class Preferences
     static void setLDViewSearchPaths(bool);
     static bool getPreferences();
 
+    static bool extractLDrawLib();
+
     static QString ldrawPath;
     static QString altLDConfigPath;
     static QString lpub3dLibFile;
@@ -134,6 +136,7 @@ class Preferences
     static int     pageHeight;
     static int     rendererTimeout;
     static bool    povrayDisplay;
+    static bool    isAppImagePayload;
 
     virtual ~Preferences() {}
 };

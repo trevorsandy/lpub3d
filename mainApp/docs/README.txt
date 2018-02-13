@@ -1,4 +1,4 @@
-LPub3D 2.1.0.0.774 (11 02 2018 08:23:07)
+LPub3D 2.1.0.0.775 (13 02 2018 02:42:46)
 
 Features and enhancements
 ------------
@@ -7,91 +7,112 @@ Version 2.1.0 presents a significant update to LPub3D. Most notably is the tight
 Enhancement: A custom LDraw library LDConfig file can can now be passed to LDGlite and LDView via the renderer command call. Of course it was always possible to customize the default LDConfig but doing so had the risk of overwriting your settings with a new update. With this capability, you can choose where you want to store your modified LDConfig.ldr file and use the LPub3D preferences dialogue to set it path for LDView and LDGLite.
 
 Enhancement: All the renderer configuration files are accessible and configurable from the LPub3D user interface. Moreover, all configuration settings only affect LPub3D's renderer instances so if you have LDView installed on your system, it will not be affected by the settings you configure in LPub3D. Here is a summary of the configuration files:
-	LDGLite - LDConfig.ldr: LDraw part colour codes [Default location: LDraw/LDConfig.ldr]
-	LDView - LDConfig.ldr: LDraw part colour codes [Default location: LDraw/LDConfig.ldr]
-	LDView - ldview.ini: Image generation settings [Default locations:
-	  Linux - ~/.local/share/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldview.ini
-	  macOS -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldview.ini
-	  Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/ldview-4.3/config/ldview.ini]
-	LDView - ldviewPOVini: POV file generation settings [Default locations:
-	  Linux - ~/.local/share/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldviewPOV.ini
-	  macOS -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldviewPOV.ini
-	  Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/ldview-4.3/config/ldviewPOV.ini]
-	LPub3D-Trace (POV-Ray) - povray.conf: Security settings and authorized search paths [Default locations:
-	  Linux - ~/.local/share/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.conf
-	  macOS -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.conf
-	  Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.conf]
-	LPub3D-Trace (POV-Ray) - povray.ini: Image generation settings and #include file search paths [Default locations:
-	  Linux - ~/.local/share/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.ini
-	  macOS -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.ini
-	  Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.ini]
+    LDGLite - LDConfig.ldr: LDraw part colour codes [Default location: LDraw/LDConfig.ldr]
+    LDView - LDConfig.ldr: LDraw part colour codes [Default location: LDraw/LDConfig.ldr]
+    LDView - ldview.ini: Image generation settings [Default locations:
+      Linux - ~/.local/share/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldview.ini
+      macOS -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldview.ini
+      Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/ldview-4.3/config/ldview.ini]
+    LDView - ldviewPOVini: POV file generation settings [Default locations:
+      Linux - ~/.local/share/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldviewPOV.ini
+      macOS -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldviewPOV.ini
+      Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/ldview-4.3/config/ldviewPOV.ini]
+    LPub3D-Trace (POV-Ray) - povray.conf: Security settings and authorized search paths [Default locations:
+      Linux - ~/.local/share/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.conf
+      macOS -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.conf
+      Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.conf]
+    LPub3D-Trace (POV-Ray) - povray.ini: Image generation settings and #include file search paths [Default locations:
+      Linux - ~/.local/share/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.ini
+      macOS -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.ini
+      Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.ini]
 When setting of modifying render config file settings, it is helpful to know the settings that are automatically managed by the LPub3D renderer module. These settings for the most part are the dynamic parameters produced with the image (PLI or CSI) being rendered and; therefore, are not suited to being set in a config file. Other settings in the render module are static and will not benefit, actually changing them will harm the behaviour of LPub3D, from modification in the config files. The settings, listed by renderer, managed by the LPub3D render module are:
-	LDView [image generation and .pov file generation settings]
-	Flags:
-		CA - camera angle
-		-cg0.0,0.0,cd - Camera globe,Camera distance [cg set to zeros for CSI, pli angles (x,y) for PLI]
-		-SaveWidth - Image width
-		-SaveHeight - Image height
-		-ExportFile - Export file [-ExportSuffix not required, taken from export file extension]
-		-LDrawDir - LDraw parts library path
-		-IniFile - LDView ini file  [If Ini file exist, so if ini file removed, LDView defaults are used]
-		-LDConfig - Alternate LDConfig file [If alternate LDConfig designated in Preferences]
-	Logs:   [LDView does not produce any reasonably actionable stderr or stdout details]
-		stderr-ldview - error output log file [image generation]
-		stdout-ldview - standard output log file [image generation]
-		stderr-ldviewpov - error output log file [.pov file generation]
-		stdout-ldviewpov - standard output log file [.pov file generation]
-	LDView-Single-Call [image generation]
-	Flags:
-		CA - camera angle
-		-cg0.0,0.0,cd - Camera globe,Camera distance [cg set to zeros for CSI, pli angles (x,y) for PLI]
-		-SaveWidth - Image width
-		-SaveHeight - Image height
-		-SaveSnapShots=1 [processing multiple files at a time, save each output file as input file name without extension]
-		-SnapshotSuffix=.png [file extension required because we're processing multiple files at a time]
-		-LDrawDir - LDraw parts library path
-		-IniFile - LDView ini file  [If Ini file exist, so if ini file removed, LDView defaults are used]
-		-LDConfig - Alternate LDConfig file [If alternate LDConfig designated in Preferences]
-	Logs:   [LDView does not produce any reasonably actionable stderr or stdout details]
-		stderr-ldview - error output log file [image generation]
-		stdout-ldview - standard output log file [image generation]
-	POVRay
-	Flags:
-		+-d - Display Windows [Experimental - Add or remove SDL image progress display windows]
-		+I - Input file
-		+O - Output file
-		+W - Image width
-		+H - Image height
-		USE_ALPHA
-	Libs:        [Note: LGEO root path is hard-coded to "LDraw path"/lgeo]
-		-IniPath	 [POV-Ray include files path]
-		-LgeoLGPath  [LGEO LG sub-directory path]
-		-LgeoARPath  [LGEO AR sub-directory path]
-		-LgeoSTLPath [LDGO STL sub-directory path - Durats LGEO stl library]
-	Logs:
-		stderr-povray - error output log file
-		stdout-povray - standard output log file
-	LDGLite
-	Flags:
-		-l3 - Use L3 parser
-		-i2 - Out image type is .png
-		-CA - Camera angel
-		-cg0.0,0.0,cd - Camera globe,Camera distance [cg set to zeros for CSI, pli angles (x,y) for PLI]
-		-j - perspective projection
-		-v"Width","Height" - Image display width (X) and height (Y)
-		-o0,-"Height"/6 - Change the centre width (X) across and height (Y) down
-		-W"Line Thickness" - Line thickness, image resolution/150.5
-		="LDConfig" - Alternate LDConfig file [If alternate LDConfig designated in Preferences]
-	Environment Variables:
-		LDRAWDIR="Ldraw path" - LDraw parts library path
-		LDSEARCHDIRS="additional search directory paths" - Pipe (|) delimited single string of search directory paths
-	Logs:
-		stderr-ldglite - error output log file
-		stdout-ldglite - standard output log file
+    LDView [image generation and .pov file generation settings]
+    Flags:
+        CA - camera angle
+        -cg0.0,0.0,cd - Camera globe,Camera distance [cg set to zeros for CSI, pli angles (x,y) for PLI]
+        -SaveWidth - Image width
+        -SaveHeight - Image height
+        -ExportFile - Export file [-ExportSuffix not required, taken from export file extension]
+        -LDrawDir - LDraw parts library path
+        -IniFile - LDView ini file  [If Ini file exist, so if ini file removed, LDView defaults are used]
+        -LDConfig - Alternate LDConfig file [If alternate LDConfig designated in Preferences]
+    Logs:   [LDView does not produce any reasonably actionable stderr or stdout details]
+        stderr-ldview - error output log file [image generation]
+        stdout-ldview - standard output log file [image generation]
+        stderr-ldviewpov - error output log file [.pov file generation]
+        stdout-ldviewpov - standard output log file [.pov file generation]
+    LDView-Single-Call [image generation]
+    Flags:
+        CA - camera angle
+        -cg0.0,0.0,cd - Camera globe,Camera distance [cg set to zeros for CSI, pli angles (x,y) for PLI]
+        -SaveWidth - Image width
+        -SaveHeight - Image height
+        -SaveSnapShots=1 [processing multiple files at a time, save each output file as input file name without extension]
+        -SnapshotSuffix=.png [file extension required because we're processing multiple files at a time]
+        -LDrawDir - LDraw parts library path
+        -IniFile - LDView ini file  [If Ini file exist, so if ini file removed, LDView defaults are used]
+        -LDConfig - Alternate LDConfig file [If alternate LDConfig designated in Preferences]
+    Logs:   [LDView does not produce any reasonably actionable stderr or stdout details]
+        stderr-ldview - error output log file [image generation]
+        stdout-ldview - standard output log file [image generation]
+    POVRay
+    Flags:
+        +-d - Display Windows [Experimental - Add or remove SDL image progress display windows]
+        +I - Input file
+        +O - Output file
+        +W - Image width
+        +H - Image height
+        USE_ALPHA
+    Libs:        [Note: LGEO root path is hard-coded to "LDraw path"/lgeo]
+        -IniPath     [POV-Ray include files path]
+        -LgeoLGPath  [LGEO LG sub-directory path]
+        -LgeoARPath  [LGEO AR sub-directory path]
+        -LgeoSTLPath [LDGO STL sub-directory path - Durats LGEO stl library]
+    Logs:
+        stderr-povray - error output log file
+        stdout-povray - standard output log file
+    LDGLite
+    Flags:
+        -l3 - Use L3 parser
+        -i2 - Out image type is .png
+        -CA - Camera angel
+        -cg0.0,0.0,cd - Camera globe,Camera distance [cg set to zeros for CSI, pli angles (x,y) for PLI]
+        -j - perspective projection
+        -v"Width","Height" - Image display width (X) and height (Y)
+        -o0,-"Height"/6 - Change the centre width (X) across and height (Y) down
+        -W"Line Thickness" - Line thickness, image resolution/150.5
+        ="LDConfig" - Alternate LDConfig file [If alternate LDConfig designated in Preferences]
+    Environment Variables:
+        LDRAWDIR="Ldraw path" - LDraw parts library path
+        LDSEARCHDIRS="additional search directory paths" - Pipe (|) delimited single string of search directory paths
+    Logs:
+        stderr-ldglite - error output log file
+        stdout-ldglite - standard output log file
 
 Enhancement: View and edit renderer configuration files. This capability is accessible from the menu bar and empowers the user with the virtually limitless ability to configure each renderer. Keep in mind that these files will affect the performance and quality of your rendered images so it is understood that if you choose to modify these files, you must know what you are doing.
 
 Enhancement: LPub3D-Trace (POV-Ray) render progress display is available across all platforms. This feature is optional and can be turned on in the renderer preference dialogue. Note that this feature is still experimental on macOS
+
+Enhancement: Automated LDraw library search and install. LPub3D previously searched (Home)/Documents/LDraw - among other places. The search functionality now also searches the (Home) root. For example, on Windows %USERPROFILE%\LDraw and on Unix $HOME/LDraw. With the exception of the LPub3D AppImage distribution, if the LDraw path is not found, the user is prompted to either select his/her LDraw library path or extract a fresh installation from the bundled LDraw library archives (both official and unofficial parts) at first application startup. For AppImage distributions, if the LDraw library is not found, LPub3D will automatically extract the LDraw library archives at first application startup and present a message informing the user of this action.
+
+Here are the paths searched for the LDraw Library:
+    Windows:
+    - %USERPROFILE%\LDRaw
+    - %USERPROFILE%\Documents\LDraw
+    - %USERPROFILE%\AppData\Local
+    - C:\LDraw
+    macOS:
+    - $HOME/LDraw
+    - $HOME/Library/LDraw
+    - $HOME/Library/Application Support/LDraw
+    - /Library/LDraw
+    Linux:
+    - $HOME/ldraw
+    - $HOME/Documents/ldraw
+    - $HOME/.local/share/ldraw
+    - /usr/share/ldraw
+
+Change: Starting with v2.1.0, LPub3D will no longer search 'C:\Program Files (x86)' on Windows and '/usr/local/ldraw' on Linux for the LDraw library folder
 
 Enhancement: It is no longer necessary to manage renderer paths in the preference dialogue. LPub3D renderers (LDGLite, LDView and LPub3D-Trace) are now automatically configured at application start-up. As the renderers and now bundled with LPub3D, their locations are fixed and known to the application. Therefore, renderer location configuration is predefined and managed within LPub3D.
 
@@ -152,66 +173,66 @@ Fix: Enable and correct menu shortcuts.  [48ca363]
    Additionally, all available LPub3D menu item short cuts are now enabled. Here are the new mappings:
 
    Main Page Design
-	Open 				= Ctrl+O
-	Save 				= Ctrl+S
-	Print File 			= Ctrl+T	(Currently Disabled)
-	CloseFile 			= Ctrl+X
-	First Page 			= Ctrl+P
-	Last Page 			= Ctrl+L
-	Previous Page 		= Ctrl+E
-	Next Page 			= Ctrl+N
-	Export Bmp 			= Alt+B
-	Export Png 			= Alt+N
-	Export Pdf 			= Alt+F
-	Export Pdf Preview 	= Alt+P
-	Export Jpg 			= Alt+J
-	Fit Page Width		= Alt+W
-	Fit Page Visible	= Alt+V
-	Actual Size			= Alt+A
-	Redo 				= Ctrl+Y	(Also affects LDraw Editor Menu)
-	Undo 				= Ctrl+Z 	(Also affects LDraw Editor Menu)
-	Exit Application	= Ctrl+Q
+    Open                = Ctrl+O
+    Save                = Ctrl+S
+    Print File          = Ctrl+T    (Currently Disabled)
+    CloseFile           = Ctrl+X
+    First Page          = Ctrl+P
+    Last Page           = Ctrl+L
+    Previous Page       = Ctrl+E
+    Next Page           = Ctrl+N
+    Export Bmp          = Alt+B
+    Export Png          = Alt+N
+    Export Pdf          = Alt+F
+    Export Pdf Preview  = Alt+P
+    Export Jpg          = Alt+J
+    Fit Page Width      = Alt+W
+    Fit Page Visible    = Alt+V
+    Actual Size         = Alt+A
+    Redo                = Ctrl+Y    (Also affects LDraw Editor Menu)
+    Undo                = Ctrl+Z    (Also affects LDraw Editor Menu)
+    Exit Application    = Ctrl+Q
 
   LDraw Editor Menu
-	Cut     			= Ctrl+X
-	Paste     			= Ctrl+V
-	Copy     			= Ctrl+C
-	Select All			= Ctrl+A
-	Redraw     			= Ctrl+R
-	Find     			= Ctrl+F
-	Delete     			= DEL
+    Cut                 = Ctrl+X
+    Paste               = Ctrl+V
+    Copy                = Ctrl+C
+    Select All          = Ctrl+A
+    Redraw              = Ctrl+R
+    Find                = Ctrl+F
+    Delete              = DEL
 
   Parameter Editor Menu
-	Cut     			= Ctrl+X
-	Paste     			= Ctrl+V
-	Copy     			= Ctrl+C
-	Select All 			= Ctrl+A
-	Save     			= Ctrl+S
-	Find     			= Ctrl+F
-	Undo     			= Ctrl+Z
-	Redo     			= Ctrl+Y
-	Delete     			= DEL
+    Cut                 = Ctrl+X
+    Paste               = Ctrl+V
+    Copy                = Ctrl+C
+    Select All          = Ctrl+A
+    Save                = Ctrl+S
+    Find                = Ctrl+F
+    Undo                = Ctrl+Z
+    Redo                = Ctrl+Y
+    Delete              = DEL
 
   3D Viewer Menu
- 	Insert ROTSTEP		= Shift+O
-	ROTSTEP Absolute	= Shift+B
-	ROTSTEP Relative	= Shift+E
-	Select 				= Shift+S
-	Zoom				= Shift+Z
-	Zoom Region 		= Shift+G
-	Rotate Camera View	= Shift+T
-	Pan					= Shift+P
-	Select Invert  		= Ctrl+Shift+I
-	Save As		  		= Ctrl+Alt+S
-	Find  				= Ctrl+Shift+F
-	Copy  				= Ctrl+Shift+C
-	Select All  		= Ctrl+Shift+A
-	Hide Selected  		= Ctrl+H
-	Hide Unselected		= Ctrl+Shift+H
-	Unhide All 	 		= Ctrl+U
-	Unhide Selected  	= Ctrl+Shift+U
-	Undo  				= Ctrl+Shift+Y
-	Redo  				= Ctrl+Shift+Z
+    Insert ROTSTEP      = Shift+O
+    ROTSTEP Absolute    = Shift+B
+    ROTSTEP Relative    = Shift+E
+    Select              = Shift+S
+    Zoom                = Shift+Z
+    Zoom Region         = Shift+G
+    Rotate Camera View  = Shift+T
+    Pan                 = Shift+P
+    Select Invert       = Ctrl+Shift+I
+    Save As             = Ctrl+Alt+S
+    Find                = Ctrl+Shift+F
+    Copy                = Ctrl+Shift+C
+    Select All          = Ctrl+Shift+A
+    Hide Selected       = Ctrl+H
+    Hide Unselected     = Ctrl+Shift+H
+    Unhide All          = Ctrl+U
+    Unhide Selected     = Ctrl+Shift+U
+    Undo                = Ctrl+Shift+Y
+    Redo                = Ctrl+Shift+Z
 
 LPub3D 2.0.19.877.2
 
@@ -345,20 +366,20 @@ Fix: Page size and orientation processing update (r826/833)
 Fix: Expand INSERT MODEL meta command behaviour (r825)
  * When using part fading LPUb3D will now process multiple INSERT MODEL commands rendering the CSI content at each command.  For example, if the instruction document includes different model attachments, the editor can now include a non-faded image of the entire model with each attachment. Here is an example of he proper command sequence when used in conjunction with BUFEXCHG:
     0 BUFEXCHG B STORE
-	0 //...				    default model content...
-	0 STEP
-	0 BUFEXCHG B RETRIEVE
-	0 BUFEXCHG A STORE
-	1 0 445 -46 -10 1 0 0 0 1 0 0 0 1 attachment1.ldr
-	0 STEP
-	0 LPUB INSERT MODEL
-	0 LPUB INSERT PAGE
-	0 STEP
-	0 BUFEXCHG A RETRIEVE
-	1 0 0 0 0 1 0 0 0 1 0 0 0 1 attachment2.ldr
-	0 //STEP			    These last 3 lines are optional when editing the model file.
-	0 //LPUB INSERT MODEL	If they don't exist and fade step is ON, they will be automatically created by LPub3D
-	0 //LPUB INSERT PAGE
+    0 //...                 default model content...
+    0 STEP
+    0 BUFEXCHG B RETRIEVE
+    0 BUFEXCHG A STORE
+    1 0 445 -46 -10 1 0 0 0 1 0 0 0 1 attachment1.ldr
+    0 STEP
+    0 LPUB INSERT MODEL
+    0 LPUB INSERT PAGE
+    0 STEP
+    0 BUFEXCHG A RETRIEVE
+    1 0 0 0 0 1 0 0 0 1 0 0 0 1 attachment2.ldr
+    0 //STEP                These last 3 lines are optional when editing the model file.
+    0 //LPUB INSERT MODEL   If they don't exist and fade step is ON, they will be automatically created by LPub3D
+    0 //LPUB INSERT PAGE
 Fix: The PNG output of a model with various page orientations is not correct (r824)
  * Cleared page buffer before rendering each page. Also corrected a typo causing page range to sometimes not work for image exports.
 
@@ -394,21 +415,21 @@ Fix: Part count gives wrong result. (r806)
  * Setting an automatic piece count gives wrong count most of the time in an MPD with multiple submodels and multiple usages of certain same submodels. This behaviour is now corrected. However,the user will have to play a role in configuring her model file to accurately reflect the part count expected. This will undoubtedly require moderate knowledge of LDraw and LPub3D format/logic semantics. The implemented part count capabilities will aim to minimize the intervention of the user but; ultimately, the strength of the part count will depend on the integrity of the model file.
  In LPub3D, three configuration patterns will determine if a part is counted:
  1. The part file must contain a well formed part type meta.
-	Examples: 0 LDRAW_ORG Part, 0 LDRAW_ORG unofficial_part, 0 LDRAW_ORG unofficial part, 0 unofficial part
-	Note that LPub3D does not look at the file extension to distinguish between types. Therefore, one could have a file named foo.mpd which will be identified as a part if the above meta declaration exist. Conversely, if no declaration is present, foo.dat or foo.ldr will not be identified as a part. This feature can be useful when defining helper parts. For example, leaving out the type declaration in the file uparrow.dat will allow the user to include it in their instructions with out it being counted as a part.
+    Examples: 0 LDRAW_ORG Part, 0 LDRAW_ORG unofficial_part, 0 LDRAW_ORG unofficial part, 0 unofficial part
+    Note that LPub3D does not look at the file extension to distinguish between types. Therefore, one could have a file named foo.mpd which will be identified as a part if the above meta declaration exist. Conversely, if no declaration is present, foo.dat or foo.ldr will not be identified as a part. This feature can be useful when defining helper parts. For example, leaving out the type declaration in the file uparrow.dat will allow the user to include it in their instructions with out it being counted as a part.
  2. Using the IGN (ignore) LPub meta will automatically exclude the part lines within from being counted.
-	For example:
-	0 LPUB PART BEGIN IGN
-	1 0 0 0 -120 1 0 0 0 1 0 0 0 1 outerrib.ldr
-	1 0 0 0 120 1 0 0 0 1 0 0 0 1 outerrib.ldr
-	1 71 -70.196 804.976 -165 -0.924 -0.383 0 -0.383 0.924 0 0 0 -1 32123a.dat
-	1 71 -218.11 743.75 -165 -0.707 -0.707 0 -0.707 0.707 0 0 0 -1 32123a.dat
-	1 71 -331.064 630.218 -165 -0.383 -0.924 0 -0.924 0.383 0 0 0 -1 32123a.dat
-	1 4 -392.285 322.436 75 -1.00023 -0.000246369 0 0 0 -1 0.000246369 -1.00023 0 arrow108.dat
-	1 4 -331.011 174.559 75 0 0 1 -0.999849 0 0 0 -0.999849 0 arrow108.dat
-	1 4 -217.888 61.481 75 0 0 1 -1.00023 0.000246369 0 -0.000246369 -1.00023 0 arrow108.dat
-	0 LPUB PART END
-	Note that parts in model subfiles within the IGN declaration will also be ignored.
+    For example:
+    0 LPUB PART BEGIN IGN
+    1 0 0 0 -120 1 0 0 0 1 0 0 0 1 outerrib.ldr
+    1 0 0 0 120 1 0 0 0 1 0 0 0 1 outerrib.ldr
+    1 71 -70.196 804.976 -165 -0.924 -0.383 0 -0.383 0.924 0 0 0 -1 32123a.dat
+    1 71 -218.11 743.75 -165 -0.707 -0.707 0 -0.707 0.707 0 0 0 -1 32123a.dat
+    1 71 -331.064 630.218 -165 -0.383 -0.924 0 -0.924 0.383 0 0 0 -1 32123a.dat
+    1 4 -392.285 322.436 75 -1.00023 -0.000246369 0 0 0 -1 0.000246369 -1.00023 0 arrow108.dat
+    1 4 -331.011 174.559 75 0 0 1 -0.999849 0 0 0 -0.999849 0 arrow108.dat
+    1 4 -217.888 61.481 75 0 0 1 -1.00023 0.000246369 0 -0.000246369 -1.00023 0 arrow108.dat
+    0 LPUB PART END
+    Note that parts in model subfiles within the IGN declaration will also be ignored.
  3. There is now a part exclusion list under the user data directory ...extras/excludedParts.lst.
  As with the other LPub3D lists, the part exclusion list can be edited from the configuration menu.
  The exclusion list is effective in the scenario where one is using dynamically generated parts such as hoses, string, rope etc... Segment parts, e.g. LSynth's LSXX.dat parts, stickers, LDCad template segments etc... can be excluded from the part count by placing them on the exclusion list.
@@ -437,7 +458,7 @@ Fix: Front and back cover page attribute placement (r802)
   *   Pieces                          *  (Bottom of Author) [Dependent]
   *   Model Description               *  (Bottom of Pieces) [Dependent]
   *   Publisher Description           *  (Bottom of Model Description) [Dependent]
-  * 								  *
+  *                                   *
   *            Cover Image            *  (Centre of page) [Independent]
   *                                   *
   *************************************
@@ -552,47 +573,47 @@ Features and enhancements
 -Fix: Inconsistent fade behaviour when using BUFEXCHG parts and added parts in the same step (r764)
  *Behaviour previously used the size of the previous step's CSI to determine the fade position index of the current step in all cases. This approach could lead to an inconsistent fade position after retrieving a buffer. Behaviour corrected to use the size of the previous buffer parts list (versus the CSI) to determine the current step's fade position when BUFEXCHG RETRIEVE meta command is used. This approach removes the necessity to follow the BUFEXCHG RETRIEVE meta command with a STEP/ROTSTEP meta command to process the fade sequence which will unnecessarily render the buffered items twice, in the buffered view and the modelled view. Usually only the buffered view render is desired in the current step (that's why the assembly is buffered in the first place) but the modelled view CSI should be carried forward to the next step. Here are two examples:
  Example 1: No unbuffered parts in step 1, render buffered skeleton with arrow in step 1 but render only modelled skeleton faded and the current parts in step 2
-	0 LPUB ASSEM MODEL_SCALE LOCAL  0.6500
-	0 BUFEXCHG A STORE
-	0 GHOST 1 0 201.2 -844.25 0 1 0 0 0 1 0 0 0 1 skeleton.ldr
-	0 BUFEXCHG B STORE
-	0 BUFEXCHG A RETRIEVE
-	0 LPUB PART BEGIN IGN
-	0 GHOST 1 0 201.2 -960.25 0 1 0 0 0 1 0 0 0 1 skeleton.ldr
-	0 GHOST 1 4 -131.2 -216.25 -70 -1 0 0 0 1 0 0 0 -1 arrow88.dat
-	0 LPUB PART  END
-	0 STEP
-	0 LPUB PLI CONSTRAIN LOCAL HEIGHT 5.67
-	0 LPUB PLI PLACEMENT LOCAL LEFT PAGE INSIDE 0.0115693 -0.118771
-	0 BUFEXCHG B RETRIEVE
-	1 0 -130 -232 -70 -1 0 0 0 1 0 0 0 -1 3069b.dat
-	1 0 -130 -232 70 -1 0 0 0 1 0 0 0 -1 3069b.dat
-	0 STEP
+    0 LPUB ASSEM MODEL_SCALE LOCAL  0.6500
+    0 BUFEXCHG A STORE
+    0 GHOST 1 0 201.2 -844.25 0 1 0 0 0 1 0 0 0 1 skeleton.ldr
+    0 BUFEXCHG B STORE
+    0 BUFEXCHG A RETRIEVE
+    0 LPUB PART BEGIN IGN
+    0 GHOST 1 0 201.2 -960.25 0 1 0 0 0 1 0 0 0 1 skeleton.ldr
+    0 GHOST 1 4 -131.2 -216.25 -70 -1 0 0 0 1 0 0 0 -1 arrow88.dat
+    0 LPUB PART  END
+    0 STEP
+    0 LPUB PLI CONSTRAIN LOCAL HEIGHT 5.67
+    0 LPUB PLI PLACEMENT LOCAL LEFT PAGE INSIDE 0.0115693 -0.118771
+    0 BUFEXCHG B RETRIEVE
+    1 0 -130 -232 -70 -1 0 0 0 1 0 0 0 -1 3069b.dat
+    1 0 -130 -232 70 -1 0 0 0 1 0 0 0 -1 3069b.dat
+    0 STEP
  Example 2: Unbuffered (modelled) parts in step 1, render hobspine, crossbrace, and outerrib with arrow (buffered) in step 1 but exclude arrow and show faded, step 1 modelled parts plus current parts in step 2. Step 1 terminates with ROTSTEP
-	0 GHOST 1 0 0 0 0 1 0 0 0 1 0 0 0 1 hobspine.ldr
-	0 LPUB CALLOUT BEGIN
-	0 LPUB CALLOUT POINTER BOTTOM_LEFT 0.608 0.763 0
-	1 0 0 0 0 1 0 0 0 1 0 0 0 1 crossbrace.ldr
-	0 LPUB CALLOUT PLACEMENT RIGHT ASSEM INSIDE 0.41159 0.062474
-	0 LPUB CALLOUT END
-	0 BUFEXCHG A STORE
-	1 0 0 0 -40 1 0 0 0 1 0 0 0 1 outerrib.ldr
-	1 71 -70.196 804.976 -55 -0.924 -0.383 0 -0.383 0.924 0 0 0 -1 32123a.dat
-	1 71 -218.11 743.75 -55 -0.707 -0.707 0 -0.707 0.707 0 0 0 -1 32123a.dat
-	0 BUFEXCHG B STORE
-	0 BUFEXCHG A RETRIEVE
-	0 LPUB PART BEGIN IGN
-	0 GHOST 1 0 0 0 -120 1 0 0 0 1 0 0 0 1 outerrib.ldr
-	0 GHOST 1 71 -70.196 804.976 -165 -0.924 -0.383 0 -0.383 0.924 0 0 0 -1 32123a.dat
-	0 GHOST 1 71 -218.11 743.75 -165 -0.707 -0.707 0 -0.707 0.707 0 0 0 -1 32123a.dat
-	0 GHOST 1 4 -70.196 804.976 -95 1.00023 0.000246369 0 0 0 -1 -0.000246369 1.00023 0 arrow88.dat
-	0 LPUB PART END
-	0 ROTSTEP 0 75 0 ABS
-	0 BUFEXCHG B RETRIEVE
-	0 LPUB PLI CONSTRAIN LOCAL HEIGHT 3.51333
-	1 0 -378.303 402.398 -50 0 1 0 -1 0 0 0 0 1 3460.dat
-	1 0 -378.303 402.398 50 0 1 0 -1 0 0 0 0 1 3460.dat
-	0 STEP
+    0 GHOST 1 0 0 0 0 1 0 0 0 1 0 0 0 1 hobspine.ldr
+    0 LPUB CALLOUT BEGIN
+    0 LPUB CALLOUT POINTER BOTTOM_LEFT 0.608 0.763 0
+    1 0 0 0 0 1 0 0 0 1 0 0 0 1 crossbrace.ldr
+    0 LPUB CALLOUT PLACEMENT RIGHT ASSEM INSIDE 0.41159 0.062474
+    0 LPUB CALLOUT END
+    0 BUFEXCHG A STORE
+    1 0 0 0 -40 1 0 0 0 1 0 0 0 1 outerrib.ldr
+    1 71 -70.196 804.976 -55 -0.924 -0.383 0 -0.383 0.924 0 0 0 -1 32123a.dat
+    1 71 -218.11 743.75 -55 -0.707 -0.707 0 -0.707 0.707 0 0 0 -1 32123a.dat
+    0 BUFEXCHG B STORE
+    0 BUFEXCHG A RETRIEVE
+    0 LPUB PART BEGIN IGN
+    0 GHOST 1 0 0 0 -120 1 0 0 0 1 0 0 0 1 outerrib.ldr
+    0 GHOST 1 71 -70.196 804.976 -165 -0.924 -0.383 0 -0.383 0.924 0 0 0 -1 32123a.dat
+    0 GHOST 1 71 -218.11 743.75 -165 -0.707 -0.707 0 -0.707 0.707 0 0 0 -1 32123a.dat
+    0 GHOST 1 4 -70.196 804.976 -95 1.00023 0.000246369 0 0 0 -1 -0.000246369 1.00023 0 arrow88.dat
+    0 LPUB PART END
+    0 ROTSTEP 0 75 0 ABS
+    0 BUFEXCHG B RETRIEVE
+    0 LPUB PLI CONSTRAIN LOCAL HEIGHT 3.51333
+    1 0 -378.303 402.398 -50 0 1 0 -1 0 0 0 0 1 3460.dat
+    1 0 -378.303 402.398 50 0 1 0 -1 0 0 0 0 1 3460.dat
+    0 STEP
 -Fix: LDView single call render crash on multi-step page generation (763)
  *Crash if multi-step page's steps contain more than PLI and CSI components. Corrected.
 -Fix: Preference dialogue version change log cleared on update check when there is no available update (r762)
