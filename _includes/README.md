@@ -76,12 +76,16 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
  - Automated build and deploy from Cloud CI Service: [Travis-CI][travis-url], [AppVeyor][appveyor-url] and [Open Build Service][obs-url]
  - [Docker][dockerinstall] container builds using [Docker Compose][dockercomposefile] available for [Arch][dockerarch], [Xenial][dockerxenial] and [Fedora 25][dockerfedora] Linux distros
 
-[lpub3d-icon]:         {% link /assets/images/lpub3d128.png %}
-[appimage-icon]:       {% link /assets/images/appimage.png %}
-[macos-icon]:          {% link /assets/images/macos.png %}
-[windows-icon]:        {% link /assets/images/windows.png %}
-
 [lpub3d-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d/master/mainApp/images/lpub3d128.png
+
+[appimage-icon]:       https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/appimage.png
+[macos-icon]:          https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/macos.png
+[windows-icon]:        https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/windows.png
+
+[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.0.775_20180213-x86_64.AppImage
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.0.775_20180213-macos.dmg
+[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.0.775_20180213.exe
+
 [changelog]:           https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/README.txt
 [credits]:             https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/CREDITS.txt
 [copying]:             https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/COPYING.txt
@@ -136,9 +140,5 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [dockerarch]:          https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-archlinux
 [dockerxenial]:        https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-ubuntu_xenial
 [dockerfedora]:        https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-fedora_25
-
-[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.0.775_20180213.exe
-[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.0.775_20180213-macos.dmg
-[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.0.775_20180213-x86_64.AppImage
 
 Copyright (c) 2015 - 2018 by Trevor SANDY
