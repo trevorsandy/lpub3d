@@ -2,6 +2,7 @@
 title: LPub3D
 theme: jekyll-theme-minimal
 timezone: Europe/Paris
+baseurl: /lpub3d
 permalink: none
 
 # Build settings
