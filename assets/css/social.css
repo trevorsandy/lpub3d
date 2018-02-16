@@ -1,0 +1,16 @@
+.fa-envelope:hover {
+  font-size: 20px;
+  color: #dd4b39;
+}
+.fa-github:hover {
+  font-size: 20px;
+  color: #000000;
+}
+.fa-twitter:hover {
+  font-size: 20px;
+  color: #00aced;
+}
+.fa-linkedin:hover {
+  font-size: 20px;
+  color: #007bb6;
+}
