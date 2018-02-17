@@ -5,7 +5,7 @@
 
 **LPub3D** is an Open Source WYSIWYG editing application for creating LEGO® style digital building instructions producing PDF, PNG, JPG and BMP formatted content.
 It uses the LDraw parts library, the most comprehensive
-library of digital Open Source LEGO® bricks available ([www.ldraw.org][ldraw-url] ) and reads the LDraw LDR and MPD model file formats.
+library of digital Open Source LEGO® bricks available ([LDaw.org][ldraw-url] ) and reads the LDraw LDR and MPD model file formats.
 
 LPub3D provides three popular LDraw image renderers - custom adapted console applications for tight integration, optimum flexibility and robust performance.
  - [LDGLite][ldglite] - fast image rendering ideal for proofing
@@ -71,7 +71,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 
  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2015 Leonardo Zide and additional third party components. See [Credits][credits] for full details on contributing content.
 
-[ldraw-url]:           www.ldraw.org/
+[ldraw-url]:           http://www.ldraw.org/
 
 [appimage-icon]:       https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/appimage.png
 [macos-icon]:          https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/macos.png
