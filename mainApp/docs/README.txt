@@ -1,3 +1,12 @@
+LPub3D 2.1.1.0.776 (17 02 2018 10:57:21)
+
+Features and enhancements
+------------
+
+Fix: Windows multi-user installation - uninstall error. Installation hangs at attempt to uninstall previous version of LPub3D. Of course it is possible to manually uninstall the previous version before installing version 2.1.0; however, the updated automated installation program takes care to preserve any previous configuration settings if so desired. (#21)
+
+Fix: File lpub3d.appdata.xml malformed. Corrected. (#20)
+
 LPub3D 2.1.0.0.775 (13 02 2018 02:42:46)
 
 Features and enhancements
@@ -120,7 +129,10 @@ Enhancement: View log files. It is now possible to view logged output for LPub3D
 
 Enhancement: Detect and configure LGEO library including Damien Roux's (Darats) STL objects. LGEO is a library of high-quality POV-Ray object definitions which describes LDraw parts. In order to automatically detect the LGEO library it be placed inside the LDraw library - for example "LDraw Path"/lgeo. Furthermore, to include Darats' STL objects, they must exist in a sub-folder named "stl" - so an example for STL objects would be "LDraw Path"/lgeo/stl. With these settings in place, LPub3d will automatically detect the LGEO paths and include them in the POV-Ray configuration file settings.
 
-Enhancement: Windows multi-user installation. Multi-user installation allows "per-user" (no admin required) and "per-machine" (asks elevation only when necessary) installations. Per-user installations install folder is located at %USERPROFILE%\Local\AppData and installation registry keys at HKCU Software\LPub3D and HKCU Software\Microsoft\Windows\CurrentVersion\Uninstall\LPub3D respectively. The per-machine inistallations install folder is located at Program Files [x86_64] or Program Files (x86) [i686] while installation registry keys are written to HKLM Software\LPub3D and HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall\LPub3D. For both pre-user and per-machine installs, LPUb3D configuration registry keys are written to HKCU Software\LPub3D Software\LPub3D while configuration data is written to %USERPROFILE%\Local\AppData\LPub3D Software\LPub3D. See https://github.com/Drizin/NsisMultiUser/blob/master/README.md for technical details.
+Enhancement: Windows multi-user installation. Multi-user installation allows "per-user" (no admin required) and "per-machine" (asks elevation only when necessary) installations. Per-user installations install folder is located at %USERPROFILE%\Local\AppData and installation registry keys at HKCU Software\LPub3D and HKCU Software\Microsoft\Windows\CurrentVersion\Uninstall\LPub3D respectively. The per-machine installations install folder is located at Program Files [x86_64] or Program Files (x86) [i686] while installation registry keys are written to HKLM Software\LPub3D and HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall\LPub3D. For both pre-user and per-machine installs, LPUb3D configuration registry keys are written to HKCU Software\LPub3D Software\LPub3D while configuration data is written to %USERPROFILE%\Local\AppData\LPub3D Software\LPub3D. See https://github.com/Drizin/NsisMultiUser/blob/master/README.md for technical details.
+In summary, LPub3D application data is installed 'per-user' only while the application, uninstall registry keys and shortcuts are installed 'per-user' or 'per-machine'. As you have seen on the Windows install program, installing application data during program install is optional. LPub3D will 'initialize' any missing application data at startup.
+
+Enhancement: Windows install/uninstall options. The install program allows 'current user' and 'multi-user' installs already described above. In addition, the components of LPub3D installation are now sectioned to individual selection between application data and settings registry hive key. While the application data has always been optional to install, it, along with settings registry hive key, are now optional to uninstall as well. This functionality allows the user to optionally preserve their registry settings between installs.
 
 Fix: preference settings not preserved on macOS - When application is closed, the configured preference settings are not preserved. On subsequent, application launch, the preference revert to the default configuration. This behaviour no longer presents on macOS.
 

@@ -10,12 +10,10 @@ An LDraw™ editor for LEGO® style digital building instructions.
 LPub3D is developed and maintained by Trevor SANDY. It uses the LDraw parts library, the most comprehensive
 library of digital Open Source LEGO® bricks available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model file formats.
 
-LPub3D provides three popular LDraw image renderers - custom adapted for tight integration and robust performance.
- - [LDGLite][ldglite] - console application, fast image rendering
- - [LDView][ldview] - console application, feature rich rendering and pov file generation
- - [LPub3D-Trace (POV-Ray)][povray] - console application, high quality image and feature rich image rendering
-
-Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2015 Leonardo Zide and additional third party components. See [Credits][credits] for full details on contributing content.
+LPub3D provides three popular LDraw image renderers - custom adapted console applications for tight integration, optimum flexibility and robust performance.
+ - [LDGLite][ldglite] - fast image rendering ideal for proofing
+ - [LDView][ldview] - feature rich image rendering and pov file generation
+ - [LPub3D-Trace (POV-Ray)][povray] - high fedility, feature rich image rendering
 
 ### Compatibility
 LPub3D runs on Debian, Red Hat and Arch derived Linux distros, macOS and Windows Operating Systems.  
@@ -70,6 +68,8 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
  - Automated build and deploy from Cloud CI Service: [Travis-CI][travis-url], [AppVeyor][appveyor-url] and [Open Build Service][obs-url]
  - [Docker][dockerinstall] container builds using [Docker Compose][dockercomposefile] available for [Arch][dockerarch], [Xenial][dockerxenial] and [Fedora 25][dockerfedora] Linux distros
 
+ Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2015 Leonardo Zide and additional third party components. See [Credits][credits] for full details on contributing content.
+
 [lpub3d-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d/master/mainApp/images/lpub3d128.png
 [changelog]:           https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/README.txt
 [credits]:             https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/CREDITS.txt
@@ -80,7 +80,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [ldview]:              https://github.com/trevorsandy/ldview
 [povray]:              https://github.com/trevorsandy/povray
 
-[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.1.0
+[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.1.1
 [githubreleases]:      https://github.com/trevorsandy/lpub3d/releases
 [obsreleases]:         https://software.opensuse.org//download.html?project=home:trevorsandy&package=lpub3d
 [travis-badge]:        https://img.shields.io/travis/trevorsandy/lpub3d.svg?label=travis
@@ -141,9 +141,9 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [univention-icon]:     https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/univention.png
 [windows-icon]:        https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/windows.png
 
-[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.0.775_20180213.exe
-[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.0.775_20180213-macos.dmg
-[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.0.775_20180213-x86_64.AppImage
+[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.1.1/LPub3D-2.1.1.0.776_20180217.exe
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.1.1/LPub3D-2.1.1.0.776_20180217-macos.dmg
+[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.1.1/LPub3D-2.1.1.0.776_20180217-x86_64.AppImage
 
 [arch-url]:            https://download.opensuse.org/repositories/home:/trevorsandy/Arch_Extra/
 [centos-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/CentOS_7/

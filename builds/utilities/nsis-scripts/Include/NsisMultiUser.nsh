@@ -29,12 +29,11 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 
 !macro MULTIUSER_INIT_VARS
 	; required defines
-	!ifndef PRODUCT_NAME | VERSION | PROGEXE
-		!error "Should define all variables: PRODUCT_NAME, VERSION, PROGEXE"
+	!ifndef COMPANY_NAME | PRODUCT_NAME | VERSION | PROGEXE
+		!error "Should define all variables: COMPANY_NAME, PRODUCT_NAME, VERSION, PROGEXE"
 	!endif
 
 	; optional defines
-	; COMPANY_NAME - stored in uninstall info in registry
 	; MULTIUSER_INSTALLMODE_NO_HELP_DIALOG - don't show help dialog
 
 	!define /ifndef MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS 1 ; 0 or 1 - whether user can install BOTH per-user and per-machine; this only affects the texts and the required elevation on the page, the actual uninstall of previous version has to be implemented by script
@@ -75,6 +74,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	Var MultiUser.InstallMode ; Current Install Mode ("AllUsers" or "CurrentUser")
 	Var IsAdmin ; 0 or 1, initialized via UserInfo::GetAccountType
 	Var IsInnerInstance ; 0 or 1, initialized via UAC_IsInnerInstance
+	Var HasLegacyPerMachineInstallation ; 0 or 1 (LPub3D-Specific legacy installation - version 2.0.20 and older)
 	Var HasPerMachineInstallation ; 0 or 1
 	Var HasPerUserInstallation ; 0 or 1
 	Var HasCurrentModeInstallation ; 0 or 1
@@ -340,11 +340,30 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		ReadRegStr $PerMachineInstallationVersion HKLM "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "DisplayVersion"
 		ReadRegStr $PerMachineInstallationFolder HKLM "${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY2}" "${MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME}" ; "InstallLocation"
 		ReadRegStr $PerMachineUninstallString HKLM "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "UninstallString" ; contains the /currentuser or /allusers parameter
+		
+		;Start Legacy LPub3D Install 
+		${if} $PerMachineInstallationFolder == ""
+		  ;Machine installation returned null so check for LPub3D-specific legacy installation folder and version 
+		  ReadRegStr $PerMachineInstallationFolder HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Installation" "InstallPath"
+	    ${if} $PerMachineInstallationFolder != ""
+		    StrCpy $HasLegacyPerMachineInstallation 1
+		    ;InstallPath defined so proceed to populate Version and InstallString
+		    ${If} ${RunningX64}
+		      ReadRegStr $PerMachineInstallationVersion HKLM "SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayVersion"
+		      ReadRegStr $PerMachineUninstallString HKLM "SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "UninstallString"
+		    ${endif}
+		  ${else}
+		    StrCpy $HasLegacyPerMachineInstallation 0
+		  ${endif}
+		${endif}
+		;End LPub3D Legacy Install
+		
 		${if} $PerMachineInstallationFolder == ""
 			StrCpy $HasPerMachineInstallation 0
 		${else}
 			StrCpy $HasPerMachineInstallation 1
 		${endif}
+		
 		ReadRegStr $PerUserInstallationVersion HKCU "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "DisplayVersion"
 		ReadRegStr $PerUserInstallationFolder HKCU "${MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY2}" "${MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME}" ; "InstallLocation"
 		ReadRegStr $PerUserUninstallString HKCU "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY2}" "UninstallString" ; contains the /currentuser or /allusers parameter

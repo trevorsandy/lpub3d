@@ -26,7 +26,7 @@
 #include "version.h"
 #include "lc_global.h"
 #include "lpub_preferences.h"
- 
+
 AboutDialog::AboutDialog(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::AboutDialog)
@@ -79,10 +79,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                      "<tr>"
                                        "<td>Source:</td>"
                                        "<td><a href=\"%6\">%6</a></td>"
-                                     "</tr>"
-                                     "<tr>"
-                                       "<td>Source:</td>"
-                                       "<td><a href=\"%2\">%2</a></td>"
                                      "</tr>"
                                   "</table>"
                                 "</td>"
@@ -154,7 +150,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     else if (OS == OsOther)
         osPlatform  = "Other Operating System";
     else if (OS == OsError)
-        osPlatform  = "Error encountered";   
+        osPlatform  = "Error encountered";
     else
       osPlatform = "Cannot determine system";
 #elif defined(Q_OS_MACX)

@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: February 07, 2018
+;Last Update: February 15, 2018
 ;Copyright (C) 2016 - 2018 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
@@ -26,6 +26,7 @@ Var /global X64Flag
 Var /global StartMenuFolder
 Var /global CaptionMessage
 Var /global GetInstalledSize.total
+Var /global AppDataBaseDir
 
 ;Custom page variables
 Var /global nsDialogFilePathsPage
@@ -79,14 +80,15 @@ Var /global LPub3DViewerLibPath
 !define MULTIUSER_INSTALLMODE_DISPLAYNAME "${PRODUCT_NAME} ${VERSION} ${PLATFORM}"
 
 ; Set LPub3D user data path
-!define INSTDIR_AppData "$LOCALAPPDATA\${COMPANY_NAME}\${PRODUCT_NAME}"
+!define INSTDIR_LocalAppData $AppDataBaseDir
+!define INSTDIR_AppDataProduct "$AppDataBaseDir\${COMPANY_NAME}\${PRODUCT_NAME}"
 
 ; Installer Attributes
 Name "${PRODUCT_NAME} ${VERSION} Rev ${BuildRevision} Build ${BuildNumber} ${PLATFORM}"
 Caption $CaptionMessage
 Icon "..\icons\setup.ico"
 UninstallIcon "..\icons\setup.ico"
-BrandingText "Â©2018 ${COMPANY_NAME}"
+BrandingText "©2018 ${COMPANY_NAME}"
 !ifdef UpdateMaster
   OutFile "${OutFileDir}\${PRODUCT_NAME}-UpdateMaster_${VERSION}.exe"
 !else
@@ -136,7 +138,7 @@ Page custom nsDialogShowCustomPage nsDialogLeaveCustomPage
 !define MUI_STARTMENUPAGE_NODISABLE ; Do not display the checkbox to disable the creation of Start Menu shortcuts
 !define MUI_STARTMENUPAGE_DEFAULTFOLDER "${PRODUCT_NAME}"
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT "SHCTX" ; writing to $StartMenuFolder happens in MUI_STARTMENU_WRITE_END, so it's safe to use "SHCTX" here
-!define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+!define MUI_STARTMENUPAGE_REGISTRY_KEY "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "StartMenuFolder"
 !define MUI_PAGE_CUSTOMFUNCTION_PRE PageStartMenuPre
 !insertmacro MUI_PAGE_STARTMENU "" "$StartMenuFolder"
@@ -185,19 +187,9 @@ Section "Core Files (required)" SectionCoreFiles
     !endif
   ${endif}
 
-  ;Machine installation returned null so check nstallation folder for legacy installs
-  StrCpy $4 ""
-  ${if} "$0" == ""
-    ReadRegStr $PerMachineInstallationFolder HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Installation" "InstallPath"
-    IfFileExists "$PerMachineInstallationFolder\Uninstall.exe" 0 End
-    StrCpy $PerMachineUninstallString "$PerMachineInstallationFolder\Uninstall.exe"
-    StrCpy $0 "AllUsers"
-    StrCpy $4 1
-    End:
-  ${endif}
-
-  ;Remove previous installation
   ${if} "$0" != ""
+
+    ;Set InstallString, InstallationFolder
     ${if} $0 == "AllUsers"
       StrCpy $1 "$PerMachineUninstallString"
       StrCpy $3 "$PerMachineInstallationFolder"
@@ -205,21 +197,30 @@ Section "Core Files (required)" SectionCoreFiles
       StrCpy $1 "$PerUserUninstallString"
       StrCpy $3 "$PerUserInstallationFolder"
     ${endif}
+
     ${if} ${silent}
       StrCpy $2 "/S"
     ${else}
       StrCpy $2 ""
     ${endif}
-    DetailPrint "UninstallString $1$\nInstallationFolder $3"
+
+    ;Remove previous installation
+    DetailPrint 'UninstallString $1'
+    DetailPrint 'InstallationFolder $3'
 
     ; Legacy installs will delete everything on Uninstall so ackup user data and registry keys
-    ${if} $4 == 1
-      !insertmacro BackupFolder "${INSTDIR_AppData}" "$LOCALAPPDATA\temp\${PRODUCT_NAME}"
-      ${COPY_REGISTRY_KEY} HKCU "Software\${COMPANY_NAME}" HKCU "Software\LPUB3D_BACKUP\${COMPANY_NAME}"
+    ${if} $HasLegacyPerMachineInstallation == 1
+      DetailPrint "Removing legacy install - using mode ($0)..."
+      StrCpy $5 "${INSTDIR_LocalAppData}\${COMPANY_NAME}\${PRODUCT_NAME}" ; $5 = LEGACY_INSTDIR_AppDataProduct
+      StrCpy $6 "${INSTDIR_LocalAppData}\Temp\${PRODUCT_NAME}"            ; $6 = LEGACY_INSTDIR_AppDataProduct_Backup
+      DetailPrint "Backup files '$5' to '$6'..."
+      !insertmacro BackupFolder "$5" "$6" ; Backup Legacy Current User Data
+      ${COPY_REGISTRY_KEY} HKCU "Software\${COMPANY_NAME}" HKCU "Software\LPUB3D_BACKUP\${COMPANY_NAME}" ; backup Legacy Current User Hive Key
       ; manually copy uninstaller to temp dir so it can be deleted in the install folder
       InitPluginsDir
+      DetailPrint "Copy file '$PerMachineInstallationFolder\Uninstall.exe' to '$pluginsdir\uninst\'..."
       CreateDirectory "$pluginsdir\uninst"
-      CopyFiles /SILENT /FILESONLY "$PerUserInstallationFolder\Uninstall.exe" "$pluginsdir\uninst\Uninstall.exe"
+      CopyFiles /SILENT /FILESONLY "$PerMachineInstallationFolder\Uninstall.exe" "$pluginsdir\uninst\"
       StrCpy $1 "$pluginsdir\uninst\Uninstall.exe"
     ${endif}
 
@@ -250,11 +251,13 @@ Section "Core Files (required)" SectionCoreFiles
     ${endif}
 
     ; Restore legacy user data and registry keys
-    ${if} $4 == 1
-      !insertmacro RestoreFolder "$LOCALAPPDATA\temp\${PRODUCT_NAME}" "${INSTDIR_AppData}"
+    ${if} $HasLegacyPerMachineInstallation == 1
+      DetailPrint "Restore files '$6' to '$5'..."
+      !insertmacro RestoreFolder "$6" "$5" ; Restore LEGACY_INSTDIR_AppDataProduct_Backup
+      ; Restore Reg from Current User Hive Key to Context Hive Key
       ${COPY_REGISTRY_KEY} HKCU "Software\LPUB3D_BACKUP\${COMPANY_NAME}" HKCU "Software\${COMPANY_NAME}"
       ; Cleanup legacy user data backup
-      DeleteRegKey HKCU "Software\LPUB3D_BACKUP\${COMPANY_NAME}"
+      DeleteRegKey HKCU "Software\LPUB3D_BACKUP"; Delete Current User Hive Key
       ; Cleanup unused registry values
       DeleteRegKey HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Installation"
       DeleteRegValue HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\POVRay" "L3P"
@@ -287,7 +290,7 @@ Section "Core Files (required)" SectionCoreFiles
   ${If} $InstallUserData == 1       # install user data
 
     ;ldraw libraries - user data location
-    CreateDirectory "${INSTDIR_AppData}\libraries"
+    CreateDirectory "${INSTDIR_AppDataProduct}\libraries"
 
     ${If} $CopyExistingUserDataLibraries == 1
       Call fnCopyLibraries
@@ -301,15 +304,15 @@ Section "Core Files (required)" SectionCoreFiles
     ${EndIf}
 
     ;extras contents
-    CreateDirectory "${INSTDIR_AppData}\extras"
-    SetOutPath "${INSTDIR_AppData}\extras"
+    CreateDirectory "${INSTDIR_AppDataProduct}\extras"
+    SetOutPath "${INSTDIR_AppDataProduct}\extras"
     File "${WinBuildDir}\extras\PDFPrint.jpg"
     File "${WinBuildDir}\extras\pli.mpd"
 
     ${If} $OverwriteUserDataParamFiles == 0
       ; Always overwrite fadeStepColorParts.lst but backup first
-      IfFileExists "${INSTDIR_AppData}\extras\fadeStepColorParts.lst" 0 +2
-      !insertmacro BackupFile "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppData}\extras\${PRODUCT_NAME}.${MyTIMESTAMP}.bak"
+      IfFileExists "${INSTDIR_AppDataProduct}\extras\fadeStepColorParts.lst" 0 +2
+      !insertmacro BackupFile "${INSTDIR_AppDataProduct}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppDataProduct}\extras\${PRODUCT_NAME}.${MyTIMESTAMP}.bak"
       SetOverwrite on
       File "${WinBuildDir}\extras\fadeStepColorParts.lst"
       SetOverwrite off
@@ -331,16 +334,21 @@ Section "Core Files (required)" SectionCoreFiles
     ${EndIf}
 
     ;Store/Update library folder
-    WriteRegStr HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "PartsLibrary" "${INSTDIR_AppData}\libraries\complete.zip"
+    DetailPrint "LPub3D PartsLibrary Path ${INSTDIR_AppDataProduct}\libraries\complete.zip"
+    WriteRegStr HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "PartsLibrary" "${INSTDIR_AppDataProduct}\libraries\complete.zip"
 
   ${Else}               # do not install user data (backup and write new version of fadeStepColorParts.lst if already exist)
-    IfFileExists "${INSTDIR_AppData}\extras\fadeStepColorParts.lst" 0 GoToEnd
-    !insertmacro BackupFile "${INSTDIR_AppData}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppData}\extras\${PRODUCT_NAME}.${MyTIMESTAMP}.bak"
-    SetOutPath "${INSTDIR_AppData}\extras"
+    IfFileExists "${INSTDIR_AppDataProduct}\extras\fadeStepColorParts.lst" 0 GoToEnd
+    !insertmacro BackupFile "${INSTDIR_AppDataProduct}\extras" "fadeStepColorParts.lst" "${INSTDIR_AppDataProduct}\extras\${PRODUCT_NAME}.${MyTIMESTAMP}.bak"
+    SetOutPath "${INSTDIR_AppDataProduct}\extras"
     SetOverwrite on
     File "${WinBuildDir}\extras\fadeStepColorParts.lst"
     GoToEnd:
   ${EndIf}
+
+  ; Set user data path - this is for future use (when I figure out how the get povray to switch user config file location)
+  DetailPrint "LPub3D Data Folder (ShellContext 0) $0, (INSTDIR_AppDataProduct) ${INSTDIR_AppDataProduct}"
+  WriteRegStr HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "LPub3DDataPath" "${INSTDIR_AppDataProduct}"
 
   ; Add size for user applicaiton data
   AddSize 50
@@ -431,9 +439,24 @@ Function .onInit
     !insertmacro CheckSingleInstance "${SINGLE_INSTANCE_ID}"
   ${endif}
 
+  ;Save the current ShellVarContext, set context to current, populate $AppDataBaseDir then revert context
+  StrCpy $R0 "$SMPROGRAMS"
+  SetShellVarContext current
+  StrCpy $AppDataBaseDir "$LOCALAPPDATA"
+  StrCmp $R0 "$SMPROGRAMS" 0 SetAll
+  Goto Done
+  SetAll:
+  SetShellVarContext all
+  Done:
+
   !insertmacro MULTIUSER_INIT
 
   !define /ifndef GetInstalledSize.total 0
+
+  ;Get Ldraw library folder, archive file paths, and uninstall string from registry if available
+  ReadRegStr $LDrawDirPath HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "LDrawDir"
+  ReadRegStr $LPub3DViewerLibFile HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "PartsLibrary"
+  ReadRegStr $ParameterFile HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "TitleAnnotationFile"
 
   ; Set caption according to architecture
   StrCmp ${UniversalBuild} "1" 0 SignleArchBuild
@@ -448,11 +471,6 @@ Function .onInit
   InitDataVars:
   ;Initialize user data vars
   Call fnInitializeUserDataVars
-
-  ;Get Ldraw library folder, archive file paths, and uninstall string from registry if available
-  ReadRegStr $LDrawDirPath HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "LDrawDir"
-  ReadRegStr $LPub3DViewerLibFile HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "PartsLibrary"
-  ReadRegStr $ParameterFile HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "TitleAnnotationFile"
 
   ;Verify old library directory exist - and is not the same as new library directory
   Push $LPub3DViewerLibFile
@@ -745,11 +763,11 @@ Function fnWarning
 FunctionEnd
 
 Function fnUserDataInfo
-          ${NSD_SetText} $UserDataLbl "NOTICE! Data created under Administrator user AppData path. Standard users will not have access."
+          ${NSD_SetText} $UserDataLbl "NOTICE! Data created 'per user'. Only the installing user will have access."
 FunctionEnd
 
 Function fnMoveLibrariesInfo
-    ${NSD_SetText} $UserDataLbl "INFO: LDraw library archives will be moved to a new directory:$\r$\n'$LOCALAPPDATA\${COMPANY_NAME}\${PRODUCT_NAME}\libraries'."
+    ${NSD_SetText} $UserDataLbl "INFO: LDraw library archives will be moved to a new directory:$\r$\n'${INSTDIR_LocalAppData}\${COMPANY_NAME}\${PRODUCT_NAME}\libraries'."
 FunctionEnd
 
 Function fnDeleteDirectoryWarning
@@ -769,7 +787,7 @@ FunctionEnd
 
 Function fnVerifyDeleteDirectory
   StrCpy $OldLibraryDirectoryExist 0
-  ${StrContains} $0 "$LOCALAPPDATA\${COMPANY_NAME}\${PRODUCT_NAME}\libraries" $LPub3DViewerLibPath
+  ${StrContains} $0 "${INSTDIR_LocalAppData}\${COMPANY_NAME}\${PRODUCT_NAME}\libraries" $LPub3DViewerLibPath
     StrCmp $0 "" doNotMatch
     StrCpy $OldLibraryDirectoryExist 1
     Goto Finish
@@ -780,28 +798,28 @@ Function fnVerifyDeleteDirectory
 FunctionEnd
 
 Function fnInstallLibraries
-  SetOutPath "${INSTDIR_AppData}\libraries"
+  SetOutPath "${INSTDIR_AppDataProduct}\libraries"
   File "${WinBuildDir}\extras\complete.zip"
   File "${WinBuildDir}\extras\lpub3dldrawunf.zip"
 FunctionEnd
 
 Function fnCopyLibraries
-    SetOutPath "${INSTDIR_AppData}\libraries"
-    IfFileExists "${INSTDIR_AppData}\libraries\complete.zip" 0 +2
+    SetOutPath "${INSTDIR_AppDataProduct}\libraries"
+    IfFileExists "${INSTDIR_AppDataProduct}\libraries\complete.zip" 0 +2
     goto Next
     IfFileExists "$LPub3DViewerLibPath\complete.zip" 0 Install_new_off_Lib
     ${If} $OldLibraryDirectoryExist == 1
-        CopyFiles "$LPub3DViewerLibPath\complete.zip" "${INSTDIR_AppData}\libraries\complete.zip"
+        CopyFiles "$LPub3DViewerLibPath\complete.zip" "${INSTDIR_AppDataProduct}\libraries\complete.zip"
     ${EndIf}
     goto Next
     Install_new_off_Lib:
   File "${WinBuildDir}\extras\complete.zip"
     Next:
-    IfFileExists "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip" 0 +2
+    IfFileExists "${INSTDIR_AppDataProduct}\libraries\lpub3dldrawunf.zip" 0 +2
     goto Finish
     IfFileExists "$LPub3DViewerLibPath\ldrawunf.zip" 0 Install_new_unoff_Lib
     ${If} $OldLibraryDirectoryExist == 1
-        CopyFiles "$LPub3DViewerLibPath\ldrawunf.zip" "${INSTDIR_AppData}\libraries\lpub3dldrawunf.zip"
+        CopyFiles "$LPub3DViewerLibPath\ldrawunf.zip" "${INSTDIR_AppDataProduct}\libraries\lpub3dldrawunf.zip"
     ${EndIf}
     goto Finish
     Install_new_unoff_Lib:

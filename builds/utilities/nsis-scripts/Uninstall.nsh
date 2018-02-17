@@ -36,9 +36,9 @@ Section "un.Program Files" SectionUninstallProgram
 	!insertmacro un.DeleteRetryAbort "$INSTDIR\${README_FILE}"
 
 	; Delete non-configuration User data
-	RMDir /r "${INSTDIR_AppData}\dump"
-	RMDir /r "${INSTDIR_AppData}\logs"
-	RMDir /r "${INSTDIR_AppData}\cache"
+	RMDir /r "${INSTDIR_AppDataProduct}\dump"
+	RMDir /r "${INSTDIR_AppDataProduct}\logs"
+	RMDir /r "${INSTDIR_AppDataProduct}\cache"
 
   ; Clean up "Program Group" - we check that we created Start menu folder, if $StartMenuFolder is empty, the whole $SMPROGRAMS directory will be removed!
 	${if} "$StartMenuFolder" != ""
@@ -57,11 +57,11 @@ SectionEnd
 
 Section /o "un.User Data" SectionRemoveUserData
 	; Delete all User data - this section is executed only explicitly and shouldn't be placed in SectionUninstallProgram
-	RMDir /r "$LOCALAPPDATA\${COMPANY_NAME}"
+	RMDir /r "${INSTDIR_LocalAppData}\${COMPANY_NAME}"
 SectionEnd
 
-Section /o "un.Registry Settings" SectionRemoveRegistrKeys
-  ; Delete regisry keys - this section is executed only explicitly and shouldn't be placed in SectionUninstallProgram
+Section /o "un.User Registry Settings" SectionRemoveUserRegistrKeys
+  ; Delete all settings regisry hive keys - this section is executed only explicitly and shouldn't be placed in SectionUninstallProgram
 	DeleteRegKey HKCU "Software\${COMPANY_NAME}"
 SectionEnd
 
@@ -77,8 +77,8 @@ SectionEnd
 ; Modern install component descriptions
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN
 	!insertmacro MUI_DESCRIPTION_TEXT ${SectionUninstallProgram} "Uninstall ${PRODUCT_NAME} files."
-	!insertmacro MUI_DESCRIPTION_TEXT ${SectionRemoveUserData} "Remove ${PRODUCT_NAME} User Data. Select only if you don't plan to use the program in the future."
-	!insertmacro MUI_DESCRIPTION_TEXT ${SectionRemoveRegistrKeys} "Remove ${PRODUCT_NAME} Registry Settings. Select only if you don't expect to reinstall the program in the future."
+	!insertmacro MUI_DESCRIPTION_TEXT ${SectionRemoveUserData} "Remove ${PRODUCT_NAME} User Data. Select only if this user does not plan to use the program in the future."
+	!insertmacro MUI_DESCRIPTION_TEXT ${SectionRemoveUserRegistrKeys} "Remove User ${PRODUCT_NAME} Registry Settings. Select only if you don't expect this user to reinstall the program in the future."
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_END
 
 ; Callbacks
@@ -104,6 +104,16 @@ Function un.onInit
 		${andif} $RunningFromInstaller$SemiSilentMode == "00"
 		!insertmacro CheckSingleInstance "${SINGLE_INSTANCE_ID}"
 	${endif}
+
+	;Save the current ShellVarContext, set context to current, populate $AppDataBaseDir then revert context
+	StrCpy $R0 "$SMPROGRAMS"
+	SetShellVarContext current
+	StrCpy $AppDataBaseDir "$LOCALAPPDATA"
+	StrCmp $R0 "$SMPROGRAMS" 0 SetAll
+	Goto Done
+	SetAll:
+	SetShellVarContext all
+	Done:
 
 	!insertmacro MULTIUSER_UNINIT
 FunctionEnd

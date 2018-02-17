@@ -353,7 +353,7 @@ void Preferences::lpubPreferences()
 
     lpub3dPath = cwd.absolutePath();
 
-#ifdef Q_OS_WIN //... portable on Windows
+#ifdef Q_OS_WIN //... Windows portable or installed
 
     if (QDir(lpub3dPath + "/extras").exists()) { // we have a portable distribution
 
@@ -419,22 +419,34 @@ void Preferences::lpubPreferences()
 
     } else {                                        // we havea an installed distribution
 
-    #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+        QSettings Settings;
+        QString const LPub3DDataPathKey("LPub3DDataPath");
+
+        if (Settings.contains(QString("%1/%2").arg(SETTINGS,LPub3DDataPathKey))) {
+
+            lpubDataPath = Settings.value(QString("%1/%2").arg(SETTINGS,LPub3DDataPathKey)).toString();
+
+        } else {
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
             QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
             lpubDataPath = dataPathList.first();
-    #else
+#else
             lpubDataPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-    #endif
-
+#endif
+            Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DDataPathKey), lpubDataPath);
+        }
     }
 
 #else  // ...Linux or OSX
-    #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
             QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
             lpubDataPath = dataPathList.first();
-    #else
+#else
             lpubDataPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-    #endif
+#endif
+
 #endif
 
     qDebug() << "LPub3D Root Path:      " << lpub3dPath;
@@ -851,7 +863,6 @@ void Preferences::ldrawPreferences(bool force)
 #ifdef Q_OS_MAC
                         if (! lpub3dLoaded && Application::instance()->splash->isVisible())
                           Application::instance()->splash->hide();
-
 #endif
                         QPixmap _icon = QPixmap(":/icons/lpub96.png");
                         QMessageBox box;

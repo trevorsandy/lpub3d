@@ -69,6 +69,7 @@ environment:
 # Automatically deploy to GitHub Release and Sourceforge.net.
 # Skip Sourceforge.net if git annotation contains [skip sfr]
 init:
+ - ps: cmd.exe /c %windir%\system32\tzutil.exe /s "Central Europe Standard Time"
  - ps: write-host "Building ${env:LP3D_PACKAGE} x86 and x86_64 architectures..."
  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
  - ps: |
@@ -116,7 +117,7 @@ init:
 
         Write-Output "Build cache cleared."
       }
- - ps: $env:LP3D_RELEASE_LABEL = ("LPub3D " + (Get-Date -format "dd.MM.yyyy"))
+ - ps: $env:LP3D_RELEASE_LABEL = ("LPub3D " + ([TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::UtcNow, "Central European Standard Time").ToString('dd.MM.yyyy')))
  - ps: Get-ChildItem Env:LP3D_* | Sort-Object name
 
 # This is where we install MinGW Qt5 for x86 and x86_64 builds. The Qt builds are necessarey because we are using VS image which
@@ -128,6 +129,7 @@ init:
 # This includes setting the clone depth, and fetching the last commit and previous tags. Lastly, we manage 3rd party items cache -
 # deleting a component will trigger a new build.
 install:
+ - cmd: git config --global core.autocrlf true
  - cmd: git init %APPVEYOR_BUILD_FOLDER%
  - cmd: cd %APPVEYOR_BUILD_FOLDER%
  - cmd: git remote add origin https://github.com/%APPVEYOR_REPO_NAME%.git
