@@ -32,7 +32,10 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>{{ site.title | default: site.github.repository_name }}</h1>
+        <h1>
+          <img src="{{ site.data.settings.logo.link }}" alt="{{ site.data.settings.logo.alt }}"><br/>
+          {{ site.title | default: site.github.repository_name }}
+        </h1>
         <p>{{ site.description | default: site.github.project_tagline }}</p>
 
         {% if site.github.is_project_page %}

@@ -1,21 +1,16 @@
-# ![LPub3D-Icon][lpub3d-icon] LPub3D
-An LDraw™ editor for LEGO® style digital building instructions.
-
 |[![GitHub release][gh-rel-badge]][gh-rel-url]|[![Travis-CI build status][travis-badge]][travis-url]|[![AppVeyor build status][appveyor-badge]][appveyor-url]|[![GitHub top language][gh-top-lang-badge]][gh-top-lang-url]|
 |:-|:-:|:-:|-:|
 |[![SourceForge weekly downloads][sf-dw-badge]][sf-dw-badge-url]|[![SourceForge total downloads][sf-dt-badge]][sf-dt-badge-url]|[![GitHub total downloads][gh-dl-badge]][gh-dl-url]|[![Maintained status][maintained-badge]](README.md "Last edited 10-02-2018")|
 |[![GitHub commits (since latest release)][gh-comm-since-badge]][gh-comm-since-url]|[![GitHub issues][gh-issue-badge]][gh-issue-url]|[![GitHub pull requests][gh-pull-req-badge]][gh-pull-req-url]|[![GitHub last commit][gh-lst-commit-badge]][gh-lst-commit-url]|
 
-**LPub3D** is an Open Source WYSIWYG editing application for creating LEGO® style digital building instructions.
-LPub3D is developed and maintained by Trevor SANDY. It uses the LDraw parts library, the most comprehensive
-library of digital Open Source LEGO® bricks available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model file formats.
+**LPub3D** is an Open Source WYSIWYG editing application for creating LEGO® style digital building instructions producing PDF, PNG, JPG and BMP formatted content.
+It uses the LDraw parts library, the most comprehensive
+library of digital Open Source LEGO® bricks available ([www.ldraw.org][ldraw-url] ) and reads the LDraw LDR and MPD model file formats.
 
-LPub3D provides three popular LDraw image renderers - custom adapted for tight integration and robust performance.
- - [LDGLite][ldglite] - console application, fast image rendering
- - [LDView][ldview] - console application, feature rich rendering and pov file generation
- - [LPub3D-Trace (POV-Ray)][povray] - console application, high quality image and feature rich image rendering
-
-Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2015 Leonardo Zide and additional third party components. See [Credits][credits] for full details on contributing content.
+LPub3D provides three popular LDraw image renderers - custom adapted console applications for tight integration, optimum flexibility and robust performance.
+ - [LDGLite][ldglite] - fast image rendering ideal for proofing
+ - [LDView][ldview] - feature rich image rendering and pov file generation
+ - [LPub3D-Trace (POV-Ray)][povray] - high fedility, feature rich image rendering
 
 ### Screenshots
 
@@ -29,10 +24,8 @@ LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appi
  - [GitHub Releases][githubreleases]
  - [Sourceforge Releases][sfreleases]
  - [Open Build Service Releases][obsreleases] - Linux distributions
-
  {% include obs-linux-distributions.html %}
-
- macOS, Windows and AppImage distributions
+ - macOS, Windows and AppImage distributions
 
  |[![Macos-Icon][macos-icon]][macos-url]||[![Windows-Icon][windows-icon]][windows-url]|[![Appimage-Icon][appimage-icon]][appimage-url]|
 
@@ -76,7 +69,9 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
  - Automated build and deploy from Cloud CI Service: [Travis-CI][travis-url], [AppVeyor][appveyor-url] and [Open Build Service][obs-url]
  - [Docker][dockerinstall] container builds using [Docker Compose][dockercomposefile] available for [Arch][dockerarch], [Xenial][dockerxenial] and [Fedora 25][dockerfedora] Linux distros
 
-[lpub3d-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d/master/mainApp/images/lpub3d128.png
+ Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2015 Leonardo Zide and additional third party components. See [Credits][credits] for full details on contributing content.
+
+[ldraw-url]:           www.ldraw.org/
 
 [appimage-icon]:       https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/appimage.png
 [macos-icon]:          https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/macos.png

@@ -1,5 +1,6 @@
 # Config settings
 title: LPub3D
+description: An LDraw™ editor for LEGO® style digital building instructions.
 theme: jekyll-theme-minimal
 timezone: Europe/Paris
 baseurl: /lpub3d

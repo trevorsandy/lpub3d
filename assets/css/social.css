@@ -2,15 +2,47 @@
   font-size: 20px;
   color: #dd4b39;
 }
+.fa-envelope {
+  padding: 10px;
+  -o-transition:.5s;
+  -ms-transition:.5s;
+  -moz-transition:.5s;
+  -webkit-transition:.5s;
+  transition: .5s;
+}
 .fa-github:hover {
   font-size: 20px;
   color: #000000;
+}
+.fa-github {
+  padding: 10px;
+  -o-transition:.5s;
+  -ms-transition:.5s;
+  -moz-transition:.5s;
+  -webkit-transition:.5s;
+  transition: .5s;
 }
 .fa-twitter:hover {
   font-size: 20px;
   color: #00aced;
 }
+.fa-twitter {
+  padding: 10px;
+  -o-transition:.5s;
+  -ms-transition:.5s;
+  -moz-transition:.5s;
+  -webkit-transition:.5s;
+  transition: .5s;
+}
 .fa-linkedin:hover {
   font-size: 20px;
   color: #007bb6;
+}
+.fa-linkedin {
+  padding: 10px;
+  -o-transition:.5s;
+  -ms-transition:.5s;
+  -moz-transition:.5s;
+  -webkit-transition:.5s;
+  transition: .5s;
 }
