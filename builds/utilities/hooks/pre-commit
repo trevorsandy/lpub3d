@@ -44,7 +44,6 @@ exec 1>&2
 increment_revision=${inc_rev:-yes}
 increment_commitcount=${inc_cnt:-yes}
 force_config=${force:-no}
-ci_cutover=${cutover:-no}
 commitmsg=".git/COMMIT_EDITMSG"
 
 # trigger if [build pkg*] or [deploy pkg*] exist in commit message

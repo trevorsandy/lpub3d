@@ -69,4 +69,5 @@ OTHER_FILES += \
 ../builds/utilities/update-config-files.sh \
 ../builds/utilities/version.info \
 ../builds/windows/AutoBuild.cmd \
-../builds/windows/CreateExePkg.cmd
+../builds/windows/CreateExePkg.cmd \
+../.github/ISSUE_TEMPLATE.md

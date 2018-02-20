@@ -1275,6 +1275,7 @@ void Preferences::renderPreferences()
             resourceFile.absoluteDir().mkpath(resourceFile.absolutePath());
             QFile confFileIn(QString("%1/%2/resources/config/%3").arg(lpub3d3rdPartyContent, VER_LDVIEW_STR, resourceFile.fileName()));
             QFile confFileOut(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, VER_LDVIEW_INI_FILE));
+            logInfo() << QString("Configuring %1...").arg(confFileOut.fileName());
             if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly))
             {
                QTextStream input(&confFileIn);
@@ -1317,6 +1318,7 @@ void Preferences::renderPreferences()
             resourceFile.absoluteDir().mkpath(resourceFile.absolutePath());
             QFile confFileIn(QString("%1/%2/resources/config/%3").arg(lpub3d3rdPartyContent, VER_LDVIEW_STR, resourceFile.fileName()));
             QFile confFileOut(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, VER_LDVIEW_POV_INI_FILE));
+            logInfo() << QString("Configuring %1...").arg(confFileOut.fileName());
             if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly))
             {
                QTextStream input(&confFileIn);
@@ -1355,6 +1357,7 @@ void Preferences::renderPreferences()
         resourceFile.absoluteDir().mkpath(resourceFile.absolutePath());
         QFile confFileIn(QString("%1/%2/resources/config/%3").arg(lpub3d3rdPartyContent, VER_POVRAY_STR, resourceFile.fileName()));
         QFile confFileOut(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR, VER_POVRAY_CONF_FILE));
+        logInfo() << QString("Configuring %1...").arg(confFileOut.fileName());
         if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly))
         {
 //           QStringList standardPathList = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
@@ -1398,6 +1401,7 @@ void Preferences::renderPreferences()
         resourceFile.absoluteDir().mkpath(resourceFile.absolutePath());
         QFile confFileIn(QString("%1/%2/resources/config/%3").arg(lpub3d3rdPartyContent, VER_POVRAY_STR, resourceFile.fileName()));
         QFile confFileOut(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR, VER_POVRAY_INI_FILE));
+        logInfo() << QString("Configuring %1...").arg(confFileOut.fileName());
         if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly))
         {
            QTextStream input(&confFileIn);
@@ -2141,5 +2145,3 @@ bool Preferences::extractLDrawLib() {
     }
   return r;
 }
-
-

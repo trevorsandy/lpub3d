@@ -1,22 +1,22 @@
 # ![LPub3D-Icon][lpub3d-icon] LPub3D  
 An LDraw™ editor for LEGO® style digital building instructions.
-  
-|[![GitHub release][gh-rel-badge]][gh-rel-url]|[![Travis-CI build status][travis-badge]][travis-url]|[![AppVeyor build status][appveyor-badge]][appveyor-url]|[![GitHub top language][gh-top-lang-badge]][gh-top-lang-url]|
-|:-|:-:|:-:|-:|
-|[![SourceForge weekly downloads][sf-dw-badge]][sf-dw-badge-url]|[![SourceForge total downloads][sf-dt-badge]][sf-dt-badge-url]|[![GitHub total downloads][gh-dl-badge]][gh-dl-url]|[![Maintained status][maintained-badge]](README.md "Last edited 10-02-2018")|
-|[![GitHub commits (since latest release)][gh-comm-since-badge]][gh-comm-since-url]|[![GitHub issues][gh-issue-badge]][gh-issue-url]|[![GitHub pull requests][gh-pull-req-badge]][gh-pull-req-url]|[![GitHub last commit][gh-lst-commit-badge]][gh-lst-commit-url]|
+
+[![GitHub release][gh-rel-badge]][gh-rel-url]                                     |[![Travis-CI build status][travis-badge]][travis-url]         |[![AppVeyor build status][appveyor-badge]][appveyor-url]     |[![GitHub top language][gh-top-lang-badge]][gh-top-lang-url]
+:---------------------------------------------------------------------------------|:------------------------------------------------------------:|:-----------------------------------------------------------:|---------------------------------------------------------------------------:
+[![SourceForge weekly downloads][sf-dw-badge]][sf-dw-badge-url]                   |[![SourceForge total downloads][sf-dt-badge]][sf-dt-badge-url]|[![GitHub total downloads][gh-dl-badge]][gh-dl-url]          |[![Maintained status][maintained-badge]](README.md "Last edited 10-02-2018")
+[![GitHub commits (since latest release)][gh-comm-since-badge]][gh-comm-since-url]|[![GitHub issues][gh-issue-badge]][gh-issue-url]              |[![GitHub pull requests][gh-pull-req-badge]][gh-pull-req-url]|[![GitHub last commit][gh-lst-commit-badge]][gh-lst-commit-url]
 
 **LPub3D** is an Open Source WYSIWYG editing application for creating LEGO® style digital building instructions.
 LPub3D is developed and maintained by Trevor SANDY. It uses the LDraw parts library, the most comprehensive
 library of digital Open Source LEGO® bricks available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model file formats.
 
 LPub3D provides three popular LDraw image renderers - custom adapted console applications for tight integration, optimum flexibility and robust performance.
- - [LDGLite][ldglite] - fast image rendering ideal for proofing
- - [LDView][ldview] - feature rich image rendering and pov file generation
- - [LPub3D-Trace (POV-Ray)][povray] - high fedility, feature rich image rendering
+ - [LDGLite][ldglite-url] - fast image rendering ideal for proofing
+ - [LDView][ldview-url] - feature rich image rendering and pov file generation
+ - [LPub3D-Trace (POV-Ray)][povray-url] - high fedility, feature rich image rendering
 
 ### Compatibility
-LPub3D runs on Debian, Red Hat and Arch derived Linux distros, macOS and Windows Operating Systems.  
+LPub3D runs on Debian, Red Hat and Arch derived Linux distros, macOS and Windows Operating Systems.
 LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appimage-info-url].
 
 ### Downloads
@@ -24,9 +24,9 @@ LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appi
  - [Sourceforge Releases][sfreleases]
  - [Open Build Service Releases][obsreleases] - Linux distributions
 
-|[![Appimage-Icon][appimage-icon]][appimage-url]|[![Arch-Icon][arch-icon]][arch-url]|[![Centos-Icon][centos-icon]][centos-url]|[![Debian-Icon][debian-icon]][debian-url]|[![Fedora-Icon][fedora-icon]][fedora-url]|[![Mageia-Icon][mageia-icon]][mageia-url]|[![Macos-Icon][macos-icon]][macos-url]|
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|[![Opensuse-Icon][opensuse-icon]][opensuse-url]|[![Rhel-Icon][rhel-icon]][rhel-url]|[![Sl-Icon][sl-icon]][sl-url]|[![Sle-Icon][sle-icon]][sle-url]|[![Ubuntu-Icon][ubuntu-icon]][ubuntu-url]|[![Univention-Icon][univention-icon]][univention-url]|[![Windows-Icon][windows-icon]][windows-url]|
+[![Appimage-Icon][appimage-icon]][appimage-url]|[![Arch-Icon][arch-icon]][arch-url]|[![Centos-Icon][centos-icon]][centos-url]|[![Debian-Icon][debian-icon]][debian-url]|[![Fedora-Icon][fedora-icon]][fedora-url]|[![Mageia-Icon][mageia-icon]][mageia-url]            |[![Macos-Icon][macos-icon]][macos-url]
+:---------------------------------------------:|:---------------------------------:|:---------------------------------------:|:---------------------------------------:|:---------------------------------------:|:---------------------------------------------------:|:------------------------------------------:
+[![Opensuse-Icon][opensuse-icon]][opensuse-url]|[![Rhel-Icon][rhel-icon]][rhel-url]|[![Sl-Icon][sl-icon]][sl-url]            |[![Sle-Icon][sle-icon]][sle-url]         |[![Ubuntu-Icon][ubuntu-icon]][ubuntu-url]|[![Univention-Icon][univention-icon]][univention-url]|[![Windows-Icon][windows-icon]][windows-url]
 
  - Click icon above to download distribution asset.
 
@@ -76,11 +76,11 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [copying]:             https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/COPYING.txt
 [buildfromsource]:     https://github.com/trevorsandy/lpub3d/blob/master/builds/utilities/README.md
 
-[ldglite]:             https://github.com/trevorsandy/ldglite
-[ldview]:              https://github.com/trevorsandy/ldview
-[povray]:              https://github.com/trevorsandy/povray
+[ldglite-url]:         https://github.com/trevorsandy/ldglite
+[ldview-url]:          https://github.com/trevorsandy/ldview/tree/qmake-build
+[povray-url]:          https://github.com/trevorsandy/povray/tree/lpub3d/raytracer-cui
 
-[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.1.1
+[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.1.0
 [githubreleases]:      https://github.com/trevorsandy/lpub3d/releases
 [obsreleases]:         https://software.opensuse.org//download.html?project=home:trevorsandy&package=lpub3d
 [travis-badge]:        https://img.shields.io/travis/trevorsandy/lpub3d.svg?label=travis
@@ -141,9 +141,9 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [univention-icon]:     https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/univention.png
 [windows-icon]:        https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/windows.png
 
-[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.1.1/LPub3D-2.1.1.0.776_20180217.exe
-[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.1.1/LPub3D-2.1.1.0.776_20180217-macos.dmg
-[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.1.1/LPub3D-2.1.1.0.776_20180217-x86_64.AppImage
+[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.1.777_20180220.exe
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.1.777_20180220-macos.dmg
+[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.1.777_20180220-x86_64.AppImage
 
 [arch-url]:            https://download.opensuse.org/repositories/home:/trevorsandy/Arch_Extra/
 [centos-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/CentOS_7/
