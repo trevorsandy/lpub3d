@@ -1,4 +1,18 @@
 OTHER_FILES += \
+extras/excludedParts.lst \
+extras/fadeStepColorParts.lst \
+extras/freeformAnnotations.lst \
+extras/LDConfig.ldr \
+extras/ldview.ini \
+extras/ldviewPOV.ini \
+extras/pli.mpd \
+extras/pliSubstituteParts.lst \
+extras/povray.ini \
+extras/titleAnnotations.lst \
+docs/COPYING_BRIEF \
+docs/CREDITS.txt \
+docs/lpub3d.1 \
+docs/README.txt \
 ../builds/linux/CreateDeb.sh \
 ../builds/linux/CreatePkg.sh \
 ../builds/linux/CreateRpm.sh \

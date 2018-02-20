@@ -6,47 +6,47 @@
 # Part identifiers with spaces will not be properly recoginzed.
 # This file can be modified in LPub3D from Configuration=>Edit excluded Parts
 
-# Part ID (LDraw Name:)	 Part Description - for reference only
+# Part ID (LDraw Name:)  Part Description - for reference only
 
 
-arrow80.dat			helper arrow 08
-arrow88.dat			helper arrow 88
-arrow108.dat		helper arrow 108
-Har025.dat     helper Har025 
-Har050.dat     helper Har050 
-Har075.dat     helper Har075 
-HashL2.dat     helper HashL2 
-HashL3.dat     helper HashL3 
-HashL4.dat     helper HashL4 
-HashL5.dat     helper HashL5 
-HashL6.dat     helper HashL6 
-HasvL1.dat     helper HasvL1 
-HasvL2.dat     helper HasvL2 
-HasvL3.dat     helper HasvL3 
-HasvL4.dat     helper HasvL4 
-HasvL5.dat     helper HasvL5 
-HasvL6.dat     helper HasvL6 
-HdshL2.dat     helper HdshL2 
-HdshL3.dat     helper HdshL3 
-HdshL4.dat     helper HdshL4 
-HdshL5.dat     helper HdshL5 
-HdshL6.dat     helper HdshL6 
-HdsvL1.dat     helper HdsvL1 
-HdsvL2.dat     helper HdsvL2 
-HdsvL3.dat     helper HdsvL3 
-HdsvL4.dat     helper HdsvL4 
-HdsvL5.dat     helper HdsvL5 
-HdsvL6.dat     helper HdsvL6  
-Her.dat     helper Her 
-Hn0.dat     helper Hn0 
-Hn1.dat     helper Hn1 
-Hn2.dat     helper Hn2 
-Hn3.dat     helper Hn3 
-Hn4.dat     helper Hn4 
-Hn5.dat     helper Hn5 
-Hn6.dat     helper Hn6 
-Hn7.dat     helper Hn7 
-Hn8.dat     helper Hn8 
-Hn9.dat     helper Hn9 
-Mark-Cross.dat     helper Mark-Cross 
-Mark-Tick.dat     helper Mark-Tick 
+arrow80.dat       helper arrow 08
+arrow88.dat       helper arrow 88
+arrow108.dat      helper arrow 108
+Har025.dat        helper Har025
+Har050.dat        helper Har050
+Har075.dat        helper Har075
+HashL2.dat        helper HashL2
+HashL3.dat        helper HashL3
+HashL4.dat        helper HashL4
+HashL5.dat        helper HashL5
+HashL6.dat        helper HashL6
+HasvL1.dat        helper HasvL1
+HasvL2.dat        helper HasvL2
+HasvL3.dat        helper HasvL3
+HasvL4.dat        helper HasvL4
+HasvL5.dat        helper HasvL5
+HasvL6.dat        helper HasvL6
+HdshL2.dat        helper HdshL2
+HdshL3.dat        helper HdshL3
+HdshL4.dat        helper HdshL4
+HdshL5.dat        helper HdshL5
+HdshL6.dat        helper HdshL6
+HdsvL1.dat        helper HdsvL1
+HdsvL2.dat        helper HdsvL2
+HdsvL3.dat        helper HdsvL3
+HdsvL4.dat        helper HdsvL4
+HdsvL5.dat        helper HdsvL5
+HdsvL6.dat        helper HdsvL6
+Her.dat           helper Her
+Hn0.dat           helper Hn0
+Hn1.dat           helper Hn1
+Hn2.dat           helper Hn2
+Hn3.dat           helper Hn3
+Hn4.dat           helper Hn4
+Hn5.dat           helper Hn5
+Hn6.dat           helper Hn6
+Hn7.dat           helper Hn7
+Hn8.dat           helper Hn8
+Hn9.dat           helper Hn9
+Mark-Cross.dat    helper Mark-Cross
+Mark-Tick.dat     helper Mark-Tick

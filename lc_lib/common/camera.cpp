@@ -875,7 +875,8 @@ void lcCamera::Orbit(float DistanceX, float DistanceY, const lcVector3& CenterPo
 	
 #ifdef Q_OS_WIN
         // replaced in LPu3DNext with: qIsNaN(Z[0]) || qIsNaN(Z[1])
-        if (isnan(Z[0]) || isnan(Z[1]))
+        if (qIsNaN(Z[0]) || qIsNaN(Z[1]))   // Qt MinGW OEM OK
+        // if (isnan(Z[0]) || isnan(Z[1]))  // MSYS2/MinGW OK
 #else
         if (std::isnan(Z[0]) || std::isnan(Z[1]))
 #endif

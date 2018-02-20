@@ -7,16 +7,16 @@
 # Part identifiers with spaces will not be properly recoginzed.
 # This file can be modified in LPub3D from Configuration=>Edit Pli Substitute Parts
 
-# Part ID (LDraw Name:)		Substitute Part Absolute File Path		Part Description - for reference only
+# Part ID (LDraw Name:)     Substitute Part Absolute File Path      Part Description - for reference only
 
 # Official Parts
 
-003238a.dat		c:/users/trevor/ldraw/parts/003238a.dat		sticker minifig shield triangular with crown on dkpink b/ground
+003238a.dat     c:/users/trevor/ldraw/parts/003238a.dat     sticker minifig shield triangular with crown on dkpink b/ground
 
 # Unofficial Parts
 
-003238c.dat		c:/users/trevor/ldraw/parts/003238c.dat		sticker minifig shield triangular with white maltese cross
+003238c.dat     c:/users/trevor/ldraw/parts/003238c.dat     sticker minifig shield triangular with white maltese cross
 
 # Custom Parts
 
-003238d.dat		c:/users/trevor/ldraw/parts/003238d.dat		sticker for minifig shield triangular w/ yellow trefoils/blue
+003238d.dat     c:/users/trevor/ldraw/parts/003238d.dat     sticker for minifig shield triangular w/ yellow trefoils/blue

@@ -1,7 +1,8 @@
-LPub3D 2.1.0.1.777 (20 02 2018 04:35:44)
+LPub3D 2.1.0.1.778 (20 02 2018 11:32:19)
 
 Features and enhancements
 ------------
+Change: Ignore PLI annotation for beams containing "Bent" in the title. Refresh parameter list files.
 
 Fix: Windows multi-user installation - uninstall error. Installation hangs at attempt to uninstall previous version of LPub3D. Of course it is possible to manually uninstall the previous version before installing version 2.1.0; however, the updated automated installation program takes care to preserve any previous configuration settings if so desired. (#21)
 
