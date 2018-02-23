@@ -296,12 +296,14 @@ int Gui::drawPage(
       steps->meta.LPub.page.pageFooter.size.setValue(0,pW);
     }
 
-  emit messageSig(true, "Processing draw page for " + current.modelName);
+  emit messageSig(true, "Processing draw page for " + current.modelName + "...");
 
   /*
    * do until end of page
    */
   for ( ; current <= numLines; current++) {
+
+      // load initial meta values
 
       Meta   &curMeta = callout ? callout->meta : steps->meta;
 
@@ -317,6 +319,9 @@ int Gui::drawPage(
           // not end of file, so get the next LDraw line
 
         } else {
+
+          // read the line from the ldrawFile db
+
           line = ldrawFile.readLine(current.modelName,current.lineNumber);
           split(line,tokens);
         }
@@ -517,7 +522,7 @@ int Gui::drawPage(
               /* remind user what file we're working on */
 
 //              statusBar()->showMessage("Processing " + current.modelName);
-              emit messageSig(true, "Processing " + current.modelName);
+              emit messageSig(true, "Processing " + current.modelName + "...");
             }
 
         } else if (tokens.size() > 0 &&
@@ -551,6 +556,7 @@ int Gui::drawPage(
         } else if ( (tokens.size() > 0 && tokens[0] == "0") || gprc == EndOfFileRc) {
 
           /* must be meta-command (or comment) */
+
           if (global && tokens.contains("!LPUB") && tokens.contains("GLOBAL")) {
               topOfStep = current;
             } else {
@@ -999,7 +1005,7 @@ int Gui::drawPage(
                       range->append(step);
                     }
 
-                  emit messageSig(true, "Processing bfx model (CSI) for " + current.modelName);
+                  emit messageSig(true, "Processing bfx model (CSI) for " + current.modelName + "...");
 
                   (void) step->createCsi(
                         isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
@@ -1075,7 +1081,7 @@ int Gui::drawPage(
                           step->placeRotateIcon = true;
                         }
 
-                      emit messageSig(true, "Processing model (CSI) for " + current.modelName);
+                      emit messageSig(true, "Processing model (CSI) for " + current.modelName + "...");
 
                       int rc = step->createCsi(
                             isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
@@ -1154,7 +1160,7 @@ int Gui::drawPage(
                             }
                         }
 
-                      emit messageSig(true, "Add graphics for single-step page.");
+                      emit messageSig(true, "Add graphics for single-step page...");
 
                       if (renderer->useLDViewSCall() && ldrStepFiles.size() > 0){
 
@@ -1288,7 +1294,7 @@ int Gui::findPage(
 
   RotStepMeta saveRotStep = meta.rotStep;
 
-  emit messageSig(true, "Processing find page for " + current.modelName);
+  emit messageSig(true, "Processing find page for " + current.modelName + "...");
 
   for ( ;
         current.lineNumber < numLines;

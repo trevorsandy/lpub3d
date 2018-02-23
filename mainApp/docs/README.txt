@@ -1,8 +1,12 @@
-LPub3D 2.1.0.1.778 (20 02 2018 11:32:19)
+LPub3D 2.1.0.1.779 (23 02 2018 17:18:20)
 
 Features and enhancements
 ------------
-Change: Ignore PLI annotation for beams containing "Bent" in the title. Refresh parameter list files.
+Fix: Dragging a single-step page's assembly. When dragging a single-step page's CSI [Assembly], the image does not remain where positioned when the mouse is released, instead it is adjusted further by the application. This is an old behaviour from LPUB 4.
+Single-step page's assembly were automatically placed at the center of the page's bounding box in all cases. This behaviour caused the assembly adjustment when manually moved.
+Now, if there exist an offset (the assembly was manually moved), no attempt will be made to place the the assembly at the center of the page's bounding box. (#23)
+
+Change: Ignore PLI annotation for beams with "Bent" in the title. This update affects the titleAnnotations.lst file. You can view/edit this file from the User Interface at Configuration->Edit Parameter Files->Edit Title PLI Annotations. I also refreshed the parameter list files converting all tabs to spaces. (#24)
 
 Fix: Windows multi-user installation - uninstall error. Installation hangs at attempt to uninstall previous version of LPub3D. Of course it is possible to manually uninstall the previous version before installing version 2.1.0; however, the updated automated installation program takes care to preserve any previous configuration settings if so desired. (#21)
 

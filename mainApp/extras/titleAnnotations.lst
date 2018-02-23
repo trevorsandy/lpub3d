@@ -10,6 +10,15 @@
 # Annotations are extracted from the part title and further processed in LPub3D
 # For efficiency put most used parts first.
 
+# When modifying the lines below note the following:
+# Each line below is added to an annotations list. Every part's title (description) in the step's PLI
+# is then validated against this list in order to extract the annotation from the title.
+#
+# Building the list uses this regular expression '^([\w\:]+)\s+(\^+\b.*)\B\s*$' to properly parse
+# this file; therefore, when modifying the lines below, your modification must pass the this expression
+# or else it will not be added to the annotation list and no annotation will likely appear for the
+# affected parts. Use https://regex101.com/ to see the expression explanation.
+
 #Category   Regex (to identify and extract annotation)
 Technic:    ^Technic Axle\s+(\d+\.*\d*)\s*.*$
 Technic:    ^Technic Axle Flexible\s+(\d+)\s*.*$
