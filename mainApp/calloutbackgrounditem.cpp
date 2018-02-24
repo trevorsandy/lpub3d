@@ -200,7 +200,7 @@ void CalloutBackgroundItem::contextMenuEvent(
     changeAlloc(callout->topOfCallout(),
                 callout->bottomOfCallout(),
                 callout->allocMeta(),
-                0);
+                0); // append - default is no
   }
 }
 

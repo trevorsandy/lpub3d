@@ -1678,13 +1678,21 @@ void MetaItem::changeAlloc(
   int          append)
 {
   bool metaInRange;
-  metaInRange = alloc.here().lineNumber != 0 && alloc.here().modelName != "undefined";
+  int lineNumber = alloc.here().lineNumber;
+
+  metaInRange = lineNumber >= topOfSteps.lineNumber &&
+                lineNumber <= bottomOfSteps.lineNumber &&
+                alloc.here().modelName == topOfSteps.modelName;
 
   logInfo() << "\nCHANGE ALLOC - "
-            << " \nHere Model Name: "          << alloc.here().modelName
-            << " \nHere Line Number: "         << alloc.here().lineNumber
-            << " \nAppend: "                   << (metaInRange ? "NO" : alloc.format(false,false).contains("CALLOUT ALLOC") ? "NO" : append == 0 ? "NO" : "YES")
-            << " \nMeta In Range: "            << (metaInRange ? QString("YES - Line %1").arg(alloc.format(alloc.pushed,alloc.global)) : "NO")
+            << " \nHere Alloc Model Name: "     << alloc.here().modelName
+            << " \nHere TopOf Model Name: "     << topOfSteps.modelName
+            << " \nHere Alloc Line Number: "    << alloc.here().lineNumber
+            << " \nHere TopOf Line Number: "    << topOfSteps.lineNumber
+            << " \nHere BottomOf Line Number: " << bottomOfSteps.lineNumber
+            << " \nAppend: "                    << (metaInRange ? "Yes" : alloc.format(false,false).contains("CALLOUT ALLOC") ? "NO" : append == 0 ? "NO" : "YES")
+            << " \nMeta In Range: "             << (metaInRange ? QString("YES - Line %1").arg(alloc.format(alloc.pushed,alloc.global)) :
+                                                                  QString("NO - Line %1").arg(alloc.format(false,false)))
             << "\n -- "
             ;
 

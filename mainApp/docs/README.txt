@@ -1,10 +1,13 @@
-LPub3D 2.1.0.1.779 (23 02 2018 17:18:20)
+LPub3D 2.1.0.1.780 (24 02 2018 01:45:10)
 
 Features and enhancements
 ------------
+Fix: Only first occurrence of callout alloc modified. When using the context menu to "Display Callout as Columns", the meta - command 0 !LPUB CALLOUT ALLOC HORIZONTAL is only added (or modified if already existing) to the first occurrence of CALLOUT when multiple Callouts are present in the page/model. The same behaviour applies to "Display Callout as Rows".
+This behaviour has is now corrected. Note that the last Callout display allocation affects all subsequent Callouts in the model file. If you wish to change the display allocation, you must add a meta command (using the context menu or manually) to enable the new display #25
+
 Fix: Dragging a single-step page's assembly. When dragging a single-step page's CSI [Assembly], the image does not remain where positioned when the mouse is released, instead it is adjusted further by the application. This is an old behaviour from LPUB 4.
-Single-step page's assembly were automatically placed at the center of the page's bounding box in all cases. This behaviour caused the assembly adjustment when manually moved.
-Now, if there exist an offset (the assembly was manually moved), no attempt will be made to place the the assembly at the center of the page's bounding box. (#23)
+Single-step page's assembly were automatically placed at the centre of the page's bounding box in all cases. This behaviour caused the assembly adjustment when manually moved.
+Now, if there exist an offset (the assembly was manually moved), no attempt will be made to place the the assembly at the centre of the page's bounding box. (#23)
 
 Change: Ignore PLI annotation for beams with "Bent" in the title. This update affects the titleAnnotations.lst file. You can view/edit this file from the User Interface at Configuration->Edit Parameter Files->Edit Title PLI Annotations. I also refreshed the parameter list files converting all tabs to spaces. (#24)
 

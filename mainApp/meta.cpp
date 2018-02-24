@@ -1425,6 +1425,7 @@ AllocMeta::AllocMeta() : LeafMeta()
 {
   type[0] = Vertical;
 }
+
 Rc AllocMeta::parse(QStringList &argv, int index, Where &here)
 {
   QRegExp rx("^(HORIZONTAL|VERTICAL)$");
