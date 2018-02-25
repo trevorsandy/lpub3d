@@ -1,19 +1,36 @@
-LPub3D 2.1.0.1.780 (24 02 2018 01:45:10)
+LPub3D 2.1.0.1.781 (25 02 2018 07:20:37)
 
 Features and enhancements
 ------------
+Change: Final model image page out of place. When opening a model file in LPub3D with "Fade Step" option enabled , the appending of the final model image page is misplaced if the last step before in the model file is a ROTSTEP. In addition "Empty" ROTSTEP steps are ignored. This behaviour has been updated to place the final model file and inserted page after the last native STEP or ROTSTEP Here is an example LPub3D model file update with "Fade Step" and "Generate Cover Pages" options on:
+    0 Author: ACDassing
+    0 !LICENSE Not redistributable : see NonCAreadme.txt
+    0 !LPUB INSERT COVER_PAGE FRONT
+    0 STEP
+    1 15 71 0 70 1 0 0 0 1 0 0 0 1 95658.dat
+    0 STEP
+    0 //Step 2--A rotation for different view
+    0 ROTSTEP 0 0 0 ABS
+    0 //Step 3--don't rotate last step
+    0 STEP
+    0 !LPUB INSERT MODEL
+    0 !LPUB INSERT PAGE
+    0 STEP
+    0 !LPUB INSERT COVER_PAGE BACK
+Issue No. #26
+
 Fix: Only first occurrence of callout alloc modified. When using the context menu to "Display Callout as Columns", the meta - command 0 !LPUB CALLOUT ALLOC HORIZONTAL is only added (or modified if already existing) to the first occurrence of CALLOUT when multiple Callouts are present in the page/model. The same behaviour applies to "Display Callout as Rows".
-This behaviour has is now corrected. Note that the last Callout display allocation affects all subsequent Callouts in the model file. If you wish to change the display allocation, you must add a meta command (using the context menu or manually) to enable the new display #25
+This behaviour has is now corrected. Note that the last Callout display allocation affects all subsequent Callouts in the model file. If you wish to change the display allocation, you must add a meta command (using the context menu or manually) to enable the new display. Issue No. #25
 
 Fix: Dragging a single-step page's assembly. When dragging a single-step page's CSI [Assembly], the image does not remain where positioned when the mouse is released, instead it is adjusted further by the application. This is an old behaviour from LPUB 4.
 Single-step page's assembly were automatically placed at the centre of the page's bounding box in all cases. This behaviour caused the assembly adjustment when manually moved.
-Now, if there exist an offset (the assembly was manually moved), no attempt will be made to place the the assembly at the centre of the page's bounding box. (#23)
+Now, if there exist an offset (the assembly was manually moved), no attempt will be made to place the the assembly at the centre of the page's bounding box. Issue No. #23
 
-Change: Ignore PLI annotation for beams with "Bent" in the title. This update affects the titleAnnotations.lst file. You can view/edit this file from the User Interface at Configuration->Edit Parameter Files->Edit Title PLI Annotations. I also refreshed the parameter list files converting all tabs to spaces. (#24)
+Change: Ignore PLI annotation for beams with "Bent" in the title. This update affects the titleAnnotations.lst file. You can view/edit this file from the User Interface at Configuration->Edit Parameter Files->Edit Title PLI Annotations. I also refreshed the parameter list files converting all tabs to spaces. Issue No. #24
 
-Fix: Windows multi-user installation - uninstall error. Installation hangs at attempt to uninstall previous version of LPub3D. Of course it is possible to manually uninstall the previous version before installing version 2.1.0; however, the updated automated installation program takes care to preserve any previous configuration settings if so desired. (#21)
+Fix: Windows multi-user installation - uninstall error. Installation hangs at attempt to uninstall previous version of LPub3D. Of course it is possible to manually uninstall the previous version before installing version 2.1.0; however, the updated automated installation program takes care to preserve any previous configuration settings if so desired. Issue No. #21
 
-Fix: File lpub3d.appdata.xml malformed. Corrected. (#20)
+Fix: File lpub3d.appdata.xml malformed. Corrected. Issue No. #20
 
 LPub3D 2.1.0.0.775 (13 02 2018 02:42:46)
 

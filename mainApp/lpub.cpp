@@ -152,6 +152,7 @@ void Gui::generateCoverPages()
 void Gui::insertFinalModel(){
   MetaItem mi;
   static int modelExist = -1;
+  // get line to insert final model
   int modelStatus = mi.okToInsertFinalModel();
 
   if (Preferences::enableFadeStep && modelStatus != modelExist){

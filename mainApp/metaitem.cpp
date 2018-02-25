@@ -2038,7 +2038,7 @@ int MetaItem::okToInsertFinalModel()
     here.lineNumber = gui->subFileSize(here.modelName);                 //start at bottom of file
     here--;                                                             //adjust to readline using from zero-start index
 
-    for ( ; here >= 0; here--) {                                        //scan backwards
+    for ( ; here >= 0; here--) {                                        //scan from bottom to top of file
         line = gui->readLine(here);
         rc = content.parse(line,here);
         if (rc == InsertFinalModelRc) {                                 //check if insert final model
@@ -2048,25 +2048,21 @@ int MetaItem::okToInsertFinalModel()
             return 0;
         } else if (rc == StepGroupEndRc) {                              //if Step Group, then there is no final model
             return here.lineNumber;                                     //so return line number
-        } else {                                                        // else keep walking back until 1_5 line
+        } else if (rc == StepRc || rc == RotStepRc) {                   //check if line was a STEP or ROTSTEP
+             return here.lineNumber;                                    //and return line number
+        } else {                                                        //else keep walking back until 1_5 line
             QStringList tokens;
             split(line,tokens);
             bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
                  tokens[0] >= "1" && tokens[0] <= "5";
             if (token_1_5) {                                            //non-zero line detected so no back final model
                 int fileSize = gui->subFileSize(here.modelName) - 1;
-                if (here.lineNumber < (fileSize)) {                     //check if at end of file
+                if (here.lineNumber < (fileSize)) {                     //check that we are not at the end of the file
                     Where stepForward = here;
-                    stepForward++;
-                    line = gui->readLine(stepForward);
-                    rc = content.parse(line,stepForward);
-                    if (rc == StepRc){                                  //check if previous line was a STEP
-                        return stepForward.lineNumber;                  // if previous line was a STEP line number after STEP
-                    } else {
-                        return here.lineNumber;                         // else return line number
-                    }
+                    stepForward++;                                      //step forward
+                    return stepForward.lineNumber;                      //returl line number
                 } else {
-                    return here.lineNumber;                             // at last line so return line number
+                    return here.lineNumber;                             //at last line so return line number
                 }
             }
         }
@@ -2080,10 +2076,12 @@ void MetaItem::insertFinalModel(int atLine)
   QString modelMeta = QString("0 !LPUB INSERT MODEL");
   QString pageMeta  = QString("0 !LPUB INSERT PAGE");
 
+  // final model already installed so exit.
   if (atLine == -1){
     return;
   }
 
+  // grab the passed in line
   Where here(gui->topLevelFile(),atLine);
   QString line = gui->readLine(here);
 
@@ -2091,17 +2089,17 @@ void MetaItem::insertFinalModel(int atLine)
   Meta meta;
   rc = meta.parse(line,here);
 
+  // check if line is STEP or ROTSTEP - so we don't duplicate STEP meta
   beginMacro("insertFinalModel");
-  if (rc == StepRc) {
-      insertMeta(here,step);
-      appendMeta(here,modelMeta);
-      appendMeta(here+1,pageMeta);
-      logStatus() << "Final model inserted at lines:" << here.lineNumber << "to" << here.lineNumber+1 ;
-    } else {
-      appendMeta(here,step);
+  if (rc == StepRc || rc == RotStepRc) {
       appendMeta(here+1,modelMeta);
       appendMeta(here+2,pageMeta);
       logStatus() << "Final model inserted at lines:" << here.lineNumber << "to" << here.lineNumber+2 ;
+    } else {
+      appendMeta(here+1,step);
+      appendMeta(here+2,modelMeta);
+      appendMeta(here+3,pageMeta);
+      logStatus() << "Final model inserted at lines:" << here.lineNumber << "to" << here.lineNumber+1 ;
     }
   endMacro();
 }
