@@ -1,7 +1,9 @@
-LPub3D 2.1.0.1.781 (25 02 2018 07:20:37)
+LPub3D 2.1.0.1.782 (27 02 2018 05:36:37)
 
 Features and enhancements
 ------------
+Fix: Mismatched preference loading sequence during application startup. LDraw folder was loading before LDraw archive libraries so if the install platform did not have LDraw installed and the user chose to extract the LDraw library from the archive library files, an unnecessary set of manual steps would be required to proceed. The propoer installation sequence (LDraw archive libraries then LDraw folder) has been restored. Issue No 27
+
 Change: Final model image page out of place. When opening a model file in LPub3D with "Fade Step" option enabled , the appending of the final model image page is misplaced if the last step before in the model file is a ROTSTEP. In addition "Empty" ROTSTEP steps are ignored. This behaviour has been updated to place the final model file and inserted page after the last native STEP or ROTSTEP Here is an example LPub3D model file update with "Fade Step" and "Generate Cover Pages" options on:
     0 Author: ACDassing
     0 !LICENSE Not redistributable : see NonCAreadme.txt
