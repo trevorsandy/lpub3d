@@ -95,8 +95,8 @@ static {                                     # everything below takes effect wit
 
 CONFIG(debug, debug|release) {
     DEFINES += QT_DEBUG_MODE
-    DESTDIR = $$join(ARCH,,,bit_debug)
     BUILD += Debug
+    ARCH_BLD = bit_debug
     macx {
         LDRAWINI_LIB = LDrawIni_debug
         QUAZIP_LIB = QuaZIP_debug
@@ -109,28 +109,33 @@ CONFIG(debug, debug|release) {
         LDRAWINI_LIB = ldrawinid
         QUAZIP_LIB = quazipd
     }
-    # library target name
-    LIBS += -L$$DESTDIR/../../ldrawini/$$DESTDIR -l$$LDRAWINI_LIB
-    !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$DESTDIR -l$$QUAZIP_LIB
     # executable target name
     win32: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
 } else {
-    DESTDIR = $$join(ARCH,,,bit_release)
     BUILD += Release
-    unix:!macx {
-        LIBS += -L$$DESTDIR/../../ldrawini/$$DESTDIR -lldrawini
-        !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$DESTDIR -lquazip
-    } else {
-        win32 {
-            LIBS += -L$$DESTDIR/../../ldrawini/$$DESTDIR -lLDrawIni161
-            !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$DESTDIR -lQuaZIP07
-        } else {
-            LIBS += -L$$DESTDIR/../../ldrawini/$$DESTDIR -lLDrawIni
-            !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$DESTDIR -lQuaZIP
-        }
+    ARCH_BLD = bit_release
+    macx {
+        LDRAWINI_LIB = LDrawIni
+        QUAZIP_LIB = QuaZIP
     }
-    !macx: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
+    win32 {
+        LDRAWINI_LIB = LDrawIni161
+        QUAZIP_LIB = QuaZIP07
+    }
+    unix:!macx {
+        LDRAWINI_LIB = ldrawini
+        QUAZIP_LIB = quazip
+    }
+    # executable target name
+    win32: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
 }
+# build path component
+DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
+# library target name
+LIBS += -L$$DESTDIR/../../ldrawini/$$DESTDIR -l$$LDRAWINI_LIB
+!quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$DESTDIR -l$$QUAZIP_LIB
+
+
 MAN_PAGE = $$join(TARGET,,,.1)
 message("~~~ MAIN_APP $$join(ARCH,,,bit) $${BUILD} ~~~")
 

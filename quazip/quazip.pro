@@ -63,16 +63,17 @@ staticlib {
 }
 
 CONFIG(debug, debug|release) {
-    DESTDIR = $$join(ARCH,,,bit_debug)
     BUILD += Debug Build
+    ARCH_BLD = bit_debug
     macx: TARGET = $$join(TARGET,,,_debug)
     win32: TARGET = $$join(TARGET,,,d07)
     unix:!macx: TARGET = $$join(TARGET,,,d)
 } else {
-    DESTDIR = $$join(ARCH,,,bit_release)
     BUILD += Release Build
+    ARCH_BLD = bit_release
     win32: TARGET = $$join(TARGET,,,07)
 }
+DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 message("~~~ QUAZIP $$join(ARCH,,,bit) $${BUILD} ~~~")
 
 PRECOMPILED_DIR = $$DESTDIR/.pch

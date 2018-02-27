@@ -1,59 +1,57 @@
 macx {
 
     #ICON = lpub3d.icns
-    ICON = $$lower($$join(DIST_TARGET,,,.icns))
+    ICON = $$_PRO_FILE_PWD_/$$lower($$join(DIST_TARGET,,,.icns))
     QMAKE_INFO_PLIST = Info.plist
 
     # libraries
-    CONFIG(release, debug|release) {
-        libquazip.files += \
-            $$DESTDIR/../../quazip/$$join(ARCH,,,bit_release)/libQuaZIP.0.dylib
-        libquazip.path = Contents/Libs
+    libquazip.files += \
+        $$DESTDIR/../../quazip/$$join(ARCH,,,$$ARCH_BLD)/lib$${QUAZIP_LIB}.0.dylib
+    libquazip.path = Contents/Libs
 
-        libldrawini.files += \
-            $$DESTDIR/../../ldrawini/$$join(ARCH,,,bit_release)/libLDrawIni.16.dylib
-        libldrawini.path = Contents/Libs
+    libldrawini.files += \
+        $$DESTDIR/../../ldrawini/$$join(ARCH,,,$$ARCH_BLD)/lib$${LDRAWINI_LIB}.16.dylib
+    libldrawini.path = Contents/Libs
 
-        QMAKE_BUNDLE_DATA += \
-            libquazip \
-            libldrawini
-    }
+    QMAKE_BUNDLE_DATA += \
+        libquazip \
+        libldrawini
 
     # documents and resources
-    document_icon.files += ldraw_document.icns
+    document_icon.files += $$_PRO_FILE_PWD_/ldraw_document.icns
     document_icon.path = Contents/Resources
 
-    document_readme.files += docs/README.txt
+    document_readme.files += $$_PRO_FILE_PWD_/docs/README.txt
     document_readme.path = Contents/Resources
 
-    document_credits.files += docs/CREDITS.txt
+    document_credits.files += $$_PRO_FILE_PWD_/docs/CREDITS.txt
     document_credits.path = Contents/Resources
 
-    document_copying.files += docs/COPYING.txt
+    document_copying.files += $$_PRO_FILE_PWD_/docs/COPYING.txt
     document_copying.path = Contents/Resources
 
-    excluded_count_parts.files += extras/excludedParts.lst
+    excluded_count_parts.files += $$_PRO_FILE_PWD_/extras/excludedParts.lst
     excluded_count_parts.path = Contents/Resources
 
-    fadestep_color_parts.files += extras/fadeStepColorParts.lst
+    fadestep_color_parts.files += $$_PRO_FILE_PWD_/extras/fadeStepColorParts.lst
     fadestep_color_parts.path = Contents/Resources
 
-    pli_freeform_annotations.files += extras/freeformAnnotations.lst
+    pli_freeform_annotations.files += $$_PRO_FILE_PWD_/extras/freeformAnnotations.lst
     pli_freeform_annotations.path = Contents/Resources
 
-    pli_title_annotations.files += extras/titleAnnotations.lst
+    pli_title_annotations.files += $$_PRO_FILE_PWD_/extras/titleAnnotations.lst
     pli_title_annotations.path = Contents/Resources
 
-    pli_orientation.files += extras/pli.mpd
+    pli_orientation.files += $$_PRO_FILE_PWD_/extras/pli.mpd
     pli_orientation.path = Contents/Resources
 
-    pli_substitution_parts.files += extras/pliSubstituteParts.lst
+    pli_substitution_parts.files += $$_PRO_FILE_PWD_/extras/pliSubstituteParts.lst
     pli_substitution_parts.path = Contents/Resources
 
-    ldraw_unofficial_library.files += extras/lpub3dldrawunf.zip
+    ldraw_unofficial_library.files += $$_PRO_FILE_PWD_/extras/lpub3dldrawunf.zip
     ldraw_unofficial_library.path = Contents/Resources
 
-    ldraw_official_library.files += extras/complete.zip
+    ldraw_official_library.files += $$_PRO_FILE_PWD_/extras/complete.zip
     ldraw_official_library.path = Contents/Resources
 
     QMAKE_BUNDLE_DATA += \

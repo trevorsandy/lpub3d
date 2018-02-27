@@ -216,14 +216,14 @@ if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
     then
-        sed -i "" -e "s/^\[sfreleases\]:.*/${SFReplacement}\/${LP3D_VERSION}/" "${FILE}" \
-                  -e "s/^\[windows-url\]:.*/${WinReplacement}\/${NameReplacement}.exe/" "${FILE}" \
-                  -e "s/^\[macos-url\]:.*/${MacReplacement}\/${NameReplacement}-macos.dmg/" "${FILE}" \
+        sed -i "" -e "s/^\[sfreleases\]:.*/${SFReplacement}\/${LP3D_VERSION}/" \
+                  -e "s/^\[windows-url\]:.*/${WinReplacement}\/${NameReplacement}.exe/" \
+                  -e "s/^\[macos-url\]:.*/${MacReplacement}\/${NameReplacement}-macos.dmg/" \
                   -e "s/^\[appimage-url\]:.*/${ApImgReplacement}\/${NameReplacement}-x86_64.AppImage/" "${FILE}"
     else
-        sed -i    -e "s/^\[sfreleases\]:.*/${SFReplacement}\/${LP3D_VERSION}/" "${FILE}" \
-                  -e "s/^\[windows-url\]:.*/${WinReplacement}\/${NameReplacement}.exe/" "${FILE}" \
-                  -e "s/^\[macos-url\]:.*/${MacReplacement}\/${NameReplacement}-macos.dmg/" "${FILE}" \
+        sed -i    -e "s/^\[sfreleases\]:.*/${SFReplacement}\/${LP3D_VERSION}/" \
+                  -e "s/^\[windows-url\]:.*/${WinReplacement}\/${NameReplacement}.exe/" \
+                  -e "s/^\[macos-url\]:.*/${MacReplacement}\/${NameReplacement}-macos.dmg/" \
                   -e "s/^\[appimage-url\]:.*/${ApImgReplacement}\/${NameReplacement}-x86_64.AppImage/" "${FILE}"
     fi
 else

@@ -50,59 +50,59 @@ unix:!macx {
 
     target.path = $$BIN_DIR
 
-    docs.files += docs/README.txt docs/CREDITS.txt docs/COPYING.txt
+    docs.files += $$_PRO_FILE_PWD_/docs/README.txt $$_PRO_FILE_PWD_/docs/CREDITS.txt $$_PRO_FILE_PWD_/docs/COPYING.txt
     docs.path = $$DOCS_DIR
 
-    man.files += docs/$$MAN_PAGE
+    man.files += $$_PRO_FILE_PWD_/docs/$$MAN_PAGE
     man.path = $$MAN_DIR
 
     #desktop.files += lpub3d.desktop#
-    desktop.files += $$join(DIST_TARGET,,,.desktop)
+    desktop.files += $$_PRO_FILE_PWD_/$$join(DIST_TARGET,,,.desktop)
     desktop.path = $$DESKTOP_DIR
 
     #appdata.files += lpub3d.appdata.xml
-    appdata.files += $$join(DIST_TARGET,,,.appdata.xml)
+    appdata.files += $$_PRO_FILE_PWD_/$$join(DIST_TARGET,,,.appdata.xml)
     appdata.path = $$APPDATA_DIR
 
     #icon.files += images/lpub3d.png
-    icon.files += images/$$join(DIST_TARGET,,,.png)
+    icon.files += $$_PRO_FILE_PWD_/images/$$join(DIST_TARGET,,,.png)
     icon.path = $$ICON_DIR
 
     #mime.files += lpub3d.xml
-    mime.files += $$join(DIST_TARGET,,,.xml)
+    mime.files += $$_PRO_FILE_PWD_/$$join(DIST_TARGET,,,.xml)
     mime.path = $$MIME_DIR
 
-    mime_ldraw_icon.files += images/x-ldraw.svg
+    mime_ldraw_icon.files += $$_PRO_FILE_PWD_/images/x-ldraw.svg
     mime_ldraw_icon.path = $$MIME_ICON_DIR
 
-    mime_multi_part_ldraw_icon.files += images/x-multi-part-ldraw.svg
+    mime_multi_part_ldraw_icon.files += $$_PRO_FILE_PWD_/images/x-multi-part-ldraw.svg
     mime_multi_part_ldraw_icon.path = $$MIME_ICON_DIR
 
-    mime_multipart_ldraw_icon.files += images/x-multipart-ldraw.svg
+    mime_multipart_ldraw_icon.files += $$_PRO_FILE_PWD_/images/x-multipart-ldraw.svg
     mime_multipart_ldraw_icon.path = $$MIME_ICON_DIR
 
-    excluded_count_parts.files += extras/excludedParts.lst
+    excluded_count_parts.files += $$_PRO_FILE_PWD_/extras/excludedParts.lst
     excluded_count_parts.path = $$RESOURCE_DIR
 
-    fadestep_color_parts.files += extras/fadeStepColorParts.lst
+    fadestep_color_parts.files += $$_PRO_FILE_PWD_/extras/fadeStepColorParts.lst
     fadestep_color_parts.path = $$RESOURCE_DIR
 
-    pli_freeform_annotations.files += extras/freeformAnnotations.lst
+    pli_freeform_annotations.files += $$_PRO_FILE_PWD_/extras/freeformAnnotations.lst
     pli_freeform_annotations.path = $$RESOURCE_DIR
 
-    pli_title_annotations.files += extras/titleAnnotations.lst
+    pli_title_annotations.files += $$_PRO_FILE_PWD_/extras/titleAnnotations.lst
     pli_title_annotations.path = $$RESOURCE_DIR
 
-    pli_orientation.files += extras/pli.mpd
+    pli_orientation.files += $$_PRO_FILE_PWD_/extras/pli.mpd
     pli_orientation.path = $$RESOURCE_DIR
 
-    pli_substitution_parts.files += extras/pliSubstituteParts.lst
+    pli_substitution_parts.files += $$_PRO_FILE_PWD_/extras/pliSubstituteParts.lst
     pli_substitution_parts.path = $$RESOURCE_DIR
 
-    ldraw_unofficial_library.files += extras/lpub3dldrawunf.zip
+    ldraw_unofficial_library.files += $$_PRO_FILE_PWD_/extras/lpub3dldrawunf.zip
     ldraw_unofficial_library.path = $$RESOURCE_DIR
 
-    ldraw_official_library.files += extras/complete.zip
+    ldraw_official_library.files += $$_PRO_FILE_PWD_/extras/complete.zip
     ldraw_official_library.path = $$RESOURCE_DIR
 
     INSTALLS += \

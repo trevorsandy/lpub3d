@@ -47,6 +47,8 @@ class Preferences
 
     static bool extractLDrawLib();
 
+    static bool copyRecursively(const QString &,const QString &);
+
     static QString ldrawPath;
     static QString altLDConfigPath;
     static QString lpub3dLibFile;

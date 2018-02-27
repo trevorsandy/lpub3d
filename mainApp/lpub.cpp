@@ -2546,7 +2546,12 @@ void Gui::createDockWindows()
     viewMenu->addAction(modelDockWindow->toggleViewAction());
 //**
     tabifyDockWidget(modelDockWindow, fileEditDockWindow);
+#ifdef Q_OS_MAC
+    // modelDock window Hack is not stable on macOS so start with fileEdit Window until I figure out what's wrong.
+    fileEditDockWindow->raise();
+#else
     modelDockWindow->raise();
+#endif
 
     connect(modelDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar()));
 }
@@ -2563,10 +2568,22 @@ void Gui::readSettings()
 {
     QSettings Settings;
     Settings.beginGroup(MAINWINDOW);
+#ifdef Q_OS_MAC
+    const QByteArray geometry = Settings.value("Geometry", QByteArray()).toByteArray();
+    if (geometry.isEmpty()) {
+        const QRect availableGeometry = QApplication::desktop()->availableGeometry(this);
+        resize(availableGeometry.width() / 3, availableGeometry.height() / 2);
+        move((availableGeometry.width() - width()) / 2,
+             (availableGeometry.height() - height()) / 2);
+    } else {
+        restoreGeometry(geometry);
+    }
+#else
     restoreGeometry(Settings.value("Geometry").toByteArray());
     restoreState(Settings.value("State").toByteArray());
     QSize size = Settings.value("Size", QDesktopWidget().availableGeometry(this).size()*0.6).toSize();
     resize(size);
+#endif
     Settings.endGroup();
 }
 
@@ -2574,8 +2591,12 @@ void Gui::writeSettings()
 {
     QSettings Settings;
     Settings.beginGroup(MAINWINDOW);
+#ifdef Q_OS_MAC
+     Settings.setValue("Geometry", saveGeometry());
+#else
     Settings.setValue("Geometry", saveGeometry());
     Settings.setValue("State", saveState());
     Settings.setValue("Size", size());
+#endif
     Settings.endGroup();
 }

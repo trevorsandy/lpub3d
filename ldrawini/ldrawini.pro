@@ -41,16 +41,17 @@ staticlib: BUILD = Static
 else:      BUILD = Shared
 
 CONFIG(debug, debug|release) {
-    DESTDIR = $$join(ARCH,,,bit_debug)
     BUILD += Debug Build
+    ARCH_BLD = bit_debug
     macx: TARGET = $$join(TARGET,,,_debug)
     win32: TARGET = $$join(TARGET,,,d161)
     unix:!macx: TARGET = $$join(TARGET,,,d)
 } else {
-    DESTDIR = $$join(ARCH,,,bit_release)
     BUILD += Release Build
+    ARCH_BLD = bit_release
     win32: TARGET = $$join(TARGET,,,161)
 }
+DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 message("~~~ LDRAWINI $$join(ARCH,,,bit) $${BUILD} ~~~")
 
 PRECOMPILED_DIR = $$DESTDIR/.pch

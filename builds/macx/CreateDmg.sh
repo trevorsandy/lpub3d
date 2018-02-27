@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 25, 2017
+# Last Update February 27, 2017
 # To run:
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
@@ -70,8 +70,8 @@ if [ "${TRAVIS}" != "true"  ]; then
 
   # use this instance of Qt if exist - this entry is my dev machine, change accordingly
   if [ "${TRAVIS}" != "true" ]; then
-    if [ -d ~/Qt/IDE/5.10.0/clang_64 ]; then
-      export PATH=~/Qt/IDE/5.10.0/clang_64:~/Qt/IDE/5.10.0/clang_64/bin:$PATH
+    if [ -d ~/Qt/IDE/5.10.1/clang_64 ]; then
+      export PATH=~/Qt/IDE/5.10.1/clang_64:~/Qt/IDE/5.10.1/clang_64/bin:$PATH
     else
       echo "PATH not udpated with Qt location, could not find ${HOME}/Qt/IDE/5.9/clang_64"
     fi
@@ -187,7 +187,7 @@ cd builds/macx
 
 echo "- copy ${LPUB3D} bundle components to $(realpath .)..."
 cp -rf ../../mainApp/$release/LPub3D.app .
-cp -f ../utilities/icons/lpub3d.icns .
+cp -f ../utilities/icons/setup.icns .
 cp -f ../utilities/icons/setup.png .
 cp -f ../utilities/icons/lpub3dbkg.png .
 cp -f ../../mainApp/docs/COPYING_BRIEF .COPYING
@@ -245,7 +245,7 @@ cat <<EOF >makedmg
 #!/bin/bash
 ../utilities/create-dmg \\
 --volname "LPub3D Installer" \\
---volicon "lpub3d.icns" \\
+--volicon "setup.icns" \\
 --dmgicon "setup.png" \\
 --background "lpub3dbkg.png" \\
 --icon-size 90 \\

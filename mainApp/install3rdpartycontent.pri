@@ -12,30 +12,27 @@ if (copy3rdexe|copy3rdexeconfig|copy3rdcontent) {
 
 copy3rdexe {
     # renderer executables
-    CONFIG(release, debug|release) {
-        message("~~~ RELEASE BUILD - 3RD PARTY EXECUTABLES WILL BE INSTALLED ~~~")
-        ldglite_ins.files += $$LDGLITE_INS_EXE
-        ldglite_ins.path = $$LDGLITE_INS_DIR
+    message("~~~ RELEASE BUILD - 3RD PARTY $${BUILD} EXECUTABLES WILL BE INSTALLED ~~~")
+    ldglite_ins.files += $$LDGLITE_INS_EXE
+    ldglite_ins.path = $$LDGLITE_INS_DIR
 
-        ldview_ins.files += $$LDVIEW_INS_EXE
-        ldview_ins.path = $$LDVIEW_INS_DIR
+    ldview_ins.files += $$LDVIEW_INS_EXE
+    ldview_ins.path = $$LDVIEW_INS_DIR
 
-        raytracer_ins.files += $$RAYTRACE_INS_EXE
-        raytracer_ins.path = $$RAYTRACE_INS_DIR
+    raytracer_ins.files += $$RAYTRACE_INS_EXE
+    raytracer_ins.path = $$RAYTRACE_INS_DIR
 
-        macx{
-            QMAKE_BUNDLE_DATA += \
-            ldglite_ins \
-            ldview_ins \
-            raytracer_ins
-        } else {
-            INSTALLS += \
-            ldglite_ins \
-            ldview_ins \
-            raytracer_ins
-        }
+    macx{
+        QMAKE_BUNDLE_DATA += \
+        ldglite_ins \
+        ldview_ins \
+        raytracer_ins
+    } else {
+        INSTALLS += \
+        ldglite_ins \
+        ldview_ins \
+        raytracer_ins
     }
-    CONFIG(debug, debug|release): message("~~~ 3RD PARTY EXECUTABLES WILL NOT BE INSTALLED ~~~")
 }
 
 copy3rdexeconfig {
