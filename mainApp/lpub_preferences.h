@@ -31,7 +31,7 @@ class Preferences
     static void lpub3dUpdatePreferences();
     static void viewerPreferences();
     static void lgeoPreferences();
-    static void renderPreferences();
+    static void renderPreferences(bool);
     static void pliPreferences();
     static void unitsPreferences();
     static void annotationPreferences();
@@ -85,13 +85,16 @@ class Preferences
     static QString loggingLevel;
     static QString availableVersions;
     static QStringList ldSearchDirs;
+    static QStringList ldgliteParms;
     static QString povrayConf;
     static QString povrayIni;
+    static QString ldgliteIni;
     static QString ldviewIni;
     static QString ldviewPOVIni;
     static QString povrayIniPath;
     static QString povrayIncPath;
     static QString povrayScenePath;
+    static QString dataLocation;
     static bool    ldrawiniFound;
     static bool    enableDocumentLogo;
     static bool    enableLDViewSingleCall;

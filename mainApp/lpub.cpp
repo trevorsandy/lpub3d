@@ -1159,6 +1159,13 @@ void Gui::editLdrawIniFile()
     }
 }
 
+void Gui::editLdgliteIni()
+{
+    displayParmsFile(Preferences::ldgliteIni);
+    parmsWindow->setWindowTitle(tr("Edit LDGLite ini","Edit LDGLite ini "));
+    parmsWindow->show();
+}
+
 void Gui::editLdviewIni()
 {
     displayParmsFile(Preferences::ldviewIni);
@@ -1199,6 +1206,8 @@ void Gui::preferences()
     bool useLDViewSCall       = renderer->useLDViewSCall();
     bool displayAllAttributes = Preferences::displayAllAttributes;
     bool generateCoverPages   = Preferences::generateCoverPages;
+    QString ldrawPathCompare  = Preferences::ldrawPath;
+    QString lgeoPathCompare   = Preferences::lgeoPath;
 
     if (Preferences::getPreferences()) {
 
@@ -1212,6 +1221,8 @@ void Gui::preferences()
         bool useLDViewSCallChanged     = useLDViewSCall != renderer->useLDViewSCall();
         bool displayAttributesChanged  = Preferences::displayAllAttributes != displayAllAttributes;
         bool generateCoverPagesChanged = Preferences::generateCoverPages   != generateCoverPages;
+        bool ldrawPathChanged          = Preferences::ldrawPath            != ldrawPathCompare;
+        bool lgeoPathChanged           = Preferences::lgeoPath             != lgeoPathCompare;
 
         if (Preferences::fadeStepSettingChanged){
             logInfo() << (Preferences::enableFadeStep ? QString("Gui Preferences - Fade Step is ON.") : QString("Gui Preferences - Fade Step is OFF."));
@@ -1222,8 +1233,19 @@ void Gui::preferences()
         }
         if (rendererChanged) {
             logInfo() << QString("Renderer preference changed to %1").arg(Render::getRenderer());
-            if (Preferences::preferredRenderer == "LDGLite")
+            if (Preferences::preferredRenderer == "LDGLite") {
                 partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
+                Preferences::renderPreferences(true);
+            }
+        }
+        if (ldrawPathChanged) {
+            logInfo() << QString("LDraw path preference changed to %1").arg(Preferences::ldrawPath);
+            Preferences::renderPreferences(true);
+        }
+        if (lgeoPathChanged && !ldrawPathChanged)
+        {
+            logInfo() << QString("LGEO path preference changed to %1").arg(Preferences::lgeoPath);
+            Preferences::renderPreferences(true);
         }
         if (!getCurFile().isEmpty()) {
             if (Preferences::fadeStepSettingChanged){
@@ -1311,7 +1333,7 @@ Gui::Gui()
     emit Application::instance()->splashMsgSig(QString("35% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 
     Preferences::lgeoPreferences();
-    Preferences::renderPreferences();
+    Preferences::renderPreferences(false);
     Preferences::publishingPreferences();
     Preferences::exportPreferences();
 
@@ -2071,12 +2093,16 @@ void Gui::createActions()
     editLdrawIniFileAct->setStatusTip(tr("Add/Edit LDraw.ini search directory entries"));
     connect(editLdrawIniFileAct, SIGNAL(triggered()), this, SLOT(editLdrawIniFile()));
 
+    editLdgliteIniAct = new QAction(QIcon(":/resources/editldgliteconf.png"),tr("Edit LDGLite ini configuration file"), this);
+    editLdgliteIniAct->setStatusTip(tr("Edit LDGLite ini configuration file"));
+    connect(editLdgliteIniAct, SIGNAL(triggered()), this, SLOT(editLdgliteIni()));
+
     editLdviewIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView ini configuration file"), this);
     editLdviewIniAct->setStatusTip(tr("Edit LDView ini configuration file"));
     connect(editLdviewIniAct, SIGNAL(triggered()), this, SLOT(editLdviewIni()));
 
     editLdviewPovIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView Raytracer (POV-Ray) image configuration file"), this);
-    editLdviewPovIniAct->setStatusTip(tr("Edit LDView Raytracer (POV-Ray) image configuration file"));
+    editLdviewPovIniAct->setStatusTip(tr("Edit LDView POV generation configuration file"));
     connect(editLdviewPovIniAct, SIGNAL(triggered()), this, SLOT(editLdviewPovIni()));
 
     editPovrayIniAct = new QAction(QIcon(":/resources/editpovrayconf.png"),tr("Edit Raytracer (POV-Ray) ini configuration file"), this);
@@ -2173,6 +2199,7 @@ void Gui::enableActions()
   editFadeColourPartsAct->setEnabled(true);
   editPliBomSubstitutePartsAct->setEnabled(true);
   editExcludedPartsAct->setEnabled(true);
+  editLdgliteIniAct->setEnabled(true);
   editLdviewIniAct->setEnabled(true);
   editLdviewPovIniAct->setEnabled(true);
   editPovrayIniAct->setEnabled(true);
@@ -2230,6 +2257,7 @@ void Gui::disableActions()
   editFadeColourPartsAct->setEnabled(false);
   editPliBomSubstitutePartsAct->setEnabled(false);
   editExcludedPartsAct->setEnabled(false);
+  editLdgliteIniAct->setEnabled(false);
   editLdviewIniAct->setEnabled(false);
   editLdviewPovIniAct->setEnabled(false);
   editPovrayIniAct->setEnabled(false);
@@ -2387,6 +2415,7 @@ void Gui::createMenus()
       editorMenu->addAction(editLdrawIniFileAct);
     }
     editorMenu->addSeparator();
+    editorMenu->addAction(editLdgliteIniAct);
     editorMenu->addAction(editLdviewIniAct);
     editorMenu->addAction(editLdviewPovIniAct);
     editorMenu->addAction(editPovrayIniAct);

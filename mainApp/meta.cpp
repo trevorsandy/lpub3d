@@ -2629,7 +2629,7 @@ AssemMeta::AssemMeta() : BranchMeta()
   modelScale.setRange(-10000.0,10000.0);
   modelScale.setFormats(7,4,"99999.9");
   modelScale.setValue(1.0);
-  ldgliteParms.setValue("-fh"); // change removed -w1 duplicate on 01-25-16 v1.3.3 r578
+  ldgliteParms.setValue("-l3");
   ldviewParms.setValue("");
   povrayParms.setValue("+A");
   showStepNumber.setValue(true);
@@ -2640,8 +2640,8 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   margin.init        (this,"MARGINS");
   placement.init     (this,"PLACEMENT");
   modelScale.init    (this,"MODEL_SCALE");
-  ldviewParms.init   (this,"LDGLITE_PARMS");
-  ldgliteParms.init  (this,"LDVIEW_PARMS");
+  ldviewParms.init   (this,"LDVIEW_PARMS");
+  ldgliteParms.init  (this,"LDGLITE_PARMS");
   povrayParms .init  (this,"POVRAY_PARMS");
   showStepNumber.init(this,"SHOW_STEP_NUMBER");
 }
@@ -2671,7 +2671,7 @@ PliMeta::PliMeta() : BranchMeta()
   angle.setRange(-360.0,360.0);
   angle.setFormats(6,4,"#999.9");
   show.setValue(true);
-  ldgliteParms.setValue("-fh -w1");
+  ldgliteParms.setValue("-l3");
   ldviewParms.setValue("");
   povrayParms.setValue("+A");
   includeSubs.setValue(false);
@@ -2743,7 +2743,7 @@ BomMeta::BomMeta() : PliMeta()
   angle.setRange(-360.0,360.0);
   angle.setFormats(6,4,"#999.9");
   show.setValue(true);
-  ldgliteParms.setValue("-fh -w1");
+  ldgliteParms.setValue("-l3");
   ldviewParms.setValue("");
   povrayParms.setValue("+A");
   includeSubs.setValue(false);

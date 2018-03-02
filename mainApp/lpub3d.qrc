@@ -44,6 +44,7 @@
         <file alias="editfadeparts.png">images/editfadeparts.png</file>
         <file alias="editfreeformannotations.png">images/editfreeformannotations.png</file>
         <file alias="editinifile.png">images/editinifile.png</file>
+        <file alias="editldgliteconf.png">images/editldgliteconf.png</file>
         <file alias="editplisubstituteparts.png">images/editplisubstituteparts.png</file>
         <file alias="editsetting.png">images/editsetting.png</file>
         <file alias="editredo.png">images/editredo.png</file>

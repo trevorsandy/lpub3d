@@ -45,14 +45,21 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     ldrawPath = ".";
   }
 
+  QPalette readOnlyPalette;
+  readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
+
   // hide 3rd party applicaton browse buttons
   ui.browseLDGLite->hide();
   ui.browseLDView->hide();
   ui.browsePOVRAY->hide();
+
   // set 3rd party application dialogs to read-only
   ui.ldglitePath->setReadOnly(true);
+  ui.ldglitePath->setPalette(readOnlyPalette);
   ui.ldviewPath->setReadOnly(true);
+  ui.ldviewPath->setPalette(readOnlyPalette);
   ui.povrayPath->setReadOnly(true);
+  ui.povrayPath->setPalette(readOnlyPalette);
 
   ui.ldrawPath->setText(                            ldrawPath);
   ui.pliName->setText(                              Preferences::pliFile);
@@ -115,18 +122,16 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.logValiationLbl->hide();
 
   //search directories
-  QPalette palette;
-  palette.setColor(QPalette::Base,Qt::lightGray);
-  ui.lineEditIniFile->setPalette(palette);
+  ui.lineEditIniFile->setPalette(readOnlyPalette);
   ui.lineEditIniFile->setReadOnly(true);
   if (Preferences::ldrawiniFound) {
       ui.lineEditIniFile->setText(QString("Using LDraw.ini File: %1").arg(Preferences::ldrawiniFile));
       ui.pushButtonReset->hide();
       ui.textEditSearchDirs->setReadOnly(true);
-      ui.textEditSearchDirs->setPalette(palette);
+      ui.textEditSearchDirs->setPalette(readOnlyPalette);
       ui.textEditSearchDirs->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
       ui.textEditSearchDirs->setToolTip("Read only list of LDraw.ini search directories.");
-    } else {
+  } else {
       ui.textEditSearchDirs->setToolTip("Editable list of search directories - add or edit search paths");
       ui.textEditSearchDirs->setStatusTip("Added directories must be under the Unofficial directory.");
       ui.lineEditIniFile->setText(tr("%1")
@@ -134,7 +139,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
                                          tr("Using default search. No search directories detected.") :
                                          tr("Using default %1 search.").arg(VER_PRODUCTNAME_STR)));
       ui.pushButtonReset->setEnabled(Preferences::ldSearchDirs.size() > 0);
-    }
+  }
 
   if (Preferences::ldSearchDirs.size() > 0){
       foreach (QString searchDir, Preferences::ldSearchDirs)

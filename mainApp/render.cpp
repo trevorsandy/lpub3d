@@ -325,19 +325,19 @@ int POVRay::renderCsi(
   arguments << h;
   arguments << f;
   arguments << l;
+
+  QStringList list;
+  list = meta.LPub.assem.ldviewParms.value().split(' ');
+  for (int i = 0; i < list.size(); i++) {
+      if (list[i] != "" && list[i] != " ") {
+          arguments << list[i];
+          //logInfo() << qPrintable("-PARM META: " + list[i]);
+      }
+  }
   if(hasLDViewIni){
       QString ini  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
       arguments << ini;
   }
-
-  QStringList list;
-  list = meta.LPub.assem.ldviewParms.value().split("\\s+");
-  for (int i = 0; i < list.size(); i++) {
-      if (list[i] != "" && list[i] != " ") {
-          arguments << list[i];
-      }
-  }
-
   if (!Preferences::altLDConfigPath.isEmpty()) {
     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
@@ -383,6 +383,14 @@ int POVRay::renderCsi(
   povArguments << W;
   povArguments << H;
   povArguments << USE_ALPHA;
+
+  list = meta.LPub.assem.povrayParms.value().split(' ');
+  for (int i = 0; i < list.size(); i++) {
+      if (list[i] != "" && list[i] != " ") {
+          povArguments << list[i];
+          //logInfo() << qPrintable("-PARM META: " + list[i]);
+      }
+  }
   if(hasPOVRayInc){
       QString povinc = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIncPath)));
       povArguments << povinc;
@@ -401,16 +409,10 @@ int POVRay::renderCsi(
           povArguments << lgeoStl;
         }
     }
+
 //#ifndef __APPLE__
 //  povArguments << "/EXIT";
 //#endif
-
-  list = meta.LPub.assem.povrayParms.value().split("\\s+");
-  for (int i = 0; i < list.size(); i++) {
-      if (list[i] != "" && list[i] != " ") {
-          povArguments << list[i];
-        }
-    }
 
   emit gui->statusMessage(true, "Execute command: POVRay render CSI.");
 
@@ -478,25 +480,25 @@ int POVRay::renderPli(
   arguments << h;
   arguments << f;
   arguments << l;
+
+  QStringList list;
+  list = meta.LPub.pli.ldviewParms.value().split(' ');
+  for (int i = 0; i < list.size(); i++) {
+      if (list[i] != "" && list[i] != " ") {
+          arguments << list[i];
+          //logInfo() << qPrintable("-PARM META: " + list[i]);
+      }
+  }
   if(hasLDViewIni){
       QString ini  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
       arguments << ini;
   }
-
-  QStringList list;
-  list = meta.LPub.pli.ldviewParms.value().split("\\s+");
-  for (int i = 0; i < list.size(); i++) {
-      if (list[i] != "" && list[i] != " ") {
-          arguments << list[i];
-      }
-  }
-
   if (!Preferences::altLDConfigPath.isEmpty()) {
     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
   }
 
-  arguments << ldrName; //SUSPECT !!! (SHOULD ALSO HAVE povName ?? )
+  arguments << ldrName;
 
   emit gui->messageSig(true, "POVRay render PLI...");
 
@@ -536,6 +538,14 @@ int POVRay::renderPli(
   povArguments << W;
   povArguments << H;
   povArguments << USE_ALPHA;
+
+  list = meta.LPub.assem.povrayParms.value().split(' ');
+  for (int i = 0; i < list.size(); i++) {
+      if (list[i] != "" && list[i] != " ") {
+          povArguments << list[i];
+          //logInfo() << qPrintable("-PARM META: " + list[i]);
+      }
+  }
   if(hasPOVRayInc){
       QString povinc = QString("+L\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(Preferences::povrayIncPath)));
       povArguments << povinc;
@@ -554,16 +564,10 @@ int POVRay::renderPli(
           povArguments << lgeoStl;
         }
     }
+
 //#ifndef __APPLE__
 //  povArguments << "/EXIT";
 //#endif
-
-  list = meta.LPub.assem.povrayParms.value().split("\\s+");
-  for (int i = 0; i < list.size(); i++) {
-      if (list[i] != "" && list[i] != " ") {
-          povArguments << list[i];
-        }
-    }
 
   emit gui->statusMessage(true, "Execute command: POVRay render PLI.");
 
@@ -617,12 +621,10 @@ int LDGLite::renderCsi(
 	int rc;
 	ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
 	if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrName)) < 0) {
-		return rc;
+	   return rc;
 	}
 
   /* determine camera distance */
-
-  QStringList arguments;
 
   int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value());
 
@@ -643,22 +645,28 @@ int LDGLite::renderCsi(
 
   QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
 
-  arguments << "-l3";               // use l3 parser
-  arguments << "-i2";               // image type 2=.png
+  QStringList arguments;
   arguments << CA;                  // camera FOV angle in degrees
   arguments << cg;                  // camera globe - scale factor
-  arguments << "-J";                // perspective projection
   arguments << v;                   // display in X wide by Y high window
   arguments << o;                   // changes the center X across and Y down
   arguments << w;                   // line thickness
-  arguments << "-q";                // Anti Aliasing (Quality Lines)
 
-  QStringList list;                 // -fh = Turns on shading mode
-  list = meta.LPub.assem.ldgliteParms.value().split("\\s+");
+  QStringList list;
+  // First, load parms from meta
+  list = meta.LPub.assem.ldgliteParms.value().split(' ');
   for (int i = 0; i < list.size(); i++) {
-    if (list[i] != "" && list[i] != " ") {
-      arguments << list[i];
-    }
+     if (list[i] != "" && list[i] != " ") {
+         arguments << list[i];
+         //logInfo() << qPrintable("-PARM META: " + list[i]);
+      }
+  }
+  // Add ini parms if not already added from meta
+  for (int i = 0; i < Preferences::ldgliteParms.size(); i++) {
+      if (list.indexOf(QRegExp("^" + QRegExp::escape(Preferences::ldgliteParms[i]))) < 0) {
+        arguments << Preferences::ldgliteParms[i];
+        //logInfo() << qPrintable("-PARM INI : " + Preferences::ldgliteParms[i]);
+      }
   }
 
   if (!Preferences::altLDConfigPath.isEmpty()) {
@@ -733,23 +741,29 @@ int LDGLite::renderPli(
   QString w  = QString("-W%1")      .arg(int(resolution()/72.0+0.5));
 
   QStringList arguments;
-  arguments << "-l3";
-  arguments << "-i2";
-  arguments << CA;
-  arguments << cg;
-  arguments << "-J";
-  arguments << v;
-  arguments << o;
-  arguments << w;
-  arguments << "-q";          //Anti Aliasing (Quality Lines)
+  arguments << CA;                  // camera FOV angle in degrees
+  arguments << cg;                  // camera globe - scale factor
+  arguments << v;                   // display in X wide by Y high window
+  arguments << o;                   // changes the center X across and Y down
+  arguments << w;                   // line thickness
 
   QStringList list;
-  list = meta.LPub.pli.ldgliteParms.value().split("\\s+");
+  // First, load parms from meta
+  list = meta.LPub.pli.ldgliteParms.value().split(' ');
   for (int i = 0; i < list.size(); i++) {
-	  if (list[i] != "" && list[i] != " ") {
-      arguments << list[i];
-	  }
+     if (list[i] != "" && list[i] != " ") {
+         arguments << list[i];
+         //logInfo() << qPrintable("-PARM META: " + list[i]);
+      }
   }
+  // Add ini parms if not already added from meta
+  for (int i = 0; i < Preferences::ldgliteParms.size(); i++) {
+      if (list.indexOf(QRegExp("^" + QRegExp::escape(Preferences::ldgliteParms[i]))) < 0) {
+        arguments << Preferences::ldgliteParms[i];
+        //logInfo() << qPrintable("-PARM INI : " + Preferences::ldgliteParms[i]);
+      }
+  }
+
   if (!Preferences::altLDConfigPath.isEmpty()) {
     arguments << "=" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("=" + Preferences::altLDConfigPath);
@@ -863,19 +877,19 @@ int LDView::renderCsi(
   arguments << h;
   arguments << f;
   arguments << l;
+
+  QStringList list;
+  list = meta.LPub.assem.ldviewParms.value().split(' ');
+  for (int i = 0; i < list.size(); i++) {
+    if (list[i] != "" && list[i] != " ") {
+      arguments << list[i];
+      //logInfo() << qPrintable("-PARM META: " + list[i]);
+    }
+  }
   if(hasLDViewIni){
       QString ini  = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
       arguments << ini;
   }
-
-  QStringList list;
-  list = meta.LPub.assem.ldviewParms.value().split("\\s+");
-  for (int i = 0; i < list.size(); i++) {
-    if (list[i] != "" && list[i] != " ") {
-      arguments << list[i];
-    }
-  }
-
   if (!Preferences::altLDConfigPath.isEmpty()) {
     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
@@ -943,19 +957,19 @@ int LDView::renderPli(
   arguments << h;
   arguments << f;
   arguments << l;
+
+  QStringList list;
+  list = meta.LPub.pli.ldviewParms.value().split(' ');
+  for (int i = 0; i < list.size(); i++) {
+    if (list[i] != "" && list[i] != " ") {
+      arguments << list[i];
+      //logInfo() << qPrintable("-PARM META: " + list[i]);
+    }
+  }
   if(hasLDViewIni){
       QString ini  = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
       arguments << ini;
   }
-
-  QStringList list;
-  list = meta.LPub.pli.ldviewParms.value().split("\\s+");
-  for (int i = 0; i < list.size(); i++) {
-    if (list[i] != "" && list[i] != " ") {
-      arguments << list[i];
-    }
-  }
-
   if (!Preferences::altLDConfigPath.isEmpty()) {
     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
@@ -1014,19 +1028,19 @@ int Render::renderLDViewSCallCsi(
   arguments << s;
   arguments << t;
   arguments << l;
+
+  QStringList list;
+  list = meta.LPub.assem.ldviewParms.value().split(' ');
+  for (int i = 0; i < list.size(); i++) {
+    if (list[i] != "" && list[i] != " ") {
+      arguments << list[i];
+      //logInfo() << qPrintable("-PARM META: " + list[i]);
+    }
+  }
   if(hasLDViewIni){
       QString ini  = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
       arguments << ini;
   }
-
-  QStringList list;
-  list = meta.LPub.assem.ldviewParms.value().split("\\s+");
-  for (int i = 0; i < list.size(); i++) {
-    if (list[i] != "" && list[i] != " ") {
-      arguments << list[i];
-    }
-  }
-
   if (!Preferences::altLDConfigPath.isEmpty()) {
     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
@@ -1108,19 +1122,19 @@ int Render::renderLDViewSCallPli(
   arguments << s;
   arguments << t;
   arguments << l;
+
+  QStringList list;
+  list = meta.LPub.pli.ldviewParms.value().split(' ');
+  for (int i = 0; i < list.size(); i++) {
+    if (list[i] != "" && list[i] != " ") {
+      arguments << list[i];
+      //logInfo() << qPrintable("-PARM META: " + list[i]);
+    }
+  }
   if(hasLDViewIni){
       QString ini  = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
       arguments << ini;
   }
-
-  QStringList list;
-  list = meta.LPub.pli.ldviewParms.value().split("\\s+");
-  for (int i = 0; i < list.size(); i++) {
-    if (list[i] != "" && list[i] != " ") {
-      arguments << list[i];
-    }
-  }
-
   if (!Preferences::altLDConfigPath.isEmpty()) {
     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);

@@ -548,7 +548,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
     emit gui->progressBarPermInitSig();
     emit gui->progressPermRangeSig(1, stageContents.size());
-    emit gui->progressPermMessageSig("Processing...");
+    emit gui->progressPermMessageSig("Processing model file...");
     emit gui->messageSig(true, "Loading MPD model file " + fileInfo.fileName() + "...");
 
     for (int i = 0; i < stageContents.size(); i++) {
@@ -695,7 +695,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName, bool t
 
       emit gui->progressBarPermInitSig();
       emit gui->progressPermRangeSig(1, contents.size());
-      emit gui->progressPermMessageSig("Processing...");
+      emit gui->progressPermMessageSig("Processing model file...");
       emit gui->messageSig(true, "Loading LDR " + fileType + " file '" + fileName + "'...");
 
       QDateTime datetime = QFileInfo(fullName).lastModified();

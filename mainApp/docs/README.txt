@@ -1,13 +1,42 @@
-LPub3D 2.1.0.1.783 (27 02 2018 05:50:16)
+LPub3D 2.1.0.1.784 (02 03 2018 20:18:44)
 
 Features and enhancements
 ------------
-Change: Update preference User Interface form. Reposition lebels and dialogues to clearly show all fields. Issue No. #27
+Change: Add/override renderer flags from within model file. For example the line 0 !LPUB ASSEM LDGLITE_PARMS "-J -fh" within a step will enable perspective projection and shading mode for that step's Assembly (CSI) image.
+If defining more than one meta flag, you must use a single space delimiter between flags and the list of flags must be quoted as shown in the examples. Flag values that contain spaces are not supported which is to say that mapping ini files and such, where values may contain spaces, should be performed in the respective renderer's ini configuration file and should not be added as a meta command. Render ini files can be accessed and updated from the User Interface - see v2.1.0 Features and enhancements for details. Note that manipulating render flags require fairly advanced knowledge of the renderer's capabilities and command line flags. If you are unsure about this, please consult the render documentation before attempting to change the default settings. Setting incorrect flags or combinations of flags can adversely affect the quality of your output. Issue #30
 
-Fix: Mismatched preference loading sequence during application startup. LDraw folder was loading before LDraw archive libraries so if the install platform did not have LDraw installed and the user chose to extract the LDraw library from the archive library files, an unnecessary set of manual steps would be required to proceed. The propoer installation sequence (LDraw archive libraries then LDraw folder) has been restored. Issue No. 27
+    This change also implements a few more capabilities:
+
+    1. Individual renderer flags can now be defined for Assembly (CSI), Part, and Bill of Material lists as follows:
+        0 !LPUB ASSEM LDGLITE_PARMS "-J -fh"
+        0 !LPUB PLI LDGLITE_PARMS "-J -fh"
+        0 !LPUB BOM LDGLITE_PARMS "-J -fh"
+
+    1. Renderer flags can now be defined for all supported renderers, LDGLite, LDView, LPub3D-Trace (POV-Ray) as follows:
+        0 !LPUB ASSEM LDGLITE_PARMS "-2g,2x"
+        0 !LPUB PLI LDVIEW_PARMS "TextureOffsetFactor=6"
+        0 !LPUB BOM POVRAY_PARMS "-A +UA"
+
+    3. Add an LDGLite configuration (ini) file. LDGLite.ini is now accessible and configurable from the LPub3D user interface.
+       ldglite.ini: Image generation settings [Default locations]:
+          Linux   - ~/.local/share/LPub3D Software/LPub3D/3rdParty/ldglite-1.3/config/ldglite.ini
+          macOS   - ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/ldglite-1.3/config/ldglite.ini
+          Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/ldglite-1.3/config/ldglite.ini
+    4. By default, LDGLite render command includes the flag -2g,2x [Downsamples output images by 2, scaling up the image (and edge lines) by 2 first] which improves the image quality without sacrificing performance.
+
+    5. LDGLite renderer flags moved to ldglite.ini file - these flags were previously defined in the renderer code but are now accessible/changeable by the user via the ini file:
+        -i2 - Picks output image type. 1=PNG, 2=Transparent PNG, 3=BMP8, 4=BMP24, 5=PPM. [LPub3D default is 2]
+        -j  - Picks the perspective projection.
+        -fh - Turns on shading mode.
+        -q  - Anti Aliasing (Quality Lines).
+        -2g,2x - Downsamples output images by 2, scaling up the image (and edge lines) by 2 first.
+
+Change: Update preference User Interface form. Reposition labels and dialogues to clearly show all fields. Issue #27
+
+Fix: Mismatched preference loading sequence during application startup. LDraw folder was loading before LDraw archive libraries so if the install platform did not have LDraw installed and the user chose to extract the LDraw library from the archive library files, an unnecessary set of manual steps would be required to proceed. The proper installation sequence (LDraw archive libraries then LDraw folder) has been restored. Issue #27
 
 Change: Final model image page out of place. When opening a model file in LPub3D with "Fade Step" option enabled , the appending of the final model image page is misplaced if the last step before in the model file is a ROTSTEP. In addition "Empty" ROTSTEP steps are ignored. This behaviour has been updated to place the final model file and inserted page after the last native STEP or ROTSTEP Here is an example LPub3D model file update with "Fade Step" and "Generate Cover Pages" options on:
-    0 Author: ACDassing
+    0 Author: Foo
     0 !LICENSE Not redistributable : see NonCAreadme.txt
     0 !LPUB INSERT COVER_PAGE FRONT
     0 STEP
@@ -21,20 +50,20 @@ Change: Final model image page out of place. When opening a model file in LPub3D
     0 !LPUB INSERT PAGE
     0 STEP
     0 !LPUB INSERT COVER_PAGE BACK
-Issue No. #26
+Issue #26
 
 Fix: Only first occurrence of callout alloc modified. When using the context menu to "Display Callout as Columns", the meta - command 0 !LPUB CALLOUT ALLOC HORIZONTAL is only added (or modified if already existing) to the first occurrence of CALLOUT when multiple Callouts are present in the page/model. The same behaviour applies to "Display Callout as Rows".
-This behaviour has is now corrected. Note that the last Callout display allocation affects all subsequent Callouts in the model file. If you wish to change the display allocation, you must add a meta command (using the context menu or manually) to enable the new display. Issue No. #25
+This behaviour has is now corrected. Note that the last Callout display allocation affects all subsequent Callouts in the model file. If you wish to change the display allocation, you must add a meta command (using the context menu or manually) to enable the new display. Issue #25
 
 Fix: Dragging a single-step page's assembly. When dragging a single-step page's CSI [Assembly], the image does not remain where positioned when the mouse is released, instead it is adjusted further by the application. This is an old behaviour from LPUB 4.
 Single-step page's assembly were automatically placed at the centre of the page's bounding box in all cases. This behaviour caused the assembly adjustment when manually moved.
-Now, if there exist an offset (the assembly was manually moved), no attempt will be made to place the the assembly at the centre of the page's bounding box. Issue No. #23
+Now, if there exist an offset (the assembly was manually moved), no attempt will be made to place the the assembly at the centre of the page's bounding box. Issue #23
 
-Change: Ignore PLI annotation for beams with "Bent" in the title. This update affects the titleAnnotations.lst file. You can view/edit this file from the User Interface at Configuration->Edit Parameter Files->Edit Title PLI Annotations. I also refreshed the parameter list files converting all tabs to spaces. Issue No. #24
+Change: Ignore PLI annotation for beams with "Bent" in the title. This update affects the titleAnnotations.lst file. You can view/edit this file from the User Interface at Configuration->Edit Parameter Files->Edit Title PLI Annotations. I also refreshed the parameter list files converting all tabs to spaces. Issue #24
 
-Fix: Windows multi-user installation - uninstall error. Installation hangs at attempt to uninstall previous version of LPub3D. Of course it is possible to manually uninstall the previous version before installing version 2.1.0; however, the updated automated installation program takes care to preserve any previous configuration settings if so desired. Issue No. #21
+Fix: Windows multi-user installation - uninstall error. Installation hangs at attempt to uninstall previous version of LPub3D. Of course it is possible to manually uninstall the previous version before installing version 2.1.0; however, the updated automated installation program takes care to preserve any previous configuration settings if so desired. Issue #21
 
-Fix: File lpub3d.appdata.xml malformed. Corrected. Issue No. #20
+Fix: File lpub3d.appdata.xml malformed. Corrected. Issue #20
 
 LPub3D 2.1.0.0.775 (13 02 2018 02:42:46)
 
@@ -47,46 +76,46 @@ Enhancement: A custom LDraw library LDConfig file can can now be passed to LDGli
 Enhancement: All the renderer configuration files are accessible and configurable from the LPub3D user interface. Moreover, all configuration settings only affect LPub3D's renderer instances so if you have LDView installed on your system, it will not be affected by the settings you configure in LPub3D. Here is a summary of the configuration files:
     LDGLite - LDConfig.ldr: LDraw part colour codes [Default location: LDraw/LDConfig.ldr]
     LDView - LDConfig.ldr: LDraw part colour codes [Default location: LDraw/LDConfig.ldr]
-    LDView - ldview.ini: Image generation settings [Default locations:
-      Linux - ~/.local/share/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldview.ini
-      macOS -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldview.ini
-      Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/ldview-4.3/config/ldview.ini]
-    LDView - ldviewPOVini: POV file generation settings [Default locations:
-      Linux - ~/.local/share/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldviewPOV.ini
-      macOS -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldviewPOV.ini
-      Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/ldview-4.3/config/ldviewPOV.ini]
-    LPub3D-Trace (POV-Ray) - povray.conf: Security settings and authorized search paths [Default locations:
-      Linux - ~/.local/share/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.conf
-      macOS -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.conf
-      Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.conf]
-    LPub3D-Trace (POV-Ray) - povray.ini: Image generation settings and #include file search paths [Default locations:
-      Linux - ~/.local/share/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.ini
-      macOS -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.ini
-      Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.ini]
-When setting of modifying render config file settings, it is helpful to know the settings that are automatically managed by the LPub3D renderer module. These settings for the most part are the dynamic parameters produced with the image (PLI or CSI) being rendered and; therefore, are not suited to being set in a config file. Other settings in the render module are static and will not benefit, actually changing them will harm the behaviour of LPub3D, from modification in the config files. The settings, listed by renderer, managed by the LPub3D render module are:
+    LDView - ldview.ini: Image generation settings [Default locations]:
+      Linux   - ~/.local/share/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldview.ini
+      macOS   -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldview.ini
+      Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/ldview-4.3/config/ldview.ini
+    LDView - ldviewPOVini: POV file generation settings [Default locations]:
+      Linux   - ~/.local/share/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldviewPOV.ini
+      macOS   -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldviewPOV.ini
+      Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/ldview-4.3/config/ldviewPOV.ini
+    LPub3D-Trace (POV-Ray) - povray.conf: Security settings and authorized search paths [Default locations]:
+      Linux   - ~/.local/share/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.conf
+      macOS   -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.conf
+      Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.conf
+    LPub3D-Trace (POV-Ray) - povray.ini: Image generation settings and #include file search paths [Default locations]:
+      Linux   - ~/.local/share/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.ini
+      macOS   -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.ini
+      Windows - %USERPROFILE%/AppData/Local/LPUb3D Software/LPub3D/3rdParty/lpub3d_trace_cui-3.8/config/povray.ini
+When setting or modifying render config file settings, it is helpful to know the settings that are automatically managed by the LPub3D renderer module. These settings for the most part are the dynamic parameters produced with the image (PLI or CSI) being rendered and; therefore, are not suited to being set in a config file. Other settings in the render module are static and will not benefit, actually changing them will harm the behaviour of LPub3D, from modification in the config files. The settings, listed by renderer, managed by the LPub3D render module are:
     LDView [image generation and .pov file generation settings]
     Flags:
         CA - camera angle
         -cg0.0,0.0,cd - Camera globe,Camera distance [cg set to zeros for CSI, pli angles (x,y) for PLI]
-        -SaveWidth - Image width
+        -SaveWidth  - Image width
         -SaveHeight - Image height
         -ExportFile - Export file [-ExportSuffix not required, taken from export file extension]
-        -LDrawDir - LDraw parts library path
-        -IniFile - LDView ini file  [If Ini file exist, so if ini file removed, LDView defaults are used]
-        -LDConfig - Alternate LDConfig file [If alternate LDConfig designated in Preferences]
+        -LDrawDir   - LDraw parts library path
+        -IniFile    - LDView ini file  [If Ini file exist, so if ini file removed, LDView defaults are used]
+        -LDConfig   - Alternate LDConfig file [If alternate LDConfig designated in Preferences]
     Logs:   [LDView does not produce any reasonably actionable stderr or stdout details]
-        stderr-ldview - error output log file [image generation]
-        stdout-ldview - standard output log file [image generation]
+        stderr-ldview    - error output log file [image generation]
+        stdout-ldview    - standard output log file [image generation]
         stderr-ldviewpov - error output log file [.pov file generation]
         stdout-ldviewpov - standard output log file [.pov file generation]
     LDView-Single-Call [image generation]
     Flags:
         CA - camera angle
         -cg0.0,0.0,cd - Camera globe,Camera distance [cg set to zeros for CSI, pli angles (x,y) for PLI]
-        -SaveWidth - Image width
+        -SaveWidth  - Image width
         -SaveHeight - Image height
-        -SaveSnapShots=1 [processing multiple files at a time, save each output file as input file name without extension]
-        -SnapshotSuffix=.png [file extension required because we're processing multiple files at a time]
+        -SaveSnapShots=1 - [processing multiple files at a time, save each output file as input file name without extension]
+        -SnapshotSuffix=.png - [file extension required because we're processing multiple files at a time]
         -LDrawDir - LDraw parts library path
         -IniFile - LDView ini file  [If Ini file exist, so if ini file removed, LDView defaults are used]
         -LDConfig - Alternate LDConfig file [If alternate LDConfig designated in Preferences]
@@ -100,7 +129,8 @@ When setting of modifying render config file settings, it is helpful to know the
         +O - Output file
         +W - Image width
         +H - Image height
-        USE_ALPHA
+        +A - Turns aa on with threshold 0.3 or previous amount [overridable from meta command]
+        USE_ALPHA - +UA Set alpha output On [overridable from meta command]
     Libs:        [Note: LGEO root path is hard-coded to "LDraw path"/lgeo]
         -IniPath     [POV-Ray include files path]
         -LgeoLGPath  [LGEO LG sub-directory path]
@@ -111,15 +141,13 @@ When setting of modifying render config file settings, it is helpful to know the
         stdout-povray - standard output log file
     LDGLite
     Flags:
-        -l3 - Use L3 parser
-        -i2 - Out image type is .png
+        -l3 - Use L3 parser [overridable from meta command]
         -CA - Camera angel
         -cg0.0,0.0,cd - Camera globe,Camera distance [cg set to zeros for CSI, pli angles (x,y) for PLI]
-        -j - perspective projection
         -v"Width","Height" - Image display width (X) and height (Y)
         -o0,-"Height"/6 - Change the centre width (X) across and height (Y) down
         -W"Line Thickness" - Line thickness, image resolution/150.5
-        ="LDConfig" - Alternate LDConfig file [If alternate LDConfig designated in Preferences]
+        -ldcF"LDConfigFile.ldr" - Alternate LDConfig file [If alternate LDConfig designated in Preferences]
     Environment Variables:
         LDRAWDIR="Ldraw path" - LDraw parts library path
         LDSEARCHDIRS="additional search directory paths" - Pipe (|) delimited single string of search directory paths

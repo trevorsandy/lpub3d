@@ -31,9 +31,9 @@
 #define VER_LEGALTRADEMARKS1_STR            "All Rights Reserved"
 #define VER_LEGALTRADEMARKS2_STR            VER_LEGALTRADEMARKS1_STR
 #define VER_PUBLISHER_STR                   "Trevor SANDY"
-#define VER_PUBLISHER_EMAIL_STR             "trevor.sandy@gmail.com"
 #define VER_FILEVERSION_STR                 STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_PATCH) "." VER_REVISION_STR "." VER_BUILD_STR
-#define VER_PUBLISHER_SUPPORT_EMAIL_STR     "mailto:trevor.sandy@gmail.com?subject=LPub3D Version " VER_FILEVERSION_STR
+#define VER_PUBLISHER_SUPPORT_STR           "https://github.com/trevorsandy/lpub3d/issues"
+#define VER_LICENSE_INFO_STR                "http://www.gnu.org/licenses/gpl-3.0.html"
 #ifdef QT_DEBUG_MODE
   #define COMPANYNAME_STR                   "LPub3D Software Maint"
 #else
@@ -46,12 +46,14 @@
 #define VER_LDGLITE_STR                     VER_LDGLITE
 #define VER_POVRAY_STR                      VER_POVRAY
 
-#define VER_LDVIEW_INI_FILE                 "ldview.ini"      // LDView renderer ini settings
-#define VER_LDVIEW_POV_INI_FILE             "ldviewPOV.ini"   // POV file generation ini settings
-#define VER_POVRAY_INI_FILE                 "povray.ini"      // Only used to validate directory
+#define VER_LDVIEW_INI_FILE                 "ldview.ini"      // LDView renderer config settings
+#define VER_LDVIEW_POV_INI_FILE             "ldviewPOV.ini"   // LDView POV file generation config settings
+#define VER_POVRAY_CONF_FILE                "povray.conf"     // POV-Ray access control config settings
+#define VER_POVRAY_INI_FILE                 "povray.ini"      // POV-Ray renderer config settings
+#define VER_LDGLITE_INI_FILE                "ldglite.ini"     // LDGLite renderer config settings
 #define VER_POVRAY_INC_FILE                 "consts.inc"      // Only used to validate directory
 #define VER_POVRAY_SCENE_FILE               "index.htm"       // Only used to validate directory
-#define VER_POVRAY_CONF_FILE                "povray.conf"
+
 
 // ~~~~~~ Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
@@ -75,9 +77,8 @@
 #define VER_UNOFFICIAL_LIBRARY_JSON_URL     "http://lpub3d.sourceforge.net/lpub3dldrawunf.json"
 #define VER_CHANGE_LOG_URL                  "http://lpub3d.sourceforge.net/change_log.txt"
 
-#define VER_SOURCE_SF_URL                   "http://sourceforge.net/p/lpub3d/code/"
 #define VER_COMPANYDOMAIN_STR               "https://trevorsandy.github.io/lpub3d/"
-#define VER_SOURCE_GITHUB_URL               "https://github.com/trevorsandy/lpub3d/"
+#define VER_SOURCE_GITHUB_STR               "https://github.com/trevorsandy/lpub3d/"
 
 #ifdef __GNUC__
   #ifdef __MINGW64__

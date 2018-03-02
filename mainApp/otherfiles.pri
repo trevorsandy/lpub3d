@@ -3,12 +3,11 @@ extras/excludedParts.lst \
 extras/fadeStepColorParts.lst \
 extras/freeformAnnotations.lst \
 extras/LDConfig.ldr \
-extras/ldview.ini \
-extras/ldviewPOV.ini \
 extras/pli.mpd \
 extras/pliSubstituteParts.lst \
 extras/povray.ini \
 extras/titleAnnotations.lst \
+extras/ldglite.ini \
 docs/COPYING_BRIEF \
 docs/CREDITS.txt \
 docs/lpub3d.1 \

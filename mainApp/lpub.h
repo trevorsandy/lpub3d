@@ -917,6 +917,7 @@ private slots:
     void editPliBomSubstituteParts();
     void editLdrawIniFile();
     void editExcludedParts();
+    void editLdgliteIni();
     void editLdviewIni();
     void editLdviewPovIni();
     void editPovrayIni();
@@ -1133,6 +1134,7 @@ private:
   QAction *editPliBomSubstitutePartsAct;
   QAction *editExcludedPartsAct;
   QAction *editLdrawIniFileAct;
+  QAction *editLdgliteIniAct;
   QAction *editLdviewIniAct;
   QAction *editLdviewPovIniAct;
   QAction *editPovrayIniAct;

@@ -344,7 +344,7 @@ int Gui::drawPage(
           csiParts << line;
           partsAdded = true;
 
-          /* since we have a part usage, we have a valid step */
+          /* since we have a part usage, we have a valid STEP */
 
           if (step == NULL  && ! noStep) {
               if (range == NULL) {
@@ -983,12 +983,12 @@ int Gui::drawPage(
               noStep = true;
               break;
 
-              /* we're hit some kind of step, or implied step and end of file */
+              /* we've hit some kind of step, or implied step and end of file */
             case EndOfFileRc:
             case RotStepRc:
             case StepRc:
 
-              // special case of no parts added, but BFX load and not NOSTEP
+              // STEP - special case of no parts added, but BFX load and not NOSTEP
               if (! partsAdded && bfxLoad && ! noStep) {
                   if (step == NULL) {
                       if (range == NULL) {
@@ -1021,7 +1021,7 @@ int Gui::drawPage(
                   partsAdded = true; // OK, so this is a lie, but it works
                 }
 
-              // normal case of parts added, and not NOSTEP
+              // STEP - normal case of parts added, and not NOSTEP
               if (partsAdded && ! noStep) {
 
                   if (firstStep) {
@@ -1115,9 +1115,8 @@ int Gui::drawPage(
                         }
                     }
 
+                  // STEP - Simple STEP
                   if ( ! multiStep && ! calledOut) {
-
-                      // Simple step
 
                       steps->placement = steps->meta.LPub.assem.placement;
 
@@ -1203,6 +1202,7 @@ int Gui::drawPage(
                   bfxStore1 = false;
                   bfxLoad = false;
                 }
+
               if ( ! multiStep) {
                   inserts.clear();
                 }
@@ -2444,7 +2444,7 @@ void Gui::writeToTmp()
   if (! exporting()) {
       emit progressBarPermInitSig();
       emit progressPermRangeSig(1, ldrawFile._subFileOrder.size());
-      emit progressPermMessageSig("Submodels...");
+      emit progressPermMessageSig("Processing submodels...");
     }
   emit messageSig(true, "Writing submodels to temp directory...");
 
