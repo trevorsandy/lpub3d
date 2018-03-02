@@ -65,7 +65,7 @@ Var /global LPub3DViewerLibPath
 !define README_FILE "README.txt" ; readme file, optional
 !define PUBLISHER_NAME "${Publisher}"
 !define COMPANY_URL "${CompanyURL}"
-!define SUPPORT_EMAIL "${SupportEmail}"
+!define SUPPORT "${SupportURL}"
 !define VERSION_MAJOR "${VersionMajor}"
 !define VERSION_MINOR "${VersionMinor}"
 !define MIN_WIN_VER "XP"
@@ -88,7 +88,7 @@ Name "${PRODUCT_NAME} ${VERSION} Rev ${BuildRevision} Build ${BuildNumber} ${PLA
 Caption $CaptionMessage
 Icon "..\icons\setup.ico"
 UninstallIcon "..\icons\setup.ico"
-BrandingText "©2018 ${COMPANY_NAME}"
+BrandingText "ï¿½2018 ${COMPANY_NAME}"
 !ifdef UpdateMaster
   OutFile "${OutFileDir}\${PRODUCT_NAME}-UpdateMaster_${VERSION}.exe"
 !else

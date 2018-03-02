@@ -1,7 +1,9 @@
-LPub3D 2.1.0.1.784 (02 03 2018 20:18:44)
+LPub3D 2.1.0.1.785 (02 03 2018 20:30:04)
 
 Features and enhancements
 ------------
+Change: Update about-dialogue support links. Add GitHub issues URL #31
+
 Change: Add/override renderer flags from within model file. For example the line 0 !LPUB ASSEM LDGLITE_PARMS "-J -fh" within a step will enable perspective projection and shading mode for that step's Assembly (CSI) image.
 If defining more than one meta flag, you must use a single space delimiter between flags and the list of flags must be quoted as shown in the examples. Flag values that contain spaces are not supported which is to say that mapping ini files and such, where values may contain spaces, should be performed in the respective renderer's ini configuration file and should not be added as a meta command. Render ini files can be accessed and updated from the User Interface - see v2.1.0 Features and enhancements for details. Note that manipulating render flags require fairly advanced knowledge of the renderer's capabilities and command line flags. If you are unsure about this, please consult the render documentation before attempting to change the default settings. Setting incorrect flags or combinations of flags can adversely affect the quality of your output. Issue #30
 

@@ -63,7 +63,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                          "LeoCAD&copy; and other 3rd party contributors.<br>"
                                        "</td>"
                                        "<td valign=\"middle\">"
-                                         "<a href=\"%5\"><img src=\":/resources/gplv3.png\"></a>"
+                                         "<a href=\"%2\"><img src=\":/resources/gplv3.png\"></a>"
                                        "</td>"
                                     "</tr>"
                                   "</table>"
@@ -73,23 +73,21 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                 "<td>"
                                    "<table>"
                                      "<tr>"
-                                       "<td>Feedback:</td>"
-                                       "<td><a href=\"%3\">%4</a></td>"
+                                       "<td>Support:</td>"
+                                       "<td><a href=\"%3\">%3</a></td>"
                                      "</tr>"
                                      "<tr>"
                                        "<td>Source:</td>"
-                                       "<td><a href=\"%6\">%6</a></td>"
+                                       "<td><a href=\"%4\">%4</a></td>"
                                      "</tr>"
                                   "</table>"
                                 "</td>"
                              "</tr>"
                              "</table>");
     QString About = AboutFormat.arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
-                               .arg(QString::fromLatin1(VER_SOURCE_SF_URL))
-                               .arg(QString::fromLatin1(VER_PUBLISHER_SUPPORT_EMAIL_STR))
-                               .arg(QString::fromLatin1(VER_PUBLISHER_EMAIL_STR))
-                               .arg(QString("http://www.gnu.org/licenses/gpl-3.0.html"))
-                               .arg(QString::fromLatin1(VER_SOURCE_GITHUB_URL));
+                               .arg(QString::fromLatin1(VER_LICENSE_INFO_STR))
+                               .arg(QString::fromLatin1(VER_PUBLISHER_SUPPORT_STR))
+                               .arg(QString::fromLatin1(VER_SOURCE_GITHUB_STR));
 
     ui->AppInfo->setTextFormat(Qt::RichText);
     ui->AppInfo->setOpenExternalLinks(true);
