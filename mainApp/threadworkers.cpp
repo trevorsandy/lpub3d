@@ -461,7 +461,7 @@ void PartWorker::processFadeColourParts()
 
           createFadePartFiles();
 
-          // Append fade parts to unofficial library for LeoCAD's consumption
+          // Append fade parts to unofficial library for 3DViewer's consumption
           if(fadePartsDirs.size() != 0){
               fadePartsDirs.empty();
           }
@@ -963,7 +963,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   QString partsLabel = "parts";
   if (Preferences::lpub3dLoaded && archivedPartCount > 0) {
 
-      if (!g_App->mLibrary->ReloadUnoffLib()){
+      if (!gApplication->mLibrary->ReloadUnoffLib()){
           returnMessage = tr("Failed to reload unofficial parts library into memory.");
           if (okToEmitToProgressBar()) {
               emit messageSig(false,returnMessage);

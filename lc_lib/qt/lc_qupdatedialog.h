@@ -1,5 +1,4 @@
-#ifndef LC_QUPDATEDIALOG_H
-#define LC_QUPDATEDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QNetworkReply>
@@ -15,7 +14,7 @@ class lcQUpdateDialog : public QDialog
 	Q_OBJECT
 	
 public:
-	explicit lcQUpdateDialog(QWidget *parent, void *data);
+	explicit lcQUpdateDialog(QWidget* Parent, bool InitialUpdate);
 	~lcQUpdateDialog();
 
 	void parseUpdate(const char *update);
@@ -32,7 +31,6 @@ private:
 	QNetworkReply *updateReply;
 	QNetworkAccessManager *manager;
 	QByteArray versionData;
-	bool initialUpdate;
+	bool mInitialUpdate;
 };
 
-#endif // LC_QUPDATEDIALOG_H

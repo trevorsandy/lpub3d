@@ -3,21 +3,25 @@ The following people have contributed to components used in LPub3D:
 LPub3D
 Trevor Sandy <trevor.sandy@gmail.com>
 
-LDGLite (LDGLite 1.3.3 - 32bit and 64bit ports adapted for LPub3D)
+LDGLite (LDGLite 1.3.4 - specifically adapted for LPub3D)
 Trevor Sandy <trevor.sandy@gmail.com>
 
-LDView-OSMesa-CUI (LDView 4.3 Qmake build specifically adapted for LPub3D)
+LDView-OSMesa-CUI (LDView 4.3 "qmake-build" specifically adapted for LPub3D)
 Trevor Sandy <trevor.sandy@gmail.com>
 
-LPub3D RayTrace-CUI (POV-Ray 3.8 specifically adapted for LPub3D)
+LPub3D RayTrace-CUI (POV-Ray 3.8 "raytracer-cui" specifically adapted for LPub3D)
 Trevor Sandy <trevor.sandy@gmail.com>
 
-LeoCAD 3D Viewer (LeoCAD version 0.82.1 Rev 1867 specifically adapted for LPub3D)
+3DViewer (LeoCAD version 18.2 specifically adapted for LPub3D)
 Trevor Sandy <trevor.sandy@gmail.com>
 
 LPub4
 Author:
 Kevin Clague <kevin.clague@gmail.com>
+
+LeoCAD
+Author:
+Leonardo Zide <leozide@gmail.com>
 
 LDGlite (< 1.3.2)
 Don Heyse <dheyse@hotmail.com>
@@ -40,10 +44,6 @@ Alex Spataru
 
 LDraw.ini / ldglite
 Lars C. Hassing <SP.lars@AM.hassings.dk>
-
-LeoCAD
-Author:
-Leonardo Zide <leozide@gmail.com>
 
 Linux Open Build Service scripts
 Peter Bartfai <pbartfai@stardust.hu>

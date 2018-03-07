@@ -46,12 +46,14 @@ win32: stagewindistcontent {
     lpub3d_plugin_printsupport.path = $$LPUB3D_STG_PATH/printsupport
 
     lpub3d_bins_qtlibs.files += \
+        $$[QT_INSTALL_BINS]/Qt5Concurrent.dll \
         $$[QT_INSTALL_BINS]/Qt5Core.dll \
         $$[QT_INSTALL_BINS]/Qt5Gui.dll \
         $$[QT_INSTALL_BINS]/Qt5Network.dll \
         $$[QT_INSTALL_BINS]/Qt5OpenGL.dll \
         $$[QT_INSTALL_BINS]/Qt5PrintSupport.dll \
-        $$[QT_INSTALL_BINS]/Qt5Widgets.dll
+        $$[QT_INSTALL_BINS]/Qt5Widgets.dll \
+        $$[QT_INSTALL_BINS]/Qt5Xml.dll
     lpub3d_bins_qtlibs.path = $$LPUB3D_STG_PATH
 
     lpub3d_bins_additional_libs.files += \
@@ -78,6 +80,7 @@ win32: stagewindistcontent {
         $$LPUB3D_STG_EXTRAS/fadeStepColorParts.lst \
         $$LPUB3D_STG_EXTRAS/freeformAnnotations.lst \
         $$LPUB3D_STG_EXTRAS/LDConfig.ldr \
+        $$LPUB3D_STG_EXTRAS/ldglite.ini \
         $$LPUB3D_STG_EXTRAS/ldview.ini \
         $$LPUB3D_STG_EXTRAS/ldviewPOV.ini \
         $$LPUB3D_STG_EXTRAS/PDFPrint.jpg \

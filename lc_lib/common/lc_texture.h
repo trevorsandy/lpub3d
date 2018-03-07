@@ -1,5 +1,4 @@
-#ifndef _LC_TEXTURE_H_
-#define _LC_TEXTURE_H_
+#pragma once
 
 #define LC_TEXTURE_WRAPU         0x01
 #define LC_TEXTURE_WRAPV         0x02
@@ -15,7 +14,7 @@
 
 #define LC_TEXTURE_NAME_LEN 256
 
-class Image;
+#include "image.h"
 
 class lcTexture
 {
@@ -25,30 +24,41 @@ public:
 
 	void CreateGridTexture();
 
-	bool Load(const char* FileName, int Flags = 0);
+	bool Load(const QString& FileName, int Flags = 0);
 	bool Load(lcMemFile& File, int Flags = 0);
-	bool Load(Image& image, int Flags);
-	bool Load(Image* images, int NumLevels, int Flags);
+	void Upload();
 	void Unload();
 
-	int AddRef()
+	void AddRef()
 	{
-		mRefCount++;
+		mRefCount.ref();
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 3, 0) || QT_VERSION < QT_VERSION_CHECK(5, 0, 0) )
 		if (mRefCount == 1)
+#else
+		if (mRefCount.load() == 1)
+#endif
 			Load();
-
-		return mRefCount;
 	}
 
-	int Release()
+	bool Release()
 	{
-		mRefCount--;
+		bool InUse = mRefCount.deref();
 
-		if (!mRefCount)
+		if (!InUse)
 			Unload();
 
-		return mRefCount;
+		return InUse;
+	}
+
+	void SetTemporary(bool Temporary)
+	{
+		mTemporary = Temporary;
+	}
+
+	bool IsTemporary() const
+	{
+		return mTemporary;
 	}
 
 	int mWidth;
@@ -58,8 +68,12 @@ public:
 
 protected:
 	bool Load();
+	bool Load(int Flags);
 
-	int mRefCount;
+	bool mTemporary;
+	QAtomicInt mRefCount;
+	std::vector<Image> mImages;
+	int mFlags;
 };
 
 lcTexture* lcLoadTexture(const QString& FileName, int Flags);
@@ -67,4 +81,3 @@ void lcReleaseTexture(lcTexture* Texture);
 
 extern lcTexture* gGridTexture;
 
-#endif // _LC_TEXTURE_H_

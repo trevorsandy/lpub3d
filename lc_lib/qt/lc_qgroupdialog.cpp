@@ -23,7 +23,7 @@ void lcQGroupDialog::accept()
 
 	if (Name.isEmpty())
 	{
-		QMessageBox::information(this, "LeoCAD", tr("Name cannot be empty."));
+		QMessageBox::information(this, "3DViewer", tr("Name cannot be empty."));
 		return;
 	}
 

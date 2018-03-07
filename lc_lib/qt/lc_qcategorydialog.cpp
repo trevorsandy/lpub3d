@@ -11,13 +11,13 @@ lcQCategoryDialog::lcQCategoryDialog(QWidget *parent, void *data) :
 
 	options = (lcLibraryCategory*)data;
 
-	if (options->Name[0])
+	if (!options->Name.isEmpty())
 		setWindowTitle(tr("Edit Category"));
 	else
 		setWindowTitle(tr("New Category"));
 
-	ui->name->setText((const char*)options->Name);
-	ui->keywords->setText((const char*)options->Keywords);
+	ui->name->setText(options->Name);
+	ui->keywords->setText(options->Keywords);
 }
 
 lcQCategoryDialog::~lcQCategoryDialog()
@@ -31,7 +31,7 @@ void lcQCategoryDialog::accept()
 
 	if (name.isEmpty())
 	{
-		QMessageBox::information(this, "LeoCAD", tr("Name cannot be empty."));
+		QMessageBox::information(this, "3DViewer", tr("Name cannot be empty."));
 		return;
 	}
 
@@ -39,12 +39,12 @@ void lcQCategoryDialog::accept()
 
 	if (keywords.isEmpty())
 	{
-		QMessageBox::information(this, "LeoCAD", tr("Keywords cannot be empty."));
+		QMessageBox::information(this, "3DViewer", tr("Keywords cannot be empty."));
 		return;
 	}
 
-	options->Name = name.toLocal8Bit().data();
-	options->Keywords = keywords.toLocal8Bit().data();
+	options->Name = name;
+	options->Keywords = keywords.toLatin1();
 
 	QDialog::accept();
 }

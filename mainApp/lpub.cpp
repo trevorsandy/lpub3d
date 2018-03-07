@@ -1334,6 +1334,7 @@ Gui::Gui()
 
     Preferences::lgeoPreferences();
     Preferences::renderPreferences(false);
+    Preferences::viewerPreferences();
     Preferences::publishingPreferences();
     Preferences::exportPreferences();
 
@@ -1448,7 +1449,6 @@ Gui::Gui()
     gui = this;
 
     fitMode = FitVisible;
-
 }
 
 Gui::~Gui()
@@ -2220,11 +2220,8 @@ void Gui::enableActions()
 
   cacheMenu->setEnabled(true);
   exportMenu->setEnabled(true);
+  ExportMenuViewer->setEnabled(true);
 
-  CameraMenu->setEnabled(true);
-  ViewpointsMenu->setEnabled(true);
-  PerspectiveMenu->setEnabled(true);
-  ExportMenuShort->setEnabled(true);
 }
 
 void Gui::disableActions()
@@ -2279,10 +2276,7 @@ void Gui::disableActions()
   cacheMenu->setEnabled(false);
   exportMenu->setEnabled(false);
 
-  CameraMenu->setEnabled(false);
-  ViewpointsMenu->setEnabled(false);
-  PerspectiveMenu->setEnabled(false);
-  ExportMenuShort->setEnabled(false);
+  ExportMenuViewer->setEnabled(false);
 
 }
 
@@ -2425,58 +2419,41 @@ void Gui::createMenus()
     configMenu->addAction(preferencesAct);
 
    // 3DViewer Menus
+    ViewerMenu = menuBar()->addMenu(tr("&3DViewer"));
+    ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_PREFERENCES]);
+    ViewerMenu->addSeparator();
+    ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
+    ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
 
-    CameraMenu = new QMenu(tr("C&ameras"), this);
-    CameraMenu->addAction(gMainWindow->mActions[LC_VIEW_CAMERA_NONE]);
-    for (int actionIdx = LC_VIEW_CAMERA_FIRST; actionIdx <= LC_VIEW_CAMERA_LAST; actionIdx++)
-      CameraMenu->addAction(gMainWindow->mActions[actionIdx]);
-    CameraMenu->addSeparator();
-    CameraMenu->addAction(gMainWindow->mActions[LC_VIEW_CAMERA_RESET]);
-    CameraMenu->setDisabled(true);
+    ViewerMenu->addMenu(gMainWindow->GetViewpointMenu());
+    ViewerMenu->addMenu(gMainWindow->GetCameraMenu());
+    ViewerMenu->addMenu(gMainWindow->GetProjectionMenu());
+    ViewerMenu->addMenu(gMainWindow->GetShadingMenu());
 
-    ViewMenu = menuBar()->addMenu(tr("&3D Viewer"));
-    ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_PREFERENCES]);
-    ViewMenu->addSeparator();
-    ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
-    ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
+    ViewerMenu->addSeparator();
+    ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_SPLIT_HORIZONTAL]);
+    ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_SPLIT_VERTICAL]);
+    ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_REMOVE_VIEW]);
+    ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_RESET_VIEWS]);
+    ViewerMenu->addSeparator();
 
-    ViewpointsMenu = ViewMenu->addMenu(tr("&Viewpoints"));
-    ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]);
-    ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK]);
-    ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_LEFT]);
-    ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_RIGHT]);
-    ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]);
-    ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]);
-    ViewpointsMenu->addAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]);
-    ViewpointsMenu->setDisabled(true);
-    ViewMenu->addMenu(CameraMenu);
-
-    PerspectiveMenu = ViewMenu->addMenu(tr("Projection"));
-    PerspectiveMenu->addAction(gMainWindow->mActions[LC_VIEW_PROJECTION_PERSPECTIVE]);
-    PerspectiveMenu->addAction(gMainWindow->mActions[LC_VIEW_PROJECTION_ORTHO]);
-    PerspectiveMenu->setDisabled(true);
-    ViewMenu->addSeparator();
-    ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_SPLIT_HORIZONTAL]);
-    ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_SPLIT_VERTICAL]);
-    ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_REMOVE_VIEW]);
-    ViewMenu->addAction(gMainWindow->mActions[LC_VIEW_RESET_VIEWS]);
-    ViewMenu->addSeparator();
-
-    QMenu* ToolBarViewerMenu = ViewMenu->addMenu(tr("T&oolbar"));
+    QMenu* ToolBarViewerMenu = ViewerMenu->addMenu(tr("T&oolbar"));
     ToolBarViewerMenu->addAction(gMainWindow->mToolsToolBar->toggleViewAction());
 
-    FileMenuShort = menuBar()->addMenu(tr("&Step"));
-    FileMenuShort->addAction(gMainWindow->mActions[LC_FILE_SAVEAS]);
-    FileMenuShort->addAction(gMainWindow->mActions[LC_FILE_SAVE_IMAGE]);
+    FileMenuViewer = menuBar()->addMenu(tr("&Step"));
+    FileMenuViewer->addAction(gMainWindow->mActions[LC_FILE_SAVEAS]);
+    FileMenuViewer->addAction(gMainWindow->mActions[LC_FILE_SAVE_IMAGE]);
 
-    ExportMenuShort = FileMenuShort->addMenu(tr("&Export Step As"));
-    ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_3DS]);
-    ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_BRICKLINK]);
-    ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_CSV]);
-    ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_HTML]);
-    ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_POVRAY]);
-    ExportMenuShort->addAction(gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]);
-    ExportMenuShort->setDisabled(true);
+    ExportMenuViewer = FileMenuViewer->addMenu(tr("&Export Step As"));
+    ExportMenuViewer->addAction(gMainWindow->mActions[LC_FILE_EXPORT_3DS]);
+    ExportMenuViewer->addAction(gMainWindow->mActions[LC_FILE_EXPORT_BRICKLINK]);
+    ExportMenuViewer->addAction(gMainWindow->mActions[LC_FILE_EXPORT_COLLADA]);
+    ExportMenuViewer->addAction(gMainWindow->mActions[LC_FILE_EXPORT_CSV]);
+    ExportMenuViewer->addAction(gMainWindow->mActions[LC_FILE_EXPORT_HTML]);
+    ExportMenuViewer->addAction(gMainWindow->mActions[LC_FILE_EXPORT_POVRAY]);
+    ExportMenuViewer->addAction(gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]);
+    ExportMenuViewer->setDisabled(true);
+    // 3D Viewer Menus End
 
     // Help Menus
 
@@ -2557,7 +2534,7 @@ void Gui::showLCStatusMessage(){
 void Gui::createDockWindows()
 {
     fileEditDockWindow = new QDockWidget(trUtf8(wCharToUtf8("LDraw\u2122 File Editor")), this);
-    modelDockWindow = new QDockWidget(trUtf8(wCharToUtf8("3D Viewer - by LeoCAD\u00A9")), this);
+    modelDockWindow = new QDockWidget(trUtf8(wCharToUtf8("3DViewer - by LeoCAD\u00A9")), this);
     fileEditDockWindow->setObjectName("LDrawFileDockWindow");
     fileEditDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |

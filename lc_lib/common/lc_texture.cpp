@@ -1,10 +1,8 @@
 #include "lc_global.h"
 #include "lc_texture.h"
-#include "lc_file.h"
 #include "lc_application.h"
 #include "lc_library.h"
 #include "image.h"
-#include "system.h"
 #include "lc_glextensions.h"
 
 lcTexture* gGridTexture;
@@ -13,10 +11,15 @@ lcTexture* lcLoadTexture(const QString& FileName, int Flags)
 {
 	lcTexture* Texture = new lcTexture();
 
-	if (!Texture->Load(FileName.toLatin1().constData(), Flags)) // todo: qstring
+	if (!Texture->Load(FileName, Flags))
 	{
 		delete Texture;
-		Texture = NULL;
+		Texture = nullptr;
+	}
+	else
+	{
+		strcpy(Texture->mName, QFileInfo(FileName).baseName().toLatin1());
+		Texture->SetTemporary(true);
 	}
 
 	return Texture;
@@ -24,7 +27,7 @@ lcTexture* lcLoadTexture(const QString& FileName, int Flags)
 
 void lcReleaseTexture(lcTexture* Texture)
 {
-	if (Texture && Texture->Release() == 0)
+	if (Texture && !Texture->Release())
 		delete Texture;
 }
 
@@ -32,6 +35,7 @@ lcTexture::lcTexture()
 {
 	mTexture = 0;
 	mRefCount = 0;
+	mTemporary = false;
 }
 
 lcTexture::~lcTexture()
@@ -42,12 +46,12 @@ lcTexture::~lcTexture()
 void lcTexture::CreateGridTexture()
 {
 	const int NumLevels = 9;
-	Image GridImages[NumLevels];
-	lcuint8* Previous = NULL;
+	mImages.resize(NumLevels);
+	quint8* Previous = nullptr;
 
 	for (int ImageLevel = 0; ImageLevel < NumLevels; ImageLevel++)
 	{
-		Image& GridImage = GridImages[ImageLevel];
+		Image& GridImage = mImages[ImageLevel];
 		const int GridSize = 256 >> ImageLevel;
 		GridImage.Allocate(GridSize, GridSize, LC_PIXEL_FORMAT_A8);
 
@@ -59,24 +63,24 @@ void lcTexture::CreateGridTexture()
 			{
 				for (int x = 0; x < GridSize - 1; x++)
 				{
-					lcuint8 a = Previous[x * 2 + y * 2 * PreviousGridSize] > 64 ? 255 : 0;
-					lcuint8 b = Previous[x * 2 + 1 + y * 2 * PreviousGridSize] > 64 ? 255 : 0;
-					lcuint8 c = Previous[x * 2 + (y * 2 + 1) * PreviousGridSize] > 64 ? 255 : 0;
-					lcuint8 d = Previous[x * 2 + 1 + (y * 2 + 1) * PreviousGridSize] > 64 ? 255 : 0;
+					quint8 a = Previous[x * 2 + y * 2 * PreviousGridSize] > 64 ? 255 : 0;
+					quint8 b = Previous[x * 2 + 1 + y * 2 * PreviousGridSize] > 64 ? 255 : 0;
+					quint8 c = Previous[x * 2 + (y * 2 + 1) * PreviousGridSize] > 64 ? 255 : 0;
+					quint8 d = Previous[x * 2 + 1 + (y * 2 + 1) * PreviousGridSize] > 64 ? 255 : 0;
 					GridImage.mData[x + y * GridSize] = (a + b + c + d) / 4;
 				}
 
 				int x = GridSize - 1;
-				lcuint8 a = Previous[x * 2 + y * 2 * PreviousGridSize];
-				lcuint8 c = Previous[x * 2 + (y * 2 + 1) * PreviousGridSize];
+				quint8 a = Previous[x * 2 + y * 2 * PreviousGridSize];
+				quint8 c = Previous[x * 2 + (y * 2 + 1) * PreviousGridSize];
 				GridImage.mData[x + y * GridSize] = (a + c) / 2;
 			}
 
 			int y = GridSize - 1;
 			for (int x = 0; x < GridSize - 1; x++)
 			{
-				lcuint8 a = Previous[x * 2 + y * 2 * PreviousGridSize];
-				lcuint8 b = Previous[x * 2 + 1 + y * 2 * PreviousGridSize];
+				quint8 a = Previous[x * 2 + y * 2 * PreviousGridSize];
+				quint8 b = Previous[x * 2 + 1 + y * 2 * PreviousGridSize];
 				GridImage.mData[x + y * GridSize] = (a + b) / 2;
 			}
 
@@ -87,11 +91,11 @@ void lcTexture::CreateGridTexture()
 		{
 			const float Radius1 = (80 >> ImageLevel) * (80 >> ImageLevel);
 			const float Radius2 = (72 >> ImageLevel) * (72 >> ImageLevel);
-			lcuint8* TempBuffer = new lcuint8[GridSize * GridSize];
+			quint8* TempBuffer = new quint8[GridSize * GridSize];
 
 			for (int y = 0; y < GridSize; y++)
 			{
-				lcuint8* Pixel = TempBuffer + y * GridSize;
+				quint8* Pixel = TempBuffer + y * GridSize;
 				memset(Pixel, 0, GridSize);
 
 				const float y2 = (y - GridSize / 2) * (y - GridSize / 2);
@@ -123,24 +127,24 @@ void lcTexture::CreateGridTexture()
 			{
 				for (int x = 0; x < GridSize - 1; x++)
 				{
-					lcuint8 a = TempBuffer[x + y * GridSize];
-					lcuint8 b = TempBuffer[x + 1 + y * GridSize];
-					lcuint8 c = TempBuffer[x + (y + 1) * GridSize];
-					lcuint8 d = TempBuffer[x + 1 + (y + 1) * GridSize];
+					quint8 a = TempBuffer[x + y * GridSize];
+					quint8 b = TempBuffer[x + 1 + y * GridSize];
+					quint8 c = TempBuffer[x + (y + 1) * GridSize];
+					quint8 d = TempBuffer[x + 1 + (y + 1) * GridSize];
 					GridImage.mData[x + y * GridSize] = (a + b + c + d) / 4;
 				}
 
 				int x = GridSize - 1;
-				lcuint8 a = TempBuffer[x + y * GridSize];
-				lcuint8 c = TempBuffer[x + (y + 1) * GridSize];
+				quint8 a = TempBuffer[x + y * GridSize];
+				quint8 c = TempBuffer[x + (y + 1) * GridSize];
 				GridImage.mData[x + y * GridSize] = (a + c) / 2;
 			}
 
 			int y = GridSize - 1;
 			for (int x = 0; x < GridSize - 1; x++)
 			{
-				lcuint8 a = TempBuffer[x + y * GridSize];
-				lcuint8 b = TempBuffer[x + 1 + y * GridSize];
+				quint8 a = TempBuffer[x + y * GridSize];
+				quint8 b = TempBuffer[x + 1 + y * GridSize];
 				GridImage.mData[x + y * GridSize] = (a + b) / 2;
 			}
 
@@ -152,9 +156,10 @@ void lcTexture::CreateGridTexture()
 		Previous = GridImage.mData;
 	}
 
-	Load(GridImages, NumLevels, LC_TEXTURE_WRAPU | LC_TEXTURE_WRAPV | LC_TEXTURE_MIPMAPS | LC_TEXTURE_ANISOTROPIC);
+	mRefCount = 1;
+	mFlags = LC_TEXTURE_WRAPU | LC_TEXTURE_WRAPV | LC_TEXTURE_MIPMAPS | LC_TEXTURE_ANISOTROPIC;
 
-    mRefCount = 1;
+	lcGetPiecesLibrary()->QueueTextureUpload(this);
 }
 
 bool lcTexture::Load()
@@ -162,30 +167,30 @@ bool lcTexture::Load()
 	return lcGetPiecesLibrary()->LoadTexture(this);
 }
 
-bool lcTexture::Load(const char* FileName, int Flags)
+bool lcTexture::Load(const QString& FileName, int Flags)
 {
-	Image image;
+	mImages.resize(1);
 
-	if (!image.FileLoad(FileName))
+	if (!mImages[0].FileLoad(FileName))
 		return false;
 
-	return Load(image, Flags);
+	return Load(Flags);
 }
 
 bool lcTexture::Load(lcMemFile& File, int Flags)
 {
-	Image image;
+	mImages.resize(1);
 
-	if (!image.FileLoad(File))
+	if (!mImages[0].FileLoad(File))
 		return false;
 
-	return Load(image, Flags);
+	return Load(Flags);
 }
 
-bool lcTexture::Load(Image* images, int NumLevels, int Flags)
+void lcTexture::Upload()
 {
-	mWidth = images[0].mWidth;
-	mHeight = images[0].mHeight;
+	mWidth = mImages[0].mWidth;
+	mHeight = mImages[0].mHeight;
 
 	glGenTextures(1, &mTexture);
 
@@ -195,13 +200,13 @@ bool lcTexture::Load(Image* images, int NumLevels, int Flags)
 		{ GL_NEAREST, GL_LINEAR, GL_LINEAR, GL_LINEAR, GL_LINEAR  },
 	};
 
-	int FilterFlags = Flags & LC_TEXTURE_FILTER_MASK;
+	int FilterFlags = mFlags & LC_TEXTURE_FILTER_MASK;
 	int FilterIndex = FilterFlags >> LC_TEXTURE_FILTER_SHIFT;
-	int MipIndex = Flags & LC_TEXTURE_MIPMAPS ? 0 : 1;
+	int MipIndex = mFlags & LC_TEXTURE_MIPMAPS ? 0 : 1;
 
 	glBindTexture(GL_TEXTURE_2D, mTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (Flags & LC_TEXTURE_WRAPU) ? GL_REPEAT : GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (Flags & LC_TEXTURE_WRAPV) ? GL_REPEAT : GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (mFlags & LC_TEXTURE_WRAPU) ? GL_REPEAT : GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (mFlags & LC_TEXTURE_WRAPV) ? GL_REPEAT : GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Filters[MipIndex][FilterIndex]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Filters[1][FilterIndex]);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -210,11 +215,10 @@ bool lcTexture::Load(Image* images, int NumLevels, int Flags)
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, lcMin(4.0f, gMaxAnisotropy));
 
 	int Format;
-	switch (images[0].mFormat)
+	switch (mImages[0].mFormat)
 	{
     default:
     case LC_PIXEL_FORMAT_INVALID:
-        LC_ASSERT(false);
         Format = 0;
         break;
     case LC_PIXEL_FORMAT_A8:
@@ -231,14 +235,15 @@ bool lcTexture::Load(Image* images, int NumLevels, int Flags)
 		break;
 	}
 
-	void* Data = images[0].mData;
+	void* Data = mImages[0].mData;
 	glTexImage2D(GL_TEXTURE_2D, 0, Format, mWidth, mHeight, 0, Format, GL_UNSIGNED_BYTE, Data);
+	int MaxLevel = 0;
 
-	if (Flags & LC_TEXTURE_MIPMAPS)
+	if (mFlags & LC_TEXTURE_MIPMAPS)
 	{
 		int Width = mWidth;
 		int Height = mHeight;
-		int Components = images[0].GetBPP();
+		int Components = mImages[0].GetBPP();
 
 		for (int Level = 1; ((Width != 1) || (Height != 1)); Level++)
 		{
@@ -247,7 +252,7 @@ bool lcTexture::Load(Image* images, int NumLevels, int Flags)
 			Width = lcMax(1, Width >> 1);
 			Height = lcMax(1, Height >> 1);
 
-			if (NumLevels == 1)
+			if (mImages.size() == 1)
 			{
 				GLubyte *Out, *In;
 
@@ -259,22 +264,25 @@ bool lcTexture::Load(Image* images, int NumLevels, int Flags)
 							Out[c] = (In[c] + In[c + Components] + In[RowStride] + In[c + RowStride + Components]) / 4;
 			}
 			else
-				Data = images[Level].mData;
+				Data = mImages[Level].mData;
 
 			glTexImage2D(GL_TEXTURE_2D, Level, Format, Width, Height, 0, Format, GL_UNSIGNED_BYTE, Data);
+			MaxLevel++;
 		}
 	}
 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, MaxLevel);
 	glBindTexture(GL_TEXTURE_2D, 0);
-
-	return true;
 }
 
-bool lcTexture::Load(Image& image, int Flags)
+bool lcTexture::Load(int Flags)
 {
-	image.ResizePow2();
+	for (Image& Image : mImages)
+		Image.ResizePow2();
+	mFlags = Flags;
 
-	return Load(&image, 1, Flags);
+	lcGetPiecesLibrary()->QueueTextureUpload(this);
+	return true;
 }
 
 void lcTexture::Unload()

@@ -1,64 +1,44 @@
-#ifndef _LC_GLOBAL_H_
-#define _LC_GLOBAL_H_
+#ifndef LC_GLOBAL_H
+#define LC_GLOBAL_H
+
+#ifdef __cplusplus
 
 #include <QtGlobal>
-#include <QtOpenGL>
-#if QT_VERSION >= QT_VERSION_CHECK(5,4,0)
-#include <QtWidgets/QWidget>
-#include <QtWidgets>
-#include <QOpenGLWidget>
-#else
 #include <QWidget>
-#include <QtGui>
+#include <QtOpenGL>
 #include <QGLWidget>
-#endif
-
+#include <QtGui>
 #include <QPrinter>
 
+#if !defined(EGL_VERSION_1_0) && !defined(GL_ES_VERSION_2_0) && !defined(GL_ES_VERSION_3_0) && !defined(QT_OPENGL_ES)
 #undef GL_LINES_ADJACENCY_EXT
 #undef GL_LINE_STRIP_ADJACENCY_EXT
 #undef GL_TRIANGLES_ADJACENCY_EXT
 #undef GL_TRIANGLE_STRIP_ADJACENCY_EXT
 #include "lc_glext.h"
+#else
+#define LC_OPENGLES 1
+#endif
 
 // Old defines and declarations.
 #define LC_MAXPATH 1024
 
-#define LC_POINTER_TO_INT(p) ((lcint32) (quintptr) (p))
-
-typedef qint8 lcint8;
-typedef quint8 lcuint8;
-typedef qint16 lcint16;
-typedef quint16 lcuint16;
-typedef qint32 lcint32;
-typedef quint32 lcuint32;
-typedef qint64 lcint64;
-typedef quint64 lcuint64;
-typedef quintptr lcuintptr;
-
 #ifdef Q_OS_WIN
-#define snprintf _snprintf
-#ifndef _WIN64
-// rem 08/12/17 - 'error: 'std::_isnan' has not been declared' error on MinGW Qt32bit built from source
-// #define isnan _isnan
-#endif
-#if (_MSC_VER >= 1500)
-#define strcasecmp stricmp
-#define strncasecmp strnicmp
-#endif
 char* strcasestr(const char *s, const char *find);
 #else
 char* strupr(char* string);
 char* strlwr(char* string);
-int stricmp(const char* str1, const char* str2);
 #endif
 
 // Version number.
-#define LC_VERSION_MAJOR 0
-#define LC_VERSION_MINOR 82
-#define LC_VERSION_PATCH 1
-#define LC_VERSION_TEXT "0.82.1"
-#define LC_VERSION_BUILD "1867"
+#define LC_VERSION_MAJOR 18
+#define LC_VERSION_MINOR 02
+#define LC_VERSION_PATCH 0
+#define LC_VERSION_TEXT "18.02"
+/*** LPub3D Mod - Git SHA ***/
+#define LC_VERSION_BUILD "d4687e0"
+/*** LPub3D Mod end ***/
+
 
 // Forward declarations.
 class Project;
@@ -69,7 +49,7 @@ class lcCamera;
 class lcLight;
 class lcGroup;
 class PieceInfo;
-struct lcPartsListEntry;
+typedef std::map<const PieceInfo*, std::map<int, int>> lcPartsList;
 struct lcModelPartsEntry;
 
 class lcVector2;
@@ -89,4 +69,6 @@ class lcFile;
 class lcMemFile;
 class lcDiskFile;
 
-#endif // _LC_GLOBAL_H_
+#endif
+
+#endif // LC_GLOBAL_H

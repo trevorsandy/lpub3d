@@ -1,5 +1,4 @@
-#ifndef LC_QPREFERENCESDIALOG_H
-#define LC_QPREFERENCESDIALOG_H
+#pragma once
 
 #include <QDialog>
 struct lcPreferencesDialogOptions;
@@ -27,7 +26,6 @@ public:
 
 public slots:
 	void accept();
-	void on_projectsFolderBrowse_clicked();
 	void on_partsLibraryBrowse_clicked();
 	void on_povrayExecutableBrowse_clicked();
 	void on_lgeoPathBrowse_clicked();
@@ -49,13 +47,18 @@ public slots:
 	void on_shortcutsExport_clicked();
 	void on_shortcutsReset_clicked();
 	void commandChanged(QTreeWidgetItem *current);
+	void on_mouseAssign_clicked();
+	void on_mouseRemove_clicked();
+	void on_mouseReset_clicked();
+	void MouseTreeItemChanged(QTreeWidgetItem* Current);
 
 private:
 	Ui::lcQPreferencesDialog *ui;
 
 	void updateCategories();
 	void updateCommandList();
+	void UpdateMouseTree();
+	void UpdateMouseTreeItem(int ItemIndex);
 	void setShortcutModified(QTreeWidgetItem *treeItem, bool modified);
 };
 
-#endif // LC_QPREFERENCESDIALOG_H

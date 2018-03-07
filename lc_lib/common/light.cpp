@@ -1,13 +1,10 @@
 #include "lc_global.h"
 #include "lc_math.h"
 #include "lc_colors.h"
-#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
 #include "light.h"
-#include "camera.h"
-#include "view.h"
 #include "lc_application.h"
 #include "lc_context.h"
 
@@ -53,6 +50,7 @@ lcLight::~lcLight()
 
 void lcLight::SaveLDraw(QTextStream& Stream) const
 {
+	Q_UNUSED(Stream);
 }
 
 void lcLight::CreateName(const lcArray<lcLight*>& Lights)
@@ -92,7 +90,7 @@ void lcLight::CreateName(const lcArray<lcLight*>& Lights)
 	sprintf(m_strName, "Light #%.2d", max+1);
 }
 
-void lcLight::CompareBoundingBox(float box[6])
+void lcLight::CompareBoundingBox(lcVector3& Min, lcVector3& Max)
 {
 	const lcVector3 Points[2] =
 	{
@@ -103,12 +101,10 @@ void lcLight::CompareBoundingBox(float box[6])
 	{
 		const lcVector3& Point = Points[i];
 
-		if (Point[0] < box[0]) box[0] = Point[0];
-		if (Point[1] < box[1]) box[1] = Point[1];
-		if (Point[2] < box[2]) box[2] = Point[2];
-		if (Point[0] > box[3]) box[3] = Point[0];
-		if (Point[1] > box[4]) box[4] = Point[1];
-		if (Point[2] > box[5]) box[5] = Point[2];
+		// TODO: this should check the entire mesh
+
+		Min = lcMin(Point, Min);
+		Max = lcMax(Point, Max);
 	}
 }
 
@@ -135,7 +131,7 @@ void lcLight::RayTest(lcObjectRayTest& ObjectRayTest) const
 	lcVector3 End = lcMul31(ObjectRayTest.End, mWorldLight);
 
 	float Distance;
-	if (lcBoundingBoxRayIntersectDistance(Min, Max, Start, End, &Distance, NULL) && (Distance < ObjectRayTest.Distance))
+	if (lcBoundingBoxRayIntersectDistance(Min, Max, Start, End, &Distance, nullptr) && (Distance < ObjectRayTest.Distance))
 	{
 		ObjectRayTest.ObjectSection.Object = const_cast<lcLight*>(this);
 		ObjectRayTest.ObjectSection.Section = LC_LIGHT_SECTION_POSITION;
@@ -151,7 +147,7 @@ void lcLight::RayTest(lcObjectRayTest& ObjectRayTest) const
 	Start = lcMul31(ObjectRayTest.Start, WorldTarget);
 	End = lcMul31(ObjectRayTest.End, WorldTarget);
 
-	if (lcBoundingBoxRayIntersectDistance(Min, Max, Start, End, &Distance, NULL) && (Distance < ObjectRayTest.Distance))
+	if (lcBoundingBoxRayIntersectDistance(Min, Max, Start, End, &Distance, nullptr) && (Distance < ObjectRayTest.Distance))
 	{
 		ObjectRayTest.ObjectSection.Object = const_cast<lcLight*>(this);
 		ObjectRayTest.ObjectSection.Section = LC_LIGHT_SECTION_TARGET;
@@ -207,7 +203,7 @@ void lcLight::BoxTest(lcObjectBoxTest& ObjectBoxTest) const
 	}
 }
 
-void lcLight::Move(lcStep Step, bool AddKey, const lcVector3& Distance)
+void lcLight::MoveSelected(lcStep Step, bool AddKey, const lcVector3& Distance)
 {
 	if (IsSelected(LC_LIGHT_SECTION_POSITION))
 	{
@@ -288,6 +284,8 @@ void lcLight::UpdatePosition(lcStep Step)
 
 void lcLight::DrawInterface(lcContext* Context) const
 {
+	Context->SetMaterial(LC_MATERIAL_UNLIT_COLOR);
+
 	if (IsPointLight())
 		DrawPointLight(Context);
 	else
@@ -372,7 +370,7 @@ void lcLight::DrawSpotLight(lcContext* Context) const
 	};
 
 	Context->SetVertexBufferPointer(Verts);
-	Context->SetVertexFormat(0, 3, 0, 0);
+	Context->SetVertexFormatPosition(3);
 	Context->SetIndexBufferPointer(Indices);
 
 	float LineWidth = lcGetPreferences().mLineWidth;
@@ -432,8 +430,6 @@ void lcLight::DrawSpotLight(lcContext* Context) const
 
 		Context->DrawIndexedPrimitives(GL_LINES, 2 + 40, GL_UNSIGNED_SHORT, (56 + 24) * 2);
 	}
-
-	Context->ClearVertexBuffer(); // context remove
 }
 
 void lcLight::DrawPointLight(lcContext* Context) const
@@ -443,10 +439,10 @@ void lcLight::DrawPointLight(lcContext* Context) const
 	const int NumVertices = (Slices - 1) * Slices + 2;
 	const float Radius = LC_LIGHT_SPHERE_RADIUS;
 	lcVector3 Vertices[NumVertices];
-	lcuint16 Indices[NumIndices];
+	quint16 Indices[NumIndices];
 
 	lcVector3* Vertex = Vertices;
-	lcuint16* Index = Indices;
+	quint16* Index = Indices;
 
 	*Vertex++ = lcVector3(0, 0, Radius);
 
@@ -523,52 +519,41 @@ void lcLight::DrawPointLight(lcContext* Context) const
 		Context->SetInterfaceColor(LC_COLOR_LIGHT);
 
 	Context->SetVertexBufferPointer(Vertices);
-	Context->SetVertexFormat(0, 3, 0, 0);
+	Context->SetVertexFormatPosition(3);
 	Context->SetIndexBufferPointer(Indices);
 	Context->DrawIndexedPrimitives(GL_TRIANGLES, NumIndices, GL_UNSIGNED_SHORT, 0);
 }
 
+void lcLight::RemoveKeyFrames()
+{
+	mPositionKeys.RemoveAll();
+	ChangeKey(mPositionKeys, mPosition, 1, true);
+
+	mTargetPositionKeys.RemoveAll();
+	ChangeKey(mTargetPositionKeys, mTargetPosition, 1, true);
+
+	mAmbientColorKeys.RemoveAll();
+	ChangeKey(mAmbientColorKeys, mAmbientColor, 1, true);
+
+	mDiffuseColorKeys.RemoveAll();
+	ChangeKey(mDiffuseColorKeys, mDiffuseColor, 1, true);
+
+	mSpecularColorKeys.RemoveAll();
+	ChangeKey(mSpecularColorKeys, mSpecularColor, 1, true);
+
+	mAttenuationKeys.RemoveAll();
+	ChangeKey(mAttenuationKeys, mAttenuation, 1, true);
+
+	mSpotCutoffKeys.RemoveAll();
+	ChangeKey(mSpotCutoffKeys, mSpotCutoff, 1, true);
+
+	mSpotExponentKeys.RemoveAll();
+	ChangeKey(mSpotExponentKeys, mSpotExponent, 1, true);
+}
+
 bool lcLight::Setup(int LightIndex)
 {
-	GLenum LightName = (GLenum)(GL_LIGHT0 + LightIndex);
-
-	if (mState & LC_LIGHT_DISABLED)
-		return false;
-
-	glEnable(LightName);
-
-	glLightfv(LightName, GL_AMBIENT, mAmbientColor);
-	glLightfv(LightName, GL_DIFFUSE, mDiffuseColor);
-	glLightfv(LightName, GL_SPECULAR, mSpecularColor);
-
-	if (!IsDirectionalLight())
-	{
-		glLightf(LightName, GL_CONSTANT_ATTENUATION, mAttenuation[0]);
-		glLightf(LightName, GL_LINEAR_ATTENUATION, mAttenuation[1]);
-		glLightf(LightName, GL_QUADRATIC_ATTENUATION, mAttenuation[2]);
-
-		lcVector4 Position(mPosition, 1.0f);
-		glLightfv(LightName, GL_POSITION, Position);
-	}
-	else
-	{
-		lcVector4 Position(mPosition, 0.0f);
-		glLightfv(LightName, GL_POSITION, Position);
-	}
-
-	if (IsPointLight())
-	{
-		glLightf(LightName, GL_SPOT_CUTOFF, 180.0f);
-	}
-	else if (IsSpotLight())
-	{
-		lcVector3 Dir(mTargetPosition - mPosition);
-		Dir.Normalize();
-
-		glLightf(LightName, GL_SPOT_CUTOFF, mSpotCutoff);
-		glLightf(LightName, GL_SPOT_EXPONENT, mSpotExponent);
-		glLightfv(LightName, GL_SPOT_DIRECTION, Dir);
-	}
+	Q_UNUSED(LightIndex);
 
 	return true;
 }

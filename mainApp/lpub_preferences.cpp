@@ -1090,6 +1090,7 @@ void Preferences::lgeoPreferences()
     } else {
         Settings.remove(QString("%1/%2").arg(POVRAY,lgeoDirKey));
         logInfo() << QString("LGEO library path  : Not found");
+        lgeoPath.clear();
     }
 }
 
@@ -1740,19 +1741,21 @@ void Preferences::publishingPreferences()
 }
 
 void Preferences::viewerPreferences()
-{
-
-    QSettings Settings;
+{  
+    lcSetProfileInt(LC_PROFILE_GRID_STUDS, 0);
+    lcSetProfileInt(LC_PROFILE_GRID_LINES, 0);
+    lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, 0);
 
     if (!povrayExe.isEmpty())
-        lcSetProfileString(LC_PROFILE_POVRAY_PATH, Settings.value(povrayExe).toString());
+        lcSetProfileString(LC_PROFILE_POVRAY_PATH, povrayExe);
+    if (!lgeoPath.isEmpty())
+        lcSetProfileString(LC_PROFILE_POVRAY_LGEO_PATH, lgeoPath);
+    if (!defaultAuthor.isEmpty())
+        lcSetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME, defaultAuthor);
 
-    if (Settings.contains(QString("%1/%2").arg(DEFAULTS,"Author")))
-        lcSetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME, Settings.value(QString("%1/%2").arg(DEFAULTS,"Author")).toString());
+    QSettings Settings;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"ProjectsPath")))
         lcSetProfileString(LC_PROFILE_PROJECTS_PATH, Settings.value(QString("%1/%2").arg(SETTINGS,"ProjectsPath")).toString());
-    if (Settings.contains(QString("%1/%2").arg(POVRAY,"LGEOPath")))
-        lcSetProfileString(LC_PROFILE_POVRAY_LGEO_PATH, Settings.value(QString("%1/%2").arg(POVRAY,"LGEOPath")).toString());
 }
 
 bool Preferences::getPreferences()

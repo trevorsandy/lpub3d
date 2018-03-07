@@ -54,6 +54,9 @@ macx {
     ldraw_official_library.files += $$_PRO_FILE_PWD_/extras/complete.zip
     ldraw_official_library.path = Contents/Resources
 
+    ldglite_ini.files += $$_PRO_FILE_PWD_/extras/ldglite.ini
+    ldglite_ini..path = Contents/Resources
+
     QMAKE_BUNDLE_DATA += \
         document_icon \
         document_readme \
@@ -66,7 +69,8 @@ macx {
         pli_orientation \
         pli_substitution_parts \
         ldraw_unofficial_library \
-        ldraw_official_library
+        ldraw_official_library \
+        ldglite_ini
 
     # The package distribution settings below requires a specific dev env configuration.
     # Basically, if you create a projects folder e.g. c:\Users\<user>\Projects and

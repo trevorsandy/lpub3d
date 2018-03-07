@@ -5,6 +5,7 @@ bool gSupportsShaderObjects;
 bool gSupportsVertexBufferObject;
 bool gSupportsFramebufferObjectARB;
 bool gSupportsFramebufferObjectEXT;
+bool gSupportsTexImage2DMultisample;
 bool gSupportsAnisotropic;
 GLfloat gMaxAnisotropy;
 
@@ -114,6 +115,8 @@ PFNGLUNIFORMMATRIX4FVPROC lcUniformMatrix4fv;
 PFNGLVALIDATEPROGRAMPROC lcValidateProgram;
 PFNGLVERTEXATTRIBPOINTERPROC lcVertexAttribPointer;
 
+PFNGLTEXIMAGE2DMULTISAMPLEPROC lcTexImage2DMultisample;
+
 #endif
 
 static bool lcIsGLExtensionSupported(const GLubyte* Extensions, const char* Name)
@@ -150,14 +153,14 @@ static bool lcIsGLExtensionSupported(const GLubyte* Extensions, const char* Name
 
 static void APIENTRY lcGLDebugCallback(GLenum Source, GLenum Type, GLuint Id, GLenum Severity, GLsizei Length, const GLchar* Message, GLvoid* UserParam)
 {
-  Q_UNUSED(Source);
-  Q_UNUSED(Type);
-  Q_UNUSED(Id);
-  Q_UNUSED(Severity);
-  Q_UNUSED(Length);
-  Q_UNUSED(UserParam);
+	Q_UNUSED(Source);
+	Q_UNUSED(Type);
+	Q_UNUSED(Id);
+	Q_UNUSED(Severity);
+	Q_UNUSED(Length);
+	Q_UNUSED(UserParam);
 
-  qDebug() << Message;
+	qDebug() << Message;
 }
 
 #endif
@@ -172,7 +175,6 @@ void lcInitializeGLExtensions(const QGLContext* Context)
 		sscanf((const char*)Version, "%d.%d", &VersionMajor, &VersionMinor);
 
 #if !defined(QT_NO_DEBUG) && defined(GL_ARB_debug_output)
-
 	if (lcIsGLExtensionSupported(Extensions, "GL_KHR_debug"))
 	{
 		PFNGLDEBUGMESSAGECALLBACKARBPROC DebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKARBPROC)Context->getProcAddress("glDebugMessageCallback");
@@ -183,7 +185,7 @@ void lcInitializeGLExtensions(const QGLContext* Context)
 
         if (DebugMessageCallback)
 		{
-			DebugMessageCallback((GLDEBUGPROCARB)&lcGLDebugCallback, NULL);
+			DebugMessageCallback((GLDEBUGPROCARB)&lcGLDebugCallback, nullptr);
 			glEnable(GL_DEBUG_OUTPUT);
 			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 		}
@@ -276,7 +278,7 @@ void lcInitializeGLExtensions(const QGLContext* Context)
 
 	if (VersionMajor >= 2 && (GLSLMajor > 1 || (GLSLMajor == 1 && GLSLMinor >= 10)))
 	{
- #ifdef LC_LOAD_GLEXTENSIONS
+#ifdef LC_LOAD_GLEXTENSIONS
 		lcAttachShader = (PFNGLATTACHSHADERPROC)Context->getProcAddress("glAttachShader");
 		lcBindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)Context->getProcAddress("glBindAttribLocation");
 		lcCompileShader = (PFNGLCOMPILESHADERPROC)Context->getProcAddress("glCompileShader");
@@ -332,4 +334,21 @@ void lcInitializeGLExtensions(const QGLContext* Context)
 #endif
 		gSupportsShaderObjects = true;
 	}
+
+#ifndef LC_OPENGLES
+	if (VersionMajor > 3 || (VersionMajor == 3 && VersionMinor >= 2))
+	{
+#ifdef LC_LOAD_GLEXTENSIONS
+		lcTexImage2DMultisample = (PFNGLTEXIMAGE2DMULTISAMPLEPROC)Context->getProcAddress("glTexImage2DMultisample");
+#endif
+
+		gSupportsTexImage2DMultisample = true;
+	}
+#endif
+
+#ifdef LC_OPENGLES
+	gSupportsVertexBufferObject = true;
+	gSupportsFramebufferObjectARB = true;
+	gSupportsShaderObjects = true;
+#endif
 }

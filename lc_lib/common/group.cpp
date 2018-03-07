@@ -5,7 +5,7 @@
 
 lcGroup::lcGroup()
 {
-	mGroup = NULL;
+	mGroup = nullptr;
 }
 
 lcGroup::~lcGroup()
@@ -14,7 +14,7 @@ lcGroup::~lcGroup()
 
 void lcGroup::FileLoad(lcFile* File)
 {
-	lcint32 GroupIndex;
+	qint32 GroupIndex;
 	char Name[LC_MAX_GROUP_NAME + 1];
 
 	File->ReadU8();
@@ -22,7 +22,7 @@ void lcGroup::FileLoad(lcFile* File)
 	mName = QString::fromUtf8(Name);
 	File->ReadVector3();
 	File->ReadS32(&GroupIndex, 1);
-	mGroup = (lcGroup*)(long)GroupIndex;
+	mGroup = (lcGroup*)(quintptr)GroupIndex;
 }
 
 void lcGroup::CreateName(const lcArray<lcGroup*>& Groups)
@@ -48,17 +48,17 @@ void lcGroup::CreateName(const lcArray<lcGroup*>& Groups)
 	int Length = Prefix.length();
 
 	for (int GroupIdx = 0; GroupIdx < Groups.GetSize(); GroupIdx++)
-	  {
-		  const QString& Name = Groups[GroupIdx]->mName;
+	{
+		const QString& Name = Groups[GroupIdx]->mName;
 
-                  if (Name.startsWith(Prefix))
-                  {
-                          bool Ok = false;
-                          int GroupNumber = Name.mid(Length).toInt(&Ok);
-                          if (Ok && GroupNumber > Max)
-                                  Max = GroupNumber;
-                  }
-          }
+		if (Name.startsWith(Prefix))
+		{
+			bool Ok = false;
+			int GroupNumber = Name.mid(Length).toInt(&Ok);
+			if (Ok && GroupNumber > Max)
+				Max = GroupNumber;
+		}
+	}
 
-          mName = Prefix + QString::number(Max + 1);
+	mName = Prefix + QString::number(Max + 1);
 }

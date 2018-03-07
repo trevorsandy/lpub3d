@@ -1,10 +1,7 @@
-#ifndef _LIGHT_H_
-#define _LIGHT_H_
+#pragma once
 
 #include "object.h"
 #include "lc_math.h"
-
-class View;
 
 #define LC_LIGHT_HIDDEN            0x0001
 #define LC_LIGHT_DISABLED          0x0002
@@ -46,12 +43,12 @@ public:
 		return (mState & LC_LIGHT_DIRECTIONAL) != 0;
 	}
 
-	virtual bool IsSelected() const
+	virtual bool IsSelected() const override
 	{
 		return (mState & LC_LIGHT_SELECTION_MASK) != 0;
 	}
 
-	virtual bool IsSelected(lcuint32 Section) const
+	virtual bool IsSelected(quint32 Section) const override
 	{
 		switch (Section)
 		{
@@ -66,7 +63,7 @@ public:
 		return false;
 	}
 
-	virtual void SetSelected(bool Selected)
+	virtual void SetSelected(bool Selected) override
 	{
 		if (Selected)
 		{
@@ -79,7 +76,7 @@ public:
 			mState &= ~(LC_LIGHT_SELECTION_MASK | LC_LIGHT_FOCUS_MASK);
 	}
 
-	virtual void SetSelected(lcuint32 Section, bool Selected)
+	virtual void SetSelected(quint32 Section, bool Selected) override
 	{
 		switch (Section)
 		{
@@ -102,12 +99,12 @@ public:
 		}
 	}
 
-	virtual bool IsFocused() const
+	virtual bool IsFocused() const override
 	{
 		return (mState & LC_LIGHT_FOCUS_MASK) != 0;
 	}
 
-	virtual bool IsFocused(lcuint32 Section) const
+	virtual bool IsFocused(quint32 Section) const override
 	{
 		switch (Section)
 		{
@@ -122,7 +119,7 @@ public:
 		return false;
 	}
 
-	virtual void SetFocused(lcuint32 Section, bool Focused)
+	virtual void SetFocused(quint32 Section, bool Focused) override
 	{
 		switch (Section)
 		{
@@ -145,7 +142,7 @@ public:
 		}
 	}
 
-	virtual lcuint32 GetFocusSection() const
+	virtual quint32 GetFocusSection() const override
 	{
 		if (mState & LC_LIGHT_POSITION_FOCUSED)
 			return LC_LIGHT_SECTION_POSITION;
@@ -153,10 +150,15 @@ public:
 		if (!IsPointLight() && (mState & LC_LIGHT_TARGET_FOCUSED))
 			return LC_LIGHT_SECTION_TARGET;
 
-		return ~0;
+		return ~0U;
 	}
 
-	virtual lcVector3 GetSectionPosition(lcuint32 Section) const
+	virtual quint32 GetAllowedTransforms() const override
+	{
+		return LC_OBJECT_TRANSFORM_MOVE_X | LC_OBJECT_TRANSFORM_MOVE_Y | LC_OBJECT_TRANSFORM_MOVE_Z;
+	}
+
+	virtual lcVector3 GetSectionPosition(quint32 Section) const override
 	{
 		switch (Section)
 		{
@@ -173,9 +175,10 @@ public:
 	void SaveLDraw(QTextStream& Stream) const;
 
 public:
-	virtual void RayTest(lcObjectRayTest& ObjectRayTest) const;
-	virtual void BoxTest(lcObjectBoxTest& ObjectBoxTest) const;
-	virtual void DrawInterface(lcContext* Context) const;
+	virtual void RayTest(lcObjectRayTest& ObjectRayTest) const override;
+	virtual void BoxTest(lcObjectBoxTest& ObjectBoxTest) const override;
+	virtual void DrawInterface(lcContext* Context) const override;
+	virtual void RemoveKeyFrames() override;
 
 	void InsertTime(lcStep Start, lcStep Time);
 	void RemoveTime(lcStep Start, lcStep Time);
@@ -183,12 +186,12 @@ public:
 	bool IsVisible() const
 	{ return (mState & LC_LIGHT_HIDDEN) == 0; }
 
-	const char* GetName() const
+	const char* GetName() const override
 	{ return m_strName; }
 
-	void CompareBoundingBox(float box[6]);
+	void CompareBoundingBox(lcVector3& Min, lcVector3& Max);
 	void UpdatePosition(lcStep Step);
-	void Move(lcStep Step, bool AddKey, const lcVector3& Distance);
+	void MoveSelected(lcStep Step, bool AddKey, const lcVector3& Distance);
 	bool Setup(int LightIndex);
 	void CreateName(const lcArray<lcLight*>& Lights);
 
@@ -204,22 +207,21 @@ public:
 	float mSpotExponent;
 
 protected:
-	lcArray<lcObjectKey<lcVector3> > mPositionKeys;
-	lcArray<lcObjectKey<lcVector3> > mTargetPositionKeys;
-	lcArray<lcObjectKey<lcVector4> > mAmbientColorKeys;
-	lcArray<lcObjectKey<lcVector4> > mDiffuseColorKeys;
-	lcArray<lcObjectKey<lcVector4> > mSpecularColorKeys;
-	lcArray<lcObjectKey<lcVector3> > mAttenuationKeys;
-	lcArray<lcObjectKey<float> > mSpotCutoffKeys;
-	lcArray<lcObjectKey<float> > mSpotExponentKeys;
+	lcArray<lcObjectKey<lcVector3>> mPositionKeys;
+	lcArray<lcObjectKey<lcVector3>> mTargetPositionKeys;
+	lcArray<lcObjectKey<lcVector4>> mAmbientColorKeys;
+	lcArray<lcObjectKey<lcVector4>> mDiffuseColorKeys;
+	lcArray<lcObjectKey<lcVector4>> mSpecularColorKeys;
+	lcArray<lcObjectKey<lcVector3>> mAttenuationKeys;
+	lcArray<lcObjectKey<float>> mSpotCutoffKeys;
+	lcArray<lcObjectKey<float>> mSpotExponentKeys;
 
 	void Initialize(const lcVector3& Position, const lcVector3& TargetPosition);
 
 	void DrawPointLight(lcContext* Context) const;
 	void DrawSpotLight(lcContext* Context) const;
 
-	lcuint32 mState;
+	quint32 mState;
 	char m_strName[81];
 };
 
-#endif // _LIGHT_H_

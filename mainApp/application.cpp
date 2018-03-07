@@ -26,6 +26,9 @@
 
 #ifdef Q_OS_WIN
 
+#pragma warning(push)
+#pragma warning(disable : 4091)
+
 #include <dbghelp.h>
 #include <direct.h>
 #include <shlobj.h>
@@ -49,10 +52,10 @@ static LONG WINAPI lcSehHandler(PEXCEPTION_POINTERS exceptionPointers)
 
   HMODULE dbgHelp = LoadLibrary(TEXT("dbghelp.dll"));
 
-  if (dbgHelp == NULL)
+  if (dbgHelp == nullptr)
     return EXCEPTION_EXECUTE_HANDLER;
 
-  HANDLE file = CreateFile(minidumpPath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+  HANDLE file = CreateFile(minidumpPath, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 
   if (file == INVALID_HANDLE_VALUE)
     return EXCEPTION_EXECUTE_HANDLER;
@@ -68,7 +71,7 @@ static LONG WINAPI lcSehHandler(PEXCEPTION_POINTERS exceptionPointers)
   mei.ExceptionPointers = exceptionPointers;
   mei.ClientPointers = TRUE;
 
-  BOOL writeDump = miniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), file, MiniDumpNormal, exceptionPointers ? &mei : NULL, NULL, NULL);
+  BOOL writeDump = miniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), file, MiniDumpNormal, exceptionPointers ? &mei : nullptr, nullptr, nullptr);
 
   CloseHandle(file);
   FreeLibrary(dbgHelp);
@@ -76,11 +79,11 @@ static LONG WINAPI lcSehHandler(PEXCEPTION_POINTERS exceptionPointers)
   if (writeDump)
     {
       TCHAR message[_MAX_PATH + 256];
-      lstrcpy(message, TEXT("LPub3D just crashed. Crash information was saved to the file: \n'"));
+      lstrcpy(message, TEXT("LPub3D just crashed. Crash information was saved to the file: '"));
       lstrcat(message, minidumpPath);
-      lstrcat(message, TEXT("'\n Please send it to the developers for debugging."));
+      lstrcat(message, TEXT("' Please send it to the developers for debugging."));
 
-      MessageBox(NULL, message, TEXT("LPub3D"), MB_OK);
+      MessageBox(nullptr, message, TEXT("LPub3D"), MB_OK);
     }
 
   return EXCEPTION_EXECUTE_HANDLER;
@@ -88,11 +91,11 @@ static LONG WINAPI lcSehHandler(PEXCEPTION_POINTERS exceptionPointers)
 
 static void lcSehInit()
 {
-  if (SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA | CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, minidumpPath) == S_OK)
+  if (SHGetFolderPath(nullptr, CSIDL_LOCAL_APPDATA | CSIDL_FLAG_CREATE, nullptr, SHGFP_TYPE_CURRENT, minidumpPath) == S_OK)
     {
       lstrcat(minidumpPath, TEXT("\\LPub3D Software\\LPub3D\\dump\\"));
       _tmkdir(minidumpPath);
-      lstrcat(minidumpPath, TEXT("minidump.dmp"));
+      lstrcat(minidumpPath, TEXT("lpub3ddump.dmp"));
     }
 
   SetUnhandledExceptionFilter(lcSehHandler);
@@ -101,12 +104,14 @@ static void lcSehInit()
 #endif
 
 // Initializes the Application instance as null
-Application* Application::m_instance = NULL;
+Application* Application::m_instance = nullptr;
 
 Application::Application(int &argc, char **argv)
   : m_application(argc, argv)
 {
   m_instance = this;
+  m_console_mode = false;
+  m_print_output = false;
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
   m_application.setAttribute(Qt::AA_UseDesktopOpenGL);
@@ -120,8 +125,6 @@ Application::Application(int &argc, char **argv)
   QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
 
-  connect(this, SIGNAL(splashMsgSig(QString)), this, SLOT(splashMsg(QString)));
-
 }
 
 Application* Application::instance()
@@ -129,8 +132,83 @@ Application* Application::instance()
   return m_instance;
 }
 
-void Application::initialize(int &argc, char **argv)
+QStringList Application::arguments()
 {
+  return m_application.arguments();
+}
+
+bool Application::modeGUI()
+{
+  return ! m_console_mode;
+}
+
+void Application::initialize()
+{
+  // process arguments
+  bool headerPrinted = false;
+  QStringList ListArgs, Arguments = arguments();
+  const int NumArguments = Arguments.size();
+  for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
+    ListArgs << Arguments[ArgIdx];
+  for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
+  {
+    const QString& Param = Arguments[ArgIdx];
+    if (Param[0] == '-' && ! headerPrinted)
+    {
+      m_console_mode = true;
+      printf("%s for %s\n",VER_PRODUCTNAME_STR,VER_COMPILED_FOR);
+      printf("==========================\n");
+      printf("Arguments: %s\n",ListArgs.join(" ").toLatin1().constData());
+      headerPrinted = true;
+    }
+    if (Param == QLatin1String("-v") || Param == QLatin1String("--version"))
+    {
+      m_console_mode = true;
+      m_print_output = true;
+      printf("%s, Version %s, Revision %s, Build %s, ShaHash %s\n",VER_PRODUCTNAME_STR,VER_PRODUCTVERSION_STR,VER_REVISION_STR,VER_BUILD_STR,VER_SHA_HASH_STR);
+      printf("Compiled on " __DATE__ "\n");
+      return;
+    }
+    else if (Param == QLatin1String("-vv") || Param == QLatin1String("--vversion"))
+    {
+      m_console_mode = true;
+      m_print_output = true;
+      printf("3DViewer - by LeoCAD, Version %s, ShaHash %s\n",LC_VERSION_TEXT,LC_VERSION_BUILD);
+      printf("Compiled " __DATE__ "\n");
+      return;
+    }
+    else if (Param == QLatin1String("-?") || Param == QLatin1String("--help"))
+    {
+      m_console_mode = true;
+      m_print_output = true;
+      printf("Usage: lpub3d [options] [file]\n");
+      printf("  [options] can be:\n");
+      printf("  -l, --libpath <path>: Set the Parts Library location to path.\n");
+      printf("  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n");
+      printf("  -w, --width <width>: Set the picture width.\n");
+      printf("  -h, --height <height>: Set the picture height.\n");
+      printf("  -f, --from <time>: Set the first step to save pictures.\n");
+      printf("  -t, --to <time>: Set the last step to save pictures.\n");
+      printf("  -s, --submodel <submodel>: Set the active submodel.\n");
+      printf("  -c, --camera <camera>: Set the active camera.\n");
+      printf("  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
+      printf("  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
+      printf("  --orthographic: Make the view orthographic.\n");
+      printf("  --highlight: Highlight pieces in the steps they appear.\n");
+      printf("  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
+      printf("  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
+      printf("  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
+      printf("  -html, --export-html <folder>: Create an HTML page for the model.\n");
+      printf("  --html-parts-width <width>: Set the HTML part pictures width.\n");
+      printf("  --html-parts-height <height>: Set the HTML part pictures height.\n");
+      printf("  -v, --version: Output LPub3D version information and exit.\n");
+      printf("  -vv, --vversion: Output 3DViewer - by LeoCAD version information and exit.\n");
+      printf("  -?, --help: Display this help message and exit.\n");
+      printf("  \n");
+      return;
+    }
+  }
+
   // initialize directories
   Preferences::lpubPreferences();
 
@@ -142,88 +220,104 @@ void Application::initialize(int &argc, char **argv)
   Logger& logger = Logger::instance();
 
   // set default log options
-  if (Preferences::logging) {
-      if (Preferences::logLevels){
+  if (Preferences::logging)
+  {
+    if (Preferences::logLevels)
+    {
 
-          logger.setLoggingLevels();
-          logger.setDebugLevel( Preferences::debugLevel);
-          logger.setTraceLevel( Preferences::traceLevel);
-          logger.setNoticeLevel(Preferences::noticeLevel);
-          logger.setInfoLevel(  Preferences::infoLevel);
-          logger.setStatusLevel(Preferences::statusLevel);
-          logger.setErrorLevel( Preferences::errorLevel);
-          logger.setFatalLevel( Preferences::fatalLevel);
+      logger.setLoggingLevels();
+      logger.setDebugLevel( Preferences::debugLevel);
+      logger.setTraceLevel( Preferences::traceLevel);
+      logger.setNoticeLevel(Preferences::noticeLevel);
+      logger.setInfoLevel(  Preferences::infoLevel);
+      logger.setStatusLevel(Preferences::statusLevel);
+      logger.setErrorLevel( Preferences::errorLevel);
+      logger.setFatalLevel( Preferences::fatalLevel);
 
-        } else if (Preferences::logLevel){
-
-          bool ok;
-          Level logLevel = logger.fromLevelString(Preferences::loggingLevel,&ok);
-          if (!ok)
-            QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                  QMessageBox::tr("Failed to set log level %1.\n"
-                                                  "Logging is off - level set to OffLevel")
-                                  .arg(Preferences::loggingLevel));
-          logger.setLoggingLevel(logLevel);
-        }
-
-      logger.setIncludeLogLevel(    Preferences::includeLogLevel);
-      logger.setIncludeTimestamp(   Preferences::includeTimestamp);
-      logger.setIncludeLineNumber(  Preferences::includeLineNumber);
-      logger.setIncludeFileName(    Preferences::includeFileName);
-      logger.setIncludeFunctionInfo(Preferences::includeFunction);
-
-      logger.setColorizeFunctionInfo(true);
-      logger.setColorizeOutput(true);
-
-      // Create log destinations
-      DestinationPtr fileDestination(DestinationFactory::MakeFileDestination(
-        Preferences::logPath, EnableLogRotation, MaxSizeBytes(5000000), MaxOldLogCount(5)));
-      DestinationPtr debugDestination(
-            DestinationFactory::MakeDebugOutputDestination());
-
-      // set log destinations on the logger
-      logger.addDestination(debugDestination);
-      logger.addDestination(fileDestination);
-
-      // logging examples
-      bool showLogExamples = false;
-      if (showLogExamples){
-          logStatus() << "Uh-oh! - this level is not displayed in the console only the log";
-          logInfo()   << "LPub3D started";
-          logInfo()   << "Built with Qt" << QT_VERSION_STR << "running on" << qVersion();
-          logTrace()  << "Here's a" << QString("trace") << "message";
-          logDebug()  << "Here's a" << static_cast<int>(QsLogging::DebugLevel) << "message";
-          logNotice() << "Here's a" << QString("Notice") << "message";
-          qDebug()    << "This message won't be picked up by the logger";
-          logError()  << "An error has occurred";
-          qWarning()  << "Neither will this one";
-          logFatal()  << "Fatal error!";
-
-          Level level = logger.loggingLevel();
-          logger.setLoggingLevel(QsLogging::OffLevel);
-          for (int i = 0;i < 10;++i) {
-              logError() << QString::fromUtf8("this message should not be visible");
-          }
-          logger.setLoggingLevel(level);
-      } // end init logging
-
-    } else {
-      logger.setLoggingLevel(OffLevel);
     }
+    else if (Preferences::logLevel)
+    {
+
+      bool ok;
+      Level logLevel = logger.fromLevelString(Preferences::loggingLevel,&ok);
+      if (!ok)
+      {
+        QString Message = QMessageBox::tr("Failed to set log level %1.\n"
+                                          "Logging is off - level set to OffLevel")
+            .arg(Preferences::loggingLevel);
+        if (modeGUI())
+          QMessageBox::critical(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR), Message);
+        else
+          fprintf(stderr, "%s", Message.toLatin1().constData());
+      }
+      logger.setLoggingLevel(logLevel);
+    }
+
+    logger.setIncludeLogLevel(    Preferences::includeLogLevel);
+    logger.setIncludeTimestamp(   Preferences::includeTimestamp);
+    logger.setIncludeLineNumber(  Preferences::includeLineNumber);
+    logger.setIncludeFileName(    Preferences::includeFileName);
+    logger.setIncludeFunctionInfo(Preferences::includeFunction);
+
+    logger.setColorizeFunctionInfo(true);
+    logger.setColorizeOutput(true);
+
+    // Create log destinations
+    DestinationPtr fileDestination(DestinationFactory::MakeFileDestination(
+                                     Preferences::logPath, EnableLogRotation, MaxSizeBytes(5000000), MaxOldLogCount(5)));
+    DestinationPtr debugDestination(
+          DestinationFactory::MakeDebugOutputDestination());
+
+    // set log destinations on the logger
+    logger.addDestination(debugDestination);
+    logger.addDestination(fileDestination);
+
+    // logging examples
+    bool showLogExamples = false;
+    if (showLogExamples)
+    {
+      logStatus() << "Uh-oh! - this level is not displayed in the console only the log";
+      logInfo()   << "LPub3D started";
+      logInfo()   << "Built with Qt" << QT_VERSION_STR << "running on" << qVersion();
+      logTrace()  << "Here's a" << QString("trace") << "message";
+      logDebug()  << "Here's a" << static_cast<int>(QsLogging::DebugLevel) << "message";
+      logNotice() << "Here's a" << QString("Notice") << "message";
+      qDebug()    << "This message won't be picked up by the logger";
+      logError()  << "An error has occurred";
+      qWarning()  << "Neither will this one";
+      logFatal()  << "Fatal error!";
+
+      Level level = logger.loggingLevel();
+      logger.setLoggingLevel(QsLogging::OffLevel);
+      for (int i = 0;i < 10;++i)
+      {
+        logError() << QString::fromUtf8("this message should not be visible");
+      }
+      logger.setLoggingLevel(level);
+    } // end init logging
+
+  } else {
+    logger.setLoggingLevel(OffLevel);
+  }
 
   logInfo() << QString("Initializing application.");
 
   // splash
-  QPixmap pixmap(":/resources/LPub512Splash.png");
-  splash = new QSplashScreen(pixmap);
+  if (modeGUI())
+  {
+    connect(this, SIGNAL(splashMsgSig(QString)), this, SLOT(splashMsg(QString)));
 
-  QFont splashFont;
-  splashFont.setFamily("Arial");
-  splashFont.setPixelSize(16);
-  splashFont.setStretch(130);
+    QPixmap pixmap(":/resources/LPub512Splash.png");
+    splash = new QSplashScreen(pixmap);
 
-  splash->setFont(splashFont);
-  splash->show();
+    QFont splashFont;
+    splashFont.setFamily("Arial");
+    splashFont.setPixelSize(16);
+    splashFont.setStretch(130);
+
+    splash->setFont(splashFont);
+    splash->show();
+  }
 
   emit splashMsgSig("5% - Initializing application...");
 
@@ -240,7 +334,6 @@ void Application::initialize(int &argc, char **argv)
 
   Preferences::fadestepPreferences();
   Preferences::pliPreferences();
-  Preferences::viewerPreferences();
 
   // Resolution
   defaultResolutionType(Preferences::preferCentimeters);
@@ -251,49 +344,68 @@ void Application::initialize(int &argc, char **argv)
   Translator.load(QString("lpub_") + QLocale::system().name().section('_', 0, 0) + ".qm", ":../lc_lib/resources");
   m_application.installTranslator(&Translator);
 
-#if defined(Q_OS_WIN)
-  char libPath[LC_MAXPATH], *ptr;
-  strcpy(libPath, argv[0]);
-  ptr = strrchr(libPath,'\\');
-  if (ptr)
-    *(++ptr) = 0;
+  qRegisterMetaTypeStreamOperators<QList<int> >("QList<int>");
 
+  QList<QPair<QString, bool>> LibraryPaths;
+
+#if defined(Q_OS_WIN)
   lcSehInit();
-#elif defined(Q_OS_MAC)
-  QDir bundlePath = QDir(QCoreApplication::applicationDirPath());
-  bundlePath.cdUp();
-  bundlePath.cdUp();
-  bundlePath = QDir::cleanPath(bundlePath.absolutePath() + "/Contents/lc_lib/Resources/");
-  QByteArray pathArray = bundlePath.absolutePath().toLocal8Bit();
-  const char* libPath = pathArray.data();
-#else
-  const char* libPath = LC_INSTALL_PREFIX "/share/lpub3d/";
+  if (QDir(Preferences::lpub3dPath + "/extras").exists()) { // we have a portable distribution
+    LibraryPaths += qMakePair(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/extras/complete.zip"), true);
+  } else {
+    LibraryPaths += qMakePair(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/data/complete.zip"), true);
+  }
+#endif
+#ifdef Q_OS_LINUX
+  LibraryPaths += qMakePair(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/../share/lpub3d/complete.bin"), true);
+#endif
+
+#ifdef Q_OS_MAC
+  LibraryPaths += qMakePair(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/../../Contents/Resources/complete.bin"), true);
 #endif
 
 #ifdef LC_LDRAW_LIBRARY_PATH
-  const char* LDrawPath = LC_LDRAW_LIBRARY_PATH;
-#else
-  const char* LDrawPath = NULL;
+  LibraryPaths += qMakePair(QString::fromLatin1(LC_LDRAW_LIBRARY_PATH), false);
 #endif
 
+  setlocale(LC_NUMERIC, "C");
+
+  //-- #elif defined(Q_OS_MAC)
+  //--   QDir bundlePath = QDir(QCoreApplication::applicationDirPath());
+  //--   bundlePath.cdUp();
+  //--   bundlePath.cdUp();
+  //--   bundlePath = QDir::cleanPath(bundlePath.absolutePath() + "/Contents/lc_lib/Resources/");
+  //--   QByteArray pathArray = bundlePath.absolutePath().toLocal8Bit();
+  //--   const char* libPath = pathArray.data();
+  //-- #else
+  //--   const char* libPath = LC_INSTALL_PREFIX "/share/lpub3d/";
+  //-- #endif
+
+  //-- #ifdef LC_LDRAW_LIBRARY_PATH
+  //--   const char* LDrawPath = LC_LDRAW_LIBRARY_PATH;
+  //-- #else
+  //--   const char* LDrawPath = nullptr;
+  //-- #endif
+
   /* load sequence
-   * lc_application::LoadDefaults                  (g_App)
-   * Gui::gui                                      (gui)
-   * lc_application::lcInitialize()                (g_App->Initialize)
-   * lcInitialize::LoadPiecesLibrary()             (g_App->Initialize)
-   * LoadPiecesLibrary::ldsearchDirPreferences()   (g_App->Initialize)
-   * LoadPiecesLibrary::ldsearchDirPreferences()   (g_App->Initialize)
-   * lcInitialize::CreateWidgets() [Menus]         (g_App->Initialize)
-   * Gui::guiInitialize()                          (gui->Initialize)
-   * guiInitialize::populateLdgLiteSearchDirs()    (gui->Initialize)
-   * guiInitialize::createMenus    [Menus]         (gui->Initialize)
-   */
+* lc_application::LoadDefaults                  (gApplication)
+* Gui::gui                                      (gui)
+* lc_application::lcInitialize()                (gApplication->Initialize)
+* lcInitialize::LoadPiecesLibrary()             (gApplication->Initialize)
+* LoadPiecesLibrary::ldsearchDirPreferences()   (gApplication->Initialize)
+* LoadPiecesLibrary::ldsearchDirPreferences()   (gApplication->Initialize)
+* lcInitialize::CreateWidgets() [Menus]         (gApplication->Initialize)
+* Gui::guiInitialize()                          (gui->Initialize)
+* guiInitialize::populateLdgLiteSearchDirs()    (gui->Initialize)
+* guiInitialize::createMenus    [Menus]         (gui->Initialize)
+*/
 
   logInfo() << QString("-Initialize: New gui instance created.");
 
   emit splashMsgSig("20% - 3D Viewer window loading...");
 
-  g_App = new lcApplication();
+  gApplication = new lcApplication();
+  //gApplication = new lcApplication(argc, argv);
 
   emit splashMsgSig(QString("30% - %1 window loading...").arg(VER_PRODUCTNAME_STR));
 
@@ -303,56 +415,60 @@ void Application::initialize(int &argc, char **argv)
 
   emit splashMsgSig(QString("40% - 3D Viewer initialization..."));
 
-  if (g_App->Initialize(argc, argv,libPath, LDrawPath)) {
-
-      gui->initialize();
-      gMainWindow->SetColorIndex(lcGetColorIndex(4));
-      gMainWindow->UpdateRecentFiles();
-
-    } else {
-
-      logError() << QString("Unable to initialize 3D Viewer.");
-      throw InitException{};
-
-    }
+  if (gApplication->Initialize(LibraryPaths, gui)) {
+    gui->initialize();
+  } else {
+    logError() << QString("Unable to initialize 3D Viewer.");
+    throw InitException{};
+  }
 }
 
-void Application::main()
+void Application::mainApp()
 {
+  if (m_print_output)
+    return;
 
   emit splashMsgSig(QString("100% - %1 loaded.").arg(VER_PRODUCTNAME_STR));
-  Preferences::setLPub3DLoaded();
 
-  splash->finish(gui);
+  Preferences::setLPub3DLoaded();
 
   GetAvailableVersions();
 
-  gui->show();
+  if (modeGUI())
+  {
+    splash->finish(gui);
+
+    gui->show();
 
 #if !LC_DISABLE_UPDATE_CHECK
-  DoInitialUpdateCheck();
+    DoInitialUpdateCheck();
 #endif
+  }
 
- if (g_App->mLoadFile != NULL){
-     QString loadFile = QString("%1").arg(g_App->mLoadFile);
-     emit gui->loadFileSig(loadFile);
- }
+  // load file passed in on command line.
+  if (!gApplication->mLoadFile.isEmpty())
+  {
+    emit gui->loadFileSig(gApplication->mLoadFile);
+  }
 
 }
 
 int Application::run()
 {
-  int returnCode = EXIT_FAILURE;
+  int ExecReturn = EXIT_FAILURE;
   try
   {
     // Call the main function
     logInfo() << QString("Run: Starting application...");
 
-    main();
+    mainApp();
 
     logInfo() << QString("Run: Application started.");
 
-    returnCode = m_application.exec();
+    if (modeGUI())
+      ExecReturn = m_application.exec();
+    else
+      ExecReturn = EXIT_SUCCESS;
   }
   catch(const std::exception& ex)
   {
@@ -363,18 +479,21 @@ int Application::run()
     logError() << QString("Run: An unhandled exception has been thrown.");
   }
 
-  delete gMainWindow;
-  gMainWindow = NULL;
+  if (!m_print_output)
+  {
+    delete gMainWindow;
+    gMainWindow = nullptr;
 
-  delete g_App;
-  g_App = NULL;
+    delete gApplication;
+    gApplication = nullptr;
 
-  delete gui;
-  gui = NULL;
+    delete gui;
+    gui = nullptr;
+  }
 
-  logInfo() << QString("Run: Application terminated with return code %1.").arg(returnCode);
+  logInfo() << QString("Run: Application terminated with return code %1.").arg(ExecReturn);
 
-  return returnCode;
+  return ExecReturn;
 }
 
 // Implements the main function here.

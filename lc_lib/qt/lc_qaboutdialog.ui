@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>About LeoCAD</string>
+   <string>About 3DViewer</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -24,7 +24,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="../../mainApp/lpub3d.qrc">:/resources/icon64.png</pixmap>
+          <pixmap resource="../../mainApp/lpub3d.qrc">:/resources/leocad.png</pixmap>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -46,7 +46,7 @@
          <item>
           <widget class="QLabel" name="label_4">
            <property name="text">
-            <string>LeoCAD is a free application that can be used to create virtual LEGO models.</string>
+            <string>LeoCAD is a free application for creating virtual LEGO models.</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>

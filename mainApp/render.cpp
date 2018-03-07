@@ -1184,7 +1184,7 @@ int Render::renderLDViewSCallPli(
 
 //**3D
 // create 3D Viewer version of the csi file
-// basically integrating subfile content into the csifile because LeoCAD is not smart.
+// basically integrating subfile content into the csifile because 3DViewer is not smart.
 
 int Render::render3DCsi(
   const QString     &nameKeys,

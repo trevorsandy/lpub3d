@@ -1,23 +1,9 @@
 #include "lc_global.h"
 #include <stdio.h>
-#include <memory.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include "lc_file.h"
-
-// =============================================================================
-// lcFile
-
-lcFile::lcFile()
-{
-}
-
-lcFile::~lcFile()
-{
-}
-
-// =============================================================================
-// lcMemFile
 
 lcMemFile::lcMemFile()
 {
@@ -25,7 +11,7 @@ lcMemFile::lcMemFile()
 	mPosition = 0;
 	mBufferSize = 0;
 	mFileSize = 0;
-	mBuffer = NULL;
+	mBuffer = nullptr;
 }
 
 lcMemFile::~lcMemFile()
@@ -64,10 +50,6 @@ size_t lcMemFile::GetLength() const
 	return mFileSize;
 }
 
-void lcMemFile::Flush()
-{
-}
-
 void lcMemFile::Close()
 {
 	if (!mBuffer)
@@ -77,7 +59,7 @@ void lcMemFile::Close()
 	mBufferSize = 0;
 	mFileSize = 0;
 	free(mBuffer);
-	mBuffer = NULL;
+	mBuffer = nullptr;
 }
 
 size_t lcMemFile::ReadBuffer(void* Buffer, size_t Bytes)
@@ -123,8 +105,15 @@ void lcMemFile::GrowFile(size_t NewLength)
 
 	NewLength = ((NewLength + mGrowBytes - 1) / mGrowBytes) * mGrowBytes;
 
-	if (mBuffer != NULL)
-		mBuffer = (unsigned char*)realloc(mBuffer, NewLength);
+	if (mBuffer)
+	{
+		unsigned char* NewBuffer = (unsigned char*)realloc(mBuffer, NewLength);
+
+		if (!NewBuffer)
+			return;
+
+		mBuffer = NewBuffer;
+	}
 	else
 		mBuffer = (unsigned char*)malloc(NewLength);
 
@@ -137,10 +126,10 @@ char* lcMemFile::ReadLine(char* Buffer, size_t BufferSize)
 	unsigned char ch;
 
 	if (BufferSize == 0)
-		return NULL;
+		return nullptr;
 
 	if (mPosition >= mFileSize)
-		return NULL;
+		return nullptr;
 
 	while ((--BufferSize))
 	{
@@ -157,123 +146,4 @@ char* lcMemFile::ReadLine(char* Buffer, size_t BufferSize)
 
 	Buffer[BytesRead] = 0;
 	return Buffer;
-}
-
-void lcMemFile::CopyFrom(lcFile& Source)
-{
-	size_t Length = Source.GetLength();
-
-	SetLength(Length);
-	Seek(0, SEEK_SET);
-
-	Source.Seek(0, SEEK_SET);
-	Source.ReadBuffer(mBuffer, Length);
-}
-
-void lcMemFile::CopyFrom(lcMemFile& Source)
-{
-	size_t Length = Source.GetLength();
-
-	SetLength(Length);
-	Seek(0, SEEK_SET);
-
-	Source.Seek(0, SEEK_SET);
-	Source.ReadBuffer(mBuffer, Length);
-}
-
-// =============================================================================
-// lcDiskFile
-
-lcDiskFile::lcDiskFile()
-{
-	mFile = NULL;
-}
-
-lcDiskFile::~lcDiskFile()
-{
-	Close();
-}
-
-long lcDiskFile::GetPosition() const
-{
-	return ftell(mFile);
-}
-
-void lcDiskFile::Seek(long Offset, int From)
-{
-	fseek(mFile, Offset, From);
-}
-
-void lcDiskFile::SetLength(size_t NewLength)
-{
-	fseek(mFile, (long)NewLength, SEEK_SET);
-}
-
-size_t lcDiskFile::GetLength() const
-{
-	long Length, Current;
-
-	Current = ftell(mFile);
-	fseek(mFile, 0, SEEK_END);
-	Length = ftell(mFile);
-	fseek(mFile, Current, SEEK_SET);
-
-	return Length;
-}
-
-void lcDiskFile::Flush()
-{
-	if (mFile == NULL)
-		return;
-
-	fflush(mFile);
-}
-
-void lcDiskFile::Close()
-{
-	if (mFile == NULL)
-		return;
-
-	fclose(mFile);
-	mFile = NULL;
-}
-
-size_t lcDiskFile::ReadBuffer(void* pBuf, size_t Bytes)
-{
-	return fread(pBuf, 1, Bytes, mFile);
-}
-
-size_t lcDiskFile::WriteBuffer(const void* pBuf, size_t Bytes)
-{
-	return fwrite(pBuf, 1, Bytes, mFile);
-}
-
-bool lcDiskFile::Open(const QString& FileName, const char* Mode)
-{
-	return Open(FileName.toLatin1().constData(), Mode); // todo: qstring
-}
-
-bool lcDiskFile::Open(const char* FileName, const char* Mode)
-{
-	if (*FileName == 0)
-		return false;
-
-	Close();
-
-	mFile = fopen(FileName, Mode);
-
-	return (mFile != NULL);
-}
-
-char* lcDiskFile::ReadLine(char* Buffer, size_t BufferSize)
-{
-	return fgets(Buffer, (int)BufferSize, mFile);
-}
-
-void lcDiskFile::CopyFrom(lcMemFile& Source)
-{
-	size_t Length = Source.GetLength();
-
-	Seek(0, SEEK_SET);
-	WriteBuffer(Source.mBuffer, Length);
 }

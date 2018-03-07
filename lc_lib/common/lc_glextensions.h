@@ -1,5 +1,4 @@
-#ifndef _LC_GLEXTENSIONS_H_
-#define _LC_GLEXTENSIONS_H_
+#pragma once
 
 void lcInitializeGLExtensions(const QGLContext* Context);
 
@@ -7,11 +6,12 @@ extern bool gSupportsShaderObjects;
 extern bool gSupportsVertexBufferObject;
 extern bool gSupportsFramebufferObjectARB;
 extern bool gSupportsFramebufferObjectEXT;
+extern bool gSupportsTexImage2DMultisample;
 extern bool gSupportsAnisotropic;
 extern GLfloat gMaxAnisotropy;
 
-#ifndef Q_OS_MAC
-  #define LC_LOAD_GLEXTENSIONS
+#if !defined(Q_OS_MAC) && !defined(QT_OPENGL_ES)
+#define LC_LOAD_GLEXTENSIONS
 #endif
 
 #ifdef LC_LOAD_GLEXTENSIONS
@@ -120,6 +120,8 @@ extern PFNGLUNIFORMMATRIX4FVPROC lcUniformMatrix4fv;
 extern PFNGLVALIDATEPROGRAMPROC lcValidateProgram;
 extern PFNGLVERTEXATTRIBPOINTERPROC lcVertexAttribPointer;
 
+extern PFNGLTEXIMAGE2DMULTISAMPLEPROC lcTexImage2DMultisample;
+
 #define glBindBuffer lcBindBufferARB
 #define glDeleteBuffers lcDeleteBuffersARB
 #define glGenBuffers lcGenBuffersARB
@@ -224,6 +226,6 @@ extern PFNGLVERTEXATTRIBPOINTERPROC lcVertexAttribPointer;
 #define glValidateProgram lcValidateProgram
 #define glVertexAttribPointer lcVertexAttribPointer
 
-#endif
+#define glTexImage2DMultisample lcTexImage2DMultisample
 
 #endif

@@ -3,21 +3,18 @@
 #include "ui_lc_qselectdialog.h"
 #include "lc_application.h"
 #include "project.h"
+#include "lc_model.h"
 #include "piece.h"
 #include "camera.h"
 #include "light.h"
 #include "group.h"
-#include "lc_basewindow.h"
 
-lcQSelectDialog::lcQSelectDialog(QWidget *parent, void *data) :
-	QDialog(parent),
-	ui(new Ui::lcQSelectDialog)
+lcQSelectDialog::lcQSelectDialog(QWidget* Parent)
+	: QDialog(Parent), ui(new Ui::lcQSelectDialog)
 {
 	ui->setupUi(this);
 
-	options = (lcSelectDialogOptions*)data;
-
-	AddChildren(ui->treeWidget->invisibleRootItem(), NULL);
+	AddChildren(ui->treeWidget->invisibleRootItem(), nullptr);
 	ui->treeWidget->expandAll();
 
 	connect(ui->treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(itemChanged(QTreeWidgetItem*, int)));
@@ -30,7 +27,7 @@ lcQSelectDialog::~lcQSelectDialog()
 
 void lcQSelectDialog::accept()
 {
-	options->Objects.RemoveAll();
+	mObjects.RemoveAll();
 
 	QList<QTreeWidgetItem*> Items;
 	Items.append(ui->treeWidget->invisibleRootItem());
@@ -45,7 +42,7 @@ void lcQSelectDialog::accept()
 			if (Item->checkState(0) == Qt::Checked)
 			{
 				lcObject* Object = (lcObject*)Item->data(0, IndexRole).value<uintptr_t>();
-				options->Objects.Add(Object);
+				mObjects.Add(Object);
 			}
 		}
 		else
@@ -132,6 +129,8 @@ void lcQSelectDialog::on_selectInvert_clicked()
 
 void lcQSelectDialog::itemChanged(QTreeWidgetItem *item, int column)
 {
+	Q_UNUSED(column);
+
 	QTreeWidgetItem* ParentItem = item->parent();
 
 	if (!ParentItem)

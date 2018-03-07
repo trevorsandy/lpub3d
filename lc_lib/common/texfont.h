@@ -1,5 +1,4 @@
-#ifndef _TEXFONT_H_
-#define _TEXFONT_H_
+#pragma once
 
 class TexFont
 {
@@ -12,16 +11,16 @@ public:
 		return mTexture != 0;
 	}
 
-	void MakeCurrent()
+	GLuint GetTexture() const
 	{
-		glBindTexture(GL_TEXTURE_2D, mTexture);
+		return mTexture;
 	}
 
-	bool Load();
+	bool Load(lcContext* Context);
 	void Release();
 
 	void PrintText(lcContext* Context, float Left, float Top, float Z, const char* Text) const;
-	void GetGlyphQuad(float Left, float Top, float Z, int Glyph, float* Buffer) const;
+	void GetGlyphTriangles(float Left, float Top, float Z, int Glyph, float* Buffer) const;
 	void GetStringDimensions(int* cx, int* cy, const char* Text) const;
 
 protected:
@@ -40,4 +39,3 @@ protected:
 
 extern TexFont gTexFont;
 
-#endif // _TEXFONT_H_

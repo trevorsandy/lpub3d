@@ -40,9 +40,7 @@ extern Gui *gui;
 #define FILE_LDRAW_UNOFFICIAL_ARCHIVE     "ldrawunf.zip"
 #define FILE_LPUB3D_UNOFFICIAL_ARCHIVE    "lpub3dldrawunf.zip"
 
-
 #define FILE_LDRAW_LDCONFIG               "ldconfig.ldr"
 #define DURAT_LGEO_STL_LIB_INFO           "Durat's LGEO Stl library is available"
-
 
 #endif

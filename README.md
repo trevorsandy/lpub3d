@@ -68,7 +68,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
  - Automated build and deploy from Cloud CI Service: [Travis-CI][travis-url], [AppVeyor][appveyor-url] and [Open Build Service][obs-url]
  - [Docker][dockerinstall] container builds using [Docker Compose][dockercomposefile] available for [Arch][dockerarch], [Xenial][dockerxenial] and [Fedora 25][dockerfedora] Linux distros
 
- Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2015 Leonardo Zide and additional third party components. See [Credits][credits] for full details on contributing content.
+ Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2018 Leonardo Zide and additional third party components. See [Credits][credits] for full details on contributing content.
 
 [lpub3d-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d/master/mainApp/images/lpub3d128.png
 [changelog]:           https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/README.txt
@@ -141,9 +141,9 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [univention-icon]:     https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/univention.png
 [windows-icon]:        https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/windows.png
 
-[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.1.785_20180302.exe
-[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.1.785_20180302-macos.dmg
-[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.1.785_20180302-x86_64.AppImage
+[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.1.786_20180307.exe
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.1.786_20180307-macos.dmg
+[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.1.0/LPub3D-2.1.0.1.786_20180307-x86_64.AppImage
 
 [arch-url]:            https://download.opensuse.org/repositories/home:/trevorsandy/Arch_Extra/
 [centos-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/CentOS_7/

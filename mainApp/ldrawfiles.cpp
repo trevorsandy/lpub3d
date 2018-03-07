@@ -1005,12 +1005,12 @@ void LDrawFile::countParts(const QString &fileName){
                   countParts(tokens[14]);
                 } else if (! ExcludedParts::hasExcludedPart(tokens[14])){
                   QFileInfo info(tokens[14]);
-                  PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.baseName().toUpper().toLatin1().constData(), NULL, false);
+                  PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
                   if (pieceInfo && pieceInfo->IsPartType()) {
                       _pieces++; sfCount++;
                       //logTrace() << QString(" Part Line: [%2] %3 ItemNo %1").arg(_pieces).arg(fileName).arg(line);
                       logStatus() << QString("ItemNo %1 [%2]").arg(_pieces).arg(tokens[14]);
-                    } else if (lcGetPiecesLibrary()->IsPrimitive(info.baseName().toUpper().toLatin1().constData())) {
+                    } else if (lcGetPiecesLibrary()->IsPrimitive(info.fileName().toUpper().toLatin1().constData())) {
                       logNotice() << QString("Item [%1] is a primitive type").arg(tokens[14]);
                     } else {
                       logNotice() << QString("Item [%1] not found in LPub3D archives. %2 %3")

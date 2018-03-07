@@ -1,10 +1,9 @@
-#ifndef _OBJECT_H_
-#define _OBJECT_H_
+#pragma once
 
 #include "lc_math.h"
 #include "lc_array.h"
 
-typedef lcuint32 lcStep;
+typedef quint32 lcStep;
 #define LC_STEP_MAX 0xffffffff
 
 enum lcObjectType
@@ -24,13 +23,14 @@ struct lcObjectKey
 struct lcObjectSection
 {
 	lcObject* Object;
-	lcuint32 Section;
+	quint32 Section;
 };
 
 struct lcObjectRayTest
 {
 	lcCamera* ViewCamera;
 	bool PiecesOnly;
+	bool IgnoreSelected;
 	lcVector3 Start;
 	lcVector3 End;
 	float Distance;
@@ -44,23 +44,15 @@ struct lcObjectBoxTest
 	lcArray<lcObject*> Objects;
 };
 
-enum lcObjectPropertyType
-{
-	LC_PIECE_PROPERTY_POSITION,
-	LC_PIECE_PROPERTY_ROTATION,
-	LC_PIECE_PROPERTY_SHOW,
-	LC_PIECE_PROPERTY_HIDE,
-	LC_PIECE_PROPERTY_COLOR,
-	LC_PIECE_PROPERTY_ID,
-	LC_CAMERA_PROPERTY_POSITION,
-	LC_CAMERA_PROPERTY_TARGET,
-	LC_CAMERA_PROPERTY_UPVECTOR,
-	LC_CAMERA_PROPERTY_ORTHO,
-	LC_CAMERA_PROPERTY_FOV,
-	LC_CAMERA_PROPERTY_NEAR,
-	LC_CAMERA_PROPERTY_FAR,
-	LC_CAMERA_PROPERTY_NAME
-};
+#define LC_OBJECT_TRANSFORM_MOVE_X   0x001
+#define LC_OBJECT_TRANSFORM_MOVE_Y   0x002
+#define LC_OBJECT_TRANSFORM_MOVE_Z   0x004
+#define LC_OBJECT_TRANSFORM_ROTATE_X 0x010
+#define LC_OBJECT_TRANSFORM_ROTATE_Y 0x020
+#define LC_OBJECT_TRANSFORM_ROTATE_Z 0x040
+#define LC_OBJECT_TRANSFORM_SCALE_X  0x100
+#define LC_OBJECT_TRANSFORM_SCALE_Y  0x200
+#define LC_OBJECT_TRANSFORM_SCALE_Z  0x400
 
 class lcObject
 {
@@ -90,29 +82,30 @@ public:
 	}
 
 	virtual bool IsSelected() const = 0;
-	virtual bool IsSelected(lcuint32 Section) const = 0;
+	virtual bool IsSelected(quint32 Section) const = 0;
 	virtual void SetSelected(bool Selected) = 0;
-	virtual void SetSelected(lcuint32 Section, bool Selected) = 0;
+	virtual void SetSelected(quint32 Section, bool Selected) = 0;
 	virtual bool IsFocused() const = 0;
-	virtual bool IsFocused(lcuint32 Section) const = 0;
-	virtual void SetFocused(lcuint32 Section, bool Focused) = 0;
-	virtual lcuint32 GetFocusSection() const = 0;
+	virtual bool IsFocused(quint32 Section) const = 0;
+	virtual void SetFocused(quint32 Section, bool Focused) = 0;
+	virtual quint32 GetFocusSection() const = 0;
 
-	virtual lcVector3 GetSectionPosition(lcuint32 Section) const = 0;
-	virtual void Move(lcStep Step, bool AddKey, const lcVector3& Distance) = 0;
+	virtual quint32 GetAllowedTransforms() const = 0;
+	virtual lcVector3 GetSectionPosition(quint32 Section) const = 0;
 	virtual void RayTest(lcObjectRayTest& ObjectRayTest) const = 0;
 	virtual void BoxTest(lcObjectBoxTest& ObjectBoxTest) const = 0;
 	virtual void DrawInterface(lcContext* Context) const = 0;
+	virtual void RemoveKeyFrames() = 0;
 	virtual const char* GetName() const = 0;
 
 protected:
 	template<typename T>
-	void SaveKeysLDraw(QTextStream& Stream, const lcArray<lcObjectKey<T> >& Keys, const char* KeyName) const
+	void SaveKeysLDraw(QTextStream& Stream, const lcArray<lcObjectKey<T>>& Keys, const char* KeyName) const
 	{
 		const int Count = sizeof(T) / sizeof(float);
 		for (int KeyIdx = 0; KeyIdx < Keys.GetSize(); KeyIdx++)
 		{
-			lcObjectKey<T>& Key = Keys[KeyIdx];
+			const lcObjectKey<T>& Key = Keys[KeyIdx];
 			Stream << QLatin1String("0 !LEOCAD ") << KeyName << Key.Step << ' ';
 			for (int ValueIdx = 0; ValueIdx < Count; ValueIdx++)
 				Stream << ((float*)&Key.Value)[ValueIdx] << ' ';
@@ -121,7 +114,7 @@ protected:
 	}
 
 	template<typename T>
-	void LoadKeysLDraw(QTextStream& Stream, lcArray<lcObjectKey<T> >& Keys)
+	void LoadKeysLDraw(QTextStream& Stream, lcArray<lcObjectKey<T>>& Keys)
 	{
 		QString Token;
 		Stream >> Token;
@@ -137,9 +130,9 @@ protected:
 	}
 
 	template<typename T>
-	const T& CalculateKey(const lcArray<lcObjectKey<T> >& Keys, lcStep Step)
+	const T& CalculateKey(const lcArray<lcObjectKey<T>>& Keys, lcStep Step)
 	{
-		lcObjectKey<T>* PreviousKey = &Keys[0];
+		const lcObjectKey<T>* PreviousKey = &Keys[0];
 
 		for (int KeyIdx = 0; KeyIdx < Keys.GetSize(); KeyIdx++)
 		{
@@ -153,7 +146,7 @@ protected:
 	}
 
 	template<typename T>
-	void ChangeKey(lcArray<lcObjectKey<T> >& Keys, const T& Value, lcStep Step, bool AddKey)
+	void ChangeKey(lcArray<lcObjectKey<T>>& Keys, const T& Value, lcStep Step, bool AddKey)
 	{
 		lcObjectKey<T>* Key;
 
@@ -199,7 +192,7 @@ protected:
 	}
 
 	template<typename T>
-	void InsertTime(lcArray<lcObjectKey<T> >& Keys, lcStep Start, lcStep Time)
+	void InsertTime(lcArray<lcObjectKey<T>>& Keys, lcStep Start, lcStep Time)
 	{
 		bool EndKey = false;
 
@@ -228,7 +221,7 @@ protected:
 	}
 
 	template<typename T>
-	void RemoveTime(lcArray<lcObjectKey<T> >& Keys, lcStep Start, lcStep Time)
+	void RemoveTime(lcArray<lcObjectKey<T>>& Keys, lcStep Start, lcStep Time)
 	{
 		for (int KeyIdx = 0; KeyIdx < Keys.GetSize(); KeyIdx++)
 		{
@@ -252,4 +245,3 @@ private:
 	lcObjectType mObjectType;
 };
 
-#endif

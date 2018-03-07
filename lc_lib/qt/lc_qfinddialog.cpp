@@ -1,9 +1,11 @@
+#include "lc_global.h"
 #include "lc_qfinddialog.h"
 #include "ui_lc_qfinddialog.h"
 #include "lc_mainwindow.h"
-#include "lc_library.h"
-#include "lc_application.h"
 #include "pieceinf.h"
+#include "project.h"
+#include "lc_colors.h"
+#include "lc_model.h"
 
 lcQFindDialog::lcQFindDialog(QWidget *parent, void *data) :
     QDialog(parent),
@@ -15,9 +17,11 @@ lcQFindDialog::lcQFindDialog(QWidget *parent, void *data) :
 	parts->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
 	parts->setMinimumContentsLength(1);
 
-	lcPiecesLibrary* library = lcGetPiecesLibrary();
-	for (int partIdx = 0; partIdx < library->mPieces.GetSize(); partIdx++)
-		parts->addItem(library->mPieces[partIdx]->m_strDescription, qVariantFromValue((void*)library->mPieces[partIdx]));
+	lcPartsList PartsList;
+	lcGetActiveModel()->GetPartsList(gDefaultColor, false, PartsList);
+
+	for (const auto& PartIt : PartsList)
+		parts->addItem(PartIt.first->m_strDescription, qVariantFromValue((void*)PartIt.first));
 	parts->model()->sort(0);
 
 	options = (lcSearchOptions*)data;

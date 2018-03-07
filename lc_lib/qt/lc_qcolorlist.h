@@ -1,12 +1,6 @@
-#ifndef _LC_QCOLORLIST_H_
-#define _LC_QCOLORLIST_H_
+#pragma once
 
-#include "lc_global.h"
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-#include <QtWidgets/QWidget>
-#else
 #include <QWidget>
-#endif
 #include "lc_colors.h"
 
 class lcQColorList : public QWidget
@@ -17,7 +11,7 @@ public:
 	lcQColorList(QWidget *parent = 0);
 	~lcQColorList();
 
-	QSize sizeHint() const;
+	QSize sizeHint() const override;
 
 	void setCurrentColor(int colorIndex);
 
@@ -26,11 +20,12 @@ signals:
 	void colorSelected(int colorIndex);
 
 protected:
-	bool event(QEvent *event);
-	void paintEvent(QPaintEvent *event);
-	void resizeEvent(QResizeEvent *event);
-	void mousePressEvent(QMouseEvent *event);
-	void keyPressEvent(QKeyEvent *event);
+	virtual bool event(QEvent* Event) override;
+	virtual void paintEvent(QPaintEvent* PaintEvent) override;
+	virtual void resizeEvent(QResizeEvent* ResizeEvent) override;
+	virtual void mousePressEvent(QMouseEvent* MouseEvent) override;
+	virtual void mouseMoveEvent(QMouseEvent* MouseEvent) override;
+	virtual void keyPressEvent(QKeyEvent* KeyEvent) override;
 
 	void SelectCell(int CellIdx);
 
@@ -46,6 +41,6 @@ protected:
 	int mPreferredHeight;
 
 	int mCurCell;
+	QPoint mDragStartPosition;
 };
 
-#endif // _LC_QCOLORLIST_H_

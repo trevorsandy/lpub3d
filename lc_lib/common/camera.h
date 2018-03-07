@@ -1,12 +1,8 @@
-#ifndef _CAMERA_H_
-#define _CAMERA_H_
+#pragma once
 
 #include "object.h"
 #include "lc_math.h"
 #include "lc_array.h"
-
-class TiledRender;
-class View;
 
 #define LC_CAMERA_HIDDEN            0x0001
 #define LC_CAMERA_SIMPLE            0x0002
@@ -46,7 +42,7 @@ public:
 	lcCamera(float ex, float ey, float ez, float tx, float ty, float tz);
 	virtual ~lcCamera();
 
-	const char* GetName() const
+	const char* GetName() const override
 	{
 		return m_strName;
 	}
@@ -71,12 +67,12 @@ public:
 			mState &= ~LC_CAMERA_ORTHO;
 	}
 
-	virtual bool IsSelected() const
+	virtual bool IsSelected() const override
 	{
 		return (mState & LC_CAMERA_SELECTION_MASK) != 0;
 	}
 
-	virtual bool IsSelected(lcuint32 Section) const
+	virtual bool IsSelected(quint32 Section) const override
 	{
 		switch (Section)
 		{
@@ -95,7 +91,7 @@ public:
 		return false;
 	}
 
-	virtual void SetSelected(bool Selected)
+	virtual void SetSelected(bool Selected) override
 	{
 		if (Selected)
 			mState |= LC_CAMERA_SELECTION_MASK;
@@ -103,7 +99,7 @@ public:
 			mState &= ~(LC_CAMERA_SELECTION_MASK | LC_CAMERA_FOCUS_MASK);
 	}
 
-	virtual void SetSelected(lcuint32 Section, bool Selected)
+	virtual void SetSelected(quint32 Section, bool Selected) override
 	{
 		switch (Section)
 		{
@@ -130,12 +126,12 @@ public:
 		}
 	}
 
-	virtual bool IsFocused() const
+	virtual bool IsFocused() const override
 	{
 		return (mState & LC_CAMERA_FOCUS_MASK) != 0;
 	}
 
-	virtual bool IsFocused(lcuint32 Section) const
+	virtual bool IsFocused(quint32 Section) const override
 	{
 		switch (Section)
 		{
@@ -154,7 +150,7 @@ public:
 		return false;
 	}
 
-	virtual void SetFocused(lcuint32 Section, bool Focus)
+	virtual void SetFocused(quint32 Section, bool Focus) override
 	{
 		switch (Section)
 		{
@@ -181,7 +177,7 @@ public:
 		}
 	}
 
-	virtual lcuint32 GetFocusSection() const
+	virtual quint32 GetFocusSection() const override
 	{
 		if (mState & LC_CAMERA_POSITION_FOCUSED)
 			return LC_CAMERA_SECTION_POSITION;
@@ -192,10 +188,15 @@ public:
 		if (mState & LC_CAMERA_UPVECTOR_FOCUSED)
 			return LC_CAMERA_SECTION_UPVECTOR;
 
-		return ~0;
+		return ~0U;
 	}
 
-	virtual lcVector3 GetSectionPosition(lcuint32 Section) const
+	virtual quint32 GetAllowedTransforms() const override
+	{
+		return LC_OBJECT_TRANSFORM_MOVE_X | LC_OBJECT_TRANSFORM_MOVE_Y | LC_OBJECT_TRANSFORM_MOVE_Z;
+	}
+
+	virtual lcVector3 GetSectionPosition(quint32 Section) const override
 	{
 		switch (Section)
 		{
@@ -206,7 +207,7 @@ public:
 			return mTargetPosition;
 
 		case LC_CAMERA_SECTION_UPVECTOR:
-			return lcMul31(lcVector3(0, 1, 0), lcMatrix44AffineInverse(mWorldView));
+			return lcMul31(lcVector3(0, 25, 0), lcMatrix44AffineInverse(mWorldView));
 		}
 
 		return lcVector3(0.0f, 0.0f, 0.0f);
@@ -258,9 +259,10 @@ public:
 	}
 
 public:
-	virtual void RayTest(lcObjectRayTest& ObjectRayTest) const;
-	virtual void BoxTest(lcObjectBoxTest& ObjectBoxTest) const;
-	virtual void DrawInterface(lcContext* Context) const;
+	virtual void RayTest(lcObjectRayTest& ObjectRayTest) const override;
+	virtual void BoxTest(lcObjectBoxTest& ObjectBoxTest) const override;
+	virtual void DrawInterface(lcContext* Context) const override;
+	virtual void RemoveKeyFrames() override;
 
 	void InsertTime(lcStep Start, lcStep Time);
 	void RemoveTime(lcStep Start, lcStep Time);
@@ -268,7 +270,7 @@ public:
 	bool FileLoad(lcFile& file);
 	void Select(bool bSelecting, bool bFocus, bool bMultiple);
 
-	void CompareBoundingBox(float box[6]);
+	void CompareBoundingBox(lcVector3& Min, lcVector3& Max);
 	void UpdatePosition(lcStep Step);
 	void CopyPosition(const lcCamera* camera);
 
@@ -279,12 +281,10 @@ public:
 	void Orbit(float DistanceX, float DistanceY, const lcVector3& CenterPosition, lcStep Step, bool AddKey);
 	void Roll(float Distance, lcStep Step, bool AddKey);
 	void Center(lcVector3& point, lcStep Step, bool AddKey);
-	void Move(lcStep Step, bool AddKey, const lcVector3& Distance);
+	void MoveSelected(lcStep Step, bool AddKey, const lcVector3& Distance);
+	void MoveRelative(const lcVector3& Distance, lcStep Step, bool AddKey);
 	void SetViewpoint(lcViewpoint Viewpoint);
-
-	void StartTiledRendering(int tw, int th, int iw, int ih, float fAspect);
-	void GetTileInfo(int* row, int* col, int* width, int* height);
-	bool EndTile();
+	void SetAngles(float Latitude, float Longitude);
 
 	char m_strName[81];
 
@@ -296,16 +296,14 @@ public:
 	lcVector3 mPosition;
 	lcVector3 mTargetPosition;
 	lcVector3 mUpVector;
-	TiledRender* m_pTR;
 
 protected:
-	lcArray<lcObjectKey<lcVector3> > mPositionKeys;
-	lcArray<lcObjectKey<lcVector3> > mTargetPositionKeys;
-	lcArray<lcObjectKey<lcVector3> > mUpVectorKeys;
+	lcArray<lcObjectKey<lcVector3>> mPositionKeys;
+	lcArray<lcObjectKey<lcVector3>> mTargetPositionKeys;
+	lcArray<lcObjectKey<lcVector3>> mUpVectorKeys;
 
 	void Initialize();
 
-	lcuint32 mState;
+	quint32 mState;
 };
 
-#endif // _CAMERA_H_

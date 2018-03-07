@@ -1,5 +1,4 @@
 #include "lc_global.h"
-#include "system.h"
 
 #ifdef WIN32
 
@@ -17,9 +16,9 @@ char* strcasestr(const char *s, const char *find)
 			do
 			{
 				if ((sc = *s++) == 0)
-					return (NULL);
+					return (nullptr);
 			} while ((char)tolower((unsigned char)sc) != c);
-		} while (strncasecmp(s, find, len) != 0);
+		} while (qstrnicmp(s, find, len) != 0);
 		s--;
 	}
 	return ((char *)s);
@@ -41,11 +40,6 @@ char* strlwr(char *string)
 		*c = tolower(*c);
 
 	return string;
-}
-
-int stricmp(const char *str1, const char *str2)
-{
-	return strcasecmp(str1, str2);
 }
 
 #endif

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Models</string>
+   <string>Submodels</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -24,35 +24,42 @@
        <item>
         <widget class="QPushButton" name="NewModel">
          <property name="text">
-          <string>New...</string>
+          <string>&amp;New...</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="DeleteModel">
          <property name="text">
-          <string>Delete...</string>
+          <string>D&amp;elete...</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="RenameModel">
          <property name="text">
-          <string>Rename...</string>
+          <string>&amp;Rename...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="ExportModel">
+         <property name="text">
+          <string>Export...</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="MoveUp">
          <property name="text">
-          <string>Move Up</string>
+          <string>Move &amp;Up</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="MoveDown">
          <property name="text">
-          <string>Move Down</string>
+          <string>Move &amp;Down</string>
          </property>
         </widget>
        </item>
@@ -100,9 +107,9 @@
   <tabstop>NewModel</tabstop>
   <tabstop>DeleteModel</tabstop>
   <tabstop>RenameModel</tabstop>
+  <tabstop>ExportModel</tabstop>
   <tabstop>MoveUp</tabstop>
   <tabstop>MoveDown</tabstop>
-  <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
  <connections>

@@ -100,7 +100,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.1.0.785
+Version: 2.1.0.786
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -410,7 +410,7 @@ BuildRequires:  pkgconfig(xxf86vm)
  and runs on Windows, Linux and macOS Operating Systems.
  LPub3D is also availabe as a Linux 'no-install', multi-platform AppImage.
  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
- LeoCAD© 2015 Leonardo Zide.and additional third party components.
+ LeoCAD© 2018 Leonardo Zide.and additional third party components.
  LEGO® is a trademark of the LEGO Group of companies which does not
  sponsor, authorize or endorse this application.
  © 2015-2018 Trevor SANDY
@@ -662,5 +662,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Fri Mar 02 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.785
+* Wed Mar 07 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.786
 - LPub3D Linux package (rpm) release

@@ -1,11 +1,12 @@
-#ifndef _VIEW_H_
-#define _VIEW_H_
+#pragma once
 
 #include "lc_glwidget.h"
-#include "lc_model.h"
 #include "camera.h"
+#include "lc_scene.h"
 
+/*** LPub3D Mod - add logging ***/
 #include "QsLog.h"
+/*** LPub3D Mod end ***/
 
 enum lcTrackButton
 {
@@ -35,6 +36,8 @@ enum lcTrackTool
 	LC_TRACKTOOL_ROTATE_Z,
 	LC_TRACKTOOL_ROTATE_XY,
 	LC_TRACKTOOL_ROTATE_XYZ,
+	LC_TRACKTOOL_SCALE_PLUS,
+	LC_TRACKTOOL_SCALE_MINUS,
 	LC_TRACKTOOL_ERASER,
 	LC_TRACKTOOL_PAINT,
 	LC_TRACKTOOL_ZOOM,
@@ -43,15 +46,15 @@ enum lcTrackTool
 	LC_TRACKTOOL_ORBIT_Y,
 	LC_TRACKTOOL_ORBIT_XY,
 	LC_TRACKTOOL_ROLL,
-    LC_TRACKTOOL_ZOOM_REGION,
-    LC_TRACKTOOL_ROTATESTEP
+	LC_TRACKTOOL_ZOOM_REGION,
+	LC_TRACKTOOL_ROTATESTEP                /*** LPub3D Mod - Rotate Step ***/
 };
 
-enum lcDragState
+enum class lcDragState
 {
-	LC_DRAGSTATE_NONE,
-	LC_DRAGSTATE_PIECE
-//	LC_DRAGSTATE_COLOR
+	NONE,
+	PIECE,
+	COLOR
 };
 
 class View : public lcGLWidget
@@ -60,10 +63,13 @@ public:
 	View(lcModel* Model);
 	virtual ~View();
 
+	void SetHighlight(bool Highlight)
+	{
+		mHighlight = Highlight;
+	}
+
 	static void CreateResources(lcContext* Context);
 	static void DestroyResources(lcContext* Context);
-
-	void SetModel(lcModel* Model);
 
 	void OnDraw();
 	void OnInitialUpdate();
@@ -81,31 +87,33 @@ public:
 	void OnMouseWheel(float Direction);
 
 	void CancelTrackingOrClearSelection();
-	void BeginPieceDrag();
-	void EndPieceDrag(bool Accept);
+	void BeginDrag(lcDragState DragState);
+	void EndDrag(bool Accept);
 
 	void SetProjection(bool Ortho);
 	void LookAt();
 	void ZoomExtents();
+	void MoveCamera(const lcVector3& Direction);
 
-	void ClearCameras();
 	void RemoveCamera();
 	void SetCamera(lcCamera* Camera, bool ForceCopy);
+	void SetCamera(const char* CameraName);
 	void SetCameraIndex(int Index);
 	void SetViewpoint(lcViewpoint Viewpoint);
+	void SetCameraAngles(float Latitude, float Longitude);
 	void SetDefaultCamera();
 	lcMatrix44 GetProjectionMatrix() const;
 	LC_CURSOR_TYPE GetCursor() const;
+	void ShowContextMenu() const;
 
 	lcVector3 GetMoveDirection(const lcVector3& Direction) const;
-	lcMatrix44 GetPieceInsertPosition() const;
-	lcObjectSection FindObjectUnderPointer(bool PiecesOnly) const;
+	lcMatrix44 GetPieceInsertPosition(bool IgnoreSelected, PieceInfo* Info) const;
+	void GetRayUnderPointer(lcVector3& Start, lcVector3& End) const;
+	lcObjectSection FindObjectUnderPointer(bool PiecesOnly, bool IgnoreSelected) const;
 	lcArray<lcObject*> FindObjectsInBox(float x1, float y1, float x2, float y2) const;
 
 	lcModel* mModel;
 	lcCamera* mCamera;
-
-	QMap<lcModel*, lcCamera*> mCameras;
 
 	lcVector3 ProjectPoint(const lcVector3& Point) const
 	{
@@ -125,6 +133,14 @@ public:
 		lcUnprojectPoints(Points, NumPoints, mCamera->mWorldView, GetProjectionMatrix(), Viewport);
 	}
 
+	bool BeginRenderToImage(int Width, int Height);
+	void EndRenderToImage();
+
+	QImage GetRenderImage() const
+	{
+		return mRenderImage;
+	}
+
 protected:
 	static void CreateSelectMoveOverlayMesh(lcContext* Context);
 
@@ -136,19 +152,32 @@ protected:
 	void DrawAxes();
 	void DrawViewport();
 
-    void GetRotateStepAngles();
+/*** LPub3D Mod - Rotate Step ***/
+	void GetRotateStepAngles();
+/*** LPub3D Mod end ***/
 	void UpdateTrackTool();
+	bool IsTrackToolAllowed(lcTrackTool TrackTool, quint32 AllowedTransforms) const;
 	lcTool GetCurrentTool() const;
+	lcTrackTool GetOverrideTrackTool(Qt::MouseButton Button) const;
 	float GetOverlayScale() const;
 	void StartTracking(lcTrackButton TrackButton);
 	void StopTracking(bool Accept);
+	void OnButtonDown(lcTrackButton TrackButton);
+	lcMatrix44 GetTileProjectionMatrix(int CurrentRow, int CurrentColumn, int CurrentTileWidth, int CurrentTileHeight) const;
 
 	lcScene mScene;
 	lcDragState mDragState;
 	lcTrackButton mTrackButton;
 	lcTrackTool mTrackTool;
+	bool mTrackToolFromOverlay;
+	bool mTrackUpdated;
 	int mMouseDownX;
 	int mMouseDownY;
+	lcVector3 mMouseDownPosition;
+	PieceInfo* mMouseDownPiece;
+	bool mHighlight;
+	QImage mRenderImage;
+	std::pair<lcFramebuffer, lcFramebuffer> mRenderFramebuffer;
 
 	lcVertexBuffer mGridBuffer;
 	int mGridSettings[7];
@@ -157,4 +186,3 @@ protected:
 	static lcIndexBuffer mRotateMoveIndexBuffer;
 };
 
-#endif // _VIEW_H_

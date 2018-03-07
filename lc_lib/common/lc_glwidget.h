@@ -1,5 +1,4 @@
-#ifndef _LC_GLWIDGET_H_
-#define _LC_GLWIDGET_H_
+#pragma once
 
 #include "lc_context.h"
 
@@ -11,7 +10,8 @@ enum LC_CURSOR_TYPE
 	LC_CURSOR_SPOTLIGHT,
 	LC_CURSOR_CAMERA,
 	LC_CURSOR_SELECT,
-	LC_CURSOR_SELECT_GROUP,
+	LC_CURSOR_SELECT_ADD,
+	LC_CURSOR_SELECT_REMOVE,
 	LC_CURSOR_MOVE,
 	LC_CURSOR_ROTATE,
 	LC_CURSOR_ROTATEX,
@@ -23,17 +23,15 @@ enum LC_CURSOR_TYPE
 	LC_CURSOR_PAN,
 	LC_CURSOR_ROLL,
 	LC_CURSOR_ROTATE_VIEW,
-    LC_CURSOR_ROTATESTEP,           // add back
-    LC_CURSOR_COUNT
+	LC_CURSOR_ROTATESTEP,  /*** LPub3D Mod - Rotate Step ***/
+	LC_CURSOR_COUNT
 };
 
 struct lcInputState
 {
 	int x;
 	int y;
-	bool Control;
-	bool Shift;
-	bool Alt;
+	Qt::KeyboardModifiers Modifiers;
 };
 
 class lcGLWidget
@@ -42,12 +40,12 @@ public:
 	lcGLWidget()
 	{
 		mCursorType = LC_CURSOR_DEFAULT;
-		mWidget = NULL;
+		mWidget = nullptr;
 		mInputState.x = 0;
 		mInputState.y = 0;
-		mInputState.Control = false;
-		mInputState.Shift = false;
-		mInputState.Alt = false;
+		mInputState.Modifiers = Qt::NoModifier;
+		mWidth = 1;
+		mHeight = 1;
 		mContext = new lcContext();
 		mDeleteContext = true;
 	}
@@ -57,8 +55,6 @@ public:
 		if (mDeleteContext)
 			delete mContext;
 	}
-
-	void ShowPopupMenu();
 
 	void SetContext(lcContext* Context)
 	{
@@ -88,7 +84,7 @@ public:
 	virtual void OnForwardButtonDown() { }
 	virtual void OnForwardButtonUp() { }
 	virtual void OnMouseMove() { }
-	virtual void OnMouseWheel(float Direction) { }
+	virtual void OnMouseWheel(float Direction) { Q_UNUSED(Direction); }
 
 	lcInputState mInputState;
 	int mWidth;
@@ -99,4 +95,3 @@ public:
 	bool mDeleteContext;
 };
 
-#endif // _LC_GLWIDGET_H_

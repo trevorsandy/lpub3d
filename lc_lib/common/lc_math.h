@@ -1,20 +1,19 @@
-#ifndef _LC_MATH_H_
-#define _LC_MATH_H_
+#pragma once
 
 #include <math.h>
 #include <float.h>
 
-#define LC_DTOR 0.017453f
-#define LC_RTOD 57.29578f
-#define LC_PI   3.141592f
-#define LC_2PI  6.283185f
+#define LC_DTOR (static_cast<float>(M_PI / 180))
+#define LC_RTOD (static_cast<float>(180 / M_PI))
+#define LC_PI (static_cast<float>(M_PI))
+#define LC_2PI (static_cast<float>(2 * M_PI))
 
 #define LC_RGB(r,g,b) LC_RGBA(r,g,b,255)
-#define LC_RGBA(r,g,b,a) ((lcuint32)(((lcuint8) (r) | ((lcuint16) (g) << 8)) | (((lcuint32) (lcuint8) (b)) << 16) | (((lcuint32) (lcuint8) (a)) << 24))) 
-#define LC_RGBA_RED(rgba)   ((lcuint8)(((rgba) >>  0) & 0xff))
-#define LC_RGBA_GREEN(rgba) ((lcuint8)(((rgba) >>  8) & 0xff))
-#define LC_RGBA_BLUE(rgba)  ((lcuint8)(((rgba) >> 16) & 0xff))
-#define LC_RGBA_ALPHA(rgba) ((lcuint8)(((rgba) >> 24) & 0xff))
+#define LC_RGBA(r,g,b,a) ((quint32)(((quint8) (r) | ((quint16) (g) << 8)) | (((quint32) (quint8) (b)) << 16) | (((quint32) (quint8) (a)) << 24))) 
+#define LC_RGBA_RED(rgba)   ((quint8)(((rgba) >>  0) & 0xff))
+#define LC_RGBA_GREEN(rgba) ((quint8)(((rgba) >>  8) & 0xff))
+#define LC_RGBA_BLUE(rgba)  ((quint8)(((rgba) >> 16) & 0xff))
+#define LC_RGBA_ALPHA(rgba) ((quint8)(((rgba) >> 24) & 0xff))
 #define LC_FLOATRGB(f) LC_RGB(f[0]*255, f[1]*255, f[2]*255)
 
 template<typename T>
@@ -52,11 +51,6 @@ public:
 	{
 	}
 
-	lcVector2(const lcVector2& a)
-		: x(a.x), y(a.y)
-	{
-	}
-
 	operator const float*() const
 	{
 		return (const float*)this;
@@ -91,6 +85,8 @@ public:
 		: x(_x), y(_y), z(_z)
 	{
 	}
+
+	explicit lcVector3(const lcVector4& v);
 
 	operator const float*() const
 	{
@@ -253,8 +249,15 @@ public:
 		return r[i];
 	}
 
+	float Determinant() const;
+
 	lcVector4 r[4];
 };
+
+inline lcVector3::lcVector3(const lcVector4& v)
+	: x(v.x), y(v.y), z(v.z)
+{
+}
 
 inline lcVector3 operator+(const lcVector3& a, const lcVector3& b)
 {
@@ -365,6 +368,69 @@ inline bool operator!=(const lcVector3& a, const lcVector3& b)
 	return a.x != b.x || a.y != b.y || a.z != b.z;
 }
 
+#ifndef QT_NO_DEBUG
+
+inline QDebug operator<<(QDebug Debug, const lcVector2& v)
+{
+	QDebugStateSaver Saver(Debug);
+	Debug.nospace() << '(' << v.x << ", " << v.y << ')';
+	return Debug;
+}
+
+inline QDebug operator<<(QDebug Debug, const lcVector3& v)
+{
+	QDebugStateSaver Saver(Debug);
+	Debug.nospace() << '(' << v.x << ", " << v.y << ", " << v.z << ')';
+	return Debug;
+}
+
+inline QDebug operator<<(QDebug Debug, const lcVector4& v)
+{
+	QDebugStateSaver Saver(Debug);
+	Debug.nospace() << '(' << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ')';
+	return Debug;
+}
+
+inline QDebug operator<<(QDebug Debug, const lcMatrix33& m)
+{
+	QDebugStateSaver Saver(Debug);
+	Debug.nospace() << '[' << m[0] << ", " << m[1] << ", " << m[2] << ']';
+	return Debug;
+}
+
+inline QDebug operator<<(QDebug Debug, const lcMatrix44& m)
+{
+	QDebugStateSaver Saver(Debug);
+	Debug.nospace() << '[' << m[0] << ", " << m[1] << ", " << m[2] << ", " << m[3] << ']';
+	return Debug;
+}
+
+#endif
+
+inline QDataStream& operator<<(QDataStream& Stream, const lcVector3& v)
+{
+	Stream << v.x << v.y << v.z;
+	return Stream;
+}
+
+inline QDataStream& operator>>(QDataStream& Stream, lcVector3& v)
+{
+	Stream >> v.x >> v.y >> v.z;
+	return Stream;
+}
+
+inline QDataStream& operator<<(QDataStream& Stream, const lcVector4& v)
+{
+	Stream << v.x << v.y << v.z << v.w;
+	return Stream;
+}
+
+inline QDataStream& operator >> (QDataStream& Stream, lcVector4& v)
+{
+	Stream >> v.x >> v.y >> v.z >> v.w;
+	return Stream;
+}
+
 inline void lcVector3::Normalize()
 {
 	float InvLength = 1.0f / Length();
@@ -439,6 +505,18 @@ inline lcVector3 lcCross(const lcVector3& a, const lcVector3& b)
 	return lcVector3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
 }
 
+template<>
+inline lcVector3 lcMin<lcVector3>(const lcVector3& a, const lcVector3& b)
+{
+	return lcVector3(a.x < b.x ? a.x : b.x, a.y < b.y ? a.y : b.y, a.z < b.z ? a.z : b.z);
+}
+
+template<>
+inline lcVector3 lcMax<lcVector3>(const lcVector3& a, const lcVector3& b)
+{
+	return lcVector3(a.x > b.x ? a.x : b.x, a.y > b.y ? a.y : b.y, a.z > b.z ? a.z : b.z);
+}
+
 inline lcVector4 operator+(const lcVector4& a, const lcVector4& b)
 {
 	return lcVector4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
@@ -509,21 +587,48 @@ inline lcVector4& operator/=(lcVector4& a, float b)
 	return a;
 }
 
-inline lcVector3 lcVector3FromColor(lcuint32 Color)
+inline quint32 lcPackNormal(const lcVector3& Normal)
+{
+	quint32 Packed = 0;
+
+	Packed |= (((qint8)(Normal.x * 127.0f)) & 0xff) << 0;
+	Packed |= (((qint8)(Normal.y * 127.0f)) & 0xff) << 8;
+	Packed |= (((qint8)(Normal.z * 127.0f)) & 0xff) << 16;
+
+	return Packed;
+}
+
+inline lcVector3 lcUnpackNormal(quint32 Packed)
+{
+	lcVector3 Normal;
+
+	Normal.x = (float)(qint8)((Packed >>  0) & 0xff) / 127.0f;
+	Normal.y = (float)(qint8)((Packed >>  8) & 0xff) / 127.0f;
+	Normal.z = (float)(qint8)((Packed >> 16) & 0xff) / 127.0f;
+
+	return Normal;
+}
+
+inline lcVector3 lcVector3LDrawToLeoCAD(const lcVector3& Vector)
+{
+	return lcVector3(Vector[0], Vector[2], -Vector[1]);
+}
+
+inline lcVector3 lcVector3FromColor(quint32 Color)
 {
 	lcVector3 v(LC_RGBA_RED(Color), LC_RGBA_GREEN(Color), LC_RGBA_BLUE(Color));
 	v /= 255.0f;
 	return v;
 }
 
-inline lcVector4 lcVector4FromColor(lcuint32 Color)
+inline lcVector4 lcVector4FromColor(quint32 Color)
 {
 	lcVector4 v(LC_RGBA_RED(Color), LC_RGBA_GREEN(Color), LC_RGBA_BLUE(Color), LC_RGBA_ALPHA(Color));
 	v /= 255.0f;
 	return v;
 }
 
-inline lcuint32 lcColorFromVector3(const lcVector3& Color)
+inline quint32 lcColorFromVector3(const lcVector3& Color)
 {
 	return LC_RGB(Color[0] * 255, Color[1] * 255, Color[2] * 255);
 }
@@ -618,6 +723,17 @@ inline lcMatrix33 lcMatrix33Identity()
 	return m;
 }
 
+inline lcMatrix33 lcMatrix33Scale(const lcVector3& Scale)
+{
+	lcMatrix33 m;
+
+	m.r[0] = lcVector3(Scale.x, 0.0f, 0.0f);
+	m.r[1] = lcVector3(0.0f, Scale.y, 0.0f);
+	m.r[2] = lcVector3(0.0f, 0.0f, Scale.z);
+
+	return m;
+}
+
 inline lcMatrix33 lcMatrix33RotationX(const float Radians)
 {
 	float s, c;
@@ -699,6 +815,17 @@ inline lcMatrix33 lcMatrix33FromAxisAngle(const lcVector3& Axis, const float Rad
 	return m;
 }
 
+inline lcMatrix33 lcMatrix33Transpose(const lcMatrix33& m)
+{
+	lcMatrix33 t;
+
+	t.r[0] = lcVector3(m[0][0], m[1][0], m[2][0]);
+	t.r[1] = lcVector3(m[0][1], m[1][1], m[2][1]);
+	t.r[2] = lcVector3(m[0][2], m[1][2], m[2][2]);
+
+	return t;
+}
+
 inline lcMatrix33 lcMatrix33AffineInverse(const lcMatrix33& m)
 {
 	lcMatrix33 Inv;
@@ -728,6 +855,44 @@ inline lcMatrix33 lcMatrix33FromEulerAngles(const lcVector3& Radians)
 	m.r[2] = lcVector3(CosYaw * SinPitch * CosRoll + SinYaw * SinRoll, SinYaw * SinPitch * CosRoll - CosYaw * SinRoll, CosPitch * CosRoll);
 
 	return m;
+}
+
+inline lcVector3 lcMatrix33ToEulerAngles(const lcMatrix33& RotMat)
+{
+	float SinPitch, CosPitch, SinRoll, CosRoll, SinYaw, CosYaw;
+
+	SinPitch = -RotMat.r[0][2];
+	CosPitch = sqrtf(1 - SinPitch*SinPitch);
+
+	if (fabsf(CosPitch) > 0.0005f)
+	{
+		SinRoll = RotMat.r[1][2] / CosPitch;
+		CosRoll = RotMat.r[2][2] / CosPitch;
+		SinYaw = RotMat.r[0][1] / CosPitch;
+		CosYaw = RotMat.r[0][0] / CosPitch;
+	}
+	else
+	{
+		SinRoll = -RotMat.r[2][1];
+		CosRoll = RotMat.r[1][1];
+		SinYaw = 0.0f;
+		CosYaw = 1.0f;
+	}
+
+	lcVector3 Rot(atan2f(SinRoll, CosRoll), atan2f(SinPitch, CosPitch), atan2f(SinYaw, CosYaw));
+
+	if (Rot[0] < 0) Rot[0] += LC_2PI;
+	if (Rot[1] < 0) Rot[1] += LC_2PI;
+	if (Rot[2] < 0) Rot[2] += LC_2PI;
+
+	return Rot;
+}
+
+inline float lcMatrix44::Determinant() const
+{
+	return r[0][0] * r[1][1] * r[2][2] + r[0][1] * r[1][2] * r[2][0] +
+	       r[0][2] * r[1][0] * r[2][1] - r[0][0] * r[1][2] * r[2][1] -
+	       r[0][1] * r[1][0] * r[2][2] - r[0][2] * r[1][1] * r[2][0];
 }
 
 inline lcMatrix44 lcMatrix44Identity()
@@ -836,16 +1001,8 @@ inline lcMatrix44 lcMatrix44LookAt(const lcVector3& Eye, const lcVector3& Target
 	return m;
 }
 
-inline lcMatrix44 lcMatrix44Perspective(float FoVy, float Aspect, float Near, float Far)
+inline lcMatrix44 lcMatrix44Frustum(float Left, float Right, float Bottom, float Top, float Near, float Far)
 {
-	float Left, Right, Bottom, Top;
-
-	Top = Near * (float)tan(FoVy * LC_PI / 360.0f);
-	Bottom = -Top;
-
-	Left = Bottom * Aspect;
-	Right = Top * Aspect;
-
 	if ((Near <= 0.0f) || (Far <= 0.0f) || (Near == Far) || (Left == Right) || (Top == Bottom))
 		return lcMatrix44Identity();
 
@@ -860,12 +1017,25 @@ inline lcMatrix44 lcMatrix44Perspective(float FoVy, float Aspect, float Near, fl
 
 	lcMatrix44 m;
 
-	m.r[0] = lcVector4(x, 0, 0,  0);
-	m.r[1] = lcVector4(0, y, 0,  0);
+	m.r[0] = lcVector4(x, 0, 0, 0);
+	m.r[1] = lcVector4(0, y, 0, 0);
 	m.r[2] = lcVector4(a, b, c, -1);
-	m.r[3] = lcVector4(0, 0, d,  0);
+	m.r[3] = lcVector4(0, 0, d, 0);
 
 	return m;
+}
+
+inline lcMatrix44 lcMatrix44Perspective(float FoVy, float Aspect, float Near, float Far)
+{
+	float Left, Right, Bottom, Top;
+
+	Top = Near * (float)tan(FoVy * LC_PI / 360.0f);
+	Bottom = -Top;
+
+	Left = Bottom * Aspect;
+	Right = Top * Aspect;
+
+	return lcMatrix44Frustum(Left, Right, Bottom, Top, Near, Far);
 }
 
 inline lcMatrix44 lcMatrix44Ortho(float Left, float Right, float Bottom, float Top, float Near, float Far)
@@ -921,12 +1091,7 @@ inline lcVector4 lcMatrix44ToAxisAngle(const lcMatrix44& m)
 	Rows[1] = lcNormalize(lcVector3(m.r[1][0], m.r[1][1], m.r[1][2]));
 	Rows[2] = lcNormalize(lcVector3(m.r[2][0], m.r[2][1], m.r[2][2]));
 
-	// Determinant should be 1 for rotation matrices.
-	float Determinant = Rows[0][0] * Rows[1][1] * Rows[2][2] + Rows[0][1] * Rows[1][2] * Rows[2][0] +
-	                    Rows[0][2] * Rows[1][0] * Rows[2][1] - Rows[0][0] * Rows[1][2] * Rows[2][1] - 
-	                    Rows[0][1] * Rows[1][0] * Rows[2][2] - Rows[0][2] * Rows[1][1] * Rows[2][0];
-
-	if (Determinant < 0.0f)
+	if (m.Determinant() < 0.0f)
 		Rows[0] *= -1.0f;
 
 	float Trace = Rows[0][0] + Rows[1][1] + Rows[2][2];
@@ -1199,6 +1364,30 @@ inline lcMatrix44 lcMatrix44Inverse(const lcMatrix44& m)
 #undef SWAP_ROWS
 }
 
+inline lcMatrix44 lcMatrix44LeoCADToLDraw(const lcMatrix44& Matrix)
+{
+	lcMatrix44 m;
+
+	m.r[0] = lcVector4(Matrix[0][0], -Matrix[2][0], Matrix[1][0], 0.0f);
+	m.r[1] = lcVector4(-Matrix[0][2], Matrix[2][2], -Matrix[1][2], 0.0f);
+	m.r[2] = lcVector4(Matrix[0][1], -Matrix[2][1], Matrix[1][1], 0.0f);
+	m.r[3] = lcVector4(Matrix[3][0], -Matrix[3][2], Matrix[3][1], 1.0f);
+
+	return m;
+}
+
+inline lcMatrix44 lcMatrix44LDrawToLeoCAD(const lcMatrix44& Matrix)
+{
+	lcMatrix44 m;
+
+	m.r[0] = lcVector4(Matrix[0][0], Matrix[0][2], -Matrix[0][1], 0.0f);
+	m.r[1] = lcVector4(Matrix[2][0], Matrix[2][2], -Matrix[2][1], 0.0f);
+	m.r[2] = lcVector4(-Matrix[1][0], -Matrix[1][2], Matrix[1][1], 0.0f);
+	m.r[3] = lcVector4(Matrix[3][0], Matrix[3][2], -Matrix[3][1], 1.0f);
+
+	return m;
+}
+
 inline lcVector4 lcQuaternionRotationX(float Radians)
 {
 	return lcVector4(sinf(Radians / 2.0f), 0, 0, cosf(Radians / 2.0f));
@@ -1366,36 +1555,46 @@ inline void lcGetFrustumPlanes(const lcMatrix44& WorldView, const lcMatrix44& Pr
 	}
 }
 
-inline lcVector3 lcZoomExtents(const lcVector3& Position, const lcMatrix44& WorldView, const lcMatrix44& Projection, const lcVector3* Points, int NumPoints)
+inline std::tuple<lcVector3, float> lcZoomExtents(const lcVector3& Position, const lcMatrix44& WorldView, const lcMatrix44& Projection, const lcVector3* Points, int NumPoints)
 {
 	if (!NumPoints)
-		return Position;
+		return std::make_tuple(Position, 2500.0f);
 
 	lcVector4 Planes[6];
 	lcGetFrustumPlanes(WorldView, Projection, Planes);
 
 	lcVector3 Front(WorldView[0][2], WorldView[1][2], WorldView[2][2]);
 
-	// Calculate the position that is as close as possible to the model and has all pieces visible.
 	float SmallestDistance = FLT_MAX;
 
-	for (int p = 0; p < 4; p++)
+	for (int PlaneIdx = 0; PlaneIdx < 4; PlaneIdx++)
 	{
-		lcVector3 Plane(Planes[p][0], Planes[p][1], Planes[p][2]);
+		lcVector3 Plane(Planes[PlaneIdx][0], Planes[PlaneIdx][1], Planes[PlaneIdx][2]);
 		float ep = lcDot(Position, Plane);
 		float fp = lcDot(Front, Plane);
 
-		for (int j = 0; j < NumPoints; j++)
+		for (int PointIdx = 0; PointIdx < NumPoints; PointIdx++)
 		{
-			// Intersect the camera line with the plane that contains this point, NewEye = Eye + u * (Target - Eye)
-			float u = (ep - lcDot(Points[j], Plane)) / fp;
+			float u = (ep - lcDot(Points[PointIdx], Plane)) / fp;
 
 			if (u < SmallestDistance)
 				SmallestDistance = u;
 		}
 	}
 
-	return Position - (Front * SmallestDistance);
+	lcVector3 NewPosition = Position - (Front * SmallestDistance);
+
+	float FarDistance = 2500.0f;
+
+	for (int PointIdx = 0; PointIdx < NumPoints; PointIdx++)
+	{
+		float Distance = lcDot(Points[PointIdx], Front);
+
+		if (Distance > FarDistance)
+			FarDistance = Distance;
+	}
+
+	return std::make_tuple(NewPosition, FarDistance + lcDot(NewPosition, Front));
 }
 
 inline void lcClosestPointsBetweenLines(const lcVector3& Line1a, const lcVector3& Line1b, const lcVector3& Line2a, const lcVector3& Line2b, lcVector3* Intersection1, lcVector3* Intersection2)
@@ -1430,9 +1629,7 @@ inline void lcClosestPointsBetweenLines(const lcVector3& Line1a, const lcVector3
 	}
 }
 
-// Calculate the intersection of a line segment and a plane and returns false
-// if they are parallel or the intersection is outside the line segment.
-inline bool lcLinePlaneIntersection(lcVector3* Intersection, const lcVector3& Start, const lcVector3& End, const lcVector4& Plane)
+inline bool lcLineSegmentPlaneIntersection(lcVector3* Intersection, const lcVector3& Start, const lcVector3& End, const lcVector4& Plane)
 {
 	lcVector3 Dir = End - Start;
 	lcVector3 PlaneNormal(Plane[0], Plane[1], Plane[2]);
@@ -1526,7 +1723,7 @@ inline void lcPolygonPlaneClip(lcVector3* InPoints, int NumInPoints, lcVector3* 
 			else
 			{
 				// Outside, inside.
-				lcLinePlaneIntersection(&i, *s, *p, Plane);
+				lcLineSegmentPlaneIntersection(&i, *s, *p, Plane);
 
 				OutPoints[*NumOutPoints] = i;
 				*NumOutPoints = *NumOutPoints + 1;
@@ -1539,7 +1736,7 @@ inline void lcPolygonPlaneClip(lcVector3* InPoints, int NumInPoints, lcVector3* 
 			if (lcDot3(*s, Plane) + Plane[3] <= 0)
 			{
 				// Inside, outside.
-				lcLinePlaneIntersection(&i, *s, *p, Plane);
+				lcLineSegmentPlaneIntersection(&i, *s, *p, Plane);
 
 				OutPoints[*NumOutPoints] = i;
 				*NumOutPoints = *NumOutPoints + 1;
@@ -1551,10 +1748,10 @@ inline void lcPolygonPlaneClip(lcVector3* InPoints, int NumInPoints, lcVector3* 
 }
 
 // Return true if a polygon intersects a set of planes.
-inline bool lcTriangleIntersectsPlanes(float* p1, float* p2, float* p3, const lcVector4 Planes[6])
+inline bool lcTriangleIntersectsPlanes(const float* p1, const float* p2, const float* p3, const lcVector4 Planes[6])
 {
 	const int NumPlanes = 6;
-	float* Points[3] = { p1, p2, p3 };
+	const float* Points[3] = { p1, p2, p3 };
 	int Outcodes[3] = { 0, 0, 0 }, i;
 	int NumPoints = 3;
 
@@ -1628,6 +1825,7 @@ inline bool lcBoundingBoxRayIntersectDistance(const lcVector3& Min, const lcVect
 		else
 		{
 			MiddleQuadrant[i] = true;
+			CandidatePlane[i] = 0.0f;
 		}
 	}
 
@@ -1636,7 +1834,7 @@ inline bool lcBoundingBoxRayIntersectDistance(const lcVector3& Min, const lcVect
 	{
 		*Dist = 0;
 
-		if (*Intersection)
+		if (Intersection)
 			*Intersection = Start;
 
 		return true;
@@ -1679,7 +1877,7 @@ inline bool lcBoundingBoxRayIntersectDistance(const lcVector3& Min, const lcVect
 
 	*Dist = lcLength(Point - Start);
 
-	if (*Intersection)
+	if (Intersection)
 		*Intersection = Point;
 
 	return true;
@@ -1717,26 +1915,19 @@ inline bool lcSphereRayMinIntersectDistance(const lcVector3& Center, float Radiu
 	}
 }
 
-/*
-float LinePointMinDistance(const Vector3& Point, const Vector3& Start, const Vector3& End)
+inline float lcRayPointDistance(const lcVector3& Point, const lcVector3& Start, const lcVector3& End)
 {
-	Vector3 Dir = End - Start;
+	lcVector3 Dir = Point - Start;
+	lcVector3 RayDir = End - Start;
 
-	float t1 = Dot3(Start - Point, Dir);
-	float t2 = LengthSquared(Dir);
+	float t = lcDot(Dir, RayDir) / lcLengthSquared(RayDir);
+	t = lcClamp(t, 0.0f, 1.0f);
 
-	float t = -t1 / t2;
+	lcVector3 Closest = Start + t * RayDir;
 
-	if (t < 0.0f)
-		t = 0.0f;
-	else if (t > 1.0f)
-		t = 1.0f;
-
-	Vector3 Closest = Start + t * Dir;
-
-	return Length(Closest - Point);
+	return lcLength(Closest - Point);
 }
-*/
+
 // Returns true if the axis aligned box intersects the volume defined by planes.
 inline bool lcBoundingBoxIntersectsVolume(const lcVector3& Min, const lcVector3& Max, const lcVector4 Planes[6])
 {
@@ -1806,6 +1997,30 @@ inline bool lcBoundingBoxIntersectsVolume(const lcVector3& Min, const lcVector3&
 
 	return false;
 }
+
+struct lcBoundingBox
+{
+	lcVector3 Min;
+	lcVector3 Max;
+};
+
+inline void lcGetBoxCorners(const lcVector3& Min, const lcVector3& Max, lcVector3 Points[8])
+{
+	Points[0] = lcVector3(Max.x, Max.y, Min.z);
+	Points[1] = lcVector3(Min.x, Max.y, Min.z);
+	Points[2] = lcVector3(Max.x, Max.y, Max.z);
+	Points[3] = lcVector3(Min.x, Min.y, Min.z);
+	Points[4] = lcVector3(Min.x, Min.y, Max.z);
+	Points[5] = lcVector3(Max.x, Min.y, Max.z);
+	Points[6] = lcVector3(Max.x, Min.y, Min.z);
+	Points[7] = lcVector3(Min.x, Max.y, Max.z);
+}
+
+inline void lcGetBoxCorners(const lcBoundingBox& BoundingBox, lcVector3 Points[8])
+{
+	lcGetBoxCorners(BoundingBox.Min, BoundingBox.Max, Points);
+}
+
 /*
 bool SphereIntersectsVolume(const Vector3& Center, float Radius, const Vector4* Planes, int NumPlanes)
 {
@@ -1816,4 +2031,3 @@ bool SphereIntersectsVolume(const Vector3& Center, float Radius, const Vector4* 
 	return true;
 }*/
 
-#endif // _LC_MATH_H_

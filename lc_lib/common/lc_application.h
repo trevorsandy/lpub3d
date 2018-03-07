@@ -1,19 +1,17 @@
-#ifndef _LC_APPLICATION_H_
-#define _LC_APPLICATION_H_
+#pragma once
 
 #include "lc_array.h"
-#include "str.h"
-#include "threadworkers.h"
 
 class Project;
 class lcPiecesLibrary;
-class PartWorker;
 
-enum lcLightingMode
+enum lcShadingMode
 {
-	LC_LIGHTING_FLAT,
-	LC_LIGHTING_FAKE,
-	LC_LIGHTING_FULL
+	LC_SHADING_WIREFRAME,
+	LC_SHADING_FLAT,
+	LC_SHADING_DEFAULT_LIGHTS,
+	LC_SHADING_FULL,
+	LC_NUM_SHADING_MODES
 };
 
 class lcPreferences
@@ -23,63 +21,70 @@ public:
 	void SaveDefaults();
 
 	int mMouseSensitivity;
-	lcLightingMode mLightingMode;
+	lcShadingMode mShadingMode;
 	bool mDrawAxes;
 	bool mDrawEdgeLines;
 	float mLineWidth;
 	bool mDrawGridStuds;
-	lcuint32 mGridStudColor;
+	quint32 mGridStudColor;
 	bool mDrawGridLines;
 	int mGridLineSpacing;
-	lcuint32 mGridLineColor;
+	quint32 mGridLineColor;
 	bool mFixedAxes;
 };
 
-class lcApplication
+/*** LPub3D Mod - change QApplication to QObject ***/
+class lcApplication : public QObject
+/*** LPub3D Mod end ***/
 {
-	Q_DECLARE_TR_FUNCTIONS(lcApplication);
+	Q_OBJECT
 
 public:
+
+/*** LPub3D Mod - initialization - move arguments to LP3D Application ***/
 	lcApplication();
+/*** LPub3D Mod end ***/
 	~lcApplication();
 
 	void SetProject(Project* Project);
-	bool Initialize(int argc, char *argv[], const char* LibraryInstallPath, const char* LDrawPath);
+/*** LPub3D Mod - add parent, remove ShowWindow ***/
+	bool Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainWindow *parent = 0);
+/*** LPub3D Mod end ***/
 	void Shutdown();
 	void ShowPreferencesDialog();
-	bool LoadPiecesLibrary(const char* LibPath, const char* LibraryInstallPath, const char* LDrawPath);
+	void SaveTabLayout() const;
 
-	void GetFileList(const char* Path, lcArray<String>& FileList);
+	bool LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryPaths, bool OnlyUsePaths, bool ShowProgress);
+
 	void SetClipboard(const QByteArray& Clipboard);
 	void ExportClipboard(const QByteArray& Clipboard);
 
 	Project* mProject;
-	lcPiecesLibrary* mLibrary;        	
+	lcPiecesLibrary* mLibrary;
 	lcPreferences mPreferences;
 	QByteArray mClipboard;
-	PartWorker partWorkerLDSearchDirs;  // part worker to process search directories and fade color parts
-    char *mLoadFile;
+/*** LPub3D Mod - command line load file name ***/
+	QString mLoadFile;
+/*** LPub3D Mod end ***/
 
 protected:
-	void ParseIntegerArgument(int* CurArg, int argc, char* argv[], int* Value);
-	void ParseStringArgument(int* CurArg, int argc, char* argv[], char** Value);
+	QString GetTabLayoutKey() const;
 };
 
-extern lcApplication* g_App;
+extern lcApplication* gApplication;
 
 inline lcPiecesLibrary* lcGetPiecesLibrary()
 {
-	return g_App->mLibrary;
+	return gApplication->mLibrary;
 }
 
 inline Project* lcGetActiveProject()
 {
-	return g_App->mProject;
+	return gApplication->mProject;
 }
 
 inline lcPreferences& lcGetPreferences()
 {
-	return g_App->mPreferences;
+	return gApplication->mPreferences;
 }
 
-#endif // _LC_APPLICATION_H_

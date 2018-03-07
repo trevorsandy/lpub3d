@@ -1,25 +1,16 @@
-#ifndef _LC_LIBRARY_H_
-#define _LC_LIBRARY_H_
+#pragma once
 
 #include "lc_context.h"
 #include "lc_mesh.h"
 #include "lc_math.h"
 #include "lc_array.h"
-#include "str.h"
+/*** LPub3D Mod - Includes ***/
 #include "name.h"
-
 #include "QsLog.h"
+/*** LPub3D Mod end ***/
+
 class PieceInfo;
 class lcZipFile;
-
-enum LC_MESH_PRIMITIVE_TYPE
-{
-	LC_MESH_LINES,
-	LC_MESH_TRIANGLES,
-	LC_MESH_TEXTURED_LINES,
-	LC_MESH_TEXTURED_TRIANGLES,
-	LC_MESH_NUM_PRIMITIVE_TYPES
-};
 
 enum lcZipFileType
 {
@@ -28,10 +19,32 @@ enum lcZipFileType
 	LC_NUM_ZIPFILES
 };
 
+enum lcLibraryFolderType
+{
+	LC_FOLDER_UNOFFICIAL,
+	LC_FOLDER_OFFICIAL,
+	LC_NUM_FOLDERTYPES
+};
+
+struct lcLibraryMeshVertex
+{
+	lcVector3 Position;
+	lcVector3 Normal;
+	float NormalWeight;
+};
+
+struct lcLibraryMeshVertexTextured
+{
+	lcVector3 Position;
+	lcVector3 Normal;
+	float NormalWeight;
+	lcVector2 TexCoord;
+};
+
 class lcLibraryMeshSection
 {
 public:
-	lcLibraryMeshSection(LC_MESH_PRIMITIVE_TYPE PrimitiveType, lcuint32 Color, lcTexture* Texture)
+	lcLibraryMeshSection(lcMeshPrimitiveType PrimitiveType, quint32 Color, lcTexture* Texture)
 		: mIndices(1024, 1024)
 	{
 		mPrimitiveType = PrimitiveType;
@@ -43,16 +56,26 @@ public:
 	{
 	}
 
-	LC_MESH_PRIMITIVE_TYPE mPrimitiveType;
-	lcuint32 mColor;
+	lcMeshPrimitiveType mPrimitiveType;
+	quint32 mColor;
 	lcTexture* mTexture;
-	lcArray<lcuint32> mIndices;
+	lcArray<quint32> mIndices;
+};
+
+enum class lcLibraryTextureMapType
+{
+	PLANAR,
+	CYLINDRICAL,
+	SPHERICAL
 };
 
 struct lcLibraryTextureMap
 {
-	lcVector4 Params[2];
 	lcTexture* Texture;
+	lcVector4 Params[4];
+	float Angle1;
+	float Angle2;
+	lcLibraryTextureMapType Type;
 	bool Fallback;
 	bool Next;
 };
@@ -63,6 +86,13 @@ enum lcMeshDataType
 	LC_MESHDATA_LOW,
 	LC_MESHDATA_SHARED,
 	LC_NUM_MESHDATA_TYPES
+};
+
+enum class lcPrimitiveState
+{
+	NOT_LOADED,
+	LOADING,
+	LOADED
 };
 
 class lcLibraryMeshData
@@ -80,34 +110,50 @@ public:
 			mSections[MeshDataIdx].DeleteAll();
 	}
 
-	void AddLine(lcMeshDataType MeshDataType, int LineType, lcuint32 ColorCode, const lcVector3* Vertices);
-	void AddTexturedLine(lcMeshDataType MeshDataType, int LineType, lcuint32 ColorCode, const lcLibraryTextureMap& Map, const lcVector3* Vertices);
-	void AddMeshData(const lcLibraryMeshData& Data, const lcMatrix44& Transform, lcuint32 CurrentColorCode, lcLibraryTextureMap* TextureMap, lcMeshDataType OverrideDestIndex);
-	void AddMeshDataNoDuplicateCheck(const lcLibraryMeshData& Data, const lcMatrix44& Transform, lcuint32 CurrentColorCode, lcLibraryTextureMap* TextureMap, lcMeshDataType OverrideDestIndex);
+	bool IsEmpty() const
+	{
+		for (int MeshDataIdx = 0; MeshDataIdx < LC_NUM_MESHDATA_TYPES; MeshDataIdx++)
+			if (!mSections[MeshDataIdx].IsEmpty())
+				return false;
+
+		return true;
+	}
+
+	lcLibraryMeshSection* AddSection(lcMeshDataType MeshDataType, lcMeshPrimitiveType PrimitiveType, quint32 ColorCode, lcTexture* Texture);
+	quint32 AddVertex(lcMeshDataType MeshDataType, const lcVector3& Position, bool Optimize);
+	quint32 AddVertex(lcMeshDataType MeshDataType, const lcVector3& Position, const lcVector3& Normal, bool Optimize);
+	quint32 AddTexturedVertex(lcMeshDataType MeshDataType, const lcVector3& Position, const lcVector2& TexCoord, bool Optimize);
+	quint32 AddTexturedVertex(lcMeshDataType MeshDataType, const lcVector3& Position, const lcVector3& Normal, const lcVector2& TexCoord, bool Optimize);
+	void AddVertices(lcMeshDataType MeshDataType, int VertexCount, int* BaseVertex, lcLibraryMeshVertex** VertexBuffer);
+	void AddIndices(lcMeshDataType MeshDataType, lcMeshPrimitiveType PrimitiveType, quint32 ColorCode, int IndexCount, quint32** IndexBuffer);
+	void AddLine(lcMeshDataType MeshDataType, int LineType, quint32 ColorCode, bool WindingCCW, const lcVector3* Vertices, bool Optimize);
+	void AddTexturedLine(lcMeshDataType MeshDataType, int LineType, quint32 ColorCode, bool WindingCCW, const lcLibraryTextureMap& Map, const lcVector3* Vertices, bool Optimize);
+	void AddMeshData(const lcLibraryMeshData& Data, const lcMatrix44& Transform, quint32 CurrentColorCode, bool InvertWinding, bool InvertNormals, lcLibraryTextureMap* TextureMap, lcMeshDataType OverrideDestIndex);
+	void AddMeshDataNoDuplicateCheck(const lcLibraryMeshData& Data, const lcMatrix44& Transform, quint32 CurrentColorCode, bool InvertWinding, bool InvertNormals, lcLibraryTextureMap* TextureMap, lcMeshDataType OverrideDestIndex);
 	void TestQuad(int* QuadIndices, const lcVector3* Vertices);
 	void ResequenceQuad(int* QuadIndices, int a, int b, int c, int d);
 
 	lcArray<lcLibraryMeshSection*> mSections[LC_NUM_MESHDATA_TYPES];
-	lcArray<lcVertex> mVertices[LC_NUM_MESHDATA_TYPES];
-	lcArray<lcVertexTextured> mTexturedVertices[LC_NUM_MESHDATA_TYPES];
+	lcArray<lcLibraryMeshVertex> mVertices[LC_NUM_MESHDATA_TYPES];
+	lcArray<lcLibraryMeshVertexTextured> mTexturedVertices[LC_NUM_MESHDATA_TYPES];
 };
 
 class lcLibraryPrimitive
 {
 public:
-	lcLibraryPrimitive(const char* Name, lcZipFileType ZipFileType,lcuint32 ZipFileIndex, bool Stud, bool SubFile)
+	lcLibraryPrimitive(const char* Name, lcZipFileType ZipFileType,quint32 ZipFileIndex, bool Stud, bool SubFile)
 	{
 		strncpy(mName, Name, sizeof(mName));
 		mName[sizeof(mName) - 1] = 0;
 
 		mZipFileType = ZipFileType;
 		mZipFileIndex = ZipFileIndex;
-		mLoaded = false;
+		mState = lcPrimitiveState::NOT_LOADED;
 		mStud = Stud;
 		mSubFile = SubFile;
 	}
 
-	void SetZipFile(lcZipFileType ZipFileType,lcuint32 ZipFileIndex)
+	void SetZipFile(lcZipFileType ZipFileType,quint32 ZipFileIndex)
 	{
 		mZipFileType = ZipFileType;
 		mZipFileIndex = ZipFileIndex;
@@ -115,86 +161,120 @@ public:
 
 	char mName[LC_MAXPATH];
 	lcZipFileType mZipFileType;
-	lcuint32 mZipFileIndex;
-	bool mLoaded;
+	quint32 mZipFileIndex;
+	lcPrimitiveState mState;
 	bool mStud;
 	bool mSubFile;
 	lcLibraryMeshData mMeshData;
 };
 
-class lcPiecesLibrary
+class lcPiecesLibrary : public QObject
 {
+	Q_OBJECT
+
 public:
 	lcPiecesLibrary();
 	~lcPiecesLibrary();
 
-	bool Load(const char* LibraryPath);
-	bool ReloadUnoffLib();
+	bool Load(const QString& LibraryPath, bool ShowProgress);
 	void Unload();
+/*** LPub3D Mod - library reload ***/
+	bool ReloadUnoffLib();
+/*** LPub3D Mod end ***/
+
 	void RemoveTemporaryPieces();
 	void RemovePiece(PieceInfo* Info);
 
-	PieceInfo* FindPiece(const char* PieceName, Project* Project, bool CreatePlaceholder);
-	bool LoadPiece(PieceInfo* Info);
+	void RenamePiece(PieceInfo* Info, const char* NewName);
+	PieceInfo* FindPiece(const char* PieceName, Project* Project, bool CreatePlaceholder, bool SearchProjectFolder);
+	void LoadPieceInfo(PieceInfo* Info, bool Wait, bool Priority);
+	void ReleasePieceInfo(PieceInfo* Info);
 	bool LoadBuiltinPieces();
+	bool LoadPieceData(PieceInfo* Info);
+	void LoadQueuedPiece();
+	void WaitForLoadQueue();
 
-	lcTexture* FindTexture(const char* TextureName);
+	lcTexture* FindTexture(const char* TextureName, Project* CurrentProject, bool SearchProjectFolder);
 	bool LoadTexture(lcTexture* Texture);
+	void ReleaseTexture(lcTexture* Texture);
+	void QueueTextureUpload(lcTexture* Texture);
+	void UploadTextures();
 
-	bool PieceInCategory(PieceInfo* Info, const String& CategoryKeywords) const;
-	void SearchPieces(const char* Keyword, lcArray<PieceInfo*>& Pieces) const;
+	bool PieceInCategory(PieceInfo* Info, const char* CategoryKeywords) const;
 	void GetCategoryEntries(int CategoryIndex, bool GroupPieces, lcArray<PieceInfo*>& SinglePieces, lcArray<PieceInfo*>& GroupedPieces);
-	void GetCategoryEntries(const String& CategoryKeywords, bool GroupPieces, lcArray<PieceInfo*>& SinglePieces, lcArray<PieceInfo*>& GroupedPieces);
+	void GetCategoryEntries(const char* CategoryKeywords, bool GroupPieces, lcArray<PieceInfo*>& SinglePieces, lcArray<PieceInfo*>& GroupedPieces);
 	void GetPatternedPieces(PieceInfo* Parent, lcArray<PieceInfo*>& Pieces) const;
+	void GetParts(lcArray<PieceInfo*>& Parts);
 
 	bool IsPrimitive(const char* Name) const
 	{
-		return FindPrimitiveIndex(Name) != -1;
+		return mPrimitives.find(Name) != mPrimitives.end();
 	}
 
 	void SetOfficialPieces()
 	{
 		if (mZipFiles[LC_ZIPFILE_OFFICIAL])
-			mNumOfficialPieces = mPieces.GetSize();
+			mNumOfficialPieces = mPieces.size();
 	}
 
-	bool ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransform, lcuint32 CurrentColorCode, lcArray<lcLibraryTextureMap>& TextureStack, lcLibraryMeshData& MeshData, lcMeshDataType MeshDataType);
-	void CreateMesh(PieceInfo* Info, lcLibraryMeshData& MeshData);
+	bool ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransform, quint32 CurrentColorCode, bool InvertWinding, lcArray<lcLibraryTextureMap>& TextureStack, lcLibraryMeshData& MeshData, lcMeshDataType MeshDataType, bool Optimize, Project* CurrentProject, bool SearchProjectFolder);
+	lcMesh* CreateMesh(PieceInfo* Info, lcLibraryMeshData& MeshData);
+	void ReleaseBuffers(lcContext* Context);
 	void UpdateBuffers(lcContext* Context);
+	void UnloadUnusedParts();
 
-	lcArray<PieceInfo*> mPieces;
-	lcArray<lcLibraryPrimitive*> mPrimitives;
+	std::map<std::string, PieceInfo*> mPieces;
+	std::map<std::string, lcLibraryPrimitive*> mPrimitives;
 	int mNumOfficialPieces;
 
 	lcArray<lcTexture*> mTextures;
 
-	char mLibraryPath[LC_MAXPATH];
+	QDir mLibraryDir;
 
 	bool mBuffersDirty;
 	lcVertexBuffer mVertexBuffer;
 	lcIndexBuffer mIndexBuffer;
 
-protected:
-	bool OpenArchive(const char* FileName, lcZipFileType ZipFileType);
-	bool OpenArchive(lcFile* File, const char* FileName, lcZipFileType ZipFileType);
-	bool OpenDirectory(const char* Path);
-	void ReadArchiveDescriptions(const QString& OfficialFileName, const QString& UnofficialFileName);
+signals:
+	void PartLoaded(PieceInfo* Info);
 
-	bool ReadCacheFile(const QString& FileName, lcMemFile& CacheFile);
-	bool WriteCacheFile(const QString& FileName, lcMemFile& CacheFile);
+protected:
+	bool OpenArchive(const QString& FileName, lcZipFileType ZipFileType);
+	bool OpenArchive(lcFile* File, const QString& FileName, lcZipFileType ZipFileType);
+	bool OpenDirectory(const QDir& LibraryDir, bool ShowProgress);
+	void ReadArchiveDescriptions(const QString& OfficialFileName, const QString& UnofficialFileName);
+	void ReadDirectoryDescriptions(const QFileInfoList (&FileLists)[LC_NUM_FOLDERTYPES], bool ShowProgress);
+
+	bool ReadArchiveCacheFile(const QString& FileName, lcMemFile& CacheFile);
+	bool WriteArchiveCacheFile(const QString& FileName, lcMemFile& CacheFile);
 	bool LoadCacheIndex(const QString& FileName);
-	bool SaveCacheIndex(const QString& FileName);
+	bool SaveArchiveCacheIndex(const QString& FileName);
 	bool LoadCachePiece(PieceInfo* Info);
 	bool SaveCachePiece(PieceInfo* Info);
+	bool ReadDirectoryCacheFile(const QString& FileName, lcMemFile& CacheFile);
+	bool WriteDirectoryCacheFile(const QString& FileName, lcMemFile& CacheFile);
 
-	int FindPrimitiveIndex(const char* Name) const;
-	bool LoadPrimitive(int PrimitiveIndex);
+	lcLibraryPrimitive* FindPrimitive(const char* Name) const
+	{
+		const auto PrimitiveIt = mPrimitives.find(Name);
+		return PrimitiveIt != mPrimitives.end() ? PrimitiveIt->second : nullptr;
+	}
+
+	bool LoadPrimitive(lcLibraryPrimitive* Primitive);
+
+	QMutex mLoadMutex;
+	QList<QFuture<void>> mLoadFutures;
+	QList<PieceInfo*> mLoadQueue;
+
+	QMutex mTextureMutex;
+	std::vector<lcTexture*> mTextureUploads;
 
 	QString mCachePath;
 	qint64 mArchiveCheckSum[4];
-	char mLibraryFileName[LC_MAXPATH];
-	char mUnofficialFileName[LC_MAXPATH];
+	QString mLibraryFileName;
+	QString mUnofficialFileName;
 	lcZipFile* mZipFiles[LC_NUM_ZIPFILES];
+	bool mHasUnofficial;
+	bool mCancelLoading;
 };
 
-#endif // _LC_LIBRARY_H_

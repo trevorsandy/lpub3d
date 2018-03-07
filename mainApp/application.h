@@ -15,14 +15,8 @@
 #define APPLICATION_H
 
 #include <QScopedPointer>
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-#include <QtWidgets/QApplication>
 #include <QException>
 #include <QtWidgets>
-#else
-#include <QApplication>
-#include <QtGui>
-#endif
 #include <QFile>
 #include <string>
 #include <vector>
@@ -47,29 +41,37 @@ class Application : public QObject
 public:
     /// Creates the Application.
     Application(int& argc, char **argv);
-//    ~Application();
 
     /// Returns a pointer to the current Application instance;
     static Application* instance();
 
-    /// This is the equivalent of the main function.
-    void main();
+    /// Returns the command line arguments
+    QStringList arguments();
 
     /// Initialize the Application and process the command line arguments.
-    void initialize(int& argc, char** argv);
+    void initialize();
+
+    /// This is the equivalent of the main function.
+    void mainApp();
 
     /// Runs the Application and returns the exit code.
     int run();
+
+    /// Return applicaion launch mode
+    bool modeGUI();
 
     /// Initialize the splash screen
     QSplashScreen *splash;
 
 public slots:
     /// Splash message function to display message updates during startup
-    void splashMsg(QString message){
-      splash->showMessage(QSplashScreen::tr(message.toLatin1().constData()),Qt::AlignBottom | Qt::AlignLeft, Qt::white);
-	  m_application.processEvents();
+    void splashMsg(QString message)
+    {
       logStatus() << message;
+      if (m_console_mode)
+        return;
+      splash->showMessage(QSplashScreen::tr(message.toLatin1().constData()),Qt::AlignBottom | Qt::AlignLeft, Qt::white);
+      m_application.processEvents();
     }
 
 signals:
@@ -83,6 +85,12 @@ private:
     /// Current application instance
     static Application* m_instance;
 
+    /// Command console mode flag;
+    bool m_console_mode;
+
+    /// Print details flag
+    bool m_print_output;
+
 };
 
 /// ENTRY_POINT is a macro that implements the main function.
@@ -92,7 +100,7 @@ private:
         QScopedPointer<Application> app(new Application(argc, argv)); \
         try \
         { \
-            app->initialize(argc, argv); \
+            app->initialize(); \
         } \
         catch(const InitException &ex) \
         { \

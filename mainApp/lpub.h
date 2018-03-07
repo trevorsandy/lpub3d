@@ -330,11 +330,6 @@
 #define GUI_H
 
 #include <QtGlobal>
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-#include <QtWidgets/QApplication>
-#else
-#include <QApplication>
-#endif
 #include <QMainWindow>
 #include <QMenuBar>
 #include <QAction>
@@ -1041,14 +1036,9 @@ private:
   QMenu    *exportMenu;
 
   // 3D Viewer Menus
-  QMenu* ViewMenu;
-  QMenu* FileMenuShort;
-
-  QMenu* CameraMenu;
-  QMenu* ViewpointsMenu;
-  QMenu* PerspectiveMenu;
-  QMenu* ExportMenuShort;
-
+  QMenu* ViewerMenu;
+  QMenu* FileMenuViewer;
+  QMenu* ExportMenuViewer;
 
 
   QToolBar *fileToolBar;

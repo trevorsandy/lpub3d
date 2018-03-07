@@ -1,5 +1,4 @@
-#ifndef _LC_ARRAY_H_
-#define _LC_ARRAY_H_
+#pragma once
 
 template <class T>
 class lcArray
@@ -9,7 +8,7 @@ public:
 
 	lcArray(int Size = 0, int Grow = 16)
 	{
-		mData = NULL;
+		mData = nullptr;
 		mLength = 0;
 		mAlloc = 0;
 		mGrow = Grow;
@@ -20,7 +19,7 @@ public:
 
 	lcArray(const lcArray<T>& Array)
 	{
-		mData = NULL;
+		mData = nullptr;
 		*this = Array;
 	}
 
@@ -55,9 +54,46 @@ public:
 		return *this;
 	}
 
-	T& operator[](int Index) const
+	const T& operator[](int Index) const
 	{
 		return mData[Index];
+	}
+
+	T& operator[](int Index)
+	{
+		return mData[Index];
+	}
+
+	bool operator==(const lcArray<T>& Array) const
+	{
+		if (mLength != Array.mLength)
+			return false;
+
+		for (int i = 0; i < mLength; i++)
+			if (mData[i] != Array.mData[i])
+				return false;
+
+		return true;
+	}
+
+	T* begin()
+	{
+		return &mData[0];
+	}
+
+	T* end()
+	{
+		return &mData[0] + mLength;
+	}
+
+	const T* begin() const
+	{
+		return &mData[0];
+	}
+
+	const T* end() const
+	{
+		return &mData[0] + mLength;
 	}
 
 	bool IsEmpty() const
@@ -73,14 +109,15 @@ public:
 	void SetSize(int NewSize)
 	{
 		if (NewSize > mAlloc)
-			AllocGrow(NewSize - mAlloc);
+			AllocGrow(NewSize - mLength);
 
 		mLength = NewSize;
 	}
 
 	void SetGrow(int Grow)
 	{
-		mGrow = Grow;
+		if (Grow)
+			mGrow = Grow;
 	}
 
 	void AllocGrow(int Grow)
@@ -230,4 +267,3 @@ protected:
 	int mGrow;
 };
 
-#endif // _LC_ARRAY_H_

@@ -1,7 +1,9 @@
-LPub3D 2.1.0.1.785 (02 03 2018 20:30:04)
+LPub3D 2.1.0.1.786 (07 03 2018 04:43:53)
 
 Features and enhancements
 ------------
+Upgrade: Upgrade 3DViewer to LeoCAD 18.2 GitSha d4687e0. As part of this upgrade, LPub3D command line capability "console mode" was also enabled. At the moment all LeoCAD command line capabilities are enabled (experimental) along with help and LPub3D version information. Type "<install path>\lpub3d -?" for complete list of available command line flags. #32
+
 Change: Update about-dialogue support links. Add GitHub issues URL #31
 
 Change: Add/override renderer flags from within model file. For example the line 0 !LPUB ASSEM LDGLITE_PARMS "-J -fh" within a step will enable perspective projection and shading mode for that step's Assembly (CSI) image.
@@ -1079,7 +1081,7 @@ About LPub3D
 LPub3D is a WYSIWYG editing application for creating LEGO style digital building instructions.
 It is available for free under the GNU Public License v3 and works on the Windows
 Operating Systems. Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
-LeoCAD© 2015 Leonardo Zide.and additional third party components.
+LeoCAD© 2018 Leonardo Zide.and additional third party components.
 
 Installation
 ------------

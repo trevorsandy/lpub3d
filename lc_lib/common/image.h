@@ -1,16 +1,8 @@
-#ifndef _IMAGE_H_
-#define _IMAGE_H_
+#pragma once
 
 // Image Options
 #define LC_IMAGE_TRANSPARENT	0x2000
-#define LC_IMAGE_MASK		0x7000
-
-enum LC_IMAGE_FORMAT
-{
-	LC_IMAGE_BMP,
-	LC_IMAGE_JPG,
-	LC_IMAGE_PNG
-};
+//#define LC_IMAGE_MASK		0x7000
 
 enum lcPixelFormat
 {
@@ -31,7 +23,7 @@ public:
 	bool HasAlpha() const;
 
 	bool FileLoad(lcMemFile& File);
-	bool FileLoad(const char* FileName);
+	bool FileLoad(const QString& FileName);
 
 	void Resize(int Width, int Height);
 	void ResizePow2();
@@ -44,4 +36,3 @@ public:
 	unsigned char* mData;
 };
 
-#endif // _IMAGE_H_

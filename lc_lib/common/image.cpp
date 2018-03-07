@@ -7,7 +7,7 @@ static void CopyFromQImage(const QImage& Src, Image& Dest)
 	bool Alpha = Src.hasAlphaChannel();
 	Dest.Allocate(Src.width(), Src.height(), Alpha ? LC_PIXEL_FORMAT_R8G8B8A8 : LC_PIXEL_FORMAT_R8G8B8);
 
-	lcuint8* Bytes = (lcuint8*)Dest.mData;
+	quint8* Bytes = (quint8*)Dest.mData;
 
 	for (int y = 0; y < Dest.mHeight; y++)
 	{
@@ -27,7 +27,7 @@ static void CopyFromQImage(const QImage& Src, Image& Dest)
 
 Image::Image()
 {
-	mData = NULL;
+	mData = nullptr;
 	mWidth = 0;
 	mHeight = 0;
 	mFormat = LC_PIXEL_FORMAT_INVALID;
@@ -79,7 +79,7 @@ bool Image::HasAlpha() const
 void Image::FreeData()
 {
 	free(mData);
-	mData = NULL;
+	mData = nullptr;
 	mWidth = 0;
 	mHeight = 0;
 	mFormat = LC_PIXEL_FORMAT_INVALID;
@@ -117,24 +117,31 @@ void Image::Resize(int width, int height)
 {
 	int i, j, k, components, stx, sty;
 	float accumx, accumy;
-	unsigned char* bits;
+	unsigned char* bits = nullptr;
 
 	components = GetBPP();
+	int BufferSize = width * height * components;
 
-	bits = (unsigned char*)malloc(width * height * components);
-
-	for (j = 0; j < mHeight; j++)
+	if (BufferSize)
 	{
-		accumy = (float)height*j/(float)mHeight;
-		sty = (int)floor(accumy);
+		bits = (unsigned char*)malloc(BufferSize);
 
-		for (i = 0; i < mWidth; i++)
+		if (bits)
 		{
-			accumx = (float)width*i/(float)mWidth;
-			stx = (int)floor(accumx);
+			for (j = 0; j < mHeight; j++)
+			{
+				accumy = (float)height*j / (float)mHeight;
+				sty = (int)floor(accumy);
 
-			for (k = 0; k < components; k++)
-				bits[(stx+sty*width)*components+k] = mData[(i+j*mWidth)*components+k];
+				for (i = 0; i < mWidth; i++)
+				{
+					accumx = (float)width*i / (float)mWidth;
+					stx = (int)floor(accumx);
+
+					for (k = 0; k < components; k++)
+						bits[(stx + sty*width)*components + k] = mData[(i + j * mWidth) * components + k];
+				}
+			}
 		}
 	}
 
@@ -149,9 +156,9 @@ bool Image::FileLoad(lcMemFile& File)
 	QImage Image;
 
 	unsigned char* Buffer = File.mBuffer + File.mPosition;
-	int BufferLength = File.mFileSize - File.mPosition;
+	size_t BufferLength = File.mFileSize - File.mPosition;
 
-	if (!Image.loadFromData(Buffer, BufferLength))
+	if (!Image.loadFromData(Buffer, (int)BufferLength))
 		return false;
 
 	CopyFromQImage(Image, *this);
@@ -159,7 +166,7 @@ bool Image::FileLoad(lcMemFile& File)
 	return true;
 }
 
-bool Image::FileLoad(const char* FileName)
+bool Image::FileLoad(const QString& FileName)
 {
 	QImage Image;
 

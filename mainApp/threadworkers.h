@@ -169,7 +169,7 @@ private:
 
     LDPartsDirs                ldPartsDirs;                     // automatically load LDraw.ini parameters
     LDrawFile                  ldrawFile;                       // contains MPD or all files used in model
-    ArchiveParts               archiveParts;                    // add contente to unofficial zip archive (for LeoCAD)
+    ArchiveParts               archiveParts;                    // add contente to unofficial zip archive (for 3DViewer)
 
 
     bool endThreadNotRequested(){ return ! _endThreadNowRequested;}

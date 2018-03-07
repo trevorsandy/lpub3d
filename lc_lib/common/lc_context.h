@@ -1,35 +1,21 @@
-#ifndef _LC_CONTEXT_H_
-#define _LC_CONTEXT_H_
+#pragma once
 
 #include "lc_array.h"
 #include "lc_math.h"
 #include "lc_colors.h"
-
-class lcScene
-{
-public:
-	lcScene();
-
-	void Begin(const lcMatrix44& ViewMatrix);
-	void End();
-
-	lcMatrix44 mViewMatrix;
-	lcArray<lcRenderMesh> mOpaqueMeshes;
-	lcArray<lcRenderMesh> mTranslucentMeshes;
-	lcArray<lcObject*> mInterfaceObjects;
-};
+#include "lc_mesh.h"
 
 class lcVertexBuffer
 {
 public:
 	lcVertexBuffer()
-		: Pointer(NULL)
+		: Pointer(nullptr)
 	{
 	}
 
 	bool IsValid() const
 	{
-		return Pointer != NULL;
+		return Pointer != nullptr;
 	}
 
 	union
@@ -43,13 +29,13 @@ class lcIndexBuffer
 {
 public:
 	lcIndexBuffer()
-		: Pointer(NULL)
+		: Pointer(nullptr)
 	{
 	}
 
 	bool IsValid() const
 	{
-		return Pointer != NULL;
+		return Pointer != nullptr;
 	}
 
 	union
@@ -59,26 +45,57 @@ public:
 	};
 };
 
-enum lcProgramType
+enum lcMaterialType
 {
-	LC_PROGRAM_SIMPLE,
-	LC_PROGRAM_TEXTURE,
-	LC_PROGRAM_VERTEX_COLOR,
-	LC_NUM_PROGRAMS
+	LC_MATERIAL_UNLIT_COLOR,
+	LC_MATERIAL_UNLIT_TEXTURE_MODULATE,
+	LC_MATERIAL_UNLIT_TEXTURE_DECAL,
+	LC_MATERIAL_UNLIT_VERTEX_COLOR,
+	LC_MATERIAL_FAKELIT_COLOR,
+	LC_MATERIAL_FAKELIT_TEXTURE_DECAL,
+	LC_NUM_MATERIALS
 };
 
 enum lcProgramAttrib
 {
-	LC_ATTRIB_POSITION, 
-	LC_ATTRIB_TEXCOORD, 
+	LC_ATTRIB_POSITION,
+	LC_ATTRIB_NORMAL,
+	LC_ATTRIB_TEXCOORD,
 	LC_ATTRIB_COLOR
 };
 
 struct lcProgram
 {
 	GLuint Object;
-	GLint MatrixLocation;
-	GLint ColorLocation;
+	GLint WorldViewProjectionMatrixLocation;
+	GLint WorldMatrixLocation;
+	GLint MaterialColorLocation;
+	GLint LightPositionLocation;
+	GLint EyePositionLocation;
+};
+
+class lcFramebuffer
+{
+public:
+	lcFramebuffer()
+	{
+	}
+
+	lcFramebuffer(int Width, int Height)
+		: mWidth(Width), mHeight(Height)
+	{
+	}
+
+	bool IsValid() const
+	{
+		return mObject != 0;
+	}
+
+	GLuint mObject = 0;
+	GLuint mColorTexture = 0;
+	GLuint mDepthRenderbuffer = 0;
+	int mWidth = 0;
+	int mHeight = 0;
 };
 
 class lcContext
@@ -87,20 +104,11 @@ public:
 	lcContext();
 	~lcContext();
 
-	int GetViewportWidth() const
-	{
-		return mViewportWidth;
-	}
-
-	int GetViewportHeight() const
-	{
-		return mViewportHeight;
-	}
-
 	static void CreateResources();
 	static void DestroyResources();
 
 	void SetDefaultState();
+	void ClearResources();
 
 	void SetWorldMatrix(const lcMatrix44& WorldMatrix)
 	{
@@ -122,9 +130,17 @@ public:
 		mViewProjectionMatrixDirty = true;
 	}
 
-	void SetProgram(lcProgramType ProgramType);
+	const lcMatrix44& GetProjectionMatrix()
+	{
+		return mProjectionMatrix;
+	}
+
+	void SetMaterial(lcMaterialType MaterialType);
 	void SetViewport(int x, int y, int Width, int Height);
 	void SetLineWidth(float LineWidth);
+	void SetSmoothShading(bool Smooth);
+	void BindTexture2D(GLuint Texture);
+	void BindTexture2DMS(GLuint Texture);
 
 	void SetColor(const lcVector4& Color)
 	{
@@ -138,9 +154,19 @@ public:
 	void SetEdgeColorIndex(int ColorIndex);
 	void SetInterfaceColor(lcInterfaceColor InterfaceColor);
 
-	bool BeginRenderToTexture(int Width, int Height);
-	void EndRenderToTexture();
-	bool SaveRenderToTextureImage(const QString& FileName, int Width, int Height);
+	void ClearFramebuffer();
+	lcFramebuffer CreateFramebuffer(int Width, int Height, bool Depth, bool Multisample);
+	void DestroyFramebuffer(lcFramebuffer& Framebuffer);
+	void BindFramebuffer(GLuint FramebufferObject);
+	void BindFramebuffer(const lcFramebuffer& Framebuffer)
+	{
+		BindFramebuffer(Framebuffer.mObject);
+	}
+
+	std::pair<lcFramebuffer, lcFramebuffer> CreateRenderFramebuffer(int Width, int Height);
+	void DestroyRenderFramebuffer(std::pair<lcFramebuffer, lcFramebuffer>& RenderFramebuffer);
+	QImage GetRenderFramebufferImage(const std::pair<lcFramebuffer, lcFramebuffer>& RenderFramebuffer);
+	void GetRenderFramebufferImage(const std::pair<lcFramebuffer, lcFramebuffer>& RenderFramebuffer, quint8* Buffer);
 
 	lcVertexBuffer CreateVertexBuffer(int Size, const void* Data);
 	void DestroyVertexBuffer(lcVertexBuffer& VertexBuffer);
@@ -155,19 +181,15 @@ public:
 	void SetIndexBuffer(lcIndexBuffer IndexBuffer);
 	void SetIndexBufferPointer(const void* IndexBuffer);
 
-	void SetVertexFormat(int BufferOffset, int PositionSize, int TexCoordSize, int ColorSize);
+	void SetVertexFormat(int BufferOffset, int PositionSize, int NormalSize, int TexCoordSize, int ColorSize, bool EnableNormals);
+	void SetVertexFormatPosition(int PositionSize);
 	void DrawPrimitives(GLenum Mode, GLint First, GLsizei Count);
 	void DrawIndexedPrimitives(GLenum Mode, GLsizei Count, GLenum Type, int Offset);
 
-	void UnbindMesh();
-	void DrawMeshSection(lcMesh* Mesh, lcMeshSection* Section);
-	void DrawOpaqueMeshes(const lcArray<lcRenderMesh>& OpaqueMeshes);
-	void DrawTranslucentMeshes(const lcArray<lcRenderMesh>& TranslucentMeshes);
-	void DrawInterfaceObjects(const lcArray<lcObject*>& InterfaceObjects);
+	void BindMesh(const lcMesh* Mesh);
 
 protected:
 	static void CreateShaderPrograms();
-	void BindMesh(lcMesh* Mesh);
 	void FlushState();
 
 	GLuint mVertexBufferObject;
@@ -176,18 +198,16 @@ protected:
 	char* mIndexBufferPointer;
 	char* mVertexBufferOffset;
 
-	lcProgramType mProgramType; 
+	lcMaterialType mMaterialType;
+	bool mNormalEnabled;
 	bool mTexCoordEnabled;
 	bool mColorEnabled;
 
-	lcTexture* mTexture;
+	GLuint mTexture2D;
+	GLuint mTexture2DMS;
 	float mLineWidth;
 	int mMatrixMode;
-
-	int mViewportX;
-	int mViewportY;
-	int mViewportWidth;
-	int mViewportHeight;
+	bool mTextureEnabled;
 
 	lcVector4 mColor;
 	lcMatrix44 mWorldMatrix;
@@ -201,12 +221,9 @@ protected:
 	bool mViewProjectionMatrixDirty;
 
 	GLuint mFramebufferObject;
-	GLuint mFramebufferTexture;
-	GLuint mDepthRenderbufferObject;
 
-	static lcProgram mPrograms[LC_NUM_PROGRAMS];
+	static lcProgram mPrograms[LC_NUM_MATERIALS];
 
 	Q_DECLARE_TR_FUNCTIONS(lcContext);
 };
 
-#endif // _LC_CONTEXT_H_

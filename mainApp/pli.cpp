@@ -1195,7 +1195,7 @@ int Pli::partSize()
           // get part info
           part = parts[key];
           QFileInfo info(part->type);
-          PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.baseName().toUpper().toLatin1().constData(), NULL, false);
+          PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
 
           if (pieceInfo ||
               gui->isUnofficialPart(part->type) ||
@@ -1346,7 +1346,7 @@ int Pli::partSizeLDViewSCall() {
       // get part info
       pliPart = parts[key];
       QFileInfo info(pliPart->type);
-      PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.baseName().toUpper().toLatin1().constData(), NULL, false);
+      PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
 
       if (pieceInfo ||
           gui->isUnofficialPart(pliPart->type) ||
@@ -1784,7 +1784,7 @@ const QString Pli::titleDescription(QString &part)
 {
   QString    titleDescription;
   QFileInfo  info(part);
-  PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.baseName().toUpper().toLatin1().constData(), NULL, false);
+  PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
 
   if (pieceInfo) {
       titleDescription = pieceInfo->m_strDescription;

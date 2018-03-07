@@ -1,26 +1,32 @@
-#ifndef _LC_MAINWINDOW_H_
-#define _LC_MAINWINDOW_H_
+#pragma once
 
-#include <QMainWindow>
 #include "lc_basewindow.h"
 #include "lc_array.h"
 #include "lc_commands.h"
 #include "lc_model.h"
 
+/*** LPub3D Mod - status and logging ***/
+#include <QStatusBar>
 #include "QsLog.h"
+/*** LPub3D Mod end ***/
 
 class View;
+class lcPartSelectionWidget;
 class PiecePreview;
 class lcQGLWidget;
 class lcQPartsTree;
 class lcQColorList;
 class lcQPropertiesTree;
 class lcTimelineWidget;
+#ifdef QT_NO_PRINTER
+class QPrinter;
+#endif
 
 #define LC_MAX_RECENT_FILES 4
 
 struct lcSearchOptions
 {
+	bool SearchValid;
 	bool MatchInfo;
 	bool MatchColor;
 	bool MatchName;
@@ -29,12 +35,96 @@ struct lcSearchOptions
 	char Name[256];
 };
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+typedef QTabWidget lcTabWidget;
+#else
+class lcTabWidget : public QTabWidget
+{
+public:
+	QTabBar* tabBar()
+	{
+		return QTabWidget::tabBar();
+	}
+};
+#endif
+
+class lcModelTabWidget : public QWidget
+{
+	Q_OBJECT
+
+public:
+	lcModelTabWidget(lcModel* Model)
+	{
+
+		mModel = Model;
+		mActiveView = nullptr;
+	}
+
+	void ResetLayout();
+	void Clear();
+
+	QWidget* GetAnyViewWidget()
+	{
+		QWidget* Widget = layout()->itemAt(0)->widget();
+
+		while (Widget->metaObject() == &QSplitter::staticMetaObject)
+			Widget = ((QSplitter*)Widget)->widget(0);
+
+		return Widget;
+	}
+
+	View* GetActiveView() const
+	{
+		return mActiveView;
+	}
+
+	void SetActiveView(View* ActiveView)
+	{
+		mActiveView = ActiveView;
+	}
+
+	void AddView(View* View)
+	{
+		mViews.Add(View);
+	}
+
+	void RemoveView(View* View)
+	{
+		if (View == mActiveView)
+			mActiveView = nullptr;
+
+		mViews.Remove(View);
+	}
+
+	lcModel* GetModel() const
+	{
+		return mModel;
+	}
+
+	void SetModel(lcModel* Model)
+	{
+		mModel = Model;
+	}
+
+	const lcArray<View*>* GetViews() const
+	{
+		return &mViews;
+	}
+
+protected:
+	lcModel* mModel;
+	View* mActiveView;
+	lcArray<View*> mViews;
+};
+
 class lcMainWindow : public QMainWindow
 {
 	Q_OBJECT
 
 public:
-	explicit lcMainWindow();
+/*** LPub3D Mod - define lcMainWindow parent ***/
+	lcMainWindow(QMainWindow *parent = 0);
+/*** LPub3D Mod end ***/
 	~lcMainWindow();
 
 	void CreateWidgets();
@@ -49,27 +139,29 @@ public:
 		return mTransformType;
 	}
 
-    QString GetRotateStep() const
-    {
-        //only for status bar
-        switch(mRotateStepType)
-        {
-        case LC_ROTATESTEP_ABSOLUTE_ROTATION:
-            return tr("ABS");
-            break;
-        case LC_ROTATESTEP_RELATIVE_ROTATION:
-            return tr("REL");
-            break;
-        default:
-            return tr("N/A");
-            break;
-        }
-    }
+/*** LPub3D Mod - Rotate Step ***/
+	QString GetRotateStep() const
+	{
+	    //only for status bar
+	    switch(mRotateStepType)
+	    {
+	    case LC_ROTATESTEP_ABSOLUTE_ROTATION:
+		return tr("ABS");
+		break;
+	    case LC_ROTATESTEP_RELATIVE_ROTATION:
+		return tr("REL");
+		break;
+	    default:
+		return tr("N/A");
+		break;
+	    }
+	}
 
-    lcRotateStepType GetRotateStepType() const
-    {
-        return mRotateStepType;
-    }
+        lcRotateStepType GetRotateStepType() const
+        {
+            return mRotateStepType;
+        }
+/*** LPub3D Mod end ***/
 
 	bool GetAddKeys() const
 	{
@@ -88,9 +180,9 @@ public:
 		return mMoveSnapEnabled ? SnapZTable[mMoveZSnapIndex] : 0.0f;
 	}
 
-	int GetAngleSnap() const
+	float GetAngleSnap() const
 	{
-		const int AngleTable[] = { 0, 1, 5, 10, 15, 30, 45, 60, 90, 180 };
+		const float AngleTable[] = { 0.0f, 1.0f, 5.0f, 15.0f, 22.5f, 30.0f, 45.0f, 60.0f, 90.0f, 180.0f };
 		return mAngleSnapEnabled ? AngleTable[mAngleSnapIndex] : 0.0f;
 	}
 
@@ -111,62 +203,112 @@ public:
 		return mAngleSnapEnabled ? QString::number(GetAngleSnap()) : tr("None");
 	}
 
-	bool GetLockX() const
-	{
-		return mLockX;
-	}
-
-	bool GetLockY() const
-	{
-		return mLockY;
-	}
-
-	bool GetLockZ() const
-	{
-		return mLockZ;
-	}
-
 	bool GetRelativeTransform() const
 	{
 		return mRelativeTransform;
 	}
 
+	lcSelectionMode GetSelectionMode() const
+	{
+		return mSelectionMode;
+	}
+
+	PieceInfo* GetCurrentPieceInfo() const
+	{
+		return mCurrentPieceInfo;
+	}
+
 	View* GetActiveView() const
 	{
-		return mActiveView;
+		lcModelTabWidget* CurrentTab = (lcModelTabWidget*)mModelTabWidget->currentWidget();
+		return CurrentTab ? CurrentTab->GetActiveView() : nullptr;
 	}
 
-	const lcArray<View*>& GetViews()
+	const lcArray<View*>* GetViewsForModel(lcModel* Model) const
 	{
-		return mViews;
+		lcModelTabWidget* TabWidget = GetTabWidgetForModel(Model);
+		return TabWidget ? TabWidget->GetViews() : nullptr;
 	}
 
-	bool DoDialog(LC_DIALOG_TYPE Type, void* Data);
+	lcModelTabWidget* GetTabForView(View* View) const
+	{
+		for (int TabIdx = 0; TabIdx < mModelTabWidget->count(); TabIdx++)
+		{
+			lcModelTabWidget* TabWidget = (lcModelTabWidget*)mModelTabWidget->widget(TabIdx);
 
+			int ViewIndex = TabWidget->GetViews()->FindIndex(View);
+			if (ViewIndex != -1)
+				return TabWidget;
+		}
+
+		return nullptr;
+	}
+
+	lcPartSelectionWidget* GetPartSelectionWidget() const
+	{
+		return mPartSelectionWidget;
+	}
+
+	QMenu* GetToolsMenu() const
+	{
+		return mToolsMenu;
+	}
+
+	QMenu* GetViewpointMenu() const
+	{
+		return mViewpointMenu;
+	}
+
+	QMenu* GetCameraMenu() const
+	{
+		return mCameraMenu;
+	}
+
+	QMenu* GetProjectionMenu() const
+	{
+		return mProjectionMenu;
+	}
+
+	QMenu* GetShadingMenu() const
+	{
+		return mShadingMenu;
+	}
+
+	QByteArray GetTabLayout();
+	void RestoreTabLayout(const QByteArray& TabLayout);
+	void RemoveAllModelTabs();
+	void SetCurrentModelTab(lcModel* Model);
 	void ResetCameras();
 	void AddView(View* View);
 	void RemoveView(View* View);
 	void SetActiveView(View* ActiveView);
+/***	void UpdateAllViews();                 // moved to public slots ***/
 
 	void SetTool(lcTool Tool);
 	void SetTransformType(lcTransformType TransformType);
+/*** LPub3D Mod - rotate view ***/
 	void SetRotateStepType(lcRotateStepType RotateStepType);
+/*** LPub3D Mod end ***/
 	void SetColorIndex(int ColorIndex);
 	void SetMoveSnapEnabled(bool Enabled);
 	void SetAngleSnapEnabled(bool Enabled);
 	void SetMoveXYSnapIndex(int Index);
 	void SetMoveZSnapIndex(int Index);
 	void SetAngleSnapIndex(int Index);
-	void SetLockX(bool LockX);
-	void SetLockY(bool LockY);
-	void SetLockZ(bool LockZ);
 	void SetRelativeTransform(bool RelativeTransform);
+	void SetCurrentPieceInfo(PieceInfo* Info);
+	void SetShadingMode(lcShadingMode ShadingMode);
+	void SetSelectionMode(lcSelectionMode SelectionMode);
 
+/***	void NewProject();                     // moved to public slots ***/
 	bool OpenProject(const QString& FileName);
 	void MergeProject();
+	void ImportLDD();
+	void ImportInventory();
 	bool SaveProject(const QString& FileName);
 	bool SaveProjectIfModified();
-	void SetModelFromFocus();
+	bool SetModelFromFocus();
+	void SetModelFromSelection();
 	void HandleCommand(lcCommandId CommandId);
 
 	void AddRecentFile(const QString& FileName);
@@ -180,8 +322,7 @@ public:
 	void TogglePrintPreview();
 	void ToggleFullScreen();
 
-	void UpdateFocusObject(lcObject* Focus);
-	void UpdateSelectedObjects(int Flags, int SelectedCount, lcObject* Focus);
+	void UpdateSelectedObjects(bool SelectionChanged);
 	void UpdateTimeline(bool Clear, bool UpdateItems);
 	void UpdatePaste(bool Enabled);
 	void UpdateCurrentStep();
@@ -193,6 +334,8 @@ public:
 	void UpdateCurrentCamera(int CameraIndex);
 	void UpdatePerspective();
 	void UpdateCameraMenu();
+	void UpdateShadingMode();
+	void UpdateSelectionMode();
 	void UpdateModels();
 	void UpdateCategories();
 	void UpdateTitle();
@@ -201,41 +344,44 @@ public:
 	void UpdateShortcuts();
 
 	lcVector3 GetTransformAmount();
+/*** LPub3D Mod - rotate step amount ***/
 	lcVector3 GetRotateStepAmount();
-
+/*** LPub3D Mod end ***/
 	QString mRecentFiles[LC_MAX_RECENT_FILES];
-	PiecePreview* mPreviewWidget;
 	int mColorIndex;
 	lcSearchOptions mSearchOptions;
 	QAction* mActions[LC_NUM_COMMANDS];
-
-	QStatusBar* mLCStatusBar;
+/*** LPub3D Mod - status bar ***/
 	QToolBar* mToolsToolBar;
+	QStatusBar* mLCStatusBar;
+/*** LPub3D Mod end ***/
 
 public slots:
-    /*** LPub3D modification 222: - halt viewer ***/
-    void NewProject();
-    void UpdateAllViews();
+	void ProjectFileChanged(const QString& Path);
+/*** LPub3D Mod - halt viewer ***/
+	void NewProject();               // move from public to public slots
+	void UpdateAllViews();           // move from public to public slots
+	void Halt3DViewer(bool b);
 
-    void Halt3DViewer(bool b);
-    void Enable3DActions();
-    void Disable3DActions();
-    /*** LPub3D modification end ***/
+        void Enable3DActions();
+        void Disable3DActions();
+/*** LPub3D Mod end ***/
 
 protected slots:
+	void ModelTabContextMenuRequested(const QPoint& Point);
+	void ModelTabCloseOtherTabs();
+	void ModelTabResetViews();
+	void ModelTabClosed(int Index);
+	void ModelTabChanged(int Index);
 	void ClipboardChanged();
 	void ActionTriggered();
-	void PartsTreeItemChanged(QTreeWidgetItem* Current, QTreeWidgetItem* Previous);
 	void ColorChanged(int ColorIndex);
-	void PartSearchReturn();
-	void PartSearchChanged(const QString& Text);
 	void Print(QPrinter* Printer);
-
-//signals:
-//	void quit();
 
 protected:
 	void closeEvent(QCloseEvent *event);
+	void dragEnterEvent(QDragEnterEvent* Event);
+	void dropEvent(QDropEvent* Event);
 	QMenu* createPopupMenu();
 
 	void CreateActions();
@@ -243,36 +389,54 @@ protected:
 	void CreateToolBars();
 	void CreateStatusBar();
 	void SplitView(Qt::Orientation Orientation);
+	void ShowSearchDialog();
+	void ShowUpdatesDialog();
+	void ShowAboutDialog();
+	void ShowHTMLDialog();
+	void ShowRenderDialog();
 	void ShowPrintDialog();
 
-	View* mActiveView;
-	lcArray<View*> mViews;
+	lcModelTabWidget* GetTabWidgetForModel(lcModel* Model) const
+	{
+		for (int TabIdx = 0; TabIdx < mModelTabWidget->count(); TabIdx++)
+		{
+			lcModelTabWidget* TabWidget = (lcModelTabWidget*)mModelTabWidget->widget(TabIdx);
+
+			if (TabWidget->GetModel() == Model)
+				return TabWidget;
+		}
+
+		return nullptr;
+	}
 
 	bool mAddKeys;
 	lcTool mTool;
 	lcTransformType mTransformType;
+/*** LPub3D Mod - rotate step ***/
 	lcRotateStepType mRotateStepType;
+/*** LPub3D Mod end ***/
 	bool mMoveSnapEnabled;
 	bool mAngleSnapEnabled;
 	int mMoveXYSnapIndex;
 	int mMoveZSnapIndex;
 	int mAngleSnapIndex;
-	bool mLockX;
-	bool mLockY;
-	bool mLockZ;
 	bool mRelativeTransform;
+	PieceInfo* mCurrentPieceInfo;
+	lcSelectionMode mSelectionMode;
+	int mModelTabWidgetContextMenuIndex;
 
 	QAction* mActionFileRecentSeparator;
 
+	lcTabWidget* mModelTabWidget;
 	QToolBar* mStandardToolBar;
+	//QToolBar* mToolsToolBar;      //move from protected to public:
 	QToolBar* mTimeToolBar;
 	QDockWidget* mPartsToolBar;
+	QDockWidget* mColorsToolBar;
 	QDockWidget* mPropertiesToolBar;
 	QDockWidget* mTimelineToolBar;
 
-	lcQGLWidget* mPiecePreviewWidget;
-	lcQPartsTree* mPartsTree;
-	QLineEdit* mPartSearchEdit;
+	lcPartSelectionWidget* mPartSelectionWidget;
 	lcQColorList* mColorList;
 	lcQPropertiesTree* mPropertiesWidget;
 	lcTimelineWidget* mTimelineWidget;
@@ -282,11 +446,17 @@ protected:
 
 	QLabel* mStatusBarLabel;
 	QLabel* mStatusSnapLabel;
-//      QLabel* mStatusPositionLabel;       //remarked at LPub3D Rev 244 build 05
-//	QLabel* mStatusTimeLabel;
+/*** LPub3D Mod - disable position/time status ***
+	QLabel* mStatusPositionLabel;
+	QLabel* mStatusTimeLabel;
+*** LPub3D modification end ***/
 
+	QMenu* mToolsMenu;
+	QMenu* mViewpointMenu;
+	QMenu* mCameraMenu;
+	QMenu* mProjectionMenu;
+	QMenu* mShadingMenu;
+	QMenu* mSelectionModeMenu;
 };
 
 extern class lcMainWindow* gMainWindow;
-
-#endif // _LC_MAINWND_H_

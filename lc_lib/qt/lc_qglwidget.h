@@ -1,25 +1,19 @@
-#ifndef _LC_QGLWIDGET_H_
-#define _LC_QGLWIDGET_H_
+#pragma once
 
-#if QT_VERSION >= QT_VERSION_CHECK(5,4,0)
-#include <QOpenGLWidget>
-#else
 #include <QGLWidget>
-#endif
-
 class lcGLWidget;
 
 class lcQGLWidget : public QGLWidget
 {
 public:
-	lcQGLWidget(QWidget *parent, lcQGLWidget *share, lcGLWidget *owner, bool view);
+	lcQGLWidget(QWidget *parent, lcGLWidget *owner, bool view);
 	~lcQGLWidget();
 
 	QSize sizeHint() const;
 
 	lcGLWidget *widget;
 	QSize preferredSize;
-	bool isView;
+	bool mIsView;
 
 	float deviceScale()
 	{
@@ -51,4 +45,3 @@ protected:
 	int mWheelAccumulator;
 };
 
-#endif // _LC_VIEWWIDGET_H_

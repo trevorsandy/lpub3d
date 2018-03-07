@@ -1,8 +1,6 @@
-#ifndef LC_QEDITGROUPSDIALOG_H
-#define LC_QEDITGROUPSDIALOG_H
+#pragma once
 
 #include <QDialog>
-struct lcEditGroupsDialogOptions;
 
 namespace Ui {
 class lcQEditGroupsDialog;
@@ -13,10 +11,13 @@ class lcQEditGroupsDialog : public QDialog
 	Q_OBJECT
 	
 public:
-	explicit lcQEditGroupsDialog(QWidget* Parent, void* Data);
+	lcQEditGroupsDialog(QWidget* Parent, const QMap<lcPiece*, lcGroup*>& PieceParents, const QMap<lcGroup*, lcGroup*>& GroupParents);
 	~lcQEditGroupsDialog();
 	
-	lcEditGroupsDialogOptions* mOptions;
+	QMap<lcPiece*, lcGroup*> mPieceParents;
+	QMap<lcGroup*, lcGroup*> mGroupParents;
+	QList<lcGroup*> mNewGroups;
+	//QList<lcGroup*> mDeletedGroups; // todo: support deleting groups in the edit groups dialog
 
 	enum
 	{
@@ -44,4 +45,3 @@ private:
 	QBasicTimer mClickTimer;
 };
 
-#endif // LC_QEDITGROUPSDIALOG_H

@@ -1,10 +1,5 @@
-#include "lc_global.h"
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-#include <QtWidgets>
-#else
 #include <QtGui>
-#endif
-
+#include "lc_global.h"
 #include "lc_qcolorlist.h"
 
 lcQColorList::lcQColorList(QWidget *parent)
@@ -47,6 +42,7 @@ lcQColorList::lcQColorList(QWidget *parent)
 	mPreferredHeight = TextHeight + 10 * mRows;
 
 	setFocusPolicy(Qt::StrongFocus);
+	setMinimumHeight(TextHeight + 5 * mRows);
 }
 
 lcQColorList::~lcQColorList()
@@ -84,18 +80,23 @@ bool lcQColorList::event(QEvent *event)
 				continue;
 
 			lcColor* color = &gColorList[mCellColors[CellIdx]];
-			QRgb rgb = qRgb(color->Value[0] * 255, color->Value[1] * 255, color->Value[2] * 255);
+			QColor rgb(color->Value[0] * 255, color->Value[1] * 255, color->Value[2] * 255);
 
-			QImage image(1, 1, QImage::Format_RGB888);
-			image.setPixel(0, 0, rgb);
+			QImage image(16, 16, QImage::Format_RGB888);
+			image.fill(rgb);
+			QPainter painter(&image);
+			painter.setPen(Qt::darkGray);
+			painter.drawRect(0, 0, image.width() - 1, image.height() - 1);
+			painter.end();
 
 			QByteArray ba;
 			QBuffer buffer(&ba);
 			buffer.open(QIODevice::WriteOnly);
 			image.save(&buffer, "PNG");
+			buffer.close();
 
 			int colorIndex = mCellColors[CellIdx];
-			const char* format = "<table><tr><td style=\"vertical-align:middle\"><img height=16 src=\"data:image/png;base64,%1\"></td><td>%2 (%3)</td></tr></table>";
+			const char* format = "<table><tr><td style=\"vertical-align:middle\"><img src=\"data:image/png;base64,%1\"/></td><td>%2 (%3)</td></tr></table>";
 			QString text = QString(format).arg(QString(buffer.data().toBase64()), gColorList[colorIndex].Name, QString::number(gColorList[colorIndex].Code));
 
 			QToolTip::showText(helpEvent->globalPos(), text);
@@ -129,11 +130,11 @@ bool lcQColorList::event(QEvent *event)
 	return QWidget::event(event);
 }
 
-void lcQColorList::mousePressEvent(QMouseEvent *event)
+void lcQColorList::mousePressEvent(QMouseEvent* MouseEvent)
 {
 	for (int CellIdx = 0; CellIdx < mNumCells; CellIdx++)
 	{
-		if (!mCellRects[CellIdx].contains(event->pos()))
+		if (!mCellRects[CellIdx].contains(MouseEvent->pos()))
 			continue;
 
 		SelectCell(CellIdx);
@@ -141,6 +142,25 @@ void lcQColorList::mousePressEvent(QMouseEvent *event)
 
 		break;
 	}
+
+	mDragStartPosition = MouseEvent->pos();
+}
+
+void lcQColorList::mouseMoveEvent(QMouseEvent* MouseEvent)
+{
+	if (!(MouseEvent->buttons() & Qt::LeftButton))
+		return;
+
+	if ((MouseEvent->pos() - mDragStartPosition).manhattanLength() < QApplication::startDragDistance())
+		return;
+
+	QMimeData* MimeData = new QMimeData;
+	MimeData->setData("application/vnd.leocad-color", QString::number(mCellColors[mCurCell]).toLatin1());
+
+	QDrag* Drag = new QDrag(this);
+	Drag->setMimeData(MimeData);
+
+	Drag->exec(Qt::CopyAction);
 }
 
 void lcQColorList::keyPressEvent(QKeyEvent *event)
@@ -246,6 +266,42 @@ void lcQColorList::resizeEvent(QResizeEvent *event)
 	float CellWidth = (float)(width() + 1) / (float)mColumns;
 	float CellHeight = (float)(height() - TextHeight) / (float)mRows;
 
+	while (CellWidth / CellHeight > 1.5f)
+	{
+		mColumns++;
+		mRows = 0;
+
+		for (int GroupIdx = 0; GroupIdx < LC_NUM_COLORGROUPS; GroupIdx++)
+		{
+			lcColorGroup* Group = &gColorGroups[GroupIdx];
+			mRows += (Group->Colors.GetSize() + mColumns - 1) / mColumns;
+		}
+
+		CellWidth = (float)(width() + 1) / (float)mColumns;
+		CellHeight = (float)(height() - TextHeight) / (float)mRows;
+
+		if (mRows <= LC_NUM_COLORGROUPS)
+			break;
+	}
+
+	while (CellHeight / CellWidth > 1.5f)
+	{
+		mColumns--;
+		mRows = 0;
+
+		for (int GroupIdx = 0; GroupIdx < LC_NUM_COLORGROUPS; GroupIdx++)
+		{
+			lcColorGroup* Group = &gColorGroups[GroupIdx];
+			mRows += (Group->Colors.GetSize() + mColumns - 1) / mColumns;
+		}
+
+		CellWidth = (float)(width() + 1) / (float)mColumns;
+		CellHeight = (float)(height() - TextHeight) / (float)mRows;
+
+		if (mColumns <= 5)
+			break;
+	}
+
 	int CurCell = 0;
 	float GroupY = 0.0f;
 	int TotalRows = 1;
@@ -296,6 +352,8 @@ void lcQColorList::resizeEvent(QResizeEvent *event)
 
 void lcQColorList::paintEvent(QPaintEvent *event)
 {
+	Q_UNUSED(event);
+
 	QPainter painter(this);
 
 	painter.fillRect(rect(), palette().brush(QPalette::Base));

@@ -1,20 +1,30 @@
-#ifndef _LC_MESH_H_
-#define _LC_MESH_H_
+#pragma once
 
-#include <stdlib.h>
 #include "lc_math.h"
 
 #define LC_MESH_FILE_ID      LC_FOURCC('M', 'E', 'S', 'H')
-#define LC_MESH_FILE_VERSION 0x0110
+#define LC_MESH_FILE_VERSION 0x0114
+
+enum lcMeshPrimitiveType
+{
+	LC_MESH_LINES = 0x01,
+	LC_MESH_TRIANGLES = 0x02,
+	LC_MESH_TEXTURED_LINES = 0x04,
+	LC_MESH_TEXTURED_TRIANGLES = 0x08,
+	LC_MESH_CONDITIONAL_LINES = 0x10,
+	LC_MESH_NUM_PRIMITIVE_TYPES
+};
 
 struct lcVertex
 {
 	lcVector3 Position;
+	quint32 Normal;
 };
 
 struct lcVertexTextured
 {
 	lcVector3 Position;
+	quint32 Normal;
 	lcVector2 TexCoord;
 };
 
@@ -23,7 +33,7 @@ struct lcMeshSection
 	int ColorIndex;
 	int IndexOffset;
 	int NumIndices;
-	int PrimitiveType;
+	lcMeshPrimitiveType PrimitiveType;
 	lcTexture* Texture;
 };
 
@@ -46,23 +56,23 @@ public:
 	lcMesh();
 	~lcMesh();
 
-	void Create(lcuint16 NumSections[LC_NUM_MESH_LODS], int NumVertices, int NumTexturedVertices, int NumIndices);
+	void Create(quint16 NumSections[LC_NUM_MESH_LODS], int NumVertices, int NumTexturedVertices, int NumIndices);
 	void CreateBox();
 
 	bool FileLoad(lcMemFile& File);
 	bool FileSave(lcMemFile& File);
 
 	template<typename IndexType>
-	void ExportPOVRay(lcFile& File, const char* MeshName, const char* ColorTable);
-	void ExportPOVRay(lcFile& File, const char* MeshName, const char* ColorTable);
+	void ExportPOVRay(lcFile& File, const char* MeshName, const char** ColorTable);
+	void ExportPOVRay(lcFile& File, const char* MeshName, const char** ColorTable);
 
 	template<typename IndexType>
 	void ExportWavefrontIndices(lcFile& File, int DefaultColorIndex, int VertexOffset);
 	void ExportWavefrontIndices(lcFile& File, int DefaultColorIndex, int VertexOffset);
 
 	template<typename IndexType>
-	bool MinIntersectDist(const lcVector3& Start, const lcVector3& End, float& MinDist, lcVector3& Intersection);
-	bool MinIntersectDist(const lcVector3& Start, const lcVector3& End, float& MinDist, lcVector3& Intersection);
+	bool MinIntersectDist(const lcVector3& Start, const lcVector3& End, float& MinDist);
+	bool MinIntersectDist(const lcVector3& Start, const lcVector3& End, float& MinDist);
 
 	template<typename IndexType>
 	bool IntersectsPlanes(const lcVector4 Planes[6]);
@@ -71,6 +81,7 @@ public:
 	int GetLodIndex(float Distance) const;
 
 	lcMeshLod mLods[LC_NUM_MESH_LODS];
+	lcBoundingBox mBoundingBox;
 	float mRadius;
 
 	void* mVertexData;
@@ -89,7 +100,8 @@ enum lcRenderMeshState
 {
 	LC_RENDERMESH_NONE,
 	LC_RENDERMESH_SELECTED,
-	LC_RENDERMESH_FOCUSED
+	LC_RENDERMESH_FOCUSED,
+	LC_RENDERMESH_HIGHLIGHT
 };
 
 struct lcRenderMesh
@@ -104,4 +116,3 @@ struct lcRenderMesh
 
 extern lcMesh* gPlaceholderMesh;
 
-#endif // _LC_MESH_H_

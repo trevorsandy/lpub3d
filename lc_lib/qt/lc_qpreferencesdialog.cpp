@@ -6,6 +6,8 @@
 #include "lc_basewindow.h"
 #include "lc_library.h"
 #include "lc_application.h"
+#include "lc_qutils.h"
+#include "lc_glextensions.h"
 #include "pieceinf.h"
 
 lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
@@ -14,17 +16,27 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 {
     ui->setupUi(this);
 
-	ui->lineWidth->setValidator(new QDoubleValidator());
+/*** LPub3D Mod - suppress Win/macOS preferences dialog settings ***/
+//#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+//	ui->povrayLabel->hide();
+//	ui->povrayExecutable->hide();
+//	ui->povrayExecutableBrowse->hide();
+//	delete ui->povrayLabel;
+//	delete ui->povrayLayout;
+//#endif
+/*** LPub3D Mod end ***/
+
+	ui->lineWidth->setValidator(new QDoubleValidator(ui->lineWidth));
 	connect(ui->gridStudColor, SIGNAL(clicked()), this, SLOT(colorClicked()));
 	connect(ui->gridLineColor, SIGNAL(clicked()), this, SLOT(colorClicked()));
 	connect(ui->categoriesTree, SIGNAL(itemSelectionChanged()), this, SLOT(updateParts()));
 	ui->shortcutEdit->installEventFilter(this);
 	connect(ui->commandList, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(commandChanged(QTreeWidgetItem*)));
+	connect(ui->mouseTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(MouseTreeItemChanged(QTreeWidgetItem*)));
 
 	options = (lcPreferencesDialogOptions*)data;
 
 	ui->authorName->setText(options->DefaultAuthor);
-	ui->projectsFolder->setText(options->ProjectsPath);
 	ui->partsLibrary->setText(options->LibraryPath);
 	ui->povrayExecutable->setText(options->POVRayPath);
 	ui->lgeoPath->setText(options->LGEOPath);
@@ -40,12 +52,15 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 	else
 		ui->antiAliasingSamples->setCurrentIndex(0);
 	ui->edgeLines->setChecked(options->Preferences.mDrawEdgeLines);
-	ui->lineWidth->setText(QString::number(options->Preferences.mLineWidth));
+	ui->lineWidth->setText(lcFormatValueLocalized(options->Preferences.mLineWidth));
 	ui->gridStuds->setChecked(options->Preferences.mDrawGridStuds);
 	ui->gridLines->setChecked(options->Preferences.mDrawGridLines);
 	ui->gridLineSpacing->setText(QString::number(options->Preferences.mGridLineSpacing));
 	ui->axisIcon->setChecked(options->Preferences.mDrawAxes);
-	ui->enableLighting->setChecked(options->Preferences.mLightingMode != LC_LIGHTING_FLAT);
+
+	if (!gSupportsShaderObjects)
+		ui->ShadingMode->removeItem(LC_SHADING_DEFAULT_LIGHTS);
+	ui->ShadingMode->setCurrentIndex(options->Preferences.mShadingMode);
 
 	QPixmap pix(12, 12);
 
@@ -64,28 +79,36 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 	ui->categoriesTree->setCurrentItem(ui->categoriesTree->topLevelItem(0));
 
 	updateCommandList();
-
 	new lcQTreeWidgetColumnStretcher(ui->commandList, 0);
-	commandChanged(NULL);
+	commandChanged(nullptr);
 
-    /*** management - preferences dialog ***/
-    ui->authorName->setDisabled(true);
-    ui->projectsFolder->setDisabled(true);
-    ui->projectsFolderBrowse->setDisabled(true);
-    ui->partsLibrary->setDisabled(true);
-    ui->partsLibraryBrowse->setDisabled(true);
-    ui->povrayExecutable->setDisabled(true);
-    ui->povrayExecutableBrowse->setDisabled(true);
-    ui->lgeoPath->setDisabled(true);
-    ui->lgeoPathBrowse->setDisabled(true);
-    ui->checkForUpdates->hide();
-    ui->label_10->hide();                   //label check for updates
-    ui->fixedDirectionKeys->hide();
-    ui->enableLighting->hide();
+	UpdateMouseTree();
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	ui->mouseTree->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+	ui->mouseTree->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+	ui->mouseTree->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+#else
+	ui->mouseTree->header()->setResizeMode(0, QHeaderView::Stretch);
+	ui->mouseTree->header()->setResizeMode(1, QHeaderView::ResizeToContents);
+	ui->mouseTree->header()->setResizeMode(2, QHeaderView::ResizeToContents);
+#endif
+	MouseTreeItemChanged(nullptr);
 
-    ui->tabWidget->removeTab(2);            //hide tabCategories
-    ui->tabWidget->removeTab(2);            //hide tabKeyboard
-    /*** management - end ***/
+/*** LPub3D Mod - set preferences dialog properties ***/
+	ui->authorName->setDisabled(true);
+	ui->partsLibrary->setDisabled(true);
+	ui->partsLibraryBrowse->hide();
+	ui->povrayExecutable->setDisabled(true);
+	ui->povrayExecutableBrowse->hide();
+	ui->lgeoPath->setDisabled(true);
+	ui->lgeoPathBrowse->hide();
+	ui->checkForUpdates->hide();
+	ui->label_10->hide();                   //label check for updates
+	ui->fixedDirectionKeys->hide(); 
+	ui->tabWidget->removeTab(2);            //hide tabCategories
+	ui->tabWidget->removeTab(2);            //hide tabKeyboard
+	ui->tabWidget->removeTab(2);            //hide mouse
+/*** LPub3D Mod end ***/
 }
 
 lcQPreferencesDialog::~lcQPreferencesDialog()
@@ -98,12 +121,11 @@ void lcQPreferencesDialog::accept()
 	int gridLineSpacing = ui->gridLineSpacing->text().toInt();
 	if (gridLineSpacing < 1)
 	{
-		QMessageBox::information(this, "LeoCAD", tr("Grid spacing must be greater than 0."));
+		QMessageBox::information(this, "3DViewer", tr("Grid spacing must be greater than 0."));
 		return;
 	}
 
 	options->DefaultAuthor = ui->authorName->text();
-	options->ProjectsPath = ui->projectsFolder->text();
 	options->LibraryPath = ui->partsLibrary->text();
 	options->POVRayPath = ui->povrayExecutable->text();
 	options->LGEOPath = ui->lgeoPath->text();
@@ -121,24 +143,16 @@ void lcQPreferencesDialog::accept()
 		options->AASamples = 2;
 
 	options->Preferences.mDrawEdgeLines = ui->edgeLines->isChecked();
-	options->Preferences.mLineWidth = ui->lineWidth->text().toFloat();
+	options->Preferences.mLineWidth = lcParseValueLocalized(ui->lineWidth->text());
 
 	options->Preferences.mDrawGridStuds = ui->gridStuds->isChecked();
 	options->Preferences.mDrawGridLines = ui->gridLines->isChecked();
 	options->Preferences.mGridLineSpacing = gridLineSpacing;
 
 	options->Preferences.mDrawAxes = ui->axisIcon->isChecked();
-	options->Preferences.mLightingMode = ui->enableLighting->isChecked() ? LC_LIGHTING_FULL : LC_LIGHTING_FLAT;
+	options->Preferences.mShadingMode = (lcShadingMode)ui->ShadingMode->currentIndex();
 
 	QDialog::accept();
-}
-
-void lcQPreferencesDialog::on_projectsFolderBrowse_clicked()
-{
-	QString result = QFileDialog::getExistingDirectory(this, tr("Open Projects Folder"), ui->projectsFolder->text());
-
-	if (!result.isEmpty())
-		ui->projectsFolder->setText(QDir::toNativeSeparators(result));
 }
 
 void lcQPreferencesDialog::on_partsLibraryBrowse_clicked()
@@ -175,7 +189,7 @@ void lcQPreferencesDialog::colorClicked()
 {
 	QObject *button = sender();
 	QString title;
-	lcuint32 *color = NULL;
+	quint32 *color = nullptr;
 	QColorDialog::ColorDialogOptions dialogOptions;
 
 	if (button == ui->gridStudColor)
@@ -190,6 +204,8 @@ void lcQPreferencesDialog::colorClicked()
 		title = tr("Select Grid Line Color");
 		dialogOptions = 0;
 	}
+	else
+		return;
 
 	QColor oldColor = QColor(LC_RGBA_RED(*color), LC_RGBA_GREEN(*color), LC_RGBA_BLUE(*color), LC_RGBA_ALPHA(*color));
 	QColor newColor = QColorDialog::getColor(oldColor, this, title, dialogOptions);
@@ -234,7 +250,7 @@ void lcQPreferencesDialog::updateCategories()
 
 	for (int categoryIndex = 0; categoryIndex < options->Categories.GetSize(); categoryIndex++)
 	{
-		categoryItem = new QTreeWidgetItem(tree, QStringList((const char*)options->Categories[categoryIndex].Name));
+		categoryItem = new QTreeWidgetItem(tree, QStringList(options->Categories[categoryIndex].Name));
 		categoryItem->setData(0, CategoryRole, QVariant(categoryIndex));
 	}
 
@@ -244,7 +260,7 @@ void lcQPreferencesDialog::updateCategories()
 
 void lcQPreferencesDialog::updateParts()
 {
-	lcPiecesLibrary *library = lcGetPiecesLibrary();
+	lcPiecesLibrary *Library = lcGetPiecesLibrary();
 	QTreeWidget *tree = ui->partsTree;
 
 	tree->clear();
@@ -261,34 +277,34 @@ void lcQPreferencesDialog::updateParts()
 	{
 		lcArray<PieceInfo*> singleParts, groupedParts;
 
-		library->GetCategoryEntries(options->Categories[categoryIndex].Keywords, false, singleParts, groupedParts);
+		Library->GetCategoryEntries(options->Categories[categoryIndex].Keywords.constData(), false, singleParts, groupedParts);
 
 		for (int partIndex = 0; partIndex < singleParts.GetSize(); partIndex++)
 		{
 			PieceInfo *info = singleParts[partIndex];
 
 			QStringList rowList(info->m_strDescription);
-			rowList.append(info->m_strName);
+			rowList.append(info->mFileName);
 
 			new QTreeWidgetItem(tree, rowList);
 		}
 	}
 	else
 	{
-		for (int partIndex = 0; partIndex < library->mPieces.GetSize(); partIndex++)
+		for (const auto& PartIt : Library->mPieces)
 		{
-			PieceInfo *info = library->mPieces[partIndex];
+			PieceInfo* Info = PartIt.second;
 
 			for (categoryIndex = 0; categoryIndex < options->Categories.GetSize(); categoryIndex++)
 			{
-				if (library->PieceInCategory(info, options->Categories[categoryIndex].Keywords))
+				if (Library->PieceInCategory(Info, options->Categories[categoryIndex].Keywords.constData()))
 					break;
 			}
 
 			if (categoryIndex == options->Categories.GetSize())
 			{
-				QStringList rowList(info->m_strDescription);
-				rowList.append(info->m_strName);
+				QStringList rowList(Info->m_strDescription);
+				rowList.append(Info->mFileName);
 
 				new QTreeWidgetItem(tree, rowList);
 			}
@@ -352,8 +368,8 @@ void lcQPreferencesDialog::on_deleteCategory_clicked()
 	if (categoryIndex == -1)
 		return;
 
-	QString question = tr("Are you sure you want to delete the category '%1'?").arg((const char*)options->Categories[categoryIndex].Name);
-	if (QMessageBox::question(this, "LeoCAD", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+	QString question = tr("Are you sure you want to delete the category '%1'?").arg(options->Categories[categoryIndex].Name);
+	if (QMessageBox::question(this, "3DViewer", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
 
 	options->CategoriesModified = true;
@@ -373,7 +389,7 @@ void lcQPreferencesDialog::on_importCategories_clicked()
 	lcArray<lcLibraryCategory> Categories;
 	if (!lcLoadCategories(FileName, Categories))
 	{
-		QMessageBox::warning(this, "LeoCAD", tr("Error loading categories file."));
+		QMessageBox::warning(this, "3DViewer", tr("Error loading categories file."));
 		return;
 	}
 
@@ -391,14 +407,14 @@ void lcQPreferencesDialog::on_exportCategories_clicked()
 
 	if (!lcSaveCategories(FileName, options->Categories))
 	{
-		QMessageBox::warning(this, "LeoCAD", tr("Error saving categories file."));
+		QMessageBox::warning(this, "3DViewer", tr("Error saving categories file."));
 		return;
 	}
 }
 
 void lcQPreferencesDialog::on_resetCategories_clicked()
 {
-	if (QMessageBox::question(this, "LeoCAD", tr("Are you sure you want to load the default categories?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+	if (QMessageBox::question(this, "3DViewer", tr("Are you sure you want to load the default categories?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
 
 	lcResetCategories(options->Categories);
@@ -411,6 +427,8 @@ void lcQPreferencesDialog::on_resetCategories_clicked()
 
 bool lcQPreferencesDialog::eventFilter(QObject *object, QEvent *event)
 {
+	Q_UNUSED(object);
+
 	if (event->type() == QEvent::KeyPress)
 	{
 		QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
@@ -443,7 +461,7 @@ bool lcQPreferencesDialog::eventFilter(QObject *object, QEvent *event)
 		return true;
 	}
 
-	return false;
+	return QDialog::eventFilter(object, event);
 }
 
 void lcQPreferencesDialog::updateCommandList()
@@ -453,7 +471,10 @@ void lcQPreferencesDialog::updateCommandList()
 
 	for (int actionIdx = 0; actionIdx < LC_NUM_COMMANDS; actionIdx++)
 	{
-		const QString identifier = gCommands[actionIdx].ID;
+		if (!gCommands[actionIdx].ID[0])
+			continue;
+
+		const QString identifier = tr(gCommands[actionIdx].ID);
 
 		int pos = identifier.indexOf(QLatin1Char('.'));
 		int subPos = identifier.indexOf(QLatin1Char('.'), pos + 1);
@@ -553,8 +574,8 @@ void lcQPreferencesDialog::on_shortcutAssign_clicked()
 
 	setShortcutModified(current, options->KeyboardShortcuts.mShortcuts[shortcutIndex] != gCommands[shortcutIndex].DefaultShortcut);
 
-	options->ShortcutsModified = true;
-	options->ShortcutsDefault = false;
+	options->KeyboardShortcutsModified = true;
+	options->KeyboardShortcutsDefault = false;
 }
 
 void lcQPreferencesDialog::on_shortcutRemove_clicked()
@@ -574,14 +595,14 @@ void lcQPreferencesDialog::on_shortcutsImport_clicked()
 	lcKeyboardShortcuts Shortcuts;
 	if (!Shortcuts.Load(FileName))
 	{
-		QMessageBox::warning(this, "LeoCAD", tr("Error loading keyboard shortcuts file."));
+		QMessageBox::warning(this, "3DViewer", tr("Error loading keyboard shortcuts file."));
 		return;
 	}
 
 	options->KeyboardShortcuts = Shortcuts;
 
-	options->ShortcutsModified = true;
-	options->ShortcutsDefault = false;
+	options->KeyboardShortcutsModified = true;
+	options->KeyboardShortcutsDefault = false;
 }
 
 void lcQPreferencesDialog::on_shortcutsExport_clicked()
@@ -593,19 +614,220 @@ void lcQPreferencesDialog::on_shortcutsExport_clicked()
 
 	if (!options->KeyboardShortcuts.Save(FileName))
 	{
-		QMessageBox::warning(this, "LeoCAD", tr("Error saving keyboard shortcuts file."));
+		QMessageBox::warning(this, "3DViewer", tr("Error saving keyboard shortcuts file."));
 		return;
 	}
 }
 
 void lcQPreferencesDialog::on_shortcutsReset_clicked()
 {
-	if (QMessageBox::question(this, "LeoCAD", tr("Are you sure you want to load the default keyboard shortcuts?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+	if (QMessageBox::question(this, "3DViewer", tr("Are you sure you want to load the default keyboard shortcuts?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
 
 	options->KeyboardShortcuts.Reset();
 	updateCommandList();
 
-	options->ShortcutsModified = true;
-	options->ShortcutsDefault = true;
+	options->KeyboardShortcutsModified = true;
+	options->KeyboardShortcutsDefault = true;
+}
+
+void lcQPreferencesDialog::UpdateMouseTree()
+{
+	ui->mouseTree->clear();
+
+	for (int ToolIdx = 0; ToolIdx < LC_NUM_TOOLS; ToolIdx++)
+		UpdateMouseTreeItem(ToolIdx);
+}
+
+void lcQPreferencesDialog::UpdateMouseTreeItem(int ItemIndex)
+{
+	auto GetShortcutText = [this](Qt::MouseButton Button, Qt::KeyboardModifiers Modifiers)
+	{
+		QString Shortcut = QKeySequence(Modifiers).toString(QKeySequence::NativeText);
+
+		switch (Button)
+		{
+		case Qt::LeftButton:
+			Shortcut += tr("Left Button");
+			break;
+
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+		case Qt::MiddleButton:
+			Shortcut += tr("Middle Button");
+			break;
+#endif
+
+		case Qt::RightButton:
+			Shortcut += tr("Right Button");
+			break;
+
+		default:
+			Shortcut.clear();
+		}
+		return Shortcut;
+	};
+
+	QString Shortcut1 = GetShortcutText(options->MouseShortcuts.mShortcuts[ItemIndex].Button1, options->MouseShortcuts.mShortcuts[ItemIndex].Modifiers1);
+	QString Shortcut2 = GetShortcutText(options->MouseShortcuts.mShortcuts[ItemIndex].Button2, options->MouseShortcuts.mShortcuts[ItemIndex].Modifiers2);
+
+	QTreeWidgetItem* Item = ui->mouseTree->topLevelItem(ItemIndex);
+
+	if (Item)
+	{
+		Item->setText(1, Shortcut1);
+		Item->setText(2, Shortcut2);
+	}
+	else
+		new QTreeWidgetItem(ui->mouseTree, QStringList() << tr(gToolNames[ItemIndex]) << Shortcut1 << Shortcut2);
+}
+
+void lcQPreferencesDialog::on_mouseAssign_clicked()
+{
+	QTreeWidgetItem* Current = ui->mouseTree->currentItem();
+
+	if (!Current)
+		return;
+
+	int ButtonIndex = ui->mouseButton->currentIndex();
+	Qt::MouseButton Button = Qt::NoButton;
+	Qt::KeyboardModifiers Modifiers = Qt::NoModifier;
+
+	if (ButtonIndex)
+	{
+		switch (ButtonIndex)
+		{
+		case 1:
+			Button = Qt::LeftButton;
+			break;
+
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+		case 2:
+			Button = Qt::MiddleButton;
+			break;
+#endif
+
+		case 3:
+			Button = Qt::RightButton;
+			break;
+		}
+
+		if (ui->mouseControl->isChecked())
+			Modifiers |= Qt::ControlModifier;
+
+		if (ui->mouseShift->isChecked())
+			Modifiers |= Qt::ShiftModifier;
+
+		if (ui->mouseAlt->isChecked())
+			Modifiers |= Qt::AltModifier;
+
+		for (int ToolIdx = 0; ToolIdx < LC_NUM_TOOLS; ToolIdx++)
+		{
+			if (ToolIdx == ButtonIndex)
+				continue;
+
+			if (options->MouseShortcuts.mShortcuts[ToolIdx].Button2 == Button && options->MouseShortcuts.mShortcuts[ToolIdx].Modifiers2 == Modifiers)
+			{
+				if (QMessageBox::question(this, tr("Override Shortcut"), tr("This shortcut is already assigned to '%1', do you want to replace it?").arg(tr(gToolNames[ToolIdx])), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+					return;
+
+				options->MouseShortcuts.mShortcuts[ToolIdx].Button2 = Qt::NoButton;
+				options->MouseShortcuts.mShortcuts[ToolIdx].Modifiers2 = Qt::NoModifier;
+			}
+
+			if (options->MouseShortcuts.mShortcuts[ToolIdx].Button1 == Button && options->MouseShortcuts.mShortcuts[ToolIdx].Modifiers1 == Modifiers)
+			{
+				if (QMessageBox::question(this, tr("Override Shortcut"), tr("This shortcut is already assigned to '%1', do you want to replace it?").arg(tr(gToolNames[ToolIdx])), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+					return;
+
+				options->MouseShortcuts.mShortcuts[ToolIdx].Button1 = options->MouseShortcuts.mShortcuts[ToolIdx].Button2;
+				options->MouseShortcuts.mShortcuts[ToolIdx].Modifiers1 = options->MouseShortcuts.mShortcuts[ToolIdx].Modifiers2;
+				options->MouseShortcuts.mShortcuts[ToolIdx].Button2 = Qt::NoButton;
+				options->MouseShortcuts.mShortcuts[ToolIdx].Modifiers2 = Qt::NoModifier;
+			}
+		}
+	}
+
+	int ItemIndex = ui->mouseTree->indexOfTopLevelItem(Current);
+	options->MouseShortcuts.mShortcuts[ItemIndex].Button2 = options->MouseShortcuts.mShortcuts[ItemIndex].Button1;
+	options->MouseShortcuts.mShortcuts[ItemIndex].Modifiers2 = options->MouseShortcuts.mShortcuts[ItemIndex].Modifiers1;
+	options->MouseShortcuts.mShortcuts[ItemIndex].Button1 = Button;
+	options->MouseShortcuts.mShortcuts[ItemIndex].Modifiers1 = Modifiers;
+
+	options->MouseShortcutsModified = true;
+	options->MouseShortcutsDefault = false;
+
+	UpdateMouseTreeItem(ItemIndex);
+}
+
+void lcQPreferencesDialog::on_mouseRemove_clicked()
+{
+	QTreeWidgetItem* Current = ui->mouseTree->currentItem();
+
+	if (!Current)
+		return;
+
+	int ItemIndex = ui->mouseTree->indexOfTopLevelItem(Current);
+	options->MouseShortcuts.mShortcuts[ItemIndex].Button1 = options->MouseShortcuts.mShortcuts[ItemIndex].Button2;
+	options->MouseShortcuts.mShortcuts[ItemIndex].Modifiers1 = options->MouseShortcuts.mShortcuts[ItemIndex].Modifiers2;
+	options->MouseShortcuts.mShortcuts[ItemIndex].Button2 = Qt::NoButton;
+	options->MouseShortcuts.mShortcuts[ItemIndex].Modifiers2 = Qt::NoModifier;
+
+	options->MouseShortcutsModified = true;
+	options->MouseShortcutsDefault = false;
+
+	UpdateMouseTreeItem(ItemIndex);
+	MouseTreeItemChanged(Current);
+}
+
+void lcQPreferencesDialog::on_mouseReset_clicked()
+{
+	if (QMessageBox::question(this, "3DViewer", tr("Are you sure you want to load the default mouse shortcuts?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+		return;
+
+	options->MouseShortcuts.Reset();
+	UpdateMouseTree();
+
+	options->MouseShortcutsModified = true;
+	options->MouseShortcutsDefault = true;
+}
+
+void lcQPreferencesDialog::MouseTreeItemChanged(QTreeWidgetItem* Current)
+{
+	if (!Current)
+	{
+		ui->MouseShortcutGroup->setEnabled(false);
+		return;
+	}
+
+	ui->MouseShortcutGroup->setEnabled(true);
+
+	int ToolIndex = ui->mouseTree->indexOfTopLevelItem(Current);
+
+	Qt::MouseButton Button = options->MouseShortcuts.mShortcuts[ToolIndex].Button1;
+
+	switch (Button)
+	{
+	case Qt::LeftButton:
+		ui->mouseButton->setCurrentIndex(1);
+		break;
+
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+	case Qt::MiddleButton:
+		ui->mouseButton->setCurrentIndex(2);
+		break;
+#endif
+
+	case Qt::RightButton:
+		ui->mouseButton->setCurrentIndex(3);
+		break;
+
+	default:
+		ui->mouseButton->setCurrentIndex(0);
+		break;
+	}
+
+	Qt::KeyboardModifiers Modifiers = options->MouseShortcuts.mShortcuts[ToolIndex].Modifiers1;
+	ui->mouseControl->setChecked((Modifiers & Qt::ControlModifier) != 0);
+	ui->mouseShift->setChecked((Modifiers & Qt::ShiftModifier) != 0);
+	ui->mouseAlt->setChecked((Modifiers & Qt::AltModifier) != 0);
 }

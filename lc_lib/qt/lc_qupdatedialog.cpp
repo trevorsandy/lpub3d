@@ -12,27 +12,29 @@ void lcDoInitialUpdateCheck()
 	if (updateFrequency == 0)
 		return;
 
-	QSettings Settings;
-	QDateTime checkTime = Settings.value("Updates/LastCheck", QDateTime()).toDateTime();
+	QSettings settings;
+	QDateTime CheckTime = settings.value("Updates/LastCheck", QDateTime()).toDateTime();
 
-	if (!checkTime.isNull())
+	if (!CheckTime.isNull())
 	{
-		checkTime.addDays(updateFrequency == 1 ? 1 : 7);
+		QDateTime NextCheckTime = CheckTime.addDays(updateFrequency == 1 ? 1 : 7);
 
-		if (checkTime > QDateTime::currentDateTimeUtc())
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+		if (NextCheckTime > QDateTime::currentDateTimeUtc())
+#else
+		if (NextCheckTime > QDateTime::currentDateTime())
+#endif
 			return;
 	}
 
-	new lcQUpdateDialog(NULL, (void*)1);
+	new lcQUpdateDialog(nullptr, true);
 }
 
-lcQUpdateDialog::lcQUpdateDialog(QWidget *parent, void *data) :
-	QDialog(parent),
-	ui(new Ui::lcQUpdateDialog)
+lcQUpdateDialog::lcQUpdateDialog(QWidget* Parent, bool InitialUpdate)
+	: QDialog(Parent), ui(new Ui::lcQUpdateDialog), mInitialUpdate(InitialUpdate)
 {
 	ui->setupUi(this);
 
-	initialUpdate = (bool)data;
 	connect(this, SIGNAL(finished(int)), this, SLOT(finished(int)));
 
 	ui->status->setText(tr("Connecting to update server..."));
@@ -40,7 +42,7 @@ lcQUpdateDialog::lcQUpdateDialog(QWidget *parent, void *data) :
 	manager = new QNetworkAccessManager(this);
 	connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
 
-    updateReply = manager->get(QNetworkRequest(QUrl("http://www.leocad.org/updates.txt")));
+	updateReply = manager->get(QNetworkRequest(QUrl("http://www.leocad.org/updates.txt")));
 }
 
 lcQUpdateDialog::~lcQUpdateDialog()
@@ -59,8 +61,8 @@ lcQUpdateDialog::~lcQUpdateDialog()
 
 void lcQUpdateDialog::accept()
 {
-	QSettings Settings;
-	Settings.setValue("Updates/IgnoreVersion", versionData);
+	QSettings settings;
+	settings.setValue("Updates/IgnoreVersion", versionData);
 
 	QDialog::accept();
 }
@@ -71,7 +73,7 @@ void lcQUpdateDialog::reject()
 	{
 		updateReply->abort();
 		updateReply->deleteLater();
-		updateReply = NULL;
+		updateReply = nullptr;
 	}
 
 	QDialog::reject();
@@ -79,7 +81,9 @@ void lcQUpdateDialog::reject()
 
 void lcQUpdateDialog::finished(int result)
 {
-	if (initialUpdate)
+	Q_UNUSED(result);
+
+	if (mInitialUpdate)
 		deleteLater();
 }
 
@@ -95,10 +99,10 @@ void lcQUpdateDialog::replyFinished(QNetworkReply *reply)
 		versionData = reply->readAll();
 		const char *update = versionData;
 
-		QSettings Settings;
-		QByteArray ignoreUpdate = Settings.value("Updates/IgnoreVersion", QByteArray()).toByteArray();
+		QSettings settings;
+		QByteArray ignoreUpdate = settings.value("Updates/IgnoreVersion", QByteArray()).toByteArray();
 
-		if (initialUpdate && ignoreUpdate == versionData)
+		if (mInitialUpdate && ignoreUpdate == versionData)
 		{
 			updateAvailable = false;
 		}
@@ -120,9 +124,9 @@ void lcQUpdateDialog::replyFinished(QNetworkReply *reply)
 			}
 
 			if (updateAvailable)
-				status = QString(tr("<p>There's a newer version of LeoCAD available for download (%1.%2.%3).</p>")).arg(QString::number(majorVersion), QString::number(minorVersion), QString::number(patchVersion));
+				status = QString(tr("<p>There's a newer version of 3DViewer available for download (%1.%2.%3).</p>")).arg(QString::number(majorVersion), QString::number(minorVersion), QString::number(patchVersion));
 			else
-				status = tr("<p>You are using the latest LeoCAD version.</p>");
+				status = tr("<p>You are using the latest 3DViewer version.</p>");
 
 			lcPiecesLibrary* library = lcGetPiecesLibrary();
 
@@ -139,7 +143,7 @@ void lcQUpdateDialog::replyFinished(QNetworkReply *reply)
 
 			if (updateAvailable)
 			{
-				status += tr("<p>Visit <a href=\"http://www.leocad.org/files/\">http://www.leocad.org/files/</a> to download.</p>");
+				status += tr("<p>Visit <a href=\"https://github.com/leozide/leocad/releases\">https://github.com/leozide/leocad/releases</a> to download.</p>");
 			}
 
 			ui->status->setText(status);
@@ -147,15 +151,19 @@ void lcQUpdateDialog::replyFinished(QNetworkReply *reply)
 		else
 			ui->status->setText(tr("Error parsing update information."));
 
-		Settings.setValue("Updates/LastCheck", QDateTime::currentDateTimeUtc());
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
+		settings.setValue("Updates/LastCheck", QDateTime::currentDateTimeUtc());
+#else
+		settings.setValue("Updates/LastCheck", QDateTime::currentDateTime());
+#endif
 
-		updateReply = NULL;
+		updateReply = nullptr;
 		reply->deleteLater();
 	}
 	else
 		ui->status->setText(tr("Error connecting to the update server."));
 
-	if (initialUpdate)
+	if (mInitialUpdate)
 	{
 		if (updateAvailable)
 			show();

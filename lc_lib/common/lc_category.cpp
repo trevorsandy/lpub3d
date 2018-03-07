@@ -14,21 +14,20 @@ void lcResetDefaultCategories()
 
 void lcLoadDefaultCategories(bool BuiltInLibrary)
 {
-	lcMemFile File;
+	QByteArray Buffer = lcGetProfileBuffer(LC_PROFILE_CATEGORIES);
 
-	lcGetProfileBuffer(LC_PROFILE_CATEGORIES, File);
-
-	if (!File.GetLength() || !lcLoadCategories(File, gCategories))
+	if (Buffer.isEmpty() || !lcLoadCategories(Buffer, gCategories))
 		lcResetCategories(gCategories, BuiltInLibrary);
 }
 
 void lcSaveDefaultCategories()
 {
-	lcMemFile File;
+	QByteArray ByteArray;
+	QTextStream Stream(&ByteArray, QIODevice::WriteOnly);
 
-	lcSaveCategories(File, gCategories);
+	lcSaveCategories(Stream, gCategories);
 
-	lcSetProfileBuffer(LC_PROFILE_CATEGORIES, File);
+	lcSetProfileBuffer(LC_PROFILE_CATEGORIES, ByteArray);
 }
 
 void lcResetCategories(lcArray<lcLibraryCategory>& Categories, bool BuiltInLibrary)
@@ -40,16 +39,16 @@ void lcResetCategories(lcArray<lcLibraryCategory>& Categories, bool BuiltInLibra
 		"Arch=^%Arch\n"
 		"Bar=^%Bar\n"
 		"Baseplate=^%Baseplate | ^%Platform\n"
-		"Boat=^%Boat\n"
+		"Boat=^%Boat | ^%Sail\n"
 		"Brick=^%Brick\n"
 		"Container=^%Container | ^%Box | ^Chest | ^%Storage | ^Mailbox\n"
 		"Door and Window=^%Door | ^%Window | ^%Glass | ^%Freestyle | ^%Gate | ^%Garage | ^%Roller\n"
-		"Electric=^%Electric\n"
+		"Electric=^%Battery | ^%Electric\n"
 		"Hinge and Bracket=^%Hinge | ^%Bracket | ^%Turntable\n"
-		"Hose=^%Hose | ^%String\n"
+		"Hose=^%Hose | ^%Rubber | ^%String\n"
 		"Minifig=^%Minifig\n"
-		"Miscellaneous=^%Arm | ^%Barrel | ^%Brush | ^%Claw | ^%Cockpit | ^%Conveyor | ^%Crane | ^%Cupboard | ^%Fence | ^%Jack | ^%Ladder | ^%Motor | ^%Rock | ^%Rope | ^%Sheet | ^%Sports | ^%Staircase | ^%Stretcher | ^%Tap | ^%Tipper | ^%Trailer | ^%Umbrella | ^%Winch\n"
-		"Other=^%Ball | ^%Belville | ^%Die | ^%Duplo | ^%Fabuland | ^%Figure | ^%Homemaker | ^%Maxifig | ^%Microfig | ^%Mursten | ^%Scala | ^%Znap\n"
+		"Miscellaneous=^%Arm | ^%Barrel | ^%Brush | ^%Bucket | ^%Cardboard | ^%Claw | ^%Cockpit | ^%Cocoon | ^%Conveyor | ^%Crane | ^%Cupboard | ^%Fence | ^%Gold | ^%Handle | ^%Hook | ^%Jack | ^%Key | ^%Ladder | ^%Medical | ^%Motor | ^%Rock | ^%Rope | ^%Slide | ^%Sheet | ^%Snow | ^%Sports | ^%Spring | ^%Staircase | ^%Stretcher | ^%Tap | ^%Tipper | ^%Trailer | ^%Umbrella | ^%Winch\n"
+		"Other=^%Ball | ^%Belville | ^%BigFig | ^%Die | ^%Duplo | ^%Fabuland | ^%Figure | ^%Homemaker | ^%Maxifig | ^%Microfig | ^%Mursten | ^%Quatro | ^%Scala | ^%Znap\n"
 		"Panel=^%Panel | ^%Castle Wall | ^%Castle Turret\n"
 		"Plant=^%Plant\n"
 		"Plate=^%Plate\n"
@@ -62,8 +61,8 @@ void lcResetCategories(lcArray<lcLibraryCategory>& Categories, bool BuiltInLibra
 		"Technic=^%Technic | ^%Rack\n"
 		"Tile=^%Tile\n"
 		"Train=^%Train | ^%Monorail | ^%Magnet\n"
-		"Tyre and Wheel=^%Tyre | %^Wheel | %^Wheels | ^%Castle Wagon\n"
-		"Vehicle=^%Bike | ^%Canvas | ^%Car | ^%Excavator | ^%Exhaust | ^%Forklift | ^%Grab Jaw | ^%Landing | ^%Motorcycle | ^%Plane | ^%Propellor | ^%Tail | ^%Tractor | ^%Vehicle | ^%Wheelbarrow\n"
+		"Tyre and Wheel=^%Tyre | %^Wheel | %^Wheels | ^%Castle Wagon | ^%Axle\n"
+		"Vehicle=^%Bike | ^%Canvas | ^%Car | ^%Excavator | ^%Exhaust | ^%Forklift | ^%Grab Jaw | ^%Jet | ^%Landing | ^%Motorcycle | ^%Plane | ^%Propellor | ^%Tail | ^%Tractor | ^%Vehicle | ^%Wheelbarrow\n"
 		"Windscreen=^%Windscreen\n"
 		"Wedge=^%Wedge\n"
 		"Wing=^%Wing\n"
@@ -78,51 +77,48 @@ void lcResetCategories(lcArray<lcLibraryCategory>& Categories, bool BuiltInLibra
 		"Tile=^%Tile\n"
 	};
 
-	lcMemFile File;
+	QByteArray Buffer;
 
 	if (BuiltInLibrary)
-		File.WriteBuffer(BuiltInCategories, sizeof(BuiltInCategories));
+		Buffer.append(BuiltInCategories, sizeof(BuiltInCategories));
 	else
-		File.WriteBuffer(DefaultCategories, sizeof(DefaultCategories));
-	File.Seek(0, SEEK_SET);
+		Buffer.append(DefaultCategories, sizeof(DefaultCategories));
 
-	lcLoadCategories(File, Categories);
+	lcLoadCategories(Buffer, Categories);
 }
 
 bool lcLoadCategories(const QString& FileName, lcArray<lcLibraryCategory>& Categories)
 {
-	lcDiskFile File;
+	QFile File(FileName);
 
-	if (!File.Open(FileName, "rt"))
+	if (!File.open(QIODevice::ReadOnly))
 		return false;
 
-	return lcLoadCategories(File, Categories);
+	QByteArray FileData = File.readAll();
+
+	return lcLoadCategories(FileData, Categories);
 }
 
-bool lcLoadCategories(lcFile& File, lcArray<lcLibraryCategory>& Categories)
+bool lcLoadCategories(const QByteArray& Buffer, lcArray<lcLibraryCategory>& Categories)
 {
 	Categories.RemoveAll();
 
-	char Line[1024];
+	QTextStream Stream(Buffer);
 
-	while (File.ReadLine(Line, sizeof(Line)))
+	for (QString Line = Stream.readLine(); !Line.isNull(); Line = Stream.readLine())
 	{
-		char* Key = strchr(Line, '=');
+		int Equals = Line.indexOf('=');
 
-		if (!Key)
+		if (Equals == -1)
 			continue;
 
-		*Key = 0;
-		Key++;
-
-		char* NewLine = strchr(Key, '\n');
-		if (NewLine)
-			*NewLine = 0;
+		QString Name = Line.left(Equals);
+		QString Keywords = Line.mid(Equals + 1);
 
 		lcLibraryCategory& Category = Categories.Add();
 
-		Category.Name = Line;
-		Category.Keywords = Key;
+		Category.Name = Name.toLatin1().constData();
+		Category.Keywords = Keywords.toLatin1().constData();
 	}
 
 	return true;
@@ -130,25 +126,163 @@ bool lcLoadCategories(lcFile& File, lcArray<lcLibraryCategory>& Categories)
 
 bool lcSaveCategories(const QString& FileName, const lcArray<lcLibraryCategory>& Categories)
 {
-	lcDiskFile File;
+	QFile File(FileName);
 
-	if (!File.Open(FileName, "wt"))
+	if (!File.open(QIODevice::WriteOnly))
 		return false;
 
-	return lcSaveCategories(File, Categories);
+	QTextStream Stream(&File);
+
+	return lcSaveCategories(Stream, Categories);
 }
 
-bool lcSaveCategories(lcFile& File, const lcArray<lcLibraryCategory>& Categories)
+bool lcSaveCategories(QTextStream& Stream, const lcArray<lcLibraryCategory>& Categories)
 {
-	char Line[1024];
+	QString Format("%1=%2\r\n");
 
 	for (int CategoryIdx = 0; CategoryIdx < Categories.GetSize(); CategoryIdx++)
 	{
-		lcLibraryCategory& Category = Categories[CategoryIdx];
+		const lcLibraryCategory& Category = Categories[CategoryIdx];
+		Stream << Format.arg(Category.Name, QString::fromLatin1(Category.Keywords));
+	}
 
-		sprintf(Line, "%s=%s\n", (const char*)Category.Name, (const char*)Category.Keywords);
+	Stream.flush();
 
-		File.WriteLine(Line);
+	return true;
+}
+
+bool lcMatchCategory(const char* PieceName, const char* Expression)
+{
+	// Check if we need to split the test expression.
+	const char* p = Expression;
+
+	while (*p)
+	{
+		if (*p == '!')
+		{
+			return !lcMatchCategory(PieceName, p + 1);
+		}
+		else if (*p == '(')
+		{
+//			const char* Start = p;
+			int c = 0;
+
+			// Skip what's inside the parenthesis.
+			do
+			{
+				if (*p == '(')
+						c++;
+				else if (*p == ')')
+						c--;
+				else if (*p == 0)
+					return false; // Mismatched parenthesis.
+
+				p++;
+			}
+			while (c);
+
+			if (*p == 0)
+				break;
+		}
+		else if ((*p == '|') || (*p == '&'))
+		{
+			std::string LeftStr(Expression, (p - Expression) - 1);
+			std::string RightStr(p + 1);
+
+			if (*p == '|')
+				return lcMatchCategory(PieceName, LeftStr.c_str()) || lcMatchCategory(PieceName, RightStr.c_str());
+			else
+				return lcMatchCategory(PieceName, LeftStr.c_str()) && lcMatchCategory(PieceName, RightStr.c_str());
+		}
+
+		p++;
+	}
+
+	if (strchr(Expression, '('))
+	{
+		p = Expression;
+		while (*p)
+		{
+			if (*p == '(')
+			{
+				const char* Start = p;
+				int c = 0;
+
+				// Extract what's inside the parenthesis.
+				do
+				{
+					if (*p == '(')
+							c++;
+					else if (*p == ')')
+							c--;
+					else if (*p == 0)
+						return false; // Mismatched parenthesis.
+
+					p++;
+				}
+				while (c);
+
+				std::string SubExpression(Start + 1, p - Start - 2);
+				return lcMatchCategory(PieceName, SubExpression.c_str());
+			}
+
+			p++;
+		}
+	}
+
+	const char* SearchStart = Expression;
+	while (isspace(*SearchStart))
+		SearchStart++;
+
+	const char* SearchEnd = SearchStart + strlen(SearchStart) - 1;
+	while (SearchEnd >= SearchStart && isspace(*SearchEnd))
+		SearchEnd--;
+
+	// Testing a simple case.
+	std::string Search;
+	if (SearchStart != SearchEnd)
+		Search = std::string(SearchStart, SearchEnd - SearchStart + 1);
+	const char* Word = Search.c_str();
+
+	// Check for modifiers.
+	bool WholeWord = 0;
+	bool Begin = 0;
+
+	for (;;)
+	{
+		if (Word[0] == '^')
+			WholeWord = true;
+		else if (Word[0] == '%')
+			Begin = true;
+		else
+			break;
+
+		Word++;
+	}
+
+	const char* Result = strcasestr(PieceName, Word);
+
+	if (!Result)
+		return false;
+
+	if (Begin && (Result != PieceName))
+	{
+		if ((Result != PieceName + 1) || ((Result[-1] != '_') && (Result[-1] != '~')))
+			return false;
+	}
+
+	if (WholeWord)
+	{
+		char End = Result[strlen(Word)];
+
+		if ((End != 0) && (End != ' '))
+			return false;
+
+		if ((Result != PieceName) && ((Result[-1] == '_') || (Result[-1] == '~')))
+			Result--;
+
+		if ((Result != PieceName) && (Result[-1] != ' '))
+			return false;
 	}
 
 	return true;
