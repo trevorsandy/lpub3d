@@ -23,12 +23,14 @@ ${If} ${RunningX64}
     File "${Win64BuildDir}\${QuaZIPBuildFile}"
     File "${Win64BuildDir}\${LDrawIniBuildFile}"
 
+    File "${Win64BuildDir}\Qt5Concurrent.dll"
     File "${Win64BuildDir}\Qt5Core.dll"
     File "${Win64BuildDir}\Qt5Gui.dll"
     File "${Win64BuildDir}\Qt5Network.dll"
     File "${Win64BuildDir}\Qt5OpenGL.dll"
     File "${Win64BuildDir}\Qt5PrintSupport.dll"
     File "${Win64BuildDir}\Qt5Widgets.dll"
+    File "${Win64BuildDir}\Qt5Xml.dll"
 
     ;New Stuff - Qt Libraries
     File "${Win64BuildDir}\libbz2-1.dll"
@@ -122,12 +124,14 @@ ${Else}
     File "${Win32BuildDir}\${QuaZIPBuildFile}"
     File "${Win32BuildDir}\${LDrawIniBuildFile}"
 
+    File "${Win32BuildDir}\Qt5Concurrent.dll"
     File "${Win32BuildDir}\Qt5Core.dll"
     File "${Win32BuildDir}\Qt5Gui.dll"
     File "${Win32BuildDir}\Qt5Network.dll"
     File "${Win32BuildDir}\Qt5OpenGL.dll"
     File "${Win32BuildDir}\Qt5PrintSupport.dll"
     File "${Win32BuildDir}\Qt5Widgets.dll"
+    File "${Win32BuildDir}\Qt5Xml.dll"
 
     ;New Stuff - Qt Libraries
     File "${Win32BuildDir}\libbz2-1.dll"
@@ -333,14 +337,15 @@ File "${WinBuildDir}\docs\README.txt"
 ;data depository folder
 CreateDirectory "$INSTDIR\data"
 SetOutPath "$INSTDIR\data"
+File "${WinBuildDir}\extras\excludedParts.lst"
+File "${WinBuildDir}\extras\fadeStepColorParts.lst"
+File "${WinBuildDir}\extras\freeformAnnotations.lst"
 File "${WinBuildDir}\extras\LDConfig.ldr"
+File "${WinBuildDir}\extras\ldglite.ini"
 File "${WinBuildDir}\extras\PDFPrint.jpg"
 File "${WinBuildDir}\extras\pli.mpd"
-File "${WinBuildDir}\extras\titleAnnotations.lst"
-File "${WinBuildDir}\extras\freeformAnnotations.lst"
-File "${WinBuildDir}\extras\fadeStepColorParts.lst"
 File "${WinBuildDir}\extras\pliSubstituteParts.lst"
-File "${WinBuildDir}\extras\excludedParts.lst"
+File "${WinBuildDir}\extras\titleAnnotations.lst"
 
 ;ldraw libraries - data/portable location
 File "${WinBuildDir}\extras\complete.zip"

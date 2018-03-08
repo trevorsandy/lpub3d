@@ -22,7 +22,7 @@ else: VERSION  = 0.7.3    # major.minor.patch
 # 2.0, VERSION to 2.0.0.
 # And so on.
 
-contains(QT_ARCH, x86_64) {
+if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)) {
     ARCH = 64
     STG_ARCH = x86_64
 } else {

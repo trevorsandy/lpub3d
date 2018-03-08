@@ -22,7 +22,7 @@ RESOURCES += \
     qsimpleupdater/res/qsu_resources.qrc \
     mainApp/lpub3d.qrc
 
-contains(QT_ARCH, x86_64):    ARCH = 64
+if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)): ARCH = 64
 else:                         ARCH = 32
 CONFIG(debug, debug|release): BUILD = Debug Build
 else:	                      BUILD = Release Build

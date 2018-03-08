@@ -8,11 +8,11 @@ unix:!macx: CONFIG += staticlib
 win32: VERSION = 16.1.8.0   # major.minor.patch.build
 else:  VERSION = 16.1.8     # major.minor.patch
 
-contains(QT_ARCH, x86_64) {
-    ARCH = 64
+if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)) {
+    ARCH     = 64
     STG_ARCH = x86_64
 } else {
-    ARCH = 32
+    ARCH     = 32
     STG_ARCH = x86
 }
 

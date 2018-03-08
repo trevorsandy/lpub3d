@@ -1,73 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2018 Trevor SANDY &lt;trevor.sandy&amp;gmail.com&gt; -->
-<component type="desktop-application">
-	​<id>org.trevorsandy.lpub3d</id>
-	​<metadata_license>FSFAP</metadata_license>
-	​<project_license>GPL-3.0</project_license>
-	​<name>LPub3D</name>
-	​<summary>An LDraw Building Instruction Editor</summary>
-
-	​<description>
-		<p>
-			LPub3D is an Open Source WYSIWYG editing application for creating
-			LEGO® style digital building instructions. LPub3D is developed and
-			maintained by Trevor SANDY. It uses the LDraw™ parts library, the
-			most comprehensive library of digital Open Source LEGO® bricks
-			available (www.ldraw.org/) and reads the LDraw LDR and MPD model
-			file formats. LPub3D is available for free under the GNU Public License v3
-			and runs on Windows, Linux and macOS Operating Systems.
-			Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
-                        LeoCAD© 2018 Leonardo Zide.and additional third party components.
-			LEGO® is a trademark of the LEGO Group of companies which does not
-			sponsor, authorize or endorse this application.
-			© 2015-2018 Trevor SANDY
-		</p>
-	</description>
-
-	<launchable type="desktop-id">lpub3d.desktop</launchable>
-​
-	<screenshots>
-		<screenshot type="default">
-			<caption>Cover page with image</caption>
-		​	<image>https://trevorsandy.github.io/lpub3d/assets/images/slider/1.png</image>
-	​	</screenshot>
-		<screenshot>
-		​	<caption>Fade previous step</caption>
-		​	<image>https://trevorsandy.github.io/lpub3d/assets/images/slider/2.png</image>
-	​	</screenshot>
-		​<screenshot>
-		​	<caption>Rotate step image</caption>
-		​	<image>https://trevorsandy.github.io/lpub3d/assets/images/slider/3.png</image>
-	​	 </screenshot>
-	​	<screenshot>
-		​	<caption>Split BOM Parts across pages</caption>
-		​	<image>https://trevorsandy.github.io/lpub3d/assets/images/slider/4.png</image>
-	​	</screenshot>
-		​<screenshot>
-		​	<caption>Page setup dialogue</caption>
-		​	<image>https://trevorsandy.github.io/lpub3d/assets/images/slider/5.png</image>
-	​	</screenshot>
-	​	<screenshot>
-		​	<caption>Realistic image rendering</caption>
-		​	<image>https://trevorsandy.github.io/lpub3d/assets/images/slider/6.png</image>
-	​	</screenshot>
-	</screenshots>
-
-	<url type="homepage">https://github.com/trevorsandy/lpub3d</url>
-
-	<developer_name>Trevor SANDY</developer_name>
-
-	<update_contact>trevor.sandy.at.gmail.com</update_contact>
-
-	​<provides>
-	​	<binary>lpub3d</binary>
-	​</provides>
-	
-	<releases>
-		<release version="2.1.0.537" date="2018-02-16">
-			<description>
-				<p>LPub3D Linux package</p>
-			</description>
-		</release>
-	</releases>
-​</component>
+<component type="desktop">
+    <id>org.trevorsandy.lpub3d.desktop</id>
+    <name>LPub3D</name>
+    <summary>LPub3D - An LDraw Building Instruction Editor</summary>
+    <summary xml:lang="fr">LPub3D - Un éditeur d'instruction de construction LDraw</summary>
+    <translation type="gettext">lpub3d</translation>
+    <description>
+        <p>
+          LPub3D is an Open Source WYSIWYG editing application for creating
+          LEGO® style digital building instructions. LPub3D is developed and
+          maintained by Trevor SANDY. It uses the LDraw™ parts library, the
+          most comprehensive library of digital Open Source LEGO® bricks
+          available (www.ldraw.org/) and reads the LDraw LDR and MPD model
+          file formats. LPub3D is available for free under the GNU Public License v3
+          and runs on Windows, Linux and macOS Operating Systems.
+          Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
+          LeoCAD© 2018 Leonardo Zide.and additional third party components.
+          LEGO® is a trademark of the LEGO Group of companies which does not
+          sponsor, authorize or endorse this application.
+          © 2015-2018 Trevor SANDY
+        </p>
+    </description>
+    <keywords>
+        <keyword>lego</keyword>
+        <keyword>rendering</keyword>
+        <keyword>instructions</keyword>
+        <keyword>ldraw</keyword>
+        <keyword>publishing</keyword>
+        <keyword>brick</keyword>
+        <keyword>model</keyword>
+    </keywords>
+    <metadata_license>CC-BY-SA-4.0</metadata_license>
+    <project_license>GPL-3.0+</project_license>
+    <url type="bugtracker">https://github.com/trevorsandy/lpub3d/issues/new</url>
+    <url type="help">https://trevorsandy.github.io/lpub3d/</url>
+    <url type="homepage">https://trevorsandy.github.io/lpub3d/</url>
+    <screenshots>
+        <screenshot type="default">
+            <caption>Cover page with image</caption>
+            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/images/slider/1.png</image>
+        </screenshot>
+        <screenshot>
+            <caption>Fade previous step</caption>
+            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/images/slider/2.png</image>
+        </screenshot>
+        <screenshot>
+            <caption>Rotate step image</caption>
+            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/images/slider/3.png</image>
+        </screenshot>
+        <screenshot>
+            <caption>Split BOM Parts across pages</caption>
+            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/images/slider/4.png</image>
+        </screenshot>
+        <screenshot>
+            <caption>Page setup dialogue</caption>
+            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/images/slider/5.png</image>
+        </screenshot>
+        <screenshot>
+            <caption>Realistic image rendering</caption>
+            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/images/slider/6.png</image>
+        </screenshot>
+    </screenshots>
+    <launchable type="desktop-id">org.trevorsandy.lpub3d.desktop</launchable>
+    <developer_name>Trevor SANDY</developer_name>
+    <update_contact>trevor.sandy@gmail.com</update_contact>
+    ​<provides>
+        <binary>lpub3d21</binary>
+    ​</provides>
+    <releases>
+        <release version="2.1.0.787" date="2018-03-08">
+            <description>
+                <p>LPub3D Linux AppImage package</p>
+            </description>
+        </release>
+    </releases>
+</component>

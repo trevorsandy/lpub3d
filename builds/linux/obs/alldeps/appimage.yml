@@ -17,6 +17,8 @@ build:
     - pkgconfig(Qt5Widgets)
     - pkgconfig(Qt5OpenGL)
     - pkgconfig(Qt5PrintSupport)
+    - pkgconfig(Qt5Concurrent)
+    - pkgconfig(Qt5Xml)
     - libQt5Core-devel
     - libQt5Network-devel
     - libqt5-qttools-devel
@@ -51,7 +53,8 @@ script:
   - for r in $renderers; do executables="$executables -executable=$r"; done
   - unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH
   - export VERSION=$(cat builds/utilities/version.info | cut -d " " -f 1-3 | sed s/" "/./g)
-  - linuxdeployqt $BUILD_APPDIR/usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2
-  - linuxdeployqt $BUILD_APPDIR/usr/share/applications/*.desktop -appimage -verbose=2
+  - cp mainApp/lpub3d.desktop $BUILD_APPDIR/org.trevorsandy.lpub3d.desktop
+  - linuxdeployqt $BUILD_APPDIR/*.desktop $executables -bundle-non-qt-libs -verbose=2
+  - linuxdeployqt $BUILD_APPDIR/*.desktop -appimage -verbose=2
   - set +x; echo "AppImage Dynamic Lib Dependencies:" && find $BUILD_APPDIR -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo
   - AppImageFile=$(ls LPub3D*.AppImage) && test -f $AppImageFile && echo "AppImage build completed successfully." || echo "AppImage build completed with exceptions."; set -x

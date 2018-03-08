@@ -336,7 +336,7 @@ BuildLDView() {
   case ${platform_id} in
   redhat|fedora|suse)
      case ${platform_ver} in
-     24|25|27|1550)
+     24|25|27|1500|1550)
        ApplyLDViewStdlibFix
        ;;
      esac
