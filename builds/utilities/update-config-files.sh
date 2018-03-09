@@ -255,7 +255,7 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
-FILE="$LP3D_PWD/lpub3d.appdata.xml"
+FILE="$LP3D_PWD/org.trevorsandy.lpub3d.appdata.xml"
 Info "6. update appdata info    - add version and date  [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then

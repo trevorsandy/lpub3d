@@ -56,19 +56,19 @@ unix:!macx {
     man.files += $$_PRO_FILE_PWD_/docs/$$MAN_PAGE
     man.path = $$MAN_DIR
 
-    #desktop.files += lpub3d.desktop#
+    # lpub3d.desktop
     desktop.files += $$_PRO_FILE_PWD_/$$join(DIST_TARGET,,,.desktop)
     desktop.path = $$DESKTOP_DIR
 
-    #appdata.files += lpub3d.appdata.xml
-    appdata.files += $$_PRO_FILE_PWD_/$$join(DIST_TARGET,,,.appdata.xml)
-    appdata.path = $$APPDATA_DIR
+    api {
+        # org.trevorsandy.lpub3d.appdata.xml
+        appstream_appdata.files += $$_PRO_FILE_PWD_/org.trevorsandy.$$join(DIST_TARGET,,,.appdata.xml)
+        appstream_appdata.path = $$APPDATA_DIR
+    }
 
-    #icon.files += images/lpub3d.png
     icon.files += $$_PRO_FILE_PWD_/images/$$join(DIST_TARGET,,,.png)
     icon.path = $$ICON_DIR
 
-    #mime.files += lpub3d.xml
     mime.files += $$_PRO_FILE_PWD_/$$join(DIST_TARGET,,,.xml)
     mime.path = $$MIME_DIR
 
@@ -110,7 +110,6 @@ unix:!macx {
     docs \
     man \
     desktop \
-    appdata \
     icon\
     mime\
     mime_ldraw_icon \
@@ -124,6 +123,18 @@ unix:!macx {
     pli_substitution_parts \
     ldraw_unofficial_library \
     ldraw_official_library
+
+    api {
+# On OBS, this appdata scheme is fucked!
+# No matter what I try, validation across x86 and ARM AppImage builds fail on OBS.
+# On Ubuntu (Travis) there is no evidence of validation but builds are successful.
+# On x86_64 builds validation is reported as successful but there is also a message
+# stating no appstream meta info was found. On ARM builds validation fails with
+# invalid tag 'launchable' - this tag is valid. I spent 2 days on this and zero.
+# I give up!
+#        INSTALLS += \
+#        appstream_appdata
+    }
 
     DEFINES += LC_INSTALL_PREFIX=\\\"$$INSTALL_PREFIX\\\"
 

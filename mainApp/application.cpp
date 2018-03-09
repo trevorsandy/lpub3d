@@ -121,6 +121,8 @@ Application::Application(int &argc, char **argv)
   QCoreApplication::setApplicationName(VER_PRODUCTNAME_STR);
   QCoreApplication::setApplicationVersion(VER_PRODUCTVERSION_STR);
 
+  connect(this, SIGNAL(splashMsgSig(QString)), this, SLOT(splashMsg(QString)));
+
 #ifdef Q_OS_MAC
   QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
@@ -156,55 +158,56 @@ void Application::initialize()
     if (Param[0] == '-' && ! headerPrinted)
     {
       m_console_mode = true;
-      printf("%s for %s\n",VER_PRODUCTNAME_STR,VER_COMPILED_FOR);
-      printf("==========================\n");
-      printf("Arguments: %s\n",ListArgs.join(" ").toLatin1().constData());
+      fprintf(stdout, "%s for %s\n",VER_PRODUCTNAME_STR,VER_COMPILED_FOR);
+      fprintf(stdout, "==========================\n");
+      fprintf(stdout, "Arguments: %s\n",ListArgs.join(" ").toLatin1().constData());
+      fflush(stdout);
       headerPrinted = true;
     }
     if (Param == QLatin1String("-v") || Param == QLatin1String("--version"))
     {
       m_console_mode = true;
       m_print_output = true;
-      printf("%s, Version %s, Revision %s, Build %s, ShaHash %s\n",VER_PRODUCTNAME_STR,VER_PRODUCTVERSION_STR,VER_REVISION_STR,VER_BUILD_STR,VER_SHA_HASH_STR);
-      printf("Compiled on " __DATE__ "\n");
+      fprintf(stdout, "%s, Version %s, Revision %s, Build %s, ShaHash %s\n",VER_PRODUCTNAME_STR,VER_PRODUCTVERSION_STR,VER_REVISION_STR,VER_BUILD_STR,VER_SHA_HASH_STR);
+      fprintf(stdout, "Compiled on " __DATE__ "\n");
       return;
     }
     else if (Param == QLatin1String("-vv") || Param == QLatin1String("--vversion"))
     {
       m_console_mode = true;
       m_print_output = true;
-      printf("3DViewer - by LeoCAD, Version %s, ShaHash %s\n",LC_VERSION_TEXT,LC_VERSION_BUILD);
-      printf("Compiled " __DATE__ "\n");
+      fprintf(stdout, "3DViewer - by LeoCAD, Version %s, ShaHash %s\n",LC_VERSION_TEXT,LC_VERSION_BUILD);
+      fprintf(stdout, "Compiled " __DATE__ "\n");
       return;
     }
     else if (Param == QLatin1String("-?") || Param == QLatin1String("--help"))
     {
       m_console_mode = true;
       m_print_output = true;
-      printf("Usage: lpub3d [options] [file]\n");
-      printf("  [options] can be:\n");
-      printf("  -l, --libpath <path>: Set the Parts Library location to path.\n");
-      printf("  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n");
-      printf("  -w, --width <width>: Set the picture width.\n");
-      printf("  -h, --height <height>: Set the picture height.\n");
-      printf("  -f, --from <time>: Set the first step to save pictures.\n");
-      printf("  -t, --to <time>: Set the last step to save pictures.\n");
-      printf("  -s, --submodel <submodel>: Set the active submodel.\n");
-      printf("  -c, --camera <camera>: Set the active camera.\n");
-      printf("  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
-      printf("  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
-      printf("  --orthographic: Make the view orthographic.\n");
-      printf("  --highlight: Highlight pieces in the steps they appear.\n");
-      printf("  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
-      printf("  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
-      printf("  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
-      printf("  -html, --export-html <folder>: Create an HTML page for the model.\n");
-      printf("  --html-parts-width <width>: Set the HTML part pictures width.\n");
-      printf("  --html-parts-height <height>: Set the HTML part pictures height.\n");
-      printf("  -v, --version: Output LPub3D version information and exit.\n");
-      printf("  -vv, --vversion: Output 3DViewer - by LeoCAD version information and exit.\n");
-      printf("  -?, --help: Display this help message and exit.\n");
-      printf("  \n");
+      fprintf(stdout, "Usage: lpub3d [options] [file]\n");
+      fprintf(stdout, "  [options] can be:\n");
+      fprintf(stdout, "  -l, --libpath <path>: Set the Parts Library location to path.\n");
+      fprintf(stdout, "  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n");
+      fprintf(stdout, "  -w, --width <width>: Set the picture width.\n");
+      fprintf(stdout, "  -h, --height <height>: Set the picture height.\n");
+      fprintf(stdout, "  -f, --from <time>: Set the first step to save pictures.\n");
+      fprintf(stdout, "  -t, --to <time>: Set the last step to save pictures.\n");
+      fprintf(stdout, "  -s, --submodel <submodel>: Set the active submodel.\n");
+      fprintf(stdout, "  -c, --camera <camera>: Set the active camera.\n");
+      fprintf(stdout, "  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
+      fprintf(stdout, "  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
+      fprintf(stdout, "  --orthographic: Make the view orthographic.\n");
+      fprintf(stdout, "  --highlight: Highlight pieces in the steps they appear.\n");
+      fprintf(stdout, "  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
+      fprintf(stdout, "  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
+      fprintf(stdout, "  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
+      fprintf(stdout, "  -html, --export-html <folder>: Create an HTML page for the model.\n");
+      fprintf(stdout, "  --html-parts-width <width>: Set the HTML part pictures width.\n");
+      fprintf(stdout, "  --html-parts-height <height>: Set the HTML part pictures height.\n");
+      fprintf(stdout, "  -v, --version: Output LPub3D version information and exit.\n");
+      fprintf(stdout, "  -vv, --vversion: Output 3DViewer - by LeoCAD version information and exit.\n");
+      fprintf(stdout, "  -?, --help: Display this help message and exit.\n");
+      fprintf(stdout, "  \n");
       return;
     }
   }
@@ -305,7 +308,6 @@ void Application::initialize()
   // splash
   if (modeGUI())
   {
-    connect(this, SIGNAL(splashMsgSig(QString)), this, SLOT(splashMsg(QString)));
 
     QPixmap pixmap(":/resources/LPub512Splash.png");
     splash = new QSplashScreen(pixmap);
@@ -400,14 +402,12 @@ void Application::initialize()
 * guiInitialize::createMenus    [Menus]         (gui->Initialize)
 */
 
-  logInfo() << QString("-Initialize: New gui instance created.");
-
   emit splashMsgSig("20% - 3D Viewer window loading...");
 
   gApplication = new lcApplication();
   //gApplication = new lcApplication(argc, argv);
 
-  emit splashMsgSig(QString("30% - %1 window loading...").arg(VER_PRODUCTNAME_STR));
+  emit splashMsgSig(QString("30% - %1 GUI window loading...").arg(VER_PRODUCTNAME_STR));
 
   gui = new Gui();
 

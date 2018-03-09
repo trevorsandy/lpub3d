@@ -146,6 +146,7 @@ DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 LIBS += -L$$DESTDIR/../../ldrawini/$$DESTDIR -l$$LDRAWINI_LIB
 !quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$DESTDIR -l$$QUAZIP_LIB
 
+
 MAN_PAGE = $$join(TARGET,,,.1)
 message("~~~ MAIN_APP $$join(ARCH,,,bit) $${BUILD} $${CHIPSET} ~~~")
 
@@ -199,12 +200,12 @@ if(deb|rpm|pkg|dmg|exe|contains(build_package, yes)) {
     }
 }
 
-VER_LDVIEW   = ldview-4.3
-VER_LDGLITE  = ldglite-1.3
-VER_POVRAY   = lpub3d_trace_cui-3.8
-DEFINES     += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
-DEFINES     += VER_LDGLITE=\\\"$$VER_LDGLITE\\\"
-DEFINES     += VER_POVRAY=\\\"$$VER_POVRAY\\\"
+VER_LDVIEW     = ldview-4.3
+VER_LDGLITE    = ldglite-1.3
+VER_POVRAY     = lpub3d_trace_cui-3.8
+DEFINES       += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
+DEFINES       += VER_LDGLITE=\\\"$$VER_LDGLITE\\\"
+DEFINES       += VER_POVRAY=\\\"$$VER_POVRAY\\\"
 
 win32:include(winfiledistro.pri)
 macx:include(macosfiledistro.pri)
@@ -379,7 +380,7 @@ FORMS += \
 OTHER_FILES += \
     Info.plist \
     lpub3d.desktop \
-    lpub3d.appdata.xml \
+    org.trevorsandy.lpub3d.appdata.xml \
     lpub3d.xml \
     lpub3d.sh \
     $$lower($$MAN_PAGE) \

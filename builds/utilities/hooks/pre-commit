@@ -4,7 +4,7 @@
 # [build pkg*] or [deploy pkg*] is detected in the commit message.
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: February 02, 2017
+#  Last Update: March 08, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 ## Automatically generate git revision info
@@ -88,7 +88,7 @@ if test x"$update_config_files" = x"yes" && \
   git add mainApp/docs/lpub3d${major}${minor}.1
   git add mainApp/docs/README.txt
   git add mainApp/lpub3d.desktop
-  git add mainApp/lpub3d.appdata.xml
+  git add mainApp/org.trevorsandy.lpub3d.appdata.xml
   git add README.md
 
   git add builds/linux/obs/alldeps/PKGBUILD

@@ -47,14 +47,14 @@ script:
   - chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
   - echo; $QMAKE_EXEC -v; echo; $QMAKE_EXEC -makefile -nocache CONFIG+=release CONFIG-=debug_and_release CONFIG+=api
   - make clean && make -j$(nproc)
-  - make INSTALL_ROOT=$BUILD_APPDIR install
+  - make INSTALL_ROOT=$BUILD_APPDIR -j$(nproc) install
   - echo "AppImage Input Files:" && find $BUILD_APPDIR -type f && echo
   - renderers=$(find $BUILD_APPDIR/opt -type f)
   - for r in $renderers; do executables="$executables -executable=$r"; done
   - unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH
   - export VERSION=$(cat builds/utilities/version.info | cut -d " " -f 1-3 | sed s/" "/./g)
-  - cp mainApp/lpub3d.desktop $BUILD_APPDIR/org.trevorsandy.lpub3d.desktop
-  - linuxdeployqt $BUILD_APPDIR/*.desktop $executables -bundle-non-qt-libs -verbose=2
-  - linuxdeployqt $BUILD_APPDIR/*.desktop -appimage -verbose=2
+  - export VERSION=$(cat builds/utilities/version.info | cut -d " " -f 1-3 | sed s/" "/./g)
+  - linuxdeployqt $BUILD_APPDIR/usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2
+  - linuxdeployqt $BUILD_APPDIR/usr/share/applications/*.desktop -appimage -verbose=2
   - set +x; echo "AppImage Dynamic Lib Dependencies:" && find $BUILD_APPDIR -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo
   - AppImageFile=$(ls LPub3D*.AppImage) && test -f $AppImageFile && echo "AppImage build completed successfully." || echo "AppImage build completed with exceptions."; set -x
