@@ -142,6 +142,7 @@ class Preferences
     static int     rendererTimeout;
     static bool    povrayDisplay;
     static bool    isAppImagePayload;
+    static bool    modeGUI;
 
     virtual ~Preferences() {}
 };

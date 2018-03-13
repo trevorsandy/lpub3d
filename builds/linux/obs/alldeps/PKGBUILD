@@ -1,6 +1,7 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
+# Last Update March 09, 2018
 pkgname=lpub3d
-pkgver=2.1.0.788
+pkgver=2.1.0.789
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d.git"
@@ -18,7 +19,7 @@ md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP)
 prepare() {
 	# location is ../src
 	echo "  -> Current working directory: $PWD"
-	export WD=$PWD
+	export WD=$PWD; export LDRAWDIR=${HOME}/ldraw;
 	cd ${pkgname}-git
 	chmod +x builds/utilities/CreateRenderers.sh && \
 	./builds/utilities/CreateRenderers.sh
@@ -38,18 +39,19 @@ prepare() {
 	fi
 	export QT_SELECT=qt5
 	export LP3D_BUILD_PKG=yes
+	export LDRAWDIR=${HOME}/ldraw
 	if [ -x /usr/bin/qmake ] ; then
 		QMAKE_EXEC=qmake
 	elif [ -x /usr/bin/qmake-qt5 ] ; then
 		QMAKE_EXEC=qmake-qt5
 	fi
-	${QMAKE_EXEC} -makefile CONFIG+=release CONFIG-=debug_and_release CONFIG+=pkg
+	${QMAKE_EXEC} -makefile CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=pkg
 }
 
 build() {
 	cd ${pkgname}-git
 	make clean
-	make
+	make -j$(nproc)
 }
 
 package() {

@@ -98,8 +98,6 @@ lcPiecesLibrary::lcPiecesLibrary()
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 		QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
 		mCachePath = cachePathList.first();
-#else
-		mCachePath  = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
 #endif
 	}
 /*** LPub3D Mod end ***/

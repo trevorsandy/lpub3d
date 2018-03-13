@@ -230,8 +230,10 @@ else
   QMAKE_EXEC=qmake
 fi
 echo && ${QMAKE_EXEC} -v && echo
+# LDraw directory - build check
+export LDRAWDIR=${HOME}/ldraw
 # configure and build LPub3d
-${QMAKE_EXEC} -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
+${QMAKE_EXEC} -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
 make clean
 make %{?_smp_mflags}
 

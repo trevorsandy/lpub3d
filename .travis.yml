@@ -50,6 +50,9 @@ before_install:
 install:
   - source ${LP3D_CI_SCRIPT_DIR}/install
 
+before_script:
+  - source ${LP3D_CI_SCRIPT_DIR}/before_script
+
 script:
   - source ${LP3D_CI_SCRIPT_DIR}/script
 

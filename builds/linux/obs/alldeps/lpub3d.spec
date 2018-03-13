@@ -100,7 +100,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.1.0.788
+Version: 2.1.0.789
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -586,8 +586,10 @@ else
   QMAKE_EXEC=qmake
 fi
 echo && ${QMAKE_EXEC} -v && echo
+# LDraw directory - build check
+export LDRAWDIR=${HOME}/ldraw
 # configure and build LPub3d
-${QMAKE_EXEC} -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
+${QMAKE_EXEC} -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
 make clean
 make %{?_smp_mflags}
 # Check generated and updated config files
@@ -635,7 +637,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/*
 %{_datadir}/lpub3d/*
 %{_datadir}/pixmaps/*
-%{_datadir}/metainfo/*
+#  {_datadir}/metainfo/*
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*
 %attr(755,-,-) %{_3rdexedir}/*
@@ -662,5 +664,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Fri Mar 09 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.788
+* Tue Mar 13 2018 - trevor.dot.sandy.at.gmail.dot.com 2.1.0.789
 - LPub3D Linux package (rpm) release

@@ -47,6 +47,7 @@ docs/README.txt \
 ../builds/utilities/ci/sfdeploy.sh \
 ../builds/utilities/ci/travis/after_script \
 ../builds/utilities/ci/travis/before_install \
+../builds/utilities/ci/travis/before_script \
 ../builds/utilities/ci/travis/install \
 ../builds/utilities/ci/travis/prepare_store \
 ../builds/utilities/ci/travis/releases \

@@ -85,12 +85,12 @@
   #ifdef __MINGW64__
     #define VER_COMPILED_ON             "MinGW (i686-7.2.0 64bit) Windows"
     #define VER_COMPILED_FOR            "MS Windows " VER_BUILD_ARCH_STR "bit"
-    #define VER_COMPILED_WITH           "Qt qtver (MinGW 64bit)"
+    #define VER_COMPILED_WITH           "Qt qtver (MinGW " VER_BUILD_ARCH_STR "bit)"
     #define VER_IDE                     "Qt Creator 4.5.0 on Qt 5.10.0 (MSVC 2015, x32)"
   #elif __MINGW32__
     #define VER_COMPILED_ON             "MinGW (i686-5.3.0 32bit) Windows"
     #define VER_COMPILED_FOR            "MS Windows " VER_BUILD_ARCH_STR "bit"
-    #define VER_COMPILED_WITH           "Qt qtver (MinGW 32bit)"
+    #define VER_COMPILED_WITH           "Qt qtver (MinGW " VER_BUILD_ARCH_STR "bit)"
     #define VER_IDE                     "Qt Creator 4.5.0 on Qt 5.10.0 (MSVC 2015, x32)"
   #elif _MSC_VER
     #define VER_COMPILED_ON             "MSVC 2015"
@@ -99,17 +99,17 @@
     #define VER_IDE                     "Visual Studio 2015 v14.0.25424.00 Update 3"
   #elif __APPLE__
     #define VER_COMPILED_ON             "Clang (x86 64bit) Apple"
-    #define VER_COMPILED_FOR            "macOS" VER_BUILD_ARCH_STR "bit"
+    #define VER_COMPILED_FOR            "macOS " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (Clang 64bit)"
     #define VER_IDE                     "Qt Creator 4.5.0 on Qt 5.10.0 (Clang 7.0, x64)"
   #elif __linux__
     #define VER_COMPILED_ON             "GCC (5.4.1 20160904)"
-    #define VER_COMPILED_FOR            "Linux" VER_BUILD_ARCH_STR "bit"
+    #define VER_COMPILED_FOR            "Linux " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (GCC)"
     #define VER_IDE                     "Qt Creator 4.5.0 on Qt 5.10.0 (GCC 5.3.1, x64)"
   #elif defined(_POSIX_VERSION)
     #define VER_COMPILED_ON             "POSIX"
-    #define VER_COMPILED_FOR            "POSIX" VER_BUILD_ARCH_STR "bit"
+    #define VER_COMPILED_FOR            "POSIX " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (GCC)"
     #define VER_IDE                     "Qt Creator 4.5.0 on Qt 5.10.0 (GCC 5.3.1, x64)"
   #else

@@ -1,4 +1,5 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
+# Last Update March 09, 2018
 pkgname=lpub3d
 pkgver=2.1.0.313
 pkgrel=1
@@ -18,7 +19,7 @@ md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP)
 prepare() {
 	# loc = ../src
 	echo "  -> Current working directory: $PWD"
-	export WD=$PWD
+	export WD=$PWD; export LDRAWDIR=${HOME}/ldraw
 	cd ${pkgname}-git
 	chmod +x builds/utilities/CreateRenderers.sh && \
 	./builds/utilities/CreateRenderers.sh
@@ -43,13 +44,13 @@ prepare() {
 	elif [ -x /usr/bin/qmake-qt5 ] ; then
 		QMAKE_EXEC=qmake-qt5
 	fi
-	${QMAKE_EXEC} -makefile CONFIG+=release CONFIG-=debug_and_release CONFIG+=pkg
+	${QMAKE_EXEC} -makefile CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=pkg
 }
 
 build() {
 	cd ${pkgname}-git
 	make clean
-	make
+	make -j$(nproc)
 }
 
 package() {

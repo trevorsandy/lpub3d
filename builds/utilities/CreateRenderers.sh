@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 26, 2018
+#  Last Update: March 10, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -190,7 +190,7 @@ TreatLongProcess() {
   if wait $s_pid; then
     Info "$(date): $s_plabel process finished (returned $?)"
   else
-    Info "$(date): $s_plabel process FAILED! (returned $?)"
+    Info "$(date): $s_plabel process terminated (returned $?)"
   fi
 }
 
@@ -552,7 +552,7 @@ Info "Dist Directory...........[${DIST_PKG_DIR}]"
 # Change to Working directory
 cd ${WD}
 
-# Setup LDraw Library - for testing LDView and LDGLite
+# Setup LDraw Library - for testing LDView and LDGLite and also used by LPub3D test
 if [ "$OS_NAME" = "Darwin" ]; then
   LDRAWDIR_ROOT=${HOME}/Library
 else

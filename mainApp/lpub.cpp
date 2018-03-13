@@ -2459,7 +2459,7 @@ void Gui::createMenus()
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(viewLogAct);
-#if !DISABLE_UPDATE_CHECK
+#ifndef DISABLE_UPDATE_CHECK
     helpMenu->addAction(updateAppAct);
 #endif
     // Begin Jaco's code

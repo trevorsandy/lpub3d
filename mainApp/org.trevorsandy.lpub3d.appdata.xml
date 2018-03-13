@@ -61,14 +61,14 @@
             <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/images/slider/6.png</image>
         </screenshot>
     </screenshots>
-    <launchable type="desktop-id">org.trevorsandy.lpub3d.desktop</launchable>
+    <launchable type="desktop-id">lpub3d.desktop</launchable>
     <developer_name>Trevor SANDY</developer_name>
     <update_contact>trevor.sandy@gmail.com</update_contact>
     ​<provides>
         <binary>lpub3d21</binary>
     ​</provides>
     <releases>
-        <release version="2.1.0.788" date="2018-03-09">
+        <release version="2.1.0.789" date="2018-03-13">
             <description>
                 <p>LPub3D Linux AppImage package</p>
             </description>

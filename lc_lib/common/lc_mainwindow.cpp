@@ -644,7 +644,7 @@ void lcMainWindow::CreateMenus()
 	QMenu* HelpMenu = menuBar()->addMenu(tr("&Help"));
 	HelpMenu->addAction(mActions[LC_HELP_HOMEPAGE]);
 	HelpMenu->addAction(mActions[LC_HELP_BUG_REPORT]);
-#if !LC_DISABLE_UPDATE_CHECK
+#ifndef DISABLE_UPDATE_CHECK
 	HelpMenu->addAction(mActions[LC_HELP_UPDATES]);
 #endif
 #ifndef Q_OS_MACOS

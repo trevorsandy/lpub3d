@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update February 27, 2017
+# Last Update March 09, 2017
 # To run:
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
@@ -129,7 +129,7 @@ source ${LPUB3D}/builds/utilities/update-config-files.sh
 SOURCE_DIR=${LPUB3D}-${LP3D_VERSION}
 
 # set pwd before entering lpub3d root directory
-export OBS=false; export WD=$PWD; export LPUB3D=${LPUB3D}
+export OBS=false; export WD=$PWD; export LPUB3D=${LPUB3D}; export LDRAWDIR=${HOME}/ldraw
 
 echo "-  execute CreateRenderers from $(realpath ${LPUB3D}/)..."
 cd ${LPUB3D}
@@ -161,7 +161,7 @@ fi
 echo && echo "-  configure and build source from $(realpath .)..."
 #qmake LPub3D.pro -spec macx-clang CONFIG+=x86_64 /usr/bin/make qmake_all
 echo && qmake -v && echo
-qmake CONFIG+=x86_64 CONFIG+=release CONFIG-=debug_and_release CONFIG+=dmg
+qmake CONFIG+=x86_64 CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=dmg
 /usr/bin/make
 
 # Check if build is OK or stop and return error.
@@ -175,10 +175,10 @@ elif [ "$BUILD_OPT" = "compile" ]; then
   ElapsedTime
   exit 0
 else
-  # run otool -L on LPub3D.ap
+  # run otool -L on LPub3D.app
   echo && echo "otool -L check LPub3D.app/Contents/MacOS/LPub3D..." && \
   otool -L mainApp/$release/LPub3D.app/Contents/MacOS/LPub3D 2>/dev/null || \
-  Info "ERROR - otool -L check LPub3D.app/Contents/MacOS/LPub3D - failed."
+  echo "ERROR - otool -L check LPub3D.app/Contents/MacOS/LPub3D - failed."
 fi
 
 # create dmg environment - begin #
@@ -210,6 +210,9 @@ macdeployqt LPub3D.app -verbose=1 -executable=LPub3D.app/Contents/MacOS/LPub3D -
 echo "- change library dependency mapping..."
 /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
+
+echo "- build check..."
+LPub3D.app/Contents/MacOS/LPub3D -foo && echo "- build check completed." && echo
 
 echo "- setup dmg source dir $(realpath DMGSRC/)..."
 if [ -d DMGSRC ]

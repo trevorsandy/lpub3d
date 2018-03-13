@@ -147,13 +147,13 @@ void lcApplication::ExportClipboard(const QByteArray& Clipboard)
 bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryPaths, bool OnlyUsePaths, bool ShowProgress)
 {
 /*** LPub3D Mod - run search directories ***/
-            // load search directories
-            PartWorker partWorkerLDSearchDirs;
-            partWorkerLDSearchDirs.ldsearchDirPreferences();
-            // process search directories to update library archive
-            partWorkerLDSearchDirs.processLDSearchDirParts();
+    // load search directories
+    PartWorker partWorkerLDSearchDirs;
+    partWorkerLDSearchDirs.ldsearchDirPreferences();
+    // process search directories to update library archive
+    partWorkerLDSearchDirs.processLDSearchDirParts();
 
-            emit Application::instance()->splashMsgSig("80% - Archive libraries loading...");
+    emit Application::instance()->splashMsgSig("80% - Archive libraries loading...");
 /*** LPub3D Mod end ***/
 
     if (mLibrary == nullptr)
@@ -161,10 +161,14 @@ bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryP
 
     if (!OnlyUsePaths)
     {
+/*** LPub3D Mod - disable LEOCAD_LIB env var  ***/
+/***
         char* EnvPath = getenv("LEOCAD_LIB");
 
         if (EnvPath && EnvPath[0])
             return mLibrary->Load(EnvPath, ShowProgress);
+***/
+/*** LPub3D Mod end ***/
 
         QString CustomPath = lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
 
@@ -172,6 +176,8 @@ bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryP
             return mLibrary->Load(CustomPath, ShowProgress);
     }
 
+/*** LPub3D Mod - disable LibraryPaths load  ***/
+/***
     for (const QPair<QString, bool>& LibraryPathEntry : LibraryPaths)
     {
         if (mLibrary->Load(LibraryPathEntry.first, ShowProgress))
@@ -182,7 +188,8 @@ bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryP
             return true;
         }
     }
-
+***/
+/*** LPub3D Mod end ***/
     return false;
 }
 
@@ -363,17 +370,26 @@ bool lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainW
     lcLoadDefaultKeyboardShortcuts();
     lcLoadDefaultMouseShortcuts();
 
-    ShowWindow = !SaveImage && !SaveWavefront && !Save3DS && !SaveCOLLADA && !SaveHTML;
+/*** LPub3D Mod - add modeGUI to ShowWindow var ***/
+    ShowWindow = Application::instance()->modeGUI() && !SaveImage && !SaveWavefront && !Save3DS && !SaveCOLLADA && !SaveHTML;
+/*** LPub3D Mod end ***/
 
     if (!LoadPartsLibrary(LibraryPaths, OnlyUseLibraryPaths, ShowWindow))
     {
         QString Message;
 
         if (mLibrary->LoadBuiltinPieces())
-            Message = tr("3DViewer could not find a compatible Parts Library so only a small number of parts will be available.\n\nPlease visit http://www.leocad.org for information on how to download and install a library.");
+        {
+/*** LPub3D Mod - modify initial load KO message ***/
+            Message = tr("3DViewer could not find a compatible Parts Library so only a small number of parts will be available.\n");
+/*** LPub3D Mod end ***/
+        }
         else
-            Message = tr("3DViewer could not load Parts Library.\n\nPlease visit http://www.leocad.org for information on how to download and install a library.");
-
+        {
+/*** LPub3D Mod - modify initial load KO message ***/
+            Message = tr("3DViewer could not load Parts Library.\n");
+/*** LPub3D Mod end ***/
+        }
         if (ShowWindow)
             QMessageBox::information(gMainWindow, tr("3DViewer"), Message);
         else

@@ -303,7 +303,7 @@ void Application::initialize()
     logger.setLoggingLevel(OffLevel);
   }
 
-  logInfo() << QString("Initializing application.");
+  logInfo() << QString("Initializing application...");
 
   // splash
   if (modeGUI())
@@ -352,6 +352,11 @@ void Application::initialize()
 
 #if defined(Q_OS_WIN)
   lcSehInit();
+#endif
+
+/* disable LibraryPaths - library paths managed by ldrawPreferences() in Gui
+#if defined(Q_OS_WIN)
+  lcSehInit();
   if (QDir(Preferences::lpub3dPath + "/extras").exists()) { // we have a portable distribution
     LibraryPaths += qMakePair(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/extras/complete.zip"), true);
   } else {
@@ -359,37 +364,21 @@ void Application::initialize()
   }
 #endif
 #ifdef Q_OS_LINUX
-  LibraryPaths += qMakePair(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/../share/lpub3d/complete.bin"), true);
+  LibraryPaths += qMakePair(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/../share/lpub3d/complete.zip"), true);
 #endif
 
 #ifdef Q_OS_MAC
-  LibraryPaths += qMakePair(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/../../Contents/Resources/complete.bin"), true);
+  LibraryPaths += qMakePair(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/../../Contents/Resources/complete.zip"), true);
 #endif
 
-#ifdef LC_LDRAW_LIBRARY_PATH
-  LibraryPaths += qMakePair(QString::fromLatin1(LC_LDRAW_LIBRARY_PATH), false);
+#ifdef LDRAW_LIBRARY_PATH
+  LibraryPaths += qMakePair(QString::fromLatin1(LDRAW_LIBRARY_PATH), false);
 #endif
+*/
 
   setlocale(LC_NUMERIC, "C");
 
-  //-- #elif defined(Q_OS_MAC)
-  //--   QDir bundlePath = QDir(QCoreApplication::applicationDirPath());
-  //--   bundlePath.cdUp();
-  //--   bundlePath.cdUp();
-  //--   bundlePath = QDir::cleanPath(bundlePath.absolutePath() + "/Contents/lc_lib/Resources/");
-  //--   QByteArray pathArray = bundlePath.absolutePath().toLocal8Bit();
-  //--   const char* libPath = pathArray.data();
-  //-- #else
-  //--   const char* libPath = LC_INSTALL_PREFIX "/share/lpub3d/";
-  //-- #endif
-
-  //-- #ifdef LC_LDRAW_LIBRARY_PATH
-  //--   const char* LDrawPath = LC_LDRAW_LIBRARY_PATH;
-  //-- #else
-  //--   const char* LDrawPath = nullptr;
-  //-- #endif
-
-  /* load sequence
+/* load sequence
 * lc_application::LoadDefaults                  (gApplication)
 * Gui::gui                                      (gui)
 * lc_application::lcInitialize()                (gApplication->Initialize)
@@ -440,7 +429,7 @@ void Application::mainApp()
 
     gui->show();
 
-#if !LC_DISABLE_UPDATE_CHECK
+#ifndef DISABLE_UPDATE_CHECK
     DoInitialUpdateCheck();
 #endif
   }

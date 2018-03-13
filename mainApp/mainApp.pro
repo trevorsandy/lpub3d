@@ -143,8 +143,8 @@ CONFIG(debug, debug|release) {
 # build path component
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 # library target name
-LIBS += -L$$DESTDIR/../../ldrawini/$$DESTDIR -l$$LDRAWINI_LIB
-!quazipnobuild: LIBS += -L$$DESTDIR/../../quazip/$$DESTDIR -l$$QUAZIP_LIB
+LIBS += -L$$OUT_PWD/../ldrawini/$$DESTDIR -l$$LDRAWINI_LIB
+!quazipnobuild: LIBS += -L$$OUT_PWD/../quazip/$$DESTDIR -l$$QUAZIP_LIB
 
 
 MAN_PAGE = $$join(TARGET,,,.1)
@@ -409,12 +409,21 @@ QMAKE_CFLAGS_WARN_ON += \
     -Wno-sometimes-uninitialized \
     -Wno-self-assign \
     -Wno-unused-result
+} else: win32 {
+QMAKE_CFLAGS_WARN_ON += \
+   -Wno-misleading-indentation
+QMAKE_CXXFLAGS_WARN_ON += \
+   -Wno-maybe-uninitialized \
+   -Wno-implicit-fallthrough \
+   -Wno-unused-result
 } else {
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-strict-aliasing
 }
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
 
+# set config to enable initial update check
+# CONFIG+=update_check
+update_check: DEFINES += DISABLE_UPDATE_CHECK
+
 #message($$CONFIG)
-
-

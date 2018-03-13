@@ -67,9 +67,12 @@ public slots:
     /// Splash message function to display message updates during startup
     void splashMsg(QString message)
     {
-      logStatus() << message;
       if (m_console_mode)
-        return;
+      {
+          logInfo() << message;
+          return;
+      }
+      logStatus() << message;
       splash->showMessage(QSplashScreen::tr(message.toLatin1().constData()),Qt::AlignBottom | Qt::AlignLeft, Qt::white);
       m_application.processEvents();
     }

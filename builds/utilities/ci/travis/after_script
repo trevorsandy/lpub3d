@@ -3,9 +3,35 @@
 # Travis build [after_script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 31, 2018
+#  Last Update: March 13, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
+cd $LP3D_BUILD_FOLDER
+# macOS build check...
+echo "- verify LPub3D.app bundle..."
+if [[ "$TRAVIS_OS_NAME" = "osx" && "$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ]]; then
+  # run otool -L on LPub3D.app...
+  if [ -d "mainApp/64bit_release/LPub3D.app" ]; then
+    otool -L mainApp/64bit_release/LPub3D.app/Contents/MacOS/LPub3D 2>/dev/null
+    cd mainApp/64bit_release
+  else
+    echo "ERROR - build output at $(realpath mainApp/64bit_release/LPub3D.app/) not found."
+  fi
+  echo "- install library links..."
+  /usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Libs/libLDrawIni.16.dylib
+  /usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Libs/libQuaZIP.0.dylib
+  echo "- change mapping to LPub3D..."
+  /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/MacOS/LPub3D
+  /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/MacOS/LPub3D
+  echo "- bundle LPub3D..."
+  macdeployqt LPub3D.app -verbose=1 -executable=LPub3D.app/Contents/MacOS/LPub3D -always-overwrite
+  echo "- change library dependency mapping..."
+  /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
+  /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
+  echo "- build check..."
+  LPub3D.app/Contents/MacOS/LPub3D -foo && echo "- build check completed." && echo
+fi
+
 cd $LP3D_BUILD_FOLDER
 
 # Gather up and move build artefacts and logs to releases directory

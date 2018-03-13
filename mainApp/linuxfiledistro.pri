@@ -105,6 +105,9 @@ unix:!macx {
     ldraw_official_library.files += $$_PRO_FILE_PWD_/extras/complete.zip
     ldraw_official_library.path = $$RESOURCE_DIR
 
+    ldglite_ini.files += $$_PRO_FILE_PWD_/extras/ldglite.ini
+    ldglite_ini.path = $$RESOURCE_DIR
+
     INSTALLS += \
     target \
     docs \
@@ -122,7 +125,8 @@ unix:!macx {
     pli_orientation \
     pli_substitution_parts \
     ldraw_unofficial_library \
-    ldraw_official_library
+    ldraw_official_library \
+    ldglite_ini
 
     api {
 # On OBS, this appdata scheme is fucked!
@@ -134,16 +138,6 @@ unix:!macx {
 # I give up!
 #        INSTALLS += \
 #        appstream_appdata
-    }
-
-    DEFINES += LC_INSTALL_PREFIX=\\\"$$INSTALL_PREFIX\\\"
-
-    !isEmpty(DISABLE_UPDATE_CHECK) {
-            DEFINES += LC_DISABLE_UPDATE_CHECK=$$DISABLE_UPDATE_CHECK
-    }
-
-    !isEmpty(LDRAW_LIBRARY_PATH) {
-            DEFINES += LC_LDRAW_LIBRARY_PATH=\\\"$$LDRAW_LIBRARY_PATH\\\"
     }
 
     # The package distribution settings below requires a specific dev env configuration.

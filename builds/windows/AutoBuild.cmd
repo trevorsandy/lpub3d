@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: January 24, 2018
+rem  Last Update: March 10, 2018
 rem  Copyright (c) 2017 - 2018 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -55,7 +55,7 @@ SET zipWin64=C:\program files\7-zip
 SET OfficialCONTENT=complete.zip
 
 SET BUILD_THIRD=unknown
-SET THIRD_INSTALL=unknown
+SET INSTALL=unknown
 SET INSTALL_32BIT=unknown
 SET INSTALL_64BIT=unknown
 SET PLATFORM=unknown
@@ -126,12 +126,12 @@ IF NOT [%4]==[] (
 
 rem Set third party install as default behaviour
 IF [%2]==[] (
-  SET THIRD_INSTALL=1
+  SET INSTALL=1
   GOTO :BUILD
 )
 
 IF /I "%2"=="-ins" (
-  SET THIRD_INSTALL=1
+  SET INSTALL=1
   GOTO :BUILD
 )
 
@@ -181,7 +181,7 @@ CALL builds/utilities/update-config-files.bat %_PRO_FILE_PWD_%
 
 rem Perform 3rd party content install
 IF /I "%3"=="-ins" (
- SET THIRD_INSTALL=1
+ SET INSTALL=1
 )
 rem Perform build check
 IF /I "%3"=="-chk" (
@@ -194,6 +194,11 @@ IF /I "%4"=="-chk" (
 rem Create distribution folder
 IF NOT EXIST "%DIST_DIR%\" (
   MKDIR "%DIST_DIR%\"
+)
+
+rem Stage Install prior to build check
+IF %CHECK%==1 (
+  SET INSTALL=1
 )
 
 rem Check if build all platforms
@@ -215,10 +220,10 @@ rem Configure makefiles
 qmake %LPUB3D_CONFIG_ARGS%
 rem perform build
 mingw32-make
+rem Package 3rd party install content - this must come before check so check can use staged content for test
+IF %INSTALL%==1 CALL :STAGE_INSTALL
 rem Perform build check if specified
-IF %CHECK%==1 CALL :CHECK_BUILD %PLATFORM%
-rem Package 3rd party install content
-IF %THIRD_INSTALL%==1 CALL :3RD_PARTY_INSTALL
+IF %CHECK%==1 CALL :BUILD_CHECK %PLATFORM%
 GOTO :END
 
 :BUILD_ALL
@@ -242,10 +247,10 @@ FOR %%P IN ( x86, x86_64 ) DO (
   SETLOCAL ENABLEDELAYEDEXPANSION
   qmake !LPUB3D_CONFIG_ARGS! & mingw32-make !LPUB3D_MAKE_ARGS!
   ENDLOCAL
+  rem Package 3rd party install content - this must come before check so check can use staged content for test
+  IF %INSTALL%==1 CALL :STAGE_INSTALL
   rem Perform build check if specified
-  IF %CHECK%==1 CALL :CHECK_BUILD %%P
-  rem Package 3rd party install content
-  IF %THIRD_INSTALL%==1 CALL :3RD_PARTY_INSTALL
+  IF %CHECK%==1 CALL :BUILD_CHECK %%P
 )
 GOTO :END
 
@@ -269,8 +274,16 @@ ECHO   PLATFORM (BUILD_ARCH)..........[%PLATFORM%]
 SET PATH=%SYS_DIR%;%LP3D_WIN_GIT%
 SET LPUB3D_CONFIG_ARGS=CONFIG+=%CONFIGURATION% CONFIG-=debug_and_release
 IF "%APPVEYOR%" EQU "True" (
-  SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=appveyor_ci
-  ECHO   LP3D_BUILD_PKG.................[%LP3D_BUILD_PKG%]
+  IF "%LP3D_BUILD_PKG%" EQU "yes" (
+    ECHO   LP3D_BUILD_PKG.................[%LP3D_BUILD_PKG%]
+  )
+  IF %CHECK% EQU 1 (
+    ECHO   LP3D_BUILD_CHECK...............[Yes]
+    SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=exe CONFIG+=appveyor_ci
+  ) ELSE (
+    ECHO   LP3D_BUILD_CHECK...............[No]
+    SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=appveyor_ci
+  )
 ) ELSE (
   SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=exe
   SET LP3D_DIST_DIR_PATH=%CD%\%DIST_DIR%
@@ -290,22 +303,68 @@ ECHO(  PATH_PREPEND...................[!PATH!]
 )
 EXIT /b
 
-:CHECK_BUILD
+:BUILD_CHECK
 ECHO.
-ECHO -%PACKAGE% Check not yet defined.
+ECHO -%PACKAGE% Build Check...
+IF [%1] EQU [] (
+  ECHO.
+  ECHO -ERROR - No PLATFORM defined, build check will exit.
+  EXIT /b
+)
+IF NOT EXIST "%DIST_DIR%" (
+  ECHO.
+  ECHO -ERROR - 3rd Party Renderer folder '%DIST_DIR%' not found, build check will exit.
+  EXIT /b
+)
+SET PKG_PLATFORM=%1
+CALL :CHECK_LDRAW_DIR
+rem Construct the staged files path
+SET PKG_ARGUMENTS=-foo
+SET PKG_DISTRO_DIR=%PACKAGE%_%PKG_PLATFORM%
+SET PKG_PRODUCT_DIR=%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%
+SET PKG_TARGET=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_DIR%\%PACKAGE%%LP3D_APP_VER_SUFFIX%.exe
+SET PKG_CHECK_COMMAND=%PKG_TARGET% %PKG_ARGUMENTS%
+ECHO.
+ECHO   PKG_ARGUMENTS..........[%PKG_ARGUMENTS%]
+ECHO   PKG_DISTRO_DIR.........[%PKG_DISTRO_DIR%]
+ECHO   PKG_PRODUCT_DIR........[%PKG_PRODUCT_DIR%]
+ECHO   PKG_TARGET.............[%PKG_TARGET%]
+ECHO   PKG_CHECK_COMMAND......[%PKG_CHECK_COMMAND%]
+ECHO.
+ECHO -Check for executable file...
+ECHO.
+IF NOT EXIST "%PKG_TARGET%" (
+  ECHO -ERROR - %PKG_TARGET% does not exist, build check will exit.
+  EXIT /b
+) ELSE (
+  ECHO -%PKG_TARGET% found.
+  ECHO.
+  CALL %PKG_CHECK_COMMAND% > Check.out 2>&1
+  FOR %%R IN (Check.out) DO (
+    IF NOT %%~zR LSS 1 (
+      TYPE "Check.out"
+      ECHO.
+      DEL /Q "Check.out"
+      ECHO -Build check successful!
+      ECHO.
+    ) ELSE (
+      ECHO. -ERROR - build check failed.
+    )
+  )
+)
 EXIT /b
 
-:3RD_PARTY_INSTALL
+:STAGE_INSTALL
 ECHO.
 ECHO -Staging distribution files...
 ECHO.
-rem Configure makefiles and perform build
+rem Perform build and stage package components
 mingw32-make %LPUB3D_MAKE_ARGS% install
 EXIT /b
 
 :CHECK_LDRAW_DIR
 ECHO.
-ECHO -%PACKAGE% - Check for LDraw library...
+ECHO -Check for LDraw library...
 IF NOT EXIST "%LDRAW_DIR%\parts" (
   REM SET CHECK=0
   IF NOT EXIST "%LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT%" (

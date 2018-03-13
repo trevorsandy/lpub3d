@@ -55,7 +55,7 @@ macx {
     ldraw_official_library.path = Contents/Resources
 
     ldglite_ini.files += $$_PRO_FILE_PWD_/extras/ldglite.ini
-    ldglite_ini..path = Contents/Resources
+    ldglite_ini.path = Contents/Resources
 
     QMAKE_BUNDLE_DATA += \
         document_icon \

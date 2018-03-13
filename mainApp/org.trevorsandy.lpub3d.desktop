@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Name=LPub3D
+GenericName=LDraw Editor
+Comment=An LDraw Building Instruction Editor
+Exec=lpub3d20 %f
+Terminal=false
+Type=Application
+Icon=lpub3d
+MimeType=application/x-ldraw;application/x-multi-part-ldraw;application/x-multipart-ldraw;
+Keywords=;Instructions;Building;CAD;CAI;LEGO;LDraw;Renderer;Viewer;POVRay;LDView;LDGLite;Editor;
+Categories=Graphics;3DGraphics;Publishing;Viewer;Education;Engineering;

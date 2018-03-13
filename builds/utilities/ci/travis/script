@@ -3,15 +3,18 @@
 # Travis build [script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 28, 2018
+#  Last Update: March 09, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
 
 # Build distributions package (using docker-compose and AppImage for linux builds) or just compile the code
 if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
+  # build packages
   if [ "$LP3D_BUILD_PKG" = "yes" ]; then
+    # build linux packages
     if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+      # setup Docker compose directory
       if [[ "$LP3D_BUILD_ARCH2017" = "true" || "$LP3D_BUILD_FEDORA25" = "true" || "$LP3D_BUILD_XENIAL" = "true" ]]; then
         if [ ! -d "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}" ]; then
           ln -sf "$LP3D_DIST_DIR_PATH" "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}" && \
@@ -20,17 +23,21 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
           echo "Using cached 3rd Party repository ${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}";
         fi;
       fi;
+      # Docker builds - Arch
       if [ "$LP3D_BUILD_ARCH2017" = "true" ]; then
         docker-compose -f $LP3D_COMPOSE_DIR/docker-compose-cibuild-linux.yml run --rm archlinux;
       fi;
+      # Docker builds - Fedora
       if [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
         docker-compose -f $LP3D_COMPOSE_DIR/docker-compose-cibuild-linux.yml run --rm fedora_25;
       fi;
+      # Docker builds - Ubuntu
       if [ "$LP3D_BUILD_XENIAL" = "true" ]; then
         docker-compose -f $LP3D_COMPOSE_DIR/docker-compose-cibuild-linux.yml run --rm ubuntu_xenial;
       fi;
       echo "Package Files " && find $LP3D_COMPOSE_DIR -type f -not -name "*ocker*";
     fi;
+    # build macOS packages
     if [ "$LP3D_BUILD_MACOS" = "true" ]; then
       if [ ! -d "${DmgBuildPath}/${LP3D_DIST_DIR}" ]; then
         ln -sf "$LP3D_DIST_DIR_PATH" "${DmgBuildPath}/${LP3D_DIST_DIR}" && \
@@ -42,9 +49,10 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
       echo "Package Files:" && find $DmgBuildPath/DMGS -type f;
     fi;
   fi
+  # Compile source code or build AppImage
   if [[ ("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ) || \
         ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && "$TRAVIS_OS_NAME" = "linux" ) ]]; then
-    export LPUB3D=${PWD##*/}; export WD=$(cd ../ && echo $PWD);export APPIMAGE_BUILD=true
+    export LPUB3D=${PWD##*/}; export WD=$(cd ../ && echo $PWD); export LDRAWDIR=${HOME}/ldraw;
     if [ ! -d "${WD}/${LP3D_DIST_DIR}" ]; then
       ln -sf "$LP3D_DIST_DIR_PATH" "${WD}/${LP3D_DIST_DIR}" && \
       if test -d "${WD}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${WD}/${LP3D_DIST_DIR}"; fi;
@@ -57,8 +65,9 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
       export INSTALL_3RD_PARTY=yes;
     fi;
     qmake -v;
+    # build AppImage else Build Source
     if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && "$TRAVIS_OS_NAME" = "linux" ]]; then
-      qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=api;
+      qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=api;
       make -j$(nproc);
       make INSTALL_ROOT=$AppImageBuildPath -j$(nproc) install;
       [ ! -e linuxdeployqt-continuous-x86_64.AppImage ] && \
@@ -85,7 +94,7 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
         echo "AppImage build failed. $AppImageFile not found.";
       fi
     else
-      qmake -r
+      qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=deb;
       make -j$(nproc);
     fi
   fi;
