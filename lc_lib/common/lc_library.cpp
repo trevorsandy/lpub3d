@@ -14,7 +14,9 @@
 #include <ctype.h>
 #include <locale.h>
 #include <zlib.h>
+/*** LPub3D Mod - Includes ***/
 #include "lpub.h"
+/*** LPub3D Mod end ***/
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QtConcurrent>
 #endif
@@ -310,19 +312,35 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 {
 	Unload();
 
+/*** LPub3D Mod - Load alternate LDConfig.ldr if present ***/
+	bool loadAltLDConfig = false;
+
+	if (!Preferences::altLDConfigPath.isEmpty())
+	{
+		lcDiskFile ColorFile(Preferences::altLDConfigPath);
+
+		if (ColorFile.Open(QIODevice::ReadOnly) || lcLoadColorFile(ColorFile))
+			loadAltLDConfig = true;
+		else
+			lcLoadDefaultColors();
+
+	}
+/*** LPub3D Mod end ***/
+
 	if (OpenArchive(LibraryPath, LC_ZIPFILE_OFFICIAL))
 	{
 		lcMemFile ColorFile;
 
-		/*** LPub3D Mod - Rename LDConfig.ldr ***/
-		if (!mZipFiles[LC_ZIPFILE_OFFICIAL]->ExtractFile("ldraw/LDConfig.ldr", ColorFile) || !lcLoadColorFile(ColorFile))
-			lcLoadDefaultColors();
-		/*** LPub3D Mod end ***/
+/*** LPub3D Mod - rename LDConfig.ldr to use Capitol case ***/
+		if (!loadAltLDConfig)
+			if (!mZipFiles[LC_ZIPFILE_OFFICIAL]->ExtractFile("ldraw/LDConfig.ldr", ColorFile) || !lcLoadColorFile(ColorFile))
+				lcLoadDefaultColors();
+/*** LPub3D Mod end ***/
 
 		mLibraryDir = QFileInfo(LibraryPath).absoluteDir();
-		/*** LPub3D Mod - unoffical library file name ***/
+/*** LPub3D Mod - unoffical library file name ***/
 		QString UnofficialFileName = mLibraryDir.absoluteFilePath(QLatin1String(FILE_LPUB3D_UNOFFICIAL_ARCHIVE));
-		/*** LPub3D Mod end ***/
+/*** LPub3D Mod end ***/
 
 
 		if (!OpenArchive(UnofficialFileName, LC_ZIPFILE_UNOFFICIAL))
@@ -334,7 +352,9 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 	{
 		mLibraryDir = LibraryPath;
 
-		if (OpenDirectory(mLibraryDir, ShowProgress))
+/*** LPub3D Mod - add alt LDConfig load flag ***/
+		if (!loadAltLDConfig && OpenDirectory(mLibraryDir, ShowProgress))
+/*** LPub3D Mod end ***/
 		{
 			lcDiskFile ColorFile(mLibraryDir.absoluteFilePath(QLatin1String("ldconfig.ldr")));
 
