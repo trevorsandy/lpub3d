@@ -68,7 +68,7 @@
         <binary>lpub3d21</binary>
     ​</provides>
     <releases>
-        <release version="2.1.0.790" date="2018-03-14">
+        <release version="2.1.0.791" date="2018-03-14">
             <description>
                 <p>LPub3D Linux AppImage package</p>
             </description>

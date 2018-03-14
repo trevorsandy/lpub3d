@@ -2542,7 +2542,7 @@ void Gui::createDockWindows()
     fileEditDockWindow->setWidget(editWindow);
     addDockWidget(Qt::RightDockWidgetArea, fileEditDockWindow);
     viewMenu->addAction(fileEditDockWindow->toggleViewAction());
-//**3D
+//** 3DViewer Window
     modelDockWindow->setObjectName("ModelDockWindow");
     modelDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
@@ -2574,22 +2574,10 @@ void Gui::readSettings()
 {
     QSettings Settings;
     Settings.beginGroup(MAINWINDOW);
-#ifdef Q_OS_MAC
-    const QByteArray geometry = Settings.value("Geometry", QByteArray()).toByteArray();
-    if (geometry.isEmpty()) {
-        const QRect availableGeometry = QApplication::desktop()->availableGeometry(this);
-        resize(availableGeometry.width() / 3, availableGeometry.height() / 2);
-        move((availableGeometry.width() - width()) / 2,
-             (availableGeometry.height() - height()) / 2);
-    } else {
-        restoreGeometry(geometry);
-    }
-#else
     restoreGeometry(Settings.value("Geometry").toByteArray());
     restoreState(Settings.value("State").toByteArray());
     QSize size = Settings.value("Size", QDesktopWidget().availableGeometry(this).size()*0.6).toSize();
     resize(size);
-#endif
     Settings.endGroup();
 }
 
@@ -2597,12 +2585,8 @@ void Gui::writeSettings()
 {
     QSettings Settings;
     Settings.beginGroup(MAINWINDOW);
-#ifdef Q_OS_MAC
-     Settings.setValue("Geometry", saveGeometry());
-#else
     Settings.setValue("Geometry", saveGeometry());
     Settings.setValue("State", saveState());
     Settings.setValue("Size", size());
-#endif
     Settings.endGroup();
 }

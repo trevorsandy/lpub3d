@@ -799,7 +799,11 @@ void Preferences::ldrawPreferences(bool force)
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
         dataPathList = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
         homePath = dataPathList.first();
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
         dataPathList = QStandardPaths::standardLocations(QStandardPaths::AppLocalDataLocation);
+#else
+        dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+#endif
         userLocalDataPath = dataPathList.first();
         dataPathList = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
         userDocumentsPath = dataPathList.first();
@@ -1410,12 +1414,12 @@ void Preferences::renderPreferences(bool force)
     // LDGLite Ini
     resourceFile.setFile(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDGLITE_STR, VER_LDGLITE_INI_FILE));
     if (!resourceFile.exists()) {
+        logInfo() << QString("Configuring %1...").arg(resourceFile.absoluteFilePath());
         if (!resourceFile.absoluteDir().exists())
             resourceFile.absoluteDir().mkpath(".");
         QFile::copy(lpub3dPath + dataLocation + resourceFile.fileName(), resourceFile.absoluteFilePath());
     }
-    confFileIn.setFileName(resourceFile.absoluteFilePath());
-    logInfo() << QString("Configuring %1...").arg(confFileIn.fileName());
+    confFileIn.setFileName(resourceFile.absoluteFilePath());  
     if (confFileIn.open(QIODevice::ReadOnly))
     {
         ldgliteParms.clear();

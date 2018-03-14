@@ -826,7 +826,7 @@ void MetaItem::calloutAddToPrev(
   if (rc == CalloutDividerRc) {
     Where divider = walk++;
     rc = scanForward(walk,StepMask|CalloutMask);
-    if (rc == StepRc || RotStepRc) {
+    if (rc == StepRc || rc == RotStepRc) {
       Where lastStep = walk;
       ++walk;
       rc = scanForward(walk,StepMask|CalloutMask);
