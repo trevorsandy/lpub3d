@@ -2345,6 +2345,9 @@ void Gui::createMenus()
     editMenu = menuBar()->addMenu(tr("&Edit"));
     editMenu->addAction(undoAct);
     editMenu->addAction(redoAct);
+
+    editMenu->addSeparator();
+
     editMenu->addAction(insertCoverPageAct);
     editMenu->addAction(appendCoverPageAct);
     editMenu->addAction(insertNumberedPageAct);
@@ -2357,7 +2360,7 @@ void Gui::createMenus()
 
     editMenu->addSeparator();
 
-    QMenu* ToolBarEditorMenu = editMenu->addMenu(tr("Editor T&oolbar"));
+    QMenu* ToolBarEditorMenu = editMenu->addMenu(tr("LDraw File Editor T&oolbar"));
     ToolBarEditorMenu->addAction(editWindow->editToolBar->toggleViewAction());
 
     viewMenu = menuBar()->addMenu(tr("&View"));
@@ -2437,7 +2440,7 @@ void Gui::createMenus()
     ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_RESET_VIEWS]);
     ViewerMenu->addSeparator();
 
-    QMenu* ToolBarViewerMenu = ViewerMenu->addMenu(tr("T&oolbar"));
+    QMenu* ToolBarViewerMenu = ViewerMenu->addMenu(tr("3DViewer Too&lbar"));
     ToolBarViewerMenu->addAction(gMainWindow->mToolsToolBar->toggleViewAction());
 
     FileMenuViewer = menuBar()->addMenu(tr("&Step"));

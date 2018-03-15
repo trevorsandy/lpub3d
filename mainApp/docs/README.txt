@@ -1,7 +1,10 @@
-LPub3D 2.1.0.1.791 (14 03 2018 20:28:23)
+LPub3D 2.1.0.1.792 (15 03 2018 01:38:18)
 
 Features and enhancements
 ------------
+Fix: Appended page is not displayed. When you append a page to your sub/model where the last step does not contain any parts - for example if the last step only contains BOM-related metas (e.g. 0 !LPUB INSERT BOM), the added page meta 0 !LPUB INSERT PAGE is not preceded by a step meta 0 !LPUB STEP and, consequently, is not displayed.
+If the appended page meta is added where the last step contains parts (STEP or ROTSTEP) or is a callout step, the behaviour is as expected.
+
 Change: Enable 3DViewer to use alternate LDConfig.ldr colour file. This change brings the viewer in line with functionality available in the renderers. I expect the extend this capability in the future to allow unique colour submissions per CSI, and possibly PLI if it makes sense, which can enhance part fade and highlighting. # 34
 
 Change: Add LPu3D build check - macOS & Windows. DevOps feature as first step to enabling CI-based TDD, and UI checks. See https://github.com/trevorsandy/lpub3d/issues/33 for additional context. #33

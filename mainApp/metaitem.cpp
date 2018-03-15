@@ -1900,31 +1900,36 @@ void MetaItem::insertPage(QString &meta)
 
 void MetaItem::appendPage(QString &meta)
 {
+  // start at the bottom of the page's last step
   Where bottomOfStep = gui->topOfPages[gui->displayPageNum+1];
-  if (bottomOfStep.lineNumber == gui->subFileSize(bottomOfStep.modelName)) {
-    --bottomOfStep;
-  }
+  bottomOfStep.lineNumber = gui->subFileSize(bottomOfStep.modelName); //adjust to start at absolute bottom of file
+  bottomOfStep--;                                                     //adjust for zero-start index
+
   bool addStep = false;
+  bool token_1_5 = false;
 
   Where walk = bottomOfStep;
   int numLines = gui->subFileSize(walk.modelName);
 
+  // walk backwards (towards the top of the page) until we hit one of the following...
   for (; walk < numLines && walk > 0; --walk) {
     QString line = gui->readLine(walk);
     QStringList tokens;
     split(line,tokens);
-
-    if ((tokens.size() == 15 && tokens[0] == "1") ||
-        (tokens.size() == 4  && tokens[0] == "0" && tokens[1] == "!LPUB" && tokens[2] == "INSERT" && tokens[3] == "COVER_PAGE")) {
+    // if we hit COVER_PAGE, set addStep and stop the loop.
+    token_1_5 = tokens.size() && tokens[0].size() == 1 && tokens[0] >= "1" && tokens[0] <= "5"; //non-zeor line detected
+    if (token_1_5 || (tokens.size() == 4  && tokens[2] == "INSERT" && tokens[3] == "COVER_PAGE")) {
       addStep = true;
       break;
     }
-
+    // if we hit STEP or ROTSTEP, stop the loop.
     if ((tokens.size() == 2 && tokens[0] == "0" && tokens[1] == "STEP") ||
         (tokens.size() > 2  && tokens[0] == "0" && tokens[1] == "ROTSTEP")) {
       break;
     }
   }
+  // from the bottom of the page, if addStep not step, walk forward (towards the bottom of the page)
+  // until we hit a valid part (type 1) line, PAGE, or BOM meta and set addStep.
   walk = bottomOfStep;
   if ( ! addStep) {
     for ( ; walk < numLines; ++walk) {
@@ -1932,7 +1937,10 @@ void MetaItem::appendPage(QString &meta)
       QStringList tokens;
       split(line,tokens);
 
-      if (tokens.size() == 15 && tokens[0] == "1") {
+      token_1_5 = tokens.size() && tokens[0].size() == 1 && tokens[0] >= "1" && tokens[0] <= "5"; //non-zeor line detected
+      if (token_1_5 ||
+          (tokens.size() == 4  && tokens[2] == "INSERT" && tokens[3] == "PAGE") ||
+          (tokens.size() == 4  && tokens[2] == "INSERT" && tokens[3] == "BOM")) {
         addStep = true;
         break;
       }
