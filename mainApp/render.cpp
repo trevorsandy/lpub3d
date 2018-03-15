@@ -1072,14 +1072,18 @@ int Render::renderLDViewSCallCsi(
   QString ldrName;
   QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
   foreach(ldrName, ldrNames){
-      QFileInfo fInfo(ldrName.replace(".ldr",".png"));
-      QString imageFilePath = QDir::currentPath() + "/" +
-          Paths::assemDir + "/" + fInfo.fileName();
-      if (! dir.rename(fInfo.absoluteFilePath(), imageFilePath)){
-          //in case failure because file exist
-          QFile pngFile(imageFilePath);
-          if (! pngFile.exists()){
-              emit gui->messageSig(false,QMessageBox::tr("LDView (Single Call) CSI image file move failed for\n%1").arg(imageFilePath));
+      QFileInfo imageFileInfo(ldrName.replace(".ldr",".png"));
+      QString pngFilePath = QDir::currentPath() + "/" +
+          Paths::assemDir + "/" + imageFileInfo.fileName();
+      QFileInfo pngFileInfo(pngFilePath);
+      if (pngFileInfo.exists()) {
+          QFile pngFile(pngFileInfo.absoluteFilePath());
+          pngFile.remove();     // delete old file if exist
+       }
+      if (! dir.rename(imageFileInfo.absoluteFilePath(), pngFileInfo.absoluteFilePath())){
+          if (! pngFileInfo.exists()){
+              emit gui->messageSig(false,QMessageBox::tr("LDView (Single Call) CSI image file move failed for\n%1")
+                                   .arg(pngFileInfo.absoluteFilePath()));
               return -1;
             }
         }
@@ -1166,14 +1170,18 @@ int Render::renderLDViewSCallPli(
   QString ldrName;
   QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
   foreach(ldrName, ldrNames){
-      QFileInfo fInfo(ldrName.replace(".ldr",".png"));
-      QString imageFilePath = QDir::currentPath() + "/" +
-          Paths::partsDir + "/" + fInfo.fileName();
-      if (! dir.rename(fInfo.absoluteFilePath(), imageFilePath)){
-          //in case failure because file exist
-          QFile pngFile(imageFilePath);
-          if (! pngFile.exists()){
-              emit gui->messageSig(false,QMessageBox::tr("LDView (Single Call) PLI image file move failed for\n%1").arg(imageFilePath));
+      QFileInfo imageFileInfo(ldrName.replace(".ldr",".png"));
+      QString pngFilePath = QDir::currentPath() + "/" +
+          Paths::partsDir + "/" + imageFileInfo.fileName();
+      QFileInfo pngFileInfo(pngFilePath);
+      if (pngFileInfo.exists()) {
+          QFile pngFile(pngFileInfo.absoluteFilePath());
+          pngFile.remove();     // delete old file if exist
+       }
+      if (! dir.rename(imageFileInfo.absoluteFilePath(), pngFileInfo.absoluteFilePath())){
+          if (! pngFileInfo.exists()){
+              emit gui->messageSig(false,QMessageBox::tr("LDView (Single Call) PLI image file move failed for\n%1")
+                                   .arg(pngFileInfo.absoluteFilePath()));
               return -1;
             }
         }
