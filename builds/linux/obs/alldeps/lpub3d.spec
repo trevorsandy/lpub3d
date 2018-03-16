@@ -30,21 +30,33 @@
 %endif
 
 # set target platform id
-# distinguish between OpenSUSE and SLE
-%if (0%{?sles_version} && 0%{?sle_version}>=120000)
-%define dist .SUSE%(echo %{sles_version} | sed 's/0$//')
-%define build_sdl2 1
+# distinguish between SLE, openSUSE Leap and openSUSE
+# SUSE Linux Enterprise Server
+%if (0%{?sle_version}>=120000 && 0%{?sle_version}<=150000 && !0%{?is_opensuse})
+%define dist .SLE%(echo %{sle_version} | sed 's/0$//')
 %define suse_dist_name %(echo SUSE Linux Enterprise Server)
 %define suse_dist_label %(echo %{suse_dist_name}...%{sle_version})
 %define suse_dist_pretty_name %(echo %{suse_dist_name} %{sle_version})
-%define suse_dist_version %{sles_version}
+%define suse_dist_version %{sle_version}
+%define build_sdl2 1
 %else
-%if 0%{?suse_version}
+# openSUSE Leap
+%if (0%{?sle_version}>=120100 && 0%{?sle_version}<=150000 && 0%{?is_opensuse})
+%define dist .openSUSELeap%(echo %{sle_version} | sed 's/0$//')
+%define suse_dist_name %(echo openSUSE Leap)
+%define suse_dist_label %(echo %{suse_dist_name}..................%{sle_version})
+%define suse_dist_pretty_name %(echo %{suse_dist_name} %{sle_version})
+%define suse_dist_version %{sle_version}
+%define build_sdl2 1
+%else
+# openSUSE
+%if (0%{?suse_version}>=1320 && 0%{?suse_version}<=1550)
 %define dist .openSUSE%(echo %{suse_version} | sed 's/0$//')
-%define suse_dist_name %(echo OpenSUSE)
+%define suse_dist_name %(echo openSUSE)
 %define suse_dist_label %(echo %{suse_dist_name}.......................%{suse_version})
 %define suse_dist_pretty_name %(echo %{suse_dist_name} %{suse_version})
 %define suse_dist_version %{suse_version}
+%endif
 %endif
 %endif
 
@@ -71,7 +83,7 @@
 %endif
 
 # distro group settings
-%if 0%{?suse_version} || 0%{?sles_version}
+%if 0%{?suse_version} || 0%{?sle_version}
 Group: Productivity/Graphics/Viewers
 %endif
 
@@ -87,7 +99,7 @@ Group: Amusements/Graphics
 License: GPLv2+
 %endif
 
-%if 0%{?suse_version} || 0%{?sles_version}
+%if 0%{?suse_version} || 0%{?sle_version}
 License: GPL-2.0+
 BuildRequires: fdupes
 %endif
@@ -121,8 +133,9 @@ BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
 %if !0%{?rhel_version}
 BuildRequires: mesa-libOSMesa-devel, OpenEXR-devel
 %endif
+BuildRequires: freeglut-devel
 BuildRequires: mesa-libGLU-devel
-BuildRequires: freeglut-devel, boost-devel, libtiff-devel
+BuildRequires: boost-devel, libtiff-devel
 BuildRequires: gcc-c++, make, libpng-devel
 %if 0%{?buildservice}!=1
 BuildRequires: git
@@ -131,6 +144,7 @@ BuildRequires: git
 
 %if 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
 %if 0%{?scientificlinux_version}
+BuildRequires: gnu-free-sans-fonts
 BuildRequires: kde-runtime
 %endif
 BuildRequires: libjpeg-turbo-devel
@@ -166,12 +180,15 @@ BuildRequires: openssl-devel, storaged
 
 %if 0%{?suse_version}
 Requires(pre): gconf2
+%if (0%{?sle_version}!=150000)
+BuildRequires: freeglut-devel
+%endif
 BuildRequires: libqt5-qtbase-devel
-BuildRequires: libOSMesa-devel, glu-devel, openexr-devel, freeglut-devel
+BuildRequires: libOSMesa-devel, glu-devel, openexr-devel
 BuildRequires: libpng16-compat-devel, libjpeg8-devel
 BuildRequires: update-desktop-files
 BuildRequires: zlib-devel
-%if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315)
+%if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315 && 0%{?sle_version}!=150000)
 BuildRequires: gl2ps-devel
 %else
 %define build_gl2ps 1
@@ -214,7 +231,7 @@ BuildRequires: libsane1, libproxy-webkit, libopenssl-devel
 %endif
 %endif
 
-%if 0%{?sles_version}
+%if 0%{?sle_version}
 %define build_tinyxml 1
 %define osmesa_found %(test -f /usr/lib/libOSMesa.so -o -f /usr/lib64/libOSMesa.so && echo 1 || echo 0)
 %if 0%{osmesa_found} != 1
@@ -225,9 +242,13 @@ BuildRequires:  -post-build-checks
 %endif
 Requires(post): desktop-file-utils
 %endif
+%if 0%{?scientificlinux_version}
+BuildRequires:  python-gobject
+BuildRequires:  python-gobject-base
+%endif
 
 # POV-Ray dependencies - SUSE/CentOS builds
-%if 0%{?suse_version} || 0%{?sles_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
+%if 0%{?suse_version} || 0%{?sle_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires:  gcc-c++
@@ -237,7 +258,7 @@ BuildRequires:  libpng-devel
 BuildRequires:  libtiff-devel
 BuildRequires:  libSM-devel
 BuildRequires:  pkgconfig(zlib)
-%if 0%{?suse_version} || 0%{?sles_version}
+%if 0%{?suse_version} || 0%{?sle_version}
 BuildRequires:  fdupes
 %endif
 %if 0%{?suse_version}>1325
@@ -255,7 +276,7 @@ BuildRequires:  libXpm-devel
 %if !0%{?rhel_version}
 BuildRequires:  pkgconfig(OpenEXR)
 %endif
-%if (0%{?sles_version}!=1315 && 0%{?suse_version}!=1315 && !0%{?centos_version} && !0%{?rhel_version} && !0%{?scientificlinux_version})
+%if (0%{?suse_version}!=1315 && !0%{?centos_version} && !0%{?rhel_version} && !0%{?scientificlinux_version})
 BuildRequires:  pkgconfig(sdl2)
 %endif
 %endif
@@ -422,7 +443,7 @@ BuildRequires:  pkgconfig(xxf86vm)
 
 %prep
 set +x
-%if 0%{?suse_version} || 0%{?sles_version}
+%if 0%{?suse_version} || 0%{?sle_version}
 echo "%{suse_dist_label}"
 %endif
 %if 0%{?centos_ver}
@@ -491,7 +512,7 @@ for TarballFile in \
 done
 # OBS Platform id and version
 %if 0%{?buildservice}
-%if 0%{?suse_version} || 0%{?sles_version}
+%if 0%{?suse_version} || 0%{?sle_version}
 export PLATFORM_PRETTY_OBS="%{suse_dist_pretty_name}"
 export PLATFORM_VER_OBS=%{suse_dist_version}
 %endif
@@ -621,7 +642,7 @@ echo "ERROR - LDD check failed for ${validExe}"
 %if 0%{?suse_version}
 %suse_update_desktop_file lpub3d Graphics 3DGraphics Publishing Viewer Education Engineering
 %endif
-%if 0%{?suse_version} || 0%{?sles_version}
+%if 0%{?suse_version} || 0%{?sle_version}
 %fdupes %{buildroot}/%{_iconsdir}
 # skip rpath check on 3rd-party binaries to avoid 'RPATH "" ... is not allowed' fail on SUSE builds
 export NO_BRP_CHECK_RPATH=true
@@ -631,7 +652,7 @@ export NO_BRP_CHECK_RPATH=true
 rm -rf $RPM_BUILD_ROOT
 
 %files
-%if 0%{?sles_version} || 0%{?suse_version}
+%if 0%{?sle_version} || 0%{?suse_version}
 %defattr(-,root,root)
 %endif
 %{_bindir}/*
@@ -664,5 +685,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Thu Mar 15 2018 - trevor.dot.sandy.at.gmail.dot.com 2.2.0.795
+* Fri Mar 16 2018 - trevor.dot.sandy.at.gmail.dot.com 2.2.0.795
 - LPub3D Linux package (rpm) release

@@ -1,8 +1,8 @@
-LPub3D 2.2.0.0.795 (15 03 2018 23:03:41)
+LPub3D 2.2.0.0.795 (16 03 2018 22:18:40)
 
 Features and enhancements
 ------------
-Enhancement: Upgrade LDView renderer to commit e56a9b8bc25a001aaa8042ddab8ffc9cdb9f5a9e (v4.4 alpha). Includes command line snapshot support for -SaveSnapshotsList, fix command line snapshot scale factor bug, and add support for command line scale factor.
+Enhancement: Upgrade LDView renderer to commit e56a9b8bc25a001aaa8042ddab8ffc9cdb9f5a9e (v4.4 alpha). Includes command line snapshot support for -SaveSnapshotsList which improves performance, and add support for command line scale factor.
 
 Fix: Newer CSI images not saved when using LDView (Single Call) render. When using the LDView Single-call option, generated images were not updated when a newer instance of the model file was opened in LPub3D - for example if an update was saved to the model file. This behaviour resulted in the image files being generated every time the model file was opened or on loading a new step because the conditional check if the model file was newer that the image file would always be true. If the image file exist, the newly generated image file would not be saved. This correction deletes the old image file is a new instance is generated allowing the new instance to be saved. #36
 
@@ -13,7 +13,7 @@ Enhancement: Enable 3DViewer to use alternate LDConfig.ldr colour file. This cha
 
 Enhancement: Add LPu3D build check - macOS & Windows. DevOps feature as first step to enabling CI-based TDD, and UI checks. See https://github.com/trevorsandy/lpub3d/issues/33 for additional context. #33
 
-Enhancement: Upgrade 3DViewer to LeoCAD 18.2 GitSha d4687e0. As part of this upgrade, LPub3D command line capability "console mode" was also enabled. At the moment all LeoCAD command line capabilities are enabled (experimental) along with help and LPub3D version information. Type "<install path>\lpub3d -?" for complete list of available command line flags. #32
+Enhancement: Upgrade 3DViewer to LeoCAD 18.2 GitSha d4687e0. Includes new shader for improved image quality. As part of this upgrade, LPub3D command line capability "console mode" was also enabled. At the moment all LeoCAD command line capabilities are enabled (experimental) along with help and LPub3D version information. Type "<install path>\lpub3d -?" for complete list of available command line flags. #32
 
 Enhancement: Update about-dialogue support links. Add GitHub issues URL. #31
 

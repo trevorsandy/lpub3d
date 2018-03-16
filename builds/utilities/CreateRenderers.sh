@@ -369,10 +369,10 @@ BuildLDView() {
   ${QMAKE_EXEC} -v && Info
   ${QMAKE_EXEC} CONFIG+=3RD_PARTY_INSTALL=../../${DIST_DIR} ${BUILD_CONFIG}
   if [ "${OBS}" = "true" ]; then
-    make -j${BUILD_CPUs}
+    make -j1
     make install
   else
-    make -j${BUILD_CPUs} > $2 2>&1 &
+    make -j1 > $2 2>&1 &
     TreatLongProcess "$!" "60" "LDView make"
     make install >> $2 2>&1
   fi
