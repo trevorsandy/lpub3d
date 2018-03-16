@@ -65,10 +65,10 @@
     <developer_name>Trevor SANDY</developer_name>
     <update_contact>trevor.sandy@gmail.com</update_contact>
     ​<provides>
-        <binary>lpub3d21</binary>
+        <binary>lpub3d22</binary>
     ​</provides>
     <releases>
-        <release version="2.1.0.793" date="2018-03-15">
+        <release version="2.2.0.795" date="2018-03-15">
             <description>
                 <p>LPub3D Linux AppImage package</p>
             </description>

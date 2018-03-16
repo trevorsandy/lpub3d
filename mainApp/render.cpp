@@ -1013,10 +1013,25 @@ int Render::renderLDViewSCallCsi(
 
   bool hasLDViewIni = Preferences::ldviewIni != "";
 
+  QString snapShotList = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+  QFile snapShotListFile(snapShotList);
+  if ( ! snapShotListFile.open(QFile::Append | QFile::Text)) {
+      emit gui->messageSig(false,QMessageBox::tr("LDView (Single Call) CSI Snapshots list creation failed"));
+      return -1;
+  }
+  QTextStream out(&snapShotListFile);
+  for (int i = 0; i < ldrNames.size(); i++) {
+      QString smLine = ldrNames[i];
+      out << smLine << endl;
+      //logInfo() << qPrintable(QString("CSI Snapshots line: %1").arg(smLine));
+  }
+  snapShotListFile.close();
+  //logInfo() << qPrintable(QString("CSI Snapshots list: -SaveSnapshotsList=%1").arg(snapShotList));
+
   QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
   QString w  = QString("-SaveWidth=%1") .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
-  QString s  = QString("-SaveSnapShots=1");
+  QString s  = QString("-SaveSnapshotsList=%1").arg(snapShotList);
   QString t  = QString("-SnapshotSuffix=.png");
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
 
@@ -1045,7 +1060,6 @@ int Render::renderLDViewSCallCsi(
     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
   }
-  arguments = arguments + ldrNames;
 
   emit gui->messageSig(true, "Execute command: LDView (Single Call) render CSI.");
 
@@ -1108,13 +1122,28 @@ int Render::renderLDViewSCallPli(
 
   bool hasLDViewIni = Preferences::ldviewIni != "";
 
+  QString snapShotList = QDir::currentPath() + "/" + Paths::tmpDir + "/pli.ldr";
+  QFile snapShotListFile(snapShotList);
+  if ( ! snapShotListFile.open(QFile::Append | QFile::Text)) {
+      emit gui->messageSig(false,QMessageBox::tr("LDView (Single Call) PLI Snapshots list creation failed!"));
+      return -1;
+  }
+  QTextStream out(&snapShotListFile);
+  for (int i = 0; i < ldrNames.size(); i++) {
+      QString smLine = ldrNames[i];
+      out << smLine << endl;
+      //logInfo() << qPrintable(QString("PLI Snapshots line: %1").arg(smLine));
+  }
+  snapShotListFile.close();
+  //logInfo() << qPrintable(QString("PLI Snapshots list: -SaveSnapshotsList=%1").arg(snapShotList));
+
   QString cg = QString("-cg%1,%2,%3") .arg(pliMeta.angle.value(0))
                                       .arg(pliMeta.angle.value(1))
                                       .arg(cd);
 
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
-  QString s  = QString("-SaveSnapShots=1");
+  QString s  = QString("-SaveSnapshotsList=%1").arg(snapShotList);
   QString t  = QString("-SnapshotSuffix=.png");
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
 
@@ -1143,7 +1172,6 @@ int Render::renderLDViewSCallPli(
     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
   }
-  arguments = arguments + ldrNames;
 
   emit gui->messageSig(true, "Execute command: LDView (Single Call) render PLI.");
 

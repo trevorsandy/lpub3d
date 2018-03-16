@@ -12,7 +12,7 @@ DESCRIPTION
      library of digital Open Source LEGO® bricks available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model file formats.
      LPub3D is available for free under the GNU Public License v3 and works on the Windows Operating Systems.
 
-     Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2015 Leonardo Zide, and additional third party components.
+     Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2018 Leonardo Zide, and additional third party components.
 
      LEGO®is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this application
 
@@ -58,7 +58,7 @@ FILES
      ~/.local/share/LPub3D Software/LPub3D/logs/LPub3DLog.txt
           Logging files. There can be up to 4 files. Files are cycled when the size reaches 4MB.
 
-     /usr/bin/lpub3d21
+     /usr/bin/lpub3d22
           Application executable
 
      /usr/lib/x86_64-linux-gnu/libldrawini.so
@@ -88,6 +88,9 @@ FILES
      /usr/share/applications/lpub3d.desktop
           LPub3D desktop entry specification
 
+     /usr/share/applications/org.trevorsandy.lpub3d.appdata.xml
+          LPub3D appstream metadata (used on AppImage builds only)
+
      /usr/share/mime/packages/lpub3d.xml
           LPub3D mime specification. Associate .mpd, .ldr, .dat extension LDraw files
 
@@ -96,7 +99,7 @@ FILES
 
 
 ENVIRONMENT
-     LC_DISABLE_UPDATE_CHECK If set the update check will be disabled. 
+     DISABLE_UPDATE_CHECK If set the update check will be disabled. 
 
 DIAGNOSTICS
      Check application logs for details

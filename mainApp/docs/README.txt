@@ -1,21 +1,23 @@
-LPub3D 2.1.0.1.793 (15 03 2018 04:29:45)
+LPub3D 2.2.0.0.795 (15 03 2018 23:03:41)
 
 Features and enhancements
 ------------
+Enhancement: Upgrade LDView renderer to commit e56a9b8bc25a001aaa8042ddab8ffc9cdb9f5a9e (v4.4 alpha). Includes command line snapshot support for -SaveSnapshotsList, fix command line snapshot scale factor bug, and add support for command line scale factor.
+
 Fix: Newer CSI images not saved when using LDView (Single Call) render. When using the LDView Single-call option, generated images were not updated when a newer instance of the model file was opened in LPub3D - for example if an update was saved to the model file. This behaviour resulted in the image files being generated every time the model file was opened or on loading a new step because the conditional check if the model file was newer that the image file would always be true. If the image file exist, the newly generated image file would not be saved. This correction deletes the old image file is a new instance is generated allowing the new instance to be saved. #36
 
 Fix: Appended page is not displayed. When you append a page to your sub/model where the last step does not contain any parts - for example if the last step only contains BOM-related metas (e.g. 0 !LPUB INSERT BOM), the added page meta 0 !LPUB INSERT PAGE is not preceded by a step meta 0 !LPUB STEP and, consequently, is not displayed.
 If the appended page meta is added where the last step contains parts (STEP or ROTSTEP) or is a callout step, the behaviour is as expected.
 
-Change: Enable 3DViewer to use alternate LDConfig.ldr colour file. This change brings the viewer in line with functionality available in the renderers. I expect the extend this capability in the future to allow unique colour submissions per CSI, and possibly PLI if it makes sense, which can enhance part fade and highlighting. # 34
+Enhancement: Enable 3DViewer to use alternate LDConfig.ldr colour file. This change brings the viewer in line with functionality available in the renderers. I expect the extend this capability in the future to allow unique colour submissions per CSI, and possibly PLI if it makes sense, which can enhance part fade and highlighting. # 34
 
-Change: Add LPu3D build check - macOS & Windows. DevOps feature as first step to enabling CI-based TDD, and UI checks. See https://github.com/trevorsandy/lpub3d/issues/33 for additional context. #33
+Enhancement: Add LPu3D build check - macOS & Windows. DevOps feature as first step to enabling CI-based TDD, and UI checks. See https://github.com/trevorsandy/lpub3d/issues/33 for additional context. #33
 
-Upgrade: Upgrade 3DViewer to LeoCAD 18.2 GitSha d4687e0. As part of this upgrade, LPub3D command line capability "console mode" was also enabled. At the moment all LeoCAD command line capabilities are enabled (experimental) along with help and LPub3D version information. Type "<install path>\lpub3d -?" for complete list of available command line flags. #32
+Enhancement: Upgrade 3DViewer to LeoCAD 18.2 GitSha d4687e0. As part of this upgrade, LPub3D command line capability "console mode" was also enabled. At the moment all LeoCAD command line capabilities are enabled (experimental) along with help and LPub3D version information. Type "<install path>\lpub3d -?" for complete list of available command line flags. #32
 
-Change: Update about-dialogue support links. Add GitHub issues URL. #31
+Enhancement: Update about-dialogue support links. Add GitHub issues URL. #31
 
-Change: Add/override renderer flags from within model file. For example the line 0 !LPUB ASSEM LDGLITE_PARMS "-J -fh" within a step will enable perspective projection and shading mode for that step's Assembly (CSI) image.
+Enhancement: Add/override renderer flags from within model file. For example the line 0 !LPUB ASSEM LDGLITE_PARMS "-J -fh" within a step will enable perspective projection and shading mode for that step's Assembly (CSI) image.
 If defining more than one meta flag, you must use a single space delimiter between flags and the list of flags must be quoted as shown in the examples. Flag values that contain spaces are not supported which is to say that mapping ini files and such, where values may contain spaces, should be performed in the respective renderer's ini configuration file and should not be added as a meta command. Render ini files can be accessed and updated from the User Interface - see v2.1.0 Features and enhancements for details. Note that manipulating render flags require fairly advanced knowledge of the renderer's capabilities and command line flags. If you are unsure about this, please consult the render documentation before attempting to change the default settings. Setting incorrect flags or combinations of flags can adversely affect the quality of your output. Issue #30
 
     This change also implements a few more capabilities:
@@ -48,7 +50,7 @@ Change: Update preference User Interface form. Reposition labels and dialogues t
 
 Fix: Mismatched preference loading sequence during application startup. LDraw folder was loading before LDraw archive libraries so if the install platform did not have LDraw installed and the user chose to extract the LDraw library from the archive library files, an unnecessary set of manual steps would be required to proceed. The proper installation sequence (LDraw archive libraries then LDraw folder) has been restored. Issue #27
 
-Change: Final model image page out of place. When opening a model file in LPub3D with "Fade Step" option enabled , the appending of the final model image page is misplaced if the last step before in the model file is a ROTSTEP. In addition "Empty" ROTSTEP steps are ignored. This behaviour has been updated to place the final model file and inserted page after the last native STEP or ROTSTEP Here is an example LPub3D model file update with "Fade Step" and "Generate Cover Pages" options on:
+Fix: Final model image page out of place. When opening a model file in LPub3D with "Fade Step" option enabled , the appending of the final model image page is misplaced if the last step before in the model file is a ROTSTEP. In addition "Empty" ROTSTEP steps are ignored. This behaviour has been updated to place the final model file and inserted page after the last native STEP or ROTSTEP Here is an example LPub3D model file update with "Fade Step" and "Generate Cover Pages" options on:
     0 Author: Foo
     0 !LICENSE Not redistributable : see NonCAreadme.txt
     0 !LPUB INSERT COVER_PAGE FRONT

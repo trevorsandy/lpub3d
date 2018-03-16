@@ -1188,22 +1188,27 @@ void Preferences::renderPreferences(bool force)
     if (ldgliteInfo.exists()) {
         ldgliteInstalled = true;
         ldgliteExe = QDir::toNativeSeparators(ldgliteInfo.absoluteFilePath());
+        logInfo() << QString("LDGLIte            : %1").arg(ldgliteExe);
+    } else {
+        logError() << QString("LDGLIte            : %1 not found").arg(ldgliteInfo.absoluteFilePath());
     }
-    logInfo() << QString("LDGLIte            : %1").arg(ldgliteInfo.exists() ? ldgliteInfo.absoluteFilePath() : "Not found");
 
-    // LDView EXE
     if (ldviewInfo.exists()) {
         ldviewInstalled = true;
         ldviewExe = QDir::toNativeSeparators(ldviewInfo.absoluteFilePath());
+        logInfo() << QString("LDView             : %1").arg(ldviewExe);
+    } else {
+        logError() << QString("LDView             : %1 not found").arg(ldgliteInfo.absoluteFilePath());
     }
-    logInfo() << QString("LDView             : %1").arg(ldviewInfo.exists() ? ldviewInfo.absoluteFilePath() : "Not found");
 
     // POV-Ray EXE
     if (povrayInfo.exists()) {
         povRayInstalled = true;
         povrayExe = QDir::toNativeSeparators(povrayInfo.absoluteFilePath());
+        logInfo() << QString("POVRay             : %1").arg(povrayExe);
+    } else {
+        logError() << QString("POVRay             : %1 not found").arg(ldgliteInfo.absoluteFilePath());
     }
-    logInfo() << QString("POVRay             : %1").arg(povrayInfo.exists() ? povrayInfo.absoluteFilePath() : "Not found");
 
     /* Find out if we have a valid preferred renderer */
 
