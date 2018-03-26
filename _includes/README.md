@@ -6,10 +6,10 @@
 **LPub3D** is an Open Source WYSIWYG editing application for creating LEGO® style digital building instructions producing PDF, PNG, JPG and BMP formatted content.
 It uses the LDraw parts library and reads the LDraw DAT, LDR and MPD model file formats.
 
-LPub3D supports standard and high definition part libraries
+LPub3D supports standard and high definition part libraries and do not require the LDraw librariy to be preinstalled. Archive (.zip) packages for both official and unofficial parts are bundled with LPub3D. Follow the linked image below to acquire the LGEO part library.
 
 :-----------------|:------------------------------------:|:--------------------
-[LDraw][ldraw-url]|[![LDraw-Logo][ldraw-logo]][ldraw-url]|LDraw™ ([LDaw.org][ldraw-url]) parts is an open standard library that allow users to create virtual LEGO® models and scenes.
+[LDraw][ldraw-url]|[![LDraw-Logo][ldraw-logo]][ldraw-url]|LDraw™ ([LDraw.org][ldraw-url]) parts is an open standard library that allow users to create virtual LEGO® models and scenes.
 [LGEO][lgeo-url]  |[![LGEO-Logo][lgeo-logo]][lgeo-url]|POV-Ray high-fedility parts library created by El Lutzo and extended with STL object files by Darats.
 
 LPub3D provides three popular LDraw image renderers - custom adapted console applications for tight integration, optimum flexibility and robust performance.
@@ -137,7 +137,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [debian-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/Debian_9.0/
 [fedora-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/Fedora_27/
 [mageia-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/Mageia_6/
-[opensuse-url]:        https://download.opensuse.org/repositories/home:/trevorsandy/openSUSE_Factory/
+[opensuse-url]:        https://download.opensuse.org/repositories/home:/trevorsandy/openSUSE_Leap_42.3/
 [rhel-url]:            https://download.opensuse.org/repositories/home:/trevorsandy/RHEL_7/
 [sl-url]:              https://download.opensuse.org/repositories/home:/trevorsandy/ScientificLinux_7/
 [sle-url]:             https://download.opensuse.org/repositories/home:/trevorsandy/SLE_12_SP3/
@@ -153,10 +153,10 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.2.0/
 [githubreleases]:      https://github.com/trevorsandy/lpub3d/releases
 [obsreleases]:         https://software.opensuse.org/download.html?project=home:trevorsandy&package=lpub3d
-[travis-badge]:        https://img.shields.io/travis/trevorsandy/lpub3d.svg?label=travis
+[travis-badge]:        https://img.shields.io/travis/trevorsandy/lpub3d.svg?label=travis&logo=travis
 [travis-url]:          https://travis-ci.org/trevorsandy/lpub3d
 
-[appveyor-badge]:      https://img.shields.io/appveyor/ci/trevorsandy/lpub3d.svg?label=appveyor
+[appveyor-badge]:      https://img.shields.io/appveyor/ci/trevorsandy/lpub3d.svg?label=appveyor&logo=appveyor
 [appveyor-url]:        https://ci.appveyor.com/project/trevorsandy/lpub3d
 
 [gh-rel-badge]:        https://img.shields.io/github/release/trevorsandy/lpub3d.svg
