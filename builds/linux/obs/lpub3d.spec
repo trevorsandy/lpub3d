@@ -258,7 +258,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/*
 %{_datadir}/lpub3d/*
 %{_datadir}/pixmaps/*
-%{_datadir}/metainfo/*
 #  {_datadir}/metainfo/*
 %{_datadir}/applications/*
 %attr(755,-,-) %{_3rdexedir}/*
