@@ -1,4 +1,11 @@
-LPub3D 2.2.0.1.799 (30 03 2018 01:26:05)
+LPub3D 2.2.0.1.800 (30 03 2018 01:31:07)
+
+Features and enhancements
+------------
+Fix: Application version missing in macOS dmg README. Corrected.
+
+
+LPub3D 2.0.20.542.573 (16 03 2018 00:35:46)
 
 Features and enhancements
 ------------
