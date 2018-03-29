@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: March 10, 2018
+#  Last Update: March 19, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -208,7 +208,11 @@ InstallDependencies() {
       Info "ERROR - Unable to process this target platform: [$platform_id]."
       ;;
     esac
-    depsLog=${LOG_PATH}/${ME}_${host}_deps_${1}.log
+    if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
+      depsLog=${LOG_PATH}/${ME}_AppImage_deps_${1}.log
+    else
+      depsLog=${LOG_PATH}/${ME}_${host}_deps_${1}.log
+    fi
     Info "Platform_id.........[${platform_id}]"
     case ${platform_id} in
     fedora)
@@ -513,7 +517,7 @@ fi
 
 # Display platform settings
 Info "Platform_id..............[${platform_id}]"
-if [ "$APPIMAGE_BUILD" = "true" ]; then
+if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
   platform_pretty="AppImage (using $platform_pretty)"
 fi
 if [ "${DOCKER}" = "true" ]; then
@@ -551,6 +555,10 @@ Info "Dist Directory...........[${DIST_PKG_DIR}]"
 
 # Change to Working directory
 cd ${WD}
+
+# set log output path
+LOG_PATH=${WD}
+Info "Log path.................[${LOG_PATH}]"
 
 # Setup LDraw Library - for testing LDView and LDGLite and also used by LPub3D test
 if [ "$OS_NAME" = "Darwin" ]; then
@@ -607,9 +615,6 @@ QMAKE_EXEC="${QMAKE_EXEC} -makefile"
 # backup ld_library_path
 LP3D_LD_LIBRARY_PATH_SAVED=$LD_LIBRARY_PATH
 
-# set log output path
-LOG_PATH=${WD}
-
 # initialize mesa build flag
 OSMesaBuilt=0
 
@@ -664,6 +669,7 @@ if [ "$OS_NAME" = "Darwin" ]; then
       esac
     fi
   done
+  depsLog=${LOG_PATH}/${ME}_${host}_deps_$OS_NAME.log
   if [ -n "$brewDeps" ]; then
     Info "Dependencies List...[X11 ${brewDeps}]"
     Info "Checking for X11 (xquartz) at /usr/X11..."
@@ -681,12 +687,12 @@ if [ "$OS_NAME" = "Darwin" ]; then
       FinishElapsedTime
       exit 1
     fi
-    depsLog=${LOG_PATH}/${ME}_${host}_deps_$OS_NAME.log
     brew update > $depsLog 2>&1
     brew install $brewDeps >> $depsLog 2>&1
     Info "$OS_NAME dependencies installed." && DisplayLogTail $depsLog 10
   else
-    Info "Renderer artefacts exist, nothing to build. Install dependencies skipped"
+    Info "Renderer artefacts exist, nothing to build. Install dependencies skipped" > $depsLog 2>&1
+    DisplayLogTail $depsLog 3
   fi
   # Set povray --without-optimiz flag on macOS High Sierra 10.13
   [ "$(echo $platform_ver | cut -d. -f2)" = 13 ] && MACOS_POVRAY_NO_OPTIMIZ="true" || true
@@ -751,8 +757,8 @@ for buildDir in ldglite ldview povray; do
       OBS_RPM1315_BUILD_OPTS=1
     fi
   else
-    # CI/Local build setup routine...
-    if [[ ! -f "${!artefactBinary}" || ! "$OS_NAME" = "Darwin" ]]; then
+    # CI/Local build setup - we must install dependencies even if binary exists...
+    if [ ! "$OS_NAME" = "Darwin" ]; then
       # Check if build folder exist - donwload tarball and extract if not
       Info && Info "Setup ${!artefactVer} source files..."
       Info "----------------------------------------------------"
@@ -767,16 +773,14 @@ for buildDir in ldglite ldview povray; do
         cd ${buildDir}
       fi
       # Install build dependencies
-      if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
-        Info && Info "Install ${!artefactVer} build dependencies..."
-        Info "----------------------------------------------------"
-        InstallDependencies ${buildDir}
-        sleep .5
-      fi
+      Info && Info "Install ${!artefactVer} build dependencies..."
+      Info "----------------------------------------------------"
+      InstallDependencies ${buildDir}
+      sleep .5
     fi
   fi
 
-  # Perform build
+  # Perform build - only if binary does not exist
   Info && Info "Build ${!artefactVer}..."
   Info "----------------------------------------------------"
   if [ ! -f "${!artefactBinary}" ]; then

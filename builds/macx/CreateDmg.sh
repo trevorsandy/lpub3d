@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 09, 2017
+# Last Update March 20, 2017
 # To run:
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
@@ -16,11 +16,6 @@ FinishElapsedTime() {
   echo "----------------------------------------------------"
 }
 
-ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
-CWD=`pwd`
-
-echo "Start $ME execution at $CWD..."
-
 # Fake realpath
 realpath() {
   OURPWD=$PWD
@@ -35,9 +30,15 @@ realpath() {
   echo "$REALPATH_"
 }
 
+ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
+CWD=`pwd`
+
+echo "Start $ME execution at $CWD..."
+
 # Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d}"
 echo && echo "   LPUB3D SOURCE DIR......[$(realpath .)]"
+
 if [ "$BUILD_OPT" = "compile" ]; then
   echo "   BUILD OPTION...........[comple only]"
 else
@@ -47,28 +48,29 @@ fi
 # tell curl to be silent, continue downloads and follow redirects
 curlopts="-sL -C -"
 
+# logging stuff
+# increment log file name
+f="${CWD}/$ME"
+ext=".log"
+if [[ -e "$f$ext" ]] ; then
+  i=1
+  f="${f%.*}";
+  while [[ -e "${f}_${i}${ext}" ]]; do
+    let i++
+  done
+  f="${f}_${i}${ext}"
+else
+  f="${f}${ext}"
+fi
+# output log file
+LOG="$f"
+exec > >(tee -a ${LOG} )
+exec 2> >(tee -a ${LOG} >&2)
+echo "   LOG FILE...............[${LOG}]" && echo
+
 # when running locally, use this block...
 if [ "${TRAVIS}" != "true"  ]; then
-  # logging stuff
-  # increment log file name
-  f="${CWD}/$ME"
-  ext=".log"
-  if [[ -e "$f$ext" ]] ; then
-    i=1
-    f="${f%.*}";
-    while [[ -e "${f}_${i}${ext}" ]]; do
-      let i++
-    done
-    f="${f}_${i}${ext}"
-  else
-    f="${f}${ext}"
-  fi
-  # output log file
-  LOG="$f"
-  exec > >(tee -a ${LOG} )
-  exec 2> >(tee -a ${LOG} >&2)
-
-  # use this instance of Qt if exist - this entry is my dev machine, change accordingly
+  # use this instance of Qt if exist - this entry is my dev machine, change for your environment accordingly
   if [ "${TRAVIS}" != "true" ]; then
     if [ -d ~/Qt/IDE/5.10.1/clang_64 ]; then
       export PATH=~/Qt/IDE/5.10.1/clang_64:~/Qt/IDE/5.10.1/clang_64/bin:$PATH
@@ -76,12 +78,10 @@ if [ "${TRAVIS}" != "true"  ]; then
       echo "PATH not udpated with Qt location, could not find ${HOME}/Qt/IDE/5.9/clang_64"
     fi
   fi
-
   echo
   echo "Enter d to download LPub3D source or any key to"
   echo "skip download and use existing source if available."
   read -n 1 -p "Do you want to continue with this option? : " getsource
-
 else
   # For Travis CI, use this block (script called from clone directory - lpub3d)
   # getsource = downloaded source variable; 'c' = copy flag, 'd' = download flag

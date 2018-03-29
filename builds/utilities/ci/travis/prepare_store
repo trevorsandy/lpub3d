@@ -3,16 +3,25 @@
 # Travis build [prepare_store] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 31, 2017
+#  Last Update: March 17, 2017
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
 
-if [ -f "/tmp/.dropbox_oauth" ]; then
-  chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
-  echo $(./"${LP3D_CI_DIR}"/dropbox_uploader.sh list "$LP3D_DROPBOX_RELEASES_DIR") | grep -w 'DONE' \
-  && echo "Deleting old Dropbox store folder '$LP3D_DROPBOX_RELEASES_DIR'..." \
-  && ./"${LP3D_CI_DIR}/dropbox_uploader.sh" delete "$LP3D_DROPBOX_RELEASES_DIR" || true
-else
-  echo "ERROR - /tmp/.dropbox_oauth token file not found - cannot perform delete.";
+if [ "$LP3D_BUILD_STORAGE" = "true" ]; then
+  LP3D_DROPBOX_DIR="$LP3D_DROPBOX_BUILDS_DIR";
+elif [ "$LP3D_DEPLOY_PACKAGES" = "true" ]; then
+  LP3D_DROPBOX_DIR="$LP3D_DROPBOX_RELEASES_DIR";
+fi;
+
+if [ -n "$LP3D_DROPBOX_DIR" ]; then
+  # Remove previous Dropbox storage paths
+  if [ -f "/tmp/.dropbox_oauth" ]; then
+    chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
+    echo $(./"${LP3D_CI_DIR}"/dropbox_uploader.sh list "$LP3D_DROPBOX_DIR") | grep -w 'DONE' \
+    && echo "Deleting previous Dropbox store folder '$LP3D_DROPBOX_DIR'..." \
+    && ./"${LP3D_CI_DIR}/dropbox_uploader.sh" delete "$LP3D_DROPBOX_DIR" || true
+  else
+    echo "ERROR - /tmp/.dropbox_oauth token file not found - cannot perform delete.";
+  fi;
 fi;

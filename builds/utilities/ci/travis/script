@@ -59,7 +59,7 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
     else
       echo "Using cached 3rd Party repository ${WD}/${LP3D_DIST_DIR}";
     fi;
-    chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh;
+    chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh;
     echo "Renderer Files:" && find ${LP3D_DIST_DIR_PATH} -type f && echo;
     if [ "$TRAVIS_OS_NAME" = "osx" ]; then
       export INSTALL_3RD_PARTY=yes;

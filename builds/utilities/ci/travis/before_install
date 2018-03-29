@@ -83,7 +83,7 @@ else
   export LP3D_DIST_DIR=lpub3d_macos_3rdparty;
 fi
 # Decrypt and extract encrypted files
-if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
+if [ "$LP3D_BUILD_PKG" = "yes" ]; then
   [ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || openssl aes-256-cbc -K $encrypted_ad0a5b26bc84_key -iv $encrypted_ad0a5b26bc84_iv -in ${LP3D_SECURE_DIR}/.secrets.tar.enc -out /tmp/.secrets.tar -d;
   if [ -f "/tmp/.secrets.tar" ]; then
     echo "Extracting secrets..." && tar xvf /tmp/.secrets.tar -C /tmp/;

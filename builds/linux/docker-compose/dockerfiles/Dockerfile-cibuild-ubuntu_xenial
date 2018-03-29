@@ -1,7 +1,8 @@
 FROM ubuntu:xenial
 ARG DEBIAN_FRONTEND=noninteractive
 LABEL maintainer "Trevor SANDY <trevor.sandy@gmail.com>"
-RUN apt-get update ; apt-get install -y apt-utils git wget unzip lintian build-essential debhelper fakeroot ccache lsb-release > CreateDockerImage_xenial.log 2>&1
+RUN apt-get update > CreateDockerImage_xenial.log 2>&1
+RUN apt-get install -y apt-utils git wget unzip lintian build-essential debhelper fakeroot ccache lsb-release >> CreateDockerImage_xenial.log 2>&1
 RUN apt-get install -y autotools-dev autoconf pkg-config libtool curl >> CreateDockerImage_xenial.log 2>&1
 RUN apt-get install -y sudo \
     && groupadd -r user -g 1000 \
@@ -23,4 +24,5 @@ CMD sudo chown -R user:user /user/debbuild/.* \
       sudo cp -f /user/debbuild/*.changes /buildpkg/; \
       sudo cp -f /user/debbuild/*log /buildpkg/; \
       sudo cp -f /user/*.log /buildpkg/; \
+      sudo cp -f /*.log /buildpkg/; \
     fi

@@ -26,6 +26,7 @@ env:
     - LP3D_CI_DIR=builds/utilities/ci
     - LP3D_SECURE_DIR=builds/utilities/ci/secure
     - LP3D_CI_SCRIPT_DIR=builds/utilities/ci/travis
+    - LP3D_DROPBOX_BUILDS_DIR=travis-ci/builds
     - LP3D_DROPBOX_RELEASES_DIR=travis-ci/releases
     - LP3D_DROPBOX_LOGS_DIR=${LP3D_DROPBOX_RELEASES_DIR}/logs
     - LP3D_DROPBOX_UPDATES_DIR=${LP3D_DROPBOX_RELEASES_DIR}/updates
@@ -36,6 +37,8 @@ addons:
   ssh_known_hosts: trevorsandy@frs.sourceforge.net
 
 stages:
+  - name: Prepare Build Storage
+    if: tag IS blank
   - name: Prepare Release Storage
     if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
   - name: Build and Package
@@ -62,6 +65,11 @@ after_script:
 jobs:
  fast_finish: true
  include:
+  - stage: Prepare Build Storage
+    env: LP3D_BUILD_STORAGE=true
+    os: linux
+    compiler: gcc
+    script: source ${LP3D_CI_SCRIPT_DIR}/prepare_store
   - stage: Prepare Release Storage
     env: LP3D_DEPLOY_PACKAGES=true
     os: linux
