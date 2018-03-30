@@ -123,8 +123,10 @@ Application::Application(int &argc, char **argv)
 
   connect(this, SIGNAL(splashMsgSig(QString)), this, SLOT(splashMsg(QString)));
 
+//qDebug() << "QStyleFactory valid styles:" << QStyleFactory::keys();
 #ifdef Q_OS_MAC
   QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
+  m_application.setStyle(QStyleFactory::create("macintosh"));
 #endif
 
 }
