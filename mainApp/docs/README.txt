@@ -1,7 +1,9 @@
-LPub3D 2.2.0.1.812 (30 03 2018 03:18:40)
+LPub3D 2.2.0.1.813 (30 03 2018 05:05:48)
 
 Features and enhancements
 ------------
+Change: Update LDView to GitSha 7e01dd4. Add error and warning standard output. Trigger Windows console output with -HaveStdOut=1. By default, critical and standard errors will be printed. To show standard errors, use the -v command line option. To show warnings as well as standard errors, either repeat the -v option (-v -v), or use the -vv option. You may add your options to the LDView ini configuration file(s) - ldview.ini for image rendering and ldviewPOV.ini for .pov file generation. Access the LDView standard output and standard error logs from the user interface at Help / View LPub3D log. Once the log view windows loads, you can chang
+
 Change: Update 3DViewer to LeoCAD 18.2 GitSha e0acb8f. Renderer bug fixes.
 
 Change: Add exit button to parameter file edit window. Small improvement of the user experience.

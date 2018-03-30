@@ -190,7 +190,7 @@ void ParmsWindow::createToolBars()
 void ParmsWindow::displayParmsFile(
   const QString &_fileName)
 {
-    // Automatically hide open file action - set only for logs
+    // Automatically hide open file action - show for logs only
     if (openAct->isVisible())
       openAct->setVisible(false);
     if (refreshAct->isVisible())
@@ -200,81 +200,84 @@ void ParmsWindow::displayParmsFile(
 
     QFile file(fileName);
 
-    if (file.fileName() == "pliSubstituteParts.lst")
+    // Use QFileInfo to get the base-name and extension
+    QFileInfo fileInfo(file.fileName());
+
+    if (fileInfo.fileName() == "pliSubstituteParts.lst")
       title = "PLI/BOM Substitute Parts";
-    else if (file.fileName() == "fadeStepColorParts.lst")
+    else if (fileInfo.fileName() == "fadeStepColorParts.lst")
       {
         title = "Fade Step Color Parts";
         _fadeStepFile = true;
       }
-    else if (file.fileName() == "titleAnnotations.lst")
+    else if (fileInfo.fileName() == "titleAnnotations.lst")
       title = "Title Annotation";
-    else if (file.fileName() == "excludedParts.lst")
+    else if (fileInfo.fileName() == "excludedParts.lst")
       title = "Excluded Parts";
-    else if (file.fileName() == "freeformAnnotations.lst")
+    else if (fileInfo.fileName() == "freeformAnnotations.lst")
       title = "Freeform";
-    else if (file.fileName() == "ldview.ini") {
+    else if (fileInfo.fileName() == "ldview.ini") {
       title = "LDView ini";
       _restartRequired = false;
     }
-    else if (file.fileName() == "ldviewPOV.ini") {
+    else if (fileInfo.fileName() == "ldviewPOV.ini") {
       title = "LDView Raytracer ini";
       _restartRequired = false;
     }
-    else if (file.fileName() == "povray.ini") {
+    else if (fileInfo.fileName() == "povray.ini") {
       title = "Raytracer (POV-Ray) ini";
       _restartRequired = false;
     }
-    else if (file.fileName() == "povray.conf") {
+    else if (fileInfo.fileName() == "povray.conf") {
       title = "Raytracer (POV-Ray) conf";
       _restartRequired = false;
     }
-    else if (file.fileName() == QString("%1Log.txt").arg(VER_PRODUCTNAME_STR)) {
+    else if (fileInfo.fileName() == QString("%1Log.txt").arg(VER_PRODUCTNAME_STR)) {
       title = QString("%1 Log").arg(VER_PRODUCTNAME_STR);
       viewLogWindowSettings();
       _restartRequired = false;
     }
-    else if (file.fileName() == "stderr-povray") {
+    else if (fileInfo.fileName() == "stderr-povray") {
       title = "Standard error - Raytracer (POV-Ray)";
       viewLogWindowSettings();
       _restartRequired = false;
     }
-    else if (file.fileName() == "stdout-povray") {
+    else if (fileInfo.fileName() == "stdout-povray") {
       title = "Standard output - Raytracer (POV-Ray)";
       viewLogWindowSettings();
       _restartRequired = false;
     }
-    else if (file.fileName() == "stderr-ldglite") {
+    else if (fileInfo.fileName() == "stderr-ldglite") {
       title = "Standard error - LDGlite";
       viewLogWindowSettings();
       _restartRequired = false;
     }
-    else if (file.fileName() == "stdout-ldglite") {
+    else if (fileInfo.fileName() == "stdout-ldglite") {
       title = "Standard output - LDGLite";
       viewLogWindowSettings();
       _restartRequired = false;
     }
-    else if (file.fileName() == "stderr-ldviewpov") {
+    else if (fileInfo.fileName() == "stderr-ldviewpov") {
       title = "Standard error - LDView POV Generation";
       viewLogWindowSettings();
       _restartRequired = false;
     }
-    else if (file.fileName() == "stdout-ldviewpov") {
+    else if (fileInfo.fileName() == "stdout-ldviewpov") {
       title = "Standard output - LDView POV Generation";
       viewLogWindowSettings();
       _restartRequired = false;
     }
-    else if (file.fileName() == "stderr-ldview") {
+    else if (fileInfo.fileName() == "stderr-ldview") {
       title = "Standard error - LDView";
       viewLogWindowSettings();
       _restartRequired = false;
     }
-    else if (file.fileName() == "stdout-ldview") {
+    else if (fileInfo.fileName() == "stdout-ldview") {
       title = "Standard output - LDView";
       viewLogWindowSettings();
       _restartRequired = false;
     } else {
-      title = file.fileName();
+      title = fileInfo.fileName();
       _restartRequired = false;
     }
 

@@ -869,6 +869,7 @@ int LDView::renderCsi(
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString f  = QString("-SaveSnapShot=%1") .arg(pngName); // -SnapshotSuffix not required
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
+  QString o  = QString("-HaveStdOut=1");
 
   QStringList arguments;
   arguments << CA;
@@ -877,6 +878,7 @@ int LDView::renderCsi(
   arguments << h;
   arguments << f;
   arguments << l;
+  arguments << o;
 
   QStringList list;
   list = meta.LPub.assem.ldviewParms.value().split(' ');
@@ -949,6 +951,7 @@ int LDView::renderPli(
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString f  = QString("-SaveSnapShot=%1") .arg(pngName); // -SnapshotSuffix not required
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
+  QString o  = QString("-HaveStdOut=1");
 
   QStringList arguments;
   arguments << CA;
@@ -957,6 +960,7 @@ int LDView::renderPli(
   arguments << h;
   arguments << f;
   arguments << l;
+  arguments << o;
 
   QStringList list;
   list = meta.LPub.pli.ldviewParms.value().split(' ');
@@ -1034,6 +1038,7 @@ int Render::renderLDViewSCallCsi(
   QString s  = QString("-SaveSnapshotsList=%1").arg(snapShotList);
   QString t  = QString("-SnapshotSuffix=.png");
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
+  QString o  = QString("-HaveStdOut=1");
 
   QStringList arguments;
   arguments << CA;
@@ -1043,6 +1048,7 @@ int Render::renderLDViewSCallCsi(
   arguments << s;
   arguments << t;
   arguments << l;
+  arguments << o;
 
   QStringList list;
   list = meta.LPub.assem.ldviewParms.value().split(' ');
@@ -1146,6 +1152,7 @@ int Render::renderLDViewSCallPli(
   QString s  = QString("-SaveSnapshotsList=%1").arg(snapShotList);
   QString t  = QString("-SnapshotSuffix=.png");
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
+  QString o  = QString("-HaveStdOut=1");
 
   QStringList arguments;
   arguments << CA;
@@ -1155,6 +1162,7 @@ int Render::renderLDViewSCallPli(
   arguments << s;
   arguments << t;
   arguments << l;
+  arguments << o;
 
   QStringList list;
   list = meta.LPub.pli.ldviewParms.value().split(' ');
