@@ -1800,10 +1800,6 @@ void Preferences::publishingPreferences()
 
 void Preferences::viewerPreferences()
 {  
-    lcSetProfileInt(LC_PROFILE_GRID_STUDS, 0);
-    lcSetProfileInt(LC_PROFILE_GRID_LINES, 0);
-    lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, 0);
-
     if (!povrayExe.isEmpty())
         lcSetProfileString(LC_PROFILE_POVRAY_PATH, povrayExe);
     if (!lgeoPath.isEmpty())

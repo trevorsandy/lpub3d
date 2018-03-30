@@ -63,6 +63,13 @@ lcApplication::lcApplication()
 //  setApplicationVersion(LC_VERSION_TEXT);
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - initialize set 3DViewer profile defaults ***/
+  lcSetProfileInt(LC_PROFILE_DRAW_AXES, 1);
+  lcSetProfileInt(LC_PROFILE_GRID_LINES, 0);
+  lcSetProfileInt(LC_PROFILE_GRID_STUDS, 0);
+  lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, 0);
+/*** LPub3D Mod end ***/
+
     gApplication = this;
     mProject = nullptr;
     mLibrary = nullptr;
