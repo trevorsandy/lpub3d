@@ -1,7 +1,9 @@
-LPub3D 2.2.0.1.820 (30 03 2018 08:35:50)
+LPub3D 2.2.0.1.821 (30 03 2018 09:56:27)
 
 Features and enhancements
 ------------
+LPub3D 2.2.1 is focused on stabilization and robustness improvements. This release containse mostly bug fixes and the under-the-hood changes needed to improve performance, stability, compatability and the overall user's experience.
+
 Change: Add warnings to LDView standard output. By default LPub3D will use the '-vv' flag so critical and standard errors and warnings will be directed to standard output and standard error as required.
 
 Fix: Attempt to correct the save/load main-window settings on macOS. The main-window state is either not saved or retrieved properly on macOS.

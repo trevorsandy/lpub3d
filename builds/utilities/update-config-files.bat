@@ -24,7 +24,7 @@ IF [%LP3D_BUILDS_DIR%] == [] (
 SET LINE_README_TXT=1
 SET LINE_README_MD_VER=70
 
-SET LP3D_GIT_DEPTH=700
+SET LP3D_GIT_DEPTH=1000
 SET LP3D_PAST_RELEASES=1.3.5,1.2.3,1.0.0
 SET LP3D_BUILDS_DIR=%LP3D_BUILDS_DIR:"=%
 SET LP3D_CALL_DIR=%CD%
@@ -168,7 +168,7 @@ SET "lp3d_revision_=%tag_val_1%"
 FOR /F "tokens=1 delims=-" %%a IN ("%lp3d_revision_%") DO SET LP3D_VER_REVISION=%%~a
 
 REM Extract commit count (build)
-FOR /F "usebackq delims==" %%G IN (`git rev-list master --count`) DO SET LP3D_VER_BUILD=%%G
+FOR /F "usebackq delims==" %%G IN (`git rev-list HEAD --count`) DO SET LP3D_VER_BUILD=%%G
 
 REM Extract short sha hash
 FOR /F "usebackq delims==" %%G IN (`git rev-parse --short HEAD`) DO SET LP3D_VER_SHA_HASH=%%G

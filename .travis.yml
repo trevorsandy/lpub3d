@@ -3,7 +3,7 @@ sudo: required
 dist: trusty
 
 git:
-  depth: 200
+  depth: 1000
 
 cache:
   ccache: true

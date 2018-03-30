@@ -15,7 +15,7 @@ cache:
  - '$(APPVEYOR_BUILD_FOLDER)\$(lp3d_librepo)'
  - '$(APPVEYOR_BUILD_FOLDER)\$(LP3D_DIST_DIR)'
 
-shallow_clone: true
+#shallow_clone: true
 
 image: Visual Studio 2017
 

@@ -16,7 +16,7 @@ LP3D_DATE_TIME=`date +%d\ %m\ %Y\ %H:%M:%S`
 LP3D_BUILD_DATE=`date "+%Y%m%d"`
 LP3D_CALL_DIR=`pwd`
 LP3D_OS=`uname`
-GIT_DEPTH=700
+GIT_DEPTH=1000
 
 if [ "$1" = "" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED="false"; LP3D_PWD=$1; fi
 cd $LP3D_PWD/.. && basedir=$PWD && cd $LP3D_CALL_DIR
@@ -94,7 +94,7 @@ then
     fi
     lp3d_git_ver_tag_long=`git describe --tags --long`
     lp3d_git_ver_tag_short=`git describe --tags --abbrev=0`
-    lp3d_git_ver_commit_count=`git rev-list master --count`
+    lp3d_git_ver_commit_count=`git rev-list HEAD --count`
     lp3d_git_ver_sha_hash_short=`git rev-parse --short HEAD`
     cd "${LP3D_CALL_DIR}"
     lp3d_ver_tmp=${lp3d_git_ver_tag_long#*-}                                          # remove everything before and including "-"
