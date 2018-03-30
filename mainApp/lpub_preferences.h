@@ -31,7 +31,7 @@ class Preferences
     static void lpub3dUpdatePreferences();
     static void viewerPreferences();
     static void lgeoPreferences();
-    static void renderPreferences(bool);
+    static void rendererPreferences(bool);
     static void pliPreferences();
     static void unitsPreferences();
     static void annotationPreferences();
@@ -39,14 +39,18 @@ class Preferences
     static void publishingPreferences();
     static void loggingPreferences();
     static void exportPreferences();
-
-    static void setLPub3DLoaded();
-    static void getRequireds();
-    static void setLDViewSearchPaths(bool);
-    static bool getPreferences();
-
     static bool extractLDrawLib();
 
+    static void getRequireds();
+    static bool getPreferences();
+    static void setLPub3DLoaded();
+    static void setLDGLiteIniParams();
+    static void updateLDViewIniFile(bool);
+    static void updateLDViewPOVIniFile(bool);
+    static void updatePOVRayConfFile(bool);
+    static void updatePOVRayIniFile(bool);
+
+    static void setLDViewExtraSearchDirs(const QString &);
     static bool copyRecursively(const QString &,const QString &);
 
     static QString ldrawPath;

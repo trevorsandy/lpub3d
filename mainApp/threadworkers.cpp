@@ -94,7 +94,11 @@ void PartWorker::ldsearchDirPreferences(){
   }
 
   logInfo() << (doFadeStep() ? QString("Search Dir Preferences - Fade Step is ON.") : QString("Search Dir Preferences - Fade Step is OFF."));
-  logInfo() << QString("Renderer is %1").arg(Render::getRenderer());
+  QString singleCall;
+  QString renderer = Render::getRenderer();
+  if ((renderer == "LDView") && Preferences::enableLDViewSingleCall)
+    singleCall = "Single Call";
+  logInfo() << QString("Renderer is %1 %2").arg(Render::getRenderer()).arg(!singleCall.isEmpty() ? "(" + singleCall + ")" : "").trimmed();
 
   if (!Preferences::ldrawiniFound && !_resetSearchDirSettings &&
       Settings.contains(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey))) {    // ldrawini not found and not reset so load registry key
@@ -148,9 +152,10 @@ void PartWorker::ldsearchDirPreferences(){
       Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
       logError() << QString("Unable to load search directories.");
     }
-    // Set ldview search directories
-    Preferences::setLDViewSearchPaths(true);
-    Preferences::setLDViewSearchPaths(false);
+
+    // Update LDView extra search directories - don't need LDGLite search directories here as they are added further down the load sequence.
+    Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni);
+    Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni);
 }
 /*
  * Load LDraw search directories into Preferences.
@@ -274,7 +279,7 @@ bool PartWorker::loadLDrawSearchDirs(){
    This function will only execute if the preferred renderer is LDGLite
    and there are more than 0 search directories in Preferences::ldgliteSearchDirs.
 */
-void PartWorker::populateLdgLiteSearchDirs(){
+void PartWorker::populateLdgLiteSearchDirs() {
     if (Preferences::preferredRenderer == "LDGLite" && !Preferences::ldSearchDirs.isEmpty()){
 
         emit Application::instance()->splashMsgSig("85% - LDGlite Search directories loading...");
@@ -370,10 +375,14 @@ void PartWorker::processFadePartsArchive(){
         }
 
     }
-  // update the registry
-  if (updateLDSearchDirSettings){
-      QSettings Settings;
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
+    // update the registry and LDView and LDGLite extra search directories
+    if (updateLDSearchDirSettings) {
+        QSettings Settings;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
+
+        Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni);
+        Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni);
+        populateLdgLiteSearchDirs();
     }
 }
 
@@ -485,14 +494,18 @@ void PartWorker::processFadeColourParts()
                         }
                     }
                 }
-              // If not included add fade directories and update registry
+              // If not included add fade directories and update registry and LDView and LDGLite extra search directories
               if (!fadeDirsIncluded){
                   foreach(QString fadePartDir, fadePartsDirs) {
                       Preferences::ldSearchDirs << QDir::toNativeSeparators(fadePartDir);
-                      logDebug() << "Add fade part directory:" << fadePartDir;
+                      logDebug() << "Add fade part directory to ldSearchDirs:" << fadePartDir;
                     }
                   QSettings Settings;
                   Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
+
+                  Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni);
+                  Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni);
+                  populateLdgLiteSearchDirs();
                 }
               // Process archive files
               if (!processPartsArchive(fadePartsDirs, "colour fade")){
@@ -984,7 +997,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
       partsLabel = archivedPartCount == 1 ? "part" : "parts";
       returnMessage = tr("Finished. Archived and loaded %1 %2 %3 into memory.").arg(archivedPartCount).arg(comment).arg(partsLabel);
   } else {
-      returnMessage = tr("Finished. No %1 parts archived.").arg(comment);
+      returnMessage = tr("Finished. No %1 parts archived. Unofficial library not reloaded.").arg(comment);
   }
 
   logInfo() << returnMessage;

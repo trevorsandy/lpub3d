@@ -2360,11 +2360,12 @@ RendererGui::RendererGui(
   if (Preferences::ldviewExe != "") {
     combo->addItem("LDView");
   }
+  if (Preferences::povrayExe != "") {
+    combo->addItem("POVRay");
+  }
+
   QString renderer = Render::getRenderer();
-
-  int currentIndex = renderer == "LDView";
-
-  combo->setCurrentIndex(currentIndex);
+  combo->setCurrentIndex(int(combo->findText(renderer)));
   connect(combo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(  typeChange(         QString const &)));
   layout->addWidget(combo);

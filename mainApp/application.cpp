@@ -379,27 +379,37 @@ void Application::initialize()
   setlocale(LC_NUMERIC, "C");
 
 /* load sequence
-* lc_application::LoadDefaults                  (gApplication)
-* Gui::gui                                      (gui)
-* lc_application::lcInitialize()                (gApplication->Initialize)
-* lcInitialize::LoadPiecesLibrary()             (gApplication->Initialize)
-* LoadPiecesLibrary::ldsearchDirPreferences()   (gApplication->Initialize)
-* LoadPiecesLibrary::ldsearchDirPreferences()   (gApplication->Initialize)
-* lcInitialize::CreateWidgets() [Menus]         (gApplication->Initialize)
-* Gui::guiInitialize()                          (gui->Initialize)
-* guiInitialize::populateLdgLiteSearchDirs()    (gui->Initialize)
-* guiInitialize::createMenus    [Menus]         (gui->Initialize)
+* lcApplication::lcApplication()                         (gApplication)  [3DViewer]
+* lcApplication::LoadDefaults                            (gApplication)
+* Gui::gui()                                             (gui)           [LPub3D]
+* lcApplication::Initialize()                            (gApplication->Initialize)
+* Initialize::gMainWindow                                (gApplication->gMainWindow)
+* Initialize::lcLoadDefaultKeyboardShortcuts()           (gApplication->Initialize)
+* Initialize::lcLoadDefaultMouseShortcuts()              (gApplication->Initialize)
+* Initialize::LoadPartsLibrary()                         (gApplication->Initialize)
+* LoadPartsLibrary::ldsearchDirPreferences()             (gApplication->Initialize)
+* ldsearchDirPreferences::setLDViewExtraSearchDirs()     (gApplication->Initialize) [LDView Renderer]
+* Initialize::CreateWidgets()                            (gApplication->Initialize)
+* gMainWindow::SetColorIndex()                           (gApplication->gMainWindow)
+* gMainWindow::GetPartSelectionWidget()                  (gApplication->gMainWindow)
+* Gui::initialize()                                      (gui->initialize)
+* initialize::populateLdgLiteSearchDirs()                (gui->initialize)          [LDGLite Renderer]
+* initialize::createActions                              (gui->initialize)
+* initialize::createToolBars                             (gui->initialize)
+* initialize::createStatusBar                            (gui->initialize)
+* initialize::createDockWindows                          (gui->initialize)
+* initialize::toggleLCStatusBar                          (gui->initialize)
 */
 
   emit splashMsgSig("20% - 3D Viewer window loading...");
 
   gApplication = new lcApplication();
-  //gApplication = new lcApplication(argc, argv);
 
   emit splashMsgSig(QString("30% - %1 GUI window loading...").arg(VER_PRODUCTNAME_STR));
 
   gui = new Gui();
 
+  // Check if preferred renderer set and launch Preference dialogue if not to set Renderer
   gui->getRequireds();
 
   emit splashMsgSig(QString("40% - 3D Viewer initialization..."));

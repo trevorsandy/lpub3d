@@ -1135,29 +1135,24 @@ void Gui::preferences()
             logInfo() << (Preferences::enableFadeStep ? QString("Gui Preferences - Fade Step is ON.") : QString("Gui Preferences - Fade Step is OFF."));
             processFadePartsArchive();
         }
-        if (fadeStepColorChanged){
+        if (fadeStepColorChanged)
             logInfo() << QString("Fade Step Colour preference changed to %1").arg(Preferences::fadeStepColor);
-        }
+
         if (rendererChanged) {
             logInfo() << QString("Renderer preference changed to %1").arg(Render::getRenderer());
-            if (Preferences::preferredRenderer == "LDGLite") {
+            if (Preferences::preferredRenderer == "LDGLite")
                 partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
-                Preferences::renderPreferences(true);
-            }
         }
-        if (ldrawPathChanged) {
+
+        if (ldrawPathChanged)
             logInfo() << QString("LDraw path preference changed to %1").arg(Preferences::ldrawPath);
-            Preferences::renderPreferences(true);
-        }
+
         if (lgeoPathChanged && !ldrawPathChanged)
-        {
             logInfo() << QString("LGEO path preference changed to %1").arg(Preferences::lgeoPath);
-            Preferences::renderPreferences(true);
-        }
+
         if (!getCurFile().isEmpty()) {
-            if (Preferences::fadeStepSettingChanged){
+            if (Preferences::fadeStepSettingChanged)
                 clearAllCaches();
-            }
             if (rendererChanged           ||
                 fadeStepColorChanged      ||
                 useLDViewSCallChanged     ||
@@ -1240,7 +1235,7 @@ Gui::Gui()
     emit Application::instance()->splashMsgSig(QString("35% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 
     Preferences::lgeoPreferences();
-    Preferences::renderPreferences(false);
+    Preferences::rendererPreferences(false);
     Preferences::viewerPreferences();
     Preferences::publishingPreferences();
     Preferences::exportPreferences();
@@ -1386,10 +1381,9 @@ void Gui::closeEvent(QCloseEvent *event)
 }
 
 void Gui::getRequireds(){
-
+    // Check preferred renderer value is set before setting Renderer class
     Preferences::getRequireds();
     Render::setRenderer(Preferences::preferredRenderer);
-
 }
 
 void Gui::initialize()
@@ -1406,7 +1400,7 @@ void Gui::initialize()
   connect(this,       SIGNAL(clearViewerWindowSig()),    gMainWindow, SLOT(NewProject()));
 
   if (Preferences::preferredRenderer == "LDGLite")
-    partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
+      partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
 
   emit Application::instance()->splashMsgSig(QString("90% - %1 widgets loading...").arg(VER_PRODUCTNAME_STR));
 

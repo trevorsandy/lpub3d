@@ -1,7 +1,9 @@
-LPub3D 2.2.0.1.807 (30 03 2018 02:44:20)
+LPub3D 2.2.0.1.808 (30 03 2018 02:52:43)
 
 Features and enhancements
 ------------
+Fix - Incorrectly formatted Windows paths in LDView .ini files. This correction addresses the reported bugs 1. faded parts not displayed when using the LDView renderer and 2. cannot generate multiple images in single-call when using LDView renderer. See https://github.com/trevorsandy/lpub3d/issues/38 and https://github.com/trevorsandy/lpub3d/issues/42 for further details. #38 #42
+
 Fix - Add import colours from alternate colour-code file when defined. If an alternate colour code file is defined in Preferences, give this file precedence over LDConfig.ldr.
 
 Fix - Spelling for default fade colour name. LDConfig.ldr uses UK spelling for Grey vs. US spelling, Gray.

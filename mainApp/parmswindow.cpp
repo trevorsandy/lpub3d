@@ -191,83 +191,82 @@ void ParmsWindow::displayParmsFile(
     fileName = _fileName;
 
     QFile file(fileName);
-    QFileInfo fileInfo(file.fileName());
 
-    if (fileInfo.fileName() == "pliSubstituteParts.lst")
+    if (file.fileName() == "pliSubstituteParts.lst")
       title = "PLI/BOM Substitute Parts";
-    else if (fileInfo.fileName() == "fadeStepColorParts.lst")
+    else if (file.fileName() == "fadeStepColorParts.lst")
       {
         title = "Fade Step Color Parts";
         _fadeStepFile = true;
       }
-    else if (fileInfo.fileName() == "titleAnnotations.lst")
+    else if (file.fileName() == "titleAnnotations.lst")
       title = "Title Annotation";
-    else if (fileInfo.fileName() == "excludedParts.lst")
+    else if (file.fileName() == "excludedParts.lst")
       title = "Excluded Parts";
-    else if (fileInfo.fileName() == "freeformAnnotations.lst")
+    else if (file.fileName() == "freeformAnnotations.lst")
       title = "Freeform";
-    else if (fileInfo.fileName() == "ldview.ini") {
+    else if (file.fileName() == "ldview.ini") {
       title = "LDView ini";
       _restartRequired = false;
     }
-    else if (fileInfo.fileName() == "ldviewPOV.ini") {
+    else if (file.fileName() == "ldviewPOV.ini") {
       title = "LDView Raytracer ini";
       _restartRequired = false;
     }
-    else if (fileInfo.fileName() == "povray.ini") {
+    else if (file.fileName() == "povray.ini") {
       title = "Raytracer (POV-Ray) ini";
       _restartRequired = false;
     }
-    else if (fileInfo.fileName() == "povray.conf") {
+    else if (file.fileName() == "povray.conf") {
       title = "Raytracer (POV-Ray) conf";
       _restartRequired = false;
     }
-    else if (fileInfo.fileName() == QString("%1Log.txt").arg(VER_PRODUCTNAME_STR)) {
+    else if (file.fileName() == QString("%1Log.txt").arg(VER_PRODUCTNAME_STR)) {
       title = QString("%1 Log").arg(VER_PRODUCTNAME_STR);
       viewLogWindowSettings();
       _restartRequired = false;
     }
-    else if (fileInfo.fileName() == "stderr-povray") {
+    else if (file.fileName() == "stderr-povray") {
       title = "Standard error - Raytracer";
       viewLogWindowSettings();
       _restartRequired = false;
     }
-    else if (fileInfo.fileName() == "stdout-povray") {
+    else if (file.fileName() == "stdout-povray") {
       title = "Standard output - Raytracer";
       viewLogWindowSettings();
       _restartRequired = false;
     }
-    else if (fileInfo.fileName() == "stderr-ldglite") {
+    else if (file.fileName() == "stderr-ldglite") {
       title = "Standard error - LDGlite";
       viewLogWindowSettings();
       _restartRequired = false;
     }
-    else if (fileInfo.fileName() == "stdout-ldglite") {
+    else if (file.fileName() == "stdout-ldglite") {
       title = "Standard output - LDGLite";
       viewLogWindowSettings();
       _restartRequired = false;
     }
-    else if (fileInfo.fileName() == "stderr-ldviewpov") {
+    else if (file.fileName() == "stderr-ldviewpov") {
       title = "Standard error - LDView (Raytracer)";
       viewLogWindowSettings();
       _restartRequired = false;
     }
-    else if (fileInfo.fileName() == "stdout-ldviewpov") {
+    else if (file.fileName() == "stdout-ldviewpov") {
       title = "Standard output - LDView (Raytracer)";
       viewLogWindowSettings();
       _restartRequired = false;
     }
-    else if (fileInfo.fileName() == "stderr-ldview") {
+    else if (file.fileName() == "stderr-ldview") {
       title = "Standard error - LDView";
       viewLogWindowSettings();
       _restartRequired = false;
     }
-    else if (fileInfo.fileName() == "stdout-ldview") {
+    else if (file.fileName() == "stdout-ldview") {
       title = "Standard output - LDView";
       viewLogWindowSettings();
       _restartRequired = false;
     } else {
-      title = fileInfo.fileName();
+      title = file.fileName();
       _restartRequired = false;
     }
 
@@ -299,7 +298,7 @@ void ParmsWindow::displayParmsFile(
     selAllAct->setEnabled(true);
     findAct->setEnabled(true);
 
-    statusBar()->showMessage(tr("File %1 loaded").arg(fileInfo.fileName()), 2000);
+    statusBar()->showMessage(tr("File %1 loaded").arg(file.fileName()), 2000);
 }
 
 bool ParmsWindow::maybeSave()
@@ -471,10 +470,16 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
 
   if (_fileModified){
 
+      // load LDGLite settings if modified
+      QFileInfo fileInfo(fileName);
+      QString renderer = Render::getRenderer();
+      if ((renderer == "LDGLite") && (fileInfo.fileName() == QString(VER_LDGLITE_INI_FILE)))
+          Preferences::setLDGLiteIniParams();
+
       // is there anything loaded - to take advantage of our change?
       bool fileLoaded = false;
       if (!gui->getCurFile().isEmpty())
-        fileLoaded = true;
+        fileLoaded = true;      
       if ((fileLoaded || _fadeStepFile) && _restartRequired) {
 
           QMessageBox box;
@@ -491,7 +496,7 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
               args << tr ("%1").arg(fileLoaded ? gui->getCurFile() : QString());
               args.removeFirst();
               QProcess::startDetached(QApplication::applicationFilePath(), args);
-              logDebug() << "Restarted LPub3D usng exe:" << QApplication::applicationFilePath() << ", args:" << args;
+              logDebug() << "Restarted LPub3D using:" << QApplication::applicationFilePath() << ", args:" << args;
 
               event->accept();
               QCoreApplication::quit();
