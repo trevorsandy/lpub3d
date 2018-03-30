@@ -1,10 +1,12 @@
-LPub3D 2.2.0.1.805 (30 03 2018 02:23:26)
+LPub3D 2.2.0.1.806 (30 03 2018 02:28:32)
 
 Features and enhancements
 ------------
-Fix: Application version missing in macOS dmg README. Corrected.
+Fix - Spelling for default fade colour name. LDConfig.ldr usesUK spelling for Grey vs. US spelling, Gray.
 
 Fix: Add recursive function to clear Page CSI cache. This correction enables clearing all associated CSI image generation artifacts which may include multiple ldr and image files for nested callouts.
+
+Fix: Application version missing in macOS dmg README. Corrected.
 
 LPub3D 2.0.20.542.573 (16 03 2018 00:35:46)
 

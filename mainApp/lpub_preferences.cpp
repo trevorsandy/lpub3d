@@ -66,7 +66,7 @@ QString Preferences::preferredRenderer;
 QString Preferences::pliFile;
 QString Preferences::titleAnnotationsFile;
 QString Preferences::freeformAnnotationsFile;
-QString Preferences::fadeStepColor              = "Very_Light_Bluish_Gray";
+QString Preferences::fadeStepColor              = "Very_Light_Bluish_Grey";
 QString Preferences::pliSubstitutePartsFile;
 QString Preferences::fadeStepColorPartsFile;
 QString Preferences::excludedPartsFile;
@@ -1693,8 +1693,8 @@ void Preferences::fadestepPreferences()
     }
 
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepColor"))) {
-        QVariant cValue("Very_Light_Bluish_Gray");
-        fadeStepColor = "Very_Light_Bluish_Gray";
+        QVariant cValue("Very_Light_Bluish_Grey");
+        fadeStepColor = "Very_Light_Bluish_Grey";
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepColor"),cValue);
     } else {
         fadeStepColor = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepColor")).toString();
