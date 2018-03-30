@@ -1,7 +1,9 @@
-LPub3D 2.2.0.1.814 (30 03 2018 05:27:40)
+LPub3D 2.2.0.1.815 (30 03 2018 06:26:30)
 
 Features and enhancements
 ------------
+Fix - Attempt to correct wrong build commit count on Windows and macOS builds. While the internal commit count (the count on the About dialogue) is accurate, the packaging script generated commit count does not match the acutal commit count on Windows and macOS builds.
+
 Fix - Partial install on Windows 7 32bit. This correction addresses the reported bug on Windows 7 32bit where there was no uninstall entry in Control Panel/Programs and features and the uninstall executable would return the message 'There is no installation of LPub3D'. This behaviour was likely exclusive to 32bit Windows 7 (and possibly Windows Vista). See https://github.com/trevorsandy/lpub3d/issues/40 for details. #40
 
 Fix - POV-Ray fails to parse command line with space in executable path. This correction addresses the reported bug on Windows: No PLI or assembly images generated when POV-Ray is set as the renderer. This behaviour manifests when LPub3D is installed in a folder path containing one or more spaces, for example C:\Program Files. See https://github.com/trevorsandy/lpub3d/issues/41 for details. #41

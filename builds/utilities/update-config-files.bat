@@ -2,7 +2,7 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: January 03, 2017
+rem  Last Update: March 29, 2017
 rem  Copyright (c) 2015 - 2018 by Trevor SANDY
 rem --
 rem --
@@ -168,7 +168,7 @@ SET "lp3d_revision_=%tag_val_1%"
 FOR /F "tokens=1 delims=-" %%a IN ("%lp3d_revision_%") DO SET LP3D_VER_REVISION=%%~a
 
 REM Extract commit count (build)
-FOR /F "usebackq delims==" %%G IN (`git rev-list HEAD --count`) DO SET LP3D_VER_BUILD=%%G
+FOR /F "usebackq delims==" %%G IN (`git rev-list master --count`) DO SET LP3D_VER_BUILD=%%G
 
 REM Extract short sha hash
 FOR /F "usebackq delims==" %%G IN (`git rev-parse --short HEAD`) DO SET LP3D_VER_SHA_HASH=%%G
