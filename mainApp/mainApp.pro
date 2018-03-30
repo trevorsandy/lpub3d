@@ -30,17 +30,23 @@ quazipnobuild {
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)) {
-    ARCH = 64
+HOST_VERSION = $$(PLATFORM_VER_OBS)
+BUILD_TARGET = $$(TARGET_VENDOR)
+BUILD_ARCH   = $$(TARGET_CPU)
+!contains(QT_ARCH, unknown):  BUILD_ARCH = $$QT_ARCH
+else: isEmpty(BUILD_ARCH):    BUILD_ARCH = UNKNOWN ARCH
+contains(HOST_VERSION, 1320):contains(BUILD_TARGET, suse):contains(BUILD_ARCH, aarch64): DEFINES += OPENSUSE_1320_ARM
+if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
+    ARCH     = 64
     STG_ARCH = x86_64
     LIB_ARCH = 64
 } else {
-    ARCH = 32
+    ARCH     = 32
     STG_ARCH = x86
     LIB_ARCH =
 }
-if (contains(QT_ARCH, arm)|contains(QT_ARCH, arm64)): CHIPSET = ARM
-else: CHIPSET = X86
+if (contains(QT_ARCH, arm)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)): CHIPSET = ARM
+else:                                                                               CHIPSET = X86
 DEFINES     += VER_ARCH=\\\"$$ARCH\\\"
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

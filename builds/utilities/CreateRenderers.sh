@@ -490,7 +490,7 @@ else
   platform_ver=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || echo 'undefined')
   if [ "${OBS}" = "true" ]; then
     if [ "$RPM_BUILD" = "true" ]; then
-      Info "OBS build family.........[RPM_BUILD]"
+      Info "OBS Build Family.........[RPM_BUILD]"
       if [ -n "$TARGET_VENDOR" ]; then
         platform_id=$TARGET_VENDOR
       else
@@ -516,16 +516,20 @@ fi
 [ -n "$platform_id" ] && host=$platform_id || host=undefined
 
 # Display platform settings
-Info "Platform_id..............[${platform_id}]"
+Info "Platform ID..............[${platform_id}]"
 if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
   platform_pretty="AppImage (using $platform_pretty)"
 fi
 if [ "${DOCKER}" = "true" ]; then
-  Info "Platform_pretty_name.....[Docker Container - ${platform_pretty}]"
+  Info "Platform Pretty Name.....[Docker Container - ${platform_pretty}]"
 elif [ "${TRAVIS}" = "true" ]; then
-  Info "Platform_pretty_name.....[Travis CI - ${platform_pretty}]"
+  Info "Platform Pretty Name.....[Travis CI - ${platform_pretty}]"
 elif [ "${OBS}" = "true" ]; then
-  Info "Platform_pretty_name.....[Open Build Service - ${platform_pretty}]"
+  if [ "${TARGET_CPU}" = "aarch64" ]; then
+    platform_pretty="$platform_pretty (ARM)"
+  fi
+  Info "Target CPU...............[${TARGET_CPU}]"
+  Info "Platform Pretty Name.....[Open Build Service - ${platform_pretty}]"
   [ "$platform_id" = "arch" ] && build_tinyxml=1 || true
   [ -n "$get_qt5" ] && Info "Get Qt5 library..........[$LP3D_QT5_BIN]" || true
   [[ -n "$build_osmesa" && ! -n "$get_local_libs" ]] && Info "OSMesa...................[Build from source]"
@@ -535,11 +539,11 @@ elif [ "${OBS}" = "true" ]; then
   [ -n "$build_tinyxml" ] && Info "TinyXML..................[Build from source]" || true
   [ -n "$build_gl2ps" ] && Info "GL2PS....................[Build from source]" || true
 else
-  Info "Platform_pretty_name.....[${platform_pretty}]"
+  Info "Platform Pretty Name.....[${platform_pretty}]"
 fi
-Info "Platform_version.........[$platform_ver]"
+Info "Platform Version.........[$platform_ver]"
 
-Info "Working directory........[$WD]"
+Info "Working Directory........[$WD]"
 
 # Distribution directory
 if [ "$OS_NAME" = "Darwin" ]; then
@@ -558,7 +562,7 @@ cd ${WD}
 
 # set log output path
 LOG_PATH=${WD}
-Info "Log path.................[${LOG_PATH}]"
+Info "Log Path.................[${LOG_PATH}]"
 
 # Setup LDraw Library - for testing LDView and LDGLite and also used by LPub3D test
 if [ "$OS_NAME" = "Darwin" ]; then
@@ -579,11 +583,11 @@ if [ ! -d "${LDRAWDIR}/parts" ]; then
     Info "LDraw library extracted. LDRAWDIR defined."
   fi
 elif [ ! "$OS_NAME" = "Darwin" ]; then
-  Info "LDraw library............[${LDRAWDIR}]"
+  Info "LDraw Library............[${LDRAWDIR}]"
 fi
 # Additional LDraw configuration for MacOS
 if [ "$OS_NAME" = "Darwin" ]; then
-  Info "LDraw library............[${LDRAWDIR}]"
+  Info "LDraw Library............[${LDRAWDIR}]"
   Info && Info "set LDRAWDIR in environment.plist..."
   chmod +x ${LPUB3D}/builds/utilities/set-ldrawdir.command && ./${LPUB3D}/builds/utilities/set-ldrawdir.command
   grep -A1 -e 'LDRAWDIR' ~/.MacOSX/environment.plist
@@ -634,17 +638,15 @@ VER_LDGLITE=ldglite-1.3
 VER_LDVIEW=ldview-4.3
 VER_POVRAY=lpub3d_trace_cui-3.8
 distArch=$(uname -m)
-if [ "$distArch" = x86_64 ]; then
+echo "DEBUG DEBUG distArch $distArch"
+if [[ "$distArch" = x86_64 || "$distArch" = "aarch64" ]]; then
   buildArch="64bit_release";
-  LP3D_LDGLITE=${DIST_PKG_DIR}/${VER_LDGLITE}/bin/${distArch}/ldglite
-  LP3D_LDVIEW=${DIST_PKG_DIR}/${VER_LDVIEW}/bin/${distArch}/ldview
-  LP3D_POVRAY=${DIST_PKG_DIR}/${VER_POVRAY}/bin/${distArch}/lpub3d_trace_cui
 else
   buildArch="32bit_release";
-  LP3D_LDGLITE=${DIST_PKG_DIR}/${VER_LDGLITE}/bin/i386/ldglite
-  LP3D_LDVIEW=${DIST_PKG_DIR}/${VER_LDVIEW}/bin/i386/ldview
-  LP3D_POVRAY=${DIST_PKG_DIR}/${VER_POVRAY}/bin/i386/lpub3d_trace_cui
 fi
+LP3D_LDGLITE=${DIST_PKG_DIR}/${VER_LDGLITE}/bin/${distArch}/ldglite
+LP3D_LDVIEW=${DIST_PKG_DIR}/${VER_LDVIEW}/bin/${distArch}/ldview
+LP3D_POVRAY=${DIST_PKG_DIR}/${VER_POVRAY}/bin/${distArch}/lpub3d_trace_cui
 
 #echo && echo "================================================"
 #echo "DEBUG - DISTRIBUTION FILES:" && find $DIST_PKG_DIR -type f;

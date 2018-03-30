@@ -271,7 +271,13 @@ void lcTexture::Upload()
 		}
 	}
 
+/*** LPub3D Mod - use GLES 2.0 GL_TEXTURE_MAG_FILTER for OBS openSUSE_13.2_ARM ***/
+#ifndef OPENSUSE_1320_ARM
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, MaxLevel);
+#else
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, MaxLevel);
+#endif
+/*** LPub3D Mod end ***/
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 

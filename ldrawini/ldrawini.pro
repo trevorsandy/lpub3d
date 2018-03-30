@@ -8,7 +8,10 @@ unix:!macx: CONFIG += staticlib
 win32: VERSION = 16.1.8.0   # major.minor.patch.build
 else:  VERSION = 16.1.8     # major.minor.patch
 
-if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)) {
+BUILD_ARCH   = $$(TARGET_CPU)
+!contains(QT_ARCH, unknown):  BUILD_ARCH = $$QT_ARCH
+else: isEmpty(BUILD_ARCH):    BUILD_ARCH = UNKNOWN ARCH
+if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
     ARCH     = 64
     STG_ARCH = x86_64
 } else {
@@ -52,7 +55,7 @@ CONFIG(debug, debug|release) {
     win32: TARGET = $$join(TARGET,,,161)
 }
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
-message("~~~ LDRAWINI $$join(ARCH,,,bit) $${BUILD} ~~~")
+message("~~~ LDRAWINI $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
 
 PRECOMPILED_DIR = $$DESTDIR/.pch
 OBJECTS_DIR     = $$DESTDIR/.obj

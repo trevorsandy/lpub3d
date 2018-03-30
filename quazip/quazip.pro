@@ -22,11 +22,14 @@ else: VERSION  = 0.7.3    # major.minor.patch
 # 2.0, VERSION to 2.0.0.
 # And so on.
 
-if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)) {
-    ARCH = 64
+BUILD_ARCH   = $$(TARGET_CPU)
+!contains(QT_ARCH, unknown):  BUILD_ARCH = $$QT_ARCH
+else: isEmpty(BUILD_ARCH):    BUILD_ARCH = UNKNOWN ARCH
+if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
+    ARCH     = 64
     STG_ARCH = x86_64
 } else {
-    ARCH = 32
+    ARCH     = 32
     STG_ARCH = x86
 }
 
@@ -74,7 +77,7 @@ CONFIG(debug, debug|release) {
     win32: TARGET = $$join(TARGET,,,07)
 }
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
-message("~~~ QUAZIP $$join(ARCH,,,bit) $${BUILD} ~~~")
+message("~~~ QUAZIP $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
 
 PRECOMPILED_DIR = $$DESTDIR/.pch
 OBJECTS_DIR     = $$DESTDIR/.obj

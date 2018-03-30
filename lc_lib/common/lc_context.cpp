@@ -596,7 +596,13 @@ lcFramebuffer lcContext::CreateFramebuffer(int Width, int Height, bool Depth, bo
 			if (Depth)
 			{
 				glBindRenderbuffer(GL_RENDERBUFFER, Framebuffer.mDepthRenderbuffer);
+/*** LPub3D Mod - use appropriate GL_DEPTH_COMPONENT for OBS openSUSE_13.2_ARM ***/
+#ifndef OPENSUSE_1320_ARM
 				glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, Width, Height);
+#else
+				glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, Width, Height);
+#endif
+/*** LPub3D Mod end ***/
 				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, Framebuffer.mDepthRenderbuffer);
 			}
 		}
