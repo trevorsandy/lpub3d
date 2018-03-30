@@ -50,8 +50,10 @@ void lcQHTMLDialog::accept()
 
 	if (pathName.isEmpty())
 	{
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(this, "3DViewer", tr("Output folder cannot be empty."));
 		return;
+/*** LPub3D Mod end ***/
 	}
 
 	mOptions->PathName = pathName;

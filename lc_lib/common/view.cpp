@@ -1766,8 +1766,8 @@ lcTool View::GetCurrentTool() const
 		LC_TOOL_ROTATE_VIEW, // LC_TRACKTOOL_ORBIT_Y
 		LC_TOOL_ROTATE_VIEW, // LC_TRACKTOOL_ORBIT_XY
 		LC_TOOL_ROLL,        // LC_TRACKTOOL_ROLL
-		LC_TOOL_ZOOM_REGION, // LC_TRACKTOOL_ZOOM_REGION
-		LC_TOOL_ROTATESTEP   // LC_TRACKTOOL_NONE
+		LC_TOOL_ZOOM_REGION, // LC_TRACKTOOL_ZOOM_REGION    
+		LC_TOOL_ROTATESTEP   // LC_TRACKTOOL_NONE          /*** LPub3D Mod - rotate step tool ***/
 	};
 
 	return ToolFromTrackTool[mTrackTool];
@@ -1799,7 +1799,7 @@ lcTrackTool View::GetOverrideTrackTool(Qt::MouseButton Button) const
 		LC_TRACKTOOL_ORBIT_XY,   // LC_TOOL_ROTATE_VIEW
 		LC_TRACKTOOL_ROLL,       // LC_TOOL_ROLL
 		LC_TRACKTOOL_ZOOM_REGION,// LC_TOOL_ZOOM_REGION
-		LC_TRACKTOOL_ROTATESTEP
+		LC_TRACKTOOL_ROTATESTEP                              /*** LPub3D Mod - track tool ***/
 	};
 
 	return TrackToolFromTool[OverrideTool];
@@ -2293,7 +2293,7 @@ void View::UpdateTrackTool()
 		break;
 
         case LC_TOOL_ROTATESTEP:
-                NewTrackTool = LC_TRACKTOOL_ROTATESTEP;
+                NewTrackTool = LC_TRACKTOOL_ROTATESTEP;   /*** LPub3D Mod - rotate step tool ***/
                 break;
 
 	case LC_NUM_TOOLS:
@@ -2455,7 +2455,7 @@ void View::StartTracking(lcTrackButton TrackButton)
 		break;
 
 	case LC_TOOL_ZOOM_REGION:
-	case LC_TOOL_ROTATESTEP:
+	case LC_TOOL_ROTATESTEP:            /*** LPub3D Mod - rotate step tool ***/
 		break;
 
 	case LC_NUM_TOOLS:
@@ -2544,7 +2544,7 @@ void View::StopTracking(bool Accept)
 		}
 		break;
 
-	case LC_TOOL_ROTATESTEP:
+	case LC_TOOL_ROTATESTEP:                    /*** LPub3D Mod - rotate step tool ***/
 		break;
 
 	case LC_NUM_TOOLS:
@@ -3140,5 +3140,5 @@ void View::GetRotateStepAngles()
         // display the combined angle in the status bar
         gui->UpdateStepRotation();
     }
-
+/*** LPub3D Mod end ***/
 }

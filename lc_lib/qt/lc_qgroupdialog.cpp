@@ -23,7 +23,9 @@ void lcQGroupDialog::accept()
 
 	if (Name.isEmpty())
 	{
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(this, "3DViewer", tr("Name cannot be empty."));
+/*** LPub3D Mod end ***/
 		return;
 	}
 

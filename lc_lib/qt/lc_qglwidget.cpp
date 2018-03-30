@@ -62,7 +62,7 @@ void lcGLWidget::SetCursor(LC_CURSOR_TYPE CursorType)
 		{ 15, 15, ":/resources/cursor_pan" },           // LC_CURSOR_PAN
 		{ 15, 15, ":/resources/cursor_roll" },          // LC_CURSOR_ROLL
 		{ 15, 15, ":/resources/cursor_rotate_view" },   // LC_CURSOR_ROTATE_VIEW
-		{  0,  0, "" },		                        /*** LPub3D Mod - rotate step ***/
+		{  0,  0, "" },		                             /*** LPub3D Mod - rotate step ***/
 	};
 
 	static_assert(sizeof(Cursors) / sizeof(Cursors[0]) == LC_CURSOR_COUNT, "Array size mismatch");

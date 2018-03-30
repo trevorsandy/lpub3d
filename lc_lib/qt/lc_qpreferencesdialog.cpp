@@ -121,7 +121,9 @@ void lcQPreferencesDialog::accept()
 	int gridLineSpacing = ui->gridLineSpacing->text().toInt();
 	if (gridLineSpacing < 1)
 	{
+/*** LPub3D Mod - set 3DViewer name ***/
 		QMessageBox::information(this, "3DViewer", tr("Grid spacing must be greater than 0."));
+/*** LPub3D Mod end ***/
 		return;
 	}
 
@@ -179,10 +181,10 @@ void lcQPreferencesDialog::on_povrayExecutableBrowse_clicked()
 
 void lcQPreferencesDialog::on_lgeoPathBrowse_clicked()
 {
-	QString result = QFileDialog::getExistingDirectory(this, tr("Open LGEO Folder"), ui->lgeoPathBrowse->text());
+	QString result = QFileDialog::getExistingDirectory(this, tr("Open LGEO Folder"), ui->lgeoPath->text());
 
 	if (!result.isEmpty())
-		ui->lgeoPathBrowse->setText(QDir::toNativeSeparators(result));
+		ui->lgeoPath->setText(QDir::toNativeSeparators(result));
 }
 
 void lcQPreferencesDialog::colorClicked()
@@ -369,8 +371,10 @@ void lcQPreferencesDialog::on_deleteCategory_clicked()
 		return;
 
 	QString question = tr("Are you sure you want to delete the category '%1'?").arg(options->Categories[categoryIndex].Name);
+/*** LPub3D Mod - set 3DViewer label ***/
 	if (QMessageBox::question(this, "3DViewer", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
+/*** LPub3D Mod end ***/
 
 	options->CategoriesModified = true;
 	options->CategoriesDefault = false;
@@ -389,7 +393,9 @@ void lcQPreferencesDialog::on_importCategories_clicked()
 	lcArray<lcLibraryCategory> Categories;
 	if (!lcLoadCategories(FileName, Categories))
 	{
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::warning(this, "3DViewer", tr("Error loading categories file."));
+/*** LPub3D Mod end ***/
 		return;
 	}
 
@@ -407,15 +413,19 @@ void lcQPreferencesDialog::on_exportCategories_clicked()
 
 	if (!lcSaveCategories(FileName, options->Categories))
 	{
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::warning(this, "3DViewer", tr("Error saving categories file."));
+/*** LPub3D Mod end ***/
 		return;
 	}
 }
 
 void lcQPreferencesDialog::on_resetCategories_clicked()
 {
+/*** LPub3D Mod - set 3DViewer label ***/
 	if (QMessageBox::question(this, "3DViewer", tr("Are you sure you want to load the default categories?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
+/*** LPub3D Mod end ***/
 
 	lcResetCategories(options->Categories);
 
@@ -595,7 +605,9 @@ void lcQPreferencesDialog::on_shortcutsImport_clicked()
 	lcKeyboardShortcuts Shortcuts;
 	if (!Shortcuts.Load(FileName))
 	{
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::warning(this, "3DViewer", tr("Error loading keyboard shortcuts file."));
+/*** LPub3D Mod end ***/
 		return;
 	}
 
@@ -614,15 +626,19 @@ void lcQPreferencesDialog::on_shortcutsExport_clicked()
 
 	if (!options->KeyboardShortcuts.Save(FileName))
 	{
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::warning(this, "3DViewer", tr("Error saving keyboard shortcuts file."));
+/*** LPub3D Mod end ***/
 		return;
 	}
 }
 
 void lcQPreferencesDialog::on_shortcutsReset_clicked()
 {
+/*** LPub3D Mod - set 3DViewer label ***/
 	if (QMessageBox::question(this, "3DViewer", tr("Are you sure you want to load the default keyboard shortcuts?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
+/*** LPub3D Mod end ***/
 
 	options->KeyboardShortcuts.Reset();
 	updateCommandList();
@@ -781,8 +797,10 @@ void lcQPreferencesDialog::on_mouseRemove_clicked()
 
 void lcQPreferencesDialog::on_mouseReset_clicked()
 {
+/*** LPub3D Mod - set 3DViewer label ***/
 	if (QMessageBox::question(this, "3DViewer", tr("Are you sure you want to load the default mouse shortcuts?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
+/*** LPub3D Mod end ***/
 
 	options->MouseShortcuts.Reset();
 	UpdateMouseTree();

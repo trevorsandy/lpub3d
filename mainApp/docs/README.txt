@@ -1,16 +1,18 @@
-LPub3D 2.2.0.1.811 (30 03 2018 03:07:21)
+LPub3D 2.2.0.1.812 (30 03 2018 03:18:40)
 
 Features and enhancements
 ------------
-Change - Add exit button to parameter file edit window. Small improvement of the user experience.
+Change: Update 3DViewer to LeoCAD 18.2 GitSha e0acb8f. Renderer bug fixes.
 
-Change - LDView raytracer labels to LDView .pov Generation. Change labels for LDView menu items under Configuration / Edit Parameter Files from 'LDView Raytracer' to 'LDView POV Generation'.
+Change: Add exit button to parameter file edit window. Small improvement of the user experience.
 
-Fix - Incorrectly formatted Windows paths in LDView .ini files. This correction addresses the reported bugs 1. faded parts not displayed when using the LDView renderer and 2. cannot generate multiple images in single-call when using LDView renderer. See https://github.com/trevorsandy/lpub3d/issues/38 and https://github.com/trevorsandy/lpub3d/issues/42 for further details. #38 #42
+Change: LDView raytracer labels to LDView .pov Generation. Change labels for LDView menu items under Configuration / Edit Parameter Files from 'LDView Raytracer' to 'LDView POV Generation'.
 
-Fix - Add import colours from alternate colour-code file when defined. If an alternate colour code file is defined in Preferences, give this file precedence over LDConfig.ldr.
+Fix: Incorrectly formatted Windows paths in LDView .ini files. This correction addresses the reported bugs 1. faded parts not displayed when using the LDView renderer and 2. cannot generate multiple images in single-call when using LDView renderer. See https://github.com/trevorsandy/lpub3d/issues/38 and https://github.com/trevorsandy/lpub3d/issues/42 for further details. #38 #42
 
-Fix - Spelling for default fade colour name. LDConfig.ldr uses UK spelling for Grey vs. US spelling, Gray.
+Fix: Add import colours from alternate colour-code file when defined. If an alternate colour code file is defined in Preferences, give this file precedence over LDConfig.ldr.
+
+Fix: Spelling for default fade colour name. LDConfig.ldr uses UK spelling for Grey vs. US spelling, Gray.
 
 Fix: Add recursive function to clear Page CSI cache. This correction enables clearing all associated CSI image generation artifacts which may include multiple ldr and image files for nested callouts.
 

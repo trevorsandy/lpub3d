@@ -31,7 +31,9 @@ void lcQCategoryDialog::accept()
 
 	if (name.isEmpty())
 	{
-		QMessageBox::information(this, "3DViewer", tr("Name cannot be empty."));
+/*** LPub3D Mod - set 3DViewer label ***/
+		QMessageBox::information(this, "LeoCAD", tr("Name cannot be empty."));
+/*** LPub3D Mod end ***/
 		return;
 	}
 
@@ -39,7 +41,9 @@ void lcQCategoryDialog::accept()
 
 	if (keywords.isEmpty())
 	{
-		QMessageBox::information(this, "3DViewer", tr("Keywords cannot be empty."));
+/*** LPub3D Mod - set 3DViewer label ***/
+		QMessageBox::information(this, "LeoCAD", tr("Keywords cannot be empty."));
+/*** LPub3D Mod end ***/
 		return;
 	}
 

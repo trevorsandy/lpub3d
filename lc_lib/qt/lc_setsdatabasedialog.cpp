@@ -21,8 +21,9 @@ void lcHttpReply::run()
 
 	if (sizeof(wchar_t) != sizeof(QChar))
 		return;
-
+/*** LPub3D Mod - set 3DViewer label ***/
 	Session = InternetOpen(L"3DViewer", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+/*** LPub3D Mod end ***/
 	if (!Session)
 		return;
 
@@ -72,7 +73,7 @@ lcSetsDatabaseDialog::lcSetsDatabaseDialog(QWidget* Parent)
 	connect(&mNetworkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(DownloadFinished(QNetworkReply*)));
 #endif
 
-	mKeyListReply = RequestURL("http://www.leocad.org/rebrickable.json");
+	mKeyListReply = RequestURL("https://www.leocad.org/rebrickable.json");
 }
 
 lcSetsDatabaseDialog::~lcSetsDatabaseDialog()
@@ -127,7 +128,9 @@ void lcSetsDatabaseDialog::accept()
 	QTreeWidgetItem* Current = ui->SetsTree->currentItem();
 	if (!Current)
 	{
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(this, "3DViewer", tr("Please select a set from the list."));
+/*** LPub3D Mod end ***/
 		return;
 	}
 
@@ -179,7 +182,9 @@ void lcSetsDatabaseDialog::on_SearchButton_clicked()
 
 	if (Keyword.isEmpty())
 	{
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(this, "3DViewer", tr("Keyword cannot be empty."));
+/*** LPub3D Mod end ***/
 		return;
 	}
 
@@ -251,7 +256,9 @@ void lcSetsDatabaseDialog::ProcessReply(lcHttpReply* Reply)
 
 		if (mKeys.isEmpty())
 		{
+/*** LPub3D Mod - set 3DViewer label ***/
 			QMessageBox::information(this, "3DViewer", tr("Error connecting to server."));
+/*** LPub3D Mod end ***/
 			close();
 		}
 
@@ -298,7 +305,9 @@ void lcSetsDatabaseDialog::ProcessReply(lcHttpReply* Reply)
 		if (!Reply->error())
 			mInventory = Reply->readAll();
 		else
+/*** LPub3D Mod - set 3DViewer label ***/
 			QMessageBox::information(this, "3DViewer", tr("Error downloading set inventory."));
+/*** LPub3D Mod end ***/
 
 		mInventoryReply = nullptr;
 	}

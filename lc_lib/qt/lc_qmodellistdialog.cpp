@@ -119,7 +119,9 @@ void lcQModelListDialog::on_ExportModel_clicked()
 
 	if (!Model)
 	{
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(this, tr("3DViewer"), tr("Nothing to export."));
+/*** LPub3D Mod end ***/
 		return;
 	}
 

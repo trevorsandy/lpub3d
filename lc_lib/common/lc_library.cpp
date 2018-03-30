@@ -2171,8 +2171,18 @@ bool lcPiecesLibrary::ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransf
 		{
 			TextureMap = &TextureStack[TextureStack.GetSize() - 1];
 
-			if (TextureMap->Fallback)
-				continue;
+			if (TextureMap->Texture)
+			{
+				if (TextureMap->Fallback)
+					continue;
+			}
+			else
+			{
+				if (!TextureMap->Fallback)
+					continue;
+
+				TextureMap = nullptr;
+			}
 		}
 
 		int Dummy;
@@ -3446,6 +3456,7 @@ bool lcPiecesLibrary::LoadBuiltinPieces()
 	return true;
 }
 
+/*** LPub3D Mod - reload unofficial libray function ***/
 bool lcPiecesLibrary::ReloadUnoffLib()
 {
     //unload unofficial library content
@@ -3462,3 +3473,4 @@ bool lcPiecesLibrary::ReloadUnoffLib()
     lcLoadDefaultCategories();
     return true;
 }
+/*** LPub3D Mod end ***/

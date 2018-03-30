@@ -639,9 +639,10 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			lcMatrix44 IncludeTransform(lcVector4(IncludeMatrix[3], IncludeMatrix[6], IncludeMatrix[9], 0.0f), lcVector4(IncludeMatrix[4], IncludeMatrix[7], IncludeMatrix[10], 0.0f),
 										lcVector4(IncludeMatrix[5], IncludeMatrix[8], IncludeMatrix[11], 0.0f), lcVector4(IncludeMatrix[0], IncludeMatrix[1], IncludeMatrix[2], 1.0f));
 
-			QByteArray PartID = LineStream.readAll().trimmed().toLatin1();
+			QString PartId = LineStream.readAll().trimmed();
+			QByteArray CleanId = PartId.toLatin1().toUpper().replace('\\', '/');
 
-			if (Library->IsPrimitive(PartID.constData()))
+			if (Library->IsPrimitive(CleanId.constData()))
 			{
 				mFileLines.append(OriginalLine); 
 			}
@@ -653,14 +654,14 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 				if (!CurrentGroups.IsEmpty())
 					Piece->SetGroup(CurrentGroups[CurrentGroups.GetSize() - 1]);
 
-				PieceInfo* Info = Library->FindPiece(PartID.constData(), Project, true, true);
+				PieceInfo* Info = Library->FindPiece(CleanId.constData(), Project, true, true);
 
 				float* Matrix = IncludeTransform;
 				lcMatrix44 Transform(lcVector4(Matrix[0], Matrix[2], -Matrix[1], 0.0f), lcVector4(Matrix[8], Matrix[10], -Matrix[9], 0.0f),
 									 lcVector4(-Matrix[4], -Matrix[6], Matrix[5], 0.0f), lcVector4(Matrix[12], Matrix[14], -Matrix[13], 1.0f));
 
 				Piece->SetFileLine(mFileLines.size());
-				Piece->SetPieceInfo(Info, PartID, false);
+				Piece->SetPieceInfo(Info, PartId, false);
 				Piece->Initialize(Transform, CurrentStep);
 				Piece->SetColorCode(ColorCode);
 				Piece->SetControlPoints(ControlPoints);
@@ -1377,7 +1378,9 @@ void lcModel::SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Z
 
 	if (!View.BeginRenderToImage(Width, Height))
 	{
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Error creating images."));
+/*** LPub3D Mod end ***/
 		return;
 	}
 
@@ -1718,7 +1721,9 @@ void lcModel::GroupSelection()
 {
 	if (!AnyPiecesSelected())
 	{
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("No pieces selected."));
+/*** LPub3D Mod end ***/
 		return;
 	}
 
@@ -2443,7 +2448,9 @@ void lcModel::InlineSelectedModels()
 
 	if (!NewPieces.GetSize())
 	{
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("No models selected."));
+/*** LPub3D Mod end ***/
 		return;
 	}
 
@@ -3914,7 +3921,7 @@ void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 		break;
 
 	case LC_TOOL_ZOOM_REGION:
-	case LC_TOOL_ROTATESTEP:
+	case LC_TOOL_ROTATESTEP:                       /*** LPub3D Mod - set tool rotatestep ***/
 		break;
 
 	case LC_NUM_TOOLS:
@@ -4219,7 +4226,9 @@ void lcModel::ShowSelectByNameDialog()
 {
 	if (mPieces.IsEmpty() && mCameras.IsEmpty() && mLights.IsEmpty())
 	{
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to select."));
+/*** LPub3D Mod end ***/
 		return;
 	}
 
@@ -4235,7 +4244,9 @@ void lcModel::ShowSelectByColorDialog()
 {
 	if (mPieces.IsEmpty())
 	{
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to select."));
+/*** LPub3D Mod end ***/
 		return;
 	}
 
@@ -4271,8 +4282,10 @@ void lcModel::ShowArrayDialog()
 
 	if (!GetPieceFocusOrSelectionCenter(Center))
 	{
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("No pieces selected."));
 		return;
+/*** LPub3D Mod end ***/
 	}
 	
 	lcQArrayDialog Dialog(gMainWindow);
@@ -4282,7 +4295,9 @@ void lcModel::ShowArrayDialog()
 
 	if (Dialog.mCounts[0] * Dialog.mCounts[1] * Dialog.mCounts[2] < 2)
 	{
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Array only has 1 element or less, no pieces added."));
+/*** LPub3D Mod end ***/
 		return;
 	}
 

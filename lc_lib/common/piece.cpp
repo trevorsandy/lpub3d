@@ -174,10 +174,10 @@ bool lcPiece::FileLoad(lcFile& file)
 	quint8 version, ch;
 
 	version = file.ReadU8();
-
+/*** LPub3D Mod - set 3DViewer label ***/
 	if (version > 12) // 3DViewer 0.80
 		return false;
-
+/*** LPub3D Mod end ***/
 	if (version > 8)
 	{
 		if (file.ReadU8() != 1)

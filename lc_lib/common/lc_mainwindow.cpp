@@ -3182,11 +3182,11 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_HELP_HOMEPAGE:
-		QDesktopServices::openUrl(QUrl("http://www.leocad.org/"));
+		QDesktopServices::openUrl(QUrl("https://trevorsandy.github.io/lpub3d/"));          /*** LPub3D Mod - site URL ***/
 		break;
 
 	case LC_HELP_BUG_REPORT:
-		QDesktopServices::openUrl(QUrl("https://github.com/leozide/leocad/issues"));
+		QDesktopServices::openUrl(QUrl("https://github.com/trevorsandy/lpub3d/issues"));   /*** LPub3D Mod - issues URL ***/
 		break;
 
 	case LC_HELP_UPDATES:

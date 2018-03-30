@@ -654,6 +654,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Status", "Zoom into a region of the screen"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
+/*** LPub3D Mod - commands ***/
 	 // LC_EDIT_ACTION_ROTATESTEP
 	{
 		"Edit.Tool.RotateStep",
@@ -675,6 +676,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		 QT_TRANSLATE_NOOP("Status", "Switch to relative rotation mode when applying step rotation"),
 		 QT_TRANSLATE_NOOP("Shortcut", "")
 	},
+/*** LPub3D Mod end ***/
 	// LC_EDIT_CANCEL
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Cancel"),
@@ -1505,20 +1507,20 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.BugReport"),
 		QT_TRANSLATE_NOOP("Menu", "Report a Bug"),
-		QT_TRANSLATE_NOOP("Status", "Open 3DViewer's bug report form on your default web browser"),
+		QT_TRANSLATE_NOOP("Status", "Open 3DViewer's bug report form on your default web browser"),  /*** LPub3D Mod - support ***/
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_HELP_UPDATES
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.Updates"),
 		QT_TRANSLATE_NOOP("Menu", "Check for &Updates..."),
-		QT_TRANSLATE_NOOP("Status", "Check if a newer 3DViewer version or parts library has been released"),
+		QT_TRANSLATE_NOOP("Status", "Check if a newer 3DViewer version or parts library has been released"),   /*** LPub3D Mod - support ***/
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_HELP_ABOUT
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.About"),
-		QT_TRANSLATE_NOOP("Menu", "&About 3DViewer - by LeoCAD..."),
+		QT_TRANSLATE_NOOP("Menu", "&About 3DViewer - by LeoCAD..."),                           /*** LPub3D Mod - support ***/
 		QT_TRANSLATE_NOOP("Status", "Display program version number and system information"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},

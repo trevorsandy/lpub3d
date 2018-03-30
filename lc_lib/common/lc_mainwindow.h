@@ -429,7 +429,9 @@ protected:
 
 	lcTabWidget* mModelTabWidget;
 	QToolBar* mStandardToolBar;
+/*** LPub3D Mod - move toolbar ***/
 	//QToolBar* mToolsToolBar;      //move from protected to public:
+/*** LPub3D Mod end ***/
 	QToolBar* mTimeToolBar;
 	QDockWidget* mPartsToolBar;
 	QDockWidget* mColorsToolBar;
