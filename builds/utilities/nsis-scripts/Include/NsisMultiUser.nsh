@@ -370,11 +370,13 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 				;InstallPath defined so we have a Legacy installation, proceed to populate Version and InstallString
 				StrCpy $HasLegacyPerMachineInstallation 1
 				${If} ${RunningX64}
-					; On x86_64 platforms. legacy LPub3D installations created the uninstall hive in the 32bit (WoW6432Node) registry so look there
-					SetRegView 32
+					SetRegView 32 ; On x86_64 platforms, legacy LPub3D installations create the uninstall hive in the 32bit (WoW6432Node) registry so look there
 				${endif}
 				ReadRegStr $PerMachineInstallationVersion HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayVersion"
 				ReadRegStr $PerMachineUninstallString HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "UninstallString"
+				${If} ${RunningX64}
+					SetRegView 64 ; Don't forget to restore SetRegView to the 64bit hive
+				${endif}
 				StrCpy $PerMachineUninstallString "$PerMachineUninstallString /allusers"
 			${else}
 				StrCpy $HasLegacyPerMachineInstallation 0
