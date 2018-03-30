@@ -301,7 +301,7 @@ InstallDependencies() {
 }
 
 # args: <none>
-ApplyLDViewStdlibFix(){
+ApplyLDViewStdlibHack(){
   Info "Apply stdlib error patch to LDViewGlobal.pri on $platform_pretty v$([ -n "$platform_ver" ] && [ "$platform_ver" != "undefined" ] && echo $platform_ver || true) ..."
   sed s/'    # detect system libraries paths'/'    # Suppress fatal error: stdlib.h: No such file or directory\n    QMAKE_CFLAGS_ISYSTEM = -I\n\n    # detect system libraries paths'/ -i LDViewGlobal.pri
 }
@@ -340,13 +340,13 @@ BuildLDView() {
   case ${platform_id} in
   redhat|fedora|suse)
      case ${platform_ver} in
-     24|25|27|1500|1550)
-       ApplyLDViewStdlibFix
+     24|25|27|1500|1550|150000)
+       ApplyLDViewStdlibHack
        ;;
      esac
     ;;
   arch)
-    ApplyLDViewStdlibFix
+    ApplyLDViewStdlibHack
     ;;
   esac
   BUILD_CONFIG="CONFIG+=BUILD_CUI_ONLY CONFIG+=USE_SYSTEM_LIBS CONFIG+=BUILD_CHECK CONFIG-=debug_and_release"
