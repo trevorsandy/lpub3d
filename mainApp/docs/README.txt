@@ -1,7 +1,11 @@
-LPub3D 2.2.0.1.817 (30 03 2018 06:37:04)
+LPub3D 2.2.0.1.818 (30 03 2018 06:48:17)
 
 Features and enhancements
 ------------
+Fix - Attempt to correct the save/load mainwindow settings on macOS. The mainwindow state is either not saved or retrieved properly on macOS.
+
+Change - Update preferences dialogue window settings. An attempt to synchronize the layout across the different build platforms.
+
 Fix - Attempt to correct wrong build commit count on Windows and macOS builds. While the internal commit count (the count on the About dialogue) is accurate, the packaging script generated commit count does not match the acutal commit count on Windows and macOS builds.
 
 Fix - Partial install on Windows 7 32bit. This correction addresses the reported bug on Windows 7 32bit where there was no uninstall entry in Control Panel/Programs and features and the uninstall executable would return the message 'There is no installation of LPub3D'. This behaviour was likely exclusive to 32bit Windows 7 (and possibly Windows Vista). See https://github.com/trevorsandy/lpub3d/issues/40 for details. #40

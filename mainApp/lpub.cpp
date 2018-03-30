@@ -2478,9 +2478,17 @@ void Gui::readSettings()
 {
     QSettings Settings;
     Settings.beginGroup(MAINWINDOW);
-    restoreGeometry(Settings.value("Geometry").toByteArray());
     restoreState(Settings.value("State").toByteArray());
     QSize size = Settings.value("Size", QDesktopWidget().availableGeometry(this).size()*0.6).toSize();
+    const QByteArray geometry = Settings.value("Geometry", QByteArray()).toByteArray();
+    if (geometry.isEmpty()) {
+        const QRect availableGeometry = QApplication::desktop()->availableGeometry(this);
+        resize(availableGeometry.width() / 3, availableGeometry.height() / 2);
+        move((availableGeometry.width() - width()) / 2,
+             (availableGeometry.height() - height()) / 2);
+    } else {
+        restoreGeometry(geometry);
+    }
     resize(size);
     Settings.endGroup();
 }
