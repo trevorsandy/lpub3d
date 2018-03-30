@@ -66,6 +66,12 @@ ParmsWindow::ParmsWindow(QMainWindow *parent) :
 
 void ParmsWindow::createActions()
 {
+    exitAct = new QAction(QIcon(":/resources/exit.png"),tr("E&xit"), this);
+    exitAct->setShortcut(tr("Ctrl+Q"));
+    exitAct->setStatusTip(tr("Exit the application"));
+
+    connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
+
     openAct = new QAction(QIcon(":/resources/open.png"), tr("&Open Stderr or Stdout log"), this);
     openAct->setShortcut(tr("Ctrl+O"));
     openAct->setStatusTip(tr("Open stdout or stderr log file for loaded model"));
@@ -162,6 +168,8 @@ void ParmsWindow::createToolBars()
 {
     editToolBar = addToolBar(tr("Edit"));
     editToolBar->setObjectName("EditToolbar");
+    editToolBar->addAction(exitAct);
+    editToolBar->addSeparator();
     editToolBar->addAction(openAct);
     editToolBar->addAction(saveAct);
     editToolBar->addAction(saveCopyAsAct);

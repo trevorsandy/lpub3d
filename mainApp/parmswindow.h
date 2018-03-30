@@ -84,6 +84,7 @@ private:
     QMenu    *editMenu;
     QToolBar *editToolBar;
     QToolBar *undoRedoToolBar;
+    QAction  *exitAct;
     QAction  *openAct;
     QAction  *refreshAct;
     QAction  *cutAct;
