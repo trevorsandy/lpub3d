@@ -227,12 +227,12 @@ void ParmsWindow::displayParmsFile(
       _restartRequired = false;
     }
     else if (file.fileName() == "stderr-povray") {
-      title = "Standard error - Raytracer";
+      title = "Standard error - Raytracer (POV-Ray)";
       viewLogWindowSettings();
       _restartRequired = false;
     }
     else if (file.fileName() == "stdout-povray") {
-      title = "Standard output - Raytracer";
+      title = "Standard output - Raytracer (POV-Ray)";
       viewLogWindowSettings();
       _restartRequired = false;
     }
@@ -247,12 +247,12 @@ void ParmsWindow::displayParmsFile(
       _restartRequired = false;
     }
     else if (file.fileName() == "stderr-ldviewpov") {
-      title = "Standard error - LDView (Raytracer)";
+      title = "Standard error - LDView POV Generation";
       viewLogWindowSettings();
       _restartRequired = false;
     }
     else if (file.fileName() == "stdout-ldviewpov") {
-      title = "Standard output - LDView (Raytracer)";
+      title = "Standard output - LDView POV Generation";
       viewLogWindowSettings();
       _restartRequired = false;
     }

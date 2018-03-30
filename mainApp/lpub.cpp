@@ -2002,7 +2002,7 @@ void Gui::createActions()
     editLdviewIniAct->setStatusTip(tr("Edit LDView ini configuration file"));
     connect(editLdviewIniAct, SIGNAL(triggered()), this, SLOT(editLdviewIni()));
 
-    editLdviewPovIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView Raytracer (POV-Ray) image configuration file"), this);
+    editLdviewPovIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView POV generation configuration file"), this);
     editLdviewPovIniAct->setStatusTip(tr("Edit LDView POV generation configuration file"));
     connect(editLdviewPovIniAct, SIGNAL(triggered()), this, SLOT(editLdviewPovIni()));
 

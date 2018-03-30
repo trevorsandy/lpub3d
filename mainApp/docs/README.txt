@@ -1,7 +1,9 @@
-LPub3D 2.2.0.1.809 (30 03 2018 02:54:40)
+LPub3D 2.2.0.1.810 (30 03 2018 03:04:23)
 
 Features and enhancements
 ------------
+Change - LDView raytracer labels to LDView .pov Generation. Change labels for LDView menu items under Configuration / Edit Parameter Files from 'LDView Raytracer' to 'LDView POV Generation'.
+
 Fix - Incorrectly formatted Windows paths in LDView .ini files. This correction addresses the reported bugs 1. faded parts not displayed when using the LDView renderer and 2. cannot generate multiple images in single-call when using LDView renderer. See https://github.com/trevorsandy/lpub3d/issues/38 and https://github.com/trevorsandy/lpub3d/issues/42 for further details. #38 #42
 
 Fix - Add import colours from alternate colour-code file when defined. If an alternate colour code file is defined in Preferences, give this file precedence over LDConfig.ldr.
