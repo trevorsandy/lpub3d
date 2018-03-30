@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: February 15, 2018
+;Last Update: March 28, 2018
 ;Copyright (C) 2016 - 2018 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
@@ -8,12 +8,8 @@
 !addplugindir /x86-unicode ".\Plugins\x86-unicode"
 !addincludedir ".\Include"
 
-;!include MUI.nsh
-; OR
-!include MUI2.nsh
-!include UAC.nsh
 !include NsisMultiUser.nsh
-!include LogicLib.nsh
+!include MUI2.nsh
 !include Registry.nsh
 !include Utils.nsh
 
@@ -88,7 +84,7 @@ Name "${PRODUCT_NAME} ${VERSION} Rev ${BuildRevision} Build ${BuildNumber} ${PLA
 Caption $CaptionMessage
 Icon "..\icons\setup.ico"
 UninstallIcon "..\icons\setup.ico"
-BrandingText "ï¿½2018 ${COMPANY_NAME}"
+BrandingText "©2018 ${COMPANY_NAME}"
 !ifdef UpdateMaster
   OutFile "${OutFileDir}\${PRODUCT_NAME}-UpdateMaster_${VERSION}.exe"
 !else
@@ -152,6 +148,7 @@ Page custom nsDialogShowCustomPage nsDialogLeaveCustomPage
 !define MUI_FINISHPAGE_LINK_LOCATION "${CompanyURL}"
 !insertmacro MUI_PAGE_FINISH
 
+; remove next line if you're using signing after the uninstaller is extracted from the initially compiled setup
 !include Uninstall.nsh
 
 !insertmacro MUI_LANGUAGE "English" ; Set languages (first is default language) - must be inserted after all pages
@@ -180,7 +177,7 @@ Section "Core Files (required)" SectionCoreFiles
   ${else}
     !if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} == 0
       ${if} $HasPerMachineInstallation == 1
-        StrCpy $0 "AllUsers" ; if there's no per-user installation, but there's per-machine installation, uninstall it
+        StrCpy $0 "AllUsers"    ; if there's no per-user installation, but there's per-machine installation, uninstall it
       ${elseif} $HasPerUserInstallation == 1
         StrCpy $0 "CurrentUser" ; if there's no per-machine installation, but there's per-user installation, uninstall it
       ${endif}
@@ -208,7 +205,7 @@ Section "Core Files (required)" SectionCoreFiles
     DetailPrint 'UninstallString $1'
     DetailPrint 'InstallationFolder $3'
 
-    ; Legacy installs will delete everything on Uninstall so ackup user data and registry keys
+    ; Legacy uninstall will delete everything so backup user data and registry keys
     ${if} $HasLegacyPerMachineInstallation == 1
       DetailPrint "Removing legacy install - using mode ($0)..."
       StrCpy $5 "${INSTDIR_LocalAppData}\${COMPANY_NAME}\${PRODUCT_NAME}" ; $5 = LEGACY_INSTDIR_AppDataProduct
@@ -277,6 +274,8 @@ Section "Core Files (required)" SectionCoreFiles
   ; Write uninstaller and registry uninstall info as the first step,
   ; so that the user has the option to run the uninstaller if sth. goes wrong
   WriteUninstaller "${UNINSTALL_FILENAME}"
+  ; or this if you're using signing:
+  ; File "${UNINSTALL_FILENAME}"
   !insertmacro MULTIUSER_RegistryAddInstallInfo ; add registry keys
 
   ; Core files to be installed.
@@ -425,6 +424,7 @@ SectionEnd
 
 ; Callbacks
 Function .onInit
+   ; Set the MULTIUSER_INSTALLMODE_64_BIT flag
    ${If} ${RunningX64}
      StrCpy $X64Flag 1
      StrCpy $CPUArch "Win64"
@@ -435,11 +435,12 @@ Function .onInit
 
   !insertmacro CheckPlatform ${PLATFORM}
   !insertmacro CheckMinWinVer ${MIN_WIN_VER}
+
   ${ifnot} ${UAC_IsInnerInstance}
     !insertmacro CheckSingleInstance "${SINGLE_INSTANCE_ID}"
   ${endif}
 
-  ;Save the current ShellVarContext, set context to current, populate $AppDataBaseDir then revert context
+  ;Set context to 'CurrentUser', capture $AppDataBaseDir then revert context to 'AllUsers' if previously set as such
   StrCpy $R0 "$SMPROGRAMS"
   SetShellVarContext current
   StrCpy $AppDataBaseDir "$LOCALAPPDATA"
@@ -449,9 +450,9 @@ Function .onInit
   SetShellVarContext all
   Done:
 
-  !insertmacro MULTIUSER_INIT
-
   !define /ifndef GetInstalledSize.total 0
+
+  !insertmacro MULTIUSER_INIT
 
   ;Get Ldraw library folder, archive file paths, and uninstall string from registry if available
   ReadRegStr $LDrawDirPath HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "LDrawDir"

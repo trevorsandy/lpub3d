@@ -1,7 +1,11 @@
-LPub3D 2.2.0.1.813 (30 03 2018 05:05:48)
+LPub3D 2.2.0.1.814 (30 03 2018 05:27:40)
 
 Features and enhancements
 ------------
+Fix - Partial install on Windows 7 32bit. This correction addresses the reported bug on Windows 7 32bit where there was no uninstall entry in Control Panel/Programs and features and the uninstall executable would return the message 'There is no installation of LPub3D'. This behaviour was likely exclusive to 32bit Windows 7 (and possibly Windows Vista). See https://github.com/trevorsandy/lpub3d/issues/40 for details. #40
+
+Fix - POV-Ray fails to parse command line with space in executable path. This correction addresses the reported bug on Windows: No PLI or assembly images generated when POV-Ray is set as the renderer. This behaviour manifests when LPub3D is installed in a folder path containing one or more spaces, for example C:\Program Files. See https://github.com/trevorsandy/lpub3d/issues/41 for details. #41
+
 Change: Update LDView to GitSha 7e01dd4. Add error and warning standard output. Trigger Windows console output with -HaveStdOut=1. By default, critical and standard errors will be printed. To show standard errors, use the -v command line option. To show warnings as well as standard errors, either repeat the -v option (-v -v), or use the -vv option. You may add your options to the LDView ini configuration file(s) - ldview.ini for image rendering and ldviewPOV.ini for .pov file generation. Access the LDView standard output and standard error logs from the user interface at Help / View LPub3D log. Once the log view windows loads, you can chang
 
 Change: Update 3DViewer to LeoCAD 18.2 GitSha e0acb8f. Renderer bug fixes.
