@@ -194,12 +194,13 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
       ui.tabWidget->setCurrentIndex(0);
   }
 
-  ui.fadeStepColorLabel->setPalette(QPalette(LDrawColor::color(Preferences::fadeStepColor)));
+  QColor fadeColor = LDrawColor::color(Preferences::fadeStepColor);
+  fadeStepMeta.fadeColor.setValue(LDrawColor::name(fadeColor.name()));
+  ui.fadeStepColorLabel->setPalette(QPalette(fadeColor));
   ui.fadeStepColorLabel->setAutoFillBackground(true);
   ui.fadeStepColorsCombo->addItems(LDrawColor::names());
   ui.fadeStepColorsCombo->setCurrentIndex(int(ui.fadeStepColorsCombo->findText(Preferences::fadeStepColor)));
-  fadeStepMeta.fadeColor.setValue(LDrawColor::name(Preferences::fadeStepColor));
-  connect(ui.fadeStepColorsCombo,SIGNAL(currentIndexChanged(QString const &)),
+  connect(ui.fadeStepColorsCombo, SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(colorChange(QString const &)));
 
   bool centimeters = Preferences::preferCentimeters;
@@ -244,11 +245,11 @@ PreferencesDialog::~PreferencesDialog()
 
 void PreferencesDialog::colorChange(QString const &colorName)
 {
-  QColor qcolor = LDrawColor::color(Preferences::fadeStepColor);
-  QColor newColor = LDrawColor::color(colorName);
-  if (qcolor != newColor) {
-    fadeStepMeta.fadeColor.setValue(LDrawColor::name(newColor.name()));
-    ui.fadeStepColorLabel->setPalette(QPalette(newColor));
+  QColor fadeColor = LDrawColor::color(Preferences::fadeStepColor);
+  QColor newFadeColor = LDrawColor::color(colorName);
+  if (fadeColor != newFadeColor) {
+    fadeStepMeta.fadeColor.setValue(LDrawColor::name(newFadeColor.name()));
+    ui.fadeStepColorLabel->setPalette(QPalette(newFadeColor));
     ui.fadeStepColorLabel->setAutoFillBackground(true);
   }
 }

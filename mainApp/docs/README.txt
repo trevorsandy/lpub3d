@@ -1,8 +1,10 @@
-LPub3D 2.2.0.1.806 (30 03 2018 02:28:32)
+LPub3D 2.2.0.1.807 (30 03 2018 02:44:20)
 
 Features and enhancements
 ------------
-Fix - Spelling for default fade colour name. LDConfig.ldr usesUK spelling for Grey vs. US spelling, Gray.
+Fix - Add import colours from alternate colour-code file when defined. If an alternate colour code file is defined in Preferences, give this file precedence over LDConfig.ldr.
+
+Fix - Spelling for default fade colour name. LDConfig.ldr uses UK spelling for Grey vs. US spelling, Gray.
 
 Fix: Add recursive function to clear Page CSI cache. This correction enables clearing all associated CSI image generation artifacts which may include multiple ldr and image files for nested callouts.
 
