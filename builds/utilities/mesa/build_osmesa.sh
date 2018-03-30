@@ -136,8 +136,7 @@ if [ ! -f "mesa-${mesaversion}.tar.gz" ]; then
   if [ ! "$OBS" = "true" ]; then
     #cp -rf "${sourcepath}/mesa-${mesaversion}.tar.gz" . && Info "mesa-${mesaversion}.tar.gz copied to ~/"
 	  Info "downloading Mesa ${mesaversion}..."
-	  curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/mesa-${mesaversion}.tar.gz" || \
-    curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/${mesaversion}/mesa-${mesaversion}.tar.gz"
+	  curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/mesa-${mesaversion}.tar.gz"
   else
     Info "ERROR - archive file mesa-${mesaversion}.tar.gz was not found. $ME will terminate."
     exit 1
