@@ -351,7 +351,7 @@ int POVRay::renderCsi(
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath() + "/" + Paths::tmpDir);
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
-  ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldivewpov");
+  ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
 
   qDebug() << qPrintable(Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
 
@@ -506,7 +506,7 @@ int POVRay::renderPli(
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath());
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
-  ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldivewpov");
+  ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
 
   qDebug() << qPrintable(Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
 
@@ -982,7 +982,7 @@ int LDView::renderPli(
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath());
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
-  ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldivew");
+  ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
 
   qDebug() << qPrintable("LDView (Native) PLI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
 
@@ -1067,7 +1067,7 @@ int Render::renderLDViewSCallCsi(
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath()+ "/" + Paths::tmpDir);
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
-  ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldivew");
+  ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
 
   qDebug() << qPrintable("LDView (Single Call) CSI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
 
@@ -1179,7 +1179,7 @@ int Render::renderLDViewSCallPli(
   ldview.setEnvironment(QProcess::systemEnvironment());
   ldview.setWorkingDirectory(QDir::currentPath());
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
-  ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldivew");
+  ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
 
   qDebug() << qPrintable("LDView (Single Call) PLI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
 
