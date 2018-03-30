@@ -317,6 +317,8 @@ int POVRay::renderCsi(
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
   QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawPath)));
+  QString o  = QString("-HaveStdOut=1");
+  QString v  = QString("-vv");
 
   QStringList arguments;
   arguments << CA;
@@ -325,6 +327,8 @@ int POVRay::renderCsi(
   arguments << h;
   arguments << f;
   arguments << l;
+  arguments << o;
+  arguments << v;
 
   QStringList list;
   list = meta.LPub.assem.ldviewParms.value().split(' ');
@@ -472,6 +476,8 @@ int POVRay::renderPli(
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
   QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawPath)));
+  QString o  = QString("-HaveStdOut=1");
+  QString v  = QString("-vv");
 
   QStringList arguments;
   arguments << CA;
@@ -480,6 +486,8 @@ int POVRay::renderPli(
   arguments << h;
   arguments << f;
   arguments << l;
+  arguments << o;
+  arguments << v;
 
   QStringList list;
   list = meta.LPub.pli.ldviewParms.value().split(' ');
@@ -870,6 +878,7 @@ int LDView::renderCsi(
   QString f  = QString("-SaveSnapShot=%1") .arg(pngName); // -SnapshotSuffix not required
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
   QString o  = QString("-HaveStdOut=1");
+  QString v  = QString("-vv");
 
   QStringList arguments;
   arguments << CA;
@@ -879,6 +888,7 @@ int LDView::renderCsi(
   arguments << f;
   arguments << l;
   arguments << o;
+  arguments << v;
 
   QStringList list;
   list = meta.LPub.assem.ldviewParms.value().split(' ');
@@ -952,6 +962,7 @@ int LDView::renderPli(
   QString f  = QString("-SaveSnapShot=%1") .arg(pngName); // -SnapshotSuffix not required
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
   QString o  = QString("-HaveStdOut=1");
+  QString v  = QString("-vv");
 
   QStringList arguments;
   arguments << CA;
@@ -961,6 +972,7 @@ int LDView::renderPli(
   arguments << f;
   arguments << l;
   arguments << o;
+  arguments << v;
 
   QStringList list;
   list = meta.LPub.pli.ldviewParms.value().split(' ');
@@ -1039,6 +1051,7 @@ int Render::renderLDViewSCallCsi(
   QString t  = QString("-SnapshotSuffix=.png");
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
   QString o  = QString("-HaveStdOut=1");
+  QString v  = QString("-vv");
 
   QStringList arguments;
   arguments << CA;
@@ -1049,6 +1062,7 @@ int Render::renderLDViewSCallCsi(
   arguments << t;
   arguments << l;
   arguments << o;
+  arguments << v;
 
   QStringList list;
   list = meta.LPub.assem.ldviewParms.value().split(' ');
@@ -1153,6 +1167,7 @@ int Render::renderLDViewSCallPli(
   QString t  = QString("-SnapshotSuffix=.png");
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
   QString o  = QString("-HaveStdOut=1");
+  QString v  = QString("-vv");
 
   QStringList arguments;
   arguments << CA;
@@ -1163,6 +1178,7 @@ int Render::renderLDViewSCallPli(
   arguments << t;
   arguments << l;
   arguments << o;
+  arguments << v;
 
   QStringList list;
   list = meta.LPub.pli.ldviewParms.value().split(' ');

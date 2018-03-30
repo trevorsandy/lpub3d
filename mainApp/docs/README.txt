@@ -1,24 +1,26 @@
-LPub3D 2.2.0.1.818 (30 03 2018 06:48:17)
+LPub3D 2.2.0.1.819 (30 03 2018 07:20:55)
 
 Features and enhancements
 ------------
-Fix - Attempt to correct the save/load mainwindow settings on macOS. The mainwindow state is either not saved or retrieved properly on macOS.
+Change - Add warnings to LDView standard output. By default LPub3D will use the -vv flag so critical and standard errors and warnings will be directed to standard output and standard error as required.
+
+Fix - Attempt to correct the save/load main-window settings on macOS. The main-window state is either not saved or retrieved properly on macOS.
 
 Change - Update preferences dialogue window settings. An attempt to synchronize the layout across the different build platforms.
 
-Fix - Attempt to correct wrong build commit count on Windows and macOS builds. While the internal commit count (the count on the About dialogue) is accurate, the packaging script generated commit count does not match the acutal commit count on Windows and macOS builds.
+Fix - Attempt to correct wrong build commit count on Windows and macOS builds. While the internal commit count (the count on the About dialogue) is accurate, the packaging script generated commit count does not match the actual commit count on Windows and macOS builds.
 
 Fix - Partial install on Windows 7 32bit. This correction addresses the reported bug on Windows 7 32bit where there was no uninstall entry in Control Panel/Programs and features and the uninstall executable would return the message 'There is no installation of LPub3D'. This behaviour was likely exclusive to 32bit Windows 7 (and possibly Windows Vista). See https://github.com/trevorsandy/lpub3d/issues/40 for details. #40
 
 Fix - POV-Ray fails to parse command line with space in executable path. This correction addresses the reported bug on Windows: No PLI or assembly images generated when POV-Ray is set as the renderer. This behaviour manifests when LPub3D is installed in a folder path containing one or more spaces, for example C:\Program Files. See https://github.com/trevorsandy/lpub3d/issues/41 for details. #41
 
-Change: Update LDView to GitSha 7e01dd4. Add error and warning standard output. Trigger Windows console output with -HaveStdOut=1. By default, critical and standard errors will be printed. To show standard errors, use the -v command line option. To show warnings as well as standard errors, either repeat the -v option (-v -v), or use the -vv option. You may add your options to the LDView ini configuration file(s) - ldview.ini for image rendering and ldviewPOV.ini for .pov file generation. Access the LDView standard output and standard error logs from the user interface at Help / View LPub3D log. Once the log view windows loads, you can chang
+Change: Update LDView to GitSha 7e01dd4. Add error and warning standard output. Trigger Windows console output with -HaveStdOut=1. By default, critical and standard errors will be printed. Access the LDView standard output and standard error logs from the user interface at Help / View LPub3D log. Once the log view windows loads, you can use the 'open file' menu item to open the respective log file.
 
 Change: Update 3DViewer to LeoCAD 18.2 GitSha e0acb8f. Renderer bug fixes.
 
 Change: Add exit button to parameter file edit window. Small improvement of the user experience.
 
-Change: LDView raytracer labels to LDView .pov Generation. Change labels for LDView menu items under Configuration / Edit Parameter Files from 'LDView Raytracer' to 'LDView POV Generation'.
+Change: LDView Raytracer labels to LDView .pov Generation. Change labels for LDView menu items under Configuration / Edit Parameter Files from 'LDView Raytracer' to 'LDView POV Generation'.
 
 Fix: Incorrectly formatted Windows paths in LDView .ini files. This correction addresses the reported bugs 1. faded parts not displayed when using the LDView renderer and 2. cannot generate multiple images in single-call when using LDView renderer. See https://github.com/trevorsandy/lpub3d/issues/38 and https://github.com/trevorsandy/lpub3d/issues/42 for further details. #38 #42
 
