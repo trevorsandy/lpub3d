@@ -702,6 +702,7 @@ public slots:
   void clearAndRedrawPage();
   void clearStepCSICache(QString &pngName);
   void clearPageCSICache(PlacementType relativeType, Page *page);
+  void clearPageCSIGraphicsItems(Step *step);
   bool removeDir(int &count,const QString &dirName);
 
   void fileChanged(const QString &path);

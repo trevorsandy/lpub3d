@@ -858,7 +858,7 @@ bool Gui::removeDir(int &count, const QString & dirName)
     return result;
 }
 
-void Gui::clearStepCSICache(QString &pngName){
+void Gui::clearStepCSICache(QString &pngName) {
   QString tmpDirName   = QDir::currentPath() + "/" + Paths::tmpDir;
   QString assemDirName = QDir::currentPath() + "/" + Paths::assemDir;
   QFileInfo fileInfo(pngName);
@@ -888,188 +888,95 @@ void Gui::clearStepCSICache(QString &pngName){
   displayPage();
 }
 
-void Gui::clearPageCSICache(PlacementType relativeType,Page *page){
-
-  // Capture ldr and image names
-  if (page->list.size()) {
-      QString tmpDirName   = QDir::currentPath() + "/" + Paths::tmpDir;
-      QString assemDirName = QDir::currentPath() + "/" + Paths::assemDir;
-      QString ldrName;
-      bool csiCleared = false;
-      if (relativeType == StepGroupType) {
+void Gui::clearPageCSICache(PlacementType relativeType, Page *page) {
+  if (page->list.size()) {      
+      if (relativeType == SingleStepType) {         // single step page
+          Range *range = dynamic_cast<Range *>(page->list[0]);
+          if (range->relativeType == RangeType) {
+              Step *step = dynamic_cast<Step *>(range->list[0]);
+              if (step && step->relativeType == StepType) {
+                  clearPageCSIGraphicsItems(step);
+              } // validate step (StepType) and process...
+          } // validate RangeType - to cast step
+      } else if (relativeType == StepGroupType) {  // multi-step page
           for (int i = 0; i < page->list.size(); i++){
               Range *range = dynamic_cast<Range *>(page->list[i]);
               for (int j = 0; j < range->list.size(); j++){
                   if (range->relativeType == RangeType) {
                       Step *step = dynamic_cast<Step *>(range->list[j]);
                       if (step && step->relativeType == StepType){
-                          QFileInfo fileInfo(step->pngName);
-                          QFile file(assemDirName + "/" + fileInfo.fileName());
-                          if (!file.remove()) {
-                              QMessageBox::critical(NULL,
-                                                    QMessageBox::tr("LPub3D"),
-                                                    QMessageBox::tr("Unable to remove %1")
-                                                    .arg(assemDirName + "/" + fileInfo.fileName()));
-                            }
-                          if (renderer->useLDViewSCall()){
-                              ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
-                              file.setFileName(ldrName);
-                              if (!file.remove()) {
-                                  QMessageBox::critical(NULL,
-                                                        QMessageBox::tr("LPub3D"),
-                                                        QMessageBox::tr("Unable to remeove %1")
-                                                        .arg(ldrName));
-                                }
-                            } else if (! csiCleared){
-                              ldrName = tmpDirName + "/csi.ldr";
-                              file.setFileName(ldrName);
-                              if (!file.remove()) {
-                                  QMessageBox::critical(NULL,
-                                                        QMessageBox::tr("LPub3D"),
-                                                        QMessageBox::tr("Unable to remeove %1")
-                                                        .arg(ldrName));
-                                }
-                              csiCleared = true;
-                            }
-                          for (int k = 0; k < step->list.size(); k++) {
-                              if (step->list[k]->relativeType == CalloutType) {
-                                  Callout *callout = dynamic_cast<Callout *>(step->list[k]);
-                                  if (callout) {
-                                      for (int l = 0; l < callout->list.size(); l++){
-                                          Range *range = dynamic_cast<Range *>(callout->list[l]);
-                                          for (int m = 0; m < range->list.size(); m++){
-                                              if (range->relativeType == RangeType) {
-                                                  Step *step = dynamic_cast<Step *>(range->list[m]);
-                                                  if (step){
-                                                      QFileInfo fileInfo(step->pngName);
-                                                      QFile file(assemDirName + "/" + fileInfo.fileName());
-                                                      if (!file.remove()) {
-                                                          QMessageBox::critical(NULL,
-                                                                                QMessageBox::tr("LPub3D"),
-                                                                                QMessageBox::tr("Unable to remeove %1")
-                                                                                .arg(assemDirName + "/" + fileInfo.fileName()));
-                                                        }
-                                                      if (renderer->useLDViewSCall()){
-                                                          ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
-                                                          file.setFileName(ldrName);
-                                                          if (!file.remove()) {
-                                                              QMessageBox::critical(NULL,
-                                                                                    QMessageBox::tr("LPub3D"),
-                                                                                    QMessageBox::tr("Unable to remeove %1")
-                                                                                    .arg(ldrName));
-                                                            }
-                                                        } else if (! csiCleared){
-                                                          ldrName = tmpDirName + "/csi.ldr";
-                                                          file.setFileName(ldrName);
-                                                          if (!file.remove()) {
-                                                              QMessageBox::critical(NULL,
-                                                                                    QMessageBox::tr("LPub3D"),
-                                                                                    QMessageBox::tr("Unable to remeove %1")
-                                                                                    .arg(ldrName));
-                                                            }
-                                                          csiCleared = true;
-                                                        }
-                                                    } // validate step (StepType) and process...
-                                                } // validate RangeType - to cast step
-                                            } // for each step within divided group...=>list[AbstractRangeElement]->StepType
-                                        } // for each divided group within callout...=>list[AbstractStepsElement]->RangeType
-                                    } // validate callout
-                                } // validate calloutType
-                            } // for divided group within step...=>list[Steps]->CalloutType
-                        } // validate step (StepType) and process...
-                    } // validate RangeType - to cast step
-                } // for each step within divided group...=>list[AbstractRangeElement]->StepType
-            } // for each divided group within page...=>list[AbstractStepsElement]->RangeType
-
-        } else if (relativeType == SingleStepType) { // single step page
-
-          Range *range = dynamic_cast<Range *>(page->list[0]);
-          if (range->relativeType == RangeType) {
-              Step *step = dynamic_cast<Step *>(range->list[0]);
-              if (step && step->relativeType == StepType) {
-                  QFileInfo fileInfo(step->pngName);
-                  QFile file(assemDirName + "/" + fileInfo.fileName());
-                  if (!file.remove()) {
-                      QMessageBox::critical(NULL,
-                                            QMessageBox::tr("LPub3D"),
-                                            QMessageBox::tr("Unable to remove %1")
-                                            .arg(assemDirName + "/" + fileInfo.fileName()));
-                    }
-                  if (renderer->useLDViewSCall()){
-                      ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
-                      file.setFileName(ldrName);
-                      if (!file.remove()) {
-                          QMessageBox::critical(NULL,
-                                                QMessageBox::tr("LPub3D"),
-                                                QMessageBox::tr("Unable to remeove %1")
-                                                .arg(ldrName));
-                        }
-                    } else if (! csiCleared){
-                      ldrName = tmpDirName + "/csi.ldr";
-                      file.setFileName(ldrName);
-                      if (!file.remove()) {
-                          QMessageBox::critical(NULL,
-                                                QMessageBox::tr("LPub3D"),
-                                                QMessageBox::tr("Unable to remeove %1")
-                                                .arg(ldrName));
-                        }
-                      csiCleared = true;
-                    }
-                  for (int k = 0; k < step->list.size(); k++) {
-                      if (step->list[k]->relativeType == CalloutType) {
-                          Callout *callout = dynamic_cast<Callout *>(step->list[k]);
-                          if (callout) {
-                              for (int l = 0; l < callout->list.size(); l++){
-                                  Range *range = dynamic_cast<Range *>(callout->list[l]);
-                                  for (int m = 0; m < range->list.size(); m++){
-                                      if (range->relativeType == RangeType) {
-                                          Step *step = dynamic_cast<Step *>(range->list[m]);
-                                          if (step){
-                                              QFileInfo fileInfo(step->pngName);
-                                              QFile file(assemDirName + "/" + fileInfo.fileName());
-                                              if (!file.remove()) {
-                                                  QMessageBox::critical(NULL,
-                                                                        QMessageBox::tr("LPub3D"),
-                                                                        QMessageBox::tr("Unable to remove %1")
-                                                                        .arg(assemDirName + "/" + fileInfo.fileName()));
-                                                }
-                                              if (renderer->useLDViewSCall()){
-                                                  ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
-                                                  file.setFileName(ldrName);
-                                                  if (!file.remove()) {
-                                                      QMessageBox::critical(NULL,
-                                                                            QMessageBox::tr("LPub3D"),
-                                                                            QMessageBox::tr("Unable to remeove %1")
-                                                                            .arg(ldrName));
-                                                    }
-                                                } else if (! csiCleared){
-                                                  ldrName = tmpDirName + "/csi.ldr";
-                                                  file.setFileName(ldrName);
-                                                  if (!file.remove()) {
-                                                      QMessageBox::critical(NULL,
-                                                                            QMessageBox::tr("LPub3D"),
-                                                                            QMessageBox::tr("Unable to remeove %1")
-                                                                            .arg(ldrName));
-                                                    }
-                                                  csiCleared = true;
-                                                }
-                                            } // validate step (StepType) and process...
-                                        } // validate RangeType - to cast step
-                                    } // for each step within divided group...=>list[AbstractRangeElement]->StepType
-                                } // for each divided group within callout...=>list[AbstractStepsElement]->RangeType
-                            } // validate callout
-                        } // validate calloutType
-                    } // for divided group within step...=>list[Steps]->CalloutType
-                } // validate step (StepType) and process...
-            } // validate RangeType - to cast step
-        }
-
+                          clearPageCSIGraphicsItems(step);
+                      } // validate step (StepType) and process...
+                  } // validate RangeType - to cast step
+              } // for each step within divided group...=>list[AbstractRangeElement]->StepType
+          } // for each divided group within page...=>list[AbstractStepsElement]->RangeType
+      }
       if (Preferences::enableFadeStep) {
           clearFadePositions();
-        }
+      }
       displayPage();
-    }
+   }
 }
+
+/*
+ * Clear step image graphics items
+ * This function recurses the step's model to clear images and associated model files.
+ * Call only if using LDView Single Call (useLDViewsCall=true)
+ */
+void Gui::clearPageCSIGraphicsItems(Step *step) {
+  // Capture ldr and image names
+  QString tmpDirName   = QDir::currentPath() + "/" + Paths::tmpDir;
+  QString assemDirName = QDir::currentPath() + "/" + Paths::assemDir;
+  QString ldrName;
+  bool itemsCleared = false;
+  // process step's image(s)
+  QFileInfo fileInfo(step->pngName);
+  QFile file(assemDirName + "/" + fileInfo.fileName());
+  if (!file.remove()) {
+      QMessageBox::critical(NULL,
+                            QMessageBox::tr("LPub3D"),
+                            QMessageBox::tr("Unable to remove %1")
+                            .arg(assemDirName + "/" + fileInfo.fileName()));
+  }
+  if (renderer->useLDViewSCall()){
+      ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
+      file.setFileName(ldrName);
+      if (!file.remove()) {
+          QMessageBox::critical(NULL,
+                                QMessageBox::tr("LPub3D"),
+                                QMessageBox::tr("Unable to remeove %1")
+                                .arg(ldrName));
+      }
+  } else if (! itemsCleared){
+      ldrName = tmpDirName + "/csi.ldr";
+      file.setFileName(ldrName);
+      if (!file.remove()) {
+          QMessageBox::critical(NULL,
+                                QMessageBox::tr("LPub3D"),
+                                QMessageBox::tr("Unable to remeove %1")
+                                .arg(ldrName));
+      }
+      itemsCleared = true;
+  }
+  // process callout's step(s) image(s)
+  for (int k = 0; k < step->list.size(); k++) {
+      if (step->list[k]->relativeType == CalloutType) {
+          Callout *callout = dynamic_cast<Callout *>(step->list[k]);
+          for (int l = 0; l < callout->list.size(); l++){
+              Range *range = dynamic_cast<Range *>(callout->list[l]);
+              for (int m = 0; m < range->list.size(); m++){
+                  if (range->relativeType == RangeType) {
+                      Step *step = dynamic_cast<Step *>(range->list[m]);
+                      if (step && step->relativeType == StepType) {
+                          clearPageCSIGraphicsItems(step);
+                      } // 1.6 validate if Step relativeType is StepType - to clear image, check for Callout
+                  } // 1.5 validate if Range relativeType is RangeType - to cast as Step
+              } // 1.4 for each Step list-item within a Range...=>list[AbstractRangeElement]->StepType
+          } // 1.3 for each Range list-item within a Callout...=>list[AbstractStepsElement]->RangeType
+      } // 1.2 validate if relativeType is CalloutType - to cast as Callout...
+  } // 1.1 for each Callout list-item within a Step...=>list[Steps]->CalloutType
+}
+
 /***************************************************************************
  * These are infrequently used functions for basic environment 
  * configuration stuff
