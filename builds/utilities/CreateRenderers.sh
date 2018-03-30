@@ -760,7 +760,7 @@ for buildDir in ldglite ldview povray; do
     fi
   else
     # CI/Local build setup - we must install dependencies even if binary exists...
-    if [ ! "$OS_NAME" = "Darwin" ]; then
+    if [[ ! -f "${!artefactBinary}" || ! "$OS_NAME" = "Darwin" ]]; then
       # Check if build folder exist - donwload tarball and extract if not
       Info && Info "Setup ${!artefactVer} source files..."
       Info "----------------------------------------------------"
@@ -775,10 +775,12 @@ for buildDir in ldglite ldview povray; do
         cd ${buildDir}
       fi
       # Install build dependencies
-      Info && Info "Install ${!artefactVer} build dependencies..."
-      Info "----------------------------------------------------"
-      InstallDependencies ${buildDir}
-      sleep .5
+      if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
+        Info && Info "Install ${!artefactVer} build dependencies..."
+        Info "----------------------------------------------------"
+        InstallDependencies ${buildDir}
+        sleep .5
+      fi
     fi
   fi
 
