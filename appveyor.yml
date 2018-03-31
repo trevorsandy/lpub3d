@@ -38,6 +38,16 @@ configuration: release
 matrix:
   fast_finish: true
 
+# The following variables/actions can be manipulated from the AppVeyor site->Project->Settings->Environment Variables
+# Variables ending with '_VAR' are designated to be only defined at the AppVeyor site
+# LP3D_BUILD_PKG = "yes"            ; trigger build
+# LP3D_TEST_DEPLOY_SF_VAR = "true"  ; deploy SourceForge
+# LP3D_CLEAR_AVCACHE_VAR = "true"  ; delete cache
+# LP3D_BUILD_RENDERERS_VAR = "true" ; rebuld renderers [NOTE: requires one or more of LP3D_BUILD_<render> variables]
+#   LP3D_BUILD_LDGLITE = 1          ; rebuild LDGLite
+#   LP3D_BUILD_LDVIEW = 1           ; rebuild LDView
+#   LP3D_BUILD_TRACE = 1            ; rebuild LPub3D-Trace (POV-Ray)
+#
 environment:
   LP3D_PACKAGE: LPub3D
   LP3D_PACKAGE_PATH: builds\windows\$(configuration)
@@ -73,6 +83,13 @@ init:
  - ps: write-host "Building ${env:LP3D_PACKAGE} x86 and x86_64 architectures..."
  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
  - ps: |
+      If ($env:LP3D_TEST_DEPLOY_SF_VAR -eq "true") {
+         write-host "Test Sourceforge deploy detected."
+      }
+      If ($env:LP3D_BUILD_RENDERERS_VAR -eq "true") {
+         write-host "Build renderers detected."
+      }
+ - ps: |
       If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower() -Like "*build pkg*") {
         write-host "[build pkg] detected."
         $env:LP3D_BUILD_PKG = "yes"
@@ -90,17 +107,23 @@ init:
  - ps: |
       If ($env:LP3D_BUILD_PKG -eq "yes") {
         If ($env:APPVEYOR_REPO_COMMIT_MESSAGE -Match '[^\S]\s?([0-1]?\s?[0-1]?\s?[0-1]?)\].*$') {
-          $env:LP3D_BUILD_LDGLITE = $matches[1].substring(0,1)
-          $env:LP3D_BUILD_LDVIEW = $matches[1].substring(2,1)
-          $env:LP3D_BUILD_TRACE = $matches[1].substring(4,1)
+          If (LP3D_BUILD_RENDERERS_VAR -ne "true") {
+            $env:LP3D_BUILD_LDGLITE = $matches[1].substring(0,1)
+            $env:LP3D_BUILD_LDVIEW = $matches[1].substring(2,1)
+            $env:LP3D_BUILD_TRACE = $matches[1].substring(4,1)
+          }
           $env:LP3D_LDGLITE = "${env:LP3D_DIST_DIR_PATH}\ldglite-1.3"
           $env:LP3D_LDVIEW = "${env:LP3D_DIST_DIR_PATH}\ldview-4.3"
           $env:LP3D_LPUB3D_TRACE = "${env:LP3D_DIST_DIR_PATH}\lpub3d_trace_cui-3.8"
         }
       }
  - ps: |
-      If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[clear avcache]")) {
-        write-host "[clear avcache] detected."
+      If (($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[clear avcache]")) -or ($env:LP3D_CLEAR_AVCACHE_VAR -eq "true")) {
+        If ($env:LP3D_CLEAR_AVCACHE_VAR -eq "true") {
+          write-host "Clear AppVeyor cache detected."
+        } else {
+          write-host "[clear avcache] detected."
+        }
 
         $apiUrl = 'https://ci.appveyor.com/api'
         $token = $env:SECURE_AV_SECRET
@@ -138,12 +161,9 @@ install:
  - cmd: bash -lc "if ! test -d \"${lp3d_librepodir}\"; then curl -sL -o ${lp3d_librepo}.tar.gz https://github.com/trevorsandy/${lp3d_librepo}/archive/master.tar.gz; fi"
  - cmd: bash -lc "if ! test -d \"${lp3d_librepodir}\" && test -f \"${lp3d_librepo}.tar.gz\"; then mkdir -p ${lp3d_librepodir} && tar -xzf ${lp3d_librepo}.tar.gz -C ${lp3d_librepodir} --strip-components=1; fi"
  - cmd: bash -lc "if ! test -d \"${lp3d_librepodir}\"; then echo repository ${lp3d_librepodir} not found; else echo library repository available at ${lp3d_librepodir}; fi"
- - cmd: bash -lc "if test \"$LP3D_BUILD_LDGLITE\" = \"1\" && test -d \"$LP3D_LDGLITE\"; then rm -rf $LP3D_LDGLITE && echo cached $LP3D_LDGLITE deleted; fi"
- - cmd: bash -lc "if test \"$LP3D_BUILD_LDVIEW\" = \"1\" && test -d \"$LP3D_LDVIEW\"; then rm -rf $LP3D_LDVIEW && echo cached $LP3D_LDVIEW deleted; fi"
- - cmd: bash -lc "if test \"$LP3D_BUILD_TRACE\" = \"1\" && test -d \"$LP3D_LPUB3D_TRACE\"; then rm -rf $LP3D_LPUB3D_TRACE && echo cached $LP3D_LPUB3D_TRACE deleted; fi"
- - cmd: bash -lc "if test \"$LP3D_BUILD_LDGLITE\" = \"1\" && test -d \"$LP3D_LDGLITE\"; then rm -rf $LP3D_LDGLITE && echo cached $LP3D_LDGLITE deleted; fi"
- - cmd: bash -lc "if test \"$LP3D_BUILD_LDVIEW\" = \"1\" && test -d \"$LP3D_LDVIEW\"; then rm -rf $LP3D_LDVIEW && echo cached $LP3D_LDVIEW deleted; fi"
- - cmd: bash -lc "if test \"$LP3D_BUILD_TRACE\" = \"1\" && test -d \"$LP3D_LPUB3D_TRACE\"; then rm -rf $LP3D_LPUB3D_TRACE && echo cached $LP3D_LPUB3D_TRACE deleted; fi"
+ - cmd: bash -lc "if test \"$LP3D_BUILD_LDGLITE\" = \"1\" && test -d \"$LP3D_LDGLITE\"; then rm -rf $LP3D_LDGLITE; if ! test -d \"$LP3D_LDGLITE\"; then echo cached $LP3D_LDGLITE deleted; fi; fi"
+ - cmd: bash -lc "if test \"$LP3D_BUILD_LDVIEW\" = \"1\" && test -d \"$LP3D_LDVIEW\"; then rm -rf $LP3D_LDVIEW; if ! test -d \"$LP3D_LDVIEW\"; then echo cached $LP3D_LDVIEW deleted; fi; fi"
+ - cmd: bash -lc "if test \"$LP3D_BUILD_TRACE\" = \"1\" && test -d \"$LP3D_LPUB3D_TRACE\"; then rm -rf $LP3D_LPUB3D_TRACE; if ! test -d \"$LP3D_LPUB3D_TRACE\"; then echo cached $LP3D_LPUB3D_TRACE deleted; fi; fi"
  - cmd: C:\msys64\usr\bin\bash -lc "cd ${lp3d_librepodir}/qt-5.9.2-2-release; pacman -U --needed --noconfirm ${LP3D_QT32_LIBS} ${LP3D_QT64_LIBS} > InstallQtBuildEnv.log 2>&1"
  - cmd: C:\msys64\usr\bin\bash -lc "pacman -S --needed --noconfirm openssh rsync > InstallSecureTransfer.log 2>&1"
 
@@ -188,9 +208,9 @@ after_build:
         } Else {
           Write-Error -Message "env var LP3D_UPDATE_ASSETS is null." -ErrorAction Stop
         }
-        If ($env:LP3D_DEPLOY_PKG -eq $true) {
+        If (($env:LP3D_DEPLOY_PKG -eq $true) -or ($env:LP3D_TEST_DEPLOY_SF_VAR -eq "true")) {
           write-host "`n"
-          If ((git tag -l -n $env:APPVEYOR_REPO_TAG_NAME) -NotLike "*skip sfr*") {
+          If (((git tag -l -n $env:APPVEYOR_REPO_TAG_NAME) -NotLike "*skip sfr*") -or ($env:LP3D_TEST_DEPLOY_SF_VAR -eq "true")) {
             cmd.exe /c nuget install secure-file -ExcludeVersion
             cmd.exe /c secure-file\tools\secure-file -decrypt %LP3D_SECURE_DIR%\.sfdeploy_appveyor_rsa.enc -secret %SECURE_SF_SECRET%
             C:\msys64\usr\bin\bash -lc 'cd $APPVEYOR_BUILD_FOLDER && chmod +x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh 2>&1'
