@@ -34,9 +34,9 @@ LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appi
 ### Downloads
 
 :--------------------------------------------|:--------------------------------
-[![GitHub-Logo][github-logo]][githubreleases]|[GitHub Releases][githubreleases]
-[![SF-Logo][sf-logo]][sfreleases]            |[Sourceforge Releases][sfreleases]
-[![OBS-Logo][obs-logo]][obsreleases]         |[Open Build Service Releases][obsreleases] - Linux distributions
+[![GitHub-Logo][github-logo]][github_releases]|[GitHub Releases][githubreleases]
+[![SF-Logo][sf-logo]][sf_releases]            |[Sourceforge Releases][sfreleases]
+[![OBS-Logo][obs-logo]][obs_releases]         |[Open Build Service Releases][obsreleases] - Linux distributions
 
 ### Distributions
 
@@ -158,9 +158,14 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [lgplv3-url]:          https://www.gnu.org/licenses/gpl-3.0.en.html
 [buildfromsource]:     https://github.com/trevorsandy/lpub3d/blob/master/builds/utilities/README.md
 
-[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.2.0/
-[githubreleases]:      https://github.com/trevorsandy/lpub3d/releases
+[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.2.1
+[githubreleases]:      https://github.com/trevorsandy/lpub3d/releases/tag/v2.2.1
 [obsreleases]:         https://software.opensuse.org/download.html?project=home:trevorsandy&package=lpub3d
+
+[sf_releases]:         https://sourceforge.net/projects/lpub3d/files
+[github_releases]:     https://github.com/trevorsandy/lpub3d/releases
+[obs_releases]:        https://download.opensuse.org/repositories/home:/trevorsandy
+
 [travis-badge]:        https://img.shields.io/travis/trevorsandy/lpub3d.svg?label=travis&logo=travis
 [travis-url]:          https://travis-ci.org/trevorsandy/lpub3d
 
