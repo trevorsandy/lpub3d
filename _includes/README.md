@@ -32,9 +32,13 @@ LPub3D runs on Debian, Red Hat and Arch derived Linux distros, macOS and Windows
 LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appimage-info-url]. Builds are available for both x86 instruction set (32-bit and 64-bit) and Advanced RISC Machines (ARM) micorprocessors.
 
 ### Downloads
- - [GitHub Releases][githubreleases]
- - [Sourceforge Releases][sfreleases]
- - [Open Build Service Releases][obsreleases] - Linux distributions
+
+:--------------------------------------------|:--------------------------------
+[![GitHub-Logo][github-logo]][githubreleases]|[GitHub Releases][githubreleases]
+[![SF-Logo][sf-logo]][sfreleases]            |[Sourceforge Releases][sfreleases]
+[![OBS-Logo][obs-logo]][obsreleases]         |[Open Build Service Releases][obsreleases] - Linux distributions
+
+### Distributions
 
 [![Appimage-Icon][appimage-icon]][appimage-url]|[![Arch-Icon][arch-icon]][arch-url]|[![Centos-Icon][centos-icon]][centos-url]|[![Debian-Icon][debian-icon]][debian-url]|[![Fedora-Icon][fedora-icon]][fedora-url]|[![Mageia-Icon][mageia-icon]][mageia-url]            |[![Macos-Icon][macos-icon]][macos-url]
 :---------------------------------------------:|:---------------------------------:|:---------------------------------------:|:---------------------------------------:|:---------------------------------------:|:---------------------------------------------------:|:------------------------------------------:
@@ -98,6 +102,10 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [ldview-url]:          https://github.com/trevorsandy/ldview/tree/qmake-build
 [povray-url]:          https://github.com/trevorsandy/povray/tree/lpub3d/raytracer-cui
 
+[github-logo]:         {{ '/assets/images/github_logo.png' | relative_url }}
+[sf-logo]:             {{ '/assets/images/sf_logo.png' | relative_url }}
+[obs-logo]:            {{ '/assets/images/obs_logo.png' | relative_url }}
+
 [ldraw-logo]:          {{ '/assets/images/ldraw_logo.png' | relative_url }}
 [lgeo-logo]:           {{ '/assets/images/lgeo_logo.png' | relative_url }}
 [gplv3-logo]:          {{ '/assets/images/gplv3_logo.png' | relative_url }}
@@ -116,9 +124,9 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [macos-icon]:          https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/macos.png
 [windows-icon]:        https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/windows.png
 
-[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.2.0/LPub3D-2.2.0.0.795_20180316.exe
-[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.2.0/LPub3D-2.2.0.0.795_20180316-macos.dmg
-[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.2.0/LPub3D-2.2.0.0.795_20180316-x86_64.AppImage
+[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.2.1/LPub3D-2.2.1.0.824_20180331.exe
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.2.1/LPub3D-2.2.1.0.824_20180331-macos.dmg
+[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.2.1/LPub3D-2.2.1.0.824_20180331-x86_64.AppImage
 
 [arch-icon]:           https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/arch.png
 [centos-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/centos.png
