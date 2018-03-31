@@ -1,4 +1,4 @@
-LPub3D 2.2.0.1.823 (31 03 2018 13:02:54)
+LPub3D 2.2.1.0.824 (31 03 2018 20:54:01)
 
 Features and enhancements
 ------------
@@ -34,7 +34,7 @@ Fix: Add recursive function to clear Page CSI cache. This correction enables cle
 
 Fix: Application version missing in macOS dmg README. Corrected.
 
-LPub3D 2.0.20.542.573 (16 03 2018 00:35:46)
+LPub3D 2.2.0.0.795 (16 03 2018 23:18:23)
 
 Features and enhancements
 ------------
