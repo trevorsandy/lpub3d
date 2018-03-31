@@ -1046,12 +1046,39 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	Pop $0
 !macroend
 
-!macro MULTIUSER_RegistryAddInstallSizeInfo InstallSize
+!macro MULTIUSER_RegistryAddInstallSizeInfo
 	Push "$0"
+	Push "$1"
+	Push "$2"
+	Push "$3"
+	Push "$4"
+	Push "$5"
+	Push "$6"
+	Push "$7"
+
 	!insertmacro MULTIUSER_GetCurrentUserString $0
 
-	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "EstimatedSize" "${InstallSize}"
+	${GetSize} "$INSTDIR" "/S=0K" $2 $3 $4 ; get install folder size
+	IntOp $1 $1 + $2
+	!ifdef INSTDIR_AppDataProduct
+		${GetSize} "$INSTDIR_AppDataProduct" "/S=0K" $5 $6 $7 ; get user data folder size
+		IfErrors 0 +3
+		DetailPrint "Warning - could not get size of ${INSTDIR_AppDataProduct}, using 50MB estimate."
+		IntOp  $5 $5 + 50000 ; If error, set user data folder size to default value of 50MB
+		IntOp $1 $1 + $5
+	!else
+	  DetailPrint "Error - could not get user data size, path not defined."
+	!endif
+	IntFmt $1 "0x%08X" $1 ; Convert to KB
+	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "EstimatedSize" "$1"
 
+	Pop $7
+	Pop $6
+	Pop $5
+	Pop $4
+	Pop $3
+	Pop $2
+	Pop $1
 	Pop $0
 !macroend
 

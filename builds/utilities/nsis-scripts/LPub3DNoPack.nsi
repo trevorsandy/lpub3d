@@ -21,7 +21,6 @@ Var /global CPUArch
 Var /global X64Flag
 Var /global StartMenuFolder
 Var /global CaptionMessage
-Var /global GetInstalledSize.total
 Var /global AppDataBaseDir
 
 ;Custom page variables
@@ -401,13 +400,12 @@ Section /o "Quick Launch" SectionQuickLaunchIcon
   ; The QuickLaunch is always only for the current user
   CreateShortCut "$QUICKLAUNCH\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
 SectionEnd
-SectionGroupEnd
+
+SectionGroupEnd ; end 'Integrtion' group
 
 Section "-Write Install Size" ; hidden section, write install size as the final step
-;Get installed size
-  Call GetInstalledSize
-  pop $0
-  !insertmacro MULTIUSER_RegistryAddInstallSizeInfo $0
+  ;Write installed size
+  !insertmacro MULTIUSER_RegistryAddInstallSizeInfo
 SectionEnd
 
 ; Modern install component descriptions
@@ -449,8 +447,6 @@ Function .onInit
   SetAll:
   SetShellVarContext all
   Done:
-
-  !define /ifndef GetInstalledSize.total 0
 
   !insertmacro MULTIUSER_INIT
 
@@ -553,31 +549,6 @@ FunctionEnd
 
 Function .onInstFailed
   MessageBox MB_ICONSTOP "${PRODUCT_NAME} ${VERSION} could not be fully installed.$\r$\nPlease, restart Windows and run the setup program again." /SD IDOK
-FunctionEnd
-
-; Return on top of stack the total size of the selected (installed) sections, formated as DWORD
-; Assumes no more than 256 sections are defined
-Function GetInstalledSize
-  Push $0
-  Push $1
-  StrCpy $GetInstalledSize.total 0
-  ${ForEach} $1 0 256 + 1
-    ${if} ${SectionIsSelected} $1
-      SectionGetSize $1 $0
-      IntOp $GetInstalledSize.total $GetInstalledSize.total + $0
-    ${Endif}
-
-    ; Error flag is set when an out-of-bound section is referenced
-    ${if} ${errors}
-      ${break}
-    ${Endif}
-  ${Next}
-
-  ClearErrors
-  Pop $1
-  Pop $0
-  IntFmt $GetInstalledSize.total "0x%08X" $GetInstalledSize.total
-  Push $GetInstalledSize.total
 FunctionEnd
 
 ;--------------------------------
