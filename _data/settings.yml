@@ -10,3 +10,7 @@ social:
   - {icon: 'linkedin', link: 'http://www.linkedin.com/in/trevor-sandy-4193a122/'}
   - {icon: 'twitter', link: 'https://twitter.com/intent/follow?screen_name=tds2142'}
   - {icon: 'envelope', link: 'mailto:trevor.sandy@gmail.com'}
+
+projects:
+  obs: "https://build.opensuse.org/package/show/home:trevorsandy/lpub3d"
+  sourceforge: "https://sourceforge.net/projects/lpub3d"
