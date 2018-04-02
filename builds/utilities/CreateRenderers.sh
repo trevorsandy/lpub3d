@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: March 19, 2018
+#  Last Update: April 02, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -337,10 +337,11 @@ BuildLDGLite() {
 # args: 1 = <build type (release|debug)>, 2 = <build log>
 BuildLDView() {
   # patch LDViewGlobal.pri for fatal error: stdlib.h: No such file or directory
+  # on Docker, Fedora's platform_id is 'fedora', on OBS it is 'redhat'
   case ${platform_id} in
   redhat|fedora|suse)
      case ${platform_ver} in
-     24|25|27|1500|1550|150000)
+     24|25|26|27|28|1500|1550|150000)
        ApplyLDViewStdlibHack
        ;;
      esac
