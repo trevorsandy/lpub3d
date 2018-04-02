@@ -41,8 +41,9 @@ matrix:
 # The following variables/actions can be manipulated from the AppVeyor site->Project->Settings->Environment Variables
 # Variables ending with '_VAR' are designated to be only defined at the AppVeyor site
 # LP3D_BUILD_PKG = "yes"            ; trigger build
-# LP3D_TEST_DEPLOY_SF_VAR = "true"  ; deploy SourceForge
-# LP3D_CLEAR_AVCACHE_VAR = "true"  ; delete cache
+# LP3D_TEST_SF_DEPLOY_VAR = "true"  ; deploy SourceForge
+# LP3D_SKIP_SF_DEPLOY_VAR = "true"  ; skip SourceForge deploy
+# LP3D_CLEAR_AVCACHE_VAR = "true"   ; delete cache
 # LP3D_BUILD_RENDERERS_VAR = "true" ; rebuld renderers [NOTE: requires one or more of LP3D_BUILD_<render> variables]
 #   LP3D_BUILD_LDGLITE = 1          ; rebuild LDGLite
 #   LP3D_BUILD_LDVIEW = 1           ; rebuild LDView
@@ -83,7 +84,7 @@ init:
  - ps: write-host "Building ${env:LP3D_PACKAGE} x86 and x86_64 architectures..."
  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
  - ps: |
-      If ($env:LP3D_TEST_DEPLOY_SF_VAR -eq "true") {
+      If ($env:LP3D_TEST_SF_DEPLOY_VAR -eq "true") {
          write-host "Test Sourceforge deploy detected."
       }
       If ($env:LP3D_BUILD_RENDERERS_VAR -eq "true") {
@@ -208,9 +209,9 @@ after_build:
         } Else {
           Write-Error -Message "env var LP3D_UPDATE_ASSETS is null." -ErrorAction Stop
         }
-        If (($env:LP3D_DEPLOY_PKG -eq $true) -or ($env:LP3D_TEST_DEPLOY_SF_VAR -eq "true")) {
+        If (($env:LP3D_DEPLOY_PKG -eq $true) -or ($env:LP3D_TEST_SF_DEPLOY_VAR -eq "true")) {
           write-host "`n"
-          If (((git tag -l -n $env:APPVEYOR_REPO_TAG_NAME) -NotLike "*skip sfr*") -or ($env:LP3D_TEST_DEPLOY_SF_VAR -eq "true")) {
+          If (((git tag -l -n $env:APPVEYOR_REPO_TAG_NAME) -NotLike "*skip sfr*") -and ($env:LP3D_SKIP_SF_DEPLOY_VAR -ne "true")) {
             cmd.exe /c nuget install secure-file -ExcludeVersion
             cmd.exe /c secure-file\tools\secure-file -decrypt %LP3D_SECURE_DIR%\.sfdeploy_appveyor_rsa.enc -secret %SECURE_SF_SECRET%
             C:\msys64\usr\bin\bash -lc 'cd $APPVEYOR_BUILD_FOLDER && chmod +x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh 2>&1'
