@@ -3,8 +3,8 @@
 # Build all libOSMesa and libGLU libraries - short
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 22, 2018
-#  Copyright (c) 2017 by Trevor SANDY
+#  Last Update: April 02, 2018
+#  Copyright (c) 2018 by Trevor SANDY
 #
 # Useage: env WD=$PWD [COPY_CONFIG=1] ./lpub3d/builds/utilities/mesa/buildosmesa.sh
 # Note: If WD is not defined,
@@ -171,7 +171,6 @@ confopts="\
 --disable-gbm \
 --disable-xvmc \
 --disable-vdpau \
---disable-omx \
 --disable-va \
 --disable-opencl \
 --disable-shared-glapi \
@@ -180,6 +179,17 @@ confopts="\
 --with-platforms= \
 --with-osmesa-bits=32 \
 "
+if [ "${mesaversion}" = "18.0.0" ]; then
+  confopts="\
+  $confopts \
+  --disable-omx-bellagio \
+  "
+else
+  confopts="\
+  $confopts \
+  --disable-omx \
+  "
+fi
 if [ "$nogallium" = 1 ]; then
   confopts="\
   $confopts \

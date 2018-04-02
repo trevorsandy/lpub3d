@@ -74,8 +74,14 @@ BuildMesaLibs() {
   chmod a+x "${mesaSpecDir}/build_osmesa.sh"
   if [ "${OBS}" = "true" ]; then
     Info "Using sudo..........[No]"
+    osmesa_version=17.2.6
+    if [[ "${platform_id}" = "redhat" && ${platform_ver} = 28 ]]; then
+      Info "Building OSMesa.....[v18.0.0]"
+      osmesa_version=18.0.0
+    fi
     env \
     NO_GALLIUM=${no_gallium} \
+    OSMESA_VERSION=${osmesa_version} \
     ${mesaSpecDir}/build_osmesa.sh &
   else
     ${mesaSpecDir}/build_osmesa.sh > $mesaBuildLog 2>&1 &
