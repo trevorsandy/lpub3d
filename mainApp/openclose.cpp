@@ -261,6 +261,20 @@ void Gui::closeFile()
 }
 
 void Gui::closeModelFile(){
+#ifdef WATCHER
+  if (curFile != "") {
+    if (isMpd()) {
+      watcher.removePath(curFile);
+    } else {
+      QStringList list = ldrawFile.subFileOrder();
+      QString foo;
+      foreach (foo,list) {
+        QString bar = QDir::currentPath() + "/" + foo;
+        watcher.removePath(bar);
+      }
+    }
+  }
+#endif
   //3D Viewer
   emit clearViewerWindowSig();
   emit updateAllViewsSig();

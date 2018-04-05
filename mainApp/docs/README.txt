@@ -1,4 +1,12 @@
-LPub3D 2.2.1.1.827 (02 04 2018 23:19:21)
+LPub3D 2.2.2.1.828 (05 04 2018 07:35:07)
+
+Features and enhancements
+------------
+Fix: Remove file watcher on file close. This fix corrects the behaviour where when you edit a file that was recently closed in LPub3D, the message '...contents were changed by an external source' is displayed. The expected behaviour is to not receive such message.
+
+Change: Add Fedora 28 to Open Build Service builds
+
+LPub3D 2.2.1.0.824 (31 03 2018 20:54:01)
 
 Features and enhancements
 ------------
@@ -34,7 +42,7 @@ Fix: Add recursive function to clear Page CSI cache. This correction enables cle
 
 Fix: Application version missing in macOS dmg README. Corrected.
 
-LPub3D 2.0.20.542.573 (16 03 2018 00:35:46)
+LPub3D 2.2.0.0.795 (16 03 2018 23:18:23)
 
 Features and enhancements
 ------------
