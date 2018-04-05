@@ -2039,43 +2039,46 @@ void MetaItem::insertBOM()
 
 int MetaItem::okToInsertFinalModel()
 {
-    Rc rc;
-    QString line;
-    Meta content;
-    Where here(gui->topLevelFile(),0);
-    here.lineNumber = gui->subFileSize(here.modelName);                 //start at bottom of file
-    here--;                                                             //adjust to readline using from zero-start index
+  Rc rc;
+  QString line;
+  Meta content;
+  Where saveHere;
+  saveHere.lineNumber = 0;                                //initialize saveHere line number to -1
+  Where here(gui->topLevelFile(),0);
+  here.lineNumber = gui->subFileSize(here.modelName);      //start at bottom of file
+  here--;                                                  //adjust lineNumber using from zero-start index
 
-    for ( ; here >= 0; here--) {                                        //scan from bottom to top of file
-        line = gui->readLine(here);
-        rc = content.parse(line,here);
-        if (rc == InsertFinalModelRc) {                                 //check if insert final model
-          logStatus() << "Final model detected at line: " << here.lineNumber;
-            return -1;
-        } else if (! Preferences::enableFadeStep) {                     //if not enable fadestep, no final model, just return 1 and finish.
-            return 0;
-        } else if (rc == StepGroupEndRc) {                              //if Step Group, then there is no final model
-            return here.lineNumber;                                     //so return line number
-        } else if (rc == StepRc || rc == RotStepRc) {                   //check if line was a STEP or ROTSTEP
-             return here.lineNumber;                                    //and return line number
-        } else {                                                        //else keep walking back until 1_5 line
-            QStringList tokens;
-            split(line,tokens);
-            bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
-                 tokens[0] >= "1" && tokens[0] <= "5";
-            if (token_1_5) {                                            //non-zero line detected so no back final model
-                int fileSize = gui->subFileSize(here.modelName) - 1;
-                if (here.lineNumber < (fileSize)) {                     //check that we are not at the end of the file
-                    Where stepForward = here;
-                    stepForward++;                                      //step forward
-                    return stepForward.lineNumber;                      //returl line number
-                } else {
-                    return here.lineNumber;                             //at last line so return line number
-                }
-            }
+  for ( ; here >= 0; here--) {                             //scan from bottom to top of file
+    line = gui->readLine(here);
+    rc = content.parse(line,here);
+    if (rc == StepRc || rc == RotStepRc ||
+      rc == StepGroupEndRc || rc == CalloutEndRc) {        //if Step, StepGroup, RotStep or Callout, save the line number
+      saveHere = here;
+    } else if (rc == InsertFinalModelRc) {                 //check if insert final model
+      logStatus() << "Final model detected at line: " << here.lineNumber;
+      return -1;
+    } else {                                               //else keep walking back until 1_5 line
+      QStringList tokens;
+      split(line,tokens);
+      bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
+          tokens[0] >= "1" && tokens[0] <= "5";
+      if (token_1_5) {                                     //non-zero line detected so no back final model
+        if (saveHere.lineNumber > 0) {
+          return saveHere.lineNumber;                      //we have a step's lineNumber (saveHere) so return it as the poisition to insert the final model
+        } else {                                           //else check for lines starting with 1-5
+          int fileSize = gui->subFileSize(here.modelName) - 1;
+          if (here.lineNumber < (fileSize)) {              //check that we are not at the end of the file
+            Where stepForward = here;
+            stepForward++;                                 //step forward (backup one line)
+            return stepForward.lineNumber;                 //returl line number
+          } else {
+            return here.lineNumber;                        //at last line so return line number
+          }
         }
+      }
     }
-    return -1;
+  }
+  return -1;
 }
 
 
@@ -2085,36 +2088,25 @@ void MetaItem::insertFinalModel(int atLine)
   QString pageMeta  = QString("0 !LPUB INSERT PAGE");
 
   // final model already installed so exit.
-  if (atLine == -1){
+  if (atLine <= 0){
     return;
   }
 
   // grab the passed in line
   Where here(gui->topLevelFile(),atLine);
-  QString line = gui->readLine(here);
 
-  Rc rc;
-  Meta meta;
-  rc = meta.parse(line,here);
-
-  // check if line is STEP or ROTSTEP - so we don't duplicate STEP meta
   beginMacro("insertFinalModel");
-  if (rc == StepRc || rc == RotStepRc) {
-      appendMeta(here+1,modelMeta);
-      appendMeta(here+2,pageMeta);
-      logStatus() << "Final model inserted at lines:" << here.lineNumber << "to" << here.lineNumber+2 ;
-    } else {
-      appendMeta(here+1,step);
-      appendMeta(here+2,modelMeta);
-      appendMeta(here+3,pageMeta);
-      logStatus() << "Final model inserted at lines:" << here.lineNumber << "to" << here.lineNumber+1 ;
-    }
+  appendMeta(here,step);
+  appendMeta(here+1,modelMeta);
+  appendMeta(here+2,pageMeta);
+  logStatus() << "Final model inserted at lines:" << here.lineNumber+1 << "to" << here.lineNumber+3 ;
   endMacro();
 }
 
 void MetaItem::deleteFinalModel(){
 
   int maxLines;
+  QStringList tokens;
   Where here(gui->topLevelFile(),0);                             //start at bottom of file
   here.lineNumber = maxLines = gui->subFileSize(here.modelName);
   here--;
@@ -2152,9 +2144,16 @@ void MetaItem::deleteFinalModel(){
               deleteMeta(walk);
               endMacro();
             }
-          break;
-        }
-    }
+          return;
+      } else {
+         split(line,tokens);
+         bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
+              tokens[0] >= "1" && tokens[0] <= "5";
+         if (token_1_5) {                                      //we have reached a non-zero line so there is no final model
+             return;
+         }
+      }
+   }
 }
 
 void MetaItem::insertSplitBOM()
