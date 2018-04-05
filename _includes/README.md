@@ -50,6 +50,8 @@ LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appi
 ### Quick Links
  - [Build and package LPub3D from source][buildfromsource]
  - [Change log (README)][changelog]
+ - [Questions and discussion][sf-gen-discussion]
+ - [Report an Issue][gh-new-issue]
  - [Credits][credits]
 
 ### License
@@ -115,6 +117,8 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [x86-logo]:            {{ '/assets/images/x86_logo.png' | relative_url }}
 [raspberrypi-logo]:    {{ '/assets/images/raspberrypi_logo.png' | relative_url }}
 
+[sf-gen-discussion]:   https://sourceforge.net/p/lpub3d/discussion/general "Ask a question or review past discussions"
+[gh-new-issue]:        https://github.com/trevorsandy/lpub3d/issues/new "Report an issue with LPub3D"
 [working-with-lpub3d]: https://sites.google.com/site/workingwithlpub/lpub3d
 [jctchang-lpub3d]:     http://jc-tchang.philohome.com/model/LPub3D.htm
 
@@ -153,8 +157,8 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [ubuntu-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/xUbuntu_17.10/
 [univention-url]:      https://download.opensuse.org/repositories/home:/trevorsandy/Univention_4.2/
 
-[changelog]:           https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/README.txt
-[credits]:             https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/CREDITS.txt
+[changelog]:           https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/README.txt "Review LPub3D changes and enhancements"
+[credits]:             https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/CREDITS.txt "See whose content has contributed to LPub3D"
 [copying]:             https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/COPYING.txt
 [lgplv3-url]:          https://www.gnu.org/licenses/gpl-3.0.en.html
 [buildfromsource]:     https://github.com/trevorsandy/lpub3d/blob/master/builds/utilities/README.md
