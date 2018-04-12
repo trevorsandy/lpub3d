@@ -53,6 +53,7 @@ class Preferences
     static void setLDViewExtraSearchDirs(const QString &);
     static bool copyRecursively(const QString &,const QString &);
 
+    static QString lpub3dAppName;
     static QString ldrawPath;
     static QString altLDConfigPath;
     static QString lpub3dLibFile;

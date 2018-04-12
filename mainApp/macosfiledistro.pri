@@ -1,8 +1,21 @@
 macx {
+    # Update Info.plist
+    INFO_PLIST_FILE = $$_PRO_FILE_PWD_/Info.plist
+    PLIST_COMMAND = /usr/libexec/PlistBuddy -c
+    system( $$PLIST_COMMAND \"Set :CFBundleShortVersionString $${VERSION}\" \"$${INFO_PLIST_FILE}\" )
+    system( $$PLIST_COMMAND \"Set :CFBundleVersion $${VERSION}.$${VER_BUILD_STR}-$${VER_SHA_HASH_STR}\" \"$${INFO_PLIST_FILE}\" )
+    system( $$PLIST_COMMAND \"Set :CFBundleExecutable $${TARGET}\" \"$${INFO_PLIST_FILE}\" )
+    system( $$PLIST_COMMAND \"Set :CFBundleName $${TARGET}\" \"$${INFO_PLIST_FILE}\" )
+    system( $$PLIST_COMMAND \"Set :CFBundleDisplayName $${TARGET}\" \"$${INFO_PLIST_FILE}\" )
+    system( $$PLIST_COMMAND \"Set :CFBundleIdentifier com.trevorsandy.$$lower($$TARGET)\" \"$${INFO_PLIST_FILE}\" )
+    system( $$PLIST_COMMAND \"Set :CFBundleGetInfoString $${TARGET} $${VERSION} https://trevorsandy.github.io/lpub3d\" \"$${INFO_PLIST_FILE}\" )
+    system( $$PLIST_COMMAND \"Set :UTExportedTypeDeclarations:0:UTTypeIdentifier com.trevorsandy.$$lower($$TARGET)\" \"$${INFO_PLIST_FILE}\" )
+    system( $$PLIST_COMMAND \"Set :UTExportedTypeDeclarations:1:UTTypeIdentifier com.trevorsandy.$$lower($$TARGET)\" \"$${INFO_PLIST_FILE}\" )
+    system( $$PLIST_COMMAND \"Set :UTExportedTypeDeclarations:2:UTTypeIdentifier com.trevorsandy.$$lower($$TARGET)\" \"$${INFO_PLIST_FILE}\" )
 
     #ICON = lpub3d.icns
     ICON = $$_PRO_FILE_PWD_/$$lower($$join(DIST_TARGET,,,.icns))
-    QMAKE_INFO_PLIST = Info.plist
+    QMAKE_INFO_PLIST = $$_PRO_FILE_PWD_/Info.plist
 
     # libraries
     libquazip.files += \

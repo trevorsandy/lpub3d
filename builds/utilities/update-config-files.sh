@@ -164,7 +164,7 @@ then
     if [ -f "${LP3D_INFO_PLIST_FILE}" ]
     then
         /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${LP3D_VERSION}" "${LP3D_INFO_PLIST_FILE}"
-        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${LP3D_BUNDLE_VERSION}" "${LP3D_INFO_PLIST_FILE}"
+        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${LP3D_VERSION}.${LP3D_BUNDLE_VERSION}-${LP3D_VER_SHA_HASH}" "${LP3D_INFO_PLIST_FILE}"
         /usr/libexec/PlistBuddy -c "Set :CFBundleGetInfoString LPub3D ${LP3D_VERSION} https://github.com/trevorsandy/${LPUB3D}" "${LP3D_INFO_PLIST_FILE}"
         /usr/libexec/PlistBuddy -c "Set :com.trevorsandy.lpub3d.GitSHA ${LP3D_VER_SHA_HASH}" "${LP3D_INFO_PLIST_FILE}"
     else
