@@ -30,7 +30,7 @@ quazipnobuild {
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-HOST_VERSION = $$(PLATFORM_VER_OBS)
+HOST_VERSION = $$(PLATFORM_VER)
 BUILD_TARGET = $$(TARGET_VENDOR)
 BUILD_ARCH   = $$(TARGET_CPU)
 !contains(QT_ARCH, unknown):  BUILD_ARCH = $$QT_ARCH

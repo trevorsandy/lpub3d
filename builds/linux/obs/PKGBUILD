@@ -20,6 +20,10 @@ prepare() {
 	# loc = ../src
 	echo "  -> Current working directory: $PWD"
 	export WD=$PWD; export LDRAWDIR=${HOME}/ldraw
+	export PLATFORM_PRETTY="Arch Linux"
+	export PLATFORM_CODE="ar"
+	export PLATFORM_VER="2018"
+	export TARGET_CPU="$(uname -m)"
 	cd ${pkgname}-git
 	chmod +x builds/utilities/CreateRenderers.sh && \
 	./builds/utilities/CreateRenderers.sh

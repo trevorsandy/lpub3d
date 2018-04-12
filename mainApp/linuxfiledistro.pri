@@ -20,15 +20,34 @@ unix:!macx {
         QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/lib\'"
     }
 
-    # These defines point LPub3D to the architecture appropriate content
-    # when performing 'check for update' download and installation
-    # Don't forget to set CONFIG+=<deb|rpm|pkg> accordingly if NOT using
-    # the accompanying rules config at builds/linux/obs/rules
-    deb: PACKAGE_TYPE = DEB_DISTRO
-    rpm: PACKAGE_TYPE = RPM_DISTRO
-    pkg: PACKAGE_TYPE = PKG_DISTRO
-    api: PACKAGE_TYPE = API_DISTRO
-    !isEmpty(PACKAGE_TYPE): DEFINES += $$PACKAGE_TYPE
+    # These defines point LPub3D to the platform-specific content
+    # when performing 'check for update' downloads
+    # Don't forget to set CONFIG+=<deb|rpm|pkg|exe|api|dmg> accordingly
+
+    # <BUILD_CODE>-<PLATFORM_CODE>-<HOST_VERSION>-<TARGET_CPU>
+    deb: BUILD_CODE = deb
+    rpm: BUILD_CODE = rpm
+    pkg: BUILD_CODE = pkg
+    api: BUILD_CODE = api
+
+    _PLATFORM_ID = $$system(. /etc/os-release 2>/dev/null; [ -n \"$ID\" ] && echo \"$ID\")
+    if (contains(_PLATFORM_ID, ubuntu)|contains(_PLATFORM_ID, debian)) {
+       HOST_VERSION = $$system(. /etc/os-release 2>/dev/null; [ -n \"$VERSION_ID\" ] && echo \"$VERSION_ID\")
+       contains(_PLATFORM_ID, ubuntu): _PLATFORM_CODE = ubu
+       else: _PLATFORM_CODE = db
+       contains(QT_ARCH, x86_64): _TARGET_CPU = amd64
+       else: _TARGET_CPU = i386
+    } else {
+       _PLATFORM_CODE = $$(PLATFORM_CODE)
+       _TARGET_CPU = $${BUILD_ARCH}
+    }
+    isEmpty(HOST_VERSION):   message("~~~ ERROR - PLATFORM_VERSION NOT DETECTED ~~~")
+    isEmpty(_PLATFORM_CODE): message("~~~ ERROR - PLATFORM_CODE NOT DETECTED ~~~")
+    isEmpty(_TARGET_CPU):    message("~~~ ERROR - PLATFORM_CPU NOT DETECTED ~~~")
+
+    DISTRO_PACKAGE = $${BUILD_CODE}-$${_PLATFORM_CODE}-$${HOST_VERSION}-$${_TARGET_CPU}
+    message("~~~ DISTRO_PACKAG_ID: $$DISTRO_PACKAGE ~~~")
+    DEFINES += DISTRO_PACKAGE=\\\"$$DISTRO_PACKAGE\\\"
 
     MAN_PAGE = $$DIST_TARGET$$VER_MAJOR$$VER_MINOR
     MAN_PAGE = $$join(MAN_PAGE,,,.1)

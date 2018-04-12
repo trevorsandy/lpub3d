@@ -209,6 +209,9 @@ done
 export OBS=%{usingbuildservice}
 # RPM exported variables
 export TARGET_VENDOR=%{_target_vendor}
+export PLATFORM_CODE="fc"
+export TARGET_CPU=%{_target_cpu}
+export PLATFORM_VER=%{fedora}
 export RPM_BUILD=true
 # instruct qmake to install 3rd-party renderers
 export LP3D_BUILD_PKG=yes

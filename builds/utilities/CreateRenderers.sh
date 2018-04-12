@@ -519,8 +519,15 @@ else
       fi
     fi
   fi
+  # change Arch Pretty Name export Arch Extra codes
+  if [ "$platform_id" = "arch" ]; then
+    platform_pretty=$PLATFORM_PRETTY
+    platform_ver=$PLATFORM_VER
+  fi
 fi
 [ -n "$platform_id" ] && host=$platform_id || host=undefined
+
+TARGET_CPU=$(uname -m)
 
 # Display platform settings
 Info "Platform ID..............[${platform_id}]"
@@ -579,16 +586,20 @@ else
   LDRAWDIR_ROOT=${HOME}
 fi
 export LDRAWDIR=${LDRAWDIR_ROOT}/ldraw
-if [ ! -f "${DIST_PKG_DIR}/complete.zip" ]; then
-  Info && Info "LDraw archive complete.zip not found at ${DIST_PKG_DIR}. Downloading archive..."
-  curl $curlopts http://www.ldraw.org/library/updates/complete.zip -o ${DIST_PKG_DIR}/complete.zip;
-fi
-if [ ! -f "${DIST_PKG_DIR}/lpub3dldrawunf.zip" ]; then
-  Info "LDraw archive lpub3dldrawunf.zip not found at ${DIST_PKG_DIR}. Downloading archive..."
-  curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o ${DIST_PKG_DIR}/lpub3dldrawunf.zip;
+if [ "$OBS" != "true" ]; then
+  if [ ! -f "${DIST_PKG_DIR}/complete.zip" ]; then
+    Info && Info "LDraw archive complete.zip not found at ${DIST_PKG_DIR}. Downloading archive..."
+    curl $curlopts http://www.ldraw.org/library/updates/complete.zip -o ${DIST_PKG_DIR}/complete.zip;
+  fi
+  if [ ! -f "${DIST_PKG_DIR}/lpub3dldrawunf.zip" ]; then
+    Info "LDraw archive lpub3dldrawunf.zip not found at ${DIST_PKG_DIR}. Downloading archive..."
+    curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o ${DIST_PKG_DIR}/lpub3dldrawunf.zip;
+  fi
 fi
 if [ ! -d "${LDRAWDIR}/parts" ]; then
-  cp -f ${DIST_PKG_DIR}/complete.zip .
+  if [ "$OBS" != "true" ]; then
+    cp -f ${DIST_PKG_DIR}/complete.zip .
+  fi
   Info "Extracting LDraw library into ${LDRAWDIR}..."
   unzip -od ${LDRAWDIR_ROOT} -q complete.zip;
   if [ -d "${LDRAWDIR}/parts" ]; then
@@ -649,8 +660,9 @@ fi
 VER_LDGLITE=ldglite-1.3
 VER_LDVIEW=ldview-4.3
 VER_POVRAY=lpub3d_trace_cui-3.8
-distArch=$(uname -m)
-if [[ "$distArch" = x86_64 || "$distArch" = "aarch64" ]]; then
+# distArch=$(uname -m)
+#if [[ "$distArch" = x86_64 || "$distArch" = "aarch64" ]]; then
+if [[ "$TARGET_CPU" = x86_64 || "$TARGET_CPU" = "aarch64" ]]; then
   buildArch="64bit_release";
 else
   buildArch="32bit_release";

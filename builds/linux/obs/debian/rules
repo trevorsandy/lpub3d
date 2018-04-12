@@ -51,8 +51,8 @@ configure-stamp:
 	export WD=$$(readlink -e ../); \
 	chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 override_dh_auto_configure:
-	# LDraw directory - build check
-	export LDRAWDIR=${HOME}/ldraw
+	# LDraw directory - for build check
+	export LDRAWDIR=${HOME}/ldraw; \
 	if [ "${LP3D_TARGET_ARCH}" = "x86_64" ]; then \
 		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -v; \
 		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=deb; \

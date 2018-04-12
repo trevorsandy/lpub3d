@@ -40,6 +40,7 @@
 #include <math.h>
 
 #include "downloader.h"
+#include "version.h"
 
 static const QString PARTIAL_DOWN (".part");
 
@@ -58,7 +59,8 @@ Downloader::Downloader (QWidget* parent) : QWidget (parent)
     m_customProcedure = false;
 
     // LPub3D Mod
-    m_moduleName = qApp->applicationName();
+    //m_moduleName = qApp->applicationName(); // Can't use this again cuz its set to the exe name.
+    m_moduleName = QString("%1").arg(VER_PRODUCTNAME_STR);
     // Mod End
 
     // LPub3D Mod

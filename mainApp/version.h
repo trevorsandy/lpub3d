@@ -73,7 +73,7 @@
 #define VER_LPUB3D_UNOFFICIAL_ARCHIVE       "lpub3dldrawunf.zip"
 
 #ifdef QT_DEBUG_MODE
-  #define VER_UPDATE_CHECK_JSON_URL         "http://lpub3d.sourceforge.net/lpub3dupdates.json"
+  #define VER_UPDATE_CHECK_JSON_URL         "http://lpub3d.sourceforge.net/lpub3dupdates-test.json"
 #else
   #define VER_UPDATE_CHECK_JSON_URL         "http://lpub3d.sourceforge.net/lpub3dupdates.json"
 #endif

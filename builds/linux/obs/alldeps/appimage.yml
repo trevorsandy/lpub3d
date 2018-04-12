@@ -41,7 +41,7 @@ script:
   - mkdir lpub3d && tar -mxzf lpub3d-git.tar.gz -C lpub3d --strip-components=1
   - test -d lpub3d/builds && cd lpub3d || echo "ERROR - lpub3d.tar.gz did not extract properly."
   - test -d mainApp && cp -f ../*.zip mainApp/extras || echo "ERROR - could not copy LDraw zip archives."
-  - export LP3D_BUILD_PKG=yes; export QT_SELECT=qt5
+  - export LP3D_BUILD_PKG=yes; export QT_SELECT=qt5; export TARGET_CPU=$(uname -m); export PLATFORM_CODE="osl"
   - test -x /usr/bin/qmake && QMAKE_EXEC=qmake || test -x /usr/bin/qmake-qt5 && QMAKE_EXEC=qmake-qt5 || echo "ERROR - could not find qmake."
   - export WD=$(readlink -e ../); export APPIMAGE_BUILD=true
   - chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh

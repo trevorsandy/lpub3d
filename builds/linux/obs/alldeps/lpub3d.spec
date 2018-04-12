@@ -38,6 +38,7 @@
 %define suse_dist_label %(echo %{suse_dist_name}...%{sle_version})
 %define suse_dist_pretty_name %(echo %{suse_dist_name} %{sle_version})
 %define suse_dist_version %{sle_version}
+%define suse_platform_code sle
 %define build_sdl2 1
 %else
 # openSUSE Leap
@@ -47,6 +48,7 @@
 %define suse_dist_label %(echo %{suse_dist_name}..................%{sle_version})
 %define suse_dist_pretty_name %(echo %{suse_dist_name} %{sle_version})
 %define suse_dist_version %{sle_version}
+%define suse_platform_code osl
 %define build_sdl2 1
 %else
 # openSUSE
@@ -56,6 +58,7 @@
 %define suse_dist_label %(echo %{suse_dist_name}.......................%{suse_version})
 %define suse_dist_pretty_name %(echo %{suse_dist_name} %{suse_version})
 %define suse_dist_version %{suse_version}
+%define suse_platform_code os
 %endif
 %endif
 %endif
@@ -112,7 +115,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.2.2.843
+Version: 2.2.2.844
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -516,27 +519,34 @@ done
 %if 0%{?suse_version} || 0%{?sle_version}
 export PLATFORM_PRETTY_OBS="%{suse_dist_pretty_name}"
 export PLATFORM_VER_OBS=%{suse_dist_version}
+export PLATFORM_CODE=%{suse_platform_code}
 %endif
 %if 0%{?centos_ver}
 export PLATFORM_PRETTY_OBS="CentOS"
 export PLATFORM_VER_OBS=%{centos_version}
+export PLATFORM_CODE="cos"
 %endif
 %if 0%{?fedora}
 export PLATFORM_PRETTY_OBS="Fedora"
 export PLATFORM_VER_OBS=%{fedora_version}
+export PLATFORM_CODE="fc"
 %endif
 %if 0%{?rhel_version}
 export PLATFORM_PRETTY_OBS="RedHat Enterprise Linux"
 export PLATFORM_VER_OBS=%{rhel_version}
+export PLATFORM_CODE="rh"
 %endif
 %if 0%{?scientificlinux_version}
 export PLATFORM_PRETTY_OBS="Scientific Linux"
 export PLATFORM_VER_OBS=%{scientificlinux_version}
+export PLATFORM_CODE="sl"
 %endif
 %if 0%{?mageia}
 export PLATFORM_PRETTY_OBS="Mageia"
 export PLATFORM_VER_OBS=%{mageia_version}
+export PLATFORM_CODE="mga"
 %endif
+export PLATFORM_VER=${PLATFORM_VER_OBS}
 set +x
 # 3rd-party renderers build-from-source requirements
 %if 0%{?build_osmesa}
@@ -687,5 +697,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Thu Apr 12 2018 - trevor.dot.sandy.at.gmail.dot.com 2.2.2.843
+* Thu Apr 12 2018 - trevor.dot.sandy.at.gmail.dot.com 2.2.2.844
 - LPub3D Linux package (rpm) release

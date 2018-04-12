@@ -1,7 +1,7 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
 # Last Update March 09, 2018
 pkgname=lpub3d
-pkgver=2.2.2.843
+pkgver=2.2.2.844
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d.git"
@@ -20,6 +20,10 @@ prepare() {
 	# location is ../src
 	echo "  -> Current working directory: $PWD"
 	export WD=$PWD; export LDRAWDIR=${HOME}/ldraw;
+	export PLATFORM_PRETTY="Arch Linux Extra"
+	export PLATFORM_CODE="arex"
+	export PLATFORM_VER="2018"
+	export TARGET_CPU="$(uname -m)"
 	cd ${pkgname}-git
 	chmod +x builds/utilities/CreateRenderers.sh && \
 	./builds/utilities/CreateRenderers.sh

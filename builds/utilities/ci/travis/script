@@ -3,7 +3,7 @@
 # Travis build [script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: March 09, 2018
+#  Last Update: April 09, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -52,6 +52,7 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
   # Compile source code or build AppImage
   if [[ ("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ) || \
         ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && "$TRAVIS_OS_NAME" = "linux" ) ]]; then
+    export TARGET_CPU=$(uname -m); export PLATFORM_CODE="ubu" ; export PLATFORM_VER="14.04"
     export LPUB3D=${PWD##*/}; export WD=$(cd ../ && echo $PWD); export LDRAWDIR=${HOME}/ldraw;
     if [ ! -d "${WD}/${LP3D_DIST_DIR}" ]; then
       ln -sf "$LP3D_DIST_DIR_PATH" "${WD}/${LP3D_DIST_DIR}" && \

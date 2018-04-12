@@ -38,6 +38,7 @@
 #include "updater.h"
 #include "downloader.h"
 #include "messageboxresizable.h"
+#include "version.h"
 
 Updater::Updater()
 {
@@ -51,7 +52,8 @@ Updater::Updater()
     m_notifyOnFinish = false;
     m_updateAvailable = false;
     m_downloaderEnabled = true;
-    m_moduleName = qApp->applicationName();
+    //m_moduleName = qApp->applicationName(); // Can't use this again cuz its set to the exe name.
+    m_moduleName = QString("%1").arg(VER_PRODUCTNAME_STR);
     m_moduleVersion = qApp->applicationVersion();
 
     // LPub3D Mod
@@ -72,22 +74,18 @@ Updater::Updater()
 #elif defined Q_OS_MAC
     m_platform = "macos-dmg";
 #elif defined Q_OS_LINUX
-  #if defined DEB_DISTRO
-      m_platform = "linux-deb";
-  #elif defined RPM_DISTRO
-      m_platform = "linux-rpm";
-  #elif defined PKG_DISTRO
-      m_platform = "linux-pkg";
-  #elif defined API_DISTRO
-      m_platform = "linux-api";
+  #if defined DISTRO_PACKAGE
+      m_platform = QString("linux-%1").arg(DISTRO_PACKAGE);
   #else
       m_platform = "linux";
-  #endif
+  #endif 
 #elif defined Q_OS_ANDROID
     m_platform = "android";
 #elif defined Q_OS_IOS
     m_platform = "ios";
 #endif
+
+    // qDebug() << qPrintable(QString("DEBUG DISTRO_PACKAGE (m_platform): %1").arg(m_platform));
 
     setUserAgentString (QString ("%1/%2 (Qt; QSimpleUpdater)").arg (qApp->applicationName(),
                         qApp->applicationVersion()));
@@ -516,7 +514,7 @@ void Updater::onReply (QNetworkReply* reply)
                             _changelogUrl = platform.value ("changelog-url").toString();
                         } else {
                             // Update to version is other than the latest version
-                            QString distro_suffix = m_platform.section("-",1,1);
+                            QString distro_suffix = m_platform.section("-",1);
                             QJsonObject altVersion = platform.value(QString("alternate-version-%1-%2")
                                                                     .arg(versions[updateIndex])
                                                                     .arg(distro_suffix)).toObject();

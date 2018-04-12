@@ -1,7 +1,9 @@
-LPub3D 2.2.2.1.843 (12 04 2018 06:21:04)
+LPub3D 2.2.2.1.844 (12 04 2018 06:40:54)
 
 Features and enhancements
 ------------
+Change: Add OBS builds to 'check for updates'. Starting with v2.2.2, Linux Builds from Open Build Service will be available for update through the LPub3D user interface. Previously, only Travis-CI and AppVeyor generated builds were available.
+
 Fix: LPub3D segfault on Enable Fade Steps. When switching LPub3D from not generating fade steps to generating fade steps via the Preferences dialogue window, LPub3D crashes. This behaviour only occurs on the initial model load with Fade Step set to On. Subsequent model loads execute as expected. #49
 
 Change: Add resizeable MessageBox to preference dialogues. This capability enables the user to more conveniently read messages with details such as those possible when downloading or updating the application.
