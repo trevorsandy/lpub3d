@@ -96,7 +96,7 @@ void PartWorker::ldsearchDirPreferences(){
       Paths::mkfadedirs();
   }
 
-  logInfo() << (doFadeStep() ? QString("Search Dir Preferences - Fade Step is ON.") : QString("Search Dir Preferences - Fade Step is OFF."));
+  logInfo() << (doFadeStep() ? QString("Fade Step is ON.") : QString("Fade Step is OFF."));
   QString singleCall;
   QString renderer = Render::getRenderer();
   if ((renderer == "LDView") && Preferences::enableLDViewSingleCall)
