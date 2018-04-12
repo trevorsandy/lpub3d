@@ -44,9 +44,6 @@ ParmsWindow *parmsWindow;
 ParmsWindow::ParmsWindow(QMainWindow *parent) :
   QMainWindow(parent)
 {
-    if (Preferences::portableDistribution)
-       QSettings::setDefaultFormat(QSettings::IniFormat);
-
     parmsWindow  = this;
     parmsWindow->statusBar()->show();
 

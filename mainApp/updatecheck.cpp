@@ -21,9 +21,6 @@
 
 UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
 {
-    if (Preferences::portableDistribution)
-        QSettings::setDefaultFormat(QSettings::IniFormat);
-
     DEFS_URL        = "";
     m_latestVersion = "";
     m_changeLog     = "";
@@ -124,8 +121,6 @@ void DoInitialUpdateCheck()
     if (updateFrequency == 0)           //0=Never,1=Daily,2=Weekly,3=Monthly
         return;
 
-    if (Preferences::portableDistribution)
-        QSettings::setDefaultFormat(QSettings::IniFormat);
     QSettings Settings;
     QDateTime checkTime = Settings.value(QString("%1/%2").arg(UPDATES,"LastCheck"), QDateTime()).toDateTime();
 

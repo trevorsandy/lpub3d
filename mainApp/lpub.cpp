@@ -1232,9 +1232,6 @@ void Gui::preferences()
 
 Gui::Gui()
 {
-    if (Preferences::portableDistribution)
-        QSettings::setDefaultFormat(QSettings::IniFormat);
-
     emit Application::instance()->splashMsgSig(QString("35% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 
     Preferences::lgeoPreferences();

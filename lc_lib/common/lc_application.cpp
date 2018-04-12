@@ -54,9 +54,6 @@ lcApplication::lcApplication()
 {
 
 /*** LPub3D Mod - disable leoCAD application vars ***/
-  if (Preferences::portableDistribution)
-       QSettings::setDefaultFormat(QSettings::IniFormat);
-
 //#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 //    setApplicationDisplayName("LeoCAD");
 //#endif

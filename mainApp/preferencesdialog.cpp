@@ -37,9 +37,6 @@ QString PreferencesDialog::DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
 PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     QDialog(_parent)
 {
-  if (Preferences::portableDistribution)
-      QSettings::setDefaultFormat(QSettings::IniFormat);
-
   ui.setupUi(this);
 
   QString ldrawPath = Preferences::ldrawPath;
