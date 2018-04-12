@@ -192,7 +192,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   if(!ldviewExists && !ldgliteExists && !povRayExists){
       ui.tabWidget->setCurrentIndex(1);
-      ui.RenderMessage->setText("<font color='red'>You must set a renderer.</font>");
+      ui.RenderMessage->setText("<font color='red'>Renderer not set!</font>");
   } else {
       ui.tabWidget->setCurrentIndex(0);
   }

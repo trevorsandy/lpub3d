@@ -1,8 +1,10 @@
-LPub3D 2.2.2.1.834 (12 04 2018 05:24:40)
+LPub3D 2.2.2.1.835 (12 04 2018 05:43:28)
 
 Features and enhancements
 ------------
-Change - Run multiple instances of LPub3D on Win, macOS and AppImage. Starting with v 2.2.2, LPub3D supports the running of multiple instances on the same machine under the same user on Windows and macOS. Previously, all distributions of LPub3D on Windows and macOS used the same user settings location - Current User Registry Hive for Windows and PList file for macOS. This behaviour has been changed.
+Fix: Renderers not set in AppImage build. No logic was place to adjust packaged 3rdParty renderer executables path taking into account LPub3D is running as an AppImage payload. As a result, at application load, the 3rdParty renderer paths were set to external system paths versus internal AppImage paths. This behaviour has been corrected. #50
+
+Change: Run multiple instances of LPub3D on Win, macOS and AppImage. Starting with v 2.2.2, LPub3D supports the running of multiple instances on the same machine under the same user on Windows and macOS. Previously, all distributions of LPub3D on Windows and macOS used the same user settings location - Current User Registry Hive for Windows and PList file for macOS. This behaviour has been changed.
 
 For macOS distributions, simply copy-paste and rename the .app bundle. For example copy LPub3D.app and rename the copied instance LPub3D_alt.app or whatever name you prefer. The settings plist file will be uniquely defined based on the bundle name, for example ~/Library/Preferences/com.lpub3d-software.LPub3D_alt.plist
 
