@@ -1,7 +1,9 @@
-LPub3D 2.2.2.1.830 (12 04 2018 04:52:17)
+LPub3D 2.2.2.1.831 (12 04 2018 05:03:44)
 
 Features and enhancements
 ------------
+Fix: Invalid macOS and Linux renderer paths. LDView and POV-Ray renderer config files were not written to the user's application data path at initial application startup because the source file [config file template] path variable was not well formed. Logs for the renderer and config files displays 'No such file or directory' #48
+
 Change: Improve performance of Software Updater. Upgrade and refactor QSimpleUpater library.
 
 Fix: Fade steps final model inserts multiple occurrences of the 0 !LPUB INSERT MODEL and 0 !LPUB INSERT PAGE when the model file contains a trailing 0 !STEP or BOM page at the end of the model file. #44
@@ -14,7 +16,7 @@ LPub3D 2.2.1.0.824 (31 03 2018 20:54:01)
 
 Features and enhancements
 ------------
-LPub3D 2.2.1 is focused on stabilization and robustness improvements. This release contains mostly bug fixes and the under-the-hood changes needed to improve performance, stability, compatability and the overall user's experience.
+LPub3D 2.2.1 is focused on stabilization and robustness improvements. This release contains mostly bug fixes and the under-the-hood changes needed to improve performance, stability, compatibility and the overall user's experience.
 
 Change: Add warnings to LDView standard output. By default LPub3D will use the '-vv' flag so critical and standard errors and warnings will be directed to standard output and standard error as required.
 

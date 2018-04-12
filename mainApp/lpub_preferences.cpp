@@ -49,6 +49,8 @@ QString Preferences::lgeoPath;
 QString Preferences::lpub3dPath                 = ".";
 QString Preferences::lpub3dExtrasResourcePath   = ".";
 QString Preferences::lpub3dDocsResourcePath     = ".";
+QString Preferences::lpub3d3rdPartyConfigDir    = ".";
+QString Preferences::lpub3d3rdPartyAppDir       = ".";
 QString Preferences::lpubDataPath               = ".";
 QString Preferences::lpubExtrasPath             = ".";
 QString Preferences::ldgliteExe;
@@ -1153,7 +1155,7 @@ void Preferences::rendererPreferences(bool updateExisting)
 
     logInfo() << "Image renderers...";
 #ifdef Q_OS_WIN
-    QString lpub3d3rdPartyAppDir = QString("%1/3rdParty").arg(lpub3dPath);
+    lpub3d3rdPartyAppDir = QString("%1/3rdParty").arg(lpub3dPath);
 
     QFileInfo ldgliteInfo(QString("%1/%2/bin/ldglite.exe").arg(lpub3d3rdPartyAppDir, VER_LDGLITE_STR));
 #ifdef __i386__
@@ -1164,13 +1166,13 @@ void Preferences::rendererPreferences(bool updateExisting)
     QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui64.exe").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR));
 #endif
 #elif defined Q_OS_MAC
-    QString lpub3d3rdPartyAppDir = QString("%1/LPub3D.app/Contents/3rdParty").arg(lpub3dPath);
+    lpub3d3rdPartyAppDir = QString("%1/LPub3D.app/Contents/3rdParty").arg(lpub3dPath);
 
     QFileInfo ldgliteInfo(QString("%1/%2/bin/ldglite").arg(lpub3d3rdPartyAppDir, VER_LDGLITE_STR));
     QFileInfo ldviewInfo(QString("%1/%2/bin/LDView").arg(lpub3d3rdPartyAppDir, VER_LDVIEW_STR));
     QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR));
 #else
-    QString lpub3d3rdPartyAppDir = QString("%1/../share/%2/3rdParty").arg(lpub3dPath, VER_APPLICATIONNAME_STR);
+    lpub3d3rdPartyAppDir = QString("%1/../share/%2/3rdParty").arg(lpub3dPath, VER_APPLICATIONNAME_STR);
     QString lpub3d3rdPartyRendererExe = QString("/opt/%1/3rdParty").arg(VER_APPLICATIONNAME_STR);
 
     QFileInfo ldgliteInfo(QString("%1/%2/bin/ldglite").arg(lpub3d3rdPartyRendererExe, VER_LDGLITE_STR));
@@ -1292,6 +1294,7 @@ void Preferences::rendererPreferences(bool updateExisting)
 
     // Write config files
     logInfo() << "Processing renderer configuration files...";
+    lpub3d3rdPartyConfigDir = QString("%1/3rdParty").arg(lpubDataPath);
     setLDGLiteIniParams();
     updateLDViewIniFile(updateExisting);
     updateLDViewPOVIniFile(updateExisting);
@@ -1319,7 +1322,6 @@ void Preferences::rendererPreferences(bool updateExisting)
 
 void Preferences::setLDGLiteIniParams()
 {
-    QString lpub3d3rdPartyConfigDir = QString("%1/3rdParty").arg(lpubDataPath);
     QFileInfo resourceFile;
     QFile confFileIn;
 
@@ -1360,8 +1362,6 @@ void Preferences::setLDGLiteIniParams()
 
 void Preferences::updateLDViewIniFile(bool updateExisting)
 {
-    QString lpub3d3rdPartyConfigDir = QString("%1/3rdParty").arg(lpubDataPath);
-    QString lpub3d3rdPartyAppDir    = QString("%1/3rdParty").arg(lpub3dPath);
     QString inFileName;
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut, oldFile;
@@ -1424,8 +1424,6 @@ void Preferences::updateLDViewIniFile(bool updateExisting)
 
 void Preferences::updateLDViewPOVIniFile(bool updateExisting)
 {
-    QString lpub3d3rdPartyConfigDir = QString("%1/3rdParty").arg(lpubDataPath);
-    QString lpub3d3rdPartyAppDir    = QString("%1/3rdParty").arg(lpub3dPath);
     QString inFileName;
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut, oldFile;
@@ -1495,8 +1493,6 @@ void Preferences::updateLDViewPOVIniFile(bool updateExisting)
 
 void Preferences::updatePOVRayConfFile(bool updateExisting)
 {
-    QString lpub3d3rdPartyConfigDir = QString("%1/3rdParty").arg(lpubDataPath);
-    QString lpub3d3rdPartyAppDir    = QString("%1/3rdParty").arg(lpub3dPath);
     QString inFileName;
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut, oldFile;
@@ -1586,8 +1582,6 @@ void Preferences::updatePOVRayConfFile(bool updateExisting)
 
 void Preferences::updatePOVRayIniFile(bool updateExisting)
 {
-    QString lpub3d3rdPartyConfigDir = QString("%1/3rdParty").arg(lpubDataPath);
-    QString lpub3d3rdPartyAppDir    = QString("%1/3rdParty").arg(lpub3dPath);
     QString inFileName;
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut, oldFile;
