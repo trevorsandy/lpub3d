@@ -253,6 +253,7 @@ HEADERS += \
     ldsearchdirs.h \
     lpub.h \
     lpub_preferences.h \
+    messageboxresizable.h \
     meta.h \
     metagui.h \
     metaitem.h \

@@ -164,35 +164,4 @@ private:
     // Mod End
 };
 
-// LPub3D Mod
-// Resizable QMessageBox Hack
-#include <QMessageBox>
-#include <QTextEdit>
-
-class QSU_DECL QMessageBoxResizable: public QMessageBox
-  {
-  Q_OBJECT
-  public:
-    QMessageBoxResizable() {
-      setMouseTracking(true);
-      setSizeGripEnabled(true);
-    }
-  private:
-    virtual bool event(QEvent *e) {
-      bool res = QMessageBox::event(e);
-      switch (e->type()) {
-      case QEvent::MouseMove:
-      case QEvent::MouseButtonPress:
-        setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
-        if (QWidget *textEdit = findChild<QTextEdit *>()) {
-          textEdit->setMaximumHeight(QWIDGETSIZE_MAX);
-        }
-      default:
-        break;
-      }
-      return res;
-    }
-  };
-// Mod End
-
 #endif

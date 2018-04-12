@@ -1,7 +1,9 @@
-LPub3D 2.2.2.1.837 (12 04 2018 05:54:53)
+LPub3D 2.2.2.1.838 (12 04 2018 06:03:48)
 
 Features and enhancements
 ------------
+Change - Add resizeable MessageBox to preference dialogues. This capability enables the user to more conveniently read messages with details such as those possible when downloading or updating the application.
+
 Change: Add LDraw archive libraries to Ubuntu AppImage. There were no LDraw archive libraries in the Travis (Ubuntu) AppImage. This causes the initial application load to prompt the user to select or download the official and unofficial archive library files. This behaviour has been changed. Archive libraries are now bundled in the Ubuntu AppImage #51
 
 Fix: Renderers not set in AppImage build. No logic was place to adjust packaged 3rdParty renderer executables path taking into account LPub3D is running as an AppImage payload. As a result, at application load, the 3rdParty renderer paths were set to external system paths versus internal AppImage paths. This behaviour has been corrected. #50

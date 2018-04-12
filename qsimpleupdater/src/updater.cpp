@@ -37,6 +37,7 @@
 
 #include "updater.h"
 #include "downloader.h"
+#include "messageboxresizable.h"
 
 Updater::Updater()
 {

@@ -35,6 +35,7 @@
 #include "version.h"
 #include "name.h"
 #include "application.h"
+#include "messageboxresizable.h"
 //**3D
 #include "lc_profile.h"
 //**
@@ -270,7 +271,7 @@ void Preferences::lpubPreferences()
             if (modeGUI) {
                 // Get the application icon as a pixmap
                 QPixmap _icon = QPixmap(":/icons/lpub96.png");
-                QMessageBox box;
+                QMessageBoxResizable box;
                 box.setWindowIcon(QIcon());
                 box.setIconPixmap (_icon);
                 box.setTextFormat (Qt::RichText);
@@ -668,7 +669,7 @@ void Preferences::lpub3dLibPreferences(bool force)
                 Application::instance()->splash->hide();
 #endif
             QPixmap _icon = QPixmap(":/icons/lpub96.png");
-            QMessageBox box;
+            QMessageBoxResizable box;
             box.setWindowIcon(QIcon());
             box.setIconPixmap (_icon);
             box.setTextFormat (Qt::RichText);
@@ -935,7 +936,7 @@ void Preferences::ldrawPreferences(bool force)
                                 Application::instance()->splash->hide();
 #endif
                             QPixmap _icon = QPixmap(":/icons/lpub96.png");
-                            QMessageBox box;
+                            QMessageBoxResizable box;
                             box.setWindowIcon(QIcon());
                             box.setIconPixmap (_icon);
                             box.setTextFormat (Qt::RichText);
@@ -1045,7 +1046,7 @@ void Preferences::ldrawPreferences(bool force)
                 Application::instance()->splash->hide();
 #endif
             QPixmap _icon = QPixmap(":/icons/lpub96.png");
-            QMessageBox box;
+            QMessageBoxResizable box;
             box.setWindowIcon(QIcon());
             box.setIconPixmap (_icon);
             box.setTextFormat (Qt::RichText);
@@ -1098,7 +1099,7 @@ void Preferences::ldrawPreferences(bool force)
                     Application::instance()->splash->hide();
 #endif
                 QPixmap _icon = QPixmap(":/icons/lpub96.png");
-                QMessageBox box;
+                QMessageBoxResizable box;
                 box.setWindowIcon(QIcon());
                 box.setIconPixmap (_icon);
                 box.setTextFormat (Qt::RichText);
