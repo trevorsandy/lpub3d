@@ -3,14 +3,14 @@
 # Travis build [after_script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: March 20, 2018
+#  Last Update: April 09, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
 # macOS build check...
 
 if [[ "$TRAVIS_OS_NAME" = "osx" && "$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ]]; then
-  echo "- verify LPub3D.app bundle..."
+  echo "- build check LPub3D.app bundle..."
   # run otool -L on LPub3D.app...
   if [ -d "mainApp/64bit_release/LPub3D.app" ]; then
     otool -L mainApp/64bit_release/LPub3D.app/Contents/MacOS/LPub3D 2>/dev/null
@@ -31,6 +31,15 @@ if [[ "$TRAVIS_OS_NAME" = "osx" && "$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_
   /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
   echo "- build check..."
   LPub3D.app/Contents/MacOS/LPub3D -foo && echo "- build check completed." && echo
+fi
+if [[ ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && "$TRAVIS_OS_NAME" = "linux" ) ]]; then
+  echo "- build check LPub3D.AppImage bundle..."
+  file_DPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage -type f);
+  [ -n "$file_DPkg" ] && mkdir appImage_Check && cd appImage_Check && cp -f $file_DPkg . || \
+  echo "ERROR - Nothing copied to build check folder";
+  [ -f "LPub3D-${LP3D_APP_VERSION_LONG}-x86_64.AppImage" ] && echo "- checking $(ls ./*.AppImage)..." && \ 
+  chmod u+x LPub3D-${LP3D_APP_VERSION_LONG}-x86_64.AppImage && ./LPub3D-${LP3D_APP_VERSION_LONG}-x86_64.AppImage -foo && \
+  echo "- build check completed." && echo || echo "ERROR - Could not run AppImage build check."
 fi
 
 cd $LP3D_BUILD_FOLDER
