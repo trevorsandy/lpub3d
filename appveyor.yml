@@ -12,6 +12,7 @@ clone_script: echo skip
 # Built renderers - LDGLite, LDView, and LPub3D-Trace (POV-Ray)
 cache:
  - '$(APPVEYOR_BUILD_FOLDER)\LDraw'
+ - '$(APPVEYOR_BUILD_FOLDER)\LDrawLibs'
  - '$(APPVEYOR_BUILD_FOLDER)\$(lp3d_librepo)'
  - '$(APPVEYOR_BUILD_FOLDER)\$(LP3D_DIST_DIR)'
 

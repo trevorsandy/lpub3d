@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: March 10, 2018
+rem  Last Update: April 11, 2018
 rem  Copyright (c) 2017 - 2018 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -38,12 +38,14 @@ IF "%APPVEYOR%" EQU "True" (
   SET ABS_WD=%APPVEYOR_BUILD_FOLDER%
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
   SET LDRAW_DOWNLOAD_DIR=%APPVEYOR_BUILD_FOLDER%
+  SET LDRAW_LIBS=%APPVEYOR_BUILD_FOLDER%\LDrawLibs
   SET LDRAW_DIR=%APPVEYOR_BUILD_FOLDER%\LDraw
   SET PACKAGE=%LP3D_PACKAGE%
   SET CONFIGURATION=%configuration%
 ) ELSE (
   SET DIST_DIR=..\lpub3d_windows_3rdparty
   SET LDRAW_DOWNLOAD_DIR=%USERPROFILE%
+  SET LDRAW_LIBS=%USERPROFILE%
   SET LDRAW_DIR=%USERPROFILE%\LDraw
   SET LP3D_QT32_MSYS2=C:\Msys2\Msys64\mingw32\bin
   SET LP3D_QT64_MSYS2=C:\Msys2\Msys64\mingw64\bin
@@ -53,6 +55,8 @@ SET LP3D_WIN_GIT_MSG=%LP3D_WIN_GIT%
 SET SYS_DIR=%SystemRoot%\System32
 SET zipWin64=C:\program files\7-zip
 SET OfficialCONTENT=complete.zip
+SET UnOfficialCONTENT=ldrawunf.zip
+SET LPub3DCONTENT=lpub3dldrawunf.zip
 
 SET BUILD_THIRD=unknown
 SET INSTALL=unknown
@@ -173,6 +177,7 @@ ECHO   WORKING_DIRECTORY_LPUB3D.......[%ABS_WD%]
 ECHO   DISTRIBUTION_DIRECTORY.........[%DIST_DIR:/=\%]
 ECHO   LDRAW_DIRECTORY................[%LDRAW_DIR%]
 ECHO   LDRAW_DOWNLOAD_DIR.............[%LDRAW_DOWNLOAD_DIR%]
+ECHO   LDRAW_LIBS.....................[%LDRAW_LIBS%]
 ECHO.
 
 rem set application version variables
@@ -317,18 +322,23 @@ IF NOT EXIST "%DIST_DIR%" (
   EXIT /b
 )
 SET PKG_PLATFORM=%1
-CALL :CHECK_LDRAW_DIR
 rem Construct the staged files path
 SET PKG_ARGUMENTS=-foo
 SET PKG_DISTRO_DIR=%PACKAGE%_%PKG_PLATFORM%
 SET PKG_PRODUCT_DIR=%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%
+SET PKG_TARGET_DIR=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_DIR%
 rem SET PKG_TARGET=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_DIR%\%PACKAGE%%LP3D_APP_VER_SUFFIX%.exe
-SET PKG_TARGET=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_DIR%\%PACKAGE%.exe
+SET PKG_TARGET=%PKG_TARGET_DIR%\%PACKAGE%.exe
 SET PKG_CHECK_COMMAND=%PKG_TARGET% %PKG_ARGUMENTS%
+
+CALL :CHECK_LDRAW_DIR
+CALL :SET_LDRAW_LIBS
+
 ECHO.
 ECHO   PKG_ARGUMENTS..........[%PKG_ARGUMENTS%]
 ECHO   PKG_DISTRO_DIR.........[%PKG_DISTRO_DIR%]
 ECHO   PKG_PRODUCT_DIR........[%PKG_PRODUCT_DIR%]
+ECHO   PKG_TARGET_DIR.........[%PKG_TARGET_DIR%]
 ECHO   PKG_TARGET.............[%PKG_TARGET%]
 ECHO   PKG_CHECK_COMMAND......[%PKG_CHECK_COMMAND%]
 ECHO.
@@ -367,12 +377,17 @@ EXIT /b
 ECHO.
 ECHO -Check for LDraw library...
 IF NOT EXIST "%LDRAW_DIR%\parts" (
+  ECHO.
+  ECHO -LDraw directory %LDRAW_DIR% does not exist - creating...
   REM SET CHECK=0
-  IF NOT EXIST "%LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT%" (
+  IF NOT EXIST "%LDRAW_LIBS%\%OfficialCONTENT%" (
     ECHO.
-    ECHO -LDraw directory %LDRAW_DIR% does not exist - Downloading...
+    ECHO -LDraw archive library %LDRAW_LIBS%\%OfficialCONTENT% does not exist - Downloading...
 
     CALL :DOWNLOAD_LDRAW_LIBS
+
+  ) ELSE (
+    COPY /V /Y "%LDRAW_LIBS%\%OfficialCONTENT%" "%LDRAW_DOWNLOAD_DIR%\" /A | findstr /i /v /r /c:"copied\>"
   )
   IF EXIST "%LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT%" (
     IF EXIST "%zipWin64%" (
@@ -407,6 +422,38 @@ IF NOT EXIST "%LDRAW_DIR%\parts" (
   ECHO.
   ECHO -Set LDRAWDIR to %LDRAW_DIR%.
   SET LDRAWDIR=%LDRAW_DIR%
+)
+EXIT /b
+
+:SET_LDRAW_LIBS
+IF NOT EXIST "%LDRAW_LIBS%\%OfficialCONTENT%" (
+  ECHO.
+  ECHO -LDraw archive libs does not exist - Downloading...
+
+  CALL :DOWNLOAD_LDRAW_LIBS for_build_check
+
+  IF NOT EXIST "%LDRAW_LIBS%\" (
+    ECHO.
+    ECHO -Create LDraw archive libs store %LDRAW_LIBS%
+    MKDIR "%LDRAW_LIBS%\"
+  )
+  IF EXIST "%LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT%" (
+    MOVE /Y %LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT% %LDRAW_LIBS%\%OfficialCONTENT% | findstr /i /v /r /c:"moved\>"
+  ) ELSE (
+    ECHO.
+    ECHO -ERROR - LDraw archive libs %LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT% does not exist.
+  )
+  IF EXIST "%LDRAW_DOWNLOAD_DIR%\%LPub3DCONTENT%" (
+    MOVE /Y %LDRAW_DOWNLOAD_DIR%\%LPub3DCONTENT% %LDRAW_LIBS%\%LPub3DCONTENT% | findstr /i /v /r /c:"moved\>"
+  ) ELSE (
+    ECHO -ERROR - LDraw archive libs %LDRAW_DOWNLOAD_DIR%\%LPub3DCONTENT% does not exist.
+  )
+)
+IF EXIST "%LDRAW_LIBS%\%OfficialCONTENT%" (
+  COPY /V /Y "%LDRAW_LIBS%\%OfficialCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | findstr /i /v /r /c:"copied\>"
+)
+IF EXIST "%LDRAW_LIBS%\%LPub3DCONTENT%" (
+  COPY /V /Y "%LDRAW_LIBS%\%LPub3DCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | findstr /i /v /r /c:"copied\>"
 )
 EXIT /b
 
@@ -481,6 +528,15 @@ ECHO - VBS file "%vbs%" is done compiling
 ECHO.
 ECHO - LDraw archive library download path: %OutputPATH%
 
+IF "%1" EQU "for_build_check" (
+  CALL :GET_OFFICIAL_LIBRARY
+  CALL :GET_UNOFFICIAL_LIBRARY
+) ELSE (
+  CALL :GET_OFFICIAL_LIBRARY
+)
+EXIT /b
+
+:GET_OFFICIAL_LIBRARY
 SET WebCONTENT="%OutputPATH%\%OfficialCONTENT%"
 SET WebNAME=http://www.ldraw.org/library/updates/complete.zip
 
@@ -499,6 +555,28 @@ IF EXIST %OfficialCONTENT% (
   ECHO - LDraw archive library %OfficialCONTENT% availble
 )
 EXIT /b
+
+:GET_UNOFFICIAL_LIBRARY
+SET WebCONTENT="%OutputPATH%\%UnofficialCONTENT%"
+SET WebNAME=http://www.ldraw.org/library/unofficial/ldrawunf.zip
+
+ECHO.
+ECHO - Download archive file: %WebCONTENT%...
+
+IF EXIST %WebCONTENT% (
+ DEL %WebCONTENT%
+)
+
+ECHO.
+cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+
+REN %UnofficialCONTENT% %LPub3DCONTENT%
+IF EXIST %LPub3DCONTENT% (
+  ECHO.
+  ECHO - LDraw archive library %LPub3DCONTENT% availble
+)
+EXIT /b
+
 
 :WD_REL_TO_ABS
 IF [%1] EQU [] (EXIT /b) ELSE (SET REL_WD=%1)
