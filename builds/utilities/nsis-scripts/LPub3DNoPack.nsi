@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: March 28, 2018
+;Last Update: April 07, 2018
 ;Copyright (C) 2016 - 2018 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
@@ -343,13 +343,6 @@ Section "Core Files (required)" SectionCoreFiles
     File "${WinBuildDir}\extras\fadeStepColorParts.lst"
     GoToEnd:
   ${EndIf}
-
-  ; Set user data path - this is for future use (when I figure out how the get povray to switch user config file location)
-  DetailPrint "LPub3D Data Folder (ShellContext 0) $0, (INSTDIR_AppDataProduct) ${INSTDIR_AppDataProduct}"
-  WriteRegStr HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "LPub3DDataPath" "${INSTDIR_AppDataProduct}"
-
-  ; Add size for user applicaiton data
-  AddSize 50
 SectionEnd
 
 Section "Documentation" SectionDocumentation
