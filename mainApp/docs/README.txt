@@ -1,8 +1,10 @@
-LPub3D 2.2.2.1.839 (12 04 2018 06:06:01)
+LPub3D 2.2.2.1.840 (12 04 2018 06:11:51)
 
 Features and enhancements
 ------------
-Change - Add resizeable MessageBox to preference dialogues. This capability enables the user to more conveniently read messages with details such as those possible when downloading or updating the application.
+Fix: LPub3D segfault on Enable Fade Steps. When switching LPub3D from not generating fade steps to generating fade steps via the Preferences dialogue window, LPub3D crashes. This behaviour only occurs on the initial model load with Fade Step set to On. Subsequent model loads execute as expected. #49
+
+Change: Add resizeable MessageBox to preference dialogues. This capability enables the user to more conveniently read messages with details such as those possible when downloading or updating the application.
 
 Change: Add LDraw archive libraries to Ubuntu AppImage. There were no LDraw archive libraries in the Travis (Ubuntu) AppImage. This causes the initial application load to prompt the user to select or download the official and unofficial archive library files. This behaviour has been changed. Archive libraries are now bundled in the Ubuntu AppImage #51
 

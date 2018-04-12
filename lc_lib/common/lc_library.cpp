@@ -539,7 +539,10 @@ void lcPiecesLibrary::ReadArchiveDescriptions(const QString& OfficialFileName, c
 		for (const auto& PieceIt : mPieces)
 		{
 			PieceInfo* Info = PieceIt.second;
-
+/*** LPub3D Mod - Custom Mutex Segfault fix provided by Leonardo 08-04-2018 Zide ***/
+			if (Info->IsTemporary())
+				continue;
+/*** LPub3D Mod end ***/
 			mZipFiles[Info->mZipFileType]->ExtractFile(Info->mZipFileIndex, PieceFile, 256);
 			PieceFile.Seek(0, SEEK_END);
 			PieceFile.WriteU8(0);
