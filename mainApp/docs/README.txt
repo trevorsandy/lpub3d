@@ -1,7 +1,9 @@
-LPub3D 2.2.2.1.847 (12 04 2018 07:17:11)
+LPub3D 2.2.2.0.848 (12 04 2018 07:41:44)
 
 Features and enhancements
 ------------
+LPub3D v2.2.2 continues the effort to improve stability and robustness. This release addresses, the last outstanding items introduced with the subsystem upgrades, image renderers integration and expanded cross-platform compatibility.
+
 Change: Add OBS builds to 'check for updates'. Starting with v2.2.2, Linux Builds from Open Build Service will be available for update through the LPub3D user interface. Previously, only Travis-CI and AppVeyor generated builds were available.
 
 Fix: LPub3D segfault on Enable Fade Steps. When switching LPub3D from not generating fade steps to generating fade steps via the Preferences dialogue window, LPub3D crashes. This behaviour only occurs on the initial model load with Fade Step set to On. Subsequent model loads execute as expected. #49
