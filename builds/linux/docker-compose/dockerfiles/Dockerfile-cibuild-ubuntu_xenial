@@ -4,6 +4,7 @@ LABEL maintainer "Trevor SANDY <trevor.sandy@gmail.com>"
 RUN apt-get update > CreateDockerImage_xenial.log 2>&1
 RUN apt-get install -y apt-utils git wget unzip lintian build-essential debhelper fakeroot ccache lsb-release >> CreateDockerImage_xenial.log 2>&1
 RUN apt-get install -y autotools-dev autoconf pkg-config libtool curl >> CreateDockerImage_xenial.log 2>&1
+RUN apt-get install -y xvfb desktop-file-utils >> CreateDockerImage_xenial.log 2>&1
 RUN apt-get install -y sudo \
     && groupadd -r user -g 1000 \
     && useradd -u 1000 -r -g user -m -d /user -s /sbin/nologin -c "Build pkg user" user \

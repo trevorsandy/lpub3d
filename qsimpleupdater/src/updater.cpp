@@ -78,14 +78,14 @@ Updater::Updater()
       m_platform = QString("linux-%1").arg(DISTRO_PACKAGE);
   #else
       m_platform = "linux";
-  #endif 
+  #endif
 #elif defined Q_OS_ANDROID
     m_platform = "android";
 #elif defined Q_OS_IOS
     m_platform = "ios";
 #endif
 
-    // qDebug() << qPrintable(QString("DEBUG DISTRO_PACKAGE (m_platform): %1").arg(m_platform));
+    //qDebug() << qPrintable(QString("DISTRIBUTION_PACKAGE (m_platform): %1").arg(m_platform));
 
     setUserAgentString (QString ("%1/%2 (Qt; QSimpleUpdater)").arg (qApp->applicationName(),
                         qApp->applicationVersion()));
@@ -473,16 +473,16 @@ void Updater::onReply (QNetworkReply* reply)
         } else {
             /* We are looking to update an alternate version */
             bool rollback = compare (qApp->applicationVersion(),moduleVersion());
-            
+
             QMessageBox box;
             box.setTextFormat (Qt::RichText);
             box.setIcon (QMessageBox::Warning);
             box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
             box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
             box.setWindowTitle(tr ("Software Update"));
-           
-            QString title = "<b>" + tr ("This is a version %1 update.") 
-                                        .arg(rollback ? "rollback" : "rollforwad") 
+
+            QString title = "<b>" + tr ("This is a version %1 update.")
+                                        .arg(rollback ? "rollback" : "rollforwad")
                                         + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>";
             QString text = tr ("Your current %1 install is v%2 and the requested update is v%3.\n"
                                "Be sure you are comfortable with this type of update as advanced "
@@ -536,7 +536,7 @@ void Updater::onReply (QNetworkReply* reply)
         if (_updateAvailable) {
             QNetworkAccessManager *_manager = new QNetworkAccessManager (this);
 
-            connect (_manager, SIGNAL (finished (QNetworkReply *)), 
+            connect (_manager, SIGNAL (finished (QNetworkReply *)),
                      this,     SLOT (changeLogReply (QNetworkReply *)));
 
             QNetworkRequest updateRequest (_changelogUrl);

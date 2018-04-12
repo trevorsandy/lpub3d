@@ -77,4 +77,6 @@ clean:
 
 	dh_clean
 
+override_dh_strip_nondeterminism:
+
 .PHONY: configure build clean

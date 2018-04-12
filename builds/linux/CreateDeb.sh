@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 31, 2018
+# Last Update April 10, 2018
 # To run:
 # $ chmod 755 CreateDeb.sh
 # $ [options] && ./builds/linux/CreateDeb.sh
@@ -111,9 +111,9 @@ fi
 
 echo "7. extract ${SOURCE_DIR}/ to debbuild/..."
 cd ../
-if [  -d ${LPUB3D}_${LP3D_APP_VERSION} ]
+if [  -d ${LPUB3D}-${LP3D_APP_VERSION} ]
 then
-   rm -rf ${LPUB3D}_${LP3D_APP_VERSION}
+   rm -rf ${LPUB3D}-${LP3D_APP_VERSION}
 fi
 tar zxf ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz
 
@@ -130,14 +130,28 @@ echo "10. build application package from ${SOURCE_DIR}/..."
 chmod 755 debian/rules
 /usr/bin/dpkg-buildpackage -us -uc
 
-echo "11. run lintian..."
 cd ../
 DISTRO_FILE=`ls ${LPUB3D}_${LP3D_APP_VERSION}*.deb`
-lintian ${DISTRO_FILE} ${SOURCE_DIR}/${LPUB3D}.dsc
-
 if [ -f ${DISTRO_FILE} ]
 then
-    echo "12. create LPub3D update and download packages..."
+    echo "11-1. check deb package..."
+    lintian ${DISTRO_FILE} ${SOURCE_DIR}/${LPUB3D}.dsc
+
+    echo "11-2. Build-check ${DISTRO_FILE}"
+    # Install package - here we use the distro file name
+    sudo dpkg -i ${DISTRO_FILE}
+    # Check if exe exist - here we use the executable name
+    LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
+    if [ -f "/usr/bin/${LPUB3D_EXE}" ]; then
+        ${LPUB3D_EXE} -foo
+        echo "      Cleanup..."
+        # Cleanup - here we use the package name
+        sudo dpkg -r ${LPUB3D}
+    else
+        echo "11-2. Build-check failed - /usr/bin/${LPUB3D_EXE} not found."
+    fi
+
+    echo "11-3. create LPub3D update and download packages..."
     IFS=_ read DEB_NAME DEB_VERSION DEB_EXTENSION <<< ${DISTRO_FILE}
     LP3D_DEB_APP_VERSION_LONG=${LP3D_APP_VERSION_LONG}
     LP3D_DEB_VERSION=${LP3D_VERSION}
@@ -182,7 +196,7 @@ then
     echo "    Update package....: LPub3D-UpdateMaster_${LP3D_DEB_VERSION}-${DEB_EXTENSION}"
 
 else
-    echo "12. package ${DISTRO_FILE} not found"
+    echo "11. package ${DISTRO_FILE} not found"
 fi
 
 # Elapsed execution time
