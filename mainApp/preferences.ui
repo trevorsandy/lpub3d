@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <author>Travis Cobbs</author>
+ <author>Trevor SANDY</author>
  <class>PreferencesDialog</class>
  <widget class="QDialog" name="PreferencesDialog">
   <property name="geometry">

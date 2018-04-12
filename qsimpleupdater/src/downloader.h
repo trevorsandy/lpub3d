@@ -1,25 +1,40 @@
 /*
- * (C) Copyright 2014 Alex Spataru
+ * Copyright (c) 2014-2016 Alex Spataru <alex_spataru@outlook.com>
+ * Copyright (c) 2017 Gilmanov Ildar <https://github.com/gilmanov-ildar>
+ * Copyright (C) 2018 Trevor SANDY. All rights reserved.
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Lesser General Public License
- * (LGPL) version 2.1 which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/lgpl-2.1.html
+ * This file is part of the QSimpleUpdater library, which is released under
+ * the DBAD license, you can read a copy of it below:
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
+ * DON'T BE A DICK PUBLIC LICENSE TERMS AND CONDITIONS FOR COPYING,
+ * DISTRIBUTION AND MODIFICATION:
  *
+ * Do whatever you like with the original work, just don't be a dick.
+ * Being a dick includes - but is not limited to - the following instances:
+ *
+ * 1a. Outright copyright infringement - Don't just copy this and change the
+ *     name.
+ * 1b. Selling the unmodified original with no work done what-so-ever, that's
+ *     REALLY being a dick.
+ * 1c. Modifying the original work to contain hidden harmful content.
+ *     That would make you a PROPER dick.
+ *
+ * If you become rich through modifications, related works/services, or
+ * supporting the original work, share the love.
+ * Only a dick would make loads off this work and not buy the original works
+ * creator(s) a pint.
+ *
+ * Code is provided with no warranty. Using somebody else's code and bitching
+ * when it goes wrong makes you a DONKEY dick.
+ * Fix the problem yourself. A non-dick would submit the fix back.
  */
 
 #ifndef DOWNLOAD_DIALOG_H
 #define DOWNLOAD_DIALOG_H
 
+#include <QDir>
 #include <QDialog>
 #include <ui_downloader.h>
-#include <QNetworkReply>
-#include <QNetworkAccessManager>
 
 namespace Ui {
 class Downloader;
@@ -28,124 +43,66 @@ class Downloader;
 class QNetworkReply;
 class QNetworkAccessManager;
 
-class Downloader : public QWidget {
+/**
+ * \brief Implements an integrated file downloader with a nice UI
+ */
+class Downloader : public QWidget
+{
     Q_OBJECT
 
-  public:
+signals:
+    void downloadFinished (const QString& url, const QString& filepath);
+    // LPub3D Mod
+    /**
+     * Emitted when the download was cancelled before completion.
+     * You can use this to signal downstream functions.
+     */
+    void downloadCancelled();
+    // Mod End
+
+public:
     explicit Downloader (QWidget* parent = 0);
     ~Downloader();
 
-    ///
-    /// Returns \c true if the downloader will not attempt to install the
-    /// downloaded file.
-    ///
-    /// This can be useful if you want to use the \c downloadFinished() signal
-    /// to implement your own install procedures.
-    ///
-    bool useCustomInstallProcedures() const;
+    bool customProcedure() const;
 
-    ///
-    /// Returns the download content name,
-    ///
-    QString downloadName() const;
+    QString downloadDir() const;
+    void setDownloadDir(const QString& downloadDir);
 
-    ///
-    /// Returns the download local path
-    ///
-    QString localDownloadPath() const;
-
-    ///
-    /// Returns the type of content update or download
-    ///
-    bool isNotSoftwareUpdate() const;
-
-    ///
-    /// Returns the application name, which can be set manually or
-    /// automatically using the \c qApp->applicationName() function.
-    ///
-    QString moduleName() const;
-
-    ///
-    /// Returns the application version, which can be set manually or
-    /// automatically using the \c qApp->applicationVersion() function.
-    ///
-    QString moduleVersion() const;
-
-
-  public slots:
-    ///
-    /// Begins downloading the update
-    ///
+public slots:
+    void setUrlId (const QString& url);
     void startDownload (const QUrl& url);
+    void setFileName (const QString& file);
+    void setUserAgentString (const QString& agent);
+    void setCustomProcedure (const bool custom);
 
-    ///
-    /// If \c custom is set to true, then the Downloader will not attempt to
-    /// open or install the downloaded updates. This can be useful if you want
-    /// to implement your own install procedures using the \c downloadFinished()
-    /// signal.
-    ///
-    void setUseCustomInstallProcedures (const bool& custom);
-
-    ///
-    /// Changes the name of the download content.
-    ///
-    void setDownloadName (const QString& name);
-
-    ///
-    /// Sets the path for download content
-    ///
-    void setLocalDownloadPath (const QString& path);
-
-    ///
-    /// Sets the type of content update or download
-    ///
-    void setIsNotSoftwareUpdate (const bool& enabled);
-
-
-  private slots:
-
+private slots:
+    void finished();
     void openDownload();
     void installUpdate();
     void cancelDownload();
-    void onDownloadFinished();
+    void saveFile (qint64 received, qint64 total);
     void calculateSizes (qint64 received, qint64 total);
     void updateProgress (qint64 received, qint64 total);
     void calculateTimeRemaining (qint64 received, qint64 total);
 
-  private:
-    ///
-    /// Rounds the \a input to the nearest integer
-    ///
-    float round (const float& input);
+private:
+    qreal round (const qreal& input);
 
-  signals:
-    ///
-    /// Emitted when the download has finished.
-    /// You can use this to implement your own procedures to install the
-    /// downloaded updates.
-    ///
-    void downloadFinished (const QString& url, const QString& filepath);
-
-    ///
-    /// Emitted when the download was cancelled before completion.
-    /// You can use this to signal downstream functions.
-    ///
-    void downloadCancelled();
-
-  private:
+private:
+    QString m_url;
     uint m_startTime;
-    QString m_filePath;
-    QString m_moduleName;
-    QString m_downloadName;
-    QString m_moduleVersion;
-    QString m_localDownloadPath;
-    bool m_isNotSoftwareUpdate;
-    bool m_useCustomProcedures;
-
+    QDir m_downloadDir;
+    QString m_fileName;
     Ui::Downloader* m_ui;
     QNetworkReply* m_reply;
-    QNetworkRequest m_downloadRequest;
+    QString m_userAgentString;
+    bool m_customProcedure;
     QNetworkAccessManager* m_manager;
+
+    // LPub3D Mod
+    QString m_moduleName;
+    // Mod End
 };
 
 #endif

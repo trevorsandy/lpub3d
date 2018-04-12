@@ -31,21 +31,27 @@ QT += core
 QT += network
 QT += widgets
 
-INCLUDEPATH += $$PWD/src
+INCLUDEPATH += \
+    $$PWD/include \
+    $$PWD/src/progress_bar
 
 SOURCES += \
     $$PWD/src/updater.cpp \
     $$PWD/src/downloader.cpp \
-    $$PWD/src/qsimpleupdater.cpp \
-    $$PWD/src/progress_dialog.cpp
+    $$PWD/src/qsimpleupdater.cpp
 
 HEADERS += \
-    $$PWD/src/qsimpleupdater.h \
+    $$PWD/include/qsimpleupdater.h \
     $$PWD/src/updater.h \
-    $$PWD/src/downloader.h \
-    $$PWD/src/progress_dialog.h
+    $$PWD/src/downloader.h
 
-FORMS += $$PWD/src/downloader.ui \
-         $$PWD/src/progress_dialog.ui
-		 
-RESOURCES += $$PWD/res/qsu_resources.qrc
+FORMS += $$PWD/src/downloader.ui
+
+RESOURCES += $$PWD/etc/resources/qsimpleupdater.qrc
+
+# LPub3D Mod - progress bar
+SOURCES += $$PWD/src/progress_bar/progress_dialog.cpp
+
+HEADERS += $$PWD/src/progress_bar/progress_dialog.h
+
+FORMS += $$PWD/src/progress_bar/progress_dialog.ui

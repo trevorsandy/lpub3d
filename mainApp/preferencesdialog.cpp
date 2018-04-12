@@ -665,12 +665,11 @@ void PreferencesDialog::checkForUpdates () {
   bool showUpdateNotifications = ui.showUpdateNotifications_Chk->isChecked();
 
   /* Apply the settings */
-  //    DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(moduleVersion);
   if (m_updater->getModuleVersion(DEFS_URL) != moduleVersion)
     m_updater->setModuleVersion(DEFS_URL, moduleVersion);
-  m_updater->setEnableDownloader(DEFS_URL, enableDownloader);
-  m_updater->setShowAllNotifications(DEFS_URL, showAllNotifications);
-  m_updater->setShowUpdateNotifications (DEFS_URL, showUpdateNotifications);
+  m_updater->setDownloaderEnabled(DEFS_URL, enableDownloader);
+  m_updater->setNotifyOnFinish(DEFS_URL, showAllNotifications);
+  m_updater->setNotifyOnUpdate (DEFS_URL, showUpdateNotifications);
 
   /* Check for updates */
   m_updater->checkForUpdates (DEFS_URL);

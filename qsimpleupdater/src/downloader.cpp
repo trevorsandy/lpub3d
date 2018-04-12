@@ -1,29 +1,33 @@
 /*
- * (C) Copyright 2014 Alex Spataru
+ * Copyright (c) 2014-2016 Alex Spataru <alex_spataru@outlook.com>
+ * Copyright (c) 2017 Gilmanov Ildar <https://github.com/gilmanov-ildar>
+ * Copyright (C) 2018 Trevor SANDY. All rights reserved.
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Lesser General Public License
- * (LGPL) version 2.1 which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/lgpl-2.1.html
+ * This file is part of the QSimpleUpdater library, which is released under
+ * the DBAD license, you can read a copy of it below:
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
+ * DON'T BE A DICK PUBLIC LICENSE TERMS AND CONDITIONS FOR COPYING,
+ * DISTRIBUTION AND MODIFICATION:
  *
+ * Do whatever you like with the original work, just don't be a dick.
+ * Being a dick includes - but is not limited to - the following instances:
+ *
+ * 1a. Outright copyright infringement - Don't just copy this and change the
+ *     name.
+ * 1b. Selling the unmodified original with no work done what-so-ever, that's
+ *     REALLY being a dick.
+ * 1c. Modifying the original work to contain hidden harmful content.
+ *     That would make you a PROPER dick.
+ *
+ * If you become rich through modifications, related works/services, or
+ * supporting the original work, share the love.
+ * Only a dick would make loads off this work and not buy the original works
+ * creator(s) a pint.
+ *
+ * Code is provided with no warranty. Using somebody else's code and bitching
+ * when it goes wrong makes you a DONKEY dick.
+ * Fix the problem yourself. A non-dick would submit the fix back.
  */
-
-//==============================================================================
-// Class includes
-//==============================================================================
-
-#include "downloader.h"
-
-//==============================================================================
-// System includes
-//==============================================================================
-
-#include <math.h>
 
 #include <QDir>
 #include <QFile>
@@ -33,32 +37,40 @@
 #include <QDesktopServices>
 #include <QNetworkAccessManager>
 
-//==============================================================================
-// Downloader::Downloader
-//==============================================================================
+#include <math.h>
 
-Downloader::Downloader (QWidget* parent) : QWidget (parent) {
+#include "downloader.h"
+
+static const QString PARTIAL_DOWN (".part");
+
+Downloader::Downloader (QWidget* parent) : QWidget (parent)
+{
     m_ui = new Ui::Downloader;
     m_ui->setupUi (this);
-
-    // Set the connection user agent
-    m_downloadRequest.setRawHeader("User-Agent","Mozilla Firefox");
 
     /* Initialize private members */
     m_manager = new QNetworkAccessManager();
 
     /* Initialize internal values */
-    m_filePath = "";
+    m_url = "";
+    m_fileName = "";
     m_startTime = 0;
-    m_downloadName = "";
-    m_localDownloadPath = "";
-    m_isNotSoftwareUpdate = false;
-    m_useCustomProcedures = false;
+    m_customProcedure = false;
+
+    // LPub3D Mod
     m_moduleName = qApp->applicationName();
-    m_moduleVersion = qApp->applicationVersion();
+    // Mod End
+
+    // LPub3D Mod
+    /* Set default download directory */
+    QStringList pathList = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+    QString tempPath = pathList.first();
+    m_downloadDir = tempPath + "/";
+    //m_downloadDir = QDir::homePath() + "/Downloads/";
+    // Mod End
 
     /* Make the window look like a modal dialog */
-    setWindowIcon (QIcon ());
+    setWindowIcon (QIcon());
     setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     /* Configure the appearance and behavior of the buttons */
@@ -73,130 +85,127 @@ Downloader::Downloader (QWidget* parent) : QWidget (parent) {
     setFixedSize (minimumSizeHint());
 }
 
-//==============================================================================
-// Downloader::~Downloader
-//==============================================================================
-
-Downloader::~Downloader() {
-  delete m_ui;
-  if (m_reply)
+Downloader::~Downloader()
+{
+    delete m_ui;
     delete m_reply;
-  if (m_manager)
     delete m_manager;
 }
 
-//==============================================================================
-// Downloader::useCustomInstallProcedures
-//==============================================================================
-
-bool Downloader::useCustomInstallProcedures() const {
-    return m_useCustomProcedures;
+/**
+ * Returns \c true if the updater shall not intervene when the download has
+ * finished (you can use the \c QSimpleUpdater signals to know when the
+ * download is completed).
+ */
+bool Downloader::customProcedure() const
+{
+    return m_customProcedure;
 }
 
-//==============================================================================
-// Updater::downloadName
-//==============================================================================
-
-QString Downloader::downloadName() const {
-    return m_downloadName;
+/**
+ * Changes the URL, which is used to indentify the downloader dialog
+ * with an \c Updater instance
+ *
+ * \note the \a url parameter is not the download URL, it is the URL of
+ *       the AppCast file
+ */
+void Downloader::setUrlId (const QString& url)
+{
+    m_url = url;
 }
 
-//==============================================================================
-// Updater::localDownloadPath
-//==============================================================================
-
-QString Downloader::localDownloadPath() const {
-    return m_localDownloadPath;
-}
-
-//==============================================================================
-// Updater::isNotSoftwareUpdate
-//==============================================================================
-
-bool Downloader::isNotSoftwareUpdate() const {
-    return m_isNotSoftwareUpdate;
-}
-
-//==============================================================================
-// Updater::moduleName
-//==============================================================================
-
-QString Downloader::moduleName() const {
-    return m_moduleName;
-}
-
-//==============================================================================
-// Updater::moduleVersion
-//==============================================================================
-
-QString Downloader::moduleVersion() const {
-    return m_moduleVersion;
-}
-
-//==============================================================================
-// Updater::setLocalDownloadPath
-//==============================================================================
-
-void Downloader::setLocalDownloadPath (const QString& path) {
-    m_localDownloadPath = path;
-}
-
-//==============================================================================
-// Updater::setDownloadName
-//==============================================================================
-
-void Downloader::setDownloadName (const QString& name) {
-    m_downloadName = name;
-}
-
-//==============================================================================
-// Updater::setIsNotSoftwareUpdate
-//==============================================================================
-
-void Downloader::setIsNotSoftwareUpdate (const bool& enabled) {
-    m_isNotSoftwareUpdate = enabled;
-}
-
-//==============================================================================
-// Downloader::startDownload
-//==============================================================================
-
-void Downloader::startDownload (const QUrl& url) {
+/**
+ * Begins downloading the file at the given \a url
+ */
+void Downloader::startDownload (const QUrl& url)
+{
     /* Reset UI */
     m_ui->progressBar->setValue (0);
     m_ui->stopButton->setText (tr ("Stop"));
-
-    if (isNotSoftwareUpdate()) {
+    // LPub3D Mod
+    if (customProcedure()) {
         this->setWindowTitle(tr ("Library Update"));
-        m_ui->downloadLabel->setText (tr ("Downloading %1...").arg(downloadName()));
+        m_ui->downloadLabel->setText (tr ("Downloading LDraw library archive %1...").arg(m_fileName));
     } else {
         this->setWindowTitle(tr ("Software Update"));
-        m_ui->downloadLabel->setText (tr ("Downloading %1 update").arg(moduleName()));
+        m_ui->downloadLabel->setText (tr ("Downloading %1 software update...").arg(m_moduleName));
     }
+    // Mod End
+    m_ui->timeLabel->setText (tr ("Time remaining") + ": " + tr ("unknown"));
+
+    /* Configure the network request */
+    QNetworkRequest request (url);
+    if (!m_userAgentString.isEmpty())
+        request.setRawHeader ("User-Agent", m_userAgentString.toUtf8());
 
     /* Start download */
-    m_ui->timeLabel->setText (tr ("Time remaining") + ": " + tr ("unknown"));
+    m_reply = m_manager->get (request);
     m_startTime = QDateTime::currentDateTime().toTime_t();
 
-    m_downloadRequest.setUrl(url);
-    m_reply = m_manager->get (m_downloadRequest);
+    /* Ensure that downloads directory exists */
+    if (!m_downloadDir.exists())
+        m_downloadDir.mkpath (".");
+
+    /* Remove old downloads */
+    QFile::remove (m_downloadDir.filePath (m_fileName));
+    QFile::remove (m_downloadDir.filePath (m_fileName + PARTIAL_DOWN));
 
     /* Update UI when download progress changes or download finishes */
     connect (m_reply, SIGNAL (downloadProgress (qint64, qint64)),
              this,      SLOT (updateProgress   (qint64, qint64)));
-    connect (m_reply, SIGNAL (finished()),
-             this,      SLOT (onDownloadFinished()));
+    connect (m_reply, SIGNAL (finished ()),
+             this,      SLOT (finished ()));
+    connect (m_reply, SIGNAL (redirected       (QUrl)),
+             this,      SLOT (startDownload    (QUrl)));
 
     showNormal();
 }
 
-//==============================================================================
-// Downloader::openDownload
-//==============================================================================
+/**
+ * Changes the name of the downloaded file
+ */
+void Downloader::setFileName (const QString& file)
+{
+    m_fileName = file;
 
-void Downloader::openDownload() {
-    if (!m_filePath.isEmpty())
-        QDesktopServices::openUrl (QUrl::fromLocalFile (m_filePath));
+    if (m_fileName.isEmpty())
+        m_fileName = "QSU_Update.bin";
+}
+
+/**
+ * Changes the user-agent string used to communicate with the remote HTTP server
+ */
+void Downloader::setUserAgentString (const QString& agent)
+{
+    m_userAgentString = agent;
+}
+
+void Downloader::finished()
+{
+    /* Rename file */
+    QFile::rename (m_downloadDir.filePath (m_fileName + PARTIAL_DOWN),
+                   m_downloadDir.filePath (m_fileName));
+
+    /* Notify application */
+    emit downloadFinished (m_url, m_downloadDir.filePath (m_fileName));
+
+    /* Install the update */
+    m_reply->close();
+    if (!customProcedure())
+      installUpdate();
+    setVisible (false);
+}
+
+/**
+ * Opens the downloaded file.
+ * \note If the downloaded file is not found, then the function will alert the
+ *       user about the error.
+ */
+void Downloader::openDownload()
+{
+    if (!m_fileName.isEmpty())
+        QDesktopServices::openUrl (QUrl::fromLocalFile (m_downloadDir.filePath (
+                                                            m_fileName)));
 
     else {
         QMessageBox::critical (this,
@@ -206,63 +215,73 @@ void Downloader::openDownload() {
     }
 }
 
-//==============================================================================
-// Downloader::installUpdate
-//==============================================================================
-
-void Downloader::installUpdate() {
-    if (useCustomInstallProcedures())
+/**
+ * Instructs the OS to open the downloaded file.
+ *
+ * \note If \c customProcedure() returns \c true, the function will
+ *       not instruct the OS to open the downloaded file. You can use the
+ *       signals fired by the \c QSimpleUpdater to install the update with your
+ *       own implementations/code.
+ */
+void Downloader::installUpdate()
+{
+    if (customProcedure())
         return;
 
+    /* Update labels */
+    m_ui->stopButton->setText    (tr ("Close"));
+    m_ui->downloadLabel->setText (tr ("Download complete!"));
+    // LPub3D Mod
+    this->setWindowTitle(tr ("Software Update"));
+    m_ui->timeLabel->setText (tr ("The %1 installer will open in a separate window").arg(m_moduleName)
+                              + "...");
+    // Mod End
+
+    // Get the application icon as a pixmap
+    QPixmap _icon = QPixmap(":/icons/setup96.png");
+    if (_icon.isNull())
+        _icon = QPixmap (":/icons/update.png");
+
+    /* Ask the user to install the download */
     QMessageBox box;
-    box.setIcon (QMessageBox::Question);
+    box.setWindowIcon(QIcon());
+    box.setIconPixmap (_icon);
     box.setDefaultButton   (QMessageBox::Ok);
     box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
-#ifdef Q_OS_WIN
-    box.setText ("<b>" +
-                 tr ("To install the update, you may need to quit %1.").arg(moduleName())
-                 + "</b>");
-    box.setInformativeText (tr ("Click \"OK\" to begin installing the %1 update").arg(moduleName()));
-#else
-    QString dlPath("download");
-    if (! m_filePath.isEmpty()){
-        QFileInfo dlContent;
-        dlContent.setFile(m_filePath);
-        dlPath = dlContent.dir().dirName();
-      }
-    box.setText ("<b>" +
-                 tr ("You must quit %1, go to the %2 directory and follow your"
-                     " platform's procedures to install the update.")
-                        .arg(moduleName())
-                        .arg(dlPath)
-                 + "</b>");
+    // LPub3D Mod
+    box.setWindowTitle(tr ("%1 Installer").arg(m_moduleName));
+    box.setInformativeText (tr ("Click \"OK\" to begin installing the %1 update.").arg(m_moduleName));
+    box.setText ("<h3>" + tr ("To install the update, %1 will quit.").arg(m_moduleName) + "</h3>");
+    // Mod End
 
-    box.setInformativeText (tr ("Click \"OK\" to close %1. or \"Cancel\" to continue.").arg(moduleName()));
-#endif
+    /* User wants to install the download */
     if (box.exec() == QMessageBox::Ok) {
-        if (!useCustomInstallProcedures()) {
-
-#ifdef Q_OS_WIN
-            openDownload();
-#endif
+        if (!customProcedure())
+        {
+            // LPub3D Mod
             qApp->closeAllWindows();
+            // Mod End
+            openDownload();
         }
     }
+
+    /* Wait */
     else {
-#ifdef Q_OS_WIN
         m_ui->openButton->setEnabled (true);
         m_ui->openButton->setVisible (true);
+        // LPub3D Mod
         m_ui->timeLabel->setText (tr ("Click the \"Open\" button to "
-                                      "apply the update"));
-#endif
+                                      "apply the %1 update").arg(m_moduleName));
+        // Mod End
     }
 }
 
-//==============================================================================
-// Downloader::cancelDownload
-//==============================================================================
-
-void Downloader::cancelDownload() {
+/**
+ * Prompts the user if he/she wants to cancel the download and cancels the
+ * download if the user agrees to do that.
+ */
+void Downloader::cancelDownload()
+{
     if (!m_reply->isFinished()) {
         QMessageBox box;
         box.setWindowTitle (tr ("Software Update"));
@@ -273,7 +292,7 @@ void Downloader::cancelDownload() {
         if (box.exec() == QMessageBox::Yes) {
             hide();
             disconnect(m_reply, SIGNAL (finished()),
-                     this,      SLOT (onDownloadFinished()));
+                     this,      SLOT (finished()));
             m_reply->abort();
             emit downloadCancelled();
         }
@@ -283,64 +302,37 @@ void Downloader::cancelDownload() {
         hide();
 }
 
-//==============================================================================
-// Downloader::onDownloadFinished
-//==============================================================================
+/**
+ * Writes the downloaded data to the disk
+ */
+void Downloader::saveFile (qint64 received, qint64 total)
+{
+    Q_UNUSED(received);
+    Q_UNUSED(total);
 
-void Downloader::onDownloadFinished() {
-    m_ui->stopButton->setText    (tr ("Close"));
-    m_ui->downloadLabel->setText (tr ("Download %1 complete!").arg(downloadName()));
-    if (isNotSoftwareUpdate()) {
-        this->setWindowTitle(tr ("Library Update"));
-        m_ui->timeLabel->setText (tr ("Library archive written to disc."));
-    } else {
-        this->setWindowTitle(tr ("Software Update"));
-        m_ui->timeLabel->setText (tr ("The installer will open in a separate window..."));
+    /* Check if we need to redirect */
+    QUrl url = m_reply->attribute (
+                QNetworkRequest::RedirectionTargetAttribute).toUrl();
+    if (!url.isEmpty()) {
+        startDownload (url);
+        return;
     }
 
-    QByteArray data = m_reply->readAll();
-
-    if (!data.isEmpty()) {
-        QStringList list = m_reply->url().toString().split ("/");
-        QString downloadContent = QString("%1/%2").arg(localDownloadPath(),downloadName());
-
-#ifdef Q_OS_WIN
-        QFile file (isNotSoftwareUpdate() ? downloadContent : QDir::tempPath() + "/" + list.at (list.count() - 1));
-#else
-        QString downloadDataPath;
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-        QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DownloadLocation);
-        downloadDataPath = dataPathList.first();
-#else
-        downloadDataPath = QDesktopServices::storageLocation(QDesktopServices::DownloadLocation);
-#endif
-        QFile file (isNotSoftwareUpdate() ? downloadContent : downloadDataPath + "/" + list.at (list.count() - 1));
-#endif
-        if (file.open (QIODevice::WriteOnly)) {
-            file.write (data);
-            file.close();
-
-            m_filePath = file.fileName();
-            emit downloadFinished (m_reply->url().toString(), m_filePath);
-        } else {
-            QMessageBox box;
-            box.setWindowTitle (tr (isNotSoftwareUpdate() ? "Library Update" : "Software Update" ));
-            box.setIcon (QMessageBox::Critical);
-            box.setText (tr ("Could not save\n%1\nPlease try again.") .arg(file.fileName()));
-            box.setStandardButtons (QMessageBox::Close);
-        }
-
-        if (!isNotSoftwareUpdate())
-            installUpdate();
+    /* Save downloaded data to disk */
+    QFile file (m_downloadDir.filePath (m_fileName + PARTIAL_DOWN));
+    if (file.open (QIODevice::WriteOnly | QIODevice::Append)) {
+        file.write (m_reply->readAll());
+        file.close();
     }
-
 }
 
-//==============================================================================
-// Downloader::calculateSizes
-//==============================================================================
-
-void Downloader::calculateSizes (qint64 received, qint64 total) {
+/**
+ * Calculates the appropiate size units (bytes, KB or MB) for the received
+ * data and the total download size. Then, this function proceeds to update the
+ * dialog controls/UI.
+ */
+void Downloader::calculateSizes (qint64 received, qint64 total)
+{
     QString totalSize;
     QString receivedSize;
 
@@ -362,22 +354,25 @@ void Downloader::calculateSizes (qint64 received, qint64 total) {
     else
         receivedSize = tr ("%1 MB").arg (received / 1048576);
 
-    if (isNotSoftwareUpdate()) {
-        m_ui->downloadLabel->setText (tr ("Downloading %1").arg(downloadName())
+    // LPub3D Mod
+    if (customProcedure()) {
+        m_ui->downloadLabel->setText (tr ("Downloading %1").arg(m_fileName)
                                       + " (" + receivedSize + " " + tr ("of")
                                       + " " + totalSize + ")");
     } else {
-        m_ui->downloadLabel->setText (tr ("Downloading %1 update").arg(moduleName())
+        m_ui->downloadLabel->setText (tr ("Downloading %1 update").arg(m_moduleName)
                                       + " (" + receivedSize + " " + tr ("of")
                                       + " " + totalSize + ")");
     }
+    // Mod End
 }
 
-//==============================================================================
-// Downloader::updateProgress
-//==============================================================================
-
-void Downloader::updateProgress (qint64 received, qint64 total) {
+/**
+ * Uses the \a received and \a total parameters to get the download progress
+ * and update the progressbar value on the dialog.
+ */
+void Downloader::updateProgress (qint64 received, qint64 total)
+{
     if (total > 0) {
         m_ui->progressBar->setMinimum (0);
         m_ui->progressBar->setMaximum (100);
@@ -385,62 +380,102 @@ void Downloader::updateProgress (qint64 received, qint64 total) {
 
         calculateSizes (received, total);
         calculateTimeRemaining (received, total);
+        saveFile (received, total);
     }
 
     else {
         m_ui->progressBar->setMinimum (0);
         m_ui->progressBar->setMaximum (0);
         m_ui->progressBar->setValue (-1);
-        if (isNotSoftwareUpdate())
-            m_ui->downloadLabel->setText (tr ("Downloading %1").arg(downloadName()) + "...");
+        // LPub3D Mod
+        if (customProcedure())
+            m_ui->downloadLabel->setText (tr ("Downloading LDraw library archive %1").arg(m_fileName) + "...");
         else
-            m_ui->downloadLabel->setText (tr ("Downloading %1 update").arg(moduleName()) + "...");
+            m_ui->downloadLabel->setText (tr ("Downloading %1 software update").arg(m_moduleName) + "...");
+        // Mod End
         m_ui->timeLabel->setText (QString ("%1: %2")
                                   .arg (tr ("Time Remaining"))
                                   .arg (tr ("Unknown")));
     }
 }
 
-//==============================================================================
-// Downloader::calculateTimeRemaining
-//==============================================================================
-
-void Downloader::calculateTimeRemaining (qint64 received, qint64 total) {
+/**
+ * Uses two time samples (from the current time and a previous sample) to
+ * calculate how many bytes have been downloaded.
+ *
+ * Then, this function proceeds to calculate the appropiate units of time
+ * (hours, minutes or seconds) and constructs a user-friendly string, which
+ * is displayed in the dialog.
+ */
+void Downloader::calculateTimeRemaining (qint64 received, qint64 total)
+{
     uint difference = QDateTime::currentDateTime().toTime_t() - m_startTime;
 
     if (difference > 0) {
         QString timeString;
-        float timeRemaining = total / (received / difference);
+        qreal timeRemaining = total / (received / difference);
 
         if (timeRemaining > 7200) {
             timeRemaining /= 3600;
-            timeString = tr ("About %1 hours").arg (int (timeRemaining + 0.5));
+            int hours = int (timeRemaining + 0.5);
+
+            if (hours > 1)
+                timeString = tr ("about %1 hours").arg (hours);
+            else
+                timeString = tr ("about one hour");
         }
 
         else if (timeRemaining > 60) {
             timeRemaining /= 60;
-            timeString = tr ("About %1 minutes").arg (int (timeRemaining + 0.5));
+            int minutes = int (timeRemaining + 0.5);
+
+            if (minutes > 1)
+                timeString = tr ("%1 minutes").arg (minutes);
+            else
+                timeString = tr ("1 minute");
         }
 
-        else if (timeRemaining <= 60)
-            timeString = tr ("%1 seconds").arg (int (timeRemaining + 0.5));
+        else if (timeRemaining <= 60) {
+            int seconds = int (timeRemaining + 0.5);
+
+            if (seconds > 1)
+                timeString = tr ("%1 seconds").arg (seconds);
+            else
+                timeString = tr ("1 second");
+        }
 
         m_ui->timeLabel->setText (tr ("Time remaining") + ": " + timeString);
     }
 }
 
-//==============================================================================
-// Downloader::round
-//==============================================================================
-
-float Downloader::round (const float& input) {
+/**
+ * Rounds the given \a input to two decimal places
+ */
+qreal Downloader::round (const qreal& input)
+{
     return roundf (input * 100) / 100;
 }
 
-//==============================================================================
-// Downloader::setUseCustomInstallProcedures
-//==============================================================================
+QString Downloader::downloadDir() const
+{
+    return m_downloadDir.absolutePath();
+}
 
-void Downloader::setUseCustomInstallProcedures (const bool& custom) {
-    m_useCustomProcedures = custom;
+void Downloader::setDownloadDir(const QString& downloadDir)
+{
+    if(m_downloadDir.absolutePath() != downloadDir) {
+        m_downloadDir = downloadDir;
+    }
+}
+
+/**
+ * If the \a custom parameter is set to \c true, then the \c Downloader will not
+ * attempt to open the downloaded file.
+ *
+ * Use the signals fired by the \c QSimpleUpdater to implement your own install
+ * procedures.
+ */
+void Downloader::setCustomProcedure (const bool custom)
+{
+    m_customProcedure = custom;
 }

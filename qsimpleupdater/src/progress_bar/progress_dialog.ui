@@ -115,7 +115,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../res/qsu_resources.qrc"/>
+  <include location="../../etc/resources/qsimpleupdater.qrc"/>
  </resources>
  <connections/>
 </ui>

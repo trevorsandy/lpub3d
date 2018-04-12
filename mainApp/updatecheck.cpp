@@ -44,7 +44,6 @@ UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
 
     /* Run check for updates if sofware update */
     if (m_option == SoftwareUpdate) {
-//        DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(Preferences::moduleVersion);
         DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
         applyGeneralSettings (DEFS_URL);
         m_updater->checkForUpdates (DEFS_URL);      
@@ -68,9 +67,9 @@ void UpdateCheck::applyGeneralSettings(const QString &url){
 
         if (m_updater->getModuleVersion(DEFS_URL) != moduleVersion)
             m_updater->setModuleVersion(DEFS_URL, moduleVersion);
-        m_updater->setEnableDownloader(DEFS_URL, enableDownloader);
-        m_updater->setShowAllNotifications(DEFS_URL, showAllNotifications);
-        m_updater->setShowUpdateNotifications (DEFS_URL, showUpdateNotifications);
+        m_updater->setDownloaderEnabled(DEFS_URL, enableDownloader);
+        m_updater->setNotifyOnFinish(DEFS_URL, showAllNotifications);
+        m_updater->setNotifyOnUpdate (DEFS_URL, showUpdateNotifications);
     }
 }
 
@@ -100,8 +99,8 @@ void UpdateCheck::requestDownload(const QString &url, const QString &localPath)
             m_updater->setDirectDownload(DEFS_URL,enabled);
             break;
         }
-        m_updater->setIsNotSoftwareUpdate(DEFS_URL,enabled);
-        m_updater->setLocalDownloadPath(DEFS_URL,localPath);
+        m_updater->setCustomProcedure(DEFS_URL,enabled);
+        m_updater->setDownloadDir(DEFS_URL,localPath);
 
         m_updater->checkForUpdates (DEFS_URL);
     }
@@ -156,9 +155,9 @@ AvailableVersions::AvailableVersions(QObject *parent) : QObject(parent)
   DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
   m_updater = QSimpleUpdater::getInstance();
   m_updater->setModuleVersion(DEFS_URL, qApp->applicationVersion());
-  m_updater->setEnableDownloader(DEFS_URL, false);
-  m_updater->setShowAllNotifications(DEFS_URL, false);
-  m_updater->setShowUpdateNotifications (DEFS_URL, false);
+  m_updater->setDownloaderEnabled(DEFS_URL, false);
+  m_updater->setNotifyOnFinish(DEFS_URL, false);
+  m_updater->setNotifyOnUpdate (DEFS_URL, false);
 
   connect (m_updater, SIGNAL (checkingFinished (QString)),
            this,      SLOT (setAvailableVersions (QString)));
@@ -173,8 +172,7 @@ void AvailableVersions::setAvailableVersions(const QString &url){
         Preferences::availableVersions = versions;
       else
         Preferences::availableVersions = qApp->applicationVersion();
-    } //else
-      //qDebug() << QString("bad DEFS_URL %1").arg(DEFS_URL);
+    }
 }
 
 AvailableVersions::~AvailableVersions(){

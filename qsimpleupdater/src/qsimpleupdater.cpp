@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2014-2016 Alex Spataru <alex_spataru@outlook.com>
+ * Copyright (C) 2018 Trevor SANDY. All rights reserved.
  *
  * This file is part of the QSimpleUpdater library, which is released under
  * the DBAD license, you can read a copy of it below:
@@ -27,269 +28,374 @@
  * Fix the problem yourself. A non-dick would submit the fix back.
  */
 
-//==============================================================================
-// Class Includes
-//==============================================================================
-
 #include "updater.h"
 #include "qsimpleupdater.h"
-
-//==============================================================================
-// Implementation hacks
-//==============================================================================
 
 static QList<QString> URLS;
 static QList<Updater*> UPDATERS;
 
-//==============================================================================
-// QSimpleUpdater::~QSimpleUpdater
-//==============================================================================
-
-QSimpleUpdater::~QSimpleUpdater() {
+QSimpleUpdater::~QSimpleUpdater()
+{
     URLS.clear();
+
+    foreach (Updater* updater, UPDATERS)
+        updater->deleteLater();
+
     UPDATERS.clear();
 }
 
-//==============================================================================
-// QSimpleUpdater::getInstance
-//==============================================================================
-
-QSimpleUpdater* QSimpleUpdater::getInstance() {
+/**
+ * Returns the only instance of the class
+ */
+QSimpleUpdater* QSimpleUpdater::getInstance()
+{
     static QSimpleUpdater updater;
     return &updater;
 }
 
-//==============================================================================
-// QSimpleUpdater::getShowUpdateNotifications
-//==============================================================================
-
-bool QSimpleUpdater::getShowUpdateNotifications (const QString& url) const {
-    return getUpdater (url)->showUpdateNotifications();
+/**
+ * Returns \c true if the \c Updater instance registered with the given \a url
+ * uses a custom appcast format and/or allows the application to read and
+ * interpret the downloaded appcast file
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+bool QSimpleUpdater::usesCustomAppcast (const QString& url) const
+{
+    return getUpdater (url)->customAppcast();
 }
 
-//==============================================================================
-// QSimpleUpdater::getShowAllNotifications
-//==============================================================================
-
-bool QSimpleUpdater::getShowAllNotifications (const QString& url) const {
-    return getUpdater (url)->showAllNotifications();
+/**
+ * Returns \c true if the \c Updater instance registered with the given \a url
+ * shall notify the user when an update is available.
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+bool QSimpleUpdater::getNotifyOnUpdate (const QString& url) const
+{
+    return getUpdater (url)->notifyOnUpdate();
 }
 
-//==============================================================================
-// QSimpleUpdater::getUpdateAvailable
-//==============================================================================
+/**
+ * Returns \c true if the \c Updater instance registered with the given \a url
+ * shall notify the user when it finishes checking for updates.
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+bool QSimpleUpdater::getNotifyOnFinish (const QString& url) const
+{
+    return getUpdater (url)->notifyOnFinish();
+}
 
-bool QSimpleUpdater::getUpdateAvailable (const QString& url) const {
+/**
+ * Returns \c true if the \c Updater instance registered with the given \a url
+ * has an update available.
+ *
+ * \warning You should call \c checkForUpdates() before using this function
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+bool QSimpleUpdater::getUpdateAvailable (const QString& url) const
+{
     return getUpdater (url)->updateAvailable();
 }
 
-//==============================================================================
-// QSimpleUpdater::getEnableDownloader
-//==============================================================================
-
-bool QSimpleUpdater::getEnableDownloader (const QString& url) const {
-    return getUpdater (url)->enableDownloader();
+/**
+ * Returns \c true if the \c Updater instance registered with the given \a url
+ * has the integrated downloader enabled.
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+bool QSimpleUpdater::getDownloaderEnabled (const QString& url) const
+{
+    return getUpdater (url)->downloaderEnabled();
 }
 
-//==============================================================================
-// QSimpleUpdater::getChangelog
-//==============================================================================
+/**
+ * Returns \c true if the \c Updater instance registered with the given \a url
+ * shall try to open the downloaded file.
+ *
+ * If you want to implement your own way to handle the downloaded file, just
+ * bind to the \c downloadFinished() signal and disable the integrated
+ * downloader with the \c setCustomProcedure() function.
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+bool QSimpleUpdater::usesCustomProcedure (const QString& url) const
+{
+    return getUpdater (url)->customProcedure();
+}
 
-QString QSimpleUpdater::getChangelog (const QString& url) const {
+/**
+ * Returns the URL to open in a web browser of the \c Updater instance
+ * registered with the given \a url.
+ *
+ * \note If the module name is empty, then the \c Updater will use the
+ *       application name as its module name.
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+QString QSimpleUpdater::getOpenUrl (const QString& url) const
+{
+    return getUpdater (url)->openUrl();
+}
+
+/**
+ * Returns the changelog of the \c Updater instance registered with the given
+ * \a url.
+ *
+ * \warning You should call \c checkForUpdates() before using this function
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+QString QSimpleUpdater::getChangelog (const QString& url) const
+{
     return getUpdater (url)->changelog();
 }
 
-//==============================================================================
-// QSimpleUpdater::getDownloadUrl
-//==============================================================================
-
-QString QSimpleUpdater::getDownloadUrl (const QString& url) const {
-    return getUpdater (url)->downloadUrl();
-}
-
-//==============================================================================
-// QSimpleUpdater::getDownloadName
-//==============================================================================
-
-QString QSimpleUpdater::getDownloadName (const QString& url) const {
-    return getUpdater (url)->downloadName();
-}
-
-//==============================================================================
-// QSimpleUpdater::getLocalDownloadPath
-//==============================================================================
-
-QString QSimpleUpdater::getLocalDownloadPath (const QString& url) const {
-    return getUpdater (url)->localDownloadPath();
-}
-
-//==============================================================================
-// QSimpleUpdater::getLatestVersion
-//==============================================================================
-
-QString QSimpleUpdater::getLatestVersion (const QString& url) const {
-    return getUpdater (url)->latestVersion();
-}
-
-//==============================================================================
-// QSimpleUpdater::getLatestVersion
-//==============================================================================
-
-QString QSimpleUpdater::getAvailableVersions (const QString& url) const {
-    return getUpdater (url)->getAvailableVersions();
-}
-
-//==============================================================================
-// QSimpleUpdater::getPlatformKey
-//==============================================================================
-
-QString QSimpleUpdater::getPlatformKey (const QString& url) const {
-    return getUpdater (url)->platformKey();
-}
-
-//==============================================================================
-// QSimpleUpdater::getModuleName
-//==============================================================================
-
-QString QSimpleUpdater::getModuleName (const QString& url) const {
+/**
+ * Returns the module name of the \c Updater instance registered with the given
+ * \a url.
+ *
+ * \note If the module name is empty, then the \c Updater will use the
+ *       application name as its module name.
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+QString QSimpleUpdater::getModuleName (const QString& url) const
+{
     return getUpdater (url)->moduleName();
 }
 
-//==============================================================================
-// QSimpleUpdater::getModuleVersion
-//==============================================================================
+/**
+ * Returns the download URL of the \c Updater instance registered with the given
+ * \a url.
+ *
+ * \warning You should call \c checkForUpdates() before using this function
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+QString QSimpleUpdater::getDownloadUrl (const QString& url) const
+{
+    return getUpdater (url)->downloadUrl();
+}
 
-QString QSimpleUpdater::getModuleVersion (const QString& url) const {
+/**
+ * Returns the platform key of the \c Updater registered with the given \a url.
+ * If you do not define a platform key, the system will assign the following
+ * platform key:
+ *    - On iOS: \c ios
+ *    - On Mac OSX: \c osx
+ *    - On Android: \c android
+ *    - On GNU/Linux: \c linux
+ *    - On Microsoft Windows: \c windows
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+QString QSimpleUpdater::getPlatformKey (const QString& url) const
+{
+    return getUpdater (url)->platformKey();
+}
+
+/**
+ * Returns the remote module version of the \c Updater instance registered with
+ * the given \a url.
+ *
+ * \warning You should call \c checkForUpdates() before using this function
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+QString QSimpleUpdater::getLatestVersion (const QString& url) const
+{
+    return getUpdater (url)->latestVersion();
+}
+
+/**
+ * Returns the module version of the \c Updater instance registered with the
+ * given \a url.
+ *
+ * \note If the module version is empty, then the \c Updater will use the
+ *       application version as its module version.
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+QString QSimpleUpdater::getModuleVersion (const QString& url) const
+{
     return getUpdater (url)->moduleVersion();
 }
 
-//==============================================================================
-// QSimpleUpdater::retrieveAvailableVersions
-//==============================================================================
-
-void QSimpleUpdater::retrieveAvailableVersions (const QString& url) const {
-    getUpdater (url)->retrieveAvailableVersions();
+/**
+ * Returns the user-agent string used by the updater to communicate with
+ * the remote HTTP(S) server.
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+QString QSimpleUpdater::getUserAgentString (const QString& url) const
+{
+    return getUpdater (url)->userAgentString();
 }
 
-//==============================================================================
-// QSimpleUpdater::usesCustomInstallProcedures
-//==============================================================================
-
-bool QSimpleUpdater::usesCustomInstallProcedures (const QString& url) const {
-    return getUpdater (url)->useCustomInstallProcedures();
-}
-
-//==============================================================================
-// QSimpleUpdater::checkForUpdates
-//==============================================================================
-
-void QSimpleUpdater::checkForUpdates (const QString& url) {
+/**
+ * Instructs the \c Updater instance with the registered \c url to download and
+ * interpret the update definitions file.
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+void QSimpleUpdater::checkForUpdates (const QString& url)
+{
     getUpdater (url)->checkForUpdates();
 }
 
-//==============================================================================
-// QSimpleUpdater::setPlatformKey
-//==============================================================================
-
-void QSimpleUpdater::setPlatformKey (const QString& url,
-                                     const QString& platform) {
-    getUpdater (url)->setPlatformKey (platform);
-}
-
-//==============================================================================
-// QSimpleUpdater::setModuleName
-//==============================================================================
-
-void QSimpleUpdater::setModuleName (const QString& url, const QString& name) {
+/**
+ * Changes the module \a name of the \c Updater instance registered at the
+ * given \a url.
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ * \note The module name is used on the user prompts. If the module name is
+ *       empty, then the prompts will show the name of the application.
+ */
+void QSimpleUpdater::setModuleName (const QString& url, const QString& name)
+{
     getUpdater (url)->setModuleName (name);
 }
 
-//==============================================================================
-// QSimpleUpdater::setModuleVersion
-//==============================================================================
+/**
+ * If \a notify is set to \c true, then the \c Updater instance registered with
+ * the given \a url will notify the user when an update is available.
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+void QSimpleUpdater::setNotifyOnUpdate (const QString& url,
+                                        const bool notify)
+{
+    getUpdater (url)->setNotifyOnUpdate (notify);
+}
 
+/**
+ * If \a notify is set to \c true, then the \c Updater instance registered with
+ * the given \a url will notify the user when it has finished interpreting the
+ * update definitions file.
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+void QSimpleUpdater::setNotifyOnFinish (const QString& url,
+                                        const bool notify)
+{
+    getUpdater (url)->setNotifyOnFinish (notify);
+}
+
+/**
+ * Changes the platform key of the \c Updater isntance registered at the given
+ * \a url.
+ *
+ * If the platform key is empty, then the system will use the following keys:
+ *    - On iOS: \c ios
+ *    - On Mac OSX: \c osx
+ *    - On Android: \c android
+ *    - On GNU/Linux: \c linux
+ *    - On Microsoft Windows: \c windows
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+void QSimpleUpdater::setPlatformKey (const QString& url,
+                                     const QString& platform)
+{
+    getUpdater (url)->setPlatformKey (platform);
+}
+
+/**
+ * Changes the module \version of the \c Updater instance registered at the
+ * given \a url.
+ *
+ * \note The module version is used to compare it with the remove version.
+ *       If the module name is empty, then the \c Updater instance will use the
+ *       application version.
+ */
 void QSimpleUpdater::setModuleVersion (const QString& url,
-                                       const QString& version) {
+                                       const QString& version)
+{
     getUpdater (url)->setModuleVersion (version);
 }
 
-//==============================================================================
-// QSimpleUpdater::setShowUpdateNotifications
-//==============================================================================
-
-void QSimpleUpdater::setShowUpdateNotifications (const QString& url,
-                                        const bool& notify) {
-    getUpdater (url)->setShowUpdateNotifications (notify);
+/**
+ * If the \a enabled parameter is set to \c true, the \c Updater instance
+ * registered with the given \a url will open the integrated downloader
+ * if the user agrees to install the update (if any).
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+void QSimpleUpdater::setDownloaderEnabled (const QString& url,
+                                           const bool enabled)
+{
+    getUpdater (url)->setDownloaderEnabled (enabled);
 }
 
-//==============================================================================
-// QSimpleUpdater::setShowAllNotifications
-//==============================================================================
-
-void QSimpleUpdater::setShowAllNotifications (const QString& url,
-                                        const bool& notify) {
-    getUpdater (url)->setShowAllNotifications (notify);
+/**
+ * Changes the user-agent string used by the updater to communicate
+ * with the remote server
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+void QSimpleUpdater::setUserAgentString (const QString& url,
+                                         const QString& agent)
+{
+    getUpdater (url)->setUserAgentString (agent);
 }
 
-//==============================================================================
-// QSimpleUpdater::setEnableDownloader
-//==============================================================================
-
-void QSimpleUpdater::setEnableDownloader (const QString& url,
-                                           const bool& enabled) {
-    getUpdater (url)->setEnableDownloader (enabled);
+/**
+ * If the \a customAppcast parameter is set to \c true, then the \c Updater
+ * will not try to read the network reply from the server, instead, it will
+ * emit the \c appcastDownloaded() signal, which allows the application to
+ * read and interpret the appcast file by itself.
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+void QSimpleUpdater::setUseCustomAppcast (const QString& url,
+                                          const bool customAppcast)
+{
+    getUpdater (url)->setUseCustomAppcast (customAppcast);
 }
 
-//==============================================================================
-// QSimpleUpdater::setDirectDownload
-//==============================================================================
-
-void QSimpleUpdater::setDirectDownload (const QString& url,
-                                        const bool& enabled) {
-    getUpdater (url)->setDirectDownload (enabled);
+/**
+ * If the \a custom parameter is set to \c true, the \c Updater instance
+ * registered with the given \a url will not try to open the downloaded file.
+ *
+ * If you want to implement your own way to handle the downloaded file, just
+ * bind to the \c downloadFinished() signal and disable the integrated
+ * downloader with the \c setCustomProcedure() function.
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+void QSimpleUpdater::setCustomProcedure (const QString& url,
+        const bool custom)
+{
+    getUpdater (url)->setCustomProcedure (custom);
 }
 
-//==============================================================================
-// QSimpleUpdater::setPromptedDownload
-//==============================================================================
-
-void QSimpleUpdater::setPromptedDownload (const QString& url,
-                                          const bool& enabled) {
-    getUpdater (url)->setPromptedDownload (enabled);
-}
-
-//==============================================================================
-// Updater::setIsNotSoftwareUpdate
-//==============================================================================
-
-void QSimpleUpdater::setIsNotSoftwareUpdate (const QString& url,
-                                             const bool& enabled) {
-    getUpdater (url)->setIsNotSoftwareUpdate(enabled);
-}
-
-//==============================================================================
-// QSimpleUpdater::usesCustomInstallProcedures
-//==============================================================================
-
-void QSimpleUpdater::setLocalDownloadPath (const QString& url,
-                                           const QString &path) {
-  getUpdater (url)->setLocalDownloadPath(path);
-}
-
-//==============================================================================
-// QSimpleUpdater::setUseCustomInstallProcedures
-//==============================================================================
-
-void QSimpleUpdater::setUseCustomInstallProcedures (const QString& url,
-                                                    const bool& custom) {
-    getUpdater (url)->setUseCustomInstallProcedures (custom);
-}
-
-//==============================================================================
-// QSimpleUpdater::getUpdater
-//==============================================================================
-
-Updater* QSimpleUpdater::getUpdater (const QString& url) const {
+/**
+ * Returns the \c Updater instance registered with the given \a url.
+ *
+ * If an \c Updater instance registered with teh given \a url does not exist,
+ * this function will create it and configure it automatically.
+ */
+Updater* QSimpleUpdater::getUpdater (const QString& url) const
+{
     if (!URLS.contains (url)) {
         Updater* updater = new Updater;
         updater->setUrl (url);
@@ -297,16 +403,71 @@ Updater* QSimpleUpdater::getUpdater (const QString& url) const {
         URLS.append (url);
         UPDATERS.append (updater);
 
-        connect (updater, SIGNAL (checkingFinished (QString)),
-                 this,    SIGNAL (checkingFinished (QString)));
-        connect (updater, SIGNAL (downloadFinished (QString, QString)),
-                 this,    SIGNAL (downloadFinished (QString, QString)));
+        connect (updater, SIGNAL (checkingFinished  (QString)),
+                 this,    SIGNAL (checkingFinished  (QString)));
+        connect (updater, SIGNAL (downloadFinished  (QString, QString)),
+                 this,    SIGNAL (downloadFinished  (QString, QString)));
+        connect (updater, SIGNAL (appcastDownloaded (QString, QByteArray)),
+                 this,    SIGNAL (appcastDownloaded (QString, QByteArray)));
+        // LPub3D Mod
         connect (updater, SIGNAL (downloadCancelled ()),
                  this,    SIGNAL (cancel ()));
         connect (updater, SIGNAL (checkingCancelled ()),
                  this,    SIGNAL (cancel ()));
-
+        // Mod End
     }
 
     return UPDATERS.at (URLS.indexOf (url));
 }
+
+// LPub3D Mod
+/**
+ * Returns the available versions registered for the platform \c url
+ */
+void QSimpleUpdater::retrieveAvailableVersions (const QString& url) const {
+    getUpdater (url)->retrieveAvailableVersions();
+}
+
+/**
+ * If \a enabled is set to true, then the user will be prompted
+ * to download the requeste dcontent with an option to proceed.
+ * This is used for in-applicaton content download like library files
+ *
+ * \note this feature is disabled by default
+ * \note you should enable this if you are implementing functionality
+ *       to download non versioned content
+ */
+void QSimpleUpdater::setPromptedDownload (const QString& url,
+                                          const bool& enabled) {
+    getUpdater (url)->setPromptedDownload (enabled);
+}
+
+/**
+ * If set to true, the user will be able to directly
+ * directly download content without running the version compare logic
+ * This is used for direct content download like library files
+ *
+ * \note this feature is disabled by default
+ * \note you should enable this if you are implementing functionality
+ *       to download non versioned content
+ */
+void QSimpleUpdater::setDirectDownload (const QString& url,
+                                        const bool& enabled) {
+    getUpdater (url)->setDirectDownload (enabled);
+}
+
+/**
+ * Sets the path of the downloaded content
+ */
+void QSimpleUpdater::setDownloadDir (const QString& url,
+                                           const QString &path) {
+  getUpdater (url)->setDownloadDir(path);
+}
+
+/**
+ * Returns the latest version online
+ */
+QString QSimpleUpdater::getAvailableVersions (const QString& url) const {
+    return getUpdater (url)->getAvailableVersions();
+}
+// Mod End

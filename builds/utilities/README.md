@@ -2,7 +2,7 @@
 
 If you prefer to build your own LPub3D install package, these notes might be helpful.
 
-Starting with [![GitHub release][gh-rel-badge]][gh-rel-2.1.0-url], LPub3D build scripts builds the main applicaiton (LPub3D) along with its three  
+Starting with **v2.0.0**, LPub3D build scripts builds the main applicaiton (LPub3D) along with its three
 integrated image renderers - [LDGlite][ldglite], [LDView][ldview] and [LPub3D-Trace (POV-Ray)][povray]. Furthermore, the LPub3D build process  
 is now fully cloud-enabled and optimized for containerized builds. This means the build process is highly automated  
 requiring zero intervention between pushing a build tag and downloading the built installation assets.  

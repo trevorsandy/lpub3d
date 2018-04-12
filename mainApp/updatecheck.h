@@ -17,15 +17,14 @@
 #define UPDATECHECK_H
 
 #include <QObject>
-#include <QNetworkReply>
 #include "qsimpleupdater.h"
 
 enum updateType{
     SoftwareUpdate = 0,                 //0
-    LDrawOfficialLibraryDownload,       //1
-    LDrawUnofficialLibraryDownload,     //2
-    LDrawOfficialLibraryDirectDownload, //3
-    LDrawUnofficialLibraryDirectDownload//4
+    LDrawOfficialLibraryDownload,       //1    UI menu initiated download
+    LDrawUnofficialLibraryDownload,     //2    UI menu initiated download
+    LDrawOfficialLibraryDirectDownload, //3    System load prompt initiated download
+    LDrawUnofficialLibraryDirectDownload//4    System load prompt initiated download
 };
 
 void DoInitialUpdateCheck();
