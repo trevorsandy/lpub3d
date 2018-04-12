@@ -565,6 +565,7 @@ fi
 Info "Dist Directory...........[${DIST_PKG_DIR}]"
 
 # Change to Working directory
+# Travis: /home/travis/build/trevorsandy
 cd ${WD}
 
 # set log output path
@@ -578,12 +579,16 @@ else
   LDRAWDIR_ROOT=${HOME}
 fi
 export LDRAWDIR=${LDRAWDIR_ROOT}/ldraw
+if [ ! -f "${DIST_PKG_DIR}/complete.zip" ]; then
+  Info && Info "LDraw archive complete.zip not found at ${DIST_PKG_DIR}. Downloading archive..."
+  curl $curlopts http://www.ldraw.org/library/updates/complete.zip -o ${DIST_PKG_DIR}/complete.zip;
+fi
+if [ ! -f "${DIST_PKG_DIR}/lpub3dldrawunf.zip" ]; then
+  Info "LDraw archive lpub3dldrawunf.zip not found at ${DIST_PKG_DIR}. Downloading archive..."
+  curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o ${DIST_PKG_DIR}/lpub3dldrawunf.zip;
+fi
 if [ ! -d "${LDRAWDIR}/parts" ]; then
-  Info && Info "LDraw library not found at ${LDRAWDIR}. Checking for complete.zip archive..."
-  if [ ! -f complete.zip ]; then
-    Info "Library archive complete.zip not found at $PWD. Downloading archive..."
-    curl -s -O http://www.ldraw.org/library/updates/complete.zip;
-  fi
+  cp -f ${DIST_PKG_DIR}/complete.zip .
   Info "Extracting LDraw library into ${LDRAWDIR}..."
   unzip -od ${LDRAWDIR_ROOT} -q complete.zip;
   if [ -d "${LDRAWDIR}/parts" ]; then
@@ -645,7 +650,6 @@ VER_LDGLITE=ldglite-1.3
 VER_LDVIEW=ldview-4.3
 VER_POVRAY=lpub3d_trace_cui-3.8
 distArch=$(uname -m)
-echo "DEBUG DEBUG distArch $distArch"
 if [[ "$distArch" = x86_64 || "$distArch" = "aarch64" ]]; then
   buildArch="64bit_release";
 else
