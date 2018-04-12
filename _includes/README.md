@@ -11,7 +11,7 @@ LPub3D supports standard and high definition **part libraries** and do not requi
 
 :-----------------|:------------------------------------:|:--------------------
 [LDraw][ldraw-url]|[![LDraw-Logo][ldraw-logo]][ldraw-url]|LDraw™ ([LDraw.org][ldraw-url]) parts is an open standard library that allow users to create virtual LEGO® models and scenes.
-[LGEO][lgeo-url]  |[![LGEO-Logo][lgeo-logo]][lgeo-url]   |POV-Ray high-fedility parts library created by El Lutzo and extended with STL object files by Darats.
+[LGEO][lgeo-url]  |[![LGEO-Logo][lgeo-logo]][lgeo-url]   |POV-Ray high-fedility parts library created by Lutz Uhlmann (El Lutzo), updated by Owen Burgoyne (C3POwen) and extended with STL object files by Damien Roux (Darats).
 
 LPub3D provides three popular **LDraw image renderers** - custom adapted console applications for tight integration, optimum flexibility and robust performance.
 
