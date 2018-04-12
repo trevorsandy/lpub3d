@@ -1,8 +1,16 @@
-LPub3D 2.2.2.1.832 (12 04 2018 05:07:16)
+LPub3D 2.2.2.1.833 (12 04 2018 05:21:30)
 
 Features and enhancements
 ------------
-Fix: Invalid macOS and Linux renderer paths. LDView and POV-Ray renderer config files were not written to the user's application data path at initial application startup because the source file [config file template] path variable was not well formed. Logs for the renderer and config files displays 'No such file or directory' #48
+Change - Run multiple instances of LPub3D on Win, macOS and AppImage. Starting with v 2.2.2, LPub3D supports the running of multiple instances on the same machine under the same user on Windows and macOS. Previously, all distributions of LPub3D on Windows and macOS used the same user settings location - Current User Registry Hive for Windows and PList file for macOS. This behaviour has been changed.
+
+For macOS distributions, simply copy-paste and rename the .app bundle. For example copy LPub3D.app and rename the copied instance LPub3D_alt.app or whatever name you prefer. The settings plist file will be uniquely defined based on the bundle name, for example ~/Library/Preferences/com.lpub3d-software.LPub3D_alt.plist
+
+On Windows, there are 2 options to achieve autonomous instances of LPub3D under the same user:
+
+Just as with the macOS install, you can copy-paste and rename of the LPub3D executable to create a unique instance. However, installations under Program Files will require administrator access privilege to perform this action. Content written to the Current User Registry Hive will use the executable name as the Application Name so each unique executable will have its respective hive path and keys. For example Computer\HKEY_CURRENT_USER\Software\LPub3D Software\LPub3D_alt.
+
+Windows portable (.zip) distributions of LPub3D are now fully autonomous and portable. With this enhancement, portable distributions of LPub3D on Windows will write its application settings to an INI file located at C:\Users\"user"\AppData\Roaming\LPub3D Software\LPub3D_alt. Note that portable distributions also benefit from the same copy-paste behaviour available for installer-based distributions. #46
 
 Change: Improve performance of Software Updater. Upgrade and refactor QSimpleUpater library.
 
@@ -16,7 +24,7 @@ LPub3D 2.2.1.0.824 (31 03 2018 20:54:01)
 
 Features and enhancements
 ------------
-LPub3D 2.2.1 is focused on stabilization and robustness improvements. This release contains mostly bug fixes and the under-the-hood changes needed to improve performance, stability, compatibility and the overall user's experience.
+LPub3D 2.2.1 is focused on stabilization and robustness improvements. This release contains mostly bug fixes and the under-the-hood changes needed to improve performance, stability, compatability and the overall user's experience.
 
 Change: Add warnings to LDView standard output. By default LPub3D will use the '-vv' flag so critical and standard errors and warnings will be directed to standard output and standard error as required.
 

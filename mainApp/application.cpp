@@ -118,7 +118,6 @@ Application::Application(int &argc, char **argv)
 #endif
 
   QCoreApplication::setOrganizationName(VER_COMPANYNAME_STR);
-  QCoreApplication::setApplicationName(VER_PRODUCTNAME_STR);
   QCoreApplication::setApplicationVersion(VER_PRODUCTVERSION_STR);
 
   connect(this, SIGNAL(splashMsgSig(QString)), this, SLOT(splashMsg(QString)));

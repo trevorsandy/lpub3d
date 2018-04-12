@@ -4,6 +4,9 @@
 #include "image.h"
 #include "lc_model.h"
 #include "project.h"
+/*** LPub3D Mod - includes ***/
+#include "lpub_preferences.h"
+/*** LPub3D Mod end ***/
 
 lcProfileEntry::lcProfileEntry(const char* Section, const char* Key, int DefaultValue)
 {
@@ -118,6 +121,11 @@ lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 void lcRemoveProfileKey(LC_PROFILE_KEY Key)
 {
     lcProfileEntry& Entry = gProfileEntries[Key];
+
+/*** LPub3D Mod - QSettings ***/
+   if (Preferences::portableDistribution)
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+/*** LPub3D Mod end ***/
     QSettings Settings;
 
     Settings.remove(QString("%1/%2").arg(Entry.mSection, Entry.mKey));
@@ -141,6 +149,10 @@ QString lcGetDefaultProfileString(LC_PROFILE_KEY Key)
 int lcGetProfileInt(LC_PROFILE_KEY Key)
 {
     lcProfileEntry& Entry = gProfileEntries[Key];
+/*** LPub3D Mod - QSettings ***/
+   if (Preferences::portableDistribution)
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+/*** LPub3D Mod end ***/
     QSettings Settings;
 
     return Settings.value(QString("%1/%2").arg(Entry.mSection, Entry.mKey), Entry.mDefault.IntValue).toInt();
@@ -149,6 +161,10 @@ int lcGetProfileInt(LC_PROFILE_KEY Key)
 float lcGetProfileFloat(LC_PROFILE_KEY Key)
 {
     lcProfileEntry& Entry = gProfileEntries[Key];
+/*** LPub3D Mod - QSettings ***/
+   if (Preferences::portableDistribution)
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+/*** LPub3D Mod end ***/
     QSettings Settings;
 
     return Settings.value(QString("%1/%2").arg(Entry.mSection, Entry.mKey), Entry.mDefault.FloatValue).toFloat();
@@ -157,6 +173,10 @@ float lcGetProfileFloat(LC_PROFILE_KEY Key)
 QString lcGetProfileString(LC_PROFILE_KEY Key)
 {
     lcProfileEntry& Entry = gProfileEntries[Key];
+/*** LPub3D Mod - QSettings ***/
+   if (Preferences::portableDistribution)
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+/*** LPub3D Mod end ***/
     QSettings Settings;
 
     return Settings.value(QString("%1/%2").arg(Entry.mSection, Entry.mKey), Entry.mDefault.StringValue).toString();
@@ -165,6 +185,10 @@ QString lcGetProfileString(LC_PROFILE_KEY Key)
 QStringList lcGetProfileStringList(LC_PROFILE_KEY Key)
 {
     lcProfileEntry& Entry = gProfileEntries[Key];
+/*** LPub3D Mod - QSettings ***/
+   if (Preferences::portableDistribution)
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+/*** LPub3D Mod end ***/
     QSettings Settings;
 
     return Settings.value(QString("%1/%2").arg(Entry.mSection, Entry.mKey), QStringList()).toStringList();
@@ -173,6 +197,10 @@ QStringList lcGetProfileStringList(LC_PROFILE_KEY Key)
 QByteArray lcGetProfileBuffer(LC_PROFILE_KEY Key)
 {
     lcProfileEntry& Entry = gProfileEntries[Key];
+/*** LPub3D Mod - QSettings ***/
+   if (Preferences::portableDistribution)
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+/*** LPub3D Mod end ***/
     QSettings Settings;
 
     return Settings.value(QString("%1/%2").arg(Entry.mSection, Entry.mKey)).toByteArray();
@@ -181,6 +209,10 @@ QByteArray lcGetProfileBuffer(LC_PROFILE_KEY Key)
 void lcSetProfileInt(LC_PROFILE_KEY Key, int Value)
 {
     lcProfileEntry& Entry = gProfileEntries[Key];
+/*** LPub3D Mod - QSettings ***/
+   if (Preferences::portableDistribution)
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+/*** LPub3D Mod end ***/
     QSettings Settings;
 
     Settings.setValue(QString("%1/%2").arg(Entry.mSection, Entry.mKey), Value);
@@ -189,6 +221,10 @@ void lcSetProfileInt(LC_PROFILE_KEY Key, int Value)
 void lcSetProfileFloat(LC_PROFILE_KEY Key, float Value)
 {
     lcProfileEntry& Entry = gProfileEntries[Key];
+/*** LPub3D Mod - QSettings ***/
+   if (Preferences::portableDistribution)
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+/*** LPub3D Mod end ***/
     QSettings Settings;
 
     Settings.setValue(QString("%1/%2").arg(Entry.mSection, Entry.mKey), Value);
@@ -197,6 +233,10 @@ void lcSetProfileFloat(LC_PROFILE_KEY Key, float Value)
 void lcSetProfileString(LC_PROFILE_KEY Key, const QString& Value)
 {
     lcProfileEntry& Entry = gProfileEntries[Key];
+/*** LPub3D Mod - QSettings ***/
+   if (Preferences::portableDistribution)
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+/*** LPub3D Mod end ***/
     QSettings Settings;
 
     Settings.setValue(QString("%1/%2").arg(Entry.mSection, Entry.mKey), Value);
@@ -205,6 +245,10 @@ void lcSetProfileString(LC_PROFILE_KEY Key, const QString& Value)
 void lcSetProfileStringList(LC_PROFILE_KEY Key, const QStringList& Value)
 {
     lcProfileEntry& Entry = gProfileEntries[Key];
+/*** LPub3D Mod - QSettings ***/
+   if (Preferences::portableDistribution)
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+/*** LPub3D Mod end ***/
     QSettings Settings;
 
     Settings.setValue(QString("%1/%2").arg(Entry.mSection, Entry.mKey), Value);
@@ -213,6 +257,10 @@ void lcSetProfileStringList(LC_PROFILE_KEY Key, const QStringList& Value)
 void lcSetProfileBuffer(LC_PROFILE_KEY Key, const QByteArray& Buffer)
 {
     lcProfileEntry& Entry = gProfileEntries[Key];
+/*** LPub3D Mod - QSettings ***/
+   if (Preferences::portableDistribution)
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+/*** LPub3D Mod end ***/
     QSettings Settings;
 
     Settings.setValue(QString("%1/%2").arg(Entry.mSection, Entry.mKey), Buffer);

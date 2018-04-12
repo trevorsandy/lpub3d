@@ -21,6 +21,8 @@
 
 UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
 {
+    if (Preferences::portableDistribution)
+        QSettings::setDefaultFormat(QSettings::IniFormat);
 
     DEFS_URL        = "";
     m_latestVersion = "";
@@ -46,7 +48,10 @@ UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
     if (m_option == SoftwareUpdate) {
         DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
         applyGeneralSettings (DEFS_URL);
-        m_updater->checkForUpdates (DEFS_URL);      
+        m_updater->checkForUpdates (DEFS_URL);
+
+        QSettings Settings;
+        Settings.setValue("Updates/LastCheck", QDateTime::currentDateTimeUtc());
     }
 
 }
@@ -101,7 +106,6 @@ void UpdateCheck::requestDownload(const QString &url, const QString &localPath)
         }
         m_updater->setCustomProcedure(DEFS_URL,enabled);
         m_updater->setDownloadDir(DEFS_URL,localPath);
-
         m_updater->checkForUpdates (DEFS_URL);
     }
 }
@@ -120,6 +124,8 @@ void DoInitialUpdateCheck()
     if (updateFrequency == 0)           //0=Never,1=Daily,2=Weekly,3=Monthly
         return;
 
+    if (Preferences::portableDistribution)
+        QSettings::setDefaultFormat(QSettings::IniFormat);
     QSettings Settings;
     QDateTime checkTime = Settings.value(QString("%1/%2").arg(UPDATES,"LastCheck"), QDateTime()).toDateTime();
 

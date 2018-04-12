@@ -29,6 +29,9 @@
 
 PartWorker::PartWorker(QObject *parent) : QObject(parent)
 {
+  if (Preferences::portableDistribution)
+      QSettings::setDefaultFormat(QSettings::IniFormat);
+
   _resetSearchDirSettings = false;
   _endThreadNowRequested  = false;
 

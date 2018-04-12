@@ -89,7 +89,6 @@ unix:!macx: TARGET = lpub3d
 else: TARGET = LPub3D
 STG_TARGET   = $$TARGET
 DIST_TARGET  = $$TARGET
-DEFINES     += VER_APPNAME=\\\"$$DIST_TARGET\\\"
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -144,7 +143,7 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = quazip
     }
     # executable target name
-    !macx: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
+    !macx:!win32: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
 }
 # build path component
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)

@@ -37,6 +37,9 @@ QString PreferencesDialog::DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
 PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     QDialog(_parent)
 {
+  if (Preferences::portableDistribution)
+      QSettings::setDefaultFormat(QSettings::IniFormat);
+
   ui.setupUi(this);
 
   QString ldrawPath = Preferences::ldrawPath;
@@ -674,6 +677,8 @@ void PreferencesDialog::checkForUpdates () {
   /* Check for updates */
   m_updater->checkForUpdates (DEFS_URL);
 
+  QSettings Settings;
+  Settings.setValue("Updates/LastCheck", QDateTime::currentDateTimeUtc());
 }
 
 void PreferencesDialog::accept(){

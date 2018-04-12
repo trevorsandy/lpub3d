@@ -28,7 +28,6 @@
  * Fix the problem yourself. A non-dick would submit the fix back.
  */
 
-#include <QSettings>
 #include <QJsonValue>
 #include <QJsonObject>
 #include <QMessageBox>
@@ -553,9 +552,6 @@ void Updater::onReply (QNetworkReply* reply)
         }
 
         setUpdateAvailable (_updateAvailable);
-
-        QSettings Settings;
-        Settings.setValue("Updates/LastCheck", QDateTime::currentDateTimeUtc());
     }
     // Mod End
     emit checkingFinished (url());

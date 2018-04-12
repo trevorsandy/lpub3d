@@ -154,6 +154,222 @@ Preferences::Preferences()
 {
 }
 
+void Preferences::lpubPreferences()
+{
+    lpub3dAppName = QCoreApplication::applicationName();
+    modeGUI = Application::instance()->modeGUI();
+    QDir cwd(QCoreApplication::applicationDirPath());
+
+#ifdef Q_OS_MAC
+
+    //qDebug() << qPrintable(QString("macOS Binary Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
+    qDebug() << qPrintable(QString("macOS Binary Directory.......(%1)").arg(cwd.dirName()));
+    if (cwd.dirName() == "MacOS") {   // MacOS/LPub3D   (app bundle executable)
+        cwd.cdUp();                   // Contents/      (app bundle contents)
+        cwd.cdUp();                   // LPub3D.app/    (app bundle)
+        cwd.cdUp();                   // Applications/  (app bundle installation path root)
+    }
+    //qDebug() << qPrintable(QString("macOS Base Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
+    qDebug() << qPrintable(QString("macOS Base Directory.........(%1)").arg(cwd.dirName()));
+
+    lpub3dExtrasResourcePath = QString("%1.app/Contents/Resources").arg(lpub3dAppName);
+    lpub3dDocsResourcePath   = lpub3dExtrasResourcePath;
+
+    if (QCoreApplication::applicationName() != QString(VER_PRODUCTNAME_STR))
+    {
+        qDebug() << qPrintable(QString("macOS Info.plist update......(%1)").arg(lpub3dAppName));
+        QFileInfo plbInfo("/usr/libexec/PlistBuddy");
+        QString plistCmd = QString("%1 -c").arg(plbInfo.absoluteFilePath());
+        QString infoPlistFile = QString("%1/%2.app/Contents/Info.plist").arg(cwd.absolutePath(),lpub3dAppName);
+        if (plbInfo.exists())
+        {
+            QProcess::execute(QString("%1 \"Set :CFBundleExecutable %2\" \"%3\"").arg(plistCmd,lpub3dAppName,infoPlistFile));
+            QProcess::execute(QString("%1 \"Set :CFBundleName %2\" \"%3\"").arg(plistCmd,lpub3dAppName,infoPlistFile));
+            QProcess::execute(QString("%1 \"Set :CFBundleDisplayName %2\" \"%3\"").arg(plistCmd,lpub3dAppName,infoPlistFile));
+            QProcess::execute(QString("%1 \"Set :CFBundleIdentifier com.trevorsandy.%2\" \"%3\"").arg(plistCmd,lpub3dAppName.toLower(),infoPlistFile));
+            QProcess::execute(QString("%1 \"Set :UTExportedTypeDeclarations:0:UTTypeIdentifier com.trevorsandy.%2\" \"%3\"").arg(plistCmd,lpub3dAppName.toLower(),infoPlistFile));
+            QProcess::execute(QString("%1 \"Set :UTExportedTypeDeclarations:0:UTTypeIdentifier com.trevorsandy.%2\" \"%3\"").arg(plistCmd,lpub3dAppName.toLower(),infoPlistFile));
+            QProcess::execute(QString("%1 \"Set :UTExportedTypeDeclarations:0:UTTypeIdentifier com.trevorsandy.%2\" \"%3\"").arg(plistCmd,lpub3dAppName.toLower(),infoPlistFile));
+        } else {
+            qDebug() << qPrintable(QString("ERROR - %1 not found, cannot update Info.Plist").arg(plbInfo.absoluteFilePath()));
+        }
+    }
+
+#elif defined Q_OS_LINUX
+
+    // Check if running as AppImage payload
+    // Check for the presence of $ORIGIN/../AppRun *or* $ORIGIN/../../AppRun
+    // (can be a file or a symlink) (with $ORIGIN being the application itself)
+    QFileInfo appRunInfo("../AppRun");
+    if (appRunInfo.exists() && (appRunInfo.isFile() || appRunInfo.isSymLink()))
+        isAppImagePayload = true;
+    if (! isAppImagePayload) {
+        appRunInfo.setFile("../../AppRun");
+        if (appRunInfo.exists() && (appRunInfo.isFile() || appRunInfo.isSymLink()))
+            isAppImagePayload = true;
+    }
+#ifdef X11_BINARY_BUILD                                               // Standard User Rights Install
+    lpub3dDocsResourcePath   = QString("doc");
+#else                                                                 // Elevated User Rights Install
+    lpub3dDocsResourcePath   = QString("../share/doc/%1").arg(lpub3dAppName);
+    lpub3dExtrasResourcePath = QString("../share/%1").arg(lpub3dAppName);
+
+    //qDebug() << QString("lpub3dExtrasResourcePath (%1)").arg(lpub3dExtrasResourcePath);
+#endif
+    //qDebug() << QString("lpub3dDocsResourcePath (%1)").arg(lpub3dDocsResourcePath);
+
+#elif defined Q_OS_WIN
+
+    lpub3dDocsResourcePath   = QString("docs");
+
+#endif
+
+    lpub3dPath = cwd.absolutePath();
+
+#ifdef Q_OS_WIN //... Windows portable or installed
+
+       portableDistribution = QDir(lpub3dPath + "/extras").exists();
+
+    if (portableDistribution) { // we have a portable distribution
+
+        // Write settings to ini file at C:\Users\<user>\AppData\Roaming\LPub3D Software\LPub3D<ver>.ini
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+
+        bool programFolder = QCoreApplication::applicationDirPath().contains("Program Files") ||
+                QCoreApplication::applicationDirPath().contains("Program Files (x86)");
+
+        if (programFolder) {                     // ...installed in Program Folder directory
+
+            if (modeGUI) {
+                // Get the application icon as a pixmap
+                QPixmap _icon = QPixmap(":/icons/lpub96.png");
+                QMessageBox box;
+                box.setWindowIcon(QIcon());
+                box.setIconPixmap (_icon);
+                box.setTextFormat (Qt::RichText);
+                box.setWindowTitle(QMessageBox::tr ("Installation"));
+                box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+
+                QString header  = "<b> " + QMessageBox::tr ("Data directory installation folder.") + "</b>";
+                QString body = QMessageBox::tr ("Would you like to create a folder outside the Program Files / (x86) directory? \n"
+                                                "If you choose No, the data directory will automatically be created in the user's AppData directory.");
+                QString detail = QMessageBox::tr ("It looks like this installation is a portable or packaged (i.e. AIOI) distribution \n"
+                                                  "of LPub3D installed under the system's Program Files/(x86) directory.\n\n"
+                                                  "Updatable data will not be able to be written to unless you modify\n"
+                                                  "user account access for this folder which is not recommended.\n\n"
+                                                  "You should consider changing the installation folder or placing\n"
+                                                  "the updatable data folder outside the Program Files/(x86) directory\n\n"
+                                                  "Choose yes to continue and select a data folder outside Program Files/(x86).\n\n"
+                                                  "If you choose No, the data directory will automatically be created in the user's AppData directory.");
+                box.setText (header);
+                box.setInformativeText (body);
+                box.setDetailedText(detail);
+                box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
+                box.setDefaultButton   (QMessageBox::Yes);
+
+                if (box.exec() != QMessageBox::Yes) {   // user choose not to create user data direcory outside program folder, so create automatically
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+                    QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+                    lpubDataPath = dataPathList.first();
+#endif
+                } else {                                // capture user's choice for user data directory
+
+                    QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+                    lpubDataPath = dataPathList.first();
+                    QString result = QFileDialog::getExistingDirectory(NULL,
+                                                                       QFileDialog::tr("Select Directory"),
+                                                                       lpubDataPath,
+                                                                       QFileDialog::ShowDirsOnly |
+                                                                       QFileDialog::DontResolveSymlinks);
+                    if (! result.isEmpty()) {
+                        lpubDataPath = QDir::toNativeSeparators(result);
+                    }
+                }
+
+            } else {                                          // console mode create automatically
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+                QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+                lpubDataPath = dataPathList.first();
+#endif
+            }
+
+        } else {                                 // ...installed outside Program Folder directory
+
+            lpubDataPath = lpub3dPath;
+        }
+
+
+    } else {                    // we have an installed distribution
+
+        QSettings Settings;
+        QString const LPub3DDataPathKey("LPub3DDataPath");
+
+        if (Settings.contains(QString("%1/%2").arg(SETTINGS,LPub3DDataPathKey))) {
+
+            lpubDataPath = Settings.value(QString("%1/%2").arg(SETTINGS,LPub3DDataPathKey)).toString();
+
+        } else {
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+            QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+            lpubDataPath = dataPathList.first();
+#endif
+            Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DDataPathKey), lpubDataPath);
+        }
+    }
+
+#else  // ...Linux or OSX
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+    QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+    lpubDataPath = dataPathList.first();
+#endif
+
+#endif
+
+    qDebug() << qPrintable(QString("LPub3D Root Path.............(%1)").arg(lpub3dPath));
+    qDebug() << qPrintable(QString("LPub3D User Data Path........(%1)").arg(lpubDataPath));
+#ifdef Q_OS_WIN
+    qDebug() << qPrintable(QString("LPub3D Portable Distribution.(%1)").arg(portableDistribution ? "Yes" : "No"));
+    dataLocation = QString("%1").arg((portableDistribution ? "/extras/" : "/data/"));
+#else
+    qDebug() << qPrintable(QString("LPub3D Extras Resource Path..(%1)").arg(lpub3dExtrasResourcePath));
+    dataLocation = QString("/%1/").arg(lpub3dExtrasResourcePath); // ../share/lpub3d [linux], LPub3D.app/Contents/Resources [macOS]
+#endif
+
+    QDir extrasDir(lpubDataPath + "/extras");
+    if(!QDir(extrasDir).exists())
+        extrasDir.mkpath(".");
+
+    QFileInfo paramFile;
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_FADESTEP_COLORPARTS_FILE));
+    if (!paramFile.exists())
+        QFile::copy(lpub3dPath + dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_FREEFOM_ANNOTATIONS_FILE));
+    if (!paramFile.exists())
+        QFile::copy(lpub3dPath + dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_EXTRAS_LDCONFIG_FILE));
+    if (!paramFile.exists())
+        QFile::copy(lpub3dPath + dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_PDFPRINT_IMAGE_FILE));
+    if (!paramFile.exists())
+        QFile::copy(lpub3dPath + dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_PLI_MPD_FILE));
+    if (!paramFile.exists())
+        QFile::copy(lpub3dPath + dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_PLI_SUBSTITUTE_PARTS_FILE));
+    if (!paramFile.exists())
+        QFile::copy(lpub3dPath + dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_TITLE_ANNOTATIONS_FILE));
+    if (!paramFile.exists())
+        QFile::copy(lpub3dPath + dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_EXCLUDED_PARTS_FILE));
+    if (!paramFile.exists())
+        QFile::copy(lpub3dPath + dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
+}
+
 void Preferences::loggingPreferences()
 {
     // define log path
@@ -309,218 +525,6 @@ void Preferences::loggingPreferences()
         allLogLevels = Settings.value(QString("%1/%2").arg(LOGGING,"AllLogLevels")).toBool();
     }
 
-}
-
-void Preferences::lpubPreferences()
-{
-    lpub3dAppName = QCoreApplication::applicationName();
-    modeGUI = Application::instance()->modeGUI();
-    QDir cwd(QCoreApplication::applicationDirPath());
-
-#ifdef Q_OS_MAC
-
-    //qDebug() << qPrintable(QString("macOS Binary Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
-    qDebug() << qPrintable(QString("macOS Binary Directory.......(%1)").arg(cwd.dirName()));
-    if (cwd.dirName() == "MacOS") {   // MacOS/LPub3D   (app bundle executable)
-        cwd.cdUp();                   // Contents/      (app bundle contents)
-        cwd.cdUp();                   // LPub3D.app/    (app bundle)
-        cwd.cdUp();                   // Applications/  (app bundle installation path root)
-    }
-    //qDebug() << qPrintable(QString("macOS Base Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
-    qDebug() << qPrintable(QString("macOS Base Directory.........(%1)").arg(cwd.dirName()));
-
-    lpub3dExtrasResourcePath = QString("%1.app/Contents/Resources").arg(lpub3dAppName);
-    lpub3dDocsResourcePath   = lpub3dExtrasResourcePath;
-
-    if (QCoreApplication::applicationName() != QString(VER_PRODUCTNAME_STR))
-    {
-        qDebug() << qPrintable(QString("macOS Info.plist update......(%1)").arg(lpub3dAppName));
-        QFileInfo plbInfo("/usr/libexec/PlistBuddy");
-        QString plistCmd = QString("%1 -c").arg(plbInfo.absoluteFilePath());
-        QString infoPlistFile = QString("%1/%2.app/Contents/Info.plist").arg(cwd.absolutePath(),lpub3dAppName);
-        if (plbInfo.exists())
-        {
-            QProcess::execute(QString("%1 \"Set :CFBundleExecutable %2\" \"%3\"").arg(plistCmd,lpub3dAppName,infoPlistFile));
-            QProcess::execute(QString("%1 \"Set :CFBundleName %2\" \"%3\"").arg(plistCmd,lpub3dAppName,infoPlistFile));
-            QProcess::execute(QString("%1 \"Set :CFBundleDisplayName %2\" \"%3\"").arg(plistCmd,lpub3dAppName,infoPlistFile));
-            QProcess::execute(QString("%1 \"Set :CFBundleIdentifier com.trevorsandy.%2\" \"%3\"").arg(plistCmd,lpub3dAppName.toLower(),infoPlistFile));
-            QProcess::execute(QString("%1 \"Set :UTExportedTypeDeclarations:0:UTTypeIdentifier com.trevorsandy.%2\" \"%3\"").arg(plistCmd,lpub3dAppName.toLower(),infoPlistFile));
-            QProcess::execute(QString("%1 \"Set :UTExportedTypeDeclarations:0:UTTypeIdentifier com.trevorsandy.%2\" \"%3\"").arg(plistCmd,lpub3dAppName.toLower(),infoPlistFile));
-            QProcess::execute(QString("%1 \"Set :UTExportedTypeDeclarations:0:UTTypeIdentifier com.trevorsandy.%2\" \"%3\"").arg(plistCmd,lpub3dAppName.toLower(),infoPlistFile));
-        } else {
-            qDebug() << qPrintable(QString("ERROR - %1 not found, cannot update Info.Plist").arg(plbInfo.absoluteFilePath()));
-        }
-    }
-
-#elif defined Q_OS_LINUX
-
-    // Check if running as AppImage payload
-    // Check for the presence of $ORIGIN/../AppRun *or* $ORIGIN/../../AppRun
-    // (can be a file or a symlink) (with $ORIGIN being the application itself)
-    QFileInfo appRunInfo("../AppRun");
-    if (appRunInfo.exists() && (appRunInfo.isFile() || appRunInfo.isSymLink()))
-        isAppImagePayload = true;
-    if (! isAppImagePayload) {
-        appRunInfo.setFile("../../AppRun");
-        if (appRunInfo.exists() && (appRunInfo.isFile() || appRunInfo.isSymLink()))
-            isAppImagePayload = true;
-    }
-#ifdef X11_BINARY_BUILD                                               // Standard User Rights Install
-    lpub3dDocsResourcePath   = QString("doc");
-#else                                                                 // Elevated User Rights Install
-    lpub3dDocsResourcePath   = QString("../share/doc/" VER_APPNAME);
-    lpub3dExtrasResourcePath = QString("../share/" VER_APPNAME);      // Elevated User Rights Install
-
-    //qDebug() << QString("lpub3dExtrasResourcePath (%1)").arg(lpub3dExtrasResourcePath);
-#endif
-    //qDebug() << QString("lpub3dDocsResourcePath (%1)").arg(lpub3dDocsResourcePath);
-
-#elif defined Q_OS_WIN
-
-    lpub3dDocsResourcePath   = QString("docs");
-
-#endif
-
-    lpub3dPath = cwd.absolutePath();
-
-#ifdef Q_OS_WIN //... Windows portable or installed
-
-    if (QDir(lpub3dPath + "/extras").exists()) { // we have a portable distribution
-
-        portableDistribution = true;
-
-        bool programFolder = QCoreApplication::applicationDirPath().contains("Program Files") ||
-                QCoreApplication::applicationDirPath().contains("Program Files (x86)");
-
-        if (programFolder) {                     // ...installed in Program Folder directory
-
-            if (modeGUI) {
-                // Get the application icon as a pixmap
-                QPixmap _icon = QPixmap(":/icons/lpub96.png");
-                QMessageBox box;
-                box.setWindowIcon(QIcon());
-                box.setIconPixmap (_icon);
-                box.setTextFormat (Qt::RichText);
-                box.setWindowTitle(QMessageBox::tr ("Installation"));
-                box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-
-                QString header  = "<b> " + QMessageBox::tr ("Data directory installation folder.") + "</b>";
-                QString body = QMessageBox::tr ("Would you like to create a folder outside the Program Files / (x86) directory? \n"
-                                                "If you choose No, the data directory will automatically be created in the user's AppData directory.");
-                QString detail = QMessageBox::tr ("It looks like this installation is a portable or packaged (i.e. AIOI) distribution \n"
-                                                  "of LPub3D installed under the system's Program Files/(x86) directory.\n\n"
-                                                  "Updatable data will not be able to be written to unless you modify\n"
-                                                  "user account access for this folder which is not recommended.\n\n"
-                                                  "You should consider changing the installation folder or placing\n"
-                                                  "the updatable data folder outside the Program Files/(x86) directory\n\n"
-                                                  "Choose yes to continue and select a data folder outside Program Files/(x86).\n\n"
-                                                  "If you choose No, the data directory will automatically be created in the user's AppData directory.");
-                box.setText (header);
-                box.setInformativeText (body);
-                box.setDetailedText(detail);
-                box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
-                box.setDefaultButton   (QMessageBox::Yes);
-
-                if (box.exec() != QMessageBox::Yes) {   // user choose not to create user data direcory outside program folder, so create automatically
-
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-                    QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-                    lpubDataPath = dataPathList.first();
-#endif
-                } else {                                // capture user's choice for user data directory
-
-                    QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-                    lpubDataPath = dataPathList.first();
-                    QString result = QFileDialog::getExistingDirectory(NULL,
-                                                                       QFileDialog::tr("Select Directory"),
-                                                                       lpubDataPath,
-                                                                       QFileDialog::ShowDirsOnly |
-                                                                       QFileDialog::DontResolveSymlinks);
-                    if (! result.isEmpty()) {
-                        lpubDataPath = QDir::toNativeSeparators(result);
-                    }
-                }
-
-            } else {                                          // console mode create automatically
-
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-                QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-                lpubDataPath = dataPathList.first();
-#endif
-            }
-
-        } else {                                 // ...installed outside Program Folder directory
-
-            lpubDataPath = lpub3dPath;
-        }
-
-
-    } else {                                     // we have an installed distribution
-
-        QSettings Settings;
-        QString const LPub3DDataPathKey("LPub3DDataPath");
-
-        if (Settings.contains(QString("%1/%2").arg(SETTINGS,LPub3DDataPathKey))) {
-
-            lpubDataPath = Settings.value(QString("%1/%2").arg(SETTINGS,LPub3DDataPathKey)).toString();
-
-        } else {
-
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-            QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-            lpubDataPath = dataPathList.first();
-#endif
-            Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DDataPathKey), lpubDataPath);
-        }
-    }
-
-#else  // ...Linux or OSX
-
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-    QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-    lpubDataPath = dataPathList.first();
-#endif
-
-#endif
-
-    qDebug() << qPrintable(QString("LPub3D Root Path........(%1)").arg(lpub3dPath));
-    qDebug() << qPrintable(QString("LPub3D User Data Path...(%1)").arg(lpubDataPath));
-
-    QDir extrasDir(lpubDataPath + "/extras");
-    if(!QDir(extrasDir).exists())
-        extrasDir.mkpath(".");
-
-#ifdef Q_OS_WIN
-    dataLocation = QString("%1").arg((portableDistribution ? "/extras/" : "/data/"));
-#else
-    dataLocation = QString("/%1/").arg(lpub3dExtrasResourcePath); // ../share/lpub3d [linux], LPub3D.app/Contents/Resources [macOS]
-#endif
-
-    QFileInfo paramFile;
-    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_FADESTEP_COLORPARTS_FILE));
-    if (!paramFile.exists())
-        QFile::copy(lpub3dPath + dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
-    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_FREEFOM_ANNOTATIONS_FILE));
-    if (!paramFile.exists())
-        QFile::copy(lpub3dPath + dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
-    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_EXTRAS_LDCONFIG_FILE));
-    if (!paramFile.exists())
-        QFile::copy(lpub3dPath + dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
-    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_PDFPRINT_IMAGE_FILE));
-    if (!paramFile.exists())
-        QFile::copy(lpub3dPath + dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
-    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_PLI_MPD_FILE));
-    if (!paramFile.exists())
-        QFile::copy(lpub3dPath + dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
-    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_PLI_SUBSTITUTE_PARTS_FILE));
-    if (!paramFile.exists())
-        QFile::copy(lpub3dPath + dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
-    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_TITLE_ANNOTATIONS_FILE));
-    if (!paramFile.exists())
-        QFile::copy(lpub3dPath + dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
-    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_EXCLUDED_PARTS_FILE));
-    if (!paramFile.exists())
-        QFile::copy(lpub3dPath + dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
 }
 
 void Preferences::lpub3dLibPreferences(bool force)
@@ -766,7 +770,7 @@ void Preferences::lpub3dLibPreferences(bool force)
             } else {
                 fprintf(stderr, "Required archive file %s does not exist.\n", lpub3dLibFile.toLatin1().constData());
             }
-            fprintf(stderr, "Launching " VER_APPLICATIONNAME_STR " in GUI mode offers a dialogue to download, and extract, archive libraries.\n");
+            fprintf(stderr, "Launching %s in GUI mode offers a dialogue to download, and extract, archive libraries.\n",lpub3dAppName.toLatin1().constData());
         }
     }
 
@@ -1188,18 +1192,18 @@ void Preferences::rendererPreferences(bool updateExisting)
     QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui64.exe").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR));
 #endif
 #elif defined Q_OS_MAC
-    lpub3d3rdPartyAppDir = QString("%1/LPub3D.app/Contents/3rdParty").arg(lpub3dPath);
+    lpub3d3rdPartyAppDir = QString("%1/%2.app/Contents/3rdParty").arg(lpub3dPath).arg(lpub3dAppName);
 
     QFileInfo ldgliteInfo(QString("%1/%2/bin/ldglite").arg(lpub3d3rdPartyAppDir, VER_LDGLITE_STR));
     QFileInfo ldviewInfo(QString("%1/%2/bin/LDView").arg(lpub3d3rdPartyAppDir, VER_LDVIEW_STR));
     QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR));
 #else
-    lpub3d3rdPartyAppDir = QString("%1/../share/%2/3rdParty").arg(lpub3dPath, VER_APPLICATIONNAME_STR);
-    QString lpub3d3rdPartyRendererExe = QString("/opt/%1/3rdParty").arg(VER_APPLICATIONNAME_STR);
+    lpub3d3rdPartyAppDir = QString("%1/../share/%2/3rdParty").arg(lpub3dPath, lpub3dAppName);
+    QString lpub3d3rdPartyRendererDir = QString("/opt/%1/3rdParty").arg(lpub3dAppName);
 
-    QFileInfo ldgliteInfo(QString("%1/%2/bin/ldglite").arg(lpub3d3rdPartyRendererExe, VER_LDGLITE_STR));
-    QFileInfo ldviewInfo(QString("%1/%2/bin/ldview").arg(lpub3d3rdPartyRendererExe, VER_LDVIEW_STR));
-    QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui").arg(lpub3d3rdPartyRendererExe, VER_POVRAY_STR));
+    QFileInfo ldgliteInfo(QString("%1/%2/bin/ldglite").arg(lpub3d3rdPartyRendererDir, VER_LDGLITE_STR));
+    QFileInfo ldviewInfo(QString("%1/%2/bin/ldview").arg(lpub3d3rdPartyRendererDir, VER_LDVIEW_STR));
+    QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui").arg(lpub3d3rdPartyRendererDir, VER_POVRAY_STR));
 #endif
 
     /* 3rd Party application installation status */
@@ -1316,6 +1320,7 @@ void Preferences::rendererPreferences(bool updateExisting)
 
     // Write config files
     logInfo() << "Processing renderer configuration files...";
+
     lpub3d3rdPartyConfigDir = QString("%1/3rdParty").arg(lpubDataPath);
     setLDGLiteIniParams();
     updateLDViewIniFile(updateExisting);
@@ -1372,7 +1377,7 @@ void Preferences::setLDGLiteIniParams()
     } else {
         QString confFileError;
         if (!confFileIn.errorString().isEmpty())
-            confFileError.append(QString("confFileInError: %1").arg(confFileIn.errorString()));
+            confFileError.append(QString(" confFileInError: %1").arg(confFileIn.errorString()));
         logError() << QString("Could not open input file: %1").arg(qPrintable(confFileError));
     }
     if (preferredRenderer == "LDGLite")
@@ -1432,9 +1437,9 @@ void Preferences::updateLDViewIniFile(bool updateExisting)
     } else {
         QString confFileError;
         if (!confFileIn.errorString().isEmpty())
-            confFileError.append(QString("confFileInError: %1\n").arg(confFileIn.errorString()));
+            confFileError.append(QString(" confFileInError: %1\n").arg(confFileIn.errorString()));
         if (!confFileOut.errorString().isEmpty())
-            confFileError.append(QString("confFileOutError: %1").arg(confFileOut.errorString()));
+            confFileError.append(QString(" confFileOutError: %1").arg(confFileOut.errorString()));
         logError() << QString("Could not open input or output file: %1").arg(qPrintable(confFileError));
     }
     if (resourceFile.exists())
@@ -1501,9 +1506,9 @@ void Preferences::updateLDViewPOVIniFile(bool updateExisting)
     } else {
         QString confFileError;
         if (!confFileIn.errorString().isEmpty())
-            confFileError.append(QString("confFileInError: %1\n").arg(confFileIn.errorString()));
+            confFileError.append(QString(" confFileInError: %1\n").arg(confFileIn.errorString()));
         if (!confFileOut.errorString().isEmpty())
-            confFileError.append(QString("confFileOutError: %1").arg(confFileOut.errorString()));
+            confFileError.append(QString(" confFileOutError: %1").arg(confFileOut.errorString()));
         logError() << QString("Could not open input or output file: %1").arg(qPrintable(confFileError));
     }
     if (resourceFile.exists())
@@ -1590,9 +1595,9 @@ void Preferences::updatePOVRayConfFile(bool updateExisting)
     } else {
         QString confFileError;
         if (!confFileIn.errorString().isEmpty())
-            confFileError.append(QString("confFileInError: %1\n").arg(confFileIn.errorString()));
+            confFileError.append(QString(" confFileInError: %1\n").arg(confFileIn.errorString()));
         if (!confFileOut.errorString().isEmpty())
-            confFileError.append(QString("confFileOutError: %1").arg(confFileOut.errorString()));
+            confFileError.append(QString(" confFileOutError: %1").arg(confFileOut.errorString()));
         logError() << QString("Could not open input or output file: %1").arg(qPrintable(confFileError));
     }
     if (resourceFile.exists())
@@ -1647,9 +1652,9 @@ void Preferences::updatePOVRayIniFile(bool updateExisting)
     } else {
         QString confFileError;
         if (!confFileIn.errorString().isEmpty())
-            confFileError.append(QString("confFileInError: %1\n").arg(confFileIn.errorString()));
+            confFileError.append(QString(" confFileInError: %1\n").arg(confFileIn.errorString()));
         if (!confFileOut.errorString().isEmpty())
-            confFileError.append(QString("confFileOutError: %1").arg(confFileOut.errorString()));
+            confFileError.append(QString(" confFileOutError: %1").arg(confFileOut.errorString()));
         logError() << QString("Could not open input or output file: %1").arg(qPrintable(confFileError));
     }
     if (resourceFile.exists())
@@ -2312,7 +2317,7 @@ void Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
     } else {
         QString confFileError;
         if (!confFile.errorString().isEmpty())
-            confFileError.append(QString("confFileInError: %1").arg(confFile.errorString()));
+            confFileError.append(QString(" confFileInError: %1").arg(confFile.errorString()));
         logError() << QString("Could not open input: %1").arg(qPrintable(confFileError));
     }
     // write search dir to ini files
@@ -2326,7 +2331,7 @@ void Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
     } else {
         QString confFileError;
         if (!confFile.errorString().isEmpty())
-            confFileError.append(QString("confFileOutError: %1").arg(confFile.errorString()));
+            confFileError.append(QString(" confFileOutError: %1").arg(confFile.errorString()));
         logError() << QString("Could not open input or output file: %1").arg(qPrintable(confFileError));
     }
 }

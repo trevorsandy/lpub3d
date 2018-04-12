@@ -36,6 +36,7 @@ const char* MinifigWizard::mSectionNames[LC_MFW_NUMITEMS] =
 
 MinifigWizard::MinifigWizard()
 {
+
 	lcDiskFile DiskSettings(lcGetPiecesLibrary()->mLibraryDir.absoluteFilePath(QLatin1String("mlcad.ini")));
 
 	if (DiskSettings.Open(QIODevice::ReadOnly))
