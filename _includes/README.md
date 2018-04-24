@@ -62,6 +62,12 @@ LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appi
 ### Disclaimer
 LEGO® is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this application.
 
+### Documents
+ - [LPub3D Metacommands][docs-lpub3d-meta]
+ - [LDView Help][docs-ldview-help]
+ - [LDGLite Readme][docs-ldglite-readme]
+ - [LPub3D-Trace (POV-Ray) Help][docs-povray-help]
+
 ### Tutorials
 3rd-party tutorials:
  - [Working with LPub by Jaco van der Molen][working-with-lpub3d]
@@ -96,6 +102,10 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 
  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2018 Leonardo Zide and additional third party components. See [Credits][credits] for full details on contributing content.
 
+[docs-lpub3d-meta]:    {{ '/assets/docs/lpub3d/metacommands.html' | relative_url }}
+[docs-ldview-help]:    {{ '/assets/docs/ldview/Help.html' | relative_url }}
+[docs-ldglite-readme]: {{ '/assets/docs/ldglite/README.TXT' | relative_url }}
+[docs-povray-help]:    {{ '/assets/docs/povray/index.html' | relative_url }}
 
 [ldview-logo]:         {{ '/assets/images/ldview_logo.png' | relative_url }}
 [ldglite-logo]:        {{ '/assets/images/ldglite_logo.png' | relative_url }}
