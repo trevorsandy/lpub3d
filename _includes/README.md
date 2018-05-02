@@ -64,6 +64,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 
 ### Documents
  - [LPub3D Metacommands][docs-lpub3d-meta]
+ - [LPub3D macOS Library Dependencies][docs-lpub3d-macos-libs]
  - [LDView Help][docs-ldview-help]
  - [LDGLite Readme][docs-ldglite-readme]
  - [LPub3D-Trace (POV-Ray) Help][docs-povray-help]
@@ -102,14 +103,15 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 
  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2018 Leonardo Zide and additional third party components. See [Credits][credits] for full details on contributing content.
 
-[docs-lpub3d-meta]:    {{ '/assets/docs/lpub3d/metacommands.html' | relative_url }}
-[docs-ldview-help]:    {{ '/assets/docs/ldview/Help.html' | relative_url }}
-[docs-ldglite-readme]: {{ '/assets/docs/ldglite/README.TXT' | relative_url }}
-[docs-povray-help]:    {{ '/assets/docs/povray/index.html' | relative_url }}
+[docs-lpub3d-meta]:       {{ '/assets/docs/lpub3d/metacommands.html' | relative_url }}
+[docs-lpub3d-macos-libs]: {{ '/assets/docs/lpub3d/macOS_libs.html' | relative_url }}
+[docs-ldview-help]:       {{ '/assets/docs/ldview/Help.html' | relative_url }}
+[docs-ldglite-readme]:    {{ '/assets/docs/ldglite/README.TXT' | relative_url }}
+[docs-povray-help]:       {{ '/assets/docs/povray/index.html' | relative_url }}
 
-[ldview-logo]:         {{ '/assets/images/ldview_logo.png' | relative_url }}
-[ldglite-logo]:        {{ '/assets/images/ldglite_logo.png' | relative_url }}
-[povray-logo]:         {{ '/assets/images/povray_logo.png' | relative_url }}
+[ldview-logo]:            {{ '/assets/images/ldview_logo.png' | relative_url }}
+[ldglite-logo]:           {{ '/assets/images/ldglite_logo.png' | relative_url }}
+[povray-logo]:            {{ '/assets/images/povray_logo.png' | relative_url }}
 
 [ldglite-url]:         https://github.com/trevorsandy/ldglite
 [ldview-url]:          https://github.com/trevorsandy/ldview/tree/qmake-build
