@@ -409,7 +409,7 @@ void PreferencesDialog::on_pushButtonReset_clicked()
       Preferences::enableFadeSteps = ui.fadeStepBox->isChecked();
       // get enable highlight step setting
       Preferences::enableHighlightStep = ui.highlightStepBox->isChecked();
-      partWorkerLDSearchDirs.resetSearchDirSettings();
+      gui->partWorkerLDSearchDirs.resetSearchDirSettings();
       ui.textEditSearchDirs->clear();
       foreach (QString searchDir, Preferences::ldSearchDirs)
         ui.textEditSearchDirs->append(searchDir);

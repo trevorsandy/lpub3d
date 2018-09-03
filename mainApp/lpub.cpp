@@ -2182,8 +2182,9 @@ void Gui::initialize()
   connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float)),        this,        SLOT(SetRotStepAngleZ(float)));
   connect(gMainWindow, SIGNAL(GetRotStepMeta()),               this,        SLOT(GetRotStepMeta()));
 
-  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
-      partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
+/* Moved to PartWorker::ldsearchDirPreferences()  */
+//  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
+//      partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
 
   emit Application::instance()->splashMsgSig(QString("90% - %1 widgets loading...").arg(VER_PRODUCTNAME_STR));
 

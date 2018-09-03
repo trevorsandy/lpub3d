@@ -145,9 +145,7 @@ class PreferencesDialog : public QDialog
 private:
     Ui::PreferencesDialog ui;
 
-    PartWorker     partWorkerLDSearchDirs;   // part worker to process search directories and fade color parts
     QWidget       *parent;
-    ParmsWindow   *parmsWindow;             // the parametrer file editor
 
     QSimpleUpdater  *m_updater;
     static QString   DEFS_URL;

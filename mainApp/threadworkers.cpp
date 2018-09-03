@@ -49,8 +49,10 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
  */
 void PartWorker::ldsearchDirPreferences(){
 
-  setDoFadeStep(gui->page.meta.LPub.fadeStep.fadeStep.value());
-  setDoHighlightStep(gui->page.meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta());
+  bool fadeStep = (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeSteps);
+  bool highlightStep = (gui->page.meta.LPub.highlightStep.highlightStep.value() || Preferences::enableHighlightStep);
+  setDoFadeStep(fadeStep);
+  setDoHighlightStep(highlightStep && !gui->suppressColourMeta());
 
   if (!_resetSearchDirSettings) {
       emit Application::instance()->splashMsgSig("50% - Search directory preferences loading...");
@@ -169,6 +171,10 @@ void PartWorker::ldsearchDirPreferences(){
        logError() << qPrintable(QString("Could not update %1").arg(Preferences::ldviewPOVIni));
     if (!Preferences::setLDViewExtraSearchDirs(Preferences::nativePOVIni))
        logError() << qPrintable(QString("Could not update %1").arg(Preferences::nativePOVIni));
+
+    // Update LDGLite extra search directories
+    if (Preferences::preferredRenderer == RENDERER_LDGLITE)
+        populateLdgLiteSearchDirs();
 }
 /*
  * Load LDraw search directories into Preferences.

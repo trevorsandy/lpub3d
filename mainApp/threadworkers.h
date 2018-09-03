@@ -109,8 +109,10 @@ public:
         {_doHighlightStep      = doHighlightStep;}
 
     void resetSearchDirSettings()
-        {_resetSearchDirSettings = true;
-         ldsearchDirPreferences();}
+    {
+      _resetSearchDirSettings = true;
+      ldsearchDirPreferences();
+    }
 
     void ldsearchDirPreferences();
 

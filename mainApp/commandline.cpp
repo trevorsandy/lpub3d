@@ -35,6 +35,7 @@ int Gui::processCommandLine()
   bool fadeSteps           = false;
   bool highlightStep       = false;
   bool imageMatting        = false;
+  bool resetSearchDirs     = false;
 
   QString pageRange, exportOption,
           commandlineFile, preferredRenderer,
@@ -131,6 +132,9 @@ int Gui::processCommandLine()
       else
       if (Param == QLatin1String("-of") || Param == QLatin1String("--pdf-output-file"))
         ParseString(saveFileName, false);
+      else
+      if (Param == QLatin1String("-rs") || Param == QLatin1String("--reset-search-dirs"))
+          resetSearchDirs = true;
       else
       if (Param == QLatin1String("-x") || Param == QLatin1String("--clear-cache"))
         resetCache = true;
@@ -290,6 +294,21 @@ int Gui::processCommandLine()
           .arg(highlightLineWidth);
       emit messageSig(LOG_INFO,message);
       Preferences::highlightStepLineWidth = highlightLineWidth;
+    }
+
+  if (resetSearchDirs) {
+      QString message = QString("Reset search directories requested..");
+      emit messageSig(LOG_INFO,message);
+
+      // set fade step setting
+      if (fadeSteps && fadeSteps != Preferences::enableFadeSteps) {
+          Preferences::enableFadeSteps = fadeSteps;
+        }
+      // set highlight step setting
+      if (highlightStep && highlightStep != Preferences::enableHighlightStep) {
+          Preferences::enableHighlightStep = highlightStep;
+        }
+      partWorkerLDSearchDirs.resetSearchDirSettings();
     }
 
   QElapsedTimer commandTimer;

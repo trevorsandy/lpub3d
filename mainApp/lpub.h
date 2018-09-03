@@ -824,7 +824,7 @@ public:
   Page                  page;                         // the abstract version of page contents
 
 // multi-thread worker classes
-//  PartWorker            partWorkerLDSearchDirs;     // part worker to process search directories and fade and or highlight color parts
+  PartWorker             partWorkerLDSearchDirs;     // part worker to process search directories and fade and or highlight color parts
   PartWorker             partWorkerLdgLiteSearchDirs; // part worker to process temp directory parts
   PartWorker            *partWorkerCustomColour;      // part worker to process colour part fade and or highlight
   ColourPartListWorker  *colourPartListWorker;        // create static colour parts list in separate thread
