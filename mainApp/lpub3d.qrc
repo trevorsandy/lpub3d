@@ -26,7 +26,7 @@
         <file alias="clearplicache.png">images/clearplicache.png</file>
         <file alias="clearcsicache.png">images/clearcsicache.png</file>
         <file alias="clearcsi3dcache.png">images/clearcsi3dcache.png</file>
-        <file alias="clearfadecache.png">images/clearfadecache.png</file>
+        <file alias="clearcustompartcache.png">images/clearcustompartcache.png</file>
         <file alias="clearstepcache.png">images/clearstepcache.png</file>
         <file alias="closemodelfile.png">images/closemodelfile.png</file>
         <file alias="contentspage.png">images/contentspage.png</file>
@@ -41,7 +41,7 @@
         <file alias="displaycolumn.png">images/displaycolumn.png</file>
         <file alias="divider.png">images/divider.png</file>
         <file alias="deletepage.png">images/deletepage.png</file>
-        <file alias="editfadeparts.png">images/editfadeparts.png</file>
+        <file alias="editldrawcolourparts.png">images/editldrawcolourparts.png</file>
         <file alias="editfreeformannotations.png">images/editfreeformannotations.png</file>
         <file alias="editinifile.png">images/editinifile.png</file>
         <file alias="editldgliteconf.png">images/editldgliteconf.png</file>
@@ -69,8 +69,9 @@
         <file alias="fitWidth.png">images/fitWidth.png</file>
         <file alias="font.png">images/font.png</file>
         <file alias="fontColour.png">images/fontColour.png</file>
-        <file alias="generatefadeparts.png">images/generatefadeparts.png</file>
+        <file alias="generatecolourparts.png">images/generatecolourparts.png</file>
         <file alias="gplv3.png">images/gplv3.png</file>
+        <file alias="highlightstepsetup.png">images/highlightstepsetup.png</file>
         <file alias="ignoresubmodel.png">images/ignoresubmodel.png</file>
         <file alias="insertcoverpage.png">images/insertcoverpage.png</file>
         <file alias="insertpage.png">images/insertpage.png</file>
@@ -107,6 +108,7 @@
         <file alias="previousstep.png">images/previousstep.png</file>
         <file alias="print.png">images/print.png</file>
         <file alias="projectsetup.png">images/projectsetup.png</file>
+        <file alias="recentfiles.png">images/recentfiles.png</file>
         <file alias="redraw.png">images/redraw.png</file>
         <file alias="refreshoffarchive.png">images/refreshoffarchive.png</file>
         <file alias="refreshunoffarchive.png">images/refreshunoffarchive.png</file>
@@ -239,9 +241,9 @@
         <file alias="time_next.png">../lc_lib/resources/time_next.png</file>
         <file alias="time_previous.png">../lc_lib/resources/time_previous.png</file>
         <file alias="time_stop.png">../lc_lib/resources/time_stop.png</file>
-        <file alias="view_look_at.png">../lc_lib/resources/view_look_at.png</file>
         <file alias="view_preferences.png">../lc_lib/resources/view_preferences.png</file>
-        <file alias="view_look_at_16.png">../lc_lib/resources/view_look_at_16.png</file>
+        <file alias="veiw_viewpoint_home.png">../lc_lib/resources/veiw_viewpoint_home.png</file>
+        <file alias="veiw_viewpoint_home_16.png">../lc_lib/resources/veiw_viewpoint_home_16.png</file>
         <file alias="view_split_horizontal.png">../lc_lib/resources/view_split_horizontal.png</file>
         <file alias="view_split_vertical.png">../lc_lib/resources/view_split_vertical.png</file>
         <file alias="view_zoomextents.png">../lc_lib/resources/view_zoomextents.png</file>

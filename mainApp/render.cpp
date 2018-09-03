@@ -48,6 +48,7 @@
 #include "paths.h"
 //**3D
 #include "lc_mainwindow.h"
+#include "lc_file.h"
 //**
 
 #ifdef Q_OS_WIN
@@ -117,11 +118,11 @@ QString fixupDirname(const QString &dirNameIn) {
 QString const Render::getRenderer()
 {
   if (renderer == &ldglite) {
-    return "LDGLite";
+    return RENDERER_LDGLITE;
   } else if (renderer == &ldview){
-    return "LDView";
+    return RENDERER_LDVIEW;
   } else {
-    return "POVRay";
+    return RENDERER_POVRAY;
   }
 }
 
@@ -624,13 +625,15 @@ int LDGLite::renderCsi(
   const QString     &pngName,
         Meta        &meta)
 {
-	/* Create the CSI DAT file */
-	QString ldrName;
-	int rc;
-	ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
-	if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrName)) < 0) {
-	   return rc;
-	}
+  /* Create the CSI DAT file */
+  QString ldrPath, ldrName, ldrFile;
+  int rc;
+  ldrName = "csi.ldr";
+  ldrPath = QDir::currentPath() + "/" + Paths::tmpDir;
+  ldrFile = ldrPath + "/" + ldrName;
+  if ((rc = rotateParts(addLine,meta.rotStep, csiParts, ldrFile)) < 0) {
+     return rc;
+  }
 
   /* determine camera distance */
 
@@ -644,7 +647,13 @@ int LDGLite::renderCsi(
   QString o  = QString("-o0,-%1")   .arg(height/6);
   QString mf = QString("-mF%1")     .arg(pngName);
 
-  int lineThickness = resolution()/150+0.5;
+  // int lineThickness = resolution()/150+0.5;
+  int hlwidth;
+  if (Preferences::enableHighlightStep)
+    hlwidth = Preferences::highlightStepLineWidth/2;
+  else
+    hlwidth = 0.5;
+  int lineThickness = resolution()/150.0+hlwidth;
   if (lineThickness == 0) {
     lineThickness = 1;
   }
@@ -677,12 +686,16 @@ int LDGLite::renderCsi(
       }
   }
 
-  if (!Preferences::altLDConfigPath.isEmpty()) {
-    arguments << "=" + Preferences::altLDConfigPath;
+  // if fade step, add custom colour file
+  if (gui->page.meta.LPub.fadeStep.fadeStep.value()) {
+    arguments << "-ldcF" + ldrPath + "/colours_" + ldrName;
+    logDebug() << qPrintable("-ldcF" + ldrPath + "/colours_" + ldrName);
+  } else if (!Preferences::altLDConfigPath.isEmpty()) {
+    arguments << "-ldcF" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("=" + Preferences::altLDConfigPath);
   }
   arguments << mf;                  // .png file name
-  arguments << ldrName;             // csi.ldr (input file)
+  arguments << ldrFile;             // csi.ldr (input file)
 
   emit gui->messageSig(true, "Execute command: LDGLite render CSI.");
 
@@ -717,7 +730,7 @@ int LDGLite::renderCsi(
       return -1;
     }
   }
-  //QFile::remove(ldrName);
+  //QFile::remove(ldrFile);
   return 0;
 }
 
@@ -730,6 +743,13 @@ int LDGLite::renderPli(
 {
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
+
+  int hlwidth;
+  if (Preferences::enableHighlightStep)
+    hlwidth = Preferences::highlightStepLineWidth/2;
+  else
+    hlwidth = 0.5;
+  int lineThickness = resolution()/72.0+hlwidth;
 
   /* determine camera distance */
 
@@ -746,7 +766,7 @@ int LDGLite::renderPli(
   QString o  = QString("-o0,-%1")   .arg(height/6);
   QString mf = QString("-mF%1")     .arg(pngName);
                                     // ldglite always deals in 72 DPI
-  QString w  = QString("-W%1")      .arg(int(resolution()/72.0+0.5));
+  QString w  = QString("-W%1")      .arg(int(resolution()/lineThickness));
 
   QStringList arguments;
   arguments << CA;                  // camera FOV angle in degrees
@@ -869,6 +889,13 @@ int LDView::renderCsi(
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
+  /* edge thickness if highlight step is on */
+  int edgeThickness;
+  if (Preferences::enableHighlightStep)
+    edgeThickness = Preferences::highlightStepLineWidth;
+  else
+    edgeThickness = 1;
+
   bool hasLDViewIni = Preferences::ldviewIni != "";
 
   QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
@@ -878,6 +905,7 @@ int LDView::renderCsi(
   QString f  = QString("-SaveSnapShot=%1") .arg(pngName); // -SnapshotSuffix not required
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
   QString o  = QString("-HaveStdOut=1");
+  QString e  = QString("-EdgeThickness=%1").arg(edgeThickness);
   QString v  = QString("-vv");
 
   QStringList arguments;
@@ -888,6 +916,7 @@ int LDView::renderCsi(
   arguments << f;
   arguments << l;
   arguments << o;
+  arguments << e;
   arguments << v;
 
   QStringList list;
@@ -949,6 +978,13 @@ int LDView::renderPli(
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
+  /* edge thickness if highlight step is on */
+  int edgeThickness;
+  if (Preferences::enableHighlightStep)
+    edgeThickness = Preferences::highlightStepLineWidth;
+  else
+    edgeThickness = 1;
+
   bool hasLDViewIni = Preferences::ldviewIni != "";
 
   //qDebug() << "LDView (Native) Camera Distance: " << cd;
@@ -962,6 +998,7 @@ int LDView::renderPli(
   QString f  = QString("-SaveSnapShot=%1") .arg(pngName); // -SnapshotSuffix not required
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
   QString o  = QString("-HaveStdOut=1");
+  QString e  = QString("-EdgeThickness=%1").arg(edgeThickness);
   QString v  = QString("-vv");
 
   QStringList arguments;
@@ -972,6 +1009,7 @@ int LDView::renderPli(
   arguments << f;
   arguments << l;
   arguments << o;
+  arguments << e;
   arguments << v;
 
   QStringList list;
@@ -1027,6 +1065,13 @@ int Render::renderLDViewSCallCsi(
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
+  /* edge thickness if highlight step is on */
+  int edgeThickness;
+  if (Preferences::enableHighlightStep)
+    edgeThickness = Preferences::highlightStepLineWidth;
+  else
+    edgeThickness = 1;
+
   bool hasLDViewIni = Preferences::ldviewIni != "";
 
   QString snapShotList = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
@@ -1051,6 +1096,7 @@ int Render::renderLDViewSCallCsi(
   QString t  = QString("-SnapshotSuffix=.png");
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
   QString o  = QString("-HaveStdOut=1");
+  QString e  = QString("-EdgeThickness=%1").arg(edgeThickness);
   QString v  = QString("-vv");
 
   QStringList arguments;
@@ -1062,6 +1108,7 @@ int Render::renderLDViewSCallCsi(
   arguments << t;
   arguments << l;
   arguments << o;
+  arguments << e;
   arguments << v;
 
   QStringList list;
@@ -1140,6 +1187,13 @@ int Render::renderLDViewSCallPli(
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
+  /* edge thickness if highlight step is on */
+  int edgeThickness;
+  if (Preferences::enableHighlightStep)
+    edgeThickness = Preferences::highlightStepLineWidth;
+  else
+    edgeThickness = 1;
+
   bool hasLDViewIni = Preferences::ldviewIni != "";
 
   QString snapShotList = QDir::currentPath() + "/" + Paths::tmpDir + "/pli.ldr";
@@ -1167,6 +1221,7 @@ int Render::renderLDViewSCallPli(
   QString t  = QString("-SnapshotSuffix=.png");
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
   QString o  = QString("-HaveStdOut=1");
+  QString e  = QString("-EdgeThickness=%1").arg(edgeThickness);
   QString v  = QString("-vv");
 
   QStringList arguments;
@@ -1178,6 +1233,7 @@ int Render::renderLDViewSCallPli(
   arguments << t;
   arguments << l;
   arguments << o;
+  arguments << e;
   arguments << v;
 
   QStringList list;
@@ -1262,8 +1318,10 @@ int Render::render3DCsi(
     QStringList argv;
     bool        alreadyInserted;
     int         rc;
-    bool    doFadeStep  = (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep);
-    QString fadeColor   = LDrawColor::ldColorCode(gui->page.meta.LPub.fadeStep.fadeColor.value());
+    bool    doFadeStep = gui->page.meta.LPub.fadeStep.fadeStep.value();
+    bool    doHighlightStep = gui->page.meta.LPub.highlightStep.highlightStep.value();
+
+    QString nameMod = doHighlightStep ? "-highlight" : "-fade";
 
     csi3DName = QDir::currentPath() + "/" + Paths::viewerDir + "/" + nameKeys;
 
@@ -1277,14 +1335,15 @@ int Render::render3DCsi(
                 QString csiLine = csiParts[index];
                 split(csiLine, argv);
                 if (argv.size() == 15 && argv[0] == "1") {
-                    /* process subfiles in csiParts */
+
                     QString type = argv[argv.size()-1];
 
-                    bool isFadedItem = (argv[1] == fadeColor && type.contains("-fade."));
+                    /* process subfiles in csiParts */
+                    bool isConfiguredItem = (type.contains(nameMod + "."));
                     bool isFadedSubModelOrUnofficialPart = false;
-                    if (isFadedItem) {
+                    if (isConfiguredItem) {
                         QString fadedType = type;
-                        fadedType = fadedType.replace("-fade.",".");
+                        fadedType = fadedType.replace(nameMod,"");
                         isFadedSubModelOrUnofficialPart = (gui->isSubmodel(fadedType) || gui->isUnofficialPart(fadedType));
                       }
 
@@ -1292,7 +1351,7 @@ int Render::render3DCsi(
 //                                << " \nCsi3D Part Type:                 " << type
 //                                << " \nIsSubmodel:                      " << gui->isSubmodel(type)
 //                                << " \nIsUnofficialPart:                " << gui->isUnofficialPart(type)
-//                                << " \nIsFadedItem:                     " << isFadedItem
+//                                << " \nisConfiguredItem:                     " << isConfiguredItem
 //                                << " \nIsFadedSubModelOrUnofficialPart: " << isFadedSubModelOrUnofficialPart
 //                                   ;
 
@@ -1311,7 +1370,7 @@ int Render::render3DCsi(
 //                                    << " \nCsi3D Part Type:                 " << type
 //                                    << " \nIsSubmodel:                      " << gui->isSubmodel(type)
 //                                    << " \nIsUnofficialPart:                " << gui->isUnofficialPart(type)
-//                                    << " \nIsFadedItem:                     " << isFadedItem
+//                                    << " \nisConfiguredItem:                " << isConfiguredItem
 //                                    << " \nIsFadedSubModelOrUnofficialPart: " << isFadedSubModelOrUnofficialPart
 //                                    << " \nAlready Inserted:                " << alreadyInserted
 //                                       ;
@@ -1328,7 +1387,7 @@ int Render::render3DCsi(
 
             /* process extracted submodels and unofficial files */
             if (csiSubModels.size() > 0){
-                rc = render3DCsiSubModels(csiSubModels, csiSubModelParts, fadeColor, doFadeStep);
+                rc = render3DCsiSubModels(csiSubModels, csiSubModelParts, doFadeStep, doHighlightStep);
                 if (rc != 0){
                     QMessageBox::warning(NULL,
                                          QMessageBox::tr(VER_PRODUCTNAME_STR),
@@ -1350,7 +1409,7 @@ int Render::render3DCsi(
             }
 
             /* add sub model content to csi3D file */
-            if (! csiSubModelParts.empty())
+            if (! csiSubModelParts.isEmpty())
             {
                 /* append subModel content to csi3D file */
                 QFile csi3DFile(csi3DName);
@@ -1383,8 +1442,8 @@ int Render::render3DCsi(
 
 int Render::render3DCsiSubModels(QStringList &subModels,
                                  QStringList &subModelParts,
-                                 QString &fadeColor,
-                                 bool doFadeStep)
+                                 bool doFadeStep,
+                                 bool doHighlightStep)
 {
     QStringList csiSubModels        = subModels;
     QStringList csiSubModelParts    = subModelParts;
@@ -1394,6 +1453,8 @@ int Render::render3DCsiSubModels(QStringList &subModels,
     int         rc;
 
     if (csiSubModels.size() > 0) {
+
+        QString nameMod = doHighlightStep ? "-highlight" : "-fade";
 
         /* read in all detected sub model file content */
         for (int index = 0; index < csiSubModels.size(); index++) {
@@ -1424,11 +1485,11 @@ int Render::render3DCsiSubModels(QStringList &subModels,
                     /* check and process any subfiles in csiParts */
                     QString type = argv[argv.size()-1];
 
-                    bool isFadedItem = (argv[1] == fadeColor && type.contains("-fade."));
+                    bool isConfiguredItem = (type.contains(nameMod + "."));
                     bool isFadedSubModelOrUnofficialPart = false;
-                    if (isFadedItem) {
+                    if (isConfiguredItem) {
                         QString fadedType = type;
-                        fadedType = fadedType.replace("-fade.",".");
+                        fadedType = fadedType.replace(nameMod,"");
                         isFadedSubModelOrUnofficialPart = (gui->isSubmodel(fadedType) || gui->isUnofficialPart(fadedType));
                       }
 
@@ -1447,7 +1508,7 @@ int Render::render3DCsiSubModels(QStringList &subModels,
 //                                    << " \nCsi3D Part Type:                 " << type
 //                                    << " \nIsSubmodel:                      " << gui->isSubmodel(type)
 //                                    << " \nIsUnofficialPart:                " << gui->isUnofficialPart(type)
-//                                    << " \nIsFadedItem:                     " << isFadedItem
+//                                    << " \nisConfiguredItem:                     " << isConfiguredItem
 //                                    << " \nIsFadedSubModelOrUnofficialPart: " << isFadedSubModelOrUnofficialPart
 //                                    << " \nAlready Inserted:                " << alreadyInserted
 //                                       ;
@@ -1465,7 +1526,7 @@ int Render::render3DCsiSubModels(QStringList &subModels,
 
         /* recurse and process any identified submodel files */
         if (newSubModels.size() > 0){
-            rc = render3DCsiSubModels(newSubModels, csiSubModelParts, fadeColor, doFadeStep);
+            rc = render3DCsiSubModels(newSubModels, csiSubModelParts, doFadeStep, doHighlightStep);
             if (rc != 0){
                 QMessageBox::warning(NULL,
                                      QMessageBox::tr(VER_PRODUCTNAME_STR),

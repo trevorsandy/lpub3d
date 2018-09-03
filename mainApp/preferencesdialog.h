@@ -46,7 +46,6 @@ class PreferencesDialog : public QDialog
     QString const povrayExe();
     QString const ldgliteExe();
     QString const ldviewExe();
-    QString const fadeStepColor();
     QString const moduleVersion();
     QString const preferredRenderer();
     QString const defaultAuthor();
@@ -55,12 +54,16 @@ class PreferencesDialog : public QDialog
     QString const documentLogoFile();
     QString const publishDescription();
     QString const logLevelCombo();
+    QString const fadeStepColour();
+    QString const highlightStepColour();
     QStringList const searchDirSettings();
     bool          displayAllAttributes();
     bool          generateCoverPages();
     bool          printDocumentTOC();
     bool          centimeters();
     bool          enableFadeStep();
+    bool          fadeStepUseColour();
+    bool          enableHighlightStep();
     bool          enableDocumentLogo();
     bool          enableLDViewSingleCall();
     bool          showUpdateNotifications();
@@ -70,7 +73,8 @@ class PreferencesDialog : public QDialog
     bool          povrayDisplay();
     int           checkUpdateFrequency();
     int           rendererTimeout();   
-
+    int           fadeStepOpacity();
+    int           highlightStepLineWidth();
     bool          includeLogLevel();
     bool          includeTimestamp();
     bool          includeLineNumber();
@@ -103,11 +107,7 @@ class PreferencesDialog : public QDialog
     void on_browsePublishLogo_clicked();
     void on_pushButtonReset_clicked();
     void on_checkForUpdates_btn_clicked();
-
-    void colorChange(QString const &colorName);
-    void pushButtonReset_SetState();
-    void updateChangelog (QString url);
-    void checkForUpdates();
+    void on_highlightStepBtn_clicked();
 
     void on_altLDConfigBox_clicked(bool checked);
     void on_includeAllLogAttribBox_clicked(bool checked);
@@ -119,13 +119,22 @@ class PreferencesDialog : public QDialog
     void on_ldgliteBox_clicked(bool checked);
     void on_POVRayBox_clicked(bool checked);
 
+    void on_highlightStepBox_clicked(bool checked);
+    void on_fadeStepBox_clicked(bool checked);
+    void on_fadeStepUseColourBox_clicked(bool checked);
+
+    void on_fadeStepColorsCombo_currentIndexChanged(const QString &colorName);
+
+    void pushButtonReset_SetState();
+    void updateChangelog (QString url);
+    void checkForUpdates();
+
 private:
     Ui::PreferencesDialog ui;
 
-    PartWorker       partWorkerLDSearchDirs;   // part worker to process search directories and fade color parts
-    QWidget         *parent;
-    FadeStepMeta     fadeStepMeta;             // propagate fade color and fade bool
-    ParmsWindow     *parmsWindow;              // the parametrer file editor
+    PartWorker    partWorkerLDSearchDirs;   // part worker to process search directories and fade color parts
+    QWidget       *parent;
+    ParmsWindow   *parmsWindow;             // the parametrer file editor
 
     QSimpleUpdater  *m_updater;
     static QString   DEFS_URL;

@@ -45,16 +45,17 @@ QString Paths::assemDir  = "LPub3D/assem";
 QString Paths::partsDir  = "LPub3D/parts";
 QString Paths::viewerDir = "LPub3D/viewer";
 
-QString Paths::fadePartDir;
-QString Paths::fadeSubDir;
-QString Paths::fadePrimDir;
-QString Paths::fadePrim8Dir;
-QString Paths::fadePrim48Dir;
+QString Paths::customDir       = "custom";
+QString Paths::customPartDir   = "custom/parts";
+QString Paths::customSubDir    = "custom/parts/s";
+QString Paths::customPrimDir   = "custom/p";
+QString Paths::customPrim8Dir  = "custom/p/8";
+QString Paths::customPrim48Dir = "custom/p/48";
 
-QStringList Paths::fadeDirs;
+QStringList Paths::customDirs;
 
 
-void Paths::mkdirs(){
+void Paths::mkDirs(){
 
     QDir dir;
     dir.mkdir(lpubDir);
@@ -65,30 +66,32 @@ void Paths::mkdirs(){
 
 }
 
-void Paths::mkfadedirs(){
+void Paths::mkCustomDirs(){
 
   QDir dir;
-  fadePartDir = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade");
-  if(! dir.exists(fadePartDir)) {
-      dir.mkdir(fadePartDir);
-      fadePartDir   = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/parts");
-      dir.mkdir(fadePartDir);
-      fadeSubDir    = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/parts/s");
-      dir.mkdir(fadeSubDir);
-      fadePrimDir   = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/p");
-      dir.mkdir(fadePrimDir);
-      fadePrim8Dir  = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/p/8");
-      dir.mkdir(fadePrim8Dir);
-      fadePrim48Dir = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/p/48");
-      dir.mkdir(fadePrim48Dir);
-    } else {
-      fadePartDir   = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/parts");
-      fadeSubDir    = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/parts/s");
-      fadePrimDir   = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/p");
-      fadePrim8Dir  = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/p/8");
-      fadePrim48Dir = QDir::toNativeSeparators(Preferences::lpubDataPath + "/fade/p/48");
-    }
 
-  fadeDirs << fadePartDir << fadeSubDir << fadePrimDir << fadePrim8Dir << fadePrim48Dir;
+  QString dp = Preferences::lpubDataPath;
+  if(! dir.exists(dp + "/" + customDir))
+    dir.mkdir(dp + "/" + customDir);
+
+  if (! dir.exists(dp + "/" + customPartDir))
+    dir.mkdir(dp + "/" + customPartDir);
+
+  if (! dir.exists(dp + "/" + customSubDir))
+    dir.mkdir(dp + "/" + customSubDir);
+
+  if (! dir.exists(dp + "/" + customPrimDir))
+    dir.mkdir(dp + "/" + customPrimDir);
+
+  if (! dir.exists(dp + "/" + customPrim8Dir))
+    dir.mkdir(dp + "/" + customPrim8Dir);
+
+  if (! dir.exists(dp + "/" + customPrim48Dir))
+    dir.mkdir(dp + "/" + customPrim48Dir);
+
+  customDirs << dp + "/" + customPartDir
+             << dp + "/" + customSubDir
+             << dp + "/" + customPrimDir
+             << dp + "/" + customPrim8Dir
+             << dp + "/" + customPrim48Dir;
 }
-

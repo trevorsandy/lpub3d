@@ -30,11 +30,11 @@ public:
   explicit ArchiveParts(QObject *parent = 0);
   ~ArchiveParts()
   {}
-  static bool Archive(
-      const QString &zipArchive,
+  static bool Archive(const QString &zipArchive,
       const QDir &dir,
             QString &result,
-      const QString &comment);
+      const QString &comment = QString(),
+            bool overwriteCustomPart = false);
 
     static void RecurseAddDir(
       const QDir &dir,

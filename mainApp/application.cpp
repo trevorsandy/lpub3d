@@ -336,6 +336,7 @@ void Application::initialize()
   Preferences::annotationPreferences();
 
   Preferences::fadestepPreferences();
+  Preferences::highlightstepPreferences();
   Preferences::pliPreferences();
 
   // Resolution

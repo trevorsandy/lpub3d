@@ -126,7 +126,8 @@ CONFIG(debug, debug|release) {
     }
     # executable target name
     macx: TARGET = $$join(TARGET,,,_debug)
-    else: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
+    win32:TARGET = $$join(TARGET,,,d)
+    unix:!macx: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
 } else {
     BUILD += Release
     ARCH_BLD = bit_release
@@ -244,11 +245,11 @@ HEADERS += \
     dividerdialog.h \
     editwindow.h \
     excludedparts.h \
-    fadestepcolorparts.h \
     globals.h \
     gradients.h \
     highlighter.h \
     hoverpoints.h \
+    ldrawcolourparts.h \
     ldrawfiles.h \
     ldsearchdirs.h \
     lpub.h \
@@ -320,12 +321,13 @@ SOURCES += \
     dividerdialog.cpp \
     editwindow.cpp \
     excludedparts.cpp \
-    fadestepcolorparts.cpp \
     fadestepglobals.cpp \
     formatpage.cpp \
     gradients.cpp \
     highlighter.cpp \
+    highlightstepglobals.cpp \
     hoverpoints.cpp \
+    ldrawcolourparts.cpp \
     ldrawfiles.cpp \
     ldsearchdirs.cpp \
     lpub.cpp \
@@ -376,7 +378,7 @@ SOURCES += \
     threadworkers.cpp \
     traverse.cpp \
     updatecheck.cpp \
-    undoredo.cpp
+    undoredo.cpp \
 
 FORMS += \
     preferences.ui \

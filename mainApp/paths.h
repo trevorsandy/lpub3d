@@ -24,19 +24,20 @@
 class Paths {
 public:
 
-    static void mkdirs();
-    static void mkfadedirs();
+    static void mkDirs();
+    static void mkCustomDirs();
     static QString lpubDir;
     static QString tmpDir;
     static QString assemDir;
     static QString partsDir;
     static QString viewerDir;
-    static QString fadePartDir;
-    static QString fadeSubDir;
-    static QString fadePrimDir;
-    static QString fadePrim8Dir;
-    static QString fadePrim48Dir;
-    static QStringList fadeDirs;
+    static QString customDir;
+    static QString customPartDir;
+    static QString customSubDir;
+    static QString customPrimDir;
+    static QString customPrim8Dir;
+    static QString customPrim48Dir;
+    static QStringList customDirs;
 };
 
 #endif

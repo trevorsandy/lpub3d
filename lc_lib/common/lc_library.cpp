@@ -319,7 +319,7 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 	{
 		lcDiskFile ColorFile(Preferences::altLDConfigPath);
 
-		if (ColorFile.Open(QIODevice::ReadOnly) || lcLoadColorFile(ColorFile))
+		if (ColorFile.Open(QIODevice::ReadOnly) && lcLoadColorFile(ColorFile))
 			loadAltLDConfig = true;
 		else
 			lcLoadDefaultColors();
@@ -1943,6 +1943,16 @@ bool lcPiecesLibrary::ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransf
 		if (LineType == 0)
 		{
 			char* Token = Line;
+
+/*** LPub3D Mod - process part colour entry ***/
+                        if (strstr(Token, "!COLOUR") != nullptr)
+                        {
+                            if (!lcLoadColorEntry(Line))
+                                    logError() << qPrintable(QString("Could not load fade part colour entry %1.")
+                                                             .arg(Line));
+                            continue;
+                        }
+/*** LPub3D Mod end ***/
 
 			while (*Token && *Token <= 32)
 				Token++;

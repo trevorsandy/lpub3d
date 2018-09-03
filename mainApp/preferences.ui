@@ -37,7 +37,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>4</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -49,7 +49,7 @@
          <x>10</x>
          <y>14</y>
          <width>451</width>
-         <height>85</height>
+         <height>70</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -68,7 +68,7 @@
         <property name="geometry">
          <rect>
           <x>12</x>
-          <y>43</y>
+          <y>31</y>
           <width>41</width>
           <height>16</height>
          </rect>
@@ -81,7 +81,7 @@
         <property name="geometry">
          <rect>
           <x>59</x>
-          <y>36</y>
+          <y>24</y>
           <width>381</width>
           <height>33</height>
          </rect>
@@ -117,9 +117,9 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>314</y>
+         <y>374</y>
          <width>451</width>
-         <height>85</height>
+         <height>70</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -138,7 +138,7 @@
         <property name="geometry">
          <rect>
           <x>14</x>
-          <y>43</y>
+          <y>32</y>
           <width>41</width>
           <height>16</height>
          </rect>
@@ -151,7 +151,7 @@
         <property name="geometry">
          <rect>
           <x>59</x>
-          <y>40</y>
+          <y>24</y>
           <width>381</width>
           <height>33</height>
          </rect>
@@ -187,16 +187,16 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>214</y>
-         <width>451</width>
-         <height>85</height>
+         <y>174</y>
+         <width>251</width>
+         <height>190</height>
         </rect>
        </property>
        <property name="toolTip">
         <string>This setting allows you to fade previous build step parts </string>
        </property>
        <property name="title">
-        <string>Enable Fade Steps</string>
+        <string>Enable Fade Previous Steps</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -204,56 +204,118 @@
        <property name="checked">
         <bool>false</bool>
        </property>
-       <widget class="QLabel" name="label_10">
+       <widget class="QGroupBox" name="fadeStepUseColourBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
-          <x>29</x>
-          <y>16</y>
-          <width>111</width>
-          <height>28</height>
+          <x>9</x>
+          <y>30</y>
+          <width>231</width>
+          <height>70</height>
          </rect>
         </property>
-        <property name="text">
-         <string>Default fade color</string>
+        <property name="toolTip">
+         <string>Select to use this colour for all faded parts, otherwise fade existing colour.</string>
         </property>
+        <property name="title">
+         <string>Use Global Fade Colour</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <widget class="QLabel" name="fadeStepColorLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>26</y>
+           <width>41</width>
+           <height>30</height>
+          </rect>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Panel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+        <widget class="QComboBox" name="fadeStepColorsCombo">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>31</y>
+           <width>161</width>
+           <height>20</height>
+          </rect>
+         </property>
+        </widget>
        </widget>
-       <widget class="QComboBox" name="fadeStepColorsCombo">
+       <widget class="QGroupBox" name="fadeStepOpacityBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
-          <x>150</x>
-          <y>41</y>
-          <width>281</width>
-          <height>25</height>
+          <x>10</x>
+          <y>110</y>
+          <width>231</width>
+          <height>62</height>
          </rect>
         </property>
-       </widget>
-       <widget class="QLabel" name="fadeStepColorLabel">
-        <property name="geometry">
-         <rect>
-          <x>30</x>
-          <y>45</y>
-          <width>111</width>
-          <height>21</height>
-         </rect>
+        <property name="toolTip">
+         <string>Set the percent of fade, 0 is fully hidden, 100 is fully opaque.</string>
         </property>
-        <property name="frameShape">
-         <enum>QFrame::Panel</enum>
+        <property name="title">
+         <string>Fade Opacity</string>
         </property>
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
+        <property name="checkable">
+         <bool>false</bool>
         </property>
-        <property name="text">
-         <string/>
+        <property name="checked">
+         <bool>false</bool>
         </property>
+        <widget class="QSlider" name="fadeStepOpacitySlider">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>9</x>
+           <y>28</y>
+           <width>211</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>5</number>
+         </property>
+        </widget>
        </widget>
       </widget>
       <widget class="QGroupBox" name="groupBox">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>414</y>
+         <y>454</y>
          <width>451</width>
-         <height>65</height>
+         <height>50</height>
         </rect>
        </property>
        <property name="title">
@@ -280,9 +342,9 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>114</y>
+         <y>94</y>
          <width>451</width>
-         <height>85</height>
+         <height>70</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -301,7 +363,7 @@
         <property name="geometry">
          <rect>
           <x>12</x>
-          <y>40</y>
+          <y>28</y>
           <width>41</width>
           <height>16</height>
          </rect>
@@ -314,7 +376,7 @@
         <property name="geometry">
          <rect>
           <x>59</x>
-          <y>36</y>
+          <y>24</y>
           <width>381</width>
           <height>33</height>
          </rect>
@@ -331,6 +393,107 @@
           </widget>
          </item>
         </layout>
+       </widget>
+      </widget>
+      <widget class="QGroupBox" name="highlightStepBox">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>270</x>
+         <y>174</y>
+         <width>191</width>
+         <height>190</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>This setting allows you to highlight current build step parts</string>
+       </property>
+       <property name="title">
+        <string>Enable Highlight Current Step</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <widget class="QSpinBox" name="highlightStepLineWidthSpin">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>125</y>
+          <width>61</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>[For future use] - Set the highlight line width</string>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>5</number>
+        </property>
+       </widget>
+       <widget class="QLabel" name="highlightStepLabel">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>127</y>
+          <width>111</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>[For future use] - Set the highlight line width</string>
+        </property>
+        <property name="text">
+         <string>Highlight line width</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="highlightStepColorLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>60</y>
+          <width>41</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Panel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="highlightStepBtn">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>60</x>
+          <y>63</y>
+          <width>121</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Highlight Colour...</string>
+        </property>
        </widget>
       </widget>
      </widget>

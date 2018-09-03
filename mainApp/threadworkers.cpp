@@ -20,7 +20,6 @@
 #include "step.h"
 #include "paths.h"
 #include "lpub.h"
-#include "name.h"
 #include "application.h"
 
 #ifdef WIN32
@@ -29,6 +28,9 @@
 
 PartWorker::PartWorker(QObject *parent) : QObject(parent)
 {
+  setDoFadeStep(Preferences::enableFadeStep);
+  setDoHighlightStep(Preferences::enableHighlightStep);
+
   _resetSearchDirSettings = false;
   _endThreadNowRequested  = false;
 
@@ -37,8 +39,8 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
   _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("p"));
   _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial/parts"));
   _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial/p"));
-  _fadePartDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg("fade/parts"));
-  _fadePrimDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg("fade/p"));
+  _customPartDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
+  _customPrimDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrimDir));
 
 }
 
@@ -85,66 +87,78 @@ void PartWorker::ldsearchDirPreferences(){
       logStatus() << QString("Unable to initialize Ldrawini. Using default search directories.");
     }
 
-  setDoFadeStep((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep));
-  if (!doFadeStep()) {
-      _excludedSearchDirs << _fadePartDir;
-      _excludedSearchDirs << _fadePrimDir;
+  setDoFadeStep(gui->page.meta.LPub.fadeStep.fadeStep.value());
+  setDoHighlightStep(gui->page.meta.LPub.highlightStep.highlightStep.value());
+  if (!doFadeStep() && !doHighlightStep()) {
+      _excludedSearchDirs << _customPartDir;
+      _excludedSearchDirs << _customPrimDir;
   } else {
-      Paths::mkfadedirs();
+      Paths::mkCustomDirs();
   }
 
-  logInfo() << (doFadeStep() ? QString("Fade Step is ON.") : QString("Fade Step is OFF."));
+  logInfo() << (doFadeStep() ? QString("Fade Previous Steps is ON.") : QString("Fade Previous Steps is OFF."));
+  logInfo() << (doHighlightStep() ? QString("Highlight Current Step is ON.") : QString("Highlight Current Step is OFF."));
+
   QString singleCall;
   QString renderer = Render::getRenderer();
-  if ((renderer == "LDView") && Preferences::enableLDViewSingleCall)
+  if ((renderer == RENDERER_LDVIEW) && Preferences::enableLDViewSingleCall)
     singleCall = "Single Call";
-  logInfo() << QString("Renderer is %1 %2").arg(Render::getRenderer()).arg(!singleCall.isEmpty() ? "(" + singleCall + ")" : "").trimmed();
+  logInfo() << QString("Renderer is %1 %2").arg(renderer).arg(!singleCall.isEmpty() ? "(" + singleCall + ")" : "").trimmed();
 
   if (!Preferences::ldrawiniFound && !_resetSearchDirSettings &&
       Settings.contains(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey))) {    // ldrawini not found and not reset so load registry key
       logStatus() << QString("ldraw.ini not found, load ldSearch directories from registry key");
-      QStringList entries = Settings.value(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey)).toStringList();
-      bool fadeDirsIncluded = false;
-      foreach (QString entry, entries){
-          if (QDir(entry).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
-              // Skip fade directory if not doFadeStep
-              QString fadeDir = QDir::toNativeSeparators(entry.toLower());
-              if (!doFadeStep() && (fadeDir == _fadePartDir.toLower() || fadeDir == _fadePrimDir.toLower()))
+      QStringList searchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey)).toStringList();
+      bool customDirsIncluded = false;
+      foreach (QString searchDir, searchDirs){
+          if (QDir(searchDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+              // Skip custom directory if not doFadeStep or not doHighlightStep
+              QString customDir = QDir::toNativeSeparators(searchDir.toLower());
+              if ((!doFadeStep() && !doHighlightStep()) && (customDir == _customPartDir.toLower() || customDir == _customPrimDir.toLower()))
                   continue;
 
-              // If doFadeStep, check if fade directories included
-              if (doFadeStep() && !fadeDirsIncluded){
-                  fadeDirsIncluded = (fadeDir.toLower() == _fadePartDir.toLower() ||
-                                      fadeDir.toLower() == _fadePrimDir.toLower());
+              // If doFadeStep or doHighlightStep, check if custom directories included
+              if ((doFadeStep() || doHighlightStep()) && !customDirsIncluded){
+                  customDirsIncluded = (customDir.toLower() == _customPartDir.toLower() ||
+                                      customDir.toLower() == _customPrimDir.toLower());
                 }
-              Preferences::ldSearchDirs << entry;
-              logStatus() << "Add search directory:" << entry;
+              Preferences::ldSearchDirs << searchDir;
+              logStatus() << "Add search directory:" << searchDir;
           } else {
-              logStatus() << "Search directory is empty and will be ignored:" << entry;
+              logStatus() << "Search directory is empty and will be ignored:" << searchDir;
           }
       }
-      // If fade step enabled but fade directories not defined in ldSearchDirs, add fade directories
-      if (doFadeStep() && !fadeDirsIncluded) {
-          if (QDir(_fadePartDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
-              Preferences::ldSearchDirs << _fadePartDir;
-              fadeDirsIncluded = true;
-              logStatus() << "Add fade part directory:" << _fadePartDir;
-            } else {
-              logStatus() << "Fade part directory is empty and will be ignored:" << _fadePartDir;
-            }
-          if (QDir(_fadePrimDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
-              Preferences::ldSearchDirs << _fadePrimDir;
-              fadeDirsIncluded = true;
-              logStatus() << "Add fade primitive directory:" << _fadePrimDir;
-            } else {
-              logStatus() << "Fade primitive directory is empty and will be ignored:" << _fadePrimDir;
-            }
-          // update the registry if fade directory included
-          if (fadeDirsIncluded){
+      // If fade step enabled but custom directories not defined in ldSearchDirs, add custom directories
+      if ((doFadeStep() || doHighlightStep()) && !customDirsIncluded) {
+          // We must force the custom directories for LDView as they are needed by ldview ini files
+          if (renderer == RENDERER_LDVIEW) {
+              Preferences::ldSearchDirs << _customPartDir;
+              logStatus() << "Add custom part directory:" << _customPartDir;
+              Preferences::ldSearchDirs << _customPrimDir;
+              logStatus() << "Add custom primitive directory:" << _customPrimDir;
+              customDirsIncluded = true;
+          } else {
+              if (QDir(_customPartDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+                Preferences::ldSearchDirs << _customPartDir;
+                customDirsIncluded = true;
+                logStatus() << "Add custom part directory:" << _customPartDir;
+              } else {
+                logStatus() << "Custom part directory is empty and will be ignored:" << _customPartDir;
+              }
+              if (QDir(_customPrimDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+                Preferences::ldSearchDirs << _customPrimDir;
+                customDirsIncluded = true;
+                logStatus() << "Add custom primitive directory:" << _customPrimDir;
+              } else {
+                logStatus() << "custom primitive directory is empty and will be ignored:" << _customPrimDir;
+              }
+          }
+          // update the registry if custom directory included
+          if (customDirsIncluded){
               QSettings Settings;
               Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
-            }
-        }
+          }
+       }
     } else if (loadLDrawSearchDirs()){                                        //ldraw.ini found or reset so load from disc file
       Settings.setValue(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey), Preferences::ldSearchDirs);
       logStatus() << QString("Ldraw.ini found or search directory reset selected, load ldSearch directories from ldrawini defined or default entries");
@@ -154,8 +168,10 @@ void PartWorker::ldsearchDirPreferences(){
     }
 
     // Update LDView extra search directories - don't need LDGLite search directories here as they are added further down the load sequence.
-    Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni);
-    Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni);
+    if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
+       logError() << qPrintable(QString("Could not update %1").arg(Preferences::ldviewIni));
+    if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
+       logError() << qPrintable(QString("Could not update %1").arg(Preferences::ldviewPOVIni));
 }
 /*
  * Load LDraw search directories into Preferences.
@@ -168,13 +184,13 @@ bool PartWorker::loadLDrawSearchDirs(){
       logInfo() << "Reset - search directories loading...";
     }
 
-  setDoFadeStep((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep));
+  setDoFadeStep(gui->page.meta.LPub.fadeStep.fadeStep.value());
   StringList  ldrawSearchDirs;
   if (ldPartsDirs.loadLDrawSearchDirs("")){
       ldrawSearchDirs = ldPartsDirs.getLDrawSearchDirs();
       Preferences::ldSearchDirs.clear();
       bool foundUnofficialRootDir = false;
-      bool fadeDirsIncluded = false;
+      bool customDirsIncluded = false;
       QString unofficialRootDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial"));
       for (StringList::const_iterator it = ldrawSearchDirs.begin();
            it != ldrawSearchDirs.end(); it++)
@@ -199,25 +215,25 @@ bool PartWorker::loadLDrawSearchDirs(){
                   logStatus() << "Add search directory:" << ldrawSearchDir;
                 }
             }
-          // Check if fade directories included
-          if (doFadeStep() && !fadeDirsIncluded){
-              fadeDirsIncluded = (ldrawSearchDir.toLower() == _fadePartDir.toLower() ||
-                                  ldrawSearchDir.toLower() == _fadePrimDir.toLower());
+          // Check if custom directories included
+          if ((doFadeStep() || doHighlightStep()) && !customDirsIncluded){
+              customDirsIncluded = (ldrawSearchDir.toLower() == _customPartDir.toLower() ||
+                                  ldrawSearchDir.toLower() == _customPrimDir.toLower());
             }
         }
-      // If fade step enabled but fade directories not defined in ldSearchDirs, add fade directories
-      if (doFadeStep() && !fadeDirsIncluded) {
-          if (QDir(_fadePartDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
-              Preferences::ldSearchDirs << _fadePartDir;
-              logStatus() << "Add fade part directory:" << _fadePartDir;
+      // If fade step enabled but custom directories not defined in ldSearchDirs, add custom directories
+      if ((doFadeStep() || doHighlightStep()) && !customDirsIncluded) {
+          if (QDir(_customPartDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+              Preferences::ldSearchDirs << _customPartDir;
+              logStatus() << "Add custom part directory:" << _customPartDir;
             } else {
-              logStatus() << "Fade part directory is empty and will be ignored:" << _fadePartDir;
+              logStatus() << "Custom part directory is empty and will be ignored:" << _customPartDir;
             }
-          if (QDir(_fadePrimDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
-              Preferences::ldSearchDirs << _fadePrimDir;
-              logStatus() << "Add fade primitive directory:" << _fadePrimDir;
+          if (QDir(_customPrimDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+              Preferences::ldSearchDirs << _customPrimDir;
+              logStatus() << "Add custom primitive directory:" << _customPrimDir;
             } else {
-              logStatus() << "Fade primitive directory is empty and will be ignored:" << _fadePrimDir;
+              logStatus() << "Custom primitive directory is empty and will be ignored:" << _customPrimDir;
             }
         }
       // Add subdirectories from Unofficial root directory
@@ -329,218 +345,212 @@ void PartWorker::processLDSearchDirParts(){
 }
 
 /*
- * Create fade version of static colour part files.
+ * scan LDraw library files for static colored parts and create fade copy
  */
-void PartWorker::processFadePartsArchive(){
-  bool updateLDSearchDirSettings = false;
-  setDoFadeStep((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep));
-  if (doFadeStep()) {
-      Paths::mkfadedirs();
-      QStringList fadePartsDirs;
-      foreach(QDir fadeDir, Paths::fadeDirs){
-          if(fadeDir.entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
-              fadePartsDirs << fadeDir.absolutePath();
-
-              //add entry to search dirs if not already added
-              bool addToSearchDirs = false;
-              QString fadeEntry = QDir::toNativeSeparators(fadeDir.absolutePath());
-              foreach (QString searchEntry, Preferences::ldSearchDirs){
-                  addToSearchDirs = fadeEntry != searchEntry;
-                  if (!addToSearchDirs)
-                    break;
-                }
-              if (addToSearchDirs && (fadeEntry == _fadePartDir || fadeEntry == _fadePrimDir)){
-                  Preferences::ldSearchDirs << fadeEntry;
-                  updateLDSearchDirSettings = true;
-                  logStatus() << "Add fade directory to ldSearchDirs:" << fadeEntry;
-                }
-            }
-        }
-        if (fadePartsDirs.size() > 0) {
-            if (!processPartsArchive(fadePartsDirs, "colour fade")){
-                QString error = QString("Process fade parts archive failed!.");
-                emit messageSig(false,error);
-                logError() << error;
-            }
-        }
-    } else {
-        int i = 0;
-        foreach (QString searchEntry, Preferences::ldSearchDirs){
-            if (searchEntry == _fadePartDir || searchEntry == _fadePrimDir){
-                Preferences::ldSearchDirs.removeAt(i);
-                updateLDSearchDirSettings = true;
-                logStatus() << "Remove fade directory from ldSearchDirs:" << searchEntry;
-            }
-            i++;
-        }
-
-    }
-    // update the registry and LDView and LDGLite extra search directories
-    if (updateLDSearchDirSettings) {
-        QSettings Settings;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
-
-        Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni);
-        Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni);
-        populateLdgLiteSearchDirs();
-    }
+void PartWorker::processFadeColourParts(bool overwriteCustomParts)
+{
+  qDebug() << qPrintable(QString("Received overwrite fade parts = %1").arg(overwriteCustomParts ? "True" : "False"));
+  if (doFadeStep())
+    processCustomColourParts(FADE_PART, overwriteCustomParts);
 }
 
-void PartWorker::processFadeColourParts()
+/*
+ * scan LDraw library files for static colored parts and create highlight copy
+ */
+void PartWorker::processHighlightColourParts(bool overwriteCustomParts)
 {
-  setDoFadeStep((gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeStep));
-  if (doFadeStep()) {
-       _timer.start();
-      _fadedParts = 0;
+  qDebug() << qPrintable(QString("Received overwrite highlight parts = %1").arg(overwriteCustomParts ? "True" : "False"));
+  if (doHighlightStep())
+    processCustomColourParts(HIGHLIGHT_PART, overwriteCustomParts);
+}
 
-      QStringList fadePartsDirs;
-      QStringList contents;
-      QStringList colourPartList;
+void PartWorker::processCustomColourParts(PartType partType, bool overwriteCustomParts)
+{
+  QString nameMod;
+  if (partType == FADE_PART)
+    nameMod = "fade";
+  else if (partType == HIGHLIGHT_PART)
+    nameMod = "highlight";
 
-      emit progressBarInitSig();
-      emit progressMessageSig("Parse Model File");
-      Paths::mkfadedirs();
+  _timer.start();
+  _customParts = 0;
 
-      ldrawFile = gui->getLDrawFile();
-      // porcess top-level submodels
-      emit progressRangeSig(1, ldrawFile._subFileOrder.size());
-      for (int i = 0; i < ldrawFile._subFileOrder.size() && endThreadNotRequested(); i++) {
-          QString subfileNameStr = ldrawFile._subFileOrder[i].toLower();
-          contents = ldrawFile.contents(subfileNameStr);
-          emit progressSetValueSig(i);
-          logInfo() << "00 PROCESSING SUBFILE:" << subfileNameStr;
-          for (int i = 0; i < contents.size() && endThreadNotRequested(); i++) {
-              QString line = contents[i];
-              QStringList tokens;
-              split(line,tokens);
-              if (tokens.size() == 15 && tokens[0] == "1") {
-                  // check if colored part and create fade version if yes
-                  QString fileNameStr  = tokens[tokens.size()-1];
-                  // validate part is static colour part;
-                  if (FadeStepColorParts::getStaticColorPartInfo(fileNameStr)){
-                      bool entryExists = false;
-                      QString dirName = fileNameStr.section(":::",1,1).split("\\").first();
-                      QString fileName = fileNameStr.section(":::",1,1).split("\\").last();
-                      //logDebug() << "FileDir:" << dirName << "FileName:" << fileName;
-                      QDir fadeFileDirPath;
-                      if (dirName == fileName){
-                          fadeFileDirPath = Paths::fadePartDir;
-                      } else  if (dirName == "s"){
-                          fadeFileDirPath = Paths::fadeSubDir;
-                      } else  if (dirName == "p"){
-                          fadeFileDirPath = Paths::fadePrimDir;
-                      } else  if (dirName == "8"){
-                          fadeFileDirPath = Paths::fadePrim8Dir;
-                      } else if (dirName == "48"){
-                          fadeFileDirPath = Paths::fadePrim48Dir;
-                      } else {
-                          fadeFileDirPath = Paths::fadePartDir;
-                      }
-                      QFileInfo fadeFileInfo(fadeFileDirPath,fileName.replace(".dat","-fade.dat"));
-                      if(fadeFileInfo.exists()){
-                          logNotice() << "01 COLOUR PART EXIST - IGNORING:" << fileNameStr;
-                          entryExists = true;
-                      }
-                      if (!entryExists)
-                          foreach(QString colourPart, colourPartList){
-                              if (colourPart == fileNameStr){
-                                  entryExists = true;
-                                  break;
-                              }
+  QStringList customPartsDirs;
+  QStringList contents;
+  QStringList colourPartList;
+  int existingCustomParts = 0;
+
+  emit progressBarInitSig();
+  emit progressMessageSig("Parse Model File");
+  Paths::mkCustomDirs();
+
+  ldrawFile = gui->getLDrawFile();
+  // process top-level submodels
+  emit progressRangeSig(1, ldrawFile._subFileOrder.size());
+  for (int i = 0; i < ldrawFile._subFileOrder.size() && endThreadNotRequested(); i++) {
+      QString subfileNameStr = ldrawFile._subFileOrder[i].toLower();
+      contents = ldrawFile.contents(subfileNameStr);
+      emit progressSetValueSig(i);
+      logInfo() << "00 PROCESSING SUBFILE:" << subfileNameStr;
+      for (int i = 0; i < contents.size() && endThreadNotRequested(); i++) {
+          QString line = contents[i];
+          QStringList tokens;
+          split(line,tokens);
+          if (tokens.size() == 15 && tokens[0] == "1") {
+              // check if colored part and create custom version if yes
+              QString fileNameStr = gui->ldrawColourParts.getLDrawColourPartInfo(tokens[tokens.size()-1]);
+              // validate part is static colour part;
+              if (!fileNameStr.isEmpty()){
+                  bool entryExists = false;
+                  QString dirName = fileNameStr.section(":::",1,1).split("\\").first();
+                  QString fileName = fileNameStr.section(":::",1,1).split("\\").last();
+                  //logDebug() << "FileDir:" << dirName << "FileName:" << fileName;
+                  QDir customFileDirPath;
+                  if (dirName == fileName){
+                      customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
+                  } else  if (dirName == "s"){
+                      customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customSubDir));
+                  } else  if (dirName == "p"){
+                      customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrimDir));
+                  } else  if (dirName == "8"){
+                      customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim8Dir));
+                  } else if (dirName == "48"){
+                      customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim48Dir));
+                  } else {
+                      customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
+                  }
+                  QFileInfo customFileInfo(customFileDirPath,fileName.replace(".dat", "-" + nameMod + ".dat"));
+                  if(customFileInfo.exists()){
+                      logNotice() << "01 COLOUR PART EXIST - IGNORING:" << fileNameStr;
+                      entryExists = true;
+                      if (!customPartsDirs.contains(customFileInfo.absolutePath()))
+                        customPartsDirs << customFileInfo.absolutePath();
+                      existingCustomParts++;
+                  }
+                  // check if part entry already in list
+                  if (!entryExists)
+                      foreach(QString colourPart, colourPartList){
+                          if (colourPart == fileNameStr){
+                              entryExists = true;
+                              break;
                           }
-                      if (!entryExists) {
-                          logNotice() << "01 SUBMIT COLOUR PART INFO:" << fileNameStr << " Line: " << i ;
-                          colourPartList << fileNameStr;
                       }
+                  // add part entry to list
+                  if (!entryExists) {
+                      logNotice() << "01 SUBMIT COLOUR PART INFO:" << fileNameStr << " Line: " << i ;
+                      colourPartList << fileNameStr;
                   }
               }
           }
       }
-      emit progressSetValueSig(ldrawFile._subFileOrder.size());
+  }
 
-      if (colourPartList.size() > 0) {
-          if (!processColourParts(colourPartList)) {
-              QString error = QString("Process fade colour parts failed!.");
-              emit messageSig(false,error);
-              logError() << error;
-              emit removeProgressStatusSig();
-              emit fadeColourFinishedSig();
-              return;
-          }
+  emit progressSetValueSig(ldrawFile._subFileOrder.size());
 
-          createFadePartFiles();
+  // We have new parts to be created.
+  if (colourPartList.size() > 0) {
+      // check if part has children color part(s)
+      if (!processColourParts(colourPartList, partType)) {
+          QString error = QString("Process %1 colour parts failed!.").arg(nameMod);
+          emit messageSig(false,error);
+          logError() << error;
+          emit removeProgressStatusSig();
+          emit customColourFinishedSig();
+          return;
+      }
 
-          // Append fade parts to unofficial library for 3DViewer's consumption
-          if(fadePartsDirs.size() != 0){
-              fadePartsDirs.empty();
-          }
-          foreach(QDir fadeDir, Paths::fadeDirs){
-              if(fadeDir.entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0)
-                  fadePartsDirs << fadeDir.absolutePath();
-          }
+      // Create the custom part
+      createCustomPartFiles(partType);
 
-          // remove Duplicates
-          fadePartsDirs = fadePartsDirs.toSet().toList();
+      // Populate custom parts dirs
+      foreach(QDir customDir, Paths::customDirs){
+          if(customDir.entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0)
+              customPartsDirs << customDir.absolutePath();
+      }
+      // Remove Duplicates
+      customPartsDirs = customPartsDirs.toSet().toList();
 
-          if (_fadedParts > 0 && fadePartsDirs.size() > 0) {
-              // transfer to ldSearchDirs
-              bool fadeDirsIncluded = false;
-              foreach (QString entry, Preferences::ldSearchDirs){
-                  QString entryDir = QDir::toNativeSeparators(entry.toLower());
-                  // check if fade directories included
-                  foreach(QString fadePartDir, fadePartsDirs) {
-                      if (!fadeDirsIncluded){
-                          fadeDirsIncluded = (entryDir.toLower() == fadePartDir.toLower());
-                        }
-                    }
-                }
-              // If not included add fade directories and update registry and LDView and LDGLite extra search directories
-              if (!fadeDirsIncluded){
-                  foreach(QString fadePartDir, fadePartsDirs) {
-                      Preferences::ldSearchDirs << QDir::toNativeSeparators(fadePartDir);
-                      logDebug() << "Add fade part directory to ldSearchDirs:" << fadePartDir;
-                    }
+      if (_customParts > 0 && customPartsDirs.size() > 0) {
+          // transfer to ldSearchDirs
+          bool updateLDGLiteSearchDirs = false;
+          foreach (QString customPartDir, customPartsDirs){
+              bool customDirsIncluded = false;
+              QString customDir = QDir::toNativeSeparators(customPartDir.toLower());
+              // check if custom directories included
+              foreach(QString ldSearchDir, Preferences::ldSearchDirs ) {
+                  QString searchDir = QDir::toNativeSeparators(ldSearchDir.toLower());
+                  if (customDirsIncluded)
+                    break;
+                  customDirsIncluded = (searchDir == customDir);
+              }
+              // If not included add custom directories and update registry and LDView and LDGLite extra search directories
+              if (!customDirsIncluded){
+                  Preferences::ldSearchDirs << QDir::toNativeSeparators(customPartDir);
+                  logDebug() << "Add " + nameMod + " part directory to ldSearchDirs:" << customPartDir;
                   QSettings Settings;
                   Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
 
-                  Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni);
-                  Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni);
-                  populateLdgLiteSearchDirs();
-                }
-              // Process archive files
-              if (!processPartsArchive(fadePartsDirs, "colour fade")){
-                  QString error = QString("Process fade parts archive failed!.");
-                  emit messageSig(false,error);
-                  logError() << error;
-                  emit removeProgressStatusSig();
-                  emit fadeColourFinishedSig();
-                  return;
-              }            
+                  if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
+                     logError() << qPrintable(QString("Could not update %1").arg(Preferences::ldviewIni));
+                  if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
+                     logError() << qPrintable(QString("Could not update %1").arg(Preferences::ldviewPOVIni));
+                  updateLDGLiteSearchDirs = true;
+              }
           }
+          if (updateLDGLiteSearchDirs)
+              populateLdgLiteSearchDirs();
       }
+  }
 
-      int secs = _timer.elapsed() / 1000;
-      int mins = (secs / 60) % 60;
-      secs = secs % 60;
-      int msecs = _timer.elapsed() % 1000;
+  // Archive custom parts
+  if (colourPartList.size() > 0 || (existingCustomParts > 0 && overwriteCustomParts)){
+      // Process archive files
+      QString comment = QString("colour %1").arg(nameMod);
+      if (!processPartsArchive(customPartsDirs, comment, overwriteCustomParts)){
+          QString error = QString("Process %1 parts archive failed!.").arg(nameMod);
+          emit messageSig(false,error);
+          logError() << error;
+          emit removeProgressStatusSig();
+          emit customColourFinishedSig();
+          return;
+      }
+  }
 
-      QString time = QString("Elapsed time is %1:%2:%3")
-      .arg(mins, 2, 10, QLatin1Char('0'))
-      .arg(secs,  2, 10, QLatin1Char('0'))
-      .arg(msecs,  3, 10, QLatin1Char('0'));
+  // summary stats
+  int secs = _timer.elapsed() / 1000;
+  int mins = (secs / 60) % 60;
+  secs = secs % 60;
+  int msecs = _timer.elapsed() % 1000;
 
-      QString fileStatus = _fadedParts == 1 ? QString("%1 fade part created and library updated. %2.").arg(_fadedParts).arg(time) :
-                           _fadedParts > 1 ? QString("%1 fade parts created and library updated. %2.").arg(_fadedParts).arg(time) :
-                                           QString("Fade parts verified. %1.").arg(time);
-      emit removeProgressStatusSig();
-      emit fadeColourFinishedSig();
-      emit messageSig(true,fileStatus);
+  QString time = QString("Elapsed time is %1:%2:%3")
+  .arg(mins, 2, 10, QLatin1Char('0'))
+  .arg(secs,  2, 10, QLatin1Char('0'))
+  .arg(msecs,  3, 10, QLatin1Char('0'));
 
-      logInfo() << fileStatus;
-    }
+  int allCustomParts = _customParts += existingCustomParts;
+
+  QString fileStatus = allCustomParts > 0 ? QString("%1 %2 %3 created. Archive library %4. %5.")
+                                                    .arg(_customParts)
+                                                    .arg(nameMod)
+                                                    .arg(allCustomParts == 1 ? "part" : "parts")
+                                                    .arg(_partsArchived ? "updated" : "not updated, custom parts already archived")
+                                                    .arg(time) :
+                                             QString("No %2 parts created.").arg(nameMod);
+
+  emit removeProgressStatusSig();
+  emit customColourFinishedSig();
+  emit messageSig(true,fileStatus);
+
+  logInfo() << fileStatus;
 }
 
-bool PartWorker::processColourParts(const QStringList &colourPartList) {
+bool PartWorker::processColourParts(const QStringList &colourPartList, const PartType partType) {
+
+    QString nameMod;
+    if (partType == FADE_PART)
+      nameMod = "fade";
+    else if (partType == HIGHLIGHT_PART)
+      nameMod = "highlight";
 
     // Archive library files
     QString fileStatus;
@@ -563,7 +573,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList) {
     emit progressRangeSig(1, colourPartList.size());
 
     int partCount = 0;
-    QStringList inputContents;
+    int partsProcessed = 0;
     QStringList childrenColourParts;
 
     foreach (QString partEntry, colourPartList) {
@@ -612,29 +622,30 @@ bool PartWorker::processColourParts(const QStringList &colourPartList) {
                     QStringList tokens;
                     split(line,tokens);
                     if (tokens.size() == 15 && tokens[0] == "1") {
-                        QString childFileNameStr  = tokens[tokens.size()-1];
                         // validate part is static colour part;
-                        if (FadeStepColorParts::getStaticColorPartInfo(childFileNameStr)){
+                        QString childFileNameStr = gui->ldrawColourParts.getLDrawColourPartInfo(tokens[tokens.size()-1]);
+                        // validate part is static colour part;
+                        if (!childFileNameStr.isEmpty()){
                             bool entryExists = false;
                             QString dirName = childFileNameStr.section(":::",1,1).split("\\").first();
                             QString fileName = childFileNameStr.section(":::",1,1).split("\\").last();
                             //logDebug() << "FileDir:" << dirName << "FileName:" << fileName;
-                            QDir fadeFileDirPath;
+                            QDir customFileDirPath;
                             if (dirName == fileName){
-                                fadeFileDirPath = Paths::fadePartDir;
+                                customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
                             } else  if (dirName == "s"){
-                                fadeFileDirPath = Paths::fadeSubDir;
+                                customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customSubDir));
                             } else  if (dirName == "p"){
-                                fadeFileDirPath = Paths::fadePrimDir;
+                                customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrimDir));
                             } else  if (dirName == "8"){
-                                fadeFileDirPath = Paths::fadePrim8Dir;
+                                customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim8Dir));
                             } else if (dirName == "48"){
-                                fadeFileDirPath = Paths::fadePrim48Dir;
+                                customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim48Dir));
                             } else {
-                                fadeFileDirPath = Paths::fadePartDir;
+                                customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
                             }
-                            QFileInfo fadeFileInfo(fadeFileDirPath,fileName.replace(".dat","-fade.dat"));
-                            if(fadeFileInfo.exists()){
+                            QFileInfo customFileInfo(customFileDirPath,fileName.replace(".dat", "-" + nameMod + ".dat"));
+                            if(customFileInfo.exists()){
                                 logNotice() << "03 CHILD COLOUR PART EXIST - IGNORING:" << childFileNameStr;
                                 entryExists = true;
                             }
@@ -653,24 +664,24 @@ bool PartWorker::processColourParts(const QStringList &colourPartList) {
                     }
                 }
                 // determine part type
-                int partType = -1;
+                int ldrawPartType = -1;
                 if (libDirName == libPartName){
-                    partType=LD_PARTS;
+                    ldrawPartType=LD_PARTS;
                 } else  if (libDirName == "s"){
-                    partType=LD_SUB_PARTS;
+                    ldrawPartType=LD_SUB_PARTS;
                 } else  if (libDirName == "p"){
-                    partType=LD_PRIMITIVES;
+                    ldrawPartType=LD_PRIMITIVES;
                 } else  if (libDirName == "8"){
-                    partType=LD_PRIMITIVES_8;
+                    ldrawPartType=LD_PRIMITIVES_8;
                 } else if (libDirName == "48"){
-                    partType=LD_PRIMITIVES_48;
+                    ldrawPartType=LD_PRIMITIVES_48;
                 } else {
-                    partType=LD_PARTS;
+                    ldrawPartType=LD_PARTS;
                 }
                 // add content to ColourParts map
-                insert(_partFileContents, libPartName, partType, true);
-                inputContents = _partFileContents;
+                insert(_partFileContents, libPartName, ldrawPartType, true);
                 _partFileContents.clear();
+                partsProcessed++;
                 break;
 
             } else if (libPartFile.fileName().toLower() == libPartName && partAlreadyInList(libPartName)) {
@@ -696,9 +707,11 @@ bool PartWorker::processColourParts(const QStringList &colourPartList) {
 
     // recurse part file content to check if any children are colour parts
     if (childrenColourParts.size() > 0)
-        processColourParts(childrenColourParts);
+        processColourParts(childrenColourParts, partType);
 
-    QString message = "Colour parts content created.";
+    QString message = QString("%1 Colour %2 content processed.")
+        .arg(partsProcessed)
+        .arg(partsProcessed > 1 ? "parts" : "part");
     emit messageSig(true,message);
     logInfo() << message;
 
@@ -706,56 +719,65 @@ bool PartWorker::processColourParts(const QStringList &colourPartList) {
 }
 
 
-bool PartWorker::createFadePartFiles(){
+bool PartWorker::createCustomPartFiles(const PartType partType){
+
+     QString nameMod, colourPrefix;
+     if (partType == FADE_PART){
+       nameMod = "fade";
+       colourPrefix = LPUB3D_COLOUR_FADE_PREFIX;
+     } else if (partType == HIGHLIGHT_PART) {
+       nameMod = "highlight";
+       colourPrefix = LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
+     }
 
     int maxValue            = _partList.size();
     emit progressResetSig();
-    emit progressMessageSig("Creating Fade Colour Parts");
+    emit progressMessageSig("Creating Costom Colour Parts");
     emit progressRangeSig(1, maxValue);
 
-    QString materialColor  ="16";  // Internal Common Material Colour (main)
-    QString edgeColor      ="24";  // Internal Common Material Color (edge)
+    QStringList customPartContent, customPartColourList;
+    QString customPartFile;
 
-    QStringList fadePartContent;
-    QString fadePartFile;
-
-    for(int part = 0; part < _partList.size() && endThreadNotRequested(); part++){
+    for(int part = 0; part < _partList.size() && endThreadNotRequested(); part++) {
 
         emit progressSetValueSig(part);
+
         QMap<QString, ColourPart>::iterator cp = _colourParts.find(_partList[part]);
 
         if(cp != _colourParts.end()){
 
-            // prepare absoluteFilePath for fade file
-            QDir fadePartDirPath;
+            // prepare absoluteFilePath for costom file
+            QDir customPartDirPath;
             switch (cp.value()._partType)
             {
             case LD_PARTS:
-                fadePartDirPath = Paths::fadePartDir;
+                customPartDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
                 break;
             case LD_SUB_PARTS:
-                fadePartDirPath = Paths::fadeSubDir;
+                customPartDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customSubDir));
                 break;
             case LD_PRIMITIVES:
-                fadePartDirPath = Paths::fadePrimDir;
+                customPartDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrimDir));
                 break;
             case LD_PRIMITIVES_8:
-                fadePartDirPath = Paths::fadePrim8Dir;
+                customPartDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim8Dir));
                 break;
             case LD_PRIMITIVES_48:
-                fadePartDirPath = Paths::fadePrim48Dir;
+                customPartDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrim48Dir));
                 break;
             }
-            QString fadeFile = cp.value()._fileNameStr;
-            QFileInfo fadeStepColorPartFileInfo(fadePartDirPath,fadeFile.replace(".dat","-fade.dat"));
-            if (fadeStepColorPartFileInfo.exists()){
-                logNotice() << "PART ALREADY EXISTS: " << fadeStepColorPartFileInfo.absoluteFilePath();
+            QString customFile = cp.value()._fileNameStr;
+            QFileInfo customStepColourPartFileInfo(customPartDirPath,customFile.replace(".dat", "-" + nameMod + ".dat"));
+            if (customStepColourPartFileInfo.exists()){
+                logNotice() << "PART ALREADY EXISTS: " << customStepColourPartFileInfo.absoluteFilePath();
                 continue;
+            } else {
+                logNotice() << "CREATE CUSTOM PART: " << customStepColourPartFileInfo.absoluteFilePath();
             }
-            fadePartFile = fadeStepColorPartFileInfo.absoluteFilePath();
-            //logTrace() << "A. PART CONTENT ABSOLUTE FILEPATH: " << fadeStepColorPartFileInfo.absoluteFilePath();
+            customPartFile = customStepColourPartFileInfo.absoluteFilePath();
+            //logTrace() << "A. PART CONTENT ABSOLUTE FILEPATH: " << customStepColourPartFileInfo.absoluteFilePath();
 
-            // process fade part contents
+            // process costom part contents
             for (int i = 0; i < cp.value()._contents.size() && endThreadNotRequested(); i++) {
                 QString line =  cp.value()._contents[i];
                 QStringList tokens;
@@ -765,36 +787,48 @@ bool PartWorker::createFadePartFiles(){
                 if (tokens.size() == 15 && tokens[0] == "1") {
                     fileNameStr = tokens[tokens.size()-1].toLower();
                     QString searchFileNameStr = fileNameStr;
-                    // check if part at this line has a matching colour part in the colourPart list - if yes, rename with '-fade'
+                    // check if part at this line has a matching colour part in the colourPart list - if yes, rename with '-fade' or '-highlight'
                     searchFileNameStr = searchFileNameStr.split("\\").last();
                     QMap<QString, ColourPart>::iterator cpc = _colourParts.find(searchFileNameStr);
                     if (cpc != _colourParts.end()){
                         if (cpc.value()._fileNameStr == searchFileNameStr){
-                            fileNameStr = fileNameStr.replace(".dat","-fade.dat");
+                            fileNameStr = fileNameStr.replace(".dat", "-" + nameMod + ".dat");
                         }
                     }
                     tokens[tokens.size()-1] = fileNameStr;
                 }
-                // check if coloured line and set to 16 if yes
-                if((((tokens.size() == 15 && tokens[0] == "1")  ||
-                     (tokens.size() == 8  && tokens[0] == "2")  ||
-                     (tokens.size() == 11 && tokens[0] == "3")  ||
-                     (tokens.size() == 14 && tokens[0] == "4")  ||
-                     (tokens.size() == 14 && tokens[0] == "5")) &&
-                     (tokens[1] != materialColor) 				&&
-                     (tokens[1] != edgeColor))){
-
-                    //QString oldColour(tokens[1]);       //logging only: show colour lines
-                    tokens[1] = materialColor;
+                // check if coloured line...
+                if((tokens.size() && tokens[0].size() == 1    &&
+                    tokens[0] >= "1" && tokens[0] <= "5")     &&
+                    (tokens[1] != LDRAW_MAIN_MATERIAL_COLOUR) &&
+                    (tokens[1] != LDRAW_EDGE_MATERIAL_COLOUR)) {
+                    //QString oldColour(tokens[1]);          //logging only: show colour lines
+                    // generate costom colour entry - if fadeStepUseColour, set colour to material colour (16), without prefix
+                    QString colourCode = Preferences::fadeStepUseColour ? LDRAW_MAIN_MATERIAL_COLOUR : tokens[1];
+                    // add colour line to local list
+                    if (!gui->colourEntryExist(customPartColourList,colourCode,partType))
+                        customPartColourList << gui->createColourEntry(colourCode,partType);
+                    // set costom colour - if fadeStepUseColour, do not add costom colour prefix
+                    tokens[1] = Preferences::fadeStepUseColour ? colourCode : QString("%1%2").arg(colourPrefix).arg(colourCode);
                     //logTrace() << "D. CHANGE CHILD PART COLOUR: " << fileNameStr << " NewColour: " << tokens[1] << " OldColour: " << oldColour;
                 }
                 line = tokens.join(" ");
-                fadePartContent << line;
+                customPartContent << line;
             }
-            //logTrace() << "04 SAVE COLOUR PART: " << fadePartFile;
-            if(saveFadeFile(fadePartFile, fadePartContent))
-                _fadedParts++;
-            fadePartContent.clear();
+
+            // add the costom part colour list to the header of the costom part contents
+            customPartColourList.toSet().toList(); // remove dupes
+            customPartContent.prepend("0");
+            for (int i = 0; i < customPartColourList.size(); ++i)
+              customPartContent.prepend(customPartColourList.at(i));
+            customPartContent.prepend("0 // LPub3D part custom colours");
+
+            //logTrace() << "04 SAVE CUSTGOM COLOUR PART: " << customPartFile;
+            if(saveCustomFile(customPartFile, customPartContent))
+                _customParts++;
+
+            customPartContent.clear();
+            customPartColourList.clear();
         }
     }
     emit progressSetValueSig(maxValue);
@@ -803,11 +837,11 @@ bool PartWorker::createFadePartFiles(){
 
 
 /*
-     * Write faded part files to fade directory.
+     * Write custom part files to costom directory.
      */
-bool PartWorker::saveFadeFile(
+bool PartWorker::saveCustomFile(
         const QString     &fileName,
-        const QStringList &fadePartContent) {
+        const QStringList &customPartContent) {
 
     QFile file(fileName);
     if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
@@ -818,11 +852,12 @@ bool PartWorker::saveFadeFile(
 
     } else {
         QTextStream out(&file);
-        for (int i = 0; i < fadePartContent.size(); i++) {
-            out << fadePartContent[i] << endl;
+        for (int i = 0; i < customPartContent.size(); i++) {
+
+            out << customPartContent[i] << endl;
         }
         file.close();
-        logNotice() << "05 WRITE FADE PART TO DISC:" << fileName;
+        logNotice() << "05 WRITE CUSTOM PART TO DISC:" << fileName;
         return true;
     }
 }
@@ -922,9 +957,9 @@ void PartWorker::requestEndThreadNow(){
 }
 
 
-bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QString &comment = QString("")){
+bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QString &comment, bool overwriteCustomParts){
 
-  // Append fade parts to unofficial library for 3D Viewer's consumption
+  // Append costom parts to unofficial library for 3D Viewer's consumption
   QFileInfo libFileInfo(Preferences::lpub3dLibFile);
   QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.absolutePath(),VER_LPUB3D_UNOFFICIAL_ARCHIVE));
   QString returnMessage = QString("Archiving %1 parts to : %2.").arg(comment,archiveFile);
@@ -949,27 +984,26 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
       if (!archiveParts.Archive( archiveFile,
                                  foo.absolutePath(),
                                  returnMessage,
-                                 QString("Append %1 parts").arg(comment)))
+                                 QString("Append %1 parts").arg(comment),
+                                 overwriteCustomParts))
       {
           if (okToEmitToProgressBar())
               emit messageSig(false,returnMessage);
           else
-              logError() << returnMessage;
+              logNotice() << returnMessage;
           continue;
       }
       bool ok;
       int partCount = returnMessage.toInt(&ok);
-      QString breakdown;
+      QString summary;
       if (ok){
-//          breakdown = partCount == 1 && archivedPartCount == 0 ? tr("part") :
-//                      partCount != 1 && archivedPartCount == 0 ? tr("parts") :
-//                                                                 tr("[%1 + %2] parts").arg(archivedPartCount).arg(partCount);
-          archivedPartCount += partCount;
-          breakdown = partCount == 1 && archivedPartCount == 0 ? tr("part") :
-                      partCount != 1 && archivedPartCount == 0 ? tr("parts") :
-                                                                 tr("[Total %1] parts").arg(archivedPartCount);
+          int totalPartCount = archivedPartCount + partCount;
+          summary = totalPartCount == 0 ? "parts" :
+                    totalPartCount == 1 ? tr("[Total %1] part").arg(totalPartCount) :
+                                          tr("[Total %1] parts").arg(totalPartCount);
+
       }
-      logInfo() << tr("Archived %1 %2 from %3").arg(partCount).arg(breakdown).arg(foo.absolutePath());
+      logInfo() << tr("Archived %1 %2 from %3").arg(partCount).arg(summary).arg(foo.absolutePath());
   }
 
   // Reload unofficial library parts into memory - only if initial library load already done !
@@ -996,8 +1030,10 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   } else  if (archivedPartCount > 0) {
       partsLabel = archivedPartCount == 1 ? "part" : "parts";
       returnMessage = tr("Finished. Archived and loaded %1 %2 %3 into memory.").arg(archivedPartCount).arg(comment).arg(partsLabel);
+      _partsArchived = true;
   } else {
       returnMessage = tr("Finished. No %1 parts archived. Unofficial library not reloaded.").arg(comment);
+      _partsArchived = false;
   }
 
   logInfo() << returnMessage;
@@ -1008,7 +1044,6 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   }
   return true;
 }
-
 
 ColourPart::ColourPart(
         const QStringList   &contents,
@@ -1030,13 +1065,12 @@ ColourPartListWorker::ColourPartListWorker(QObject *parent) : QObject(parent)
     _filePath = "";
 }
 
-
 /*
  * build colour part listing
  *
  */
 
-void ColourPartListWorker::generateFadeColourPartsList()
+void ColourPartListWorker::generateCustomColourPartsList()
 {
     // Archive library files
     QStringList archiveFiles;
@@ -1060,16 +1094,16 @@ void ColourPartListWorker::generateFadeColourPartsList()
     int libCount = 1;
 
     fileSectionHeader(FADESTEP_INTRO_HEADER);
-    _fadeStepColourParts  << "# Archive Libraries:";
+    _ldrawStaticColourParts  << "# Archive Libraries:";
     foreach (QString archiveFile, archiveFiles) {
       QString library = archiveFile == lpub3dLibFileInfo.absoluteFilePath() ? "Official Library" : "Unofficial Library";
-      _fadeStepColourParts  << QString("# %1. %2: %3").arg(libCount++).arg(library).arg(archiveFile);
+      _ldrawStaticColourParts  << QString("# %1. %2: %3").arg(libCount++).arg(library).arg(archiveFile);
     }
     int dirCount = 1;
-    _fadeStepColourParts  << "";
-    _fadeStepColourParts  << "# Library Directories:";
+    _ldrawStaticColourParts  << "";
+    _ldrawStaticColourParts  << "# Library Directories:";
     foreach (QString partTypeDir, partTypeDirs){
-      _fadeStepColourParts  << QString("# %1. %2").arg(dirCount++).arg(partTypeDir);
+      _ldrawStaticColourParts  << QString("# %1. %2").arg(dirCount++).arg(partTypeDir);
     }
     fileSectionHeader(FADESTEP_FILE_HEADER);
 
@@ -1087,7 +1121,7 @@ void ColourPartListWorker::generateFadeColourPartsList()
 
     processChildren();
 
-    writeFadeFile();
+    writeLDrawColourPartFile();
 
     int secs = _timer.elapsed() / 1000;
     int mins = (secs / 60) % 60;
@@ -1102,7 +1136,7 @@ void ColourPartListWorker::generateFadeColourPartsList()
     QString fileStatus = QString("Colour parts list successfully created with %1 entries. %2.").arg(QString::number(_cpLines)).arg(time);
     fileSectionHeader(FADESTEP_FILE_STATUS, QString("# %1").arg(fileStatus));
     bool append = true;
-    writeFadeFile(append);
+    writeLDrawColourPartFile(append);
 
     emit removeProgressStatusSig();
     emit colourPartListFinishedSig();
@@ -1235,7 +1269,7 @@ void ColourPartListWorker::processFileContents(const QString &libFileName, const
                 if (fileName.isEmpty()){
                     fileName = libFileName.split("/").last();
                     emit messageSig(false,QString("Part: %1 \nhas no 'Name:' attribute. Using library path name %2 instead.\n"
-                                                  "You may want to update the part content and fade colour parts list.")
+                                                  "You may want to update the part content and costom colour parts list.")
                                     .arg(fileName).arg(libFileName));
                 }
                 fileEntry = QString("%1:::%2:::%3").arg(fileName).arg(libType).arg(_partFileContents[0].remove(0,2));
@@ -1252,7 +1286,7 @@ void ColourPartListWorker::processFileContents(const QString &libFileName, const
              _filePath = libFilePath;
          }
         _cpLines++;
-        _fadeStepColourParts  << fileEntry.toLower();
+        _ldrawStaticColourParts  << fileEntry.toLower();
         if (fileName.size() > _colWidthFileName)
             _colWidthFileName = fileName.size();
         //logNotice() << "ADD COLOUR PART: " << fileName << " libFileName: " << libFileName << " Colour: " << colour;
@@ -1291,10 +1325,10 @@ void ColourPartListWorker::processChildren(){
                 if (tokens.size() == 15 && tokens[0] == "1") {
 
                     QString childFileNameStr = tokens[tokens.size()-1];                     // child part name in parent part
-                    // check childFileName in _fadeStepColourParts list
-                    for (int j = 0; j < _fadeStepColourParts.size() && ! gotoMainLoop && endThreadNotRequested(); ++j){
+                    // check childFileName in _ldrawStaticColourParts list
+                    for (int j = 0; j < _ldrawStaticColourParts.size() && ! gotoMainLoop && endThreadNotRequested(); ++j){
 
-                        if (_fadeStepColourParts.at(j).contains(childFileNameStr) && _fadeStepColourParts.at(j).contains(QRegExp("\\b"+childFileNameStr.replace("\\","\\\\")+"[^\n]*"))){
+                        if (_ldrawStaticColourParts.at(j).contains(childFileNameStr) && _ldrawStaticColourParts.at(j).contains(QRegExp("\\b"+childFileNameStr.replace("\\","\\\\")+"[^\n]*"))){
                              if (libFilePath != filePath){
                                  fileSectionHeader(FADESTEP_COLOUR_CHILDREN_PARTS_HEADER, QString("# Library path: %1").arg(libFilePath));
                                  filePath = libFilePath;
@@ -1303,7 +1337,7 @@ void ColourPartListWorker::processChildren(){
                             QString fileEntry, libType;
                             libType = ap.value()._unOff ? "U" : "O";
                             fileEntry = QString("%1:::%2:::%3:::%4").arg(parentFileNameStr).arg(libType).arg(ap.value()._contents[0].remove(0,2));
-                            _fadeStepColourParts  << fileEntry.toLower();
+                            _ldrawStaticColourParts  << fileEntry.toLower();
                             if (parentFileNameStr.size() > _colWidthFileName)
                                 _colWidthFileName = parentFileNameStr.size();
                             //logInfo() << "ADD CHILD COLOUR PART: " << libFileName;
@@ -1318,11 +1352,11 @@ void ColourPartListWorker::processChildren(){
     logInfo() << QString("Finished Processing Child Colour Parts.");
 }
 
-void ColourPartListWorker::writeFadeFile(bool append){
+void ColourPartListWorker::writeLDrawColourPartFile(bool append){
 
-    if (! _fadeStepColourParts.empty())
+    if (! _ldrawStaticColourParts.empty())
     {
-        QFileInfo colourFileList(Preferences::fadeStepColorPartsFile);
+        QFileInfo colourFileList(Preferences::ldrawColourPartsFile);
         QFile file(colourFileList.absoluteFilePath());
         if ( ! file.open(append ? QFile::Append | QFile::Text : QFile::WriteOnly | QFile::Text)) {
            logError() << QString("Failed to OPEN colourFileList %1 for writing:\n%2").arg(file.fileName()).arg(file.errorString());
@@ -1330,8 +1364,8 @@ void ColourPartListWorker::writeFadeFile(bool append){
             return;
         }
         QTextStream out(&file);
-        for (int i = 0; i < _fadeStepColourParts.size() && endThreadNotRequested(); i++) {
-            QString cpLine = _fadeStepColourParts[i];
+        for (int i = 0; i < _ldrawStaticColourParts.size() && endThreadNotRequested(); i++) {
+            QString cpLine = _ldrawStaticColourParts[i];
             if (cpLine.section(":::",0,0).split(".").last() == "dat") {
                 QString partNumber      = cpLine.section(":::",0,0);
                 QString libraryType     = cpLine.section(":::",1,1);
@@ -1352,9 +1386,11 @@ void ColourPartListWorker::writeFadeFile(bool append){
         file.close();
 
         if(!append) {
-            logInfo() << QString("Lines written to fadeStepColorParts.lst: %1").arg(_fadeStepColourParts.size()+5);
+            logInfo() << QString("Lines written to %1: %2")
+                         .arg(VER_LDRAW_COLOR_PARTS_FILE)
+                         .arg(_ldrawStaticColourParts.size()+5);
         }
-        _fadeStepColourParts.clear();
+        _ldrawStaticColourParts.clear();
     }
 }
 
@@ -1409,46 +1445,61 @@ void ColourPartListWorker::fileSectionHeader(const int &option, const QString &h
     switch(option)
     {
     case FADESTEP_INTRO_HEADER:
-        _fadeStepColourParts  << QString("# File: fadeStepColorParts.lst  Generated on: %1").arg(QDateTime::currentDateTime().toString(fmtDateTime));
-        _fadeStepColourParts  << "";
-        _fadeStepColourParts  << "# This list captures the static coloured parts (or their components) to support part fade";
-        _fadeStepColourParts  << "# Parts on this list are copied to their respective fade directory and modified.";
-        _fadeStepColourParts  << "# Colour codes are replaced with colour code 16";
-        _fadeStepColourParts  << "# Copied files are appended with '-fade', for example, ...\\fade\\parts\\99499-fade.dat";
-        _fadeStepColourParts  << "# Part identifiers with spaces will not be properly recoginzed.";
-        _fadeStepColourParts  << "# This file is automatically generated from Configuration=>Generate Fade Colour Parts List";
-        _fadeStepColourParts  << "# However, it can also be modified manually from Configuration=>Edit Fade Colour Parts List";
-        _fadeStepColourParts  << "# There are three defined columns:";
-        _fadeStepColourParts  << "# 1. File Name: The part file name as defined in the LDraw Library.";
-        _fadeStepColourParts  << "# 2. Lib Type: Indicator 'U'=Unofficial Library and 'O'= Official Library.";
-        _fadeStepColourParts  << "# 3. Description: The part file description taken from the first line of the part file.";
-        _fadeStepColourParts  << "";
-        _fadeStepColourParts  << "# Fade colour parts were generated from the following list of libraries and directories:";
-        _fadeStepColourParts  << "";
+        _ldrawStaticColourParts  << QString("# File: %1  Generated on: %2")
+                                    .arg(VER_LDRAW_COLOR_PARTS_FILE)
+                                    .arg(QDateTime::currentDateTime().toString(fmtDateTime));
+        _ldrawStaticColourParts  << "";
+        _ldrawStaticColourParts  << "# This list captures the LDraw static colour parts (and their subfiles) to support step fade";
+        _ldrawStaticColourParts  << "# and step highlight.";
+        _ldrawStaticColourParts  << "# Parts on this list are identified in the LDraw library and copied to their respective";
+        _ldrawStaticColourParts  << "# custom directory.";
+        _ldrawStaticColourParts  << "# Copied files are modified as described in the following lines.";
+        _ldrawStaticColourParts  << "# If fade step is enabled, colour codes are replaced with a custom code using the standard";
+        _ldrawStaticColourParts  << "# colour code prefixed with " << LPUB3D_COLOUR_FADE_PREFIX << ".";
+        _ldrawStaticColourParts  << "# If using a single fade step colour, colour codes are replaced with main material colour";
+        _ldrawStaticColourParts  << "# code 16 using the fade colour set in Preferences";
+        _ldrawStaticColourParts  << "# If part highlight is enabled, edge colour values are replaced with the colour value set";
+        _ldrawStaticColourParts  << "# in Preferences";
+        _ldrawStaticColourParts  << "# If part highlight is enabled, colour codes are replaced with a custom code using the standard";
+        _ldrawStaticColourParts  << "# colour code prefixed with " << LPUB3D_COLOUR_HIGHLIGHT_PREFIX << ".";
+        _ldrawStaticColourParts  << "# When fade step is enabled, custom generated files are appended with '-fade',";
+        _ldrawStaticColourParts  << "# for example, ...\\custom\\parts\\99499-fade.dat";
+        _ldrawStaticColourParts  << "# When highlight step is enabled, custom generated files are appended with '-highlight',";
+        _ldrawStaticColourParts  << "# for example, ...\\custom\\parts\\99499-highlight.dat";
+        _ldrawStaticColourParts  << "# Part identifiers with spaces will not be properly recoginzed.";
+        _ldrawStaticColourParts  << "# This file is automatically generated from Configuration=>Generate Static Colour Parts List";
+        _ldrawStaticColourParts  << "# However, it can also be modified manually from Configuration=>Edit Static Colour Parts List";
+        _ldrawStaticColourParts  << "# There are three defined columns in this file:";
+        _ldrawStaticColourParts  << "# 1. File Name: The part file name as defined in the LDraw Library.";
+        _ldrawStaticColourParts  << "# 2. Lib Type: Indicator 'U'=Unofficial Library and 'O'= Official Library.";
+        _ldrawStaticColourParts  << "# 3. Description: The part file description taken from the first line of the part file.";
+        _ldrawStaticColourParts  << "";
+        _ldrawStaticColourParts  << "# LDraw static colour parts were generated from the following list of libraries and directories:";
+        _ldrawStaticColourParts  << "";
         break;
       case FADESTEP_FILE_HEADER:
-        _fadeStepColourParts  << "";
-        _fadeStepColourParts  << "# File Name:::Lib Type:::Description";
-        _fadeStepColourParts  << "";
+        _ldrawStaticColourParts  << "";
+        _ldrawStaticColourParts  << "# File Name:::Lib Type:::Description";
+        _ldrawStaticColourParts  << "";
           break;
     case FADESTEP_COLOUR_PARTS_HEADER:
-        _fadeStepColourParts  << "";
-        _fadeStepColourParts  << "# Static colour parts";
-        _fadeStepColourParts  << heading;
-        _fadeStepColourParts  << "";
+        _ldrawStaticColourParts  << "";
+        _ldrawStaticColourParts  << "# Static colour parts";
+        _ldrawStaticColourParts  << heading;
+        _ldrawStaticColourParts  << "";
         break;
     case FADESTEP_COLOUR_CHILDREN_PARTS_HEADER:
-        _fadeStepColourParts  << "";
-        _fadeStepColourParts  << "# Parts with no static colour element but has subparts or primitives with static colour elements";
-        _fadeStepColourParts  << heading;
-        _fadeStepColourParts  << "";
+        _ldrawStaticColourParts  << "";
+        _ldrawStaticColourParts  << "# Parts with no static colour element but has subparts or primitives with static colour elements";
+        _ldrawStaticColourParts  << heading;
+        _ldrawStaticColourParts  << "";
         break;
     case FADESTEP_FILE_STATUS:
-        _fadeStepColourParts  << "";
-        _fadeStepColourParts  << "# ++++++++++++++++++++++++";
-        _fadeStepColourParts  << "";
-        _fadeStepColourParts  << heading;
-        _fadeStepColourParts  << "";
+        _ldrawStaticColourParts  << "";
+        _ldrawStaticColourParts  << "# ++++++++++++++++++++++++";
+        _ldrawStaticColourParts  << "";
+        _ldrawStaticColourParts  << heading;
+        _ldrawStaticColourParts  << "";
         break;
     }
 }

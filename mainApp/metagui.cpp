@@ -1472,7 +1472,7 @@ FadeStepGui::FadeStepGui(
 
     colorLabel = new QLabel(heading,parent);
 
-    grid->addWidget(colorLabel);
+    grid->addWidget(colorLabel,0,0);
 
     colorExample = new QLabel(parent);
     colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
@@ -1487,7 +1487,7 @@ FadeStepGui::FadeStepGui(
     if (! Preferences::enableFadeStep)
         colorCombo->setDisabled(true);
     connect(colorCombo,SIGNAL(currentIndexChanged(QString const &)),
-            this, SLOT(  colorChange(         QString const &)));
+                   this, SLOT(colorChange(        QString const &)));
     colorModified = false;
 
     grid->addWidget(colorCombo);
@@ -1499,19 +1499,14 @@ FadeStepGui::FadeStepGui(
     }
 }
 
-
 void FadeStepGui::colorChange(QString const &colorName)
 {
-  QColor qcolor = LDrawColor::color(meta->fadeColor.value());
   QColor newColor = LDrawColor::color(colorName);
-  if (qcolor != newColor) {
-    meta->fadeColor.setValue(LDrawColor::name(newColor.name()));
-    colorExample->setPalette(QPalette(newColor));
-    colorExample->setAutoFillBackground(true);
-    colorModified = true;
-  }
+  meta->fadeColor.setValue(LDrawColor::name(newColor.name()));
+  colorExample->setPalette(QPalette(newColor));
+  colorExample->setAutoFillBackground(true);
+  colorModified = true;
 }
-
 
 void FadeStepGui::apply(
   QString &topLevelFile)
@@ -1521,6 +1516,77 @@ void FadeStepGui::apply(
 
   if (colorModified) {
     mi.setGlobalMeta(topLevelFile,&meta->fadeColor);
+  }
+
+  mi.endMacro();
+}
+
+/***********************************************************************
+ *
+ * HighlightStep
+ *
+ **********************************************************************/
+
+HighlightStepGui::HighlightStepGui(
+        QString const &heading,
+        HighlightStepMeta *_meta,
+        QGroupBox  *parent)
+{
+
+    meta = _meta;
+
+    QGridLayout *grid;
+
+    grid = new QGridLayout(parent);
+
+    colorLabel = new QLabel(heading,parent);
+
+    grid->addWidget(colorLabel,0,0);
+
+    colorExample = new QLabel(parent);
+    colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+    colorExample->setPalette(QPalette(LDrawColor::color(meta->highlightColor.value())));
+    colorExample->setAutoFillBackground(true);
+
+    grid->addWidget(colorExample);
+
+    colorButton = new QPushButton(parent);
+    colorButton->setText("Highlight Colour...");
+
+    if (! Preferences::enableHighlightStep)
+        colorButton->setDisabled(true);
+    connect(colorButton,SIGNAL(clicked(bool)),
+                   this, SLOT(colorChange(bool)));
+    colorModified = false;
+
+    grid->addWidget(colorButton);
+
+    if (parent) {
+        parent->setLayout(grid);
+    } else {
+        setLayout(grid);
+    }
+}
+
+void HighlightStepGui::colorChange(bool clicked)
+{
+  Q_UNUSED(clicked);
+  QColor highlightColour = QColorDialog::getColor(colorExample->palette().background().color(), this );
+  if( highlightColour.isValid()) {
+    colorExample->setPalette(QPalette(highlightColour));
+    colorExample->setAutoFillBackground(true);
+    colorModified = true;
+  }
+}
+
+void HighlightStepGui::apply(
+  QString &topLevelFile)
+{
+  MetaItem mi;
+  mi.beginMacro("GlobalHighlightStepSettings");
+
+  if (colorModified) {
+    mi.setGlobalMeta(topLevelFile,&meta->highlightColor);
   }
 
   mi.endMacro();

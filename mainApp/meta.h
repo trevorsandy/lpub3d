@@ -316,6 +316,10 @@ public:
     _min      = rhs._min;
     _max      = rhs._max;
   }
+  void setValue(int value)
+  {
+    _value[pushed] = value;
+  }
   void setRange(int min, int max)
   {
     _min = min;
@@ -1663,6 +1667,8 @@ class FadeStepMeta : public BranchMeta
 public:
   StringMeta  fadeColor;
   BoolMeta    fadeStep;
+  BoolMeta    fadeUseColor;
+  IntMeta     fadeOpacity;
 
   FadeStepMeta();
   FadeStepMeta(const FadeStepMeta &rhs) : BranchMeta(rhs)
@@ -1670,6 +1676,29 @@ public:
   }
 
   virtual ~FadeStepMeta() {}
+  virtual void init(BranchMeta *parent,
+                    QString name);
+};
+/*------------------------*/
+
+/*------------------------*/
+/*
+ * Highlight Step Meta
+ */
+class HighlightStepMeta : public BranchMeta
+{
+public:
+
+  StringMeta  highlightColor;
+  BoolMeta    highlightStep;
+  IntMeta     highlightLineWidth;
+
+  HighlightStepMeta();
+  HighlightStepMeta(const HighlightStepMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~HighlightStepMeta() {}
   virtual void init(BranchMeta *parent,
                     QString name);
 };
@@ -2282,24 +2311,25 @@ public:
 class LPubMeta : public BranchMeta
 {
 public:
-  ResolutionMeta        resolution;
-  PageMeta              page;
-  AssemMeta             assem;
-  NumberPlacementMeta   stepNumber;
-  CalloutMeta           callout;
-  MultiStepMeta         multiStep;
-  PliMeta               pli;
-  BomMeta               bom;
-  RemoveMeta            remove;
-  FloatMeta             reserve;
-  PartIgnMeta           partSub;
-  InsertMeta            insert;
-  StringMeta            include;
-  NoStepMeta            nostep;
-  FadeStepMeta          fadeStep;
-  RotateIconMeta        rotateIcon;
-  BoolMeta              mergeInstanceCount;
-  StepPliMeta           stepPli;
+  ResolutionMeta      resolution;
+  PageMeta            page;
+  AssemMeta           assem;
+  NumberPlacementMeta stepNumber;
+  CalloutMeta         callout;
+  MultiStepMeta       multiStep;
+  PliMeta             pli;
+  BomMeta             bom;
+  RemoveMeta          remove;
+  FloatMeta           reserve;
+  PartIgnMeta         partSub;
+  InsertMeta          insert;
+  StringMeta          include;
+  NoStepMeta          nostep;
+  FadeStepMeta        fadeStep;
+  HighlightStepMeta   highlightStep;
+  RotateIconMeta      rotateIcon;
+  BoolMeta            mergeInstanceCount;
+  StepPliMeta         stepPli;
 
   LPubMeta();
   virtual ~LPubMeta() {}

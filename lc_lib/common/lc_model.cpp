@@ -522,6 +522,14 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 				 ParseExsitingRotStepLine(LineStream);
 			 }
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - process colour entry ***/
+			else if (Token == QLatin1String("!COLOUR"))
+			{
+				if (!lcLoadColorEntry(OriginalLine.toLatin1().constData()))
+					logError() << qPrintable(QString("Could not load colour entry %1.")
+								 .arg(OriginalLine));
+			}
+/*** LPub3D Mod end ***/
 			else if (Token == QLatin1String("FILE"))
 			{
 				QString Name = LineStream.readAll().trimmed();

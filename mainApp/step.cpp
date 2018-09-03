@@ -70,7 +70,7 @@ Step::Step(
   submodelLevel             = _meta.submodelStack.size();
   stepNumber.number         =  num;             // record step number
 
-  modelDisplayOnlyStep               = false;
+  modelDisplayOnlyStep      = false;
   relativeType              = StepType;
   csiPlacement.relativeType = CsiType;
   stepNumber.relativeType   = StepNumberType;

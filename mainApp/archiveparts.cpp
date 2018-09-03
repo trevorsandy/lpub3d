@@ -27,7 +27,12 @@ ArchiveParts::ArchiveParts(QObject *parent) : QObject(parent)
  * Insert static coloured fade parts into unofficial ldraw library
  *
  */
-bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, QString &result, const QString &comment = QString("")) {
+bool ArchiveParts::Archive(
+    const QString &zipArchive,
+    const QDir &dir,
+    QString &result,
+    const QString &comment,
+    bool overwriteCustomPart) {
 
   //qDebug() << QString("\nProcessing %1 with comment: %2").arg(dir.absolutePath()).arg(comment);
 
@@ -207,21 +212,29 @@ bool ArchiveParts::Archive(const QString &zipArchive, const QDir &dir, QString &
         continue;
 
       bool alreadyArchived = false;
+      QString partStatus;
 
-      foreach (QFileInfo zipFileInfo, zipFiles) {        
+      foreach (QFileInfo zipFileInfo, zipFiles) {
           if (fileInfo == zipFileInfo) {
-              alreadyArchived = true;
-//              qDebug() << "FileMatch - Skipping !! " << fileInfo.absoluteFilePath();
+              bool okToOverwrite = (zipFileInfo.fileName().contains("-fade.dat") || zipFileInfo.fileName().contains("-highlight.dat"));
+              if (overwriteCustomPart && okToOverwrite) {
+                  partStatus = "Overwrite Archive";
+//                    qDebug() << "FileMatch - Overwriting Fade File !! " << fileInfo.absoluteFilePath();
+              } else {
+                  partStatus = "Archive";
+                  alreadyArchived = true;
+//                    qDebug() << "FileMatch - Skipping !! " << fileInfo.absoluteFilePath();
+              }
               break;
-            }
-        }
+          }
+      }
 
       if (alreadyArchived)
         continue;
       else
          archivedPartCount++;
 
-      logInfo() << QString("  %1 Archive part: %2").arg(archivedPartCount).arg(fileInfo.fileName());
+      logInfo() << QString("  %1 %2 part: %3").arg(archivedPartCount).arg(partStatus).arg(fileInfo.fileName());
 
       int partsDirIndex    = fileInfo.absoluteFilePath().indexOf("/parts/",0,Qt::CaseInsensitive);
       int primDirIndex     = fileInfo.absoluteFilePath().indexOf("/p/",0,Qt::CaseInsensitive);
@@ -382,15 +395,15 @@ void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
           filePath.toLower().contains(unoffPrimsDir.toLower())
           ) {
           //qDebug() << "\nLDRAW EXCLUDED DIR FILES: " << filePath;
-          logError() << QString("LDraw directory excluded: %1.").arg(filePath);
-          return;
+          logError() << QString("Encountered excluded LDraw directory: %1.").arg(filePath);
+          continue;
         }
 
       QFileInfo finfo(filePath);
 
       if (finfo.isSymLink()) {
-        logError() << QString("Disc directory entrylist returned a symbolic link.");
-        return;
+        logError() << QString("Encountered a symbolic link: %1").arg(finfo.absoluteFilePath());
+        continue;
       }
 
       if (finfo.isDir()) {
@@ -404,7 +417,7 @@ void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
           //qDebug() << "\nLDRAW INCLUDED DIR FILES: " << finfo.filePath();
           list << finfo.filePath();
 
-        }
+       }
 
     }
 }

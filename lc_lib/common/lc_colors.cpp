@@ -192,6 +192,9 @@ bool lcLoadColorFile(lcFile& File)
 	gColorGroups[0].Name = QApplication::tr("Solid Colors", "Colors");
 	gColorGroups[1].Name = QApplication::tr("Translucent Colors", "Colors");
 	gColorGroups[2].Name = QApplication::tr("Special Colors", "Colors");
+/*** LPub3D Mod - load colour entry - add LPub3D colour group ***/
+	gColorGroups[3].Name = QApplication::tr("LPub3D Colors", "Colors");
+/*** LPub3D Mod end ***/
 
 	MainColor.Code = 16;
 	MainColor.Translucent = false;
@@ -378,6 +381,138 @@ bool lcLoadColorFile(lcFile& File)
 
 	return Colors.GetSize() > 2;
 }
+
+/*** LPub3D Mod - load colour entry ***/
+bool lcLoadColorEntry(const char* ColorEntry)
+{
+//        qDebug() << qPrintable(QString("DEBUG Load colour entry %1.")
+//                               .arg(ColorEntry));
+	char Line[1024], Token[1024];
+	lcArray<lcColor>& Colors = gColorList;
+	lcColor Color;
+
+	int gNumColorBeforeAdd = Colors.GetSize();
+
+	strncpy(Line, ColorEntry, sizeof(Line));
+
+	char* Ptr = Line;
+
+	GetToken(Ptr, Token);
+	if (strcmp(Token, "0"))   // if no match, token evaluates to 1 (true)
+		return false;
+
+	GetToken(Ptr, Token);
+	strupr(Token);
+	if (strcmp(Token, "!COLOUR"))
+		return false;
+
+	Color.Code = ~0U;
+	Color.Translucent = false;
+	Color.Value[0] = FLT_MAX;
+	Color.Value[1] = FLT_MAX;
+	Color.Value[2] = FLT_MAX;
+	Color.Value[3] = 1.0f;
+	Color.Edge[0] = FLT_MAX;
+	Color.Edge[1] = FLT_MAX;
+	Color.Edge[2] = FLT_MAX;
+	Color.Edge[3] = 1.0f;
+
+	GetToken(Ptr, Token);
+	strncpy(Color.Name, Token, sizeof(Color.Name));
+	Color.Name[LC_MAX_COLOR_NAME - 1] = 0;
+	strncpy(Color.SafeName, Color.Name, sizeof(Color.SafeName));
+
+	for (char* Underscore = strchr((char*)Color.Name, '_'); Underscore; Underscore = strchr(Underscore, '_'))
+		*Underscore = ' ';
+
+	for (GetToken(Ptr, Token); Token[0]; GetToken(Ptr, Token))
+	{
+		strupr(Token);
+
+		if (!strcmp(Token, "CODE"))
+		{
+			GetToken(Ptr, Token);
+			Color.Code = atoi(Token);
+		}
+		else if (!strcmp(Token, "VALUE"))
+		{
+			GetToken(Ptr, Token);
+			if (Token[0] == '#')
+				Token[0] = ' ';
+
+			int Value;
+			if (sscanf(Token, "%x", &Value) != 1)
+				Value = 0;
+
+			Color.Value[2] = (float)(Value & 0xff) / 255.0f;
+			Value >>= 8;
+			Color.Value[1] = (float)(Value & 0xff) / 255.0f;
+			Value >>= 8;
+			Color.Value[0] = (float)(Value & 0xff) / 255.0f;
+		}
+		else if (!strcmp(Token, "EDGE"))
+		{
+			GetToken(Ptr, Token);
+			if (Token[0] == '#')
+				Token[0] = ' ';
+
+			int Value;
+			if (sscanf(Token, "%x", &Value) != 1)
+				Value = 0;
+
+			Color.Edge[2] = (float)(Value & 0xff) / 255.0f;
+			Value >>= 8;
+			Color.Edge[1] = (float)(Value & 0xff) / 255.0f;
+			Value >>= 8;
+			Color.Edge[0] = (float)(Value & 0xff) / 255.0f;
+		}
+		else if (!strcmp(Token, "ALPHA"))
+		{
+			GetToken(Ptr, Token);
+			int Value = atoi(Token);
+			Color.Value[3] = (float)(Value & 0xff) / 255.0f;
+			if (Value != 255)
+				Color.Translucent = true;
+		}
+	}
+
+	if (Color.Code == ~0U || Color.Value[0] == FLT_MAX)  // Code or Value attribute not set
+		return false;
+
+	if (Color.Edge[0] == FLT_MAX)
+	{
+		Color.Edge[0] = 33.0f / 255.0f;
+		Color.Edge[1] = 33.0f / 255.0f;
+		Color.Edge[2] = 33.0f / 255.0f;
+	}
+
+	bool Duplicate = false;
+
+	for (int i = 0; i < Colors.GetSize(); i++)
+	{
+		if (Colors[i].Code == Color.Code)
+		{
+			Colors[i] = Color;
+			Duplicate = true;
+			break;
+		}
+	}
+
+	if (Duplicate)
+		return true;
+
+	Colors.Add(Color);
+
+	gColorGroups[LC_COLORGROUP_LPUB3D].Colors.Add(Colors.GetSize() - 1);
+
+	gNumUserColors = Colors.GetSize();
+
+//        qDebug() << qPrintable(QString("DEBUG Colours New Size %1, Old Size %2.")
+//                               .arg(Colors.GetSize()).arg(gNumColorBeforeAdd));
+
+	return Colors.GetSize() > gNumColorBeforeAdd;
+}
+/*** LPub3D Mod end ***/
 
 void lcLoadDefaultColors()
 {

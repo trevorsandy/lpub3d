@@ -17,8 +17,8 @@
 
 /****************************************************************************
  *
- * The editwindow is used to display the freeform annotations
- * and colour parts fade listings to the user.
+ * The editwindow is used to display all editable parameter files
+ * and logs to the user.
  *
  * Please see lpub.h for an overall description of how the files in LPub
  * make up the LPub program.

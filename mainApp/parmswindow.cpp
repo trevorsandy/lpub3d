@@ -17,8 +17,8 @@
 
 /****************************************************************************
  *
- * The editwindow is used to display the freeform annotations
- * and colour parts fade listings to the user.
+ * The editwindow is used to display all editable parameter files
+ * and logs to the user.
  *
  * Please see lpub.h for an overall description of how the files in LPub
  * make up the LPub program.
@@ -205,31 +205,35 @@ void ParmsWindow::displayParmsFile(
 
     if (fileInfo.fileName() == "pliSubstituteParts.lst")
       title = "PLI/BOM Substitute Parts";
-    else if (fileInfo.fileName() == "fadeStepColorParts.lst")
+    else if (fileInfo.fileName() == VER_LDRAW_COLOR_PARTS_FILE)
       {
         title = "Fade Step Color Parts";
         _fadeStepFile = true;
       }
-    else if (fileInfo.fileName() == "titleAnnotations.lst")
+    else if (fileInfo.fileName() == VER_TITLE_ANNOTATIONS_FILE)
       title = "Title Annotation";
-    else if (fileInfo.fileName() == "excludedParts.lst")
+    else if (fileInfo.fileName() == VER_EXCLUDED_PARTS_FILE)
       title = "Excluded Parts";
-    else if (fileInfo.fileName() == "freeformAnnotations.lst")
+    else if (fileInfo.fileName() == VER_FREEFOM_ANNOTATIONS_FILE)
       title = "Freeform";
-    else if (fileInfo.fileName() == "ldview.ini") {
+    else if (fileInfo.fileName() == VER_LDVIEW_INI_FILE) {
       title = "LDView ini";
       _restartRequired = false;
     }
-    else if (fileInfo.fileName() == "ldviewPOV.ini") {
+    else if (fileInfo.fileName() == VER_LDVIEW_POV_INI_FILE) {
       title = "LDView Raytracer ini";
       _restartRequired = false;
     }
-    else if (fileInfo.fileName() == "povray.ini") {
+    else if (fileInfo.fileName() == VER_POVRAY_INI_FILE) {
       title = "Raytracer (POV-Ray) ini";
       _restartRequired = false;
     }
-    else if (fileInfo.fileName() == "povray.conf") {
+    else if (fileInfo.fileName() == VER_POVRAY_CONF_FILE) {
       title = "Raytracer (POV-Ray) conf";
+      _restartRequired = false;
+    }
+    else if (fileInfo.fileName() == VER_LDGLITE_INI_FILE) {
+      title = "LDGLite ini";
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == QString("%1Log.txt").arg(VER_PRODUCTNAME_STR)) {

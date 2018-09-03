@@ -58,7 +58,7 @@ class LDrawSubFile {
     bool        _changedSinceLastWrite;
     bool        _unofficialPart;
     bool        _generated;
-    int         _fadePosition;
+    int         _prevStepPosition;
     int         _startPageNumber;
 
     LDrawSubFile()
@@ -120,10 +120,10 @@ class LDrawFile {
     QStringList contents(const QString &fileName);
     void setContents(const QString     &fileName, 
                      const QStringList &contents);
-    void setFadePosition(const QString &mcFileName,
-                         const int     &fadePosition);
-    int getFadePosition(const QString &mcFileName);
-    void clearFadePositions();
+    void setPrevStepPosition(const QString &mcFileName,
+                         const int     &prevStepPosition);
+    int getPrevStepPosition(const QString &mcFileName);
+    void clearPrevStepPositions();
     void setModelStartPageNumber(const QString &mcFileName,
                          const int     &startPageNumber);
     int getModelStartPageNumber(const QString &mcFileName);

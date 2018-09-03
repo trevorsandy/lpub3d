@@ -210,7 +210,7 @@ public slots:
 
 /*****************************************************************
  *
- * Global to fadeStep
+ * Global to FadeStep
  *
  ****************************************************************/
 
@@ -225,6 +225,29 @@ public:
   GlobalFadeStepDialog(QString &topLevelFile, Meta &meta);
   ~GlobalFadeStepDialog() {}
   static void getFadeStepGlobals(QString topLevelFile, Meta &meta);
+
+public slots:
+  void accept();
+  void cancel();
+};
+
+/*****************************************************************
+ *
+ * Global to HighlightStep
+ *
+ ****************************************************************/
+
+class GlobalHighlightStepPrivate;
+class GlobalHighlightStepDialog : public QDialog
+{
+  Q_OBJECT
+private:
+  GlobalHighlightStepPrivate *data;
+
+public:
+  GlobalHighlightStepDialog(QString &topLevelFile, Meta &meta);
+  ~GlobalHighlightStepDialog() {}
+  static void getHighlightStepGlobals(QString topLevelFile, Meta &meta);
 
 public slots:
   void accept();

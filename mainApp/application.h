@@ -23,6 +23,7 @@
 
 #include "QsLog.h"
 #include "lc_global.h"
+#include "name.h"
 
 class InitException: public QException
 {
@@ -73,7 +74,7 @@ public slots:
           return;
       }
       logStatus() << message;
-      splash->showMessage(QSplashScreen::tr(message.toLatin1().constData()),Qt::AlignBottom | Qt::AlignLeft, Qt::white);
+      splash->showMessage(QSplashScreen::tr(message.toLatin1().constData()),Qt::AlignBottom | Qt::AlignLeft, QColor(QString(SPLASH_FONT_COLOUR)));
       m_application.processEvents();
     }
 

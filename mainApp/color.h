@@ -37,7 +37,10 @@
 
 class LDrawColor {
   private:
+    static QHash<QString, int> color2alpha;
     static QHash<QString, QColor>  name2color;
+    static QHash<QString, QString> color2value;
+    static QHash<QString, QString> color2edge;
     static QHash<QString, QString> color2name;
     static QHash<QString, QString> ldname2ldcolor;
   public:
@@ -54,19 +57,42 @@ class LDrawColor {
      */
     static QColor color(QString nickname);
     /*
-     * This function provides the translate from QColor back to LDraw color
-     * names.  If there is no translation the hexadecimal value for the
-     * color is returned as a string.
+     * This function provides the translate from QColor or LDraw code to
+     * LDraw color name and returns the LDraw color name value if it exist.
+     * If there is no translation, an empty string is returned.
      */
     static QString name(QString code);
     /*
      * This function provides all the color names.
      */
     static QStringList names();
-    /*
-     * This function provides LDraw color codes.
+    /* This function provides the translate from LDraw name to LDraw color code
+     * If there is no translation, -1 is returned.
      */
     static QString ldColorCode(QString name);
+    /*
+     * This function provides the translate from LDraw color code to
+     * alpha value and returns the colour alpha value if it exist.
+     * If there is no color alpha value, 255 (fully opaque) is returned.
+     */
+    static int alpha(QString code);
+    /*
+     * This function provides the translate from LDraw color code to
+     * color value and returns the colour value if it exist.
+     * If there is no color value, FFFF80 (material main_colour) - is returned.
+     */
+    static QString value(QString code);
+    /*
+     * This function provides the translate from LDraw color code to
+     * color edge value and returns the colour edge value if it exist.
+     * If there is no color edge value, 333333 (default edge colour) is returned.
+     */
+    static QString edge(QString code);
+    /*
+     * This function performs a lookup of the provided LDraw color code
+     * and returns true if found or false if not found
+     */
+    bool colorExist(QString code);
 };
 
 #endif

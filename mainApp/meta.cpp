@@ -2071,8 +2071,10 @@ void PageFooterMeta::init(BranchMeta *parent, QString name)
 
 FadeStepMeta::FadeStepMeta() : BranchMeta()
 {
-  fadeColor.setValue(Preferences::fadeStepColor); // inherited from properties
-  fadeStep.setValue(Preferences::enableFadeStep); // inherited from properties
+  fadeStep.setValue(Preferences::enableFadeStep);                   // inherited from properties
+  fadeColor.setValue(Preferences::fadeStepColour);                  // inherited from properties
+  fadeUseColor.setValue(Preferences::fadeStepUseColour);            // inherited from properties
+  fadeOpacity.setValue(Preferences::fadeStepOpacity);        // inherited from properties
 }
 
 void FadeStepMeta::init(
@@ -2080,9 +2082,32 @@ void FadeStepMeta::init(
     QString name)
 {
   AbstractMeta::init(parent, name);
-  fadeColor.init    (this, "FADE_COLOR");
-  fadeStep.init     (this, "FADE");
+  fadeColor.init          (this, "FADE_COLOR");
+  fadeUseColor.init       (this, "USE_FADE_COLOR");
+  fadeOpacity.init        (this, "FADE_OPACITY");
+  fadeStep.init           (this, "FADE");
 }
+/* ------------------ */
+
+/* ------------------ */
+
+HighlightStepMeta::HighlightStepMeta() : BranchMeta()
+{
+  highlightStep.setValue(Preferences::enableHighlightStep);         // inherited from properties
+  highlightColor.setValue(Preferences::highlightStepColour);        // inherited from properties
+  highlightLineWidth.setValue(Preferences::highlightStepLineWidth); // inherited from properties
+}
+
+void HighlightStepMeta::init(
+    BranchMeta *parent,
+    QString name)
+{
+  AbstractMeta::init(parent, name);
+  highlightColor.init     (this, "HIGHLIGHT_COLOR");
+  highlightStep.init      (this, "HIGHLIGHT");
+  highlightLineWidth.init (this, "HIGHLIGHT_LINE_WIDTH");
+}
+/* ------------------ */
 
 void RemoveMeta::init(BranchMeta *parent, QString name)
 {
@@ -2091,8 +2116,6 @@ void RemoveMeta::init(BranchMeta *parent, QString name)
   parttype.init(this,"PART", RemovePartRc);
   partname.init(this,"NAME", RemoveNameRc);
 }
-
-/* ------------------ */
 
 PartMeta::PartMeta() : BranchMeta()
 {
@@ -3041,6 +3064,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   include                .init(this,"INCLUDE", IncludeRc);
   nostep                 .init(this,"NOSTEP", NoStepRc);\
   fadeStep               .init(this,"FADE_STEP");
+  highlightStep          .init(this,"HIGHLIGHT_STEP");
   rotateIcon             .init(this,"ROTATE_ICON");
   mergeInstanceCount     .init(this,"CONSOLIDATE_INSTANCE_COUNT");
   stepPli                .init(this,"STEP_PLI");

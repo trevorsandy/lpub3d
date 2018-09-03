@@ -491,11 +491,46 @@ private:
   QLabel      *colorLabel;
   QComboBox   *colorCombo;
   QLabel      *colorExample;
-  //QPushButton *colorButton;
 
 public slots:
   void colorChange(QString const &colorName);
 };
+
+/***********************************************************************
+ *
+ * HighlightStep
+ *
+ **********************************************************************/
+
+class HighlightStepMeta;
+class QGroupBox;
+class QPushButton;
+class HighlightStepGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  HighlightStepGui(
+    QString const &heading,
+    HighlightStepMeta *meta,
+    QGroupBox  *parent = NULL);
+  ~HighlightStepGui() {}
+
+  virtual void apply(QString &modelName);
+
+private:
+  HighlightStepMeta  *meta;
+
+  bool        colorModified;
+  QLabel      *colorLabel;
+  QPushButton *colorButton;
+  QLabel      *colorExample;
+
+public slots:
+  void colorChange(bool clicked);
+};
+
+
 /***********************************************************************
  *
  * Spin Box

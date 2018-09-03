@@ -260,7 +260,7 @@
  *       assemglobals.cpp
  *       pliglobals.cpp
  *       calloutglobals.cpp
- *       fadestepglobals.cpp
+ *       fadeandhighlightstepglobals.cpp
  *     Local - values that are specified in something other than the first
  *       global step and are invoked individually in small dialogs
  *       backgrounddialog.(h,cpp)
@@ -352,7 +352,7 @@
 #include "aboutdialog.h"
 #include "version.h"
 #include "threadworkers.h"
-#include "fadestepcolorparts.h"
+#include "ldrawcolourparts.h"
 #include "plisubstituteparts.h"
 #include "dialogexportpages.h"
 #include "numberitem.h"
@@ -397,6 +397,7 @@ class ContentChangesCommand;
 class PlacementNum;
 class AbstractStepsElement;
 class GlobalFadeStep;
+class GlobalHighlightStep;
 class UpdateCheck;
 
 class LGraphicsView;
@@ -407,6 +408,7 @@ enum Dimensions {Pixels = 0, Inches};
 enum FitMode { FitNone, FitWidth, FitVisible, FitTwoPages, FitContinuousScroll };
 enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
 enum ExportType { EXPORT_PDF, EXPORT_PNG, EXPORT_JPG, EXPORT_BMP };
+
 
 void clearPliCache();
 void clearCsiCache();
@@ -426,7 +428,7 @@ public:
   int             saveStepPageNum;
   int             firstStepPageNum;
   int             lastStepPageNum;
-  int             saveFadePosition; // indicate the fade step position.
+  int             savePrevStepPosition; // indicate the previous step position amongst current and previous steps.
   QList<Where>    topOfPages;
 
   int             boms;            // the number of pli BOMs in the document
@@ -442,9 +444,12 @@ public:
   QProgressBar    *m_progressDlgProgressBar;
 
   void            *noData;
-  /**Fade Step variables**/
-  FadeStepMeta    *fadeMeta;             // propagate fade color and fade bool
-  FitMode          fitMode;              // how to fit the scene into the view
+
+  FadeStepMeta      *fadeStepMeta;      // propagate fade step settings
+
+  HighlightStepMeta *highlightStepMeta; // propagate highlight step settings
+
+  FitMode          fitMode;          // how to fit the scene into the view
 
   Where &topOfPage();
   Where &bottomOfPage();
@@ -515,9 +520,9 @@ public:
     writeToTmp();
   }
 
-  void clearFadePositions()
+  void clearPrevStepPositions()
   {
-    ldrawFile.clearFadePositions();
+    ldrawFile.clearPrevStepPositions();
   }
 
   LDrawFile getLDrawFile()
@@ -529,6 +534,7 @@ public:
   void replaceLine(const Where &here, const QString &line, QUndoCommand *parent = 0);
   void deleteLine (const Where &here, QUndoCommand *parent = 0);
   QString topLevelFile();
+
   void beginMacro (QString name);
   void endMacro   ();
 
@@ -620,8 +626,8 @@ public slots:
           statusBarMsg(message);
           logStatus() << message;
       }else{
-          QMessageBox::warning(this,tr("LPub3D"),tr(message.toLatin1()));
-          logError() << message;
+          QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
+          logNotice() << message;
       }      
   }
 
@@ -668,6 +674,7 @@ public slots:
 
   void preferences();
   void fadeStepSetup();
+  void highlightStepSetup();
   void generateCoverPages();
   void insertFinalModel();
 
@@ -698,7 +705,7 @@ public slots:
   void clearCSICache();
   void clearTempCache();
   void clearAllCaches();
-  void clearFadeCache();
+  void clearCustomPartCache(bool silent = false);
   void clearAndRedrawPage();
   void clearStepCSICache(QString &pngName);
   void clearPageCSICache(PlacementType relativeType, Page *page);
@@ -707,8 +714,9 @@ public slots:
 
   void fileChanged(const QString &path);
 
-  void processFadePartsArchive();
-  void processFadeColourParts();
+  void processFadeColourParts(bool overwriteCustomParts);
+  void processHighlightColourParts(bool overwriteCustomParts);
+
   void loadFile(const QString &file);
 
   void TogglePrintPreview();
@@ -750,15 +758,18 @@ signals:
   void requestEndThreadNowSig();
   void loadFileSig(const QString &file);
 
-public:
-  Page                  page;            // the abstract version of page contents
+  void operateHighlightParts(bool overwriteCustomParts);
+  void operateFadeParts(bool overwriteCustomParts);
 
-  // multi-thread worker classes
-//  PartWorker            partWorkerLDSearchDirs; // part worker to process search directories and fade color parts
-  PartWorker             partWorkerLdgLiteSearchDirs;      // part worker to process temp directory parts
-  PartWorker            *partWorkerFadeColour;    // part worker to process colour part fade
-  ColourPartListWorker  *colourPartListWorker;    // create static colour parts list in separate thread
-  ParmsWindow           *parmsWindow;             // the parametrer file editor
+public:
+  Page                  page;                         // the abstract version of page contents
+
+// multi-thread worker classes
+//  PartWorker            partWorkerLDSearchDirs;     // part worker to process search directories and fade and or highlight color parts
+  PartWorker             partWorkerLdgLiteSearchDirs; // part worker to process temp directory parts
+  PartWorker            *partWorkerCustomColour;      // part worker to process colour part fade and or highlight
+  ColourPartListWorker  *colourPartListWorker;        // create static colour parts list in separate thread
+  ParmsWindow           *parmsWindow;                 // the parametrer file editor
 
 protected:
   // capture camera rotation from LeoCad module
@@ -768,38 +779,38 @@ protected:
   float mRotStepAngleY;
   float mRotStepAngleZ;
 
-  QMap<int, PgSizeData>  pageSizes;       // page size and orientation object
+  QMap<int, PgSizeData>  pageSizes;          // page size and orientation object
 
-private:    
-  QGraphicsScene        *KpageScene;      // top of displayed page's graphics items
-  LGraphicsView         *KpageView;       // the visual representation of the scene
-  LDrawFile              ldrawFile;       // contains MPD or all files used in model
-  QString                curFile;         // the file name for MPD, or top level file
-  QString                pdfPrintedFile;  // the print preview produced pdf file
-  QElapsedTimer          timer;           // measure elapsed time for slow functions
-  QString                curSubFile;      // whats being displayed in the edit window
-  EditWindow            *editWindow;      // the sub file editable by the user
+private:
+  QGraphicsScene        *KpageScene;         // top of displayed page's graphics items
+  LGraphicsView         *KpageView;          // the visual representation of the scene
+  LDrawFile              ldrawFile;          // contains MPD or all files used in model
+  QString                curFile;            // the file name for MPD, or top level file
+  QString                pdfPrintedFile;     // the print preview produced pdf file
+  QElapsedTimer          timer;              // measure elapsed time for slow functions
+  QString                curSubFile;         // whats being displayed in the edit window
+  EditWindow            *editWindow;         // the sub file editable by the user
   QProgressBar          *progressBar;        // left side progress bar
   QProgressBar          *progressBarPerm;    // Right side progress bar
   QLabel                *progressLabel;
   QLabel                *progressLabelPerm;  //
+  LDrawColourParts       ldrawColourParts;   // load the LDraw colour parts list
 
-  FadeStepColorParts     fadeStepColorParts; // internal list of color parts to be processed for fade step.
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
   bool                   m_exportingContent; // indicate export/pring underway
 
 #ifdef WATCHER
-  QFileSystemWatcher watcher;        // watch the file system for external
-                                     // changes to the ldraw files currently
-                                     // being edited
-  bool               changeAccepted; // don't throw another message unless existing was accepted
+  QFileSystemWatcher watcher;                // watch the file system for external
+                                             // changes to the ldraw files currently
+                                             // being edited
+  bool               changeAccepted;         // don't throw another message unless existing was accepted
 #endif
 
-  LDrawColor      ldrawColors;     // provides maps from ldraw color to RGB
+  LDrawColor      ldrawColors;               // provides maps from ldraw color to RGB
 
-  QUndoStack     *undoStack;       // the undo/redo stack
+  QUndoStack     *undoStack;                 // the undo/redo stack
   int             macroNesting;
-  int             renderStepNum;    // at what step in the model is a submodel detected and rendered
+  int             renderStepNum;             // at what step in the model is a submodel detected and rendered
 
   void countPages();
 
@@ -884,14 +895,25 @@ private:
 
   void writeToTmp();
 
-  QStringList fadeSubFile(
-     const QStringList &,
-     const QString &color);      // fade all parts in subfile
+  QStringList configureModelSubFile(
+    const QStringList &,
+    const QString &,
+    const PartType partType);         // fade and or highlight all parts in subfile
 
-  QStringList fadeStep(
-     const QStringList &csiParts,
-     const int &stepNum,
-     Where        &current);      // fade parts in a step that are not current
+  QStringList configureModelStep(
+    const QStringList &csiParts,
+    const int         &stepNum,
+    Where             &current);      // fade and or highlight parts in a step that are not current
+
+  /* Fade colour processing */
+  QString createColourEntry(
+    const QString &colourCode,
+    const PartType partType);
+
+  bool colourEntryExist(
+    const QStringList &colourEntries,
+    const QString &code,
+    const PartType partType);
 
   static bool installExportBanner(
     const int &type,
@@ -904,12 +926,13 @@ private slots:
     void saveAs();
 
     void openRecentFile();
+    void clearRecentFiles();
     void updateCheck();
     bool aboutDialog();
 
     void editTitleAnnotations();
     void editFreeFormAnnitations();
-    void editFadeColourParts();
+    void editLDrawColourParts();
     void editPliBomSubstituteParts();
     void editLdrawIniFile();
     void editExcludedParts();
@@ -918,7 +941,7 @@ private slots:
     void editLdviewPovIni();
     void editPovrayIni();
     void editPovrayConf();
-    void generateFadeColourPartsList();
+    void generateCustomColourPartsList();
     void viewLog();
 
     void toggleLCStatusBar();
@@ -1024,6 +1047,7 @@ private:
   QDockWidget       *modelDockWindow;
 //**
 
+  // Menus
   QMenu    *fileMenu;
   QMenu    *recentFileMenu;
   QMenu    *editMenu;
@@ -1035,6 +1059,7 @@ private:
   QMenu    *editorMenu;
   QMenu    *cacheMenu;
   QMenu    *exportMenu;
+  QMenu    *recentMenu;
 
   // 3D Viewer Menus
   QMenu* ViewerMenu;
@@ -1061,6 +1086,7 @@ private:
   QAction  *exportPngAct;
   QAction  *exportJpgAct;
   QAction  *exportBmpAct;
+  QAction  *clearRecentAct;
   QAction  *exitAct;
 
   QAction  *undoAct;
@@ -1115,13 +1141,14 @@ private:
   QAction *calloutSetupAct;
   QAction *multiStepSetupAct;
   QAction *projectSetupAct;
-  QAction *fadeStepSetupAct;    
+  QAction *fadeStepSetupAct;
+  QAction *highlightStepSetupAct;
 
   QAction *preferencesAct;
 
   QAction *editFreeFormAnnitationsAct;
   QAction *editTitleAnnotationsAct;
-  QAction *editFadeColourPartsAct;
+  QAction *editLDrawColourPartsAct;
   QAction *editPliBomSubstitutePartsAct;
   QAction *editExcludedPartsAct;
   QAction *editLdrawIniFileAct;
@@ -1130,7 +1157,7 @@ private:
   QAction *editLdviewPovIniAct;
   QAction *editPovrayIniAct;
   QAction *editPovrayConfAct;
-  QAction *generateFadeColourPartsAct;
+  QAction *generateCustomColourPartsAct;
 
   // help
 
@@ -1151,6 +1178,7 @@ private:
   QAction *updateAppAct;
   QAction *viewLogAct;
 
+  friend class PartWorker;
 };
 
 extern class Gui *gui;
@@ -1254,6 +1282,23 @@ public:
     Meta        meta;
     QString     topLevelFile;
     GlobalFadeStep()
+    {
+        meta = gui->page.meta;
+
+        topLevelFile = ldrawFile.topLevelFile();
+        MetaItem mi; // examine all the globals and then return
+        mi.sortedGlobalWhere(meta,topLevelFile,"ZZZZZZZ");
+    }
+};
+
+class GlobalHighlightStep
+{
+private:
+    LDrawFile   ldrawFile;       // contains MPD or all files used in model
+public:
+    Meta        meta;
+    QString     topLevelFile;
+    GlobalHighlightStep()
     {
         meta = gui->page.meta;
 

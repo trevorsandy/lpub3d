@@ -54,12 +54,11 @@
 #define VER_POVRAY_INC_FILE                 "consts.inc"      // Only used to validate directory
 #define VER_POVRAY_SCENE_FILE               "index.htm"       // Only used to validate directory
 
-
-// ~~~~~~ Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+// ~~~~~~ App Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 #define VER_LOGGING_LEVELS_STR              "STATUS,INFO,TRACE,DEBUG,NOTICE,ERROR,FATAL,OFF"
 
-#define VER_FADESTEP_COLORPARTS_FILE        "fadeStepColorParts.lst"
+#define VER_LDRAW_COLOR_PARTS_FILE          "fadeStepColorParts.lst"
 #define VER_FREEFOM_ANNOTATIONS_FILE        "freeformAnnotations.lst"
 #define VER_EXTRAS_LDCONFIG_FILE            "LDConfig.ldr"
 #define VER_PDFPRINT_IMAGE_FILE             "PDFPrint.jpg"
@@ -72,6 +71,9 @@
 #define VER_LDRAW_UNOFFICIAL_ARCHIVE        "ldrawunf.zip"
 #define VER_LPUB3D_UNOFFICIAL_ARCHIVE       "lpub3dldrawunf.zip"
 
+#define VER_FADE_PART_COLOURS_FILE          "fadePartColours.lst"
+
+// ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 #ifdef QT_DEBUG_MODE
   #define VER_UPDATE_CHECK_JSON_URL         "http://lpub3d.sourceforge.net/lpub3dupdates-test.json"
 #else
