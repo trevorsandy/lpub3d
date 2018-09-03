@@ -21,7 +21,7 @@
    <string>Preferences</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../mainApp/lpub3d.qrc">
+   <iconset resource="resources.qrc">
     <normaloff>:/resources/LPub32.png</normaloff>:/resources/LPub32.png</iconset>
   </property>
   <property name="sizeGripEnabled">
@@ -52,7 +52,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="generalTab">
       <attribute name="title">
@@ -185,12 +185,6 @@
             <property name="spacing">
              <number>4</number>
             </property>
-            <item row="1" column="1">
-             <widget class="QPushButton" name="defaultColorButton"/>
-            </item>
-            <item row="0" column="1">
-             <widget class="QPushButton" name="backgroundColorButton"/>
-            </item>
             <item row="1" column="0">
              <widget class="QLabel" name="defaultColorLabel">
               <property name="text">
@@ -239,6 +233,12 @@
                </size>
               </property>
              </spacer>
+            </item>
+            <item row="0" column="1">
+             <widget class="QToolButton" name="backgroundColorButton"/>
+            </item>
+            <item row="1" column="1">
+             <widget class="QToolButton" name="defaultColorButton"/>
             </item>
            </layout>
           </item>
@@ -3926,9 +3926,6 @@ into effect until the next time a model is loaded.</string>
   <tabstop>applyButton</tabstop>
  </tabstops>
  <resources>
-  <include location="../../mainApp/lpub3d.qrc"/>
-  <include location="resources.qrc"/>
-  <include location="../../mainApp/lpub3d.qrc"/>
   <include location="resources.qrc"/>
  </resources>
  <connections/>

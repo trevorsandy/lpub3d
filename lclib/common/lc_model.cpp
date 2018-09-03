@@ -180,6 +180,33 @@ lcModel::~lcModel()
 	DeleteHistory();
 }
 
+bool lcModel::GetPieceWorldMatrix(lcPiece* Piece, lcMatrix44& ParentWorldMatrix) const
+{
+	for (lcPiece* ModelPiece : mPieces)
+	{
+		if (ModelPiece == Piece)
+		{
+			ParentWorldMatrix = lcMul(ModelPiece->mModelWorld, ParentWorldMatrix);
+			return true;
+		}
+
+		PieceInfo* Info = ModelPiece->mPieceInfo;
+
+		if (Info->IsModel())
+		{
+			lcMatrix44 WorldMatrix = lcMul(ModelPiece->mModelWorld, ParentWorldMatrix);
+
+			if (Info->GetPieceWorldMatrix(Piece, WorldMatrix))
+			{
+				ParentWorldMatrix = WorldMatrix;
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 bool lcModel::IncludesModel(const lcModel* Model) const
 {
 	if (Model == this)
@@ -501,6 +528,8 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
 
 	mProperties.mAuthor.clear();
+	mProperties.mDescription.clear();
+	mProperties.mComments.clear();
 
 	while (!Device.atEnd())
 	{
@@ -1243,21 +1272,19 @@ void lcModel::DuplicateSelectedPieces()
 	SaveCheckpoint(tr("Duplicating Pieces"));
 }
 
-void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool DrawInterface, bool Highlight) const
+void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool DrawInterface, bool Highlight, lcPiece* ActiveSubmodelInstance, const lcMatrix44& ActiveSubmodelTransform) const
 {
 	Scene.Begin(ViewCamera->mWorldView);
+	Scene.SetActiveSubmodelInstance(ActiveSubmodelInstance, ActiveSubmodelTransform);
+	Scene.SetDrawInterface(DrawInterface);
 
 	mPieceInfo->AddRenderMesh(Scene);
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
+	for (lcPiece* Piece : mPieces)
 		if (Piece->IsVisible(mCurrentStep))
-			Piece->AddRenderMeshes(Scene, DrawInterface, Highlight && Piece->GetStepShow() == mCurrentStep);
-	}
+			Piece->AddMainModelRenderMeshes(Scene, Highlight && Piece->GetStepShow() == mCurrentStep);
 
-	if (DrawInterface)
+	if (DrawInterface && !ActiveSubmodelInstance)
 	{
 		for (int CameraIdx = 0; CameraIdx < mCameras.GetSize(); CameraIdx++)
 		{
@@ -1279,22 +1306,17 @@ void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool DrawInterface,
 	Scene.End();
 }
 
-void lcModel::SubModelAddRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, bool Focused, bool Selected) const
+void lcModel::AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const
 {
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
+	for (lcPiece* Piece : mPieces)
 		if (Piece->GetStepHide() == LC_STEP_MAX)
-			Piece->SubModelAddRenderMeshes(Scene, WorldMatrix, DefaultColorIndex, Focused, Selected);
-	}
+			Piece->AddSubModelRenderMeshes(Scene, WorldMatrix, DefaultColorIndex, RenderMeshState, ParentActive);
 }
 
 void lcModel::DrawBackground(lcGLWidget* Widget)
 {
 	if (mProperties.mBackgroundType == LC_BACKGROUND_SOLID)
 	{
-		//glClearColor(255, 255, 255, 0);
 		glClearColor(mProperties.mBackgroundSolidColor[0], mProperties.mBackgroundSolidColor[1], mProperties.mBackgroundSolidColor[2], 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		return;
@@ -1871,7 +1893,7 @@ void lcModel::ShowEditGroupsDialog()
 		GroupParents[Group] = Group->mGroup;
 	}
 
-	lcQEditGroupsDialog Dialog(gMainWindow, PieceParents, GroupParents);
+	lcQEditGroupsDialog Dialog(gMainWindow, PieceParents, GroupParents, this);
 
 	if (Dialog.exec() != QDialog::Accepted)
 		return;
@@ -4175,7 +4197,7 @@ void lcModel::ShowSelectByNameDialog()
 		return;
 	}
 
-	lcQSelectDialog Dialog(gMainWindow);
+	lcQSelectDialog Dialog(gMainWindow, this);
 
 	if (Dialog.exec() != QDialog::Accepted)
 		return;

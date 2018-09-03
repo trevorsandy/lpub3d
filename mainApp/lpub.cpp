@@ -58,9 +58,8 @@
 
 #include <TCFoundation/TCUserDefaults.h>
 #include <LDLib/LDUserDefaultsKeys.h>
+#include <LDVQt/LDVPovUserDefaultsKeys.h>
 //**
-
-
 
 #if _MSC_VER > 1310
 // Visual C++ 2005 and later require the source files in UTF-8, and all strings
@@ -872,6 +871,8 @@ void Gui::SetRotStepMeta(QString &value, bool propagate)
 {
     if (propagate && getCurFile() != "") {
 
+        ShowStepRotationStatus();
+
         mStepRotation[0] = mRotStepAngleX;
         mStepRotation[1] = mRotStepAngleY;
         mStepRotation[2] = mRotStepAngleZ;
@@ -904,10 +905,9 @@ void Gui::SetRotStepMeta(QString &value, bool propagate)
                             .arg(value));
         }
     }
-    UpdateStepRotationStatus();
 }
 
-void Gui::UpdateStepRotationStatus()
+void Gui::ShowStepRotationStatus()
 {
     QString rotLabel("Step Rotation %1 %2 %3");
     rotLabel = rotLabel.arg(QString::number(mRotStepAngleX, 'f', 2),
@@ -1087,7 +1087,7 @@ void Gui::clearAllCaches()
 
 void Gui::clearCustomPartCache(bool silent)
 {
-  QMessageBox::StandardButton ret;
+  QMessageBox::StandardButton ret = QMessageBox::Ok;
   QString message = QString("All existing custom part files will be deleted and regenerated.\n"
                             "Warning: Only custom part files for the currently loaded model file will be updated in %1.")
                             .arg(FILE_LPUB3D_UNOFFICIAL_ARCHIVE);
@@ -1985,8 +1985,8 @@ void Gui::preferences()
 
 	if (lightsChanged && nativePovRendererConfig)
 		logInfo() << QString("Lights changed from %1 to %2.")
-							 .arg(lightsCompare)
-							 .arg(Preferences::ldvLights);
+				 .arg(lightsCompare)
+				 .arg(Preferences::ldvLights);
     }
 }
 
@@ -2963,7 +2963,7 @@ void Gui::enableActions()
   cacheMenu->setEnabled(true);
   exportMenu->setEnabled(true);
 
-  ExportMenuViewer->setEnabled(true);
+  //ExportMenuViewer->setEnabled(true); // Hide 3DViewer step export functions
 
 }
 
@@ -3026,7 +3026,7 @@ void Gui::disableActions()
   cacheMenu->setEnabled(false);
   exportMenu->setEnabled(false);
 
-  ExportMenuViewer->setEnabled(false);
+  // ExportMenuViewer->setEnabled(false); // Hide 3DViewer step export functions
 
 }
 
@@ -3211,6 +3211,7 @@ void Gui::createMenus()
     QMenu* ToolBarViewerMenu = ViewerMenu->addMenu(tr("3DViewer Too&lbar"));
     ToolBarViewerMenu->addAction(gMainWindow->mToolsToolBar->toggleViewAction());
 
+    /* // Hide 3DViewer step export functions
     FileMenuViewer = menuBar()->addMenu(tr("&Step"));
     FileMenuViewer->addAction(gMainWindow->mActions[LC_FILE_SAVEAS]);
     FileMenuViewer->addAction(gMainWindow->mActions[LC_FILE_SAVE_IMAGE]);
@@ -3225,6 +3226,7 @@ void Gui::createMenus()
     ExportMenuViewer->addAction(gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]);
     ExportMenuViewer->setDisabled(true);
     // 3D Viewer Menus End
+    */
 
     // Help Menus
 

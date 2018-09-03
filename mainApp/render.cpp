@@ -43,7 +43,8 @@
 #include "math.h"
 #include "lpub_preferences.h"
 #include "application.h"
-#include "LDVWidget.h"
+
+#include <LDVQt/LDVWidget.h>
 
 #include "paths.h"
 
@@ -189,7 +190,7 @@ bool Render::useLDViewSCall(bool override){
     return Preferences::useLDViewSingleCall;
 }
 
-void clipImage(QString const &pngName) {
+bool clipImage(QString const &pngName) {
 
     QImage toClip(QDir::toNativeSeparators(pngName));
     QRect clipBox;
@@ -209,7 +210,7 @@ void clipImage(QString const &pngName) {
 
     if (minX > maxX || minY > maxY) {
         emit gui->messageSig(LOG_STATUS, qPrintable("No opaque content in " + pngName));
-        return;
+        return false;
     } else {
         clipBox.setCoords(minX, minY, maxX, maxY);
     }
@@ -225,7 +226,9 @@ void clipImage(QString const &pngName) {
         emit gui->messageSig(LOG_STATUS, qPrintable("Clipped " + clipMsg));
     } else {
         emit gui->messageSig(LOG_ERROR, qPrintable("Failed to save clipped image " + clipMsg));
+        return false;
     }
+    return true;
  }
 
 // Shared calculations
@@ -328,8 +331,6 @@ int POVRay::renderCsi(
   arguments << h;
   arguments << f;
   arguments << l;
-  arguments << o;
-  arguments << v;
 
   if (!Preferences::altLDConfigPath.isEmpty()) {
      arguments << "-LDConfig=" + Preferences::altLDConfigPath;
@@ -338,6 +339,9 @@ int POVRay::renderCsi(
 
   // LDView block begin
   if (Preferences::povFileGenerator == RENDERER_LDVIEW) {
+
+      arguments << o;
+      arguments << v;
 
       if (Preferences::enableFadeSteps)
         arguments <<  QString("-SaveZMap=1");
@@ -389,17 +393,30 @@ int POVRay::renderCsi(
       }
   }
   else
-  // Native block
+  // Native POV Generator block
   if (Preferences::povFileGenerator == RENDERER_NATIVE) {
+
+      QString workingDirectory = QDir::currentPath();
 
       arguments << ldrName;
 
       emit gui->messageSig(LOG_STATUS, "Native POV CSI file generation...");
 
-      if (! ldvWidget->doCommand(arguments))
-          emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI POVRay file for command: %1").arg(arguments.join(" ")));
+      bool retError = false;
+      ldvWidget = new LDVWidget();
+      ldvWidget->setIniFlag();
+      if (! ldvWidget->doCommand(arguments))  {
+          emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI POV file for command: %1").arg(arguments.join(" ")));
+          retError = true;
+      }
+      // ldvWidget changes the Working directory so we must reset
+      if (! QDir::setCurrent(workingDirectory)) {
+          emit gui->messageSig(LOG_ERROR, QString("Failed to restore CSI POV working directory %1").arg(workingDirectory));
+          retError = true;
+      }
+      if (retError)
+          return -1;
   }
-
 
   QStringList povArguments;
   if (Preferences::povrayDisplay){
@@ -490,10 +507,10 @@ int POVRay::renderCsi(
       }
   }
 
-  clipImage(pngName);
-
-  return 0;
-
+  if (clipImage(pngName))
+    return 0;
+  else
+    return -1;
 }
 
 int POVRay::renderPli(
@@ -533,8 +550,6 @@ int POVRay::renderPli(
   arguments << h;
   arguments << f;
   arguments << l;
-  arguments << o;
-  arguments << v;
 
   if (!Preferences::altLDConfigPath.isEmpty()) {
      arguments << "-LDConfig=" + Preferences::altLDConfigPath;
@@ -543,6 +558,9 @@ int POVRay::renderPli(
 
   // LDView block begin
   if (Preferences::povFileGenerator == RENDERER_LDVIEW) {
+
+      arguments << o;
+      arguments << v;
 
       list = meta.LPub.pli.ldviewParms.value().split(' ');
       for (int i = 0; i < list.size(); i++) {
@@ -587,15 +605,29 @@ int POVRay::renderPli(
       }
   }
   else
-  // Native block
+  // Native POV Generator block
   if (Preferences::povFileGenerator == RENDERER_NATIVE) {
+
+      QString workingDirectory = QDir::currentPath();
 
       arguments << ldrNames.first();
 
       emit gui->messageSig(LOG_STATUS, "Native POV PLI file generation...");
 
-      if (! ldvWidget->doCommand(arguments))
+      bool retError = false;
+      ldvWidget = new LDVWidget();
+      ldvWidget->setIniFlag();
+      if (! ldvWidget->doCommand(arguments)) {
           emit gui->messageSig(LOG_ERROR, QString("Failed to generate PLI POV file for command: %1").arg(arguments.join(" ")));
+          retError = true;
+      }
+      // ldvWidget changes the Working directory so we must reset
+      if (! QDir::setCurrent(workingDirectory)) {
+          emit gui->messageSig(LOG_ERROR, QString("Failed to restore PLI POV working directory %1").arg(workingDirectory));
+          retError = true;
+      }
+      if (retError)
+        return -1;
   }
 
   QStringList povArguments;
@@ -669,7 +701,7 @@ int POVRay::renderPli(
   emit gui->messageSig(LOG_STATUS, message);
 #endif
 
-  povray.start(Preferences::povrayExe,povArguments);
+  povray.start(Preferences::povrayExe, povArguments);
   if ( ! povray.waitForFinished(rendererTimeout())) {
       if (povray.exitCode() != 0) {
           QByteArray status = povray.readAll();
@@ -680,9 +712,10 @@ int POVRay::renderPli(
       }
   }
 
-  clipImage(pngName);
-
-  return 0;
+  if (clipImage(pngName))
+    return 0;
+  else
+    return -1;
 }
 
 
@@ -1317,17 +1350,19 @@ int Native::renderCsi(
   Q_UNUSED(csiKeys);
 
   QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+  float lineThickness = (float(resolution()/Preferences::highlightStepLineWidth));
 
   // Renderer options
   NativeOptions Options;
   Options.ImageType         = CSI;
-  Options.OutputFileName     = pngName;
+  Options.OutputFileName    = pngName;
   Options.ImageWidth        = gui->pageSize(meta.LPub.page, 0);
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
   Options.Latitude          = meta.LPub.assem.angle.value(0);
   Options.Longitude         = meta.LPub.assem.angle.value(1);
   Options.HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
   Options.CameraDistance    = cameraDistance(meta,meta.LPub.assem.modelScale.value());
+  Options.LineWidth         = lineThickness;
 
   // Set new project
   Project* CsiImageProject = new Project();
@@ -1359,10 +1394,6 @@ int Native::renderPli(
   Meta              &meta,
   bool               bom)
 {
-  // Line Width
-  int lineThickness = (int(resolution()/lineThickness));
-  Q_UNUSED(lineThickness);
-
   // Select meta type
   PliMeta &metaType = bom ? meta.LPub.bom : meta.LPub.pli;
 
@@ -1375,6 +1406,7 @@ int Native::renderPli(
   Options.Latitude          = metaType.angle.value(0);
   Options.Longitude         = metaType.angle.value(1);
   Options.CameraDistance    = cameraDistance(meta,metaType.modelScale.value());
+  Options.LineWidth         = HIGHLIGHT_LINE_WIDTH_DEFAULT;
 
   // Set and load new project
   Project* PliImageProject = new Project();
@@ -1402,12 +1434,15 @@ int Native::renderPli(
 
 void Render::CreateNativeImage(const NativeOptions &Options)
 {
+//        if (Options.LineWidth != HIGHLIGHT_LINE_WIDTH_DEFAULT)
+//            gApplication->mPreferences.mLineWidth = Options.LineWidth;
+
         View* ActiveView = gMainWindow->GetActiveView();
         ActiveView->MakeCurrent();
 
-        lcModel* Model = ActiveView->mModel;
+        lcModel* ActiveModel = ActiveView->GetActiveModel();
 
-        lcStep CurrentStep = Model->GetCurrentStep();
+        lcStep CurrentStep = ActiveModel->GetCurrentStep();
 
         lcContext* Context = ActiveView->mContext;
 
@@ -1419,7 +1454,7 @@ void Render::CreateNativeImage(const NativeOptions &Options)
         const int ImageWidth = Options.ImageWidth;
         const int ImageHeight = Options.ImageHeight;
 
-        View View(Model);
+        View View(ActiveModel);
         View.SetHighlight(Options.HighlightNewParts);
         View.SetCamera(Camera, false);
         View.SetContext(Context);
@@ -1432,7 +1467,7 @@ void Render::CreateNativeImage(const NativeOptions &Options)
                 return;
         }
 
-        Model->SetTemporaryStep(CurrentStep);
+        ActiveModel->SetTemporaryStep(CurrentStep);
 
         View.OnDraw();
 
@@ -1490,10 +1525,10 @@ void Render::CreateNativeImage(const NativeOptions &Options)
         View.EndRenderToImage();
         Context->ClearResources();
 
-        Model->SetTemporaryStep(CurrentStep);
+        ActiveModel->SetTemporaryStep(CurrentStep);
 
-        if (!Model->mActive)
-                Model->CalculateStep(LC_STEP_MAX);
+        if (!ActiveModel->mActive)
+                ActiveModel->CalculateStep(LC_STEP_MAX);
 }
 
 bool Render::LoadViewer(const ViewerOptions &Options){

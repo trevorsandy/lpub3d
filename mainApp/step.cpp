@@ -293,13 +293,24 @@ int Step::createCsi(
               return rc;
           }
 
-          logTrace() << "\n" << Render::getRenderer()
-                     << "CSI render call took"
-                     << timer.elapsed() << "milliseconds"
-                     << "to render" << pngName << "for"
-                     << (calledOut ? "called out," : "simple,")
-                     << (multiStep ? "step group" : "single step") << sn
-                     << "on page " << gui->stepPageNum << ".";
+          emit gui->messageSig(LOG_INFO, qPrintable(
+                              QString("%1 CSI render call took %2 milliseconds "
+                                      "to render %3 for %4 %5 %6 on page %7.")
+                                 .arg(Render::getRenderer())
+                                 .arg(timer.elapsed())
+                                 .arg(pngName)
+                                 .arg(calledOut ? "called out," : "simple,")
+                                 .arg(multiStep ? "step group" : "single step")
+                                 .arg(sn)
+                                 .arg(gui->stepPageNum)));
+
+//          logTrace() << "\n" << Render::getRenderer()
+//                     << "CSI render call took"
+//                     << timer.elapsed() << "milliseconds"
+//                     << "to render" << pngName << "for"
+//                     << (calledOut ? "called out," : "simple,")
+//                     << (multiStep ? "step group" : "single step") << sn
+//                     << "on page " << gui->stepPageNum << ".";
       }
   }
 

@@ -89,7 +89,7 @@ Q_DECLARE_METATYPE(LogType);
 #define LPUB3D_COLOUR_FILE_PREFIX         "colours_"  //Not used
 
 #define HIGHLIGHT_COLOUR_DEFAULT          "#FFFF00"      // Bright Yellow
-#define HIGHLIGHT_LINE_WIDTH_DEFAULT      1              // line width 1 - 5
+#define HIGHLIGHT_LINE_WIDTH_DEFAULT      1.0            // line width 1 - 5
 
 // Native pov file generation defaults
 #define SEAM_WIDTH_DEFAULT                  0.5
@@ -146,6 +146,4 @@ Q_DECLARE_METATYPE(LogType);
 #define SELECTED_ASPECT_RATIO_COMBO_DEFAULT ASPECT_RATIO_0 "," ASPECT_RATIO_1 "," ASPECT_RATIO_2 "," \
                                             ASPECT_RATIO_3 "," ASPECT_RATIO_4 "," ASPECT_RATIO_5 "," \
                                             ASPECT_RATIO_6 "," ASPECT_RATIO_7 "," ASPECT_RATIO_8
-
-
 #endif

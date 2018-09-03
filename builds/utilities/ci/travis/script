@@ -3,7 +3,7 @@
 # Travis build [script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: April 09, 2018
+#  Last Update: July 28, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -15,7 +15,7 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
     # build linux packages
     if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       # setup Docker compose directory
-      if [[ "$LP3D_BUILD_ARCH2017" = "true" || "$LP3D_BUILD_FEDORA25" = "true" || "$LP3D_BUILD_XENIAL" = "true" ]]; then
+      if [[ "$LP3D_BUILD_ARCH" = "true" || "$LP3D_BUILD_FEDORA" = "true" || "$LP3D_BUILD_XENIAL" = "true" ]]; then
         if [ ! -d "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}" ]; then
           ln -sf "$LP3D_DIST_DIR_PATH" "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}" && \
           if test -d "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}"; fi;
@@ -24,12 +24,12 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
         fi;
       fi;
       # Docker builds - Arch
-      if [ "$LP3D_BUILD_ARCH2017" = "true" ]; then
+      if [ "$LP3D_BUILD_ARCH" = "true" ]; then
         docker-compose -f $LP3D_COMPOSE_DIR/docker-compose-cibuild-linux.yml run --rm archlinux;
       fi;
       # Docker builds - Fedora
-      if [ "$LP3D_BUILD_FEDORA25" = "true" ]; then
-        docker-compose -f $LP3D_COMPOSE_DIR/docker-compose-cibuild-linux.yml run --rm fedora_25;
+      if [ "$LP3D_BUILD_FEDORA" = "true" ]; then
+        docker-compose -f $LP3D_COMPOSE_DIR/docker-compose-cibuild-linux.yml run --rm fedora;
       fi;
       # Docker builds - Ubuntu
       if [ "$LP3D_BUILD_XENIAL" = "true" ]; then
@@ -52,61 +52,70 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
   # Compile source code or build AppImage
   if [[ ("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ) || \
         ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && "$TRAVIS_OS_NAME" = "linux" ) ]]; then
-    export TARGET_CPU=$(uname -m); export PLATFORM_CODE="ubu" ; export PLATFORM_VER="14.04"
-    export LPUB3D=${PWD##*/}; export WD=$(cd ../ && echo $PWD); export LDRAWDIR=${HOME}/ldraw;
-    if [ ! -d "${WD}/${LP3D_DIST_DIR}" ]; then
-      ln -sf "$LP3D_DIST_DIR_PATH" "${WD}/${LP3D_DIST_DIR}" && \
-      if test -d "${WD}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${WD}/${LP3D_DIST_DIR}"; fi;
-    else
-      echo "Using cached 3rd Party repository ${WD}/${LP3D_DIST_DIR}";
+    if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+      export TARGET_CPU=$(uname -m); export PLATFORM_CODE="ubu" ; export PLATFORM_VER="14.04"
+      export LPUB3D=${PWD##*/}; export WD=$(cd ../ && echo $PWD); export LDRAWDIR=${HOME}/ldraw;
+      if [ ! -d "${WD}/${LP3D_DIST_DIR}" ]; then
+        ln -sf "$LP3D_DIST_DIR_PATH" "${WD}/${LP3D_DIST_DIR}" && \
+        if test -d "${WD}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${WD}/${LP3D_DIST_DIR}"; fi;
+      else
+        echo "Using cached 3rd Party repository ${WD}/${LP3D_DIST_DIR}";
+      fi;
+      chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh;
+      #echo "Renderer Files:" && find ${LP3D_DIST_DIR_PATH} -type f && echo;
+
+      # build AppImage
+      if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" ]]; then
+        if [ -f "${WD}/${LP3D_DIST_DIR}/complete.zip" ]; then
+          cp -f "${WD}/${LP3D_DIST_DIR}/complete.zip" "mainApp/extras"
+        else
+          echo "ERROR - could not copy LDraw complete.zip archive."
+        fi
+        if [ -f "${WD}/${LP3D_DIST_DIR}/lpub3dldrawunf.zip" ]; then
+          cp -f "${WD}/${LP3D_DIST_DIR}/lpub3dldrawunf.zip" "mainApp/extras"
+        else
+          echo "ERROR - could not copy LDraw lpub3dldrawunf.zip.zip archive."
+        fi
+        qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=api;
+        make -j$(nproc);
+        make INSTALL_ROOT=$AppImageBuildPath -j$(nproc) install;
+        [ ! -e linuxdeployqt-continuous-x86_64.AppImage ] && \
+        wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage";
+        chmod a+x linuxdeployqt-continuous-x86_64.AppImage;
+        renderers=$(find $AppImageBuildPath/opt -type f);
+        for r in $renderers; do executables="$executables -executable=$r"; done;
+        unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH;
+        export VERSION="$LP3D_VERSION"    # linuxdeployqt uses this for naming the file
+        ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2 > CreateAppImage.log 2>&1;
+        ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/usr/share/applications/*.desktop -appimage -verbose=2 >> CreateAppImage.log 2>&1;
+        echo && echo "AppImage Dynamic Library Dependencies:" && \
+        find $AppImageBuildPath -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo;
+        AppImageFile=$(ls LPub3D*.AppImage)
+        if [ -f $AppImageFile ]; then
+          echo "AppImage build completed successfully.";
+          AppImageExtension=${AppImageFile##*-};
+          mkdir -p $AppImageBuildPath/AppImage;
+          cp -f ${AppImageFile} "${AppImageBuildPath}/AppImage/LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension}";
+          echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension}";
+          mv -f ${AppImageFile} "${AppImageBuildPath}/AppImage/LPub3D-UpdateMaster_${LP3D_VERSION}-${AppImageExtension}";
+          echo "    Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}-${AppImageExtension}";
+        else
+          echo "AppImage build failed. $AppImageFile not found.";
+        fi
+      # else just compile source
+      else
+          qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=deb;
+          make -j$(nproc);
+      fi
+    elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
+        if [ ! -d "${DmgBuildPath}/${LP3D_DIST_DIR}" ]; then
+            ln -sf "$LP3D_DIST_DIR_PATH" "${DmgBuildPath}/${LP3D_DIST_DIR}" && \
+            if test -d "${DmgBuildPath}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${DmgBuildPath}/${LP3D_DIST_DIR}"; fi;
+        else
+            echo "Using cached 3rd Party repository ${DmgBuildPath}/${LP3D_DIST_DIR}";
+        fi;
+        export BUILD_OPT="compile"
+        chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
     fi;
-    chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh;
-    #echo "Renderer Files:" && find ${LP3D_DIST_DIR_PATH} -type f && echo;
-    if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-      export INSTALL_3RD_PARTY=yes;
-    fi;
-    qmake -v;
-    # build AppImage else Build Source
-    if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && "$TRAVIS_OS_NAME" = "linux" ]]; then
-      if [ -f "${WD}/${LP3D_DIST_DIR}/complete.zip" ]; then
-        cp -f "${WD}/${LP3D_DIST_DIR}/complete.zip" "mainApp/extras"
-      else
-        echo "ERROR - could not copy LDraw complete.zip archive."
-      fi
-      if [ -f "${WD}/${LP3D_DIST_DIR}/lpub3dldrawunf.zip" ]; then
-        cp -f "${WD}/${LP3D_DIST_DIR}/lpub3dldrawunf.zip" "mainApp/extras"
-      else
-        echo "ERROR - could not copy LDraw lpub3dldrawunf.zip.zip archive."
-      fi
-      qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=api;
-      make -j$(nproc);
-      make INSTALL_ROOT=$AppImageBuildPath -j$(nproc) install;
-      [ ! -e linuxdeployqt-continuous-x86_64.AppImage ] && \
-      wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage";
-      chmod a+x linuxdeployqt-continuous-x86_64.AppImage;
-      renderers=$(find $AppImageBuildPath/opt -type f);
-      for r in $renderers; do executables="$executables -executable=$r"; done;
-      unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH;
-      export VERSION="$LP3D_VERSION"    # linuxdeployqt uses this for naming the file
-      ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2 > CreateAppImage.log 2>&1;
-      ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/usr/share/applications/*.desktop -appimage -verbose=2 >> CreateAppImage.log 2>&1;
-      echo && echo "AppImage Dynamic Library Dependencies:" && \
-      find $AppImageBuildPath -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo;
-      AppImageFile=$(ls LPub3D*.AppImage)
-      if [ -f $AppImageFile ]; then
-        echo "AppImage build completed successfully.";
-        AppImageExtension=${AppImageFile##*-};
-        mkdir -p $AppImageBuildPath/AppImage;
-        cp -f ${AppImageFile} "${AppImageBuildPath}/AppImage/LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension}";
-        echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension}";
-        mv -f ${AppImageFile} "${AppImageBuildPath}/AppImage/LPub3D-UpdateMaster_${LP3D_VERSION}-${AppImageExtension}";
-        echo "    Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}-${AppImageExtension}";
-      else
-        echo "AppImage build failed. $AppImageFile not found.";
-      fi
-    else
-      qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=deb;
-      make -j$(nproc);
-    fi
-  fi;
+  fi
 fi

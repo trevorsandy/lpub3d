@@ -16,7 +16,7 @@ cache:
 
 #shallow_clone: true
 
-image: Visual Studio 2015
+image: Visual Studio 2017
 
 skip_commits:
   files:
@@ -24,6 +24,7 @@ skip_commits:
    - mainApp\macosfiledistro.pri
    - builds\linux\
    - builds\macx\
+   - builds\check\build_check.sh
    - builds\utilities\mesa\
    - builds\utilities\ci\travis\
    - builds\utilities\dmg-utils\
@@ -53,8 +54,8 @@ environment:
   LP3D_PACKAGE_PATH: builds\windows\$(configuration)
   LP3D_DIST_DIR: lpub3d_windows_3rdparty
   LP3D_DIST_DIR_PATH: $(APPVEYOR_BUILD_FOLDER)\$(LP3D_DIST_DIR)
-  LP3D_QT32_MSVC: C:\Qt\5.11.0\msvc2015\bin
-  LP3D_QT64_MSVC: C:\Qt\5.11.0\msvc2015_64\bin
+  LP3D_QT32_MSVC: C:\Qt\5.11.1\msvc2015\bin
+  LP3D_QT64_MSVC: C:\Qt\5.11.1\msvc2017_64\bin
   LP3D_SECURE_DIR: builds\utilities\ci\secure
   SECURE_AV_SECRET:
     secure: nQtdZL7czHUCbI5HicAKEwLHmW88oGm9Y55LPalj8L4=
@@ -103,7 +104,7 @@ init:
  - ps: |
       If ($env:LP3D_BUILD_PKG -eq "yes") {
         If ($env:APPVEYOR_REPO_COMMIT_MESSAGE -Match '[^\S]\s?([0-1]?\s?[0-1]?\s?[0-1]?)\].*$') {
-          If (LP3D_BUILD_RENDERERS_VAR -ne "true") {
+          If ($env:LP3D_BUILD_RENDERERS_VAR -ne "true") {
             $env:LP3D_BUILD_LDGLITE = $matches[1].substring(0,1)
             $env:LP3D_BUILD_LDVIEW = $matches[1].substring(2,1)
             $env:LP3D_BUILD_TRACE = $matches[1].substring(4,1)

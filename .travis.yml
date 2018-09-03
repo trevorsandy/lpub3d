@@ -13,7 +13,7 @@ cache:
 
 env:
   global:
-    - LP3D_QT_BASE=59
+    - LP3D_QT_BASE=510
     - LP3D_LDRAW_DIR=${HOME}/ldraw
     - LP3D_BUILD_FOLDER=${TRAVIS_BUILD_DIR}
     - LP3D_RELEASES_DIR=${LP3D_BUILD_FOLDER}/builds/releases
@@ -76,11 +76,11 @@ jobs:
     compiler: gcc
     script: source ${LP3D_CI_SCRIPT_DIR}/prepare_store
   - stage: Build and Package
-    env: LP3D_BUILD_ARCH2017=true
+    env: LP3D_BUILD_ARCH=true
     os: linux
     compiler: gcc
   - stage: Build and Package
-    env: LP3D_BUILD_FEDORA25=true
+    env: LP3D_BUILD_FEDORA=true
     os: linux
     compiler: gcc
   - stage: Build and Package

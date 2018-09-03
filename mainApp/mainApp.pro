@@ -1,13 +1,25 @@
 TEMPLATE = app
-QT += core
-QT += gui
-QT += opengl
-QT += network
-QT += xml
+QT     += core
+QT     += gui
+QT     += opengl
+QT     += network
+QT     += xml
+CONFIG += warn_on
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT *= printsupport
     QT += concurrent
+}
+
+win32:macx: \
+ENABLE_GAMEPAD = true
+contains(ENABLE_GAMEPAD,true) {
+    DEFINES += _GAMEPAD
+    equals(QT_MAJOR_VERSION, 5) {
+        greaterThan(QT_MINOR_VERSION, 7) {
+            QT += gamepad
+        }
+    }
 }
 
 CONFIG += exceptions
@@ -19,8 +31,8 @@ include(../gitversion.pri)
 TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
-INCLUDEPATH += ../ldrawini ../lclib/common ../lclib/qt ../ldvlib
-INCLUDEPATH += ../ldvlib/LDVQt ../ldvlib/TCFoundation ../ldvlib/TRE ../ldvlib/LDLoader ../ldvlib/LDExporter
+INCLUDEPATH += ../ldrawini ../lclib/common ../lclib/qt
+INCLUDEPATH += ../ldvlib ../ldvlib/LDVQt/include
 win32-msvc* {
 INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
 }
@@ -34,9 +46,10 @@ quazipnobuild {
 }
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-HOST_VERSION = $$(PLATFORM_VER)
-BUILD_TARGET = $$(TARGET_VENDOR)
-BUILD_ARCH   = $$(TARGET_CPU)
+LDVMESSAGESINI = LDVMessages.ini
+HOST_VERSION   = $$(PLATFORM_VER)
+BUILD_TARGET   = $$(TARGET_VENDOR)
+BUILD_ARCH     = $$(TARGET_CPU)
 !contains(QT_ARCH, unknown):  BUILD_ARCH = $$QT_ARCH
 else: isEmpty(BUILD_ARCH):    BUILD_ARCH = UNKNOWN ARCH
 contains(HOST_VERSION, 1320):contains(BUILD_TARGET, suse):contains(BUILD_ARCH, aarch64): DEFINES += OPENSUSE_1320_ARM
@@ -72,10 +85,6 @@ QMAKE_CXXFLAGS       += $(Q_CXXFLAGS)
 QMAKE_LFLAGS         += $(Q_LDFLAGS)
 QMAKE_CFLAGS         += $(Q_CFLAGS)
 
-!win32-msvc* {
-QMAKE_CFLAGS_WARN_ON += -Wno-unused-parameter -Wno-unknown-pragmas
-}
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 win32 {
@@ -88,6 +97,25 @@ win32 {
         DEFINES += _WINSOCKAPI_
         DEFINES += _TC_STATIC
         DEFINES += QUAZIP_STATIC
+
+        QMAKE_CFLAGS_WARN_ON -= -W3
+        QMAKE_ADDL_MSVC_FLAGS = -GS -Gd -fp:precise -Zc:forScope
+        CONFIG(debug, debug|release) {
+            QMAKE_ADDL_MSVC_DEBUG_FLAGS = -RTC1 -Gm $$QMAKE_ADDL_MSVC_FLAGS
+            QMAKE_CFLAGS_WARN_ON += -W4 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4459" -wd"4127" -wd"4701" -wd"4714" -wd"4305" -wd"4099"
+            QMAKE_CFLAGS_DEBUG   += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
+            QMAKE_CXXFLAGS_DEBUG += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
+        }
+        CONFIG(release, debug|release) {
+            QMAKE_ADDL_MSVC_RELEASE_FLAGS = $$QMAKE_ADDL_MSVC_FLAGS -GF -Gy
+            QMAKE_CFLAGS_OPTIMIZE += -Ob1 -Oi -Ot
+            QMAKE_CFLAGS_WARN_ON  += -W1 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4805" -wd"4838" -wd"4700" -wd"4098"
+            QMAKE_CFLAGS_RELEASE  += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
+            QMAKE_CXXFLAGS_RELEASE += $$QMAKE_ADDL_MSVC_RELEASE_FLAGS
+        }
+        QMAKE_CXXFLAGS_WARN_ON = $$QMAKE_CFLAGS_WARN_ON
+    } else {
+        QMAKE_CFLAGS_WARN_ON += -Wno-unused-parameter -Wno-unknown-pragmas
     }
 
     QMAKE_TARGET_COMPANY = "LPub3D Software"
@@ -132,184 +160,73 @@ CONFIG(debug, debug|release) {
     DEFINES += QT_DEBUG_MODE
     BUILD_CONF = Debug
     ARCH_BLD = bit_debug
-    macx {
-        LDRAWINI_LIB = LDrawIni_debug
-        QUAZIP_LIB = QuaZIP_debug
-        LC_LIB = LC_debug
-        TRE_LIB = TRE_debug
-        LDLIB_LIB = LDLib_debug
-        LDLOADER_LIB = LDLoader_debug
-        LDEXPORTER_LIB = LDExporter_debug
-        TCFOUNDATION_LIB = TCFoundation_debug
-        LDVQT_LIB = LDVQt_debug
-        PNG_LIB = PNG_debug
-        JPEG_LIB = JPEG_debug
-        GL2PS_LIB = GL2PS_debug
-        TINYXML_LIB = TinyXml_debug
-    }
+
     win32 {
         LDRAWINI_LIB = LDrawInid161
         QUAZIP_LIB = QuaZIPd07
         LC_LIB = LCd18
-        TRE_LIB = TREd43
-        LDLIB_LIB = LDLibd43
-        LDLOADER_LIB = LDLoaderd43
-        LDEXPORTER_LIB = LDExporterd43
-        TCFOUNDATION_LIB = TCFoundationd43
         LDVQT_LIB = LDVQtd43
-        PNG_LIB = PNGd16
-        JPEG_LIB = JPEGd92
-        GL2PS_LIB = GL2PSd13
-        TINYXML_LIB = TinyXmld26
     }
+
+    macx {
+
+        LDRAWINI_LIB = LDrawIni_debug
+        QUAZIP_LIB = QuaZIP_debug
+        LC_LIB = LC_debug
+        LDVQT_LIB = LDVQt_debug
+    }
+
     unix:!macx {
         LDRAWINI_LIB = ldrawinid
         QUAZIP_LIB = quazipd
         LC_LIB = lcd
-        TRE_LIB = tred
-        LDLIB_LIB = ldlibd
-        LDLOADER_LIB = ldloaderd
-        LDEXPORTER_LIB = ldexporterd
-        TCFOUNDATION_LIB = tcfoundationd
         LDVQT_LIB = ldvqtd
-        PNG_LIB = pngd
-        JPEG_LIB = jpegd
-        GL2PS_LIB = gl2psd
-        TINYXML_LIB = tinyxmld
     }
+
     # executable target name
     macx: TARGET = $$join(TARGET,,,_debug)
     win32:TARGET = $$join(TARGET,,,d)
     unix:!macx: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
+
 } else {
+
     BUILD_CONF = Release
     ARCH_BLD = bit_release
-    macx {
-        LDRAWINI_LIB = LDrawIni
-        QUAZIP_LIB = QuaZIP
-        LC_LIB = LC
-        TRE_LIB = TRE
-        LDLIB_LIB = LDLib
-        LDLOADER_LIB = LDLoader
-        LDEXPORTER_LIB = LDExporter
-        TCFOUNDATION_LIB = TCFoundation
-        LDVQT_LIB = LDVQt
-        PNG_LIB = PNG
-        JPEG_LIB = JPEG
-        GL2PS_LIB = GL2PS
-        TINYXML_LIB = TinyXml
-    }
+
     win32 {
         LDRAWINI_LIB = LDrawIni161
         QUAZIP_LIB = QuaZIP07
         LC_LIB = LC18
-        TRE_LIB = TRE43
-        LDLIB_LIB = LDLib43
-        LDLOADER_LIB = LDLoader43
-        LDEXPORTER_LIB = LDExporter43
-        TCFOUNDATION_LIB = TCFoundation43
         LDVQT_LIB = LDVQt43
-        PNG_LIB = PNG16
-        JPEG_LIB = JPEG92
-        GL2PS_LIB = GL2PS13
-        TINYXML_LIB = TinyXml26
     }
+
+    macx {
+        LDRAWINI_LIB = LDrawIni
+        QUAZIP_LIB = QuaZIP
+        LC_LIB = LC
+        LDVQT_LIB = LDVQt
+    }
+
     unix:!macx {
+
         LDRAWINI_LIB = ldrawini
         QUAZIP_LIB = quazip
         LC_LIB = lc
-        TRE_LIB = tre
-        LDLIB_LIB = ldlib
-        LDLOADER_LIB = ldloader
-        LDEXPORTER_LIB = ldexporter
-        TCFOUNDATION_LIB = tcfoundation
         LDVQT_LIB = ldvqt
-        PNG_LIB = png
-        JPEG_LIB = jpeg
-        GL2PS_LIB = gl2ps
-        TINYXML_LIB = tinyxml
     }
+
     # executable target
     !macx:!win32: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
 }
 BUILD += $$BUILD_CONF
 
-# build path component
+# build path component foo
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 
 #manpage
 MAN_PAGE = $$join(TARGET,,,.1)
 
-message("~~~ MAIN_APP $$join(ARCH,,,bit) $${BUILD} $${CHIPSET} ~~~")
-
-#~~~libraries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# needed to access ui header from LDVQt
-INCLUDEPATH += $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/.ui
-
-LIBS += -L$$OUT_PWD/../lclib/$$DESTDIR -l$$LC_LIB
-
-LIBS += \
-    -L$$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR \
-    -L$$OUT_PWD/../ldvlib/LDLib/$$DESTDIR \
-    -L$$OUT_PWD/../ldvlib/LDExporter/$$DESTDIR  \
-    -L$$OUT_PWD/../ldvlib/LDLoader/$$DESTDIR \
-    -L$$OUT_PWD/../ldvlib/TRE/$$DESTDIR \
-    -L$$OUT_PWD/../ldvlib/TCFoundation/$$DESTDIR
-
-LIBS += \
-    -l$$LDVQT_LIB \
-    -l$$LDLIB_LIB \
-    -l$$LDEXPORTER_LIB \
-    -l$$LDLOADER_LIB \
-    -l$$TRE_LIB \
-    -l$$TCFOUNDATION_LIB
-
-macx{
-exists(/usr/X11/lib){
-message("~~~ X11 found ~~~")
-LIBS += -L/usr/X11/lib
-}
-LIBS += -L/usr/local/lib
-}
-
-quazipnobuild: \
-LIBS += -lquazip
-else: \
-LIBS += -L$$OUT_PWD/../quazip/$$DESTDIR -l$$QUAZIP_LIB
-LIBS += -L$$OUT_PWD/../ldrawini/$$DESTDIR -l$$LDRAWINI_LIB
-
-if (unix:exists(/usr/include/gl2ps.h)|exists(/usr/local/include/gl2ps.h)) {
-    LIBS += -lgl2ps
-} else {
-    LIBS += -L$$OUT_PWD/../ldvlib/gl2ps/$$DESTDIR -l$$GL2PS_LIB
-}
-if (unix:exists(/usr/include/png.h)|exists(/usr/local/include/png.h)|BUILD_GL2PS) {
-    if (contains(HOST, Ubuntu):contains(HOST, 14.04.5)|BUILD_GL2PS) {
-        LIBS += -L$$OUT_PWD/../ldvlib/libpng/$$DESTDIR -l$$PNG_LIB
-    } else {
-        LIBS += -lpng
-    }
-} else {
-    LIBS += -L$$OUT_PWD/../ldvlib/libpng/$$DESTDIR -l$$PNG_LIB
-}
-if (unix:exists(/usr/include/jpeglib.h)|exists(/usr/local/include/jpeglib.h)) {
-    LIBS += -ljpeg
-} else {
-    !win32:message("~~~ ALERT: library jpeg not found, building it... ~~~")
-    LIBS += -L$$OUT_PWD/../ldvlib/libjpeg/$$DESTDIR -l$$JPEG_LIB
-}
-if (unix:exists(/usr/include/tinyxml.h)|exists(/usr/local/include/tinyxml.h)) {
-    LIBS += -ltinyxml
-} else {
-    LIBS += -L$$OUT_PWD/../ldvlib/tinyxml/$$DESTDIR -l$$TINYXML_LIB
-}
-
-win32:LIBS += -ladvapi32 -lshell32 -lopengl32 -lglu32 -lwininet -luser32 -lws2_32 -lgdi32
-else: LIBS += -lX11 -lGL -lGLU
-!win32-msvc* {
-    LIBS += -lz
-}
+message("~~~ $${TARGET} $$join(ARCH,,,bit) $${BUILD} $${CHIPSET} ~~~")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -319,38 +236,6 @@ MOC_DIR         = $$DESTDIR/.moc
 RCC_DIR         = $$DESTDIR/.qrc
 UI_DIR          = $$DESTDIR/.ui
 
-#~~ Merge ldv ini files and move to extras dir ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-LDV_MESSAGES_INI = LDVMessages.ini
-
-win32 {
-    COPY_CMD     = COPY /y /a /b
-    PLUS_CMD     = +
-    REDIRECT_CMD =
-} else {
-    COPY_CMD     = cat
-    PLUS_CMD     =
-    REDIRECT_CMD = >
-}
-
-merge_ini_commands = \
-$$COPY_CMD \
-$$system_path($$_PRO_FILE_PWD_/../ldvlib/LDLib/LDViewMessages.ini) $$PLUS_CMD \
-$$system_path($$_PRO_FILE_PWD_/../ldvlib/LDExporter/LDExportMessages.ini) $$REDIRECT_CMD \
-$$system_path($$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI) && $$COPY_CMD \
-$$system_path($$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI) $$REDIRECT_CMD \
-$$system_path($$OUT_PWD/$$DESTDIR/$$LDV_MESSAGES_INI)
-
-merge_ini.target   = $$LDV_MESSAGES_INI
-merge_ini.commands = $$merge_ini_commands
-merge_ini.depends  = $$_PRO_FILE_PWD_/../ldvlib/LDLib/LDViewMessages.ini \
-                     $$_PRO_FILE_PWD_/../ldvlib/LDExporter/LDExportMessages.ini
-
-QMAKE_EXTRA_TARGETS += merge_ini
-PRE_TARGETDEPS      += $$LDV_MESSAGES_INI
-QMAKE_CLEAN         += $$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI \
-                       $$OUT_PWD/$$DESTDIR/$$LDV_MESSAGES_INI
-
 #~~file distributions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Install 3rd party executables, documentation and resources.
@@ -358,9 +243,22 @@ QMAKE_CLEAN         += $$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI \
 # Projects/Build Steps/Qmake/'Additional arguments' because,
 # macOS build will also bundle all deliverables.
 
+THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
+!exists($$THIRD_PARTY_DIST_DIR_PATH) {
+    unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
+    else:macx: DIST_DIR       = lpub3d_macos_3rdparty
+    else:win32: DIST_DIR      = lpub3d_windows_3rdparty
+    THIRD_PARTY_DIST_DIR_PATH = $$system_path( $$absolute_path( $$_PRO_FILE_PWD_/../../$$DIST_DIR ) )
+    exists($$THIRD_PARTY_DIST_DIR_PATH): \
+    message("~~~ INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH ~~~")
+    else: \
+    message("~~~ ERROR - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED! ~~~")
+}
+message("~~~ 3RD PARTY DISTRIBUTION REPO $$THIRD_PARTY_DIST_DIR_PATH ~~~")
+
 # If you wish to build and install on Linux or Windows, then
 # set deb|rpm|pkg|exe respectively.
-macx: build_package = $$(INSTALL_3RD_PARTY)
+macx: build_package = $$(INSTALL_3RD_PARTY)       # INSTALL_3RD_PARTY no longer used
 else: build_package = $$(LP3D_BUILD_PKG)
 if(deb|rpm|pkg|dmg|exe|contains(build_package, yes)) {
     args = deb rpm pkg dmg exe
@@ -369,16 +267,6 @@ if(deb|rpm|pkg|dmg|exe|contains(build_package, yes)) {
     }
     isEmpty(opt): opt = $$build_package
     message("~~~ BUILD DISTRIBUTION PACKAGE: $$opt ~~~")
-
-    THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
-    !exists($$THIRD_PARTY_DIST_DIR_PATH) {
-        unix:!macx: DIST_DIR=lpub3d_linux_3rdparty
-        macx: DIST_DIR=lpub3d_macos_3rdparty
-        win32: DIST_DIR=lpub3d_windows_3rdparty
-        THIRD_PARTY_DIST_DIR_PATH = $$_PRO_FILE_PWD_/../../$$DIST_DIR
-        message("~~~ INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH ~~~")
-    }
-    message("~~~ 3RD PARTY DISTRIBUTION REPO $$THIRD_PARTY_DIST_DIR_PATH ~~~")
 
     if (unix|copy3rd) {
         CONFIG+=copy3rdexe
@@ -410,12 +298,39 @@ include(../qslog/QsLog.pri)
 include(../qsimpleupdater/QSimpleUpdater.pri)
 include(../LPub3DPlatformSpecific.pri)
 
+#~~~libraries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# needed to access ui header from LDVQt
+INCLUDEPATH += $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/.ui
+
+LIBS += -L$$OUT_PWD/../lclib/$$DESTDIR -l$$LC_LIB
+
+LIBS += -L$$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR -l$$LDVQT_LIB
+
+LOAD_LDVLIBS = True
+include(../ldvlib/LDVQt/LDViewLibs.pri)
+
+quazipnobuild: \
+LIBS += -lquazip
+else: \
+LIBS += -L$$OUT_PWD/../quazip/$$DESTDIR -l$$QUAZIP_LIB
+LIBS += -L$$OUT_PWD/../ldrawini/$$DESTDIR -l$$LDRAWINI_LIB
+
+win32 {
+    LIBS += -ladvapi32 -lshell32 -lopengl32 -lglu32 -lwininet -luser32 -lws2_32 -lgdi32
+} else:!macx {
+    LIBS += -lGL -lGLU
+}
+!win32-msvc* {
+    LIBS += -lz
+}
+
 #~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 HEADERS += \
     aboutdialog.h \
-    application.h \
     annotations.h \
+    application.h \
     archiveparts.h \
     backgrounddialog.h \
     backgrounditem.h \
@@ -449,12 +364,12 @@ HEADERS += \
     metatypes.h \
     name.h \
     numberitem.h \
-    pagebackgrounditem.h \
-    pageattributetextitem.h \
     pageattributepixmapitem.h \
-    pairdialog.h \
+    pageattributetextitem.h \
+    pagebackgrounditem.h \
     pageorientationdialog.h \
     pagesizedialog.h \
+    pairdialog.h \
     parmshighlighter.h \
     parmswindow.h \
     paths.h \
@@ -480,18 +395,18 @@ HEADERS += \
     rotateiconitem.h \
     rx.h \
     scaledialog.h \
+    sizeandorientationdialog.h \
     step.h \
     textitem.h \
     threadworkers.h \
     updatecheck.h \
-    where.h \
-    sizeandorientationdialog.h \
-    version.h
+    version.h \
+    where.h
 
 SOURCES += \
     aboutdialog.cpp \
-    application.cpp \
     annotations.cpp \
+    application.cpp \
     archiveparts.cpp \
     assemglobals.cpp \
     backgrounddialog.cpp \
@@ -501,8 +416,8 @@ SOURCES += \
     calloutbackgrounditem.cpp \
     calloutglobals.cpp \
     color.cpp \
-    commands.cpp \
     commandline.cpp \
+    commands.cpp \
     commonmenus.cpp \
     csiitem.cpp \
     dependencies.cpp \
@@ -529,9 +444,9 @@ SOURCES += \
     multistepglobals.cpp \
     numberitem.cpp \
     openclose.cpp \
-    pagebackgrounditem.cpp \
-    pageattributetextitem.cpp \
     pageattributepixmapitem.cpp \
+    pageattributetextitem.cpp \
+    pagebackgrounditem.cpp \
     pageglobals.cpp \
     pageorientationdialog.cpp \
     pagesizedialog.cpp \
@@ -559,8 +474,8 @@ SOURCES += \
     render.cpp \
     resize.cpp \
     resolution.cpp \
-    rotateiconitem.cpp \
     rotate.cpp \
+    rotateiconitem.cpp \
     rx.cpp \
     scaledialog.cpp \
     sizeandorientationdialog.cpp \
@@ -568,32 +483,33 @@ SOURCES += \
     textitem.cpp \
     threadworkers.cpp \
     traverse.cpp \
-    updatecheck.cpp \
-    undoredo.cpp
+    undoredo.cpp \
+    updatecheck.cpp
 
 FORMS += \
-    preferences.ui \
     aboutdialog.ui \
-    dialogexportpages.ui
+    dialogexportpages.ui \
+    preferences.ui
 
 OTHER_FILES += \
-    Info.plist \
-    lpub3d.desktop \
-    org.trevorsandy.lpub3d.appdata.xml \
-    lpub3d.xml \
-    lpub3d.sh \
     $$lower($$MAN_PAGE) \
-    lpub3d.1 \
-    ../README.md \
     ../.gitignore \
     ../.travis.yml \
-    ../appveyor.yml
+    ../appveyor.yml \
+    ../README.md \
+    Info.plist \
+    lpub3d.1 \
+    lpub3d.desktop \
+    lpub3d.sh \
+    lpub3d.xml \
+    org.trevorsandy.lpub3d.appdata.xml
 
 include(otherfiles.pri)
 
 RESOURCES += \
     ../lclib/resources/lclib.qrc \
-    lpub3d.qrc
+    ../ldvlib/LDVQt/resources.qrc \
+    lpub3d.qrc \
 
 DISTFILES += \
     ldraw_document.icns
@@ -613,8 +529,8 @@ macx {
 
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-overloaded-virtual \
-    -Wno-sometimes-uninitialized \
     -Wno-self-assign \
+    -Wno-sometimes-uninitialized \
     -Wno-unused-result
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
 
@@ -628,11 +544,11 @@ QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
 QMAKE_CFLAGS_WARN_ON += \
    -Wno-misleading-indentation
 QMAKE_CXXFLAGS_WARN_ON += \
-   -Wno-maybe-uninitialized \
+   -Wno-cpp \
    -Wno-implicit-fallthrough \
+   -Wno-maybe-uninitialized \
    -Wno-strict-aliasing \
-   -Wno-unused-result \
-   -Wno-cpp
+   -Wno-unused-result
 }
 
 } else {

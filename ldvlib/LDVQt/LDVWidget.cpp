@@ -23,10 +23,15 @@
 #include <QMessageBox>
 #include <QDesktopWidget>
 #include <QDesktopServices>
+
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreServices/CoreServices.h>
 #include <ApplicationServices/ApplicationServices.h>
+// On the Mac, when using Qt, glextmacosqt.h has to be included prior to anything
+// else that might include GL/gl.h, to override and force-load the needed extensions,
+// otherwise things don't compile. This is annoying, but it doesn't appear to hurt anything.
+#include <GL/glextmacosqt.h>
 #endif // __APPLE__
 
 #include <TCFoundation/mystring.h>
@@ -36,84 +41,63 @@
 #include <TCFoundation/TCStringArray.h>
 #include <TCFoundation/TCAlertManager.h>
 #include <LDLib/LDUserDefaultsKeys.h>
-#include <LDLib/LDConsoleAlertHandler.h>
+
 #include <LDLoader/LDLModel.h>
 #include <LDLib/LDrawModelViewer.h>
-
 #include <LDLib/LDSnapshotTaker.h>
-#include <LDVQt/LDVPreferences.h>
 
 #include <TRE/TREMainModel.h>
-//#include <TRE/TREGLExtensions.h>
+#include <TRE/TREGLExtensions.h>
+
+#include <LDVPreferences.h>
 #include <LDViewExportOption.h>
 #include <LDVAlertHandler.h>
 
-#include <misc.h>
 #include <vector>
 #include <string>
 #include <assert.h>
 
-#include "lpub_messages.h"
+//#include "lpub_messages.h" // not used
 #include "lpub_preferences.h"
 #include "version.h"
 #include "paths.h"
 
-#define PNG_IMAGE_TYPE_INDEX 1
-#define BMP_IMAGE_TYPE_INDEX 2
-#define JPG_IMAGE_TYPE_INDEX 3
 #define WIN_WIDTH 640
 #define WIN_HEIGHT 480
 
 LDVWidget* ldvWidget;
 IniFlag LDVWidget::iniFlag;
 
-static QGLFormat ldvFormat;
-
 LDVWidget::LDVWidget(QWidget *parent)
-        :QGLWidget(QGLFormat(QGL::SampleBuffers),parent),
+        : QGLWidget(parent),
+        ldvFormat(NULL),
+        ldvContext(NULL),
         modelViewer(new LDrawModelViewer(100, 100)),
         snapshotTaker(NULL),
-        alertHandler(new AlertHandler(this)),
+        ldvAlertHandler(new LDVAlertHandler(this)),
         programPath(QCoreApplication::applicationFilePath())
 {
-
   setupLDVFormat();
+
+  setupLDVContext();
 
   QString appName = Preferences::lpub3dAppName;
   TCUserDefaults::setAppName(appName.toLatin1().constData());
 
   modelViewer->setProgramPath(programPath.toLatin1().constData());
 
-  QFile file(VER_NATIVE_LDV_MESSAGES_FILE);
-  QDir::setCurrent(QDir(Preferences::dataLocation).absolutePath());
-  if (!file.exists())
-  {
-        QDir::setCurrent(QDir(QCoreApplication::applicationDirPath()).absolutePath());
-  }
-  QString messagesPath = QDir::toNativeSeparators(QDir::currentPath() + "/" + file.fileName());
+  QString messagesPath = QDir::toNativeSeparators(QString("%1%2")
+                                                  .arg(Preferences::dataLocation)
+                                                  .arg(VER_LDVMESSAGESINI_FILE));
+ //fprintf(stdout, "SETTING %s file PATH TO %s.\n", VER_LDVMESSAGESINI_FILE, messagesPath.toLatin1().constData());
+
   if (!TCLocalStrings::loadStringTable(messagesPath.toLatin1().constData()))
   {
-        fprintf(stdout, "Could not load LDVMessages.ini file %s.\n", messagesPath.toLatin1().constData());
+        fprintf(stdout, "Could not load  %s file %s.\n", VER_LDVMESSAGESINI_FILE, messagesPath.toLatin1().constData());
+        fflush(stdout);
   }
 
-  // Needed to display preferences
-  char *sessionName;
-  sessionName = TCUserDefaults::getSavedSessionNameFromKey(PREFERENCE_SET_KEY);
-  if (sessionName && sessionName[0])
-  {
-        TCUserDefaults::setSessionName(sessionName, NULL, false);
-  }
-  delete sessionName;
-
-  setIniFlag(NativePOVIni, BeforeInit);
-
-  ldvPreferences = new LDVPreferences(parent, this);
-  ldvPreferences->doApply();
-
-  QImage studImage(":/resources/studlogo.png");
-  TREMainModel::setRawStudTextureData(studImage.bits(),studImage.byteCount());
-
-  QFile fontFile(":/resources/sansserif.fnt");
+  QFile fontFile(":/resources/SansSerif.fnt");
   if (fontFile.exists())
   {
       int len = fontFile.size();
@@ -130,9 +114,25 @@ LDVWidget::LDVWidget(QWidget *parent)
       }
   }
 
-  QImage fontImage2x(":/resources/sanserif@2x.png");
+  QImage fontImage2x(":/resources/SansSerif@2x.png");
   long len = fontImage2x.byteCount();
   modelViewer->setRawFont2xData(fontImage2x.bits(),len);
+
+  // Needed to display preferences
+  char *sessionName;
+  sessionName = TCUserDefaults::getSavedSessionNameFromKey(PREFERENCE_SET_KEY);
+  if (sessionName && sessionName[0])
+  {
+        TCUserDefaults::setSessionName(sessionName, NULL, false);
+  }
+  delete sessionName;
+
+  setIniFlag(NativePOVIni, BeforeInit);
+
+  ldvPreferences = new LDVPreferences(parent, this);
+  ldvPreferences->doApply();
+
+  LDLModel::setFileCaseCallback(staticFileCaseCallback);
 
   setFocusPolicy(Qt::StrongFocus);
 
@@ -142,14 +142,16 @@ LDVWidget::LDVWidget(QWidget *parent)
 
 LDVWidget::~LDVWidget(void)
 {
-	TCObject::release(snapshotTaker);
-	TCObject::release(modelViewer);
-	delete ldvPreferences;
+    makeCurrent();
+    TCObject::release(snapshotTaker);
+    TCObject::release(modelViewer);
+    delete ldvPreferences;
 
-	TCObject::release(alertHandler);
-	alertHandler = NULL;
+    TCObject::release(ldvAlertHandler);
+    ldvAlertHandler = NULL;
 
-	ldvWidget = NULL;
+    doneCurrent();
+    ldvWidget = NULL;
 }
 
 bool LDVWidget::setIniFlag(IniFlag iniflag, IniStat iniStat)
@@ -175,6 +177,7 @@ bool LDVWidget::setIniFlag(IniFlag iniflag, IniStat iniStat)
                     break;
                 default:
                     fprintf(stdout, "Ini file not specified!\n");
+                    fflush(stdout);
                     return false;
            }
            if (!TCUserDefaults::setIniFile(iniFile.toLatin1().constData()))
@@ -182,17 +185,37 @@ bool LDVWidget::setIniFlag(IniFlag iniflag, IniStat iniStat)
                 fprintf(stdout, "Could not set %s INI file: %s\n",
                         title.toLatin1().constData(),
                         iniFile.toLatin1().constData());
+                fflush(stdout);
                 return false;
            }
            else
            if (iniStat == AfterInit)
            {
-                //ldvPreferences->doCancel();
                 ldvPreferences->doApply();
            }
     }
 
     return true;
+}
+
+bool LDVWidget::doCommand(QStringList &arguments)
+{	
+    std::string ldvArgs = arguments.join(" ").toStdString();
+
+    QImage studImage(":/resources/StudLogo.png");
+    TREMainModel::setRawStudTextureData(studImage.bits(),studImage.byteCount());
+
+    TCUserDefaults::setCommandLine(ldvArgs.c_str());
+
+    LDLModel::setFileCaseCallback(staticFileCaseCallback);
+
+    bool retValue = LDSnapshotTaker::doCommandLine(false, true);
+    if (!retValue)
+    {
+         fprintf(stdout, "Failed to processs Native command arguments: %s\n", ldvArgs.c_str());
+         fflush(stdout);
+    }
+    return retValue;
 }
 
 void LDVWidget::showLDVExportOptions()
@@ -217,29 +240,55 @@ void LDVWidget::showLDVPreferences()
 
 void LDVWidget::setupLDVFormat(void)
 {
-    ldvFormat.setAlpha(true);
-    ldvFormat.setStencil(true);
-//    ldvFormat.setDepthBufferSize(24);
-//    ldvFormat.setRedBufferSize(8);
-//    ldvFormat.setGreenBufferSize(8);
-//    ldvFormat.setBlueBufferSize(8);
-//    ldvFormat.setAlphaBufferSize(8);
-//    ldvFormat.setStencilBufferSize(8);
+    // Specify the format and create platform-specific surface
+    ldvFormat.setDepthBufferSize( 24 );
+    ldvFormat.setStencilBufferSize(8);
+    ldvFormat.setRedBufferSize(8);
+    ldvFormat.setGreenBufferSize(8);
+    ldvFormat.setBlueBufferSize(8);
+    ldvFormat.setAlphaBufferSize(8);
+
+    ldvFormat.setSamples(16);
+    ldvFormat.setProfile(QGLFormat::CoreProfile);
     QGLFormat::setDefaultFormat(ldvFormat);
 }
 
-bool LDVWidget::doCommand(QStringList &arguments)
-{	
+void LDVWidget::setupLDVContext()
+{
+    bool needsInitialize = false;
 
-    std::string ldvArgs = arguments.join(" ").toStdString();
+    ldvContext = context();
 
-    TCUserDefaults::setCommandLine(ldvArgs.c_str());
+    if (ldvContext->isValid()) {
+        setFormat(ldvFormat);
+        needsInitialize = true;
+    } else {
+        fprintf(stdout, "The OpenGL context is not valid!");
+    }
 
-    bool retValue = LDSnapshotTaker::doCommandLine(false, true);
-    if (!retValue)
-         fprintf(stdout, "Failed to processs Native command arguments: %s\n", ldvArgs.c_str());
+    if (needsInitialize) {
+        initializeGLFunctions();
+        //displayGLExtensions();
+    }
+}
 
-    return retValue;
+void LDVWidget::displayGLExtensions()
+{
+    // Query version
+    const GLubyte *Version = glGetString(GL_VERSION);
+    int VersionMajor = 0, VersionMinor = 0;
+    if (Version) {
+        sscanf((const char*)Version, "%d.%d", &VersionMajor, &VersionMinor);
+        fprintf(stdout, "OpenGL version (%d.%d).\n", VersionMajor, VersionMinor);
+    }
+
+    // Query extensions
+//    QList<QByteArray> extensions = ldvContext->extensions().toList();
+//    std::sort( extensions.begin(), extensions.end() );
+//    fprintf(stdout, "OpenGL supported extensions (%d).\n", extensions.count());
+//    foreach ( const QByteArray &extension, extensions )
+//        fprintf(stdout, "     %s\n", extension.constData());
+//    fflush(stdout);
 }
 
 void LDVWidget::modelViewerAlertCallback(TCAlert *alert)
@@ -274,12 +323,12 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
             else
             {
                 makeCurrent();
-//                TREGLExtensions::setup();
+                TREGLExtensions::setup();
                 snapshotTaker = (LDSnapshotTaker*)alert->getSender()->retain();
-//                if (TREGLExtensions::haveFramebufferObjectExtension())
-//                {
+                if (TREGLExtensions::haveFramebufferObjectExtension())
+                {
                     snapshotTaker->setUseFBO(true);
-//                }
+                }
                 if (!snapshotTaker->getUseFBO())
                 {
                     setupSnapshotBackBuffer(ldvPreferences->getWindowWidth(), ldvPreferences->getWindowHeight());
@@ -289,10 +338,104 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
     }
 }
 
+bool LDVWidget::staticFileCaseLevel(QDir &dir, char *filename)
+{
+	int i;
+	int len = strlen(filename);
+	QString wildcard;
+	QStringList files;
+
+	if (!dir.isReadable())
+	{
+		return false;
+	}
+	for (i = 0; i < len; i++)
+	{
+		QChar letter = filename[i];
+
+		if (letter.isLetter())
+		{
+			wildcard.append('[');
+			wildcard.append(letter.toLower());
+			wildcard.append(letter.toUpper());
+			wildcard.append(']');
+		}
+		else
+		{
+			wildcard.append(letter);
+		}
+	}
+	dir.setNameFilters(QStringList(wildcard));
+	files = dir.entryList();
+	if (files.count())
+	{
+		QString file = files[0];
+
+		if (file.length() == (int)strlen(filename))
+		{
+			// This should never be false, but just want to be sure.
+			strcpy(filename, file.toLatin1().constData());
+			return true;
+		}
+	}
+	return false;
+}
+
+bool LDVWidget::staticFileCaseCallback(char *filename)
+{
+	char *shortName;
+	QDir dir;
+	char *firstSlashSpot;
+
+	dir.setFilter(QDir::AllEntries | QDir::Readable | QDir::Hidden | QDir::System);
+	replaceStringCharacter(filename, '\\', '/');
+	firstSlashSpot = strchr(filename, '/');
+	if (firstSlashSpot)
+	{
+		char *lastSlashSpot = strrchr(filename, '/');
+		int dirLen;
+		char *dirName;
+
+		while (firstSlashSpot != lastSlashSpot)
+		{
+			char *nextSlashSpot = strchr(firstSlashSpot + 1, '/');
+
+			dirLen = firstSlashSpot - filename + 1;
+			dirName = new char[dirLen + 1];
+			*nextSlashSpot = 0;
+			strncpy(dirName, filename, dirLen);
+			dirName[dirLen] = 0;
+			if (dirLen)
+			{
+				dir.setPath(dirName);
+				delete dirName;
+				if (!staticFileCaseLevel(dir, firstSlashSpot + 1))
+				{
+					return false;
+				}
+			}
+			firstSlashSpot = nextSlashSpot;
+			*firstSlashSpot = '/';
+		}
+		dirLen = lastSlashSpot - filename;
+		dirName = new char[dirLen + 1];
+		strncpy(dirName, filename, dirLen);
+		dirName[dirLen] = 0;
+		dir.setPath(dirName);
+		shortName = lastSlashSpot + 1;
+		delete dirName;
+	}
+	else
+	{
+		shortName = filename;
+	}
+	return staticFileCaseLevel(dir, shortName);
+}
+
 void LDVWidget::initializeGL(void)
 {
     makeCurrent();
-//    TREGLExtensions::setup();
+    TREGLExtensions::setup();
     ldvPreferences->doCancel();
 }
 
@@ -321,11 +464,11 @@ void LDVWidget::paintGL(void)
 {
     glEnable(GL_DEPTH_TEST);
     makeCurrent();
-//    if (!TREGLExtensions::haveFramebufferObjectExtension())
-//    {
-//         glDrawBuffer(GL_BACK);
-//         glReadBuffer(GL_BACK);
-//    }
+    if (!TREGLExtensions::haveFramebufferObjectExtension())
+    {
+         glDrawBuffer(GL_BACK);
+         glReadBuffer(GL_BACK);
+    }
     modelViewer->update();
 }
 

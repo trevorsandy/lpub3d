@@ -1206,7 +1206,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Piece.ViewSelectedModel"),
 		QT_TRANSLATE_NOOP("Menu", "View Selected Model"),
-		QT_TRANSLATE_NOOP("Status", "View the model referenced by the selected piece"),
+		QT_TRANSLATE_NOOP("Status", "View the model referenced by the selected piece in a new tab"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_PIECE_MOVE_SELECTION_TO_MODEL
@@ -1221,6 +1221,13 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Action", "Piece.InlineSelectedModels"),
 		QT_TRANSLATE_NOOP("Menu", "Inline Selected Models"),
 		QT_TRANSLATE_NOOP("Status", "Insert the contents of the selected model references into the current model"),
+		QT_TRANSLATE_NOOP("Shortcut", "")
+	},
+	// LC_PIECE_EDIT_SELECTED_SUBMODEL
+	{
+		QT_TRANSLATE_NOOP("Action", "Piece.EditSelectedSubmodel"),
+		QT_TRANSLATE_NOOP("Menu", "Edit Selected Submodel"),
+		QT_TRANSLATE_NOOP("Status", "Edit the currently selected submodel"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_PIECE_GROUP
@@ -1312,13 +1319,6 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Action", "Model.Properties"),
 		QT_TRANSLATE_NOOP("Menu", "Prope&rties..."),
 		QT_TRANSLATE_NOOP("Status", "Display the properties of the current submodel"),
-		QT_TRANSLATE_NOOP("Shortcut", "")
-	},
-	// LC_MODEL_EDIT_FOCUS
-	{
-		QT_TRANSLATE_NOOP("Action", "Model.SwitchToFocus"),
-		QT_TRANSLATE_NOOP("Menu", "Switch to Submodel"),
-		QT_TRANSLATE_NOOP("Status", "Switch to the submodel corresponding to the piece with focus"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_MODEL_LIST

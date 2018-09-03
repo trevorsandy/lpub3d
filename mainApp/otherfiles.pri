@@ -21,7 +21,7 @@ docs/README.txt \
 ../builds/linux/CreateRpm.sh \
 ../builds/linux/docker-compose/docker-compose-cibuild-linux.yml \
 ../builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-archlinux \
-../builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-fedora_25 \
+../builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-fedora \
 ../builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-ubuntu_xenial \
 ../builds/linux/obs/alldeps/appimage.yml \
 ../builds/linux/obs/alldeps/debian/changelog \
@@ -47,6 +47,10 @@ docs/README.txt \
 ../builds/linux/obs/PKGBUILD \
 ../builds/linux/obs/_service \
 ../builds/macx/CreateDmg.sh \
+../builds/utilities/mesa/build_osmesa.sh \
+../builds/utilities/mesa/glu.spec \
+../builds/utilities/mesa/Mesa.spec \
+../builds/utilities/mesa/osmesa-config \
 ../builds/utilities/ci/dropbox_uploader.sh \
 ../builds/utilities/ci/sfdeploy.sh \
 ../builds/utilities/ci/travis/after_script \

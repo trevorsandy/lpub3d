@@ -39,7 +39,6 @@
 #include "messageboxresizable.h"
 //**3D
 #include "lc_profile.h"
-#include <TCUserDefaults.h>
 //**
 
 Preferences preferences;
@@ -173,6 +172,12 @@ int     Preferences::pageDisplayPause           = PAGE_DISPLAY_PAUSE_DEFAULT;   
 QString Preferences::ldvLights                  = LIGHTS_COMBO_DEFAULT;
 QString Preferences::xmlMapPath                 = XML_MAP_PATH_DEFAULT;
 
+#if defined Q_OS_WIN || defined Q_OS_MAC
+#define LDRAWDIR_STR "LDraw"
+#else
+#define LDRAWDIR_STR "ldraw"
+#endif
+
 Preferences::Preferences()
 {
 }
@@ -189,15 +194,15 @@ void Preferences::lpubPreferences()
 
     //qDebug() << qPrintable(QString("macOS Binary Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
     qDebug() << qPrintable(QString("macOS Binary Directory.......(%1)").arg(cwd.dirName()));
-    if (cwd.dirName() == "MacOS") {   // MacOS/LPub3D   (app bundle executable)
-        cwd.cdUp();                   // Contents/      (app bundle contents)
-        cwd.cdUp();                   // LPub3D.app/    (app bundle)
-        cwd.cdUp();                   // Applications/  (app bundle installation path)
+    if (cwd.dirName() == "MacOS") {   // MacOS/         (app bundle executable folder)
+        cwd.cdUp();                   // Contents/      (app bundle contents folder)
+        cwd.cdUp();                   // LPub3D.app/    (app bundle folder)
+        cwd.cdUp();                   // Applications/  (app bundle installation folder)
     }
     //qDebug() << qPrintable(QString("macOS Base Directory (%1), AbsPath (%2)").arg(cwd.dirName()).arg(cwd.absolutePath()));
     qDebug() << qPrintable(QString("macOS Base Directory.........(%1)").arg(cwd.dirName()));
 
-    lpub3dExtrasResourcePath = QString("%1.app/Contents/Resources").arg(lpub3dAppName);
+    lpub3dExtrasResourcePath = QString("%1/%2.app/Contents/Resources").arg(cwd.absolutePath(),lpub3dAppName);
     lpub3dDocsResourcePath   = lpub3dExtrasResourcePath;
 
     if (QCoreApplication::applicationName() != QString(VER_PRODUCTNAME_STR))
@@ -397,6 +402,9 @@ void Preferences::lpubPreferences()
     // On Linux 'dataLocation' folder is /usr/share/lpub3d
     // On macOS 'dataLocation' folder is /Applications/LPub3D.app/Contents/Resources
     dataLocation = QString("%1/").arg(lpub3dExtrasResourcePath);
+#if defined Q_OS_LINUX
+    qDebug() << qPrintable(QString("LPub3D Renderers Exe Path....(/opt/%1/3rdParty)").arg(lpub3dAppName));
+#endif
 #endif
 
     QDir extrasDir(lpubDataPath + "/extras");
@@ -862,7 +870,6 @@ void Preferences::ldrawPreferences(bool force)
         }
     }
 
-
     char* EnvPath = getenv("LDRAWDIR");        // check environment variable LDRAWDIR
 
     if (EnvPath && EnvPath[0])
@@ -898,54 +905,40 @@ void Preferences::ldrawPreferences(bool force)
         dataPathList = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
         userDocumentsPath = dataPathList.first();
 #endif
-
-#if defined Q_OS_WIN || defined Q_OS_MAC
-        ldrawPath = QDir::toNativeSeparators(QString("%1/LDraw").arg(homePath));
-#else
-        ldrawPath = QDir::toNativeSeparators(QString("%1/ldraw").arg(homePath));
-#endif
+        ldrawPath = QDir::toNativeSeparators(QString("%1/%2").arg(homePath).arg(LDRAWDIR_STR));
 
         if ( ! QDir(ldrawPath).exists()) {     // check user documents path
 
-#if defined Q_OS_WIN || defined Q_OS_MAC
-            ldrawPath = QDir::toNativeSeparators(QString("%1/LDraw").arg(userDocumentsPath));
-#else
-            ldrawPath = QDir::toNativeSeparators(QString("%1/ldraw").arg(userDocumentsPath));
-#endif
+            ldrawPath = QDir::toNativeSeparators(QString("%1/%2").arg(userDocumentsPath).arg(LDRAWDIR_STR));
 
             if ( ! QDir(ldrawPath).exists()) { // check system data path
 
                 dataPathList = QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
+
 #if defined Q_OS_WIN || defined Q_OS_MAC
-                ldrawPath = QDir::toNativeSeparators(QString("%1/LDraw").arg(dataPathList.at(1))); /* C:/ProgramData/LDraw, /Library/Application Support/LDraw */
+                ldrawPath = QDir::toNativeSeparators(QString("%1/%2").arg(dataPathList.at(1)).arg(LDRAWDIR_STR)); /* C:/ProgramData/LDraw, /Library/Application Support/LDraw */
 #else
-                ldrawPath = QDir::toNativeSeparators(QString("%1/ldraw").arg(dataPathList.at(2))); /* /usr/share/ldraw" */
+                ldrawPath = QDir::toNativeSeparators(QString("%1/%2").arg(dataPathList.at(2)).arg(LDRAWDIR_STR)); /* /usr/share/LDRAW" */
 #endif
 
                 if ( ! QDir(ldrawPath).exists()) { // check user data path
 
-#if defined Q_OS_WIN || defined Q_OS_MAC
-                    ldrawPath = QDir::toNativeSeparators(QString("%1/LDraw").arg(userLocalDataPath));
-#else
-                    ldrawPath = QDir::toNativeSeparators(QString("%1/ldraw").arg(userLocalDataPath));
-#endif
+                    ldrawPath = QDir::toNativeSeparators(QString("%1/%2").arg(userLocalDataPath).arg(LDRAWDIR_STR));
+
 
                     if ( ! QDir(ldrawPath).exists()) { // manual prompt for LDraw Library location
 
                         QString searchDetail;
+
+                        searchDetail = QMessageBox::tr (" %1\n %2\n %3\n %4")
+                                     .arg(QDir::toNativeSeparators(QString("%1/%2").arg(homePath).arg(LDRAWDIR_STR)))
+                                     .arg(QDir::toNativeSeparators(QString("%1/%2").arg(userDocumentsPath).arg(LDRAWDIR_STR)))
 #if defined Q_OS_WIN || defined Q_OS_MAC
-                        searchDetail = QMessageBox::tr (" %1\n %2\n %3\n %4")
-                                     .arg(QDir::toNativeSeparators(QString("%1/LDraw").arg(homePath)))
-                                     .arg(QDir::toNativeSeparators(QString("%1/LDraw").arg(userDocumentsPath)))
-                                     .arg(QDir::toNativeSeparators(QString("%1/LDraw").arg(dataPathList.at(1))))
-                                     .arg(QDir::toNativeSeparators(QString("%1/LDraw").arg(userLocalDataPath)));
+                                     .arg(QDir::toNativeSeparators(QString("%1/%2").arg(dataPathList.at(1).arg(LDRAWDIR_STR))))
 #else
-                        searchDetail = QMessageBox::tr (" %1\n %2\n %3\n %4")
-                                     .arg(QDir::toNativeSeparators(QString("%1/ldraw").arg(homePath)))
-                                     .arg(QDir::toNativeSeparators(QString("%1/ldraw").arg(userDocumentsPath)))
-                                     .arg(QDir::toNativeSeparators(QString("%1/ldraw").arg(dataPathList.at(2))))
-                                     .arg(QDir::toNativeSeparators(QString("%1/ldraw").arg(userLocalDataPath)));
+                                     .arg(QDir::toNativeSeparators(QString("%1/%2").arg(dataPathList.at(2).arg(LDRAWDIR_STR))))
 #endif
+                                     .arg(QDir::toNativeSeparators(QString("%1/%2").arg(userLocalDataPath).arg(LDRAWDIR_STR)));
 
                         if (modeGUI) {
 #ifdef Q_OS_MAC
@@ -1669,10 +1662,13 @@ void Preferences::updateNativePOVIniFile(bool updateExisting)
                 line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawPath));
             }
             // set lgeo paths as required
-            if (lgeoPath != ""){
-                if (line.contains(QRegExp("^XmlMapPath=")))
+            if (line.contains(QRegExp("^XmlMapPath=")))
+            {
+                line.clear();
+                if (lgeoPath.isEmpty())
                 {
-                    line.clear();
+                    line = QString("XmlMapPath=");
+                } else {
                     line = QString("XmlMapPath=%1").arg(QDir::toNativeSeparators(QString("%1/%2").arg(lgeoPath).arg(VER_LGEO_XML_FILE)));
                 }
             }
@@ -1808,10 +1804,13 @@ void Preferences::updateLDViewPOVIniFile(bool updateExisting)
                 line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawPath));
             }
             // set lgeo paths as required
-            if (lgeoPath != ""){
-                if (line.contains(QRegExp("^XmlMapPath=")))
+            if (line.contains(QRegExp("^XmlMapPath=")))
+            {
+                line.clear();
+                if (lgeoPath.isEmpty())
                 {
-                    line.clear();
+                    line = QString("XmlMapPath=");
+                } else {
                     line = QString("XmlMapPath=%1").arg(QDir::toNativeSeparators(QString("%1/%2").arg(lgeoPath).arg(VER_LGEO_XML_FILE)));
                 }
             }
@@ -2785,7 +2784,7 @@ bool Preferences::extractLDrawLib() {
     emit Application::instance()->splashMsgSig(message.prepend("10% - "));
 
     if (!modeGUI) {
-      fprintf(stdout,"%s",message.toLatin1().constData());
+      fprintf(stdout,"%s\n",message.toLatin1().constData());
       fflush(stdout);
     }
 
@@ -2815,10 +2814,10 @@ bool Preferences::extractLDrawLib() {
         QString destination = ldrawDir.absolutePath();
         QStringList result = JlCompress::extractDir(validFile.absoluteFilePath(),destination);
         if (result.isEmpty()){
-            logError() << QString("Failed to extract %1 to %2ldraw").arg(validFile.absoluteFilePath()).arg(destination);
+            logError() << QString("Failed to extract %1 to %2/%3").arg(validFile.absoluteFilePath()).arg(destination).arg(LDRAWDIR_STR);
             r = false;
         } else {
-            message = QMessageBox::tr("%1 Official Library files extracted to %2ldraw").arg(result.size()).arg(destination);
+            message = QMessageBox::tr("%1 Official Library files extracted to %2/3").arg(result.size()).arg(destination).arg(LDRAWDIR_STR);
             logInfo() << message;
         }
         // extract lpub3dldunof.zip
@@ -2839,7 +2838,7 @@ bool Preferences::extractLDrawLib() {
 
         // copy extracted contents to ldraw directory and delete extract dir if needed
         if (dirNameNotLdraw) {
-            QDir extractDir(QString("%1/ldraw").arg(ldrawDir.absolutePath()));
+            QDir extractDir(QString("%1/%2").arg(ldrawDir.absolutePath()).arg(LDRAWDIR_STR));
             if (!copyRecursively(extractDir.absolutePath(),ldrawPath)) {
                 message = QMessageBox::tr("Unable to copy %1 to %2").arg(extractDir.absolutePath(),ldrawPath);
                 logInfo() << message;

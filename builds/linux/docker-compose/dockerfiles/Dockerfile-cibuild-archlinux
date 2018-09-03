@@ -2,6 +2,7 @@ FROM base/archlinux:latest
 LABEL maintainer "Trevor SANDY <trevor.sandy@gmail.com>"
 RUN pacman -Syu --noconfirm > CreateDockerImage_archlinux.log 2>&1
 RUN pacman -S --noconfirm --needed git wget unzip ccache base-devel >> CreateDockerImage_archlinux.log 2>&1
+RUN pacman -S --noconfirm --needed xorg-server-xvfb desktop-file-utils >> CreateDockerImage_archlinux.log 2>&1
 RUN pacman -S --noconfirm --needed qt5-base qt5-tools >> CreateDockerImage_archlinux.log 2>&1
 RUN pacman -S --noconfirm --needed sudo \
     && groupadd -r user -g 1000 \

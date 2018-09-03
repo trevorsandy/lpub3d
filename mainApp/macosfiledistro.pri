@@ -73,7 +73,7 @@ macx {
     nativepov_ini.files += $$_PRO_FILE_PWD_/extras/nativePOV.ini
     nativepov_ini.path = Contents/Resources
 
-    ldv_messages_ini.files += $$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI
+    ldv_messages_ini.files += $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI
     ldv_messages_ini.path = Contents/Resources
 
     QMAKE_BUNDLE_DATA += \

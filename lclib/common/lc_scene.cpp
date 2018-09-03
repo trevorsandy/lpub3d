@@ -10,11 +10,15 @@
 lcScene::lcScene()
 	: mRenderMeshes(0, 1024), mOpaqueMeshes(0, 1024), mTranslucentMeshes(0, 1024), mInterfaceObjects(0, 1024)
 {
+	mActiveSubmodelInstance = nullptr;
+	mAllowWireframe = true;
 }
 
 void lcScene::Begin(const lcMatrix44& ViewMatrix)
 {
 	mViewMatrix = ViewMatrix;
+	mActiveSubmodelInstance = nullptr;
+	mDrawInterface = false;
 	mRenderMeshes.RemoveAll();
 	mOpaqueMeshes.RemoveAll();
 	mTranslucentMeshes.RemoveAll();
@@ -94,17 +98,21 @@ void lcScene::DrawRenderMeshes(lcContext* Context, int PrimitiveTypes, bool Enab
 
 				switch (RenderMesh.State)
 				{
-				case LC_RENDERMESH_NONE:
-				case LC_RENDERMESH_HIGHLIGHT:
+				case lcRenderMeshState::NORMAL:
+				case lcRenderMeshState::HIGHLIGHT:
 					Context->SetColorIndex(ColorIndex);
 					break;
 
-				case LC_RENDERMESH_SELECTED:
-					Context->SetColorIndexTinted(ColorIndex, LC_COLOR_SELECTED);
+				case lcRenderMeshState::SELECTED:
+					Context->SetColorIndexTinted(ColorIndex, LC_COLOR_SELECTED, 0.5f);
 					break;
 
-				case LC_RENDERMESH_FOCUSED:
-					Context->SetColorIndexTinted(ColorIndex, LC_COLOR_FOCUSED);
+				case lcRenderMeshState::FOCUSED:
+					Context->SetColorIndexTinted(ColorIndex, LC_COLOR_FOCUSED, 0.5f);
+					break;
+
+				case lcRenderMeshState::DISABLED:
+					Context->SetColorIndexTinted(ColorIndex, LC_COLOR_DISABLED, 0.25f);
 					break;
 				}
 			}
@@ -112,23 +120,27 @@ void lcScene::DrawRenderMeshes(lcContext* Context, int PrimitiveTypes, bool Enab
 			{
 				switch (RenderMesh.State)
 				{
-				case LC_RENDERMESH_NONE:
+				case lcRenderMeshState::NORMAL:
 					if (ColorIndex == gEdgeColor)
 						Context->SetEdgeColorIndex(RenderMesh.ColorIndex);
 					else
 						Context->SetColorIndex(ColorIndex);
 					break;
 
-				case LC_RENDERMESH_SELECTED:
+				case lcRenderMeshState::SELECTED:
 					Context->SetInterfaceColor(LC_COLOR_SELECTED);
 					break;
 
-				case LC_RENDERMESH_FOCUSED:
+				case lcRenderMeshState::FOCUSED:
 					Context->SetInterfaceColor(LC_COLOR_FOCUSED);
 					break;
 
-				case LC_RENDERMESH_HIGHLIGHT:
+				case lcRenderMeshState::HIGHLIGHT:
 					Context->SetInterfaceColor(LC_COLOR_HIGHLIGHT);
+					break;
+
+				case lcRenderMeshState::DISABLED:
+					Context->SetInterfaceColor(LC_COLOR_DISABLED);
 					break;
 				}
 			}
@@ -227,8 +239,11 @@ void lcScene::Draw(lcContext* Context) const
 	Context->SetViewMatrix(mViewMatrix);
 
 	const bool DrawConditional = false;
+	const lcPreferences& Preferences = lcGetPreferences();
 
-	lcShadingMode ShadingMode = lcGetPreferences().mShadingMode;
+	lcShadingMode ShadingMode = Preferences.mShadingMode;
+	if (ShadingMode == LC_SHADING_WIREFRAME && !mAllowWireframe)
+		ShadingMode = LC_SHADING_FLAT;
 
 	if (ShadingMode == LC_SHADING_WIREFRAME)
 	{
@@ -254,7 +269,7 @@ void lcScene::Draw(lcContext* Context) const
 	}
 	else if (ShadingMode == LC_SHADING_FLAT)
 	{
-		bool DrawLines = lcGetPreferences().mDrawEdgeLines;
+		bool DrawLines = Preferences.mDrawEdgeLines && Preferences.mLineWidth != 0.0f;
 		bool DoFade = gApplication->mFadeParts && !mTranslucentMeshes.IsEmpty();
 
 		Context->BindTexture2D(0);
@@ -374,7 +389,7 @@ void lcScene::Draw(lcContext* Context) const
 	}
 	else
 	{
-		bool DrawLines = lcGetPreferences().mDrawEdgeLines;
+		bool DrawLines = Preferences.mDrawEdgeLines && Preferences.mLineWidth != 0.0f;
 		bool DoFade = gApplication->mFadeParts && !mTranslucentMeshes.IsEmpty();
 
 		Context->BindTexture2D(0);
@@ -512,5 +527,5 @@ void lcScene::Draw(lcContext* Context) const
 void lcScene::DrawInterfaceObjects(lcContext* Context) const
 {
 	for (const lcObject* Object : mInterfaceObjects)
-		Object->DrawInterface(Context);
+		Object->DrawInterface(Context, *this);
 }

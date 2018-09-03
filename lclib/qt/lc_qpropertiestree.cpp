@@ -2,8 +2,8 @@
 #include "lc_qpropertiestree.h"
 #include "lc_qcolorpicker.h"
 #include "lc_application.h"
-#include "project.h"
 #include "lc_model.h"
+#include "lc_mainwindow.h"
 #include "object.h"
 #include "piece.h"
 #include "camera.h"
@@ -552,7 +552,7 @@ void lcQPropertiesTree::updateColorEditor(QPushButton *editor, int value) const
 void lcQPropertiesTree::slotToggled(bool Value)
 {
 	QTreeWidgetItem* Item = m_delegate->editedItem();
-	lcModel* Model = lcGetActiveModel();
+	lcModel* Model = gMainWindow->GetActiveModel();
 
 	if (mWidgetMode == LC_PROPERTY_WIDGET_CAMERA)
 	{
@@ -574,7 +574,7 @@ void lcQPropertiesTree::slotReturnPressed()
 {
 	QLineEdit* Editor = (QLineEdit*)sender();
 	QTreeWidgetItem* Item = m_delegate->editedItem();
-	lcModel* Model = lcGetActiveModel();
+	lcModel* Model = gMainWindow->GetActiveModel();
 
 	if (mWidgetMode == LC_PROPERTY_WIDGET_PIECE)
 	{
@@ -720,7 +720,7 @@ void lcQPropertiesTree::slotReturnPressed()
 void lcQPropertiesTree::slotSetValue(int Value)
 {
 	QTreeWidgetItem* Item = m_delegate->editedItem();
-	lcModel* Model = lcGetActiveModel();
+	lcModel* Model = gMainWindow->GetActiveModel();
 
 	if (mWidgetMode == LC_PROPERTY_WIDGET_PIECE)
 	{
@@ -743,7 +743,7 @@ void lcQPropertiesTree::slotSetValue(int Value)
 void lcQPropertiesTree::slotColorButtonClicked()
 {
 	int ColorIndex = gDefaultColor;
-	lcObject* Focus = lcGetActiveModel()->GetFocusObject();
+	lcObject* Focus = gMainWindow->GetActiveModel()->GetFocusObject();
 	if (Focus && Focus->IsPiece())
 		ColorIndex = ((lcPiece*)Focus)->mColorIndex;
 
@@ -863,19 +863,21 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 		mWidgetMode = LC_PROPERTY_WIDGET_PIECE;
 	}
 
-	lcModel* Model = lcGetActiveModel();
+	lcModel* Model = gMainWindow->GetActiveModel();
 	lcPiece* Piece = (Focus && Focus->IsPiece()) ? (lcPiece*)Focus : nullptr;
 	mFocus = Piece;
 
 	lcVector3 Position;
 	lcMatrix33 RelativeRotation;
 	Model->GetMoveRotateTransform(Position, RelativeRotation);
+/*** LPub3D Mod - Switch Y and Z axis ***/
 	partPositionX->setText(1, lcFormatValueLocalized(Position[0]));
-	partPositionX->setData(0, PropertyValueRole, Position[0]);	
+	partPositionX->setData(0, PropertyValueRole, Position[0]);
 	partPositionY->setText(1, lcFormatValueLocalized(Position[2]));
 	partPositionY->setData(0, PropertyValueRole, Position[2]);
 	partPositionZ->setText(1, lcFormatValueLocalized(Position[1]));
 	partPositionZ->setData(0, PropertyValueRole, Position[1]);
+/*** LPub3D Mod end ***/
 
 	lcVector3 Rotation;
 	if (Piece)

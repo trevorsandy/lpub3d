@@ -155,6 +155,7 @@ public:
     TransBackground   = true;
     HighlightNewParts = false;
     CameraDistance    = -260.0f;
+    LineWidth         = 1.0;
   }
   QString InputFileName;
   QString OutputFileName;
@@ -165,6 +166,7 @@ public:
   float Latitude;
   float Longitude;
   float CameraDistance;
+  float LineWidth;
   bool HighlightNewParts;
   bool TransBackground;
   bool Orthographic;

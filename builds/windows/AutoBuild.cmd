@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 30, 2018
+rem  Last Update: July 12, 2018
 rem  Copyright (c) 2017 - 2018 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -51,7 +51,7 @@ IF "%APPVEYOR%" EQU "True" (
   SET LP3D_QT64_MSVC=C:\Qt\IDE\5.11.1\msvc2015_64\bin
 )
 
-SET LP3D_VCVARSALL=C:\program files (x86)\Microsoft Visual Studio 14.0\VC
+SET LP3D_VCVARSALL=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
 SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 SET LP3D_WIN_GIT_MSG=%LP3D_WIN_GIT%
 SET SYS_DIR=%SystemRoot%\System32
@@ -217,7 +217,7 @@ rem Configure buid arguments and set environment variables
 CALL :CONFIGURE_BUILD_ENV
 CD /D "%ABS_WD%"
 ECHO.
-ECHO -Building %PLATFORM% platform, %CONFIGURATION% configuration...
+ECHO -Building %PACKAGE% %PLATFORM% platform, %CONFIGURATION% configuration...
 rem Build 3rd party build from source
 IF %BUILD_THIRD%==1 CALL builds\utilities\CreateRenderers.bat %PLATFORM%
 rem Display QMake version
@@ -247,7 +247,7 @@ FOR %%P IN ( x86, x86_64 ) DO (
   IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
   IF %BUILD_THIRD%==1 CALL builds\utilities\CreateRenderers.bat %%P
   ECHO.
-  ECHO -Building %%P platform, %CONFIGURATION% configuration...
+  ECHO -Building  %PACKAGE% %%P platform, %CONFIGURATION% configuration...
   ECHO.
   rem Display QMake version
   qmake -v & ECHO.
@@ -273,16 +273,7 @@ FOR /R %%I IN (
   "Makefile*"
   "lclib\Makefile*"
   "ldrawini\Makefile*"
-  "ldvlib\gl2ps\Makefile*"
-  "ldvlib\LDExporter\Makefile*"
-  "ldvlib\LDLib\Makefile*"
-  "ldvlib\LDLoader\Makefile*"
   "ldvlib\LDVQt\Makefile*"
-  "ldvlib\TCFoundation\Makefile*"
-  "ldvlib\TRE\Makefile*"
-  "ldvlib\libjpeg\Makefile*"
-  "ldvlib\libpng\Makefile*"
-  "ldvlib\tinyxml\Makefile*"
   "mainApp\Makefile*"
   "quazip\Makefile*"
 ) DO DEL /S /Q "%%~I" >nul 2>&1
@@ -308,12 +299,15 @@ IF "%APPVEYOR%" EQU "True" (
 IF %PLATFORM% EQU x86 (
   ECHO.
   CALL "%LP3D_QT32_MSVC%\qtenv2.bat"
-  CALL "%LP3D_VCVARSALL%\vcvarsall.bat" %PLATFORM%
+  CALL "%LP3D_VCVARSALL%\vcvars32.bat" -vcvars_ver=14.0
 ) ELSE (
   ECHO.
   CALL "%LP3D_QT64_MSVC%\qtenv2.bat"
-  CALL "%LP3D_VCVARSALL%\vcvarsall.bat" x64
+  CALL "%LP3D_VCVARSALL%\vcvars64.bat" -vcvars_ver=14.0
 )
+rem Display MSVC Compiler settings
+cl -Bv
+ECHO.
 SET LPUB3D_MAKE_ARGS=-c -f Makefile
 SET PATH_PREPENDED=True
 

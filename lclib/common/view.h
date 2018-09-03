@@ -59,6 +59,20 @@ public:
 	View(lcModel* Model);
 	virtual ~View();
 
+	void Clear()
+	{
+		mModel = nullptr;
+		mActiveSubmodelInstance = nullptr;
+	}
+
+	lcModel* GetModel() const
+	{
+		return mModel;
+	}
+
+	lcModel* GetActiveModel() const;
+	void SetSelectedSubmodelActive();
+
 	void SetHighlight(bool Highlight)
 	{
 		mHighlight = Highlight;
@@ -108,7 +122,6 @@ public:
 	lcObjectSection FindObjectUnderPointer(bool PiecesOnly, bool IgnoreSelected) const;
 	lcArray<lcObject*> FindObjectsInBox(float x1, float y1, float x2, float y2) const;
 
-	lcModel* mModel;
 	lcCamera* mCamera;
 
 	lcVector3 ProjectPoint(const lcVector3& Point) const
@@ -137,7 +150,7 @@ public:
 		return mRenderImage;
 	}
 
-/*** LPub3D Mod - Moved from protected for roate angles ***/
+/*** LPub3D Mod - Moved from protected: for rotate angles ***/
 public:
 	lcTrackButton mTrackButton;
 	lcTrackTool mTrackTool;
@@ -164,9 +177,13 @@ protected:
 	void OnButtonDown(lcTrackButton TrackButton);
 	lcMatrix44 GetTileProjectionMatrix(int CurrentRow, int CurrentColumn, int CurrentTileWidth, int CurrentTileHeight) const;
 
+	lcModel* mModel;
+	lcPiece* mActiveSubmodelInstance;
+	lcMatrix44 mActiveSubmodelTransform;
+
 	lcScene mScene;
 	lcDragState mDragState;
-
+/*** LPub3D Mod - lcTrackButton mTrackButton and lcTrackTool mTrackTool moved to public ***/
 	bool mTrackToolFromOverlay;
 	bool mTrackUpdated;
 	int mMouseDownX;

@@ -620,7 +620,7 @@ public:
 public slots:
   //**3D Viewer Manage Step Rotation
 
-  void UpdateStepRotationStatus();
+  void ShowStepRotationStatus();
   void SetRotStepMeta(QString &value, bool propagate = false);
   void setViewerCsiName(QString &csiName)
   {
@@ -640,19 +640,19 @@ public slots:
   void SetRotStepAngleX(float AngleX)
   {
       mRotStepAngleX = AngleX;
-      UpdateStepRotationStatus();
+      ShowStepRotationStatus();
   }
 
   void SetRotStepAngleY(float AngleY)
   {
       mRotStepAngleY = AngleY;
-      UpdateStepRotationStatus();
+      ShowStepRotationStatus();
   }
 
   void SetRotStepAngleZ(float AngleZ)
   {
       mRotStepAngleZ = AngleZ;
-      UpdateStepRotationStatus();
+      ShowStepRotationStatus();
   }
   //**
 
@@ -698,7 +698,18 @@ public slots:
              fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
              fflush(stdout);
           }
-      } else {
+      } else
+        if (logType == LOG_INFO) {
+
+            logInfo() << message;
+
+            if (!Preferences::modeGUI) {
+                fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                fflush(stdout);
+            }
+
+       } else
+         if (logType == LOG_ERROR) {
 
           logError() << message;
 

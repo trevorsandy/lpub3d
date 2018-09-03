@@ -98,8 +98,10 @@ lcPiecesLibrary::lcPiecesLibrary()
         } else {
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-		QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
-		mCachePath = cachePathList.first();
+	QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
+	mCachePath = cachePathList.first();
+#else
+	mCachePath  = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
 #endif
 	}
 /*** LPub3D Mod end ***/
@@ -2033,6 +2035,10 @@ bool lcPiecesLibrary::ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransf
 
 						sscanf(Token, "%f %f %f %f %f %f %f %f %f %s", &Points[0].x, &Points[0].y, &Points[0].z, &Points[1].x, &Points[1].y, &Points[1].z, &Points[2].x, &Points[2].y, &Points[2].z, FileName);
 
+						Points[0] = lcMul31(Points[0], CurrentTransform);
+						Points[1] = lcMul31(Points[1], CurrentTransform);
+						Points[2] = lcMul31(Points[2], CurrentTransform);
+
 						CleanTextureName(FileName);
 
 						lcLibraryTextureMap& Map = TextureStack.Add();
@@ -2063,6 +2069,10 @@ bool lcPiecesLibrary::ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransf
 
 						sscanf(Token, "%f %f %f %f %f %f %f %f %f %f %s", &Points[0].x, &Points[0].y, &Points[0].z, &Points[1].x, &Points[1].y, &Points[1].z, &Points[2].x, &Points[2].y, &Points[2].z, &Angle, FileName);
 
+						Points[0] = lcMul31(Points[0], CurrentTransform);
+						Points[1] = lcMul31(Points[1], CurrentTransform);
+						Points[2] = lcMul31(Points[2], CurrentTransform);
+
 						CleanTextureName(FileName);
 
 						lcLibraryTextureMap& Map = TextureStack.Add();
@@ -2091,6 +2101,10 @@ bool lcPiecesLibrary::ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransf
 						float Angle1, Angle2;
 
 						sscanf(Token, "%f %f %f %f %f %f %f %f %f %f %f %s", &Points[0].x, &Points[0].y, &Points[0].z, &Points[1].x, &Points[1].y, &Points[1].z, &Points[2].x, &Points[2].y, &Points[2].z, &Angle1, &Angle2, FileName);
+
+						Points[0] = lcMul31(Points[0], CurrentTransform);
+						Points[1] = lcMul31(Points[1], CurrentTransform);
+						Points[2] = lcMul31(Points[2], CurrentTransform);
 
 						CleanTextureName(FileName);
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 24 2018
+# Last Update July 10 2018
 # To run:
 # $ chmod 755 CreateDeb.sh
 # $ [options] && ./builds/linux/CreatePkg.sh
@@ -125,7 +125,28 @@ makepkg --syncdeps --noconfirm --needed
 DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.pkg.tar.xz`
 if [ -f ${DISTRO_FILE} ]
 then
-    echo "9. create update and download packages"
+    echo "9-1. Build-check ${DISTRO_FILE}"
+    if [ ! -f "/usr/bin/update-desktop-database" ]; then
+    echo "      Program update-desktop-database not found. Installing..."
+    sudo pacman -S --noconfirm --needed desktop-file-utils
+    fi
+    # Install package - here we use the distro file name e.g. LPub3D-UpdateMaster_2.2.1-1-x86_64.pkg.tar.xz
+    echo "      9-1. Build-check install ${LPUB3D}..."
+    sudo pacman -U --noconfirm ${DISTRO_FILE}
+    # Check if exe exist - here we use the executable name e.g. lpub3d22
+    LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
+    SOURCE_DIR=src/${WORK_DIR}
+    if [ -f "/usr/bin/${LPUB3D_EXE}" ]; then
+    # Check commands
+    source ${SOURCE_DIR}/builds/check/build_checks.sh
+    echo "      9-1. Build-check uninstall ${LPUB3D}..."
+    # Cleanup - here we use the package name e.g. lpub3d
+    sudo pacman -Rs --noconfirm ${LPUB3D}
+    else
+    echo "9-1. Build-check failed - /usr/bin/${LPUB3D_EXE} not found."
+    fi
+
+    echo "9-2. create update and download packages"
     IFS=- read PKG_NAME PKG_VERSION BUILD PKG_EXTENSION <<< ${DISTRO_FILE}
 
     cp -f ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}-${PKG_EXTENSION}"

@@ -481,12 +481,12 @@ int Pli::createPartImage(
           out << orient(color, type) << endl;
           out << QString("0 NOFILE") << endl;
       }
-      else
-      // For POV generation, we do not use pli.mpd orientation
-      if (Preferences::preferredRenderer == RENDERER_POVRAY)
-      {
-          out << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(type) << endl;
-      }
+//      else
+//      // For POV generation, do not use pli.mpd orientation
+//      if (Preferences::preferredRenderer == RENDERER_POVRAY)
+//      {
+//          out << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(type) << endl;
+//      }
       else
       {
           out << orient(color, type) << endl;
@@ -502,12 +502,20 @@ int Pli::createPartImage(
           return -1;
         }
 
+      emit gui->messageSig(LOG_INFO, qPrintable(
+                          QString("%1 PLI render took %2 milliseconds "
+                                  "to render %3 for %4.")
+                             .arg(Render::getRenderer())
+                             .arg(timer.elapsed())
+                             .arg(imageName)
+                             .arg(bom ? "BOM part list" : "Step parts list.")));
+
       //  qDebug() << Render::getRenderer()
-        logTrace() << "\n" << Render::getRenderer()
-                   << "PLI render took"
-                   << timer.elapsed() << "milliseconds"
-                   << "to render "<< imageName
-                   << "for " << (bom ? "BOM part list" : "Step parts list.");
+//        logTrace() << "\n" << Render::getRenderer()
+//                   << "PLI render took"
+//                   << timer.elapsed() << "milliseconds"
+//                   << "to render "<< imageName
+//                   << "for " << (bom ? "BOM part list" : "Step parts list.");
     }
 
   pixmap->load(imageName);
@@ -530,12 +538,22 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames) {
           emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for Pli images."));
           return -1;
         }
-      logTrace() << Render::getRenderer()
-                 << "PLI (Single Call) render took"
-                 << timer.elapsed() << "milliseconds"
-                 << "to render " << ldrNames.size()
-                 << (ldrNames.size() == 1 ? "image" : "images")
-                 << "for" << (bom ? "BOM part list" : "Step parts list.");
+
+      emit gui->messageSig(LOG_INFO, qPrintable(
+                          QString("%1 PLI (Single Call) render took "
+                                  "%2 milliseconds to render %3 %4 for %5")
+                             .arg(Render::getRenderer())
+                             .arg(timer.elapsed())
+                             .arg(ldrNames.size())
+                             .arg(ldrNames.size() == 1 ? "image" : "images")
+                             .arg(bom ? "BOM part list" : "Step parts list.")));
+
+//      logTrace() << Render::getRenderer()
+//                 << "PLI (Single Call) render took"
+//                 << timer.elapsed() << "milliseconds"
+//                 << "to render " << ldrNames.size()
+//                 << (ldrNames.size() == 1 ? "image" : "images")
+//                 << "for" << (bom ? "BOM part list" : "Step parts list.");
     }
 
   QString key;
@@ -1225,8 +1243,7 @@ int Pli::partSize()
 
               if (createPartImage(key,part->type,part->color,pixmap)) {
                   QString imageName = Paths::partsDir + "/" + key + ".png";
-                  QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
-                                       QMessageBox::tr("Failed to create PLI part %1")
+                  emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part %1")
                                        .arg(imageName));
                   return -1;
                 }
@@ -1402,8 +1419,7 @@ int Pli::partSizeLDViewSCall() {
 
   // 2. Call create part images; send ldr file names
   if (createPartImagesLDViewSCall(ldrNames)) {
-      QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
-                           QMessageBox::tr("Failed to create PLI part images"));
+      emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part images"));
       return -1;
     }
 

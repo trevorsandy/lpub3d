@@ -131,9 +131,9 @@ to the Qt install path. Also be sure to **not** select the **-all** install para
 - [ ] 2. download Docker-compose yml  
 `PS...> bash curl -sL https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/linux/docker-compose/docker-compose-cibuild-linux.yml -o docker-compose-cibuild-linux.yml`
 - [ ] 3. download Dockerfile yml  
-`PS...> bash curl -sL https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-fedora_25 -o dockerfiles/Dockerfile-cibuild-fedora_25`
+`PS...> bash curl -sL https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-fedora -o dockerfiles/Dockerfile-cibuild-fedora`
 - [ ] 4. execute Docker-compose command  
-`PS...> docker-compose -f docker-compose-cibuild-linux.yml run fedora_25`
+`PS...> docker-compose -f docker-compose-cibuild-linux.yml run fedora`
 - [ ] 5. transfer to destination and install package lpub3d-2.1.0.0.700_20180102_1fedora.x86_64.rpm  
 `$ sudo rpm -U lpub3d-2.1.0.0.700_20180102_1fedora.x86_64.rpm`
 - [ ] 6. have a :beer:
@@ -155,7 +155,7 @@ to the Qt install path. Also be sure to **not** select the **-all** install para
 [dockercomposefile]: https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/docker-compose/docker-compose-cibuild-linux.yml
 [dockerarch]:        https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-archlinux
 [dockerxenial]:      https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-ubuntu_xenial
-[dockerfedora]:      https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-fedora_25
+[dockerfedora]:      https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-fedora
 [dockerrepo]:        https://hub.docker.com/r/trevorsandy/lpub3d/
 [wsl]:               https://docs.microsoft.com/en-us/windows/wsl/install-win10
 [vs2017]:            https://www.visualstudio.com/downloads/

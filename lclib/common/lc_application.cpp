@@ -170,11 +170,11 @@ bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryP
     emit Application::instance()->splashMsgSig("80% - Archive libraries loading...");
 /*** LPub3D Mod end ***/
 
-    if (mLibrary == nullptr)
-        mLibrary = new lcPiecesLibrary();
+	if (mLibrary == nullptr)
+		mLibrary = new lcPiecesLibrary();
 
-    if (!OnlyUsePaths)
-    {
+	if (!OnlyUsePaths)
+	{
 /*** LPub3D Mod - disable LEOCAD_LIB env var  ***/
 /***
         char* EnvPath = getenv("LEOCAD_LIB");
@@ -184,11 +184,11 @@ bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryP
 ***/
 /*** LPub3D Mod end ***/
 
-        QString CustomPath = lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
+		QString CustomPath = lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
 
-        if (!CustomPath.isEmpty())
-            return mLibrary->Load(CustomPath, ShowProgress);
-    }
+		if (!CustomPath.isEmpty())
+			return mLibrary->Load(CustomPath, ShowProgress);
+	}
 
 /*** LPub3D Mod - disable LibraryPaths load  ***/
 /***
@@ -276,6 +276,23 @@ int lcApplication::Process3DViewerCommandLine()
                   printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
           };
 
+	  auto ParseFloat = [&ArgIdx, &Arguments, NumArguments](float& Value)
+	  {
+	      if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
+	      {
+		  bool Ok = false;
+		  ArgIdx++;
+		  int NewValue = Arguments[ArgIdx].toFloat(&Ok);
+
+		  if (Ok)
+		      Value = NewValue;
+		  else
+		      printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 1].toLatin1().constData());
+	      }
+	      else
+		  printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+	  };
+
           auto ParseVector2 = [&ArgIdx, &Arguments, NumArguments](float& Value1, float& Value2)
           {
               if (ArgIdx < NumArguments - 2 && Arguments[ArgIdx + 1][0] != '-' && Arguments[ArgIdx + 2][0] != '-')
@@ -327,6 +344,22 @@ int lcApplication::Process3DViewerCommandLine()
               Orthographic = true;
           else if (Param == QLatin1String("--highlight"))
               ImageHighlight = true;
+          else if (Param == QLatin1String("--shading"))
+          {
+              QString ShadingString;
+              ParseString(ShadingString, true);
+
+	      if (ShadingString == QLatin1String("wireframe"))
+		    mPreferences.mShadingMode = LC_SHADING_WIREFRAME;
+	      else if (ShadingString == QLatin1String("flat"))
+		    mPreferences.mShadingMode = LC_SHADING_FLAT;
+	      else if (ShadingString == QLatin1String("default"))
+		    mPreferences.mShadingMode = LC_SHADING_DEFAULT_LIGHTS;
+	      else if (ShadingString == QLatin1String("full"))
+		    mPreferences.mShadingMode = LC_SHADING_FULL;
+	  }
+	  else if (Param == QLatin1String("--line-width"))
+		  ParseFloat(mPreferences.mLineWidth);
           else if (Param == QLatin1String("-obj") || Param == QLatin1String("--export-wavefront"))
           {
               SaveWavefront = true;
@@ -408,8 +441,15 @@ int lcApplication::Process3DViewerCommandLine()
 
           if (SaveImage)
           {
-              if (ImageName.isEmpty())
-                  ImageName = mProject->GetImageFileName();
+              lcModel* ActiveModel;
+
+			  if (ModelName.isEmpty())
+				  ActiveModel = mProject->GetMainModel();
+			  else
+				  ActiveModel = mProject->GetActiveModel();
+
+			  if (ImageName.isEmpty())
+				  ImageName = mProject->GetImageFileName(true);
 
               if (ImageEnd < ImageStart)
                   ImageEnd = ImageStart;
@@ -417,7 +457,7 @@ int lcApplication::Process3DViewerCommandLine()
                   ImageStart = ImageEnd;
 
               if ((ImageStart == 0) && (ImageEnd == 0))
-                  ImageStart = ImageEnd = mProject->GetActiveModel()->GetCurrentStep();
+                  ImageStart = ImageEnd = ActiveModel->GetCurrentStep();
               else if ((ImageStart == 0) && (ImageEnd != 0))
                   ImageStart = ImageEnd;
               else if ((ImageStart != 0) && (ImageEnd == 0))
@@ -439,7 +479,7 @@ int lcApplication::Process3DViewerCommandLine()
               else
                   Frame = ImageName;
 
-              lcGetActiveModel()->SaveStepImages(Frame, ImageStart != ImageEnd, CameraName == nullptr, ImageHighlight, ImageWidth, ImageHeight, ImageStart, ImageEnd);
+              ActiveModel->SaveStepImages(Frame, ImageStart != ImageEnd, CameraName == nullptr, ImageHighlight, ImageWidth, ImageHeight, ImageStart, ImageEnd);
           }
 
           if (SaveWavefront)

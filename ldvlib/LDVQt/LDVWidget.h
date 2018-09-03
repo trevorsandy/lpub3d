@@ -17,25 +17,23 @@
 #ifndef LDVWIDGET_H
 #define LDVWIDGET_H
 
+#include <QWindow>
+#include <QGLContext>
 #include <QGLWidget>
+#include <QGLFunctions>
 #include <QDateTime>
 #include <QFileDialog>
 
-//#include <TCFoundation/TCObject.h>
 #include <TCFoundation/TCAlertManager.h>
-
-//#include <LDLib/LDrawModelViewer.h>
-//#include <LDLib/LDSnapshotTaker.h>
-//#include <LDVQt/LDVPreferences.h>
 
 #include "name.h"
 
 class LDrawModelViewer;
-class LDSnapshotTaker;
-class AlertHandler;
+class LDVAlertHandler;
 class LDVPreferences;
+class LDSnapshotTaker;
 
-class LDVWidget : public QGLWidget
+class LDVWidget : public QGLWidget, protected QGLFunctions
 {
 
   Q_OBJECT
@@ -48,7 +46,8 @@ public:
 
   LDrawModelViewer *getModelViewer(void) { return modelViewer; }
 
-  static void setupLDVFormat(void);
+  static bool staticFileCaseCallback(char *filename);
+  static bool staticFileCaseLevel(QDir &dir, char *filename);
 
   void modelViewerAlertCallback(TCAlert *alert);
   void snapshotTakerAlertCallback(TCAlert *alert);
@@ -61,6 +60,10 @@ public:
   static IniFlag iniFlag;
 
 protected:
+  void setupLDVFormat(void);
+  void setupLDVContext(void);
+  void displayGLExtensions(void);
+
   // GL Widget overrides
   void initializeGL(void);
   void resizeGL(int width, int height);
@@ -69,9 +72,12 @@ protected:
   bool getUseFBO();
   void setupSnapshotBackBuffer(int width, int height);
 
+  QGLFormat ldvFormat;
+  QGLContext *ldvContext;
+
   LDrawModelViewer *modelViewer;
   LDSnapshotTaker *snapshotTaker;
-  AlertHandler *alertHandler;
+  LDVAlertHandler *ldvAlertHandler;
   QString programPath;
 
   LDVPreferences *ldvPreferences;

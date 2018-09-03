@@ -19,6 +19,8 @@
 #define LC_SEL_CAN_REMOVE_CONTROL_POINT 0x1000 // Can remove control points from focused piece
 
 class lcGLWidget;
+enum class lcRenderMeshState : int;
+
 /*** LPub3D Mod - native renderer options ***/
 class NativeOptions;
 /*** LPub3D Mod end ***/
@@ -118,6 +120,7 @@ public:
 		return mSavedHistory != mUndoHistory[0];
 	}
 
+	bool GetPieceWorldMatrix(lcPiece* Piece, lcMatrix44& ParentWorldMatrix) const;
 	bool IncludesModel(const lcModel* Model) const;
 	void CreatePieceInfo(Project* Project);
 	void UpdatePieceInfo(lcArray<lcModel*>& UpdatedModels);
@@ -241,8 +244,8 @@ public:
 	void Paste();
 	void DuplicateSelectedPieces();
 
-	void GetScene(lcScene& Scene, lcCamera* ViewCamera, bool DrawInterface, bool Highlight) const;
-	void SubModelAddRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, bool Focused, bool Selected) const;
+	void GetScene(lcScene& Scene, lcCamera* ViewCamera, bool DrawInterface, bool Highlight, lcPiece* ActiveSubmodelInstance, const lcMatrix44& ActiveSubmodelTransform) const;
+	void AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const;
 	void DrawBackground(lcGLWidget* Widget);
 	void SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Zoom, bool Highlight, int Width, int Height, lcStep Start, lcStep End);
 

@@ -124,8 +124,6 @@
         <file alias="resetsetting.png">images/resetsetting.png</file>
         <file alias="rotate.png">images/rotate.png</file>
         <file alias="rotateicon.png">images/rotateicon.png</file>
-        <file alias="sansserif.fnt">images/sansserif.fnt</file>
-        <file alias="sanserif@2x.png">images/sanserif@2x.png</file>
         <file alias="save.png">images/save.png</file>
         <file alias="saveas.png">images/saveas.png</file>
         <file alias="savemetacommands.png">images/savemetacommands.png</file>
@@ -135,7 +133,6 @@
         <file alias="sortPli.png">images/sortPli.png</file>
         <file alias="splitbom.png">images/splitbom.png</file>
         <file alias="stepgroupsetup.png">images/stepgroupsetup.png</file>
-        <file alias="studlogo.png">images/studlogo.png</file>
         <file alias="treataspart.png">images/treataspart.png</file>
         <file alias="unpackcallout.png">images/unpackcallout.png</file>
         <file alias="unrotate.png">images/unrotate.png</file>

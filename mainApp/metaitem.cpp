@@ -229,7 +229,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
    * We also want to scan backward for the same submodel.
    *
    * In either direction, we need to stop on STEP/ROTSTEP.  We also need
-   * top stop on other sub-models, or mirror images of the same sub-model.
+   * to stop on other sub-models, or mirror images of the same sub-model.
    */
 
   int instanceCount = 0;

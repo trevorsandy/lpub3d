@@ -69,6 +69,7 @@ mainApp/docs/temp.txt
 builds/utilities/json/lpub3dupdates.json
 builds/utilities/nsis-scripts/AppVersion.nsh
 builds/utilities/update-config-files.log
+ldvlib/LDVQt/include/*
 
 # Qt Creator generated files
 *.user

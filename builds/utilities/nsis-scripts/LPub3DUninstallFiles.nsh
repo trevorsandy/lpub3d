@@ -23,7 +23,7 @@ Delete "$INSTDIR\opengl32sw.dll"
 
 ;New Stuff - Qt Plugins
 Delete "$INSTDIR\bearer\qgenericbearer.dll"
-Delete "$INSTDIR\bearer\qnativewifibearer.dll"
+Delete "$INSTDIR\bearer\qgenericbearer.dll"
 Delete "$INSTDIR\iconengines\qsvgicon.dll"
 Delete "$INSTDIR\imageformats\qgif.dll"
 Delete "$INSTDIR\imageformats\qicns.dll"

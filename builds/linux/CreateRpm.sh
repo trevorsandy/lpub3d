@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update January 24 2018
+# Last Update July 10 2018
 # To run:
 # $ chmod 755 CreateDeb.sh
 # $ [options] && ./builds/linux/CreateRpm.sh
@@ -132,7 +132,29 @@ cd ${BUILD_DIR}/RPMS/${LP3D_TARGET_ARCH}
 DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.rpm`
 if [ -f ${DISTRO_FILE} ]
 then
-    echo "15-1. check rpm packages..."
+    echo "15-1. Build-check ${DISTRO_FILE}"
+    if [ ! -f "/usr/bin/update-desktop-database" ]; then
+        echo "      Program update-desktop-database not found. Installing..."
+        sudo dnf install -y desktop-file-utils
+    fi
+    # Install package - here we use the distro file name e.g. LPub3D-UpdateMaster_2.2.1-1.fc26.x86_64.rpm
+    echo "      15-1. Build-check install ${LPUB3D}..."
+    yes | sudo rpm -Uvh ${DISTRO_FILE}
+    # Check if exe exist - here we use the executable name e.g. lpub3d22
+    LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
+    SOURCE_DIR=../../SOURCES/${WORK_DIR}
+    if [ -f "/usr/bin/${LPUB3D_EXE}" ]; then
+        # Check commands
+        echo "DEBUG CDL: We are here: $PWD"
+        source ${SOURCE_DIR}/builds/check/build_checks.sh
+        echo "      15-1. Build-check uninstall ${LPUB3D}..."
+        # Cleanup - here we use the package name e.g. lpub3d
+        yes | sudo rpm -ev ${LPUB3D}
+    else
+        echo "15-1. Build-check failed - /usr/bin/${LPUB3D_EXE} not found."
+    fi
+
+    echo "15-2. check rpm packages..."
     rpmlint ${DISTRO_FILE} ${LPUB3D}-${LP3D_APP_VERSION}*.rpm
 
     echo "15-2. create update and download packages..."

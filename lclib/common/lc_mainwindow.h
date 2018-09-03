@@ -55,7 +55,6 @@ class lcModelTabWidget : public QWidget
 public:
 	lcModelTabWidget(lcModel* Model)
 	{
-
 		mModel = Model;
 		mActiveView = nullptr;
 	}
@@ -218,6 +217,14 @@ public:
 		return CurrentTab ? CurrentTab->GetActiveView() : nullptr;
 	}
 
+	lcModel* GetActiveModel() const;
+
+	lcModel* GetCurrentTabModel() const
+	{
+		lcModelTabWidget* CurrentTab = (lcModelTabWidget*)mModelTabWidget->currentWidget();
+		return CurrentTab ? CurrentTab->GetModel() : nullptr;
+	}
+
 	const lcArray<View*>* GetViewsForModel(lcModel* Model) const
 	{
 		lcModelTabWidget* TabWidget = GetTabWidgetForModel(Model);
@@ -276,11 +283,10 @@ public:
 	void AddView(View* View);
 	void RemoveView(View* View);
 	void SetActiveView(View* ActiveView);
-/***	void UpdateAllViews();                 // moved to public slots ***/
-
+/***	void UpdateAllViews();                 // LPub3D Mod - moved to public slots ***/
 	void SetTool(lcTool Tool);
 	void SetTransformType(lcTransformType TransformType);
-/*** LPub3D Mod end ***/
+
 	void SetColorIndex(int ColorIndex);
 	void SetMoveSnapEnabled(bool Enabled);
 	void SetAngleSnapEnabled(bool Enabled);
@@ -292,7 +298,7 @@ public:
 	void SetShadingMode(lcShadingMode ShadingMode);
 	void SetSelectionMode(lcSelectionMode SelectionMode);
 
-/***	void NewProject();                     // moved to public slots ***/
+/***	void NewProject();                     // LPub3D Mod - moved to public slots ***/
 	bool OpenProject(const QString& FileName);
 	void MergeProject();
 	void ImportLDD();
@@ -341,6 +347,7 @@ public:
 	void ParseAndSetRotStep(QTextStream& LineStream);
 /*** LPub3D Mod end ***/
 	lcVector3 GetTransformAmount();
+
 	QString mRecentFiles[LC_MAX_RECENT_FILES];
 	int mColorIndex;
 	lcSearchOptions mSearchOptions;
@@ -381,6 +388,7 @@ signals:
 /*** LPub3D Mod end ***/
 
 protected slots:
+	void UpdateGamepads();
 	void ModelTabContextMenuRequested(const QPoint& Point);
 	void ModelTabCloseOtherTabs();
 	void ModelTabResetViews();
@@ -422,6 +430,9 @@ protected:
 		return nullptr;
 	}
 
+	QTimer mGamepadTimer;
+	QDateTime mLastGamepadUpdate;
+
 	bool mAddKeys;
 	lcTool mTool;
 	lcTransformType mTransformType;
@@ -445,9 +456,7 @@ protected:
 	lcRotateStepType mRotateStepType;
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - move toolbar ***/
-	//QToolBar* mToolsToolBar;      //move to public:
-/*** LPub3D Mod end ***/
+/*** QToolBar* mToolsToolBar;     LPub3D Mod -  move to public ***/
 	QToolBar* mTimeToolBar;
 	QDockWidget* mPartsToolBar;
 	QDockWidget* mColorsToolBar;

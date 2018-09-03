@@ -9,11 +9,11 @@ services:
      - .:/buildpkg
      - ./lpub3d_linux_3rdparty:/user/pkgbuild/src/lpub3d_linux_3rdparty
 
-  fedora_25:
-    image: "trevorsandy/lpub3d:fedora_25"
+  fedora:
+    image: "trevorsandy/lpub3d:fedora"
     build:
       context: ./dockerfiles
-      dockerfile: Dockerfile-cibuild-fedora_25
+      dockerfile: Dockerfile-cibuild-fedora
     volumes:
      - .:/buildpkg
      - ./lpub3d_linux_3rdparty:/user/rpmbuild/BUILD/lpub3d_linux_3rdparty

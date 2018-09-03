@@ -28,11 +28,12 @@ int Gui::processCommandLine()
     return 0;
 
   // Declarations
-  int  fadeStepsOpacity = FADE_OPACITY_DEFAULT;
-  bool processExport    = false;
-  bool processFile      = false;
-  bool fadeSteps        = false;
-  bool highlightStep    = false;
+  int  fadeStepsOpacity    = FADE_OPACITY_DEFAULT;
+  float highlightLineWidth = HIGHLIGHT_LINE_WIDTH_DEFAULT;
+  bool processExport       = false;
+  bool processFile         = false;
+  bool fadeSteps           = false;
+  bool highlightStep       = false;
   QString pageRange, exportOption,
           commandlineFile, preferredRenderer,
           fadeStepsColour, highlightStepColour;
@@ -85,6 +86,23 @@ int Gui::processCommandLine()
               printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
       };
 
+      auto ParseFloat = [&ArgIdx, &Arguments, NumArguments](float& Value)
+      {
+          if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
+          {
+              bool Ok = false;
+              ArgIdx++;
+              int NewValue = Arguments[ArgIdx].toFloat(&Ok);
+
+	      if (Ok)
+		  Value = NewValue;
+	      else
+		  printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 1].toLatin1().constData());
+	  }
+	  else
+	      printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+      };
+
       if (Param == QLatin1String("-pf") || Param == QLatin1String("--process-file"))
         processFile = true;
       else
@@ -123,6 +141,9 @@ int Gui::processCommandLine()
       else
       if (Param == QLatin1String("-r") || Param == QLatin1String("--range"))
         ParseString(pageRange, false);
+      else
+      if (Param == QLatin1String("--line-width"))
+        ParseFloat(highlightLineWidth);
       else
         emit messageSig(LOG_STATUS,QString("Unknown commandline parameter: '%1'").arg(Param));
     }
@@ -209,16 +230,24 @@ int Gui::processCommandLine()
       logInfo() << message;
     }
 
-  if (highlightStep && !highlightStepColour.isEmpty()) {
-      if (Preferences::highlightStepColour != highlightStepColour) {
-          QString previousColour = Preferences::highlightStepColour;
-          Preferences::highlightStepColour = highlightStepColour;
-          QString message = QString("Highlight Step Colour preference changed from %1 to %2")
-              .arg(previousColour)
-              .arg(Preferences::highlightStepColour);
-          emit messageSig(LOG_STATUS,message);
-          logInfo() << message;
-        }
+  if (highlightStep && !highlightStepColour.isEmpty() && (highlightStepColour != Preferences::highlightStepColour)) {
+      QString previousColour = Preferences::highlightStepColour;
+      Preferences::highlightStepColour = highlightStepColour;
+      QString message = QString("Highlight Step Colour preference changed from %1 to %2")
+          .arg(previousColour)
+          .arg(Preferences::highlightStepColour);
+      emit messageSig(LOG_STATUS,message);
+      logInfo() << message;
+    }
+
+  if (highlightStep && highlightLineWidth != Preferences::highlightStepLineWidth) {
+      float previousLineWidth = Preferences::highlightStepLineWidth;
+      Preferences::highlightStepLineWidth = highlightLineWidth;
+      QString message = QString("Highlight Line Width preference changed from %1 to %2")
+          .arg(previousLineWidth)
+          .arg(Preferences::highlightStepLineWidth);
+      emit messageSig(LOG_STATUS,message);
+      logInfo() << message;
     }
 
   if (!commandlineFile.isEmpty())

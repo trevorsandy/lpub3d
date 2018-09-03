@@ -43,6 +43,12 @@ SET TEST_APPVEYOR=0
 
 SET AUTO=0
 SET UNIVERSAL_BUILD=1
+
+IF "%INSTALL_CHECK%" EQU "True" (
+  ECHO.
+  ECHO - Install check detected.
+  SET AUTO=1
+)
 IF "%APPVEYOR%" EQU "True" (
   SET AUTO=1
 )
@@ -764,7 +770,7 @@ COPY /V /Y ..\..\..\utilities\json\complete.json %PKG_UPDATE_DIR%\ /A | findstr 
 COPY /V /Y ..\..\..\utilities\json\lpub3dldrawunf.json %PKG_UPDATE_DIR%\ /A | findstr /i /v /r /c:"copied\>"
 
 ECHO.
-ECHO - Generating latest.txt version input file (for backgward compatability)...
+ECHO - Generating latest.txt version input file (for backward compatability)...
 
 SET latestFile=%PKG_UPDATE_DIR%\latest.txt
 SET genLatest=%latestFile% ECHO

@@ -130,7 +130,7 @@ unix:!macx {
     nativepov_ini.files += $$_PRO_FILE_PWD_/extras/nativePOV.ini
     nativepov_ini.path = $$RESOURCE_DIR
 
-    ldv_messages_ini.files += $$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI
+    ldv_messages_ini.files += $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI
     ldv_messages_ini.path = $$RESOURCE_DIR
 
     INSTALLS += \

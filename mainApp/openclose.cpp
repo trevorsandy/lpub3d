@@ -295,6 +295,7 @@ void Gui::closeModelFile(){
   disableActions();
   disableActions2();
   closeFile();
+  curFile.clear();
 }
 /***************************************************************************
  * File opening closing stuff

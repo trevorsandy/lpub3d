@@ -15,7 +15,7 @@
    <string>Export Options</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../mainApp/lpub3d.qrc">
+   <iconset resource="resources.qrc">
     <normaloff>:/resources/LPub32.png</normaloff>:/resources/LPub32.png</iconset>
   </property>
   <property name="sizeGripEnabled">

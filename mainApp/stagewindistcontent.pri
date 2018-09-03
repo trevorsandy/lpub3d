@@ -35,7 +35,7 @@ win32: stagewindistcontent {
     lpub3d_plugin_printsupport.path = $$LPUB3D_STG_PATH/printsupport
 
     lpub3d_plugin_styles.files += \
-        $$[QT_INSTALL_PLUGINS]/styles/qwindowsvistastyled.dll
+        $$[QT_INSTALL_PLUGINS]/styles/qwindowsvistastyle.dll
     lpub3d_plugin_styles.path = $$LPUB3D_STG_PATH/styles
 
     lpub3d_bins_qtlibs.files += \
@@ -69,7 +69,7 @@ win32: stagewindistcontent {
         $$LPUB3D_STG_EXTRAS/pliSubstituteParts.lst \
         $$LPUB3D_STG_EXTRAS/povray.ini \
         $$LPUB3D_STG_EXTRAS/titleAnnotations.lst \
-        $$LPUB3D_STG_EXTRAS/$$LDV_MESSAGES_INI
+        $$LPUB3D_STG_EXTRAS/$$LDVMESSAGESINI
     lpub3d_extras.path = $$LPUB3D_STG_PATH/extras
 
     lpub3d_docs.files += \

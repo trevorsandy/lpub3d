@@ -961,13 +961,24 @@ int Gui::drawPage(
                           return rc;
                         }
 
-                      logTrace() << Render::getRenderer()
-                                 << "CSI (Single Call) render took"
-                                 << timer.elapsed() << "milliseconds"
-                                 << "to render " << ldrStepFiles.size()
-                                 << (ldrStepFiles.size() == 1 ? "image" : "images") << "for"
-                                 << (calledOut ? "called out," : "simple,")
-                                 << "step group on page" << stepPageNum << ".";
+                      emit gui->messageSig(LOG_INFO, qPrintable(
+                                          QString("%1 CSI (Single Call) render took "
+                                                  "%2 milliseconds to render %3 %4 "
+                                                  "for %5 step group on page %6.")
+                                             .arg(Render::getRenderer())
+                                             .arg(timer.elapsed())
+                                             .arg(ldrStepFiles.size())
+                                             .arg(ldrStepFiles.size() == 1 ? "image" : "images")
+                                             .arg(calledOut ? "called out," : "simple,")
+                                             .arg(stepPageNum)));
+
+//                      logTrace() << Render::getRenderer()
+//                                 << "CSI (Single Call) render took"
+//                                 << timer.elapsed() << "milliseconds"
+//                                 << "to render " << ldrStepFiles.size()
+//                                 << (ldrStepFiles.size() == 1 ? "image" : "images") << "for"
+//                                 << (calledOut ? "called out," : "simple,")
+//                                 << "step group on page" << stepPageNum << ".";
                     }
 
                   addGraphicsPageItems(steps, coverPage, endOfSubmodel, view, scene, printing);
@@ -1090,8 +1101,7 @@ int Gui::drawPage(
                             steps->meta);
 
                       if (rc) {
-                          QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                                QMessageBox::tr("Failed to create CSI."));
+                          emit messageSig(LOG_ERROR, QMessageBox::tr("Failed to create CSI file."));
                           return rc;
                         }
 
@@ -1174,14 +1184,25 @@ int Gui::drawPage(
                               return rc;
                             }
 
-                          logTrace() << Render::getRenderer()
-                                     << "CSI (Single Call) render took"
-                                     << timer.elapsed() << "milliseconds"
-                                     << "to render" << ldrStepFiles.size()
-                                     << (ldrStepFiles.size() == 1 ? "image" : "images") << "for"
-                                     << (calledOut ? "called out," : "simple,")
-                                     << "single step on page" << stepPageNum << ".";
-                        }
+                          emit gui->messageSig(LOG_INFO, qPrintable(
+                                      QString("%1 CSI (Single Call) render took "
+                                              "%2 milliseconds to render %3 %4 for %5 "
+                                              "single step on page %6.")
+                                         .arg(Render::getRenderer())
+                                         .arg(timer.elapsed())
+                                         .arg(ldrStepFiles.size())
+                                         .arg(ldrStepFiles.size() == 1 ? "image" : "images")
+                                         .arg(calledOut ? "called out," : "simple,")
+                                         .arg(stepPageNum)));
+
+//                          logTrace() << Render::getRenderer()
+//                                     << "CSI (Single Call) render took"
+//                                     << timer.elapsed() << "milliseconds"
+//                                     << "to render" << ldrStepFiles.size()
+//                                     << (ldrStepFiles.size() == 1 ? "image" : "images") << "for"
+//                                     << (calledOut ? "called out," : "simple,")
+//                                     << "single step on page" << stepPageNum << ".";
+                      }
 
                       addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,printing);
                       stepPageNum += ! coverPage;

@@ -1,45 +1,44 @@
 <RCC>
-  <qresource prefix="/">
-    <file>resources/LPub32.png</file>
-    <file>resources/StudLogo.png</file>
-    <file>resources/SansSerif.fnt</file>
-    <file>resources/LightAngleLL.png</file>
-	<file>resources/LightAngleLLOff.png</file>
-    <file>resources/LightAngleLL@2x.png</file>
-    <file>resources/LightAngleLLOff@2x.png</file>
-    <file>resources/LightAngleLM.png</file>
-    <file>resources/LightAngleLM@2x.png</file>
-    <file>resources/LightAngleLMOff.png</file>
-    <file>resources/LightAngleLMOff@2x.png</file>
-    <file>resources/LightAngleLR.png</file>
-    <file>resources/LightAngleLR@2x.png</file>
-    <file>resources/LightAngleLROff.png</file>
-    <file>resources/LightAngleLROff@2x.png</file>
-    <file>resources/LightAngleML.png</file>
-    <file>resources/LightAngleML@2x.png</file>
-    <file>resources/LightAngleMLOff.png</file>
-    <file>resources/LightAngleMLOff@2x.png</file>
-    <file>resources/LightAngleMM.png</file>
-    <file>resources/LightAngleMM@2x.png</file>
-    <file>resources/LightAngleMMOff.png</file>
-    <file>resources/LightAngleMMOff@2x.png</file>
-    <file>resources/LightAngleMR.png</file>
-    <file>resources/LightAngleMR@2x.png</file>
-    <file>resources/LightAngleMROff.png</file>
-    <file>resources/LightAngleMROff@2x.png</file>
-    <file>resources/LightAngleUL.png</file>
-    <file>resources/LightAngleUL@2x.png</file>
-    <file>resources/LightAngleULOff.png</file>
-    <file>resources/LightAngleULOff@2x.png</file>
-    <file>resources/LightAngleUM.png</file>
-    <file>resources/LightAngleUM@2x.png</file>
-    <file>resources/LightAngleUMOff.png</file>
-    <file>resources/LightAngleUMOff@2x.png</file>
-    <file>resources/LightAngleUR.png</file>
-    <file>resources/LightAngleUR@2x.png</file>
-    <file>resources/LightAngleUROff.png</file>
-    <file>resources/LightAngleUROff@2x.png</file>
+  <qresource prefix="/resources">
+    <file alias="LPub32.png">resources/LPub32.png</file>
+    <file alias="StudLogo.png">resources/StudLogo.png</file>
+    <file alias="SansSerif.fnt">resources/SansSerif.fnt</file>
+    <file alias="LightAngleLL.png">resources/LightAngleLL.png</file>
+    <file alias="LightAngleLLOff.png">resources/LightAngleLLOff.png</file>
+    <file alias="LightAngleLL@2x.png">resources/LightAngleLL@2x.png</file>
+    <file alias="LightAngleLLOff@2x.png">resources/LightAngleLLOff@2x.png</file>
+    <file alias="LightAngleLM.png">resources/LightAngleLM.png</file>
+    <file alias="LightAngleLM@2x.png">resources/LightAngleLM@2x.png</file>
+    <file alias="LightAngleLMOff.png">resources/LightAngleLMOff.png</file>
+    <file alias="LightAngleLMOff@2x.png">resources/LightAngleLMOff@2x.png</file>
+    <file alias="LightAngleLR.png">resources/LightAngleLR.png</file>
+    <file alias="LightAngleLR@2x.png">resources/LightAngleLR@2x.png</file>
+    <file alias="LightAngleLROff.png">resources/LightAngleLROff.png</file>
+    <file alias="LightAngleLROff@2x.png">resources/LightAngleLROff@2x.png</file>
+    <file alias="LightAngleML.png">resources/LightAngleML.png</file>
+    <file alias="LightAngleML@2x.png">resources/LightAngleML@2x.png</file>
+    <file alias="LightAngleMLOff.png">resources/LightAngleMLOff.png</file>
+    <file alias="LightAngleMLOff@2x.png">resources/LightAngleMLOff@2x.png</file>
+    <file alias="LightAngleMM.png">resources/LightAngleMM.png</file>
+    <file alias="LightAngleMM@2x.png">resources/LightAngleMM@2x.png</file>
+    <file alias="LightAngleMMOff.png">resources/LightAngleMMOff.png</file>
+    <file alias="LightAngleMMOff@2x.png">resources/LightAngleMMOff@2x.png</file>
+    <file alias="LightAngleMR.png">resources/LightAngleMR.png</file>
+    <file alias="LightAngleMR@2x.png">resources/LightAngleMR@2x.png</file>
+    <file alias="LightAngleMROff.png">resources/LightAngleMROff.png</file>
+    <file alias="LightAngleMROff@2x.png">resources/LightAngleMROff@2x.png</file>
+    <file alias="LightAngleUL.png">resources/LightAngleUL.png</file>
+    <file alias="LightAngleUL@2x.png">resources/LightAngleUL@2x.png</file>
+    <file alias="LightAngleULOff.png">resources/LightAngleULOff.png</file>
+    <file alias="LightAngleULOff@2x.png">resources/LightAngleULOff@2x.png</file>
+    <file alias="LightAngleUM.png">resources/LightAngleUM.png</file>
+    <file alias="LightAngleUM@2x.png">resources/LightAngleUM@2x.png</file>
+    <file alias="LightAngleUMOff.png">resources/LightAngleUMOff.png</file>
+    <file alias="LightAngleUMOff@2x.png">resources/LightAngleUMOff@2x.png</file>
+    <file alias="LightAngleUR.png">resources/LightAngleUR.png</file>
+    <file alias="LightAngleUR@2x.png">resources/LightAngleUR@2x.png</file>
+    <file alias="LightAngleUROff.png">resources/LightAngleUROff.png</file>
+    <file alias="LightAngleUROff@2x.png">resources/LightAngleUROff@2x.png</file>
   </qresource>
 </RCC>
-
 

@@ -246,6 +246,8 @@ void Application::initialize()
       fprintf(stdout, "  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
       fprintf(stdout, "  --orthographic: Make the view orthographic.\n");
       fprintf(stdout, "  --highlight: Highlight pieces in the steps they appear.\n");
+      fprintf(stdout, "  --shading <wireframe|flat|default|full>: Select shading mode for rendering.\n");
+      fprintf(stdout, "  --line-width <width>: Set the with of the edge lines.\n");
       fprintf(stdout, "  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
       fprintf(stdout, "  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
       fprintf(stdout, "  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");

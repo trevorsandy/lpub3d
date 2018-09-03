@@ -1,6 +1,23 @@
-// On the Mac, TREGL.h has to be included prior to anything else that might
-// include GL/gl.h, or the wrong version of glext.h gets used, and things don't
-// compile.  This is annoying, but it doesn't appear to hurt anything.
+/****************************************************************************
+**
+** Copyright (C) 2018 Trevor SANDY. All rights reserved.
+**
+** This file may be used under the terms of the
+** GNU General Public Liceense (GPL) version 3.0
+** which accompanies this distribution, and is
+** available at http://www.gnu.org/licenses/gpl.html
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+// On the Mac, when using Qt, glextmacosqt.h has to be included prior to anything
+// else that might include GL/gl.h, to override and force-load the needed extensions,
+// otherwise things don't compile. This is annoying, but it doesn't appear to hurt anything.
+#ifdef __APPLE__
+#include <GL/glextmacosqt.h>
+#endif // __APPLE__
 #include <TRE/TREGLExtensions.h>
 #include <LDLoader/LDLModel.h>
 #include <LDLoader/LDLPalette.h>
@@ -8,7 +25,7 @@
 #include <TCFoundation/mystring.h>
 #include <LDLib/LDUserDefaultsKeys.h>
 #include <TCFoundation/TCMacros.h>
-//#include <TCFoundation/TCWebClient.h>
+//#include <TCFoundation/TCWebClient.h>  // Not Used
 #include <QColor>
 #include <QInputDialog>
 #include <QFileDialog>
@@ -302,7 +319,6 @@ void LDVPreferences::doPrefSetsApply(void)
 
 void LDVPreferences::doGeneralApply(void)
 {
-	QColor cTemp;
 	int r, g, b;
 
         ldPrefs->setFsaaMode(fsaaModeBox->currentIndex());
@@ -314,12 +330,21 @@ void LDVPreferences::doGeneralApply(void)
 	ldPrefs->setShowErrors(showErrorsButton->checkState());
 	ldPrefs->setProcessLdConfig(processLdconfigLdrButton->checkState());
 	ldPrefs->setRandomColors(randomColorsButton->checkState());
-	cTemp = backgroundColorButton->palette().color(QPalette::Button);
-	cTemp.getRgb(&r, &g, &b);
-	ldPrefs->setBackgroundColor(r, g, b);
-	cTemp = defaultColorButton->palette().color(QPalette::Button);
-	cTemp.getRgb(&r, &g, &b);
-	ldPrefs->setDefaultColor(r, g, b);
+
+/*** LPub3D Mod - use button icon image ***/
+	ldPrefs->getBackgroundColor(r, g, b);
+	if (backgroundColor.isValid() && backgroundColor != QColor(r,g,b)){
+	   backgroundColor.getRgb(&r, &g, &b);
+	   ldPrefs->setDefaultColor(r, g, b);
+	}
+
+	ldPrefs->getDefaultColor(r, g, b);
+	if (defaultColor.isValid() && defaultColor != QColor(r,g,b)){
+	   defaultColor.getRgb(&r, &g, &b);
+	   ldPrefs->setDefaultColor(r, g, b);
+	}
+/*** LPub3D Mod end ***/
+
 	ldPrefs->setFov(fieldOfViewSpin->value());
 	ldPrefs->setMemoryUsage(memoryUsageBox->currentIndex());
 	ldPrefs->setTransDefaultColor(transparentButton->checkState());
@@ -617,51 +642,53 @@ void LDVPreferences::doUpdatesApply()
 
 void LDVPreferences::doBackgroundColor()
 {
+/*** LPub3D Mod - use button icon image ***/
     int r,g,b;
+    QPixmap pix(12, 12);
+    QString title("Select Background Color");
+    QColorDialog::ColorDialogOptions dialogOptions = QColorDialog::ShowAlphaChannel;
 
     ldPrefs->getBackgroundColor(r, g, b);
-    QColor color = QColorDialog::getColor(QColor(r,g,b));
-    if(color.isValid())
+    QColor oldColor = QColor(r,g,b);
+    QColor newColor = QColorDialog::getColor(oldColor, this, title, dialogOptions);
+    if(newColor.isValid() && newColor != oldColor )
     {
-         QPalette palette = backgroundColorButton->palette();
-         palette.setColor(QPalette::Button, color);
-         backgroundColorButton->setFlat(true);
-         backgroundColorButton->setAutoFillBackground(true);
-         backgroundColorButton->setPalette(palette);
-         backgroundColorButton->update();
+         backgroundColor = newColor;
+         pix.fill(newColor);
+         backgroundColorButton->setIcon(pix);
          applyButton->setEnabled(true);
     }
+/*** LPub3D Mod end ***/
 }
 
 void LDVPreferences::doDefaultColor()
 {
+/*** LPub3D Mod - use button icon image ***/
 	int r, g, b, a, i;
 	QRgb old[16];
+	QPixmap pix(12, 12);
+	QString title("Select Default Color");
+	QColorDialog::ColorDialogOptions dialogOptions = QColorDialog::ShowAlphaChannel;
 
     for (i = 0 ; i < 16; i++)
     {
-#if QT_VERSION < 0x50000
-		old[i] = QColorDialog::customColor(i);
-#else
-		old[i] = QColorDialog::customColor(i).rgb();
-#endif
+        old[i] = QColorDialog::customColor(i).rgb();
         LDLPalette::getDefaultRGBA(i, r, g, b, a);
         QColorDialog::setCustomColor(i, qRgb(r, g, b));
     }
-	ldPrefs->getDefaultColor(r, g, b);
-	QColor color = QColorDialog::getColor(QColor(r,g,b));
-	if(color.isValid())
-	{
-		QPalette palette = defaultColorButton->palette();
-		palette.setColor(QPalette::Button, color);
-		defaultColorButton->setFlat(true);
-		defaultColorButton->setAutoFillBackground(true);
-		defaultColorButton->setPalette(palette);
-		defaultColorButton->update();
-		applyButton->setEnabled(true);
-	}
-	for (i = 0 ; i <16 ; i++)
-		QColorDialog::setCustomColor(i, old[i]);
+    ldPrefs->getDefaultColor(r, g, b);
+    QColor oldColor = QColor(r,g,b);
+    QColor newColor = QColorDialog::getColor(oldColor, this, title, dialogOptions);
+    if(newColor.isValid() && newColor != oldColor )
+    {
+        defaultColor = newColor;
+        pix.fill(newColor);
+        defaultColorButton->setIcon(pix);
+        applyButton->setEnabled(true);
+    }
+/*** LPub3D Mod end ***/
+    for (i = 0 ; i <16 ; i++)
+        QColorDialog::setCustomColor(i, old[i]);
 }
 
 void LDVPreferences::doApply(void)
@@ -945,6 +972,7 @@ void LDVPreferences::reflectSettings(void)
 void LDVPreferences::reflectGeneralSettings(void)
 {
 	int r, g, b;
+	QPixmap pix(12, 12);
 
         fsaaModeBox->setCurrentIndex(ldPrefs->getFsaaMode());
 	setButtonState(aaLinesButton, ldPrefs->getLineSmoothing());
@@ -954,14 +982,17 @@ void LDVPreferences::reflectGeneralSettings(void)
 	setButtonState(processLdconfigLdrButton,
 		ldPrefs->getProcessLdConfig());
 	setButtonState(randomColorsButton,ldPrefs->getRandomColors());
+
+/*** LPub3D Mod - use button icon image ***/
 	ldPrefs->getBackgroundColor(r, g, b);
-	QPalette palette0;
-	palette0.setColor(QPalette::Button, QColor( r, g, b ));
-	backgroundColorButton->setPalette(palette0);
+	pix.fill(QColor(r, g, b));
+	backgroundColorButton->setIcon(pix);
+
 	ldPrefs->getDefaultColor(r, g, b);
-	QPalette palette;
-	palette.setColor(QPalette::Button, QColor( r, g, b ));
-	defaultColorButton->setPalette(palette);
+	pix.fill(QColor(r, g, b));
+	defaultColorButton->setIcon(pix);
+/*** LPub3D Mod end ***/
+
 	setRangeValue(fieldOfViewSpin, (int)ldPrefs->getFov());
 	setButtonState(transparentButton, ldPrefs->getTransDefaultColor());
 	memoryUsageBox->setCurrentIndex(ldPrefs->getMemoryUsage());

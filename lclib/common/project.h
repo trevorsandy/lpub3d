@@ -4,7 +4,7 @@
 #include "lc_array.h"
 #include "lc_application.h"
 
-#define LC_SCENE_BG			0x010	// Draw bg image
+#define LC_SCENE_BG				0x010	// Draw bg image
 #define LC_SCENE_BG_TILE		0x040	// Tile bg image
 #define LC_SCENE_GRADIENT		0x100	// Draw gradient
 
@@ -82,7 +82,8 @@ public:
 	{
 		return mFileName;
 	}
-	QString GetImageFileName() const;
+
+	QString GetImageFileName(bool AllowCurrentFolder) const;
 
 	void SetActiveModel(int ModelIndex);
 	void SetActiveModel(const QString& ModelName);
@@ -112,7 +113,7 @@ public:
 
 protected:
 	QString GetExportFileName(const QString& FileName, const QString& DefaultExtension, const QString& DialogTitle, const QString& DialogFilter) const;
-	void GetModelParts(lcArray<lcModelPartsEntry>& ModelParts);	
+	void GetModelParts(lcArray<lcModelPartsEntry>& ModelParts);
 	QImage CreatePartsListImage(lcModel* Model, lcStep Step);
 	void CreateHTMLPieceList(QTextStream& Stream, lcModel* Model, lcStep Step, bool Images);
 	void SetFileName(const QString& FileName);

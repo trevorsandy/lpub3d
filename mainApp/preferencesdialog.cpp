@@ -26,13 +26,8 @@
 #include "application.h"
 #include "lc_application.h"
 #include "updatecheck.h"
-#include "LDVWidget.h"
 
-//#include "nativepovpreferences.h"
-//#include "ui_nativepovpreferences.h"
-
-//#include <TCUserDefaults.h>
-//#include <LDUserDefaultsKeys.h>
+#include <LDVQt/LDVWidget.h>
 
 #include "color.h"
 #include "meta.h"

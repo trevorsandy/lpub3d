@@ -1,36 +1,36 @@
-#ifndef __ALERTHANDLER_H__
-#define __ALERTHANDLER_H__
+/****************************************************************************
+**
+** Copyright (C) 2018 Trevor SANDY. All rights reserved.
+**
+** This file may be used under the terms of the
+** GNU General Public Liceense (GPL) version 3.0
+** which accompanies this distribution, and is
+** available at http://www.gnu.org/licenses/gpl.html
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#ifndef __LDVALERTHANDLER_H__
+#define __LDVALERTHANDLER_H__
 
 #include <TCFoundation/TCObject.h>
 
-class LDVWidget;
-// class LDLError;
-// class TCProgressAlert;
-class LDrawModelViewer;
-class LDSnapshotTaker;
 class TCAlert;
-
-class AlertHandler : public TCObject
+class LDVWidget;
+class LDVAlertHandler : public TCObject
 {
 public:
-	AlertHandler(LDVWidget *ldvw);
+	LDVAlertHandler(LDVWidget *ldvw);
 protected:
-	~AlertHandler(void);
+	~LDVAlertHandler(void);
 	virtual void dealloc(void);
 
-    void snapshotTakerAlertCallback(TCAlert *alert);
+	void snapshotTakerAlertCallback(TCAlert *alert);
 	void modelViewerAlertCallback(TCAlert *alert);
-	
-//	  void userDefaultChangedAlertCallback(TCAlert *alert);
-//	  void releaseAlertCallback(TCAlert *alert);
-//    void ldlErrorCallback(LDLError *error);	
-//    void progressAlertCallback(TCProgressAlert *alert);
-//    void redrawAlertCallback(TCAlert *alert);
-//    void captureAlertCallback(TCAlert *alert);
-//    void lightVectorChangedAlertCallback(TCAlert *alert);
-//    void modelAlertCallback(TCAlert *alert);
 
 	LDVWidget *m_ldvw;
 };
 
-#endif // __ALERTHANDLER_H__
+#endif // __LDVALERTHANDLER_H__

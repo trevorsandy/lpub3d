@@ -124,9 +124,9 @@ QString Project::GetTitle() const
 	return mModels.GetSize() == 1 ? tr("New Model.ldr") : tr("New Model.mpd");
 }
 
-QString Project::GetImageFileName() const
+QString Project::GetImageFileName(bool AllowCurrentFolder) const
 {
-	QString FileName = QDir::toNativeSeparators(GetFileName());
+	QString FileName = GetFileName();
 
 	if (!FileName.isEmpty())
 	{
@@ -135,9 +135,22 @@ QString Project::GetImageFileName() const
 			FileName = FileName.left(FileName.length() - Extension.length() - 1);
 	}
 	else
-		FileName = QLatin1String("image");
+	{
+		if (AllowCurrentFolder)
+			FileName = QLatin1String("image");
+		else
+		{
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+			QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+			FileName = cachePathList.first();
+#else
+			FileName = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
+#endif
+			FileName = QDir(FileName).absoluteFilePath(QLatin1String("image"));
+		}
+	}
 
-	return FileName + lcGetProfileString(LC_PROFILE_IMAGE_EXTENSION);
+	return QDir::toNativeSeparators(FileName) + lcGetProfileString(LC_PROFILE_IMAGE_EXTENSION);
 }
 
 void Project::SetActiveModel(int ModelIndex)
@@ -1543,7 +1556,6 @@ QImage Project::CreatePartsListImage(lcModel* Model, lcStep Step)
 	View* View = gMainWindow->GetActiveView();
 	View->MakeCurrent();
 	lcContext* Context = View->mContext;
-
 	const int ThumbnailWidth = 512;
 	const int ThumbnailHeight = 512;
 
@@ -1578,7 +1590,7 @@ QImage Project::CreatePartsListImage(lcModel* Model, lcStep Step)
 		lcScene Scene;
 		Scene.Begin(ViewMatrix);
 
-		Image.Info->AddRenderMeshes(Scene, lcMatrix44Identity(), Image.ColorIndex, false, false, false);
+		Image.Info->AddRenderMeshes(Scene, lcMatrix44Identity(), Image.ColorIndex, lcRenderMeshState::NORMAL, true);
 
 		Scene.End();
 
@@ -1968,7 +1980,7 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 				lcScene Scene;
 				Scene.Begin(ViewMatrix);
 
-				Info->AddRenderMeshes(Scene, lcMatrix44Identity(), Options.PartImagesColor, false, false, false);
+				Info->AddRenderMeshes(Scene, lcMatrix44Identity(), Options.PartImagesColor, lcRenderMeshState::NORMAL, true);
 
 				Scene.End();
 
@@ -2038,7 +2050,7 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 			}
 		}
 
-		Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR><B><I>Created by <A HREF=\"http://www.leocad.org\">3DViewer</A></B></I><BR></HTML>\r\n");
+		Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR><B><I>Created by <A HREF=\"https://trevorsandy.github.io/lpub3d/\">3DViewer</A></B></I><BR></HTML>\r\n");
 	}
 }
 

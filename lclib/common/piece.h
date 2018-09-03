@@ -1,6 +1,7 @@
 #pragma once
 
 class PieceInfo;
+enum class lcRenderMeshState : int;
 
 #include "object.h"
 #include "lc_colors.h"
@@ -343,11 +344,11 @@ public:
 
 	virtual void RayTest(lcObjectRayTest& ObjectRayTest) const override;
 	virtual void BoxTest(lcObjectBoxTest& ObjectBoxTest) const override;
-	virtual void DrawInterface(lcContext* Context) const override;
+	virtual void DrawInterface(lcContext* Context, const lcScene& Scene) const override;
 	virtual void RemoveKeyFrames() override;
 
-	void AddRenderMeshes(lcScene& Scene, bool DrawInterface, bool Highlight) const;
-	void SubModelAddRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, bool Focused, bool Selected) const;
+	void AddMainModelRenderMeshes(lcScene& Scene, bool Highlight) const;
+	void AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const;
 
 	void InsertTime(lcStep Start, lcStep Time);
 	void RemoveTime(lcStep Start, lcStep Time);
