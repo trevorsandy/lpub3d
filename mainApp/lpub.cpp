@@ -107,6 +107,7 @@ void clearCsi3dCache()
  *
  ***************************************************************************/
 
+// flip orientation for landscape
 int Gui::pageSize(PageMeta &meta, int which){
   int _which;
   if (meta.orientation.value() == Landscape){
@@ -116,6 +117,18 @@ int Gui::pageSize(PageMeta &meta, int which){
     }
   return meta.size.valuePixels(_which);
 }
+
+// Compare two variants - less than.
+bool lt(const int &v1, const int &v2){ return v1 < v2; }
+// Compare two variants - greater than.
+bool gt(const int &v1, const int &v2){ return v1 > v2; }
+
+// Sleeper
+class secSleeper : public QThread
+{
+public:
+    static void secSleep(unsigned long Secs){ QThread::sleep(Secs); }
+};
 
 void Gui::insertCoverPage()
 {
@@ -233,28 +246,6 @@ void Gui::displayPage()
     }
   emit messageSig(LOG_STATUS,"Page display ready.");
 }
-
-/*
-void Gui::nextPage()
-{
-  countPages();
-  if (displayPageNum < maxPages) {
-    ++displayPageNum;
-    displayPage();
-  } else {
-    statusBarMsg("You're on the last page");
-  }
-}
-
-void Gui::previousPage()
-{
-  if (displayPageNum > 1) {
-    displayPageNum--;
-    displayPage();
-  } else {
-     statusBarMsg("You're on the first page");
-  }
-} */
 
 void Gui::nextPage()
 {
@@ -441,74 +432,6 @@ void Gui::previousPageContinuous()
       continuousPageDialog(PAGE_PREVIOUS);
     }
 }
-
-void Gui::firstPage()
-{
-  displayPageNum = 1;
-  displayPage();
-}
-
-void Gui::lastPage()
-{
-  countPages();
-  displayPageNum = maxPages;
-  displayPage();
-}
-
-void Gui::setPage()
-{
-  QString string = setPageLineEdit->displayText();
-  QRegExp rx("^(\\d+).*$");
-  if (string.contains(rx)) {
-    bool ok;
-    int inputPage;
-    inputPage = rx.cap(1).toInt(&ok);
-    if (ok) {
-      countPages();
-      if (inputPage <= maxPages) {
-        if (inputPage != displayPageNum) {
-          displayPageNum = inputPage;
-          displayPage();
-          return;
-        }
-      } else {
-        statusBarMsg("Page number entered is higher than total pages");
-      }
-    }
-  }
-  string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
-  setPageLineEdit->setText(string);
-}
-
-void Gui::setGoToPage(int index)
-{
-  int goToPageNum = index+1;
-  countPages();
-  if (goToPageNum <= maxPages) {
-      if (goToPageNum != displayPageNum) {
-          displayPageNum = goToPageNum;
-          displayPage();
-        }
-    }
-  QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
-  setPageLineEdit->setText(string);
-}
-
-void Gui::fitWidth()
-{
-  fitWidth(pageview());
-}
-
-// Compare two variants - less than.
-bool lt(const int &v1, const int &v2){ return v1 < v2; }
-// Compare two variants - greater than.
-bool gt(const int &v1, const int &v2){ return v1 > v2; }
-// Sleeper
-class secSleeper : public QThread
-{
-public:
-    static void secSleep(unsigned long Secs){ QThread::sleep(Secs); }
-};
 
 bool Gui::continuousPageDialog(Direction d)
 {
@@ -758,112 +681,98 @@ bool Gui::processPageRange(const QString &range)
   return false;
 }
 
-void Gui::fitWidth(
-  LGraphicsView *view)
+void Gui::firstPage()
 {
-  view->scale(1.0,1.0);
+  displayPageNum = 1;
+  displayPage();
+}
 
-  QRectF rect(0,0,pageSize(page.meta.LPub.page, 0),pageSize(page.meta.LPub.page, 1));
+void Gui::lastPage()
+{
+  countPages();
+  displayPageNum = maxPages;
+  displayPage();
+}
 
-  QRectF unity = view->matrix().mapRect(QRectF(0,0,1,1));
-  view->scale(1/unity.width(), 1 / unity.height());
+void Gui::setPage()
+{
+  QString string = setPageLineEdit->displayText();
+  QRegExp rx("^(\\d+).*$");
+  if (string.contains(rx)) {
+    bool ok;
+    int inputPage;
+    inputPage = rx.cap(1).toInt(&ok);
+    if (ok) {
+      countPages();
+      if (inputPage <= maxPages) {
+        if (inputPage != displayPageNum) {
+          displayPageNum = inputPage;
+          displayPage();
+          return;
+        }
+      } else {
+        statusBarMsg("Page number entered is higher than total pages");
+      }
+    }
+  }
+  string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+  setPageLineEdit->setText(string);
+}
 
-  int margin = 2;
-  QRectF viewRect = view->viewport()->rect().adjusted(margin, margin, -margin, -margin);
-  QRectF sceneRect = view->matrix().mapRect(rect);
-  qreal xratio = viewRect.width() / sceneRect.width();
+void Gui::setGoToPage(int index)
+{
+  int goToPageNum = index+1;
+  countPages();
+  if (goToPageNum <= maxPages) {
+      if (goToPageNum != displayPageNum) {
+          displayPageNum = goToPageNum;
+          displayPage();
+        }
+    }
 
-  view->scale(xratio,xratio);
-  view->centerOn(rect.center());
-  fitMode = FitWidth;
+  QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+  setPageLineEdit->setText(string);
+}
+
+void Gui::fitWidth()
+{
+  QRectF rect(0,0,pageSize(page.meta.LPub.page, 0)
+                 ,pageSize(page.meta.LPub.page, 1));
+  KpageView->fitWidth(rect);
 }
 
 void Gui::fitVisible()
 {
-  fitVisible(pageview());
+  QRectF rect(0,0,pageSize(page.meta.LPub.page, 0),
+                  pageSize(page.meta.LPub.page, 1));
+  KpageView->fitVisible(rect);
 }
 
-void Gui::fitVisible(
-  LGraphicsView *view)
+void Gui::pageGuides()
 {
-  view->scale(1.0,1.0);
+    Preferences::setPageGuidesPreference(pageGuidesAct->isChecked());
+    KpageView->setPageGuides();
+}
 
-  QRectF rect(0,0,pageSize(page.meta.LPub.page, 0),pageSize(page.meta.LPub.page, 1));
-
-  QRectF unity = view->matrix().mapRect(QRectF(0,0,1,1));
-  view->scale(1/unity.width(), 1 / unity.height());
-
-  int margin = 2;
-  QRectF viewRect = view->viewport()->rect().adjusted(margin, margin, -margin, -margin);
-  QRectF sceneRect = view->matrix().mapRect(rect);
-  qreal xratio = viewRect.width() / sceneRect.width();
-  qreal yratio = viewRect.height() / sceneRect.height();
-
-  xratio = yratio = qMin(xratio,yratio);
-  view->scale(xratio,yratio);
-  view->centerOn(rect.center());
-  fitMode = FitVisible;
+void Gui::pageRuler()
+{
+  Preferences::setPageRulerPreference(pageRulerAct->isChecked());
+  KpageView->setPageRuler();
 }
 
 void Gui::actualSize()
 {
-  actualSize(pageview());
+  KpageView->actualSize();
 }
-
-void Gui::actualSize(
-  LGraphicsView *view)
-{
-  view->resetMatrix();
-  fitMode = FitNone;
-}
-//~~~~~~~~~~~~~~
-void Gui::twoPages()
-{
-  twoPages(pageview());
-}
-
-void Gui::twoPages(
-  LGraphicsView *view)
-{
-   view->scale(1.0,1.0);
-  fitMode = FitTwoPages;
-}
-
-void Gui::continuousScroll()
-{
-  continuousScroll(pageview());
-}
-void Gui::continuousScroll(
-  LGraphicsView *view)
-{
-  view->scale(1.0,1.0);
-  fitMode = FitContinuousScroll;
-}
-//~~~~~~~~~~~~~~
-
 
 void Gui::zoomIn()
 {
-  zoomIn(pageview());
-}
-
-void Gui::zoomIn(
-  LGraphicsView *view)
-{
-  fitMode = FitNone;
-  view->scale(1.1,1.1);
+  KpageView->zoomIn();
 }
 
 void Gui::zoomOut()
 {
-  zoomOut(pageview());
-}
-
-void Gui::zoomOut(
-  LGraphicsView *view)
-{
-  fitMode = FitNone;
-  view->scale(1.0/1.1,1.0/1.1);
+  KpageView->zoomOut();
 }
 
 void Gui::SetRotStepMeta(QString &value, bool propagate)
@@ -1039,6 +948,7 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
 
 void Gui::mpdComboChanged(int index)
 {
+  Q_UNUSED(index);
   QString newSubFile = mpdCombo->currentText();
   if (curSubFile != newSubFile) {
       int modelPageNum = ldrawFile.getModelStartPageNumber(newSubFile);
@@ -2035,7 +1945,7 @@ Gui::Gui()
     editWindow    = new EditWindow(this);  // remove inheritance 'this' to independently manage window
     parmsWindow   = new ParmsWindow();
 
-    KpageScene    = new QGraphicsScene(this);
+    KpageScene    = new LGraphicsScene(this);
     KpageScene->setBackgroundBrush(Qt::lightGray);
     KpageView     = new LGraphicsView(KpageScene);
     KpageView->pageBackgroundItem = NULL;
@@ -2132,7 +2042,7 @@ Gui::Gui()
 
     gui = this;
 
-    fitMode = FitVisible;
+    KpageView->fitMode = FitVisible;
 }
 
 Gui::~Gui()
@@ -2289,6 +2199,12 @@ void Gui::processHighlightColourParts(bool overwriteCustomParts)
       //qDebug() << qPrintable(QString("Sent overwrite highlight parts = %1").arg(overwriteCustomParts ? "True" : "False"));
       emit operateHighlightParts(overwriteCustomParts);
     }
+}
+
+// Update parts archive from LDSearch directories
+void Gui::processLDSearchDirParts(){
+  PartWorker partWorkerLDSearchDirs;
+  partWorkerLDSearchDirs.processLDSearchDirParts();
 }
 
 // left side progress bar
@@ -2668,6 +2584,22 @@ void Gui::createActions()
     fitVisibleAct->setStatusTip(tr("Fit document so whole page is visible"));
     fitVisibleAct->setEnabled(false);
     connect(fitVisibleAct, SIGNAL(triggered()), this, SLOT(fitVisible()));
+
+    pageRulerAct = new QAction(QIcon(":/resources/pageruler.png"), tr("Page &Ruler"), this);
+    pageRulerAct->setShortcut(tr("Alt+V"));
+    pageRulerAct->setStatusTip(tr("Display the page ruler"));
+    pageRulerAct->setEnabled(true);
+    pageRulerAct->setCheckable(true);
+    pageRulerAct->setChecked(Preferences::pageRuler);
+    connect(pageRulerAct, SIGNAL(triggered()), this, SLOT(pageRuler()));
+
+    pageGuidesAct = new QAction(QIcon(":/resources/pageguides.png"), tr("Page &Guides"), this);
+    pageGuidesAct->setShortcut(tr("Alt+V"));
+    pageGuidesAct->setStatusTip(tr("Display horizontal and vertical guides"));
+    pageGuidesAct->setEnabled(true);
+    pageGuidesAct->setCheckable(true);
+    pageGuidesAct->setChecked(Preferences::pageGuides);
+    connect(pageGuidesAct, SIGNAL(triggered()), this, SLOT(pageGuides()));
 
     actualSizeAct = new QAction(QIcon(":/resources/actual.png"),tr("&Actual Size"), this);
     actualSizeAct->setShortcut(tr("Alt+A"));
@@ -3154,6 +3086,8 @@ void Gui::createMenus()
     viewMenu->addAction(actualSizeAct);
     viewMenu->addAction(zoomInAct);
     viewMenu->addAction(zoomOutAct);
+    viewMenu->addAction(pageRulerAct);
+    viewMenu->addAction(pageGuidesAct);
 
     viewMenu->addSeparator();
 
@@ -3319,6 +3253,8 @@ void Gui::createToolBars()
     zoomToolBar->addAction(actualSizeAct);
     zoomToolBar->addAction(zoomInAct);
     zoomToolBar->addAction(zoomOutAct);
+    zoomToolBar->addAction(pageRulerAct);
+    zoomToolBar->addAction(pageGuidesAct);
 }
 
 void Gui::statusBarMsg(QString msg)
@@ -3373,7 +3309,7 @@ void Gui::statusMessage(LogType logType, QString message) {
           }
 
      } else
-        if (logType == LOG_NOTICE) {
+       if (logType == LOG_NOTICE) {
 
             logNotice() << message;
 
@@ -3383,7 +3319,7 @@ void Gui::statusMessage(LogType logType, QString message) {
             }
 
      } else
-          if (logType == LOG_TRACE) {
+       if (logType == LOG_TRACE) {
 
               logTrace() << message;
 

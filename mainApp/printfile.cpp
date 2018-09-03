@@ -520,7 +520,7 @@ void Gui::exportAsPdf()
   QPdfWriter pdfWriter(fileName);
 
   // instantiate the scene and view
-  QGraphicsScene scene;
+  LGraphicsScene scene;
   LGraphicsView view(&scene);
 
   // initialize page sizes
@@ -816,7 +816,7 @@ void Gui::exportAs(QString &suffix)
         directoryName = saveDirectoryName;
     }
 
-  QGraphicsScene scene;
+  LGraphicsScene scene;
   LGraphicsView view(&scene);
   float pageWidthPx, pageHeightPx;
   int _displayPageNum = 0;
@@ -1121,7 +1121,7 @@ void Gui::PrintPdf(QPrinter* Printer)
   // send signal to halt 3DViewer
   setExportingSig(true);
 
-  QGraphicsScene scene;
+  LGraphicsScene scene;
   LGraphicsView view(&scene);
 
   // initialize page sizes

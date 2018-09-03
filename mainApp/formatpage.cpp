@@ -26,11 +26,11 @@
 
 #include <QGraphicsItem>
 #include <QGraphicsPixmapItem>
-#include <QGraphicsScene>
 #include <QScrollBar>
 #include <QPixmap>
 #include <QBitmap>
 #include <QColor>
+#include "lgraphicsscene.h"
 #include "commonmenus.h"
 #include "callout.h"
 #include "lpub.h"
@@ -49,6 +49,7 @@
 #include "rotateiconitem.h"
 #include "paths.h"
 #include "pagepointer.h"
+#include "lgraphicsscene.h"
 
 /*
  * We need to draw page every time there is change to the LDraw file.
@@ -59,8 +60,8 @@
  */
 
 void Gui::clearPage(
-    LGraphicsView  *view,
-    QGraphicsScene *scene)
+    LGraphicsView *view,
+    LGraphicsScene *scene)
 {
   page.freePage();
   page.pli.clear();
@@ -205,8 +206,8 @@ int Gui::addGraphicsPageItems(
     Steps          *steps,
     bool            coverPage,
     bool            endOfSubmodel,
-    LGraphicsView  *view,
-    QGraphicsScene *scene,
+    LGraphicsView *view,
+    LGraphicsScene *scene,
     bool            printing)
 {
 

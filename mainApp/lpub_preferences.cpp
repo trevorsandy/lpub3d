@@ -154,6 +154,9 @@ bool    Preferences::fadeStepsUseColour         = false;
 bool    Preferences::enableHighlightStep        = false;
 bool    Preferences::enableImageMatting         = false;
 
+bool    Preferences::pageRuler                  = false;
+bool    Preferences::pageGuides                 = false;
+
 #ifdef Q_OS_MAC
 bool    Preferences::ldviewMissingLibs          = true;
 bool    Preferences::povrayMissingLibs          = true;
@@ -2058,6 +2061,48 @@ void Preferences::unitsPreferences()
     } else {
         preferCentimeters = Settings.value(QString("%1/%2").arg(SETTINGS,"Centimeters")).toBool();
     }
+}
+
+void Preferences::userInterfacePreferences()
+{
+  QSettings Settings;
+
+  QString const pageRulerKey("PageRuler");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,pageRulerKey))) {
+          QVariant uValue(false);
+          pageRuler = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,pageRulerKey),uValue);
+  } else {
+          pageRuler = Settings.value(QString("%1/%2").arg(SETTINGS,pageRulerKey)).toBool();
+  }
+
+  QString const pageGuidesKey("PageGuides");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,pageGuidesKey))) {
+          QVariant uValue(false);
+          pageGuides = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,pageGuidesKey),uValue);
+  } else {
+          pageGuides = Settings.value(QString("%1/%2").arg(SETTINGS,pageGuidesKey)).toBool();
+  }
+}
+
+
+void Preferences::setPageGuidesPreference(bool b)
+{
+  QSettings Settings;
+  pageGuides = b;
+  QVariant uValue(b);
+  QString const pageGuidesKey("PageGuides");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,pageGuidesKey),uValue);
+}
+
+void Preferences::setPageRulerPreference(bool b)
+{
+  QSettings Settings;
+  pageRuler = b;
+  QVariant uValue(b);
+  QString const pageRulerKey("PageRuler");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,pageRulerKey),uValue);
 }
 
 void Preferences::annotationPreferences()

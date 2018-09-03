@@ -387,6 +387,7 @@ void Application::initialize()
   Preferences::unitsPreferences();
   Preferences::annotationPreferences();
   Preferences::pliPreferences();
+  Preferences::userInterfacePreferences();
 
   // Resolution
   defaultResolutionType(Preferences::preferCentimeters);

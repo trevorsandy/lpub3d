@@ -96,6 +96,8 @@
         <file alias="nopartslist.png">images/nopartslist.png</file>
         <file alias="onlinemanual.png">images/onlinemanual.png</file>
         <file alias="open.png">images/open.png</file>
+        <file alias="pageguides.png">images/pageguides.png</file>
+        <file alias="pageruler.png">images/pageruler.png</file>
         <file alias="pagesetup.png">images/pagesetup.png</file>
         <file alias="pagesizeandorientation.png">images/pagesizeandorientation.png</file>
         <file alias="partslist.png">images/partslist.png</file>

@@ -337,7 +337,6 @@
 #include <QStatusBar>
 #include <QDockWidget>
 #include <QSettings>
-#include <QGraphicsView>
 #include <QDateTime>
 #include <QFileSystemWatcher>
 #include <QPrinter>
@@ -345,6 +344,9 @@
 #include <QProgressBar>
 #include <QElapsedTimer>
 #include <QPdfWriter>
+
+#include "lgraphicsview.h"
+#include "lgraphicsscene.h"
 
 //3D Viewer
 #include "lc_global.h" // TODO - remove this; not necessary
@@ -378,7 +380,6 @@
 
 class QString;
 class QSplitter;
-class QGraphicsScene;
 class QFrame;
 class QFileDialog;
 class QResizeEvent;
@@ -405,6 +406,7 @@ class GlobalHighlightStep;
 class UpdateCheck;
 
 class LGraphicsView;
+class LGraphicsScene;
 class PageBackgroundItem;
 
 class Pointer;
@@ -412,7 +414,6 @@ class PagePointer;
 
 enum traverseRc { HitEndOfPage = 1 };
 enum Dimensions {Pixels = 0, Inches};
-enum FitMode { FitNone, FitWidth, FitVisible, FitTwoPages, FitContinuousScroll };
 enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
 enum Mode { PAGE_PROCESS, EXPORT_PDF, EXPORT_PNG, EXPORT_JPG, EXPORT_BMP };
 enum Direction { PAGE_PREVIOUS, PAGE_NEXT };
@@ -480,7 +481,7 @@ public:
    * changing under foot */
   void drawPage(                   // this is the workhorse for preparing a
     LGraphicsView *view,           // page for viewing.  It depends heavily
-    QGraphicsScene *scene,         // on the next two functions
+    LGraphicsScene *scene,         // on the next two functions
     bool            printing);
 
   /*--------------------------------------------------------------------*
@@ -728,21 +729,14 @@ public slots:
   void calloutSetup();
   void multiStepSetup();
   void projectSetup();
-  
+
   void fitWidth();
   void fitVisible();
   void actualSize();
-
-  void twoPages();
-  void continuousScroll();
-
-  
-  void fitWidth(  LGraphicsView *view);
-  void fitVisible(LGraphicsView *view);
-  void actualSize(LGraphicsView *view);
-
-  void twoPages(LGraphicsView *view);
-  void continuousScroll(LGraphicsView *view);
+  void zoomIn();
+  void zoomOut();
+  void pageGuides();
+  void pageRuler();
 
   void clearPLICache();
   void clearCSICache();
@@ -831,7 +825,7 @@ protected:
   QMap<int, PgSizeData>  pageSizes;          // page size and orientation object
 
 private:
-  QGraphicsScene        *KpageScene;         // top of displayed page's graphics items
+  LGraphicsScene        *KpageScene;         // top of displayed page's graphics items
   LGraphicsView         *KpageView;          // the visual representation of the scene
   LDrawFile              ldrawFile;          // contains MPD or all files used in model
   QString                curFile;            // the file name for MPD, or top level file
@@ -874,7 +868,7 @@ private:
 
   int findPage(                    // traverse the hierarchy until we get to the
     LGraphicsView  *view,          // page of interest, let traverse process the
-    QGraphicsScene *scene,         // page, and then finish by counting the rest
+    LGraphicsScene *scene,         // page, and then finish by counting the rest
     int           &pageNum,
     QString const &addLine,
     Where         &current,
@@ -885,7 +879,7 @@ private:
 
   int drawPage(// process the page of interest and any callouts
     LGraphicsView  *view,
-    QGraphicsScene *scene,
+    LGraphicsScene *scene,
     Steps          *steps,
     int            stepNum,
     QString const &addLine,
@@ -917,7 +911,7 @@ private:
     bool            coverPage,
     bool            endOfSubmodel,
     LGraphicsView  *view,
-    QGraphicsScene *scene,
+    LGraphicsScene *scene,
     bool            printing);
 
   int addContentPageAttributes(
@@ -1039,12 +1033,6 @@ private slots:
     void setGoToPage(int index);
     void loadPages();
 
-    void zoomIn();
-    void zoomOut();
-
-    void zoomIn(LGraphicsView *view);
-    void zoomOut(LGraphicsView *view);
-
     void getExportPageSize(float &, float &, int d = Pixels);
     bool validatePageRange();
 
@@ -1074,7 +1062,7 @@ private slots:
 
     void clearPage(
       LGraphicsView  *view,
-      QGraphicsScene *scene);
+      LGraphicsScene *scene);
     
     void enableActions();
     void enableActions2();
@@ -1176,6 +1164,9 @@ private:
   QAction  *zoomInAct;
   QAction  *zoomOutAct;
 
+  QAction  *pageGuidesAct;
+  QAction  *pageRulerAct;
+
   // view
   // navigation toolbar
 
@@ -1254,96 +1245,6 @@ private:
 
 extern class Gui *gui;
 
-#include <QDragEnterEvent>
-#include <QDragLeaveEvent>
-#include <QDragMoveEvent>
-#include <QDropEvent>
-#include <QMimeData>
-#include <QUrl>
-#include <QList>
-
-class QDragEnterEvent;
-class QDragMoveEvent;
-class QDragLeaveEvent;
-class QMimeData;
-class QUrl;
-
-class LGraphicsView : public QGraphicsView
-{
-public:
-  //LGraphicsView();
-  LGraphicsView(QGraphicsScene *scene)
-  {
-    setAcceptDrops(true);
-    setScene(scene);
-    pageBackgroundItem = NULL;
-  }
-  //~LGraphicsView();
-
-  PageBackgroundItem *pageBackgroundItem;
-
-protected:
-
-  // drag and drop
-  void dragMoveEvent(QDragMoveEvent *event){
-    if (event->mimeData()->hasUrls()) {
-        event->acceptProposedAction();
-      }
-  }
-
-  void dragEnterEvent(QDragEnterEvent *event){
-    if (event->mimeData()->hasUrls()) {
-        event->acceptProposedAction();
-      }
-  }
-
-  void dragLeaveEvent(QDragLeaveEvent *event){
-    event->accept();
-  }
-
-  void dropEvent(QDropEvent *event){
-    const QMimeData* mimeData = event->mimeData();
-    if (mimeData->hasUrls()) {
-        QList<QUrl> urlList = mimeData->urls();
-        QString fileName = urlList.at(0).toLocalFile();   // load the first file only
-        if (urlList.size() > 1) {
-            QMessageBox::warning(NULL,
-                                 QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                 QMessageBox::tr("%1 files selected.\nOnly file %2 will be opened.")
-                                 .arg(urlList.size())
-                                 .arg(fileName));
-          }
-        gui->openDropFile(fileName);
-        event->acceptProposedAction();
-      }
-  }
-
-  void resizeEvent(QResizeEvent * /* unused */)
-  {
-    if (pageBackgroundItem) {
-      if (gui->fitMode == FitVisible) {
-        gui->fitVisible(gui->pageview());
-      } else if (gui->fitMode == FitWidth) {
-        gui->fitWidth(gui->pageview());
-      }
-    }
-  }
-};
-//custom type definition and meta-type declaration
-//Q_DECLARE_METATYPE(LGraphicsView);
-
-enum zValues {
-  PageBackgroundZValue = 0,
-  PageNumberZValue = 10,
-  PagePLIZValue = 20,
-  PageInstanceZValue = 30,
-  AssemZValue = 30,
-  StepGroupZValue = 30,
-  CalloutPointerZValue = 45,
-  CalloutBackgroundZValue = 50,
-  CalloutAssemZValue = 55,
-  CalloutInstanceZValue = 60,
-};
 
 class GlobalFadeStep
 {

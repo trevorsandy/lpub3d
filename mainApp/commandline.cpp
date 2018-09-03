@@ -188,6 +188,12 @@ int Gui::processCommandLine()
       }
     }
 
+  if (Preferences::pageGuides)
+      Preferences::setPageGuidesPreference(false);
+
+  if (Preferences::pageRuler)
+      Preferences::setPageRulerPreference(false);
+
   if (fadeSteps && fadeSteps != Preferences::enableFadeSteps) {
       Preferences::enableFadeSteps = fadeSteps;
       QString message = QString("Fade Previous Steps is ON.");

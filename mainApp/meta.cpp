@@ -3424,45 +3424,45 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
   LSynth .init(this,"SYNTH");
 
   if (tokenMap.size() == 0) {
-      tokenMap["TOP_LEFT"]         	    = TopLeft;
-      tokenMap["TOP"]              	    = Top;
-      tokenMap["TOP_RIGHT"]        	    = TopRight;
-      tokenMap["RIGHT"]            	    = Right;
-      tokenMap["BOTTOM_RIGHT"]     	    = BottomRight;
-      tokenMap["BOTTOM"]           	    = Bottom;
-      tokenMap["BOTTOM_LEFT"]      	    = BottomLeft;
-      tokenMap["LEFT"]             	    = Left;
-      tokenMap["CENTER"]           	    = Center;
+      tokenMap["TOP_LEFT"]         	= TopLeft;
+      tokenMap["TOP"]              	= Top;
+      tokenMap["TOP_RIGHT"]        	= TopRight;
+      tokenMap["RIGHT"]            	= Right;
+      tokenMap["BOTTOM_RIGHT"]     	= BottomRight;
+      tokenMap["BOTTOM"]           	= Bottom;
+      tokenMap["BOTTOM_LEFT"]      	= BottomLeft;
+      tokenMap["LEFT"]             	= Left;
+      tokenMap["CENTER"]           	= Center;
 
-      tokenMap["INSIDE"]           	    = Inside;
-      tokenMap["OUTSIDE"]          	    = Outside;
+      tokenMap["INSIDE"]           	= Inside;
+      tokenMap["OUTSIDE"]          	= Outside;
 
-      tokenMap["PAGE"]             	    = PageType;
-      tokenMap["ASSEM"]            	    = CsiType;
-      tokenMap["MULTI_STEP"]       	    = StepGroupType;
-      tokenMap["STEP_GROUP"]       	    = StepGroupType;
-      tokenMap["STEP_NUMBER"]      	    = StepNumberType;
-      tokenMap["PLI"]              	    = PartsListType;
-      tokenMap["PAGE_NUMBER"]      	    = PageNumberType;
-      tokenMap["CALLOUT"]          	    = CalloutType;
+      tokenMap["PAGE"]             	= PageType;
+      tokenMap["ASSEM"]            	= CsiType;
+      tokenMap["MULTI_STEP"]       	= StepGroupType;
+      tokenMap["STEP_GROUP"]       	= StepGroupType;
+      tokenMap["STEP_NUMBER"]      	= StepNumberType;
+      tokenMap["PLI"]              	= PartsListType;
+      tokenMap["PAGE_NUMBER"]      	= PageNumberType;
+      tokenMap["CALLOUT"]          	= CalloutType;
 
       tokenMap["DOCUMENT_TITLE"]    	= PageTitleType;
-      tokenMap["MODEL_ID"]    		    = PageModelNameType;
+      tokenMap["MODEL_ID"]    		= PageModelNameType;
       tokenMap["DOCUMENT_AUTHOR"]    	= PageAuthorType;
-      tokenMap["PUBLISH_URL"]    	    = PageURLType;
+      tokenMap["PUBLISH_URL"]    	= PageURLType;
       tokenMap["MODEL_DESCRIPTION"]     = PageModelDescType;
       tokenMap["PUBLISH_DESCRIPTION"]	= PagePublishDescType;
       tokenMap["PUBLISH_COPYRIGHT"]     = PageCopyrightType;
-      tokenMap["PUBLISH_EMAIL"]    	    = PageEmailType;
+      tokenMap["PUBLISH_EMAIL"]    	= PageEmailType;
       tokenMap["LEGO_DISCLAIMER"]    	= PageDisclaimerType;
-      tokenMap["MODEL_PIECES"]    	    = PagePiecesType;
-      tokenMap["APP_PLUG"]    		    = PagePlugType;
+      tokenMap["MODEL_PIECES"]    	= PagePiecesType;
+      tokenMap["APP_PLUG"]    		= PagePlugType;
       tokenMap["SUBMODEL_INST_COUNT"]   = SubmodelInstanceCountType;
-      tokenMap["DOCUMENT_LOGO"]    	    = PageDocumentLogoType;
+      tokenMap["DOCUMENT_LOGO"]    	= PageDocumentLogoType;
       tokenMap["DOCUMENT_COVER_IMAGE"]  = PageCoverImageType;
       tokenMap["APP_PLUG_IMAGE"]    	= PagePlugImageType;
-      tokenMap["PAGE_HEADER"]    	    = PageHeaderType;
-      tokenMap["PAGE_FOOTER"]    	    = PageFooterType;
+      tokenMap["PAGE_HEADER"]    	= PageHeaderType;
+      tokenMap["PAGE_FOOTER"]    	= PageFooterType;
       tokenMap["MODEL_CATEGORY"]    	= PageCategoryType;
       tokenMap["ROTATE_ICON"]           = RotateIconType;
 

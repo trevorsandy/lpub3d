@@ -40,8 +40,10 @@ class Preferences
     static void publishingPreferences();
     static void loggingPreferences();
     static void exportPreferences();
-    static bool extractLDrawLib();
+    static void userInterfacePreferences();
+    static void nativePovGenPreferences();
 
+    static bool extractLDrawLib();
     static void getRequireds();
     static bool getPreferences();
     static void setLPub3DLoaded();
@@ -57,7 +59,9 @@ class Preferences
 
     static void setOverwriteCustomParts(bool);
 
-   static void nativePovGenPreferences();
+    static void setPageGuidesPreference(bool);
+    static void setPageRulerPreference(bool);
+
 
     static QString lpub3dAppName;
     static QString ldrawPath;
@@ -168,6 +172,9 @@ class Preferences
 
     static QString ldvLights;
     static QString xmlMapPath;
+
+    static bool    pageRuler;
+    static bool    pageGuides;
 
 #ifdef Q_OS_MAC
     static bool    ldviewMissingLibs;

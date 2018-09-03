@@ -34,7 +34,6 @@
 #include "lpub.h"
 #include <QtWidgets>
 #include <QGraphicsItem>
-#include <QGraphicsScene>
 #include <QString>
 #include <QFileInfo>
 #include "lpub_preferences.h"
@@ -232,7 +231,7 @@ Range *newRange(
 
 int Gui::drawPage(
     LGraphicsView  *view,
-    QGraphicsScene *scene,
+    LGraphicsScene *scene,
     Steps          *steps,
     int             stepNum,
     QString const  &addLine,
@@ -1324,7 +1323,7 @@ int Gui::drawPage(
 
 int Gui::findPage(
     LGraphicsView  *view,
-    QGraphicsScene *scene,
+    LGraphicsScene *scene,
     int            &pageNum,      //maxPages
     QString const  &addLine,
     Where          &current,
@@ -2272,7 +2271,7 @@ void Gui::countPages()
 
 void Gui::drawPage(
     LGraphicsView  *view,
-    QGraphicsScene *scene,
+    LGraphicsScene *scene,
     bool            printing)
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
