@@ -1,18 +1,20 @@
-TEMPLATE = lib
-CONFIG += qt warn_on
-QT -= gui
-unix:!macx: CONFIG  += staticlib
-win32-msvc*: CONFIG  += staticlib
+TEMPLATE  = lib
+QT       -= gui
+CONFIG   += qt warn_on
+CONFIG   += staticlib
+macx: \
+CONFIG   -= app_bundle
 
 DEPENDPATH  += .
 INCLUDEPATH += .
-DEPENDPATH  += ../LDVQt/include/3rdParty
-INCLUDEPATH += ../LDVQt/include/3rdParty
 
 # The ABI version.
-# Version format is year.month.day.patch
-win32: VERSION = 1.4.0.0   # major.minor.patch.build
-else:  VERSION = 1.4.0     # major.minor.patch
+VER_MAJ = 1
+VER_MIN = 4
+VER_PAT = 0
+VER_BLD = 0
+win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.patch.build
+else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.patch
 
 BUILD_ARCH   = $$(TARGET_CPU)
 !contains(QT_ARCH, unknown):  BUILD_ARCH = $$QT_ARCH
@@ -23,6 +25,22 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
 } else {
     ARCH     = 32
     STG_ARCH = x86
+}
+
+QMAKE_CXXFLAGS  += $(Q_CXXFLAGS)
+QMAKE_LFLAGS    += $(Q_LDFLAGS)
+QMAKE_CFLAGS    += $(Q_CFLAGS)
+
+# USE CPP 11
+unix:!freebsd:!macx {
+    GCC_VERSION = $$system(g++ -dumpversion)
+    greaterThan(GCC_VERSION, 4.6) {
+        QMAKE_CXXFLAGS += -std=c++11
+    } else {
+        QMAKE_CXXFLAGS += -std=c++0x
+    }
+} else {
+    CONFIG += c++11
 }
 
 win32 {
@@ -57,31 +75,31 @@ win32 {
     QMAKE_TARGET_PRODUCT = "WPngImage ($$join(ARCH,,,bit))"
 }
 
-macx {
-    QMAKE_CXXFLAGS += -F/System/Library/Frameworks
-    LIBS += -framework CoreFoundation
-}
-
 CONFIG += skip_target_version_ext
+
 unix: !macx: TARGET = wpngimage
 else:        TARGET = WPngImage
 
 # Indicate build type
-staticlib: BUILD = Static
-else:      BUILD = Shared
+staticlib {
+    BUILD    = Static
+} else {
+    BUILD    = Shared
+}
 
 CONFIG(debug, debug|release) {
     BUILD += Debug Build
     ARCH_BLD = bit_debug
     macx: TARGET = $$join(TARGET,,,_debug)
-    win32: TARGET = $$join(TARGET,,,d14)
+    win32: TARGET = $$join(TARGET,,,d$${VER_MAJ}$${VER_MIN})
     unix:!macx: TARGET = $$join(TARGET,,,d)
 } else {
     BUILD += Release Build
     ARCH_BLD = bit_release
-    win32: TARGET = $$join(TARGET,,,14)
+    win32: TARGET = $$join(TARGET,,,$${VER_MAJ}$${VER_MIN})
 }
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
+
 message("~~~ lib$${TARGET} $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
 
 PRECOMPILED_DIR = $$DESTDIR/.pch
