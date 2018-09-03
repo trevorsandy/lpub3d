@@ -16,24 +16,25 @@
 **
 ****************************************************************************/
 
+#include "globals.h"
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QDialogButtonBox>
 
-#include "globals.h"
 #include "meta.h"
-#include "metatypes.h"
-#include "metaitem.h"
 #include "metagui.h"
+#include "metaitem.h"
+#include "metatypes.h"
 
 class GlobalProjectPrivate {
 public:
   Meta       meta;
   QString    topLevelFile;
   QList<MetaGui *> children;
+  bool resetCache;
 
-  GlobalProjectPrivate(const QString &_topLevelFile, Meta &_meta)
+  GlobalProjectPrivate(const QString &_topLevelFile, Meta &_meta, bool _resetCache = false)
   {
     topLevelFile = _topLevelFile;
     meta = _meta;
@@ -60,9 +61,14 @@ GlobalProjectDialog::GlobalProjectDialog(
   QVBoxLayout *layout = new QVBoxLayout(this);
   setLayout(layout);
 
-  QGroupBox *box = new QGroupBox("Resolution");
+  QGroupBox *box = new QGroupBox("Renderer");
   layout->addWidget(box);
-  MetaGui *child = new ResolutionGui(&data->meta.LPub.resolution,box);
+  MetaGui *child = new RendererGui(box);
+  data->children.append(child);
+
+  box = new QGroupBox("Resolution");
+  layout->addWidget(box);
+  child = new ResolutionGui(&data->meta.LPub.resolution,box);
   data->children.append(child);
   
   box = new QGroupBox("Submodel Instance Count");
@@ -70,15 +76,6 @@ GlobalProjectDialog::GlobalProjectDialog(
   child = new CheckBoxGui("Consolidate submodel instance count.",&data->meta.LPub.mergeInstanceCount,box);
   box->setToolTip("Consolidate submodel instance count at first occurrence in model.");
   data->children.append(child);
-
-#if 0
-
-  box = new QGroupBox("Renderer");
-  layout->addWidget(box);
-  child = new RendererGui(box);
-  data->children.append(child);
-
-#endif
 
   QDialogButtonBox *buttonBox;
 
@@ -112,6 +109,11 @@ void GlobalProjectDialog::accept()
     child->apply(data->topLevelFile);
   }
   mi.endMacro();
+
+  if (data->children[0]->modified) {
+      clearAndRedrawPage();
+  }
+
   QDialog::accept();
 }
 

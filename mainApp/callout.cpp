@@ -330,8 +330,10 @@ void Callout::addGraphicsItems(
 //           << " \nRelative To Size[0]:    "   << relativeToSize[0]
 //           << " \nRelative To Size[1]:    "   << relativeToSize[1]
 //              ;
-}
 #endif
+
+}
+
 
 void Callout::addGraphicsItems(
   AllocEnc       allocEnc,

@@ -2394,17 +2394,17 @@ void ResolutionGui::apply(QString &modelName)
 RendererGui::RendererGui(
   QGroupBox     *parent)
 {
-  QHBoxLayout *layout;
-
-  layout = new QHBoxLayout(parent);
+  QGridLayout *grid = new QGridLayout(parent);
+  QHBoxLayout *hLayout = new QHBoxLayout();
 
   if (parent) {
-    parent->setLayout(layout);
+    parent->setLayout(grid);
   } else {
-    setLayout(layout);
+    setLayout(grid);
   }
 
   combo = new QComboBox(parent);
+  combo->addItem(RENDERER_NATIVE);
   if (Preferences::ldgliteExe != "") {
     combo->addItem(RENDERER_LDGLITE);
   }
@@ -2419,20 +2419,104 @@ RendererGui::RendererGui(
   combo->setCurrentIndex(int(combo->findText(renderer)));
   connect(combo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(  typeChange(         QString const &)));
-  layout->addWidget(combo);
+  grid->addWidget(combo,0,0);
+
+  ldvSingleCallBox = new QCheckBox("Use Single Call Configuration",parent);
+  ldvSingleCallBox->setChecked(Preferences::useLDViewSingleCall);
+  ldvSingleCallBox->setEnabled(renderer == RENDERER_LDVIEW);
+  connect(ldvSingleCallBox,SIGNAL(clicked(bool)),
+          this,            SLOT(singleCallChange(bool)));
+  grid->addWidget(ldvSingleCallBox,0,1);
+
+  povFileGeneratorGrpBox = new QGroupBox("POV File Generation Renderer",parent);
+  povFileGeneratorGrpBox->setEnabled(renderer == RENDERER_POVRAY);
+  povFileGeneratorGrpBox->setLayout(hLayout);
+  grid->addWidget(povFileGeneratorGrpBox,1,0,1,2);
+
+  nativeButton = new QRadioButton("Native",povFileGeneratorGrpBox);
+  nativeButton->setChecked(Preferences::povFileGenerator == RENDERER_NATIVE);
+  connect(nativeButton,SIGNAL(clicked(bool)),
+          this,        SLOT(povFileGenNativeChange(bool)));
+  hLayout->addWidget(nativeButton);
+
+  ldvButton = new QRadioButton("LDView",povFileGeneratorGrpBox);
+  ldvButton->setChecked(Preferences::povFileGenerator == RENDERER_LDVIEW);
+  connect(ldvButton,SIGNAL(clicked(bool)),
+          this,     SLOT(povFileGenLDViewChange(bool)));
+  hLayout->addWidget(ldvButton);
+
+  rendererModified = false;
+  singleCallModified = false;
+  povFileGenModified = false;
+}
+
+void RendererGui::povFileGenNativeChange(bool checked)
+{
+  povFileGenChoice = (checked ? RENDERER_NATIVE : RENDERER_LDVIEW);
+  if (Preferences::povFileGenerator != povFileGenChoice){
+       povFileGenModified = true;
+    }
+}
+
+void RendererGui::povFileGenLDViewChange(bool checked)
+{
+  povFileGenChoice = (checked ? RENDERER_LDVIEW : RENDERER_NATIVE );
+  if (Preferences::povFileGenerator != povFileGenChoice){
+       povFileGenModified = true;
+    }
+}
+
+void RendererGui::singleCallChange(bool checked)
+{
+  if (Preferences::useLDViewSingleCall != checked) {
+       modified = singleCallModified = true;
+    }
 }
 
 void RendererGui::typeChange(QString const &type)
 {
   pick = type;
-  modified = true;
+  ldvSingleCallBox->setEnabled(pick == RENDERER_LDVIEW);
+  povFileGeneratorGrpBox->setEnabled(pick == RENDERER_POVRAY);
+  if (pick != RENDERER_LDVIEW) {
+      ldvSingleCallBox->setChecked(false);
+    }
+  if (pick != Preferences::preferredRenderer) {
+      modified = rendererModified = true;
+    }
 }
 
-void RendererGui::apply(QString & /* unused */)
+void RendererGui::apply(QString & /* unused */ )
 {
-  if (modified) {
-    Render::setRenderer(pick);
-  }
+  QSettings Settings;
+  QString message;
+  if (rendererModified) {
+      changeMessage = QString("Renderer preference changed from %1 to %2 %3")
+                     .arg(Preferences::preferredRenderer)
+                     .arg(pick)
+                     .arg(pick == RENDERER_POVRAY ? QString("(PoV file generator is %1)").arg(Preferences::povFileGenerator) :
+                          pick == RENDERER_LDVIEW ? Preferences::useLDViewSingleCall ? "(Single Call)" : "" : "");
+      emit gui->messageSig(LOG_INFO, changeMessage);
+      Preferences::preferredRenderer = pick;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"),pick);
+      Render::setRenderer(pick);
+    }
+  if (singleCallModified) {
+      changeMessage = QString("Use LDView Single Call is %1")
+                      .arg(Preferences::useLDViewSingleCall ? "ON" : "OFF");
+      emit gui->messageSig(LOG_INFO, changeMessage);
+      Preferences::useLDViewSingleCall = ldvSingleCallBox->isChecked();
+      QVariant uValue(ldvSingleCallBox->isChecked());
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"),uValue);
+    }
+  if (povFileGenModified) {
+      changeMessage = QString("POV file generation renderer changed from %1 to %2")
+                      .arg(Preferences::povFileGenerator)
+                      .arg(povFileGenChoice);
+      emit gui->messageSig(LOG_INFO, changeMessage);
+      Preferences::povFileGenerator = povFileGenChoice;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovFileGenerator"),povFileGenChoice);
+    }
 }
 
 /***********************************************************************
@@ -2536,17 +2620,17 @@ PliAnnotationGui::PliAnnotationGui(
   connect(gbPLIAnnotation,SIGNAL(toggled(bool)),
           this, SLOT(  gbToggled(bool)));
 
-  titleAnnotationButton = new QRadioButton("Title",parent);
+  titleAnnotationButton = new QRadioButton("Title",gbPLIAnnotation);
   connect(titleAnnotationButton,SIGNAL(clicked(bool)),
           this,        SLOT(  titleAnnotation(bool)));
   hLayout->addWidget(titleAnnotationButton);
 
-  freeformAnnotationButton = new QRadioButton("Free Form",parent);
+  freeformAnnotationButton = new QRadioButton("Free Form",gbPLIAnnotation);
   connect(freeformAnnotationButton,SIGNAL(clicked(bool)),
           this,     SLOT(  freeformAnnotation(bool)));
   hLayout->addWidget(freeformAnnotationButton);
 
-  titleAndFreeformAnnotationButton = new QRadioButton("Both",parent);
+  titleAndFreeformAnnotationButton = new QRadioButton("Both",gbPLIAnnotation);
   connect(titleAndFreeformAnnotationButton,SIGNAL(clicked(bool)),
           this,     SLOT(  titleAndFreeformAnnotation(bool)));
   hLayout->addWidget(titleAndFreeformAnnotationButton);

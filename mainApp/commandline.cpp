@@ -181,10 +181,14 @@ int Gui::processCommandLine()
           return 1;
       }
       if (Preferences::preferredRenderer != renderer) {
+          QString message = QString("Renderer preference changed from %1 to %2 %3")
+                            .arg(Preferences::preferredRenderer)
+                            .arg(renderer)
+                            .arg(renderer == RENDERER_POVRAY ? QString("(PoV file generator is %1)").arg(Preferences::povFileGenerator) :
+                                 renderer == RENDERER_LDVIEW ? Preferences::useLDViewSingleCall ? "(Single Call)" : "" : "");
+          emit messageSig(LOG_INFO,message);
           Preferences::preferredRenderer = renderer;
           Render::setRenderer(Preferences::preferredRenderer);
-          QString message = QString("Renderer is %1 %2").arg(renderer).arg(Preferences::useLDViewSingleCall ? "(Single Call)" : "");
-          emit messageSig(LOG_INFO,message);
       }
     }
 

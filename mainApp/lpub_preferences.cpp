@@ -1588,6 +1588,11 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
     if (resourceFile.exists())
         povrayScenePath = resourceFile.absolutePath();
     logInfo() << QString("POVRay scene path  : %1").arg(povrayScenePath.isEmpty() ? "Not found" : povrayScenePath);
+
+    logInfo() << QString("Renderer is %1 %2")
+                         .arg(preferredRenderer)
+                         .arg(preferredRenderer == RENDERER_POVRAY ? QString("(PoV file generator is %1)").arg(Preferences::povFileGenerator) :
+                              preferredRenderer == RENDERER_LDVIEW ? Preferences::useLDViewSingleCall ? "(Single Call)" : "" : "");
 }
 
 void Preferences::setLDGLiteIniParams()

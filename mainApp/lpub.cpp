@@ -1655,13 +1655,18 @@ void Gui::preferences()
                                  .arg(Preferences::enableImageMatting);
 
         if (rendererChanged) {
-            logInfo() << QString("Renderer preference changed from %1 to %2")
-                                 .arg(preferredRendererCompare)
-                                 .arg(Preferences::preferredRenderer);
+            emit messageSig(LOG_INFO,QString("Renderer preference changed from %1 to %2 %3")
+                                    .arg(Preferences::preferredRenderer)
+                                    .arg(preferredRendererCompare)
+                                    .arg(preferredRendererCompare == RENDERER_POVRAY ? QString("(PoV file generator is %1)").arg(Preferences::povFileGenerator) :
+                                         preferredRendererCompare == RENDERER_LDVIEW ? Preferences::useLDViewSingleCall ? "(Single Call)" : "" : ""));
             Render::setRenderer(Preferences::preferredRenderer);
             if (Preferences::preferredRenderer == RENDERER_LDGLITE)
                 partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
         }
+
+        if (useLDViewSCallChanged)
+            emit messageSig(LOG_INFO,QString("Use LDView Single Call is %1").arg(Preferences::useLDViewSingleCall ? "ON" : "OFF"));
 
         if (povFileGeneratorChanged)
             logInfo() << QString("POV file generation renderer changed from %1 to %2")

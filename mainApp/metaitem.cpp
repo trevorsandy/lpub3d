@@ -67,6 +67,9 @@ void MetaItem::setGlobalMeta(
   QString  &topLevelFile,
   LeafMeta *leaf)
 {
+  if (leaf == NULL)
+    return;
+
   QString newMeta = leaf->format(false,true);
   if (leaf->here().modelName != "undefined") {
     replaceMeta(leaf->here(),newMeta);
@@ -1194,6 +1197,7 @@ void MetaItem::changePlacementOffset(
 //                  << defaultWhere.modelName
 //                     ;
 #endif
+
     }
 
     if (type == StepGroupType) {             

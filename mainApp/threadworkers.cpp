@@ -100,12 +100,6 @@ void PartWorker::ldsearchDirPreferences(){
   logInfo() << (doFadeStep() ? QString("Fade Previous Steps is ON.") : QString("Fade Previous Steps is OFF."));
   logInfo() << (doHighlightStep() ? QString("Highlight Current Step is ON.") : QString("Highlight Current Step is OFF."));
 
-  QString singleCall;
-  QString renderer = Render::getRenderer();
-  if ((renderer == RENDERER_LDVIEW) && Preferences::enableLDViewSingleCall)
-    singleCall = "Single Call";
-  logInfo() << QString("Renderer is %1 %2").arg(renderer).arg(!singleCall.isEmpty() ? "(" + singleCall + ")" : "").trimmed();
-
   if (!Preferences::ldrawiniFound && !_resetSearchDirSettings &&
       Settings.contains(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey))) {    // ldrawini not found and not reset so load registry key
       logStatus() << QString("ldraw.ini not found, loading ldSearch directories from registry key...");
@@ -132,7 +126,7 @@ void PartWorker::ldsearchDirPreferences(){
       // If fade step enabled but custom directories not defined in ldSearchDirs, add custom directories
       if ((doFadeStep() || doHighlightStep()) && !customDirsIncluded) {
           // We must force the custom directories for LDView as they are needed by ldview ini files
-          if (renderer == RENDERER_LDVIEW) {
+          if (Preferences::preferredRenderer == RENDERER_LDVIEW) {
               Preferences::ldSearchDirs << _customPartDir;
               logStatus() << "Add custom part directory:" << _customPartDir;
               Preferences::ldSearchDirs << _customPrimDir;

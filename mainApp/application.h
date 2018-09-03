@@ -26,7 +26,7 @@
 #include "name.h"
 
 #ifdef Q_OS_WIN
-  #include <windows.h>
+  #include <Windows.h>
 #endif
 
 class InitException: public QException

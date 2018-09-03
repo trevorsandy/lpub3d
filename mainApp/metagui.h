@@ -36,9 +36,8 @@
 #include "metatypes.h"
 #include "gradients.h"
 
-#include "QsLog.h"
-
 void clearPliCache();
+void clearAndRedrawPage();
 
 class QWidget;
 class QString;
@@ -320,9 +319,6 @@ signals:
 
 public slots:
   void newIndex(int value){
-      logInfo() << " New Index Received (Text MetaGui): "
-                << " INDEX " << value;
-                    ;
       selection = value;
   }
   void editDescChanged();
@@ -404,9 +400,6 @@ signals:
 
 public slots:
   void selectionChanged(int value){
-      logInfo() << " Selection Change Received (Picture MetaGui): "
-                << " INDEX " << value
-                    ;
       selection = value;
   }
   void pictureChange(QString const &);
@@ -774,6 +767,8 @@ public slots:
  *
  **********************************************************************/
 
+class QCheckBox;
+class QRadioButton;
 class RendererGui : public MetaGui
 {
   Q_OBJECT
@@ -785,11 +780,25 @@ public:
   virtual void apply(QString &modelName);
 
 private:
-  QComboBox *combo;
-  QString    pick;
+  QComboBox    *combo;
+  QCheckBox    *ldvSingleCallBox;
+  QGroupBox    *povFileGeneratorGrpBox;
+  QRadioButton *nativeButton;
+  QRadioButton *ldvButton;
+
+  QString       pick;
+  QString       povFileGenChoice;
+  QString       changeMessage;
+
+  bool          rendererModified;
+  bool          singleCallModified;
+  bool          povFileGenModified;
 
 public slots:
-  void typeChange(QString const &);
+  void typeChange(QString const &); 
+  void singleCallChange(bool checked);
+  void povFileGenNativeChange(bool checked);
+  void povFileGenLDViewChange(bool checked);
 };
 
 /***********************************************************************
