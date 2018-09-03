@@ -34,6 +34,8 @@ void lcPreferences::LoadDefaults()
     mDrawGridLines = lcGetProfileInt(LC_PROFILE_GRID_LINES);
     mGridLineSpacing = lcGetProfileInt(LC_PROFILE_GRID_LINE_SPACING);
     mGridLineColor = lcGetProfileInt(LC_PROFILE_GRID_LINE_COLOR);
+	mViewCubeLocation = (lcViewCubeLocation)lcGetProfileInt(LC_PROFILE_VIEW_CUBE_LOCATION);
+	mViewCubeSize = lcGetProfileInt(LC_PROFILE_VIEW_CUBE_SIZE);
 }
 
 void lcPreferences::SaveDefaults()
@@ -49,6 +51,8 @@ void lcPreferences::SaveDefaults()
     lcSetProfileInt(LC_PROFILE_GRID_LINES, mDrawGridLines);
     lcSetProfileInt(LC_PROFILE_GRID_LINE_SPACING, mGridLineSpacing);
     lcSetProfileInt(LC_PROFILE_GRID_LINE_COLOR, mGridLineColor);
+	lcSetProfileInt(LC_PROFILE_VIEW_CUBE_LOCATION, (int)mViewCubeLocation);
+	lcSetProfileInt(LC_PROFILE_VIEW_CUBE_SIZE, mViewCubeSize);
 }
 
 lcApplication::lcApplication()

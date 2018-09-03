@@ -17,6 +17,15 @@ enum lcShadingMode
 	LC_NUM_SHADING_MODES
 };
 
+enum class lcViewCubeLocation
+{
+	DISABLED,
+	TOP_LEFT,
+	TOP_RIGHT,
+	BOTTOM_LEFT,
+	BOTTOM_RIGHT
+};
+
 class lcPreferences
 {
 public:
@@ -34,6 +43,8 @@ public:
 	int mGridLineSpacing;
 	quint32 mGridLineColor;
 	bool mFixedAxes;
+	lcViewCubeLocation mViewCubeLocation;
+	int mViewCubeSize;
 };
 
 /*** LPub3D Mod - change QApplication to QObject ***/
