@@ -1540,6 +1540,73 @@ void HighlightStepGui::apply(
 
 /***********************************************************************
  *
+ * CameraDistFactor
+ *
+ **********************************************************************/
+
+CameraDistFactorGui::CameraDistFactorGui(
+        QString const &heading,
+        CameraDistFactorMeta *_meta,
+        QGroupBox  *parent)
+{
+
+  meta = _meta;
+
+  QHBoxLayout *hLayout = new QHBoxLayout();
+
+  if (parent) {
+      parent->setLayout(hLayout);
+    } else {
+      setLayout(hLayout);
+    }
+
+  bool nativeRenderer = (Render::getRenderer() == RENDERER_NATIVE);
+  QString tipMessage = QString("Native renderer camera distance factor - this control is enabled when Renderer set to Native.");
+  if (nativeRenderer)
+      tipMessage = QString("Native renderer camera distance factor, adjust by 10, to scale renderings.");
+  parent->setToolTip(tipMessage);
+  parent->setEnabled(nativeRenderer);
+
+  cameraDistFactorLabel = new QLabel(heading, parent);
+  hLayout->addWidget(cameraDistFactorLabel);
+
+  cameraDistFactorNative = meta->factor.value();
+  cameraDistFactorSpin = new QSpinBox(parent);
+  cameraDistFactorSpin->setRange(100,5000);
+  cameraDistFactorSpin->setSingleStep(10);
+  cameraDistFactorSpin->setValue(cameraDistFactorNative);
+  connect(cameraDistFactorSpin,SIGNAL(valueChanged(int)),
+          this,                SLOT(cameraDistFactorChange(int)));
+  hLayout->addWidget(cameraDistFactorSpin);
+
+}
+
+void CameraDistFactorGui::cameraDistFactorChange(int factor)
+{
+  meta->factor.setValue(factor);
+  changeMessage = QString("Native camera distance factor changed from %1 to %2")
+      .arg(cameraDistFactorNative)
+      .arg(meta->factor.value());
+  modified = true;
+}
+
+void CameraDistFactorGui::apply(
+  QString &topLevelFile)
+{
+  MetaItem mi;
+  mi.beginMacro("GlobalCameraDistFactorSettings");
+
+  if (modified) {
+      emit gui->messageSig(LOG_INFO, changeMessage);
+      mi.setGlobalMeta(topLevelFile,&meta->factor);
+    }
+
+  mi.endMacro();
+}
+
+
+/***********************************************************************
+ *
  * Background
  *
  **********************************************************************/
@@ -2391,8 +2458,10 @@ void ResolutionGui::apply(QString &modelName)
  **********************************************************************/
 
 RendererGui::RendererGui(
+  CameraDistFactorMeta *_meta,
   QGroupBox     *parent)
 {
+  meta = _meta;
   QGridLayout *grid = new QGridLayout(parent);
   QHBoxLayout *hLayout = new QHBoxLayout();
 
@@ -2403,7 +2472,6 @@ RendererGui::RendererGui(
   }
 
   combo = new QComboBox(parent);
-  combo->addItem(RENDERER_NATIVE);
   if (Preferences::ldgliteExe != "") {
     combo->addItem(RENDERER_LDGLITE);
   }
@@ -2413,6 +2481,7 @@ RendererGui::RendererGui(
   if (Preferences::povrayExe != "") {
     combo->addItem(RENDERER_POVRAY);
   }
+  combo->addItem(RENDERER_NATIVE);
 
   QString renderer = Render::getRenderer();
   combo->setCurrentIndex(int(combo->findText(renderer)));
@@ -2444,16 +2513,56 @@ RendererGui::RendererGui(
           this,     SLOT(povFileGenLDViewChange(bool)));
   hLayout->addWidget(ldvButton);
 
+  QGridLayout *grpGrid = new QGridLayout();
+  cameraDistFactorGrpBox = new QGroupBox("Native Renderer Camera Distance",parent);
+
+  bool nativeRenderer = (Render::getRenderer() == RENDERER_NATIVE);
+  QString tipMessage = QString("Native renderer camera distance factor - this control is enabled when Renderer set to Native.");
+  if (nativeRenderer)
+      tipMessage = QString("Native renderer camera distance factor, adjust by 10, to scale renderings.");
+  cameraDistFactorGrpBox->setToolTip(tipMessage);
+  cameraDistFactorGrpBox->setEnabled(nativeRenderer);
+  cameraDistFactorGrpBox->setLayout(grpGrid);
+  grid->addWidget(cameraDistFactorGrpBox,2,0,1,2);
+
+  cameraDistFactorLabel = new QLabel("Factor", cameraDistFactorGrpBox);
+  grpGrid->addWidget(cameraDistFactorLabel,0,0);
+
+  cameraDistFactorNative = meta->factor.value();
+  cameraDistFactorSpin = new QSpinBox(parent);
+  cameraDistFactorSpin->setRange(100,5000);
+  cameraDistFactorSpin->setSingleStep(10);
+  cameraDistFactorSpin->setValue(cameraDistFactorNative);
+  connect(cameraDistFactorSpin,SIGNAL(valueChanged(int)),
+          this,                SLOT(cameraDistFactorChange(int)));
+  grpGrid->addWidget(cameraDistFactorSpin,0,1);
+
+  QSettings Settings;
+  cameraDistFactorDefaulSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"cameraDistFactorNative"));
+  cameraDistFactorDefaultBox = new QCheckBox("Set as default",cameraDistFactorGrpBox);
+  cameraDistFactorDefaultBox->setEnabled(nativeRenderer);
+  cameraDistFactorDefaultBox->setToolTip("Save to application settings.");
+  cameraDistFactorDefaultBox->setChecked(cameraDistFactorDefaulSettings);
+  grpGrid->addWidget(cameraDistFactorDefaultBox,1,0);
+
+  cameraDistFactorMetatBox = new QCheckBox("Add meta command",cameraDistFactorGrpBox);
+  cameraDistFactorMetatBox->setEnabled(nativeRenderer);
+  cameraDistFactorMetatBox->setToolTip("Add a global meta command to the LDraw file.");
+  cameraDistFactorMetatBox->setChecked(true);
+  grpGrid->addWidget(cameraDistFactorMetatBox,1,1);
+
+  clearCaches = false;
   rendererModified = false;
   singleCallModified = false;
   povFileGenModified = false;
+  cameraDistFactorModified = false;
 }
 
 void RendererGui::povFileGenNativeChange(bool checked)
 {
   povFileGenChoice = (checked ? RENDERER_NATIVE : RENDERER_LDVIEW);
   if (Preferences::povFileGenerator != povFileGenChoice){
-       povFileGenModified = true;
+       clearCaches = povFileGenModified = true;
     }
 }
 
@@ -2477,15 +2586,29 @@ void RendererGui::typeChange(QString const &type)
   pick = type;
   ldvSingleCallBox->setEnabled(pick == RENDERER_LDVIEW);
   povFileGeneratorGrpBox->setEnabled(pick == RENDERER_POVRAY);
+  cameraDistFactorGrpBox->setEnabled(pick == RENDERER_NATIVE);
   if (pick != RENDERER_LDVIEW) {
       ldvSingleCallBox->setChecked(false);
     }
+  QString tipMessage = QString("Native renderer camera distance factor - this control is enabled when Renderer set to Native.");
+  if (pick == RENDERER_NATIVE) {
+      cameraDistFactorDefaultBox->setEnabled(true);
+      cameraDistFactorMetatBox->setEnabled(true);
+      tipMessage = QString("Native renderer camera distance factor, adjust by 10, to scale renderings.");
+    }
+  cameraDistFactorGrpBox->setToolTip(tipMessage);
   if (pick != Preferences::preferredRenderer) {
       modified = rendererModified = true;
     }
 }
 
-void RendererGui::apply(QString & /* unused */ )
+void RendererGui::cameraDistFactorChange(int factor)
+{
+  meta->factor.setValue(factor);
+  clearCaches = cameraDistFactorModified = true;
+}
+
+void RendererGui::apply(QString &topLevelFile)
 {
   QSettings Settings;
   QString message;
@@ -2515,6 +2638,30 @@ void RendererGui::apply(QString & /* unused */ )
       emit gui->messageSig(LOG_INFO, changeMessage);
       Preferences::povFileGenerator = povFileGenChoice;
       Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovFileGenerator"),povFileGenChoice);
+    }
+  if (cameraDistFactorModified) {
+      changeMessage = QString("Native camera distance factor changed from %1 to %2")
+                      .arg(cameraDistFactorNative)
+                      .arg(meta->factor.value());
+      emit gui->messageSig(LOG_INFO, changeMessage);
+      if (cameraDistFactorDefaultBox->isChecked()){
+          changeMessage = QString("Factor added as application default.");
+          emit gui->messageSig(LOG_INFO, changeMessage);
+          Preferences::cameraDistFactorNative = meta->factor.value();
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative"),meta->factor.value());
+        } else
+        if (cameraDistFactorDefaulSettings) {
+            Settings.remove(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative"));
+          }
+      if (cameraDistFactorMetatBox->isChecked()){
+          MetaItem mi;
+          mi.setGlobalMeta(topLevelFile,&meta->factor);
+        }
+    }
+  if (!modified && clearCaches){
+      clearPliCache();
+      clearCsiCache();
+      clearTempCache();
     }
 }
 

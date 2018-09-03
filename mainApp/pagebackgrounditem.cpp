@@ -76,6 +76,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QMenu menu;
   QString name = "Page";
   bool fullContextMenu = page->list.size() && ! page->modelDisplayOnlyStep;
+  bool showCameraDistFactorItem = (Preferences::preferredRenderer == RENDERER_NATIVE && !page->coverPage);
 
   // figure out if first step step number is greater than 1
 
@@ -93,6 +94,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *subModelColorAction  = NULL;
 
   QAction *sizeAndOrientationAction = NULL;
+  QAction *cameraDistFactorAction = NULL;
 
   Step    *lastStep = NULL;
   Step    *firstStep = NULL;
@@ -178,6 +180,10 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       borderAction = commonMenus.borderMenu(menu,name);
     }
 
+  if (showCameraDistFactorItem){
+      cameraDistFactorAction = commonMenus.cameraDistFactorrMenu(menu,name);
+    }
+
   QAction *selectedAction     = menu.exec(event->screenPos());
 
   if (selectedAction == NULL) {
@@ -216,6 +222,15 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
           addPrevMultiStep(firstStep->topOfSteps(),firstStep->bottomOfSteps());
         } else if (selectedAction == clearPageCacheAction){
           gui->clearPageCSICache(relativeType,page);
+        }
+    }
+
+  if (showCameraDistFactorItem){
+      if (selectedAction == cameraDistFactorAction) {
+          changeCameraDistFactor("Native Renderer Camera Distance",
+                                 page->top,
+                                 page->bottom,
+                                 &page->meta.LPub.page.cameraDistNative.factor);
         }
     }
 

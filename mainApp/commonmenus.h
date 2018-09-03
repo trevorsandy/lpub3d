@@ -93,6 +93,10 @@ public:
           QMenu   &menu,
     const QString  name = "");
 
+  QAction *cameraDistFactorrMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
   QAction *backgroundMenu(
           QMenu   &menu, 
     const QString  name = "");

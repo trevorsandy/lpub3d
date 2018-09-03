@@ -1793,6 +1793,25 @@ public:
 };
 
 /*------------------------*/
+/*
+ * Native Camera Distance Factor Meta
+ */
+class CameraDistFactorMeta : public BranchMeta
+{
+public:
+  IntMeta     factor;
+
+  CameraDistFactorMeta();
+  CameraDistFactorMeta(const CameraDistFactorMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~CameraDistFactorMeta() {}
+  virtual void init(BranchMeta *parent,
+                    QString name);
+};
+
+/*------------------------*/
 
 class RemoveMeta : public BranchMeta
 {
@@ -2157,6 +2176,7 @@ public:
   NumberPlacementMeta       number;
   NumberPlacementMeta       instanceCount;
   StringListMeta            subModelColor;
+  CameraDistFactorMeta      cameraDistNative;
 
   PageHeaderMeta            pageHeader;
   PageFooterMeta            pageFooter;
@@ -2600,8 +2620,8 @@ const QString RcNames[47] =
      "CalloutDividerRc",
      "CalloutEndRc",
 
-      "DividerPointerRc",
-      "IllustrationPointerRc",
+     "DividerPointerRc",
+     "IllustrationPointerRc",
 
      "InsertRc",
      "InsertPageRc",

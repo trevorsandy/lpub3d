@@ -137,6 +137,7 @@ class Preferences
     static bool    enableImageMatting;
     static bool    enableHighlightStep;
     static int     highlightStepLineWidth;
+    static int     cameraDistFactorNative;
 
     static bool    includeLogLevel;
     static bool    includeTimestamp;

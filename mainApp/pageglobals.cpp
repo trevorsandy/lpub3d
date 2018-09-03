@@ -202,7 +202,7 @@ GlobalPageDialog::GlobalPageDialog(
   // child footer end
 
   // child header (one) start
-  widget = new QWidget();                       // existig 'model' widget definintion
+  widget = new QWidget();
   layout = new QVBoxLayout();
   widget->setLayout(layout);
   // child header end
@@ -216,11 +216,21 @@ GlobalPageDialog::GlobalPageDialog(
   data->children.append(child);
   //child body end
 
+  /*
+    "Native Renderer Camera Distance",
+  */
+  //child body (many) start
+  box = new QGroupBox(tr("Native Renderer Camera Distance"));
+  layout->addWidget(box);
+  child = new CameraDistFactorGui("Factor",&pageMeta->cameraDistNative,box);
+  data->children.append(child);
+  //child body end
+
   //spacer
   layout->addSpacerItem(vSpacer);
 
   // child footer (one) end
-  childtab->addTab(widget,"SubModel Colors");
+  childtab->addTab(widget,"SubModel/Factor");
   // child footer end
 
   // child header (one) start

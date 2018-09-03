@@ -62,6 +62,7 @@ public:
   virtual void apply(QString &topLevelFile) = 0;
 
   bool      modified;
+  QString   changeMessage;
 
 protected:
   LeafMeta *_meta;
@@ -521,6 +522,38 @@ public slots:
   void colorChange(bool clicked);
 };
 
+/***********************************************************************
+ *
+ * CameraDistFactor
+ *
+ **********************************************************************/
+
+class CameraDistFactorMeta;
+class QGroupBox;
+class QSpinBox;
+class CameraDistFactorGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  CameraDistFactorGui(
+    QString const &heading,
+    CameraDistFactorMeta *meta,
+    QGroupBox  *parent = NULL);
+  ~CameraDistFactorGui() {}
+
+  virtual void apply(QString &modelName);
+
+private:
+  CameraDistFactorMeta  *meta;
+
+  int       cameraDistFactorNative;
+  QSpinBox  *cameraDistFactorSpin;
+  QLabel    *cameraDistFactorLabel;
+
+public slots:
+   void cameraDistFactorChange(int factor);
+};
 
 /***********************************************************************
  *
@@ -775,31 +808,44 @@ class RendererGui : public MetaGui
   Q_OBJECT
 public:
 
-  RendererGui(QGroupBox *parent = NULL);
+  RendererGui(CameraDistFactorMeta *_meta,
+              QGroupBox *parent = NULL);
   ~RendererGui() {}
 
-  virtual void apply(QString &modelName);
+  virtual void apply(QString &topLevelFile);
 
 private:
+  CameraDistFactorMeta  *meta;
+
   QComboBox    *combo;
   QCheckBox    *ldvSingleCallBox;
+  QCheckBox    *cameraDistFactorDefaultBox;
+  QCheckBox    *cameraDistFactorMetatBox;
   QGroupBox    *povFileGeneratorGrpBox;
+  QGroupBox    *cameraDistFactorGrpBox;
   QRadioButton *nativeButton;
   QRadioButton *ldvButton;
 
   QString       pick;
   QString       povFileGenChoice;
-  QString       changeMessage;
 
+  int           cameraDistFactorNative;
+  QSpinBox      *cameraDistFactorSpin;
+  QLabel        *cameraDistFactorLabel;
+
+  bool          clearCaches;
   bool          rendererModified;
   bool          singleCallModified;
   bool          povFileGenModified;
+  bool          cameraDistFactorModified;
+  bool          cameraDistFactorDefaulSettings;
 
 public slots:
   void typeChange(QString const &); 
   void singleCallChange(bool checked);
   void povFileGenNativeChange(bool checked);
   void povFileGenLDViewChange(bool checked);
+  void cameraDistFactorChange(int factor);
 };
 
 /***********************************************************************

@@ -90,7 +90,7 @@ QString Preferences::ldgliteSearchDirs;
 QString Preferences::loggingLevel               = LOGGING_LEVEL_DEFAULT;
 QString Preferences::logPath;
 QString Preferences::dataLocation;
-QString Preferences::povFileGenerator           = RENDERER_NATIVE;
+QString Preferences::povFileGenerator           = RENDERER_LDVIEW;
 
 QStringList Preferences::ldSearchDirs;
 QStringList Preferences::ldgliteParms;
@@ -103,7 +103,7 @@ QString Preferences::copyright                  = QString(QObject::trUtf8("Copyr
 QString Preferences::plugImage                  = QString(":/resources/LPub64.png");
 QString Preferences::plug                       = QString(QObject::trUtf8("Instructions configured and generated using %1 %2 \n Download %1 at %3")
                                                           .arg(QString::fromLatin1(VER_PRODUCTNAME_STR),
-                                                               QString::fromLatin1(VER_FILEVERSION_STR),
+                                                               QString::fromLatin1(VER_FILEVERSION_STR).replace("\"",""),
                                                                QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
 
 bool    Preferences::lgeoStlLib                 = false;
@@ -171,6 +171,7 @@ int     Preferences::pageHeight                 = PAGE_HEIGHT_DEFAULT;
 int     Preferences::pageWidth                  = PAGE_WIDTH_DEFAULT;
 int     Preferences::rendererTimeout            = RENDERER_TIMEOUT_DEFAULT;          // measured in seconds
 int     Preferences::pageDisplayPause           = PAGE_DISPLAY_PAUSE_DEFAULT;        // measured in seconds
+int     Preferences::cameraDistFactorNative     = CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT;
 
 // Native Pov file generation settings
 QString Preferences::ldvLights                  = LIGHTS_COMBO_DEFAULT;
@@ -1530,6 +1531,13 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"RendererTimeout"),rendererTimeout);
     } else {
         rendererTimeout = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererTimeout")).toInt();
+    }
+
+    // Native renderer camera distance factor
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,"cameraDistFactorNative"))) {
+        cameraDistFactorNative = Settings.value(QString("%1/%2").arg(SETTINGS,"cameraDistFactorNative")).toInt();
+    } else {
+        cameraDistFactorNative = CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT;
     }
 
     // povray generation renderer

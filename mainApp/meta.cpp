@@ -248,8 +248,7 @@ Rc IntMeta::parse(QStringList &argv, int index,Where &here)
 }
 QString IntMeta::format(bool local, bool global)
 {
-  QString foo;
-  foo.arg(_value[pushed],0,base);
+  QString foo = QString("%1").arg(_value[pushed],0,base);
   
   return LeafMeta::format(local,global,foo);
 }
@@ -2319,6 +2318,26 @@ void HighlightStepMeta::init(
   highlightStep.init      (this, "HIGHLIGHT");
   highlightLineWidth.init (this, "HIGHLIGHT_LINE_WIDTH");
 }
+
+/* ------------------ */
+/*
+ * Native Camera Distance Factor Meta
+ */
+
+CameraDistFactorMeta::CameraDistFactorMeta() : BranchMeta()
+{
+    factor.setValue(CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT);
+}
+
+
+void CameraDistFactorMeta::init(
+    BranchMeta *parent,
+    QString name)
+{
+  AbstractMeta::init(parent, name);
+  factor.init(this, "FACTOR");
+}
+
 /* ------------------ */
 
 void RemoveMeta::init(BranchMeta *parent, QString name)
@@ -2593,6 +2612,12 @@ PageMeta::PageMeta() : BranchMeta()
   instanceCount.color.setValue("black");
   instanceCount.font.setValuePoints("Arial,48,-1,255,75,0,0,0,0,0");
 
+  cameraDistNative.factor.setRange(100,5000);
+  if (Preferences::cameraDistFactorNative !=  CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT)
+    cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
+  else
+    cameraDistNative.factor.setValue(CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT);
+
   subModelColor.setValue("#ffffff");
   subModelColor.setValue("#ffffcc");
   subModelColor.setValue("#ffcccc");
@@ -2826,6 +2851,8 @@ void PageMeta::init(BranchMeta *parent, QString name)
   number.init             (this, "NUMBER");
   instanceCount.init      (this, "SUBMODEL_INSTANCE_COUNT");
   subModelColor.init      (this, "SUBMODEL_BACKGROUND_COLOR");
+
+  cameraDistNative.init   (this, "CAMERA_DISTANCE_NATIVE");
 
   pageHeader.init         (this, "PAGE_HEADER");
   pageFooter.init         (this, "PAGE_FOOTER");

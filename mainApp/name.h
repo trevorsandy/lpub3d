@@ -70,7 +70,7 @@ enum IniStat { BeforeInit, AfterInit };
 #define RENDERER_LDVIEW                         "LDView"
 #define RENDERER_NATIVE                         "Native"
 
-#define RENDERER_TIMEOUT_DEFAULT          6    // measured in seconds
+#define CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT   260  // Native camera distance factor for A4 portrait; factor is about 450 for A4 landscape
 
 #define RENDERER_TIMEOUT_DEFAULT                6    // measured in seconds
 

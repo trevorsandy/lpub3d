@@ -270,6 +270,23 @@ QAction* CommonMenus::subModelColorMenu(
   return action;
 }
 
+QAction* CommonMenus::cameraDistFactorrMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QAction *action;
+
+  QString formatted = QString("Change %1 Camera Distance") .arg(name);
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/cameradistfactor.png"));
+
+  formatted = QString("You can change the %1 Native camera distance factor.") .arg(name);
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
+
 QAction* CommonMenus::backgroundMenu(
         QMenu   &menu,
   const QString  name)
@@ -805,7 +822,7 @@ QString CommonMenus::englishPlacementWhatsThis(
   QString whatsThis;
 
   whatsThis = name + ":\n";
-  whatsThis  += "LPub lets you put things next to other things.  In this case,\n" +
+  whatsThis  += "LPub3D lets you put things next to other things.  In this case,\n" +
                 englishPlacement(type,placementData) + "\n\n" + 
                 "Clicking \"" + name + "\" pops up a window with a list of\n"
                 "things you can put this " + type2english(type) + " next to.  It also\n" + 

@@ -58,6 +58,7 @@
 #include "sizeandorientationdialog.h"
 #include "rotateiconsizedialog.h"
 #include "submodelcolordialog.h"
+#include "cameradistfactordialog.h"
 #include "paths.h"
 #include "render.h"
 
@@ -1582,6 +1583,25 @@ void MetaItem::changeMargins(
   if (ok) {
     margin->setValues(values[0],values[1]);
     setMeta(topOfStep,bottomOfStep,margin,append,useTop,local);
+  }
+}
+
+void MetaItem::changeCameraDistFactor(
+  QString       title,
+  const Where  &topOfStep,
+  const Where  &bottomOfStep,
+  IntMeta     *factor,
+  int           append,
+  bool          local)
+{
+  int value;
+  value = factor->value();
+
+  bool ok = CameraDistFactorDialog::getCameraDistFactor(value,title,gui);
+
+  if (ok) {
+    factor->setValue(value);
+    setMetaTopOf(topOfStep,bottomOfStep,factor,append,local);
   }
 }
 

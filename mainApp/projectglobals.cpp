@@ -32,9 +32,8 @@ public:
   Meta       meta;
   QString    topLevelFile;
   QList<MetaGui *> children;
-  bool resetCache;
 
-  GlobalProjectPrivate(const QString &_topLevelFile, Meta &_meta, bool _resetCache = false)
+  GlobalProjectPrivate(const QString &_topLevelFile, Meta &_meta)
   {
     topLevelFile = _topLevelFile;
     meta = _meta;
@@ -63,7 +62,7 @@ GlobalProjectDialog::GlobalProjectDialog(
 
   QGroupBox *box = new QGroupBox("Renderer");
   layout->addWidget(box);
-  MetaGui *child = new RendererGui(box);
+  MetaGui *child = new RendererGui(&data->meta.LPub.page.cameraDistNative,box);
   data->children.append(child);
 
   box = new QGroupBox("Resolution");
@@ -99,6 +98,7 @@ void GlobalProjectDialog::getProjectGlobals(
 
 void GlobalProjectDialog::accept()
 {
+
   MetaItem mi;
 
   mi.beginMacro("Global Project");

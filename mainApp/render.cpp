@@ -70,9 +70,6 @@ Native  native;
 #define CA "-ca0.01"
 #define USE_ALPHA "+UA"
 
-//Native renderer scale factor
-#define SCALE_FACTOR_NATIVE 11658.9567325322
-
 //Enable LDView single call -SaveSnapshotsList flag
 //#ifndef LDVIEW_USE_SNAPSHOT_LIST
 //#define LDVIEW_USE_SNAPSHOT_LIST
@@ -1443,7 +1440,8 @@ float Native::cameraDistance(
     Meta &meta,
     float scale)
 {
-  return -stdCameraDistance(meta,scale) / SCALE_FACTOR_NATIVE;
+  Q_UNUSED(scale);
+  return -meta.LPub.page.cameraDistNative.factor.value();
 }
 
 int Native::renderCsi(
