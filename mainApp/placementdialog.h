@@ -82,9 +82,9 @@ public:
        csi,      ct, dlt,  dt,
         et,     mdt, mnt,  Ms,
       page,     pdt,  pf,  ph,
-      pit,      Pli, plt,  Pn,
-       pt,       ri, sic,  Sn,
-       tt,     urlt            // plus 5 more
+       pit,     Pli, plt,  Pn,
+        pt,      ri, sic,  Sn,
+        tt,    urlt            // plus 5 more
     };
 
   PlacementDialog(

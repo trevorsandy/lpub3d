@@ -324,6 +324,7 @@ int Step::createCsi(
 //                     << (calledOut ? "called out," : "simple,")
 //                     << (multiStep ? "step group" : "single step") << stepNumber.number
 //                     << "on page " << gui->stepPageNum << ".";
+
       }
   }
 

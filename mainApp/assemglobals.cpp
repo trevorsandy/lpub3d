@@ -139,10 +139,8 @@ void GlobalAssemDialog::accept()
   MetaItem mi;
 
   if (data->modelScale->modified) {
-    void clearCsiCache();
     clearCsiCache();
-    void clearCsi3dCache();
-    clearCsi3dCache();
+    clearTempCache();
   }
 
   mi.beginMacro("Global Assem");

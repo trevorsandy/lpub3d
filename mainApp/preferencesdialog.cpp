@@ -244,13 +244,15 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   bool nativePovFileGen = Preferences::povFileGenerator  == RENDERER_NATIVE;
   bool renderPOVRay     = Preferences::preferredRenderer == RENDERER_POVRAY;
+  ui.povNativeGenBox->setEnabled(renderPOVRay);
   ui.ldvPoVFileGenOptBtn->setEnabled(renderPOVRay);
   ui.ldvPoVFileGenPrefBtn->setEnabled(renderPOVRay);
   ui.povGenNativeRadio->setChecked(nativePovFileGen);
   ui.povGenLDViewRadio->setChecked(!nativePovFileGen);
   if (ui.povGenNativeRadio->isChecked())
       ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
-  else if (ui.povGenLDViewRadio->isChecked())
+  else
+  if (ui.povGenLDViewRadio->isChecked())
       ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
 
   ui.ldvPreferencesBtn->setEnabled(Preferences::preferredRenderer == RENDERER_LDVIEW);
@@ -543,6 +545,7 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
 {
       bool ldviewEnabled = (currentText == RENDERER_LDVIEW);
       bool povrayEnabled = (currentText == RENDERER_POVRAY);
+      ui.povNativeGenBox->setEnabled(povrayEnabled);
       ui.ldvPreferencesBtn->setEnabled(ldviewEnabled);
       ui.ldvPoVFileGenOptBtn->setEnabled(povrayEnabled);
       ui.ldvPoVFileGenPrefBtn->setEnabled(povrayEnabled);

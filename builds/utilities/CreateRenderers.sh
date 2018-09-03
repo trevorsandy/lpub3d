@@ -255,7 +255,7 @@ InstallDependencies() {
         ;;
       ldview)
         pkgbuildFile="$PWD/QT/OBS/PKGBUILD"
-        sed "s/'kdelibs'/'tinyxml' 'gl2ps'/g" -i $pkgbuildFile
+        sed -e "s/'kdelibs'/'tinyxml' 'gl2ps'/g" -e "s/'automoc4'//g" -e "s/'phonon-qt4-gstreamer'//g" -i $pkgbuildFile
         if [ ! -d /usr/share/mime ]; then
           $useSudo mkdir /usr/share/mime
         fi

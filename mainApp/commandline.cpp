@@ -150,7 +150,7 @@ int Gui::processCommandLine()
       if (Param == QLatin1String("--line-width"))
         ParseFloat(highlightLineWidth);
       else
-        emit messageSig(LOG_INFO,QString("Unknown commandline parameter: '%1'").arg(Param));
+        emit messageSig(LOG_INFO,QString("Unknown commandline parameter: '%1'.").arg(Param));
     }
 
   if (!preferredRenderer.isEmpty()){
@@ -177,11 +177,11 @@ int Gui::processCommandLine()
           renderer = RENDERER_POVRAY;
       }
       else {
-          emit messageSig(LOG_INFO,QString("Invalid renderer specified: '%1'").arg(renderer));
+          emit messageSig(LOG_INFO,QString("Invalid renderer specified: '%1'.").arg(renderer));
           return 1;
       }
       if (Preferences::preferredRenderer != renderer) {
-          QString message = QString("Renderer preference changed from %1 to %2 %3")
+          QString message = QString("Renderer preference changed from %1 to %2 %3.")
                             .arg(Preferences::preferredRenderer)
                             .arg(renderer)
                             .arg(renderer == RENDERER_POVRAY ? QString("(PoV file generator is %1)").arg(Preferences::povFileGenerator) :
@@ -200,12 +200,12 @@ int Gui::processCommandLine()
 
   if (fadeSteps && fadeSteps != Preferences::enableFadeSteps) {
       Preferences::enableFadeSteps = fadeSteps;
-      QString message = QString("Fade Previous Steps is ON.");
+      QString message = QString("Fade Previous Steps set to ON.");
       emit messageSig(LOG_INFO,message);
       if (fadeStepsColour.isEmpty()) {
           if (Preferences::fadeStepsUseColour){
               Preferences::fadeStepsUseColour = false;
-              QString message = QString("Use Global Fade Colour is OFF");
+              QString message = QString("Use Global Fade Colour set to OFF.");
               emit messageSig(LOG_INFO,message);
             }
         }
@@ -213,36 +213,33 @@ int Gui::processCommandLine()
 
   if ((fadeStepsOpacity != Preferences::fadeStepsOpacity) &&
       Preferences::enableFadeSteps) {
-          int previousOpacity = Preferences::fadeStepsOpacity;
-          Preferences::fadeStepsOpacity = fadeStepsOpacity;
-          QString message = QString("Fade Step Transparency changed from %1 to %2 percent")
-              .arg(previousOpacity)
-              .arg(Preferences::fadeStepsOpacity);
+          QString message = QString("Fade Step Transparency changed from %1 to %2 percent.")
+              .arg(Preferences::fadeStepsOpacity)
+              .arg(fadeStepsOpacity);
           emit messageSig(LOG_INFO,message);
+          Preferences::fadeStepsOpacity = fadeStepsOpacity;
     }
 
   if (!fadeStepsColour.isEmpty() && Preferences::enableFadeSteps) {
       if (!Preferences::fadeStepsUseColour){
           Preferences::fadeStepsUseColour = true;
-          QString message = QString("Use Global Fade Colour is ON");
+          QString message = QString("Use Global Fade Colour set to ON.");
           emit messageSig(LOG_INFO,message);
           fadeStepsOpacity = 100;
           if (fadeStepsOpacity != Preferences::fadeStepsOpacity ) {
-              int previousOpacity = Preferences::fadeStepsOpacity;
-              Preferences::fadeStepsOpacity = fadeStepsOpacity;
-              QString message = QString("Fade Step Transparency changed from %1 to %2 percent")
-                  .arg(previousOpacity)
-                  .arg(Preferences::fadeStepsOpacity);
+              QString message = QString("Fade Step Transparency changed from %1 to %2 percent.")
+                  .arg(Preferences::fadeStepsOpacity)
+                  .arg(fadeStepsOpacity);
               emit messageSig(LOG_INFO,message);
+              Preferences::fadeStepsOpacity = fadeStepsOpacity;
             }
         }
       if (LDrawColor::name(fadeStepsColour) != Preferences::fadeStepsColour) {
-          QString previousColour = Preferences::fadeStepsColour;
-          Preferences::fadeStepsColour = LDrawColor::name(fadeStepsColour);
-          QString message = QString("Fade Step Colour preference changed from %1 to %2")
-              .arg(previousColour.replace("_"," "))
-              .arg(QString(Preferences::fadeStepsColour).replace("_"," "));
+          QString message = QString("Fade Step Colour preference changed from %1 to %2.")
+              .arg(QString(Preferences::fadeStepsColour).replace("_"," "))
+              .arg(QString(LDrawColor::name(fadeStepsColour)).replace("_"," "));
           emit messageSig(LOG_INFO,message);
+          Preferences::fadeStepsColour = LDrawColor::name(fadeStepsColour);
         }
     }
 
@@ -256,7 +253,7 @@ int Gui::processCommandLine()
     } else {
       QString message;
       if (imageMatting && !Preferences::enableFadeSteps) {
-          message = QString("Image matte requires fade previous steps to be on.");
+          message = QString("Image matte requires fade previous steps set to ON.");
           emit messageSig(LOG_ERROR,message);
         }
 
@@ -264,64 +261,72 @@ int Gui::processCommandLine()
           message = QString("Image matte requires LDView renderer.");
           emit messageSig(LOG_ERROR,message);
         }
-      message = QString("Image matte flag will be ignored.");
-      emit messageSig(LOG_ERROR,message);
+      if (imageMatting) {
+          message = QString("Image matte flag will be ignored.");
+          emit messageSig(LOG_ERROR,message);
+        }
     }
 
   if (highlightStep && highlightStep != Preferences::enableHighlightStep) {
       Preferences::enableHighlightStep = highlightStep;
-      QString message = QString("Highlight Current Step is ON.");
+      QString message = QString("Highlight Current Step set to ON.");
       emit messageSig(LOG_INFO,message);
     }
 
   if ((highlightStepColour != Preferences::highlightStepColour) &&
       !highlightStepColour.isEmpty() &&
       Preferences::enableHighlightStep) {
-      QString previousColour = Preferences::highlightStepColour;
-      Preferences::highlightStepColour = highlightStepColour;
-      QString message = QString("Highlight Step Colour preference changed from %1 to %2")
-          .arg(previousColour)
-          .arg(Preferences::highlightStepColour);
+      QString message = QString("Highlight Step Colour preference changed from %1 to %2.")
+          .arg(Preferences::highlightStepColour)
+          .arg(highlightStepColour);
       emit messageSig(LOG_INFO,message);
+      Preferences::highlightStepColour = highlightStepColour;
     }
 
   if ((highlightLineWidth != Preferences::highlightStepLineWidth ) &&
       Preferences::enableHighlightStep) {
-      float previousLineWidth = Preferences::highlightStepLineWidth;
-      Preferences::highlightStepLineWidth = highlightLineWidth;
-      QString message = QString("Highlight Line Width preference changed from %1 to %2")
-          .arg(previousLineWidth)
-          .arg(Preferences::highlightStepLineWidth);
+      QString message = QString("Highlight Line Width preference changed from %1 to %2.")
+          .arg(Preferences::highlightStepLineWidth)
+          .arg(highlightLineWidth);
       emit messageSig(LOG_INFO,message);
+      Preferences::highlightStepLineWidth = highlightLineWidth;
     }
 
-  if (!commandlineFile.isEmpty())
-    if (!loadFile(commandlineFile))
-      return 1;
+  QElapsedTimer commandTimer;
+  if (!commandlineFile.isEmpty()) {
+      commandTimer.start();
+      if (!loadFile(commandlineFile)) {
+          return 1;
+        }
+    }
 
   if (processPageRange(pageRange)) {
       if (processFile){
           Preferences::pageDisplayPause = 1;
           continuousPageDialog(PAGE_NEXT);
-        } else if (processExport) {
-          if (exportOption == "pdf")
-            exportAsPdfDialog();
-          else
-          if (exportOption == "png")
-            exportAsPngDialog();
-          else
-          if (exportOption == "jpg")
-            exportAsJpgDialog();
-          else
-          if (exportOption == "bmp")
-            exportAsBmpDialog();
-          else
-            exportAsPdfDialog();
-        } else {
-          continuousPageDialog(PAGE_NEXT);
-        }
+        } else
+        if (processExport) {
+            if (exportOption == "pdf")
+               exportAsPdfDialog();
+            else
+            if (exportOption == "png")
+               exportAsPngDialog();
+            else
+            if (exportOption == "jpg")
+               exportAsJpgDialog();
+            else
+            if (exportOption == "bmp")
+               exportAsBmpDialog();
+            else
+               exportAsPdfDialog();
+          } else {
+            continuousPageDialog(PAGE_NEXT);
+          }
     } else
-       return 1;
+    return 1;
 
+  emit messageSig(LOG_INFO,QString("Model file '%1' processed. %2.")
+                          .arg(QFileInfo(commandlineFile).fileName())
+                          .arg(gui->elapsedTime(commandTimer.elapsed())));
   return 0;
 }

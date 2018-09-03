@@ -1435,7 +1435,6 @@ FadeStepGui::FadeStepGui(
         colorCombo->setDisabled(true);
     connect(colorCombo,SIGNAL(currentIndexChanged(QString const &)),
                    this, SLOT(colorChange(        QString const &)));
-    colorModified = false;
 
     grid->addWidget(colorCombo);
 
@@ -1452,7 +1451,7 @@ void FadeStepGui::colorChange(QString const &colorName)
   meta->fadeColor.setValue(LDrawColor::name(newColor.name()));
   colorExample->setPalette(QPalette(newColor));
   colorExample->setAutoFillBackground(true);
-  colorModified = true;
+  modified = true;
 }
 
 void FadeStepGui::apply(
@@ -1461,7 +1460,7 @@ void FadeStepGui::apply(
   MetaItem mi;
   mi.beginMacro("GlobalFadeStepSettings");
 
-  if (colorModified) {
+  if (modified) {
     mi.setGlobalMeta(topLevelFile,&meta->fadeColor);
   }
 
@@ -1504,7 +1503,6 @@ HighlightStepGui::HighlightStepGui(
         colorButton->setDisabled(true);
     connect(colorButton,SIGNAL(clicked(bool)),
                    this, SLOT(colorChange(bool)));
-    colorModified = false;
 
     grid->addWidget(colorButton);
 
@@ -1522,7 +1520,8 @@ void HighlightStepGui::colorChange(bool clicked)
   if( highlightColour.isValid()) {
     colorExample->setPalette(QPalette(highlightColour));
     colorExample->setAutoFillBackground(true);
-    colorModified = true;
+    meta->highlightColor.setValue(highlightColour.name());
+    modified = true;
   }
 }
 
@@ -1532,7 +1531,7 @@ void HighlightStepGui::apply(
   MetaItem mi;
   mi.beginMacro("GlobalHighlightStepSettings");
 
-  if (colorModified) {
+  if (modified) {
     mi.setGlobalMeta(topLevelFile,&meta->highlightColor);
   }
 

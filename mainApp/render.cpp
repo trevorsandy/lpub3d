@@ -234,7 +234,7 @@ bool clipImage(QString const &pngName) {
     if (Writer.format().isEmpty())
             Writer.setFormat("PNG");
 
-    if (!Writer.write(clippedImage)) {
+    if (Writer.write(clippedImage)) {
         emit gui->messageSig(LOG_STATUS, QString("Clipped image saved '%1'")
                              .arg(clipMsg));
     } else {

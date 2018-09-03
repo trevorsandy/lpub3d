@@ -14,6 +14,8 @@
 
 #include "lgraphicsview.h"
 
+#include <QtOpenGL>
+
 // drag and drop
 #include <QDragLeaveEvent>
 #include <QDragMoveEvent>

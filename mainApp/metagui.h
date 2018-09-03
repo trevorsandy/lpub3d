@@ -38,6 +38,9 @@
 
 void clearPliCache();
 void clearAndRedrawPage();
+void clearCsiCache();
+void clearPliCache();
+void clearTempCache();
 
 class QWidget;
 class QString;
@@ -477,7 +480,6 @@ public:
 private:
   FadeStepMeta  *meta;
 
-  bool        colorModified;
   QLabel      *colorLabel;
   QComboBox   *colorCombo;
   QLabel      *colorExample;
@@ -511,7 +513,6 @@ public:
 private:
   HighlightStepMeta  *meta;
 
-  bool        colorModified;
   QLabel      *colorLabel;
   QPushButton *colorButton;
   QLabel      *colorExample;

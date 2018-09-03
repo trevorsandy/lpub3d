@@ -420,7 +420,7 @@ enum Direction { PAGE_PREVIOUS, PAGE_NEXT };
 
 void clearPliCache();
 void clearCsiCache();
-void clearCsi3dCache();
+void clearTempCache();
 void clearAndRedrawPage();
 
 class Gui : public QMainWindow

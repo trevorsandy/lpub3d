@@ -96,10 +96,11 @@ void clearCsiCache()
   gui->clearCSICache();
 }
 
-void clearCsi3dCache()
+void clearTempCache()
 {
-    gui->clearTempCache();
+  gui->clearTempCache();
 }
+
 /****************************************************************************
  * 
  * The Gui constructor and destructor are at the bottom of the file with
@@ -439,12 +440,14 @@ bool Gui::continuousPageDialog(Direction d)
   int pageCount = 0;
   int _maxPages    = 0;
   bool terminateProcess = false;
+  QElapsedTimer continuousTimer;
 
   QString direction = d == PAGE_NEXT ? "Next" : "Previous";
 
   exportType = PAGE_PROCESS;
 
   if (Preferences::modeGUI) {
+      continuousTimer.start();
       if (Preferences::doNotShowPageProcessDlg) {
           if (!processPageRange(setPageLineEdit->displayText())) {
               if (d == PAGE_NEXT)
@@ -654,7 +657,12 @@ bool Gui::continuousPageDialog(Direction d)
       previousPageContinuousIsRunning = false;
     }
 
-  emit messageSig(LOG_STATUS,QString("%1 page processing completed. %2 of %3 pages processed.").arg(direction).arg(pageCount).arg(_maxPages));
+  emit messageSig(LOG_STATUS,QString("%1 page processing completed. %2 of %3 %4 processed%5.") // continuousTimer
+                                     .arg(direction)
+                                     .arg(pageCount)
+                                     .arg(_maxPages)
+                                     .arg(_maxPages > 1 ? "pages" : "page")
+                                     .arg(Preferences::modeGUI ? QString(". %1").arg(gui->elapsedTime(continuousTimer.elapsed())) : ""));
 
   return true;
 }
@@ -1591,56 +1599,56 @@ void Gui::preferences()
         if (enableFadeStepsChanged)
         {
             gApplication->mFadeParts = Preferences::enableFadeSteps;
-            logInfo() << QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF");
+            emit messageSig(LOG_INFO,QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF"));
         }
 
         if (fadeStepsUseColourChanged && Preferences::enableFadeSteps)
-            logInfo() << QString("Use Global Fade Colour is %1").arg(Preferences::fadeStepsUseColour ? "ON" : "OFF");
+            emit messageSig(LOG_INFO,QString("Use Global Fade Colour is %1").arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
 
         if (fadeStepsOpacityChanged && Preferences::enableFadeSteps)
-            logInfo() << QString("Fade Step Transparency changed from %1 to %2 percent")
+            emit messageSig(LOG_INFO,QString("Fade Step Transparency changed from %1 to %2 percent")
                                  .arg(fadeStepsOpacityCompare)
-                                 .arg(Preferences::fadeStepsOpacity);
+                                 .arg(Preferences::fadeStepsOpacity));
 
         if (fadeStepsColourChanged && Preferences::enableFadeSteps && Preferences::fadeStepsUseColour)
-            logInfo() << QString("Fade Step Colour preference changed from %1 to %2")
+            emit messageSig(LOG_INFO,QString("Fade Step Colour preference changed from %1 to %2")
                                  .arg(fadeStepsColourCompare.replace("_"," "))
-                                 .arg(QString(Preferences::fadeStepsColour).replace("_"," "));
+                                 .arg(QString(Preferences::fadeStepsColour).replace("_"," ")));
 
         if (enableHighlightStepChanged)
-            logInfo() << QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF");
+            emit messageSig(LOG_INFO,QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
 
         if (highlightStepLineWidthChanged && Preferences::enableHighlightStep)
-            logInfo() << QString("Highlight Step line width changed from %1 to %2")
+            emit messageSig(LOG_INFO,QString("Highlight Step line width changed from %1 to %2")
                                  .arg(highlightStepLineWidthCompare)
-                                 .arg(Preferences::highlightStepLineWidth);
+                                 .arg(Preferences::highlightStepLineWidth));
 
         if (highlightStepColorChanged && Preferences::enableHighlightStep)
-            logInfo() << QString("Highlight Step Colour preference changed from %1 to %2")
+            emit messageSig(LOG_INFO,QString("Highlight Step Colour preference changed from %1 to %2")
                                  .arg(highlightStepColourCompare)
-                                 .arg(Preferences::highlightStepColour);
+                                 .arg(Preferences::highlightStepColour));
 
         if (ldrawPathChanged)
-            logInfo() << QString("LDraw path preference changed from %1 to %1")
+            emit messageSig(LOG_INFO,QString("LDraw path preference changed from %1 to %1")
                                  .arg(ldrawPathCompare)
-                                 .arg(Preferences::ldrawPath);
+                                 .arg(Preferences::ldrawPath));
 
         if (lgeoPathChanged && !ldrawPathChanged)
-            logInfo() << QString("LGEO path preference changed from %1 to %1")
+            emit messageSig(LOG_INFO,QString("LGEO path preference changed from %1 to %1")
                                  .arg(lgeoPathCompare)
-                                 .arg(Preferences::lgeoPath);
+                                 .arg(Preferences::lgeoPath));
 
         if (generateCoverPagesChanged)
-            logInfo() << QString("Generate Cover Pages preference is %1").arg(Preferences::generateCoverPages ? "ON" : "OFF");
+            emit messageSig(LOG_INFO,QString("Generate Cover Pages preference is %1").arg(Preferences::generateCoverPages ? "ON" : "OFF"));
 
 
         if (pageDisplayPauseChanged)
-            logInfo() << QString("Continuous process page display pause changed from %1 to %2")
+            emit messageSig(LOG_INFO,QString("Continuous process page display pause changed from %1 to %2")
                               .arg(highlightStepLineWidthCompare)
-                              .arg(Preferences::pageDisplayPause);
+                              .arg(Preferences::pageDisplayPause));
 
         if (doNotShowPageProcessDlgChanged)
-            logInfo() << QString("Show continuous page process options dialog is %1.").arg(Preferences::doNotShowPageProcessDlg ? "ON" : "OFF");
+            emit messageSig(LOG_INFO,QString("Show continuous page process options dialog is %1.").arg(Preferences::doNotShowPageProcessDlg ? "ON" : "OFF"));
 
         if ((((fadeStepsColourChanged && Preferences::fadeStepsUseColour) ||
             fadeStepsUseColourChanged || fadeStepsOpacityChanged) &&
@@ -1650,9 +1658,9 @@ void Gui::preferences()
            clearCustomPartCache(true);    // true = silent
 
         if (enableImageMattingChanged && Preferences::enableImageMatting)
-            logInfo() << QString("Enable image matting preference changed from %1 to %2")
+            emit messageSig(LOG_INFO,QString("Enable image matting preference changed from %1 to %2")
                                  .arg(enableImageMattingCompare)
-                                 .arg(Preferences::enableImageMatting);
+                                 .arg(Preferences::enableImageMatting));
 
         if (rendererChanged) {
             emit messageSig(LOG_INFO,QString("Renderer preference changed from %1 to %2 %3")
@@ -1669,9 +1677,9 @@ void Gui::preferences()
             emit messageSig(LOG_INFO,QString("Use LDView Single Call is %1").arg(Preferences::useLDViewSingleCall ? "ON" : "OFF"));
 
         if (povFileGeneratorChanged)
-            logInfo() << QString("POV file generation renderer changed from %1 to %2")
+            emit messageSig(LOG_INFO,QString("POV file generation renderer changed from %1 to %2")
                          .arg(povFileGeneratorCompare)
-                         .arg(Preferences::povFileGenerator);
+                         .arg(Preferences::povFileGenerator));
 
         if (!getCurFile().isEmpty()) {
             if (enableFadeStepsChanged        ||
@@ -1712,8 +1720,8 @@ void Gui::preferences()
                 Level logLevel = logger.fromLevelString(Preferences::loggingLevel,&ok);
                 if (!ok)
                   emit messageSig(LOG_ERROR,QMessageBox::tr("Failed to set log level %1.\n"
-                                                                 "Logging is off - level set to OffLevel")
-                                                                 .arg(Preferences::loggingLevel));
+                                                            "Logging is off - level set to OffLevel")
+                                                            .arg(Preferences::loggingLevel));
                 logger.setLoggingLevel(logLevel);
               }
 
@@ -1751,164 +1759,164 @@ void Gui::preferences()
 
         // Native Pov file generation settings
         if (qualityChanged && nativePovRendererConfig)
-                logInfo() << QString("Quality changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Quality changed from %1 to %2.")
                                      .arg(qualityCompare)
-                                     .arg(TCUserDefaults::longForKey(QUALITY_EXPORT_KEY, QUALITY_EXPORT_DEFAULT));
+                                     .arg(TCUserDefaults::longForKey(QUALITY_EXPORT_KEY, QUALITY_EXPORT_DEFAULT)));
 
         if (selectedAspectRatioChanged && nativePovRendererConfig)
-                logInfo() << QString("Selected aspect ratio changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Selected aspect ratio changed from %1 to %2.")
                                      .arg(selectedAspectRatioCompare)
-                                     .arg(selectedAspectRatio);
+                                     .arg(selectedAspectRatio));
 
         if (customAspectRatioChanged && nativePovRendererConfig)
-                logInfo() << QString("Custom aspect ratio changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Custom aspect ratio changed from %1 to %2.")
                                      .arg(customAspectRatioCompare)
-                                     .arg(TCUserDefaults::floatForKey(CUSTOM_ASPECT_RATIO_KEY, CUSTOM_ASPECT_RATIO_DEFAULT));
+                                     .arg(TCUserDefaults::floatForKey(CUSTOM_ASPECT_RATIO_KEY, CUSTOM_ASPECT_RATIO_DEFAULT)));
 
 	if (edgeRadiusChanged && nativePovRendererConfig)
-		logInfo() << QString("Edge radius changed from %1 to %2.")
+		emit messageSig(LOG_INFO,QString("Edge radius changed from %1 to %2.")
 				     .arg(edgeRadiusCompare)
-				     .arg(TCUserDefaults::floatForKey(EDGE_RADIUS_KEY, EDGE_RADIUS_DEFAULT));
+				     .arg(TCUserDefaults::floatForKey(EDGE_RADIUS_KEY, EDGE_RADIUS_DEFAULT)));
 
         if (seamWidthChanged && nativePovRendererConfig)
-                logInfo() << QString("Seam width changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Seam width changed from %1 to %2.")
                                      .arg(seamWidthCompare)
-                                     .arg(TCUserDefaults::floatForKey(SEAM_WIDTH_KEY, EDGE_RADIUS_DEFAULT));
+                                     .arg(TCUserDefaults::floatForKey(SEAM_WIDTH_KEY, EDGE_RADIUS_DEFAULT)));
 
         if (ambientChanged && nativePovRendererConfig)
-                logInfo() << QString("Ambient changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Ambient changed from %1 to %2.")
                                      .arg(ambientCompare)
-                                     .arg(TCUserDefaults::floatForKey(AMBIENT_KEY, AMBIENT_DEFAULT));
+                                     .arg(TCUserDefaults::floatForKey(AMBIENT_KEY, AMBIENT_DEFAULT)));
 
         if (diffuseChanged && nativePovRendererConfig)
-                logInfo() << QString("Diffuse changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Diffuse changed from %1 to %2.")
                                      .arg(diffuseCompare)
-                                     .arg(TCUserDefaults::floatForKey(DIFFUSE_KEY, DIFFUSE_DEFAULT));
+                                     .arg(TCUserDefaults::floatForKey(DIFFUSE_KEY, DIFFUSE_DEFAULT)));
 
         if (reflChanged && nativePovRendererConfig)
-                logInfo() << QString("Reflection changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Reflection changed from %1 to %2.")
                                      .arg(reflCompare)
-                                     .arg(TCUserDefaults::floatForKey(REFLECTION_KEY, REFLECTION_DEFAULT) );
+                                     .arg(TCUserDefaults::floatForKey(REFLECTION_KEY, REFLECTION_DEFAULT) ));
 
         if (phongChanged && nativePovRendererConfig)
-                logInfo() << QString("Phong changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Phong changed from %1 to %2.")
                                      .arg(phongCompare)
-                                     .arg(TCUserDefaults::floatForKey(PHONG_KEY, PHONG_DEFAULT));
+                                     .arg(TCUserDefaults::floatForKey(PHONG_KEY, PHONG_DEFAULT)));
 
         if (phongSizeChanged && nativePovRendererConfig)
-                logInfo() << QString("Phong size changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Phong size changed from %1 to %2.")
                                      .arg(phongSizeCompare)
-                                     .arg(TCUserDefaults::floatForKey(PHONG_SIZE_KEY, PHONG_SIZE_DEFAULT));
+                                     .arg(TCUserDefaults::floatForKey(PHONG_SIZE_KEY, PHONG_SIZE_DEFAULT)));
 
         if (transReflChanged && nativePovRendererConfig)
-                logInfo() << QString("Trans reflection changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Trans reflection changed from %1 to %2.")
                                      .arg(transReflCompare)
-                                     .arg(TCUserDefaults::floatForKey(TRANS_REFLECTION_KEY, TRANS_REFLECTION_DEFAULT));
+                                     .arg(TCUserDefaults::floatForKey(TRANS_REFLECTION_KEY, TRANS_REFLECTION_DEFAULT)));
 
         if (transFilterChanged && nativePovRendererConfig)
-                logInfo() << QString("Trans filter changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Trans filter changed from %1 to %2.")
                                      .arg(transFilterCompare)
-                                     .arg(TCUserDefaults::floatForKey(TRANS_FILTER_KEY, TRANS_FILTER_DEFAULT));
+                                     .arg(TCUserDefaults::floatForKey(TRANS_FILTER_KEY, TRANS_FILTER_DEFAULT)));
 
         if (transIoRChanged && nativePovRendererConfig)
-                logInfo() << QString("Trans IoR changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Trans IoR changed from %1 to %2.")
                                      .arg(transIoRCompare)
-                                     .arg(TCUserDefaults::floatForKey(TRANS_IOR_KEY, TRANS_IOR_DEFAULT));
+                                     .arg(TCUserDefaults::floatForKey(TRANS_IOR_KEY, TRANS_IOR_DEFAULT)));
 
         if (rubberReflChanged && nativePovRendererConfig)
-                logInfo() << QString("Rubber reflection changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Rubber reflection changed from %1 to %2.")
                                      .arg(rubberReflCompare)
-                                     .arg(TCUserDefaults::floatForKey(RUBBER_REFLECTION_KEY, RUBBER_REFLECTION_DEFAULT));
+                                     .arg(TCUserDefaults::floatForKey(RUBBER_REFLECTION_KEY, RUBBER_REFLECTION_DEFAULT)));
 
         if (rubberPhongChanged && nativePovRendererConfig)
-                logInfo() << QString("Rubber phong changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Rubber phong changed from %1 to %2.")
                                      .arg(rubberPhongCompare)
-                                     .arg(TCUserDefaults::floatForKey(RUBBER_PHONG_KEY, RUBBER_PHONG_DEFAULT));
+                                     .arg(TCUserDefaults::floatForKey(RUBBER_PHONG_KEY, RUBBER_PHONG_DEFAULT)));
 
         if (rubberPhongSizeChanged && nativePovRendererConfig)
-                logInfo() << QString("Rubber phong size changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Rubber phong size changed from %1 to %2.")
                                      .arg(rubberPhongSizeCompare)
-                                     .arg(TCUserDefaults::floatForKey(RUBBER_PHONG_SIZE_KEY, RUBBER_PHONG_SIZE_DEFAULT));
+                                     .arg(TCUserDefaults::floatForKey(RUBBER_PHONG_SIZE_KEY, RUBBER_PHONG_SIZE_DEFAULT)));
 
         if (chromeReflChanged && nativePovRendererConfig)
-                logInfo() << QString("Chrome reflection changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Chrome reflection changed from %1 to %2.")
                                      .arg(chromeReflCompare)
-                                     .arg(TCUserDefaults::floatForKey(CHROME_REFLECTION_KEY, CHROME_REFLECTION_DEFAULT));
+                                     .arg(TCUserDefaults::floatForKey(CHROME_REFLECTION_KEY, CHROME_REFLECTION_DEFAULT)));
 
         if (chromeBrilChanged && nativePovRendererConfig)
-                logInfo() << QString("Chrome brilliance changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Chrome brilliance changed from %1 to %2.")
                                      .arg(chromeBrilCompare)
-                                     .arg(TCUserDefaults::floatForKey(CHROME_BRILLIANCE_KEY, CHROME_BRILLIANCE_DEFAULT));
+                                     .arg(TCUserDefaults::floatForKey(CHROME_BRILLIANCE_KEY, CHROME_BRILLIANCE_DEFAULT)));
 
         if (chromeSpecularChanged && nativePovRendererConfig)
-                logInfo() << QString("Chrome specular changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Chrome specular changed from %1 to %2.")
                                      .arg(chromeSpecularCompare)
-                                     .arg(TCUserDefaults::floatForKey(CHROME_SPECULAR_KEY, CHROME_SPECULAR_DEFAULT));
+                                     .arg(TCUserDefaults::floatForKey(CHROME_SPECULAR_KEY, CHROME_SPECULAR_DEFAULT)));
 
         if (chromeRoughnessChanged && nativePovRendererConfig)
-                logInfo() << QString("Chrome roughness changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("Chrome roughness changed from %1 to %2.")
                                      .arg(chromeRoughnessCompare)
-                                     .arg(TCUserDefaults::floatForKey(CHROME_ROUGHNESS_KEY, CHROME_ROUGHNESS_DEFAULT));
+                                     .arg(TCUserDefaults::floatForKey(CHROME_ROUGHNESS_KEY, CHROME_ROUGHNESS_DEFAULT)));
 
         if (fileVersionChanged && nativePovRendererConfig)
-                logInfo() << QString("File version changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("File version changed from %1 to %2.")
                                      .arg(fileVersionCompare)
-                                     .arg(TCUserDefaults::floatForKey(FILE_VERSION_KEY, FILE_VERSION_DEFAULT));
+                                     .arg(TCUserDefaults::floatForKey(FILE_VERSION_KEY, FILE_VERSION_DEFAULT)));
 
         if (seamsChanged && nativePovRendererConfig)
-                logInfo() << QString("Seams is %1.").arg(TCUserDefaults::boolForKey(SEAMS_KEY, true) ? "ON" : "OFF");
+                emit messageSig(LOG_INFO,QString("Seams is %1.").arg(TCUserDefaults::boolForKey(SEAMS_KEY, true) ? "ON" : "OFF"));
 
         if (reflectionsChanged && nativePovRendererConfig)
-                logInfo() << QString("Reflections is %1.").arg(TCUserDefaults::boolForKey(REFLECTIONS_KEY, true) ? "ON" : "OFF");
+                emit messageSig(LOG_INFO,QString("Reflections is %1.").arg(TCUserDefaults::boolForKey(REFLECTIONS_KEY, true) ? "ON" : "OFF"));
 
         if (shadowsChanged && nativePovRendererConfig)
-                logInfo() << QString("Shadows is %1.").arg(TCUserDefaults::boolForKey(SHADOWS_KEY, true) ? "ON" : "OFF");
+                emit messageSig(LOG_INFO,QString("Shadows is %1.").arg(TCUserDefaults::boolForKey(SHADOWS_KEY, true) ? "ON" : "OFF"));
 
         if (xmlMapChanged && nativePovRendererConfig)
-                logInfo() << QString("Xml map is %1.").arg(TCUserDefaults::boolForKey(XML_MAP_KEY, true) ? "ON" : "OFF");
+                emit messageSig(LOG_INFO,QString("Xml map is %1.").arg(TCUserDefaults::boolForKey(XML_MAP_KEY, true) ? "ON" : "OFF"));
 
         if (inlinePovChanged && nativePovRendererConfig)
-                logInfo() << QString("Inline Pov is %1.").arg(TCUserDefaults::boolForKey(INLINE_POV_KEY, true) ? "ON" : "OFF");
+                emit messageSig(LOG_INFO,QString("Inline Pov is %1.").arg(TCUserDefaults::boolForKey(INLINE_POV_KEY, true) ? "ON" : "OFF"));
 
         if (smoothCurvesChanged && nativePovRendererConfig)
-                logInfo() << QString("Smooth curves is %1.").arg(TCUserDefaults::boolForKey(SMOOTH_CURVES_KEY, true) ? "ON" : "OFF");
+                emit messageSig(LOG_INFO,QString("Smooth curves is %1.").arg(TCUserDefaults::boolForKey(SMOOTH_CURVES_KEY, true) ? "ON" : "OFF"));
 
         if (hideStudsChanged && nativePovRendererConfig)
-                logInfo() << QString("Hide studs is %1.").arg(TCUserDefaults::boolForKey(HIDE_STUDS_KEY, false) ? "ON" : "OFF");
+                emit messageSig(LOG_INFO,QString("Hide studs is %1.").arg(TCUserDefaults::boolForKey(HIDE_STUDS_KEY, false) ? "ON" : "OFF"));
 
         if (unmirrorStudsChanged && nativePovRendererConfig)
-                logInfo() << QString("Unmirror Studs is %1.").arg(TCUserDefaults::boolForKey(UNMIRROR_STUDS_KEY, true) ? "ON" : "OFF");
+                emit messageSig(LOG_INFO,QString("Unmirror Studs is %1.").arg(TCUserDefaults::boolForKey(UNMIRROR_STUDS_KEY, true) ? "ON" : "OFF"));
 
 	if (findReplacementsChanged && nativePovRendererConfig)
-		logInfo() << QString("Find POV replacements is %1.").arg(TCUserDefaults::boolForKey(FIND_REPLACEMENTS_KEY, false) ? "ON" : "OFF");
+		emit messageSig(LOG_INFO,QString("Find POV replacements is %1.").arg(TCUserDefaults::boolForKey(FIND_REPLACEMENTS_KEY, false) ? "ON" : "OFF"));
 
         if (conditionalEdgeLinesChanged && nativePovRendererConfig)
-                logInfo() << QString("Conditional edge lines is %1.").arg(TCUserDefaults::boolForKey(CONDITIONAL_EDGE_LINES_KEY, false) ? "ON" : "OFF");
+                emit messageSig(LOG_INFO,QString("Conditional edge lines is %1.").arg(TCUserDefaults::boolForKey(CONDITIONAL_EDGE_LINES_KEY, false) ? "ON" : "OFF"));
 
         if (primitiveSubstitutionChanged && nativePovRendererConfig)
-                logInfo() << QString("Primitive Substitution is %1.").arg(TCUserDefaults::boolForKey(PRIMITIVE_SUBSTITUTION_KEY, true) ? "ON" : "OFF");
+                emit messageSig(LOG_INFO,QString("Primitive Substitution is %1.").arg(TCUserDefaults::boolForKey(PRIMITIVE_SUBSTITUTION_KEY, true) ? "ON" : "OFF"));
 
 //                                   TCUserDefaults::boolForKey(DRAW_EDGES_KEY, false)
 
         if (xmlMapPathChanged && nativePovRendererConfig)
-                logInfo() << QString("XmlMapPath changed from %1 to %2.")
+                emit messageSig(LOG_INFO,QString("XmlMapPath changed from %1 to %2.")
                                  .arg(xmlMapPathCompare)
-                                 .arg(TCUserDefaults::pathForKey(XML_MAP_PATH_KEY));
+                                 .arg(TCUserDefaults::pathForKey(XML_MAP_PATH_KEY)));
 
 	if (topIncludeChanged && nativePovRendererConfig)
-		logInfo() << QString("Top Include changed from %1 to %2.")
+		emit messageSig(LOG_INFO,QString("Top Include changed from %1 to %2.")
 				 .arg(topIncludeCompare)
-				 .arg(TCUserDefaults::stringForKey(TOP_INCLUDE_KEY));
+				 .arg(TCUserDefaults::stringForKey(TOP_INCLUDE_KEY)));
 
 	if (bottomIncludeChanged && nativePovRendererConfig)
-		logInfo() << QString("Bottom Include changed from %1 to %2.")
+		emit messageSig(LOG_INFO,QString("Bottom Include changed from %1 to %2.")
 				 .arg(bottomIncludeCompare)
-				 .arg(TCUserDefaults::stringForKey(BOTTOM_INCLUDE_KEY));
+				 .arg(TCUserDefaults::stringForKey(BOTTOM_INCLUDE_KEY)));
 
 	if (lightsChanged && nativePovRendererConfig)
-		logInfo() << QString("Lights changed from %1 to %2.")
+		emit messageSig(LOG_INFO,QString("Lights changed from %1 to %2.")
 				 .arg(lightsCompare)
-				 .arg(Preferences::ldvLights);
+				 .arg(Preferences::ldvLights));
     }
 }
 
@@ -2696,7 +2704,7 @@ void Gui::createActions()
     clearCSICacheAct->setStatusTip(tr("Reset the assembly image cache"));
     connect(clearCSICacheAct, SIGNAL(triggered()), this, SLOT(clearCSICache()));
 
-    clearTempCacheAct = new QAction(QIcon(":/resources/clearcsi3dcache.png"),tr("Reset Temp File Cache"), this);
+    clearTempCacheAct = new QAction(QIcon(":/resources/cleartempcache.png"),tr("Reset Temp File Cache"), this);
     clearTempCacheAct->setStatusTip(tr("Reset the Temp file and 3D viewer image cache"));
     connect(clearTempCacheAct, SIGNAL(triggered()), this, SLOT(clearTempCache()));
 

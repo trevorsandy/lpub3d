@@ -26,7 +26,7 @@
         <file alias="clearpagecache.png">images/clearpagecache.png</file>
         <file alias="clearplicache.png">images/clearplicache.png</file>
         <file alias="clearcsicache.png">images/clearcsicache.png</file>
-        <file alias="clearcsi3dcache.png">images/clearcsi3dcache.png</file>
+        <file alias="cleartempcache.png">images/cleartempcache.png</file>
         <file alias="clearcustompartcache.png">images/clearcustompartcache.png</file>
         <file alias="clearstepcache.png">images/clearstepcache.png</file>
         <file alias="closemodelfile.png">images/closemodelfile.png</file>
