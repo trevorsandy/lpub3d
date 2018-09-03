@@ -41,6 +41,8 @@
 #include "meta.h"
 #include "lpub.h"
 
+#include "pagesizes.h"
+
 /* The token map translates known keywords to values 
  * used by LPub to identify things like placement and such
  */
@@ -1512,10 +1514,11 @@ void PageSizeMeta::init(
 }
 Rc PageSizeMeta::parse(QStringList &argv, int index,Where &here)
 {
+  float v0 = 0, v1 = 0;
   if (argv.size() - index >= 2) {
       bool ok[2];
-      float v0 = argv[index  ].toFloat(&ok[0]);
-      float v1 = argv[index+1].toFloat(&ok[1]);
+      v0 = argv[index  ].toFloat(&ok[0]);
+      v1 = argv[index+1].toFloat(&ok[1]);
       if (ok[0] && ok[1]) {
           if (v0 < _min || v0 > _max ||
               v1 < _min || v1 > _max) {
@@ -1523,7 +1526,6 @@ Rc PageSizeMeta::parse(QStringList &argv, int index,Where &here)
             }
           _value[pushed].pagesize[pushed][0] = v0;
           _value[pushed].pagesize[pushed][1] = v1;
-
 
           if (argv.size() - index == 3) {
               _value[pushed].sizeid = argv[index+2];
@@ -1533,10 +1535,37 @@ Rc PageSizeMeta::parse(QStringList &argv, int index,Where &here)
           _here[pushed] = here;
           return PageSizeRc;
         }
+    } else
+    if ((argv.size() - index == 1) && !(argv[index].toLower() == "custom")) {
+      QString pageType = argv[index];
+      bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
+      int  numPageTypes = PageSizes::numPageTypes();
+      for (int i = 0; i < numPageTypes; i++) {
+          if (pageType.toLower() == PageSizes::pageTypeSizeID(i).toLower()) {
+              v0 = dpi ? PageSizes::pageWidthIn(i) : PageSizes::pageWidthCm(i);
+              v1 = dpi ? PageSizes::pageHeightIn(i) : PageSizes::pageHeightCm(i);
+              break;
+            }
+        }
+
+      if (v0 == 0.0 || v1 == 0.0 ) {
+          return FailureRc;
+        }
+
+      if (v0 < _min || v0 > _max ||
+          v1 < _min || v1 > _max) {
+          return RangeErrorRc;
+        }
+
+      _value[pushed].pagesize[pushed][0] = v0;
+      _value[pushed].pagesize[pushed][1] = v1;
+      _value[pushed].sizeid = pageType;
+      _here[pushed] = here;
+      return PageSizeRc;
     }
 
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected two floating point numbers and a string but got \"%1\" \"%2\" %3") .arg(argv[index]) .arg(argv[index+1]) .arg(argv.join(" ")));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected two floating point numbers and/or page size string but got \"%1\"") .arg(argv.join(" ")));
     }
 
   return FailureRc;
@@ -2039,7 +2068,7 @@ void PageAttributePictureMeta::init(
 PageHeaderMeta::PageHeaderMeta() : BranchMeta()
 {
   placement.setValue(TopInside,PageType);
-  size.setValuesInches(8.3f,0.3f);
+  size.setValuesInches(8.2677f,0.3000f);
   size.setRange(.1,1000);
   size.setFormats(6,4,"9.9999");
 }
@@ -2056,7 +2085,7 @@ void PageHeaderMeta::init(BranchMeta *parent, QString name)
 PageFooterMeta::PageFooterMeta() : BranchMeta()
 {
   placement.setValue(BottomInside,PageType);
-  size.setValuesInches(8.3f,0.3f);
+  size.setValuesInches(8.2677f,0.3000f);
   size.setRange(.1,1000);
   size.setFormats(6,4,"9.9999");
 }

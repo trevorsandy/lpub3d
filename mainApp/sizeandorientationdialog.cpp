@@ -88,7 +88,7 @@ bool SizeAndOrientationDialog::getSizeAndOrientation(
 
     sgoods.sizeW = dialog->smeta.value(0);
     sgoods.sizeH = dialog->smeta.value(1);
-    sgoods.sizeID= dialog->smeta.valueSizeID();
+    sgoods.sizeID= dialog->smeta.valueSizeID(); // e.g. A4
     ogoods = dialog->ometa.value();
 //    logDebug() << " SIZE TX(dialog return): Width: " << dialog->smeta.value(0) << " Height: " << dialog->smeta.value(1) << " SizeID: " << dialog->smeta.valueSizeID();
 

@@ -107,15 +107,13 @@ void clearCsi3dCache()
  ***************************************************************************/
 
 int Gui::pageSize(PageMeta &meta, int which){
-  int _size;
-
-  // flip orientation for landscape
+  int _which;
   if (meta.orientation.value() == Landscape){
-      which == 0 ? _size = 1 : _size = 0;
+      which == 0 ? _which = 1 : _which = 0;
     } else {
-      _size = which;
+      _which = which;
     }
-  return meta.size.valuePixels(_size);
+  return meta.size.valuePixels(_which);
 }
 
 void Gui::insertCoverPage()
@@ -2581,46 +2579,55 @@ void Gui::createActions()
     connect(redoAct, SIGNAL(triggered()), this, SLOT(redo()));
 
     insertCoverPageAct = new QAction(QIcon(":/resources/insertcoverpage.png"),tr("Insert Front Cover Page"),this);
+    insertCoverPageAct->setShortcut(tr("Ctrl+Alt+F"));
     insertCoverPageAct->setStatusTip(tr("Insert a front cover page"));
     insertCoverPageAct->setEnabled(false);
     connect(insertCoverPageAct, SIGNAL(triggered()), this, SLOT(insertCoverPage()));
 
     appendCoverPageAct = new QAction(QIcon(":/resources/appendcoverpage.png"),tr("Append Back Cover Page"),this);
+    appendCoverPageAct->setShortcut(tr("Ctrl+Alt+B"));
     appendCoverPageAct->setStatusTip(tr("Append back cover page"));
     appendCoverPageAct->setEnabled(false);
     connect(appendCoverPageAct, SIGNAL(triggered()), this, SLOT(appendCoverPage()));
 
     insertNumberedPageAct = new QAction(QIcon(":/resources/insertpage.png"),tr("Insert Page"),this);
+    insertNumberedPageAct->setShortcut(tr("Ctrl+Alt+I"));
     insertNumberedPageAct->setStatusTip(tr("Insert a numbered page"));
     insertNumberedPageAct->setEnabled(false);
     connect(insertNumberedPageAct, SIGNAL(triggered()), this, SLOT(insertNumberedPage()));
 
     appendNumberedPageAct = new QAction(QIcon(":/resources/appendpage.png"),tr("Append Page"),this);
+    appendNumberedPageAct->setShortcut(tr("Ctrl+Alt+A"));
     appendNumberedPageAct->setStatusTip(tr("Append a numbered page"));
     appendNumberedPageAct->setEnabled(false);
     connect(appendNumberedPageAct, SIGNAL(triggered()), this, SLOT(appendNumberedPage()));
 
     deletePageAct = new QAction(QIcon(":/resources/deletepage.png"),tr("Delete Page"),this);
+    deletePageAct->setShortcut(tr("Ctrl+Alt+D"));
     deletePageAct->setStatusTip(tr("Delete this page"));
     deletePageAct->setEnabled(false);
     connect(deletePageAct, SIGNAL(triggered()), this, SLOT(deletePage()));
 
     addPictureAct = new QAction(QIcon(":/resources/addpicture.png"),tr("Add Picture"),this);
+    addPictureAct->setShortcut(tr("Ctrl+Alt+P"));
     addPictureAct->setStatusTip(tr("Add a picture to this page"));
     addPictureAct->setEnabled(false);
     connect(addPictureAct, SIGNAL(triggered()), this, SLOT(addPicture()));
 
     addTextAct = new QAction(QIcon(":/resources/addtext.png"),tr("Add Text"),this);
+    addTextAct->setShortcut(tr("Ctrl+Alt+T"));
     addTextAct->setStatusTip(tr("Add text to this page"));
     addTextAct->setEnabled(false);
     connect(addTextAct, SIGNAL(triggered()), this, SLOT(addText()));
 
     addBomAct = new QAction(QIcon(":/resources/addbom.png"),tr("Add Bill of Materials"),this);
+    addBomAct->setShortcut(tr("Ctrl+Alt+M"));
     addBomAct->setStatusTip(tr("Add Bill of Materials to this page"));
     addBomAct->setEnabled(false);
     connect(addBomAct, SIGNAL(triggered()), this, SLOT(addBom()));
 
     removeLPubFormattingAct = new QAction(QIcon(":/resources/removelpubformat.png"),tr("Remove LPub Formatting"),this);
+    removeLPubFormattingAct->setShortcut(tr("Ctrl+Alt+R"));
     removeLPubFormattingAct->setStatusTip(tr("Remove all LPub metacommands from all files"));
     removeLPubFormattingAct->setEnabled(false);
     connect(removeLPubFormattingAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));

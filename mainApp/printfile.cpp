@@ -32,6 +32,12 @@
 #include <algorithm>
 
 #include "lpub.h"
+#include "messageboxresizable.h"
+
+// Set to enable print/export trace logging
+#ifndef PRINT_DEBUG
+//#define PRINT_DEBUG
+#endif
 
 // Compare two variants.
 bool lessThan(const int &v1, const int &v2)
@@ -61,13 +67,14 @@ QPageLayout Gui::getPageLayout(bool nextPage){
       // we always want to send portrait width x height to the printer
       QPageSize pageSize(QSizeF(pageWidthIn,pageHeightIn),QPageSize::Inch,"",QPageSize::FuzzyMatch);
 
-//      logDebug() << QString("         PAGE %5 SIZE LAYOUT - WidthIn: %1 x HeightIn: %2 Orientation: %3 DPx: %4 CurPage: %6")
-//                    .arg(QString::number(pageWidthIn,'f',4),
-//                         QString::number(pageHeightIn,'f',4))
-//                    .arg(layoutOrientation == QPageLayout::Landscape ? "Landscape":"Portrait")
-//                    .arg(page.meta.LPub.resolution.type() == DPI ? "DPI":"DPCM")
-//                    .arg(pageNum).arg(displayPageNum);
-
+#ifdef PRINT_DEBUG
+      logDebug() << QString("         PAGE %5 SIZE LAYOUT - WidthIn: %1 x HeightIn: %2 Orientation: %3 DPx: %4 CurPage: %6")
+                    .arg(QString::number(pageWidthIn,'f',4),
+                         QString::number(pageHeightIn,'f',4))
+                    .arg(layoutOrientation == QPageLayout::Landscape ? "Landscape":"Portrait")
+                    .arg(page.meta.LPub.resolution.type() == DPI ? "DPI":"DPCM")
+                    .arg(pageNum).arg(displayPageNum);
+#endif
       return QPageLayout(pageSize, layoutOrientation, QMarginsF(0,0,0,0));
     }
 
@@ -100,15 +107,15 @@ void Gui::getExportPageSize(float &pageWidth, float &pageHeight,int d)
           pageWidth  = pageWidthIn;
           pageHeight = pageHeightIn;
         }
-
-//      logDebug() << QString("  PAGE %6 SIZE PIXELS - WidthIn: %3 x HeightIn: %4 << WidthPx: %1 x HeightPx: %2 DPx: %5 CurPage: %6")
-//                    .arg(QString::number(pageWidth,'f',0),
-//                         QString::number(pageHeight,'f',0),
-//                         QString::number(pageWidthIn,'f',4),
-//                         QString::number(pageHeightIn,'f',4))
-//                    .arg(page.meta.LPub.resolution.type() == DPI ? "DPI":"DPCM")
-//                    .arg(displayPageNum);
-
+#ifdef PRINT_DEBUG
+      logDebug() << QString("  PAGE %6 SIZE PIXELS - WidthIn: %3 x HeightIn: %4 << WidthPx: %1 x HeightPx: %2 DPx: %5 CurPage: %6")
+                    .arg(QString::number(pageWidth,'f',0),
+                         QString::number(pageHeight,'f',0),
+                         QString::number(pageWidthIn,'f',4),
+                         QString::number(pageHeightIn,'f',4))
+                    .arg(page.meta.LPub.resolution.type() == DPI ? "DPI":"DPCM")
+                    .arg(displayPageNum);
+#endif
     } else {
       emit messageSig(LOG_ERROR,tr("Could not load page %1 size parameters.").arg(displayPageNum));
     }
@@ -124,11 +131,12 @@ OrientationEnc Gui::getPageOrientation(bool nextPage)
   QMap<int,PgSizeData>::iterator i = pageSizes.find(pageNum);   // this page
   if (i != pageSizes.end()){
 
-//      bool  ls = i.value().orientation == Landscape;
-//      logDebug() << QString("PAGE %2 ORIENTATION - %1 CurPage: %3")
-//                    .arg(ls ? "Landscape":"Portrait")
-//                    .arg(pageNum).arg(displayPageNum);
-
+#ifdef PRINT_DEBUG
+      bool  ls = i.value().orientation == Landscape;
+      logDebug() << QString("PAGE %2 ORIENTATION - %1 CurPage: %3")
+                    .arg(ls ? "Landscape":"Portrait")
+                    .arg(pageNum).arg(displayPageNum);
+#endif
       return i.value().orientation;
     }
   emit messageSig(LOG_ERROR,tr("Could not load page %1 orientaiton parameter.").arg(pageNum));
@@ -187,17 +195,17 @@ void Gui::checkMixedPageSizeStatus(){
 
               QMap<int,PgSizeData>::iterator i = pageSizes.find(key);   // this page
               if (i != pageSizes.end()){
-
-//                  logDebug() << QString("%6 page %3 of %4, size(Inches) W %1 x H %2, ID %8, orientation %5 for range %7")
-//                                           .arg(pageSizes[key].sizeW)
-//                                           .arg(pageSizes[key].sizeH)
-//                                           .arg(key)
-//                                           .arg(printPages.count())
-//                                           .arg(pageSizes[key].orientation == Landscape ? "Landscape" : "Portrait")
-//                                           .arg("Checking")
-//                                           .arg(pageRanges.join(" "))
-//                                           .arg(pageSizes[key].sizeID);
-
+#ifdef PRINT_DEBUG
+                  logDebug() << QString("%6 page %3 of %4, size(Inches) W %1 x H %2, ID %8, orientation %5 for range %7")
+                                           .arg(pageSizes[key].sizeW)
+                                           .arg(pageSizes[key].sizeH)
+                                           .arg(key)
+                                           .arg(printPages.count())
+                                           .arg(pageSizes[key].orientation == Landscape ? "Landscape" : "Portrait")
+                                           .arg("Checking")
+                                           .arg(pageRanges.join(" "))
+                                           .arg(pageSizes[key].sizeID);
+#endif
                   if (! defaultSizesUpdated) {
                       pageWidthIn  = pageSizes[key].sizeW;
                       pageHeightIn = pageSizes[key].sizeH;
@@ -235,13 +243,13 @@ void Gui::checkMixedPageSizeStatus(){
         }
 
     } else if (processOption == EXPORT_ALL_PAGES) {
-
-//      logDebug() << QString("Default  page         size(Inches) W %1 x H %2, ID %3, orientation %4")
-//                               .arg(pageSizes[DEF_SIZE].sizeW)
-//                               .arg(pageSizes[DEF_SIZE].sizeH)
-//                               .arg(pageSizes[DEF_SIZE].sizeID)
-//                               .arg(pageSizes[DEF_SIZE].orientation == Landscape ? "Landscape" : "Portrait");
-
+#ifdef PRINT_DEBUG
+      logDebug() << QString("Default  page         size(Inches) W %1 x H %2, ID %3, orientation %4")
+                               .arg(pageSizes[DEF_SIZE].sizeW)
+                               .arg(pageSizes[DEF_SIZE].sizeH)
+                               .arg(pageSizes[DEF_SIZE].sizeID)
+                               .arg(pageSizes[DEF_SIZE].orientation == Landscape ? "Landscape" : "Portrait");
+#endif
       foreach(key,pageSizes.keys()){
 
           if (pageSizes[key].orientation != orientation && orientation_warning != true) {
@@ -473,7 +481,8 @@ void Gui::exportAsPdf()
       fileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".pdf";
     }
 
-  QMessageBox box;
+  // QMessageBox box; // old
+  QMessageBoxResizable box;
   box.setTextFormat (Qt::RichText);
   box.setIcon (QMessageBox::Critical);
   box.setStandardButtons (QMessageBox::Retry | QMessageBox::Abort);
@@ -720,14 +729,16 @@ void Gui::exportAsPdf()
   if (Preferences::modeGUI)
       m_progressDialog->hide();
 
-  box.setIcon (QMessageBox::Information);
+  //display completion message
+  QPixmap _icon = QPixmap(":/icons/lpub96.png");
+  box.setWindowIcon(QIcon());
+  box.setIconPixmap (_icon);
   box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
   box.setDefaultButton   (QMessageBox::Yes);
 
-  //display completion message
   QString title = "<b> Export to pdf completed. </b>";
-  QString text = tr ("Your instruction document has finished exporting.\n"
-                     "Do you want to open this document ?\n %1").arg(fileName);
+  QString text = tr ("Your instruction document has finished exporting.\n\n"
+                     "Do you want to open this document ?\n\n%1").arg(fileName);
 
   box.setText (title);
   box.setInformativeText (text);
@@ -1010,17 +1021,19 @@ void Gui::exportAs(QString &suffix)
       m_progressDialog->hide();
 
   //display completion message
-  QMessageBox box;
+  QPixmap _icon = QPixmap(":/icons/lpub96.png");
+  QMessageBoxResizable box;
+  box.setWindowIcon(QIcon());
+  box.setIconPixmap (_icon);
   box.setTextFormat (Qt::RichText);
-  box.setIcon (QMessageBox::Information);
   box.setStandardButtons (QMessageBox::Yes| QMessageBox::No);
   box.setDefaultButton   (QMessageBox::Yes);
   box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
   box.setWindowTitle(tr ("Export %1").arg(suffix.remove(".")));
 
   QString title = "<b> Export " + suffix.remove(".") + " completed. </b>";
-  QString text = tr ("Your instruction document images are finished exporting.\n"
-                     "Do you want to open the image folder ?\n %1")
+  QString text = tr ("Your instruction document images have finished exportng.\n\n"
+                     "Do you want to open the image folder ?\n\n%1")
                      .arg(directoryName);
 
   box.setText (title);
@@ -1387,20 +1400,22 @@ void Gui::showPrintedFile(){
 
   if (! pdfPrintedFile.isEmpty()){
 
-      QMessageBox box;
+      //display completion message
+      QPixmap _icon = QPixmap(":/icons/lpub96.png");
+      QMessageBoxResizable box;
+      box.setWindowIcon(QIcon());
+      box.setIconPixmap (_icon);
       box.setTextFormat (Qt::RichText);
-      box.setIcon (QMessageBox::Information);
       box.setStandardButtons (QMessageBox::Close);
       box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
       box.setWindowTitle(tr ("Export Status"));
 
-      //display completion message
       box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
       box.setDefaultButton   (QMessageBox::Yes);
 
       QString title = "<b> Export to pdf completed. </b>";
-      QString text = tr ("Your instruction document has finished exporting.\n"
-                         "Do you want to open this document ?\n %1").arg(pdfPrintedFile);
+      QString text = tr ("Your instruction document has finished exporting.\n\n"
+                         "Do you want to open this document ?\n\n%1").arg(pdfPrintedFile);
 
       box.setText (title);
       box.setInformativeText (text);

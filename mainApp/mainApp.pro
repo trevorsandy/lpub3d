@@ -369,6 +369,7 @@ HEADERS += \
     pagebackgrounditem.h \
     pageorientationdialog.h \
     pagesizedialog.h \
+    pagesizes.h \
     pairdialog.h \
     parmshighlighter.h \
     parmswindow.h \
@@ -450,6 +451,7 @@ SOURCES += \
     pageglobals.cpp \
     pageorientationdialog.cpp \
     pagesizedialog.cpp \
+    pagesizes.cpp \
     pairdialog.cpp \
     parmshighlighter.cpp \
     parmswindow.cpp \

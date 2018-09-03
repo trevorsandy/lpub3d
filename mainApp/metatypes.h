@@ -236,7 +236,7 @@ class PgSizeData
 public:
   float   sizeW;
   float   sizeH;
-  QString sizeID;
+  QString sizeID;     // e.g. A4
   OrientationEnc orientation;
   PgSizeData(){
     sizeW       = 0;
@@ -245,6 +245,7 @@ public:
   }
 };
 
+// TODO confirm if this is still needed
 class PageSizeData{
 public:
 //  OrientationEnc orientation; //future use

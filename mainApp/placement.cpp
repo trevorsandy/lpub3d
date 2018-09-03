@@ -113,10 +113,10 @@ int Placement::relativeTo(
               e.g. pageHeader's placementType is PageHeaderType */
     PlacementType stepRelativeTo;
     /* pageHeader */
-    stepRelativeTo = step->pageHeader.placement.value().relativeTo;
+    stepRelativeTo = step->plPageHeader.placement.value().relativeTo;
     if (stepRelativeTo == relativeType) {
-      placeRelative(&step->pageHeader);
-      appendRelativeTo(&step->pageHeader);
+      placeRelative(&step->plPageHeader);
+      appendRelativeTo(&step->plPageHeader);
     }
     /* csiItem (Assembly) */
     stepRelativeTo = step->csiItem->placement.value().relativeTo;
@@ -143,10 +143,10 @@ int Placement::relativeTo(
       appendRelativeTo(&step->rotateIcon);
     }
     /* pageFooter */
-    stepRelativeTo = step->pageFooter.placement.value().relativeTo;
+    stepRelativeTo = step->plPageFooter.placement.value().relativeTo;
     if (stepRelativeTo == relativeType) {
-      placeRelative(&step->pageFooter);
-      appendRelativeTo(&step->pageFooter);
+      placeRelative(&step->plPageFooter);
+      appendRelativeTo(&step->plPageFooter);
     }
     /* callouts */
     for (int i = 0; i < step->list.size(); i++) {

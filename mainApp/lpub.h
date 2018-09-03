@@ -370,6 +370,7 @@
 #define WATCHER
 #endif
 
+// PageSize default entry
 #ifndef DEF_SIZE
 #define DEF_SIZE 0
 #endif
@@ -461,7 +462,7 @@ public:
   Where &topOfPage();
   Where &bottomOfPage();
 
-  static int pageSize(PageMeta  &, int which);  // flip orientation for landscape
+  static int pageSize(PageMeta  &, int which);          // Flip page size per orientation and return size in pixels
 
   void    changePageNum(int offset)
   {

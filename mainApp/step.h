@@ -45,7 +45,6 @@ class Meta;
 class Callout;
 class Range;
 class ImageMatt;
-enum PlacementType;
 
 class Step : public AbstractRangeElement
 {
@@ -72,8 +71,8 @@ class Step : public AbstractRangeElement
     QString               pngName;
     QString               csiKey;
     ViewerOptions         viewerOptions;
-    PlacementHeader       pageHeader;
-    PlacementFooter       pageFooter;
+    PlacementHeader       plPageHeader;
+    PlacementFooter       plPageFooter;
 
     QString               foo;
 

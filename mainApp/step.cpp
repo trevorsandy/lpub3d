@@ -69,21 +69,31 @@ Step::Step(
   parent                    = _parent;
   submodelLevel             = _meta.submodelStack.size();
   stepNumber.number         =  num;             // record step number
+  csiItem                   = NULL;
 
   modelDisplayOnlyStep      = false;
   relativeType              = StepType;
   csiPlacement.relativeType = CsiType;
   stepNumber.relativeType   = StepNumberType;
   rotateIcon.relativeType   = RotateIconType;
-  pageHeader.relativeType   = PageHeaderType;
-  pageHeader.placement      = _meta.LPub.page.pageHeader.placement;
-  pageHeader.size[XX]       = _meta.LPub.page.pageHeader.size.valuePixels(XX);
-  pageHeader.size[YY]       = _meta.LPub.page.pageHeader.size.valuePixels(YY);
-  pageFooter.relativeType   = PageFooterType;
-  pageFooter.placement      = _meta.LPub.page.pageFooter.placement;
-  pageFooter.size[XX]       = _meta.LPub.page.pageFooter.size.valuePixels(XX);
-  pageFooter.size[YY]       = _meta.LPub.page.pageFooter.size.valuePixels(YY);
-  csiItem                   = NULL;
+
+  float pW, hH, fH;
+  int which                   = _meta.LPub.page.orientation.value() == Landscape ? 1 : 0;
+  pW                          = _meta.LPub.page.size.value(which);
+  hH                          = _meta.LPub.page.pageHeader.size.valueInches(1);
+  fH                          = _meta.LPub.page.pageFooter.size.valueInches(1);
+  PageHeaderMeta headerMeta   = _meta.LPub.page.pageHeader;
+  PageFooterMeta footerMeta   = _meta.LPub.page.pageFooter;
+  headerMeta.size.setValuesInches(pW,hH);
+  footerMeta.size.setValuesInches(pW,fH);
+  plPageHeader.relativeType   = PageHeaderType;
+  plPageHeader.placement      = headerMeta.placement;
+  plPageHeader.size[XX]       = headerMeta.size.valuePixels(XX);
+  plPageHeader.size[YY]       = headerMeta.size.valuePixels(YY);
+  plPageFooter.relativeType   = PageFooterType;
+  plPageFooter.placement      = footerMeta.placement;
+  plPageFooter.size[XX]       = footerMeta.size.valuePixels(XX);
+  plPageFooter.size[YY]       = footerMeta.size.valuePixels(YY);
 
   if (calledOut) {
       csiPlacement.margin     = _meta.LPub.callout.csi.margin;

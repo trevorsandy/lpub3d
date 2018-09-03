@@ -218,24 +218,13 @@ int Gui::addGraphicsPageItems(
   PageNumberItem          *pageNumber;
   SubmodelInstanceCount   *instanceCount;
 
-  /* There are issues with printing to PDF and its fixed page sizes, and
-   * LPub's aribitrary page size controls.  So when printing, we have to
-   * pick a PDF page size that is closest but not smaller than the size
-   * defined by the user, and then fill that page's background to the
-   * edges.  The code below gets most of this done (the print caller
-   * maps LPub page size to PDF page size and sets view size, so we
-   * work with that here.
-   *
-   * There still seem to be cases where we get little gaps on either the
-   * right or bottom edge, and I just don't know what the problem is.
-   */
-
   int pW, pH;
 
   if (printing) {
       pW = view->maximumWidth();
       pH = view->maximumHeight();
     } else {
+      // Flip page size per orientation and return size in pixels
       pW = pageSize(page->meta.LPub.page, 0);
       pH = pageSize(page->meta.LPub.page, 1);
     }
@@ -272,6 +261,11 @@ int Gui::addGraphicsPageItems(
   plPage.loc[YY] = 0;
 
   // Set up page header and footer //~~~~~~~~~~~~~~~~
+
+  int which = page->meta.LPub.page.orientation.value() == Landscape ? 1 : 0;
+  float _pW = page->meta.LPub.page.size.value(which);
+  page->meta.LPub.page.pageHeader.size.setValue(0,_pW);
+  page->meta.LPub.page.pageFooter.size.setValue(0,_pW);
 
   pageHeader = new PlacementHeader(page->meta.LPub.page.pageHeader,pageBg);
   if (pageHeader->placement.value().relativeTo == plPage.relativeType) {
@@ -628,6 +622,8 @@ int Gui::addGraphicsPageItems(
                             }
                         } // if callout
                     } // callouts
+
+                  // optional PLI placement
 
                   if (step->pli.placement.value().relativeTo == CsiType) {
                       step->csiItem->placeRelative(&step->pli);
