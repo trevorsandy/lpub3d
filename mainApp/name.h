@@ -29,6 +29,7 @@ enum PartType { FADE_PART, HIGHLIGHT_PART };
 enum LogType { LOG_STATUS, LOG_INFO, LOG_TRACE, LOG_DEBUG, LOG_NOTICE, LOG_ERROR, LOG_FATAL, LOG_QWARNING, LOG_QDEBUG };
 enum IniFlag { NativePOVIni, LDViewPOVIni, LDViewIni };
 enum IniStat { BeforeInit, AfterInit };
+enum Theme { ThemeDark, ThemeDefault };
 
 // registry sections
 #define DEFAULTS     "Defaults"
@@ -86,20 +87,20 @@ enum IniStat { BeforeInit, AfterInit };
 #define LPUB3D_COLOUR_FADE_PREFIX               "100"
 #define LPUB3D_COLOUR_HIGHLIGHT_PREFIX          "110"
 #define LPUB3D_COLOUR_TITLE_PREFIX              "LPub3D_"
-#define LPUB3D_COLOUR_FILE_PREFIX               "colours_"  //Not used
+#define LPUB3D_COLOUR_FILE_PREFIX               "colours_" //Not used
 
-#define LPUB3D_IM_PREV_LDR_EXT                  "prev.ldr"   // Image Matte LDraw working file extension
-#define LPUB3D_IM_CURR_LDR_EXT                  "curr.ldr"   // Image Matte LDraw working file extension
-#define LPUB3D_IM_PREV_PNG_EXT                  "prev.png"   // Image Matte Png working file extension
-#define LPUB3D_IM_CURR_PNG_EXT                  "curr.png"   // Image Matte Png working file extension
+#define LPUB3D_IM_PREV_LDR_EXT                  "prev.ldr" // Image Matte LDraw working file extension
+#define LPUB3D_IM_CURR_LDR_EXT                  "curr.ldr" // Image Matte LDraw working file extension
+#define LPUB3D_IM_PREV_PNG_EXT                  "prev.png" // Image Matte Png working file extension
+#define LPUB3D_IM_CURR_PNG_EXT                  "curr.png" // Image Matte Png working file extension
 
-#define HIGHLIGHT_COLOUR_DEFAULT                "#FFFF00"      // Bright Yellow
-#define HIGHLIGHT_LINE_WIDTH_DEFAULT            1.0            // line width 1 - 5
+#define HIGHLIGHT_COLOUR_DEFAULT                "#FFFF00"  // Bright Yellow
+#define HIGHLIGHT_LINE_WIDTH_DEFAULT            1.0        // line width 1 - 5
 
 // Native pov file generation defaults
 #define SEAM_WIDTH_DEFAULT                      0.5
 #define QUALITY_EXPORT_DEFAULT                  3
-#define SELECTED_ASPECT_RATIO_DEFAULT          -1           // ASPECT_RATIO_0 "Automatic"
+#define SELECTED_ASPECT_RATIO_DEFAULT          -1          // ASPECT_RATIO_0 "Automatic"
 #define CUSTOM_ASPECT_RATIO_DEFAULT             1.5f
 #define EDGE_RADIUS_DEFAULT                     0.15f
 #define AMBIENT_DEFAULT                         0.4f
@@ -151,4 +152,36 @@ enum IniStat { BeforeInit, AfterInit };
 #define SELECTED_ASPECT_RATIO_COMBO_DEFAULT     ASPECT_RATIO_0 "," ASPECT_RATIO_1 "," ASPECT_RATIO_2 "," \
                                                 ASPECT_RATIO_3 "," ASPECT_RATIO_4 "," ASPECT_RATIO_5 "," \
                                                 ASPECT_RATIO_6 "," ASPECT_RATIO_7 "," ASPECT_RATIO_8
+
+// Team suppliments
+#define THEME_DEFAULT                   "Default" // Default Theme
+#define THEME_TICK_PEN_DEFAULT          "#35322f" // Qt Dark gray
+#define THEME_NML_PEN_DEFAULT           "#1e1b18" // Qt Double dark gray
+#define THEME_GUIDE_PEN_DEFAULT         "#1e1b18" // Qt Double dark gray
+#define THEME_BGCOLOR_DEFAULT           "#aeadac" // Qt Light gray
+#define THEME_VBGCOLOR_DEFAULT          "#ffffff" // Qt White
+#define THEME_HIGHLIGHT_DEFAULT         "#ffffff" // Qt White
+
+#define THEME_HIGHLIGHT_01_DEFAULT      "#006325" // Qt 01 Dark green
+#define THEME_HIGHLIGHT_02_DEFAULT      "#14148c" // Qt 02 Dark blue
+#define THEME_HIGHLIGHT_03_DEFAULT      "#800000" // Qt 03 Dark Red
+#define THEME_HIGHLIGHT_04_DEFAULT      "#14aaff" // Qt 04 Blue
+#define THEME_HIGHLIGHT_05_DEFAULT      "#b40000" // Qt 05 Red
+
+#define THEME_DARK                      "Dark"    // Dark Theme
+#define THEME_TICK_PEN_DARK             "#eff0f1" // Custom pale grey
+#define THEME_NML_PEN_DARK              "#ffffff" // Qt White
+#define THEME_GUIDEL_PEN_DARK           "#5d5b59" // Qt Medium gray
+#define THEME_BGCOLOR_DARK              "#31363b" // Custom dark dark grey
+#define THEME_VBGCOLOR_DARK             "#808B96" // Custom grey
+#define THEME_HIGHLIGHT_DARK            "#ffffff" // Qt White
+#define THEME_EDIT_MARGIN_DARK          "#ABB2B9" // Custom gray
+
+#define THEME_HIGHLIGHT_01_DARK         "#006325" // 01 Qt Dark green
+#define THEME_HIGHLIGHT_02_DARK         "#14148c" // 02 Qt Dark blue
+#define THEME_HIGHLIGHT_03_DARK         "#dd9400" // 03 Custom Dark Red
+#define THEME_HIGHLIGHT_04_DARK         "#14aaff" // 04 Qt Blue
+#define THEME_HIGHLIGHT_05_DARK         "#b40000" // 05 Qt Red
+
+#define THEME_EDITWINDOW_LINE_DARK      "#5d5b59" // 06 Qt Medium gray
 #endif

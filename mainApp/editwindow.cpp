@@ -20,7 +20,7 @@
  * The editwindow is used to display the LDraw file to the user.  The Gui
  * portion of the program (see lpub.h) decides what files and line numbers
  * are displayed.  The edit window has as little responsibility as is
- * possible.  It does work the the syntax highlighter implemented in
+ * possible.  It does work the syntax highlighter implemented in
  * highlighter.(h,cpp)
  *
  * Please see lpub.h for an overall description of how the files in LPub
@@ -33,6 +33,9 @@
 #include "highlighter.h"
 #include "ldrawfiles.h"
 #include "version.h"
+
+#include "name.h"
+#include "lpub_preferences.h"
 
 EditWindow *editWindow;
 
@@ -151,7 +154,14 @@ void EditWindow::highlightCurrentLine()
     if (!_textEdit->isReadOnly()) {
         QTextEdit::ExtraSelection selection;
 
-        QColor lineColor = QColor(Qt::blue).lighter(180);
+        QColor lineColor;
+        if (Preferences::displayTheme == THEME_DEFAULT) {
+            lineColor = QColor(Qt::blue).lighter(180);
+          }
+        else
+        if (Preferences::displayTheme == THEME_DARK) {
+            lineColor = QColor(THEME_EDITWINDOW_LINE_DARK);
+        }
 
         selection.format.setBackground(lineColor);
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
@@ -362,7 +372,22 @@ void QTextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
     this->verticalScrollBar()->setSliderPosition(this->verticalScrollBar()->sliderPosition());
 
     QPainter painter(lineNumberArea);
-    painter.fillRect(event->rect(), QColor(Qt::gray).lighter(150));
+
+    // line number colors
+    QColor col_1(Qt::magenta);     // Current line
+    QColor col_0(Qt::darkGray);    // Other lines
+
+    QColor numAreaColor;
+    if (Preferences::displayTheme == THEME_DEFAULT) {
+        numAreaColor = QColor(Qt::gray).lighter(150);
+      }
+    else
+      if (Preferences::displayTheme == THEME_DARK) {
+          numAreaColor = QColor(THEME_EDIT_MARGIN_DARK);
+          col_0 = QColor(Qt::darkGray).darker(150);
+      }
+
+    painter.fillRect(event->rect(),numAreaColor);
     int blockNumber = this->getFirstVisibleBlockId();
 
     QTextBlock block = this->document()->findBlockByNumber(blockNumber);
@@ -386,9 +411,6 @@ void QTextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
     top += additional_margin;
 
     int bottom = top + (int) this->document()->documentLayout()->blockBoundingRect(block).height();
-
-    QColor col_1(Qt::magenta);     // Current line
-    QColor col_0(Qt::darkGray);    // Other lines
 
     // Draw the numbers (displaying the current line number in green)
     while (block.isValid() && top <= event->rect().bottom()) {

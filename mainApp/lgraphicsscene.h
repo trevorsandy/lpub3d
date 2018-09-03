@@ -16,6 +16,7 @@
 #define LGRAPHICSSCENE_H
 
 #include <QGraphicsScene>
+#include "name.h"
 
 class LGraphicsScene : public QGraphicsScene
 {
@@ -32,9 +33,10 @@ public slots:
   void setPageGuides(bool b){
     mPageGuides = b;
   }
-
-  void setGuidePen(const QPen &pen){
-    guidePen = pen;
+  void setGuidePen(Theme t){
+    t == ThemeDark ? guidePen.setColor(THEME_GUIDEL_PEN_DARK) :
+                     guidePen.setColor(THEME_GUIDE_PEN_DEFAULT);
+    guidePen.setWidth(2);
   }
 
 protected:

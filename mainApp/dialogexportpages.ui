@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>350</width>
-    <height>345</height>
+    <height>381</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>303</y>
+     <y>334</y>
      <width>331</width>
      <height>32</height>
     </rect>
@@ -44,95 +44,95 @@
    <property name="title">
     <string>Export</string>
    </property>
-   <widget class="QLabel" name="labelCurrentPage">
+   <widget class="QWidget" name="">
     <property name="geometry">
      <rect>
-      <x>135</x>
-      <y>60</y>
-      <width>71</width>
-      <height>21</height>
+      <x>20</x>
+      <y>30</y>
+      <width>201</width>
+      <height>19</height>
      </rect>
     </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QRadioButton" name="radioButtonAllPages">
+       <property name="toolTip">
+        <string/>
+       </property>
+       <property name="text">
+        <string>All Pages</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelAllPages">
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
-   <widget class="QRadioButton" name="radioButtonCurrentPage">
+   <widget class="QWidget" name="">
     <property name="geometry">
      <rect>
       <x>20</x>
       <y>60</y>
-      <width>111</width>
-      <height>20</height>
+      <width>201</width>
+      <height>19</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Current Page</string>
-    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QRadioButton" name="radioButtonCurrentPage">
+       <property name="text">
+        <string>Current Page</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelCurrentPage">
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
-   <widget class="QLineEdit" name="lineEditPageRange">
+   <widget class="QWidget" name="">
     <property name="geometry">
      <rect>
-      <x>134</x>
+      <x>20</x>
       <y>90</y>
-      <width>181</width>
+      <width>231</width>
       <height>22</height>
      </rect>
     </property>
-    <property name="toolTip">
-     <string>Enter page numbers and/or page ranges. For example, 1,3,5,7-9</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioButtonPageRange">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>90</y>
-      <width>111</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Page Range</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioButtonAllPages">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>30</y>
-      <width>111</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string/>
-    </property>
-    <property name="text">
-     <string>All Pages</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelAllPages">
-    <property name="geometry">
-     <rect>
-      <x>135</x>
-      <y>30</y>
-      <width>71</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="lineWidth">
-     <number>1</number>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QRadioButton" name="radioButtonPageRange">
+       <property name="text">
+        <string>Page Range</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lineEditPageRange">
+       <property name="toolTip">
+        <string>Enter page numbers and/or page ranges. For example, 1,3,5,7-9</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
    <zorder>labelCurrentPage</zorder>
    <zorder>radioButtonCurrentPage</zorder>
@@ -145,7 +145,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>286</y>
+     <y>313</y>
      <width>331</width>
      <height>20</height>
     </rect>
@@ -158,9 +158,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>151</y>
+     <y>150</y>
      <width>331</width>
-     <height>51</height>
+     <height>60</height>
     </rect>
    </property>
    <property name="title">
@@ -170,7 +170,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>20</y>
+      <y>31</y>
       <width>291</width>
       <height>20</height>
      </rect>
@@ -187,9 +187,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>208</y>
+     <y>215</y>
      <width>331</width>
-     <height>51</height>
+     <height>50</height>
     </rect>
    </property>
    <property name="title">
@@ -199,7 +199,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>20</y>
+      <y>24</y>
       <width>291</width>
       <height>20</height>
      </rect>
@@ -218,8 +218,8 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>266</y>
+     <x>50</x>
+     <y>284</y>
      <width>251</width>
      <height>20</height>
     </rect>

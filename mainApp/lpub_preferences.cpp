@@ -105,6 +105,7 @@ QString Preferences::plug                       = QString(QObject::trUtf8("Instr
                                                           .arg(QString::fromLatin1(VER_PRODUCTNAME_STR),
                                                                QString::fromLatin1(VER_FILEVERSION_STR).replace("\"",""),
                                                                QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
+QString Preferences::displayTheme               = THEME_DEFAULT;
 
 bool    Preferences::lgeoStlLib                 = false;
 bool    Preferences::lpub3dLoaded               = false;
@@ -2097,6 +2098,13 @@ void Preferences::userInterfacePreferences()
   } else {
           pageGuides = Settings.value(QString("%1/%2").arg(SETTINGS,pageGuidesKey)).toBool();
   }
+  QString const displayThemeKey("DisplayTheme");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,displayThemeKey))) {
+          displayTheme = THEME_DEFAULT;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,displayThemeKey),displayTheme);
+  } else {
+          displayTheme = Settings.value(QString("%1/%2").arg(SETTINGS,displayThemeKey)).toString();
+  }
 }
 
 
@@ -2632,6 +2640,11 @@ bool Preferences::getPreferences()
         if (doNotShowPageProcessDlg != dialog->doNotShowPageProcessDlg()) {
             doNotShowPageProcessDlg = dialog->doNotShowPageProcessDlg();
             Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DoNotShowPageProcessDlg"),doNotShowPageProcessDlg);
+        }
+
+        if (displayTheme != dialog->displayTheme()){
+            displayTheme = dialog->displayTheme();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"DisplayTheme"),displayTheme);
         }
 
         if (moduleVersion != dialog->moduleVersion()){

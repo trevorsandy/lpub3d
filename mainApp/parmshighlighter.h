@@ -29,9 +29,9 @@
 #ifndef PARMSHIGHLIGHTER_H
 #define PARMSHIGHLIGHTER_H
 
+#include <QTextCharFormat>
 #include <QSyntaxHighlighter>
 #include <QHash>
-#include <QTextCharFormat>
 
 class QTextDocument;
 
@@ -59,6 +59,7 @@ private:
 
     QTextCharFormat officialMetaFormat;
     QTextCharFormat LPubParmsFormat;
+    QTextCharFormat LPubParmsHdrFormat;
     QTextCharFormat multiLineCommentFormat;
 };
 

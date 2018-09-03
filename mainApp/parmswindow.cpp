@@ -616,7 +616,14 @@ void TextEditor::highlightCurrentLine()
     if (!isReadOnly()) {
         QTextEdit::ExtraSelection selection;
 
-        QColor lineColor = QColor(Qt::blue).lighter(180);
+        QColor lineColor;
+        if (Preferences::displayTheme == THEME_DEFAULT) {
+            lineColor = QColor(Qt::blue).lighter(180);
+          }
+        else
+        if (Preferences::displayTheme == THEME_DARK) {
+            lineColor = QColor(THEME_EDITWINDOW_LINE_DARK);
+        }
 
         selection.format.setBackground(lineColor);
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
@@ -638,8 +645,12 @@ void TextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
     int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
     int bottom = top + (int) blockBoundingRect(block).height();
 
+    // line number colors
     QColor col_1(Qt::magenta);   // Current line
     QColor col_0(Qt::darkGray);    // Other lines
+    if (Preferences::displayTheme == THEME_DARK) {
+       col_0 = QColor(Qt::darkGray).darker(150);    // Other lines
+    }
 
     // Draw the numbers (displaying the current line number in green)
     while (block.isValid() && top <= event->rect().bottom()) {

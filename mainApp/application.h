@@ -65,6 +65,9 @@ public:
     /// Return applicaion launch mode
     bool modeGUI();
 
+    /// Sets the theme
+    void setTheme();
+
     /// Console redirection for Windows
 #ifdef Q_OS_WIN
     void RedirectIOToConsole();

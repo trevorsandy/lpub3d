@@ -57,6 +57,7 @@ class PreferencesDialog : public QDialog
     QString const fadeStepsColour();
     QString const highlightStepColour();
     QString const povFileGenerator();
+    QString const displayTheme();
     QStringList const searchDirSettings();
     bool          displayAllAttributes();
     bool          generateCoverPages();

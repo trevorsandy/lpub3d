@@ -22,6 +22,10 @@
 #include "lpub_preferences.h"
 #include "lpub.h"
 #include "resolution.h"
+
+#include "lc_math.h"
+#include "lc_profile.h"
+
 #include "updatecheck.h"
 
 #include "QsLogDest.h"
@@ -146,6 +150,36 @@ QStringList Application::arguments()
 bool Application::modeGUI()
 {
   return ! m_console_mode;
+}
+
+void Application::setTheme(){
+  Theme t = ThemeDefault;
+  QColor vc = QColor(THEME_VBGCOLOR_DEFAULT);
+
+  if (Preferences::displayTheme == THEME_DARK){
+      t = ThemeDark;
+      QFile f(":qdarkstyle/style.qss");
+      if (!f.exists())
+      {
+          fprintf(stdout,"Unable to set dark stylesheet, file not found\n");
+      }
+      else
+      {
+          f.open(QFile::ReadOnly | QFile::Text);
+          QTextStream ts(&f);
+          qApp->setStyleSheet(ts.readAll());
+          vc = QColor(THEME_VBGCOLOR_DARK);
+      }
+    }
+  else
+  if (Preferences::displayTheme == THEME_DEFAULT){
+      t = ThemeDefault;
+      qApp->setStyleSheet( QString() );
+    }
+  gui->setSceneTheme(t);
+
+  lcVector3 viewerBackgroundColor = lcVector3FromColor(LC_RGB(vc.red(), vc.green(), vc.blue()));
+  lcSetProfileInt(LC_PROFILE_DEFAULT_BACKGROUND_COLOR, lcColorFromVector3(viewerBackgroundColor));
 }
 
 void Application::initialize()
@@ -429,6 +463,7 @@ void Application::initialize()
 
   emit splashMsgSig(QString("20% - %1 GUI window loading...").arg(VER_PRODUCTNAME_STR));
 
+  // initialize gui
   gui = new Gui();
 
   // Check if preferred renderer set and launch Preference dialogue if not to set Renderer
@@ -437,6 +472,9 @@ void Application::initialize()
   emit splashMsgSig("30% - 3D Viewer window loading...");
 
   gApplication = new lcApplication();
+
+  // set theme
+  setTheme();
 
   emit splashMsgSig(QString("40% - 3D Viewer initialization..."));
 

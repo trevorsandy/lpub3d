@@ -147,14 +147,14 @@ BoolRadioGui::BoolRadioGui(
 
 void BoolRadioGui::trueClicked(bool clicked)
 {
-  clicked = clicked;
+  Q_UNUSED(clicked);
   meta->setValue(true);
   modified = true;
 }
 
 void BoolRadioGui::falseClicked(bool clicked)
 {
-  clicked = clicked;
+  Q_UNUSED(clicked);
   meta->setValue(false);
   modified = true;
 }
@@ -578,8 +578,12 @@ NumberGui::NumberGui(
 
   colorExample = new QLabel(parent);
   colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-  colorExample->setPalette(QPalette(meta->color.value()));
+  QColor c = QColor(meta->color.value());
+  QString styleSheet =
+      QString("QLabel { background-color: rgb(%1, %2, %3); }").
+      arg(c.red()).arg(c.green()).arg(c.blue());
   colorExample->setAutoFillBackground(true);
+  colorExample->setStyleSheet(styleSheet);
   grid->addWidget(colorExample,1,1);
 
   colorButton = new QPushButton("Change");
@@ -611,7 +615,7 @@ NumberGui::NumberGui(
 
 void NumberGui::browseFont(bool clicked)
 {
-  clicked = clicked;
+  Q_UNUSED(clicked);
   QFont font;
   QString fontName = meta->font.valueFoo();
   font.fromString(fontName);
@@ -628,15 +632,18 @@ void NumberGui::browseFont(bool clicked)
 
 void NumberGui::browseColor(bool clicked)
 {
-  clicked = clicked;
+  Q_UNUSED(clicked);
   QColor qcolor = LDrawColor::color(meta->color.value());
   QColor newColor = QColorDialog::getColor(qcolor,this);
   if (newColor.isValid() && qcolor != newColor) {
-    colorExample->setPalette(QPalette(newColor));
-    colorExample->setAutoFillBackground(true);
-    meta->color.setValue(newColor.name());
-    colorModified = true;
-  }
+      colorExample->setAutoFillBackground(true);
+      QString styleSheet =
+          QString("QLabel { background-color: rgb(%1, %2, %3); }")
+          .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
+      colorExample->setStyleSheet(styleSheet);
+      meta->color.setValue(newColor.name());
+      colorModified = true;
+    }
 }
 
 void NumberGui::value0Changed(QString const &string)
@@ -813,8 +820,12 @@ PageAttributeTextGui::PageAttributeTextGui(
 
   colorExample = new QLabel(parent);
   colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-  colorExample->setPalette(QPalette(meta->textColor.value()));
+  QColor c = QColor(meta->textColor.value());
+  QString styleSheet =
+      QString("QLabel { background-color: rgb(%1, %2, %3); }").
+      arg(c.red()).arg(c.green()).arg(c.blue());
   colorExample->setAutoFillBackground(true);
+  colorExample->setStyleSheet(styleSheet);
   grid->addWidget(colorExample,2,1);
 
   colorButton = new QPushButton("Change");
@@ -918,8 +929,7 @@ PageAttributeTextGui::PageAttributeTextGui(
 
 void PageAttributeTextGui::browseFont(bool clicked)
 {
-  clicked = clicked;
-
+  Q_UNUSED(clicked);
   QFont font;
   QString fontName = meta->textFont.valueFoo();
   font.fromString(fontName);
@@ -936,15 +946,18 @@ void PageAttributeTextGui::browseFont(bool clicked)
 
 void PageAttributeTextGui::browseColor(bool clicked)
 {
-  clicked = clicked;
+  Q_UNUSED(clicked);
   QColor qcolor = LDrawColor::color(meta->textColor.value());
   QColor newColor = QColorDialog::getColor(qcolor,this);
   if (newColor.isValid() && qcolor != newColor) {
-    colorExample->setPalette(QPalette(newColor));
-    colorExample->setAutoFillBackground(true);
-    meta->textColor.setValue(newColor.name());
-    colorModified = true;
-  }
+      colorExample->setAutoFillBackground(true);
+      QString styleSheet =
+          QString("QLabel { background-color: rgb(%1, %2, %3); }")
+          .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
+      colorExample->setStyleSheet(styleSheet);
+      meta->textColor.setValue(newColor.name());
+      colorModified = true;
+    }
 }
 
 void PageAttributeTextGui::value0Changed(QString const &string)
@@ -982,7 +995,7 @@ void PageAttributeTextGui::editChanged(const QString &value)
 
 void PageAttributeTextGui::placementChanged(bool clicked)
 {
-  clicked = clicked;
+  Q_UNUSED(clicked);
   PlacementData placementData = meta->placement.value();
   bool ok;
   ok = PlacementDialog
@@ -1272,7 +1285,7 @@ void PageAttributePictureGui::valueChanged(double value)
 
 void PageAttributePictureGui::placementChanged(bool clicked)
 {
-  clicked = clicked;
+  Q_UNUSED(clicked);
   PlacementData placementData = meta->placement.value();
   bool ok;
   ok = PlacementDialog
@@ -1423,8 +1436,12 @@ FadeStepGui::FadeStepGui(
 
     colorExample = new QLabel(parent);
     colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-    colorExample->setPalette(QPalette(LDrawColor::color(meta->fadeColor.value())));
+    QColor c = QColor(meta->fadeColor.value());
+    QString styleSheet =
+        QString("QLabel { background-color: rgb(%1, %2, %3); }").
+        arg(c.red()).arg(c.green()).arg(c.blue());
     colorExample->setAutoFillBackground(true);
+    colorExample->setStyleSheet(styleSheet);
 
     grid->addWidget(colorExample);
 
@@ -1448,10 +1465,15 @@ FadeStepGui::FadeStepGui(
 void FadeStepGui::colorChange(QString const &colorName)
 {
   QColor newColor = LDrawColor::color(colorName);
-  meta->fadeColor.setValue(LDrawColor::name(newColor.name()));
-  colorExample->setPalette(QPalette(newColor));
-  colorExample->setAutoFillBackground(true);
-  modified = true;
+  if (newColor.isValid()) {
+      colorExample->setAutoFillBackground(true);
+      QString styleSheet =
+          QString("QLabel { background-color: rgb(%1, %2, %3); }")
+          .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
+      colorExample->setStyleSheet(styleSheet);
+      meta->fadeColor.setValue(LDrawColor::name(newColor.name()));
+      modified = true;
+    }
 }
 
 void FadeStepGui::apply(
@@ -1491,8 +1513,12 @@ HighlightStepGui::HighlightStepGui(
 
     colorExample = new QLabel(parent);
     colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-    colorExample->setPalette(QPalette(LDrawColor::color(meta->highlightColor.value())));
     colorExample->setAutoFillBackground(true);
+    QColor c = QColor(meta->highlightColor.value());
+    QString styleSheet =
+        QString("QLabel { background-color: rgb(%1, %2, %3); }").
+        arg(c.red()).arg(c.green()).arg(c.blue());
+    colorExample->setStyleSheet(styleSheet);
 
     grid->addWidget(colorExample);
 
@@ -1517,12 +1543,15 @@ void HighlightStepGui::colorChange(bool clicked)
 {
   Q_UNUSED(clicked);
   QColor highlightColour = QColorDialog::getColor(colorExample->palette().background().color(), this );
-  if( highlightColour.isValid()) {
-    colorExample->setPalette(QPalette(highlightColour));
-    colorExample->setAutoFillBackground(true);
-    meta->highlightColor.setValue(highlightColour.name());
-    modified = true;
-  }
+  if (highlightColour.isValid()) {
+      colorExample->setAutoFillBackground(true);
+      QString styleSheet =
+          QString("QLabel { background-color: rgb(%1, %2, %3); }")
+          .arg(highlightColour.red()).arg(highlightColour.green()).arg(highlightColour.blue());
+      colorExample->setStyleSheet(styleSheet);
+      meta->highlightColor.setValue(highlightColour.name());
+      modified = true;
+    }
 }
 
 void HighlightStepGui::apply(
@@ -2284,8 +2313,12 @@ SepGui::SepGui(
 
   colorExample = new QLabel(parent);
   colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-  colorExample->setPalette(QPalette(sep.color));
   colorExample->setAutoFillBackground(true);
+  QColor c = QColor(sep.color);
+  QString styleSheet =
+      QString("QLabel { background-color: rgb(%1, %2, %3); }").
+      arg(c.red()).arg(c.green()).arg(c.blue());
+  colorExample->setStyleSheet(styleSheet);
   grid->addWidget(colorExample,1,1);
 
   button = new QPushButton("Change",parent);
@@ -2320,17 +2353,21 @@ void SepGui::thicknessChange(
 void SepGui::browseColor(
   bool clicked)
 {
-  clicked = clicked;
+  Q_UNUSED(clicked);
   SepData sep = meta->value();
 
-  QColor color = LDrawColor::color(sep.color);
-  QColor newColor = QColorDialog::getColor(color,this);
-  if (color != newColor) {
-    sep.color = newColor.name();
-    meta->setValue(sep);
-    colorExample->setPalette(QPalette(newColor));
-    modified = true;
-  }
+  QColor qcolor = LDrawColor::color(sep.color);
+  QColor newColor = QColorDialog::getColor(qcolor,this);
+  if (newColor.isValid() && qcolor != newColor) {
+      colorExample->setAutoFillBackground(true);
+      QString styleSheet =
+          QString("QLabel { background-color: rgb(%1, %2, %3); }")
+          .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
+      colorExample->setStyleSheet(styleSheet);
+      sep.color = newColor.name();
+      meta->setValue(sep);
+      modified = true;
+    }
 }
 void SepGui::marginXChange(
   QString const &string)
@@ -3550,8 +3587,11 @@ SubModelColorGui::SubModelColorGui(
 
   subModelColor0Example = new QLabel(parent);
   subModelColor0Example->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-  subModelColor0Example->setPalette(QPalette(meta->value(Level1)));
   subModelColor0Example->setAutoFillBackground(true);
+  QColor c = QColor(meta->value(Level1));
+  QString styleSheet = QString("QLabel { background-color: rgb(%1, %2, %3); }").
+      arg(c.red()).arg(c.green()).arg(c.blue());
+  subModelColor0Example->setStyleSheet(styleSheet);
   grid->addWidget(subModelColor0Example,0,1);
 
   subModelColor0Button = new QPushButton("Change");
@@ -3566,8 +3606,11 @@ SubModelColorGui::SubModelColorGui(
 
   subModelColor1Example = new QLabel(parent);
   subModelColor1Example->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-  subModelColor1Example->setPalette(QPalette(meta->value(Level2)));
   subModelColor1Example->setAutoFillBackground(true);
+  c = QColor(meta->value(Level2));
+  styleSheet = QString("QLabel { background-color: rgb(%1, %2, %3); }").
+      arg(c.red()).arg(c.green()).arg(c.blue());
+  subModelColor1Example->setStyleSheet(styleSheet);
   grid->addWidget(subModelColor1Example,1,1);
 
   subModelColor1Button = new QPushButton("Change");
@@ -3582,8 +3625,11 @@ SubModelColorGui::SubModelColorGui(
 
   subModelColor2Example = new QLabel(parent);
   subModelColor2Example->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-  subModelColor2Example->setPalette(QPalette(meta->value(Level3)));
   subModelColor2Example->setAutoFillBackground(true);
+  c = QColor(meta->value(Level3));
+  styleSheet = QString("QLabel { background-color: rgb(%1, %2, %3); }").
+      arg(c.red()).arg(c.green()).arg(c.blue());
+  subModelColor2Example->setStyleSheet(styleSheet);
   grid->addWidget(subModelColor2Example,2,1);
 
   subModelColor2Button = new QPushButton("Change");
@@ -3598,8 +3644,11 @@ SubModelColorGui::SubModelColorGui(
 
   subModelColor3Example = new QLabel(parent);
   subModelColor3Example->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-  subModelColor3Example->setPalette(QPalette(meta->value(Level4)));
   subModelColor3Example->setAutoFillBackground(true);
+  c = QColor(meta->value(Level4));
+  styleSheet = QString("QLabel { background-color: rgb(%1, %2, %3); }").
+      arg(c.red()).arg(c.green()).arg(c.blue());
+  subModelColor3Example->setStyleSheet(styleSheet);
   grid->addWidget(subModelColor3Example,3,1);
 
   subModelColor3Button = new QPushButton("Change");
@@ -3617,8 +3666,10 @@ void SubModelColorGui::browseSubModelColor0(bool clicked)
   QColor qcolor = LDrawColor::color(meta->value(Level1));
   QColor newColor = QColorDialog::getColor(qcolor,this);
   if (newColor.isValid() && qcolor != newColor) {
-    subModelColor0Example->setPalette(QPalette(newColor));
     subModelColor0Example->setAutoFillBackground(true);
+    QString styleSheet = QString("QLabel { background-color: rgb(%1, %2, %3); }")
+        .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
+    subModelColor0Example->setStyleSheet(styleSheet);
     meta->setValue(Level1, newColor.name());
     subModelColorModified = true;
   }
@@ -3630,8 +3681,10 @@ void SubModelColorGui::browseSubModelColor1(bool clicked)
   QColor qcolor = LDrawColor::color(meta->value(Level2));
   QColor newColor = QColorDialog::getColor(qcolor,this);
   if (newColor.isValid() && qcolor != newColor) {
-    subModelColor1Example->setPalette(QPalette(newColor));
     subModelColor1Example->setAutoFillBackground(true);
+    QString styleSheet = QString("QLabel { background-color: rgb(%1, %2, %3); }")
+        .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
+    subModelColor1Example->setStyleSheet(styleSheet);
     meta->setValue(Level2, newColor.name());
     subModelColorModified = true;
   }
@@ -3643,8 +3696,10 @@ void SubModelColorGui::browseSubModelColor2(bool clicked)
   QColor qcolor = LDrawColor::color(meta->value(Level3));
   QColor newColor = QColorDialog::getColor(qcolor,this);
   if (newColor.isValid() && qcolor != newColor) {
-    subModelColor2Example->setPalette(QPalette(newColor));
     subModelColor2Example->setAutoFillBackground(true);
+    QString styleSheet = QString("QLabel { background-color: rgb(%1, %2, %3); }")
+        .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
+    subModelColor2Example->setStyleSheet(styleSheet);
     meta->setValue(Level3, newColor.name());
     subModelColorModified = true;
   }
@@ -3656,8 +3711,10 @@ void SubModelColorGui::browseSubModelColor3(bool clicked)
   QColor qcolor = LDrawColor::color(meta->value(Level4));
   QColor newColor = QColorDialog::getColor(qcolor,this);
   if (newColor.isValid() && qcolor != newColor) {
-    subModelColor3Example->setPalette(QPalette(newColor));
     subModelColor3Example->setAutoFillBackground(true);
+    QString styleSheet = QString("QLabel { background-color: rgb(%1, %2, %3); }")
+        .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
+    subModelColor3Example->setStyleSheet(styleSheet);
     meta->setValue(Level4, newColor.name());
     subModelColorModified = true;
   }

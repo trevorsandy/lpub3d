@@ -34,38 +34,28 @@ LGraphicsView::LGraphicsView(LGraphicsScene *scene)
   : pageBackgroundItem(NULL),
     fitMode(FitVisible),
     mPageRect(QRectF(0,0,0,0)),
-    mPageRuler(Preferences::pageRuler),
-    mPageGuides(Preferences::pageGuides),
     mGridLayoutSet(false),
     mGridLayout(NULL)
 {
   setScene(scene);
   setAcceptDrops(true);
 
-  connect(this,SIGNAL(setPageGuidesSig(bool)),    scene,SLOT(setPageGuides(bool)));
-  connect(this,SIGNAL(setGuidePenSig(const QPen &)), scene,SLOT(setGuidePen(const QPen &)));
+  connect(this,SIGNAL(setPageGuidesSig(bool)),  scene,SLOT(setPageGuides(bool)));
+  connect(this,SIGNAL(setGuidePenSig(Theme)),   scene,SLOT(setGuidePen(Theme)));
+  connect(this,SIGNAL(setSceneThemeSig(Theme)), scene,SLOT(setGuidePen(Theme)));
+  connect(this,SIGNAL(setSceneThemeSig(Theme)), this, SLOT(setPageRuler(Theme)));
+  connect(this,SIGNAL(setSceneThemeSig(Theme)), this, SLOT(setSceneBackground(Theme)));
 
-  if (mPageGuides)
-    setPageGuides();
-
-  if (mPageRuler)
-    setPageRuler();
 }
 
-void LGraphicsView::setPageGuides(){
-  mPageGuides = Preferences::pageGuides;;
-  emit setPageGuidesSig(mPageGuides);
+void LGraphicsView::setPageGuides(Theme t){
+  emit setGuidePenSig(t);
+  emit setPageGuidesSig(Preferences::pageGuides);
 }
 
-void LGraphicsView::setGuidePen(const QPen &pen){
-  emit setGuidePenSig(pen);
-}
+void LGraphicsView::setPageRuler(Theme t){
 
-void LGraphicsView::setPageRuler(){
-
-  mPageRuler = Preferences::pageRuler;
-
-  if (mPageRuler) {
+  if (Preferences::pageRuler) {
 
       if (mGridLayoutSet) {
           removeGridItem(mGridLayout,0,0,true);
@@ -83,8 +73,8 @@ void LGraphicsView::setPageRuler(){
       fake->setBackgroundRole(QPalette::Window);
       fake->setFixedSize(RULER_BREADTH,RULER_BREADTH);
 
-      LRuler * mHorzRuler = new LRuler(LRuler::Horizontal,fake);
-      LRuler * mVertRuler = new LRuler(LRuler::Vertical,fake);
+      LRuler * mHorzRuler = new LRuler(LRuler::Horizontal,t,fake);
+      LRuler * mVertRuler = new LRuler(LRuler::Vertical,t,fake);
 
       mGridLayout->addWidget(fake,0,0);
       mGridLayout->addWidget(mHorzRuler,0,1);
@@ -179,6 +169,15 @@ void LGraphicsView::resizeEvent(QResizeEvent *event)
     }
 }
 
+/* Theme related */
+void LGraphicsView::setSceneBackground(Theme t){
+  QColor c;
+  c = t == ThemeDark ? QColor(THEME_BGCOLOR_DARK) :
+                       QColor(THEME_BGCOLOR_DEFAULT) ;
+  this->scene()->setBackgroundBrush(c);
+}
+
+
 /* drag and drop */
 void LGraphicsView::dragMoveEvent(QDragMoveEvent *event){
   if (event->mimeData()->hasUrls()) {
@@ -256,6 +255,23 @@ void LRuler::setOrigin(const qreal origin)
   }
 }
 
+void LRuler::setRulerTickPen(Theme t) {
+  t == ThemeDark ? mRulerTickPen.setColor(THEME_TICK_PEN_DARK) :
+                   mRulerTickPen.setColor(THEME_TICK_PEN_DEFAULT);
+  mRulerTickPen.setWidth(0);  // zero width pen is cosmetic pen
+}
+
+void LRuler::setRulerNMLPen(Theme t) {
+  t == ThemeDark ? mRulerNMLPen.setColor(THEME_NML_PEN_DARK) :
+                   mRulerNMLPen.setColor(THEME_NML_PEN_DEFAULT);
+  mRulerNMLPen.setWidth(2);
+}
+
+void LRuler::setRulerColor(Theme t){
+  mRulerColor = t == ThemeDark ? QColor(THEME_BGCOLOR_DARK) :
+                                 QColor(THEME_BGCOLOR_DEFAULT);
+}
+
 void LRuler::setRulerUnit(const qreal rulerUnit)
 {
   if (mRulerUnit != rulerUnit)
@@ -303,15 +319,14 @@ void LRuler::paintEvent(QPaintEvent* event)
   Q_UNUSED(event);
   QPainter painter(this);
     painter.setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
-    QPen pen(Qt::darkGray,0); // zero width pen is cosmetic pen
+    QPen pen(mRulerTickPen);
     pen.setCosmetic(true);
     painter.setPen(pen);
-  // We want to work with floating point, so we are considering
-  // the rect as QRectF
+  // We want to work with floating point, so define the rect as QRectF
   QRectF rulerRect = this->rect();
 
   // at first fill the rect
-  painter.fillRect(rulerRect,QColor(Qt::lightGray));
+  painter.fillRect(rulerRect,mRulerColor);
 
   // drawing a scale of 25
   drawAScaleMeter(&painter,rulerRect,10,(Horizontal == mRulerType ? rulerRect.height()
@@ -334,7 +349,7 @@ void LRuler::paintEvent(QPaintEvent* event)
       : rulerRect.topRight();
   QPointF endPt = Horizontal == mRulerType ? rulerRect.bottomRight()
       : rulerRect.bottomRight();
-  painter.setPen(QPen(Qt::black,2));
+  painter.setPen(mRulerNMLPen);
   painter.drawLine(starPt,endPt);
 }
 

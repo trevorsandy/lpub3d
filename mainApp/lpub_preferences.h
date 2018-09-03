@@ -115,6 +115,7 @@ class Preferences
     static QString povrayScenePath;
     static QString dataLocation;
     static QString povFileGenerator;
+    static QString displayTheme;
     static bool    ldrawiniFound;
     static bool    enableDocumentLogo;
     static bool    enableLDViewSingleCall;

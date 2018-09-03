@@ -27,19 +27,41 @@
 #include <QtWidgets>
 #include "parmshighlighter.h"
 #include "version.h"
+#include "name.h"
+#include "lpub_preferences.h"
 
 ParmsHighlighter::ParmsHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
 {
     HighlightingRule rule;
 
-    LPubParmsFormat.setForeground(Qt::darkGreen);
+    QBrush br01; // Qt Dark green
+    QBrush br02; // Qt Dark blue
+    if (Preferences::displayTheme == THEME_DEFAULT) {
+        br01 = QBrush(QColor(THEME_HIGHLIGHT_01_DEFAULT));
+        br02 = QBrush(QColor(THEME_HIGHLIGHT_02_DEFAULT));
+      }
+    else
+    if (Preferences::displayTheme == THEME_DARK)  {
+        br01 = QBrush(QColor(THEME_HIGHLIGHT_01_DARK));
+        br02 = QBrush(QColor(THEME_HIGHLIGHT_02_DARK));
+      }
+
+    LPubParmsFormat.setForeground(br01);
     LPubParmsFormat.setFontWeight(QFont::Bold);
+
     rule.pattern = QRegExp("[#|;][^\n]*");
     rule.format = LPubParmsFormat;
     highlightingRules.append(rule);
 
-    multiLineCommentFormat.setForeground(Qt::darkGreen);
+    LPubParmsHdrFormat.setForeground(br02);
+    LPubParmsHdrFormat.setFontWeight(QFont::Bold);
+
+    rule.pattern = QRegExp("^\\[.*[^\n]\\]$");
+    rule.format = LPubParmsHdrFormat;
+    highlightingRules.append(rule);
+
+    multiLineCommentFormat.setForeground(br01);
     commentStartExpression = QRegExp("\\b#\\b+[^\n]*");
     commentEndExpression   = QRegExp("\\#!\\b+[^\n]*");
 }

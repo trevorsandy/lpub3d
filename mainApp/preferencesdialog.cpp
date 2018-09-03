@@ -121,9 +121,14 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.fadeStepsColoursCombo->setCurrentIndex(int(ui.fadeStepsColoursCombo->findText(Preferences::fadeStepsColour)));
   QColor fadeColor = LDrawColor::color(Preferences::fadeStepsColour);
   if(fadeColor.isValid() ) {
-    ui.fadeStepsColourLabel->setPalette(QPalette(fadeColor));
-    ui.fadeStepsColourLabel->setAutoFillBackground(true);
-  }
+      ui.fadeStepsColourLabel->setAutoFillBackground(true);
+      QString styleSheet =
+          QString("QLabel { background-color: rgb(%1, %2, %3); }")
+              .arg(fadeColor.red())
+              .arg(fadeColor.green())
+              .arg(fadeColor.blue());
+      ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
+    }
 
   ui.highlightStepBox->setChecked(               Preferences::enableHighlightStep);
   ui.highlightStepBtn->setEnabled(               Preferences::enableHighlightStep);
@@ -137,8 +142,13 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   QColor highlightColour = QColor(               Preferences::highlightStepColour);
   if(highlightColour.isValid() ) {
-    ui.highlightStepColorLabel->setPalette(QPalette(highlightColour));
     ui.highlightStepColorLabel->setAutoFillBackground(true);
+    QString styleSheet =
+        QString("QLabel { background-color: rgb(%1, %2, %3); }")
+            .arg(highlightColour.red())
+            .arg(highlightColour.green())
+            .arg(highlightColour.blue());
+    ui.highlightStepColorLabel->setStyleSheet(styleSheet);
   }
 
   QStringList logLevels = tr(VER_LOGGING_LEVELS_STR).split(",");
@@ -256,6 +266,11 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
       ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
 
   ui.ldvPreferencesBtn->setEnabled(Preferences::preferredRenderer == RENDERER_LDVIEW);
+
+  /* Themes */
+  ui.themeCombo->addItem(THEME_DEFAULT);
+  ui.themeCombo->addItem(THEME_DARK);
+  ui.themeCombo->setCurrentText(Preferences::displayTheme);
 
   /* [Experimental] LDView Image Matting */
   ui.imageMattingChk->setChecked(                Preferences::enableImageMatting);
@@ -501,17 +516,31 @@ void PreferencesDialog::on_altLDConfigBox_clicked(bool checked)
 void PreferencesDialog::on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName)
 {
   QColor newFadeColor = LDrawColor::color(colorName);
-  ui.fadeStepsColourLabel->setPalette(QPalette(newFadeColor));
-  ui.fadeStepsColourLabel->setAutoFillBackground(true);
+  if(newFadeColor.isValid() ) {
+      ui.fadeStepsColourLabel->setAutoFillBackground(true);
+      QString styleSheet =
+          QString("QLabel { background-color: rgb(%1, %2, %3); }")
+          .arg(newFadeColor.red())
+          .arg(newFadeColor.green())
+          .arg(newFadeColor.blue());
+      ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
+    }
 }
 
 void PreferencesDialog::on_highlightStepBtn_clicked()
 {
   QColor highlightColour = QColorDialog::getColor(ui.highlightStepColorLabel->palette().background().color(), this );
   if( highlightColour.isValid()) {
-    ui.highlightStepColorLabel->setPalette(QPalette(highlightColour));
-    ui.highlightStepColorLabel->setAutoFillBackground(true);
-  }
+      if(highlightColour.isValid() ) {
+          ui.highlightStepColorLabel->setAutoFillBackground(true);
+          QString styleSheet =
+              QString("QLabel { background-color: rgb(%1, %2, %3); }")
+              .arg(highlightColour.red())
+              .arg(highlightColour.green())
+              .arg(highlightColour.blue());
+          ui.highlightStepColorLabel->setStyleSheet(styleSheet);
+        }
+    }
 }
 
 void PreferencesDialog::on_fadeStepBox_clicked(bool checked)
@@ -758,6 +787,11 @@ bool  PreferencesDialog::printDocumentTOC()
 bool  PreferencesDialog::doNotShowPageProcessDlg()
 {
   return ui.doNotShowPageProcessDlgChk->isChecked();
+}
+
+QString const PreferencesDialog::displayTheme()
+{
+  return ui.themeCombo->currentText();
 }
 
 QString const PreferencesDialog::defaultURL()
@@ -1016,4 +1050,3 @@ void PreferencesDialog::accept(){
 void PreferencesDialog::cancel(){
   QDialog::reject();
 }
-

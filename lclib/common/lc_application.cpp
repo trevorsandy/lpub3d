@@ -691,9 +691,13 @@ void lcApplication::ShowPreferencesDialog()
 /*** LPub3D Mod - preference refresh ***/
     if (Preferences::preferredRenderer == RENDERER_NATIVE)
     {
-      bool shadingModeChanged = Options.Preferences.mShadingMode     != lcGetProfileInt(LC_PROFILE_SHADING_MODE);
-      bool drawEdgeLinesChanged = Options.Preferences.mDrawEdgeLines != lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
-      bool lineWidthChanged = Options.Preferences.mLineWidth         != lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
+      float mLineWidth      = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
+      bool mDrawEdgeLInes     = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
+      lcShadingMode mShadingMode = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
+
+      bool drawEdgeLinesChanged = Options.Preferences.mDrawEdgeLines != mDrawEdgeLInes;
+      bool shadingModeChanged = Options.Preferences.mShadingMode     != mShadingMode;
+      bool lineWidthChanged = Options.Preferences.mLineWidth         != mLineWidth;
       if (AAChanged || shadingModeChanged || drawEdgeLinesChanged || lineWidthChanged)
       {
           bool silent = true;

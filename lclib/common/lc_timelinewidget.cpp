@@ -198,10 +198,13 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 
 			PieceItem->setIcon(0, mIcons[ColorIndex]);
 
-			QColor Color = palette().text().color();
-			if (Piece->IsHidden())
-				Color.setAlpha(128);
-			PieceItem->setTextColor(0, Color);
+/*** LPub3D Mod - Set color only if hidden otherwise use default ***/
+			if (Piece->IsHidden()) {
+			    QColor Color = PieceItem->textColor(0);
+			    Color.setAlpha(128);
+			    PieceItem->setTextColor(0,Color);
+			  }
+/*** LPub3D Mod end ***/
 		}
 
 		PieceItem->setSelected(Piece->IsSelected());

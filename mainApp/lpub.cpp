@@ -758,14 +758,14 @@ void Gui::fitVisible()
 
 void Gui::pageGuides()
 {
-    Preferences::setPageGuidesPreference(pageGuidesAct->isChecked());
-    KpageView->setPageGuides();
+  Preferences::setPageGuidesPreference(pageGuidesAct->isChecked());
+  KpageView->setPageGuides(getTheme());
 }
 
 void Gui::pageRuler()
 {
   Preferences::setPageRulerPreference(pageRulerAct->isChecked());
-  KpageView->setPageRuler();
+  KpageView->setPageRuler(getTheme());
 }
 
 void Gui::actualSize()
@@ -976,6 +976,28 @@ void Gui::mpdComboChanged(int index)
   mpdCombo->setCurrentIndex(index);
 }
 
+void Gui::reloadViewer(){
+  if (getCurFile().isEmpty()) {
+      Project* NewProject = new Project();
+      gApplication->SetProject(NewProject);
+  }
+}
+
+void Gui::reloadEditors(){
+//  editWindow  = new EditWindow(this);
+//  parmsWindow = new ParmsWindow();
+}
+
+void Gui::reloadCurrentModelFile(){
+  if (getCurFile().isEmpty()) {
+     return;
+  }
+  int savePage = displayPageNum;
+  openFile(curFile);
+  displayPageNum = savePage;
+  displayPage();
+  enableActions();
+}
 
 void Gui::clearAllCaches()
 {
@@ -1425,6 +1447,7 @@ void Gui::preferences()
     QString ldrawPathCompare            = Preferences::ldrawPath;
     QString lgeoPathCompare             = Preferences::lgeoPath;
     QString preferredRendererCompare    = Preferences::preferredRenderer;
+    QString displayThemeCompare         = Preferences::displayTheme;
 
    // Native Pov file generation settings
     QString selectedAspectRatioCompare;
@@ -1521,6 +1544,7 @@ void Gui::preferences()
 
         bool ldrawPathChanged              = QString(Preferences::ldrawPath).toLower()           != ldrawPathCompare.toLower();
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
+        bool displayThemeChanged           = Preferences::displayTheme.toLower()                 != displayThemeCompare.toLower();
 
         // Native Pov file generation settings
          QString selectedAspectRatio;
@@ -1594,7 +1618,15 @@ void Gui::preferences()
 
 	bool lightsChanged                = QString(Preferences::ldvLights).toLower()                                               != lightsCompare.toLower();
 
-        bool nativePovRendererConfig       = Preferences::preferredRenderer == RENDERER_POVRAY && Preferences::povFileGenerator == RENDERER_NATIVE;
+	bool nativePovRendererConfig      = Preferences::preferredRenderer == RENDERER_POVRAY && Preferences::povFileGenerator == RENDERER_NATIVE;
+
+        if (displayThemeChanged)
+          {
+            Application::instance()->setTheme();
+            reloadEditors();
+            reloadViewer();
+            reloadCurrentModelFile();
+          }
 
         if (enableFadeStepsChanged)
         {

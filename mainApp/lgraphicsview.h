@@ -20,6 +20,7 @@
 
 #include "qgraphicsscene.h"
 #include "lgraphicsscene.h"
+#include "name.h"
 
 enum FitMode { FitNone, FitWidth, FitVisible, FitTwoPages, FitContinuousScroll };
 
@@ -54,14 +55,15 @@ public:
   void zoomOut();
 
 public slots:
-  void setPageRuler();
-  void setPageGuides();
-  void setGuidePen(const QPen &pen);
+  void setPageGuides(Theme t = ThemeDefault);
+  void setPageRuler(Theme t = ThemeDefault);
+  void setSceneBackground(Theme t = ThemeDefault);
 
 signals:
     void setPageRulerSig(bool);
     void setPageGuidesSig(bool);
-    void setGuidePenSig(const QPen &);
+    void setGuidePenSig(Theme t);
+    void setSceneThemeSig(Theme t);
 
 protected:
     // toggle ruler
@@ -78,8 +80,6 @@ protected:
 
 private:
   QRectF mPageRect;
-  bool mPageRuler;
-  bool mPageGuides;
   bool mGridLayoutSet;
   QGridLayout* mGridLayout;
 };
@@ -98,7 +98,7 @@ Q_PROPERTY(qreal rulerZoom READ rulerZoom WRITE setRulerZoom)
 
 public:
   enum RulerType { Horizontal, Vertical };
-LRuler(LRuler::RulerType rulerType, QWidget* parent)
+LRuler(LRuler::RulerType rulerType, Theme t, QWidget* parent)
 : QWidget(parent),
   mRulerType(rulerType),
   mOrigin(0.),
@@ -113,6 +113,9 @@ LRuler(LRuler::RulerType rulerType, QWidget* parent)
   txtFont.setStyleHint(QFont::SansSerif,QFont::PreferOutline);
   txtFont.setStyleStrategy(QFont::PreferAntialias);
   setFont(txtFont);
+  setRulerColor(t);
+  setRulerNMLPen(t);
+  setRulerTickPen(t);
 }
 
 QSize minimumSizeHint() const
@@ -146,6 +149,9 @@ public slots:
   void setRulerZoom(const qreal rulerZoom);
   void setCursorPos(const QPoint cursorPos);
   void setMouseTrack(const bool track);
+  void setRulerTickPen(Theme = ThemeDefault);
+  void setRulerNMLPen(Theme = ThemeDefault);
+  void setRulerColor(Theme = ThemeDefault);
 
 protected:
   void mouseMoveEvent(QMouseEvent* event);
@@ -163,6 +169,9 @@ private:
   QPoint mCursorPos;
   bool mMouseTracking;
   bool mDrawText;
+  QPen mRulerTickPen;
+  QPen mRulerNMLPen;
+  QColor mRulerColor;
 };
 
 #endif // LGRAPHICSVIEW_H

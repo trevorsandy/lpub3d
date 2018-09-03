@@ -531,6 +531,7 @@ include(otherfiles.pri)
 RESOURCES += \
     ../lclib/resources/lclib.qrc \
     ../ldvlib/LDVQt/resources.qrc \
+    qdarkstyle/style.qrc \
     lpub3d.qrc \
 
 DISTFILES += \

@@ -44,12 +44,36 @@
 #include "highlighter.h"
 #include "version.h"
 
+#include "name.h"
+#include "lpub_preferences.h"
+
 Highlighter::Highlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
 {
     HighlightingRule rule;
 
-    officialMetaFormat.setForeground(Qt::blue);
+    QBrush br01; // Qt Dark green
+    QBrush br02; // Qt Dark blue
+    QBrush br03; // Qt Dark Red
+    QBrush br04; // Qt Blue
+    QBrush br05; // Qt Red
+    if (Preferences::displayTheme == THEME_DEFAULT) {
+        br01 = QBrush(QColor(THEME_HIGHLIGHT_01_DEFAULT));
+        br02 = QBrush(QColor(THEME_HIGHLIGHT_02_DEFAULT));
+        br03 = QBrush(QColor(THEME_HIGHLIGHT_03_DEFAULT));
+        br04 = QBrush(QColor(THEME_HIGHLIGHT_04_DEFAULT));
+        br05 = QBrush(QColor(THEME_HIGHLIGHT_05_DEFAULT));
+      }
+    else
+    if (Preferences::displayTheme == THEME_DARK) {
+        br01 = QBrush(QColor(THEME_HIGHLIGHT_01_DARK));
+        br02 = QBrush(QColor(THEME_HIGHLIGHT_02_DARK));
+        br03 = QBrush(QColor(THEME_HIGHLIGHT_03_DARK));
+        br04 = QBrush(QColor(THEME_HIGHLIGHT_04_DARK));
+        br05 = QBrush(QColor(THEME_HIGHLIGHT_05_DARK));
+      }
+
+    officialMetaFormat.setForeground(br04);
     officialMetaFormat.setFontWeight(QFont::Bold);
 
     QStringList officialMetaPatterns;
@@ -88,7 +112,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         highlightingRules.append(rule);
     }
 
-    MLCadMetaFormat.setForeground(Qt::darkBlue);
+    MLCadMetaFormat.setForeground(br02);
     MLCadMetaFormat.setFontWeight(QFont::Bold);
 
     QStringList MLCadMetaPatterns;
@@ -108,7 +132,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         highlightingRules.append(rule);
     }
 
-    LPubMetaFormat.setForeground(Qt::darkRed);
+    LPubMetaFormat.setForeground(br03);
     LPubMetaFormat.setFontWeight(QFont::Bold);
 
     QStringList LPubMetaPatterns;
@@ -124,8 +148,8 @@ Highlighter::Highlighter(QTextDocument *parent)
         highlightingRules.append(rule);
     }
 
+    LSynthMetaFormat.setForeground(br05);
     LSynthMetaFormat.setFontWeight(QFont::Bold);
-    LSynthMetaFormat.setForeground(Qt::red);
 
     QStringList LSynthMetaPatterns;
     LSynthMetaPatterns
@@ -139,8 +163,8 @@ Highlighter::Highlighter(QTextDocument *parent)
         highlightingRules.append(rule);
     }
 
+    LDCadMetaFormat.setForeground(br05);
     LDCadMetaFormat.setFontWeight(QFont::Bold);
-    LDCadMetaFormat.setForeground(Qt::red);
 
     QStringList LDCadMetaPatterns;
     LDCadMetaPatterns
@@ -154,13 +178,13 @@ Highlighter::Highlighter(QTextDocument *parent)
         highlightingRules.append(rule);
       }
 
-    LPubCommentFormat.setForeground(Qt::darkGreen);
+    LPubCommentFormat.setForeground(br01);
     rule.pattern = QRegExp("\\/\\/[^\n]*");
     rule.format = LPubCommentFormat;
     highlightingRules.append(rule);
 
 
-    multiLineCommentFormat.setForeground(Qt::darkGreen);
+    multiLineCommentFormat.setForeground(br01);
     commentStartExpression = QRegExp("\\bLPUB FOO BEGIN\\b+[^\n]*");
     commentEndExpression   = QRegExp("\\bLPUB FOO END\\b+[^\n]*");
 }

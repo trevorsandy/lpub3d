@@ -590,6 +590,10 @@ public:
       ldrawFile.clearViewerSteps();
   }
 
+  void setSceneTheme(Theme t){
+    KpageView->setSceneThemeSig(t);
+  }
+
   bool suppressColourMeta()
   {
     return false; //Preferences::preferredRenderer == RENDERER_NATIVE;
@@ -621,6 +625,16 @@ public:
   QString getCurFile()
   {
       return curFile;
+  }
+
+  Theme getTheme(){
+    if (Preferences::displayTheme == THEME_DEFAULT) {
+        return ThemeDefault;
+      } else {
+        if (Preferences::displayTheme == THEME_DARK)
+          return ThemeDark;
+      }
+    return ThemeDefault;
   }
 
 public slots:
@@ -750,6 +764,10 @@ public slots:
   {
       clearAllCaches();
   }
+  void reloadCurrentModelFile();
+  void reloadViewer();
+  void reloadEditors();
+
   bool removeDir(int &count,const QString &dirName);
 
   void fileChanged(const QString &path);

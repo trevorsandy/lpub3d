@@ -31,9 +31,9 @@
 #ifndef HIGHLIGHTER_H
 #define HIGHLIGHTER_H
 
+#include <QTextCharFormat>
 #include <QSyntaxHighlighter>
 #include <QHash>
-#include <QTextCharFormat>
 
 class QTextDocument;
 
