@@ -10,12 +10,8 @@ cd $LP3D_BUILD_FOLDER
 
 export DISPLAY=:99.0
 if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-  #sh -e /etc/init.d/xvfb start;
-  /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16
-  # Set to address 'QXcbConnection: Could not connect to display' message
-  sudo ln -s /usr/share/fonts /usr/lib/x86_64-linux-gnu/fonts
-  export QT_QPA_PLATFORM=offscreen
-  export QT_QPA_FONTDIR=/usr/lib/x86_64-linux-gnu/fonts
+  # execute directly in at after_script/build_check
+  #xvfb-run --auto-servernum --server-num=1 -s "-screen 0 640x480x24" lpub3d22
 fi
 if [ "$TRAVIS_OS_NAME" = "osx" ]; then
   ( sudo Xvfb :99 -ac -screen 0 1024x768x24; echo ok ) &
