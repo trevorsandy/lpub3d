@@ -1484,7 +1484,7 @@ FadeStepGui::FadeStepGui(
     colorCombo = new QComboBox(parent);
     colorCombo->addItems(LDrawColor::names());
     colorCombo->setCurrentIndex(int(colorCombo->findText(meta->fadeColor.value())));
-    if (! Preferences::enableFadeStep)
+    if (! Preferences::enableFadeSteps)
         colorCombo->setDisabled(true);
     connect(colorCombo,SIGNAL(currentIndexChanged(QString const &)),
                    this, SLOT(colorChange(        QString const &)));
@@ -2421,13 +2421,13 @@ RendererGui::RendererGui(
 
   combo = new QComboBox(parent);
   if (Preferences::ldgliteExe != "") {
-    combo->addItem("LDGLite");
+    combo->addItem(RENDERER_LDGLITE);
   }
   if (Preferences::ldviewExe != "") {
-    combo->addItem("LDView");
+    combo->addItem(RENDERER_LDVIEW);
   }
   if (Preferences::povrayExe != "") {
-    combo->addItem("POVRay");
+    combo->addItem(RENDERER_POVRAY);
   }
 
   QString renderer = Render::getRenderer();

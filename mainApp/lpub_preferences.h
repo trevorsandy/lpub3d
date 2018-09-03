@@ -71,7 +71,7 @@ class Preferences
     static QString lpub3dDocsResourcePath;
     static QString lpub3d3rdPartyConfigDir;
     static QString lpub3d3rdPartyAppDir;
-    static QString fadeStepColour;
+    static QString fadeStepsColour;
     static QString ldrawColourPartsFile;
     static QString highlightStepColour;
     static QString pliSubstitutePartsFile;
@@ -112,6 +112,7 @@ class Preferences
     static bool    displayAllAttributes;
     static bool    generateCoverPages;
     static bool    printDocumentTOC;
+    static bool    doNotShowPageProcessDlg;
     static bool    preferCentimeters;
     static bool    showAllNotifications;
     static bool    showUpdateNotifications;
@@ -120,9 +121,9 @@ class Preferences
     static bool    lpub3dLoaded;
     static bool    lgeoStlLib;
 
-    static bool    enableFadeStep;
-    static bool    fadeStepUseColour;
-    static int     fadeStepOpacity;
+    static bool    enableFadeSteps;
+    static bool    fadeStepsUseColour;
+    static int     fadeStepsOpacity;
     static bool    enableHighlightStep;
     static int     highlightStepLineWidth;
 

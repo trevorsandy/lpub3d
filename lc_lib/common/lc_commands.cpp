@@ -8,14 +8,14 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Action", "File.New"),
 		QT_TRANSLATE_NOOP("Menu", "&New"),
 		QT_TRANSLATE_NOOP("Status", "Create a new model"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+N")
+		QT_TRANSLATE_NOOP("Shortcut", "")                            /*** LPub3D Mod - LPub3D Menu conflict ***/
 	},
 	// LC_FILE_OPEN
 	{
 		QT_TRANSLATE_NOOP("Action", "File.Open"),
 		QT_TRANSLATE_NOOP("Menu", "&Open..."),
 		QT_TRANSLATE_NOOP("Status", "Open an existing model"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+O")
+		QT_TRANSLATE_NOOP("Shortcut", "")                           /*** LPub3D Mod - LPub3D Menu conflict ***/
 	},
 	// LC_FILE_MERGE
 	{
@@ -29,7 +29,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Action", "File.Save"),
 		QT_TRANSLATE_NOOP("Menu", "&Save"),
 		QT_TRANSLATE_NOOP("Status", "Save the current model"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+S")
+		QT_TRANSLATE_NOOP("Shortcut", "")                           /*** LPub3D Mod - LPub3D Menu conflict ***/
 	},
 	// LC_FILE_SAVEAS
 	{
@@ -176,14 +176,14 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Action", "Edit.Undo"),
 		QT_TRANSLATE_NOOP("Menu", "&Undo"),
 		QT_TRANSLATE_NOOP("Status", "Undo the last action"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+Z")
+		QT_TRANSLATE_NOOP("Shortcut", "")                                /*** LPub3D Mod - LPub3D Menu conflict ***/
 	},
 	// LC_EDIT_REDO
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Redo"),
 		QT_TRANSLATE_NOOP("Menu", "&Redo"),
 		QT_TRANSLATE_NOOP("Status", "Redo the previously undone action"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+Y")
+		QT_TRANSLATE_NOOP("Shortcut", "")                                 /*** LPub3D Mod - LPub3D Menu conflict ***/
 	},
 	// LC_EDIT_CUT
 	{

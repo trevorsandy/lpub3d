@@ -73,9 +73,6 @@ lcApplication::lcApplication()
     gApplication = this;
     mProject = nullptr;
     mLibrary = nullptr;
-/*** LPub3D Mod - initialize loadFile param ***/
-    mLoadFile = nullptr;
-/*** LPub3D Mod end ***/
 
     mPreferences.LoadDefaults();
 }
@@ -245,9 +242,8 @@ bool lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainW
 
         if (Param[0] != '-')
         {
-            ProjectName = Param;
-/*** LPub3D Mod - capture file loaded from command line ***/
-            mLoadFile = Param;
+/*** LPub3D Mod - suppress 3DViewer file load ***/
+            //ProjectName = Param;
 /*** LPub3D Mod end ***/
             continue;
         }
@@ -366,8 +362,6 @@ bool lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainW
             ParseInteger(PartImagesWidth);
         else if (Param == QLatin1String("--html-parts-height"))
             ParseInteger(PartImagesHeight);
-        else
-            printf("Unknown commandline parameter: '%s'\n", Param.toLatin1().constData());
     }
 
 /*** LPub3D Mod - initialize mainwindow with LPub3D parent ***/

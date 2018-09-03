@@ -33,6 +33,7 @@
 #include <QGraphicsRectItem>
 #include <QString>
 #include <QStringList>
+#include <QHash>
 #include "range_element.h"
 #include "pli.h"
 #include "meta.h"
@@ -42,6 +43,7 @@
 class Meta;
 class Callout;
 class Range;
+class ImageMatting;
 enum PlacementType;
 
 class Step : public AbstractRangeElement
@@ -67,6 +69,7 @@ class Step : public AbstractRangeElement
     PlacementMeta         placement;
     QString               ldrName;
     QString               pngName;
+    QString               csiKey;
     QString               csi3DName;
     PlacementHeader       pageHeader;
     PlacementFooter       pageFooter;
@@ -138,4 +141,5 @@ class Step : public AbstractRangeElement
     virtual void addGraphicsItems(int ox, int oy, Meta *, PlacementType, QGraphicsItem *, bool);
 
 };
+
 #endif

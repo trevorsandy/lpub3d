@@ -116,7 +116,7 @@ void Gui::clearRecentFiles()
   updateRecentFileActions();
 }
 
-void Gui::loadFile(const QString &file)
+bool Gui::loadFile(const QString &file)
 {
     QString fileName = file;
     QFileInfo info(fileName);
@@ -130,11 +130,15 @@ void Gui::loadFile(const QString &file)
         emit messageSig(true, QString("File loaded (%1 parts). %2")
                         .arg(ldrawFile.getPartCount())
                         .arg(elapsedTime(timer.elapsed())));
+        return true;
     } else {
-        QMessageBox::warning(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                             QMessageBox::tr("Unable to load file %1.")
-                             .arg(fileName));
+        QString message = QString("Unable to load file %1.").arg(fileName);
+        if (Preferences::modeGUI)
+          emit messageSig(false,message);
+        else
+          emit messageSig(true,message);
     }
+    return false;
 }
 
 void Gui::save()

@@ -25,6 +25,10 @@
 #include "lc_global.h"
 #include "name.h"
 
+#ifdef Q_OS_WIN
+  #include <windows.h>
+#endif
+
 class InitException: public QException
 {
 public:
@@ -61,6 +65,11 @@ public:
     /// Return applicaion launch mode
     bool modeGUI();
 
+    /// Console redirection for Windows
+#ifdef Q_OS_WIN
+    void RedirectIOToConsole();
+#endif
+
     /// Initialize the splash screen
     QSplashScreen *splash;
 
@@ -95,6 +104,31 @@ private:
     /// Print details flag
     bool m_print_output;
 
+    /// File specified on via commandline
+    QString m_commandline_file;
+
+#ifdef Q_OS_WIN
+    /// Windows console information
+    CONSOLE_SCREEN_BUFFER_INFO ConsoleInfo;
+
+    /// Windows standard output handle
+    HANDLE ConsoleOutput;
+    FILE *COutputHandle;
+
+    /// Windows standard error handle
+    HANDLE ConsoleError;
+    FILE *CErrorHandle;
+
+    /// Windows standard input handle
+    HANDLE ConsoleInput;
+    FILE *CInputHandle;
+
+    /// Windows console save attributes
+    WORD m_currentConsoleAttr;
+
+    /// indicate if using allocated console
+    bool m_allocated_console;
+#endif
 };
 
 /// ENTRY_POINT is a macro that implements the main function.

@@ -162,7 +162,7 @@ void Gui::checkMixedPageSizeStatus(){
   bool double_warning        = false;
   int key;
 
-  if (exportOption == EXPORT_PAGE_RANGE){
+  if (processOption == EXPORT_PAGE_RANGE){
 
       QStringList pageRanges = pageRangeText.split(",");
       QList<int> printPages;
@@ -234,7 +234,7 @@ void Gui::checkMixedPageSizeStatus(){
             }
         }
 
-    } else if (exportOption == EXPORT_ALL_PAGES) {
+    } else if (processOption == EXPORT_ALL_PAGES) {
 
 //      logDebug() << QString("Default  page         size(Inches) W %1 x H %2, ID %3, orientation %4")
 //                               .arg(pageSizes[DEF_SIZE].sizeW)
@@ -280,7 +280,10 @@ void Gui::checkMixedPageSizeStatus(){
       box.setText (title);
       box.setInformativeText (text);
 
-      box.exec();
+      if (Preferences::modeGUI)
+        box.exec();
+      else
+        emit messageSig(true,QString("%1").arg(text));
     }
 }
 
@@ -304,7 +307,10 @@ bool Gui::validatePageRange(){
       box.setText (title);
       box.setInformativeText (text);
 
-      box.exec();
+      if (Preferences::modeGUI)
+        box.exec();
+      else
+        emit messageSig(true,QString("Empty page range. %1").arg(text));
 
       return false;
     }
@@ -342,7 +348,10 @@ bool Gui::validatePageRange(){
       box.setText (title);
       box.setInformativeText (text);
 
-      box.exec();
+      if (Preferences::modeGUI)
+        box.exec();
+      else
+        emit messageSig(true,QString("Invalid page number(s). %1").arg(text));
 
       return false;
     }
@@ -369,46 +378,57 @@ void Gui::exportAsBmpDialog(){
 bool Gui::exportAsDialog(Mode t)
 {
   exportType = t;
-  DialogExportPages *dialog = new DialogExportPages();
-  if (dialog->exec() == QDialog::Accepted) {
-      if(dialog->allPages()){
-          exportOption = EXPORT_ALL_PAGES;
-        } else
-      if(dialog->currentPage()){
-          exportOption = EXPORT_CURRENT_PAGE;
-        } else
-      if(dialog->pageRange()){
-          exportOption  = EXPORT_PAGE_RANGE;
-          pageRangeText = dialog->pageRangeText();
-          if (! validatePageRange()){
-              return false;
+
+  if (Preferences::modeGUI) {
+      DialogExportPages *dialog = new DialogExportPages();
+      if (dialog->exec() == QDialog::Accepted) {
+          if(dialog->allPages()){
+              processOption = EXPORT_ALL_PAGES;
             }
+          else
+          if(dialog->currentPage()){
+              processOption = EXPORT_CURRENT_PAGE;
+            }
+          else
+          if(dialog->pageRange()){
+              processOption  = EXPORT_PAGE_RANGE;
+              pageRangeText = dialog->pageRangeText();
+              if (! validatePageRange()){
+                  return false;
+                }
+            }
+        } else {
+          return false;
         }
+      resetCache = dialog->resetCache();
+
       QSettings Settings;
       if (Preferences::ignoreMixedPageSizesMsg != dialog->ignoreMixedPageSizesMsg())
         {
           Preferences::ignoreMixedPageSizesMsg = dialog->ignoreMixedPageSizesMsg();
           Settings.setValue(QString("%1/%2").arg(DEFAULTS,"IgnoreMixedPageSizesMsg "),Preferences::ignoreMixedPageSizesMsg);
         }
-      if(dialog->resetCache()){
-          clearPLICache();
-          clearCSICache();
-          //TODO add remove ldraw viewer content when move to 2.1
-        }
-      if (! m_previewDialog){
-          if (t == EXPORT_PDF)
-            exportAsPdf();
-          else if (t == EXPORT_PNG)
-            exportAsPng();
-          else if (t == EXPORT_JPG)
-            exportAsJpg();
-          else
-            exportAsBmp();
-        }
-      return true;
-    } else {
-      return false;
     }
+
+  if(resetCache){
+      clearCustomPartCache(true);
+      clearAndRedrawPage();
+    }
+
+  if (! m_previewDialog){
+      if (t == EXPORT_PDF)
+        exportAsPdf();
+      else
+      if (t == EXPORT_PNG)
+        exportAsPng();
+      else
+      if (t == EXPORT_JPG)
+        exportAsJpg();
+      else
+        exportAsBmp();
+    }
+
+  return true;
 }
 
 void Gui::exportAsPdf()
@@ -423,16 +443,23 @@ void Gui::exportAsPdf()
   // determine location for output file
   QFileInfo fileInfo(curFile);
   QString baseName = fileInfo.baseName();
-  QString fileName = QFileDialog::getSaveFileName(
-        this,
-        tr("Export File Name"),
-        QDir::currentPath() + "/" + baseName,
-        tr("PDF (*.pdf)"));
+  QString fileName = QDir::currentPath() + "/" + baseName;
 
-  if (fileName == "") {
-      // release 3D Viewer
-      setExportingSig(false);
-      return;
+  if (Preferences::modeGUI) {
+      fileName = QFileDialog::getSaveFileName(
+            this,
+            tr("Export File Name"),
+            QDir::currentPath() + "/" + baseName,
+            tr("PDF (*.pdf)"));
+
+      if (fileName == "") {
+          // release 3D Viewer
+          setExportingSig(false);
+          return;
+        }
+    } else
+    if (!saveFileName.isEmpty()) {
+        fileName = saveFileName;
     }
 
   // want info about output file now, not model file
@@ -466,12 +493,13 @@ void Gui::exportAsPdf()
       box.setText (title);
       box.setInformativeText (text);
 
-      if (box.exec() == QMessageBox::Retry){
+      if (Preferences::modeGUI && (box.exec() == QMessageBox::Retry)){
           if ( ! printFile.open(QFile::ReadWrite))
             return;
         } else {
           // release 3D Viewer
           setExportingSig(false);
+          emit messageSig(true, QString("Cannot open file. %1").arg(text));
           return;
         }
     }
@@ -499,7 +527,8 @@ void Gui::exportAsPdf()
 
   // initialize progress bar dialog
   m_progressDialog->setWindowTitle("Export pdf");
-  m_progressDialog->show();
+   if (Preferences::modeGUI)
+     m_progressDialog->show();
 
   // reset page indicators
   _displayPageNum = 0;
@@ -507,14 +536,14 @@ void Gui::exportAsPdf()
 
   m_progressDlgMessageLbl->setText("Exporting instructions to pdf...");
 
-  if (exportOption != EXPORT_PAGE_RANGE){
+  if (processOption != EXPORT_PAGE_RANGE){
 
-      if(exportOption == EXPORT_ALL_PAGES){
+      if(processOption == EXPORT_ALL_PAGES){
           _displayPageNum = 1;
           _maxPages = maxPages;
         }
 
-      if (exportOption == EXPORT_CURRENT_PAGE){
+      if (processOption == EXPORT_CURRENT_PAGE){
           _displayPageNum = displayPageNum;
           _maxPages       = displayPageNum;
         }
@@ -533,7 +562,8 @@ void Gui::exportAsPdf()
 
           if (! exporting()) {
               painter.end();
-              m_progressDialog->hide();
+              if (Preferences::modeGUI)
+                  m_progressDialog->hide();
               displayPageNum = savePageNumber;
               drawPage(KpageView,KpageScene,false);
               emit messageSig(true,QString("Export to pdf terminated before completion."));
@@ -621,7 +651,8 @@ void Gui::exportAsPdf()
 
           if (! exporting()) {
               painter.end();
-              m_progressDialog->hide();
+              if (Preferences::modeGUI)
+                  m_progressDialog->hide();
               displayPageNum = savePageNumber;
               drawPage(KpageView,KpageScene,false);
               emit messageSig(true,QString("Export to pdf terminated before completion."));
@@ -686,9 +717,8 @@ void Gui::exportAsPdf()
   drawPage(KpageView,KpageScene,false);
 
   // hide progress bar
-  m_progressDialog->hide();
-
-  emit messageSig(true,QString("Export to pdf completed."));
+  if (Preferences::modeGUI)
+      m_progressDialog->hide();
 
   box.setIcon (QMessageBox::Information);
   box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
@@ -702,7 +732,7 @@ void Gui::exportAsPdf()
   box.setText (title);
   box.setInformativeText (text);
 
-  if (box.exec() == QMessageBox::Yes) {
+  if (Preferences::modeGUI && (box.exec() == QMessageBox::Yes)) {
       QString CommandPath = fileName;
       QProcess *Process = new QProcess(this);
       Process->setWorkingDirectory(QDir::currentPath() + "/");
@@ -723,6 +753,7 @@ void Gui::exportAsPdf()
 #endif
       return;
     } else {
+      emit messageSig(true, "Export to pdf completed!");
       return;
     }
 }
@@ -755,17 +786,23 @@ void Gui::exportAs(QString &suffix)
 
   // determine location to output images
   QFileInfo fileInfo(curFile);
-  //QDir initialDirectory = fileInfo.dir();
   QString baseName = fileInfo.baseName();
-  QString directoryName = QFileDialog::getExistingDirectory(
-        this,
-        tr("Save images to folder"), // needs translation! also, include suffix in here
-        QDir::currentPath(),
-        QFileDialog::ShowDirsOnly);
-  if (directoryName == "") {
-      // release 3D Viewer
-      setExportingSig(false);
-      return;
+  QString directoryName = QDir::currentPath();
+
+  if (Preferences::modeGUI) {
+      directoryName = QFileDialog::getExistingDirectory(
+            this,
+            tr("Save images to folder"), // needs translation! also, include suffix in here
+            QDir::currentPath(),
+            QFileDialog::ShowDirsOnly);
+      if (directoryName == "") {
+          // release 3D Viewer
+          setExportingSig(false);
+          return;
+        }
+     } else
+    if (!saveDirectoryName.isEmpty()) {
+        directoryName = saveDirectoryName;
     }
 
   QGraphicsScene scene;
@@ -786,17 +823,18 @@ void Gui::exportAs(QString &suffix)
 
   // initialize progress bar
   m_progressDialog->setWindowTitle(QString("Export as %1").arg(suffix));
-  m_progressDialog->show();
+  if (Preferences::modeGUI)
+      m_progressDialog->show();
   m_progressDlgMessageLbl->setText(QString("Exporting instructions to %1 format.").arg(suffix));
 
-  if (exportOption != EXPORT_PAGE_RANGE){
+  if (processOption != EXPORT_PAGE_RANGE){
 
-      if(exportOption == EXPORT_ALL_PAGES){
+      if(processOption == EXPORT_ALL_PAGES){
           _displayPageNum = 1;
           _maxPages = maxPages;
         }
 
-      if (exportOption == EXPORT_CURRENT_PAGE){
+      if (processOption == EXPORT_CURRENT_PAGE){
           _displayPageNum = displayPageNum;
           _maxPages       = displayPageNum;
         }
@@ -806,7 +844,8 @@ void Gui::exportAs(QString &suffix)
       for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
 
           if (! exporting()) {
-              m_progressDialog->hide();
+              if (Preferences::modeGUI)
+                  m_progressDialog->hide();
               displayPageNum = savePageNumber;
               drawPage(KpageView,KpageScene,false);
               emit messageSig(true,QString("Export terminated before completion."));
@@ -894,7 +933,8 @@ void Gui::exportAs(QString &suffix)
       foreach(int printPage,printPages){
 
           if (! exporting()) {
-              m_progressDialog->hide();
+              if (Preferences::modeGUI)
+                  m_progressDialog->hide();
               displayPageNum = savePageNumber;
               drawPage(KpageView,KpageScene,false);
               emit messageSig(true,QString("Export terminated before completion."));
@@ -966,9 +1006,8 @@ void Gui::exportAs(QString &suffix)
   drawPage(KpageView,KpageScene,false);
 
   // hide progress bar
-  m_progressDialog->hide();
-
-  emit messageSig(true,QString("Export as %1 completed.").arg(suffix.remove(".")));
+  if (Preferences::modeGUI)
+      m_progressDialog->hide();
 
   //display completion message
   QMessageBox box;
@@ -987,7 +1026,7 @@ void Gui::exportAs(QString &suffix)
   box.setText (title);
   box.setInformativeText (text);
 
-  if (box.exec() == QMessageBox::Yes){
+  if (Preferences::modeGUI && (box.exec() == QMessageBox::Yes)){
       QString CommandPath = directoryName;
       QProcess *Process = new QProcess(this);
       Process->setWorkingDirectory(QDir::currentPath() + "/");
@@ -1008,6 +1047,8 @@ void Gui::exportAs(QString &suffix)
 #endif
       return;
     } else {
+      emit messageSig(true, "Export " + suffix.remove(".") + " completed!");
+      emit messageSig(true, QString("Export " + suffix.remove(".") + " images path: %1").arg(directoryName));
       return;
     }
 }
@@ -1092,7 +1133,8 @@ void Gui::PrintPdf(QPrinter* Printer)
 
   // initialize progress bar dialog
   m_progressDialog->setWindowTitle(preview ? "Preview pdf" : "Preview pdf" /* Export pdf */);  //Hack
-  m_progressDialog->show();
+  if (Preferences::modeGUI)
+      m_progressDialog->show();
   m_progressDlgMessageLbl->setText(preview ? "Generating preview..." : "Exporting...");
 
   for (int DocCopy = 0; DocCopy < DocCopies; DocCopy++)
@@ -1101,9 +1143,9 @@ void Gui::PrintPdf(QPrinter* Printer)
 
       m_progressDlgProgressBar->setRange(Page,ToPage);
 
-      if (exportOption != EXPORT_PAGE_RANGE){
+      if (processOption != EXPORT_PAGE_RANGE){
 
-          if (exportOption == EXPORT_CURRENT_PAGE){
+          if (processOption == EXPORT_CURRENT_PAGE){
               // reset display page from saved page
               displayPageNum = savePageNumber;
               // reset page layout using display page
@@ -1117,7 +1159,8 @@ void Gui::PrintPdf(QPrinter* Printer)
             {
               if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
                 {
-                  m_progressDialog->hide();
+                  if (Preferences::modeGUI)
+                      m_progressDialog->hide();
                   displayPageNum = savePageNumber;
                   drawPage(KpageView,KpageScene,false);
                   emit messageSig(true,QString("Exporting terminated before completion."));
@@ -1164,7 +1207,8 @@ void Gui::PrintPdf(QPrinter* Printer)
                 {
                   if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
                     {
-                      m_progressDialog->hide();
+                      if (Preferences::modeGUI)
+                          m_progressDialog->hide();
                       displayPageNum = savePageNumber;
                       drawPage(KpageView,KpageScene,false);
                       emit messageSig(true,QString("%1 terminated before completion.")
@@ -1230,7 +1274,8 @@ void Gui::PrintPdf(QPrinter* Printer)
 
               if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
                 {
-                  m_progressDialog->hide();
+                  if (Preferences::modeGUI)
+                      m_progressDialog->hide();
                   displayPageNum = savePageNumber;
                   drawPage(KpageView,KpageScene,false);
                   emit messageSig(true,QString("Exporting terminated before completion."));
@@ -1283,7 +1328,8 @@ void Gui::PrintPdf(QPrinter* Printer)
                 {
                   if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
                     {
-                      m_progressDialog->hide();
+                      if (Preferences::modeGUI)
+                          m_progressDialog->hide();
                       displayPageNum = savePageNumber;
                       drawPage(KpageView,KpageScene,false);
                       emit messageSig(true,QString("%1 terminated before completion.")
@@ -1327,7 +1373,8 @@ void Gui::PrintPdf(QPrinter* Printer)
   drawPage(KpageView,KpageScene,false);
 
   // hide progress bar
-  m_progressDialog->hide();
+  if (Preferences::modeGUI)
+      m_progressDialog->hide();
 
   emit messageSig(true,QString("%1 completed.").arg(preview ? "Preview" : "Export to pdf"));
 
@@ -1358,7 +1405,7 @@ void Gui::showPrintedFile(){
       box.setText (title);
       box.setInformativeText (text);
 
-      if (box.exec() == QMessageBox::Yes) {
+      if (Preferences::modeGUI && (box.exec() == QMessageBox::Yes)) {
           QString CommandPath = pdfPrintedFile;
           QProcess *Process = new QProcess(this);
           Process->setWorkingDirectory(QDir::currentPath() + "/");
@@ -1378,7 +1425,9 @@ void Gui::showPrintedFile(){
 #endif
           return;
         } else {
+          emit messageSig(true, "Export to pdf completed!");
           return;
+
         }
     }
 }
@@ -1442,3 +1491,9 @@ void Gui::TogglePrintPreview()
 
   m_previewDialog = false;
 }
+
+
+
+
+
+

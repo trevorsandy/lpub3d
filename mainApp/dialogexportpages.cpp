@@ -25,9 +25,15 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
 
   bool preview = gui->m_previewDialog;
   linePageRange  = gui->setPageLineEdit->displayText().replace("of","to");
-  QString direction = gui->pageDirection == PAGE_NEXT ? "Next" : "Previous";
 
-  if (! preview || gui->exportType != EXPORT_PDF) {
+  if (gui->exportType != PAGE_PROCESS) {
+      ui->doNotShowPageProcessDlgChk->hide();
+      this->resize(350,318);
+      ui->line->setGeometry(10,260,331,20);
+      ui->buttonBoxExportPages->setGeometry(10,277,331,32);
+    }
+
+  if (! preview && gui->exportType != EXPORT_PDF) {
       ui->groupBoxMixedPageSizes->hide();
       this->resize(350,260);
       ui->line->setGeometry(10,203,331,20);
@@ -39,7 +45,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
   ui->radioButtonAllPages->setChecked(true);
   ui->checkBoxResetCache->setChecked(false);
   ui->labelAllPages->setText(QString("1 to %1").arg(gui->maxPages));
-  ui->labelCurrentPage->setText(QString(gui->displayPageNum));
+  ui->labelCurrentPage->setText(QString("%1").arg(gui->displayPageNum));
   ui->lineEditPageRange->setText(QString(linePageRange).replace("to","-").replace(" ",""));
 
   switch(gui->exportType){
@@ -68,21 +74,25 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
       ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to bmp"));
       break;
     case PAGE_PROCESS:
+      QString direction = gui->pageDirection == PAGE_NEXT ? "Next" : "Previous";
       setWindowTitle(tr("%1 page continuous processing").arg(direction));
       ui->groupBoxPrintOptions->setTitle("Page processing options");
       ui->checkBoxResetCache->setText(tr("Reset all caches before %1 page processing").arg(direction.toLower()));
-      ui->checkBoxResetCache->setToolTip(tr("Check to reset caches (except fade/highlight parts) before %1 page processing").arg(direction.toLower()));
+      ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before %1 page processing").arg(direction.toLower()));
 
+      ui->doNotShowPageProcessDlgChk->show();
+      ui->doNotShowPageProcessDlgChk->setEnabled(true);
       ui->labelCurrentPage->hide();
       ui->radioButtonCurrentPage->hide();
       ui->groupBoxMixedPageSizes->hide();
-      ui->radioButtonPageRange->setGeometry(20,60,111,20);
-      ui->lineEditPageRange->setGeometry(134,60,181,22);
-      ui->groupBoxPrintOptions->setGeometry(10,17,331,107);
-      ui->groupBoxExportCache->setGeometry(10,130,331,51);
-      ui->line->setGeometry(10,183,331,20);
-      ui->buttonBoxExportPages->setGeometry(10,200,331,32);
-      this->resize(350,240);
+      ui->radioButtonPageRange->setGeometry(20,63,111,20);
+      ui->lineEditPageRange->setGeometry(134,63,181,22);
+      ui->groupBoxPrintOptions->setGeometry(10,17,331,111);
+      ui->groupBoxExportCache->setGeometry(10,136,331,51);
+      ui->doNotShowPageProcessDlgChk->setGeometry(30,195,251,20);
+      ui->line->setGeometry(10,214,331,20);
+      ui->buttonBoxExportPages->setGeometry(10,230,331,32);
+      this->resize(350,273);
       break;
     }
 }
@@ -114,6 +124,10 @@ bool DialogExportPages::resetCache(){
 
 bool DialogExportPages::ignoreMixedPageSizesMsg(){
   return ui->checkBoxIgnoreMixedPageSizes->isChecked();
+}
+
+bool DialogExportPages::doNotShowPageProcessDlg(){
+  return ui->doNotShowPageProcessDlgChk->isChecked();
 }
 
 void DialogExportPages::on_lineEditPageRange_textChanged(const QString &arg1)

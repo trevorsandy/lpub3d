@@ -26,81 +26,78 @@
 
 #ifdef Q_OS_WIN
 
-#pragma warning(push)
-#pragma warning(disable : 4091)
+  #include <stdio.h>
+  #include <fcntl.h>
+  #include <io.h>
+  #include <fstream>
 
-#include <dbghelp.h>
-#include <direct.h>
-#include <shlobj.h>
+  void Application::RedirectIOToConsole()
+  {
+    // Attach to the existing console of the parent process
+    m_allocated_console = !AttachConsole( ATTACH_PARENT_PROCESS );
 
-#ifdef UNICODE
-#ifndef _UNICODE
-#define _UNICODE
-#endif
-#endif
+    if (m_allocated_console) {
+      // maximum number of lines the output console should have
+      static const WORD MAX_CONSOLE_LINES = 1000;
 
-#include <tchar.h>
+      // Allocate the new console.
+      AllocConsole();
 
-QAction *actions[LC_NUM_COMMANDS];
-
-static TCHAR minidumpPath[_MAX_PATH];
-
-static LONG WINAPI lcSehHandler(PEXCEPTION_POINTERS exceptionPointers)
-{
-  if (IsDebuggerPresent())
-    return EXCEPTION_CONTINUE_SEARCH;
-
-  HMODULE dbgHelp = LoadLibrary(TEXT("dbghelp.dll"));
-
-  if (dbgHelp == nullptr)
-    return EXCEPTION_EXECUTE_HANDLER;
-
-  HANDLE file = CreateFile(minidumpPath, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-
-  if (file == INVALID_HANDLE_VALUE)
-    return EXCEPTION_EXECUTE_HANDLER;
-
-  typedef BOOL (WINAPI *LPMINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD ProcessId, HANDLE hFile, MINIDUMP_TYPE DumpType, CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, CONST PMINIDUMP_USER_STREAM_INFORMATION UserEncoderParam, CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
-  LPMINIDUMPWRITEDUMP miniDumpWriteDump = (LPMINIDUMPWRITEDUMP)GetProcAddress(dbgHelp, "MiniDumpWriteDump");
-  if (!miniDumpWriteDump)
-    return EXCEPTION_EXECUTE_HANDLER;
-
-  MINIDUMP_EXCEPTION_INFORMATION mei;
-
-  mei.ThreadId = GetCurrentThreadId();
-  mei.ExceptionPointers = exceptionPointers;
-  mei.ClientPointers = TRUE;
-
-  BOOL writeDump = miniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), file, MiniDumpNormal, exceptionPointers ? &mei : nullptr, nullptr, nullptr);
-
-  CloseHandle(file);
-  FreeLibrary(dbgHelp);
-
-  if (writeDump)
-    {
-      TCHAR message[_MAX_PATH + 256];
-      lstrcpy(message, TEXT("LPub3D just crashed. Crash information was saved to the file: '"));
-      lstrcat(message, minidumpPath);
-      lstrcat(message, TEXT("' Please send it to the developers for debugging."));
-
-      MessageBox(nullptr, message, TEXT("LPub3D"), MB_OK);
+      // set the screen buffer to be big enough to let us scroll text
+      GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),
+                                 &ConsoleInfo);
+      ConsoleInfo.dwSize.Y = MAX_CONSOLE_LINES;
+      SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE),
+                                 ConsoleInfo.dwSize);
     }
 
-  return EXCEPTION_EXECUTE_HANDLER;
-}
+    // Get STDOUT handle
+    ConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+    int SystemOutput = _open_osfhandle(intptr_t(ConsoleOutput), _O_TEXT);
+    COutputHandle = _fdopen(SystemOutput, "w");
 
-static void lcSehInit()
-{
-  if (SHGetFolderPath(nullptr, CSIDL_LOCAL_APPDATA | CSIDL_FLAG_CREATE, nullptr, SHGFP_TYPE_CURRENT, minidumpPath) == S_OK)
-    {
-      lstrcat(minidumpPath, TEXT("\\LPub3D Software\\LPub3D\\dump\\"));
-      _tmkdir(minidumpPath);
-      lstrcat(minidumpPath, TEXT("lpub3ddump.dmp"));
-    }
+    // Get STDERR handle
+    ConsoleError = GetStdHandle(STD_ERROR_HANDLE);
+    int SystemError = _open_osfhandle(intptr_t(ConsoleError), _O_TEXT);
+    CErrorHandle = _fdopen(SystemError, "w");
 
-  SetUnhandledExceptionFilter(lcSehHandler);
-}
+    // Get STDIN handle
+    ConsoleInput = GetStdHandle(STD_INPUT_HANDLE);
+    int SystemInput = _open_osfhandle(intptr_t(ConsoleInput), _O_TEXT);
+    CInputHandle = _fdopen(SystemInput, "r");
 
+    //retrieve and save the current attributes
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),
+                               &ConsoleInfo);
+    m_currentConsoleAttr = ConsoleInfo.wAttributes;
+    FlushConsoleInputBuffer(ConsoleOutput);
+
+    //change the attribute to what you like
+    SetConsoleTextAttribute (
+                ConsoleOutput,
+                FOREGROUND_RED |
+                FOREGROUND_GREEN);
+
+    //make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog point to console as well
+    std::ios_base::sync_with_stdio(true);
+
+    // Redirect the CRT standard input, output, and error handles to the console
+    freopen_s(&CInputHandle, "CONIN$", "r", stdin);
+    freopen_s(&COutputHandle, "CONOUT$", "w", stdout);
+    freopen_s(&CErrorHandle, "CONOUT$", "w", stderr);
+
+    //Clear the error state for each of the C++ standard stream objects. We need to do this, as
+    //attempts to access the standard streams before they refer to a valid target will cause the
+    //iostream objects to enter an error state. In versions of Visual Studio after 2005, this seems
+    //to always occur during startup regardless of whether anything has been read from or written to
+    //the console or not.
+    std::wcout.clear();
+    std::cout.clear();
+    std::wcerr.clear();
+    std::cerr.clear();
+    std::wcin.clear();
+    std::cin.clear();
+  }
 #endif
 
 // Initializes the Application instance as null
@@ -109,6 +106,9 @@ Application* Application::m_instance = nullptr;
 Application::Application(int &argc, char **argv)
   : m_application(argc, argv)
 {
+#ifdef Q_OS_WIN
+    RedirectIOToConsole();
+#endif
   m_instance = this;
   m_console_mode = false;
   m_print_output = false;
@@ -147,6 +147,7 @@ bool Application::modeGUI()
 
 void Application::initialize()
 {
+
   // process arguments
   bool headerPrinted = false;
   QStringList ListArgs, Arguments = arguments();
@@ -156,12 +157,16 @@ void Application::initialize()
   for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
   {
     const QString& Param = Arguments[ArgIdx];
-    if (Param[0] == '-' && ! headerPrinted)
+    if (Param[0] != '-') {
+      if (!m_console_mode && QFileInfo(Param).exists())
+        m_commandline_file = Param;
+    }
+    else if (! headerPrinted)
     {
       m_console_mode = true;
-      fprintf(stdout, "%s for %s\n",VER_PRODUCTNAME_STR,VER_COMPILED_FOR);
+      fprintf(stdout, "\n%s for %s\n",VER_PRODUCTNAME_STR,VER_COMPILED_FOR);
       fprintf(stdout, "==========================\n");
-      fprintf(stdout, "Arguments: %s\n",ListArgs.join(" ").toLatin1().constData());
+      fprintf(stdout, "Arguments: %s\n",QString(ListArgs.join(" ")).toLatin1().constData());
       fflush(stdout);
       headerPrinted = true;
     }
@@ -173,7 +178,7 @@ void Application::initialize()
       fprintf(stdout, "Compiled on " __DATE__ "\n");
       return;
     }
-    else if (Param == QLatin1String("-vv") || Param == QLatin1String("--vversion"))
+    else if (Param == QLatin1String("-vv") || Param == QLatin1String("--viewer-version"))
     {
       m_console_mode = true;
       m_print_output = true;
@@ -185,28 +190,43 @@ void Application::initialize()
     {
       m_console_mode = true;
       m_print_output = true;
-      fprintf(stdout, "Usage: lpub3d [options] [file]\n");
-      fprintf(stdout, "  [options] can be:\n");
-      fprintf(stdout, "  -l, --libpath <path>: Set the Parts Library location to path.\n");
-      fprintf(stdout, "  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n");
-      fprintf(stdout, "  -w, --width <width>: Set the picture width.\n");
-      fprintf(stdout, "  -h, --height <height>: Set the picture height.\n");
-      fprintf(stdout, "  -f, --from <time>: Set the first step to save pictures.\n");
-      fprintf(stdout, "  -t, --to <time>: Set the last step to save pictures.\n");
-      fprintf(stdout, "  -s, --submodel <submodel>: Set the active submodel.\n");
-      fprintf(stdout, "  -c, --camera <camera>: Set the active camera.\n");
-      fprintf(stdout, "  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
-      fprintf(stdout, "  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
-      fprintf(stdout, "  --orthographic: Make the view orthographic.\n");
-      fprintf(stdout, "  --highlight: Highlight pieces in the steps they appear.\n");
-      fprintf(stdout, "  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
-      fprintf(stdout, "  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
-      fprintf(stdout, "  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
-      fprintf(stdout, "  -html, --export-html <folder>: Create an HTML page for the model.\n");
-      fprintf(stdout, "  --html-parts-width <width>: Set the HTML part pictures width.\n");
-      fprintf(stdout, "  --html-parts-height <height>: Set the HTML part pictures height.\n");
+      fprintf(stdout, "Usage: %s [options] [ldraw file]\n",qApp->applicationName().toLatin1().constData());
+      fprintf(stdout, "  [file]:\n");
+      fprintf(stdout, "  Absolute file path and name with .ldr, .mpd or .dat extension.");
+      fprintf(stdout, "  [options]:\n");
+      fprintf(stdout, "  -pf, --process-file: Process ldraw file and generate images in png format.\n");
+      fprintf(stdout, "  -pe, --process-export: Export instruction document or images. Used with export-option. Default is pdf document.\n");
+      fprintf(stdout, "  -fs, --fade-steps: Turn on fade previous steps. Default is off.\n");
+      fprintf(stdout, "  -fc, --fade-steps-colour <LDraw colour code>: Set the global fade colour. Overidden by fade opacity - if opacity not 100 percent. Default is %s\n",FADE_COLOUR_DEFAULT);
+      fprintf(stdout, "  -fo, --fade-step-opacity <percent>: Set the fade steps opacity percent. Overrides fade colour - if opacity not 100 percent. Default is %s percent\n",QString(FADE_OPACITY_DEFAULT).toLatin1().constData());
+      fprintf(stdout, "  -hs, --highlight-step <Hex colour code>: Turn on highlight current step. Default is off.\n");
+      fprintf(stdout, "  -hc, --highlight-step-colour <Hex colour code>: Set the step highlight colour. Colour code optional. Format is #RRGGBB. Default is %s.\n",HIGHLIGHT_COLOUR_DEFAULT);
+      fprintf(stdout, "  -x, --clear-cache: Turn off reset the LDraw file and image caches. Used with export-option change. Default is off.\n");
+      fprintf(stdout, "  -r, --range <page range>: Set page range - e.g. 1,2,9,10-42. Default is all pages.\n");
+      fprintf(stdout, "  -o, --export-option <option>: Set output format pdf, png, jpeg or bmp. Used with process-export. Default is pdf.\n");
+      fprintf(stdout, "  -f, --pdf-output-file <path>: Designate the pdf document save file using absolute path.\n");
+      fprintf(stdout, "  -d, --image-output-directory <directory>: Designate the png, jpg or bmp save folder using absolute path.\n");
+      fprintf(stdout, "  -p, --preferred-renderer <renderer>: Set renderer ldglite, ldview, ldview-sc or povray. Default is ldview.\n ");
+//      fprintf(stdout, "  -l, --libpath <path>: Set the Parts Library location to path.\n");
+//      fprintf(stdout, "  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n");
+//      fprintf(stdout, "  -w, --width <width>: Set the picture width.\n");
+//      fprintf(stdout, "  -h, --height <height>: Set the picture height.\n");
+//      fprintf(stdout, "  -f, --from <time>: Set the first step to save pictures.\n");
+//      fprintf(stdout, "  -t, --to <time>: Set the last step to save pictures.\n");
+//      fprintf(stdout, "  -s, --submodel <submodel>: Set the active submodel.\n");
+//      fprintf(stdout, "  -c, --camera <camera>: Set the active camera.\n");
+//      fprintf(stdout, "  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
+//      fprintf(stdout, "  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
+//      fprintf(stdout, "  --orthographic: Make the view orthographic.\n");
+//      fprintf(stdout, "  --highlight: Highlight pieces in the steps they appear.\n");
+//      fprintf(stdout, "  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
+//      fprintf(stdout, "  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
+//      fprintf(stdout, "  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
+//      fprintf(stdout, "  -html, --export-html <folder>: Create an HTML page for the model.\n");
+//      fprintf(stdout, "  --html-parts-width <width>: Set the HTML part pictures width.\n");
+//      fprintf(stdout, "  --html-parts-height <height>: Set the HTML part pictures height.\n");
       fprintf(stdout, "  -v, --version: Output LPub3D version information and exit.\n");
-      fprintf(stdout, "  -vv, --vversion: Output 3DViewer - by LeoCAD version information and exit.\n");
+      fprintf(stdout, "  -vv, --viewer-version: Output 3DViewer - by LeoCAD version information and exit.\n");
       fprintf(stdout, "  -?, --help: Display this help message and exit.\n");
       fprintf(stdout, "  \n");
       return;
@@ -352,10 +372,6 @@ void Application::initialize()
 
   QList<QPair<QString, bool>> LibraryPaths;
 
-#if defined(Q_OS_WIN)
-  lcSehInit();
-#endif
-
 /* disable LibraryPaths - library paths managed by ldrawPreferences() in Gui
 #if defined(Q_OS_WIN)
   lcSehInit();
@@ -439,19 +455,15 @@ void Application::mainApp()
   {
     splash->finish(gui);
 
+    if (!m_commandline_file.isEmpty())
+       emit gui->loadFileSig(m_commandline_file);
+
     gui->show();
 
 #ifndef DISABLE_UPDATE_CHECK
     DoInitialUpdateCheck();
 #endif
   }
-
-  // load file passed in on command line.
-  if (!gApplication->mLoadFile.isEmpty())
-  {
-    emit gui->loadFileSig(gApplication->mLoadFile);
-  }
-
 }
 
 int Application::run()
@@ -464,12 +476,20 @@ int Application::run()
 
     mainApp();
 
-    logInfo() << QString("Run: Application started.");
-
-    if (modeGUI())
+    if (modeGUI()) {
+      logInfo() << QString("Run: Application started.");
       ExecReturn = m_application.exec();
-    else
-      ExecReturn = EXIT_SUCCESS;
+    } else {
+      logInfo() << QString("Run: Application started.");
+      ExecReturn = gui->processCommandLine();
+    }
+#ifdef Q_OS_WIN
+      if (m_allocated_console)
+        Sleep(2000);
+      SetConsoleTextAttribute (       //set the console to the original atrributes
+                  ConsoleOutput,
+                  m_currentConsoleAttr);
+#endif
   }
   catch(const std::exception& ex)
   {

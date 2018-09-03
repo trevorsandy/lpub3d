@@ -29,6 +29,7 @@
 #ifndef RENDER_H
 #define RENDER_H
 
+#include "imagematting.h"
 #include "QsLog.h"
 
 class QString;
@@ -47,6 +48,7 @@ public:
   virtual int 		 renderCsi(const QString &,
                                    const QStringList &,
                                    const QString &,
+                                   const QString &,
                                    Meta &) = 0;
   virtual int 		 renderPli(const QString &,
                                    const QString &,
@@ -57,7 +59,9 @@ public:
                                       const QStringList &parts,
                                       QString &ldrName,
                                       bool viewer = false);
-  int                    renderLDViewSCallCsi(const QStringList &,
+  int                    renderLDViewSCallCsi(
+                                     const QStringList &,
+                                     const QStringList &,
                                      Meta &);
   int                    renderLDViewSCallPli(const QStringList &,
                                          Meta &,
@@ -78,6 +82,7 @@ public:
                                              bool doHighlightStep = false);
   int                    load3DCsiImage(QString &);
 
+  ImageMatting           imageMatting;
 protected:
   virtual float          cameraDistance(Meta &meta, float) = 0;
 };
@@ -89,7 +94,7 @@ class POVRay : public Render
 public:
   POVRay() {}
   virtual ~POVRay() {}
-  virtual int renderCsi(const QString &,  const QStringList &, const QString &, Meta &);
+  virtual int renderCsi(const QString &,  const QStringList &, const QString &, const QString &, Meta &);
   virtual int renderPli(                  const QString     &, const QString &, Meta &, bool bom);
   virtual float cameraDistance(Meta &meta, float);
 };
@@ -99,7 +104,7 @@ class LDGLite : public Render
 public:
   LDGLite() {}
   virtual ~LDGLite() {}
-  virtual int renderCsi(const QString &,  const QStringList &, const QString &, Meta &);
+  virtual int renderCsi(const QString &,  const QStringList &, const QString &,const QString &, Meta &);
   virtual int renderPli(                  const QString &,     const QString &, Meta &, bool bom);
   virtual float cameraDistance(Meta &meta, float);
 };
@@ -109,7 +114,7 @@ class LDView : public Render
 public:
   LDView() {}
   virtual ~LDView() {}
-  virtual int renderCsi(const QString &,  const QStringList &, const QString &, Meta &);
+  virtual int renderCsi(const QString &,  const QStringList &, const QString &, const QString &, Meta &);
   virtual int renderPli(                  const QString &,     const QString &, Meta &, bool bom);
   virtual float cameraDistance(Meta &meta, float);
 };

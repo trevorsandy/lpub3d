@@ -198,6 +198,11 @@ int Step::createCsi(
   pngName = QDir::currentPath() + "/" +
       Paths::assemDir + "/" + key + ".png";
 
+  // add pngName using csiKey
+  csiKey = csiName() + "_" + sn;
+  if (!renderer->imageMatting.stepCSIImageExist(csiKey))
+    renderer->imageMatting.insertStepCSIImage(csiKey, pngName);
+
   csiOutOfDate = false;
 
   QFile csi(pngName);
@@ -237,7 +242,7 @@ int Step::createCsi(
           timer.start();
 
           // render the partially assembled model if single step and not called out
-          rc = renderer->renderCsi(addLine,csiParts, pngName, meta);
+          rc = renderer->renderCsi(addLine,csiParts, csiKey, pngName, meta);
           if (rc != 0) {
               QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
                                     QMessageBox::tr("Render CSI part failed for:\n%1.")
@@ -262,6 +267,7 @@ int Step::createCsi(
       csiPlacement.size[1] = pixmap->height();
     }
 
+  // Create the 3DViewer file
   if (! gui->exporting()) {
 
       int ln = top.lineNumber;                      // we need this to facilitate placing the ROTSTEP meta later on

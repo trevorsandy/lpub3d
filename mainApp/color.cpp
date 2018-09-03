@@ -119,10 +119,10 @@ LDrawColor::LDrawColor ()
 QColor LDrawColor::color(QString nickname)
 {
   QString lower(nickname.toLower());
+  QRegExp rx("\\s*(0x|#)([\\da-fA-F]+)\\s*$");
   if (name2color.contains(lower)) {
       return name2color[lower];
-    } else {
-      QRegExp rx("\\s*(0x|#)([\\da-fA-F]+)\\s*$");
+    } else
       if (nickname.contains(rx)) {
           QString prefix("0xf"+rx.cap(2));
           bool ok;
@@ -130,10 +130,8 @@ QColor LDrawColor::color(QString nickname)
           QColor color(rgb);
           color.setAlpha(255);
           return color;
-        } else {
-          return Qt::black;
-        }
     }
+  return Qt::black;
 }
 
 /*
@@ -143,11 +141,9 @@ QColor LDrawColor::color(QString nickname)
  */
 int LDrawColor::alpha(QString code)
 {
-  if (color2alpha.contains(code)) {
+  if (color2alpha.contains(code))
     return color2alpha[code];
-  } else {
-    return 255;
-  }
+  return 255;
 }
 
 /*
@@ -157,11 +153,9 @@ int LDrawColor::alpha(QString code)
  */
 QString LDrawColor::value(QString code)
 {
-  if (color2value.contains(code)) {
+  if (color2value.contains(code))
     return color2value[code];
-  } else {
-    return "FFFF80";
-  }
+  return "FFFF80";
 }
 
 /*
@@ -171,11 +165,9 @@ QString LDrawColor::value(QString code)
  */
 QString LDrawColor::edge(QString code)
 {
-  if (color2edge.contains(code)) {
+  if (color2edge.contains(code))
     return color2edge[code];
-  } else {
-    return "333333";
-  }
+  return "333333";
 }
 
 /*
@@ -185,11 +177,9 @@ QString LDrawColor::edge(QString code)
  */
 QString LDrawColor::name(QString code)
 {
-  if (color2name.contains(code)) {
+  if (color2name.contains(code))
     return color2name[code];
-  } else {
-    return "";
-  }
+  return "";
 }
 
 /* This function provides all the color names */
@@ -216,11 +206,9 @@ QStringList LDrawColor::names()
 QString LDrawColor::ldColorCode(QString name)
 {
     QString key(name.toLower());
-    if (ldname2ldcolor.contains(key)) {
+    if (ldname2ldcolor.contains(key))
       return ldname2ldcolor[key];
-    } else {
-      return "-1";
-    }
+    return "-1";
 }
 /*
  * This function performs a lookup of the provided LDraw color code
@@ -228,9 +216,7 @@ QString LDrawColor::ldColorCode(QString name)
  */
 bool LDrawColor::colorExist(QString code)
 {
-    if (name2color.contains(code)) {
-      return true;
-    } else {
-      return false;
-    }
+  if (name2color.contains(code))
+    return true;
+  return false;
 }

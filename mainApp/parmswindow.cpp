@@ -488,7 +488,7 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
       // load LDGLite settings if modified
       QFileInfo fileInfo(fileName);
       QString renderer = Render::getRenderer();
-      if ((renderer == "LDGLite") && (fileInfo.fileName() == QString(VER_LDGLITE_INI_FILE)))
+      if ((renderer == RENDERER_LDGLITE) && (fileInfo.fileName() == QString(VER_LDGLITE_INI_FILE)))
           Preferences::setLDGLiteIniParams();
 
       // is there anything loaded - to take advantage of our change?

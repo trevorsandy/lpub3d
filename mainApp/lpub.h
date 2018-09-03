@@ -435,9 +435,12 @@ public:
   int             bomOccurrence;   // the acutal occurenc of each pli BOM
 
   int             exportType;       // export Type
-  int             exportOption;     // export Option
+  int             processOption;     // export Option
   int             pageDirection;    // continusou page processing direction
   QString         pageRangeText;    // page range parameters
+  bool            resetCache;       // reset model, fade and highlight parts
+  QString         saveFileName;      // user specified output file Name [commandline only]
+  QString         saveDirectoryName; // user specified output directory name [commandline only]
 
   bool             m_previewDialog;
   ProgressDialog  *m_progressDialog; // general use progress dialog
@@ -628,12 +631,22 @@ public slots:
 
   void statusMessage(bool status, QString message){
       if (status){
-          statusBarMsg(message);
+          if (Preferences::modeGUI) {
+             statusBarMsg(message);
+          } else {
+             fprintf(stdout,"%s",message.append("\n").toLatin1().constData());
+             fflush(stdout);
+          }
           logStatus() << message;
-      }else{
-          QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
+      } else {
+          if (Preferences::modeGUI) {
+              QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
+          } else {
+              fprintf(stdout,"%s",message.append("\n").toLatin1().constData());
+              fflush(stdout);
+          }
           logNotice() << message;
-      }      
+      }
   }
 
   void statusBarMsg(QString msg);
@@ -722,7 +735,8 @@ public slots:
   void processFadeColourParts(bool overwriteCustomParts);
   void processHighlightColourParts(bool overwriteCustomParts);
 
-  void loadFile(const QString &file);
+  bool loadFile(const QString &file);
+  int processCommandLine();
 
   void TogglePrintPreview();
 
@@ -762,6 +776,7 @@ signals:
 
   void requestEndThreadNowSig();
   void loadFileSig(const QString &file);
+  void processCommandLineSig();
 
   void operateHighlightParts(bool overwriteCustomParts);
   void operateFadeParts(bool overwriteCustomParts);
@@ -849,6 +864,7 @@ private:
     bool           bfxStore2,
     QStringList   &bfxParts,
     QStringList   &ldrStepFiles,
+    QStringList   &csiKeys,
     bool           supressRotateIcon = false,
     bool           calledOut = false);
 
@@ -926,6 +942,8 @@ private:
     const int &type,
     const QString &printFile,
     const QString &imageFile);
+
+  bool processPageRange(const QString &range);
 
 private slots:
     void open();

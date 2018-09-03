@@ -34,6 +34,7 @@ public:
   bool pageRange();
   bool resetCache();
   bool ignoreMixedPageSizesMsg();
+  bool doNotShowPageProcessDlg();
   QString const pageRangeText();
 
 private slots:

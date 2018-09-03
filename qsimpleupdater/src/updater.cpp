@@ -85,7 +85,7 @@ Updater::Updater()
     m_platform = "ios";
 #endif
 
-    qDebug() << qPrintable(QString("DISTRO_PACKAGE_CODE (m_platform): %1").arg(m_platform));
+    //qDebug() << qPrintable(QString("DISTRO_PACKAGE_CODE (m_platform): %1").arg(m_platform));
 
     setUserAgentString (QString ("%1/%2 (Qt; QSimpleUpdater)").arg (qApp->applicationName(),
                         qApp->applicationVersion()));

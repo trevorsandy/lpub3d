@@ -82,6 +82,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.displayAllAttributes_Chk->setChecked(       Preferences::displayAllAttributes);
   ui.generateCoverPages_Chk->setChecked(         Preferences::generateCoverPages);
   ui.publishTOC_Chk->setChecked(                 Preferences::printDocumentTOC);
+  ui.doNotShowPageProcessDlgChk->setChecked(     Preferences::doNotShowPageProcessDlg);
   ui.publishURL_Edit->setText(                   Preferences::defaultURL);
   ui.publishEmail_Edit->setText(                 Preferences::defaultEmail);
   ui.publishDescriptionEdit->setText(            Preferences::publishDescription);
@@ -105,20 +106,20 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.logLevelGrpBox->setChecked(                 Preferences::logLevel);
   ui.logLevelsGrpBox->setChecked(                Preferences::logLevels);
 
-  ui.fadeStepBox->setChecked(                    Preferences::enableFadeStep);
-  ui.fadeStepUseColourBox->setEnabled(           Preferences::enableFadeStep);
-  ui.fadeStepUseColourBox->setChecked(           Preferences::fadeStepUseColour);
-  ui.fadeStepColorsCombo->setEnabled(            Preferences::enableFadeStep && Preferences::fadeStepUseColour);
-  ui.fadeStepOpacityBox->setEnabled(             Preferences::enableFadeStep);
-  ui.fadeStepOpacitySlider->setEnabled(          Preferences::enableFadeStep);
-  ui.fadeStepOpacitySlider->setValue(            Preferences::fadeStepOpacity);
+  ui.fadeStepBox->setChecked(                    Preferences::enableFadeSteps);
+  ui.fadeStepsUseColourBox->setEnabled(           Preferences::enableFadeSteps);
+  ui.fadeStepsUseColourBox->setChecked(           Preferences::fadeStepsUseColour);
+  ui.fadeStepsColoursCombo->setEnabled(            Preferences::enableFadeSteps && Preferences::fadeStepsUseColour);
+  ui.fadeStepsOpacityBox->setEnabled(             Preferences::enableFadeSteps);
+  ui.fadeStepsOpacitySlider->setEnabled(          Preferences::enableFadeSteps);
+  ui.fadeStepsOpacitySlider->setValue(            Preferences::fadeStepsOpacity);
 
-  ui.fadeStepColorsCombo->addItems(LDrawColor::names());
-  ui.fadeStepColorsCombo->setCurrentIndex(int(ui.fadeStepColorsCombo->findText(Preferences::fadeStepColour)));
-  QColor fadeColor = LDrawColor::color(Preferences::fadeStepColour);
+  ui.fadeStepsColoursCombo->addItems(LDrawColor::names());
+  ui.fadeStepsColoursCombo->setCurrentIndex(int(ui.fadeStepsColoursCombo->findText(Preferences::fadeStepsColour)));
+  QColor fadeColor = LDrawColor::color(Preferences::fadeStepsColour);
   if(fadeColor.isValid() ) {
-    ui.fadeStepColorLabel->setPalette(QPalette(fadeColor));
-    ui.fadeStepColorLabel->setAutoFillBackground(true);
+    ui.fadeStepsColourLabel->setPalette(QPalette(fadeColor));
+    ui.fadeStepsColourLabel->setAutoFillBackground(true);
   }
 
   ui.highlightStepBox->setChecked(               Preferences::enableHighlightStep);
@@ -186,30 +187,30 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   bool povRayExists = fileInfo.exists();
   povRayExists &= fileInfo.exists();
   if (povRayExists) {
-      ui.preferredRenderer->addItem("POVRay");
+      ui.preferredRenderer->addItem(RENDERER_POVRAY);
     }
 
   fileInfo.setFile(Preferences::ldgliteExe);
   int ldgliteIndex = ui.preferredRenderer->count();
   bool ldgliteExists = fileInfo.exists();
   if (ldgliteExists) {
-    ui.preferredRenderer->addItem("LDGLite");
+    ui.preferredRenderer->addItem(RENDERER_LDGLITE);
   }
 
   fileInfo.setFile(Preferences::ldviewExe);
   int ldviewIndex = ui.preferredRenderer->count();
   bool ldviewExists = fileInfo.exists();
   if (ldviewExists) {
-    ui.preferredRenderer->addItem("LDView");
+    ui.preferredRenderer->addItem(RENDERER_LDVIEW);
   }
 
-  if (Preferences::preferredRenderer == "LDView" && ldviewExists) {
+  if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
     ui.preferredRenderer->setCurrentIndex(ldviewIndex);
     ui.preferredRenderer->setEnabled(true);
-  } else if (Preferences::preferredRenderer == "LDGLite" && ldgliteExists) {
+  } else if (Preferences::preferredRenderer == RENDERER_LDGLITE && ldgliteExists) {
     ui.preferredRenderer->setCurrentIndex(ldgliteIndex);
     ui.preferredRenderer->setEnabled(true);
-  }  else if (Preferences::preferredRenderer == "POVRay" && povRayExists) {
+  }  else if (Preferences::preferredRenderer == RENDERER_POVRAY && povRayExists) {
       ui.preferredRenderer->setCurrentIndex(povRayIndex);
       ui.preferredRenderer->setEnabled(true);
   } else {
@@ -351,7 +352,7 @@ void PreferencesDialog::on_pushButtonReset_clicked()
   if (box.exec() == QMessageBox::Yes) {
 
       // get enable fade step setting
-      Preferences::enableFadeStep = ui.fadeStepBox->isChecked();
+      Preferences::enableFadeSteps = ui.fadeStepBox->isChecked();
       // get enable highlight step setting
       Preferences::enableHighlightStep = ui.highlightStepBox->isChecked();
       partWorkerLDSearchDirs.resetSearchDirSettings();
@@ -443,9 +444,9 @@ bool PreferencesDialog::povrayDisplay()
     return ui.povrayDisplay_Chk->isChecked();
 }
 
-QString const PreferencesDialog::fadeStepColour()
+QString const PreferencesDialog::fadeStepsColour()
 {
-    return ui.fadeStepColorsCombo->currentText();
+    return ui.fadeStepsColoursCombo->currentText();
 }
 
 QString const PreferencesDialog::highlightStepColour()
@@ -461,9 +462,9 @@ QString const PreferencesDialog::documentLogoFile()
     return "";
 }
 
-int PreferencesDialog::fadeStepOpacity()
+int PreferencesDialog::fadeStepsOpacity()
 {
-  return ui.fadeStepOpacitySlider->value();
+  return ui.fadeStepsOpacitySlider->value();
 }
 
 int PreferencesDialog::highlightStepLineWidth()
@@ -476,7 +477,7 @@ bool PreferencesDialog::centimeters()
   return ui.Centimeters->isChecked();
 }
 
-bool  PreferencesDialog::enableFadeStep()
+bool  PreferencesDialog::enableFadeSteps()
 {
   return ui.fadeStepBox->isChecked();
 }
@@ -491,9 +492,9 @@ bool PreferencesDialog::enableDocumentLogo()
   return ui.publishLogoBox->isChecked();
 }
 
-bool PreferencesDialog::fadeStepUseColour()
+bool PreferencesDialog::fadeStepsUseColour()
 {
-    return ui.fadeStepUseColourBox->isChecked();
+    return ui.fadeStepsUseColourBox->isChecked();
 }
 
 bool PreferencesDialog::enableLDViewSingleCall()
@@ -514,6 +515,11 @@ bool  PreferencesDialog::generateCoverPages()
 bool  PreferencesDialog::printDocumentTOC()
 {
   return ui.publishTOC_Chk->isChecked();
+}
+
+bool  PreferencesDialog::doNotShowPageProcessDlg()
+{
+  return ui.doNotShowPageProcessDlgChk->isChecked();
 }
 
 QString const PreferencesDialog::defaultURL()
@@ -725,7 +731,7 @@ void PreferencesDialog::accept(){
         bool povRayExists = fileInfo.exists();
         if (povRayExists) {
             Preferences::povrayExe = ui.povrayPath->text();
-            ui.preferredRenderer->addItem("POVRay");
+            ui.preferredRenderer->addItem(RENDERER_POVRAY);
         } else {
             emit gui->messageSig(false,QString("POV-Ray path entered is not valid: %1").arg(ui.povrayPath->text()));
         }
@@ -735,7 +741,7 @@ void PreferencesDialog::accept(){
         bool ldgliteExists = fileInfo.exists();
         if (ldgliteExists) {
             Preferences::ldgliteExe = ui.ldglitePath->text();
-            ui.preferredRenderer->addItem("LDGLite");
+            ui.preferredRenderer->addItem(RENDERER_LDGLITE);
         } else {
             emit gui->messageSig(false,QString("LDGLite path entered is not valid: %1").arg(ui.ldglitePath->text()));
         }
@@ -745,14 +751,14 @@ void PreferencesDialog::accept(){
 #ifndef Q_OS_LINUX
         fileInfo.setFile(ldviewPath);
 #else
-        // force use command line-only "ldview" (not "LDView") if not using Windows
+        // force use command line-only "ldview" (not RENDERER_LDVIEW) if not using Windows
         QFileInfo info(ldviewPath);
         fileInfo.setFile(QString("%1/%2").arg(info.absolutePath()).arg(info.fileName().toLower()));
 #endif
         bool ldviewExists = fileInfo.exists();
         if (ldviewExists) {
             Preferences::ldviewExe = ldviewPath;
-            ui.preferredRenderer->addItem("LDView");
+            ui.preferredRenderer->addItem(RENDERER_LDVIEW);
         } else {
             emit gui->messageSig(false,QString("LDView path entered is not valid: %1").arg(ui.ldviewPath->text()));
         }
@@ -866,11 +872,11 @@ void PreferencesDialog::on_altLDConfigBox_clicked(bool checked)
   }
 }
 
-void PreferencesDialog::on_fadeStepColorsCombo_currentIndexChanged(const QString &colorName)
+void PreferencesDialog::on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName)
 {
   QColor newFadeColor = LDrawColor::color(colorName);
-  ui.fadeStepColorLabel->setPalette(QPalette(newFadeColor));
-  ui.fadeStepColorLabel->setAutoFillBackground(true);
+  ui.fadeStepsColourLabel->setPalette(QPalette(newFadeColor));
+  ui.fadeStepsColourLabel->setAutoFillBackground(true);
 }
 
 void PreferencesDialog::on_highlightStepBtn_clicked()
@@ -884,15 +890,15 @@ void PreferencesDialog::on_highlightStepBtn_clicked()
 
 void PreferencesDialog::on_fadeStepBox_clicked(bool checked)
 {
-  ui.fadeStepUseColourBox->setEnabled(checked);
-  ui.fadeStepColorsCombo->setEnabled(checked);
-  ui.fadeStepOpacityBox->setEnabled(checked);
-  ui.fadeStepOpacitySlider->setEnabled(checked);
+  ui.fadeStepsUseColourBox->setEnabled(checked);
+  ui.fadeStepsColoursCombo->setEnabled(checked);
+  ui.fadeStepsOpacityBox->setEnabled(checked);
+  ui.fadeStepsOpacitySlider->setEnabled(checked);
 }
 
-void PreferencesDialog::on_fadeStepUseColourBox_clicked(bool checked)
+void PreferencesDialog::on_fadeStepsUseColourBox_clicked(bool checked)
 {
-  ui.fadeStepColorsCombo->setEnabled(checked);
+  ui.fadeStepsColoursCombo->setEnabled(checked);
 }
 
 void PreferencesDialog::on_highlightStepBox_clicked(bool checked)

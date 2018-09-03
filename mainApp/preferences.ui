@@ -204,7 +204,7 @@
        <property name="checked">
         <bool>false</bool>
        </property>
-       <widget class="QGroupBox" name="fadeStepUseColourBox">
+       <widget class="QGroupBox" name="fadeStepsUseColourBox">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -228,7 +228,7 @@
         <property name="checked">
          <bool>false</bool>
         </property>
-        <widget class="QLabel" name="fadeStepColorLabel">
+        <widget class="QLabel" name="fadeStepsColourLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -247,7 +247,7 @@
           <string/>
          </property>
         </widget>
-        <widget class="QComboBox" name="fadeStepColorsCombo">
+        <widget class="QComboBox" name="fadeStepsColoursCombo">
          <property name="geometry">
           <rect>
            <x>60</x>
@@ -258,7 +258,7 @@
          </property>
         </widget>
        </widget>
-       <widget class="QGroupBox" name="fadeStepOpacityBox">
+       <widget class="QGroupBox" name="fadeStepsOpacityBox">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -282,7 +282,7 @@
         <property name="checked">
          <bool>false</bool>
         </property>
-        <widget class="QSlider" name="fadeStepOpacitySlider">
+        <widget class="QSlider" name="fadeStepsOpacitySlider">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -1021,7 +1021,7 @@
       <widget class="QCheckBox" name="displayAllAttributes_Chk">
        <property name="geometry">
         <rect>
-         <x>252</x>
+         <x>251</x>
          <y>83</y>
          <width>211</width>
          <height>20</height>
@@ -1078,9 +1078,9 @@
        <widget class="QLabel" name="label_12">
         <property name="geometry">
          <rect>
-          <x>190</x>
-          <y>20</y>
-          <width>190</width>
+          <x>171</x>
+          <y>22</y>
+          <width>61</width>
           <height>20</height>
          </rect>
         </property>
@@ -1094,29 +1094,29 @@
          <enum>Qt::PreventContextMenu</enum>
         </property>
         <property name="toolTip">
-         <string>Set the renderer 'wait for finish' process time in minutes. -1 will not timeout.</string>
+         <string>Set the page 'display pause' in seconds. Minimum pause is 0, maximum pause is 180.</string>
         </property>
         <property name="text">
-         <string>seconds between page processing.</string>
+         <string>seconds</string>
         </property>
        </widget>
        <widget class="QSpinBox" name="pageDisplayPauseSpin">
         <property name="geometry">
          <rect>
-          <x>107</x>
-          <y>19</y>
+          <x>101</x>
+          <y>21</y>
           <width>61</width>
           <height>22</height>
          </rect>
         </property>
         <property name="toolTip">
-         <string>Set the page 'display pause' in minutes. Minimum pause is 0, maximum pause is 60.</string>
+         <string>Set the page 'display pause' in seconds. Minimum pause is 0, maximum pause is180.</string>
         </property>
         <property name="minimum">
          <number>0</number>
         </property>
         <property name="maximum">
-         <number>60</number>
+         <number>180</number>
         </property>
         <property name="value">
          <number>3</number>
@@ -1126,7 +1126,7 @@
         <property name="geometry">
          <rect>
           <x>11</x>
-          <y>20</y>
+          <y>22</y>
           <width>100</width>
           <height>20</height>
          </rect>
@@ -1141,10 +1141,26 @@
          <enum>Qt::PreventContextMenu</enum>
         </property>
         <property name="toolTip">
-         <string>Set the renderer 'wait for finish' process time in minutes. -1 will not timeout.</string>
+         <string>Set the page 'display pause' in seconds. Minimum pause is 0, maximum pause is 180.</string>
         </property>
         <property name="text">
          <string>Display page for</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="doNotShowPageProcessDlgChk">
+        <property name="geometry">
+         <rect>
+          <x>243</x>
+          <y>22</y>
+          <width>171</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Display continuous page processing options dialogue when menu action is triggered.</string>
+        </property>
+        <property name="text">
+         <string>Display options dialogue</string>
         </property>
        </widget>
       </widget>

@@ -63,9 +63,6 @@ public:
 	lcPiecesLibrary* mLibrary;
 	lcPreferences mPreferences;
 	QByteArray mClipboard;
-/*** LPub3D Mod - command line load file name ***/
-	QString mLoadFile;
-/*** LPub3D Mod end ***/
 
 protected:
 	QString GetTabLayoutKey() const;

@@ -156,9 +156,9 @@ void Gui::insertFinalModel(){
   // get line to insert final model
   int modelStatus = mi.okToInsertFinalModel();
 
-  if ((Preferences::enableFadeStep || Preferences::enableHighlightStep) && modelStatus != modelExist){
+  if ((Preferences::enableFadeSteps || Preferences::enableHighlightStep) && modelStatus != modelExist){
       mi.insertFinalModel(modelStatus);
-    } else if ((! Preferences::enableFadeStep && ! Preferences::enableHighlightStep) && modelStatus == modelExist){
+    } else if ((! Preferences::enableFadeSteps && ! Preferences::enableHighlightStep) && modelStatus == modelExist){
       mi.deleteFinalModel();
     }
 }
@@ -518,191 +518,251 @@ public:
 
 bool Gui::continuousPageDialog(Direction d)
 {
-
   pageDirection = d;
-  int exportOption, pageCount;
-  bool terminateProcess;
+  int pageCount = 0;
+  int _maxPages    = 0;
+  bool terminateProcess = false;
 
   QString direction = d == PAGE_NEXT ? "Next" : "Previous";
 
   exportType = PAGE_PROCESS;
-  DialogExportPages *dialog = new DialogExportPages();
 
-  if (dialog->exec() == QDialog::Accepted) {
-
-      if(dialog->allPages()){
-          exportOption = EXPORT_ALL_PAGES;
-        } else
-      if(dialog->pageRange()){
-          exportOption  = EXPORT_PAGE_RANGE;
-          pageRangeText = dialog->pageRangeText();
-          if (! validatePageRange()){
+  if (Preferences::modeGUI) {
+      if (Preferences::doNotShowPageProcessDlg) {
+          if (!processPageRange(setPageLineEdit->displayText())) {
               if (d == PAGE_NEXT)
-                 nextPageContinuousIsRunning = false;
+                nextPageContinuousIsRunning = false;
               else
-                 previousPageContinuousIsRunning = false;
+                previousPageContinuousIsRunning = false;
               return false;
             }
         }
+      else
+        {
+            DialogExportPages *dialog = new DialogExportPages();
 
-      if (d == PAGE_NEXT) {
-          nextPageContinuousAct->setIcon(QIcon(":/resources/nextpagecontinuousstop.png"));
-          nextPageContinuousAct->setText("Stop Continuous Next Page");
-        } else {
-          previousPageContinuousAct->setIcon(QIcon(":/resources/prevpagecontinuousstop.png"));
-          previousPageContinuousAct->setText("Stop Continuous Previous Page");
-        }
+            if (dialog->exec() == QDialog::Accepted) {
 
-      if(dialog->resetCache()){
-          clearCustomPartCache(true);
-          clearPLICache();
-          clearCSICache();
-          clearTempCache();
-        }
-
-      // store current display page number
-      logStatus() << QString("Continuous %1 page processing start...").arg(direction);
-
-      int _displayPageNum = 0;
-      int _maxPages       = 0;
-
-      if (exportOption == EXPORT_ALL_PAGES){
-
-          _displayPageNum = 1;
-
-          _maxPages = maxPages;
-
-          pageCount = 0;
-
-          QApplication::setOverrideCursor(Qt::BusyCursor);
-
-          for (displayPageNum = _displayPageNum; d == PAGE_NEXT ? displayPageNum <= _maxPages : displayPageNum >= 1 ; d == PAGE_NEXT ? displayPageNum++ : displayPageNum--) {
-
-              if (d == PAGE_NEXT) {
-                  terminateProcess =  !nextPageContinuousIsRunning;
-                } else {
-                  terminateProcess =  !previousPageContinuousIsRunning;
-                }
-
-              if (terminateProcess) {
-                  emit messageSig(true,QString("%1 page processing terminated before completion. %2 pages processed.").arg(direction).arg(displayPageNum - 1));
-                  if (d == PAGE_NEXT) {
-                      nextPageContinuousAct->setIcon(QIcon(":/resources/nextpagecontinuous.png"));
-                      nextPageContinuousAct->setText("Continuous Next Page");
-                      nextPageContinuousIsRunning = false;
-                    } else {
-                      previousPageContinuousAct->setIcon(QIcon(":/resources/prevpagecontinuous.png"));
-                      previousPageContinuousAct->setText("Continuous Previous Page");
-                      previousPageContinuousIsRunning = false;
-                    }
-                  QApplication::restoreOverrideCursor();
-                  return false;
+               if(dialog->allPages()){
+                 processOption = EXPORT_ALL_PAGES;
                }
-
-                pageCount = displayPageNum;
-
-                displayPage();
-
-                emit messageSig(true,QString("Processed page %1 of %2").arg(displayPageNum).arg(_maxPages));
-
-                qApp->processEvents();
-
-                secSleeper::secSleep(Preferences::pageDisplayPause);
-            }
-
-          QApplication::restoreOverrideCursor();
-
-        } else if (exportOption == EXPORT_PAGE_RANGE) {
-
-          QStringList pageRanges = pageRangeText.split(",");
-          QList<int> printPages;
-          foreach(QString ranges,pageRanges){
-              if (ranges.contains("-")){
-                  QStringList range = ranges.split("-");
-                  int minPage = range[0].toInt();
-                  int maxPage = range[1].toInt();
-                  for(int i = minPage; i <= maxPage; i++){
-                      printPages.append(i);
-                    }
-                } else {
-                  printPages.append(ranges.toInt());
-                }
-            }
-
-          if (d == PAGE_NEXT)
-            std::sort(printPages.begin(),printPages.end(),lt);    // Next - small to large
-          else
-            std::sort(printPages.begin(),printPages.end(),gt);    // Previous - large to small
-
-          displayPageNum = printPages.first();
-
-          _maxPages = printPages.count();
-
-          pageCount = 0;
-
-          QApplication::setOverrideCursor(Qt::BusyCursor);
-
-          foreach(int printPage,printPages){
-
-              if (d == PAGE_NEXT) {
-                  terminateProcess = !nextPageContinuousIsRunning;
-                } else {
-                  terminateProcess = !previousPageContinuousIsRunning;
+               else
+               if(dialog->pageRange()){
+                  processOption  = EXPORT_PAGE_RANGE;
+                  pageRangeText = dialog->pageRangeText();
                 }
 
-              if (terminateProcess) {
-                  emit messageSig(true,QString("%1 page processing terminated before completion. %2 pages processed.").arg(direction).arg(pageCount));
-                  if (d == PAGE_NEXT) {
-                      nextPageContinuousAct->setIcon(QIcon(":/resources/nextpagecontinuous.png"));
-                      nextPageContinuousAct->setText("Continuous Next Page");
-                      nextPageContinuousIsRunning = false;
-                    } else {
-                      previousPageContinuousAct->setIcon(QIcon(":/resources/prevpagecontinuous.png"));
-                      previousPageContinuousAct->setText("Continuous Previous Page");
-                      previousPageContinuousIsRunning = false;
-                    }
-                  QApplication::restoreOverrideCursor();
-                  return false;
-               }
+              resetCache = dialog->resetCache();
 
-              pageCount++;
+              QSettings Settings;
+              if (Preferences::doNotShowPageProcessDlg != dialog->doNotShowPageProcessDlg()) {
+                 Preferences::doNotShowPageProcessDlg = dialog->doNotShowPageProcessDlg();
+                 Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DoNotShowPageProcessDlg"),Preferences::doNotShowPageProcessDlg);
+              }
 
-              displayPageNum = printPage;
-
-              displayPage();
-
-              emit messageSig(true,QString("Processed page %1, %2 of %3 for page range %4")
-                              .arg(displayPageNum)
-                              .arg(pageCount)
-                              .arg(_maxPages)
-                              .arg(pageRanges.join(" ")));
-
-              qApp->processEvents();
-
-              secSleeper::secSleep(Preferences::pageDisplayPause);
+            } else {
+               if (d == PAGE_NEXT)
+                 nextPageContinuousIsRunning = false;
+               else
+                 previousPageContinuousIsRunning = false;
+               return false;
             }
-
-          QApplication::restoreOverrideCursor();
         }
-
-      if (d == PAGE_NEXT) {
-          nextPageContinuousAct->setIcon(QIcon(":/resources/nextpagecontinuous.png"));
-          nextPageContinuousAct->setText("Continuous Next Page");
-          nextPageContinuousIsRunning = false;
-        } else {
-          previousPageContinuousAct->setIcon(QIcon(":/resources/prevpagecontinuous.png"));
-          previousPageContinuousAct->setText("Continuous Previous Page");
-          previousPageContinuousIsRunning = false;
-        }
-
-      emit messageSig(true,QString("%1 page processing completed. %2 of %3 pages processed.").arg(direction).arg(pageCount).arg(_maxPages));
-
-      return true;
-    } else {
-      return false;
     }
+  else { // command line mode
+      // This effectively acts like a toggle. If true, it sets false and vice versa.
+      nextPageContinuousIsRunning = !nextPageContinuousIsRunning;
+    }
+
+  if (processOption == EXPORT_PAGE_RANGE){
+      if (! validatePageRange()){
+          if (d == PAGE_NEXT)
+            nextPageContinuousIsRunning = false;
+          else
+            previousPageContinuousIsRunning = false;
+          return false;
+        }
+    }
+
+  if (d == PAGE_NEXT) {
+      nextPageContinuousAct->setIcon(QIcon(":/resources/nextpagecontinuousstop.png"));
+      nextPageContinuousAct->setStatusTip("Stop continuous next page processing");
+      nextPageContinuousAct->setText("Stop Continuous Next Page");
+    } else {
+      previousPageContinuousAct->setIcon(QIcon(":/resources/prevpagecontinuousstop.png"));
+      previousPageContinuousAct->setStatusTip("Stop continuous previous page processing");
+      previousPageContinuousAct->setText("Stop Continuous Previous Page");
+    }
+
+  if(resetCache){
+      clearCustomPartCache(true);
+      clearAndRedrawPage();
+    }
+
+  // store current display page number
+  logStatus() << QString("Continuous %1 page processing start...").arg(direction);
+
+  if (processOption == EXPORT_ALL_PAGES){
+
+      _maxPages = maxPages;
+
+      QApplication::setOverrideCursor(Qt::BusyCursor);
+
+      for (displayPageNum = 1; d == PAGE_NEXT ? displayPageNum <= maxPages : displayPageNum >= 1 ; d == PAGE_NEXT ? displayPageNum++ : displayPageNum--) {
+
+          if (d == PAGE_NEXT) {
+              terminateProcess =  !nextPageContinuousIsRunning;
+            } else {
+              terminateProcess =  !previousPageContinuousIsRunning;
+            }
+
+          if (terminateProcess) {
+              emit messageSig(true,QString("%1 page processing terminated before completion. %2 pages of %3 processed.")
+                              .arg(direction)
+                              .arg(displayPageNum - 1)
+                              .arg(maxPages));
+              if (d == PAGE_NEXT) {
+                  nextPageContinuousAct->setIcon(QIcon(":/resources/nextpagecontinuous.png"));
+                  nextPageContinuousAct->setStatusTip(tr("Continuously process next document page"));
+                  nextPageContinuousAct->setText("Continuous Next Page");
+                  nextPageContinuousIsRunning = false;
+                } else {
+                  previousPageContinuousAct->setIcon(QIcon(":/resources/prevpagecontinuous.png"));
+                  previousPageContinuousAct->setStatusTip(tr("Continuously process previous document page"));
+                  previousPageContinuousAct->setText("Continuous Previous Page");
+                  previousPageContinuousIsRunning = false;
+                }
+              QApplication::restoreOverrideCursor();
+              return false;
+            }
+
+          pageCount = displayPageNum;
+
+          displayPage();
+
+          emit messageSig(true,QString("Processed page %1 of %2").arg(displayPageNum).arg(maxPages));
+
+          qApp->processEvents();
+
+          secSleeper::secSleep(Preferences::pageDisplayPause);
+        }
+
+      QApplication::restoreOverrideCursor();
+
+    } else if (processOption == EXPORT_PAGE_RANGE) {
+
+      QStringList pageRanges = pageRangeText.split(",");
+      QList<int> printPages;
+      foreach(QString ranges,pageRanges){
+          if (ranges.contains("-")){
+              QStringList range = ranges.split("-");
+              int minPage = range[0].toInt();
+              int maxPage = range[1].toInt();
+              for(int i = minPage; i <= maxPage; i++){
+                  printPages.append(i);
+                }
+            } else {
+              printPages.append(ranges.toInt());
+            }
+        }
+
+      if (d == PAGE_NEXT)
+        std::sort(printPages.begin(),printPages.end(),lt);    // Next - small to large
+      else
+        std::sort(printPages.begin(),printPages.end(),gt);    // Previous - large to small
+
+      displayPageNum = printPages.first();
+
+      _maxPages = printPages.count();
+
+      QApplication::setOverrideCursor(Qt::BusyCursor);
+
+      foreach(int printPage,printPages){
+
+          displayPageNum = printPage;
+
+          if (d == PAGE_NEXT) {
+              terminateProcess = !nextPageContinuousIsRunning;
+            } else {
+              terminateProcess = !previousPageContinuousIsRunning;
+            }
+
+          if (terminateProcess) {
+              emit messageSig(true,QString("%1 page processing terminated before completion. %2 pages of %3 processed.")
+                              .arg(direction)
+                              .arg(pageCount)
+                              .arg(_maxPages));
+              if (d == PAGE_NEXT) {
+                  nextPageContinuousAct->setIcon(QIcon(":/resources/nextpagecontinuous.png"));
+                  nextPageContinuousAct->setStatusTip(tr("Continuously process next document page"));
+                  nextPageContinuousAct->setText("Continuous Next Page");
+                  nextPageContinuousIsRunning = false;
+                } else {
+                  previousPageContinuousAct->setIcon(QIcon(":/resources/prevpagecontinuous.png"));
+                  previousPageContinuousAct->setStatusTip(tr("Continuously process previous document page"));
+                  previousPageContinuousAct->setText("Continuous Previous Page");
+                  previousPageContinuousIsRunning = false;
+                }
+              QApplication::restoreOverrideCursor();
+              return false;
+            }
+
+          pageCount++;
+
+          displayPage();
+
+          emit messageSig(true,QString("Processed page %1, %2 of %3 for page range %4")
+                          .arg(displayPageNum)
+                          .arg(pageCount)
+                          .arg(_maxPages)
+                          .arg(pageRanges.join(" ")));
+
+          qApp->processEvents();
+
+          secSleeper::secSleep(Preferences::pageDisplayPause);
+        }
+
+      QApplication::restoreOverrideCursor();
+    }
+
+  if (d == PAGE_NEXT) {
+      nextPageContinuousAct->setIcon(QIcon(":/resources/nextpagecontinuous.png"));
+      nextPageContinuousAct->setStatusTip(tr("Continuously process next document page"));
+      nextPageContinuousAct->setText("Continuous Next Page");
+      nextPageContinuousIsRunning = false;
+    } else {
+      previousPageContinuousAct->setIcon(QIcon(":/resources/prevpagecontinuous.png"));
+      previousPageContinuousAct->setStatusTip(tr("Continuously process previous document page"));
+      previousPageContinuousAct->setText("Continuous Previous Page");
+      previousPageContinuousIsRunning = false;
+    }
+
+  emit messageSig(true,QString("%1 page processing completed. %2 of %3 pages processed.").arg(direction).arg(pageCount).arg(_maxPages));
+
+  return true;
 }
 
+bool Gui::processPageRange(const QString &range)
+{
+  if (!range.isEmpty()){
+      QString lineAllPages = QString("1-%1").arg(gui->maxPages);
+      QString linePageRange = QString(range)
+          .replace("of","-")
+          .replace("to","-")
+          .replace(" ","");
+      if (lineAllPages == linePageRange) {
+          processOption = EXPORT_ALL_PAGES;
+        } else {
+          processOption = EXPORT_PAGE_RANGE;
+          pageRangeText = linePageRange;
+        }
+      return true;
+    } else {
+      processOption = EXPORT_ALL_PAGES;
+      return true;
+    }
+  return false;
+}
 
 void Gui::fitWidth(
   LGraphicsView *view)
@@ -969,11 +1029,11 @@ void Gui::mpdComboChanged(int index)
 void Gui::clearAllCaches()
 {
     if (getCurFile().isEmpty()) {
-        statusBarMsg("A model must be open to reset its caches - no action taken.");
+        emit messageSig(true,"A model must be open to reset its caches - no action taken.");
         return;
     }
 
-    if (Preferences::enableFadeStep) {
+    if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
        ldrawFile.clearPrevStepPositions();
 
     }
@@ -989,19 +1049,17 @@ void Gui::clearAllCaches()
      displayPage();
      enableActions();
 
-     statusBarMsg("All caches reset and model file reloaded.");
+     emit messageSig(true,"All caches reset and model file reloaded.");
 }
 
 void Gui::clearAndRedrawPage()
 {
     if (getCurFile().isEmpty()) {
-        statusBarMsg("A model must be open to reset its caches - no action taken.");
+        emit messageSig(true,"A model must be open to reset its caches - no action taken.");
         return;
     }
 
      clearAllCaches();
-
-     statusBarMsg("All caches reset and model file reloaded.");
 }
 
 void Gui::clearCustomPartCache(bool silent)
@@ -1011,7 +1069,7 @@ void Gui::clearCustomPartCache(bool silent)
                             "Warning: Only custom part files for the currently loaded model file will be updated in %1.")
                             .arg(FILE_LPUB3D_UNOFFICIAL_ARCHIVE);
   if (silent) {
-      emit gui->messageSig(silent,message);
+      emit messageSig(silent,message);
   } else {
       ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
                                  tr("%1\nDo you want to delete the custom file cache?").arg(message),
@@ -1024,11 +1082,11 @@ void Gui::clearCustomPartCache(bool silent)
 
       int count = 0;
       if (removeDir(count, dirName)){
-          emit gui->messageSig(silent,QMessageBox::tr("Custom parts cache cleaned.  %1 %2 removed.")
+          emit messageSig(silent,QMessageBox::tr("Custom parts cache cleaned.  %1 %2 removed.")
                                .arg(count)
                                .arg(count == 1 ? "item": "items"));
       } else {
-          emit gui->messageSig(silent,QMessageBox::tr("Unable to remeove custom parts cache directory: %1").arg(dirName));
+          emit messageSig(silent,QMessageBox::tr("Unable to remeove custom parts cache directory: %1").arg(dirName));
         return;
       }
 
@@ -1047,7 +1105,7 @@ void Gui::clearCustomPartCache(bool silent)
 void Gui::clearPLICache()
 {
     if (getCurFile().isEmpty()) {
-        statusBarMsg("A model must be open to clean its parts cache - no action taken.");
+        emit messageSig(true,"A model must be open to clean its parts cache - no action taken.");
         return;
     }
 
@@ -1071,13 +1129,13 @@ void Gui::clearPLICache()
           count++;
       }
 
-    statusBarMsg(QString("Parts content cache cleaned. %1 items removed.").arg(count));
+    emit messageSig(true,QString("Parts content cache cleaned. %1 items removed.").arg(count));
 }
 
 void Gui::clearCSICache()
 {
     if (getCurFile().isEmpty()) {
-        statusBarMsg("A model must be open to clean its assembly cache - no action taken.");
+        emit messageSig(true,"A model must be open to clean its assembly cache - no action taken.");
         return;
     }
 
@@ -1101,13 +1159,13 @@ void Gui::clearCSICache()
           count++;
       }
 
-    statusBarMsg(QString("Assembly content cache cleaned. %1 items removed.").arg(count));
+    emit messageSig(true,QString("Assembly content cache cleaned. %1 items removed.").arg(count));
 }
 
 void Gui::clearTempCache()
 {
     if (getCurFile().isEmpty()) {
-        statusBarMsg("A model must be open to clean its 3D cache - no action taken.");
+        emit messageSig(true,"A model must be open to clean its 3D cache - no action taken.");
         return;
     }
 
@@ -1153,7 +1211,7 @@ void Gui::clearTempCache()
           count2++;
     }
 
-    statusBarMsg(QString("3D Viewer content cache cleaned. %1 temp and %2 viewer items removed.").arg(count1).arg(count2));
+    emit messageSig(true,QString("3D Viewer content cache cleaned. %1 temp and %2 viewer items removed.").arg(count1).arg(count2));
 }
 
 bool Gui::removeDir(int &count, const QString & dirName)
@@ -1204,7 +1262,7 @@ void Gui::clearStepCSICache(QString &pngName) {
                             QMessageBox::tr("Unable to remeove %1")
                             .arg(ldrName));
     }
-  if (Preferences::enableFadeStep) {
+  if (Preferences::enableFadeSteps) {
       clearPrevStepPositions();
     }
   displayPage();
@@ -1233,7 +1291,7 @@ void Gui::clearPageCSICache(PlacementType relativeType, Page *page) {
               } // for each step within divided group...=>list[AbstractRangeElement]->StepType
           } // for each divided group within page...=>list[AbstractStepsElement]->RangeType
       }
-      if (Preferences::enableFadeStep) {
+      if (Preferences::enableFadeSteps) {
           clearPrevStepPositions();
       }
       displayPage();
@@ -1440,12 +1498,14 @@ void Gui::preferences()
     bool useLDViewSCallCompare          = Preferences::useLDViewSingleCall;
     bool displayAllAttributesCompare    = Preferences::displayAllAttributes;
     bool generateCoverPagesCompare      = Preferences::generateCoverPages;
-    bool enableFadeStepCompare          = Preferences::enableFadeStep;
-    bool fadeStepUseColourCompare       = Preferences::fadeStepUseColour;
-    int fadeStepOpacityCompare          = Preferences::fadeStepOpacity;
+    bool enableFadeStepsCompare         = Preferences::enableFadeSteps;
+    bool fadeStepsUseColourCompare      = Preferences::fadeStepsUseColour;
+    int fadeStepsOpacityCompare         = Preferences::fadeStepsOpacity;
     bool enableHighlightStepCompare     = Preferences::enableHighlightStep;
     int  highlightStepLineWidthCompare  = Preferences::highlightStepLineWidth;
-    QString fadeStepColourCompare       = Preferences::fadeStepColour;
+    bool doNotShowPageProcessDlgCompare = Preferences::doNotShowPageProcessDlg;
+    int  pageDisplayPauseCompare        = Preferences::pageDisplayPause;
+    QString fadeStepsColourCompare      = Preferences::fadeStepsColour;
     QString highlightStepColourCompare  = Preferences::highlightStepColour;
     QString ldrawPathCompare            = Preferences::ldrawPath;
     QString lgeoPathCompare             = Preferences::lgeoPath;
@@ -1457,64 +1517,50 @@ void Gui::preferences()
         page.meta = meta;
 
         bool rendererChanged               = QString(Preferences::preferredRenderer).toLower()   != preferredRendererCompare.toLower();
-        bool enableFadeStepChanged         = Preferences::enableFadeStep                         != enableFadeStepCompare;
-        bool fadeStepUseColourChanged      = Preferences::fadeStepUseColour                      != fadeStepUseColourCompare;
-        bool fadeStepColorChanged          = QString(Preferences::fadeStepColour).toLower()      != fadeStepColourCompare.toLower();
-        bool fadeStepOpacityChanged        = Preferences::fadeStepOpacity                        != fadeStepOpacityCompare;
+        bool enableFadeStepsChanged        = Preferences::enableFadeSteps                        != enableFadeStepsCompare;
+        bool fadeStepsUseColourChanged     = Preferences::fadeStepsUseColour                      != fadeStepsUseColourCompare;
+        bool fadeStepsColourChanged        = QString(Preferences::fadeStepsColour).toLower()     != fadeStepsColourCompare.toLower();
+        bool fadeStepsOpacityChanged       = Preferences::fadeStepsOpacity                       != fadeStepsOpacityCompare;
         bool enableHighlightStepChanged    = Preferences::enableHighlightStep                    != enableHighlightStepCompare;
         bool highlightStepColorChanged     = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
         bool highlightStepLineWidthChanged = Preferences::highlightStepLineWidth                 != highlightStepLineWidthCompare;
         bool useLDViewSCallChanged         = Preferences::enableLDViewSingleCall                 != useLDViewSCallCompare;
         bool displayAttributesChanged      = Preferences::displayAllAttributes                   != displayAllAttributesCompare;
         bool generateCoverPagesChanged     = Preferences::generateCoverPages                     != generateCoverPagesCompare;
+        bool pageDisplayPauseChanged       = Preferences::pageDisplayPause                       != pageDisplayPauseCompare;
+        bool doNotShowPageProcessDlgChanged= Preferences::doNotShowPageProcessDlg                != doNotShowPageProcessDlgCompare;
 
         bool ldrawPathChanged              = QString(Preferences::ldrawPath).toLower()           != ldrawPathCompare.toLower();
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
 
-        if (enableFadeStepChanged) {
-            logInfo() << QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeStep ? "ON" : "OFF");
-        }
-        if (fadeStepUseColourChanged && Preferences::enableFadeStep){
-            logInfo() << QString("Use Global Fade Colour is %1").arg(Preferences::fadeStepUseColour ? "ON" : "OFF");
-        }
-        if (fadeStepOpacityChanged && Preferences::enableFadeStep) {
+        if (enableFadeStepsChanged)
+            logInfo() << QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF");
+
+        if (fadeStepsUseColourChanged && Preferences::enableFadeSteps)
+            logInfo() << QString("Use Global Fade Colour is %1").arg(Preferences::fadeStepsUseColour ? "ON" : "OFF");
+
+        if (fadeStepsOpacityChanged && Preferences::enableFadeSteps)
             logInfo() << QString("Fade Step Transparency changed from %1 to %2 percent")
-                                 .arg(fadeStepOpacityCompare)
-                                 .arg(Preferences::fadeStepOpacity);
-        }
-        if (fadeStepColorChanged && Preferences::enableFadeStep && Preferences::fadeStepUseColour) {
+                                 .arg(fadeStepsOpacityCompare)
+                                 .arg(Preferences::fadeStepsOpacity);
+
+        if (fadeStepsColourChanged && Preferences::enableFadeSteps && Preferences::fadeStepsUseColour)
             logInfo() << QString("Fade Step Colour preference changed from %1 to %2")
-                                 .arg(fadeStepColourCompare.replace("_"," "))
-                                 .arg(QString(Preferences::fadeStepColour).replace("_"," "));
-        }
-        if (enableHighlightStepChanged) {
+                                 .arg(fadeStepsColourCompare.replace("_"," "))
+                                 .arg(QString(Preferences::fadeStepsColour).replace("_"," "));
+
+        if (enableHighlightStepChanged)
             logInfo() << QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF");
-        }
-        if (highlightStepLineWidthChanged && Preferences::enableHighlightStep) {
+
+        if (highlightStepLineWidthChanged && Preferences::enableHighlightStep)
             logInfo() << QString("Highlight Step line width changed from %1 to %2")
                                  .arg(highlightStepLineWidthCompare)
                                  .arg(Preferences::highlightStepLineWidth);
-        }
-        if (highlightStepColorChanged && Preferences::enableHighlightStep) {
+
+        if (highlightStepColorChanged && Preferences::enableHighlightStep)
             logInfo() << QString("Highlight Step Colour preference changed from %1 to %2")
                                  .arg(highlightStepColourCompare)
                                  .arg(Preferences::highlightStepColour);
-        }
-        if ((((fadeStepColorChanged && Preferences::fadeStepUseColour) ||
-            fadeStepUseColourChanged || fadeStepOpacityChanged) &&
-            Preferences::enableFadeStep && !enableFadeStepChanged) ||
-           ((highlightStepColorChanged || highlightStepLineWidthChanged) &&
-            Preferences::enableHighlightStep && !enableHighlightStepChanged)) {
-           clearCustomPartCache(true);    // true = clear and regenerate custom part files
-        }
-        if (rendererChanged) {
-            logInfo() << QString("Renderer preference changed from %1 to %2")
-                                 .arg(preferredRendererCompare)
-                                 .arg(Preferences::preferredRenderer);
-            Render::setRenderer(Preferences::preferredRenderer);
-            if (Preferences::preferredRenderer == "LDGLite")
-                partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
-        }
 
         if (ldrawPathChanged)
             logInfo() << QString("LDraw path preference changed from %1 to %1")
@@ -1529,11 +1575,36 @@ void Gui::preferences()
         if (generateCoverPagesChanged)
             logInfo() << QString("Generate Cover Pages preference is %1").arg(Preferences::generateCoverPages ? "ON" : "OFF");
 
+
+        if (pageDisplayPauseChanged)
+            logInfo() << QString("Continuous process page display pause changed from %1 to %2")
+                              .arg(highlightStepLineWidthCompare)
+                              .arg(Preferences::pageDisplayPause);
+
+        if (doNotShowPageProcessDlgChanged)
+            logInfo() << QString("Show continuous page process options dialog is %1.").arg(Preferences::doNotShowPageProcessDlg ? "ON" : "OFF");
+
+        if ((((fadeStepsColourChanged && Preferences::fadeStepsUseColour) ||
+            fadeStepsUseColourChanged || fadeStepsOpacityChanged) &&
+            Preferences::enableFadeSteps && !enableFadeStepsChanged) ||
+           ((highlightStepColorChanged || highlightStepLineWidthChanged) &&
+            Preferences::enableHighlightStep && !enableHighlightStepChanged))
+           clearCustomPartCache(true);    // true = clear and regenerate custom part files
+
+        if (rendererChanged) {
+            logInfo() << QString("Renderer preference changed from %1 to %2")
+                                 .arg(preferredRendererCompare)
+                                 .arg(Preferences::preferredRenderer);
+            Render::setRenderer(Preferences::preferredRenderer);
+            if (Preferences::preferredRenderer == RENDERER_LDGLITE)
+                partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
+        }
+
         if (!getCurFile().isEmpty()) {
-            if (enableFadeStepChanged         ||
-                fadeStepColorChanged          ||
-                fadeStepUseColourChanged      ||
-                fadeStepOpacityChanged        ||
+            if (enableFadeStepsChanged        ||
+                fadeStepsColourChanged          ||
+                fadeStepsUseColourChanged      ||
+                fadeStepsOpacityChanged        ||
                 enableHighlightStepChanged    ||
                 highlightStepColorChanged     ||
                 highlightStepLineWidthChanged ||
@@ -1626,9 +1697,10 @@ Gui::Gui()
 
     displayPageNum = 1;
 
-    exportOption                    = EXPORT_ALL_PAGES;
+    processOption                   = EXPORT_ALL_PAGES;
     exportType                      = EXPORT_PDF;
-    pageRangeText                   = displayPageNum;
+    pageRangeText                   = "1";
+    resetCache                      = false;
     m_previewDialog                 = false;
     m_exportingContent              = false;
     nextPageContinuousIsRunning     = false;
@@ -1777,6 +1849,7 @@ void Gui::initialize()
   emit Application::instance()->splashMsgSig(QString("85% - %1 initialization...").arg(VER_PRODUCTNAME_STR));
 
   connect(this,       SIGNAL(loadFileSig(QString)),      this,        SLOT(loadFile(QString)));
+  connect(this,       SIGNAL(processCommandLineSig()),   this,        SLOT(processCommandLine()));
   connect(this,       SIGNAL(setExportingSig(bool)),     this,        SLOT(deployExportBanner(bool)));
   connect(this,       SIGNAL(setExportingSig(bool)),     gMainWindow, SLOT(Halt3DViewer(bool)));
   connect(this,       SIGNAL(enable3DActionsSig()),      gMainWindow, SLOT(Enable3DActions()));
@@ -1784,7 +1857,7 @@ void Gui::initialize()
   connect(this,       SIGNAL(updateAllViewsSig()),       gMainWindow, SLOT(UpdateAllViews()));
   connect(this,       SIGNAL(clearViewerWindowSig()),    gMainWindow, SLOT(NewProject()));
 
-  if (Preferences::preferredRenderer == "LDGLite")
+  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
       partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
 
   emit Application::instance()->splashMsgSig(QString("90% - %1 widgets loading...").arg(VER_PRODUCTNAME_STR));
@@ -2128,7 +2201,7 @@ void Gui::createActions()
     connect(closeFileAct, SIGNAL(triggered()), this, SLOT(closeModelFile()));
 
     printToFileAct = new QAction(QIcon(":/resources/file_print.png"), tr("&Print..."), this);
-    printToFileAct->setShortcut(tr("Ctrl+T"));
+    printToFileAct->setShortcut(tr(""));
     printToFileAct->setStatusTip(tr("Print the current document"));
     printToFileAct->setEnabled(false);
     connect(printToFileAct, SIGNAL(triggered()), this, SLOT(ShowPrintDialog()));
@@ -2315,12 +2388,14 @@ void Gui::createActions()
     connect(previousPageComboAct, SIGNAL(triggered()), this, SLOT(previousPage()));
 
     nextPageContinuousAct = new QAction(QIcon(":/resources/nextpagecontinuous.png"),tr("Continuous Next Page"),this);
-    nextPageContinuousAct->setStatusTip(tr("Continuously process next document pages"));
+    nextPageContinuousAct->setShortcut(tr("Ctrl+Shift+N"));
+    nextPageContinuousAct->setStatusTip(tr("Continuously process next document page"));
     nextPageContinuousAct->setEnabled(false);
     connect(nextPageContinuousAct, SIGNAL(triggered()), this, SLOT(nextPageContinuous()));
 
     previousPageContinuousAct = new QAction(QIcon(":/resources/prevpagecontinuous.png"),tr("Continuous Previous Page"),this);
-    previousPageContinuousAct->setStatusTip(tr("Continuously process previous document pages"));
+    previousPageContinuousAct->setShortcut(tr("Ctrl+Shift+E"));
+    previousPageContinuousAct->setStatusTip(tr("Continuously process previous document page"));
     previousPageContinuousAct->setEnabled(false);
     connect(previousPageContinuousAct, SIGNAL(triggered()), this, SLOT(previousPageContinuous()));
 

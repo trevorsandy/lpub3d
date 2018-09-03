@@ -80,19 +80,24 @@ static int rendererTimeout(){
 
 QString fixupDirname(const QString &dirNameIn) {
 #ifdef Q_OS_WIN
-	long     length = 0;
-    TCHAR*   buffer = NULL;
+    long     length = 0;
+    TCHAR*   buffer = nullptr;
 //  30/11/2014 Generating "invalid conversion from const ushort to const wchar" compile error:
 //  LPCWSTR dirNameWin = dirNameIn.utf16();
-    LPCWSTR dirNameWin = (const wchar_t*)dirNameIn.utf16();
+    LPCWSTR dirNameWin = reinterpret_cast<LPCWSTR>(dirNameIn.utf16());
 
 // First obtain the size needed by passing NULL and 0.
 
-    length = GetShortPathName(dirNameWin, NULL, 0);
+    length = GetShortPathName(dirNameWin, nullptr, 0);
     if (length == 0){
-		qDebug() << "Couldn't get length of short path name, trying long path name\n";
-		return dirNameIn;
-	}
+                QString message = QString("Couldn't get length of short path name length, lastError is %1, trying long path name").arg(GetLastError());
+#ifdef QT_DEBUG_MODE
+                qDebug() << message << "\n";
+#else
+                emit gui->statusMessage(true, message);
+#endif
+                return dirNameIn;
+     }
 // Dynamically allocate the correct size
 // (terminating null char was included in length)
 
@@ -102,7 +107,12 @@ QString fixupDirname(const QString &dirNameIn) {
 
     length = GetShortPathName(dirNameWin, buffer, length);
     if (length == 0){
-		qDebug() << "Couldn't get short path name, trying long path name\n";
+                QString message = QString("Couldn't get length of short path name length, lastError is %1, trying long path name").arg(GetLastError());
+#ifdef QT_DEBUG_MODE
+                qDebug() << message << "\n";
+#else
+                emit gui->statusMessage(true, message);
+#endif
 		return dirNameIn;
 	}
 
@@ -128,9 +138,9 @@ QString const Render::getRenderer()
 
 void Render::setRenderer(QString const &name)
 {
-  if (name == "LDGLite") {
+  if (name == RENDERER_LDGLITE) {
     renderer = &ldglite;
-  } else if (name == "LDView") {
+  } else if (name == RENDERER_LDVIEW) {
     renderer = &ldview;
   } else {
     renderer = &povray;
@@ -290,10 +300,11 @@ int POVRay::renderCsi(
     const QString     &addLine,
     const QStringList &csiParts,
     const QString     &pngName,
+    const QString     &csiKey,
     Meta              &meta)
 {
   /* Create the CSI DAT file */
-  QString ldrName;
+  QString ldrName,message;
   int rc;
   ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
   QString povName = ldrName + ".pov";
@@ -331,6 +342,9 @@ int POVRay::renderCsi(
   arguments << o;
   arguments << v;
 
+  if (Preferences::enableFadeSteps)
+    arguments <<  QString("-SaveZMap=1");
+
   QStringList list;
   list = meta.LPub.assem.ldviewParms.value().split(' ');
   for (int i = 0; i < list.size(); i++) {
@@ -358,7 +372,12 @@ int POVRay::renderCsi(
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
   ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
 
-  qDebug() << qPrintable(Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  message = QString("POVRay (POV Generate) CSI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished(rendererTimeout())) {
@@ -378,7 +397,7 @@ int POVRay::renderCsi(
       povArguments << QString("-d");
   }
 
-  QString O = QString("+O\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(pngName)));
+  QString O = QString("+O\"%1\"").arg(QDir::toNativeSeparators(pngName));
   QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
   QString W = QString("+W%1").arg(width);
   QString H = QString("+H%1").arg(height);
@@ -428,7 +447,12 @@ int POVRay::renderCsi(
   povray.setStandardErrorFile(QDir::currentPath() + "/stderr-povray");
   povray.setStandardOutputFile(QDir::currentPath() + "/stdout-povray");
 
-  qDebug() << qPrintable(Preferences::povrayExe + " " + povArguments.join(" ")) << "\n";
+  message = QString("POVRay CSI Arguments: %1 %2").arg(Preferences::povrayExe).arg(povArguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   povray.start(Preferences::povrayExe,povArguments);
   if ( ! povray.waitForFinished(rendererTimeout())) {
@@ -440,6 +464,14 @@ int POVRay::renderCsi(
           return -1;
         }
     }
+
+  // image matting stub
+  if (Preferences::enableFadeSteps) {
+      QString previousPngFile = imageMatting.previousStepCSIImage(csiKey);
+      if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
+          //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+      }
+  }
 
   clipImage(pngName);
 
@@ -455,6 +487,7 @@ int POVRay::renderPli(
 {
   QString povName = ldrName + ".pov";
   PliMeta &pliMeta = bom ? meta.LPub.bom : meta.LPub.pli;
+  QString message;
 
   /* determine camera distance */
   int cd = cameraDistance(meta,pliMeta.modelScale.value())*1700/1000;
@@ -517,7 +550,12 @@ int POVRay::renderPli(
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
   ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
 
-  qDebug() << qPrintable(Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  message = QString("POVRay (POV Generate) PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished()) {
@@ -537,7 +575,7 @@ int POVRay::renderPli(
       povArguments << QString("-d");
   }
 
-  QString O = QString("+O\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(pngName)));
+  QString O = QString("+O\"%1\"").arg(QDir::toNativeSeparators(pngName));
   QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
   QString W = QString("+W%1").arg(width);
   QString H = QString("+H%1").arg(height);
@@ -587,7 +625,12 @@ int POVRay::renderPli(
   povray.setStandardErrorFile(QDir::currentPath() + "/stderr-povray");
   povray.setStandardOutputFile(QDir::currentPath() + "/stdout-povray");
 
-  qDebug() << qPrintable(Preferences::povrayExe + " " + povArguments.join(" ")) << "\n";
+  message = QString("POVRay PLI Arguments: %1 %2").arg(Preferences::povrayExe).arg(povArguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   povray.start(Preferences::povrayExe,povArguments);
   if ( ! povray.waitForFinished(rendererTimeout())) {
@@ -623,6 +666,7 @@ int LDGLite::renderCsi(
   const QString     &addLine,
   const QStringList &csiParts,
   const QString     &pngName,
+  const QString     &csiKey,
         Meta        &meta)
 {
   /* Create the CSI DAT file */
@@ -716,7 +760,12 @@ int LDGLite::renderCsi(
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr-ldglite");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout-ldglite");
 
-  qDebug() << qPrintable("LDGLite CSI Arguments: " + Preferences::ldgliteExe + " " + arguments.join(" ")) << "\n";
+  QString message = QString("LDGLite CSI Arguments: %1 %2").arg(Preferences::ldgliteExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   ldglite.start(Preferences::ldgliteExe,arguments);
   if ( ! ldglite.waitForFinished(rendererTimeout())) {
@@ -730,7 +779,16 @@ int LDGLite::renderCsi(
       return -1;
     }
   }
-  //QFile::remove(ldrFile);
+
+  // image matting stub
+  if (Preferences::enableFadeSteps) {
+      QString previousPngFile = imageMatting.previousStepCSIImage(csiKey);
+      if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
+          //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+      }
+  }
+
+
   return 0;
 }
 
@@ -816,7 +874,12 @@ int LDGLite::renderPli(
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr-ldglite");
   ldglite.setStandardOutputFile(QDir::currentPath() + "/stdout-ldglite");
 
-  qDebug() << qPrintable("LDGLite PLI Arguments: " + Preferences::ldgliteExe + " " + arguments.join(" ")) << "\n";
+  QString message = QString("LDGLite PLI Arguments: %1 %2").arg(Preferences::ldgliteExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   ldglite.start(Preferences::ldgliteExe,arguments);
   if (! ldglite.waitForFinished()) {
@@ -874,6 +937,7 @@ int LDView::renderCsi(
   const QString     &addLine,
   const QStringList &csiParts,
   const QString     &pngName,
+  const QString     &csiKey,
         Meta        &meta)
 {
   /* Create the CSI DAT file */
@@ -919,6 +983,9 @@ int LDView::renderCsi(
   arguments << e;
   arguments << v;
 
+  if (Preferences::enableFadeSteps)
+    arguments <<  QString("-SaveZMap=1");
+
   QStringList list;
   list = meta.LPub.assem.ldviewParms.value().split(' ');
   for (int i = 0; i < list.size(); i++) {
@@ -945,7 +1012,12 @@ int LDView::renderCsi(
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
   ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
 
-  qDebug() << qPrintable("LDView (Native) CSI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  QString message = QString("LDView (Native) CSI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished(rendererTimeout())) {
@@ -956,6 +1028,14 @@ int LDView::renderCsi(
       emit gui->messageSig(false,QMessageBox::tr("LDView CSI render failed with code %1\n%2").arg(ldview.exitCode()) .arg(str));
       return -1;
     }
+  }
+
+  // image matting stub
+  if (Preferences::enableFadeSteps) {
+      QString previousPngFile = imageMatting.previousStepCSIImage(csiKey);
+      if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
+          //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+      }
   }
 
   return 0;
@@ -1038,7 +1118,12 @@ int LDView::renderPli(
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
   ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
 
-  qDebug() << qPrintable("LDView (Native) PLI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  QString message = QString("LDView (Native) PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished()) {
@@ -1055,8 +1140,9 @@ int LDView::renderPli(
 }
 
 int Render::renderLDViewSCallCsi(
-  const QStringList &ldrNames,
-        Meta        &meta)
+    const QStringList &ldrNames,
+    const QStringList &csiKeys,
+          Meta        &meta)
 {
   //logInfo() << "LDView SC CSI Renderer Timeout:" << rendererTimeout();
 
@@ -1111,6 +1197,9 @@ int Render::renderLDViewSCallCsi(
   arguments << e;
   arguments << v;
 
+  if (Preferences::enableFadeSteps)
+    arguments <<  QString("-SaveZMap=1");
+
   QStringList list;
   list = meta.LPub.assem.ldviewParms.value().split(' ');
   for (int i = 0; i < list.size(); i++) {
@@ -1136,7 +1225,12 @@ int Render::renderLDViewSCallCsi(
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
   ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
 
-  qDebug() << qPrintable("LDView (Single Call) CSI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  QString message = QString("LDView (Single Call) CSI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished(rendererTimeout())) {
@@ -1157,10 +1251,12 @@ int Render::renderLDViewSCallCsi(
       QString pngFilePath = QDir::currentPath() + "/" +
           Paths::assemDir + "/" + imageFileInfo.fileName();
       QFileInfo pngFileInfo(pngFilePath);
+      // delete old file
       if (pngFileInfo.exists()) {
           QFile pngFile(pngFileInfo.absoluteFilePath());
           pngFile.remove();     // delete old file if exist
        }
+      // move new file
       if (! dir.rename(imageFileInfo.absoluteFilePath(), pngFileInfo.absoluteFilePath())){
           if (! pngFileInfo.exists()){
               emit gui->messageSig(false,QMessageBox::tr("LDView (Single Call) CSI image file move failed for\n%1")
@@ -1169,6 +1265,13 @@ int Render::renderLDViewSCallCsi(
             }
         }
     }
+  // image mapping stub
+  for (int i = 0; i < csiKeys.size(); i++) {
+      QString previousPngFile = imageMatting.previousStepCSIImage(csiKeys[i]);
+      if (!previousPngFile.isEmpty()) { // first entry returns "" so check first
+          //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+      }
+  }
 
   return 0;
 }
@@ -1261,7 +1364,12 @@ int Render::renderLDViewSCallPli(
   ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldview");
   ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldview");
 
-  qDebug() << qPrintable("LDView (Single Call) PLI Arguments: " + Preferences::ldviewExe + " " + arguments.join(" ")) << "\n";
+  QString message = QString("LDView (Single Call) PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->statusMessage(true, message);
+#endif
 
   ldview.start(Preferences::ldviewExe,arguments);
   if ( ! ldview.waitForFinished(rendererTimeout())) {

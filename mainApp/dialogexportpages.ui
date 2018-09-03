@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>350</width>
-    <height>318</height>
+    <height>345</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>277</y>
+     <y>303</y>
      <width>331</width>
      <height>32</height>
     </rect>
@@ -38,7 +38,7 @@
      <x>10</x>
      <y>17</y>
      <width>331</width>
-     <height>131</height>
+     <height>128</height>
     </rect>
    </property>
    <property name="title">
@@ -136,8 +136,6 @@
    </widget>
    <zorder>labelCurrentPage</zorder>
    <zorder>radioButtonCurrentPage</zorder>
-   <zorder>labelAllPages</zorder>
-   <zorder>radioButtonAllPages</zorder>
    <zorder>lineEditPageRange</zorder>
    <zorder>radioButtonPageRange</zorder>
    <zorder>labelAllPages</zorder>
@@ -147,7 +145,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>260</y>
+     <y>286</y>
      <width>331</width>
      <height>20</height>
     </rect>
@@ -213,6 +211,25 @@
      <string>Do not show mixed size and/or orientation message</string>
     </property>
    </widget>
+  </widget>
+  <widget class="QCheckBox" name="doNotShowPageProcessDlgChk">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>266</y>
+     <width>251</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Do not show this dialogue. You can reset this opton in Preferences.</string>
+   </property>
+   <property name="text">
+    <string>Do not show this dialogue in the future.</string>
+   </property>
   </widget>
  </widget>
  <resources/>

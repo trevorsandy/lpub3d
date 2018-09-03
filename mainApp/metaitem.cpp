@@ -3080,8 +3080,9 @@ QPointF MetaItem::defaultPointerTip(
     addLine = "1 0 0 0 0 1 0 0 0 1 0 0 0 1 " + modelName;
   }
   QString imageName = QDir::currentPath() + "/" + Paths::tmpDir + "/mono.png";
+  QString emptyCsiKey = QString();
 
-  int rc = renderer->renderCsi(addLine,csiParts,imageName,meta);
+  int rc = renderer->renderCsi(addLine,csiParts,emptyCsiKey,imageName,meta);
 
   if (rc == 0) {
     QPixmap pixmap;

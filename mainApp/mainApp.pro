@@ -249,6 +249,7 @@ HEADERS += \
     gradients.h \
     highlighter.h \
     hoverpoints.h \
+    imagematting.h \
     ldrawcolourparts.h \
     ldrawfiles.h \
     ldsearchdirs.h \
@@ -314,6 +315,7 @@ SOURCES += \
     calloutglobals.cpp \
     color.cpp \
     commands.cpp \
+    commandline.cpp \
     commonmenus.cpp \
     csiitem.cpp \
     dependencies.cpp \
@@ -327,6 +329,7 @@ SOURCES += \
     highlighter.cpp \
     highlightstepglobals.cpp \
     hoverpoints.cpp \
+    imagematting.cpp \
     ldrawcolourparts.cpp \
     ldrawfiles.cpp \
     ldsearchdirs.cpp \
@@ -378,7 +381,7 @@ SOURCES += \
     threadworkers.cpp \
     traverse.cpp \
     updatecheck.cpp \
-    undoredo.cpp \
+    undoredo.cpp
 
 FORMS += \
     preferences.ui \

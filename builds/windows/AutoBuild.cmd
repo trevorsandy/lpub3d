@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: April 11, 2018
+rem  Last Update: April 28, 2018
 rem  Copyright (c) 2017 - 2018 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -323,19 +323,27 @@ IF NOT EXIST "%DIST_DIR%" (
 )
 SET PKG_PLATFORM=%1
 rem Construct the staged files path
-SET PKG_ARGUMENTS=-foo
 SET PKG_DISTRO_DIR=%PACKAGE%_%PKG_PLATFORM%
 SET PKG_PRODUCT_DIR=%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%
 SET PKG_TARGET_DIR=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_DIR%
+SET PKG_CHECK_FILE=%ABS_WD%\builds\check\ldraw_test.mpd
 rem SET PKG_TARGET=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_DIR%\%PACKAGE%%LP3D_APP_VER_SUFFIX%.exe
 SET PKG_TARGET=%PKG_TARGET_DIR%\%PACKAGE%.exe
-SET PKG_CHECK_COMMAND=%PKG_TARGET% %PKG_ARGUMENTS%
+rem Checks
+SET PKG_CHECK_OPTIONS=--process-file
+SET PKG_CHECK_FILE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
+
+SET PKG_CHECK_OPTIONS=--process-export --range 1-3 --clear-cache --preferred-renderer ldglite
+SET PKG_CHECK_EXPORT_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
+
+SET PKG_CHECK_OPTIONS=--process-export --export-option jpg --preferred-renderer povray
+SET PKG_CHECK_RANGE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 
 CALL :CHECK_LDRAW_DIR
 CALL :SET_LDRAW_LIBS
 
 ECHO.
-ECHO   PKG_ARGUMENTS..........[%PKG_ARGUMENTS%]
+ECHO   PKG_CHECK_OPTIONS......[%PKG_CHECK_OPTIONS%]
 ECHO   PKG_DISTRO_DIR.........[%PKG_DISTRO_DIR%]
 ECHO   PKG_PRODUCT_DIR........[%PKG_PRODUCT_DIR%]
 ECHO   PKG_TARGET_DIR.........[%PKG_TARGET_DIR%]
@@ -350,18 +358,23 @@ IF NOT EXIST "%PKG_TARGET%" (
 ) ELSE (
   ECHO -%PKG_TARGET% found.
   ECHO.
-  CALL %PKG_CHECK_COMMAND% > Check.out 2>&1
-  FOR %%R IN (Check.out) DO (
-    IF NOT %%~zR LSS 1 (
-      TYPE "Check.out"
-      ECHO.
-      DEL /Q "Check.out"
-      ECHO -Build check successful!
-      ECHO.
-    ) ELSE (
-      ECHO. -ERROR - build check failed.
-    )
-  )
+  CALL %PKG_CHECK_FILE_COMMAND%
+  ECHO.
+  CALL %PKG_CHECK_EXPORT_COMMAND%
+  ECHO.
+  CALL %PKG_CHECK_RANGE_COMMAND%
+rem  CALL %PKG_CHECK_COMMAND% > Check.out 2>&1
+rem  FOR %%R IN (Check.out) DO (
+rem    IF NOT %%~zR LSS 1 (
+rem      TYPE "Check.out"
+rem      ECHO.
+rem      DEL /Q "Check.out"
+rem      ECHO -Build check successful!
+rem      ECHO.
+rem    ) ELSE (
+rem      ECHO. -ERROR - build check failed.
+rem    )
+rem  )
 )
 EXIT /b
 

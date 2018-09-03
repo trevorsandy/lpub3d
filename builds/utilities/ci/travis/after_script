@@ -3,7 +3,7 @@
 # Travis build [after_script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: April 09, 2018
+#  Last Update: April 28, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -29,15 +29,21 @@ if [[ "$TRAVIS_OS_NAME" = "osx" && "$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_
   echo "- change library dependency mapping..."
   /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
   /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
-  echo "- build check..."
-  LPub3D.app/Contents/MacOS/LPub3D -foo && echo "- build check completed." && echo
+  echo "- build checks..."
+  LP3D_CHECK_FILE="${LP3D_BUILD_FOLDER}/builds/check/ldraw_test.mpd"
+  LP3D_CHECK_OPTIONS="--process-file"
+  LPub3D.app/Contents/MacOS/LPub3D $LP3D_CHECK_OPTIONS $LP3D_CHECK_FILE && echo "- file check completed." && echo
+  LP3D_CHECK_OPTIONS="--process-export --range 1-3 --clear-cache --preferred-renderer ldglite"
+  LPub3D.app/Contents/MacOS/LPub3D $LP3D_CHECK_OPTIONS $LP3D_CHECK_FILE && echo "- export check completed." && echo
+  LP3D_CHECK_OPTIONS="--process-export --export-option jpg --preferred-renderer povray"
+  LPub3D.app/Contents/MacOS/LPub3D $LP3D_CHECK_OPTIONS $LP3D_CHECK_FILE && echo "- range check completed." && echo
 fi
 if [[ ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && "$TRAVIS_OS_NAME" = "linux" ) ]]; then
   echo "- build check LPub3D.AppImage bundle..."
   file_DPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage -type f);
   [ -n "$file_DPkg" ] && mkdir appImage_Check && cd appImage_Check && cp -f $file_DPkg . || \
   echo "ERROR - Nothing copied to build check folder";
-  [ -f "LPub3D-${LP3D_APP_VERSION_LONG}-x86_64.AppImage" ] && echo "- checking $(ls ./*.AppImage)..." && \ 
+  [ -f "LPub3D-${LP3D_APP_VERSION_LONG}-x86_64.AppImage" ] && echo "- checking $(ls ./*.AppImage)..." && \
   chmod u+x LPub3D-${LP3D_APP_VERSION_LONG}-x86_64.AppImage && ./LPub3D-${LP3D_APP_VERSION_LONG}-x86_64.AppImage -foo && \
   echo "- build check completed." && echo || echo "ERROR - Could not run AppImage build check."
 fi

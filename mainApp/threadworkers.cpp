@@ -28,7 +28,7 @@
 
 PartWorker::PartWorker(QObject *parent) : QObject(parent)
 {
-  setDoFadeStep(Preferences::enableFadeStep);
+  setDoFadeStep(Preferences::enableFadeSteps);
   setDoHighlightStep(Preferences::enableHighlightStep);
 
   _resetSearchDirSettings = false;
@@ -296,7 +296,7 @@ bool PartWorker::loadLDrawSearchDirs(){
    and there are more than 0 search directories in Preferences::ldgliteSearchDirs.
 */
 void PartWorker::populateLdgLiteSearchDirs() {
-    if (Preferences::preferredRenderer == "LDGLite" && !Preferences::ldSearchDirs.isEmpty()){
+    if (Preferences::preferredRenderer == RENDERER_LDGLITE && !Preferences::ldSearchDirs.isEmpty()){
 
         emit Application::instance()->splashMsgSig("85% - LDGlite Search directories loading...");
         //logDebug() << "SEARCH DIRECTORIES TO PROCESS" << Preferences::ldSearchDirs ;
@@ -803,13 +803,13 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
                     (tokens[1] != LDRAW_MAIN_MATERIAL_COLOUR) &&
                     (tokens[1] != LDRAW_EDGE_MATERIAL_COLOUR)) {
                     //QString oldColour(tokens[1]);          //logging only: show colour lines
-                    // generate costom colour entry - if fadeStepUseColour, set colour to material colour (16), without prefix
-                    QString colourCode = Preferences::fadeStepUseColour ? LDRAW_MAIN_MATERIAL_COLOUR : tokens[1];
+                    // generate costom colour entry - if fadeStepsUseColour, set colour to material colour (16), without prefix
+                    QString colourCode = Preferences::fadeStepsUseColour ? LDRAW_MAIN_MATERIAL_COLOUR : tokens[1];
                     // add colour line to local list
                     if (!gui->colourEntryExist(customPartColourList,colourCode,partType))
                         customPartColourList << gui->createColourEntry(colourCode,partType);
-                    // set costom colour - if fadeStepUseColour, do not add costom colour prefix
-                    tokens[1] = Preferences::fadeStepUseColour ? colourCode : QString("%1%2").arg(colourPrefix).arg(colourCode);
+                    // set costom colour - if fadeStepsUseColour, do not add costom colour prefix
+                    tokens[1] = Preferences::fadeStepsUseColour ? colourCode : QString("%1%2").arg(colourPrefix).arg(colourCode);
                     //logTrace() << "D. CHANGE CHILD PART COLOUR: " << fileNameStr << " NewColour: " << tokens[1] << " OldColour: " << oldColour;
                 }
                 line = tokens.join(" ");
