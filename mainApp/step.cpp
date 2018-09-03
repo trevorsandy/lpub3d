@@ -187,7 +187,7 @@ int Step::createCsi(
   bool    doFadeStep      = meta.LPub.fadeStep.fadeStep.value();
   bool    doHighlightStep = meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
   bool    csiExist        = false;
-  bool    invalidIMStep   = ((modelDisplayOnlyStep == true) || (stepNumber.number == 1));
+  bool    invalidIMStep   = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
   QString viewerCsiName;
 
   ldrName.clear();

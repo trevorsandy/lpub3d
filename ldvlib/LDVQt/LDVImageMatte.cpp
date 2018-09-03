@@ -24,6 +24,7 @@
 
 #include <TCFoundation/mystring.h>
 #include <TRE/TREGLExtensions.h>
+#include <WPngImage.hh>
 
 #include "QsLog.h"
 #include "lpubalert.h"
@@ -40,8 +41,8 @@ QHash<QString, QString> LDVImageMatte::csiFile2csiKey;  // csiFileName, csiKey
 LDVImageMatte::LDVImageMatte() {}
 
 /*
- * This function inserts an image file entry mapped to the csiKey
- * and inserts a csi key entry mapped to the imageFile.
+ * This function inserts an image file entry clipped to the csiKey
+ * and inserts a csi key entry clipped to the imageFile.
  * Required attributes are a csiKey (csiName() + stepNumber)
  * and the csiFile defined with absolute path
  */
@@ -65,29 +66,36 @@ void LDVImageMatte::insertMatteCSIImage(QString key, QString value)
 }
 
 /*
- * This function deletes an image file entry mapped to the csiKey
- * or a csi key entry mapped to the imageFile.
+ * This function deletes an image file entry clipped to the csiKey
+ * or a csi key entry clipped to the imageFile.
  * Required attribute is a csiKey (csiName() + stepNumber)
  * or the csiFile defined with absolute path
  */
-void LDVImageMatte::removeMatteCSIImage(QString key) {
+void LDVImageMatte::removeMatteCSIImage(QString item) {
 
   bool ok;
   int removed = 0;
-  QString item;
-  int validInt = QString(key).right(1).toInt(&ok);
+  QString csiKey, csiFile;
+  int validInt = QString(item).right(1).toInt(&ok);
   if (ok && validInt >= 0) {
-      if (csiKey2csiFile.contains(key))
-        item =  csiKey2csiFile[key];
-      removed = csiKey2csiFile.remove(key);
+      csiKey = item;
+      if (csiKey2csiFile.contains(csiKey)) {
+          csiFile =  csiKey2csiFile[csiKey];
+          removed = csiKey2csiFile.remove(csiKey);
+        if (removed != 0)
+            removed = csiFile2csiKey.remove(csiFile);
+        }
     }
   else
-    if (QFileInfo(key).completeSuffix().toLower() == QString("png").toLower()) {
-        if (csiFile2csiKey.contains(key))
-          item =  csiFile2csiKey[key];
-        removed = csiFile2csiKey.remove(key);
+    if (QFileInfo(item).completeSuffix().toLower() == QString("png").toLower()) {
+        csiFile = item;
+        if (csiFile2csiKey.contains(csiFile))
+          csiKey =  csiFile2csiKey[csiFile];
+        removed = csiFile2csiKey.remove(csiFile);
+        if (removed != 0)
+          removed = csiKey2csiFile.remove(csiKey);
       }
-  emit lpubAlert->messageSig(LOG_INFO,QString("Removed %1 item, CSI Key: %2 for Item : %3").arg(removed).arg(key).arg(item));
+  emit lpubAlert->messageSig(LOG_INFO,QString("Removed %1 item, CSI Key: %2 for File: %3").arg(removed).arg(csiKey).arg(csiFile));
 }
 
 /*
@@ -144,234 +152,157 @@ void LDVImageMatte::clearMatteCSIImages(){
   csiFile2csiKey.clear();
 }
 
+// Generate PNG IM images...
 bool LDVImageMatte::matteCSIImage(QStringList &arguments, QString &csiKey) {
 
-  bool renderFailed = false;
+  if (!validMatteCSIImage(csiKey)){
+      emit lpubAlert->messageSig(LOG_ERROR,QString("csiKey %1 does not exist.")
+                                 .arg(csiKey));
+      return false;
+    }
+
   QString ext;
-  QFileInfo csiFileInfo;
+  QFileInfo csiIMFileInfo;
   QString tempPath = QDir::currentPath() + "/" +  Paths::tmpDir;
   if (Render::useLDViewSCall()){
       ext = ".png";
-      csiFileInfo.setFile(getMatteCSIImage(csiKey));
+      csiIMFileInfo.setFile(QString("%1/%2").arg(tempPath).arg(QFileInfo(getMatteCSIImage(csiKey)).fileName()));
     } else {
       ext = ".ldr";
-      csiFileInfo.setFile(QString("%1/csi%2").arg(tempPath).arg(ext));
+      csiIMFileInfo.setFile(QString("%1/csi%2").arg(tempPath).arg(ext));
     }
 
-  // ldr and png IM file extensions
-  QString im_prev_png_ext = QString(".%1").arg(LPUB3D_IM_PREV_PNG_EXT);
-  QString im_prev_ldr_ext = QString(".%1").arg(LPUB3D_IM_PREV_LDR_EXT);
-  QString im_curr_png_ext = QString(".%1").arg(LPUB3D_IM_CURR_PNG_EXT);
-  QString im_curr_ldr_ext = QString(".%1").arg(LPUB3D_IM_CURR_LDR_EXT);
+  // Ldr IM file extensions
+  QString base_ldr_ext = QString(".%1").arg(LPUB3D_IM_BASE_LDR_EXT);
+  QString overlay_ldr_ext = QString(".%1").arg(LPUB3D_IM_OVERLAY_LDR_EXT);
 
-  // Generate previous png and ZMap files
-  QString prevPngFile = QString(csiFileInfo.absoluteFilePath()).replace(ext,im_prev_png_ext);
-  QString prevLdrFile = QString("%1/%2").arg(tempPath)
-                                .arg(QString(csiFileInfo.fileName()).replace(ext,im_prev_ldr_ext));
-  if (QFileInfo(prevLdrFile).exists()) {
-
-      arguments.insert(5, QString("-SaveSnapShot=%1").arg(prevPngFile));
-      arguments.append(prevLdrFile);                 // ldrName
-
-      if (Render::executeLDViewProcess(arguments, Render::CSI) == -1)
-        renderFailed = true;
+  // Check previous ldr file
+  QString baseLdrFile = QString("%1/%2").arg(tempPath)
+                                .arg(QString(csiIMFileInfo.fileName()).replace(ext,base_ldr_ext));
+  if (QFileInfo(baseLdrFile).exists()) {
+      arguments.append(baseLdrFile);                 // ldrName
     } else {
-      emit lpubAlert->messageSig(LOG_ERROR,QString("Could not find prevLdrFile %1")
-                                 .arg(prevLdrFile));
+      emit lpubAlert->messageSig(LOG_ERROR,QString("Could not find baseLdrFile %1")
+                                 .arg(baseLdrFile));
       return false;
     }
 
-  // Generate current png and ZMap files
-  QString currPngFile = QString(csiFileInfo.absoluteFilePath()).replace(ext,im_curr_png_ext);
-  QString currLdrFile = QString("%1/%2").arg(tempPath)
-                                .arg(QString(csiFileInfo.fileName()).replace(ext,im_curr_ldr_ext));
-  if (QFileInfo(currLdrFile).exists()) {
-
-      arguments.removeOne(QString("-SaveSnapShot=%1").arg(prevPngFile));
-      arguments.removeOne(prevLdrFile);
-
-      arguments.insert(5, QString("-SaveSnapShot=%1").arg(currPngFile));
-      arguments.append(currLdrFile);                   // ldrName
-
-      if (Render::executeLDViewProcess(arguments, Render::CSI) == -1)
-        renderFailed = true;
+  // Check current ldr file
+  QString overlayLdrFile = QString("%1/%2").arg(tempPath)
+                                .arg(QString(csiIMFileInfo.fileName()).replace(ext,overlay_ldr_ext));
+  if (QFileInfo(overlayLdrFile).exists()) {
+      arguments.append(overlayLdrFile);                 // ldrName
     } else {
-      emit lpubAlert->messageSig(LOG_ERROR,QString("Could not find currLdrFile %1")
-                                 .arg(currLdrFile));
+      emit lpubAlert->messageSig(LOG_ERROR,QString("Could not find overlayLdrFile %1")
+                                 .arg(overlayLdrFile));
       return false;
     }
 
-  if (renderFailed) {
-      emit lpubAlert->messageSig(LOG_ERROR,QString("LDView CSI render failed for arguments %1")
+  // Generate IM png file pair
+  if (Render::executeLDViewProcess(arguments, Render::CSI) != 0) {
+      emit lpubAlert->messageSig(LOG_ERROR,QString("LDView CSI IM render failed for arguments %1")
                                  .arg(arguments.join(" ")));
       return false;
     }
 
+  // Png IM file extensions
+  QString base_png_ext = QString(".%1").arg(LPUB3D_IM_BASE_PNG_EXT);
+  QString overlay_png_ext = QString(".%1").arg(LPUB3D_IM_OVERLAY_PNG_EXT);
+
+  // Check previous png file
+  QString basePngFile = QString(csiIMFileInfo.absoluteFilePath()).replace(ext,base_png_ext);
+  if (!QFileInfo(basePngFile).exists()) {
+      emit lpubAlert->messageSig(LOG_ERROR,QString("Could not find basePngFile %1")
+                                 .arg(basePngFile));
+      return false;
+    }
+
+  // Check current png file
+  QString overlayPngFile = QString(csiIMFileInfo.absoluteFilePath()).replace(ext,overlay_png_ext);
+  if (!QFileInfo(overlayPngFile).exists()) {
+      emit lpubAlert->messageSig(LOG_ERROR,QString("Could not find overlayPngFile %1")
+                                 .arg(overlayPngFile));
+      return false;
+    }
+
   // merge images
-  return matteCSIImages(csiKey, prevPngFile, currPngFile);
+  return matteCSIImages(csiKey, basePngFile, overlayPngFile);
 }
 
-bool LDVImageMatte::matteCSIImages(QString csiKey, QString &prevImagePath, QString &currImagePath)
+bool LDVImageMatte::matteCSIImages(QString csiKey, QString &baseImagePath, QString &overlayImagePath)
 {
-  // Process current ZMap file
-  QFileInfo currImageInfo(currImagePath);
-  if (!currImageInfo.exists())
-    {
-      emit lpubAlert->messageSig(LOG_ERROR,QString("Current Step's Image File Not Found.").arg(prevImagePath));
+
+  QFileInfo overlayImageInfo(overlayImagePath);
+  if (!overlayImageInfo.exists()) {
+      emit lpubAlert->messageSig(LOG_ERROR,QString("Base Image File Not Found %1.").arg(overlayImageInfo.absoluteFilePath()));
       return false;
     }
 
-  QString currZMapPath = QString(currImageInfo.absoluteFilePath()).replace(".png",".ldvz");
+  WPngImage overlayImage;
+  const auto overlayImageStatus = overlayImage.loadImage(overlayImageInfo.absoluteFilePath().toLatin1().constData(),WPngImage::kPixelFormat_RGBA16);
+  if (overlayImageStatus.printErrorMsg()) return false;
 
-  FILE *currZMap = fopen(currZMapPath.toLatin1().constData(), "rb");
-
-  bool currZMapOk = zMapFileIsValid(currZMap, false);
-
-  int32_t currZDataSize[2];
-  size_t currZDataCount;
-  std::vector<GLfloat> currZData;
-
-  if (currZMapOk)
-    {
-      if (fread(&currZDataSize, sizeof(currZDataSize[0]), 2, currZMap) != 2)
-        {
-          emit lpubAlert->messageSig(LOG_ERROR,QString("Error Reading Current Step's Z Map Dimensions."));
-          return false;
-        }
-      currZDataCount = currZDataSize[0] * currZDataSize[1];
-      if (currZDataCount >= (2 << 28))
-        {
-          emit lpubAlert->messageSig(LOG_ERROR,QString("Current Step's  Z Map probably too big."));
-          return false;
-        }
-
-      currZData.resize(currZDataCount);
-      if (fread(&currZData[0], sizeof(GLfloat), currZData.size(), currZMap) != currZData.size())
-        {
-          emit lpubAlert->messageSig(LOG_ERROR,QString("Error Reading Current Step's Z Map Data."));
-          return false;
-        }
-    }
-
-  // Process previous ZMap file
-  QFileInfo prevImageInfo(prevImagePath);
-  if (!prevImageInfo.exists())
-    {
-      emit lpubAlert->messageSig(LOG_ERROR,QString("Previous Step's Image File Not Found.").arg(prevImagePath));
+  QFileInfo baseImageInfo(baseImagePath);
+  if (!baseImageInfo.exists()) {
+      emit lpubAlert->messageSig(LOG_ERROR,QString("Overlay Image File Not Found %1.").arg(baseImageInfo.absoluteFilePath()));
       return false;
     }
 
-  QString prevZMapPath = QString(prevImageInfo.absoluteFilePath()).replace(".png",".ldvz");
+  WPngImage baseImage;
+  const auto prevStatus = baseImage.loadImage(baseImageInfo.absoluteFilePath().toLatin1().constData(),WPngImage::kPixelFormat_RGBA16);
+  if (prevStatus.printErrorMsg())
+    return false;
 
-  FILE *prevZMap = fopen(prevZMapPath.toLatin1().constData(), "rb");
-
-  bool prevZMapOk = zMapFileIsValid(prevZMap, true);
-
-  int32_t prevZDataSize[2];
-  size_t prevZDataCount;
-  std::vector<GLfloat> prevZData;
-
-  if (prevZMapOk)
-    {
-      if (fread(&prevZDataSize, sizeof(prevZDataSize[0]), 2, prevZMap) != 2)
-        {
-          emit lpubAlert->messageSig(LOG_ERROR,QString("Error Reading Previous Step's Z Map Dimensions."));
-          return false;
-        }
-      prevZDataCount = prevZDataSize[0] * prevZDataSize[1];
-      if (prevZDataCount >= (2 << 28))
-        {
-          emit lpubAlert->messageSig(LOG_ERROR,QString("Previous Step's  Z Map probably too big."));
-          return false;
-        }
-      prevZData.resize(prevZDataCount);
-      if (fread(&prevZData[0], sizeof(GLfloat), prevZData.size(), prevZMap) != prevZData.size())
-        {
-          emit lpubAlert->messageSig(LOG_ERROR,QString("Error Reading Previous Step's Z Map Data."));
-          return false;
-        }
-    }
-
-  QImage currImage(currImageInfo.absoluteFilePath());
-  currImage = currImage.convertToFormat(QImage::Format_ARGB32);
-  if (currImage.isNull() )
-    {
-      emit lpubAlert->messageSig(LOG_ERROR,QString("Current Step's Image is Null."));
-      return false;
-    }
-
-  QImage prevImage(prevImageInfo.absoluteFilePath());
-  prevImage = prevImage.convertToFormat(QImage::Format_ARGB32);
-  if (prevImage.isNull() )
-    {
-      emit lpubAlert->messageSig(LOG_ERROR,QString("Previous Step's Image is Null."));
-      return false;
-    }
-
+  // Compare base and overlay image sizes
   LogType logType;
-  QString imageWidthMsg (QString("Matte Image -  Current Width: %1,  Previous Width: %2")
-                        .arg(currImage.width())
-                        .arg(prevImage.width()));
-  logType = currImage.width() != prevImage.width() ? LOG_INFO : LOG_STATUS;
+  QString imageWidthMsg (QString("Matte Image -  Base Width: %1,  Overlay Width: %2")
+                        .arg(overlayImage.width())
+                        .arg(baseImage.width()));
+  logType = overlayImage.width() != baseImage.width() ? LOG_INFO : LOG_STATUS;
   emit lpubAlert->messageSig(logType,imageWidthMsg);
 
-  QString imageHeightMsg(QString("Matte Image - Current Height: %1, Previous Height: %2")
-                         .arg(currImage.height())
-                         .arg(prevImage.height()));
-  logType = currImage.height() != prevImage.height() ? LOG_INFO : LOG_STATUS;
+  QString imageHeightMsg(QString("Matte Image - Base Height: %1, Overlay Height: %2")
+                         .arg(overlayImage.height())
+                         .arg(baseImage.height()));
+  logType = overlayImage.height() != baseImage.height() ? LOG_INFO : LOG_STATUS;
   emit lpubAlert->messageSig(logType,imageHeightMsg);
 
-  QImage newImage(currZDataSize[0], currZDataSize[1], QImage::Format_ARGB32_Premultiplied);
-  newImage.fill(qRgba(255,255,255,0));
+  // draw the overlay image on top of the base image
+//  baseImage.drawImage(0,0, overlayImage);
 
-  for (int32_t colY = 0; colY < currZDataSize[1]; ++colY)
+  // draw the overlay image pixel on top of the base image pixel
+  for(int y = 0; y < baseImage.height(); ++y)
     {
-      GLfloat *currZSpot = &currZData[colY * currZDataSize[0]];
-      GLfloat *prevZSpot = &prevZData[colY * prevZDataSize[0]];
-
-      for (int32_t rowX = 0; rowX < currZDataSize[0]; ++rowX)
+      for(int x = 0; x < baseImage.width(); ++x)
         {
-          QRgb pixelSpot;
-          if (currZSpot < prevZSpot) {   // this seems to always be true
-            pixelSpot = currImage.pixel( rowX, colY );
-          } else {
-            pixelSpot = blendPixel(currImage.pixel( rowX, colY ),
-                                   prevImage.pixel( rowX, colY ));
-          }
-          newImage.setPixel( rowX, colY, pixelSpot);
+          baseImage.drawPixel(x, y, overlayImage.get16(x, y));
         }
     }
 
-  QPainter painter(&newImage);
-  painter.setRenderHint(QPainter::Antialiasing);
-  painter.drawImage(0,0,newImage);
-  painter.end();
-
-  struct MappedImage
+  struct ClippedImage
   {
-    QImage Image;
+    WPngImage Image;
     QString Path;
     QRect Bounds;
     QString BoundMsg;
   };
 
-  MappedImage mappedImage;
-  auto CalculateImageBounds = [](MappedImage& _Image)
+  ClippedImage clippedImage;
+  auto CalculateImageBounds = [](ClippedImage& _Image)
   {
-    QImage& Image = _Image.Image;
-    int Width  = Image.width();
-    int Height = Image.height();
+    WPngImage& Image = _Image.Image;
 
-    int MinX = Width;
-    int MinY = Height;
+    int MinX = Image.width();
+    int MinY = Image.height();
     int MaxX = 0;
     int MaxY = 0;
 
-    for (int x = 0; x < Width; x++)
+    for(int y = 0; y < Image.height(); ++y)
       {
-        for (int y = 0; y < Height; y++)
+        for(int x = 0; x < Image.width(); ++x)
           {
-            if (qAlpha(Image.pixel(x, y)))
+            //qDebug() << QString("Image.get16(x[%1], y[%2]).a[%3]").arg(x).arg(y).arg(Image.get16(x, y).a);
+            if (Image.get16(x, y).a)  // .a = 0
               {
                 MinX = qMin(x, MinX);
                 MinY = qMin(y, MinY);
@@ -382,76 +313,23 @@ bool LDVImageMatte::matteCSIImages(QString csiKey, QString &prevImagePath, QStri
       }
 
     _Image.Bounds = QRect(QPoint(MinX, MinY), QPoint(MaxX, MaxY));
-    _Image.BoundMsg = QString("%1 (w:%2 x h:%3)")
-                              .arg(_Image.Path)
-                              .arg(_Image.Bounds.width())
-                              .arg(_Image.Bounds.height());
+    _Image.Image.resizeCanvas(_Image.Bounds.x(),_Image.Bounds.y(),_Image.Bounds.width(), _Image.Bounds.height());
+    _Image.BoundMsg = QString("Matte Image %1 clipped to Width %2 x Height %3")
+                              .arg(QFileInfo(_Image.Path).fileName())
+                              .arg(_Image.Image.width())
+                              .arg(_Image.Image.height());
   };
 
-  QString newImagePath = getMatteCSIImage(csiKey);
-  mappedImage.Image    = newImage;
-  mappedImage.Path     = newImagePath;
-  CalculateImageBounds(mappedImage);
+  clippedImage.Image    = baseImage;
+  clippedImage.Path     = getMatteCSIImage(csiKey);
+  CalculateImageBounds(clippedImage);
 
-  QImageWriter Writer(mappedImage.Path);
-  if (Writer.format().isEmpty())
-    Writer.setFormat("PNG");
-
-  if (Writer.write(QImage(mappedImage.Image.copy(mappedImage.Bounds)))) {
-      emit lpubAlert->messageSig(LOG_INFO, mappedImage.BoundMsg);
+  const auto clippedImageStatus = clippedImage.Image.saveImage(clippedImage.Path.toLatin1().constData());
+  if (clippedImageStatus.printErrorMsg()) {
+      return false;
     } else {
-      emit lpubAlert->messageSig(LOG_ERROR, QString("Failed to write clipped image '%1': %2.")
-                                 .arg(mappedImage.Path, Writer.errorString()));
-      return false;
+      emit lpubAlert->messageSig(LOG_INFO, clippedImage.BoundMsg);
     }
-  return true;
-}
 
-// UTILITY FUNCTIONS
-
-QRgb LDVImageMatte::blendPixel(const QRgb &_currPxl, const QRgb &_prevPxl)
-{
-  QColor currPxl(_currPxl);
-  QColor prevPxl(_prevPxl);
-
-  int rOut = (currPxl.red() * currPxl.alpha() / 255) + (prevPxl.red() * prevPxl.alpha() * (255 - currPxl.alpha()) / (255*255));
-  int gOut = (prevPxl.green() * currPxl.alpha() / 255) + (prevPxl.green() * prevPxl.alpha() * (255 - currPxl.alpha()) / (255*255));
-  int bOut = (prevPxl.blue() * currPxl.alpha() / 255) + (prevPxl.blue() * prevPxl.alpha() * (255 - currPxl.alpha()) / (255*255));
-  int aOut =  currPxl.alpha() + (prevPxl.alpha() * (255 - currPxl.alpha()) / 255);
-
-  return qRgba(rOut,gOut,bOut,aOut);
-}
-
-bool LDVImageMatte::zMapFileIsValid(FILE* zMapFile, bool current)
-{
-  QString step = current ? "Current Step's " : "Previous Step's ";
-
-  char magic[5] = { 0 };
-  char endian[5] = { 0 };
-  if (fread(magic, 4, 1, zMapFile) != 1)
-    {
-      emit lpubAlert->messageSig(LOG_ERROR, QString("Error Reading %1 Z Map Magic Number.").arg(step));
-      return false;
-    }
-  if (strcmp(magic, "ldvz") != 0)
-    {
-      emit lpubAlert->messageSig(LOG_ERROR,QString("Invalid %1 Z Map Magic Number.").arg(step));
-      return false;
-    }
-  if (fread(endian, 4, 1, zMapFile) != 1)
-    {
-      emit lpubAlert->messageSig(LOG_ERROR,QString("Error Reading %1 Z Map Endian.").arg(step));
-      return false;
-    }
-  const char *expectedEndian = "BIGE";
-  if (isLittleEndian())
-    {
-      expectedEndian = "LITE";
-    }
-  if (strcmp(endian, expectedEndian) != 0)
-    {
-      emit lpubAlert->messageSig(LOG_ERROR,QString("Invalid Z Map Endian."));
-      return false;
-    }
   return true;
 }

@@ -12,9 +12,8 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 win32:macx: \
-ENABLE_GAMEPAD = true
-contains(ENABLE_GAMEPAD,true) {
-    DEFINES += _GAMEPAD
+GAMEPAD {
+    DEFINES += LC_ENABLE_GAMEPAD
     equals(QT_MAJOR_VERSION, 5) {
         greaterThan(QT_MINOR_VERSION, 7) {
             QT += gamepad
@@ -32,7 +31,7 @@ TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
 INCLUDEPATH += ../ldrawini ../lclib/common ../lclib/qt
-INCLUDEPATH += ../ldvlib ../ldvlib/LDVQt/include
+INCLUDEPATH += ../ldvlib ../ldvlib/LDVQt/include ../ldvlib/WPngImage
 win32-msvc* {
 INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
 }
@@ -166,6 +165,7 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = QuaZIPd07
         LC_LIB = LCd18
         LDVQT_LIB = LDVQtd43
+        WPNGIMAGE_LIB = WPngImaged14
     }
 
     macx {
@@ -174,6 +174,7 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = QuaZIP_debug
         LC_LIB = LC_debug
         LDVQT_LIB = LDVQt_debug
+        WPNGIMAGE_LIB = WPngImage_debug
     }
 
     unix:!macx {
@@ -181,6 +182,7 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = quazipd
         LC_LIB = lcd
         LDVQT_LIB = ldvqtd
+        WPNGIMAGE_LIB = wpngimaged
     }
 
     # executable target name
@@ -198,6 +200,7 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = QuaZIP07
         LC_LIB = LC18
         LDVQT_LIB = LDVQt43
+        WPNGIMAGE_LIB = WPngImage14
     }
 
     macx {
@@ -205,6 +208,7 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = QuaZIP
         LC_LIB = LC
         LDVQT_LIB = LDVQt
+        WPNGIMAGE_LIB = WPngImage
     }
 
     unix:!macx {
@@ -213,6 +217,7 @@ CONFIG(debug, debug|release) {
         QUAZIP_LIB = quazip
         LC_LIB = lc
         LDVQT_LIB = ldvqt
+        WPNGIMAGE_LIB = wpngimage
     }
 
     # executable target
@@ -306,6 +311,8 @@ INCLUDEPATH += $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/.ui
 LIBS += -L$$OUT_PWD/../lclib/$$DESTDIR -l$$LC_LIB
 
 LIBS += -L$$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR -l$$LDVQT_LIB
+
+LIBS += -L$$OUT_PWD/../ldvlib/WPngImage/$$DESTDIR -l$$WPNGIMAGE_LIB
 
 LOAD_LDVLIBS = True
 include(../ldvlib/LDVQt/LDViewLibs.pri)

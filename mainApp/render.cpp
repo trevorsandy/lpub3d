@@ -269,7 +269,11 @@ float stdCameraDistance(Meta &meta, float scale) {
 
 int Render::executeLDViewProcess(QStringList &arguments, Mt module) {
 
-  QString message = QString("LDView (Native) CSI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+  QString message = QString("LDView %1 %2 Arguments: %3 %4")
+                            .arg(useLDViewSCall() ? "(SingleCall)" : "(Native)")
+                            .arg(module == CSI ? "CSI" : "PLI")
+                            .arg(Preferences::ldviewExe)
+                            .arg(arguments.join(" "));
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
@@ -288,7 +292,8 @@ int Render::executeLDViewProcess(QStringList &arguments, Mt module) {
           QByteArray status = ldview.readAll();
           QString str;
           str.append(status);
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView %1 render failed with code %2 %3")
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView %1 %2 render failed with code %2 %3")
+                               .arg(useLDViewSCall() ? "(SingleCall)" : "(Native)")
                                .arg(module == CSI ? "CSI" : "PLI")
                                .arg(ldview.exitCode())
                                .arg(str));
@@ -1040,25 +1045,26 @@ int LDView::renderCsi(
 
   /* Create the CSI DAT file(s) */
   QString f;
+  bool haveLdrNames, haveLdrNamesIM;
   QStringList ldrNames, ldrNamesIM;
   if (useLDViewSCall()) {
-      if (Preferences::enableFadeSteps && Preferences::enableImageMatting){
+      if (Preferences::enableFadeSteps && Preferences::enableImageMatting){  // ldrName entries (IM ON)
           enableIM = true;
-          QString csiEntry;
-          foreach(csiEntry, csiParts){                      // csiParts are ldrNames under LDViewSingleCall
-              //QString csiFile = QString(csiEntry).replace(".ldr",".png");
-              QString csiFile = QString("%1/%2/%3")
-                                        .arg(QDir::currentPath())
-                                        .arg(Paths::assemDir)
-                                        .arg(QString(QFileInfo(csiEntry).fileName()).replace(".ldr",".png"));
+          haveLdrNames = haveLdrNamesIM = false;
+          QString assemPath = QDir::currentPath() + "/" +  Paths::assemDir;
+          foreach(QString csiEntry, csiParts){              // csiParts are ldrNames under LDViewSingleCall
+              QString csiFile = QString("%1/%2").arg(assemPath).arg(QFileInfo(QString(csiEntry).replace(".ldr",".png")).fileName());
               if (LDVImageMatte::validMatteCSIImage(csiFile)) {
-                  ldrNamesIM << csiEntry;                   // ldrName entries that ARE imageMatte
+                  ldrNamesIM << csiEntry;                   // ldrName entries that ARE IM
+                  haveLdrNamesIM = true;
                 } else {
-                  ldrNames << csiEntry;                     // ldrName entries that ARE NOT imageMatte
+                  ldrNames << csiEntry;                     // ldrName entries that ARE NOT IM
+                  haveLdrNames = true;
                 }
             }
+        } else {                                            // ldrName entries (IM off)
+          ldrNames = csiParts;
         }
-      ldrNames = csiParts;                                  // ldrName entries
 #ifndef LDVIEW_USE_SNAPSHOT_LIST
       f  = QString("-SaveSnapShots=1");
 #else
@@ -1073,56 +1079,36 @@ int LDView::renderCsi(
 
       for (int i = 0; i < ldrNames.size(); i++) {
           QString smLine = ldrNames[i];
-          out << smLine << endl;                    // ldrNames that ARE NOT Image Matte valid
+          out << smLine << endl;                    // ldrNames that ARE NOT IM
           //logInfo() << qPrintable(QString("CSI Snapshots line: %1").arg(smLine));
       }
       snapShotListFile.close();
       f  = QString("-SaveSnapshotsList=%1").arg(snapShotList);     // run in renderCsi
-
-      QString fIM;
-      QString snapShotListIM = QDir::currentPath() + "/" + Paths::tmpDir + "/csiIM.ldr";
-      QFile snapShotListIMFile(snapShotListIM);
-      if ( ! snapShotListIMFile.open(QFile::Append | QFile::Text)) {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) CSI Snapshots2 (Image Matte) list creation failed!"));
-          return -1;
-      }
-
-      QTextStream outIM(&snapShotListIMFile);
-
-      for (int i = 0; i < ldrNamesIM.size(); i++) {
-          QString smLineIM = ldrNamesIM[i];
-          outIM << smLineIM << endl;              // ldrNames that ARE Image Matte valid
-          //logInfo() << qPrintable(QString("Image Matte CSI Snapshots line: %1").arg(smLineIM));
-      }
-
-      snapShotListIMFile.close();
-      fIM  = QString("-SaveSnapshotsList=%1").arg(snapShotListIM); // pass to LDVImageMatte::matteCSIImage
 #endif
-  } else {
+  } else {            // LDView (Native)
       int rc;
       QString csiKey = QString();
       if (Preferences::enableFadeSteps && Preferences::enableImageMatting &&
-          LDVImageMatte::validMatteCSIImage(csiKeys.first())) {
+          LDVImageMatte::validMatteCSIImage(csiKeys.first())) {                    // ldrName entries (IM ON)
           enableIM = true;
           csiKey = csiKeys.first();
         }
-        ldrNames << QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
-        if ((rc = rotateParts(addLine, meta.rotStep, csiParts,ldrNames.first(), csiKey)) < 0) {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) CSI rotate parts failed!"));
-            return rc;
-        }
-        // check again for if csiKey is valid - may have been
-        // deleted by rotateParts if IM files could not be created.
-        if (enableIM)
+      ldrNames << QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+      if ((rc = rotateParts(addLine, meta.rotStep, csiParts,ldrNames.first(), csiKey)) < 0) {
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) CSI rotate parts failed!"));
+          return rc;
+        } else
+        // recheck csiKey - may have been deleted by rotateParts if IM files not created.
+        if (enableIM) {
             enableIM = LDVImageMatte::validMatteCSIImage(csiKeys.first());
-        f  = QString("-SaveSnapShot=%1") .arg(pngName);
+          }
+        f  = QString("-SaveSnapShot=%1") .arg(pngName);     // applied for ldrName entry that IS NOT IM
   }
 
-//  QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
+  // Build (Native) arguments
   QString cg = QString("-cg%1,%2,%3") .arg(meta.LPub.assem.angle.value(0))
                                       .arg(meta.LPub.assem.angle.value(1))
                                       .arg(cd);
-
   QString a  = QString("-AutoCrop=1");
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
@@ -1141,9 +1127,8 @@ int LDView::renderCsi(
   arguments << o;                         // 07. HaveStdOut
   arguments << e;                         // 08. EdgeThickness
   arguments << v;                         // 09. Verbose
-  if (!enableIM) {
-      arguments.insert(2,a);              // 02. AutoCrop on if not Image Matte
-   }
+  if (!enableIM)
+    arguments.insert(2,a);                // 02. AutoCrop On if IM Off
 
   QStringList ldviewParmslist;
   ldviewParmslist = meta.LPub.assem.ldviewParms.value().split(' ');
@@ -1177,95 +1162,94 @@ int LDView::renderCsi(
 
   // execute LDView process
   if (enableIM) {
-      if (useLDViewSCall())
-         if (executeLDViewProcess(arguments, CSI) == -1)
+      if (useLDViewSCall() && haveLdrNames)   // ldrName entries that ARE NOT IM exist - e.g. first step
+         if (executeLDViewProcess(arguments, CSI) != 0)
              return -1;
     } else {
-      if (executeLDViewProcess(arguments, CSI) == -1)
+      if (executeLDViewProcess(arguments, CSI) != 0)
           return -1;
     }
 
-  // Rebuild arguments
+  // Build IM arguments
   QStringList im_arguments;
-  if (enableIM) {
-      QString z  = QString("-SaveZMap=1");
+  if (enableIM && haveLdrNamesIM) {
       QString a  = QString("-AutoCrop=0");
-      im_arguments << CA;                     // 00. Camera angle
-      im_arguments << cg;                     // 01. Camera globe
-      im_arguments << a;                      // 02. AutoCrop off - create uniform size output
-      im_arguments << w;                      // 03. SaveWidth
-      im_arguments << h;                      // 04. SaveHeight
-      im_arguments << z;                      // 05. Save ZMap on
-      im_arguments << l;                      // 06. LDrawDir
-      im_arguments << o;                      // 07. HaveStdOut
-      im_arguments << e;                      // 08. EdgeThickness
-      im_arguments << v;                      // 09. Verbose
+      im_arguments << CA;                         // 00. Camera angle
+      im_arguments << cg;                         // 01. Camera globe
+      im_arguments << a;                          // 02. AutoCrop off - to create same size IM pair files
+      im_arguments << w;                          // 03. SaveWidth
+      im_arguments << h;                          // 04. SaveHeight
+      im_arguments << f;                          // 05. SaveSnapshot/SaveSnapshots/SaveSnapshotList
+      im_arguments << l;                          // 06. LDrawDir
+      im_arguments << o;                          // 07. HaveStdOut
+      im_arguments << e;                          // 08. EdgeThickness
+      im_arguments << v;                          // 09. Verbose
       for (int i = 0; i < ldviewParmslist.size(); i++) {
-        if (ldviewParmslist[i] != "" &&
-            ldviewParmslist[i] != " ") {
-          im_arguments << ldviewParmslist[i]; // 10. ldviewParms [usually empty]
+          if (ldviewParmslist[i] != "" &&
+              ldviewParmslist[i] != " ") {
+              im_arguments << ldviewParmslist[i]; // 10. ldviewParms [usually empty]
+            }
         }
-      }
-      im_arguments << ini;                    // 11. LDView.ini
+      im_arguments << ini;                        // 11. LDView.ini
       if (!altldc.isEmpty())
-        im_arguments << altldc;               // 12.Alternate LDConfig
+        im_arguments << altldc;                   // 12.Alternate LDConfig
     }
 
   if (useLDViewSCall()){
-    QString ldrName,ldrNameIM;
-    QString assemPath = QDir::currentPath() + "/" +  Paths::assemDir;
-    // process individual Image Matte files
-    if (enableIM) {
-        foreach(ldrNameIM, ldrNamesIM){
-            QFileInfo pngFileIMInfo(QString(ldrNameIM).replace(".ldr",".png"));                     // ldrName includes full tmpDir path
-            QFileInfo pngFileInfo(QString("%1/%2").arg(assemPath).arg(pngFileIMInfo.fileName()));   // set to full assemDir path
-            // Check if valid image matte input file
-            QString csiKey = LDVImageMatte::getMatteCSIImage(pngFileInfo.absoluteFilePath());
-            if (enableIM && !csiKey.isEmpty()) {
-                if (!LDVImageMatte::matteCSIImage(im_arguments, csiKey))
-                   return -1;
-              }
-          }
-      }
+      QString ldrName;
+      QString assemPath = QDir::currentPath() + "/" +  Paths::assemDir;
 
-     // move generated CSI images if not image matting
-    foreach(ldrName, ldrNames){
-        QFileInfo pngFileIMInfo(QString(ldrName).replace(".ldr",".png"));                       // ldrName includes full tmpDir path
-        QFileInfo pngFileInfo(QString("%1/%2").arg(assemPath).arg(pngFileIMInfo.fileName()));   // set to full assemDir path
-        QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
-        QString pngFilePath = pngFileInfo.absoluteFilePath();
-        if (! dir.rename(pngFileIMInfo.absoluteFilePath(), pngFilePath)){
-            QFile pngFile(pngFilePath);
-            if (! pngFile.exists()){ // file not found failure
-                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView CSI image file move failed for %1")
-                                     .arg(pngFilePath));
-                return -1;
-              } else {                // file exist failure
-                //file exist so delete and retry
-                QFile pngFile(pngFilePath);
-                if (pngFile.remove()) {
-                    //retry
-                    if (! dir.rename(pngFileInfo.absoluteFilePath(), pngFilePath)){
-                        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView CSI image file move failed after old file removal for%1")
-                                             .arg(pngFilePath));
+      if (enableIM) {
+          if (haveLdrNamesIM) {
+              // IM each ldrNameIM file
+              foreach(QString ldrNameIM, ldrNamesIM){
+                  QFileInfo pngFileInfo(QString("%1/%2").arg(assemPath).arg(QFileInfo(QString(ldrNameIM).replace(".ldr",".png")).fileName()));
+                  QString csiKey = LDVImageMatte::getMatteCSIImage(pngFileInfo.absoluteFilePath());
+                  if (!csiKey.isEmpty()) {
+                      if (!LDVImageMatte::matteCSIImage(im_arguments, csiKey))
                         return -1;
-                      }
-                  } else {
-                    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView could not remove old CSI image file %1")
-                                         .arg(pngFilePath));
-                    return -1;
-                  }
-              }
-          }
-      }
+                    }
+                }
+            }
+        }
+
+       if (haveLdrNames) {
+          // move CSI images to assem
+          foreach(ldrName, ldrNames){
+              QFileInfo pngFileTmpInfo(QString(ldrName).replace(".ldr",".png"));                       // ldrName includes full tmpDir path
+              QFileInfo pngFileInfo(QString("%1/%2").arg(assemPath).arg(pngFileTmpInfo.fileName()));   // set to full assemDir path
+              QDir dir(QDir::currentPath() + "/" + Paths::tmpDir);
+              QString pngFilePath = pngFileInfo.absoluteFilePath();
+
+              if (! dir.rename(pngFileTmpInfo.absoluteFilePath(), pngFilePath)){
+                  QFile pngFile(pngFilePath);
+                  if (! pngFile.exists()){      // destination file does not exist so we have a soruce file not found failure
+                      emit gui->messageSig(LOG_NOTICE,QMessageBox::tr("LDView CSI image file 1st move attempt failed for %1").arg(pngFilePath));
+                      return -1;
+                    } else {                    // destination file exist failure so delete and retry move
+                      QFile pngFile(pngFilePath);
+                      if (pngFile.remove()) {
+                          emit gui->messageSig(LOG_INFO,QMessageBox::tr("LDView CSI image file removed %1").arg(pngFilePath));
+                          if (! dir.rename(pngFileInfo.absoluteFilePath(), pngFilePath)){
+                              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView CSI image file %1 move failed after old file %2 removal.")
+                                                   .arg(pngFileInfo.absoluteFilePath())
+                                                   .arg(pngFilePath));
+                            }
+                        } else {
+                          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView could not remove old CSI image file %1").arg(pngFilePath));
+                        }
+                    }
+                }
+            }
+        }
     }
   else
     {
       // image matte - LDView Native csiKeys.first()
       if (enableIM) {
-          QString csiKey = csiKeys.first();
-          if (LDVImageMatte::validMatteCSIImage(csiKey))
-            if (!LDVImageMatte::matteCSIImage(im_arguments, csiKey))
+          QString csiFile = LDVImageMatte::getMatteCSIImage(csiKeys.first());
+          if (!csiFile.isEmpty())
+            if (!LDVImageMatte::matteCSIImage(im_arguments, csiFile))
               return -1;
         }
     }
@@ -1347,9 +1331,6 @@ int LDView::renderPli(
   arguments << o;
   arguments << e;
   arguments << v;
-  if (Preferences::enableFadeSteps && Preferences::enableImageMatting) {
-     arguments << QString("-AutoCrop=1");
-  }
 
   QStringList ldviewParmslist;
   ldviewParmslist = meta.LPub.assem.ldviewParms.value().split(' ');
@@ -1381,15 +1362,8 @@ int LDView::renderPli(
 
   emit gui->messageSig(LOG_STATUS, "Executing LDView render PLI - please wait...");
 
-  QString message = QString("LDView (Native) PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
-#ifdef QT_DEBUG_MODE
-  qDebug() << qPrintable(message);
-#else
-  emit gui->messageSig(LOG_STATUS, message);
-#endif
-
   // execute LDView process
-  if (executeLDViewProcess(arguments, PLI) == -1)
+  if (executeLDViewProcess(arguments, PLI) != 0)
           return -1;
 
   // move generated CSI images

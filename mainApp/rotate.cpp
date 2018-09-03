@@ -546,8 +546,8 @@ int Render::splitIMParts(const QStringList &rotatedParts,
   QRegExp rePartMeta("^[1|2|3|4|5]\\s+.*$",Qt::CaseInsensitive);
   QRegExp reFadeMeta("^0\\s+!FADE\\s*.*$",Qt::CaseInsensitive);
 
-  QString im_prev_ldr_ext = QString(".%1").arg(LPUB3D_IM_PREV_LDR_EXT);
-  QString im_curr_ldr_ext = QString(".%1").arg(LPUB3D_IM_CURR_LDR_EXT);
+  QString im_prev_ldr_ext = QString(".%1").arg(LPUB3D_IM_BASE_LDR_EXT);
+  QString im_curr_ldr_ext = QString(".%1").arg(LPUB3D_IM_OVERLAY_LDR_EXT);
 
 //  * /
   // current rotate file
@@ -674,11 +674,11 @@ int Render::splitIMParts(const QStringList &rotatedParts,
    if (!imPreviousHasParts || !imCurrentHasParts) {
 
        if (!imCurrentHasParts)
-           emit gui->messageSig(LOG_NOTICE,QMessageBox::tr("%1 Does not contain any parts, the file pair will be destroyed.")
-                                .arg(currLdrFile.fileName()));
+           emit gui->messageSig(LOG_NOTICE,QMessageBox::tr("Overlay file %1 does not contain any parts, the Overlay:Base file pair will be destroyed.")
+                                .arg(QFileInfo(currLdrFile.fileName()).fileName()));
        if (!imPreviousHasParts)
-           emit gui->messageSig(LOG_NOTICE,QMessageBox::tr("%1 Does not contain any parts, the file pair will be destroyed.")
-                                .arg(prevLdrFile.fileName()));
+           emit gui->messageSig(LOG_NOTICE,QMessageBox::tr("Base file %1 does not contain any parts, the Overlay:Base file pair will be destroyed.")
+                                .arg(QFileInfo(prevLdrFile.fileName()).fileName()));
 
        // close files;
        currLdrFile.close();

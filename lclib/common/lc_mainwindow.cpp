@@ -24,10 +24,11 @@
 #include "lc_colors.h"
 #include <functional>
 
-//#define LC_ENABLE_GAMEPAD (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
 
 #if LC_ENABLE_GAMEPAD
+#if defined(QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
 #include <QtGamepad/QGamepad>
+#endif
 #endif
 
 /*** LPub3D Mod - includes ***/

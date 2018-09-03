@@ -155,6 +155,7 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
   layout->addWidget(buttonBox);
 
   setModal(true);
+  setMinimumSize(40,20);
 }
 
 void GlobalCalloutDialog::getCalloutGlobals(

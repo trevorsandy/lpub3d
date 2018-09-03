@@ -42,6 +42,9 @@ Sergey A. Tachenov
 QSimpleUpdater
 Alex Spataru
 
+WPngImage 1.4.0
+Juha Nieminen
+
 LDraw.ini / ldglite
 Lars C. Hassing <SP.lars@AM.hassings.dk>
 

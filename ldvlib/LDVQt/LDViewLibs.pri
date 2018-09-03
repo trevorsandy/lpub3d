@@ -31,8 +31,8 @@ contains(LOAD_LDVHEADERS,True) {
 
     LDVHDRDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include )
 
-#    message("~~~ LDVQt Headers path: $$LDVINCLUDE ~~~ ")
-#    message("~~~ LDVQt Headers source: $$LDVHDRDIR ~~~ ")
+#    message("~~~ lib$${TARGET} Headers path: $$LDVINCLUDE ~~~ ")
+#    message("~~~ lib$${TARGET} Headers source: $$LDVHDRDIR ~~~ ")
 
     !exists($$THIRD_PARTY_DIST_DIR_PATH): \
     message("~~~ ERROR - THIRD PARTY DIST DIR $$THIRD_PARTY_DIST_DIR_PATH NOT DETECTED! ~~~")
@@ -53,11 +53,11 @@ contains(LOAD_LDVHEADERS,True) {
         message("~~~ $$upper($$QT_ARCH) build - skip LDVQt local GL headers ~~~")
     } else {
         system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/GL/*.h) $$system_path( $${LDVINCLUDE}/GL/ ) )
-        message("~~~ LDVQt local GL headers copied to $${LDVINCLUDE}/GL/ ~~~")
+        message("~~~ lib$${TARGET} local GL headers copied to $${LDVINCLUDE}/GL/ ~~~")
     }
 
     exists($$system_path( $$LDVINCLUDE/TCFoundation/TCObject.h )): \
-    message("~~~ LDVQt Library headers copied to $${LDVINCLUDE} ~~~")
+    message("~~~ lib$${TARGET} headers copied to $${LDVINCLUDE} ~~~")
 }
 
 contains(LOAD_LDVLIBS,True) {
@@ -68,8 +68,8 @@ contains(LOAD_LDVLIBS,True) {
     else:CONFIG(release, debug|release): \
     LDVLIBDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/bin/$$QT_ARCH )
 
-#    message("~~~ LDVQt Library path: $$LDVLIBRARY ~~~ ")
-#    message("~~~ LDVQt Library source: $$LDVLIBDIR ~~~ ")
+#    message("~~~ lib$${TARGET} Library path: $$LDVLIBRARY ~~~ ")
+#    message("~~~ lib$${TARGET} Library source: $$LDVLIBDIR ~~~ ")
 
     # Set source and local paths and library names
     win32-msvc* {
@@ -386,8 +386,8 @@ contains(LOAD_LDVLIBS,True) {
     LDVMESSAGESINI_DEP = $$system_path( $$absolute_path( $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI ) )
     LDVRESDIR          = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/resources )
 
-#    message("~~~ LDVQt Messages ini path: $$system_path( $$LDVMESSAGESINI_DEP ) ~~~ ")
-#    message("~~~ LDVQt Messages ini source: $$system_path( $$LDVRESDIR ) ~~~ ")
+#    message("~~~ lib$${TARGET} Messages ini path: $$system_path( $$LDVMESSAGESINI_DEP ) ~~~ ")
+#    message("~~~ lib$${TARGET} Messages ini source: $$system_path( $$LDVRESDIR ) ~~~ ")
 
     win32 {
         PLUS_CMD      = +

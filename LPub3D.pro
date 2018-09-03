@@ -14,18 +14,18 @@ else:	                      BUILD = RELEASE BUILD
 
 message("~~~ LPUB3D $$upper($$BUILD_ARCH) $${BUILD} ON $$upper($$HOST) ~~~")
 
-SUBDIRS = 3rdParty_ldrawini
-3rdParty_ldrawini.subdir   = $$PWD/ldrawini
-3rdParty_ldrawini.makefile = Makefile.ldrawini
-3rdParty_ldrawini.target   = sub-ldrawini
-3rdParty_ldrawini.depends  =
+SUBDIRS = ldrawini
+ldrawini.subdir   = $$PWD/ldrawini
+ldrawini.makefile = Makefile.ldrawini
+ldrawini.target   = sub-ldrawini
+ldrawini.depends  =
 
 isEmpty(quazipnobuild) {
-  SUBDIRS += 3rdParty_quazip
-  3rdParty_quazip.subdir   = $$PWD/quazip
-  3rdParty_quazip.makefile = Makefile.quazip
-  3rdParty_quazip.target   = sub-quazip
-  3rdParty_quazip.depends  =
+  SUBDIRS += quazip
+  quazip.subdir   = $$PWD/quazip
+  quazip.makefile = Makefile.quazip
+  quazip.target   = sub-quazip
+  quazip.depends  =
 }
 
 if (unix:exists(/usr/include/tinyxml.h)|exists(/usr/local/include/tinyxml.h)) {
@@ -65,6 +65,12 @@ ldvqt.makefile = Makefile.ldvqt
 ldvqt.target   = sub-ldvqt
 ldvqt.depends  = #ldlib
 
+SUBDIRS += wpngimage
+wpngimage.subdir   = $$PWD/ldvlib/WPngImage
+wpngimage.makefile = Makefile.WPngImage
+wpngimage.target   = sub-WPngImage
+wpngimage.depends  =
+
 SUBDIRS += lclib
 lclib.subdir   = $$PWD/lclib
 lclib.makefile = Makefile.lc
@@ -75,10 +81,12 @@ SUBDIRS += mainApp
 mainApp.subdir   = $$PWD/mainApp
 mainApp.makefile = Makefile.mainapp
 mainApp.target   = sub-mainApp
+isEmpty(quazipnobuild): \
 mainApp.depends  = quazip
 mainApp.depends  = ldrawini
 mainApp.depends  = lclib
 mainApp.depends  = ldvqt
+mainApp.depends  = wpngimage
 
 RESOURCES += \
     qsimpleupdater/etc/resources/qsimpleupdater.qrc \

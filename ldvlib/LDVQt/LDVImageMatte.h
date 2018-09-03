@@ -85,11 +85,9 @@ public:
    * for two images (previous steps and current step) to
    * combine the images using pixel blending.
    */
-  static bool matteCSIImages(QString csiKey, QString &previousFile, QString & currentFile);
+  static bool matteCSIImages(QString csiKey, QString &baseImagePath, QString & overlayImagePath);
 
 private:
-  static bool zMapFileIsValid(FILE* zMapFile, bool current);
-  static QRgb blendPixel(const QRgb &_currPxl, const QRgb &_prevPxl);
   static QHash<QString, QString> csiKey2csiFile;    // csiKey, csiFileName
   static QHash<QString, QString> csiFile2csiKey;    // csiFileName, csiKey
 

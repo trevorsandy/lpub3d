@@ -3368,11 +3368,12 @@ void Gui::statusMessage(LogType logType, QString message) {
      * LOG_QWARNING: - visible in Qt debug mode
      * LOG_QDEBUG:   - visible in Qt debug mode
      */
+    bool guiEnabled = (Preferences::modeGUI && Preferences::lpub3dLoaded);
     if (logType == LOG_STATUS ){
 
         logStatus() << message;
 
-        if (Preferences::modeGUI) {
+        if (guiEnabled) {
            statusBarMsg(message);
         } else {
            fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
@@ -3383,7 +3384,7 @@ void Gui::statusMessage(LogType logType, QString message) {
 
           logInfo() << message;
 
-          if (!Preferences::modeGUI) {
+          if (!guiEnabled) {
               fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
               fflush(stdout);
           }
@@ -3393,7 +3394,7 @@ void Gui::statusMessage(LogType logType, QString message) {
 
             logNotice() << message;
 
-            if (!Preferences::modeGUI) {
+            if (!guiEnabled) {
                 fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                 fflush(stdout);
             }
@@ -3403,7 +3404,7 @@ void Gui::statusMessage(LogType logType, QString message) {
 
               logTrace() << message;
 
-              if (!Preferences::modeGUI) {
+              if (!guiEnabled) {
                   fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                   fflush(stdout);
               }
@@ -3413,7 +3414,7 @@ void Gui::statusMessage(LogType logType, QString message) {
 
         logError() << message;
 
-        if (Preferences::modeGUI) {
+        if (guiEnabled) {
             QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
         } else {
             fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());

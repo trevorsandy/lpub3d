@@ -60,6 +60,7 @@ SubModelColorDialog::SubModelColorDialog(
   layout->addWidget(buttonBox);
 
   setModal(true);
+  setMinimumSize(300,20);
 }
 
 SubModelColorDialog::~SubModelColorDialog()

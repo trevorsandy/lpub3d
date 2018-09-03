@@ -112,7 +112,8 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   grid->addWidget(buttonBox);
 
   setModal(true);
-  setModal(true);
+  setMinimumSize(40,20);
+  
 }
 
 void GlobalMultiStepDialog::getMultiStepGlobals(

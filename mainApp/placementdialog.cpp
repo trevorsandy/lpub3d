@@ -511,10 +511,12 @@ PlacementDialog::PlacementDialog(
 
   setLayout(outsideGrid);
   setWindowTitle(tr("%1 %2 Dialog").arg(QString::fromLatin1(VER_PRODUCTNAME_STR),title));
-  setModal(true);
-
+  
   setEnabled(prepositionOks[goods->relativeTo]);
   highlightPlacement(goods);
+  
+  setModal(true);
+  setMinimumSize(40,20);
 }
 
 PlacementDialog::~PlacementDialog()

@@ -92,10 +92,10 @@ enum Theme { ThemeDark, ThemeDefault };
 #define LPUB3D_COLOUR_TITLE_PREFIX              "LPub3D_"
 #define LPUB3D_COLOUR_FILE_PREFIX               "colours_" //Not used
 
-#define LPUB3D_IM_PREV_LDR_EXT                  "prev.ldr" // Image Matte LDraw working file extension
-#define LPUB3D_IM_CURR_LDR_EXT                  "curr.ldr" // Image Matte LDraw working file extension
-#define LPUB3D_IM_PREV_PNG_EXT                  "prev.png" // Image Matte Png working file extension
-#define LPUB3D_IM_CURR_PNG_EXT                  "curr.png" // Image Matte Png working file extension
+#define LPUB3D_IM_BASE_LDR_EXT                  "base.ldr"    // Image Matte LDraw working file extension
+#define LPUB3D_IM_OVERLAY_LDR_EXT               "overlay.ldr" // Image Matte LDraw working file extension
+#define LPUB3D_IM_BASE_PNG_EXT                  "base.png"    // Image Matte Png working file extension
+#define LPUB3D_IM_OVERLAY_PNG_EXT               "overlay.png" // Image Matte Png working file extension
 
 #define HIGHLIGHT_COLOUR_DEFAULT                "#FFFF00"  // Bright Yellow
 #define HIGHLIGHT_LINE_WIDTH_DEFAULT            1.0        // line width 1 - 5

@@ -59,6 +59,7 @@ PageSizeDialog::PageSizeDialog(
   layout->addWidget(buttonBox);
 
   setModal(true);
+  setMinimumSize(40,20);
 }
 
 PageSizeDialog::~PageSizeDialog()

@@ -14,6 +14,7 @@ DEPENDPATH  += .
 INCLUDEPATH += .
 DEPENDPATH  += include
 INCLUDEPATH += include
+INCLUDEPATH += ../WPngImage
 INCLUDEPATH += ../../mainApp
 INCLUDEPATH += ../../qslog
 macx: \

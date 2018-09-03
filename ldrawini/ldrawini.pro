@@ -77,7 +77,7 @@ CONFIG(debug, debug|release) {
     win32: TARGET = $$join(TARGET,,,161)
 }
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
-message("~~~ LDRAWINI $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
+message("~~~ lib$${TARGET} $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
 
 PRECOMPILED_DIR = $$DESTDIR/.pch
 OBJECTS_DIR     = $$DESTDIR/.obj
