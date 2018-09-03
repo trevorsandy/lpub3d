@@ -2003,7 +2003,7 @@ void MetaItem::insertText()
         }
 
       QString meta = QString("0 !LPUB INSERT TEXT \"%1\" \"%2\" \"%3\"") .arg(list2.join("\\n")) .arg("Arial,36,-1,255,75,0,0,0,0,0") .arg("Black");
-      Where topOfStep;
+      Where insertPosition, walkBack, topOfStep, bottomOfStep;
 
       bool multiStep = false;
 
@@ -2023,9 +2023,29 @@ void MetaItem::insertText()
           topOfStep = steps->bottomOfSteps();
         } else {
           topOfStep = gui->topOfPages[gui->displayPageNum-1];
-          scanPastGlobal(topOfStep);
+          // capture model when different from model at top of page
+          bottomOfStep = gui->topOfPages[gui->displayPageNum];
+          if (topOfStep.modelName == bottomOfStep.modelName) {
+            // we the model has not changed
+            insertPosition = topOfStep;
+          } else {
+            // we are entering or leaving a submodel
+            Meta mi;
+            Rc rc;
+            // walk back to top of step, - 1 to avoid advacing 1 STEP if we land on a STEP
+            walkBack = bottomOfStep - 1;
+            for (; walkBack.lineNumber >= 0; walkBack--) {
+              QString line = gui->readLine(walkBack);
+              rc = mi.parse(line,walkBack);
+              if (isHeader(line) || rc == StepRc || rc == RotStepRc) {
+                break;
+              }
+            }
+            insertPosition = walkBack;
+          }
+          scanPastGlobal(insertPosition);
         }
-      appendMeta(topOfStep,meta);
+      appendMeta(insertPosition,meta);
     }
 }
 
