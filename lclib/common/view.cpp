@@ -17,6 +17,7 @@ lcVertexBuffer View::mRotateMoveVertexBuffer;
 lcIndexBuffer View::mRotateMoveIndexBuffer;
 
 View::View(lcModel* Model)
+	: mViewCube(this)
 {
 	mModel = Model;
 	mActiveSubmodelInstance = nullptr;
@@ -312,6 +313,18 @@ void View::SetViewpoint(lcViewpoint Viewpoint)
 		mCamera = new lcCamera(true);
 
 	mCamera->SetViewpoint(Viewpoint);
+	ZoomExtents();
+	Redraw();
+
+	gMainWindow->UpdateCurrentCamera(-1);
+}
+
+void View::SetViewpoint(const lcVector3& Position)
+{
+	if (!mCamera || !mCamera->IsSimple())
+		mCamera = new lcCamera(true);
+
+	mCamera->SetViewpoint(Position);
 	ZoomExtents();
 	Redraw();
 
@@ -887,6 +900,7 @@ void View::OnDraw()
 		else if (Tool == LC_TOOL_ROTATE_VIEW && mTrackButton == LC_TRACKBUTTON_NONE)
 			DrawRotateViewOverlay();
 
+		mViewCube.Draw();
 		DrawViewport();
 	}
 
@@ -1741,7 +1755,7 @@ void View::DrawAxes()
 	mContext->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
 	mContext->DrawIndexedPrimitives(GL_LINES, 6, GL_UNSIGNED_SHORT, 0);
 
-	mContext->SetColor(0.8f, 0.0f, 0.0f, 1.0f),
+	mContext->SetColor(0.8f, 0.0f, 0.0f, 1.0f);
 	mContext->DrawIndexedPrimitives(GL_TRIANGLES, 24, GL_UNSIGNED_SHORT, 6 * 2);
 	mContext->SetColor(0.0f, 0.8f, 0.0f, 1.0f);
 	mContext->DrawIndexedPrimitives(GL_TRIANGLES, 24, GL_UNSIGNED_SHORT, (6 + 24) * 2);
@@ -2810,6 +2824,9 @@ void View::OnLeftButtonDown()
 void View::OnLeftButtonUp()
 {
 	StopTracking(mTrackButton == LC_TRACKBUTTON_LEFT);
+
+	if (mViewCube.OnLeftButtonUp())
+		return;
 }
 
 void View::OnLeftButtonDoubleClick()
@@ -2904,6 +2921,9 @@ void View::OnMouseMove()
 
 	if (mTrackButton == LC_TRACKBUTTON_NONE)
 	{
+		if (mViewCube.OnMouseMove())
+			return;
+
 		UpdateTrackTool();
 
 		if (mTrackTool == LC_TRACKTOOL_INSERT)

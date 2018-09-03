@@ -17,7 +17,7 @@ ENABLE_GAMEPAD = true
 contains(ENABLE_GAMEPAD,true) {
     DEFINES += _GAMEPAD
     equals(QT_MAJOR_VERSION, 5) {
-        greaterThan(QT_MINOR_VERSION, 7) {
+        greaterThan(QT_MINOR_VERSION, 9) {
             QT += gamepad
         }
     }
