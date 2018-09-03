@@ -8,6 +8,7 @@
         <file alias="addnext.png">images/addnext.png</file>
         <file alias="addprevious.png">images/addprevious.png</file>
         <file alias="addpicture.png">images/addpicture.png</file>
+        <file alias="addarrowsegment.png">images/addarrowsegment.png</file>
         <file alias="addtext.png">images/addtext.png</file>
         <file alias="appendcoverpage.png">images/appendcoverpage.png</file>
         <file alias="appendlastpage.png">images/appendlastpage.png</file>
@@ -136,6 +137,7 @@
         <file alias="sortPli.png">images/sortPli.png</file>
         <file alias="splitbom.png">images/splitbom.png</file>
         <file alias="stepgroupsetup.png">images/stepgroupsetup.png</file>
+        <file alias="submodelcolor.png">images/submodelcolor.png</file>
         <file alias="treataspart.png">images/treataspart.png</file>
         <file alias="unpackcallout.png">images/unpackcallout.png</file>
         <file alias="unrotate.png">images/unrotate.png</file>

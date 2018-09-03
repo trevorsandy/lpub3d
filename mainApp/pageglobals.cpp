@@ -68,6 +68,7 @@ GlobalPageDialog::GlobalPageDialog(
   QGridLayout    *grid        = new QGridLayout();
   QVBoxLayout    *layout      = new QVBoxLayout();
   QVBoxLayout    *childlayout = new QVBoxLayout();
+  QSpacerItem    *vSpacer     = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
 
   QWidget        *widget      = new QWidget();
   QWidget        *childwidget;
@@ -160,7 +161,7 @@ GlobalPageDialog::GlobalPageDialog(
 
   childtab = new QTabWidget();                  // new tab object
   childlayout->addWidget(childtab);             // new add the tab
-  tab->addTab(childwidget, tr("Model"));            // new add the tab  (This is the new 'Model' tab
+  tab->addTab(childwidget, tr("Model"));        // new add the tab  (This is the new 'Model' tab
                                                 // END
   // child header (one) start
   widget = new QWidget();                       // existig 'model' widget definintion
@@ -198,6 +199,28 @@ GlobalPageDialog::GlobalPageDialog(
 
   // child footer (one) end
   childtab->addTab(widget,"Title/Cover Image");
+  // child footer end
+
+  // child header (one) start
+  widget = new QWidget();                       // existig 'model' widget definintion
+  layout = new QVBoxLayout();
+  widget->setLayout(layout);
+  // child header end
+  /*
+    SubModel Color,
+  */
+  //child body (many) start
+  box = new QGroupBox(tr("Sub-Model Level Colors"));
+  layout->addWidget(box);
+  child = new SubModelColorGui(&pageMeta->subModelColor,box);
+  data->children.append(child);
+  //child body end
+
+  //spacer
+  layout->addSpacerItem(vSpacer);
+
+  // child footer (one) end
+  childtab->addTab(widget,"SubModel Colors");
   // child footer end
 
   // child header (one) start
@@ -440,8 +463,6 @@ GlobalPageDialog::GlobalPageDialog(
   data->children.append(child);
 
   //spacer
-  QSpacerItem *vSpacer;
-  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vLayout->addSpacerItem(vSpacer);
 
   tab->addTab(widget,tr("Page Number"));

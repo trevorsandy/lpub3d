@@ -89,6 +89,10 @@ public:
     const QString  name = "",
     const QString  whatsThis = "");
 
+  QAction *subModelColorMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
   QAction *backgroundMenu(
           QMenu   &menu, 
     const QString  name = "");

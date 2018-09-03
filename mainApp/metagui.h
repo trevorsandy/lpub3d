@@ -1039,4 +1039,57 @@ public slots:
   void orientationChange(bool);
 };
 
+/***********************************************************************
+ *
+ * SubModelColor
+ *
+ **********************************************************************/
+
+class StringListMeta;
+class QGroupBox;
+class QPushButton;
+class SubModelColorGui : public MetaGui
+{
+  Q_OBJECT
+  Q_ENUMS(SubModCol)
+
+public:
+
+  enum SubModCol { Level1, Level2, Level3, Level4 };
+
+  SubModelColorGui(
+  StringListMeta *meta,
+  QGroupBox  *parent = NULL);
+  ~SubModelColorGui() {}
+
+  virtual void apply(QString &modelName);
+
+private:
+  StringListMeta  *meta;
+
+  bool        subModelColorModified;
+
+  QLabel      *subModelColor0Label;
+  QLabel      *subModelColor0Example;
+  QPushButton *subModelColor0Button;
+
+  QLabel      *subModelColor1Label;
+  QLabel      *subModelColor1Example;
+  QPushButton *subModelColor1Button;
+
+  QLabel      *subModelColor2Label;
+  QLabel      *subModelColor2Example;
+  QPushButton *subModelColor2Button;
+
+  QLabel      *subModelColor3Label;
+  QLabel      *subModelColor3Example;
+  QPushButton *subModelColor3Button;
+
+public slots:
+  void browseSubModelColor0(bool);
+  void browseSubModelColor1(bool);
+  void browseSubModelColor2(bool);
+  void browseSubModelColor3(bool);
+};
+
 #endif

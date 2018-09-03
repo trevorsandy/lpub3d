@@ -254,6 +254,22 @@ QAction* CommonMenus::placementMenu(
   return action;
 }
 
+QAction* CommonMenus::subModelColorMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QAction *action;
+
+  QString formatted = QString("Change %1 SubModel Level Color") .arg(name);
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/submodelcolor.png"));
+
+  formatted = QString("You can change the %1 subModel level background color.") .arg(name);
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
 QAction* CommonMenus::backgroundMenu(
         QMenu   &menu,
   const QString  name)

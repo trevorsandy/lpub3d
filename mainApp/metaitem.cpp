@@ -57,6 +57,7 @@
 #include "dividerdialog.h"
 #include "sizeandorientationdialog.h"
 #include "rotateiconsizedialog.h"
+#include "submodelcolordialog.h"
 #include "paths.h"
 #include "render.h"
 
@@ -1150,28 +1151,28 @@ void MetaItem::changePlacementOffset(
 {
 
 #ifdef QT_DEBUG_MODE
- qDebug() << "\nCHANGE PLACEMENT OFFSET -    "
-          << "\nPAGE WHERE -                 "
-          << " \nDefaultWhere (Model Name):  "   << defaultWhere.modelName
-          << " \nDefaultWhere (Line Number): "   << defaultWhere.lineNumber
-          << "\nPLACEMENT DATA -             "
-          << " \nPlacement:                  "   << PlacNames[placement->value().placement]     << " (" << placement->value().placement << ")"
-          << " \nJustification:              "   << PlacNames[placement->value().justification] << " (" << placement->value().justification << ")"
-          << " \nRelativeTo:                 "   << RelNames[placement->value().relativeTo]     << " (" << placement->value().relativeTo << ")"
-          << " \nPreposition:                "   << PrepNames[placement->value().preposition]   << " (" << placement->value().preposition << ")"
-          << " \nRectPlacement:              "   << RectNames[placement->value().rectPlacement] << " (" << placement->value().rectPlacement << ")"
-          << " \nOffset[0]:                  "   << placement->value().offsets[0]
-          << " \nOffset[1]:                  "   << placement->value().offsets[1]
-          << "\nPLACEMENT WHERE -            "
-          << " \nPlacement Here(Model Name): "   << placement->here().modelName
-          << " \nPlacement Here(Line Number):"   << placement->here().lineNumber
-          << "\nOTHER DATA -                 "
-          << " \n:Parent Relative Type:      "   << RelNames[type] << " (" << type << ")"
-          << " \n:Local:                     "   << local
-          << " \n:Global:                    "   << global
-          << "\n FORMATTED META -            "
-          << "\nMeta Format:                 "   << placement->format(local,global)
-          ;
+// qDebug() << "\nCHANGE PLACEMENT OFFSET -    "
+//          << "\nPAGE WHERE -                 "
+//          << " \nDefaultWhere (Model Name):  "   << defaultWhere.modelName
+//          << " \nDefaultWhere (Line Number): "   << defaultWhere.lineNumber
+//          << "\nPLACEMENT DATA -             "
+//          << " \nPlacement:                  "   << PlacNames[placement->value().placement]     << " (" << placement->value().placement << ")"
+//          << " \nJustification:              "   << PlacNames[placement->value().justification] << " (" << placement->value().justification << ")"
+//          << " \nRelativeTo:                 "   << RelNames[placement->value().relativeTo]     << " (" << placement->value().relativeTo << ")"
+//          << " \nPreposition:                "   << PrepNames[placement->value().preposition]   << " (" << placement->value().preposition << ")"
+//          << " \nRectPlacement:              "   << RectNames[placement->value().rectPlacement] << " (" << placement->value().rectPlacement << ")"
+//          << " \nOffset[0]:                  "   << placement->value().offsets[0]
+//          << " \nOffset[1]:                  "   << placement->value().offsets[1]
+//          << "\nPLACEMENT WHERE -            "
+//          << " \nPlacement Here(Model Name): "   << placement->here().modelName
+//          << " \nPlacement Here(Line Number):"   << placement->here().lineNumber
+//          << "\nOTHER DATA -                 "
+//          << " \n:Parent Relative Type:      "   << RelNames[type] << " (" << type << ")"
+//          << " \n:Local:                     "   << local
+//          << " \n:Global:                    "   << global
+//          << "\n FORMATTED META -            "
+//          << "\nMeta Format:                 "   << placement->format(local,global)
+//          ;
 #endif
 
   QString newMetaString = placement->format(local,global);
@@ -1185,60 +1186,87 @@ void MetaItem::changePlacementOffset(
 
     if (scanBackward(walk,StepMask,partsAdded) == EndOfFileRc) {        
       defaultWhere = firstLine(defaultWhere.modelName);
-      logNotice() << " \nScanBackward[TOP]: EndOfFileRc (StepMask) - defaultLine is: "
-                  << firstLine(defaultWhere.modelName).lineNumber
-                  << " of model: "
-                  << defaultWhere.modelName
-                     ;
+
+#ifdef QT_DEBUG_MODE
+//      logNotice() << " \nScanBackward[TOP]: EndOfFileRc (StepMask) - defaultLine is: "
+//                  << firstLine(defaultWhere.modelName).lineNumber
+//                  << " of model: "
+//                  << defaultWhere.modelName
+//                     ;
+#endif
     }
 
     if (type == StepGroupType) {             
       scanForward(defaultWhere,StepGroupBeginMask);
-      logNotice() << " \nScanForward[BOTTOM]: StepGroupType (StepGroupBeginMask) - file name is: "
-                  << defaultWhere.modelName
-                  << " \nStop at line: "
-                  << defaultWhere.lineNumber
-                  << " with line contents: \n"
-                  << gui->readLine(defaultWhere)
-                     ;
+
+#ifdef QT_DEBUG_MODE
+//      logNotice() << " \nScanForward[BOTTOM]: StepGroupType (StepGroupBeginMask) - file name is: "
+//                  << defaultWhere.modelName
+//                  << " \nStop at line: "
+//                  << defaultWhere.lineNumber
+//                  << " with line contents: \n"
+//                  << gui->readLine(defaultWhere)
+//                     ;
+#endif
+
     } else if (type == CalloutType) {
       scanForward(defaultWhere,CalloutEndMask);
       --defaultWhere;
-      logNotice() << " \nScanForward[BOTTOM]: CalloutType (CalloutEndMask) - file name is: "
-                  << defaultWhere.modelName
-                  << " \nStop at line: "
-                  << defaultWhere.lineNumber
-                  << " with line contents: \n"
-                  << gui->readLine(defaultWhere)
-                     ;
+
+#ifdef QT_DEBUG_MODE
+//      logNotice() << " \nScanForward[BOTTOM]: CalloutType (CalloutEndMask) - file name is: "
+//                  << defaultWhere.modelName
+//                  << " \nStop at line: "
+//                  << defaultWhere.lineNumber
+//                  << " with line contents: \n"
+//                  << gui->readLine(defaultWhere)
+//                     ;
+#endif
+
     } else if (defaultWhere.modelName == gui->topLevelFile()) {       
       scanPastGlobal(defaultWhere);
-      logNotice() << " \nTopLevelFile[TOP]: ScanPastGlobal - file name is: "
-                  << defaultWhere.modelName
-                  << " \nStop at line: "
-                  << defaultWhere.lineNumber
-                  << " with line contents: \n"
-                  << gui->readLine(defaultWhere)
-                     ;
+
+#ifdef QT_DEBUG_MODE
+//      logNotice() << " \nTopLevelFile[TOP]: ScanPastGlobal - file name is: "
+//                  << defaultWhere.modelName
+//                  << " \nStop at line: "
+//                  << defaultWhere.lineNumber
+//                  << " with line contents: \n"
+//                  << gui->readLine(defaultWhere)
+//                     ;
+#endif
+
     }
 
     if (defaultWhere.lineNumber == eof){
         insertMeta(defaultWhere,newMetaString);
-        logNotice() << " \nLast line so insert Meta:  \n" << newMetaString << " \nat line: "
-                    << defaultWhere.lineNumber
-                       ;
+
+#ifdef QT_DEBUG_MODE
+//        logNotice() << " \nLast line so insert Meta:  \n" << newMetaString << " \nat line: "
+//                    << defaultWhere.lineNumber
+//                       ;
+#endif
+
     } else {
         appendMeta(defaultWhere,newMetaString);
-        logNotice() << " \nNot last line so append Meta: \n" << newMetaString << " \nat line: "
-                    << defaultWhere.lineNumber+1
-                       ;
+
+#ifdef QT_DEBUG_MODE
+//        logNotice() << " \nNot last line so append Meta: \n" << newMetaString << " \nat line: "
+//                    << defaultWhere.lineNumber+1
+//                       ;
+#endif
+
     }
 
   } else {
     replaceMeta(placement->here(),newMetaString);
-    logNotice() << " \nPlacement defined so replace Meta:  \n" << newMetaString << " \nat line: "
-                << defaultWhere.lineNumber
-                   ;
+
+#ifdef QT_DEBUG_MODE
+//    logNotice() << " \nPlacement defined so replace Meta:  \n" << newMetaString << " \nat line: "
+//                << defaultWhere.lineNumber
+//                   ;
+#endif
+
   }
 }
 
@@ -1270,6 +1298,27 @@ void MetaItem::changeInsertOffset(
 {
   QString newMetaString = placement->format(false,false);
   replaceMeta(placement->here(),newMetaString);
+}
+
+void MetaItem::changeSubModelColor(
+  QString title,
+  const Where &topOfStep,
+  const Where &bottomOfStep,
+  StringListMeta *meta,
+  bool        local,
+  int         append,
+  bool        useTop)
+{
+  StringListMeta _meta;
+  _meta.setValue(meta->value());
+
+  bool ok;
+  ok = SubModelColorDialog::getSubModelColor(_meta,title,gui);
+
+  if (ok) {
+    meta->setValue(meta->value());
+    setMeta(topOfStep,bottomOfStep,meta,useTop,append,local);
+  }
 }
 
 void MetaItem::changeBackground(
@@ -1503,8 +1552,8 @@ void MetaItem::changeColor(
   if (_color.isValid()) {
     color->setValue(_color.name());
     logNotice() << "\nCHANGE COLOUR FUNCTION - "
-              << "\nPAGE- "
-              << (useTop ? " \nUseTop: True=Single-Step Page" : " \nFalse=Multi-Step Page")
+                << "\nPAGE- "
+                << (useTop ? " \nUseTop: True=Single-Step Page" : " \nFalse=Multi-Step Page")
                            ;
     setMeta(topOfStep,bottomOfStep,color,useTop,append,local);
   }
@@ -2386,22 +2435,27 @@ Rc MetaItem::scanBackward(
     QString line = gui->readLine(here);
     QStringList tokens;
 
-    logNotice() << "\n==SCAN BACKWARD READLINE==: "
-              << " \nMask:StepRc = (1 << StepRc)|(1 << RotStepRc): "  << mask
-              << " \nHere LINE:          " << here.lineNumber
-              << " \nHere Model:         " << here.modelName
-              << " \nLine:               " << line
-              << " \nIs Header:          " << isHeader(line)
-              << " \nParts Added:        " << partsAdded
-                   ;
+#ifdef QT_DEBUG_MODE
+//    logNotice() << "\n==SCAN BACKWARD READLINE==: "
+//              << " \nMask:StepRc = (1 << StepRc)|(1 << RotStepRc): "  << mask
+//              << " \nHere LINE:          " << here.lineNumber
+//              << " \nHere Model:         " << here.modelName
+//              << " \nLine:               " << line
+//              << " \nIs Header:          " << isHeader(line)
+//              << " \nParts Added:        " << partsAdded
+//                   ;
+#endif
 
     if (isHeader(line)) {
       scanPastGlobal(here);
 
-      logNotice() << "\nIN SCAN BACKWARD AT HEADER: "
-                << " \nScanPastGlobal"
-                << " \nRETURN EndOfFileRc at line:"  << here.lineNumber
-                   ;
+#ifdef QT_DEBUG_MODE
+//      logNotice() << "\nIN SCAN BACKWARD AT HEADER: "
+//                << " \nScanPastGlobal"
+//                << " \nRETURN EndOfFileRc at line:"  << here.lineNumber
+//                   ;
+#endif
+
       return EndOfFileRc;
     }
     split(line,tokens);
@@ -2415,33 +2469,53 @@ Rc MetaItem::scanBackward(
       Rc rc = tmpMeta.parse(line,here);
 
       if (rc == InsertPageRc /*&& ((mask >> rc) & 1)*/) {
-          logNotice() << "\nIN SCAN BACKWARD AT INSERT PAGE: "
-                    << " \nRETURN InsertRc at Line:"  << here.lineNumber
-                       ;
+
+#ifdef QT_DEBUG_MODE
+//          logNotice() << "\nIN SCAN BACKWARD AT INSERT PAGE: "
+//                    << " \nRETURN InsertRc at Line:"  << here.lineNumber
+//                       ;
+#endif
+
          return rc;
 
       } else if (rc == InsertCoverPageRc /* && ((mask >> rc) & 1)*/) {
-          logNotice() << "\nIN SCAN BACKWARD AT INSERT COVER PAGE: "
-                    << " \nRETURN InsertRc at Line:"  << here.lineNumber
-                       ;
+
+#ifdef QT_DEBUG_MODE
+//          logNotice() << "\nIN SCAN BACKWARD AT INSERT COVER PAGE: "
+//                    << " \nRETURN InsertRc at Line:"  << here.lineNumber
+//                       ;
+#endif
+
          return rc;
 
       } else if (rc == StepRc || rc == RotStepRc) {
-          logNotice() << "\nIN SCAN BACKWARD AT STEP: "
-                    << " \nRc == StepRc || RotStep at Line:"  << here.lineNumber
-                       ;
+
+#ifdef QT_DEBUG_MODE
+//          logNotice() << "\nIN SCAN BACKWARD AT STEP: "
+//                    << " \nRc == StepRc || RotStep at Line:"  << here.lineNumber
+//                       ;
+#endif
+
           if (((mask >> rc) & 1) && partsAdded) {
-              logNotice() << "\nIN SCAN BACKWARD AT STEP WITH PARTS: "
-                        << " \nParts Added: " << partsAdded
-                        << " \nRETURN StepRc|RotStepRc at Line:"  << here.lineNumber
-                         ;
+
+#ifdef QT_DEBUG_MODE
+//              logNotice() << "\nIN SCAN BACKWARD AT STEP WITH PARTS: "
+//                        << " \nParts Added: " << partsAdded
+//                        << " \nRETURN StepRc|RotStepRc at Line:"  << here.lineNumber
+//                         ;
+#endif
+
           return rc;
          }
         partsAdded = false;
       } else if (rc < ClearRc && ((mask >> rc) & 1)) {
-          logNotice() << "\nIN SCAN BACKWARD AT CLEAR: "
-                     << " \nRETURN ClearRc at Line:"  << here.lineNumber
-                       ;
+
+#ifdef QT_DEBUG_MODE
+//          logNotice() << "\nIN SCAN BACKWARD AT CLEAR: "
+//                     << " \nRETURN ClearRc at Line:"  << here.lineNumber
+//                       ;
+#endif
+
         return rc;
       }
     }
@@ -3547,11 +3621,11 @@ void MetaItem::writeRotateStep(QString &value)
 
     } else {                //we have a single-step page
 
-        logTrace() << "-SS MODEL NAME      :       " << modelName;
+//        logTrace() << "-SS MODEL NAME      :       " << modelName;
         Where pagePosition = gui->topOfPages[gui->displayPageNum];
         Rc rc = scanBackward(pagePosition,StepMask);
         here = pagePosition;
-        logTrace() << "-SS PAGE LINE NUMBER: " << pagePosition.lineNumber;
+//        logTrace() << "-SS PAGE LINE NUMBER: " << pagePosition.lineNumber;
 
         if (rc == StepRc) {
             rotStep = false;
@@ -3564,8 +3638,8 @@ void MetaItem::writeRotateStep(QString &value)
             } else {
                 here = here - 1;
             }
-            logDebug() << "-SS LINE NUMBER  :       " << here.lineNumber;
-            logDebug() << "-SS RC1: " << rc1 << "   -STEP LINE: " << line;
+//            logDebug() << "-SS LINE NUMBER  :       " << here.lineNumber;
+//            logDebug() << "-SS RC1: " << rc1 << "   -STEP LINE: " << line;
 
         } else if (rc == RotStepRc) {
             rotStep = true;
@@ -3577,15 +3651,15 @@ void MetaItem::writeRotateStep(QString &value)
     gui->clearTempCache();
 
     if (! rotStep && ! multiStep){
-        logNotice() << "FIN - INSERT SINGLE PAGE STEP HERE - LINE: " << here.lineNumber;
+//        logNotice() << "FIN - INSERT SINGLE PAGE STEP HERE - LINE: " << here.lineNumber;
         appendMeta(here,meta);
     }
     if (multiStep && ! rotStep){
-        logNotice() << "FIN - INSERT MULTI STEP PAGE HERE - LINE:  " << here.lineNumber;
+//        logNotice() << "FIN - INSERT MULTI STEP PAGE HERE - LINE:  " << here.lineNumber;
         insertMeta(here,meta);
     }
     if (rotStep){
-        logNotice() << "FIN - REPLACE ROTATE STEP HERE AT LINE: " << here.lineNumber;
+//        logNotice() << "FIN - REPLACE ROTATE STEP HERE AT LINE: " << here.lineNumber;
         replaceMeta(here,meta);
     }
 }

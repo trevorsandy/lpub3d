@@ -54,6 +54,7 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
 
   QTabWidget  *tab = new QTabWidget();
   QVBoxLayout *layout = new QVBoxLayout();
+  QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   setLayout(layout);
   layout->addWidget(tab);
 
@@ -123,6 +124,20 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
   data->children.append(child);
 
   tab->addTab(widget,"Contents");
+
+  widget = new QWidget();
+  layout = new QVBoxLayout();
+  widget->setLayout(layout);
+
+  box = new QGroupBox(tr("Sub-Model Level Colors"));
+  layout->addWidget(box);
+  child = new SubModelColorGui(&calloutMeta->subModelColor,box);
+  data->children.append(child);
+
+  //spacer
+  layout->addSpacerItem(vSpacer);
+
+  tab->addTab(widget,"SubModel Colors");
 
   QDialogButtonBox *buttonBox;
 

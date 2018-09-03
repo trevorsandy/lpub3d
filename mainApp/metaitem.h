@@ -181,6 +181,15 @@ public:
                         bool checkLocal = true,
                         bool  useTop = true);
 
+
+  void changeSubModelColor(QString title,
+                            const Where &,
+                            const Where &,
+                            StringListMeta  *,
+                            bool checkLocal = true,
+                            int   append = 1,
+                            bool  useTop = true);
+
   void changeBackground(QString,
                         const Where &,
                         const Where &,

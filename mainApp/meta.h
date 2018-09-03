@@ -545,9 +545,24 @@ public:
       return "";
     }
   }
+  QStringList value()
+  {
+    return _value[pushed];
+  }
   void setValue(QString value)
   {
-    _value[0] << value;
+    _value[pushed] << value;
+  }
+  void setValue(int pos, QString value)
+  {
+    if ((_value[pushed].size() >= pos) && (pos >= 0)) {
+        _value[pushed].removeAt(pos);
+        _value[pushed].insert(pos, value);
+      }
+  }
+  void setValue(QStringList value)
+  {
+    _value[pushed] = value;
   }
   StringListMeta() : RcMeta()
   {
@@ -2235,7 +2250,7 @@ public:
   RcMeta            end;
   BoolMeta          includeSubs;
   BoolMeta          show;
-  StringListMeta    subModelColor;     // FIXME: we need a dialog for submodel level color
+  StringListMeta    subModelColor;
   FontListMeta      subModelFont;
   StringListMeta    subModelFontColor;
   StringMeta        ldviewParms;

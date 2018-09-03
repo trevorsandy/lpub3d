@@ -1952,12 +1952,13 @@ void PliBackgroundItem::contextMenuEvent(
       QString pl = pli->bom ? "Bill Of Materials" : "Parts List";
       QAction *placementAction  = commonMenus.placementMenu(menu,pl,
                                                             commonMenus.naturalLanguagePlacementWhatsThis(PartsListType,placementData,pl));
-      QAction *constrainAction  = commonMenus.constrainMenu(menu,pl);
-      QAction *backgroundAction = commonMenus.backgroundMenu(menu,pl);
-      QAction *borderAction     = commonMenus.borderMenu(menu,pl);
-      QAction *marginAction     = commonMenus.marginMenu(menu,pl);
-      QAction *sortAction       = commonMenus.sortMenu(menu,pl);
-      QAction *annotationAction = commonMenus.annotationMenu(menu,pl);
+      QAction *constrainAction     = commonMenus.constrainMenu(menu,pl);
+      QAction *backgroundAction    = commonMenus.backgroundMenu(menu,pl);
+      QAction *subModelColorAction = commonMenus.subModelColorMenu(menu,pl);
+      QAction *borderAction        = commonMenus.borderMenu(menu,pl);
+      QAction *marginAction        = commonMenus.marginMenu(menu,pl);
+      QAction *sortAction          = commonMenus.sortMenu(menu,pl);
+      QAction *annotationAction    = commonMenus.annotationMenu(menu,pl);
 
 
       QAction *splitBomAction  = NULL;
@@ -2055,6 +2056,12 @@ void PliBackgroundItem::contextMenuEvent(
                            top,
                            bottom,
                            &pli->pliMeta.background);
+        } else if (selectedAction == subModelColorAction) {
+          changeSubModelColor("SubModel Color",
+                           top,
+                           bottom,
+                           &pli->pliMeta.subModelColor);
+
         } else if (selectedAction == borderAction) {
           changeBorder(me+" Border",
                        top,

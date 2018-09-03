@@ -406,11 +406,12 @@ HEADERS += \
     scaledialog.h \
     sizeandorientationdialog.h \
     step.h \
+    submodelcolordialog.h \
     textitem.h \
     threadworkers.h \
     updatecheck.h \
     version.h \
-    where.h \
+    where.h
 
 SOURCES += \
     aboutdialog.cpp \
@@ -498,6 +499,7 @@ SOURCES += \
     scaledialog.cpp \
     sizeandorientationdialog.cpp \
     step.cpp \
+    submodelcolordialog.cpp \
     textitem.cpp \
     threadworkers.cpp \
     traverse.cpp \

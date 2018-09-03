@@ -631,7 +631,7 @@ void NumberGui::browseColor(bool clicked)
   clicked = clicked;
   QColor qcolor = LDrawColor::color(meta->color.value());
   QColor newColor = QColorDialog::getColor(qcolor,this);
-  if (qcolor != newColor) {
+  if (newColor.isValid() && qcolor != newColor) {
     colorExample->setPalette(QPalette(newColor));
     colorExample->setAutoFillBackground(true);
     meta->color.setValue(newColor.name());
@@ -939,7 +939,7 @@ void PageAttributeTextGui::browseColor(bool clicked)
   clicked = clicked;
   QColor qcolor = LDrawColor::color(meta->textColor.value());
   QColor newColor = QColorDialog::getColor(qcolor,this);
-  if (qcolor != newColor) {
+  if (newColor.isValid() && qcolor != newColor) {
     colorExample->setPalette(QPalette(newColor));
     colorExample->setAutoFillBackground(true);
     meta->textColor.setValue(newColor.name());
@@ -1859,7 +1859,7 @@ void BackgroundGui::browseColor(bool)
 
   QColor qcolor = LDrawColor::color(color);
   QColor newColor = QColorDialog::getColor(qcolor,this);
-  if (qcolor != newColor) {
+  if (newColor.isValid() && qcolor != newColor) {
     color = newColor.name();
     background.string = newColor.name();
     colorLabel->setPalette(QPalette(newColor));
@@ -3294,3 +3294,154 @@ void SizeAndOrientationGui::apply(QString &topLevelFile)
     }
 }
 
+/***********************************************************************
+ *
+ * SubModelColor
+ *
+ **********************************************************************/
+
+SubModelColorGui::SubModelColorGui(
+  StringListMeta *_meta,
+  QGroupBox  *parent)
+{
+  meta = _meta;
+
+  QGridLayout *grid;
+
+  grid = new QGridLayout(parent);
+
+  if (parent) {
+    parent->setLayout(grid);
+  }
+
+  // 01
+  subModelColor0Label = new QLabel("Level One",parent);
+  grid->addWidget(subModelColor0Label,0,0);
+
+  subModelColor0Example = new QLabel(parent);
+  subModelColor0Example->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+  subModelColor0Example->setPalette(QPalette(meta->value(Level1)));
+  subModelColor0Example->setAutoFillBackground(true);
+  grid->addWidget(subModelColor0Example,0,1);
+
+  subModelColor0Button = new QPushButton("Change");
+  connect(subModelColor0Button,SIGNAL(clicked(      bool)),
+          this,       SLOT(  browseSubModelColor0(bool)));
+
+  grid->addWidget(subModelColor0Button,0,2);
+
+  // 02
+  subModelColor1Label = new QLabel("Level Two",parent);
+  grid->addWidget(subModelColor1Label,1,0);
+
+  subModelColor1Example = new QLabel(parent);
+  subModelColor1Example->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+  subModelColor1Example->setPalette(QPalette(meta->value(Level2)));
+  subModelColor1Example->setAutoFillBackground(true);
+  grid->addWidget(subModelColor1Example,1,1);
+
+  subModelColor1Button = new QPushButton("Change");
+  connect(subModelColor1Button,SIGNAL(clicked(      bool)),
+          this,       SLOT(  browseSubModelColor1(bool)));
+
+  grid->addWidget(subModelColor1Button,1,2);
+
+  // 03
+  subModelColor2Label = new QLabel("Level Three",parent);
+  grid->addWidget(subModelColor2Label,2,0);
+
+  subModelColor2Example = new QLabel(parent);
+  subModelColor2Example->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+  subModelColor2Example->setPalette(QPalette(meta->value(Level3)));
+  subModelColor2Example->setAutoFillBackground(true);
+  grid->addWidget(subModelColor2Example,2,1);
+
+  subModelColor2Button = new QPushButton("Change");
+  connect(subModelColor2Button,SIGNAL(clicked(      bool)),
+          this,       SLOT(  browseSubModelColor2(bool)));
+
+  grid->addWidget(subModelColor2Button,2,2);
+
+  // 04
+  subModelColor3Label = new QLabel("Level Four",parent);
+  grid->addWidget(subModelColor3Label,3,0);
+
+  subModelColor3Example = new QLabel(parent);
+  subModelColor3Example->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+  subModelColor3Example->setPalette(QPalette(meta->value(Level4)));
+  subModelColor3Example->setAutoFillBackground(true);
+  grid->addWidget(subModelColor3Example,3,1);
+
+  subModelColor3Button = new QPushButton("Change");
+  connect(subModelColor3Button,SIGNAL(clicked(      bool)),
+          this,       SLOT(  browseSubModelColor3(bool)));
+
+  grid->addWidget(subModelColor3Button,3,2);
+
+  subModelColorModified = false;
+}
+
+void SubModelColorGui::browseSubModelColor0(bool clicked)
+{
+  Q_UNUSED(clicked);
+  QColor qcolor = LDrawColor::color(meta->value(Level1));
+  QColor newColor = QColorDialog::getColor(qcolor,this);
+  if (newColor.isValid() && qcolor != newColor) {
+    subModelColor0Example->setPalette(QPalette(newColor));
+    subModelColor0Example->setAutoFillBackground(true);
+    meta->setValue(Level1, newColor.name());
+    subModelColorModified = true;
+  }
+}
+
+void SubModelColorGui::browseSubModelColor1(bool clicked)
+{
+  Q_UNUSED(clicked);
+  QColor qcolor = LDrawColor::color(meta->value(Level2));
+  QColor newColor = QColorDialog::getColor(qcolor,this);
+  if (newColor.isValid() && qcolor != newColor) {
+    subModelColor1Example->setPalette(QPalette(newColor));
+    subModelColor1Example->setAutoFillBackground(true);
+    meta->setValue(Level2, newColor.name());
+    subModelColorModified = true;
+  }
+}
+
+void SubModelColorGui::browseSubModelColor2(bool clicked)
+{
+  Q_UNUSED(clicked);
+  QColor qcolor = LDrawColor::color(meta->value(Level3));
+  QColor newColor = QColorDialog::getColor(qcolor,this);
+  if (newColor.isValid() && qcolor != newColor) {
+    subModelColor2Example->setPalette(QPalette(newColor));
+    subModelColor2Example->setAutoFillBackground(true);
+    meta->setValue(Level3, newColor.name());
+    subModelColorModified = true;
+  }
+}
+
+void SubModelColorGui::browseSubModelColor3(bool clicked)
+{
+  Q_UNUSED(clicked);
+  QColor qcolor = LDrawColor::color(meta->value(Level4));
+  QColor newColor = QColorDialog::getColor(qcolor,this);
+  if (newColor.isValid() && qcolor != newColor) {
+    subModelColor3Example->setPalette(QPalette(newColor));
+    subModelColor3Example->setAutoFillBackground(true);
+    meta->setValue(Level4, newColor.name());
+    subModelColorModified = true;
+  }
+}
+
+void SubModelColorGui::apply(
+  QString &topLevelFile)
+{
+  MetaItem mi;
+  mi.beginMacro("SubModelColor");
+
+  if (subModelColorModified) {
+    mi.setGlobalMeta(topLevelFile,meta);
+  }
+
+  mi.endMacro();
+}

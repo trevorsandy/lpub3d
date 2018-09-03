@@ -119,10 +119,11 @@ void CalloutBackgroundItem::contextMenuEvent(
     }
   }
 
-  QAction *editBackgroundAction = commonMenus.backgroundMenu(menu,name);
-  QAction *editBorderAction     = commonMenus.borderMenu(menu,name);
-  QAction *marginAction         = commonMenus.marginMenu(menu,name);
-  QAction *rotateAction         = NULL;
+  QAction *editBackgroundAction    = commonMenus.backgroundMenu(menu,name);
+  QAction *editBorderAction        = commonMenus.borderMenu(menu,name);
+  QAction *editSubModelColorAction = commonMenus.subModelColorMenu(menu,name);
+  QAction *marginAction            = commonMenus.marginMenu(menu,name);
+  QAction *rotateAction            = NULL;
 
   QAction *unCalloutAction;
 
@@ -177,6 +178,12 @@ void CalloutBackgroundItem::contextMenuEvent(
                     callout->topOfCallout(),
                     callout->bottomOfCallout(),
                     &placement,false,0,false,false);
+
+  } else if (selectedAction == editSubModelColorAction) {
+      changeSubModelColor("SubModel Color",
+                       callout->topOfCallout(),
+                       callout->bottomOfCallout(),
+                       &subModelColor,0,false,false);
 
   } else if (selectedAction == editBackgroundAction) {
     changeBackground("Background",

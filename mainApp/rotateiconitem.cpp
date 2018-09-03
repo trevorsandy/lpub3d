@@ -448,10 +448,11 @@ void RotateIconItem::contextMenuEvent(
                                                    commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,pl));
     }
 
-  QAction *backgroundAction = commonMenus.backgroundMenu(menu,pl);
-  QAction *borderAction     = commonMenus.borderMenu(menu,pl);
-  QAction *marginAction     = commonMenus.marginMenu(menu,pl);
-  QAction *displayAction    = commonMenus.displayMenu(menu,pl);
+  QAction *backgroundAction    = commonMenus.backgroundMenu(menu,pl);
+  QAction *borderAction        = commonMenus.borderMenu(menu,pl);
+  QAction *subModelColorAction = commonMenus.subModelColorMenu(menu,pl);
+  QAction *marginAction        = commonMenus.marginMenu(menu,pl);
+  QAction *displayAction       = commonMenus.displayMenu(menu,pl);
 
   QAction *editArrowAction = menu.addAction("Edit "+pl+" Arrows");
   editArrowAction->setWhatsThis("Edit this rotation icon arrows");
@@ -524,6 +525,12 @@ void RotateIconItem::contextMenuEvent(
                        top,
                        bottom,
                        &background);
+    } else if (selectedAction == subModelColorAction) {
+      changeSubModelColor("SubModel Color",
+                          top,
+                          bottom,
+                       &subModelColor,0,false,false);
+
     } else if (selectedAction == borderAction) {
       changeBorder(pl+" Border",
                    top,

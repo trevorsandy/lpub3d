@@ -530,7 +530,7 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *addSegmentAction = NULL;
   if (segments() < 3) {
       addSegmentAction = menu.addAction("Add Arrow Segment");
-      addSegmentAction->setIcon(QIcon(":/resources/addsegment.png"));
+      addSegmentAction->setIcon(QIcon(":/resources/addarrowsegment.png"));
       addSegmentAction->setWhatsThis(        "Add arrow segment:\n"
                                              "Introduce a new arrow shaft segment.");
   }

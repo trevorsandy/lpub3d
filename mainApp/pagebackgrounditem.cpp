@@ -90,6 +90,8 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   QAction *borderAction         = NULL;
   QAction *backgroundAction     = NULL;
+  QAction *subModelColorAction  = NULL;
+
   QAction *sizeAndOrientationAction = NULL;
 
   Step    *lastStep = NULL;
@@ -165,7 +167,8 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         }
     }
 
-  backgroundAction = commonMenus.backgroundMenu(menu,name);
+  backgroundAction    = commonMenus.backgroundMenu(menu,name);
+  subModelColorAction = commonMenus.subModelColorMenu(menu,name);
 
   sizeAndOrientationAction = menu.addAction("Change Page Size or Orientation");
   sizeAndOrientationAction->setIcon(QIcon(":/resources/pagesizeandorientation.png"));
@@ -230,6 +233,12 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                        page->top,
                        page->bottom,
                        &page->meta.LPub.page.background, useTop);
+    } else if (selectedAction == subModelColorAction) {
+      changeSubModelColor("SubModel Color",
+                          page->top,
+                          page->bottom,
+                          &page->meta.LPub.page.subModelColor,useTop);
+
     } else if (selectedAction == sizeAndOrientationAction) {
       changeSizeAndOrientation("Size and Orientation",
                                page->top,

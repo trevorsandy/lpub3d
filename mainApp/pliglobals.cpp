@@ -67,6 +67,7 @@ GlobalPliDialog::GlobalPliDialog(
 
   QTabWidget  *tab = new QTabWidget(NULL);
   QVBoxLayout *layout = new QVBoxLayout(NULL);
+  QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   setLayout(layout);
   layout->addWidget(tab);
 
@@ -165,28 +166,40 @@ GlobalPliDialog::GlobalPliDialog(
    */
   widget = new QWidget(NULL);
   //grid = new QGridLayout(NULL);
-  QVBoxLayout *vLayout = new QVBoxLayout(NULL);
+  layout = new QVBoxLayout(NULL);
   //widget->setLayout(grid);
-  widget->setLayout(vLayout);
+  widget->setLayout(layout);
 
   box = new QGroupBox("Annotation Options");
   //grid->addWidget(box);
-  vLayout->addWidget(box);
+  layout->addWidget(box);
   child = new PliAnnotationGui("",&pliMeta->annotation,box);
   data->children.append(child);
 
   box = new QGroupBox("Sort Options");
   //grid->addWidget(box);
-  vLayout->addWidget(box);
+  layout->addWidget(box);
   child = new PliSortGui("",&pliMeta->sortBy,box);
   data->children.append(child);
 
   //spacer
-  QSpacerItem *vSpacer;
-  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
-  vLayout->addSpacerItem(vSpacer);
+  layout->addSpacerItem(vSpacer);
 
   tab->addTab(widget,"Annotations/Sorting");
+
+  widget = new QWidget();
+  layout = new QVBoxLayout();
+  widget->setLayout(layout);
+
+  box = new QGroupBox(tr("Sub-Model Level Colors"));
+  layout->addWidget(box, 0, 0);
+  child = new SubModelColorGui(&pliMeta->subModelColor,box);
+  data->children.append(child);
+
+  //spacer
+  layout->addSpacerItem(vSpacer);
+
+  tab->addTab(widget,"SubModel Colors");
 
   QDialogButtonBox *buttonBox;
 

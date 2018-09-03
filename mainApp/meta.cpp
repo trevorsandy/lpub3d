@@ -1042,7 +1042,7 @@ QString BackgroundMeta::text()
     default:
       break;
     }
-  return "Submodel level color";
+  return "Submodel Level Color";
 }
 
 Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
