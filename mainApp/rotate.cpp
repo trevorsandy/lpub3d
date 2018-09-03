@@ -17,19 +17,15 @@
 ****************************************************************************/
 
 #include "lpub.h"
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 #include <QtWidgets>
-#else
-#include <QtGui>
-#endif
 #include <QStringList>
 #include <QFile>
 #include <QTextStream>
 #include <QRegExp>
 #include <math.h>
+
 #include "render.h"
 #include "ldrawfiles.h"
-
 
 
 /*****************************************************************************
@@ -153,22 +149,19 @@ void rotateMatrix(
 }
 
 int Render::rotateParts(
-  const QString     &addLine,
-        RotStepMeta &rotStep,
-  const QStringList &parts,
-        QString     &ldrName,
-        bool         viewer)
+         const QString      &addLine,
+          RotStepMeta       &rotStep,
+          const QStringList &parts,
+          QString           &ldrName,
+          const QString     &modelName)
 {
+  bool  nativeRenderer = Preferences::preferredRenderer == RENDERER_NATIVE;
   QStringList rotatedParts = parts;
-
-  bool rotate = viewer ? false : true;
-  rotateParts(addLine,rotStep,rotatedParts,rotate);
+  rotateParts(addLine,rotStep,rotatedParts);
 
   QFile file(ldrName);
   if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
-    QMessageBox::warning(NULL,
-                         QMessageBox::tr("LPub3D"),
-                         QMessageBox::tr("Cannot open file %1 for writing:\n%2")
+    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open file %1 for writing: %2")
                          .arg(ldrName) .arg(file.errorString()));
     return -1;
   }
@@ -184,10 +177,17 @@ int Render::rotateParts(
                                 
   out << rotsComment << endl;
 
+  if (nativeRenderer)
+      out << "0 FILE " + modelName + "\n"
+             "0 !LEOCAD MODEL NAME " + modelName << endl;
+
   for (int i = 0; i < rotatedParts.size(); i++) {
     QString line = rotatedParts[i];
     out << line << endl;
   }
+
+  if (nativeRenderer)
+      out << "0 NOFILE" << endl;
 
   file.close();
 
@@ -195,10 +195,9 @@ int Render::rotateParts(
 }
 
 int Render::rotateParts(
-  const QString     &addLine,
-        RotStepMeta &rotStep,
-        QStringList &parts,
-        bool         defaultRot)
+        const QString &addLine,
+        RotStepMeta   &rotStep,
+        QStringList   &parts)
 {
   double min[3], max[3];
 
@@ -208,15 +207,9 @@ int Render::rotateParts(
 
   double defaultViewMatrix[3][3], defaultViewRots[3];
 
-  if (defaultRot) {
-    defaultViewRots[0] = 23;
-    defaultViewRots[1] = 45;
-    defaultViewRots[2] = 0;
-  } else {
-    defaultViewRots[0] = 0;
-    defaultViewRots[1] = 0;
-    defaultViewRots[2] = 0;
-  }
+  defaultViewRots[0] = 0;
+  defaultViewRots[1] = 0;
+  defaultViewRots[2] = 0;
 
   matrixMakeRot(defaultViewMatrix,defaultViewRots);
 
@@ -241,7 +234,7 @@ int Render::rotateParts(
   split(addLine,tokens);
 
   if (addLine.size() && tokens.size() == 15 && tokens[0] == "1") {
-    if (LDrawFile::mirrored(tokens) || ! defaultRot) {
+    if (LDrawFile::mirrored(tokens) /* || ! defaultRot */) {
 
       double alm[3][3];
 
@@ -254,8 +247,6 @@ int Render::rotateParts(
   }
 
   // rotate all the parts
-
-  QString processed_parts;
 
   for (int i = 0; i < parts.size(); i++) {
 

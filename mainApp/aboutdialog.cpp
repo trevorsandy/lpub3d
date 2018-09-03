@@ -15,7 +15,6 @@
 #include <QtOpenGL>
 #include <QSysInfo>
 #ifdef Q_OS_WIN
-#include <windows.h>
 #include <tchar.h>
 #endif
 #include <QtCore/QSysInfo>

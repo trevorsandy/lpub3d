@@ -29,12 +29,9 @@
 #ifndef metagui_h
 #define metagui_h
 
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-#include <QtWidgets/QWidget>
-#else
 #include <QWidget>
-#endif
 #include <QTextEdit>
+
 #include "resolution.h"
 #include "metatypes.h"
 #include "gradients.h"

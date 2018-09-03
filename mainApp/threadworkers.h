@@ -145,7 +145,7 @@ signals:
      void progressResetSig();
 
      void messageSig(
-            bool                status,
+            LogType             logType,
             QString             message);
 
      void removeProgressStatusSig();
@@ -268,7 +268,7 @@ signals:
      void progressResetSig();
 
      void messageSig(
-            bool                status,
+            LogType             logType,
             QString             message);
 
      void removeProgressStatusSig();

@@ -18,6 +18,7 @@
 // Resizable QMessageBox Hack
 #include <QMessageBox>
 #include <QTextEdit>
+#include <QEvent>
 
 class QMessageBoxResizable: public QMessageBox
 {

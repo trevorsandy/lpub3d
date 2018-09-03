@@ -15,8 +15,10 @@
 #ifndef PLISUBSTITUTEPARTS_H
 #define PLISUBSTITUTEPARTS_H
 
+#include <QMap>
 #include <QString>
 #include <QStringList>
+class LPubMessages;
 
 class PliSubstituteParts
 {

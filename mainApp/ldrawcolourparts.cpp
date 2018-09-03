@@ -30,7 +30,7 @@ LDrawColourParts::LDrawColourParts()
     QFile file(colorPartsFile);
     if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                             QMessageBox::tr("Failed to open %1 file: %2:\n%3")
+                             QMessageBox::tr("Failed to open LDraw colour parts file %1: %2:\n%3")
                              .arg(VER_LDRAW_COLOR_PARTS_FILE)
                              .arg(colorPartsFile)
                              .arg(file.errorString()));

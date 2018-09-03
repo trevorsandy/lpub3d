@@ -28,7 +28,6 @@ enum updateType{
 };
 
 void DoInitialUpdateCheck();
-void GetAvailableVersions();
 
 class UpdateCheck : public QObject
 {
@@ -78,4 +77,6 @@ private:
     QString                  DEFS_URL;
     QSimpleUpdater          *m_updater;
 };
+extern AvailableVersions* availableVersions;
+
 #endif // UPDATECHECK_H

@@ -16,11 +16,10 @@
 #define ARCHIVEPARTS_H
 
 #include <QObject>
+#include <QsLog.h>
 #include "quazip.h"
 #include "quazipfile.h"
 #include "quazipdir.h"
-
-#include "QsLog.h"
 
 class ArchiveParts : public QObject
 {

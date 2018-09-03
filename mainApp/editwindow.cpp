@@ -28,15 +28,11 @@
  *
  ***************************************************************************/
 
-#include "version.h"
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 #include <QtWidgets>
-#else
-#include <QtGui>
-#endif
 #include "editwindow.h"
 #include "highlighter.h"
 #include "ldrawfiles.h"
+#include "version.h"
 
 EditWindow *editWindow;
 

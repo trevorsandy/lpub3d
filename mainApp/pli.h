@@ -43,6 +43,7 @@
 #include <QHash>
 #include <QCache>
 #include <QTextDocument>
+
 #include "meta.h"
 #include "placement.h"
 #include "backgrounditem.h"

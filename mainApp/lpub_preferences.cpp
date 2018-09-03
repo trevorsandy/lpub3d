@@ -39,23 +39,24 @@
 #include "messageboxresizable.h"
 //**3D
 #include "lc_profile.h"
+#include <TCUserDefaults.h>
 //**
 
 Preferences preferences;
 QDate date = QDate::currentDate();
 
-QString Preferences::lpub3dAppName              = "";
-QString Preferences::ldrawPath                  = "";
-QString Preferences::altLDConfigPath            = "";
-QString Preferences::lpub3dLibFile              = "";
+QString Preferences::lpub3dAppName              = EMPTY_STRING_DEFAULT;
+QString Preferences::ldrawPath                  = EMPTY_STRING_DEFAULT;
+QString Preferences::altLDConfigPath            = EMPTY_STRING_DEFAULT;
+QString Preferences::lpub3dLibFile              = EMPTY_STRING_DEFAULT;
 QString Preferences::lgeoPath;
-QString Preferences::lpub3dPath                 = ".";
-QString Preferences::lpub3dExtrasResourcePath   = ".";
-QString Preferences::lpub3dDocsResourcePath     = ".";
-QString Preferences::lpub3d3rdPartyConfigDir    = ".";
-QString Preferences::lpub3d3rdPartyAppDir       = ".";
-QString Preferences::lpubDataPath               = ".";
-QString Preferences::lpubExtrasPath             = ".";
+QString Preferences::lpub3dPath                 = DOT_PATH_DEFAULT;
+QString Preferences::lpub3dExtrasResourcePath   = DOT_PATH_DEFAULT;
+QString Preferences::lpub3dDocsResourcePath     = DOT_PATH_DEFAULT;
+QString Preferences::lpub3d3rdPartyConfigDir    = DOT_PATH_DEFAULT;
+QString Preferences::lpub3d3rdPartyAppDir       = DOT_PATH_DEFAULT;
+QString Preferences::lpubDataPath               = DOT_PATH_DEFAULT;
+QString Preferences::lpubExtrasPath             = DOT_PATH_DEFAULT;
 QString Preferences::ldgliteExe;
 QString Preferences::ldviewExe;
 QString Preferences::povrayConf;
@@ -63,6 +64,7 @@ QString Preferences::povrayIni;
 QString Preferences::ldgliteIni;
 QString Preferences::ldviewIni;
 QString Preferences::ldviewPOVIni;
+QString Preferences::nativePOVIni;
 QString Preferences::povrayIniPath;
 QString Preferences::povrayIncPath;
 QString Preferences::povrayScenePath;
@@ -71,8 +73,8 @@ QString Preferences::preferredRenderer;
 QString Preferences::pliFile;
 QString Preferences::titleAnnotationsFile;
 QString Preferences::freeformAnnotationsFile;
-QString Preferences::fadeStepsColour              = FADE_COLOUR_DEFAULT;
-QString Preferences::highlightStepColour         = HIGHLIGHT_COLOUR_DEFAULT;
+QString Preferences::fadeStepsColour            = FADE_COLOUR_DEFAULT;
+QString Preferences::highlightStepColour        = HIGHLIGHT_COLOUR_DEFAULT;
 QString Preferences::pliSubstitutePartsFile;
 QString Preferences::ldrawColourPartsFile;
 QString Preferences::excludedPartsFile;
@@ -83,12 +85,13 @@ QString Preferences::defaultEmail;
 QString Preferences::documentLogoFile;
 QString Preferences::publishDescription;
 QString Preferences::ldrawiniFile;
-QString Preferences::moduleVersion               = qApp->applicationVersion();
+QString Preferences::moduleVersion              = qApp->applicationVersion();
 QString Preferences::availableVersions;
 QString Preferences::ldgliteSearchDirs;
 QString Preferences::loggingLevel               = LOGGING_LEVEL_DEFAULT;
 QString Preferences::logPath;
 QString Preferences::dataLocation;
+QString Preferences::povFileGenerator           = RENDERER_NATIVE;
 
 QStringList Preferences::ldSearchDirs;
 QStringList Preferences::ldgliteParms;
@@ -137,7 +140,7 @@ bool    Preferences::logLevel                   = false;
 bool    Preferences::logging                    = false;   // logging on/off offLevel (grp box)
 bool    Preferences::logLevels                  = false;   // individual logging levels (grp box)
 
-bool    Preferences::preferCentimeters          = true;
+bool    Preferences::preferCentimeters          = false;   // default is false, to use DPI
 bool    Preferences::showAllNotifications       = true;
 bool    Preferences::showUpdateNotifications    = true;
 bool    Preferences::enableDownloader           = true;
@@ -156,7 +159,7 @@ bool    Preferences::ldviewMissingLibs          = true;
 bool    Preferences::povrayMissingLibs          = true;
 #endif
 
-int     Preferences::fadeStepsOpacity            = FADE_OPACITY_DEFAULT;              //Default = 100 percent (full opacity)
+int     Preferences::fadeStepsOpacity           = FADE_OPACITY_DEFAULT;              //Default = 100 percent (full opacity)
 int     Preferences::highlightStepLineWidth     = HIGHLIGHT_LINE_WIDTH_DEFAULT;      //Default = 1
 
 int     Preferences::checkUpdateFrequency       = UPDATE_CHECK_FREQUENCY_DEFAULT;    //0=Never,1=Daily,2=Weekly,3=Monthly
@@ -165,6 +168,10 @@ int     Preferences::pageHeight                 = PAGE_HEIGHT_DEFAULT;
 int     Preferences::pageWidth                  = PAGE_WIDTH_DEFAULT;
 int     Preferences::rendererTimeout            = RENDERER_TIMEOUT_DEFAULT;          // measured in seconds
 int     Preferences::pageDisplayPause           = PAGE_DISPLAY_PAUSE_DEFAULT;        // measured in seconds
+
+// Native Pov file generation settings
+QString Preferences::ldvLights                  = LIGHTS_COMBO_DEFAULT;
+QString Preferences::xmlMapPath                 = XML_MAP_PATH_DEFAULT;
 
 Preferences::Preferences()
 {
@@ -229,22 +236,22 @@ void Preferences::lpubPreferences()
             isAppImagePayload = true;
     }
 
-    QDir shareDir(QString("%1/../share").arg(cwd.absolutePath()));
+    QDir progDir(QString("%1/../share").arg(cwd.absolutePath()));
 
     // This is a shameless hack until I figure out a better way to get the application name folder
     QStringList fileFilters;
     fileFilters << "lpub3d*";
 
-    QDir contentsDir(shareDir.absolutePath() + "/");
-    QStringList contents = contentsDir.entryList(fileFilters);
+    QDir contentsDir(progDir.absolutePath() + "/");
+    QStringList shareContents = contentsDir.entryList(fileFilters);
 
-    if (contents.size() > 0)
+    if (shareContents.size() > 0)
     {
         // Because the QCoreApplication::applicationName() is not the same as the LPub3D
         // executable name in an AppImage and the executable name is not the same as the
         // application folder, we set 'lpub3dAppName' to the value of the lpub3d application folder.
         // The application folder value is set with the DIST_TARGET variable in mainApp.pro
-        lpub3dAppName = contents.at(0);
+        lpub3dAppName = shareContents.at(0);
         qDebug() << qPrintable(QString("LPub3D Application Folder....(%1)").arg(lpub3dAppName));
     } else {
         qDebug() << qPrintable(QString("ERROR - Application Folder Not Found."));
@@ -256,8 +263,8 @@ void Preferences::lpubPreferences()
 
 #else                                                                 // Elevated User Rights Install
 
-    lpub3dDocsResourcePath   = QString("%1/doc/%2").arg(shareDir.absolutePath(),lpub3dAppName);
-    lpub3dExtrasResourcePath = QString("%1/%2").arg(shareDir.absolutePath(),lpub3dAppName);
+    lpub3dDocsResourcePath   = QString("%1/doc/%2").arg(progDir.absolutePath(),lpub3dAppName);
+    lpub3dExtrasResourcePath = QString("%1/%2").arg(progDir.absolutePath(),lpub3dAppName);
 
 #endif
 
@@ -310,16 +317,11 @@ void Preferences::lpubPreferences()
                 box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
                 box.setDefaultButton   (QMessageBox::Yes);
 
-                if (box.exec() != QMessageBox::Yes) {   // user choose not to create user data direcory outside program folder, so create automatically
+                QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+                lpubDataPath = dataPathList.first();
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-                    QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-                    lpubDataPath = dataPathList.first();
-#endif
-                } else {                                // capture user's choice for user data directory
+                if (box.exec() == QMessageBox::Yes) {   // capture user's choice for user data directory
 
-                    QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-                    lpubDataPath = dataPathList.first();
                     QString result = QFileDialog::getExistingDirectory(NULL,
                                                                        QFileDialog::tr("Select Directory"),
                                                                        lpubDataPath,
@@ -1246,10 +1248,10 @@ void Preferences::rendererPreferences(bool updateExisting)
     lpub3d3rdPartyAppDir = QString("%1/3rdParty").arg(lpub3dPath);
 
     QFileInfo ldgliteInfo(QString("%1/%2/bin/ldglite.exe").arg(lpub3d3rdPartyAppDir, VER_LDGLITE_STR));
-#ifdef __i386__
+#if defined __i386__ || defined _M_IX86
     QFileInfo ldviewInfo(QString("%1/%2/bin/LDView.exe").arg(lpub3d3rdPartyAppDir, VER_LDVIEW_STR));
     QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui32.exe").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR));
-#elif defined __x86_64__
+#elif defined __x86_64__ || defined _M_X64
     QFileInfo ldviewInfo(QString("%1/%2/bin/LDView64.exe").arg(lpub3d3rdPartyAppDir, VER_LDVIEW_STR));
     QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui64.exe").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR));
 #endif
@@ -1478,15 +1480,27 @@ void Preferences::rendererPreferences(bool updateExisting)
 
     } else { // No Registry setting so set preferred renderer if installed...
 
-        if (ldgliteInstalled && povRayInstalled) {
-            preferredRenderer = ldviewInstalled  ? RENDERER_LDVIEW : RENDERER_LDGLITE;
-        } else if (povRayInstalled) {
-            preferredRenderer = RENDERER_POVRAY;
-        } else if (ldviewInstalled) {
-            preferredRenderer = RENDERER_LDVIEW;
-        } else if (ldgliteInstalled) {
-            preferredRenderer = RENDERER_LDGLITE;
-        }
+        preferredRenderer = RENDERER_NATIVE;
+
+// -- pervious setting default
+//#ifdef Q_OS_MAC
+//        if (!ldviewMissingLibs)
+//          preferredRenderer = RENDERER_LDVIEW;
+//#else
+//        preferredRenderer = RENDERER_LDVIEW;
+//#endif
+
+// -- old setting default
+//        if (ldgliteInstalled && povRayInstalled) {
+//            preferredRenderer = ldviewInstalled  ? RENDERER_LDVIEW : RENDERER_LDGLITE;
+//        } else if (povRayInstalled) {
+//            preferredRenderer = RENDERER_POVRAY;
+//        } else if (ldviewInstalled) {
+//            preferredRenderer = RENDERER_LDVIEW;
+//        } else if (ldgliteInstalled) {
+//            preferredRenderer = RENDERER_LDGLITE;
+//        }
+
         if (!preferredRenderer.isEmpty()) {
             Settings.setValue(QString("%1/%2").arg(SETTINGS,preferredRendererKey),preferredRenderer);
         }
@@ -1520,6 +1534,15 @@ void Preferences::rendererPreferences(bool updateExisting)
         rendererTimeout = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererTimeout")).toInt();
     }
 
+    // povray generation renderer
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"povFileGenerator"))) {
+        QVariant cValue(RENDERER_NATIVE);
+        povFileGenerator = RENDERER_NATIVE;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"povFileGenerator"),cValue);
+    } else {
+        povFileGenerator = Settings.value(QString("%1/%2").arg(SETTINGS,"povFileGenerator")).toString();
+    }
+
     // display povray image during rendering
     QString const povrayDisplayKey("PovRayDisplay");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayDisplayKey))) {
@@ -1535,6 +1558,7 @@ void Preferences::rendererPreferences(bool updateExisting)
 
     lpub3d3rdPartyConfigDir = QString("%1/3rdParty").arg(lpubDataPath);
     setLDGLiteIniParams();
+    updateNativePOVIniFile(updateExisting);
     updateLDViewIniFile(updateExisting);
     updateLDViewPOVIniFile(updateExisting);
     updatePOVRayConfFile(updateExisting);
@@ -1597,6 +1621,79 @@ void Preferences::setLDGLiteIniParams()
     if (resourceFile.exists())
         ldgliteIni = resourceFile.absoluteFilePath(); // populate ldglite ini file
     logInfo() << QString("LDGLite.ini file   : %1").arg(ldgliteIni.isEmpty() ? "Not found" : ldgliteIni);
+}
+
+void Preferences::updateNativePOVIniFile(bool updateExisting)
+{
+    QString inFileName;
+    QFileInfo resourceFile;
+    QFile confFileIn, confFileOut, oldFile;
+    QDateTime timeStamp = QDateTime::currentDateTime();
+
+    resourceFile.setFile(QString("%1/extras/%2").arg(lpubDataPath, VER_NATIVE_POV_INI_FILE));
+    if (resourceFile.exists())
+    {
+        if (!updateExisting) {
+           nativePOVIni = resourceFile.absoluteFilePath(); // populate native pov ini file
+           logInfo() << QString("NativePOV ini file : %1").arg(nativePOVIni);
+           return;
+        }
+        logInfo() << QString("Updating %1...").arg(resourceFile.absoluteFilePath());
+        inFileName = QString("%1.%2").arg(resourceFile.absoluteFilePath(),timeStamp.toString("ddMMyyhhmmss"));
+        oldFile.setFileName(resourceFile.absoluteFilePath());
+        oldFile.rename(inFileName);
+                confFileIn.setFileName(QDir::toNativeSeparators(inFileName));
+    } else {
+       logInfo() << QString("Initializing %1...").arg(resourceFile.absoluteFilePath());
+       if (!resourceFile.absoluteDir().exists())
+           resourceFile.absoluteDir().mkpath(".");
+       confFileIn.setFileName(dataLocation + resourceFile.fileName());
+    }
+    confFileOut.setFileName(QString("%1/extras/%2").arg(lpubDataPath, VER_NATIVE_POV_INI_FILE));
+    if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly))
+    {
+        QTextStream input(&confFileIn);
+        QTextStream output(&confFileOut);
+        while (!input.atEnd())
+        {
+            QString line = input.readLine();
+            // strip EdgeThickness because set in renderer parms
+            if (line.contains(QRegExp("^EdgeThickness="))){
+              continue;
+            }
+            //logDebug() << QString("Line INPUT: %1").arg(line);
+            // set ldraw dir
+            if (line.contains(QRegExp("^LDrawDir=")))
+            {
+                line.clear();
+                line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawPath));
+            }
+            // set lgeo paths as required
+            if (lgeoPath != ""){
+                if (line.contains(QRegExp("^XmlMapPath=")))
+                {
+                    line.clear();
+                    line = QString("XmlMapPath=%1").arg(QDir::toNativeSeparators(QString("%1/%2").arg(lgeoPath).arg(VER_LGEO_XML_FILE)));
+                }
+            }
+            logInfo() << QString("NativePOV.ini OUT: %1").arg(line);
+            output << line << endl;
+        }
+        confFileIn.close();
+        confFileOut.close();
+    } else {
+        QString confFileError;
+        if (!confFileIn.errorString().isEmpty())
+            confFileError.append(QString(" confFileInError: %1\n").arg(confFileIn.errorString()));
+        if (!confFileOut.errorString().isEmpty())
+            confFileError.append(QString(" confFileOutError: %1").arg(confFileOut.errorString()));
+        logError() << QString("Could not open NativePOV.ini input or output file: %1").arg(qPrintable(confFileError));
+    }
+    if (resourceFile.exists())
+        nativePOVIni = resourceFile.absoluteFilePath(); // populate native pov ini file
+    if (oldFile.exists())
+        oldFile.remove();                               // delete old file
+    logInfo() << QString("NativePOV ini file : %1").arg(nativePOVIni.isEmpty() ? "Not found" : nativePOVIni);
 }
 
 void Preferences::updateLDViewIniFile(bool updateExisting)
@@ -1715,7 +1812,7 @@ void Preferences::updateLDViewPOVIniFile(bool updateExisting)
                 if (line.contains(QRegExp("^XmlMapPath=")))
                 {
                     line.clear();
-                    line = QString("XmlMapPath=%1").arg(QDir::toNativeSeparators(QString("%1/LGEO.xml").arg(lgeoPath)));
+                    line = QString("XmlMapPath=%1").arg(QDir::toNativeSeparators(QString("%1/%2").arg(lgeoPath).arg(VER_LGEO_XML_FILE)));
                 }
             }
             logInfo() << QString("LDViewPOV.ini OUT: %1").arg(line);
@@ -1940,8 +2037,8 @@ void Preferences::unitsPreferences()
 {
     QSettings Settings;
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"Centimeters"))) {
-        QVariant uValue(true);
-        preferCentimeters = true;
+        QVariant uValue(false);
+        preferCentimeters = false;
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"Centimeters"),uValue);
     } else {
         preferCentimeters = Settings.value(QString("%1/%2").arg(SETTINGS,"Centimeters")).toBool();
@@ -2206,6 +2303,7 @@ bool Preferences::getPreferences()
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawDir"),ldrawPath);
             }
             // update LDView ini files
+            updateNativePOVIniFile(true);
             updateLDViewIniFile(true);       //ldraw path changed
             updateLDViewPOVIniFile(true);    //ldraw or lgeo paths changed
             updateLDViewConfigFiles = true;  //set flag to true
@@ -2264,6 +2362,12 @@ bool Preferences::getPreferences()
             updatePOVRayConfFile(true);          //lgeo path changed
         }
 
+        if (povFileGenerator != dialog->povFileGenerator())
+        {
+            povFileGenerator = dialog->povFileGenerator();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"povFileGenerator"),povFileGenerator);
+        }
+
         if (povrayDisplay != dialog->povrayDisplay())
         {
             povrayDisplay = dialog->povrayDisplay();
@@ -2301,6 +2405,8 @@ bool Preferences::getPreferences()
                logError() << qPrintable(QString("Could not update %1").arg(ldviewIni));
             if (!setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
                logError() << qPrintable(QString("Could not update %1").arg(ldviewPOVIni));
+            if (!setLDViewExtraSearchDirs(Preferences::nativePOVIni))
+               logError() << qPrintable(QString("Could not update %1").arg(nativePOVIni));
         }
 
         if (rendererTimeout != dialog->rendererTimeout()) {
@@ -2812,4 +2918,20 @@ bool Preferences::copyRecursively(const QString &srcFilePath,
             return false;
     }
     return true;
+}
+
+void Preferences::nativePovGenPreferences()
+{
+
+  emit Application::instance()->splashMsgSig("25% - NativePoV default settings...");
+
+    QSettings Settings;
+
+    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"LDVLights"))) {
+            QVariant cValue(LIGHTS_COMBO_DEFAULT);
+            ldvLights = LIGHTS_COMBO_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"LDVLights"),cValue);
+    } else {
+            ldvLights = Settings.value(QString("%1/%2").arg(POVRAY,"LDVLights")).toString();
+    }
 }

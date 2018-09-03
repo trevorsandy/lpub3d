@@ -39,12 +39,7 @@
 **
 ****************************************************************************/
 
-#include "version.h"
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-#include <QtWidgets/QApplication>
-#else
 #include <QApplication>
-#endif
 #include <QPainter>
 #include <QPainterPath>
 #include <QPixmapCache>
@@ -53,6 +48,7 @@
 
 #include "gradients.h"
 #include "hoverpoints.h"
+#include "version.h"
 
 extern QPixmap cached(const QString &img);
 

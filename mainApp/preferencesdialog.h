@@ -18,10 +18,10 @@
 #define PREFERENCES_DIALOG_H
 
 #include <QDialog>
+#include <QTreeWidgetItem>
 
 #include "ui_preferences.h"
 #include "lc_qpreferencesdialog.h"
-#include "ui_lc_qpreferencesdialog.h"
 #include "qsimpleupdater.h"
 #include "threadworkers.h"
 #include "parmswindow.h"
@@ -56,6 +56,7 @@ class PreferencesDialog : public QDialog
     QString const logLevelCombo();
     QString const fadeStepsColour();
     QString const highlightStepColour();
+    QString const povFileGenerator();
     QStringList const searchDirSettings();
     bool          displayAllAttributes();
     bool          generateCoverPages();
@@ -131,10 +132,18 @@ class PreferencesDialog : public QDialog
     void updateChangelog (QString url);
     void checkForUpdates();
 
+    void on_ldvPoVFileGenOptBtn_clicked();
+    void on_ldvPoVFileGenPrefBtn_clicked();
+    void on_preferredRenderer_currentIndexChanged(const QString &arg1);
+    void on_povGenNativeRadio_clicked(bool checked);
+    void on_povGenLDViewRadio_clicked(bool checked);
+
+    void on_ldvPreferencesBtn_clicked();
+
 private:
     Ui::PreferencesDialog ui;
 
-    PartWorker    partWorkerLDSearchDirs;   // part worker to process search directories and fade color parts
+    PartWorker     partWorkerLDSearchDirs;   // part worker to process search directories and fade color parts
     QWidget       *parent;
     ParmsWindow   *parmsWindow;             // the parametrer file editor
 

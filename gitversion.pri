@@ -108,7 +108,9 @@ appveyor_ci {
     DATE_DD = $$section(BUILD_DATE, /, 1, 1)
     DATE_YY = $$section(BUILD_DATE, /, 2, 2)
 } else {
+    message("~~~ BUILD DATE $$BUILD_DATE ~~~")
     DATE_DD = $$section(BUILD_DATE, /, 0, 0)
+    DATE_DD = $$last(DATE_DD)
     DATE_MM = $$section(BUILD_DATE, /, 1, 1)
     DATE_YY = $$section(BUILD_DATE, /, 2, 2)
 }

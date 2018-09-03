@@ -25,18 +25,14 @@
  *
  ***************************************************************************/
 
-#include "version.h"
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 #include <QtWidgets>
-#else
-#include <QtGui>
-#endif
 #include <QDesktopWidget>
 #include "parmshighlighter.h"
 #include "parmswindow.h"
 #include "lpub_preferences.h"
 #include "lpub.h"
 #include "name.h"
+#include "version.h"
 
 
 ParmsWindow *parmsWindow;
@@ -221,7 +217,7 @@ void ParmsWindow::displayParmsFile(
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == VER_LDVIEW_POV_INI_FILE) {
-      title = "LDView Raytracer ini";
+      title = "LDView POV File Generation ini";
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == VER_POVRAY_INI_FILE) {
@@ -234,6 +230,10 @@ void ParmsWindow::displayParmsFile(
     }
     else if (fileInfo.fileName() == VER_LDGLITE_INI_FILE) {
       title = "LDGLite ini";
+      _restartRequired = false;
+    }
+    else if (fileInfo.fileName() == VER_NATIVE_POV_INI_FILE) {
+      title = "Native POV File Generation ini";
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == QString("%1Log.txt").arg(VER_PRODUCTNAME_STR)) {

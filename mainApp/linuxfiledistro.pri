@@ -127,6 +127,12 @@ unix:!macx {
     ldglite_ini.files += $$_PRO_FILE_PWD_/extras/ldglite.ini
     ldglite_ini.path = $$RESOURCE_DIR
 
+    nativepov_ini.files += $$_PRO_FILE_PWD_/extras/nativePOV.ini
+    nativepov_ini.path = $$RESOURCE_DIR
+
+    ldv_messages_ini.files += $$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI
+    ldv_messages_ini.path = $$RESOURCE_DIR
+
     INSTALLS += \
     target \
     docs \
@@ -145,7 +151,9 @@ unix:!macx {
     pli_substitution_parts \
     ldraw_unofficial_library \
     ldraw_official_library \
-    ldglite_ini
+    ldglite_ini \
+    nativepov_ini \
+    ldv_messages_ini
 
     api {
 # On OBS, this appdata scheme is fucked!

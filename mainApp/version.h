@@ -38,7 +38,7 @@
 #else
   #define COMPANYNAME_STR                   "LPub3D Software"
 #endif
-#define VER_COMPANYNAME_STR                 COMPANYNAME_STR
+#define VER_COMPANYNAME_STR                 COMPANYNAME_STR                  // "LPub3D Software Maint"
 #define VER_BUILD_ARCH_STR                  VER_ARCH
 
 // ~~~~~~ 3rdParty Applications ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
@@ -51,8 +51,10 @@
 #define VER_POVRAY_CONF_FILE                "povray.conf"     // POV-Ray access control config settings
 #define VER_POVRAY_INI_FILE                 "povray.ini"      // POV-Ray renderer config settings
 #define VER_LDGLITE_INI_FILE                "ldglite.ini"     // LDGLite renderer config settings
+#define VER_NATIVE_POV_INI_FILE             "nativePOV.ini"   // Native POV file generation config settings
 #define VER_POVRAY_INC_FILE                 "consts.inc"      // Only used to validate directory
 #define VER_POVRAY_SCENE_FILE               "index.htm"       // Only used to validate directory
+#define VER_LGEO_XML_FILE                   "LGEO.xml"        // LGEO xml file
 
 // ~~~~~~ App Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
@@ -66,6 +68,7 @@
 #define VER_PLI_SUBSTITUTE_PARTS_FILE       "pliSubstituteParts.lst"
 #define VER_TITLE_ANNOTATIONS_FILE          "titleAnnotations.lst"
 #define VER_EXCLUDED_PARTS_FILE             "excludedParts.lst"
+#define VER_NATIVE_LDV_MESSAGES_FILE        "LDVMessages.ini"
 
 #define VER_LDRAW_OFFICIAL_ARCHIVE          "complete.zip"
 #define VER_LDRAW_UNOFFICIAL_ARCHIVE        "ldrawunf.zip"
@@ -91,17 +94,12 @@
     #define VER_COMPILED_ON             "MinGW (i686-7.2.0 64bit) Windows"
     #define VER_COMPILED_FOR            "MS Windows " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (MinGW " VER_BUILD_ARCH_STR "bit)"
-    #define VER_IDE                     "Qt Creator 4.5.0 on Qt 5.10.0 (MSVC 2015, x32)"
+    #define VER_IDE                     "Qt Creator 4.6.2 on Qt 5.10.1 (MSVC 2015, x32)"
   #elif __MINGW32__
     #define VER_COMPILED_ON             "MinGW (i686-5.3.0 32bit) Windows"
     #define VER_COMPILED_FOR            "MS Windows " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (MinGW " VER_BUILD_ARCH_STR "bit)"
-    #define VER_IDE                     "Qt Creator 4.5.0 on Qt 5.10.0 (MSVC 2015, x32)"
-  #elif _MSC_VER
-    #define VER_COMPILED_ON             "MSVC 2015"
-    #define VER_COMPILED_FOR            "MS Windows 32bit, 64bit"
-    #define VER_COMPILED_WITH           "(MSVC 2015 x86, x64)"
-    #define VER_IDE                     "Visual Studio 2015 v14.0.25424.00 Update 3"
+    #define VER_IDE                     "Qt Creator 4.6.2 on Qt 5.10.1 (MSVC 2015, x32)"
   #elif __APPLE__
     #define VER_COMPILED_ON             "Clang (x86 64bit) Apple"
     #define VER_COMPILED_FOR            "macOS " VER_BUILD_ARCH_STR "bit"
@@ -118,8 +116,13 @@
     #define VER_COMPILED_WITH           "Qt qtver (GCC)"
     #define VER_IDE                     "Qt Creator 4.5.0 on Qt 5.10.0 (GCC 5.3.1, x64)"
   #else
-  #   error "Unknown compiler"
+    #error "Unknown compiler"
   #endif
+#elif _MSC_VER
+  #define VER_COMPILED_ON                "Micorsoft Visual C++ 2015"
+  #define VER_COMPILED_FOR               "MS Windows " VER_BUILD_ARCH_STR "bit"
+  #define VER_COMPILED_WITH              "Qt qtver (MSVC2015 " VER_BUILD_ARCH_STR "bit)"
+  #define VER_IDE                        "Qt Creator 4.6.2 on Qt 5.10.1 (MSVC 2015, x32)" // "Visual Studio 2015 v14.0.25424.00 Update 3"
 #endif
 
 #endif // VERSION_H

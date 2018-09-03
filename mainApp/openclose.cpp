@@ -52,7 +52,7 @@ void Gui::open()
       openFile(fileName);
       displayPage();
       enableActions();
-      emit messageSig(true, QString("File loaded (%1 parts). %2")
+      emit messageSig(LOG_STATUS, QString("File loaded (%1 parts). %2")
                       .arg(ldrawFile.getPartCount())
                       .arg(elapsedTime(timer.elapsed())));
       return;
@@ -77,11 +77,11 @@ void Gui::openDropFile(QString &fileName){
           openFile(fileName);
           displayPage();
           enableActions();
-          emit messageSig(true, QString("File loaded (%1 parts). %2")
+          emit messageSig(LOG_STATUS, QString("File loaded (%1 parts). %2")
                           .arg(ldrawFile.getPartCount())
                           .arg(elapsedTime(timer.elapsed())));
         } else {
-          emit messageSig(false, QString("File not supported!\n%1")
+          emit messageSig(LOG_ERROR, QString("File not supported!\n%1")
                           .arg(fileName));
         }
     }
@@ -99,7 +99,7 @@ void Gui::openRecentFile()
     Paths::mkDirs();
     displayPage();
     enableActions();
-    emit messageSig(true, QString("File loaded (%1 parts). %2")
+    emit messageSig(LOG_STATUS, QString("File loaded (%1 parts). %2")
                     .arg(ldrawFile.getPartCount())
                     .arg(elapsedTime(timer.elapsed())));
   }
@@ -127,16 +127,12 @@ bool Gui::loadFile(const QString &file)
         Paths::mkDirs();
         displayPage();
         enableActions();
-        emit messageSig(true, QString("File loaded (%1 parts). %2")
+        emit messageSig(LOG_STATUS, QString("File loaded (%1 parts). %2")
                         .arg(ldrawFile.getPartCount())
                         .arg(elapsedTime(timer.elapsed())));
         return true;
     } else {
-        QString message = QString("Unable to load file %1.").arg(fileName);
-        if (Preferences::modeGUI)
-          emit messageSig(false,message);
-        else
-          emit messageSig(true,message);
+        emit messageSig(LOG_ERROR,QString("Unable to load file %1.").arg(fileName));
     }
     return false;
 }
@@ -328,20 +324,20 @@ void Gui::openFile(QString &fileName)
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
   Paths::mkDirs();
-  emit messageSig(true, "Loading LDraw model file...");
+  emit messageSig(LOG_STATUS, "Loading LDraw model file...");
   ldrawFile.loadFile(fileName);
   bool overwriteCustomParts = false;
-  emit messageSig(true, "Loading fade colour parts...");
+  emit messageSig(LOG_STATUS, "Loading fade colour parts...");
   processFadeColourParts(overwriteCustomParts);
-  emit messageSig(true, "Loading highlight colour parts...");
+  emit messageSig(LOG_STATUS, "Loading highlight colour parts...");
   processHighlightColourParts(overwriteCustomParts);
-  emit messageSig(true, "Loading user interface items...");
+  emit messageSig(LOG_STATUS, "Loading user interface items...");
   attitudeAdjustment();
   mpdCombo->setMaxCount(0);
   mpdCombo->setMaxCount(1000);
   mpdCombo->addItems(ldrawFile.subFileOrder());
   setCurrentFile(fileName);
-  emit messageSig(true, "Loading editor display...");
+  emit messageSig(LOG_STATUS, "Loading editor display...");
   displayFile(&ldrawFile,ldrawFile.topLevelFile());
   undoStack->setClean();
   curFile = fileName;
@@ -361,7 +357,7 @@ void Gui::openFile(QString &fileName)
   }
 #endif
   defaultResolutionType(Preferences::preferCentimeters);
-  emit messageSig(true,"File opened.");
+  emit messageSig(LOG_STATUS,"File opened.");
 }
 
 void Gui::updateRecentFileActions()

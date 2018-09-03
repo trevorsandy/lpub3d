@@ -1,5 +1,5 @@
 ;LPub3D Install Files Script Include
-;Last Update: February 07, 2018
+;Last Update: June 30, 2018
 ;Copyright (C) 2016 - 2018 by Trevor SANDY
 
 StrCmp ${UniversalBuild} "1" 0 SingleArchitectureBuild
@@ -20,8 +20,6 @@ ${If} ${RunningX64}
 
     ;Deposit new 64bit files...
     File "${Win64BuildDir}\${LPub3DBuildFile}"
-    File "${Win64BuildDir}\${QuaZIPBuildFile}"
-    File "${Win64BuildDir}\${LDrawIniBuildFile}"
 
     File "${Win64BuildDir}\Qt5Concurrent.dll"
     File "${Win64BuildDir}\Qt5Core.dll"
@@ -29,33 +27,21 @@ ${If} ${RunningX64}
     File "${Win64BuildDir}\Qt5Network.dll"
     File "${Win64BuildDir}\Qt5OpenGL.dll"
     File "${Win64BuildDir}\Qt5PrintSupport.dll"
+    File "${Win64BuildDir}\Qt5Svg.dll"
     File "${Win64BuildDir}\Qt5Widgets.dll"
     File "${Win64BuildDir}\Qt5Xml.dll"
 
     ;New Stuff - Qt Libraries
-    File "${Win64BuildDir}\libbz2-1.dll"
-    File "${Win64BuildDir}\libfreetype-6.dll"
-    File "${Win64BuildDir}\libgcc_s_seh-1.dll"
-    File "${Win64BuildDir}\libglib-2.0-0.dll"
-    File "${Win64BuildDir}\libgraphite2.dll"
-    File "${Win64BuildDir}\libharfbuzz-0.dll"
-    File "${Win64BuildDir}\libiconv-2.dll"
-    File "${Win64BuildDir}\libicudt58.dll"
-    File "${Win64BuildDir}\libicuin58.dll"
-    File "${Win64BuildDir}\libicuuc58.dll"
-    File "${Win64BuildDir}\libintl-8.dll"
-    File "${Win64BuildDir}\libpcre-1.dll"
-    File "${Win64BuildDir}\libpcre2-16-0.dll"
-    File "${Win64BuildDir}\libpng16-16.dll"
-    File "${Win64BuildDir}\libstdc++-6.dll"
-    File "${Win64BuildDir}\libwinpthread-1.dll"
-    File "${Win64BuildDir}\zlib1.dll"
+    File "${Win64BuildDir}\D3Dcompiler_47.dll"
+    File "${Win64BuildDir}\libEGL.dll"
+    File "${Win64BuildDir}\libGLESV2.dll"
+    File "${Win64BuildDir}\opengl32sw.dll"
 
     ;New Stuff - Qt Plugins
     CreateDirectory "$INSTDIR\bearer"
     SetOutPath "$INSTDIR\bearer"
     File "${Win64BuildDir}\bearer\qgenericbearer.dll"
-    File "${Win64BuildDir}\bearer\qnativewifibearer.dll"
+;    File "${Win64BuildDir}\bearer\qnativewifibearer.dll"
     CreateDirectory "$INSTDIR\iconengines"
     SetOutPath "$INSTDIR\iconengines"
     File "${Win64BuildDir}\iconengines\qsvgicon.dll"
@@ -76,6 +62,8 @@ ${If} ${RunningX64}
     CreateDirectory "$INSTDIR\platforms"
     SetOutPath "$INSTDIR\platforms"
     File "${Win64BuildDir}\platforms\qwindows.dll"
+    SetOutPath "$INSTDIR\styles"
+    File "${Win64BuildDir}\styles\qwindowsvistastyle.dll"
 
     ;3rd party renderer utility - LdgLite
     CreateDirectory "$INSTDIR\3rdParty\${LDGliteDir}\bin"
@@ -111,6 +99,7 @@ ${If} ${RunningX64}
     ${If} $OverwriteUserDataParamFiles == 0
      SetOverwrite on
     ${EndIf}
+
 ${Else}
 
     ; delete files with old names if exist
@@ -121,8 +110,6 @@ ${Else}
     ;Deposit new 32bit files...
     ;File "${Win32BuildDir}\${LPub3D32bitBuildFile}"
     File "${Win32BuildDir}\${LPub3DBuildFile}"
-    File "${Win32BuildDir}\${QuaZIPBuildFile}"
-    File "${Win32BuildDir}\${LDrawIniBuildFile}"
 
     File "${Win32BuildDir}\Qt5Concurrent.dll"
     File "${Win32BuildDir}\Qt5Core.dll"
@@ -130,27 +117,15 @@ ${Else}
     File "${Win32BuildDir}\Qt5Network.dll"
     File "${Win32BuildDir}\Qt5OpenGL.dll"
     File "${Win32BuildDir}\Qt5PrintSupport.dll"
+    File "${Win32BuildDir}\Qt5Svg.dll"
     File "${Win32BuildDir}\Qt5Widgets.dll"
     File "${Win32BuildDir}\Qt5Xml.dll"
 
     ;New Stuff - Qt Libraries
-    File "${Win32BuildDir}\libbz2-1.dll"
-    File "${Win32BuildDir}\libfreetype-6.dll"
-    File "${Win32BuildDir}\libgcc_s_dw2-1.dll"
-    File "${Win32BuildDir}\libglib-2.0-0.dll"
-    File "${Win32BuildDir}\libgraphite2.dll"
-    File "${Win32BuildDir}\libharfbuzz-0.dll"
-    File "${Win32BuildDir}\libiconv-2.dll"
-    File "${Win32BuildDir}\libicudt58.dll"
-    File "${Win32BuildDir}\libicuin58.dll"
-    File "${Win32BuildDir}\libicuuc58.dll"
-    File "${Win32BuildDir}\libintl-8.dll"
-    File "${Win32BuildDir}\libpcre-1.dll"
-    File "${Win32BuildDir}\libpcre2-16-0.dll"
-    File "${Win32BuildDir}\libpng16-16.dll"
-    File "${Win32BuildDir}\libstdc++-6.dll"
-    File "${Win32BuildDir}\libwinpthread-1.dll"
-    File "${Win32BuildDir}\zlib1.dll"
+    File "${Win32BuildDir}\D3Dcompiler_47.dll"
+    File "${Win32BuildDir}\libEGL.dll"
+    File "${Win32BuildDir}\libGLESV2.dll"
+    File "${Win32BuildDir}\opengl32sw.dll"
 
     ;New Stuff - Qt Plugins
     CreateDirectory "$INSTDIR\bearer"
@@ -178,6 +153,8 @@ ${Else}
     CreateDirectory "$INSTDIR\platforms"
     SetOutPath "$INSTDIR\platforms"
     File "${Win32BuildDir}\platforms\qwindows.dll"
+    SetOutPath "$INSTDIR\styles"
+    File "${Win32BuildDir}\styles\qwindowsvistastyle.dll"
 
     ;3rd party renderer utility - LdgLite
     CreateDirectory "$INSTDIR\3rdParty\${LDGliteDir}\bin"
@@ -229,15 +206,16 @@ SingleArchitectureBuild:
 
 ; ;Deposit new files...
 ; File "${WinBuildDir}\${LPub3DBuildFile}"
-; File "${WinBuildDir}\${QuaZIPBuildFile}"
-; File "${WinBuildDir}\${LDrawIniBuildFile}"
 
-; File "${WinBuildDir}\Qt5Core.dll"
-; File "${WinBuildDir}\Qt5Network.dll"
-; File "${WinBuildDir}\Qt5Gui.dll"
-; File "${WinBuildDir}\Qt5Widgets.dll"
-; File "${WinBuildDir}\Qt5PrintSupport.dll"
-; File "${WinBuildDir}\Qt5OpenGL.dll"
+;File "${WinBuildDir}\Qt5Concurrent.dll"
+;File "${WinBuildDir}\Qt5Core.dll"
+;File "${WinBuildDir}\Qt5Gui.dll"
+;File "${WinBuildDir}\Qt5Network.dll"
+;File "${WinBuildDir}\Qt5OpenGL.dll"
+;File "${WinBuildDir}\Qt5PrintSupport.dll"
+;File "${WinBuildDir}\Qt5Svg.dll"
+;File "${WinBuildDir}\Qt5Widgets.dll"
+;File "${WinBuildDir}\Qt5Xml.dll"
 
 ; ;New Stuff - Qt Plugins
 ; CreateDirectory "$INSTDIR\bearer"
@@ -265,34 +243,13 @@ SingleArchitectureBuild:
 ; CreateDirectory "$INSTDIR\platforms"
 ; SetOutPath "$INSTDIR\platforms"
 ; File "${WinBuildDir}\platforms\qwindows.dll"
+;SetOutPath "$INSTDIR\styles"
+;File "${WinBuildDir}\styles\qwindowsvistastyle.dll"
 
-; StrCmp ${ArchExt} "x64" x86_64 x86
-
-; x86_64:
-; ;New Stuff - Qt Libraries
-; File "${WinBuildDir}\libbz2-1.dll"
-; File "${WinBuildDir}\libfreetype-6.dll"
-; File "${WinBuildDir}\libgcc_s_seh-1.dll"
-; File "${WinBuildDir}\libglib-2.0-0.dll"
-; File "${WinBuildDir}\libgraphite2.dll"
-; File "${WinBuildDir}\libharfbuzz-0.dll"
-; File "${WinBuildDir}\libiconv-2.dll"
-; File "${WinBuildDir}\libicudt58.dll"
-; File "${WinBuildDir}\libicuin58.dll"
-; File "${WinBuildDir}\libicuuc58.dll"
-; File "${WinBuildDir}\libintl-8.dll"
-; File "${WinBuildDir}\libpcre-1.dll"
-; File "${WinBuildDir}\libpcre16-0.dll"
-; File "${WinBuildDir}\libpng16-16.dll"
-; File "${WinBuildDir}\libstdc++-6.dll"
-; File "${WinBuildDir}\libwinpthread-1.dll"
-; File "${WinBuildDir}\zlib1.dll"
-
-; x86:
-; ;New Stuff - Qt Libraries
-; ; File "${WinBuildDir}\libgcc_s_dw2-1.dll"
-; File "${WinBuildDir}\libstdc++-6.dll"
-; File "${WinBuildDir}\libwinpthread-1.dll"
+;File "${WinBuildDir}\D3Dcompiler_47.dll"
+;File "${WinBuildDir}\libEGL.dll"
+;File "${WinBuildDir}\libGLESV2.dll"
+;File "${WinBuildDir}\opengl32sw.dll"
 
 ; Renderers-config:
 ; ;3rd party renderer utility - LdgLite
@@ -342,10 +299,12 @@ File "${WinBuildDir}\extras\fadeStepColorParts.lst"
 File "${WinBuildDir}\extras\freeformAnnotations.lst"
 File "${WinBuildDir}\extras\LDConfig.ldr"
 File "${WinBuildDir}\extras\ldglite.ini"
+File "${WinBuildDir}\extras\nativePOV.ini"
 File "${WinBuildDir}\extras\PDFPrint.jpg"
 File "${WinBuildDir}\extras\pli.mpd"
 File "${WinBuildDir}\extras\pliSubstituteParts.lst"
 File "${WinBuildDir}\extras\titleAnnotations.lst"
+File "${WinBuildDir}\extras\LDVMessages.ini"
 
 ;ldraw libraries - data/portable location
 File "${WinBuildDir}\extras\complete.zip"

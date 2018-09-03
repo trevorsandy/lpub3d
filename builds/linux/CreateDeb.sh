@@ -138,14 +138,20 @@ then
     lintian ${DISTRO_FILE} ${SOURCE_DIR}/${LPUB3D}.dsc
 
     echo "11-2. Build-check ${DISTRO_FILE}"
+    if [ ! -f "/usr/bin/update-desktop-database" ]; then
+            echo "      Program update-desktop-database not found. Installing..."
+            sudo apt-get install -y desktop-file-utils
+    fi
     # Install package - here we use the distro file name
+    echo "      11-2. Build-check install ${LPUB3D}..."
     sudo dpkg -i ${DISTRO_FILE}
     # Check if exe exist - here we use the executable name
     LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
     if [ -f "/usr/bin/${LPUB3D_EXE}" ]; then
-        ${LPUB3D_EXE} -foo
-        echo "      Cleanup..."
-        # Cleanup - here we use the package name
+        # Check commands
+        source ${SOURCE_DIR}/builds/check/build_checks.sh
+       # Cleanup - here we use the package name
+        echo "      11-2. Build-check uninstall ${LPUB3D}..."
         sudo dpkg -r ${LPUB3D}
     else
         echo "11-2. Build-check failed - /usr/bin/${LPUB3D_EXE} not found."
@@ -170,8 +176,10 @@ then
             LP3D_PLATFORM_NAME="zesty" ;;
         17.10)
             LP3D_PLATFORM_NAME="artful" ;;
+        18.04)
+            LP3D_PLATFORM_NAME="bionic" ;;
         *)
-            LP3D_PLATFORM_NAME="ununtu" ;;
+            LP3D_PLATFORM_NAME="ubuntu" ;;
         esac
         ;;
     debian)

@@ -9,10 +9,10 @@
 cd $LP3D_BUILD_FOLDER
 
 export DISPLAY=:99.0
-if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-  # execute directly in at after_script/build_check
-  #xvfb-run --auto-servernum --server-num=1 -s "-screen 0 640x480x24" lpub3d22
-fi
+#if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+#  execute directly in at after_script/build_check
+#  xvfb-run --auto-servernum --server-num=1 -s "-screen 0 640x480x24" lpub3d22
+#fi
 if [ "$TRAVIS_OS_NAME" = "osx" ]; then
   ( sudo Xvfb :99 -ac -screen 0 1024x768x24; echo ok ) &
 fi

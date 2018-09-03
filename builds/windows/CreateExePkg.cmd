@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: April 07, 2018
+rem  Last Update: June 30, 2018
 rem  Copyright (c) 2015 - 2018 by Trevor SANDY
 rem --
 SETLOCAL
@@ -97,9 +97,6 @@ SET SignToolExe="C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe"
 
 SET utilitiesPath=..\utilities
 SET devRootPath=..\..\mainApp
-
-SET LDRAWINI_BUILD_FILE=LDrawIni161.dll
-SET QUAZIP_BUILD_FILE=QuaZIP07.dll
 
 SET LDGLITE_DIR=ldglite-1.3
 SET LDVIEW_DIR=ldview-4.3
@@ -533,12 +530,6 @@ IF %UNIVERSAL_BUILD% EQU 1 (
 >>%genVersion%.
 >>%genVersion% !define LPub3DBuildFile "%LPUB3D_BUILD_FILE%"
 >>%genVersion% ; ${LPub3DBuildFile}
->>%genVersion%.
->>%genVersion% !define QuaZipBuildFile "%QUAZIP_BUILD_FILE%"
->>%genVersion% ; ${QuaZipBuildFile}
->>%genVersion%.
->>%genVersion% !define LDrawIniBuildFile "%LDRAWINI_BUILD_FILE%"
->>%genVersion% ; ${LDrawIniBuildFile}
 >>%genVersion%.
 >>%genVersion% !define LDGliteDir "%LDGLITE_DIR%"
 >>%genVersion% ; ${LDGliteDir}

@@ -15,61 +15,32 @@
 #ifndef LDSEARCHDIRS_H
 #define LDSEARCHDIRS_H
 
+#include <stdlib.h>
+#include <string.h>
+#include <map>
+#include <list>
+
 #if defined (__APPLE__)
 #include <ldrawini.h>
 #include <wchar.h>
 #endif // __APPLE__
 
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+#ifndef _MSC_VER
   #include <unistd.h>
-  #ifndef WIN32
-  #include <sys/stat.h>
-  #endif // !WIN32
-#else
-  #ifndef WIN32
-  #include <unistd.h>
-  #include <sys/stat.h>
-  #endif // !WIN32
 #endif
 
-#ifdef _QT
-#include <QtCore/qstring.h>
-#endif // _QT
+#ifndef WIN32
+#include <sys/stat.h>
+#else // !WIN32
+#include <windows.h>
+#endif // WIN32
 
-
-// STRING UTILITIES
-#include <string.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <stdarg.h>
-
 #include <stack>
 
-char *copyString(const char *string, size_t pad = 0);
-char *cleanedUpPath(const char* path);
-void  replaceStringCharacter(char*, char, char, int = 1);
-void  stripTrailingPathSeparators(char*);
-char *directoryFromPath(const char*);
-char *componentsJoinedByString(char** array, int count,
-					const char* separator);
-char **componentsSeparatedByString(const char* string,
-					    const char* separator, int& count);
-char *stringByReplacingSubstring(const char* string,
-					      const char* oldSubstring,
-					      const char* newSubstring,
-					      bool repeat = true);
-template<class T> inline void deleteStringArray(T** array, int count)
-{
-	int i;
-
-	for (i = 0; i < count; i++)
-	{
-		delete array[i];
-	}
-	delete array;
-}
-// END STRING UTILITIES
-
+#define LP3DExport
 
 class PartWorker;
 class LDPartsDirs;
@@ -97,6 +68,31 @@ public:
   static       void  initCheckDirs();
 
 protected:
+  // STRING UTILITIES
+  static char *copyString(const char *string, size_t pad = 0);
+  static wchar_t *copyString(const wchar_t *string, size_t pad = 0);
+  static char *cleanedUpPath(const char* path);
+  static void  replaceStringCharacter(char*, char, char, int = 1);
+  static void  stripTrailingPathSeparators(char*);
+  static char *directoryFromPath(const char*);
+  static char *componentsJoinedByString(char** array, int count,
+                  const char* separator);
+  static char **componentsSeparatedByString(const char* string,
+                  const char* separator, int& count);
+  static char *stringByReplacingSubstring(const char* string,
+                  const char* oldSubstring,
+                  const char* newSubstring,
+                  bool repeat = true);
+  template<class T> inline LP3DExport static void deleteStringArray(T** array, int count)
+  {
+    int i;
+    for (i = 0; i < count; i++)
+    {
+      delete array[i];
+    }
+    delete array;
+  }
+  // END STRING UTILITIES
   LDPartsDirs         *m_partsDirs;
   static StringList    sm_checkDirs;
   static       char   *sm_systemLDrawDir;
@@ -119,8 +115,8 @@ class LDPartsDirs : public LDSearchDirs
 public:
   LDPartsDirs(void);
   virtual const char *getSearchDirsOrigin(void) const { return m_searchDirsOrigin; }
-  virtual bool        loadLDrawSearchDirs(const char *filename);   //send default arbitrary file name
-  virtual bool        initLDrawSearchDirs();                       //initialize ldrawini and check for errors
+  virtual bool        loadLDrawSearchDirs(const char *filename);             //send default arbitrary file name
+  virtual bool        initLDrawSearchDirs();                                 //initialize ldrawini and check for errors
   virtual void        setExtraSearchDirs(const char *value);
   StringList          getExtraSearchDirs(void) { return m_extraSearchDirs; } //this is not used
   StringList          getLDrawSearchDirs(void) { return m_ldrawSearchDirs; }

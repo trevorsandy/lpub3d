@@ -15,11 +15,7 @@
 **
 ****************************************************************************/
 #include "lpub.h"
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-#include <QtWidgets/QWidget>
-#else
 #include <QWidget>
-#endif
 #include <QDesktopWidget>
 #include <QSizePolicy>
 #include <QFileDialog>
@@ -48,17 +44,23 @@
 #include "metaitem.h"
 #include "ranges_element.h"
 #include "updatecheck.h"
-
 #include "step.h"
+
 //** 3D
 #include "camera.h"
+#include "project.h"
+#include "view.h"
 #include "piece.h"
 #include "lc_profile.h"
-
 #include "application.h"
+
 #include <ui_progress_dialog.h>
 
+#include <TCFoundation/TCUserDefaults.h>
+#include <LDLib/LDUserDefaultsKeys.h>
 //**
+
+
 
 #if _MSC_VER > 1310
 // Visual C++ 2005 and later require the source files in UTF-8, and all strings
@@ -98,12 +100,6 @@ void clearCsi3dCache()
 {
     gui->clearTempCache();
 }
-
-void clearAndRedrawPage()
-{
-    gui->clearAndRedrawPage();
-}
-
 /****************************************************************************
  * 
  * The Gui constructor and destructor are at the bottom of the file with
@@ -227,7 +223,7 @@ void Gui::removeLPubFormatting()
 
 void Gui::displayPage()
 {
-  emit messageSig(true, "Processing page display...");
+  emit messageSig(LOG_STATUS, "Processing page display...");
 
   if (macroNesting == 0) {
       clearPage(KpageView,KpageScene);
@@ -237,7 +233,7 @@ void Gui::displayPage()
       enableActions2();
       emit enable3DActionsSig();
     }
-  emit messageSig(true,"Page display ready.");
+  emit messageSig(LOG_STATUS,"Page display ready.");
 }
 
 /*
@@ -617,7 +613,7 @@ bool Gui::continuousPageDialog(Direction d)
             }
 
           if (terminateProcess) {
-              emit messageSig(true,QString("%1 page processing terminated before completion. %2 pages of %3 processed.")
+              emit messageSig(LOG_STATUS,QString("%1 page processing terminated before completion. %2 pages of %3 processed.")
                               .arg(direction)
                               .arg(displayPageNum - 1)
                               .arg(maxPages));
@@ -640,7 +636,7 @@ bool Gui::continuousPageDialog(Direction d)
 
           displayPage();
 
-          emit messageSig(true,QString("Processed page %1 of %2").arg(displayPageNum).arg(maxPages));
+          emit messageSig(LOG_STATUS,QString("Processed page %1 of %2").arg(displayPageNum).arg(maxPages));
 
           qApp->processEvents();
 
@@ -688,7 +684,7 @@ bool Gui::continuousPageDialog(Direction d)
             }
 
           if (terminateProcess) {
-              emit messageSig(true,QString("%1 page processing terminated before completion. %2 pages of %3 processed.")
+              emit messageSig(LOG_STATUS,QString("%1 page processing terminated before completion. %2 pages of %3 processed.")
                               .arg(direction)
                               .arg(pageCount)
                               .arg(_maxPages));
@@ -711,7 +707,7 @@ bool Gui::continuousPageDialog(Direction d)
 
           displayPage();
 
-          emit messageSig(true,QString("Processed page %1, %2 of %3 for page range %4")
+          emit messageSig(LOG_STATUS,QString("Processed page %1, %2 of %3 for page range %4")
                           .arg(displayPageNum)
                           .arg(pageCount)
                           .arg(_maxPages)
@@ -737,7 +733,7 @@ bool Gui::continuousPageDialog(Direction d)
       previousPageContinuousIsRunning = false;
     }
 
-  emit messageSig(true,QString("%1 page processing completed. %2 of %3 pages processed.").arg(direction).arg(pageCount).arg(_maxPages));
+  emit messageSig(LOG_STATUS,QString("%1 page processing completed. %2 of %3 pages processed.").arg(direction).arg(pageCount).arg(_maxPages));
 
   return true;
 }
@@ -872,17 +868,53 @@ void Gui::zoomOut(
   view->scale(1.0/1.1,1.0/1.1);
 }
 
-void Gui::UpdateStepRotation()
+void Gui::SetRotStepMeta(QString &value, bool propagate)
 {
-    mModelStepRotation = lcVector3(mRotStepAngleX, mRotStepAngleY, mRotStepAngleZ);
+    if (propagate && getCurFile() != "") {
 
-    QString rotLabel("Step Rotation %1 %2 %3");
-    rotLabel = rotLabel.arg(QString::number(mModelStepRotation[0], 'f', 2),
-                            QString::number(mModelStepRotation[1], 'f', 2),
-                            QString::number(mModelStepRotation[2], 'f', 2));
-    statusBarMsg(rotLabel);
+        mStepRotation[0] = mRotStepAngleX;
+        mStepRotation[1] = mRotStepAngleY;
+        mStepRotation[2] = mRotStepAngleZ;
+
+        QString rotationValue = QString("%1 %2 %3 %4 %5")
+                                        .arg(getViewerCsiName())
+                                        .arg(QString::number(mStepRotation[0], 'f', 2))
+                                        .arg(QString::number(mStepRotation[1], 'f', 2))
+                                        .arg(QString::number(mStepRotation[2], 'f', 2))
+                                        .arg(value);
+
+        MetaItem mi;
+        mi.writeRotateStep(rotationValue);
+
+    } else {
+
+        QStringList argv = value.split(QRegExp("\\s"));
+
+        bool ok[3];
+        float x = argv[0].toFloat(&ok[0]);
+        float y = argv[1].toFloat(&ok[1]);
+        float z = argv[2].toFloat(&ok[2]);
+
+        if (ok[0] && ok[1] && ok[2]){
+            mStepRotation[0] = x;
+            mStepRotation[1] = y;
+            mStepRotation[2] = z;
+        } else {
+            emit messageSig(LOG_ERROR, QString("Invalid ROTSTEP entry %1.")
+                            .arg(value));
+        }
+    }
+    UpdateStepRotationStatus();
 }
 
+void Gui::UpdateStepRotationStatus()
+{
+    QString rotLabel("Step Rotation %1 %2 %3");
+    rotLabel = rotLabel.arg(QString::number(mRotStepAngleX, 'f', 2),
+                            QString::number(mRotStepAngleY, 'f', 2),
+                            QString::number(mRotStepAngleZ, 'f', 2));
+    statusBarMsg(rotLabel);
+}
 
 void Gui::displayFile(
     LDrawFile     *ldrawFile,
@@ -929,77 +961,79 @@ void Gui::deployExportBanner(bool b)
       installExportBanner(exportType, exportBanner,imageFile);
     }
 }
+
 /*-----------------------------------------------------------------------------*/
 
 bool Gui::installExportBanner(const int &type, const QString &printFile, const QString &imageFile){
 
-    QList<QString> ldrData;
-    ldrData << "0 FILE printbanner.ldr";
-    ldrData << "0 Name: printbanner.ldr";
-    ldrData << "0 Author: Trevor SANDY";
-    ldrData << "0 Unofficial Model";
-    ldrData << "0 !LEOCAD MODEL NAME Printbanner";
-    ldrData << "0 !LEOCAD MODEL AUTHOR Trevor SANDY";
-    ldrData << "0 !LEOCAD MODEL DESCRIPTION Graphic displayed during pdf printing";
-    ldrData << "0 !LEOCAD MODEL BACKGROUND IMAGE NAME " + imageFile;
-    ldrData << "1 71 0 0 0 1 0 0 0 1 0 0 0 1 3020.dat";
-    ldrData << "1 71 30 -8 10 1 0 0 0 1 0 0 0 1 3024.dat";
-    ldrData << "1 71 30 -16 10 1 0 0 0 1 0 0 0 1 3024.dat";
-    ldrData << "1 71 -30 -8 10 1 0 0 0 1 0 0 0 1 3024.dat";
-    ldrData << "1 71 -30 -16 10 1 0 0 0 1 0 0 0 1 3024.dat";
-    ldrData << "1 71 -30 -32 10 1 0 0 0 1 0 0 0 1 6091.dat";
-    ldrData << "1 71 30 -32 10 1 0 0 0 1 0 0 0 1 6091.dat";
-    ldrData << "1 71 30 -32 10 1 0 0 0 1 0 0 0 1 30039.dat";
-    ldrData << "1 2 -30 -32 10 1 0 0 0 1 0 0 0 1 30039.dat";
-    ldrData << "1 71 0 -24 10 1 0 0 0 1 0 0 0 1 3937.dat";
-    ldrData << "1 72 0 -8 -10 1 0 0 0 1 0 0 0 1 3023.dat";
-    ldrData << "1 72 0 -8 -10 -1 0 0 0 1 0 0 0 -1 85984.dat";
-    ldrData << "1 71 0 -23.272 6.254 -1 0 0 0 0.927 0.375 0 0.375 -0.927 3938.dat";
-    ldrData << "1 72 0 -45.524 -2.737 -1 0 0 0 0.927 0.375 0 0.375 -0.927 4865a.dat";
+    QList<QString> bannerData;
+    bannerData << "0 FILE printbanner.ldr";
+    bannerData << "0 Name: printbanner.ldr";
+    bannerData << "0 Author: Trevor SANDY";
+    bannerData << "0 Unofficial Model";
+    bannerData << "0 !LEOCAD MODEL NAME Printbanner";
+    bannerData << "0 !LEOCAD MODEL AUTHOR Trevor SANDY";
+    bannerData << "0 !LEOCAD MODEL DESCRIPTION Graphic displayed during pdf printing";
+    bannerData << "0 !LEOCAD MODEL BACKGROUND IMAGE NAME " + imageFile;
+    bannerData << "1 71 0 0 0 1 0 0 0 1 0 0 0 1 3020.dat";
+    bannerData << "1 71 30 -8 10 1 0 0 0 1 0 0 0 1 3024.dat";
+    bannerData << "1 71 30 -16 10 1 0 0 0 1 0 0 0 1 3024.dat";
+    bannerData << "1 71 -30 -8 10 1 0 0 0 1 0 0 0 1 3024.dat";
+    bannerData << "1 71 -30 -16 10 1 0 0 0 1 0 0 0 1 3024.dat";
+    bannerData << "1 71 -30 -32 10 1 0 0 0 1 0 0 0 1 6091.dat";
+    bannerData << "1 71 30 -32 10 1 0 0 0 1 0 0 0 1 6091.dat";
+    bannerData << "1 71 30 -32 10 1 0 0 0 1 0 0 0 1 30039.dat";
+    bannerData << "1 2 -30 -32 10 1 0 0 0 1 0 0 0 1 30039.dat";
+    bannerData << "1 71 0 -24 10 1 0 0 0 1 0 0 0 1 3937.dat";
+    bannerData << "1 72 0 -8 -10 1 0 0 0 1 0 0 0 1 3023.dat";
+    bannerData << "1 72 0 -8 -10 -1 0 0 0 1 0 0 0 -1 85984.dat";
+    bannerData << "1 71 0 -23.272 6.254 -1 0 0 0 0.927 0.375 0 0.375 -0.927 3938.dat";
+    bannerData << "1 72 0 -45.524 -2.737 -1 0 0 0 0.927 0.375 0 0.375 -0.927 4865a.dat";
     switch (type) {
       case EXPORT_PNG:
-        ldrData << "1 25 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
-        ldrData << "1 25 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptn.dat";
-        ldrData << "1 25 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
+        bannerData << "1 25 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+        bannerData << "1 25 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptn.dat";
+        bannerData << "1 25 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
         break;
       case EXPORT_JPG:
-        ldrData << "1 92 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptj.dat";
-        ldrData << "1 92 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
-        ldrData << "1 92 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
+        bannerData << "1 92 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptj.dat";
+        bannerData << "1 92 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+        bannerData << "1 92 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
         break;
       case EXPORT_BMP:
-        ldrData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
-        ldrData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptm.dat";
-        ldrData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptm.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
         break;
       default:
-        ldrData << "1 216 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
-        ldrData << "1 216 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
-        ldrData << "1 216 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptf.dat";
+        bannerData << "1 216 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+        bannerData << "1 216 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
+        bannerData << "1 216 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptf.dat";
       }
-    ldrData << "0";
-    ldrData << "0 NOFILE";
+    bannerData << "0";
+    bannerData << "0 NOFILE";
 
-    QFile ldrFile(printFile);
-    if ( ! ldrFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
-        QMessageBox::warning(NULL,
-                             tr("LPub3D"),
-                             tr("Cannot open Export Banner file %1 for writing:\n%2")
+    QFile bannerFile(printFile);
+    if ( ! bannerFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
+        emit gui->messageSig(LOG_ERROR,tr("Cannot open Export Banner file %1 for writing:\n%2")
                              .arg(printFile)
-                             .arg(ldrFile.errorString()));
+                             .arg(bannerFile.errorString()));
         return false;
     }
-    QTextStream out(&ldrFile);
-    for (int i = 0; i < ldrData.size(); i++) {
-        QString fileLine = ldrData[i];
+    QTextStream out(&bannerFile);
+    for (int i = 0; i < bannerData.size(); i++) {
+        QString fileLine = bannerData[i];
         out << fileLine << endl;
     }
-    ldrFile.close();
+    bannerFile.close();
 
-    //load CSI 3D file into viewer
-    if (gMainWindow->OpenProject(ldrFile.fileName())){
-        return true;
-    } else {return false;}
+    Project* BannerProject = new Project();
+    if (!gMainWindow->OpenProject(bannerFile.fileName()))
+    {
+      emit gui->messageSig(LOG_ERROR, tr("Could not load banner'%1'.").arg(bannerFile.fileName()));
+      delete BannerProject;
+      return false;
+    }
 
     return true;
 }
@@ -1029,13 +1063,12 @@ void Gui::mpdComboChanged(int index)
 void Gui::clearAllCaches()
 {
     if (getCurFile().isEmpty()) {
-        emit messageSig(true,"A model must be open to reset its caches - no action taken.");
+        emit messageSig(LOG_STATUS,"A model must be open to reset its caches - no action taken.");
         return;
     }
 
     if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
        ldrawFile.clearPrevStepPositions();
-
     }
 
      clearPLICache();
@@ -1049,17 +1082,7 @@ void Gui::clearAllCaches()
      displayPage();
      enableActions();
 
-     emit messageSig(true,"All caches reset and model file reloaded.");
-}
-
-void Gui::clearAndRedrawPage()
-{
-    if (getCurFile().isEmpty()) {
-        emit messageSig(true,"A model must be open to reset its caches - no action taken.");
-        return;
-    }
-
-     clearAllCaches();
+     emit messageSig(LOG_STATUS,"All caches reset and model file reloaded.");
 }
 
 void Gui::clearCustomPartCache(bool silent)
@@ -1068,44 +1091,40 @@ void Gui::clearCustomPartCache(bool silent)
   QString message = QString("All existing custom part files will be deleted and regenerated.\n"
                             "Warning: Only custom part files for the currently loaded model file will be updated in %1.")
                             .arg(FILE_LPUB3D_UNOFFICIAL_ARCHIVE);
-  if (silent) {
-      emit messageSig(silent,message);
+  if (silent || !Preferences::modeGUI) {
+      emit messageSig(LOG_STATUS,message);
   } else {
       ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
                                  tr("%1\nDo you want to delete the custom file cache?").arg(message),
                                  QMessageBox::Yes | QMessageBox::Discard | QMessageBox::Cancel);
   }
 
-  if (ret == QMessageBox::Yes || silent) {
-
-      QString dirName = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customDir));
-
-      int count = 0;
-      if (removeDir(count, dirName)){
-          emit messageSig(silent,QMessageBox::tr("Custom parts cache cleaned.  %1 %2 removed.")
-                               .arg(count)
-                               .arg(count == 1 ? "item": "items"));
-      } else {
-          emit messageSig(silent,QMessageBox::tr("Unable to remeove custom parts cache directory: %1").arg(dirName));
-        return;
-      }
-
-      // regenerate custom parts
-      if (! getCurFile().isEmpty()) {
-        bool overwriteCustomParts = true;
-        processFadeColourParts(overwriteCustomParts);       // (re)generate and archive fade parts based on the loaded model file
-        processHighlightColourParts(overwriteCustomParts);  // (re)generate and archive highlight parts based on the loaded model file
-      }
-
-    } else if (ret == QMessageBox::Cancel) {
+  if (ret == QMessageBox::Cancel)
       return;
-    }
+
+  QString dirName = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customDir));
+
+  int count = 0;
+  if (removeDir(count, dirName)){
+      emit messageSig(LOG_STATUS,QMessageBox::tr("Custom parts cache cleaned.  %1 %2 removed.")
+                           .arg(count)
+                           .arg(count == 1 ? "item": "items"));
+  } else {
+      emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to remeove custom parts cache directory: %1").arg(dirName));
+      return;
+  }
+
+  // regenerate custom parts
+  bool overwriteCustomParts = true;
+  processFadeColourParts(overwriteCustomParts);       // (re)generate and archive fade parts based on the loaded model file
+  processHighlightColourParts(overwriteCustomParts);  // (re)generate and archive highlight parts based on the loaded model file
+
 }
 
 void Gui::clearPLICache()
 {
     if (getCurFile().isEmpty()) {
-        emit messageSig(true,"A model must be open to clean its parts cache - no action taken.");
+        emit messageSig(LOG_STATUS,"A model must be open to clean its parts cache - no action taken.");
         return;
     }
 
@@ -1129,13 +1148,13 @@ void Gui::clearPLICache()
           count++;
       }
 
-    emit messageSig(true,QString("Parts content cache cleaned. %1 items removed.").arg(count));
+    emit messageSig(LOG_STATUS,QString("Parts content cache cleaned. %1 items removed.").arg(count));
 }
 
 void Gui::clearCSICache()
 {
     if (getCurFile().isEmpty()) {
-        emit messageSig(true,"A model must be open to clean its assembly cache - no action taken.");
+        emit messageSig(LOG_STATUS,"A model must be open to clean its assembly cache - no action taken.");
         return;
     }
 
@@ -1159,13 +1178,13 @@ void Gui::clearCSICache()
           count++;
       }
 
-    emit messageSig(true,QString("Assembly content cache cleaned. %1 items removed.").arg(count));
+    emit messageSig(LOG_STATUS,QString("Assembly content cache cleaned. %1 items removed.").arg(count));
 }
 
 void Gui::clearTempCache()
 {
     if (getCurFile().isEmpty()) {
-        emit messageSig(true,"A model must be open to clean its 3D cache - no action taken.");
+        emit messageSig(LOG_STATUS,"A model must be open to clean its 3D cache - no action taken.");
         return;
     }
 
@@ -1191,27 +1210,7 @@ void Gui::clearTempCache()
 
     ldrawFile.tempCacheCleared();
 
-    QString viewDirName = QDir::currentPath() + "/" + Paths::viewerDir;
-    QDir viewDir(viewDirName);
-
-    viewDir.setFilter(QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::NoSymLinks);
-
-    QFileInfoList viewDirList = viewDir.entryInfoList();
-    int count2 = 0;
-    for (int i = 0; i < viewDirList.size(); i++) {
-        QFileInfo fileInfo = viewDirList.at(i);
-        QFile     file(viewDirName + "/" + fileInfo.fileName());
-        if (!file.remove()) {
-            QMessageBox::critical(NULL,
-                                  tr("LPub3D"),
-                                  tr("Unable to remeove %1")
-                                  .arg(viewDirName + "/" + fileInfo.fileName()));
-            count2--;
-          } else
-          count2++;
-    }
-
-    emit messageSig(true,QString("3D Viewer content cache cleaned. %1 temp and %2 viewer items removed.").arg(count1).arg(count2));
+    emit messageSig(LOG_STATUS,QString("Temporary model file cache cleaned. %1 items removed.").arg(count1));
 }
 
 bool Gui::removeDir(int &count, const QString & dirName)
@@ -1244,9 +1243,7 @@ void Gui::clearStepCSICache(QString &pngName) {
   QFileInfo fileInfo(pngName);
   QFile file(assemDirName + "/" + fileInfo.fileName());
   if (!file.remove()) {
-      QMessageBox::critical(NULL,
-                            QMessageBox::tr("LPub3D"),
-                            QMessageBox::tr("Unable to remove %1")
+      emit messageSig(LOG_ERROR, QMessageBox::tr("Unable to remove %1")
                             .arg(assemDirName + "/" + fileInfo.fileName()));
     }
   QString ldrName;
@@ -1257,9 +1254,7 @@ void Gui::clearStepCSICache(QString &pngName) {
     }
   file.setFileName(ldrName);
   if (!file.remove()) {
-      QMessageBox::critical(NULL,
-                            QMessageBox::tr("LPub3D"),
-                            QMessageBox::tr("Unable to remeove %1")
+      emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to remeove %1")
                             .arg(ldrName));
     }
   if (Preferences::enableFadeSteps) {
@@ -1313,27 +1308,21 @@ void Gui::clearPageCSIGraphicsItems(Step *step) {
   QFileInfo fileInfo(step->pngName);
   QFile file(assemDirName + "/" + fileInfo.fileName());
   if (!file.remove()) {
-      QMessageBox::critical(NULL,
-                            QMessageBox::tr("LPub3D"),
-                            QMessageBox::tr("Unable to remove %1")
+      emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to remove %1")
                             .arg(assemDirName + "/" + fileInfo.fileName()));
   }
   if (renderer->useLDViewSCall()){
       ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
       file.setFileName(ldrName);
       if (!file.remove()) {
-          QMessageBox::critical(NULL,
-                                QMessageBox::tr("LPub3D"),
-                                QMessageBox::tr("Unable to remeove %1")
+         emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to remeove %1")
                                 .arg(ldrName));
       }
   } else if (! itemsCleared){
       ldrName = tmpDirName + "/csi.ldr";
       file.setFileName(ldrName);
       if (!file.remove()) {
-          QMessageBox::critical(NULL,
-                                QMessageBox::tr("LPub3D"),
-                                QMessageBox::tr("Unable to remeove %1")
+          emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to remeove %1")
                                 .arg(ldrName));
       }
       itemsCleared = true;
@@ -1458,6 +1447,13 @@ void Gui::editLdgliteIni()
     parmsWindow->show();
 }
 
+void Gui::editNativePovIni()
+{
+    displayParmsFile(Preferences::nativePOVIni);
+    parmsWindow->setWindowTitle(tr("Edit Native POV file generation ini","Edit Native POV file generation ini "));
+    parmsWindow->show();
+}
+
 void Gui::editLdviewIni()
 {
     displayParmsFile(Preferences::ldviewIni);
@@ -1468,7 +1464,7 @@ void Gui::editLdviewIni()
 void Gui::editLdviewPovIni()
 {
     displayParmsFile(Preferences::ldviewPOVIni);
-    parmsWindow->setWindowTitle(tr("Edit LDView raytracer ini","Edit LDView raytracer ini"));
+    parmsWindow->setWindowTitle(tr("Edit LDView POV file generation ini","Edit LDView POV file generation ini"));
     parmsWindow->show();
 }
 
@@ -1505,11 +1501,84 @@ void Gui::preferences()
     int  highlightStepLineWidthCompare  = Preferences::highlightStepLineWidth;
     bool doNotShowPageProcessDlgCompare = Preferences::doNotShowPageProcessDlg;
     int  pageDisplayPauseCompare        = Preferences::pageDisplayPause;
+    QString povFileGeneratorCompare     = Preferences::povFileGenerator;
     QString fadeStepsColourCompare      = Preferences::fadeStepsColour;
     QString highlightStepColourCompare  = Preferences::highlightStepColour;
     QString ldrawPathCompare            = Preferences::ldrawPath;
     QString lgeoPathCompare             = Preferences::lgeoPath;
     QString preferredRendererCompare    = Preferences::preferredRenderer;
+
+   // Native Pov file generation settings
+    QString selectedAspectRatioCompare;
+    switch (int(TCUserDefaults::longForKey(SELECTED_ASPECT_RATIO_KEY, SELECTED_ASPECT_RATIO_DEFAULT)))
+    {
+    case -1:
+            selectedAspectRatioCompare = ASPECT_RATIO_0;
+        break;
+    case 0:
+            selectedAspectRatioCompare = ASPECT_RATIO_1;
+        break;
+    case 2:
+            selectedAspectRatioCompare = ASPECT_RATIO_2;
+        break;
+    case 3:
+            selectedAspectRatioCompare = ASPECT_RATIO_3;
+        break;
+    case 4:
+            selectedAspectRatioCompare = ASPECT_RATIO_4;
+        break;
+    case 5:
+            selectedAspectRatioCompare = ASPECT_RATIO_5;
+        break;
+    case 6:
+            selectedAspectRatioCompare = ASPECT_RATIO_6;
+        break;
+    case 7:
+            selectedAspectRatioCompare = ASPECT_RATIO_7;
+        break;
+    default:
+            selectedAspectRatioCompare = ASPECT_RATIO_8;
+    }
+
+    long qualityCompare               = TCUserDefaults::longForKey(QUALITY_EXPORT_KEY, QUALITY_EXPORT_DEFAULT);
+    float customAspectRatioCompare    = TCUserDefaults::floatForKey(CUSTOM_ASPECT_RATIO_KEY, CUSTOM_ASPECT_RATIO_DEFAULT);
+    float edgeRadiusCompare           = TCUserDefaults::floatForKey(EDGE_RADIUS_KEY, EDGE_RADIUS_DEFAULT);
+    float seamWidthCompare            = TCUserDefaults::floatForKey(SEAM_WIDTH_KEY, EDGE_RADIUS_DEFAULT);
+    float ambientCompare              = TCUserDefaults::floatForKey(AMBIENT_KEY, AMBIENT_DEFAULT);
+    float diffuseCompare              = TCUserDefaults::floatForKey(DIFFUSE_KEY, DIFFUSE_DEFAULT);
+    float reflCompare                 = TCUserDefaults::floatForKey(REFLECTION_KEY, REFLECTION_DEFAULT);
+    float phongCompare                = TCUserDefaults::floatForKey(PHONG_KEY, PHONG_DEFAULT);
+    float phongSizeCompare            = TCUserDefaults::floatForKey(PHONG_SIZE_KEY, PHONG_SIZE_DEFAULT);
+    float transReflCompare            = TCUserDefaults::floatForKey(TRANS_REFLECTION_KEY, TRANS_REFLECTION_DEFAULT);
+    float transFilterCompare          = TCUserDefaults::floatForKey(TRANS_FILTER_KEY, TRANS_FILTER_DEFAULT);
+    float transIoRCompare             = TCUserDefaults::floatForKey(TRANS_IOR_KEY, TRANS_IOR_DEFAULT);
+    float rubberReflCompare           = TCUserDefaults::floatForKey(RUBBER_REFLECTION_KEY, RUBBER_REFLECTION_DEFAULT);
+    float rubberPhongCompare          = TCUserDefaults::floatForKey(RUBBER_PHONG_KEY, RUBBER_PHONG_DEFAULT);
+    float rubberPhongSizeCompare      = TCUserDefaults::floatForKey(RUBBER_PHONG_SIZE_KEY, RUBBER_PHONG_SIZE_DEFAULT);
+    float chromeReflCompare           = TCUserDefaults::floatForKey(CHROME_REFLECTION_KEY, CHROME_REFLECTION_DEFAULT);
+    float chromeBrilCompare           = TCUserDefaults::floatForKey(CHROME_BRILLIANCE_KEY, CHROME_BRILLIANCE_DEFAULT);
+    float chromeSpecularCompare       = TCUserDefaults::floatForKey(CHROME_SPECULAR_KEY, CHROME_SPECULAR_DEFAULT);
+    float chromeRoughnessCompare      = TCUserDefaults::floatForKey(CHROME_ROUGHNESS_KEY, CHROME_ROUGHNESS_DEFAULT);
+    float fileVersionCompare          = TCUserDefaults::floatForKey(FILE_VERSION_KEY, FILE_VERSION_DEFAULT);
+
+    bool seamsCompare                 = TCUserDefaults::boolForKey(SEAMS_KEY, true);
+    bool reflectionsCompare           = TCUserDefaults::boolForKey(REFLECTIONS_KEY, true);
+    bool shadowsCompare               = TCUserDefaults::boolForKey(SHADOWS_KEY, true);
+    bool xmlMapCompare                = TCUserDefaults::boolForKey(XML_MAP_KEY, true);
+    bool inlinePovCompare             = TCUserDefaults::boolForKey(INLINE_POV_KEY, true);
+    bool smoothCurvesCompare          = TCUserDefaults::boolForKey(SMOOTH_CURVES_KEY, true);
+    bool hideStudsCompare             = TCUserDefaults::boolForKey(HIDE_STUDS_KEY, false);
+    bool unmirrorStudsCompare         = TCUserDefaults::boolForKey(UNMIRROR_STUDS_KEY, true);
+    bool findReplacementsCompare      = TCUserDefaults::boolForKey(FIND_REPLACEMENTS_KEY, false);
+    bool conditionalEdgeLinesCompare  = TCUserDefaults::boolForKey(CONDITIONAL_EDGE_LINES_KEY, false);
+    bool primitiveSubstitutionCompare = TCUserDefaults::boolForKey(PRIMITIVE_SUBSTITUTION_KEY, true);
+    //                                  TCUserDefaults::boolForKey(DRAW_EDGES_KEY, false);
+
+    QString xmlMapPathCompare         = QString(TCUserDefaults::pathForKey(XML_MAP_PATH_KEY));
+    QString topIncludeCompare         = QString(TCUserDefaults::stringForKey(TOP_INCLUDE_KEY));
+    QString bottomIncludeCompare      = QString(TCUserDefaults::stringForKey(BOTTOM_INCLUDE_KEY));
+
+    QString lightsCompare             = Preferences::ldvLights;
 
     if (Preferences::getPreferences()) {
 
@@ -1518,7 +1587,7 @@ void Gui::preferences()
 
         bool rendererChanged               = QString(Preferences::preferredRenderer).toLower()   != preferredRendererCompare.toLower();
         bool enableFadeStepsChanged        = Preferences::enableFadeSteps                        != enableFadeStepsCompare;
-        bool fadeStepsUseColourChanged     = Preferences::fadeStepsUseColour                      != fadeStepsUseColourCompare;
+        bool fadeStepsUseColourChanged     = Preferences::fadeStepsUseColour                     != fadeStepsUseColourCompare;
         bool fadeStepsColourChanged        = QString(Preferences::fadeStepsColour).toLower()     != fadeStepsColourCompare.toLower();
         bool fadeStepsOpacityChanged       = Preferences::fadeStepsOpacity                       != fadeStepsOpacityCompare;
         bool enableHighlightStepChanged    = Preferences::enableHighlightStep                    != enableHighlightStepCompare;
@@ -1529,12 +1598,90 @@ void Gui::preferences()
         bool generateCoverPagesChanged     = Preferences::generateCoverPages                     != generateCoverPagesCompare;
         bool pageDisplayPauseChanged       = Preferences::pageDisplayPause                       != pageDisplayPauseCompare;
         bool doNotShowPageProcessDlgChanged= Preferences::doNotShowPageProcessDlg                != doNotShowPageProcessDlgCompare;
+        bool povFileGeneratorChanged       = Preferences::povFileGenerator                       != povFileGeneratorCompare;
 
         bool ldrawPathChanged              = QString(Preferences::ldrawPath).toLower()           != ldrawPathCompare.toLower();
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
 
+        // Native Pov file generation settings
+         QString selectedAspectRatio;
+         switch (int(TCUserDefaults::longForKey(SELECTED_ASPECT_RATIO_KEY, SELECTED_ASPECT_RATIO_DEFAULT)))
+         {
+         case -1:
+                 selectedAspectRatio = ASPECT_RATIO_0;
+             break;
+         case 0:
+                 selectedAspectRatio = ASPECT_RATIO_1;
+             break;
+         case 2:
+                 selectedAspectRatio = ASPECT_RATIO_2;
+             break;
+         case 3:
+                 selectedAspectRatio = ASPECT_RATIO_3;
+             break;
+         case 4:
+                 selectedAspectRatio = ASPECT_RATIO_4;
+             break;
+         case 5:
+                 selectedAspectRatio = ASPECT_RATIO_5;
+             break;
+         case 6:
+                 selectedAspectRatio = ASPECT_RATIO_6;
+             break;
+         case 7:
+                 selectedAspectRatio = ASPECT_RATIO_7;
+             break;
+         default:
+                 selectedAspectRatio = ASPECT_RATIO_8;
+         }
+        bool qualityChanged               = TCUserDefaults::longForKey(QUALITY_EXPORT_KEY, QUALITY_EXPORT_DEFAULT)            != qualityCompare;
+        bool selectedAspectRatioChanged   = selectedAspectRatio                                                               != selectedAspectRatioCompare;
+        bool customAspectRatioChanged     = TCUserDefaults::floatForKey(CUSTOM_ASPECT_RATIO_KEY, CUSTOM_ASPECT_RATIO_DEFAULT) != customAspectRatioCompare;
+        bool edgeRadiusChanged            = TCUserDefaults::floatForKey(EDGE_RADIUS_KEY, EDGE_RADIUS_DEFAULT)                 != edgeRadiusCompare;
+        bool seamWidthChanged             = TCUserDefaults::floatForKey(SEAM_WIDTH_KEY, EDGE_RADIUS_DEFAULT)                  != seamWidthCompare;
+        bool ambientChanged               = TCUserDefaults::floatForKey(AMBIENT_KEY, AMBIENT_DEFAULT)                         != ambientCompare;
+        bool diffuseChanged               = TCUserDefaults::floatForKey(DIFFUSE_KEY, DIFFUSE_DEFAULT)                         != diffuseCompare;
+        bool reflChanged                  = TCUserDefaults::floatForKey(REFLECTION_KEY, REFLECTION_DEFAULT)                   != reflCompare;
+        bool phongChanged                 = TCUserDefaults::floatForKey(PHONG_KEY, PHONG_DEFAULT)                             != phongCompare;
+        bool phongSizeChanged             = TCUserDefaults::floatForKey(PHONG_SIZE_KEY, PHONG_SIZE_DEFAULT)                   != phongSizeCompare;
+        bool transReflChanged             = TCUserDefaults::floatForKey(TRANS_REFLECTION_KEY, TRANS_REFLECTION_DEFAULT)       != transReflCompare;
+        bool transFilterChanged           = TCUserDefaults::floatForKey(TRANS_FILTER_KEY, TRANS_FILTER_DEFAULT)               != transFilterCompare;
+        bool transIoRChanged              = TCUserDefaults::floatForKey(TRANS_IOR_KEY, TRANS_IOR_DEFAULT)                     != transIoRCompare;
+        bool rubberReflChanged            = TCUserDefaults::floatForKey(RUBBER_REFLECTION_KEY, RUBBER_REFLECTION_DEFAULT)     != rubberReflCompare;
+        bool rubberPhongChanged           = TCUserDefaults::floatForKey(RUBBER_PHONG_KEY, RUBBER_PHONG_DEFAULT)               != rubberPhongCompare;
+        bool rubberPhongSizeChanged       = TCUserDefaults::floatForKey(RUBBER_PHONG_SIZE_KEY, RUBBER_PHONG_SIZE_DEFAULT)     != rubberPhongSizeCompare;
+        bool chromeReflChanged            = TCUserDefaults::floatForKey(CHROME_REFLECTION_KEY, CHROME_REFLECTION_DEFAULT)     != chromeReflCompare;
+        bool chromeBrilChanged            = TCUserDefaults::floatForKey(CHROME_BRILLIANCE_KEY, CHROME_BRILLIANCE_DEFAULT)     != chromeBrilCompare;
+        bool chromeSpecularChanged        = TCUserDefaults::floatForKey(CHROME_SPECULAR_KEY, CHROME_SPECULAR_DEFAULT)         != chromeSpecularCompare;
+        bool chromeRoughnessChanged       = TCUserDefaults::floatForKey(CHROME_ROUGHNESS_KEY, CHROME_ROUGHNESS_DEFAULT)       != chromeRoughnessCompare;
+        bool fileVersionChanged           = TCUserDefaults::floatForKey(FILE_VERSION_KEY, FILE_VERSION_DEFAULT)               != fileVersionCompare;
+
+	bool seamsChanged                 = TCUserDefaults::boolForKey(SEAMS_KEY, true)                                       != seamsCompare;
+	bool reflectionsChanged           = TCUserDefaults::boolForKey(REFLECTIONS_KEY, true)                                 != reflectionsCompare;
+	bool shadowsChanged               = TCUserDefaults::boolForKey(SHADOWS_KEY, true)                                     != shadowsCompare;
+	bool xmlMapChanged                = TCUserDefaults::boolForKey(XML_MAP_KEY, true)                                     != xmlMapCompare;
+	bool inlinePovChanged             = TCUserDefaults::boolForKey(INLINE_POV_KEY, true)                                  != inlinePovCompare;
+	bool smoothCurvesChanged          = TCUserDefaults::boolForKey(SMOOTH_CURVES_KEY, true)                               != smoothCurvesCompare;
+	bool hideStudsChanged             = TCUserDefaults::boolForKey(HIDE_STUDS_KEY, false)                                 != hideStudsCompare;
+	bool unmirrorStudsChanged         = TCUserDefaults::boolForKey(UNMIRROR_STUDS_KEY, true)                              != unmirrorStudsCompare;
+	bool findReplacementsChanged      = TCUserDefaults::boolForKey(FIND_REPLACEMENTS_KEY, false)                          != findReplacementsCompare;
+	bool conditionalEdgeLinesChanged  = TCUserDefaults::boolForKey(CONDITIONAL_EDGE_LINES_KEY, false)                     != conditionalEdgeLinesCompare;
+	bool primitiveSubstitutionChanged = TCUserDefaults::boolForKey(PRIMITIVE_SUBSTITUTION_KEY, true)                      != primitiveSubstitutionCompare;
+	//                                  TCUserDefaults::boolForKey(DRAW_EDGES_KEY, false)
+
+	bool xmlMapPathChanged            = QString(TCUserDefaults::pathForKey(XML_MAP_PATH_KEY))                             != xmlMapPathCompare;
+	bool topIncludeChanged            = QString(TCUserDefaults::stringForKey(TOP_INCLUDE_KEY))                            != topIncludeCompare;
+	bool bottomIncludeChanged         = QString(TCUserDefaults::stringForKey(BOTTOM_INCLUDE_KEY))                         != bottomIncludeCompare;
+
+	bool lightsChanged                = QString(Preferences::ldvLights).toLower()                                               != lightsCompare.toLower();
+
+        bool nativePovRendererConfig       = Preferences::preferredRenderer == RENDERER_POVRAY && Preferences::povFileGenerator == RENDERER_NATIVE;
+
         if (enableFadeStepsChanged)
+        {
+            gApplication->mFadeParts = Preferences::enableFadeSteps;
             logInfo() << QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF");
+        }
 
         if (fadeStepsUseColourChanged && Preferences::enableFadeSteps)
             logInfo() << QString("Use Global Fade Colour is %1").arg(Preferences::fadeStepsUseColour ? "ON" : "OFF");
@@ -1589,7 +1736,7 @@ void Gui::preferences()
             Preferences::enableFadeSteps && !enableFadeStepsChanged) ||
            ((highlightStepColorChanged || highlightStepLineWidthChanged) &&
             Preferences::enableHighlightStep && !enableHighlightStepChanged))
-           clearCustomPartCache(true);    // true = clear and regenerate custom part files
+           clearCustomPartCache(true);    // true = silent
 
         if (rendererChanged) {
             logInfo() << QString("Renderer preference changed from %1 to %2")
@@ -1600,17 +1747,23 @@ void Gui::preferences()
                 partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
         }
 
+        if (povFileGeneratorChanged)
+            logInfo() << QString("POV file generation renderer changed from %1 to %2")
+                         .arg(povFileGeneratorCompare)
+                         .arg(Preferences::povFileGenerator);
+
         if (!getCurFile().isEmpty()) {
             if (enableFadeStepsChanged        ||
-                fadeStepsColourChanged          ||
-                fadeStepsUseColourChanged      ||
-                fadeStepsOpacityChanged        ||
+                fadeStepsColourChanged        ||
+                fadeStepsUseColourChanged     ||
+                fadeStepsOpacityChanged       ||
                 enableHighlightStepChanged    ||
                 highlightStepColorChanged     ||
                 highlightStepLineWidthChanged ||
                 rendererChanged               ||
                 useLDViewSCallChanged         ||
                 displayAttributesChanged      ||
+                povFileGeneratorChanged       ||
                 generateCoverPagesChanged){
                 clearAndRedrawPage();
             }
@@ -1636,10 +1789,9 @@ void Gui::preferences()
                 bool ok;
                 Level logLevel = logger.fromLevelString(Preferences::loggingLevel,&ok);
                 if (!ok)
-                  QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                        QMessageBox::tr("Failed to set log level %1.\n"
-                                                        "Logging is off - level set to OffLevel")
-                                        .arg(Preferences::loggingLevel));
+                  emit messageSig(LOG_ERROR,QMessageBox::tr("Failed to set log level %1.\n"
+                                                                 "Logging is off - level set to OffLevel")
+                                                                 .arg(Preferences::loggingLevel));
                 logger.setLoggingLevel(logLevel);
               }
 
@@ -1674,6 +1826,167 @@ void Gui::preferences()
           } else {
             logger.setLoggingLevel(OffLevel);
           }
+
+        // Native Pov file generation settings
+        if (qualityChanged && nativePovRendererConfig)
+                logInfo() << QString("Quality changed from %1 to %2.")
+                                     .arg(qualityCompare)
+                                     .arg(TCUserDefaults::longForKey(QUALITY_EXPORT_KEY, QUALITY_EXPORT_DEFAULT));
+
+        if (selectedAspectRatioChanged && nativePovRendererConfig)
+                logInfo() << QString("Selected aspect ratio changed from %1 to %2.")
+                                     .arg(selectedAspectRatioCompare)
+                                     .arg(selectedAspectRatio);
+
+        if (customAspectRatioChanged && nativePovRendererConfig)
+                logInfo() << QString("Custom aspect ratio changed from %1 to %2.")
+                                     .arg(customAspectRatioCompare)
+                                     .arg(TCUserDefaults::floatForKey(CUSTOM_ASPECT_RATIO_KEY, CUSTOM_ASPECT_RATIO_DEFAULT));
+
+	if (edgeRadiusChanged && nativePovRendererConfig)
+		logInfo() << QString("Edge radius changed from %1 to %2.")
+				     .arg(edgeRadiusCompare)
+				     .arg(TCUserDefaults::floatForKey(EDGE_RADIUS_KEY, EDGE_RADIUS_DEFAULT));
+
+        if (seamWidthChanged && nativePovRendererConfig)
+                logInfo() << QString("Seam width changed from %1 to %2.")
+                                     .arg(seamWidthCompare)
+                                     .arg(TCUserDefaults::floatForKey(SEAM_WIDTH_KEY, EDGE_RADIUS_DEFAULT));
+
+        if (ambientChanged && nativePovRendererConfig)
+                logInfo() << QString("Ambient changed from %1 to %2.")
+                                     .arg(ambientCompare)
+                                     .arg(TCUserDefaults::floatForKey(AMBIENT_KEY, AMBIENT_DEFAULT));
+
+        if (diffuseChanged && nativePovRendererConfig)
+                logInfo() << QString("Diffuse changed from %1 to %2.")
+                                     .arg(diffuseCompare)
+                                     .arg(TCUserDefaults::floatForKey(DIFFUSE_KEY, DIFFUSE_DEFAULT));
+
+        if (reflChanged && nativePovRendererConfig)
+                logInfo() << QString("Reflection changed from %1 to %2.")
+                                     .arg(reflCompare)
+                                     .arg(TCUserDefaults::floatForKey(REFLECTION_KEY, REFLECTION_DEFAULT) );
+
+        if (phongChanged && nativePovRendererConfig)
+                logInfo() << QString("Phong changed from %1 to %2.")
+                                     .arg(phongCompare)
+                                     .arg(TCUserDefaults::floatForKey(PHONG_KEY, PHONG_DEFAULT));
+
+        if (phongSizeChanged && nativePovRendererConfig)
+                logInfo() << QString("Phong size changed from %1 to %2.")
+                                     .arg(phongSizeCompare)
+                                     .arg(TCUserDefaults::floatForKey(PHONG_SIZE_KEY, PHONG_SIZE_DEFAULT));
+
+        if (transReflChanged && nativePovRendererConfig)
+                logInfo() << QString("Trans reflection changed from %1 to %2.")
+                                     .arg(transReflCompare)
+                                     .arg(TCUserDefaults::floatForKey(TRANS_REFLECTION_KEY, TRANS_REFLECTION_DEFAULT));
+
+        if (transFilterChanged && nativePovRendererConfig)
+                logInfo() << QString("Trans filter changed from %1 to %2.")
+                                     .arg(transFilterCompare)
+                                     .arg(TCUserDefaults::floatForKey(TRANS_FILTER_KEY, TRANS_FILTER_DEFAULT));
+
+        if (transIoRChanged && nativePovRendererConfig)
+                logInfo() << QString("Trans IoR changed from %1 to %2.")
+                                     .arg(transIoRCompare)
+                                     .arg(TCUserDefaults::floatForKey(TRANS_IOR_KEY, TRANS_IOR_DEFAULT));
+
+        if (rubberReflChanged && nativePovRendererConfig)
+                logInfo() << QString("Rubber reflection changed from %1 to %2.")
+                                     .arg(rubberReflCompare)
+                                     .arg(TCUserDefaults::floatForKey(RUBBER_REFLECTION_KEY, RUBBER_REFLECTION_DEFAULT));
+
+        if (rubberPhongChanged && nativePovRendererConfig)
+                logInfo() << QString("Rubber phong changed from %1 to %2.")
+                                     .arg(rubberPhongCompare)
+                                     .arg(TCUserDefaults::floatForKey(RUBBER_PHONG_KEY, RUBBER_PHONG_DEFAULT));
+
+        if (rubberPhongSizeChanged && nativePovRendererConfig)
+                logInfo() << QString("Rubber phong size changed from %1 to %2.")
+                                     .arg(rubberPhongSizeCompare)
+                                     .arg(TCUserDefaults::floatForKey(RUBBER_PHONG_SIZE_KEY, RUBBER_PHONG_SIZE_DEFAULT));
+
+        if (chromeReflChanged && nativePovRendererConfig)
+                logInfo() << QString("Chrome reflection changed from %1 to %2.")
+                                     .arg(chromeReflCompare)
+                                     .arg(TCUserDefaults::floatForKey(CHROME_REFLECTION_KEY, CHROME_REFLECTION_DEFAULT));
+
+        if (chromeBrilChanged && nativePovRendererConfig)
+                logInfo() << QString("Chrome brilliance changed from %1 to %2.")
+                                     .arg(chromeBrilCompare)
+                                     .arg(TCUserDefaults::floatForKey(CHROME_BRILLIANCE_KEY, CHROME_BRILLIANCE_DEFAULT));
+
+        if (chromeSpecularChanged && nativePovRendererConfig)
+                logInfo() << QString("Chrome specular changed from %1 to %2.")
+                                     .arg(chromeSpecularCompare)
+                                     .arg(TCUserDefaults::floatForKey(CHROME_SPECULAR_KEY, CHROME_SPECULAR_DEFAULT));
+
+        if (chromeRoughnessChanged && nativePovRendererConfig)
+                logInfo() << QString("Chrome roughness changed from %1 to %2.")
+                                     .arg(chromeRoughnessCompare)
+                                     .arg(TCUserDefaults::floatForKey(CHROME_ROUGHNESS_KEY, CHROME_ROUGHNESS_DEFAULT));
+
+        if (fileVersionChanged && nativePovRendererConfig)
+                logInfo() << QString("File version changed from %1 to %2.")
+                                     .arg(fileVersionCompare)
+                                     .arg(TCUserDefaults::floatForKey(FILE_VERSION_KEY, FILE_VERSION_DEFAULT));
+
+        if (seamsChanged && nativePovRendererConfig)
+                logInfo() << QString("Seams is %1.").arg(TCUserDefaults::boolForKey(SEAMS_KEY, true) ? "ON" : "OFF");
+
+        if (reflectionsChanged && nativePovRendererConfig)
+                logInfo() << QString("Reflections is %1.").arg(TCUserDefaults::boolForKey(REFLECTIONS_KEY, true) ? "ON" : "OFF");
+
+        if (shadowsChanged && nativePovRendererConfig)
+                logInfo() << QString("Shadows is %1.").arg(TCUserDefaults::boolForKey(SHADOWS_KEY, true) ? "ON" : "OFF");
+
+        if (xmlMapChanged && nativePovRendererConfig)
+                logInfo() << QString("Xml map is %1.").arg(TCUserDefaults::boolForKey(XML_MAP_KEY, true) ? "ON" : "OFF");
+
+        if (inlinePovChanged && nativePovRendererConfig)
+                logInfo() << QString("Inline Pov is %1.").arg(TCUserDefaults::boolForKey(INLINE_POV_KEY, true) ? "ON" : "OFF");
+
+        if (smoothCurvesChanged && nativePovRendererConfig)
+                logInfo() << QString("Smooth curves is %1.").arg(TCUserDefaults::boolForKey(SMOOTH_CURVES_KEY, true) ? "ON" : "OFF");
+
+        if (hideStudsChanged && nativePovRendererConfig)
+                logInfo() << QString("Hide studs is %1.").arg(TCUserDefaults::boolForKey(HIDE_STUDS_KEY, false) ? "ON" : "OFF");
+
+        if (unmirrorStudsChanged && nativePovRendererConfig)
+                logInfo() << QString("Unmirror Studs is %1.").arg(TCUserDefaults::boolForKey(UNMIRROR_STUDS_KEY, true) ? "ON" : "OFF");
+
+	if (findReplacementsChanged && nativePovRendererConfig)
+		logInfo() << QString("Find POV replacements is %1.").arg(TCUserDefaults::boolForKey(FIND_REPLACEMENTS_KEY, false) ? "ON" : "OFF");
+
+        if (conditionalEdgeLinesChanged && nativePovRendererConfig)
+                logInfo() << QString("Conditional edge lines is %1.").arg(TCUserDefaults::boolForKey(CONDITIONAL_EDGE_LINES_KEY, false) ? "ON" : "OFF");
+
+        if (primitiveSubstitutionChanged && nativePovRendererConfig)
+                logInfo() << QString("Primitive Substitution is %1.").arg(TCUserDefaults::boolForKey(PRIMITIVE_SUBSTITUTION_KEY, true) ? "ON" : "OFF");
+
+//                                   TCUserDefaults::boolForKey(DRAW_EDGES_KEY, false)
+
+        if (xmlMapPathChanged && nativePovRendererConfig)
+                logInfo() << QString("XmlMapPath changed from %1 to %2.")
+                                 .arg(xmlMapPathCompare)
+                                 .arg(TCUserDefaults::pathForKey(XML_MAP_PATH_KEY));
+
+	if (topIncludeChanged && nativePovRendererConfig)
+		logInfo() << QString("Top Include changed from %1 to %2.")
+				 .arg(topIncludeCompare)
+				 .arg(TCUserDefaults::stringForKey(TOP_INCLUDE_KEY));
+
+	if (bottomIncludeChanged && nativePovRendererConfig)
+		logInfo() << QString("Bottom Include changed from %1 to %2.")
+				 .arg(bottomIncludeCompare)
+				 .arg(TCUserDefaults::stringForKey(BOTTOM_INCLUDE_KEY));
+
+	if (lightsChanged && nativePovRendererConfig)
+		logInfo() << QString("Lights changed from %1 to %2.")
+							 .arg(lightsCompare)
+							 .arg(Preferences::ldvLights);
     }
 }
 
@@ -1687,10 +2000,11 @@ void Gui::preferences()
 
 Gui::Gui()
 {
-    emit Application::instance()->splashMsgSig(QString("35% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
+    emit Application::instance()->splashMsgSig(QString("25% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 
     Preferences::lgeoPreferences();
     Preferences::rendererPreferences(false);
+    Preferences::nativePovGenPreferences();
     Preferences::viewerPreferences();
     Preferences::publishingPreferences();
     Preferences::exportPreferences();
@@ -1706,6 +2020,11 @@ Gui::Gui()
     nextPageContinuousIsRunning     = false;
     previousPageContinuousIsRunning = false;
 
+    mStepRotation  = lcVector3(0.0f, 0.0f, 0.0f);
+    mRotStepAngleX = 0.0f;
+    mRotStepAngleY = 0.0f;
+    mRotStepAngleZ = 0.0f;
+
     editWindow    = new EditWindow(this);  // remove inheritance 'this' to independently manage window
     parmsWindow   = new ParmsWindow();
 
@@ -1714,8 +2033,8 @@ Gui::Gui()
     KpageView     = new LGraphicsView(KpageScene);
     KpageView->pageBackgroundItem = NULL;
     KpageView->setRenderHints(QPainter::Antialiasing | 
-                             QPainter::TextAntialiasing |
-                             QPainter::SmoothPixmapTransform);
+                              QPainter::TextAntialiasing |
+                              QPainter::SmoothPixmapTransform);
     setCentralWidget(KpageView);
 
     mpdCombo = new QComboBox(this);
@@ -1746,9 +2065,6 @@ Gui::Gui()
     progressBarPerm = new QProgressBar();
     progressBarPerm->setMaximumWidth(300);
 
-    mExistingRotStep = lcVector3(0.0f, 0.0f, 0.0f);
-    mModelStepRotation = lcVector3(0.0f, 0.0f, 0.0f);
-
     undoStack = new QUndoStack();
     macroNesting = 0;
 
@@ -1777,7 +2093,7 @@ Gui::Gui()
     connect(undoStack,      SIGNAL(cleanChanged(bool)),
             this,           SLOT(  cleanChanged(bool)));
 
-    connect(this, SIGNAL(messageSig(bool,QString)),           this, SLOT(statusMessage(bool,QString)));
+    connect(this,  SIGNAL(messageSig(LogType,QString)),        this, SLOT(statusMessage(LogType,QString)));
 
     connect(this, SIGNAL(progressBarInitSig()),               this, SLOT(progressBarInit()));
     connect(this, SIGNAL(progressMessageSig(QString)),        this, SLOT(progressBarSetText(QString)));
@@ -1817,6 +2133,12 @@ Gui::~Gui()
     delete KpageView;
     delete editWindow;
     delete parmsWindow;
+    delete progressBar;
+
+    delete m_progressDialog;
+    delete progressLabelPerm;
+    delete progressBarPerm;
+    delete undoStack;
 
 }
 
@@ -1848,14 +2170,21 @@ void Gui::initialize()
 
   emit Application::instance()->splashMsgSig(QString("85% - %1 initialization...").arg(VER_PRODUCTNAME_STR));
 
-  connect(this,       SIGNAL(loadFileSig(QString)),      this,        SLOT(loadFile(QString)));
-  connect(this,       SIGNAL(processCommandLineSig()),   this,        SLOT(processCommandLine()));
-  connect(this,       SIGNAL(setExportingSig(bool)),     this,        SLOT(deployExportBanner(bool)));
-  connect(this,       SIGNAL(setExportingSig(bool)),     gMainWindow, SLOT(Halt3DViewer(bool)));
-  connect(this,       SIGNAL(enable3DActionsSig()),      gMainWindow, SLOT(Enable3DActions()));
-  connect(this,       SIGNAL(disable3DActionsSig()),     gMainWindow, SLOT(Disable3DActions()));
-  connect(this,       SIGNAL(updateAllViewsSig()),       gMainWindow, SLOT(UpdateAllViews()));
-  connect(this,       SIGNAL(clearViewerWindowSig()),    gMainWindow, SLOT(NewProject()));
+  connect(this,        SIGNAL(loadFileSig(QString)),           this,        SLOT(loadFile(QString)));
+  connect(this,        SIGNAL(processCommandLineSig()),        this,        SLOT(processCommandLine()));
+  connect(this,        SIGNAL(setExportingSig(bool)),          this,        SLOT(deployExportBanner(bool)));
+
+  connect(this,        SIGNAL(setExportingSig(bool)),          gMainWindow, SLOT(Halt3DViewer(bool)));
+  connect(this,        SIGNAL(enable3DActionsSig()),           gMainWindow, SLOT(Enable3DActions()));
+  connect(this,        SIGNAL(disable3DActionsSig()),          gMainWindow, SLOT(Disable3DActions()));
+  connect(this,        SIGNAL(updateAllViewsSig()),            gMainWindow, SLOT(UpdateAllViews()));
+  connect(this,        SIGNAL(clearViewerWindowSig()),         gMainWindow, SLOT(NewProject()));
+
+  connect(gMainWindow, SIGNAL(SetRotStepMeta(QString&,bool)),  this,        SLOT(SetRotStepMeta(QString&,bool)));
+  connect(gMainWindow, SIGNAL(SetRotStepAngleX(float)),        this,        SLOT(SetRotStepAngleX(float)));
+  connect(gMainWindow, SIGNAL(SetRotStepAngleY(float)),        this,        SLOT(SetRotStepAngleY(float)));
+  connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float)),        this,        SLOT(SetRotStepAngleZ(float)));
+  connect(gMainWindow, SIGNAL(GetRotStepMeta()),               this,        SLOT(GetRotStepMeta()));
 
   if (Preferences::preferredRenderer == RENDERER_LDGLITE)
       partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
@@ -1895,7 +2224,7 @@ void Gui::generateCustomColourPartsList()
         connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),   colourPartListWorker, SLOT(deleteLater()));
         connect(this,                 SIGNAL(requestEndThreadNowSig()),      colourPartListWorker, SLOT(requestEndThreadNow()));
 
-        connect(colourPartListWorker, SIGNAL(messageSig(bool,QString)),                      this, SLOT(statusMessage(bool,QString)));
+        connect(colourPartListWorker, SIGNAL(messageSig(LogType,QString)),                   this, SLOT(statusMessage(LogType,QString)));
 
         connect(colourPartListWorker, SIGNAL(progressBarInitSig()),                          this, SLOT(progressBarInit()));
         connect(colourPartListWorker, SIGNAL(progressMessageSig(QString)),                   this, SLOT(progressBarSetText(QString)));
@@ -1927,7 +2256,7 @@ void Gui::processFadeColourParts(bool overwriteCustomParts)
       connect(partWorkerCustomColour, SIGNAL(requestFinishSig()),        partWorkerCustomColour, SLOT(deleteLater()));
       connect(this,                   SIGNAL(requestEndThreadNowSig()),  partWorkerCustomColour, SLOT(requestEndThreadNow()));
 
-      connect(partWorkerCustomColour, SIGNAL(messageSig(bool,QString)),                   this, SLOT(statusMessage(bool,QString)));
+      connect(partWorkerCustomColour, SIGNAL(messageSig(LogType,QString)),                 this, SLOT(statusMessage(LogType,QString)));
 
       connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),                       this, SLOT(progressBarInit()));
       connect(partWorkerCustomColour, SIGNAL(progressMessageSig(QString)),                this, SLOT(progressBarSetText(QString)));
@@ -1959,7 +2288,7 @@ void Gui::processHighlightColourParts(bool overwriteCustomParts)
       connect(partWorkerCustomColour, SIGNAL(requestFinishSig()),          partWorkerCustomColour, SLOT(deleteLater()));
       connect(this,                   SIGNAL(requestEndThreadNowSig()),    partWorkerCustomColour, SLOT(requestEndThreadNow()));
 
-      connect(partWorkerCustomColour, SIGNAL(messageSig(bool,QString)),                   this, SLOT(statusMessage(bool,QString)));
+      connect(partWorkerCustomColour, SIGNAL(messageSig(LogType,QString)),                   this, SLOT(statusMessage(LogType,QString)));
 
       connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),                       this, SLOT(progressBarInit()));
       connect(partWorkerCustomColour, SIGNAL(progressMessageSig(QString)),                this, SLOT(progressBarSetText(QString)));
@@ -2045,7 +2374,7 @@ bool Gui::aboutDialog()
 void Gui::refreshLDrawUnoffParts(){
 
     // Download unofficial archive
-    emit messageSig(true,"Refresh LDraw Unofficial Library archive...");
+    emit messageSig(LOG_STATUS,"Refresh LDraw Unofficial Library archive...");
     UpdateCheck *libraryDownload;
     QEventLoop *wait = new QEventLoop();
     QString archivePath = tr("%1/%2").arg(Preferences::lpubDataPath, "libraries");
@@ -2054,29 +2383,22 @@ void Gui::refreshLDrawUnoffParts(){
     libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), archivePath);
     wait->exec();
 
-    // Extract archive
+    // Automatically extract unofficial archive
     QString archive = tr("%1/%2").arg(archivePath).arg(FILE_LPUB3D_UNOFFICIAL_ARCHIVE);
     QString destination = tr("%1/unofficial").arg(Preferences::ldrawPath);
-#ifdef Q_OS_WIN
     QStringList result = JlCompress::extractDir(archive,destination);
     if (result.isEmpty()){
-        emit messageSig(false,tr("Failed to extract %1 to %2").arg(archive).arg(destination));
+        emit messageSig(LOG_ERROR,tr("Failed to extract %1 to %2").arg(archive).arg(destination));
     } else {
         QString message = tr("%1 Unofficial Library files extracted to %2").arg(result.size()).arg(destination);
-        emit messageSig(true,message);
+        emit messageSig(LOG_STATUS,message);
     }
-#else
-    QMessageBox::information(NULL,
-    QMessageBox::tr(VER_PRODUCTNAME_STR),
-    QMessageBox::tr("It is recommended to extract the updated unofficial archive library "
-                    "%1 to your LDraw library %2").arg(archive).arg(destination));
-#endif
 }
 
 void Gui::refreshLDrawOfficialParts(){
 
     // Download official archive
-    emit messageSig(true,"Refresh LDraw Official Library archive...");
+    emit messageSig(LOG_STATUS,"Refresh LDraw Official Library archive...");
     UpdateCheck *libraryDownload;
     QEventLoop *wait = new QEventLoop();
     QString archivePath = tr("%1/%2").arg(Preferences::lpubDataPath, "libraries");
@@ -2085,26 +2407,18 @@ void Gui::refreshLDrawOfficialParts(){
     libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), archivePath);
     wait->exec();
 
-    // Extract archive
+    // Automatically extract official archive
     QString archive = tr("%1/%2").arg(archivePath).arg(VER_LDRAW_OFFICIAL_ARCHIVE);
     QString destination = Preferences::ldrawPath;
     destination = destination.remove(destination.size() - 6,6);
-#ifdef Q_OS_WIN
     QStringList result = JlCompress::extractDir(archive,destination);
     if (result.isEmpty()){
-        emit messageSig(false,tr("Failed to extract %1 to %2/ldraw").arg(archive).arg(destination));
+        emit messageSig(LOG_ERROR,tr("Failed to extract %1 to %2/ldraw").arg(archive).arg(destination));
     } else {
         QString message = tr("%1 Official Library files extracted to %2/ldraw").arg(result.size()).arg(destination);
-        emit messageSig(true,message);
+        emit messageSig(LOG_STATUS,message);
     }
-#else
-    QMessageBox::information(NULL,
-    QMessageBox::tr(VER_PRODUCTNAME_STR),
-    QMessageBox::tr("It is recommended to extract the updated Official archive library "
-                    "%1 to your LDraw library %2/ldraw").arg(archive).arg(destination));
-#endif
 }
-
 
 void Gui::updateCheck()
 {
@@ -2145,11 +2459,9 @@ void Gui::meta()
 
   QFile file(fileName);
   if (!file.open(QFile::WriteOnly | QFile::Text)) {
-    QMessageBox::warning(NULL,
-    QMessageBox::tr(VER_PRODUCTNAME_STR),
-    QMessageBox::tr("Cannot write file %1:\n%2.")
-    .arg(fileName)
-    .arg(file.errorString()));
+    emit messageSig(LOG_ERROR, QMessageBox::tr("Cannot write file %1:\n%2.")
+                    .arg(fileName)
+                    .arg(file.errorString()));
     return;
   }
 
@@ -2516,12 +2828,16 @@ void Gui::createActions()
     editLdgliteIniAct->setStatusTip(tr("Edit LDGLite ini configuration file"));
     connect(editLdgliteIniAct, SIGNAL(triggered()), this, SLOT(editLdgliteIni()));
 
+    editNativePOVIniAct = new QAction(QIcon(":/resources/LPub32.png"),tr("Edit Native POV file generation configuration file"), this);
+    editNativePOVIniAct->setStatusTip(tr("Edit Native POV file generation configuration file"));
+    connect(editNativePOVIniAct, SIGNAL(triggered()), this, SLOT(editNativePovIni()));
+
     editLdviewIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView ini configuration file"), this);
     editLdviewIniAct->setStatusTip(tr("Edit LDView ini configuration file"));
     connect(editLdviewIniAct, SIGNAL(triggered()), this, SLOT(editLdviewIni()));
 
-    editLdviewPovIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView POV generation configuration file"), this);
-    editLdviewPovIniAct->setStatusTip(tr("Edit LDView POV generation configuration file"));
+    editLdviewPovIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView POV file generation configuration file"), this);
+    editLdviewPovIniAct->setStatusTip(tr("Edit LDView POV file generation configuration file"));
     connect(editLdviewPovIniAct, SIGNAL(triggered()), this, SLOT(editLdviewPovIni()));
 
     editPovrayIniAct = new QAction(QIcon(":/resources/editpovrayconf.png"),tr("Edit Raytracer (POV-Ray) ini configuration file"), this);
@@ -2539,7 +2855,7 @@ void Gui::createActions()
     // Help
 
     aboutAct = new QAction(QIcon(":/resources/LPub32.png"),tr("&About %1...").arg(VER_PRODUCTNAME_STR), this);
-    aboutAct->setStatusTip(tr("Show the application's About box"));
+    aboutAct->setStatusTip(tr("Display version, system and build information"));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(aboutDialog()));
 
     // Begin Jaco's code
@@ -2620,6 +2936,7 @@ void Gui::enableActions()
   editPliBomSubstitutePartsAct->setEnabled(true);
   editExcludedPartsAct->setEnabled(true);
   editLdgliteIniAct->setEnabled(true);
+  editNativePOVIniAct->setEnabled(true);
   editLdviewIniAct->setEnabled(true);
   editLdviewPovIniAct->setEnabled(true);
   editPovrayIniAct->setEnabled(true);
@@ -2642,8 +2959,10 @@ void Gui::enableActions()
   zoomInAct->setEnabled(true);
   zoomOutAct->setEnabled(true);
 
+  setupMenu->setEnabled(true);
   cacheMenu->setEnabled(true);
   exportMenu->setEnabled(true);
+
   ExportMenuViewer->setEnabled(true);
 
 }
@@ -2680,6 +2999,7 @@ void Gui::disableActions()
   editPliBomSubstitutePartsAct->setEnabled(false);
   editExcludedPartsAct->setEnabled(false);
   editLdgliteIniAct->setEnabled(false);
+  editNativePOVIniAct->setEnabled(false);
   editLdviewIniAct->setEnabled(false);
   editLdviewPovIniAct->setEnabled(false);
   editPovrayIniAct->setEnabled(false);
@@ -2702,6 +3022,7 @@ void Gui::disableActions()
   zoomInAct->setEnabled(false);
   zoomOutAct->setEnabled(false);
 
+  setupMenu->setEnabled(false);
   cacheMenu->setEnabled(false);
   exportMenu->setEnabled(false);
 
@@ -2831,15 +3152,21 @@ void Gui::createMenus()
     cacheMenu->setDisabled(true);
 
     configMenu = menuBar()->addMenu(tr("&Configuration"));
-    configMenu->addAction(pageSetupAct);
-    configMenu->addAction(assemSetupAct);
-    configMenu->addAction(pliSetupAct);
-    configMenu->addAction(bomSetupAct);
-    configMenu->addAction(calloutSetupAct);
-    configMenu->addAction(multiStepSetupAct);
-    configMenu->addAction(projectSetupAct);
-    configMenu->addAction(fadeStepSetupAct);
-    configMenu->addAction(highlightStepSetupAct);
+    // TODO - insert Render Preferences Action Here...
+
+    setupMenu = configMenu->addMenu("Build &Instructions Setup...");
+    setupMenu->setIcon(QIcon(":/resources/instructionsetup.png"));
+    setupMenu->addAction(pageSetupAct);
+    setupMenu->addAction(assemSetupAct);
+    setupMenu->addAction(pliSetupAct);
+    setupMenu->addAction(bomSetupAct);
+    setupMenu->addAction(calloutSetupAct);
+    setupMenu->addAction(multiStepSetupAct);
+    setupMenu->addAction(projectSetupAct);
+    setupMenu->addAction(fadeStepSetupAct);
+    setupMenu->addAction(highlightStepSetupAct);
+    setupMenu->setDisabled(true);
+
     configMenu->addSeparator();
     editorMenu = configMenu->addMenu("Edit Parameter Files");
     editorMenu->setIcon(QIcon(":/resources/editparameterfiles.png"));
@@ -2852,6 +3179,7 @@ void Gui::createMenus()
       editorMenu->addAction(editLdrawIniFileAct);
     }
     editorMenu->addSeparator();
+    editorMenu->addAction(editNativePOVIniAct);
     editorMenu->addAction(editLdgliteIniAct);
     editorMenu->addAction(editLdviewIniAct);
     editorMenu->addAction(editLdviewPovIniAct);
@@ -2976,14 +3304,13 @@ void Gui::createStatusBar()
 
 void Gui::showLCStatusMessage(){
 
-    if(!modelDockWindow->isFloating())
+    if(!viewerDockWindow->isFloating())
     statusBarMsg(gMainWindow->mLCStatusBar->currentMessage());
 }
 
 void Gui::createDockWindows()
 {
     fileEditDockWindow = new QDockWidget(trUtf8(wCharToUtf8("LDraw\u2122 File Editor")), this);
-    modelDockWindow = new QDockWidget(trUtf8(wCharToUtf8("3DViewer - by LeoCAD\u00A9")), this);
     fileEditDockWindow->setObjectName("LDrawFileDockWindow");
     fileEditDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
@@ -2991,29 +3318,54 @@ void Gui::createDockWindows()
     fileEditDockWindow->setWidget(editWindow);
     addDockWidget(Qt::RightDockWidgetArea, fileEditDockWindow);
     viewMenu->addAction(fileEditDockWindow->toggleViewAction());
-//** 3DViewer Window
-    modelDockWindow->setObjectName("ModelDockWindow");
-    modelDockWindow->setAllowedAreas(
+
+    //3D Viewer
+
+    viewerDockWindow = new QDockWidget(trUtf8(wCharToUtf8("3DViewer - by LeoCAD\u00A9")), this);
+    viewerDockWindow->setObjectName("ModelDockWindow");
+    viewerDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
                 Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    modelDockWindow->setWidget(gMainWindow);
-    addDockWidget(Qt::RightDockWidgetArea, modelDockWindow);
-    viewMenu->addAction(modelDockWindow->toggleViewAction());
-//**
-    tabifyDockWidget(modelDockWindow, fileEditDockWindow);
+    viewerDockWindow->setWidget(gMainWindow);
+    addDockWidget(Qt::RightDockWidgetArea, viewerDockWindow);
+    viewMenu->addAction(viewerDockWindow->toggleViewAction());
+
+    tabifyDockWidget(viewerDockWindow, fileEditDockWindow);
+
+    //timeline
+    gMainWindow->mTimelineToolBar->setWindowTitle(trUtf8(wCharToUtf8("Timeline - by LeoCAD\u00A9")));
+    gMainWindow->mTimelineToolBar->setObjectName("TimelineToolbar");
+    gMainWindow->mTimelineToolBar->setAllowedAreas(
+         Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    gMainWindow->mTimelineToolBar->setAcceptDrops(true);
+    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mTimelineToolBar);
+    viewMenu->addAction(gMainWindow->mTimelineToolBar->toggleViewAction());
+
+    tabifyDockWidget(viewerDockWindow, gMainWindow->mTimelineToolBar);
+
+    //Properties
+    gMainWindow->mPropertiesToolBar->setWindowTitle(trUtf8(wCharToUtf8("Properties - by LeoCAD\u00A9")));
+    gMainWindow->mPropertiesToolBar->setObjectName("PropertiesToolbar");
+    gMainWindow->mPropertiesToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mPropertiesToolBar);
+    viewMenu->addAction(gMainWindow->mPropertiesToolBar->toggleViewAction());
+
+    tabifyDockWidget(gMainWindow->mTimelineToolBar, gMainWindow->mPropertiesToolBar);
+
 #ifdef Q_OS_MAC
     // modelDock window Hack is not stable on macOS so start with fileEdit Window until I figure out what's wrong.
     fileEditDockWindow->raise();
 #else
-    modelDockWindow->raise();
+    viewerDockWindow->raise();
 #endif
 
-    connect(modelDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar()));
+    connect(viewerDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar()));
+    //**
 }
 
 void Gui::toggleLCStatusBar(){
 
-    if(modelDockWindow->isFloating())
+    if(viewerDockWindow->isFloating())
         gMainWindow->statusBar()->show();
     else
         gMainWindow->statusBar()->hide();

@@ -1,0 +1,45 @@
+<RCC>
+  <qresource prefix="/">
+    <file>resources/LPub32.png</file>
+    <file>resources/StudLogo.png</file>
+    <file>resources/SansSerif.fnt</file>
+    <file>resources/LightAngleLL.png</file>
+	<file>resources/LightAngleLLOff.png</file>
+    <file>resources/LightAngleLL@2x.png</file>
+    <file>resources/LightAngleLLOff@2x.png</file>
+    <file>resources/LightAngleLM.png</file>
+    <file>resources/LightAngleLM@2x.png</file>
+    <file>resources/LightAngleLMOff.png</file>
+    <file>resources/LightAngleLMOff@2x.png</file>
+    <file>resources/LightAngleLR.png</file>
+    <file>resources/LightAngleLR@2x.png</file>
+    <file>resources/LightAngleLROff.png</file>
+    <file>resources/LightAngleLROff@2x.png</file>
+    <file>resources/LightAngleML.png</file>
+    <file>resources/LightAngleML@2x.png</file>
+    <file>resources/LightAngleMLOff.png</file>
+    <file>resources/LightAngleMLOff@2x.png</file>
+    <file>resources/LightAngleMM.png</file>
+    <file>resources/LightAngleMM@2x.png</file>
+    <file>resources/LightAngleMMOff.png</file>
+    <file>resources/LightAngleMMOff@2x.png</file>
+    <file>resources/LightAngleMR.png</file>
+    <file>resources/LightAngleMR@2x.png</file>
+    <file>resources/LightAngleMROff.png</file>
+    <file>resources/LightAngleMROff@2x.png</file>
+    <file>resources/LightAngleUL.png</file>
+    <file>resources/LightAngleUL@2x.png</file>
+    <file>resources/LightAngleULOff.png</file>
+    <file>resources/LightAngleULOff@2x.png</file>
+    <file>resources/LightAngleUM.png</file>
+    <file>resources/LightAngleUM@2x.png</file>
+    <file>resources/LightAngleUMOff.png</file>
+    <file>resources/LightAngleUMOff@2x.png</file>
+    <file>resources/LightAngleUR.png</file>
+    <file>resources/LightAngleUR@2x.png</file>
+    <file>resources/LightAngleUROff.png</file>
+    <file>resources/LightAngleUROff@2x.png</file>
+  </qresource>
+</RCC>
+
+

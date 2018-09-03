@@ -24,6 +24,7 @@ Describe your issue here.
   - AppImage (Linux): `~/.config/LPub3D Software/<AppImage File Name>.conf`
 * Renderer configuration files
   - `[Application data path]/3rdParty\ldglite-1.3\config\ldglite.ini`
+  - `[Application data path]/3rdParty\ldglite-1.3\config\nativePOV.ini`
   - `[Application data path]/3rdParty\ldview-4.3\config\ldview.ini`
   - `[Application data path]/3rdParty\ldview-4.3\config\ldviewPOV.ini`
   - `[Application data path]/3rdParty\lpub3d_trace_cui-3.8\config\povray.conf`

@@ -45,6 +45,7 @@ class Preferences
     static bool getPreferences();
     static void setLPub3DLoaded();
     static void setLDGLiteIniParams();
+    static void updateNativePOVIniFile(bool);
     static void updateLDViewIniFile(bool);
     static void updateLDViewPOVIniFile(bool);
     static void updatePOVRayConfFile(bool);
@@ -54,6 +55,8 @@ class Preferences
     static bool copyRecursively(const QString &,const QString &);
 
     static void setOverwriteCustomParts(bool);
+
+   static void nativePovGenPreferences();
 
     static QString lpub3dAppName;
     static QString ldrawPath;
@@ -101,10 +104,12 @@ class Preferences
     static QString ldgliteIni;
     static QString ldviewIni;
     static QString ldviewPOVIni;
+    static QString nativePOVIni;
     static QString povrayIniPath;
     static QString povrayIncPath;
     static QString povrayScenePath;
     static QString dataLocation;
+    static QString povFileGenerator;
     static bool    ldrawiniFound;
     static bool    enableDocumentLogo;
     static bool    enableLDViewSingleCall;
@@ -158,6 +163,10 @@ class Preferences
     static bool    povrayDisplay;
     static bool    isAppImagePayload;
     static bool    modeGUI;
+
+    static QString ldvLights;
+    static QString xmlMapPath;
+
 #ifdef Q_OS_MAC
     static bool    ldviewMissingLibs;
     static bool    povrayMissingLibs;

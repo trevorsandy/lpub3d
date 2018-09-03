@@ -33,6 +33,11 @@
 
 #include <QMainWindow>
 #include <QTextCursor>
+#include <QTextEdit>
+#include <QLineEdit>
+#include <QGridLayout>
+#include <QPushButton>
+#include <QLabel>
 
 class QTextEdit;
 class LDrawFile;

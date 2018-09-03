@@ -38,13 +38,12 @@
 #include <QRect>
 #include <QPen>
 #include <QBrush>
+#include <QsLog.h>
 
 #include "placement.h"
 #include "metatypes.h"
 #include "resolution.h"
 #include "meta.h"
-
-#include "QsLog.h"
 
 class Grabber;
 class QGraphicsItem;

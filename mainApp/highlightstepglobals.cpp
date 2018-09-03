@@ -16,11 +16,7 @@
 ****************************************************************************/
 
 #include "globals.h"
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-#include <QtWidgets/QWidget>
-#else
 #include <QWidget>
-#endif
 #include <QString>
 #include <QVBoxLayout>
 #include <QGroupBox>
@@ -124,7 +120,7 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
   boxGrid->addWidget(label,1,1);
 
   label = new QLabel();
-  label->setText("[For future use]");
+  label->setText("Set from Preferences dialog");
   label->setDisabled(true);
   boxGrid->addWidget(label,1,2);
 

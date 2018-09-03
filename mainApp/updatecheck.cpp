@@ -14,6 +14,7 @@
 
 #include <QSettings>
 #include <QApplication>
+#include <QDateTime>
 #include "updatecheck.h"
 #include "lpub_preferences.h"
 #include "version.h"
@@ -147,9 +148,8 @@ void DoInitialUpdateCheck()
     new UpdateCheck(NULL, (void*)SoftwareUpdate);
 }
 
-void GetAvailableVersions(){
-  new AvailableVersions(NULL);
-}
+
+AvailableVersions* availableVersions;
 
 AvailableVersions::AvailableVersions(QObject *parent) : QObject(parent)
 {
@@ -164,6 +164,8 @@ AvailableVersions::AvailableVersions(QObject *parent) : QObject(parent)
            this,      SLOT (setAvailableVersions (QString)));
 
   m_updater->retrieveAvailableVersions(DEFS_URL);
+
+  availableVersions = this;
 }
 
 void AvailableVersions::setAvailableVersions(const QString &url){
@@ -179,4 +181,6 @@ void AvailableVersions::setAvailableVersions(const QString &url){
 AvailableVersions::~AvailableVersions(){
     if(m_updater)
         m_updater->deleteLater();
+
+    availableVersions = nullptr;
 }

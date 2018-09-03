@@ -43,7 +43,6 @@ QString Paths::lpubDir   = "LPub3D";
 QString Paths::tmpDir    = "LPub3D/tmp";
 QString Paths::assemDir  = "LPub3D/assem";
 QString Paths::partsDir  = "LPub3D/parts";
-QString Paths::viewerDir = "LPub3D/viewer";
 
 QString Paths::customDir       = "custom";
 QString Paths::customPartDir   = "custom/parts";
@@ -62,7 +61,6 @@ void Paths::mkDirs(){
     dir.mkdir(tmpDir);
     dir.mkdir(assemDir);
     dir.mkdir(partsDir);
-    dir.mkdir(viewerDir);
 
 }
 

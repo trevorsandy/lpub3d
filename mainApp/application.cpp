@@ -11,11 +11,13 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "application.h"
 
 #include <QDir>
 #include <iostream>
 #include <QMessageBox>
+#include <TCFoundation/TCUserDefaults.h>
 
 #include "lpub_preferences.h"
 #include "lpub.h"
@@ -106,12 +108,13 @@ Application* Application::m_instance = nullptr;
 Application::Application(int &argc, char **argv)
   : m_application(argc, argv)
 {
-#ifdef Q_OS_WIN
-    RedirectIOToConsole();
-#endif
   m_instance = this;
   m_console_mode = false;
   m_print_output = false;
+  m_redirect_io_to_console = true;
+#ifdef Q_OS_WIN
+  m_allocated_console = false;
+#endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
   m_application.setAttribute(Qt::AA_UseDesktopOpenGL);
@@ -150,6 +153,9 @@ void Application::initialize()
 
   // process arguments
   bool headerPrinted = false;
+#ifdef Q_OS_WIN
+  bool consoleRedirectTreated = false;
+#endif
   QStringList ListArgs, Arguments = arguments();
   const int NumArguments = Arguments.size();
   for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
@@ -157,11 +163,29 @@ void Application::initialize()
   for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
   {
     const QString& Param = Arguments[ArgIdx];
-    if (Param[0] != '-') {
-      if (!m_console_mode && QFileInfo(Param).exists())
-        m_commandline_file = Param;
+    if (Param == QLatin1String("-icr") || Param == QLatin1String("--ignore-console-redirect"))
+    {
+#ifdef Q_OS_WIN
+        consoleRedirectTreated = true;
+        continue;
     }
-    else if (! headerPrinted)
+    else
+    if (!consoleRedirectTreated)
+    {
+        RedirectIOToConsole();
+        consoleRedirectTreated = true;
+#else
+         continue;
+#endif
+    }
+
+    if (Param[0] != '-') {
+      if (m_commandline_file.isEmpty() && QFileInfo(Param).exists() && !m_console_mode)
+        m_commandline_file = Param;
+      continue;
+    }
+    else
+    if (! headerPrinted)
     {
       m_console_mode = true;
       fprintf(stdout, "\n%s for %s\n",VER_PRODUCTNAME_STR,VER_COMPILED_FOR);
@@ -170,6 +194,7 @@ void Application::initialize()
       fflush(stdout);
       headerPrinted = true;
     }
+
     if (Param == QLatin1String("-v") || Param == QLatin1String("--version"))
     {
       m_console_mode = true;
@@ -178,7 +203,8 @@ void Application::initialize()
       fprintf(stdout, "Compiled on " __DATE__ "\n");
       return;
     }
-    else if (Param == QLatin1String("-vv") || Param == QLatin1String("--viewer-version"))
+    else
+    if (Param == QLatin1String("-vv") || Param == QLatin1String("--viewer-version"))
     {
       m_console_mode = true;
       m_print_output = true;
@@ -186,7 +212,8 @@ void Application::initialize()
       fprintf(stdout, "Compiled " __DATE__ "\n");
       return;
     }
-    else if (Param == QLatin1String("-?") || Param == QLatin1String("--help"))
+    else
+    if (Param == QLatin1String("-?") || Param == QLatin1String("--help"))
     {
       m_console_mode = true;
       m_print_output = true;
@@ -201,30 +228,30 @@ void Application::initialize()
       fprintf(stdout, "  -fo, --fade-step-opacity <percent>: Set the fade steps opacity percent. Overrides fade colour - if opacity not 100 percent. Default is %s percent\n",QString(FADE_OPACITY_DEFAULT).toLatin1().constData());
       fprintf(stdout, "  -hs, --highlight-step <Hex colour code>: Turn on highlight current step. Default is off.\n");
       fprintf(stdout, "  -hc, --highlight-step-colour <Hex colour code>: Set the step highlight colour. Colour code optional. Format is #RRGGBB. Default is %s.\n",HIGHLIGHT_COLOUR_DEFAULT);
+      fprintf(stdout, "  -of, --pdf-output-file <path>: Designate the pdf document save file using absolute path.\n");
       fprintf(stdout, "  -x, --clear-cache: Turn off reset the LDraw file and image caches. Used with export-option change. Default is off.\n");
       fprintf(stdout, "  -r, --range <page range>: Set page range - e.g. 1,2,9,10-42. Default is all pages.\n");
       fprintf(stdout, "  -o, --export-option <option>: Set output format pdf, png, jpeg or bmp. Used with process-export. Default is pdf.\n");
-      fprintf(stdout, "  -f, --pdf-output-file <path>: Designate the pdf document save file using absolute path.\n");
       fprintf(stdout, "  -d, --image-output-directory <directory>: Designate the png, jpg or bmp save folder using absolute path.\n");
-      fprintf(stdout, "  -p, --preferred-renderer <renderer>: Set renderer ldglite, ldview, ldview-sc or povray. Default is ldview.\n ");
+      fprintf(stdout, "  -p, --preferred-renderer <renderer>: Set renderer native, ldglite, ldview, ldview-sc or povray. Default is native.\n ");
 //      fprintf(stdout, "  -l, --libpath <path>: Set the Parts Library location to path.\n");
-//      fprintf(stdout, "  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n");
-//      fprintf(stdout, "  -w, --width <width>: Set the picture width.\n");
-//      fprintf(stdout, "  -h, --height <height>: Set the picture height.\n");
-//      fprintf(stdout, "  -f, --from <time>: Set the first step to save pictures.\n");
-//      fprintf(stdout, "  -t, --to <time>: Set the last step to save pictures.\n");
-//      fprintf(stdout, "  -s, --submodel <submodel>: Set the active submodel.\n");
-//      fprintf(stdout, "  -c, --camera <camera>: Set the active camera.\n");
-//      fprintf(stdout, "  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
-//      fprintf(stdout, "  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
-//      fprintf(stdout, "  --orthographic: Make the view orthographic.\n");
-//      fprintf(stdout, "  --highlight: Highlight pieces in the steps they appear.\n");
-//      fprintf(stdout, "  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
-//      fprintf(stdout, "  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
-//      fprintf(stdout, "  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
-//      fprintf(stdout, "  -html, --export-html <folder>: Create an HTML page for the model.\n");
-//      fprintf(stdout, "  --html-parts-width <width>: Set the HTML part pictures width.\n");
-//      fprintf(stdout, "  --html-parts-height <height>: Set the HTML part pictures height.\n");
+      fprintf(stdout, "  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n");
+      fprintf(stdout, "  -w, --width <width>: Set the picture width.\n");
+      fprintf(stdout, "  -h, --height <height>: Set the picture height.\n");
+      fprintf(stdout, "  -f, --from <time>: Set the first step to save pictures.\n");
+      fprintf(stdout, "  -t, --to <time>: Set the last step to save pictures.\n");
+      fprintf(stdout, "  -s, --submodel <submodel>: Set the active submodel.\n");
+      fprintf(stdout, "  -c, --camera <camera>: Set the active camera.\n");
+      fprintf(stdout, "  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
+      fprintf(stdout, "  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
+      fprintf(stdout, "  --orthographic: Make the view orthographic.\n");
+      fprintf(stdout, "  --highlight: Highlight pieces in the steps they appear.\n");
+      fprintf(stdout, "  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
+      fprintf(stdout, "  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
+      fprintf(stdout, "  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
+      fprintf(stdout, "  -html, --export-html <folder>: Create an HTML page for the model.\n");
+      fprintf(stdout, "  --html-parts-width <width>: Set the HTML part pictures width.\n");
+      fprintf(stdout, "  --html-parts-height <height>: Set the HTML part pictures height.\n");
       fprintf(stdout, "  -v, --version: Output LPub3D version information and exit.\n");
       fprintf(stdout, "  -vv, --viewer-version: Output 3DViewer - by LeoCAD version information and exit.\n");
       fprintf(stdout, "  -?, --help: Display this help message and exit.\n");
@@ -324,6 +351,8 @@ void Application::initialize()
     logger.setLoggingLevel(OffLevel);
   }
 
+  qRegisterMetaType<LogType>("LogType");
+
   logInfo() << QString("Initializing application...");
 
   // splash
@@ -351,12 +380,10 @@ void Application::initialize()
   emit splashMsgSig("15% - Preferences loading...");
 
   Preferences::lpub3dUpdatePreferences();
-
-  Preferences::unitsPreferences();
-  Preferences::annotationPreferences();
-
   Preferences::fadestepPreferences();
   Preferences::highlightstepPreferences();
+  Preferences::unitsPreferences();
+  Preferences::annotationPreferences();
   Preferences::pliPreferences();
 
   // Resolution
@@ -365,34 +392,12 @@ void Application::initialize()
 
   // Translator
   QTranslator Translator;
-  Translator.load(QString("lpub_") + QLocale::system().name().section('_', 0, 0) + ".qm", ":../lc_lib/resources");
+  Translator.load(QString("lpub_") + QLocale::system().name().section('_', 0, 0) + ".qm", ":../lclib/resources");
   m_application.installTranslator(&Translator);
 
   qRegisterMetaTypeStreamOperators<QList<int> >("QList<int>");
 
   QList<QPair<QString, bool>> LibraryPaths;
-
-/* disable LibraryPaths - library paths managed by ldrawPreferences() in Gui
-#if defined(Q_OS_WIN)
-  lcSehInit();
-  if (QDir(Preferences::lpub3dPath + "/extras").exists()) { // we have a portable distribution
-    LibraryPaths += qMakePair(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/extras/complete.zip"), true);
-  } else {
-    LibraryPaths += qMakePair(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/data/complete.zip"), true);
-  }
-#endif
-#ifdef Q_OS_LINUX
-  LibraryPaths += qMakePair(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/../share/lpub3d/complete.zip"), true);
-#endif
-
-#ifdef Q_OS_MAC
-  LibraryPaths += qMakePair(QDir::cleanPath(QCoreApplication::applicationDirPath() + "/../../Contents/Resources/complete.zip"), true);
-#endif
-
-#ifdef LDRAW_LIBRARY_PATH
-  LibraryPaths += qMakePair(QString::fromLatin1(LDRAW_LIBRARY_PATH), false);
-#endif
-*/
 
   setlocale(LC_NUMERIC, "C");
 
@@ -419,16 +424,16 @@ void Application::initialize()
 * initialize::toggleLCStatusBar                          (gui->initialize)
 */
 
-  emit splashMsgSig("20% - 3D Viewer window loading...");
-
-  gApplication = new lcApplication();
-
-  emit splashMsgSig(QString("30% - %1 GUI window loading...").arg(VER_PRODUCTNAME_STR));
+  emit splashMsgSig(QString("20% - %1 GUI window loading...").arg(VER_PRODUCTNAME_STR));
 
   gui = new Gui();
 
   // Check if preferred renderer set and launch Preference dialogue if not to set Renderer
   gui->getRequireds();
+
+  emit splashMsgSig("30% - 3D Viewer window loading...");
+
+  gApplication = new lcApplication();
 
   emit splashMsgSig(QString("40% - 3D Viewer initialization..."));
 
@@ -449,7 +454,7 @@ void Application::mainApp()
 
   Preferences::setLPub3DLoaded();
 
-  GetAvailableVersions();
+  availableVersions = new AvailableVersions(this);
 
   if (modeGUI())
   {
@@ -486,14 +491,14 @@ int Application::run()
 #ifdef Q_OS_WIN
       if (m_allocated_console)
         Sleep(2000);
-      SetConsoleTextAttribute (       //set the console to the original atrributes
-                  ConsoleOutput,
-                  m_currentConsoleAttr);
+      SetConsoleTextAttribute (       //return the console to the original atrributes
+        ConsoleOutput,
+        m_currentConsoleAttr);
 #endif
   }
   catch(const std::exception& ex)
   {
-    logError() << QString("Run: %1\n%2").arg("LOG_ERROR").arg(ex.what());
+    logError() << QString("Run: Exception %2 has been thrown.").arg(ex.what());
   }
   catch(...)
   {
@@ -510,11 +515,26 @@ int Application::run()
 
     delete gui;
     gui = nullptr;
+
+    delete availableVersions;
+    availableVersions = nullptr;
+
+    ldvWidget = nullptr;
   }
 
   logInfo() << QString("Run: Application terminated with return code %1.").arg(ExecReturn);
 
   return ExecReturn;
+}
+
+void clearCustomPartCache(bool silent)
+{
+  gui->clearCustomPartCache(silent);
+}
+
+void clearAndRedrawPage()
+{
+  gui->clearAndRedrawPage();
 }
 
 // Implements the main function here.

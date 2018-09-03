@@ -70,6 +70,12 @@ macx {
     ldglite_ini.files += $$_PRO_FILE_PWD_/extras/ldglite.ini
     ldglite_ini.path = Contents/Resources
 
+    nativepov_ini.files += $$_PRO_FILE_PWD_/extras/nativePOV.ini
+    nativepov_ini.path = Contents/Resources
+
+    ldv_messages_ini.files += $$_PRO_FILE_PWD_/extras/$$LDV_MESSAGES_INI
+    ldv_messages_ini.path = Contents/Resources
+
     QMAKE_BUNDLE_DATA += \
         document_icon \
         document_readme \
@@ -83,7 +89,9 @@ macx {
         pli_substitution_parts \
         ldraw_unofficial_library \
         ldraw_official_library \
-        ldglite_ini
+        ldglite_ini \
+        nativepov_ini \
+        ldv_messages_ini
 
     # The package distribution settings below requires a specific dev env configuration.
     # Basically, if you create a projects folder e.g. c:\Users\<user>\Projects and

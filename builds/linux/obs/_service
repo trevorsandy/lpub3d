@@ -2,7 +2,7 @@
   <service name="tar_scm">
       <param name="url">git://github.com/trevorsandy/lpub3d</param>
       <param name="scm">git</param>
-      <param name="exclude">lc_lib/tools</param>
+      <param name="exclude">lclib/tools</param>
       <param name="exclude">builds/utilities/cert</param>
       <param name="exclude">builds/utilities/ci</param>
       <param name="exclude">builds/utilities/dmg-utils</param>

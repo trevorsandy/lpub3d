@@ -1,11 +1,9 @@
 ;LPub3D Uninstall Files Script Include
-;Last Update: January 24, 2018
+;Last Update: June 30, 2018
 ;Copyright (C) 2016 - 2018 by Trevor SANDY
 
 ;Deposit new files...
 Delete "$INSTDIR\${LPub3DBuildFile}"
-Delete "$INSTDIR\${QuaZIPBuildFile}"
-Delete "$INSTDIR\${LDrawIniBuildFile}"
 
 Delete "$INSTDIR\Qt5Concurrent.dll"
 Delete "$INSTDIR\Qt5Core.dll"
@@ -13,26 +11,15 @@ Delete "$INSTDIR\Qt5Gui.dll"
 Delete "$INSTDIR\Qt5Network.dll"
 Delete "$INSTDIR\Qt5OpenGL.dll"
 Delete "$INSTDIR\Qt5PrintSupport.dll"
+Delete "$INSTDIR\Qt5Svg.dll"
 Delete "$INSTDIR\Qt5Widgets.dll"
 Delete "$INSTDIR\Qt5Xml.dll"
 
 ;New Stuff - Qt Libraries
-Delete "$INSTDIR\libbz2-1.dll"
-Delete "$INSTDIR\libfreetype-6.dll"
-Delete "$INSTDIR\libglib-2.0-0.dll"
-Delete "$INSTDIR\libgraphite2.dll"
-Delete "$INSTDIR\libharfbuzz-0.dll"
-Delete "$INSTDIR\libiconv-2.dll"
-Delete "$INSTDIR\libicudt58.dll"
-Delete "$INSTDIR\libicuin58.dll"
-Delete "$INSTDIR\libicuuc58.dll"
-Delete "$INSTDIR\libintl-8.dll"
-Delete "$INSTDIR\libpcre-1.dll"
-Delete "$INSTDIR\libpcre2-16-0.dll"
-Delete "$INSTDIR\libpng16-16.dll"
-Delete "$INSTDIR\libstdc++-6.dll"
-Delete "$INSTDIR\libwinpthread-1.dll"
-Delete "$INSTDIR\zlib1.dll"
+Delete "$INSTDIR\D3Dcompiler_47.dll"
+Delete "$INSTDIR\libEGL.dll"
+Delete "$INSTDIR\libGLESV2.dll"
+Delete "$INSTDIR\opengl32sw.dll"
 
 ;New Stuff - Qt Plugins
 Delete "$INSTDIR\bearer\qgenericbearer.dll"
@@ -49,6 +36,7 @@ Delete "$INSTDIR\imageformats\qwbmp.dll"
 Delete "$INSTDIR\imageformats\qwebp.dll"
 Delete "$INSTDIR\printsupport\windowsprintersupport.dll"
 Delete "$INSTDIR\platforms\qwindows.dll"
+Delete "$INSTDIR\styles\qwindowsvistastyle.dll"
 
 ;3rd party renderer utility - LdgLite
 Delete "$INSTDIR\3rdParty\${LDGliteDir}\bin\${LDGliteExe}.exe"
@@ -88,10 +76,12 @@ Delete "$INSTDIR\data\fadeStepColorParts.lst"
 Delete "$INSTDIR\data\freeformAnnotations.lst"
 Delete "$INSTDIR\data\LDConfig.ldr"
 Delete "$INSTDIR\data\ldglite.ini"
+Delete "$INSTDIR\data\nativePOV.ini"
 Delete "$INSTDIR\data\PDFPrint.jpg"
 Delete "$INSTDIR\data\pli.mpd"
 Delete "$INSTDIR\data\pliSubstituteParts.lst"
 Delete "$INSTDIR\data\titleAnnotations.lst"
+Delete "$INSTDIR\data\LDVMessages.ini"
 
 ;ldraw libraries - data/portable location
 Delete "$INSTDIR\data\complete.zip"

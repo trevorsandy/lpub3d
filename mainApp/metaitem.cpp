@@ -3080,9 +3080,9 @@ QPointF MetaItem::defaultPointerTip(
     addLine = "1 0 0 0 0 1 0 0 0 1 0 0 0 1 " + modelName;
   }
   QString imageName = QDir::currentPath() + "/" + Paths::tmpDir + "/mono.png";
-  QString emptyCsiKey = QString();
+  QStringList emptyKeys;
 
-  int rc = renderer->renderCsi(addLine,csiParts,emptyCsiKey,imageName,meta);
+  int rc = renderer->renderCsi(addLine,csiParts,emptyKeys,imageName,meta);
 
   if (rc == 0) {
     QPixmap pixmap;
@@ -3210,39 +3210,30 @@ void MetaItem::writeRotateStep(QString &value)
 {
     Meta content;
     Where here;
-    QString modelName;
-    int firstPos                = 0;
-    QString prefix              = "0 ROTSTEP ";
-    bool multiStep              = false;
-    bool rotStep                = false;
     bool ok;
+    QString prefix     = "0 ROTSTEP ";
+    bool rotStep       = false;
 
-    QStringList argv = value.split(QRegExp("\\s"));
-    int lineNumber = argv[firstPos].toInt(&ok);
+    QStringList argv01 = value.split(QRegExp("\\s"));
+    QStringList argv02 = argv01[0].split(";");            //0=modelName; 1=lineNumber; 2=stepNumber
+
+    QString modelName  = argv02[0];
+    int lineNumber     = argv02[1].toInt(&ok);
+
     QString meta("%1 %2 %3 %4 %5");
-    meta = meta.arg(prefix,argv[1],argv[2],argv[3],argv[4]);
+    meta = meta.arg(prefix,argv01[1],argv01[2],argv01[3],argv01[4]);
 
-    Steps *steps = dynamic_cast<Steps *>(&gui->page);
-    if (steps && steps->list.size() > 0) {
-        modelName = steps->modelName();
-        if (steps->list.size() > 1) {
-            multiStep = true;
-        } else {
-            Range *range = dynamic_cast<Range *>(steps->list[0]);
-            if (range && range->list.size() > 1) {
-                multiStep = true;
-            }
-        }
-    }
-
-    QString stepType = (multiStep)? "iMulti-Step " : "iSingle-Step ";
-    logTrace() << "-STARTING INPUT: " << stepType << " iModel: " << modelName << "iLineNum: " << lineNumber << " iMeta (ROTSTEP): " << meta ;
-
-    if (ok && multiStep) {                                                          //ok, we have a multi-step page
+    bool multiStep = gui->isViewerStepMultiStep(argv01[0]);
+    if (multiStep) {
 
         Rc rc;
         QString line;
-        here = Where(modelName,lineNumber);
+        if (ok) {
+            here = Where(modelName,lineNumber);
+          } else {
+            emit gui->messageSig(LOG_ERROR,"Could not retrieve Step's line number");
+            return;
+          }
 
         if (here.lineNumber == 0) {                                                 //if starting from [modelName]top.lineNumber because the passed in line number is 0
             int  numLines  = gui->subFileSize(here.modelName);
@@ -3281,7 +3272,7 @@ void MetaItem::writeRotateStep(QString &value)
             }
         }
 
-    } else if (ok) {
+    } else {                //we have a single-step page
 
         logTrace() << "-SS MODEL NAME      :       " << modelName;
         Where pagePosition = gui->topOfPages[gui->displayPageNum];
@@ -3307,6 +3298,10 @@ void MetaItem::writeRotateStep(QString &value)
             rotStep = true;
         }
     }
+
+    gui->clearPLICache();
+    gui->clearCSICache();
+    gui->clearTempCache();
 
     if (! rotStep && ! multiStep){
         logNotice() << "FIN - INSERT SINGLE PAGE STEP HERE - LINE: " << here.lineNumber;

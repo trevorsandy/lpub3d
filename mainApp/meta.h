@@ -49,10 +49,9 @@
 #include "metatypes.h"
 #include "resolution.h"
 
-class QStringList;
-
 class Meta;
 class BranchMeta;
+class QStringList;
 
 enum Rc {
          InvalidLDrawLineRc = -3,
@@ -2119,6 +2118,19 @@ public:
   StringMeta    povrayParms;
   BoolMeta      showStepNumber;
 
+  // image generation
+  FloatPairMeta angle;
+  IntMeta       distance;
+  FloatMeta     fov;
+  FloatMeta     znear;
+  FloatMeta     zfar;
+  // display step
+  FloatPairMeta v_angle;
+  IntMeta       v_distance;
+  FloatMeta     v_fov;
+  FloatMeta     v_znear;
+  FloatMeta     v_zfar;
+
   AssemMeta();
   AssemMeta(const AssemMeta &rhs) : BranchMeta(rhs)
   {
@@ -2142,7 +2154,6 @@ public:
   PlacementMeta     placement;
   ConstrainMeta     constrain;
   FloatMeta         modelScale;
-  FloatPairMeta     angle;
   PartMeta          part;
   PliBeginMeta      begin;
   RcMeta            end;
@@ -2158,6 +2169,12 @@ public:
   BoolMeta          sort;
   PliSortMeta       sortBy;
   PliAnnotationMeta annotation;
+
+  FloatPairMeta     angle;
+  IntMeta           distance;
+  FloatMeta         fov;
+  FloatMeta         znear;
+  FloatMeta         zfar;
 
   PliMeta();
   PliMeta(const PliMeta &rhs) : BranchMeta(rhs)
@@ -2450,7 +2467,7 @@ public:
 private:
 };
 
-const QString RcNames[56] =
+const QString RcNames[42] =
 {
      "InvalidLDrawLineRc = -3",
      "RangeErrorRc = -2",

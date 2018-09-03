@@ -6,19 +6,8 @@ win32: stagewindistcontent {
     # 32bit and 64bit
     target.path = $$LPUB3D_STG_PATH
 
-    # On Windows we continue to build dynamic (.dll) libs for LDrawini and QuaZip
-    # because - for the life of me - I can't get statically built libs to link:-(
-    lpub3d_libs.files += \
-        $$LPUB3D_STG_LIBS/ldrawini/$$join(ARCH,,,bit_$$DIST)/LDrawIni161.dll
-    !quazipnobuild {
-        lpub3d_libs.files += \
-            $$LPUB3D_STG_LIBS/quazip/$$join(ARCH,,,bit_$$DIST)/QuaZIP07.dll
-    }
-    lpub3d_libs.path = $$LPUB3D_STG_PATH
-
     lpub3d_plugin_bearer.files += \
-        $$[QT_INSTALL_PLUGINS]/bearer/qgenericbearer.dll  \
-        $$[QT_INSTALL_PLUGINS]/bearer/qnativewifibearer.dll
+        $$[QT_INSTALL_PLUGINS]/bearer/qgenericbearer.dll
     lpub3d_plugin_bearer.path = $$LPUB3D_STG_PATH/bearer
 
     lpub3d_plugin_iconengines.files += \
@@ -45,6 +34,10 @@ win32: stagewindistcontent {
         $$[QT_INSTALL_PLUGINS]/printsupport/windowsprintersupport.dll
     lpub3d_plugin_printsupport.path = $$LPUB3D_STG_PATH/printsupport
 
+    lpub3d_plugin_styles.files += \
+        $$[QT_INSTALL_PLUGINS]/styles/qwindowsvistastyled.dll
+    lpub3d_plugin_styles.path = $$LPUB3D_STG_PATH/styles
+
     lpub3d_bins_qtlibs.files += \
         $$[QT_INSTALL_BINS]/Qt5Concurrent.dll \
         $$[QT_INSTALL_BINS]/Qt5Core.dll \
@@ -52,27 +45,16 @@ win32: stagewindistcontent {
         $$[QT_INSTALL_BINS]/Qt5Network.dll \
         $$[QT_INSTALL_BINS]/Qt5OpenGL.dll \
         $$[QT_INSTALL_BINS]/Qt5PrintSupport.dll \
+        $$[QT_INSTALL_BINS]/Qt5Svg.dll \
         $$[QT_INSTALL_BINS]/Qt5Widgets.dll \
         $$[QT_INSTALL_BINS]/Qt5Xml.dll
     lpub3d_bins_qtlibs.path = $$LPUB3D_STG_PATH
 
     lpub3d_bins_additional_libs.files += \
-        $$[QT_INSTALL_BINS]/libbz2-1.dll \
-        $$[QT_INSTALL_BINS]/libfreetype-6.dll \
-        $$[QT_INSTALL_BINS]/libglib-2.0-0.dll \
-        $$[QT_INSTALL_BINS]/libgraphite2.dll \
-        $$[QT_INSTALL_BINS]/libharfbuzz-0.dll \
-        $$[QT_INSTALL_BINS]/libiconv-2.dll \
-        $$[QT_INSTALL_BINS]/libicudt58.dll \
-        $$[QT_INSTALL_BINS]/libicuin58.dll \
-        $$[QT_INSTALL_BINS]/libicuuc58.dll \
-        $$[QT_INSTALL_BINS]/libintl-8.dll \
-        $$[QT_INSTALL_BINS]/libpcre-1.dll \
-        $$[QT_INSTALL_BINS]/libpcre2-16-0.dll \
-        $$[QT_INSTALL_BINS]/libpng16-16.dll \
-        $$[QT_INSTALL_BINS]/libstdc++-6.dll \
-        $$[QT_INSTALL_BINS]/libwinpthread-1.dll \
-        $$[QT_INSTALL_BINS]/zlib1.dll
+        $$[QT_INSTALL_BINS]/D3Dcompiler_47.dll \
+        $$[QT_INSTALL_BINS]/libEGL.dll \
+        $$[QT_INSTALL_BINS]/libGLESV2.dll \
+        $$[QT_INSTALL_BINS]/opengl32sw.dll
     lpub3d_bins_additional_libs.path = $$LPUB3D_STG_PATH
 
     lpub3d_extras.files += \
@@ -81,13 +63,13 @@ win32: stagewindistcontent {
         $$LPUB3D_STG_EXTRAS/freeformAnnotations.lst \
         $$LPUB3D_STG_EXTRAS/LDConfig.ldr \
         $$LPUB3D_STG_EXTRAS/ldglite.ini \
-        $$LPUB3D_STG_EXTRAS/ldview.ini \
-        $$LPUB3D_STG_EXTRAS/ldviewPOV.ini \
+        $$LPUB3D_STG_EXTRAS/nativePOV.ini \
         $$LPUB3D_STG_EXTRAS/PDFPrint.jpg \
         $$LPUB3D_STG_EXTRAS/pli.mpd \
         $$LPUB3D_STG_EXTRAS/pliSubstituteParts.lst \
         $$LPUB3D_STG_EXTRAS/povray.ini \
-        $$LPUB3D_STG_EXTRAS/titleAnnotations.lst
+        $$LPUB3D_STG_EXTRAS/titleAnnotations.lst \
+        $$LPUB3D_STG_EXTRAS/$$LDV_MESSAGES_INI
     lpub3d_extras.path = $$LPUB3D_STG_PATH/extras
 
     lpub3d_docs.files += \
@@ -98,36 +80,16 @@ win32: stagewindistcontent {
 
     INSTALLS += \
         target \
-        lpub3d_libs \
         lpub3d_plugin_bearer \
         lpub3d_plugin_iconengines \
         lpub3d_plugin_imageformats \
         lpub3d_plugin_platforms \
         lpub3d_plugin_printsupport \
+        lpub3d_plugin_styles \
         lpub3d_bins_qtlibs \
         lpub3d_bins_additional_libs \
         lpub3d_extras \
         lpub3d_docs
-
-           # 64bit
-    contains (STG_ARCH, x86_64) {
-
-        lpub3d_bins_qtlibs_x86_64.files += \
-            $$[QT_INSTALL_BINS]/libgcc_s_seh-1.dll
-        lpub3d_bins_qtlibs_x86_64.path = $$LPUB3D_STG_PATH
-
-        INSTALLS += \
-            lpub3d_bins_qtlibs_x86_64
-
-    } else {
-
-        lpub3d_bins_qtlibs_x86.files += \
-            $$[QT_INSTALL_BINS]/libgcc_s_dw2-1.dll
-        lpub3d_bins_qtlibs_x86.path = $$LPUB3D_STG_PATH
-
-        INSTALLS += \
-            lpub3d_bins_qtlibs_x86
-    }
 
     # stage 3rd party executables, documents and resources
 

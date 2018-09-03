@@ -40,11 +40,10 @@
 #include <QRegExp>
 #include "paths.h"
 
+#include "lpub.h"
 #include "lc_application.h"
 #include "lc_library.h"
 #include "pieceinf.h"
-
-#include "lpub.h"
 
 QString LDrawFile::_file        = "";
 QString LDrawFile::_name        = "";
@@ -75,10 +74,23 @@ LDrawSubFile::LDrawSubFile(
   _startPageNumber = 0;
 }
 
+/* initialize viewer step*/
+ViewerStep::ViewerStep(const QStringList &contents,
+                       const QString     &filePath,
+                       bool               multiStep,
+                       bool               calledOut){
+    _contents << contents;
+    _filePath  = filePath;
+    _modified  = false;
+    _multiStep = multiStep;
+    _calledOut = calledOut;
+}
+
 void LDrawFile::empty()
 {
   _subFiles.clear();
   _subFileOrder.clear();
+  _viewerSteps.clear();
   _mpd = false;
   _pieces = 0;
 }
@@ -441,9 +453,7 @@ void LDrawFile::loadFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(NULL, 
-                             QMessageBox::tr(VER_PRODUCTNAME_STR),
-                             QMessageBox::tr("Cannot read file %1:\n%2.")
+        emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
         return;
@@ -460,16 +470,18 @@ void LDrawFile::loadFile(const QString &fileName)
 
     QTextStream in(&file);
 
-    QRegExp sof("^\\s*0\\s+FILE\\s+(.*)$");
-    QRegExp part("^\\s*1\\s+.*$");
+    QRegExp sof("^\\s*0\\s+FILE\\s+(.*)$",Qt::CaseInsensitive);
+    QRegExp part("^\\s*1\\s+.*$",Qt::CaseInsensitive);
 
     while ( ! in.atEnd()) {
         QString line = in.readLine(0);
         if (line.contains(sof)) {
+            logStatus() << QString("Loading MPD %1").arg(line.remove("0 "));
             mpd = true;
             break;
         }
         if (line.contains(part)) {
+            logStatus() << QString("Loading LDR %1").arg(line.remove("0 "));
             mpd = false;
             break;
         }
@@ -478,8 +490,8 @@ void LDrawFile::loadFile(const QString &fileName)
     file.close();
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    
     QFileInfo fileInfo(fileName);
+
     if (mpd) {
       QDateTime datetime = QFileInfo(fileName).lastModified();
       loadMPDFile(fileName,datetime);
@@ -491,7 +503,7 @@ void LDrawFile::loadFile(const QString &fileName)
 
     countParts(topLevelFile());
 
-    emit gui->messageSig(true, QString("%1 model file %2 loaded. Count %3 parts")
+    emit gui->messageSig(LOG_STATUS, QString("%1 model file %2 loaded. Count %3 parts")
                                        .arg(mpd ? "MPD" : "LDR")
                                        .arg(fileInfo.fileName())
                                        .arg(_pieces));
@@ -511,9 +523,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 {    
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(NULL, 
-                             QMessageBox::tr(VER_PRODUCTNAME_STR),
-                             QMessageBox::tr("Cannot read file %1:\n%2.")
+        emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
         return;
@@ -524,12 +534,12 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     QStringList stageContents;
     QStringList contents;
     QString     mpdName;
-    QRegExp sofRE("^\\s*0\\s+FILE\\s+(.*)$");
-    QRegExp eofRE("^\\s*0\\s+NOFILE\\s*$");
+    QRegExp sofRE("^\\s*0\\s+FILE\\s+(.*)$",Qt::CaseInsensitive);
+    QRegExp eofRE("^\\s*0\\s+NOFILE\\s*$",Qt::CaseInsensitive);
 
-    QRegExp upAUT("^\\s*0\\s+AUTHOR(.*)|Author(.*)|author(.*)$");
-    QRegExp upNAM("^\\s*0\\s+Name(.*)|name(.*)|NAME(.*)$");
-    QRegExp upCAT("^\\s*0\\s+!CATEGORY(.*)|!Category(.*)|!category(.*)$");
+    QRegExp upAUT("^\\s*0\\s+AUTHOR(.*)$",Qt::CaseInsensitive);
+    QRegExp upNAM("^\\s*0\\s+Name(.*)$",Qt::CaseInsensitive);
+    QRegExp upCAT("^\\s*0\\s+!CATEGORY(.*)$",Qt::CaseInsensitive);
 
     bool topLevelFileNotCaptured        = true;
     bool topLevelNameNotCaptured        = true;
@@ -549,7 +559,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     emit gui->progressBarPermInitSig();
     emit gui->progressPermRangeSig(1, stageContents.size());
     emit gui->progressPermMessageSig("Processing model file...");
-    emit gui->messageSig(true, "Loading MPD model file " + fileInfo.fileName() + "...");
+    emit gui->messageSig(LOG_STATUS, "Loading MPD model file " + fileInfo.fileName() + "...");
 
     for (int i = 0; i < stageContents.size(); i++) {
 
@@ -610,7 +620,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
              */
             if (! mpdName.isEmpty() && ! alreadyInserted) {
 //                logTrace() << "Inserted Subfile: " << mpdName;
-                emit gui->messageSig(true, QString("MPD submodel '" + mpdName + "' loaded."));
+                emit gui->messageSig(LOG_STATUS, QString("MPD submodel '" + mpdName + "' loaded."));
                 insert(mpdName,contents,datetime,unofficialPart);
                 unofficialPart = false;
             }
@@ -622,7 +632,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
              */
             if (sof) {
                 mpdName = sofRE.cap(1).toLower();
-                emit gui->messageSig(true, "Loading MPD submodel '" + mpdName + "'...");
+                emit gui->messageSig(LOG_STATUS, "Loading MPD submodel '" + mpdName + "'...");
             } else {
                 mpdName.clear();
             }
@@ -658,9 +668,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName, bool t
 
       QFile file(fullName);
       if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(NULL, 
-                             QMessageBox::tr(VER_PRODUCTNAME_STR),
-                             QMessageBox::tr("Cannot read file %1:\n%2.")
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot read file %1:\n%2.")
                              .arg(fullName)
                              .arg(file.errorString()));
         return;
@@ -672,9 +680,9 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName, bool t
       QTextStream in(&file);
       QStringList contents;
 
-      QRegExp upNAM("^\\s*0\\s+Name(.*)|name(.*)|NAME(.*)$");
-      QRegExp upAUT("^\\s*0\\s+AUTHOR(.*)|Author(.*)|author(.*)$");
-      QRegExp upCAT("^\\s*0\\s+!CATEGORY(.*)|!Category(.*)|!category(.*)$");
+      QRegExp upNAM("^\\s*0\\s+Name(.*)$",Qt::CaseInsensitive);
+      QRegExp upAUT("^\\s*0\\s+AUTHOR(.*)$",Qt::CaseInsensitive);
+      QRegExp upCAT("^\\s*0\\s+!CATEGORY(.*)$",Qt::CaseInsensitive);
 
       bool topLevelDescriptionNotCaptured = true;
       bool topLevelNameNotCaptured        = true;
@@ -696,7 +704,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName, bool t
       emit gui->progressBarPermInitSig();
       emit gui->progressPermRangeSig(1, contents.size());
       emit gui->progressPermMessageSig("Processing model file...");
-      emit gui->messageSig(true, "Loading LDR " + fileType + " file '" + fileName + "'...");
+      emit gui->messageSig(LOG_STATUS, "Loading LDR " + fileType + " file '" + fileName + "'...");
 
       QDateTime datetime = QFileInfo(fullName).lastModified();
     
@@ -755,7 +763,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName, bool t
 
       emit gui->progressPermSetValueSig(contents.size());
       emit gui->removeProgressPermStatusSig();
-      emit gui->messageSig(true, QString("LDR model file '" + fileName + "' loaded."));
+      emit gui->messageSig(LOG_STATUS, QString("LDR model file '" + fileName + "' loaded."));
     }
 }
 
@@ -933,9 +941,7 @@ bool LDrawFile::saveMPDFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBox::warning(NULL, 
-                             QMessageBox::tr(VER_PRODUCTNAME_STR),
-                             QMessageBox::tr("Cannot write file %1:\n%2.")
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
         return false;
@@ -965,7 +971,7 @@ void LDrawFile::countParts(const QString &fileName){
   int sfCount = 0;
   bool doCountParts = true;
 
-  QRegExp validEXT("\\.dat|\\.DAT|\\.ldr|\\.LDR|\\.mpd|\\.MPD$");
+  QRegExp validEXT("\\.DAT|\\.LDR|\\.MPD$",Qt::CaseInsensitive);
 
   QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(fileName.toLower());
   if (f != _subFiles.end()) {
@@ -1015,8 +1021,8 @@ void LDrawFile::countParts(const QString &fileName){
                     } else {
                       logNotice() << QString("Item [%1] not found in LPub3D archives. %2 %3")
                           .arg(tokens[14])
-                          .arg(QString("%1/%2/%3").arg(Preferences::lpubDataPath, "libraries", VER_LPUB3D_UNOFFICIAL_ARCHIVE))
-                          .arg(QString("%1/%2/%3").arg(Preferences::lpubDataPath, "libraries", VER_LDRAW_OFFICIAL_ARCHIVE));
+                          .arg(QString("Official archive library .../%1").arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE))
+                          .arg(QString("Unofficial archive library .../%1").arg(VER_LDRAW_OFFICIAL_ARCHIVE));
                     }
                 }
             }
@@ -1042,11 +1048,9 @@ bool LDrawFile::saveLDRFile(const QString &fileName)
       if (f != _subFiles.end() && ! f.value()._generated) {
         if (f.value()._modified) {
           if (!file.open(QFile::WriteOnly | QFile::Text)) {
-            QMessageBox::warning(NULL, 
-              QMessageBox::tr(VER_PRODUCTNAME_STR),
-              QMessageBox::tr("Cannot write file %1:\n%2.")
-              .arg(writeFileName)
-              .arg(file.errorString()));
+            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot write file %1:\n%2.")
+                                 .arg(writeFileName)
+                                 .arg(file.errorString()));
             return false;
           }
           QTextStream out(&file);
@@ -1081,6 +1085,107 @@ void LDrawFile::tempCacheCleared()
   }
 }
 
+/* Add a new Viewer Step */
+
+void LDrawFile::insertViewerStep(const QString     &fileName,
+                                 const QStringList &contents,
+                                 const QString     &filePath,
+                                 bool               multiStep,
+                                 bool               calledOut)
+{
+  QString    mfileName = fileName.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+
+  if (i != _viewerSteps.end()) {
+    _viewerSteps.erase(i);
+  }
+  ViewerStep viewerStep(contents,filePath,multiStep,calledOut);
+  _viewerSteps.insert(mfileName,viewerStep);
+}
+
+/* Viewer Step Exist */
+
+void LDrawFile::updateViewerStep(const QString &fileName, const QStringList &contents)
+{
+  QString    mfileName = fileName.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+
+  if (i != _viewerSteps.end()) {
+    i.value()._contents = contents;
+    i.value()._modified = true;
+  }
+}
+
+/* Viewer Step Exist */
+
+bool LDrawFile::viewerStepContentExist(const QString &fileName)
+{
+  QString    mfileName = fileName.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+
+  if (i != _viewerSteps.end()) {
+    return true;
+  }
+  return false;
+}
+/* return viewer step contents */
+
+QStringList LDrawFile::getViewerStepContents(const QString &fileName)
+{
+  QString mfileName = fileName.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  if (i != _viewerSteps.end()) {
+    return i.value()._contents;
+  }
+  return _emptyList;
+}
+
+/* return viewer step file path */
+
+QString LDrawFile::getViewerStepFilePath(const QString &fileName)
+{
+  QString mfileName = fileName.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  if (i != _viewerSteps.end()) {
+    return i.value()._filePath;
+  }
+  return _emptyString;
+}
+
+/* return viewer step is multiStep */
+
+bool LDrawFile::isViewerStepMultiStep(const QString &fileName)
+{
+  QString mfileName = fileName.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  if (i != _viewerSteps.end()) {
+    return i.value()._multiStep;
+  } else {
+    return false;
+  }
+}
+
+/* return viewer step is calledOut */
+
+bool LDrawFile::isViewerStepCalledOut(const QString &fileName)
+{
+  QString mfileName = fileName.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  if (i != _viewerSteps.end()) {
+    return i.value()._calledOut;
+  } else {
+    return false;
+  }
+}
+
+/* Clear ViewerSteps */
+
+void LDrawFile::clearViewerSteps()
+{
+  _viewerSteps.clear();
+}
+
+// -- -- Utility Functions -- -- //
 
 int split(const QString &line, QStringList &argv)
 {
@@ -1211,48 +1316,50 @@ LDrawFile::LDrawFile()
 {
   {
     LDrawHeaderRegExp
-        << QRegExp("^\\s*0\\s+Author[^\n]*")
-        << QRegExp("^\\s*0\\s+!CATEGORY[^\n]*")
-        << QRegExp("^\\s*0\\s+!CMDLINE[^\n]*")
-        << QRegExp("^\\s*0\\s+!COLOUR[^\n]*")
-        << QRegExp("^\\s*0\\s+!HELP[^\n]*")
-        << QRegExp("^\\s*0\\s+!HISTORY[^\n]*")
-        << QRegExp("^\\s*0\\s+!KEYWORDS[^\n]*")
-        << QRegExp("^\\s*0\\s+!LDRAW_ORG[^\n]*")
-        << QRegExp("^\\s*0\\s+LDRAW_ORG[^\n]*")
-        << QRegExp("^\\s*0\\s+!LICENSE[^\n]*")
-        << QRegExp("^\\s*0\\s+Name[^\n]*")
-        << QRegExp("^\\s*0\\s+Official[^\n]*")
-        << QRegExp("^\\s*0\\s+Unofficial[^\n]*")
-        << QRegExp("^\\s*0\\s+Un-official[^\n]*")
-        << QRegExp("^\\s*0\\s+Original LDraw[^\n]*")
-        << QRegExp("^\\s*0\\s+~Moved to[^\n]*")
-        << QRegExp("^\\s*0\\s+ROTATION[^\n]*");
+        << QRegExp("^\\s*0\\s+AUTHOR[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+BFC[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!CATEGORY[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!CMDLINE[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!COLOUR[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!HELP[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!HISTORY[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!KEYWORDS[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!LDRAW_ORG[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+LDRAW_ORG[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!LICENSE[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+NAME[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+OFFICIAL[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+UNOFFICIAL[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+UN-OFFICIAL[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+ORIGINAL LDRAW[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+~MOVED TO[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+ROTATION[^\n]*",Qt::CaseInsensitive)
+           ;
   }
 
   {
     LDrawUnofficialFileTypeRegExp
-        << QRegExp("^\\s*0\\s+UNOFFICIAL PART[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Part)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Subpart)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Primitive)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_8_Primitive)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_48_Primitive)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Part Alias)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut Alias)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Part Physical_Colour)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut Physical_Colour)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Part)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Subpart)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Primitive)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial 8_Primitive)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial 48_Primitive)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Part Alias)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut Alias)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Part Physical_Colour)[^\n]*")
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut Physical_Colour)[^\n]*")
+        << QRegExp("^\\s*0\\s+UNOFFICIAL PART[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Part)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Subpart)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Primitive)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_8_Primitive)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_48_Primitive)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Part Alias)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut Alias)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Part Physical_Colour)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut Physical_Colour)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Part)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Subpart)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Primitive)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial 8_Primitive)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial 48_Primitive)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Part Alias)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut Alias)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Part Physical_Colour)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut Physical_Colour)[^\n]*",Qt::CaseInsensitive)
            ;
   }
 
@@ -1261,6 +1368,7 @@ LDrawFile::LDrawFile()
 bool isHeader(QString &line)
 {
   int size = LDrawHeaderRegExp.size();
+
   for (int i = 0; i < size; i++) {
     if (line.contains(LDrawHeaderRegExp[i])) {
       return true;
@@ -1279,4 +1387,3 @@ bool isUnofficialFileType(QString &line)
   }
   return false;
 }
-

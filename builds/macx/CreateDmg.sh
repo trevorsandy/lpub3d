@@ -72,8 +72,8 @@ echo "   LOG FILE...............[${LOG}]" && echo
 if [ "${TRAVIS}" != "true"  ]; then
   # use this instance of Qt if exist - this entry is my dev machine, change for your environment accordingly
   if [ "${TRAVIS}" != "true" ]; then
-    if [ -d ~/Qt/IDE/5.10.1/clang_64 ]; then
-      export PATH=~/Qt/IDE/5.10.1/clang_64:~/Qt/IDE/5.10.1/clang_64/bin:$PATH
+    if [ -d ~/Qt/IDE/5.11.1/clang_64 ]; then
+      export PATH=~/Qt/IDE/5.11.1/clang_64:~/Qt/IDE/5.11.1/clang_64/bin:$PATH
     else
       echo "PATH not udpated with Qt location, could not find ${HOME}/Qt/IDE/5.9/clang_64"
     fi

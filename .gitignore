@@ -45,7 +45,7 @@
 *.jar
 *.rar
 *.tar
-*.zip
+#*.zip
 
 # Logs and databases
 *.log
@@ -97,15 +97,22 @@ builds/windows/release/*
 builds/linux/debbuild/*
 builds/linux/rpmbuild/*
 builds/linux/pkgbuild/*
+mainApp/LDViewMessages.h
+mainApp/StudLogo.h
+ldvlib/LDViewMessages.ini
 
 # Makefiles
 mainApp/Makefile
 ldrawini/Makefile
 quazip/Makefile
+.vs
+LPub3D.sln
 
 # Build artefacts
 builds/windows/release/*
 builds/windows/libs/*
+mainApp/lpub3dsd_plugin_import.cpp
+mainApp/uic_wrapper.bat
 
 # Windows setup archives
 builds/windows/archives/*

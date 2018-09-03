@@ -3,7 +3,7 @@
 # Travis build [before_install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 12, 2017
+#  Last Update: June 28, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -68,7 +68,7 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     sudo apt-get update -qq;
   fi;
   export LP3D_DIST_DIR=lpub3d_linux_3rdparty;
-else
+elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
   if [[ "$LP3D_COMPILE_SOURCE" = "true" && "$LP3D_BUILD_PKG" = "" ]]; then
     brew install ccache;
     LP3D_EXP_CCACHE_PATH=true;

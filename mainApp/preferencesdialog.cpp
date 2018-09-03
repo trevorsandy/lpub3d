@@ -23,8 +23,16 @@
 #include "ui_preferences.h"
 #include "preferencesdialog.h"
 #include "lpub_preferences.h"
+#include "application.h"
 #include "lc_application.h"
 #include "updatecheck.h"
+#include "LDVWidget.h"
+
+//#include "nativepovpreferences.h"
+//#include "ui_nativepovpreferences.h"
+
+//#include <TCUserDefaults.h>
+//#include <LDUserDefaultsKeys.h>
 
 #include "color.h"
 #include "meta.h"
@@ -107,12 +115,12 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.logLevelsGrpBox->setChecked(                Preferences::logLevels);
 
   ui.fadeStepBox->setChecked(                    Preferences::enableFadeSteps);
-  ui.fadeStepsUseColourBox->setEnabled(           Preferences::enableFadeSteps);
-  ui.fadeStepsUseColourBox->setChecked(           Preferences::fadeStepsUseColour);
-  ui.fadeStepsColoursCombo->setEnabled(            Preferences::enableFadeSteps && Preferences::fadeStepsUseColour);
-  ui.fadeStepsOpacityBox->setEnabled(             Preferences::enableFadeSteps);
-  ui.fadeStepsOpacitySlider->setEnabled(          Preferences::enableFadeSteps);
-  ui.fadeStepsOpacitySlider->setValue(            Preferences::fadeStepsOpacity);
+  ui.fadeStepsUseColourBox->setEnabled(          Preferences::enableFadeSteps);
+  ui.fadeStepsUseColourBox->setChecked(          Preferences::fadeStepsUseColour);
+  ui.fadeStepsColoursCombo->setEnabled(          Preferences::enableFadeSteps && Preferences::fadeStepsUseColour);
+  ui.fadeStepsOpacityBox->setEnabled(            Preferences::enableFadeSteps);
+  ui.fadeStepsOpacitySlider->setEnabled(         Preferences::enableFadeSteps);
+  ui.fadeStepsOpacitySlider->setValue(           Preferences::fadeStepsOpacity);
 
   ui.fadeStepsColoursCombo->addItems(LDrawColor::names());
   ui.fadeStepsColoursCombo->setCurrentIndex(int(ui.fadeStepsColoursCombo->findText(Preferences::fadeStepsColour)));
@@ -125,11 +133,14 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.highlightStepBox->setChecked(               Preferences::enableHighlightStep);
   ui.highlightStepBtn->setEnabled(               Preferences::enableHighlightStep);
   ui.highlightStepLabel->setEnabled(             Preferences::enableHighlightStep);
-  //disabled for future use
-  ui.highlightStepLineWidthSpin->setEnabled(     false);
+  // Only enabled for LDGLite
+  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
+    ui.highlightStepLineWidthSpin->setEnabled(   Preferences::enableHighlightStep);
+  else
+    ui.highlightStepLineWidthSpin->setEnabled(false);
   ui.highlightStepLineWidthSpin->setValue(       Preferences::highlightStepLineWidth);
 
-  QColor highlightColour = QColor(Preferences::highlightStepColour);
+  QColor highlightColour = QColor(               Preferences::highlightStepColour);
   if(highlightColour.isValid() ) {
     ui.highlightStepColorLabel->setPalette(QPalette(highlightColour));
     ui.highlightStepColorLabel->setAutoFillBackground(true);
@@ -162,7 +173,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
       ui.textEditSearchDirs->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
       ui.textEditSearchDirs->setToolTip("Read only list of LDraw.ini search directories.");
   } else {
-      ui.textEditSearchDirs->setToolTip("Editable list of search directories - add or edit search paths");
+      ui.textEditSearchDirs->setToolTip("Editable list of search directories - add or edit search paths. Use a new line for each entry.");
       ui.textEditSearchDirs->setStatusTip("Added directories must be under the Unofficial directory.");
       ui.lineEditIniFile->setText(tr("%1")
                                   .arg(Preferences::ldSearchDirs.size() == 0 ?
@@ -180,7 +191,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   //end search dirs
 
   ui.preferredRenderer->setMaxCount(0);
-  ui.preferredRenderer->setMaxCount(3);
+  ui.preferredRenderer->setMaxCount(4);
 
   QFileInfo fileInfo(Preferences::povrayExe);
   int povRayIndex = ui.preferredRenderer->count();
@@ -204,6 +215,9 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     ui.preferredRenderer->addItem(RENDERER_LDVIEW);
   }
 
+  int nativeIndex = ui.preferredRenderer->count();
+  ui.preferredRenderer->addItem(RENDERER_NATIVE);
+
   if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
     ui.preferredRenderer->setCurrentIndex(ldviewIndex);
     ui.preferredRenderer->setEnabled(true);
@@ -211,22 +225,40 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     ui.preferredRenderer->setCurrentIndex(ldgliteIndex);
     ui.preferredRenderer->setEnabled(true);
   }  else if (Preferences::preferredRenderer == RENDERER_POVRAY && povRayExists) {
-      ui.preferredRenderer->setCurrentIndex(povRayIndex);
-      ui.preferredRenderer->setEnabled(true);
+    ui.preferredRenderer->setCurrentIndex(povRayIndex);
+    ui.preferredRenderer->setEnabled(true);
+  } else if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+    ui.preferredRenderer->setCurrentIndex(nativeIndex);
+    ui.preferredRenderer->setEnabled(true);
   } else {
     ui.preferredRenderer->setEnabled(false);
   }
 
-  if(!ldviewExists && !ldgliteExists && !povRayExists){
-      ui.tabWidget->setCurrentIndex(1);
-      ui.RenderMessage->setText("<font color='red'>Renderer not set!</font>");
-  } else {
-      ui.tabWidget->setCurrentIndex(0);
-  }
+  ui.tabWidget->setCurrentIndex(0);
+
+//  if(!ldviewExists && !ldgliteExists && !povRayExists){
+//      ui.tabWidget->setCurrentIndex(1);
+//      ui.RenderMessage->setText("<font color='red'>Renderer not set!</font>");
+//  } else {
+//      ui.tabWidget->setCurrentIndex(0);
+//  }
 
   bool centimeters = Preferences::preferCentimeters;
   ui.Centimeters->setChecked(centimeters);
   ui.Inches->setChecked(! centimeters);
+
+  bool nativePovFileGen = Preferences::povFileGenerator  == RENDERER_NATIVE;
+  bool renderPOVRay     = Preferences::preferredRenderer == RENDERER_POVRAY;
+  ui.ldvPoVFileGenOptBtn->setEnabled(renderPOVRay);
+  ui.ldvPoVFileGenPrefBtn->setEnabled(renderPOVRay);
+  ui.povGenNativeRadio->setChecked(nativePovFileGen);
+  ui.povGenLDViewRadio->setChecked(!nativePovFileGen);
+  if (ui.povGenNativeRadio->isChecked())
+      ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
+  else if (ui.povGenLDViewRadio->isChecked())
+      ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
+
+  ui.ldvPreferencesBtn->setEnabled(Preferences::preferredRenderer == RENDERER_LDVIEW);
 
   /* QSimpleUpdater start */
   m_updater = QSimpleUpdater::getInstance();
@@ -363,7 +395,7 @@ void PreferencesDialog::on_pushButtonReset_clicked()
       box.setIcon (QMessageBox::Information);
       box.setStandardButtons (QMessageBox::Ok);
       box.setText( tr("Search directories have been reset with %1 entries.").arg(Preferences::ldSearchDirs.size()));
-      emit gui->messageSig(true,box.text());
+      emit gui->messageSig(LOG_STATUS,box.text());
       box.exec();
     }
 }
@@ -371,6 +403,190 @@ void PreferencesDialog::on_pushButtonReset_clicked()
 void PreferencesDialog::on_checkForUpdates_btn_clicked()
 {
     checkForUpdates();
+}
+
+void PreferencesDialog::on_includeAllLogAttribBox_clicked(bool checked)
+{
+  ui.includeLogLevelBox->setChecked(checked);
+  ui.includeTimestampBox->setChecked(checked);
+  ui.includeLineNumberBox->setChecked(checked);
+  ui.includeFileNameBox->setChecked(checked);
+  ui.includeFunctionBox->setChecked(checked);
+}
+
+void PreferencesDialog::on_allLogLevelsBox_clicked(bool checked)
+{
+  ui.debugLevelBox->setChecked(checked);
+  ui.traceLevelBox->setChecked(checked);
+  ui.noticeLevelBox->setChecked(checked);
+  ui.infoLevelBox->setChecked(checked);
+  ui.statusLevelBox->setChecked(checked);
+  ui.errorLevelBox->setChecked(checked);
+  ui.fatalLevelBox->setChecked(checked);
+}
+
+void PreferencesDialog::on_logLevelsGrpBox_clicked(bool checked)
+{
+  ui.logValiationLbl->hide();
+  ui.statusLevelBox->setChecked(checked);
+  ui.logLevelGrpBox->setChecked(!checked);
+}
+void PreferencesDialog::on_logLevelGrpBox_clicked(bool checked)
+{
+  ui.logValiationLbl->hide();
+  ui.logLevelsGrpBox->setChecked(!checked);
+}
+
+void PreferencesDialog::on_ldviewBox_clicked(bool checked)
+{
+  if (! checked) {
+      QMessageBox box;
+      box.setIcon (QMessageBox::Information);
+      box.setStandardButtons (QMessageBox::Ok);
+      box.setWindowTitle(tr ("LDView Settings?"));
+      box.setText (tr("LDView renderer settings are automatically set at application startup.\n"
+                      "Changes will be reset at next application start? "));
+      emit gui->messageSig(LOG_STATUS,box.text());
+      box.exec();
+    }
+}
+
+void PreferencesDialog::on_ldgliteBox_clicked(bool checked)
+{
+    if (! checked) {
+        QMessageBox box;
+        box.setIcon (QMessageBox::Information);
+        box.setStandardButtons (QMessageBox::Ok);
+        box.setWindowTitle(tr ("LDGLite Settings?"));
+        box.setText (tr("LDGLite renderer settings are automatically set at application startup.\n"
+                        "Changes will be reset at next application start? "));
+        emit gui->messageSig(LOG_STATUS,box.text());
+        box.exec();
+    }
+}
+
+void PreferencesDialog::on_POVRayBox_clicked(bool checked)
+{
+  if (! checked) {
+      QMessageBox box;
+      box.setIcon (QMessageBox::Information);
+      box.setStandardButtons (QMessageBox::Ok);
+      box.setWindowTitle(tr ("Raytracer (POV-Ray) Settings?"));
+      box.setText (tr("Raytracer (POV-Ray) renderer settings are automatically set at application startup.\n"
+                      "Changes will be reset at next application start? "));
+      emit gui->messageSig(LOG_STATUS,box.text());
+      box.exec();
+  }
+}
+
+void PreferencesDialog::on_altLDConfigBox_clicked(bool checked)
+{
+  if (! checked && ! ui.altLDConfigPath->text().isEmpty()) {
+    QMessageBox box;
+    box.setIcon (QMessageBox::Warning);
+    box.setStandardButtons (QMessageBox::Yes|QMessageBox::Cancel);
+    box.setWindowTitle(tr ("Alternate LDConfig File"));
+    box.setText (tr("This action will remove %1 from your settings.\n"
+                    "Are you sure you want to continue? ")
+                    .arg(ui.altLDConfigPath->text()));
+    emit gui->messageSig(LOG_STATUS,box.text());
+    if (box.exec() == QMessageBox::Yes) {
+      ui.altLDConfigPath->clear();
+      ui.altLDConfigBox->setChecked(false);
+    }
+  }
+}
+
+void PreferencesDialog::on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName)
+{
+  QColor newFadeColor = LDrawColor::color(colorName);
+  ui.fadeStepsColourLabel->setPalette(QPalette(newFadeColor));
+  ui.fadeStepsColourLabel->setAutoFillBackground(true);
+}
+
+void PreferencesDialog::on_highlightStepBtn_clicked()
+{
+  QColor highlightColour = QColorDialog::getColor(ui.highlightStepColorLabel->palette().background().color(), this );
+  if( highlightColour.isValid()) {
+    ui.highlightStepColorLabel->setPalette(QPalette(highlightColour));
+    ui.highlightStepColorLabel->setAutoFillBackground(true);
+  }
+}
+
+void PreferencesDialog::on_fadeStepBox_clicked(bool checked)
+{
+  ui.fadeStepsUseColourBox->setEnabled(checked);
+  ui.fadeStepsColoursCombo->setEnabled(checked);
+  ui.fadeStepsOpacityBox->setEnabled(checked);
+  ui.fadeStepsOpacitySlider->setEnabled(checked);
+}
+
+void PreferencesDialog::on_fadeStepsUseColourBox_clicked(bool checked)
+{
+  ui.fadeStepsColoursCombo->setEnabled(checked);
+}
+
+void PreferencesDialog::on_highlightStepBox_clicked(bool checked)
+{
+  ui.highlightStepBtn->setEnabled(checked);
+  ui.highlightStepLabel->setEnabled(checked);
+  // Only enabled for LDGLite
+  if (ui.preferredRenderer->currentText() == RENDERER_LDGLITE)
+    ui.highlightStepLineWidthSpin->setEnabled(checked);
+  else
+    ui.highlightStepLineWidthSpin->setEnabled(false);
+}
+
+void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &currentText)
+{
+      bool ldviewEnabled = (currentText == RENDERER_LDVIEW);
+      bool povrayEnabled = (currentText == RENDERER_POVRAY);
+      ui.ldvPreferencesBtn->setEnabled(ldviewEnabled);
+      ui.ldvPoVFileGenOptBtn->setEnabled(povrayEnabled);
+      ui.ldvPoVFileGenPrefBtn->setEnabled(povrayEnabled);
+      if (ui.povGenNativeRadio->isChecked())
+          ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
+      else if (ui.povGenLDViewRadio->isChecked())
+          ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
+}
+
+void PreferencesDialog::on_povGenNativeRadio_clicked(bool checked)
+{
+    if (checked)
+        ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
+}
+
+void PreferencesDialog::on_povGenLDViewRadio_clicked(bool checked)
+{
+    if (checked)
+        ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
+}
+
+void PreferencesDialog::on_ldvPreferencesBtn_clicked()
+{
+    ldvWidget = new LDVWidget(this);
+    ldvWidget->setIniFlag(LDViewIni);
+    ldvWidget->showLDVPreferences();
+}
+
+void PreferencesDialog::on_ldvPoVFileGenOptBtn_clicked()
+{
+     ldvWidget = new LDVWidget(this);
+     if (ui.povGenNativeRadio->isChecked())
+         ldvWidget->setIniFlag(NativePOVIni);
+     else if (ui.povGenLDViewRadio->isChecked())
+         ldvWidget->setIniFlag(LDViewPOVIni);
+     ldvWidget->showLDVExportOptions();
+}
+
+void PreferencesDialog::on_ldvPoVFileGenPrefBtn_clicked()
+{
+     ldvWidget = new LDVWidget(this);
+     if (ui.povGenNativeRadio->isChecked())
+         ldvWidget->setIniFlag(NativePOVIni);
+     else if (ui.povGenLDViewRadio->isChecked())
+         ldvWidget->setIniFlag(LDViewPOVIni);
+     ldvWidget->showLDVPreferences();
 }
 
 void PreferencesDialog::pushButtonReset_SetState()
@@ -437,6 +653,14 @@ QString const PreferencesDialog::preferredRenderer()
     return ui.preferredRenderer->currentText();
   }
   return "";
+}
+
+QString const PreferencesDialog::povFileGenerator()
+{
+    if (ui.povGenLDViewRadio->isChecked())
+      return RENDERER_LDVIEW;
+    else
+      return RENDERER_NATIVE;
 }
 
 bool PreferencesDialog::povrayDisplay()
@@ -645,38 +869,6 @@ bool PreferencesDialog::allLogLevels()
   return ui.allLogLevelsBox->isChecked();
 }
 
-void PreferencesDialog::on_includeAllLogAttribBox_clicked(bool checked)
-{
-  ui.includeLogLevelBox->setChecked(checked);
-  ui.includeTimestampBox->setChecked(checked);
-  ui.includeLineNumberBox->setChecked(checked);
-  ui.includeFileNameBox->setChecked(checked);
-  ui.includeFunctionBox->setChecked(checked);
-}
-
-void PreferencesDialog::on_allLogLevelsBox_clicked(bool checked)
-{
-  ui.debugLevelBox->setChecked(checked);
-  ui.traceLevelBox->setChecked(checked);
-  ui.noticeLevelBox->setChecked(checked);
-  ui.infoLevelBox->setChecked(checked);
-  ui.statusLevelBox->setChecked(checked);
-  ui.errorLevelBox->setChecked(checked);
-  ui.fatalLevelBox->setChecked(checked);
-}
-
-void PreferencesDialog::on_logLevelsGrpBox_clicked(bool checked)
-{
-  ui.logValiationLbl->hide();
-  ui.statusLevelBox->setChecked(checked);
-  ui.logLevelGrpBox->setChecked(!checked);
-}
-void PreferencesDialog::on_logLevelGrpBox_clicked(bool checked)
-{
-  ui.logValiationLbl->hide();
-  ui.logLevelsGrpBox->setChecked(!checked);
-}
-
 QStringList const PreferencesDialog::searchDirSettings()
 {
     QString textEditContents = ui.textEditSearchDirs->toPlainText();
@@ -733,7 +925,7 @@ void PreferencesDialog::accept(){
             Preferences::povrayExe = ui.povrayPath->text();
             ui.preferredRenderer->addItem(RENDERER_POVRAY);
         } else {
-            emit gui->messageSig(false,QString("POV-Ray path entered is not valid: %1").arg(ui.povrayPath->text()));
+            emit gui->messageSig(LOG_ERROR,QString("POV-Ray path entered is not valid: %1").arg(ui.povrayPath->text()));
         }
     }
     if (!ui.ldglitePath->text().isEmpty() && (ui.ldglitePath->text() != Preferences::ldgliteExe)) {
@@ -743,7 +935,7 @@ void PreferencesDialog::accept(){
             Preferences::ldgliteExe = ui.ldglitePath->text();
             ui.preferredRenderer->addItem(RENDERER_LDGLITE);
         } else {
-            emit gui->messageSig(false,QString("LDGLite path entered is not valid: %1").arg(ui.ldglitePath->text()));
+            emit gui->messageSig(LOG_ERROR,QString("LDGLite path entered is not valid: %1").arg(ui.ldglitePath->text()));
         }
     }
     if (!ui.ldviewPath->text().isEmpty() && (ui.ldviewPath->text() != Preferences::ldviewExe)) {
@@ -760,7 +952,7 @@ void PreferencesDialog::accept(){
             Preferences::ldviewExe = ldviewPath;
             ui.preferredRenderer->addItem(RENDERER_LDVIEW);
         } else {
-            emit gui->messageSig(false,QString("LDView path entered is not valid: %1").arg(ui.ldviewPath->text()));
+            emit gui->messageSig(LOG_ERROR,QString("LDView path entered is not valid: %1").arg(ui.ldviewPath->text()));
         }
     }
     if(ui.preferredRenderer->count() == 0 || ui.ldrawPath->text().isEmpty()){
@@ -811,100 +1003,3 @@ void PreferencesDialog::cancel(){
   QDialog::reject();
 }
 
-
-void PreferencesDialog::on_ldviewBox_clicked(bool checked)
-{
-  if (! checked) {
-      QMessageBox box;
-      box.setIcon (QMessageBox::Information);
-      box.setStandardButtons (QMessageBox::Ok);
-      box.setWindowTitle(tr ("LDView Settings?"));
-      box.setText (tr("LDView renderer settings are automatically set at application startup.\n"
-                      "Changes will be reset at next application start? "));
-      emit gui->messageSig(true,box.text());
-      box.exec();
-    }
-}
-
-void PreferencesDialog::on_ldgliteBox_clicked(bool checked)
-{
-    if (! checked) {
-        QMessageBox box;
-        box.setIcon (QMessageBox::Information);
-        box.setStandardButtons (QMessageBox::Ok);
-        box.setWindowTitle(tr ("LDGLite Settings?"));
-        box.setText (tr("LDGLite renderer settings are automatically set at application startup.\n"
-                        "Changes will be reset at next application start? "));
-        emit gui->messageSig(true,box.text());
-        box.exec();
-    }
-}
-
-void PreferencesDialog::on_POVRayBox_clicked(bool checked)
-{
-  if (! checked) {
-      QMessageBox box;
-      box.setIcon (QMessageBox::Information);
-      box.setStandardButtons (QMessageBox::Ok);
-      box.setWindowTitle(tr ("Raytracer (POV-Ray) Settings?"));
-      box.setText (tr("Raytracer (POV-Ray) renderer settings are automatically set at application startup.\n"
-                      "Changes will be reset at next application start? "));
-      emit gui->messageSig(true,box.text());
-      box.exec();
-  }
-}
-
-void PreferencesDialog::on_altLDConfigBox_clicked(bool checked)
-{
-  if (! checked && ! ui.altLDConfigPath->text().isEmpty()) {
-    QMessageBox box;
-    box.setIcon (QMessageBox::Warning);
-    box.setStandardButtons (QMessageBox::Yes|QMessageBox::Cancel);
-    box.setWindowTitle(tr ("Alternate LDConfig File"));
-    box.setText (tr("This action will remove %1 from your settings.\n"
-                    "Are you sure you want to continue? ")
-                    .arg(ui.altLDConfigPath->text()));
-    emit gui->messageSig(true,box.text());
-    if (box.exec() == QMessageBox::Yes) {
-      ui.altLDConfigPath->clear();
-      ui.altLDConfigBox->setChecked(false);
-    }
-  }
-}
-
-void PreferencesDialog::on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName)
-{
-  QColor newFadeColor = LDrawColor::color(colorName);
-  ui.fadeStepsColourLabel->setPalette(QPalette(newFadeColor));
-  ui.fadeStepsColourLabel->setAutoFillBackground(true);
-}
-
-void PreferencesDialog::on_highlightStepBtn_clicked()
-{
-  QColor highlightColour = QColorDialog::getColor(ui.highlightStepColorLabel->palette().background().color(), this );
-  if( highlightColour.isValid()) {
-    ui.highlightStepColorLabel->setPalette(QPalette(highlightColour));
-    ui.highlightStepColorLabel->setAutoFillBackground(true);
-  }
-}
-
-void PreferencesDialog::on_fadeStepBox_clicked(bool checked)
-{
-  ui.fadeStepsUseColourBox->setEnabled(checked);
-  ui.fadeStepsColoursCombo->setEnabled(checked);
-  ui.fadeStepsOpacityBox->setEnabled(checked);
-  ui.fadeStepsOpacitySlider->setEnabled(checked);
-}
-
-void PreferencesDialog::on_fadeStepsUseColourBox_clicked(bool checked)
-{
-  ui.fadeStepsColoursCombo->setEnabled(checked);
-}
-
-void PreferencesDialog::on_highlightStepBox_clicked(bool checked)
-{
-  ui.highlightStepBtn->setEnabled(checked);
-  ui.highlightStepLabel->setEnabled(checked);
-  //disabled for future use
-  ui.highlightStepLineWidthSpin->setEnabled(false);
-}

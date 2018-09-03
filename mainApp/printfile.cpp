@@ -71,7 +71,7 @@ QPageLayout Gui::getPageLayout(bool nextPage){
       return QPageLayout(pageSize, layoutOrientation, QMarginsF(0,0,0,0));
     }
 
-  emit messageSig(false,tr("Could not load page %1 layout parameters.").arg(pageNum));
+  emit messageSig(LOG_ERROR,tr("Could not load page %1 layout parameters.").arg(pageNum));
   return QPageLayout();
 }
 
@@ -110,7 +110,7 @@ void Gui::getExportPageSize(float &pageWidth, float &pageHeight,int d)
 //                    .arg(displayPageNum);
 
     } else {
-      emit messageSig(false,tr("Could not load page %1 size parameters.").arg(displayPageNum));
+      emit messageSig(LOG_ERROR,tr("Could not load page %1 size parameters.").arg(displayPageNum));
     }
 }
 
@@ -131,7 +131,7 @@ OrientationEnc Gui::getPageOrientation(bool nextPage)
 
       return i.value().orientation;
     }
-  emit messageSig(false,tr("Could not load page %1 orientaiton parameter.").arg(pageNum));
+  emit messageSig(LOG_ERROR,tr("Could not load page %1 orientaiton parameter.").arg(pageNum));
   return InvalidOrientation;
 }
 
@@ -283,7 +283,7 @@ void Gui::checkMixedPageSizeStatus(){
       if (Preferences::modeGUI)
         box.exec();
       else
-        emit messageSig(true,QString("%1").arg(text));
+        emit messageSig(LOG_STATUS,QString("%1").arg(text));
     }
 }
 
@@ -310,7 +310,7 @@ bool Gui::validatePageRange(){
       if (Preferences::modeGUI)
         box.exec();
       else
-        emit messageSig(true,QString("Empty page range. %1").arg(text));
+        emit messageSig(LOG_STATUS,QString("Empty page range. %1").arg(text));
 
       return false;
     }
@@ -351,7 +351,7 @@ bool Gui::validatePageRange(){
       if (Preferences::modeGUI)
         box.exec();
       else
-        emit messageSig(true,QString("Invalid page number(s). %1").arg(text));
+        emit messageSig(LOG_STATUS,QString("Invalid page number(s). %1").arg(text));
 
       return false;
     }
@@ -499,7 +499,7 @@ void Gui::exportAsPdf()
         } else {
           // release 3D Viewer
           setExportingSig(false);
-          emit messageSig(true, QString("Cannot open file. %1").arg(text));
+          emit messageSig(LOG_STATUS, QString("Cannot open file. %1").arg(text));
           return;
         }
     }
@@ -566,7 +566,7 @@ void Gui::exportAsPdf()
                   m_progressDialog->hide();
               displayPageNum = savePageNumber;
               drawPage(KpageView,KpageScene,false);
-              emit messageSig(true,QString("Export to pdf terminated before completion."));
+              emit messageSig(LOG_STATUS,QString("Export to pdf terminated before completion."));
               return;
             }
 
@@ -655,7 +655,7 @@ void Gui::exportAsPdf()
                   m_progressDialog->hide();
               displayPageNum = savePageNumber;
               drawPage(KpageView,KpageScene,false);
-              emit messageSig(true,QString("Export to pdf terminated before completion."));
+              emit messageSig(LOG_STATUS,QString("Export to pdf terminated before completion."));
               return;
             }
 
@@ -753,7 +753,7 @@ void Gui::exportAsPdf()
 #endif
       return;
     } else {
-      emit messageSig(true, "Export to pdf completed!");
+      emit messageSig(LOG_STATUS, "Export to pdf completed!");
       return;
     }
 }
@@ -848,7 +848,7 @@ void Gui::exportAs(QString &suffix)
                   m_progressDialog->hide();
               displayPageNum = savePageNumber;
               drawPage(KpageView,KpageScene,false);
-              emit messageSig(true,QString("Export terminated before completion."));
+              emit messageSig(LOG_STATUS,QString("Export terminated before completion."));
               return;
             }
 
@@ -937,7 +937,7 @@ void Gui::exportAs(QString &suffix)
                   m_progressDialog->hide();
               displayPageNum = savePageNumber;
               drawPage(KpageView,KpageScene,false);
-              emit messageSig(true,QString("Export terminated before completion."));
+              emit messageSig(LOG_STATUS,QString("Export terminated before completion."));
               return;
             }
 
@@ -1047,8 +1047,8 @@ void Gui::exportAs(QString &suffix)
 #endif
       return;
     } else {
-      emit messageSig(true, "Export " + suffix.remove(".") + " completed!");
-      emit messageSig(true, QString("Export " + suffix.remove(".") + " images path: %1").arg(directoryName));
+      emit messageSig(LOG_STATUS, "Export " + suffix.remove(".") + " completed!");
+      emit messageSig(LOG_STATUS, QString("Export " + suffix.remove(".") + " images path: %1").arg(directoryName));
       return;
     }
 }
@@ -1163,7 +1163,7 @@ void Gui::PrintPdf(QPrinter* Printer)
                       m_progressDialog->hide();
                   displayPageNum = savePageNumber;
                   drawPage(KpageView,KpageScene,false);
-                  emit messageSig(true,QString("Exporting terminated before completion."));
+                  emit messageSig(LOG_STATUS,QString("Exporting terminated before completion."));
                   if (preview){
                       m_previewDialog = false;
                     }
@@ -1211,7 +1211,7 @@ void Gui::PrintPdf(QPrinter* Printer)
                           m_progressDialog->hide();
                       displayPageNum = savePageNumber;
                       drawPage(KpageView,KpageScene,false);
-                      emit messageSig(true,QString("%1 terminated before completion.")
+                      emit messageSig(LOG_STATUS,QString("%1 terminated before completion.")
                                       .arg(preview ? "Preview" : "Exporting"));
                       if (preview){
                           m_previewDialog = false;
@@ -1278,7 +1278,7 @@ void Gui::PrintPdf(QPrinter* Printer)
                       m_progressDialog->hide();
                   displayPageNum = savePageNumber;
                   drawPage(KpageView,KpageScene,false);
-                  emit messageSig(true,QString("Exporting terminated before completion."));
+                  emit messageSig(LOG_STATUS,QString("Exporting terminated before completion."));
                   if (preview){
                       m_previewDialog = false;
                     }
@@ -1332,7 +1332,7 @@ void Gui::PrintPdf(QPrinter* Printer)
                           m_progressDialog->hide();
                       displayPageNum = savePageNumber;
                       drawPage(KpageView,KpageScene,false);
-                      emit messageSig(true,QString("%1 terminated before completion.")
+                      emit messageSig(LOG_STATUS,QString("%1 terminated before completion.")
                                       .arg(preview ? "Preview" : "Exporting"));
                       if (preview){
                           m_previewDialog = false;
@@ -1376,7 +1376,7 @@ void Gui::PrintPdf(QPrinter* Printer)
   if (Preferences::modeGUI)
       m_progressDialog->hide();
 
-  emit messageSig(true,QString("%1 completed.").arg(preview ? "Preview" : "Export to pdf"));
+  emit messageSig(LOG_STATUS,QString("%1 completed.").arg(preview ? "Preview" : "Export to pdf"));
 
   if (preview){
       m_previewDialog = false;
@@ -1425,7 +1425,7 @@ void Gui::showPrintedFile(){
 #endif
           return;
         } else {
-          emit messageSig(true, "Export to pdf completed!");
+          emit messageSig(LOG_STATUS, "Export to pdf completed!");
           return;
 
         }

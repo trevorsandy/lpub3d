@@ -124,7 +124,7 @@ Files:
 Copyright: 2007-2009 Kevin Clague <kevin.clague@gmail.com>
 License: GPL-2
 
-Files: lc_lib/*
+Files: lclib/*
 Copyright: 2002-2015 Leonardo Zide <leozide@gmail.com>
 License: GPL-2
 

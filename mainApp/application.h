@@ -104,6 +104,9 @@ private:
     /// Print details flag
     bool m_print_output;
 
+    /// Redirect input/output to console
+    bool m_redirect_io_to_console;
+
     /// File specified on via commandline
     QString m_commandline_file;
 
@@ -127,7 +130,7 @@ private:
     WORD m_currentConsoleAttr;
 
     /// indicate if using allocated console
-    bool m_allocated_console;
+    BOOL m_allocated_console;
 #endif
 };
 
@@ -142,12 +145,15 @@ private:
         } \
         catch(const InitException &ex) \
         { \
-           qDebug() << QString("Could not initialize the application."); \
+           fprintf(stdout, "Could not initialize the application."); \
         } \
         catch(...) \
         { \
-           qDebug() << QString("A fatal error ocurred."); \
+           fprintf(stdout, "A fatal error ocurred."); \
         } \
         return app->run(); \
     }
+
+void clearCustomPartCache(bool silent = false);
+void clearAndRedrawPage();
 #endif // APPLICATION_H

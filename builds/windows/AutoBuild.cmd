@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: April 28, 2018
+rem  Last Update: June 30, 2018
 rem  Copyright (c) 2017 - 2018 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -47,9 +47,11 @@ IF "%APPVEYOR%" EQU "True" (
   SET LDRAW_DOWNLOAD_DIR=%USERPROFILE%
   SET LDRAW_LIBS=%USERPROFILE%
   SET LDRAW_DIR=%USERPROFILE%\LDraw
-  SET LP3D_QT32_MSYS2=C:\Msys2\Msys64\mingw32\bin
-  SET LP3D_QT64_MSYS2=C:\Msys2\Msys64\mingw64\bin
+  SET LP3D_QT32_MSVC=C:\Qt\IDE\5.11.1\msvc2015\bin
+  SET LP3D_QT64_MSVC=C:\Qt\IDE\5.11.1\msvc2015_64\bin
 )
+
+SET LP3D_VCVARSALL=C:\program files (x86)\Microsoft Visual Studio 14.0\VC
 SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 SET LP3D_WIN_GIT_MSG=%LP3D_WIN_GIT%
 SET SYS_DIR=%SystemRoot%\System32
@@ -79,24 +81,24 @@ IF NOT [%1]==[] (
 
 rem Parse platform input flags
 IF [%1]==[] (
-  IF NOT EXIST "%LP3D_QT32_MSYS2%" GOTO :LIBRARY_ERROR
-  IF NOT EXIST "%LP3D_QT64_MSYS2%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT32_MSVC%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
   SET PLATFORM=-all
   GOTO :SET_CONFIGURATION
 )
 IF /I "%1"=="x86" (
-  IF NOT EXIST "%LP3D_QT32_MSYS2%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT32_MSVC%" GOTO :LIBRARY_ERROR
   SET PLATFORM=x86
   GOTO :SET_CONFIGURATION
 )
 IF /I "%1"=="x86_64" (
-  IF NOT EXIST "%LP3D_QT64_MSYS2%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
   SET PLATFORM=x86_64
   GOTO :SET_CONFIGURATION
 )
 IF /I "%1"=="-all" (
-  IF NOT EXIST "%LP3D_QT32_MSYS2%" GOTO :LIBRARY_ERROR
-  IF NOT EXIST "%LP3D_QT64_MSYS2%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT32_MSVC%" GOTO :LIBRARY_ERROR
+  IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
   SET PLATFORM=-all
   GOTO :SET_CONFIGURATION
 )
@@ -171,8 +173,8 @@ IF "%APPVEYOR%" EQU "True" (
 )
 ECHO   PACKAGE........................[%PACKAGE%]
 ECHO   CONFIGURATION..................[%CONFIGURATION%]
-ECHO   LP3D_QT32_MSYS2................[%LP3D_QT32_MSYS2%]
-ECHO   LP3D_QT64_MSYS2................[%LP3D_QT64_MSYS2%]
+ECHO   LP3D_QT32_MSVC.................[%LP3D_QT32_MSVC%]
+ECHO   LP3D_QT64_MSVC.................[%LP3D_QT64_MSVC%]
 ECHO   WORKING_DIRECTORY_LPUB3D.......[%ABS_WD%]
 ECHO   DISTRIBUTION_DIRECTORY.........[%DIST_DIR:/=\%]
 ECHO   LDRAW_DIRECTORY................[%LDRAW_DIR%]
@@ -213,7 +215,7 @@ IF /I "%PLATFORM%"=="-all" (
 
 rem Configure buid arguments and set environment variables
 CALL :CONFIGURE_BUILD_ENV
-
+CD /D "%ABS_WD%"
 ECHO.
 ECHO -Building %PLATFORM% platform, %CONFIGURATION% configuration...
 rem Build 3rd party build from source
@@ -224,7 +226,7 @@ qmake -v & ECHO.
 rem Configure makefiles
 qmake %LPUB3D_CONFIG_ARGS%
 rem perform build
-mingw32-make
+nmake.exe
 rem Package 3rd party install content - this must come before check so check can use staged content for test
 IF %INSTALL%==1 CALL :STAGE_INSTALL
 rem Perform build check if specified
@@ -239,6 +241,7 @@ FOR %%P IN ( x86, x86_64 ) DO (
   SET PLATFORM=%%P
   rem Configure buid arguments and set environment variables
   CALL :CONFIGURE_BUILD_ENV
+  CD /D "%ABS_WD%"
   rem Build 3rd party build from source
   IF %BUILD_THIRD%==1 ECHO.
   IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
@@ -250,7 +253,7 @@ FOR %%P IN ( x86, x86_64 ) DO (
   qmake -v & ECHO.
   rem Configure makefiles and launch make
   SETLOCAL ENABLEDELAYEDEXPANSION
-  qmake !LPUB3D_CONFIG_ARGS! & mingw32-make !LPUB3D_MAKE_ARGS!
+  qmake !LPUB3D_CONFIG_ARGS! & nmake.exe !LPUB3D_MAKE_ARGS!
   ENDLOCAL
   rem Package 3rd party install content - this must come before check so check can use staged content for test
   IF %INSTALL%==1 CALL :STAGE_INSTALL
@@ -268,11 +271,20 @@ ECHO -Cleanup any previous LPub3D qmake config files...
 FOR /R %%I IN (
   ".qmake.stash"
   "Makefile*"
+  "lclib\Makefile*"
   "ldrawini\Makefile*"
-  "quazip\Makefile*"
-  "quazip\object_script.*"
+  "ldvlib\gl2ps\Makefile*"
+  "ldvlib\LDExporter\Makefile*"
+  "ldvlib\LDLib\Makefile*"
+  "ldvlib\LDLoader\Makefile*"
+  "ldvlib\LDVQt\Makefile*"
+  "ldvlib\TCFoundation\Makefile*"
+  "ldvlib\TRE\Makefile*"
+  "ldvlib\libjpeg\Makefile*"
+  "ldvlib\libpng\Makefile*"
+  "ldvlib\tinyxml\Makefile*"
   "mainApp\Makefile*"
-  "mainApp\object_script.*"
+  "quazip\Makefile*"
 ) DO DEL /S /Q "%%~I" >nul 2>&1
 ECHO.
 ECHO   PLATFORM (BUILD_ARCH)..........[%PLATFORM%]
@@ -294,13 +306,18 @@ IF "%APPVEYOR%" EQU "True" (
   SET LP3D_DIST_DIR_PATH=%CD%\%DIST_DIR%
 )
 IF %PLATFORM% EQU x86 (
-  SET PATH=%LP3D_QT32_MSYS2%;%PATH%
+  ECHO.
+  CALL "%LP3D_QT32_MSVC%\qtenv2.bat"
+  CALL "%LP3D_VCVARSALL%\vcvarsall.bat" %PLATFORM%
 ) ELSE (
-  SET PATH=%LP3D_QT64_MSYS2%;%PATH%
+  ECHO.
+  CALL "%LP3D_QT64_MSVC%\qtenv2.bat"
+  CALL "%LP3D_VCVARSALL%\vcvarsall.bat" x64
 )
-SET LPUB3D_MAKE_ARGS=-f Makefile
+SET LPUB3D_MAKE_ARGS=-c -f Makefile
 SET PATH_PREPENDED=True
 
+ECHO.
 ECHO   LPUB3D_CONFIG_ARGS.............[%LPUB3D_CONFIG_ARGS%]
 SETLOCAL ENABLEDELAYEDEXPANSION
 ECHO(  PATH_PREPEND...................[!PATH!]
@@ -322,60 +339,8 @@ IF NOT EXIST "%DIST_DIR%" (
   EXIT /b
 )
 SET PKG_PLATFORM=%1
-rem Construct the staged files path
-SET PKG_DISTRO_DIR=%PACKAGE%_%PKG_PLATFORM%
-SET PKG_PRODUCT_DIR=%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%
-SET PKG_TARGET_DIR=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_DIR%
-SET PKG_CHECK_FILE=%ABS_WD%\builds\check\ldraw_test.mpd
-rem SET PKG_TARGET=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_DIR%\%PACKAGE%%LP3D_APP_VER_SUFFIX%.exe
-SET PKG_TARGET=%PKG_TARGET_DIR%\%PACKAGE%.exe
-rem Checks
-SET PKG_CHECK_OPTIONS=--process-file
-SET PKG_CHECK_FILE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
-
-SET PKG_CHECK_OPTIONS=--process-export --range 1-3 --clear-cache --preferred-renderer ldglite
-SET PKG_CHECK_EXPORT_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
-
-SET PKG_CHECK_OPTIONS=--process-export --export-option jpg --preferred-renderer povray
-SET PKG_CHECK_RANGE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
-
-CALL :CHECK_LDRAW_DIR
-CALL :SET_LDRAW_LIBS
-
-ECHO.
-ECHO   PKG_CHECK_OPTIONS......[%PKG_CHECK_OPTIONS%]
-ECHO   PKG_DISTRO_DIR.........[%PKG_DISTRO_DIR%]
-ECHO   PKG_PRODUCT_DIR........[%PKG_PRODUCT_DIR%]
-ECHO   PKG_TARGET_DIR.........[%PKG_TARGET_DIR%]
-ECHO   PKG_TARGET.............[%PKG_TARGET%]
-ECHO   PKG_CHECK_COMMAND......[%PKG_CHECK_COMMAND%]
-ECHO.
-ECHO -Check for executable file...
-ECHO.
-IF NOT EXIST "%PKG_TARGET%" (
-  ECHO -ERROR - %PKG_TARGET% does not exist, build check will exit.
-  EXIT /b
-) ELSE (
-  ECHO -%PKG_TARGET% found.
-  ECHO.
-  CALL %PKG_CHECK_FILE_COMMAND%
-  ECHO.
-  CALL %PKG_CHECK_EXPORT_COMMAND%
-  ECHO.
-  CALL %PKG_CHECK_RANGE_COMMAND%
-rem  CALL %PKG_CHECK_COMMAND% > Check.out 2>&1
-rem  FOR %%R IN (Check.out) DO (
-rem    IF NOT %%~zR LSS 1 (
-rem      TYPE "Check.out"
-rem      ECHO.
-rem      DEL /Q "Check.out"
-rem      ECHO -Build check successful!
-rem      ECHO.
-rem    ) ELSE (
-rem      ECHO. -ERROR - build check failed.
-rem    )
-rem  )
-)
+rem run build checks
+CALL builds\check\build_checks.bat
 EXIT /b
 
 :STAGE_INSTALL
@@ -383,91 +348,7 @@ ECHO.
 ECHO -Staging distribution files...
 ECHO.
 rem Perform build and stage package components
-mingw32-make %LPUB3D_MAKE_ARGS% install
-EXIT /b
-
-:CHECK_LDRAW_DIR
-ECHO.
-ECHO -Check for LDraw library...
-IF NOT EXIST "%LDRAW_DIR%\parts" (
-  ECHO.
-  ECHO -LDraw directory %LDRAW_DIR% does not exist - creating...
-  REM SET CHECK=0
-  IF NOT EXIST "%LDRAW_LIBS%\%OfficialCONTENT%" (
-    ECHO.
-    ECHO -LDraw archive library %LDRAW_LIBS%\%OfficialCONTENT% does not exist - Downloading...
-
-    CALL :DOWNLOAD_LDRAW_LIBS
-
-  ) ELSE (
-    COPY /V /Y "%LDRAW_LIBS%\%OfficialCONTENT%" "%LDRAW_DOWNLOAD_DIR%\" /A | findstr /i /v /r /c:"copied\>"
-  )
-  IF EXIST "%LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT%" (
-    IF EXIST "%zipWin64%" (
-      ECHO.
-      ECHO -7zip exectutable found at "%zipWin64%"
-      ECHO.
-      ECHO -Extracting %OfficialCONTENT%...
-      ECHO.
-      "%zipWin64%\7z.exe" x -o"%LDRAW_DOWNLOAD_DIR%\" "%LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT%" | findstr /i /r /c:"^Extracting\>" /c:"^Everything\>"
-      IF EXIST "%LDRAW_DIR%\parts" (
-        ECHO.
-        ECHO -LDraw directory %LDRAW_DIR% extracted.
-        ECHO.
-        ECHO -Cleanup %OfficialCONTENT%...
-        DEL /Q "%LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT%"
-        ECHO.
-        ECHO -Set LDRAWDIR to %LDRAW_DIR%.
-        SET LDRAWDIR=%LDRAW_DIR%
-      )
-    ) ELSE (
-      ECHO [WARNING] Could not find 7zip executable.
-      SET CHECK=0
-    )
-  ) ELSE (
-    ECHO.
-    ECHO -[WARNING] Could not find %LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT%.
-    SET CHECK=0
-  )
-) ELSE (
-  ECHO.
-  ECHO -LDraw directory exist at [%LDRAW_DIR%].
-  ECHO.
-  ECHO -Set LDRAWDIR to %LDRAW_DIR%.
-  SET LDRAWDIR=%LDRAW_DIR%
-)
-EXIT /b
-
-:SET_LDRAW_LIBS
-IF NOT EXIST "%LDRAW_LIBS%\%OfficialCONTENT%" (
-  ECHO.
-  ECHO -LDraw archive libs does not exist - Downloading...
-
-  CALL :DOWNLOAD_LDRAW_LIBS for_build_check
-
-  IF NOT EXIST "%LDRAW_LIBS%\" (
-    ECHO.
-    ECHO -Create LDraw archive libs store %LDRAW_LIBS%
-    MKDIR "%LDRAW_LIBS%\"
-  )
-  IF EXIST "%LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT%" (
-    MOVE /Y %LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT% %LDRAW_LIBS%\%OfficialCONTENT% | findstr /i /v /r /c:"moved\>"
-  ) ELSE (
-    ECHO.
-    ECHO -ERROR - LDraw archive libs %LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT% does not exist.
-  )
-  IF EXIST "%LDRAW_DOWNLOAD_DIR%\%LPub3DCONTENT%" (
-    MOVE /Y %LDRAW_DOWNLOAD_DIR%\%LPub3DCONTENT% %LDRAW_LIBS%\%LPub3DCONTENT% | findstr /i /v /r /c:"moved\>"
-  ) ELSE (
-    ECHO -ERROR - LDraw archive libs %LDRAW_DOWNLOAD_DIR%\%LPub3DCONTENT% does not exist.
-  )
-)
-IF EXIST "%LDRAW_LIBS%\%OfficialCONTENT%" (
-  COPY /V /Y "%LDRAW_LIBS%\%OfficialCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | findstr /i /v /r /c:"copied\>"
-)
-IF EXIST "%LDRAW_LIBS%\%LPub3DCONTENT%" (
-  COPY /V /Y "%LDRAW_LIBS%\%LPub3DCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | findstr /i /v /r /c:"copied\>"
-)
+nmake.exe %LPUB3D_MAKE_ARGS% install
 EXIT /b
 
 :DOWNLOAD_LDRAW_LIBS

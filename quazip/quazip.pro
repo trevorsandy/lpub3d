@@ -2,6 +2,7 @@ TEMPLATE = lib
 CONFIG += qt warn_on
 QT -= gui
 unix:!macx: CONFIG += staticlib
+win32-msvc*: CONFIG  += staticlib
 
 # The ABI version.
 win32: VERSION = 0.7.3.0  # major.minor.patch.build
@@ -37,7 +38,13 @@ win32 {
 
     QMAKE_EXT_OBJ = .obj
     CONFIG += windows
-    greaterThan(QT_MAJOR_VERSION, 4): LIBS += -lz
+
+    win32-msvc* {
+    DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
+    INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+    } else {
+        LIBS += -lz
+    }
 
     QMAKE_TARGET_COMPANY = "Sergey A. Tachenov"
     QMAKE_TARGET_DESCRIPTION = "C++ wrapper over Gilles Vollant's ZIP/UNZIP"
@@ -88,4 +95,3 @@ UI_DIR          = $$DESTDIR/.ui
 # Input files
 include(quazip.pri)
 include(../LPub3DPlatformSpecific.pri)
-

@@ -34,6 +34,7 @@
 #include <QString>
 #include <QStringList>
 #include <QHash>
+
 #include "range_element.h"
 #include "pli.h"
 #include "meta.h"
@@ -43,7 +44,7 @@
 class Meta;
 class Callout;
 class Range;
-class ImageMatting;
+class ImageMatt;
 enum PlacementType;
 
 class Step : public AbstractRangeElement
@@ -70,7 +71,7 @@ class Step : public AbstractRangeElement
     QString               ldrName;
     QString               pngName;
     QString               csiKey;
-    QString               csi3DName;
+    ViewerOptions         viewerOptions;
     PlacementHeader       pageHeader;
     PlacementFooter       pageFooter;
 
@@ -106,7 +107,14 @@ class Step : public AbstractRangeElement
            QPixmap            *pixmap,
            Meta               &meta);
 
-    int Load3DCsi(QString &csi3DName);
+    int viewerCSI(QStringList &csiParts,
+                  bool doFadeStep,
+                  bool doHighlightStep);
+
+    int viewerCSISubModels(QStringList &subModels,
+                           QStringList &subModelParts,
+                           bool doFadeStep,
+                           bool doHighlightStep);
 
     int  sizeit(int  rows[],
                 int  cols[],

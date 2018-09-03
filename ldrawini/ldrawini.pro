@@ -1,7 +1,8 @@
 TEMPLATE = lib
 CONFIG += qt warn_on
 QT -= gui
-unix:!macx: CONFIG += staticlib
+unix:!macx: CONFIG  += staticlib
+win32-msvc*: CONFIG  += staticlib
 
 # The ABI version.
 # Version format is year.month.day.patch
@@ -23,6 +24,9 @@ win32 {
 
     QMAKE_EXT_OBJ = .obj
     CONFIG += windows
+
+    win32-msvc*: \
+    DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
 
     QMAKE_TARGET_COMPANY = "Lars C. Hassing"
     QMAKE_TARGET_DESCRIPTION = "LDrawDir and SearchDirs API"
@@ -70,6 +74,8 @@ include(ldrawini.pri)
 include(../LPub3DPlatformSpecific.pri)
 
 # Suppress warnings
+!win32-msvc* {
 QMAKE_CFLAGS_WARN_ON += -Wall -W \
     -Wno-sign-compare
 QMAKE_CXXFLAGS_WARN_ON = $${QMAKE_CFLAGS_WARN_ON}
+}

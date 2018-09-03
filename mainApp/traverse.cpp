@@ -32,11 +32,7 @@
  ***************************************************************************/
 
 #include "lpub.h"
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 #include <QtWidgets>
-#else
-#include <QtGui>
-#endif
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QString>
@@ -297,7 +293,7 @@ int Gui::drawPage(
       steps->meta.LPub.page.pageFooter.size.setValue(0,pW);
     }
 
-  emit messageSig(true, "Processing draw page for " + current.modelName + "...");
+  emit messageSig(LOG_STATUS, "Processing draw page for " + current.modelName + "...");
 
   /*
    * do until end of page
@@ -524,7 +520,7 @@ int Gui::drawPage(
               /* remind user what file we're working on */
 
 //              statusBar()->showMessage("Processing " + current.modelName);
-              emit messageSig(true, "Processing " + current.modelName + "...");
+              emit messageSig(LOG_STATUS, "Processing " + current.modelName + "...");
             }
 
         } else if (tokens.size() > 0 &&
@@ -952,25 +948,25 @@ int Gui::drawPage(
                       page->instances = instances;
                     }
 
-                  emit messageSig(true, "Add graphics for multi-step page " + current.modelName);
+                  emit messageSig(LOG_STATUS, "Add graphics for multi-step page " + current.modelName);
 
                   if (renderer->useLDViewSCall() && ldrStepFiles.size() > 0){
                       QElapsedTimer timer;
                       timer.start();
 
-                      int rc = renderer->renderLDViewSCallCsi(ldrStepFiles, csiKeys, steps->meta);
+                      QString empty("");
+                      int rc = renderer->renderCsi(empty,ldrStepFiles,csiKeys,empty,steps->meta);
                       if (rc != 0) {
-                          QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                                QMessageBox::tr("Render CSI images failed."));
+                          emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
                           return rc;
                         }
 
                       logTrace() << Render::getRenderer()
-                                 << "CSI single call render took"
+                                 << "CSI (Single Call) render took"
                                  << timer.elapsed() << "milliseconds"
                                  << "to render " << ldrStepFiles.size()
-                                 << (ldrStepFiles.size() == 1 ? "image" : "images")
-                                 << (calledOut ? "for called out," : "for simple,")
+                                 << (ldrStepFiles.size() == 1 ? "image" : "images") << "for"
+                                 << (calledOut ? "called out," : "simple,")
                                  << "step group on page" << stepPageNum << ".";
                     }
 
@@ -1007,7 +1003,7 @@ int Gui::drawPage(
                       range->append(step);
                     }
 
-                  emit messageSig(true, "Processing bfx model (CSI) for " + topOfStep.modelName + "...");
+                  emit messageSig(LOG_STATUS, "Processing bfx model (CSI) for " + topOfStep.modelName + "...");
                   csiName = step->csiName();
                   (void) step->createCsi(
                         isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
@@ -1085,7 +1081,7 @@ int Gui::drawPage(
                           step->placeRotateIcon = true;
                         }
 
-                      emit messageSig(true, "Processing model (CSI) for " + topOfStep.modelName + "...");
+                      emit messageSig(LOG_STATUS, "Processing model (CSI) for " + topOfStep.modelName + "...");
                       csiName = step->csiName();
                       int rc = step->createCsi(
                             isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
@@ -1165,27 +1161,25 @@ int Gui::drawPage(
                             }
                         }
 
-                      emit messageSig(true, "Add graphics for single-step page...");
+                      emit messageSig(LOG_STATUS, "Add graphics for single-step page...");
 
                       if (renderer->useLDViewSCall() && ldrStepFiles.size() > 0){
 
                           QElapsedTimer timer;
                           timer.start();
-
-                          int rc = renderer->renderLDViewSCallCsi(ldrStepFiles, csiKeys, steps->meta);
-
+                          QString empty("");
+                          int rc = renderer->renderCsi(empty,ldrStepFiles,csiKeys,empty,steps->meta);
                           if (rc != 0) {
-                              QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                                    QMessageBox::tr("Render CSI images failed."));
+                              emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
                               return rc;
                             }
 
                           logTrace() << Render::getRenderer()
-                                     << "CSI single call render took"
+                                     << "CSI (Single Call) render took"
                                      << timer.elapsed() << "milliseconds"
-                                     << "to render " << ldrStepFiles.size()
-                                     << (ldrStepFiles.size() == 1 ? "image" : "images")
-                                     << (calledOut ? "for called out," : "for simple,")
+                                     << "to render" << ldrStepFiles.size()
+                                     << (ldrStepFiles.size() == 1 ? "image" : "images") << "for"
+                                     << (calledOut ? "called out," : "simple,")
                                      << "single step on page" << stepPageNum << ".";
                         }
 
@@ -1302,7 +1296,7 @@ int Gui::findPage(
 
   RotStepMeta saveRotStep = meta.rotStep;
 
-  emit messageSig(true, "Processing find page for " + current.modelName + "...");
+  emit messageSig(LOG_STATUS, "Processing find page for " + current.modelName + "...");
 
   for ( ;
         current.lineNumber < numLines;
@@ -2401,12 +2395,20 @@ void Gui::writeToTmp(const QString &fileName,
           split(line,tokens);
           if (tokens.size()) {
               if (tokens[0] != "0") {
-                  csiParts << line;
-                } else if (tokens.size() == 11 &&
-                           tokens[0] == "0"    &&
-                           tokens[1] == "!COLOUR") {
-                  csiParts << line;
-                } else {
+                 csiParts << line;
+              } else if (tokens.size() == 11 &&
+                          tokens[0] == "0"    &&
+                          tokens[1] == "!COLOUR") {
+                 csiParts << line;
+              } else if ((tokens.size() == 2 || tokens.size() == 3) &&
+                         tokens[0] == "0"    &&
+                        (tokens[1] == "!FADE")) {
+                csiParts << line;
+             } else if ((tokens.size() == 2 || tokens.size() == 4) &&
+                          tokens[0] == "0"    &&
+                         (tokens[1] == "!SILHOUETTE")) {
+                 csiParts << line;
+              } else {
                   Meta meta;
                   Rc   rc;
                   Where here(fileName,i);
@@ -2461,11 +2463,11 @@ void Gui::writeToTmp()
       emit progressPermRangeSig(1, ldrawFile._subFileOrder.size());
       emit progressPermMessageSig("Processing submodels...");
     }
-  emit messageSig(true, "Writing submodels to temp directory...");
+  emit messageSig(LOG_STATUS, "Writing submodels to temp directory...");
 
   bool upToDate = true;
   bool doFadeStep  = page.meta.LPub.fadeStep.fadeStep.value();
-  bool doHighlightStep = page.meta.LPub.highlightStep.highlightStep.value();
+  bool doHighlightStep = page.meta.LPub.highlightStep.highlightStep.value() && !suppressColourMeta();
 
   QString fadeColor = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
 
@@ -2483,7 +2485,7 @@ void Gui::writeToTmp()
           // write normal submodels...
           upToDate = false;
           writeToTmp(fileName,content);
-          emit messageSig(true, "Writing submodel to temp directory: " + fileName);
+          emit messageSig(LOG_STATUS, "Writing submodel to temp directory: " + fileName);
 
           // capture file name extensions
           QString extension = QFileInfo(fileName).suffix().toLower();
@@ -2504,7 +2506,7 @@ void Gui::writeToTmp()
             /* Faded version of submodels */
             configuredContent = configureModelSubFile(content, fadeColor, FADE_PART);
             writeToTmp(fadeFileName,configuredContent);
-            emit messageSig(true, "Writing fade submodels to temp directory: " + fadeFileName);
+            emit messageSig(LOG_STATUS, "Writing fade submodels to temp directory: " + fadeFileName);
           }
           // write configured (Highlight) submodels
           if (doHighlightStep) {
@@ -2519,7 +2521,7 @@ void Gui::writeToTmp()
             /* Highlighted version of submodels */
             configuredContent = configureModelSubFile(content, fadeColor, HIGHLIGHT_PART);
             writeToTmp(highlightFileName,configuredContent);
-            emit messageSig(true, "Writing highlight submodel to temp directory: " + highlightFileName);
+            emit messageSig(LOG_STATUS, "Writing highlight submodel to temp directory: " + highlightFileName);
           }
       }
   }
@@ -2527,7 +2529,7 @@ void Gui::writeToTmp()
       emit progressPermSetValueSig(ldrawFile._subFileOrder.size());
       emit removeProgressPermStatusSig();
     }
-  emit messageSig(true, upToDate ? "No submodels written; temp directory up to date." : "Submodels written to temp directory.");
+  emit messageSig(LOG_STATUS, upToDate ? "No submodels written; temp directory up to date." : "Submodels written to temp directory.");
 }
 
 /*
@@ -2545,6 +2547,8 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
   }
 
   QStringList configuredContents, subfileColourList;
+  bool FadeMetaAdded = false;
+  bool SilhouetteMetaAdded = false;
 
   if (contents.size() > 0) {
 
@@ -2555,7 +2559,20 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
           QString contentLine = contents[index];
           split(contentLine, argv);
           if (argv.size() == 15 && argv[0] == "1") {
-              if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR) {
+              // Insert opening fade meta
+              if (!FadeMetaAdded && Preferences::enableFadeSteps && partType == FADE_PART){
+                 configuredContents.insert(index,QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity));
+                 FadeMetaAdded = true;
+              }
+              // Insert opening silhouette meta
+              if (!SilhouetteMetaAdded && Preferences::enableHighlightStep && partType == HIGHLIGHT_PART){
+                 configuredContents.insert(index,QString("0 !SILHOUETTE %1 %2")
+                                                         .arg(Preferences::highlightStepLineWidth)
+                                                         .arg(Preferences::highlightStepColour));
+                 SilhouetteMetaAdded = true;
+              }
+              if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR &&
+                  argv[1] != LDRAW_MAIN_MATERIAL_COLOUR) {
                   // generate fade colour entry
                   QString colourCode = Preferences::fadeStepsUseColour ? fadeColour : argv[1];
                   if (!colourEntryExist(subfileColourList,argv[1], partType))
@@ -2586,12 +2603,23 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
             }
           contentLine = argv.join(" ");
           configuredContents  << contentLine;
+
+          // Insert closing fade and silhouette metas
+          if (index+1 == contents.size()){
+              if (FadeMetaAdded){
+                 configuredContents.append(QString("0 !FADE"));
+              }
+              if (SilhouetteMetaAdded){
+                 configuredContents.append(QString("0 !SILHOUETTE"));
+              }
+          }
       }
   } else {
     return contents;
   }
   // add the colour list to the header of the configuredContents
   subfileColourList.toSet().toList();  // remove dupes
+
   configuredContents.prepend("0");
   for (int i = 0; i < subfileColourList.size(); ++i)
     configuredContents.prepend(subfileColourList.at(i));
@@ -2608,7 +2636,9 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
 
   QStringList configuredCsiParts, stepColourList;
   bool doFadeStep  = page.meta.LPub.fadeStep.fadeStep.value();
-  bool doHighlightStep = page.meta.LPub.highlightStep.highlightStep.value();
+  bool doHighlightStep = page.meta.LPub.highlightStep.highlightStep.value() && !suppressColourMeta();
+  bool FadeMetaAdded = false;
+  bool SilhouetteMetaAdded = false;
 
   if (csiParts.size() > 0 && stepNum > 1) {
 
@@ -2650,7 +2680,7 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
               // check if is colour part
               is_colour_part = ldrawColourParts.isLDrawColourPart(fileNameStr);
 
-              emit messageSig(true, "Configuring custom parts for " + fileNameStr);
+              emit messageSig(LOG_STATUS, "Configuring custom parts for " + fileNameStr);
           }
 
           // check if is submodel
@@ -2665,7 +2695,13 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
           // write fade step entries
           if (doFadeStep && (updatePosition <= prevStepPosition)) {
               if (type_1_5_line) {
-                  if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR) {
+                  // Insert opening fade meta
+                  if (!FadeMetaAdded && Preferences::enableFadeSteps){
+                     configuredCsiParts.insert(index,QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity));
+                     FadeMetaAdded = true;
+                  }
+                  if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR &&
+                      argv[1] != LDRAW_MAIN_MATERIAL_COLOUR) {
                       // generate fade colour entry
                       QString colourCode = Preferences::fadeStepsUseColour ? fadeColour : argv[1];
                       if (!colourEntryExist(stepColourList,argv[1], FADE_PART))
@@ -2679,11 +2715,11 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                         // process subfiles naming
                         if (is_submodel_file) {
                                if (ldr) {
-                                 fileNameStr = fileNameStr.replace(".ldr", "-fade..ldr");
+                                 fileNameStr = fileNameStr.replace(".ldr", "-fade.ldr");
                                } else if (mpd) {
-                                 fileNameStr = fileNameStr.replace(".mpd", "-fade..mpd");
+                                 fileNameStr = fileNameStr.replace(".mpd", "-fade.mpd");
                                } else if (dat) {
-                                 fileNameStr = fileNameStr.replace(".dat", "-fade..dat");
+                                 fileNameStr = fileNameStr.replace(".dat", "-fade.dat");
                                }
                         }
                         // assign fade part name
@@ -2691,11 +2727,18 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                   }
               }
           }
-
           // write highlight entries
           if (doHighlightStep && (updatePosition > prevStepPosition)) {
               if (type_1_5_line) {
-                  if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR) {
+                  // Insert opening silhouette meta
+                  if (!SilhouetteMetaAdded && Preferences::enableHighlightStep){
+                     configuredCsiParts.append(QString("0 !SILHOUETTE %1 %2")
+                                                       .arg(Preferences::highlightStepLineWidth)
+                                                       .arg(Preferences::highlightStepColour));
+                     SilhouetteMetaAdded = true;
+                  }
+                  if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR &&
+                      argv[1] != LDRAW_MAIN_MATERIAL_COLOUR) {
                       // generate fade colour entry
                       QString colourCode = Preferences::fadeStepsUseColour ? fadeColour : argv[1];
                       if (!colourEntryExist(stepColourList,argv[1], HIGHLIGHT_PART))
@@ -2709,11 +2752,11 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                         // process subfiles naming
                         if (is_submodel_file) {
                                if (ldr) {
-                                 fileNameStr = fileNameStr.replace(".ldr", "-highlight..ldr");
+                                 fileNameStr = fileNameStr.replace(".ldr", "-highlight.ldr");
                                } else if (mpd) {
-                                 fileNameStr = fileNameStr.replace(".mpd", "-highlight..mpd");
+                                 fileNameStr = fileNameStr.replace(".mpd", "-highlight.mpd");
                                } else if (dat) {
-                                 fileNameStr = fileNameStr.replace(".dat", "-highlight..dat");
+                                 fileNameStr = fileNameStr.replace(".dat", "-highlight.dat");
                                }
                         }
                         // assign fade part name
@@ -2727,6 +2770,19 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
 
           // current step parts
           configuredCsiParts  << csiLine;
+
+          // Insert closing fade meta
+          if (updatePosition == prevStepPosition) {
+              if (FadeMetaAdded){
+                 configuredCsiParts.append(QString("0 !FADE"));
+              }
+          }
+          // Insert closing silhouette meta
+          if (index+1 == csiParts.size()){
+              if (SilhouetteMetaAdded){
+                 configuredCsiParts.append(QString("0 !SILHOUETTE"));
+              }
+          }
         }
     } else {
       // no fade step action required so return
@@ -2767,14 +2823,14 @@ QString Gui::createColourEntry(const QString &colourCode, const PartType partTyp
 {
   // Fade Step Alpha Percent (default = 100%) -  e.g. 50% of Alpha 255 rounded up we get ((255 * 50) + (100 - 1)) / 100
 
-  bool _doHighlight          = Preferences::enableHighlightStep && (partType == HIGHLIGHT_PART);
+  bool _doHighlight          = Preferences::enableHighlightStep && (partType == HIGHLIGHT_PART) && !suppressColourMeta();
   QString _colourPrefix      = _doHighlight ? LPUB3D_COLOUR_HIGHLIGHT_PREFIX : LPUB3D_COLOUR_FADE_PREFIX;            // highlight prefix 110, fade prefix 100
   QString _fadeColour        = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
   QString _colourCode        = _colourPrefix + (Preferences::fadeStepsUseColour ? _fadeColour : colourCode);
   QString _mainColourValue   = "#" + ldrawColors.value(colourCode);
   QString _edgeColourValue   = _doHighlight ? Preferences::highlightStepColour : "#" + ldrawColors.edge(colourCode);
   QString _colourDescription = LPUB3D_COLOUR_TITLE_PREFIX + ldrawColors.name(colourCode);
-  int _fadeAlphaValue        = ((ldrawColors.alpha(colourCode) * Preferences::fadeStepsOpacity) + (100 - 1)) / 100;
+  int _fadeAlphaValue        = ((ldrawColors.alpha(colourCode) * (100 - Preferences::fadeStepsOpacity)) + (100 - 1)) / 100;
   int _alphaValue            = _doHighlight ? ldrawColors.alpha(colourCode) : _fadeAlphaValue;                       // use 100% opacity with highlight colour
 
   return QString("0 !COLOUR %1 CODE %2 VALUE %3 EDGE %4 ALPHA %5")

@@ -3,41 +3,50 @@
 # Travis build [after_script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: April 28, 2018
+#  Last Update: June 28, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
-# macOS build check...
+# Build checks...
 
-if [[ "$TRAVIS_OS_NAME" = "osx" && "$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ]]; then
-  echo "- build check LPub3D.app bundle..."
-  # run otool -L on LPub3D.app...
-  if [ -d "mainApp/64bit_release/LPub3D.app" ]; then
-    otool -L mainApp/64bit_release/LPub3D.app/Contents/MacOS/LPub3D 2>/dev/null
-    cd mainApp/64bit_release
-  else
-    echo "ERROR - build output at $(realpath mainApp/64bit_release/LPub3D.app/) not found."
+if [[  "$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ]]; then
+  # Check commands
+  SOURCE_DIR=${LP3D_BUILD_FOLDER}
+  if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+    echo "- build check LPub3D.app bundle..."
+    # run otool -L on LPub3D.app...
+    if [ -d "mainApp/64bit_release/LPub3D.app" ]; then
+      otool -L mainApp/64bit_release/LPub3D.app/Contents/MacOS/LPub3D 2>/dev/null
+      cd mainApp/64bit_release
+    else
+      echo "ERROR - build output at $(realpath mainApp/64bit_release/LPub3D.app/) not found."
+    fi
+    echo "- install library links..."
+    /usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Libs/libLDrawIni.16.dylib
+    /usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Libs/libQuaZIP.0.dylib
+    echo "- change mapping to LPub3D..."
+    /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/MacOS/LPub3D
+    /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/MacOS/LPub3D
+    echo "- bundle LPub3D..."
+    macdeployqt LPub3D.app -verbose=1 -executable=LPub3D.app/Contents/MacOS/LPub3D -always-overwrite
+    echo "- change library dependency mapping..."
+    /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
+    /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
+    echo "- macOS build checks..."
+    LPUB3D_EXE="LPub3D.app/Contents/MacOS/LPub3D"
+    #TODO - move these outside macOS and Linux blocks once Linux block is OK
+    source ${LP3D_BUILD_FOLDER}/builds/check/build_checks.sh
+  elif [ "$TRAVIS_OS_NAME" = "linux" ]; then
+    echo "- Linux build checks [placeholder]..."
+    #TODO setup run environment
+    #-Copy 3rdParty bin contents to opt path and map relative to DESTDIR
+    #-Copy extras and 3rdParty resources contents to share path and map relative to DESTDIR
+    LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
+    echo "- [TEST] LPub3D exe: ${LPUB3D_EXE}"
+    #source ${LP3D_BUILD_FOLDER}/builds/check/build_checks.sh
   fi
-  echo "- install library links..."
-  /usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Libs/libLDrawIni.16.dylib
-  /usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Libs/libQuaZIP.0.dylib
-  echo "- change mapping to LPub3D..."
-  /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/MacOS/LPub3D
-  /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/MacOS/LPub3D
-  echo "- bundle LPub3D..."
-  macdeployqt LPub3D.app -verbose=1 -executable=LPub3D.app/Contents/MacOS/LPub3D -always-overwrite
-  echo "- change library dependency mapping..."
-  /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
-  /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
-  echo "- build checks..."
-  LP3D_CHECK_FILE="${LP3D_BUILD_FOLDER}/builds/check/ldraw_test.mpd"
-  LP3D_CHECK_OPTIONS="--process-file"
-  LPub3D.app/Contents/MacOS/LPub3D $LP3D_CHECK_OPTIONS $LP3D_CHECK_FILE && echo "- file check completed." && echo
-  LP3D_CHECK_OPTIONS="--process-export --range 1-3 --clear-cache --preferred-renderer ldglite"
-  LPub3D.app/Contents/MacOS/LPub3D $LP3D_CHECK_OPTIONS $LP3D_CHECK_FILE && echo "- export check completed." && echo
-  LP3D_CHECK_OPTIONS="--process-export --export-option jpg --preferred-renderer povray"
-  LPub3D.app/Contents/MacOS/LPub3D $LP3D_CHECK_OPTIONS $LP3D_CHECK_FILE && echo "- range check completed." && echo
 fi
+
 if [[ ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && "$TRAVIS_OS_NAME" = "linux" ) ]]; then
   echo "- build check LPub3D.AppImage bundle..."
   file_DPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage -type f);
