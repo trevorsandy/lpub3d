@@ -1,7 +1,7 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
 # Last Update March 09, 2018
 pkgname=lpub3d
-pkgver=2.3.0.861
+pkgver=2.3.0.862
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d.git"
@@ -56,6 +56,19 @@ build() {
 	cd ${pkgname}-git
 	make clean
 	make -j$(nproc)
+	# check lpub3d dependencies
+	LP3D_RELEASE="32bit_release"
+	if [[ "${TARGET_CPU}" = "x86_64" || "${TARGET_CPU}" = "aarch64" ]] ; then
+		LP3D_RELEASE="64bit_release"
+	fi
+	versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
+	validExe="${LP3D_RELEASE}/lpub3d${versuffix}"
+	if [ -f "${validExe}" ] ; then
+		echo "LDD check lpub3d${versuffix}..."
+		ldd ${validExe} 2>/dev/null
+	else
+		echo "ERROR - LDD check failed for ${PWD}/${validExe}"
+	fi
 }
 
 package() {

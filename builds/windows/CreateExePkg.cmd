@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 30, 2018
+rem  Last Update: Aug 10, 2018
 rem  Copyright (c) 2015 - 2018 by Trevor SANDY
 rem --
 SETLOCAL
@@ -104,9 +104,9 @@ SET SignToolExe="C:\Program Files (x86)\Windows Kits\8.1\bin\x64\signtool.exe"
 SET utilitiesPath=..\utilities
 SET devRootPath=..\..\mainApp
 
-SET LDGLITE_DIR=ldglite-1.3
-SET LDVIEW_DIR=ldview-4.3
-SET LPUB3D_TRACE_DIR=lpub3d_trace_cui-3.8
+SET VER_LDGLITE=ldglite-1.3
+SET VER_LDVIEW=ldview-4.3
+SET VER_LPUB3D_TRACE=lpub3d_trace_cui-3.8
 
 SET LDGLITE_EXE=ldglite
 SET LDVIEW_EXE=LDView
@@ -537,13 +537,13 @@ IF %UNIVERSAL_BUILD% EQU 1 (
 >>%genVersion% !define LPub3DBuildFile "%LPUB3D_BUILD_FILE%"
 >>%genVersion% ; ${LPub3DBuildFile}
 >>%genVersion%.
->>%genVersion% !define LDGliteDir "%LDGLITE_DIR%"
+>>%genVersion% !define LDGliteDir "%VER_LDGLITE%"
 >>%genVersion% ; ${LDGliteDir}
 >>%genVersion%.
->>%genVersion% !define LDViewDir "%LDVIEW_DIR%"
+>>%genVersion% !define LDViewDir "%VER_LDVIEW%"
 >>%genVersion% ; ${LDViewDir}
 >>%genVersion%.
->>%genVersion% !define LPub3D_TraceDir "%LPUB3D_TRACE_DIR%"
+>>%genVersion% !define LPub3D_TraceDir "%VER_LPUB3D_TRACE%"
 >>%genVersion% ; ${LPub3D_TraceDir}
 >>%genVersion%.
 >>%genVersion% !define LDGliteExe "%LDGLITE_EXE%"

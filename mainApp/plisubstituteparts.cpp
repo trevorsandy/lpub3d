@@ -20,7 +20,7 @@
 #include <QTextStream>
 
 #include "lpub_preferences.h"
-#include "lpub_messages.h"
+#include "lpubalert.h"
 
 bool                    PliSubstituteParts::result;
 QString                 PliSubstituteParts::empty;
@@ -67,7 +67,7 @@ const bool &PliSubstituteParts::hasSubstitutePart(QString part)
 const bool &PliSubstituteParts::getSubstitutePart(QString &part){
     if (substituteParts.contains(part.toLower().toLower().trimmed())) {
         part = substituteParts.value(part.toLower());
-        emit alert->messageSig(LOG_DEBUG, QString("Substitute Part: ").arg(part));
+        emit lpubAlert->messageSig(LOG_DEBUG, QString("Substitute Part: ").arg(part));
         result = true;
         return result;
     } else {

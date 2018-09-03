@@ -239,6 +239,12 @@ export LDRAWDIR=${HOME}/ldraw
 ${QMAKE_EXEC} -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=rpm DOCS_DIR=%{_docdir}/lpub3d
 make clean
 make %{?_smp_mflags}
+# check lpub3d dependencies
+lp3drelease="32bit_release" && [[ "${TARGET_CPU}" = "x86_64" || "${TARGET_CPU}" = "aarch64" ]] && lp3drelease="64bit_release"
+versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
+validexe="mainApp/${lp3drelease}/lpub3d${versuffix}"
+[ -f "${validexe}" ] && echo "LDD check lpub3d${versuffix}..." && ldd ${validexe} 2>/dev/null || \
+echo "ERROR - LDD check failed for $(realpath ${validexe})"
 
 %install
 make INSTALL_ROOT=%buildroot install

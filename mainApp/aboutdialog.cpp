@@ -294,6 +294,7 @@ QString AboutDialog::osName()
   }
   #endif
 #endif
+
 #ifdef Q_OS_MAC
   #if QT_VERSION >= QT_VERSION_CHECK(5,5,0)
     switch(QSysInfo::MacintoshVersion)
@@ -315,12 +316,13 @@ QString AboutDialog::osName()
     default: return "OS X";
   }
   #endif
-#else
-#if QT_VERSION >= QT_VERSION_CHECK(5,4,0)
-   return QSysInfo::productVersion();
-#else
-   return "unknown";
 #endif
+#ifdef Q_OS_LINUX
+  #if QT_VERSION >= QT_VERSION_CHECK(5,4,0)
+     return QSysInfo::productVersion();
+  #else
+     return "unknown";
+  #endif
 #endif
 }
 

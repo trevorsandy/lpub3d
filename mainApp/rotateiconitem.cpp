@@ -29,7 +29,7 @@
 #include "ranges.h"
 #include "color.h"
 
-#include "lpub_messages.h"
+#include "lpubalert.h"
 
 void RotateIconItem::setAttributes(
   Step           *_step,
@@ -223,7 +223,7 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
         }
 
         if (!fileInfo.exists()) {
-            emit alert->messageSig(LOG_ERROR, QString("Unable to locate rotateincon image %1. Be sure image file "
+            emit lpubAlert->messageSig(LOG_ERROR, QString("Unable to locate rotateincon image %1. Be sure image file "
                                                "is relative to model file or use absolute path.").arg(filename));
             return;
         }

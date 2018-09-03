@@ -115,7 +115,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.3.0.861
+Version: 2.3.0.862
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -640,17 +640,19 @@ cat mainApp/lpub3d-libs.conf || echo "Could not find lpub3d-libs.conf"
 echo "Check updated local library pc file..." && \
 cat %{_builddir}/usr/lib64/pkgconfig/OpenEXR.pc || echo "Could not find %{_builddir}/usr/lib64/pkgconfig/OpenEXR.pc"
 %endif
+# set LDLibrary_Path if using local or custom libraries
+%if 0%{?get_qt5} || 0%{?get_local_libs}
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:%{buildroot}%{_bindir}:%{buildroot}%{_libdir}"
+%endif
+# check lpub3d dependencies
+lp3drelease="32bit_release" && [[ "${TARGET_CPU}" = "x86_64" || "${TARGET_CPU}" = "aarch64" ]] && lp3drelease="64bit_release"
+versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
+validexe="mainApp/${lp3drelease}/lpub3d${versuffix}"
+[ -f "${validexe}" ] && echo "LDD check lpub3d${versuffix}..." && ldd ${validexe} 2>/dev/null || \
+echo "ERROR - LDD check failed for $(realpath ${validexe})"
 
 %install
 make INSTALL_ROOT=%buildroot install
-# check lpub3d dependencies with LDD to ensure all dependencies are met
-%if 0%{?get_qt5} || 0%{?get_local_libs}
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:%{buildroot}%{_bindir}:%{buildroot}%{_libdir}"
-export versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
-validExe=%{buildroot}%{_bindir}/lpub3d${versuffix}
-[ -f "${validExe}" ] && echo "LDD check lpub3d${versuffix}..." && ldd ${validExe} 2>/dev/null || \
-echo "ERROR - LDD check failed for ${validExe}"
-%endif
 %if 0%{?suse_version}
 %suse_update_desktop_file lpub3d Graphics 3DGraphics Publishing Viewer Education Engineering
 %endif
@@ -697,5 +699,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Mon Sep 03 2018 - trevor.dot.sandy.at.gmail.dot.com 2.3.0.861
+* Mon Sep 03 2018 - trevor.dot.sandy.at.gmail.dot.com 2.3.0.862
 - LPub3D Linux package (rpm) release

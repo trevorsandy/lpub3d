@@ -499,13 +499,13 @@ void Updater::onReply (QNetworkReply* reply)
 
                 // sort versions descending 0...10...
                 std::sort(versions.begin(),versions.end());
-                qDebug() << "Versions (sorted): " << versions;
+                //qDebug() << "Versions (sorted): " << versions;
                 for (int i = 0; i < versions.size(); i++) {
                     if (versions[i] == moduleVersion()) {
                         _updateAvailable = true;
                         int updateIndex = i;
                         (updateIndex + 1) == versions.size() ? updateIndex = i : updateIndex = updateIndex + 1;
-                        qDebug() << "Update to version: " << versions[updateIndex];
+                        //qDebug() << "Update to version: " << versions[updateIndex];
                         if (versions[updateIndex] == latestVersion){
                             // Update to version is same as latest version - i.e. reinstall latest version
                             m_openUrl = platform.value ("open-url").toString();

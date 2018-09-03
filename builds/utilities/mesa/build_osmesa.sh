@@ -3,7 +3,7 @@
 # Build all libOSMesa and libGLU libraries - short
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: April 02, 2018
+#  Last Update: August 08, 2018
 #  Copyright (c) 2018 by Trevor SANDY
 #
 # Useage: env WD=$PWD [COPY_CONFIG=1] ./lpub3d/builds/utilities/mesa/buildosmesa.sh
@@ -87,7 +87,7 @@ Info () {
 
 # Check for required 'WD' variable
 if [ "${WD}" = "" ]; then
-	WD="$(cd ../ && pwd)"
+    WD="$(cd ../ && pwd)"
   Info "WARNING - 'WD' environment varialbe not specified. Using $WD"
 fi
 
@@ -109,23 +109,23 @@ Info && Info "building OSMesa..."
 
 cd $WD
 if [[ -d "mesa-${mesaversion}" && "${cleanbuild}" = 1 ]]; then
-	Info "cleanup old mesa-$mesaversion..."
-	rm -rf "mesa-$mesaversion"
-	if [ -d "${osmesaprefix}" ]; then
-		rm -rf "${osmesaprefix}"
-	fi
+    Info "cleanup old mesa-$mesaversion..."
+    rm -rf "mesa-$mesaversion"
+    if [ -d "${osmesaprefix}" ]; then
+        rm -rf "${osmesaprefix}"
+    fi
 fi
 
 #check for llvm-config - and process OBS alternative config (e.g. no gallium)
 if [ ! -f "${llvm_config}" ]; then
   if [ "$OBS" = "true" ]; then
     if [ ! "$nogallium" = 1 ]; then
-      Info "ERROR - llmv-config not found. $ME will terminate"
-      exit 1
+        Info "ERROR - llmv-config not found. $ME will terminate"
+        exit 1
     fi
   else
     Info "llmv-config not found, (re)installing Mesa build dependencies..."
-	  sudo dnf builddep -y mesa
+    sudo dnf builddep -y mesa
   fi
 else
   Info "Found llvm_config at $llvm_config"
@@ -134,9 +134,8 @@ fi
 # sourcepath="${SOURCE_PATH:-projects/Working/Docker-output}"
 if [ ! -f "mesa-${mesaversion}.tar.gz" ]; then
   if [ ! "$OBS" = "true" ]; then
-    #cp -rf "${sourcepath}/mesa-${mesaversion}.tar.gz" . && Info "mesa-${mesaversion}.tar.gz copied to ~/"
-	  Info "downloading Mesa ${mesaversion}..."
-	  curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/mesa-${mesaversion}.tar.gz"
+    Info "downloading Mesa ${mesaversion}..."
+    curl $curlopts -O "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/mesa-${mesaversion}.tar.gz"
   else
     Info "ERROR - archive file mesa-${mesaversion}.tar.gz was not found. $ME will terminate."
     exit 1
@@ -144,12 +143,12 @@ if [ ! -f "mesa-${mesaversion}.tar.gz" ]; then
 fi
 
 if [ ! -d "mesa-${mesaversion}" ]; then
-	Info "extracting Mesa..."
-	tar zxf mesa-${mesaversion}.tar.gz
+    Info "extracting Mesa..."
+    tar zxf mesa-${mesaversion}.tar.gz
 fi
 
 if [ ! -d "${osmesaprefix}" ]; then
-	Info "create install prefix..."
+    Info "create install prefix..."
     mkdir -p "${osmesaprefix}"
 fi
 
@@ -213,32 +212,32 @@ $confopts \
 "
 Info "Using confops: $confopts"
 if [ ! -f "$osmesaprefix/lib/libOSMesa32.a" ]; then
-	# configure command
-	env PKG_CONFIG_PATH="$osmesaprefix/lib/pkgconfig:$PKG_CONFIG_PATH" \
-	./configure ${confopts} CC="$CC" CFLAGS="$CFLAGS" CXX="$CXX" CXXFLAGS="$CXXFLAGS"
+    # configure command
+    env PKG_CONFIG_PATH="$osmesaprefix/lib/pkgconfig:$PKG_CONFIG_PATH" \
+    ./configure ${confopts} CC="$CC" CFLAGS="$CFLAGS" CXX="$CXX" CXXFLAGS="$CXXFLAGS"
 
-	# build command
-	Info && make -j${mkjobs}
+    # build command
+    Info && make -j${mkjobs}
 
-	# install command [sudo is not needed with user install prefix]
-	Info "installing OSMesa..."
-	make install
+    # install command [sudo is not needed with user install prefix]
+    Info "installing OSMesa..."
+    make install
 else
-	Info "library OSMesa32 exist - build skipped."
+    Info "library OSMesa32 exist - build skipped."
 fi
 
 # copy config file
 if [[ $config_copy -eq 1 || ! -f "${osmesaprefix}/osmesa-config" ]]; then
-	cp -f "${ScriptDir}/osmesa-config" "${osmesaprefix}"
-	if [ -f "${osmesaprefix}/osmesa-config" ]; then
-		Info "osmesa-config copied to ${osmesaprefix}"
-		Info "setting permissions..."
-		chmod +x "${osmesaprefix}/osmesa-config"
-	else
-		Info "ERROR - osmesa-config was not copied to ${osmesaprefix}"
-   fi
+    cp -f "${ScriptDir}/osmesa-config" "${osmesaprefix}"
+    if [ -f "${osmesaprefix}/osmesa-config" ]; then
+        Info "osmesa-config copied to ${osmesaprefix}"
+        Info "setting permissions..."
+        chmod +x "${osmesaprefix}/osmesa-config"
+    else
+        Info "ERROR - osmesa-config was not copied to ${osmesaprefix}"
+    fi
 elif  [ -f "${osmesaprefix}/osmesa-config" ]; then
-	Info "osmesa-config exist - copy skipped."
+    Info "osmesa-config exist - copy skipped."
 fi
 
 # build GLU
@@ -246,29 +245,29 @@ Info && Info "building GLU..."
 
 cd $WD
 if [[ -d "glu-$gluversion" && ${cleanbuild} = 1 ]]; then
-	Info "cleanup old glu-$gluversion..."
-	rm -rf "glu-$gluversion"
-	if [ -d "${osmesaprefix}" ]; then
-		rm -rf "${osmesaprefix}"
-	fi
+    Info "cleanup old glu-$gluversion..."
+    rm -rf "glu-$gluversion"
+    if [ -d "${osmesaprefix}" ]; then
+        rm -rf "${osmesaprefix}"
+    fi
 fi
 
 if [ ! -f "glu-${gluversion}.tar.bz2" ]; then
   if [ ! "$OBS" = "true" ]; then
-	  Info "* downloading GLU ${gluversion}..."
-	  curl $curlopts -O "ftp://ftp.freedesktop.org/pub/mesa/glu/glu-${gluversion}.tar.bz2"
+    Info "* downloading GLU ${gluversion}..."
+    curl $curlopts -O "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/glu-${gluversion}.tar.bz2"
   else
     Info "ERROR - archive file glu-${gluversion}.tar.bz2 was not found."
   fi
 fi
 
 if [ ! -d "glu-${gluversion}" ]; then
-	Info "extracting GLU..."
-	tar jxf glu-${gluversion}.tar.bz2
+    Info "extracting GLU..."
+    tar jxf glu-${gluversion}.tar.bz2
 fi
 
 if [ ! -d "${osmesaprefix}" ]; then
-	Info "create install prefix..."
+    Info "create install prefix..."
     mkdir -p "${osmesaprefix}"
 fi
 
@@ -283,18 +282,18 @@ confopts="\
 --prefix=$osmesaprefix \
 "
 if [ ! -f "$osmesaprefix/lib/libGLU.a" ]; then
-	# configure command
-	env PKG_CONFIG_PATH="$osmesaprefix/lib/pkgconfig:$PKG_CONFIG_PATH" \
-	./configure ${confopts} CC="$CC" CFLAGS="$CFLAGS" CXX="$CXX" CXXFLAGS="$CXXFLAGS"
+    # configure command
+    env PKG_CONFIG_PATH="$osmesaprefix/lib/pkgconfig:$PKG_CONFIG_PATH" \
+    ./configure ${confopts} CC="$CC" CFLAGS="$CFLAGS" CXX="$CXX" CXXFLAGS="$CXXFLAGS"
 
-	# build command
-	Info && make -j${mkjobs}
+    # build command
+    Info && make -j${mkjobs}
 
-	# install command [sudo is not needed with user install prefix]
-	Info "installing GLU..."
-	make install
+    # install command [sudo is not needed with user install prefix]
+    Info "installing GLU..."
+    make install
 else
-	Info "library GLU exist - build skipped."
+    Info "library GLU exist - build skipped."
 fi
 cd $WD
 

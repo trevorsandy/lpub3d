@@ -67,7 +67,7 @@ void Gui::openDropFile(QString &fileName){
       timer.start();
       QFileInfo fileInfo(fileName);
       QString extension = fileInfo.suffix().toLower();
-      bool ldr, mpd, dat;
+      bool ldr = false, mpd = false, dat= false;
       ldr = extension == "ldr";
       mpd = extension == "mpd";
       dat = extension == "dat";

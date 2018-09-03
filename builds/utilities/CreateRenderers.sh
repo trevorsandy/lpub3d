@@ -663,8 +663,8 @@ VER_LDGLITE=ldglite-1.3
 VER_LDVIEW=ldview-4.3
 VER_POVRAY=lpub3d_trace_cui-3.8
 # distArch=$(uname -m)
-#if [[ "$distArch" = x86_64 || "$distArch" = "aarch64" ]]; then
-if [[ "$TARGET_CPU" = x86_64 || "$TARGET_CPU" = "aarch64" ]]; then
+#if [[ "$distArch" = "x86_64" || "$distArch" = "aarch64" ]]; then
+if [[ "$TARGET_CPU" = "x86_64" || "$TARGET_CPU" = "aarch64" ]]; then
   buildArch="64bit_release";
 else
   buildArch="32bit_release";

@@ -110,6 +110,18 @@
     <param name="filename">locallibs.el.x86_64.tar.gz</param>
   </service>
   <service name="download_url">
+   <param name="protocol">https</param>
+   <param name="host">github.com</param>
+   <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/mesa-17.2.6.tar.gz</param>
+   <param name="filename">mesa-17.2.6.tar.gz</param>
+  </service>
+  <service name="download_url">
+   <param name="protocol">https</param>
+   <param name="host">github.com</param>
+   <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/glu-9.0.0.tar.bz2</param>
+   <param name="filename">glu-9.0.0.tar.bz2</param>
+  </service>
+  <service name="download_url">
    <param name="protocol">http</param>
    <param name="host">www.ldraw.org</param>
    <param name="path">/library/unofficial/ldrawunf.zip</param>
@@ -119,17 +131,5 @@
    <param name="protocol">http</param>
    <param name="host">www.ldraw.org</param>
    <param name="path">/library/updates/complete.zip</param>
-  </service>
-  <service name="download_url">
-   <param name="protocol">ftp</param>
-   <param name="host">ftp.freedesktop.org</param>
-   <param name="path">/pub/mesa/mesa-17.2.6.tar.gz</param>
-   <param name="filename">mesa-17.2.6.tar.gz</param>
-  </service>
-  <service name="download_url">
-   <param name="protocol">ftp</param>
-   <param name="host">ftp.freedesktop.org</param>
-   <param name="path">/pub/mesa/glu/glu-9.0.0.tar.bz2</param>
-   <param name="filename">glu-9.0.0.tar.bz2</param>
   </service>
 </services>

@@ -355,7 +355,7 @@ HEADERS += \
     ldrawfiles.h \
     ldsearchdirs.h \
     lpub.h \
-    lpub_messages.h \
+    lpubalert.h \
     lpub_preferences.h \
     messageboxresizable.h \
     meta.h \
@@ -402,7 +402,8 @@ HEADERS += \
     threadworkers.h \
     updatecheck.h \
     version.h \
-    where.h
+    where.h \
+    lpubalert.h
 
 SOURCES += \
     aboutdialog.cpp \
@@ -437,7 +438,7 @@ SOURCES += \
     ldrawfiles.cpp \
     ldsearchdirs.cpp \
     lpub.cpp \
-    lpub_messages.cpp \
+    lpubalert.cpp \
     lpub_preferences.cpp \
     meta.cpp \
     metagui.cpp \

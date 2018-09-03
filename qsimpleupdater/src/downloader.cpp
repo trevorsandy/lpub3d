@@ -32,6 +32,7 @@
 #include <QDir>
 #include <QFile>
 #include <QProcess>
+#include <QDateTime>
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QDesktopServices>

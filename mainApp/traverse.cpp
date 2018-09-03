@@ -2636,7 +2636,7 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
 
       for (int index = 0; index < csiParts.size(); index++) {
 
-          bool ldr, mpd, dat;
+          bool ldr = false, mpd = false, dat= false;
           bool type_1_line = false;
           bool type_1_5_line = false;
           bool is_colour_part = false;

@@ -403,7 +403,8 @@ void Preferences::lpubPreferences()
     // On macOS 'dataLocation' folder is /Applications/LPub3D.app/Contents/Resources
     dataLocation = QString("%1/").arg(lpub3dExtrasResourcePath);
 #if defined Q_OS_LINUX
-    qDebug() << qPrintable(QString("LPub3D Renderers Exe Path....(/opt/%1/3rdParty)").arg(lpub3dAppName));
+    QDir rendererDir(QString("%1/../../opt/%2").arg(lpub3dPath).arg(lpub3dAppName));
+    qDebug() << qPrintable(QString("LPub3D Renderers Exe Path....(%1/3rdParty)").arg(rendererDir.absolutePath()));
 #endif
 #endif
 
@@ -1015,7 +1016,7 @@ void Preferences::ldrawPreferences(bool force)
                                 }
                             }
 
-                        } else {                  // Console mode so install extract LDraw Library atutomatically if not exist in searched paths.
+                        } else {                  // Console mode so extract and install LDraw Library atutomatically if not exist in searched paths.
                             QString message = QString("LDraw library was not found. The following locations were searched for the LDraw library:\n%1.\n").arg(searchDetail);
                             fprintf(stdout,"%s",message.toLatin1().constData());
                             if (extractLDrawLib()) {

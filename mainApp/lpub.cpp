@@ -39,6 +39,7 @@
 #include "globals.h"
 #include "resolution.h"
 #include "lpub_preferences.h"
+#include "lpubalert.h"
 #include "preferencesdialog.h"
 #include "render.h"
 #include "metaitem.h"
@@ -2091,8 +2092,9 @@ Gui::Gui()
     connect(undoStack,      SIGNAL(cleanChanged(bool)),
             this,           SLOT(  cleanChanged(bool)));
 
-    connect(this,  SIGNAL(messageSig(LogType,QString)),        this, SLOT(statusMessage(LogType,QString)));
-
+    lpubAlert = new LPubAlert();
+    connect(lpubAlert, SIGNAL(messageSig(LogType,QString)),   this, SLOT(statusMessage(LogType,QString)));
+    connect(this,      SIGNAL(messageSig(LogType,QString)),   this, SLOT(statusMessage(LogType,QString)));
     connect(this, SIGNAL(progressBarInitSig()),               this, SLOT(progressBarInit()));
     connect(this, SIGNAL(progressMessageSig(QString)),        this, SLOT(progressBarSetText(QString)));
     connect(this, SIGNAL(progressRangeSig(int,int)),          this, SLOT(progressBarSetRange(int,int)));

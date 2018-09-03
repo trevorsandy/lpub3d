@@ -3,68 +3,39 @@
 # Travis build [after_script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: June 28, 2018
+#  Last Update: August 10, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
-# Build checks...
 
+# Build checks...
 if [[  "$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ]]; then
-  # Check commands
   if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-    echo "- build check LPub3D.app bundle..."
-    SOURCE_DIR=${LP3D_BUILD_FOLDER}/../dmgbuild/lpub3d
-    cd $SOURCE_DIR/
-    # run otool -L on LPub3D.app...
-    if [ -d "mainApp/64bit_release/LPub3D.app" ]; then
-      otool -L mainApp/64bit_release/LPub3D.app/Contents/MacOS/LPub3D 2>/dev/null
-      cd mainApp/64bit_release
-    else
-      echo "ERROR - build output at $(realpath mainApp/64bit_release/LPub3D.app/) not found."
-    fi
-    echo "- install library links..."
-    /usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Libs/libLDrawIni.16.dylib
-    /usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Libs/libQuaZIP.0.dylib
-    echo "- change mapping to LPub3D..."
-    /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/MacOS/LPub3D
-    /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/MacOS/LPub3D
-    echo "- bundle LPub3D..."
-    macdeployqt LPub3D.app -verbose=1 -executable=LPub3D.app/Contents/MacOS/LPub3D -always-overwrite
-    echo "- change library dependency mapping..."
-    /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
-    /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
-    echo "- macOS build checks..."
-    LPUB3D_EXE="LPub3D.app/Contents/MacOS/LPub3D"
-    #TODO - move these outside macOS and Linux blocks once Linux block is OK
-    source ${SOURCE_DIR}/builds/check/build_checks.sh
+     echo "- build check LPub3D macOS..."
+     SOURCE_DIR=${LP3D_BUILD_FOLDER}/../dmgbuild/lpub3d
+     # TODO figure out why Linux check is locking up on Travis-CI
+     source ${SOURCE_DIR}/builds/check/build_checks.sh
   elif [ "$TRAVIS_OS_NAME" = "linux" ]; then
-    echo "- Linux build checks [placeholder]..."
-    SOURCE_DIR=${LP3D_BUILD_FOLDER}
-    LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
-    # run otool -L on LPub3D.app...
-    if [ -d "mainApp/64bit_release" ]; then
-      otool -L mainApp/64bit_release/${LPUB3D_EXE} 2>/dev/null
-      cd mainApp/64bit_release
-    else
-      echo "ERROR - build output at $(realpath mainApp/64bit_release/) not found."
-    fi
-    #TODO setup run environment
-    #-Setup 3rdParty bin contents at path mainApp/opt [relative to DESTDIR]
-    #-Setup share contents at path lpub3d/share [relative to DESTDIR]
-    #-Export Qt libs, ldrawini, quazip paths on LD_LIBRARY_PATH
-    echo "- [TEST] LPub3D exe: ${LPUB3D_EXE}"
-    #source ${SOURCE_DIR}/builds/check/build_checks.sh
+     echo "- build check LPub3D Linux..."
+     SOURCE_DIR=${LP3D_BUILD_FOLDER}
   fi
+  #source ${SOURCE_DIR}/builds/check/build_checks.sh
 fi
 
 if [[ ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && "$TRAVIS_OS_NAME" = "linux" ) ]]; then
   echo "- build check LPub3D.AppImage bundle..."
+  
   file_DPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage -type f);
-  [ -n "$file_DPkg" ] && mkdir appImage_Check && cd appImage_Check && cp -f $file_DPkg . || \
-  echo "ERROR - Nothing copied to build check folder";
-  [ -f "LPub3D-${LP3D_APP_VERSION_LONG}-x86_64.AppImage" ] && echo "- checking $(ls ./*.AppImage)..." && \
-  chmod u+x LPub3D-${LP3D_APP_VERSION_LONG}-x86_64.AppImage && ./LPub3D-${LP3D_APP_VERSION_LONG}-x86_64.AppImage -foo && \
-  echo "- build check completed." && echo || echo "ERROR - Could not run AppImage build check."
+  SOURCE_DIR=${LP3D_BUILD_FOLDER}
+  
+  # make temp directory and copy AppImage
+  [ -n "$file_DPkg" ] && mkdir appImage_Check && cp -f $file_DPkg appImage_Check/ && \
+  echo "- $(ls ./appImage_Check/*.AppImage) copied to check folder." && \
+  LPUB3D_EXE="appImage_Check/LPub3D-${LP3D_APP_VERSION_LONG}-x86_64.AppImage" || \
+  echo "ERROR - AppImage not copied to check folder.";
+  
+  source ${SOURCE_DIR}/builds/check/build_checks.sh
+  
 fi
 
 cd $LP3D_BUILD_FOLDER

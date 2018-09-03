@@ -12,33 +12,27 @@
 **
 ****************************************************************************/
 
-#ifndef LPUBMESSAGES_H
-#define LPUBMESSAGES_H
+#ifndef LPUBALERT_H
+#define LPUBALERT_H
 
-#include <QMessageBox>
-#include <QStatusBar>
-#include <stdio.h>
-#include <QsLog.h>
+#include <QObject>
 
 #include "name.h"
 
 class QObject;
 class QString;
 
-class LPubMessages : public QObject
+class LPubAlert : public QObject
 {
     Q_OBJECT
 
 public:
-  LPubMessages();
-  ~LPubMessages();
-public slots:
-  void statusMessage(LogType logType, QString message);
-
+  LPubAlert();
+  ~LPubAlert();
 signals:
   void messageSig(LogType logType, QString message);
 };
 
-extern LPubMessages *alert;
+extern class LPubAlert *lpubAlert;
 
-#endif // LPUBMESSAGES_H
+#endif // LPUBALERT_H
