@@ -187,6 +187,10 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         }
     }
 
+  QAction *addPointerAction = menu.addAction("Place Page Pointer");
+  addPointerAction->setWhatsThis("Add pointer from the page to this CSI image");
+  addPointerAction->setIcon(QIcon(":/resources/addarrow.png"));
+
   QAction *placementAction = NULL;
   if (fullContextMenu  && parentRelativeType == SingleStepType) {
       placementAction = menu.addAction("Move This Step");
@@ -294,6 +298,16 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
     } else if (selectedAction == addDividerAction) {
       addDivider(parentRelativeType,bottomOfStep,divider);
+    } else if (selectedAction == addPointerAction) {
+
+      PlacementMeta pointerPlacement = meta->LPub.pagePointer.placement;
+      bool ok = setPointerPlacement(&pointerPlacement,
+                                    parentRelativeType,
+                                    PagePointerType,
+                                    "Pointer Placement");
+      if (ok) {
+          addPointerTip(meta,topOfStep,bottomOfStep,pointerPlacement.value().placement);
+        }
     } else if (selectedAction == allocAction) {
       if (parentRelativeType == StepGroupType) {
           changeAlloc(begin,

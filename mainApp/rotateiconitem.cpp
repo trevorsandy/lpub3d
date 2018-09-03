@@ -487,30 +487,31 @@ void RotateIconItem::contextMenuEvent(
 
   if (selectedAction == placementAction) {
 
-      // logging only
-      if (! singleStep) {
-      bool multiStep = parentRelativeType == StepGroupType;
-      logInfo() << "\nMOVE ROTATE_ICON - "
-                << "\nPAGE- "
-                << (multiStep ? " \nMulti-Step Page" : " \nSingle-Step Page")
-                << "\nPAGE WHERE -                  "
-                << " \nPage TopOf (Model Name):     " << top.modelName
-                << " \nPage TopOf (Line Number):    " << top.lineNumber
-                << " \nPage BottomOf (Model Name):  " << bottom.modelName
-                << " \nPage BottomOf (Line Number): " << bottom.lineNumber
-                << "\nUSING PLACEMENT DATA -        "
-                << " \nPlacement:                   " << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
-                << " \nJustification:               " << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
-                << " \nPreposition:                 " << PrepNames[placement.value().preposition]   << " (" << placement.value().justification << ")"
-                << " \nRelativeTo:                  " << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
-                << " \nRectPlacement:               " << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
-                << " \nOffset[0]:                   " << placement.value().offsets[0]
-                << " \nOffset[1]:                   " << placement.value().offsets[1]
-                << "\nOTHER DATA -                  "
-                << " \nRelativeType:                " << RelNames[relativeType]       << " (" << relativeType << ")"
-                << " \nParentRelativeType:          " << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
-                                                ;
-        } // end logging only
+      // debug logging only
+//      if (! singleStep) {
+//      bool multiStep = parentRelativeType == StepGroupType;
+
+//      logInfo() << "\nMOVE ROTATE_ICON - "
+//                << "\nPAGE- "
+//                << (multiStep ? " \nMulti-Step Page" : " \nSingle-Step Page")
+//                << "\nPAGE WHERE -                  "
+//                << " \nPage TopOf (Model Name):     " << top.modelName
+//                << " \nPage TopOf (Line Number):    " << top.lineNumber
+//                << " \nPage BottomOf (Model Name):  " << bottom.modelName
+//                << " \nPage BottomOf (Line Number): " << bottom.lineNumber
+//                << "\nUSING PLACEMENT DATA -        "
+//                << " \nPlacement:                   " << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
+//                << " \nJustification:               " << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
+//                << " \nPreposition:                 " << PrepNames[placement.value().preposition]   << " (" << placement.value().justification << ")"
+//                << " \nRelativeTo:                  " << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
+//                << " \nRectPlacement:               " << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
+//                << " \nOffset[0]:                   " << placement.value().offsets[0]
+//                << " \nOffset[1]:                   " << placement.value().offsets[1]
+//                << "\nOTHER DATA -                  "
+//                << " \nRelativeType:                " << RelNames[relativeType]       << " (" << relativeType << ")"
+//                << " \nParentRelativeType:          " << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
+//                                                ;
+//        } // end logging only
 
       changePlacement(parentRelativeType,
                       SingleStepType,         //not using RotateIconType intentionally

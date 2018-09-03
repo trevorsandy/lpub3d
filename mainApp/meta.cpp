@@ -555,7 +555,8 @@ QString relativeNames[] =
   "DOCUMENT_TITLE","MODEL_ID","DOCUMENT_AUTHOR","PUBLISH_URL","MODEL_DESCRIPTION",
   "PUBLISH_DESCRIPTION","PUBLISH_COPYRIGHT","PUBLISH_EMAIL","LEGO_DISCLAIMER",
   "MODEL_PIECES","APP_PLUG","SUBMODEL_INST_COUNT","DOCUMENT_LOGO","DOCUMENT_COVER_IMAGE",
-  "APP_PLUG_IMAGE","PAGE_HEADER","PAGE_FOOTER","MODEL_CATEGORY","ROTATE_ICON"
+  "APP_PLUG_IMAGE","PAGE_HEADER","PAGE_FOOTER","MODEL_CATEGORY","ROTATE_ICON",
+  "PAGE_POINTER","SINGLE_STEP","STEP","RANGE","RESERVE","COVER_PAGE"
 };
 
 PlacementMeta::PlacementMeta() : LeafMeta()
@@ -592,7 +593,8 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
                         "DOCUMENT_TITLE|MODEL_ID|DOCUMENT_AUTHOR|PUBLISH_URL|MODEL_DESCRIPTION|"
                         "PUBLISH_DESCRIPTION|PUBLISH_COPYRIGHT|PUBLISH_EMAIL|LEGO_DISCLAIMER|"
                         "MODEL_PIECES|APP_PLUG|MODEL_CATEGORY|DOCUMENT_LOGO|DOCUMENT_COVER_IMAGE|"
-                        "APP_PLUG_IMAGE|PAGE_HEADER|PAGE_FOOTER|MODEL_CATEGORY|ROTATE_ICON)$";
+                        "APP_PLUG_IMAGE|PAGE_HEADER|PAGE_FOOTER|MODEL_CATEGORY|ROTATE_ICON|"
+                        "PAGE_POINTER|SINGLE_STEP|STEP|RANGE|RESERVE|COVER_PAGE)$";
 
   _placementR    = _value[pushed].rectPlacement;
   _relativeTo    = _value[pushed].relativeTo;
@@ -726,6 +728,17 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
   return rc;
 }
 
+QString rectPlacementNames[] =
+{
+  "TopLeftOutsideCorner", "TopLeftOutside","TopOutside","TopRightOutSide", "TopRightOutsideCorner","LeftTopOutside",
+  "BASE_TOP_LEFT ","BASE_TOP","BASE_TOP_RIGHT",
+  "RightTopOutside","LeftOutside",
+  "BASE_LEFT","BASE_CENTER","BASE_RIGHT",
+  "RightOutside","LeftBottomOutside",
+  "BASE_BOTTOM_LEFT","BASE_BOTTOM","BASE_BOTTOM_RIGHT",
+  "RightBottomOutside","BottomLeftOutsideCorner", "BottomLeftOutside","BottomOutside","BottomRightOutside","BottomRightOutsideCorner"
+};
+
 QString placementNames[] =
 {
   "TOP_LEFT", "TOP", "TOP_RIGHT", "RIGHT",
@@ -739,6 +752,7 @@ QString prepositionNames[] =
 
 QString PlacementMeta::format(bool local, bool global)
 {
+#ifdef QT_DEBUG_MODE
   //debug logging
   //qDebug() << " \nPLACEMENT META FORMAT: "
   //           << " \nPUSHED VALUES: "
@@ -755,6 +769,7 @@ QString PlacementMeta::format(bool local, bool global)
   //           << " \nPreposition(*): " << prepositionNames[_value[pushed].preposition]
   //              ;
   //end debug logging
+#endif
   QString foo;
   
   if (_value[pushed].preposition == Inside) {
@@ -1212,10 +1227,18 @@ QString BorderMeta::text()
 PointerMeta::PointerMeta() : LeafMeta()
 {
   _value[0].placement = TopLeft;
-  _value[0].loc       = 0;
-  _value[0].x         = 0.5;
-  _value[0].y         = 0.5;
+  _value[0].loc       = 0;      // BasePoint
+  _value[0].x1        = 0.5;    // TipX
+  _value[0].y1        = 0.5;    // TipY
+  _value[0].x2        = 0.5;    // BaseX
+  _value[0].y2        = 0.5;    // BaseY
+  _value[0].x3        = 0.5;    // MidBaseX
+  _value[0].y3        = 0.5;    // MidBaseY
+  _value[0].x4        = 0.5;    // MidTipX
+  _value[0].y4        = 0.5;    // MidTipY
   _value[0].base      = 0.125;
+  _value[0].segments  = 1;
+  _value[0].rectPlacement = TopLeftOutsideCorner;
 }
 
 /*
@@ -1224,38 +1247,82 @@ PointerMeta::PointerMeta() : LeafMeta()
  * (Top|Right|Bottom|Left) <loc> <x> <y> (<base>)
  */
 
-Rc PointerMeta::parse(QStringList &argv, int index,Where &here)
+Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
 {
-  float _loc = 0, _x = 0, _y = 0, _base = -1;
+  float _loc = 0, _x1 = 0, _y1 = 0, _base = -1, _segments = 1;
+  float           _x2 = 0, _y2 = 0;
+  float           _x3 = 0, _y3 = 0;
+  float           _x4 = 0, _y4 = 0;
   int   n_tokens = argv.size() - index;
-  QString foo1 = argv[index];
-  QString foo2 = argv[index+1];
-  bool    fail = true;
+  RectPlacement _bRect;
+  bool  fail        = true;
+  bool  pagePointer = false;
+
+  //logTrace() << "Pointer: " << argv.join(" ") << ", Index:" << index;
 
   if (argv.size() - index > 0) {
+      pagePointer = argv[1] == "PAGE_POINTER";
       QRegExp rx("^(TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT)$");
+
+      // single-segment patterns
       if (argv[index].contains(rx) && n_tokens == 4) {
           _loc = 0;
           bool ok[3];
-          _x    = argv[index+1].toFloat(&ok[0]);
-          _y    = argv[index+2].toFloat(&ok[1]);
+          _x1    = argv[index+1].toFloat(&ok[0]);
+          _y1    = argv[index+2].toFloat(&ok[1]);
           _base = argv[index+3].toFloat(&ok[2]);
           fail  = ! (ok[0] && ok[1] && ok[2]);
         }
       if (argv[index].contains(rx) && n_tokens == 3) {
           _loc = 0;
           bool ok[2];
-          _x    = argv[index+1].toFloat(&ok[0]);
-          _y    = argv[index+2].toFloat(&ok[1]);
+          _x1    = argv[index+1].toFloat(&ok[0]);
+          _y1    = argv[index+2].toFloat(&ok[1]);
           fail  = ! (ok[0] && ok[1]);
+        }
+      // new multi-segment patterns (+ 7 tokens: x2,y2,x3,y3,x4,y4,segments)
+      if (argv[index].contains(rx) && (pagePointer ? n_tokens == 12 : n_tokens == 11)) {
+          _loc = 0;
+          bool ok[10];
+          _x1       = argv[index+1].toFloat(&ok[0]);
+          _y1       = argv[index+2].toFloat(&ok[1]);
+          _x2       = argv[index+3].toFloat(&ok[2]);
+          _y2       = argv[index+4].toFloat(&ok[3]);
+          _x3       = argv[index+5].toFloat(&ok[4]);
+          _y3       = argv[index+6].toFloat(&ok[5]);
+          _x4       = argv[index+7].toFloat(&ok[6]);
+          _y4       = argv[index+8].toFloat(&ok[7]);
+          _base     = argv[index+9].toFloat(&ok[8]);
+          _segments = argv[index+10].toInt(&ok[9]);
+          if (pagePointer)
+            _bRect  = RectPlacement(tokenMap[argv[index+11]]);
+          fail      = ! (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] &&
+              ok[5] && ok[6] && ok[7] && ok[8] && ok[9]);
+        }
+      if (argv[index].contains(rx) && (pagePointer ? n_tokens == 11 : n_tokens == 10)) {
+          _loc = 0;
+          bool ok[9];
+          _x1       = argv[index+1].toFloat(&ok[0]);
+          _y1       = argv[index+2].toFloat(&ok[1]);
+          _x2       = argv[index+3].toFloat(&ok[2]);
+          _y2       = argv[index+4].toFloat(&ok[3]);
+          _x3       = argv[index+5].toFloat(&ok[4]);
+          _y3       = argv[index+6].toFloat(&ok[5]);
+          _x4       = argv[index+7].toFloat(&ok[6]);
+          _y4       = argv[index+8].toFloat(&ok[7]);
+          _segments = argv[index+9].toInt(&ok[8]);
+          if (pagePointer)
+            _bRect  = RectPlacement(tokenMap[argv[index+10]]);
+          fail      = ! (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] &&
+              ok[5] && ok[6] && ok[7] && ok[8]);
         }
       rx.setPattern("^(TOP|BOTTOM|LEFT|RIGHT|CENTER)$");
       if (argv[index].contains(rx) && n_tokens == 5) {
           _loc = 0;
           bool ok[4];
           _loc  = argv[index+1].toFloat(&ok[0]);
-          _x    = argv[index+2].toFloat(&ok[1]);
-          _y    = argv[index+3].toFloat(&ok[2]);
+          _x1    = argv[index+2].toFloat(&ok[1]);
+          _y1    = argv[index+3].toFloat(&ok[2]);
           _base = argv[index+4].toFloat(&ok[3]);
           fail  = ! (ok[0] && ok[1] && ok[2] && ok[3]);
         }
@@ -1263,28 +1330,110 @@ Rc PointerMeta::parse(QStringList &argv, int index,Where &here)
           _loc = 0;
           bool ok[3];
           _loc  = argv[index+1].toFloat(&ok[0]);
-          _x    = argv[index+2].toFloat(&ok[1]);
-          _y    = argv[index+3].toFloat(&ok[2]);
+          _x1    = argv[index+2].toFloat(&ok[1]);
+          _y1    = argv[index+3].toFloat(&ok[2]);
           fail  = ! (ok[0] && ok[1] && ok[2]);
+        }
+      // new multi-segment patterns (+ 7 tokens: x2,y2,x3,y3,x4,y4,segments)
+      if (argv[index].contains(rx) && (pagePointer ? n_tokens == 13 : n_tokens == 12)) {
+          _loc = 0;
+          bool ok[11];
+          _loc      = argv[index+1].toFloat(&ok[0]);
+          _x1       = argv[index+2].toFloat(&ok[1]);
+          _y1       = argv[index+3].toFloat(&ok[2]);
+          _x2       = argv[index+4].toFloat(&ok[3]);
+          _y2       = argv[index+5].toFloat(&ok[4]);
+          _x3       = argv[index+6].toFloat(&ok[5]);
+          _y3       = argv[index+7].toFloat(&ok[6]);
+          _x4       = argv[index+8].toFloat(&ok[7]);
+          _y4       = argv[index+9].toFloat(&ok[8]);
+          _base     = argv[index+10].toFloat(&ok[9]);
+          _segments = argv[index+11].toInt(&ok[10]);
+          if (pagePointer)
+            _bRect  = RectPlacement(tokenMap[argv[index+12]]);
+          fail      = ! (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] && ok[5] &&
+              ok[6] && ok[7] && ok[8] && ok[9] && ok[10]);
+        }
+      if (argv[index].contains(rx) && (pagePointer ? n_tokens == 12 : n_tokens == 11)) {
+          _loc = 0;
+          bool ok[10];
+          _loc      = argv[index+1].toFloat(&ok[0]);
+          _x1       = argv[index+2].toFloat(&ok[1]);
+          _y1       = argv[index+3].toFloat(&ok[2]);
+          _x2       = argv[index+4].toFloat(&ok[3]);
+          _y2       = argv[index+5].toFloat(&ok[4]);
+          _x3       = argv[index+6].toFloat(&ok[5]);
+          _y3       = argv[index+7].toFloat(&ok[6]);
+          _x4       = argv[index+8].toFloat(&ok[7]);
+          _y4       = argv[index+9].toFloat(&ok[8]);
+          _segments = argv[index+10].toInt(&ok[9]);
+          if (pagePointer)
+            _bRect  = RectPlacement(tokenMap[argv[index+11]]);
+          fail      = ! (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] &&
+              ok[5] && ok[6] && ok[7] && ok[8] && ok[9]);
         }
     }
   if ( ! fail) {
       _value[pushed].placement = PlacementEnc(tokenMap[argv[index]]);
-      _value[pushed].loc       = _loc;
-      _value[pushed].x         = _x;
-      _value[pushed].y         = _y;
+      _value[pushed].loc        = _loc;
+      _value[pushed].x1         = _x1;  //Tip.x
+      _value[pushed].y1         = _y1;  //Tip.y
+      _value[pushed].x2         = _x2;  //Base.x
+      _value[pushed].y2         = _y2;  //Base.y
+      _value[pushed].x3         = _x3;  //MidBase.x
+      _value[pushed].y3         = _y3;  //MidBase.y
+      _value[pushed].x4         = _x4;  //MidTip.x
+      _value[pushed].y4         = _y4;  //MidTip.y
+      _value[pushed].segments   = _segments;
+      if (pagePointer)
+        _value[pushed].rectPlacement = _bRect; //Base Rect Placement
       if (_base > 0) {
           _value[pushed].base = _base;
         } else if (_value[pushed].base == 0) {
           _value[pushed].base = 1.0/8;
         }
+//      qDebug()<< "\nPOINTER DATA " << argv[1] << " (Parsed)"
+//              << " \nPlacement:             "   << PlacNames[_value[pushed].placement]     << " (" << _value[pushed].placement << ")"
+//              << " \nLoc(fraction of side): "   << _value[pushed].loc
+//              << " \nx1 (Tip.x):            "   << _value[pushed].x1
+//              << " \ny1 (Tip.y):            "   << _value[pushed].y1
+//              << " \nx2 (Base.x):           "   << _value[pushed].x2
+//              << " \ny2 (Base.y):           "   << _value[pushed].y2
+//              << " \nx3 (MidBase.x):        "   << _value[pushed].x3
+//              << " \ny3 (MidBase.y):        "   << _value[pushed].y3
+//              << " \nx4 (MidTip.x):         "   << _value[pushed].x4
+//              << " \ny4 (MidTip.y):         "   << _value[pushed].y4
+//              << " \nBase:                  "   << _value[pushed].base
+//              << " \nSegments:              "   << _value[pushed].segments
+//              << " \n" << (pagePointer ? QString("PagePointer Rect:      %1 (%2)")
+//                                         .arg(RectNames[_value[pushed]
+//                                         .rectPlacement]).arg(_value[pushed].rectPlacement):"No PointerRect")
+//                 ;
+
       _here[0] = here;
       _here[1] = here;
-      return CalloutPointerRc;
+
+      if (     argv[1] == "CALLOUT") {
+//          logTrace() << "Return CalloutPointerRc";
+          return CalloutPointerRc;}
+      else if (argv[1] == "PAGE_POINTER") {
+//          logTrace() << "Return PagePointerRc";
+          return PagePointerRc;}
+      else if (argv[1] == "DIVIDER") {
+//          logTrace() << "Return DividerPointerRc";
+          return DividerPointerRc;         }
+      else if (argv[1] == "ILLUSTRATION") {
+//          logTrace() << "Return IllustrationPointerRc";
+          return IllustrationPointerRc;}
+
+      emit gui->messageSig(LOG_ERROR,"Pointer type not defined. Returning 0.");
+
+      return OkRc; // this should never fire.
+
     } else {
 
       if (reportErrors) {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed callout arrow \"%1\"") .arg(argv.join(" ")));
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed pointer \"%1\"") .arg(argv.join(" ")));
         }
       return FailureRc;
     }
@@ -1292,34 +1441,68 @@ Rc PointerMeta::parse(QStringList &argv, int index,Where &here)
 
 QString PointerMeta::format(bool local, bool global)
 {
+  QRegExp rx("^\\s*0.*\\s+(PAGE_POINTER)\\s+.*$");
+  bool pagePointer = preamble.contains(rx);
   QString foo;
   switch(_value[pushed].placement) {
     case TopLeft:
     case TopRight:
     case BottomRight:
     case BottomLeft:
-      foo = QString("%1 %2 %3 %4")
+      foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11")
           .arg(placementNames[_value[pushed].placement])
-          .arg(_value[pushed].x,0,'f',3)
-          .arg(_value[pushed].y,0,'f',3)
-          .arg(_value[pushed].base);
+          .arg(_value[pushed].x1,0,'f',3)
+          .arg(_value[pushed].y1,0,'f',3)
+          .arg(_value[pushed].x2,0,'f',3)
+          .arg(_value[pushed].y2,0,'f',3)
+          .arg(_value[pushed].x3,0,'f',3)
+          .arg(_value[pushed].y3,0,'f',3)
+          .arg(_value[pushed].x4,0,'f',3)
+          .arg(_value[pushed].y4,0,'f',3)
+          .arg(_value[pushed].base)
+          .arg(pagePointer ? QString("%1 %2")
+                             .arg(                   _value[pushed].segments)
+                             .arg(rectPlacementNames[_value[pushed].rectPlacement]) :
+                             QString("%1").arg(      _value[pushed].segments));
       break;
     default:
-      foo = QString("%1 %2 %3 %4 %5")
+      foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12")
           .arg(placementNames[_value[pushed].placement])
           .arg(_value[pushed].loc,0,'f',3)
-          .arg(_value[pushed].x,  0,'f',3)
-          .arg(_value[pushed].y,  0,'f',3)
-          .arg(_value[pushed].base);
+          .arg(_value[pushed].x1,0,'f',3)
+          .arg(_value[pushed].y1,0,'f',3)
+          .arg(_value[pushed].x2,0,'f',3)
+          .arg(_value[pushed].y2,0,'f',3)
+          .arg(_value[pushed].x3,0,'f',3)
+          .arg(_value[pushed].y3,0,'f',3)
+          .arg(_value[pushed].x4,0,'f',3)
+          .arg(_value[pushed].y4,0,'f',3)
+          .arg(_value[pushed].base)
+          .arg(pagePointer ? QString("%1 %2")
+                             .arg(                   _value[pushed].segments)
+                             .arg(rectPlacementNames[_value[pushed].rectPlacement]) :
+                             QString("%1").arg(      _value[pushed].segments));
       break;
     }
+
+#ifdef QT_DEBUG_MODE
+//  qDebug() << "\nPOINTER META FORMAT >> XXXXX"
+//              "\nPreamble:       " <<  preamble <<
+//              "\nMatch Test:     " << (preamble.contains(rx)? "Success :)" : "Failed :(") <<
+//              "\nPAGE POINTER:   " << (pagePointer ? QString("\nSegments: %1    \nRectPlacement %2")
+//                                                   .arg(                   _value[pushed].segments)
+//                                                   .arg(rectPlacementNames[_value[pushed].rectPlacement]) :
+//                                                   QString("Segments: %1").arg(      _value[pushed].segments)) <<
+//              "\nNew Meta Line:" << preamble << foo;
+#endif
   return LeafMeta::format(local,global,foo);
 }
 
 void PointerMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble +  " (TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT) <floatX> <floatY> <intBase>";
-  out << preamble + " (TOP|BOTTOM|LEFT|RIGHT) <floatLoc> <floatX> <floatY> <intBase>";
+  out << preamble + " (TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT) <floatLoc> <floatX1> <floatY1>"
+                    " [<floatX2> <floatY2> <floatX3> <floatY3> <floatX4> <floatY4>] <floatBase> [intSegments]"
+                    " [(TOP|BOTTOM|LEFT|RIGHT)]";
 }
 
 /* ------------------ */ 
@@ -2117,7 +2300,6 @@ void FadeStepMeta::init(
   fadeOpacity.init        (this, "FADE_OPACITY");
   fadeStep.init           (this, "FADE");
 }
-/* ------------------ */
 
 /* ------------------ */
 
@@ -2146,6 +2328,8 @@ void RemoveMeta::init(BranchMeta *parent, QString name)
   parttype.init(this,"PART", RemovePartRc);
   partname.init(this,"NAME", RemoveNameRc);
 }
+
+/* ------------------ */
 
 PartMeta::PartMeta() : BranchMeta()
 {
@@ -2939,7 +3123,7 @@ CalloutMeta::CalloutMeta() : BranchMeta()
   stepNum.color.setValue("black");
   // stepNum.font - default
   stepNum.placement.setValue(LeftTopOutside,PartsListType);
-  sep.setValueInches("Black",DEFAULT_THICKNESS,DEFAULT_MARGINS);
+  sep.setValueInches("Black",DEFAULT_THICKNESS,DEFAULT_MARGINS, false);
   BorderData borderData;
   borderData.type = BorderData::BdrSquare;
   borderData.line = BorderData::BdrLnSolid;
@@ -2994,6 +3178,36 @@ void CalloutMeta::init(BranchMeta *parent, QString name)
   rotateIcon .init(this,      "ROTATE_ICON");
 }
 
+/*------------------------*/
+
+PagePointerMeta::PagePointerMeta() : BranchMeta()
+{
+  placement.setValue(LeftInside,PageType);
+  background.setValue(BackgroundData::BgSubmodelColor);
+  BorderData borderData;
+  borderData.type = BorderData::BdrSquare;
+  borderData.line = BorderData::BdrLnSolid;
+  borderData.color = "Black";
+  borderData.thickness = DEFAULT_THICKNESS;
+  borderData.radius = 15;
+  borderData.margin[0] = 0;
+  borderData.margin[1] = 0;
+  border.setValueInches(borderData);
+  margin.setValues(0,0);
+  subModelColor.setValue("#ffffff");
+}
+
+void PagePointerMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  placement    .init(this, "PLACEMENT");
+  border       .init(this, "BORDER");
+  background   .init(this, "BACKGROUND");
+  margin       .init(this, "MARGINS");
+  subModelColor.init(this, "SUBMODEL_BACKGROUND_COLOR");
+  pointer      .init(this, "POINTER");
+}
+
 /* ------------------ */ 
 
 MultiStepMeta::MultiStepMeta() : BranchMeta()
@@ -3002,7 +3216,7 @@ MultiStepMeta::MultiStepMeta() : BranchMeta()
   stepNum.color.setValue("black");
   // stepNum.font - default
   placement.setValue(CenterCenter,PageType);
-  sep.setValue("black",DEFAULT_THICKNESS,DEFAULT_MARGINS);
+  sep.setValue("black",DEFAULT_THICKNESS,DEFAULT_MARGINS,false);
   // subModelFont - default
   subModelFontColor.setValue("black");
   // freeform
@@ -3128,6 +3342,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   assem                  .init(this,"ASSEM");
   stepNumber             .init(this,"STEP_NUMBER");
   callout                .init(this,"CALLOUT");
+  pagePointer            .init(this,"PAGE_POINTER");
   multiStep              .init(this,"MULTI_STEP");
   pli                    .init(this,"PLI");
   bom                    .init(this,"BOM");
@@ -3209,62 +3424,79 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
   LSynth .init(this,"SYNTH");
 
   if (tokenMap.size() == 0) {
-      tokenMap["TOP_LEFT"]     = TopLeft;
-      tokenMap["TOP"]          = Top;
-      tokenMap["TOP_RIGHT"]    = TopRight;
-      tokenMap["RIGHT"]        = Right;
-      tokenMap["BOTTOM_RIGHT"] = BottomRight;
-      tokenMap["BOTTOM"]       = Bottom;
-      tokenMap["BOTTOM_LEFT"]  = BottomLeft;
-      tokenMap["LEFT"]         = Left;
-      tokenMap["CENTER"]       = Center;
+      tokenMap["TOP_LEFT"]         	    = TopLeft;
+      tokenMap["TOP"]              	    = Top;
+      tokenMap["TOP_RIGHT"]        	    = TopRight;
+      tokenMap["RIGHT"]            	    = Right;
+      tokenMap["BOTTOM_RIGHT"]     	    = BottomRight;
+      tokenMap["BOTTOM"]           	    = Bottom;
+      tokenMap["BOTTOM_LEFT"]      	    = BottomLeft;
+      tokenMap["LEFT"]             	    = Left;
+      tokenMap["CENTER"]           	    = Center;
 
-      tokenMap["INSIDE"]       = Inside;
-      tokenMap["OUTSIDE"]      = Outside;
+      tokenMap["INSIDE"]           	    = Inside;
+      tokenMap["OUTSIDE"]          	    = Outside;
 
-      tokenMap["PAGE"]         = PageType;
-      tokenMap["ASSEM"]        = CsiType;
-      tokenMap["MULTI_STEP"]   = StepGroupType;
-      tokenMap["STEP_GROUP"]   = StepGroupType;
-      tokenMap["STEP_NUMBER"]  = StepNumberType;
-      tokenMap["PLI"]          = PartsListType;
-      tokenMap["PAGE_NUMBER"]  = PageNumberType;
-      tokenMap["CALLOUT"]      = CalloutType;
+      tokenMap["PAGE"]             	    = PageType;
+      tokenMap["ASSEM"]            	    = CsiType;
+      tokenMap["MULTI_STEP"]       	    = StepGroupType;
+      tokenMap["STEP_GROUP"]       	    = StepGroupType;
+      tokenMap["STEP_NUMBER"]      	    = StepNumberType;
+      tokenMap["PLI"]              	    = PartsListType;
+      tokenMap["PAGE_NUMBER"]      	    = PageNumberType;
+      tokenMap["CALLOUT"]          	    = CalloutType;
 
       tokenMap["DOCUMENT_TITLE"]    	= PageTitleType;
-      tokenMap["MODEL_ID"]    		= PageModelNameType;
+      tokenMap["MODEL_ID"]    		    = PageModelNameType;
       tokenMap["DOCUMENT_AUTHOR"]    	= PageAuthorType;
-      tokenMap["PUBLISH_URL"]    	= PageURLType;
+      tokenMap["PUBLISH_URL"]    	    = PageURLType;
       tokenMap["MODEL_DESCRIPTION"]     = PageModelDescType;
       tokenMap["PUBLISH_DESCRIPTION"]	= PagePublishDescType;
       tokenMap["PUBLISH_COPYRIGHT"]     = PageCopyrightType;
-      tokenMap["PUBLISH_EMAIL"]    	= PageEmailType;
+      tokenMap["PUBLISH_EMAIL"]    	    = PageEmailType;
       tokenMap["LEGO_DISCLAIMER"]    	= PageDisclaimerType;
-      tokenMap["MODEL_PIECES"]    	= PagePiecesType;
-      tokenMap["APP_PLUG"]    		= PagePlugType;
+      tokenMap["MODEL_PIECES"]    	    = PagePiecesType;
+      tokenMap["APP_PLUG"]    		    = PagePlugType;
       tokenMap["SUBMODEL_INST_COUNT"]   = SubmodelInstanceCountType;
-      tokenMap["DOCUMENT_LOGO"]    	= PageDocumentLogoType;
+      tokenMap["DOCUMENT_LOGO"]    	    = PageDocumentLogoType;
       tokenMap["DOCUMENT_COVER_IMAGE"]  = PageCoverImageType;
       tokenMap["APP_PLUG_IMAGE"]    	= PagePlugImageType;
-      tokenMap["PAGE_HEADER"]    	= PageHeaderType;
-      tokenMap["PAGE_FOOTER"]    	= PageFooterType;
+      tokenMap["PAGE_HEADER"]    	    = PageHeaderType;
+      tokenMap["PAGE_FOOTER"]    	    = PageFooterType;
       tokenMap["MODEL_CATEGORY"]    	= PageCategoryType;
       tokenMap["ROTATE_ICON"]           = RotateIconType;
 
-      tokenMap["AREA"]         = ConstrainData::PliConstrainArea;
-      tokenMap["SQUARE"]       = ConstrainData::PliConstrainSquare;
-      tokenMap["WIDTH"]        = ConstrainData::PliConstrainWidth;
-      tokenMap["HEIGHT"]       = ConstrainData::PliConstrainHeight;
-      tokenMap["COLS"]         = ConstrainData::PliConstrainColumns;
+      tokenMap["PAGE_POINTER"]          = PagePointerType;
+      tokenMap["SINGLE_STEP"]           = SingleStepType; 
+      tokenMap["STEP"]                  = StepType;       
+      tokenMap["RANGE"]                 = RangeType;      
+      tokenMap["RESERVE"]               = ReserveType;    
+      tokenMap["COVER_PAGE"]            = CoverPageType; 
 
-      tokenMap["HORIZONTAL"]   = Horizontal;
-      tokenMap["VERTICAL"]     = Vertical;
+      tokenMap["AREA"]                  = ConstrainData::PliConstrainArea;
+      tokenMap["SQUARE"]                = ConstrainData::PliConstrainSquare;
+      tokenMap["WIDTH"]                 = ConstrainData::PliConstrainWidth;
+      tokenMap["HEIGHT"]                = ConstrainData::PliConstrainHeight;
+      tokenMap["COLS"]                  = ConstrainData::PliConstrainColumns;
 
-      tokenMap["PORTRAIT"]     = Portrait;
-      tokenMap["LANDSCAPE"]    = Landscape;
+      tokenMap["HORIZONTAL"]            = Horizontal;
+      tokenMap["VERTICAL"]              = Vertical;
 
-      tokenMap["SORT_BY"]       = SortByType;
-      tokenMap["ANNOTATION"]    = AnnotationType;
+      tokenMap["PORTRAIT"]              = Portrait;
+      tokenMap["LANDSCAPE"]             = Landscape;
+
+      tokenMap["SORT_BY"]               = SortByType;
+      tokenMap["ANNOTATION"]            = AnnotationType;
+
+      tokenMap["BASE_TOP_LEFT"]         = TopLeftInsideCorner;
+      tokenMap["BASE_TOP"]              = TopInside;
+      tokenMap["BASE_TOP_RIGHT"]        = TopRightInsideCorner;
+      tokenMap["BASE_LEFT"]             = LeftInside;
+      tokenMap["BASE_CENTER"]           = CenterCenter;
+      tokenMap["BASE_RIGHT"]            = RightInside;
+      tokenMap["BASE_BOTTOM_LEFT"]      = BottomLeftInsideCorner;
+      tokenMap["BASE_BOTTOM"]           = BottomInside;
+      tokenMap["BASE_BOTTOM_RIGHT"]     = BottomRightInsideCorner;
     }
 }
 

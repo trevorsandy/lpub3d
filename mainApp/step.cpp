@@ -39,7 +39,7 @@
 #include "callout.h"
 #include "calloutbackgrounditem.h"
 #include "pointer.h"
-#include "pointeritem.h"
+#include "calloutpointeritem.h"
 #include "pli.h"
 #include "numberitem.h"
 #include "csiitem.h"

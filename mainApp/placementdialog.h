@@ -77,10 +77,14 @@ public:
 
   enum PrepositionMask { InsideOk = 128, OutsideOk = 256 };
   enum RelativeTos
-    { Page,   Csi,   Ms,   Sn,  Pli, Callout,
-        Pn,    tt,  mnt,   at, urlt,     mdt,
-       pdt,    ct,   et,   dt,   pt,     plt,
-       sic,   dlt,  cit,  pit,   ph,      pf,  Ri // plus 5 more
+    {
+        at, Callout, cat, cit,
+       csi,      ct, dlt,  dt,
+        et,     mdt, mnt,  Ms,
+      page,     pdt,  pf,  ph,
+      pit,      Pli, plt,  Pn,
+       pt,       ri, sic,  Sn,
+       tt,     urlt            // plus 5 more
     };
 
   PlacementDialog(
@@ -147,6 +151,7 @@ private:
   QGridLayout       *outsideGrid;
   QGridLayout       *insideGrid;
   QFrame            *insideFrame;
+  QFrame            *horizontalLine;
   QLabel            *lblRelativeTo;
   QDialogButtonBox  *buttonBox;
 

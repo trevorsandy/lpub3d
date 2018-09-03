@@ -36,24 +36,28 @@
 #include "resize.h"
 #include "rotateiconitem.h"
 #include "pageattributepixmapitem.h"
-
+#include "pointer.h"
+#include "pagepointeritem.h"
 
 /*
  * This is a base class for multi-step and
  * callouts.
  */
 class Step;
+class PagePointer;
 class AbstractStepsElement;
 class Where;
+class QGraphicsView;
 
 class Steps : public Placement {
   public:
     Meta           meta;
     Meta           stepGroupMeta;
-    QList<AbstractStepsElement *> list;  // of range
+    QList<AbstractStepsElement *> list;         // of range
+    QMap<Positions,PagePointer *> pagePointers; // of pagePointers
     QGraphicsView *view;
     Pli            pli;
-    Where          top;                  // needed for non-step pages
+    Where          top;                         // needed for non-step pages
     Where          bottom;
     bool           isMirrored;
 
@@ -90,6 +94,8 @@ class Steps : public Placement {
 };
 
 #include "render.h"
+
+class PageAttributePixmapItem;
 
 class Page : public Steps {
   public:

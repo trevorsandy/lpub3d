@@ -48,6 +48,7 @@
 #include "textitem.h"
 #include "rotateiconitem.h"
 #include "paths.h"
+#include "pagepointer.h"
 
 /*
  * We need to draw page every time there is change to the LDraw file.
@@ -191,7 +192,7 @@ void SubmodelInstanceCount::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
  * data structure form, with all the CSI and PLI images rendered.  This function
  * then creates Qt graphics view items for each of the components of the page.
  * Sinple things like page number, page background, inserts and the like are
- * handled here.  For things like callouts and step groups, there is a bunch
+ * handled here. For things like callouts, page pointers and step groups, there is a bunch
  * of packing and placing things relative to things that must go on, these
  * operations are handled elsewhere (step.cpp, steps.cpp, callout.cpp, placement.cpp
  * etc.)
@@ -580,6 +581,11 @@ int Gui::addGraphicsPageItems(
                       step->list[i]->sizeIt();
                     }
 
+                  /* Size the callouts */
+                  for (int i = 0; i < step->list.size(); i++) {
+                      step->list[i]->sizeIt();
+                  }
+
                   // add the assembly image to the scene
 
                   step->csiItem = new CsiItem(
@@ -678,27 +684,42 @@ int Gui::addGraphicsPageItems(
                       step->pli.background->setFlag(QGraphicsItem::ItemIsMovable,false);
                     }
 
-                  // foreach callout
-
+                  // add callout pointer items to the scene
+                  
                   for (int i = 0; i < step->list.size(); i++) {
-
-
+                  
+                      // foreach callout
+                  
                       Callout *callout = step->list[i];
+                  
                       QRect    csiRect(step->csiItem->loc[XX]-callout->loc[XX],
                                        step->csiItem->loc[YY]-callout->loc[YY],
                                        step->csiItem->size[XX],
                                        step->csiItem->size[YY]);
-
+                  
                       // add the callout's graphics items to the scene
-
                       callout->addGraphicsItems(0,0,csiRect,pageBg,true);
-
+                  
                       // foreach pointer
                       //   add the pointer to the graphics scene
-
                       for (int i = 0; i < callout->pointerList.size(); i++) {
                           Pointer *pointer = callout->pointerList[i];
                           callout->addGraphicsPointerItem(pointer,callout->underpinnings);
+                        }
+                    }
+                  
+                  // add page pointer base and pointers to the scene
+                  
+                  for (auto i : page->pagePointers.keys()) {
+                      PagePointer *pagePointer = dynamic_cast<PagePointer *>(page->pagePointers[i]);
+                  
+                      // add the pagePointer to the graphics scene
+                      pagePointer->addGraphicsItems(0,0,pageBg,false);
+                  
+                      //   add the pagePointer pointers to the graphics scene
+                      for (int i = 0; i < pagePointer->pointerList.size(); i++) {
+                          Pointer *pointer = pagePointer->pointerList[i];
+                          pagePointer->addGraphicsPointerItem(pointer);
                         }
                     }
 
@@ -760,7 +781,12 @@ int Gui::addGraphicsPageItems(
 
       page->sizeIt();             // size multi-step
 
-      plPage.relativeToSg(page);  // place callouts relative to PAGE
+      for (auto i : page->pagePointers.keys()) {   // size pagePointers
+         PagePointer *pagePointer = dynamic_cast<PagePointer *>(page->pagePointers[i]);
+         pagePointer->sizeIt();
+      }
+
+      plPage.relativeToSg(page);  // place callouts and page pointers relative to PAGE
       plPage.placeRelative(page); // place multi-step relative to the page
 
       page->relativeToSg(page);   // compute bounding box of step group and callouts
@@ -771,6 +797,21 @@ int Gui::addGraphicsPageItems(
       page->relativeToSg(page);           // place callouts relative to MULTI_STEP
 
       page->addGraphicsItems(0,0,pageBg);
+
+      // add page pointers to the scene
+
+      for (auto i : page->pagePointers.keys()) {
+          PagePointer *pagePointer = dynamic_cast<PagePointer *>(page->pagePointers[i]);
+
+          // add the pagePointer to the graphics scene
+          pagePointer->addGraphicsItems(0,0,pageBg,false);
+
+          //   add the pagePointer pointers to the graphics scene
+          for (int i = 0; i < pagePointer->pointerList.size(); i++) {
+              Pointer *pointer = pagePointer->pointerList[i];
+              pagePointer->addGraphicsPointerItem(pointer);
+            }
+        }
 
       // Place the Bill of materials on the page along with step group?????
 
@@ -814,12 +855,17 @@ int Gui::addGraphicsPageItems(
 
   view->setSceneRect(pageBg->sceneBoundingRect());
 
+  QRectF pageRect = QRectF(0,0,pW,pH);
   if (printing) {
-      view->fitInView(0,0,pW,pH);
-    } else if (fitMode == FitWidth) {
-      fitWidth(view);
-    } else if (fitMode == FitVisible) {
-      fitVisible(view);
+      view->fitInView(pageRect);
+    }
+  else
+  if (view->fitMode == FitWidth) {
+      view->fitWidth(pageRect);
+    }
+  else
+  if (view->fitMode == FitVisible) {
+      view->fitVisible(pageRect);
     }
 
   page->relativeType = SingleStepType;

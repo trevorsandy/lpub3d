@@ -70,6 +70,9 @@ enum Rc {
          CalloutDividerRc,
          CalloutEndRc,             
          
+         DividerPointerRc,
+         IllustrationPointerRc,
+
          InsertRc,
          InsertPageRc,
          InsertCoverPageRc,
@@ -89,6 +92,8 @@ enum Rc {
 
          PartBeginIgnRc,
          PartEndRc,
+
+         PagePointerRc,
 
          BomBeginIgnRc,
          BomEndRc,
@@ -116,6 +121,14 @@ enum Rc {
          NoStepRc,
 
          EndOfFileRc,
+};
+
+// page pointer positions
+enum Positions {
+  PP_TOP = 0,
+  PP_BOTTOM,
+  PP_LEFT,
+  PP_RIGHT
 };
 
 #define DEFAULT_MARGIN  0.05f
@@ -1142,28 +1155,86 @@ public:
   void setValue(
     PlacementEnc placement, 
     float loc, 
-    float base, 
-    float x, 
-    float y)
+    float base,
+    int segments,
+    float x1,
+    float y1,
+    float x2,
+    float y2,
+    float x3,
+    float y3,
+    float x4,
+    float y4)
   {
-    _value[pushed].placement = placement;
+    _value[pushed].placement = placement;     //placementEnc
     _value[pushed].loc       = loc;
     _value[pushed].base      = base/resolution();
-    _value[pushed].x         = x;
-    _value[pushed].y         = y;
+    _value[pushed].segments  = segments;
+    _value[pushed].x1        = x1;            // TipX
+    _value[pushed].y1        = y1;            // TipY
+    _value[pushed].x2        = x2;            // BaseX
+    _value[pushed].y2        = y2;            // BaseY
+    _value[pushed].x3        = x3;            // MidBaseX
+    _value[pushed].y3        = y3;            // MidBaseY
+    _value[pushed].x4        = x4;            // MidTipX
+    _value[pushed].y4        = y4;            // MidTipY
   }
   void setValueUnit(
     PlacementEnc placement, 
     float loc, 
-    float base, 
-    float x, 
-    float y)
+    float base,
+    int segments,
+    float x1,
+    float y1,
+    float x2,
+    float y2,
+    float x3,
+    float y3,
+    float x4,
+    float y4)
   {
     _value[pushed].placement = placement;
     _value[pushed].loc       = loc;
     _value[pushed].base      = base;
-    _value[pushed].x         = x;
-    _value[pushed].y         = y;
+    _value[pushed].segments  = segments;
+    _value[pushed].x1        = x1;
+    _value[pushed].y1        = y1;
+    _value[pushed].x2        = x2;
+    _value[pushed].y2        = y2;
+    _value[pushed].x3        = x3;
+    _value[pushed].y3        = y3;
+    _value[pushed].x4        = x4;
+    _value[pushed].y4        = y4;
+  }
+  // used for page pointer - inclues rectPlacement
+  void setValuePage(
+    RectPlacement rectPlacement,
+    PlacementEnc placement,
+    float loc,
+    float base,
+    int segments,
+    float x1,
+    float y1,
+    float x2,
+    float y2,
+    float x3,
+    float y3,
+    float x4,
+    float y4)
+  {
+    _value[pushed].rectPlacement = rectPlacement;
+    _value[pushed].placement     = placement;
+    _value[pushed].loc           = loc;
+    _value[pushed].base          = base;
+    _value[pushed].segments      = segments;
+    _value[pushed].x1            = x1;
+    _value[pushed].y1            = y1;
+    _value[pushed].x2            = x2;
+    _value[pushed].y2            = y2;
+    _value[pushed].x3            = x3;
+    _value[pushed].y3            = y3;
+    _value[pushed].x4            = x4;
+    _value[pushed].y4            = y4;
   }
   PointerMeta();
   PointerMeta(const PointerMeta &rhs) : LeafMeta(rhs)
@@ -1380,7 +1451,8 @@ public:
   void setValue(QString color, 
                 float thickness,
                 float margin0,
-                float margin1)
+                float margin1,
+                bool  haspointer)
   {
     if (resolutionType() == DPCM) {
       thickness = centimeters2inches(thickness);
@@ -1391,6 +1463,7 @@ public:
     _value[pushed].thickness = thickness;
     _value[pushed].margin[0] = margin0;
     _value[pushed].margin[1] = margin1;
+    _value[pushed].haspointer= haspointer;
   }
   void setValue(SepData goods)
   {
@@ -1412,12 +1485,14 @@ public:
   void setValueInches(QString color, 
                 float thickness,
                 float margin0,
-                float margin1)
+                float margin1,
+                bool  haspointer)
   {
     _value[pushed].color = color;
     _value[pushed].thickness = thickness;
     _value[pushed].margin[0] = margin0;
     _value[pushed].margin[1] = margin1;
+    _value[pushed].haspointer= haspointer;
   }
   void setValueInches(SepData &sepData)
   {
@@ -1678,9 +1753,9 @@ public:
   virtual void init(BranchMeta *parent,
                     QString name);
 };
-/*------------------------*/
 
 /*------------------------*/
+
 /*
  * Highlight Step Meta
  */
@@ -1701,6 +1776,7 @@ public:
   virtual void init(BranchMeta *parent,
                     QString name);
 };
+
 /*------------------------*/
 
 class RemoveMeta : public BranchMeta
@@ -2031,7 +2107,7 @@ class RotateIconMeta  : public BranchMeta
 {
 public:
   UnitsMeta          size;
-  FloatMeta	     picScale;
+  FloatMeta          picScale;
   BorderMeta         arrow;
   BorderMeta         border;
   BackgroundMeta     background;
@@ -2238,6 +2314,29 @@ public:
 
 /*------------------------*/
 
+/*
+ * PagePointer meta
+ */
+class PagePointerMeta  : public BranchMeta
+{
+public:
+  PlacementMeta  placement;     // inside
+  BorderMeta     border;
+  BackgroundMeta background;
+  MarginsMeta    margin;
+  StringListMeta subModelColor;
+  PointerMeta    pointer;
+  PagePointerMeta();
+  PagePointerMeta(const PagePointerMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~PagePointerMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
 class MultiStepMeta : public BranchMeta
 {
 public:
@@ -2333,6 +2432,7 @@ public:
   AssemMeta           assem;
   NumberPlacementMeta stepNumber;
   CalloutMeta         callout;
+  PagePointerMeta     pagePointer;
   MultiStepMeta       multiStep;
   PliMeta             pli;
   BomMeta             bom;
@@ -2467,7 +2567,7 @@ public:
 private:
 };
 
-const QString RcNames[42] =
+const QString RcNames[47] =
 {
      "InvalidLDrawLineRc = -3",
      "RangeErrorRc = -2",
@@ -2485,9 +2585,13 @@ const QString RcNames[42] =
      "CalloutDividerRc",
      "CalloutEndRc",
 
+      "DividerPointerRc",
+      "IllustrationPointerRc",
+
      "InsertRc",
      "InsertPageRc",
      "InsertCoverPageRc",
+     "InsertFinalModelRc",
 
      "ClearRc",
      "BufferStoreRc",
@@ -2504,6 +2608,8 @@ const QString RcNames[42] =
      "PartBeginIgnRc",
      "PartEndRc",
 
+     "PagePointerRc",
+
      "BomBeginIgnRc",
      "BomEndRc",
 
@@ -2517,6 +2623,8 @@ const QString RcNames[42] =
 
      "SynthBeginRc",
      "SynthEndRc",
+
+     "StepPliPerStepRc",
 
      "ResolutionRc",
 

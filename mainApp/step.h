@@ -40,11 +40,14 @@
 #include "meta.h"
 #include "csiitem.h"
 #include "callout.h"
+#include "pagepointer.h"
+#include "rotateiconitem.h"
 
 class Meta;
 class Callout;
 class Range;
 class ImageMatt;
+class PagePointer;
 
 class Step : public AbstractRangeElement
 {

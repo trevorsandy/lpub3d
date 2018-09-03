@@ -29,8 +29,6 @@
 #ifndef reserveH
 #define reserveH
 
-#include <QGraphicsScene>
-#include <QGraphicsItem>
 #include "meta.h"
 #include "where.h"
 #include "range_element.h"
@@ -55,18 +53,6 @@ class Reserve : public AbstractRangeElement {
         setSize(0,int(gui->pageSize(meta.page, 1) * space + 0.5));
       }
     }
-
-//    int pageSize(PageMeta &meta, int which){
-//      int _size;
-
-//      // flip orientation for landscape
-//      if (meta.orientation.value() == Landscape){
-//          which = 0 ? _size = 1 : _size = 0;
-//        } else {
-//          _size = which;
-//        }
-//      return meta.size.valuePixels(_size);
-//    }
 };
 
 #endif

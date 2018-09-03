@@ -18,9 +18,9 @@
 
 /****************************************************************************
  *
- * This class implements the graphical pointers that extend from callouts to
- * assembly images as visual indicators to the builder as to where to 
- * add the completed submodel into partially assembeled final model.
+ * This class implements the graphical pointers that extend from base objects
+ * (e.g. a Callout) to assembly images as visual indicators to the builder
+ * as to where to add the completed submodel into partially assembeled final model.
  *
  * Please see lpub.h for an overall description of how the files in LPub
  * make up the LPub program.
@@ -38,13 +38,8 @@
 #include <QGraphicsSceneContextMenuEvent>
 #include <math.h>
 #include "pointeritem.h"
-#include "metaitem.h"
-#include "callout.h"
-#include "calloutbackgrounditem.h"
-#include "step.h"
-#include "range.h"
 
-//---------------------------------------------------------------------------
+
 
 /* calculate the parameters for the equation of line from two points */
 
@@ -57,247 +52,227 @@ bool rectLineIntersect(
 
   PlacementEnc &placement);
 
-/*
- * This is the constructor of a graphical pointer
- */
+//---------------------------------------------------------------------------
 
-CalloutPointerItem::CalloutPointerItem(
-  Callout       *co,
-  Meta          *meta,
-  Pointer       *_pointer,
-  QGraphicsItem *parent,
-  QGraphicsView *_view)
+PointerItem::PointerItem(QGraphicsItem *parent)
+    : QGraphicsItemGroup(parent){}
 
-  : QGraphicsItemGroup(parent)
-{
-  view          = _view;
-  callout       = co;
-  pointer       = *_pointer;
-  QString color;
-
-  PointerData pointerData = pointer.pointerMeta.value();
-  BorderData  border = meta->LPub.callout.border.valuePixels();
-  PlacementData calloutPlacement = meta->LPub.callout.placement.value();
-
-  borderColor     = border.color;
-  borderThickness = border.thickness;
-
-  placement = pointerData.placement;
-
-  int cX = callout->parentStep->csiItem->loc[XX];
-  int cY = callout->parentStep->csiItem->loc[YY];
-  int dX = pointerData.x*callout->parentStep->csiItem->size[XX];
-  int dY = pointerData.y*callout->parentStep->csiItem->size[YY];
-
-  if (callout->placement.value().relativeTo == CalloutType) {
-    cX += callout->parentStep->loc[XX];
-    cY += callout->parentStep->loc[YY];
-    points[Tip] = QPoint(cX + dX - callout->loc[XX], cY + dY - callout->loc[YY]);
-  } else {
-    points[Tip] = QPoint(cX + dX - callout->loc[XX], cY + dY - callout->loc[YY]);
-  }
-
-  /*
-   * What does it take to convert csiItem->loc[] and size[] to the position of
-   * the tip in these cases:
-   *   single step
-   *     callout relative to csi
-   *     callout relative to stepNumber
-   *     callout relative to pli
-   *     callout relative to page
-   *
-   *   step group
-   *     callout relative to csi
-   *     callout relative to stepNumber
-   *     callout relative to pli
-   *     callout relative to page
-   *     callout relative to stepGroup
-   */
-  if ( ! callout->parentStep->onlyChild()) {
-    switch (calloutPlacement.relativeTo) {
-      case PageType:
-      case StepGroupType:
-        points[Tip] += QPoint(callout->parentStep->grandparent()->loc[XX],
-                              callout->parentStep->grandparent()->loc[YY]);
-        points[Tip] += QPoint(callout->parentStep->range()->loc[XX],
-                              callout->parentStep->range()->loc[YY]);
-        points[Tip] += QPoint(callout->parentStep->loc[XX],
-                              callout->parentStep->loc[YY]);
-      break;
-      default:
-      break;
-    }
-  }
-  
-  autoLocFromTip();
-
-  QLineF linef;
-
-  //QColor qColor = LDrawColor::color(border.color);
-  QColor qColor(border.color); 
-
-  QPen pen(qColor);
-  pen.setWidth(borderThickness);
-  pen.setCapStyle(Qt::RoundCap);
-
-  shaft = new QGraphicsLineItem(linef,this);
-  shaft->setPen(pen);
-  shaft->setZValue(-5);
-  shaft->setFlag(QGraphicsItem::ItemIsSelectable,false);
-  shaft->setToolTip("Arrow shaft");
-  addToGroup(shaft);
-  
-  QPolygonF poly;
-  
-  head = new QGraphicsPolygonItem(poly, this);
-  head->setPen(qColor);
-  head->setBrush(qColor);
-  head->setFlag(QGraphicsItem::ItemIsSelectable,false);
-  head->setToolTip("Arrow head");
-  addToGroup(head);  
-  
-  for (int i = 0; i < NumGrabbers; i++) {
-    grabbers[i] = NULL;
-  }
-
-  drawPointerPoly();
-  setFlag(QGraphicsItem::ItemIsFocusable,true);
+PointerItem::~PointerItem(){
+  shaftSegments.clear();
 }
 
-void CalloutPointerItem::drawPointerPoly()
+void PointerItem::drawPointerPoly()
 {
-  QLineF linef = QLineF(points[Base],points[Tip]);
 
-  removeFromGroup(shaft);
-  shaft->setLine(linef);
-  addToGroup(shaft);
-  
-  QPolygonF poly;
-  
-  poly << QPointF(-2*grabSize(), 0);
-  poly << QPointF(-2*grabSize(),grabSize()/2);
-  poly << QPointF(grabSize()/2,0);
-  poly << QPointF(-2*grabSize(),-grabSize()/2);
-  poly << QPointF(-2*grabSize(),0);
-  
-  removeFromGroup(head);
-  head->setPolygon(poly);
-  
-  qreal x = points[Tip].x()-points[Base].x();
-  qreal y = points[Tip].y()-points[Base].y();
-  qreal h = sqrt(x*x+y*y);
-  qreal angle = 180*acos(x/h);
+  for (int i = 0; i < segments(); i++) {
 
-  qreal pi = 22.0/7;
-
-  if (x == 0) {
-    if (y < 0) {
-      angle = 270.0;
-    } else {
-      angle = 90.0;
-    }
-  } else if (y == 0) {
-    if (x < 0) {
-      angle = 180.0;
-    } else {
-      angle = 0.0;
-    }
-  } else {
-    volatile qreal h = sqrt(x*x+y*y);
-    if (x > 0) {
-      if (y > 0) {
-        angle = 180-180*acos(-x/h)/pi;
-      } else {
-        angle = 180+180*acos(-x/h)/pi;
+      QLineF linef;
+      switch (segments()) {
+      case OneSegment:
+      {
+          linef = QLineF(points[Base],points[Tip]);
+          removeFromGroup(shaftSegments[i]);
+          QGraphicsLineItem    *shaft = shaftSegments[i];
+          shaft->setLine(linef);
+          addToGroup(shaft);
       }
-    } else {
-      if (y > 0) {
-        angle = 180*acos(x/h)/pi;
-      } else {
-        angle = -180*acos(x/h)/pi;
+          break;
+      case TwoSegments:
+      {
+          if (i == 0) {
+              linef = QLineF(points[Base],points[MidBase]);
+              removeFromGroup(shaftSegments[i]);
+              QGraphicsLineItem    *shaft = shaftSegments[i];
+              shaft->setLine(linef);
+              addToGroup(shaft);
+          } else {
+              linef = QLineF(points[MidBase],points[Tip]);
+              removeFromGroup(shaftSegments[i]);
+              QGraphicsLineItem    *shaft = shaftSegments[i];
+              shaft->setLine(linef);
+              addToGroup(shaft);
+          }
       }
-    }
+          break;
+      case ThreeSegments:
+      {
+          if (i == 0) {
+              linef = QLineF(points[Base],points[MidBase]);
+              removeFromGroup(shaftSegments[i]);
+              QGraphicsLineItem    *shaft = shaftSegments[i];
+              shaft->setLine(linef);
+              addToGroup(shaft);
+          } else if (i == 1){
+              linef = QLineF(points[MidBase],points[MidTip]);
+              removeFromGroup(shaftSegments[i]);
+              QGraphicsLineItem    *shaft = shaftSegments[i];
+              shaft->setLine(linef);
+              addToGroup(shaft);
+          } else {
+              linef = QLineF(points[MidTip],points[Tip]);
+              removeFromGroup(shaftSegments[i]);
+              QGraphicsLineItem    *shaft = shaftSegments[i];
+              shaft->setLine(linef);
+              addToGroup(shaft);
+          }
+      }
+          break;
+      default:
+          break;
+      }
+
+      if (shaftSegments.last()){
+          // head
+          QPolygonF poly;
+
+          poly << QPointF(-2*grabSize(), 0);
+          poly << QPointF(-2*grabSize(),grabSize()/2);
+          poly << QPointF(grabSize()/2,0);
+          poly << QPointF(-2*grabSize(),-grabSize()/2);
+          poly << QPointF(-2*grabSize(),0);
+
+          removeFromGroup(head);
+          head->setPolygon(poly);
+
+          qreal x;
+          qreal y;
+          switch (segments()) {
+          case OneSegment:
+              x = points[Tip].x()-points[Base].x();
+              y = points[Tip].y()-points[Base].y();
+              break;
+          case TwoSegments:
+              x = points[Tip].x()-points[MidBase].x();
+              y = points[Tip].y()-points[MidBase].y();
+              break;
+          case ThreeSegments:
+              x = points[Tip].x()-points[MidTip].x();
+              y = points[Tip].y()-points[MidTip].y();
+              break;
+          default:
+              break;
+          }
+
+          qreal h = sqrt(x*x+y*y);
+          qreal angle = 180*acos(x/h);
+
+          qreal pi = 22.0/7;
+
+          if (x == 0) {
+            if (y < 0) {
+              angle = 270.0;
+            } else {
+              angle = 90.0;
+            }
+          } else if (y == 0) {
+            if (x < 0) {
+              angle = 180.0;
+            } else {
+              angle = 0.0;
+            }
+          } else {
+            volatile qreal h = sqrt(x*x+y*y);
+            if (x > 0) {
+              if (y > 0) {
+                angle = 180-180*acos(-x/h)/pi;
+              } else {
+                angle = 180+180*acos(-x/h)/pi;
+              }
+            } else {
+              if (y > 0) {
+                angle = 180*acos(x/h)/pi;
+              } else {
+                angle = -180*acos(x/h)/pi;
+              }
+            }
+          }
+
+          head->resetTransform();
+          head->setRotation(rotation() + angle);
+          head->setPos(points[Tip]);
+          addToGroup(head);
+      }
   }
-  
-  head->resetTransform();
-  head->setRotation(rotation() + angle);
-  head->setPos(points[Tip]);
-  addToGroup(head);
 
   view->updateSceneRect(sceneBoundingRect());
 }
 
-/*
- * Given the location of the Tip (as dragged around by the user)
- * calculate a reasonable placement and Loc for points[Base]
- */
+void PointerItem::addShaftSegment(){
 
-bool CalloutPointerItem::autoLocFromTip()
-{
-  int width = callout->size[XX];
-  int height = callout->size[YY];
-  int left = 0;
-  int right = width;
-  int top = 0;
-  int bottom = height;
+    // number of shafts indicated
+    QGraphicsLineItem *shaftOrig;
+    QLineF             linefOrig;
+    QPointF            centerPos;
 
-  QPoint intersect;
-  int tx,ty;
-
-  tx = points[Tip].x();
-  ty = points[Tip].y();
-
-  /* Figure out which corner */
-  BorderData borderData = callout->background->border.valuePixels();
-  int radius = (int) borderData.radius;
-
-  if (ty >= top+radius && ty <= bottom-radius) {
-    if (tx < left) {
-      intersect = QPoint(left,ty);
-      points[Tip].setY(ty);
-      placement = Left;
-    } else if (tx > right) {
-      intersect = QPoint(right,ty);
-      points[Tip].setY(ty);
-      placement = Right;
-    } else {
-      // inside
-      placement = Center;
+    switch (segments()) {
+    case OneSegment:
+    {
+        // get split target segment - first shaft
+        linefOrig = QLineF(points[Base],points[Tip]);
+        shaftOrig = shaftSegments[0];
+        shaftOrig->setLine(linefOrig);
+        centerPos = shaftOrig->boundingRect().center();
+        shaftOrig = NULL;
+        delete shaftOrig;
+        points[MidBase] = centerPos;
     }
-  } else if (tx >= left+radius && tx <= right-radius) {
-    if (ty < top) {
-      intersect = QPoint(tx,top);
-      points[Tip].setX(tx);
-      placement = Top;
-    } else if (ty > bottom) {
-      intersect = QPoint(tx,bottom);
-      points[Tip].setX(tx);
-      placement = Bottom;
-    } else {
-      // inside
-      placement = Center;
+        break;
+    case TwoSegments:
+    {
+        // get split target segment - second shaft
+        linefOrig = QLineF(points[MidBase],points[Tip]);
+        shaftOrig = shaftSegments[1];
+        shaftOrig->setLine(linefOrig);
+        centerPos = shaftOrig->boundingRect().center();
+        shaftOrig = NULL;
+        delete shaftOrig;
+        points[MidTip] = centerPos;
+        if (points[MidTip].y() == points[MidBase].y()){
+            emit gui->messageSig(LOG_ERROR, "Arrow segments are on the same line. Move an existing sigment before creating a new one.");
+            return;
+        }
     }
-  } else if (tx < radius) {  // left?
-    if (ty < radius) {
-      intersect = QPoint(left+radius,top+radius);
-      placement = TopLeft;
-    } else {
-      intersect = QPoint(radius,height-radius);
-      placement = BottomLeft;
+        break;
+    default:
+        break;
     }
-  } else { // right!
-    if (ty < radius) {
-      intersect = QPoint(width-radius,radius);
-      placement = TopRight;
-    } else {
-      intersect = QPoint(width-radius,height-radius);
-      placement = BottomRight;
-    }
-  }
 
-  points[Base] = intersect;
+    QColor qColor(borderColor);
 
-  return true;
+    QPen pen(qColor);
+    pen.setWidth(borderThickness);
+    pen.setCapStyle(Qt::RoundCap);
+
+    QLineF linef;
+    shaft = new QGraphicsLineItem(linef,this);
+    shaft->setPen(pen);
+    shaft->setZValue(-5);
+    shaft->setFlag(QGraphicsItem::ItemIsSelectable,false);
+    shaft->setToolTip(QString("Arrow segment %1 - drag to move; right click to modify").arg(segments()+1));
+    shaftSegments.append(shaft);
+    addToGroup(shaft);
+
+    for (int i = 0; i < NumGrabbers; i++) {
+      grabbers[i] = NULL;
+    }
+
+    drawPointerPoly();
+    setFlag(QGraphicsItem::ItemIsFocusable,true);
+
+    placeGrabbers();
+
+    if (segments() == ThreeSegments) {
+       autoLocFromTip();
+       change();
+    }
+}
+
+void PointerItem::removeShaftSegment(){
+
+    int LastSegment = segments()-1;
+    removeFromGroup(shaftSegments[LastSegment]);
+    shaftSegments.removeLast();
+    change();
 }
 
 /*
@@ -305,20 +280,25 @@ bool CalloutPointerItem::autoLocFromTip()
  * calculate a reasonable placement and Loc for points[Base]
  */
 
-bool CalloutPointerItem::autoLocFromLoc(
+bool PointerItem::autoLocFromBase(
   QPoint loc)
 {
   QRect rect(0,
              0,
-             callout->size[XX],
-             callout->size[YY]);
+             baseX,
+             baseY);
 
   QPoint intersect;
   PlacementEnc tplacement;
 
-  QPoint tip(points[Tip].x() + 0.5, points[Tip].y() + 0.5);
+  QPoint point;
+  if(segments() == OneSegment){
+      point = QPoint(points[Tip].x() + 0.5, points[Tip].y() + 0.5);
+  } else {
+      point = QPoint(points[MidBase].x() + 0.5, points[MidBase].y() + 0.5);
+  }
 
-  if (rectLineIntersect(tip,
+  if (rectLineIntersect(point,
                         loc,
                         rect,
                         borderThickness,
@@ -331,16 +311,51 @@ bool CalloutPointerItem::autoLocFromLoc(
   return false;
 }
 
-void CalloutPointerItem::placeGrabbers()
+/*
+ * Given the location of the MidTip point (as dragged around by the user)
+ * calculate a reasonable position for point MidBase
+ */
+bool PointerItem::autoMidBaseFromMidTip()
 {
+    PointerData pointerData = pointer.pointerMeta.value();
+    int tx,ty;
+
+    tx = points[MidTip].x();
+    ty = pointerData.y2;
+
+    points[MidBase].setY(ty);
+    points[MidBase].setX(tx);
+
+    return true;
+}
+
+void PointerItem::placeGrabbers()
+{
+  int numGrabbers;
+  switch (segments()) {
+  case OneSegment:
+      numGrabbers = NumGrabbers-2;
+      break;
+  case TwoSegments:
+      numGrabbers = NumGrabbers-1;
+      break;
+  case ThreeSegments:
+      numGrabbers = NumGrabbers;
+      break;
+  default:
+      break;
+  }
+
   if (grabbers[0] == NULL) {
-    for (int i = 0; i < NumGrabbers; i++) {
+    for (int i = 0; i < numGrabbers; i++) {
       grabbers[i] = new Grabber(i,this,myParentItem());
     }
   }
-  for (int i = 0; i < NumGrabbers; i++) {
+
+  for (int i = 0; i < numGrabbers; i++) {
     grabbers[i]->setPos(points[i].x() - grabSize()/2, points[i].y()-grabSize()/2);
   }
+
 }
       /*
        *     c1 c2  c1 c2
@@ -371,7 +386,7 @@ void CalloutPointerItem::placeGrabbers()
        *    +------------+
        *     c1        c1
        */
-void CalloutPointerItem::mousePressEvent  (QGraphicsSceneMouseEvent * /* unused */)
+void PointerItem::mousePressEvent  (QGraphicsSceneMouseEvent * /* unused */)
 {
   placeGrabbers();
 }
@@ -382,7 +397,7 @@ void CalloutPointerItem::mousePressEvent  (QGraphicsSceneMouseEvent * /* unused 
  * If pointer's tip is selected then allow the tip to move anywhere within the
  * CSI.
  *
- * If the pointer's location (where the pointer is attached to the callout)
+ * If the pointer's location (where the pointer is attached to the base object)
  * is selected then allow the pointer to move to any valid edges or corner
  * (constrained by base).
  *
@@ -390,25 +405,21 @@ void CalloutPointerItem::mousePressEvent  (QGraphicsSceneMouseEvent * /* unused 
  * base.
  */
 
-void CalloutPointerItem::resize(QPointF grabbed)
+void PointerItem::resize(QPointF grabbed)
 {
-  grabbed -= scenePos();
-  
-  QPoint intersect;
+    grabbed -= scenePos();
 
-  bool changed = false;
+    bool changed = false;
 
-  QRect rect(0,0,callout->size[XX],callout->size[YY]);
-
-  switch (selectedGrabber) {
+    switch (selectedGrabber) {
     /*
      * Loc must track along an edge.  If you draw a line from tip to the mouse
-     * cursor, the line intersects with the edge of the callout one or two places.
+     * cursor, the line intersects with the edge of the base object one or two places.
      * The single intersection is at corners, and the dual intersection is not
      * on corners.  In the case of dual intersection, the one that is closest
      * to tip is the one used.
-     * 
-     * If the tip to mouse line does not intersect with the callout, do nothing.
+     *
+     * If the tip to mouse line does not intersect with the base object, do nothing.
      * If the top to mouse line only intersects with corner, then force corner
      * placement.
      *
@@ -418,43 +429,69 @@ void CalloutPointerItem::resize(QPointF grabbed)
      */
 
     case Base:
-      {
+    {
         QPoint loc(grabbed.x(),grabbed.y());
-      
-        if (autoLocFromLoc(loc)) {
-          changed = true;
+
+        if (autoLocFromBase(loc)) {
+            changed = true;
         }
-      }
-    break;
+    }
+        break;
     case Tip:
-      points[Tip] = grabbed;
-      if (autoLocFromTip()) {
-        changed = true;
-      }
-    break;
+        points[Tip] = grabbed;
+        if (autoLocFromTip()) {
+            changed = true;
+        }
+        break;
+    case MidBase:
+        points[MidBase] = grabbed;
+        if (autoLocFromMidBase()) {
+            changed = true;
+        }
+        break;
+    case MidTip:
+        points[MidTip] = grabbed;
+        if (autoMidBaseFromMidTip()) {
+            changed = true;
+        }
+        break;
     default:
-    break;
-  }
+        break;
+    }
   if (changed) {
     drawPointerPoly();
     positionChanged = true;
   }
-  grabbers[Base]->setPos(points[Base].x() - grabSize()/2, points[Base].y() - grabSize()/2);
-  grabbers[Tip ]->setPos(points[Tip ].x() - grabSize()/2, points[Tip ].y() - grabSize()/2);
+  switch (segments()) {
+  case OneSegment:
+      grabbers[Base    ]->setPos(points[Base    ].x() - grabSize()/2, points[Base    ].y() - grabSize()/2);
+      grabbers[Tip     ]->setPos(points[Tip     ].x() - grabSize()/2, points[Tip     ].y() - grabSize()/2);
+      break;
+  case TwoSegments:
+      grabbers[Base    ]->setPos(points[Base    ].x() - grabSize()/2, points[Base    ].y() - grabSize()/2);
+      grabbers[MidBase ]->setPos(points[MidBase ].x() - grabSize()/2, points[MidBase ].y() - grabSize()/2);
+      grabbers[Tip     ]->setPos(points[Tip     ].x() - grabSize()/2, points[Tip     ].y() - grabSize()/2);
+      break;
+  case ThreeSegments:
+      grabbers[Base    ]->setPos(points[Base    ].x() - grabSize()/2, points[Base    ].y() - grabSize()/2);
+      grabbers[MidBase ]->setPos(points[MidBase ].x() - grabSize()/2, points[MidBase ].y() - grabSize()/2);
+      grabbers[MidTip  ]->setPos(points[MidTip  ].x() - grabSize()/2, points[MidTip  ].y() - grabSize()/2);
+      grabbers[Tip     ]->setPos(points[Tip     ].x() - grabSize()/2, points[Tip     ].y() - grabSize()/2);
+      break;
+  default:
+      break;
+  }
 }
 
-void CalloutPointerItem::change()
+void PointerItem::change()
 {
   calculatePointerMeta();
-
-  // back annotate pointer shape back into the LDraw file.
-
   MetaItem::updatePointer(pointer.here, &pointer.pointerMeta);
 }
 
 /* Meta related stuff */
 
-void CalloutPointerItem::drawTip(QPoint delta)
+void PointerItem::drawTip(QPoint delta)
 {
   points[Tip] += delta;
   autoLocFromTip();
@@ -462,115 +499,7 @@ void CalloutPointerItem::drawTip(QPoint delta)
   points[Tip] -= delta;
 }
 
-void CalloutPointerItem::defaultPointer()
-{
-  points[Tip] = QPointF(callout->parentStep->csiItem->loc[XX]+
-                        callout->parentStep->csiItem->size[XX]/2,
-                        callout->parentStep->csiItem->loc[YY]+
-                        callout->parentStep->csiItem->size[YY]/2);
-
-  if ( ! callout->parentStep->onlyChild()) {
-    PlacementData calloutPlacement = callout->placement.value();
-    switch (calloutPlacement.relativeTo) {
-      case PageType:
-      case StepGroupType:
-        points[Tip] += QPoint(callout->parentStep->grandparent()->loc[XX],
-                              callout->parentStep->grandparent()->loc[YY]);
-        points[Tip] += QPoint(callout->parentStep->range()->loc[XX],
-                              callout->parentStep->range()->loc[YY]);
-        points[Tip] += QPoint(callout->parentStep->loc[XX],
-                              callout->parentStep->loc[YY]);
-        points[Tip] -= QPoint(callout->loc[XX],callout->loc[YY]);
-      break;
-      default:
-      break;
-    }
-  }
-  autoLocFromTip();
-  drawPointerPoly();
-  calculatePointerMeta();
-  addPointerMeta();
-}
- 
-void CalloutPointerItem::calculatePointerMetaLoc()
-{
-  float loc = 0;
-
-  switch (placement) {
-    case TopLeft:
-    case TopRight:
-    case BottomLeft:
-    case BottomRight:
-      loc = 0;
-    break;
-    case Top:
-    case Bottom:
-      loc = points[Base].x()/callout->size[XX];
-    break;
-    case Left:
-    case Right:
-      loc = points[Base].y()/callout->size[YY];
-    break;
-    default:
-    break;
-  }
-
-  PointerData pointerData = pointer.pointerMeta.value();
-  pointer.pointerMeta.setValue(
-    placement,
-    loc,
-    0,
-    pointerData.x,
-    pointerData.y);
-}
-
-void CalloutPointerItem::calculatePointerMeta()
-{
-  calculatePointerMetaLoc();
-
-  PointerData pointerData = pointer.pointerMeta.value();
-
-  if (callout->parentStep->onlyChild()) {
-    points[Tip] += QPoint(callout->loc[XX],callout->loc[YY]);
-  } else {
-    PlacementData calloutPlacement = callout->meta.LPub.callout.placement.value();
-
-    switch (calloutPlacement.relativeTo) {
-      case CsiType:
-      case PartsListType:
-      case StepNumberType:
-        points[Tip] += QPoint(callout->loc[XX],callout->loc[YY]);
-      break;
-      case PageType:
-      case StepGroupType:
-        points[Tip] -= QPoint(callout->parentStep->grandparent()->loc[XX],
-                              callout->parentStep->grandparent()->loc[YY]);
-        points[Tip] -= QPoint(callout->parentStep->loc[XX],
-                              callout->parentStep->loc[YY]);
-        points[Tip] += QPoint(callout->loc[XX],callout->loc[YY]);
-      break;
-      default:
-      break;
-    }
-  }
-
-  if (callout->placement.value().relativeTo == CalloutType) {
-    points[Tip] -= QPoint(callout->parentStep->loc[XX],
-                          callout->parentStep->loc[YY]);
-  }
-
-  pointerData.x = (points[Tip].x() - callout->parentStep->csiItem->loc[XX])/callout->parentStep->csiItem->size[XX];
-  pointerData.y = (points[Tip].y() - callout->parentStep->csiItem->loc[YY])/callout->parentStep->csiItem->size[YY];
-
-  pointer.pointerMeta.setValue(
-    placement,
-    pointerData.loc,
-    0,
-    pointerData.x,
-    pointerData.y);
-}
-
-void CalloutPointerItem::updatePointer(
+void PointerItem::updatePointer(
   QPoint &delta)
 {
   points[Tip] += delta;
@@ -581,7 +510,7 @@ void CalloutPointerItem::updatePointer(
   MetaItem::updatePointer(pointer.here, &pointer.pointerMeta);
 }
 
-void CalloutPointerItem::addPointerMeta()
+void PointerItem::addPointerMeta()
 {
   QString metaString = pointer.pointerMeta.format(false,false);
   Where here = pointer.here+1;
@@ -589,18 +518,43 @@ void CalloutPointerItem::addPointerMeta()
   gui->displayPage();
 }
 
-void CalloutPointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
 
   QAction *removeAction = menu.addAction("Delete this Arrow");
   removeAction->setIcon(QIcon(":/resources/deletearrow.png"));
   removeAction->setWhatsThis(            "Delete this Arrow:\n"
-                                         "Deletes this arrow from the callout");
+                                         "Deletes this arrow");
+
+  QAction *addSegmentAction = NULL;
+  if (segments() < 3) {
+      addSegmentAction = menu.addAction("Add Arrow Segment");
+      addSegmentAction->setIcon(QIcon(":/resources/addsegment.png"));
+      addSegmentAction->setWhatsThis(        "Add arrow segment:\n"
+                                             "Introduce a new arrow shaft segment.");
+  }
+
+  QAction *removeSegmentAction = NULL;
+  if (segments() > 1) {
+      removeSegmentAction = menu.addAction("Remove Arrow Segment");
+      removeSegmentAction->setIcon(QIcon(":/resources/removesegment.png"));
+      removeSegmentAction->setWhatsThis(     "Remvoe arrow segment:\n"
+                                             "Remove arrow shaft segment.");
+  }
 
   QAction *selectedAction   = menu.exec(event->screenPos());
+
+  if ( ! selectedAction ) {
+      return;
+    }
+
   if (selectedAction == removeAction) {
     deletePointer(pointer.here);
+  } else if (selectedAction == addSegmentAction){
+    addShaftSegment();
+  } else if (selectedAction == removeSegmentAction){
+    removeShaftSegment();
   }
 }
 

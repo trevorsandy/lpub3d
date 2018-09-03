@@ -46,6 +46,7 @@
 #include "range.h"
 #include "color.h"
 #include "placementdialog.h"
+#include "pointerplacementdialog.h"
 #include "pliconstraindialog.h"
 #include "pliannotationdialog.h"
 #include "plisortdialog.h"
@@ -56,8 +57,6 @@
 #include "dividerdialog.h"
 #include "sizeandorientationdialog.h"
 #include "rotateiconsizedialog.h"
-//#include "pagesizedialog.h"
-//#include "pageorientationdialog.h"
 #include "paths.h"
 #include "render.h"
 
@@ -1075,6 +1074,22 @@ void MetaItem::setMetaBottomOf(
   }
 }
 
+bool MetaItem::setPointerPlacement(
+    PlacementMeta      *placementMeta,
+    const PlacementType parentType,
+    const PlacementType relativeType,
+    QString             title)
+{
+  PlacementData placementData = placementMeta->value();
+  bool ok;
+  ok = PointerPlacementDialog
+      ::getPointerPlacement(parentType,relativeType,placementData,title);
+  if (ok) {
+      placementMeta->setValue(placementData);
+    }
+  return ok;
+}
+
 void MetaItem::changePlacement(
   PlacementType  parentType,
   PlacementType  relativeType,
@@ -1134,6 +1149,7 @@ void MetaItem::changePlacementOffset(
   bool           global)
 {
 
+#ifdef QT_DEBUG_MODE
  qDebug() << "\nCHANGE PLACEMENT OFFSET -    "
           << "\nPAGE WHERE -                 "
           << " \nDefaultWhere (Model Name):  "   << defaultWhere.modelName
@@ -1150,12 +1166,13 @@ void MetaItem::changePlacementOffset(
           << " \nPlacement Here(Model Name): "   << placement->here().modelName
           << " \nPlacement Here(Line Number):"   << placement->here().lineNumber
           << "\nOTHER DATA -                 "
-          << " \n:Type:                      "   << RelNames[type] << " (" << type << ")"
+          << " \n:Parent Relative Type:      "   << RelNames[type] << " (" << type << ")"
           << " \n:Local:                     "   << local
           << " \n:Global:                    "   << global
           << "\n FORMATTED META -            "
           << "\nMeta Format:                 "   << placement->format(local,global)
           ;
+#endif
 
   QString newMetaString = placement->format(local,global);
 
@@ -2797,11 +2814,11 @@ void MetaItem::addCalloutMetas(
       QStringList argv;
       split(firstLine,argv);
       QPointF offset = defaultPointerTip(*meta,
-                                         walk.modelName, firstInstance.lineNumber,
-                                         modelName, i,
-                                         gui->isMirrored(argv));
+                                   walk.modelName, firstInstance.lineNumber,
+                                   modelName, i,
+                                   gui->isMirrored(argv));
 
-      QString line = QString("%1 %2") .arg(offset.x()) .arg(offset.y());
+      QString line = QString("%1 %2 0 0 0 0 0 0 1") .arg(offset.x()) .arg(offset.y());
 
       if (together) {
         appendMeta(lastInstance,"0 !LPUB CALLOUT POINTER CENTER 0 " + line);
@@ -2833,27 +2850,203 @@ void MetaItem::addCalloutMetas(
   }
 }
 
-void MetaItem::changeRotation(
-  const Where &here)
+/*
+ *
+ * Pointer Tip Content START
+ *
+ */
+
+void MetaItem::addPointerTip(
+    Meta *meta,
+    const Where &fromHere,
+    const Where &toHere,
+    PlacementEnc placement)
 {
-  int numLines = gui->subFileSize(here.modelName);
-  if (here.lineNumber < numLines) {
-    QString line = gui->readLine(here);
-    QStringList tokens;
-    split(line,tokens);
-    if (tokens.size() == 5 && tokens[0] == "0" && tokens[2] == "CALLOUT" && tokens[3] == "BEGIN") {
-      if (tokens[4] == "ASSEMBLED") {
-        tokens[4] = "ROTATED";
-      } else {
-        tokens[4] = "ASSEMBLED";
+  gui->maxPages = -1;
+
+  beginMacro("addPointerTip");
+  addPointerTipMetas(meta,fromHere,toHere,placement);
+  endMacro();
+}
+
+void MetaItem::addPointerTipMetas(
+    Meta *meta,
+    const Where &fromHere,
+    const Where &toHere,
+    PlacementEnc placement)
+{
+  QString pointerPlacement;
+  switch (placement){
+    case TopLeft:
+      pointerPlacement = "BASE_TOP_LEFT";
+      break;
+    case Top:
+      pointerPlacement = "BASE_TOP";
+      break;
+    case TopRight:
+      pointerPlacement = "BASE_TOP_RIGHT";
+      break;
+    case Left:
+      pointerPlacement = "BASE_LEFT";
+      break;
+    case Center:
+      pointerPlacement = "BASE_CENTER";
+      break;
+    case Right:
+      pointerPlacement = "BASE_RIGHT";
+      break;
+    case BottomLeft:
+      pointerPlacement = "BASE_BOTTOM_LEFT";
+      break;
+    case Bottom:
+      pointerPlacement = "BASE_BOTTOM";
+      break;
+    case BottomRight:
+      pointerPlacement = "BASE_BOTTOM_RIGHT";
+      break;
+    case NumPlacements:
+      break;
+    }
+
+  /* pointerTip is the trick - it calculates the pointer tip
+     for a given step.  It does this by rendering
+     the parent image with the model's non-step parts color A and
+     the step's parts color B.  Then the resulatant image is
+     searched for color B.  The parent model needs to be rotated
+     by ROTSTEP for this to work. */
+
+  QPointF offset = pointerTip(*meta,fromHere,toHere);
+
+  QString line = QString("%1 %2 0 0 0 0 0 0 1 %3") .arg(offset.x()) .arg(offset.y()) .arg(pointerPlacement);
+
+  logTrace() << "META" << meta->LPub.pagePointer.pointer.format(false,false);
+
+  insertMeta(toHere,"0 !LPUB PAGE_POINTER POINTER CENTER 0 " + line);
+}
+
+QPointF MetaItem::pointerTip(
+  Meta          &meta,
+  const Where   &fromHere,
+  const Where   &toHere)
+{
+  QString white("15");
+  QString blue("1");
+  QString modelName = fromHere.modelName;
+  QRectF  pagePosition = QRectF(0,0,gui->pageSize(meta.LPub.page, 0),gui->pageSize(meta.LPub.page, 1));
+  /*
+   * Create a "white" version of the submodel that callouts out our callout
+   */
+
+  QString monoName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + modelName;
+  monoName = makeMonoName(monoName,white);
+  monoColorSubmodel(modelName,monoName,white);
+
+  QFile inFile(monoName);
+  if ( ! inFile.open(QFile::ReadOnly | QFile::Text)) {
+    emit gui->messageSig(LOG_ERROR,QString("defaultPointerTip cannot read file %1: %2.")
+                         .arg(monoName)
+                         .arg(inFile.errorString()));
+    return QPointF(0.5,0.5);
+  }
+
+  QTextStream in(&inFile);
+  QStringList csiParts;
+
+  /*
+   * Gather up the "white" parent model up to the step
+   * then gather up the "blue" step parts
+   */
+
+  for (int i = 0; i < toHere.lineNumber; i++) {
+    QString line = in.readLine(0);
+    if (i >= fromHere.lineNumber) {
+      QStringList argv;
+      split(line,argv);
+      if (argv.size() == 15) {
+        // create blue parts
+        argv[1] = blue;
+        line = argv.join(" ");
       }
     }
-    line = tokens.join(" ");
-    beginMacro("changeRotation");
-    replaceMeta(here,line);
-    endMacro();
+    csiParts << line;
   }
+
+  if (csiParts.size() == 0) {
+    return pagePosition.center();
+  }
+
+  bool ok[2];
+  QString pngName, ldrName;
+  QStringList ldrNames, csiKeys;
+  QString addLine = "1 0 0 0 0 1 0 0 0 1 0 0 0 1 " + modelName;
+  if (renderer->useLDViewSCall()) {
+      ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/pointerMono.ldr";
+      pngName = QDir::currentPath() + "/" + Paths::assemDir + "/pointerMono.png";
+      ldrNames << ldrName;
+      csiKeys << "pointerMono";
+      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName) == 0);
+      ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
+    } else {
+      pngName = QDir::currentPath() + "/" + Paths::tmpDir + "/pointerMono.png";
+      ok[0] = ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
+    }
+
+  if (ok[0] && ok[1]) {
+    QPixmap pixmap;
+    pixmap.load(pngName);
+
+    QImage color = pixmap.toImage();
+    QImage alpha = pixmap.toImage();
+
+    int width = color.width();
+    int height = color.height();
+    int left = 32000, top = -1, right = -1, bottom = -1;
+
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++)  {
+        QColor a = alpha.pixel(x,y);
+
+        if (a.blue()) {
+          QColor c = color.pixel(x,y);
+
+          int red = c.red(), green = c.green(), blue = c.blue();
+
+          if (blue - (red + green)/2 > 64) {
+            if (top == -1) {
+              top = y;
+            }
+            if (left > x) {
+              left = x;
+            }
+            if (bottom < y) {
+              bottom = y;
+            }
+            if (right < x) {
+              right = x;
+            }
+          }
+        }
+      }
+    }
+
+    left = (right+left)/2;
+    top  = (top+bottom)/2;
+
+    if (left > width || top > height) {
+      left = width/2;
+      top  = height/2;
+    }
+    return QPointF(float(left)/width, float(top)/height);
+  }
+  emit gui->messageSig(LOG_ERROR, QString("Render momo image for pointer tip failed."));
+  return QPointF(0.5,0.5);
 }
+
+/*
+ *
+ * Pointer Tip Content END
+ *
+ */
 
 void MetaItem::removeCallout(
   const QString &modelName,
@@ -2987,11 +3180,9 @@ int MetaItem::monoColorSubmodel(
 {    
   QFile outFile(outFileName);
   if ( ! outFile.open(QFile::WriteOnly | QFile::Text)) {
-    QMessageBox::warning(NULL, 
-      QMessageBox::tr(VER_PRODUCTNAME_STR),
-      QMessageBox::tr("MonoColorSubmodel cannot write file %1:\n%2.")
-      .arg(outFileName)
-      .arg(outFile.errorString()));
+    emit gui->messageSig(LOG_ERROR,QString("MonoColorSubmodel cannot write file %1: %2.")
+                         .arg(outFileName)
+                         .arg(outFile.errorString()));
     return -1;
   }
 
@@ -3048,6 +3239,7 @@ QPointF MetaItem::defaultPointerTip(
 {
   QString white("15");
   QString blue("1");
+  QRectF  pagePosition = QRectF(0,0,gui->pageSize(meta.LPub.page, 0),gui->pageSize(meta.LPub.page, 1));
 
   /*
    * Create a "white" version of the submodel that callouts out our callout
@@ -3059,12 +3251,10 @@ QPointF MetaItem::defaultPointerTip(
 
   QFile inFile(monoName);
   if ( ! inFile.open(QFile::ReadOnly | QFile::Text)) {
-    QMessageBox::warning(NULL,
-      QMessageBox::tr(VER_PRODUCTNAME_STR),
-      QMessageBox::tr("defaultPointerTip cannot read file %1:\n%2.")
-      .arg(monoName)
-      .arg(inFile.errorString()));
-    return QPointF(0.5,0.5);
+    emit gui->messageSig(LOG_ERROR,QString("defaultPointerTip cannot read file %1: %2.")
+                         .arg(monoName)
+                         .arg(inFile.errorString()));
+    return pagePosition.center();
   }
 
   QTextStream in(&inFile);
@@ -3100,7 +3290,7 @@ QPointF MetaItem::defaultPointerTip(
     csiParts << line;
   }
   if (i == numLines) {
-    return QPointF(0.5,0.5);
+    return pagePosition.center();
   }
 
   QString fileName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + argv[14];
@@ -3128,15 +3318,26 @@ QPointF MetaItem::defaultPointerTip(
   } else {
     addLine = "1 0 0 0 0 1 0 0 0 1 0 0 0 1 " + modelName;
   }
-  QString imageName = QDir::currentPath() + "/" + Paths::tmpDir + "/mono.png";
-  QStringList emptyKeys;
 
-  int rc = renderer->renderCsi(addLine,csiParts,emptyKeys,imageName,meta);
+  bool ok[2];
+  QString pngName, ldrName;
+  QStringList ldrNames, csiKeys;
+  if (renderer->useLDViewSCall()) {
+      ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/mono.ldr";
+      pngName = QDir::currentPath() + "/" + Paths::assemDir + "/mono.png";
+      ldrNames << ldrName;
+      csiKeys << "mono";
+      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName) == 0);
+      ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
+    } else {
+      pngName = QDir::currentPath() + "/" + Paths::tmpDir + "/mono.png";
+      ok[0] = ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
+    }
 
-  if (rc == 0) {
+  if (ok[0] && ok[1]) {
     QPixmap pixmap;
 
-    pixmap.load(imageName);
+    pixmap.load(pngName);
 
     QImage color = pixmap.toImage();
 
@@ -3183,7 +3384,30 @@ QPointF MetaItem::defaultPointerTip(
 
     return QPointF(float(left)/width, float(top)/height);
   }
-  return QPointF(0.5,0.5);
+  emit gui->messageSig(LOG_ERROR,QString("Render momo image for pointer tip failed."));
+  return pagePosition.center();
+}
+
+void MetaItem::changeRotation(
+  const Where &here)
+{
+  int numLines = gui->subFileSize(here.modelName);
+  if (here.lineNumber < numLines) {
+    QString line = gui->readLine(here);
+    QStringList tokens;
+    split(line,tokens);
+    if (tokens.size() == 5 && tokens[0] == "0" && tokens[2] == "CALLOUT" && tokens[3] == "BEGIN") {
+      if (tokens[4] == "ASSEMBLED") {
+        tokens[4] = "ROTATED";
+      } else {
+        tokens[4] = "ASSEMBLED";
+      }
+    }
+    line = tokens.join(" ");
+    beginMacro("changeRotation");
+    replaceMeta(here,line);
+    endMacro();
+  }
 }
 
 void MetaItem::hidePLIParts(

@@ -33,7 +33,7 @@
 #include "callout.h"
 #include "calloutbackgrounditem.h"
 #include "pointer.h"
-#include "pointeritem.h"
+#include "calloutpointeritem.h"
 #include "numberitem.h"
 #include "ranges.h"
 #include "range.h"
@@ -83,9 +83,9 @@ AllocMeta &Callout::allocMeta()
   }
 }
 
-void Callout::appendPointer(const Where &here, CalloutMeta &attrib)
+void Callout::appendPointer(const Where &here, PointerMeta &pointerMeta)
 {
-  Pointer *pointer = new Pointer(here,attrib);
+  Pointer *pointer = new Pointer(here,pointerMeta);
   pointerList.append(pointer);
 }
 
@@ -310,6 +310,7 @@ void Callout::addGraphicsItems(
   loc[XX] = saveX;
   loc[YY] = saveY;
 
+#ifdef QT_DEBUG_MODE
 //  qDebug() << "\nCALLOUT PLACEMENT (addGraphicsItems) - "
 //           << "\nPLACEMENT DATA -         "
 //           << " \nPlacement:              "   << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
@@ -330,6 +331,7 @@ void Callout::addGraphicsItems(
 //           << " \nRelative To Size[1]:    "   << relativeToSize[1]
 //              ;
 }
+#endif
 
 void Callout::addGraphicsItems(
   AllocEnc       allocEnc,

@@ -31,7 +31,7 @@
 #include "callout.h"
 #include "calloutbackgrounditem.h"
 #include "pointer.h"
-#include "pointeritem.h"
+#include "calloutpointeritem.h"
 #include <QGraphicsView>
 #include "commonmenus.h"
 
@@ -150,7 +150,17 @@ void CalloutBackgroundItem::contextMenuEvent(
   if (selectedAction == NULL) {
       return;
   } else if (selectedAction == addPointerAction) {
-    Pointer *pointer = new Pointer(callout->topOfCallout(),calloutMeta);
+    Pointer *pointer = new Pointer(callout->topOfCallout(),calloutMeta.pointer);
+    float _loc = 0, _x1 = 0, _y1 = 0, _base = -1, _segments = 1;
+    float           _x2 = 0, _y2 = 0;
+    float           _x3 = 0, _y3 = 0;
+    float           _x4 = 0, _y4 = 0;
+    pointer->pointerMeta.setValue(
+    PlacementEnc(TopLeft),
+    _loc,
+    _base,
+    _segments,
+    _x1,_y1,_x2,_y2,_x3,_y3,_x4,_y4);
     CalloutPointerItem *calloutPointer = 
       new CalloutPointerItem(callout,&callout->meta,pointer,this,view);
     calloutPointer->defaultPointer();

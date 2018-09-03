@@ -31,8 +31,6 @@
 #ifndef pliH
 #define pliH
 
-#include <QGraphicsScene>
-#include <QGraphicsItem>
 #include <QGraphicsTextItem>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsSceneMouseEvent>

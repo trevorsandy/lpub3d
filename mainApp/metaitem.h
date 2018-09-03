@@ -49,6 +49,8 @@ enum ScanMask {
 
   StepGroupMask = StepGroupBeginMask|StepGroupDividerMask|StepGroupEndMask,
 
+  PagePointerMask = (1 << PagePointerRc),
+
   PageMask = (1 << InsertPageRc) | (1 << InsertCoverPageRc),
   InsertMask = (1 << InsertRc)
 };
@@ -63,6 +65,11 @@ public:
   bool canConvertToCallout(    Meta *);
   void convertToCallout(       Meta *, const QString &, bool isMirrored, bool assembled = false);
   void addCalloutMetas(        Meta *, const QString &, bool isMirrored, bool assembled = false);
+
+  void addPointerTip(          Meta *, const Where &, const Where &, PlacementEnc placement);
+  void addPointerTipMetas(     Meta *, const Where &, const Where &, PlacementEnc placement);
+  QPointF pointerTip(          Meta &, const Where &, const Where &);
+
   int  nestCallouts(           Meta *, const QString &, bool isMirrored);
   QString makeMonoName(const QString &fileName, QString &color);
   int monoColorSubmodel(QString &modelName,QString &outFileName, QString &color);
@@ -103,6 +110,17 @@ public:
   void convertToIgnore(        Meta *);
   void convertToPart(          Meta *);
 
+  bool setPointerPlacement(
+                    PlacementMeta       *,
+                    const PlacementType parentType,
+                    const PlacementType relativeType,
+                    QString             title);
+
+  void setPlacement(PlacementMeta       *,
+                    const PlacementType parentType,
+                    const PlacementType relativeType,
+                    QString             title,
+                    bool                onPageType);
   void changePlacement( PlacementType parentType,
                         PlacementType placedType, 
                         QString title,

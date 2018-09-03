@@ -261,7 +261,7 @@
  *       pliglobals.cpp
  *       calloutglobals.cpp
  *       fadeandhighlightstepglobals.cpp
- *     Local - values that are specified in something other than the first
+ *       Local - values that are specified in something other than the first
  *       global step and are invoked individually in small dialogs
  *       backgrounddialog.(h,cpp)
  *       borderdialog.(h,cpp)
@@ -406,6 +406,9 @@ class UpdateCheck;
 
 class LGraphicsView;
 class PageBackgroundItem;
+
+class Pointer;
+class PagePointer;
 
 enum traverseRc { HitEndOfPage = 1 };
 enum Dimensions {Pixels = 0, Inches};
@@ -677,7 +680,6 @@ public slots:
       QMessageBox::warning(this,tr("LPub3D"),tr(errorMsg.toLatin1()));
     }
   }
-
   void statusMessage(LogType logType, QString message);
   void statusBarMsg(QString msg);
 
@@ -760,6 +762,7 @@ public slots:
 
   void processFadeColourParts(bool overwriteCustomParts);
   void processHighlightColourParts(bool overwriteCustomParts);
+  void processLDSearchDirParts();
 
   bool loadFile(const QString &file);
   int processCommandLine();
@@ -869,7 +872,7 @@ private:
 
   void skipHeader(Where &current);
 
-  int findPage(// traverse the hierarchy until we get to the
+  int findPage(                    // traverse the hierarchy until we get to the
     LGraphicsView  *view,          // page of interest, let traverse process the
     QGraphicsScene *scene,         // page, and then finish by counting the rest
     int           &pageNum,

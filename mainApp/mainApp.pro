@@ -337,6 +337,7 @@ HEADERS += \
     borderdialog.h \
     callout.h \
     calloutbackgrounditem.h \
+    calloutpointeritem.h \
     color.h \
     commands.h \
     commonmenus.h \
@@ -344,6 +345,7 @@ HEADERS += \
     dependencies.h \
     dialogexportpages.h \
     dividerdialog.h \
+    dividerpointeritem.h \
     editwindow.h \
     excludedparts.h \
     globals.h \
@@ -353,6 +355,8 @@ HEADERS += \
     ldrawcolourparts.h \
     ldrawfiles.h \
     ldsearchdirs.h \
+    lgraphicsscene.h \
+    lgraphicsview.h \
     lpub.h \
     lpubalert.h \
     lpub_preferences.h \
@@ -367,6 +371,9 @@ HEADERS += \
     pageattributetextitem.h \
     pagebackgrounditem.h \
     pageorientationdialog.h \
+    pagepointer.h \
+    pagepointeritem.h \
+    pagepointerbackgrounditem.h \
     pagesizedialog.h \
     pagesizes.h \
     pairdialog.h \
@@ -382,6 +389,7 @@ HEADERS += \
     plisubstituteparts.h \
     pointer.h \
     pointeritem.h \
+    pointerplacementdialog.h \
     preferencesdialog.h \
     range.h \
     range_element.h \
@@ -416,6 +424,7 @@ SOURCES += \
     callout.cpp \
     calloutbackgrounditem.cpp \
     calloutglobals.cpp \
+    calloutpointeritem.cpp \
     color.cpp \
     commandline.cpp \
     commands.cpp \
@@ -424,6 +433,7 @@ SOURCES += \
     dependencies.cpp \
     dialogexportpages.cpp \
     dividerdialog.cpp \
+    dividerpointeritem.cpp \
     editwindow.cpp \
     excludedparts.cpp \
     fadestepglobals.cpp \
@@ -435,6 +445,8 @@ SOURCES += \
     ldrawcolourparts.cpp \
     ldrawfiles.cpp \
     ldsearchdirs.cpp \
+    lgraphicsscene.cpp \
+    lgraphicsview.cpp \
     lpub.cpp \
     lpubalert.cpp \
     lpub_preferences.cpp \
@@ -449,6 +461,9 @@ SOURCES += \
     pagebackgrounditem.cpp \
     pageglobals.cpp \
     pageorientationdialog.cpp \
+    pagepointer.cpp \
+    pagepointeritem.cpp \
+    pagepointerbackgrounditem.cpp \
     pagesizedialog.cpp \
     pagesizes.cpp \
     pairdialog.cpp \
@@ -464,6 +479,7 @@ SOURCES += \
     plisortdialog.cpp \
     plisubstituteparts.cpp \
     pointeritem.cpp \
+    pointerplacementdialog.cpp \
     preferencesdialog.cpp \
     printfile.cpp \
     projectglobals.cpp \

@@ -30,16 +30,16 @@
 #ifndef BACKGROUNDITEM_H
 #define BACKGROUNDITEM_H
 
-#include <QGraphicsScene>
+#include "lgraphicsscene.h"
 #include "backgrounditem.h"
 #include "ranges.h"
 
 class PageBackgroundItem : public BackgroundItem
 {
   private:
-    PlacementType  relativeType;
-    QPixmap *pixmap;
-    Page    *page;
+    PlacementType        relativeType;
+    QPixmap              *pixmap;
+    Page                 *page;
 
   public:
         PageBackgroundItem(

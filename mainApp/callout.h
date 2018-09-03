@@ -96,7 +96,7 @@ class Callout : public Steps {
 
     virtual ~Callout();
 
-    void appendPointer(const Where &here, CalloutMeta &attrib);
+    virtual void appendPointer(const Where &here, PointerMeta &attrib);
 
     virtual void sizeIt();
             void sizeitFreeform(int xx, int yy);
@@ -107,7 +107,7 @@ class Callout : public Steps {
     virtual void addGraphicsItems( 
       AllocEnc, int x, int y, QGraphicsItem *parent, bool movable);
 
-    void addGraphicsPointerItem(
+    virtual void addGraphicsPointerItem(
       Pointer *pointer,QGraphicsItem *parent);
 
     virtual void drawTips(QPoint &delta);

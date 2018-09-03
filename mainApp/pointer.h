@@ -30,8 +30,6 @@
 #ifndef pointerH
 #define pointerH
 
-#include <QGraphicsItem>
-#include <QGraphicsScene>
 #include "where.h"
 #include "meta.h"
 
@@ -43,11 +41,11 @@ class Pointer {
     Pointer() {}
     Pointer(
       Where        _here,
-      CalloutMeta &attrib)
+      PointerMeta &_pointerMeta)
     {
-      here       = _here;
-      pointerMeta = attrib.pointer;
-    };
+      here        = _here;
+      pointerMeta = _pointerMeta;
+    }
 
     virtual ~Pointer()
     {

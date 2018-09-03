@@ -141,6 +141,19 @@ int Placement::relativeTo(
         }
       }
     } // callouts
+    /* pagePointers */
+    for (auto i : step->parent->parent->pagePointers.keys()) {
+        if (step->parent->parent->pagePointers[i]->relativeType == PagePointerType) {
+            PagePointer *pagePointer = step->parent->parent->pagePointers[i];
+            stepRelativeTo = pagePointer->placement.value().relativeTo;
+            if (stepRelativeTo == relativeType) {
+                int size[2]   = {pagePointer->size[0],pagePointer->size[1]};
+                int margin[2] = {pagePointer->margin.valuePixels(0),pagePointer->margin.valuePixels(1)};
+                placeRelative(pagePointer, size, margin);
+                appendRelativeTo(pagePointer);
+              }
+          }
+      } // pagePointers
     // Everything placed
   } // if step
 
@@ -199,6 +212,21 @@ int Placement::relativeToSg(
       } // if range
     } // foreach range
 
+    for (auto i : steps->pagePointers.keys()) {
+        PagePointer *pagePointer = dynamic_cast<PagePointer *>(steps->pagePointers[i]);
+
+        PlacementData placementData = pagePointer->placement.value();
+
+        if (placementData.relativeTo == relativeType) {
+
+            int size[2]   = {pagePointer->size[0],pagePointer->size[1]};
+            int margin[2] = {pagePointer->margin.valuePixels(0),pagePointer->margin.valuePixels(1)};
+            placeRelative(pagePointer, size, margin);
+
+            steps->appendRelativeTo(pagePointer);
+          }
+      }
+
     /* try to find relation for things relative to us */
 
     return 0;
@@ -243,7 +271,7 @@ void Placement::placeRelative(
     top = them->loc[i];
     height = boundingLoc[i] - top;
     if (height > 0) {
-      boundingLoc[i] -= height;
+      boundingLoc[i]  -= height;
       boundingSize[i] += height;
     }     
     
@@ -275,7 +303,7 @@ void Placement::placeRelative(
     top = them->loc[i];
     height = boundingLoc[i] - top;
     if (height > 0) {
-      boundingLoc[i] -= height;
+      boundingLoc[i]  -= height;
       boundingSize[i] += height;
     }     
     bottom = top + them->size[i];
@@ -358,7 +386,7 @@ void Placement::placeRelative(
       default:
       break;
     }
-  } else {
+  } else {                  //inside
     switch (placementData.placement) {
       case TopLeft:
       case Left:

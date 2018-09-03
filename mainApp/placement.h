@@ -41,7 +41,6 @@
 #include "metaitem.h"
 
 class QPixmap;
-class QGraphicsScene;
 class Step;
 class Steps;
 

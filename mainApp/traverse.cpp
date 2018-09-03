@@ -46,6 +46,8 @@
 #include "step.h"
 #include "paths.h"
 #include "metaitem.h"
+#include "pointer.h"
+#include "pagepointer.h"
 
 #include "QsLog.h"
 
@@ -265,6 +267,9 @@ int Gui::drawPage(
   bool        firstStep   = true;
   bool        noStep      = false;
   bool        rotateIcon  = false;
+
+  PagePointer *pagePointer= NULL;
+  QMap<Positions, PagePointer*> pagePointers;
 
   steps->isMirrored = isMirrored;
   steps->setTopOfSteps(current);
@@ -838,6 +843,59 @@ int Gui::drawPage(
               }
               break;
 
+            case PagePointerRc:
+              {
+                if (pagePointer){
+                    parseError("Nested page pointers not allowed within the same file",current);
+                  } else {
+                    Positions position;
+                    bool pointerExist = false;
+                    if (curMeta.LPub.pagePointer.pointer.value().rectPlacement == TopInside) {
+                        position = PP_TOP;
+                        if (pagePointers[position])
+                          pointerExist = true;
+                      }
+                    else if (curMeta.LPub.pagePointer.pointer.value().rectPlacement == BottomInside) {
+                        position = PP_BOTTOM;
+                        if (pagePointers[position])
+                          pointerExist = true;
+                      }
+                    else if (curMeta.LPub.pagePointer.pointer.value().rectPlacement == LeftInside) {
+                        position = PP_LEFT;
+                        if (pagePointers[position])
+                          pointerExist = true;
+                      }
+                    else if (curMeta.LPub.pagePointer.pointer.value().rectPlacement == RightInside) {
+                        position = PP_RIGHT;
+                        if (pagePointers[position])
+                          pointerExist = true;
+                      }
+
+                    if (pointerExist) {
+                        pagePointers[position]->appendPointer(current,curMeta.LPub.pagePointer.pointer);
+                      } else {
+                        pagePointer = new PagePointer(curMeta,view);
+                        pagePointer->parentStep = step;
+                        pagePointer->setTopOfPagePointer(current);
+                        pagePointer->setBottomOfPagePointer(current);
+                        if (multiStep){
+                            pagePointer->parentRelativeType = StepGroupType;
+                          } else if (calledOut){
+                            pagePointer->parentRelativeType = CalloutType;
+                          } else {
+                            pagePointer->parentRelativeType = step->relativeType;
+                          }
+                        PlacementMeta pointerPlacement;
+                        pointerPlacement.setValue(curMeta.LPub.pagePointer.pointer.value().rectPlacement, PageType);
+                        pagePointer->placement = pointerPlacement;
+                        pagePointer->appendPointer(current,curMeta.LPub.pagePointer.pointer);
+                        pagePointers.insert(position,pagePointer);
+                        pagePointer = NULL;
+                      }
+                  }
+              }
+              break;
+
             case CalloutBeginRc:
               if (callout) {
                   parseError("Nested CALLOUT not allowed within the same file",current);
@@ -857,7 +915,7 @@ int Gui::drawPage(
 
             case CalloutPointerRc:
               if (callout) {
-                  callout->appendPointer(current,curMeta.LPub.callout);
+                  callout->appendPointer(current,curMeta.LPub.callout.pointer);
                 }
               break;
 
@@ -945,8 +1003,9 @@ int Gui::drawPage(
 
                   Page *page = dynamic_cast<Page *>(steps);
                   if (page) {
-                      page->inserts = inserts;
-                      page->instances = instances;
+                      page->inserts      = inserts;
+                      page->instances    = instances;
+                      page->pagePointers = pagePointers;
                     }
 
                   emit messageSig(LOG_STATUS, "Add graphics for multi-step page " + current.modelName);
@@ -987,6 +1046,7 @@ int Gui::drawPage(
                   return HitEndOfPage;
                 }
               inserts.clear();
+              pagePointers.clear();
               break;
 
             case NoStepRc:
@@ -1069,7 +1129,8 @@ int Gui::drawPage(
                   if (step) {
                       Page *page = dynamic_cast<Page *>(steps);
                       if (page) {
-                          page->inserts     = inserts;
+                          page->inserts              = inserts;
+                          page->pagePointers         = pagePointers;
                           page->modelDisplayOnlyStep = step->modelDisplayOnlyStep;
                         }
 
@@ -1119,11 +1180,12 @@ int Gui::drawPage(
                           pliParts.clear();
                         }
 
-                      // Only pages or step can have inserts.... not callouts
+                      // Only pages or step can have inserts and pointers... not callouts
                       if ( ! multiStep && ! calledOut) {
                           Page *page = dynamic_cast<Page *>(steps);
                           if (page) {
-                              page->inserts = inserts;
+                              page->inserts      = inserts;
+                              page->pagePointers = pagePointers;
                             }
                         }
                     }
@@ -1228,6 +1290,7 @@ int Gui::drawPage(
 
               if ( ! multiStep) {
                   inserts.clear();
+                  pagePointers.clear();
                 }
               steps->setBottomOfSteps(current);
               noStep = false;

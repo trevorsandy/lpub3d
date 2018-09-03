@@ -141,13 +141,14 @@ enum PlacementType {          //  placement dialog codes:
   RotateIconType,             //25 Ri
   BomType,                    //26
 
-  SingleStepType,             //27
-  StepType,                   //28
-  RangeType,                  //29
-  ReserveType,                //30
-  CoverPageType,              //31
+  PagePointerType,            //27
+  SingleStepType,             //28
+  StepType,                   //29
+  RangeType,                  //30
+  ReserveType,                //31
+  CoverPageType,              //32
 
-  NumRelatives                //32
+  NumRelatives                //33
 };
 
 enum pageType{
@@ -195,11 +196,19 @@ public:
 class PointerData
 {
 public:
-  PlacementEnc placement;
-  float loc;  // fraction of side/top/bottom of callout
-  float x;    // fraction of CSI size
-  float y;
-  float base; // in units
+  RectPlacement rectPlacement; //Base rect placement
+  PlacementEnc  placement;     //Pointer placement relative to base
+  float loc;                   // fraction of side/top/bottom of callout
+  float base;                  // in units
+  int segments;                // Number of segments
+  float x1;                    // TipX
+  float y1;                    // TipY
+  float x2;                    // BaseX
+  float y2;                    // BaseY
+  float x3;                    // MidBaseX
+  float y3;                    // MidBaseY
+  float x4;                    // MidTipX
+  float y4;                    // MidTipY
 };
 
 class RotStepData
@@ -410,11 +419,13 @@ public:
   float   thickness;  // in units
   QString color;
   float   margin[2];  // in units
+  bool    haspointer;
   SepData()
   {
-    thickness = 0.125;
-    margin[0] = 0;
-    margin[1] = 0;
+    thickness  = 0.125;
+    margin[0]  = 0;
+    margin[1]  = 0;
+    haspointer = false;
   }
 };
 
@@ -469,33 +480,34 @@ const QString RelNames[NumRelatives] =
    "CalloutType",                // 5 Callout
    "PageNumberType",             // 6 pn
 
-   "PageTitleType",		 // 7 tt
-   "PageModelNameType",		 // 8 mnt
+   "PageTitleType",              // 7 tt
+   "PageModelNameType",          // 8 mnt
    "PageAuthorType",             // 9 at
-   "PageURLType",		 //10 urlt
-   "PageModelDescType",		 //11 mdt
-   "PagePublishDescType",	 //12 pdt
-   "PageCopyrightType",		 //13 ct
-   "PageEmailType",		 //14 et
-   "PageDisclaimerType",	 //15 dt
-   "PagePiecesType",		 //16 pt
-   "PagePlugType",		 //17 plt
+   "PageURLType",                //10 urlt
+   "PageModelDescType",          //11 mdt
+   "PagePublishDescType",        //12 pdt
+   "PageCopyrightType",          //13 ct
+   "PageEmailType",              //14 et
+   "PageDisclaimerType",         //15 dt
+   "PagePiecesType",             //16 pt
+   "PagePlugType",               //17 plt
    "SubmodelInstanceCountType",  //18 sic
-   "PageDocumentLogoType",	 //19 dlt
-   "PageCoverImageType",	 //20 cit
-   "PagePlugImageType",		 //21 pit
+   "PageDocumentLogoType",       //19 dlt
+   "PageCoverImageType",         //20 cit
+   "PagePlugImageType",          //21 pit
    "PageHeaderType",             //22 ph
    "PageFooterType",             //23 pf
-   "PageCategoryType",		 //24 cat
+   "PageCategoryType",           //24 cat
    "RotateIconType",             //25
    "BomType",                    //26
 
-   "SingleStepType",             //27
-   "StepType",                   //28
-   "RangeType",                  //29
-   "ReserveType",                //30
-   "CoverPageType"               //31
-}; //NumRelatives"               //32
+   "PagePointerType",            //27
+   "SingleStepType",             //28
+   "StepType",                   //29
+   "RangeType",                  //30
+   "ReserveType",                //31
+   "CoverPageType"               //32
+}; //NumRelatives"               //33
 
 const QString PlacNames[NumPlacements] =
  {
