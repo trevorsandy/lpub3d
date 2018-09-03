@@ -78,11 +78,6 @@ GlobalAssemDialog::GlobalAssemDialog(
 
   AssemMeta *assem = &data->meta.LPub.assem;
 
-  child = new UnitsGui("Margins",&assem->margin);
-  data->children.append(child);
-  boxGrid->addWidget(child,0,0);
-  //boxGrid->addWidget(child,0,0,1,2);
-
   child = new DoubleSpinGui(
     "Scale",&assem->modelScale,
     assem->modelScale._min,
@@ -90,28 +85,40 @@ GlobalAssemDialog::GlobalAssemDialog(
     0.01);
   data->modelScale = child;
   data->children.append(child);
+  boxGrid->addWidget(child,0,0);
+
+  child = new UnitsGui("Margins",&assem->margin);
+  data->children.append(child);
   boxGrid->addWidget(child,1,0);
-  //boxGrid->addWidget(child,1,0,1,2);
+
+  /* Assembly orientation angles */
+
+  box = new QGroupBox("Default Assembly Orientation");
+  grid->addWidget(box,1,0);
+  boxGrid = new QGridLayout();
+  box->setLayout(boxGrid);
+
+  child = new FloatsGui("Lattitude","Longitude",&assem->angle);
+  data->children.append(child);
+  boxGrid->addWidget(child);
 
   /* Step Number */
 
   box = new QGroupBox("Step Number");
-  grid->addWidget(box,1,0);
+  grid->addWidget(box,2,0);
 
   NumberPlacementMeta *stepNumber = &data->meta.LPub.stepNumber;
 
   child = new NumberGui(stepNumber,box);
   data->children.append(child);
   boxGrid->addWidget(child);
-  //boxGrid->addWidget(child,0,0,1,2);
 
   box = new QGroupBox("Display");
-  grid->addWidget(box,2,0);
+  grid->addWidget(box,3,0);
 
   child = new CheckBoxGui("Step Number",&assem->showStepNumber,box);
   data->children.append(child);
   boxGrid->addWidget(child);
-  //boxGrid->addWidget(child,1,0,1,2);
 
   QDialogButtonBox *buttonBox;
 

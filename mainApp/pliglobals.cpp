@@ -119,7 +119,7 @@ GlobalPliDialog::GlobalPliDialog(
    * Part
    */
 
-  box = new QGroupBox("Part Pictures");
+  box = new QGroupBox("Part Images");
   grid->addWidget(box);
   QVBoxLayout *partsLayout = new QVBoxLayout(NULL);
   box->setLayout(partsLayout);
@@ -133,14 +133,19 @@ GlobalPliDialog::GlobalPliDialog(
   partsLayout->addWidget(child);
   data->scale = child;
 
+  child = new UnitsGui("Margins",&pliMeta->part.margin);
+  data->children.append(child);
+  partsLayout->addWidget(child);
+
+  box = new QGroupBox("Part Orientation");
+  grid->addWidget(box);
+  partsLayout = new QVBoxLayout(NULL);
+  box->setLayout(partsLayout);
+
   child = new FloatsGui("Lattitude","Longitude",&pliMeta->angle);
   data->children.append(child);
   partsLayout->addWidget(child);
   data->viewAngle = child;
-
-  child = new UnitsGui("Margins",&pliMeta->part.margin);
-  data->children.append(child);
-  partsLayout->addWidget(child);
 
   if ( ! bom) {
     box = new QGroupBox("Submodels");
