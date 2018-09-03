@@ -68,6 +68,10 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.logPathEdit->setReadOnly(true);
   ui.logPathEdit->setPalette(readOnlyPalette);
 
+  // [WIP]
+  ui.imageMatteBox->setEnabled(false);
+  ui.imageMattingChk->setEnabled(false);
+
   ui.ldrawPath->setText(                         ldrawPath);
   ui.pliName->setText(                           Preferences::pliFile);
   ui.altLDConfigPath->setText(                   Preferences::altLDConfigPath);

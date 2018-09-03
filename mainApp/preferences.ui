@@ -516,10 +516,10 @@
          <item>
           <widget class="QCheckBox" name="imageMattingChk">
            <property name="toolTip">
-            <string>[Experimental] Combine current and previous fade step images for &quot;true fade&quot; - LDView only</string>
+            <string>Future use</string>
            </property>
            <property name="statusTip">
-            <string>[Experimental] Combine current and previous fade step images - LDView only</string>
+            <string/>
            </property>
            <property name="text">
             <string>True fade image matting</string>
