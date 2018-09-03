@@ -108,7 +108,7 @@ LRuler(LRuler::RulerType rulerType, Theme t, QWidget* parent)
   mDrawText(false)
 {
   setMouseTracking(true);
-  QFont txtFont("Helvetica",7,QFont::Thin);
+  QFont txtFont("Helvetica",7,0);
   txtFont.setHintingPreference(QFont::PreferDefaultHinting);
   txtFont.setStyleHint(QFont::SansSerif,QFont::PreferOutline);
   txtFont.setStyleStrategy(QFont::PreferAntialias);

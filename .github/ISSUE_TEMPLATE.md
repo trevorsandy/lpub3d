@@ -1,12 +1,12 @@
-### Subject of the issue
+### Subject
 Describe your issue here.
 
-### Your environment
+### Environment
 * Version of LPub3D - see Help->About LPub3D
 * Operating system - OS Name, Processor Architecture (x86,x86_64)
 
 ### Configuration
-[Note: Provide details and content below as needed with appropriate redactions. To produce the Windows registry extract, go to the command console and enter the command line shown. The extract file will be placed on your desktop.]
+[Note: Provide details and content below as needed with appropriate redactions. To produce the Windows registry extract for an installed distribution, go to the command console and enter the command line shown. The extract file will be placed on your desktop.]
 * LPub3D installation path
   - Windows: `C:\Program Files\LPub3D` [x86_64]
   - macOS: `/Applications/LPub3D.app`
@@ -18,9 +18,10 @@ Describe your issue here.
   - Linux: `~/.local/share/LPub3D Software/LPub3D/`
   - AppImage (Linux): `~/.local/share/LPub3D Software/<AppImage File Name>/`
 * Registry Extract
-  - Windows: `reg export "HKEY_CURRENT_USER\Software\LPub3D Software" %USERPROFILE%\Desktop\LPub3D_Hive.reg`
+  - Windows (installed): `reg export "HKEY_CURRENT_USER\Software\LPub3D Software" %USERPROFILE%\Desktop\LPub3D_Hive.reg`
+  - Windows (portable): `<application path>\config\LPub3D Software\LPub3D.ini`
   - macOS: ` ~/Library/Preferences/com.lpub3d-software.LPub3D.plist`
-  - Linux `~/.config/LPub3D Software/LPub3D.conf`
+  - Linux: `~/.config/LPub3D Software/LPub3D.conf`
   - AppImage (Linux): `~/.config/LPub3D Software/<AppImage File Name>.conf`
 * Renderer configuration files
   - `[Application data path]/3rdParty\ldglite-1.3\config\ldglite.ini`

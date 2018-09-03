@@ -293,8 +293,12 @@ void Preferences::lpubPreferences()
 
     if (portableDistribution) { // we have a portable distribution
 
-        // Write settings to ini file at C:\Users\<user>\AppData\Roaming\LPub3D Software\LPub3D<ver>.ini
+        // Write settings to ini file at <LPub3D Path>\config\LPub3D Software\LPub3D<ver>.ini
+        QDir configDir(lpub3dPath + "/config");
+        if(!QDir(configDir).exists())
+            configDir.mkpath(".");
         QSettings::setDefaultFormat(QSettings::IniFormat);
+        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, configDir.absolutePath());
 
         bool programFolder = QCoreApplication::applicationDirPath().contains("Program Files") ||
                 QCoreApplication::applicationDirPath().contains("Program Files (x86)");
