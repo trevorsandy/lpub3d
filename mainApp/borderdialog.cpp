@@ -43,7 +43,7 @@ BorderDialog::BorderDialog(
   QVBoxLayout *layout = new QVBoxLayout(this);
   setLayout(layout);
 
-  QGroupBox *box = new QGroupBox("Border",this);
+  QGroupBox *box = new QGroupBox(_rotateArrow ? "Arrows": "Border",this);
   layout->addWidget(box);
   border = new BorderGui(&meta,box,_rotateArrow);
 

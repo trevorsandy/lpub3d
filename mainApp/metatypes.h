@@ -357,6 +357,7 @@ public:
   float   radius;     // in units
   float   margin[2];  // in units
   int     line;
+  bool    hideArrows;
   bool    useDefault;
   
   BorderData()
@@ -368,6 +369,7 @@ public:
     type       = BdrNone;
     line       = BdrLnNone;
     color      = "Black";
+    hideArrows = false;
     useDefault = true;
   }
 };

@@ -643,21 +643,25 @@ private:
   BorderMeta *meta;
 
   QLineEdit   *thicknessEdit;
+  QLineEdit   *marginEditX;
+  QLineEdit   *marginEditY;
   QLabel      *thicknessLabel;
   QLabel      *colorLabel;
   QPushButton *colorButton;
   QSpinBox    *spin;
   QLabel      *spinLabel;
-  QComboBox   *combo;
+  QComboBox   *typeCombo;
   QComboBox   *lineCombo;
+  QCheckBox   *hideArrowsChk;
 
-  void enable();
+  void enable(bool rotateArrow = false);
 
 public slots:
   void typeChange(QString const &);
   void lineChange(QString const &);
   void thicknessChange(QString const &);
   void browseColor(bool);
+  void checkChange(int);
   void radiusChange(int);
   void marginXChange(QString const &);
   void marginYChange(QString const &);

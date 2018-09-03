@@ -1958,22 +1958,31 @@ BorderGui::BorderGui(BorderMeta *_meta,
 
   BorderData border = meta->value();
 
-  QString        string;
+  QString        string,chkBoxHideArrowsText;
   QGridLayout   *grid;
 
   grid = new QGridLayout(parent);
   parent->setLayout(grid);
 
+  /* Arrows CheckBox */
+  chkBoxHideArrowsText = border.hideArrows ? "Rotate Icon arrows hidden" : "Hide Rotate Icon arrows";
+  hideArrowsChk = new QCheckBox(chkBoxHideArrowsText, parent);
+  hideArrowsChk->setChecked(border.hideArrows);
+  hideArrowsChk->setToolTip("Set checked when only icon image is desired.");
+  connect(hideArrowsChk,SIGNAL(stateChanged(int)),
+          this,            SLOT(  checkChange(int)));
+  grid->addWidget(hideArrowsChk,0,0,1,3);
+
   /* Type Combo */
 
-  combo = new QComboBox(parent);
-  combo->addItem("Borderless");
-  combo->addItem("Square Corners");
-  combo->addItem("Round Corners");
-  combo->setCurrentIndex(int(border.type));
-  connect(combo,SIGNAL(currentIndexChanged(QString const &)),
+  typeCombo = new QComboBox(parent);
+  typeCombo->addItem("Borderless");
+  typeCombo->addItem("Square Corners");
+  typeCombo->addItem("Round Corners");
+  typeCombo->setCurrentIndex(int(border.type));
+  connect(typeCombo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(  typeChange(         QString const &)));
-  grid->addWidget(combo,0,0);
+  grid->addWidget(typeCombo,0,0);
 
   /* Radius */
 
@@ -2036,30 +2045,30 @@ BorderGui::BorderGui(BorderMeta *_meta,
   label = new QLabel("Margins",parent);
   grid->addWidget(label,3,0);
 
-  QLineEdit *lineEdit1;
-
   string = QString("%1") .arg(border.margin[0],5,'f',4);
-  lineEdit1 = new QLineEdit(string,parent);
-  grid->addWidget(lineEdit1,3,1);
-  connect(lineEdit1,SIGNAL(textEdited(QString const &)),
+  marginEditX = new QLineEdit(string,parent);
+  grid->addWidget(marginEditX,3,1);
+  connect(marginEditX,SIGNAL(textEdited(QString const &)),
           this,    SLOT(marginXChange(QString const &)));
 
-  QLineEdit *lineEdit2;
   string = QString("%1") .arg(border.margin[1],5,'f',4);
-  lineEdit2 = new QLineEdit(string,parent);
-  grid->addWidget(lineEdit2,3,2);
-  connect(lineEdit2,SIGNAL(textEdited(QString const &)),
+  marginEditY = new QLineEdit(string,parent);
+  grid->addWidget(marginEditY,3,2);
+  connect(marginEditY,SIGNAL(textEdited(QString const &)),
           this,    SLOT(marginYChange(QString const &)));
 
-  enable();
+  enable(rotateArrow);
 
   if (rotateArrow) {
-      combo->hide();
+      typeCombo->hide();
       spinLabel->hide();
       spin->hide();
-    }
+  } else {
+      hideArrowsChk->hide();
+  }
 }
-void BorderGui::enable()
+
+void BorderGui::enable(bool rotateArrow)
 {
   BorderData border = meta->value();
 
@@ -2073,10 +2082,21 @@ void BorderGui::enable()
       spinLabel->setEnabled(false);
     break;
     case BorderData::BdrSquare:
-      lineCombo->setEnabled(true);
-      thicknessLabel->setEnabled(true);
-      thicknessEdit->setEnabled(true);
-      colorButton->setEnabled(true);
+      if (rotateArrow && hideArrowsChk->isChecked()) {
+          lineCombo->setEnabled(false);
+          thicknessLabel->setEnabled(false);
+          thicknessEdit->setEnabled(false);
+          colorButton->setEnabled(false);
+          marginEditX->setEnabled(false);
+          marginEditY->setEnabled(false);
+      } else {
+          lineCombo->setEnabled(true);
+          thicknessLabel->setEnabled(true);
+          thicknessEdit->setEnabled(true);
+          colorButton->setEnabled(true);
+          marginEditX->setEnabled(true);
+          marginEditY->setEnabled(true);
+      }
       spin->setEnabled(false);
       spinLabel->setEnabled(false);
     break;
@@ -2144,6 +2164,23 @@ void BorderGui::lineChange(QString const &line)
   enable();
   modified = true;
 }
+
+void BorderGui::checkChange(int value)
+{
+  Q_UNUSED(value);
+  BorderData arrows = meta->value();
+
+  arrows.hideArrows = hideArrowsChk->isChecked();
+  if (hideArrowsChk->isChecked())
+    hideArrowsChk->setText("Rotate Icon arrows hidden");
+  else
+    hideArrowsChk->setText("Hide Rotate Icon arrows");
+
+  meta->setValue(arrows);
+  enable(true); // Is Rotate Icon
+  modified = true;
+}
+
 void BorderGui::browseColor(bool)
 {
   BorderData border = meta->value();
@@ -2157,6 +2194,7 @@ void BorderGui::browseColor(bool)
     modified = true;
   }
 }
+
 void BorderGui::thicknessChange(QString const &thickness)
 {
   BorderData border = meta->value();

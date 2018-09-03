@@ -29,6 +29,8 @@
 #include "ranges.h"
 #include "color.h"
 
+#include "lpub_messages.h"
+
 void RotateIconItem::setAttributes(
   Step           *_step,
   PlacementType   _parentRelativeType,
@@ -80,6 +82,7 @@ void RotateIconItem::setAttributes(
   setPixmap(*pixmap);
   setTransformationMode(Qt::SmoothTransformation);
   setFlag(QGraphicsItem::ItemIsSelectable,true);
+  setFlag(QGraphicsItem::ItemIsMovable,true);
 
   delete pixmap;
 }
@@ -113,6 +116,13 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
   BorderData     arrowData      = arrow.valuePixels();
   BackgroundData backgroundData = background.value();
 
+  // set defaults for using a background image only
+  if (arrowData.hideArrows &&
+      (backgroundData.type == BackgroundData::BgImage) &&
+      !backgroundData.stretch) {
+      backgroundData.stretch = true;
+    }
+
   // set rectangle size and demensions parameters
   int ibt = int(borderData.thickness);
   QRectF irect(ibt/2,ibt/2,pixmap->width()-ibt,pixmap->height()-ibt);
@@ -121,6 +131,61 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
   QPainter painter;
   painter.begin(pixmap);
   painter.setRenderHints(QPainter::Antialiasing,true);
+
+  /* BORDER */
+
+  // set icon border pen colour
+  QPen borderPen;
+  QColor borderPenColor;
+  if (borderData.type == BorderData::BdrNone) {
+    borderPenColor = Qt::transparent;
+  } else {
+    borderPenColor =  LDrawColor::color(borderData.color);
+  }
+  borderPen.setColor(borderPenColor);
+  borderPen.setCapStyle(Qt::RoundCap);
+  borderPen.setJoinStyle(Qt::RoundJoin);
+  if (borderData.line == BorderData::BdrLnSolid){
+    borderPen.setStyle(Qt::SolidLine);
+  }
+  else if (borderData.line == BorderData::BdrLnDash){
+    borderPen.setStyle(Qt::DashLine);
+  }
+  else if (borderData.line == BorderData::BdrLnDot){
+    borderPen.setStyle(Qt::DotLine);
+  }
+  else if (borderData.line == BorderData::BdrLnDashDot){
+    borderPen.setStyle(Qt::DashDotLine);
+  }
+  else if (borderData.line == BorderData::BdrLnDashDotDot){
+    borderPen.setStyle(Qt::DashDotDotLine);
+  }
+  borderPen.setWidth(ibt);
+
+  painter.setPen(borderPen);
+
+  // set icon border demensions
+  qreal rx = borderData.radius;
+  qreal ry = borderData.radius;
+  qreal dx = pixmap->width();
+  qreal dy = pixmap->height();
+
+  if (dx && dy) {
+    if (dx > dy) {
+        rx *= dy;
+        rx /= dx;
+      } else {
+        ry *= dx;
+        ry /= dy;
+      }
+  }
+
+  // draw icon rectangle
+  if (borderData.type == BorderData::BdrRound) {
+    painter.drawRoundRect(irect,int(rx),int(ry));
+  } else {
+    painter.drawRect(irect);
+  }
 
         /* BACKGROUND */
 
@@ -144,145 +209,130 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
         }
       break;
     case BackgroundData::BgImage:
+      {
+        QFileInfo fileInfo, imageInfo;
+        imageInfo.setFile(backgroundData.string);
+        QString filename(imageInfo.fileName());
+
+        fileInfo.setFile(QDir::currentPath() + "/" + filename); // relative path
+
+        if (!fileInfo.exists()) {
+            fileInfo.setFile(imageInfo.absoluteFilePath());     // insert path
+        } else {
+          backgroundData.string = fileInfo.absoluteFilePath();  // update insert path
+        }
+
+        if (!fileInfo.exists()) {
+            emit alert->messageSig(LOG_ERROR, QString("Unable to locate rotateincon image %1. Be sure image file "
+                                               "is relative to model file or use absolute path.").arg(filename));
+            return;
+        }
+        QImage image(fileInfo.absoluteFilePath());
+        image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+        if (backgroundData.stretch) {
+            QSize psize = pixmap->size();
+            QSize isize = image.size();
+            qreal sx = psize.width();
+            qreal sy = psize.height();
+            sx /= isize.width();
+            sy /= isize.height();
+            painter.scale(sx,sy);
+            painter.drawImage(0,0,image);
+          } else {
+            for (int y = 0; y < pixmap->height(); y += image.height()) {
+                for (int x = 0; x < pixmap->width(); x += image.width()) {
+                    painter.drawImage(x,y,image);
+                  }
+              }
+          }
+        brushColor = Qt::transparent;
+      }
       break;
     }
 
   useGradient ? painter.setBrush(QBrush(setGradient())) :
   painter.setBrush(brushColor);
 
-      /* BORDER */
+        /* ARROWS */
+  if (!arrowData.hideArrows) {
 
-  // set icon border pen colour
-  QPen borderPen;
-  QColor borderPenColor;
-  if (borderData.type == BorderData::BdrNone) {
-      borderPenColor = Qt::transparent;
-    } else {
-      borderPenColor =  LDrawColor::color(borderData.color);
-    }
-  borderPen.setColor(borderPenColor);
-  borderPen.setCapStyle(Qt::RoundCap);
-  borderPen.setJoinStyle(Qt::RoundJoin);
-  if (borderData.line == BorderData::BdrLnSolid){
-      borderPen.setStyle(Qt::SolidLine);
-    }
-  else if (borderData.line == BorderData::BdrLnDash){
-      borderPen.setStyle(Qt::DashLine);
-    }
-  else if (borderData.line == BorderData::BdrLnDot){
-      borderPen.setStyle(Qt::DotLine);
-    }
-  else if (borderData.line == BorderData::BdrLnDashDot){
-      borderPen.setStyle(Qt::DashDotLine);
-    }
-  else if (borderData.line == BorderData::BdrLnDashDotDot){
-      borderPen.setStyle(Qt::DashDotDotLine);
-    }
-  borderPen.setWidth(ibt);
+      // set arrow parts (head, tips etc...)
+      qreal arrowTipLength = 9.0;
+      qreal arrowTipHeight = 4.0;
+      QPolygonF arrowHead;
+      arrowHead << QPointF()
+                << QPointF(arrowTipLength + 2.5, -arrowTipHeight)
+                << QPointF(arrowTipLength      , 0.0)
+                << QPointF(arrowTipLength + 2.5,  arrowTipHeight);
 
-  painter.setPen(borderPen);
-
-  // set icon border demensions
-  qreal rx = borderData.radius;
-  qreal ry = borderData.radius;
-  qreal dx = pixmap->width();
-  qreal dy = pixmap->height();
-
-  if (dx && dy) {
-      if (dx > dy) {
-          rx *= dy;
-          rx /= dx;
-        } else {
-          ry *= dx;
-          ry /= dy;
+      // set default arrow pen and transfer to working arrow pen
+      QColor arrowPenColor;
+      arrowPenColor = LDrawColor::color(arrowData.color);
+      QPen defaultArrowPen;
+      int defaultLineWidth = arrowData.thickness;
+      defaultArrowPen.setColor(arrowPenColor);
+      defaultArrowPen.setCapStyle(Qt::SquareCap);
+      defaultArrowPen.setJoinStyle(Qt::MiterJoin);
+      if (arrowData.line == BorderData::BdrLnSolid){
+          defaultArrowPen.setStyle(Qt::SolidLine);
         }
+      else if (arrowData.line == BorderData::BdrLnDash){
+          defaultArrowPen.setStyle(Qt::DashLine);
+        }
+      else if (arrowData.line == BorderData::BdrLnDot){
+          defaultArrowPen.setStyle(Qt::DotLine);
+        }
+      else if (arrowData.line == BorderData::BdrLnDashDot){
+          defaultArrowPen.setStyle(Qt::DashDotLine);
+        }
+      else if (arrowData.line == BorderData::BdrLnDashDotDot){
+          defaultArrowPen.setStyle(Qt::DashDotDotLine);
+        }
+      defaultArrowPen.setWidth(defaultLineWidth);
+      QPen arrowPen = defaultArrowPen;
+
+      // set painter for arrows
+      painter.setPen(arrowPen);
+      painter.setBrush(Qt::transparent);
+
+      // set arrow height and width parameters
+      qreal aw = irect.width();
+      qreal ah = irect.height() / 2.0;
+      float inset = arrowData.margin[0];
+
+      float ix    = inset * 1.8;
+      float iy    = inset * 2.5;
+
+      // draw upper and lower arrow arcs
+      QPainterPath path;
+
+      QPointF start(     inset, ah - inset);
+      QPointF end  (aw - inset, ah - inset);
+      path.moveTo(start);
+      path.cubicTo(start + QPointF( ix, -iy),   end + QPointF(-ix, -iy),end);
+
+      start += QPointF(0, inset + inset);
+      end   += QPointF(0, inset + inset);
+      path.moveTo(end);
+      path.cubicTo(end   + QPointF(-ix,  iy), start + QPointF( ix,  iy),start);
+
+      painter.drawPath(path);
+
+      // draw upper and lower arrow heads
+      painter.setBrush(arrowPen.color());
+
+      painter.save();
+      painter.translate(aw - inset, ah - inset);
+      painter.rotate(-140);
+      painter.drawPolygon(arrowHead);
+      painter.restore();
+
+      painter.save();
+      painter.translate(inset, ah + inset);
+      painter.rotate(40);
+      painter.drawPolygon(arrowHead);
+      painter.restore();
     }
-
-  // draw icon rectangle
-  if (borderData.type == BorderData::BdrRound) {
-      painter.drawRoundRect(irect,int(rx),int(ry));
-    } else {
-      painter.drawRect(irect);
-    }
-
-  /* ARROWS */
-
-  // set arrow parts (head, tips etc...)
-  qreal arrowTipLength = 9.0;
-  qreal arrowTipHeight = 4.0;
-  QPolygonF arrowHead;
-  arrowHead << QPointF()
-            << QPointF(arrowTipLength + 2.5, -arrowTipHeight)
-            << QPointF(arrowTipLength      , 0.0)
-            << QPointF(arrowTipLength + 2.5,  arrowTipHeight);
-
-  // set default arrow pen and transfer to working arrow pen
-  QColor arrowPenColor;
-  arrowPenColor = LDrawColor::color(arrowData.color);
-  QPen defaultArrowPen;
-  int defaultLineWidth = arrowData.thickness;
-  defaultArrowPen.setColor(arrowPenColor);
-  defaultArrowPen.setCapStyle(Qt::SquareCap);
-  defaultArrowPen.setJoinStyle(Qt::MiterJoin);
-  if (arrowData.line == BorderData::BdrLnSolid){
-      defaultArrowPen.setStyle(Qt::SolidLine);
-    }
-  else if (arrowData.line == BorderData::BdrLnDash){
-      defaultArrowPen.setStyle(Qt::DashLine);
-    }
-  else if (arrowData.line == BorderData::BdrLnDot){
-      defaultArrowPen.setStyle(Qt::DotLine);
-    }
-  else if (arrowData.line == BorderData::BdrLnDashDot){
-      defaultArrowPen.setStyle(Qt::DashDotLine);
-    }
-  else if (arrowData.line == BorderData::BdrLnDashDotDot){
-      defaultArrowPen.setStyle(Qt::DashDotDotLine);
-    }
-  defaultArrowPen.setWidth(defaultLineWidth);
-  QPen arrowPen = defaultArrowPen;
-
-  // set painter for arrows
-  painter.setPen(arrowPen);
-  painter.setBrush(Qt::transparent);
-
-  // set arrow height and width parameters
-  qreal aw = irect.width();
-  qreal ah = irect.height() / 2.0;
-  float inset = arrowData.margin[0];
-
-  float ix    = inset * 1.8;
-  float iy    = inset * 2.5;
-
-  // draw upper and lower arrow arcs
-  QPainterPath path;
-
-  QPointF start(     inset, ah - inset);
-  QPointF end  (aw - inset, ah - inset);
-  path.moveTo(start);
-  path.cubicTo(start + QPointF( ix, -iy),   end + QPointF(-ix, -iy),end);
-
-  start += QPointF(0, inset + inset);
-  end   += QPointF(0, inset + inset);
-  path.moveTo(end);
-  path.cubicTo(end   + QPointF(-ix,  iy), start + QPointF( ix,  iy),start);
-
-  painter.drawPath(path);
-
-  // draw upper and lower arrow heads
-  painter.setBrush(arrowPen.color());
-
-  painter.save();
-  painter.translate(aw - inset, ah - inset);
-  painter.rotate(-140);
-  painter.drawPolygon(arrowHead);
-  painter.restore();
-
-  painter.save();
-  painter.translate(inset, ah + inset);
-  painter.rotate(40);
-  painter.drawPolygon(arrowHead);
-  painter.restore();
 
   painter.end();
 }
@@ -363,6 +413,8 @@ void RotateIconItem::setFlag(GraphicsItemFlag flag, bool value)
 {
   QGraphicsItem::setFlag(flag,value);
 }
+
+
 
 void RotateIconItem::contextMenuEvent(
     QGraphicsSceneContextMenuEvent *event)
@@ -465,7 +517,7 @@ void RotateIconItem::contextMenuEvent(
                  bottom,
                  &display);
     } else if (selectedAction == editArrowAction) {
-      changeBorder(pl+" Arrow",
+      changeBorder(pl+" Arrows",
                    top,
                    bottom,
                    &arrow,
@@ -480,16 +532,18 @@ void RotateIconItem::contextMenuEvent(
 
 void RotateIconItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-  QGraphicsItem::mousePressEvent(event);
-  positionChanged = false;
   position = pos();
+  positionChanged = false;
+  QGraphicsItem::mousePressEvent(event);
+  //placeGrabbers();
 }
 
 void RotateIconItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
+  positionChanged = true;
   QGraphicsItem::mouseMoveEvent(event);
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
-      positionChanged = true;
+      //placeGrabbers();
     }
 }
 
@@ -614,7 +668,6 @@ void RotateIconItem::change()
         }
     }
 }
-
 
 
 

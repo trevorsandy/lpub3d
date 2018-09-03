@@ -1003,7 +1003,7 @@ void BackgroundMeta::doc(QStringList &out, QString preamble)
 {
   out << preamble + " (TRANSPARENT|SUBMODEL_BACKGROUND_COLOR|COLOR <\"color\">|"
                     "GRADIENT <mode spread type size[0] size[1] angle \"points\" \"stops\">|"
-                    "PICTURE (STRETCH) <\"picture\">)";
+                    "PICTURE <\"file\">|STRETCH)";
 }
 
 QString BackgroundMeta::text()
@@ -1044,6 +1044,33 @@ Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
         }
       index++;
       rc = OkRc;
+    } else if (newFormat && argv[index] == "HIDDEN" && argv.size() - index >= 4) {
+      rc = FailureRc;
+      bool ok[2];
+      argv[index+1].toInt(&ok[0]);
+      argv[index+3].toFloat(&ok[1]);
+      if (ok[0] && ok[1]) {
+          _value[pushed].hideArrows = true;
+          _value[pushed].type       = BorderData::BdrSquare;
+          _value[pushed].line       = setBorderLine(argv[index+1]);
+          _value[pushed].color      = argv[index+2];
+          _value[pushed].thickness  = argv[index+3].toFloat(&ok[1]);
+          index += 4;
+          rc = OkRc;
+        }
+    } else if (argv[index] == "HIDDEN" && argv.size() - index >= 3) {
+      rc = FailureRc;
+      bool ok;
+      argv[index+2].toFloat(&ok);
+      if (ok) {
+          _value[pushed].hideArrows = true;
+          _value[pushed].type       = BorderData::BdrSquare;
+          _value[pushed].line       = BorderData::BdrLnSolid;
+          _value[pushed].color      = argv[index+1];
+          _value[pushed].thickness  = argv[index+2].toFloat(&ok);
+          index += 3;
+          rc = OkRc;
+        }
     } else if (newFormat && argv[index] == "SQUARE" && argv.size() - index >= 4) {
       rc = FailureRc;
       bool ok[2];
@@ -1062,9 +1089,9 @@ Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
       bool ok;
       argv[index+2].toFloat(&ok);
       if (ok) {
-          _value[pushed].type  = BorderData::BdrSquare;
-          _value[pushed].line  = BorderData::BdrLnSolid;
-          _value[pushed].color = argv[index+1];
+          _value[pushed].type      = BorderData::BdrSquare;
+          _value[pushed].line      = BorderData::BdrLnSolid;
+          _value[pushed].color     = argv[index+1];
           _value[pushed].thickness = argv[index+2].toFloat(&ok);
           index += 3;
           rc = OkRc;
@@ -1124,14 +1151,16 @@ Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
 
 QString BorderMeta::format(bool local, bool global)
 {
-  QString foo;
+  QString foo,border;
   switch (_value[pushed].type) {
     case BorderData::BdrNone:
       foo = QString("NONE %1")
           .arg(_value[pushed].line);
       break;
     case BorderData::BdrSquare:
-      foo = QString("SQUARE %1 %2 %3")
+      border = _value[pushed].hideArrows ? "HIDDEN" : "SQUARE";
+      foo = QString("%1 %2 %3 %4")
+          .arg(border)
           .arg(_value[pushed].line)
           .arg(_value[pushed].color)
           .arg(_value[pushed].thickness);
@@ -1144,17 +1173,16 @@ QString BorderMeta::format(bool local, bool global)
           .arg(_value[pushed].radius);
       break;
     }
-
-  QString bar = QString(" MARGINS %1 %2")
-      .arg(_value[pushed].margin[0])
-      .arg(_value[pushed].margin[1]);
-  foo += bar;
+    QString bar = QString(" MARGINS %1 %2")
+                .arg(_value[pushed].margin[0])
+                .arg(_value[pushed].margin[1]);
+    foo += bar;
   return LeafMeta::format(local,global,foo);
 }
 
 void BorderMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (NONE <line> |SQUARE <line> <color> <thickness>|ROUND <line> <color> <thickness> <radius>) MARGINS <x> <y>";
+  out << preamble + " (NONE <line>|HIDDEN <line> <color> <thickness>|SQUARE <line> <color> <thickness>|ROUND <line> <color> <thickness> <radius>) MARGINS <x> <y>";
 }
 
 QString BorderMeta::text()
@@ -1721,7 +1749,7 @@ QString InsertMeta::format(bool local, bool global)
 
 void InsertMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <placement> PICTURE \"name\"|ARROW x y x y |BOM|TEXT|MODEL|ROTATE_ICON \"\" \"\"";
+  out << preamble + " <placement> PICTURE \"file\"|ARROW x y x y |BOM|TEXT|MODEL|ROTATE_ICON \"\" \"\"";
 }
 
 /* ------------------ */
