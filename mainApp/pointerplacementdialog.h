@@ -49,11 +49,14 @@ class PointerPlacementDialog : public QDialog
 
 public:
 
+  enum PointerPlacementType {   //  placement dialog codes:
+    PageType,                   // 0 page
+    PointerNumRelatives         // 1
+  };
+
   enum PrepositionMask { InsideOk = 128 };
 
-  enum RelativeTos {     Page = 1 };
-
-  RelativeTos currentRelativeType;
+  enum RelativeTos {  page };
 
   PointerPlacementDialog(
     PlacementType   parentType,
@@ -93,8 +96,7 @@ private:
   void setEnabled(int okPrepositions);
   void highlightPlacement(PlacementData *goods);
 
-  PlacementType      parentType;
-  PlacementType      placedType;
+  PlacementType      _parentType;
   PlacementData     *goods;
   QComboBox         *combo;
   QPushButton       *buttons[3][3];
@@ -103,7 +105,7 @@ private:
   QLabel            *lblRelativeTo;
   QDialogButtonBox  *buttonBox;
 
-  static const int relativeToOks[];
+  static const QList<int> relativeToOks[];
   static const int prepositionOks[];
 };
 

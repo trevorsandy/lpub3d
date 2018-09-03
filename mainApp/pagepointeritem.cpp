@@ -116,7 +116,7 @@ PagePointerItem::PagePointerItem(
       shaft->setPen(pen);
       shaft->setZValue(-5);
       shaft->setFlag(QGraphicsItem::ItemIsSelectable,false);
-      shaft->setToolTip(QString("Arrow segment %1 - drag to move; right click to modify").arg(i+1));
+      shaft->setToolTip(QString("Pointer segment %1 - drag to move; right click to modify").arg(i+1));
       shaftSegments.append(shaft);
       addToGroup(shaft);
   }
@@ -129,7 +129,7 @@ PagePointerItem::PagePointerItem(
   head->setPen(qColor);
   head->setBrush(qColor);
   head->setFlag(QGraphicsItem::ItemIsSelectable,false);
-  head->setToolTip("Arrow head - drag to move");
+  head->setToolTip("Pointer head - drag to move");
   addToGroup(head);
 
   for (int i = 0; i < NumGrabbers; i++) {

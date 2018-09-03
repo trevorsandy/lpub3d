@@ -142,9 +142,9 @@ void CalloutBackgroundItem::contextMenuEvent(
     }
   }
 
-  QAction *addPointerAction = menu.addAction("Add Arrow");
-  addPointerAction->setWhatsThis("Add arrow from this callout to the step where it is used");
-  addPointerAction->setIcon(QIcon(":/resources/addarrow.png"));
+  QAction *addPointerAction = menu.addAction("Add Pointer");
+  addPointerAction->setWhatsThis("Add pointer from this callout to the step where it is used");
+  addPointerAction->setIcon(QIcon(":/resources/addpointer.png"));
 
   QAction *selectedAction = menu.exec(event->screenPos());
 

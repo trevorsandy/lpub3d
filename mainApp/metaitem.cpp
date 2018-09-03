@@ -3217,7 +3217,7 @@ void MetaItem::deletePointer(const Where &here)
 }
 
 /*
- * Algorithm for figuring out a good location for callout arrow tips.
+ * Algorithm for figuring out a good location for callout pointer tips.
  *
  * information we need:
  *   1. the model up to this instance of the callout

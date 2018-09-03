@@ -189,7 +189,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   QAction *addPointerAction = menu.addAction("Place Page Pointer");
   addPointerAction->setWhatsThis("Add pointer from the page to this CSI image");
-  addPointerAction->setIcon(QIcon(":/resources/addarrow.png"));
+  addPointerAction->setIcon(QIcon(":/resources/addpointer.png"));
 
   QAction *placementAction = NULL;
   if (fullContextMenu  && parentRelativeType == SingleStepType) {

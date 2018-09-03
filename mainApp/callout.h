@@ -62,7 +62,7 @@ class Callout : public Steps {
     PlacementNum           instanceCount;
     bool                   shared;
 
-    QList<Pointer *>            pointerList; /* Pointers and arrows */
+    QList<Pointer *>            pointerList; /* Pointers and pointer tips */
     QList<CalloutPointerItem *> graphicsPointerList;
 
     CalloutBackgroundItem *background;

@@ -2,13 +2,13 @@
     <qresource prefix="/resources">
         <file alias="actual.png">images/actual.png</file>
         <file alias="add.png">images/add.png</file>
-        <file alias="addarrow.png">images/addarrow.png</file>
+        <file alias="addpointer.png">images/addpointer.png</file>
         <file alias="addassembledimage.png">images/addassembledimage.png</file>
         <file alias="addbom.png">images/addbom.png</file>
         <file alias="addnext.png">images/addnext.png</file>
         <file alias="addprevious.png">images/addprevious.png</file>
         <file alias="addpicture.png">images/addpicture.png</file>
-        <file alias="addarrowsegment.png">images/addarrowsegment.png</file>
+        <file alias="addpointersegment.png">images/addpointersegment.png</file>
         <file alias="addtext.png">images/addtext.png</file>
         <file alias="appendcoverpage.png">images/appendcoverpage.png</file>
         <file alias="appendlastpage.png">images/appendlastpage.png</file>
@@ -35,7 +35,7 @@
         <file alias="copy.png">images/copy.png</file>
         <file alias="cut.png">images/cut.png</file>
         <file alias="delete.png">images/delete.png</file>
-        <file alias="deletearrow.png">images/deletearrow.png</file>
+        <file alias="deletepointer.png">images/deletepointer.png</file>
         <file alias="deletedivider.png">images/deletedivider.png</file>
         <file alias="display.png">images/display.png</file>
         <file alias="displayrow.png">images/displayrow.png</file>
@@ -121,6 +121,7 @@
         <file alias="refreshoffarchive.png">images/refreshoffarchive.png</file>
         <file alias="refreshunoffarchive.png">images/refreshunoffarchive.png</file>
         <file alias="remove.png">images/remove.png</file>
+        <file alias="removepointersegment.png">images/removepointersegment.png</file>
         <file alias="removelpubformat.png">images/removelpubformat.png</file>
         <file alias="renderersetup.png">images/renderersetup.png</file>
         <file alias="resetcache.png">images/resetcache.png</file>

@@ -228,9 +228,15 @@ void PointerItem::addShaftSegment(){
         delete shaftOrig;
         points[MidTip] = centerPos;
         if (points[MidTip].y() == points[MidBase].y()){
-            emit gui->messageSig(LOG_ERROR, "Arrow segments are on the same line. Move an existing sigment before creating a new one.");
+            emit gui->messageSig(LOG_ERROR, "Pointer segments are on the same line. Move an existing sigment before creating a new one.");
             return;
         }
+    }
+        break;
+    case ThreeSegments:
+    {
+        emit gui->messageSig(LOG_ERROR, "Maximum number (%1) of pointer segments already defined.");
+          return;
     }
         break;
     default:
@@ -248,7 +254,7 @@ void PointerItem::addShaftSegment(){
     shaft->setPen(pen);
     shaft->setZValue(-5);
     shaft->setFlag(QGraphicsItem::ItemIsSelectable,false);
-    shaft->setToolTip(QString("Arrow segment %1 - drag to move; right click to modify").arg(segments()+1));
+    shaft->setToolTip(QString("Pointer segment %1 - drag to move; right click to modify").arg(segments()+1));
     shaftSegments.append(shaft);
     addToGroup(shaft);
 
@@ -522,25 +528,25 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
 
-  QAction *removeAction = menu.addAction("Delete this Arrow");
-  removeAction->setIcon(QIcon(":/resources/deletearrow.png"));
-  removeAction->setWhatsThis(            "Delete this Arrow:\n"
-                                         "Deletes this arrow");
+  QAction *removeAction = menu.addAction("Delete this Pointer");
+  removeAction->setIcon(QIcon(":/resources/deletepointer.png"));
+  removeAction->setWhatsThis(            "Delete this Pointer:\n"
+                                         "Deletes this pointer");
 
   QAction *addSegmentAction = NULL;
   if (segments() < 3) {
-      addSegmentAction = menu.addAction("Add Arrow Segment");
-      addSegmentAction->setIcon(QIcon(":/resources/addarrowsegment.png"));
-      addSegmentAction->setWhatsThis(        "Add arrow segment:\n"
-                                             "Introduce a new arrow shaft segment.");
+      addSegmentAction = menu.addAction("Add Pointer Segment");
+      addSegmentAction->setIcon(QIcon(":/resources/addpointersegment.png"));
+      addSegmentAction->setWhatsThis(        "Add pointer segment:\n"
+                                             "Introduce a new pointer shaft segment.");
   }
 
   QAction *removeSegmentAction = NULL;
   if (segments() > 1) {
-      removeSegmentAction = menu.addAction("Remove Arrow Segment");
-      removeSegmentAction->setIcon(QIcon(":/resources/removesegment.png"));
-      removeSegmentAction->setWhatsThis(     "Remvoe arrow segment:\n"
-                                             "Remove arrow shaft segment.");
+      removeSegmentAction = menu.addAction("Remove Pointer Segment");
+      removeSegmentAction->setIcon(QIcon(":/resources/removepointersegment.png"));
+      removeSegmentAction->setWhatsThis(     "Remvoe pointer segment:\n"
+                                             "Remove pointer shaft segment.");
   }
 
   QAction *selectedAction   = menu.exec(event->screenPos());

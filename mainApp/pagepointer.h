@@ -59,7 +59,7 @@ class PagePointer : public Steps {
     PlacementType          parentRelativeType;
     QGraphicsView         *view;
 
-    QList<Pointer *>         pointerList; /* Pointers and arrows */
+    QList<Pointer *>         pointerList; /* Pointers and pointer tips */
     QList<PagePointerItem *> graphicsPointerList;
 
     PagePointerBackgroundItem *background;

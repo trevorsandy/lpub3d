@@ -238,8 +238,8 @@ void Callout::sizeIt()
 // Callouts that have round corners are tricky, trying to get the pointer to start/end on the
 // rounded corner.  To avoid trying to know the shape of the curve, we make sure the pointer
 // is below (think zDepth) the callout.  If we make the pointer start at the center of the curved
-// corner rather than the edge, then the callout hides the starting point of the arrow, and the
-// arrow always appears to start right at the edge of the callout (no matter the shape of the
+// corner rather than the edge, then the callout hides the starting point of the pointer, and the
+// pointer always appears to start right at the edge of the callout (no matter the shape of the
 // corner's curve.
 void Callout::addGraphicsItems(
   int            offsetX,
@@ -261,7 +261,7 @@ void Callout::addGraphicsItems(
 
   // Add an invisible rectangle underneath the callout background item called underpinning.
   // Pointers will be added with underpinning as the parent.  This makes sure the start of the
-  // arrow is covered by the callout background.
+  // pointer is covered by the callout background.
 
   // If we have the pointers use callout background as parent, the pointer is on top of the
   // background.  So by using underpinnings, the callout end of the pointer is under the

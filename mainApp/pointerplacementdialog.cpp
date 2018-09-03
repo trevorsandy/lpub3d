@@ -37,30 +37,6 @@
 
 #include "QsLog.h"
 
-#define NUM_REL 1
-
-QString ppLabels[3][3] =
-{
-  {"Top/Left",   "Top",   "Top/Right"   },
-  {"Left",       "Center","Right"       },
-  {"Bottom/Left","Bottom","Bottom/Right"},
-};
-
-const QString ppRelativeNames[NUM_REL] =
-{
-  "Page", // 0 page
-};        //1 NUM_REL [NumRelatives]
-
-const int PointerPlacementDialog::relativeToOks[NUM_REL] =
-{ //            Page
-  /*  0 page */ 0,
-};
-
-const int PointerPlacementDialog::prepositionOks[NUM_REL] = // indexed by them
-{
-  /*  0 Page */ InsideOk,
-};
-
 bool PointerPlacementDialog::getPointerPlacement(
   PlacementType  parentType,
   PlacementType  placedType,
@@ -78,10 +54,34 @@ bool PointerPlacementDialog::getPointerPlacement(
   return ok;
 }
 
+QString ppLabels[3][3] =
+{
+  {"Top/Left",   "Top",   "Top/Right"   },
+  {"Left",       "Center","Right"       },
+  {"Bottom/Left","Bottom","Bottom/Right"},
+};
+
+const  QList<int> PointerPlacementDialog::relativeToOks[PointerPlacementDialog::PointerNumRelatives] =
+{ //                              Page
+  /* 0 page                   */  {0}
+  /* 1 PointerNumRelatives    */
+};
+
+const int PointerPlacementDialog::prepositionOks[PointerPlacementDialog::PointerNumRelatives] = // indexed by them
+{
+  /*  0 Page                  */ InsideOk
+  /*  1 PointerNumRelatives   */
+};
+
+const QString ppRelativeNames[PointerPlacementDialog::PointerNumRelatives] =
+{
+  "Page"  // 0 page
+};        // 1 PointerNumRelatives
+
 QString PointerPlacementDialog::relativeToName(
   int relativeTo)
 {
-  if (relativeTo >= NUM_REL) {
+  if (relativeTo >= PointerPlacementDialog::PointerNumRelatives) {
     return ppRelativeNames[0];
   } else {
     return ppRelativeNames[relativeTo];
@@ -89,15 +89,14 @@ QString PointerPlacementDialog::relativeToName(
 }
 
 PointerPlacementDialog::PointerPlacementDialog(
-  PlacementType  _parentType,
-  PlacementType  _placedType,
+  PlacementType  parentType,
+  PlacementType  placedType,
   PlacementData &_goods,
   QString         title,
   QWidget        *parent)
 {
   goods      = &_goods;
-  parentType =  _parentType;
-  placedType =  _placedType;
+  _parentType =  parentType;
 
   outsideGrid    = new QGridLayout;
   horizontalLine = new QFrame;
@@ -110,62 +109,67 @@ PointerPlacementDialog::PointerPlacementDialog(
   connect(combo,SIGNAL(activated(int)),this,SLOT(relativeToChanged(int)));
   outsideGrid->addWidget(combo,0,1);
 
-//  logTrace() << " \nPLACEMENT DIALOG "
+  QList<int> oks;
+
+//  logTrace() << " \nPOINTER PLACEMENT DIALOG "
 //             << " \nParentType: " << RelNames[parentType]     << " (" << parentType << ")"
 //             << " \nPlacedType: " << RelNames[placedType]     << " (" << placedType << ")"
 //                ;
-  int oks;
+
   switch (parentType) {
     case StepGroupType:                             //parent type
       switch (placedType) {
         default:                        //placed type
-          oks = Page;
+          oks << page;
           break;
         }
       break;
     case CalloutType:                               //parent type
       switch (placedType) {
         default:
-          oks = Page;
+         oks << page;
           break;
         }
       break;
     case StepType:                                  //parent type
       switch (placedType) {
         default:                        //placed type
-          oks = Page;
+         oks << page;
           break;
         }
       break;
     case CsiType:                                  //parent type
       switch (placedType) {
         default:                         //placed type
-          oks = relativeToOks[placedType];
+          oks << page;
           break;
         }
       break;
     case SingleStepType:                           //parent type
       switch (placedType) {
         default:                         //placed type
-          oks = relativeToOks[placedType];
+          oks << page;
           break;
         }
       break;
     default:                                       //parent type
-      oks = relativeToOks[placedType];
+      oks << relativeToOks[placedType];
       break;
     }
 
   int currentIndex = 0;
 
-  for (int i = 0; i < NUM_REL; i++) {
-    if (oks & (1 << i)) {
-      combo->addItem(ppRelativeNames[i]);
-      if (i == goods->relativeTo) {
-        currentIndex = combo->count()-1;
-      }
+  for (int i = 0; i < PointerPlacementDialog::PointerNumRelatives; i++) {
+      foreach(int ok, oks){
+          if (ok == i) {
+//              logDebug() << "POINTER MATCH: Ok:" << ok << "Type:" << RelNames[i];
+              combo->addItem(ppRelativeNames[i]);
+              if (i == goods->relativeTo) {
+                  currentIndex = combo->count()-1;
+                }
+            }
+        }
     }
-  }
   combo->setCurrentIndex(currentIndex);
 
   horizontalLine->setFrameShape(QFrame::HLine);
@@ -254,7 +258,7 @@ void PointerPlacementDialog::relativeToChanged(int /* unused */)
 {
   QString name = combo->currentText();
 
-  for (int i = 0; i < NUM_REL; i++) {
+  for (int i = 0; i < PointerPlacementDialog::PointerNumRelatives; i++) {
     if (name == ppRelativeNames[i]) {
       setEnabled(prepositionOks[i]);
       goods->relativeTo = PlacementType(i);
@@ -272,17 +276,27 @@ void PointerPlacementDialog::setEnabled(int okPrepositions)
       buttons[y][x]->setEnabled(false);
     }
   }
+  /*
+   *     included          excluded
+   *        0,1          0,0       0,2
+   *   1,0       1;2          1;1
+   *        2;1          2,0       2;2
+   *
+   *                                 / * &&
+   *  ((y == 0 && x == 0) ||
+   *   (y == 2 && x == 0) ||
+   *   (y == 1 && x == 1) ||
+   *   (y == 0 && x == 2) ||
+   *   (y == 2 && x == 2)) * /
+   *
+   */
   for (int y = 0; y < 3; y++) {
     for (int x = 0; x < 3; x++) {
-        if ((parentType == StepType ||
-             parentType == CsiType  ||
-             parentType == SingleStepType ||
-             parentType == StepGroupType) &&
-             ((y == 0 && x == 0) ||
-              (y == 2 && x == 0) ||
-              (y == 1 && x == 1) ||
-              (y == 0 && x == 2) ||
-              (y == 2 && x == 2))){
+        if ((_parentType == StepType ||
+             _parentType == CsiType  ||
+             _parentType == SingleStepType ||
+             _parentType == StepGroupType) &&
+              (y == 1 && x == 1)) {
           if (okPrepositions & InsideOk) {
               buttons[y][x]->setVisible(false);
           }
