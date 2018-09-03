@@ -178,11 +178,11 @@ enum Theme { ThemeDark, ThemeDefault };
 #define THEME_VIEWER_BGCOLOR_DARK       "#808B96" // Custom grey
 #define THEME_EDIT_MARGIN_DARK          "#ABB2B9" // Custom gray
 
-#define THEME_HIGHLIGHT_01_DARK         "#006325" // 01 Qt Dark green
+#define THEME_HIGHLIGHT_01_DARK         "#17c723" // 01 Custom green
 #define THEME_HIGHLIGHT_02_DARK         "#0079cf" // 02 Custom blue
-#define THEME_HIGHLIGHT_03_DARK         "#f6546a" // 03 Custom Red
+#define THEME_HIGHLIGHT_03_DARK         "#d20117" // 03 Custom Red
 #define THEME_HIGHLIGHT_04_DARK         "#14aaff" // 04 Qt Blue
-#define THEME_HIGHLIGHT_05_DARK         "#b40000" // 05 Qt Red
+#define THEME_HIGHLIGHT_05_DARK         "#ff3300" // 05 Custom Red
 
 #define THEME_EDITWINDOW_LINE_DARK      "#5d5b59" // 06 Qt Medium gray
 #endif
