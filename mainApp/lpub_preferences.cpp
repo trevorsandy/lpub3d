@@ -152,13 +152,14 @@ bool    Preferences::modeGUI                    = true;
 bool    Preferences::enableFadeSteps            = false;
 bool    Preferences::fadeStepsUseColour         = false;
 bool    Preferences::enableHighlightStep        = false;
+bool    Preferences::enableImageMatting         = false;
 
 #ifdef Q_OS_MAC
 bool    Preferences::ldviewMissingLibs          = true;
 bool    Preferences::povrayMissingLibs          = true;
 #endif
 
-int     Preferences::fadeStepsOpacity           = FADE_OPACITY_DEFAULT;              //Default = 100 percent (full opacity)
+int     Preferences::fadeStepsOpacity           = FADE_OPACITY_DEFAULT;              //Default = 50 percent (half opacity)
 int     Preferences::highlightStepLineWidth     = HIGHLIGHT_LINE_WIDTH_DEFAULT;      //Default = 1
 
 int     Preferences::checkUpdateFrequency       = UPDATE_CHECK_FREQUENCY_DEFAULT;    //0=Never,1=Daily,2=Weekly,3=Monthly
@@ -673,7 +674,7 @@ void Preferences::lpub3dLibPreferences(bool force)
 
             emit Application::instance()->splashMsgSig("10% - Copying archive libraries...");
 
-            QDir libraryDir(QString("%1/%2").arg(lpubDataPath, "libraries"));
+            QDir libraryDir(QString("%1/%2").arg(lpubDataPath).arg(Paths::libraryDir));
             if (!QDir(libraryDir).exists())
                 libraryDir.mkpath(".");
 
@@ -1231,7 +1232,7 @@ void Preferences::lgeoPreferences()
     }
 }
 
-void Preferences::rendererPreferences(bool updateExisting)
+void Preferences::rendererPreferences(UpdateFlag updateFlag)
 {
     QSettings Settings;
 
@@ -1529,12 +1530,12 @@ void Preferences::rendererPreferences(bool updateExisting)
     }
 
     // povray generation renderer
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"povFileGenerator"))) {
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"PovFileGenerator"))) {
         QVariant cValue(RENDERER_NATIVE);
         povFileGenerator = RENDERER_NATIVE;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"povFileGenerator"),cValue);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovFileGenerator"),cValue);
     } else {
-        povFileGenerator = Settings.value(QString("%1/%2").arg(SETTINGS,"povFileGenerator")).toString();
+        povFileGenerator = Settings.value(QString("%1/%2").arg(SETTINGS,"PovFileGenerator")).toString();
     }
 
     // display povray image during rendering
@@ -1547,16 +1548,25 @@ void Preferences::rendererPreferences(bool updateExisting)
         povrayDisplay = Settings.value(QString("%1/%2").arg(SETTINGS,povrayDisplayKey)).toBool();
     }
 
+    QString const enableImageMattingKey("EnableImageMatting");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,enableImageMattingKey))) {
+        QVariant uValue(false);
+        enableImageMatting = false;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,enableImageMattingKey),uValue);
+    } else {
+        enableImageMatting = Settings.value(QString("%1/%2").arg(SETTINGS,enableImageMattingKey)).toBool();
+    }
+
     // Write config files
     logInfo() << "Processing renderer configuration files...";
 
     lpub3d3rdPartyConfigDir = QString("%1/3rdParty").arg(lpubDataPath);
     setLDGLiteIniParams();
-    updateNativePOVIniFile(updateExisting);
-    updateLDViewIniFile(updateExisting);
-    updateLDViewPOVIniFile(updateExisting);
-    updatePOVRayConfFile(updateExisting);
-    updatePOVRayIniFile(updateExisting);
+    updateNativePOVIniFile(updateFlag);
+    updateLDViewIniFile(updateFlag);
+    updateLDViewPOVIniFile(updateFlag);
+    updatePOVRayConfFile(updateFlag);
+    updatePOVRayIniFile(updateFlag);
 
     QFileInfo resourceFile;
 
@@ -1617,7 +1627,7 @@ void Preferences::setLDGLiteIniParams()
     logInfo() << QString("LDGLite.ini file   : %1").arg(ldgliteIni.isEmpty() ? "Not found" : ldgliteIni);
 }
 
-void Preferences::updateNativePOVIniFile(bool updateExisting)
+void Preferences::updateNativePOVIniFile(UpdateFlag updateFlag)
 {
     QString inFileName;
     QFileInfo resourceFile;
@@ -1627,7 +1637,7 @@ void Preferences::updateNativePOVIniFile(bool updateExisting)
     resourceFile.setFile(QString("%1/extras/%2").arg(lpubDataPath, VER_NATIVE_POV_INI_FILE));
     if (resourceFile.exists())
     {
-        if (!updateExisting) {
+        if (updateFlag == SkipExisting) {
            nativePOVIni = resourceFile.absoluteFilePath(); // populate native pov ini file
            logInfo() << QString("NativePOV ini file : %1").arg(nativePOVIni);
            return;
@@ -1693,7 +1703,7 @@ void Preferences::updateNativePOVIniFile(bool updateExisting)
     logInfo() << QString("NativePOV ini file : %1").arg(nativePOVIni.isEmpty() ? "Not found" : nativePOVIni);
 }
 
-void Preferences::updateLDViewIniFile(bool updateExisting)
+void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
 {
     QString inFileName;
     QFileInfo resourceFile;
@@ -1703,7 +1713,7 @@ void Preferences::updateLDViewIniFile(bool updateExisting)
     resourceFile.setFile(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, VER_LDVIEW_INI_FILE));
     if (resourceFile.exists())
     {
-       if (!updateExisting) {
+       if (updateFlag == SkipExisting) {
            ldviewIni = resourceFile.absoluteFilePath(); // populate ldview ini file
            logInfo() << QString("LDView ini file    : %1").arg(ldviewIni);
            return;
@@ -1729,7 +1739,7 @@ void Preferences::updateLDViewIniFile(bool updateExisting)
             QString line = input.readLine();
             // strip EdgeThickness because set in renderer parms
             if (line.contains(QRegExp("^EdgeThickness="))){
-              continue;
+                continue;
             }
             //logDebug() << QString("Line INPUT: %1").arg(line);
             // set ldraw dir
@@ -1738,6 +1748,11 @@ void Preferences::updateLDViewIniFile(bool updateExisting)
                 line.clear();
                 line = QString("LDrawDir=%1").arg(QDir::toNativeSeparators(ldrawPath));
             }
+            // set AutoCrop=0
+//            if (line.contains(QRegExp("^AutoCrop="))) {
+//                line.clear();
+//                line = QString("AutoCrop=%1").arg((Preferences::enableFadeSteps && Preferences::enableImageMatting) ? 0 : 1);
+//            }
             logInfo() << QString("LDView.ini OUT: %1").arg(line);
             output << line << endl;
         }
@@ -1759,7 +1774,7 @@ void Preferences::updateLDViewIniFile(bool updateExisting)
     logInfo() << QString("LDView ini file    : %1").arg(ldviewIni.isEmpty() ? "Not found" : ldviewIni);
 }
 
-void Preferences::updateLDViewPOVIniFile(bool updateExisting)
+void Preferences::updateLDViewPOVIniFile(UpdateFlag updateFlag)
 {
     QString inFileName;
     QFileInfo resourceFile;
@@ -1769,7 +1784,7 @@ void Preferences::updateLDViewPOVIniFile(bool updateExisting)
     resourceFile.setFile(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, VER_LDVIEW_POV_INI_FILE));
     if (resourceFile.exists())
     {
-        if (!updateExisting) {
+        if (updateFlag == SkipExisting) {
            ldviewPOVIni = resourceFile.absoluteFilePath(); // populate ldview pov ini file
            logInfo() << QString("LDViewPOV ini file : %1").arg(ldviewPOVIni);
            return;
@@ -1835,7 +1850,7 @@ void Preferences::updateLDViewPOVIniFile(bool updateExisting)
     logInfo() << QString("LDViewPOV ini file : %1").arg(ldviewPOVIni.isEmpty() ? "Not found" : ldviewPOVIni);
 }
 
-void Preferences::updatePOVRayConfFile(bool updateExisting)
+void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
 {
     QString inFileName;
     QFileInfo resourceFile;
@@ -1846,7 +1861,7 @@ void Preferences::updatePOVRayConfFile(bool updateExisting)
     resourceFile.setFile(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR ,VER_POVRAY_CONF_FILE));
     if (resourceFile.exists())
     {
-        if (!updateExisting) {
+        if (updateFlag == SkipExisting) {
            povrayConf = resourceFile.absoluteFilePath();  // populate povray conf file
            logInfo() << QString("POVRay conf file  : %1").arg(povrayConf);
            return;
@@ -1924,7 +1939,7 @@ void Preferences::updatePOVRayConfFile(bool updateExisting)
     logInfo() << QString("POVRay conf file   : %1").arg(povrayConf.isEmpty() ? "Not found" : povrayConf);
 }
 
-void Preferences::updatePOVRayIniFile(bool updateExisting)
+void Preferences::updatePOVRayIniFile(UpdateFlag updateFlag)
 {
     QString inFileName;
     QFileInfo resourceFile;
@@ -1934,7 +1949,7 @@ void Preferences::updatePOVRayIniFile(bool updateExisting)
     resourceFile.setFile(QString("%1/%2/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR "/config" ,VER_POVRAY_INI_FILE));
     if (resourceFile.exists())
     {
-        if (!updateExisting) {
+        if (updateFlag == SkipExisting) {
             povrayIni = resourceFile.absoluteFilePath();     // populate povray ini file
             logInfo() << QString("POVRay ini file    : %1").arg(povrayIni);
            return;
@@ -2086,20 +2101,20 @@ void Preferences::annotationPreferences()
 void Preferences::fadestepPreferences()
 {
     QSettings Settings;
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"enableFadeSteps"))) {
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableFadeSteps"))) {
         QVariant eValue(false);
         enableFadeSteps = false;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"enableFadeSteps"),eValue);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableFadeSteps"),eValue);
     } else {
-        enableFadeSteps = Settings.value(QString("%1/%2").arg(SETTINGS,"enableFadeSteps")).toBool();
+        enableFadeSteps = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableFadeSteps")).toBool();
     }
 
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"fadeStepsUseColour"))) {
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepsUseColour"))) {
         QVariant eValue(false);
         fadeStepsUseColour = false;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"fadeStepsUseColour"),eValue);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepsUseColour"),eValue);
     } else {
-        fadeStepsUseColour = Settings.value(QString("%1/%2").arg(SETTINGS,"fadeStepsUseColour")).toBool();
+        fadeStepsUseColour = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepsUseColour")).toBool();
     }
 
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepColor"))) {
@@ -2110,12 +2125,12 @@ void Preferences::fadestepPreferences()
         fadeStepsColour = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepColor")).toString();
     }
 
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"fadeStepsOpacity"))) {
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepsOpacity"))) {
         QVariant cValue(FADE_OPACITY_DEFAULT);
         fadeStepsOpacity = FADE_OPACITY_DEFAULT;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"fadeStepsOpacity"),cValue);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepsOpacity"),cValue);
     } else {
-        fadeStepsOpacity = Settings.value(QString("%1/%2").arg(SETTINGS,"fadeStepsOpacity")).toInt();
+        fadeStepsOpacity = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepsOpacity")).toInt();
     }
 
     ldrawColourPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile")).toString();
@@ -2207,12 +2222,12 @@ void Preferences::publishingPreferences()
         displayAllAttributes = Settings.value(QString("%1/%2").arg(DEFAULTS,"DisplayAllAttributes")).toBool();
     }
 
-    if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"generateCoverPages"))) {
+    if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"GenerateCoverPages"))) {
         QVariant pValue(false);
         generateCoverPages = false;
-        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"generateCoverPages"),pValue);
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"GenerateCoverPages"),pValue);
     } else {
-        generateCoverPages = Settings.value(QString("%1/%2").arg(DEFAULTS,"generateCoverPages")).toBool();
+        generateCoverPages = Settings.value(QString("%1/%2").arg(DEFAULTS,"GenerateCoverPages")).toBool();
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"PrintDocumentTOC"))) {
@@ -2303,10 +2318,10 @@ bool Preferences::getPreferences()
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawDir"),ldrawPath);
             }
             // update LDView ini files
-            updateNativePOVIniFile(true);
-            updateLDViewIniFile(true);       //ldraw path changed
-            updateLDViewPOVIniFile(true);    //ldraw or lgeo paths changed
-            updateLDViewConfigFiles = true;  //set flag to true
+            updateNativePOVIniFile(UpdateExisting);
+            updateLDViewIniFile(UpdateExisting);       //ldraw path changed
+            updateLDViewPOVIniFile(UpdateExisting);    //ldraw or lgeo paths changed
+            updateLDViewConfigFiles = true;            //set flag to true
         }
 
         if (altLDConfigPath != dialog->altLDConfigPath())
@@ -2357,15 +2372,15 @@ bool Preferences::getPreferences()
             }
             // update LDView ini files
             if (!updateLDViewConfigFiles) {
-                updateLDViewPOVIniFile(true);    //ldraw or lgeo paths changed
+                updateLDViewPOVIniFile(UpdateExisting);    //ldraw or lgeo paths changed
             }
-            updatePOVRayConfFile(true);          //lgeo path changed
+            updatePOVRayConfFile(UpdateExisting);          //lgeo path changed
         }
 
         if (povFileGenerator != dialog->povFileGenerator())
         {
             povFileGenerator = dialog->povFileGenerator();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"povFileGenerator"),povFileGenerator);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovFileGenerator"),povFileGenerator);
         }
 
         if (povrayDisplay != dialog->povrayDisplay())
@@ -2467,19 +2482,19 @@ bool Preferences::getPreferences()
         if (enableFadeSteps != dialog->enableFadeSteps())
         {
             enableFadeSteps = dialog->enableFadeSteps();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"enableFadeSteps"),enableFadeSteps);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableFadeSteps"),enableFadeSteps);
         }
 
         if (fadeStepsOpacity != dialog->fadeStepsOpacity())
         {
             fadeStepsOpacity = dialog->fadeStepsOpacity();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"fadeStepsOpacity"),fadeStepsOpacity);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepsOpacity"),fadeStepsOpacity);
         }
 
         if (fadeStepsUseColour != dialog->fadeStepsUseColour())
         {
             fadeStepsUseColour = dialog->fadeStepsUseColour();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"fadeStepsUseColour"),fadeStepsUseColour);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepsUseColour"),fadeStepsUseColour);
         }
 
         if (fadeStepsColour != dialog->fadeStepsColour())
@@ -2504,6 +2519,14 @@ bool Preferences::getPreferences()
         {
             highlightStepLineWidth = dialog->highlightStepLineWidth();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"HighlightStepLineWidth"),highlightStepLineWidth);
+        }
+
+        if (enableImageMatting != dialog->enableImageMatting())
+        {
+            enableImageMatting = dialog->enableImageMatting();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableImageMatting"),enableImageMatting);
+            if (enableImageMatting)
+                updateLDViewIniFile(UpdateExisting);       // strip AutoCrop
         }
 
         if (preferCentimeters != dialog->centimeters())
@@ -2540,7 +2563,7 @@ bool Preferences::getPreferences()
 
         if (generateCoverPages != dialog->generateCoverPages()) {
             generateCoverPages = dialog->generateCoverPages();
-            Settings.setValue(QString("%1/%2").arg(DEFAULTS,"generateCoverPages"),generateCoverPages);
+            Settings.setValue(QString("%1/%2").arg(DEFAULTS,"GenerateCoverPages"),generateCoverPages);
         }
 
         if (printDocumentTOC != dialog->printDocumentTOC()) {

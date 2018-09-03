@@ -898,6 +898,48 @@ public slots:
 
 /***********************************************************************
  *
+ * Rotate Icon Size
+ *
+ **********************************************************************/
+
+class QGroupBox;
+class QLabel;
+class QLineEdit;
+class RotateIconSizeGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  RotateIconSizeGui(
+    QString const           &heading,
+    UnitsMeta              *_meta,
+    QGroupBox              *parent = NULL);
+  ~RotateIconSizeGui() {}
+
+  void updateRotateIconSize();
+  void setEnabled(bool enabled);
+
+  virtual void apply(QString &topLevelFile);
+
+  QLineEdit              *valueW;
+  QLineEdit              *valueH;
+
+private:
+  float                   w;
+  float                   h;
+  UnitsMeta              *meta;
+  QLabel                 *label;
+  QLabel                 *labelW;
+  QLabel                 *labelH;
+  QGroupBox              *size;
+
+public slots:
+  void valueWChange(QString const &);
+  void valueHChange(QString const &);
+};
+
+/***********************************************************************
+ *
  * Page Size
  *
  **********************************************************************/

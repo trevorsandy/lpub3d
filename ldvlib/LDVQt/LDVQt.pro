@@ -14,8 +14,6 @@ DEPENDPATH  += .
 INCLUDEPATH += .
 DEPENDPATH  += include
 INCLUDEPATH += include
-DEPENDPATH  += include/3rdParty
-INCLUDEPATH += include/3rdParty
 INCLUDEPATH += ../../mainApp
 INCLUDEPATH += ../../qslog
 macx: \
@@ -137,23 +135,25 @@ win32 {
 }
 
 SOURCES += \
-        LDVAlertHandler.cpp \
-        LDViewExportOption.cpp \
-        LDVMisc.cpp \
-        LDVPreferences.cpp \
-        LDVWidget.cpp
+    LDVAlertHandler.cpp \
+    LDViewExportOption.cpp \
+    LDVImageMatte.cpp \
+    LDVMisc.cpp \
+    LDVPreferences.cpp \
+    LDVWidget.cpp
 
 HEADERS += \
-        LDVAlertHandler.h \
-        LDViewExportOption.h \
-        LDVMisc.h \
-        LDVPovUserDefaultsKeys.h \
-        LDVPreferences.h \
-        LDVWidget.h
+    LDVAlertHandler.h \
+    LDViewExportOption.h \
+    LDVImageMatte.h \
+    LDVMisc.h \
+    LDVPovUserDefaultsKeys.h \
+    LDVPreferences.h \
+    LDVWidget.h
 
 FORMS += \
-        LDVExportOptionPanel.ui \
-        LDVPreferencesPanel.ui
+    LDVExportOptionPanel.ui \
+    LDVPreferencesPanel.ui
 
 # suppress warnings
 !win32-msvc* {

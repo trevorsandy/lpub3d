@@ -55,6 +55,7 @@
 #include "backgrounddialog.h"
 #include "dividerdialog.h"
 #include "sizeandorientationdialog.h"
+#include "rotateiconsizedialog.h"
 //#include "pagesizedialog.h"
 //#include "pageorientationdialog.h"
 #include "paths.h"
@@ -2211,6 +2212,34 @@ void MetaItem::deleteBOM()
         break;
       }
     }
+  }
+}
+
+void MetaItem::changeRotateIconSize(
+  QString         title,
+  const Where    &topOfStep,
+  const Where    &bottomOfStep,
+  UnitsMeta      *meta,
+  bool            useTop,
+  int             append,
+  bool            local)
+{
+  float values[2];
+
+  values[0]   = meta->value(0);
+  values[1]   = meta->value(1);
+
+  bool ok;
+  ok = RotateIconSizeDialog::getRotateIconSize(values,title,gui);
+
+  if (ok) {
+
+      meta->setValue(0,values[0]);
+      meta->setValue(1,values[1]);
+
+      //logDebug() << " SIZE (dialog return): Width: " << meta->value(0) << " Height: " << meta->value(1);
+
+      setMeta(topOfStep,bottomOfStep,meta,useTop,append,local);
   }
 }
 

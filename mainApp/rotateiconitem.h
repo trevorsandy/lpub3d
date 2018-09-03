@@ -29,7 +29,17 @@
 #include "metaitem.h"
 #include "resize.h"
 
-#include "QsLog.h"
+class RotateIcon: public Placement {
+public:
+  RotateIconMeta rotateIconMeta;
+  UnitsMeta      iconImageSize;
+  float          borderThickness;
+  RotateIcon(){}
+  void setSize(
+      UnitsMeta _size,
+      float     _borderThickness = 0);
+  void sizeit();
+};
 
 class RotateIconItem : public ResizePixmapItem
 {
@@ -38,7 +48,7 @@ public:
   QPixmap                  *pixmap;
   PlacementType             relativeType;
   PlacementType             parentRelativeType;
-  PlacementRotateIcon       placementRotateIcon;
+  RotateIcon                rotateIcon;
 
   UnitsMeta                 size;
   FloatMeta                 picScale;

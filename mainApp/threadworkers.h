@@ -148,7 +148,7 @@ signals:
             LogType             logType,
             QString             message);
 
-     void removeProgressStatusSig();
+     void progressStatusRemoveSig();
 
      void customColourFinishedSig();
 
@@ -214,7 +214,7 @@ private:
       {return                _doHighlightStep;}
 
    bool okToEmitToProgressBar()
-      {return               Preferences::lpub3dLoaded;}
+      {return               (Preferences::lpub3dLoaded && Preferences::modeGUI);}
 
 };
 
@@ -271,7 +271,7 @@ signals:
             LogType             logType,
             QString             message);
 
-     void removeProgressStatusSig();
+     void progressStatusRemoveSig();
      void colourPartListFinishedSig();
 
      //not used
@@ -300,7 +300,6 @@ private:
                              const bool       isUnOffLib);
     void fileSectionHeader(const int &option,
                            const QString &heading = "");
-
 };
 
 #endif // THREADWORKERS_H

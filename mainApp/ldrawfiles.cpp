@@ -657,7 +657,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     _mpd = true;
 
     emit gui->progressPermSetValueSig(stageContents.size());
-    emit gui->removeProgressPermStatusSig();
+    emit gui->progressPermStatusRemoveSig();
 }
 
 void LDrawFile::loadLDRFile(const QString &path, const QString &fileName, bool topLevel)
@@ -762,7 +762,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName, bool t
       _mpd = false;
 
       emit gui->progressPermSetValueSig(contents.size());
-      emit gui->removeProgressPermStatusSig();
+      emit gui->progressPermStatusRemoveSig();
       emit gui->messageSig(LOG_STATUS, QString("LDR model file '" + fileName + "' loaded."));
     }
 }

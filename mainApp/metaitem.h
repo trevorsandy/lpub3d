@@ -196,6 +196,14 @@ public:
                         int   append = 1,
                         bool checkLocal = true);
 */
+  void changeRotateIconSize(QString,
+                        const Where &,
+                        const Where &,
+                        UnitsMeta *,
+                        bool  useTop = true,
+                        int   append = 1,
+                        bool checkLocal = true);
+
   void changePliSort(   QString,
                         const Where &,
                         const Where &,

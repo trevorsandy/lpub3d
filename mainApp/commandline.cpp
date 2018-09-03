@@ -34,6 +34,8 @@ int Gui::processCommandLine()
   bool processFile         = false;
   bool fadeSteps           = false;
   bool highlightStep       = false;
+  bool imageMatting        = false;
+
   QString pageRange, exportOption,
           commandlineFile, preferredRenderer,
           fadeStepsColour, highlightStepColour;
@@ -124,6 +126,9 @@ int Gui::processCommandLine()
       if (Param == QLatin1String("-hc") || Param == QLatin1String("--highlight-step-colour"))
         ParseString(highlightStepColour, false);
       else
+      if (Param == QLatin1String("-im") || Param == QLatin1String("--image-matte"))
+        imageMatting = true;
+      else
       if (Param == QLatin1String("-of") || Param == QLatin1String("--pdf-output-file"))
         ParseString(saveFileName, false);
       else
@@ -145,7 +150,7 @@ int Gui::processCommandLine()
       if (Param == QLatin1String("--line-width"))
         ParseFloat(highlightLineWidth);
       else
-        emit messageSig(LOG_STATUS,QString("Unknown commandline parameter: '%1'").arg(Param));
+        emit messageSig(LOG_INFO,QString("Unknown commandline parameter: '%1'").arg(Param));
     }
 
   if (!preferredRenderer.isEmpty()){
@@ -172,82 +177,112 @@ int Gui::processCommandLine()
           renderer = RENDERER_POVRAY;
       }
       else {
-          emit messageSig(LOG_STATUS,QString("Invalid renderer specified: '%1'").arg(renderer));
+          emit messageSig(LOG_INFO,QString("Invalid renderer specified: '%1'").arg(renderer));
           return 1;
       }
       if (Preferences::preferredRenderer != renderer) {
           Preferences::preferredRenderer = renderer;
           Render::setRenderer(Preferences::preferredRenderer);
           QString message = QString("Renderer is %1 %2").arg(renderer).arg(Preferences::useLDViewSingleCall ? "(Single Call)" : "");
-          emit messageSig(LOG_STATUS,message);
-          logInfo() << message;
+          emit messageSig(LOG_INFO,message);
       }
     }
 
-  if ((fadeStepsOpacity != FADE_OPACITY_DEFAULT) || !fadeStepsColour.isEmpty()) {
-      if (Preferences::enableFadeSteps != fadeSteps) {
-          Preferences::enableFadeSteps = fadeSteps;
-          QString message = QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF");
-          emit messageSig(LOG_STATUS,message);
-          logInfo() << message;
+  if (fadeSteps && fadeSteps != Preferences::enableFadeSteps) {
+      Preferences::enableFadeSteps = fadeSteps;
+      QString message = QString("Fade Previous Steps is ON.");
+      emit messageSig(LOG_INFO,message);
+      if (fadeStepsColour.isEmpty()) {
+          if (Preferences::fadeStepsUseColour){
+              Preferences::fadeStepsUseColour = false;
+              QString message = QString("Use Global Fade Colour is OFF");
+              emit messageSig(LOG_INFO,message);
+            }
         }
     }
 
-  if (fadeSteps && (fadeStepsOpacity != FADE_OPACITY_DEFAULT)) {
-      if (Preferences::fadeStepsOpacity != fadeStepsOpacity) {
+  if ((fadeStepsOpacity != Preferences::fadeStepsOpacity) &&
+      Preferences::enableFadeSteps) {
           int previousOpacity = Preferences::fadeStepsOpacity;
           Preferences::fadeStepsOpacity = fadeStepsOpacity;
           QString message = QString("Fade Step Transparency changed from %1 to %2 percent")
               .arg(previousOpacity)
               .arg(Preferences::fadeStepsOpacity);
-          emit messageSig(LOG_STATUS,message);
-          logInfo() << message;
-        }
+          emit messageSig(LOG_INFO,message);
     }
 
-  if (fadeSteps && !fadeStepsColour.isEmpty() && (fadeStepsOpacity == FADE_OPACITY_DEFAULT)) {
+  if (!fadeStepsColour.isEmpty() && Preferences::enableFadeSteps) {
       if (!Preferences::fadeStepsUseColour){
           Preferences::fadeStepsUseColour = true;
-          QString message = QString("Use Global Fade Colour is %1").arg(Preferences::fadeStepsUseColour ? "ON" : "OFF");
-          emit messageSig(LOG_STATUS,message);
-          logInfo() << message;
+          QString message = QString("Use Global Fade Colour is ON");
+          emit messageSig(LOG_INFO,message);
+          fadeStepsOpacity = 100;
+          if (fadeStepsOpacity != Preferences::fadeStepsOpacity ) {
+              int previousOpacity = Preferences::fadeStepsOpacity;
+              Preferences::fadeStepsOpacity = fadeStepsOpacity;
+              QString message = QString("Fade Step Transparency changed from %1 to %2 percent")
+                  .arg(previousOpacity)
+                  .arg(Preferences::fadeStepsOpacity);
+              emit messageSig(LOG_INFO,message);
+            }
         }
-      if (Preferences::fadeStepsColour != LDrawColor::name(fadeStepsColour)) {
+      if (LDrawColor::name(fadeStepsColour) != Preferences::fadeStepsColour) {
           QString previousColour = Preferences::fadeStepsColour;
           Preferences::fadeStepsColour = LDrawColor::name(fadeStepsColour);
           QString message = QString("Fade Step Colour preference changed from %1 to %2")
               .arg(previousColour.replace("_"," "))
               .arg(QString(Preferences::fadeStepsColour).replace("_"," "));
-          emit messageSig(LOG_STATUS,message);
-          logInfo() << message;
+          emit messageSig(LOG_INFO,message);
         }
     }
 
-  if (Preferences::enableHighlightStep != highlightStep) {
-      Preferences::enableHighlightStep = highlightStep;
-      QString message = QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF");
-      emit messageSig(LOG_STATUS,message);
-      logInfo() << message;
+  /* [Experimental] LDView Image Matting */
+  if (imageMatting && Preferences::enableFadeSteps &&
+      (Preferences::preferredRenderer == RENDERER_LDVIEW)) {
+      Preferences::enableImageMatting = imageMatting;
+//      Preferences::updateLDViewIniFile(UpdateExisting);          // strip AutoCrop [Disabled]
+      QString message = QString("Enable Image matte is ON.");
+      emit messageSig(LOG_INFO,message);
+    } else {
+      QString message;
+      if (imageMatting && !Preferences::enableFadeSteps) {
+          message = QString("Image matte requires fade previous steps to be on.");
+          emit messageSig(LOG_ERROR,message);
+        }
+
+      if (imageMatting && (Preferences::preferredRenderer != RENDERER_LDVIEW)) {
+          message = QString("Image matte requires LDView renderer.");
+          emit messageSig(LOG_ERROR,message);
+        }
+      message = QString("Image matte flag will be ignored.");
+      emit messageSig(LOG_ERROR,message);
     }
 
-  if (highlightStep && !highlightStepColour.isEmpty() && (highlightStepColour != Preferences::highlightStepColour)) {
+  if (highlightStep && highlightStep != Preferences::enableHighlightStep) {
+      Preferences::enableHighlightStep = highlightStep;
+      QString message = QString("Highlight Current Step is ON.");
+      emit messageSig(LOG_INFO,message);
+    }
+
+  if ((highlightStepColour != Preferences::highlightStepColour) &&
+      !highlightStepColour.isEmpty() &&
+      Preferences::enableHighlightStep) {
       QString previousColour = Preferences::highlightStepColour;
       Preferences::highlightStepColour = highlightStepColour;
       QString message = QString("Highlight Step Colour preference changed from %1 to %2")
           .arg(previousColour)
           .arg(Preferences::highlightStepColour);
-      emit messageSig(LOG_STATUS,message);
-      logInfo() << message;
+      emit messageSig(LOG_INFO,message);
     }
 
-  if (highlightStep && highlightLineWidth != Preferences::highlightStepLineWidth) {
+  if ((highlightLineWidth != Preferences::highlightStepLineWidth ) &&
+      Preferences::enableHighlightStep) {
       float previousLineWidth = Preferences::highlightStepLineWidth;
       Preferences::highlightStepLineWidth = highlightLineWidth;
       QString message = QString("Highlight Line Width preference changed from %1 to %2")
           .arg(previousLineWidth)
           .arg(Preferences::highlightStepLineWidth);
-      emit messageSig(LOG_STATUS,message);
-      logInfo() << message;
+      emit messageSig(LOG_INFO,message);
     }
 
   if (!commandlineFile.isEmpty())

@@ -56,7 +56,7 @@ class Step : public AbstractRangeElement
     Pli                   pli;
     CsiItem              *csiItem;
     RotateIconMeta        rotateIconMeta;
-    PlacementRotateIcon   rotateIcon;
+    RotateIcon            rotateIcon;
     Placement             csiPlacement;
     QPixmap               csiPixmap;
     PlacementNum          stepNumber;

@@ -255,6 +255,10 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   ui.ldvPreferencesBtn->setEnabled(Preferences::preferredRenderer == RENDERER_LDVIEW);
 
+  /* [Experimental] LDView Image Matting */
+  ui.imageMattingChk->setChecked(                Preferences::enableImageMatting);
+  ui.imageMattingChk->setEnabled((Preferences::preferredRenderer == RENDERER_LDVIEW) && Preferences::enableFadeSteps);
+
   /* QSimpleUpdater start */
   m_updater = QSimpleUpdater::getInstance();
 
@@ -514,6 +518,9 @@ void PreferencesDialog::on_fadeStepBox_clicked(bool checked)
   ui.fadeStepsColoursCombo->setEnabled(checked);
   ui.fadeStepsOpacityBox->setEnabled(checked);
   ui.fadeStepsOpacitySlider->setEnabled(checked);
+
+  /* [Experimental] LDView Image Matting */
+  ui.imageMattingChk->setEnabled((Preferences::preferredRenderer == RENDERER_LDVIEW) && checked);
 }
 
 void PreferencesDialog::on_fadeStepsUseColourBox_clicked(bool checked)
@@ -541,8 +548,12 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
       ui.ldvPoVFileGenPrefBtn->setEnabled(povrayEnabled);
       if (ui.povGenNativeRadio->isChecked())
           ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
-      else if (ui.povGenLDViewRadio->isChecked())
+      else
+      if (ui.povGenLDViewRadio->isChecked())
           ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
+
+      /* [Experimental] LDView Image Matting */
+      ui.imageMattingChk->setEnabled(ldviewEnabled && Preferences::enableFadeSteps);
 }
 
 void PreferencesDialog::on_povGenNativeRadio_clicked(bool checked)
@@ -689,6 +700,11 @@ int PreferencesDialog::fadeStepsOpacity()
 int PreferencesDialog::highlightStepLineWidth()
 {
   return ui.highlightStepLineWidthSpin->value();
+}
+
+bool PreferencesDialog::enableImageMatting()
+{
+       return ui.imageMattingChk->isChecked();
 }
 
 bool PreferencesDialog::centimeters()

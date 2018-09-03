@@ -258,6 +258,7 @@ class Placement {
       float offsets[2],
       qreal topLeft[2],
       qreal size[2]);
+
 };
 
 class PlacementPixmap : public Placement {
@@ -320,17 +321,6 @@ public:
     }
 };
 
-class PlacementRotateIcon: public Placement {
-public:
-  UnitsMeta iconImageSize;
-  float     borderThickness;
-  PlacementRotateIcon()
-  {
-  }
-  void setSize(
-      UnitsMeta _size,
-      float     _borderThickness = 0);
-  void sizeit();
-};
+
 
 #endif

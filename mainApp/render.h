@@ -29,8 +29,7 @@
 #ifndef RENDER_H
 #define RENDER_H
 
-#include "imagematt.h"
-#include "QsLog.h"
+#include <QString>
 
 class QString;
 class QStringList;
@@ -54,7 +53,8 @@ public:
   static QString const   getRenderer();
   static void            setRenderer(QString const &);
   static QString const   getRotstepMeta(RotStepMeta &);
-  bool                   useLDViewSCall(bool override = false);
+  static int             executeLDViewProcess(QStringList &, Mt);
+  static bool            useLDViewSCall(bool override = false);
   void                   CreateNativeImage(const NativeOptions &);
   bool                   LoadViewer(const ViewerOptions &);
   bool                   LoadStepProject(Project *,
@@ -67,6 +67,10 @@ public:
   static int             rotateParts(const QString &addLine,
                                      RotStepMeta &rotStep,
                                      QStringList &parts);
+  static int             splitIMParts(const QStringList &rotatedParts,
+                                      const QString &rotsComment,
+                                      const QString &ldrName,
+                                      const QString &csiKey);
   virtual int 		 renderCsi(const QString &,
                                       const QStringList &,
                                       const QStringList &,
@@ -76,8 +80,6 @@ public:
                                       const QString &,
                                       Meta &,
                                       bool bom) = 0;
-
-  ImageMatt                imageMatt;
 
 protected:
   virtual float          cameraDistance(Meta &meta, float) = 0;

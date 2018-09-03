@@ -350,7 +350,6 @@ HEADERS += \
     gradients.h \
     highlighter.h \
     hoverpoints.h \
-    imagematt.h \
     ldrawcolourparts.h \
     ldrawfiles.h \
     ldsearchdirs.h \
@@ -394,6 +393,7 @@ HEADERS += \
     resize.h \
     resolution.h \
     rotateiconitem.h \
+    rotateiconsizedialog.h \
     rx.h \
     scaledialog.h \
     sizeandorientationdialog.h \
@@ -403,7 +403,6 @@ HEADERS += \
     updatecheck.h \
     version.h \
     where.h \
-    lpubalert.h
 
 SOURCES += \
     aboutdialog.cpp \
@@ -433,7 +432,6 @@ SOURCES += \
     highlighter.cpp \
     highlightstepglobals.cpp \
     hoverpoints.cpp \
-    imagematt.cpp \
     ldrawcolourparts.cpp \
     ldrawfiles.cpp \
     ldsearchdirs.cpp \
@@ -479,6 +477,7 @@ SOURCES += \
     resolution.cpp \
     rotate.cpp \
     rotateiconitem.cpp \
+    rotateiconsizedialog.cpp \
     rx.cpp \
     scaledialog.cpp \
     sizeandorientationdialog.cpp \

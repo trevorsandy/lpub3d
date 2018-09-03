@@ -38,6 +38,16 @@ bool ArchiveParts::Archive(
 
   //qDebug() << QString("\nProcessing %1 with comment: %2").arg(dir.absolutePath()).arg(comment);
 
+  // Confirm archive exist or create new instance
+  QFileInfo zipInfo(zipArchive);
+  if (!zipInfo.exists()) {
+      if (!QFile::copy(QString("%1/%2").arg(Preferences::dataLocation).arg(zipInfo.fileName()),zipInfo.absoluteFilePath())) {
+         logError() << QString("%1 not found. But could not copy new instance.").arg(zipInfo.fileName());
+      } else {
+         logInfo() << QString("%1 not found. New instance of created.").arg(zipInfo.fileName());
+      }
+   }
+
   // Initialize the zip file
   QuaZip zip(zipArchive);
   zip.setFileNameCodec("IBM866");
@@ -70,7 +80,7 @@ bool ArchiveParts::Archive(
   bool setPartsDir        = false;
   bool setPrimDir         = false;
 
-  // If input directory is 'p' use 'p' (primitive) else use 'parts'
+  // If input directory is 'p' use 'p' (primitive) else if directory is 'parts' (parts) use 'parts'
   if (dir.dirName().toLower() == primitives){
       setPrimDir = true;
     } else if (dir.dirName().toLower() == parts){
@@ -90,6 +100,7 @@ bool ArchiveParts::Archive(
       QStringList zipDirPaths;
       QStringList zipFileList;
       QStringList subDirs = dir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
+      // First check if we have any subdirs in the specified dir...
       if (subDirs.count() > 0 && (!setPartsDir && !setPrimDir)){
           //qDebug() << "---FIRST LEVEL SUBDIR LIST:        " << subDirs;
 
@@ -168,7 +179,7 @@ bool ArchiveParts::Archive(
             }
         }
 
-      // No sub directories detected
+      // No sub directories detected - use parts
       if (setPrimDir)
         zipDirPaths << primitives;
       else if (setPartsDir)
@@ -312,7 +323,8 @@ bool ArchiveParts::Archive(
 bool ArchiveParts::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDirPath, const QString &zipArchive, const QDir &dir) {
 
   QuaZip zip(zipArchive);
-  QuaZip *ptrZip = &zip;
+  QString parts      = "parts";
+  QString primitives = "p";
 
   if (!zip.open(QuaZip::mdUnzip)) {
       logError() << QString("zip open error: %1 @ %2").arg(zip.getZipError()).arg(zipArchive);
@@ -321,13 +333,34 @@ bool ArchiveParts::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDi
 
   zip.setFileNameCodec("IBM866");
 
-//  logInfo() << QString("%1 Total Zip Archive Entries: ").arg(zip.getEntriesCount());
-//  logInfo() << QString("Global Comment: %1").arg(zip.getComment().toLocal8Bit().constData());
+  QString entryPoint;
+  if (zipDirPath.toLower() == parts || zipDirPath.toLower() == primitives)
+    entryPoint = QString("/%1").arg(zipDirPath);
+  else
+    entryPoint = zipDirPath;
+
+  QuaZipDir zipDir(&zip,entryPoint);
+
+//  logInfo() << QString("Global zip archive entries: %1").arg(zip.getEntriesCount());
+//  logInfo() << QString("Global zip comment: %1").arg(zip.getComment().toLocal8Bit().constData());
+//  logInfo() << QString("Zip directory %1: %2").arg(zipDir.dirName()).arg(zipDir.exists() ? "Found" : "Not Found");
 //  logInfo() << QString("Disk File Absolute Path: %1").arg(dir.absolutePath());
 
-  QuaZipDir zipDir(ptrZip,zipDirPath);
+  bool zipDirOk = zipDir.exists();
 
-  if (zipDir.exists()) {
+  QString zipDirMsg = QString("Zip directory '%1' %2.")
+                      .arg(zipDir.dirName())
+                      .arg(zipDirOk ? QString(QString("contains %1 %2")
+                                      .arg(zipDir.count())
+                                      .arg(zipDir.count() > 1 ? "entries" : "entry"))
+                                      : "not found - zip may be corrupt.");
+  if (zipDirOk) {
+    logInfo() << zipDirMsg;
+  } else {
+    logError() << zipDirMsg;
+  }
+
+  if (zipDirOk) {
 
       zipDir.cd(zipDirPath);
 

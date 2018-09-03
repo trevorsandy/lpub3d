@@ -31,6 +31,23 @@
 
 #include "lpubalert.h"
 
+void RotateIcon::setSize(
+    UnitsMeta _size,
+    float _borderThickness)
+{
+  iconImageSize   = _size;
+  borderThickness =_borderThickness;
+}
+
+void RotateIcon::sizeit()
+{
+  size[0] = int(iconImageSize.valuePixels(0));
+  size[1] = int(iconImageSize.valuePixels(1));
+
+  size[0] += 2*int(borderThickness);
+  size[1] += 2*int(borderThickness);
+}
+
 void RotateIconItem::setAttributes(
   Step           *_step,
   PlacementType   _parentRelativeType,
@@ -70,7 +87,7 @@ void RotateIconItem::setAttributes(
     }
 
   // set image size
-  placementRotateIcon.sizeit();
+  rotateIcon.sizeit();
 
   setRotateIconImage(pixmap);
 
@@ -436,11 +453,15 @@ void RotateIconItem::contextMenuEvent(
   QAction *marginAction     = commonMenus.marginMenu(menu,pl);
   QAction *displayAction    = commonMenus.displayMenu(menu,pl);
 
-  QAction *editArrowAction = menu.addAction("Edit Arrow");
+  QAction *editArrowAction = menu.addAction("Edit "+pl+" Arrows");
   editArrowAction->setWhatsThis("Edit this rotation icon arrows");
   editArrowAction->setIcon(QIcon(":/resources/editrotateicon.png"));
 
-  QAction *deleteRotateIconAction = menu.addAction("Delete " +pl);
+  QAction *rotateIconSizeAction = menu.addAction("Change "+pl+" Size");
+  rotateIconSizeAction->setWhatsThis("Change the rotateIcon size");
+  rotateIconSizeAction->setIcon(QIcon(":/resources/rotateiconsize.png"));
+
+  QAction *deleteRotateIconAction = menu.addAction("Delete "+pl);
   deleteRotateIconAction->setWhatsThis("Delete this rotate icon");
   deleteRotateIconAction->setIcon(QIcon(":/resources/delete.png"));
 
@@ -522,7 +543,13 @@ void RotateIconItem::contextMenuEvent(
                    bottom,
                    &arrow,
                    true,1,true,
-                   true);   // indicate that this call if from rotate arrow
+                   true);   // indicate that this call is from rotate arrow
+    } else if (selectedAction == rotateIconSizeAction) {
+      changeRotateIconSize(pl+" Size",
+                           top,
+                           bottom,
+                           &size,
+                           true,1,true);
     } else if (selectedAction == deleteRotateIconAction) {
       beginMacro("DeleteRotateIcon");
       deleteRotateIcon(top);

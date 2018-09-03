@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -24,8 +24,10 @@
 #include <QRegExp>
 #include <math.h>
 
+#include "paths.h"
 #include "render.h"
 #include "ldrawfiles.h"
+#include <LDVQt/LDVImageMatte.h>
 
 
 /*****************************************************************************
@@ -157,6 +159,7 @@ int Render::rotateParts(
 {
   bool  nativeRenderer = Preferences::preferredRenderer == RENDERER_NATIVE;
   QStringList rotatedParts = parts;
+
   rotateParts(addLine,rotStep,rotatedParts);
 
   QFile file(ldrName);
@@ -174,7 +177,7 @@ int Render::rotateParts(
                                 .arg(rotStepData.rots[0])
                                 .arg(rotStepData.rots[1])
                                 .arg(rotStepData.rots[2]);
-                                
+
   out << rotsComment << endl;
 
   if (nativeRenderer)
@@ -191,7 +194,25 @@ int Render::rotateParts(
 
   file.close();
 
+  // Split Image Matte ldr file
+  if (Preferences::enableFadeSteps && Preferences::enableImageMatting) {
+      QString csiKey,csiFile;
+      if (!useLDViewSCall()){
+          csiKey = modelName; // use modelName to pass in csiKey from LDView::renderCli when not SingleCall
+        } else {
+          csiFile = QString("%1/%2/%3")
+                            .arg(QDir::currentPath())
+                            .arg(Paths::assemDir)
+                            .arg(QString(QFileInfo(ldrName).fileName()).replace(".ldr",".png"));
+          csiKey = LDVImageMatte::getMatteCSIImage(csiFile);
+        }
+      if (LDVImageMatte::validMatteCSIImage(csiKey)) {
+          return splitIMParts(rotatedParts,rotsComment,ldrName,csiKey);
+       }
+    }
+
   return 0;
+
 }
 
 int Render::rotateParts(
@@ -497,4 +518,218 @@ int Render::rotateParts(
     }
   }
   return 0;
+}
+
+int Render::splitIMParts(const QStringList &rotatedParts,
+                         const QString &rotsComment,
+                         const QString &ldrName,
+                         const QString &csiKey) {
+  QString ext = ".ldr";
+//  / *
+  QStringList imPrevious,
+      imCurrent,
+      colourList,
+      headerList;
+
+  bool enableIM = false,
+      isCurrStep = false,
+      isPrevSteps = false,
+      isPrevEnd = false,
+      isCustColour = false,
+      isFileHeader = false,
+      isFadeMeta = false,
+      isHeaderMeta = false,
+      isColComment = false;
+
+  QRegExp reColComment("^0\\s+\\/\\/\\s+LPub3D\\s+step\\s+custom\\s+colours\\s*$",Qt::CaseInsensitive);
+  QRegExp reCustColour("^0\\s+!COLOUR\\s+LPub3D_.*$",Qt::CaseInsensitive);
+  QRegExp rePartMeta("^[1|2|3|4|5]\\s+.*$",Qt::CaseInsensitive);
+  QRegExp reFadeMeta("^0\\s+!FADE\\s*.*$",Qt::CaseInsensitive);
+
+  QString im_prev_ldr_ext = QString(".%1").arg(LPUB3D_IM_PREV_LDR_EXT);
+  QString im_curr_ldr_ext = QString(".%1").arg(LPUB3D_IM_CURR_LDR_EXT);
+
+//  * /
+  // current rotate file
+  QFile currLdrFile(QString(ldrName).replace(ext,im_curr_ldr_ext));
+  if ( ! currLdrFile.open(QFile::WriteOnly | QFile::Text)) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open currLdrFile %1 for writing: %2")
+                           .arg(currLdrFile.fileName()) .arg(currLdrFile.errorString()));
+      return -1;
+    }
+  QTextStream currLdrOut(&currLdrFile);
+
+  // previous rotate file
+  QFile prevLdrFile(QString(ldrName).replace(ext,im_prev_ldr_ext));
+  if ( ! prevLdrFile.open(QFile::WriteOnly | QFile::Text)) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open prevLdrFile %1 for writing: %2")
+                           .arg(prevLdrFile.fileName()) .arg(prevLdrFile.errorString()));
+      return -1;
+    }
+  QTextStream prevLdrOut(&prevLdrFile);
+// / *
+   for (int i = 0; i < rotatedParts.size(); i++) {
+     QString line = rotatedParts[i];
+
+     isFadeMeta = line.contains(reFadeMeta);
+     isColComment = line.contains(reColComment);
+     isCustColour = line.contains(reCustColour);
+     isHeaderMeta = isHeader(line);
+
+     // Headers
+     if (isHeaderMeta || (!isPrevSteps && !isCurrStep && !isFadeMeta && !isColComment)) {
+         isPrevSteps = isCurrStep = false;
+         // Custom colours
+         if (isCustColour) {
+             isCustColour = true;
+             isFileHeader = isColComment = false;
+           } else {
+             isFileHeader = true;
+             isCustColour = isColComment = false;
+           }
+       } else {
+         isFileHeader = false;
+       }
+
+     if (isFileHeader)
+        headerList << line;
+     else
+     if (isCustColour)
+        colourList << line;
+
+     // Previous
+     if (isFadeMeta && !isPrevSteps && !isCurrStep && !isFileHeader && !isCustColour && !isColComment) {
+         isPrevSteps = true;
+         isPrevEnd = isCurrStep = isCustColour = isColComment = isFileHeader = false;
+       } else
+     // End of previous [fade] step
+     if (isFadeMeta && isPrevSteps && !isCurrStep && !isFileHeader && !isCustColour && !isColComment) {
+         isPrevSteps = isPrevEnd = true;
+         isCurrStep = isCustColour = isColComment = isFileHeader = false;
+       }
+
+     // Current
+     if (!isFadeMeta && (!isPrevSteps || isPrevEnd) && !isFileHeader && !isCustColour && !isColComment) {
+         isCurrStep = true;
+         isPrevSteps = isPrevEnd = isCustColour = isColComment = isFileHeader = false;
+       }
+
+    if (isPrevSteps || (isPrevSteps && isPrevEnd))
+       imPrevious << line;
+    else
+    if (isCurrStep)
+       imCurrent << line;
+    }
+
+   // add the header list
+   if (!headerList.isEmpty()){
+       headerList.removeDuplicates(); // remove dupes
+       if (headerList.count() > 1 && headerList[0] != "0") {
+           for (int i = 0; i < headerList.size(); ++i)
+             imCurrent.prepend(headerList.at(i));
+           imCurrent.prepend("0");
+
+           for (int i = 0; i < headerList.size(); ++i)
+             imPrevious.prepend(headerList.at(i));
+           imPrevious.prepend("0");
+         }
+     }
+
+   // add the colour list
+   if (!colourList.isEmpty()) {
+       colourList.removeDuplicates(); // remove dupes
+
+       imPrevious.prepend("0");
+       for (int i = 0; i < colourList.size(); ++i)
+         imPrevious.prepend(colourList.at(i));
+         imPrevious.prepend("0 // LPub3D step custom colours");  // colour comment
+       imPrevious.prepend("0");
+     }
+
+
+   // add rotstep
+   imCurrent.prepend(rotsComment);
+   imPrevious.prepend(rotsComment);
+
+   // check to be sure file is valid
+   bool imCurrentHasParts = false;
+   for (int i = 0; i < imCurrent.size(); i++) {
+       QString line = imCurrent[i];
+       if (!imCurrentHasParts)
+         imCurrentHasParts = line.contains(rePartMeta);
+       else
+         break;
+   }
+
+   // check to be sure file is valid
+   bool imPreviousHasParts = false;
+   for (int i = 0; i < imPrevious.size(); i++) {
+       QString line = imPrevious[i];
+       if (!imPreviousHasParts)
+         imPreviousHasParts = line.contains(rePartMeta);
+       else
+         break;
+   }
+
+   if (!imPreviousHasParts || !imCurrentHasParts) {
+
+       if (!imCurrentHasParts)
+           emit gui->messageSig(LOG_NOTICE,QMessageBox::tr("%1 Does not contain any parts, the file pair will be destroyed.")
+                                .arg(currLdrFile.fileName()));
+       if (!imPreviousHasParts)
+           emit gui->messageSig(LOG_NOTICE,QMessageBox::tr("%1 Does not contain any parts, the file pair will be destroyed.")
+                                .arg(prevLdrFile.fileName()));
+
+       // close files;
+       currLdrFile.close();
+       prevLdrFile.close();
+
+       // delete files
+       currLdrFile.remove();
+       prevLdrFile.remove();
+
+       // remove key from LDVImageMatte
+       LDVImageMatte::removeMatteCSIImage(csiKey);
+
+   } else {
+
+       // write current file
+       for (int i = 0; i < imCurrent.size(); i++) {
+           QString line = imCurrent[i];
+           currLdrOut << line << endl;
+         }
+ // * /
+
+ // DEBUG START
+ //   currLdrOut << rotsComment << endl;
+ //   for (int i = 0; i < rotatedParts.size(); i++) {
+ //     QString line = rotatedParts[i];
+ //     currLdrOut << line << endl;
+ //   }
+ // DEBUG END
+
+
+ // / *
+       // write previous file
+       for (int i = 0; i < imPrevious.size(); i++) {
+           QString line = imPrevious[i];
+           prevLdrOut << line << endl;
+         }
+ // * /
+
+ // DEBUG START
+ //   prevLdrOut << rotsComment << endl;
+ //   for (int i = 0; i < rotatedParts.size(); i++) {
+ //     QString line = rotatedParts[i];
+ //     prevLdrOut << line << endl;
+ //   }
+ // DEBUG END
+
+       // close files;
+       currLdrFile.close();
+       prevLdrFile.close();
+
+     }
+
+   return 0;
 }

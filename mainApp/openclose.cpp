@@ -28,6 +28,8 @@
 #include "paths.h"
 #include "threadworkers.h"
 
+#include <LDVQt/LDVImageMatte.h>
+
 void Gui::open()
 {  
   if (maybeSave()) {
@@ -321,6 +323,8 @@ void Gui::openFile(QString &fileName)
 
   clearPage(KpageView,KpageScene);
   closeFile();
+  if (Preferences::enableFadeSteps && Preferences::enableImageMatting)
+    LDVImageMatte::clearMatteCSIImages();
   displayPageNum = 1;
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());

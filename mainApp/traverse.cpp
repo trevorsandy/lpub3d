@@ -2509,7 +2509,7 @@ void Gui::writeToTmp()
   }
   if (! exporting()) {
       emit progressPermSetValueSig(ldrawFile._subFileOrder.size());
-      emit removeProgressPermStatusSig();
+      emit progressPermStatusRemoveSig();
     }
   emit messageSig(LOG_STATUS, upToDate ? "No submodels written; temp directory up to date." : "Submodels written to temp directory.");
 }

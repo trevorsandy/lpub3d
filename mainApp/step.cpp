@@ -47,6 +47,7 @@
 #include "dependencies.h"
 #include "paths.h"
 #include "ldrawfiles.h"
+#include <LDVQt/LDVImageMatte.h>
 
 /*********************************************************************
  *
@@ -185,8 +186,8 @@ int Step::createCsi(
   qreal   modelScale      = meta.LPub.assem.modelScale.value();
   bool    doFadeStep      = meta.LPub.fadeStep.fadeStep.value();
   bool    doHighlightStep = meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
-  int     sn              = stepNumber.number;
   bool    csiExist        = false;
+  bool    invalidIMStep   = ((modelDisplayOnlyStep == true) || (stepNumber.number == 1));
   QString viewerCsiName;
 
   ldrName.clear();
@@ -208,7 +209,7 @@ int Step::createCsi(
 
   QString key = QString("%1_%2_%3_%4_%5_%6")
       .arg(csi_Name+orient)
-      .arg(sn)
+      .arg(stepNumber.number)
       .arg(gui->pageSize(meta.LPub.page, 0))
       .arg(resolution())
       .arg(resolutionType() == DPI ? "DPI" : "DPCM")
@@ -217,10 +218,12 @@ int Step::createCsi(
   // populate png name
   pngName = QString("%1/%2/%3.png").arg(QDir::currentPath()).arg(Paths::assemDir).arg(key);
 
-  // add pngName using csiKey
-  csiKey = QString("%1_%2").arg(csiName()).arg(sn);
-  if (!renderer->imageMatt.stepCSIImageExist(csiKey))
-    renderer->imageMatt.insertStepCSIImage(csiKey, pngName);
+  // add pngName using csiKey - exclude first step
+  csiKey = QString("%1_%2").arg(csi_Name).arg(stepNumber.number);
+  if (Preferences::enableFadeSteps && Preferences::enableImageMatting && !invalidIMStep) {
+      if (!LDVImageMatte::validMatteCSIImage(csiKey))
+          LDVImageMatte::insertMatteCSIImage(csiKey, pngName);
+    }
 
   csiOutOfDate = false;
 
@@ -238,7 +241,7 @@ int Step::createCsi(
   int rc;
 
   // Populate viewerCsiName
-  viewerCsiName = QString("%1;%2;%3").arg(top.modelName).arg(top.lineNumber).arg(sn);
+  viewerCsiName = QString("%1;%2;%3").arg(top.modelName).arg(top.lineNumber).arg(stepNumber.number);
   if (modelDisplayOnlyStep)
       viewerCsiName = QString("%1_fm").arg(viewerCsiName);
 
@@ -295,7 +298,7 @@ int Step::createCsi(
           if (nativeRenderer)
             csiKeys = (QStringList() << viewerCsiName);
           else
-            csiKeys = (QStringList() << csiKey);
+            csiKeys = (QStringList() << csiKey); // adding just a single key
 
           if ((rc = renderer->renderCsi(addLine, csiParts, csiKeys, pngName, meta)) != 0) {
               emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render CSI part failed for %1.")
@@ -311,7 +314,7 @@ int Step::createCsi(
                                  .arg(pngName)
                                  .arg(calledOut ? "called out," : "simple,")
                                  .arg(multiStep ? "step group" : "single step")
-                                 .arg(sn)
+                                 .arg(stepNumber.number)
                                  .arg(gui->stepPageNum)));
 
 //          logTrace() << "\n" << Render::getRenderer()
@@ -319,7 +322,7 @@ int Step::createCsi(
 //                     << timer.elapsed() << "milliseconds"
 //                     << "to render" << pngName << "for"
 //                     << (calledOut ? "called out," : "simple,")
-//                     << (multiStep ? "step group" : "single step") << sn
+//                     << (multiStep ? "step group" : "single step") << stepNumber.number
 //                     << "on page " << gui->stepPageNum << ".";
       }
   }

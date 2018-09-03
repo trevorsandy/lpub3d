@@ -55,24 +55,6 @@ void PlacementNum::sizeit(QString format)
   }
 }
 
-void PlacementRotateIcon::setSize(
-    UnitsMeta _size,
-    float _borderThickness)
-{
-  iconImageSize   = _size;
-  borderThickness =_borderThickness;
-}
-
-void PlacementRotateIcon::sizeit()
-{
-  size[0] = int(iconImageSize.valuePixels(0));
-  size[1] = int(iconImageSize.valuePixels(1));
-
-  size[0] += 2*int(borderThickness);
-  size[1] += 2*int(borderThickness);
-}
-
-
 /* add a placement element (ranges, range, setep, callout, pli ...) to the list */
 
 void Placement::appendRelativeTo(Placement *element)

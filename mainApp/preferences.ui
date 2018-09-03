@@ -37,7 +37,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -404,7 +404,7 @@
          <x>270</x>
          <y>174</y>
          <width>191</width>
-         <height>190</height>
+         <height>131</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -426,7 +426,7 @@
         <property name="geometry">
          <rect>
           <x>120</x>
-          <y>125</y>
+          <y>90</y>
           <width>61</width>
           <height>22</height>
          </rect>
@@ -445,7 +445,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>127</y>
+          <y>92</y>
           <width>111</width>
           <height>16</height>
          </rect>
@@ -464,7 +464,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>60</y>
+          <y>40</y>
           <width>41</width>
           <height>30</height>
          </rect>
@@ -486,13 +486,45 @@
         <property name="geometry">
          <rect>
           <x>60</x>
-          <y>63</y>
+          <y>43</y>
           <width>121</width>
           <height>23</height>
          </rect>
         </property>
         <property name="text">
          <string>Highlight Colour...</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QGroupBox" name="imageMatteBox">
+       <property name="geometry">
+        <rect>
+         <x>270</x>
+         <y>312</y>
+         <width>191</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Enable Image Matting</string>
+       </property>
+       <widget class="QCheckBox" name="imageMattingChk">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>15</y>
+          <width>181</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>[Experimental] Combine current and previous fade step images for &quot;true fade&quot; - LDView only</string>
+        </property>
+        <property name="statusTip">
+         <string>[Experimental] Combine current and previous fade step images - LDView only</string>
+        </property>
+        <property name="text">
+         <string>True fade image matting</string>
         </property>
        </widget>
       </widget>

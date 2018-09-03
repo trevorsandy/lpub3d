@@ -2353,7 +2353,7 @@ RotateIconMeta::RotateIconMeta() : BranchMeta()
   arrow.setValueInches(arrowData);
   display.setValue(true);
   size.setValuesInches(0.52f,0.52f);
-  size.setRange(1,1000);
+  size.setRange(0.1f,3.0f);
   size.setFormats(6,4,"9.9999");
   picScale.setRange(-10000.0,10000.0);
   picScale.setFormats(7,4,"99999.9");

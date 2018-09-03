@@ -667,10 +667,10 @@ public:
   virtual QString format(bool,bool);
 };
 
+/* ------------------ */
 /*
  * This meta parses page size keywords
  */
-
 class PageSizeMeta : public RcMeta
 {
 protected:
@@ -2030,15 +2030,15 @@ public:
 class RotateIconMeta  : public BranchMeta
 {
 public:
-  UnitsMeta         size;
-  FloatMeta	    picScale;
-  BorderMeta        arrow;
-  BorderMeta        border;
-  BackgroundMeta    background;
-  MarginsMeta       margin;
-  PlacementMeta     placement;
-  BoolMeta          display;
-  StringListMeta    subModelColor;
+  UnitsMeta          size;
+  FloatMeta	     picScale;
+  BorderMeta         arrow;
+  BorderMeta         border;
+  BackgroundMeta     background;
+  MarginsMeta        margin;
+  PlacementMeta      placement;
+  BoolMeta           display;
+  StringListMeta     subModelColor;
 
   RotateIconMeta();
   RotateIconMeta(const RotateIconMeta &rhs) : BranchMeta(rhs)

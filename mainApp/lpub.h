@@ -678,52 +678,7 @@ public slots:
     }
   }
 
-  void statusMessage(LogType logType, QString message){
-      /* logTypes
-       * LOG_STATUS:   - same as INFO but writes to log file also
-       * LOG_INFO:
-       * LOG_TRACE:
-       * LOG_DEBUG:
-       * LOG_NOTICE:
-       * LOG_ERROR:
-       * LOG_FATAL:
-       * LOG_QWARNING: - visible in Qt debug mode
-       * LOG_QDEBUG:   - visible in Qt debug mode
-       */
-      if (logType == LOG_STATUS ){
-
-          logStatus() << message;
-
-          if (Preferences::modeGUI) {
-             statusBarMsg(message);
-          } else {
-             fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
-             fflush(stdout);
-          }
-      } else
-        if (logType == LOG_INFO) {
-
-            logInfo() << message;
-
-            if (!Preferences::modeGUI) {
-                fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
-                fflush(stdout);
-            }
-
-       } else
-         if (logType == LOG_ERROR) {
-
-          logError() << message;
-
-          if (Preferences::modeGUI) {
-              QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
-          } else {
-              fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
-              fflush(stdout);
-          }       
-      }
-  }
-
+  void statusMessage(LogType logType, QString message);
   void statusBarMsg(QString msg);
 
   void showPrintedFile();
@@ -748,22 +703,15 @@ public slots:
   void progressBarSetRange(int minimum, int maximum);
   void progressBarSetValue(int value);
   void progressBarReset();
+  void progressStatusRemove();
+
   // right side progress bar
   void progressBarPermInit();
   void progressBarPermSetText(const QString &progressText);
   void progressBarPermSetRange(int minimum, int maximum);
   void progressBarPermSetValue(int value);
   void progressBarPermReset();
-
-  void removeProgressStatus(){
-      statusBar()->removeWidget(progressBar);
-      statusBar()->removeWidget(progressLabel);
-  }
-
-  void removeProgressPermStatus(){
-      statusBar()->removeWidget(progressBarPerm);
-      statusBar()->removeWidget(progressLabelPerm);
-  }
+  void progressPermStatusRemove();
 
   void preferences();
   void fadeStepSetup();
@@ -840,7 +788,7 @@ signals:
   void progressRangeSig(const int &min, const int &max);
   void progressSetValueSig(const int &value);
   void progressResetSig();
-  void removeProgressStatusSig();
+  void progressStatusRemoveSig();
 
   // right side progress bar
   void progressBarPermInitSig();
@@ -848,7 +796,7 @@ signals:
   void progressPermRangeSig(const int &min, const int &max);
   void progressPermSetValueSig(const int &value);
   void progressPermResetSig();
-  void removeProgressPermStatusSig();
+  void progressPermStatusRemoveSig();
 
   void messageSig(LogType logType, QString message);
 
@@ -896,6 +844,11 @@ private:
 
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
   bool                   m_exportingContent; // indicate export/pring underway
+
+  bool                   okToInvokeProgressBar()
+  {
+    return               (Preferences::lpub3dLoaded && Preferences::modeGUI);
+  }
 
 #ifdef WATCHER
   QFileSystemWatcher watcher;                // watch the file system for external

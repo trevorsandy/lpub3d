@@ -17,6 +17,7 @@
 #ifndef LPUB_PREFERENCES_H
 #define LPUB_PREFERENCES_H
 
+enum UpdateFlag { UpdateExisting, SkipExisting };
 class QString;
 class QStringList;
 
@@ -30,7 +31,7 @@ class Preferences
     static void lpub3dUpdatePreferences();
     static void viewerPreferences();
     static void lgeoPreferences();
-    static void rendererPreferences(bool);
+    static void rendererPreferences(UpdateFlag);
     static void pliPreferences();
     static void unitsPreferences();
     static void annotationPreferences();
@@ -45,11 +46,11 @@ class Preferences
     static bool getPreferences();
     static void setLPub3DLoaded();
     static void setLDGLiteIniParams();
-    static void updateNativePOVIniFile(bool);
-    static void updateLDViewIniFile(bool);
-    static void updateLDViewPOVIniFile(bool);
-    static void updatePOVRayConfFile(bool);
-    static void updatePOVRayIniFile(bool);
+    static void updateNativePOVIniFile(UpdateFlag);
+    static void updateLDViewIniFile(UpdateFlag);
+    static void updateLDViewPOVIniFile(UpdateFlag);
+    static void updatePOVRayConfFile(UpdateFlag);
+    static void updatePOVRayIniFile(UpdateFlag);
 
     static bool setLDViewExtraSearchDirs(const QString &);
     static bool copyRecursively(const QString &,const QString &);
@@ -129,6 +130,7 @@ class Preferences
     static bool    enableFadeSteps;
     static bool    fadeStepsUseColour;
     static int     fadeStepsOpacity;
+    static bool    enableImageMatting;
     static bool    enableHighlightStep;
     static int     highlightStepLineWidth;
 

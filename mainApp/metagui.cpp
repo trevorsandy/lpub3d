@@ -2680,6 +2680,115 @@ void PageOrientationGui::apply(QString &topLevelFile)
 
 /***********************************************************************
  *
+ * Rotate Icon Size
+ *
+ **********************************************************************/
+
+RotateIconSizeGui::RotateIconSizeGui(
+  QString const            &heading,
+  UnitsMeta               *_meta,
+  QGroupBox               *parent)
+{
+  meta = _meta;
+
+  QGridLayout *grid   = new QGridLayout(parent);
+
+  if (parent) {
+    parent->setLayout(grid);
+  } else {
+    setLayout(grid);
+  }
+
+  if (heading != "") {
+    label = new QLabel(heading);
+    grid->addWidget(label,0,0);
+  } else {
+    label = NULL;
+  }
+
+  QString string;
+  string  = QString("%1") .arg(meta->value(0),
+                              meta->_fieldWidth,
+                              'f',
+                              meta->_precision);
+  labelW = new QLabel("Width: ",parent);
+  labelW->setToolTip(QString("Current Width in pixels is %1").arg(meta->valuePixels(0)));
+  valueW = new QLineEdit(string,parent);
+  connect(valueW,SIGNAL(textChanged( QString const &)),
+          this,  SLOT(  valueWChange(QString const &)));
+  if (heading == "") {
+    grid->addWidget(labelW,0,0);
+    grid->addWidget(valueW,0,1);
+  } else {
+    grid->addWidget(valueW,1,0);
+    grid->addWidget(valueW,1,1);
+  }
+
+  string = QString("%1") .arg(meta->value(1),
+                              meta->_fieldWidth,
+                              'f',
+                              meta->_precision);
+  labelH = new QLabel("Height: ",parent);
+  valueH = new QLineEdit(string,parent);
+  labelH->setToolTip(QString("Current Height in pixels is %1").arg(meta->valuePixels(1)));
+  connect(valueH,SIGNAL(textChanged( QString const &)),
+          this,  SLOT(  valueHChange(QString const &)));
+  if (heading == "") {
+    grid->addWidget(labelH,0,2);
+    grid->addWidget(valueH,0,3);
+  } else {
+    grid->addWidget(labelH,1,2);
+    grid->addWidget(valueH,1,3);
+  }
+
+  setEnabled(true);
+}
+
+void RotateIconSizeGui::valueWChange(QString const &string)
+{
+  w = string.toFloat();
+  meta->setValue(0,w);
+  labelW->setToolTip(QString("Current Height in pixels is %1").arg(meta->valuePixels(1)));
+  modified = true;
+  //qDebug() << "Meta setValue(0) Width change:" << meta->value(0);
+}
+
+void RotateIconSizeGui::valueHChange(QString const &string)
+{
+  h = string.toFloat();
+  meta->setValue(1,h);
+  labelH->setToolTip(QString("Current Height in pixels is %1").arg(meta->valuePixels(1)));
+  modified = true;
+  //qDebug() << "Meta setValue(1) Height change:" << meta->value(1);
+}
+
+void RotateIconSizeGui::updateRotateIconSize(){
+
+  meta->setValue(0,w);
+  meta->setValue(1,h);
+//  qDebug() << "\nMeta setValue(0) Width update:" << meta->value(0)
+//           << "\nMeta setValue(1) Height update:" << meta->value(1);
+}
+
+void RotateIconSizeGui::setEnabled(bool enable)
+{
+  valueW->setEnabled(enable);
+  valueH->setEnabled(enable);
+}
+
+void RotateIconSizeGui::apply(QString &topLevelFile)
+{
+
+  if (modified) {
+    updateRotateIconSize();
+    MetaItem mi;
+    mi.setGlobalMeta(topLevelFile,meta);
+  }
+
+}
+
+/***********************************************************************
+ *
  * Page Size NOT USED KO (using SizeAndOrientationGui instead)
  *
  **********************************************************************/

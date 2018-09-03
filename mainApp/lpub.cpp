@@ -1497,6 +1497,7 @@ void Gui::preferences()
     bool fadeStepsUseColourCompare      = Preferences::fadeStepsUseColour;
     int fadeStepsOpacityCompare         = Preferences::fadeStepsOpacity;
     bool enableHighlightStepCompare     = Preferences::enableHighlightStep;
+    bool enableImageMattingCompare      = Preferences::enableImageMatting;
     int  highlightStepLineWidthCompare  = Preferences::highlightStepLineWidth;
     bool doNotShowPageProcessDlgCompare = Preferences::doNotShowPageProcessDlg;
     int  pageDisplayPauseCompare        = Preferences::pageDisplayPause;
@@ -1592,6 +1593,7 @@ void Gui::preferences()
         bool enableHighlightStepChanged    = Preferences::enableHighlightStep                    != enableHighlightStepCompare;
         bool highlightStepColorChanged     = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
         bool highlightStepLineWidthChanged = Preferences::highlightStepLineWidth                 != highlightStepLineWidthCompare;
+        bool enableImageMattingChanged     = Preferences::enableImageMatting                     != enableImageMattingCompare;
         bool useLDViewSCallChanged         = Preferences::enableLDViewSingleCall                 != useLDViewSCallCompare;
         bool displayAttributesChanged      = Preferences::displayAllAttributes                   != displayAllAttributesCompare;
         bool generateCoverPagesChanged     = Preferences::generateCoverPages                     != generateCoverPagesCompare;
@@ -1737,6 +1739,11 @@ void Gui::preferences()
             Preferences::enableHighlightStep && !enableHighlightStepChanged))
            clearCustomPartCache(true);    // true = silent
 
+        if (enableImageMattingChanged && Preferences::enableImageMatting)
+            logInfo() << QString("Enable image matting preference changed from %1 to %2")
+                                 .arg(enableImageMattingCompare)
+                                 .arg(Preferences::enableImageMatting);
+
         if (rendererChanged) {
             logInfo() << QString("Renderer preference changed from %1 to %2")
                                  .arg(preferredRendererCompare)
@@ -1763,6 +1770,7 @@ void Gui::preferences()
                 useLDViewSCallChanged         ||
                 displayAttributesChanged      ||
                 povFileGeneratorChanged       ||
+                enableImageMattingChanged     ||
                 generateCoverPagesChanged){
                 clearAndRedrawPage();
             }
@@ -2002,7 +2010,7 @@ Gui::Gui()
     emit Application::instance()->splashMsgSig(QString("25% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 
     Preferences::lgeoPreferences();
-    Preferences::rendererPreferences(false);
+    Preferences::rendererPreferences(SkipExisting);
     Preferences::nativePovGenPreferences();
     Preferences::viewerPreferences();
     Preferences::publishingPreferences();
@@ -2054,16 +2062,6 @@ Gui::Gui()
     connect(setGoToPageCombo,SIGNAL(activated(int)),
             this,            SLOT(setGoToPage(int)));
 
-    progressLabel = new QLabel(this);
-    progressLabel->setMinimumWidth(200);
-    progressBar = new QProgressBar();
-    progressBar->setMaximumWidth(300);
-
-    progressLabelPerm = new QLabel();
-    progressLabelPerm->setMinimumWidth(200);
-    progressBarPerm = new QProgressBar();
-    progressBarPerm->setMaximumWidth(300);
-
     undoStack = new QUndoStack();
     macroNesting = 0;
 
@@ -2095,25 +2093,36 @@ Gui::Gui()
     lpubAlert = new LPubAlert();
     connect(lpubAlert, SIGNAL(messageSig(LogType,QString)),   this, SLOT(statusMessage(LogType,QString)));
     connect(this,      SIGNAL(messageSig(LogType,QString)),   this, SLOT(statusMessage(LogType,QString)));
-    connect(this, SIGNAL(progressBarInitSig()),               this, SLOT(progressBarInit()));
-    connect(this, SIGNAL(progressMessageSig(QString)),        this, SLOT(progressBarSetText(QString)));
-    connect(this, SIGNAL(progressRangeSig(int,int)),          this, SLOT(progressBarSetRange(int,int)));
-    connect(this, SIGNAL(progressSetValueSig(int)),           this, SLOT(progressBarSetValue(int)));
-    connect(this, SIGNAL(progressResetSig()),                 this, SLOT(progressBarReset()));
-    connect(this, SIGNAL(removeProgressStatusSig()),          this, SLOT(removeProgressStatus()));
 
-    connect(this, SIGNAL(progressBarPermInitSig()),           this, SLOT(progressBarPermInit()));
-    connect(this, SIGNAL(progressPermMessageSig(QString)),    this, SLOT(progressBarPermSetText(QString)));
-    connect(this, SIGNAL(progressPermRangeSig(int,int)),      this, SLOT(progressBarPermSetRange(int,int)));
-    connect(this, SIGNAL(progressPermSetValueSig(int)),       this, SLOT(progressBarPermSetValue(int)));
-    connect(this, SIGNAL(progressPermResetSig()),             this, SLOT(progressBarPermReset()));
-    connect(this, SIGNAL(removeProgressPermStatusSig()),      this, SLOT(removeProgressPermStatus()));
+    progressLabel = new QLabel(this);
+    progressLabel->setMinimumWidth(200);
+    progressBar = new QProgressBar();
+    progressBar->setMaximumWidth(300);
+
+    progressLabelPerm = new QLabel();
+    progressLabelPerm->setMinimumWidth(200);
+    progressBarPerm = new QProgressBar();
+    progressBarPerm->setMaximumWidth(300);
 
     m_progressDialog         = new ProgressDialog();
     m_progressDlgProgressBar = m_progressDialog->findChild<QProgressBar*>("progressDlgProgressBar");
     m_progressDlgMessageLbl  = m_progressDialog->findChild<QLabel*>("progressDlgMessageLbl");
 
     connect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
+
+    connect(this, SIGNAL(progressBarInitSig()),               this, SLOT(progressBarInit()));
+    connect(this, SIGNAL(progressMessageSig(QString)),        this, SLOT(progressBarSetText(QString)));
+    connect(this, SIGNAL(progressRangeSig(int,int)),          this, SLOT(progressBarSetRange(int,int)));
+    connect(this, SIGNAL(progressSetValueSig(int)),           this, SLOT(progressBarSetValue(int)));
+    connect(this, SIGNAL(progressResetSig()),                 this, SLOT(progressBarReset()));
+    connect(this, SIGNAL(progressStatusRemoveSig()),          this, SLOT(progressStatusRemove()));
+
+    connect(this, SIGNAL(progressBarPermInitSig()),           this, SLOT(progressBarPermInit()));
+    connect(this, SIGNAL(progressPermMessageSig(QString)),    this, SLOT(progressBarPermSetText(QString)));
+    connect(this, SIGNAL(progressPermRangeSig(int,int)),      this, SLOT(progressBarPermSetRange(int,int)));
+    connect(this, SIGNAL(progressPermSetValueSig(int)),       this, SLOT(progressBarPermSetValue(int)));
+    connect(this, SIGNAL(progressPermResetSig()),             this, SLOT(progressBarPermReset()));
+    connect(this, SIGNAL(progressPermStatusRemoveSig()),      this, SLOT(progressPermStatusRemove()));
 
 #ifdef WATCHER
     connect(&watcher,       SIGNAL(fileChanged(const QString &)),
@@ -2128,18 +2137,16 @@ Gui::Gui()
 
 Gui::~Gui()
 { 
+  delete KpageScene;
+  delete KpageView;
+  delete editWindow;
+  delete parmsWindow;
+  delete undoStack;
 
-    delete KpageScene;
-    delete KpageView;
-    delete editWindow;
-    delete parmsWindow;
-    delete progressBar;
-
-    delete m_progressDialog;
-    delete progressLabelPerm;
-    delete progressBarPerm;
-    delete undoStack;
-
+  delete progressBar;
+  delete m_progressDialog;
+  delete progressLabelPerm;
+  delete progressBarPerm;
 }
 
 void Gui::closeEvent(QCloseEvent *event)
@@ -2231,7 +2238,7 @@ void Gui::generateCustomColourPartsList()
         connect(colourPartListWorker, SIGNAL(progressRangeSig(int,int)),                     this, SLOT(progressBarSetRange(int,int)));
         connect(colourPartListWorker, SIGNAL(progressSetValueSig(int)),                      this, SLOT(progressBarSetValue(int)));
         connect(colourPartListWorker, SIGNAL(progressResetSig()),                            this, SLOT(progressBarReset()));
-        connect(colourPartListWorker, SIGNAL(removeProgressStatusSig()),                     this, SLOT(removeProgressStatus()));
+        connect(colourPartListWorker, SIGNAL(progressStatusRemoveSig()),                     this, SLOT(progressStatusRemove()));
 
         listThread->start();
 
@@ -2244,17 +2251,9 @@ void Gui::processFadeColourParts(bool overwriteCustomParts)
 {
   if (gui->page.meta.LPub.fadeStep.fadeStep.value()) {
 
-      QThread *partThread    = new QThread();
       partWorkerCustomColour = new PartWorker();
-      partWorkerCustomColour->moveToThread(partThread);
 
       connect(this,                   SIGNAL(operateFadeParts(bool)),    partWorkerCustomColour, SLOT(processFadeColourParts(bool)));
-      connect(partThread,             SIGNAL(finished()),                            partThread, SLOT(deleteLater()));
-      connect(partWorkerCustomColour, SIGNAL(customColourFinishedSig()),             partThread, SLOT(quit()));
-      connect(partWorkerCustomColour, SIGNAL(customColourFinishedSig()), partWorkerCustomColour, SLOT(deleteLater()));
-      connect(partWorkerCustomColour, SIGNAL(requestFinishSig()),                    partThread, SLOT(quit()));
-      connect(partWorkerCustomColour, SIGNAL(requestFinishSig()),        partWorkerCustomColour, SLOT(deleteLater()));
-      connect(this,                   SIGNAL(requestEndThreadNowSig()),  partWorkerCustomColour, SLOT(requestEndThreadNow()));
 
       connect(partWorkerCustomColour, SIGNAL(messageSig(LogType,QString)),                 this, SLOT(statusMessage(LogType,QString)));
 
@@ -2263,9 +2262,7 @@ void Gui::processFadeColourParts(bool overwriteCustomParts)
       connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),                  this, SLOT(progressBarSetRange(int,int)));
       connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),                   this, SLOT(progressBarSetValue(int)));
       connect(partWorkerCustomColour, SIGNAL(progressResetSig()),                         this, SLOT(progressBarReset()));
-      connect(partWorkerCustomColour, SIGNAL(removeProgressStatusSig()),                  this, SLOT(removeProgressStatus()));
-
-      partThread->start();
+      connect(partWorkerCustomColour, SIGNAL(progressStatusRemoveSig()),                  this, SLOT(progressStatusRemove()));
 
       //qDebug() << qPrintable(QString("Sent overwrite fade parts = %1").arg(overwriteCustomParts ? "True" : "False"));
       emit operateFadeParts(overwriteCustomParts);
@@ -2276,28 +2273,18 @@ void Gui::processHighlightColourParts(bool overwriteCustomParts)
 {
   if (gui->page.meta.LPub.highlightStep.highlightStep.value()) {
 
-      QThread *partThread    = new QThread();
       partWorkerCustomColour = new PartWorker();
-      partWorkerCustomColour->moveToThread(partThread);
 
       connect(this,                   SIGNAL(operateHighlightParts(bool)), partWorkerCustomColour, SLOT(processHighlightColourParts(bool)));
-      connect(partThread,             SIGNAL(finished()),                              partThread, SLOT(deleteLater()));
-      connect(partWorkerCustomColour, SIGNAL(customColourFinishedSig()),               partThread, SLOT(quit()));
-      connect(partWorkerCustomColour, SIGNAL(customColourFinishedSig()),   partWorkerCustomColour, SLOT(deleteLater()));
-      connect(partWorkerCustomColour, SIGNAL(requestFinishSig()),                      partThread, SLOT(quit()));
-      connect(partWorkerCustomColour, SIGNAL(requestFinishSig()),          partWorkerCustomColour, SLOT(deleteLater()));
-      connect(this,                   SIGNAL(requestEndThreadNowSig()),    partWorkerCustomColour, SLOT(requestEndThreadNow()));
 
-      connect(partWorkerCustomColour, SIGNAL(messageSig(LogType,QString)),                   this, SLOT(statusMessage(LogType,QString)));
+      connect(partWorkerCustomColour, SIGNAL(messageSig(LogType,QString)),                this, SLOT(statusMessage(LogType,QString)));
 
       connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),                       this, SLOT(progressBarInit()));
       connect(partWorkerCustomColour, SIGNAL(progressMessageSig(QString)),                this, SLOT(progressBarSetText(QString)));
       connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),                  this, SLOT(progressBarSetRange(int,int)));
       connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),                   this, SLOT(progressBarSetValue(int)));
       connect(partWorkerCustomColour, SIGNAL(progressResetSig()),                         this, SLOT(progressBarReset()));
-      connect(partWorkerCustomColour, SIGNAL(removeProgressStatusSig()),                  this, SLOT(removeProgressStatus()));
-
-      partThread->start();
+      connect(partWorkerCustomColour, SIGNAL(progressStatusRemoveSig()),                  this, SLOT(progressStatusRemove()));
 
       //qDebug() << qPrintable(QString("Sent overwrite highlight parts = %1").arg(overwriteCustomParts ? "True" : "False"));
       emit operateHighlightParts(overwriteCustomParts);
@@ -2306,63 +2293,97 @@ void Gui::processHighlightColourParts(bool overwriteCustomParts)
 
 // left side progress bar
 void Gui::progressBarInit(){
-    progressBar->setMaximumHeight(15);
-    statusBar()->addWidget(progressLabel);
-    statusBar()->addWidget(progressBar);
-    progressLabel->show();
-    progressBar->show();
+  if (okToInvokeProgressBar()) {
+      progressBar->setMaximumHeight(15);
+      statusBar()->addWidget(progressLabel);
+      statusBar()->addWidget(progressBar);
+      progressLabel->show();
+      progressBar->show();
+  }
 }
 
 void Gui::progressBarSetText(const QString &progressText)
 {
-  progressLabel->setText(progressText);
-  QApplication::processEvents();
+  if (okToInvokeProgressBar()) {
+      progressLabel->setText(progressText);
+      QApplication::processEvents();
+    }
 }
 void Gui::progressBarSetRange(int minimum, int maximum)
 {
-  progressBar->setRange(minimum,maximum);
-  QApplication::processEvents();
+  if (okToInvokeProgressBar()) {
+      progressBar->setRange(minimum,maximum);
+      QApplication::processEvents();
+    }
 }
 void Gui::progressBarSetValue(int value)
 {
-  progressBar->setValue(value);
-  QApplication::processEvents();
+  if (okToInvokeProgressBar()) {
+      progressBar->setValue(value);
+      QApplication::processEvents();
+    }
 }
 void Gui::progressBarReset()
 {
-  progressBar->reset();
-  QApplication::processEvents();
+  if (okToInvokeProgressBar()) {
+      progressBar->reset();
+      QApplication::processEvents();
+    }
+}
+
+void Gui::progressStatusRemove(){
+  if (okToInvokeProgressBar()) {
+      statusBar()->removeWidget(progressBar);
+      statusBar()->removeWidget(progressLabel);
+    }
 }
 
 // right side progress bar
 void Gui::progressBarPermInit(){
-  progressBarPerm->setMaximumHeight(15);
-  statusBar()->addPermanentWidget(progressLabelPerm);
-  statusBar()->addPermanentWidget(progressBarPerm);
-  progressLabelPerm->show();
-  progressBarPerm->show();
-  QApplication::processEvents();
+  if (okToInvokeProgressBar()) {
+      progressBarPerm->setMaximumHeight(15);
+      statusBar()->addPermanentWidget(progressLabelPerm);
+      statusBar()->addPermanentWidget(progressBarPerm);
+      progressLabelPerm->show();
+      progressBarPerm->show();
+      QApplication::processEvents();
+    }
 }
 
 void Gui::progressBarPermSetText(const QString &progressText)
 {
-progressLabelPerm->setText(progressText);
-QApplication::processEvents();
+  if (okToInvokeProgressBar()) {
+      progressLabelPerm->setText(progressText);
+      QApplication::processEvents();
+    }
 }
 void Gui::progressBarPermSetRange(int minimum, int maximum)
 {
-progressBarPerm->setRange(minimum,maximum);
-QApplication::processEvents();
+  if (okToInvokeProgressBar()) {
+      progressBarPerm->setRange(minimum,maximum);
+      QApplication::processEvents();
+    }
 }
 void Gui::progressBarPermSetValue(int value)
 {
-progressBarPerm->setValue(value);
-QApplication::processEvents();
+  if (okToInvokeProgressBar()) {
+      progressBarPerm->setValue(value);
+      QApplication::processEvents();
+    }
 }
 void Gui::progressBarPermReset()
 {
-progressBarPerm->reset();
-QApplication::processEvents();
+  if (okToInvokeProgressBar()) {
+      progressBarPerm->reset();
+      QApplication::processEvents();
+    }
+}
+
+void Gui::progressPermStatusRemove(){
+  if (okToInvokeProgressBar()) {
+      statusBar()->removeWidget(progressBarPerm);
+      statusBar()->removeWidget(progressLabelPerm);
+    }
 }
 
 bool Gui::aboutDialog()
@@ -3317,6 +3338,72 @@ void Gui::showLCStatusMessage(){
 
     if(!viewerDockWindow->isFloating())
     statusBarMsg(gMainWindow->mLCStatusBar->currentMessage());
+}
+
+void Gui::statusMessage(LogType logType, QString message) {
+    /* logTypes
+     * LOG_STATUS:   - same as INFO but writes to log file also
+     * LOG_INFO:
+     * LOG_TRACE:
+     * LOG_DEBUG:
+     * LOG_NOTICE:
+     * LOG_ERROR:
+     * LOG_FATAL:
+     * LOG_QWARNING: - visible in Qt debug mode
+     * LOG_QDEBUG:   - visible in Qt debug mode
+     */
+    if (logType == LOG_STATUS ){
+
+        logStatus() << message;
+
+        if (Preferences::modeGUI) {
+           statusBarMsg(message);
+        } else {
+           fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+           fflush(stdout);
+        }
+    } else
+      if (logType == LOG_INFO) {
+
+          logInfo() << message;
+
+          if (!Preferences::modeGUI) {
+              fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+              fflush(stdout);
+          }
+
+     } else
+        if (logType == LOG_NOTICE) {
+
+            logNotice() << message;
+
+            if (!Preferences::modeGUI) {
+                fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                fflush(stdout);
+            }
+
+     } else
+          if (logType == LOG_TRACE) {
+
+              logTrace() << message;
+
+              if (!Preferences::modeGUI) {
+                  fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                  fflush(stdout);
+              }
+
+     } else
+       if (logType == LOG_ERROR) {
+
+        logError() << message;
+
+        if (Preferences::modeGUI) {
+            QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
+        } else {
+            fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+            fflush(stdout);
+        }
+    }
 }
 
 void Gui::createDockWindows()
