@@ -172,8 +172,8 @@ void LGraphicsView::resizeEvent(QResizeEvent *event)
 /* Theme related */
 void LGraphicsView::setSceneBackground(Theme t){
   QColor c;
-  c = t == ThemeDark ? QColor(THEME_BGCOLOR_DARK) :
-                       QColor(THEME_BGCOLOR_DEFAULT) ;
+  c = t == ThemeDark ? QColor(THEME_MAIN_BGCOLOR_DARK) :
+                       QColor(THEME_MAIN_BGCOLOR_DEFAULT) ;
   this->scene()->setBackgroundBrush(c);
 }
 
@@ -268,8 +268,8 @@ void LRuler::setRulerNMLPen(Theme t) {
 }
 
 void LRuler::setRulerColor(Theme t){
-  mRulerColor = t == ThemeDark ? QColor(THEME_BGCOLOR_DARK) :
-                                 QColor(THEME_BGCOLOR_DEFAULT);
+  mRulerColor = t == ThemeDark ? QColor(THEME_MAIN_BGCOLOR_DARK) :
+                                 QColor(THEME_MAIN_BGCOLOR_DEFAULT);
 }
 
 void LRuler::setRulerUnit(const qreal rulerUnit)

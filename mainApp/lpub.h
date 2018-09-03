@@ -763,7 +763,8 @@ public slots:
   }
   void reloadCurrentModelFile();
   void reloadViewer();
-  void reloadEditors();
+  void loadTheme();
+  void restartApplication();
 
   bool removeDir(int &count,const QString &dirName);
 

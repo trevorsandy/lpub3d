@@ -276,6 +276,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.themeCombo->addItem(THEME_DEFAULT);
   ui.themeCombo->addItem(THEME_DARK);
   ui.themeCombo->setCurrentText(Preferences::displayTheme);
+  ui.themeAutoRestartBox->setChecked(Preferences::themeAutoRestart);
 
   /* [Experimental] LDView Image Matting */
   ui.imageMattingChk->setChecked(                Preferences::enableImageMatting);
@@ -802,6 +803,11 @@ bool  PreferencesDialog::doNotShowPageProcessDlg()
 QString const PreferencesDialog::displayTheme()
 {
   return ui.themeCombo->currentText();
+}
+
+bool PreferencesDialog::themeAutoRestart()
+{
+  return ui.themeAutoRestartBox->isChecked();
 }
 
 QString const PreferencesDialog::defaultURL()

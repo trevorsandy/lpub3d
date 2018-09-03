@@ -107,6 +107,7 @@ QString Preferences::plug                       = QString(QObject::trUtf8("Instr
                                                                QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
 QString Preferences::displayTheme               = THEME_DEFAULT;
 
+bool    Preferences::themeAutoRestart           = false;
 bool    Preferences::lgeoStlLib                 = false;
 bool    Preferences::lpub3dLoaded               = false;
 bool    Preferences::enableDocumentLogo         = false;
@@ -2085,6 +2086,14 @@ void Preferences::userInterfacePreferences()
 {
   QSettings Settings;
 
+  QString const themeAutoRestartKey("ThemeAutoRestart");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,themeAutoRestartKey))) {
+          QVariant uValue(false);
+          themeAutoRestart = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,themeAutoRestartKey),uValue);
+  } else {
+          themeAutoRestart = Settings.value(QString("%1/%2").arg(SETTINGS,themeAutoRestartKey)).toBool();
+  }
   QString const pageRulerKey("PageRuler");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,pageRulerKey))) {
           QVariant uValue(false);
@@ -2649,6 +2658,12 @@ bool Preferences::getPreferences()
         if (displayTheme != dialog->displayTheme()){
             displayTheme = dialog->displayTheme();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"DisplayTheme"),displayTheme);
+        }
+
+        if (themeAutoRestart != dialog->themeAutoRestart())
+        {
+            themeAutoRestart = dialog->themeAutoRestart();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ThemeAutoRestart"),themeAutoRestart);
         }
 
         if (moduleVersion != dialog->moduleVersion()){

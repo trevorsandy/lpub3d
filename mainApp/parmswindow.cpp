@@ -492,9 +492,7 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
           Preferences::setLDGLiteIniParams();
 
       // is there anything loaded - to take advantage of our change?
-      bool fileLoaded = false;
-      if (!gui->getCurFile().isEmpty())
-        fileLoaded = true;      
+      bool fileLoaded = !gui->getCurFile().isEmpty();
       if ((fileLoaded || _fadeStepFile) && _restartRequired) {
 
           QMessageBox box;
@@ -508,7 +506,13 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
 
           if (box.exec() == QMessageBox::Ok) {
               QStringList args = QApplication::arguments();
-              args << tr ("%1").arg(fileLoaded ? gui->getCurFile() : QString());
+              if (! fileLoaded){
+                  args << QString("%1").arg(gui->getCurFile());
+                  QSettings Settings;
+                  Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM),gui->displayPageNum);
+                } else {
+                  args << QString();
+                }
               args.removeFirst();
               QProcess::startDetached(QApplication::applicationFilePath(), args);
               logDebug() << "Restarted LPub3D using:" << QApplication::applicationFilePath() << ", args:" << args;

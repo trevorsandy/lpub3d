@@ -154,7 +154,7 @@ bool Application::modeGUI()
 
 void Application::setTheme(){
   Theme t = ThemeDefault;
-  QColor vc = QColor(THEME_VBGCOLOR_DEFAULT);
+  QColor vc = QColor(THEME_VIEWER_BGCOLOR_DEFAULT);
 
   if (Preferences::displayTheme == THEME_DARK){
       t = ThemeDark;
@@ -168,7 +168,7 @@ void Application::setTheme(){
           f.open(QFile::ReadOnly | QFile::Text);
           QTextStream ts(&f);
           qApp->setStyleSheet(ts.readAll());
-          vc = QColor(THEME_VBGCOLOR_DARK);
+          vc = QColor(THEME_VIEWER_BGCOLOR_DARK);
       }
     }
   else

@@ -1724,16 +1724,16 @@
        <property name="title">
         <string>Themes</string>
        </property>
-       <widget class="QWidget" name="layoutWidget_2">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
-          <x>34</x>
-          <y>36</y>
-          <width>400</width>
-          <height>30</height>
+          <x>10</x>
+          <y>42</y>
+          <width>450</width>
+          <height>22</height>
          </rect>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_14">
+        <layout class="QHBoxLayout" name="horizontalLayout_10">
          <item>
           <spacer name="horizontalSpacer_5">
            <property name="orientation">
@@ -1748,21 +1748,40 @@
           </spacer>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_10">
-           <item>
-            <widget class="QLabel" name="themeLbl">
-             <property name="text">
-              <string>Theme</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="themeCombo"/>
-           </item>
-          </layout>
+          <widget class="QLabel" name="themeLbl">
+           <property name="text">
+            <string>Theme</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="themeCombo"/>
          </item>
          <item>
           <spacer name="horizontalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="themeAutoRestartBox">
+           <property name="toolTip">
+            <string>Check to suppress message prompt to restart application on theme change.</string>
+           </property>
+           <property name="text">
+            <string>Restart automatically on theme change</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_17">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>

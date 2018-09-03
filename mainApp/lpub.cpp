@@ -983,9 +983,48 @@ void Gui::reloadViewer(){
   }
 }
 
-void Gui::reloadEditors(){
-//  editWindow  = new EditWindow(this);
-//  parmsWindow = new ParmsWindow();
+void Gui::loadTheme(){
+
+  Application::instance()->setTheme();
+
+  if (Preferences::themeAutoRestart) {
+      restartApplication();
+    }else {
+      reloadViewer();
+
+      QMessageBox box;
+      box.setIcon (QMessageBox::Question);
+      box.setDefaultButton   (QMessageBox::Ok);
+      box.setStandardButtons (QMessageBox::Ok | QMessageBox::Close | QMessageBox::Cancel);
+      box.setText (QString("You must close and restart %1 to fully configure the Theme.\n"
+                      "Editor syntax highlighting will update the next time you start %1")
+                   .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+      box.setInformativeText (QString("Click \"OK\" to close and restart %1 or \"Close\" set the Theme without restart.\n\n"
+                                  "You can suppress this message in Preferences, Themes")
+                              .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+      if (box.exec() == QMessageBox::Ok) {
+          restartApplication();
+        }
+      else
+      if (box.exec() == QMessageBox::Close){
+          reloadCurrentModelFile();
+        }
+    }
+}
+
+void  Gui::restartApplication(){
+  QStringList args = QApplication::arguments();
+  if (! getCurFile().isEmpty()){
+      args << QString("%1").arg(getCurFile());
+      QSettings Settings;
+      Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM),displayPageNum);
+    } else {
+      args << QString();
+    }
+  args.removeFirst();
+  QProcess::startDetached(QApplication::applicationFilePath(), args);
+  messageSig(LOG_INFO, QString("Restarted LPub3D: %1, args: %2").arg(QApplication::applicationFilePath()).arg(args.join(" ")));
+  QCoreApplication::quit();
 }
 
 void Gui::reloadCurrentModelFile(){
@@ -1621,12 +1660,7 @@ void Gui::preferences()
 	bool nativePovRendererConfig      = Preferences::preferredRenderer == RENDERER_POVRAY && Preferences::povFileGenerator == RENDERER_NATIVE;
 
         if (displayThemeChanged)
-          {
-            Application::instance()->setTheme();
-            reloadEditors();
-            reloadViewer();
-            reloadCurrentModelFile();
-          }
+            loadTheme();
 
         if (enableFadeStepsChanged)
         {

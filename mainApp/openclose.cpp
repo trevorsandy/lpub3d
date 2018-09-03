@@ -126,6 +126,12 @@ bool Gui::loadFile(const QString &file)
         timer.start();
         QDir::setCurrent(info.absolutePath());
         openFile(fileName);
+        // check if possible to load page number
+        QSettings Settings;
+        if (Settings.contains(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM))) {
+            displayPageNum = Settings.value(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM)).toInt();
+            Settings.remove(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM));
+          }
         Paths::mkDirs();
         displayPage();
         enableActions();

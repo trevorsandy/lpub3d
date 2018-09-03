@@ -116,6 +116,7 @@ class Preferences
     static QString dataLocation;
     static QString povFileGenerator;
     static QString displayTheme;
+    static bool    themeAutoRestart;
     static bool    ldrawiniFound;
     static bool    enableDocumentLogo;
     static bool    enableLDViewSingleCall;

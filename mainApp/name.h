@@ -32,13 +32,15 @@ enum IniStat { BeforeInit, AfterInit };
 enum Theme { ThemeDark, ThemeDefault };
 
 // registry sections
-#define DEFAULTS     "Defaults"
-#define POVRAY       "POVRay"
-#define SETTINGS     "Settings"
-#define MAINWINDOW   "MainWindow"
-#define PARMSWINDOW  "ParmsWindow"
-#define UPDATES      "Updates"
-#define LOGGING      "Logging"
+#define DEFAULTS                "Defaults"
+#define POVRAY                  "POVRay"
+#define SETTINGS                "Settings"
+#define MAINWINDOW              "MainWindow"
+#define PARMSWINDOW             "ParmsWindow"
+#define UPDATES                 "Updates"
+#define LOGGING                 "Logging"
+#define SAVE_DISPLAY_PAGE_NUM   "SaveDisplayPageNum"
+
 
 #define MAX_NUM_POV_GEN_ARGS (128)
 
@@ -46,6 +48,7 @@ enum Theme { ThemeDark, ThemeDefault };
 #define EMPTY_STRING_DEFAULT                    ""
 
 #define LOGGING_LEVEL_DEFAULT                   "STATUS"
+
 
 #define UPDATE_CHECK_FREQUENCY_DEFAULT          0     //0=Never,1=Daily,2=Weekly,3=Monthly
 
@@ -153,14 +156,13 @@ enum Theme { ThemeDark, ThemeDefault };
                                                 ASPECT_RATIO_3 "," ASPECT_RATIO_4 "," ASPECT_RATIO_5 "," \
                                                 ASPECT_RATIO_6 "," ASPECT_RATIO_7 "," ASPECT_RATIO_8
 
-// Team suppliments
+// Team colour suppliments
 #define THEME_DEFAULT                   "Default" // Default Theme
 #define THEME_TICK_PEN_DEFAULT          "#35322f" // Qt Dark gray
 #define THEME_NML_PEN_DEFAULT           "#1e1b18" // Qt Double dark gray
 #define THEME_GUIDE_PEN_DEFAULT         "#1e1b18" // Qt Double dark gray
-#define THEME_BGCOLOR_DEFAULT           "#aeadac" // Qt Light gray
-#define THEME_VBGCOLOR_DEFAULT          "#ffffff" // Qt White
-#define THEME_HIGHLIGHT_DEFAULT         "#ffffff" // Qt White
+#define THEME_MAIN_BGCOLOR_DEFAULT      "#aeadac" // Qt Light gray
+#define THEME_VIEWER_BGCOLOR_DEFAULT    "#ffffff" // Qt White
 
 #define THEME_HIGHLIGHT_01_DEFAULT      "#006325" // Qt 01 Dark green
 #define THEME_HIGHLIGHT_02_DEFAULT      "#14148c" // Qt 02 Dark blue
@@ -172,14 +174,13 @@ enum Theme { ThemeDark, ThemeDefault };
 #define THEME_TICK_PEN_DARK             "#eff0f1" // Custom pale grey
 #define THEME_NML_PEN_DARK              "#ffffff" // Qt White
 #define THEME_GUIDEL_PEN_DARK           "#5d5b59" // Qt Medium gray
-#define THEME_BGCOLOR_DARK              "#31363b" // Custom dark dark grey
-#define THEME_VBGCOLOR_DARK             "#808B96" // Custom grey
-#define THEME_HIGHLIGHT_DARK            "#ffffff" // Qt White
+#define THEME_MAIN_BGCOLOR_DARK         "#31363b" // Custom dark dark grey
+#define THEME_VIEWER_BGCOLOR_DARK       "#808B96" // Custom grey
 #define THEME_EDIT_MARGIN_DARK          "#ABB2B9" // Custom gray
 
 #define THEME_HIGHLIGHT_01_DARK         "#006325" // 01 Qt Dark green
-#define THEME_HIGHLIGHT_02_DARK         "#14148c" // 02 Qt Dark blue
-#define THEME_HIGHLIGHT_03_DARK         "#dd9400" // 03 Custom Dark Red
+#define THEME_HIGHLIGHT_02_DARK         "#0079cf" // 02 Custom blue
+#define THEME_HIGHLIGHT_03_DARK         "#f6546a" // 03 Custom Red
 #define THEME_HIGHLIGHT_04_DARK         "#14aaff" // 04 Qt Blue
 #define THEME_HIGHLIGHT_05_DARK         "#b40000" // 05 Qt Red
 

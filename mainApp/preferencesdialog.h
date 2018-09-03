@@ -59,6 +59,7 @@ class PreferencesDialog : public QDialog
     QString const povFileGenerator();
     QString const displayTheme();
     QStringList const searchDirSettings();
+    bool          themeAutoRestart();
     bool          displayAllAttributes();
     bool          generateCoverPages();
     bool          printDocumentTOC();
