@@ -48,7 +48,7 @@ contains(LOAD_LDVHEADERS,True) {
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TRE/*.h) $$system_path( $${LDVINCLUDE}/TRE/) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TCFoundation/*.h) $$system_path( $${LDVINCLUDE}/TCFoundation/ ) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/3rdParty/*.h) $$system_path( $${LDVINCLUDE}/3rdParty/ ) )
-    if (contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
+    if (contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64):!contains(DEFINES,_OPENSUSE_1320_ARM)) {
         message("~~~ $$upper($$QT_ARCH) build - skip local GL content ~~~")
         system( touch $$system_path( $${LDVHDRDIR}/GL/glext.h) )
     } else {

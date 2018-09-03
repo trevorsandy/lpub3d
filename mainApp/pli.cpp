@@ -503,7 +503,7 @@ int Pli::createPartImage(
         }
 
       emit gui->messageSig(LOG_INFO, qPrintable(
-                          QString("%1 PLI render took %2 milliseconds "
+                          QString("%1 PLI render call took %2 milliseconds "
                                   "to render %3 for %4.")
                              .arg(Render::getRenderer())
                              .arg(timer.elapsed())

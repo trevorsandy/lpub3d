@@ -366,6 +366,7 @@
 #include "progress_dialog.h"
 #include "QsLog.h"
 
+// Set to enable file watcher
 #ifndef WATCHER
 #define WATCHER
 #endif

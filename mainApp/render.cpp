@@ -54,7 +54,7 @@
 #include "view.h"
 
 #ifdef Q_OS_WIN
-#include <windows.h>
+#include <Windows.h>
 #endif
 
 Render *renderer;
@@ -70,6 +70,12 @@ Native  native;
 
 //Native renderer scale factor
 #define SCALE_FACTOR_NATIVE 11658.9567325322
+
+//Enable LDView single call -SaveSnapshotsList flag
+//#ifndef LDVIEW_USE_SNAPSHOT_LIST
+//#define LDVIEW_USE_SNAPSHOT_LIST
+//#endif
+
 
 static double pi = 4*atan(1.0);
 // the default camera distance for real size
@@ -319,7 +325,7 @@ int POVRay::renderCsi(
 
   QString w  = QString("-SaveWidth=%1") .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
-  QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
+  QString f  = QString("-ExportFile=%1") .arg(povName);
   QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawPath)));
   QString o  = QString("-HaveStdOut=1");
   QString v  = QString("-vv");
@@ -992,7 +998,7 @@ float LDView::cameraDistance(
 
 int LDView::renderCsi(
   const QString     &addLine,
-  const QStringList &csiParts,
+  const QStringList &csiParts,   // ldrNames
   const QStringList &csiKeys,
   const QString     &pngName,
         Meta        &meta)
@@ -1014,6 +1020,9 @@ int LDView::renderCsi(
   QStringList ldrNames;
   if (useLDViewSCall()) {
       ldrNames = csiParts;
+#ifndef LDVIEW_USE_SNAPSHOT_LIST
+      f  = QString("-SaveSnapShots=1");
+#else
       QString snapShotList = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
       QFile snapShotListFile(snapShotList);
       if ( ! snapShotListFile.open(QFile::Append | QFile::Text)) {
@@ -1028,6 +1037,7 @@ int LDView::renderCsi(
       }
       snapShotListFile.close();
       f  = QString("-SaveSnapshotsList=%1").arg(snapShotList);
+#endif
   } else {
       f  = QString("-SaveSnapShot=%1") .arg(pngName);
       int rc;
@@ -1045,7 +1055,6 @@ int LDView::renderCsi(
 
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
-//  QString f  = QString("-SaveSnapShot=%1") .arg(pngName); // -SnapshotSuffix not required
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
   QString o  = QString("-HaveStdOut=1");
   QString e  = QString("-EdgeThickness=%1").arg(edgeThickness);
@@ -1081,7 +1090,12 @@ int LDView::renderCsi(
     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
   }
+
+#ifndef LDVIEW_USE_SNAPSHOT_LIST
+  arguments = arguments + ldrNames;
+#else
   arguments << ldrNames.first();
+#endif
 
   emit gui->messageSig(LOG_STATUS, "Executing LDView render CSI - please wait...");
 
@@ -1142,14 +1156,15 @@ int LDView::renderCsi(
           }
       }
 
-    // image mapping stub
+    // image mapping stub - LDView SingleCall
     if (Preferences::enableFadeSteps) {
           for (int i = 0; i < csiKeys.size(); i++) {
               QString previousPngFile = imageMatt.previousStepCSIImage(csiKeys[i]);
               QString currentPngFile = imageMatt.currentStepCSIImage(csiKeys[i]);
                if (!previousPngFile.isEmpty() && !currentPngFile.isEmpty()) {  // first entry returns "" so check first
                    imageMatt.processZMap(previousPngFile, currentPngFile);
-                   //logDebug() << qPrintable(QString("Previous CSI pngFile: %1").arg(previousPngFile));
+                   logDebug() << qPrintable(QString("[DEBUG] Previous CSI pngFile: %1").arg(previousPngFile));
+                   logDebug() << qPrintable(QString("[DEBUG] Current CSI pngFile: %1").arg(currentPngFile));
               }
           }
       }
@@ -1202,6 +1217,9 @@ int LDView::renderPli(
   /* Create the CSI DAT file(s) */
   QString f;
   if (useLDViewSCall()) {
+#ifndef LDVIEW_USE_SNAPSHOT_LIST
+      f  = QString("-SaveSnapShots=1");
+#else
       QString snapShotList = QDir::currentPath() + "/" + Paths::tmpDir + "/pli.ldr";
       QFile snapShotListFile(snapShotList);
       if ( ! snapShotListFile.open(QFile::Append | QFile::Text)) {
@@ -1216,6 +1234,7 @@ int LDView::renderPli(
       }
       snapShotListFile.close();
       f  = QString("-SaveSnapshotsList=%1").arg(snapShotList);
+#endif
   } else {
       f  = QString("-SaveSnapShot=%1") .arg(pngName);
   }
@@ -1259,7 +1278,12 @@ int LDView::renderPli(
     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
   }
+
+#ifndef LDVIEW_USE_SNAPSHOT_LIST
+  arguments = arguments + ldrNames;
+#else
   arguments << ldrNames.first();
+#endif
 
   emit gui->messageSig(LOG_STATUS, "Executing LDView render PLI - please wait...");
 
