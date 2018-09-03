@@ -349,7 +349,7 @@ void PartWorker::processLDSearchDirParts(){
  */
 void PartWorker::processFadeColourParts(bool overwriteCustomParts)
 {
-  qDebug() << qPrintable(QString("Received overwrite fade parts = %1").arg(overwriteCustomParts ? "True" : "False"));
+  //qDebug() << qPrintable(QString("Received overwrite fade parts = %1").arg(overwriteCustomParts ? "True" : "False"));
   if (doFadeStep())
     processCustomColourParts(FADE_PART, overwriteCustomParts);
 }
@@ -359,7 +359,7 @@ void PartWorker::processFadeColourParts(bool overwriteCustomParts)
  */
 void PartWorker::processHighlightColourParts(bool overwriteCustomParts)
 {
-  qDebug() << qPrintable(QString("Received overwrite highlight parts = %1").arg(overwriteCustomParts ? "True" : "False"));
+  //qDebug() << qPrintable(QString("Received overwrite highlight parts = %1").arg(overwriteCustomParts ? "True" : "False"));
   if (doHighlightStep())
     processCustomColourParts(HIGHLIGHT_PART, overwriteCustomParts);
 }

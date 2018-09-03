@@ -407,8 +407,8 @@ enum traverseRc { HitEndOfPage = 1 };
 enum Dimensions {Pixels = 0, Inches};
 enum FitMode { FitNone, FitWidth, FitVisible, FitTwoPages, FitContinuousScroll };
 enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
-enum ExportType { EXPORT_PDF, EXPORT_PNG, EXPORT_JPG, EXPORT_BMP };
-
+enum Mode { PAGE_PROCESS, EXPORT_PDF, EXPORT_PNG, EXPORT_JPG, EXPORT_BMP };
+enum Direction { PAGE_PREVIOUS, PAGE_NEXT };
 
 void clearPliCache();
 void clearCsiCache();
@@ -436,6 +436,7 @@ public:
 
   int             exportType;       // export Type
   int             exportOption;     // export Option
+  int             pageDirection;    // continusou page processing direction
   QString         pageRangeText;    // page range parameters
 
   bool             m_previewDialog;
@@ -460,7 +461,9 @@ public:
   {
     displayPageNum += offset;
   }
-  void    displayPage();
+  void  displayPage();
+
+  bool continuousPageDialog(Direction d);
 
   /* We need to send ourselved these, to eliminate resursion and the model
    * changing under foot */
@@ -544,6 +547,8 @@ public:
   void displayFile(LDrawFile *ldrawFile, const QString &modelName);
   void displayParmsFile(const QString &fileName);
   QString elapsedTime(const qint64 &time);
+
+
 
   int             maxPages;
   
@@ -811,6 +816,8 @@ private:
   QUndoStack     *undoStack;                 // the undo/redo stack
   int             macroNesting;
   int             renderStepNum;             // at what step in the model is a submodel detected and rendered
+  bool            previousPageContinuousIsRunning;// stop the continuous previous page action
+  bool            nextPageContinuousIsRunning;    // stop the continuous next page action
 
   void countPages();
 
@@ -970,7 +977,9 @@ private slots:
     void removeLPubFormatting();
 
     void nextPage();
-    void prevPage();
+    void nextPageContinuous();
+    void previousPage();
+    void previousPageContinuous();
     void setPage();
     void firstPage();
     void lastPage();
@@ -994,7 +1003,7 @@ private slots:
     void exportAsPng();
     void exportAsJpg();
     void exportAsBmp();
-    bool exportAsDialog(ExportType t);
+    bool exportAsDialog(Mode t);
     void exportAsPdfDialog();
     void exportAsPngDialog();
     void exportAsJpgDialog();
@@ -1061,11 +1070,13 @@ private:
   QMenu    *exportMenu;
   QMenu    *recentMenu;
 
+  QMenu    *nextPageContinuousMenu;
+  QMenu    *previousPageContinuousMenu;
+
   // 3D Viewer Menus
   QMenu* ViewerMenu;
   QMenu* FileMenuViewer;
   QMenu* ExportMenuViewer;
-
 
   QToolBar *fileToolBar;
   QToolBar *editToolBar;
@@ -1118,6 +1129,10 @@ private:
   QAction  *lastPageAct;
   QAction  *nextPageAct;
   QAction  *previousPageAct;
+  QAction  *nextPageComboAct;
+  QAction  *nextPageContinuousAct;
+  QAction  *previousPageComboAct;
+  QAction  *previousPageContinuousAct;
   QLineEdit*setPageLineEdit;
   QComboBox*setGoToPageCombo;
 
@@ -1179,6 +1194,7 @@ private:
   QAction *viewLogAct;
 
   friend class PartWorker;
+  friend class DialogExportPages;
 };
 
 extern class Gui *gui;

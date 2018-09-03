@@ -90,6 +90,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.showAllNotificstions_Chk->setChecked(       Preferences::showAllNotifications);
   ui.checkUpdateFrequency_Combo->setCurrentIndex(Preferences::checkUpdateFrequency);
   ui.rendererTimeout->setValue(                  Preferences::rendererTimeout);
+  ui.pageDisplayPauseSpin->setValue(             Preferences::pageDisplayPause);
   ui.povrayDisplay_Chk->setChecked(              Preferences::povrayDisplay);
 
   ui.loggingGrpBox->setChecked(                  Preferences::logging);
@@ -558,6 +559,11 @@ int PreferencesDialog::checkUpdateFrequency()
 int PreferencesDialog::rendererTimeout()
 {
   return ui.rendererTimeout->value();
+}
+
+int PreferencesDialog::pageDisplayPause()
+{
+  return ui.pageDisplayPauseSpin->value();
 }
 
 bool PreferencesDialog::includeLogLevel()

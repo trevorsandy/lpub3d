@@ -41,6 +41,7 @@ private slots:
 
 private:
   Ui::DialogExportPages *ui;
+  QString linePageRange;
 };
 
 #endif // DIALOGEXPORTPAGES_H

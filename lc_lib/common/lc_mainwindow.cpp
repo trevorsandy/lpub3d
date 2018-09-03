@@ -427,14 +427,16 @@ void lcMainWindow::CreateActions()
 		ModelGroup->addAction(mActions[ActionIdx]);
 	}
 
-/*** LPub3D Mod - rotate step and macOS menu management ***/
+/*** LPub3D Mod - rotate step menu management (sets submenu checkable) ***/
         QActionGroup *RotateStepTypeGroup = new QActionGroup(this);
         for (int ActionIdx = LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION; ActionIdx <= LC_EDIT_ROTATESTEP_RELATIVE_ROTATION; ActionIdx++)
           {
             mActions[ActionIdx]->setCheckable(true);
             RotateStepTypeGroup->addAction(mActions[ActionIdx]);
           }
+/*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - macOS menu management ***/
 #ifdef Q_OS_MAC
   mActions[LC_FILE_EXIT]->setMenuRole(QAction::NoRole);
   mActions[LC_VIEW_PREFERENCES]->setMenuRole(QAction::NoRole);

@@ -72,7 +72,8 @@ class PreferencesDialog : public QDialog
     bool          lgeoStlLib();
     bool          povrayDisplay();
     int           checkUpdateFrequency();
-    int           rendererTimeout();   
+    int           rendererTimeout();
+    int           pageDisplayPause();
     int           fadeStepOpacity();
     int           highlightStepLineWidth();
     bool          includeLogLevel();

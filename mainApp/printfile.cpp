@@ -366,7 +366,7 @@ void Gui::exportAsBmpDialog(){
   exportAsDialog(EXPORT_BMP);
 }
 
-bool Gui::exportAsDialog(ExportType t)
+bool Gui::exportAsDialog(Mode t)
 {
   exportType = t;
   DialogExportPages *dialog = new DialogExportPages();

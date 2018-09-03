@@ -33,6 +33,13 @@ enum PartType { FADE_PART, HIGHLIGHT_PART };
 #define UPDATES      "Updates"
 #define LOGGING      "Logging"
 
+#define LOGGING_LEVEL_DEFAULT             "STATUS"
+
+#define UPDATE_CHECK_FREQUENCY_DEFAULT    0     //0=Never,1=Daily,2=Weekly,3=Monthly
+
+#define PAGE_HEIGHT_DEFAULT               800
+#define PAGE_WIDTH_DEFAULT                600
+
 // filenames
 #define URL_LDRAW_UNOFFICIAL_ARCHIVE      "http://www.ldraw.org/library/unofficial/ldrawunf.zip"
 #define URL_LDRAW_OFFICIAL_ARCHIVE        "http://www.ldraw.org/library/updates/complete.zip"
@@ -50,6 +57,10 @@ enum PartType { FADE_PART, HIGHLIGHT_PART };
 #define RENDERER_POVRAY                   "POVRay"
 #define RENDERER_LDGLITE                  "LDGLite"
 #define RENDERER_LDVIEW                   "LDView"
+
+#define RENDERER_TIMEOUT_DEFAULT          6    // measured in seconds
+
+#define PAGE_DISPLAY_PAUSE_DEFAULT        3    // measured in seconds
 
 // Internal common material colours
 #define LDRAW_EDGE_MATERIAL_COLOUR        "24"

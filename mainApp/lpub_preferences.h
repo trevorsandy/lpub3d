@@ -152,6 +152,7 @@ class Preferences
     static int     checkUpdateFrequency;
     static int     pageWidth;
     static int     pageHeight;
+    static int     pageDisplayPause;
     static int     rendererTimeout;
     static bool    povrayDisplay;
     static bool    isAppImagePayload;

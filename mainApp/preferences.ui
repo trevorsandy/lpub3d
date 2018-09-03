@@ -37,7 +37,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -841,24 +841,11 @@
       <attribute name="title">
        <string>Publishing</string>
       </attribute>
-      <widget class="QTextEdit" name="publishDescriptionEdit">
-       <property name="geometry">
-        <rect>
-         <x>26</x>
-         <y>295</y>
-         <width>421</width>
-         <height>101</height>
-        </rect>
-       </property>
-       <property name="acceptRichText">
-        <bool>false</bool>
-       </property>
-      </widget>
       <widget class="QGroupBox" name="publishLogoBox">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>184</y>
+         <y>250</y>
          <width>451</width>
          <height>68</height>
         </rect>
@@ -928,14 +915,27 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>265</y>
+         <y>331</y>
          <width>451</width>
-         <height>151</height>
+         <height>141</height>
         </rect>
        </property>
        <property name="title">
         <string>Publish Description</string>
        </property>
+       <widget class="QTextEdit" name="publishDescriptionEdit">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>20</y>
+          <width>431</width>
+          <height>108</height>
+         </rect>
+        </property>
+        <property name="acceptRichText">
+         <bool>false</bool>
+        </property>
+       </widget>
       </widget>
       <widget class="QCheckBox" name="publishTOC_Chk">
        <property name="enabled">
@@ -944,7 +944,7 @@
        <property name="geometry">
         <rect>
          <x>31</x>
-         <y>44</y>
+         <y>110</y>
          <width>211</width>
          <height>20</height>
         </rect>
@@ -960,7 +960,7 @@
        <property name="geometry">
         <rect>
          <x>11</x>
-         <y>115</y>
+         <y>181</y>
          <width>110</width>
          <height>22</height>
         </rect>
@@ -973,7 +973,7 @@
        <property name="geometry">
         <rect>
          <x>120</x>
-         <y>115</y>
+         <y>181</y>
          <width>331</width>
          <height>22</height>
         </rect>
@@ -983,7 +983,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>148</y>
+         <y>214</y>
          <width>110</width>
          <height>22</height>
         </rect>
@@ -996,7 +996,7 @@
        <property name="geometry">
         <rect>
          <x>120</x>
-         <y>150</y>
+         <y>216</y>
          <width>331</width>
          <height>22</height>
         </rect>
@@ -1006,7 +1006,7 @@
        <property name="geometry">
         <rect>
          <x>251</x>
-         <y>45</y>
+         <y>111</y>
          <width>211</width>
          <height>20</height>
         </rect>
@@ -1022,7 +1022,7 @@
        <property name="geometry">
         <rect>
          <x>252</x>
-         <y>17</y>
+         <y>83</y>
          <width>211</width>
          <height>20</height>
         </rect>
@@ -1038,7 +1038,7 @@
        <property name="geometry">
         <rect>
          <x>11</x>
-         <y>80</y>
+         <y>146</y>
          <width>111</width>
          <height>20</height>
         </rect>
@@ -1057,14 +1057,99 @@
        <property name="geometry">
         <rect>
          <x>120</x>
-         <y>80</y>
+         <y>146</y>
          <width>331</width>
          <height>22</height>
         </rect>
        </property>
       </widget>
+      <widget class="QGroupBox" name="pageProcessingContinuousBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>14</y>
+         <width>441</width>
+         <height>58</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Continuous Page Processing</string>
+       </property>
+       <widget class="QLabel" name="label_12">
+        <property name="geometry">
+         <rect>
+          <x>190</x>
+          <y>20</y>
+          <width>190</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::PreventContextMenu</enum>
+        </property>
+        <property name="toolTip">
+         <string>Set the renderer 'wait for finish' process time in minutes. -1 will not timeout.</string>
+        </property>
+        <property name="text">
+         <string>seconds between page processing.</string>
+        </property>
+       </widget>
+       <widget class="QSpinBox" name="pageDisplayPauseSpin">
+        <property name="geometry">
+         <rect>
+          <x>107</x>
+          <y>19</y>
+          <width>61</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Set the page 'display pause' in minutes. Minimum pause is 0, maximum pause is 60.</string>
+        </property>
+        <property name="minimum">
+         <number>0</number>
+        </property>
+        <property name="maximum">
+         <number>60</number>
+        </property>
+        <property name="value">
+         <number>3</number>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_10">
+        <property name="geometry">
+         <rect>
+          <x>11</x>
+          <y>20</y>
+          <width>100</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::PreventContextMenu</enum>
+        </property>
+        <property name="toolTip">
+         <string>Set the renderer 'wait for finish' process time in minutes. -1 will not timeout.</string>
+        </property>
+        <property name="text">
+         <string>Display page for</string>
+        </property>
+       </widget>
+      </widget>
+      <zorder>pageProcessingContinuousBox</zorder>
       <zorder>publishDescriptionBox</zorder>
-      <zorder>publishDescriptionEdit</zorder>
       <zorder>publishLogoBox</zorder>
       <zorder>publishTOC_Chk</zorder>
       <zorder>label_15</zorder>
@@ -1520,7 +1605,7 @@ p, li { white-space: pre-wrap; }
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="layoutWidget5">
+       <widget class="QWidget" name="layoutWidget6">
         <property name="geometry">
          <rect>
           <x>15</x>
@@ -1555,7 +1640,7 @@ p, li { white-space: pre-wrap; }
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="layoutWidget6">
+       <widget class="QWidget" name="layoutWidget7">
         <property name="geometry">
          <rect>
           <x>15</x>
@@ -1590,7 +1675,7 @@ p, li { white-space: pre-wrap; }
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="layoutWidget7">
+       <widget class="QWidget" name="layoutWidget8">
         <property name="geometry">
          <rect>
           <x>15</x>
@@ -1639,7 +1724,7 @@ p, li { white-space: pre-wrap; }
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="layoutWidget8">
+       <widget class="QWidget" name="layoutWidget9">
         <property name="geometry">
          <rect>
           <x>235</x>

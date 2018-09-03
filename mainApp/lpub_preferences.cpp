@@ -86,8 +86,13 @@ QString Preferences::ldrawiniFile;
 QString Preferences::moduleVersion               = qApp->applicationVersion();
 QString Preferences::availableVersions;
 QString Preferences::ldgliteSearchDirs;
+QString Preferences::loggingLevel               = LOGGING_LEVEL_DEFAULT;
+QString Preferences::logPath;
+QString Preferences::dataLocation;
+
 QStringList Preferences::ldSearchDirs;
 QStringList Preferences::ldgliteParms;
+
 //Static page attributes
 QString Preferences::disclaimer                 = QString(QObject::trUtf8("LEGO® is a registered trademark of the LEGO Group, \n"
                                                                           "which does not sponsor, endorse, or authorize these \n"
@@ -98,9 +103,6 @@ QString Preferences::plug                       = QString(QObject::trUtf8("Instr
                                                           .arg(QString::fromLatin1(VER_PRODUCTNAME_STR),
                                                                QString::fromLatin1(VER_FILEVERSION_STR),
                                                                QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
-QString Preferences::logPath;
-QString Preferences::loggingLevel;               // string
-QString Preferences::dataLocation;
 
 bool    Preferences::lgeoStlLib                 = false;
 bool    Preferences::lpub3dLoaded               = false;
@@ -148,14 +150,15 @@ bool    Preferences::enableFadeStep             = false;
 bool    Preferences::fadeStepUseColour          = false;
 bool    Preferences::enableHighlightStep        = false;
 
-int     Preferences::fadeStepOpacity            = FADE_OPACITY_DEFAULT;          //Default = 100 percent (full opacity)
-int     Preferences::highlightStepLineWidth     = HIGHLIGHT_LINE_WIDTH_DEFAULT;  //Default = 1
+int     Preferences::fadeStepOpacity            = FADE_OPACITY_DEFAULT;              //Default = 100 percent (full opacity)
+int     Preferences::highlightStepLineWidth     = HIGHLIGHT_LINE_WIDTH_DEFAULT;      //Default = 1
 
-int     Preferences::checkUpdateFrequency       = 0;        //0=Never,1=Daily,2=Weekly,3=Monthly
+int     Preferences::checkUpdateFrequency       = UPDATE_CHECK_FREQUENCY_DEFAULT;    //0=Never,1=Daily,2=Weekly,3=Monthly
 
-int     Preferences::pageHeight                 = 800;
-int     Preferences::pageWidth                  = 600;
-int     Preferences::rendererTimeout            = 6;        // measured in seconds
+int     Preferences::pageHeight                 = PAGE_HEIGHT_DEFAULT;
+int     Preferences::pageWidth                  = PAGE_WIDTH_DEFAULT;
+int     Preferences::rendererTimeout            = RENDERER_TIMEOUT_DEFAULT;          // measured in seconds
+int     Preferences::pageDisplayPause           = PAGE_DISPLAY_PAUSE_DEFAULT;        // measured in seconds
 
 Preferences::Preferences()
 {
@@ -489,8 +492,8 @@ void Preferences::loggingPreferences()
 
     // log levels combo
     if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"LoggingLevel"))) {
-        QVariant uValue("STATUS");
-        loggingLevel = "STATUS";
+        QVariant uValue(LOGGING_LEVEL_DEFAULT);
+        loggingLevel = LOGGING_LEVEL_DEFAULT;
         Settings.setValue(QString("%1/%2").arg(LOGGING,"LoggingLevel"),uValue);
     } else {
         loggingLevel = Settings.value(QString("%1/%2").arg(LOGGING,"LoggingLevel")).toString();
@@ -1168,7 +1171,7 @@ void Preferences::lpub3dUpdatePreferences(){
     moduleVersion = qApp->applicationVersion();
 
     if ( ! Settings.contains(QString("%1/%2").arg(UPDATES,"CheckUpdateFrequency"))) {
-        checkUpdateFrequency = 0;
+        checkUpdateFrequency = UPDATE_CHECK_FREQUENCY_DEFAULT;
         Settings.setValue(QString("%1/%2").arg(UPDATES,"CheckUpdateFrequency"),checkUpdateFrequency);
     } else {
         checkUpdateFrequency = Settings.value(QString("%1/%2").arg(UPDATES,"CheckUpdateFrequency")).toInt();
@@ -1356,7 +1359,7 @@ void Preferences::rendererPreferences(bool updateExisting)
 
     //Renderer Timeout
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererTimeout"))) {
-        rendererTimeout = 6;
+        rendererTimeout = RENDERER_TIMEOUT_DEFAULT;
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"RendererTimeout"),rendererTimeout);
     } else {
         rendererTimeout = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererTimeout")).toInt();
@@ -1922,6 +1925,14 @@ void Preferences::publishingPreferences()
 {
     QSettings Settings;
 
+    //Page Display Pause
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"PageDisplayPause"))) {
+        pageDisplayPause = PAGE_DISPLAY_PAUSE_DEFAULT;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"PageDisplayPause"),pageDisplayPause);
+    } else {
+        pageDisplayPause = Settings.value(QString("%1/%2").arg(SETTINGS,"PageDisplayPause")).toInt();
+    }
+
     if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"DisplayAllAttributes"))) {
         QVariant pValue(false);
         displayAllAttributes = false;
@@ -2115,6 +2126,11 @@ bool Preferences::getPreferences()
         if (rendererTimeout != dialog->rendererTimeout()) {
             rendererTimeout = dialog->rendererTimeout();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"RendererTimeout"),rendererTimeout);
+        }
+
+        if (pageDisplayPause != dialog->pageDisplayPause()) {
+            pageDisplayPause = dialog->pageDisplayPause();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"PageDisplayPause"),pageDisplayPause);
         }
 
         if (documentLogoFile != dialog->documentLogoFile()) {
