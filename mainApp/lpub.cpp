@@ -265,7 +265,7 @@ void Gui::previousPage()
 void Gui::nextPage()
 {
   QString string = setPageLineEdit->displayText();
-  QRegExp rx("^(\\d+)\\s+.*$");
+  QRegExp rx("^(\\d+).*$");
   if (string.contains(rx)) {
       bool ok;
       int inputPageNum;
@@ -358,7 +358,7 @@ void Gui::nextPageContinuous()
 void Gui::previousPage()
 {
   QString string = setPageLineEdit->displayText();
-  QRegExp rx("^(\\d+)\\s+.*$");
+  QRegExp rx("^(\\d+).*$");
   if (string.contains(rx)) {
       bool ok;
       int inputPageNum;
@@ -464,7 +464,7 @@ void Gui::lastPage()
 void Gui::setPage()
 {
   QString string = setPageLineEdit->displayText();
-  QRegExp rx("^(\\d+)\\s+.*$");
+  QRegExp rx("^(\\d+).*$");
   if (string.contains(rx)) {
     bool ok;
     int inputPage;
