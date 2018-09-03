@@ -482,8 +482,10 @@ private:
   FadeStepMeta  *meta;
 
   QLabel      *colorLabel;
-  QComboBox   *colorCombo;
   QLabel      *colorExample;
+  QLabel      *readOnlyLabel;
+  QComboBox   *colorCombo;
+
 
 public slots:
   void colorChange(QString const &colorName);
@@ -515,8 +517,9 @@ private:
   HighlightStepMeta  *meta;
 
   QLabel      *colorLabel;
-  QPushButton *colorButton;
   QLabel      *colorExample;
+  QLabel      *readOnlyLabel;
+  QPushButton *colorButton;
 
 public slots:
   void colorChange(bool clicked);
@@ -624,7 +627,7 @@ private:
   QString color;
   QString gradient;
 
-  QLabel       *colorLabel;
+  QLabel       *colorExample;
   QPushButton  *colorButton;
   QPushButton  *gradientButton;
   QLineEdit    *pictureEdit;
@@ -673,7 +676,7 @@ private:
   QLineEdit   *marginEditX;
   QLineEdit   *marginEditY;
   QLabel      *thicknessLabel;
-  QLabel      *colorLabel;
+  QLabel      *colorExample;
   QPushButton *colorButton;
   QSpinBox    *spin;
   QLabel      *spinLabel;

@@ -29,14 +29,12 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
   if (gui->exportType != PAGE_PROCESS) {
       ui->doNotShowPageProcessDlgChk->hide();
       this->resize(350,318);
-      ui->line->setGeometry(10,260,331,20);
       ui->buttonBoxExportPages->setGeometry(10,277,331,32);
     }
 
   if (! preview && gui->exportType != EXPORT_PDF) {
       ui->groupBoxMixedPageSizes->hide();
       this->resize(350,260);
-      ui->line->setGeometry(10,203,331,20);
       ui->buttonBoxExportPages->setGeometry(10,220,331,32);
     } else {
       ui->checkBoxIgnoreMixedPageSizes->setChecked(Preferences::ignoreMixedPageSizesMsg);
@@ -90,7 +88,6 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
       ui->groupBoxPrintOptions->setGeometry(10,17,331,111);
       ui->groupBoxExportCache->setGeometry(10,136,331,51);
       ui->doNotShowPageProcessDlgChk->setGeometry(30,195,251,20);
-      ui->line->setGeometry(10,214,331,20);
       ui->buttonBoxExportPages->setGeometry(10,230,331,32);
       this->resize(350,273);
       break;

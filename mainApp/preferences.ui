@@ -37,7 +37,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>5</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -110,9 +110,9 @@
       <widget class="QGroupBox" name="pliBox">
        <property name="geometry">
         <rect>
-         <x>19</x>
-         <y>420</y>
-         <width>460</width>
+         <x>12</x>
+         <y>412</y>
+         <width>470</width>
          <height>70</height>
         </rect>
        </property>
@@ -177,7 +177,7 @@
          <x>12</x>
          <y>184</y>
          <width>250</width>
-         <height>230</height>
+         <height>220</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -199,7 +199,7 @@
         <property name="geometry">
          <rect>
           <x>12</x>
-          <y>37</y>
+          <y>32</y>
           <width>228</width>
           <height>100</height>
          </rect>
@@ -231,7 +231,7 @@
           <rect>
            <x>11</x>
            <y>37</y>
-           <width>51</width>
+           <width>50</width>
            <height>50</height>
           </rect>
          </property>
@@ -253,7 +253,7 @@
         <property name="geometry">
          <rect>
           <x>12</x>
-          <y>147</y>
+          <y>138</y>
           <width>228</width>
           <height>70</height>
          </rect>
@@ -300,9 +300,9 @@
       <widget class="QGroupBox" name="groupBox">
        <property name="geometry">
         <rect>
-         <x>19</x>
-         <y>496</y>
-         <width>460</width>
+         <x>12</x>
+         <y>487</y>
+         <width>470</width>
          <height>60</height>
         </rect>
        </property>
@@ -386,7 +386,7 @@
          <x>271</x>
          <y>184</y>
          <width>210</width>
-         <height>150</height>
+         <height>140</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -405,7 +405,7 @@
         <property name="geometry">
          <rect>
           <x>9</x>
-          <y>105</y>
+          <y>96</y>
           <width>190</width>
           <height>30</height>
          </rect>
@@ -459,8 +459,8 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>44</y>
-          <width>51</width>
+          <y>35</y>
+          <width>50</width>
           <height>50</height>
          </rect>
         </property>
@@ -481,7 +481,7 @@
         <property name="geometry">
          <rect>
           <x>70</x>
-          <y>55</y>
+          <y>46</y>
           <width>130</width>
           <height>30</height>
          </rect>
@@ -495,7 +495,7 @@
        <property name="geometry">
         <rect>
          <x>272</x>
-         <y>341</y>
+         <y>334</y>
          <width>210</width>
          <height>70</height>
         </rect>
@@ -550,9 +550,9 @@
       <widget class="QGroupBox" name="POVRayBox">
        <property name="geometry">
         <rect>
-         <x>16</x>
-         <y>262</y>
-         <width>460</width>
+         <x>13</x>
+         <y>261</y>
+         <width>470</width>
          <height>270</height>
         </rect>
        </property>
@@ -581,9 +581,9 @@
        <widget class="QGroupBox" name="lgeoBox">
         <property name="geometry">
          <rect>
-          <x>16</x>
-          <y>164</y>
-          <width>430</width>
+          <x>15</x>
+          <y>157</y>
+          <width>440</width>
           <height>100</height>
          </rect>
         </property>
@@ -602,9 +602,9 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>15</x>
+           <x>10</x>
            <y>33</y>
-           <width>400</width>
+           <width>420</width>
            <height>55</height>
           </rect>
          </property>
@@ -666,9 +666,9 @@
        <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
-          <x>17</x>
-          <y>30</y>
-          <width>430</width>
+          <x>15</x>
+          <y>26</y>
+          <width>440</width>
           <height>50</height>
          </rect>
         </property>
@@ -711,10 +711,10 @@
        <widget class="QGroupBox" name="povNativeGenBox">
         <property name="geometry">
          <rect>
-          <x>18</x>
-          <y>96</y>
+          <x>16</x>
+          <y>83</y>
           <width>171</width>
-          <height>61</height>
+          <height>70</height>
          </rect>
         </property>
         <property name="toolTip">
@@ -743,9 +743,9 @@
        <widget class="QGroupBox" name="ldvPOVSettingsBox">
         <property name="geometry">
          <rect>
-          <x>195</x>
-          <y>89</y>
-          <width>251</width>
+          <x>194</x>
+          <y>83</y>
+          <width>260</width>
           <height>70</height>
          </rect>
         </property>
@@ -789,9 +789,9 @@
       <widget class="QGroupBox" name="ldgliteBox">
        <property name="geometry">
         <rect>
-         <x>22</x>
-         <y>190</y>
-         <width>452</width>
+         <x>13</x>
+         <y>187</y>
+         <width>470</width>
          <height>70</height>
         </rect>
        </property>
@@ -820,10 +820,10 @@
        <widget class="QLineEdit" name="ldglitePath">
         <property name="geometry">
          <rect>
-          <x>18</x>
-          <y>37</y>
-          <width>420</width>
-          <height>20</height>
+          <x>16</x>
+          <y>31</y>
+          <width>440</width>
+          <height>25</height>
          </rect>
         </property>
        </widget>
@@ -831,9 +831,9 @@
       <widget class="QGroupBox" name="ldviewBox">
        <property name="geometry">
         <rect>
-         <x>22</x>
-         <y>55</y>
-         <width>450</width>
+         <x>13</x>
+         <y>53</y>
+         <width>470</width>
          <height>130</height>
         </rect>
        </property>
@@ -862,9 +862,9 @@
        <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
-          <x>15</x>
-          <y>25</y>
-          <width>420</width>
+          <x>10</x>
+          <y>28</y>
+          <width>450</width>
           <height>90</height>
          </rect>
         </property>
@@ -892,7 +892,7 @@
              <widget class="QWidget" name="layoutWidget">
               <property name="geometry">
                <rect>
-                <x>22</x>
+                <x>28</x>
                 <y>24</y>
                 <width>160</width>
                 <height>30</height>
@@ -963,13 +963,13 @@
       <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
-         <x>33</x>
-         <y>16</y>
-         <width>430</width>
+         <x>17</x>
+         <y>14</y>
+         <width>460</width>
          <height>30</height>
         </rect>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_15">
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
         <item>
          <widget class="QLabel" name="label_4">
           <property name="sizePolicy">
@@ -1003,6 +1003,19 @@
          </widget>
         </item>
         <item>
+         <spacer name="horizontalSpacer_7">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
          <widget class="QLabel" name="label_9">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -1020,19 +1033,6 @@
            <string>Process timeout:</string>
           </property>
          </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_7">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
         <item>
          <widget class="QSpinBox" name="rendererTimeout">
@@ -1057,9 +1057,9 @@
       <widget class="QGroupBox" name="publishLogoBox">
        <property name="geometry">
         <rect>
-         <x>30</x>
+         <x>14</x>
          <y>312</y>
-         <width>440</width>
+         <width>470</width>
          <height>80</height>
         </rect>
        </property>
@@ -1078,9 +1078,9 @@
        <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
-          <x>23</x>
+          <x>15</x>
           <y>37</y>
-          <width>400</width>
+          <width>440</width>
           <height>30</height>
          </rect>
         </property>
@@ -1121,9 +1121,9 @@
       <widget class="QGroupBox" name="publishDescriptionBox">
        <property name="geometry">
         <rect>
-         <x>31</x>
+         <x>14</x>
          <y>398</y>
-         <width>440</width>
+         <width>470</width>
          <height>140</height>
         </rect>
        </property>
@@ -1133,9 +1133,9 @@
        <widget class="QTextEdit" name="publishDescriptionEdit">
         <property name="geometry">
          <rect>
-          <x>19</x>
+          <x>15</x>
           <y>34</y>
-          <width>400</width>
+          <width>440</width>
           <height>90</height>
          </rect>
         </property>
@@ -1147,9 +1147,9 @@
       <widget class="QGroupBox" name="pageProcessingContinuousBox">
        <property name="geometry">
         <rect>
-         <x>29</x>
+         <x>13</x>
          <y>17</y>
-         <width>440</width>
+         <width>470</width>
          <height>80</height>
         </rect>
        </property>
@@ -1161,7 +1161,7 @@
          <rect>
           <x>20</x>
           <y>36</y>
-          <width>400</width>
+          <width>430</width>
           <height>30</height>
          </rect>
         </property>
@@ -1249,9 +1249,9 @@
       <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
-         <x>30</x>
+         <x>13</x>
          <y>184</y>
-         <width>440</width>
+         <width>470</width>
          <height>120</height>
         </rect>
        </property>
@@ -1297,9 +1297,9 @@
       <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
-         <x>30</x>
+         <x>13</x>
          <y>108</y>
-         <width>441</width>
+         <width>470</width>
          <height>60</height>
         </rect>
        </property>
@@ -1360,15 +1360,15 @@
      </widget>
      <widget class="QWidget" name="tabLogging">
       <attribute name="title">
-       <string>Logging</string>
+       <string>Theme/Logging</string>
       </attribute>
       <widget class="QGroupBox" name="loggingGrpBox">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>10</y>
-         <width>471</width>
-         <height>461</height>
+         <y>126</y>
+         <width>470</width>
+         <height>430</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -1386,10 +1386,10 @@
        <widget class="QGroupBox" name="includesGrpBox">
         <property name="geometry">
          <rect>
-          <x>20</x>
-          <y>63</y>
-          <width>431</width>
-          <height>121</height>
+          <x>19</x>
+          <y>73</y>
+          <width>430</width>
+          <height>110</height>
          </rect>
         </property>
         <property name="toolTip">
@@ -1401,8 +1401,8 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>27</x>
-           <y>38</y>
+           <x>26</x>
+           <y>27</y>
            <width>380</width>
            <height>70</height>
           </rect>
@@ -1481,9 +1481,9 @@
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>276</y>
-          <width>431</width>
-          <height>170</height>
+          <y>266</y>
+          <width>430</width>
+          <height>150</height>
          </rect>
         </property>
         <property name="toolTip">
@@ -1501,10 +1501,10 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>31</x>
-           <y>39</y>
-           <width>370</width>
-           <height>110</height>
+           <x>24</x>
+           <y>34</y>
+           <width>380</width>
+           <height>100</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
@@ -1604,9 +1604,9 @@
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>191</y>
-          <width>431</width>
-          <height>80</height>
+          <y>190</y>
+          <width>430</width>
+          <height>70</height>
          </rect>
         </property>
         <property name="toolTip">
@@ -1627,9 +1627,9 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>31</x>
-           <y>39</y>
-           <width>370</width>
+           <x>26</x>
+           <y>30</y>
+           <width>380</width>
            <height>30</height>
           </rect>
          </property>
@@ -1682,8 +1682,8 @@
        <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
-          <x>22</x>
-          <y>30</y>
+          <x>20</x>
+          <y>38</y>
           <width>431</width>
           <height>30</height>
          </rect>
@@ -1705,36 +1705,31 @@
             <string>Log file path</string>
            </property>
            <property name="readOnly">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
         </layout>
        </widget>
       </widget>
-     </widget>
-     <widget class="QWidget" name="tab">
-      <attribute name="title">
-       <string>Theme</string>
-      </attribute>
       <widget class="QGroupBox" name="themesBox">
        <property name="geometry">
         <rect>
-         <x>20</x>
-         <y>21</y>
-         <width>461</width>
+         <x>10</x>
+         <y>17</y>
+         <width>470</width>
          <height>80</height>
         </rect>
        </property>
        <property name="title">
-        <string>LPub3D Themes</string>
+        <string>Themes</string>
        </property>
-       <widget class="QWidget" name="layoutWidget">
+       <widget class="QWidget" name="layoutWidget_2">
         <property name="geometry">
          <rect>
-          <x>20</x>
+          <x>34</x>
           <y>36</y>
-          <width>420</width>
+          <width>400</width>
           <height>30</height>
          </rect>
         </property>
@@ -1757,7 +1752,7 @@
            <item>
             <widget class="QLabel" name="themeLbl">
              <property name="text">
-              <string>Themes</string>
+              <string>Theme</string>
              </property>
             </widget>
            </item>
@@ -1782,6 +1777,19 @@
         </layout>
        </widget>
       </widget>
+      <widget class="Line" name="line_2">
+       <property name="geometry">
+        <rect>
+         <x>11</x>
+         <y>115</y>
+         <width>470</width>
+         <height>3</height>
+        </rect>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="tabOther">
       <attribute name="title">
@@ -1792,7 +1800,7 @@
         <rect>
          <x>10</x>
          <y>13</y>
-         <width>461</width>
+         <width>470</width>
          <height>300</height>
         </rect>
        </property>
@@ -1811,9 +1819,9 @@
        <widget class="QGroupBox" name="groupBoxChangeLog">
         <property name="geometry">
          <rect>
-          <x>22</x>
-          <y>148</y>
-          <width>420</width>
+          <x>10</x>
+          <y>149</y>
+          <width>450</width>
           <height>140</height>
          </rect>
         </property>
@@ -1829,9 +1837,9 @@
         <widget class="QTextBrowser" name="changeLog_txbr">
          <property name="geometry">
           <rect>
-           <x>14</x>
+           <x>11</x>
            <y>29</y>
-           <width>390</width>
+           <width>430</width>
            <height>100</height>
           </rect>
          </property>
@@ -1850,9 +1858,9 @@ p, li { white-space: pre-wrap; }
        <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
-          <x>28</x>
+          <x>21</x>
           <y>110</y>
-          <width>410</width>
+          <width>430</width>
           <height>30</height>
          </rect>
         </property>
@@ -1898,9 +1906,9 @@ p, li { white-space: pre-wrap; }
        <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
-          <x>28</x>
+          <x>21</x>
           <y>71</y>
-          <width>410</width>
+          <width>430</width>
           <height>30</height>
          </rect>
         </property>
@@ -1946,9 +1954,9 @@ p, li { white-space: pre-wrap; }
        <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
-          <x>29</x>
+          <x>21</x>
           <y>32</y>
-          <width>410</width>
+          <width>430</width>
           <height>30</height>
          </rect>
         </property>
@@ -2031,7 +2039,7 @@ p, li { white-space: pre-wrap; }
         <rect>
          <x>10</x>
          <y>322</y>
-         <width>460</width>
+         <width>470</width>
          <height>16</height>
         </rect>
        </property>
@@ -2044,8 +2052,8 @@ p, li { white-space: pre-wrap; }
         <rect>
          <x>10</x>
          <y>342</y>
-         <width>461</width>
-         <height>190</height>
+         <width>470</width>
+         <height>200</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -2063,10 +2071,10 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="geometry">
          <rect>
-          <x>13</x>
-          <y>74</y>
-          <width>390</width>
-          <height>100</height>
+          <x>15</x>
+          <y>60</y>
+          <width>400</width>
+          <height>130</height>
          </rect>
         </property>
         <property name="acceptDrops">
@@ -2082,8 +2090,8 @@ p, li { white-space: pre-wrap; }
        <widget class="QPushButton" name="pushButtonReset">
         <property name="geometry">
          <rect>
-          <x>412</x>
-          <y>74</y>
+          <x>423</x>
+          <y>60</y>
           <width>30</width>
           <height>30</height>
          </rect>
@@ -2108,10 +2116,10 @@ p, li { white-space: pre-wrap; }
        <widget class="QLineEdit" name="lineEditIniFile">
         <property name="geometry">
          <rect>
-          <x>13</x>
-          <y>39</y>
-          <width>430</width>
-          <height>22</height>
+          <x>15</x>
+          <y>25</y>
+          <width>440</width>
+          <height>25</height>
          </rect>
         </property>
         <property name="toolTip">

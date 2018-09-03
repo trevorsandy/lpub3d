@@ -89,7 +89,7 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   data->children.append(child);
   boxGrid->addWidget(child,0,0);
 
-  box = new QGroupBox("Fade Settings (read only");
+  box = new QGroupBox("Fade Settings (read only)");
   grid->addWidget(box,1,0);
 
   boxGrid = new QGridLayout();

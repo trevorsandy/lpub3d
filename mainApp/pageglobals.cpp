@@ -203,15 +203,15 @@ GlobalPageDialog::GlobalPageDialog(
 
   // child header (one) start
   widget = new QWidget();
-  layout = new QVBoxLayout();
-  widget->setLayout(layout);
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
   // child header end
   /*
     SubModel Color,
   */
   //child body (many) start
   box = new QGroupBox(tr("Sub-Model Level Colors"));
-  layout->addWidget(box);
+  childlayout->addWidget(box);
   child = new SubModelColorGui(&pageMeta->subModelColor,box);
   data->children.append(child);
   //child body end
@@ -221,13 +221,13 @@ GlobalPageDialog::GlobalPageDialog(
   */
   //child body (many) start
   box = new QGroupBox(tr("Native Renderer Camera Distance"));
-  layout->addWidget(box);
+  childlayout->addWidget(box);
   child = new CameraDistFactorGui("Factor",&pageMeta->cameraDistNative,box);
   data->children.append(child);
   //child body end
 
   //spacer
-  layout->addSpacerItem(vSpacer);
+  childlayout->addSpacerItem(vSpacer);
 
   // child footer (one) end
   childtab->addTab(widget,"SubModel/Factor");
@@ -282,7 +282,7 @@ GlobalPageDialog::GlobalPageDialog(
 
   //~~~~~~~~~~~~ publisher tab ~~~~~~~~~~~~//
   childwidget = new QWidget();
-  childlayout = new QVBoxLayout;
+  childlayout = new QVBoxLayout();
   childwidget->setLayout(childlayout);
 
   childtab = new QTabWidget();

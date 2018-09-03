@@ -921,7 +921,13 @@ int Gui::drawPage(
             case CalloutEndRc:
               if ( ! callout) {
                   parseError("CALLOUT END without a CALLOUT BEGIN",current);
-                } else {
+                }
+              else
+              if (! step) {
+                  parseError("CALLOUT does not contain a valid STEP",current);
+               }
+              else
+                {
                   callout->parentStep = step;
                   if (multiStep) {
                       callout->parentRelativeType = StepGroupType;

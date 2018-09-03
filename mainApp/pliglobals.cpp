@@ -67,26 +67,31 @@ GlobalPliDialog::GlobalPliDialog(
 
   QTabWidget  *tab = new QTabWidget(NULL);
   QVBoxLayout *layout = new QVBoxLayout(NULL);
-  QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  QVBoxLayout *childlayout = new QVBoxLayout(NULL);
   setLayout(layout);
   layout->addWidget(tab);
 
   QWidget *widget;
   QGridLayout *grid;
 
-  widget = new QWidget(NULL);
-  grid = new QGridLayout(NULL);
-  widget->setLayout(grid);
-
   MetaGui *child;
   QGroupBox *box;
 
   PliMeta *pliMeta = bom ? &data->meta.LPub.bom : &data->meta.LPub.pli;
 
+  /*
+   * Background/Border tab
+   */
+
+  widget = new QWidget(NULL);
+  grid = new QGridLayout(NULL);
+  widget->setLayout(grid);
+
   if ( ! bom) {
-    child = new CheckBoxGui("Show Parts List",&pliMeta->show);
+    box = new QGroupBox("Parts List");
+    grid->addWidget(box);
+    child = new CheckBoxGui("Show Parts List",&pliMeta->show, box);
     data->children.append(child);
-    grid->addWidget(child);
   }
 
   box = new QGroupBox("Background");
@@ -111,41 +116,36 @@ GlobalPliDialog::GlobalPliDialog(
 
   tab->addTab(widget,"Background/Border");
 
+  /*
+   * Contents tab
+   */
+
   widget = new QWidget(NULL);
   grid = new QGridLayout(NULL);
   widget->setLayout(grid);
 
-  /*
-   * Part
-   */
-
   box = new QGroupBox("Part Images");
   grid->addWidget(box);
-  QVBoxLayout *partsLayout = new QVBoxLayout(NULL);
-  box->setLayout(partsLayout);
+  box->setLayout(childlayout);
 
-  child = new DoubleSpinGui(
-    "Scale",&pliMeta->modelScale,
+  child = new DoubleSpinGui("Scale",
+    &pliMeta->modelScale,
     pliMeta->modelScale._min,
     pliMeta->modelScale._max,
     0.01);
   data->children.append(child);
-  partsLayout->addWidget(child);
   data->scale = child;
+  childlayout->addWidget(child);
 
   child = new UnitsGui("Margins",&pliMeta->part.margin);
   data->children.append(child);
-  partsLayout->addWidget(child);
+  childlayout->addWidget(child);
 
   box = new QGroupBox("Part Orientation");
   grid->addWidget(box);
-  partsLayout = new QVBoxLayout(NULL);
-  box->setLayout(partsLayout);
-
-  child = new FloatsGui("Lattitude","Longitude",&pliMeta->angle);
-  data->children.append(child);
-  partsLayout->addWidget(child);
+  child = new FloatsGui("Lattitude","Longitude",&pliMeta->angle,box);
   data->viewAngle = child;
+  data->children.append(child);
 
   if ( ! bom) {
     box = new QGroupBox("Submodels");
@@ -169,40 +169,42 @@ GlobalPliDialog::GlobalPliDialog(
   /*
    * PLI Sort
    */
+
   widget = new QWidget(NULL);
-  //grid = new QGridLayout(NULL);
-  layout = new QVBoxLayout(NULL);
-  //widget->setLayout(grid);
-  widget->setLayout(layout);
+  QVBoxLayout *vlayout = new QVBoxLayout(NULL);
+  widget->setLayout(vlayout);
 
   box = new QGroupBox("Annotation Options");
-  //grid->addWidget(box);
-  layout->addWidget(box);
+  vlayout->addWidget(box);
   child = new PliAnnotationGui("",&pliMeta->annotation,box);
   data->children.append(child);
 
   box = new QGroupBox("Sort Options");
-  //grid->addWidget(box);
-  layout->addWidget(box);
+  vlayout->addWidget(box);
   child = new PliSortGui("",&pliMeta->sortBy,box);
   data->children.append(child);
 
   //spacer
-  layout->addSpacerItem(vSpacer);
+  QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
 
   tab->addTab(widget,"Annotations/Sorting");
 
+  /*
+   * Sub-Model colors
+   */
+
   widget = new QWidget();
-  layout = new QVBoxLayout();
-  widget->setLayout(layout);
+  vlayout = new QVBoxLayout(NULL);
+  widget->setLayout(vlayout);
 
   box = new QGroupBox(tr("Sub-Model Level Colors"));
-  layout->addWidget(box, 0, 0);
+  vlayout->addWidget(box);
   child = new SubModelColorGui(&pliMeta->subModelColor,box);
   data->children.append(child);
 
   //spacer
-  layout->addSpacerItem(vSpacer);
+  vlayout->addSpacerItem(vSpacer);
 
   tab->addTab(widget,"SubModel Colors");
 

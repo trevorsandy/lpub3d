@@ -127,20 +127,19 @@ class PreferencesDialog : public QDialog
     void on_highlightStepBox_clicked(bool checked);
     void on_fadeStepBox_clicked(bool checked);
     void on_fadeStepsUseColourBox_clicked(bool checked);
-
     void on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName);
 
-    void pushButtonReset_SetState();
-    void updateChangelog (QString url);
-    void checkForUpdates();
-
+    void on_ldvPreferencesBtn_clicked();
     void on_ldvPoVFileGenOptBtn_clicked();
     void on_ldvPoVFileGenPrefBtn_clicked();
     void on_preferredRenderer_currentIndexChanged(const QString &arg1);
     void on_povGenNativeRadio_clicked(bool checked);
     void on_povGenLDViewRadio_clicked(bool checked);
+    void on_loggingGrpBox_clicked(bool checked);
 
-    void on_ldvPreferencesBtn_clicked();
+    void pushButtonReset_SetState();
+    void updateChangelog (QString url);
+    void checkForUpdates();
 
 private:
     Ui::PreferencesDialog ui;

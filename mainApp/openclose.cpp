@@ -428,6 +428,7 @@ void Gui::setCurrentFile(const QString &fileName)
   updateRecentFileActions();
 }
 
+#include "messageboxresizable.h"
 void Gui::fileChanged(const QString &path)
 {
   if (! changeAccepted)
@@ -440,14 +441,14 @@ void Gui::fileChanged(const QString &path)
   if (_icon.isNull())
       _icon = QPixmap (":/icons/update.png");
 
-  QMessageBox box;
+  QMessageBoxResizable box;
   box.setWindowIcon(QIcon());
   box.setIconPixmap (_icon);
   box.setTextFormat (Qt::RichText);
   box.setWindowTitle(tr ("%1 File Change").arg(VER_PRODUCTNAME_STR));
   box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
   QString title = "<b>" + tr ("External change detected") + "</b>";
-  QString text = tr("\"%1\" contents were changed by an external source.  Reload?").arg(path);
+  QString text = tr("\"%1\" contents were changed by an external source. Reload?").arg(path);
   box.setText (title);
   box.setInformativeText (text);
   box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);

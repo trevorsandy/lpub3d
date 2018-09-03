@@ -48,13 +48,13 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     ldrawPath = ".";
   }
 
-  QPalette readOnlyPalette;
-  readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
-
   // hide 3rd party applicaton browse buttons
   ui.browseLDGLite->hide();
   ui.browseLDView->hide();
   ui.browsePOVRAY->hide();
+
+  QPalette readOnlyPalette;
+  readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
 
   // set 3rd party application dialogs to read-only
   ui.ldglitePath->setReadOnly(true);
@@ -63,6 +63,10 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.ldviewPath->setPalette(readOnlyPalette);
   ui.povrayPath->setReadOnly(true);
   ui.povrayPath->setPalette(readOnlyPalette);
+
+  // set log path to read only
+  ui.logPathEdit->setReadOnly(true);
+  ui.logPathEdit->setPalette(readOnlyPalette);
 
   ui.ldrawPath->setText(                         ldrawPath);
   ui.pliName->setText(                           Preferences::pliFile);
@@ -98,6 +102,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.povrayDisplay_Chk->setChecked(              Preferences::povrayDisplay);
 
   ui.loggingGrpBox->setChecked(                  Preferences::logging);
+  ui.logPathEdit->setEnabled(                    Preferences::logging);
   ui.logPathEdit->setText(                       Preferences::logPath);
 
   ui.includeLogLevelBox->setChecked(             Preferences::includeLogLevel);
@@ -625,6 +630,11 @@ void PreferencesDialog::on_ldvPoVFileGenPrefBtn_clicked()
      else if (ui.povGenLDViewRadio->isChecked())
          ldvWidget->setIniFlag(LDViewPOVIni);
      ldvWidget->showLDVPreferences();
+}
+
+void PreferencesDialog::on_loggingGrpBox_clicked(bool checked)
+{
+      ui.logPathEdit->setEnabled(checked);
 }
 
 void PreferencesDialog::pushButtonReset_SetState()

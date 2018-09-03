@@ -54,7 +54,7 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
 
   QTabWidget  *tab = new QTabWidget();
   QVBoxLayout *layout = new QVBoxLayout();
-  QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  QVBoxLayout *childlayout = new QVBoxLayout();
   setLayout(layout);
   layout->addWidget(tab);
 
@@ -103,15 +103,15 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
   
   box = new QGroupBox("Parts List");
   grid->addWidget(box);
-  QVBoxLayout *tempLayout = new QVBoxLayout();
-  box->setLayout(tempLayout);
+  childlayout = new QVBoxLayout();
+  box->setLayout(childlayout);
   child = new UnitsGui("Margins",&calloutMeta->pli.margin);
   data->children.append(child);
-  tempLayout->addWidget(child);
+  childlayout->addWidget(child);
 
   child = new CheckBoxGui("Per Step",&calloutMeta->pli.perStep);
   data->children.append(child);
-  tempLayout->addWidget(child);
+  childlayout->addWidget(child);
 
   box = new QGroupBox("Step Number");
   grid->addWidget(box);
@@ -125,17 +125,22 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
 
   tab->addTab(widget,"Contents");
 
+  /*
+   * Sub-Model colors
+   */
+
   widget = new QWidget();
-  layout = new QVBoxLayout();
-  widget->setLayout(layout);
+  QVBoxLayout *vlayout = new QVBoxLayout(NULL);
+  widget->setLayout(vlayout);
 
   box = new QGroupBox(tr("Sub-Model Level Colors"));
-  layout->addWidget(box);
+  vlayout->addWidget(box);
   child = new SubModelColorGui(&calloutMeta->subModelColor,box);
   data->children.append(child);
 
   //spacer
-  layout->addSpacerItem(vSpacer);
+  QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
 
   tab->addTab(widget,"SubModel Colors");
 

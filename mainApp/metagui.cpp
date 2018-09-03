@@ -1431,19 +1431,26 @@ FadeStepGui::FadeStepGui(
     grid = new QGridLayout(parent);
 
     colorLabel = new QLabel(heading,parent);
+    colorLabel->setEnabled(false);
 
     grid->addWidget(colorLabel,0,0);
 
+    readOnlyLabel = new QLabel("       Set from Preferences dialog");
+    readOnlyLabel->setEnabled(false);
+
+    grid->addWidget(readOnlyLabel,0,1);
+
     colorExample = new QLabel(parent);
+    colorExample->setFixedSize(50,50);
     colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-    QColor c = QColor(meta->fadeColor.value());
+    QColor c = QColor(LDrawColor::color(meta->fadeColor.value()));
     QString styleSheet =
         QString("QLabel { background-color: rgb(%1, %2, %3); }").
         arg(c.red()).arg(c.green()).arg(c.blue());
     colorExample->setAutoFillBackground(true);
     colorExample->setStyleSheet(styleSheet);
 
-    grid->addWidget(colorExample);
+    grid->addWidget(colorExample,1,0);
 
     colorCombo = new QComboBox(parent);
     colorCombo->addItems(LDrawColor::names());
@@ -1453,7 +1460,7 @@ FadeStepGui::FadeStepGui(
     connect(colorCombo,SIGNAL(currentIndexChanged(QString const &)),
                    this, SLOT(colorChange(        QString const &)));
 
-    grid->addWidget(colorCombo);
+    grid->addWidget(colorCombo,1,1);
 
     if (parent) {
         parent->setLayout(grid);
@@ -1508,10 +1515,17 @@ HighlightStepGui::HighlightStepGui(
     grid = new QGridLayout(parent);
 
     colorLabel = new QLabel(heading,parent);
+    colorLabel->setEnabled(false);
 
     grid->addWidget(colorLabel,0,0);
 
+    readOnlyLabel = new QLabel("       Set from Preferences dialog");
+    readOnlyLabel->setEnabled(false);
+
+    grid->addWidget(readOnlyLabel,0,1);
+
     colorExample = new QLabel(parent);
+    colorExample->setFixedSize(50,50);
     colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
     colorExample->setAutoFillBackground(true);
     QColor c = QColor(meta->highlightColor.value());
@@ -1520,7 +1534,7 @@ HighlightStepGui::HighlightStepGui(
         arg(c.red()).arg(c.green()).arg(c.blue());
     colorExample->setStyleSheet(styleSheet);
 
-    grid->addWidget(colorExample);
+    grid->addWidget(colorExample,1,0);
 
     colorButton = new QPushButton(parent);
     colorButton->setText("Highlight Colour...");
@@ -1530,7 +1544,7 @@ HighlightStepGui::HighlightStepGui(
     connect(colorButton,SIGNAL(clicked(bool)),
                    this, SLOT(colorChange(bool)));
 
-    grid->addWidget(colorButton);
+    grid->addWidget(colorButton,1,1);
 
     if (parent) {
         parent->setLayout(grid);
@@ -1693,14 +1707,16 @@ BackgroundGui::BackgroundGui(
 
   /* Color label */
 
-  colorLabel = new QLabel(parent);
-  colorLabel->setFixedWidth(90);
-  colorLabel->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-  colorLabel->setPalette(QPalette(color));
-  colorLabel->setAutoFillBackground(true);
-  colorLabel->setPalette(QPalette(color));
-  colorLabel->setAutoFillBackground(true);
-  grid->addWidget(colorLabel,0,2);
+  colorExample = new QLabel(parent);
+  colorExample->setFixedWidth(90);
+  colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+  QColor c = QColor(color);
+  QString styleSheet =
+      QString("QLabel { background-color: rgb(%1, %2, %3); }").
+      arg(c.red()).arg(c.green()).arg(c.blue());
+  colorExample->setAutoFillBackground(true);
+  colorExample->setStyleSheet(styleSheet);
+  grid->addWidget(colorExample,0,2);
 
   /* Image */
 
@@ -1759,14 +1775,14 @@ void BackgroundGui::enable()
       fill->setEnabled(false);
     break;
     case BackgroundData::BgColor:
+      {
       colorButton->show();
       colorButton->setEnabled(true);
       gradientButton->hide();
-      colorLabel->setPalette(QPalette(color));
-      // colorLabel->setAutoFillBackground(true);
       pictureButton->setEnabled(false);
       pictureEdit->setEnabled(false);
       fill->setEnabled(false);
+      }
     break;
     default:
       colorButton->show();
@@ -1957,8 +1973,11 @@ void BackgroundGui::browseColor(bool)
   if (newColor.isValid() && qcolor != newColor) {
     color = newColor.name();
     background.string = newColor.name();
-    colorLabel->setPalette(QPalette(newColor));
-    colorLabel->setAutoFillBackground(true);
+    QString styleSheet =
+        QString("QLabel { background-color: rgb(%1, %2, %3); }").
+        arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
+    colorExample->setAutoFillBackground(true);
+    colorExample->setStyleSheet(styleSheet);
     meta->setValue(background);
     modified = true;
   }
@@ -2071,11 +2090,15 @@ BorderGui::BorderGui(BorderMeta *_meta,
   QLabel *label = new QLabel("Color",parent);
   grid->addWidget(label,2,0);
 
-  colorLabel = new QLabel(parent);
-  colorLabel->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-  colorLabel->setPalette(QPalette(border.color));
-  colorLabel->setAutoFillBackground(true);
-  grid->addWidget(colorLabel,2,1);
+  colorExample = new QLabel(parent);
+  colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+  QColor c = QColor(border.color);
+  QString styleSheet =
+      QString("QLabel { background-color: rgb(%1, %2, %3); }").
+      arg(c.red()).arg(c.green()).arg(c.blue());
+  colorExample->setAutoFillBackground(true);
+  colorExample->setStyleSheet(styleSheet);
+  grid->addWidget(colorExample,2,1);
 
   colorButton = new QPushButton("Change",parent);
   connect(colorButton,SIGNAL(clicked(    bool)),
@@ -2232,7 +2255,11 @@ void BorderGui::browseColor(bool)
   if (color != newColor) {
     border.color = newColor.name();
     meta->setValue(border);
-    colorLabel->setPalette(QPalette(newColor));
+    QString styleSheet =
+        QString("QLabel { background-color: rgb(%1, %2, %3); }").
+        arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
+    colorExample->setAutoFillBackground(true);
+    colorExample->setStyleSheet(styleSheet);
     modified = true;
   }
 }

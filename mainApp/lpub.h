@@ -688,12 +688,9 @@ public slots:
 
   void parseError(QString errorMsg,Where &here)
   {
-    showLine(here);
-    if (1) {
-      statusBarMsg(QString("%1 %2:%3") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber));
-    } else {
-      QMessageBox::warning(this,tr("LPub3D"),tr(errorMsg.toLatin1()));
-    }
+    if (Preferences::modeGUI)
+      showLine(here);
+    emit messageSig(LOG_ERROR,QString("%1 (%2:%3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber));
   }
   void statusMessage(LogType logType, QString message);
   void statusBarMsg(QString msg);
