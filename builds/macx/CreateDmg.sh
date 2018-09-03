@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 20, 2017
+# Last Update May 01, 2017
 # To run:
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
@@ -239,7 +239,55 @@ Thank you for installing LPub3D v${LP3D_APP_VERSION} for macOS".
 
 Drag the LPub3D Application icon to the Applications folder.
 
-After installation, remove the mounted LPub3D disk image by dragging it to the Trash
+After installation, remove the mounted LPub3D disk image by dragging it to the Trash.
+
+Required LPub3D libraries on macOS
+========================
+LDView:
+
+- LibPNG version 1.6.34 or above
+  http://www.libpng.org
+
+- GL2PS version 1.3.5 or above
+  http://geuz.org/gl2ps
+
+- LibJPEG version 1.4 or above
+  http://www.ijg.org
+
+- TinyXML version 2.5.2 or above
+  http://www.grinninglizard.com/tinyxml/
+
+- MiniZIP version 1.1.0 or above
+  http://www.winimage.com/zLibDll/minizip.html
+
+POVRay:
+
+- LibTIFF version 3.6.1 or above
+  http://www.libtiff.org
+
+- OpenEXR version 1.2 or above
+  http://www.openexr.com
+
+- SDL version 2.0.2 or above (used for the display preview)
+  http://www.libsdl.org
+
+Install brew (if not already installed)
+======================================
+- $ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+Install libraries
+=================
+- $ brew update
+- $ brew reinstall libpng
+- $ brew install tinyxml gl2ps libjpeg minizip openexr sdl2 libtiff
+
+Check installed lirary - particularly libPNG
+============================================
+- $ otool -L $(brew list libpng | grep dylib$)
+    /usr/local/Cellar/libpng/1.6.34/lib/libpng.dylib:
+        /usr/local/opt/libpng/lib/libpng16.16.dylib (compatibility version 51.0.0, current version 51.0.0)
+        /usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.11)
+        /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1252.0.0)
 
 Cheers,
 EOF

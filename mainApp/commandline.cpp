@@ -203,7 +203,8 @@ int Gui::processCommandLine()
         }
     }
 
-  if (!loadFile(commandlineFile))
+  if (!commandlineFile.isEmpty())
+    if (!loadFile(commandlineFile))
       return 1;
 
   if (processPageRange(pageRange)) {

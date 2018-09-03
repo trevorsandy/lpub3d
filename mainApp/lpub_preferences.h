@@ -158,7 +158,10 @@ class Preferences
     static bool    povrayDisplay;
     static bool    isAppImagePayload;
     static bool    modeGUI;
-
+#ifdef Q_OS_MAC
+    static bool    ldviewMissingLibs;
+    static bool    povrayMissingLibs;
+#endif
     virtual ~Preferences() {}
 };
 

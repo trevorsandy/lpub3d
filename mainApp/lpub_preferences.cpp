@@ -147,9 +147,14 @@ bool    Preferences::povrayDisplay              = false;
 bool    Preferences::isAppImagePayload          = false;
 bool    Preferences::modeGUI                    = true;
 
-bool    Preferences::enableFadeSteps             = false;
-bool    Preferences::fadeStepsUseColour          = false;
+bool    Preferences::enableFadeSteps            = false;
+bool    Preferences::fadeStepsUseColour         = false;
 bool    Preferences::enableHighlightStep        = false;
+
+#ifdef Q_OS_MAC
+bool    Preferences::ldviewMissingLibs          = true;
+bool    Preferences::povrayMissingLibs          = true;
+#endif
 
 int     Preferences::fadeStepsOpacity            = FADE_OPACITY_DEFAULT;              //Default = 100 percent (full opacity)
 int     Preferences::highlightStepLineWidth     = HIGHLIGHT_LINE_WIDTH_DEFAULT;      //Default = 1
@@ -1232,6 +1237,8 @@ void Preferences::lgeoPreferences()
 
 void Preferences::rendererPreferences(bool updateExisting)
 {
+    QSettings Settings;
+
     /* Set 3rdParty application locations */
 
     logInfo() << "Image renderers...";
@@ -1279,10 +1286,93 @@ void Preferences::rendererPreferences(bool updateExisting)
         logError() << QString("LDGLite : %1 not found").arg(ldgliteInfo.absoluteFilePath());
     }
 
+#ifdef Q_OS_MAC
+    QStringList missingLibs;
+    QPixmap _icon = QPixmap(":/icons/lpub96.png");
+    QMessageBoxResizable box;
+    box.setWindowIcon(QIcon());
+    box.setIconPixmap (_icon);
+    box.setTextFormat (Qt::RichText);
+    box.setWindowTitle(QMessageBox::tr ("Missing Libraries"));
+    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    box.setStandardButtons (QMessageBox::Close);
+#endif
+
     if (ldviewInfo.exists()) {
         ldviewInstalled = true;
         ldviewExe = QDir::toNativeSeparators(ldviewInfo.absoluteFilePath());
         logInfo() << QString("LDView  : %1").arg(ldviewExe);
+
+#ifdef Q_OS_MAC
+
+        // Check macOS LDView Libraries
+        if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs"))) {
+          QVariant eValue(ldviewMissingLibs);
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs"),eValue);
+        } else {
+          ldviewMissingLibs = Settings.value(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs")).toBool();
+        }
+
+        if (ldviewMissingLibs) {
+            ldviewMissingLibs = false;
+            QFileInfo libInfo("/usr/local/opt/libpng/lib/libpng.dylib");
+            if (!libInfo.exists()){
+                if (!ldviewMissingLibs)
+                  ldviewMissingLibs = true;
+                missingLibs << libInfo.absoluteFilePath();
+            }
+            libInfo.setFile("/usr/local/opt/gl2ps/lib/libgl2ps.dylib");
+            if (!libInfo.exists()){
+                if (!ldviewMissingLibs)
+                  ldviewMissingLibs = true;
+                missingLibs << libInfo.absoluteFilePath();
+            }
+            libInfo.setFile("/usr/local/opt/libjpg/lib/libjpeg.dylib");
+            if (!libInfo.exists()){
+                if (!ldviewMissingLibs)
+                  ldviewMissingLibs = true;
+                missingLibs << libInfo.absoluteFilePath();
+            }
+            libInfo.setFile("/usr/local/opt/tinyxml/lib/libtinyxml.dylib");
+            if (!libInfo.exists()){
+                if (!ldviewMissingLibs)
+                  ldviewMissingLibs = true;
+                missingLibs << libInfo.absoluteFilePath();
+            }
+            libInfo.setFile("/usr/local/opt/minizip/lib/libminizip.dylib");
+            if (!libInfo.exists()){
+                if (!ldviewMissingLibs)
+                  ldviewMissingLibs = true;
+                missingLibs << libInfo.absoluteFilePath();
+            }
+
+            QVariant eValue(ldviewMissingLibs);
+            if (!ldviewMissingLibs)
+              Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs"),eValue);
+
+            if (ldviewMissingLibs){
+              QString header = "<b> " + QMessageBox::tr ("Required libraries for the LDView renderer were not found!!") + "</b>";
+              QString body = QMessageBox::tr ("The following libraries were not found:\n\n -%1\n\n"
+                                              "See %2/assets/docs/lpub3d/macOS_libs.html for install details.")
+                                              .arg(missingLibs.join("\n -"))
+                                              .arg(VER_COMPANYDOMAIN_STR);
+              box.setText (header);
+              box.setInformativeText (body);
+
+              if (modeGUI) {
+                  if (!lpub3dLoaded && Application::instance()->splash->isVisible())
+                    Application::instance()->splash->hide();
+                  if (box.exec() == QMessageBox::Close) {
+                      if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isHidden())
+                        Application::instance()->splash->show();
+                    }
+                } else {
+                  fprintf(stdout,"%s",body.toLatin1().constData());
+                  fflush(stdout);
+                }
+            }
+        }
+#endif
     } else {
         logError() << QString("LDView   : %1 not found").arg(ldviewInfo.absoluteFilePath());
     }
@@ -1292,13 +1382,77 @@ void Preferences::rendererPreferences(bool updateExisting)
         povRayInstalled = true;
         povrayExe = QDir::toNativeSeparators(povrayInfo.absoluteFilePath());
         logInfo() << QString("POVRay  : %1").arg(povrayExe);
+
+#ifdef Q_OS_MAC
+
+        // Check POVRay libraries on macOS
+        if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs"))) {
+          QVariant eValue(povrayMissingLibs);
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs"),eValue);
+        } else {
+          povrayMissingLibs = Settings.value(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs")).toBool();
+        }
+
+        if (povrayMissingLibs) {
+            missingLibs.clear();
+            povrayMissingLibs = false;
+            QFileInfo libInfo("/usr/local/opt/libtiff/lib/libtiff.dylib");
+            if (!libInfo.exists()){
+                if (!povrayMissingLibs)
+                  povrayMissingLibs = true;
+                missingLibs << libInfo.absoluteFilePath();
+            }
+            libInfo.setFile("/usr/local/opt/openexr/lib/libIlmImf.dylib");
+            if (!libInfo.exists()){
+                if (!povrayMissingLibs)
+                  povrayMissingLibs = true;
+                missingLibs << libInfo.absoluteFilePath();
+            }
+            libInfo.setFile("/usr/local/opt/ilmbase/lib/libHalf.dylib");
+            if (!libInfo.exists()){
+                if (!povrayMissingLibs)
+                  povrayMissingLibs = true;
+                missingLibs << libInfo.absoluteFilePath();
+            }
+            libInfo.setFile("/usr/local/opt/sdl2/lib/libSDL2.dylib");
+            if (!libInfo.exists()){
+                if (!povrayMissingLibs)
+                  povrayMissingLibs = true;
+                missingLibs << libInfo.absoluteFilePath();
+            }
+
+            QVariant eValue(ldviewMissingLibs);
+            if (!ldviewMissingLibs)
+              Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs"),eValue);
+
+            if (povrayMissingLibs){
+              QString header = "<b> " + QMessageBox::tr ("Required libraries for the POVRay renderer were not found!\n\n") + "</b>";
+              QString body = QMessageBox::tr ("The following libraries were not found:\n\n -%1\n\n"
+                                              "See %2/assets/docs/lpub3d/macOS_libs.html for install details.")
+                                              .arg(missingLibs.join("\n -"))
+                                              .arg(VER_COMPANYDOMAIN_STR);
+              box.setText (header);
+              box.setInformativeText (body);
+
+              if (modeGUI) {
+                if (!lpub3dLoaded && Application::instance()->splash->isVisible())
+                  Application::instance()->splash->hide();
+                if (box.exec() == QMessageBox::Close) {
+                    if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isHidden())
+                      Application::instance()->splash->show();
+                }
+              } else {
+                fprintf(stdout,"%s",body.toLatin1().constData());
+                fflush(stdout);
+              }
+           }
+        }
+#endif
     } else {
         logError() << QString("POVRay  : %1 not found").arg(povrayInfo.absoluteFilePath());
     }
 
     /* Find out if we have a valid preferred renderer */
-
-    QSettings Settings;
 
     QString const preferredRendererKey("PreferredRenderer");
 
