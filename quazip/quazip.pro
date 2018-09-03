@@ -5,8 +5,13 @@ unix:!macx: CONFIG += staticlib
 win32-msvc*: CONFIG  += staticlib
 
 # The ABI version.
-win32: VERSION = 0.7.3.0  # major.minor.patch.build
-else: VERSION  = 0.7.3    # major.minor.patch
+VER_MAJ = 0
+VER_MIN = 7
+VER_PAT = 3
+VER_BLD = 0
+win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.patch.build
+else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.patch
+
 # 1.0.0 is the first stable ABI.
 # The next binary incompatible change will be 2.0.0 and so on.
 # The existing QuaZIP policy on changing ABI requires to bump the
@@ -93,12 +98,12 @@ CONFIG(debug, debug|release) {
     BUILD += Debug Build
     ARCH_BLD = bit_debug
     macx: TARGET = $$join(TARGET,,,_debug)
-    win32: TARGET = $$join(TARGET,,,d07)
+    win32: TARGET = $$join(TARGET,,,d$${VER_MAJ}$${VER_MIN})
     unix:!macx: TARGET = $$join(TARGET,,,d)
 } else {
     BUILD += Release Build
     ARCH_BLD = bit_release
-    win32: TARGET = $$join(TARGET,,,07)
+    win32: TARGET = $$join(TARGET,,,$${VER_MAJ}$${VER_MIN})
 }
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 message("~~~ lib$${TARGET} $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")

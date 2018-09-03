@@ -136,25 +136,25 @@ win32 {
 }
 
 SOURCES += \
-    LDVAlertHandler.cpp \
-    LDViewExportOption.cpp \
-    LDVImageMatte.cpp \
-    LDVMisc.cpp \
-    LDVPreferences.cpp \
-    LDVWidget.cpp
+    $$PWD/LDVAlertHandler.cpp \
+    $$PWD/LDViewExportOption.cpp \
+    $$PWD/LDVImageMatte.cpp \
+    $$PWD/LDVMisc.cpp \
+    $$PWD/LDVPreferences.cpp \
+    $$PWD/LDVWidget.cpp
 
 HEADERS += \
-    LDVAlertHandler.h \
-    LDViewExportOption.h \
-    LDVImageMatte.h \
-    LDVMisc.h \
-    LDVPovUserDefaultsKeys.h \
-    LDVPreferences.h \
-    LDVWidget.h
+    $$PWD/LDVAlertHandler.h \
+    $$PWD/LDViewExportOption.h \
+    $$PWD/LDVImageMatte.h \
+    $$PWD/LDVMisc.h \
+    $$PWD/LDVPovUserDefaultsKeys.h \
+    $$PWD/LDVPreferences.h \
+    $$PWD/LDVWidget.h
 
 FORMS += \
-    LDVExportOptionPanel.ui \
-    LDVPreferencesPanel.ui
+    $$PWD/LDVExportOptionPanel.ui \
+    $$PWD/LDVPreferencesPanel.ui
 
 # suppress warnings
 !win32-msvc* {

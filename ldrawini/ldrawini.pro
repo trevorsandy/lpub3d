@@ -5,9 +5,12 @@ unix:!macx: CONFIG  += staticlib
 win32-msvc*: CONFIG  += staticlib
 
 # The ABI version.
-# Version format is year.month.day.patch
-win32: VERSION = 16.1.8.0   # major.minor.patch.build
-else:  VERSION = 16.1.8     # major.minor.patch
+VER_MAJ = 16
+VER_MIN = 1
+VER_PAT = 8
+VER_BLD = 0
+win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.patch.build
+else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.patch
 
 BUILD_ARCH   = $$(TARGET_CPU)
 !contains(QT_ARCH, unknown):  BUILD_ARCH = $$QT_ARCH
@@ -69,12 +72,12 @@ CONFIG(debug, debug|release) {
     BUILD += Debug Build
     ARCH_BLD = bit_debug
     macx: TARGET = $$join(TARGET,,,_debug)
-    win32: TARGET = $$join(TARGET,,,d161)
+    win32: TARGET = $$join(TARGET,,,d$${VER_MAJ}$${VER_MIN})
     unix:!macx: TARGET = $$join(TARGET,,,d)
 } else {
     BUILD += Release Build
     ARCH_BLD = bit_release
-    win32: TARGET = $$join(TARGET,,,161)
+    win32: TARGET = $$join(TARGET,,,$${VER_MAJ}$${VER_MIN})
 }
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 message("~~~ lib$${TARGET} $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
