@@ -27,16 +27,18 @@
 
 #include "backgrounditem.h"
 #include "meta.h"
+#include <QFileInfo>
 #include <QColor>
 #include <QPixmap>
 #include <QBitmap>
 #include <QAction>
 #include <QMenu>
 #include <QPainter>
+#include <QDir>
 #include <QFile>
 #include "color.h"
 
-#include "QsLog.h"
+#include "lpub_messages.h"
 
 void BackgroundItem::setBackground(
     QPixmap          *pixmap,
@@ -56,7 +58,7 @@ void BackgroundItem::setBackground(
   margin             =  _margin;
   subModelColor      =  _subModel;
   submodelLevel      =  _submodelLevel;
-  parentRelativeType = _parentRelativeType;
+  parentRelativeType =  _parentRelativeType;
 
   BorderData     borderData     = _border.valuePixels();
   BackgroundData backgroundData = _background.value();
@@ -79,14 +81,25 @@ void BackgroundItem::setBackground(
   switch(backgroundData.type) {
     case BackgroundData::BgImage:
       {
-        QString image_name = backgroundData.string;
-        QFile file(image_name);
+        QFileInfo fileInfo, imageInfo;
+        imageInfo.setFile(backgroundData.string);
+        QString filename(imageInfo.fileName());
 
-        if ( ! file.exists()) {
+        fileInfo.setFile(QDir::currentPath() + "/" + filename); // relative path
+
+        if (!fileInfo.exists()) {
+            fileInfo.setFile(imageInfo.absoluteFilePath());     // insert path
+        } else {
+          backgroundData.string = fileInfo.absoluteFilePath();  // update insert path
+        }
+
+        if (!fileInfo.exists()) {
+            emit alert->messageSig(LOG_ERROR, QString("Unable to locate background image %1. Be sure image file "
+                                                      "is relative to model file or use absolute path.").arg(filename));
             return;
-          }
+        }
 
-        QImage image(image_name);
+        QImage image(fileInfo.absoluteFilePath());
         image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
         if (backgroundData.stretch) {
             QSize psize = pixmap->size();

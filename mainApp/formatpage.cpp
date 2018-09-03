@@ -460,14 +460,24 @@ int Gui::addGraphicsPageItems(
   int nInserts = page->inserts.size();
   
   if (nInserts) {
-      QFileInfo fileInfo;
+      QFileInfo fileInfo, picInfo;
       for (int i = 0; i < nInserts; i++) {
           InsertData insert = page->inserts[i].value();
 
           switch (insert.type) {
             case InsertData::InsertPicture:
               {
-                fileInfo.setFile(insert.picName);
+                picInfo.setFile(insert.picName);
+                QString filename(picInfo.fileName());
+
+                fileInfo.setFile(QDir::currentPath() + "/" + filename); // relative path
+
+                if (!fileInfo.exists()) {
+                  fileInfo.setFile(picInfo.absoluteFilePath());         // insert path
+                } else {
+                  insert.picName = fileInfo.absoluteFilePath();         // update insert path
+                }
+
                 if (fileInfo.exists()) {
 
                     QPixmap qpixmap;
@@ -495,7 +505,10 @@ int Gui::addGraphicsPageItems(
                     pixmap->setPos(pixmap->loc[XX],pixmap->loc[YY]);
                     pixmap->relativeToSize[0] = plPage.size[XX];
                     pixmap->relativeToSize[1] = plPage.size[YY];
-                  }
+                } else {
+                  emit messageSig(LOG_ERROR, QString("Unable to locate picture %1. Be sure picture file "
+                                                     "is relative to model file or use absolute path.").arg(filename));
+                }
               }
               break;
             case InsertData::InsertText:
