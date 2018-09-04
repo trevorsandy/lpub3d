@@ -190,6 +190,23 @@ else
 fi
 
 # -----
+
+FILE="$LP3D_PWD/docs/RELEASE_NOTES.html"
+Info "3. update RELEASE_NOTES   - build version         [$FILE]"
+LineToReplace=2
+StringToReplace="<h5><a id=\"LPub3D_0\"></a>LPub3D ${LP3D_BUILD_VERSION}</h5>"
+if [ -f ${FILE} -a -r ${FILE} ]
+then
+    if [ "$LP3D_OS" = Darwin ]
+    then
+        sed -i "" "${LineToReplace}s;.*;${StringToReplace};" "${FILE}"
+    else
+        sed -i "${LineToReplace}s;.*;${StringToReplace};" "${FILE}"
+    fi
+else
+    Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
+fi
+
 FILE="$LP3D_PWD/docs/README.txt"
 Info "3. update README.txt      - build version         [$FILE]"
 LineToReplace=1                  # LPub3D 2.0.21.59.126...

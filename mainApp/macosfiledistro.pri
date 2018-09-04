@@ -37,6 +37,9 @@ macx {
     document_readme.files += $$_PRO_FILE_PWD_/docs/README.txt
     document_readme.path = Contents/Resources
 
+    document_release_notes.files += $$_PRO_FILE_PWD_/docs/RELEASE_NOTES.html
+    document_release_notes.path = Contents/Resources
+
     document_credits.files += $$_PRO_FILE_PWD_/docs/CREDITS.txt
     document_credits.path = Contents/Resources
 
@@ -79,6 +82,7 @@ macx {
     QMAKE_BUNDLE_DATA += \
         document_icon \
         document_readme \
+        document_release_notes \
         document_credits \
         document_copying \
         excluded_count_parts \

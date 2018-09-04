@@ -23,6 +23,7 @@ IF [%LP3D_BUILDS_DIR%] == [] (
 
 SET LINE_README_TXT=1
 SET LINE_README_MD_VER=70
+SET LINE_RELEASE_NOTES_HTM=2
 
 SET LP3D_GIT_DEPTH=1000
 SET LP3D_PAST_RELEASES=1.3.5,1.2.3,1.0.0
@@ -71,6 +72,20 @@ IF [%LP3D_VER_SUFFIX%] NEQ [] (
   SET LP3D_VERSION_INFO=%LP3D_VERSION_INFO% %LP3D_VER_SUFFIX%
   SET LP3D_APP_VERSION_TAG=v%LP3D_VERSION%_%LP3D_VER_SUFFIX%
 )
+
+SET LP3D_FILE="%LP3D_MAIN_APP%\docs\RELEASE_NOTES.html"
+ECHO  update RELEASE_NOTES.html build version [%LP3D_FILE%]
+SET /a LineToReplace=%LINE_RELEASE_NOTES_HTM%
+SET "Replacement=^<h5^>^<a id="LPub3D_0"^>^</a^>LPub3D %LP3D_BUILD_VERSION%^</h5^>"
+ECHO DEBUG Replacement VAR IS %Replacement%
+(FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
+  SET "Line=%%b"
+  IF %%a equ %LineToReplace% SET "Line=%Replacement:^=%"
+    SETLOCAL ENABLEDELAYEDEXPANSION
+    ECHO(!Line!
+    ENDLOCAL
+))>"%LP3D_FILE%.new"
+MOVE /Y %LP3D_FILE%.new %LP3D_FILE% | findstr /i /v /r /c:"moved\>"
 
 SET LP3D_FILE="%LP3D_MAIN_APP%\docs\README.txt"
 ECHO  update README.txt build version [%LP3D_FILE%]

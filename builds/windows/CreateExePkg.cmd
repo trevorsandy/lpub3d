@@ -463,6 +463,13 @@ COPY /V /Y %PKG_DISTRO_DIR%\docs\README.txt %PKG_UPDATE_DIR%\change_log.txt /A |
 COPY /V /Y %PKG_DISTRO_DIR%\docs\README.txt %PKG_UPDATE_DIR%\change_log_%LP3D_VERSION%.txt /A | findstr /i /v /r /c:"copied\>"
 COPY /V /Y %PKG_DISTRO_DIR%\docs\README.txt %PKG_DOWNLOAD_DIR%\ /A | findstr /i /v /r /c:"copied\>"
 
+ECHO.
+ECHO - Copying release_notes_%LP3D_VERSION% to media folder...
+
+COPY /V /Y %PKG_DISTRO_DIR%\docs\RELEASE_NOTES.html %PKG_UPDATE_DIR%\release_notes.html. /A | findstr /i /v /r /c:"copied\>"
+COPY /V /Y %PKG_DISTRO_DIR%\docs\RELEASE_NOTES.html %PKG_UPDATE_DIR%\release_notes_%LP3D_VERSION%.html /A | findstr /i /v /r /c:"copied\>"
+COPY /V /Y %PKG_DISTRO_DIR%\docs\RELEASE_NOTES.html %PKG_DOWNLOAD_DIR%\ /A | findstr /i /v /r /c:"copied\>"
+
 IF EXIST %PKG_DISTRO_DIR%\docs\COPYING_BRIEF (
   ECHO.
   ECHO - Set license file name...
@@ -670,9 +677,9 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster.exe",
->>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log.txt",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/release_notes.html",
 >>%genLPub3DUpdates%       "download-url-": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%.exe",
->>%genLPub3DUpdates%       "changelog-url-": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
+>>%genLPub3DUpdates%       "changelog-url-": "http://lpub3d.sourceforge.net/release_notes_%LP3D_VERSION%..html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_exe%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-windows": {}
 >>%genLPub3DUpdates%     },
@@ -680,7 +687,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster.exe",
->>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log.txt",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/release_notes.html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_exe%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-windows-exe": {}
 >>%genLPub3DUpdates%     },
@@ -688,7 +695,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%-macos.dmg",
->>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/release_notes_%LP3D_VERSION%..html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_dmg%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-macos-dmg": {}
 >>%genLPub3DUpdates%     },
@@ -696,7 +703,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%-xenial-%LP3D_AMDARCH%.deb",
->>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/release_notes_%LP3D_VERSION%..html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_deb%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-deb": {}
 >>%genLPub3DUpdates%     },
@@ -704,7 +711,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%-1.fc25.%LP3D_ARCH%.rpm",
->>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/release_notes_%LP3D_VERSION%..html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_deb%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-rpm": {}
 >>%genLPub3DUpdates%     },
@@ -712,7 +719,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-UpdateMaster_%LP3D_VERSION%-%LP3D_ARCH%.pkg.tar.xz",
->>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/release_notes_%LP3D_VERSION%..html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_deb%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-pkg": {}
 >>%genLPub3DUpdates%     },
@@ -720,7 +727,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "open-url": "https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "download-url": "http://lpub3d.sourceforge.net/LPub3D-%LP3D_VERSION%-%LP3D_ARCH%.AppImage",
->>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/change_log_%LP3D_VERSION%.txt",
+>>%genLPub3DUpdates%       "changelog-url": "http://lpub3d.sourceforge.net/release_notes_%LP3D_VERSION%..html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_api%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-api": {}
 >>%genLPub3DUpdates%     }

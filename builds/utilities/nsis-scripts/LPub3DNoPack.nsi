@@ -58,6 +58,7 @@ Var /global LPub3DViewerLibPath
 !define SINGLE_INSTANCE_ID "${COMPANY_NAME} ${PRODUCT_NAME} Unique ID" ; do not change this between program versions!
 !define LICENSE_FILE "COPYING.txt" ; license file, optional
 !define README_FILE "README.txt" ; readme file, optional
+!define RELEASE_NOTES_FILE "RELEASE_NOTES.html" ; release notes file, optional
 !define PUBLISHER_NAME "${Publisher}"
 !define COMPANY_URL "${CompanyURL}"
 !define SUPPORT "${SupportURL}"
@@ -115,7 +116,7 @@ SetCompressor /SOLID lzma
 !define MUI_PAGE_HEADER_SUBTEXT "Please review the readme file before installing ${PRODUCT_NAME} ${VERSION} ${PLATFORM}."
 !define MUI_LICENSEPAGE_TEXT_TOP "Press Page Down to see the rest of the readme file."
 !define MUI_LICENSEPAGE_TEXT_BOTTOM "When you have finished reading, click on Next to continue the installation."
-!insertmacro MUI_PAGE_LICENSE "${WinBuildDir}\docs\${README_FILE}"
+!insertmacro MUI_PAGE_LICENSE "${WinBuildDir}\docs\${RELEASE_NOTES_FILE}"
 
 !define MULTIUSER_INSTALLMODE_CHANGE_MODE_FUNCTION PageInstallModeChangeMode
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
@@ -350,6 +351,8 @@ Section "Documentation" SectionDocumentation
 
   SetOutPath $INSTDIR
   File "${WinBuildDir}\docs\${README_FILE}"
+  File "${WinBuildDir}\docs\${RELEASE_NOTES_FILE}"
+
 
 SectionEnd
 

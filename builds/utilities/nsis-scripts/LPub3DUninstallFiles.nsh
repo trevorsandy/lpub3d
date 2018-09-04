@@ -91,6 +91,7 @@ Delete "$INSTDIR\data\lpub3dldrawunf.zip"
 Delete "$INSTDIR\docs\COPYING.txt"
 Delete "$INSTDIR\docs\CREDITS.txt"
 Delete "$INSTDIR\docs\README.txt"
+Delete "$INSTDIR\docs\RELEASE_NOTES.html"
 
 ;3rd party renderer utility - LdgLite
 Delete "$INSTDIR\3rdParty\${LDGliteDir}\doc\LICENCE"

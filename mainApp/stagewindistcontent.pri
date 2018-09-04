@@ -75,7 +75,8 @@ win32: stagewindistcontent {
     lpub3d_docs.files += \
         $$LPUB3D_STG_DOCS/COPYING_BRIEF \
         $$LPUB3D_STG_DOCS/CREDITS.txt \
-        $$LPUB3D_STG_DOCS/README.txt
+        $$LPUB3D_STG_DOCS/README.txt \
+        $$LPUB3D_STG_DOCS/RELEASE_NOTES.html
     lpub3d_docs.path = $$LPUB3D_STG_PATH/docs
 
     INSTALLS += \

@@ -43,7 +43,6 @@ public:
     QString osName();
     QPushButton *detailsButton;
     QPushButton *creditsButton;
-    QString content;
 	~AboutDialog();
 
 #ifdef Q_OS_WIN

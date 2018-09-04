@@ -69,7 +69,7 @@ unix:!macx {
 
     target.path = $$BIN_DIR
 
-    docs.files += $$_PRO_FILE_PWD_/docs/README.txt $$_PRO_FILE_PWD_/docs/CREDITS.txt $$_PRO_FILE_PWD_/docs/COPYING.txt
+    docs.files += $$_PRO_FILE_PWD_/docs/README.txt $$_PRO_FILE_PWD_/docs/RELEASE_NOTES.html $$_PRO_FILE_PWD_/docs/CREDITS.txt $$_PRO_FILE_PWD_/docs/COPYING.txt
     docs.path = $$DOCS_DIR
 
     man.files += $$_PRO_FILE_PWD_/docs/$$MAN_PAGE

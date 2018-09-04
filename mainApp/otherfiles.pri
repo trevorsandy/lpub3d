@@ -13,6 +13,7 @@ docs/COPYING_BRIEF \
 docs/CREDITS.txt \
 docs/lpub3d.1 \
 docs/README.txt \
+docs/RELEASE_NOTES.html \
 ../builds/check/build_checks.bat \
 ../builds/check/build_checks.sh \
 ../builds/check/build_checks.mpd \

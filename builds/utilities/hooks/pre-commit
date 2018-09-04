@@ -87,6 +87,7 @@ if test x"$update_config_files" = x"yes" && \
   git add builds/utilities/version.info
   git add mainApp/docs/lpub3d${major}${minor}.1
   git add mainApp/docs/README.txt
+  git add mainApp/docs/RELEASE_NOTES.html
   git add mainApp/lpub3d.desktop
   git add mainApp/org.trevorsandy.lpub3d.appdata.xml
   git add README.md

@@ -1,4 +1,42 @@
-LPub3D 2.3.0.1.885 (04 09 2018 02:22:40)
+LPub3D 2.3.0.1.886 (04 09 2018 02:55:50)
+
+Features, enhancements, fixes and changes
+------------
+
+Starting with LPub3D version 2.3.0, the README notes will present a short overview of the update (these paragraphs) along with the significant features, enhancements, fixes and changes as links to their respective LPub3D GitHub tickets. While this instance of the README will continue to be updated you should consult the hyperlinked version.
+
+LPub3D 2.3.0 presents a few significant new features. Notably "True" fade, multi-segment pointers, console commands with headless operations, and, my favourite, continuous page processing - simply click and have a brew while LPub3D does the repetitive work of cycling through your model file.
+Significant user interface enhancements include "Dark Mode" for the Night Owls, rulers and guides, and additional 3DViewer panes presenting properties and time-line. In addition to the existing menu button, the property pane also offer x,y,z dialogues to enter your ROTSTEP matrix. Enjoy, Cheers.
+
+New feature - Continuous page processing #76
+New feature - Go Dark - Add dark theme #73
+New feature - "Native" renderer based on 3DViewer (LeoCAD library) #71
+New feature - Multi-segment page, divider and callout pointers #67
+New feature - "True" part fade and part highlight #52
+New feature - UI dialogue to set sub-model level colour #69
+New feature - Scene horizontal and vertical ruler and axis guides #68
+New feature - Console commands #12
+Enhancement - Default assembly orientation angles to Assembly Setup #72
+Enhancement - Headless mode on Linux, macOS and Windows Platforms #56
+Enhancement - Improved ROTSTEP entry from 3DViewer pane ##78
+Enhancement - Keyboard shortcuts for Edit commands #63
+Enhancement - Respect relative and absolute paths for inserted images #61
+Enhancement - Rotate Icon resize #66
+Enhancement - Set renderer from project setup menu #70
+Enhancement - Use an image for Rotate Icon #6262)
+Change - Move LPub3D.ini file to application location for Windows portable distros #75
+Change - Update 3D viewer to LeoCAD 18.2 commit 15d5e89](https://github.com/leozide/leocad/tree/15d5e89ceedbd2a7451b6830580a54704cde76
+Bug - Go To page function broken #55
+Bug - Insert text on a sub-model insertion page gets placed in the sub-model instead of the parent model #53
+Bug - Mixed-page orientation incorrect #59
+Issue - Abnormal program end on malformed CALLOUT #74
+Issue - Automatically add assembled image of multi-occurrence sub-model to parent page #65, description
+Issue - Landscape page orientation for .pdf export not working #58, cannot reproduce
+Issue - LDView Multiple files single call rendering slow #54
+Issue - LDView on macOS not loading - missing libraries #57
+Issue - LPub3D renders very slow on Windows #60, duplicate
+
+LPub3D 2.2.2.0.848 (12 04 2018 18:38:11)
 
 Features and enhancements
 ------------

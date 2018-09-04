@@ -290,6 +290,7 @@ SingleArchitectureBuild:
 DocumentsAndExtras:
 SetOutPath "$INSTDIR"
 File "${WinBuildDir}\docs\README.txt"
+File "${WinBuildDir}\docs\RELEASE_NOTES.html"
 
 ;data depository folder
 CreateDirectory "$INSTDIR\data"
@@ -316,6 +317,7 @@ SetOutPath "$INSTDIR\docs"
 File "${WinBuildDir}\docs\COPYING.txt"
 File "${WinBuildDir}\docs\CREDITS.txt"
 File "${WinBuildDir}\docs\README.txt"
+File "${WinBuildDir}\docs\RELEASE_NOTES.html"
 SetOutPath "$INSTDIR"
 
 ;3rd party renderer utility - LdgLite

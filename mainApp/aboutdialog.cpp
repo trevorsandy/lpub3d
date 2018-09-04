@@ -183,6 +183,12 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->OsInfo->setTextFormat(Qt::RichText);
     ui->OsInfo->setText(OsInfo);
 
+    // QTextBrowser content management
+    ui->contentEdit->setWordWrapMode(QTextOption::WordWrap);
+    ui->contentEdit->setLineWrapMode(QTextEdit::FixedColumnWidth);
+    ui->contentEdit->setLineWrapColumnOrWidth(120);
+    ui->contentEdit->setOpenExternalLinks(true);
+
     //buttonBar additions
     detailsButton = new QPushButton(tr("Version Details..."));
     detailsButton->setDefault(true);
@@ -209,20 +215,16 @@ void AboutDialog::showReadmeDetails(bool clicked){
     //populate readme
     QString readmeFile;
 
-    readmeFile = QString("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dDocsResourcePath).arg("README.txt");
+    readmeFile = QString("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dDocsResourcePath).arg("RELEASE_NOTES.html");
 
     QFile file(readmeFile);
     if (! file.open(QFile::ReadOnly | QFile::Text)) {
-        content = QString("Failed to open Readme file: \n%1:\n%2")
+        ui->contentEdit->setText(QString("Failed to open Readme file: \n%1:\n%2")
                             .arg(readmeFile)
-                            .arg(file.errorString());
-        ui->contentEdit->setPlainText(content);
+                            .arg(file.errorString()));
     } else {
         QTextStream in(&file);
-        while (! in.atEnd()){
-            content = in.readAll();
-        }
-        ui->contentEdit->setPlainText(content);
+        ui->contentEdit->setHtml(in.readAll());
     }
 
     if (ui->contentGroupBox->isHidden()){
@@ -244,16 +246,12 @@ void AboutDialog::showCreditDetails(bool clicked){
 
     QFile file(creditsFile);
     if (! file.open(QFile::ReadOnly | QFile::Text)) {
-        content = QString("Failed to open Credits file: \n%1:\n%2")
-                            .arg(creditsFile)
-                            .arg(file.errorString());
-        ui->contentEdit->setPlainText(content);
+        ui->contentEdit->setPlainText( QString("Failed to open Credits file: \n%1:\n%2")
+                                               .arg(creditsFile)
+                                               .arg(file.errorString()));
     } else {
         QTextStream in(&file);
-        while (! in.atEnd()){
-            content = in.readAll();
-        }
-        ui->contentEdit->setPlainText(content);
+        ui->contentEdit->setPlainText(in.readAll());
     }
 
     if (ui->contentGroupBox->isHidden()){

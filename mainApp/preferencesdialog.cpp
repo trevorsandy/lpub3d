@@ -293,30 +293,23 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
            this,        SLOT (updateChangelog  (QString)));
 
   QString version = qApp->applicationVersion();
-  //QStringList updatableVersions = tr(VER_UPDATEABLE_VERSIONS_STR).split(",");
   QStringList updatableVersions = Preferences::availableVersions.split(",");
   ui.moduleVersion_Combo->addItems(updatableVersions);
   ui.moduleVersion_Combo->setCurrentIndex(int(ui.moduleVersion_Combo->findText(version)));
 
   ui.groupBoxChangeLog->setTitle(tr("Change Log for version %1").arg(version));
-  QString readme = tr("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dDocsResourcePath).arg("README.txt");
+  ui.changeLog_txbr->setWordWrapMode(QTextOption::WordWrap);
+  ui.changeLog_txbr->setLineWrapMode(QTextEdit::FixedColumnWidth);
+  ui.changeLog_txbr->setLineWrapColumnOrWidth(80);
+  ui.changeLog_txbr->setOpenExternalLinks(true);
+  QString readme = tr("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dDocsResourcePath).arg("RELEASE_NOTES.html");
   QFile file(readme);
   if (! file.open(QFile::ReadOnly | QFile::Text)){
       ui.changeLog_txbr->setText(tr("Failed to open %1\n%2").arg(readme,file.errorString()));
   } else {
       QTextStream in(&file);
-      while (! in.atEnd()){
-          ui.changeLog_txbr->append(in.readLine(0));
-      }
+      ui.changeLog_txbr->setHtml(in.readAll());
   }
-  /* QSimpleUpdater end */
-
-  /* temperory turn off check for updates on mac/linux
-  #ifndef Q_OS_WIN
-    ui.groupBoxUpdates->setEnabled(false);
-  #endif
-  */
-
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -951,7 +944,7 @@ void PreferencesDialog::updateChangelog (QString url) {
     if (url == DEFS_URL) {
         if (m_updater->getUpdateAvailable(url)) {
             ui.groupBoxChangeLog->setTitle(tr("Change Log for version %1").arg(m_updater->getLatestVersion(url)));
-            ui.changeLog_txbr->setText (m_updater->getChangelog (url));
+            ui.changeLog_txbr->setHtml(m_updater->getChangelog (url));
         }
     }
 }
