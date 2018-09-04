@@ -13,12 +13,13 @@ LPub3D supports standard and high definition **part libraries** and do not requi
 [LDraw][ldraw-url]|[![LDraw-Logo][ldraw-logo]][ldraw-url]|LDraw™ ([LDraw.org][ldraw-url]) parts is an open standard library that allow users to create virtual LEGO® models and scenes.
 [LGEO][lgeo-url]  |[![LGEO-Logo][lgeo-logo]][lgeo-url]   |POV-Ray high-fedility parts library created by Lutz Uhlmann (El Lutzo), updated by Owen Burgoyne (C3POwen) and extended with STL object files by Damien Roux (Darats).
 
-LPub3D provides three popular **LDraw image renderers** - custom adapted console applications for tight integration, optimum flexibility and robust performance.
+LPub3D provides "native" imbedded rendering for image and POV file generation plus three popular stand-alone **LDraw image renderers** - console applications custom adapted for tight integration, optimum configurability and robust performance.
 
 :---------------------|:------------------------------------------:|:----------
+[LeoCAD][leocad-url]  |[![LeoCAD-logo][leocad-logo]][leocad-url]   |LPub3D "native" image renderer - performant, "true fade" image rendering
 [LDGLite][ldglite-url]|[![LDGLite-Logo][ldglite-logo]][ldglite-url]|fast image rendering ideal for proofing
-[LDView][ldview-url]  |[![LDView-Logo][ldview-logo]][ldview-url]   |feature rich image rendering and pov file generation
-[POVRay][povray-url]  |[![POVRay-Logo][povray-logo]][povray-url]   |LPub3D-Trace (POV-Ray) - high fedility, feature rich image rendering
+[LDView][ldview-url]  |[![LDView-Logo][ldview-logo]][ldview-url]   |high quality image rendering plus 3rd-party and "native" POV file generation
+[POVRay][povray-url]  |[![POVRay-Logo][povray-logo]][povray-url]   |LPub3D-Trace ([POV-Ray][povray-url]) - high fidelity, feature rich image rendering
 
 ### Screenshots
 
@@ -49,10 +50,11 @@ LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appi
 
 ### Quick Links
  - [Build and package LPub3D from source][buildfromsource]
- - [Change log (README)][changelog]
+ - [Release notes (NEW!)][docs-lpub3d-release-notes]
+ - [Change log (Deprecated - use Release notes)][docs-lpub3d-changelog]
  - [Questions and discussion][sf-gen-discussion]
  - [Report an Issue][gh-new-issue]
- - [Credits][credits]
+ - [Credits][docs-lpub3d-credits]
 
 ### License
 
@@ -75,8 +77,17 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
  - [LPub3D par J.C Tchang (en français)][jctchang-lpub3d]
 
 ### Features
- - Integrated 3D Viewer powered by LeoCAD
- - Integrated image renderers (LDGlite, LDView and POV-Ray) - no more additional installs
+- Continuous page processing - step through your model with one click [#76]("https://github.com/trevorsandy/lpub3d/issues/76) (NEW!)
+- Go Dark - Dark mode theme, switch on the fly [#73](https://github.com/trevorsandy/lpub3d/issues/73) (NEW!)
+- Multi-segment page, divider and callout pointers [#67](https://github.com/trevorsandy/lpub3d/issues/67) (NEW!)
+- Enhanced “True” previous step part fade [#52](https://github.com/trevorsandy/lpub3d/issues/52) (NEW!)
+- Current step silhouette part highlight [#52](https://github.com/trevorsandy/lpub3d/issues/52) (NEW!)
+- Scene horizontal and vertical ruler and axis guides [#68](https://github.com/trevorsandy/lpub3d/issues/68) (NEW!)
+- Console commands - enabling "Batch" mode [#12](https://github.com/trevorsandy/lpub3d/issues/12) (NEW!)
+- "Headless" mode on Linux, macOS and Windows platforms [#56](https://github.com/trevorsandy/lpub3d/issues/56) (NEW!)
+- Best performance with "Native" image rendering [#71](https://github.com/trevorsandy/lpub3d/issues/71) and POV file generation [#77](https://github.com/trevorsandy/lpub3d/issues/77) (NEW!)
+ - Integrated 3D viewer and image renderer powered by [LeoCAD][leocad-url]
+ - Integrated and custom adapted image renderers ([LDGlite][ldglite-url], [LDView][ldview-url] and LPub3D-Trace ([POV-Ray][povray-url])) - no more additional installs
  - Renderer config files accessible from the LPub3D user interface
  - Custom LDraw library LDConfig (part material) file can be passed to LDGlite and LDView renderers
  - Set ROTSTEP (step rotation) meta using 3D Viewer
@@ -103,16 +114,23 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 
  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2018 Leonardo Zide and additional third party components. See [Credits][credits] for full details on contributing content.
 
-[docs-lpub3d-meta]:       {{ '/assets/docs/lpub3d/metacommands.html' | relative_url }}
-[docs-lpub3d-macos-libs]: {{ '/assets/docs/lpub3d/macOS_libs.html' | relative_url }}
-[docs-ldview-help]:       {{ '/assets/docs/ldview/Help.html' | relative_url }}
-[docs-ldglite-readme]:    {{ '/assets/docs/ldglite/README.TXT' | relative_url }}
-[docs-povray-help]:       {{ '/assets/docs/povray/index.html' | relative_url }}
+[docs-lpub3d-release-notes]:  {{ '/assets/docs/lpub3d/RELEASE_NOTES.html' | relative_url }} "Review LPub3D release features, enhancements, fixes and changes"
+[docs-lpub3d-changelog]:      {{ '/assets/docs/lpub3d/README.txt' | relative_url }} "Review LPub3D changes and enhancements (Deprecated)"
+[docs-lpub3d-credits]:        {{ '/assets/docs/lpub3d/CREDITS.txt' | relative_url }} "See whose content has contributed to LPub3D"
+[docs-lpub3d-copying]:        {{ '/assets/docs/lpub3d/COPYING.txt' | relative_url }} "LPub3D open source license document"
 
-[ldview-logo]:            {{ '/assets/images/ldview_logo.png' | relative_url }}
-[ldglite-logo]:           {{ '/assets/images/ldglite_logo.png' | relative_url }}
-[povray-logo]:            {{ '/assets/images/povray_logo.png' | relative_url }}
+[docs-lpub3d-meta]:           {{ '/assets/docs/lpub3d/metacommands.html' | relative_url }}
+[docs-lpub3d-macos-libs]:     {{ '/assets/docs/lpub3d/macOS_libs.html' | relative_url }}
+[docs-ldview-help]:           {{ '/assets/docs/ldview/Help.html' | relative_url }}
+[docs-ldglite-readme]:        {{ '/assets/docs/ldglite/README.TXT' | relative_url }}
+[docs-povray-help]:           {{ '/assets/docs/povray/index.html' | relative_url }}
 
+[leocad-logo]:                {{ '/assets/images/leocad_logo.png' | relative_url }}
+[ldview-logo]:                {{ '/assets/images/ldview_logo.png' | relative_url }}
+[ldglite-logo]:               {{ '/assets/images/ldglite_logo.png' | relative_url }}
+[povray-logo]:                {{ '/assets/images/povray_logo.png' | relative_url }}
+
+[leocad-url]:          https://github.com/trevorsandy/lpub3d/tree/master/lclib
 [ldglite-url]:         https://github.com/trevorsandy/ldglite
 [ldview-url]:          https://github.com/trevorsandy/ldview/tree/qmake-build
 [povray-url]:          https://github.com/trevorsandy/povray/tree/lpub3d/raytracer-cui
@@ -141,9 +159,9 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [macos-icon]:          https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/macos.png "macOS"
 [windows-icon]:        https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/windows.png "Windows"
 
-[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.2.2/LPub3D-2.2.2.0.848_20180412.exe
-[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.2.2/LPub3D-2.2.2.0.848_20180412-macos.dmg
-[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.2.2/LPub3D-2.2.2.0.848_20180412-x86_64.AppImage
+[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.3.0/LPub3D-2.3.0.0.887_20180904.exe
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.3.0/LPub3D-2.3.0.0.887_20180904-macos.dmg
+[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.3.0/LPub3D-2.3.0.0.887_20180904-x86_64.AppImage
 
 [arch-icon]:           https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/arch.png "Arch"
 [centos-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/centos.png "CentOS"
@@ -169,14 +187,11 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [ubuntu-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/xUbuntu_17.10/
 [univention-url]:      https://download.opensuse.org/repositories/home:/trevorsandy/Univention_4.2/
 
-[changelog]:           https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/README.txt "Review LPub3D changes and enhancements"
-[credits]:             https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/CREDITS.txt "See whose content has contributed to LPub3D"
-[copying]:             https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/COPYING.txt
 [lgplv3-url]:          https://www.gnu.org/licenses/gpl-3.0.en.html
 [buildfromsource]:     https://github.com/trevorsandy/lpub3d/blob/master/builds/utilities/README.md
 
-[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.2.2
-[githubreleases]:      https://github.com/trevorsandy/lpub3d/releases/tag/v2.2.2
+[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.3.0
+[githubreleases]:      https://github.com/trevorsandy/lpub3d/releases/tag/v2.3.0
 [obsreleases]:         https://software.opensuse.org/download.html?project=home:trevorsandy&package=lpub3d
 
 [sf_releases]:         https://sourceforge.net/projects/lpub3d/files
@@ -214,7 +229,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [gh-comm-since-url]:   https://github.com/trevorsandy/lpub3d/commits/master
 
 [gh-maintained-badge]: https://img.shields.io/maintenance/yes/2018.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMTIgMTIgNDAgNDAiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0zMiwxMy40Yy0xMC41LDAtMTksOC41LTE5LDE5YzAsOC40LDUuNSwxNS41LDEzLDE4YzEsMC4yLDEuMy0wLjQsMS4zLTAuOWMwLTAuNSwwLTEuNywwLTMuMiBjLTUuMywxLjEtNi40LTIuNi02LjQtMi42QzIwLDQxLjYsMTguOCw0MSwxOC44LDQxYy0xLjctMS4yLDAuMS0xLjEsMC4xLTEuMWMxLjksMC4xLDIuOSwyLDIuOSwyYzEuNywyLjksNC41LDIuMSw1LjUsMS42IGMwLjItMS4yLDAuNy0yLjEsMS4yLTIuNmMtNC4yLTAuNS04LjctMi4xLTguNy05LjRjMC0yLjEsMC43LTMuNywyLTUuMWMtMC4yLTAuNS0wLjgtMi40LDAuMi01YzAsMCwxLjYtMC41LDUuMiwyIGMxLjUtMC40LDMuMS0wLjcsNC44LTAuN2MxLjYsMCwzLjMsMC4yLDQuNywwLjdjMy42LTIuNCw1LjItMiw1LjItMmMxLDIuNiwwLjQsNC42LDAuMiw1YzEuMiwxLjMsMiwzLDIsNS4xYzAsNy4zLTQuNSw4LjktOC43LDkuNCBjMC43LDAuNiwxLjMsMS43LDEuMywzLjVjMCwyLjYsMCw0LjYsMCw1LjJjMCwwLjUsMC40LDEuMSwxLjMsMC45YzcuNS0yLjYsMTMtOS43LDEzLTE4LjFDNTEsMjEuOSw0Mi41LDEzLjQsMzIsMTMuNHoiLz48L3N2Zz4=
-[gh-maintained-url]: https://github.com/trevorsandy/lpub3d/projects/1 "Last edited 12-04-2018"
+[gh-maintained-url]: https://github.com/trevorsandy/lpub3d/projects/1 "Last edited 04-09-2018"
 
 [sf-dw-badge]:         https://img.shields.io/sourceforge/dw/lpub3d.svg?logo=data:image/svg+xml;base64,PCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAyMDAxMDkwNC8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+PHN2ZyB2ZXJzaW9uPSIxLjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjMzMHB4IiBoZWlnaHQ9IjMzMHB4IiB2aWV3Qm94PSIwIDAgMzMwMCAzMzAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCBtZWV0Ij48ZyBpZD0ibGF5ZXIxMDEiIGZpbGw9IiNmZmYiIHN0cm9rZT0ibm9uZSI+IDxwYXRoIGQ9Ik0xNTI4IDMwMTkgYy0xMCAtNSAtMTggLTIwIC0xOCAtMzIgMCAtMTYgMTczIC0xOTUgNjA3IC02MjkgNTYyIC01NjIgNjA2IC02MDkgNjA1IC02MzkgLTEgLTI5IC00OSAtODEgLTQ4MSAtNTEzIC0zMjMgLTMyMyAtNDgxIC00ODggLTQ4MSAtNTAyIDAgLTIzIDE5OCAtMjI0IDIyMSAtMjI0IDE5IDAgMTIzOSAxMjIxIDEyMzkgMTI0MCAwIDggLTI5MSAzMDYgLTY0NyA2NjIgbC02NDggNjQ4IC0xOTAgMCBjLTExMCAwIC0xOTcgLTUgLTIwNyAtMTF6Ii8+IDxwYXRoIGQ9Ik02ODIgMjIwNiBjLTQwMSAtNDAwIC02MTMgLTYxOSAtNjExIC02MjkgNCAtMTggMTI2MiAtMTI4MiAxMjkxIC0xMjk4IDIzIC0xMyAzNzUgLTEyIDM5OSAxIDEwIDYgMTkgMjEgMTkgMzMgMCAxNSAtMTcyIDE5NCAtNjA0IDYyNyAtMzMzIDMzMyAtNjA1IDYxMiAtNjA2IDYyMCAtMiA4IC0yIDI0IC0xIDM1IDEgMTIgMTkzIDIxMiA0ODEgNTAwIDMwOCAzMDggNDgwIDQ4NyA0ODAgNTAwIDAgMjMgLTE5NyAyMjUgLTIyMCAyMjUgLTggMCAtMjkxIC0yNzYgLTYyOCAtNjE0eiIvPiA8cGF0aCBkPSJNMTU5MiAyMjM5IGMtMTM5IC0yMyAtMjY5IC0xMjMgLTMzNiAtMjYwIC00NiAtOTUgLTYwIC0xNjkgLTUyIC0yODkgMTAgLTE2MiA1MSAtMjU4IDE4NiAtNDMxIDEwOCAtMTM4IDEzOCAtMTk2IDE1MyAtMjg4IDEyIC04MyAyNiAtOTAgNzMgLTM4IDgxIDg2IDEzNyAxODYgMTc5IDMxNyA0MCAxMjYgNTUgMjE2IDY2IDQwMCA2IDkxIDE2IDE3NiAyMiAxOTAgMTggMzcgNTEgMzcgNzYgMSA0OCAtNjYgNTUgLTEwNiA1NSAtMjg0IDAgLTEwOSA0IC0xNjYgMTEgLTE2NCAxNiA1IDUzIDkxIDgwIDE4NCA5MSAzMTIgLTg3IDYyMCAtMzgxIDY2MyAtMzggNSAtNzEgOSAtNzQgOSAtMyAtMSAtMjkgLTUgLTU4IC0xMHoiLz4gPC9nPjwvc3ZnPg==
 [sf-dw-badge-url]:     https://sourceforge.net/projects/lpub3d

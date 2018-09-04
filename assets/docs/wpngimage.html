@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>WPngImage 1.3.3 documentation</title>
+  <title>WPngImage 1.4.0 documentation</title>
   <style type="text/css"> <!--
 html
 {
@@ -79,7 +79,7 @@ code
 </head>
 
 <body>
-<h1>WPngImage 1.3.3 documentation</h1>
+<h1>WPngImage 1.4.0 documentation</h1>
 
 <p><code>WPngImage</code> is a C++ library to manage images in PNG format. It can be used
   as a completely stand-alone library using the <a href="http://lodev.org/lodepng/">lodepng</a>
@@ -149,6 +149,7 @@ code
     <li><a href="#wpngimage_drawing_lines">Drawing lines</a></li>
     <li><a href="#wpngimage_drawing_rectangles">Drawing rectangles</a></li>
     <li><a href="#wpngimage_resize_canvas">Resize canvas</a></li>
+    <li><a href="#wpngimage_flip_rotate">Flipping and rotating the image</a></li>
     <li><a href="#wpngimage_premultiply_alpha">Premultiply alpha</a></li>
     <li><a href="#wpngimage_lowlevel">Low level access</a></li>
   </ul>
@@ -1117,6 +1118,24 @@ void resizeCanvas(int newOriginX, int newOriginY, int newWidth, int newHeight, P
 
 <pre>image.resizeCanvas(-10, -10, image.width()+20, image.height()+20,
                    WPngImage::Pixel8(0, 0, 0, 0));</pre>
+
+
+<!---------------------------------------------------------------------------->
+<h3 id="wpngimage_flip_rotate">Flipping and rotating the image</h3>
+
+<pre>void flipHorizontally();
+void flipVertically();
+void rotate180();
+void rotate90cw();
+void rotate90ccw();</pre>
+
+<p>These functions flip the image horizontally and vertically, or rotate it 180 or 90
+  degrees clockwise or counter-clockwise. (Rotating the image 90 degrees will swap
+  its width and height.)</p>
+
+<p>Flipping and rotating by 180 degrees will be done in-place (ie. no additional memory
+  will be allocated). Likewise rotating 90 degrees, if the image is square. For non-square
+  images rotating by 90 degrees will internally make a new allocation.</p>
 
 
 <!---------------------------------------------------------------------------->

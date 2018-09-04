@@ -50,6 +50,7 @@ TABLE.SettingsList TH
 	border-bottom: 1px solid #000000;
 	border-right: 1px solid #00558A;
 	padding: 4px 8px;
+	white-space: nowrap;
 }
 TABLE TD
 {
@@ -2620,6 +2621,96 @@ using -SaveSnapshots=1. You do not have to specify -SaveSnapshots=1 if you
 specify a value for -SaveSnapshotsList.
 </p>
 <p>
+<font size="+2"><b><a name="ZMap">Requesting a Z Map File</a></b></font><br/>
+</p>
+<p>
+LDView has the ability to create a Z Map file alongside each snapshot it
+generates. The Z Map file has the same filename as the snapshot, but with an
+extension of .ldvz. To cause LDView to generate Z Maps, use
+<span class="NoWrap">-SaveZMap=1</span> on the command line. The Z Map file has
+the following format:
+</p>
+<p>
+<table class="SettingsList">
+	<tr>
+		<th>
+			Field
+		</th>
+		<th>
+			# Bytes
+		</th>
+		<th>
+			Description
+		</th>
+	</tr>
+	<tr>
+		<td nowrap="nowrap">
+			Magic Number
+		</td>
+		<td align="right">
+			4
+		</td>
+		<td>
+			The file's magic number. Its value is "ldvz".
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Endian
+		</td>
+		<td align="right">
+			4
+		</td>
+		<td>
+			Indicates whether the file is big endian or little endian. The file
+			will always match the endianness of the computer it was created on.
+			A value of "BIGE" indicates big endian, and "LITE" indicates little
+			endian. All integer and floating point values in the file use the
+			endianness indicated here.
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Width
+		</td>
+		<td align="right">
+			4
+		</td>
+		<td>
+			A 32-bit integer representing the width of the file.
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Height
+		</td>
+		<td align="right">
+			4
+		</td>
+		<td>
+			A 32-bit integer representing the height of the file.
+		</td>
+	</tr>
+	<tr>
+		<td nowrap="nowrap">
+			Z Map
+		</td>
+		<td align="right" nowrap="nowrap">
+			Width * Height * 4
+		</td>
+		<td>
+			A collection of 32-bit floating point Z values corresponding to all
+			of the pixels in the associated snapshot. Each Z value is a number
+			from 0.0 to 1.0, where 1.0 indicates a pixel that is as far away as
+			possible from the camera, and 0.0 indicates a pixel that is as close
+			as possible to the camera. The first <i>Width</i> values represent
+			the top row of the snapshot image. Then next <i>Width</i> values
+			represent the next row of the snapshot image, and so on.
+		</td>
+	</tr>
+</table>
+</p>
+<p>
 <font size="+2"><b><a name="ExportFilename">Specifying an Export
 Filename</a></b></font><br/>
 </p>
@@ -4764,6 +4855,21 @@ set-specific, while others aren't.
 			Equivalent to the <a href="#SaveWidthField"><i>Width</i></a> field
 			in the <a href="#SaveSnapshotOptions"><i>Save Snapshot</i></a>
 			dialog box.
+		</td>
+	</tr>
+	<tr>
+		<td valign="top">
+			SaveZMap
+		</td>
+		<td valign="top">
+			Boolean
+		</td>
+		<td valign="top">
+			YES
+		</td>
+		<td valign="top">
+			Causes LDView to generate a <a href="#ZMap">Z Map file</a> for each
+			snapshot saved.
 		</td>
 	</tr>
 	<tr>

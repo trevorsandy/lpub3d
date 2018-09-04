@@ -1,0 +1,70 @@
+The following people have contributed to components used in LPub3D:
+
+LPub3D
+Trevor Sandy <trevor.sandy@gmail.com>
+
+LDGLite (LDGLite 1.3.4 - specifically adapted for LPub3D)
+Trevor Sandy <trevor.sandy@gmail.com>
+
+LDView-OSMesa-CUI (LDView 4.3 "qmake-build" specifically adapted for LPub3D)
+Trevor Sandy <trevor.sandy@gmail.com>
+
+LPub3D RayTrace-CUI (POV-Ray 3.8 "raytracer-cui" specifically adapted for LPub3D)
+Trevor Sandy <trevor.sandy@gmail.com>
+
+3DViewer (LeoCAD version 18.2 specifically adapted for LPub3D)
+Trevor Sandy <trevor.sandy@gmail.com>
+
+LPub4
+Author:
+Kevin Clague <kevin.clague@gmail.com>
+
+LeoCAD 18.2 commit 15d5e89
+Author:
+Leonardo Zide <leozide@gmail.com>
+
+LDGlite 1.3.4 commit 492071
+Don Heyse <dheyse@hotmail.com>
+
+LDView 4.3 commit e11ec4
+Travis Cobb <ldview@gmail.com>
+Peter Bartfai <pbartfai@stardust.hu>
+
+POV-Ray 3.8 commit 669144
+Persistence of Vision Raytracer Pty. Ltd.
+
+qSLog 2.0.0
+Razvan Petru
+
+QuaZip 0.7.3
+Sergey A. Tachenov
+
+QSimpleUpdater
+Alex Spataru
+
+WPngImage 1.4.0
+Juha Nieminen
+
+LDraw.ini / ldglite
+Lars C. Hassing <SP.lars@AM.hassings.dk>
+
+Linux Open Build Service scripts
+Peter Bartfai <pbartfai@stardust.hu>
+
+Other Contributors (in alphabetical order):
+Daniele Benedettelli
+
+Dropbox Uploader script
+Andrea Fabrizi <andrea.fabrizi@gmail.com>
+
+Dmg fileicon script
+Michael Klement <mklement0@gmail.com>
+
+Dmg License script
+Jared Hobbs
+
+NsisMultiUser Plugin <https://github.com/Drizin/NsisMultiUser>
+Ricardo Drizin, Alex Mitev
+
+Linux Porting suggestion
+Milan Vancura
