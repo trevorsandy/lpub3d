@@ -70,7 +70,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 
  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2018 Leonardo Zide and additional third party components. See [Credits][credits] for full details on contributing content.
 
-[lpub3d-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d/master/mainApp/images/lpub3d128.png
+[lpub3d-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d/master/mainApp/resources/lpub3d128.png
 [changelog]:           https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/README.txt
 [credits]:             https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/CREDITS.txt
 [copying]:             https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/COPYING.txt
@@ -141,9 +141,9 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [univention-icon]:     https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/univention.png
 [windows-icon]:        https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/windows.png
 
-[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.3.0/LPub3D-2.3.0.1.884_20180903.exe
-[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.3.0/LPub3D-2.3.0.1.884_20180903-macos.dmg
-[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.3.0/LPub3D-2.3.0.1.884_20180903-x86_64.AppImage
+[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.3.0/LPub3D-2.3.0.1.885_20180904.exe
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.3.0/LPub3D-2.3.0.1.885_20180904-macos.dmg
+[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.3.0/LPub3D-2.3.0.1.885_20180904-x86_64.AppImage
 
 [arch-url]:            https://download.opensuse.org/repositories/home:/trevorsandy/Arch_Extra/
 [centos-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/CentOS_7/

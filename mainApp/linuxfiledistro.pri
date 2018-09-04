@@ -85,19 +85,19 @@ unix:!macx {
         appstream_appdata.path = $$APPDATA_DIR
     }
 
-    icon.files += $$_PRO_FILE_PWD_/images/$$join(DIST_TARGET,,,.png)
+    icon.files += $$_PRO_FILE_PWD_/resources/$$join(DIST_TARGET,,,.png)
     icon.path = $$ICON_DIR
 
     mime.files += $$_PRO_FILE_PWD_/$$join(DIST_TARGET,,,.xml)
     mime.path = $$MIME_DIR
 
-    mime_ldraw_icon.files += $$_PRO_FILE_PWD_/images/x-ldraw.svg
+    mime_ldraw_icon.files += $$_PRO_FILE_PWD_/resources/x-ldraw.svg
     mime_ldraw_icon.path = $$MIME_ICON_DIR
 
-    mime_multi_part_ldraw_icon.files += $$_PRO_FILE_PWD_/images/x-multi-part-ldraw.svg
+    mime_multi_part_ldraw_icon.files += $$_PRO_FILE_PWD_/resources/x-multi-part-ldraw.svg
     mime_multi_part_ldraw_icon.path = $$MIME_ICON_DIR
 
-    mime_multipart_ldraw_icon.files += $$_PRO_FILE_PWD_/images/x-multipart-ldraw.svg
+    mime_multipart_ldraw_icon.files += $$_PRO_FILE_PWD_/resources/x-multipart-ldraw.svg
     mime_multipart_ldraw_icon.path = $$MIME_ICON_DIR
 
     excluded_count_parts.files += $$_PRO_FILE_PWD_/extras/excludedParts.lst

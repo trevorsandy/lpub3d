@@ -38,27 +38,27 @@
     <screenshots>
         <screenshot type="default">
             <caption>Cover page with image</caption>
-            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/images/slider/1.png</image>
+            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/resources/slider/1.png</image>
         </screenshot>
         <screenshot>
             <caption>Fade previous step</caption>
-            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/images/slider/2.png</image>
+            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/resources/slider/2.png</image>
         </screenshot>
         <screenshot>
             <caption>Rotate step image</caption>
-            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/images/slider/3.png</image>
+            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/resources/slider/3.png</image>
         </screenshot>
         <screenshot>
             <caption>Split BOM Parts across pages</caption>
-            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/images/slider/4.png</image>
+            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/resources/slider/4.png</image>
         </screenshot>
         <screenshot>
             <caption>Page setup dialogue</caption>
-            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/images/slider/5.png</image>
+            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/resources/slider/5.png</image>
         </screenshot>
         <screenshot>
             <caption>Realistic image rendering</caption>
-            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/images/slider/6.png</image>
+            <image width="1920" height="1080">https://trevorsandy.github.io/lpub3d/assets/resources/slider/6.png</image>
         </screenshot>
     </screenshots>
     <launchable type="desktop-id">lpub3d.desktop</launchable>
@@ -68,7 +68,7 @@
         <binary>lpub3d23</binary>
     ​</provides>
     <releases>
-        <release version="2.3.0.884" date="2018-09-03">
+        <release version="2.3.0.885" date="2018-09-04">
             <description>
                 <p>LPub3D Linux AppImage package</p>
             </description>

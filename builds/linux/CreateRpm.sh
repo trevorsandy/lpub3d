@@ -84,7 +84,7 @@ WORK_DIR=${LPUB3D}-git
 mv -f ${LPUB3D} ${WORK_DIR}
 
 echo "6. copy lpub3d.xpm icon to SOURCES/"
-cp -f ${WORK_DIR}/mainApp/images/lpub3d.xpm .
+cp -f ${WORK_DIR}/mainApp/resources/lpub3d.xpm .
 
 echo "7. copy ${LPUB3D}.spec to SPECS/"
 cp -f ${WORK_DIR}/builds/linux/obs/${LPUB3D}.spec ${BUILD_DIR}/SPECS

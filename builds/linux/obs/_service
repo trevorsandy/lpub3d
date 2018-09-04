@@ -67,7 +67,7 @@
   </service>
   <service name="extract_file">
       <param name="archive">*.tar</param>
-      <param name="files">*/mainApp/images/lpub3d.xpm
+      <param name="files">*/mainApp/resources/lpub3d.xpm
                           */builds/linux/obs/lpub3d-rpmlintrc
                           */builds/linux/obs/alldeps/appimage.yml
                           */builds/linux/obs/alldeps/debian/lpub3d.dsc
