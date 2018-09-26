@@ -30,7 +30,7 @@ include(../gitversion.pri)
 TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
-INCLUDEPATH += ../ldrawini ../lclib/common ../lclib/qt
+INCLUDEPATH += ../ldrawini ../lclib/common ../lclib/qt ../qsimpleupdater/include ../qsimpleupdater/src
 INCLUDEPATH += ../ldvlib ../ldvlib/LDVQt/include ../ldvlib/WPngImage
 win32-msvc* {
 INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
@@ -460,6 +460,7 @@ SOURCES += \
     lpub.cpp \
     lpubalert.cpp \
     lpub_preferences.cpp \
+    messageboxresizable.cpp \
     meta.cpp \
     metagui.cpp \
     metaitem.cpp \

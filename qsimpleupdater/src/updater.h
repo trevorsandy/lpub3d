@@ -93,6 +93,7 @@ public:
     // LPub3D Mod
     bool directDownload() const;
     bool promptedDownload() const;
+    bool getChangeLogOnly() const;
     QString fileName() const;
     QString downloadDir() const;
     QString getAvailableVersions() const;
@@ -115,7 +116,9 @@ public slots:
     void setPromptedDownload (const bool& enabled);
     void setDirectDownload (const bool& enabled);
     void setDownloadDir (const QString& path);
+    void setChangelogOnly  (const bool& enabled);
     void retrieveAvailableVersions();
+    bool compareVersionStr (const QString& x, const QString& y) { return compare(x,y); }
     // Mod End
 
 private slots:
@@ -157,6 +160,7 @@ private:
     bool m_directDownload;
     bool m_promptedDownload;
     bool m_versionsRequest;
+    bool m_changeLogOnly;
     QString m_fileName;
     QString m_availableVersions;
 

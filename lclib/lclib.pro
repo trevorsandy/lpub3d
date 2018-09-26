@@ -26,7 +26,7 @@ TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
 INCLUDEPATH += qt common
-INCLUDEPATH += ../mainApp ../ldvlib/LDVQt/include
+INCLUDEPATH += ../mainApp ../ldvlib/LDVQt/include ../qsimpleupdater/include ../qsimpleupdater/src
 INCLUDEPATH += ../qslog ../ldrawini ../quazip ../qsimpleupdater/src/progress_bar
 win32-msvc* {
 INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib

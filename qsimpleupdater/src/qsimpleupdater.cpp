@@ -157,6 +157,27 @@ QString QSimpleUpdater::getChangelog (const QString& url) const
 {
     return getUpdater (url)->changelog();
 }
+// LPub3D Mod
+/**
+ * Sets the flage to return the changelog of the \c Updater instance
+ * registered with the given \a url. The full update check is not performed.
+ *
+ * \warning You should call \c checkForUpdates() before using this function
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+void QSimpleUpdater::setChangelogOnly (const QString& url,
+                                          const bool& enabled)
+{
+    return getUpdater (url)->setChangelogOnly(enabled);
+}
+
+bool QSimpleUpdater::getChangelogOnly (const QString& url) const
+{
+    return getUpdater (url)->getChangeLogOnly();
+}
+
+// Mod End
 
 /**
  * Returns the module name of the \c Updater instance registered with the given
@@ -469,5 +490,15 @@ void QSimpleUpdater::setDownloadDir (const QString& url,
  */
 QString QSimpleUpdater::getAvailableVersions (const QString& url) const {
     return getUpdater (url)->getAvailableVersions();
+}
+
+/**
+ * Compares the two version strings (\a x and \a y).
+ *     - If \a x is greater than \y, this function returns \c true.
+ *     - If \a y is greater than \x, this function returns \c false.
+ *     - If both versions are the same, this function returns \c false.
+ */
+bool QSimpleUpdater::compareVersionStr (const QString& url, const QString& x, const QString& y) {
+    return getUpdater (url)->compareVersionStr(x,y);
 }
 // Mod End

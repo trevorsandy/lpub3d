@@ -183,7 +183,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.lineEditIniFile->setReadOnly(true);
   ui.textEditSearchDirs->setWordWrapMode(QTextOption::WordWrap);
   ui.textEditSearchDirs->setLineWrapMode(QTextEdit::FixedColumnWidth);
-  ui.textEditSearchDirs->setLineWrapColumnOrWidth(80);
+  ui.textEditSearchDirs->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
   if (Preferences::ldrawiniFound) {
       ui.lineEditIniFile->setText(QString("Using LDraw.ini File: %1").arg(Preferences::ldrawiniFile));
       ui.pushButtonReset->hide();
@@ -305,16 +305,14 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.groupBoxChangeLog->setTitle(tr("Change Log for version %1").arg(version));
   ui.changeLog_txbr->setWordWrapMode(QTextOption::WordWrap);
   ui.changeLog_txbr->setLineWrapMode(QTextEdit::FixedColumnWidth);
-  ui.changeLog_txbr->setLineWrapColumnOrWidth(80);
+  ui.changeLog_txbr->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
   ui.changeLog_txbr->setOpenExternalLinks(true);
-  QString readme = tr("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dDocsResourcePath).arg("RELEASE_NOTES.html");
-  QFile file(readme);
-  if (! file.open(QFile::ReadOnly | QFile::Text)){
-      ui.changeLog_txbr->setText(tr("Failed to open %1\n%2").arg(readme,file.errorString()));
-  } else {
-      QTextStream in(&file);
-      ui.changeLog_txbr->setHtml(in.readAll());
-  }
+
+  //populate readme from the web
+  m_updater->setChangelogOnly(DEFS_URL, true);
+  m_updater->checkForUpdates (DEFS_URL);
+
+  setSizeGripEnabled(true);
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -949,9 +947,12 @@ QStringList const PreferencesDialog::searchDirSettings()
 
 void PreferencesDialog::updateChangelog (QString url) {
     if (url == DEFS_URL) {
-        if (m_updater->getUpdateAvailable(url)) {
+        if (m_updater->getUpdateAvailable(url) || m_updater->getChangelogOnly(url)) {
             ui.groupBoxChangeLog->setTitle(tr("Change Log for version %1").arg(m_updater->getLatestVersion(url)));
-            ui.changeLog_txbr->setHtml(m_updater->getChangelog (url));
+            if (m_updater->compareVersionStr(url, m_updater->getLatestVersion(url), PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION))
+                ui.changeLog_txbr->setHtml(m_updater->getChangelog (url));
+            else
+                ui.changeLog_txbr->setText(m_updater->getChangelog (url));
         }
     }
 }

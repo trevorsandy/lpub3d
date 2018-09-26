@@ -16,33 +16,94 @@
 #define MESSAGEBOXRESIZABLE_H
 
 // Resizable QMessageBox Hack
+#include <QWidget>
 #include <QMessageBox>
-#include <QTextEdit>
-#include <QEvent>
+#include <QTextBrowser>
+#include <QPushButton>
+#include <QAbstractButton>
+
+enum DetailButtonLabel { ShowLabel = 0, HideLabel = 1 };
+
+#if QT_CONFIG(textbrowser)
+class QMessageBoxDetailsText : public QWidget
+{
+    Q_OBJECT
+public:
+    class TextBrowser : public QTextBrowser
+    {
+    public:
+        TextBrowser(QWidget *parent=0) : QTextBrowser(parent) { }
+#ifndef QT_NO_CONTEXTMENU
+        void contextMenuEvent(QContextMenuEvent * e) override;
+#endif // QT_NO_CONTEXTMENU
+    };
+    QMessageBoxDetailsText(QWidget *parent=0);
+    void setHtml(const QString &text) { textBrowser->setHtml(text); }
+    void setText(const QString &text) { textBrowser->setPlainText(text); }
+    QString text() const { return textBrowser->toPlainText(); }
+    bool copy()
+    {
+#ifdef QT_NO_CLIPBOARD
+        return false;
+#else
+        if (!copyAvailable)
+            return false;
+        textBrowser->copy();
+        return true;
+#endif
+    }
+    void selectAll()
+    {
+        textBrowser->selectAll();
+    }
+private slots:
+    void textCopyAvailable(bool available)
+    {
+        copyAvailable = available;
+    }
+private:
+    bool copyAvailable;
+    TextBrowser *textBrowser;
+};
+#endif // QT_CONFIG(textbrowser)
+
+class DetailPushButton : public QPushButton
+{
+public:
+    DetailPushButton(QWidget *parent) : QPushButton(label(ShowLabel), parent)
+    {
+        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    }
+
+    QString label(DetailButtonLabel label) const
+    {
+        return label == ShowLabel ? QMessageBox::tr("Show Details...") : QMessageBox::tr("Hide Details...");
+    }
+
+    void setLabel(DetailButtonLabel lbl)
+    {
+        setText(label(lbl));
+    }
+
+    QSize sizeHint() const override;
+};
 
 class QMessageBoxResizable: public QMessageBox
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-   QMessageBoxResizable() {
-     setMouseTracking(true);
-     setSizeGripEnabled(true);
-   }
+    QMessageBoxResizable(QWidget *parent=nullptr);
+    ~QMessageBoxResizable(){}
+    void setDetailedText(const QString &text, bool html = true);
+private slots:
+    void showDetails(bool clicked);
 private:
-   virtual bool event(QEvent *e) {
-     bool res = QMessageBox::event(e);
-     switch (e->type()) {
-     case QEvent::MouseMove:
-     case QEvent::MouseButtonPress:
-       setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
-       if (QWidget *textEdit = findChild<QTextEdit *>()) {
-         textEdit->setMaximumHeight(QWIDGETSIZE_MAX);
-       }
-     default:
-       break;
-     }
-     return res;
-   }
+    virtual bool event(QEvent *e);
+#if QT_CONFIG(textbrowser)
+    QMessageBoxDetailsText *detailsTextBrowser;
+#endif
+    DetailPushButton       *detailsPushButton;
+    bool                    autoAddOkButton;
 };
 
 #endif // MESSAGEBOXRESIZABLE_H

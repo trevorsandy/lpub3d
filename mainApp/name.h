@@ -62,6 +62,9 @@ enum Theme { ThemeDark, ThemeDefault };
 
 #define PAGE_HEIGHT_DEFAULT                     800
 #define PAGE_WIDTH_DEFAULT                      600
+#define LINE_WRAP_WIDTH                         160      //Text browser line width (change log)
+
+#define PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION    "2.2.2"  // last versoion of LPub3D to use html change notes
 
 // filenames
 #define URL_LDRAW_UNOFFICIAL_ARCHIVE            "http://www.ldraw.org/library/unofficial/ldrawunf.zip"

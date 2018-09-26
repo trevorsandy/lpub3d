@@ -39,6 +39,8 @@
 #include "downloader.h"
 #include "messageboxresizable.h"
 #include "version.h"
+#include "name.h"
+#include "lpubalert.h"
 
 Updater::Updater()
 {
@@ -59,6 +61,7 @@ Updater::Updater()
     // LPub3D Mod
     m_fileName = "";
     m_availableVersions = "";
+    m_changeLogOnly = false;
     m_directDownload = false;
     m_promptedDownload = false;
     m_versionsRequest = false;
@@ -533,7 +536,7 @@ void Updater::onReply (QNetworkReply* reply)
             } else {return;}
         }
 
-        if (_updateAvailable) {
+        if (_updateAvailable || getChangeLogOnly()) {
             QNetworkAccessManager *_manager = new QNetworkAccessManager (this);
 
             connect (_manager, SIGNAL (finished (QNetworkReply *)),
@@ -548,6 +551,12 @@ void Updater::onReply (QNetworkReply* reply)
             QEventLoop wait;
             wait.connect(this, SIGNAL(changeLogReplyFinished()),&wait, SLOT(quit()));
             wait.exec();
+        }
+
+        /* All done if we only wanted to get the change log */
+        if (getChangeLogOnly()) {
+            emit checkingFinished (url());
+            return;
         }
 
         setUpdateAvailable (_updateAvailable);
@@ -618,7 +627,7 @@ void Updater::setUpdateAvailable (const bool available)
                                .arg(moduleName(), latestVersion(), moduleVersion());
             box.setText (title);
             box.setInformativeText (text);
-            box.setDetailedText(changelog());
+            box.setDetailedText(changelog(), compare(latestVersion(), PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION));
             box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
             box.setDefaultButton   (QMessageBox::Ok);
 
@@ -723,6 +732,15 @@ void Updater::setDownloadDir (const QString& path) {
 }
 
 /**
+ * Sets the flage to return the changelog of the \c Updater instance
+ * registered with the given \a url. The full update check is not performed.
+ *
+ */
+void Updater::setChangelogOnly (const bool& enabled) {
+    m_changeLogOnly = enabled;
+}
+
+/**
  * Set the version request flag
  */
 void Updater::setVersionsRequested(const bool& version) {
@@ -747,6 +765,14 @@ void Updater::retrieveAvailableVersions() {
  */
 bool Updater::versionsRequested() {
     return m_versionsRequest;
+}
+
+/**
+ * Returns the changeLogOnly fiag
+ */
+bool Updater::getChangeLogOnly() const
+{
+    return m_changeLogOnly;
 }
 
 /**

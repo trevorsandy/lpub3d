@@ -25,6 +25,9 @@
 #include "version.h"
 #include "lc_global.h"
 #include "lpub_preferences.h"
+#include "qsimpleupdater.h"
+
+QString AboutDialog::DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
 
 AboutDialog::AboutDialog(QWidget *parent) :
 	QDialog(parent),
@@ -186,8 +189,13 @@ AboutDialog::AboutDialog(QWidget *parent) :
     // QTextBrowser content management
     ui->contentEdit->setWordWrapMode(QTextOption::WordWrap);
     ui->contentEdit->setLineWrapMode(QTextEdit::FixedColumnWidth);
-    ui->contentEdit->setLineWrapColumnOrWidth(120);
+    ui->contentEdit->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
     ui->contentEdit->setOpenExternalLinks(true);
+
+    /* QSimpleUpdater start */
+    m_updater = QSimpleUpdater::getInstance();
+    connect (m_updater, SIGNAL (checkingFinished (QString)),
+             this,        SLOT (updateChangelog  (QString)));
 
     //buttonBar additions
     detailsButton = new QPushButton(tr("Version Details..."));
@@ -195,7 +203,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->buttonBox->addButton(detailsButton,QDialogButtonBox::ActionRole);
 
     connect(detailsButton,SIGNAL(clicked(bool)),
-            this,SLOT(showReadmeDetails(bool)));
+            this,SLOT(showChangeLogDetails(bool)));
 
     creditsButton = new QPushButton(tr("Credits..."));
     creditsButton->setDefault(true);
@@ -203,6 +211,13 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     connect(creditsButton,SIGNAL(clicked(bool)),
             this,SLOT(showCreditDetails(bool)));
+
+    //populate readme from the web
+    changeLogDetails = false;
+    m_updater->setChangelogOnly(DEFS_URL, true);
+    m_updater->checkForUpdates (DEFS_URL);
+
+    setSizeGripEnabled(true);
 }
 
 AboutDialog::~AboutDialog()
@@ -210,21 +225,27 @@ AboutDialog::~AboutDialog()
 	delete ui;
 }
 
-void AboutDialog::showReadmeDetails(bool clicked){
+// populate readme
+void AboutDialog::updateChangelog (QString url) {
+    if (url == DEFS_URL) {
+        if (m_updater->getUpdateAvailable(url) || m_updater->getChangelogOnly(url)) {
+            ui->contentGroupBox->setTitle(tr("Change Log for version %1").arg(m_updater->getLatestVersion(url)));
+            if (m_updater->compareVersionStr(url, m_updater->getLatestVersion(url), PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION))
+                ui->contentEdit->setHtml(m_updater->getChangelog (url));
+            else
+                ui->contentEdit->setText(m_updater->getChangelog (url));
+            changeLogDetails = true;
+        }
+    }
+}
+
+void AboutDialog::showChangeLogDetails(bool clicked){
     Q_UNUSED(clicked);
-    //populate readme
-    QString readmeFile;
 
-    readmeFile = QString("%1/%2/%3").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dDocsResourcePath).arg("RELEASE_NOTES.html");
-
-    QFile file(readmeFile);
-    if (! file.open(QFile::ReadOnly | QFile::Text)) {
-        ui->contentEdit->setText(QString("Failed to open Readme file: \n%1:\n%2")
-                            .arg(readmeFile)
-                            .arg(file.errorString()));
-    } else {
-        QTextStream in(&file);
-        ui->contentEdit->setHtml(in.readAll());
+    //populate readme from the web
+    if (!changeLogDetails) {
+        m_updater->setChangelogOnly(DEFS_URL, true);
+        m_updater->checkForUpdates (DEFS_URL);
     }
 
     if (ui->contentGroupBox->isHidden()){
@@ -239,6 +260,8 @@ void AboutDialog::showReadmeDetails(bool clicked){
 
 void AboutDialog::showCreditDetails(bool clicked){
     Q_UNUSED(clicked);
+
+
     //populate credits
     QString creditsFile;
 
@@ -249,6 +272,7 @@ void AboutDialog::showCreditDetails(bool clicked){
         ui->contentEdit->setPlainText( QString("Failed to open Credits file: \n%1:\n%2")
                                                .arg(creditsFile)
                                                .arg(file.errorString()));
+        changeLogDetails = false;
     } else {
         QTextStream in(&file);
         ui->contentEdit->setPlainText(in.readAll());

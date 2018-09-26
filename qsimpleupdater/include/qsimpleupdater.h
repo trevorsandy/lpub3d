@@ -101,6 +101,9 @@ public:
 
     // LPub3D Mod
     QString getAvailableVersions (const QString& url) const;
+    void setChangelogOnly(const QString& url, const bool &enabled);
+    bool getChangelogOnly(const QString& url) const;
+    bool compareVersionStr (const QString& url, const QString& x, const QString& y);
     // Mod End
 
 public slots:

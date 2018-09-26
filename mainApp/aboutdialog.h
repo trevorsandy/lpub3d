@@ -17,8 +17,10 @@
 
 #include <QDialog>
 #ifdef Q_OS_WIN
-#include <windows.h>
+#include <Windows.h>
 #endif
+
+#include "qsimpleupdater.h"
 
 
 namespace Ui {
@@ -35,11 +37,17 @@ class AboutDialog : public QDialog
 	Q_OBJECT
 
 private slots:
-    void showReadmeDetails(bool);
+    void showChangeLogDetails(bool);
     void showCreditDetails(bool);
+    void updateChangelog (QString url);
+
+private:
+    QSimpleUpdater  *m_updater;
+    static QString   DEFS_URL;
+    bool             changeLogDetails;
 
 public:
-        explicit AboutDialog(QWidget *parent);
+    explicit AboutDialog(QWidget *parent);
     QString osName();
     QPushButton *detailsButton;
     QPushButton *creditsButton;
