@@ -158,6 +158,7 @@ bool    Preferences::enableImageMatting         = false;
 
 bool    Preferences::pageRuler                  = false;
 bool    Preferences::pageGuides                 = false;
+bool    Preferences::showParseErrors            = true;
 
 #ifdef Q_OS_MAC
 bool    Preferences::ldviewMissingLibs          = true;
@@ -2111,12 +2112,22 @@ void Preferences::userInterfacePreferences()
   } else {
           pageGuides = Settings.value(QString("%1/%2").arg(SETTINGS,pageGuidesKey)).toBool();
   }
+
   QString const displayThemeKey("DisplayTheme");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,displayThemeKey))) {
           displayTheme = THEME_DEFAULT;
           Settings.setValue(QString("%1/%2").arg(SETTINGS,displayThemeKey),displayTheme);
   } else {
           displayTheme = Settings.value(QString("%1/%2").arg(SETTINGS,displayThemeKey)).toString();
+  }
+
+  QString const showParseErrorsKey("showParseErrors");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showParseErrorsKey))) {
+          QVariant uValue(true);
+          showParseErrors = true;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,showParseErrorsKey),uValue);
+  } else {
+          showParseErrors = Settings.value(QString("%1/%2").arg(SETTINGS,showParseErrorsKey)).toBool();
   }
 }
 
@@ -2137,6 +2148,15 @@ void Preferences::setPageRulerPreference(bool b)
   QVariant uValue(b);
   QString const pageRulerKey("PageRuler");
   Settings.setValue(QString("%1/%2").arg(SETTINGS,pageRulerKey),uValue);
+}
+
+void Preferences::setShowParseErrorsPreference(bool b)
+{
+  QSettings Settings;
+  showParseErrors = b;
+  QVariant uValue(b);
+  QString const showParseErrorsKey("showParseErrors");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,showParseErrorsKey),uValue);
 }
 
 void Preferences::annotationPreferences()
@@ -2562,6 +2582,12 @@ bool Preferences::getPreferences()
         {
             enableFadeSteps = dialog->enableFadeSteps();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableFadeSteps"),enableFadeSteps);
+        }
+
+        if (showParseErrors != dialog->showParseErrors())
+        {
+            showParseErrors = dialog->showParseErrors();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowParseErrors"),showParseErrors);
         }
 
         if (fadeStepsOpacity != dialog->fadeStepsOpacity())

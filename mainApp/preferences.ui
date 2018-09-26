@@ -297,35 +297,6 @@
         </widget>
        </widget>
       </widget>
-      <widget class="QGroupBox" name="groupBox">
-       <property name="geometry">
-        <rect>
-         <x>12</x>
-         <y>487</y>
-         <width>470</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <property name="title">
-        <string>Default Units</string>
-       </property>
-       <layout class="QHBoxLayout">
-        <item>
-         <widget class="QRadioButton" name="Centimeters">
-          <property name="text">
-           <string>Centimeters</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="Inches">
-          <property name="text">
-           <string>Inches</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
       <widget class="QGroupBox" name="altLDConfigBox">
        <property name="geometry">
         <rect>
@@ -541,6 +512,60 @@
          </item>
         </layout>
        </widget>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>12</x>
+         <y>487</y>
+         <width>470</width>
+         <height>52</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_14">
+        <item>
+         <widget class="QGroupBox" name="groupBox">
+          <property name="title">
+           <string>Default Units</string>
+          </property>
+          <layout class="QHBoxLayout">
+           <item>
+            <widget class="QRadioButton" name="Centimeters">
+             <property name="text">
+              <string>Centimeters</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="Inches">
+             <property name="text">
+              <string>Inches</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="showParseErrorGrpBox">
+          <property name="title">
+           <string>Model Meta Parse Errors</string>
+          </property>
+          <layout class="QHBoxLayout" name="_3">
+           <item>
+            <widget class="QCheckBox" name="showParseErrorsChkBox">
+             <property name="toolTip">
+              <string>Display all meta command parse errors including MLCAD and LSynth errors</string>
+             </property>
+             <property name="text">
+              <string>Show all meta parse errors</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
      <widget class="QWidget" name="tabRendering">

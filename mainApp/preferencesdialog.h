@@ -87,6 +87,7 @@ class PreferencesDialog : public QDialog
     bool          includeFileName();
     bool          includeFunction();
     bool          includeAllLogAttrib();
+    bool          showParseErrors();
 
     bool          loggingGrpBox();
     bool          logLevelGrpBox();

@@ -686,12 +686,8 @@ public slots:
 
   void contentsChange(const QString &fileName,int position, int charsRemoved, const QString &charsAdded);
 
-  void parseError(QString errorMsg,Where &here)
-  {
-    if (Preferences::modeGUI)
-      showLine(here);
-    emit messageSig(LOG_ERROR,QString("%1 (%2:%3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber));
-  }
+  void parseError(QString errorMsg,Where &here);
+
   void statusMessage(LogType logType, QString message);
   void statusBarMsg(QString msg);
 

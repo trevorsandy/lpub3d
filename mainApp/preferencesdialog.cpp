@@ -126,6 +126,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.fadeStepsOpacitySlider->setEnabled(         Preferences::enableFadeSteps);
   ui.fadeStepsOpacitySlider->setValue(           Preferences::fadeStepsOpacity);
 
+  ui.showParseErrorsChkBox->setChecked(          Preferences::showParseErrors);
+
   ui.fadeStepsColoursCombo->addItems(LDrawColor::names());
   ui.fadeStepsColoursCombo->setCurrentIndex(int(ui.fadeStepsColoursCombo->findText(Preferences::fadeStepsColour)));
   QColor fadeColor = LDrawColor::color(Preferences::fadeStepsColour);
@@ -858,6 +860,11 @@ int PreferencesDialog::rendererTimeout()
 int PreferencesDialog::pageDisplayPause()
 {
   return ui.pageDisplayPauseSpin->value();
+}
+
+bool PreferencesDialog::showParseErrors()
+{
+ return ui.showParseErrorsChkBox->isChecked();
 }
 
 bool PreferencesDialog::includeLogLevel()

@@ -61,6 +61,7 @@ class Preferences
 
     static void setPageGuidesPreference(bool);
     static void setPageRulerPreference(bool);
+    static void setShowParseErrorsPreference(bool);
 
 
     static QString lpub3dAppName;
@@ -178,6 +179,7 @@ class Preferences
 
     static bool    pageRuler;
     static bool    pageGuides;
+    static bool    showParseErrors;
 
 #ifdef Q_OS_MAC
     static bool    ldviewMissingLibs;

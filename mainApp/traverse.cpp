@@ -643,7 +643,7 @@ int Gui::drawPage(
               /* substitute part/parts with this */
             case PliBeginSub2Rc:
               if (pliIgnore) {
-                  parseError("Nested BEGIN/ENDS not allowed\n",current);
+                  parseError("Nested PLI BEGIN/ENDS not allowed\n",current);
                 }
               if (steps->meta.LPub.pli.show.value() &&
                   ! pliIgnore &&
@@ -675,7 +675,7 @@ int Gui::drawPage(
               /* do not put subsequent parts into PLI */
             case PliBeginIgnRc:
               if (pliIgnore) {
-                  parseError("Nested BEGIN/ENDS not allowed\n",current);
+                  parseError("Nested PLI BEGIN/ENDS not allowed\n",current);
                 }
               pliIgnore = true;
               break;
@@ -697,7 +697,7 @@ int Gui::drawPage(
 
             case PartEndRc:
             case MLCadSkipEndRc:
-              if (partIgnore) {
+              if (! partIgnore) {
                   parseError("Ignore ending with no ignore begin",current);
                 }
               partIgnore = false;
@@ -705,14 +705,14 @@ int Gui::drawPage(
 
             case SynthBeginRc:
               if (synthBegin) {
-                  parseError("Nested BEGIN/ENDS not allowed\n",current);
+                  parseError("Nested LSynth BEGIN/ENDS not allowed\n",current);
                 }
               synthBegin = true;
               break;
 
             case SynthEndRc:
               if ( ! synthBegin) {
-                  parseError("Ignore ending with no ignore begin",current);
+                  parseError("LSynth ignore ending with no ignore begin",current);
                 }
               synthBegin = false;
               break;
