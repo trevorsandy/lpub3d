@@ -319,6 +319,7 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 
 	if (!Preferences::altLDConfigPath.isEmpty())
 	{
+        gui->messageSig(LOG_INFO, QString("Loading Alternate LDConfig file %1...").arg(Preferences::altLDConfigPath));
 		lcDiskFile ColorFile(Preferences::altLDConfigPath);
 
 		if (ColorFile.Open(QIODevice::ReadOnly) && lcLoadColorFile(ColorFile))
