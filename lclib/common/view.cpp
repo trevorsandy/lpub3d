@@ -2516,6 +2516,13 @@ bool View::IsTrackToolAllowed(lcTrackTool TrackTool, quint32 AllowedTransforms) 
 	return false;
 }
 
+void View::StartOrbitTracking()
+{
+	mTrackTool = LC_TRACKTOOL_ORBIT_XY;
+	OnUpdateCursor();
+	OnButtonDown(LC_TRACKBUTTON_LEFT);
+}
+
 void View::StartTracking(lcTrackButton TrackButton)
 {
 	mTrackButton = TrackButton;
@@ -2809,6 +2816,9 @@ void View::OnLeftButtonDown()
 	}
 
 	gMainWindow->SetActiveView(this);
+
+	if (mViewCube.OnLeftButtonDown())
+		return;
 
 	lcTrackTool OverrideTool = GetOverrideTrackTool(Qt::LeftButton);
 
