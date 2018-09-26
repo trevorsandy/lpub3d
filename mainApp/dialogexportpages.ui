@@ -6,212 +6,236 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>350</width>
-    <height>381</height>
+    <width>332</width>
+    <height>298</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Export Page</string>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBoxExportPages">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>343</y>
-     <width>331</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-   <property name="centerButtons">
-    <bool>false</bool>
-   </property>
-  </widget>
-  <widget class="QGroupBox" name="groupBoxPrintOptions">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>17</y>
-     <width>331</width>
-     <height>128</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Export</string>
-   </property>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>30</y>
-      <width>201</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QRadioButton" name="radioButtonAllPages">
-       <property name="toolTip">
-        <string/>
-       </property>
-       <property name="text">
-        <string>All Pages</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="labelAllPages">
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="lineWidth">
-        <number>1</number>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>60</y>
-      <width>201</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QRadioButton" name="radioButtonCurrentPage">
-       <property name="text">
-        <string>Current Page</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="labelCurrentPage">
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>90</y>
-      <width>231</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QRadioButton" name="radioButtonPageRange">
-       <property name="text">
-        <string>Page Range</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="lineEditPageRange">
-       <property name="toolTip">
-        <string>Enter page numbers and/or page ranges. For example, 1,3,5,7-9</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="groupBoxExportCache">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>150</y>
-     <width>331</width>
-     <height>60</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Cache Management</string>
-   </property>
-   <widget class="QCheckBox" name="checkBoxResetCache">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>31</y>
-      <width>291</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>Check to clear all caches before printing/export</string>
-    </property>
-    <property name="text">
-     <string>Reset all caches before content printing/export.</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="groupBoxMixedPageSizes">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>215</y>
-     <width>331</width>
-     <height>50</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Mixed Size and/or Orientation Warning</string>
-   </property>
-   <widget class="QCheckBox" name="checkBoxIgnoreMixedPageSizes">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>24</y>
-      <width>291</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>Ignore mixed page size and/or orientation message when previewing pages.</string>
-    </property>
-    <property name="text">
-     <string>Do not show mixed size and/or orientation message</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QCheckBox" name="doNotShowPageProcessDlgChk">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>284</y>
-     <width>251</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="toolTip">
-    <string>Do not show this dialogue. You can reset this opton in Preferences.</string>
-   </property>
-   <property name="text">
-    <string>Do not show this dialogue in the future.</string>
-   </property>
-  </widget>
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <item>
+    <widget class="QGroupBox" name="groupBoxPrintOptions">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Options</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QRadioButton" name="radioButtonAllPages">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="text">
+           <string>All Pages</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="labelAllPages">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="lineWidth">
+           <number>1</number>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QRadioButton" name="radioButtonCurrentPage">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Current Page</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="labelCurrentPage">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QRadioButton" name="radioButtonPageRange">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Page Range</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" colspan="2">
+         <widget class="QLineEdit" name="lineEditPageRange">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Enter page numbers and/or page ranges. For example, 1,3,5,7-9</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QGroupBox" name="groupBoxExportCache">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>Cache Management</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QCheckBox" name="checkBoxResetCache">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Check to clear all caches before printing/export</string>
+             </property>
+             <property name="text">
+              <string>Reset all caches before content printing/export.</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBoxMixedPageSizes">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>Mixed Size and/or Orientation Warning</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QCheckBox" name="checkBoxIgnoreMixedPageSizes">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Ignore mixed page size and/or orientation message when previewing pages.</string>
+             </property>
+             <property name="text">
+              <string>Do not show mixed size and/or orientation message</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="doNotShowPageProcessDlgChk">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Do not show this dialogue. You can reset this opton in Preferences.</string>
+          </property>
+          <property name="text">
+           <string>Do not show this dialogue in the future.</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+     <zorder></zorder>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>309</width>
+       <height>4</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBoxExportPages">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+     <property name="centerButtons">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections>

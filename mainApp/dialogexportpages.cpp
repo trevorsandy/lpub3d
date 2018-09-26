@@ -27,18 +27,14 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
   linePageRange  = gui->setPageLineEdit->displayText().replace("of","to");
 
   if (gui->exportType != PAGE_PROCESS) {
-      ui->doNotShowPageProcessDlgChk->hide();
-      this->resize(350,318);
-      ui->buttonBoxExportPages->setGeometry(10,277,331,32);
-    }
+    ui->doNotShowPageProcessDlgChk->hide();
+  }
 
   if (! preview && gui->exportType != EXPORT_PDF) {
-      ui->groupBoxMixedPageSizes->hide();
-      this->resize(350,260);
-      ui->buttonBoxExportPages->setGeometry(10,220,331,32);
-    } else {
-      ui->checkBoxIgnoreMixedPageSizes->setChecked(Preferences::ignoreMixedPageSizesMsg);
-    }
+    ui->groupBoxMixedPageSizes->hide();
+  } else {
+    ui->checkBoxIgnoreMixedPageSizes->setChecked(Preferences::ignoreMixedPageSizesMsg);
+  }
 
   ui->radioButtonAllPages->setChecked(true);
   ui->checkBoxResetCache->setChecked(false);
@@ -47,7 +43,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
   ui->lineEditPageRange->setText(QString(linePageRange).replace("to","-").replace(" ",""));
 
   switch(gui->exportType){
-    case EXPORT_PDF:      
+    case EXPORT_PDF:
       setWindowTitle(tr("%1 pdf").arg(preview ? "Preview":"Export to"));
       ui->groupBoxPrintOptions->setTitle(tr("%1 options").arg(preview ? "Preview":"Export to pdf"));
       ui->checkBoxResetCache->setText(tr("Reset all caches before %1 pdf").arg(preview ? "previewing":"exporting"));
@@ -83,15 +79,10 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
       ui->labelCurrentPage->hide();
       ui->radioButtonCurrentPage->hide();
       ui->groupBoxMixedPageSizes->hide();
-      ui->radioButtonPageRange->setGeometry(20,63,111,20);
-      ui->lineEditPageRange->setGeometry(134,63,181,22);
-      ui->groupBoxPrintOptions->setGeometry(10,17,331,111);
-      ui->groupBoxExportCache->setGeometry(10,136,331,51);
-      ui->doNotShowPageProcessDlgChk->setGeometry(30,195,251,20);
-      ui->buttonBoxExportPages->setGeometry(10,230,331,32);
-      this->resize(350,273);
       break;
     }
+  setMinimumSize(40,20);
+  adjustSize();
 }
 
 DialogExportPages::~DialogExportPages()
