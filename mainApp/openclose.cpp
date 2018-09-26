@@ -528,13 +528,16 @@ QString Gui::elapsedTime(const qint64 &time){
     secs = secs % 60;
     int msecs = time % 1000;
 
-    return QString("Elapsed time: %1")
-                   .arg(secs > 59 ?
-                        QString("%1 %2")
-                                .arg(mins, 2, 10, QLatin1Char('0'))     // minutes
-                                .arg(mins > 1 ? "minutes" : "minute") : // minute label
-                        QString("%1.%2 %3")
-                                .arg(secs, 2, 10, QLatin1Char('0'))     // seconds
-                                .arg(msecs, 3, 10, QLatin1Char('0'))    // millisecnds
-                                .arg(secs > 1 ? "seconds" : "second")); // seconds label
+    return QString("Elapsed time: %1%2")
+                   .arg(mins > 0 ?
+                                 QString("%1 %2 ")
+                                         .arg(mins,2,10,QLatin1Char('0'))
+                                         .arg(mins > 1 ? "minutes" : "minute")
+                                 : QString())
+                   .arg(QString("%1")
+                                .arg(QString("%1.%2 %3")
+                                             .arg(secs,2,10,QLatin1Char('0'))
+                                             .arg(msecs,3,10,QLatin1Char('0'))
+                                             .arg(secs > 1 ? "seconds" : "second"))
+                        );
 }

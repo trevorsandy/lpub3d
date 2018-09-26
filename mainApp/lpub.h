@@ -416,7 +416,8 @@ enum traverseRc { HitEndOfPage = 1 };
 enum Dimensions {Pixels = 0, Inches};
 enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
 enum Mode { PAGE_PROCESS, EXPORT_PDF, EXPORT_PNG, EXPORT_JPG, EXPORT_BMP };
-enum Direction { PAGE_PREVIOUS, PAGE_NEXT };
+enum Direction { PAGE_PREVIOUS, PAGE_NEXT, DIRECTION_NOT_SET };
+enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
 
 void clearPliCache();
 void clearCsiCache();
@@ -735,6 +736,8 @@ public slots:
   bool exporting() {return m_exportingContent;}
   void cancelExporting(){m_exportingContent = false;}
 
+  void setContinuousPageAct(PAction p = SET_DEFAULT_ACTION);
+  void setPageContinuousIsRunning(bool b = true, Direction d = DIRECTION_NOT_SET);
   void setContinuousPage(bool b){ m_contPageProcessing = b;}
   bool ContinuousPage() {return m_contPageProcessing;}
   void cancelContinuousPage(){m_contPageProcessing = false;}

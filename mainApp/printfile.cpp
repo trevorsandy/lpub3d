@@ -330,12 +330,23 @@ bool Gui::validatePageRange(){
       if (ranges.contains("-")){
           bool ok[2];
           QStringList range = ranges.split("-");
-          int minPage = range[0].toInt(&ok[0]);
-          int maxPage = range[1].toInt(&ok[1]);
-          if (!ok[0] || !ok[1] || (minPage > maxPage)){
-              message = QString("%1-%2").arg(minPage).arg(maxPage);
+
+          int startPage = range[0].toInt();
+          int endPage = range[1].toInt();
+          if (!ok[0] || !ok[1]){
+              message = QString("%1-%2").arg(startPage).arg(endPage);
               validEntry = false;
               break;
+          }
+          if ((pageDirection == PAGE_NEXT) && (startPage > endPage)) {
+              message = QString("%1-%2").arg(startPage).arg(endPage);
+              validEntry = false;
+              break;
+          } else
+            if ((pageDirection == PAGE_PREVIOUS) && (endPage > startPage)) {
+                message = QString("%1-%2").arg(startPage).arg(endPage);
+                validEntry = false;
+                break;
             }
         } else {
           bool ok;
@@ -386,6 +397,9 @@ void Gui::exportAsBmpDialog(){
 bool Gui::exportAsDialog(Mode t)
 {
   exportType = t;
+
+ if (exportType != PAGE_PROCESS)
+     pageDirection = PAGE_NEXT;
 
   if (Preferences::modeGUI) {
       DialogExportPages *dialog = new DialogExportPages();

@@ -35,10 +35,13 @@ public:
   bool resetCache();
   bool ignoreMixedPageSizesMsg();
   bool doNotShowPageProcessDlg();
+  int pageDisplayPause();
   QString const pageRangeText();
 
 private slots:
   void on_lineEditPageRange_textChanged(const QString &arg1);
+
+  void on_lineEditPageRange_selectionChanged();
 
 private:
   Ui::DialogExportPages *ui;
