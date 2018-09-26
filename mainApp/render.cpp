@@ -1044,26 +1044,23 @@ int LDView::renderCsi(
 
   /* Create the CSI DAT file(s) */
   QString f;
-  bool haveLdrNames = false, haveLdrNamesIM = false;
-  QStringList ldrNames, ldrNamesIM;
+  QStringList ldrNames = QStringList(), ldrNamesIM = QStringList();
   if (useLDViewSCall()) {
       if (Preferences::enableFadeSteps && Preferences::enableImageMatting){  // ldrName entries (IM ON)
           enableIM = true;
-//          haveLdrNames = haveLdrNamesIM = false;
           QString assemPath = QDir::currentPath() + "/" +  Paths::assemDir;
           foreach(QString csiEntry, csiParts){              // csiParts are ldrNames under LDViewSingleCall
               QString csiFile = QString("%1/%2").arg(assemPath).arg(QFileInfo(QString(csiEntry).replace(".ldr",".png")).fileName());
               if (LDVImageMatte::validMatteCSIImage(csiFile)) {
                   ldrNamesIM << csiEntry;                   // ldrName entries that ARE IM
-                  haveLdrNamesIM = true;
-                } else {
+              } else {
                   ldrNames << csiEntry;                     // ldrName entries that ARE NOT IM
-                  haveLdrNames = true;
-                }
-            }
-        } else {                                            // ldrName entries (IM off)
+              }
+          }
+
+      } else {                                            // ldrName entries (IM off)
           ldrNames = csiParts;
-        }
+      }
 #ifndef LDVIEW_USE_SNAPSHOT_LIST
       f  = QString("-SaveSnapShots=1");
 #else
@@ -1103,6 +1100,9 @@ int LDView::renderCsi(
           }
         f  = QString("-SaveSnapShot=%1") .arg(pngName);     // applied for ldrName entry that IS NOT IM
   }
+
+  bool haveLdrNames = ldrNames.size() > 0;
+  bool haveLdrNamesIM = ldrNamesIM.size() > 0;
 
   // Build (Native) arguments
   QString CA = QString("-ca%1") .arg(meta.LPub.assem.cameraFoV.value());
