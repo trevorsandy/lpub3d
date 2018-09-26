@@ -1684,8 +1684,12 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
 
     logInfo() << QString("Renderer is %1 %2")
                          .arg(preferredRenderer)
-                         .arg(preferredRenderer == RENDERER_POVRAY ? QString("(PoV file generator is %1)").arg(Preferences::povFileGenerator) :
-                              preferredRenderer == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ? "(Single Call)" : "" : "");
+                         .arg(preferredRenderer == RENDERER_POVRAY ?
+                                  QString("(%1 PoV file generator)").arg(Preferences::povFileGenerator) :
+                              preferredRenderer == RENDERER_LDVIEW ?
+                              Preferences::enableLDViewSingleCall ?
+                                  QString("(Single Call%1)")
+                                          .arg(Preferences::enableLDViewSnaphsotList ? " - SnapshotsList" : "") : "" : "");
 }
 
 void Preferences::setLDGLiteIniParams()
