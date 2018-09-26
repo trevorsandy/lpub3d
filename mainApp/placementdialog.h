@@ -78,13 +78,42 @@ public:
   enum PrepositionMask { InsideOk = 128, OutsideOk = 256 };
   enum RelativeTos
     {
-        at, Callout, cat, cit,
-       csi,      ct, dlt,  dt,
-        et,     mdt, mnt,  Ms,
-      page,     pdt,  pf,  ph,
-       pit,     Pli, plt,  Pn,
-        pt,      ri, sic,  Sn,
-        tt,    urlt            // plus 5 more
+      /*  0 Page            */ Page,
+      /*  1 Csi (Assem)     */ Csi,
+      /*  2 MultiStep       */ Ms,
+      /*  3 StepNum         */ Sn,
+      /*  4 Pli             */ Pli,
+      /*  5 Callout         */ Callout,
+      /*  6 PageNum         */ Pn,
+
+      /*  7 Title           */ Tt,
+      /*  8 ModelName       */ Mnt,
+      /*  9 Author          */ At,
+      /* 10 Url             */ Urlt,
+      /* 11 ModelDesc       */ Mdt,
+      /* 12 PublishDesc     */ Pdt,
+      /* 13 Copyright       */ Ct,
+      /* 14 Email           */ Et,
+      /* 15 Disclaimer      */ Dt,
+      /* 16 Pieces          */ Pt,
+      /* 17 Plug            */ Plt,
+      /* 18 SubmodelInsCount*/ Sic,
+      /* 19 DocumentLogo    */ Dlt,
+      /* 20 CoverImage      */ Cit,
+      /* 21 PlugImage       */ Pit,
+      /* 22 PageHeader      */ Ph,
+      /* 23 PageFooter      */ Pf,
+      /* 24 Category        */ Cat,
+      /* 25 Rotate Icon     */ Ri
+      /* 26 Bom             */ // plus 7 more...
+
+      /* 27 PagePointer     */
+      /* 28 SingleStep      */
+      /* 29 Step            */
+      /* 30 Range           */
+      /* 31 Reserve         */
+      /* 32 CoverPage       */
+      /* 33 NumRelatives    */
     };
 
   PlacementDialog(

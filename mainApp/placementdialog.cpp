@@ -14,7 +14,7 @@
 ** If you are unsure which license is appropriate for your use, please
 ** review the following information:
 ** http://www.trolltech.com/products/qt/licensing.html or contact the
-** sales department at sales@trolltech.com.
+** sales department At sales@trolltech.com.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -75,91 +75,91 @@ QString labels[5][5] =
 };
 
 const  QList<int> PlacementDialog::relativeToOks[NumRelatives] =
-{ //                               {page , csi , Pli , Pn , Sn , Callout , ph , pf, Ms}
-  /*  0 Page             page    */{0},
-  /*  1 Csi (assem)      csi     */{page},
-  /*  2 MultiStep        Ms      */{page       , Pli},
-  /*  3 StepNum          Sn      */{page , csi , Pli                     , ph , pf},
-  /*  4 Pli              Pli     */{page , csi            , Sn           , ph , pf},
-  /*  5 Callout          Callout */{page , csi , Pli      , Sn           , ph , pf},
-  /*  6 PageNum          Pn      */{page , csi , Pli , Pn , Sn , Callout , ph , pf},
+{ //                               {Page , Csi , Pli , Pn , Sn , Callout , Ph , Pf, Ms}
+  /*  0 Page             Page    */{0},
+  /*  1 Csi (Assem)      Csi     */{Page},
+  /*  2 MultiStep        Ms      */{Page       , Pli},
+  /*  3 StepNum          Sn      */{Page , Csi , Pli                     , Ph , Pf},
+  /*  4 Pli              Pli     */{Page , Csi            , Sn           , Ph , Pf},
+  /*  5 Callout          Callout */{Page , Csi , Pli      , Sn           , Ph , Pf},
+  /*  6 PageNum          Pn      */{Page , Csi , Pli , Pn , Sn , Callout , Ph , Pf},
 
-  /*  7 title            tt      */{page},
-  /*  8 modelName        mnt     */{page                                                                          , tt},
-  /*  9 author           at      */{page             , Pn                , ph , pf , tt ,      ct , et , urlt},
-  /* 10 url              urlt    */{page             , Pn                , ph , pf      , at , ct , et},
-  /* 11 modelDesc        mdt     */{page                                                                          , pt},
-  /* 12 publishDesc      pdt     */{page                                                                          , mdt},
-  /* 13 copyright        ct      */{page             , Pn                , ph , pf      , at ,      et , urlt},
-  /* 14 email            et      */{page             , Pn                , ph , pf      , at , ct ,      urlt},
-  /* 15 disclaimer       dt      */{page                                                          , et},
-  /* 16 pieces           pt      */{page                                                , at},
-  /* 17 plug             plt     */{page                                                                          , dt},
-  /* 18 submodelInsCount sic     */{page , csi , Pli , Pn , Sn},
-  /* 19 documentLogo     dlt     */{page                                 , ph , pf},
-  /* 20 coverImage       cit     */{page},
-  /* 21 plugImage        pit     */{page                                      , pf                                , plt},
-  /* 22 pageHeader       ph      */{page},
-  /* 23 pageFooter       pf      */{page},
-  /* 24 Category         cat     */{page             , Pn                , ph , pf , tt ,      ct , et , urlt},
-  /* 25 Rotate Icon      ri      */{page , csi , Pli      , Sn},
-  /* 26 Bom                      */{page                                 , ph , pf},
+  /*  7 title            Tt      */{Page},
+  /*  8 modelName        mnt     */{Page                                                                          , Tt},
+  /*  9 author           At      */{Page             , Pn                , Ph , Pf , Tt ,      Ct , Et , Urlt},
+  /* 10 url              Urlt    */{Page             , Pn                , Ph , Pf      , At , Ct , Et},
+  /* 11 modelDesc        mdt     */{Page                                                                          , Pt},
+  /* 12 publishDesc      pdt     */{Page                                                                          , Mdt},
+  /* 13 copyright        Ct      */{Page             , Pn                , Ph , Pf      , At ,      Et , Urlt},
+  /* 14 email            Et      */{Page             , Pn                , Ph , Pf      , At , Ct ,      Urlt},
+  /* 15 disclaimer       dt      */{Page                                                          , Et},
+  /* 16 pieces           pt      */{Page                                                , At},
+  /* 17 plug             plt     */{Page                                                                          , Dt},
+  /* 18 submodelInsCount sic     */{Page , Csi , Pli , Pn , Sn},
+  /* 19 documentLogo     dlt     */{Page                                 , Ph , Pf},
+  /* 20 coverImage       cit     */{Page},
+  /* 21 plugImage        pit     */{Page                                      , Pf                                , Plt},
+  /* 22 pageHeader       Ph      */{Page},
+  /* 23 pageFooter       Pf      */{Page},
+  /* 24 Category         cat     */{Page             , Pn                , Ph , Pf , Tt ,      Ct , Et , Urlt},
+  /* 25 Rotate Icon      ri      */{Page , Csi , Pli      , Sn},
+  /* 26 Bom                      */{Page                                 , Ph , Pf},
 
-  /* 27 PagePointer              */{page , csi                           , ph , pf},
-  /* 28 SingleStep               */{page},
-  /* 29 Step                     */{page},
-  /* 30 Range                    */{page},
-  /* 31 Reserve                  */{page},
-  /* 32 CoverPage                */{page}
+  /* 27 PagePointer              */{Page , Csi                           , Ph , Pf},
+  /* 28 SingleStep               */{Page},
+  /* 29 Step                     */{Page},
+  /* 30 Range                    */{Page},
+  /* 31 Reserve                  */{Page},
+  /* 32 CoverPage                */{Page}
   /* 33 NumRelatives             */
 };
 
-//front cover options   Page     | ph | pf | tt | at                  | mnt | pt | mdt | pdt | dlt,
-//back  cover options   Page     | ph | pf | tt | at | ct | et | urlt |                      | dlt | dt | plt | pit,
+//front cover options   Page     | Ph | Pf | Tt | At                  | mnt | pt | mdt | pdt | dlt,
+//back  cover options   Page     | Ph | Pf | Tt | At | Ct | Et | Urlt |                      | dlt | dt | plt | pit,
 
 const int PlacementDialog::prepositionOks[NumRelatives] = // indexed by them
 {
-    /*  0 Page                    */ InsideOk,
-    /*  1 Csi                     */ InsideOk|OutsideOk,
-    /*  2 MultiStep               */ OutsideOk,
-    /*  3 StepNum                 */ OutsideOk,
-    /*  4 Pli                     */ OutsideOk,
-    /*  5 Callout                 */ OutsideOk,
-    /*  6 PageNum                 */ OutsideOk,
+  /*  0 Page                     */ InsideOk,
+  /*  1 Csi                      */ InsideOk|OutsideOk,
+  /*  2 MultiStep                */ OutsideOk,
+  /*  3 StepNum                  */ OutsideOk,
+  /*  4 Pli                      */ OutsideOk,
+  /*  5 Callout                  */ OutsideOk,
+  /*  6 PageNum                  */ OutsideOk,
 
-    /*  7 title                   */ OutsideOk,
-    /*  8 modelName               */ OutsideOk,
-    /*  9 author                  */ OutsideOk,
-    /* 10 url                     */ OutsideOk,
-    /* 11 modelDesc               */ OutsideOk,
-    /* 12 publishDesc             */ OutsideOk,
-    /* 13 copyright               */ OutsideOk,
-    /* 14 email                   */ OutsideOk,
-    /* 15 disclaimer              */ OutsideOk,
-    /* 16 pieces                  */ OutsideOk,
-    /* 17 plug                    */ OutsideOk,
-    /* 18 submodelInsCount        */ OutsideOk,
-    /* 19 documentLogo            */ OutsideOk,
-    /* 20 coverImage              */ OutsideOk,
-    /* 21 plugImage               */ OutsideOk,
-    /* 22 pageHeader              */ InsideOk|OutsideOk,
-    /* 23 pageFooter              */ InsideOk|OutsideOk,
-    /* 24 category                */ OutsideOk,
-    /* 25 rotateIcon              */ OutsideOk,
-    /* 26 Bom                     */ OutsideOk,
+  /*  7 title                    */ OutsideOk,
+  /*  8 modelName                */ OutsideOk,
+  /*  9 author                   */ OutsideOk,
+  /* 10 url                      */ OutsideOk,
+  /* 11 modelDesc                */ OutsideOk,
+  /* 12 publishDesc              */ OutsideOk,
+  /* 13 copyright                */ OutsideOk,
+  /* 14 email                    */ OutsideOk,
+  /* 15 disclaimer               */ OutsideOk,
+  /* 16 pieces                   */ OutsideOk,
+  /* 17 plug                     */ OutsideOk,
+  /* 18 submodelInsCount         */ OutsideOk,
+  /* 19 documentLogo             */ OutsideOk,
+  /* 20 coverImage               */ OutsideOk,
+  /* 21 plugImage                */ OutsideOk,
+  /* 22 pageHeader               */ InsideOk|OutsideOk,
+  /* 23 pageFooter               */ InsideOk|OutsideOk,
+  /* 24 category                 */ OutsideOk,
+  /* 25 rotateIcon               */ OutsideOk,
+  /* 26 Bom                      */ OutsideOk,
 
-    /* 27 PagePointer             */ OutsideOk,
-    /* 28 SingleStep              */ OutsideOk,
-    /* 29 Step                    */ OutsideOk,
-    /* 30 Range                   */ OutsideOk,
-    /* 31 Reserve                 */ OutsideOk,
-    /* 32 CoverPage               */ InsideOk
-	/* 33 NumRelatives            */
+  /* 27 PagePointer              */ OutsideOk,
+  /* 28 SingleStep               */ OutsideOk,
+  /* 29 Step                     */ OutsideOk,
+  /* 30 Range                    */ OutsideOk,
+  /* 31 Reserve                  */ OutsideOk,
+  /* 32 CoverPage                */ InsideOk
+  /* 33 NumRelatives             */
 };
 
 const QString relativeNames[NumRelatives] =
 {
-  "Page",        		        // 0 page
+  "Page",        		        // 0 Page
   "Assem",                      // 1 Csi
   "Step Group",                 // 2 Ms
   "Step Number",                // 3 Sn
@@ -167,14 +167,14 @@ const QString relativeNames[NumRelatives] =
   "Callout",                    // 5 Call
   "Page Number",                // 6 pn
 
-  "Title",                      // 7 tt
+  "Title",                      // 7 Tt
   "Model ID",                   // 8 mnt
-  "Author",                     // 9 at
-  "URL",                        //10 urlt
+  "Author",                     // 9 At
+  "URL",                        //10 Urlt
   "Model Description",          //11 mdt
   "Publish Description",        //12 pdt
-  "Copyright",                  //13 ct
-  "Email",                      //14 et
+  "Copyright",                  //13 Ct
+  "Email",                      //14 Et
   "Disclaimer",                 //15 dt
   "Pieces",                     //16 pt
   "Plug",                       //17 plt
@@ -182,13 +182,13 @@ const QString relativeNames[NumRelatives] =
   "Logo",                       //19 dlt
   "Cover Image",                //20 cit
   "Plug Image",                 //21 pit
-  "Page Header",                //22 ph
-  "Page Footer",                //23 pf
+  "Page Header",                //22 Ph
+  "Page Footer",                //23 Pf
   "Category",                   //24 cat
   "Rotate Icon",                //25 Ri
   "BOM",                        //26
 
-  "Page Pointer"                //27
+  "Page Pointer",               //27
   "Single Step",                //28
   "Step",                       //29
   "Range",                      //30
@@ -232,91 +232,92 @@ PlacementDialog::PlacementDialog(
 
   QList<int> oks;
 
-  logTrace() << " \nPLACEMENT DIALOG "
-             << " \nParentType: " << RelNames[parentType]     << " (" << parentType << ")"
-             << " \nPlacedType: " << RelNames[placedType]     << " (" << placedType << ")"
-             << " \nOnPageType: " << (onPageType == 0 ? "Content Page" : onPageType == 1 ? "Front Cover Page" : "Back Cover Page")
-                ;
+//  logTrace() << " \nPLACEMENT DIALOG "
+//             << " \nParentType: " << RelNames[parentType]     << " (" << parentType << ")"
+//             << " \nPlacedType: " << RelNames[placedType]     << " (" << placedType << ")"
+//             << " \nOnPageType: " << (onPageType == 0 ? "Content Page" : onPageType == 1 ? "Front Cover Page" : "Back Cover Page")
+//                ;
+
   switch (parentType) {
     case StepGroupType:                             //parent type
       switch (placedType) {
         case PageURLType:               //placed type
-            oks << page << Pn << ph << pf;
+            oks << Page << Pn << Ph << Pf;
         break;
         case PageEmailType:             //placed type
-            oks << page << Pn << ph << pf             << urlt;
+            oks << Page << Pn << Ph << Pf             << Urlt;
         break;
         case PageAuthorType:            //placed type
-            oks << page << Pn << ph << pf       << et << urlt;
+            oks << Page << Pn << Ph << Pf       << Et << Urlt;
         break;
         case PageCopyrightType:         //placed type
-            oks << page << Pn << ph << pf << at << et << urlt;
+            oks << Page << Pn << Ph << Pf << At << Et << Urlt;
         break;
         case PartsListType:             //placed type
           if (pliPerStep) {
-            oks << csi  << Sn;
+            oks << Csi  << Sn;
           } else {
-            oks << page << Ms;
+            oks << Page << Ms;
           }
         break;
         case StepNumberType:            //placed type
-          oks << csi << Pli;
+          oks << Csi << Pli;
         break;
         case CalloutType:               //placed type
-          oks << page << csi << Pli << Sn;
+          oks << Page << Csi << Pli << Sn;
         break;
         case SubmodelInstanceCountType: //placed type
-          oks << page << Pn;
+          oks << Page << Pn;
         break;
         case PagePointerType:           //placed type
-          oks << page << csi << ph << pf;
+          oks << Page << Csi << Ph << Pf;
         break;
         default:                        //placed type
-          oks << page << Pn;
+          oks << Page << Pn;
         break;
       }
     break;
     case CalloutType:                               //parent type
       switch (placedType) {
         case PartsListType:             //placed type
-          oks << csi;
+          oks << Csi;
         break;
         case StepNumberType:            //placed type
-          oks << csi  << Pli;
+          oks << Csi  << Pli;
         break;
         case CalloutType:               //placed type
-          oks << csi  << Pli << Sn << Callout;
+          oks << Csi  << Pli << Sn << Callout;
         break;
         case SubmodelInstanceCountType: //placed type
-          oks << page << Pn;
+          oks << Page << Pn;
         break;
         case PagePointerType:           //placed type
-          oks << page << csi << ph << pf;
+          oks << Page << Csi << Ph << Pf;
         break;
         default:
-          oks << page << csi << Pli << Sn;
+          oks << Page << Csi << Pli << Sn;
         break;
       }
     break;
     case StepType:                                  //parent type
       switch (placedType) {
         case PartsListType:             //placed type
-          oks << page << csi << Sn << ph << pf;
+          oks << Page << Csi << Sn << Ph << Pf;
         break;
         case StepNumberType:            //placed type
-          oks << page << csi << Pli << ph << pf;
+          oks << Page << Csi << Pli << Ph << Pf;
         break;
         case CalloutType:               //placed type
-          oks << page << csi << Sn << Pli;
+          oks << Page << Csi << Sn << Pli;
         break;
         case SubmodelInstanceCountType: //placed type
-          oks << page << csi << Pli << Pn << Sn;
+          oks << Page << Csi << Pli << Pn << Sn;
         break;
         case PagePointerType:           //placed type
-          oks << page << csi << ph << pf;
+          oks << Page << Csi << Ph << Pf;
         break;
         default:                         //placed type
-          oks << page << csi << Pli << Sn;
+          oks << Page << Csi << Pli << Sn;
         break;
       }
     break;
@@ -324,29 +325,29 @@ PlacementDialog::PlacementDialog(
       switch (placedType) {
       case PageURLType:                  //placed type
         if (onPageType == BackCoverPage) {
-           oks << page                                       << ct;
+           oks << Page                                       << Ct;
         } else
-           oks << page << Pn << ph << pf;
+           oks << Page << Pn << Ph << Pf;
       break;
       case PageEmailType:                //placed type
         if (onPageType == BackCoverPage) {
-           oks << page                               << urlt;
+           oks << Page                               << Urlt;
         } else
-           oks << page << Pn << ph << pf             << urlt;
+           oks << Page << Pn << Ph << Pf             << Urlt;
       break;
       case PageAuthorType:               //placed type
         if (onPageType == FrontCoverPage) {
-           oks << page                                        << tt;
+           oks << Page                                        << Tt;
         } else if (onPageType == BackCoverPage) {
-           oks << page                                        << tt;
+           oks << Page                                        << Tt;
         } else
-           oks << page << Pn << ph << pf       << et << urlt;
+           oks << Page << Pn << Ph << Pf       << Et << Urlt;
       break;
       case PageCopyrightType:            //placed type
         if (onPageType == BackCoverPage) {
-           oks << page                   << at;
+           oks << Page                   << At;
         } else
-           oks << page << Pn << ph << pf << at << et << urlt;
+           oks << Page << Pn << Ph << Pf << At << Et << Urlt;
       break;
       default:                           //placed type
         oks << relativeToOks[placedType];
