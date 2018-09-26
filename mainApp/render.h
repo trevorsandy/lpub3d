@@ -54,7 +54,8 @@ public:
   static void            setRenderer(QString const &);
   static QString const   getRotstepMeta(RotStepMeta &);
   static int             executeLDViewProcess(QStringList &, Mt);
-  static bool            useLDViewSCall(bool override = false);
+  static bool            useLDViewSCall();
+  static bool            useLDViewSList();
   bool                   RenderNativeImage(const NativeOptions &);
   bool                   LoadViewer(const ViewerOptions &);
   bool                   LoadStepProject(Project *,

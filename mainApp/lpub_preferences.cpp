@@ -130,7 +130,7 @@ bool    Preferences::lgeoStlLib                 = false;
 bool    Preferences::lpub3dLoaded               = false;
 bool    Preferences::enableDocumentLogo         = false;
 bool    Preferences::enableLDViewSingleCall     = true;
-bool    Preferences::useLDViewSingleCall        = false;
+bool    Preferences::enableLDViewSnaphsotList   = false;
 bool    Preferences::displayAllAttributes       = false;
 bool    Preferences::generateCoverPages         = false;
 bool    Preferences::printDocumentTOC           = false;
@@ -1601,10 +1601,12 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         enableLDViewSingleCall = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall")).toBool();
     }
 
-    if (preferredRenderer == RENDERER_LDVIEW && enableLDViewSingleCall) {
-        useLDViewSingleCall = true;
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableLDViewSnapshotsList"))) {
+        QVariant uValue(false);
+        enableLDViewSnaphsotList = false;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSnapshotsList"),uValue);
     } else {
-        useLDViewSingleCall = false;
+        enableLDViewSnaphsotList = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableLDViewSnapshotsList")).toBool();
     }
 
     //Renderer Timeout
@@ -1682,7 +1684,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
     logInfo() << QString("Renderer is %1 %2")
                          .arg(preferredRenderer)
                          .arg(preferredRenderer == RENDERER_POVRAY ? QString("(PoV file generator is %1)").arg(Preferences::povFileGenerator) :
-                              preferredRenderer == RENDERER_LDVIEW ? Preferences::useLDViewSingleCall ? "(Single Call)" : "" : "");
+                              preferredRenderer == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ? "(Single Call)" : "" : "");
 }
 
 void Preferences::setLDGLiteIniParams()
@@ -2531,10 +2533,9 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"),enableLDViewSingleCall);
         }
 
-        if (preferredRenderer == RENDERER_LDVIEW && enableLDViewSingleCall) {
-            useLDViewSingleCall = true;
-        } else {
-            useLDViewSingleCall = false;
+        if (enableLDViewSnaphsotList != dialog->enableLDViewSnaphsotList()) {
+            enableLDViewSnaphsotList = dialog->enableLDViewSnaphsotList();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSnapshotsList"),enableLDViewSnaphsotList);
         }
 
         if (lgeoPath != dialog->lgeoPath()) {

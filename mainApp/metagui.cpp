@@ -2573,7 +2573,7 @@ RendererGui::RendererGui(
   grid->addWidget(combo,0,0);
 
   ldvSingleCallBox = new QCheckBox("Use Single Call Configuration",parent);
-  ldvSingleCallBox->setChecked(Preferences::useLDViewSingleCall);
+  ldvSingleCallBox->setChecked(Preferences::enableLDViewSingleCall);
   ldvSingleCallBox->setEnabled(renderer == RENDERER_LDVIEW);
   connect(ldvSingleCallBox,SIGNAL(clicked(bool)),
           this,            SLOT(singleCallChange(bool)));
@@ -2659,7 +2659,7 @@ void RendererGui::povFileGenLDViewChange(bool checked)
 
 void RendererGui::singleCallChange(bool checked)
 {
-  if (Preferences::useLDViewSingleCall != checked) {
+  if (Preferences::enableLDViewSingleCall != checked) {
        modified = singleCallModified = true;
     }
 }
@@ -2700,7 +2700,7 @@ void RendererGui::apply(QString &topLevelFile)
                      .arg(Preferences::preferredRenderer)
                      .arg(pick)
                      .arg(pick == RENDERER_POVRAY ? QString("(PoV file generator is %1)").arg(Preferences::povFileGenerator) :
-                          pick == RENDERER_LDVIEW ? Preferences::useLDViewSingleCall ? "(Single Call)" : "" : "");
+                          pick == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ? "(Single Call)" : "" : "");
       emit gui->messageSig(LOG_INFO, changeMessage);
       Preferences::preferredRenderer = pick;
       Settings.setValue(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"),pick);
@@ -2708,9 +2708,9 @@ void RendererGui::apply(QString &topLevelFile)
     }
   if (singleCallModified) {
       changeMessage = QString("Use LDView Single Call is %1")
-                      .arg(Preferences::useLDViewSingleCall ? "ON" : "OFF");
+                      .arg(Preferences::enableLDViewSingleCall ? "ON" : "OFF");
       emit gui->messageSig(LOG_INFO, changeMessage);
-      Preferences::useLDViewSingleCall = ldvSingleCallBox->isChecked();
+      Preferences::enableLDViewSingleCall = ldvSingleCallBox->isChecked();
       QVariant uValue(ldvSingleCallBox->isChecked());
       Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"),uValue);
     }

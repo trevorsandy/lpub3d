@@ -225,16 +225,15 @@ bool ArchiveParts::Archive(
         continue;
 
       bool alreadyArchived = false;
-      QString partStatus;
+      QString partStatus = "Archive entry";
 
       foreach (QFileInfo zipFileInfo, zipFiles) {
           if (fileInfo == zipFileInfo) {
               bool okToOverwrite = (zipFileInfo.fileName().contains("-fade.dat") || zipFileInfo.fileName().contains("-highlight.dat"));
               if (overwriteCustomPart && okToOverwrite) {
-                  partStatus = "Overwrite Archive";
+                  partStatus = "Archive entry (Overwritten)";
 //                    qDebug() << "FileMatch - Overwriting Fade File !! " << fileInfo.absoluteFilePath();
               } else {
-                  partStatus = "Archive";
                   alreadyArchived = true;
 //                    qDebug() << "FileMatch - Skipping !! " << fileInfo.absoluteFilePath();
               }
@@ -247,7 +246,7 @@ bool ArchiveParts::Archive(
       else
          archivedPartCount++;
 
-      logInfo() << QString("  %1 %2 part: %3").arg(archivedPartCount).arg(partStatus).arg(fileInfo.fileName());
+      logInfo() << QString("Detected %1 part #%2: %3").arg(partStatus).arg(archivedPartCount).arg(fileInfo.fileName());
 
       int partsDirIndex    = fileInfo.absoluteFilePath().indexOf("/parts/",0,Qt::CaseInsensitive);
       int primDirIndex     = fileInfo.absoluteFilePath().indexOf("/p/",0,Qt::CaseInsensitive);

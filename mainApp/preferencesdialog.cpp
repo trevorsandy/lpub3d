@@ -56,6 +56,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   QPalette readOnlyPalette;
   readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
 
+  bool useLDViewSCall = (Preferences::enableLDViewSingleCall && Preferences::preferredRenderer == RENDERER_LDVIEW);
+
   // set 3rd party application dialogs to read-only
   ui.ldglitePath->setReadOnly(true);
   ui.ldglitePath->setPalette(readOnlyPalette);
@@ -86,7 +88,9 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.lgeoStlLibLbl->setText(                     Preferences::lgeoStlLib ? DURAT_LGEO_STL_LIB_INFO : "");
   ui.ldviewPath->setText(                        Preferences::ldviewExe);
   ui.ldviewBox->setChecked(                      Preferences::ldviewExe != "");
-  ui.ldviewSingleCall_Chk->setChecked(           Preferences::enableLDViewSingleCall && Preferences::ldviewExe != "");
+  ui.ldviewSingleCall_Chk->setChecked(           useLDViewSCall);
+  ui.ldviewSnaphsotsList_Chk->setChecked(        Preferences::enableLDViewSnaphsotList && useLDViewSCall);
+  ui.ldviewSnaphsotsList_Chk->setEnabled(        useLDViewSCall);
   ui.publishLogoBox->setChecked(                 Preferences::documentLogoFile != "");
   ui.publishLogoPath->setText(                   Preferences::documentLogoFile);
   ui.authorName_Edit->setText(                   Preferences::defaultAuthor);
@@ -269,6 +273,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   bool nativePovFileGen = Preferences::povFileGenerator  == RENDERER_NATIVE;
   bool renderPOVRay     = Preferences::preferredRenderer == RENDERER_POVRAY;
   ui.povNativeGenBox->setEnabled(renderPOVRay);
+  ui.ldvPOVSettingsBox->setEnabled(renderPOVRay);
   ui.ldvPoVFileGenOptBtn->setEnabled(renderPOVRay);
   ui.ldvPoVFileGenPrefBtn->setEnabled(renderPOVRay);
   ui.povGenNativeRadio->setChecked(nativePovFileGen);
@@ -293,7 +298,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   /* QSimpleUpdater start */
   m_updater = QSimpleUpdater::getInstance();
-
   connect (m_updater, SIGNAL (checkingFinished (QString)),
            this,        SLOT (updateChangelog  (QString)));
 
@@ -427,6 +431,11 @@ void PreferencesDialog::on_checkForUpdates_btn_clicked()
     checkForUpdates();
 }
 
+void PreferencesDialog::on_ldviewSingleCall_Chk_clicked(bool checked)
+{
+    ui.ldviewSnaphsotsList_Chk->setEnabled(checked);
+}
+
 void PreferencesDialog::on_includeAllLogAttribBox_clicked(bool checked)
 {
   ui.includeLogLevelBox->setChecked(checked);
@@ -466,7 +475,7 @@ void PreferencesDialog::on_ldviewBox_clicked(bool checked)
       box.setIcon (QMessageBox::Information);
       box.setStandardButtons (QMessageBox::Ok);
       box.setWindowTitle(tr ("LDView Settings?"));
-      box.setText (tr("LDView renderer settings are automatically set at application startup.\n"
+      box.setText (tr("The 'is installed' LDView setting is automatically set at application startup.\n"
                       "Changes will be reset at next application start? "));
       emit gui->messageSig(LOG_STATUS,box.text());
       box.exec();
@@ -480,7 +489,7 @@ void PreferencesDialog::on_ldgliteBox_clicked(bool checked)
         box.setIcon (QMessageBox::Information);
         box.setStandardButtons (QMessageBox::Ok);
         box.setWindowTitle(tr ("LDGLite Settings?"));
-        box.setText (tr("LDGLite renderer settings are automatically set at application startup.\n"
+        box.setText (tr("The 'is installed' LDGLite setting is automatically set at application startup.\n"
                         "Changes will be reset at next application start? "));
         emit gui->messageSig(LOG_STATUS,box.text());
         box.exec();
@@ -494,7 +503,7 @@ void PreferencesDialog::on_POVRayBox_clicked(bool checked)
       box.setIcon (QMessageBox::Information);
       box.setStandardButtons (QMessageBox::Ok);
       box.setWindowTitle(tr ("Raytracer (POV-Ray) Settings?"));
-      box.setText (tr("Raytracer (POV-Ray) renderer settings are automatically set at application startup.\n"
+      box.setText (tr("The 'is installed' Raytracer (POV-Ray) setting is automatically set at application startup.\n"
                       "Changes will be reset at next application start? "));
       emit gui->messageSig(LOG_STATUS,box.text());
       box.exec();
@@ -775,6 +784,11 @@ bool PreferencesDialog::fadeStepsUseColour()
 bool PreferencesDialog::enableLDViewSingleCall()
 {
   return ui.ldviewSingleCall_Chk->isChecked();
+}
+
+bool PreferencesDialog::enableLDViewSnaphsotList()
+{
+       return ui.ldviewSnaphsotsList_Chk->isChecked();
 }
 
 bool  PreferencesDialog::displayAllAttributes()
@@ -1071,3 +1085,4 @@ void PreferencesDialog::accept(){
 void PreferencesDialog::cancel(){
   QDialog::reject();
 }
+

@@ -7,12 +7,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>520</width>
-    <height>647</height>
+    <width>541</width>
+    <height>703</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -23,24 +23,20 @@
   <property name="sizeGripEnabled">
    <bool>false</bool>
   </property>
-  <layout class="QGridLayout" name="gridLayout_6">
-   <item row="2" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
+  <layout class="QVBoxLayout" name="verticalLayout_16">
+   <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>490</width>
+       <height>0</height>
+      </size>
      </property>
      <property name="currentIndex">
       <number>0</number>
@@ -49,614 +45,570 @@
       <attribute name="title">
        <string>General</string>
       </attribute>
-      <widget class="QGroupBox" name="fadeStepBox">
-       <property name="geometry">
-        <rect>
-         <x>12</x>
-         <y>172</y>
-         <width>250</width>
-         <height>210</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>This setting allows you to fade previous build step parts </string>
-       </property>
-       <property name="title">
-        <string>Enable Fade Previous Steps</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <widget class="QGroupBox" name="fadeStepsUseColourBox">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>23</y>
-          <width>230</width>
-          <height>100</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>Select to use this colour for all faded parts, otherwise fade existing colour.</string>
-        </property>
-        <property name="title">
-         <string>Use Global Fade Colour</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-        <widget class="QComboBox" name="fadeStepsColoursCombo">
-         <property name="geometry">
-          <rect>
-           <x>70</x>
-           <y>45</y>
-           <width>150</width>
-           <height>30</height>
-          </rect>
-         </property>
+      <layout class="QVBoxLayout" name="verticalLayout_18">
+       <item>
+        <widget class="QGroupBox" name="ldrawBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-        </widget>
-        <widget class="QLabel" name="fadeStepsColourLabel">
-         <property name="geometry">
-          <rect>
-           <x>11</x>
-           <y>35</y>
-           <width>50</width>
-           <height>50</height>
-          </rect>
+         <property name="toolTip">
+          <string>This directory contains the LDraw parts directory</string>
          </property>
-         <property name="frameShape">
-          <enum>QFrame::Panel</enum>
+         <property name="title">
+          <string>LDraw Folder</string>
          </property>
-         <property name="frameShadow">
-          <enum>QFrame::Sunken</enum>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QGroupBox" name="fadeStepsOpacityBox">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>129</y>
-          <width>230</width>
-          <height>70</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>Set the percent of fade, 0 is fully opaque, 100 is fully hidden.</string>
-        </property>
-        <property name="title">
-         <string>Fade Percent</string>
-        </property>
-        <property name="checkable">
-         <bool>false</bool>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-        <widget class="QSlider" name="fadeStepsOpacitySlider">
-         <property name="enabled">
+         <property name="checkable">
           <bool>false</bool>
          </property>
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>32</y>
-           <width>210</width>
-           <height>27</height>
-          </rect>
+         <property name="checked">
+          <bool>false</bool>
          </property>
-         <property name="maximum">
-          <number>100</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksAbove</enum>
-         </property>
-         <property name="tickInterval">
-          <number>5</number>
-         </property>
-        </widget>
-       </widget>
-      </widget>
-      <widget class="QGroupBox" name="highlightStepBox">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="geometry">
-        <rect>
-         <x>271</x>
-         <y>172</y>
-         <width>208</width>
-         <height>145</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>This setting allows you to highlight current build step parts</string>
-       </property>
-       <property name="title">
-        <string>Enable Highlight Current Step</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>9</x>
-          <y>98</y>
-          <width>190</width>
-          <height>30</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_23">
-         <item>
-          <widget class="QLabel" name="highlightStepLabel">
-           <property name="toolTip">
-            <string>Set the highlight line width [LDGLite only]</string>
-           </property>
-           <property name="text">
-            <string>Highlight line width</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_13">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="highlightStepLineWidthSpin">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="toolTip">
-            <string>Set the highlight line width  [LDGLite only]</string>
-           </property>
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>5</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QLabel" name="highlightStepColorLabel">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>37</y>
-          <width>50</width>
-          <height>50</height>
-         </rect>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Panel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="highlightStepBtn">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>70</x>
-          <y>48</y>
-          <width>130</width>
-          <height>30</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Highlight Colour...</string>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QGroupBox" name="imageMatteBox">
-       <property name="geometry">
-        <rect>
-         <x>271</x>
-         <y>321</y>
-         <width>208</width>
-         <height>61</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="title">
-        <string>Enable Image Matting</string>
-       </property>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>23</y>
-          <width>188</width>
-          <height>30</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_22">
-         <item>
-          <widget class="QCheckBox" name="imageMattingChk">
-           <property name="toolTip">
-            <string>Future use</string>
-           </property>
-           <property name="statusTip">
-            <string/>
-           </property>
-           <property name="text">
-            <string>True fade image matting</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_12">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-      <widget class="QWidget" name="layoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>14</x>
-         <y>8</y>
-         <width>470</width>
-         <height>160</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_4">
-        <item>
-         <widget class="QGroupBox" name="ldrawBox">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="toolTip">
-           <string>This directory contains the LDraw parts directory</string>
-          </property>
-          <property name="title">
-           <string>LDraw Folder</string>
-          </property>
-          <property name="checkable">
-           <bool>false</bool>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
-          </property>
-          <widget class="QWidget" name="layoutWidget">
-           <property name="geometry">
-            <rect>
-             <x>14</x>
-             <y>24</y>
-             <width>440</width>
-             <height>40</height>
-            </rect>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout">
-            <item>
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>Path</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="ldrawPath">
-              <property name="minimumSize">
-               <size>
-                <width>200</width>
-                <height>0</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="browseLDraw">
-              <property name="toolTip">
-               <string>Use directory dialog to find LDraw directory</string>
-              </property>
-              <property name="whatsThis">
-               <string>This lets you find the LDraw directory</string>
-              </property>
-              <property name="text">
-               <string>Browse...</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="altLDConfigBox">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="toolTip">
-           <string>Check to use an alternative LDConfig LDraw configuration file.</string>
-          </property>
-          <property name="title">
-           <string>Use alternative LDraw LDConfig</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
-          </property>
-          <widget class="QWidget" name="layoutWidget">
-           <property name="geometry">
-            <rect>
-             <x>15</x>
-             <y>27</y>
-             <width>440</width>
-             <height>40</height>
-            </rect>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <widget class="QLabel" name="label_7">
-              <property name="text">
-               <string>Path</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="altLDConfigPath"/>
-            </item>
-            <item>
-             <widget class="QPushButton" name="browseAltLDConfig">
-              <property name="text">
-               <string>Browse...</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="layoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>12</x>
-         <y>388</y>
-         <width>470</width>
-         <height>160</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_8">
-        <item>
-         <widget class="QGroupBox" name="pliBox">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="toolTip">
-           <string>This file controls Part List parts orientation and size</string>
-          </property>
-          <property name="title">
-           <string>Use PLI orientation/size control file</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
-          </property>
-          <widget class="QWidget" name="layoutWidget">
-           <property name="geometry">
-            <rect>
-             <x>11</x>
-             <y>33</y>
-             <width>450</width>
-             <height>40</height>
-            </rect>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <item>
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>Name</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="pliName">
-              <property name="minimumSize">
-               <size>
-                <width>200</width>
-                <height>0</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="browsePli">
-              <property name="toolTip">
-               <string>Use directory dialog to find the PLI file</string>
-              </property>
-              <property name="whatsThis">
-               <string>Use directory dialog to find the PLI file</string>
-              </property>
-              <property name="text">
-               <string>Browse...</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_18">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QGroupBox" name="groupBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Path</string>
             </property>
-            <property name="title">
-             <string>Default Units</string>
-            </property>
-            <widget class="QWidget" name="layoutWidget">
-             <property name="geometry">
-              <rect>
-               <x>10</x>
-               <y>36</y>
-               <width>210</width>
-               <height>27</height>
-              </rect>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_14">
-              <item>
-               <widget class="QRadioButton" name="Centimeters">
-                <property name="text">
-                 <string>Centimeters</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="Inches">
-                <property name="text">
-                 <string>Inches</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
            </widget>
           </item>
           <item>
-           <widget class="QGroupBox" name="showParseErrorGrpBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+           <widget class="QLineEdit" name="ldrawPath">
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>0</height>
+             </size>
             </property>
-            <property name="title">
-             <string>Model Meta Parse Errors</string>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="browseLDraw">
+            <property name="toolTip">
+             <string>Use directory dialog to find LDraw directory</string>
             </property>
-            <widget class="QWidget" name="layoutWidget">
-             <property name="geometry">
-              <rect>
-               <x>11</x>
-               <y>34</y>
-               <width>210</width>
-               <height>30</height>
-              </rect>
+            <property name="whatsThis">
+             <string>This lets you find the LDraw directory</string>
+            </property>
+            <property name="text">
+             <string>Browse...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_12">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>13</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="altLDConfigBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Check to use an alternative LDConfig LDraw configuration file.</string>
+         </property>
+         <property name="title">
+          <string>Use alternative LDraw LDConfig</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>Path</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="altLDConfigPath"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="browseAltLDConfig">
+            <property name="text">
+             <string>Browse...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_13">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>14</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_28">
+         <item>
+          <widget class="QGroupBox" name="fadeStepBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>240</width>
+             <height>240</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>This setting allows you to fade previous build step parts </string>
+           </property>
+           <property name="title">
+            <string>Enable Fade Previous Steps</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_8">
+            <item>
+             <widget class="QGroupBox" name="fadeStepsUseColourBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>100</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Select to use this colour for all faded parts, otherwise fade existing colour.</string>
+              </property>
+              <property name="title">
+               <string>Use Global Fade Colour</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_4">
+               <item>
+                <spacer name="verticalSpacer_7">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>7</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <layout class="QGridLayout" name="gridLayout_5">
+                 <item row="0" column="0" rowspan="3">
+                  <widget class="QLabel" name="fadeStepsColourLabel">
+                   <property name="minimumSize">
+                    <size>
+                     <width>50</width>
+                     <height>50</height>
+                    </size>
+                   </property>
+                   <property name="frameShape">
+                    <enum>QFrame::Panel</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Sunken</enum>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <spacer name="verticalSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>7</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QComboBox" name="fadeStepsColoursCombo">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <spacer name="verticalSpacer_2">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>7</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_8">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>7</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="fadeStepsOpacityBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>70</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Set the percent of fade, 0 is fully opaque, 100 is fully hidden.</string>
+              </property>
+              <property name="title">
+               <string>Fade Percent</string>
+              </property>
+              <property name="checkable">
+               <bool>false</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_6">
+               <item>
+                <widget class="QSlider" name="fadeStepsOpacitySlider">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="maximum">
+                  <number>100</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="tickPosition">
+                  <enum>QSlider::TicksAbove</enum>
+                 </property>
+                 <property name="tickInterval">
+                  <number>5</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_17">
+           <item>
+            <widget class="QGroupBox" name="highlightStepBox">
+             <property name="enabled">
+              <bool>true</bool>
              </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_15">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>208</width>
+               <height>145</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>This setting allows you to highlight current build step parts</string>
+             </property>
+             <property name="title">
+              <string>Enable Highlight Current Step</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_7">
               <item>
-               <widget class="QCheckBox" name="showParseErrorsChkBox">
+               <spacer name="verticalSpacer_9">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>17</width>
+                  <height>7</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <layout class="QGridLayout" name="gridLayout_7">
+                <item row="0" column="0" rowspan="3">
+                 <widget class="QLabel" name="highlightStepColorLabel">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                  <property name="frameShape">
+                   <enum>QFrame::Panel</enum>
+                  </property>
+                  <property name="frameShadow">
+                   <enum>QFrame::Sunken</enum>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <spacer name="verticalSpacer_3">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>7</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QPushButton" name="highlightStepBtn">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Highlight Colour...</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <spacer name="verticalSpacer_4">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>7</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_5">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>17</width>
+                  <height>7</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_23">
+                <item>
+                 <widget class="QLabel" name="highlightStepLabel">
+                  <property name="toolTip">
+                   <string>Set the highlight line width [LDGLite only]</string>
+                  </property>
+                  <property name="text">
+                   <string>Highlight line width</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_13">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QSpinBox" name="highlightStepLineWidthSpin">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>Set the highlight line width  [LDGLite only]</string>
+                  </property>
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>5</number>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_6">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>17</width>
+                  <height>7</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_10">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>5</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="imageMatteBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="title">
+              <string>Enable Image Matting</string>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_22">
+              <item>
+               <widget class="QCheckBox" name="imageMattingChk">
                 <property name="toolTip">
-                 <string>Display all meta command parse errors including MLCAD and LSynth errors</string>
+                 <string>Future use</string>
+                </property>
+                <property name="statusTip">
+                 <string/>
                 </property>
                 <property name="text">
-                 <string>Show all meta parse errors</string>
+                 <string>True fade image matting</string>
                 </property>
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer_18">
+               <spacer name="horizontalSpacer_12">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
-                  <width>40</width>
+                  <width>39</width>
                   <height>20</height>
                  </size>
                 </property>
@@ -664,102 +616,518 @@
               </item>
              </layout>
             </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_14">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>14</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="pliBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>This file controls Part List parts orientation and size</string>
+         </property>
+         <property name="title">
+          <string>Use PLI orientation/size control file</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Name</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="pliName">
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="browsePli">
+            <property name="toolTip">
+             <string>Use directory dialog to find the PLI file</string>
+            </property>
+            <property name="whatsThis">
+             <string>Use directory dialog to find the PLI file</string>
+            </property>
+            <property name="text">
+             <string>Browse...</string>
+            </property>
            </widget>
           </item>
          </layout>
-        </item>
-       </layout>
-      </widget>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_15">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>13</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_18">
+         <item>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="title">
+            <string>Default Units</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_15">
+            <item>
+             <widget class="QRadioButton" name="Centimeters">
+              <property name="text">
+               <string>Centimeters</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="Inches">
+              <property name="text">
+               <string>Inches</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="showParseErrorGrpBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>220</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="title">
+            <string>Model Meta Parse Errors</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_14">
+            <item>
+             <widget class="QCheckBox" name="showParseErrorsChkBox">
+              <property name="toolTip">
+               <string>Display all meta command parse errors including MLCAD and LSynth errors</string>
+              </property>
+              <property name="text">
+               <string>Show all meta parse errors</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_18">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>106</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_16">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>13</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="tabRendering">
       <attribute name="title">
        <string>Rendering</string>
       </attribute>
-      <widget class="QGroupBox" name="POVRayBox">
-       <property name="geometry">
-        <rect>
-         <x>13</x>
-         <y>261</y>
-         <width>470</width>
-         <height>270</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="title">
-        <string>POV-Ray is installed</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <widget class="QPushButton" name="browsePOVRAY">
-        <property name="geometry">
-         <rect>
-          <x>480</x>
-          <y>6</y>
-          <width>20</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>hidden</string>
-        </property>
-       </widget>
-       <widget class="QGroupBox" name="lgeoBox">
-        <property name="geometry">
-         <rect>
-          <x>15</x>
-          <y>157</y>
-          <width>440</width>
-          <height>100</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>This library provides higher quality rendering models for POV RAY</string>
-        </property>
-        <property name="title">
-         <string>LGEO is available</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-        <widget class="QWidget" name="layoutWidget">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>33</y>
-           <width>420</width>
-           <height>55</height>
-          </rect>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Preferred renderer:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="preferredRenderer">
+           <item>
+            <property name="text">
+             <string>LDView</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>POVRay</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>LDGLite</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_7">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_9">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::PreventContextMenu</enum>
+           </property>
+           <property name="toolTip">
+            <string>Set the renderer 'wait for finish' process time in minutes. -1 will not timeout.</string>
+           </property>
+           <property name="text">
+            <string>Process timeout:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="rendererTimeout">
+           <property name="toolTip">
+            <string>Set the renderer 'wait for finish' process time in minutes. -1 will not timeout.</string>
+           </property>
+           <property name="minimum">
+            <number>-1</number>
+           </property>
+           <property name="value">
+            <number>6</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_20">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_20">
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>22</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="ldviewBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>420</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>LDView is installed</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_10">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="ldviewSingleCall_Chk">
+            <property name="minimumSize">
+             <size>
+              <width>199</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Render a page's image files using a single call to LDView</string>
+            </property>
+            <property name="statusTip">
+             <string>Render a page's image files using a single call to LDView</string>
+            </property>
+            <property name="text">
+             <string>Use multiple file single call</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" rowspan="2">
+           <widget class="QGroupBox" name="ldvSettingsBox">
+            <property name="title">
+             <string>LDView Renderer settings</string>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_16">
+             <item>
+              <spacer name="horizontalSpacer_8">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>82</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="ldvPreferencesBtn">
+               <property name="toolTip">
+                <string>Open Native POV options dialogue</string>
+               </property>
+               <property name="text">
+                <string>Preferences...</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_9">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>82</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="ldviewSnaphsotsList_Chk">
+            <property name="toolTip">
+             <string>Consolidate render files as a single list appended to the LDView command</string>
+            </property>
+            <property name="statusTip">
+             <string>Consolidate render files as a single list appended to the LDView command.</string>
+            </property>
+            <property name="text">
+             <string>Use Snapshots List file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="horizontalLayout_26">
             <item>
-             <widget class="QLabel" name="lgeoStlLibLbl">
-              <property name="text">
-               <string>Durat's Stl library availability notice</string>
+             <widget class="QLineEdit" name="ldviewPath">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
              </widget>
             </item>
             <item>
-             <spacer name="horizontalSpacer_11">
+             <widget class="QPushButton" name="browseLDView">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>hidden</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_19">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>22</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="ldgliteBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>LDGLite is installed</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_25">
+          <item>
+           <widget class="QLineEdit" name="ldglitePath">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="browseLDGLite">
+            <property name="text">
+             <string>hidden</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_18">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>22</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="POVRayBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>420</width>
+           <height>242</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>POV-Ray is installed</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_17">
+            <item>
+             <widget class="QCheckBox" name="povrayDisplay_Chk">
+              <property name="toolTip">
+               <string>Display image during rendering (Experimental)</string>
+              </property>
+              <property name="statusTip">
+               <string>Check to enable display window during image Raytracer rendering</string>
+              </property>
+              <property name="text">
+               <string>Display image during rendering (Experimental)</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_10">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -774,308 +1142,159 @@
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <layout class="QHBoxLayout" name="horizontalLayout_24">
             <item>
-             <widget class="QLineEdit" name="lgeoPath">
-              <property name="minimumSize">
-               <size>
-                <width>200</width>
-                <height>0</height>
-               </size>
+             <widget class="QLineEdit" name="povrayPath">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="browseLGEO">
-              <property name="toolTip">
-               <string>Use directory dialog to find LGEO directory</string>
+             <widget class="QPushButton" name="browsePOVRAY">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-              <property name="whatsThis">
-               <string>This lets you find the LGEO directory</string>
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>23</height>
+               </size>
               </property>
               <property name="text">
-               <string>Browse...</string>
+               <string>hidden</string>
               </property>
              </widget>
             </item>
            </layout>
           </item>
-         </layout>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>15</x>
-          <y>26</y>
-          <width>440</width>
-          <height>50</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_21">
-           <item>
-            <widget class="QCheckBox" name="povrayDisplay_Chk">
-             <property name="toolTip">
-              <string>Display image during rendering (Experimental)</string>
-             </property>
-             <property name="statusTip">
-              <string>Check to enable display window during image Raytracer rendering</string>
-             </property>
-             <property name="text">
-              <string>Display image during rendering (Experimental)</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_10">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="povrayPath"/>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QGroupBox" name="povNativeGenBox">
-        <property name="geometry">
-         <rect>
-          <x>16</x>
-          <y>84</y>
-          <width>170</width>
-          <height>70</height>
-         </rect>
-        </property>
-        <property name="toolTip">
-         <string>Select the renderer to generate pov files</string>
-        </property>
-        <property name="title">
-         <string>POV file generation renderer</string>
-        </property>
-        <layout class="QHBoxLayout" name="_2">
-         <item>
-          <widget class="QRadioButton" name="povGenNativeRadio">
-           <property name="text">
-            <string>Native</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="povGenLDViewRadio">
-           <property name="text">
-            <string>LDView</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QGroupBox" name="ldvPOVSettingsBox">
-        <property name="geometry">
-         <rect>
-          <x>194</x>
-          <y>84</y>
-          <width>260</width>
-          <height>70</height>
-         </rect>
-        </property>
-        <property name="title">
-         <string>POV file generation settings</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_9">
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_19">
-           <item>
-            <widget class="QPushButton" name="ldvPoVFileGenOptBtn">
-             <property name="toolTip">
-              <string>Open Native POV options dialogue</string>
-             </property>
-             <property name="text">
-              <string>Gen Options...</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="ldvPoVFileGenPrefBtn">
-             <property name="toolTip">
-              <string>Open Native POV options dialogue</string>
-             </property>
-             <property name="text">
-              <string>All Preferences...</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-      <widget class="QGroupBox" name="ldgliteBox">
-       <property name="geometry">
-        <rect>
-         <x>13</x>
-         <y>187</y>
-         <width>470</width>
-         <height>70</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="title">
-        <string>LDGLite is installed</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <widget class="QPushButton" name="browseLDGLite">
-        <property name="geometry">
-         <rect>
-          <x>480</x>
-          <y>6</y>
-          <width>20</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>hidden</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="ldglitePath">
-        <property name="geometry">
-         <rect>
-          <x>16</x>
-          <y>31</y>
-          <width>440</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QGroupBox" name="ldviewBox">
-       <property name="geometry">
-        <rect>
-         <x>13</x>
-         <y>53</y>
-         <width>470</width>
-         <height>130</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="title">
-        <string>LDView is installed</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <widget class="QPushButton" name="browseLDView">
-        <property name="geometry">
-         <rect>
-          <x>500</x>
-          <y>6</y>
-          <width>20</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>hidden</string>
-        </property>
-       </widget>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>28</y>
-          <width>450</width>
-          <height>90</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_16">
-           <item>
-            <widget class="QCheckBox" name="ldviewSingleCall_Chk">
-             <property name="toolTip">
-              <string>Potentially increase LDView rendering speed.</string>
-             </property>
-             <property name="statusTip">
-              <string>Increase rendering speed with option to render multiple files using a single call to LDView.</string>
-             </property>
-             <property name="text">
-              <string>Use multiple file single call rendering</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="ldvSettingsBox">
-             <property name="title">
-              <string>LDView Renderer settings</string>
-             </property>
-             <widget class="QWidget" name="layoutWidget">
-              <property name="geometry">
-               <rect>
-                <x>28</x>
-                <y>24</y>
-                <width>160</width>
-                <height>30</height>
-               </rect>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_27">
+            <item>
+             <widget class="QGroupBox" name="povNativeGenBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_17">
+              <property name="minimumSize">
+               <size>
+                <width>170</width>
+                <height>56</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Select the renderer to generate pov files</string>
+              </property>
+              <property name="title">
+               <string>POV file generation renderer</string>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_21">
                <item>
-                <spacer name="horizontalSpacer_8">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item>
-                <widget class="QPushButton" name="ldvPreferencesBtn">
-                 <property name="toolTip">
-                  <string>Open Native POV options dialogue</string>
-                 </property>
+                <widget class="QRadioButton" name="povGenNativeRadio">
                  <property name="text">
-                  <string>Preferences...</string>
+                  <string>Native</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <spacer name="horizontalSpacer_9">
+                <widget class="QRadioButton" name="povGenLDViewRadio">
+                 <property name="text">
+                  <string>LDView</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="ldvPOVSettingsBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>56</height>
+               </size>
+              </property>
+              <property name="title">
+               <string>POV file generation settings</string>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_19">
+               <item>
+                <widget class="QPushButton" name="ldvPoVFileGenOptBtn">
+                 <property name="toolTip">
+                  <string>Open Native POV options dialogue</string>
+                 </property>
+                 <property name="text">
+                  <string>Gen Options...</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="ldvPoVFileGenPrefBtn">
+                 <property name="toolTip">
+                  <string>Open Native POV options dialogue</string>
+                 </property>
+                 <property name="text">
+                  <string>All Preferences...</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="lgeoBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>86</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>This library provides higher quality rendering models for POV RAY</string>
+            </property>
+            <property name="title">
+             <string>LGEO is available</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_20">
+               <item>
+                <widget class="QLabel" name="lgeoStlLibLbl">
+                 <property name="text">
+                  <string>Durat's Stl library availability notice</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_11">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
@@ -1088,786 +1307,377 @@
                 </spacer>
                </item>
               </layout>
-             </widget>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="ldviewPath"/>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-      <widget class="QLabel" name="RenderMessage">
-       <property name="geometry">
-        <rect>
-         <x>36</x>
-         <y>547</y>
-         <width>420</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QWidget" name="layoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>17</x>
-         <y>14</y>
-         <width>460</width>
-         <height>30</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_7">
-        <item>
-         <widget class="QLabel" name="label_4">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Preferred renderer:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="preferredRenderer">
-          <item>
-           <property name="text">
-            <string>LDView</string>
-           </property>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_4">
+               <item>
+                <widget class="QLineEdit" name="lgeoPath">
+                 <property name="minimumSize">
+                  <size>
+                   <width>200</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="browseLGEO">
+                 <property name="toolTip">
+                  <string>Use directory dialog to find LGEO directory</string>
+                 </property>
+                 <property name="whatsThis">
+                  <string>This lets you find the LGEO directory</string>
+                 </property>
+                 <property name="text">
+                  <string>Browse...</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
           </item>
-          <item>
-           <property name="text">
-            <string>POVRay</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>LDGLite</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_7">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_9">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="contextMenuPolicy">
-           <enum>Qt::PreventContextMenu</enum>
-          </property>
-          <property name="toolTip">
-           <string>Set the renderer 'wait for finish' process time in minutes. -1 will not timeout.</string>
-          </property>
-          <property name="text">
-           <string>Process timeout:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="rendererTimeout">
-          <property name="toolTip">
-           <string>Set the renderer 'wait for finish' process time in minutes. -1 will not timeout.</string>
-          </property>
-          <property name="minimum">
-           <number>-1</number>
-          </property>
-          <property name="value">
-           <number>6</number>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_17">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>22</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="RenderMessage">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="tabPublishing">
       <attribute name="title">
        <string>Publishing</string>
       </attribute>
-      <widget class="QGroupBox" name="publishLogoBox">
-       <property name="geometry">
-        <rect>
-         <x>14</x>
-         <y>312</y>
-         <width>470</width>
-         <height>80</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>This directory contains the document logo</string>
-       </property>
-       <property name="title">
-        <string>Document Logo</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>15</x>
-          <y>37</y>
-          <width>440</width>
-          <height>30</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
-         <item>
-          <widget class="QLabel" name="label_16">
-           <property name="text">
-            <string>Path</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="publishLogoPath">
-           <property name="minimumSize">
-            <size>
-             <width>200</width>
-             <height>0</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="browsePublishLogo">
+      <layout class="QVBoxLayout" name="verticalLayout_9">
+       <item>
+        <widget class="QGroupBox" name="pageProcessingContinuousBox">
+         <property name="title">
+          <string>Continuous Page Display Duration</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_11">
+          <item>
+           <widget class="QLabel" name="label_10">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::PreventContextMenu</enum>
+            </property>
+            <property name="toolTip">
+             <string>Set the page 'display pause' in seconds. Minimum pause is 0, maximum pause is 180.</string>
+            </property>
+            <property name="text">
+             <string>Display page for</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="pageDisplayPauseSpin">
+            <property name="toolTip">
+             <string>Set the page 'display pause' in seconds. Minimum pause is 0, maximum pause is180.</string>
+            </property>
+            <property name="minimum">
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <number>180</number>
+            </property>
+            <property name="value">
+             <number>3</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_12">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::PreventContextMenu</enum>
+            </property>
+            <property name="toolTip">
+             <string>Set the page 'display pause' in seconds. Minimum pause is 0, maximum pause is 180.</string>
+            </property>
+            <property name="text">
+             <string>seconds</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>103</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="doNotShowPageProcessDlgChk">
+            <property name="toolTip">
+             <string>Display continuous page processing options dialogue when menu action is triggered.</string>
+            </property>
+            <property name="text">
+             <string>Display options dialogue</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_26">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>16</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="1">
+          <widget class="QCheckBox" name="displayAllAttributes_Chk">
            <property name="toolTip">
-            <string>Use dialog to select logo file</string>
-           </property>
-           <property name="whatsThis">
-            <string>This lets you select your logo file</string>
+            <string>Display all checked or enabled page attributes </string>
            </property>
            <property name="text">
-            <string>Browse...</string>
+            <string>Display all page attributes</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QCheckBox" name="generateCoverPages_Chk">
+           <property name="toolTip">
+            <string>Automatically generate front and back cover page</string>
+           </property>
+           <property name="text">
+            <string>Generate cover pages</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QCheckBox" name="publishTOC_Chk">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Generate table of contents in pdf output</string>
+           </property>
+           <property name="text">
+            <string>Generate PDF Table of Contents</string>
            </property>
           </widget>
          </item>
         </layout>
-       </widget>
-      </widget>
-      <widget class="QGroupBox" name="publishDescriptionBox">
-       <property name="geometry">
-        <rect>
-         <x>14</x>
-         <y>398</y>
-         <width>470</width>
-         <height>140</height>
-        </rect>
-       </property>
-       <property name="title">
-        <string>Publish Description</string>
-       </property>
-       <widget class="QTextEdit" name="publishDescriptionEdit">
-        <property name="geometry">
-         <rect>
-          <x>15</x>
-          <y>34</y>
-          <width>440</width>
-          <height>90</height>
-         </rect>
-        </property>
-        <property name="acceptRichText">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QGroupBox" name="pageProcessingContinuousBox">
-       <property name="geometry">
-        <rect>
-         <x>13</x>
-         <y>17</y>
-         <width>470</width>
-         <height>80</height>
-        </rect>
-       </property>
-       <property name="title">
-        <string>Continuous Page Processing</string>
-       </property>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>39</y>
-          <width>450</width>
-          <height>30</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_11">
-         <item>
-          <widget class="QLabel" name="label_10">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::PreventContextMenu</enum>
-           </property>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_25">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>17</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_8">
            <property name="toolTip">
-            <string>Set the page 'display pause' in seconds. Minimum pause is 0, maximum pause is 180.</string>
+            <string>Sets the default Author on published documents</string>
            </property>
            <property name="text">
-            <string>Display page for</string>
+            <string>Default Author:</string>
+           </property>
+           <property name="buddy">
+            <cstring>authorName_Edit</cstring>
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QSpinBox" name="pageDisplayPauseSpin">
-           <property name="toolTip">
-            <string>Set the page 'display pause' in seconds. Minimum pause is 0, maximum pause is180.</string>
-           </property>
-           <property name="minimum">
-            <number>0</number>
-           </property>
-           <property name="maximum">
-            <number>180</number>
-           </property>
-           <property name="value">
-            <number>3</number>
-           </property>
-          </widget>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="authorName_Edit"/>
          </item>
-         <item>
-          <widget class="QLabel" name="label_12">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::PreventContextMenu</enum>
-           </property>
-           <property name="toolTip">
-            <string>Set the page 'display pause' in seconds. Minimum pause is 0, maximum pause is 180.</string>
-           </property>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_15">
            <property name="text">
-            <string>seconds</string>
+            <string>Default URL:</string>
            </property>
           </widget>
          </item>
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="publishURL_Edit"/>
          </item>
-         <item>
-          <widget class="QCheckBox" name="doNotShowPageProcessDlgChk">
-           <property name="toolTip">
-            <string>Display continuous page processing options dialogue when menu action is triggered.</string>
-           </property>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_17">
            <property name="text">
-            <string>Display options dialogue</string>
+            <string>Default Email:</string>
            </property>
           </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="publishEmail_Edit"/>
          </item>
         </layout>
-       </widget>
-      </widget>
-      <widget class="QWidget" name="layoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>13</x>
-         <y>184</y>
-         <width>470</width>
-         <height>120</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_8">
-          <property name="toolTip">
-           <string>Sets the default Author on published documents</string>
-          </property>
-          <property name="text">
-           <string>Default Author:</string>
-          </property>
-          <property name="buddy">
-           <cstring>authorName_Edit</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="authorName_Edit"/>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_15">
-          <property name="text">
-           <string>Default URL:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="publishURL_Edit"/>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_17">
-          <property name="text">
-           <string>Default Email:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLineEdit" name="publishEmail_Edit"/>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="layoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>13</x>
-         <y>108</y>
-         <width>470</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>198</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="0" column="1">
-         <widget class="QCheckBox" name="displayAllAttributes_Chk">
-          <property name="toolTip">
-           <string>Display all checked or enabled page attributes </string>
-          </property>
-          <property name="text">
-           <string>Display all page attributes</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QCheckBox" name="publishTOC_Chk">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="toolTip">
-           <string>Generate table of contents in pdf output</string>
-          </property>
-          <property name="text">
-           <string>Generate PDF Table of Contents</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QCheckBox" name="generateCoverPages_Chk">
-          <property name="toolTip">
-           <string>Automatically generate front and back cover page</string>
-          </property>
-          <property name="text">
-           <string>Generate cover pages</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <zorder>layoutWidget</zorder>
-      <zorder>layoutWidget</zorder>
-      <zorder>pageProcessingContinuousBox</zorder>
-      <zorder>publishDescriptionBox</zorder>
-      <zorder>publishLogoBox</zorder>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_24">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>16</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="publishLogoBox">
+         <property name="toolTip">
+          <string>This directory contains the document logo</string>
+         </property>
+         <property name="title">
+          <string>Document Logo</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>Path</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="publishLogoPath">
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="browsePublishLogo">
+            <property name="toolTip">
+             <string>Use dialog to select logo file</string>
+            </property>
+            <property name="whatsThis">
+             <string>This lets you select your logo file</string>
+            </property>
+            <property name="text">
+             <string>Browse...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_23">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>17</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="publishDescriptionBox">
+         <property name="title">
+          <string>Publish Description</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QTextEdit" name="publishDescriptionEdit">
+            <property name="acceptRichText">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_22">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>16</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="tabLogging">
       <attribute name="title">
        <string>Theme/Logging</string>
       </attribute>
-      <widget class="QGroupBox" name="loggingGrpBox">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>105</y>
-         <width>470</width>
-         <height>420</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>Uncheck to disable logging</string>
-       </property>
-       <property name="title">
-        <string>Logging</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <widget class="QLabel" name="logValiationLbl">
-        <property name="geometry">
-         <rect>
-          <x>24</x>
-          <y>460</y>
-          <width>431</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>30</y>
-          <width>450</width>
-          <height>370</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_15">
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_13">
-           <item>
-            <widget class="QLabel" name="label_11">
-             <property name="text">
-              <string>Log Path</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="logPathEdit">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="toolTip">
-              <string>Log file path</string>
-             </property>
-             <property name="readOnly">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_13">
-           <item>
-            <widget class="QGroupBox" name="includesGrpBox">
-             <property name="toolTip">
-              <string>Attributes to include in log output. Select all that apply</string>
-             </property>
-             <property name="title">
-              <string>Includes</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_12">
-              <item>
-               <layout class="QGridLayout" name="gridLayout_3">
-                <item row="0" column="0">
-                 <widget class="QCheckBox" name="includeLogLevelBox">
-                  <property name="toolTip">
-                   <string>Include the level of logging</string>
-                  </property>
-                  <property name="text">
-                   <string>Logging Level</string>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QCheckBox" name="includeTimestampBox">
-                  <property name="toolTip">
-                   <string>Include the timestamp of the logged message</string>
-                  </property>
-                  <property name="text">
-                   <string>Timestamp</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QCheckBox" name="includeLineNumberBox">
-                  <property name="toolTip">
-                   <string>Include the log message class line number</string>
-                  </property>
-                  <property name="text">
-                   <string>Line Number</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QCheckBox" name="includeFileNameBox">
-                  <property name="toolTip">
-                   <string>Include the class name that generated the log message</string>
-                  </property>
-                  <property name="text">
-                   <string>Class Name</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QCheckBox" name="includeFunctionBox">
-                  <property name="toolTip">
-                   <string>Include the log message class function</string>
-                  </property>
-                  <property name="text">
-                   <string>Function</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QCheckBox" name="includeAllLogAttribBox">
-                  <property name="toolTip">
-                   <string>Include the class name that generated the log message</string>
-                  </property>
-                  <property name="text">
-                   <string>All Includes</string>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="logLevelGrpBox">
-             <property name="toolTip">
-              <string>Select logging level as needed. Levels below the selected level will also be logged.</string>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
-             </property>
-             <property name="title">
-              <string>Logging Level</string>
-             </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_11">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_12">
-                <item>
-                 <spacer name="horizontalSpacer_3">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
-                 <widget class="QComboBox" name="logLevelCombo"/>
-                </item>
-                <item>
-                 <spacer name="horizontalSpacer_4">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="logLevelsGrpBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>Select individual logging levels as needed. </string>
-             </property>
-             <property name="title">
-              <string>Individual Logging Levels</string>
-             </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_10">
-              <item>
-               <layout class="QGridLayout" name="gridLayout_4">
-                <item row="0" column="0">
-                 <widget class="QCheckBox" name="fatalLevelBox">
-                  <property name="toolTip">
-                   <string>Log Fatal messages</string>
-                  </property>
-                  <property name="text">
-                   <string>Fatal</string>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QCheckBox" name="noticeLevelBox">
-                  <property name="toolTip">
-                   <string>Log Notice messages</string>
-                  </property>
-                  <property name="text">
-                   <string>Notice</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QCheckBox" name="errorLevelBox">
-                  <property name="toolTip">
-                   <string>Log Error messages</string>
-                  </property>
-                  <property name="text">
-                   <string>Error</string>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QCheckBox" name="traceLevelBox">
-                  <property name="toolTip">
-                   <string>Log Trace messages</string>
-                  </property>
-                  <property name="text">
-                   <string>Trace</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QCheckBox" name="statusLevelBox">
-                  <property name="toolTip">
-                   <string>Log Status messages</string>
-                  </property>
-                  <property name="text">
-                   <string>Status</string>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QCheckBox" name="debugLevelBox">
-                  <property name="toolTip">
-                   <string>Log Debug messages</string>
-                  </property>
-                  <property name="text">
-                   <string>Debug</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QCheckBox" name="infoLevelBox">
-                  <property name="toolTip">
-                   <string>Log Information messages</string>
-                  </property>
-                  <property name="text">
-                   <string>Information</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="1">
-                 <widget class="QCheckBox" name="allLogLevelsBox">
-                  <property name="toolTip">
-                   <string>Log all messages</string>
-                  </property>
-                  <property name="text">
-                   <string>All Levels</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-      <widget class="QGroupBox" name="themesBox">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>17</y>
-         <width>470</width>
-         <height>70</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="title">
-        <string>Themes</string>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_14">
-        <item>
+      <layout class="QVBoxLayout" name="verticalLayout_13">
+       <item>
+        <widget class="QGroupBox" name="themesBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Themes</string>
+         </property>
          <layout class="QHBoxLayout" name="horizontalLayout_10">
           <item>
            <spacer name="horizontalSpacer_5">
@@ -1929,367 +1739,840 @@
            </spacer>
           </item>
          </layout>
-        </item>
-       </layout>
-      </widget>
-      <widget class="Line" name="line_2">
-       <property name="geometry">
-        <rect>
-         <x>11</x>
-         <y>93</y>
-         <width>470</width>
-         <height>10</height>
-        </rect>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_31">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>23</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_30">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>23</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="loggingGrpBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Uncheck to disable logging</string>
+         </property>
+         <property name="title">
+          <string>Logging</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_12">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_13">
+            <item>
+             <widget class="QLabel" name="label_11">
+              <property name="text">
+               <string>Log Path</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="logPathEdit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>Log file path</string>
+              </property>
+              <property name="readOnly">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_29">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>7</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="includesGrpBox">
+            <property name="toolTip">
+             <string>Attributes to include in log output. Select all that apply</string>
+            </property>
+            <property name="title">
+             <string>Includes</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_11">
+             <item>
+              <layout class="QGridLayout" name="gridLayout_3">
+               <item row="0" column="0">
+                <widget class="QCheckBox" name="includeLogLevelBox">
+                 <property name="toolTip">
+                  <string>Include the level of logging</string>
+                 </property>
+                 <property name="text">
+                  <string>Logging Level</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QCheckBox" name="includeTimestampBox">
+                 <property name="toolTip">
+                  <string>Include the timestamp of the logged message</string>
+                 </property>
+                 <property name="text">
+                  <string>Timestamp</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QCheckBox" name="includeLineNumberBox">
+                 <property name="toolTip">
+                  <string>Include the log message class line number</string>
+                 </property>
+                 <property name="text">
+                  <string>Line Number</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QCheckBox" name="includeFileNameBox">
+                 <property name="toolTip">
+                  <string>Include the class name that generated the log message</string>
+                 </property>
+                 <property name="text">
+                  <string>Class Name</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="includeFunctionBox">
+                 <property name="toolTip">
+                  <string>Include the log message class function</string>
+                 </property>
+                 <property name="text">
+                  <string>Function</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QCheckBox" name="includeAllLogAttribBox">
+                 <property name="toolTip">
+                  <string>Include the class name that generated the log message</string>
+                 </property>
+                 <property name="text">
+                  <string>All Includes</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_28">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>7</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="logLevelGrpBox">
+            <property name="toolTip">
+             <string>Select logging level as needed. Levels below the selected level will also be logged.</string>
+            </property>
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="title">
+             <string>Logging Level</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_12">
+             <item>
+              <spacer name="horizontalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>160</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QComboBox" name="logLevelCombo"/>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>159</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_27">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>7</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="logLevelsGrpBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Select individual logging levels as needed. </string>
+            </property>
+            <property name="title">
+             <string>Individual Logging Levels</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_10">
+             <item>
+              <layout class="QGridLayout" name="gridLayout_4">
+               <item row="0" column="0">
+                <widget class="QCheckBox" name="fatalLevelBox">
+                 <property name="toolTip">
+                  <string>Log Fatal messages</string>
+                 </property>
+                 <property name="text">
+                  <string>Fatal</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QCheckBox" name="noticeLevelBox">
+                 <property name="toolTip">
+                  <string>Log Notice messages</string>
+                 </property>
+                 <property name="text">
+                  <string>Notice</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QCheckBox" name="errorLevelBox">
+                 <property name="toolTip">
+                  <string>Log Error messages</string>
+                 </property>
+                 <property name="text">
+                  <string>Error</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QCheckBox" name="traceLevelBox">
+                 <property name="toolTip">
+                  <string>Log Trace messages</string>
+                 </property>
+                 <property name="text">
+                  <string>Trace</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="statusLevelBox">
+                 <property name="toolTip">
+                  <string>Log Status messages</string>
+                 </property>
+                 <property name="text">
+                  <string>Status</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QCheckBox" name="debugLevelBox">
+                 <property name="toolTip">
+                  <string>Log Debug messages</string>
+                 </property>
+                 <property name="text">
+                  <string>Debug</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QCheckBox" name="infoLevelBox">
+                 <property name="toolTip">
+                  <string>Log Information messages</string>
+                 </property>
+                 <property name="text">
+                  <string>Information</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QCheckBox" name="allLogLevelsBox">
+                 <property name="toolTip">
+                  <string>Log all messages</string>
+                 </property>
+                 <property name="text">
+                  <string>All Levels</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="logValiationLbl">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_21">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>7</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_11">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>23</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="tabOther">
       <attribute name="title">
        <string>Other</string>
       </attribute>
-      <widget class="QGroupBox" name="groupBoxUpdates">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>13</y>
-         <width>470</width>
-         <height>300</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>Check for newer version online.</string>
-       </property>
-       <property name="title">
-        <string>Check for updates</string>
-       </property>
-       <widget class="QGroupBox" name="groupBoxChangeLog">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>149</y>
-          <width>450</width>
-          <height>140</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="title">
-         <string>Changelog</string>
-        </property>
-        <widget class="QTextBrowser" name="changeLog_txbr">
-         <property name="geometry">
-          <rect>
-           <x>11</x>
-           <y>29</y>
-           <width>430</width>
-           <height>100</height>
-          </rect>
+      <layout class="QVBoxLayout" name="verticalLayout_15">
+       <item>
+        <widget class="QGroupBox" name="groupBoxUpdates">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="readOnly">
-          <bool>true</bool>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>330</height>
+          </size>
          </property>
-         <property name="html">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+         <property name="toolTip">
+          <string>Check for newer version online.</string>
+         </property>
+         <property name="title">
+          <string>Check for updates</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_19">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QLabel" name="frequency_lbl">
+              <property name="contextMenuPolicy">
+               <enum>Qt::NoContextMenu</enum>
+              </property>
+              <property name="text">
+               <string>Frequency</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="checkUpdateFrequency_Combo">
+              <property name="toolTip">
+               <string>Select check for update frequency</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>Never</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Once a day</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Once a week</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Once a month</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_14">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="moduleVersion_lbl">
+              <property name="toolTip">
+               <string>Change the installed version to use when comparing with update version. Use to override installed version.</string>
+              </property>
+              <property name="text">
+               <string>Version installed </string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="moduleVersion_Combo">
+              <property name="toolTip">
+               <string>Change the installed version to use when comparing with update version. Use to override installed version.</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_9">
+            <item>
+             <widget class="QCheckBox" name="showAllNotificstions_Chk">
+              <property name="toolTip">
+               <string>Show progress details while checking for updates</string>
+              </property>
+              <property name="text">
+               <string>Show progress details</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_15">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="enableDownloader_Chk">
+              <property name="toolTip">
+               <string>Download the update directly instead of opening download link through a browser</string>
+              </property>
+              <property name="text">
+               <string>Enable downloader</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_8">
+            <item>
+             <widget class="QCheckBox" name="showUpdateNotifications_Chk">
+              <property name="toolTip">
+               <string>Notify user when and update is available</string>
+              </property>
+              <property name="text">
+               <string>Show update available</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_16">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="checkForUpdates_btn">
+              <property name="toolTip">
+               <string>Click to check for update</string>
+              </property>
+              <property name="text">
+               <string>Check for Updates...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBoxChangeLog">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>446</width>
+              <height>170</height>
+             </size>
+            </property>
+            <property name="title">
+             <string>Changelog</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_14">
+             <item>
+              <widget class="QTextBrowser" name="changeLog_txbr">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>100</height>
+                </size>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+               <property name="html">
+                <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line">
+         <property name="minimumSize">
+          <size>
+           <width>466</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
         </widget>
-       </widget>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>21</x>
-          <y>110</y>
-          <width>430</width>
-          <height>30</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_8">
-         <item>
-          <widget class="QCheckBox" name="showUpdateNotifications_Chk">
-           <property name="toolTip">
-            <string>Notify user when and update is available</string>
-           </property>
-           <property name="text">
-            <string>Show update available</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_16">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="checkForUpdates_btn">
-           <property name="toolTip">
-            <string>Click to check for update</string>
-           </property>
-           <property name="text">
-            <string>Check for Updates...</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>21</x>
-          <y>71</y>
-          <width>430</width>
-          <height>30</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_9">
-         <item>
-          <widget class="QCheckBox" name="showAllNotificstions_Chk">
-           <property name="toolTip">
-            <string>Show progress details while checking for updates</string>
-           </property>
-           <property name="text">
-            <string>Show progress details</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_15">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="enableDownloader_Chk">
-           <property name="toolTip">
-            <string>Download the update directly instead of opening download link through a browser</string>
-           </property>
-           <property name="text">
-            <string>Enable downloader</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>21</x>
-          <y>32</y>
-          <width>430</width>
-          <height>30</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <item>
-          <widget class="QLabel" name="frequency_lbl">
-           <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
-           </property>
-           <property name="text">
-            <string>Frequency</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="checkUpdateFrequency_Combo">
-           <property name="toolTip">
-            <string>Select check for update frequency</string>
-           </property>
-           <item>
-            <property name="text">
-             <string>Never</string>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBoxSearchDirs">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>240</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>LDraw Content Search Directories</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_6">
+          <item row="0" column="0" colspan="2">
+           <widget class="QLineEdit" name="lineEditIniFile">
+            <property name="toolTip">
+             <string>LDraw.ini file path dialog</string>
             </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Once a day</string>
+            <property name="readOnly">
+             <bool>false</bool>
             </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Once a week</string>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QTextEdit" name="textEditSearchDirs">
+            <property name="enabled">
+             <bool>true</bool>
             </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Once a month</string>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>150</verstretch>
+             </sizepolicy>
             </property>
-           </item>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_14">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLabel" name="moduleVersion_lbl">
-           <property name="toolTip">
-            <string>Change the installed version to use when comparing with update version. Use to override installed version.</string>
-           </property>
-           <property name="text">
-            <string>Version installed </string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="moduleVersion_Combo">
-           <property name="toolTip">
-            <string>Change the installed version to use when comparing with update version. Use to override installed version.</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-      <widget class="Line" name="line">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>322</y>
-         <width>470</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-      <widget class="QGroupBox" name="groupBoxSearchDirs">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>342</y>
-         <width>470</width>
-         <height>200</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="title">
-        <string>LDraw Content Search Directories</string>
-       </property>
-       <widget class="QTextEdit" name="textEditSearchDirs">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>15</x>
-          <y>60</y>
-          <width>400</width>
-          <height>130</height>
-         </rect>
-        </property>
-        <property name="acceptDrops">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>Search directories</string>
-        </property>
-        <property name="readOnly">
-         <bool>false</bool>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pushButtonReset">
-        <property name="geometry">
-         <rect>
-          <x>423</x>
-          <y>60</y>
-          <width>30</width>
-          <height>30</height>
-         </rect>
-        </property>
-        <property name="toolTip">
-         <string>Reset LPub3D LDraw search directories to default</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="lpub3d.qrc">
-          <normaloff>:/resources/resetsetting.png</normaloff>:/resources/resetsetting.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>25</width>
-          <height>25</height>
-         </size>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="lineEditIniFile">
-        <property name="geometry">
-         <rect>
-          <x>15</x>
-          <y>25</y>
-          <width>440</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="toolTip">
-         <string>LDraw.ini file path dialog</string>
-        </property>
-        <property name="readOnly">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </widget>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>151</height>
+             </size>
+            </property>
+            <property name="acceptDrops">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Search directories</string>
+            </property>
+            <property name="readOnly">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="pushButtonReset">
+            <property name="toolTip">
+             <string>Reset LPub3D LDraw search directories to default</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="lpub3d.qrc">
+              <normaloff>:/resources/resetsetting.png</normaloff>:/resources/resetsetting.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>25</width>
+              <height>25</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
      </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
     </widget>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>fadeStepBox</tabstop>
+  <tabstop>fadeStepsUseColourBox</tabstop>
+  <tabstop>fadeStepsColoursCombo</tabstop>
+  <tabstop>ldrawPath</tabstop>
+  <tabstop>browseLDraw</tabstop>
+  <tabstop>altLDConfigBox</tabstop>
+  <tabstop>altLDConfigPath</tabstop>
+  <tabstop>imageMattingChk</tabstop>
+  <tabstop>fadeStepsOpacitySlider</tabstop>
+  <tabstop>highlightStepBox</tabstop>
+  <tabstop>highlightStepLineWidthSpin</tabstop>
+  <tabstop>highlightStepBtn</tabstop>
+  <tabstop>browseAltLDConfig</tabstop>
+  <tabstop>pliBox</tabstop>
+  <tabstop>pliName</tabstop>
+  <tabstop>browsePli</tabstop>
+  <tabstop>Centimeters</tabstop>
+  <tabstop>Inches</tabstop>
+  <tabstop>showParseErrorsChkBox</tabstop>
+  <tabstop>POVRayBox</tabstop>
+  <tabstop>lgeoBox</tabstop>
+  <tabstop>lgeoPath</tabstop>
+  <tabstop>browseLGEO</tabstop>
+  <tabstop>povrayDisplay_Chk</tabstop>
+  <tabstop>povrayPath</tabstop>
+  <tabstop>povGenNativeRadio</tabstop>
+  <tabstop>povGenLDViewRadio</tabstop>
+  <tabstop>ldvPoVFileGenOptBtn</tabstop>
+  <tabstop>ldvPoVFileGenPrefBtn</tabstop>
+  <tabstop>ldgliteBox</tabstop>
+  <tabstop>browseLDGLite</tabstop>
+  <tabstop>ldglitePath</tabstop>
+  <tabstop>ldviewBox</tabstop>
+  <tabstop>ldviewPath</tabstop>
+  <tabstop>ldvPreferencesBtn</tabstop>
+  <tabstop>ldviewSingleCall_Chk</tabstop>
+  <tabstop>ldviewSnaphsotsList_Chk</tabstop>
+  <tabstop>preferredRenderer</tabstop>
+  <tabstop>rendererTimeout</tabstop>
+  <tabstop>publishLogoBox</tabstop>
+  <tabstop>publishLogoPath</tabstop>
+  <tabstop>browsePublishLogo</tabstop>
+  <tabstop>publishDescriptionEdit</tabstop>
+  <tabstop>pageDisplayPauseSpin</tabstop>
+  <tabstop>doNotShowPageProcessDlgChk</tabstop>
+  <tabstop>authorName_Edit</tabstop>
+  <tabstop>publishURL_Edit</tabstop>
+  <tabstop>publishEmail_Edit</tabstop>
+  <tabstop>displayAllAttributes_Chk</tabstop>
+  <tabstop>generateCoverPages_Chk</tabstop>
+  <tabstop>loggingGrpBox</tabstop>
+  <tabstop>logPathEdit</tabstop>
+  <tabstop>includeLogLevelBox</tabstop>
+  <tabstop>includeTimestampBox</tabstop>
+  <tabstop>includeLineNumberBox</tabstop>
+  <tabstop>includeFileNameBox</tabstop>
+  <tabstop>includeFunctionBox</tabstop>
+  <tabstop>includeAllLogAttribBox</tabstop>
+  <tabstop>logLevelGrpBox</tabstop>
+  <tabstop>logLevelCombo</tabstop>
+  <tabstop>logLevelsGrpBox</tabstop>
+  <tabstop>fatalLevelBox</tabstop>
+  <tabstop>noticeLevelBox</tabstop>
+  <tabstop>errorLevelBox</tabstop>
+  <tabstop>traceLevelBox</tabstop>
+  <tabstop>statusLevelBox</tabstop>
+  <tabstop>debugLevelBox</tabstop>
+  <tabstop>infoLevelBox</tabstop>
+  <tabstop>allLogLevelsBox</tabstop>
+  <tabstop>themeCombo</tabstop>
+  <tabstop>themeAutoRestartBox</tabstop>
+  <tabstop>changeLog_txbr</tabstop>
+  <tabstop>showUpdateNotifications_Chk</tabstop>
+  <tabstop>checkForUpdates_btn</tabstop>
+  <tabstop>showAllNotificstions_Chk</tabstop>
+  <tabstop>enableDownloader_Chk</tabstop>
+  <tabstop>checkUpdateFrequency_Combo</tabstop>
+  <tabstop>moduleVersion_Combo</tabstop>
+  <tabstop>textEditSearchDirs</tabstop>
+  <tabstop>pushButtonReset</tabstop>
+  <tabstop>lineEditIniFile</tabstop>
+ </tabstops>
  <resources>
   <include location="lpub3d.qrc"/>
   <include location="lpub3d.qrc"/>
@@ -2302,8 +2585,8 @@ p, li { white-space: pre-wrap; }
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>254</x>
-     <y>365</y>
+     <x>263</x>
+     <y>637</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -2318,8 +2601,8 @@ p, li { white-space: pre-wrap; }
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>322</x>
-     <y>365</y>
+     <x>331</x>
+     <y>637</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

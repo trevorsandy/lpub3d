@@ -170,7 +170,7 @@ int Gui::processCommandLine()
       else
       if (preferredRenderer.toLower() == "ldview-sc"){
           renderer = RENDERER_LDVIEW;
-          Preferences::useLDViewSingleCall = true;
+          Preferences::enableLDViewSingleCall = true;
       }
       else
       if (preferredRenderer.toLower() == "ldglite"){
@@ -189,7 +189,7 @@ int Gui::processCommandLine()
                             .arg(Preferences::preferredRenderer)
                             .arg(renderer)
                             .arg(renderer == RENDERER_POVRAY ? QString("(PoV file generator is %1)").arg(Preferences::povFileGenerator) :
-                                 renderer == RENDERER_LDVIEW ? Preferences::useLDViewSingleCall ? "(Single Call)" : "" : "");
+                                 renderer == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ? "(Single Call)" : "" : "");
           emit messageSig(LOG_INFO,message);
           Preferences::preferredRenderer = renderer;
           Render::setRenderer(Preferences::preferredRenderer);

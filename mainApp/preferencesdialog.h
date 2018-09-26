@@ -71,6 +71,7 @@ class PreferencesDialog : public QDialog
     bool          enableImageMatting();
     bool          enableDocumentLogo();
     bool          enableLDViewSingleCall();
+    bool          enableLDViewSnaphsotList();
     bool          showUpdateNotifications();
     bool          enableDownloader();
     bool          showAllNotifications();
@@ -142,6 +143,8 @@ class PreferencesDialog : public QDialog
     void pushButtonReset_SetState();
     void updateChangelog (QString url);
     void checkForUpdates();
+
+    void on_ldviewSingleCall_Chk_clicked(bool checked);
 
 private:
     Ui::PreferencesDialog ui;
