@@ -60,6 +60,10 @@ class StepGroup;
 class MetaItem
 {
 public:
+  enum monoColors { white, blue, numColors };
+  QString monoColor [numColors] = { "white", "blue" };
+  QString monoColorCode[numColors] = { "15", "1" };
+
   void setGlobalMeta(QString &topLevelFile, LeafMeta *leaf);
 
   bool canConvertToCallout(    Meta *);
@@ -72,7 +76,7 @@ public:
 
   int  nestCallouts(           Meta *, const QString &, bool isMirrored);
   QString makeMonoName(const QString &fileName, QString &color);
-  int monoColorSubmodel(QString &modelName,QString &outFileName, QString &color);
+  int monoColorSubmodel(QString &modelName, QString &monoOutName, QString &color);
   QPointF defaultPointerTip(
     Meta &meta,QString &modelName,int lineNumber,
     const QString &subModel,int instance,bool isMirrored);

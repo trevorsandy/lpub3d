@@ -2941,6 +2941,8 @@ void MetaItem::addCalloutMetas(
                                          modelName,
                                          i,
                                          gui->isMirrored(argv));
+      emit gui->messageSig(LOG_DEBUG, QString("[Tip Point] (%1, %2)").arg(QString::number(offset.x(),'f',6))
+                                                                     .arg(QString::number(offset.y(),'f',6)));
 
       QString line = QString("%1 %2 0 0 0 0 0 0 1") .arg(offset.x()) .arg(offset.y());
 
@@ -3053,22 +3055,20 @@ QPointF MetaItem::pointerTip(
   const Where   &fromHere,
   const Where   &toHere)
 {
-  QString white("15");
-  QString blue("1");
   QString modelName = fromHere.modelName;
   QRectF  pagePosition = QRectF(0,0,gui->pageSize(meta.LPub.page, 0),gui->pageSize(meta.LPub.page, 1));
   /*
    * Create a "white" version of the submodel that callouts out our callout
    */
 
-  QString monoName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + modelName;
-  monoName = makeMonoName(monoName,white);
-  monoColorSubmodel(modelName,monoName,white);
+  QString monoOutName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + modelName;
+  monoOutName = makeMonoName(monoOutName,monoColor[white]);
+  monoColorSubmodel(modelName,monoOutName,monoColor[white]);
 
-  QFile inFile(monoName);
+  QFile inFile(monoOutName);
   if ( ! inFile.open(QFile::ReadOnly | QFile::Text)) {
     emit gui->messageSig(LOG_ERROR,QString("defaultPointerTip cannot read file %1: %2.")
-                         .arg(monoName)
+                         .arg(monoOutName)
                          .arg(inFile.errorString()));
     return QPointF(0.5,0.5);
   }
@@ -3088,7 +3088,7 @@ QPointF MetaItem::pointerTip(
       split(line,argv);
       if (argv.size() == 15) {
         // create blue parts
-        argv[1] = blue;
+        argv[1] = monoColorCode[blue];
         line = argv.join(" ");
       }
     }
@@ -3293,19 +3293,28 @@ void MetaItem::deletePointer(const Where &here)
  
 QString MetaItem::makeMonoName(const QString &fileName, QString &color)
 {
+  QString mono = "mono_";
+  QString altColor = "_" + monoColor[(color == monoColor[blue] ? white : blue)];
   QFileInfo info(fileName);
-  return info.absolutePath() + "/" + info.baseName() + "_" + color + "." + info.suffix();
+  QString baseName = info.baseName();
+  if (info.baseName().right(altColor.size()) == ("_" + monoColor[white]))
+      baseName = info.baseName().left(info.baseName().length() - altColor.size());
+  if ((info.fileName().left(mono.size())) == mono)
+      return info.absolutePath() + "/" + baseName + "_" + color + "." + info.suffix();
+  return info.absolutePath() + "/" + mono + baseName + "_" + color + "." + info.suffix();
 }
   
 int MetaItem::monoColorSubmodel(
   QString &modelName,
-  QString &outFileName,
+  QString &monoOutName,
   QString &color)
-{    
-  QFile outFile(outFileName);
+{
+  monoColors colorCode = (color == monoColor[white] ? white : blue);
+
+  QFile outFile(monoOutName);
   if ( ! outFile.open(QFile::WriteOnly | QFile::Text)) {
     emit gui->messageSig(LOG_ERROR,QString("MonoColorSubmodel cannot write file %1: %2.")
-                         .arg(outFileName)
+                         .arg(monoOutName)
                          .arg(outFile.errorString()));
     return -1;
   }
@@ -3325,10 +3334,9 @@ int MetaItem::monoColorSubmodel(
       QFileInfo info(argv[14]);
       QString submodel = info.baseName();
       QString suffix = info.suffix();
-      if (submodel.right(3) == "_15") {
-        submodel = submodel.left(submodel.length()-3);
-      } else if (submodel.right(5) == "_15_1") {
-        submodel = submodel.left(submodel.length()-5);
+
+      if (submodel.right(color.size()) == color) {
+        submodel = submodel.left(submodel.length() - color.size());
       }
       submodel += "." + suffix;
       if (gui->isSubmodel(submodel)) {
@@ -3338,12 +3346,12 @@ int MetaItem::monoColorSubmodel(
         QFileInfo info(model);
         argv[14] = info.fileName();
       }
-      argv[1] = color;
+      argv[1] = monoColorCode[colorCode];
     } else if ((argv.size() == 8 && argv[0] == "2") ||
                (argv.size() == 11 && argv[0] == "3") ||
                (argv.size() == 14 && argv[0] == "4") ||
                (argv.size() == 14 && argv[0] == "5")) {
-      argv[1] = color;
+      argv[1] = monoColorCode[colorCode];
     }
     line = argv.join(" ");
     out << line << endl;
@@ -3355,28 +3363,27 @@ int MetaItem::monoColorSubmodel(
 
 QPointF MetaItem::defaultPointerTip(
   Meta    &meta,
-  QString &modelName,
-  int      lineNumber,
-  const QString &subModel,
+  QString &modelName,         // where modelName
+  int      lineNumber,        // where lineNumber @first Callout instance
+  const QString &subModel,    // called out submodel
   int     instance,
   bool    isMirrored)
 {
-  QString white("15");
-  QString blue("1");
+
   QRectF  pagePosition = QRectF(0,0,gui->pageSize(meta.LPub.page, 0),gui->pageSize(meta.LPub.page, 1));
 
   /*
    * Create a "white" version of the submodel that callouts out our callout
    */
 
-  QString monoName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + modelName;
-  monoName = makeMonoName(monoName,white);
-  monoColorSubmodel(modelName,monoName,white);
+  QString monoOutName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + modelName;
+  monoOutName = makeMonoName(monoOutName,monoColor[white]);
+  monoColorSubmodel(modelName,monoOutName,monoColor[white]);
 
-  QFile inFile(monoName);
+  QFile inFile(monoOutName);
   if ( ! inFile.open(QFile::ReadOnly | QFile::Text)) {
     emit gui->messageSig(LOG_ERROR,QString("defaultPointerTip cannot read file %1: %2.")
-                         .arg(monoName)
+                         .arg(monoOutName)
                          .arg(inFile.errorString()));
     return pagePosition.center();
   }
@@ -3393,12 +3400,11 @@ QPointF MetaItem::defaultPointerTip(
   QStringList argv;
   int i;
   QFileInfo info(subModel);
-  QString monoSubModel = info.baseName() + "_" + white + "." + info.suffix();
+  QString monoSubModel = "mono_" + info.baseName() + "_" + monoColor[white] + "." + info.suffix();
   for (i = 0; i < numLines; i++) {
     QString line = in.readLine(0);
-    if (i >= lineNumber) {
-
-      split(line,argv);
+    split(line,argv);
+    if (i >= lineNumber) { 
       if (argv.size() == 15) {
         bool mirrored = gui->isMirrored(argv);
         if (argv[0] == "1" &&
@@ -3408,6 +3414,27 @@ QPointF MetaItem::defaultPointerTip(
             break;
           }
         }
+      }
+    }
+    else
+    {
+      // get the last ROTSTEP...
+      if (argv.size() > 0 && argv[0] == "0") {
+        Where here(modelName,i);
+        Rc rc = meta.parse(line,here,false);
+#ifdef QT_DEBUG_MODE
+        if (rc == RotStepRc) {
+          RotStepData rotStepData = meta.rotStep.value();
+          QString rotsComment = QString("%1 %2 %3 %4")
+                  .arg(rotStepData.type)
+                  .arg(rotStepData.rots[0])
+                  .arg(rotStepData.rots[1])
+                  .arg(rotStepData.rots[2]);
+          gui->messageSig(LOG_DEBUG,QString("Called out subModel %1 ROTSTEP %2")
+                          .arg(subModel)
+                          .arg(rotsComment));
+        }
+#endif
       }
     }
 
@@ -3421,12 +3448,12 @@ QPointF MetaItem::defaultPointerTip(
    * Create a "blue" version of the called out assembly
    */
 
-  QString fileName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + argv[14];
-  fileName = makeMonoName(fileName,blue);
+  QString fileName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + argv[14]; // monoSubModel
+  fileName = makeMonoName(fileName,monoColor[blue]);
   QString tmodelName = info.fileName();
-  monoColorSubmodel(tmodelName,fileName,blue);
+  monoColorSubmodel(tmodelName,fileName,monoColor[blue]);
   info.setFile(fileName);
-  argv[1] = blue;
+  argv[1] = monoColorCode[blue];
   argv[14] = info.fileName();
 
   /*
@@ -3453,21 +3480,26 @@ QPointF MetaItem::defaultPointerTip(
   }
 
   /*
-   * Rotate and render white and blue matted image
+   * Rotate and render white and blue image
    */
 
   bool ok[2];
-  QString pngName, ldrName;
+  QString pngName, ldrName, monoOutPngName;
+#ifdef QT_DEBUG_MODE
+  monoOutPngName =   QString("mono_%1").arg(QFileInfo(subModel).baseName());
+#else
+  monoOutPngName = "mono"
+#endif
   QStringList ldrNames, csiKeys;
   if (renderer->useLDViewSCall()) {
-      ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/mono.ldr";
-      pngName = QDir::currentPath() + "/" + Paths::assemDir + "/mono.png";
+      ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + monoOutName + ".ldr";
+      pngName = QDir::currentPath() + "/" + Paths::assemDir + "/" + monoOutPngName + ".png";
       ldrNames << ldrName;
       csiKeys << "mono";
       ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName) == 0);
       ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
     } else {
-      pngName = QDir::currentPath() + "/" + Paths::tmpDir + "/mono.png";
+      pngName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + monoOutPngName + ".png";
       ok[0] = ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
     }
 
@@ -3518,12 +3550,30 @@ QPointF MetaItem::defaultPointerTip(
       left = width/2;
       top  = height/2;
     }
-    emit gui->messageSig(LOG_INFO,QString("Model %1 default pointer tip position. (left[%2]/width[%3], top[%4]/height[%5]).")
-                                          .arg(modelName)
-                                          .arg(QString::number(left))
-                                          .arg(QString::number(width))
-                                          .arg(QString::number(top))
-                                          .arg(QString::number(height)));
+
+    emit gui->messageSig(LOG_DEBUG,QString("Called out submodel [%1] for parent model [%2] default pointer tip position:")
+                                           .arg(subModel)
+                                           .arg(modelName));
+    emit gui->messageSig(LOG_DEBUG,QString(" -top:    %1").arg(QString::number(top)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -bottom: %1").arg(QString::number(bottom)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -left:   %1").arg(QString::number(left)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -right:  %1").arg(QString::number(right)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -width:  %1").arg(QString::number(width)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -height: %1").arg(QString::number(height)));
+    QPointF offset = QPointF(float(left)/width, float(top)/height);
+    emit gui->messageSig(LOG_DEBUG,QString(" -X (left[%1]/width[%2]): %3")
+                                                                   .arg(QString::number(left))
+                                                                   .arg(QString::number(width))
+                                                                   .arg(QString::number(offset.x(),'f',6)));
+
+    emit gui->messageSig(LOG_DEBUG,QString(" -Y (top[%1]/height[%2]): %3")
+                                                                   .arg(QString::number(top))
+                                                                   .arg(QString::number(height))
+                                                                   .arg(QString::number(offset.y(),'f',6)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -Tip Point: (%1, %2)")
+                                                 .arg(QString::number(offset.x(),'f',6))
+                                                 .arg(QString::number(offset.y(),'f',6)));
+
     return QPointF(float(left)/width, float(top)/height);
   }
   emit gui->messageSig(LOG_ERROR,QString("Render momo image for pointer tip location failed."));
