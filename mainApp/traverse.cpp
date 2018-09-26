@@ -2834,6 +2834,8 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
           }
         }
     } else {
+      // save the current step position
+      ldrawFile.setPrevStepPosition(current.modelName,csiParts.size());
       return csiParts;
     }
 
