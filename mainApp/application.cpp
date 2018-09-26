@@ -585,5 +585,10 @@ void clearAndRedrawPage()
   gui->clearAndRedrawPage();
 }
 
+void restartApplication()
+{
+  gui->restartApplication();
+}
+
 // Implements the main function here.
 ENTRY_POINT

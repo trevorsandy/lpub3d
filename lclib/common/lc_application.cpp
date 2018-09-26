@@ -727,7 +727,24 @@ void lcApplication::ShowPreferencesDialog()
     lcSetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES, Options.AASamples);
 
 /*** LPub3D Mod - preference refresh ***/
-    if (Preferences::preferredRenderer == RENDERER_NATIVE)
+
+    QMessageBox box;
+    box.setMinimumSize(40,20);
+    box.setIcon (QMessageBox::Question);
+    box.setDefaultButton   (QMessageBox::Ok);
+    box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
+    bool restartApp = false;
+    if (LibraryChanged || AAChanged) {
+        box.setText (QString("You must close and restart %1 to enable Anti Aliasing changes.")
+                     .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+        box.setInformativeText (QString("Click \"OK\" to close and restart %1 or \"Cancel\" to continue.\n\n")
+                                .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+        if (box.exec() == QMessageBox::Ok) {
+            restartApp = true;
+        }
+    }
+
+    if (Preferences::preferredRenderer == RENDERER_NATIVE && !restartApp)
     {
       float mLineWidth      = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
       bool mDrawEdgeLInes     = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
@@ -849,13 +866,6 @@ void lcApplication::ShowPreferencesDialog()
     }
 /*** LPub3D Mod end ***/
 
-    if (LibraryChanged && AAChanged)
-        QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Parts library and Anti-aliasing changes will only take effect the next time you start LPub3D."));
-    else if (LibraryChanged)
-        QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Parts library changes will only take effect the next time you start LPub3D."));
-    else if (AAChanged)
-        QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Anti-aliasing changes will only take effect the next time you start LPub3D."));
-
     if (Options.CategoriesModified)
     {
         if (Options.CategoriesDefault)
@@ -901,4 +911,10 @@ void lcApplication::ShowPreferencesDialog()
 
     gMainWindow->SetShadingMode(Options.Preferences.mShadingMode);
     gMainWindow->UpdateAllViews();
+
+/*** LPub3D Mod restart ***/
+    if (restartApp) {
+        restartApplication();
+    }
+/*** LPub3D Mod end ***/
 }
