@@ -2614,10 +2614,16 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
               }
               if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR &&
                   argv[1] != LDRAW_MAIN_MATERIAL_COLOUR) {
+                  QString colourCode;
+                  // Insert color code for fade part
+                  if (partType == FADE_PART)
+                      colourCode = Preferences::fadeStepsUseColour ? fadeColour : argv[1];
+                  // Insert color code for silhouette part
+                  if (partType == HIGHLIGHT_PART)
+                      colourCode = argv[1];
                   // generate fade colour entry
-                  QString colourCode = Preferences::fadeStepsUseColour ? fadeColour : argv[1];
                   if (!colourEntryExist(subfileColourList,argv[1], partType))
-                     subfileColourList << createColourEntry(colourCode, partType);
+                      subfileColourList << createColourEntry(colourCode, partType);
                   // set colour code - fade, highlight or both
                   argv[1] = QString("%1%2").arg(colourPrefix).arg(colourCode);
               }
@@ -2789,7 +2795,7 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                   if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR &&
                       argv[1] != LDRAW_MAIN_MATERIAL_COLOUR) {
                       // generate fade colour entry
-                      QString colourCode = Preferences::fadeStepsUseColour ? fadeColour : argv[1];
+                      QString colourCode = argv[1];
                       if (!colourEntryExist(stepColourList,argv[1], HIGHLIGHT_PART))
                         stepColourList << createColourEntry(colourCode, HIGHLIGHT_PART);
                       // set fade colour code
@@ -2854,34 +2860,38 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
 
 bool Gui::colourEntryExist(const QStringList &colourEntries, const QString &code, const PartType partType)
 {
-  if (Preferences::fadeStepsUseColour && colourEntries.size() > 0)
-    return true;
-  QStringList colourComponents;
-  QString colourPrefix = (partType == HIGHLIGHT_PART) ? LPUB3D_COLOUR_HIGHLIGHT_PREFIX : LPUB3D_COLOUR_FADE_PREFIX;
-  QString colourCode = QString("%1%2").arg(colourPrefix).arg(code);
-  for (int i = 0; i < colourEntries.size(); ++i){
-      QString colourLine = colourEntries[i];
-      split(colourLine,colourComponents);
-      if (colourComponents.size() == 11 && colourComponents[4] == colourCode) {
-         return true;
-      }
-   }
-  return false;
+    bool fadePartType = partType == FADE_PART;
+
+    if (Preferences::fadeStepsUseColour && fadePartType && colourEntries.size() > 0)
+        return true;
+
+    QStringList colourComponents;
+    QString colourPrefix = fadePartType ? LPUB3D_COLOUR_FADE_PREFIX : LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
+    QString colourCode   = QString("%1%2").arg(colourPrefix).arg(code);
+    for (int i = 0; i < colourEntries.size(); ++i){
+        QString colourLine = colourEntries[i];
+        split(colourLine,colourComponents);
+        if (colourComponents.size() == 11 && colourComponents[4] == colourCode) {
+            return true;
+        }
+    }
+    return false;
 }
 
 QString Gui::createColourEntry(const QString &colourCode, const PartType partType)
 {
   // Fade Step Alpha Percent (default = 100%) -  e.g. 50% of Alpha 255 rounded up we get ((255 * 50) + (100 - 1)) / 100
 
-  bool _doHighlight          = Preferences::enableHighlightStep && (partType == HIGHLIGHT_PART) && !suppressColourMeta();
-  QString _colourPrefix      = _doHighlight ? LPUB3D_COLOUR_HIGHLIGHT_PREFIX : LPUB3D_COLOUR_FADE_PREFIX;            // highlight prefix 110, fade prefix 100
+  bool fadePartType          = partType == FADE_PART;
+
+  QString _colourPrefix      = fadePartType ? LPUB3D_COLOUR_FADE_PREFIX : LPUB3D_COLOUR_HIGHLIGHT_PREFIX;  // fade prefix 100, highlight prefix 110
   QString _fadeColour        = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
-  QString _colourCode        = _colourPrefix + (Preferences::fadeStepsUseColour ? _fadeColour : colourCode);
+  QString _colourCode        = _colourPrefix + (fadePartType ? Preferences::fadeStepsUseColour ? _fadeColour : colourCode : colourCode);
   QString _mainColourValue   = "#" + ldrawColors.value(colourCode);
-  QString _edgeColourValue   = _doHighlight ? Preferences::highlightStepColour : "#" + ldrawColors.edge(colourCode);
+  QString _edgeColourValue   = fadePartType ? "#" + ldrawColors.edge(colourCode) : Preferences::highlightStepColour;
   QString _colourDescription = LPUB3D_COLOUR_TITLE_PREFIX + ldrawColors.name(colourCode);
   int _fadeAlphaValue        = ((ldrawColors.alpha(colourCode) * (100 - Preferences::fadeStepsOpacity)) + (100 - 1)) / 100;
-  int _alphaValue            = _doHighlight ? ldrawColors.alpha(colourCode) : _fadeAlphaValue;                       // use 100% opacity with highlight colour
+  int _alphaValue            = fadePartType ? _fadeAlphaValue : ldrawColors.alpha(colourCode);             // use 100% opacity with highlight colour
 
   return QString("0 !COLOUR %1 CODE %2 VALUE %3 EDGE %4 ALPHA %5")
                  .arg(_colourDescription)   // description

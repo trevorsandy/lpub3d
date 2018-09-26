@@ -821,14 +821,28 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
                     (tokens[1] != LDRAW_MAIN_MATERIAL_COLOUR) &&
                     (tokens[1] != LDRAW_EDGE_MATERIAL_COLOUR)) {
                     //QString oldColour(tokens[1]);          //logging only: show colour lines
-                    // generate costom colour entry - if fadeStepsUseColour, set colour to material colour (16), without prefix
-                    QString colourCode = Preferences::fadeStepsUseColour ? LDRAW_MAIN_MATERIAL_COLOUR : tokens[1];            
-                    // add colour line to local list
-                    if (!gui->colourEntryExist(customPartColourList,colourCode,partType))
-                        customPartColourList << gui->createColourEntry(colourCode,partType);
-                    // set costom colour - if fadeStepsUseColour, do not add costom colour prefix
-                    tokens[1] = Preferences::fadeStepsUseColour ? colourCode : QString("%1%2").arg(colourPrefix).arg(colourCode);
-                    //logTrace() << "D. CHANGE CHILD PART COLOUR: " << fileNameStr << " NewColour: " << tokens[1] << " OldColour: " << oldColour;
+                    QString colourCode;
+                    // Insert color code for fade part
+                    if (partType == FADE_PART){
+                        // generate costom colour entry - if fadeStepsUseColour, set colour to material colour (16), without prefix
+                        colourCode = Preferences::fadeStepsUseColour ? LDRAW_MAIN_MATERIAL_COLOUR : tokens[1];
+                        // add colour line to local list - if fadeStepsUseColour, no need to create entry
+                        if (!Preferences::fadeStepsUseColour && !gui->colourEntryExist(customPartColourList,colourCode,partType))
+                            customPartColourList << gui->createColourEntry(colourCode,partType);
+                        // set costom colour - if fadeStepsUseColour, do not add costom colour prefix
+                        tokens[1] = Preferences::fadeStepsUseColour ? colourCode : QString("%1%2").arg(colourPrefix).arg(colourCode);
+                        //logTrace() << "D. CHANGE CHILD PART COLOUR: " << fileNameStr << " NewColour: " << tokens[1] << " OldColour: " << oldColour;
+                    }
+                    // Insert color code for silhouette part
+                    if (partType == HIGHLIGHT_PART){
+                        // generate costom colour entry - always
+                        colourCode = tokens[1];
+                        // add colour line to local list - always request to create entry
+                        if (!gui->colourEntryExist(customPartColourList,colourCode,partType))
+                            customPartColourList << gui->createColourEntry(colourCode,partType);
+                        // set costom colour - if fadeStepsUseColour, do not add costom colour prefix
+                        tokens[1] = QString("%1%2").arg(colourPrefix).arg(colourCode);
+                    }
                 }
                 line = tokens.join(" ");
                 customPartContent << line;
