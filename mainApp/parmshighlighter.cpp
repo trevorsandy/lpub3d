@@ -37,14 +37,20 @@ ParmsHighlighter::ParmsHighlighter(QTextDocument *parent)
 
     QBrush br01; // Qt Dark green
     QBrush br02; // Qt Dark blue
+    QBrush br06; // Custom  blue
+    QBrush br07; // Custom  orange/voilet
     if (Preferences::displayTheme == THEME_DEFAULT) {
         br01 = QBrush(QColor(THEME_HIGHLIGHT_01_DEFAULT));
         br02 = QBrush(QColor(THEME_HIGHLIGHT_02_DEFAULT));
+        br06 = QBrush(QColor(THEME_HIGHLIGHT_06_DEFAULT));
+        br07 = QBrush(QColor(THEME_HIGHLIGHT_07_DEFAULT));
       }
     else
     if (Preferences::displayTheme == THEME_DARK)  {
         br01 = QBrush(QColor(THEME_HIGHLIGHT_01_DARK));
         br02 = QBrush(QColor(THEME_HIGHLIGHT_02_DARK));
+        br06 = QBrush(QColor(THEME_HIGHLIGHT_06_DARK));
+        br07 = QBrush(QColor(THEME_HIGHLIGHT_07_DARK));
       }
 
     LPubParmsFormat.setForeground(br01);
@@ -59,6 +65,20 @@ ParmsHighlighter::ParmsHighlighter(QTextDocument *parent)
 
     rule.pattern = QRegExp("^\\[.*[^\n]\\]$");
     rule.format = LPubParmsHdrFormat;
+    highlightingRules.append(rule);
+
+    LPubParmsValueFormat.setForeground(br07);
+    LPubParmsValueFormat.setFontWeight(QFont::Normal);
+
+    rule.pattern = QRegExp("\\=(.*)");
+    rule.format = LPubParmsValueFormat;
+    highlightingRules.append(rule);
+
+    LPubParmsEqualFormat.setForeground(br06);
+    LPubParmsEqualFormat.setFontWeight(QFont::Bold);
+
+    rule.pattern = QRegExp("=");
+    rule.format = LPubParmsEqualFormat;
     highlightingRules.append(rule);
 
     multiLineCommentFormat.setForeground(br01);

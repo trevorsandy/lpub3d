@@ -110,6 +110,16 @@ void ParmsWindow::createActions()
     saveCopyAsAct->setStatusTip(tr("Save a copy of the document as... to disk - Ctrl+Alt+S"));
     connect(saveCopyAsAct, SIGNAL(triggered()), this, SLOT(saveCopyAsFile()));
 
+    topAct = new QAction(QIcon(":/resources/topofdocument.png"), tr("Top of document"), this);
+    topAct->setShortcut(tr("Ctrl+T"));
+    topAct->setStatusTip(tr("Navigate to the top of document - Ctrl+T"));
+    connect(topAct, SIGNAL(triggered()), this, SLOT(topOfDocument()));
+
+    bottomAct = new QAction(QIcon(":/resources/bottomofdocument.png"), tr("Bottom of document"), this);
+    bottomAct->setShortcut(tr("Ctrl+B"));
+    bottomAct->setStatusTip(tr("Navigate to the bottom of document - Ctrl+B"));
+    connect(bottomAct, SIGNAL(triggered()), this, SLOT(bottomOfDocument()));
+
     delAct = new QAction(QIcon(":/resources/delete.png"), tr("&Delete"), this);
     delAct->setShortcut(tr("DEL"));
     delAct->setStatusTip(tr("Delete the selection - DEL"));
@@ -145,6 +155,9 @@ void ParmsWindow::createActions()
     delAct->setEnabled(false);
     selAllAct->setEnabled(false);
     findAct->setEnabled(false);
+    topAct->setEnabled(false);
+    bottomAct->setEnabled(false);
+
     connect(_textEdit, SIGNAL(copyAvailable(bool)),
             cutAct,    SLOT(setEnabled(bool)));
     connect(_textEdit, SIGNAL(copyAvailable(bool)),
@@ -164,6 +177,9 @@ void ParmsWindow::createToolBars()
     editToolBar = addToolBar(tr("Edit"));
     editToolBar->setObjectName("EditToolbar");
     editToolBar->addAction(exitAct);
+    editToolBar->addSeparator();
+    editToolBar->addAction(topAct);
+    editToolBar->addAction(bottomAct);
     editToolBar->addSeparator();
     editToolBar->addAction(openAct);
     editToolBar->addAction(saveAct);
@@ -311,6 +327,8 @@ void ParmsWindow::displayParmsFile(
 
     selAllAct->setEnabled(true);
     findAct->setEnabled(true);
+    topAct->setEnabled(true);
+    bottomAct->setEnabled(true);
 
     statusBar()->showMessage(tr("File %1 loaded").arg(file.fileName()), 2000);
 }
@@ -448,6 +466,14 @@ void ParmsWindow::toggleClear(){
     } else {
       delAct->setEnabled(false);
     }
+}
+
+void ParmsWindow::topOfDocument(){
+    _textEdit->moveCursor(QTextCursor::Start);
+}
+
+void ParmsWindow::bottomOfDocument(){
+    _textEdit->moveCursor(QTextCursor::End);
 }
 
 void ParmsWindow::viewLogWindowSettings(){

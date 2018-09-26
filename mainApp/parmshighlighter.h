@@ -61,6 +61,8 @@ private:
     QTextCharFormat LPubParmsFormat;
     QTextCharFormat LPubParmsHdrFormat;
     QTextCharFormat multiLineCommentFormat;
+    QTextCharFormat LPubParmsEqualFormat;
+    QTextCharFormat LPubParmsValueFormat;
 };
 
 #endif // PARMSHIGHLIGHTER_H

@@ -72,6 +72,7 @@ QString Preferences::lpub3dDocsResourcePath     = DOT_PATH_DEFAULT;
 QString Preferences::lpub3d3rdPartyConfigDir    = DOT_PATH_DEFAULT;
 QString Preferences::lpub3d3rdPartyAppDir       = DOT_PATH_DEFAULT;
 QString Preferences::lpubDataPath               = DOT_PATH_DEFAULT;
+QString Preferences::lpubConfigPath             = DOT_PATH_DEFAULT;
 QString Preferences::lpubExtrasPath             = DOT_PATH_DEFAULT;
 QString Preferences::ldgliteExe;
 QString Preferences::ldviewExe;
@@ -305,6 +306,10 @@ void Preferences::lpubPreferences()
 #endif
 
     lpub3dPath = cwd.absolutePath();
+
+    // Default onfiguration path
+    QStringList configPathList = QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
+    lpubConfigPath = configPathList.first();
 
 #ifdef Q_OS_WIN //... Windows portable or installed
 
@@ -2198,7 +2203,7 @@ void Preferences::userInterfacePreferences()
           displayTheme = Settings.value(QString("%1/%2").arg(SETTINGS,displayThemeKey)).toString();
   }
 
-  QString const showParseErrorsKey("showParseErrors");
+  QString const showParseErrorsKey("ShowParseErrors");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showParseErrorsKey))) {
           QVariant uValue(true);
           showParseErrors = true;
@@ -2232,7 +2237,7 @@ void Preferences::setShowParseErrorsPreference(bool b)
   QSettings Settings;
   showParseErrors = b;
   QVariant uValue(b);
-  QString const showParseErrorsKey("showParseErrors");
+  QString const showParseErrorsKey("ShowParseErrors");
   Settings.setValue(QString("%1/%2").arg(SETTINGS,showParseErrorsKey),uValue);
 }
 

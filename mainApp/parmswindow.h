@@ -93,6 +93,8 @@ private:
     QAction  *delAct;
     QAction  *selAllAct;
     QAction  *findAct;
+    QAction  *topAct;
+    QAction  *bottomAct;
 
 private slots:
     void openFile();
@@ -103,6 +105,8 @@ private slots:
     bool maybeSave();
     bool saveFile();
     bool saveCopyAsFile();
+    void topOfDocument();
+    void bottomOfDocument();
     void closeEvent(QCloseEvent *event);
 
 public slots:

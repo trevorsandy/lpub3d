@@ -2734,7 +2734,8 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
               // check if is colour part
               is_colour_part = ldrawColourParts.isLDrawColourPart(fileNameStr);
 
-              emit messageSig(LOG_STATUS, "Configuring custom parts for " + fileNameStr);
+              if (is_colour_part)
+                  emit messageSig(LOG_NOTICE, "Static colour part - " + fileNameStr);
           }
 
           // check if is submodel

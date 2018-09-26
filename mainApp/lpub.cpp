@@ -1421,6 +1421,36 @@ void Gui::editLdrawIniFile()
     }
 }
 
+void Gui::editLPub3DIniFile()
+{
+    QString lpubConfigFile,fileExt;
+#if defined Q_OS_WIN
+    fileExt = "ini";
+    if (Preferences::portableDistribution)
+        lpubConfigFile = QString("%1/config/%2/%3.%4")
+                                 .arg(Preferences::lpub3dPath)
+                                 .arg(COMPANYNAME_STR).arg(Preferences::lpub3dAppName).arg(fileExt);
+#else
+
+#if defined Q_OS_MACOS
+    fielExt = "plist";
+    lpubConfigFile = QString("%1/com.lpub3d-software.%2.%3")
+                             .arg(Preferences::configPathList.first())
+                             .arg(QString(Preferences::lpub3dAppName).replace(".app","")).arg(fileExt);
+#elif defined Q_OS_LINUX
+    fielExt = "conf";
+    lpubConfigFile = QString("%1/%2/%3.%4")
+                             .arg(Preferences::configPathList.first())
+                             .arg(COMPANYNAME_STR)
+                             .arg(Preferences::lpub3dAppName).arg(fileExt);
+#endif
+#endif
+    displayParmsFile(lpubConfigFile);
+    parmsWindow->setWindowTitle(tr("%1.%2 Edit","Edit %1 application configuration settings.")
+                                   .arg(Preferences::lpub3dAppName).arg(fileExt));
+    parmsWindow->show();
+}
+
 void Gui::editLdgliteIni()
 {
     displayParmsFile(Preferences::ldgliteIni);
@@ -2044,6 +2074,9 @@ Gui::Gui()
 
     connect(this,           SIGNAL(setExportingSig(bool)),
             this,           SLOT(  setExporting(   bool)));
+
+    connect(this,           SIGNAL(setContinuousPageSig(bool)),
+            this,           SLOT(  setContinuousPage(   bool)));
 
     connect(this,           SIGNAL(displayFileSig(LDrawFile *, const QString &)),
             editWindow,     SLOT(  displayFile   (LDrawFile *, const QString &)));
@@ -2873,6 +2906,10 @@ void Gui::createActions()
     editLdviewIniAct->setStatusTip(tr("Edit LDView ini configuration file"));
     connect(editLdviewIniAct, SIGNAL(triggered()), this, SLOT(editLdviewIni()));
 
+    editLPub3DIniFileAct = new QAction(QIcon(":/resources/editsetting.png"),tr("Edit %1 ini").arg(Preferences::lpub3dAppName), this);
+    editLPub3DIniFileAct->setStatusTip(tr("Edit %1 application configuration settings file").arg(Preferences::lpub3dAppName));
+    connect(editLPub3DIniFileAct, SIGNAL(triggered()), this, SLOT(editLPub3DIniFile()));
+
     editLdviewPovIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView POV file generation configuration file"), this);
     editLdviewPovIniAct->setStatusTip(tr("Edit LDView POV file generation configuration file"));
     connect(editLdviewPovIniAct, SIGNAL(triggered()), this, SLOT(editLdviewPovIni()));
@@ -3219,6 +3256,15 @@ void Gui::createMenus()
       editorMenu->addAction(editLdrawIniFileAct);
     }
     editorMenu->addSeparator();
+#if defined Q_OS_WIN
+    if (Preferences::portableDistribution){
+      editorMenu->addAction(editLPub3DIniFileAct);
+      editorMenu->addSeparator();
+    }
+#else
+    editorMenu->addAction(editLPub3DIniFileAct);
+    editorMenu->addSeparator();
+#endif
     editorMenu->addAction(editNativePOVIniAct);
     editorMenu->addAction(editLdgliteIniAct);
     editorMenu->addAction(editLdviewIniAct);
@@ -3385,6 +3431,7 @@ void Gui::statusMessage(LogType logType, QString message) {
         logger.setIncludeLogLevel(Preferences::includeLogLevel);
         logger.setIncludeTimestamp(Preferences::includeTimestamp);
         logger.setIncludeLineNumber(false);
+        logger.setIncludeTimestamp(true);
         logger.setIncludeFileName(false);
         logger.setColorizeFunctionInfo(false);
         logger.setIncludeFunctionInfo(false);

@@ -735,6 +735,10 @@ public slots:
   bool exporting() {return m_exportingContent;}
   void cancelExporting(){m_exportingContent = false;}
 
+  void setContinuousPage(bool b){ m_contPageProcessing = b;}
+  bool ContinuousPage() {return m_contPageProcessing;}
+  void cancelContinuousPage(){m_contPageProcessing = false;}
+
   // left side progress bar
   void progressBarInit();
   void progressBarSetText(const QString &progressText);
@@ -815,7 +819,8 @@ signals:
   void disable3DActionsSig();
   void updateAllViewsSig();
   void clearViewerWindowSig();
-  void setExportingSig(bool b);
+  void setExportingSig(bool);
+  void setContinuousPageSig(bool);
   void hidePreviewDialogSig();
   void showPrintedFileSig(int);
 
@@ -882,6 +887,7 @@ private:
 
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
   bool                   m_exportingContent; // indicate export/pring underway
+  bool                   m_contPageProcessing;// indicate continusou page processing underway
 
   bool                   okToInvokeProgressBar()
   {
@@ -1029,6 +1035,7 @@ private slots:
     void editLDrawColourParts();
     void editPliBomSubstituteParts();
     void editLdrawIniFile();
+    void editLPub3DIniFile();
     void editExcludedParts();
     void editLdgliteIni();
     void editNativePovIni();
@@ -1253,6 +1260,7 @@ private:
   QAction *editPliBomSubstitutePartsAct;
   QAction *editExcludedPartsAct;
   QAction *editLdrawIniFileAct;
+  QAction *editLPub3DIniFileAct;
   QAction *editLdgliteIniAct;
   QAction *editNativePOVIniAct;
   QAction *editLdviewIniAct;

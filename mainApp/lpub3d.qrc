@@ -18,6 +18,7 @@
         <file alias="bomannotation.png">resources/bomannotation.png</file>
         <file alias="bomsetup.png">resources/bomsetup.png</file>
         <file alias="border.png">resources/border.png</file>
+        <file alias="bottomofdocument.png">resources/bottomofdocument.png</file>
         <file alias="calloutsetup.png">resources/calloutsetup.png</file>
         <file alias="changedivider.png">resources/changedivider.png</file>
         <file alias="changeshape.png">resources/changeshape.png</file>
@@ -44,7 +45,7 @@
         <file alias="displayrow.png">resources/displayrow.png</file>
         <file alias="displaycolumn.png">resources/displaycolumn.png</file>
         <file alias="divider.png">resources/divider.png</file>
-        <file alias="deletepage.png">resources/deletepage.png</file>
+        <file alias="deletepage.png">resources/deletepage.png</file>        
         <file alias="editldrawcolourparts.png">resources/editldrawcolourparts.png</file>
         <file alias="editfreeformannotations.png">resources/editfreeformannotations.png</file>
         <file alias="editinifile.png">resources/editinifile.png</file>
@@ -142,6 +143,7 @@
         <file alias="splitbom.png">resources/splitbom.png</file>
         <file alias="stepgroupsetup.png">resources/stepgroupsetup.png</file>
         <file alias="submodelcolor.png">resources/submodelcolor.png</file>
+        <file alias="topofdocument.png">resources/topofdocument.png</file>
         <file alias="treataspart.png">resources/treataspart.png</file>
         <file alias="unpackcallout.png">resources/unpackcallout.png</file>
         <file alias="unrotate.png">resources/unrotate.png</file>
