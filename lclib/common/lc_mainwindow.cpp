@@ -1121,10 +1121,11 @@ void lcMainWindow::Halt3DViewer(bool b)
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - rotate step objects ***/
-void lcMainWindow::SetStepRotStepMeta(bool update)
+void lcMainWindow::SetStepRotStepMeta(lcCommandId CommandId)
 {
 
   QString   rotationType;
+  bool okToPropagate = false;
 
   if (GetTransformType() == LC_TRANSFORM_ABSOLUTE_ROTATION)
     rotationType = "ABS";
@@ -1134,26 +1135,25 @@ void lcMainWindow::SetStepRotStepMeta(bool update)
   else
     rotationType = "REL";
 
-  bool ok[3] = {false, false, false};
-
-  if (update){
-      float x = mTransformXEdit->text().isEmpty() ? QString("0").toFloat(&ok[0]) : mTransformXEdit->text().toFloat(&ok[0]);
-      float y = mTransformYEdit->text().isEmpty() ? QString("0").toFloat(&ok[1]) : mTransformYEdit->text().toFloat(&ok[1]);
-      float z = mTransformZEdit->text().isEmpty() ? QString("0").toFloat(&ok[2]) : mTransformZEdit->text().toFloat(&ok[2]);
-
+  if (CommandId == LC_EDIT_TRANSFORM){
+      bool ok[3] = {false, false, false};
+      float x = mTransformXEdit->text().isEmpty() ? ok[0] = true : mTransformXEdit->text().toFloat(&ok[0]);
+      float y = mTransformYEdit->text().isEmpty() ? ok[1] = true : mTransformYEdit->text().toFloat(&ok[1]);
+      float z = mTransformZEdit->text().isEmpty() ? ok[2] = true : mTransformZEdit->text().toFloat(&ok[2]);
       if (ok[0] && ok[1] && ok[2]){
         emit SetRotStepAngleX(x);
         //Switch Y and Z coordinates to match LDraw
         emit SetRotStepAngleZ(y);
         //LDraw Y axis is vertical, with negative value in the up direction
         emit SetRotStepAngleY(-z);
+
+        okToPropagate = true;
       }
+  } else if (CommandId == LC_EDIT_ACTION_ROTATESTEP) {
+      okToPropagate = true;
   }
 
-  bool propagate = (ok[0] && ok[1] && ok[2]);
-
-  emit SetRotStepMeta(rotationType, propagate);
-
+  emit SetRotStepMeta(rotationType, okToPropagate);
 
   UpdateAllViews();
 }
@@ -3453,7 +3453,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		if (ActiveModel)
 			ActiveModel->TransformSelectedObjects(GetTransformType(), GetTransformAmount());
 /*** LPub3D Mod - rotate step objects ***/
-		SetStepRotStepMeta(true);
+        SetStepRotStepMeta(LC_EDIT_TRANSFORM);
 /*** LPub3D Mod end ***/
 		break;
 
@@ -3528,7 +3528,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 /*** LPub3D Mod - rotate step objects ***/
 	case LC_EDIT_ACTION_ROTATESTEP:
 		SetTool(LC_TOOL_ROTATESTEP);
-		SetStepRotStepMeta(true);
+        SetStepRotStepMeta(LC_EDIT_ACTION_ROTATESTEP);
 /*** LPub3D Mod end ***/
 		break;
 /*** LPub3D Mod - set rotate step type [deprecated] ***/

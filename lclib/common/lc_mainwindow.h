@@ -375,7 +375,7 @@ public slots:
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - rotate step objects ***/
-        void SetStepRotStepMeta(bool update = false);
+        void SetStepRotStepMeta(lcCommandId CommandId);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - roate step signals ***/
