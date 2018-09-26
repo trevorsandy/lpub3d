@@ -659,7 +659,7 @@ public slots:
   //**3D Viewer Manage Step Rotation
 
   void ShowStepRotationStatus();
-  void SetRotStepMeta(QString &value, bool propagate = false);
+  void SetRotStepMeta();
   void setViewerCsiName(QString &csiName)
   {
       viewerCsiName = csiName;
@@ -675,22 +675,32 @@ public slots:
       return mStepRotation;
   }
 
-  void SetRotStepAngleX(float AngleX)
+  void SetRotStepAngleX(float AngleX, bool display)
   {
       mRotStepAngleX = AngleX;
-      ShowStepRotationStatus();
+      if (display)
+          ShowStepRotationStatus();
   }
 
-  void SetRotStepAngleY(float AngleY)
+  void SetRotStepAngleY(float AngleY, bool display)
   {
       mRotStepAngleY = AngleY;
-      ShowStepRotationStatus();
+      if (display)
+          ShowStepRotationStatus();
   }
 
-  void SetRotStepAngleZ(float AngleZ)
+  void SetRotStepAngleZ(float AngleZ, bool display)
   {
       mRotStepAngleZ = AngleZ;
-      ShowStepRotationStatus();
+      if (display)
+          ShowStepRotationStatus();
+  }
+
+  void SetRotStepTransform(QString& Transform, bool display)
+  {
+      mRotStepTransform = Transform;
+      if (display)
+          ShowStepRotationStatus();
   }
   //**
 
@@ -850,6 +860,7 @@ protected:
   float                  mRotStepAngleX;
   float                  mRotStepAngleY;
   float                  mRotStepAngleZ;
+  QString                mRotStepTransform;
   QString                viewerCsiName;      // currently loaded CSI in 3DViewer
 
   QMap<int, PgSizeData>  pageSizes;          // page size and orientation object

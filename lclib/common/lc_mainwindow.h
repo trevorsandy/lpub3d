@@ -374,10 +374,11 @@ public slots:
 /*** LPub3D Mod - roate step signals ***/
 signals:
         lcVector3 GetRotStepMeta();   // used to capture step meta angles
-        void SetRotStepMeta(QString&, bool);
-        void SetRotStepAngleX(float);
-        void SetRotStepAngleY(float);
-        void SetRotStepAngleZ(float);
+        void SetRotStepMeta();
+        void SetRotStepAngleX(float, bool=false);
+        void SetRotStepAngleY(float, bool=false);
+        void SetRotStepAngleZ(float, bool=false);
+        void SetRotStepTransform(QString&, bool=false);
 /*** LPub3D Mod end ***/
 
 protected slots:

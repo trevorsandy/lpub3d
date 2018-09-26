@@ -783,34 +783,20 @@ void Gui::zoomOut()
   KpageView->zoomOut();
 }
 
-void Gui::SetRotStepMeta(QString &TransformType, bool propagate)
+void Gui::SetRotStepMeta()
 {
-    QString mTransformType   = TransformType.toUpper();
-
     mStepRotation[0] = mRotStepAngleX;
     mStepRotation[1] = mRotStepAngleY;
     mStepRotation[2] = mRotStepAngleZ;
 
-    if (propagate && getCurFile() != "") {
-
-        bool transformOk = (mTransformType == "REL" ||
-                            mTransformType == "ABS" ||
-                            mTransformType == "ADD" ||
-                            mTransformType.isEmpty());
-
+    if (getCurFile() != "") {
         ShowStepRotationStatus();
-
-        if (!transformOk) {
-            messageSig(LOG_ERROR, QString("ROTSTEP Transform [%1] is invalid.").arg(mTransformType));
-            return;
-        }
-
         QString rotationValue = QString("%1 %2 %3 %4 %5")
                                         .arg(getViewerCsiName())
                                         .arg(QString::number(mStepRotation[0], 'f', 2))
                                         .arg(QString::number(mStepRotation[1], 'f', 2))
                                         .arg(QString::number(mStepRotation[2], 'f', 2))
-                                        .arg(mTransformType);
+                                        .arg(mRotStepTransform);
         MetaItem mi;
         mi.writeRotateStep(rotationValue);
     }
@@ -818,10 +804,11 @@ void Gui::SetRotStepMeta(QString &TransformType, bool propagate)
 
 void Gui::ShowStepRotationStatus()
 {
-    QString rotLabel("Step Rotation %1 %2 %3");
-    rotLabel = rotLabel.arg(QString::number(mRotStepAngleX, 'f', 2),
-                            QString::number(mRotStepAngleY, 'f', 2),
-                            QString::number(mRotStepAngleZ, 'f', 2));
+    QString rotLabel = QString("Adjusted ROTSTEP Rotation %1 %2 %3 %4")
+                               .arg(QString::number(mRotStepAngleX, 'f', 2))
+                               .arg(QString::number(mRotStepAngleY, 'f', 2))
+                               .arg(QString::number(mRotStepAngleZ, 'f', 2))
+                               .arg(mRotStepTransform);
     statusBarMsg(rotLabel);
 }
 
@@ -2014,10 +2001,11 @@ Gui::Gui()
     nextPageContinuousIsRunning     = false;
     previousPageContinuousIsRunning = false;
 
-    mStepRotation  = lcVector3(0.0f, 0.0f, 0.0f);
-    mRotStepAngleX = 0.0f;
-    mRotStepAngleY = 0.0f;
-    mRotStepAngleZ = 0.0f;
+    mStepRotation     = lcVector3(0.0f, 0.0f, 0.0f);
+    mRotStepAngleX    = 0.0f;
+    mRotStepAngleY    = 0.0f;
+    mRotStepAngleZ    = 0.0f;
+    mRotStepTransform = QString();
 
     editWindow    = new EditWindow(this);  // remove inheritance 'this' to independently manage window
     parmsWindow   = new ParmsWindow();
@@ -2164,21 +2152,22 @@ void Gui::initialize()
 
   emit Application::instance()->splashMsgSig(QString("85% - %1 initialization...").arg(VER_PRODUCTNAME_STR));
 
-  connect(this,        SIGNAL(loadFileSig(QString)),           this,        SLOT(loadFile(QString)));
-  connect(this,        SIGNAL(processCommandLineSig()),        this,        SLOT(processCommandLine()));
-  connect(this,        SIGNAL(setExportingSig(bool)),          this,        SLOT(deployExportBanner(bool)));
+  connect(this,        SIGNAL(loadFileSig(QString)),               this,        SLOT(loadFile(QString)));
+  connect(this,        SIGNAL(processCommandLineSig()),            this,        SLOT(processCommandLine()));
+  connect(this,        SIGNAL(setExportingSig(bool)),              this,        SLOT(deployExportBanner(bool)));
 
-  connect(this,        SIGNAL(setExportingSig(bool)),          gMainWindow, SLOT(Halt3DViewer(bool)));
-  connect(this,        SIGNAL(enable3DActionsSig()),           gMainWindow, SLOT(Enable3DActions()));
-  connect(this,        SIGNAL(disable3DActionsSig()),          gMainWindow, SLOT(Disable3DActions()));
-  connect(this,        SIGNAL(updateAllViewsSig()),            gMainWindow, SLOT(UpdateAllViews()));
-  connect(this,        SIGNAL(clearViewerWindowSig()),         gMainWindow, SLOT(NewProject()));
+  connect(this,        SIGNAL(setExportingSig(bool)),              gMainWindow, SLOT(Halt3DViewer(bool)));
+  connect(this,        SIGNAL(enable3DActionsSig()),               gMainWindow, SLOT(Enable3DActions()));
+  connect(this,        SIGNAL(disable3DActionsSig()),              gMainWindow, SLOT(Disable3DActions()));
+  connect(this,        SIGNAL(updateAllViewsSig()),                gMainWindow, SLOT(UpdateAllViews()));
+  connect(this,        SIGNAL(clearViewerWindowSig()),             gMainWindow, SLOT(NewProject()));
 
-  connect(gMainWindow, SIGNAL(SetRotStepMeta(QString&,bool)),  this,        SLOT(SetRotStepMeta(QString&,bool)));
-  connect(gMainWindow, SIGNAL(SetRotStepAngleX(float)),        this,        SLOT(SetRotStepAngleX(float)));
-  connect(gMainWindow, SIGNAL(SetRotStepAngleY(float)),        this,        SLOT(SetRotStepAngleY(float)));
-  connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float)),        this,        SLOT(SetRotStepAngleZ(float)));
-  connect(gMainWindow, SIGNAL(GetRotStepMeta()),               this,        SLOT(GetRotStepMeta()));
+  connect(gMainWindow, SIGNAL(SetRotStepMeta()),                   this,        SLOT(SetRotStepMeta()));
+  connect(gMainWindow, SIGNAL(SetRotStepAngleX(float,bool)),       this,        SLOT(SetRotStepAngleX(float,bool)));
+  connect(gMainWindow, SIGNAL(SetRotStepAngleY(float,bool)),       this,        SLOT(SetRotStepAngleY(float,bool)));
+  connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float,bool)),       this,        SLOT(SetRotStepAngleZ(float,bool)));
+  connect(gMainWindow, SIGNAL(SetRotStepTransform(QString&,bool)), this,        SLOT(SetRotStepTransform(QString&,bool)));
+  connect(gMainWindow, SIGNAL(GetRotStepMeta()),                   this,        SLOT(GetRotStepMeta()));
 
 /* Moved to PartWorker::ldsearchDirPreferences()  */
 //  if (Preferences::preferredRenderer == RENDERER_LDGLITE)

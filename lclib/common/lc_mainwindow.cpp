@@ -1159,17 +1159,19 @@ void lcMainWindow::SetStepRotStepMeta(lcCommandId CommandId)
 {
   bool okToPropagate = false;
 
-  QString TransformType = (GetTransformType() == LC_TRANSFORM_RELATIVE_ROTATION) ? "REL" :
-                          (GetTransformType() == LC_TRANSFORM_ABSOLUTE_ROTATION) ? "ABS" : QString();
-
   if (CommandId == LC_EDIT_TRANSFORM){
+      QString TransformType = (GetTransformType() == LC_TRANSFORM_RELATIVE_ROTATION) ? "REL" :
+                              (GetTransformType() == LC_TRANSFORM_ABSOLUTE_ROTATION) ? "ABS" : QString();
       lcVector3 RotStepAngles = GetRotStepTransformAmount();
       okToPropagate = ((mExistingRotStep != RotStepAngles) ||
-                       (mRotStepTransform != TransformType.toUpper()));
+                       (mRotStepTransform != TransformType));
       if (okToPropagate) {
           emit SetRotStepAngleX(RotStepAngles.x);
           emit SetRotStepAngleY(RotStepAngles.y);
           emit SetRotStepAngleZ(RotStepAngles.z);
+          emit SetRotStepTransform(TransformType);
+          mExistingRotStep = RotStepAngles;
+          mRotStepTransform = TransformType;
       } else {
           emit gui->statusBarMsg(QString("ROTSTEP %1 %2 %3 %7 and entered %4 %5 %6 %8 are the same. Nothing to do.")
                                          .arg(QString::number(mExistingRotStep[0], 'f', 2),
@@ -1185,7 +1187,7 @@ void lcMainWindow::SetStepRotStepMeta(lcCommandId CommandId)
   }
 
   if (okToPropagate) {
-      emit SetRotStepMeta(TransformType, true);
+      emit SetRotStepMeta();
       UpdateAllViews();
   }
 }
@@ -1201,29 +1203,33 @@ void lcMainWindow::GetRotStepMetaAngles()
 
   if (mView->mTrackButton != LC_TRACKBUTTON_NONE)
     {
+      bool display = true;
       lcVector3 mExistingRotStep = GetRotStepMeta();
       lcVector3 RotStepAngles = lcVector3(0.0f,0.0f,0.0f);
       switch (GetActiveView()->mTrackTool)
         {
         case LC_TRACKTOOL_ROTATE_X:
           RotStepAngles.x = normaliseRotation(MouseToolDistance[0] + mExistingRotStep[0],-360.0,360.0);
-          emit SetRotStepAngleX(RotStepAngles.x);
+          emit SetRotStepAngleX(RotStepAngles.x,display);
           qDebug() << "Rotate X: " << RotStepAngles.x;
           break;
         case LC_TRACKTOOL_ROTATE_Y:
           RotStepAngles.y = normaliseRotation(MouseToolDistance[1] + mExistingRotStep[2],-360.0,360.0);
-          emit SetRotStepAngleZ(RotStepAngles.y);          //Switch Y and Z coordinates to match LDraw
+          emit SetRotStepAngleZ(RotStepAngles.y,display);          //Switch Y and Z coordinates to match LDraw
           qDebug() << "Rotate Y(Z): " << RotStepAngles.y;
           break;
         case LC_TRACKTOOL_ROTATE_Z:
           RotStepAngles.z = normaliseRotation(MouseToolDistance[2] - mExistingRotStep[1],-360.0,360.0);
-          emit SetRotStepAngleY(-RotStepAngles.z);         //LDraw Y axis is vertical, with negative value in the up direction
+          emit SetRotStepAngleY(-RotStepAngles.z,display);         //LDraw Y axis is vertical, with negative value in the up direction
           qDebug() << "Rotate Z(Y): " << -RotStepAngles.z;
           break;
         default:
           RotStepAngles = lcVector3(0.0f,0.0f,0.0f);
           break;
         };
+      QString Transform = (GetTransformType() == LC_TRANSFORM_RELATIVE_ROTATION) ? "REL" :
+                          (GetTransformType() == LC_TRANSFORM_ABSOLUTE_ROTATION) ? "ABS" : QString();
+      emit SetRotStepTransform(Transform,display);
     }
 }
 /*** LPub3D Mod end ***/
@@ -1233,27 +1239,30 @@ void lcMainWindow::ParseAndSetRotStep(QTextStream& LineStream)
 {
   while (!LineStream.atEnd())
   {
-      mRotStepTransform = QString();
       mExistingRotStep = lcVector3(0.0f,0.0f,0.0f);
-      LineStream >> mRotStepTransform;
+      mRotStepTransform = QString();
+      QString Token;
+      LineStream >> Token;
 
-      if (mRotStepTransform == QLatin1String("ROTSTEP")) {
+      if (Token == QLatin1String("ROTSTEP")) {
 
-          LineStream >> mRotStepTransform;
+          LineStream >> Token;
 
-          if(mRotStepTransform == QLatin1String("REL"))
+          if(Token == QLatin1String("REL")) {
               SetTransformType(LC_TRANSFORM_RELATIVE_ROTATION);
-          else
-          if(mRotStepTransform == QLatin1String("ABS"))
+              mRotStepTransform = Token;
+          } else
+          if(Token == QLatin1String("ABS")) {
               SetTransformType(LC_TRANSFORM_ABSOLUTE_ROTATION);
+              mRotStepTransform = Token;
+          }
 
           LineStream >> mExistingRotStep[0] >> mExistingRotStep[1] >> mExistingRotStep[2];
 
           emit SetRotStepAngleX(mExistingRotStep.x);
           emit SetRotStepAngleY(mExistingRotStep.y);
           emit SetRotStepAngleZ(mExistingRotStep.z);
-
-          emit SetRotStepMeta(mRotStepTransform, false);
+          emit SetRotStepTransform(mRotStepTransform);
           break;
       }
    }
