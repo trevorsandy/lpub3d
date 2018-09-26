@@ -203,38 +203,6 @@ GlobalPageDialog::GlobalPageDialog(
 
   // child header (one) start
   widget = new QWidget();
-  childlayout = new QVBoxLayout();
-  widget->setLayout(childlayout);
-  // child header end
-  /*
-    SubModel Color,
-  */
-  //child body (many) start
-  box = new QGroupBox(tr("Sub-Model Level Colors"));
-  childlayout->addWidget(box);
-  child = new SubModelColorGui(&pageMeta->subModelColor,box);
-  data->children.append(child);
-  //child body end
-
-  /*
-    "Native Renderer Camera Distance",
-  */
-  //child body (many) start
-  box = new QGroupBox(tr("Native Renderer Camera Distance"));
-  childlayout->addWidget(box);
-  child = new CameraDistFactorGui("Factor",&pageMeta->cameraDistNative,box);
-  data->children.append(child);
-  //child body end
-
-  //spacer
-  childlayout->addSpacerItem(vSpacer);
-
-  // child footer (one) end
-  childtab->addTab(widget,"SubModel/Factor");
-  // child footer end
-
-  // child header (one) start
-  widget = new QWidget();
   grid = new QGridLayout();
   widget->setLayout(grid);
   // child header end
@@ -278,6 +246,39 @@ GlobalPageDialog::GlobalPageDialog(
 
   // child footer (one) end
   childtab->addTab(widget,tr("Model ID/Pieces"));
+  // child footer end
+
+  /*
+    SubModel Color,
+  */
+  // child header (one) start
+  widget = new QWidget();
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
+  // child header end
+
+  //child body (many) start
+  box = new QGroupBox(tr("Sub-Model Level Colors"));
+  childlayout->addWidget(box);
+  child = new SubModelColorGui(&pageMeta->subModelColor,box);
+  data->children.append(child);
+  //child body end
+
+  /*
+    "Native Renderer Camera Distance",
+  */
+  //child body (many) start
+  box = new QGroupBox(tr("Native Renderer Camera Distance"));
+  childlayout->addWidget(box);
+  child = new CameraDistFactorGui("Factor",&pageMeta->cameraDistNative,box);
+  data->children.append(child);
+  //child body end
+
+  //spacer
+  childlayout->addSpacerItem(vSpacer);
+
+  // child footer (one) end
+  childtab->addTab(widget,"SubModel/Factor");
   // child footer end
 
   //~~~~~~~~~~~~ publisher tab ~~~~~~~~~~~~//

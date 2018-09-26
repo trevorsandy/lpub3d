@@ -179,6 +179,9 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   //search directories
   ui.lineEditIniFile->setPalette(readOnlyPalette);
   ui.lineEditIniFile->setReadOnly(true);
+  ui.textEditSearchDirs->setWordWrapMode(QTextOption::WordWrap);
+  ui.textEditSearchDirs->setLineWrapMode(QTextEdit::FixedColumnWidth);
+  ui.textEditSearchDirs->setLineWrapColumnOrWidth(80);
   if (Preferences::ldrawiniFound) {
       ui.lineEditIniFile->setText(QString("Using LDraw.ini File: %1").arg(Preferences::ldrawiniFile));
       ui.pushButtonReset->hide();
