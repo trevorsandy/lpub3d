@@ -582,16 +582,16 @@ QString Callout::wholeSubmodel(
     }
     csiParts << line;
   }
-  
+
   if ( ! isMirrored && meta.LPub.callout.begin.value() == CalloutBeginMeta::Rotated && depth == 0) {
     //Render::rotateParts(addLine,meta.rotStep,csiParts,false);
     RotStepMeta emptyRotStep;
     Render::rotateParts(addLine,emptyRotStep,csiParts);
-    logDebug() << "Fired rotateParts from Callout;";
+    logDebug() << "Called rotateParts for Called out 'Rotated' parts;";
   }
 
   gui->insertGeneratedModel(wholeName,csiParts);
-  logDebug() << "insertGeneratedModel:" << wholeName << " Parts:" << csiParts;
+  logDebug() << "Called insertGeneratedModel with passed parms wholeName: " << wholeName << ", cisParts: " << csiParts;
 
   return wholeName;
 }

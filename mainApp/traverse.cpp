@@ -433,9 +433,9 @@ int Gui::drawPage(
 
               QString thisType = type;
 
-              //t.s. Callout here (actually treated like sort of a submodel)
+             /* t.s. Rotated or assembled callout here (treated like a submodel) */
               if (mode != CalloutBeginMeta::Unassembled) {
-                  /* So, we process callouts in-line, not when we finally hit the STEP or
+             /* So, we process these callouts in-line, not when we finally hit the STEP or
              ROTSTEP that ends this processing, but for ASSEMBLED or ROTATED
              callouts, the ROTSTEP state affects the results, so we have to search
              forward until we hit STEP or ROTSTEP to know how the submodel might
@@ -455,6 +455,10 @@ int Gui::drawPage(
                             }
                         }
                     }
+                  if (mode == CalloutBeginMeta::Rotated) {
+                      // Set camera angles 0, use only ROTSTEP angles
+                      callout->meta.LPub.assem.cameraAngles.setValues(0.0, 0.0);
+                  }
                   callout->meta.rotStep = tmpMeta.rotStep;
                   callout->meta.LPub.assem.modelScale = tmpMeta.LPub.assem.modelScale;
                   // The next command applies the rotation due to line, but not due to callout->meta.rotStep
