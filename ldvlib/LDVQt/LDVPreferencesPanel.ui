@@ -21,7 +21,7 @@
    <string>Preferences</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources.qrc">
+   <iconset resource="../../mainApp/lpub3d.qrc">
     <normaloff>:/resources/LPub32.png</normaloff>:/resources/LPub32.png</iconset>
   </property>
   <property name="sizeGripEnabled">
@@ -52,7 +52,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="generalTab">
       <attribute name="title">
@@ -353,25 +353,6 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="1">
-             <widget class="QSpinBox" name="fieldOfViewSpin">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimum">
-               <number>1</number>
-              </property>
-              <property name="maximum">
-               <number>90</number>
-              </property>
-              <property name="value">
-               <number>45</number>
-              </property>
-             </widget>
-            </item>
             <item row="3" column="0">
              <widget class="QLabel" name="memoryUsageLabel">
               <property name="text">
@@ -408,6 +389,28 @@
                 <string>High</string>
                </property>
               </item>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QDoubleSpinBox" name="fieldOfViewDoubleSpin">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="minimum">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>90.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
              </widget>
             </item>
            </layout>
@@ -3869,7 +3872,7 @@ into effect until the next time a model is loaded.</string>
   <tabstop>frameRateButton</tabstop>
   <tabstop>showAxesButton</tabstop>
   <tabstop>showErrorsButton</tabstop>
-  <tabstop>fieldOfViewSpin</tabstop>
+  <tabstop>fieldOfViewDoubleSpin</tabstop>
   <tabstop>memoryUsageBox</tabstop>
   <tabstop>generalResetButton</tabstop>
   <tabstop>seamWidthButton</tabstop>
@@ -3926,7 +3929,9 @@ into effect until the next time a model is loaded.</string>
   <tabstop>applyButton</tabstop>
  </tabstops>
  <resources>
+  <include location="../../mainApp/lpub3d.qrc"/>
   <include location="resources.qrc"/>
+  <include location="../../mainApp/lpub3d.qrc"/>
  </resources>
  <connections/>
 </ui>

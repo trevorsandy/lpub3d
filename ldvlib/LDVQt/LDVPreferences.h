@@ -184,7 +184,8 @@ protected:
 	void reflectPrimitivesSettings(void);
 	void reflectUpdatesSettings(void);
 
-	void setRangeValue(QSpinBox *rangeConrol, int value);
+    void setDoubleRangeValue(QDoubleSpinBox *rangeConrol, float value);
+    void setRangeValue(QSpinBox *rangeConrol, int value);
 	void setRangeValue(QSlider *rangeConrol, int value);
 
 	void enableWireframeCutaway(void);

@@ -55,7 +55,7 @@ LDVPreferences::LDVPreferences(QWidget *parent, LDVWidget* modelWidget)
         connect( primitvesResetButton, SIGNAL( clicked() ), this, SLOT( doResetPrimitives() ) );
         connect( seamWidthButton, SIGNAL( clicked() ), this, SLOT( enableApply() ) );
         connect( seamWidthSpin, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-        connect( fieldOfViewSpin, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+        connect( fieldOfViewDoubleSpin, SIGNAL( valueChanged(double) ), this, SLOT( enableApply() ) );
         connect( memoryUsageBox, SIGNAL( activated(int) ), this, SLOT( enableApply() ) );
         connect( snapshotSaveDirBox, SIGNAL( activated(int) ), this, SLOT( snapshotSaveDirBoxChanged() ) );
         connect( partsListsSaveDirBox, SIGNAL( activated(int) ), this, SLOT( partsListsSaveDirBoxChanged() ) );
@@ -345,7 +345,7 @@ void LDVPreferences::doGeneralApply(void)
 	}
 /*** LPub3D Mod end ***/
 
-	ldPrefs->setFov(fieldOfViewSpin->value());
+    ldPrefs->setFov(fieldOfViewDoubleSpin->value());
 	ldPrefs->setMemoryUsage(memoryUsageBox->currentIndex());
 	ldPrefs->setTransDefaultColor(transparentButton->checkState());
 	LDPreferences::DefaultDirMode snapshotDirMode, partsListDirMode, exportDirMode;
@@ -765,14 +765,24 @@ void LDVPreferences::setButtonState(QRadioButton *button, bool state)
 	}
 }
 
-void LDVPreferences::setRangeValue(QSpinBox *rangeControl, int value)
+void LDVPreferences::setDoubleRangeValue(QDoubleSpinBox *rangeControl, float value)
 {
-	int rangeValue = rangeControl->value();
+    float rangeValue = rangeControl->value();
 
 	if (value != rangeValue)
 	{
 		rangeControl->setValue(value);
 	}
+}
+
+void LDVPreferences::setRangeValue(QSpinBox *rangeControl, int value)
+{
+    int rangeValue = rangeControl->value();
+
+    if (value != rangeValue)
+    {
+        rangeControl->setValue(value);
+    }
 }
 
 void LDVPreferences::setRangeValue(QSlider *rangeControl, int value)
