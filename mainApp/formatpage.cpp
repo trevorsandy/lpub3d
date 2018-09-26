@@ -503,7 +503,7 @@ int Gui::addGraphicsPageItems(
                     pixmap->relativeToSize[1] = plPage.size[YY];
                 } else {
                   emit messageSig(LOG_ERROR, QString("Unable to locate picture %1. Be sure picture file "
-                                                     "is relative to model file or use absolute path.").arg(filename));
+                                                     "is located relative to model file or use an absolute path.").arg(filename));
                 }
               }
               break;

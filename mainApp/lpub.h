@@ -515,9 +515,9 @@ public:
   {
     return ldrawFile.isMpd();
   }
-  bool isOlder(const QStringList &foo,const QDateTime &lastModified)
+  bool isOlder(const QStringList &parsedStack,const QDateTime &lastModified)
   {
-    bool older = ldrawFile.older(foo,lastModified);
+    bool older = ldrawFile.older(parsedStack,lastModified);
     return older;
   }
   bool isMirrored(QStringList &argv)
@@ -655,6 +655,8 @@ public:
                   CAMERA_ZFAR_NATIVE_DEFAULT :
                   CAMERA_ZFAR_DEFAULT);
   }
+
+  bool compareVersionStr(const QString &first, const QString &second);
 
 public slots:
   //**3D Viewer Manage Step Rotation

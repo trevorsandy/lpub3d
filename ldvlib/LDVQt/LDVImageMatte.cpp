@@ -163,7 +163,7 @@ bool LDVImageMatte::matteCSIImage(QStringList &arguments, QString &csiKey) {
 
   QString ext;
   QFileInfo csiIMFileInfo;
-  QString tempPath = QDir::currentPath() + "/" +  Paths::tmpDir;
+  QString tempPath = QDir::currentPath() + "/" + Paths::tmpDir;
   if (Render::useLDViewSCall()){
       ext = ".png";
       csiIMFileInfo.setFile(QString("%1/%2").arg(tempPath).arg(QFileInfo(getMatteCSIImage(csiKey)).fileName()));

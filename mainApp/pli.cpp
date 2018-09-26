@@ -59,7 +59,7 @@ QCache<QString,QString> Pli::orientation;
 
 const Where &Pli::topOfStep()
 {
-  if (bom || step == NULL || steps == NULL) {
+  if (bom || step == nullptr || steps == nullptr) {
       return gui->topOfPage();
     } else {
       if (step) {
@@ -71,7 +71,7 @@ const Where &Pli::topOfStep()
 }
 const Where &Pli::bottomOfStep()
 {
-  if (bom || step == NULL || steps == NULL) {
+  if (bom || step == nullptr || steps == nullptr) {
       return gui->bottomOfPage();
     } else {
       if (step) {
@@ -451,10 +451,8 @@ int Pli::createPartImage(
       .arg(pliMeta.cameraFoV.value())
       .arg(pliMeta.cameraAngles.value(0))
       .arg(pliMeta.cameraAngles.value(1));
-  QString imageName = QDir::currentPath() + "/" +
-      Paths::partsDir + "/" + key + ".png";
-  QStringList ldrNames = (QStringList() << QDir::currentPath() + "/" +
-      Paths::tmpDir + "/pli.ldr");
+  QString imageName = QDir::currentPath() + "/" + Paths::partsDir + "/" + key + ".png";
+  QStringList ldrNames = (QStringList() << QDir::currentPath() + "/" + Paths::tmpDir + "/pli.ldr");
 
   QFile part(imageName);
   
@@ -498,8 +496,7 @@ int Pli::createPartImage(
       int rc = renderer->renderPli(ldrNames,imageName,*meta, bom);
 
       if (rc != 0) {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for %1")
-                               .arg(imageName));
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for %1").arg(imageName));
           return -1;
         }
 
@@ -510,13 +507,6 @@ int Pli::createPartImage(
                              .arg(timer.elapsed())
                              .arg(imageName)
                              .arg(bom ? "BOM part list" : "Step parts list.")));
-
-      //  qDebug() << Render::getRenderer()
-//        logTrace() << "\n" << Render::getRenderer()
-//                   << "PLI render took"
-//                   << timer.elapsed() << "milliseconds"
-//                   << "to render "<< imageName
-//                   << "for " << (bom ? "BOM part list" : "Step parts list.");
     }
 
   pixmap->load(imageName);
@@ -527,7 +517,7 @@ int Pli::createPartImage(
 // LDView performance improvement
 int Pli::createPartImagesLDViewSCall(QStringList &ldrNames) {
 
-  emit gui->messageSig(LOG_STATUS, "Render PLI images...");
+  emit gui->messageSig(LOG_STATUS, "Render PLI images using LDView Single Call...");
 
   if (! ldrNames.isEmpty()) {
 
@@ -548,13 +538,6 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames) {
                              .arg(ldrNames.size())
                              .arg(ldrNames.size() == 1 ? "image" : "images")
                              .arg(bom ? "BOM part list" : "Step parts list.")));
-
-//      logTrace() << Render::getRenderer()
-//                 << "PLI (Single Call) render took"
-//                 << timer.elapsed() << "milliseconds"
-//                 << "to render " << ldrNames.size()
-//                 << (ldrNames.size() == 1 ? "image" : "images")
-//                 << "for" << (bom ? "BOM part list" : "Step parts list.");
     }
 
   QString key;
@@ -567,12 +550,12 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames) {
       // load image files into pixmap
       // instantiate pixmps //ERROR
       QPixmap *pixmap = new QPixmap();
-      if (pixmap == NULL) {
+      if (pixmap == nullptr) {
           return -1;
         }
 
       if (! pixmap->load(part->imageName)) {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot load pixmap. Image %1 is not a file.")
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot load PLI pixmap image %1 is not a file.")
                                .arg(part->imageName));
               return -1;
             }
@@ -640,7 +623,7 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames) {
               part->rightEdge << part->width;
             }
         } else {
-          part->annotateText = NULL;
+          part->annotateText = nullptr;
           part->annotWidth  = 0;
           part->annotHeight = 0;
           part->partTopMargin = 0;
@@ -744,7 +727,7 @@ int Pli::placePli(
   while (nPlaced < keys.size()) {
 
       int i;
-      PliPart *part = NULL;
+      PliPart *part = nullptr;
 
       for (i = 0; i < keys.size(); i++) {
           QString key = keys[i];
@@ -1238,7 +1221,7 @@ int Pli::partSize()
                 }
 
               QPixmap *pixmap = new QPixmap();
-              if (pixmap == NULL) {
+              if (pixmap == nullptr) {
                   return -1;
                 }
 
@@ -1310,7 +1293,7 @@ int Pli::partSize()
                       part->rightEdge << part->width;
                     }
                 } else {
-                  part->annotateText = NULL;
+                  part->annotateText = nullptr;
                   part->annotWidth  = 0;
                   part->annotHeight = 0;
                   part->partTopMargin = 0;
@@ -1391,13 +1374,12 @@ int Pli::partSizeLDViewSCall() {
           if ( ! part.exists()) {
 
               // assemble ldr name
-              QString ldrName = QDir::currentPath() + "/" +
-                  Paths::tmpDir + "/" + pliPart->nameKey + ".ldr";
+              QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + pliPart->nameKey + ".ldr";
 
               // create a DAT files to feed the renderer
               part.setFileName(ldrName);
               if ( ! part.open(QIODevice::WriteOnly)) {
-                  QMessageBox::critical(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                  QMessageBox::critical(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
                                         QMessageBox::tr("Cannot open ldr DAT file for writing part:\n%1:\n%2.")
                                         .arg(ldrName)
                                         .arg(part.errorString()));
@@ -1420,7 +1402,7 @@ int Pli::partSizeLDViewSCall() {
 
   // 2. Call create part images; send ldr file names
   if (createPartImagesLDViewSCall(ldrNames)) {
-      emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part images"));
+      emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part images using LDView Single Call"));
       return -1;
     }
 
@@ -1702,7 +1684,7 @@ void Pli::positionChildren(
 
   foreach (key, sortedKeys) {
       PliPart *part = parts[key];
-      if (part == NULL) {
+      if (part == nullptr) {
           continue;
         }
       float x,y;
@@ -1753,7 +1735,7 @@ int Pli::addPli(
 
       positionChildren(size[1],1.0,1.0);
     } else {
-      background = NULL;
+      background = nullptr;
     }
   return 0;
 }
@@ -1832,7 +1814,7 @@ PliBackgroundItem::PliBackgroundItem(
 {
   pli       = _pli;
   grabHeight = height;
-  grabber = NULL;
+  grabber = nullptr;
 
   parentRelativeType = _parentRelativeType;
 
@@ -1889,7 +1871,7 @@ void PliBackgroundItem::placeGrabbers()
 {
   QRectF rect = currentRect();
   point = QPointF(rect.left() + rect.width()/2,rect.bottom());
-  if (grabber == NULL) {
+  if (grabber == nullptr) {
       grabber = new Grabber(BottomInside,this,myParentItem());
     }
   grabber->setPos(point.x()-grabSize()/2,point.y()-grabSize()/2);
@@ -1964,8 +1946,8 @@ void PliBackgroundItem::contextMenuEvent(
       QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
       QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
 
-      QAction *splitBomAction  = NULL;
-      QAction *deleteBomAction = NULL;
+      QAction *splitBomAction  = nullptr;
+      QAction *deleteBomAction = nullptr;
 
       if (pli->bom) {
           splitBomAction = menu.addAction("Split Bill of Materials");
@@ -1979,7 +1961,7 @@ void PliBackgroundItem::contextMenuEvent(
 
       QAction *selectedAction   = menu.exec(event->screenPos());
 
-      if (selectedAction == NULL) {
+      if (selectedAction == nullptr) {
           return;
         }
 
@@ -2194,7 +2176,7 @@ void AnnotateTextItem::contextMenuEvent(
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
-  if (selectedAction == NULL) {
+  if (selectedAction == nullptr) {
       return;
     }
   
@@ -2240,7 +2222,7 @@ void InstanceTextItem::contextMenuEvent(
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
-  if (selectedAction == NULL) {
+  if (selectedAction == nullptr) {
       return;
     }
   
@@ -2298,7 +2280,7 @@ void PGraphicsPixmapItem::contextMenuEvent(
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
-  if (selectedAction == NULL) {
+  if (selectedAction == nullptr) {
       return;
     }
 

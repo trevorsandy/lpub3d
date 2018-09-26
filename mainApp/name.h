@@ -26,7 +26,7 @@ class LDVWidget;
 extern LDVWidget *ldvWidget;
 
 enum PartType { FADE_PART, HIGHLIGHT_PART };
-enum LogType { LOG_STATUS, LOG_INFO, LOG_TRACE, LOG_DEBUG, LOG_NOTICE, LOG_ERROR, LOG_FATAL, LOG_QWARNING, LOG_QDEBUG };
+enum LogType { LOG_STATUS, LOG_INFO, LOG_TRACE, LOG_DEBUG, LOG_NOTICE, LOG_ERROR, LOG_INFO_STATUS, LOG_FATAL, LOG_QWARNING, LOG_QDEBUG };
 enum IniFlag { NativePOVIni, LDViewPOVIni, LDViewIni };
 enum Theme { ThemeDark, ThemeDefault };
 
@@ -177,7 +177,7 @@ enum Theme { ThemeDark, ThemeDefault };
 
 #define THEME_HIGHLIGHT_01_DEFAULT      "#006325" // Qt 01 Dark green
 #define THEME_HIGHLIGHT_02_DEFAULT      "#14148c" // Qt 02 Dark blue
-#define THEME_HIGHLIGHT_03_DEFAULT      "#800000" // Qt 03 Dark Red
+#define THEME_HIGHLIGHT_03_DEFAULT      "#aa0000" // 03 LPub3D Maroon
 #define THEME_HIGHLIGHT_04_DEFAULT      "#0000FF" // Qt 04 Blue
 #define THEME_HIGHLIGHT_05_DEFAULT      "#b40000" // Qt 05 Red
 #define THEME_HIGHLIGHT_06_DEFAULT      "#0057ff" // 06 Custom Blue
@@ -193,10 +193,10 @@ enum Theme { ThemeDark, ThemeDefault };
 
 #define THEME_HIGHLIGHT_01_DARK         "#17c723" // 01 Custom green
 #define THEME_HIGHLIGHT_02_DARK         "#0079cf" // 02 Custom blue
-#define THEME_HIGHLIGHT_03_DARK         "#d20117" // 03 Custom Red
+#define THEME_HIGHLIGHT_03_DARK         "#aa0000" // 03 LPub3D Maroon, old(#d20117)
 #define THEME_HIGHLIGHT_04_DARK         "#14aaff" // 04 Qt Blue
-#define THEME_HIGHLIGHT_05_DARK         "#ff3300" // 05 Custom Red
-#define THEME_HIGHLIGHT_06_DARK         "#ff5227" // 06 Custom Blue
+#define THEME_HIGHLIGHT_05_DARK         "#ff9900" // 05 Custom Red-Orange
+#define THEME_HIGHLIGHT_06_DARK         "#ff5227" // 06 Custom Orange
 #define THEME_HIGHLIGHT_07_DARK         "#bbbfff" // 07 Custom Voilet
 
 #define THEME_EDITWINDOW_LINE_DARK      "#5d5b59" // 06 Qt Medium gray

@@ -820,6 +820,33 @@ void Gui::ShowStepRotationStatus()
     statusBarMsg(rotLabel);
 }
 
+/*
+ Compares the two version strings (first and second).
+ If first is greater than second, this function returns true.
+ If second is greater than first, this function returns false.
+ If both versions are the same, this function returns false.
+ */
+bool  Gui::compareVersionStr (const QString& first, const QString& second)
+{
+    QStringList versionsFirst = first.split (".");
+    QStringList versionsSecond = second.split (".");
+
+    int count = qMin (versionsFirst.count(), versionsSecond.count());
+
+    for (int i = 0; i < count; ++i) {
+        int a = QString (versionsFirst.at (i)).toInt();
+        int b = QString (versionsSecond.at (i)).toInt();
+
+        if (a > b)
+            return true;
+
+        else if (b > a)
+            return false;
+    }
+
+    return versionsSecond.count() < versionsFirst.count();
+}
+
 void Gui::displayFile(
     LDrawFile     *ldrawFile,
     const QString &modelName)
@@ -1186,7 +1213,7 @@ void Gui::clearTempCache()
         QFileInfo fileInfo = list.at(i);
         QFile     file(tmpDirName + "/" + fileInfo.fileName());
         if (!file.remove()) {
-            QMessageBox::critical(NULL,
+            QMessageBox::critical(nullptr,
                                   tr("LPub3D"),
                                   tr("Unable to remeove %1")
                                   .arg(tmpDirName + "/" + fileInfo.fileName()));
@@ -1437,16 +1464,15 @@ void Gui::editLPub3DIniFile()
                                  .arg(Preferences::lpub3dPath)
                                  .arg(COMPANYNAME_STR).arg(Preferences::lpub3dAppName).arg(fileExt);
 #else
-
 #if defined Q_OS_MACOS
-    fielExt = "plist";
+    fileExt = "plist";
     lpubConfigFile = QString("%1/com.lpub3d-software.%2.%3")
-                             .arg(Preferences::configPathList.first())
+                             .arg(Preferences::lpubConfigPath)
                              .arg(QString(Preferences::lpub3dAppName).replace(".app","")).arg(fileExt);
 #elif defined Q_OS_LINUX
-    fielExt = "conf";
+    fileExt = "conf";
     lpubConfigFile = QString("%1/%2/%3.%4")
-                             .arg(Preferences::configPathList.first())
+                             .arg(Preferences::lpubConfigPath)
                              .arg(COMPANYNAME_STR)
                              .arg(Preferences::lpub3dAppName).arg(fileExt);
 #endif
@@ -1508,17 +1534,19 @@ void Gui::viewLog()
 
 void Gui::preferences()
 {
-    bool useLDViewSCallCompare          = Preferences::useLDViewSingleCall;
+    bool enableLDViewSCallCompare       = Preferences::enableLDViewSingleCall;
+    bool enableLDViewSListCompare       = Preferences::enableLDViewSnaphsotList;
     bool displayAllAttributesCompare    = Preferences::displayAllAttributes;
     bool generateCoverPagesCompare      = Preferences::generateCoverPages;
     bool enableFadeStepsCompare         = Preferences::enableFadeSteps;
     bool fadeStepsUseColourCompare      = Preferences::fadeStepsUseColour;
     int fadeStepsOpacityCompare         = Preferences::fadeStepsOpacity;
     bool enableHighlightStepCompare     = Preferences::enableHighlightStep;
-    bool enableImageMattingCompare      = Preferences::enableImageMatting;
+    bool enableImageMattingCompare      = Preferences::enableImageMatting;    
     int  highlightStepLineWidthCompare  = Preferences::highlightStepLineWidth;
     bool doNotShowPageProcessDlgCompare = Preferences::doNotShowPageProcessDlg;
     int  pageDisplayPauseCompare        = Preferences::pageDisplayPause;
+    QString altLDConfigPathCompare      = Preferences::altLDConfigPath;
     QString povFileGeneratorCompare     = Preferences::povFileGenerator;
     QString fadeStepsColourCompare      = Preferences::fadeStepsColour;
     QString highlightStepColourCompare  = Preferences::highlightStepColour;
@@ -1604,6 +1632,12 @@ void Gui::preferences()
         Meta meta;
         page.meta = meta;
 
+        QMessageBox box;
+        box.setMinimumSize(40,20);
+        box.setIcon (QMessageBox::Question);
+        box.setDefaultButton   (QMessageBox::Ok);
+        box.setStandardButtons (QMessageBox::Ok | QMessageBox::Close | QMessageBox::Cancel);
+
         bool rendererChanged               = QString(Preferences::preferredRenderer).toLower()   != preferredRendererCompare.toLower();
         bool enableFadeStepsChanged        = Preferences::enableFadeSteps                        != enableFadeStepsCompare;
         bool fadeStepsUseColourChanged     = Preferences::fadeStepsUseColour                     != fadeStepsUseColourCompare;
@@ -1613,12 +1647,14 @@ void Gui::preferences()
         bool highlightStepColorChanged     = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
         bool highlightStepLineWidthChanged = Preferences::highlightStepLineWidth                 != highlightStepLineWidthCompare;
         bool enableImageMattingChanged     = Preferences::enableImageMatting                     != enableImageMattingCompare;
-        bool useLDViewSCallChanged         = Preferences::enableLDViewSingleCall                 != useLDViewSCallCompare;
+        bool enableLDViewSCallChanged      = Preferences::enableLDViewSingleCall                 != enableLDViewSCallCompare;
+        bool enableLDViewSListChanged      = Preferences::enableLDViewSnaphsotList               != enableLDViewSListCompare;
         bool displayAttributesChanged      = Preferences::displayAllAttributes                   != displayAllAttributesCompare;
         bool generateCoverPagesChanged     = Preferences::generateCoverPages                     != generateCoverPagesCompare;
         bool pageDisplayPauseChanged       = Preferences::pageDisplayPause                       != pageDisplayPauseCompare;
         bool doNotShowPageProcessDlgChanged= Preferences::doNotShowPageProcessDlg                != doNotShowPageProcessDlgCompare;
         bool povFileGeneratorChanged       = Preferences::povFileGenerator                       != povFileGeneratorCompare;
+        bool altLDConfigPathChanged        = Preferences::altLDConfigPath                        != altLDConfigPathCompare;
 
         bool ldrawPathChanged              = QString(Preferences::ldrawPath).toLower()           != ldrawPathCompare.toLower();
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
@@ -1698,9 +1734,6 @@ void Gui::preferences()
 
 	bool nativePovRendererConfig      = Preferences::preferredRenderer == RENDERER_POVRAY && Preferences::povFileGenerator == RENDERER_NATIVE;
 
-        if (displayThemeChanged)
-            loadTheme();
-
         if (enableFadeStepsChanged)
         {
             gApplication->mFadeParts = Preferences::enableFadeSteps;
@@ -1767,19 +1800,22 @@ void Gui::preferences()
                                  .arg(enableImageMattingCompare)
                                  .arg(Preferences::enableImageMatting));
 
+        if (enableLDViewSCallChanged)
+            emit messageSig(LOG_INFO,QString("Enable LDView Single Call is %1").arg(Preferences::enableLDViewSingleCall ? "ON" : "OFF"));
+
+        if (enableLDViewSListChanged)
+            emit messageSig(LOG_INFO,QString("Enable LDView Snapshots List is %1").arg(Preferences::enableLDViewSnaphsotList ? "ON" : "OFF"));
+
         if (rendererChanged) {
             emit messageSig(LOG_INFO,QString("Renderer preference changed from %1 to %2 %3")
                                     .arg(Preferences::preferredRenderer)
                                     .arg(preferredRendererCompare)
                                     .arg(preferredRendererCompare == RENDERER_POVRAY ? QString("(PoV file generator is %1)").arg(Preferences::povFileGenerator) :
-                                         preferredRendererCompare == RENDERER_LDVIEW ? Preferences::useLDViewSingleCall ? "(Single Call)" : "" : ""));
+                                         preferredRendererCompare == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ? "(Single Call)" : "" : ""));
             Render::setRenderer(Preferences::preferredRenderer);
             if (Preferences::preferredRenderer == RENDERER_LDGLITE)
                 partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
         }
-
-        if (useLDViewSCallChanged)
-            emit messageSig(LOG_INFO,QString("Use LDView Single Call is %1").arg(Preferences::useLDViewSingleCall ? "ON" : "OFF"));
 
         if (povFileGeneratorChanged)
             emit messageSig(LOG_INFO,QString("POV file generation renderer changed from %1 to %2")
@@ -1795,7 +1831,8 @@ void Gui::preferences()
                 highlightStepColorChanged     ||
                 highlightStepLineWidthChanged ||
                 rendererChanged               ||
-                useLDViewSCallChanged         ||
+                enableLDViewSCallChanged      ||
+                enableLDViewSListChanged      ||
                 displayAttributesChanged      ||
                 povFileGeneratorChanged       ||
                 enableImageMattingChanged     ||
@@ -1803,6 +1840,22 @@ void Gui::preferences()
                 clearAndRedrawPage();
             }
         }
+
+        // Restart Items...
+
+        if (displayThemeChanged)
+            loadTheme();
+
+        if (altLDConfigPathChanged) {
+            emit messageSig(LOG_INFO,QString("Use Alternate LDConfig (Restart Required) %1.").arg(Preferences::altLDConfigPath));
+            box.setText (QString("You must close and restart %1 to properly load your alternate LDConfig file.").arg(VER_PRODUCTNAME_STR));
+            box.setInformativeText (QString("Click \"OK\" to close and restart %1.\n\n").arg(VER_PRODUCTNAME_STR));
+            int result = box.exec();
+            if (result == QMessageBox::Ok) {
+                restartApplication();
+            }
+        }
+
 
         // set logging options
         using namespace QsLogging;
@@ -2058,7 +2111,7 @@ Gui::Gui()
     setCentralWidget(KpageView);
 
     mpdCombo = new QComboBox(this);
-    mpdCombo->setToolTip(tr("Current Submodel"));
+    mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
     mpdCombo->setMinimumContentsLength(25);
     mpdCombo->setInsertPolicy(QComboBox::InsertAtBottom);
     mpdCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
@@ -2912,8 +2965,8 @@ void Gui::createActions()
     editLdviewIniAct->setStatusTip(tr("Edit LDView ini configuration file"));
     connect(editLdviewIniAct, SIGNAL(triggered()), this, SLOT(editLdviewIni()));
 
-    editLPub3DIniFileAct = new QAction(QIcon(":/resources/editsetting.png"),tr("Edit %1 ini").arg(Preferences::lpub3dAppName), this);
-    editLPub3DIniFileAct->setStatusTip(tr("Edit %1 application configuration settings file").arg(Preferences::lpub3dAppName));
+    editLPub3DIniFileAct = new QAction(QIcon(":/resources/editsetting.png"),tr("Edit %1 configuration file").arg(VER_PRODUCTNAME_STR), this);
+    editLPub3DIniFileAct->setStatusTip(tr("Edit %1 application configuration settings file").arg(VER_PRODUCTNAME_STR));
     connect(editLPub3DIniFileAct, SIGNAL(triggered()), this, SLOT(editLPub3DIniFile()));
 
     editLdviewPovIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView POV file generation configuration file"), this);
@@ -3484,12 +3537,27 @@ void Gui::statusMessage(LogType logType, QString message) {
                   }
 
             } else
+              if (logType == LOG_INFO_STATUS) {
+
+                  statusBarMsg(message);
+
+                  logInfo() << message;
+
+                  if (!guiEnabled) {
+                      fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                      fflush(stdout);
+                  }
+            } else
               if (logType == LOG_ERROR) {
 
                   logError() << message;
 
                   if (guiEnabled) {
-                      QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
+                      if (ContinuousPage()) {
+                          statusBarMsg(message.prepend("ERROR: "));
+                      } else {
+                          QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
+                      }
                   } else {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                       fflush(stdout);

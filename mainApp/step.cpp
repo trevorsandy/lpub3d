@@ -70,7 +70,7 @@ Step::Step(
   parent                    = _parent;
   submodelLevel             = _meta.submodelStack.size();
   stepNumber.number         =  num;             // record step number
-  csiItem                   = NULL;
+  csiItem                   = nullptr;
 
   modelDisplayOnlyStep      = false;
   relativeType              = StepType;
@@ -207,8 +207,9 @@ int Step::createCsi(
     }
 
   // Define csi file paths
-  QString csiFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir);
-  QString csiFullFilePath = QString("%1/csi.ldr").arg(csiFilePath);
+  QString csiLdrFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir);
+  QString csiPngFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::assemDir);
+  QString csiLdrFile = QString("%1/csi.ldr").arg(csiLdrFilePath);
 
   QString key = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
       .arg(csi_Name+orient)
@@ -222,39 +223,50 @@ int Step::createCsi(
       .arg(meta.LPub.assem.cameraAngles.value(1));;
 
   // populate png name
-  pngName = QString("%1/%2/%3.png").arg(QDir::currentPath()).arg(Paths::assemDir).arg(key);
+  pngName = QString("%1/%2.png").arg(csiPngFilePath).arg(key);
 
-  // add pngName using csiKey - exclude first step
+  // create ImageMatte csiKey
   csiKey = QString("%1_%2").arg(csi_Name).arg(stepNumber.number);
+
+  // add csiKey and pngName to ImageMatte repository - exclude first step
   if (Preferences::enableFadeSteps && Preferences::enableImageMatting && !invalidIMStep) {
       if (!LDVImageMatte::validMatteCSIImage(csiKey))
           LDVImageMatte::insertMatteCSIImage(csiKey, pngName);
     }
 
+  // Check if png file date modified is older than madel file (on the stack) date modified
   csiOutOfDate = false;
 
   QFile csi(pngName);
   csiExist = csi.exists();
   if (csiExist) {
       QDateTime lastModified = QFileInfo(pngName).lastModified();
-      QStringList stack = submodelStack();
-      stack << parent->modelName();
-      if ( ! isOlder(stack,lastModified)) {
+      QStringList parsedStack = submodelStack();
+      parsedStack << parent->modelName();
+      if ( ! isOlder(parsedStack,lastModified)) {
           csiOutOfDate = true;
-        }
-    }
+          if (! csi.remove()) {
+              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to remove out of date CSI PNG file."));
+          }
+      }
+  }
 
   int rc;
 
-  // Populate viewerCsiName
-  viewerCsiName = QString("%1;%2;%3").arg(top.modelName).arg(top.lineNumber).arg(stepNumber.number);
-  if (modelDisplayOnlyStep)
-      viewerCsiName = QString("%1_fm").arg(viewerCsiName);
+  // Populate viewerCsiName variable
+  viewerCsiName = QString("%1;%2;%3%4")
+          .arg(top.modelName)
+          .arg(top.lineNumber)
+          .arg(stepNumber.number)
+          .arg(modelDisplayOnlyStep ? "_fm" : "");
 
-  // Generage 3DViewer CSI
-  if ( ! gui->viewerStepContentExist(viewerCsiName) ||
-       csiOutOfDate ||
-       (viewerCsiName == gui->getViewerCsiName()) ) {   // Something changed, rebuild
+  // Viewer Csi does not yet exist in repository
+  bool addViewerStepContent = !gui->viewerStepContentExist(viewerCsiName);
+  // We are processing again the current step so Csi must have been updated by from viewer
+  bool viewerUpdate = viewerCsiName == gui->getViewerCsiName();
+
+  // Generage 3DViewer CSI entry
+  if ( addViewerStepContent || csiOutOfDate || viewerUpdate ) {
 
       // set rotated parts
       QStringList rotatedParts = csiParts;
@@ -274,66 +286,56 @@ int Step::createCsi(
       // consolidate subfiles and parts into single file - I don't think this is still needed but I keep it anyway
       viewerCSI(rotatedParts, doFadeStep, doHighlightStep);
 
-      gui->insertViewerStep(viewerCsiName,rotatedParts,csiFullFilePath,multiStep,calledOut);
+      gui->insertViewerStep(viewerCsiName,rotatedParts,csiLdrFile,multiStep,calledOut);
   }
 
-  // Generate image CSI file
+  // Generate renderer CSI file
   if ( ! csiExist || csiOutOfDate ) {
 
      QElapsedTimer timer;
      timer.start();
 
      // populate ldr file name
-     ldrName = QString("%1/%2.ldr").arg(csiFilePath).arg(key);
+     ldrName = QString("%1/%2.ldr").arg(csiLdrFilePath).arg(key);
 
      // create the CSI ldr file and rotate its parts for single call LDView and Native renderers
      if (renderer->useLDViewSCall() || nativeRenderer) {
 
          if (nativeRenderer)
-            ldrName = csiFullFilePath;
+            ldrName = csiLdrFile;
 
          if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName)) != 0) {
-             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Creation and rotation of CSI ldr file failed for: %1.")
+             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to create and rotate CSI ldr file: %1.")
                                                    .arg(ldrName));
              return rc;
          }
      }
 
      if (!renderer->useLDViewSCall()) {
+         // render the partially assembled model
+         QStringList csiKeys;
+         if (nativeRenderer)
+             csiKeys = (QStringList() << viewerCsiName);
+         else
+             csiKeys = (QStringList() << csiKey); // adding just a single key
 
-          // render the partially assembled model
-          QStringList csiKeys;
-          if (nativeRenderer)
-            csiKeys = (QStringList() << viewerCsiName);
-          else
-            csiKeys = (QStringList() << csiKey); // adding just a single key
+         if ((rc = renderer->renderCsi(addLine, csiParts, csiKeys, pngName, meta)) != 0) {
+             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render CSI part failed for %1.")
+                                                            .arg(pngName));
+             return rc;
+         }
 
-          if ((rc = renderer->renderCsi(addLine, csiParts, csiKeys, pngName, meta)) != 0) {
-              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render CSI part failed for %1.")
-                                                    .arg(pngName));
-              return rc;
-          }
-
-          emit gui->messageSig(LOG_INFO, qPrintable(
-                              QString("%1 CSI render call took %2 milliseconds "
-                                      "to render %3 for %4 %5 %6 on page %7.")
-                                 .arg(Render::getRenderer())
-                                 .arg(timer.elapsed())
-                                 .arg(pngName)
-                                 .arg(calledOut ? "called out," : "simple,")
-                                 .arg(multiStep ? "step group" : "single step")
-                                 .arg(stepNumber.number)
-                                 .arg(gui->stepPageNum)));
-
-//          logTrace() << "\n" << Render::getRenderer()
-//                     << "CSI render call took"
-//                     << timer.elapsed() << "milliseconds"
-//                     << "to render" << pngName << "for"
-//                     << (calledOut ? "called out," : "simple,")
-//                     << (multiStep ? "step group" : "single step") << stepNumber.number
-//                     << "on page " << gui->stepPageNum << ".";
-
-      }
+         emit gui->messageSig(LOG_INFO, qPrintable(
+                                  QString("%1 CSI render call took %2 milliseconds "
+                                          "to render %3 for %4 %5 %6 on page %7.")
+                                          .arg(Render::getRenderer())
+                                          .arg(timer.elapsed())
+                                          .arg(pngName)
+                                          .arg(calledOut ? "called out," : "simple,")
+                                          .arg(multiStep ? "step group" : "single step")
+                                          .arg(stepNumber.number)
+                                          .arg(gui->stepPageNum)));
+     }
   }
 
   // Load the 3DViewer
@@ -347,7 +349,7 @@ int Step::createCsi(
 
       if (! renderer->LoadViewer(viewerOptions)) {
           emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Load viewer failed for csi_Name: %1")
-                                  .arg(viewerCsiName));
+                               .arg(viewerCsiName));
           return -1;
       }
   }

@@ -122,7 +122,7 @@ class Preferences
     static bool    ldrawiniFound;
     static bool    enableDocumentLogo;
     static bool    enableLDViewSingleCall;
-    static bool    useLDViewSingleCall;
+    static bool    enableLDViewSnaphsotList;
     static bool    displayAllAttributes;
     static bool    generateCoverPages;
     static bool    printDocumentTOC;

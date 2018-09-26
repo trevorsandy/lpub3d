@@ -192,7 +192,7 @@ UnitsGui::UnitsGui(
     label = new QLabel(heading,parent);
     layout->addWidget(label);
   } else {
-    label = NULL;
+    label = nullptr;
   }
 
   QString      string;
@@ -270,7 +270,7 @@ FloatsGui::FloatsGui(
   }
 
   if (heading0 == "") {
-    label0 = NULL;
+    label0 = nullptr;
   } else {
     label0 = new QLabel(heading0,parent);
     layout->addWidget(label0);
@@ -297,7 +297,7 @@ FloatsGui::FloatsGui(
   layout->addWidget(value0);
 
   if (heading1 == "") {
-    label1 = NULL;
+    label1 = nullptr;
   } else {
     label1 = new QLabel(heading1,parent);
     layout->addWidget(label1);
@@ -377,7 +377,7 @@ DoubleSpinGui::DoubleSpinGui(
   }
 
   if (heading == "") {
-    label = NULL;
+    label = nullptr;
   } else {
     label = new QLabel(heading,parent);
     layout->addWidget(label);
@@ -446,7 +446,7 @@ ConstrainGui::ConstrainGui(
     headingLabel = new QLabel(heading,parent);
     layout->addWidget(headingLabel);
   } else {
-    headingLabel = NULL;
+    headingLabel = nullptr;
   }
 
   QString        string;
@@ -883,7 +883,7 @@ PageAttributeTextGui::PageAttributeTextGui(
   //Description Dialog
   gbDescDialog = new QGroupBox("Description Dialog Content",parent);
   gbDescDialog->hide();
-  QVBoxLayout *vLayout = new QVBoxLayout(NULL);
+  QVBoxLayout *vLayout = new QVBoxLayout(nullptr);
   //hLayout = new QHBoxLayout();
   gbDescDialog->setLayout(vLayout);
   //gbDescDialog->setLayout(hLayout);
@@ -912,7 +912,7 @@ PageAttributeTextGui::PageAttributeTextGui(
   //Disclaimer Dialog
   gbDiscDialog = new QGroupBox("Disclaimer Dialog Content",parent);
   gbDiscDialog->hide();
-  vLayout = new QVBoxLayout(NULL);
+  vLayout = new QVBoxLayout(nullptr);
   //hLayout = new QHBoxLayout();
   gbDiscDialog->setLayout(vLayout);
   //gbDiscDialog->setLayout(hLayout);
@@ -1383,7 +1383,7 @@ HeaderFooterHeightGui::HeaderFooterHeightGui(
     label = new QLabel(heading,parent);
     layout->addWidget(label);
   } else {
-    label = NULL;
+    label = nullptr;
   }
 
   QString      string;
@@ -2771,7 +2771,7 @@ PliSortGui::PliSortGui(
     headingLabel = new QLabel(heading,parent);
     grid->addWidget(headingLabel);
   } else {
-    headingLabel = NULL;
+    headingLabel = nullptr;
   }
 
   QLabel      *label;
@@ -2836,7 +2836,7 @@ PliAnnotationGui::PliAnnotationGui(
       headingLabel = new QLabel(heading,parent);
       grid->addWidget(headingLabel);
     } else {
-      headingLabel = NULL;
+      headingLabel = nullptr;
     }
 
   //PLIAnnotation
@@ -2946,7 +2946,7 @@ PageOrientationGui::PageOrientationGui(
     label = new QLabel(heading);
     grid->addWidget(label,0,0);
   } else {
-    label = NULL;
+    label = nullptr;
   }
 
   /* page orientation */
@@ -3016,7 +3016,7 @@ RotateIconSizeGui::RotateIconSizeGui(
     label = new QLabel(heading);
     grid->addWidget(label,0,0);
   } else {
-    label = NULL;
+    label = nullptr;
   }
 
   QString string;
@@ -3132,7 +3132,7 @@ PageSizeGui::PageSizeGui(
     label = new QLabel(heading);
     grid->addWidget(label,0,0);
   } else {
-    label = NULL;
+    label = nullptr;
   }
 
   /* page size */
@@ -3345,7 +3345,7 @@ SizeAndOrientationGui::SizeAndOrientationGui(
     label = new QLabel(heading);
     grid->addWidget(label,0,0);
   } else {
-    label = NULL;
+    label = nullptr;
   }
 
 //  logNotice() << " \nSizeAndOrientationGui Initialized:" <<
@@ -3444,7 +3444,7 @@ SizeAndOrientationGui::SizeAndOrientationGui(
     setEnabled(false);
 
   //spacer
-  QHBoxLayout *hLayout = new QHBoxLayout(NULL);
+  QHBoxLayout *hLayout = new QHBoxLayout(nullptr);
   if (heading == "")
     grid->addLayout(hLayout,1,0);
   else

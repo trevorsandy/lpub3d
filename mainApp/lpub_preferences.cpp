@@ -313,7 +313,7 @@ void Preferences::lpubPreferences()
 
 #ifdef Q_OS_WIN //... Windows portable or installed
 
-       portableDistribution = QDir(lpub3dPath + "/extras").exists();
+    portableDistribution = QDir(lpub3dPath + "/extras").exists();
 
     if (portableDistribution) { // we have a portable distribution
 
@@ -361,7 +361,7 @@ void Preferences::lpubPreferences()
 
                 if (box.exec() == QMessageBox::Yes) {   // capture user's choice for user data directory
 
-                    QString result = QFileDialog::getExistingDirectory(NULL,
+                    QString result = QFileDialog::getExistingDirectory(nullptr,
                                                                        QFileDialog::tr("Select Directory"),
                                                                        lpubDataPath,
                                                                        QFileDialog::ShowDirsOnly |
@@ -671,7 +671,7 @@ void Preferences::lpub3dLibPreferences(bool force)
     // Request to open a dialogue to select library path
     if (! lpub3dLibFile.isEmpty() && force){
 
-        QString result = QFileDialog::getOpenFileName(NULL,
+        QString result = QFileDialog::getOpenFileName(nullptr,
                                                       QFileDialog::tr("Select LDraw Library Archive"),
                                                       lpub3dLibFile,
                                                       filter);
@@ -692,7 +692,7 @@ void Preferences::lpub3dLibPreferences(bool force)
         bool archivesExist = validFile.exists();
 
         // DEBUG DEBUG DEBUG
-        //        QMessageBox::information(NULL,
+        //        QMessageBox::information(nullptr,
         //                                 QMessageBox::tr("LPub3D"),
         //                                 QMessageBox::tr("lpub3dPath: (%1)\n\n"
         //                                                 "lpub3dExtrasResourcePath [dataLocation]: (%2)\n\n"
@@ -756,7 +756,7 @@ void Preferences::lpub3dLibPreferences(bool force)
             if (box.clickedButton()==selectButton) {
                 emit Application::instance()->splashMsgSig("10% - Selecting archive libraries...");
 
-                QFileDialog dlgGetFileName(NULL,QFileDialog::tr("Select LDraw Library Archive "));
+                QFileDialog dlgGetFileName(nullptr,QFileDialog::tr("Select LDraw Library Archive "));
                 dlgGetFileName.setDirectory(lpubDataPath);
                 dlgGetFileName.setNameFilter(filter);
 
@@ -796,7 +796,7 @@ void Preferences::lpub3dLibPreferences(bool force)
 
                     UpdateCheck *libraryDownload;
                     QEventLoop  *wait = new QEventLoop();
-                    libraryDownload  = new UpdateCheck(NULL, (void*)LDrawOfficialLibraryDirectDownload);
+                    libraryDownload  = new UpdateCheck(nullptr, (void*)LDrawOfficialLibraryDirectDownload);
                     wait->connect(libraryDownload, SIGNAL(downloadFinished(QString,QString)), wait, SLOT(quit()));
                     wait->connect(libraryDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
                     libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), libraryDir.absolutePath());
@@ -813,7 +813,7 @@ void Preferences::lpub3dLibPreferences(bool force)
 
                         exit(-1);
                     }
-                    libraryDownload  = new UpdateCheck(NULL, (void*)LDrawUnofficialLibraryDirectDownload);
+                    libraryDownload  = new UpdateCheck(nullptr, (void*)LDrawUnofficialLibraryDirectDownload);
                     wait->connect(libraryDownload, SIGNAL(downloadFinished(QString,QString)), wait, SLOT(quit()));
                     wait->connect(libraryDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
                     libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), libraryDir.absolutePath());
@@ -1165,7 +1165,7 @@ void Preferences::ldrawPreferences(bool force)
 #else
                     QString filter(QMessageBox::tr("All Files (*.*)"));
 #endif
-                    altLDConfigPath = QFileDialog::getOpenFileName(NULL,
+                    altLDConfigPath = QFileDialog::getOpenFileName(nullptr,
                                                                    QFileDialog::tr("Select LDRaw LDConfig file"),
                                                                    ldrawPath,
                                                                    filter);
@@ -1185,6 +1185,7 @@ void Preferences::ldrawPreferences(bool force)
             }
         }
     }
+
 #ifdef Q_OS_MAC
     if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isHidden())
         Application::instance()->splash->show();
@@ -2574,7 +2575,7 @@ bool Preferences::getPreferences()
                     QDir searchDir(dirPath);
                     bool invalidSearchDir = dirPath.contains(unoffDirPath.toLower()) && !dirPath.contains(customDirPath.toLower());
                     if (!searchDir.exists() || (dirPath.size() > 1 && invalidSearchDir && dirPath.toLower() != modelsDirPath.toLower())){
-                        QMessageBox::warning(NULL,
+                        QMessageBox::warning(nullptr,
                                              QMessageBox::tr("LPub3D"),
                                              QMessageBox::tr("%1 is not a valid directory.\nAdded directories must be under the Unofficial directory. This path will not be saved.")
                                              .arg(dirPath));

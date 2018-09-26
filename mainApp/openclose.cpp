@@ -285,6 +285,8 @@ void Gui::closeFile()
   setPageLineEdit->clear();
   pageSizes.clear();
   undoStack->clear();
+  if (!curFile.isEmpty())
+      emit messageSig(LOG_INFO, QString("File %1 closed.").arg(curFile));
 }
 
 void Gui::closeModelFile(){
@@ -302,6 +304,7 @@ void Gui::closeModelFile(){
     }
   }
 #endif
+  QString topModel = ldrawFile.topLevelFile();
   //3D Viewer
   emit clearViewerWindowSig();
   emit updateAllViewsSig();
@@ -311,6 +314,7 @@ void Gui::closeModelFile(){
   disableActions();
   disableActions2();
   closeFile();
+  emit messageSig(LOG_INFO, QString("Model %1 unloaded.").arg(topModel));
   curFile.clear();
 }
 /***************************************************************************
