@@ -65,40 +65,37 @@ void EditWindow::createActions()
 {
     cutAct = new QAction(QIcon(":/resources/cut.png"), tr("Cu&t"), this);
     cutAct->setShortcut(tr("Ctrl+X"));
-    cutAct->setStatusTip(tr("Cut the current selection's contents to the "
-                            "clipboard"));
+    cutAct->setStatusTip(tr("Cut the current selection's contents to the clipboard - Ctrl+X"));
     connect(cutAct, SIGNAL(triggered()), _textEdit, SLOT(cut()));
 
     copyAct = new QAction(QIcon(":/resources/copy.png"), tr("&Copy"), this);
     copyAct->setShortcut(tr("Ctrl+C"));
-    copyAct->setStatusTip(tr("Copy the current selection's contents to the "
-                             "clipboard"));
+    copyAct->setStatusTip(tr("Copy the current selection's contents to the clipboard - Ctrl+C"));
     connect(copyAct, SIGNAL(triggered()), _textEdit, SLOT(copy()));
 
     pasteAct = new QAction(QIcon(":/resources/paste.png"), tr("&Paste"), this);
     pasteAct->setShortcut(tr("Ctrl+V"));
-    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
-                              "selection"));
+    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current selection - Ctrl+V"));
     connect(pasteAct, SIGNAL(triggered()), _textEdit, SLOT(paste()));
 
     findAct = new QAction(QIcon(":/resources/find.png"), tr("&Find"), this);
     findAct->setShortcut(tr("Ctrl+F"));
-    findAct->setStatusTip(tr("Find object "));
+    findAct->setStatusTip(tr("Find object - Ctrl+F"));
     connect(findAct, SIGNAL(triggered()), _textEdit, SLOT(findDialog()));
 
     redrawAct = new QAction(QIcon(":/resources/redraw.png"), tr("&Redraw"), this);
     redrawAct->setShortcut(tr("Ctrl+R"));
-    redrawAct->setStatusTip(tr("Redraw page"));
+    redrawAct->setStatusTip(tr("Redraw page - Ctrl+R"));
     connect(redrawAct, SIGNAL(triggered()), this, SLOT(redraw()));
 
     delAct = new QAction(QIcon(":/resources/delete.png"), tr("&Delete"), this);
     delAct->setShortcut(tr("DEL"));
-    delAct->setStatusTip(tr("Delete the selection"));
+    delAct->setStatusTip(tr("Delete the selection - DEL"));
     connect(delAct, SIGNAL(triggered()), _textEdit, SLOT(cut()));
 
     selAllAct = new QAction(QIcon(":/resources/selectall.png"), tr("&Select All"), this);
     selAllAct->setShortcut(tr("Ctrl+A"));
-    selAllAct->setStatusTip(tr("Select all page content"));
+    selAllAct->setStatusTip(tr("Select all page content - Ctrl+A"));
     connect(selAllAct, SIGNAL(triggered()), _textEdit, SLOT(selectAll()));
 
     cutAct->setEnabled(false);

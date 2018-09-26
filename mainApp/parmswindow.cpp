@@ -64,76 +64,75 @@ void ParmsWindow::createActions()
 {
     exitAct = new QAction(QIcon(":/resources/exit.png"),tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
-    exitAct->setStatusTip(tr("Exit the application"));
+    exitAct->setStatusTip(tr("Exit the application - Ctrl+Q"));
 
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
     openAct = new QAction(QIcon(":/resources/open.png"), tr("&Open Stderr or Stdout log"), this);
     openAct->setShortcut(tr("Ctrl+O"));
-    openAct->setStatusTip(tr("Open stdout or stderr log file for loaded model"));
+    openAct->setStatusTip(tr("Open stdout or stderr log file for loaded model - Ctrl+O"));
 
     connect(openAct, SIGNAL(triggered()), this, SLOT(openFile()));
 
     refreshAct = new QAction(QIcon(":/resources/redraw.png"), tr("&Refresh file"), this);
-    refreshAct->setShortcut(tr("Ctrl+O"));
-    refreshAct->setStatusTip(tr("Reload the current file to see updated content"));
+    refreshAct->setShortcut(tr("Ctrl+Alt+O"));
+    refreshAct->setStatusTip(tr("Reload the current file to see updated content - Ctrl+Alt+O"));
 
     connect(refreshAct, SIGNAL(triggered()), this, SLOT(refreshFile()));
 
     cutAct = new QAction(QIcon(":/resources/cut.png"), tr("Cu&t"), this);
     cutAct->setShortcut(tr("Ctrl+X"));
-    cutAct->setStatusTip(tr("Cut the current selection's contents to the "
-                            "clipboard"));
+    cutAct->setStatusTip(tr("Cut the current selection's contents to the clipboard - Ctrl+X"));
     connect(cutAct, SIGNAL(triggered()), _textEdit, SLOT(cut()));
 
     copyAct = new QAction(QIcon(":/resources/copy.png"), tr("&Copy"), this);
     copyAct->setShortcut(tr("Ctrl+C"));
-    copyAct->setStatusTip(tr("Copy the current selection's contents to the "
-                             "clipboard"));
+    copyAct->setStatusTip(tr("Copy the current selection's contents to the clipboard - Ctrl+C"));
     connect(copyAct, SIGNAL(triggered()), _textEdit, SLOT(copy()));
 
     pasteAct = new QAction(QIcon(":/resources/paste.png"), tr("&Paste"), this);
     pasteAct->setShortcut(tr("Ctrl+V"));
-    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
-                              "selection"));
+    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current selection - Ctrl+V"));
     connect(pasteAct, SIGNAL(triggered()), _textEdit, SLOT(paste()));
 
     findAct = new QAction(QIcon(":/resources/find.png"), tr("&Find"), this);
     findAct->setShortcut(tr("Ctrl+F"));
-    findAct->setStatusTip(tr("Find object "));
+    findAct->setStatusTip(tr("Find object - Ctrl+F"));
     connect(findAct, SIGNAL(triggered()), _textEdit, SLOT(findDialog()));
 
     saveAct = new QAction(QIcon(":/resources/save.png"), tr("&Save"), this);
     saveAct->setShortcut(tr("Ctrl+S"));
-    saveAct->setStatusTip(tr("Save the document to disk"));
+    saveAct->setStatusTip(tr("Save the document to disk - Ctrl+S"));
     connect(saveAct, SIGNAL(triggered()), this, SLOT(saveFile()));
 
     saveCopyAsAct = new QAction(QIcon(":/resources/saveas.png"), tr("Save Copy &As"), this);
-    saveCopyAsAct->setStatusTip(tr("Save a copy of the document as... to disk"));
+    saveCopyAsAct->setShortcut(tr("Ctrl+Alt+S"));
+    saveCopyAsAct->setStatusTip(tr("Save a copy of the document as... to disk - Ctrl+Alt+S"));
     connect(saveCopyAsAct, SIGNAL(triggered()), this, SLOT(saveCopyAsFile()));
 
     delAct = new QAction(QIcon(":/resources/delete.png"), tr("&Delete"), this);
     delAct->setShortcut(tr("DEL"));
-    delAct->setStatusTip(tr("Delete the selection"));
+    delAct->setStatusTip(tr("Delete the selection - DEL"));
     connect(delAct, SIGNAL(triggered()), _textEdit, SLOT(cut()));
 
     selAllAct = new QAction(QIcon(":/resources/selectall.png"), tr("&Select All"), this);
     selAllAct->setShortcut(tr("Ctrl+A"));
-    selAllAct->setStatusTip(tr("Select all page content"));
+    selAllAct->setStatusTip(tr("Select all page content - Ctrl+A"));
     connect(selAllAct, SIGNAL(triggered()), _textEdit, SLOT(selectAll()));
 
     undoAct = new QAction(QIcon(":/resources/editundo.png"), tr("Undo"), this);
     undoAct->setShortcut(tr("Ctrl+Z"));
-    undoAct->setStatusTip(tr("Undo last change"));
+    undoAct->setStatusTip(tr("Undo last change - Ctrl+Z"));
     undoAct->setEnabled(false);
     connect(undoAct, SIGNAL(triggered()), _textEdit, SLOT(undo()));
     redoAct = new QAction(QIcon(":/resources/editredo.png"), tr("Redo"), this);
 #ifdef __APPLE__
     redoAct->setShortcut(tr("Ctrl+Shift+Z"));
+    redoAct->setStatusTip(tr("Redo last change - Ctrl+Shift+Z"));
 #else
     redoAct->setShortcut(tr("Ctrl+Y"));
+    redoAct->setStatusTip(tr("Redo last change - Ctrl+Y"));
 #endif
-    redoAct->setStatusTip(tr("Redo last change"));
     redoAct->setEnabled(false);
     connect(redoAct, SIGNAL(triggered()), _textEdit, SLOT(redo()));
 

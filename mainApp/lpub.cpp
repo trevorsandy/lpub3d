@@ -2488,24 +2488,24 @@ void Gui::createActions()
 {
     openAct = new QAction(QIcon(":/resources/open.png"), tr("&Open..."), this);
     openAct->setShortcut(tr("Ctrl+O"));
-    openAct->setStatusTip(tr("Open an existing file"));
+    openAct->setStatusTip(tr("Open an existing file - Ctrl+O"));
     connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 
     saveAct = new QAction(QIcon(":/resources/save.png"), tr("&Save"), this);
     saveAct->setShortcut(tr("Ctrl+S"));
-    saveAct->setStatusTip(tr("Save the document to disk"));
+    saveAct->setStatusTip(tr("Save the document to disk - Ctrl+S"));
     saveAct->setEnabled(false);
     connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
 
     saveAsAct = new QAction(QIcon(":/resources/saveas.png"),tr("Save A&s..."), this);
     saveAsAct->setShortcut(tr("Ctrl+Shift+S"));
-    saveAsAct->setStatusTip(tr("Save the document under a new name"));
+    saveAsAct->setStatusTip(tr("Save the document under a new name - Ctrl+Shift+S"));
     saveAsAct->setEnabled(false);
     connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
     closeFileAct = new QAction(QIcon(":/resources/closemodelfile.png"), tr("Cl&ose..."), this);
     closeFileAct->setShortcut(tr("Ctrl+O"));
-    closeFileAct->setStatusTip(tr("Close an existing file"));
+    closeFileAct->setStatusTip(tr("Close an existing file - Ctrl+O"));
     closeFileAct->setEnabled(false);
     connect(closeFileAct, SIGNAL(triggered()), this, SLOT(closeModelFile()));
 
@@ -2517,37 +2517,37 @@ void Gui::createActions()
 
     exportAsPdfPreviewAct = new QAction(QIcon(":/resources/pdf_print_preview.png"), tr("PDF Export Preview..."), this);
     exportAsPdfPreviewAct->setShortcut(tr("Alt+P"));
-    exportAsPdfPreviewAct->setStatusTip(tr("Preview the current document to be printed"));
+    exportAsPdfPreviewAct->setStatusTip(tr("Preview the current document to be printed - Alt+P"));
     exportAsPdfPreviewAct->setEnabled(false);
     connect(exportAsPdfPreviewAct, SIGNAL(triggered()), this, SLOT(TogglePrintPreview()));
 
     exportAsPdfAct = new QAction(QIcon(":/resources/pdf_logo.png"), tr("Export to PDF &File"), this);
     exportAsPdfAct->setShortcut(tr("Alt+F"));
-    exportAsPdfAct->setStatusTip(tr("Export your document to a pdf file"));
+    exportAsPdfAct->setStatusTip(tr("Export your document to a pdf file - Alt+F"));
     exportAsPdfAct->setEnabled(false);
     connect(exportAsPdfAct, SIGNAL(triggered()), this, SLOT(exportAsPdfDialog()));
 
     exportPngAct = new QAction(QIcon(":/resources/exportpng.png"),tr("Export As P&NG Images"), this);
     exportPngAct->setShortcut(tr("Alt+N"));
-    exportPngAct->setStatusTip(tr("Export your document as a sequence of PNG images"));
+    exportPngAct->setStatusTip(tr("Export your document as a sequence of PNG images - Alt+N"));
     exportPngAct->setEnabled(false);
     connect(exportPngAct, SIGNAL(triggered()), this, SLOT(exportAsPngDialog()));
 
     exportJpgAct = new QAction(QIcon(":/resources/exportjpeg.png"),tr("Export As &JPEG Images"), this);
     exportJpgAct->setShortcut(tr("Alt+J"));
-    exportJpgAct->setStatusTip(tr("Export your document as a sequence of JPEG images"));
+    exportJpgAct->setStatusTip(tr("Export your document as a sequence of JPEG images - Alt+J"));
     exportJpgAct->setEnabled(false);
     connect(exportJpgAct, SIGNAL(triggered()), this, SLOT(exportAsJpgDialog()));
 
     exportBmpAct = new QAction(QIcon(":/resources/exportbmp.png"),tr("Export As &Bitmap Images"), this);
     exportBmpAct->setShortcut(tr("Alt+B"));
-    exportBmpAct->setStatusTip(tr("Export your document as a sequence of bitmap images"));
+    exportBmpAct->setStatusTip(tr("Export your document as a sequence of bitmap images - Alt+B"));
     exportBmpAct->setEnabled(false);
     connect(exportBmpAct, SIGNAL(triggered()), this, SLOT(exportAsBmpDialog()));
 
     exitAct = new QAction(QIcon(":/resources/exit.png"),tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
-    exitAct->setStatusTip(tr("Exit the application"));
+    exitAct->setStatusTip(tr("Exit the application - Ctrl+Q"));
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
     for (int i = 0; i < MaxRecentFiles; i++) {
@@ -2564,70 +2564,71 @@ void Gui::createActions()
 
     undoAct = new QAction(QIcon(":/resources/editundo.png"), tr("Undo"), this);
     undoAct->setShortcut(tr("Ctrl+Z"));
-    undoAct->setStatusTip(tr("Undo last change"));
+    undoAct->setStatusTip(tr("Undo last change - Ctrl+Z"));
     undoAct->setEnabled(false);
     connect(undoAct, SIGNAL(triggered()), this, SLOT(undo()));
     redoAct = new QAction(QIcon(":/resources/editredo.png"), tr("Redo"), this);
 #ifdef __APPLE__
     redoAct->setShortcut(tr("Ctrl+Shift+Z"));
+    redoAct->setStatusTip(tr("Redo last change - Ctrl+Shift+Z"));
 #else
     redoAct->setShortcut(tr("Ctrl+Y"));
+    redoAct->setStatusTip(tr("Redo last change - Ctrl+Y"));
 #endif
-    redoAct->setStatusTip(tr("Redo last change"));
     redoAct->setEnabled(false);
     connect(redoAct, SIGNAL(triggered()), this, SLOT(redo()));
 
     insertCoverPageAct = new QAction(QIcon(":/resources/insertcoverpage.png"),tr("Insert Front Cover Page"),this);
     insertCoverPageAct->setShortcut(tr("Ctrl+Alt+F"));
-    insertCoverPageAct->setStatusTip(tr("Insert a front cover page"));
+    insertCoverPageAct->setStatusTip(tr("Insert a front cover page - Ctrl+Alt+F"));
     insertCoverPageAct->setEnabled(false);
     connect(insertCoverPageAct, SIGNAL(triggered()), this, SLOT(insertCoverPage()));
 
     appendCoverPageAct = new QAction(QIcon(":/resources/appendcoverpage.png"),tr("Append Back Cover Page"),this);
     appendCoverPageAct->setShortcut(tr("Ctrl+Alt+B"));
-    appendCoverPageAct->setStatusTip(tr("Append back cover page"));
+    appendCoverPageAct->setStatusTip(tr("Append back cover page - Ctrl+Alt+B"));
     appendCoverPageAct->setEnabled(false);
     connect(appendCoverPageAct, SIGNAL(triggered()), this, SLOT(appendCoverPage()));
 
     insertNumberedPageAct = new QAction(QIcon(":/resources/insertpage.png"),tr("Insert Page"),this);
     insertNumberedPageAct->setShortcut(tr("Ctrl+Alt+I"));
-    insertNumberedPageAct->setStatusTip(tr("Insert a numbered page"));
+    insertNumberedPageAct->setStatusTip(tr("Insert a numbered page - Ctrl+Alt+I"));
     insertNumberedPageAct->setEnabled(false);
     connect(insertNumberedPageAct, SIGNAL(triggered()), this, SLOT(insertNumberedPage()));
 
     appendNumberedPageAct = new QAction(QIcon(":/resources/appendpage.png"),tr("Append Page"),this);
     appendNumberedPageAct->setShortcut(tr("Ctrl+Alt+A"));
-    appendNumberedPageAct->setStatusTip(tr("Append a numbered page"));
+    appendNumberedPageAct->setStatusTip(tr("Append a numbered page - Ctrl+Alt+A"));
     appendNumberedPageAct->setEnabled(false);
     connect(appendNumberedPageAct, SIGNAL(triggered()), this, SLOT(appendNumberedPage()));
 
     deletePageAct = new QAction(QIcon(":/resources/deletepage.png"),tr("Delete Page"),this);
     deletePageAct->setShortcut(tr("Ctrl+Alt+D"));
-    deletePageAct->setStatusTip(tr("Delete this page"));
+    deletePageAct->setStatusTip(tr("Delete this page - Ctrl+Alt+D"));
     deletePageAct->setEnabled(false);
     connect(deletePageAct, SIGNAL(triggered()), this, SLOT(deletePage()));
 
     addPictureAct = new QAction(QIcon(":/resources/addpicture.png"),tr("Add Picture"),this);
     addPictureAct->setShortcut(tr("Ctrl+Alt+P"));
-    addPictureAct->setStatusTip(tr("Add a picture to this page"));
+    addPictureAct->setStatusTip(tr("Add a picture to this page - Ctrl+Alt+P"));
     addPictureAct->setEnabled(false);
     connect(addPictureAct, SIGNAL(triggered()), this, SLOT(addPicture()));
 
     addTextAct = new QAction(QIcon(":/resources/addtext.png"),tr("Add Text"),this);
     addTextAct->setShortcut(tr("Ctrl+Alt+T"));
-    addTextAct->setStatusTip(tr("Add text to this page"));
+    addTextAct->setStatusTip(tr("Add text to this page - Ctrl+Alt+T"));
     addTextAct->setEnabled(false);
     connect(addTextAct, SIGNAL(triggered()), this, SLOT(addText()));
 
     addBomAct = new QAction(QIcon(":/resources/addbom.png"),tr("Add Bill of Materials"),this);
     addBomAct->setShortcut(tr("Ctrl+Alt+M"));
-    addBomAct->setStatusTip(tr("Add Bill of Materials to this page"));
+    addBomAct->setStatusTip(tr("Add Bill of Materials to this page - Ctrl+Alt+M"));
     addBomAct->setEnabled(false);
     connect(addBomAct, SIGNAL(triggered()), this, SLOT(addBom()));
 
     removeLPubFormattingAct = new QAction(QIcon(":/resources/removelpubformat.png"),tr("Remove LPub Formatting"),this);
     removeLPubFormattingAct->setShortcut(tr("Ctrl+Alt+R"));
-    removeLPubFormattingAct->setStatusTip(tr("Remove all LPub metacommands from all files"));
+    removeLPubFormattingAct->setStatusTip(tr("Remove all LPub metacommands from all files - Ctrl+Alt+R"));
     removeLPubFormattingAct->setEnabled(false);
     connect(removeLPubFormattingAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
 
@@ -2635,27 +2636,27 @@ void Gui::createActions()
 
     fitWidthAct = new QAction(QIcon(":/resources/fitWidth.png"), tr("Fit &Width"), this);
     fitWidthAct->setShortcut(tr("Alt+W"));
-    fitWidthAct->setStatusTip(tr("Fit document to width"));
+    fitWidthAct->setStatusTip(tr("Fit document to width - Alt+W"));
     fitWidthAct->setEnabled(false);
     connect(fitWidthAct, SIGNAL(triggered()), this, SLOT(fitWidth()));
 
     fitVisibleAct = new QAction(QIcon(":/resources/fitVisible.png"), tr("Fit &Visible"), this);
     fitVisibleAct->setShortcut(tr("Alt+V"));
-    fitVisibleAct->setStatusTip(tr("Fit document so whole page is visible"));
+    fitVisibleAct->setStatusTip(tr("Fit document so whole page is visible - Alt+V"));
     fitVisibleAct->setEnabled(false);
     connect(fitVisibleAct, SIGNAL(triggered()), this, SLOT(fitVisible()));
 
     pageRulerAct = new QAction(QIcon(":/resources/pageruler.png"), tr("Page &Ruler"), this);
-    pageRulerAct->setShortcut(tr("Alt+V"));
-    pageRulerAct->setStatusTip(tr("Display the page ruler"));
+    pageRulerAct->setShortcut(tr("Alt+U"));
+    pageRulerAct->setStatusTip(tr("Display the page ruler - Alt+U"));
     pageRulerAct->setEnabled(true);
     pageRulerAct->setCheckable(true);
     pageRulerAct->setChecked(Preferences::pageRuler);
     connect(pageRulerAct, SIGNAL(triggered()), this, SLOT(pageRuler()));
 
     pageGuidesAct = new QAction(QIcon(":/resources/pageguides.png"), tr("Page &Guides"), this);
-    pageGuidesAct->setShortcut(tr("Alt+V"));
-    pageGuidesAct->setStatusTip(tr("Display horizontal and vertical guides"));
+    pageGuidesAct->setShortcut(tr("Alt+G"));
+    pageGuidesAct->setStatusTip(tr("Display horizontal and vertical guides - Alt+G"));
     pageGuidesAct->setEnabled(true);
     pageGuidesAct->setCheckable(true);
     pageGuidesAct->setChecked(Preferences::pageGuides);
@@ -2663,7 +2664,7 @@ void Gui::createActions()
 
     actualSizeAct = new QAction(QIcon(":/resources/actual.png"),tr("&Actual Size"), this);
     actualSizeAct->setShortcut(tr("Alt+A"));
-    actualSizeAct->setStatusTip(tr("Show document actual size"));
+    actualSizeAct->setStatusTip(tr("Show document actual size - Alt+A"));
     actualSizeAct->setEnabled(false);
     connect(actualSizeAct, SIGNAL(triggered()), this, SLOT(actualSize()));
 
@@ -2674,13 +2675,13 @@ void Gui::createActions()
 
     zoomInAct = new QAction(QIcon(":/resources/zoomin.png"), tr("&Zoom In"), this);
     zoomInAct->setShortcut(tr("Ctrl++"));
-    zoomInAct->setStatusTip(tr("Zoom in"));
+    zoomInAct->setStatusTip(tr("Zoom in - Ctrl++"));
     zoomInAct->setEnabled(false);
     connect(zoomInAct, SIGNAL(triggered()), this, SLOT(zoomIn()));
 
     zoomOutAct = new QAction(QIcon(":/resources/zoomout.png"),tr("Zoom &Out"),this);
     zoomOutAct->setShortcut(tr("Ctrl+-"));
-    zoomOutAct->setStatusTip(tr("Zoom out"));
+    zoomOutAct->setStatusTip(tr("Zoom out - Ctrl+-"));
     zoomOutAct->setEnabled(false);
     connect(zoomOutAct, SIGNAL(triggered()), this, SLOT(zoomOut()));
 
@@ -2688,48 +2689,48 @@ void Gui::createActions()
 
     firstPageAct = new QAction(QIcon(":/resources/first.png"),tr("First Page"), this);
     firstPageAct->setShortcut(tr("Ctrl+P"));
-    firstPageAct->setStatusTip(tr("Go to first page of document"));
+    firstPageAct->setStatusTip(tr("Go to first page of document - Ctrl+P"));
     firstPageAct->setEnabled(false);
     connect(firstPageAct, SIGNAL(triggered()), this, SLOT(firstPage()));
 
     lastPageAct = new QAction(QIcon(":/resources/last.png"),tr("Last Page"), this);
     lastPageAct->setShortcut(tr("Ctrl+L"));
-    lastPageAct->setStatusTip(tr("Go to last page of document"));
+    lastPageAct->setStatusTip(tr("Go to last page of document - Ctrl+L"));
     lastPageAct->setEnabled(false);
     connect(lastPageAct, SIGNAL(triggered()), this, SLOT(lastPage()));
 
     nextPageAct = new QAction(QIcon(":/resources/next.png"),tr("&Next Page"),this);
     nextPageAct->setShortcut(tr("Ctrl+N"));
-    nextPageAct->setStatusTip(tr("Go to next page of document"));
+    nextPageAct->setStatusTip(tr("Go to next page of document - Ctrl+N"));
     nextPageAct->setEnabled(false);
     connect(nextPageAct, SIGNAL(triggered()), this, SLOT(nextPage()));
 
     previousPageAct = new QAction(QIcon(":/resources/prev.png"),tr("&Previous Page"),this);
     previousPageAct->setShortcut(tr("Ctrl+E"));
-    previousPageAct->setStatusTip(tr("Go to previous page of document"));
+    previousPageAct->setStatusTip(tr("Go to previous page of document - Ctrl+E"));
     previousPageAct->setEnabled(false);
     connect(previousPageAct, SIGNAL(triggered()), this, SLOT(previousPage()));
 
     // nextContinuousPage,previousContinuousPage
     nextPageComboAct = new QAction(QIcon(":/resources/next.png"),tr("&Next Page"),this);
-    nextPageComboAct->setStatusTip(tr("Go to next page of document"));
+    nextPageComboAct->setStatusTip(tr("Go to next page of document - Ctrl+N"));
     nextPageComboAct->setEnabled(false);
     connect(nextPageComboAct, SIGNAL(triggered()), this, SLOT(nextPage()));
 
     previousPageComboAct = new QAction(QIcon(":/resources/prev.png"),tr("&Previous Page"),this);
-    previousPageComboAct->setStatusTip(tr("Go to previous page of document"));
+    previousPageComboAct->setStatusTip(tr("Go to previous page of document - Ctrl+E"));
     previousPageComboAct->setEnabled(false);
     connect(previousPageComboAct, SIGNAL(triggered()), this, SLOT(previousPage()));
 
     nextPageContinuousAct = new QAction(QIcon(":/resources/nextpagecontinuous.png"),tr("Continuous Next Page"),this);
     nextPageContinuousAct->setShortcut(tr("Ctrl+Shift+N"));
-    nextPageContinuousAct->setStatusTip(tr("Continuously process next document page"));
+    nextPageContinuousAct->setStatusTip(tr("Continuously process next document page - Ctrl+Shift+N"));
     nextPageContinuousAct->setEnabled(false);
     connect(nextPageContinuousAct, SIGNAL(triggered()), this, SLOT(nextPageContinuous()));
 
     previousPageContinuousAct = new QAction(QIcon(":/resources/prevpagecontinuous.png"),tr("Continuous Previous Page"),this);
     previousPageContinuousAct->setShortcut(tr("Ctrl+Shift+E"));
-    previousPageContinuousAct->setStatusTip(tr("Continuously process previous document page"));
+    previousPageContinuousAct->setStatusTip(tr("Continuously process previous document page - Ctrl+Shift+E"));
     previousPageContinuousAct->setEnabled(false);
     connect(previousPageContinuousAct, SIGNAL(triggered()), this, SLOT(previousPageContinuous()));
 
@@ -2744,24 +2745,29 @@ void Gui::createActions()
     connect(setPageLineEdit, SIGNAL(returnPressed()), this, SLOT(setPage()));
 
     clearPLICacheAct = new QAction(QIcon(":/resources/clearplicache.png"),tr("Reset Parts Image Cache"), this);
-    clearPLICacheAct->setStatusTip(tr("Reset the parts list image cache"));
+    clearPLICacheAct->setShortcut(tr("Alt+R"));
+    clearPLICacheAct->setStatusTip(tr("Reset the parts list image cache - Alt+R"));
     connect(clearPLICacheAct, SIGNAL(triggered()), this, SLOT(clearPLICache()));
 
     clearCSICacheAct = new QAction(QIcon(":/resources/clearcsicache.png"),tr("Reset Assembly Image Cache"), this);
-    clearCSICacheAct->setStatusTip(tr("Reset the assembly image cache"));
+    clearCSICacheAct->setShortcut(tr("Alt+S"));
+    clearCSICacheAct->setStatusTip(tr("Reset the assembly image cache - Alt+S"));
     connect(clearCSICacheAct, SIGNAL(triggered()), this, SLOT(clearCSICache()));
 
     clearTempCacheAct = new QAction(QIcon(":/resources/cleartempcache.png"),tr("Reset Temp File Cache"), this);
-    clearTempCacheAct->setStatusTip(tr("Reset the Temp file and 3D viewer image cache"));
+    clearTempCacheAct->setShortcut(tr("Alt+T"));
+    clearTempCacheAct->setStatusTip(tr("Reset the Temp file and 3D viewer image cache - Alt+T"));
     connect(clearTempCacheAct, SIGNAL(triggered()), this, SLOT(clearTempCache()));
 
     clearAllCachesAct = new QAction(QIcon(":/resources/clearimagemodelcache.png"),tr("Reset Model Caches"), this);
-    clearAllCachesAct->setStatusTip(tr("Reset model file Parts, Assembly and Temp file caches"));
+    clearAllCachesAct->setShortcut(tr("Alt+M"));
+    clearAllCachesAct->setStatusTip(tr("Reset model file Parts, Assembly and Temp file caches - Alt+M"));
     connect(clearAllCachesAct, SIGNAL(triggered()), this, SLOT(clearAllCaches()));
 
-    clearFadeCacheAct = new QAction(QIcon(":/resources/clearcustompartcache.png"),tr("Reset Custom Files Cache"), this);
-    clearFadeCacheAct->setStatusTip(tr("Reset fade and highlight part files cache"));
-    connect(clearFadeCacheAct, SIGNAL(triggered()), this, SLOT(clearCustomPartCache()));
+    clearCustomPartCacheAct = new QAction(QIcon(":/resources/clearcustompartcache.png"),tr("Reset Custom Files Cache"), this);
+    clearCustomPartCacheAct->setShortcut(tr("Alt+C"));
+    clearCustomPartCacheAct->setStatusTip(tr("Reset fade and highlight part files cache - Alt+C"));
+    connect(clearCustomPartCacheAct, SIGNAL(triggered()), this, SLOT(clearCustomPartCache()));
 
     refreshLDrawUnoffPartsAct = new QAction(QIcon(":/resources/refreshunoffarchive.png"),tr("Refresh LDraw Unofficial Parts"), this);
     refreshLDrawUnoffPartsAct->setStatusTip(tr("Download and replace LDraw Unofficial parts archive file"));
@@ -2897,7 +2903,8 @@ void Gui::createActions()
     connect(updateAppAct, SIGNAL(triggered()), this, SLOT(updateCheck()));
 
     viewLogAct = new QAction(QIcon(":/resources/viewlog.png"),tr("View %1 log").arg(VER_PRODUCTNAME_STR), this);
-    viewLogAct->setStatusTip(tr("View %1 log").arg(VER_PRODUCTNAME_STR));
+    viewLogAct->setShortcut(tr("Alt+L"));
+    viewLogAct->setStatusTip(tr("View %1 log - Alt+L").arg(VER_PRODUCTNAME_STR));
     connect(viewLogAct, SIGNAL(triggered()), this, SLOT(viewLog()));
 }
 
@@ -3172,7 +3179,7 @@ void Gui::createMenus()
     cacheMenu->addAction(clearPLICacheAct);
     cacheMenu->addAction(clearCSICacheAct);
     cacheMenu->addAction(clearTempCacheAct);
-    cacheMenu->addAction(clearFadeCacheAct);
+    cacheMenu->addAction(clearCustomPartCacheAct);
     cacheMenu->setDisabled(true);
 
     configMenu = menuBar()->addMenu(tr("&Configuration"));

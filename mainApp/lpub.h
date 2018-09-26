@@ -1217,7 +1217,7 @@ private:
   QAction  *clearPLICacheAct;
   QAction  *clearCSICacheAct;
   QAction  *clearTempCacheAct;
-  QAction  *clearFadeCacheAct;
+  QAction  *clearCustomPartCacheAct;
 
   QAction  *refreshLDrawUnoffPartsAct;
   QAction  *refreshLDrawOfficialPartsAct;
