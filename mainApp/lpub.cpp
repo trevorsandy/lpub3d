@@ -1820,31 +1820,34 @@ void Gui::preferences()
             emit messageSig(LOG_INFO,QString("Use Alternate LDConfig (Restart Required) %1.").arg(Preferences::altLDConfigPath));
             box.setText (QString("You must close and restart %1 to properly load your alternate LDConfig file.").arg(VER_PRODUCTNAME_STR));
             box.setInformativeText (QString("Click \"OK\" to close and restart %1.\n\n").arg(VER_PRODUCTNAME_STR));
-            int result = box.exec();
-            if (result == QMessageBox::Ok) {
+            if (box.exec() == QMessageBox::Ok) {
                 altLDConfigPathRestart = true;
             }
         }
 
-        if (Preferences::themeAutoRestart) {
-            displayThemeRestart = true;
-        }else {
-            QMessageBox box;
-            box.setMinimumSize(40,20);
-            box.setIcon (QMessageBox::Question);
-            box.setDefaultButton   (QMessageBox::Ok);
-            box.setStandardButtons (QMessageBox::Ok | QMessageBox::Close | QMessageBox::Cancel);
-            box.setText (QString("You must close and restart %1 to fully configure the Theme.\n"
-                                 "Editor syntax highlighting will update the next time you start %1")
-                         .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
-            box.setInformativeText (QString("Click \"OK\" to close and restart %1 or \"Close\" set the Theme without restart.\n\n"
-                                            "You can suppress this message in Preferences, Themes")
-                                    .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
-            int result = box.exec();
-            if (result == QMessageBox::Ok)
+        if (displayThemeChanged) {
+            if( Preferences::themeAutoRestart) {
                 displayThemeRestart = true;
+            }
+            else
+            if (displayThemeChanged) {
+                QMessageBox box;
+                box.setMinimumSize(40,20);
+                box.setIcon (QMessageBox::Question);
+                box.setDefaultButton   (QMessageBox::Ok);
+                box.setStandardButtons (QMessageBox::Ok | QMessageBox::Close | QMessageBox::Cancel);
+                box.setText (QString("You must close and restart %1 to fully configure the Theme.\n"
+                                     "Editor syntax highlighting will update the next time you start %1")
+                             .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+                box.setInformativeText (QString("Click \"OK\" to close and restart %1 or \"Close\" set the Theme without restart.\n\n"
+                                                "You can suppress this message in Preferences, Themes")
+                                        .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+                if (box.exec() == QMessageBox::Ok) {
+                    displayThemeRestart = true;
+                }
+            }
+            loadTheme(displayThemeRestart);
         }
-        loadTheme(displayThemeRestart);
 
         if (!getCurFile().isEmpty()) {
             if (enableFadeStepsChanged            ||
@@ -3553,14 +3556,15 @@ void Gui::statusMessage(LogType logType, QString message) {
 
             } else
               if (logType == LOG_DEBUG) {
-
+#ifdef QT_DEBUG_MODE
                   logDebug() << message;
+
 
                   if (!guiEnabled) {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                       fflush(stdout);
                   }
-
+#endif
                 } else
               if (logType == LOG_INFO_STATUS) {
 

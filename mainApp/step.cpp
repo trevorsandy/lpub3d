@@ -280,9 +280,11 @@ int Step::createCsi(
 
       // header and closing meta
       QString modelName = QFileInfo(top.modelName).baseName().toLower();
-      modelName = modelName.replace(modelName.at(0),modelName.at(0).toUpper());
-      rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1%2").arg(modelName).arg(modelDisplayOnlyStep ? " (Final Model)" : ""));
-      rotatedParts.prepend(QString("0 %1%2").arg(modelName).arg(modelDisplayOnlyStep ? " (Final Model)" : ""));
+      modelName = QString("%1%2").arg(modelName.replace(modelName.at(0),modelName.at(0).toUpper()))
+                                 .arg(modelDisplayOnlyStep ? " - Final Model" : "");
+      rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
+      rotatedParts.prepend(QString("0 Name: %1").arg(top.modelName));
+      rotatedParts.prepend(QString("0 %1").arg(modelName));
       rotatedParts.prepend(QString("0 FILE %1").arg(top.modelName));
       rotatedParts.append("0 NOFILE");
 
@@ -475,6 +477,7 @@ int Step::mergeViewerCSISubModels(QStringList &subModels,
           modelName = modelName.replace(modelName.at(0),modelName.at(0).toUpper());
           csiSubModelParts << QString("0 FILE %1").arg(csiSubModels[index]);
           csiSubModelParts << QString("0 %1").arg(modelName);
+          csiSubModelParts << QString("0 Name: %1").arg(csiSubModels[index]);
           csiSubModelParts << QString("0 !LEOCAD MODEL NAME %1").arg(modelName);
 
           /* read the actual submodel file */

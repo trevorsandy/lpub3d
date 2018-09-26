@@ -2496,6 +2496,14 @@ void Gui::writeToTmp(const QString &fileName,
             }
         }
 
+      // Here we override the removal of these attributes for the 3DViewer
+      QString modelName = QFileInfo(fileName).baseName().toLower();
+      modelName = modelName.replace(modelName.at(0),modelName.at(0).toUpper());
+      csiParts.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
+      csiParts.prepend(QString("0 Name: %1").arg(fileName));
+      csiParts.prepend(QString("0 %1").arg(modelName));
+      csiParts.prepend(QString("0 FILE %1").arg(fileName));
+
       QTextStream out(&file);
       for (int i = 0; i < csiParts.size(); i++) {
           out << csiParts[i] << endl;

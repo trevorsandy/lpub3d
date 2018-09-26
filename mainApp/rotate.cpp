@@ -169,8 +169,6 @@ int Render::rotateParts(
     return -1;
   }
 
-  QTextStream out(&file);
-
   RotStepData rotStepData = rotStep.value();
   QString rotsComment = QString("0 // ROTSTEP %1 %2 %3 %4")
                                 .arg(rotStepData.type)
@@ -178,14 +176,18 @@ int Render::rotateParts(
                                 .arg(rotStepData.rots[1])
                                 .arg(rotStepData.rots[2]);
 
+  gui->messageSig(LOG_DEBUG,QString("ROTSTEP command: %1").arg(rotsComment));
+
+  QTextStream out(&file);
   out << rotsComment << endl;
 
   if (nativeRenderer) {
       QString _modelName = QFileInfo(modelName).baseName().toLower();
       _modelName = _modelName.replace(_modelName.at(0),_modelName.at(0).toUpper());
-      out << "0 FILE " + modelName << endl;
-      out << "0 " + _modelName << endl;
-      out << "0 !LEOCAD MODEL NAME " + _modelName << endl;
+      out << QString("0 FILE %1").arg(modelName) << endl;
+      out << QString("0 %1").arg(_modelName) << endl;
+      out << QString("0 Name: %1").arg(modelName) << endl;
+      out << QString("0 !LEOCAD MODEL NAME %1").arg(_modelName) << endl;
   }
 
   for (int i = 0; i < rotatedParts.size(); i++) {
