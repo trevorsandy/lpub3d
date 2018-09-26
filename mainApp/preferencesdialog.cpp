@@ -259,13 +259,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   ui.tabWidget->setCurrentIndex(0);
 
-//  if(!ldviewExists && !ldgliteExists && !povRayExists){
-//      ui.tabWidget->setCurrentIndex(1);
-//      ui.RenderMessage->setText("<font color='red'>Renderer not set!</font>");
-//  } else {
-//      ui.tabWidget->setCurrentIndex(0);
-//  }
-
   bool centimeters = Preferences::preferCentimeters;
   ui.Centimeters->setChecked(centimeters);
   ui.Inches->setChecked(! centimeters);

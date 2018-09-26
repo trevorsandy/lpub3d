@@ -1050,6 +1050,13 @@ const QString lcMainWindow::getViewerCsiName(){
 }
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - Timeline part icons ***/
+const QString lcMainWindow::GetPliIconsPath(QString &key)
+{
+    return gui->GetPliIconsPath(key);
+}
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Enable3DActions ***/
 void lcMainWindow::Enable3DActions()
 {

@@ -188,22 +188,26 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 			PieceItem->setText(0, Piece->mPieceInfo->m_strDescription);
 
 			int ColorIndex = Piece->mColorIndex;
-			if (!mIcons.contains(ColorIndex))
-			{
-				int Size = rowHeight(indexFromItem(PieceItem));
 
-				QImage Image(Size, Size, QImage::Format_ARGB32);
-				Image.fill(0);
-				float* Color = gColorList[ColorIndex].Value;
-				QPainter Painter(&Image);
-				Painter.setPen(Qt::darkGray);
-				Painter.setBrush(QColor::fromRgbF(Color[0], Color[1], Color[2]));
-				Painter.drawEllipse(0, 0, Size - 1, Size - 1);
+            int Size = rowHeight(indexFromItem(PieceItem));
 
-				mIcons[ColorIndex] = QIcon(QPixmap::fromImage(Image));
-			}
+/*** LPub3D Mod - Timeline part icons ***/
+            if (lcGetPreferences().mViewPieceIcons) {
+                QString IconUID = QString("%1_%2")
+                        .arg(QFileInfo(Piece->GetID()).baseName())
+                        .arg(Piece->mColorCode);
 
-			PieceItem->setIcon(0, mIcons[ColorIndex]);
+                if (GetPieceIcon(Size, IconUID)) {
+                    PieceItem->setIcon(0, mPieceIcons[IconUID]);
+                } else {
+                    GetIcon(Size,ColorIndex);
+                    PieceItem->setIcon(0, mIcons[ColorIndex]);
+                }
+            } else {
+                GetIcon(Size,ColorIndex);
+                PieceItem->setIcon(0, mIcons[ColorIndex]);
+            }
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Set color only if hidden otherwise use default ***/
 			if (Piece->IsHidden()) {
@@ -241,6 +245,43 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 	}
 
 	blockSignals(Blocked);
+}
+
+void lcTimelineWidget::GetIcon(int Size, int ColorIndex){
+    if (!mIcons.contains(ColorIndex))
+    {
+        QImage Image(Size, Size, QImage::Format_ARGB32);
+        Image.fill(0);
+        float* Color = gColorList[ColorIndex].Value;
+        QPainter Painter(&Image);
+        Painter.setPen(Qt::darkGray);
+        Painter.setBrush(QColor::fromRgbF(Color[0], Color[1], Color[2]));
+        Painter.drawEllipse(0, 0, Size - 1, Size - 1);
+
+        mIcons[ColorIndex] = QIcon(QPixmap::fromImage(Image));
+    }
+}
+
+bool lcTimelineWidget::GetPieceIcon(int Size, QString IconUID){
+
+    if (!mPieceIcons.contains(IconUID))
+    {
+        QFileInfo iconFile(gMainWindow->GetPliIconsPath(IconUID));
+
+        if (!iconFile.exists())
+            return false;
+
+        QImage RawImage(iconFile.absoluteFilePath());
+        RawImage = RawImage.convertToFormat(QImage::Format_ARGB32);
+
+        QImage Image = RawImage.scaled(Size, Size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+        QPainter Painter(&Image);
+        Painter.setRenderHints(QPainter::Antialiasing,true);
+
+        mPieceIcons[IconUID] = QIcon(QPixmap::fromImage(Image));
+    }
+    return true;
 }
 
 void lcTimelineWidget::UpdateSelection()

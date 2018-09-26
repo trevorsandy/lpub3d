@@ -992,7 +992,7 @@ void Gui::mpdComboChanged(int index)
 }
 
 void Gui::reloadViewer(){
-  if (getCurFile().isEmpty()) {
+  if (!getCurFile().isEmpty()) {
       Project* NewProject = new Project();
       gApplication->SetProject(NewProject);
   }
@@ -2094,6 +2094,7 @@ Gui::Gui()
     mRotStepAngleY    = 0.0f;
     mRotStepAngleZ    = 0.0f;
     mRotStepTransform = QString();
+    mPliIconsPath.clear();
 
     editWindow    = new EditWindow(this);  // remove inheritance 'this' to independently manage window
     parmsWindow   = new ParmsWindow();
@@ -2246,6 +2247,7 @@ void Gui::initialize()
   connect(this,        SIGNAL(loadFileSig(QString)),               this,        SLOT(loadFile(QString)));
   connect(this,        SIGNAL(processCommandLineSig()),            this,        SLOT(processCommandLine()));
   connect(this,        SIGNAL(setExportingSig(bool)),              this,        SLOT(deployExportBanner(bool)));
+  connect(this,        SIGNAL(setPliIconPathSig(QString&,QString&)), this,      SLOT(setPliIconPath(QString&,QString&)));
 
   connect(this,        SIGNAL(setExportingSig(bool)),              gMainWindow, SLOT(Halt3DViewer(bool)));
   connect(this,        SIGNAL(enable3DActionsSig()),               gMainWindow, SLOT(Enable3DActions()));

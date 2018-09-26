@@ -333,6 +333,9 @@ public:
 /*** LPub3D Mod - coord format ***/
     const QString getViewerCsiName();
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - Timeline part icons ***/
+    const QString GetPliIconsPath(QString &key);
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Roate Angles ***/
 	void GetRotStepMetaAngles();
 /*** LPub3D Mod end ***/
@@ -366,8 +369,8 @@ public slots:
 
 /*** LPub3D Mod - halt, disable, enable viewer ***/
 	void Halt3DViewer(bool b);
-        void Enable3DActions();
-        void Disable3DActions();
+    void Enable3DActions();
+    void Disable3DActions();
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - rotate step objects ***/

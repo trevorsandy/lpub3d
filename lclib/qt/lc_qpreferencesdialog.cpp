@@ -101,6 +101,12 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
     ui->ProjectionCombo->setCurrentIndex(options->Preferences.mNativeOrthographic);
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - Timeline part icons ***/
+    bool preferredIcons = options->Preferences.mViewPieceIcons;
+    ui->viewPieceIconsRadio->setChecked(preferredIcons);
+    ui->viewColorIconsRadio->setChecked(!preferredIcons);
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - set preferences dialog properties ***/
 	ui->authorName->setDisabled(true);
 	ui->partsLibrary->setDisabled(true);
@@ -167,6 +173,10 @@ void lcQPreferencesDialog::accept()
 /*** LPub3D Mod - Native Renderer settings ***/
     options->Preferences.mNativeViewpoint = ui->ViewpointsCombo->currentIndex();
     options->Preferences.mNativeOrthographic = ui->ProjectionCombo->currentIndex();
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - Timeline part icons ***/
+    options->Preferences.mViewPieceIcons = ui->viewPieceIconsRadio->isChecked();
 /*** LPub3D Mod end ***/
 
 	QDialog::accept();
@@ -865,9 +875,10 @@ void lcQPreferencesDialog::MouseTreeItemChanged(QTreeWidgetItem* Current)
 	ui->mouseAlt->setChecked((Modifiers & Qt::AltModifier) != 0);
 }
 
-
+/*** LPub3D Mod - Native Renderer settings ***/
 void lcQPreferencesDialog::on_ViewpointsCombo_currentIndexChanged(int index)
 {
     if (index <=6)
         ui->ProjectionCombo->setCurrentIndex(2); // Default
 }
+/*** LPub3D Mod end ***/

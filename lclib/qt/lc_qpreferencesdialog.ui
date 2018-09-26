@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>3DViewer Preferences</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_8">
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
@@ -406,235 +406,195 @@
       <attribute name="title">
        <string>General</string>
       </attribute>
-      <widget class="QLabel" name="label_4">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>140</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Default author name:</string>
-       </property>
-       <property name="buddy">
-        <cstring>authorName</cstring>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="authorName">
-       <property name="geometry">
-        <rect>
-         <x>149</x>
-         <y>10</y>
-         <width>411</width>
-         <height>20</height>
-        </rect>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_5">
-       <property name="geometry">
-        <rect>
-         <x>11</x>
-         <y>48</y>
-         <width>140</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Custom parts library:</string>
-       </property>
-       <property name="buddy">
-        <cstring>partsLibrary</cstring>
-       </property>
-      </widget>
-      <widget class="QLabel" name="povrayLabel">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>80</y>
-         <width>140</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>PO&amp;V-Ray Executable:</string>
-       </property>
-       <property name="buddy">
-        <cstring>povrayExecutable</cstring>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_9">
-       <property name="geometry">
-        <rect>
-         <x>11</x>
-         <y>106</y>
-         <width>131</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>&amp;LGEO Path:</string>
-       </property>
-       <property name="buddy">
-        <cstring>lgeoPath</cstring>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_10">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>165</y>
-         <width>141</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Check for updates:</string>
-       </property>
-       <property name="buddy">
-        <cstring>checkForUpdates</cstring>
-       </property>
-      </widget>
-      <widget class="QComboBox" name="checkForUpdates">
-       <property name="geometry">
-        <rect>
-         <x>148</x>
-         <y>165</y>
-         <width>131</width>
-         <height>24</height>
-        </rect>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <property name="text">
-         <string>Never</string>
-        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_10">
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Default author name:</string>
+           </property>
+           <property name="buddy">
+            <cstring>authorName</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="authorName"/>
+         </item>
+        </layout>
        </item>
        <item>
-        <property name="text">
-         <string>Once a day</string>
-        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_11">
+         <item>
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Custom parts library:</string>
+           </property>
+           <property name="buddy">
+            <cstring>partsLibrary</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="partsLibrary"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="partsLibraryBrowse">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
-        <property name="text">
-         <string>Once a week</string>
-        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_15">
+         <item>
+          <widget class="QLabel" name="povrayLabel">
+           <property name="text">
+            <string>PO&amp;V-Ray Executable:</string>
+           </property>
+           <property name="buddy">
+            <cstring>povrayExecutable</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="povrayExecutable"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="povrayExecutableBrowse">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
-      </widget>
-      <widget class="QCheckBox" name="fixedDirectionKeys">
-       <property name="geometry">
-        <rect>
-         <x>9</x>
-         <y>190</y>
-         <width>118</width>
-         <height>30</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Fixed direction keys</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_13">
-       <property name="geometry">
-        <rect>
-         <x>9</x>
-         <y>134</y>
-         <width>141</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Mouse sensitivity:</string>
-       </property>
-      </widget>
-      <widget class="QSlider" name="mouseSensitivity">
-       <property name="geometry">
-        <rect>
-         <x>151</x>
-         <y>134</y>
-         <width>411</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <property name="minimum">
-        <number>1</number>
-       </property>
-       <property name="maximum">
-        <number>20</number>
-       </property>
-       <property name="pageStep">
-        <number>5</number>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-      <widget class="QWidget" name="layoutWidget0">
-       <property name="geometry">
-        <rect>
-         <x>149</x>
-         <y>105</y>
-         <width>411</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_10">
-        <item>
-         <widget class="QLineEdit" name="lgeoPath"/>
-        </item>
-        <item>
-         <widget class="QToolButton" name="lgeoPathBrowse">
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="layoutWidget1">
-       <property name="geometry">
-        <rect>
-         <x>149</x>
-         <y>77</y>
-         <width>411</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_8">
-        <item>
-         <widget class="QLineEdit" name="povrayExecutable"/>
-        </item>
-        <item>
-         <widget class="QToolButton" name="povrayExecutableBrowse">
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="layoutWidget2">
-       <property name="geometry">
-        <rect>
-         <x>149</x>
-         <y>48</y>
-         <width>411</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QLineEdit" name="partsLibrary"/>
-        </item>
-        <item>
-         <widget class="QToolButton" name="partsLibraryBrowse">
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_16">
+         <item>
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>&amp;LGEO Path:</string>
+           </property>
+           <property name="buddy">
+            <cstring>lgeoPath</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lgeoPath"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="lgeoPathBrowse">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_17">
+         <item>
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>Mouse sensitivity:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="mouseSensitivity">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>20</number>
+           </property>
+           <property name="pageStep">
+            <number>5</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QRadioButton" name="viewPieceIconsRadio">
+           <property name="text">
+            <string>Show Timeline piece icons</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="viewColorIconsRadio">
+           <property name="text">
+            <string>Show Timeline colour icons</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <item>
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>Check for updates:</string>
+           </property>
+           <property name="buddy">
+            <cstring>checkForUpdates</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="checkForUpdates">
+           <item>
+            <property name="text">
+             <string>Never</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Once a day</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Once a week</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="fixedDirectionKeys">
+         <property name="text">
+          <string>Fixed direction keys</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>129</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="tabCategories">
       <attribute name="title">
@@ -1125,11 +1085,8 @@
   <tabstop>tabWidget</tabstop>
   <tabstop>authorName</tabstop>
   <tabstop>partsLibrary</tabstop>
-  <tabstop>partsLibraryBrowse</tabstop>
   <tabstop>povrayExecutable</tabstop>
-  <tabstop>povrayExecutableBrowse</tabstop>
   <tabstop>lgeoPath</tabstop>
-  <tabstop>lgeoPathBrowse</tabstop>
   <tabstop>checkForUpdates</tabstop>
   <tabstop>fixedDirectionKeys</tabstop>
   <tabstop>antiAliasing</tabstop>

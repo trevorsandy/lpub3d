@@ -673,6 +673,20 @@ public slots:
       return viewerCsiName;
   }
 
+  QString GetPliIconsPath(QString& key)
+  {
+      if (mPliIconsPath.contains(key))
+          return mPliIconsPath.value(key);
+
+      return QString();
+  }
+
+  void setPliIconPath(QString& key, QString& value)
+  {
+      if (!mPliIconsPath.contains(key))
+          mPliIconsPath.insert(key,value);
+  }
+
   lcVector3 GetRotStepMeta() const
   {
       return mStepRotation;
@@ -863,6 +877,8 @@ signals:
 
   void operateHighlightParts(bool overwriteCustomParts);
   void operateFadeParts(bool overwriteCustomParts);
+  void setPliIconPathSig(QString &,QString &);
+
 
 public:
   Page                  page;                         // the abstract version of page contents
@@ -882,6 +898,7 @@ protected:
   float                  mRotStepAngleZ;
   QString                mRotStepTransform;
   QString                viewerCsiName;      // currently loaded CSI in 3DViewer
+  QMap<QString, QString> mPliIconsPath;       // used to set an icon image in the 3DViewer timeline view
 
   QMap<int, PgSizeData>  pageSizes;          // page size and orientation object
 

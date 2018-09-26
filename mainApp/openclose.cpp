@@ -341,6 +341,8 @@ void Gui::openFile(QString &fileName)
 
   clearPage(KpageView,KpageScene);
   closeFile();
+  if (lcGetPreferences().mViewPieceIcons)
+      mPliIconsPath.clear();
   if (Preferences::enableFadeSteps && Preferences::enableImageMatting)
     LDVImageMatte::clearMatteCSIImages();
   displayPageNum = 1;

@@ -71,6 +71,7 @@ lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "AASamples", 1),                                         // LC_PROFILE_ANTIALIASING_SAMPLES
 	lcProfileEntry("Settings", "ViewCubeLocation", (int)lcViewCubeLocation::TOP_RIGHT), // LC_PROFILE_VIEW_CUBE_LOCATION
 	lcProfileEntry("Settings", "ViewCubeSize", 100),                                    // LC_PROFILE_VIEW_CUBE_SIZE
+    lcProfileEntry("Settings", "ViewPieceIcons", 0),                                    // LC_PROFILE_VIEW_PIECE_ICONS
 
 	lcProfileEntry("Settings", "CheckUpdates", 1),                                      // LC_PROFILE_CHECK_UPDATES
 	lcProfileEntry("Settings", "ProjectsPath", ""),                                     // LC_PROFILE_PROJECTS_PATH

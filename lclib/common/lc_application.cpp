@@ -41,6 +41,11 @@ void lcPreferences::LoadDefaults()
     mNativeViewpoint = lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT);
     mNativeOrthographic = lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
 /*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - Timeline part icons ***/
+     mViewPieceIcons = lcGetProfileInt(LC_PROFILE_VIEW_PIECE_ICONS);
+/*** LPub3D Mod end ***/
+
 }
 
 void lcPreferences::SaveDefaults()
@@ -62,6 +67,10 @@ void lcPreferences::SaveDefaults()
 /*** LPub3D Mod - Native Renderer settings ***/
     lcSetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT, mNativeViewpoint);
     lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, mNativeOrthographic);
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - Timeline part icons ***/
+     lcSetProfileInt(LC_PROFILE_VIEW_PIECE_ICONS, mViewPieceIcons);
 /*** LPub3D Mod end ***/
 }
 
@@ -703,6 +712,10 @@ void lcApplication::ShowPreferencesDialog()
     Options.Preferences.mNativeOrthographic = lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - Timeline part icons ***/
+    Options.Preferences.mViewPieceIcons = lcGetProfileInt(LC_PROFILE_VIEW_PIECE_ICONS);
+/*** LPub3D Mod end ***/
+
     lcQPreferencesDialog Dialog(gMainWindow, &Options);
     if (Dialog.exec() != QDialog::Accepted)
         return;
@@ -710,9 +723,30 @@ void lcApplication::ShowPreferencesDialog()
     bool LibraryChanged = Options.LibraryPath != lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
     bool AAChanged = CurrentAASamples != Options.AASamples;
 
+/*** LPub3D Mod - preference refresh ***/
+    bool drawEdgeLinesChanged;
+    bool shadingModeChanged;
+    bool lineWidthChanged;
+    if (Preferences::preferredRenderer == RENDERER_NATIVE)
+    {
+        float mLineWidth  = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
+        bool mDrawEdgeLInes   = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
+        lcShadingMode mShadingMode = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
+
+        drawEdgeLinesChanged = Options.Preferences.mDrawEdgeLines != mDrawEdgeLInes;
+        shadingModeChanged = Options.Preferences.mShadingMode     != mShadingMode;
+        lineWidthChanged = Options.Preferences.mLineWidth         != mLineWidth;
+    }
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Native Renderer settings ***/
     bool NativeViewpointChanged = Options.Preferences.mNativeViewpoint != lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT);
     bool NativeProjectionIsOrthoChanged = Options.Preferences.mNativeOrthographic != lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - Timeline part icons ***/
+    bool mViewPieceIcons = lcGetProfileInt(LC_PROFILE_VIEW_PIECE_ICONS);
+    bool ViewPieceIconsChangd = Options.Preferences.mViewPieceIcons != mViewPieceIcons;
 /*** LPub3D Mod end ***/
 
     mPreferences = Options.Preferences;
@@ -726,8 +760,16 @@ void lcApplication::ShowPreferencesDialog()
     lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, Options.CheckForUpdates);
     lcSetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES, Options.AASamples);
 
-/*** LPub3D Mod - preference refresh ***/
+/*** LPub3D Mod - Native Renderer settings ***/
+    lcSetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT, Options.Preferences.mNativeViewpoint);
+    lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, Options.Preferences.mNativeOrthographic);
+/*** LPub3D Mod end ***/
 
+    bool restartApp = false;
+    bool reloadPage = false;
+    bool redrawPage = false;
+
+/*** LPub3D Mod - preference refresh ***/
     QMessageBox box;
     box.setMinimumSize(40,20);
     box.setIcon (QMessageBox::Question);
@@ -744,6 +786,9 @@ void lcApplication::ShowPreferencesDialog()
         }
     }
 
+    if (ViewPieceIconsChangd && !restartApp && !redrawPage)
+        reloadPage = true;
+
     if (Preferences::preferredRenderer == RENDERER_NATIVE && !restartApp)
     {
       float mLineWidth      = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
@@ -753,9 +798,11 @@ void lcApplication::ShowPreferencesDialog()
       bool drawEdgeLinesChanged = Options.Preferences.mDrawEdgeLines != mDrawEdgeLInes;
       bool shadingModeChanged = Options.Preferences.mShadingMode     != mShadingMode;
       bool lineWidthChanged = Options.Preferences.mLineWidth         != mLineWidth;
+
       if (AAChanged ||
           shadingModeChanged ||
           drawEdgeLinesChanged ||
+          ViewPieceIconsChangd ||
           lineWidthChanged ||
           NativeViewpointChanged ||
           NativeProjectionIsOrthoChanged)
@@ -862,7 +909,7 @@ void lcApplication::ShowPreferencesDialog()
               }
               logInfo() << QString("Native Projection changed to '%1'.").arg(Projection.toUpper());
           }
-       }
+      }
     }
 /*** LPub3D Mod end ***/
 

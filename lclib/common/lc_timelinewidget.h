@@ -24,7 +24,12 @@ protected:
 	virtual void dropEvent(QDropEvent* Event);
 	virtual void mousePressEvent(QMouseEvent* Event);
 	void UpdateModel();
+/*** LPub3D Mod - Timeline part icons ***/
+    void GetIcon(int Size, int ColorIndex);
+    bool GetPieceIcon(int Size, QString IconUID);
 
+    QMap<QString, QIcon> mPieceIcons;
+/*** LPub3D Mod end ***/
 	QMap<int, QIcon> mIcons;
 	QMap<lcPiece*, QTreeWidgetItem*> mItems;
 	bool mIgnoreUpdates;
