@@ -214,14 +214,15 @@ class Pli : public Placement {
     int  placePli(QList<QString> &, int,int,bool,bool,int&,int&,int&);
     void positionChildren(int height, qreal scaleX, qreal scaleY);
     int  addPli (int, QGraphicsItem *);
-    
+
     void placeCols(QList<QString> &);
     bool initAnnotationString();
     void getAnnotate(QString &, QString &);
     void partClass(QString &, QString &);
     int  createPartImage(QString &, QString &, QString &, QPixmap*);
-    int  createPartImagesLDViewSCall(QStringList &);      //LDView performance improvement
+    int  createPartImagesLDViewSCall(QStringList &, bool);      //LDView performance improvement
     QString orient(QString &color, QString part);
+    QStringList configurePLIPart(QString &,QString &,bool,bool,bool,bool);
 
     void operator= (Pli& from)
     {

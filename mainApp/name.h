@@ -25,9 +25,9 @@ extern Gui *gui;
 class LDVWidget;
 extern LDVWidget *ldvWidget;
 
-enum PartType { FADE_PART, HIGHLIGHT_PART };
+enum PartType { FADE_PART, HIGHLIGHT_PART, NORMAL_PART, NUM_PART_TYPES };
 enum LogType { LOG_STATUS, LOG_INFO, LOG_TRACE, LOG_DEBUG, LOG_NOTICE, LOG_ERROR, LOG_INFO_STATUS, LOG_FATAL, LOG_QWARNING, LOG_QDEBUG };
-enum IniFlag { NativePOVIni, LDViewPOVIni, LDViewIni };
+enum IniFlag { NativePOVIni, LDViewPOVIni, LDViewIni, NumIniFiles };
 enum Theme { ThemeDark, ThemeDefault };
 
 // registry sections

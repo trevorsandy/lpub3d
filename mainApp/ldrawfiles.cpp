@@ -478,12 +478,12 @@ void LDrawFile::loadFile(const QString &fileName)
     while ( ! in.atEnd()) {
         QString line = in.readLine(0);
         if (line.contains(sof)) {
-            logStatus() << QString("Loading MPD %1").arg(line.remove("0 "));
+            emit gui->messageSig(LOG_STATUS, QString("Loading MPD %1").arg(line.remove("0 ")));
             mpd = true;
             break;
         }
         if (line.contains(part)) {
-            logStatus() << QString("Loading LDR %1").arg(line.remove("0 "));
+            emit gui->messageSig(LOG_STATUS, QString("Loading LDR %1").arg(line.remove("0 ")));
             mpd = false;
             break;
         }
@@ -986,7 +986,7 @@ bool LDrawFile::saveMPDFile(const QString &fileName)
 void LDrawFile::countParts(const QString &fileName){
 
     //logDebug() << QString("  Subfile: %1, Subfile Parts Count: %2").arg(fileName).arg(count);
-    logStatus() << QString("Processing subfile '%1'").arg(fileName);
+    emit gui->messageSig(LOG_STATUS, QString("Processing subfile '%1'").arg(fileName));
 
     int sfCount = 0;
     bool doCountParts = true;
@@ -1035,15 +1035,15 @@ void LDrawFile::countParts(const QString &fileName){
                     if (pieceInfo && pieceInfo->IsPartType()) {
                         _pieces++; sfCount++;
                         //logTrace() << QString(" Part Line: [%2] %3 ItemNo %1").arg(_pieces).arg(fileName).arg(line);
-                        logStatus() << QString("ItemNo %1 [%2]").arg(_pieces).arg(tokens[14]);
+                        emit gui->messageSig(LOG_NOTICE,QString("ItemNo %1 [%2]").arg(_pieces).arg(tokens[14]));
                     } else if (lcGetPiecesLibrary()->IsPrimitive(info.fileName().toUpper().toLatin1().constData())) {
-                        logNotice() << QString("Item [%1] is a primitive type part").arg(tokens[14]);
+                        emit gui->messageSig(LOG_NOTICE,QString("Item [%1] is a primitive type part").arg(tokens[14]));
                     } else {
                         if (!_missingParts.contains(tokens[14])) {
                             _missingParts << tokens[14];
-                            logError() << QString("Item [%1] was not found in the %2 library archives.")
+                            emit gui->messageSig(LOG_ERROR,QString("Item [%1] was not found in the %2 library archives.")
                                           .arg(tokens[14])
-                                          .arg(VER_PRODUCTNAME_STR);
+                                          .arg(VER_PRODUCTNAME_STR));
                         }
                     }
                 }

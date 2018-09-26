@@ -342,12 +342,12 @@ bool ArchiveParts::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDi
 
 //  logInfo() << QString("Global zip archive entries: %1").arg(zip.getEntriesCount());
 //  logInfo() << QString("Global zip comment: %1").arg(zip.getComment().toLocal8Bit().constData());
-//  logInfo() << QString("Zip directory %1: %2").arg(zipDir.dirName()).arg(zipDir.exists() ? "Found" : "Not Found");
+//  logInfo() << QString("Archive Subfolder %1: %2").arg(zipDir.dirName()).arg(zipDir.exists() ? "Found" : "Not Found");
 //  logInfo() << QString("Disk File Absolute Path: %1").arg(dir.absolutePath());
 
   bool zipDirOk = zipDir.exists();
 
-  QString zipDirMsg = QString("Zip directory '%1' %2.")
+  QString zipDirMsg = QString("Archive subfolder '%1' %2.")
                       .arg(zipDir.dirName())
                       .arg(zipDirOk ? QString(QString("contains %1 %2")
                                       .arg(zipDir.count())
@@ -363,7 +363,7 @@ bool ArchiveParts::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDi
 
       zipDir.cd(zipDirPath);
 
-//      logInfo() << QString("%1 Zip Directory Entries in '%2'").arg(zipDir.count()).arg(zipDirPath);
+//      logInfo() << QString("%1 Archive Subfolder Entries in '%2'").arg(zipDir.count()).arg(zipDirPath);
 
       QStringList qsl = zipDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files, QDir::SortByMask);
 
@@ -378,7 +378,7 @@ bool ArchiveParts::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDi
             continue;
 
           if (zipFileInfo.isSymLink()) {
-            logError() << QString("zip directory entrylist returned a symbolic link.");
+            logError() << QString("Archive subfolder entrylist returned a symbolic link.");
             return false;
           }
 

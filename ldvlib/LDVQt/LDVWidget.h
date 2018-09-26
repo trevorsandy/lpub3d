@@ -89,7 +89,7 @@ protected:
       QString Title;
       QString File;
   };
-  struct IniFile iniFiles[3];
+  struct IniFile iniFiles[NumIniFiles];
 
 };
 extern LDVWidget* ldvWidget;

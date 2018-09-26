@@ -537,6 +537,10 @@ void lcMainWindow::CreateMenus()
 ***/
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - toolstoolbar viewpoint home ***/
+    mToolsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - toolstoolbar add rotate step ***/
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_ROTATESTEP]);
 /*** LPub3D Mod end ***/
@@ -549,9 +553,6 @@ void lcMainWindow::CreateMenus()
 /*** LPub3D Mod end ***/
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_ROTATE]);
 
-/*** LPub3D Mod - toolstoolbar viewpoint home ***/
-	mToolsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
-/*** LPub3D Mod end ***/
 /*** LPub3D Mod - toolstoolbar suppress conflicting tools ***/
 /***
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_DELETE]);
@@ -790,15 +791,17 @@ void lcMainWindow::CreateToolBars()
     mToolsToolBar->addAction(AngleAction);                       // Snap Rotations to Fixed Intervals menu item
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - toolstoolbar rotate step toolbar [deprecatedXX] ***/
+/*** LPub3D Mod - toolstoolbar viewpoint home ***/
+    mToolsToolBar->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - toolstoolbar rotate step ***/
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATESTEP]);
 /*** LPub3D Mod end ***/
+
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SELECT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATE]);
 
-/*** LPub3D Mod - toolstoolbar viewpoint home ***/
-	mToolsToolBar->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
-/*** LPub3D Mod end ***/
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_MOVE]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_DELETE]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_PAINT]);
@@ -1040,6 +1043,12 @@ void lcMainWindow::UpdateGamepads()
 		ActiveView->MoveCamera(Distance);
 #endif
 }
+
+/*** LPub3D Mod - Viewer Csi file identifier ***/
+const QString lcMainWindow::getViewerCsiName(){
+    return gui->getViewerCsiName();
+}
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Enable3DActions ***/
 void lcMainWindow::Enable3DActions()
@@ -2308,6 +2317,24 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged)
 
 	lcGetActiveModel()->GetSelectionInformation(&Flags, Selection, &Focus);
 
+/*** LPub3D Mod - Select whole model if Rotate Tool selected  ***/
+    lcTool Tool = GetTool();
+    QAction* Action = mActions[LC_EDIT_ACTION_FIRST + Tool];
+    if (Tool == LC_TOOL_ROTATE && Action && Action->isChecked()) {
+        View* ActiveView = GetActiveView();
+        lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
+        if (ActiveModel) {
+            for (lcPiece* Piece : ActiveModel->GetPieces())
+                if (Piece->IsVisible(ActiveModel->GetCurrentStep()))
+                    Piece->SetSelected(true);
+            if (!SelectionChanged)
+                SelectionChanged = true;
+            lcObject* ThrowAway;
+            lcGetActiveModel()->GetSelectionInformation(&Flags, Selection, &ThrowAway);
+        }
+    }
+/*** LPub3D Mod end ***/
+
 	if (SelectionChanged)
 	{
 		mTimelineWidget->UpdateSelection();
@@ -2365,8 +2392,10 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged)
 
 		if (Focus && Focus->IsPiece())
 		{
-			Message.append(tr(" - %1 (ID: %2)").arg(Focus->GetName(), ((lcPiece*)Focus)->GetID()));
-
+/*** LPub3D Mod - add transformation focus part message    ***/
+            QString focusPart = GetTool() == LC_TOOL_ROTATE ? ". Transform focus object: " : " -";
+            Message.append(tr("%1 %2 (ID: %3)").arg(focusPart).arg(Focus->GetName()).arg(((lcPiece*)Focus)->GetID()));
+/*** LPub3D Mod end ***/
 			const lcGroup* Group = ((lcPiece*)Focus)->GetGroup();
 			if (Group && !Group->mName.isEmpty())
 				Message.append(tr(" in group '%1'").arg(Group->mName));
@@ -2375,13 +2404,16 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged)
 
 /*** LPub3D Mod - replace mStatusBarLabel    ***/
 /***	mStatusBarLabel->setText(Message);   ***/
-	statusBar()->showMessage(Message);
+    //gui->messageSig(LOG_STATUS, Message);
+    statusBar()->showMessage(Message);
 /*** LPub3D Mod end ***/
+
 	lcVector3 Position;
 	lcGetActiveModel()->GetFocusPosition(Position);
 
 	QString Label("X: %1 Y: %2 Z: %3");
 	Label = Label.arg(QLocale::system().toString(Position[0], 'f', 2), QLocale::system().toString(Position[1], 'f', 2), QLocale::system().toString(Position[2], 'f', 2));
+
 /*** LPub3D Mod - suppress position status    ***/
 /***	mStatusPositionLabel->setText(Label); ***/
 /*** LPub3D Mod end ***/

@@ -36,13 +36,11 @@ QMessageBoxResizable::QMessageBoxResizable(QWidget *parent)
 
 void QMessageBoxResizable::showDetails(bool clicked){
     Q_UNUSED(clicked);
-#if QT_CONFIG(textbrowser)
     if (detailsPushButton && detailsTextBrowser) {
         detailsPushButton->setLabel(detailsTextBrowser->isHidden() ? HideLabel : ShowLabel);
         detailsTextBrowser->setHidden(!detailsTextBrowser->isHidden());
         this->adjustSize();
     }
-#endif
 }
 
 void QMessageBoxResizable::setDetailedText(const QString &text, bool html){
@@ -85,11 +83,9 @@ void QMessageBoxResizable::setDetailedText(const QString &text, bool html){
     }
 
     QGridLayout *grid = qobject_cast<QGridLayout *>( this->layout() );
-#if QT_CONFIG(textbrowser)
     if (grid) {
         if (detailsTextBrowser)
             grid->addWidget(detailsTextBrowser, grid->rowCount(), 0, 1, grid->columnCount());
-#endif
         grid->setSizeConstraint(QLayout::SetNoConstraint);
         this->setLayout(grid);
     }
@@ -112,14 +108,12 @@ bool QMessageBoxResizable::event(QEvent *e){
     return res;
 }
 
-#ifndef QT_NO_CONTEXTMENU
 void QMessageBoxDetailsText::TextBrowser::contextMenuEvent(QContextMenuEvent * e)
 {
     QMenu *menu = createStandardContextMenu();
     menu->setAttribute(Qt::WA_DeleteOnClose);
     menu->popup(e->globalPos());
 }
-#endif // QT_NO_CONTEXTMENU
 
 QMessageBoxDetailsText::QMessageBoxDetailsText(QWidget *parent)
     : QWidget(parent)

@@ -24,7 +24,6 @@
 
 enum DetailButtonLabel { ShowLabel = 0, HideLabel = 1 };
 
-#if QT_CONFIG(textbrowser)
 class QMessageBoxDetailsText : public QWidget
 {
     Q_OBJECT
@@ -33,9 +32,7 @@ public:
     {
     public:
         TextBrowser(QWidget *parent=0) : QTextBrowser(parent) { }
-#ifndef QT_NO_CONTEXTMENU
         void contextMenuEvent(QContextMenuEvent * e) override;
-#endif // QT_NO_CONTEXTMENU
     };
     QMessageBoxDetailsText(QWidget *parent=0);
     void setHtml(const QString &text) { textBrowser->setHtml(text); }
@@ -50,7 +47,7 @@ public:
             return false;
         textBrowser->copy();
         return true;
-#endif
+#endif // QT_NO_CLIPBOARD
     }
     void selectAll()
     {
@@ -65,7 +62,6 @@ private:
     bool copyAvailable;
     TextBrowser *textBrowser;
 };
-#endif // QT_CONFIG(textbrowser)
 
 class DetailPushButton : public QPushButton
 {
@@ -91,6 +87,7 @@ public:
 class QMessageBoxResizable: public QMessageBox
 {
     Q_OBJECT
+
 public:
     QMessageBoxResizable(QWidget *parent=nullptr);
     ~QMessageBoxResizable(){}
@@ -99,9 +96,7 @@ private slots:
     void showDetails(bool clicked);
 private:
     virtual bool event(QEvent *e);
-#if QT_CONFIG(textbrowser)
     QMessageBoxDetailsText *detailsTextBrowser;
-#endif
     DetailPushButton       *detailsPushButton;
     bool                    autoAddOkButton;
 };

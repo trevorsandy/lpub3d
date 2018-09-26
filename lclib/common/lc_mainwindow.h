@@ -330,6 +330,9 @@ public:
 	void UpdateModified(bool Modified);
 	void UpdateRecentFiles();
 	void UpdateShortcuts();
+/*** LPub3D Mod - coord format ***/
+    const QString getViewerCsiName();
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Roate Angles ***/
 	void GetRotStepMetaAngles();
 /*** LPub3D Mod end ***/

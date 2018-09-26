@@ -98,6 +98,16 @@ const Where &Pli::bottomOfCallout()
   return step->callout()->bottomOfCallout();
 }
 
+struct PartTypesNeeded
+{
+    PartType partType;
+    QString partColor;
+    QString typeName;
+    QStringList imageNames;
+};
+
+QString PartTypeNames[NUM_PART_TYPES] = { "Fade Previous Steps", "Highlight Current Step", "Normal" };
+
 /****************************************************************************
  * Part List Images routines
  ***************************************************************************/
@@ -438,234 +448,325 @@ int Pli::createPartImage(
     QString  &color,
     QPixmap  *pixmap)
 {
-  emit gui->messageSig(LOG_STATUS, "Render PLI image...");
+    QList<PartTypesNeeded> ptn;
+    QString fadeColour = LDrawColor::ldColorCode(Preferences::fadeStepsColour);
+    bool fadeSteps = Preferences::enableFadeSteps ;
+    bool highlightStep = Preferences::enableHighlightStep && !gui->suppressColourMeta();
+    bool isNormalPart = true;
+    bool isFadePart = false;
+    bool isHighLightPart = false;
 
-  float modelScale = pliMeta.modelScale.value();
-
-  QString key = QString("%1_%2_%3_%4_%5_%6_%7_%8")
-      .arg(partialKey)
-      .arg(pageSizeP(meta, 0))
-      .arg(resolution())
-      .arg(resolutionType() == DPI ? "DPI" : "DPCM")
-      .arg(modelScale)
-      .arg(pliMeta.cameraFoV.value())
-      .arg(pliMeta.cameraAngles.value(0))
-      .arg(pliMeta.cameraAngles.value(1));
-  QString imageName = QDir::currentPath() + "/" + Paths::partsDir + "/" + key + ".png";
-  QStringList ldrNames = (QStringList() << QDir::currentPath() + "/" + Paths::tmpDir + "/pli.ldr");
-
-  QFile part(imageName);
-  
-  if ( ! part.exists()) {
-
-      QElapsedTimer timer;
-      timer.start();
-
-      // create a temporary DAT to feed the renderer
-
-      part.setFileName(ldrNames.first());
-
-      if ( ! part.open(QIODevice::WriteOnly)) {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open file for writing %1:\n%2.")
-                               .arg(ldrNames.first())
-                               .arg(part.errorString()));
-          return -1;
-        }
-
-      QTextStream out(&part);
-      if (Preferences::preferredRenderer == RENDERER_NATIVE) {
-          out << renderer->getRotstepMeta(meta->rotStep) << endl;
-          out << QString("0 FILE %1.ldr").arg(partialKey) << endl;
-          out << QString("0 !LEOCAD MODEL NAME %1.ldr").arg(partialKey) << endl;
-          out << orient(color, type) << endl;
-          out << QString("0 NOFILE") << endl;
-      }
-//      else
-//      // For POV generation, do not use pli.mpd orientation
-//      if (Preferences::preferredRenderer == RENDERER_POVRAY)
-//      {
-//          out << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(type) << endl;
-//      }
-      else
-      {
-          out << orient(color, type) << endl;
-      }
-      part.close();
-      
-      // feed DAT to renderer
-      int rc = renderer->renderPli(ldrNames,imageName,*meta, bom);
-
-      if (rc != 0) {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for %1").arg(imageName));
-          return -1;
-        }
-
-      emit gui->messageSig(LOG_INFO, qPrintable(
-                          QString("%1 PLI render call took %2 milliseconds "
-                                  "to render %3 for %4.")
-                             .arg(Render::getRenderer())
-                             .arg(timer.elapsed())
-                             .arg(imageName)
-                             .arg(bom ? "BOM part list" : "Step parts list.")));
+    ptn.append( {
+                    NORMAL_PART,
+                    color,
+                    QString()
+                } );
+    if (fadeSteps) {
+        ptn.append( {
+                        FADE_PART,
+                        Preferences::fadeStepsUseColour ? fadeColour : color,
+                        "_fade"
+                    } );
+    }
+    if (highlightStep) {
+        ptn.append( {
+                        HIGHLIGHT_PART,
+                        color,
+                        "_highlight"
+                    } );
     }
 
-  pixmap->load(imageName);
+    for (int i = 0; i < ptn.size(); i++ ) {
+
+        QElapsedTimer timer;
+        timer.start();
+        bool showElapsedTime = false;
+
+        isNormalPart = ptn[i].partType == NORMAL_PART;
+        isFadePart = ptn[i].partType == FADE_PART;
+        isHighLightPart = ptn[i].partType == HIGHLIGHT_PART;
+
+        emit gui->messageSig(LOG_STATUS, QString("Render PLI image for [%1] parts...").arg(PartTypeNames[ptn[i].partType]));
+
+        float modelScale = pliMeta.modelScale.value();
+
+        QString key = QString("%1_%2_%3_%4_%5_%6_%7_%8%9")
+                .arg(partialKey)
+                .arg(pageSizeP(meta, 0))
+                .arg(resolution())
+                .arg(resolutionType() == DPI ? "DPI" : "DPCM")
+                .arg(modelScale)
+                .arg(pliMeta.cameraFoV.value())
+                .arg(pliMeta.cameraAngles.value(0))
+                .arg(pliMeta.cameraAngles.value(1))
+                .arg(ptn[i].typeName);
+        QString imageName = QDir::currentPath() + "/" + Paths::partsDir + "/" + key + ".png";
+        QStringList ldrNames = (QStringList() << QDir::currentPath() + "/" + Paths::tmpDir + "/pli.ldr");
+
+        QFile part(imageName);
+
+        if ( ! part.exists()) {
+
+            showElapsedTime = true;
+
+            // create a temporary DAT to feed the renderer
+
+            part.setFileName(ldrNames.first());
+
+            if ( ! part.open(QIODevice::WriteOnly)) {
+                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open file for writing %1:\n%2.")
+                                     .arg(ldrNames.first())
+                                     .arg(part.errorString()));
+                return -1;
+            }
+
+            // generate PLI Part
+            QStringList pliFile = configurePLIPart(
+                        ptn[i].partColor,
+                        type,
+                        fadeSteps,
+                        isFadePart,
+                        highlightStep,
+                        isHighLightPart);
+            QTextStream out(&part);
+            if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+                out << renderer->getRotstepMeta(meta->rotStep) << endl;
+                out << QString("0 FILE %1.ldr").arg(partialKey) << endl;
+                out << QString("0 !LEOCAD MODEL NAME %1.ldr").arg(partialKey) << endl;
+
+                foreach (QString line, pliFile)
+                    out << line << endl;
+            }
+            else
+            {
+                foreach (QString line, pliFile)
+                    out << line << endl;
+            }
+            part.close();
+
+            // feed DAT to renderer
+            int rc = renderer->renderPli(ldrNames,imageName,*meta, bom);
+
+            if (rc != 0) {
+                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for %1").arg(imageName));
+                return -1;
+             }
+        }
+
+        // create icon path key - using actual color code
+        QStringList keys = partialKey.split("_");
+        QString colourCode = ptn[i].partColor;
+        if (!isNormalPart)
+            colourCode = QString("%1").arg(isFadePart ? QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(Preferences::fadeStepsUseColour ? fadeColour : ptn[i].partColor) :
+                                                        QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX ).arg(ptn[i].partColor));
+        QString imageIconKey = QString("%1_%2").arg(keys[0]).arg(colourCode);
+
+        emit gui->setPliIconPathSig(imageIconKey,imageName);
+
+        if (isNormalPart)
+            pixmap->load(imageName);
+
+        if (showElapsedTime)
+            emit gui->messageSig(LOG_INFO, qPrintable(
+                                     QString("%1 PLI render call took %2 milliseconds "
+                                             "to render %3 for %4.")
+                                     .arg(Render::getRenderer())
+                                     .arg(timer.elapsed())
+                                     .arg(imageName)
+                                     .arg(bom ? "BOM part list" : "Step parts list.")));
+    }
 
   return 0;
 }
 
 // LDView performance improvement
-int Pli::createPartImagesLDViewSCall(QStringList &ldrNames) {
+int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart) {
 
-  emit gui->messageSig(LOG_STATUS, "Render PLI images using LDView Single Call...");
+    emit gui->messageSig(LOG_STATUS, "Render PLI images using LDView Single Call...");
 
-  if (! ldrNames.isEmpty()) {
+    if (! ldrNames.isEmpty()) {
 
-      QElapsedTimer timer;
-      timer.start();
-      // feed DAT to renderer
-      int rc = renderer->renderPli(ldrNames,QString(),*meta,bom);
-      if (rc != 0) {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for Pli images."));
-          return -1;
+        // feed DAT to renderer
+        int rc = renderer->renderPli(ldrNames,QString(),*meta,bom);
+        if (rc != 0) {
+            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for Pli images."));
+            return -1;
         }
 
-      emit gui->messageSig(LOG_INFO, qPrintable(
-                          QString("%1 PLI (Single Call) render took "
-                                  "%2 milliseconds to render %3 %4 for %5")
-                             .arg(Render::getRenderer())
-                             .arg(timer.elapsed())
-                             .arg(ldrNames.size())
-                             .arg(ldrNames.size() == 1 ? "image" : "images")
-                             .arg(bom ? "BOM part list" : "Step parts list.")));
     }
 
-  QString key;
-  // 3. populate parts with image pixmap and size
-  foreach(key,parts.keys()) {
+    if (isNormalPart) {
 
-      PliPart *part;
-      // get part info
-      part = parts[key];
-      // load image files into pixmap
-      // instantiate pixmps //ERROR
-      QPixmap *pixmap = new QPixmap();
-      if (pixmap == nullptr) {
-          return -1;
-        }
+        QString key;
+        // 3. populate parts with image pixmap and size
+        foreach(key,parts.keys()) {
 
-      if (! pixmap->load(part->imageName)) {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot load PLI pixmap image %1 is not a file.")
-                               .arg(part->imageName));
-              return -1;
+            PliPart *part;
+            // get part info
+            part = parts[key];
+            // load image files into pixmap
+            // instantiate pixmps //ERROR
+            QPixmap *pixmap = new QPixmap();
+            if (pixmap == nullptr) {
+                return -1;
             }
 
-      // transfer image info to part
-      QImage image = pixmap->toImage();
-
-      part->pixmap = new PGraphicsPixmapItem(this,part,*pixmap,parentRelativeType,part->type, part->color);
-
-      delete pixmap;
-
-      // size the PLI
-      part->pixmapWidth  = image.width();
-      part->pixmapHeight = image.height();
-
-      part->width  = image.width();
-
-      /* Add instance count area */
-
-      QString descr;
-
-      descr = QString("%1x") .arg(part->instances.size(),0,10);
-
-      QString font = pliMeta.instance.font.valueFoo();
-      QString color = pliMeta.instance.color.value();
-
-      part->instanceText =
-          new InstanceTextItem(this,part,descr,font,color,parentRelativeType);
-
-      int textWidth, textHeight;
-
-      part->instanceText->size(textWidth,textHeight);
-
-      part->textHeight = textHeight;
-
-      // if text width greater than image width
-      // the bounding box is wider
-
-      if (textWidth > part->width) {
-          part->width = textWidth;
-        }
-
-      /* Add annotation area */
-
-      getAnnotate(part->type,descr);
-
-      if (descr.size()) {
-
-          font = pliMeta.annotate.font.valueFoo();
-          color = pliMeta.annotate.color.value();
-          part->annotateText =
-              new AnnotateTextItem(this,part,descr,font,color,parentRelativeType);
-
-          part->annotateText->size(part->annotWidth,part->annotHeight);
-
-          if (part->annotWidth > part->width) {
-              part->width = part->annotWidth;
+            if (! pixmap->load(part->imageName)) {
+                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot load PLI pixmap image %1 is not a file.")
+                                     .arg(part->imageName));
+                return -1;
             }
 
-          part->partTopMargin = part->annotateMeta.margin.valuePixels(YY);
+            // transfer image info to part
+            QImage image = pixmap->toImage();
 
-          int hMax = int(part->annotHeight + part->annotateMeta.margin.value(YY));
-          for (int h = 0; h < hMax; h++) {
-              part->leftEdge  << part->width - part->annotWidth;
-              part->rightEdge << part->width;
+            part->pixmap = new PGraphicsPixmapItem(this,part,*pixmap,parentRelativeType,part->type, part->color);
+
+            delete pixmap;
+
+            // size the PLI
+            part->pixmapWidth  = image.width();
+            part->pixmapHeight = image.height();
+
+            part->width  = image.width();
+
+            /* Add instance count area */
+
+            QString descr;
+
+            descr = QString("%1x") .arg(part->instances.size(),0,10);
+
+            QString font = pliMeta.instance.font.valueFoo();
+            QString color = pliMeta.instance.color.value();
+
+            part->instanceText =
+                    new InstanceTextItem(this,part,descr,font,color,parentRelativeType);
+
+            int textWidth, textHeight;
+
+            part->instanceText->size(textWidth,textHeight);
+
+            part->textHeight = textHeight;
+
+            // if text width greater than image width
+            // the bounding box is wider
+
+            if (textWidth > part->width) {
+                part->width = textWidth;
             }
-        } else {
-          part->annotateText = nullptr;
-          part->annotWidth  = 0;
-          part->annotHeight = 0;
-          part->partTopMargin = 0;
-        }
-      part->topMargin = part->csiMargin.valuePixels(YY);
-      getLeftEdge(image,part->leftEdge);
-      getRightEdge(image,part->rightEdge);
 
-      part->partBotMargin = part->instanceMeta.margin.valuePixels(YY);
+            /* Add annotation area */
 
-      /* Lets see if we can slide the text up in the bottom left corner of part image */
+            getAnnotate(part->type,descr);
 
-      int overlap;
-      bool overlapped = false;
+            if (descr.size()) {
 
-      for (overlap = 1; overlap < textHeight && ! overlapped; overlap++) {
-          if (part->leftEdge[part->leftEdge.size() - overlap] < textWidth) {
-              overlapped = true;
+                font = pliMeta.annotate.font.valueFoo();
+                color = pliMeta.annotate.color.value();
+                part->annotateText =
+                        new AnnotateTextItem(this,part,descr,font,color,parentRelativeType);
+
+                part->annotateText->size(part->annotWidth,part->annotHeight);
+
+                if (part->annotWidth > part->width) {
+                    part->width = part->annotWidth;
+                }
+
+                part->partTopMargin = part->annotateMeta.margin.valuePixels(YY);
+
+                int hMax = int(part->annotHeight + part->annotateMeta.margin.value(YY));
+                for (int h = 0; h < hMax; h++) {
+                    part->leftEdge  << part->width - part->annotWidth;
+                    part->rightEdge << part->width;
+                }
+            } else {
+                part->annotateText = nullptr;
+                part->annotWidth  = 0;
+                part->annotHeight = 0;
+                part->partTopMargin = 0;
             }
-        }
+            part->topMargin = part->csiMargin.valuePixels(YY);
+            getLeftEdge(image,part->leftEdge);
+            getRightEdge(image,part->rightEdge);
 
-      int hMax = textHeight + part->instanceMeta.margin.valuePixels(YY);
-      for (int h = overlap; h < hMax; h++) {
-          part->leftEdge << 0;
-          part->rightEdge << textWidth;
-        }
+            part->partBotMargin = part->instanceMeta.margin.valuePixels(YY);
 
-      part->height = part->leftEdge.size();
+            /* Lets see if we can slide the text up in the bottom left corner of part image */
 
-      part->sortSize = QString("%1%2")
-          .arg(part->width, 8,10,QChar('0'))
-          .arg(part->height,8,10,QChar('0'));
+            int overlap;
+            bool overlapped = false;
 
-      if (part->width > widestPart) {
-          widestPart = part->width;
-        }
-      if (part->height > tallestPart) {
-          tallestPart = part->height;
+            for (overlap = 1; overlap < textHeight && ! overlapped; overlap++) {
+                if (part->leftEdge[part->leftEdge.size() - overlap] < textWidth) {
+                    overlapped = true;
+                }
+            }
+
+            int hMax = textHeight + part->instanceMeta.margin.valuePixels(YY);
+            for (int h = overlap; h < hMax; h++) {
+                part->leftEdge << 0;
+                part->rightEdge << textWidth;
+            }
+
+            part->height = part->leftEdge.size();
+
+            part->sortSize = QString("%1%2")
+                    .arg(part->width, 8,10,QChar('0'))
+                    .arg(part->height,8,10,QChar('0'));
+
+            if (part->width > widestPart) {
+                widestPart = part->width;
+            }
+            if (part->height > tallestPart) {
+                tallestPart = part->height;
+            }
         }
     }
+    return 0;
+}
 
-  return 0;
+QStringList Pli::configurePLIPart(
+        QString &partColor,
+        QString &type,
+        bool fadeSteps,
+        bool isFadePart,
+        bool highlightStep,
+        bool isHighLightPart){
+
+    QString updatedColour = partColor;
+    QStringList out;
+
+    if (fadeSteps && isFadePart) {
+        updatedColour = QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(partColor);
+        out << QString("0 // LPub3D custom colours");
+        out << gui->createColourEntry(partColor, FADE_PART);
+        out << QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity);
+    }
+    if (highlightStep && isHighLightPart) {
+        updatedColour = QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX).arg(partColor);
+        out << QString("0 // LPub3D custom colours");
+        out << gui->createColourEntry(partColor, HIGHLIGHT_PART);
+        out << QString("0 !SILHOUETTE %1 %2")
+                       .arg(Preferences::highlightStepLineWidth)
+                       .arg(Preferences::highlightStepColour);
+    }
+
+//  // For POV generation, do not use pli.mpd orientation
+//  if (Preferences::preferredRenderer == RENDERER_POVRAY)
+//  {
+//      out << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(partColor).arg(type) << endl;
+//  }
+    out << orient(updatedColour, type);
+
+    if (highlightStep && isHighLightPart)
+        out << QString("0 !SILHOUETTE");
+    if (fadeSteps && isFadePart)
+        out << QString("0 !FADE");
+
+    if (isFadePart || isHighLightPart)
+        out << QString("0 NOFILE");
+
+    return out;
 }
 
 void Pli::partClass(
@@ -1230,7 +1331,7 @@ int Pli::partSize()
                   emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part %1")
                                        .arg(imageName));
                   return -1;
-                }
+              }
 
               QImage image = pixmap->toImage();
 
@@ -1348,65 +1449,172 @@ int Pli::partSize()
 //LDView performance improvement
 int Pli::partSizeLDViewSCall() {
 
-  QString key;
-  widestPart = 0;
-  tallestPart = 0;
-  QStringList ldrNames;
+    int rc = 0;
+    QString key;
+    widestPart = 0;
+    tallestPart = 0;
+    QStringList ldrsNormal, ldrsFade, ldrsHighlight;
+    QList<PartTypesNeeded> ptn;
+    QString fadeColour = LDrawColor::ldColorCode(Preferences::fadeStepsColour);
+    bool fadeSteps = Preferences::enableFadeSteps ;
+    bool highlightStep = Preferences::enableHighlightStep && !gui->suppressColourMeta();
+    bool isNormalPart = true;
+    bool isFadePart = false;
+    bool isHighLightPart = false;
 
-  // 1. generate ldr files
-  foreach(key,parts.keys()) {
-      PliPart *pliPart;
+    // 1. generate ldr files
+    foreach(key,parts.keys()) {
+        ptn.clear();
+        PliPart *pliPart;
 
-      // get part info
-      pliPart = parts[key];
-      QFileInfo info(pliPart->type);
-      PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
+        // get part info
+        pliPart = parts[key];
+        QFileInfo info(pliPart->type);
+        PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
 
-      if (pieceInfo ||
-          gui->isUnofficialPart(pliPart->type) ||
-          gui->isSubmodel(pliPart->type)) {
+        if (pieceInfo ||
+                gui->isUnofficialPart(pliPart->type) ||
+                gui->isSubmodel(pliPart->type)) {
 
-          if (pliPart->color == "16") {
-              pliPart->color = "0";
+            if (pliPart->color == "16") {
+                pliPart->color = "0";
             }
 
-          QFile part(pliPart->imageName);
-          if ( ! part.exists()) {
-
-              // assemble ldr name
-              QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + pliPart->nameKey + ".ldr";
-
-              // create a DAT files to feed the renderer
-              part.setFileName(ldrName);
-              if ( ! part.open(QIODevice::WriteOnly)) {
-                  QMessageBox::critical(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                        QMessageBox::tr("Cannot open ldr DAT file for writing part:\n%1:\n%2.")
-                                        .arg(ldrName)
-                                        .arg(part.errorString()));
-                  return -1;
-                }
-              // store ldrName
-              ldrNames << ldrName;
-              QTextStream out(&part);
-              out << orient(pliPart->color, pliPart->type);
-              part.close();
+            ptn.append( {
+                            NORMAL_PART,
+                            pliPart->color,
+                            QString()
+                        } );
+            if (fadeSteps) {
+                ptn.append( {
+                                FADE_PART,
+                                Preferences::fadeStepsUseColour ? fadeColour : pliPart->color,
+                                "_fade"
+                            } );
+            }
+            if (highlightStep) {
+                ptn.append( {
+                                HIGHLIGHT_PART,
+                                pliPart->color,
+                                "_highlight"
+                            } );
             }
 
-        } else {
+            for (int i = 0; i < ptn.size(); i++ ) {
 
-          delete parts[key];
-          parts.remove(key);
+                isNormalPart = ptn[i].partType == NORMAL_PART;
+                isFadePart = ptn[i].partType == FADE_PART;
+                isHighLightPart = ptn[i].partType == HIGHLIGHT_PART;
+
+                // assemble ldr name
+                QString key = !ptn[i].typeName.isEmpty() ? pliPart->nameKey + ptn[i].typeName : pliPart->nameKey;
+                QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + key + ".ldr";
+                QString imageName = QDir::currentPath() + "/" + Paths::partsDir + "/" + key + ".png";
+                ptn[i].imageNames << imageName;
+
+                QFile part(imageName);
+
+                if ( ! part.exists()) {
+
+                    // create a DAT files to feed the renderer
+                    part.setFileName(ldrName);
+                    if ( ! part.open(QIODevice::WriteOnly)) {
+                        QMessageBox::critical(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                              QMessageBox::tr("Cannot open ldr DAT file for writing part:\n%1:\n%2.")
+                                              .arg(ldrName)
+                                              .arg(part.errorString()));
+                        return -1;
+                    }
+                    // store ldrName
+                    if (isNormalPart)
+                        ldrsNormal << ldrName;
+                    else
+                    if (isFadePart)
+                        ldrsFade << ldrName;
+                    else
+                    if (isHighLightPart)
+                        ldrsHighlight << ldrName;
+                    // generate PLI Part
+                    QStringList pliFile = configurePLIPart(
+                                ptn[i].partColor,
+                                pliPart->type,
+                                fadeSteps,
+                                isFadePart,
+                                highlightStep,
+                                isHighLightPart);
+                    QTextStream out(&part);
+                    foreach (QString line, pliFile)
+                        out << line << endl;
+                    part.close();
+
+                } // part already exist
+
+            }     // for every part type
+
+        }         // part is valid
+        else
+        {
+
+            delete parts[key];
+            parts.remove(key);
         }
 
+    }            // for every part
+
+    // 2. Call create part images; send ldr file names
+    for (int i = 0; i < ptn.size(); i++ ) {   // for every part type
+
+        QElapsedTimer timer;
+        timer.start();
+        bool showElapsedTime = false;
+
+        isNormalPart = ptn[i].partType == NORMAL_PART;
+        isFadePart = ptn[i].partType == FADE_PART;
+        isHighLightPart = ptn[i].partType == HIGHLIGHT_PART;
+
+        QStringList _ldrNames;
+        if (isNormalPart)
+            _ldrNames << ldrsNormal;
+        else
+        if (isFadePart)
+            _ldrNames << ldrsFade;
+        else
+        if (isHighLightPart)
+            _ldrNames << ldrsHighlight;
+
+        if ((rc = createPartImagesLDViewSCall(_ldrNames,isNormalPart)) != 0) {
+            emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part images using LDView Single Call"));
+            continue;
+        }
+
+        for (int j = 0; j < ptn[i].imageNames.size(); j++) {
+            QStringList keys = QFileInfo(ptn[i].imageNames[j]).baseName().split("_");
+            QString colourCode = keys[1];
+
+            if (!isNormalPart)
+                colourCode = QString("%1").arg(isFadePart ? QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(Preferences::fadeStepsUseColour ? fadeColour : keys[1]) :
+                                                            QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX ).arg(keys[1]));
+            QString imageIconKey = QString("%1_%2").arg(keys[0]).arg(colourCode);
+            QString imageName = ptn[i].imageNames[j];
+
+            emit gui->setPliIconPathSig(imageIconKey,imageName);
+        }
+
+        if (!_ldrNames.isEmpty())
+            emit gui->messageSig(LOG_INFO, qPrintable(
+                                     QString("%1 PLI (Single Call) render took "
+                                             "%2 milliseconds to render %3 %4 for %5")
+                                     .arg(Render::getRenderer())
+                                     .arg(timer.elapsed())
+                                     .arg(_ldrNames.size())
+                                     .arg(_ldrNames.size() == 1 ? "image" : "images")
+                                     .arg(bom ? "BOM part list" : "Step parts list.")));
     }
 
-  // 2. Call create part images; send ldr file names
-  if (createPartImagesLDViewSCall(ldrNames)) {
-      emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part images using LDView Single Call"));
-      return -1;
-    }
+    if (rc != 0)
+        return rc;
 
-  return 0;
+    return 0;
 }
 
 int Pli::sizePli(Meta *_meta, PlacementType _parentRelativeType, bool _perStep)

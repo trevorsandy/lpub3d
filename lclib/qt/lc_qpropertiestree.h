@@ -72,6 +72,8 @@ protected:
 
 	void getPartProperties(lcPartProperties *properties);
 
+    bool FirstHit;
+
 	lcPropertyWidgetMode mWidgetMode;
 	lcObject* mFocus;
 
@@ -88,12 +90,16 @@ protected:
 	QTreeWidgetItem *partRotationX;
 	QTreeWidgetItem *partRotationY;
 	QTreeWidgetItem *partRotationZ;
+    QTreeWidgetItem *partAppearance;
+    QTreeWidgetItem *partID;
+    QTreeWidgetItem *partColor;
+    QTreeWidgetItem *partFileName;
+    QTreeWidgetItem *partModel;
+    QTreeWidgetItem *partType;
+    QTreeWidgetItem *partIsSubmodel;
 	QTreeWidgetItem *partVisibility;
 	QTreeWidgetItem *partShow;
 	QTreeWidgetItem *partHide;
-	QTreeWidgetItem *partAppearance;
-	QTreeWidgetItem *partColor;
-	QTreeWidgetItem *partID;
 
 	QTreeWidgetItem *cameraPosition;
 	QTreeWidgetItem *cameraPositionX;

@@ -110,11 +110,11 @@ class Step : public AbstractRangeElement
            Meta               &meta,
            bool               bfxLoad = false);
 
-    int viewerCSI(QStringList &csiParts,
+    int createViewerCSI(QStringList &csiParts,
                   bool doFadeStep,
                   bool doHighlightStep);
 
-    int viewerCSISubModels(QStringList &subModels,
+    int mergeViewerCSISubModels(QStringList &subModels,
                            QStringList &subModelParts,
                            bool doFadeStep,
                            bool doHighlightStep);

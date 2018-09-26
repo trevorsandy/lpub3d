@@ -105,7 +105,14 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 
 	for (unsigned int TopLevelItemIdx = topLevelItemCount(); TopLevelItemIdx < LastStep; TopLevelItemIdx++)
 	{
-		QTreeWidgetItem* StepItem = new QTreeWidgetItem(this, QStringList(tr("Step %1").arg(TopLevelItemIdx + 1)));
+/*** LPub3D Mod - Set timeline title with step number ***/
+        QStringList CsiName = gMainWindow->getViewerCsiName().split(";");
+        QString StepTitle = QString(((TopLevelItemIdx + 1) == 1 && (CsiName.size() >= 3)) ?
+                                   tr("Step %1 Pieces").arg(CsiName[2].contains("_fm") ?
+                                   tr("%1 Final Model").arg(CsiName[2].replace("_fm","")) : CsiName[2]) :
+                                   tr("Step %1 Pieces").arg(TopLevelItemIdx + 1));
+        QTreeWidgetItem* StepItem = new QTreeWidgetItem(this, QStringList(StepTitle));
+ /*** LPub3D Mod end ***/
 		StepItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsDropEnabled);
 		addTopLevelItem(StepItem);
 		StepItem->setExpanded(true);

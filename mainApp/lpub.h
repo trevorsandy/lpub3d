@@ -731,6 +731,16 @@ public slots:
       }
   }
 
+  /* Fade colour processing */
+  QString createColourEntry(
+    const QString &colourCode,
+    const PartType partType);
+
+  bool colourEntryExist(
+    const QStringList &colourEntries,
+    const QString &code,
+    const PartType partType);
+
   void openDropFile(QString &fileName);
 
   void deployExportBanner(bool b);
@@ -796,7 +806,7 @@ public slots:
   }
   void reloadCurrentModelFile();
   void reloadViewer();
-  void loadTheme();
+  void loadTheme(bool restart = true);
   void restartApplication();
 
   bool removeDir(int &count,const QString &dirName);
@@ -1007,16 +1017,6 @@ private:
     const QStringList &csiParts,
     const int         &stepNum,
     Where             &current);      // fade and or highlight parts in a step that are not current
-
-  /* Fade colour processing */
-  QString createColourEntry(
-    const QString &colourCode,
-    const PartType partType);
-
-  bool colourEntryExist(
-    const QStringList &colourEntries,
-    const QString &code,
-    const PartType partType);
 
   static bool installExportBanner(
     const int &type,

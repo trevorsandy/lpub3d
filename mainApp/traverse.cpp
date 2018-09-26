@@ -991,6 +991,9 @@ int Gui::drawPage(
                         }
                       steps->pli.bom = false;
                       steps->pli.setParts(pliParts,steps->stepGroupMeta);
+
+                      emit messageSig(LOG_STATUS, "Add PLI images for multi-step page " + current.modelName);
+
                       steps->pli.sizePli(&steps->stepGroupMeta, StepGroupType, false);
                     }
                   pliParts.clear();
@@ -1017,7 +1020,7 @@ int Gui::drawPage(
                       page->pagePointers = pagePointers;
                     }
 
-                  emit messageSig(LOG_STATUS, "Add graphics for multi-step page " + current.modelName);
+                  emit messageSig(LOG_STATUS, "Add CSI images for multi-step page " + current.modelName);
 
                   if (renderer->useLDViewSCall() && ldrStepFiles.size() > 0){
                       QElapsedTimer timer;
@@ -1150,6 +1153,8 @@ int Gui::drawPage(
                           step->pli.setParts(pliParts,steps->meta);
                           pliParts.clear();
 
+                          emit messageSig(LOG_STATUS, "Processing step (PLI) for " + topOfStep.modelName + "...");
+
                           step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
                         }
 
@@ -1157,7 +1162,7 @@ int Gui::drawPage(
                           step->placeRotateIcon = true;
                         }
 
-                      emit messageSig(LOG_STATUS, "Processing model (CSI) for " + topOfStep.modelName + "...");
+                      emit messageSig(LOG_STATUS, "Processing step (CSI) for " + topOfStep.modelName + "...");
                       csiName = step->csiName();
                       int rc = step->createCsi(
                             isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
@@ -1233,11 +1238,13 @@ int Gui::drawPage(
                               instancesPliParts.clear();
                               pliParts.clear();
 
+                              emit messageSig(LOG_STATUS, "Add PLI images for single-step page...");
+
                               step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
                             }
                         }
 
-                      emit messageSig(LOG_STATUS, "Add graphics for single-step page...");
+                      emit messageSig(LOG_STATUS, "Add CSI image for single-step page...");
 
                       if (renderer->useLDViewSCall() && ldrStepFiles.size() > 0){
 

@@ -284,7 +284,7 @@ int Step::createCsi(
       rotatedParts.prepend(renderer->getRotstepMeta(meta.rotStep));
 
       // consolidate subfiles and parts into single file - I don't think this is still needed but I keep it anyway
-      viewerCSI(rotatedParts, doFadeStep, doHighlightStep);
+      createViewerCSI(rotatedParts, doFadeStep, doHighlightStep);
 
       gui->insertViewerStep(viewerCsiName,rotatedParts,csiLdrFile,multiStep,calledOut);
   }
@@ -365,7 +365,7 @@ int Step::createCsi(
 }
 
 // create 3D Viewer version of the csi file
-int Step::viewerCSI(
+int Step::createViewerCSI(
     QStringList &csiRotatedParts,
     bool         doFadeStep,
     bool         doHighlightStep)
@@ -439,7 +439,7 @@ int Step::viewerCSI(
       /* process extracted submodels and unofficial files */
       if (csiSubModels.size() > 0){
 
-          if ((rc = viewerCSISubModels(csiSubModels, csiSubModelParts, doFadeStep, doHighlightStep)) != 0){
+          if ((rc = mergeViewerCSISubModels(csiSubModels, csiSubModelParts, doFadeStep, doHighlightStep)) != 0){
               emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to process viewer CSI submodels"));
               return rc;
             }
@@ -459,7 +459,7 @@ int Step::viewerCSI(
   return 0;
 }
 
-int Step::viewerCSISubModels(QStringList &subModels,
+int Step::mergeViewerCSISubModels(QStringList &subModels,
                                   QStringList &subModelParts,
                                   bool doFadeStep,
                                   bool doHighlightStep)
@@ -483,8 +483,9 @@ int Step::viewerCSISubModels(QStringList &subModels,
                           csiSubModels[index]);
 
           /* initialize the working submodel file - define header. */
-          csiSubModelParts.append("0 FILE " + csiSubModels[index] + "\n"
-                                  "0 !LEOCAD MODEL NAME " + csiSubModels[index]);
+          csiSubModelParts << "0 FILE " + csiSubModels[index];
+          csiSubModelParts << "0 !LEOCAD MODEL NAME " + csiSubModels[index];
+
           /* read the actual submodel file */
           QFile ldrfile(ldrName);
           if ( ! ldrfile.open(QFile::ReadOnly | QFile::Text)) {
@@ -555,7 +556,7 @@ int Step::viewerCSISubModels(QStringList &subModels,
 
       /* recurse and process any identified submodel files */
       if (newSubModels.size() > 0){
-          if ((rc = viewerCSISubModels(newSubModels, csiSubModelParts, doFadeStep, doHighlightStep)) != 0){
+          if ((rc = mergeViewerCSISubModels(newSubModels, csiSubModelParts, doFadeStep, doHighlightStep)) != 0){
               emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to recurse viewer CSI submodels"));
               return rc;
             }
