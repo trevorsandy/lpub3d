@@ -73,6 +73,7 @@ class Step : public AbstractRangeElement
     QString               ldrName;
     QString               pngName;
     QString               csiKey;
+    QString               viewerCsiName;
     ViewerOptions         viewerOptions;
     PlacementHeader       plPageHeader;
     PlacementFooter       plPageFooter;
@@ -102,6 +103,8 @@ class Step : public AbstractRangeElement
 
     Step  *nextStep();
     Range *range();
+
+    bool loadTheViewer();
 
     int  createCsi(
            QString      const &addLine,

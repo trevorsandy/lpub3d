@@ -63,6 +63,7 @@ staticlib {
 }
 
 CONFIG(debug, debug|release) {
+    DEFINES += QT_DEBUG_MODE
     BUILD_CONF = Debug
     ARCH_BLD = bit_debug
     macx: TARGET = $$join(TARGET,,,_debug)

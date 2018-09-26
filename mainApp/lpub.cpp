@@ -1112,11 +1112,11 @@ void Gui::clearCustomPartCache(bool silent)
 
   int count = 0;
   if (removeDir(count, dirName)){
-      emit messageSig(LOG_STATUS,QMessageBox::tr("Custom parts cache cleaned.  %1 %2 removed.")
-                           .arg(count)
-                           .arg(count == 1 ? "item": "items"));
+      emit messageSig(LOG_STATUS,QString("Custom parts cache cleaned.  %1 %2 removed.")
+                                         .arg(count)
+                                         .arg(count == 1 ? "item": "items"));
   } else {
-      emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to remeove custom parts cache directory: %1").arg(dirName));
+      emit messageSig(LOG_ERROR,QString("Unable to remeove custom parts cache directory: %1").arg(dirName));
       return;
   }
 
@@ -1148,10 +1148,8 @@ void Gui::clearPLICache()
         QFileInfo fileInfo = list.at(i);
         QFile     file(dirName + "/" + fileInfo.fileName());
         if (!file.remove()) {
-            QMessageBox::critical(nullptr,
-                                  tr("LPub3D"),
-                                  tr("Unable to remeove %1")
-                                  .arg(dirName + "/" + fileInfo.fileName()));
+            emit messageSig(LOG_ERROR,QString("Unable to remeove %1")
+                                              .arg(dirName + "/" + fileInfo.fileName()));
             count--;
           } else
           count++;
@@ -1178,10 +1176,8 @@ void Gui::clearCSICache()
         QFileInfo fileInfo = list.at(i);
         QFile     file(dirName + "/" + fileInfo.fileName());
         if (!file.remove()) {
-            QMessageBox::critical(nullptr,
-                                  tr("LPub3D"),
-                                  tr("Unable to remeove %1")
-                                  .arg(dirName + "/" + fileInfo.fileName()));
+            emit messageSig(LOG_ERROR,QString("Unable to remeove %1")
+                                              .arg(dirName + "/" + fileInfo.fileName()));
             count--;
           } else
           count++;
@@ -1193,7 +1189,7 @@ void Gui::clearCSICache()
 void Gui::clearTempCache()
 {
     if (getCurFile().isEmpty()) {
-        emit messageSig(LOG_STATUS,"A model must be open to clean its 3D cache - no action taken.");
+        emit messageSig(LOG_STATUS,QString("A model must be open to clean its 3D cache - no action taken."));
         return;
     }
 
@@ -1208,10 +1204,8 @@ void Gui::clearTempCache()
         QFileInfo fileInfo = list.at(i);
         QFile     file(tmpDirName + "/" + fileInfo.fileName());
         if (!file.remove()) {
-            QMessageBox::critical(nullptr,
-                                  tr("LPub3D"),
-                                  tr("Unable to remeove %1")
-                                  .arg(tmpDirName + "/" + fileInfo.fileName()));
+            emit messageSig(LOG_ERROR,QString("Unable to remeove %1")
+                                              .arg(tmpDirName + "/" + fileInfo.fileName()));
             count1--;
           } else
           count1++;
@@ -1252,8 +1246,8 @@ void Gui::clearStepCSICache(QString &pngName) {
   QFileInfo fileInfo(pngName);
   QFile file(assemDirName + "/" + fileInfo.fileName());
   if (!file.remove()) {
-      emit messageSig(LOG_ERROR, QMessageBox::tr("Unable to remove %1")
-                            .arg(assemDirName + "/" + fileInfo.fileName()));
+      emit messageSig(LOG_ERROR,QString("Unable to remove %1")
+                                        .arg(assemDirName + "/" + fileInfo.fileName()));
     }
   QString ldrName;
   if (renderer->useLDViewSCall()){
@@ -1263,8 +1257,8 @@ void Gui::clearStepCSICache(QString &pngName) {
     }
   file.setFileName(ldrName);
   if (!file.remove()) {
-      emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to remeove %1")
-                            .arg(ldrName));
+      emit messageSig(LOG_ERROR,QString("Unable to remeove %1")
+                                        .arg(ldrName));
     }
   if (Preferences::enableFadeSteps) {
       clearPrevStepPositions();
@@ -1317,22 +1311,22 @@ void Gui::clearPageCSIGraphicsItems(Step *step) {
   QFileInfo fileInfo(step->pngName);
   QFile file(assemDirName + "/" + fileInfo.fileName());
   if (!file.remove()) {
-      emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to remove %1")
+      emit messageSig(LOG_ERROR,QString("Unable to remove %1")
                             .arg(assemDirName + "/" + fileInfo.fileName()));
   }
   if (renderer->useLDViewSCall()){
       ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
       file.setFileName(ldrName);
       if (!file.remove()) {
-         emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to remeove %1")
-                                .arg(ldrName));
+         emit messageSig(LOG_ERROR,QString("Unable to remeove %1")
+                                           .arg(ldrName));
       }
   } else if (! itemsCleared){
       ldrName = tmpDirName + "/csi.ldr";
       file.setFileName(ldrName);
       if (!file.remove()) {
-          emit messageSig(LOG_ERROR,QMessageBox::tr("Unable to remeove %1")
-                                .arg(ldrName));
+          emit messageSig(LOG_ERROR,QString("Unable to remeove %1")
+                                            .arg(ldrName));
       }
       itemsCleared = true;
   }
@@ -1838,10 +1832,10 @@ void Gui::preferences()
                 box.setStandardButtons (QMessageBox::Ok | QMessageBox::Close | QMessageBox::Cancel);
                 box.setText (QString("You must close and restart %1 to fully configure the Theme.\n"
                                      "Editor syntax highlighting will update the next time you start %1")
-                             .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+                                     .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
                 box.setInformativeText (QString("Click \"OK\" to close and restart %1 or \"Close\" set the Theme without restart.\n\n"
                                                 "You can suppress this message in Preferences, Themes")
-                                        .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+                                                .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
                 if (box.exec() == QMessageBox::Ok) {
                     displayThemeRestart = true;
                 }
@@ -1890,7 +1884,7 @@ void Gui::preferences()
                 Level logLevel = logger.fromLevelString(Preferences::loggingLevel,&ok);
                 if (!ok)
                 {
-                    QString Message = QMessageBox::tr("Failed to set log level %1.\n"
+                    QString Message = QString("Failed to set log level %1.\n"
                                                       "Logging is off - level set to OffLevel")
                             .arg(Preferences::loggingLevel);
                     if (Preferences::modeGUI)
@@ -2575,7 +2569,7 @@ void Gui::meta()
 
   QFile file(fileName);
   if (!file.open(QFile::WriteOnly | QFile::Text)) {
-    emit messageSig(LOG_ERROR, QMessageBox::tr("Cannot write file %1:\n%2.")
+    emit messageSig(LOG_ERROR, QString("Cannot write file %1:\n%2.")
                     .arg(fileName)
                     .arg(file.errorString()));
     return;
@@ -3498,7 +3492,7 @@ void Gui::statusMessage(LogType logType, QString message) {
         Level logLevel = logger.fromLevelString(Preferences::loggingLevel,&ok);
         if (!ok)
         {
-            QString Message = QMessageBox::tr("Failed to set log level %1.\n"
+            QString Message = QString("Failed to set log level %1.\n"
                                               "Logging is off - level set to OffLevel")
                     .arg(Preferences::loggingLevel);
             fprintf(stderr, "%s", Message.toLatin1().constData());

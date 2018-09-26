@@ -389,11 +389,7 @@ void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   //placeGrabbers();
   position = pos();
   gui->showLine(step->topOfStep());
-
-  if (! renderer->LoadViewer(step->viewerOptions)) {
-     emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load 3D Viewer with %1.")
-                            .arg(step->viewerOptions.ViewerCsiName));
-  }
+  step->loadTheViewer();
 }
 
 void CsiItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)

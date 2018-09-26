@@ -455,7 +455,7 @@ void LDrawFile::loadFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Cannot read file %1:\n%2.")
+        emit gui->messageSig(LOG_ERROR, QString("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
         return;
@@ -543,7 +543,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 {    
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Cannot read file %1:\n%2.")
+        emit gui->messageSig(LOG_ERROR, QString("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
         return;
@@ -688,7 +688,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName, bool t
 
       QFile file(fullName);
       if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot read file %1:\n%2.")
+        emit gui->messageSig(LOG_ERROR,QString("Cannot read file %1:\n%2.")
                              .arg(fullName)
                              .arg(file.errorString()));
         return;
@@ -961,7 +961,7 @@ bool LDrawFile::saveMPDFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot write file %1:\n%2.")
+        emit gui->messageSig(LOG_ERROR,QString("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
         return false;
@@ -1071,7 +1071,7 @@ bool LDrawFile::saveLDRFile(const QString &fileName)
       if (f != _subFiles.end() && ! f.value()._generated) {
         if (f.value()._modified) {
           if (!file.open(QFile::WriteOnly | QFile::Text)) {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot write file %1:\n%2.")
+            emit gui->messageSig(LOG_ERROR,QString("Cannot write file %1:\n%2.")
                                  .arg(writeFileName)
                                  .arg(file.errorString()));
             return false;
