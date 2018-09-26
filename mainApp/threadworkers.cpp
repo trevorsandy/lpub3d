@@ -695,7 +695,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
             }
         }
         if (!partFound) {
-            fileStatus = QString("Part file %1 not found in %2.").arg(libPartName).arg(unOffLib ? "Unofficial Library" : "Official Library");
+            fileStatus = QString("Part file %1 not found in %2. Be sure the fadeStepColorParts.lst file is up to date.").arg(libPartName).arg(unOffLib ? "Unofficial Library" : "Official Library");
             emit messageSig(LOG_ERROR, fileStatus);
         }
 

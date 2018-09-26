@@ -507,7 +507,7 @@ void LDrawFile::loadFile(const QString &fileName)
     bool p = (_missingParts.count() > 1);
     int mpc = _missingParts.count();
     if (mpc > 0)
-        emit gui->messageSig(LOG_ERROR,  QString("%1 %2 [%3] %4 not found in %5 or %6 archive. "
+        emit gui->messageSig(LOG_ERROR,  QString("LDrawfiles load: %1 %2 [%3] %4 not found in %5 or %6 archive. "
                                                  "If %7 %2, be sure %8 location "
                                                  "is captured in the LDraw search directory list.")
                                                  .arg(mpc)
