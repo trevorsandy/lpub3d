@@ -105,13 +105,8 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 
 	for (unsigned int TopLevelItemIdx = topLevelItemCount(); TopLevelItemIdx < LastStep; TopLevelItemIdx++)
 	{
-/*** LPub3D Mod - Set timeline title with step number ***/
-        QStringList CsiName = gMainWindow->getViewerCsiName().split(";");
-        QString StepTitle = QString(((TopLevelItemIdx + 1) == 1 && (CsiName.size() >= 3)) ?
-                                   tr("Step %1 Pieces").arg(CsiName[2].contains("_fm") ?
-                                   tr("%1 Final Model").arg(CsiName[2].replace("_fm","")) : CsiName[2]) :
-                                   tr("Step %1 Pieces").arg(TopLevelItemIdx + 1));
-        QTreeWidgetItem* StepItem = new QTreeWidgetItem(this, QStringList(StepTitle));
+/*** LPub3D Mod - Set timeline title to loaded model name ***/
+        QTreeWidgetItem* StepItem = new QTreeWidgetItem(this, QStringList(Model->GetName()));
  /*** LPub3D Mod end ***/
 		StepItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsDropEnabled);
 		addTopLevelItem(StepItem);
@@ -196,12 +191,12 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
                 QString IconUID = QString("%1_%2")
                         .arg(QFileInfo(Piece->GetID()).baseName())
                         .arg(Piece->mColorCode);
-
                 if (GetPieceIcon(Size, IconUID)) {
                     PieceItem->setIcon(0, mPieceIcons[IconUID]);
                 } else {
                     GetIcon(Size,ColorIndex);
                     PieceItem->setIcon(0, mIcons[ColorIndex]);
+                    qDebug() << qPrintable(QString(" ALERT - Could Not Insert Piece Icon - UID [%1]").arg(IconUID));
                 }
             } else {
                 GetIcon(Size,ColorIndex);

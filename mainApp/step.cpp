@@ -382,7 +382,6 @@ int Step::createViewerCSI(
 
       for (int index = 0; index < csiRotatedParts.size(); index++) {
 
-          alreadyInserted = false;
           QString csiLine = csiRotatedParts[index];
           split(csiLine, argv);
           if (argv.size() == 15 && argv[0] == "1") {
@@ -419,31 +418,20 @@ int Step::createViewerCSI(
 
               if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
                   /* capture subfiles (full string) to be processed when finished */
-                  foreach (QString csiSubModel, csiSubModels) {
-                      if (csiSubModel == type) {
-                          alreadyInserted = true;
-                          break;
-                        } else {
-                          alreadyInserted = false;
-                        }
-                    }
-
-                  if (! alreadyInserted){
-                      alreadyInserted = false;
-                      csiSubModels << type.toLower();
-                    }
+                  if (!csiSubModels.contains(type))
+                       csiSubModels << type.toLower();
                 }
             }
         } //end for
 
       /* process extracted submodels and unofficial files */
       if (csiSubModels.size() > 0){
-
+          if (csiSubModels.size() > 2)
+              csiSubModels.removeDuplicates();
           if ((rc = mergeViewerCSISubModels(csiSubModels, csiSubModelParts, doFadeStep, doHighlightStep)) != 0){
               emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to process viewer CSI submodels"));
               return rc;
             }
-
         }
 
       /* add sub model content to csiRotatedParts file */
@@ -469,15 +457,12 @@ int Step::mergeViewerCSISubModels(QStringList &subModels,
   QStringList newSubModels;
 
   QStringList argv;
-  bool        alreadyInserted;
   int         rc;
 
   if (csiSubModels.size() > 0) {
 
       /* read in all detected sub model file content */
       for (int index = 0; index < csiSubModels.size(); index++) {
-
-          alreadyInserted     = false;
           QString ldrName(QDir::currentPath() + "/" +
                           Paths::tmpDir + "/" +
                           csiSubModels[index]);
@@ -533,19 +518,8 @@ int Step::mergeViewerCSISubModels(QStringList &subModels,
 
                   if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
                       /* capture all subfiles (full string) to be processed when finished */
-                      foreach (QString newSubModel, newSubModels) {
-                          if (newSubModel == type) {
-                              alreadyInserted = true;
-                              break;
-                            } else {
-                              alreadyInserted = false;
-                            }
-                        }
-
-                      if (! alreadyInserted){
-                          alreadyInserted = false;
-                          newSubModels << type;
-                        }
+                      if (!newSubModels.contains(type))
+                              newSubModels << type.toLower();
                     }
                 }
               csiLine = argv.join(" ");
@@ -556,6 +530,8 @@ int Step::mergeViewerCSISubModels(QStringList &subModels,
 
       /* recurse and process any identified submodel files */
       if (newSubModels.size() > 0){
+          if (newSubModels.size() > 2)
+              newSubModels.removeDuplicates();
           if ((rc = mergeViewerCSISubModels(newSubModels, csiSubModelParts, doFadeStep, doHighlightStep)) != 0){
               emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to recurse viewer CSI submodels"));
               return rc;

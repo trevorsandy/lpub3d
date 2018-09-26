@@ -1034,14 +1034,14 @@ void LDrawFile::countParts(const QString &fileName){
                     PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
                     if (pieceInfo && pieceInfo->IsPartType()) {
                         _pieces++; sfCount++;
-                        //logTrace() << QString(" Part Line: [%2] %3 ItemNo %1").arg(_pieces).arg(fileName).arg(line);
-                        emit gui->messageSig(LOG_NOTICE,QString("ItemNo %1 [%2]").arg(_pieces).arg(tokens[14]));
+                        //logTrace() << QString(" Part Line: [%2] %3 Item No %1").arg(_pieces).arg(fileName).arg(line);
+                        emit gui->messageSig(LOG_NOTICE,QString("Piece No %1 [%2] validated.").arg(_pieces).arg(tokens[14]));
                     } else if (lcGetPiecesLibrary()->IsPrimitive(info.fileName().toUpper().toLatin1().constData())) {
-                        emit gui->messageSig(LOG_NOTICE,QString("Item [%1] is a primitive type part").arg(tokens[14]));
+                        emit gui->messageSig(LOG_NOTICE,QString("Piece [%1] is a primitive type part").arg(tokens[14]));
                     } else {
                         if (!_missingParts.contains(tokens[14])) {
                             _missingParts << tokens[14];
-                            emit gui->messageSig(LOG_ERROR,QString("Item [%1] was not found in the %2 library archives.")
+                            emit gui->messageSig(LOG_ERROR,QString("Piece [%1] was not found in the %2 library archives.")
                                           .arg(tokens[14])
                                           .arg(VER_PRODUCTNAME_STR));
                         }

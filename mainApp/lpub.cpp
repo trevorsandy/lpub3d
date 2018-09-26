@@ -1021,6 +1021,23 @@ void  Gui::restartApplication(){
   QCoreApplication::quit();
 }
 
+void Gui::reloadCurrentPage(){
+    if (getCurFile().isEmpty()) {
+        emit messageSig(LOG_STATUS,"No model file page to redisplay.");
+        return;
+    }
+    if (maybeSave()) {
+        timer.start();
+
+        int savePage = displayPageNum;
+        displayPageNum = savePage;
+        displayPage();
+        emit messageSig(LOG_STATUS, QString("Page %1 reloaded. %2")
+                        .arg(displayPageNum)
+                        .arg(elapsedTime(timer.elapsed())));
+    }
+}
+
 void Gui::reloadCurrentModelFile(){
     if (getCurFile().isEmpty()) {
         emit messageSig(LOG_STATUS,"No model file to reopen.");

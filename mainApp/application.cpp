@@ -577,17 +577,21 @@ int Application::run()
 
 void clearCustomPartCache(bool silent)
 {
-  gui->clearCustomPartCache(silent);
+    gui->clearCustomPartCache(silent);
 }
 
 void clearAndRedrawPage()
 {
-  gui->clearAndRedrawPage();
+    gui->clearAndRedrawPage();
+}
+
+void reloadCurrentPage(){
+    gui->reloadCurrentPage();
 }
 
 void restartApplication()
 {
-  gui->restartApplication();
+    gui->restartApplication();
 }
 
 // Implements the main function here.

@@ -760,22 +760,18 @@ void lcApplication::ShowPreferencesDialog()
     lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, Options.CheckForUpdates);
     lcSetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES, Options.AASamples);
 
-/*** LPub3D Mod - Native Renderer settings ***/
-    lcSetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT, Options.Preferences.mNativeViewpoint);
-    lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, Options.Preferences.mNativeOrthographic);
-/*** LPub3D Mod end ***/
+/*** LPub3D Mod - preference refresh ***/
 
     bool restartApp = false;
     bool reloadPage = false;
     bool redrawPage = false;
 
-/*** LPub3D Mod - preference refresh ***/
     QMessageBox box;
     box.setMinimumSize(40,20);
     box.setIcon (QMessageBox::Question);
     box.setDefaultButton   (QMessageBox::Ok);
     box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
-    bool restartApp = false;
+
     if (LibraryChanged || AAChanged) {
         box.setText (QString("You must close and restart %1 to enable Anti Aliasing changes.")
                      .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
@@ -791,25 +787,13 @@ void lcApplication::ShowPreferencesDialog()
 
     if (Preferences::preferredRenderer == RENDERER_NATIVE && !restartApp)
     {
-      float mLineWidth      = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
-      bool mDrawEdgeLInes     = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
-      lcShadingMode mShadingMode = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
-
-      bool drawEdgeLinesChanged = Options.Preferences.mDrawEdgeLines != mDrawEdgeLInes;
-      bool shadingModeChanged = Options.Preferences.mShadingMode     != mShadingMode;
-      bool lineWidthChanged = Options.Preferences.mLineWidth         != mLineWidth;
-
-      if (AAChanged ||
-          shadingModeChanged ||
+      if (shadingModeChanged ||
           drawEdgeLinesChanged ||
-          ViewPieceIconsChangd ||
           lineWidthChanged ||
           NativeViewpointChanged ||
           NativeProjectionIsOrthoChanged)
       {
-          //bool silent = true;
-          //clearCustomPartCache(silent);
-          clearAndRedrawPage();
+          redrawPage = true;
 
           QString oldShadingMode, newShadingMode;
           switch (Options.Preferences.mShadingMode)
@@ -959,9 +943,17 @@ void lcApplication::ShowPreferencesDialog()
     gMainWindow->SetShadingMode(Options.Preferences.mShadingMode);
     gMainWindow->UpdateAllViews();
 
-/*** LPub3D Mod restart ***/
+/*** LPub3D Mod restart and reload***/
     if (restartApp) {
         restartApplication();
+    }
+    else
+    if (redrawPage) {
+        clearAndRedrawPage();
+    }
+    else
+    if (reloadPage) {
+        reloadCurrentPage();
     }
 /*** LPub3D Mod end ***/
 }

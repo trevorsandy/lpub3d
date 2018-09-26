@@ -159,5 +159,6 @@ private:
 
 void clearCustomPartCache(bool silent = false);
 void clearAndRedrawPage();
+void reloadCurrentPage();
 void restartApplication();
 #endif // APPLICATION_H

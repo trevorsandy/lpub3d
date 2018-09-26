@@ -330,9 +330,6 @@ public:
 	void UpdateModified(bool Modified);
 	void UpdateRecentFiles();
 	void UpdateShortcuts();
-/*** LPub3D Mod - coord format ***/
-    const QString getViewerCsiName();
-/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Timeline part icons ***/
     const QString GetPliIconsPath(QString &key);
 /*** LPub3D Mod end ***/

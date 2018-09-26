@@ -347,7 +347,7 @@ bool ArchiveParts::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDi
 
   bool zipDirOk = zipDir.exists();
 
-  QString zipDirMsg = QString("Archive subfolder '%1' %2.")
+  QString zipDirMsg = QString("Unofficial archive subfolder '%1' %2.")
                       .arg(zipDir.dirName())
                       .arg(zipDirOk ? QString(QString("contains %1 %2")
                                       .arg(zipDir.count())
@@ -378,7 +378,7 @@ bool ArchiveParts::RecurseZipArchive(QStringList &zipDirFileList, QString &zipDi
             continue;
 
           if (zipFileInfo.isSymLink()) {
-            logError() << QString("Archive subfolder entrylist returned a symbolic link.");
+            logError() << QString("Unofficial archive subfolder entrylist returned a symbolic link.");
             return false;
           }
 
