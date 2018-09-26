@@ -65,6 +65,11 @@ enum LC_PROFILE_KEY
 	LC_PROFILE_POVRAY_WIDTH,
 	LC_PROFILE_POVRAY_HEIGHT,
 
+/*** LPub3D Mod - Native Renderer settings ***/
+    // Native Renderer.
+    LC_PROFILE_NATIVE_VIEWPOINT,
+    LC_PROFILE_NATIVE_PROJECTION,
+/*** LPub3D Mod end ***/
 	LC_NUM_PROFILE_KEYS
 };
 

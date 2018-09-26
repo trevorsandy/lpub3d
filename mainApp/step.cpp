@@ -188,6 +188,10 @@ int Step::createCsi(
   bool    doHighlightStep = meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
   bool    csiExist        = false;
   bool    invalidIMStep   = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
+  // Change camera view angles to 0 if ROTSTEP is ABS
+  if (meta.rotStep.value().type == "ABS")
+    meta.LPub.assem.cameraAngles.setValues(0.0f,0.0f);
+
   QString viewerCsiName;
 
   ldrName.clear();
@@ -268,7 +272,7 @@ int Step::createCsi(
       // add ROTSTEP command
       rotatedParts.prepend(renderer->getRotstepMeta(meta.rotStep));
 
-      // consolidate subfiles and parts into single file
+      // consolidate subfiles and parts into single file - I don't think this is still needed but I keep it anyway
       viewerCSI(rotatedParts, doFadeStep, doHighlightStep);
 
       gui->insertViewerStep(viewerCsiName,rotatedParts,csiFullFilePath,multiStep,calledOut);
@@ -341,7 +345,6 @@ int Step::createCsi(
       viewerOptions.FoV            = meta.LPub.assem.cameraFoV.value();
       viewerOptions.Latitude       = meta.LPub.assem.cameraAngles.value(0);
       viewerOptions.Longitude      = meta.LPub.assem.cameraAngles.value(1);
-      //viewerOptions.CameraDistance = renderer->cameraDistance(meta,meta.LPub.assem.modelScale.value());
 
       if (! renderer->LoadViewer(viewerOptions)) {
           emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Load viewer failed for csi_Name: %1")

@@ -123,10 +123,10 @@ QString fixupDirname(const QString &dirNameIn) {
 #else
                 emit gui->messageSig(LOG_INFO, message);
 #endif
-		return dirNameIn;
-	}
+        return dirNameIn;
+    }
 
-	QString dirNameOut = QString::fromWCharArray(buffer);
+    QString dirNameOut = QString::fromWCharArray(buffer);
 
     delete [] buffer;
         return dirNameOut;
@@ -245,15 +245,15 @@ bool clipImage(QString const &pngName) {
 
 // Shared calculations
 float stdCameraDistance(Meta &meta, float scale) {
-	float onexone;
-	float factor;
+    float onexone;
+    float factor;
 
-	// Do the math in pixels
+    // Do the math in pixels
 
-	onexone  = 20*meta.LPub.resolution.ldu(); // size of 1x1 in units
-	onexone *= meta.LPub.resolution.value();  // size of 1x1 in pixels
-	onexone *= scale;
-	factor   = gui->pageSize(meta.LPub.page, 0)/onexone; // in pixels;
+    onexone  = 20*meta.LPub.resolution.ldu(); // size of 1x1 in units
+    onexone *= meta.LPub.resolution.value();  // size of 1x1 in pixels
+    onexone *= scale;
+    factor   = gui->pageSize(meta.LPub.page, 0)/onexone; // in pixels;
 
 //	logDebug() << qPrintable(QString("LduDistance                      : %1").arg(LduDistance));
 //	logDebug() << qPrintable(QString("Page Size (width in pixels)      : %1").arg(gui->pageSize(meta.LPub.page, 0)));
@@ -264,7 +264,7 @@ float stdCameraDistance(Meta &meta, float scale) {
 //	logDebug() << qPrintable(QString("Factor [Page size/OnexOne]       : %1").arg(QString::number(factor, 'f' ,10)));
 //	logDebug() << qPrintable(QString("Cam Distance [Factor*LduDistance]: %1").arg(QString::number(factor*LduDistance, 'f' ,10)));
 
-	return factor*LduDistance;
+    return factor*LduDistance;
 }
 
 int Render::executeLDViewProcess(QStringList &arguments, Mt module) {
@@ -558,7 +558,7 @@ int POVRay::renderPli(
     Meta    	      &meta,
     bool     	      bom)
 {
-  QString povName = ldrNames.first() +".pov";  
+  QString povName = ldrNames.first() +".pov";
   PliMeta &metaType = bom ? meta.LPub.bom : meta.LPub.pli;
   QStringList list;
   QString message;
@@ -768,7 +768,7 @@ float LDGLite::cameraDistance(
   Meta &meta,
   float scale)
 {
-	return stdCameraDistance(meta,scale);
+    return stdCameraDistance(meta,scale);
 }
 
 int LDGLite::renderCsi(
@@ -1019,7 +1019,7 @@ float LDView::cameraDistance(
   Meta &meta,
   float scale)
 {
-	return stdCameraDistance(meta, scale)*0.775;
+    return stdCameraDistance(meta, scale)*0.775;
 }
 
 int LDView::renderCsi(
@@ -1046,12 +1046,12 @@ int LDView::renderCsi(
 
   /* Create the CSI DAT file(s) */
   QString f;
-  bool haveLdrNames, haveLdrNamesIM;
+  bool haveLdrNames = false, haveLdrNamesIM = false;
   QStringList ldrNames, ldrNamesIM;
   if (useLDViewSCall()) {
       if (Preferences::enableFadeSteps && Preferences::enableImageMatting){  // ldrName entries (IM ON)
           enableIM = true;
-          haveLdrNames = haveLdrNamesIM = false;
+//          haveLdrNames = haveLdrNamesIM = false;
           QString assemPath = QDir::currentPath() + "/" +  Paths::assemDir;
           foreach(QString csiEntry, csiParts){              // csiParts are ldrNames under LDViewSingleCall
               QString csiFile = QString("%1/%2").arg(assemPath).arg(QFileInfo(QString(csiEntry).replace(".ldr",".png")).fileName());
@@ -1438,36 +1438,29 @@ int Native::renderCsi(
   // Renderer options
   NativeOptions Options;
   Options.ImageType         = CSI;
+  Options.InputFileName     = ldrName;
   Options.OutputFileName    = pngName;
   Options.ImageWidth        = gui->pageSize(meta.LPub.page, 0);
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
-  Options.FoV               = meta.LPub.assem.cameraFoV.value();
+  Options.FoV               = meta.LPub.assem.cameraFoV.value();    // not currently used
   Options.Latitude          = meta.LPub.assem.cameraAngles.value(0);
   Options.Longitude         = meta.LPub.assem.cameraAngles.value(1);
   Options.HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
   Options.CameraDistance    = cameraDistance(meta,meta.LPub.assem.modelScale.value());
   Options.LineWidth         = lineThickness;
 
-  // Set new project
+  // Set CSI project
   Project* CsiImageProject = new Project();
+  gApplication->SetProject(CsiImageProject);
 
-  // Load new project
-  if (CsiImageProject->Load(ldrName))
-  {
-    gApplication->SetProject(CsiImageProject);
-    gMainWindow->UpdateAllViews();
+  // Render image
+  emit gui->messageSig(LOG_STATUS, "Rendering Native CSI image - please wait...");
+
+  if (!RenderNativeImage(Options)) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Native CSI image render project failed."));
+      delete CsiImageProject;
+      return -1;
   }
-  else
-  {
-    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not create Native CSI image project."));
-    delete CsiImageProject;
-    return -1;
-  }
-
-  // Generate image
-  emit gui->messageSig(LOG_STATUS, "Executing Native render CSI - please wait...");
-
-  CreateNativeImage(Options);
 
   return 0;
 }
@@ -1484,6 +1477,7 @@ int Native::renderPli(
   // Renderer options
   NativeOptions Options;
   Options.ImageType         = PLI;
+  Options.InputFileName     = ldrNames.first();
   Options.OutputFileName    = pngName;
   Options.ImageWidth        = gui->pageSize(meta.LPub.page, 0);
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
@@ -1493,127 +1487,132 @@ int Native::renderPli(
   Options.CameraDistance    = cameraDistance(meta,metaType.modelScale.value());
   Options.LineWidth         = HIGHLIGHT_LINE_WIDTH_DEFAULT;
 
-  // Set and load new project
+  // Set PLI project
   Project* PliImageProject = new Project();
+  gApplication->SetProject(PliImageProject);
 
-  // Load project
-  if (PliImageProject->Load(ldrNames.first()))
-  {
-    gApplication->SetProject(PliImageProject);
-    gMainWindow->UpdateAllViews();
+  // Render image
+  emit gui->messageSig(LOG_STATUS, "Rendering Native PLI image - please wait...");
+
+  if (!RenderNativeImage(Options)) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Native PLI image render project failed."));
+      delete PliImageProject;
+      return -1;
   }
-  else
-  {
-    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not create Native PLI image project."));
-    delete PliImageProject;
-    return -1;
-  }
-
-  // Generate image
-  emit gui->messageSig(LOG_STATUS, "Executing Native render PLI - please wait...");
-
-  CreateNativeImage(Options);
 
   return 0;
 }
 
-void Render::CreateNativeImage(const NativeOptions &Options)
+bool Render::RenderNativeImage(const NativeOptions &Options)
 {
-//        if (Options.LineWidth != HIGHLIGHT_LINE_WIDTH_DEFAULT)
-//            gApplication->mPreferences.mLineWidth = Options.LineWidth;
+    if (! gMainWindow->OpenProject(Options.InputFileName))
+        return false;
 
-        View* ActiveView = gMainWindow->GetActiveView();
-        ActiveView->MakeCurrent();
+    QString ImageType = Options.ImageType == CSI ? "CSI" : "PLI";
 
-        lcModel* ActiveModel = ActiveView->GetActiveModel();
+    View* ActiveView = gMainWindow->GetActiveView();
 
-        lcStep CurrentStep = ActiveModel->GetCurrentStep();
+    if (gApplication->mPreferences.mNativeViewpoint <= 6) {// ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
+        ActiveView->SetViewpoint((lcViewpoint)gApplication->mPreferences.mNativeViewpoint);
+    } else {                                               // Default View (Angles + Ortho or Perspective)
+        ActiveView->SetCameraAngles(Options.Latitude, Options.Longitude);
+        ActiveView->SetProjection(gApplication->mPreferences.mNativeOrthographic == 0);
+    }
 
-        lcContext* Context = ActiveView->mContext;
+    lcModel* ActiveModel = ActiveView->GetActiveModel();
 
-        lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
-        //Camera->SetOrtho(Options.Orthographic);
-        Camera->SetAngles(Options.Latitude,Options.Longitude);
-        Camera->Zoom(Options.CameraDistance,CurrentStep,true);
+    ActiveView->MakeCurrent();
 
-        const int ImageWidth = Options.ImageWidth;
-        const int ImageHeight = Options.ImageHeight;
+    lcContext* Context = ActiveView->mContext;
 
-        View View(ActiveModel);
-        View.SetHighlight(Options.HighlightNewParts);
-        View.SetCamera(Camera, false);
-        View.SetContext(Context);
+    lcStep CurrentStep = ActiveModel->GetCurrentStep();
 
-        QString imageType = Options.ImageType == CSI ? "CSI" : "PLI";
+    lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
 
-        if (!View.BeginRenderToImage(ImageWidth, ImageHeight))
+    Camera->Zoom(Options.CameraDistance,CurrentStep,true);
+
+    View View(ActiveModel);
+    View.SetHighlight(Options.HighlightNewParts);
+    View.SetCamera(Camera, false);
+    View.SetContext(Context);
+
+    const int ImageWidth = Options.ImageWidth;
+    const int ImageHeight = Options.ImageHeight;
+
+    if (!View.BeginRenderToImage(ImageWidth, ImageHeight))
+    {
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not begin RenderToImage for Native %1 image.").arg(ImageType));
+        return false;
+    }
+
+    ActiveModel->SetTemporaryStep(CurrentStep);
+
+    View.OnDraw();
+
+    struct NativeImage
+    {
+        QImage RenderedImage;
+        QRect Bounds;
+    };
+
+    NativeImage Image;
+    Image.RenderedImage = View.GetRenderImage();
+
+    auto CalculateImageBounds = [](NativeImage& Image)
+    {
+        QImage& RenderedImage = Image.RenderedImage;
+        int Width = RenderedImage.width();
+        int Height = RenderedImage.height();
+
+        int MinX = Width;
+        int MinY = Height;
+        int MaxX = 0;
+        int MaxY = 0;
+
+        for (int x = 0; x < Width; x++)
         {
-                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not begin RenderToImage for Native %1 image.").arg(imageType));
-                return;
-        }
-
-        ActiveModel->SetTemporaryStep(CurrentStep);
-
-        View.OnDraw();
-
-        struct NativeImage
-        {
-                QImage RenderedImage;
-                QRect Bounds;
-        };
-
-        NativeImage Image;
-        Image.RenderedImage = View.GetRenderImage();
-
-        auto CalculateImageBounds = [](NativeImage& Image)
-        {
-                QImage& RenderedImage = Image.RenderedImage;
-                int Width = RenderedImage.width();
-                int Height = RenderedImage.height();
-
-                int MinX = Width;
-                int MinY = Height;
-                int MaxX = 0;
-                int MaxY = 0;
-
-                for (int x = 0; x < Width; x++)
+            for (int y = 0; y < Height; y++)
+            {
+                if (qAlpha(RenderedImage.pixel(x, y)))
                 {
-                        for (int y = 0; y < Height; y++)
-                        {
-                                if (qAlpha(RenderedImage.pixel(x, y)))
-                                {
-                                        MinX = qMin(x, MinX);
-                                        MinY = qMin(y, MinY);
-                                        MaxX = qMax(x, MaxX);
-                                        MaxY = qMax(y, MaxY);
-                                }
-                        }
+                    MinX = qMin(x, MinX);
+                    MinY = qMin(y, MinY);
+                    MaxX = qMax(x, MaxX);
+                    MaxY = qMax(y, MaxY);
                 }
-
-                Image.Bounds = QRect(QPoint(MinX, MinY), QPoint(MaxX, MaxY));
-        };
-
-        CalculateImageBounds(Image);
-
-        QImageWriter Writer(Options.OutputFileName);
-
-        if (Writer.format().isEmpty())
-                Writer.setFormat("PNG");
-
-        if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
-        {
-                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not write to Native %1 image file '%2': %3.")
-                                     .arg(imageType).arg(Options.OutputFileName).arg(Writer.errorString()));
-                return;
+            }
         }
 
-        View.EndRenderToImage();
-        Context->ClearResources();
+        Image.Bounds = QRect(QPoint(MinX, MinY), QPoint(MaxX, MaxY));
+    };
 
-        ActiveModel->SetTemporaryStep(CurrentStep);
+    CalculateImageBounds(Image);
 
-        if (!ActiveModel->mActive)
-                ActiveModel->CalculateStep(LC_STEP_MAX);
+    QImageWriter Writer(Options.OutputFileName);
+
+    if (Writer.format().isEmpty())
+        Writer.setFormat("PNG");
+
+    if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
+    {
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not write to Native %1 image file '%2': %3.")
+                             .arg(ImageType)
+                             .arg(Options.OutputFileName).arg(Writer.errorString()));
+        return false;
+    }
+
+    View.EndRenderToImage();
+    Context->ClearResources();
+
+    ActiveModel->SetTemporaryStep(CurrentStep);
+
+    if (!ActiveModel->mActive)
+        ActiveModel->CalculateStep(LC_STEP_MAX);
+
+     emit gui->messageSig(LOG_INFO,QMessageBox::tr("Native %1 image file rendered '%2'")
+                          .arg(ImageType).arg(Options.OutputFileName));
+
+    return true;
 }
 
 bool Render::LoadViewer(const ViewerOptions &Options){
@@ -1627,8 +1626,8 @@ bool Render::LoadViewer(const ViewerOptions &Options){
     }
     else
     {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load step project for %1.")
-                             .arg(Options.ViewerCsiName));
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not 3DViewer with %1.")
+                             .arg(viewerCsiName));
         delete StepProject;
         return false;
     }
@@ -1637,116 +1636,119 @@ bool Render::LoadViewer(const ViewerOptions &Options){
 
     View* ActiveView = gMainWindow->GetActiveView();
 
-    ActiveView->SetProjection(Options.Orthographic);
-
-    //ActiveView->SetCameraAngles(Options.Latitude, Options.Longitude);
+    if (gApplication->mPreferences.mNativeViewpoint <= 6) {// ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
+        ActiveView->SetViewpoint((lcViewpoint)gApplication->mPreferences.mNativeViewpoint);
+    } else {                                               // Default View (Angles + Ortho or Perspective)
+        ActiveView->SetCameraAngles(Options.Latitude, Options.Longitude);
+        ActiveView->SetProjection(gApplication->mPreferences.mNativeOrthographic == 0);
+    }
 
     return true;
 }
 
 bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiName)
 {
-        QString FileName = gui->getViewerStepFilePath(viewerCsiName);
+    QString FileName = gui->getViewerStepFilePath(viewerCsiName);
 
-        if (FileName.isEmpty())
-        {
-               emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive 3DViewer CSI path for %1.").arg(FileName));
-               return false;
-        }
+    if (FileName.isEmpty())
+    {
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive 3DViewer CSI path for %1.").arg(FileName));
+        return false;
+    }
 
-        QStringList CsiContent = gui->getViewerStepContents(viewerCsiName);
-        if (CsiContent.isEmpty())
-        {
-                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive 3DViewer CSI content for %1.").arg(FileName));
-                return false;
-        }
+    QStringList CsiContent = gui->getViewerStepContents(viewerCsiName);
+    if (CsiContent.isEmpty())
+    {
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive 3DViewer CSI content for %1.").arg(FileName));
+        return false;
+    }
 
 #ifdef QT_DEBUG_MODE
-        QFileInfo outFileInfo(FileName);
-        QString outfileName = QString("%1/%2_%3.ldr")
-               .arg(outFileInfo.absolutePath())
-               .arg(outFileInfo.baseName().replace(".ldr",""))
-               .arg(QString(viewerCsiName).replace(";","_"));
-        QFile file(outfileName);
-        if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
-                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open 3DViewer file %1 for writing: %2")
-                                 .arg(outfileName) .arg(file.errorString()));
-        }
-        QTextStream out(&file);
-        for (int i = 0; i < CsiContent.size(); i++) {
-                QString line = CsiContent[i];
-                out << line << endl;
-        }
-        file.close();
+    QFileInfo outFileInfo(FileName);
+    QString outfileName = QString("%1/%2_%3.ldr")
+            .arg(outFileInfo.absolutePath())
+            .arg(outFileInfo.baseName().replace(".ldr",""))
+            .arg(QString(viewerCsiName).replace(";","_"));
+    QFile file(outfileName);
+    if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open 3DViewer file %1 for writing: %2")
+                             .arg(outfileName) .arg(file.errorString()));
+    }
+    QTextStream out(&file);
+    for (int i = 0; i < CsiContent.size(); i++) {
+        QString line = CsiContent[i];
+        out << line << endl;
+    }
+    file.close();
 #endif
 
-	StepProject->mModels.DeleteAll();
-	StepProject->SetFileName(FileName);
+    StepProject->mModels.DeleteAll();
+    StepProject->SetFileName(FileName);
 
-	QByteArray QBA;
-	foreach(QString line, CsiContent){
-	       QBA.append(line);
-	       QBA.append(QString("\n"));
-	}
+    QByteArray QBA;
+    foreach(QString line, CsiContent){
+        QBA.append(line);
+        QBA.append(QString("\n"));
+    }
 
-	if (StepProject->mFileName.isEmpty())
-	{
-		emit gui->messageSig(LOG_ERROR,QMessageBox::tr("3DViewer file name not set!"));
-		return false;
-	}
-	QFileInfo FileInfo(StepProject->mFileName);
+    if (StepProject->mFileName.isEmpty())
+    {
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("3DViewer file name not set!"));
+        return false;
+    }
+    QFileInfo FileInfo(StepProject->mFileName);
 
-	QBuffer Buffer(&QBA);
-	Buffer.open(QIODevice::ReadOnly);
+    QBuffer Buffer(&QBA);
+    Buffer.open(QIODevice::ReadOnly);
 
-        while (!Buffer.atEnd())
+    while (!Buffer.atEnd())
+    {
+        lcModel* Model = new lcModel(QString());
+        Model->SplitMPD(Buffer);
+
+        if (StepProject->mModels.IsEmpty() || !Model->GetProperties().mName.isEmpty())
         {
-                lcModel* Model = new lcModel(QString());
-                Model->SplitMPD(Buffer);
-
-                if (StepProject->mModels.IsEmpty() || !Model->GetProperties().mName.isEmpty())
-                {
-                        StepProject->mModels.Add(Model);
-                        Model->CreatePieceInfo(StepProject);
-                }
-                else
-                        delete Model;
+            StepProject->mModels.Add(Model);
+            Model->CreatePieceInfo(StepProject);
         }
+        else
+            delete Model;
+    }
 
-        Buffer.seek(0);
+    Buffer.seek(0);
 
-        for (int ModelIdx = 0; ModelIdx < StepProject->mModels.GetSize(); ModelIdx++)
+    for (int ModelIdx = 0; ModelIdx < StepProject->mModels.GetSize(); ModelIdx++)
+    {
+        lcModel* Model = StepProject->mModels[ModelIdx];
+        Model->LoadLDraw(Buffer, StepProject);
+        Model->SetSaved();
+    }
+
+
+    if (StepProject->mModels.IsEmpty())
+        return false;
+
+    if (StepProject->mModels.GetSize() == 1)
+    {
+        lcModel* Model = StepProject->mModels[0];
+
+        if (Model->GetProperties().mName.isEmpty())
         {
-                lcModel* Model = StepProject->mModels[ModelIdx];
-                Model->LoadLDraw(Buffer, StepProject);
-                Model->SetSaved();
+            Model->SetName(FileInfo.fileName());
+            lcGetPiecesLibrary()->RenamePiece(Model->GetPieceInfo(), FileInfo.fileName().toLatin1());
         }
+    }
 
+    lcArray<lcModel*> UpdatedModels;
+    UpdatedModels.AllocGrow(StepProject->mModels.GetSize());
 
-	if (StepProject->mModels.IsEmpty())
-		return false;
+    for (lcModel* Model : StepProject->mModels)
+    {
+        Model->UpdateMesh();
+        Model->UpdatePieceInfo(UpdatedModels);
+    }
 
-	if (StepProject->mModels.GetSize() == 1)
-	{
-		lcModel* Model = StepProject->mModels[0];
+    StepProject->mModified = false;
 
-		if (Model->GetProperties().mName.isEmpty())
-		{
-			Model->SetName(FileInfo.fileName());
-			lcGetPiecesLibrary()->RenamePiece(Model->GetPieceInfo(), FileInfo.fileName().toLatin1());
-		}
-	}
-
-	lcArray<lcModel*> UpdatedModels;
-	UpdatedModels.AllocGrow(StepProject->mModels.GetSize());
-
-	for (lcModel* Model : StepProject->mModels)
-	{
-		Model->UpdateMesh();
-		Model->UpdatePieceInfo(UpdatedModels);
-	}
-
-	StepProject->mModified = false;
-
-	return true;
+    return true;
 }

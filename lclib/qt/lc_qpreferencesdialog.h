@@ -52,6 +52,9 @@ public slots:
 	void on_mouseReset_clicked();
 	void MouseTreeItemChanged(QTreeWidgetItem* Current);
 
+/*** LPub3D Mod - Native Renderer settings ***/
+    void on_ViewpointsCombo_currentIndexChanged(int index);
+/*** LPub3D Mod end ***/
 private:
 	Ui::lcQPreferencesDialog *ui;
 

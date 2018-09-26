@@ -55,7 +55,7 @@ public:
   static QString const   getRotstepMeta(RotStepMeta &);
   static int             executeLDViewProcess(QStringList &, Mt);
   static bool            useLDViewSCall(bool override = false);
-  void                   CreateNativeImage(const NativeOptions &);
+  bool                   RenderNativeImage(const NativeOptions &);
   bool                   LoadViewer(const ViewerOptions &);
   bool                   LoadStepProject(Project *,
                                   const QString &);
@@ -136,9 +136,6 @@ public:
   ViewerOptions()
   {
     ImageType       = Render::CSI;
-    Orthographic    = true;
-    CameraDistance  = -260.0f;
-    FoV             = 30.0f;
   }
   QString ViewerCsiName;
   Render::Mt ImageType;
@@ -146,7 +143,6 @@ public:
   float FoV;
   float Latitude;
   float Longitude;
-  bool Orthographic;
 };
 
 class NativeOptions
@@ -157,14 +153,10 @@ public:
     ImageType         = Render::CSI;
     TransBackground   = true;
     HighlightNewParts = false;
-    Orthographic      = true;
-    CameraDistance    = -260.0f;
-    FoV               = 30.0f;
     LineWidth         = 1.0;    
   }
   QString InputFileName;
   QString OutputFileName;
-  QString PovGenCommand;
   Render::Mt ImageType;
   float ImageWidth;
   float ImageHeight;
@@ -175,6 +167,5 @@ public:
   float LineWidth;
   bool HighlightNewParts;
   bool TransBackground;
-  bool Orthographic;
 };
 #endif

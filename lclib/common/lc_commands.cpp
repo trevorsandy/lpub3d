@@ -681,8 +681,8 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	 // LC_EDIT_ACTION_ROTATESTEP
 	{
         QT_TRANSLATE_NOOP("Action","Edit.Tool.RotateStep"),
-        QT_TRANSLATE_NOOP("Menu", "Update ROTSTEP meta"),
-        QT_TRANSLATE_NOOP("Status", "Insert or update LPub3D ROTSTEP meta - Shift+R"),
+        QT_TRANSLATE_NOOP("Menu", "Apply ROTSTEP"),
+        QT_TRANSLATE_NOOP("Status", "Insert or update LPub3D ROTSTEP meta command - Shift+R"),
         QT_TRANSLATE_NOOP("Shortcut", "Shift+R")
     },
     // LC_EDIT_ACTION_CLEAR_TRANSFORM

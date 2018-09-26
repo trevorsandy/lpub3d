@@ -96,6 +96,11 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 #endif
 	MouseTreeItemChanged(nullptr);
 
+/*** LPub3D Mod - Native Renderer settings ***/
+    ui->ViewpointsCombo->setCurrentIndex(options->Preferences.mNativeViewpoint);
+    ui->ProjectionCombo->setCurrentIndex(options->Preferences.mNativeOrthographic);
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - set preferences dialog properties ***/
 	ui->authorName->setDisabled(true);
 	ui->partsLibrary->setDisabled(true);
@@ -111,6 +116,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 	ui->tabWidget->removeTab(2);            //hide tabKeyboard
 	ui->tabWidget->removeTab(2);            //hide mouse
 /*** LPub3D Mod end ***/
+
 }
 
 lcQPreferencesDialog::~lcQPreferencesDialog()
@@ -157,6 +163,11 @@ void lcQPreferencesDialog::accept()
 	options->Preferences.mViewCubeLocation = (lcViewCubeLocation)ui->ViewCubeLocationCombo->currentIndex();
 	options->Preferences.mViewCubeSize = ui->ViewCubeSizeEdit->text().toInt();
 	options->Preferences.mShadingMode = (lcShadingMode)ui->ShadingMode->currentIndex();
+
+/*** LPub3D Mod - Native Renderer settings ***/
+    options->Preferences.mNativeViewpoint = ui->ViewpointsCombo->currentIndex();
+    options->Preferences.mNativeOrthographic = ui->ProjectionCombo->currentIndex();
+/*** LPub3D Mod end ***/
 
 	QDialog::accept();
 }
@@ -852,4 +863,11 @@ void lcQPreferencesDialog::MouseTreeItemChanged(QTreeWidgetItem* Current)
 	ui->mouseControl->setChecked((Modifiers & Qt::ControlModifier) != 0);
 	ui->mouseShift->setChecked((Modifiers & Qt::ShiftModifier) != 0);
 	ui->mouseAlt->setChecked((Modifiers & Qt::AltModifier) != 0);
+}
+
+
+void lcQPreferencesDialog::on_ViewpointsCombo_currentIndexChanged(int index)
+{
+    if (index <=6)
+        ui->ProjectionCombo->setCurrentIndex(2); // Default
 }

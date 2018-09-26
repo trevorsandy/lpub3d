@@ -114,10 +114,13 @@ lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("HTML", "PartsWidth", 128),                                          // LC_PROFILE_HTML_PARTS_WIDTH
 	lcProfileEntry("HTML", "PartsHeight", 128),                                         // LC_PROFILE_HTML_PARTS_HEIGHT
 
-    lcProfileEntry("POVRay", "POVRayPath", ""),                                         // LC_PROFILE_POVRAY_PATH              /*** LPub3D Mod - POV-ray remove default path ***/
+    lcProfileEntry("POVRay", "POVRayPath", ""),                                         // LC_PROFILE_POVRAY_PATH                                 /*** LPub3D Mod - POV-ray remove default path ***/
 	lcProfileEntry("POVRay", "LGEOPath", ""),                                           // LC_PROFILE_POVRAY_LGEO_PATH
 	lcProfileEntry("POVRay", "Width", 1280),                                            // LC_PROFILE_POVRAY_WIDTH
-	lcProfileEntry("POVRay", "Height", 720)                                             // LC_PROFILE_POVRAY_HEIGHT
+    lcProfileEntry("POVRay", "Height", 720),                                            // LC_PROFILE_POVRAY_HEIGHT
+
+    lcProfileEntry("Settings", "NativeViewpoint",  7),                                  // LC_PROFILE_NATIVE_VIEWPOINT  [0 = LC_VIEWPOINT_FRONT]  /*** LPub3D Mod - Native Renderer settings ***/
+    lcProfileEntry("Settings", "NativeProjection", 0)                                   // LC_PROFILE_NATIVE_PROJECTION [1 = ORTHOGRAPHIC]        /*** LPub3D Mod - Native Renderer settings ***/
 };
 
 void lcRemoveProfileKey(LC_PROFILE_KEY Key)

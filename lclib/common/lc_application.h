@@ -45,6 +45,11 @@ public:
 	bool mFixedAxes;
 	lcViewCubeLocation mViewCubeLocation;
 	int mViewCubeSize;
+
+/*** LPub3D Mod - Native Renderer settings ***/
+    int mNativeViewpoint;
+    int mNativeOrthographic;
+/*** LPub3D Mod end ***/
 };
 
 /*** LPub3D Mod - change QApplication to QObject ***/

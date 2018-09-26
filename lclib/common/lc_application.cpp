@@ -36,6 +36,11 @@ void lcPreferences::LoadDefaults()
     mGridLineColor = lcGetProfileInt(LC_PROFILE_GRID_LINE_COLOR);
 	mViewCubeLocation = (lcViewCubeLocation)lcGetProfileInt(LC_PROFILE_VIEW_CUBE_LOCATION);
 	mViewCubeSize = lcGetProfileInt(LC_PROFILE_VIEW_CUBE_SIZE);
+
+/*** LPub3D Mod - Native Renderer settings ***/
+    mNativeViewpoint = lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT);
+    mNativeOrthographic = lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
+/*** LPub3D Mod end ***/
 }
 
 void lcPreferences::SaveDefaults()
@@ -53,6 +58,11 @@ void lcPreferences::SaveDefaults()
     lcSetProfileInt(LC_PROFILE_GRID_LINE_COLOR, mGridLineColor);
 	lcSetProfileInt(LC_PROFILE_VIEW_CUBE_LOCATION, (int)mViewCubeLocation);
 	lcSetProfileInt(LC_PROFILE_VIEW_CUBE_SIZE, mViewCubeSize);
+
+/*** LPub3D Mod - Native Renderer settings ***/
+    lcSetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT, mNativeViewpoint);
+    lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, mNativeOrthographic);
+/*** LPub3D Mod end ***/
 }
 
 lcApplication::lcApplication()
@@ -688,12 +698,33 @@ void lcApplication::ShowPreferencesDialog()
     }
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - Native Renderer settings ***/
+    Options.Preferences.mNativeViewpoint = lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT);
+    Options.Preferences.mNativeOrthographic = lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
+/*** LPub3D Mod end ***/
+
     lcQPreferencesDialog Dialog(gMainWindow, &Options);
     if (Dialog.exec() != QDialog::Accepted)
         return;
 
     bool LibraryChanged = Options.LibraryPath != lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
     bool AAChanged = CurrentAASamples != Options.AASamples;
+
+/*** LPub3D Mod - Native Renderer settings ***/
+    bool NativeViewpointChanged = Options.Preferences.mNativeViewpoint != lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT);
+    bool NativeProjectionIsOrthoChanged = Options.Preferences.mNativeOrthographic != lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
+/*** LPub3D Mod end ***/
+
+    mPreferences = Options.Preferences;
+
+    mPreferences.SaveDefaults();
+
+    lcSetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME, Options.DefaultAuthor);
+    lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, Options.LibraryPath);
+    lcSetProfileString(LC_PROFILE_POVRAY_PATH, Options.POVRayPath);
+    lcSetProfileString(LC_PROFILE_POVRAY_LGEO_PATH, Options.LGEOPath);
+    lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, Options.CheckForUpdates);
+    lcSetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES, Options.AASamples);
 
 /*** LPub3D Mod - preference refresh ***/
     if (Preferences::preferredRenderer == RENDERER_NATIVE)
@@ -705,10 +736,15 @@ void lcApplication::ShowPreferencesDialog()
       bool drawEdgeLinesChanged = Options.Preferences.mDrawEdgeLines != mDrawEdgeLInes;
       bool shadingModeChanged = Options.Preferences.mShadingMode     != mShadingMode;
       bool lineWidthChanged = Options.Preferences.mLineWidth         != mLineWidth;
-      if (AAChanged || shadingModeChanged || drawEdgeLinesChanged || lineWidthChanged)
+      if (AAChanged ||
+          shadingModeChanged ||
+          drawEdgeLinesChanged ||
+          lineWidthChanged ||
+          NativeViewpointChanged ||
+          NativeProjectionIsOrthoChanged)
       {
-          bool silent = true;
-          clearCustomPartCache(silent);
+          //bool silent = true;
+          //clearCustomPartCache(silent);
           clearAndRedrawPage();
 
           QString oldShadingMode, newShadingMode;
@@ -732,52 +768,86 @@ void lcApplication::ShowPreferencesDialog()
 
           switch (lcGetProfileInt(LC_PROFILE_SHADING_MODE))
           {
-           case LC_SHADING_FLAT:
+          case LC_SHADING_FLAT:
               oldShadingMode = "flat";
               break;
-           case LC_SHADING_DEFAULT_LIGHTS:
+          case LC_SHADING_DEFAULT_LIGHTS:
               oldShadingMode = "default lights";
               break;
-            case LC_SHADING_FULL:
-               oldShadingMode = "full";
-               break;
-            case LC_SHADING_WIREFRAME:
-               oldShadingMode = "wire frame";
-               break;
-            default:
-               oldShadingMode = "unknown";
+          case LC_SHADING_FULL:
+              oldShadingMode = "full";
+              break;
+          case LC_SHADING_WIREFRAME:
+              oldShadingMode = "wire frame";
+              break;
+          default:
+              oldShadingMode = "unknown";
           }
 
           if (shadingModeChanged)
-                  logInfo() << QString("Shading mode changed from %1 to %2.")
-                                        .arg(oldShadingMode)
-                                        .arg(newShadingMode);
+              logInfo() << QString("Shading mode changed from %1 to %2.")
+                           .arg(oldShadingMode)
+                           .arg(newShadingMode);
           if (AAChanged)
-                  logInfo() << QString("Anti Aliasing samples changed from %1 to %2.")
-                                        .arg(CurrentAASamples)
-                                        .arg(Options.AASamples);
+              logInfo() << QString("Anti Aliasing samples changed from %1 to %2.")
+                           .arg(CurrentAASamples)
+                           .arg(Options.AASamples);
           if (lineWidthChanged)
-                  logInfo() << QString("Edge line width changed from %1 to %2.")
-                                        .arg(lcGetProfileFloat(LC_PROFILE_LINE_WIDTH))
-                                        .arg(Options.Preferences.mLineWidth);
-
+              logInfo() << QString("Edge line width changed from %1 to %2.")
+                           .arg(lcGetProfileFloat(LC_PROFILE_LINE_WIDTH))
+                           .arg(Options.Preferences.mLineWidth);
           if (drawEdgeLinesChanged)
-                  logInfo() << QString("Draw edge lines is %1.").arg(Options.Preferences.mDrawEdgeLines ? "ON" : "OFF");
-      }
+              logInfo() << QString("Draw edge lines is %1.").arg(Options.Preferences.mDrawEdgeLines ? "ON" : "OFF");
 
+          if (NativeViewpointChanged) {
+              QString Viewpoint;
+              switch (lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT))
+              {
+              case 0:
+                  Viewpoint = "Front";
+                  break;
+              case 1:
+                  Viewpoint = "Back";
+                  break;
+              case 2:
+                  Viewpoint = "Top";
+                  break;
+              case 3:
+                  Viewpoint = "Bottom";
+                  break;
+              case 4:
+                  Viewpoint = "Left";
+                  break;
+              case 5:
+                  Viewpoint = "Right";
+                  break;
+              case 6:
+                  Viewpoint = "Home";
+                  break;
+              default:
+                  Viewpoint = "Front";
+              }
+              logInfo() << QString("Native Viewport changed to '%1'.").arg(Viewpoint.toUpper());
+          }
+
+          if (NativeProjectionIsOrthoChanged) {
+              QString Projection;
+              switch (lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION))
+              {
+              case 0:
+                  Projection = "Ortographic";
+                  break;
+              case 1:
+                  Projection = "Perscpective";
+                  break;
+              default:
+                  Projection = "Ortographic";
+              }
+              logInfo() << QString("Native Projection changed to '%1'.").arg(Projection.toUpper());
+          }
+       }
     }
 /*** LPub3D Mod end ***/
-
-    mPreferences = Options.Preferences;
-
-    mPreferences.SaveDefaults();
-
-    lcSetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME, Options.DefaultAuthor);
-    lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, Options.LibraryPath);
-    lcSetProfileString(LC_PROFILE_POVRAY_PATH, Options.POVRayPath);
-    lcSetProfileString(LC_PROFILE_POVRAY_LGEO_PATH, Options.LGEOPath);
-    lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, Options.CheckForUpdates);
-    lcSetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES, Options.AASamples);
 
     if (LibraryChanged && AAChanged)
         QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Parts library and Anti-aliasing changes will only take effect the next time you start LPub3D."));
