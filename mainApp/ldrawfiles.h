@@ -208,6 +208,7 @@ class LDrawFile {
 int split(const QString &line, QStringList &argv);
 int validSoQ(const QString &line, int soq);
 bool isHeader(QString &line);
+bool isComment(QString &line);
 bool isUnofficialFileType(QString &line);
 
 #endif

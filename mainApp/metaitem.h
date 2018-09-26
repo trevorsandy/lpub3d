@@ -403,6 +403,7 @@ public:
   Rc   scanForwardStepGroup(Where &here);
 
   void scanPastGlobal(Where &);
+  void scanPastLPubMeta(Where &);
   void writeRotateStep(QString &value);
 
   Rc   scanBackward(Where &here, int mask, bool &partsAdded);

@@ -1399,6 +1399,13 @@ bool isHeader(QString &line)
   return false;
 }
 
+bool isComment(QString &line){
+  QRegExp commentLine("^\\s*0\\s+\\/\\/\\s*.*");
+  if (line.contains(commentLine))
+      return true;
+  return false;
+}
+
 bool isUnofficialFileType(QString &line)
 {
   int size = LDrawUnofficialFileTypeRegExp.size();

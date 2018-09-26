@@ -2386,7 +2386,29 @@ void MetaItem::scanPastGlobal(
       }
     }
   }
-}  
+}
+
+void MetaItem::scanPastLPubMeta(
+  Where &topOfStep)
+{
+  Where walk = topOfStep + 1;
+
+  int  numLines  = gui->subFileSize(walk.modelName);
+  if (walk < numLines) {
+    QString line = gui->readLine(walk);
+    QRegExp lpubLine("^\\s*0\\s+!LPUB\\s+.*");
+    if (line.contains(lpubLine) || isHeader(line) || isComment(line)) {
+      for ( ++walk; walk < numLines; ++walk) {
+        line = gui->readLine(walk);
+        //logTrace() << "Scan Past GLOBAL LineNum (final -1): " << walk.lineNumber << ", Line: " << line;
+        if ( ! line.contains(lpubLine) && ! isHeader(line) && ! isComment(line)) {
+          topOfStep = walk - 1;
+          break;
+        }
+      }
+    }
+  }
+}
 
 Rc MetaItem::scanForward(Where &here,int mask)
 {
@@ -3649,9 +3671,10 @@ void MetaItem::writeRotateStep(QString &value)
 
 //        logTrace() << "-SS MODEL NAME      :       " << modelName;
         Where pagePosition = gui->topOfPages[gui->displayPageNum];
-        Rc rc = scanBackward(pagePosition,StepMask);
+        Rc rc = scanBackward(pagePosition,StepMask);                // this should return us to the first line of the page
         here = pagePosition;
 //        logTrace() << "-SS PAGE LINE NUMBER: " << pagePosition.lineNumber;
+        scanPastLPubMeta(here);                                     // so let's scan forward past the LPub stuff
 
         if (rc == StepRc) {
             rotStep = false;
@@ -3667,7 +3690,7 @@ void MetaItem::writeRotateStep(QString &value)
 //            logDebug() << "-SS LINE NUMBER  :       " << here.lineNumber;
 //            logDebug() << "-SS RC1: " << rc1 << "   -STEP LINE: " << line;
 
-        } else if (rc == RotStepRc) {
+        } else if (rc == RotStepRc) {                                            // we should read past globals and headers
             rotStep = true;
         }
     }
