@@ -1024,14 +1024,23 @@ void  Gui::restartApplication(){
 }
 
 void Gui::reloadCurrentModelFile(){
-  if (getCurFile().isEmpty()) {
-     return;
-  }
-  int savePage = displayPageNum;
-  openFile(curFile);
-  displayPageNum = savePage;
-  displayPage();
-  enableActions();
+    if (getCurFile().isEmpty()) {
+        emit messageSig(LOG_STATUS,"No model file to reopen.");
+        return;
+    }
+    if (maybeSave()) {
+        timer.start();
+
+        int savePage = displayPageNum;
+        openFile(curFile);
+        displayPageNum = savePage;
+        displayPage();
+        enableActions();
+
+        emit messageSig(LOG_STATUS, QString("Model file reloaded (%1 parts). %2")
+                        .arg(ldrawFile.getPartCount())
+                        .arg(elapsedTime(timer.elapsed())));
+    }
 }
 
 void Gui::clearAllCaches()
@@ -1041,22 +1050,28 @@ void Gui::clearAllCaches()
         return;
     }
 
-    if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
-       ldrawFile.clearPrevStepPositions();
+    if (maybeSave(false)) {  // No prompt
+        timer.start();
+
+        if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
+            ldrawFile.clearPrevStepPositions();
+        }
+
+        clearPLICache();
+        clearCSICache();
+        clearTempCache();
+
+        //reload current model file
+        int savePage = displayPageNum;
+        openFile(curFile);
+        displayPageNum = savePage;
+        displayPage();
+        enableActions();
+
+        emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
+                                            .arg(ldrawFile.getPartCount())
+                                            .arg(elapsedTime(timer.elapsed())));
     }
-
-     clearPLICache();
-     clearCSICache();
-     clearTempCache();
-
-     //reload current model file
-     int savePage = displayPageNum;
-     openFile(curFile);
-     displayPageNum = savePage;
-     displayPage();
-     enableActions();
-
-     emit messageSig(LOG_STATUS,"All caches reset and model file reloaded.");
 }
 
 void Gui::clearCustomPartCache(bool silent)
@@ -1066,7 +1081,7 @@ void Gui::clearCustomPartCache(bool silent)
                             "Warning: Only custom part files for the currently loaded model file will be updated in %1.")
                             .arg(FILE_LPUB3D_UNOFFICIAL_ARCHIVE);
   if (silent || !Preferences::modeGUI) {
-      emit messageSig(LOG_STATUS,message);
+      emit messageSig(LOG_INFO,message);
   } else {
       ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
                                  tr("%1\nDo you want to delete the custom file cache?").arg(message),
@@ -1093,6 +1108,9 @@ void Gui::clearCustomPartCache(bool silent)
   processFadeColourParts(overwriteCustomParts);       // (re)generate and archive fade parts based on the loaded model file
   processHighlightColourParts(overwriteCustomParts);  // (re)generate and archive highlight parts based on the loaded model file
 
+  if (!getCurFile().isEmpty() && Preferences::modeGUI){
+      displayPage();
+  }
 }
 
 void Gui::clearPLICache()

@@ -235,22 +235,29 @@ void Gui::saveAs()
 #endif
 } 
 
-bool Gui::maybeSave()
+bool Gui::maybeSave(bool prompt)
 {
-  if ( ! undoStack->isClean() ) {
-    QMessageBox::StandardButton ret;
-    ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
-            tr("The document has been modified.\n"
-                "Do you want to save your changes?"),
-            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-    if (ret == QMessageBox::Save) {
-      save();
-      return true;
-    } else if (ret == QMessageBox::Cancel) {
-      return false;
+    if ( ! undoStack->isClean() ) {
+        QString message;
+        QMessageBox::StandardButton ret = QMessageBox::Ok;
+        if (Preferences::modeGUI && prompt) {
+            message = tr("The document has been modified."
+                          "Do you want to save your changes?");
+            ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR), message,
+                                       QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+            if (ret == QMessageBox::Save) {
+                save();
+            }
+        } else {
+            save();
+            message = tr("Open document has been saved!");
+            emit messageSig(LOG_INFO,message);
+        }
+        if (ret == QMessageBox::Cancel) {
+            return false;
+        }
     }
-  }
-  return true;
+    return true;
 }
 
 bool Gui::saveFile(const QString &fileName)
