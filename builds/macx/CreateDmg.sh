@@ -294,19 +294,19 @@ POVRay:
 
 Install brew (if not already installed)
 ======================================
-- $ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+- \$ /usr/bin/ruby -e "\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
 Install libraries
 =================
-- $ brew update
-- $ brew reinstall libpng
-- $ brew install tinyxml gl2ps libjpeg minizip openexr sdl2 libtiff
+- \$ brew update
+- \$ brew reinstall libpng
+- \$ brew install tinyxml gl2ps libjpeg minizip openexr sdl2 libtiff
 
 Check installed lirary - particularly libPNG
 ============================================
-- $ otool -L $(brew list libpng | grep dylib$)
+- \$ otool -L $(brew list libpng | grep dylib$)
     /usr/local/Cellar/libpng/1.6.34/lib/libpng.dylib:
-        /usr/local/opt/libpng/lib/libpng16.16.dylib (compatibility version 51.0.0, current version 51.0.0)
+        /usr/local/opt/libpng/lib/libpng16.16.dylib (compatibility version 52.0.0, current version 52.0.0)
         /usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.11)
         /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1252.0.0)
 

@@ -1,4 +1,4 @@
-LPub3D 2.3.0.0.887 (04 09 2018 06:52:44)
+LPub3D 2.3.1.1.888 (26 09 2018 18:41:22)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,7 +13,7 @@ New feature - Go Dark - Add dark theme - GitHub ticket #73
 New feature - "Native" renderer based on 3DViewer (LeoCAD library) - GitHub ticket #71
 New feature - "Native" POV file generation based on LDView library - GitHub ticket #77
 New feature - Multi-segment page, divider and callout pointers - GitHub ticket #67
-New feature - "True" part fade and part highlight - GitHub ticket #52
+New feature - "True" part fade and part highlight - GitHub ticket #47
 New feature - UI dialogue to set sub-model level colour - GitHub ticket #69
 New feature - Scene horizontal and vertical ruler and axis guides - GitHub ticket #68
 New feature - Console commands - GitHub ticket #12

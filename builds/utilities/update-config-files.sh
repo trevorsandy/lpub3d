@@ -193,7 +193,7 @@ fi
 
 FILE="$LP3D_PWD/docs/RELEASE_NOTES.html"
 Info "3. update RELEASE_NOTES   - build version         [$FILE]"
-LineToReplace=12
+LineToReplace=2
 StringToReplace="<h5><a id=\"LPub3D_0\"></a>LPub3D ${LP3D_BUILD_VERSION}</h5>"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
