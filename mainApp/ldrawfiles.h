@@ -117,6 +117,7 @@ class LDrawFile {
     }
 
     QStringList                 _subFileOrder;
+    static QStringList          _missingParts;
     static QString              _file;
     static QString              _name;
     static QString              _author;
