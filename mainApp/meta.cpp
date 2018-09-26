@@ -2561,10 +2561,10 @@ RotateIconMeta::RotateIconMeta() : BranchMeta()
   picScale.setRange(-10000.0,10000.0);
   picScale.setFormats(7,4,"99999.9");
   picScale.setValue(1.0);
-  subModelColor.setValue("#ffffff");
-  subModelColor.setValue("#ffffcc");
-  subModelColor.setValue("#ffcccc");
-  subModelColor.setValue("#ccccff");
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_04);
 }
 
 void RotateIconMeta::init(BranchMeta *parent, QString name)
@@ -2618,10 +2618,10 @@ PageMeta::PageMeta() : BranchMeta()
   else
     cameraDistNative.factor.setValue(CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT);
 
-  subModelColor.setValue("#ffffff");
-  subModelColor.setValue("#ffffcc");
-  subModelColor.setValue("#ffcccc");
-  subModelColor.setValue("#ccccff");
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_04);
 
   /* PAGE ATTRIBUTE FORMAT
    *
@@ -2894,17 +2894,23 @@ AssemMeta::AssemMeta() : BranchMeta()
   povrayParms.setValue("+A");
   showStepNumber.setValue(true);
 
+  // cameraAngle
+  cameraAngle.setFormats(6,4,"9.999");
+  cameraAngle.setRange(-1.000,1.000);
+  cameraAngle.setValue(LPUB3D_CAMERA_VIEW_DEFAULT);
+
   // image generation
-  angle.setFormats(6,4,"#999.9");
+  angle.setFormats(7,4,"999.9");
   angle.setRange(-360.0,360.0);
   angle.setValues(23,45);        // using LPub3D Default 0.0,0.0f
+
   fov.setRange(0.0,360.0);
   fov.setValue(0.01);            // using LPub3D Default 0.01f
   znear.setValue(10.0);          // using LPub3D Default 10.0f
   zfar.setValue(4000.0);         // using LPub3D Default 4000.0f
 
   // display step
-  v_angle.setFormats(6,4,"#999.9");
+  v_angle.setFormats(6,4,"999.9");
   v_angle.setRange(-360.0,360.0);
   v_angle.setValues(23,45);      // using LeoCAD defaults
   v_fov.setRange(0.0,360.0);
@@ -2923,6 +2929,8 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   ldgliteParms.init  (this,"LDVIEW_PARMS");
   povrayParms .init  (this,"POVRAY_PARMS");
   showStepNumber.init(this,"SHOW_STEP_NUMBER");
+
+  cameraAngle.init   (this,"CAMERA_ANGLE");
 
   angle.init         (this,"IMAGE_ANGLE");
   distance.init      (this,"IMAGE_DISTANCE");
@@ -2963,10 +2971,10 @@ PliMeta::PliMeta() : BranchMeta()
   ldviewParms.setValue("");
   povrayParms.setValue("+A");
   includeSubs.setValue(false);
-  subModelColor.setValue("#ffffff");
-  subModelColor.setValue("#ffffcc");
-  subModelColor.setValue("#ffcccc");
-  subModelColor.setValue("#ccccff");
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_04);
   part.margin.setValuesInches(0.05f,0.03f);
   instance.font.setValuePoints("Arial,36,-1,255,75,0,0,0,0,0");
   instance.margin.setValuesInches(0.0f,0.0f);
@@ -2979,7 +2987,7 @@ PliMeta::PliMeta() : BranchMeta()
   sort.setValue(false);
   sortBy.setValue(SortOptionName[PartSize]);
 
-  angle.setFormats(6,4,"#999.9");
+  angle.setFormats(6,4,"999.9");
   angle.setRange(-360.0,360.0);
   angle.setValues(23,-45);       // using LPub3D Default 0.0,0.0f (old 23,-45)
   fov.setRange(0.0,360.0);
@@ -3045,10 +3053,10 @@ BomMeta::BomMeta() : PliMeta()
   ldviewParms.setValue("");
   povrayParms.setValue("+A");
   includeSubs.setValue(false);
-  subModelColor.setValue("#ffffff");
-  subModelColor.setValue("#ffffcc");
-  subModelColor.setValue("#ffcccc");
-  subModelColor.setValue("#ccccff");
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_04);
   part.margin.setValuesInches(0.05f,0.03f);
   instance.font.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");
   instance.margin.setValuesInches(0.0f,0.0f);
@@ -3061,7 +3069,7 @@ BomMeta::BomMeta() : PliMeta()
   sortBy.setValue("Part Size");
   sortBy.setValue(SortOptionName[PartColour]);
 
-  angle.setFormats(6,4,"#999.9");
+  angle.setFormats(6,4,"999.9");
   angle.setRange(-360.0,360.0);
   angle.setValues(23,-45);
   fov.setRange(0.0,360.0);
@@ -3166,10 +3174,10 @@ CalloutMeta::CalloutMeta() : BranchMeta()
   // instance - default
   instance.placement.setValue(RightBottomOutside, CalloutType);
   background.setValue(BackgroundData::BgSubmodelColor);
-  subModelColor.setValue("#ffffff");
-  subModelColor.setValue("#ffffcc");
-  subModelColor.setValue("#ffcccc");
-  subModelColor.setValue("#ccccff");
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_04);
   subModelFontColor.setValue("black");
   placement.setValue(RightOutside,CsiType);
   // freeform
@@ -3221,7 +3229,10 @@ PagePointerMeta::PagePointerMeta() : BranchMeta()
   borderData.margin[1] = 0;
   border.setValueInches(borderData);
   margin.setValues(0,0);
-  subModelColor.setValue("#ffffff");
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_04);
 }
 
 void PagePointerMeta::init(BranchMeta *parent, QString name)

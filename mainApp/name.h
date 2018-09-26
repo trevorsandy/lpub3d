@@ -51,6 +51,8 @@ enum Theme { ThemeDark, ThemeDefault };
 
 #define LIBPNG_MACOS_VERSION                    "1.6.35"
 
+#define LPUB3D_CAMERA_VIEW_DEFAULT              0.01f // Global camera angle -ca0.01
+
 #define UPDATE_CHECK_FREQUENCY_DEFAULT          0     //0=Never,1=Daily,2=Weekly,3=Monthly
 
 #define PAGE_HEIGHT_DEFAULT                     800

@@ -66,6 +66,7 @@ FloatDialog::FloatDialog(
   setLayout(grid);
 
   setModal(true);
+  setMinimumSize(40,20);
 }
 
 FloatDialog::~FloatDialog()
@@ -74,11 +75,11 @@ FloatDialog::~FloatDialog()
 
 bool FloatDialog::getFloat(
   QString  title,
-  QString  label0,
+  QString  heading,
   FloatMeta *leaf,
   float   &try0)
 {
-  FloatDialog *dialog = new FloatDialog(title,label0,leaf);
+  FloatDialog *dialog = new FloatDialog(title,heading,leaf);
   if (dialog->exec() == QDialog::Accepted) {
     bool ok0;
     try0 = dialog->float0->displayText().toFloat(&ok0);
@@ -96,10 +97,10 @@ bool FloatDialog::getFloat(
 #include "metagui.h"
 
 FloatPairDialog::FloatPairDialog(
-  float    values[],
   QString  _name,
   QString  _heading1,
   QString  _heading2,
+  FloatPairMeta *leaf,
   QWidget *parent)
   : QDialog(parent)
 {
@@ -111,8 +112,9 @@ FloatPairDialog::FloatPairDialog(
   QGroupBox *box = new QGroupBox(_name,this);
   layout->addWidget(box);
 
-  meta.setValues(values[0],values[1]);
-  floats = new FloatsGui(_heading1,_heading2,&meta,box);
+  meta = leaf;
+
+  floats = new FloatsGui(_heading1,_heading2,leaf,box);
 
   QDialogButtonBox *buttonBox;
   
@@ -134,18 +136,19 @@ FloatPairDialog::~FloatPairDialog()
 }
 
 bool FloatPairDialog::getFloatPair(
-  float    values[],
-  QString  _name,
-  QString  _heading1,
-  QString  _heading2,
-  QWidget *parent)
+  QString       _name,
+  QString       _heading1,
+  QString       _heading2,
+  FloatPairMeta *leaf,
+  float         values[],
+  QWidget       *parent)
 {
-  FloatPairDialog *dialog = new FloatPairDialog(values,_name,_heading1,_heading2,parent);
+  FloatPairDialog *dialog = new FloatPairDialog(_name,_heading1,_heading2,leaf,parent);
 
   bool ok = dialog->exec() == QDialog::Accepted;
   if (ok) {
-    values[0] = dialog->meta.value(0);
-    values[1] = dialog->meta.value(1);
+    values[0] = dialog->meta->value(0);
+    values[1] = dialog->meta->value(1);
   }
   return ok;
 }
@@ -165,12 +168,10 @@ void FloatPairDialog::cancel()
 }
 
 DoubleSpinDialog::DoubleSpinDialog(
-  float    &value,
-  float     min,
-  float     max,
+  QString   _name,
+  QString   _heading,
+  FloatMeta *floatMeta,
   float     step,  
-  QString  _name,
-  QString  _heading,
   QWidget *parent)
   : QDialog(parent)
 {
@@ -182,13 +183,13 @@ DoubleSpinDialog::DoubleSpinDialog(
   QGroupBox *box = new QGroupBox(_name);
   layout->addWidget(box);
 
-  meta.setValue(value);
+  meta = floatMeta;
 
   spin = new DoubleSpinGui(
                _heading,
-               &meta,
-               min,
-               max,
+               meta,
+               meta->_min,
+               meta->_max,
                step,
                box);
   
@@ -206,17 +207,16 @@ DoubleSpinDialog::DoubleSpinDialog(
 }
 
 bool DoubleSpinDialog::getFloat(
-  float   &value,
-  float    min,
-  float    max,
-  float    step,
-  QString  title,
-  QString  label,
+  QString   title,
+  QString   heading,
+  FloatMeta *floatMeta,
+  float     &try0,
+  float     step,
   QWidget *parent)
 {
-  DoubleSpinDialog *dialog = new DoubleSpinDialog(value,min,max,step,title,label,parent);
+  DoubleSpinDialog *dialog = new DoubleSpinDialog(title,heading,floatMeta,step,parent);
   if (dialog->exec() == QDialog::Accepted) {
-    value = dialog->meta.value();
+    try0 = dialog->meta->value();
     return true;
   } else {
     return false;

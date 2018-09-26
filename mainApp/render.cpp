@@ -67,7 +67,7 @@ POVRay  povray;
 Native  native;
 
 //#define LduDistance 5729.57
-#define CA "-ca0.01"
+#define _CA "-ca0.01"
 #define USE_ALPHA "+UA"
 
 //Enable LDView single call -SaveSnapshotsList flag
@@ -363,6 +363,7 @@ int POVRay::renderCsi(
       .arg(meta.LPub.assem.angle.value(1))
       .arg(cd);
 
+  QString CA = QString("-ca%1") .arg(meta.LPub.assem.cameraAngle.value());
   QString w  = QString("-SaveWidth=%1") .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString f  = QString("-ExportFile=%1") .arg(povName);
@@ -574,7 +575,7 @@ int POVRay::renderPli(
       .arg(metaType.angle.value(0))
       .arg(metaType.angle.value(1))
       .arg(cd);
-
+  QString CA = QString(_CA);
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
@@ -808,6 +809,7 @@ int LDGLite::renderCsi(
   QString w  = QString("-W%1")      .arg(lineThickness); // ldglite always deals in 72 DPI
 
   //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
+  QString CA = QString("-ca%1") .arg(meta.LPub.assem.cameraAngle.value());
   QString cg = QString("-cg%1,%2,%3") .arg(meta.LPub.assem.angle.value(0))
                                       .arg(meta.LPub.assem.angle.value(1))
                                       .arg(cd);
@@ -903,6 +905,7 @@ int LDGLite::renderPli(
 
   int cd = cameraDistance(meta,metaType.modelScale.value());
 
+  QString CA = QString(_CA);
   QString cg = QString("-cg%1,%2,%3") .arg(metaType.angle.value(0))
                                       .arg(metaType.angle.value(1))
                                       .arg(cd);
@@ -1106,6 +1109,7 @@ int LDView::renderCsi(
   }
 
   // Build (Native) arguments
+  QString CA = QString("-ca%1") .arg(meta.LPub.assem.cameraAngle.value());
   QString cg = QString("-cg%1,%2,%3") .arg(meta.LPub.assem.angle.value(0))
                                       .arg(meta.LPub.assem.angle.value(1))
                                       .arg(cd);
@@ -1310,6 +1314,7 @@ int LDView::renderPli(
       f  = QString("-SaveSnapShot=%1") .arg(pngName);
   }
 
+  QString CA = QString(_CA);
   QString cg = QString("-cg%1,%2,%3") .arg(metaType.angle.value(0))
                                       .arg(metaType.angle.value(1))
                                       .arg(cd);

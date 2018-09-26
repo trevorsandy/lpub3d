@@ -165,11 +165,13 @@ GlobalPageDialog::GlobalPageDialog(
   childlayout->addWidget(childtab);             // new add the tab
   tab->addTab(childwidget, tr("Model"));        // new add the tab  (This is the new 'Model' tab
                                                 // END
+
   // child header (one) start
-  widget = new QWidget();                       // existig 'model' widget definintion
-  grid = new QGridLayout();
-  widget->setLayout(grid);
+  widget = new QWidget();                       // existing 'model' widget definition
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
   // child header end
+
   /*
     Title,
     Cover Image
@@ -177,7 +179,8 @@ GlobalPageDialog::GlobalPageDialog(
 
   //child body (many) start
   titleBoxFront = new QGroupBox(tr("Display Title Front Cover"));
-  grid->addWidget(titleBoxFront, 0, 0);
+  childlayout->addWidget(titleBoxFront);
+  //grid->addWidget(titleBoxFront, 0, 0);
   titleChildFront = new PageAttributeTextGui(&pageMeta->titleFront,titleBoxFront);
   childTextGui = static_cast<PageAttributeTextGui*>(titleChildFront);
   childTextGui->contentEdit->setToolTip("Enter model title");
@@ -186,7 +189,8 @@ GlobalPageDialog::GlobalPageDialog(
           SLOT(indexChanged(int)));
 
   titleBoxBack = new QGroupBox(tr("Display Title Back Cover"));
-  grid->addWidget(titleBoxBack, 0, 0);
+  childlayout->addWidget(titleBoxBack);
+  //grid->addWidget(titleBoxBack, 0, 0);
   titleBoxBack->hide();
   titleChildBack = new PageAttributeTextGui(&pageMeta->titleBack,titleBoxBack);
   childTextGui = static_cast<PageAttributeTextGui*>(titleChildBack);
@@ -198,12 +202,16 @@ GlobalPageDialog::GlobalPageDialog(
 
   //child body (many) start
   box = new QGroupBox(tr("Display Cover Image"));
-  grid->addWidget(box, 1, 0);
+  childlayout->addWidget(box);
+  //grid->addWidget(box, 1, 0);
   child = new PageAttributePictureGui(&pageMeta->coverImage,box);
   chilPicdGui = static_cast<PageAttributePictureGui*>(child);
   chilPicdGui->pictureEdit->setToolTip("Enter image path");
   data->children.append(child);
   //child body end
+
+  //spacer
+  childlayout->addSpacerItem(vSpacer);
 
   // child footer (one) end
   childtab->addTab(widget,"Title/Cover Image");
@@ -397,14 +405,14 @@ GlobalPageDialog::GlobalPageDialog(
   childtab->addTab(widget,tr("URL/Description"));
 
   widget = new QWidget();
-  grid = new QGridLayout();
-  widget->setLayout(grid);
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
   /*
     Copyright
     Logo
   */
   copyrightBoxBack = new QGroupBox(tr("Display Copyright Back Cover"));
-  grid->addWidget(copyrightBoxBack, 0, 0);
+  childlayout->addWidget(copyrightBoxBack);
   copyrightChildBack = new PageAttributeTextGui(&pageMeta->copyrightBack,copyrightBoxBack);
   childTextGui = static_cast<PageAttributeTextGui*>(copyrightChildBack);
   childTextGui->contentEdit->setToolTip("Enter copyright - Copyright © 2018");
@@ -413,7 +421,7 @@ GlobalPageDialog::GlobalPageDialog(
          SLOT(indexChanged(int)));
 
   copyrightBox = new QGroupBox(tr("Display Copyright Header/Footer"));
-  grid->addWidget(copyrightBox, 0, 0);
+  childlayout->addWidget(copyrightBox);
   copyrightBox->hide();
   copyrightChild = new PageAttributeTextGui(&pageMeta->copyright,copyrightBox);
   childTextGui = static_cast<PageAttributeTextGui*>(copyrightChild);
@@ -423,7 +431,7 @@ GlobalPageDialog::GlobalPageDialog(
          SLOT(indexChanged(int)));
 
   documentLogoBoxFront = new QGroupBox(tr("Display Logo Front Cover"));
-  grid->addWidget(documentLogoBoxFront, 1, 0);
+  childlayout->addWidget(documentLogoBoxFront);
   documentLogoChildFront = new PageAttributePictureGui(&pageMeta->documentLogoFront,documentLogoBoxFront);
   chilPicdGui = static_cast<PageAttributePictureGui*>(documentLogoChildFront);
   chilPicdGui->pictureEdit->setToolTip("Enter logo image path");
@@ -432,7 +440,7 @@ GlobalPageDialog::GlobalPageDialog(
          SLOT(indexChanged(int)));
 
   documentLogoBoxBack = new QGroupBox(tr("Display Logo Back Cover"));
-  grid->addWidget(documentLogoBoxBack, 1, 0);
+  childlayout->addWidget(documentLogoBoxBack);
   documentLogoBoxBack->hide();
   documentLogoChildBack = new PageAttributePictureGui(&pageMeta->documentLogoBack,documentLogoBoxBack);
   chilPicdGui = static_cast<PageAttributePictureGui*>(documentLogoChildBack);
@@ -440,6 +448,9 @@ GlobalPageDialog::GlobalPageDialog(
   data->children.append(documentLogoChildBack);
   connect(documentLogoChildBack, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
+
+  //spacer
+  childlayout->addSpacerItem(vSpacer);
 
   childtab->addTab(widget,tr("Copyright/Logo"));
 
@@ -464,17 +475,18 @@ GlobalPageDialog::GlobalPageDialog(
   childTextGui = static_cast<PageAttributeTextGui*>(child);
   childTextGui->contentEdit->setToolTip("Enter disclaimer paragraph");
   data->children.append(child); 
+
   childtab->addTab(widget,tr("Disclaimer"));
 
   widget = new QWidget();
-  grid = new QGridLayout();
-  widget->setLayout(grid);
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
   /*
     Plug
     Plug image
   */
   box = new QGroupBox(tr("Display LPub3D Plug"));
-  grid->addWidget(box, 1, 0);
+  childlayout->addWidget(box);
   child = new PageAttributeTextGui(&pageMeta->plug,box);
   QPalette readOnlyPalette;
   readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
@@ -484,7 +496,7 @@ GlobalPageDialog::GlobalPageDialog(
   data->children.append(child);
 
   box = new QGroupBox(tr("Display LPub3D Logo"));
-  grid->addWidget(box, 2, 0);
+  childlayout->addWidget(box);
   child = new PageAttributePictureGui(&pageMeta->plugImage,box);
   readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
   chilPicdGui = static_cast<PageAttributePictureGui*>(child);
@@ -492,23 +504,22 @@ GlobalPageDialog::GlobalPageDialog(
   chilPicdGui->pictureEdit->setPalette(readOnlyPalette);
   data->children.append(child);
 
+  //spacer
+  childlayout->addSpacerItem(vSpacer);
+
   childtab->addTab(widget,tr("LPub3D PLug"));
 
   //~~~~~~~~~ page number tab ~~~~~~~~~~~~//
   widget = new QWidget();
-  //grid = new QGridLayout();
   QVBoxLayout *vLayout = new QVBoxLayout(NULL);
-  //widget->setLayout(grid);
   widget->setLayout(vLayout);
 
   box = new QGroupBox(tr("Display"));
-  //grid->addWidget(box, 0,0);
   vLayout->addWidget(box);
   child = new CheckBoxGui(tr("Display Page Number"),&pageMeta->dpn,box);
   data->children.append(child);
 
   box = new QGroupBox(tr("Look"));
-  //grid->addWidget(box,1,0);
   vLayout->addWidget(box);
   child = new NumberGui(&pageMeta->number,box);
   data->children.append(child);

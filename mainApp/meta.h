@@ -136,6 +136,11 @@ enum Positions {
 #define DEFAULT_MARGIN_RANGE 0.0f,100.0f
 #define DEFAULT_THICKNESS 1.0f/32.0f
 
+#define DEFAULT_SUBMODEL_COLOR_01 "#ffffff"
+#define DEFAULT_SUBMODEL_COLOR_02 "#ffffcc"
+#define DEFAULT_SUBMODEL_COLOR_03 "#ffcccc"
+#define DEFAULT_SUBMODEL_COLOR_04 "#ccccff"
+
 /*
  * This abstract class is the root of all meta-command parsing
  * objects.  Each parsing object knows how to intialize itself,
@@ -2228,6 +2233,7 @@ public:
   StringMeta    ldgliteParms;
   StringMeta    povrayParms;
   BoolMeta      showStepNumber;
+  FloatMeta     cameraAngle;
 
   // image generation
   FloatPairMeta angle;

@@ -2287,7 +2287,8 @@ void PGraphicsPixmapItem::contextMenuEvent(
             "Model Size",
             pli->topOfStep(),
             pli->bottomOfStep(),
-            &meta->LPub.pli.modelScale,0);
+            &meta->LPub.pli.modelScale,
+            0.01,0); // value set as do not append (why?)
       gui->clearPLICache();
 #endif
     }

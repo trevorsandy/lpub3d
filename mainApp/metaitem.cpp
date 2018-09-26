@@ -1630,23 +1630,25 @@ void MetaItem::changeViewAngle(
   QString        title,
   const Where   &topOfStep,
   const Where   &bottomOfStep,
-  FloatPairMeta *va,
+  FloatPairMeta *floatPairMeta,
   int            append,
   bool           local)
 {
-  float floats[2];
-  floats[0] = va->value(0);
-  floats[1] = va->value(1);
+  float data[2];
+  data[0] = floatPairMeta->value(0);
+  data[1] = floatPairMeta->value(1);
+
   bool ok = FloatPairDialog::getFloatPair(
-              floats,
               title,
               "Lattitude",
               "Longitude",
+              floatPairMeta,
+              data,
               gui);
 
   if (ok) {
-    va->setValues(floats[0],floats[1]);
-    setMetaTopOf(topOfStep,bottomOfStep,va,append,local);
+    floatPairMeta->setValues(data[0],data[1]);
+    setMetaTopOf(topOfStep,bottomOfStep,floatPairMeta,append,local);
   }
 }
 
@@ -1694,17 +1696,17 @@ void MetaItem::changeFloatSpin(
   const Where &topOfStep,
   const Where &bottomOfStep,
   FloatMeta   *floatMeta,
+  float        step,
   int          append,
   bool         local)
 {
   float data = floatMeta->value();
   bool ok = DoubleSpinDialog::getFloat(
-                                  data,
-                                  floatMeta->_min,
-                                  floatMeta->_max,
-                                  0.01,
                                   title,
                                   label,
+                                  floatMeta,
+                                  data,
+                                  step,        // spin single step
                                   gui);
   if (ok) {
     floatMeta->setValue(data);

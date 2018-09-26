@@ -30,7 +30,9 @@
         <file alias="clearcustompartcache.png">resources/clearcustompartcache.png</file>
         <file alias="clearstepcache.png">resources/clearstepcache.png</file>
         <file alias="closemodelfile.png">resources/closemodelfile.png</file>
+        <file alias="cameraangle.png">resources/cameraangle.png</file>
         <file alias="cameradistfactor.png">resources/cameradistfactor.png</file>
+        <file alias="cameraviewangle.png">resources/cameraviewangle.png</file>
         <file alias="contentspage.png">resources/contentspage.png</file>
         <file alias="convertcallout.png">resources/convertcallout.png</file>
         <file alias="copy.png">resources/copy.png</file>

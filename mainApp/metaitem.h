@@ -310,6 +310,7 @@ public:
                         const Where &, 
                         const Where &, 
                         FloatMeta *,
+                        float step = 0.01,
                         int  append = 1, 
                         bool checkLocal = true);
 

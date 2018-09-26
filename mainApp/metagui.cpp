@@ -1165,8 +1165,8 @@ void PageAttributeTextGui::apply(
 //  stretchRadio->setChecked(meta->stretch);
 //  tileRadio->setChecked( !meta->stretch);
 
-  pictureEdit->setEnabled(true);
-  pictureButton->setEnabled(true);
+//  pictureEdit->setEnabled(true);
+//  pictureButton->setEnabled(true);
 
   //scale
   gbScale = new QGroupBox("Scale", parent);

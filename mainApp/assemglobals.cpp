@@ -91,16 +91,26 @@ GlobalAssemDialog::GlobalAssemDialog(
   data->children.append(child);
   boxGrid->addWidget(child,1,0);
 
-  /* Assembly orientation angles */
+  /* Assembly camera settings */
 
   box = new QGroupBox("Default Assembly Orientation");
   grid->addWidget(box,1,0);
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
+  // camera angle
+  child = new DoubleSpinGui("Camera Angle",
+                            &assem->cameraAngle,
+                            assem->cameraAngle._min,
+                            assem->cameraAngle._max,
+                            assem->cameraAngle.value());
+  data->children.append(child);
+  boxGrid->addWidget(child,0,0,1,2);
+
+  // orientation angles
   child = new FloatsGui("Lattitude","Longitude",&assem->angle);
   data->children.append(child);
-  boxGrid->addWidget(child);
+  boxGrid->addWidget(child,1,0);
 
   /* Step Number */
 

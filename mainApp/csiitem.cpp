@@ -210,6 +210,16 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                             "  doubles the size of your model.  A scale of 0.5 makes your model\n"
                             "  half real size\n");
 
+  QAction *cameraAngleAction = menu.addAction("Change Camera Angle");
+  cameraAngleAction->setIcon(QIcon(":/resources/cameraangle.png"));
+  cameraAngleAction->setWhatsThis("Change camera angle:\n"
+                            "  Change the camera angle of this assembly image\n");
+
+  QAction *viewAngleAction = menu.addAction("Change Camera View Angles");
+  viewAngleAction->setIcon(QIcon(":/resources/cameraviewangle.png"));
+  viewAngleAction->setWhatsThis("Change camera view angles:\n"
+                            "  Change the camera longitude and latitude view angles of this assembly image\n");
+
   QAction *marginsAction = menu.addAction("Change Assembly Margins");
   marginsAction->setIcon(QIcon(":/resources/margins.png"));
   switch (parentRelativeType) {
@@ -265,11 +275,11 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   
   Callout *callout = step->callout();
   
-  Where topOfStep    = step->topOfStep();
-  Where bottomOfStep = step->bottomOfStep();
-  Where topOfSteps  = step->topOfSteps();
+  Where topOfStep     = step->topOfStep();
+  Where bottomOfStep  = step->bottomOfStep();
+  Where topOfSteps    = step->topOfSteps();
   Where bottomOfSteps = step->bottomOfSteps();
-  Where begin = topOfSteps;
+  Where begin         = topOfSteps;
   
   if (parentRelativeType == StepGroupType) {
       MetaItem mi;
@@ -288,7 +298,25 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         } else {
           deleteLastMultiStep(topOfSteps,bottomOfSteps);
         }
-    } else if (selectedAction == movePrevAction) {
+    } else if (selectedAction == cameraAngleAction) {
+      bool allowLocal = parentRelativeType != StepGroupType &&
+          parentRelativeType != CalloutType;
+      changeFloatSpin("Assembly",
+                      "Camera Angle",
+                      topOfStep,
+                      bottomOfStep,
+                      &meta->LPub.assem.cameraAngle,
+                      0.01,
+                      1,allowLocal);
+    } else if (selectedAction == viewAngleAction) {
+      bool allowLocal = parentRelativeType != StepGroupType &&
+            parentRelativeType != CalloutType;
+        changeViewAngle( "Camera View Angeles",
+                          topOfStep,
+                          bottomOfStep,
+                          &meta->LPub.assem.angle,
+                         1,allowLocal);
+     } else if (selectedAction == movePrevAction) {
 
       addToPrev(parentRelativeType,topOfStep);
 
@@ -334,6 +362,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                       begin,
                       bottomOfSteps,
                       &meta->LPub.assem.modelScale,
+                      0.01,
                       1,allowLocal);
     } else if (selectedAction == marginsAction) {
 
@@ -358,7 +387,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       gui->clearStepCSICache(step->pngName);
     } else if (selectedAction == noStepAction) {
       appendMeta(topOfStep,"0 !LPUB NOSTEP");
-    } else if (selectedAction == insertRotateIconAction && fullContextMenu) {
+    } else if (selectedAction == insertRotateIconAction &&fullContextMenu) {
       appendMeta(topOfStep,"0 !LPUB INSERT ROTATE_ICON OFFSET 0.5 0.5");
     }
 
