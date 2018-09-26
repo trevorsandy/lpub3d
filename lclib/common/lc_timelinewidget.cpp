@@ -5,6 +5,10 @@
 #include "pieceinf.h"
 #include "lc_mainwindow.h"
 
+/*** LPub3D Mod - Timeline part icons ***/
+#include "name.h"
+/*** LPub3D Mod end ***/
+
 lcTimelineWidget::lcTimelineWidget(QWidget* Parent)
 	: QTreeWidget(Parent)
 {
@@ -198,8 +202,10 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
                 if (IsModel || fPiece || hPiece) {
                     bool fColor = gApplication->UseFadeColour();
                     IconUID = QString("%1_%2").arg(baseName).toLower()
-                                              .arg((fPiece ? QString("100") + (fColor ? gMainWindow->GetFadeStepsColor() : QString("0")) :
-                                                   (hPiece ? QString("1100") : QString("0"))));
+                                              .arg((fPiece ? QString("%1%2")
+                                                                     .arg(LPUB3D_COLOUR_FADE_PREFIX)
+                                                                     .arg(fColor ? gMainWindow->GetFadeStepsColor() : QString("0")) :
+                                                   (hPiece ? QString("%10").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX) : QString("0"))));
                 } else {
                     IconUID = QString("%1_%2").arg(baseName).arg(Piece->mColorCode);
                 }
@@ -212,10 +218,11 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 
                     GetIcon(Size,ColorIndex);
                     PieceItem->setIcon(0, mIcons[ColorIndex]);
-
-                    fprintf(stdout, "%s\n",QString(QString("ALERT - Could Not Insert %1 Icon - UID [%2]")
-                                                           .arg(IsModel ? "Submodel" : "Piece")
-                                                           .arg(IconUID)).toLatin1().constData());
+#ifdef QT_DEBUG_MODE
+                    qDebug() << qPrintable(QString("ALERT - Could Not Insert %1 Icon - UID [%2]")
+                                                   .arg(IsModel ? "Submodel" : "Piece")
+                                                   .arg(IconUID));
+#endif
                     fflush(stdout);
                 }
 

@@ -57,6 +57,8 @@
 
 QCache<QString,QString> Pli::orientation;
 
+QString PartTypeNames[NUM_PART_TYPES] = { "Fade Previous Steps", "Highlight Current Step", "Normal" };
+
 const Where &Pli::topOfStep()
 {
   if (bom || step == nullptr || steps == nullptr) {
@@ -98,22 +100,24 @@ const Where &Pli::bottomOfCallout()
   return step->callout()->bottomOfCallout();
 }
 
-struct PartTypesNeeded
+Pli::Pli(bool _bom) : bom(_bom)
 {
-    PartType partType;
-    QString baseName;
-    QString partColor;
-    QString typeName;
-};
+  relativeType = PartsListType;
+  initAnnotationString();
+  steps = NULL;
+  step = NULL;
+  meta = NULL;
+  widestPart = 1;
+  tallestPart = 1;
+  background = NULL;
+  splitBom = false;
 
-struct ImageAttribues
-{
-    QStringList imageKeys[NUM_PART_TYPES];
-    QStringList imageNames[NUM_PART_TYPES];
-    QStringList ldrNames[NUM_PART_TYPES];
-};
+  ptn.append( { FADE_PART, "-fade" } );
+  ptn.append( { HIGHLIGHT_PART, "-highlight" } );
+  ptn.append( { NORMAL_PART, QString() } );
 
-QString PartTypeNames[NUM_PART_TYPES] = { "Fade Previous Steps", "Highlight Current Step", "Normal" };
+  isSubModel = false;
+}
 
 /****************************************************************************
  * Part List Images routines
@@ -485,7 +489,7 @@ int Pli::createPartImages()
                 part->annotateMeta = pliMeta.annotate;
                 part->instanceMeta = pliMeta.instance;
                 part->csiMargin    = pliMeta.part.margin;
-                part->sortColour   = QString(i);  // using this to sort on file list order
+                part->sortColour   = QString(i);
                 part->sortCategory = QString();
                 part->nameKey      = nameKey;
                 part->imageName    = QString();
@@ -518,43 +522,33 @@ int Pli::createPartImage(
     QString  &color,
     QPixmap  *pixmap)
 {
-    QList<PartTypesNeeded> ptn;
-    QStringList partialKeys = partialKey.split("_");
-    QString fadeColour = LDrawColor::ldColorCode(Preferences::fadeStepsColour);
-    bool fadeSteps = Preferences::enableFadeSteps ;
-    bool highlightStep = Preferences::enableHighlightStep && !gui->suppressColourMeta();
-    bool displayIcons = gApplication->mPreferences.mViewPieceIcons;
 
-    if (fadeSteps && displayIcons) {
-        ptn.append( {
-                        FADE_PART,
-                        partialKeys.first(),
-                        Preferences::fadeStepsUseColour ? fadeColour : color,
-                        "-fade"
-                    } );
-    }
-    if (highlightStep && displayIcons) {
-        ptn.append( {
-                        HIGHLIGHT_PART,
-                        partialKeys.first(),
-                        color,
-                        "-highlight"
-                    } );
-    }
-    ptn.append( {
-                    NORMAL_PART,
-                    partialKeys.first(),
-                    color,
-                    QString()
-                } );
+    fadeSteps = Preferences::enableFadeSteps ;
+    displayIcons = gApplication->mPreferences.mViewPieceIcons;
+    fadeColour = LDrawColor::ldColorCode(Preferences::fadeStepsColour);
+    highlightStep = Preferences::enableHighlightStep && !gui->suppressColourMeta();
+
+    QStringList partialKeys = partialKey.split("_");
 
     for (int pT = 0; pT < ptn.size(); pT++ ) {
+
+#ifdef QT_DEBUG_MODE
+        QString CurrentPartType = PartTypeNames[pT];
+#endif
+        if ((pT == FADE_PART && !fadeSteps) ||
+            (pT == HIGHLIGHT_PART && !highlightStep) ||
+           ((pT == FADE_PART || pT == HIGHLIGHT_PART) && !displayIcons))
+            continue;
 
         QElapsedTimer timer;
         timer.start();
         bool showElapsedTime = false;
 
-        emit gui->messageSig(LOG_STATUS, QString("Render PLI image for [%1] parts...").arg(PartTypeNames[ptn[pT].partType]));
+        // moved from enum to save weight
+        ia.baseName[pT] = partialKeys.first();
+        ia.partColor[pT] = fadeSteps && Preferences::fadeStepsUseColour ? fadeColour : color;
+
+        emit gui->messageSig(LOG_STATUS, QString("Render PLI image for [%1] parts...").arg(PartTypeNames[pT]));
 
         float modelScale = pliMeta.modelScale.value();
 
@@ -592,11 +586,11 @@ int Pli::createPartImage(
             if (isSubModel) {
                 // use model file generated durin 'write-to-temp' call
                 QString iconImageType = QFileInfo(type).baseName() += (ptn[pT].typeName + ".ldr");
-                pliFile << orient(ptn[pT].partColor, iconImageType);
+                pliFile << orient(ia.partColor[pT], iconImageType);
             } else {
                 // generate PLI Part file
                 pliFile = configurePLIPart(
-                          ptn[pT].partColor,
+                          ia.partColor[pT],
                           type,
                           (PartType)pT,
                           fadeSteps,
@@ -609,17 +603,12 @@ int Pli::createPartImage(
                 modelName = modelName.replace(modelName.at(0),modelName.at(0).toUpper());
                 out << QString("0 FILE %1").arg(type) << endl;
                 out << QString("0 %1").arg(modelName) << endl;
-                out << QString("0 !LEOCAD MODEL NAME %1.ldr").arg(modelName) << endl;
+                out << QString("0 Name: %1").arg(type) << endl;
+                out << QString("0 !LEOCAD MODEL NAME %1").arg(modelName) << endl;
                 out << renderer->getRotstepMeta(meta->rotStep) << endl;
-
-                foreach (QString line, pliFile)
-                    out << line << endl;
             }
-            else
-            {
-                foreach (QString line, pliFile)
-                    out << line << endl;
-            }
+            foreach (QString line, pliFile)
+                out << line << endl;
             part.close();
 
             // feed DAT to renderer
@@ -632,16 +621,16 @@ int Pli::createPartImage(
         }
 
         // create icon path key - using actual color code
-        QString colourCode = ptn[pT].partColor;
+        QString colourCode = ia.partColor[pT];
         if (pT != NORMAL_PART)
-            colourCode = QString("%1").arg(pT == FADE_PART ? QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(Preferences::fadeStepsUseColour ? fadeColour : ptn[pT].partColor) :
-                                                             QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX ).arg(ptn[pT].partColor));
+            colourCode = QString("%1").arg(pT == FADE_PART ? QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(Preferences::fadeStepsUseColour ? fadeColour : ia.partColor[pT]) :
+                                                             QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX ).arg(ia.partColor[pT]));
 
         QString imageKey;
         if (isSubModel)
-            imageKey = QString("%1%2_%3").arg(ptn[pT].baseName).arg(ptn[pT].typeName).arg(colourCode);
+            imageKey = QString("%1%2_%3").arg(ia.baseName[pT]).arg(ptn[pT].typeName).arg(colourCode);
         else
-            imageKey = QString("%1_%2").arg(ptn[pT].baseName).arg(colourCode);
+            imageKey = QString("%1_%2").arg(ia.baseName[pT]).arg(colourCode);
 
         emit gui->setPliIconPathSig(imageKey,imageName);
 
@@ -651,7 +640,7 @@ int Pli::createPartImage(
         if (showElapsedTime)
             emit gui->messageSig(LOG_INFO, qPrintable(
                                      QString("%1 PLI [%2] render took %3 milliseconds "
-                                             "to render image [%3].")
+                                             "to render image [%4].")
                                              .arg(Render::getRenderer())
                                              .arg(PartTypeNames[pT])
                                              .arg(timer.elapsed())
@@ -1520,7 +1509,6 @@ int Pli::partSize()
               parts.remove(key);
             }
         }
-
     }
 
   return 0;
@@ -1533,18 +1521,14 @@ int Pli::partSizeLDViewSCall() {
     QString key;
     widestPart = 0;
     tallestPart = 0;
-    QStringList ldrNames[NUM_PART_TYPES];
-    QStringList imageNames[NUM_PART_TYPES];
-    ImageAttribues ia;
-    QList<PartTypesNeeded> ptn;
-    QString fadeColour = LDrawColor::ldColorCode(Preferences::fadeStepsColour);
-    bool fadeSteps = Preferences::enableFadeSteps ;
-    bool highlightStep = Preferences::enableHighlightStep && !gui->suppressColourMeta();
-    bool displayIcons = gApplication->mPreferences.mViewPieceIcons;
+
+    fadeSteps = Preferences::enableFadeSteps ;
+    displayIcons = gApplication->mPreferences.mViewPieceIcons;
+    fadeColour = LDrawColor::ldColorCode(Preferences::fadeStepsColour);
+    highlightStep = Preferences::enableHighlightStep && !gui->suppressColourMeta();
 
     // 1. generate ldr files
     foreach(key,parts.keys()) {
-        ptn.clear();
         PliPart *pliPart;
 
         // get part info
@@ -1553,8 +1537,8 @@ int Pli::partSizeLDViewSCall() {
         PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
 
         if (pieceInfo ||
-                gui->isUnofficialPart(pliPart->type) ||
-                gui->isSubmodel(pliPart->type)) {
+            gui->isUnofficialPart(pliPart->type) ||
+            gui->isSubmodel(pliPart->type)) {
 
             if (pliPart->color == "16" || isSubModel) {
                 pliPart->color = "0";
@@ -1563,45 +1547,34 @@ int Pli::partSizeLDViewSCall() {
             emit gui->messageSig(LOG_INFO, QString("Processing part for key [%1]").arg(pliPart->nameKey));
             QStringList partialKeys = pliPart->nameKey.split("_");
 
-            if (fadeSteps && displayIcons) {
-                ptn.append( {
-                                FADE_PART,
-                                partialKeys.first(),
-                                Preferences::fadeStepsUseColour ? fadeColour : pliPart->color,
-                                "-fade"
-                            } );
-            }
-            if (highlightStep && displayIcons) {
-                ptn.append( {
-                                HIGHLIGHT_PART,
-                                partialKeys.first(),
-                                pliPart->color,
-                                "-highlight"
-                            } );
-            }
-            ptn.append( {
-                            NORMAL_PART,
-                            partialKeys.first(),
-                            pliPart->color,
-                            QString()
-                        } );
-
             for (int pT = 0; pT < ptn.size(); pT++ ) {
+
+#ifdef QT_DEBUG_MODE
+        QString CurrentPartType = PartTypeNames[pT];
+#endif
+                if ((pT == FADE_PART && !fadeSteps) ||
+                    (pT == HIGHLIGHT_PART && !highlightStep) ||
+                   ((pT == FADE_PART || pT == HIGHLIGHT_PART) && !displayIcons))
+                     continue;
+
+                // moved from enum to save weight
+                ia.baseName[pT] = partialKeys.first();
+                ia.partColor[pT] = fadeSteps && Preferences::fadeStepsUseColour ? fadeColour : pliPart->color;
 
                 // assemble ldr name
                 QString key = !ptn[pT].typeName.isEmpty() ? pliPart->nameKey + ptn[pT].typeName : pliPart->nameKey;
                 QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + key + ".ldr";
                 QString imageName = QDir::currentPath() + "/" + Paths::partsDir + "/" + key + ".png";
 
-                QString colourCode = ptn[pT].partColor;
+                QString colourCode = ia.partColor[pT];
                 if (pT != NORMAL_PART)
-                    colourCode = QString("%1").arg(pT == FADE_PART ? QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(ptn[pT].partColor) :
-                                                                     QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX ).arg(ptn[pT].partColor));
+                    colourCode = QString("%1").arg(pT == FADE_PART ? QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(ia.partColor[pT]) :
+                                                                     QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX ).arg(ia.partColor[pT]));
                 QString imageKey;
                 if (isSubModel)
-                    imageKey = QString("%1%2_%3").arg(ptn[pT].baseName).arg(ptn[pT].typeName).arg(colourCode);
+                    imageKey = QString("%1%2_%3").arg(ia.baseName[pT]).arg(ptn[pT].typeName).arg(colourCode);
                 else
-                    imageKey = QString("%1_%2").arg(ptn[pT].baseName).arg(colourCode);
+                    imageKey = QString("%1_%2").arg(ia.baseName[pT]).arg(colourCode);
 
                 // store imageName
                 ia.imageKeys[pT] << imageKey;
@@ -1629,11 +1602,11 @@ int Pli::partSizeLDViewSCall() {
                     if (isSubModel) {
                         // use model file generated durin 'write-to-temp' call
                         QString iconImageType = QFileInfo(pliPart->type).baseName() += (ptn[pT].typeName + ".ldr");
-                        pliFile << orient(ptn[pT].partColor, iconImageType);
+                        pliFile << orient(ia.partColor[pT], iconImageType);
                     } else {
                         // generate PLI Part file
                         pliFile = configurePLIPart(
-                                  ptn[pT].partColor,
+                                  ia.partColor[pT],
                                   pliPart->type,
                                   (PartType)pT,
                                   fadeSteps,
@@ -1652,7 +1625,6 @@ int Pli::partSizeLDViewSCall() {
         }         // part is valid
         else
         {
-
             delete parts[key];
             parts.remove(key);
         }
@@ -1660,11 +1632,20 @@ int Pli::partSizeLDViewSCall() {
 
     for (int pT = 0; pT < ptn.size(); pT++ ) {   // for every part type
 
+#ifdef QT_DEBUG_MODE
+        QString CurrentPartType = PartTypeNames[pT];
+#endif
+
+        if ((pT == FADE_PART && !fadeSteps) ||
+            (pT == HIGHLIGHT_PART && !highlightStep) ||
+           ((pT == FADE_PART || pT == HIGHLIGHT_PART) && !displayIcons))
+             continue;
+
         QElapsedTimer timer;
         timer.start();
         bool showElapsedTime = false;
 
-        if ((rc = createPartImagesLDViewSCall(ldrNames[pT],(isSubModel ? false : pT == NORMAL_PART))) != 0) {
+        if ((rc = createPartImagesLDViewSCall(ia.ldrNames[pT],(isSubModel ? false : pT == NORMAL_PART))) != 0) {
             emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part images using LDView Single Call"));
             continue;
         }
@@ -1673,15 +1654,15 @@ int Pli::partSizeLDViewSCall() {
             emit gui->setPliIconPathSig(ia.imageKeys[pT][i],ia.imageNames[pT][i]);
         }
 
-        if (!ldrNames[pT].isEmpty())
+        if (!ia.ldrNames[pT].isEmpty())
             emit gui->messageSig(LOG_INFO, qPrintable(
                                      QString("%1 PLI (Single Call) for [%2] render took "
                                              "%3 milliseconds to render %4 %5.")
                                      .arg(Render::getRenderer())
                                      .arg(PartTypeNames[pT])
                                      .arg(timer.elapsed())
-                                     .arg(ldrNames[pT].size())
-                                     .arg(ldrNames[pT].size() == 1 ? "image" : "images")));
+                                     .arg(ia.ldrNames[pT].size())
+                                     .arg(ia.ldrNames[pT].size() == 1 ? "image" : "images")));
     }
 
     if (rc != 0)

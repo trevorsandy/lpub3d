@@ -109,11 +109,11 @@ class Page : public Steps {
     int  instances;
     Page()
     {
-      coverPage           = false;
-      frontCover          = false;
-      backCover           = false;
-      modelDisplayOnlyStep         = false;
-      instances           = 1;
+      coverPage            = false;
+      frontCover           = false;
+      backCover            = false;
+      modelDisplayOnlyStep = false;
+      instances            = 1;
     }
     
     void addInsertPixmap(InsertPixmapItem *pixMap)

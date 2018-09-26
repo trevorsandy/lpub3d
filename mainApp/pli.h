@@ -151,7 +151,6 @@ class Pli : public Placement {
     PliBackgroundItem *background;
     bool               bom;
     bool               splitBom;
-    bool               isSubModel;
     PliMeta            pliMeta;
     Meta              *meta;
     Steps             *steps;   // topOfSteps()
@@ -161,18 +160,30 @@ class Pli : public Placement {
     int                widestPart;
     int                tallestPart;
 
-    Pli(bool _bom = false) : bom(_bom)
+    Pli(bool _bom = false);
+
+    struct PartTypesNeeded
     {
-      relativeType = PartsListType;
-      initAnnotationString();
-      steps = NULL;
-      step = NULL;
-      meta = NULL;
-      widestPart = 1;
-      tallestPart = 1;
-      background = NULL;
-      splitBom = false;
-    }
+        PartType partType;
+        QString typeName;
+    };
+
+    struct ImageAttribues
+    {
+        QStringList imageKeys[NUM_PART_TYPES];
+        QStringList imageNames[NUM_PART_TYPES];
+        QStringList ldrNames[NUM_PART_TYPES];
+        QString baseName[NUM_PART_TYPES];
+        QString partColor[NUM_PART_TYPES];
+    };
+
+    ImageAttribues ia;
+    QList<PartTypesNeeded> ptn;
+    QString fadeColour;
+    bool fadeSteps;
+    bool highlightStep;
+    bool displayIcons;
+    bool isSubModel;
     
     ~Pli()
     {
