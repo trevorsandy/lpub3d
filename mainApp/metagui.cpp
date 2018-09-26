@@ -276,14 +276,22 @@ FloatsGui::FloatsGui(
     layout->addWidget(label0);
   }
 
-  QString      string;
+  QString      string, numStr, dynMask;
+  int          a, dec;
+  float        val;
 
-  string = QString("%1") .arg(meta->value(0),
+  val = meta->value(0);
+  a = val - (int)val;
+  dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                  // shameless hack for the numer of input decimals
+  numStr = dec > 0 ? QString::number(val): QString::number(val,'f',1); // add 1 decmal place for even numbers
+  for (int i = 0; i < numStr.size(); i++) dynMask.append("x");         // dynamically create the input mask
+
+  string = QString("%1") .arg(val,
                               meta->_fieldWidth,
                               'f',
                               meta->_precision);
   value0 = new QLineEdit(string,parent);
-  value0->setInputMask(meta->_inputMask);
+  value0->setInputMask(dynMask);
   connect(value0,SIGNAL(textEdited(  QString const &)),
           this,  SLOT(  value0Change(QString const &)));
   layout->addWidget(value0);
@@ -295,12 +303,18 @@ FloatsGui::FloatsGui(
     layout->addWidget(label1);
   }
 
-  string = QString("%1") .arg(meta->value(1),
+  val = meta->value(1);
+  dynMask.clear();
+  a = val - (int)val;
+  dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                  // shameless hack for the numer of input decimals
+  numStr = dec > 0 ? QString::number(val): QString::number(val,'f',1);
+  for (int i = 0; i < numStr.size(); i++) dynMask.append("x");         // dynamically create the input mask
+  string = QString("%1") .arg(val,
                               meta->_fieldWidth,
                               'f',
                               meta->_precision);
   value1 = new QLineEdit(string,parent);
-  value1->setInputMask(meta->_inputMask);
+  value1->setInputMask(dynMask);
   connect(value1,SIGNAL(textEdited(  QString const &)),
           this,  SLOT(  value1Change(QString const &)));
   layout->addWidget(value1);
@@ -369,12 +383,16 @@ DoubleSpinGui::DoubleSpinGui(
     layout->addWidget(label);
   }
 
+  float val = meta->value();
+  int a = val - (int)val;
+  int dec = (a <= 0 ? 2 : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
+
   spin = new QDoubleSpinBox(parent);
   layout->addWidget(spin);
   spin->setRange(min,max);
   spin->setSingleStep(step);
-  spin->setDecimals(6);
-  spin->setValue(meta->value());
+  spin->setDecimals(dec);
+  spin->setValue(val);
   connect(spin,SIGNAL(valueChanged(double)),
           this,SLOT  (valueChanged(double)));
 }

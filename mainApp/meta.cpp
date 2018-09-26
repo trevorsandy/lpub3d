@@ -2237,7 +2237,7 @@ void PageAttributePictureMeta::init(
 {
   AbstractMeta::init(parent, name);
   placement.init        (this, "PLACEMENT");
-  margin.init   	(this, "MARGINS");
+  margin.init        	(this, "MARGINS");
   picScale.init         (this, "SCALE");
   file.init             (this, "FILE");
   display.init          (this, "DISPLAY");
@@ -2895,20 +2895,20 @@ AssemMeta::AssemMeta() : BranchMeta()
   showStepNumber.setValue(true);
 
   // image generation
-  cameraFoV.setFormats(6,4,"9.999");
+  cameraFoV.setFormats(5,4,"9.999");
   cameraFoV.setRange(0.0,360.0);
   cameraFoV.setValue(gui->getDefaultCameraFoV());  // using LPub3D Default 0.01f
-  cameraAngles.setFormats(7,4,"#999.9");
+  cameraAngles.setFormats(7,4,"###9.90");
   cameraAngles.setRange(-360.0,360.0);
   cameraAngles.setValues(23,45);                   // using LPub3D Default 0.0,0.0f
   znear.setValue(gui->getDefaultCameraZNear());    // using LPub3D Default 10.0f
   zfar.setValue(gui->getDefaultCameraZFar());      // using LPub3D Default 4000.0f
 
   // image display
-  v_cameraFoV.setFormats(6,4,"9.999");
+  v_cameraFoV.setFormats(5,4,"9.999");
   v_cameraFoV.setRange(0.0,360.0);
   v_cameraFoV.setValue(CAMERA_FOV_NATIVE_DEFAULT);
-  v_cameraAngles.setFormats(7,4,"#999.9");
+  v_cameraAngles.setFormats(7,4,"###9.90");
   v_cameraAngles.setRange(-360.0,360.0);
   v_cameraAngles.setValues(23,45);
   v_znear.setValue(CAMERA_ZNEAR_NATIVE_DEFAULT);
@@ -2982,10 +2982,10 @@ PliMeta::PliMeta() : BranchMeta()
   sortBy.setValue(SortOptionName[PartSize]);
 
   // image generation
-  cameraFoV.setFormats(6,4,"9.999");
+  cameraFoV.setFormats(5,4,"9.999");
   cameraFoV.setRange(0.0,360.0);
   cameraFoV.setValue(gui->getDefaultCameraFoV());
-  cameraAngles.setFormats(7,4,"#999.9");
+  cameraAngles.setFormats(7,4,"###9.90");
   cameraAngles.setRange(-360.0,360.0);
   cameraAngles.setValues(23,-45);
   znear.setValue(gui->getDefaultCameraZNear());
@@ -3065,10 +3065,12 @@ BomMeta::BomMeta() : PliMeta()
   sortBy.setValue(SortOptionName[PartColour]);
 
   // image generation
-  cameraFoV.setFormats(6,4,"9.999");
+  
+  
+  cameraFoV.setFormats(5,4,"9.999");
   cameraFoV.setRange(0.0,360.0);
   cameraFoV.setValue(gui->getDefaultCameraFoV());
-  cameraAngles.setFormats(6,4,"#999.9");
+  cameraAngles.setFormats(7,4,"###9.90");
   cameraAngles.setRange(-360.0,360.0);
   cameraAngles.setValues(23,-45);
   znear.setValue(gui->getDefaultCameraZNear());
