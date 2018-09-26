@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 28, 2018
+rem  Last Update: September 07, 2018
 rem  Copyright (c) 2018 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -108,6 +108,8 @@ IF NOT EXIST "%PKG_TARGET%" (
   ECHO   Build checks cleanup...
   RMDIR /S /Q %PKG_TARGET_DIR%\cache
   RMDIR /S /Q %PKG_TARGET_DIR%\logs
+  RMDIR /S /Q %PKG_TARGET_DIR%\config
+  RMDIR /S /Q %PKG_TARGET_DIR%\libraries
 
   ECHO.
   ECHO   Build checks completed.
