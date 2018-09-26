@@ -104,7 +104,7 @@ QString fixupDirname(const QString &dirNameIn) {
 #ifdef QT_DEBUG_MODE
                 qDebug() << message << "\n";
 #else
-                emit gui->messageSig(LOG_STATUS, message);
+                emit gui->messageSig(LOG_INFO, message);
 #endif
                 return dirNameIn;
      }
@@ -121,7 +121,7 @@ QString fixupDirname(const QString &dirNameIn) {
 #ifdef QT_DEBUG_MODE
                 qDebug() << message << "\n";
 #else
-                emit gui->messageSig(LOG_STATUS, message);
+                emit gui->messageSig(LOG_INFO, message);
 #endif
 		return dirNameIn;
 	}
@@ -277,7 +277,7 @@ int Render::executeLDViewProcess(QStringList &arguments, Mt module) {
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
-  emit gui->messageSig(LOG_STATUS, message);
+  emit gui->messageSig(LOG_INFO, message);
 #endif
 
   QProcess ldview;
@@ -424,7 +424,7 @@ int POVRay::renderCsi(
 #ifdef QT_DEBUG_MODE
       qDebug() << qPrintable(message);
 #else
-      emit gui->messageSig(LOG_STATUS, message);
+      emit gui->messageSig(LOG_INFO, message);
 #endif
 
       ldview.start(Preferences::ldviewExe,arguments);
@@ -532,7 +532,7 @@ int POVRay::renderCsi(
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
-  emit gui->messageSig(LOG_STATUS, message);
+  emit gui->messageSig(LOG_INFO, message);
 #endif
 
   povray.start(Preferences::povrayExe,povArguments);
@@ -629,7 +629,7 @@ int POVRay::renderPli(
 #ifdef QT_DEBUG_MODE
       qDebug() << qPrintable(message);
 #else
-      emit gui->messageSig(LOG_STATUS, message);
+      emit gui->messageSig(LOG_INFO, message);
 #endif
 
       ldview.start(Preferences::ldviewExe,arguments);
@@ -737,7 +737,7 @@ int POVRay::renderPli(
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
-  emit gui->messageSig(LOG_STATUS, message);
+  emit gui->messageSig(LOG_INFO, message);
 #endif
 
   povray.start(Preferences::povrayExe, povArguments);
@@ -868,7 +868,7 @@ int LDGLite::renderCsi(
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
-  emit gui->messageSig(LOG_STATUS, message);
+  emit gui->messageSig(LOG_INFO, message);
 #endif
 
   ldglite.start(Preferences::ldgliteExe,arguments);
@@ -968,7 +968,7 @@ int LDGLite::renderPli(
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
 #else
-  emit gui->messageSig(LOG_STATUS, message);
+  emit gui->messageSig(LOG_INFO, message);
 #endif
 
   ldglite.start(Preferences::ldgliteExe,arguments);
