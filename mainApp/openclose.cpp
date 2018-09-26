@@ -33,7 +33,6 @@
 void Gui::open()
 {  
   if (maybeSave()) {
-    timer.start();
     QSettings Settings;
     QString modelDir;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"ProjectsPath"))) {
@@ -47,6 +46,8 @@ void Gui::open()
       tr("Open LDraw File"),
       modelDir,
       tr("LDraw Files (*.dat *.ldr *.mpd)"));
+
+    timer.start();
 
     QFileInfo fileInfo(fileName);
     if (fileInfo.exists()) {

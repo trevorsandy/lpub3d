@@ -237,6 +237,7 @@ void Gui::displayPage()
 {
   emit messageSig(LOG_STATUS, "Processing page display...");
 
+  timer.start();
   if (macroNesting == 0) {
       clearPage(KpageView,KpageScene);
       page.coverPage = false;
@@ -245,7 +246,8 @@ void Gui::displayPage()
       enableActions2();
       emit enable3DActionsSig();
     }
-  emit messageSig(LOG_STATUS,"Page display ready.");
+  emit messageSig(LOG_STATUS,QString("Page loaded%1.")
+                  .arg(Preferences::modeGUI ? QString(". %1").arg(gui->elapsedTime(timer.elapsed())) : ""));
 }
 
 void Gui::nextPage()
@@ -2731,13 +2733,13 @@ void Gui::createActions()
 
     nextPageContinuousAct = new QAction(QIcon(":/resources/nextpagecontinuous.png"),tr("Continuous Next Page"),this);
     nextPageContinuousAct->setShortcut(tr("Ctrl+Shift+N"));
-    nextPageContinuousAct->setStatusTip(tr("Continuously process next document page - Ctrl+Shift+N"));
+    nextPageContinuousAct->setStatusTip(tr("Continuously process next page to end of document - Ctrl+Shift+N"));
     nextPageContinuousAct->setEnabled(false);
     connect(nextPageContinuousAct, SIGNAL(triggered()), this, SLOT(nextPageContinuous()));
 
     previousPageContinuousAct = new QAction(QIcon(":/resources/prevpagecontinuous.png"),tr("Continuous Previous Page"),this);
     previousPageContinuousAct->setShortcut(tr("Ctrl+Shift+E"));
-    previousPageContinuousAct->setStatusTip(tr("Continuously process previous document page - Ctrl+Shift+E"));
+    previousPageContinuousAct->setStatusTip(tr("Continuously process previous page to start of document - Ctrl+Shift+E"));
     previousPageContinuousAct->setEnabled(false);
     connect(previousPageContinuousAct, SIGNAL(triggered()), this, SLOT(previousPageContinuous()));
 

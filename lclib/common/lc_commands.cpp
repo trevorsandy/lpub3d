@@ -567,7 +567,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
     // LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW
     {
         QT_TRANSLATE_NOOP("Action","Edit.Ldraw.Coord.Format"),
-        QT_TRANSLATE_NOOP("Menu", "Set LDraw XYZ Foramt"),
+        QT_TRANSLATE_NOOP("Menu", "Set LDraw XYZ Format"),
         QT_TRANSLATE_NOOP("Status", "Enter rotation using LDraw XYZ coordinates - Shift+L"),
         QT_TRANSLATE_NOOP("Shortcut", "Shift+L")
     },

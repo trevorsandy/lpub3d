@@ -176,7 +176,7 @@ enum Theme { ThemeDark, ThemeDefault };
 #define THEME_HIGHLIGHT_01_DEFAULT      "#006325" // Qt 01 Dark green
 #define THEME_HIGHLIGHT_02_DEFAULT      "#14148c" // Qt 02 Dark blue
 #define THEME_HIGHLIGHT_03_DEFAULT      "#800000" // Qt 03 Dark Red
-#define THEME_HIGHLIGHT_04_DEFAULT      "#14aaff" // Qt 04 Blue
+#define THEME_HIGHLIGHT_04_DEFAULT      "#0000FF" // Qt 04 Blue
 #define THEME_HIGHLIGHT_05_DEFAULT      "#b40000" // Qt 05 Red
 
 #define THEME_DARK                      "Dark"    // Dark Theme

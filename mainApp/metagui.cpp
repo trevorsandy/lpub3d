@@ -1757,11 +1757,11 @@ BackgroundGui::BackgroundGui(
   fill->setLayout(layout);
   grid->addWidget(fill,2,0,1,3);
 
-  stretchRadio = new QRadioButton("Stretch Picture",parent);
+  stretchRadio = new QRadioButton("Stretch Picture",fill);
   connect(stretchRadio,SIGNAL(clicked(bool)),
           this,        SLOT(  stretch(bool)));
   layout->addWidget(stretchRadio);
-  tileRadio    = new QRadioButton("Tile Picture",parent);
+  tileRadio    = new QRadioButton("Tile Picture",fill);
   connect(tileRadio,SIGNAL(clicked(bool)),
           this,     SLOT(  stretch(bool)));
   layout->addWidget(tileRadio);
