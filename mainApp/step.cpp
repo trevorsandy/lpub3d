@@ -275,13 +275,16 @@ int Step::createCsi(
       if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts)) != 0)
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to rotate viewer CSI parts"));
 
-      // header and closing meta
-      rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(top.modelName));
-      rotatedParts.prepend(QString("0 FILE %1").arg(top.modelName));
-      rotatedParts.append("0 NOFILE");
-
       // add ROTSTEP command
       rotatedParts.prepend(renderer->getRotstepMeta(meta.rotStep));
+
+      // header and closing meta
+      QString modelName = QFileInfo(top.modelName).baseName().toLower();
+      modelName = modelName.replace(modelName.at(0),modelName.at(0).toUpper());
+      rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1%2").arg(modelName).arg(modelDisplayOnlyStep ? " (Final Model)" : ""));
+      rotatedParts.prepend(QString("0 %1%2").arg(modelName).arg(modelDisplayOnlyStep ? " (Final Model)" : ""));
+      rotatedParts.prepend(QString("0 FILE %1").arg(top.modelName));
+      rotatedParts.append("0 NOFILE");
 
       // consolidate subfiles and parts into single file - I don't think this is still needed but I keep it anyway
       createViewerCSI(rotatedParts, doFadeStep, doHighlightStep);
@@ -468,8 +471,11 @@ int Step::mergeViewerCSISubModels(QStringList &subModels,
                           csiSubModels[index]);
 
           /* initialize the working submodel file - define header. */
-          csiSubModelParts << "0 FILE " + csiSubModels[index];
-          csiSubModelParts << "0 !LEOCAD MODEL NAME " + csiSubModels[index];
+          QString modelName = QFileInfo(csiSubModels[index]).baseName().toLower();
+          modelName = modelName.replace(modelName.at(0),modelName.at(0).toUpper());
+          csiSubModelParts << QString("0 FILE %1").arg(csiSubModels[index]);
+          csiSubModelParts << QString("0 %1").arg(modelName);
+          csiSubModelParts << QString("0 !LEOCAD MODEL NAME %1").arg(modelName);
 
           /* read the actual submodel file */
           QFile ldrfile(ldrName);

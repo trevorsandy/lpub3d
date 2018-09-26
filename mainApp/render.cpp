@@ -1646,7 +1646,7 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiName)
 
 #ifdef QT_DEBUG_MODE
     QFileInfo outFileInfo(FileName);
-    QString outfileName = QString("%1/%2_%3.ldr")
+    QString outfileName = QString("%1/viewer_%2_%3.ldr")
             .arg(outFileInfo.absolutePath())
             .arg(outFileInfo.baseName().replace(".ldr",""))
             .arg(QString(viewerCsiName).replace(";","_"));

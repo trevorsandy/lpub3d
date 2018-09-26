@@ -900,6 +900,7 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
 
     QList<QString> bannerData;
     bannerData << "0 FILE printbanner.ldr";
+    bannerData << "0 Print Banner";
     bannerData << "0 Name: printbanner.ldr";
     bannerData << "0 Author: Trevor SANDY";
     bannerData << "0 Unofficial Model";

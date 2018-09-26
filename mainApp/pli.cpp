@@ -596,9 +596,12 @@ int Pli::createPartImage(
                         highlightStep);
             QTextStream out(&part);
             if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+                QString modelName = QFileInfo(type).baseName().toLower();
+                modelName = modelName.replace(modelName.at(0),modelName.at(0).toUpper());
+                out << QString("0 FILE %1").arg(type) << endl;
+                out << QString("0 %1").arg(modelName) << endl;
+                out << QString("0 !LEOCAD MODEL NAME %1.ldr").arg(modelName) << endl;
                 out << renderer->getRotstepMeta(meta->rotStep) << endl;
-                out << QString("0 FILE %1.ldr").arg(partialKey) << endl;
-                out << QString("0 !LEOCAD MODEL NAME %1.ldr").arg(partialKey) << endl;
 
                 foreach (QString line, pliFile)
                     out << line << endl;

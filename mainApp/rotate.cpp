@@ -180,9 +180,13 @@ int Render::rotateParts(
 
   out << rotsComment << endl;
 
-  if (nativeRenderer)
-      out << "0 FILE " + modelName + "\n"
-             "0 !LEOCAD MODEL NAME " + modelName << endl;
+  if (nativeRenderer) {
+      QString _modelName = QFileInfo(modelName).baseName().toLower();
+      _modelName = _modelName.replace(_modelName.at(0),_modelName.at(0).toUpper());
+      out << "0 FILE " + modelName << endl;
+      out << "0 " + _modelName << endl;
+      out << "0 !LEOCAD MODEL NAME " + _modelName << endl;
+  }
 
   for (int i = 0; i < rotatedParts.size(); i++) {
     QString line = rotatedParts[i];
