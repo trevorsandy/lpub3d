@@ -28,6 +28,7 @@ HEADERS += \
     $$PWD/common/lc_scene.h \
     $$PWD/common/lc_selectbycolordialog.h \
     $$PWD/common/lc_shortcuts.h \
+    $$PWD/common/lc_stringcache.h \
     $$PWD/common/lc_synth.h \
     $$PWD/common/lc_texture.h \
     $$PWD/common/lc_viewcube.h \	
@@ -85,9 +86,10 @@ SOURCES +=  \
     $$PWD/common/lc_scene.cpp \
     $$PWD/common/lc_selectbycolordialog.cpp \
     $$PWD/common/lc_shortcuts.cpp \
+    $$PWD/common/lc_stringcache.cpp \
     $$PWD/common/lc_synth.cpp \
     $$PWD/common/lc_texture.cpp \
-	$$PWD/common/lc_viewcube.cpp \	
+    $$PWD/common/lc_viewcube.cpp \
     $$PWD/common/lc_timelinewidget.cpp \
     $$PWD/common/lc_zipfile.cpp \
     $$PWD/common/light.cpp \

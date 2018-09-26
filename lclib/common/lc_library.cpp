@@ -964,7 +964,9 @@ bool lcPiecesLibrary::ReadArchiveCacheFile(const QString& FileName, lcMemFile& C
 			{
 			case Z_NEED_DICT:
 				ret = Z_DATA_ERROR;
+                Q_FALLTHROUGH();
 			case Z_DATA_ERROR:
+                Q_FALLTHROUGH();
 			case Z_MEM_ERROR:
 				(void)inflateEnd(&strm);
 				return ret;
@@ -2768,6 +2770,7 @@ void lcLibraryMeshData::AddLine(lcMeshDataType MeshDataType, int LineType, quint
 				Section->mIndices.Add(Indices[2]);
 			}
 		}
+        Q_FALLTHROUGH();
 
 	case 3:
 		if (Indices[0] != Indices[1] && Indices[0] != Indices[2] && Indices[1] != Indices[2])
@@ -2964,6 +2967,8 @@ void lcLibraryMeshData::AddTexturedLine(lcMeshDataType MeshDataType, int LineTyp
 				Section->mIndices.Add(Indices[2]);
 			}
 		}
+        Q_FALLTHROUGH();
+
 	case 3:
 		if (Indices[0] != Indices[1] && Indices[0] != Indices[2] && Indices[1] != Indices[2])
 		{

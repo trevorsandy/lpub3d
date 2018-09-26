@@ -2,7 +2,7 @@
 #include "lc_viewcube.h"
 #include "view.h"
 #include "lc_context.h"
-#include "texfont.h"
+#include "lc_stringcache.h"
 #include "lc_application.h"
 
 //todo: move these
@@ -185,31 +185,38 @@ void lcViewCube::Draw()
 		Context->DrawIndexedPrimitives(GL_TRIANGLES, 18, GL_UNSIGNED_SHORT, First * 2);
 	}
 
-	glDisable(GL_CULL_FACE);
 	glDepthFunc(GL_LEQUAL);
 
 	Context->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
 	Context->DrawIndexedPrimitives(GL_LINES, 24, GL_UNSIGNED_SHORT, (36 + 144 + 144) * 2);
 
 	Context->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_MODULATE);
-	Context->BindTexture2D(gTexFont.GetTexture());
 	glEnable(GL_BLEND);
+	glDepthFunc(GL_ALWAYS);
 
-	const char* ViewNames[6] = { "Front", "Back", "Top", "Bottom", "Left", "Right" };
+	QStringList ViewNames =
+	{
+		QT_TRANSLATE_NOOP("ViewName", "Front"),
+		QT_TRANSLATE_NOOP("ViewName", "Back"),
+		QT_TRANSLATE_NOOP("ViewName", "Top"),
+		QT_TRANSLATE_NOOP("ViewName", "Bottom"),
+		QT_TRANSLATE_NOOP("ViewName", "Left"),
+		QT_TRANSLATE_NOOP("ViewName", "Right")
+	};
 
 	int MaxText = 0;
 
 	for (int FaceIdx = 0; FaceIdx < 6; FaceIdx++)
 	{
 		int Width, Height;
-		gTexFont.GetStringDimensions(&Width, &Height, ViewNames[FaceIdx]);
+		gStringCache.GetStringDimensions(&Width, &Height, ViewNames[FaceIdx]);
 		if (Width > MaxText)
 			MaxText = Width;
 		if (Height > MaxText)
 			MaxText = Height;
 	}
 
-    float Scale = BoxSize * 4.0f / 3.0f / (float)MaxText;
+	float Scale = BoxSize * 4.0f / 3.0f / (float)MaxText;
 
 	lcMatrix44 ViewMatrices[6] =
 	{
@@ -221,23 +228,12 @@ void lcViewCube::Draw()
 		lcMatrix44(lcVector4(0.0f, -Scale, 0.0f, 0.0f), lcVector4(0.0f,  0.0f, Scale, 0.0f), lcVector4(1.0f, 0.0f, 0.0f, 0.0f), lcVector4(-BoxSize - 0.01f, 0.0f, 0.0f, 1.0f))
 	};
 
-	float TextBuffer[256 * 5 * 3];
-	int CharsWritten = 0;
-
-	for (int FaceIdx = 0; FaceIdx < 6; FaceIdx++)
-	{
-		const char* ViewName = ViewNames[FaceIdx];
-		gTexFont.GetTriangles(ViewMatrices[FaceIdx], ViewName, TextBuffer + CharsWritten * 2 * 3 * 5);
-		CharsWritten += strlen(ViewName);
-	}
-
-	Context->SetVertexBufferPointer(TextBuffer);
-	Context->SetVertexFormat(0, 3, 0, 2, 0, false);
-
-	Context->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
-	Context->DrawPrimitives(GL_TRIANGLES, 0, CharsWritten * 2 * 3);
+	gStringCache.CacheStrings(Context, ViewNames);
+	gStringCache.DrawStrings(Context, ViewMatrices, ViewNames);
 
 	glDisable(GL_BLEND);
+	glDisable(GL_CULL_FACE);
+	glDepthFunc(GL_LEQUAL);
 
 	Context->SetViewport(0, 0, Width, Height);
 }
@@ -247,6 +243,8 @@ bool lcViewCube::OnLeftButtonDown()
 	const lcPreferences& Preferences = lcGetPreferences();
 	if (Preferences.mViewCubeLocation == lcViewCubeLocation::DISABLED)
 		return false;
+
+	mIntersectionFlags = GetIntersectionFlags(mIntersection);
 
 	if (!mIntersectionFlags.any())
 		return false;
@@ -277,9 +275,9 @@ bool lcViewCube::OnLeftButtonUp()
 	for (int AxisIdx = 0; AxisIdx < 3; AxisIdx++)
 	{
 		if (mIntersectionFlags.test(AxisIdx * 2))
-			Position[AxisIdx] = 250.0f;
+			Position[AxisIdx] = 1250.0f;
 		else if (mIntersectionFlags.test(AxisIdx * 2 + 1))
-			Position[AxisIdx] = -250.0f;
+			Position[AxisIdx] = -1250.0f;
 	}
 
 	mView->SetViewpoint(Position);
@@ -295,19 +293,36 @@ bool lcViewCube::OnMouseMove()
 	if (Location == lcViewCubeLocation::DISABLED)
 		return false;
 
-	if (mMouseDown)
+	if (IsDragging())
 	{
-		if (qAbs(mMouseDownX - mView->mInputState.x) > 3 || qAbs(mMouseDownY - mView->mInputState.y) > 3)
-		{
-			mIntersectionFlags.reset();
-			mMouseDown = false;
-			mView->StartOrbitTracking();
-			return true;
-		}
+		mIntersectionFlags.reset();
+		mView->StartOrbitTracking();
+		return true;
 	}
 
 	if (mView->IsTracking())
 		return false;
+
+	std::bitset<6> IntersectionFlags = GetIntersectionFlags(mIntersection);
+
+	if (IntersectionFlags != mIntersectionFlags)
+	{
+		mIntersectionFlags = IntersectionFlags;
+		mView->Redraw();
+	}
+
+	return mIntersectionFlags.any();
+}
+
+bool lcViewCube::IsDragging() const
+{
+	return mMouseDown && (qAbs(mMouseDownX - mView->mInputState.x) > 3 || qAbs(mMouseDownY - mView->mInputState.y) > 3);
+}
+
+std::bitset<6> lcViewCube::GetIntersectionFlags(lcVector3& Intersection) const
+{
+	const lcPreferences& Preferences = lcGetPreferences();
+	lcViewCubeLocation Location = Preferences.mViewCubeLocation;
 
 	int Width = mView->mWidth;
 	int Height = mView->mHeight;
@@ -316,26 +331,18 @@ bool lcViewCube::OnMouseMove()
 	int Bottom = (Location == lcViewCubeLocation::BOTTOM_LEFT || Location == lcViewCubeLocation::BOTTOM_RIGHT) ? 0 : Height - ViewportSize;
 	int x = mView->mInputState.x - Left;
 	int y = mView->mInputState.y - Bottom;
+	std::bitset<6> IntersectionFlags;
 
 	if (x < 0 || x > Width || y < 0 || y > Height)
-	{
-		if (mIntersectionFlags.any())
-		{
-			mIntersectionFlags.reset();
-			mView->Redraw();
-		}
-
-		return false;
-	}
+		return IntersectionFlags;
 
 	lcVector3 StartEnd[2] = { lcVector3(x, y, 0), lcVector3(x, y, 1) };
 	const int Viewport[4] = { 0, 0, ViewportSize, ViewportSize };
 
 	lcUnprojectPoints(StartEnd, 2, GetViewMatrix(), GetProjectionMatrix(), Viewport);
-	std::bitset<6> IntersectionFlags;
 
 	float Distance;
-	if (lcBoundingBoxRayIntersectDistance(lcVector3(-BoxSize, -BoxSize, -BoxSize), lcVector3(BoxSize, BoxSize, BoxSize), StartEnd[0], StartEnd[1], &Distance, &mIntersection))
+	if (lcBoundingBoxRayIntersectDistance(lcVector3(-BoxSize, -BoxSize, -BoxSize), lcVector3(BoxSize, BoxSize, BoxSize), StartEnd[0], StartEnd[1], &Distance, &Intersection))
 	{
 		for (int AxisIdx = 0; AxisIdx < 3; AxisIdx++)
 		{
@@ -346,11 +353,5 @@ bool lcViewCube::OnMouseMove()
 		}
 	}
 
-	if (IntersectionFlags != mIntersectionFlags)
-	{
-		mIntersectionFlags = IntersectionFlags;
-		mView->Redraw();
-	}
-
-	return true;
+	return IntersectionFlags;
 }

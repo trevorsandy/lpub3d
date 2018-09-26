@@ -2824,7 +2824,7 @@ void MetaItem::addCalloutMetas(
    * We also want to scan backward for the same submodel.
    *
    * In either direction, we need to stop on STEP/ROTSTEP.  We also need
-   * top stop on other sub-models, or mirror images of the same sub-model.
+   * to stop on other sub-models, or mirror images of the same sub-model.
    */
 
   int instanceCount = 0;
@@ -2936,9 +2936,11 @@ void MetaItem::addCalloutMetas(
       QStringList argv;
       split(firstLine,argv);
       QPointF offset = defaultPointerTip(*meta,
-                                   walk.modelName, firstInstance.lineNumber,
-                                   modelName, i,
-                                   gui->isMirrored(argv));
+                                         walk.modelName,
+                                         firstInstance.lineNumber,
+                                         modelName,
+                                         i,
+                                         gui->isMirrored(argv));
 
       QString line = QString("%1 %2 0 0 0 0 0 0 1") .arg(offset.x()) .arg(offset.y());
 
@@ -3415,14 +3417,23 @@ QPointF MetaItem::defaultPointerTip(
     return pagePosition.center();
   }
 
+  /*
+   * Create a "blue" version of the called out assembly
+   */
+
   QString fileName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + argv[14];
   fileName = makeMonoName(fileName,blue);
   QString tmodelName = info.fileName();
-  monoColorSubmodel(tmodelName,fileName,blue); // create a blue version of the callout
+  monoColorSubmodel(tmodelName,fileName,blue);
   info.setFile(fileName);
   argv[1] = blue;
   argv[14] = info.fileName();
-  csiParts << argv.join(" ");  // add blue submodel to csiParts
+
+  /*
+   * Add blue submodel to csiParts
+   */
+
+  csiParts << argv.join(" ");
 
   QString addLine;
 
@@ -3440,6 +3451,10 @@ QPointF MetaItem::defaultPointerTip(
   } else {
     addLine = "1 0 0 0 0 1 0 0 0 1 0 0 0 1 " + modelName;
   }
+
+  /*
+   * Rotate and render white and blue matted image
+   */
 
   bool ok[2];
   QString pngName, ldrName;
@@ -3503,10 +3518,15 @@ QPointF MetaItem::defaultPointerTip(
       left = width/2;
       top  = height/2;
     }
-
+    emit gui->messageSig(LOG_INFO,QString("Model %1 default pointer tip position. (left[%2]/width[%3], top[%4]/height[%5]).")
+                                          .arg(modelName)
+                                          .arg(QString::number(left))
+                                          .arg(QString::number(width))
+                                          .arg(QString::number(top))
+                                          .arg(QString::number(height)));
     return QPointF(float(left)/width, float(top)/height);
   }
-  emit gui->messageSig(LOG_ERROR,QString("Render momo image for pointer tip failed."));
+  emit gui->messageSig(LOG_ERROR,QString("Render momo image for pointer tip location failed."));
   return pagePosition.center();
 }
 
