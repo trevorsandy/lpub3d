@@ -2673,19 +2673,22 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
     return contents;
   }
   // add the colour list to the header of the configuredContents
-  subfileColourList.toSet().toList();  // remove dupes
-
-  configuredContents.prepend("0");
-  for (int i = 0; i < subfileColourList.size(); ++i)
-    configuredContents.prepend(subfileColourList.at(i));
-  configuredContents.prepend("0 // LPub3D step custom colours");
-  configuredContents.prepend("0");
-
+  if (!subfileColourList.isEmpty()){
+      subfileColourList.toSet().toList();  // remove dupes
+      configuredContents.prepend("0");
+      for (int i = 0; i < subfileColourList.size(); ++i)
+          configuredContents.prepend(subfileColourList.at(i));
+      configuredContents.prepend("0 // LPub3D step custom colours");
+      configuredContents.prepend("0");
+  }
   return configuredContents;
 }
 
 /*
  * Process csiParts list - fade previous step-parts and or highlight current step-parts.
+ * To get the previous content position, take the previous cisFile file size.
+ * The csiFile entries are only parts with not formatting or meta commands so it is
+ * well suited to provide the delta between steps.
  */
 QStringList Gui::configureModelStep(const QStringList &csiParts, const int &stepNum,  Where &current) {
 
@@ -2699,9 +2702,13 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
 
       QString fadeColour  = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
 
+      // retrieve the previous step position
       int prevStepPosition = ldrawFile.getPrevStepPosition(current.modelName);
       if (prevStepPosition == 0 && savePrevStepPosition > 0)
           prevStepPosition = savePrevStepPosition;
+
+      // save the current step position
+      ldrawFile.setPrevStepPosition(current.modelName,csiParts.size());
 
       //qDebug() << "Model:" << current.modelName << ", Step:"  << stepNum << ", PrevStep Get Previous Step Position:" << prevStepPosition
       //         << ", CSI Size:" << csiParts.size() << ", Model Size:"  << ldrawFile.size(current.modelName);
@@ -2841,19 +2848,18 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
           }
         }
     } else {
-      // no fade step action required so return
-      ldrawFile.setPrevStepPosition(current.modelName,csiParts.size());
       return csiParts;
     }
-  ldrawFile.setPrevStepPosition(current.modelName,configuredCsiParts.size());
 
   // add the fade colour list to the header of the CsiParts list
-  stepColourList.toSet().toList();  // remove dupes
-  configuredCsiParts.prepend("0");
-  for (int i = 0; i < stepColourList.size(); ++i)
-    configuredCsiParts.prepend(stepColourList.at(i));
-  configuredCsiParts.prepend("0 // LPub3D step custom colours");
-  configuredCsiParts.prepend("0");
+  if (!stepColourList.isEmpty()){
+      stepColourList.toSet().toList();  // remove dupes
+      configuredCsiParts.prepend("0");
+      for (int i = 0; i < stepColourList.size(); ++i)
+        configuredCsiParts.prepend(stepColourList.at(i));
+      configuredCsiParts.prepend("0 // LPub3D step custom colours");
+      configuredCsiParts.prepend("0");
+  }
 
   return configuredCsiParts;
 }
