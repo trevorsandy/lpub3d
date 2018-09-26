@@ -443,6 +443,7 @@ public:
   int             processOption;     // export Option
   int             pageDirection;    // continusou page processing direction
   QString         pageRangeText;    // page range parameters
+  bool            subModelImagesLoaded; // load submodel images
   bool            resetCache;       // reset model, fade and highlight parts
   QString         saveFileName;      // user specified output file Name [commandline only]
   QString         saveDirectoryName; // user specified output directory name [commandline only]
@@ -488,6 +489,10 @@ public:
   QStringList fileList()
   {
     return ldrawFile.subFileOrder();
+  }
+  bool changedSinceLastWrite(QString &modelName)
+  {
+      return ldrawFile.changedSinceLastWrite(modelName);
   }
   int subFileSize(const QString &modelName)
   {
@@ -678,8 +683,9 @@ public slots:
 
   void setPliIconPath(QString& key, QString& value)
   {
-      if (!mPliIconsPath.contains(key))
+      if (!mPliIconsPath.contains(key)) {
           mPliIconsPath.insert(key,value);
+      }
   }
 
   lcVector3 GetRotStepMeta() const
@@ -882,6 +888,7 @@ public:
   PartWorker            *partWorkerCustomColour;      // part worker to process colour part fade and or highlight
   ColourPartListWorker  *colourPartListWorker;        // create static colour parts list in separate thread
   ParmsWindow           *parmsWindow;                 // the parametrer file editor
+  Preferences            lpub3dPreferences;           // lpub3D Preferences
 
 protected:
   // capture camera rotation from 3DViewer module
@@ -1342,6 +1349,11 @@ public:
 };
 
 extern class Gui *gui;
+
+inline Preferences& lpub3DGetPreferences()
+{
+    return gui->lpub3dPreferences;
+}
 
 void clearPliCache();
 void clearCsiCache();

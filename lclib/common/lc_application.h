@@ -85,13 +85,17 @@ public:
 	void SetClipboard(const QByteArray& Clipboard);
 	void ExportClipboard(const QByteArray& Clipboard);
 
+/*** LPub3D Mod - process fade parts ***/
+    bool HighlightStep();
+    bool FadePreviousSteps();
+    bool UseFadeColour();
+    QString FadeColour();
+/*** LPub3D Mod end ***/
+
 	Project* mProject;
 	lcPiecesLibrary* mLibrary;
 	lcPreferences mPreferences;
 	QByteArray mClipboard;
-/*** LPub3D Mod - process fade parts ***/
-	bool mFadeParts;
-/*** LPub3D Mod end ***/
 
 protected:
 	QString GetTabLayoutKey() const;

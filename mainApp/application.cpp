@@ -594,5 +594,8 @@ void restartApplication()
     gui->restartApplication();
 }
 
+void messageSig(LogType logType, QString message){
+    gui->messageSig(logType, message);
+}
 // Implements the main function here.
 ENTRY_POINT

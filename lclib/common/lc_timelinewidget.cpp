@@ -105,7 +105,7 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 
 	for (unsigned int TopLevelItemIdx = topLevelItemCount(); TopLevelItemIdx < LastStep; TopLevelItemIdx++)
 	{
-/*** LPub3D Mod - Set timeline title to loaded model name ***/
+/*** LPub3D Mod - Set Timeline title to loaded model name ***/
         QTreeWidgetItem* StepItem = new QTreeWidgetItem(this, QStringList(Model->GetName()));
  /*** LPub3D Mod end ***/
 		StepItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsDropEnabled);
@@ -174,7 +174,7 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 						PieceParent->removeChild(PieceItem);
 
 					StepItem->insertChild(PieceItemIndex, PieceItem);
-				}
+                }
 			}
 		}
 
@@ -188,23 +188,45 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 
 /*** LPub3D Mod - Timeline part icons ***/
             if (lcGetPreferences().mViewPieceIcons) {
-                QString IconUID = QString("%1_%2")
-                        .arg(QFileInfo(Piece->GetID()).baseName())
-                        .arg(Piece->mColorCode);
-                if (GetPieceIcon(Size, IconUID)) {
-                    PieceItem->setIcon(0, mPieceIcons[IconUID]);
+
+                bool IsModel = Piece->mPieceInfo->IsModel();
+                QString baseName = QFileInfo(Piece->GetID()).baseName();
+                bool fPiece = (baseName.right(4) == QString("fade"));
+                bool hPiece = (baseName.right(9) == QString("highlight"));
+
+                QString IconUID;
+                if (IsModel || fPiece || hPiece) {
+                    bool fColor = gApplication->UseFadeColour();
+                    IconUID = QString("%1_%2").arg(baseName).toLower()
+                                              .arg((fPiece ? QString("100") + (fColor ? gMainWindow->GetFadeStepsColor() : QString("0")) :
+                                                   (hPiece ? QString("1100") : QString("0"))));
                 } else {
+                    IconUID = QString("%1_%2").arg(baseName).arg(Piece->mColorCode);
+                }
+
+                if (GetPieceIcon(Size, IconUID)) {
+
+                    PieceItem->setIcon(0, mPieceIcons[IconUID]);
+
+                } else {
+
                     GetIcon(Size,ColorIndex);
                     PieceItem->setIcon(0, mIcons[ColorIndex]);
-                    qDebug() << qPrintable(QString(" ALERT - Could Not Insert Piece Icon - UID [%1]").arg(IconUID));
+
+                    fprintf(stdout, "%s\n",QString(QString("ALERT - Could Not Insert %1 Icon - UID [%2]")
+                                                           .arg(IsModel ? "Submodel" : "Piece")
+                                                           .arg(IconUID)).toLatin1().constData());
+                    fflush(stdout);
                 }
+
             } else {
+
                 GetIcon(Size,ColorIndex);
                 PieceItem->setIcon(0, mIcons[ColorIndex]);
             }
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - Set color only if hidden otherwise use default ***/
+/*** LPub3D Mod - Set color only if hidden otherwise use default - original behaviour not playing well with Dark Theme ***/
 			if (Piece->IsHidden()) {
 			    QColor Color = PieceItem->textColor(0);
 			    Color.setAlpha(128);

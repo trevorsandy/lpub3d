@@ -65,7 +65,7 @@ class PliBackgroundItem;
 
 class PliPart {
   public:
-    // where the exist in an LDraw file
+    // where the file exist in an LDraw file
     QList<Where>         instances; 
     QString              type;
     QString              color;
@@ -151,6 +151,7 @@ class Pli : public Placement {
     PliBackgroundItem *background;
     bool               bom;
     bool               splitBom;
+    bool               isSubModel;
     PliMeta            pliMeta;
     Meta              *meta;
     Steps             *steps;   // topOfSteps()
@@ -222,7 +223,8 @@ class Pli : public Placement {
     int  createPartImage(QString &, QString &, QString &, QPixmap*);
     int  createPartImagesLDViewSCall(QStringList &, bool);      //LDView performance improvement
     QString orient(QString &color, QString part);
-    QStringList configurePLIPart(QString &,QString &,bool,bool,bool,bool);
+    QStringList configurePLIPart(QString &,QString &,PartType,bool,bool);
+    int createPartImages();
 
     void operator= (Pli& from)
     {

@@ -270,7 +270,7 @@ void lcScene::Draw(lcContext* Context) const
 	else if (ShadingMode == LC_SHADING_FLAT)
 	{
 		bool DrawLines = Preferences.mDrawEdgeLines && Preferences.mLineWidth != 0.0f;
-		bool DoFade = gApplication->mFadeParts && !mTranslucentMeshes.IsEmpty();
+        bool DoFade = gApplication->FadePreviousSteps() && !mTranslucentMeshes.IsEmpty();
 
 		Context->BindTexture2D(0);
 
@@ -390,7 +390,7 @@ void lcScene::Draw(lcContext* Context) const
 	else
 	{
 		bool DrawLines = Preferences.mDrawEdgeLines && Preferences.mLineWidth != 0.0f;
-		bool DoFade = gApplication->mFadeParts && !mTranslucentMeshes.IsEmpty();
+        bool DoFade = gApplication->FadePreviousSteps() && !mTranslucentMeshes.IsEmpty();
 
 		Context->BindTexture2D(0);
 

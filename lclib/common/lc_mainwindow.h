@@ -332,6 +332,7 @@ public:
 	void UpdateShortcuts();
 /*** LPub3D Mod - Timeline part icons ***/
     const QString GetPliIconsPath(QString &key);
+    const QString GetFadeStepsColor();
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Roate Angles ***/
 	void GetRotStepMetaAngles();

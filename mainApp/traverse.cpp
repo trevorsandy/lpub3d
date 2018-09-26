@@ -2529,11 +2529,12 @@ void Gui::writeToTmp()
         emit progressPermSetValueSig(i);
 
       content = ldrawFile.contents(fileName);
+
       if (ldrawFile.changedSinceLastWrite(fileName)) {
           // write normal submodels...
           upToDate = false;
-          writeToTmp(fileName,content);
           emit messageSig(LOG_STATUS, "Writing submodel to temp directory: " + fileName);
+          writeToTmp(fileName,content);
 
           // capture file name extensions
           QString extension = QFileInfo(fileName).suffix().toLower();
@@ -2552,9 +2553,9 @@ void Gui::writeToTmp()
               fadeFileName = fadeFileName.replace(".dat", "-fade.dat");
             }
             /* Faded version of submodels */
+            emit messageSig(LOG_STATUS, "Writing fade submodels to temp directory: " + fadeFileName);
             configuredContent = configureModelSubFile(content, fadeColor, FADE_PART);
             writeToTmp(fadeFileName,configuredContent);
-            emit messageSig(LOG_STATUS, "Writing fade submodels to temp directory: " + fadeFileName);
           }
           // write configured (Highlight) submodels
           if (doHighlightStep) {
@@ -2567,12 +2568,20 @@ void Gui::writeToTmp()
               highlightFileName = highlightFileName.replace(".dat", "-highlight.dat");
             }
             /* Highlighted version of submodels */
+            emit messageSig(LOG_STATUS, "Writing highlight submodel to temp directory: " + highlightFileName);
             configuredContent = configureModelSubFile(content, fadeColor, HIGHLIGHT_PART);
             writeToTmp(highlightFileName,configuredContent);
-            emit messageSig(LOG_STATUS, "Writing highlight submodel to temp directory: " + highlightFileName);
           }
       }
   }
+  if (Preferences::modeGUI && !subModelImagesLoaded) {
+      // generate submodel images...
+      emit messageSig(LOG_STATUS, "Creating submodel images in parts subfolder...");
+      Pli pli;
+      pli.createPartImages();
+      subModelImagesLoaded = true;
+  }
+
   if (! exporting()) {
       emit progressPermSetValueSig(ldrawFile._subFileOrder.size());
       emit progressPermStatusRemoveSig();

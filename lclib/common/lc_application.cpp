@@ -99,11 +99,22 @@ lcApplication::lcApplication()
     mLibrary = nullptr;
 
     mPreferences.LoadDefaults();
-
-/*** LPub3D Mod - initialize fade var ***/
-    mFadeParts = Preferences::enableFadeSteps;
-/*** LPub3D Mod end ***/
 }
+
+/*** LPub3D Mod - initialize fade vars ***/
+    bool lcApplication::HighlightStep(){
+        return Preferences::enableHighlightStep;
+    }
+    bool lcApplication::FadePreviousSteps(){
+        return Preferences::enableFadeSteps;
+    }
+    bool lcApplication::UseFadeColour(){
+        return Preferences::fadeStepsUseColour;
+    }
+    QString lcApplication::FadeColour(){
+        return gMainWindow->GetFadeStepsColor();
+    }
+/*** LPub3D Mod end ***/
 
 lcApplication::~lcApplication()
 {

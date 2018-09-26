@@ -1,3 +1,4 @@
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -1730,10 +1731,7 @@ void Gui::preferences()
         bool nativePovRendererConfig      = Preferences::preferredRenderer == RENDERER_POVRAY && Preferences::povFileGenerator == RENDERER_NATIVE;
 
         if (enableFadeStepsChanged)
-        {
-            gApplication->mFadeParts = Preferences::enableFadeSteps;
             emit messageSig(LOG_INFO,QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF"));
-        }
 
         if (fadeStepsUseColourChanged && Preferences::enableFadeSteps)
             emit messageSig(LOG_INFO,QString("Use Global Fade Colour is %1").arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
@@ -3553,6 +3551,16 @@ void Gui::statusMessage(LogType logType, QString message) {
                   }
 
             } else
+              if (logType == LOG_DEBUG) {
+
+                  logDebug() << message;
+
+                  if (!guiEnabled) {
+                      fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                      fflush(stdout);
+                  }
+
+                } else
               if (logType == LOG_INFO_STATUS) {
 
                   statusBarMsg(message);
