@@ -37,7 +37,7 @@ char* strlwr(char* string);
 #define LC_VERSION_PATCH 0
 #define LC_VERSION_TEXT "18.02"
 /*** LPub3D Mod - Git SHA ***/
-#define LC_VERSION_BUILD "39ff605"
+#define LC_VERSION_BUILD "7ba01db"
 /*** LPub3D Mod end ***/
 
 
